@@ -42,13 +42,13 @@ class LeastSquares : public LossFunction
         LeastSquares(){}
         ~LeastSquares(){}
 
-        Double_t target(Event* e)
+        Double_t target(Event* e) override
         {
         // Each tree fits the residuals when using LeastSquares.
         return e->trueValue - e->predictedValue;
         }
 
-        Double_t fit(std::vector<Event*>& v)
+        Double_t fit(std::vector<Event*>& v) override
         {
         // The average of the residuals minmizes the Loss Function for LS.
 
@@ -61,8 +61,8 @@ class LeastSquares : public LossFunction
     
             return SUM/v.size();
         }
-        std::string name() { return "Least_Squares"; }
-        int id(){ return 1; }
+        std::string name() override { return "Least_Squares"; }
+        int id() override{ return 1; }
        
 };
 
@@ -76,7 +76,7 @@ class AbsoluteDeviation : public LossFunction
         AbsoluteDeviation(){}
         ~AbsoluteDeviation(){}
 
-        Double_t target(Event* e)
+        Double_t target(Event* e) override
         {
         // The gradient.
             if ((e->trueValue - e->predictedValue) >= 0)
@@ -85,10 +85,10 @@ class AbsoluteDeviation : public LossFunction
                 return -1;
         }
 
-        Double_t fit(std::vector<Event*>& v)
+        Double_t fit(std::vector<Event*>& v) override
         {
         // The median of the residuals minimizes absolute deviation.
-            if(v.size()==0) return 0;
+            if(v.empty()) return 0;
             std::vector<Double_t> residuals(v.size());
        
             // Load the residuals into a vector. 
@@ -118,8 +118,8 @@ class AbsoluteDeviation : public LossFunction
                 return (high + low)/2;
             }
         }
-        std::string name() { return "Absolute_Deviation"; }
-        int id(){ return 2; }
+        std::string name() override { return "Absolute_Deviation"; }
+        int id() override{ return 2; }
 };
 
 // ========================================================
@@ -135,7 +135,7 @@ class Huber : public LossFunction
         double quantile;
         double residual_median;
 
-        Double_t target(Event* e)
+        Double_t target(Event* e) override
         {
         // The gradient of the loss function.
 
@@ -145,7 +145,7 @@ class Huber : public LossFunction
                 return quantile*(((e->trueValue - e->predictedValue) > 0)?1.0:-1.0);
         }
 
-        Double_t fit(std::vector<Event*>& v)
+        Double_t fit(std::vector<Event*>& v) override
         {
         // The constant fit that minimizes Huber in a region.
 
@@ -165,8 +165,8 @@ class Huber : public LossFunction
             
         }
 
-        std::string name() { return "Huber"; }
-        int id(){ return 3; }
+        std::string name() override { return "Huber"; }
+        int id() override{ return 3; }
 
         double calculateQuantile(std::vector<Event*>& v, double whichQuantile)
         {
@@ -196,13 +196,13 @@ class PercentErrorSquared : public LossFunction
         PercentErrorSquared(){}
         ~PercentErrorSquared(){}
 
-        Double_t target(Event* e)
+        Double_t target(Event* e) override
         {   
         // The gradient of the squared percent error.
             return (e->trueValue - e->predictedValue)/(e->trueValue * e->trueValue);
         }   
 
-        Double_t fit(std::vector<Event*>& v)
+        Double_t fit(std::vector<Event*>& v) override
         {   
         // The average of the weighted residuals minimizes the squared percent error.
         // Weight(i) = 1/true(i)^2. 
@@ -219,8 +219,8 @@ class PercentErrorSquared : public LossFunction
     
             return SUMtop/SUMbottom;
         }   
-        std::string name() { return "Percent_Error"; }
-        int id(){ return 4; }
+        std::string name() override { return "Percent_Error"; }
+        int id() override{ return 4; }
 };
 
 } // end of emtf namespace

@@ -95,7 +95,7 @@ Tree& Tree::operator=(const Tree &tree){
 Node* Tree::copyFrom(const Node *local_root)
 {
     // end-case
-    if( !local_root ) return 0;
+    if( !local_root ) return nullptr;
 
     Node *lr = const_cast<Node*>(local_root);
 
@@ -204,7 +204,7 @@ void Tree::buildTree(Int_t nodeLimit)
 {
     // We greedily pick the best terminal node to split.
     Double_t bestNodeErrorReduction = -1;
-    Node* nodeToSplit = 0;
+    Node* nodeToSplit = nullptr;
 
     if(numTerminalNodes == 1)
     {   
@@ -225,7 +225,7 @@ void Tree::buildTree(Int_t nodeLimit)
     //std::cout << "nodeToSplit size = " << nodeToSplit->getNumEvents() << std::endl;
 
     // If all of the nodes have one event we can't add any more nodes and reduce the error.
-    if(nodeToSplit == 0) return;
+    if(nodeToSplit == nullptr) return;
 
     // Create daughter nodes, and link the nodes together appropriately.
     nodeToSplit->theMiracleOfChildBirth();
@@ -285,7 +285,7 @@ void Tree::filterEventsRecursive(Node* node)
     Node* left = node->getLeftDaughter();
     Node* right = node->getRightDaughter();
 
-    if(left == 0 || right == 0) return;
+    if(left == nullptr || right == nullptr) return;
 
     node->filterEventsToDaughters();
 
@@ -314,7 +314,7 @@ Node* Tree::filterEventRecursive(Node* node, Event* e)
 
 
     Node* nextNode = node->filterEventToDaughter(e);
-    if(nextNode == 0) return node;
+    if(nextNode == nullptr) return node;
 
     return filterEventRecursive(nextNode, e);
 }
@@ -332,7 +332,7 @@ void Tree::rankVariablesRecursive(Node* node, std::vector<Double_t>& v)
     Node* right = node->getRightDaughter();
 
     // Terminal nodes don't contribute to error reduction.
-    if(left==0 || right==0) return;
+    if(left==nullptr || right==nullptr) return;
 
     Int_t sv =  node->getSplitVariable();
     Double_t er = node->getErrorReduction();
@@ -372,7 +372,7 @@ void Tree::getSplitValuesRecursive(Node* node, std::vector<std::vector<Double_t>
     Node* right = node->getRightDaughter();
 
     // Terminal nodes don't contribute.
-    if(left==0 || right==0) return;
+    if(left==nullptr || right==nullptr) return;
 
     Int_t sv =  node->getSplitVariable();
     Double_t sp = node->getSplitValue();
@@ -418,9 +418,9 @@ void Tree::addXMLAttributes(TXMLEngine* xml, Node* node, XMLNodePointer_t np)
 {
     // Convert Node members into XML attributes    
     // and add them to the XMLEngine.
-    xml->NewAttr(np, 0, "splitVar", numToStr(node->getSplitVariable()).c_str());
-    xml->NewAttr(np, 0, "splitVal", numToStr(node->getSplitValue()).c_str());
-    xml->NewAttr(np, 0, "fitVal", numToStr(node->getFitValue()).c_str());
+    xml->NewAttr(np, nullptr, "splitVar", numToStr(node->getSplitVariable()).c_str());
+    xml->NewAttr(np, nullptr, "splitVal", numToStr(node->getSplitValue()).c_str());
+    xml->NewAttr(np, nullptr, "fitVal", numToStr(node->getFitValue()).c_str());
 }
 
 // ----------------------------------------------------------------------
@@ -431,7 +431,7 @@ void Tree::saveToXML(const char* c)
     TXMLEngine* xml = new TXMLEngine();
 
     // Add the root node.
-    XMLNodePointer_t root = xml->NewChild(0, 0, rootNode->getName().c_str());
+    XMLNodePointer_t root = xml->NewChild(nullptr, nullptr, rootNode->getName().c_str());
     addXMLAttributes(xml, rootNode, root);
 
     // Recursively write the tree to XML.
@@ -456,11 +456,11 @@ void Tree::saveToXMLRecursive(TXMLEngine* xml, Node* node, XMLNodePointer_t np)
     Node* l = node->getLeftDaughter();
     Node* r = node->getRightDaughter();
 
-    if(l==0 || r==0) return;
+    if(l==nullptr || r==nullptr) return;
 
     // Add children to the XMLEngine. 
-    XMLNodePointer_t left = xml->NewChild(np, 0, "left");
-    XMLNodePointer_t right = xml->NewChild(np, 0, "right");
+    XMLNodePointer_t left = xml->NewChild(np, nullptr, "left");
+    XMLNodePointer_t right = xml->NewChild(np, nullptr, "right");
 
     // Add attributes to the children.
     addXMLAttributes(xml, l, left);
@@ -480,7 +480,7 @@ void Tree::loadFromXML(const char* filename)
 
     // Now try to parse xml file.
     XMLDocPointer_t xmldoc = xml->ParseFile(filename);
-    if (xmldoc==0)
+    if (xmldoc==nullptr)
     {
         delete xml;
         return;  
@@ -495,7 +495,7 @@ void Tree::loadFromXML(const char* filename)
     if( std::string("BinaryTree") == xml->GetNodeName(mainnode) ){
         XMLAttrPointer_t attr = xml->GetFirstAttr(mainnode);
         attr = xml->GetNextAttr(attr);
-        boostWeight = (attr ? strtod(xml->GetAttrValue(attr),NULL) : 0);
+        boostWeight = (attr ? strtod(xml->GetAttrValue(attr),nullptr) : 0);
         // step inside the top-level xml node
         mainnode = xml->GetChild(mainnode);
         xmlVersion = 2017;
@@ -566,7 +566,7 @@ void Tree::loadFromXMLRecursive(TXMLEngine* xml, XMLNodePointer_t xnode, Node* t
     XMLNodePointer_t xright = xml->GetNext(xleft);
 
     // If there are no daughters we are done.
-    if(xleft == 0 || xright == 0) return;
+    if(xleft == nullptr || xright == nullptr) return;
 
     // If there are daughters link the node objects appropriately.
     tnode->theMiracleOfChildBirth();

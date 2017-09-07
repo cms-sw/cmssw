@@ -32,9 +32,9 @@ using namespace emtf;
 Node::Node()
 {
     name = "";
-    leftDaughter = 0;
-    rightDaughter = 0;
-    parent = 0;
+    leftDaughter = nullptr;
+    rightDaughter = nullptr;
+    parent = nullptr;
     splitValue = -99;
     splitVariable = -1;
     avgError = -1;
@@ -45,9 +45,9 @@ Node::Node()
 Node::Node(std::string cName)
 {
     name = cName;
-    leftDaughter = 0;
-    rightDaughter = 0;
-    parent = 0;
+    leftDaughter = nullptr;
+    rightDaughter = nullptr;
+    parent = nullptr;
     splitValue = -99;
     splitVariable = -1;
     avgError = -1;
@@ -404,9 +404,9 @@ Node* Node::filterEventToDaughter(Event* e)
 
     Node* left = leftDaughter;
     Node* right = rightDaughter;
-    Node* nextNode = 0;
+    Node* nextNode = nullptr;
 
-    if(left ==0 || right ==0) return 0;
+    if(left ==nullptr || right ==nullptr) return nullptr;
 
     if(e->data[sv] <  sp) nextNode = left;
     if(e->data[sv] >= sp) nextNode = right;

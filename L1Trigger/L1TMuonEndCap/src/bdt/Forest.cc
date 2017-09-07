@@ -132,7 +132,7 @@ Tree* Forest::getTree(unsigned int i)
     else
     {
       //std::cout << i << "is an invalid input for getTree. Out of range." << std::endl;
-        return 0;
+        return nullptr;
     }
 }
 

@@ -127,8 +127,8 @@ void TrackFinder::process(
     fw_version_ = condition_helper_.get_fw_version();
     // No RPC or GEM hits in 2016
     if (fw_version_ != 0 && fw_version_ < 50000) {
-      useRPC_ = 0;
-      useGEM_ = 0;
+      useRPC_ = false;
+      useGEM_ = false;
     }
 
     pt_lut_version_ = condition_helper_.get_pt_lut_version();

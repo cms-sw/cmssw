@@ -20,14 +20,14 @@
 class L1TMuonEndCapTrackProducer : public edm::EDProducer {
 public:
   explicit L1TMuonEndCapTrackProducer(const edm::ParameterSet&);
-  virtual ~L1TMuonEndCapTrackProducer();
+  ~L1TMuonEndCapTrackProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginJob() override;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void beginJob() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   //virtual void beginRun(edm::Run const&, edm::EventSetup const&);
   //virtual void endRun(edm::Run const&, edm::EventSetup const&);
