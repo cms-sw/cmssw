@@ -89,7 +89,7 @@ CommonHcalNoiseRBXData::CommonHcalNoiseRBXData(const reco::HcalNoiseRBX& rbx, do
     double eme=it1->caloTowerEmE();
     double hade=it1->recHitEnergy(minRecHitE);
     double emf=(eme+hade)==0 ? 999 : eme/(eme+hade);
-    if(HPDEMF_ > emf) emf = HPDEMF_;
+    if(HPDEMF_ > emf) HPDEMF_ = emf;
   }
   double eme=rbx.caloTowerEmE();
   RBXEMF_ = (eme+energy_)==0 ? 999 : eme/(eme+energy_);
