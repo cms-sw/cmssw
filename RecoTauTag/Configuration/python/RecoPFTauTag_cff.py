@@ -87,23 +87,31 @@ recoTauPileUpVertices = cms.EDFilter("RecoTauPileUpVertexSelector",
     filter = cms.bool(False),
 )
 
-recoTauCommonSequence = cms.Sequence(
-    ak4PFJetTracksAssociatorAtVertex *
-    recoTauAK4PFJets08Region *
-    recoTauPileUpVertices *
+recoTauCommonTask = cms.Task(
+    ak4PFJetTracksAssociatorAtVertex,
+    recoTauAK4PFJets08Region,
+    recoTauPileUpVertices,
     pfRecoTauTagInfoProducer
+)
+recoTauCommonSequence = cms.Sequence(
+    recoTauCommonTask
 )
 
 # Produce only classic HPS taus
+recoTauClassicHPSTask = cms.Task(
+    ak4PFJetsLegacyHPSPiZeros,
+    ak4PFJetsRecoTauChargedHadrons,
+    combinatoricRecoTaus,
+    produceAndDiscriminateHPSPFTausTask
+)
 recoTauClassicHPSSequence = cms.Sequence(
-    ak4PFJetsLegacyHPSPiZeros *
-    ak4PFJetsRecoTauChargedHadrons *
-    combinatoricRecoTaus *
-    produceAndDiscriminateHPSPFTaus
+    recoTauClassicHPSTask
 )
 
+PFTauTask = cms.Task(
+    recoTauCommonTask,
+    recoTauClassicHPSTask
+)
 PFTau = cms.Sequence(
-    recoTauCommonSequence *
-    recoTauClassicHPSSequence
+    PFTauTask
 )
-
