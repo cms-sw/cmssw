@@ -11,7 +11,7 @@
 #include <stdexcept>
 
 #include "PhysicsTools/TensorFlow/interface/Graph.h"
-#include "PhysicsTools/TensorFlow/interface/Tensor.h"
+
 #include "FWCore/Utilities/interface/Exception.h"
 
 class testGraph : public CppUnit::TestFixture
@@ -66,103 +66,22 @@ void testGraph::tearDown()
 
 void testGraph::checkAll()
 {
-    //
-    // graph creation and evaluation tests
-    //
+    // create an empty graph
+    tf::Graph g;
+    CPPUNIT_ASSERT(g.empty());
 
-    // create the graph
-    tf::Graph g(dataPath + "/simplegraph");
-
-    // define the input
-    tf::Shape xShape[] = {2, 10};
-    tf::Tensor* x = new tf::Tensor(2, xShape);
-    g.defineInput(x, "input");
-
-    tf::Tensor* s = new tf::Tensor(0, 0);
-    g.defineInput(s, "scale");
-
-    // define the output
-    tf::Tensor* y = new tf::Tensor();
-    g.defineOutput(y, "output");
-
-    // set values for both batches
-    std::vector<float> values0 = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-    x->setVector<float>(1, 0, values0);
-
-    std::vector<float> values1 = { 0, 2, 4, 6, 8, 10, 12, 14, 16, 18 };
-    x->setVector<float>(1, 1, values1);
-
-    // do not scale at all
-    *s->getPtr<float>() = 1.0;
-
-    // evaluate
-    g.eval();
-
-    // check the output, should be 46 and 91 for the simplegraph
-    CPPUNIT_ASSERT(*y->getPtr<float>(0, 0) == 46);
-    CPPUNIT_ASSERT(*y->getPtr<float>(1, 0) == 91);
-
-
-    //
-    // API tests
-    //
-
+    // initialize it
+    g.init(dataPath + "/simplegraph");
     CPPUNIT_ASSERT(!g.empty());
 
+    // get a tensorflow operation object
+    TF_Operation* op = g.getTFOperation("output");
+    CPPUNIT_ASSERT(op != nullptr);
+
+    // reset it again
     g.reset();
     CPPUNIT_ASSERT(g.empty());
 
-    g.init(dataPath + "/simplegraph");
-    CPPUNIT_ASSERT(!g.empty());
-    CPPUNIT_ASSERT(g.nInputs() == 0);
-    CPPUNIT_ASSERT(g.nOutputs() == 0);
-
-    tf::GraphIO* xIO = g.defineInput(x, "input");
-    tf::GraphIO* sIO = g.defineInput(s, "scale");
-    tf::GraphIO* yIO = g.defineOutput(y, "output");
-    CPPUNIT_ASSERT(g.nInputs() == 2);
-    CPPUNIT_ASSERT(g.nOutputs() == 1);
-    CPPUNIT_ASSERT(g.hasInput(x, "input"));
-    CPPUNIT_ASSERT(g.hasInput(s, "scale"));
-    CPPUNIT_ASSERT(g.hasOutput(y, "output"));
-    CPPUNIT_ASSERT(g.hasInput(xIO));
-    CPPUNIT_ASSERT(g.hasInput(sIO));
-    CPPUNIT_ASSERT(g.hasOutput(yIO));
-
-    CPPUNIT_ASSERT_THROW(g.defineInput(x, "input"), cms::Exception);
-
-    g.removeInput(x, "input");
-    g.removeInput(s, "scale");
-    g.removeOutput(y, "output");
-    CPPUNIT_ASSERT(g.nInputs() == 0);
-    CPPUNIT_ASSERT(g.nOutputs() == 0);
-
-    xIO = g.defineInput(x, "input");
-    sIO = g.defineInput(s, "scale");
-    yIO = g.defineOutput(y, "output");
-    g.removeInput(xIO);
-    g.removeInput(sIO);
-    g.removeOutput(yIO);
-    CPPUNIT_ASSERT(g.nInputs() == 0);
-    CPPUNIT_ASSERT(g.nOutputs() == 0);
-
-    g.defineInput(x, "input");
-    g.defineInput(s, "scale");
-    g.defineOutput(y, "output");
-    CPPUNIT_ASSERT(g.nInputs() == 2);
-    CPPUNIT_ASSERT(g.nOutputs() == 1);
-
-    g.eval();
-    CPPUNIT_ASSERT(*y->getPtr<float>(0, 0) == 46);
-    CPPUNIT_ASSERT(*y->getPtr<float>(1, 0) == 91);
-
-    for (size_t i = 0; i < 100; i++) g.eval();
-    CPPUNIT_ASSERT(*y->getPtr<float>(0, 0) == 46);
-    CPPUNIT_ASSERT(*y->getPtr<float>(1, 0) == 91);
-
-
-    // cleanup
-    delete x;
-    delete s;
-    delete y;
+    // operation should not be allowed anymore
+    CPPUNIT_ASSERT_THROW(g.getTFOperation("output"), cms::Exception);
 }
