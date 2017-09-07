@@ -48,6 +48,12 @@ void Tensor::init(TF_Tensor* t)
 {
     reset();
 
+    // check its dtype, TF_STRING is not supported
+    if (TF_TensorType(t) == TF_STRING)
+    {
+        throw cms::Exception("InvalidTensor") << "string-type tensors are not supported";
+    }
+
     // simply assign the tensor
     tf_tensor_ = t;
 
