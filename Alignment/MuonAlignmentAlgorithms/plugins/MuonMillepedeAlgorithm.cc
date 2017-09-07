@@ -248,15 +248,17 @@
 	    const reco::Track* track = (*it).second;
 
 	    float pt    = track->pt();
+	    float chi2n = track->normalizedChi2();
+#ifdef EDM_ML_DEBUG
 	    float eta   = track->eta();
 	    float phi   = track->phi();
-	    float chi2n = track->normalizedChi2();
 	    //int   ndof = track->ndof();
 	    int   nhit  = track->numberOfValidHits();
 
 	    LogDebug("Alignment")
 	      << "New track pt,eta,phi,chi2n,hits: "
 	      << pt << "," << eta << "," << phi << "," << chi2n << "," << nhit;
+#endif
 
 	    //Accept or not accept the track
 	    if( pt > ptCut && chi2n < chi2nCut ) 
