@@ -4,22 +4,25 @@
 #include <cmath>
 #include <iostream>
 
+#include <CalibCalorimetry/HcalAlgos/src/HcalPulseContainmentAlgo.h>
+
 // Function generates a lookup map for a passed-in function (via templated object algoObject,
 // which must contain method "calcpair" that spits out (x,y) pair from a type float seed.
 // Each map y-value is separated from the previous value by a programmable fractional error
 // relative to the previous value.
 //
-HcalPulseContainmentAlgo::HcalPulseContainmentAlgo(int num_samples, double fixedphase_ns)
-: fixedphasens_(fixedphase_ns),
-  integrator_(&(HcalPulseShapes().hbShape()))
+HcalPulseContainmentAlgo::HcalPulseContainmentAlgo(int num_samples, double fixedphase_ns, const HcalTimeSlew* hcalTimeSlew_delay)
+: fixedphasens_(fixedphase_ns), 
+  integrator_(&(HcalPulseShapes().hbShape())),
+  hcalTimeSlew_delay_(hcalTimeSlew_delay)
 {
   init(num_samples);
 }
 
-HcalPulseContainmentAlgo::HcalPulseContainmentAlgo
-  (const HcalPulseShape * shape, int num_samples, double fixedphase_ns)
+HcalPulseContainmentAlgo::HcalPulseContainmentAlgo(const HcalPulseShape * shape, int num_samples, double fixedphase_ns, const HcalTimeSlew* hcalTimeSlew_delay)
 : fixedphasens_(fixedphase_ns),
-  integrator_(shape)
+  integrator_(shape),
+  hcalTimeSlew_delay_(hcalTimeSlew_delay)
 {
   init(num_samples);
 }
@@ -66,7 +69,11 @@ HcalPulseContainmentAlgo::init(int num_samples)
 std::pair<double,double> 
 HcalPulseContainmentAlgo::calcpair(double truefc)
 {
-  double timeslew_ns = HcalTimeSlew::delay(std::max(0.0,(double)truefc), HcalTimeSlew::Medium);
+  ///////////////////////////////
+  //double timeslew_ns = HcalTimeSlew::delay(std::max(0.0,(double)truefc), HcalTimeSlew::Medium);
+  double timeslew_ns = hcalTimeSlew_delay_->delay(std::max(0.0,(double)truefc), HcalTimeSlew::Medium);
+  ///////////////////////////////
+
   double shift_ns  = fixedphasens_ - time0shiftns_ + timeslew_ns;
   //std::cout << "SHIFT " << fixedphasens_ << " " << time0shiftns_ << " " << timeslew_ns << std::endl;
   double tmin      = -shift_ns;

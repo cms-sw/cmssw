@@ -50,8 +50,8 @@ class HcalTimeSlew {
   /** \brief Returns the amount (ns) by which a pulse of the given
    number of fC will be delayed by the timeslew effect, for the
    specified bias setting. */
-  double delay(double fC, BiasSetting bias=Medium);
-  double delay(double fC, ParaSource source=InputPars, BiasSetting bias=Medium, double par0=tspar[0], double par1=tspar[1], double par2=tspar[2], bool isHPD=true);
+  double delay(double fC, BiasSetting bias=Medium) const; 
+  double delay(double fC, ParaSource source=InputPars, BiasSetting bias=Medium, double par0=tspar[0], double par1=tspar[1], double par2=tspar[2], bool isHPD=true) const;
   
  private:
   std::vector<HcalTimeSlewM2Parameters> parametersM2_;
