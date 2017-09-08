@@ -74,7 +74,7 @@ ALIint ALIUnitDefinition::operator!=(const ALIUnitDefinition &right) const
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 ALIdouble ALIUnitDefinition::GetValueOf(ALIstring stri)
 {
-  if(theUnitsTable.size()==0) BuildUnitsTable();
+  if(theUnitsTable.empty()) BuildUnitsTable();
   ALIstring name,symbol;
   for (size_t i=0;i<theUnitsTable.size();i++)
      { ALIUnitsContainer& units = theUnitsTable[i]->GetUnitsList();
@@ -94,7 +94,7 @@ ALIdouble ALIUnitDefinition::GetValueOf(ALIstring stri)
 
 ALIstring ALIUnitDefinition::GetCategory(ALIstring stri)
 {
-  if(theUnitsTable.size()==0) BuildUnitsTable();
+  if(theUnitsTable.empty()) BuildUnitsTable();
   ALIstring name,symbol;
   for (size_t i=0;i<theUnitsTable.size();i++)
      { ALIUnitsContainer& units = theUnitsTable[i]->GetUnitsList();
