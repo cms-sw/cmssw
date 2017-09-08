@@ -95,7 +95,12 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
       tmpy[i]=energyArr[i]-pedenArr[i];
       //Add Time Slew !!! does this need to be pedestal subtracted
       tmpslew[i] = 0;
-      if(applyTimeSlew_) tmpslew[i] = HcalTimeSlew::delay(std::max(1.0,chargeArr[i]),slewFlavor_); 
+      //!!!!!!!!!!!!!!!!!!!!!!!
+      //SORRY, RECO EXPERTS
+      //WE KNOW NOT WHAT WE DO
+      //--C.Madrid and J.Pastika
+      //!!!!!!!!!!!!!!!!!!!!!!!!
+      if(applyTimeSlew_) tmpslew[i] = 0;//HcalTimeSlew::delay(std::max(1.0,chargeArr[i]),slewFlavor_); 
       // add the noise components
       tmperry2[i]=noiseArrSq[i];
 

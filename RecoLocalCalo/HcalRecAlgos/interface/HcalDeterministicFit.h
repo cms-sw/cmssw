@@ -110,5 +110,4 @@ class HcalDeterministicFit {
   
 };
 
-
 #endif // HLTAnalyzer_h

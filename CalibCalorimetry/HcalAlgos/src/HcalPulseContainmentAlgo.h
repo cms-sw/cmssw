@@ -4,13 +4,17 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShape.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalShapeIntegrator.h"
 
+class HcalTimeSlew;
+
 class HcalPulseContainmentAlgo {
 public:
   HcalPulseContainmentAlgo(const HcalPulseShape * shape,
-                      int num_samples,
-                      double fixedphase_ns);
+			   int num_samples,
+			   double fixedphase_ns,
+			   const HcalTimeSlew* hcalTimeSlew_delay);
   HcalPulseContainmentAlgo(int num_samples,
-                      double fixedphase_ns);
+			   double fixedphase_ns,
+			   const HcalTimeSlew* hcalTimeSlew_delay);
   std::pair<double,double> calcpair(double);
 private:
   void init(int num_samples);
@@ -18,6 +22,7 @@ private:
   double integrationwindowns_;
   double time0shiftns_;
   HcalShapeIntegrator integrator_;
+  const HcalTimeSlew* hcalTimeSlew_delay_;
 };
 
 #endif
