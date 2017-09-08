@@ -41,12 +41,12 @@ public:
   CkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC);
   CkfTrajectoryBuilder(const edm::ParameterSet& conf, TrajectoryFilter *filter);
 
-  ~CkfTrajectoryBuilder() {}
+  ~CkfTrajectoryBuilder() override {}
 
   /// trajectories building starting from a seed
-  virtual TrajectoryContainer trajectories(const TrajectorySeed& seed) const override;
+  TrajectoryContainer trajectories(const TrajectorySeed& seed) const override;
   /// trajectories building starting from a seed
-  virtual void trajectories(const TrajectorySeed& seed, TrajectoryContainer &ret) const override;
+  void trajectories(const TrajectorySeed& seed, TrajectoryContainer &ret) const override;
 
   // new interface returning the start Trajectory...
   TempTrajectory buildTrajectories (const TrajectorySeed&,

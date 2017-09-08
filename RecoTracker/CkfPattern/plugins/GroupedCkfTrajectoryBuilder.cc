@@ -180,7 +180,7 @@ GroupedCkfTrajectoryBuilder::trajectories (const TrajectorySeed& seed) const
   TrajectoryContainer ret; 
   ret.reserve(10);
   unsigned int tmp;
-  buildTrajectories(seed, ret, tmp, 0);
+  buildTrajectories(seed, ret, tmp, nullptr);
   return ret; 
 }
 
@@ -200,7 +200,7 @@ void
 GroupedCkfTrajectoryBuilder::trajectories (const TrajectorySeed& seed, GroupedCkfTrajectoryBuilder::TrajectoryContainer &ret) const 
 {
   unsigned int tmp;
-  buildTrajectories(seed,ret,tmp,0);
+  buildTrajectories(seed,ret,tmp,nullptr);
 }
 
 void
@@ -262,7 +262,7 @@ GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
                                                 unsigned int& nCandPerSeed,
 						const TrajectoryFilter* regionalCondition) const
 {
-  if (theMeasurementTracker == 0) {
+  if (theMeasurementTracker == nullptr) {
       throw cms::Exception("LogicError") << "Asking to create trajectories to an un-initialized GroupedCkfTrajectoryBuilder.\nYou have to call clone(const MeasurementTrackerEvent *data) and then call trajectories on it instead.\n";
   }
  
@@ -665,7 +665,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (const TrajectorySeed& seed,
 
   if ( !foundSegments ){
     LogDebug("CkfPattern")<< "GCTB: adding input trajectory to result";
-    if (stateAndLayers.second.size() > 0)
+    if (!stateAndLayers.second.empty())
       traj.setStopReason(StopReason::NO_SEGMENTS_FOR_VALID_LAYERS);
     addToResult(traj, result, inOut);
   }
