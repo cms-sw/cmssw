@@ -1,6 +1,8 @@
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+
 #include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
 
-void SiStripDetSummary::add(const DetId & detid, const float & value)
+void SiStripDetSummary::add(DetId detid, float value)
 {
   int layer = 0;
   int stereo = 0;
@@ -8,40 +10,28 @@ void SiStripDetSummary::add(const DetId & detid, const float & value)
 
   // Using the operator[] if the element does not exist it is created with the default value. That is 0 for integral types.
   switch (detid.subdetId()) {
-  case StripSubdetector::TIB:
-    {
-      TIBDetId theTIBDetId(detid.rawId());
-      layer = theTIBDetId.layer();
-      stereo = theTIBDetId.stereo();
+    case StripSubdetector::TIB:
+      layer = trackerTopo_->tibLayer(detid);
+      stereo = trackerTopo_->tibStereo(detid);
       detNum = 1000;
       break;
-    }
-  case StripSubdetector::TOB:
-    {
-      TOBDetId theTOBDetId(detid.rawId());
-      layer = theTOBDetId.layer();
-      stereo = theTOBDetId.stereo();
+    case StripSubdetector::TOB:
+      layer = trackerTopo_->tobLayer(detid);
+      stereo = trackerTopo_->tobStereo(detid);
       detNum = 2000;
       break;
-    }
-  case StripSubdetector::TEC:
-    {
-      TECDetId theTECDetId(detid.rawId());
+    case StripSubdetector::TEC:
       // is this module in TEC+ or TEC-?
-      layer = theTECDetId.wheel();
-      stereo = theTECDetId.stereo();
+      layer = trackerTopo_->tecWheel(detid);
+      stereo = trackerTopo_->tecStereo(detid);
       detNum = 3000;
       break;
-    }
-  case StripSubdetector::TID:
-    {
-      TIDDetId theTIDDetId(detid.rawId());
+    case StripSubdetector::TID:
       // is this module in TID+ or TID-?
-      layer = theTIDDetId.wheel();
-      stereo = theTIDDetId.stereo();
+      layer = trackerTopo_->tidWheel(detid);
+      stereo = trackerTopo_->tidStereo(detid);
       detNum = 4000;
       break;
-    }
   }
   detNum += layer*10 + stereo;
   // string name( detector + boost::lexical_cast<string>(layer) + boost::lexical_cast<string>(stereo) );

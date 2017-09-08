@@ -10,6 +10,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripBackPlaneCorrection.h"
 #include "CondFormats/SiStripObjects/interface/SiStripConfObject.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
 class StripTopology;
 

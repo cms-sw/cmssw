@@ -92,7 +92,7 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange devi
 				   SiStripConfigDb::FedDescriptionsRange feds ) {
   
   // Obtain the latency from the analysis object
-  if(!data().size() || !data().begin()->second->isValid() ) {
+  if(data().empty() || !data().begin()->second->isValid() ) {
     edm::LogVerbatim(mlDqmClient_) 
       << "[LatencyHistosUsingDb::" << __func__ << "]"
       << " Updated NO Latency settings. No analysis result available !" ;
@@ -121,7 +121,7 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange devi
   }
 
   // Compute latency and PLL shift from the sampling measurement
-  SamplingAnalysis* anal = NULL;
+  SamplingAnalysis* anal = nullptr;
   for( CommissioningHistograms::Analysis it = data().begin(); it!=data().end();++it) {
     if(dynamic_cast<SamplingAnalysis*>( it->second ) && 
        dynamic_cast<SamplingAnalysis*>( it->second )->granularity()==sistrip::TRACKER)
@@ -381,6 +381,7 @@ void LatencyHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& desc,
 
 void LatencyHistosUsingDb::configure( const edm::ParameterSet& pset, const edm::EventSetup& es)
 {
+  CommissioningHistosUsingDb::configure(pset, es);
   perPartition_ = this->pset().getParameter<bool>("OptimizePerPartition");
 }
 
