@@ -701,6 +701,10 @@ void PATMuonProducer::embedHighLevel( pat::Muon & aMuon,
   d0_corr = result.second.value();
   d0_err = beamspotIsValid ? result.second.error() : -1.0;
   aMuon.setDB( d0_corr, d0_err, pat::Muon::BS3D);
+
+
+    // PVDZ
+  aMuon.setDB( track->dz(primaryVertex.position()), std::hypot(track->dzError(), primaryVertex.zError()), pat::Muon::PVDZ );
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
