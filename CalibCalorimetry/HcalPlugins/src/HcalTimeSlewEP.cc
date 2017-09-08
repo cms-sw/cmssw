@@ -1,4 +1,5 @@
 #include "HcalTimeSlewEP.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
@@ -58,7 +59,7 @@ HcalTimeSlewEP::produce(const HcalTimeSlewRecord& iRecord){
     double t0       = p_timeslew.getParameter<double>("tzero");
     double m        = p_timeslew.getParameter<double>("slope");
     double tmaximum = p_timeslew.getParameter<double>("tmax");
-    myResult->addM2ParameterSet(t0, m, tmaximum);				      
+    myResult->HcalTimeSlew::addM2ParameterSet(t0, m, tmaximum);				      
     //dosemaps.emplace(file_energy,HcalTimeSlew::readDoseMap(fp.fullPath()));
   }
 
@@ -70,7 +71,7 @@ HcalTimeSlewEP::produce(const HcalTimeSlewRecord& iRecord){
     double tspar0_siPM_ = p_timeslew.getParameter<double>("tspar1");
     double tspar1_siPM_ = p_timeslew.getParameter<double>("tspar1");
     double tspar2_siPM_ = p_timeslew.getParameter<double>("tspar1");
-    myResult->addM3ParameterSet(cap_,tspar0_,tspar1_,tspar2_,tspar0_siPM_,tspar1_siPM_,tspar2_siPM_);
+    myResult->HcalTimeSlew::addM3ParameterSet(cap_,tspar0_,tspar1_,tspar2_,tspar0_siPM_,tspar1_siPM_,tspar2_siPM_);
   }
   
   return myResult;
