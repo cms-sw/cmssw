@@ -37,6 +37,7 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -63,7 +64,7 @@
 // constructors and destructor
 //
 ParticleTowerProducer::ParticleTowerProducer(const edm::ParameterSet& iConfig):
-   geo_(0)
+  geo_(nullptr), hgeo_(nullptr)
 {
    //register your products  
   src_ = consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("src"));
@@ -103,6 +104,7 @@ ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       edm::ESHandle<CaloGeometry> pG;
       iSetup.get<CaloGeometryRecord>().get(pG);
       geo_ = pG.product();
+      hgeo_= (HcalGeometry*)(geo_->getSubdetectorGeometry(DetId(DetId::Hcal,HcalBarrel)));
    }
 
 
@@ -290,7 +292,7 @@ void ParticleTowerProducer::resetTowers(edm::Event& iEvent,const edm::EventSetup
        if( hid.depth() == 1 ) {
 	 
 	 if(!useHF_){
-	   GlobalPoint pos =geo_->getGeometry(hid)->getPosition();	 
+	   GlobalPoint pos = hgeo_->getPosition(hid);	 
 	   //if((hid).iphi()==1)std::cout<<" ieta "<<(hid).ieta()<<" eta "<<pos.eta()<<" iphi "<<(hid).iphi()<<" phi "<<pos.phi()<<std::endl;
 	   if(fabs(pos.eta())>3.) continue;
 	 }
@@ -343,7 +345,7 @@ DetId ParticleTowerProducer::getNearestTower(const reco::PFCandidate & in) const
 
       if( hid.depth() != 1 ) continue;
 
-      GlobalPoint pos =geo_->getGeometry(hid)->getPosition();
+      GlobalPoint pos = hgeo_->getPosition(hid);
       
       double hcalEta = pos.eta();
       double hcalPhi = pos.phi();
@@ -413,7 +415,7 @@ DetId ParticleTowerProducer::getNearestTower(double eta, double phi) const {
 
       if( hid.depth() != 1 ) continue;
 
-      GlobalPoint pos =geo_->getGeometry(hid)->getPosition();
+      GlobalPoint pos = hgeo_->getPosition(hid);
       
       double hcalEta = pos.eta();
       double hcalPhi = pos.phi();

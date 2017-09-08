@@ -4,6 +4,7 @@
 <use   name="DataFormats/Candidate"/>
 <use   name="DataFormats/HepMCCandidate"/>
 <use   name="Geometry/CaloGeometry"/>
+<use   name="Geometry/HcalTowerAlgo"/>
 <use   name="RecoEcal/EgammaClusterAlgos"/>
 <use   name="DataFormats/EgammaCandidates"/>
 <use   name="clhep"/>

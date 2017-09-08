@@ -18,6 +18,7 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "TMath.h"
@@ -27,12 +28,12 @@
 class ParticleTowerProducer : public edm::EDProducer {
  public:
   explicit ParticleTowerProducer(const edm::ParameterSet&);
-  ~ParticleTowerProducer();
+  ~ParticleTowerProducer() override;
   
  private:
-  virtual void beginJob() ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
   void resetTowers(edm::Event& iEvent,const edm::EventSetup& iSetup);
   DetId getNearestTower(const reco::PFCandidate & in) const;
   DetId getNearestTower(double eta, double phi) const;
@@ -52,13 +53,12 @@ class ParticleTowerProducer : public edm::EDProducer {
   TRandom* random_;
   
   CaloGeometry const *  geo_;                       // geometry
-
+  const HcalGeometry *  hgeo_;
 
   static const double etatow[];
   static const double etacent[];
   double etaedge[42];
-  
-  
+   
  
   
 };

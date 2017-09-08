@@ -11,6 +11,7 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
@@ -35,7 +36,7 @@ private:
   const HBHERecHitCollection         *fHBHERecHits_;
   const HORecHitCollection           *fHORecHits_;
   const HFRecHitCollection           *fHFRecHits_;
-  const CaloGeometry                 *geometry_;
+  const HcalGeometry                 *geometry_;
 };
 
 #endif
