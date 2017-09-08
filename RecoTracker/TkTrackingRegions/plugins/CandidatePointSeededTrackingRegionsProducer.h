@@ -266,14 +266,14 @@ public:
 
 	GlobalVector direction( x,y,z );
       
-	for (size_t  j=0; j<origins.size() && n_regions < m_maxNRegions; ++j)
+	for (size_t  k=0; k<origins.size() && n_regions < m_maxNRegions; ++k)
 	  {
 	    result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>(
 		direction,
-		origins[j].first,
+		origins[k].first,
 		m_ptMin,
 		m_originRadius,
-		origins[j].second,
+		origins[k].second,
 		deltaEta_RoI,
 		deltaPhi_RoI,
 		m_whereToUseMeasurementTracker,
