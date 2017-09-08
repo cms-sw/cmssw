@@ -23,7 +23,7 @@
 class TrackMVAClassifierBase : public edm::stream::EDProducer<> {
 public:
   explicit TrackMVAClassifierBase( const edm::ParameterSet & cfg );
-  ~TrackMVAClassifierBase();
+  ~TrackMVAClassifierBase() override;
 protected:
 
   static void fill( edm::ParameterSetDescription& desc);
@@ -40,7 +40,7 @@ protected:
 			  MVACollection & mvas) const = 0;
 
 private:
-  void produce(edm::Event& evt, const edm::EventSetup& es ) override final;
+  void produce(edm::Event& evt, const edm::EventSetup& es ) final;
 
   /// source collection label
   edm::EDGetTokenT<reco::TrackCollection> src_;
