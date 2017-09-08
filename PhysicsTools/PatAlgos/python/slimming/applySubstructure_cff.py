@@ -17,9 +17,9 @@ def applySubstructure( process, postfix="" ) :
     from RecoJets.JetProducers.ak8PFJets_cfi import ak8PFJetsPuppi, ak8PFJetsPuppiSoftDrop, ak8PFJetsPuppiConstituents, ak8PFJetsCHSConstituents
     addToProcessAndTask('ak4PFJetsPuppi'+postfix,ak4PFJetsPuppi.clone(), process, task)
     addToProcessAndTask('ak8PFJetsPuppi'+postfix,ak8PFJetsPuppi.clone(), process, task)
-    addToProcessAndTask('ak8PFJetsPuppiSoftDrop'+postfix, ak8PFJetsPuppiSoftDrop.clone(), process, task)
-    addToProcessAndTask('ak8PFJetsPuppiConstituents', ak8PFJetsPuppiConstituents.clone(), process, task )
+    addToProcessAndTask('ak8PFJetsPuppiConstituents', ak8PFJetsPuppiConstituents.clone(cut = cms.string('pt > 170.0 && abs(rapidity()) < 2.4') ), process, task )
     addToProcessAndTask('ak8PFJetsCHSConstituents', ak8PFJetsCHSConstituents.clone(), process, task )
+    addToProcessAndTask('ak8PFJetsPuppiSoftDrop'+postfix, process.ak8PFJetsPuppiSoftDrop.clone( src = cms.InputTag('ak8PFJetsPuppiConstituents', 'constituents') ), process, task)
 
     #add AK8 CHS
     addJetCollection(process, postfix=postfix, labelName = 'AK8',
@@ -104,14 +104,14 @@ def applySubstructure( process, postfix="" ) :
 
     # add groomed ECFs and N-subjettiness to soft dropped pat::Jets for fat jets and subjets
     process.load('RecoJets.JetProducers.ECF_cff')
-    addToProcessAndTask('Nb1AK8PuppiSoftDrop'+postfix, process.ecfNbeta1.clone(src = cms.InputTag("ak8PFJetsPuppiSoftDrop"+postfix)), process, task)
-    addToProcessAndTask('Nb2AK8PuppiSoftDrop'+postfix, process.ecfNbeta2.clone(src = cms.InputTag("ak8PFJetsPuppiSoftDrop"+postfix)), process, task)
-    getattr(process,"patJetsAK8PFPuppiSoftDrop").userData.userFloats.src += ['Nb1AK8PuppiSoftDrop'+postfix+':ecfN2','Nb1AK8PuppiSoftDrop'+postfix+':ecfN3']
-    getattr(process,"patJetsAK8PFPuppiSoftDrop").userData.userFloats.src += ['Nb2AK8PuppiSoftDrop'+postfix+':ecfN2','Nb2AK8PuppiSoftDrop'+postfix+':ecfN3']
-    addToProcessAndTask('Nb1AK8PuppiSoftDropSubjets'+postfix, process.ecfNbeta1.clone(src = cms.InputTag("ak8PFJetsPuppiSoftDrop"+postfix, "SubJets")), process, task)
-    addToProcessAndTask('Nb2AK8PuppiSoftDropSubjets'+postfix, process.ecfNbeta2.clone(src = cms.InputTag("ak8PFJetsPuppiSoftDrop"+postfix, "SubJets")), process, task)
-    getattr(process,"patJetsAK8PFPuppiSoftDropSubjets"+postfix).userData.userFloats.src += ['Nb1AK8PuppiSoftDropSubjets'+postfix+':ecfN2','Nb1AK8PuppiSoftDropSubjets'+postfix+':ecfN3']
-    getattr(process,"patJetsAK8PFPuppiSoftDropSubjets"+postfix).userData.userFloats.src += ['Nb2AK8PuppiSoftDropSubjets'+postfix+':ecfN2','Nb2AK8PuppiSoftDropSubjets'+postfix+':ecfN3']
+    addToProcessAndTask('nb1AK8PuppiSoftDrop'+postfix, process.ecfNbeta1.clone(src = cms.InputTag("ak8PFJetsPuppiSoftDrop"+postfix)), process, task)
+    addToProcessAndTask('nb2AK8PuppiSoftDrop'+postfix, process.ecfNbeta2.clone(src = cms.InputTag("ak8PFJetsPuppiSoftDrop"+postfix)), process, task)
+    getattr(process,"patJetsAK8PFPuppiSoftDrop").userData.userFloats.src += ['nb1AK8PuppiSoftDrop'+postfix+':ecfN2','nb1AK8PuppiSoftDrop'+postfix+':ecfN3']
+    getattr(process,"patJetsAK8PFPuppiSoftDrop").userData.userFloats.src += ['nb2AK8PuppiSoftDrop'+postfix+':ecfN2','nb2AK8PuppiSoftDrop'+postfix+':ecfN3']
+    addToProcessAndTask('nb1AK8PuppiSoftDropSubjets'+postfix, process.ecfNbeta1.clone(src = cms.InputTag("ak8PFJetsPuppiSoftDrop"+postfix, "SubJets")), process, task)
+    addToProcessAndTask('nb2AK8PuppiSoftDropSubjets'+postfix, process.ecfNbeta2.clone(src = cms.InputTag("ak8PFJetsPuppiSoftDrop"+postfix, "SubJets")), process, task)
+    getattr(process,"patJetsAK8PFPuppiSoftDropSubjets"+postfix).userData.userFloats.src += ['nb1AK8PuppiSoftDropSubjets'+postfix+':ecfN2','nb1AK8PuppiSoftDropSubjets'+postfix+':ecfN3']
+    getattr(process,"patJetsAK8PFPuppiSoftDropSubjets"+postfix).userData.userFloats.src += ['nb2AK8PuppiSoftDropSubjets'+postfix+':ecfN2','nb2AK8PuppiSoftDropSubjets'+postfix+':ecfN3']
     getattr(process,"patJetsAK8PFPuppiSoftDropSubjets"+postfix).userData.userFloats.src += ['NjettinessAK8Subjets'+postfix+':tau1','NjettinessAK8Subjets'+postfix+':tau2','NjettinessAK8Subjets'+postfix+':tau3']
 
     # rekey the groomed ECF value maps to the ungroomed reco jets, which will then be picked
@@ -128,10 +128,10 @@ def applySubstructure( process, postfix="" ) :
                     'userFloat("Nb2AK8PuppiSoftDrop'+postfix+':ecfN3")',
                     ]),
                                        valueLabels = cms.vstring( [
-                    'Nb1AK8PuppiSoftDropN2',
-                    'Nb1AK8PuppiSoftDropN3',
-                    'Nb2AK8PuppiSoftDropN2',
-                    'Nb2AK8PuppiSoftDropN3',
+                    'nb1AK8PuppiSoftDropN2',
+                    'nb1AK8PuppiSoftDropN3',
+                    'nb2AK8PuppiSoftDropN2',
+                    'nb2AK8PuppiSoftDropN3',
                     ]) ),
                     process, task)
 
@@ -165,10 +165,10 @@ def applySubstructure( process, postfix="" ) :
     getattr(process,"patJetsAK8Puppi"+postfix).userData.userFloats.src += ['ak8PFJetsPuppiSoftDropMass'+postfix]
     getattr(process,"patJetsAK8Puppi"+postfix).addTagInfos = cms.bool(False)
     getattr(process,"patJetsAK8Puppi"+postfix).userData.userFloats.src += [
-        cms.InputTag('ak8PFJetsPuppiSoftDropValueMap'+postfix,'Nb1AK8PuppiSoftDropN2'),
-        cms.InputTag('ak8PFJetsPuppiSoftDropValueMap'+postfix,'Nb1AK8PuppiSoftDropN3'),
-        cms.InputTag('ak8PFJetsPuppiSoftDropValueMap'+postfix,'Nb2AK8PuppiSoftDropN2'),
-        cms.InputTag('ak8PFJetsPuppiSoftDropValueMap'+postfix,'Nb2AK8PuppiSoftDropN3'),
+        cms.InputTag('ak8PFJetsPuppiSoftDropValueMap'+postfix,'nb1AK8PuppiSoftDropN2'),
+        cms.InputTag('ak8PFJetsPuppiSoftDropValueMap'+postfix,'nb1AK8PuppiSoftDropN3'),
+        cms.InputTag('ak8PFJetsPuppiSoftDropValueMap'+postfix,'nb2AK8PuppiSoftDropN2'),
+        cms.InputTag('ak8PFJetsPuppiSoftDropValueMap'+postfix,'nb2AK8PuppiSoftDropN3'),
         ]
 
 
