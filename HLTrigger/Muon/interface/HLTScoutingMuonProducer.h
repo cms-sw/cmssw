@@ -42,6 +42,9 @@ Description: Producer for ScoutingMuon
 #include "DataFormats/Scouting/interface/ScoutingMuon.h"
 #include "DataFormats/Scouting/interface/ScoutingVertex.h"
 
+#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+
 class HLTScoutingMuonProducer : public edm::global::EDProducer<> {
     typedef edm::AssociationMap<edm::OneToValue<std::vector<reco::RecoChargedCandidate>, float,
                                                 unsigned int> > RecoChargedCandMap;
@@ -65,6 +68,9 @@ class HLTScoutingMuonProducer : public edm::global::EDProducer<> {
         const double muonPtCut;
         const double muonEtaCut;
 	const double minVtxProbCut;
+
+        const edm::EDGetTokenT<reco::MuonTrackLinksCollection> linkToken_;
+
 };
 
 #endif
