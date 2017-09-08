@@ -15,9 +15,9 @@
 class SiStripDetVOffHandler : public edm::EDAnalyzer {
 public:
   explicit SiStripDetVOffHandler(const edm::ParameterSet& iConfig );
-  virtual ~SiStripDetVOffHandler();
-  virtual void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup);
-  virtual void endJob();
+  ~SiStripDetVOffHandler() override;
+  void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup) override;
+  void endJob() override;
 
 private:
   cond::persistency::ConnectionPool m_connectionPool;
@@ -72,10 +72,13 @@ void SiStripDetVOffHandler::analyze(const edm::Event& evt, const edm::EventSetup
   }
   condDbSession.transaction().commit();
 
+  edm::ESHandle<TrackerTopology> tTopo;
+  evtSetup.get<TrackerTopologyRcd>().get(tTopo);
+
   // build the object!
   newPayloads.clear();
   modHVBuilder->setLastSiStripDetVOff( lastPayload.get(), lastIov );
-  modHVBuilder->BuildDetVOffObj();
+  modHVBuilder->BuildDetVOffObj(tTopo.product());
   newPayloads = modHVBuilder->getModulesVOff();
   edm::LogInfo("SiStripDetVOffHandler") << "[SiStripDetVOffHandler::" << __func__ << "] "
       << "Finished building " << newPayloads.size() << " new payloads.";

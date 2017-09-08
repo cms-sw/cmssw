@@ -170,7 +170,7 @@ std::vector<SiStripLatency::Latency> SiStripLatency::allUniqueLatencyAndModes()
   return latencyCopy;
 }
 
-void SiStripLatency::printSummary(std::stringstream & ss) const
+void SiStripLatency::printSummary(std::stringstream & ss, const TrackerTopology* trackerTopo) const
 {
   ss << std::endl;
   if(singleReadOutMode()==1){
@@ -195,11 +195,11 @@ void SiStripLatency::printSummary(std::stringstream & ss) const
     }
   }
   ss << "Total number of ranges = " << latencies_.size() << std::endl;
-  printDebug(ss);
+  printDebug(ss, trackerTopo);
 }
 
 
-void SiStripLatency::printDebug(std::stringstream & ss) const
+void SiStripLatency::printDebug(std::stringstream & ss, const TrackerTopology* /*trackerTopo*/) const
 {
   ss << "List of all the latencies and modes for the " << latencies_.size() << " ranges in the object:" << std::endl;
   for( latConstIt it = latencies_.begin(); it != latencies_.end(); ++it ) {
