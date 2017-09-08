@@ -17,6 +17,10 @@
     <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test transRefTest.sh"/>
     <use   name="FWCore/Utilities"/>
   </bin>
+  <bin   file="TestIntegration.cpp" name="TestIntegrationTableTest">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test testTables.sh"/>
+    <use   name="FWCore/Utilities"/>
+  </bin>
   <bin   file="TestIntegration.cpp" name="TestIntegrationProducedSource">
     <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test inputSourceTest.sh"/>
     <use   name="FWCore/Utilities"/>
@@ -121,7 +125,7 @@
     <use   name="FWCore/ParameterSet"/>
     <use   name="FWCore/Framework"/>
   </library>
-  <library   file="ThingProducer.cc,ThingAlgorithm.cc,TrackOfThingsProducer.cc,ThinningThingProducer.cc,ThinningTestAnalyzer.cc,WhatsIt.cc,GadgetRcd.cc,AssociationMapProducer.cc,AssociationMapAnalyzer.cc,MissingDictionaryTestProducer.cc, WaitingThreadIntProducer.cc, ThingAnalyzer.cc" name="SomeTestModules">
+  <library   file="ThingProducer.cc,ThingAlgorithm.cc,TrackOfThingsProducer.cc,ThinningThingProducer.cc,ThinningTestAnalyzer.cc,WhatsIt.cc,GadgetRcd.cc,AssociationMapProducer.cc,AssociationMapAnalyzer.cc,MissingDictionaryTestProducer.cc, WaitingThreadIntProducer.cc, ThingAnalyzer.cc, TableTestModules.cc" name="SomeTestModules">
     <flags   EDM_PLUGIN="1"/>
     <use   name="FWCore/Framework"/>
     <use   name="DataFormats/TestObjects"/>
