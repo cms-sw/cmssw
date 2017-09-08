@@ -136,52 +136,52 @@ egmTrackingMonHLT.doEffFromHitPatternVsBX   = False
 egmTrackingMonHLT.doEffFromHitPatternVsLUMI = False 
 
 gsfTracksMonitoringHLT = egmTrackingMonHLT.clone()
-gsfTracksMonitoringHLT.FolderName       = 'HLT/EG/Tracking/GSF'
+gsfTracksMonitoringHLT.FolderName       = 'HLT/EGM/Tracking/GSF'
 gsfTracksMonitoringHLT.TrackProducer    = 'hltEgammaGsfTracks'
 gsfTracksMonitoringHLT.allTrackProducer = 'hltEgammaGsfTracks'
 
 pixelTracksForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone()
-pixelTracksForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EG/Tracking/pixelTracks'
+pixelTracksForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EGM/Tracking/pixelTracks'
 pixelTracksForElectronsTracksMonitoringHLT.TrackProducer    = 'hltPixelTracksElectrons'
 pixelTracksForElectronsTracksMonitoringHLT.allTrackProducer = 'hltPixelTracksElectrons'
 
 iter0ForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone()
-iter0ForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EG/Tracking/iter0'
+iter0ForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EGM/Tracking/iter0'
 iter0ForElectronsTracksMonitoringHLT.TrackProducer    = 'hltIter0ElectronsCtfWithMaterialTracks'
 iter0ForElectronsTracksMonitoringHLT.allTrackProducer = 'hltIter0ElectronsCtfWithMaterialTracks'
 
 iter0HPForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone()
-iter0HPForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EG/Tracking/iter0HP'
+iter0HPForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EGM/Tracking/iter0HP'
 iter0HPForElectronsTracksMonitoringHLT.TrackProducer    = 'hltIter0ElectronsTrackSelectionHighPurity'
 iter0HPForElectronsTracksMonitoringHLT.allTrackProducer = 'hltIter0ElectronsTrackSelectionHighPurity'
 
 iter1ForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone()
-iter1ForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EG/Tracking/iter1'
+iter1ForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EGM/Tracking/iter1'
 iter1ForElectronsTracksMonitoringHLT.TrackProducer    = 'hltIter1ElectronsCtfWithMaterialTracks'
 iter1ForElectronsTracksMonitoringHLT.allTrackProducer = 'hltIter1ElectronsCtfWithMaterialTracks'
 
 iter1HPForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone()
-iter1HPForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EG/Tracking/iter1HP'
+iter1HPForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EGM/Tracking/iter1HP'
 iter1HPForElectronsTracksMonitoringHLT.TrackProducer    = 'hltIter1ElectronsTrackSelectionHighPurity'
 iter1HPForElectronsTracksMonitoringHLT.allTrackProducer = 'hltIter1ElectronsTrackSelectionHighPurity'
 
 iter1MergedForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone()
-iter1MergedForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EG/Tracking/iter1Merged'
+iter1MergedForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EGM/Tracking/iter1Merged'
 iter1MergedForElectronsTracksMonitoringHLT.TrackProducer    = 'hltIter1MergedForElectrons'
 iter1MergedForElectronsTracksMonitoringHLT.allTrackProducer = 'hltIter1MergedForElectrons'
 
 iter2ForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone()
-iter2ForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EG/Tracking/iter2'
+iter2ForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EGM/Tracking/iter2'
 iter2ForElectronsTracksMonitoringHLT.TrackProducer    = 'hltIter2ElectronsCtfWithMaterialTracks'
 iter2ForElectronsTracksMonitoringHLT.allTrackProducer = 'hltIter2ElectronsCtfWithMaterialTracks'
 
 iter2HPForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone()
-iter2HPForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EG/Tracking/iter2HP'
+iter2HPForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EGM/Tracking/iter2HP'
 iter2HPForElectronsTracksMonitoringHLT.TrackProducer    = 'hltIter2ElectronsTrackSelectionHighPurity'
 iter2HPForElectronsTracksMonitoringHLT.allTrackProducer = 'hltIter2ElectronsTrackSelectionHighPurity'
 
 iterHLTTracksForElectronsMonitoringHLT = egmTrackingMonHLT.clone()
-iterHLTTracksForElectronsMonitoringHLT.FolderName       = 'HLT/EG/Tracking/iter2Merged'
+iterHLTTracksForElectronsMonitoringHLT.FolderName       = 'HLT/EGM/Tracking/iter2Merged'
 iterHLTTracksForElectronsMonitoringHLT.TrackProducer    = 'hltIter2MergedForElectrons'
 iterHLTTracksForElectronsMonitoringHLT.allTrackProducer = 'hltIter2MergedForElectrons'
  
