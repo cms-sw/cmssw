@@ -16,6 +16,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/CTPPSReco/interface/TotemRPLocalTrack.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSDiamondLocalTrack.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSPixelLocalTrack.h"
 
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
@@ -36,6 +37,7 @@ class CTPPSLocalTrackLiteProducer : public edm::stream::EDProducer<>
   private:
     edm::EDGetTokenT< edm::DetSetVector<TotemRPLocalTrack> > siStripTrackToken_;
     edm::EDGetTokenT< edm::DetSetVector<CTPPSDiamondLocalTrack> > diamondTrackToken_;
+    edm::EDGetTokenT< edm::DetSetVector<CTPPSPixelLocalTrack> > pixelTrackToken_;
 
     /// if true, this module will do nothing
     /// needed for consistency with CTPPS-less workflows
@@ -51,6 +53,7 @@ CTPPSLocalTrackLiteProducer::CTPPSLocalTrackLiteProducer( const edm::ParameterSe
 
   siStripTrackToken_ = consumes< edm::DetSetVector<TotemRPLocalTrack> >     ( iConfig.getParameter<edm::InputTag>("tagSiStripTrack") );
   diamondTrackToken_ = consumes< edm::DetSetVector<CTPPSDiamondLocalTrack> >( iConfig.getParameter<edm::InputTag>("tagDiamondTrack") );
+  pixelTrackToken_   = consumes< edm::DetSetVector<CTPPSPixelLocalTrack> >  ( iConfig.getParameter<edm::InputTag>("tagPixelTrack")   );
 
   produces< std::vector<CTPPSLocalTrackLite> >();
 }
@@ -96,6 +99,22 @@ CTPPSLocalTrackLiteProducer::produce( edm::Event& iEvent, const edm::EventSetup&
     }
   }
 
+
+  //----- pixel detectors
+
+  // get input from pixel detectors
+  edm::Handle< edm::DetSetVector<CTPPSPixelLocalTrack> > inputPixelTracks;
+  iEvent.getByToken( pixelTrackToken_, inputPixelTracks );
+
+  // process tracks from Si strips
+  for ( const auto& rpv : *inputPixelTracks ) {
+    const uint32_t rpId = rpv.detId();
+    for ( const auto& trk : rpv ) {
+      if ( !trk.isValid() ) continue;
+      pOut->emplace_back( rpId, trk.getX0(), trk.getX0Sigma(), trk.getY0(), trk.getY0Sigma() );
+    }
+  }
+
   // save output to event
   iEvent.put( std::move( pOut ) );
 }
@@ -111,6 +130,8 @@ CTPPSLocalTrackLiteProducer::fillDescriptions( edm::ConfigurationDescriptions& d
     ->setComment( "input TOTEM strips' local tracks collection to retrieve" );
   desc.add<edm::InputTag>( "tagDiamondTrack", edm::InputTag( "ctppsDiamondLocalTracks" ) )
     ->setComment( "input diamond detectors' local tracks collection to retrieve" );
+  desc.add<edm::InputTag>( "tagPixelTrack"  , edm::InputTag( "ctppsPixelLocalTracks"   ) )
+    ->setComment( "input pixel detectors' local tracks collection to retrieve" );
   desc.add<bool>( "doNothing", true ) // disable the module by default
     ->setComment( "disable the module" );
 
