@@ -5,7 +5,7 @@ from DQMOffline.Trigger.HTMonitoring_Client_cff import *
 from DQMOffline.Trigger.METMonitoring_Client_cff import *
 
 photonEfficiency = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/Photon/*"),
+    subDirs        = cms.untracked.vstring("HLT/EXO/Photon/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -23,7 +23,7 @@ photonEfficiency = DQMEDHarvester("DQMGenericClient",
 )
 
 muonEfficiency = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/Muon/*"),
+    subDirs        = cms.untracked.vstring("HLT/EXO/Muon/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages                                                                                                                                          
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -43,7 +43,7 @@ muonEfficiency = DQMEDHarvester("DQMGenericClient",
 )
 
 NoBPTXEfficiency = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/NoBPTX/*"),
+    subDirs        = cms.untracked.vstring("HLT/EXO/NoBPTX/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -62,7 +62,7 @@ NoBPTXEfficiency = DQMEDHarvester("DQMGenericClient",
 )
 
 METplusTrackEfficiency = DQMEDHarvester("DQMGenericClient",
-    subDirs = cms.untracked.vstring("HLT/MET/MET105_IsoTrk50/", "HLT/MET/MET120_IsoTrk50/"),
+    subDirs = cms.untracked.vstring("HLT/EXO/MET/MET105_IsoTrk50/", "HLT/EXO/MET/MET120_IsoTrk50/"),
     verbose = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution = cms.vstring(),
     efficiency = cms.vstring(
