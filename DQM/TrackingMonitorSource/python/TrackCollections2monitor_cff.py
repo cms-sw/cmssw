@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+allTrackProducer   = {}
 mainfolderName   = {}
 vertexfolderName = {}
 sequenceName = {}
@@ -30,14 +31,15 @@ doStopSource                        = {}
 
 selectedTracks = []
 
+allTrackProducer['generalTracks'] = 'generalTracks'
 mainfolderName  ['generalTracks'] = 'Tracking/TrackParameters/generalTracks'
 vertexfolderName['generalTracks'] = 'Tracking/PrimaryVertices/generalTracks'
 trackPtN        ['generalTracks'] = cms.int32(100)
 trackPtMin      ['generalTracks'] = cms.double(0.)
 trackPtMax      ['generalTracks'] = cms.double(100.)
 doPlotsPCA      ['generalTracks'] = cms.bool(False)
-numCutString    ['generalTracks'] = cms.string("")
-denCutString    ['generalTracks'] = cms.string("")
+numCutString    ['generalTracks'] = cms.string("quality('highPurity')") # num := den + quality('highPurity')
+denCutString    ['generalTracks'] = cms.string("") # den := kinematics cuts
 doGoodTracksPlots                   ['generalTracks'] = cms.bool(True)
 doTrackerSpecific                   ['generalTracks'] = cms.bool(True)
 doHitPropertiesPlots                ['generalTracks'] = cms.bool(True)
@@ -67,13 +69,14 @@ highPurityPtRange0to1 = trackSelector.clone()
 highPurityPtRange0to1.cut = cms.string("quality('highPurity') & pt >= 0 & pt < 1 ")
 
 sequenceName    ['highPurityPtRange0to1'] = highPurityPtRange0to1
+allTrackProducer['highPurityPtRange0to1'] = 'generalTracks'
 mainfolderName  ['highPurityPtRange0to1'] = 'Tracking/TrackParameters/highPurityTracks/pt_0to1'
 vertexfolderName['highPurityPtRange0to1'] = 'Tracking/PrimaryVertices/highPurityTracks/pt_0to1'
 trackPtN        ['highPurityPtRange0to1'] = cms.int32(10)
 trackPtMin      ['highPurityPtRange0to1'] = cms.double(0.)
 trackPtMax      ['highPurityPtRange0to1'] = cms.double(1.)
-numCutString    ['highPurityPtRange0to1'] = cms.string("") # default: " pt >= 1 & quality('highPurity') "
-denCutString    ['highPurityPtRange0to1'] = cms.string(" pt >= 0 & pt < 1 ") # it is as in the default config (just be sure)
+numCutString    ['highPurityPtRange0to1'] = cms.string(" pt >= 0 & pt < 1 & quality('highPurity')") # num := den + quality('highPurity') [it is the same as the main selection, but just to be sure ...]
+denCutString    ['highPurityPtRange0to1'] = cms.string(" pt >= 0 & pt < 1 ") # den := kinematics cut
 doPlotsPCA      ['highPurityPtRange0to1'] = cms.bool(False)
 doGoodTracksPlots                   ['highPurityPtRange0to1'] = cms.bool(False)
 doTrackerSpecific                   ['highPurityPtRange0to1'] = cms.bool(False)
@@ -98,13 +101,14 @@ highPurityPtRange1to10 = trackSelector.clone()
 highPurityPtRange1to10.cut = cms.string("quality('highPurity') & pt >= 1 & pt < 10 ")
 
 sequenceName    ['highPurityPtRange1to10'] = highPurityPtRange1to10 
+allTrackProducer['highPurityPtRange1to10'] = 'generalTracks'
 mainfolderName  ['highPurityPtRange1to10'] = 'Tracking/TrackParameters/highPurityTracks/pt_1to10'
 vertexfolderName['highPurityPtRange1to10'] = 'Tracking/PrimaryVertices/highPurityTracks/pt_1to10'
 trackPtN        ['highPurityPtRange1to10'] = cms.int32(10)
 trackPtMin      ['highPurityPtRange1to10'] = cms.double(1.)
 trackPtMax      ['highPurityPtRange1to10'] = cms.double(10.)
-numCutString    ['highPurityPtRange1to10'] = cms.string("") # default: " pt >= 1 & quality('highPurity') "
-denCutString    ['highPurityPtRange1to10'] = cms.string(" pt >= 1 & pt < 10 ") # it is as in the default config (just be sure)
+numCutString    ['highPurityPtRange1to10'] = cms.string(" pt >= 1 & pt < 10 & quality('highPurity')") # num := den + quality('highPurity') [it is the same as the main selection, but just to be sure ...]
+denCutString    ['highPurityPtRange1to10'] = cms.string(" pt >= 1 & pt < 10 ") # den := kinematics cuts
 doGoodTracksPlots                   ['highPurityPtRange1to10'] = cms.bool(True)
 doTrackerSpecific                   ['highPurityPtRange1to10'] = cms.bool(True)
 doHitPropertiesPlots                ['highPurityPtRange1to10'] = cms.bool(True)
@@ -128,13 +132,14 @@ highPurityPt10 = trackSelector.clone()
 highPurityPt10.cut = cms.string("quality('highPurity') & pt >= 10")
 
 sequenceName    ['highPurityPt10'] = highPurityPt10 
+allTrackProducer['highPurityPt10'] = 'generalTracks'
 mainfolderName  ['highPurityPt10'] = 'Tracking/TrackParameters/highPurityTracks/pt_10'
 vertexfolderName['highPurityPt10'] = 'Tracking/PrimaryVertices/highPurityTracks/pt_10'
 trackPtN        ['highPurityPt10'] = cms.int32(100)
 trackPtMin      ['highPurityPt10'] = cms.double(10.)
 trackPtMax      ['highPurityPt10'] = cms.double(110.)
-numCutString    ['highPurityPt10'] = cms.string("") # default: " pt >= 1 & quality('highPurity') "
-denCutString    ['highPurityPt10'] = cms.string(" pt >= 10 ") # it is as in the default config (just be sure)
+numCutString    ['highPurityPt10'] = cms.string(" pt >= 10 & quality('highPurity')") # num := den + quality('highPurity') [it is the same as the main selection, but just to be sure ...]
+denCutString    ['highPurityPt10'] = cms.string(" pt >= 10 ") # den := kinematics cuts
 doGoodTracksPlots                   ['highPurityPt10'] = cms.bool(True)
 doTrackerSpecific                   ['highPurityPt10'] = cms.bool(True)
 doHitPropertiesPlots                ['highPurityPt10'] = cms.bool(True)
@@ -159,14 +164,15 @@ highPurityPt1 = trackSelector.clone()
 highPurityPt1.cut = cms.string("quality('highPurity') & pt >= 1")
 
 sequenceName    ['highPurityPt1'] = highPurityPt1
+allTrackProducer['highPurityPt1'] = 'generalTracks'
 mainfolderName  ['highPurityPt1'] = 'Tracking/TrackParameters/highPurityTracks/pt_1'
 vertexfolderName['highPurityPt1'] = 'Tracking/PrimaryVertices/highPurityTracks/pt_1'
 trackPtN        ['highPurityPt1'] = cms.int32(100)
 trackPtMin      ['highPurityPt1'] = cms.double(0.)
 trackPtMax      ['highPurityPt1'] = cms.double(100.)
 doPlotsPCA      ['highPurityPt1'] = cms.bool(True)
-numCutString    ['highPurityPt1'] = cms.string("") # default: " pt >= 1 & quality('highPurity') "
-denCutString    ['highPurityPt1'] = cms.string(" pt >= 1 ") # it is as in the default config (just be sure)
+numCutString    ['highPurityPt1'] = cms.string(" pt >= 1 & quality('highPurity')") # num := den + quality('highPurity') [it is the same as the main selection, but just to be sure ...]
+denCutString    ['highPurityPt1'] = cms.string(" pt >= 1 ") # den := kinematics cut
 doGoodTracksPlots                   ['highPurityPt1'] = cms.bool(True)
 doTrackerSpecific                   ['highPurityPt1'] = cms.bool(True)
 doHitPropertiesPlots                ['highPurityPt1'] = cms.bool(True)
@@ -229,15 +235,19 @@ trackAssociated2pvSelector.trackWithVertexSelectorParams = cms.PSet(
 highPurityPV0p1 = trackAssociated2pvSelector.clone()
 highPurityPV0p1.trackWithVertexSelectorParams.zetaVtx = cms.double(0.1)
 
-sequenceName    ['highPurityPV0p1'] = highPurityPV0p1
+PV0p1 = highPurityPV0p1.clone()
+PV0p1.quality = cms.string("") # quality cut as defined in reco::TrackBase
+
+sequenceName    ['highPurityPV0p1'] = highPurityPV0p1+PV0p1
+allTrackProducer['highPurityPV0p1'] = 'PV0p1'
 mainfolderName  ['highPurityPV0p1'] = 'Tracking/TrackParameters/highPurityTracks/dzPV0p1'
 vertexfolderName['highPurityPV0p1'] = 'Tracking/PrimaryVertices/highPurityTracks/dzPV0p1'
 trackPtN        ['highPurityPV0p1'] = cms.int32(100)
 trackPtMin      ['highPurityPV0p1'] = cms.double(0.)
 trackPtMax      ['highPurityPV0p1'] = cms.double(100.)
 doPlotsPCA      ['highPurityPV0p1'] = cms.bool(True)
-numCutString    ['highPurityPV0p1'] = cms.string("") # default: " pt >= 1 & quality('highPurity') "
-denCutString    ['highPurityPV0p1'] = cms.string(" pt >= 1 ") # it is as in the default config (just be sure)
+numCutString    ['highPurityPV0p1'] = cms.string("quality('highPurity')") # num := den + quality('highPurity')
+denCutString    ['highPurityPV0p1'] = cms.string("") # den := kinematic cuts
 doGoodTracksPlots                   ['highPurityPV0p1'] = cms.bool(True)
 doTrackerSpecific                   ['highPurityPV0p1'] = cms.bool(True)
 doHitPropertiesPlots                ['highPurityPV0p1'] = cms.bool(True)
@@ -264,6 +274,7 @@ selectedTracks.extend( ['generalTracks'] )
 
 selectedTracks.extend( ['highPurityPt1'] )
 selectedTracks.extend( ['highPurityPtRange0to1'] )
+selectedTracks.extend( ['highPurityPV0p1'] )
 selectedTracks.extend( ['highPurityPV0p1'] )
 
 #selectedTracks2runSequence=cms.Sequence()
