@@ -16,7 +16,7 @@
 #include "CondFormats/DTObjects/interface/DTTtrig.h"
 #include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 
-#include <math.h>
+#include <cmath>
 
 using namespace std;
 using namespace edm;
