@@ -1,4 +1,4 @@
-import FWCore.ParameterSet.Config as cms
+0import FWCore.ParameterSet.Config as cms
 
 import DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi
 trackingMonHLT = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone()
@@ -22,46 +22,73 @@ pixelTracksMonitoringHLT = trackingMonHLT.clone()
 pixelTracksMonitoringHLT.FolderName       = 'HLT/Tracking/pixelTracks'
 pixelTracksMonitoringHLT.TrackProducer    = 'hltPixelTracks'
 pixelTracksMonitoringHLT.allTrackProducer = 'hltPixelTracks'
+pixelTracksMonitoringHLT.doEffFromHitPatternVsPU   = False
+pixelTracksMonitoringHLT.doEffFromHitPatternVsBX   = False
+pixelTracksMonitoringHLT.doEffFromHitPatternVsLUMI = False
 
 iter0TracksMonitoringHLT = trackingMonHLT.clone()
 iter0TracksMonitoringHLT.FolderName       = 'HLT/Tracking/iter0'
 iter0TracksMonitoringHLT.TrackProducer    = 'hltIter0PFlowCtfWithMaterialTracks'
 iter0TracksMonitoringHLT.allTrackProducer = 'hltIter0PFlowCtfWithMaterialTracks'
+iter0TracksMonitoringHLT.doEffFromHitPatternVsPU   = True
+iter0TracksMonitoringHLT.doEffFromHitPatternVsBX   = False
+iter0TracksMonitoringHLT.doEffFromHitPatternVsLUMI = False
 
 iter0HPTracksMonitoringHLT = trackingMonHLT.clone()
 iter0HPTracksMonitoringHLT.FolderName       = 'HLT/Tracking/iter0HP'
 iter0HPTracksMonitoringHLT.TrackProducer    = 'hltIter0PFlowTrackSelectionHighPurity'
 iter0HPTracksMonitoringHLT.allTrackProducer = 'hltIter0PFlowTrackSelectionHighPurity'
+iter0HPTracksMonitoringHLT.doEffFromHitPatternVsPU   = True
+iter0HPTracksMonitoringHLT.doEffFromHitPatternVsBX   = False
+iter0HPTracksMonitoringHLT.doEffFromHitPatternVsLUMI = False
 
 iter1TracksMonitoringHLT = trackingMonHLT.clone()
 iter1TracksMonitoringHLT.FolderName       = 'HLT/Tracking/iter1'
 iter1TracksMonitoringHLT.TrackProducer    = 'hltIter1PFlowCtfWithMaterialTracks'
 iter1TracksMonitoringHLT.allTrackProducer = 'hltIter1PFlowCtfWithMaterialTracks'
+iter1TracksMonitoringHLT.doEffFromHitPatternVsPU   = True
+iter1TracksMonitoringHLT.doEffFromHitPatternVsBX   = False
+iter1TracksMonitoringHLT.doEffFromHitPatternVsLUMI = False
 
 iter1HPTracksMonitoringHLT = trackingMonHLT.clone()
 iter1HPTracksMonitoringHLT.FolderName       = 'HLT/Tracking/iter1HP'
 iter1HPTracksMonitoringHLT.TrackProducer    = 'hltIter1PFlowTrackSelectionHighPurity'
 iter1HPTracksMonitoringHLT.allTrackProducer = 'hltIter1PFlowTrackSelectionHighPurity'
+iter1HPTracksMonitoringHLT.doEffFromHitPatternVsPU   = True
+iter1HPTracksMonitoringHLT.doEffFromHitPatternVsBX   = False
+iter1HPTracksMonitoringHLT.doEffFromHitPatternVsLUMI = False
 
 iter2TracksMonitoringHLT = trackingMonHLT.clone()
 iter2TracksMonitoringHLT.FolderName       = 'HLT/Tracking/iter2'
 iter2TracksMonitoringHLT.TrackProducer    = 'hltIter2PFlowCtfWithMaterialTracks'
 iter2TracksMonitoringHLT.allTrackProducer = 'hltIter2PFlowCtfWithMaterialTracks'
+iter2TracksMonitoringHLT.FolderNamdoEffFromHitPatternVsPU   = True
+iter2TracksMonitoringHLT.FolderNamdoEffFromHitPatternVsBX   = False
+iter2TracksMonitoringHLT.FolderNamdoEffFromHitPatternVsLUMI = False
 
 iter2HPTracksMonitoringHLT = trackingMonHLT.clone()
 iter2HPTracksMonitoringHLT.FolderName       = 'HLT/Tracking/iter2HP'
 iter2HPTracksMonitoringHLT.TrackProducer    = 'hltIter2PFlowTrackSelectionHighPurity'
 iter2HPTracksMonitoringHLT.allTrackProducer = 'hltIter2PFlowTrackSelectionHighPurity'
+iter2HPTracksMonitoringHLT.doEffFromHitPatternVsPU   = True
+iter2HPTracksMonitoringHLT.doEffFromHitPatternVsBX   = False
+iter2HPTracksMonitoringHLT.doEffFromHitPatternVsLUMI = False
 
 iter2MergedTracksMonitoringHLT = trackingMonHLT.clone()
 iter2MergedTracksMonitoringHLT.FolderName       = 'HLT/Tracking/iter2Merged'
 iter2MergedTracksMonitoringHLT.TrackProducer    = 'hltIter2Merged'
 iter2MergedTracksMonitoringHLT.allTrackProducer = 'hltIter2Merged'
+iter2MergedTracksMonitoringHLT.doEffFromHitPatternVsPU   = True
+iter2MergedTracksMonitoringHLT.doEffFromHitPatternVsBX   = False
+iter2MergedTracksMonitoringHLT.doEffFromHitPatternVsLUMI = False
 
 iterHLTTracksMonitoringHLT = trackingMonHLT.clone()
 iterHLTTracksMonitoringHLT.FolderName       = 'HLT/Tracking/tracks'
 iterHLTTracksMonitoringHLT.TrackProducer    = 'hltMergedTracks'
 iterHLTTracksMonitoringHLT.allTrackProducer = 'hltMergedTracks'
+iterHLTTracksMonitoringHLT.doEffFromHitPatternVsPU   = True
+iterHLTTracksMonitoringHLT.doEffFromHitPatternVsBX   = True
+iterHLTTracksMonitoringHLT.doEffFromHitPatternVsLUMI = True
 
 iter3TracksMonitoringHLT = trackingMonHLT.clone()
 iter3TracksMonitoringHLT.FolderName       = 'HLT/Tracking/iter3Merged'
