@@ -104,6 +104,9 @@ trackingMonitorHLTall = cms.Sequence(
 # Iter2HP: hltIter2MergedForElectrons
 egmTrackingMonHLT = trackingMonHLT.clone()
 egmTrackingMonHLT.primaryVertex = cms.InputTag("hltElectronsVertex")
+egmTrackingMonHLT.doEffFromHitPatternVsPU   = False
+egmTrackingMonHLT.doEffFromHitPatternVsBX   = False
+egmTrackingMonHLT.doEffFromHitPatternVsLUMI = False 
 
 gsfTracksMonitoringHLT = egmTrackingMonHLT.clone()
 gsfTracksMonitoringHLT.FolderName       = 'HLT/EG/Tracking/GSF'
