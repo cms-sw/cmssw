@@ -44,7 +44,7 @@ ECFAdder::ECFAdder(const edm::ParameterSet& iConfig) :
 	  pfunc.reset( new fastjet::contrib::EnergyCorrelatorUseries( *n, beta_, fastjet::contrib::EnergyCorrelator::pt_R ) );
 	}
 	variables_.push_back(ecfN_str.str());
-	produces<edm::ValueMap<float> >(ecfN_str.str().c_str());
+	produces<edm::ValueMap<float> >(ecfN_str.str());
 	routine_.push_back(pfunc);
       }
 
@@ -76,7 +76,7 @@ void ECFAdder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
       fillerT.insert(jets, ecfN.begin(), ecfN.end());
       fillerT.fill();
 
-      iEvent.put(std::move(outT),variables_[i].c_str());
+      iEvent.put(std::move(outT),variables_[i]);
       ++i;
     }
 }
@@ -95,7 +95,7 @@ float ECFAdder::getECF(unsigned index, const edm::Ptr<reco::Jet> & object) const
 	} else { // Otherwise, this is a BasicJet, so you need to descend further.
 	  auto subjet = dynamic_cast<reco::Jet const * >( dp.get() );
 	  for ( unsigned l = 0; l < subjet->numberOfDaughters(); ++l ) {
-	    if ( subjet != 0 ) {
+	    if ( subjet != nullptr ) {
 	      const reco::CandidatePtr & ddp = subjet->daughterPtr(l);
 	      FJparticles.push_back( fastjet::PseudoJet( ddp->px(), ddp->py(), ddp->pz(), ddp->energy() ) );	      
 	    } else {

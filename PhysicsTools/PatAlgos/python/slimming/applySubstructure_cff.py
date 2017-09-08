@@ -122,10 +122,10 @@ def applySubstructure( process, postfix="" ) :
                                        matched = cms.InputTag("patJetsAK8PFPuppiSoftDrop"+postfix),
                                        distMax = cms.double(0.8),
                                        values = cms.vstring([
-                    'userFloat("Nb1AK8PuppiSoftDrop'+postfix+':ecfN2")',
-                    'userFloat("Nb1AK8PuppiSoftDrop'+postfix+':ecfN3")',
-                    'userFloat("Nb2AK8PuppiSoftDrop'+postfix+':ecfN2")',
-                    'userFloat("Nb2AK8PuppiSoftDrop'+postfix+':ecfN3")',
+                    'userFloat("nb1AK8PuppiSoftDrop'+postfix+':ecfN2")',
+                    'userFloat("nb1AK8PuppiSoftDrop'+postfix+':ecfN3")',
+                    'userFloat("nb2AK8PuppiSoftDrop'+postfix+':ecfN2")',
+                    'userFloat("nb2AK8PuppiSoftDrop'+postfix+':ecfN3")',
                     ]),
                                        valueLabels = cms.vstring( [
                     'nb1AK8PuppiSoftDropN2',
