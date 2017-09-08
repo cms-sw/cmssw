@@ -1,4 +1,4 @@
-0import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.Config as cms
 
 import DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi
 trackingMonHLT = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone()
