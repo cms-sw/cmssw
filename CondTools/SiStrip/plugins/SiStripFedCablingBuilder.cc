@@ -59,11 +59,13 @@ void SiStripFedCablingBuilder::beginRun( const edm::Run& run,
     return;
   }
   
+  edm::ESHandle<TrackerTopology> tTopo;
+  setup.get<TrackerTopologyRcd>().get(tTopo);
   {
     std::stringstream ss;
     ss << "[SiStripFedCablingBuilder::" << __func__ << "]"
        << " VERBOSE DEBUG" << std::endl;
-    fed->print( ss );
+    fed->print(ss, tTopo.product());
     ss << std::endl;
     if ( printFecCabling_ && fec.isValid() ) { fec->print( ss ); }
     ss << std::endl;
@@ -87,7 +89,7 @@ void SiStripFedCablingBuilder::beginRun( const edm::Run& run,
     std::stringstream ss;
     ss << "[SiStripFedCablingBuilder::" << __func__ << "]"
        << " SUMMARY DEBUG" << std::endl;
-    fed->summary( ss );
+    fed->summary(ss, tTopo.product());
     ss << std::endl;
     edm::LogVerbatim("SiStripFedCablingBuilder") << ss.str();
   }
