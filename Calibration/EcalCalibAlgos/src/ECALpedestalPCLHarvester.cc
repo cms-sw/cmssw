@@ -51,7 +51,7 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
         ped.mean_x12=mean;
         ped.rms_x12=rms;
 
-        float diff = abs(mean-oldped.mean_x12);
+        float diff = std::abs(mean-oldped.mean_x12);
 
         // if bad channel or low stat skip or the difference is too large wrt to previous record
         if(ch->getEntries()< minEntries_ || !checkStatusCode(id) || diff>threshDiffEB_){
@@ -88,7 +88,7 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
         ped.mean_x12=mean;
         ped.rms_x12=rms;
 
-        float diff = abs(mean-oldped.mean_x12);
+        float diff = std::abs(mean-oldped.mean_x12);
 
         // if bad channel or low stat skip or the difference is too large wrt to previous record
         if(ch->getEntries()< minEntries_ || !checkStatusCode(id)|| diff>threshDiffEE_){
