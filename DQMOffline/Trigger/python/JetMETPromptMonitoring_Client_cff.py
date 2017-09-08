@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 pfjetEfficiency = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/JetMET/*"),
+    subDirs        = cms.untracked.vstring("HLT/JME/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -78,7 +78,7 @@ pfjetEfficiency = DQMEDHarvester("DQMGenericClient",
 )
 
 calojetEfficiency = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/JetMET/*"),
+    subDirs        = cms.untracked.vstring("HLT/JME/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -157,7 +157,7 @@ calojetEfficiency = DQMEDHarvester("DQMGenericClient",
 )
 
 pfjetRatio = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/JetMET/*"),
+    subDirs        = cms.untracked.vstring("HLT/JME/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -171,7 +171,7 @@ pfjetRatio = DQMEDHarvester("DQMGenericClient",
     )
 )
 calojetRatio = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/JetMET/*"),
+    subDirs        = cms.untracked.vstring("HLT/JME/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
