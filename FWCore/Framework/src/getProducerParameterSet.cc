@@ -16,7 +16,7 @@ namespace edm {
   ParameterSet const*
   getProducerParameterSet(Provenance const& provenance) {
 
-    std::shared_ptr<BranchDescription const> branchDescription =
+    const std::shared_ptr<BranchDescription const>& branchDescription =
       provenance.constBranchDescriptionPtr();
 
     if (branchDescription) {
