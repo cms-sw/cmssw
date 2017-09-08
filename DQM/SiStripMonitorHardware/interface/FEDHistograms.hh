@@ -34,12 +34,12 @@ public:
   
   FEDHistograms();
 
-  ~FEDHistograms();
+  ~FEDHistograms() override;
   
   //initialise histograms
   void initialise(const edm::ParameterSet& iConfig,
 		  std::ostringstream* pDebugStream
-		  );
+		  ) override;
 
   void fillCountersHistograms(const FEDErrors::FEDCounters & aFedLevelCounters, 
 			      const FEDErrors::ChannelCounters & aChLevelCounters,
@@ -86,9 +86,9 @@ public:
 
   void bookAllFEDHistograms(DQMStore::IBooker & , bool);
 
-  bool tkHistoMapEnabled(unsigned int aIndex=0);
+  bool tkHistoMapEnabled(unsigned int aIndex=0) override;
 
-  TkHistoMap * tkHistoMapPointer(unsigned int aIndex=0);
+  TkHistoMap * tkHistoMapPointer(unsigned int aIndex=0) override;
 
   MonitorElement *cmHistPointer(bool aApv1);
 
