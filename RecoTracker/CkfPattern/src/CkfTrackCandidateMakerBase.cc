@@ -333,6 +333,11 @@ namespace cms{
   	  LogDebug("CkfPattern") << "======== Out-in trajectory building found " << theTmpTrajectories.size()
   			              << " valid/invalid trajectories from seed " << j << " ========\n"
 				 <<PrintoutHelper::dumpCandidates(theTmpTrajectories);
+          if(theTmpTrajectories.empty()) {
+            Lock lock(theMutex);
+            (*outputSeedStopInfos)[j].setStopReason(SeedStopReason::SEED_REGION_REBUILD);
+            return;
+          }
         }
 
 
