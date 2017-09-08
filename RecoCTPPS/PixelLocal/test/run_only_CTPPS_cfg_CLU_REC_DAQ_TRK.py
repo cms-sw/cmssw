@@ -62,7 +62,7 @@ process.o1 = cms.OutputModule("PoolOutputModule",
         outputCommands = cms.untracked.vstring('drop *',
                                                'keep CTPPSPixelClusteredmDetSetVector_ctppsPixelClusters_*_*',
                                                'keep CTPPSPixelRecHitedmDetSetVector_ctppsPixelRecHits_*_*',
-                                               'keep CTPPSPixelLocalTrackedmDetSetVector_ctppsPixelTracks_*_*',
+                                               'keep CTPPSPixelLocalTrackedmDetSetVector_ctppsPixelLocalTracks_*_*',
         ),
         fileName = cms.untracked.string("RPix_RecoLocalTrack.root")
        )

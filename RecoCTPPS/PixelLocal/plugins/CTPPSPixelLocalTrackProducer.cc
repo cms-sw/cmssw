@@ -97,7 +97,7 @@ void CTPPSPixelLocalTrackProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<int>            ("RPixMinRoadSize"                  , 3                             );
   desc.add<int>            ("RPixMaxRoadSize"                  , 20                            );
 
-  descriptions.add("ctppsPixelTracks", desc);
+  descriptions.add("ctppsPixelLocalTracks", desc);
 }
 
 //------------------------------------------------------------------------------------------------//
