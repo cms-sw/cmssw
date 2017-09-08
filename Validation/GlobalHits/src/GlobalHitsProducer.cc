@@ -7,6 +7,7 @@
 
 #include "Validation/GlobalHits/interface/GlobalHitsProducer.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 GlobalHitsProducer::GlobalHitsProducer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), vtxunit(0), label(""), 
@@ -1480,8 +1481,8 @@ void GlobalHitsProducer::fillHCal(edm::Event& iEvent,
 	 (subdetector == sdHcalFwd))) {
 
       // get the Cell geometry
-      const CaloCellGeometry *theDet = theCalo.
-	getSubdetectorGeometry(theDetUnitId)->getGeometry(theDetUnitId);
+      const HcalGeometry *theDet = (HcalGeometry*)
+	(theCalo.getSubdetectorGeometry(theDetUnitId));
 
       if (!theDet) {
 	edm::LogWarning(MsgLoggerCat)
@@ -1492,7 +1493,7 @@ void GlobalHitsProducer::fillHCal(edm::Event& iEvent,
       ++j;
 
       // get the global position of the cell
-      const GlobalPoint& globalposition = theDet->getPosition();
+      const GlobalPoint& globalposition = theDet->getPosition(theDetUnitId);
 
       // gather necessary information
       HCalE.push_back(itHit->energy());

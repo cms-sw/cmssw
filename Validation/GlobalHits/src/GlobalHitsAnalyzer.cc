@@ -13,6 +13,7 @@
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), vtxunit(0), label(""), 
@@ -1891,12 +1892,12 @@ void GlobalHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	   (subdetector == sdHcalFwd))) {
 	
 	// get the Cell geometry
-	const CaloCellGeometry *theDet = theCalo.
-	  getSubdetectorGeometry(theDetUnitId)->getGeometry(theDetUnitId);
+	const HcalGeometry *theDet = (HcalGeometry*)
+	  (theCalo.getSubdetectorGeometry(theDetUnitId));
 	
 	if (!theDet) {
 	  edm::LogWarning(MsgLoggerCat)
-	    << "Unable to get CaloCellGeometry from HCalContainer for Hit " 
+	    << "Unable to get HcalGeometry from HCalContainer for Hit " 
 	    << i;
 	  continue;
 	}
@@ -1904,7 +1905,7 @@ void GlobalHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	++j;
 	
 	// get the global position of the cell
-	const GlobalPoint& globalposition = theDet->getPosition();
+	const GlobalPoint& globalposition = theDet->getPosition(theDetUnitId);
 	
 	if (meCaloHcalE[0]) meCaloHcalE[0]->Fill(itHit->energy());
 	if (meCaloHcalE[1]) meCaloHcalE[1]->Fill(itHit->energy());
