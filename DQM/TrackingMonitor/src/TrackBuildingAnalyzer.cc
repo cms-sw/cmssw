@@ -279,13 +279,6 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::Pa
   if (doAllTCPlots || doStopSource) {
     // DataFormats/TrackReco/interface/TrajectoryStopReasons.h
     size_t StopReasonNameSize = sizeof(StopReasonName::StopReasonName)/sizeof(std::string);
-    if(StopReasonNameSize != static_cast<unsigned int>(StopReason::SIZE)) {
-      throw cms::Exception("Assert") << "StopReason::SIZE is " << static_cast<unsigned int>(StopReason::SIZE)
-				     << " but StopReasonName's only for "
-				     << StopReasonNameSize
-				     << ". Please update DataFormats/TrackReco/interface/TrajectoryStopReasons.h.";
-    }
-    
     
     histname = "StoppingSource_"+seedProducer.label() + "_";
     stoppingSource = ibooker.book1D(histname+CatagoryName,
