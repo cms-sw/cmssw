@@ -121,20 +121,25 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
 
   const HcalDetId& cell = channelData.id();
 
-  double fpar0, fpar1, fpar2;
-  if(std::abs(cell.ieta())<HcalRegion[0]){
-    fpar0 = fpars[0];
-    fpar1 = fpars[1];
-    fpar2 = fpars[2];
-  }else if(std::abs(cell.ieta())==HcalRegion[0]||std::abs(cell.ieta())==HcalRegion[1]){
-    fpar0 = fpars[3];
-    fpar1 = fpars[4];
-    fpar2 = fpars[5];
-  }else{
-    fpar0 = fpars[6];
-    fpar1 = fpars[7];
-    fpar2 = fpars[8];
-  }
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  //DEAR HLT EXPERTS FORGIVE US
+  //WE KNOW NOT WHAT WE DO     
+  //--C.Madrid J.Pastika       
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  //double fpar0, fpar1, fpar2;
+  //if(std::abs(cell.ieta())<HcalRegion[0]){
+  //  fpar0 = fpars[0];
+  //  fpar1 = fpars[1];
+  //  fpar2 = fpars[2];
+  //}else if(std::abs(cell.ieta())==HcalRegion[0]||std::abs(cell.ieta())==HcalRegion[1]){
+  //  fpar0 = fpars[3];
+  //  fpar1 = fpars[4];
+  //  fpar2 = fpars[5];
+  //}else{
+  //  fpar0 = fpars[6];
+  //  fpar1 = fpars[7];
+  //  fpar2 = fpars[8];
+  //}
 
   if (fTimeSlew==0)respCorr=1.0;
   else if (fTimeSlew==1) channelData.hasTimeInfo()?respCorr=rCorrSiPM[0]:respCorr=rCorr[0];
@@ -146,9 +151,14 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
 
   if(applyTimeSlew_) {
 
-    tsShift3=HcalTimeSlew::delay(inputCharge[soi-1], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
-    tsShift4=HcalTimeSlew::delay(inputCharge[soi], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
-    tsShift5=HcalTimeSlew::delay(inputCharge[soi+1], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //DEAR HLT EXPERTS FORGIVE US
+    //WE KNOW NOT WHAT WE DO     
+    //--C.Madrid J.Pastika       
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    tsShift3=0;//HcalTimeSlew::delay(inputCharge[soi-1], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
+    tsShift4=0;//HcalTimeSlew::delay(inputCharge[soi], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
+    tsShift5=0;//HcalTimeSlew::delay(inputCharge[soi+1], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
 
   }
 
