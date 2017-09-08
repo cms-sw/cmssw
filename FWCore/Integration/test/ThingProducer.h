@@ -9,11 +9,11 @@
  ************************************************************/
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Integration/test/ThingAlgorithm.h"
 
 namespace edmtest {
-  class ThingProducer : public edm::one::EDProducer<edm::BeginRunProducer,
+  class ThingProducer : public edm::global::EDProducer<edm::BeginRunProducer,
   edm::EndRunProducer,
   edm::EndLuminosityBlockProducer,
   edm::BeginLuminosityBlockProducer> {
@@ -21,17 +21,17 @@ namespace edmtest {
 
     explicit ThingProducer(edm::ParameterSet const& ps);
 
-    virtual ~ThingProducer();
+    ~ThingProducer() override;
 
-    void produce(edm::Event& e, edm::EventSetup const& c) override;
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
 
-    void beginRunProduce(edm::Run& r, edm::EventSetup const& c) override;
+    void globalBeginRunProduce(edm::Run& r, edm::EventSetup const& c) const override;
 
-    void endRunProduce(edm::Run& r, edm::EventSetup const& c) override;
+    void globalEndRunProduce(edm::Run& r, edm::EventSetup const& c) const override;
 
-    void beginLuminosityBlockProduce(edm::LuminosityBlock& lb, edm::EventSetup const& c) override;
+    void globalBeginLuminosityBlockProduce(edm::LuminosityBlock& lb, edm::EventSetup const& c) const override;
 
-    void endLuminosityBlockProduce(edm::LuminosityBlock& lb, edm::EventSetup const& c) override;
+    void globalEndLuminosityBlockProduce(edm::LuminosityBlock& lb, edm::EventSetup const& c) const override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
