@@ -16,6 +16,7 @@
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/getProducerParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -42,6 +43,7 @@ namespace edmtest {
     std::vector<edm::InputTag> inputTagsNotFound_;
     bool getByTokenFirst_;
     std::vector<edm::InputTag> inputTagsView_;
+    bool runProducerParameterCheck_;
 
     std::vector<edm::EDGetTokenT<IntProduct> > tokens_;
     std::vector<edm::EDGetTokenT<IntProduct> > tokensNotFound_;
@@ -58,7 +60,8 @@ namespace edmtest {
     sum_(0),
     inputTagsNotFound_(),
     getByTokenFirst_(pset.getUntrackedParameter<bool>("getByTokenFirst", false)),
-    inputTagsView_()
+    inputTagsView_(),
+    runProducerParameterCheck_(pset.getUntrackedParameter<bool>("runProducerParameterCheck", false))
   {
     std::vector<edm::InputTag> emptyTagVector;
     inputTagsNotFound_ = pset.getUntrackedParameter<std::vector<edm::InputTag> >("inputTagsNotFound", emptyTagVector);
@@ -103,6 +106,25 @@ namespace edmtest {
       if (h->value != hToken->value) {
         std::cerr << "TestFindProduct::analyze getByLabel and getByToken return inconsistent results " << std::endl;
         abort();    
+      }
+
+      if (runProducerParameterCheck_) {
+        edm::ParameterSet const* producerPset = edm::getProducerParameterSet(*hToken.provenance());
+        int par = producerPset->getParameter<int>("ivalue");
+        // These expected values are just from knowing the values in the
+        // configuration files for this test.
+        int expectedParameterValue = 3;
+        if (!iter->process().empty()) {
+          if (e.run() == 1) {
+            expectedParameterValue = 1;
+          } else {
+            expectedParameterValue = 2;
+          }
+        }
+        if (par != expectedParameterValue) {
+          std::cerr << "TestFindProduct::analyze unexpected value from producer parameter set" << std::endl;
+          abort();
+        }
       }
     }
     iToken = tokensNotFound_.begin();
