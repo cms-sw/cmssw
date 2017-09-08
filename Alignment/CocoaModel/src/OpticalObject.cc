@@ -1443,8 +1443,7 @@ void OpticalObject::displaceRmGlobOriginalOriginal(const  OpticalObject* opto1st
   GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
   if(gomgr->GlobalOptions()["rotateAroundLocal"] == 0) {
     //-------------------- Rotate rotation matrix
-    if( ALIUtils::debug >= 5 ) ALIUtils::dumprm(theRmGlobOriginalOriginal, name() + ALIstring(" theRmGlobOriginalOriginal before displaced
-      ") );
+    if( ALIUtils::debug >= 5 ) ALIUtils::dumprm(theRmGlobOriginalOriginal, name() + ALIstring(" theRmGlobOriginalOriginal before displaced") );
     switch( coor ) {
     case 0:
       theRmGlobOriginalOriginal.rotateX( disp );
