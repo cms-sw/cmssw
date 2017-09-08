@@ -30,12 +30,12 @@ class DTResidualCalibration: public edm::EDAnalyzer{
   /// Constructor
   DTResidualCalibration(const edm::ParameterSet& pset);
   /// Destructor
-  virtual ~DTResidualCalibration();
+  ~DTResidualCalibration() override;
 
-  void beginJob();
-  void beginRun(const edm::Run&, const edm::EventSetup&);
-  void endJob();
-  void analyze(const edm::Event& event, const edm::EventSetup& setup);
+  void beginJob() override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endJob() override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
 
  protected:
 
