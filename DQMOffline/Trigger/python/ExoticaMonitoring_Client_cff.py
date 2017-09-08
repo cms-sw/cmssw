@@ -182,6 +182,8 @@ DisplacedJet_jetRatioHemHep17 = DQMEDHarvester("DQMGenericClient",
          "ratio_calojetphi_HEP17VSHEM17         'HEP17/HEM17 vs #phi;          CaloJet #phi [GeV]; Ratio'  effic_calojetphi_HEP17 effic_calojetphi_HEM17 simpleratio",
          "ratio_calojeteta_HEP17VSHEM17         'HEP17/HEM17 vs |#eta|;        CaloJet(|#eta|) ; Ratio'    effic_calojetabseta_HEP17 effic_calojetabseta_HEM17 simpleratio",
 
+         "ratio_calojetpT_HEP17VSHEP18          'HEP17/HEP18 vs pT;            CaloJet(pT) [GeV]; Ratio'   effic_calojetpT_HEP17 effic_calojetpT_HEP18 simpleratio" ,
+         "ratio_calojetpT_pTTresh_HEP17VSHEP18  'HEP17/HEP18 vs pT;            CaloJet(pT) [GeV]; Ratio'   effic_calojetpT_HEP17_pTThresh effic_calojetpT_HEP18_pTThresh simpleratio" ,
     )
 
 

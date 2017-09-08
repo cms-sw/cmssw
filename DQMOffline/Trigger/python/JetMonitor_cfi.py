@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.Trigger.jetMonitoring_cfi import jetMonitoring
 hltJetMETmonitoring = jetMonitoring.clone()
-hltJetMETmonitoring.FolderName = cms.string('HLT/JetMET/HLT_PFJet450/')
+hltJetMETmonitoring.FolderName = cms.string('HLT/JME/Jets/AK4/PFJet/HLT_PFJet450/')
 hltJetMETmonitoring.histoPSet.jetPSet = cms.PSet(
   nbins = cms.uint32 (  200  ),
   xmin  = cms.double(   -0.5),
