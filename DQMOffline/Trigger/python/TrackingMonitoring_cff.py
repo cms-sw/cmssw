@@ -62,9 +62,9 @@ iter2TracksMonitoringHLT = trackingMonHLT.clone()
 iter2TracksMonitoringHLT.FolderName       = 'HLT/Tracking/iter2'
 iter2TracksMonitoringHLT.TrackProducer    = 'hltIter2PFlowCtfWithMaterialTracks'
 iter2TracksMonitoringHLT.allTrackProducer = 'hltIter2PFlowCtfWithMaterialTracks'
-iter2TracksMonitoringHLT.FolderNamdoEffFromHitPatternVsPU   = True
-iter2TracksMonitoringHLT.FolderNamdoEffFromHitPatternVsBX   = False
-iter2TracksMonitoringHLT.FolderNamdoEffFromHitPatternVsLUMI = False
+iter2TracksMonitoringHLT.doEffFromHitPatternVsPU   = True
+iter2TracksMonitoringHLT.doEffFromHitPatternVsBX   = False
+iter2TracksMonitoringHLT.doEffFromHitPatternVsLUMI = False
 
 iter2HPTracksMonitoringHLT = trackingMonHLT.clone()
 iter2HPTracksMonitoringHLT.FolderName       = 'HLT/Tracking/iter2HP'
