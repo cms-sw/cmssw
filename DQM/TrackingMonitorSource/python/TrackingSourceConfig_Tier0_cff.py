@@ -16,6 +16,7 @@ for tracks in selectedTracks :
     label = 'TrackerCollisionSelectedTrackMonCommon' + str(tracks)
     locals()[label] = TrackerCollisionTrackMonCommon.clone()
     locals()[label].TrackProducer    = cms.InputTag(tracks)
+    locals()[label].allTrackProducer = cms.InputTag(allTrackProducer[tracks])
     locals()[label].FolderName       = cms.string(mainfolderName[tracks])
     locals()[label].PVFolderName     = cms.string(vertexfolderName[tracks])
     locals()[label].TrackPtMin       = trackPtMin[tracks]
