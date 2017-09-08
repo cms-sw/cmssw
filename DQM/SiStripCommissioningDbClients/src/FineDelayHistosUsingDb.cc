@@ -31,7 +31,7 @@ FineDelayHistosUsingDb::FineDelayHistosUsingDb( const edm::ParameterSet & pset,
     SamplingHistograms( pset.getParameter<edm::ParameterSet>("FineDelayParameters"),
                         bei,
                         sistrip::FINE_DELAY ),
-    tracker_(0)
+    tracker_(nullptr)
 {
   LogTrace(mlDqmClient_) 
     << "[FineDelayHistosUsingDb::" << __func__ << "]"
@@ -51,6 +51,7 @@ FineDelayHistosUsingDb::~FineDelayHistosUsingDb() {
 /** */
 void FineDelayHistosUsingDb::configure( const edm::ParameterSet& pset, 
 					const edm::EventSetup& setup ) {
+  CommissioningHistosUsingDb::configure(pset, setup);
   // get geometry
   edm::ESHandle<TrackerGeometry> estracker;
   setup.get<TrackerDigiGeometryRecord>().get(estracker);
@@ -124,7 +125,7 @@ void FineDelayHistosUsingDb::uploadConfigurations() {
 
 void FineDelayHistosUsingDb::computeDelays() {
   // do nothing if delays_ map is already filled
-  if(delays_.size()>0) return;
+  if(!delays_.empty()) return;
 
   // the point from which track should originate
   float x = 0.; float y = 0.; float z = 0.;
@@ -134,7 +135,7 @@ void FineDelayHistosUsingDb::computeDelays() {
   
   // the reference parameters (best delay in ns, initial Latency)
   float bestDelay_ = 0.;
-  if(data().size()) {
+  if(!data().empty()) {
     Analyses::const_iterator iter = data().begin();
     bestDelay_ = dynamic_cast<SamplingAnalysis*>(iter->second)->maximum();
   }
