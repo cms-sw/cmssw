@@ -20,7 +20,7 @@ namespace edm {
   class ProducerSourceBase : public InputSource {
   public:
     explicit ProducerSourceBase(ParameterSet const& pset, InputSourceDescription const& desc, bool realData);
-    virtual ~ProducerSourceBase() noexcept(false);
+    ~ProducerSourceBase() noexcept(false) override;
 
     unsigned int numberEventsInRun() const {return numberEventsInRun_;} 
     unsigned int numberEventsInLumi() const {return numberEventsInLumi_;} 
@@ -39,22 +39,22 @@ namespace edm {
   protected:
 
   private:
-    virtual ItemType getNextItemType() override final;
+    ItemType getNextItemType() final;
     virtual void initialize(EventID& id, TimeValue_t& time, TimeValue_t& interval);
     virtual bool setRunAndEventInfo(EventID& id, TimeValue_t& time, EventAuxiliary::ExperimentType& etype) = 0;
     virtual void produce(Event& e) = 0;
     virtual bool noFiles() const;
     virtual size_t fileIndex() const;
-    virtual void beginJob() override;
-    virtual void beginRun(Run&) override;
-    virtual void endRun(Run&) override;
-    virtual void beginLuminosityBlock(LuminosityBlock&) override;
-    virtual void endLuminosityBlock(LuminosityBlock&) override;
-    virtual void readEvent_(EventPrincipal& eventPrincipal) override;
-    virtual std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
-    virtual std::shared_ptr<RunAuxiliary> readRunAuxiliary_() override;
-    virtual void skip(int offset) override;
-    virtual void rewind_() override;
+    void beginJob() override;
+    void beginRun(Run&) override;
+    void endRun(Run&) override;
+    void beginLuminosityBlock(LuminosityBlock&) override;
+    void endLuminosityBlock(LuminosityBlock&) override;
+    void readEvent_(EventPrincipal& eventPrincipal) override;
+    std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
+    std::shared_ptr<RunAuxiliary> readRunAuxiliary_() override;
+    void skip(int offset) override;
+    void rewind_() override;
 
     void advanceToNext(EventID& eventID, TimeValue_t& time);
     void retreatToPrevious(EventID& eventID, TimeValue_t& time);
