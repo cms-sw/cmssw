@@ -41,6 +41,7 @@
 
 #include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 #include <vector>
+#include <memory>
 #include <CLHEP/Vector/ThreeVector.h>
 
 class ALIUnitsCategory;
@@ -49,7 +50,7 @@ typedef std::vector<ALIUnitsCategory*> ALIUnitsTable;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-class ALIUnitDefinition
+class ALIUnitDefinition : public std::enable_shared_from_this<ALIUnitDefinition>
 {
 public:  // with description
 
@@ -98,7 +99,7 @@ private:
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-typedef std::vector<ALIUnitDefinition*> ALIUnitsContainer;
+using ALIUnitsContainer = std::vector<std::shared_ptr<ALIUnitDefinition>>;
 
 class ALIUnitsCategory
 {
