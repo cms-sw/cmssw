@@ -36,12 +36,12 @@ namespace edm {
     class Timing : public TimingServiceBase {
     public:
       Timing(ParameterSet const&, ActivityRegistry&);
-      ~Timing();
+      ~Timing() override;
       
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
       
-      virtual void addToCPUTime(StreamID id, double iTime) override;
-      virtual double getTotalCPU() const override;
+      void addToCPUTime(StreamID id, double iTime) override;
+      double getTotalCPU() const override;
       
     private:
       
@@ -116,7 +116,7 @@ namespace edm {
     
     static double getTime() {
       struct timeval t;
-      if(gettimeofday(&t, 0) < 0)
+      if(gettimeofday(&t, nullptr) < 0)
         throw cms::Exception("SysCallFailed", "Failed call to gettimeofday");
       return static_cast<double>(t.tv_sec) + (static_cast<double>(t.tv_usec) * 1E-6);
     }
@@ -151,7 +151,7 @@ namespace edm {
     static 
     double popStack() {
       auto& modStack = moduleTimeStack();
-      assert(modStack.size() > 0);
+      assert(!modStack.empty());
       double curr_module_time = modStack.back();
       modStack.pop_back();
       double t = getTime() - curr_module_time;
