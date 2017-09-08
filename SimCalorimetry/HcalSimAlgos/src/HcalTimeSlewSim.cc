@@ -16,7 +16,6 @@ HcalTimeSlewSim::HcalTimeSlewSim(const CaloVSimParameterMap * parameterMap, doub
 {
 }
 
-
 // not quite adequate to 25ns high-PU regime
 double HcalTimeSlewSim::charge(const CaloSamples & samples) const
 {
@@ -30,7 +29,6 @@ double HcalTimeSlewSim::charge(const CaloSamples & samples) const
   return totalCharge;
 }
 
-
 void HcalTimeSlewSim::delay(CaloSamples & cs, CLHEP::HepRandomEngine* engine) const
 {
   // HO goes slow, HF shouldn't be used at all
@@ -42,9 +40,7 @@ void HcalTimeSlewSim::delay(CaloSamples & cs, CLHEP::HepRandomEngine* engine) co
 
   if(hcalDetId.subdet() == HcalBarrel || hcalDetId.subdet() == HcalEndcap || hcalDetId.subdet() == HcalOuter ) {
 
-    HcalTimeSlew::BiasSetting biasSetting = (hcalDetId.subdet() == HcalOuter) ?
-      HcalTimeSlew::Slow :
-      HcalTimeSlew::Medium;
+    HcalTimeSlew::BiasSetting biasSetting = (hcalDetId.subdet() == HcalOuter) ? HcalTimeSlew::Slow : HcalTimeSlew::Medium;
 
     // double totalCharge = charge(cs); // old TS... 
 
