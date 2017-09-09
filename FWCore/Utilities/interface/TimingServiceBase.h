@@ -42,10 +42,15 @@ namespace edm {
     /// The value returned should be in seconds.
     virtual double getTotalCPU() const = 0;
 
+    static void jobStarted();
+    
+    static double jobStartTime() { return s_jobStartTime; }
   private:
     TimingServiceBase(const TimingServiceBase&) =delete; // stop default
     
     const TimingServiceBase& operator=(const TimingServiceBase&) =delete; // stop default
+    
+    static double s_jobStartTime;
   };
 }
 
