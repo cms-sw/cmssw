@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoCTPPS.TotemRPLocal.ctppsLocalTrackLiteDefaultProducer_cfi import ctppsLocalTrackLiteDefaultProducer
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 
 ctppsLocalTrackLiteProducer = ctppsLocalTrackLiteDefaultProducer.clone()
 
@@ -10,3 +11,5 @@ ctpps_2016.toModify(
     ctppsLocalTrackLiteProducer,
     doNothing = cms.bool(False)
 )
+
+run2_miniAOD_80XLegacy.toModify(ctppsLocalTrackLiteProducer, tagPixelTrack = "" )
