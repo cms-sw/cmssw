@@ -36,12 +36,12 @@ namespace edm {
     class Timing : public TimingServiceBase {
     public:
       Timing(ParameterSet const&, ActivityRegistry&);
-      ~Timing();
+      ~Timing() override;
       
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
       
-      virtual void addToCPUTime(StreamID id, double iTime) override;
-      virtual double getTotalCPU() const override;
+      void addToCPUTime(StreamID id, double iTime) override;
+      double getTotalCPU() const override;
       
     private:
       
@@ -116,7 +116,7 @@ namespace edm {
     
     static double getTime() {
       struct timeval t;
-      if(gettimeofday(&t, 0) < 0)
+      if(gettimeofday(&t, nullptr) < 0)
         throw cms::Exception("SysCallFailed", "Failed call to gettimeofday");
       return static_cast<double>(t.tv_sec) + (static_cast<double>(t.tv_usec) * 1E-6);
     }
@@ -151,7 +151,7 @@ namespace edm {
     static 
     double popStack() {
       auto& modStack = moduleTimeStack();
-      assert(modStack.size() > 0);
+      assert(!modStack.empty());
       double curr_module_time = modStack.back();
       modStack.pop_back();
       double t = getTime() - curr_module_time;
@@ -299,10 +299,21 @@ namespace edm {
     }
 
     void Timing::postEndJob() {
-      double total_job_time = getTime() - curr_job_time_;
+      const double job_end_time =getTime();
+      const double job_end_cpu =getCPU();
+      double total_job_time = job_end_time - jobStartTime();
 
-      double total_job_cpu = getCPU() - curr_job_cpu_;
+      double total_job_cpu = job_end_cpu;
 
+      const double total_initialization_time = curr_job_time_ - jobStartTime();
+      const double total_initialization_cpu =  curr_job_cpu_;
+      
+      if( 0.0 == jobStartTime()) {
+        //did not capture beginning time
+        total_job_time =job_end_time - curr_job_time_;
+        total_job_cpu =job_end_cpu - curr_job_cpu_;
+      }
+      
       double min_event_time = *(std::min_element(min_events_time_.begin(),
                                                  min_events_time_.end()));
       double max_event_time = *(std::max_element(max_events_time_.begin(),
@@ -337,11 +348,13 @@ namespace edm {
         << " - Min event:   " << min_event_time << "\n"
         << " - Max event:   " << max_event_time << "\n"
         << " - Avg event:   " << average_event_time << "\n"
-        << " - Total loop:  " <<total_loop_time <<"\n"
+        << " - Total loop:  " << total_loop_time <<"\n"
+        << " - Total init:  " << total_initialization_time <<"\n"
         << " - Total job:   " << total_job_time << "\n"
         << " Event Throughput: "<< event_throughput <<" ev/s\n"
         << " CPU Summary: \n"
         << " - Total loop:  " << total_loop_cpu << "\n"
+        << " - Total init:  " << total_initialization_cpu <<"\n"
         << " - Total job:   " << total_job_cpu << "\n";
 
       if(report_summary_) {
@@ -355,6 +368,8 @@ namespace edm {
         reportData.insert(std::make_pair("TotalJobTime", d2str(total_job_time)));
         reportData.insert(std::make_pair("TotalJobCPU", d2str(total_job_cpu)));
         reportData.insert(std::make_pair("TotalLoopCPU", d2str(total_loop_cpu)));
+        reportData.insert(std::make_pair("TotalInitTime", d2str(total_initialization_time)));
+        reportData.insert(std::make_pair("TotalInitCPU", d2str(total_initialization_cpu)));
         reportData.insert(std::make_pair("NumberOfStreams",ui2str(nStreams_)));
         reportData.insert(std::make_pair("NumberOfThreads",ui2str(nThreads_)));
         reportSvc->reportPerformanceSummary("Timing", reportData);
