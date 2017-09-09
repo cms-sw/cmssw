@@ -516,25 +516,34 @@ SiStripGainsPCLWorker::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
   
   int elepos = statCollectionFromMode(tag);
 
-  //setting up the bin array for the Charge_Vs_Index histogram
-  float* binXarray = new float[NStripAPVs+1];
+  // The cluster charge is stored by exploiting a non uniform binning in order 
+  // reduce the histogram memory size. The bin width is relaxed with a falling
+  // exponential function and the bin boundaries are stored in the binYarray. 
+  // The binXarray is used to provide as many bins as the APVs.
+  //
+  // More details about this implementations are here:
+  // https://indico.cern.ch/event/649344/contributions/2672267/attachments/1498323/2332518/OptimizeChHisto.pdf
+
+  std::vector<float> binXarray;
+  binXarray.reserve( NStripAPVs+1 );
   for(int a=0;a<=NStripAPVs;a++){
-     binXarray[a] = (float)a;
+     binXarray.push_back( (float)a );
   }
 
-  float* binYarray = new float[688];
+
+  std::array<float,688> binYarray;
   double p0 = 5.445;
   double p1 = 0.002113;
   double p2 = 69.01576;
   double y = 0.;
   for(int b=0;b<687;b++) {
-     binYarray[b] = y;
+     binYarray.at(b) = y;
      if(y<=902.) y = y + 2.;
      else y = ( p0 - log(exp(p0-p1*y) - p2*p1)) / p1;
   }
-  binYarray[687] = 4000.;
+  binYarray.at(687) = 4000.;
   
-  Charge_Vs_Index[elepos]           = ibooker.book2S(cvi.c_str()     , cvi.c_str()     , NStripAPVs, binXarray, 687, binYarray);
+  Charge_Vs_Index[elepos]           = ibooker.book2S(cvi.c_str()     , cvi.c_str()     , NStripAPVs, &binXarray[0], 687, binYarray.data());
   Charge_Vs_PathlengthTIB[elepos]   = ibooker.book2S(cvpTIB.c_str()  , cvpTIB.c_str()  , 20   , 0.3 , 1.3  , 250,0,2000);
   Charge_Vs_PathlengthTOB[elepos]   = ibooker.book2S(cvpTOB.c_str()  , cvpTOB.c_str()  , 20   , 0.3 , 1.3  , 250,0,2000);
   Charge_Vs_PathlengthTIDP[elepos]  = ibooker.book2S(cvpTIDP.c_str() , cvpTIDP.c_str() , 20   , 0.3 , 1.3  , 250,0,2000);
@@ -583,7 +592,4 @@ SiStripGainsPCLWorker::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
     int plane = APVGain::subdetectorPlane((hnames[i]).first);
     Charge_4[elepos].push_back( APVGain::APVmon(id,side,plane,monitor) );
   }
-
-  delete[] binXarray;
-  delete[] binYarray;
 }
