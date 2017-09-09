@@ -4,8 +4,6 @@
 
 // user include files
 #include "Calibration/EcalCalibAlgos/interface/ECALpedestalPCLHarvester.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -18,7 +16,7 @@
 #include <string>
 
 ECALpedestalPCLHarvester::ECALpedestalPCLHarvester(const edm::ParameterSet& ps):
-    currentPedestals_(0),channelStatus_(0){
+    currentPedestals_(nullptr),channelStatus_(nullptr){
 
     chStatusToExclude_= StringToEnumValue<EcalChannelStatusCode::Code>(ps.getParameter<std::vector<std::string> >("ChannelStatusToExclude"));
     minEntries_=ps.getParameter<int>("MinEntries");
@@ -27,6 +25,8 @@ ECALpedestalPCLHarvester::ECALpedestalPCLHarvester(const edm::ParameterSet& ps):
     thresholdAnomalies_ = ps.getParameter<double>("thresholdAnomalies"); 
     dqmDir_         = ps.getParameter<std::string>("dqmDir");
     labelG6G1_      = ps.getParameter<std::string>("labelG6G1");
+    threshDiffEB_   = ps.getParameter<double>("threshDiffEB");
+    threshDiffEE_   = ps.getParameter<double>("threshDiffEE");
 }
 
 void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_) {
@@ -41,6 +41,7 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
         MonitorElement* ch= igetter_.get(hname);
         double mean = ch->getMean();
         double rms  = ch->getRMS();
+        entriesEB_[i] = ch->getEntries();
 
         DetId id = EBDetId::detIdFromDenseIndex(i);
         EcalPedestal ped;
@@ -50,8 +51,10 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
         ped.mean_x12=mean;
         ped.rms_x12=rms;
 
-        // if bad channel or low stat skip
-        if(ch->getEntries()< minEntries_ || !checkStatusCode(id)){
+        float diff = std::abs(mean-oldped.mean_x12);
+
+        // if bad channel or low stat skip or the difference is too large wrt to previous record
+        if(ch->getEntries()< minEntries_ || !checkStatusCode(id) || diff>threshDiffEB_){
 
             ped.mean_x12=oldped.mean_x12;
             ped.rms_x12=oldped.rms_x12;
@@ -75,7 +78,8 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
         MonitorElement* ch= igetter_.get(hname);
         double mean = ch->getMean();
         double rms  = ch->getRMS();
-
+        entriesEE_[i] = ch->getEntries(); 
+ 
         DetId id = EEDetId::detIdFromDenseIndex(i);
         EcalPedestal ped;
         EcalPedestal oldped = *currentPedestals_->find(id.rawId());
@@ -84,8 +88,10 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
         ped.mean_x12=mean;
         ped.rms_x12=rms;
 
-        // if bad channel or low stat skip
-        if(ch->getEntries()< minEntries_ || !checkStatusCode(id)){
+        float diff = std::abs(mean-oldped.mean_x12);
+
+        // if bad channel or low stat skip or the difference is too large wrt to previous record
+        if(ch->getEntries()< minEntries_ || !checkStatusCode(id)|| diff>threshDiffEE_){
             ped.mean_x12=oldped.mean_x12;
             ped.rms_x12=oldped.rms_x12;
         }
@@ -220,23 +226,31 @@ void  ECALpedestalPCLHarvester::dqmPlots(const EcalPedestals& newpeds, DQMStore:
      ibooker.cd();
      ibooker.setCurrentFolder(dqmDir_+"/Summary");
 
-     MonitorElement * pmeb = ibooker.book2D("meaneb","Pedestal Means",360, 1., 361., 171, -85., 86.);
-     MonitorElement * preb = ibooker.book2D("rmseb","Pedestal RMS",360, 1., 361., 171, -85., 86.);
+     MonitorElement * pmeb = ibooker.book2D("meaneb","Pedestal Means EB",360, 1., 361., 171, -85., 86.);
+     MonitorElement * preb = ibooker.book2D("rmseb","Pedestal RMS EB ",360, 1., 361., 171, -85., 86.);
 
-     MonitorElement * pmeep = ibooker.book2D("meaneep","Pedestal Means",100,1,101,100,1,101);
-     MonitorElement * preep = ibooker.book2D("rmseep","Pedestal RMS",100,1,101,100,1,101);
+     MonitorElement * pmeep = ibooker.book2D("meaneep","Pedestal Means EEP",100,1,101,100,1,101);
+     MonitorElement * preep = ibooker.book2D("rmseep","Pedestal RMS EEP",100,1,101,100,1,101);
 
-     MonitorElement * pmeem = ibooker.book2D("meaneem","Pedestal Means",100,1,101,100,1,101);
-     MonitorElement * preem = ibooker.book2D("rmseem","Pedestal RMS",100,1,101,100,1,101);
+     MonitorElement * pmeem = ibooker.book2D("meaneem","Pedestal Means EEM",100,1,101,100,1,101);
+     MonitorElement * preem = ibooker.book2D("rmseem","Pedestal RMS EEM",100,1,101,100,1,101);
 
-     MonitorElement * pmebd = ibooker.book2D("meanebdiff","Pedestal Means Diff",360, 1., 361., 171, -85., 86.);
-     MonitorElement * prebd = ibooker.book2D("rmsebdiff","Pedestal RMS Diff",360, 1., 361., 171, -85., 86.);
+     MonitorElement * pmebd = ibooker.book2D("meanebdiff","Abs Rel Pedestal Means Diff EB",360,1., 361., 171, -85., 86.);
+     MonitorElement * prebd = ibooker.book2D("rmsebdiff","Abs Rel Pedestal RMS Diff E ",360, 1., 361., 171, -85., 86.);
 
-     MonitorElement * pmeepd = ibooker.book2D("meaneepdiff","Pedestal Means Diff",100,1,101,100,1,101);
-     MonitorElement * preepd = ibooker.book2D("rmseepdiff","Pedestal RMS Diff",100,1,101,100,1,101);
+     MonitorElement * pmeepd = ibooker.book2D("meaneepdiff","Abs Rel Pedestal Means Diff EEP",100,1,101,100,1,101);
+     MonitorElement * preepd = ibooker.book2D("rmseepdiff","Abs Rel Pedestal RMS Diff EEP",100,1,101,100,1,101);
 
-     MonitorElement * pmeemd = ibooker.book2D("meaneemdiff","Pedestal Means Diff",100,1,101,100,1,101);
-     MonitorElement * preemd = ibooker.book2D("rmseemdiff","Pedestal RMS Diff",100,1,101,100,1,101);
+     MonitorElement * pmeemd = ibooker.book2D("meaneemdiff","Abs Rel Pedestal Means Diff EEM",100,1,101,100,1,101);
+     MonitorElement * preemd = ibooker.book2D("rmseemdiff","Abs RelPedestal RMS Diff EEM",100,1,101,100,1,101);
+
+     MonitorElement * poeb = ibooker.book2D("occeb","Occupancy EB",360, 1., 361., 171, -85., 86.);
+     MonitorElement * poeep = ibooker.book2D("occeep","Occupancy EEP",100,1,101,100,1,101);
+     MonitorElement * poeem = ibooker.book2D("occeem","Occupancy EEM",100,1,101,100,1,101);
+
+
+     MonitorElement * hdiffeb = ibooker.book1D("diffeb","Pedestal Differences EB",100,-2.5,2.5);
+     MonitorElement * hdiffee = ibooker.book1D("diffee","Pedestal Differences EE",100,-2.5,2.5);
 
      for (int hash =0; hash<EBDetId::kSizeForDenseIndexing;++hash){
          
@@ -251,9 +265,10 @@ void  ECALpedestalPCLHarvester::dqmPlots(const EcalPedestals& newpeds, DQMStore:
  
          pmeb->Fill(di.iphi(),di.ieta(),mean);
          preb->Fill(di.iphi(),di.ieta(),rms);
-         pmebd->Fill(di.iphi(),di.ieta(),std::abs(mean-cmean)/cmean);
-         prebd->Fill(di.iphi(),di.ieta(),std::abs(rms-crms)/crms);
-         
+         if (cmean) pmebd->Fill(di.iphi(),di.ieta(),std::abs(mean-cmean)/cmean);
+         if (crms) prebd->Fill(di.iphi(),di.ieta(),std::abs(rms-crms)/crms);
+         poeb->Fill(di.iphi(),di.ieta(),entriesEB_[hash]);
+         hdiffeb->Fill(mean-cmean);
      }
 
      
@@ -270,14 +285,17 @@ void  ECALpedestalPCLHarvester::dqmPlots(const EcalPedestals& newpeds, DQMStore:
          if (di.zside() >0){
              pmeep->Fill(di.ix(),di.iy(),mean);
              preep->Fill(di.ix(),di.iy(),rms);
-             pmeepd->Fill(di.ix(),di.iy(),std::abs(mean-cmean)/cmean);
-             preepd->Fill(di.ix(),di.iy(),std::abs(rms-crms)/crms);
+             poeep->Fill(di.ix(),di.iy(),entriesEE_[hash]);
+             if (cmean) pmeepd->Fill(di.ix(),di.iy(),std::abs(mean-cmean)/cmean);
+             if (crms)  preepd->Fill(di.ix(),di.iy(),std::abs(rms-crms)/crms);
          } else{
              pmeem->Fill(di.ix(),di.iy(),mean);
              preem->Fill(di.ix(),di.iy(),rms);
-             pmeemd->Fill(di.ix(),di.iy(),std::abs(mean-cmean)/cmean);
-             preemd->Fill(di.ix(),di.iy(),std::abs(rms-crms)/crms);
+             if (cmean) pmeemd->Fill(di.ix(),di.iy(),std::abs(mean-cmean)/cmean);
+             poeem->Fill(di.ix(),di.iy(),entriesEE_[hash]); 
+             if (crms)preemd->Fill(di.ix(),di.iy(),std::abs(rms-crms)/crms);
          }
+         hdiffee->Fill(mean-cmean);
          
      }
 

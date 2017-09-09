@@ -46,6 +46,7 @@ namespace edm {
     std::string const& productInstanceName() const {return branchDescription().productInstanceName();}
     std::string const& friendlyClassName() const {return branchDescription().friendlyClassName();}
     ProcessHistory const& processHistory() const {return *processHistory_;}
+    ProcessHistory const* processHistoryPtr() const {return processHistory_;}
     bool getProcessConfiguration(ProcessConfiguration& pc) const;
     ReleaseVersion releaseVersion() const;
     std::set<std::string> const& branchAliases() const {return branchDescription().branchAliases();}
