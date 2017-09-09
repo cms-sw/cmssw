@@ -183,6 +183,9 @@ namespace edm {
     if(!previousParentage) {
       assert(!sameAsPrevious);
       previousParentageId = &temp;
+      if(!record_parents) {
+        sameAsPrevious = true;
+      }
     }
     while(pit != pie) {
       // set provenance
