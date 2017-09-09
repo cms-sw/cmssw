@@ -250,6 +250,9 @@ namespace edm {
     void processEventAsync(WaitingTaskHolder iHolder,
                            unsigned int iStreamIndex);
 
+    void processEventAsyncImpl(WaitingTaskHolder iHolder,
+                               unsigned int iStreamIndex);
+
     //returns true if an asynchronous stop was requested
     bool checkForAsyncStopRequest(StatusCode&);
     
