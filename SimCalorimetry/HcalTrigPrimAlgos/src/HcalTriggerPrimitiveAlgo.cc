@@ -220,19 +220,15 @@ HcalTriggerPrimitiveAlgo::addSignal(const QIE10DataFrame& frame)
       zero_samples.setPresamples(frame.presamples());
       addSignal(zero_samples);
 
-      std::vector<bool> msb;
-      incoder_->lookupMSB(frame,msb);
-
       auto fid = HcalDetId(frame.id());
       auto& details = theHFUpgradeDetailMap[id][fid.maskDepth()];
       auto& detail = details[fid.depth()-1];
       detail.samples = samples;
       detail.digi = frame;
       detail.validity.resize(nsamples);
-      detail.fgbit.resize(nsamples);
+      incoder_->lookupMSB(frame, detail.fgbit);
       for (int idx = 0; idx < nsamples; ++idx){
          detail.validity[idx] = validChannel(frame, idx);
-         detail.fgbit[idx] = msb[idx];
       }
    }
 }
@@ -637,7 +633,6 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
 
             for (const auto& detail: details) {
                if (idx < int(detail.digi.size()) and detail.validity[idx] and HcalDetId(detail.digi.id()).ietaAbs() >= FIRST_FINEGRAIN_TOWER) {
-                  //finegrain[ibin][1] = finegrain[ibin][1] or (detail.digi[idx].adc() > (int) FG_HF_threshold_);
                   finegrain[ibin][1] = finegrain[ibin][1] or detail.fgbit[idx];
                }
             }
