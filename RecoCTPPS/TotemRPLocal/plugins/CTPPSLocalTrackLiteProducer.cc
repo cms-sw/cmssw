@@ -104,6 +104,7 @@ CTPPSLocalTrackLiteProducer::produce( edm::Event& iEvent, const edm::EventSetup&
 
   // get input from pixel detectors
   edm::Handle< edm::DetSetVector<CTPPSPixelLocalTrack> > inputPixelTracks;
+  if (not pixelTrackToken_.isUninitialized()){
   iEvent.getByToken( pixelTrackToken_, inputPixelTracks );
 
   // process tracks from Si strips
@@ -114,7 +115,7 @@ CTPPSLocalTrackLiteProducer::produce( edm::Event& iEvent, const edm::EventSetup&
       pOut->emplace_back( rpId, trk.getX0(), trk.getX0Sigma(), trk.getY0(), trk.getY0Sigma() );
     }
   }
-
+  }
   // save output to event
   iEvent.put( std::move( pOut ) );
 }
