@@ -22,7 +22,7 @@ namespace edmtest {
   ThingProducer::~ThingProducer() { }  
 
   // Functions that gets called by framework every event
-  void ThingProducer::produce(edm::Event& e, edm::EventSetup const&) {
+  void ThingProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
@@ -36,7 +36,7 @@ namespace edmtest {
   }
 
   // Functions that gets called by framework every luminosity block
-  void ThingProducer::beginLuminosityBlockProduce(edm::LuminosityBlock& lb, edm::EventSetup const&) {
+  void ThingProducer::globalBeginLuminosityBlockProduce(edm::LuminosityBlock& lb, edm::EventSetup const&) const {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
@@ -49,7 +49,7 @@ namespace edmtest {
     if (!noPut_) lb.put(std::move(result), "beginLumi");
   }
 
-  void ThingProducer::endLuminosityBlockProduce(edm::LuminosityBlock& lb, edm::EventSetup const&) {
+  void ThingProducer::globalEndLuminosityBlockProduce(edm::LuminosityBlock& lb, edm::EventSetup const&) const {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
@@ -63,7 +63,7 @@ namespace edmtest {
   }
 
   // Functions that gets called by framework every run
-  void ThingProducer::beginRunProduce(edm::Run& r, edm::EventSetup const&) {
+  void ThingProducer::globalBeginRunProduce(edm::Run& r, edm::EventSetup const&) const {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
@@ -76,7 +76,7 @@ namespace edmtest {
     if (!noPut_) r.put(std::move(result), "beginRun");
   }
 
-  void ThingProducer::endRunProduce(edm::Run& r, edm::EventSetup const&) {
+  void ThingProducer::globalEndRunProduce(edm::Run& r, edm::EventSetup const&) const {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
