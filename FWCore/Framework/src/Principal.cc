@@ -119,6 +119,7 @@ namespace edm {
     EDProductGetter(),
     processHistoryPtr_(),
     processHistoryID_(),
+    processHistoryIDBeforeConfig_(),
     processConfiguration_(&pc),
     productResolvers_(),
     preg_(reg),
@@ -311,8 +312,9 @@ namespace edm {
   // "Zero" the principal so it can be reused for another Event.
   void
   Principal::clearPrincipal() {
-    processHistoryPtr_.reset();
-    processHistoryID_ = ProcessHistoryID();
+    //We do not clear the product history information
+    // because it rarely changes and recalculating takes
+    // time.
     reader_ = nullptr;
     for(auto& prod : *this) {
       prod->resetProductData();
@@ -352,31 +354,37 @@ namespace edm {
     }
 
     if (historyAppender_ && productRegistry().anyProductProduced()) {
-      processHistoryPtr_ =
-        historyAppender_->appendToProcessHistory(hist,
-                                                 processHistoryRegistry.getMapped(hist),
-                                                 *processConfiguration_);
-      processHistoryID_ = processHistoryPtr_->id();
+      if( (not processHistoryPtr_) || (processHistoryIDBeforeConfig_ != hist) ) {
+        processHistoryPtr_ =
+          historyAppender_->appendToProcessHistory(hist,
+                                                   processHistoryRegistry.  getMapped(hist),
+                                                   *processConfiguration_);
+        processHistoryID_ = processHistoryPtr_->id();
+        processHistoryIDBeforeConfig_ = hist;
+      }
     }
     else {
       std::shared_ptr<ProcessHistory const> inputProcessHistory;
-      if (hist.isValid()) {
-        //does not own the pointer
-        auto noDel =[](void const*){};
-        inputProcessHistory =
-        std::shared_ptr<ProcessHistory const>(processHistoryRegistry.getMapped(hist),noDel);
-        if (inputProcessHistory.get() == nullptr) {
-          throw Exception(errors::LogicError)
-            << "Principal::fillPrincipal\n"
-            << "Input ProcessHistory not found in registry\n"
-            << "Contact a Framework developer\n";
+      if( (not processHistoryPtr_) || (processHistoryIDBeforeConfig_ != hist) ) {
+        if (hist.isValid()) {
+          //does not own the pointer
+          auto noDel =[](void const*){};
+          inputProcessHistory =
+          std::shared_ptr<ProcessHistory const>(processHistoryRegistry.getMapped(hist),noDel);
+          if (inputProcessHistory.get() == nullptr) {
+            throw Exception(errors::LogicError)
+              << "Principal::fillPrincipal\n"
+              << "Input ProcessHistory not found in registry\n"
+              << "Contact a Framework developer\n";
+          }
+        } else {
+          //Since this is static we don't want it deleted
+          inputProcessHistory = std::shared_ptr<ProcessHistory const>(&s_emptyProcessHistory,[](void const*){});
         }
-      } else {
-        //Since this is static we don't want it deleted
-        inputProcessHistory = std::shared_ptr<ProcessHistory const>(&s_emptyProcessHistory,[](void const*){});
+        processHistoryID_ = hist;
+        processHistoryPtr_ = inputProcessHistory;
+        processHistoryIDBeforeConfig_ = hist;
       }
-      processHistoryID_ = hist;
-      processHistoryPtr_ = inputProcessHistory;        
     }
 
     if (orderProcessHistoryID_ != processHistoryID_) {

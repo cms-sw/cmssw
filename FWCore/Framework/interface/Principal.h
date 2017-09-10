@@ -265,6 +265,7 @@ namespace edm {
     std::shared_ptr<ProcessHistory const> processHistoryPtr_;
 
     ProcessHistoryID processHistoryID_;
+    ProcessHistoryID processHistoryIDBeforeConfig_;
 
     ProcessConfiguration const* processConfiguration_;
 
