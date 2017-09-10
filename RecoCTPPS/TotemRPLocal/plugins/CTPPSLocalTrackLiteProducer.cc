@@ -53,7 +53,11 @@ CTPPSLocalTrackLiteProducer::CTPPSLocalTrackLiteProducer( const edm::ParameterSe
 
   siStripTrackToken_ = consumes< edm::DetSetVector<TotemRPLocalTrack> >     ( iConfig.getParameter<edm::InputTag>("tagSiStripTrack") );
   diamondTrackToken_ = consumes< edm::DetSetVector<CTPPSDiamondLocalTrack> >( iConfig.getParameter<edm::InputTag>("tagDiamondTrack") );
-  pixelTrackToken_   = consumes< edm::DetSetVector<CTPPSPixelLocalTrack> >  ( iConfig.getParameter<edm::InputTag>("tagPixelTrack")   );
+  auto tagPixelTrack = iConfig.getParameter<edm::InputTag>("tagPixelTrack"); 
+  if (not tagPixelTrack.label().empty()){
+    pixelTrackToken_   = consumes< edm::DetSetVector<CTPPSPixelLocalTrack> >  (tagPixelTrack);
+  }
+
 
   produces< std::vector<CTPPSLocalTrackLite> >();
 }
