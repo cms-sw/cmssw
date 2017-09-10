@@ -955,7 +955,9 @@ namespace {
     
   public:
     SiStripApvGainsTest() : cond::payloadInspector::Histogram1D<SiStripApvGain>("SiStripApv Gains test",
-										"SiStripApv Gains test", 10,0.0,10.0){
+										"SiStripApv Gains test", 10,0.0,10.0),
+      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
+    {
       Base::setSingleIov( true );
     }
     
@@ -967,7 +969,7 @@ namespace {
 	  std::vector<uint32_t> detid;
 	  payload->getDetIds(detid);
 	  
-	  SiStripDetSummary summaryGain;
+	  SiStripDetSummary summaryGain{&m_trackerTopo};
 
 	  for (const auto & d : detid) {
 	    SiStripApvGain::Range range=payload->getRange(d);
@@ -989,6 +991,8 @@ namespace {
       }// iovs
       return true;
     }// fill
+  private:
+    TrackerTopology m_trackerTopo;
   };
 
   /************************************************
@@ -1172,7 +1176,9 @@ namespace {
 
   class SiStripApvGainsComparatorByPartition : public cond::payloadInspector::PlotImage<SiStripApvGain> {
   public:
-    SiStripApvGainsComparatorByPartition() : cond::payloadInspector::PlotImage<SiStripApvGain>( "SiStripGains Comparison By Partition" ){
+    SiStripApvGainsComparatorByPartition() : cond::payloadInspector::PlotImage<SiStripApvGain>( "SiStripGains Comparison By Partition" ),
+      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
+    {
       setSingleIov( false );
     }
 
@@ -1194,7 +1200,7 @@ namespace {
       std::vector<uint32_t> detid;
       last_payload->getDetIds(detid);
 
-      SiStripDetSummary summaryLastGain;
+      SiStripDetSummary summaryLastGain{&m_trackerTopo};
 
       for (const auto & d : detid) {
 	SiStripApvGain::Range range=last_payload->getRange(d);
@@ -1203,7 +1209,7 @@ namespace {
 	}
       } 
 
-      SiStripDetSummary summaryFirstGain;
+      SiStripDetSummary summaryFirstGain{&m_trackerTopo};
 
       for (const auto & d : detid) {
 	SiStripApvGain::Range range=first_payload->getRange(d);
@@ -1336,6 +1342,8 @@ namespace {
 
       return true;
     }
+  private:
+    TrackerTopology m_trackerTopo;
   };
 
   /************************************************
@@ -1344,7 +1352,9 @@ namespace {
 
   class SiStripApvGainsByPartition : public cond::payloadInspector::PlotImage<SiStripApvGain> {
   public:
-    SiStripApvGainsByPartition() : cond::payloadInspector::PlotImage<SiStripApvGain>( "SiStripGains By Partition" ){
+    SiStripApvGainsByPartition() : cond::payloadInspector::PlotImage<SiStripApvGain>( "SiStripGains By Partition" ),
+      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
+    {
       setSingleIov( true );
     }
 
@@ -1355,7 +1365,7 @@ namespace {
       std::vector<uint32_t> detid;
       payload->getDetIds(detid);
 
-      SiStripDetSummary summaryGain;
+      SiStripDetSummary summaryGain{&m_trackerTopo};
 
       for (const auto & d : detid) {
 	SiStripApvGain::Range range=payload->getRange(d);
@@ -1450,6 +1460,8 @@ namespace {
 
       return true;
     }
+  private:
+    TrackerTopology m_trackerTopo;
   };
 
 } // close namespace
