@@ -71,6 +71,18 @@ class L1TdeStage2CaloLayer1 : public DQMEDAnalyzer {
     };
     typedef std::set<SimpleTower> SimpleTowerSet;
 
+    enum SummaryColumn {
+      EtMismatch,
+      ErMismatch,
+      FbMismatch,
+      TowerCountMismatch,
+      NSummaryColumns,
+    };
+    MonitorElement *dataEmulSummary_;
+    std::array<double, NSummaryColumns> dataEmulNumerator_;
+    double dataEmulDenominator_;
+    MonitorElement *mismatchesPerBxMod9_;
+
     MonitorElement *dataOcc_;
     MonitorElement *emulOcc_;
     MonitorElement *matchOcc_;
@@ -86,12 +98,15 @@ class L1TdeStage2CaloLayer1 : public DQMEDAnalyzer {
     MonitorElement *etCorrelation_;
     MonitorElement *matchEtDistribution_;
     MonitorElement *etMismatchDiff_;
+    MonitorElement *fbCorrelation_;
     MonitorElement *fbCorrelationHF_;
 
     MonitorElement *etMismatchByLumi_;
     MonitorElement *erMismatchByLumi_;
     MonitorElement *fbMismatchByLumi_;
 
+    MonitorElement *etMismatchesPerBx_;
+    MonitorElement *erMismatchesPerBx_;
     MonitorElement *fbMismatchesPerBx_;
     MonitorElement *towerCountMismatchesPerBx_;
 
