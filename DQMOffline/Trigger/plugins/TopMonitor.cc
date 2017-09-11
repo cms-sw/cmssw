@@ -461,15 +461,6 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   if ( den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on() ) den_genTriggerEventFlag_->initRun( iRun, iSetup );
 
 }
-//george
-bool TopMonitor::mllpairscut(std::vector<TLorentzVector> mu, double uppercut, double lowercut) {
-for (unsigned int idx=0; idx<mu.size(); idx++) {
-  for (unsigned int idx2=idx; idx2<mu.size(); idx2++)
-     if ((mu[idx]+mu[idx2]).M()>uppercut || (mu[idx]+mu[idx2]).M()<lowercut ) return true;
-  }
- return false;
-}
-
 
 void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)  {
   mll=-2;
@@ -601,20 +592,19 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   if (MHTcut_>0 && eventMHT.pt()<MHTcut_) return;
 
 //george
-// put every muon in a vector
   bool allpairs=false;
-  if (nmuons_>2) {
-    std::vector<TLorentzVector> mu;
+  if (nmuons_>2) {     
+    float mumu_mass;
     for (unsigned int idx=0; idx<muons.size(); idx++){
-      TLorentzVector temp_mu;
-      temp_mu.SetPtEtaPhiM(muons[idx].pt(),muons[idx].eta(),muons[idx].phi(),0.105);
-       mu.push_back(temp_mu);
-       }
-//here is where the cut is actually done- Returns true if a pair fails the condition
-         allpairs=mllpairscut(mu,invMassUppercut_,invMassLowercut_);
-         }
-  if (allpairs && invMassCutInAllMuPairs_) return;
-           
+      for (unsigned int idx2=idx+1; idx2<muons.size(); idx2++){
+         //compute inv mass of two different leptons
+         mumu_mass=(muons[idx2].p4() + muons[idx2].p4()).M();
+         if (mumu_mass<invMassLowercut_ || mumu_mass>invMassUppercut_) allpairs=true;
+      }
+   }
+ }
+  //cut only if enabled and the event has a pair that failed the mll range
+  if (allpairs && invMassCutInAllMuPairs_) return;         
 
   // Marina
   edm::Handle<reco::JetTagCollection> bjetHandle;

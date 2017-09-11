@@ -58,8 +58,6 @@ public:
   TopMonitor( const edm::ParameterSet& );
   ~TopMonitor() throw() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-//george
-  bool mllpairscut(std::vector<TLorentzVector> mu, double uppercut, double lowercut);
   
 
 protected:
