@@ -13,6 +13,19 @@ namespace rpcdqm{
 
   enum RPCMeFLag{OCCUPANCY = 1, CLUSTERSIZE = 2, MULTIPLICITY =3, BX=4};
 
+  struct RPCMEHelper
+  {
+    static void setNoAlphanumeric(MonitorElement* myMe)
+    {
+      // Set no-alphanumeric flag to avoid malfunctioning in multithread environment.
+      TH2* h2 = dynamic_cast<TH2*>(myMe->getTH1());
+      if ( !h2 ) return;
+
+      h2->GetXaxis()->SetNoAlphanumeric(true);
+      h2->GetYaxis()->SetNoAlphanumeric(true);
+    }
+  };
+
   class utils{
   public:
     int detId2RollNr(const RPCDetId & _id){
@@ -236,6 +249,7 @@ namespace rpcdqm{
     void labelXAxisSector(MonitorElement * myMe){
       //before do some checks
       if (!myMe) return;
+      RPCMEHelper::setNoAlphanumeric(myMe);
 
       std::stringstream xLabel;
 
@@ -250,6 +264,7 @@ namespace rpcdqm{
     void labelXAxisSegment(MonitorElement * myMe){
       //before do some checks
       if (!myMe) return;
+      RPCMEHelper::setNoAlphanumeric(myMe);
 
       std::stringstream xLabel;
 
@@ -269,6 +284,7 @@ namespace rpcdqm{
   
       //before do some checks
       if (!myMe) return;
+      RPCMEHelper::setNoAlphanumeric(myMe);
   
       //set bin labels
       if(region == 0){
@@ -323,6 +339,7 @@ namespace rpcdqm{
 	(numberOfRings == 2 ? startBin = 3: startBin = 0);
 	
 	//set bin labels
+	RPCMEHelper::setNoAlphanumeric(myMe);
 	for(int y =1 ;y<= myMe->getNbinsY() && y<=9; y++ ){
 	  myMe->setBinLabel(y,labels[y-1+startBin],2);
 	  
@@ -432,8 +449,6 @@ std::string detId2ChamberLabel(const RPCDetId & _id){
 	return ChLabel;
     }
 
- 
-    
   private:
       int _cnr;
       int ch;
