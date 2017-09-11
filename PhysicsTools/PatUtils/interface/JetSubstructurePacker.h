@@ -37,7 +37,7 @@ class JetSubstructurePacker : public edm::stream::EDProducer<> {
    public:
 
       explicit JetSubstructurePacker(const edm::ParameterSet&);
-      virtual ~JetSubstructurePacker();
+      ~JetSubstructurePacker() override;
 
    private:
       void produce(edm::Event&, const edm::EventSetup&) override;
