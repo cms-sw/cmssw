@@ -113,16 +113,7 @@ ctppsDiamondGeomXMLFiles = cms.vstring(
     'Geometry/VeryForwardData/data/CTPPS_Diamond_Detector_Assembly.xml'
 )
 
-# pixel files
-ctppsPixelGeomXMLFiles = cms.vstring(
-    'Geometry/VeryForwardData/data/ppstrackerMaterials.xml',
-    'Geometry/VeryForwardData/data/CTPPS_Pixel_Module.xml',
-    'Geometry/VeryForwardData/data/CTPPS_Pixel_Module_2x2.xml',
-    'Geometry/VeryForwardData/data/CTPPS_Pixel_Assembly_Box_Real_023.xml',
-    'Geometry/VeryForwardData/data/CTPPS_Pixel_Assembly_Box_Real_123.xml',
-    'Geometry/VeryForwardData/data/CTPPS_Pixel_Sens.xml'
-)
-
+# UFSD files
 ctppsUFSDGeomXMLFiles = cms.vstring(
     # UFSDetectors
     'Geometry/VeryForwardData/data/CTPPS_UFSD_Segments/CTPPS_UFSD_Pattern1.xml',
@@ -133,10 +124,25 @@ ctppsUFSDGeomXMLFiles = cms.vstring(
     #'Geometry/VeryForwardData/data/CTPPS_UFSD_Detector_Assembly.xml',
 )
 
+# pixel files
+ctppsPixelGeomXMLFiles = cms.vstring(
+    'Geometry/VeryForwardData/data/ppstrackerMaterials.xml',
+    'Geometry/VeryForwardData/data/CTPPS_Pixel_Module.xml',
+    'Geometry/VeryForwardData/data/CTPPS_Pixel_Module_2x2.xml',
+    'Geometry/VeryForwardData/data/CTPPS_Pixel_Assembly_Box_Real_023.xml',
+    'Geometry/VeryForwardData/data/CTPPS_Pixel_Assembly_Box_Real_123.xml',
+    'Geometry/VeryForwardData/data/CTPPS_Pixel_Sens.xml'
+)
+
 XMLIdealGeometryESSource_CTPPS = cms.ESSource("XMLIdealGeometryESSource",
     geomXMLFiles = totemGeomXMLFiles + ctppsDiamondGeomXMLFiles + ctppsUFSDGeomXMLFiles + ctppsPixelGeomXMLFiles,
     rootNodeName = cms.string('cms:CMSE')
 )
+
+XMLIdealGeometryESSource_CTPPS = cms.ESSource("XMLIdealGeometryESSource",
+                                              geomXMLFiles = totemGeomXMLFiles+ctppsDiamondGeomXMLFiles+ctppsUFSDGeomXMLFiles,
+                                              rootNodeName = cms.string('cms:CMSE')
+                                              )
 
 # position of RPs
 XMLIdealGeometryESSource_CTPPS.geomXMLFiles.append("Geometry/VeryForwardData/data/2016_ctpps_15sigma_margin0/RP_Dist_Beam_Cent.xml")
