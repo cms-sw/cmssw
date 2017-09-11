@@ -12,10 +12,10 @@ class PrimaryVertexValidation(GenericValidationData_CTSR, ValidationWithPlots):
     resultBaseName  = "PrimaryVertexValidation"
     outputBaseName  = "PrimaryVertexValidation"
     defaults = {
-                "pvvalidationreference": ("/store/caf/user/musich/Alignment/TkAlPrimaryVertexValidation/Reference/PrimaryVertexValidation_test_pvvalidation_upgrade2017_design_mc_48bins.root"),
-                "doBPix":"True",
-                "doFPix":"True"
-               }
+        "pvvalidationreference": ("/store/group/alca_trackeralign/validation/PVValidation/Reference/PrimaryVertexValidation_phaseIMC92X_upgrade2017_realistic.root"),
+        "doBPix":"True",
+        "doFPix":"True"
+        }
     mandatories = {"isda","ismc","runboundary","trackcollection","vertexcollection","lumilist","ptCut","etaCut","runControl","numberOfBins"}
     valType = "primaryvertex"
     def __init__(self, valName, alignment, config):
