@@ -12,6 +12,62 @@
 
 namespace spr{
 
+  std::pair<double,bool> energyECAL(const DetId& id,
+				    edm::Handle<EcalRecHitCollection>& hitsEC,
+				    const EcalSeverityLevelAlgo* sevlv,
+				    bool testSpike, double tMin, double tMax,
+				    bool debug) {
+    std::vector<EcalRecHitCollection::const_iterator> hits;
+    spr::findHit(hitsEC,id,hits,debug);
+#ifdef EDM_ML_DEBUG
+    if (debug) std::cout << "Xtal 0x" << std::hex << id() <<std::dec;
+#endif
+    const EcalRecHitCollection* recHitsEC = (hitsEC.isValid()) ? hitsEC.product() : nullptr;
+    bool flag = (!testSpike) ? true :
+      (sevlv->severityLevel(id,(*recHitsEC)) != EcalSeverityLevel::kWeird);
+    double ener(0);
+    for (const auto& hit : hits) {
+      double en(0), tt(0);
+      if (hit != hitsEC->end()) {
+	en = hit->energy();
+	tt = hit->time();
+      }
+#ifdef EDM_ML_DEBUG
+      if (debug) std::cout << " " << tt << " " << en;
+#endif
+      if (tt > tMin && tt < tMax) ener += en;
+    }
+#ifdef EDM_ML_DEBUG
+    if (!flag && debug) std::cout << " detected to be a spike";
+    if (debug) std::cout << std::endl;
+#endif
+    return std::pair<double,bool>(ener,flag);
+  }
+  
+  std::pair<double,bool> energyECAL(const std::vector<DetId>& vdets, 
+				    edm::Handle<EcalRecHitCollection>& hitsEC,
+				    const EcalSeverityLevelAlgo* sevlv,
+				    bool noThrCut, bool testSpike, double eThr,
+				    double tMin, double tMax, bool debug) {
+    
+    bool   flag(true);
+    double energySum(0.0);
+    for (const auto& id : vdets) {
+      if (id != DetId(0)) {
+	std::pair<double,bool> ecalEn = spr::energyECAL(id,hitsEC,sevlv,
+							testSpike,tMin,tMax,
+							debug);
+	if (!ecalEn.second) flag = false;
+	if ((ecalEn.first>eThr) || noThrCut) energySum += ecalEn.first;
+      }
+    }
+#ifdef EDM_ML_DEBUG
+    if (debug) std::cout << "energyECAL: energySum = " << energySum 
+			 << " flag = " << flag << std::endl;
+#endif
+    return std::pair<double,bool>(energySum,flag);
+  }
+  
   std::pair<double,bool> eECALmatrix(const DetId& detId, 
 				     edm::Handle<EcalRecHitCollection>& hitsEB,
 				     edm::Handle<EcalRecHitCollection>& hitsEE,
@@ -22,72 +78,25 @@ namespace spr{
 				     int ieta, int iphi, double ebThr, 
 				     double eeThr, double tMin, double tMax,
 				     bool debug) {
-
+    
     std::vector<DetId> vdets;
     spr::matrixECALIds(detId, ieta, iphi, geo, caloTopology, vdets, debug);
 #ifdef EDM_ML_DEBUG
     if (debug) {
       std::cout << "Inside eECALmatrix " << 2*ieta+1 << "X" << 2*iphi+1
                 << " nXtals " << vdets.size() << std::endl;
-   }
-#endif
-
-    const EcalRecHitCollection * recHitsEB = (hitsEB.isValid()) ?
-      hitsEB.product() : nullptr;
-    bool   flag(true);
-    double energySum(0.0);
-    for (const auto& id : vdets) {
-      if (id != DetId(0)) {
-	bool ok = true;
-	std::vector<EcalRecHitCollection::const_iterator> hits;
-        if (id.subdetId()==EcalBarrel) {
-          spr::findHit(hitsEB,id,hits,debug);
-	  ok  = (sevlv->severityLevel(id,(*recHitsEB)) != EcalSeverityLevel::kWeird);
-        } else if (id.subdetId()==EcalEndcap) {
-          spr::findHit(hitsEE,id,hits,debug);
-        }
-#ifdef EDM_ML_DEBUG
-        if (debug) std::cout << "Xtal 0x" << std::hex << id() <<std::dec;
-#endif
-        double ener(0);
-	double ethr = (id.subdetId() !=EcalBarrel) ? eeThr : ebThr;
-	for (const auto& hit : hits) {
-	  double en(0), tt(0);
-	  if (id.subdetId()==EcalBarrel) {
-	    if (hit != hitsEB->end()) {
-	      en = hit->energy();
-              tt = hit->time();
-            }
-	  } else if (id.subdetId()==EcalEndcap) {
-	    if (hit != hitsEE->end()) {
-	      en = hit->energy();
-              tt = hit->time();
-            }
-	  }
-#ifdef EDM_ML_DEBUG
-	  if (debug) std::cout << " " << tt << " " << en;
-#endif
-	  if (tt > tMin && tt < tMax) ener += en;
-	}
-	if (!ok) {
-	  flag = false;
-#ifdef EDM_ML_DEBUG
-	  if (debug) std::cout << " detected to be a spike";
-#endif
-	}
-#ifdef EDM_ML_DEBUG
-        if (debug) std::cout << std::endl;
-#endif
-	if (ener > ethr) energySum += ener;
-      }
     }
-#ifdef EDM_ML_DEBUG
-    if (debug) std::cout << "energyECAL: energySum = " << energySum 
-			 << " flag = " << flag << std::endl;
 #endif
-    return std::pair<double,bool>(energySum,flag);
+    
+    if        (detId.det() == DetId::Ecal && detId.subdetId() == EcalBarrel) {
+      return spr::energyECAL(vdets,hitsEB,sevlv,false,true,ebThr,tMin,tMax,debug);
+    } else if (detId.det() == DetId::Ecal && detId.subdetId() == EcalEndcap) {
+      return spr::energyECAL(vdets,hitsEE,sevlv,false,false,eeThr,tMin,tMax,debug);
+    } else {
+      return std::pair<double,bool>(0,true);
+    }
   }
-
+  
   std::pair<double,bool> eECALmatrix(const DetId& detId, 
 				     edm::Handle<EcalRecHitCollection>& hitsEB,
 				     edm::Handle<EcalRecHitCollection>& hitsEE,
@@ -99,68 +108,34 @@ namespace spr{
 				     int ieta, int iphi, double ebThr, 
 				     double eeThr, double tMin, double tMax,
 				     bool debug) {
-
+    
     std::vector<DetId> vdets;
     spr::matrixECALIds(detId, ieta, iphi, geo, caloTopology, vdets, debug);
 #ifdef EDM_ML_DEBUG
     if (debug) {
       std::cout << "Inside eECALmatrix " << 2*ieta+1 << "X" << 2*iphi+1
                 << " nXtals " << vdets.size() << std::endl;
-   }
+    }
 #endif
 
-    const EcalRecHitCollection * recHitsEB =  (hitsEB.isValid()) ?
-      hitsEB.product() : nullptr;
     bool   flag(true);
     double energySum = 0.0;
     for (const auto & id : vdets) {
-      if (id != DetId(0)) {
+      if ((id != DetId(0)) && (id.det() == DetId::Ecal) &&
+	  ((id.subdetId()==EcalBarrel) || (id.subdetId()==EcalEndcap))) {
         double eTower = spr::energyECALTower(id, hitsEB, hitsEE, ttMap, debug);
-        bool   ok(true);
-        if      (id.subdetId()==EcalBarrel) ok = (eTower > ebThr);
-        else if (id.subdetId()==EcalEndcap) ok = (eTower > eeThr);
+        bool   ok     =  (id.subdetId()==EcalBarrel) ?  (eTower > ebThr) : (eTower > eeThr);
 #ifdef EDM_ML_DEBUG
-        if (debug) std::cout << "Crystal 0x" << std::hex << id() 
-			     << std::dec << " Flag " << ok;
+        if (debug && (!ok)) std::cout << "Crystal 0x" << std::hex << id() 
+				      << std::dec << " Flag " << ok <<std::endl;
 #endif
         if (ok) {
-	  std::vector<EcalRecHitCollection::const_iterator> hits;
-	  if (id.subdetId()==EcalBarrel) {
-	    spr::findHit(hitsEB,id,hits,debug);
-	    ok  = (sevlv->severityLevel(id,(*recHitsEB)) != EcalSeverityLevel::kWeird);
-	  } else if (id.subdetId()==EcalEndcap) {
-	    spr::findHit(hitsEE,id,hits,debug);
-	  }
-	  double ener(0);
-	  for (const auto& hit : hits) {
-	    double en(0), tt(0);
-	    if (id.subdetId()==EcalBarrel) {
-	      if (hit != hitsEB->end()) {
-		en = hit->energy();
-		tt = hit->time();
-	      }
-	    } else if (id.subdetId()==EcalEndcap) {
-	      if (hit != hitsEE->end()) {
-		en = hit->energy();
-		tt = hit->time();
-	      }
-	    }
-#ifdef EDM_ML_DEBUG
-	    if (debug) std::cout << " E " << en << " T " << tt;
-#endif
-	    if (tt > tMin && tt < tMax) ener += en;
-	  }
-	  if (!ok) {
-	    flag = false;
-#ifdef EDM_ML_DEBUG
-	    if (debug) std::cout << " detected to be a spike";
-#endif
-	  }
-	  energySum += ener;
+	  std::pair<double,bool> ecalEn = (id.subdetId()==EcalBarrel) ?
+	    spr::energyECAL(id,hitsEB,sevlv,true,tMin,tMax,debug) :
+	    spr::energyECAL(id,hitsEE,sevlv,false,tMin,tMax,debug);
+	  if (!ecalEn.second) flag = false;
+	  energySum += ecalEn.first;
 	}
-#ifdef EDM_ML_DEBUG
-        if (debug) std::cout << std::endl;
-#endif
       }
     }
 #ifdef EDM_ML_DEBUG
@@ -169,7 +144,7 @@ namespace spr{
 #endif
     return std::pair<double,bool>(energySum,flag);
   }
-
+  
   std::pair<double,bool> eECALmatrix(const HcalDetId& detId, 
 				     edm::Handle<EcalRecHitCollection>& hitsEB,
 				     edm::Handle<EcalRecHitCollection>& hitsEE,
@@ -201,60 +176,14 @@ namespace spr{
       }
     }
 #endif
-
-    bool   flag(true);
-    double energySum(0);
-    const EcalRecHitCollection* recHitsEB = (hitsEB.isValid()) ? 
-      hitsEB.product() : nullptr;
-    for (const auto& id : ids) {
-      if (id.det() == DetId::Ecal) {
-	bool ok(true);
-	std::vector<EcalRecHitCollection::const_iterator> hits;
-        if (id.subdetId()==EcalBarrel) {
-          spr::findHit(hitsEB,id,hits,debug);
-	  ok  = (sevlv->severityLevel(id,(*recHitsEB)) != EcalSeverityLevel::kWeird);
-        } else if (id.subdetId()==EcalEndcap) {
-          spr::findHit(hitsEE,id,hits,debug);
-        }
-#ifdef EDM_ML_DEBUG
-        if (debug) std::cout << "Xtal 0x" << std::hex << id() <<std::dec;
-#endif
-        double ener(0);
-	double ethr = (id.subdetId() !=EcalBarrel) ? eeThr : ebThr;
-	for (const auto hit : hits) {
-	  double en(0), tt(0);
-	  if (id.subdetId()==EcalBarrel) {
-	    if (hit != hitsEB->end()) {
-	      en = hit->energy();
-              tt = hit->time();
-            }
-	  } else if (id.subdetId()==EcalEndcap) {
-	    if (hit != hitsEE->end()) {
-	      en = hit->energy();
-              tt = hit->time();
-            }
-	  }
-#ifdef EDM_ML_DEBUG
-	  if (debug) std::cout << " " << tt << " " << en;
-#endif
-	  if (tt > tMin && tt < tMax) ener += en;
-	}
-	if (!ok) {
-	  flag = false;
-#ifdef EDM_ML_DEBUG
-	  if (debug) std::cout << " detected to be a spike";
-#endif
-	}
-#ifdef EDM_ML_DEBUG
-        if (debug) std::cout << std::endl;
-#endif
-	if (ener > ethr) energySum += ener;
-      }
+    
+    if        (detId.det() == DetId::Ecal && detId.subdetId() == EcalBarrel) {
+      return spr::energyECAL(ids,hitsEB,sevlv,false,true,ebThr,tMin,tMax,debug);
+    } else if (detId.det() == DetId::Ecal && detId.subdetId() == EcalEndcap) {
+      return spr::energyECAL(ids,hitsEE,sevlv,false,false,eeThr,tMin,tMax,debug);
+    } else {
+      return std::pair<double,bool>(0,true);
     }
-#ifdef EDM_ML_DEBUG
-    if (debug) std::cout << "energyECAL: energySum = " << energySum 
-			 << " flag = " << flag << std::endl;
-#endif
-    return std::pair<double,bool>(energySum,flag);
   }
 }
+
