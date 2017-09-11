@@ -42,18 +42,21 @@ Description: Producer for ScoutingMuon
 #include "DataFormats/Scouting/interface/ScoutingMuon.h"
 #include "DataFormats/Scouting/interface/ScoutingVertex.h"
 
+#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+
 class HLTScoutingMuonProducer : public edm::global::EDProducer<> {
     typedef edm::AssociationMap<edm::OneToValue<std::vector<reco::RecoChargedCandidate>, float,
                                                 unsigned int> > RecoChargedCandMap;
     public:
         explicit HLTScoutingMuonProducer(const edm::ParameterSet&);
-        ~HLTScoutingMuonProducer();
+        ~HLTScoutingMuonProducer() override;
 
         static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
     private:
-        virtual void produce(edm::StreamID sid, edm::Event & iEvent, edm::EventSetup const & setup)
-            const override final;
+        void produce(edm::StreamID sid, edm::Event & iEvent, edm::EventSetup const & setup)
+            const final;
 
         const edm::EDGetTokenT<reco::RecoChargedCandidateCollection> ChargedCandidateCollection_;
         const edm::EDGetTokenT<reco::TrackCollection> TrackCollection_;
@@ -65,6 +68,9 @@ class HLTScoutingMuonProducer : public edm::global::EDProducer<> {
         const double muonPtCut;
         const double muonEtaCut;
 	const double minVtxProbCut;
+
+        const edm::EDGetTokenT<reco::MuonTrackLinksCollection> linkToken_;
+
 };
 
 #endif
