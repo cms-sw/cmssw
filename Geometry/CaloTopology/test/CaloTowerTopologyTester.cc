@@ -2,15 +2,16 @@
 #include <string>
 #include <vector>
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -19,26 +20,33 @@
 #include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 
-class CaloTowerTopologyTester : public edm::EDAnalyzer {
+class CaloTowerTopologyTester : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
+
 public:
   explicit CaloTowerTopologyTester(const edm::ParameterSet& );
-  ~CaloTowerTopologyTester() override;
 
-  
-  void analyze(const edm::Event&, const edm::EventSetup& ) override;
-  void doTest(const CaloTowerTopology& topology);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void beginJob() override {}
+  void beginRun(edm::Run const&, edm::EventSetup const&) override {}
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
+  void doTest(const CaloTowerTopology& topology);
+
   // ----------member data ---------------------------
 };
 
 CaloTowerTopologyTester::CaloTowerTopologyTester(const edm::ParameterSet& ) {}
 
+void CaloTowerTopologyTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
-CaloTowerTopologyTester::~CaloTowerTopologyTester() {}
+  edm::ParameterSetDescription desc;
+  desc.setUnknown();
+  descriptions.addDefault(desc);
+}
 
-void CaloTowerTopologyTester::analyze(const edm::Event& , 
-				 const edm::EventSetup& iSetup ) {
+void CaloTowerTopologyTester::analyze(edm::Event const&, edm::EventSetup const& iSetup ) {
   edm::ESHandle<CaloTowerTopology> topo;
   iSetup.get<HcalRecNumberingRecord>().get(topo);
   if (topo.isValid()) doTest(*topo);

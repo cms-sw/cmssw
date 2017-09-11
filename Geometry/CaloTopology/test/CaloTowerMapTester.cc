@@ -2,14 +2,15 @@
 #include <string>
 #include <vector>
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
@@ -23,11 +24,18 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
-class CaloTowerMapTester : public edm::EDAnalyzer {
+class CaloTowerMapTester : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
+
 public:
   explicit CaloTowerMapTester(const edm::ParameterSet& );
   
-  void analyze(const edm::Event&, const edm::EventSetup& ) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void beginJob() override {}
+  void beginRun(edm::Run const&, edm::EventSetup const&) override {}
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
   void doTest(const CaloGeometry* geo, const CaloTowerConstituentsMap* ctmap);
 
 private:
@@ -36,8 +44,14 @@ private:
 
 CaloTowerMapTester::CaloTowerMapTester(const edm::ParameterSet& ) {}
 
-void CaloTowerMapTester::analyze(const edm::Event& , 
-				 const edm::EventSetup& iSetup ) {
+void CaloTowerMapTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.setUnknown();
+  descriptions.addDefault(desc);
+}
+
+void CaloTowerMapTester::analyze(edm::Event const&, edm::EventSetup const& iSetup ) {
   edm::ESHandle<CaloGeometry>             pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
   edm::ESHandle<CaloTowerConstituentsMap> ct;
