@@ -28,12 +28,12 @@ using namespace l1t;
 class L1TdeStage2CaloLayer1 : public DQMEDAnalyzer {
   public:
     L1TdeStage2CaloLayer1(const edm::ParameterSet& ps);
-    virtual ~L1TdeStage2CaloLayer1();
+    ~L1TdeStage2CaloLayer1() override;
   
   protected:
     void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-    virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
-    virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+    void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
+    void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
     void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
     void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   
