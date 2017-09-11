@@ -392,6 +392,13 @@ buildSuperCluster(CalibClusterPtr& seed,
 	<< std::endl;
     }    
   }
+
+  //temporary fix for HGCal issue
+  if (not_clustered == clusters.begin()) {
+    clusters.erase(clusters.begin());
+    return;
+  }
+
   // move the clustered clusters out of available cluster list
   // and into a temporary vector for building the SC  
   CalibratedClusterPtrVector clustered(clusters.begin(),not_clustered);
