@@ -44,7 +44,7 @@ using namespace l1t;
 class L1TCaloStage2ParamsESProducer : public edm::ESProducer {
 public:
   L1TCaloStage2ParamsESProducer(const edm::ParameterSet&);
-  ~L1TCaloStage2ParamsESProducer();
+  ~L1TCaloStage2ParamsESProducer() override;
 
   typedef std::shared_ptr<CaloParams> ReturnType;
 
