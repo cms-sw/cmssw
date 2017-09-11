@@ -537,11 +537,11 @@ SiStripGainsPCLWorker::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
   double p2 = 69.01576;
   double y = 0.;
   for(int b=0;b<687;b++) {
-     binYarray.at(b) = y;
+     binYarray[b] = y;
      if(y<=902.) y = y + 2.;
      else y = ( p0 - log(exp(p0-p1*y) - p2*p1)) / p1;
   }
-  binYarray.at(687) = 4000.;
+  binYarray[687] = 4000.;
   
   Charge_Vs_Index[elepos]           = ibooker.book2S(cvi.c_str()     , cvi.c_str()     , NStripAPVs, &binXarray[0], 687, binYarray.data());
   Charge_Vs_PathlengthTIB[elepos]   = ibooker.book2S(cvpTIB.c_str()  , cvpTIB.c_str()  , 20   , 0.3 , 1.3  , 250,0,2000);
