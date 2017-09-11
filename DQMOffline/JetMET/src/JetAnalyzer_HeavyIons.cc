@@ -61,115 +61,115 @@ JetAnalyzer_HeavyIons::JetAnalyzer_HeavyIons(const edm::ParameterSet& iConfig) :
 
   // need to initialize the PF cand histograms : which are also event variables 
   if(isPFJet){
-    mNPFpart = 0;
-    mPFPt = 0;
-    mPFEta = 0;
-    mPFPhi = 0;
+    mNPFpart = nullptr;
+    mPFPt = nullptr;
+    mPFEta = nullptr;
+    mPFPhi = nullptr;
 
-    mSumPFPt = 0;
-    mSumPFPt_eta = 0;
-    mSumSquaredPFPt = 0;
-    mSumSquaredPFPt_eta = 0;
-    mSumPFPt_HF = 0;
+    mSumPFPt = nullptr;
+    mSumPFPt_eta = nullptr;
+    mSumSquaredPFPt = nullptr;
+    mSumSquaredPFPt_eta = nullptr;
+    mSumPFPt_HF = nullptr;
  
-    mPFDeltaR = 0; 
-    mPFDeltaR_Scaled_R = 0; 
+    mPFDeltaR = nullptr; 
+    mPFDeltaR_Scaled_R = nullptr; 
 
     for(int ieta=0; ieta<etaBins_; ieta++){
-    	mSumPFPtEtaDep[ieta] = 0;
+    	mSumPFPtEtaDep[ieta] = nullptr;
     }
 
     //cs-specific histograms
-    mRhoDist_vsEta=0;
-    mRhoMDist_vsEta=0;
-    mRhoDist_vsPt=0;
-    mRhoMDist_vsPt=0;
+    mRhoDist_vsEta=nullptr;
+    mRhoMDist_vsEta=nullptr;
+    mRhoDist_vsPt=nullptr;
+    mRhoMDist_vsPt=nullptr;
     //mRhoDist_vsCent=0;
     //mRhoMDist_vsCent=0;
 
-    rhoEtaRange=0;
+    rhoEtaRange=nullptr;
     for(int ieta=0; ieta<etaBins_; ieta++){
-	mCSCandpT_vsPt[ieta]=0;
+	mCSCandpT_vsPt[ieta]=nullptr;
 	for(int ipt=0; ipt<ptBins_; ipt++){
-		mSubtractedEFrac[ipt][ieta]=0;
-		mSubtractedE[ipt][ieta]=0;
+		mSubtractedEFrac[ipt][ieta]=nullptr;
+		mSubtractedE[ipt][ieta]=nullptr;
 	}	
     }
 
-    mPFCandpT_vs_eta_Unknown = 0; // pf id 0
-    mPFCandpT_vs_eta_ChargedHadron = 0; // pf id - 1 
-    mPFCandpT_vs_eta_electron = 0; // pf id - 2
-    mPFCandpT_vs_eta_muon = 0; // pf id - 3
-    mPFCandpT_vs_eta_photon = 0; // pf id - 4
-    mPFCandpT_vs_eta_NeutralHadron = 0; // pf id - 5
-    mPFCandpT_vs_eta_HadE_inHF = 0; // pf id - 6
-    mPFCandpT_vs_eta_EME_inHF = 0; // pf id - 7
+    mPFCandpT_vs_eta_Unknown = nullptr; // pf id 0
+    mPFCandpT_vs_eta_ChargedHadron = nullptr; // pf id - 1 
+    mPFCandpT_vs_eta_electron = nullptr; // pf id - 2
+    mPFCandpT_vs_eta_muon = nullptr; // pf id - 3
+    mPFCandpT_vs_eta_photon = nullptr; // pf id - 4
+    mPFCandpT_vs_eta_NeutralHadron = nullptr; // pf id - 5
+    mPFCandpT_vs_eta_HadE_inHF = nullptr; // pf id - 6
+    mPFCandpT_vs_eta_EME_inHF = nullptr; // pf id - 7
      
-    mPFCandpT_Barrel_Unknown = 0; // pf id 0
-    mPFCandpT_Barrel_ChargedHadron = 0; // pf id - 1 
-    mPFCandpT_Barrel_electron = 0; // pf id - 2
-    mPFCandpT_Barrel_muon = 0; // pf id - 3
-    mPFCandpT_Barrel_photon = 0; // pf id - 4
-    mPFCandpT_Barrel_NeutralHadron = 0; // pf id - 5
-    mPFCandpT_Barrel_HadE_inHF = 0; // pf id - 6
-    mPFCandpT_Barrel_EME_inHF = 0; // pf id - 7
+    mPFCandpT_Barrel_Unknown = nullptr; // pf id 0
+    mPFCandpT_Barrel_ChargedHadron = nullptr; // pf id - 1 
+    mPFCandpT_Barrel_electron = nullptr; // pf id - 2
+    mPFCandpT_Barrel_muon = nullptr; // pf id - 3
+    mPFCandpT_Barrel_photon = nullptr; // pf id - 4
+    mPFCandpT_Barrel_NeutralHadron = nullptr; // pf id - 5
+    mPFCandpT_Barrel_HadE_inHF = nullptr; // pf id - 6
+    mPFCandpT_Barrel_EME_inHF = nullptr; // pf id - 7
 
-    mPFCandpT_Endcap_Unknown = 0; // pf id 0
-    mPFCandpT_Endcap_ChargedHadron = 0; // pf id - 1 
-    mPFCandpT_Endcap_electron = 0; // pf id - 2
-    mPFCandpT_Endcap_muon = 0; // pf id - 3
-    mPFCandpT_Endcap_photon = 0; // pf id - 4
-    mPFCandpT_Endcap_NeutralHadron = 0; // pf id - 5
-    mPFCandpT_Endcap_HadE_inHF = 0; // pf id - 6
-    mPFCandpT_Endcap_EME_inHF = 0; // pf id - 7
+    mPFCandpT_Endcap_Unknown = nullptr; // pf id 0
+    mPFCandpT_Endcap_ChargedHadron = nullptr; // pf id - 1 
+    mPFCandpT_Endcap_electron = nullptr; // pf id - 2
+    mPFCandpT_Endcap_muon = nullptr; // pf id - 3
+    mPFCandpT_Endcap_photon = nullptr; // pf id - 4
+    mPFCandpT_Endcap_NeutralHadron = nullptr; // pf id - 5
+    mPFCandpT_Endcap_HadE_inHF = nullptr; // pf id - 6
+    mPFCandpT_Endcap_EME_inHF = nullptr; // pf id - 7
 
-    mPFCandpT_Forward_Unknown = 0; // pf id 0
-    mPFCandpT_Forward_ChargedHadron = 0; // pf id - 1 
-    mPFCandpT_Forward_electron = 0; // pf id - 2
-    mPFCandpT_Forward_muon = 0; // pf id - 3
-    mPFCandpT_Forward_photon = 0; // pf id - 4
-    mPFCandpT_Forward_NeutralHadron = 0; // pf id - 5
-    mPFCandpT_Forward_HadE_inHF = 0; // pf id - 6
-    mPFCandpT_Forward_EME_inHF = 0; // pf id - 7
+    mPFCandpT_Forward_Unknown = nullptr; // pf id 0
+    mPFCandpT_Forward_ChargedHadron = nullptr; // pf id - 1 
+    mPFCandpT_Forward_electron = nullptr; // pf id - 2
+    mPFCandpT_Forward_muon = nullptr; // pf id - 3
+    mPFCandpT_Forward_photon = nullptr; // pf id - 4
+    mPFCandpT_Forward_NeutralHadron = nullptr; // pf id - 5
+    mPFCandpT_Forward_HadE_inHF = nullptr; // pf id - 6
+    mPFCandpT_Forward_EME_inHF = nullptr; // pf id - 7
       
   }
   if(isCaloJet){
-    mNCalopart = 0;
-    mCaloPt = 0;
-    mCaloEta = 0;
-    mCaloPhi = 0;
+    mNCalopart = nullptr;
+    mCaloPt = nullptr;
+    mCaloEta = nullptr;
+    mCaloPhi = nullptr;
 
-    mSumCaloPt = 0;
-    mSumCaloPt_eta = 0;
-    mSumSquaredCaloPt = 0;
-    mSumSquaredCaloPt_eta = 0;
-    mSumCaloPt_HF = 0;
+    mSumCaloPt = nullptr;
+    mSumCaloPt_eta = nullptr;
+    mSumSquaredCaloPt = nullptr;
+    mSumSquaredCaloPt_eta = nullptr;
+    mSumCaloPt_HF = nullptr;
 
     for(int ieta=0; ieta<etaBins_; ieta++){
-	mSumCaloPtEtaDep[ieta]=0;  
+	mSumCaloPtEtaDep[ieta]=nullptr;  
     }
   }
 
-  mSumpt = 0;
+  mSumpt = nullptr;
 
   // Events variables
-  mNvtx         = 0;
-  mHF           = 0;
+  mNvtx         = nullptr;
+  mHF           = nullptr;
 
   // added Jan 12th 2015
 
   // Jet parameters
-  mEta          = 0;
-  mPhi          = 0;
-  mEnergy       = 0;
-  mP            = 0;
-  mPt           = 0;
-  mMass         = 0;
-  mConstituents = 0;
-  mJetArea      = 0;
-  mjetpileup    = 0;
-  mNJets_40     = 0;
-  mNJets        = 0;
+  mEta          = nullptr;
+  mPhi          = nullptr;
+  mEnergy       = nullptr;
+  mP            = nullptr;
+  mPt           = nullptr;
+  mMass         = nullptr;
+  mConstituents = nullptr;
+  mJetArea      = nullptr;
+  mjetpileup    = nullptr;
+  mNJets_40     = nullptr;
+  mNJets        = nullptr;
 
 
 }
