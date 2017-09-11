@@ -12,7 +12,10 @@ ALCARECORandomHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
 from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import siPixelDigis
 siPixelDigisForLumiR = siPixelDigis.clone()
 siPixelDigisForLumiR.InputLabel = cms.InputTag("hltFEDSelectorLumiPixels")
-siPixelDigisForLumiR.UsePhase1 = True
+
+# Modify for if the phase 1 pixel detector is active
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toModify(siPixelDigisForLumiR, isUpgrade=cms.untracked.bool(True) )
 
 from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizerPreSplitting_cfi import siPixelClustersPreSplitting
 siPixelClustersForLumiR = siPixelClustersPreSplitting.clone()
