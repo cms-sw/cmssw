@@ -1,5 +1,6 @@
 #include "GeneratorInterface/GenFilters/interface/VBFGenJetFilter.h"
 
+#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 #include <HepMC/GenVertex.h>
@@ -32,7 +33,7 @@ maxDeltaEta           (iConfig.getUntrackedParameter<double>("maxDeltaEta",     
 {
   
   m_inputTag_GenJetCollection       = consumes<reco::GenJetCollection>(iConfig.getUntrackedParameter<edm::InputTag>("inputTag_GenJetCollection",edm::InputTag("ak5GenJetsNoNu")));
-  m_inputTag_GenParticleCollection  = consumes<reco::GenParticleCollection>(iConfig.getUntrackedParameter<edm::InputTag>("genParticles",edm::InputTag("genParticles")));
+  if(leadJetsNoLepMass) m_inputTag_GenParticleCollection  = consumes<reco::GenParticleCollection>(iConfig.getUntrackedParameter<edm::InputTag>("genParticles",edm::InputTag("genParticles")));
 //   m_inputTag_GenParticleCollection  = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"));
 
 }
@@ -120,17 +121,20 @@ const reco::GenParticle * VBFGenJetFilter::nextCopy(const reco::GenParticle &p) 
 vector<const reco::GenParticle*> VBFGenJetFilter::filterGenLeptons(const vector<reco::GenParticle>* particles){
   vector<const reco::GenParticle*> out;
   
-  for(unsigned i=0; i<particles->size(); i++){
+  
+
+
+
+  for(const auto & p : *particles){
       
-      const reco::GenParticle* p = &((*particles)[i]);
-      int absPdgId = abs(p->pdgId());
+      int absPdgId = std::abs(p.pdgId());
       
-      if(((absPdgId == 11) || (absPdgId == 13) || (absPdgId == 15)) && isHardProcess(*p)) {
-          out.push_back(p);              
+      if(((absPdgId == 11) || (absPdgId == 13) || (absPdgId == 15)) && isHardProcess(p)) {
+          out.push_back(&p);              
       }
-      
+       
           
-  }      
+  }     
   return out;
 }
 
@@ -200,11 +204,10 @@ bool VBFGenJetFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       while(genJetsWithoutLeptonsP4.size()<2 && jetIdx < filGenJets.size()) {
           bool jetWhitoutLep = true;
-          math::XYZTLorentzVector p4J= (filGenJets[jetIdx])->p4();
+          const math::XYZTLorentzVector & p4J= (filGenJets[jetIdx])->p4();
           for(unsigned int i = 0; i < filGenLep.size() && jetWhitoutLep; ++i) {
-              float dPhi = reco::deltaPhi((filGenLep[i])->p4().phi(), p4J.phi());
-              float dEta = (filGenLep[i])->p4().eta()-p4J.eta();
-              if(dPhi*dPhi + dEta*dEta < deltaRNoLep*deltaRNoLep)
+              if(reco::deltaR2((filGenLep[i])->p4(), p4J) < deltaRNoLep*deltaRNoLep)
+              
                   jetWhitoutLep = false;
           }
           
