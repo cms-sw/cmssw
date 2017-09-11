@@ -84,6 +84,7 @@ class L1TStage2CaloLayer1 : public DQMEDAnalyzer {
     edm::EDGetTokenT<FEDRawDataCollection> fedRawData_;
     std::string histFolder_;
     int tpFillThreshold_;
+    bool ignoreHFfb2_;
 
     MonitorElement *ecalDiscrepancy_;
     MonitorElement *ecalLinkError_;
@@ -107,8 +108,13 @@ class L1TStage2CaloLayer1 : public DQMEDAnalyzer {
     MonitorElement *ecalTPRawEtSentAndRecd_;
     MonitorElement *ecalTPRawEtSent_;
 
+    MonitorElement *ecalOccSentNotRecd_;
+    MonitorElement *ecalOccRecdNotSent_;
+    MonitorElement *ecalOccNoMatch_;
+
     MonitorElement *hcalOccEtDiscrepancy_;
     MonitorElement *hcalOccFbDiscrepancy_;
+    MonitorElement *hcalOccFb2Discrepancy_;
     MonitorElement *hcalOccLinkMasked_;
     MonitorElement *hcalOccRecdEtWgt_;
     MonitorElement *hcalOccRecdFb_;
