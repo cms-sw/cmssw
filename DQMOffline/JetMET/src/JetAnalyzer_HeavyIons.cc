@@ -604,7 +604,7 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
 	    const reco::PFCandidateCollection *csCandidateColl = csCandidates.product();
 
 	    for(unsigned iCScand=0; iCScand<csCandidateColl->size(); iCScand++){
-		assert(csCandidateColl->size() < pfCandidateColl->size());
+		assert(csCandidateColl->size() <= pfCandidateColl->size());
 		const reco::PFCandidate csCandidate = csCandidateColl->at(iCScand);
 		const reco::PFCandidate pfCandidate = pfCandidateColl->at(iCScand);
 		int ieta=0;
@@ -832,10 +832,8 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
         }
 
     }
-    if (mNJets_40) 
-      mNJets_40->Fill(nJet_40); 
-
-  } // end recojet loop 222
+  }
+  if (mNJets_40) mNJets_40->Fill(nJet_40); 
 
   numbers.clear();
 
