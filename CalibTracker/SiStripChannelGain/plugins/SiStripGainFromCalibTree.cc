@@ -501,11 +501,11 @@ void SiStripGainFromCalibTree::bookDQMHistos(const char* dqm_dir, const char* ta
     double p2 = 69.01576;
     double y = 0.;
     for(int b=0;b<687;b++) {
-       binYarray.at(b) = y;
+       binYarray[b] = y;
        if(y<=902.) y = y + 2.;
        else y = ( p0 - log(exp(p0-p1*y) - p2*p1)) / p1;
     }
-    binYarray.at(687) = 4000.;
+    binYarray[687] = 4000.;
 
     Charge_Vs_Index[elepos]           = dbe->book2S(cvi.c_str()     , cvi.c_str()     , NStripAPVs, &binXarray[0], 687, binYarray.data());
     //Charge_Vs_Index_Absolute[elepos]  = dbe->book2S(cviA.c_str()    , cviA.c_str()    , 88625, 0   , 88624,1000,0,4000);
