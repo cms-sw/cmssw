@@ -176,7 +176,7 @@ CTPPSGeometryESModule::buildDetGeomDesc( DDFilteredView* fv, DetGeomDesc* gd )
 
     // strip and pixels RPs
     else if ( name == DDD_TOTEM_RP_RP_NAME || name == DDD_CTPPS_PIXELS_RP_NAME) {
-    uint32_t decRPId = fv->copyno();
+      uint32_t decRPId = uint32_t(fv->copyno());
 
       // check if it is a pixel RP
       if ( decRPId >= 10000 ){
