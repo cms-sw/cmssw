@@ -200,7 +200,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
     timeTOA = toaColl[fireBX];
     if(jitterNoise2_ns_[0] != 0) timeTOA = CLHEP::RandGaussQ::shoot(engine, timeTOA, getTimeJitter(chargeColl[fireBX], thickness));
     else timeTOA = CLHEP::RandGaussQ::shoot(engine, timeTOA, tdcResolutionInNs_);
-    toaFlags[fireBX] = true;
+    if(timeTOA >= 0. && timeTOA <= 25.) toaFlags[fireBX] = true;
   }
 
   //now look at charge
