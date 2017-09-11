@@ -5,8 +5,7 @@
 #include "G4ProtonInelasticCrossSection.hh"
 #include "G4SystemOfUnits.hh"
 
-CMSFTFPProtonBuilder::
-CMSFTFPProtonBuilder(G4bool quasiElastic) 
+CMSFTFPProtonBuilder::CMSFTFPProtonBuilder(G4bool quasiElastic) 
 {
   theMin = 4*GeV;
   theMax = 100.*TeV; 
@@ -26,15 +25,14 @@ CMSFTFPProtonBuilder(G4bool quasiElastic)
      theQuasiElastic=new G4QuasiElasticChannel;
      theModel->SetQuasiElasticChannel(theQuasiElastic);
   } else 
-  {  theQuasiElastic=0;}  
+  {  theQuasiElastic=nullptr;}  
 
   theModel->SetTransport(theCascade);
   theModel->SetMinEnergy(theMin);
   theModel->SetMaxEnergy(100*TeV);
 }
 
-void CMSFTFPProtonBuilder::
-Build(G4ProtonInelasticProcess * aP)
+void CMSFTFPProtonBuilder::Build(G4ProtonInelasticProcess * aP)
 {
   theModel->SetMinEnergy(theMin);
   theModel->SetMaxEnergy(theMax);

@@ -32,6 +32,9 @@
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+
 #include "DQM/TrackingMonitor/interface/GetLumi.h"
 
 #include <string>
@@ -47,6 +50,7 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
     , NumberOfMeanLayersPerTrack(nullptr)
 				//    , NumberOfGoodTracks(NULL)
     , FractionOfGoodTracks(nullptr)
+    , NumberOfTrackingRegions(nullptr)
     , NumberOfSeeds(nullptr)
     , NumberOfSeeds_lumiFlag(nullptr)
     , NumberOfTrackCandidates(nullptr)
@@ -129,6 +133,12 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
                                                                        consumes<QualityMaskCollection>(edm::InputTag(tag, "QualityMasks")));
                                               });
     mvaTrackToken_ = consumes<edm::View<reco::Track> >(iConfig.getParameter<edm::InputTag>("TrackProducerForMVA"));
+  }
+
+  doRegionPlots = iConfig.getParameter<bool>("doRegionPlots");
+  if(doRegionPlots) {
+    regionToken_ = consumes<edm::OwnVector<TrackingRegion> >(iConfig.getParameter<edm::InputTag>("RegionProducer"));
+    regionCandidateToken_ = consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("RegionCandidates"));
   }
 
   edm::InputTag stripClusterInputTag_ = iConfig.getParameter<edm::InputTag>("stripCluster");
@@ -602,6 +612,19 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
      }
    }
   
+   if(doRegionPlots) {
+     ibooker.setCurrentFolder(MEFolderName+"/TrackBuilding");
+
+     int    regionBin = conf->getParameter<int>(   "RegionSizeBin");
+     double regionMin = conf->getParameter<double>("RegionSizeMin");
+     double regionMax = conf->getParameter<double>("RegionSizeMax");
+
+     histname = "NumberOfTrackingRegions_"+ seedProducer.label() + "_"+ CategoryName;
+     NumberOfTrackingRegions = ibooker.book1D(histname, histname, regionBin, regionMin, regionMax);
+     NumberOfTrackingRegions->setAxisTitle("Number of TrackingRegions per Event", 1);
+     NumberOfTrackingRegions->setAxisTitle("Number of Events", 2);
+   }
+
    doTkCandPlots=conf->getParameter<bool>("doTrackCandHistos");
   //    if (doAllPlots) doTkCandPlots=true;
   
@@ -952,6 +975,17 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	}
       }
       
+
+      // plots for tracking regions
+      if (doRegionPlots) {
+        edm::Handle<edm::OwnVector<TrackingRegion> > hregions;
+        iEvent.getByToken(regionToken_, hregions);
+        NumberOfTrackingRegions->Fill(hregions->size());
+
+        edm::Handle<reco::CandidateView> hcandidates;
+        iEvent.getByToken(regionCandidateToken_, hcandidates);
+        theTrackBuildingAnalyzer->analyze(*hcandidates);
+      }
       
       if (doTrackerSpecific_ || doAllPlots) {
 	

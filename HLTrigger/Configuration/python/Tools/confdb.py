@@ -804,7 +804,7 @@ if 'GlobalTag' in %%(dict)s:
       files = dasFileQuery(dataset)
     else:
       # assume a comma-separated list of input files
-      files = self.config.input.split(',')
+      files = input.split(',')
     return files
 
   def build_source(self):

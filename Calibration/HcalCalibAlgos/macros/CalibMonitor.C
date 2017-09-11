@@ -1073,8 +1073,11 @@ public :
   Int_t                      t_Tracks;
   Int_t                      t_TracksProp;
   Int_t                      t_TracksSaved;
+  Int_t                      t_TracksLoose;
+  Int_t                      t_TracksTight;
   Bool_t                     t_TrigPass;
   Bool_t                     t_TrigPassSel;
+  Bool_t                     t_L1Bit;
   std::vector<int>          *t_ietaAll;
   std::vector<int>          *t_ietaGood;
 
@@ -1082,8 +1085,11 @@ public :
   TBranch                   *b_t_Tracks;        //!
   TBranch                   *b_t_TracksProp;    //!
   TBranch                   *b_t_TracksSaved;   //!
+  TBranch                   *b_t_TracksLoose;   //!
+  TBranch                   *b_t_TracksTight;   //!
   TBranch                   *b_t_TrigPass;      //!
   TBranch                   *b_t_TrigPassSel;   //!
+  TBranch                   *b_t_L1Bit;         //!
   TBranch                   *b_t_ietaAll;       //!
   TBranch                   *b_t_ietaGood;      //!
 
@@ -1158,8 +1164,11 @@ void GetEntries::Init(TTree *tree) {
   fChain->SetBranchAddress("t_Tracks",      &t_Tracks,      &b_t_Tracks);
   fChain->SetBranchAddress("t_TracksProp",  &t_TracksProp,  &b_t_TracksProp);
   fChain->SetBranchAddress("t_TracksSaved", &t_TracksSaved, &b_t_TracksSaved);
+  fChain->SetBranchAddress("t_TracksLoose", &t_TracksLoose, &b_t_TracksLoose);
+  fChain->SetBranchAddress("t_TracksTight", &t_TracksTight, &b_t_TracksTight);
   fChain->SetBranchAddress("t_TrigPass",    &t_TrigPass,    &b_t_TrigPass);
   fChain->SetBranchAddress("t_TrigPassSel", &t_TrigPassSel, &b_t_TrigPassSel);
+  fChain->SetBranchAddress("t_L1Bit",       &t_L1Bit,       &b_t_L1Bit);
   if (!ifOld_) {
     fChain->SetBranchAddress("t_ietaAll",     &t_ietaAll,     &b_t_ietaAll);
     fChain->SetBranchAddress("t_ietaGood",    &t_ietaGood,    &b_t_ietaGood);
@@ -1227,6 +1236,7 @@ void GetEntries::Loop() {
   Long64_t nentries = fChain->GetEntriesFast();
   Long64_t nbytes = 0, nb = 0;
   int      kount(0), selected(0);
+  int      l1(0), hlt(0), loose(0), tight(0);
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
@@ -1235,6 +1245,12 @@ void GetEntries::Loop() {
     h_tk[0]->Fill(t_Tracks);
     h_tk[1]->Fill(t_TracksProp);
     h_tk[2]->Fill(t_TracksSaved);
+    if (t_L1Bit) {
+      ++l1;
+      if (t_TracksLoose > 0) ++loose;
+      if (t_TracksTight > 0) ++tight;
+      if (t_TrigPass)        ++hlt;
+    }
     if (t_TrigPass) { 
       ++kount;
       if (t_TrigPassSel) ++selected;
@@ -1262,6 +1278,10 @@ void GetEntries::Loop() {
   }
   std::cout << "===== " << kount << " events passed trigger of which " 
 	    << selected << " events get selected =====\n" << std::endl;
+  std::cout << "===== " << l1 << " events passed L1 " << hlt 
+	    << " events passed HLT and " << loose << ":" << tight
+	    << " events have at least 1 track candidate with loose:tight"
+	    << " isolation cut =====\n" << std::endl;
   gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
   gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
   gStyle->SetOptStat(1110);       gStyle->SetOptTitle(0);

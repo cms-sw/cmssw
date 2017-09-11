@@ -38,7 +38,7 @@ CMSMonopolePhysics::CMSMonopolePhysics(const HepPDT::ParticleDataTable * pdt,
 	masses.push_back(mass*CLHEP::GeV);
 	elCharges.push_back((int)(particle.charge()));
 	pdgEncodings.push_back(particle.pid());
-	monopoles.push_back(0);
+	monopoles.push_back(nullptr);
 	//std::cout << "CMSMonopolePhysics: Monopole[" << ii
 	if (verbose > 0) G4cout << "CMSMonopolePhysics: Monopole[" << ii
 				<< "] " << particleName << " Mass "
@@ -50,7 +50,7 @@ CMSMonopolePhysics::CMSMonopolePhysics(const HepPDT::ParticleDataTable * pdt,
 	masses.push_back(mass*CLHEP::GeV);
 	elCharges.push_back((int)(particle.charge()));
 	pdgEncodings.push_back(particle.pid());
-	monopoles.push_back(0);
+	monopoles.push_back(nullptr);
 	//std::cout << "CMSMonopolePhysics: Monopole[" << ii
 	if (verbose > 0) G4cout << "CMSMonopolePhysics: Monopole[" << ii
 				<< "] " << particleName << " Mass "
@@ -88,7 +88,6 @@ void CMSMonopolePhysics::ConstructParticle() {
 
 void CMSMonopolePhysics::ConstructProcess() {
   // Add standard EM Processes
-
   if (verbose > 0)
     G4cout << "### CMSMonopolePhysics ConstructProcess()" << G4endl;
   for (unsigned int ii=0; ii<monopoles.size(); ++ii) {

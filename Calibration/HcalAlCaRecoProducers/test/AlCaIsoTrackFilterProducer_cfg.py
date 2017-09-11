@@ -21,8 +21,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-        'file:PoolOutput.root'
-#       '/store/relval/CMSSW_7_4_0_pre6/RelValPhotonJets_Pt_10_13/GEN-SIM-RECO/MCRUN2_74_V1-v1/00000/6EC8FCC8-E2A8-E411-9506-002590596468.root'
+        '/store/relval/CMSSW_7_4_0_pre6/RelValPhotonJets_Pt_10_13/GEN-SIM-RECO/MCRUN2_74_V1-v1/00000/6EC8FCC8-E2A8-E411-9506-002590596468.root'
  )
 )
 
@@ -35,7 +34,22 @@ process.ALCARECOStreamHcalCalIsoTrkFilter = cms.OutputModule("PoolOutputModule",
         filterName = cms.untracked.string('ALCARECOHcalCalIsoTrkFilter')
         ),
                                                              eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-                                                             outputCommands = process.OutALCARECOHcalCalIsoTrkFilter.outputCommands,
+                                                             #                                                            outputCommands = process.OutALCARECOHcalCalIsoTrkFilter.outputCommands,
+                                                             outputCommands = cms.untracked.vstring(
+        'drop *',
+        'keep *_gtStage2Digis_*_*',
+        'keep *_hbheprereco_*_*',
+        'keep *_hbhereco_*_*',
+        'keep *_ecalRecHit_*_*',
+        'keep *_towerMaker_*_*',
+        'keep *_offlineBeamSpot_*_*',
+        'keep *_hltTriggerSummaryAOD_*_*',
+        'keep *_TriggerResults_*_*',
+        'keep *_generalTracks_*_*',
+        'keep *_generalTracksExtra_*_*',
+        'keep *_offlinePrimaryVertices_*_*',
+        'keep *_TkAlIsoProdFilter_*_*',
+        ),
                                                              fileName = cms.untracked.string('PoolOutput.root'),
                                       )
 

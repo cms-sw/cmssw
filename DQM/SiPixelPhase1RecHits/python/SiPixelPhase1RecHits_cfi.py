@@ -9,11 +9,23 @@ SiPixelPhase1RecHitsNRecHits = DefaultHistoTrack.clone(
   xlabel = "rechits",
   dimensions = 0,
   specs = VPSet(
-   StandardSpecificationInclusive_Num,
-   StandardSpecificationTrend_Num
-   # StandardSpecification2DProfile_Num,
-   # StandardSpecificationInclusive_Num,
-   # StandardSpecifications1D_Num
+   
+   StandardSpecificationTrend_Num,
+   Specification().groupBy("PXBarrel/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXBarrel")
+                   .save(nbins=100, xmin=0, xmax=5000),
+
+    Specification().groupBy("PXForward/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXForward")
+                   .save(nbins=100, xmin=0, xmax=5000),
+
+    Specification().groupBy("PXAll/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXAll")
+                   .save(nbins=100, xmin=0, xmax=5000)
+
   )
 )
 
