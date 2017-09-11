@@ -391,19 +391,19 @@ namespace edmtest {
   class AddIntsProducer : public edm::global::EDProducer<> {
   public:
     explicit AddIntsProducer(edm::ParameterSet const& p) :
-      labels_(p.getParameter<std::vector<std::string> >("labels")),
       onlyGetOnEvent_(p.getUntrackedParameter<unsigned int>("onlyGetOnEvent", 0u)) {
 
       produces<IntProduct>();
       produces<IntProduct>("other");
 
-      for( auto const& label: labels_) {
-        consumes<IntProduct>(edm::InputTag{label});
+      auto const& labels = p.getParameter<std::vector<std::string> >("labels");
+      for( auto const& label: labels) {
+        tokens_.emplace_back(consumes<IntProduct>(edm::InputTag{label}));
       }
     }
     virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
   private:
-    std::vector<std::string> labels_;
+    std::vector<edm::EDGetTokenT<IntProduct>> tokens_;
     unsigned int onlyGetOnEvent_;
   };
 
@@ -413,9 +413,9 @@ namespace edmtest {
     int value = 0;
 
     if (onlyGetOnEvent_ == 0u || e.eventAuxiliary().event() == onlyGetOnEvent_) {
-      for(auto const& label: labels_) {
+      for(auto const& token: tokens_) {
         edm::Handle<IntProduct> anInt;
-        e.getByLabel(label, anInt);
+        e.getByToken(token, anInt);
         value += anInt->value;
       }
     }
