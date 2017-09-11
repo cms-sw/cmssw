@@ -1,0 +1,9 @@
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="GeneratorInterface/ThePEGInterface"/>
+<library name="GeneratorInterfaceThePEGHadronizerPlugins" file="ThePEGHadronizer.cc ThePEGLesHouchesInterface.cc">
+	<use name="GeneratorInterface/Core"/>
+	<use name="GeneratorInterface/ExternalDecays"/>
+	<use name="GeneratorInterface/LHEInterface"/>
+	<use name="boost"/>
+	<flags EDM_PLUGIN="1"/>
+</library>

@@ -138,6 +138,7 @@ patSmearedJets = cms.EDProducer("SmearedPATJetProducer",
     variation = cms.int32(0),  # If not specified, default to 0
 
     seed = cms.uint32(37428479),  # If not specified, default to 37428479
+    useDeterministicSeed = cms.bool(True),
 
     debug = cms.untracked.bool(False)
 )

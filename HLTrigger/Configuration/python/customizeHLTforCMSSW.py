@@ -25,10 +25,10 @@ def customiseFor19029(process):
             producer.maxPhi = cms.double(3.2)
     return process
 
-def customiseFor19824(process) :
+def customiseFor20269(process) :
     for producer in esproducers_by_type(process, "ClusterShapeHitFilterESProducer"):
-         producer.PixelShapeFile   = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase1_all.par')
-         producer.PixelShapeFileL1 = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase1_all.par')
+         producer.PixelShapeFile   = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase1_noL1.par')
+         producer.PixelShapeFileL1 = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase1_loose.par')
     return process
 
 # Migrate uGT non-CondDB parameters to new cff: remove StableParameters dependence in favour of GlobalParameters
@@ -49,7 +49,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
 
     process = customiseFor19029(process)
-    process = customiseFor19824(process)
+    process = customiseFor20269(process)
     process = customiseFor19989(process)
 
     return process

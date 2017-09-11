@@ -41,7 +41,7 @@
 //                save=false
 //
 //             For plotting correction factors including systematics
-//  PlotHistCorrSys(infilec, conds, text, 
+//  PlotHistCorrSys(infilec, conds, text, save)
 //      Defaults: save=false
 //
 //  where:

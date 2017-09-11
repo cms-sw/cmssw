@@ -3,8 +3,8 @@
 // .L CalibTree.C+g
 //  Run(inFileName, dirName, treeName, outFileName, corrFileName, dupFileName,
 //     useweight, useMean, nMin, inverse, ratMin, ratMax, ietaMax, sysmode,
-//     puCorr, applyL1Cut, l1Cut, truncateFlag, maxIter, useGen, phimin, 
-//     phimax, zside, fraction, writeDebugHisto, debug);
+//     puCorr, applyL1Cut, l1Cut, truncateFlag, maxIter, useGen, runlo, runhi,
+//     phimin, phimax, zside, fraction, writeDebugHisto, debug);
 //
 //  where:
 //
@@ -41,6 +41,8 @@
 //                              HB as depth 1 (True -- treat together)
 //  maxIter         (int)     = number of iterations (30)
 //  useGen          (bool)    = use generator level momentum information (False)
+//  runlo           (int)     = lower value of run number (def -1)
+//  runhi           (int)     = higher value of run number (def 9999999)
 //  phimin          (int)     = minimum iphi value (1)
 //  phimax          (int)     = maximum iphi value (72)
 //  zside           (int)     = the side of the detector if phi range chosen (1)
@@ -83,8 +85,9 @@ void Run(const char *inFileName="Silver",
 	 double ratMin=0.25, double ratMax=3., int ietaMax=25, 
 	 int sysmode=0, bool puCorr=true, int applyL1Cut=1, double l1Cut=0.5, 
 	 bool truncateFlag=true, int maxIter=30, bool useGen=false, 
-	 int phimin=1, int phimax=72, int zside=1, double fraction=1.0, 
-	 bool writeDebugHisto=false, bool debug=false);
+	 int runlo=-1, int runhi=99999999, int phimin=1, int phimax=72,
+	 int zside=1, double fraction=1.0, bool writeDebugHisto=false, 
+	 bool debug=false);
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
@@ -176,6 +179,7 @@ public :
   TH1D                                             *h_pbyE, *h_cvg;
   TProfile                                         *h_Ebyp_bfr, *h_Ebyp_aftr;
   bool                                              truncateFlag_, useMean_;
+  int                                               runlo_, runhi_;
   int                                               phimin_, phimax_;
   int                                               zside_, sysmode_;
   bool                                              puCorr_, useGen_;
@@ -192,9 +196,9 @@ public :
     double fact0, fact1, fact2;
   };
 
-  CalibTree(const char *dupFileName, bool flag, bool useMean, int phimin, 
-	    int phimax, int zside, int sysmode, bool puCorr, bool useGen, 
-	    TTree *tree=0);
+  CalibTree(const char *dupFileName, bool flag, bool useMean, int runlo,
+	    int runhi, int phimin, int phimax, int zside, int sysmode, 
+	    bool puCorr, bool useGen, TTree *tree=0);
   virtual ~CalibTree();
   virtual Int_t    Cut(Long64_t entry);
   virtual Int_t    GetEntry(Long64_t entry);
@@ -226,7 +230,8 @@ void doIt(const char* infile, const char* dup) {
     double lumi = (k==0) ? -1 : lumt;
     lumt *= fac;
     Run(infile,"HcalIsoTrkAnalyzer","CalibTree",outf1,outf2,dup,true,true,0,
-	true,0.25,3.0,25,0,true,1,0.5,false,30,false,1,72,1,lumi,false,false);
+	true,0.25,3.0,25,0,true,1,0.5,false,30,false,-1,99999999,1,72,1,lumi,
+	false,false);
   }
 }
 
@@ -235,8 +240,9 @@ void Run(const char *inFileName, const char *dirName, const char *treeName,
 	 const char *dupFileName, bool useweight, bool useMean, int nMin, 
 	 bool inverse, double ratMin, double ratMax, int ietaMax, 
 	 int sysmode, bool puCorr, int applyL1Cut, double l1Cut, 
-	 bool truncateFlag, int maxIter, bool useGen, int phimin, 
-	 int phimax, int zside, double fraction,  bool writeHisto, bool debug) {
+	 bool truncateFlag, int maxIter, bool useGen, int runlo, int runhi,
+	 int phimin, int phimax, int zside, double fraction, bool writeHisto,
+	 bool debug) {
  
   char name[500];
   sprintf(name, "%s.root",inFileName);
@@ -250,8 +256,8 @@ void Run(const char *inFileName, const char *dirName, const char *treeName,
 	    << dirName << " from file " << name << " with nentries (tracks): " 
 	    << nentries << std::endl;
   unsigned int k(0), kmax(maxIter);
-  CalibTree t(dupFileName, truncateFlag, useMean, phimin, phimax, zside,
-	      sysmode, puCorr, useGen, tree); 
+  CalibTree t(dupFileName, truncateFlag, useMean, runlo, runhi, phimin, phimax,
+	      zside, sysmode, puCorr, useGen, tree); 
   t.h_pbyE      = new TH1D("pbyE", "pbyE", 100, -1.0, 9.0);
   t.h_Ebyp_bfr  = new TProfile("Ebyp_bfr","Ebyp_bfr",60,-30,30,0,10);
   t.h_Ebyp_aftr = new TProfile("Ebyp_aftr","Ebyp_aftr",60,-30,30,0,10);
@@ -290,10 +296,12 @@ void Run(const char *inFileName, const char *dirName, const char *treeName,
 }
 
 CalibTree::CalibTree(const char *dupFileName, bool flag, bool useMean, 
-		     int fmin, int fmax, int zside, int mode, bool pu, bool gen,
+		     int runlo, int runhi, int phimin, int phimax,
+		     int zside, int mode, bool pu, bool gen,
 		     TTree *tree) : fChain(0), truncateFlag_(flag), 
-				    useMean_(useMean), phimin_(fmin),
-				    phimax_(fmax), zside_(zside), 
+				    useMean_(useMean), runlo_(runlo),
+				    runhi_(runhi), phimin_(phimin),
+				    phimax_(phimax), zside_(zside), 
 				    sysmode_(mode), puCorr_(pu), useGen_(gen) {
   // if parameter tree is not specified (or zero), connect the file
   // used to generate this class and read the Tree.
@@ -307,6 +315,11 @@ CalibTree::CalibTree(const char *dupFileName, bool flag, bool useMean,
   }
   log2by18_  = std::log(2.5)/18.0;
   eHcalDelta_= 0;
+  std::cout << "Initialize CalibTree with TruncateFlag " << truncateFlag_
+	    << " UseMean " << useMean_ << " Run Range " << runlo_ << ":"
+	    << runhi_ << " Phi Range " << phimin_ << ":" << phimax_ << ":" 
+	    << zside_ << " Mode " << sysmode_ << ":" << puCorr_ << ":" 
+	    << useGen_ << std::endl;
   Init(tree, dupFileName);
 }
 
@@ -452,26 +465,28 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
       if (ientry < 0) break;
       nb = fChain->GetEntry(jentry);   nbytes += nb;
       // Find DetIds contributing to the track
-      for (unsigned int idet=0; idet<(*t_DetIds).size(); idet++) { 
-	if (selectPhi((*t_DetIds)[idet])) {
-	  unsigned int detid = truncateId((*t_DetIds)[idet]);
-	  if (debug) std::cout << "DetId[" << idet << "] Original " << std::hex
-			       << (*t_DetIds)[idet] << " truncated " << detid
-			       << std::dec;
-	  if (std::find(detIds.begin(),detIds.end(),detid) == detIds.end()) {
-	    detIds.push_back(detid);
-	    if (debug) std::cout << " new";
-	  }
-	  if (debug) std::cout << std::endl;
-	}
-      }
-      // Also look at the neighbouring cells if available
-      if (t_DetIds3 != 0) {
-	for (unsigned int idet=0; idet<(*t_DetIds3).size(); idet++) { 
-	  if (selectPhi((*t_DetIds3)[idet])) {
-	    unsigned int detid = truncateId((*t_DetIds3)[idet]);
+      if ((t_Run >= runlo_) && (t_Run <= runhi_)) {
+	for (unsigned int idet=0; idet<(*t_DetIds).size(); idet++) { 
+	  if (selectPhi((*t_DetIds)[idet])) {
+	    unsigned int detid = truncateId((*t_DetIds)[idet]);
+	    if (debug) std::cout << "DetId[" << idet << "] Original " <<std::hex
+				 << (*t_DetIds)[idet] << " truncated " << detid
+				 << std::dec;
 	    if (std::find(detIds.begin(),detIds.end(),detid) == detIds.end()) {
 	      detIds.push_back(detid);
+	      if (debug) std::cout << " new";
+	    }
+	    if (debug) std::cout << std::endl;
+	  }
+	}
+	// Also look at the neighbouring cells if available
+	if (t_DetIds3 != 0) {
+	  for (unsigned int idet=0; idet<(*t_DetIds3).size(); idet++) { 
+	    if (selectPhi((*t_DetIds3)[idet])) {
+	      unsigned int detid = truncateId((*t_DetIds3)[idet]);
+	      if (std::find(detIds.begin(),detIds.end(),detid) == detIds.end()){
+		detIds.push_back(detid);
+	      }
 	    }
 	  }
 	}
@@ -515,17 +530,20 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
     if (debug) std::cout << "Book Histo " << k << " " << title << std::endl;
     histos[detIds[k]] = hist;
   }
-  std::cout << "Total of " << detIds.size() << " detIds and " << histos.size() << " found \n";
+  std::cout << "Total of " << detIds.size() << " detIds and " << histos.size() 
+	    << " found in " << nentries << std::endl;
 
   nbytes = nb = 0;
   std::map<unsigned int, myEntry > SumW;
   std::map<unsigned int, double  > nTrks;
 
-  for (Long64_t jentry=0; jentry<nentries;jentry++) {
+  int ntkgood(0);
+  for (Long64_t jentry=0; jentry<nentries; jentry++) {
     Long64_t ientry = LoadTree(jentry);
-    if (ientry < 0) break;
-    if (std::find(entries.begin(), entries.end(), jentry) != entries.end()) break;
+    if (ientry < 0)                                                       break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
+    if (std::find(entries.begin(),entries.end(),jentry) != entries.end()) continue;
+    if ((t_Run < runlo_) || (t_Run > runhi_))                             continue;
     if (debug) {
       std::cout << "***Entry (Track) Number : " << ientry << std::endl;
       std::cout << "p/eHCal/eMipDR/nDets : " << t_p << "/" << t_eHcal << "/"
@@ -533,6 +551,7 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
     }
     double pmom = (useGen_ && (t_gentrackP > 0)) ? t_gentrackP : t_p;
     if (goodTrack()) {
+      ++ntkgood;
       double Etot(0), Etot2(0);
       for (unsigned int idet=0; idet<(*t_DetIds).size(); idet++) { 
 	if (selectPhi((*t_DetIds)[idet])) {
@@ -642,6 +661,8 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
       }
     }
   }
+  if (debug) std::cout << "# of Good Tracks " << ntkgood << " out of "
+		       << nentries << std::endl;
   if (loop==0) {
     h_pbyE->Write("h_pbyE");
     h_Ebyp_bfr->Write("h_Ebyp_bfr");
@@ -694,11 +715,11 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
     int zside  = (detid&0x80000)?(1):(-1);
     int ieta   = (detid >> 10) & (0x1FF);
     if (debug) 
-      std::cout<< "Detid|kount|SumWi|SumFac|myId : " << subdet << ":" 
-	       << zside*ieta << ":" << depth << " | " << (SumWItr->second).kount
-	       << " | " << (SumWItr->second).fact0 <<"|"
-	       << (SumWItr->second).fact1 << "|" << (SumWItr->second).fact2 
-	       << std::endl;
+      std::cout << "Detid|kount|SumWi|SumFac|myId : " << subdet << ":" 
+		<< zside*ieta << ":" << depth << " | " 
+		<< (SumWItr->second).kount << " | " << (SumWItr->second).fact0
+		<< "|" << (SumWItr->second).fact1 << "|" 
+		<< (SumWItr->second).fact2 << std::endl;
     double factor = (SumWItr->second).fact1/(SumWItr->second).fact0;
     double dfac1  = ((SumWItr->second).fact2/(SumWItr->second).fact0-factor*factor);
     if (dfac1 < 0) dfac1 = 0;

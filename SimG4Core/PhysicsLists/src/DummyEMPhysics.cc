@@ -18,9 +18,9 @@ void DummyEMPhysics::ConstructParticle() {
 }
 
 void DummyEMPhysics::ConstructProcess() {
-  G4ProcessManager * m = 0;
-  m = G4Electron::Electron()->GetProcessManager();
-  m->AddProcess(new G4eIonisation,	  -1, 2,2);
-  m = G4MuonMinus::MuonMinus()->GetProcessManager();
-  m->AddProcess(new G4MuIonisation,	  -1, 2,2);
+  G4ProcessManager * man = nullptr;
+  man = G4Electron::Electron()->GetProcessManager();
+  man->AddProcess(new G4eIonisation,	  -1, 2,2);
+  man = G4MuonMinus::MuonMinus()->GetProcessManager();
+  man->AddProcess(new G4MuIonisation,	  -1, 2,2);
 }

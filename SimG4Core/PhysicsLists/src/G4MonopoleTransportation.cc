@@ -152,7 +152,7 @@ AlongStepGetPhysicalInteractionLength( const G4Track&  track,
   // Get initial Energy/Momentum of the track
   //
   const G4DynamicParticle* pParticle      = track.GetDynamicParticle() ;
-  G4ThreeVector startMomentumDir          = pParticle->GetMomentumDirection() ;
+  const G4ThreeVector& startMomentumDir          = pParticle->GetMomentumDirection() ;
   G4ThreeVector startPosition             = track.GetPosition() ;
 
   // G4double   theTime        = track.GetGlobalTime() ;
@@ -198,7 +198,7 @@ AlongStepGetPhysicalInteractionLength( const G4Track&  track,
        //   to a finite field  status
 
        // If the field manager has no field, there is no field !
-       fieldExertsForce = (fieldMgr->GetDetectorField() != 0);
+       fieldExertsForce = (fieldMgr->GetDetectorField() != nullptr);
      }      
   }
 
@@ -652,7 +652,7 @@ G4VParticleChange* G4MonopoleTransportation::PostStepDoIt( const G4Track& track,
     // Check whether the particle is out of the world volume 
     // If so it has exited and must be killed.
     //
-    if( fCurrentTouchableHandle->GetVolume() == 0 )
+    if( fCurrentTouchableHandle->GetVolume() == nullptr )
     {
        fParticleChange.ProposeTrackStatus( fStopAndKill ) ;
     }
@@ -675,10 +675,10 @@ G4VParticleChange* G4MonopoleTransportation::PostStepDoIt( const G4Track& track,
   }         // endif ( fGeometryLimitedStep ) 
 
   const G4VPhysicalVolume* pNewVol = retCurrentTouchable->GetVolume() ;
-  const G4Material* pNewMaterial   = 0 ;
-  const G4VSensitiveDetector* pNewSensitiveDetector   = 0 ;
-                                                                                       
-  if( pNewVol != 0 )
+  const G4Material* pNewMaterial   = nullptr ;
+  const G4VSensitiveDetector* pNewSensitiveDetector   = nullptr ;
+
+  if( pNewVol != nullptr )
   {
     pNewMaterial= pNewVol->GetLogicalVolume()->GetMaterial();
     pNewSensitiveDetector= pNewVol->GetLogicalVolume()->GetSensitiveDetector();
@@ -690,13 +690,13 @@ G4VParticleChange* G4MonopoleTransportation::PostStepDoIt( const G4Track& track,
   fParticleChange.SetMaterialInTouchable( (G4Material *) pNewMaterial ) ;
   fParticleChange.SetSensitiveDetectorInTouchable( (G4VSensitiveDetector *) pNewSensitiveDetector ) ;
 
-  const G4MaterialCutsCouple* pNewMaterialCutsCouple = 0;
-  if( pNewVol != 0 )
+  const G4MaterialCutsCouple* pNewMaterialCutsCouple = nullptr;
+  if( pNewVol != nullptr )
   {
     pNewMaterialCutsCouple=pNewVol->GetLogicalVolume()->GetMaterialCutsCouple();
   }
 
-  if( pNewVol!=0 && pNewMaterialCutsCouple!=0 && pNewMaterialCutsCouple->GetMaterial()!=pNewMaterial )
+  if( pNewVol!=nullptr && pNewMaterialCutsCouple!=nullptr && pNewMaterialCutsCouple->GetMaterial()!=pNewMaterial )
   {
     // for parametrized volume
     //

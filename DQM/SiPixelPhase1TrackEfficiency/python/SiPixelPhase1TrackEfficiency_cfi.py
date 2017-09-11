@@ -6,6 +6,7 @@ from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 SiPixelPhase1TrackEfficiencyValid = DefaultHistoTrack.clone(
   name = "valid",
   title = "Valid Hits",
+  range_min = 0, range_max = 50, range_nbins = 50,
   xlabel = "valid hits",
   dimensions = 0,
 
@@ -16,11 +17,11 @@ SiPixelPhase1TrackEfficiencyValid = DefaultHistoTrack.clone(
     Specification().groupBy("PXBarrel/PXLayer/Event") #this will produce inclusive counts per Layer/Disk
                              .reduce("COUNT")    
                              .groupBy("PXBarrel/PXLayer")
-                             .save(nbins=100, xmin=0, xmax=3000),
+                             .save(nbins=50, xmin=0, xmax=1500),
     Specification().groupBy("PXForward/PXDisk/Event")
                              .reduce("COUNT")    
                              .groupBy("PXForward/PXDisk/")
-                             .save(nbins=100, xmin=0, xmax=3000),
+                             .save(nbins=50, xmin=0, xmax=1500),
   )
 )
 
@@ -28,6 +29,7 @@ SiPixelPhase1TrackEfficiencyInactive = DefaultHistoTrack.clone(
   name = "inactive",
   title = "Inactive Hits",
   xlabel = "inactive hits",
+  range_min = 0, range_max = 25, range_nbins = 25,
   dimensions = 0,
 
   specs = VPSet(
@@ -36,17 +38,18 @@ SiPixelPhase1TrackEfficiencyInactive = DefaultHistoTrack.clone(
     Specification().groupBy("PXBarrel/PXLayer/Event") #this will produce inclusive counts per Layer/Disk
                              .reduce("COUNT")    
                              .groupBy("PXBarrel/PXLayer")
-                             .save(nbins=100, xmin=0, xmax=100),
+                             .save(nbins=50, xmin=0, xmax=100),
     Specification().groupBy("PXForward/PXDisk/Event")
                              .reduce("COUNT")    
                              .groupBy("PXForward/PXDisk/")
-                             .save(nbins=100, xmin=0, xmax=100),
+                             .save(nbins=50, xmin=0, xmax=100),
   )
 )
 
 SiPixelPhase1TrackEfficiencyMissing = DefaultHistoTrack.clone(
   name = "missing",
   title = "Missing Hits",
+  range_min = 0, range_max = 25, range_nbins = 25,
   xlabel = "missing hits",
   dimensions = 0,
 
@@ -57,11 +60,11 @@ SiPixelPhase1TrackEfficiencyMissing = DefaultHistoTrack.clone(
     Specification().groupBy("PXBarrel/PXLayer/Event") #this will produce inclusive counts per Layer/Disk
                              .reduce("COUNT")    
                              .groupBy("PXBarrel/PXLayer")
-                             .save(nbins=100, xmin=0, xmax=100),
+                             .save(nbins=50, xmin=0, xmax=100),
     Specification().groupBy("PXForward/PXDisk/Event")
                              .reduce("COUNT")    
                              .groupBy("PXForward/PXDisk/")
-                             .save(nbins=100, xmin=0, xmax=100),
+                             .save(nbins=50, xmin=0, xmax=100),
   )
 )
 

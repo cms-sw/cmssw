@@ -25,20 +25,8 @@ topSingleMuonHLTValidation = cms.EDAnalyzer('TopSingleLeptonHLTValidation',
         iTrigger     = cms.untracked.InputTag("TriggerResults","","HLT"),
 
 ### Updating to HLT paths to be monitored by TOP PAG in 2017                                                                                                                 
-        vsPaths     = cms.untracked.vstring(['HLT_Mu20_v*',
-                                             'HLT_TkMu20_v*' ,
-                                             'HLT_IsoMu20_v*',
-                                             'HLT_IsoTkMu20_v*',
-                                             'HLT_IsoMu24_eta2p1_v*',
-                                             'HLT_IsoMu24_v*',
-                                             'HLT_IsoTkMu24_eta2p1_v*',
-                                             'HLT_IsoTkMu24_v*',
-                                             'HLT_Mu27_v*',
-                                             'HLT_TkMu27_v*',
-                                             'HLT_IsoMu27_v*',
-                                             'HLT_IsoTkMu27_v*',
-                                             'HLT_TkMu50_v*',
-                                             'HLT_Mu50_v*']),
+        vsPaths     = cms.untracked.vstring(['HLT_IsoMu27_v',
+                                             'HLT_Mu50_v']),
 )
 
 # ttbar semi electronique
@@ -66,8 +54,7 @@ topSingleElectronHLTValidation = cms.EDAnalyzer('TopSingleLeptonHLTValidation',
         iTrigger     = cms.untracked.InputTag("TriggerResults","","HLT"),
 
 ### Updating to HLT paths to be monitored by TOP PAG in 2017
-        vsPaths     = cms.untracked.vstring(['HLT_Ele30_eta2p1_WPTight_Gsf_v*',
-                                             'HLT_Ele35_WPTight_Gsf_v*',
-                                             'HLT_Ele38_WPTight_Gsf_v*',
-                                             'HLT_Ele40_WPTight_Gsf_v*']),
+        vsPaths     = cms.untracked.vstring(['HLT_Ele35_WPTight_Gsf_v',
+                                             'HLT_Ele38_WPTight_Gsf_v',
+                                             'HLT_Ele40_WPTight_Gsf_v']),
 )
