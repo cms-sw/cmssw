@@ -20,7 +20,7 @@ namespace l1t {
 
     MuonPhase2( const Muon& );
 
-    ~MuonPhase2();
+    ~MuonPhase2() override;
 
   private:
 
