@@ -978,7 +978,7 @@ class ConfigBuilder(object):
         self.ENDJOBDefaultSeq='endOfProcess'
         self.REPACKDefaultSeq='DigiToRawRepack'
 	self.PATDefaultSeq='miniAOD'
-	self.PATGENDefaultSeq='miniAOD'
+	self.PATGENDefaultSeq='miniGEN'
 
         self.EVTCONTDefaultCFF="Configuration/EventContent/EventContent_cff"
 
@@ -990,6 +990,7 @@ class ConfigBuilder(object):
                 self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_cff"
 		self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_cff"
 		self.PATDefaultCFF="Configuration/StandardSequences/PATMC_cff"
+                self.PATGENDefaultCFF="Configuration/StandardSequences/PATGEN_cff"
                 self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineMC_cff"
                 self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreamsMC_cff"
 	else:
@@ -1677,15 +1678,13 @@ class ConfigBuilder(object):
                 self._options.customisation_file_unsch.insert(1,"PhysicsTools/PatAlgos/slimming/metFilterPaths_cff.miniAOD_customizeMETFiltersFastSim")
         return
 
-    def prepare_PATGEN(self, sequence = "miniAOD"):
+    def prepare_PATGEN(self, sequence = "miniGEN"):
         ''' Enrich the schedule with PATGEN '''
-        self.loadDefaultOrSpecifiedCFF(sequence,self.PATDefaultCFF,1) #this is unscheduled
+        self.loadDefaultOrSpecifiedCFF(sequence,self.PATGENDefaultCFF,1) #this is unscheduled
 	if not self._options.runUnscheduled:	
-		raise Exception("MiniAOD production can only run in unscheduled mode, please run cmsDriver with --runUnscheduled")
+		raise Exception("MiniGEN production can only run in unscheduled mode, please run cmsDriver with --runUnscheduled")
         if self._options.isData:
             raise Exception("PATGEN step can only run on MC")
-        else:
-            self._options.customisation_file_unsch.insert(0,"PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllGEN")
         return
 
     def prepare_EI(self, sequence = None):
