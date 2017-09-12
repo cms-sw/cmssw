@@ -43,8 +43,8 @@
 #include <TSystem.h>
 #include <TTimeStamp.h>
 #include <TStopwatch.h>
-#include "Alignment/OfflineValidation/plugins/TkAlStyle.cc" 
-#include "CMS_lumi.C"
+//#include "Alignment/OfflineValidation/plugins/TkAlStyle.cc" 
+#include "Alignment/OfflineValidation/macros/CMS_lumi.C"
 
 /* 
    This is an auxilliary class to store the list of files
@@ -343,7 +343,7 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
     std::cout<<"FitPVResiduals::FitPVResiduals(): plot axis range will be automatically adjusted"<<std::endl;
   }
     
-  TkAlStyle::set(INTERNAL);	// set publication status
+  //TkAlStyle::set(INTERNAL);	// set publication status
 
   Int_t def_markers[9] = {kFullSquare,kFullCircle,kFullTriangleDown,kOpenSquare,kDot,kOpenCircle,kFullTriangleDown,kFullTriangleUp,kOpenTriangleDown};
   Int_t def_colors[9] = {kBlack,kRed,kBlue,kMagenta,kGreen,kCyan,kViolet,kOrange,kGreen+2};
@@ -517,8 +517,10 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
     if(gDirectory->GetListOfKeys()->Contains("etaMax")){
       gDirectory->GetObject("etaMax",theEtaHistos[i]);
       theEtaMax_[i]   = theEtaHistos[i]->GetBinContent(1)/theEtaHistos[i]->GetEntries();
+      std::cout<<"File n. "<<i<<" has theEtaMax["<<i<<"] = "<< theEtaMax_[i]<<std::endl;
     } else {
       theEtaMax_[i]   = 2.5;
+      std::cout<<"File n. "<<i<<" getting the default pseudo-rapidity range: "<< theEtaMax_[i]<<std::endl;
     }
     	
     if(gDirectory->GetListOfKeys()->Contains("nbins")){
@@ -1482,7 +1484,7 @@ void arrangeBiasCanvas(TCanvas *canv,TH1F* dxyPhiMeanTrend[100],TH1F* dzPhiMeanT
   canv->cd(4)->SetLeftMargin(0.18);
   canv->cd(4)->SetRightMargin(0.01);
   canv->cd(4)->SetTopMargin(0.06); 
-
+  
   TH1F *dBiasTrend[4][nFiles]; 
   
   for(Int_t i=0;i<nFiles;i++){
@@ -1500,6 +1502,11 @@ void arrangeBiasCanvas(TCanvas *canv,TH1F* dxyPhiMeanTrend[100],TH1F* dzPhiMeanT
     canv->cd(k+1);
     
     for(Int_t i=0; i<nFiles; i++){
+
+      if(TString(canv->GetName()).Contains("BareResiduals")){
+	dBiasTrend[k][i]->Scale(1./dBiasTrend[k][i]->GetSumOfWeights());
+      }
+
       if(dBiasTrend[k][i]->GetMaximum()>absmax[k]) absmax[k] = dBiasTrend[k][i]->GetMaximum();
       if(dBiasTrend[k][i]->GetMinimum()<absmin[k]) absmin[k] = dBiasTrend[k][i]->GetMinimum();
     }
@@ -1545,6 +1552,11 @@ void arrangeBiasCanvas(TCanvas *canv,TH1F* dxyPhiMeanTrend[100],TH1F* dzPhiMeanT
 	    } 
 	  }
 	}
+	
+	if(TString(canv->GetName()).Contains("BareResiduals") && (k==0 || k==2)){
+	  dBiasTrend[k][i]->GetXaxis()->SetRangeUser(-0.11,0.11);
+	}
+
 	dBiasTrend[k][i]->Draw("e1");
 	makeNewXAxis(dBiasTrend[k][i]);
 	Int_t nbins =  dBiasTrend[k][i]->GetNbinsX();
@@ -1572,9 +1584,15 @@ void arrangeBiasCanvas(TCanvas *canv,TH1F* dxyPhiMeanTrend[100],TH1F* dzPhiMeanT
 	theConst->Draw("PLsame");
 
       }
-      else { 
-	dBiasTrend[k][i]->Draw("e1sames");	
+      else {	       
+
+	if(TString(canv->GetName()).Contains("BareResiduals") && (k==0 || k==2)){
+	  dBiasTrend[k][i]->GetXaxis()->SetRangeUser(-0.11,0.11);
+	}
+
+	dBiasTrend[k][i]->Draw("e1sames");      
       }
+
       if(k==0){
 	lego->AddEntry(dBiasTrend[k][i],LegLabels[i]);
       } 
@@ -1775,7 +1793,7 @@ void arrangeCanvas(TCanvas *canv,TH1F* meanplots[100],TH1F* widthplots[100],Int_
 
 	widthplots[i]->Draw("e1");
 	if(TString(widthplots[i]->GetName()).Contains("pT")){
-	  widthplots[i]->Draw("HIST][same");
+	  //widthplots[i]->Draw("HIST][same");
 	  gPad->SetGridx();
 	  gPad->SetGridy();
 	} 
@@ -1783,7 +1801,7 @@ void arrangeCanvas(TCanvas *canv,TH1F* meanplots[100],TH1F* widthplots[100],Int_
       } else {
 	widthplots[i]->Draw("e1sames");
 	if(TString(widthplots[i]->GetName()).Contains("pT")){
-	  widthplots[i]->Draw("HIST][same");
+	  //widthplots[i]->Draw("HIST][same");
 	}
       }
     }
@@ -1836,7 +1854,7 @@ void arrangeCanvas2D(TCanvas *canv,TH2F* meanmaps[100],TH2F* widthmaps[100],Int_
     pt2[i]->SetTextFont(52);
     pt2[i]->SetTextAlign(12);
     // TText *text2 = pt2->AddText("run: "+theDate);
-    TText *text2 = pt2[i]->AddText(toTString(INTERNAL));
+    TText *text2 = pt2[i]->AddText("INTERNAL");
     text2->SetTextSize(0.06*extraOverCmsTextSize); 
     
     pt3[i] = new TPaveText(0.55,0.955,0.95,0.98,"NDC");
@@ -2879,7 +2897,7 @@ void  MakeNiceTrendPlotStyle(TH1 *hist,Int_t color,Int_t style)
   hist->GetXaxis()->SetLabelSize(.07);
   //hist->GetXaxis()->SetNdivisions(505);
   if(color!=8){
-    hist->SetMarkerSize(1.5);
+    hist->SetMarkerSize(1.0);
   } else {
     hist->SetLineWidth(3);
     hist->SetMarkerSize(0.0);    
@@ -3246,8 +3264,8 @@ void makeNewXAxis (TH1F *h)
     axmax = 8.5;
   } else if (myTitle.Contains("h_probe")){
     ndiv = 505;
-    axmin = h->GetXaxis()->GetXmin();
-    axmax = h->GetXaxis()->GetXmax();
+    axmin = h->GetXaxis()->GetBinCenter(h->GetXaxis()->GetFirst());
+    axmax = h->GetXaxis()->GetBinCenter(h->GetXaxis()->GetLast());
   } else  {
     std::cout<<"unrecognized variable for histogram title: "<<myTitle<<std::endl;
   }
