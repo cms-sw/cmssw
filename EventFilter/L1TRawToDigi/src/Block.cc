@@ -173,7 +173,7 @@ namespace l1t {
   MTF7Payload::getBlock()
   {
     if (end_ - data_ < 2)
-      return std::auto_ptr<Block>(0);
+      return std::auto_ptr<Block>(nullptr);
     
     const uint16_t * data16 = reinterpret_cast<const uint16_t*>(data_);
     const uint16_t * end16 = reinterpret_cast<const uint16_t*>(end_);
@@ -196,7 +196,7 @@ namespace l1t {
     
     if (not valid(pattern)) {
       edm::LogWarning("L1T") << "MTF7 block with unrecognized id 0x" << std::hex << pattern;
-      return std::auto_ptr<Block>(0);
+      return std::auto_ptr<Block>(nullptr);
     }
     
     data_ += (i + 1) * 2;
