@@ -34,6 +34,7 @@ class L1TStage2RegionalMuonCandComp : public DQMEDAnalyzer {
   enum variables {BXRANGEGOOD=1, BXRANGEBAD, NMUONGOOD, NMUONBAD, MUONALL, MUONGOOD, PTBAD, ETABAD, LOCALPHIBAD, SIGNBAD, SIGNVALBAD, QUALBAD, HFBAD, LINKBAD, PROCBAD, TFBAD, TRACKADDRBAD};
   enum ratioVariables {RBXRANGE=1, RNMUON, RMUON, RPT, RETA, RLOCALPHI, RSIGN, RSIGNVAL, RQUAL, RHF, RLINK, RPROC, RTF, RTRACKADDR};
   enum tfs {BMTFBIN=1, OMTFNEGBIN, OMTFPOSBIN, EMTFNEGBIN, EMTFPOSBIN};
+  bool incBin[RTRACKADDR+1];
 
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> muonToken1;
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> muonToken2;
@@ -42,6 +43,7 @@ class L1TStage2RegionalMuonCandComp : public DQMEDAnalyzer {
   std::string muonColl2Title;
   std::string summaryTitle;
   bool ignoreBadTrkAddr;
+  std::vector<int> ignoreBin;
   bool verbose;
 
   MonitorElement* summary;
