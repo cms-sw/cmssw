@@ -32,7 +32,7 @@ class ProcForeach : public TrainProcessor {
 	unsigned int	count;
 };
 
-static ProcForeach::Registry registry("ProcForeach");
+ProcForeach::Registry registry("ProcForeach");
 
 ProcForeach::ProcForeach(const char *name, const AtomicId *id,
                          MVATrainer *trainer) :

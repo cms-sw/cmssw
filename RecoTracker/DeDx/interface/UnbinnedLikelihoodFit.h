@@ -3,7 +3,7 @@
 #include <TObject.h>
 #include <TF1.h>
 #include <TVirtualFitter.h>
-#include <stdint.h>
+#include <cstdint>
 
 // a class to perform a likelihood fit
 // Author: Christophe Delaere
@@ -26,7 +26,7 @@ class UnbinnedLikelihoodFit : public TObject
   public:
     // Constructor and destructor
     UnbinnedLikelihoodFit();
-    ~UnbinnedLikelihoodFit();
+    ~UnbinnedLikelihoodFit() override;
 
     // Set the data for the fit: a set of measurements
     void setData(uint32_t n, double* x);
@@ -46,8 +46,8 @@ class UnbinnedLikelihoodFit : public TObject
     TF1* getFunction() const { return function_; }
     double getParameterValue(uint32_t i) { return function_ ? function_->GetParameter(i) : 0; }
     double getParameterError(uint32_t i) { return function_ ? function_->GetParError(i)  : 0; }
-    double* getParameterValues() { return function_ ? function_->GetParameters() : NULL; }
-    const double* getParameterErrors() { return function_ ? function_->GetParErrors()  : NULL; }
+    double* getParameterValues() { return function_ ? function_->GetParameters() : nullptr; }
+    const double* getParameterErrors() { return function_ ? function_->GetParErrors()  : nullptr; }
   
   private:
     // input data

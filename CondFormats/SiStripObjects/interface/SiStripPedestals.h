@@ -72,9 +72,9 @@ public:
   void  allPeds  (std::vector<int> & pefs,  const Range& range) const;
 
   /// Prints mean pedestal value divided for subdet, layer and mono/stereo.
-  void printSummary(std::stringstream& ss) const;
+  void printSummary(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
   /// Prints all pedestals.
-  void printDebug(std::stringstream& ss) const;
+  void printDebug(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
 
  private:
 

@@ -7,9 +7,13 @@ from RecoEcal.EgammaClusterProducers.multi5x5BasicClusters_cfi import *
 #
 # producer for photons
 #
-photons = cms.EDProducer("PhotonProducer",
-    photonCoreProducer = cms.InputTag("photonCore"),
- #   photonCollection = cms.string(''),
+photons = cms.EDProducer("GEDPhotonProducer",
+    photonProducer = cms.InputTag("photonCore"),
+    reconstructionStep = cms.string("tmp"),
+    outputPhotonCollection = cms.string(""),
+    pfEgammaCandidates = cms.InputTag(""),
+    valueMapPhotons = cms.string(""),
+    #   photonCollection = cms.string(''),
     regressionWeightsFromDB =   cms.bool(True),                    
     energyRegressionWeightsFileLocation = cms.string('/afs/cern.ch/user/b/bendavid/cmspublic/regweights/gbrph.root'),
     energyRegressionWeightsDBLocation = cms.string('wgbrph'), 
@@ -31,6 +35,7 @@ photons = cms.EDProducer("PhotonProducer",
     barrelEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     hbheModule = cms.string('hbhereco'),
     endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
+    preshowerHits = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
     hcalTowers = cms.InputTag("towerMaker"),
     runMIPTagger = cms.bool(True),
     highEt  = cms.double(100.),                       
@@ -75,4 +80,7 @@ photons = cms.EDProducer("PhotonProducer",
     RecHitSeverityToBeExcludedEE = cleanedHybridSuperClusters.RecHitSeverityToBeExcluded,
 )
 
+photonsFromMultiCl = photons.clone(
+  photonProducer = 'photonCoreFromMultiCl'
+)
 

@@ -1,12 +1,11 @@
 #include "DetectorDescription/Parser/src/DDLReflectionSolid.h"
-
-#include <iostream>
-
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDLSolid.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
+
+#include <iostream>
 
 class DDCompactView;
 

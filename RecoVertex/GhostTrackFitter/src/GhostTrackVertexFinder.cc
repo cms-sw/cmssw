@@ -75,7 +75,7 @@ namespace {
 		const TransientTrack &track;
 	};
 
-	static inline Vector3 conv(const GlobalVector &vec)
+	inline Vector3 conv(const GlobalVector &vec)
 	{
 		Vector3 result;
 		result[0] = vec.x();
@@ -84,7 +84,7 @@ namespace {
 		return result;
 	}
 
-	static inline double sqr(double arg) { return arg * arg; }
+	inline double sqr(double arg) { return arg * arg; }
 }
 
 struct GhostTrackVertexFinder::FinderInfo {

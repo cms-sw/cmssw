@@ -2,7 +2,7 @@
 //
 //   Class: CSCMuonPortCard
 //
-//   Description: 
+//   Description:
 //    Simulates the functionality of the Muon Port Card (MPC).  Each MPC
 //    is responsible for 9 Trigger Mother Boards (TMBs).  It takes the up to
 //    18 LCTs (2/TMB) in each (sub)sector every bunch crossing, sorts them,
@@ -62,7 +62,7 @@ void CSCMuonPortCard::loadDigis(const CSCCorrelatedLCTDigiCollection& thedigis)
   }
 }
 
-std::vector<csctf::TrackStub> CSCMuonPortCard::sort(const unsigned endcap, const unsigned station, 
+std::vector<csctf::TrackStub> CSCMuonPortCard::sort(const unsigned endcap, const unsigned station,
 						    const unsigned sector, const unsigned subsector, const int bx)
 {
   std::vector<csctf::TrackStub> result;
@@ -77,7 +77,7 @@ std::vector<csctf::TrackStub> CSCMuonPortCard::sort(const unsigned endcap, const
       result.erase(LCT, LCT);
   }
 
-  if (result.size()) {
+  if (!result.empty()) {
     if (sort_stubs_) std::sort(result.begin(), result.end(), std::greater<csctf::TrackStub>());
     // Can only return maxStubs or less LCTs per bunch crossing.
     if (result.size() > max_stubs_)

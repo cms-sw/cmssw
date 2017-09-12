@@ -1,4 +1,6 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/DDDCmsTrackerContruction.h"
+
+#include <utility>
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
@@ -32,7 +34,7 @@ DDDCmsTrackerContruction::construct( const DDCompactView* cpv, std::vector<int> 
   CmsTrackerBuilder theCmsTrackerBuilder;
   theCmsTrackerBuilder.build( fv, tracker, attribute );
   
-  CmsTrackerDetIdBuilder theCmsTrackerDetIdBuilder( detidShifts );
+  CmsTrackerDetIdBuilder theCmsTrackerDetIdBuilder( std::move(detidShifts) );
   
   tracker = theCmsTrackerDetIdBuilder.buildId( tracker );
   fv.parent();

@@ -1,5 +1,7 @@
 #include "IOPool/Output/interface/TimeoutPoolOutputModule.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace edm {
 
@@ -15,6 +17,13 @@ namespace edm {
       eventsWrittenInCurrentFile(0),
       m_timeout(-1) // we want the first event right away
   {  }
+
+  void
+  TimeoutPoolOutputModule::fillDescriptions(ConfigurationDescriptions & descriptions) {
+    ParameterSetDescription desc;
+    PoolOutputModule::fillDescription(desc);
+    descriptions.add("TimeoutPoolOutputModule", desc);
+  }
 
   bool TimeoutPoolOutputModule::shouldWeCloseFile() const {
     time_t now(time(NULL));

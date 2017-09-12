@@ -9,21 +9,21 @@ void HGCalParameters::fillModule(const HGCalParameters::hgtrap& mytr,
 				 bool reco) {
 
   if (reco) {
-    moduleLayR_.push_back(mytr.lay);
-    moduleBlR_.push_back(mytr.bl);
-    moduleTlR_.push_back(mytr.tl);
-    moduleHR_.push_back(mytr.h);
-    moduleDzR_.push_back(mytr.dz);
-    moduleAlphaR_.push_back(mytr.alpha);
-    moduleCellR_.push_back(mytr.cellSize);
+    moduleLayR_.emplace_back(mytr.lay);
+    moduleBlR_.emplace_back(mytr.bl);
+    moduleTlR_.emplace_back(mytr.tl);
+    moduleHR_.emplace_back(mytr.h);
+    moduleDzR_.emplace_back(mytr.dz);
+    moduleAlphaR_.emplace_back(mytr.alpha);
+    moduleCellR_.emplace_back(mytr.cellSize);
   } else {
-    moduleLayS_.push_back(mytr.lay);
-    moduleBlS_.push_back(mytr.bl);
-    moduleTlS_.push_back(mytr.tl);
-    moduleHS_.push_back(mytr.h);
-    moduleDzS_.push_back(mytr.dz);
-    moduleAlphaS_.push_back(mytr.alpha);
-    moduleCellS_.push_back(mytr.cellSize);
+    moduleLayS_.emplace_back(mytr.lay);
+    moduleBlS_.emplace_back(mytr.bl);
+    moduleTlS_.emplace_back(mytr.tl);
+    moduleHS_.emplace_back(mytr.h);
+    moduleDzS_.emplace_back(mytr.dz);
+    moduleAlphaS_.emplace_back(mytr.alpha);
+    moduleCellS_.emplace_back(mytr.cellSize);
   }
 }
 
@@ -78,19 +78,19 @@ void HGCalParameters::fillTrForm(const HGCalParameters::hgtrform& mytr) {
 	    << ((mytr.subsec & kMaskSubSec) << kShiftSubSec) << " Index " 
 	    << std::hex << indx << std::dec << std::endl;
 #endif
-  trformIndex_.push_back(indx);
-  trformTranX_.push_back(mytr.h3v.x());
-  trformTranY_.push_back(mytr.h3v.y());
-  trformTranZ_.push_back(mytr.h3v.z());
-  trformRotXX_.push_back(mytr.hr.xx());
-  trformRotYX_.push_back(mytr.hr.yx());
-  trformRotZX_.push_back(mytr.hr.zx());
-  trformRotXY_.push_back(mytr.hr.xy());
-  trformRotYY_.push_back(mytr.hr.yy());
-  trformRotZY_.push_back(mytr.hr.zy());
-  trformRotXZ_.push_back(mytr.hr.xz());
-  trformRotYZ_.push_back(mytr.hr.yz());
-  trformRotZZ_.push_back(mytr.hr.zz());
+  trformIndex_.emplace_back(indx);
+  trformTranX_.emplace_back(mytr.h3v.x());
+  trformTranY_.emplace_back(mytr.h3v.y());
+  trformTranZ_.emplace_back(mytr.h3v.z());
+  trformRotXX_.emplace_back(mytr.hr.xx());
+  trformRotYX_.emplace_back(mytr.hr.yx());
+  trformRotZX_.emplace_back(mytr.hr.zx());
+  trformRotXY_.emplace_back(mytr.hr.xy());
+  trformRotYY_.emplace_back(mytr.hr.yy());
+  trformRotZY_.emplace_back(mytr.hr.zy());
+  trformRotXZ_.emplace_back(mytr.hr.xz());
+  trformRotYZ_.emplace_back(mytr.hr.yz());
+  trformRotZZ_.emplace_back(mytr.hr.zz());
 #ifdef EDM_ML_DEBUG
   unsigned int k = trformIndex_.size() - 1;
   std::cout << "HGCalParameters[" << k << "] Index " << std::hex

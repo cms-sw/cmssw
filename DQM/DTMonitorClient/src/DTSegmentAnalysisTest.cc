@@ -186,18 +186,17 @@ void DTSegmentAnalysisTest::performClientDiagnostic(DQMStore::IGetter & igetter)
       }
 
       TH2F * summary2_histo_root = summaryHistos[3]->getTH2F();
-      
+      float weight = 0.001; 
       if(hSegmOcc_root->GetBinContent(sector,chID.station())==0){
 	summaryHistos[chID.wheel()]->setBinContent(sector, chID.station(),2);
 	if(summary2_histo_root->GetBinContent(sector, chID.wheel()+3)<2)
 	  summaryHistos[3]->setBinContent(sector, chID.wheel()+3,2);
       } else {
 	// Fill the percentage of segment occupancy
-	float weight = 1./4.;
+	weight = 1./4.;
 	if((sector == 4 || sector == 10) && chID.station() == 4) weight = 1./8.;
-	summaryHistos[4]->Fill(sector, chID.wheel(),weight);
       }
-      
+      summaryHistos[4]->Fill(sector, chID.wheel(),weight);
     } else {
       LogVerbatim ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest")
 	<< "[DTSegmentAnalysisTest]: histos not found!!"; // FIXME

@@ -65,10 +65,25 @@ namespace edm {
     static ParameterTypes toEnum();
   };
 
+  class Comment {
+  public:
+    Comment();
+    explicit Comment(std::string const& iComment);
+    explicit Comment(char const* iComment);
+    std::string const& comment() const { return comment_; }
+  private:
+    std::string comment_;
+  };
 
   class ParameterDescriptionNode {
 
   public:
+
+    ParameterDescriptionNode() {}
+
+    explicit ParameterDescriptionNode(Comment const& iComment) :
+      comment_(iComment.comment()) {
+    }
 
     virtual ~ParameterDescriptionNode();
 

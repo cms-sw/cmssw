@@ -149,21 +149,7 @@ namespace {
 
     float getTDCTimeFromSample(const QIE11DataFrame::Sample& s)
     {
-        // Conversion from TDC to ns for the QIE11 chip
-        static const float qie11_tdc_to_ns = 0.5f;
-
-        // TDC values produced in case the pulse is always above/below
-        // the discriminator
-        static const int qie11_tdc_code_overshoot = 62;
-        static const int qie11_tdc_code_undershoot = 63;
-
-        const int tdc = s.tdc();
-        float t = qie11_tdc_to_ns*tdc;
-        if (tdc == qie11_tdc_code_overshoot)
-            t = HcalSpecialTimes::UNKNOWN_T_OVERSHOOT;
-        else if (tdc == qie11_tdc_code_undershoot)
-            t = HcalSpecialTimes::UNKNOWN_T_UNDERSHOOT;
-        return t;
+        return HcalSpecialTimes::getTDCTime(s.tdc());
     }
 
     float getTDCTimeFromSample(const HcalQIESample&)

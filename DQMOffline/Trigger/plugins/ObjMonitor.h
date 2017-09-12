@@ -40,6 +40,7 @@
 #include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
 #include "DQMOffline/Trigger/plugins/METDQM.h"
 #include "DQMOffline/Trigger/plugins/JetDQM.h"
+#include "DQMOffline/Trigger/plugins/HTDQM.h"
 
 
 
@@ -53,7 +54,7 @@ class ObjMonitor : public DQMEDAnalyzer
 {
 public:
   ObjMonitor( const edm::ParameterSet& );
-  ~ObjMonitor();
+  ~ObjMonitor() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 protected:
@@ -93,6 +94,8 @@ private:
   METDQM metDQM_;
   bool do_jet_;
   JetDQM jetDQM_;
+  bool do_ht_;
+  HTDQM htDQM_;
 
 
   std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
@@ -101,6 +104,7 @@ private:
   StringCutObjectSelector<reco::MET,true>         metSelection_;
   StringCutObjectSelector<reco::PFJet,true   >    jetSelection_;
   std::string jetId_;
+  StringCutObjectSelector<reco::PFJet,true   >    htjetSelection_;
   StringCutObjectSelector<reco::GsfElectron,true> eleSelection_;
   StringCutObjectSelector<reco::Muon,true>        muoSelection_;
   int njets_;

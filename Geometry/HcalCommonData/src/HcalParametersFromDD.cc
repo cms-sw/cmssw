@@ -19,7 +19,7 @@ namespace {
     DDValue val( s );
     if (DDfetch( &sv, val )) {
       const std::vector<std::string> & fvec = val.strings();
-      if (fvec.size() == 0) {
+      if (fvec.empty()) {
 	throw cms::Exception( "HcalParametersFromDD" ) << "Failed to get " << s << " tag.";
       }
 
@@ -72,7 +72,7 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv,
 	HcalParameters::LayerItem layerGroupEta;
 	layerGroupEta.layer = i;
 	layerGroupEta.layerGroup = dbl_to_int(DDVectorGetter::get(tempName));
-	php.layerGroupEtaSim.push_back(layerGroupEta);
+	php.layerGroupEtaSim.emplace_back(layerGroupEta);
       }
     }
     php.etaMin   = dbl_to_int( DDVectorGetter::get( "etaMin" ));
@@ -96,7 +96,7 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv,
   }
   for( unsigned int i = 0; i < php.rTable.size(); ++i ) {
     unsigned int k = php.rTable.size() - i - 1;
-    php.etaTableHF.push_back( -log( tan( 0.5 * atan( php.rTable[k] / php.gparHF[4] ))));
+    php.etaTableHF.emplace_back( -log( tan( 0.5 * atan( php.rTable[k] / php.gparHF[4] ))));
   }
   //Special parameters at reconstruction level
   attribute = "OnlyForHcalRecNumbering"; 
@@ -118,7 +118,7 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv,
 	HcalParameters::LayerItem layerGroupEta;
 	layerGroupEta.layer = i;
 	layerGroupEta.layerGroup = dbl_to_int(DDVectorGetter::get(tempName));
-	php.layerGroupEtaRec.push_back(layerGroupEta);
+	php.layerGroupEtaRec.emplace_back(layerGroupEta);
       }
     }
   } else {			      

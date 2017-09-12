@@ -63,9 +63,9 @@ void CmsTrackerRingBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
     //
     for(uint32_t i=0; i<comp.size();i++){
       if(fabs(comp[i]->translation().z())<fabs(det->translation().z())){      
-	compfw.push_back(det->component(i));
+	compfw.emplace_back(det->component(i));
       } else {
-	compbw.push_back(det->component(i));
+	compbw.emplace_back(det->component(i));
       }
     }
     

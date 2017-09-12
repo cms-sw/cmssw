@@ -24,7 +24,7 @@ namespace edm {
   class ParameterWildcardBase : public ParameterDescriptionNode 
   {
   public:
-    virtual ~ParameterWildcardBase();
+    ~ParameterWildcardBase() override;
 
     ParameterTypes type() const { return type_; }
     bool isTracked() const { return isTracked_; }
@@ -45,23 +45,23 @@ namespace edm {
 
   private:
 
-    virtual void checkAndGetLabelsAndTypes_(std::set<std::string> & usedLabels,
-                                            std::set<ParameterTypes> & parameterTypes,
-                                            std::set<ParameterTypes> & wildcardTypes) const;
+    void checkAndGetLabelsAndTypes_(std::set<std::string> & usedLabels,
+                                    std::set<ParameterTypes> & parameterTypes,
+                                    std::set<ParameterTypes> & wildcardTypes) const override;
 
-    virtual void writeCfi_(std::ostream & os,
-                           bool & startWithComma,
-                           int indentation,
-                           bool & wroteSomething) const;
+    void writeCfi_(std::ostream & os,
+                   bool & startWithComma,
+                   int indentation,
+                   bool & wroteSomething) const override;
 
-    virtual void print_(std::ostream & os,
-                        bool optional,
-                        bool writeToCfi,
-                        DocFormatHelper & dfh) const;
+    void print_(std::ostream & os,
+                bool optional,
+                bool writeToCfi,
+                DocFormatHelper & dfh) const override;
 
-    virtual bool partiallyExists_(ParameterSet const& pset) const;
+    bool partiallyExists_(ParameterSet const& pset) const override;
 
-    virtual int howManyXORSubNodesExist_(ParameterSet const& pset) const;
+    int howManyXORSubNodesExist_(ParameterSet const& pset) const override;
 
     ParameterTypes type_;
     bool isTracked_;

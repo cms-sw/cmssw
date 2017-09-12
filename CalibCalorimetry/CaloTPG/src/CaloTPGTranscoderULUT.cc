@@ -70,6 +70,7 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
 	bool isHBHE = (abs(ieta) < theTrigTowerGeometry.firstHFTower(version)); 
 
         unsigned int lutsize = getOutputLUTSize(id);
+	outputLUT_[index].resize(lutsize);
 
         for (unsigned int i = 0; i < threshold; ++i)
            outputLUT_[index][i] = 0;

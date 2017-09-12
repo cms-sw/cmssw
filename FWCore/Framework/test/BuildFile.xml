@@ -72,6 +72,11 @@
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>
 </library>
+<library   file="stubs/TestLimitedProducers.cc,stubs/TestLimitedAnalyzers.cc,stubs/TestLimitedFilters.cc" name="TestLimitedModules">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+</library>
 <library   file="stubs/TestOneProducers.cc,stubs/TestOneAnalyzers.cc,stubs/TestOneFilters.cc" name="TestOneModules">
   <flags   EDM_PLUGIN="1"/>
   <use   name="FWCore/Framework"/>
@@ -148,7 +153,7 @@
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>
 </library>
-<bin   name="TestFWCoreFramework" file="testRunner.cpp,maker2_t.cppunit.cc,maker_t.cppunit.cc,productregistry.cppunit.cc,edproducer_productregistry_callback.cc,event_getrefbeforeput_t.cppunit.cc,generichandle_t.cppunit.cc,edconsumerbase_t.cppunit.cc,global_module_t.cppunit.cc,one_outputmodule_t.cppunit.cc,global_outputmodule_t.cppunit.cc,stream_module_t.cppunit.cc,throwIfImproperDependencies_t.cppunit.cc">
+<bin   name="TestFWCoreFramework" file="testRunner.cpp,maker2_t.cppunit.cc,maker_t.cppunit.cc,productregistry.cppunit.cc,edproducer_productregistry_callback.cc,event_getrefbeforeput_t.cppunit.cc,generichandle_t.cppunit.cc,edconsumerbase_t.cppunit.cc,global_module_t.cppunit.cc,one_outputmodule_t.cppunit.cc,global_outputmodule_t.cppunit.cc,stream_module_t.cppunit.cc,limited_module_t.cppunit.cc,limited_outputmodule_t.cppunit.cc,throwIfImproperDependencies_t.cppunit.cc">
   <use   name="DataFormats/Common"/>
   <use   name="DataFormats/Provenance"/>
   <use   name="DataFormats/TestObjects"/>

@@ -44,6 +44,7 @@ https://twiki.cern.ch/twiki/bin/view/CMS/ValidIsoTrkCalib
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
 #include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
@@ -72,9 +73,9 @@ public:
 
 private:
 
-  virtual void beginJob() override ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
 
     
@@ -294,7 +295,7 @@ ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iSetup.get<CaloGeometryRecord>().get(pG);
   geo = pG.product();
   
-  const CaloSubdetectorGeometry* gHcal = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
+  HcalGeometry* gHcal = (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
   //Note: even though it says HcalBarrel, we actually get the whole Hcal detector geometry!
 
   // Lumi_n=iEvent.luminosityBlock();
@@ -307,7 +308,7 @@ ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   //cout<<"Hello World. TrackCollectionSize: "<< isoPixelTracks->size()<<endl;
 
-if (isoPixelTracks->size()==0) return;
+  if (isoPixelTracks->empty()) return;
   
 
 for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=isoProdTracks->end(); trit++)

@@ -11,10 +11,8 @@ for _eraName, _postfix, _era in _cfg.nonDefaultEras():
     _era.toReplaceWith(detachedQuadStepClusters, _cfg.clusterRemoverForIter("DetachedQuadStep", _eraName, _postfix))
 
 # SEEDING LAYERS
-import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
-import RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff
-detachedQuadStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone(
-    layerList = RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff.PixelSeedMergerQuadruplets.layerList.value(),
+import RecoTracker.TkSeedingLayers.PixelLayerQuadruplets_cfi
+detachedQuadStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerQuadruplets_cfi.PixelLayerQuadruplets.clone(
     BPix = dict(skipClusters = cms.InputTag('detachedQuadStepClusters')),
     FPix = dict(skipClusters = cms.InputTag('detachedQuadStepClusters'))
 )

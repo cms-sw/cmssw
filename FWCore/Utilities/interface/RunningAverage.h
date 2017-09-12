@@ -5,7 +5,7 @@
 #include <array>
 
 // Function for testing RunningAverage
-namespace test {
+namespace test_average {
   namespace running_average {
     int test();
   }
@@ -16,7 +16,7 @@ namespace edm {
 // thread safe, fast: does not garantee precise update in case of collision
   class RunningAverage {
     // For tests
-    friend int ::test::running_average::test();
+    friend int ::test_average::running_average::test();
 
   public:
     static constexpr int N = 16;  // better be a power of 2

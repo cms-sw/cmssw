@@ -792,4 +792,64 @@ class PFRecHitQTestThresholdInThicknessNormalizedMIPs : public PFRecHitQTestBase
     }
 };
 
+
+class PFRecHitQTestHGCalThresholdSNR: public PFRecHitQTestBase
+{
+    public:
+        PFRecHitQTestHGCalThresholdSNR() :
+                thresholdSNR_(0.)
+        {
+        }
+
+        PFRecHitQTestHGCalThresholdSNR(const edm::ParameterSet& iConfig) :
+                PFRecHitQTestBase(iConfig), thresholdSNR_(iConfig.getParameter<double>("thresholdSNR"))
+        {
+        }
+
+        void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override
+        {
+        }
+
+        bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut) override
+        {
+            throw cms::Exception("WrongDetector")
+                    << "PFRecHitQTestHGCalThresholdSNR only works for HGCAL!";
+            return false;
+        }
+        bool test(reco::PFRecHit& hit, const HBHERecHit& rh, bool& clean) override
+        {
+            throw cms::Exception("WrongDetector")
+                    << "PFRecHitQTestHGCalThresholdSNR only works for HGCAL!";
+            return false;
+        }
+
+        bool test(reco::PFRecHit& hit, const HFRecHit& rh, bool& clean) override
+        {
+            throw cms::Exception("WrongDetector")
+                    << "PFRecHitQTestHGCalThresholdSNR only works for HGCAL!";
+            return false;
+        }
+        bool test(reco::PFRecHit& hit, const HORecHit& rh, bool& clean) override
+        {
+            throw cms::Exception("WrongDetector")
+                    << "PFRecHitQTestHGCalThresholdSNR only works for HGCAL!";
+            return false;
+        }
+
+        bool test(reco::PFRecHit& hit, const CaloTower& rh, bool& clean) override
+        {
+            throw cms::Exception("WrongDetector")
+                    << "PFRecHitQTestHGCalThresholdSNR only works for HGCAL!";
+            return false;
+        }
+
+        bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean) override
+        {
+            return rh.signalOverSigmaNoise() >= thresholdSNR_;
+        }
+
+    protected:
+        const double thresholdSNR_;
+};
+
 #endif

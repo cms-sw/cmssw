@@ -7,6 +7,7 @@
  *
  */
 
+#include <ostream>
 #include <algorithm>
 #include <memory>
 #include <typeinfo>
@@ -73,6 +74,7 @@ namespace {
 // constructors and destructor
 //
 TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps, const GlobalInputTags * gt) : 
+  throw_(ps.getParameter<bool>("throw")),
   pn_(ps.getParameter<std::string>("processName")),
   moduleLabelPatternsToMatch_(convertToRegex(ps.getParameter<std::vector<std::string>>("moduleLabelPatternsToMatch"))),
   moduleLabelPatternsToSkip_(convertToRegex(ps.getParameter<std::vector<std::string>>("moduleLabelPatternsToSkip"))),
@@ -214,6 +216,7 @@ namespace {
 
 void TriggerSummaryProducerAOD::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<bool>("throw",false)->setComment("Throw exception or LogError");
   desc.add<std::string>("processName","@")->setComment("Process name to use when getting data. The value of '@' is used to denote the current process name.");
   desc.add<std::vector<std::string>>("moduleLabelPatternsToMatch",std::vector<std::string>(1,"hlt*"))->setComment("glob patterns for module labels to get data.");
   desc.add<std::vector<std::string>>("moduleLabelPatternsToSkip",std::vector<std::string>())->setComment("module labels for data products which should not be gotten.");
@@ -413,7 +416,7 @@ void TriggerSummaryProducerAOD::fillTriggerObjectCollections(const edm::Event& i
     if (collectionTagsEvent_.find(collectionTag)!=collectionTagsEvent_.end()) {
       const ProductID pid(collections[ic].provenance()->productID());
       if (offset_.find(pid)!=offset_.end()) {
-	LogError("TriggerSummaryProducerAOD") << "Duplicate pid!";
+	LogError("TriggerSummaryProducerAOD") << "Duplicate pid: " << pid;
       }
       offset_[pid]=toc_.size();
       const unsigned int n(collections[ic]->size());
@@ -533,7 +536,8 @@ void TriggerSummaryProducerAOD::fillFilterObjectMembers(const edm::Event& iEvent
   for (unsigned int i=0; i!=n; ++i) {
     const ProductID pid(refs[i].id());
     if (!(pid.isValid())) {
-      LogError("TriggerSummaryProducerAOD")
+      std::ostringstream ost;
+      ost
 	<< "Iinvalid pid: " << pid
 	<< " FilterTag / Key: " << tag.encode()
 	<< " / " << i << "of" << n
@@ -541,11 +545,17 @@ void TriggerSummaryProducerAOD::fillFilterObjectMembers(const edm::Event& iEvent
 	<< " <Unrecoverable>"
 	<< " / " << refs[i].key()
 	<< " CollectionType: " << typeid(C).name();
+      if (throw_) {
+	throw cms::Exception("TriggerSummaryProducerAOD") << ost.str();
+      } else {
+	LogError("TriggerSummaryProducerAOD") << ost.str();
+      }
     } else if (offset_.find(pid)==offset_.end()) {
       const string&    label(iEvent.getProvenance(pid).moduleLabel());
       const string& instance(iEvent.getProvenance(pid).productInstanceName());
       const string&  process(iEvent.getProvenance(pid).processName());
-      LogError("TriggerSummaryProducerAOD")
+      std::ostringstream ost;
+      ost
 	<< "Uunknown pid: " << pid
 	<< " FilterTag / Key: " << tag.encode()
 	<< " / " << i << "of" << n
@@ -553,6 +563,11 @@ void TriggerSummaryProducerAOD::fillFilterObjectMembers(const edm::Event& iEvent
 	<< InputTag(label,instance,process).encode()
 	<< " / " << refs[i].key()
 	<< " CollectionType: " << typeid(C).name();
+      if (throw_) {
+	throw cms::Exception("TriggerSummaryProducerAOD") << ost.str();
+      } else {
+	LogError("TriggerSummaryProducerAOD") << ost.str();
+      }
     } else {
       fillFilterObjectMember(offset_[pid],ids[i],refs[i]);
     }

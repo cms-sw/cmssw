@@ -1,6 +1,6 @@
 #include "DetectorDescription/Core/interface/DDFilter.h"
 
-#include <stddef.h>
+#include <cstddef>
 #include <iterator>
 #include <string>
 #include <utility>
@@ -42,7 +42,7 @@ DDSpecificsFilter::~DDSpecificsFilter() {}
 void DDSpecificsFilter::setCriteria(const DDValue & nameVal, // name & value of a variable 
                                     DDCompOp op)
 {
-  criteria_.push_back(SpecificCriterion(nameVal,op));
+  criteria_.emplace_back(SpecificCriterion(nameVal,op));
  }		   
 
 bool DDSpecificsFilter::accept(const DDExpandedView & node) const

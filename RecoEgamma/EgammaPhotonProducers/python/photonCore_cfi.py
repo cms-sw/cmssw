@@ -16,4 +16,7 @@ photonCore = cms.EDProducer("PhotonCoreProducer",
 #    MVA_weights_location = cms.string('RecoEgamma/EgammaTools/data/TMVAnalysis_Likelihood.weights.txt')
 )
 
-
+photonCoreFromMultiCl = photonCore.clone(
+    scIslandEndcapProducer = 'particleFlowSuperClusterHGCalFromMultiCl',
+    pixelSeedProducer = 'electronMergedSeedsFromMultiCl'
+)

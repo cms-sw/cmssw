@@ -11,8 +11,8 @@ public:
  MedianDeDxEstimator(const edm::ParameterSet& iConfig){
  }
 
- virtual std::pair<float,float> dedx(const reco::DeDxHitCollection & Hits){
-    if(Hits.size()==0)return std::make_pair(-1,-1);
+ std::pair<float,float> dedx(const reco::DeDxHitCollection & Hits) override{
+    if(Hits.empty())return std::make_pair(-1,-1);
     return std::make_pair(Hits[Hits.size()/2].charge(),-1); 
  } 
 };

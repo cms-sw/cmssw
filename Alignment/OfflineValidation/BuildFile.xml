@@ -11,6 +11,7 @@
 
 <use   name="CLHEP"/>
 <use   name="rootmath"/>
+<use   name="roothistmatrix"/>
 <export>
   <lib   name="1"/>
 </export>

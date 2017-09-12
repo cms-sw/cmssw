@@ -127,6 +127,6 @@ WEA::convert( const edm::EventSetup& eS ,
       std::cout<<" For i ="<<i<<", s_n = "<< s_n<<std::endl;
       std::cout<<"++++++++++++++++++++++++++\n\n"<<std::endl;
 
-      va.push_back( AlignTransform( s_n, G_n, id ) ) ;
+      va.emplace_back( AlignTransform( s_n, G_n, id ) ) ;
    }
 }

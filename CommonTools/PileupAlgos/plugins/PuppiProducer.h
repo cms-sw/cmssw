@@ -46,6 +46,7 @@ private:
 	bool 			fPuppiForLeptons;
 	bool            fUseDZ;
 	float           fDZCut;
+	float           fPtMax;
 	bool fUseExistingWeights;
 	bool fUseWeightsNoLep;
 	bool fClonePackedCands;

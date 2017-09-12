@@ -105,7 +105,7 @@ class PFHFRecHitCreator final :  public  PFRecHitCreatorBase {
       }
       //Sort by DetID the collection
       DetIDSorter sorter;
-      if (tmpOut.size()>0)
+      if (!tmpOut.empty())
 	std::sort(tmpOut.begin(),tmpOut.end(),sorter); 
 
 

@@ -18,6 +18,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <vector>
+#include <set>
 #include <string>
 #include <utility>
 #include <iosfwd>
@@ -62,7 +63,8 @@ namespace edm {
     void validate(ParameterSet & pset, std::string const& moduleLabel) const;
 
     void writeCfis(std::string const& baseType,
-                   std::string const& pluginName) const;
+                   std::string const& pluginName,
+                   std::set<std::string>& usedCfiFileNames) const;
 
     void print(std::ostream & os,
                std::string const& moduleLabel,
@@ -85,7 +87,8 @@ namespace edm {
 
     static void writeCfiForLabel(std::pair<std::string, ParameterSetDescription> const& labelAndDesc,
                                  std::string const& baseType,
-                                 std::string const& pluginName);
+                                 std::string const& pluginName,
+                                 std::set<std::string>& usedCfiFileNames);
 
     void printForLabel(std::pair<std::string, ParameterSetDescription> const& labelAndDesc,
                        std::ostream & os,

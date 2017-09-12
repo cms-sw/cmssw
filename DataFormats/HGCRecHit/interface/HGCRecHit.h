@@ -74,6 +74,8 @@ public:
 
   float chi2() const;
   float outOfTimeChi2() const;
+  float signalOverSigmaNoise() const;
+
 
   // set the energy for out of time events
   // (only energy >= 0 will be stored)
@@ -83,6 +85,8 @@ public:
   void setChi2( float chi2 );
   void setOutOfTimeChi2( float chi2 );
   void setOutOfTimeEnergy( float energy );
+  void setSignalOverSigmaNoise( float sOverNoise );
+
 
   void setTimeError( uint8_t timeErrBits );
 
@@ -102,6 +106,7 @@ private:
 
   /// store rechit condition (see Flags enum) in a bit-wise way 
   uint32_t flagBits_;
+  uint8_t signalOverSigmaNoise_;
 };
 
 std::ostream& operator<<(std::ostream& s, const HGCRecHit& hit);

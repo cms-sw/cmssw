@@ -104,6 +104,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
     def readConnections(self, objects,toNeighbors=False):
         """ Read connection between objects """
         connections={}
+        checkedObjects = set()
         self._motherRelationsDict={}
         self._daughterRelationsDict={}
         if toNeighbors:
@@ -116,23 +117,29 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         for connection in compareObjectList:
             if self._cancelOperationsFlag:
                 break
-            if not connection in self._connections.keys():
-                for key, value in self.inputTags(connection[1]):
-                    module = str(value).split(":")[0]
-                    if module == self.label(connection[0]):
-                        product = ".".join(str(value).split(":")[1:])
-		        try:
+            try:
+                if (not connection in checkedObjects) and (not self._connections.has_key(connection)):
+                    checkedObjects.add(connection)
+                    for key, value in self.inputTags(connection[1]):
+                        s = str(value)
+                        index = s.find(':')
+                        if -1 != index:
+                            module = s[:index]
+                        else:
+                            module = s
+                        if module == self.label(connection[0]):
+                            product = ".".join(str(value).split(":")[1:])
                             self._connections[connection]=(product, key)
-		        except TypeError:
-		            return []
-            if connection in self._connections.keys():
-                connections[connection]=self._connections[connection]
-                if not connection[1] in self._motherRelationsDict.keys():
-                    self._motherRelationsDict[connection[1]]=[]
-                self._motherRelationsDict[connection[1]]+=[connection[0]]
-                if not connection[0] in self._daughterRelationsDict.keys():
-                    self._daughterRelationsDict[connection[0]]=[]
-                self._daughterRelationsDict[connection[0]]+=[connection[1]]
+                if self._connections.has_key(connection):
+                    connections[connection]=self._connections[connection]
+                    if not self._motherRelationsDict.has_key(connection[1]):
+                        self._motherRelationsDict[connection[1]]=[]
+                    self._motherRelationsDict[connection[1]]+=[connection[0]]
+                    if not self._daughterRelationsDict.has_key(connection[0]):
+                        self._daughterRelationsDict[connection[0]]=[]
+                    self._daughterRelationsDict[connection[0]]+=[connection[1]]
+            except TypeError:
+                return {}
         return connections
     
     def connections(self):
@@ -231,9 +238,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         else:
             folder_list += [("paths", self.process().paths.itervalues())]
         folder_list += [("endpaths", self.process().endpaths.itervalues())]
-	if hasattr(self.process(),"options") and hasattr(self.process().options,"allowUnscheduled") and self.process().options.allowUnscheduled:
-	    print "Running in Unscheduled mode"
-            folder_list += [("modules", self._sort_list(self.process().producers.values()+self.process().filters.values()+self.process().analyzers.values()))]
+        folder_list += [("modules", self._sort_list(self.process().producers.values()+self.process().filters.values()+self.process().analyzers.values()))]
         folder_list += [("services", self._sort_list(self.process().services.values()))]
         folder_list += [("psets", self._sort_list(self.process().psets.values()))]
         folder_list += [("vpsets", self._sort_list(self.process().vpsets.values()))]
@@ -247,8 +252,8 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
 	    folders[foldername]=folder
             for path in entry:
                 self._readRecursive(folder, path)
-	if hasattr(self.process(),"options") and hasattr(self.process().options,"allowUnscheduled") and self.process().options.allowUnscheduled:
-	    print "Creating schedule...",
+	if True:
+            print "Creating schedule...",
             self.readConnections(self.allChildren(folders["modules"]))
 	    self._scheduleRecursive(folders["paths"])
 	    self._scheduledObjects.reverse()
@@ -315,6 +320,8 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         text = ""
         if hasattr(object, "label_") and (not hasattr(object,"hasLabel_") or object.hasLabel_()):
             text = str(object.label_())
+            if text:
+                return text
         if text == "":
             if hasattr(object, "_name"):
                 text = str(object._name)
@@ -478,12 +485,14 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
 
     def inputTags(self, object):
         """ Make list of inputtags from parameter dict """
-        if not object in self._inputTagsDict.keys():
-            try:
-                self._inputTagsDict[object]=self._readInputTagsRecursive(self.parameters(object))
-            except TypeError:
-                return []
-        return self._inputTagsDict[object]
+        try:
+            v = self._inputTagsDict.get(object)
+            if v is None:
+                v = self._readInputTagsRecursive(self.parameters(object))
+                self._inputTagsDict[object]=v
+        except TypeError:
+            v = []
+        return v
 
     def uses(self, object):
         """ Get list of all config objects that are used as input """
@@ -695,7 +704,8 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
             for object in content:
                 keep[object] = True
         for o in outputCommands:
-            command, filter = o.split(" ")
+            #skip multiple spaces
+            command, filter = [ x for x in o.split(" ") if x]
             if len(filter.split("_")) > 1:
                 module = filter.split("_")[1]
                 product = filter.split("_")[2]

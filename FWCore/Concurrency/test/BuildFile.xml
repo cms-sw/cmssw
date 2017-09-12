@@ -16,3 +16,7 @@
   <use   name="FWCore/Utilities"/>
   <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Concurrency/test run_streamGrapher_test.sh run_threadSafeOutputFileStream_test.sh"/>
 </bin>
+
+<bin name="testFWCoreConcurrencyTBB.cc" file="TestTBB.cc">
+  <use name="tbb"/>
+</bin>

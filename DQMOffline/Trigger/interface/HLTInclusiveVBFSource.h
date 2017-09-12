@@ -42,16 +42,18 @@
 
 #include <iostream>
 #include <fstream>
+#include <utility>
+#include <utility>
 #include <vector>
 #include <string>
 
 class HLTInclusiveVBFSource : public DQMEDAnalyzer {
  public:
   explicit HLTInclusiveVBFSource(const edm::ParameterSet&);
-  ~HLTInclusiveVBFSource();
+  ~HLTInclusiveVBFSource() override;
 
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  virtual void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
  private:
   virtual bool isBarrel(double eta);
   virtual bool isEndCap(double eta); 
@@ -216,7 +218,7 @@ class HLTInclusiveVBFSource : public DQMEDAnalyzer {
       NumberOfMatches_           = NumberOfMatches;
       NumberOfEvents_            = NumberOfEvents;
     };
-    ~PathInfo() {};
+    ~PathInfo() = default;;
     PathInfo(int prescaleUsed, 
 	     std::string pathName,
 	     std::string filterName, 
@@ -224,11 +226,13 @@ class HLTInclusiveVBFSource : public DQMEDAnalyzer {
 	     size_t type, 
 	     std::string triggerType):
       prescaleUsed_(prescaleUsed), 
-      pathName_(pathName), 
-      filterName_(filterName), 
-      processName_(processName), 
+      pathName_(std::move(pathName)), 
+      filterName_(std::move(filterName)), 
+      processName_(std::move(processName)), 
       objectType_(type), 
-      triggerType_(triggerType){};
+      triggerType_(std::move(triggerType))
+    {
+    }
     
       MonitorElement * getMEhisto_RECO_deltaEta_DiJet()       { return RECO_deltaEta_DiJet_; }
       MonitorElement * getMEhisto_RECO_deltaPhi_DiJet()       { return RECO_deltaPhi_DiJet_; }
@@ -245,33 +249,33 @@ class HLTInclusiveVBFSource : public DQMEDAnalyzer {
       MonitorElement * getMEhisto_NumberOfMatches()           { return NumberOfMatches_; }
       MonitorElement * getMEhisto_NumberOfEvents()            { return NumberOfEvents_; }
       
-      const std::string getLabel(void ) const {
+      const std::string getLabel( ) const {
 	return filterName_;
       }
       void setLabel(std::string labelName){
-	filterName_ = labelName;
+	filterName_ = std::move(labelName);
 	return;
       }
-      const std::string getPath(void ) const {
+      const std::string getPath( ) const {
 	return pathName_;
       }
-      const int getprescaleUsed(void) const {
+      const int getprescaleUsed() const {
 	return prescaleUsed_;
       }
-      const std::string getProcess(void ) const {
+      const std::string getProcess( ) const {
 	return processName_;
       }
-      const int getObjectType(void ) const {
+      const int getObjectType( ) const {
 	return objectType_;
       }
-      const std::string getTriggerType(void ) const {
+      const std::string getTriggerType( ) const {
 	return triggerType_;
       }
-      const edm::InputTag getTag(void) const{
+      const edm::InputTag getTag() const{
 	edm::InputTag tagName(filterName_,"",processName_);
 	return tagName;
       }
-      bool operator==(const std::string v){
+      bool operator==(const std::string& v){
 	return v==pathName_;
       }
       
@@ -304,7 +308,7 @@ class HLTInclusiveVBFSource : public DQMEDAnalyzer {
   public:
     PathInfoCollection(): std::vector<PathInfo>()
       {};
-      std::vector<PathInfo>::iterator find(std::string pathName) {
+      std::vector<PathInfo>::iterator find(const std::string& pathName) {
         return std::find(begin(), end(), pathName);
       }
   };

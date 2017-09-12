@@ -1,5 +1,5 @@
-#ifndef DDDivision_h
-#define DDDivision_h
+#ifndef DETECTOR_DESCRIPTION_CORE_DD_DIVISION_H
+#define DETECTOR_DESCRIPTION_CORE_DD_DIVISION_H
 
 // The following is based on G4PVDivision of Gean4 as of 4/2004
 //
@@ -68,16 +68,15 @@ class DDDivision;
 class DDMaterial;
 class DDPartSelection;
 class DDSolid;
+
 namespace DDI {
-class Division;
-}  // namespace DDI
+  class Division;
+}
 
 std::ostream & operator<<( std::ostream &, const DDDivision &);
 
 class DDDivision : public DDBase<DDName, DDI::Division*>
 {
-  friend std::ostream & operator<<( std::ostream &, const DDDivision &);
-  
  public:      
   
   //! The default constructor provides an uninitialzed reference object.
@@ -91,45 +90,35 @@ class DDDivision : public DDBase<DDName, DDI::Division*>
    */
   DDDivision(const DDName & name,
              const DDLogicalPart & parent,
-	     const DDAxes axis,
-	     const int nReplicas,
-	     const double width,
-	     const double offset );
-
+	     DDAxes axis,
+	     int nReplicas,
+	     double width,
+	     double offset );
 
   //! Registers (creates) a reference object representing a Division
   /** ...  Constructor with number of divisions 
    */
   DDDivision(const DDName & name,
 	     const DDLogicalPart & parent,
-	     const DDAxes axis,
-	     const int nReplicas,
-	     const double offset );
+	     DDAxes axis,
+	     int nReplicas,
+	     double offset );
 
     //! Registers (creates) a reference object representing a Division
   /** ...  Constructor with width
    */
   DDDivision(const DDName & name,
              const DDLogicalPart & parent,
-	     const DDAxes axis,
-	     const double width,
-	     const double offset );
+	     DDAxes axis,
+	     double width,
+	     double offset );
   
-  //  virtual ~G4PVDivision();
-
   DDAxes axis() const;
   int nReplicas() const;
   double width() const;
   double offset() const;
   const DDLogicalPart & parent() const;
- 
 
 };
 
-// mike copied from DDLogicalPart
-// some helpers .... (not very clean, redesign!! according to martin :-))
-// left this analogy out for now (mec) : pair<bool,std::string> DDIsValid(const std::string & ns, const std::string & name, std::vector<DDDivision> & result,bool doRegex=true);
-// std::maps name to std::vector of namespaces
-typedef DDI::Singleton<std::map<std::string,std::vector<DDName> > > DIVNAMES;
-//void DD_NDC(const DDName &);
 #endif

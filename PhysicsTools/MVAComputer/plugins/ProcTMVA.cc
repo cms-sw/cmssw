@@ -65,7 +65,7 @@ class ProcTMVA : public VarProcessor {
   TString   methodName_t;
 };
 
-static ProcTMVA::Registry registry("ProcTMVA");
+ProcTMVA::Registry registry("ProcTMVA");
 
 ProcTMVA::ProcTMVA(const char *name,
                    const Calibration::ProcExternal *calib,

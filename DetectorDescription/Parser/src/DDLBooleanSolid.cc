@@ -17,7 +17,8 @@ DDLBooleanSolid::DDLBooleanSolid( DDLElementRegistry* myreg )
 
 // Clear out rSolids.
 void
-DDLBooleanSolid::preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
+DDLBooleanSolid::preProcessElement( const std::string& name, const std::string& nmspace,
+				    DDCompactView& cpv )
 {
   myRegistry_->getElement( "rSolid" )->clear();
 }

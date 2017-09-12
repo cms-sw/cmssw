@@ -91,6 +91,7 @@ class HadronAndPartonSelector : public edm::stream::EDProducer<> {
       const edm::EDGetTokenT<reco::GenParticleCollection> particlesToken_;  // Input GenParticle collection
 
       std::string         partonMode_; // Parton selection mode
+      bool                fullChainPhysPartons_;
       bool                partonSelectorSet_;
       PartonSelectorPtr   partonSelector_;
 };
@@ -106,7 +107,8 @@ HadronAndPartonSelector::HadronAndPartonSelector(const edm::ParameterSet& iConfi
 
   srcToken_(mayConsume<GenEventInfoProduct>( iConfig.getParameter<edm::InputTag>("src") )),
   particlesToken_(consumes<reco::GenParticleCollection>( iConfig.getParameter<edm::InputTag>("particles") )),
-  partonMode_(iConfig.getParameter<std::string>("partonMode"))
+  partonMode_(iConfig.getParameter<std::string>("partonMode")),
+  fullChainPhysPartons_(iConfig.getParameter<bool>("fullChainPhysPartons"))
 
 {
    //register your products
@@ -254,7 +256,10 @@ HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
      partonSelector_->run(particles,partons);
      for(reco::GenParticleCollection::const_iterator it = particles->begin(); it != particles->end(); ++it)
      {
-       if( !(it->status()==3 || (( partonMode_=="Pythia8" ) && (it->status()==23)))) continue;
+      if(!fullChainPhysPartons_)
+      {
+         if( !(it->status()==3 || (( partonMode_=="Pythia8" ) && (it->status()==23)))) continue;
+      }
        if( !CandMCTagUtils::isParton( *it ) ) continue;  // skip particle if not a parton
        physicsPartons->push_back( reco::GenParticleRef( particles, it - particles->begin() ) );
      }

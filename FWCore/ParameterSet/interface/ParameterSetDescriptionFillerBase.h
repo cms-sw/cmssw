@@ -55,6 +55,13 @@ namespace edm {
     class OutputModuleBase;
    }
 
+   namespace limited {
+      class EDProducerBase;
+      class EDFilterBase;
+      class EDAnalyzerBase;
+      class OutputModuleBase;
+   }
+
 class ParameterSetDescriptionFillerBase
 {
 
@@ -91,6 +98,10 @@ class ParameterSetDescriptionFillerBase
       static const std::string kExtendedBaseForGlobalEDProducer;
       static const std::string kExtendedBaseForGlobalEDFilter;
       static const std::string kExtendedBaseForGlobalOutputModule;
+      static const std::string kExtendedBaseForLimitedEDAnalyzer;
+      static const std::string kExtendedBaseForLimitedEDProducer;
+      static const std::string kExtendedBaseForLimitedEDFilter;
+      static const std::string kExtendedBaseForLimitedOutputModule;
 
       static const std::string& extendedBaseType(EDAnalyzer const*) {
          return kExtendedBaseForEDAnalyzer;
@@ -137,14 +148,26 @@ class ParameterSetDescriptionFillerBase
       static const std::string& extendedBaseType(global::OutputModuleBase const*) {
          return kExtendedBaseForGlobalOutputModule;
       }
+   static const std::string& extendedBaseType(limited::EDAnalyzerBase const*) {
+      return kExtendedBaseForLimitedEDAnalyzer;
+   }
+   static const std::string& extendedBaseType(limited::EDProducerBase const*) {
+      return kExtendedBaseForLimitedEDProducer;
+   }
+   static const std::string& extendedBaseType(limited::EDFilterBase const*) {
+      return kExtendedBaseForLimitedEDFilter;
+   }
+   static const std::string& extendedBaseType(limited::OutputModuleBase const*) {
+      return kExtendedBaseForLimitedOutputModule;
+   }
       static const std::string& extendedBaseType(void const *) {
          return kEmpty;
       }
   
    private:
-      ParameterSetDescriptionFillerBase(const ParameterSetDescriptionFillerBase&); // stop default
+      ParameterSetDescriptionFillerBase(const ParameterSetDescriptionFillerBase&) = delete; // stop default
 
-      const ParameterSetDescriptionFillerBase& operator=(const ParameterSetDescriptionFillerBase&); // stop default
+      const ParameterSetDescriptionFillerBase& operator=(const ParameterSetDescriptionFillerBase&) = delete; // stop default
 
       // ---------- member data --------------------------------
 

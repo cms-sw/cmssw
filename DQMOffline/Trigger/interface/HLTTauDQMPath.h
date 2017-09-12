@@ -21,8 +21,8 @@ struct HLTTauDQMOfflineObjects;
 
 class HLTTauDQMPath {
 public:
-  typedef math::XYZTLorentzVectorD LV;
-  typedef std::vector<LV> LVColl;
+  using LV = math::XYZTLorentzVectorD;
+  using LVColl = std::vector<LV>;
   typedef std::tuple<std::string, std::string, size_t> FilterIndex;
 
   constexpr static size_t kName = 0;
@@ -35,7 +35,7 @@ public:
     const int id; // from TriggerTypeDefs.h
   };
 
-  HLTTauDQMPath(const std::string& pathName, const std::string& hltProcess, bool doRefAnalysis, const HLTConfigProvider& HLTCP);
+  HLTTauDQMPath(std::string  pathName, std::string  hltProcess, bool doRefAnalysis, const HLTConfigProvider& HLTCP);
   ~HLTTauDQMPath();
 
   bool isValid() const { return isValid_; }

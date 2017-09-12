@@ -19,22 +19,22 @@ using edm::LogInfo;
 
 namespace sistrip {
   SpyUtilities::SpyUtilities() :
-    cabling_(0),
+    cabling_(nullptr),
     cacheId_(0),
-    detCabling_(0),
+    detCabling_(nullptr),
     cacheIdDet_(0),
     pedsCacheId_(0),
-    pedsHandle_(0),
+    pedsHandle_(nullptr),
     noiseCacheId_(0),
-    noiseHandle_(0)
+    noiseHandle_(nullptr)
   {
     
   }
   
   SpyUtilities::~SpyUtilities()
   {
-    if ( cabling_ ) cabling_ = 0;
-    if ( detCabling_ ) detCabling_ = 0;
+    if ( cabling_ ) cabling_ = nullptr;
+    if ( detCabling_ ) detCabling_ = nullptr;
   }
 
   const SiStripFedCabling*  SpyUtilities::getCabling( const edm::EventSetup& setup )
@@ -153,7 +153,7 @@ namespace sistrip {
       lFrame.baseline += val;
     }
 
-    if (channelDigis.size()>0) lFrame.baseline = lFrame.baseline/channelDigis.size();
+    if (!channelDigis.empty()) lFrame.baseline = lFrame.baseline/channelDigis.size();
     lFrame.digitalLow = min;
     lFrame.digitalHigh = max;
 

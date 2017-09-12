@@ -67,7 +67,7 @@ HcalDigisValidation::HcalDigisValidation(const edm::ParameterSet& iConfig) {
 
     msm_ = new std::map<std::string, MonitorElement*>();
 
-    if (outputFile_.size() != 0) edm::LogInfo("OutputInfo") << " Hcal Digi Task histograms will be saved to '" << outputFile_.c_str() << "'";
+    if (!outputFile_.empty()) edm::LogInfo("OutputInfo") << " Hcal Digi Task histograms will be saved to '" << outputFile_.c_str() << "'";
     else edm::LogInfo("OutputInfo") << " Hcal Digi Task histograms will NOT be saved";
 
 }
@@ -415,7 +415,10 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
     if (subdet_ != "all") {
        noise_ = 0;
-       if (subdet_ == "HB") reco<HBHEDataFrame > (iEvent, iSetup, tok_hbhe_);
+       if (subdet_ == "HB"){
+	 reco<HBHEDataFrame > (iEvent, iSetup, tok_hbhe_);
+         reco<QIE11DataFrame>(iEvent, iSetup, tok_qie11_hbhe_);
+       }
        if (subdet_ == "HE"){
 	 reco<HBHEDataFrame > (iEvent, iSetup, tok_hbhe_);
          reco<QIE11DataFrame>(iEvent, iSetup, tok_qie11_hbhe_);
@@ -430,6 +433,7 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
             noise_ = 1;
     	    subdet_ = "HB";
             reco<HBHEDataFrame > (iEvent, iSetup, tok_hbhe_);
+            reco<QIE11DataFrame>(iEvent, iSetup, tok_qie11_hbhe_);
             subdet_ = "HE";
             reco<HBHEDataFrame > (iEvent, iSetup, tok_hbhe_);
             reco<QIE11DataFrame>(iEvent, iSetup, tok_qie11_hbhe_);
@@ -446,6 +450,7 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
         subdet_ = "HB";
         reco<HBHEDataFrame > (iEvent, iSetup, tok_hbhe_);
+        reco<QIE11DataFrame>(iEvent, iSetup, tok_qie11_hbhe_);
         subdet_ = "HE";
         reco<HBHEDataFrame > (iEvent, iSetup, tok_hbhe_);
         reco<QIE11DataFrame>(iEvent, iSetup, tok_qie11_hbhe_);
@@ -1257,7 +1262,7 @@ void HcalDigisValidation::fillPf(std::string name, double X, double Y) {
 }
 
 MonitorElement* HcalDigisValidation::monitor(std::string name) {
-    if (!msm_->count(name)) return NULL;
+    if (!msm_->count(name)) return nullptr;
     else return msm_->find(name)->second;
 }
 

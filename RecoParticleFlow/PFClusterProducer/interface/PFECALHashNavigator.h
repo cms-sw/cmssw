@@ -245,7 +245,7 @@ bool stdsimplemove(DetId& cell,
     neighbours = barrelTopo.getNeighbours(ebDetId,dir);
 
     // first try to move according to the standard navigation
-    if(neighbours.size()>0 && !neighbours[0].null()) {
+    if(!neighbours.empty() && !neighbours[0].null()) {
       cell = neighbours[0];
       return true;
     }
@@ -276,7 +276,7 @@ bool stdsimplemove(DetId& cell,
 
     neighbours= endcapTopo.getNeighbours(eeDetId,dir);
 
-    if(neighbours.size()>0 && !neighbours[0].null()) {
+    if(!neighbours.empty() && !neighbours[0].null()) {
       cell = neighbours[0];
       return true;
     }

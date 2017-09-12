@@ -5,7 +5,7 @@
     email                : case@ucdhep.ucdavis.edu
  ***************************************************************************/
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"

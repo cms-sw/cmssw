@@ -36,16 +36,16 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons,
   nEtaHB_     = (hcons_->getEtaRange(0)).second-(hcons_->getEtaRange(0)).first+1;
   lastHBRing_ = firstHBRing_+nEtaHB_-1;
   if (hcons_->getNPhi(1) > maxPhiHE_) maxPhiHE_ = hcons_->getNPhi(1);
-  for (int i = 0; i < (int)(etaBinsHE_.size()); ++i) {
-    if (firstHERing_ > etaBinsHE_[i].ieta) firstHERing_ = etaBinsHE_[i].ieta;
-    if (lastHERing_  < etaBinsHE_[i].ieta) lastHERing_  = etaBinsHE_[i].ieta;
-    int unit = (int)((etaBinsHE_[i].dphi+0.01)/(5.0*CLHEP::deg));
-    if (unit == 2 && firstHEDoublePhiRing_ > etaBinsHE_[i].ieta)
-      firstHEDoublePhiRing_ = etaBinsHE_[i].ieta;
-    if (unit == 4 && firstHEQuadPhiRing_ > etaBinsHE_[i].ieta)
-      firstHEQuadPhiRing_ = etaBinsHE_[i].ieta;
-    if (etaBinsHE_[i].layer.size() > 2 && firstHETripleDepthRing_ > etaBinsHE_[i].ieta) 
-      firstHETripleDepthRing_ = etaBinsHE_[i].ieta;
+  for (auto & i : etaBinsHE_) {
+    if (firstHERing_ > i.ieta) firstHERing_ = i.ieta;
+    if (lastHERing_  < i.ieta) lastHERing_  = i.ieta;
+    int unit = (int)((i.dphi+0.01)/(5.0*CLHEP::deg));
+    if (unit == 2 && firstHEDoublePhiRing_ > i.ieta)
+      firstHEDoublePhiRing_ = i.ieta;
+    if (unit == 4 && firstHEQuadPhiRing_ > i.ieta)
+      firstHEQuadPhiRing_ = i.ieta;
+    if (i.layer.size() > 2 && firstHETripleDepthRing_ > i.ieta) 
+      firstHETripleDepthRing_ = i.ieta;
   }
   nEtaHE_     = (lastHERing_ - firstHERing_ + 1);
   if (mode_==HcalTopologyMode::LHC) {
@@ -93,20 +93,20 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons,
   }
   eta         = etaTableHF[0];
   etaHF2HE_   = lastHERing_;
-  for (unsigned int i=0; i<etaBinsHE_.size(); ++i) {
-    if (eta < etaBinsHE_[i].etaMax) {
-      etaHF2HE_ = etaBinsHE_[i].ieta;
+  for (auto & i : etaBinsHE_) {
+    if (eta < i.etaMax) {
+      etaHF2HE_ = i.ieta;
       break;
     }
   }
   const double fiveDegInRad = 2*M_PI/72;
-  for (unsigned int k=0; k<dPhiTable.size(); ++k) {
-    int units = (int)(dPhiTable[k]/fiveDegInRad+0.5);
-    unitPhi.push_back(units);
+  for (double k : dPhiTable) {
+    int units = (int)(k/fiveDegInRad+0.5);
+    unitPhi.emplace_back(units);
   }
-  for (unsigned int k=0; k<dPhiTableHF.size(); ++k) {
-    int units = (int)(dPhiTableHF[k]/fiveDegInRad+0.5);
-    unitPhiHF.push_back(units);
+  for (double k : dPhiTableHF) {
+    int units = (int)(k/fiveDegInRad+0.5);
+    unitPhiHF.emplace_back(units);
   }
   int nEta = hcons_->getNEta();
   for (int ring=1; ring<=nEta; ++ring) {
@@ -143,7 +143,7 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons,
 }
 
 HcalTopology::HcalTopology(HcalTopologyMode::Mode mode, int maxDepthHB, int maxDepthHE, HcalTopologyMode::TriggerMode tmode) :
-  hcons_(0), mergePosition_(false),
+  hcons_(nullptr), mergePosition_(false),
   excludeHB_(false), excludeHE_(false), excludeHO_(false), excludeHF_(false),
   mode_(mode), triggerMode_(tmode),
   firstHBRing_(1),   lastHBRing_(16),
@@ -280,7 +280,7 @@ std::vector<DetId> HcalTopology::east(const DetId& id) const {
   HcalDetId neighbors[2];
   for (int i=0;i<decIEta(HcalDetId(id),neighbors);i++) {
     if (neighbors[i].oldFormat()) neighbors[i].changeForm();
-    vNeighborsDetId.push_back(DetId(neighbors[i].rawId()));
+    vNeighborsDetId.emplace_back(DetId(neighbors[i].rawId()));
   }
   return vNeighborsDetId;
 }
@@ -290,7 +290,7 @@ std::vector<DetId> HcalTopology::west(const DetId& id) const {
   HcalDetId neighbors[2];
   for (int i=0;i<incIEta(HcalDetId(id),neighbors);i++) {
     if (neighbors[i].oldFormat()) neighbors[i].changeForm();
-    vNeighborsDetId.push_back(DetId(neighbors[i].rawId()));
+    vNeighborsDetId.emplace_back(DetId(neighbors[i].rawId()));
   }
   return  vNeighborsDetId;
 }
@@ -300,7 +300,7 @@ std::vector<DetId> HcalTopology::north(const DetId& id) const {
   HcalDetId neighbor;
   if (incIPhi(HcalDetId(id),neighbor)) {
     if (neighbor.oldFormat()) neighbor.changeForm();
-    vNeighborsDetId.push_back(DetId(neighbor.rawId()));
+    vNeighborsDetId.emplace_back(DetId(neighbor.rawId()));
   }
   return  vNeighborsDetId;
 }
@@ -310,7 +310,7 @@ std::vector<DetId> HcalTopology::south(const DetId& id) const {
   HcalDetId neighbor;
   if (decIPhi(HcalDetId(id),neighbor)) {
     if (neighbor.oldFormat()) neighbor.changeForm();
-    vNeighborsDetId.push_back(DetId(neighbor.rawId()));
+    vNeighborsDetId.emplace_back(DetId(neighbor.rawId()));
   }
   return  vNeighborsDetId;
 }
@@ -320,7 +320,7 @@ std::vector<DetId> HcalTopology::up(const DetId& id) const {
   std::vector<DetId> vNeighborsDetId;
   if (incrementDepth(neighbor)) {
     if (neighbor.oldFormat()) neighbor.changeForm();
-    vNeighborsDetId.push_back(neighbor);
+    vNeighborsDetId.emplace_back(neighbor);
   }
   return  vNeighborsDetId;
 }
@@ -330,7 +330,7 @@ std::vector<DetId> HcalTopology::down(const DetId& id) const {
   std::vector<DetId> vNeighborsDetId;
   if (decrementDepth(neighbor)) {
     if (neighbor.oldFormat()) neighbor.changeForm();
-    vNeighborsDetId.push_back(neighbor);
+    vNeighborsDetId.emplace_back(neighbor);
   }
   return  vNeighborsDetId;
 }
@@ -469,14 +469,14 @@ bool HcalTopology::validRaw(const HcalDetId& id) const {
 	    (aieta<firstHERing()) || (aieta>lastHERing())) {
           ok = false;
         } else {
-          for (unsigned int i=0; i<etaBinsHE_.size(); ++i) {
-            if (aieta == etaBinsHE_[i].ieta) {
+          for (const auto & i : etaBinsHE_) {
+            if (aieta == i.ieta) {
               if (aieta >= firstHEDoublePhiRing() && (iphi%2)==0) ok=false;
               if (aieta >= firstHEQuadPhiRing()   && (iphi%4)!=3) ok=false;
               if (aieta+1 == hcons_->getNoff(1)) {
 		if (depth < 1) ok = false;
 	      } else {
-		if (depth < etaBinsHE_[i].depthStart) ok = false;
+		if (depth < i.depthStart) ok = false;
 	      }
               break;
             }
@@ -778,9 +778,9 @@ bool HcalTopology::decrementDepth(HcalDetId & detId) const {
       subdet = HcalEndcap;
       etaRing= etaHF2HE_;
       ieta   = (ieta > 0) ? etaRing : -etaRing;
-      for (unsigned int i=0; i<etaBinsHE_.size(); ++i) {
-        if (etaRing == etaBinsHE_[i].ieta) {
-          depth = etaBinsHE_[i].depthStart+etaBinsHE_[i].layer.size()-1;
+      for (const auto & i : etaBinsHE_) {
+        if (etaRing == i.ieta) {
+          depth = i.depthStart+i.layer.size()-1;
           break;
         }
       }
@@ -939,7 +939,7 @@ double HcalTopology::etaMax(HcalSubdetector subdet) const {
     if (lastHORing_ < (int)(etaTable.size())) eta=etaTable[lastHORing_];
     break;
   case(HcalForward): 
-    if (etaTableHF.size() > 0) eta=etaTableHF[etaTableHF.size()-1];
+    if (!etaTableHF.empty()) eta=etaTableHF[etaTableHF.size()-1];
     break;
   default: eta=0;
   }

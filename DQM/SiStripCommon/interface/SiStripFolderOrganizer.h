@@ -59,17 +59,16 @@ class SiStripFolderOrganizer
               // unsigned short i2c
       );
 
-      std::pair<std::string,int32_t> GetSubDetAndLayer(const uint32_t& detid, const TrackerTopology* tTopo, bool ring_flag = 0);
+      std::pair<std::string,int32_t> GetSubDetAndLayer(const uint32_t& detid, const TrackerTopology* tTopo, bool ring_flag = false);
       std::pair<std::string,int32_t> GetSubDetAndLayerThickness(const uint32_t& detid, const TrackerTopology* tTopo, std::string & cThickness);
       std::pair<std::string,int32_t> GetSubDetAndRing(const uint32_t& detid, const TrackerTopology* tTopo);
       // detector folders
       void setDetectorFolder(uint32_t rawdetid, const TrackerTopology* tTopo);
       void getFolderName(int32_t rawdetid, const TrackerTopology* tTopo, std::string& lokal_folder);
-      void getFolderName(int32_t rawdetid, std::string& lokal_folder);  // deprecated version, still needed for now
 
       // layer folders
-      void setLayerFolder(uint32_t rawdetid,const TrackerTopology* tTopo,int32_t layer=0,bool ring_flag = 0);
-      void getLayerFolderName(std::stringstream& ss, uint32_t rawdetid, const TrackerTopology* tTopo, bool ring_flag = 0);
+      void setLayerFolder(uint32_t rawdetid,const TrackerTopology* tTopo,int32_t layer=0,bool ring_flag = false);
+      void getLayerFolderName(std::stringstream& ss, uint32_t rawdetid, const TrackerTopology* tTopo, bool ring_flag = false);
       void getSubDetLayerFolderName(std::stringstream& ss, SiStripDetId::SubDetector subDet, uint32_t layer, uint32_t side=0);
       // ring folder
       void setRingFolder(uint32_t rawdetid,const TrackerTopology* tTopo,int32_t layer=0) { setLayerFolder(rawdetid,tTopo,layer,true); }
@@ -77,9 +76,9 @@ class SiStripFolderOrganizer
       // SubDetector Folder
       void getSubDetFolder(const uint32_t& detid, const TrackerTopology* tTopo, std::string& folder_name);
       std::pair<const std::string, const char *> getSubDetFolderAndTag(const uint32_t& detid, const TrackerTopology* tTopo);
-   private:
-      SiStripFolderOrganizer(const SiStripFolderOrganizer&); // stop default
-      const SiStripFolderOrganizer& operator=(const SiStripFolderOrganizer&); // stop default
+
+      SiStripFolderOrganizer(const SiStripFolderOrganizer&) = delete; // stop default
+      const SiStripFolderOrganizer& operator=(const SiStripFolderOrganizer&) = delete; // stop default
 
    private:
       std::string TopFolderName;

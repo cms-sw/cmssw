@@ -1,6 +1,6 @@
 #include "DetectorDescription/Core/src/Ellipsoid.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <cmath>
 #include <iostream>
 
@@ -10,11 +10,11 @@
 
 void DDI::Ellipsoid::stream(std::ostream & os) const
 {
-   os << " xSemiAxis[cm]=" << p_[0]/cm
-      << " ySemiAxis[cm]=" << p_[1]/cm
-      << " zSemiAxis" << p_[2]/cm
-      << " zBottomCut" << p_[3]/cm
-      << " zTopCut" << p_[4]/cm;
+  os << " xSemiAxis[cm]=" << p_[0]/cm
+     << " ySemiAxis[cm]=" << p_[1]/cm
+     << " zSemiAxis" << p_[2]/cm
+     << " zBottomCut" << p_[3]/cm
+     << " zTopCut" << p_[4]/cm;
 }
 
 double DDI::Ellipsoid::halfVol(double dz, double maxz)  const {

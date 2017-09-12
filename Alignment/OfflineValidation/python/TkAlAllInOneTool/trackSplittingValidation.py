@@ -34,7 +34,7 @@ class TrackSplittingValidation(GenericValidationData_CTSR, ParallelValidation, V
         return super(TrackSplittingValidation, self).createCrabCfg(path, self.crabCfgBaseName)
 
     def getRepMap( self, alignment = None ):
-        repMap = super(TrackSplittingValidation, self).getRepMap()
+        repMap = super(TrackSplittingValidation, self).getRepMap(alignment)
         if repMap["subdetector"] == "none":
             subdetselection = ""
         else:

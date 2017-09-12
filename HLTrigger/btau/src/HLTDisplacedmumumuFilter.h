@@ -13,11 +13,11 @@ class HLTDisplacedmumumuFilter : public HLTFilter {
 
   public:
     explicit HLTDisplacedmumumuFilter(const edm::ParameterSet&);
-    ~HLTDisplacedmumumuFilter();
+    ~HLTDisplacedmumumuFilter() override;
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    virtual void beginJob() override ;
-    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-    virtual void endJob() override ;
+    void beginJob() override ;
+    bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+    void endJob() override ;
 
   private:
     bool fastAccept_;

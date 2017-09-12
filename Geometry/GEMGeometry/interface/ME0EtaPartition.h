@@ -14,7 +14,7 @@ class ME0EtaPartition : public GeomDetUnit
 {
 public:
   
-  ME0EtaPartition(ME0DetId id, BoundPlane::BoundPlanePointer bp, ME0EtaPartitionSpecs* rrs);
+  ME0EtaPartition(ME0DetId id, const BoundPlane::BoundPlanePointer& bp, ME0EtaPartitionSpecs* rrs);
   ~ME0EtaPartition() override;
 
   const ME0EtaPartitionSpecs* specs() const { return specs_; }

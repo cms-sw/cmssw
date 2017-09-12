@@ -343,6 +343,10 @@ L1TCaloStage2ParamsESProducer::L1TCaloStage2ParamsESProducer(const edm::Paramete
   m_params_helper.setLayer1HCalScalePhiBins(conf.exists("layer1HCalScalePhiBins") ? conf.getParameter<std::vector<unsigned>>("layer1HCalScalePhiBins") : std::vector<unsigned>(36,0));
   m_params_helper.setLayer1HFScalePhiBins  (conf.exists("layer1HFScalePhiBins") ? conf.getParameter<std::vector<unsigned>>("layer1HFScalePhiBins") : std::vector<unsigned>(36,0));
 
+  if (conf.existsAs<std::vector<unsigned>>("layer1SecondStageLUT")) {
+    m_params_helper.setLayer1SecondStageLUT(conf.getParameter<std::vector<unsigned>>("layer1SecondStageLUT"));
+  }
+
   m_params = (CaloParams)m_params_helper;
 }
 

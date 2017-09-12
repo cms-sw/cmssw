@@ -59,31 +59,31 @@ namespace pat {
       /// constructor from a Ptr to a reco muon
       Muon(const edm::Ptr<reco::Muon> & aMuonRef);
       /// destructor
-      virtual ~Muon();
+      ~Muon() override;
 
       /// required reimplementation of the Candidate's clone method
-      virtual Muon * clone() const { return new Muon(*this); }
+      Muon * clone() const override { return new Muon(*this); }
 
       // ---- methods for content embedding ----
       /// reference to Track reconstructed in the tracker only (reimplemented from reco::Muon)
-      reco::TrackRef track() const;
+      reco::TrackRef track() const override;
       using reco::RecoCandidate::track; // avoid hiding the base implementation
       /// reference to Track reconstructed in the tracker only (reimplemented from reco::Muon)
-      reco::TrackRef innerTrack() const { return track(); }
+      reco::TrackRef innerTrack() const override { return track(); }
       /// reference to Track reconstructed in the muon detector only (reimplemented from reco::Muon)
-      reco::TrackRef standAloneMuon() const;
+      reco::TrackRef standAloneMuon() const override;
       /// reference to Track reconstructed in the muon detector only (reimplemented from reco::Muon)
-      reco::TrackRef outerTrack() const { return standAloneMuon(); }
+      reco::TrackRef outerTrack() const override { return standAloneMuon(); }
       /// reference to Track reconstructed in both tracked and muon detector (reimplemented from reco::Muon)
-      reco::TrackRef combinedMuon() const;
+      reco::TrackRef combinedMuon() const override;
       /// reference to Track reconstructed in both tracked and muon detector (reimplemented from reco::Muon)
-      reco::TrackRef globalTrack() const { return combinedMuon(); }
+      reco::TrackRef globalTrack() const override { return combinedMuon(); }
       /// Track selected to be the best measurement of the muon parameters (including PFlow global information)
-      const reco::Track * bestTrack() const { return muonBestTrack().get(); }
+      const reco::Track * bestTrack() const override { return muonBestTrack().get(); }
       /// Track selected to be the best measurement of the muon parameters (including PFlow global information)
-      reco::TrackRef      muonBestTrack() const ; 
+      reco::TrackRef      muonBestTrack() const override ; 
       /// Track selected to be the best measurement of the muon parameters (from muon information alone)
-      virtual reco::TrackRef tunePMuonBestTrack() const ;
+      reco::TrackRef tunePMuonBestTrack() const override ;
 
       /// set reference to Track selected to be the best measurement of the muon parameters (reimplemented from reco::Muon)
       /// if force == false, do not embed this track if it's embedded already (e.g. ig it's a tracker track, and that's already embedded)
@@ -109,11 +109,11 @@ namespace pat {
       // ---- methods for TeV refit tracks ----
     
       /// reference to Track reconstructed using hits in the tracker + "good" muon hits (reimplemented from reco::Muon)
-      reco::TrackRef pickyTrack() const;
+      reco::TrackRef pickyTrack() const override;
       /// reference to Track reconstructed using hits in the tracker + info from the first muon station that has hits (reimplemented from reco::Muon)
-      reco::TrackRef tpfmsTrack() const;
+      reco::TrackRef tpfmsTrack() const override;
       /// reference to Track reconstructed using DYT algorithm
-      reco::TrackRef dytTrack() const;
+      reco::TrackRef dytTrack() const override;
       /// Deprecated accessors to call the corresponding above two functions; no dytMuon since this naming is deprecated.
       reco::TrackRef pickyMuon() const { return pickyTrack(); } // JMTBAD gcc deprecated attribute?
       reco::TrackRef tpfmsMuon() const { return tpfmsTrack(); } // JMTBAD gcc deprecated attribute?
@@ -135,14 +135,14 @@ namespace pat {
       /// embed the IsolatedPFCandidate pointed to by pfCandidateRef_
       void embedPFCandidate();
       /// get the number of non-null PF candidates
-      size_t numberOfSourceCandidatePtrs() const { 
+      size_t numberOfSourceCandidatePtrs() const override { 
 	size_t res=0;
         if(pfCandidateRef_.isNonnull()) res++;
         if(refToOrig_.isNonnull()) res++;
 	return res;
       }
       /// get the candidate pointer with index i
-      reco::CandidatePtr sourceCandidatePtr( size_type i ) const;
+      reco::CandidatePtr sourceCandidatePtr( size_type i ) const override;
 
       // ---- methods for accessing muon identification ----
       /// accessor for the various muon id algorithms currently defined
@@ -229,7 +229,7 @@ namespace pat {
 	// IpType defines the type of the impact parameter
 	typedef enum IPTYPE 
 	  {
-	    PV2D = 0, PV3D = 1, BS2D = 2, BS3D = 3, IpTypeSize = 4
+	    PV2D = 0, PV3D = 1, BS2D = 2, BS3D = 3, PVDZ = 4, IpTypeSize = 5
 	  } IpType; 
 	void initImpactParameters(void); // init IP defaults in a constructor
 	double dB(IPTYPE type) const;

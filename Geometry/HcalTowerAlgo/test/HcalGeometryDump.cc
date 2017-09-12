@@ -42,7 +42,7 @@ HcalGeometryDump::analyze(const edm::Event& /*iEvent*/,
   iSetup.get<HcalRecNumberingRecord>().get( topologyHandle );
   const HcalTopology topology = (*topologyHandle);
 
-  HcalGeometry* caloGeom(0);
+  HcalGeometry* caloGeom(nullptr);
   if (geomDB_) {
     edm::ESHandle<CaloGeometry> pG;
     iSetup.get<CaloGeometryRecord>().get(pG);
@@ -57,11 +57,10 @@ HcalGeometryDump::analyze(const edm::Event& /*iEvent*/,
 
   for (int subdet=1; subdet<= 4; ++subdet) {
     std::vector<unsigned int> detIds;
-    for (std::vector<DetId>::const_iterator i = ids.begin();  i != ids.end();
-	 ++i)  {
-      DetId hid = (*i);
+    for (auto id : ids)  {
+      DetId hid = id;
       if (hid.subdetId() == subdet) {
-	detIds.push_back(hid.rawId());
+	detIds.emplace_back(hid.rawId());
       }
     }
     std::cout << detIds.size() << " valid Ids for subdetector " << subdet

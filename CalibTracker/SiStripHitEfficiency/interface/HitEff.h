@@ -65,7 +65,9 @@ class HitEff : public edm::EDAnalyzer {
   
   bool addLumi_;
   bool addCommonMode_;
-
+  bool cutOnTracks_;
+  unsigned int trackMultiplicityCut_;
+  
   const edm::EDGetTokenT< reco::TrackCollection > combinatorialTracks_token_;
   const edm::EDGetTokenT< std::vector<Trajectory> > trajectories_token_;
   const edm::EDGetTokenT< edmNew::DetSetVector<SiStripCluster> > clusters_token_;

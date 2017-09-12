@@ -36,14 +36,13 @@ CastorGeometry::getClosestCell(const GlobalPoint& r) const
 {
    DetId returnId ( 0 ) ;
    const std::vector<DetId>& detIds ( getValidDetIds() ) ;
-   for( std::vector<DetId>::const_iterator it ( detIds.begin() ) ;
-	it != detIds.end(); ++it )
+   for(auto detId : detIds)
    {
-      const CaloCellGeometry* cell ( getGeometry( *it ) ) ;
-      if( 0 != cell &&
+      const CaloCellGeometry* cell ( getGeometry( detId ) ) ;
+      if( nullptr != cell &&
 	  cell->inside( r ) )
       {
-	 returnId = *it ;
+	 returnId = detId ;
 	 break ;
       }
    }
@@ -99,5 +98,5 @@ CastorGeometry::cellGeomPtr( uint32_t index ) const
 {
    const CaloCellGeometry* cell ( &m_cellVec[ index ] ) ;
    return ( m_cellVec.size() < index ||
-	    0 == cell->param() ? 0 : cell ) ;
+	    nullptr == cell->param() ? nullptr : cell ) ;
 }

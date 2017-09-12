@@ -14,22 +14,23 @@
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
 
 #include <iostream>
+#include <utility>
 #include <vector>
 #include <memory>
 
-std::auto_ptr<CaloSubdetectorGeometry> 
+std::unique_ptr<CaloSubdetectorGeometry> 
 EcalTBHodoscopeGeometryLoaderFromDDD::load( const DDCompactView* cpv ) 
 {
    std::cout << "[EcalTBHodoscopeGeometryLoaderFromDDD]:: start the construction of EcalTBHodoscope" << std::endl;
 
-   std::auto_ptr<CaloSubdetectorGeometry> ebg
+   std::unique_ptr<CaloSubdetectorGeometry> ebg
       ( new EcalTBHodoscopeGeometry() ) ;
 
    makeGeometry( cpv, ebg.get() ) ;
 
    std::cout << "[EcalTBHodoscopeGeometryLoaderFromDDD]:: Returning EcalTBHodoscopeGeometry" << std::endl;
 
-   return ebg;
+   return std::move(ebg);
 }
 
 void 
@@ -37,8 +38,8 @@ EcalTBHodoscopeGeometryLoaderFromDDD::makeGeometry(
    const DDCompactView*     cpv ,
    CaloSubdetectorGeometry* ebg  )
 {
-   if( ebg->cornersMgr() == 0 ) ebg->allocateCorners( EBDetId::kSizeForDenseIndexing ) ;
-   if( ebg->parMgr()     == 0 ) ebg->allocatePar( 10, 3 ) ;
+   if( ebg->cornersMgr() == nullptr ) ebg->allocateCorners( EBDetId::kSizeForDenseIndexing ) ;
+   if( ebg->parMgr()     == nullptr ) ebg->allocatePar( 10, 3 ) ;
   
    std::unique_ptr<DDFilter> filter{getDDFilter()};
 
@@ -90,9 +91,9 @@ EcalTBHodoscopeGeometryLoaderFromDDD::makeGeometry(
       vv.reserve( pv.size() + 1 ) ;
       for( unsigned int i ( 0 ) ; i != pv.size() ; ++i )
       {
-	 vv.push_back( CaloCellGeometry::k_ScaleFromDDDtoGeant*pv[i] ) ;
+	 vv.emplace_back( CaloCellGeometry::k_ScaleFromDDDtoGeant*pv[i] ) ;
       }
-      vv.push_back( 0. ) ; // tilt=0 here
+      vv.emplace_back( 0. ) ; // tilt=0 here
       const CCGFloat* pP ( CaloCellGeometry::getParmPtr( vv, 
 							 ebg->parMgr(), 
 							 ebg->parVecVec() ) ) ;

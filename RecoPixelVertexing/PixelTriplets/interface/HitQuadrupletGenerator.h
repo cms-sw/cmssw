@@ -19,15 +19,15 @@ public:
 
   HitQuadrupletGenerator(unsigned int size=500);
 
-  virtual ~HitQuadrupletGenerator() { }
+  ~HitQuadrupletGenerator() override { }
 
-  virtual const OrderedHitSeeds & run(
+  const OrderedHitSeeds & run(
     const TrackingRegion& region, const edm::Event & ev, const edm::EventSetup& es) final;
 
   virtual void hitQuadruplets( const TrackingRegion& reg, OrderedHitSeeds& prs,
       const edm::Event & ev,  const edm::EventSetup& es) = 0;
 
-  virtual void clear() final;
+  void clear() final;
 
 private:
   OrderedHitSeeds theQuadruplets;

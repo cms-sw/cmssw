@@ -11,3 +11,7 @@ electronGsfTracks.Fitter = 'GsfElectronFittingSmoother'
 electronGsfTracks.TTRHBuilder = 'WithTrackAngle'
 electronGsfTracks.TrajectoryInEvent = False
 
+electronGsfTracksFromMultiCl = electronGsfTracks.clone(
+  src = 'electronCkfTrackCandidatesFromMultiCl'
+)
+

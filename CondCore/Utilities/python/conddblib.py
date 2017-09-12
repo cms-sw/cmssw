@@ -21,7 +21,7 @@ schema_name = 'CMS_CONDITIONS'
 dbuser_name = 'cms_conditions'
 dbreader_user_name = 'cms_cond_general_r'
 dbwriter_user_name = 'cms_cond_general_w'
-devdbwriter_user_name = 'cms_test_conditions'
+devdbwriter_user_name = 'cms_cond_general_w'
 logger = logging.getLogger(__name__)
 
 # frontier services
@@ -263,6 +263,11 @@ class Tag:
                             'insertion_time':(sqlalchemy.TIMESTAMP,_Col.notNull),
                             'modification_time':(sqlalchemy.TIMESTAMP,_Col.notNull) }
 
+class TagMetadata:
+    __tablename__       = 'TAG_METADATA'
+    columns             = { 'tag_name': (DbRef(Tag,'name'),_Col.pk), 
+                            'min_serialization_v': (sqlalchemy.String(20),_Col.notNull),
+                            'modification_time':(sqlalchemy.TIMESTAMP,_Col.notNull) }
 
 class Payload:
     __tablename__       = 'PAYLOAD'
@@ -316,6 +321,11 @@ class RunInfo:
                             'start_time':(sqlalchemy.TIMESTAMP,_Col.notNull),
                             'end_time':(sqlalchemy.TIMESTAMP,_Col.notNull) }
 
+class BoostRunMap:
+    __tablename__       = 'BOOST_RUN_MAP'
+    columns             = { 'run_number':(sqlalchemy.BIGINT,_Col.pk),
+                            'run_start_time':(sqlalchemy.TIMESTAMP,_Col.notNull),
+                            'boost_version': (sqlalchemy.String(20),_Col.notNull) }
 
 # CondDB object
 class Connection(object):
@@ -370,6 +380,9 @@ class Connection(object):
         self.get_dbtype(GlobalTag)
         self.get_dbtype(GlobalTagMap)
         self.get_dbtype(RunInfo)
+        if not self._is_sqlite:
+            self.get_dbtype(TagMetadata)
+            self.get_dbtype(BoostRunMap)
         self._is_valid = self.is_valid()
 
     def get_dbtype(self,theType):
@@ -383,6 +396,7 @@ class Connection(object):
         s = self._session()
         s.get_dbtype = self.get_dbtype
         s._is_sqlite = self._is_sqlite
+        s.is_oracle = self.is_oracle
         s._url = self._url
         return s
 

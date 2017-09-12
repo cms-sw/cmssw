@@ -31,6 +31,7 @@ process.source = cms.Source("EmptySource",
 # DQM services
 #########################
 
+process.load('Configuration.Geometry.GeometryIdeal_cff')
 process.load("DQMServices.Core.DQM_cfg")
 
 
@@ -54,61 +55,56 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           logconnect = cms.untracked.string("sqlite_file:log.db") 
                                           )
 
-########################
-# POPCON Application
-########################
+#########################################
+# HistoricDQMService POPCON Application #
+#########################################
 process.siStripDQMHistoryPopCon = cms.EDAnalyzer("SiStripDQMHistoryPopCon",
-                                                 record = cms.string("HDQMSummary"),
-                                                 loggingOn = cms.untracked.bool(True),
-                                                 SinceAppendMode = cms.bool(True),
-                                                 Source = cms.PSet(since = cms.untracked.uint32(69587),debug = cms.untracked.bool(False))
-                                                 ) 
+        # popcon::PopConAnalyzer
+        record = cms.string("HDQMSummary"),
+        loggingOn = cms.untracked.bool(True),
+        SinceAppendMode = cms.bool(True),
+        # SiStripDQMHistoryPopCon
+        Source = cms.PSet(
+                ## PopCon source handler
+                since = cms.untracked.uint32(69587),
+                RunNb = cms.uint32(69587),
+                iovSequence = cms.untracked.bool(False),
+                debug = cms.untracked.bool(False),
+                ## DQMStoreReader
+                accessDQMFile = cms.bool(True),
+                FILE_NAME = cms.untracked.string("/storage/data1/SiStrip/SiStripHistoricDQM/DQM_V0001_R000069587__Cosmics__Commissioning08-PromptReco-v2__RECO.root"),
+                ## DQMHistoryHelper
+                #
+                ## base DQM history service
+                ME_DIR = cms.untracked.string("Run 69587"),
+                histoList = cms.VPSet(
+                        # quantities are 'stat', 'landau', 'gauss'
+                        # where
+                        #'stat' includes entries, mean, rms
+                        #'landau' includes
+                        #'gauss' includes gaussMean, gaussSigma
 
+                        # CKFTk
+                        cms.PSet( keyName = cms.untracked.string("Chi2_CKFTk"), quantitiesToExtract = cms.untracked.vstring("stat"))
+                        ,
+                        cms.PSet( keyName = cms.untracked.string("NumberOfTracks_CKFTk"), quantitiesToExtract = cms.untracked.vstring("stat"))
+                        ,
+                        cms.PSet( keyName = cms.untracked.string("NumberOfRecHitsPerTrack_CKFTk"), quantitiesToExtract = cms.untracked.vstring("stat"))
 
-########################
-# HistoricDQMService
-########################
+                        # Summary Cluster Properties
+                        ,
+                        cms.PSet( keyName = cms.untracked.string("Summary_TotalNumberOfClusters_OnTrack"),  quantitiesToExtract = cms.untracked.vstring("stat"))
+                        ,
+                        cms.PSet( keyName = cms.untracked.string("Summary_ClusterChargeCorr_OnTrack"), quantitiesToExtract = cms.untracked.vstring("stat","landau","user"))
 
-process.SiStripHistoryDQMService = cms.Service("SiStripHistoryDQMService",
-                                                   RunNb = cms.uint32(69587),
-                                                   accessDQMFile = cms.bool(True),
-                                                   FILE_NAME = cms.untracked.string("/storage/data1/SiStrip/SiStripHistoricDQM/DQM_V0001_R000069587__Cosmics__Commissioning08-PromptReco-v2__RECO.root"),
-                                                   ME_DIR = cms.untracked.string("Run 69587"),
-                                                   histoList = cms.VPSet(
-
-    # quantities are 'stat', 'landau', 'gauss'
-    # where 
-    #'stat' includes entries, mean, rms
-    #'landau' includes
-    #'gauss' includes gaussMean, gaussSigma
-    
-
-    # CKFTk
-    
-    cms.PSet( keyName = cms.untracked.string("Chi2_CKFTk"), quantitiesToExtract = cms.untracked.vstring("stat"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("NumberOfTracks_CKFTk"), quantitiesToExtract = cms.untracked.vstring("stat"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("NumberOfRecHitsPerTrack_CKFTk"), quantitiesToExtract = cms.untracked.vstring("stat"))
-    
-    # Summary Cluster Properties
-    ,
-    cms.PSet( keyName = cms.untracked.string("Summary_TotalNumberOfClusters_OnTrack"),  quantitiesToExtract = cms.untracked.vstring("stat"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("Summary_ClusterChargeCorr_OnTrack"), quantitiesToExtract = cms.untracked.vstring("stat","landau","user"))
-
-    # Summary Cluster properties @ layer level
-    ,
-    cms.PSet( keyName = cms.untracked.string("Summary_TotalNumberOfClusters__OnTrack"),  quantitiesToExtract = cms.untracked.vstring("stat"))
-    
+                        # Summary Cluster properties @ layer level
+                        ,
+                        cms.PSet( keyName = cms.untracked.string("Summary_TotalNumberOfClusters__OnTrack"),  quantitiesToExtract = cms.untracked.vstring("stat"))
+                    ),
+                ## specific for SiStripDQMHistory
+                #
+            )
     )
-                                               )
-
 
 # Schedule
-
 process.p = cms.Path(process.siStripDQMHistoryPopCon)
-
-
-
-

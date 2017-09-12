@@ -202,7 +202,6 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   reco::TrackRef::key_type trackUpdatedIndex = 0;
   
   reco::TrackExtraRef::key_type trackExtraIndex = 0;
-  TrackingRecHitRef::key_type recHitsIndex = 0;
   
   edm::Ref<reco::TrackCollection>::key_type iTkRef = 0;
   edm::Ref< std::vector<Trajectory> >::key_type iTjRef = 0;
@@ -541,10 +540,8 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   event.getByToken(theBeamSpotToken,beamSpot);
 
   reco::TrackRef::key_type trackIndex = 0;
-  //  reco::TrackRef::key_type trackUpdatedIndex = 0;
   
   reco::TrackExtraRef::key_type trackExtraIndex = 0;
-  TrackingRecHitRef::key_type recHitsIndex = 0;
   
   edm::Ref<reco::TrackCollection>::key_type iTkRef = 0;
   edm::Ref< std::vector<Trajectory> >::key_type iTjRef = 0;

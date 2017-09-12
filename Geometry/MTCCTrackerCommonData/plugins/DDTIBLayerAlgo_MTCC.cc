@@ -239,8 +239,8 @@ void DDTIBLayerAlgo_MTCC::execute(DDCompactView& cpv) {
       
       // fill strings in the stringLoList with modules, the others with only structure
       bool empty=true;
-      for(unsigned int i=0; i<stringLoList.size(); i++) {
-	if(n+1==(int)stringLoList[i]) {
+      for(double i : stringLoList) {
+	if(n+1==(int)i) {
 	  empty=false;
 	}
       }
@@ -328,8 +328,8 @@ void DDTIBLayerAlgo_MTCC::execute(DDCompactView& cpv) {
       
       // fill strings in the stringUpList with modules, the others with only structure
       bool empty=true;
-      for(unsigned int i=0; i<stringUpList.size(); i++) {
-	if(n+1==(int)stringUpList[i]) {
+      for(double i : stringUpList) {
+	if(n+1==(int)i) {
 	  empty=false;
 	}
       }

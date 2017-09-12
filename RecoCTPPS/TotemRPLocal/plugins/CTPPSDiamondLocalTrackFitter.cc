@@ -102,11 +102,44 @@ CTPPSDiamondLocalTrackFitter::produce( edm::Event& iEvent, const edm::EventSetup
 void
 CTPPSDiamondLocalTrackFitter::fillDescriptions( edm::ConfigurationDescriptions& descr )
 {
-  // The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descr.addDefault( desc );
+  desc.add<edm::InputTag>( "recHitsTag", edm::InputTag( "ctppsDiamondRecHits" ) )
+    ->setComment( "input rechits collection to retrieve" );
+  desc.add<int>( "verbosity", 0 )
+    ->setComment( "general verbosity of this module" );
+
+  edm::ParameterSetDescription trackingAlgoParams;
+  trackingAlgoParams.add<double>( "threshold", 1.5 )
+    ->setComment( "minimal number of rechits to be observed before launching the track recognition algorithm" );
+  trackingAlgoParams.add<double>( "thresholdFromMaximum", 0.5 );
+  trackingAlgoParams.add<double>( "resolution", 0.01 /* mm */ )
+    ->setComment( "spatial resolution on the horizontal coordinate (in mm)" );
+  trackingAlgoParams.add<double>( "sigma", 0.1 );
+  trackingAlgoParams.add<double>( "startFromX", -0.5 /* mm */ )
+    ->setComment( "starting horizontal coordinate of rechits for the track recognition" );
+  trackingAlgoParams.add<double>( "stopAtX", 19.5 /* mm */ )
+    ->setComment( "ending horizontal coordinate of rechits for the track recognition" );
+
+  trackingAlgoParams.add<std::string>( "pixelEfficiencyFunction", "(TMath::Erf((x-[0]+0.5*[1])/([2]/4)+2)+1)*TMath::Erfc((x-[0]-0.5*[1])/([2]/4)-2)/4" )
+    ->setComment( "efficiency function for single pixel\n"
+                  "can be defined as:\n"
+                  " * Precise: (TMath::Erf((x-[0]+0.5*[1])/([2]/4)+2)+1)*TMath::Erfc((x-[0]-0.5*[1])/([2]/4)-2)/4\n"
+                  " * Fast: (x>[0]-0.5*[1])*(x<[0]+0.5*[1])+((x-[0]+0.5*[1]+[2])/[2])*(x>[0]-0.5*[1]-[2])*(x<[0]-0.5*[1])+(2-(x-[0]-0.5*[1]+[2])/[2])*(x>[0]+0.5*[1])*(x<[0]+0.5*[1]+[2])\n"
+                  " * Legacy: (1/(1+exp(-(x-[0]+0.5*[1])/[2])))*(1/(1+exp((x-[0]-0.5*[1])/[2])))\n"
+                  "with:\n"
+                  "  [0]: centre of pad\n"
+                  "  [1]: width of pad\n"
+                  "  [2]: sigma: distance between efficiency ~100 -> 0 outside width" );
+
+  trackingAlgoParams.add<double>( "yPosition", 0.0 )
+    ->setComment( "vertical offset of the outcoming track centre" );
+  trackingAlgoParams.add<double>( "yWidth", 0.0 )
+    ->setComment( "vertical track width" );
+
+  desc.add<edm::ParameterSetDescription>( "trackingAlgorithmParams", trackingAlgoParams )
+    ->setComment( "list of parameters associated to the track recognition algorithm" );
+
+  descr.add( "ctppsDiamondLocalTracks", desc );
 }
 
 DEFINE_FWK_MODULE( CTPPSDiamondLocalTrackFitter );

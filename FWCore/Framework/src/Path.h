@@ -61,10 +61,6 @@ namespace edm {
     Path(Path const&);
 
     template <typename T>
-    void processOneOccurrence(typename T::MyPrincipal const&, EventSetup const&,
-                              StreamID const&, typename T::Context const*);
-
-    template <typename T>
     void runAllModulesAsync(WaitingTask*,
                             typename T::MyPrincipal const&,
                             EventSetup  const&,
@@ -197,53 +193,6 @@ namespace edm {
     for(auto& worker: workers_) {
       worker.runWorkerAsync<T>(task,p,es,streamID,context);
     }
-  }
-
-  template <typename T>
-  void Path::processOneOccurrence(typename T::MyPrincipal const& ep, EventSetup const& es,
-                                  StreamID const& streamID, typename T::Context const* context) {
-
-    int nwrwue = -1;
-    PathSignalSentry<T> signaler(actReg_.get(), nwrwue, state_, &pathContext_);
-
-    if (T::isEvent_) {
-      ++timesRun_;
-    }
-    state_ = hlt::Ready;
-
-    // nwrue =  numWorkersRunWithoutUnhandledException
-    bool should_continue = true;
-    WorkersInPath::iterator i = workers_.begin(), end = workers_.end();
-    
-    auto earlyFinishSentry = make_sentry(this,[&i,end, &ep](Path*){
-      for(auto j=i; j!= end;++j) {
-        j->skipWorker(ep);
-      }
-    });
-    for (;
-          i != end && should_continue;
-          ++i) {
-      ++nwrwue;
-      try {
-        convertException::wrap([&]() {
-            should_continue = i->runWorker<T>(ep, es, streamID, context);
-        });
-      }
-      catch(cms::Exception& ex) {
-        // handleWorkerFailure may throw a new exception.
-	std::ostringstream ost;
-        ost << ep.id();
-        should_continue = handleWorkerFailure(ex, nwrwue, T::isEvent_, T::begin_, T::branchType_,
-                                              i->getWorker()->description(), ost.str());
-        //If we didn't rethrow, then we effectively skipped
-        i->skipWorker(ep);
-      }
-    }
-    if (not should_continue) {
-      handleEarlyFinish(ep);
-    }
-    updateCounters(should_continue, T::isEvent_);
-    recordStatus(nwrwue, T::isEvent_);
   }
 
 }

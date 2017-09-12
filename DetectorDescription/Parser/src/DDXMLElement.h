@@ -1,7 +1,7 @@
 #ifndef DD_XMLElement_H
 #define DD_XMLElement_H
 
-#include <stddef.h>
+#include <cstddef>
 #include <iosfwd>
 #include <map>
 #include <string>

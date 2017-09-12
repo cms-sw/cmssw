@@ -31,7 +31,7 @@ namespace l1t {
 
     void accuSort(std::vector<Jet> & jets);
 
-    void calibrate(std::vector<Jet> & jets, int calibThreshold);
+    void calibrate(std::vector<Jet> & jets, int calibThreshold, bool isAllJets);
 
     double calibFit(double, double*);
     double calibFitErr(double,double*);

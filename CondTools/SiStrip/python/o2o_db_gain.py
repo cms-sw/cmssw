@@ -56,12 +56,17 @@ class GainO2OSkippedDevicesDef(object):
     fedApv = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
     # detid
     detid = sqlalchemy.Column(sqlalchemy.BigInteger, nullable=True)
+    
+class GainO2OWhitelistedDevicesDef(GainO2OSkippedDevicesDef):
+    __tablename__ = 'STRIP_GAIN_O2O_WHITELISTED'
+
 
 class DbManagerGain(DbManager):
     def __init__(self, db, authFile=None):
         DbManager.__init__(self, db, authFile)
         self.GainO2OPartition = make_dbtype(GainO2OPartitionDef, self.schema)
         self.GainO2OSkippedDevices = make_dbtype(GainO2OSkippedDevicesDef, self.schema)
+        self.GainO2OWhitelistedDevices = make_dbtype(GainO2OWhitelistedDevicesDef, self.schema)
 
     def _readPartitions(self, p):
         self.o2o_partitions = []
@@ -94,11 +99,17 @@ class DbManagerGain(DbManager):
                 )
             self.o2o_partitions.append(entry)
 
-    def _readSkippedDevices(self, p):
-        self.o2o_skipped = []
+    def _readSkippedDevices(self, p, whitelist=False):
+        dev_type = self.GainO2OSkippedDevices
+        attr_name = 'SkippedDevices'
+        if whitelist:
+            dev_type = self.GainO2OWhitelistedDevices
+            attr_name = 'WhitelistedDevices'
+
+        dev_list = []
         value = lambda p: None if p is None else p.value()
-        for itemid, pset in enumerate(p.SiStripCondObjBuilderFromDb.SkippedDevices):
-            entry = self.GainO2OSkippedDevices(
+        for itemid, pset in enumerate(getattr(p.SiStripCondObjBuilderFromDb, attr_name)):
+            entry = dev_type(
                 o2oid = self.o2oid,
                 itemid = itemid,
                 fecCrate = value(pset.getParameter('fecCrate')),
@@ -114,7 +125,9 @@ class DbManagerGain(DbManager):
                 fedApv = value(pset.getParameter('fedApv')),
                 detid = value(pset.getParameter('detid'))
                 )
-            self.o2o_skipped.append(entry)
+            dev_list.append(entry)
+
+        return dev_list
 
     def update_gain_logs(self, iov, cfgname):
         """Insert bookkeeping info to the tables.
@@ -132,6 +145,7 @@ class DbManagerGain(DbManager):
 
         self.check_table(GainO2OPartitionDef, self.GainO2OPartition)
         self.check_table(GainO2OSkippedDevicesDef, self.GainO2OSkippedDevices)
+        self.check_table(GainO2OWhitelistedDevicesDef, self.GainO2OWhitelistedDevices)
         destSession = self.connect()
         o2oid = destSession.query(self.GainO2OPartition.o2oid).order_by(self.GainO2OPartition.o2oid.desc()).first()
         if o2oid:
@@ -143,8 +157,12 @@ class DbManagerGain(DbManager):
         for entry in self.o2o_partitions:
             destSession.add(entry)
 
-        self._readSkippedDevices(cfg.process)
-        for entry in self.o2o_skipped:
+        o2o_skipped = self._readSkippedDevices(cfg.process)
+        for entry in o2o_skipped:
+            destSession.add(entry)
+
+        o2o_whitelisted = self._readSkippedDevices(cfg.process, whitelist=True)
+        for entry in o2o_whitelisted:
             destSession.add(entry)
 
         destSession.commit()

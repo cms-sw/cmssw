@@ -18,6 +18,8 @@ OutALCARECOHcalCalHBHEMuon_noDrop = cms.PSet(
         'keep recoTrackExtras_generalTracks_*_*',
         'keep recoTracks_tevMuons_*_*',
         'keep recoTrackExtras_tevMuons_*_*',
+        'keep *_hbhereco_*_*',
+        'keep *_hbheprereco_*_*',
         'keep *_HBHEMuonProd_*_*',
         )
 )

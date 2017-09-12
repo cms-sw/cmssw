@@ -72,7 +72,7 @@ HcalTB06Analysis::HcalTB06Analysis(const edm::ParameterSet &p) : count(0) {
 
   m_idxetaHcal   = (int)(beamEta/0.087) + 1;
   m_idxphiHcal   = (int)(beamPhi/0.087) + 6;
-  if(m_idxphiHcal > 72) { m_idxphiHcal -= 72; }
+  if(m_idxphiHcal > 72) { m_idxphiHcal -= 73; }
 
   edm::ParameterSet ptb = p.getParameter<edm::ParameterSet>("TestBeamAnalysis");
   m_timeLimit = ptb.getParameter<double>("TimeLimit");
@@ -219,6 +219,6 @@ void HcalTB06Analysis::analyze(const edm::Event & evt, const edm::EventSetup&)
 			    << eTrig[0] << ":" << eTrig[1] << ":" << eTrig[2]
 			    << ":" << eTrig[3] << ":" << eTrig[4] << ":" 
 			    << eTrig[5] << ":" << eTrig[6];
-;
+
   m_histo->fillTree(eCalo,eTrig);
 }

@@ -22,6 +22,7 @@
 #include "classlib/utils/StringList.h"
 #include "classlib/utils/StringOps.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
+#include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
 
 MEtoMEComparitor::MEtoMEComparitor(const edm::ParameterSet& iConfig)
 

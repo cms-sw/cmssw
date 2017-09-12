@@ -1261,7 +1261,7 @@ namespace {
   return cPhi;
  }
      
-  static const std::array<double,18> cPhi = fill_cPhi();
+  const std::array<double,18> cPhi = fill_cPhi();
 
 }
 

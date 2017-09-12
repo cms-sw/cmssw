@@ -337,10 +337,9 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   m_params_helper.setLayer1HCalScalePhiBins(conf.getParameter<std::vector<unsigned>>("layer1HCalScalePhiBins"));
   m_params_helper.setLayer1HFScalePhiBins  (conf.getParameter<std::vector<unsigned>>("layer1HFScalePhiBins"));
 
-  edm::FileInPath layer1HOverELUTFile = conf.getParameter<edm::FileInPath>("layer1HOverELUTFile");
-  std::ifstream layer1HOverELUTStream(layer1HOverELUTFile.fullPath());
-  std::shared_ptr<LUT> layer1HOverELUT( new LUT(layer1HOverELUTStream) );
-  m_params_helper.setLayer1HOverELUT(*layer1HOverELUT);
+  if (conf.existsAs<std::vector<unsigned>>("layer1SecondStageLUT")) {
+    m_params_helper.setLayer1SecondStageLUT(conf.getParameter<std::vector<unsigned>>("layer1SecondStageLUT"));
+  }
    
   m_params = (CaloParams)m_params_helper;
 

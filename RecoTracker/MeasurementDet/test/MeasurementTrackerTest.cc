@@ -159,7 +159,7 @@ void MeasurementTrackerTest::analyze(const edm::Event& iEvent, const edm::EventS
   std::cout << tsos.globalPosition() << ' ' << tsos.localError().positionError() << std::endl;
 
 
-  for (auto il=1; il<4;	++il) {
+  for (auto il=1; il<5;	++il) {
   if (!layer) break;
   auto const & compLayers = (*navSchool).nextLayers(*layer,*tsos.freeState(),alongMomentum);
   layer = nullptr;

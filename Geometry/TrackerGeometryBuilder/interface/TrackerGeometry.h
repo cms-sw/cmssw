@@ -13,7 +13,7 @@ class GeometricDet;
  */
 class TrackerGeometry final : public TrackingGeometry {
 
-  explicit TrackerGeometry(GeometricDet const* gd=0);  
+  explicit TrackerGeometry(GeometricDet const* gd=nullptr);  
 
   friend class TrackerGeomBuilderFromGeometricDet;
 

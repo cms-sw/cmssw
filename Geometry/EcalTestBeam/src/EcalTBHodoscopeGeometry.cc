@@ -369,7 +369,7 @@ EcalTBHodoscopeGeometry::getFiredFibresInPlane( float xtr,
    for( int i ( 0 ) ; i != nFibres_ ; ++i )
    {
       if( ( xtr >= fibrePos_[plane][i].lp ) &&  
-	  ( xtr <= fibrePos_[plane][i].rp )     ) firedFibres.push_back(i);
+	  ( xtr <= fibrePos_[plane][i].rp )     ) firedFibres.emplace_back(i);
    }
    return firedFibres ;
 }
@@ -379,5 +379,5 @@ EcalTBHodoscopeGeometry::cellGeomPtr( uint32_t index ) const
 {
    const CaloCellGeometry* cell ( &m_cellVec[ index ] ) ;
    return ( m_cellVec.size() > index &&
-	    0 != cell->param() ? cell : 0 ) ;
+	    nullptr != cell->param() ? cell : nullptr ) ;
 }

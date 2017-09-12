@@ -46,6 +46,7 @@ void ParticleLevelProducer::addGenJet(Rivet::Jet jet, std::unique_ptr<reco::GenJ
   genJet.setP4(p4(jet));
   genJet.setVertex(genVertex_);
   if ( jet.bTagged() ) genJet.setPdgId(5);
+  else if ( jet.cTagged() ) genJet.setPdgId(4);
   genJet.setJetArea(pjet.has_area() ? pjet.area() : 0);
   
   for ( auto const & p : jet.particles()) {

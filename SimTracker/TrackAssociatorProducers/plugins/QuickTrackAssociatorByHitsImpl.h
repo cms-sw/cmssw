@@ -79,26 +79,20 @@ public:
                                  bool threeHitTracksAreSpecial,
                                  SimToRecoDenomType simToRecoDenominator);
   
-  virtual
     reco::RecoToSimCollection associateRecoToSim( const edm::Handle<edm::View<reco::Track> >& trackCollectionHandle,
                                                   const edm::Handle<TrackingParticleCollection>& trackingParticleCollectionHandle) const override;
-  virtual
     reco::SimToRecoCollection associateSimToReco( const edm::Handle<edm::View<reco::Track> >& trackCollectionHandle,
                                                   const edm::Handle<TrackingParticleCollection>& trackingParticleCollectionHandle) const override;
-  virtual
     reco::RecoToSimCollection associateRecoToSim( const edm::RefToBaseVector<reco::Track>& trackCollection,
                                                   const edm::RefVector<TrackingParticleCollection>& trackingParticleCollection) const override;
   
-  virtual
     reco::SimToRecoCollection associateSimToReco( const edm::RefToBaseVector<reco::Track>& trackCollection,
                                                   const edm::RefVector<TrackingParticleCollection>& trackingParticleCollection) const override;
   
   //seed
-  virtual
     reco::RecoToSimCollectionSeed associateRecoToSim(const edm::Handle<edm::View<TrajectorySeed> >&,
                                                      const edm::Handle<TrackingParticleCollection>&) const override;
   
-  virtual
     reco::SimToRecoCollectionSeed associateSimToReco(const edm::Handle<edm::View<TrajectorySeed> >&,
                                                      const edm::Handle<TrackingParticleCollection>&) const override;
   
@@ -177,8 +171,14 @@ public:
     return &(*iter);
   }
   
-  double weightedNumberOfTrackHits(const reco::Track& track) const;
-  double weightedNumberOfTrackHits(const TrajectorySeed& seed) const;
+  // The last parameter is used to decide whether we cound hits or clusters
+  double weightedNumberOfTrackClusters(const reco::Track& track, const TrackerHitAssociator&) const;
+  double weightedNumberOfTrackClusters(const TrajectorySeed& seed, const TrackerHitAssociator&) const;
+  double weightedNumberOfTrackClusters(const reco::Track& track, const ClusterTPAssociation&) const;
+  double weightedNumberOfTrackClusters(const TrajectorySeed& seed, const ClusterTPAssociation&) const;
+
+  // called only by weightedNumberOfTrackClusters(..., ClusterTPAssociation)
+  template<typename iter> double weightedNumberOfTrackClusters(iter begin, iter end) const ;
 
   /** @brief creates either a ClusterTPAssociation OR a TrackerHitAssociator and stores it in the provided unique_ptr. The other will be null.
    *

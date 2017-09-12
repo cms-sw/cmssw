@@ -41,7 +41,7 @@ class ProcLinear : public VarProcessor {
 	double			offset;
 };
 
-static ProcLinear::Registry registry("ProcLinear");
+ProcLinear::Registry registry("ProcLinear");
 
 ProcLinear::ProcLinear(const char *name,
                        const Calibration::ProcLinear *calib,

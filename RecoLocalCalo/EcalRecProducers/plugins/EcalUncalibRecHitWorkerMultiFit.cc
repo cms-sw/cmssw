@@ -207,7 +207,7 @@ double EcalUncalibRecHitWorkerMultiFit::timeCorrection(
   double theCorrection = 0;
 
   // sanity check for arrays
-  if (amplitudeBins.size() == 0) {
+  if (amplitudeBins.empty()) {
     edm::LogError("EcalRecHitError")
         << "timeCorrAmplitudeBins is empty, forcing no time bias corrections.";
 
@@ -294,12 +294,12 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
         // intelligence for recHit computation
         float offsetTime = 0;
         
-        const EcalPedestals::Item * aped = 0;
-        const EcalMGPAGainRatio * aGain = 0;
-        const EcalXtalGroupId * gid = 0;
-        const EcalPulseShapes::Item * aPulse = 0;
-        const EcalPulseCovariances::Item * aPulseCov = 0;
-
+        const EcalPedestals::Item * aped = nullptr;
+        const EcalMGPAGainRatio * aGain = nullptr;
+        const EcalXtalGroupId * gid = nullptr;
+        const EcalPulseShapes::Item * aPulse = nullptr;
+        const EcalPulseCovariances::Item * aPulseCov = nullptr;
+ 
         if (barrel) {
             unsigned int hashedIndex = EBDetId(detid).hashedIndex();
             aped       = &peds->barrel(hashedIndex);
@@ -340,16 +340,23 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
             << "! something wrong with EcalTimeCalibConstants in your DB? ";
 	}
 
-        // === amplitude computation ===
-        int leadingSample = ((EcalDataFrame)(*itdg)).lastUnsaturatedSample();
+        int lastSampleBeforeSaturation = -2;
+        for(unsigned int iSample = 0; iSample < EcalDataFrame::MAXSAMPLES; iSample++) {
+          if ( ((EcalDataFrame)(*itdg)).sample(iSample).gainId() == 0 ) {
+            lastSampleBeforeSaturation=iSample-1;
+            break;
+          }
+        }
 
-        if ( leadingSample == 4 ) { // saturation on the expected max sample
+        // === amplitude computation ===
+
+        if ( lastSampleBeforeSaturation == 4 ) { // saturation on the expected max sample
             result.emplace_back((*itdg).id(), 4095*12, 0, 0, 0);
             auto & uncalibRecHit = result.back();
             uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kSaturated );
 	    // do not propagate the default chi2 = -1 value to the calib rechit (mapped to 64), set it to 0 when saturation
             uncalibRecHit.setChi2(0);
-        } else if ( leadingSample >= 0 ) { // saturation on other samples: cannot extrapolate from the fourth one
+        } else if ( lastSampleBeforeSaturation >= -1 ) { // saturation on other samples: cannot extrapolate from the fourth one
             int gainId = ((EcalDataFrame)(*itdg)).sample(5).gainId();
             if (gainId==0) gainId=3;
             auto pedestal = pedVec[gainId-1];

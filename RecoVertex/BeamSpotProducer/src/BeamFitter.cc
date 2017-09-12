@@ -684,7 +684,7 @@ void BeamFitter::dumpTxtFile(std::string & fileName, bool append){
     currentBS.endLumiOfFit   = fendLumiOfFit  ;
     std::copy(freftime, freftime+2, currentBS.reftime);
           
-    beamspot::dumpBeamSpotTxt(fileName, append, currentBS);
+    beamspot::dumpBeamSpotTxt(outFile, currentBS);
         
     //write here Pv info for DIP only: This added only if append is false, which happen for DIP only :)
   if(!append){
@@ -697,7 +697,7 @@ void BeamFitter::dumpTxtFile(std::string & fileName, bool append){
     outFile << "nPV "<< (int)ForDIPPV_[6] << std::endl;
    }//writeDIPPVInfo_
   }//else end  here
-
+  
   outFile.close();
 }
 

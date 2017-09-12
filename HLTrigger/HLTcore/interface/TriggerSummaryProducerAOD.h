@@ -119,6 +119,8 @@ class TriggerSummaryProducerAOD : public edm::stream::EDProducer<edm::GlobalCach
   void fillFilterObjectMember(const int&, const int&, const edm::Ref<reco::METCollection>&);
 
  private:
+  /// throw on error
+  bool throw_;
   /// process name
   std::string pn_;
   /// module labels which should be avoided

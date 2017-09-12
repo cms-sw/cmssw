@@ -11,6 +11,9 @@
 
 #include <cstdint>
 #include <iosfwd>
+#include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
+#include "DataFormats/GEMDigi/interface/GEMPadDigi.h"
 
 class CSCCorrelatedLCTDigi 
 {
@@ -111,7 +114,28 @@ class CSCCorrelatedLCTDigi
   /// set cscID
   void setCSCID(unsigned int c) {cscID=c;}
 
- private:
+  /// SIMULATION ONLY ////
+  enum Type{CLCTALCT, // CLCT-centric
+	    ALCTCLCT, // ALCT-centric
+	    ALCTCLCTGEM, // ALCT-CLCT-1 GEM pad
+	    ALCTCLCT2GEM, // ALCT-CLCT-2 GEM pads in coincidence
+	    ALCT2GEM, // ALCT-2 GEM pads in coincidence
+	    CLCT2GEM  // CLCT-2 GEM pads in coincidence
+  };
+  
+  int getType() {return type_;}
+  void setType(int type) {type_ = type;}
+  
+  void setALCT(const CSCALCTDigi& alct) {alct_ = alct;}
+  void setCLCT(const CSCCLCTDigi& clct) {clct_ = clct;}
+  void setGEM1(const GEMPadDigi& gem) {gem1_ = gem;}
+  void setGEM2(const GEMPadDigi& gem) {gem2_ = gem;}
+  const CSCALCTDigi&  getALCT() {return alct_;}
+  const CSCCLCTDigi&  getCLCT() {return clct_;}
+  const GEMPadDigi&  getGEM1() {return gem1_;}
+  const GEMPadDigi&  getGEM2() {return gem2_;}
+
+private:
   uint16_t trknmb;
   uint16_t valid;
   uint16_t quality;
@@ -124,6 +148,14 @@ class CSCCorrelatedLCTDigi
   uint16_t bx0; 
   uint16_t syncErr;
   uint16_t cscID;
+
+  /// SIMULATION ONLY ////
+  int type_;
+
+  CSCALCTDigi alct_;
+  CSCCLCTDigi clct_;
+  GEMPadDigi gem1_;
+  GEMPadDigi gem2_;
 };
 
 std::ostream & operator<<(std::ostream & o, const CSCCorrelatedLCTDigi& digi);

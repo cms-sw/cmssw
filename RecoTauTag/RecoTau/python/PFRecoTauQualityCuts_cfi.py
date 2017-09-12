@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 
 # A set of quality cuts used for the PFTaus.  Note that the quality cuts are
 # different for the signal and isolation regions.  (Currently, only in Nhits)
@@ -51,3 +52,6 @@ PFTauQualityCuts = cms.PSet(
     ##leadingTrkOrPFCandOption = cms.string("minLeadTrackOrPFCand")
     ##leadingTrkOrPFCandOption = cms.string("firstTrack") #default behaviour until 710 (first track in the collection)
 )
+phase2_common.toModify(PFTauQualityCuts,
+                       isolationQualityCuts = dict( maxDeltaZ = cms.double(0.1) ) )
+                       

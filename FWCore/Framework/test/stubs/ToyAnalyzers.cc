@@ -73,6 +73,36 @@ namespace edmtest {
 
   //--------------------------------------------------------------------
   //
+  class MultipleIntsAnalyzer : public edm::global::EDAnalyzer<> {
+  public:
+    MultipleIntsAnalyzer(edm::ParameterSet const& iPSet)
+    {
+      auto const& tags = iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("getFromModules");
+      for(auto const& tag: tags) {
+        m_tokens.emplace_back(consumes<IntProduct>(tag));
+      }
+    }
+    
+    void analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const&) const override {
+      edm::Handle<IntProduct> h;
+      for(auto const& token: m_tokens) {
+        iEvent.getByToken(token,h);
+      }
+    }
+    
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.addUntracked<std::vector<edm::InputTag>>("getFromModules");
+      descriptions.addDefault(desc);
+      
+    }
+  private:
+    std::vector<edm::EDGetTokenT<IntProduct>> m_tokens;
+    
+  };
+
+  //--------------------------------------------------------------------
+  //
   class IntConsumingAnalyzer : public edm::global::EDAnalyzer<> {
   public:
     IntConsumingAnalyzer(edm::ParameterSet const& iPSet)
@@ -85,7 +115,7 @@ namespace edmtest {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
       desc.addUntracked<edm::InputTag>("getFromModule");
-      descriptions.add("consumeInt", desc);
+      descriptions.addDefault(desc);
 
     }
 
@@ -105,7 +135,7 @@ namespace edmtest {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
       desc.addUntracked<edm::InputTag>("getFromModule");
-      descriptions.add("consumeInt", desc);
+      descriptions.addDefault(desc);
       
     }
     
@@ -270,8 +300,10 @@ using edmtest::ConsumingStreamAnalyzer;
 using edmtest::ConsumingOneSharedResourceAnalyzer;
 using edmtest::SCSimpleAnalyzer;
 using edmtest::DSVAnalyzer;
+using edmtest::MultipleIntsAnalyzer;
 DEFINE_FWK_MODULE(NonAnalyzer);
 DEFINE_FWK_MODULE(IntTestAnalyzer);
+DEFINE_FWK_MODULE(MultipleIntsAnalyzer);
 DEFINE_FWK_MODULE(IntConsumingAnalyzer);
 DEFINE_FWK_MODULE(edmtest::IntFromRunConsumingAnalyzer);
 DEFINE_FWK_MODULE(ConsumingStreamAnalyzer);

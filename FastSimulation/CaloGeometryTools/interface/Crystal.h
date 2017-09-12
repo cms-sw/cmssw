@@ -29,7 +29,7 @@ class Crystal
   // side numbering
   //  enum CrystalSide{EAST=0,NORTH=1,WEST=2,SOUTH=3,FRONT=4,BACK=5};
   /// Empty constructor 
-  Crystal(){;};
+  Crystal(){number_ = 0;};
   /// constructor from DetId
   Crystal(const DetId&  cell,const BaseCrystal* bc=0);
 

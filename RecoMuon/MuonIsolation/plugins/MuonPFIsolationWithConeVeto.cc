@@ -59,11 +59,11 @@ bool MuonPFIsolationWithConeVeto::isInIsolationCone(const reco::CandidatePtr& ph
           break;
         }
       }
-      result *= ( is_vertex_allowed );
+      result = result && ( is_vertex_allowed );
     }
-    result *= aspacked->pt() > _vetoThreshold && deltar2 > _vetoConeSize2 && deltar2 < _coneSize2 ;
+    result = result &&( aspacked->pt() > _vetoThreshold && deltar2 > _vetoConeSize2 && deltar2 < _coneSize2 );
   } else if ( aspf.isNonnull() && aspf.get() ) {
-    result *= aspf->pt() > _vetoThreshold && deltar2 > _vetoConeSize2 && deltar2 < _coneSize2 ;
+    result = result && ( aspf->pt() > _vetoThreshold && deltar2 > _vetoConeSize2 && deltar2 < _coneSize2 );
   } else {
     throw cms::Exception("InvalidIsolationInput")
       << "The supplied candidate to be used as isolation "

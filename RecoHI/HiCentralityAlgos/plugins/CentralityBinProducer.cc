@@ -93,20 +93,20 @@ CentralityBinProducer::CentralityBinProducer(const edm::ParameterSet& iConfig):
    centralityVariable_ = iConfig.getParameter<std::string>("centralityVariable");
    pPbRunFlip_ = iConfig.getParameter<unsigned int>("pPbRunFlip");
 
-   if(centralityVariable_.compare("HFtowers") == 0) varType_ = HFtowers;
-   if(centralityVariable_.compare("HFtowersPlus") == 0) varType_ = HFtowersPlus;
-   if(centralityVariable_.compare("HFtowersMinus") == 0) varType_ = HFtowersMinus;
-   if(centralityVariable_.compare("HFtowersTrunc") == 0) varType_ = HFtowersTrunc;
-   if(centralityVariable_.compare("HFtowersPlusTrunc") == 0) varType_ = HFtowersPlusTrunc;
-   if(centralityVariable_.compare("HFtowersMinusTrunc") == 0) varType_ = HFtowersMinusTrunc;
-   if(centralityVariable_.compare("HFhits") == 0) varType_ = HFhits;
-   if(centralityVariable_.compare("PixelHits") == 0) varType_ = PixelHits;
-   if(centralityVariable_.compare("PixelTracks") == 0) varType_ = PixelTracks;
-   if(centralityVariable_.compare("Tracks") == 0) varType_ = Tracks;
-   if(centralityVariable_.compare("EB") == 0) varType_ = EB;
-   if(centralityVariable_.compare("EE") == 0) varType_ = EE;
-   if(centralityVariable_.compare("ZDChitsPlus") == 0) varType_ = ZDChitsPlus;
-   if(centralityVariable_.compare("ZDChitsMinus") == 0) varType_ = ZDChitsMinus;
+   if(centralityVariable_ == "HFtowers") varType_ = HFtowers;
+   if(centralityVariable_ == "HFtowersPlus") varType_ = HFtowersPlus;
+   if(centralityVariable_ == "HFtowersMinus") varType_ = HFtowersMinus;
+   if(centralityVariable_ == "HFtowersTrunc") varType_ = HFtowersTrunc;
+   if(centralityVariable_ == "HFtowersPlusTrunc") varType_ = HFtowersPlusTrunc;
+   if(centralityVariable_ == "HFtowersMinusTrunc") varType_ = HFtowersMinusTrunc;
+   if(centralityVariable_ == "HFhits") varType_ = HFhits;
+   if(centralityVariable_ == "PixelHits") varType_ = PixelHits;
+   if(centralityVariable_ == "PixelTracks") varType_ = PixelTracks;
+   if(centralityVariable_ == "Tracks") varType_ = Tracks;
+   if(centralityVariable_ == "EB") varType_ = EB;
+   if(centralityVariable_ == "EE") varType_ = EE;
+   if(centralityVariable_ == "ZDChitsPlus") varType_ = ZDChitsPlus;
+   if(centralityVariable_ == "ZDChitsMinus") varType_ = ZDChitsMinus;
    if(varType_ == Missing){
      std::string errorMessage="Requested Centrality variable does not exist : "+centralityVariable_+"\n" +
        "Supported variables are: \n" + "HFtowers HFtowersPlus HFtowersMinus HFtowersTrunc HFtowersPlusTrunc HFtowersMinusTrunc HFhits PixelHits PixelTracks Tracks EB EE" + "\n";
@@ -181,12 +181,12 @@ CentralityBinProducer::beginRun(edm::Run const& iRun, const edm::EventSetup& iSe
 {
 
   if(prevRun_ < pPbRunFlip_ && iRun.run() >= pPbRunFlip_){
-     if(centralityVariable_.compare("HFtowersPlus") == 0) varType_ = HFtowersMinus;
-     if(centralityVariable_.compare("HFtowersMinus") == 0) varType_ = HFtowersPlus;
-     if(centralityVariable_.compare("HFtowersPlusTrunc") == 0) varType_ = HFtowersMinusTrunc;
-     if(centralityVariable_.compare("HFtowersMinusTrunc") == 0) varType_ = HFtowersPlusTrunc;
-     if(centralityVariable_.compare("ZDChitsPlus") == 0) varType_ = ZDChitsMinus;
-     if(centralityVariable_.compare("ZDChitsMinus") == 0) varType_ = ZDChitsPlus;
+     if(centralityVariable_ == "HFtowersPlus") varType_ = HFtowersMinus;
+     if(centralityVariable_ == "HFtowersMinus") varType_ = HFtowersPlus;
+     if(centralityVariable_ == "HFtowersPlusTrunc") varType_ = HFtowersMinusTrunc;
+     if(centralityVariable_ == "HFtowersMinusTrunc") varType_ = HFtowersPlusTrunc;
+     if(centralityVariable_ == "ZDChitsPlus") varType_ = ZDChitsMinus;
+     if(centralityVariable_ == "ZDChitsMinus") varType_ = ZDChitsPlus;
   }
   prevRun_ = iRun.run();
 

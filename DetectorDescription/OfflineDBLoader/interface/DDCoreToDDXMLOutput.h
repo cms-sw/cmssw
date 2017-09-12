@@ -38,7 +38,7 @@ struct DDCoreToDDXMLOutput {
   
   void material ( const DDMaterial& material, std::ostream& xos );
 
-  void rotation ( DDRotation& rotation, std::ostream& xos, const std::string& rotn=""  );
+  void rotation ( const DDRotation& rotation, std::ostream& xos, const std::string& rotn=""  );
 
   void logicalPart ( const DDLogicalPart& lp, std::ostream& xos );
 

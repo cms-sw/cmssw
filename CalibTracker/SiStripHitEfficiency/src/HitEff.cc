@@ -85,6 +85,8 @@ HitEff::HitEff(const edm::ParameterSet& conf) :
   DEBUG = conf_.getParameter<bool>("Debug");
   addLumi_ = conf_.getUntrackedParameter<bool>("addLumi", false);
   addCommonMode_ = conf_.getUntrackedParameter<bool>("addCommonMode", false);
+  cutOnTracks_ = conf_.getUntrackedParameter<bool>("cutOnTracks", false);
+  trackMultiplicityCut_ = conf.getUntrackedParameter<unsigned int>("trackMultiplicity",100);
 }
 
 // Virtual destructor needed.
@@ -272,8 +274,9 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
   const   reco::TrackCollection *tracksCKF=trackCollectionCKF.product();
   if (DEBUG)  cout << "number ckf tracks found = " << tracksCKF->size() << endl;
   //if (tracksCKF->size() == 1 ){
-  if (tracksCKF->size() > 0 && tracksCKF->size()<100) {
-    if (DEBUG)    cout << "starting checking good event with < 100 tracks" << endl;
+  if (tracksCKF->size() > 0) {
+    if( cutOnTracks_ && (tracksCKF->size() >= trackMultiplicityCut_) ) return;
+    if( DEBUG && cutOnTracks_ ) cout << "starting checking good event with < "<< trackMultiplicityCut_ <<" tracks" << endl;
 
     EventTrackCKF++;  
 

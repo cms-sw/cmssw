@@ -34,7 +34,12 @@ public:
     checkMappedProductID(tp);
     map_.emplace_back(cluster, tp);
   }
-  void sort() { std::sort(map_.begin(), map_.end(), compare); }
+  void sortAndUnique() {
+    std::sort(map_.begin(), map_.end(), compareSort);
+    auto last = std::unique(map_.begin(), map_.end());
+    map_.erase(last, map_.end());
+    map_.shrink_to_fit();
+  }
   void swap(ClusterTPAssociation& other) {
     map_.swap(other.map_);
     mappedProductId_.swap(other.mappedProductId_);
@@ -61,6 +66,12 @@ public:
 private:
   static bool compare(const value_type& i, const value_type& j) {
     return i.first.rawIndex() > j.first.rawIndex();
+  }
+
+  static bool compareSort(const value_type& i, const value_type& j) {
+    // For sorting compare also TrackingParticle keys in order to
+    // remove duplicate matches
+    return compare(i, j) || (i.first.rawIndex() == j.first.rawIndex() && i.second.key() > j.second.key());
   }
 
   map_type map_;

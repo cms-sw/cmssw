@@ -23,9 +23,9 @@ class CSCChamber : public GeomDet {
 
 public:
 
-  CSCChamber( const BoundPlane::BoundPlanePointer bp, CSCDetId id, const CSCChamberSpecs* specs ) :
+  CSCChamber( const BoundPlane::BoundPlanePointer& bp, CSCDetId id, const CSCChamberSpecs* specs ) :
   GeomDet( bp ),  theChamberSpecs( specs ), 
-    theComponents(6,(const CSCLayer*)0) {
+    theComponents(6,(const CSCLayer*)nullptr) {
     setDetId(id);
   }
 

@@ -15,7 +15,6 @@ using DDI::Material;
 
 DDMaterial::DDMaterial() : DDBase<DDName,Material*>() { }
 
-
 /**
    If a DDMaterial with \a name was already defined, this constructor creates a
    reference object to the defined material. Otherwise it creates a (default)

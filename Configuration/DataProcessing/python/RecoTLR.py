@@ -44,7 +44,9 @@ def customisePostEra_Run2_2016(process):
     return process
 
 def customisePostEra_Run2_2017(process):
-    _hcalCustoms25ns(process)
+    import RecoLocalCalo.HcalRecAlgos.RemoveAddSevLevel as HcalRemoveAddSevLevel
+    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HBHEFlatNoise",8)
+    HcalRemoveAddSevLevel.RemoveFlag(process.hcalRecAlgos,"HFDigiTime")
     return process
 
 def customisePostEra_Run2_2017_express_trackingOnly(process):

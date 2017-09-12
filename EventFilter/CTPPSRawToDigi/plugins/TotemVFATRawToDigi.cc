@@ -53,7 +53,7 @@ class TotemVFATRawToDigi : public edm::stream::EDProducer<>
 
     edm::EDGetTokenT<FEDRawDataCollection> fedDataToken;
 
-    RawDataUnpacker rawDataUnpacker;
+    ctpps::RawDataUnpacker rawDataUnpacker;
     RawToDigiConverter rawToDigiConverter;
 
     template <typename DigiType>

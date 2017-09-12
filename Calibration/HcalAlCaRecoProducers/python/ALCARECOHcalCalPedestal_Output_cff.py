@@ -9,7 +9,8 @@ OutALCARECOHcalCalPedestal_noDrop = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECOHcalCalPedestal')
     ),
     outputCommands = cms.untracked.vstring(
-        'keep *_gtDigisAlCaPedestal_*_*',
+        'keep *_hltTriggerSummaryAOD_*_*',
+        'keep *_TriggerResults_*_*',
         'keep HBHERecHitsSorted_hbherecoPedestal_*_*',
         'keep HORecHitsSorted_horecoPedestal_*_*',
         'keep HFRecHitsSorted_hfrecoPedestal_*_*')

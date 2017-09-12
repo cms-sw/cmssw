@@ -231,6 +231,7 @@ void PhotonAnalyzer::bookHistogramsInvMass(DQMStore::IBooker & iBooker)
   h_invMassAllPhotons_     = bookHisto(iBooker, "invMassAllIsolatedPhotons", "Two photon invariant mass: All isolated photons;M (GeV)",        etBin_, etMin_, etMax_);
   h_invMassPhotonsEBarrel_ = bookHisto(iBooker, "invMassIsoPhotonsEBarrel",  "Two photon invariant mass: isolated photons in barrel; M (GeV)", etBin_, etMin_, etMax_);
   h_invMassPhotonsEEndcap_ = bookHisto(iBooker, "invMassIsoPhotonsEEndcap",  "Two photon invariant mass: isolated photons in endcap; M (GeV)", etBin_, etMin_, etMax_);
+  h_invMassPhotonsEEndcapEBarrel_ = bookHisto(iBooker, "invMassIsoPhotonsEEndcapEBarrel",  "Two photon invariant mass: isolated photons in endcap-barrel; M (GeV)", etBin_, etMin_, etMax_);
   
   h_invMassZeroWithTracks_ = bookHisto(iBooker, "invMassZeroWithTracks",     "Two photon invariant mass: Neither has tracks;M (GeV)",          etBin_, etMin_, etMax_);
   h_invMassOneWithTracks_  = bookHisto(iBooker, "invMassOneWithTracks",      "Two photon invariant mass: Only one has tracks;M (GeV)",         etBin_, etMin_, etMax_);
@@ -764,6 +765,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
     bool isIsolated=false;
     if ( isolationStrength_ == 0)  isIsolated = isLoosePhoton;
     if ( isolationStrength_ == 1)  isIsolated = isTightPhoton;
+    if ( isolationStrength_ == 2)  isIsolated = photonSelectionSlimmed(aPho);
 
     int type=0;
     if ( isIsolated ) type=1;
@@ -1055,7 +1057,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	  DPhiTracksAtVtx = phiTk1-phiTk2;
 	  DPhiTracksAtVtx = phiNormalization( DPhiTracksAtVtx );
 
-	  if (aConv->bcMatchingWithTracks().size() > 0 && aConv->bcMatchingWithTracks()[0].isNonnull() && aConv->bcMatchingWithTracks()[1].isNonnull() ) {
+    if (!aConv->bcMatchingWithTracks().empty() && aConv->bcMatchingWithTracks()[0].isNonnull() && aConv->bcMatchingWithTracks()[1].isNonnull() ) {
 	    float recoPhi1 = aConv->ecalImpactPosition()[0].phi();
 	    float recoPhi2 = aConv->ecalImpactPosition()[1].phi();
 	    float recoEta1 = aConv->ecalImpactPosition()[0].eta();
@@ -1101,6 +1103,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	bool isIsolated2=false;
 	if ( isolationStrength_ == 0)  isIsolated2 = isLoosePhoton2;
 	if ( isolationStrength_ == 1)  isIsolated2 = isTightPhoton2;
+        if ( isolationStrength_ == 2)  isIsolated2 = photonSelectionSlimmed(aPho2);
 
 	reco::ConversionRefVector conversions = aPho->conversions();
 	reco::ConversionRefVector conversions2 = aPho2->conversions();
@@ -1113,13 +1116,14 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
 	  h_invMassAllPhotons_ -> Fill(sqrt( gamgamMass2 ));
 	  if(aPho->isEB() && aPho2->isEB()){h_invMassPhotonsEBarrel_ -> Fill(sqrt( gamgamMass2 ));}
-	  if(aPho->isEE() || aPho2->isEE()){h_invMassPhotonsEEndcap_ -> Fill(sqrt( gamgamMass2 ));}      
+	  else if(aPho->isEE() && aPho2->isEE()){h_invMassPhotonsEEndcap_ -> Fill(sqrt( gamgamMass2 ));}
+	  else {h_invMassPhotonsEEndcapEBarrel_ -> Fill(sqrt( gamgamMass2 ));}
 	  
- 	  if(conversions.size()!=0 && conversions[0]->nTracks() >= 2){
-	    if(conversions2.size()!=0 && conversions2[0]->nTracks() >= 2) h_invMassTwoWithTracks_ -> Fill(sqrt( gamgamMass2 ));
+     if(!conversions.empty() && conversions[0]->nTracks() >= 2){
+      if(!conversions2.empty() && conversions2[0]->nTracks() >= 2) h_invMassTwoWithTracks_ -> Fill(sqrt( gamgamMass2 ));
 	    else h_invMassOneWithTracks_ -> Fill(sqrt( gamgamMass2 ));
  	  }
-	  else if(conversions2.size()!=0 && conversions2[0]->nTracks() >= 2) h_invMassOneWithTracks_ -> Fill(sqrt( gamgamMass2 ));
+    else if(!conversions2.empty() && conversions2[0]->nTracks() >= 2) h_invMassOneWithTracks_ -> Fill(sqrt( gamgamMass2 ));
 	  else h_invMassZeroWithTracks_ -> Fill(sqrt( gamgamMass2 ));
  	}
       }
@@ -1204,4 +1208,15 @@ bool PhotonAnalyzer::photonSelection(const reco::Photon* pho)
     if ( pho->chargedHadronIso()  > 4 )  result=false;
   }
   return result;  
+}
+
+bool PhotonAnalyzer::photonSelectionSlimmed(const reco::Photon* pho)
+{
+  bool result=true;
+
+  if ( pho->pt() <  minPhoEtCut_ )          result=false;
+  if ( fabs(pho->eta())  > photonMaxEta_ )   result=false;
+  if ( pho->isEBEEGap() )       result=false;
+
+  return result;
 }

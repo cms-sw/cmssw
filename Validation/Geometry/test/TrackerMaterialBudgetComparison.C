@@ -52,8 +52,8 @@ TProfile* prof_x0_str_ELE_new;
 TProfile* prof_x0_str_OTH_new;
 TProfile* prof_x0_str_AIR_new;
 
-TProfile* prof2d_x0_det_total_old;
-TProfile* prof2d_x0_det_total_new;
+TProfile2D* prof2d_x0_det_total_old;
+TProfile2D* prof2d_x0_det_total_new;
 
 //
 unsigned int iFirst = 1;

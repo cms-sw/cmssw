@@ -65,6 +65,17 @@ HcalLutManager::HcalLutManager(const HcalElectronicsMap * _emap,
   status_word_to_mask = _status_word_to_mask;
 }
 
+HcalLutManager::HcalLutManager(const HcalDbService* _conditions,
+			       const HcalChannelQuality * _cq,
+			       uint32_t _status_word_to_mask)
+{
+  init();
+  conditions=_conditions;
+  emap = conditions->getHcalMapping();
+  cq   = _cq;
+  status_word_to_mask = _status_word_to_mask;
+}
+
 
 void HcalLutManager::init( void )
 {    
@@ -74,6 +85,7 @@ void HcalLutManager::init( void )
   lmap = 0;
   emap = 0;
   cq   = 0;
+  conditions = 0; 
   status_word_to_mask = 0x0000;
 }
 
@@ -396,6 +408,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXml
 	_cfg.slot = row->slot;
 	if (row->topbottom . find("t") != std::string::npos) _cfg.topbottom = 1;
 	else if (row->topbottom . find("b") != std::string::npos) _cfg.topbottom = 0;
+	else if (row->topbottom . find("u") != std::string::npos) _cfg.topbottom = 2;
 	else edm::LogWarning("HcalLutManager") << "fpga out of range...";
 	_cfg.fiber = row->fiber;
 	_cfg.fiberchan = row->fiberchan;
@@ -583,6 +596,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
       _cfg.slot = row->slot;
       if (row->topbottom . find("t") != std::string::npos) _cfg.topbottom = 1;
       else if (row->topbottom . find("b") != std::string::npos) _cfg.topbottom = 0;
+      else if (row->topbottom . find("u") != std::string::npos) _cfg.topbottom = 2;
       else edm::LogWarning("HcalLutManager") << "fpga out of range...";
       _cfg.fiber = row->fiber;
       _cfg.fiberchan = row->fiberchan;
@@ -698,6 +712,73 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXml
 }
 
 
+std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getMasks(int masktype, std::string _tag, bool split_by_crate ){
+    edm::LogInfo("HcalLutManager") << "Generating TDC masks...";
+
+    EMap _emap(emap);
+    std::vector<EMap::EMapRow> & _map = _emap.get_map();
+    edm::LogInfo("HcalLutManager") << "EMap contains new" << _map.size() << " entries";
+
+    std::map<int, std::vector<uint64_t>> masks;
+
+    for(const auto& row : _map){
+	std::string subdet=row.subdet;
+	if(subdet != "HF") continue;
+	int crate=row.crate;
+	int slot=row.slot;
+	int crot=100*crate+slot;
+	int fiber=row.fiber;
+	int channel=row.fiberchan;
+	unsigned int finel=4*fiber+channel;
+	if(masks.count(crot)==0) masks[crot]={};
+	if(finel>=masks[crot].size()) masks[crot].resize(finel+1); 
+
+	if(masktype==0){
+	    HcalSubdetector _subdet;
+	    if ( row.subdet.find("HB")!=string::npos ) _subdet = HcalBarrel;
+	    else if ( row.subdet.find("HE")!=string::npos ) _subdet = HcalEndcap;
+	    else if ( row.subdet.find("HO")!=string::npos ) _subdet = HcalOuter;
+	    else if ( row.subdet.find("HF")!=string::npos ) _subdet = HcalForward;
+	    else _subdet = HcalOther;
+	    HcalDetId _detid(_subdet, row.ieta, row.iphi, row.idepth);
+	    masks[crot][finel]= conditions->getHcalTPChannelParameter(_detid)->getMask();
+	}
+	else{
+	    auto parameters = conditions->getHcalTPParameters();
+	    masks[crot][finel]= masktype==1 ? parameters->getADCThresholdHF(): parameters->getTDCMaskHF();
+	}
+    }
+
+    std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
+    RooGKCounter _counter;
+
+    for(const auto &i: masks){
+	int crot=i.first;
+	int crate=crot/100;
+
+	LutXml::Config _cfg;
+	_cfg.lut_type = 3+masktype; 
+	_cfg.crate = crate;
+	_cfg.slot = crot%100;
+	_cfg.generalizedindex = crot;
+	_cfg.mask = i.second;
+	_cfg.creationtag = _tag;
+	_cfg.targetfirmware = "1.0.0";
+	_cfg.formatrevision = "1";
+
+	int c= split_by_crate ? crate : 0;
+	if ( _xml.count(c) == 0 ) _xml[c]=boost::shared_ptr<LutXml>(new LutXml());
+
+	_xml[c]->addLut(_cfg);  
+	_counter.count();
+    }
+
+    edm::LogInfo("HcalLutManager") << "Generated LUTs: " << _counter.getCount() << std::endl
+    << "Generating Masks...DONE" << std::endl;
+    return _xml;
+}
+
+
 
 
 std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromCoderEmap( const HcalTPGCoder & _coder, std::string _tag, bool split_by_crate )
@@ -708,9 +789,6 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXml
   EMap _emap(emap);
   std::vector<EMap::EMapRow> & _map = _emap.get_map();
   edm::LogInfo("HcalLutManager") << "EMap contains " << _map . size() << " entries";
-
-  std::vector<unsigned int> zeroLut;
-  for (size_t adc = 0; adc < 128; adc++) zeroLut.push_back(0);
 
   RooGKCounter _counter;
   //loop over all EMap channels
@@ -735,6 +813,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXml
       _cfg.slot = row->slot;
       if (row->topbottom . find("t") != std::string::npos) _cfg.topbottom = 1;
       else if (row->topbottom . find("b") != std::string::npos) _cfg.topbottom = 0;
+      else if (row->topbottom . find("u") != std::string::npos) _cfg.topbottom = 2;
       else edm::LogWarning("HcalLutManager") << "fpga out of range...";
       _cfg.fiber = row->fiber;
       _cfg.fiberchan = row->fiberchan;
@@ -757,19 +836,9 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXml
       else if ( row->subdet.find("HF")!=string::npos ) _subdet = HcalForward;
       else _subdet = HcalOther;
       HcalDetId _detid(_subdet, row->ieta, row->iphi, row->idepth);
-      //
-      // consider channel status here
-      uint32_t status_word = cq->getValues(_detid)->getValue();
-      if ((status_word & status_word_to_mask) > 0){
-	_cfg.lut = zeroLut;
-      }
-      else{
-	std::vector<unsigned short>  coder_lut = _coder . getLinearizationLUT(_detid);
-	for (std::vector<unsigned short>::const_iterator _i=coder_lut.begin(); _i!=coder_lut.end();_i++){
-	  unsigned int _temp = (unsigned int)(*_i);
-	  _cfg.lut.push_back(_temp);
-	}
-      }
+
+      for (const auto i : _coder.getLinearizationLUT(_detid)) _cfg.lut.push_back(i);
+
       if (split_by_crate ){
 	_xml[row->crate]->addLut( _cfg, lut_checksums_xml );  
 	_counter.count();
@@ -795,8 +864,21 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
 
     EMap _emap(emap);
 
+    std::map<int,unsigned int> maxsize;
+
     std::vector<EMap::EMapRow> & _map = _emap.get_map();
     edm::LogInfo("HcalLutManager") << "EMap contains " << _map . size() << " channels";
+
+    //need to equalize compression LUT size in each crate-slot, needed for mixed uHTR
+    for(const auto& row : _map){
+	if ( row.subdet.find("HT") == std::string::npos) continue;
+	HcalTrigTowerDetId _detid(row.rawId);
+	if(!cq->topo()->validHT(_detid)) continue;
+	int crot=100*row.crate+row.slot;
+	unsigned int size=_coder.getCompressionLUT(_detid).size();
+	if(maxsize.count(crot)==0 || size>maxsize[crot])  maxsize[crot]=size; 
+    }
+
 
     RooGKCounter _counter;
     for( std::vector<EMap::EMapRow>::const_iterator row=_map.begin(); row!=_map.end(); row++ ){
@@ -823,6 +905,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
 	_cfg.slot = row->slot;
 	if (row->topbottom . find("t") != std::string::npos) _cfg.topbottom = 1;
 	else if (row->topbottom . find("b") != std::string::npos) _cfg.topbottom = 0;
+	else if (row->topbottom . find("u") != std::string::npos) _cfg.topbottom = 2;
 	else edm::LogWarning("HcalLutManager") << "fpga out of range...";
 	_cfg.fiber = row->fiber;
 	_cfg.fiberchan = row->fiberchan;
@@ -835,6 +918,14 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
 
 	_cfg.lut = _coder.getCompressionLUT(_detid);
       
+	int crot=100*row->crate+row->slot;
+	unsigned int size=_cfg.lut.size();
+	if(size<maxsize[crot]){
+	    edm::LogWarning("HcalLutManager") << " resizing LUT for " <<  _detid
+					      << ", channel=[" <<_cfg.crate<<":"<<_cfg.slot<<":"<<_cfg.fiber<<":"<<_cfg.fiberchan
+					      << "], using value=" << _cfg.lut[size-1] << std::endl;
+	    for(unsigned int i=size; i<maxsize[crot]; ++i) _cfg.lut.push_back(_cfg.lut[size-1]);
+	}
       
 	if (split_by_crate ){
 	    _xml[row->crate]->addLut( _cfg, lut_checksums_xml );  
@@ -847,6 +938,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
     }
     edm::LogInfo("HcalLutManager") << "LUTs generated: " << _counter.getCount() << std::endl
       << "Generating compression (output) LUTs from CaloTPGTranscoderULUT...DONE" << std::endl;
+
     return _xml;
 }
 
@@ -893,6 +985,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
       _cfg.slot = row->slot;
       if (row->topbottom . find("t") != std::string::npos) _cfg.topbottom = 1;
       else if (row->topbottom . find("b") != std::string::npos) _cfg.topbottom = 0;
+      else if (row->topbottom . find("u") != std::string::npos) _cfg.topbottom = 2;
       else edm::LogWarning("HcalLutManager") << "fpga out of range...";
       _cfg.fiber = row->fiber;
       _cfg.fiberchan = row->fiberchan;
@@ -1550,6 +1643,11 @@ int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii_ZDC( std::string
   //
   const std::map<int, boost::shared_ptr<LutXml> > _comp_lut_xml = getCompressionLutXmlFromCoder( _transcoder, _tag, split_by_crate );
   addLutMap( xml, _comp_lut_xml );
+
+  for(auto masktype: {0,1,2}){
+      const auto masks=getMasks(masktype, _tag, split_by_crate);
+      addLutMap(xml, masks);
+  }
   //
   const std::map<int, boost::shared_ptr<LutXml> > _zdc_lut_xml = getZdcLutXml( _tag, split_by_crate );
   addLutMap( xml, _zdc_lut_xml );

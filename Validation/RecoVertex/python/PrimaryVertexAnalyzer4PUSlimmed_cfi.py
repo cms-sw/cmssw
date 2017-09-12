@@ -24,8 +24,8 @@ vertexAnalysis = cms.EDAnalyzer("PrimaryVertexAnalyzer4PUSlimmed",
                                 vertexRecoCollections = cms.VInputTag("offlinePrimaryVertices",
                                                                       "offlinePrimaryVerticesWithBS",
                                                                       "selectedOfflinePrimaryVertices",
-                                                                      "selectedOfflinePrimaryVerticesWithBS",
-                                ),
+                                                                      "selectedOfflinePrimaryVerticesWithBS"
+                                                                      ),
 )
 
 vertexAnalysisTrackingOnly = vertexAnalysis.clone(
@@ -83,3 +83,22 @@ _vertexAnalysisSequenceTrackingOnly_trackingLowPU += (
     + pixelVertexAnalysisTrackingOnly
 )
 trackingLowPU.toReplaceWith(vertexAnalysisSequenceTrackingOnly, _vertexAnalysisSequenceTrackingOnly_trackingLowPU)
+
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+_vertexRecoCollectionsTiming = cms.VInputTag("offlinePrimaryVertices",
+                                             "offlinePrimaryVerticesWithBS",
+                                             "selectedOfflinePrimaryVertices",
+                                             "selectedOfflinePrimaryVerticesWithBS",
+                                             "offlinePrimaryVertices4D",
+                                             "selectedOfflinePrimaryVertices4D",
+                                             )
+selectedOfflinePrimaryVertices4D = selectedOfflinePrimaryVertices.clone(src = cms.InputTag("offlinePrimaryVertices4D"))
+
+_vertexAnalysisSelectionTiming = vertexAnalysisSelection.copy()
+_vertexAnalysisSelectionTiming += selectedOfflinePrimaryVertices4D
+
+phase2_timing_layer.toModify( vertexAnalysis, 
+                              vertexRecoCollections = _vertexRecoCollectionsTiming
+                              )
+phase2_timing_layer.toReplaceWith( vertexAnalysisSelection,
+                                   _vertexAnalysisSelectionTiming )

@@ -27,9 +27,9 @@ namespace {
   
   enum reg_int_vars   { k_NIntVars   = 0 };
 
-  static const std::vector<std::string> float_var_names( { } );
+  const std::vector<std::string> float_var_names( { } );
   
-  static const std::vector<std::string> integer_var_names( { } );  
+  const std::vector<std::string> integer_var_names( { } );  
   
   inline void set_map_val( const reg_float_vars index, const float value,
                            std::unordered_map<std::string,float>& map) {

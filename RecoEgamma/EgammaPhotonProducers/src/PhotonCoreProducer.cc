@@ -145,6 +145,7 @@ void PhotonCoreProducer::fillPhotonCollection(edm::Event& evt,
     if (scRef->energy()/cosh(scRef->eta()) <= minSCEt_) continue;
     
     reco::PhotonCore newCandidate(scRef);
+    newCandidate.setParentSuperCluster(scRef);
     if ( validConversions_) {    
 
       if ( risolveAmbiguity_ ) {

@@ -141,13 +141,13 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     TkSizeMin = cms.double(-0.5),
 
     # Number of seeds per Event
-    TkSeedSizeBin = cms.int32(150),
-    TkSeedSizeMax = cms.double(149.5),                        
+    TkSeedSizeBin = cms.int32(200),
+    TkSeedSizeMax = cms.double(999.5),                        
     TkSeedSizeMin = cms.double(-0.5),
 
     # Number of Track Cadidates per Event
-    TCSizeBin = cms.int32(150),
-    TCSizeMax = cms.double(149.5),
+    TCSizeBin = cms.int32(200),
+    TCSizeMax = cms.double(999.5),
     TCSizeMin = cms.double(-0.5),
 
     # num rec hits
@@ -391,15 +391,16 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     GoodPVtxMin = cms.double( 0.),
     GoodPVtxMax = cms.double(200.),
 
-    LUMIBin  = cms.int32 ( 4000 ),
-    LUMIMin  = cms.double(    0.),
+    LUMIBin  = cms.int32 ( 300 ),   # irrelevant
+    LUMIMin  = cms.double(  200.),
     LUMIMax  = cms.double(20000.),
 
 #    # BXlumi                          
 #    BXlumiBin = cms.int32(400),
-#    BXlumiMin = cms.double(2000),
-#    BXlumiMax = cms.double(6000),
-                ###############################
+#    BXlumiMin = cms.double(4000),
+#    BXlumiMax = cms.double(20000),
+
+###############################
 ################## FOR HI PLOTS#####################
 #######
 TransDCABins = cms.int32(100),
@@ -410,6 +411,18 @@ LongDCABins = cms.int32(100),
 LongDCAMin = cms.double(-8.0),
 LongDCAMax = cms.double(8.0),          
 )
+
+# Overcoming the 255 arguments limit
+# TrackingRegion monitoring
+TrackMon.RegionProducer = cms.InputTag("")
+TrackMon.RegionCandidates = cms.InputTag("")
+TrackMon.doRegionPlots = cms.bool(False)
+TrackMon.RegionSizeBin = cms.int32(20)
+TrackMon.RegionSizeMax = cms.double(19.5)
+TrackMon.RegionSizeMin = cms.double(-0.5)
+TrackMon.RegionCandidatePtBin = cms.int32(100)
+TrackMon.RegionCandidatePtMax = cms.double(1000)
+TrackMon.RegionCandidatePtMin = cms.double(0)
 
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker

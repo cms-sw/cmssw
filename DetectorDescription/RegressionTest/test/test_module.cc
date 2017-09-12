@@ -12,7 +12,7 @@ class DDTestAlgorithm : public DDAlgorithm
 {
 public:
   DDTestAlgorithm( void ) {}
-  ~DDTestAlgorithm( void ) override{}
+  ~DDTestAlgorithm( void ) override {}
  
   void initialize( const DDNumericArguments &,
 		   const DDVectorArguments &,

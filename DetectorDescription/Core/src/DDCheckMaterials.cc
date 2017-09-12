@@ -9,8 +9,8 @@
 #include "DetectorDescription/Core/interface/DDName.h"
 
 namespace DDI {
-class Material;
-}  // namespace DDI
+  class Material;
+}
 
 // internal usage
 bool DDCheckMaterial(DDMaterial& mip, std::pair<std::string,DDName> & result, int rlevel = 0)
@@ -24,7 +24,7 @@ bool DDCheckMaterial(DDMaterial& mip, std::pair<std::string,DDName> & result, in
       std::string curr_err = "";
       bool err = false;
       
-      if (mip.isDefined().first == 0) {
+      if (mip.isDefined().first == nullptr) {
         err=true;
 	curr_err += "material not declared; unknown material!";
 	//edm::LogError("DDCheckMaterials") << "material not declared!" << std::endl; //exit(1);
@@ -105,7 +105,7 @@ bool DDCheckMaterials(std::ostream & os, std::vector<std::pair<std::string,DDNam
 	DDMaterial tmat(i.first); 
 
 	if (DDCheckMaterial(tmat,error)) {
-	   errors.push_back(error);
+	   errors.emplace_back(error);
 	}	      
    }
 

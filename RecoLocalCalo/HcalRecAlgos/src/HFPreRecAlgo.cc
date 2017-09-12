@@ -14,14 +14,6 @@ HFQIE10Info HFPreRecAlgo::reconstruct(const QIE10DataFrame& digi,
                                       const HcalCoder& coder,
                                       const HcalCalibrations& calib) const
 {
-    // Conversion from TDC to ns for the QIE10 chip
-    static const float qie10_tdc_to_ns = 0.5f;
-
-    // TDC values produced in case the pulse is always above/below
-    // the discriminator
-    static const int qie10_tdc_code_overshoot = 62;
-    static const int qie10_tdc_code_undershoot = 63;
-
     // Scrap the trailing edge time for now -- until the front-end
     // FPGA firmware is finalized and the description of the FPGA
     // output becomes available
@@ -69,13 +61,7 @@ HFQIE10Info HFPreRecAlgo::reconstruct(const QIE10DataFrame& digi,
         const int capid = s.capid();
         const float charge = cs[tsToUse] - calib.pedestal(capid);
         const float energy = charge*calib.respcorrgain(capid);
-
-        const int tdc = s.le_tdc();
-        float timeRising = qie10_tdc_to_ns*tdc;
-        if (tdc == qie10_tdc_code_overshoot)
-            timeRising = HcalSpecialTimes::UNKNOWN_T_OVERSHOOT;
-        else if (tdc == qie10_tdc_code_undershoot)
-            timeRising = HcalSpecialTimes::UNKNOWN_T_UNDERSHOOT;
+        const float timeRising = HcalSpecialTimes::getTDCTime(s.le_tdc());
 
         // Figure out the window in the raw data
         // that we want to store. This window will

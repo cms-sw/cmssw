@@ -50,17 +50,15 @@ class VersionedSelector : public Selector<T> {
  VersionedSelector(const edm::ParameterSet& conf) : 
   Selector<T>(),
   initialized_(false) { 
-    constexpr unsigned length = MD5_DIGEST_LENGTH;
-    edm::ParameterSet trackedPart = conf.trackedPart();
+
+    validateParamsAreTracked(conf);
+
     name_ = conf.getParameter<std::string>("idName");
-    memset(id_md5_,0,length*sizeof(unsigned char));
-    std::string tracked(trackedPart.dump()), untracked(conf.dump());   
-    if ( tracked != untracked ) {
-      throw cms::Exception("InvalidConfiguration")
-	<< "VersionedSelector does not allow untracked parameters"
-	<< " in the cutflow ParameterSet!";
-    }
+
     // now setup the md5 and cute accessor functions
+    constexpr unsigned length = MD5_DIGEST_LENGTH;
+    std::string tracked(conf.trackedPart().dump());
+    memset(id_md5_,0,length*sizeof(unsigned char));
     MD5((unsigned char*)tracked.c_str(), tracked.size(), id_md5_);
     char buf[32];
     for( unsigned i=0; i<MD5_DIGEST_LENGTH; ++i ){
@@ -157,6 +155,30 @@ class VersionedSelector : public Selector<T> {
 
   CINT_GUARD(void setConsumes(edm::ConsumesCollector));
 
+ private:
+  //here we check that the parameters of the VID cuts are tracked
+  //we allow exactly one parameter to be untracked "isPOGApproved"
+  //as if its tracked, its a pain for the md5Sums
+  //due to the mechanics of PSets, it was demined easier just to 
+  //create a new config which doesnt have an untracked isPOGApproved
+  //if isPOGApproved is tracked (if we decide to do that in the future), it keeps it
+  //see https://github.com/cms-sw/cmssw/issues/19799 for the discussion
+  static void validateParamsAreTracked(const edm::ParameterSet& conf){
+    edm::ParameterSet trackedPart = conf.trackedPart();
+    edm::ParameterSet confWithoutIsPOGApproved;
+    for(auto& paraName : conf.getParameterNames()){
+      if(paraName != "isPOGApproved") confWithoutIsPOGApproved.copyFrom(conf,paraName);
+      else if(conf.existsAs<bool>(paraName,true)) confWithoutIsPOGApproved.copyFrom(conf,paraName); //adding isPOGApproved if its a tracked bool
+    }
+    std::string tracked(conf.trackedPart().dump()), untracked(confWithoutIsPOGApproved.dump());   
+    if ( tracked != untracked ) {
+      throw cms::Exception("InvalidConfiguration")
+	<< "VersionedSelector does not allow untracked parameters"
+	<< " in the cutflow ParameterSet!";
+    }
+  }
+
+   
  protected:
   bool initialized_;
   std::vector<SHARED_PTR(candf::CandidateCut) > cuts_;

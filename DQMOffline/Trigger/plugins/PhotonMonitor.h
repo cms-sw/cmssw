@@ -56,7 +56,7 @@ class PhotonMonitor : public DQMEDAnalyzer
 {
 public:
   PhotonMonitor( const edm::ParameterSet& );
-  ~PhotonMonitor();
+  ~PhotonMonitor() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   static void fillHistoPSetDescription(edm::ParameterSetDescription & pset);
   static void fillHistoLSPSetDescription(edm::ParameterSetDescription & pset);

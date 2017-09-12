@@ -69,7 +69,7 @@ std::map<std::string, l1t::Mask>& ) {
   if( conf.find("layer1HFScalePhiBins") != conf.end() )
       paramsHelper.setLayer1HFScalePhiBins  (conf["layer1HFScalePhiBins"]  .getVector<unsigned int>());
   if( conf.find("layer1SecondStageLUT") != conf.end() )
-      paramsHelper.setLayer1HOverELUT( l1t::convertToLUT( conf["layer1SecondStageLUT"]  .getVector<unsigned int>()) );
+      paramsHelper.setLayer1SecondStageLUT(conf["layer1SecondStageLUT"].getVector<unsigned int>() );
 
   return true;
 }

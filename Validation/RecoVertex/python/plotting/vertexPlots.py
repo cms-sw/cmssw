@@ -3,7 +3,7 @@ import copy
 from Validation.RecoTrack.plotting.plotting import Plot, PlotGroup, PlotFolder, Plotter
 import Validation.RecoTrack.plotting.validation as validation
 from Validation.RecoTrack.plotting.html import PlotPurpose
-from Validation.RecoTrack.plotting.trackingPlots import _legendDy_1row, _legendDy_2rows, _legendDy_2rows_3cols, _legendDy_4rows
+from Validation.RecoTrack.plotting.trackingPlots import _legendDy_1row, _legendDy_2rows, _legendDy_2rows_3cols, _legendDy_4rows, _minMaxResidual
 
 _minPU = [0, 10, 20, 40, 80, 120]
 _maxPU = [60, 80, 100, 150, 200, 250]
@@ -11,10 +11,13 @@ _minVtx = [0, 80, 120]
 _maxVtx = [60, 100, 150, 200, 250]
 _maxEff = 1.025
 _maxFake = [0.05, 0.1, 0.2, 0.5, 0.7, 1.025]
-_minMaxRes = [5, 10, 50, 100, 200, 500, 1000, 2000, 5000]
+_minMaxRes = [0.1, 0.5, 1, 5, 10, 50, 100, 200, 500, 1000, 2000, 5000]
+(_minResidual, _maxResidual) = _minMaxResidual(_minMaxRes)
 _minMaxPt = [5e-1, 1, 5, 1e1, 5e1, 1e2, 5e2, 1e3, 5e3, 1e4]
 _minPull = [0, 0.5, 0.8, 0.9]
 _maxPull = [1.1, 1.2, 1.5, 2]
+_minVertexZ = range(-60,-10,10)
+_maxVertexZ = range(20,70,10)
 
 _vertexNumberOfEventsHistogram = "DQMData/Run 1/Vertexing/Run summary/PrimaryVertexV/GenPV_Z"
 
@@ -25,7 +28,7 @@ _recovsgen = PlotGroup("recovsgen", [
     Plot("merged_vs_ClosestVertexInZ", xtitle="Closest distance in Z (cm)", ytitle="Merge rate", xlog=True, xmin=1e-3, ymax=_maxFake),
     Plot("merged_vs_Z", xtitle="Z (cm)", ytitle="Merge rate", xmin=-20, xmax=20, ymax=_maxFake),
 ],
-                       legendDy=_legendDy_2rows
+                       legendDy=_legendDy_2rows, onlyForPileup=True,
 )
 _pvtagging = PlotGroup("pvtagging", [
     Plot("TruePVLocationIndexCumulative", xtitle="Signal PV status in reco collection", ytitle="Fraction of events", drawStyle="hist", normalizeToUnitArea=True, xbinlabels=["Not reconstructed", "Reco and identified", "Reco, not identified"], xbinlabelsize=15, xbinlabeloption="h", xgrid=False, ylog=True, ymin=1e-3, ratioCoverageXrange=[-0.5, 0.5]),
@@ -59,32 +62,32 @@ _resolution = PlotGroup("resolution", [
 ], ncols=3)
 _commonNumTracks = dict(title="", xtitle="Number of tracks", scale=1e4, ylog=True, ymin=_minMaxRes , ymax=_minMaxRes)
 _resolutionNumTracks = PlotGroup("resolutionNumTracks", [
-    Plot("RecoPVAssoc2GenPVMatched_ResolX_vs_NumTracks_Sigma", ytitle="Resolution in x (#mum) for PV", **_commonNumTracks),
-    Plot("RecoAllAssoc2GenMatched_ResolX_vs_NumTracks_Sigma", ytitle="Resolution in x (#mum)", **_commonNumTracks),
-    Plot("RecoAllAssoc2GenMatchedMerged_ResolX_vs_NumTracks_Sigma", ytitle="Resolution in x for merged vertices (#mum)", **_commonNumTracks),
+    Plot("RecoPVAssoc2GenPVMatched_ResolX_vs_NumTracks_Sigma", ytitle="#sigma(#delta x) (#mum) for PV", **_commonNumTracks),
+    Plot("RecoAllAssoc2GenMatched_ResolX_vs_NumTracks_Sigma", ytitle="#sigma(#delta x) (#mum)", **_commonNumTracks),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolX_vs_NumTracks_Sigma", ytitle="#sigma(#delta x) x for merged vertices (#mum)", **_commonNumTracks),
     #
-    Plot("RecoPVAssoc2GenPVMatched_ResolY_vs_NumTracks_Sigma", ytitle="Resolution in y (#mum) for PV", **_commonNumTracks),
-    Plot("RecoAllAssoc2GenMatched_ResolY_vs_NumTracks_Sigma", ytitle="Resolution in y (#mum)", **_commonNumTracks),
-    Plot("RecoAllAssoc2GenMatchedMerged_ResolY_vs_NumTracks_Sigma", ytitle="Resolution in y for merged vertices (#mum)", **_commonNumTracks),
+    Plot("RecoPVAssoc2GenPVMatched_ResolY_vs_NumTracks_Sigma", ytitle="#sigma(#delta y) (#mum) for PV", **_commonNumTracks),
+    Plot("RecoAllAssoc2GenMatched_ResolY_vs_NumTracks_Sigma", ytitle="#sigma(#delta y) (#mum)", **_commonNumTracks),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolY_vs_NumTracks_Sigma", ytitle="#sigma(#delta y) for merged vertices (#mum)", **_commonNumTracks),
     #
-    Plot("RecoPVAssoc2GenPVMatched_ResolZ_vs_NumTracks_Sigma", ytitle="Resolution in z (#mum) for PV", **_commonNumTracks),
-    Plot("RecoAllAssoc2GenMatched_ResolZ_vs_NumTracks_Sigma", ytitle="Resolution in z (#mum)", **_commonNumTracks),
-    Plot("RecoAllAssoc2GenMatchedMerged_ResolZ_vs_NumTracks_Sigma", ytitle="Resolution in z for merged vertices (#mum)", **_commonNumTracks),
+    Plot("RecoPVAssoc2GenPVMatched_ResolZ_vs_NumTracks_Sigma", ytitle="#sigma(#delta z) (#mum) for PV", **_commonNumTracks),
+    Plot("RecoAllAssoc2GenMatched_ResolZ_vs_NumTracks_Sigma", ytitle="#sigma(#delta z) (#mum)", **_commonNumTracks),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolZ_vs_NumTracks_Sigma", ytitle="#sigma(#delta z) for merged vertices (#mum)", **_commonNumTracks),
 ], ncols=3)
 _commonPt = copy.copy(_commonNumTracks)
 _commonPt.update(dict(xtitle= "Sum of track p_{T} (GeV)", xlog=True, xmin=_minMaxPt, xmax=_minMaxPt))
 _resolutionPt = PlotGroup("resolutionPt", [
-    Plot("RecoPVAssoc2GenPVMatched_ResolX_vs_Pt_Sigma", ytitle="Resolution in x (#mum) for PV", **_commonPt),
-    Plot("RecoAllAssoc2GenMatched_ResolX_vs_Pt_Sigma", ytitle="Resolution in x (#mum)", **_commonPt),
-    Plot("RecoAllAssoc2GenMatchedMerged_ResolX_vs_Pt_Sigma", ytitle="Resolution in x for merged vertices (#mum)", **_commonPt),
+    Plot("RecoPVAssoc2GenPVMatched_ResolX_vs_Pt_Sigma", ytitle="#sigma(#delta x) (#mum) for PV", **_commonPt),
+    Plot("RecoAllAssoc2GenMatched_ResolX_vs_Pt_Sigma", ytitle="#sigma(#delta x) (#mum)", **_commonPt),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolX_vs_Pt_Sigma", ytitle="#sigma(#delta x) for merged vertices (#mum)", **_commonPt),
     #
-    Plot("RecoPVAssoc2GenPVMatched_ResolY_vs_Pt_Sigma", ytitle="Resolution in y (#mum) for PV", **_commonPt),
-    Plot("RecoAllAssoc2GenMatched_ResolY_vs_Pt_Sigma", ytitle="Resolution in y (#mum)", **_commonPt),
-    Plot("RecoAllAssoc2GenMatchedMerged_ResolY_vs_Pt_Sigma", ytitle="Resolution in y for merged vertices (#mum)", **_commonPt),
+    Plot("RecoPVAssoc2GenPVMatched_ResolY_vs_Pt_Sigma", ytitle="#sigma(#delta y) (#mum) for PV", **_commonPt),
+    Plot("RecoAllAssoc2GenMatched_ResolY_vs_Pt_Sigma", ytitle="#sigma(#delta y) (#mum)", **_commonPt),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolY_vs_Pt_Sigma", ytitle="#sigma(#delta y) for merged vertices (#mum)", **_commonPt),
     #
-    Plot("RecoPVAssoc2GenPVMatched_ResolZ_vs_Pt_Sigma", ytitle="Resolution in z (#mum) for PV", **_commonPt),
-    Plot("RecoAllAssoc2GenMatched_ResolZ_vs_Pt_Sigma", ytitle="Resolution in z (#mum)", **_commonPt),
-    Plot("RecoAllAssoc2GenMatchedMerged_ResolZ_vs_Pt_Sigma", ytitle="Resolution in z for merged vertices (#mum)", **_commonPt),
+    Plot("RecoPVAssoc2GenPVMatched_ResolZ_vs_Pt_Sigma", ytitle="#sigma(#delta z) (#mum) for PV", **_commonPt),
+    Plot("RecoAllAssoc2GenMatched_ResolZ_vs_Pt_Sigma", ytitle="#sigma(#delta z) (#mum)", **_commonPt),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolZ_vs_Pt_Sigma", ytitle="#sigma(#delta z) for merged vertices (#mum)", **_commonPt),
 ], ncols=3)
 _common = {"stat": True, "fit": True, "normalizeToUnitArea": True, "drawStyle": "hist", "drawCommand": "", "xmin": -6, "xmax": 6, "ylog": True, "ymin": 5e-5, "ymax": [0.01, 0.05, 0.1, 0.2, 0.5, 0.8, 1.025]}
 _pull = PlotGroup("pull", [
@@ -145,7 +148,7 @@ _sumpt2 = PlotGroup("sumpt2", [
     Plot("RecoAssoc2GenPVNotMatched_Pt2", xtitle="#sum^{}p_{T}^{2}", ytitle="Reco vertices not matched to gen PV", **_common),
     Plot("RecoAssoc2GenPVNotMatched_GenPVTracksRemoved_Pt2", xtitle="#sum^{}p_{T}^{2}, gen PV tracks removed", ytitle="Reco vertices not matched to gen PV", **_common),
 ],
-                    legendDy=_legendDy_2rows
+                    legendDy=_legendDy_2rows, onlyForPileup=True,
 )
 
 _k0_effandfake = PlotGroup("effandfake", [
@@ -222,19 +225,19 @@ _extDist = PlotGroup("dist", [
     Plot("RecoAllAssoc2Gen_NumVertices", xtitle="Number of reco vertices", ytitle="A.u.", normalizeToUnitArea=True, stat=True, drawStyle="hist", min=_minVtx, xmax=_maxVtx),
     Plot("RecoAllAssoc2Gen_NumTracks", xtitle="Number of tracks in vertex fit", ytitle="N", stat=True, drawStyle="hist"),
 ])
-_commonZ = dict(title="", xtitle="Vertex z (cm)", scale=1e4, ylog=True, ymin=_minMaxRes , ymax=_minMaxRes, xmin=range(-60,-10,10), xmax=range(20,70,10))
+_commonZ = dict(title="", xtitle="Vertex z (cm)", scale=1e4, ylog=True, ymin=_minMaxRes , ymax=_minMaxRes, xmin=_minVertexZ, xmax=_maxVertexZ)
 _extResolutionZ = PlotGroup("resolutionZ", [
-    Plot("RecoPVAssoc2GenPVMatched_ResolX_vs_Z_Sigma", ytitle="Resolution in x (#mum) for PV", **_commonZ),
-    Plot("RecoAllAssoc2GenMatched_ResolX_vs_Z_Sigma", ytitle="Resolution in x (#mum)", **_commonZ),
-    Plot("RecoAllAssoc2GenMatchedMerged_ResolX_vs_Z_Sigma", ytitle="Resolution in x for merged vertices (#mum)", **_commonZ),
+    Plot("RecoPVAssoc2GenPVMatched_ResolX_vs_Z_Sigma", ytitle="#sigma(#delta x) (#mum) for PV", **_commonZ),
+    Plot("RecoAllAssoc2GenMatched_ResolX_vs_Z_Sigma", ytitle="#sigma(#delta x) (#mum)", **_commonZ),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolX_vs_Z_Sigma", ytitle="#sigma(#delta x) for merged vertices (#mum)", **_commonZ),
     #
-    Plot("RecoPVAssoc2GenPVMatched_ResolY_vs_Z_Sigma", ytitle="Resolution in y (#mum) for PV", **_commonZ),
-    Plot("RecoAllAssoc2GenMatched_ResolY_vs_Z_Sigma", ytitle="Resolution in y (#mum)", **_commonZ),
-    Plot("RecoAllAssoc2GenMatchedMerged_ResolY_vs_Z_Sigma", ytitle="Resolution in y for merged vertices (#mum)", **_commonZ),
+    Plot("RecoPVAssoc2GenPVMatched_ResolY_vs_Z_Sigma", ytitle="#sigma(#delta y) (#mum) for PV", **_commonZ),
+    Plot("RecoAllAssoc2GenMatched_ResolY_vs_Z_Sigma", ytitle="#sigma(#delta y) (#mum)", **_commonZ),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolY_vs_Z_Sigma", ytitle="#sigma(#delta y) for merged vertices (#mum)", **_commonZ),
     #
-    Plot("RecoPVAssoc2GenPVMatched_ResolZ_vs_Z_Sigma", ytitle="Resolution in z (#mum) for PV", **_commonZ),
-    Plot("RecoAllAssoc2GenMatched_ResolZ_vs_Z_Sigma", ytitle="Resolution in z (#mum)", **_commonZ),
-    Plot("RecoAllAssoc2GenMatchedMerged_ResolZ_vs_Z_Sigma", ytitle="Resolution in z for merged vertices (#mum)", **_commonZ),
+    Plot("RecoPVAssoc2GenPVMatched_ResolZ_vs_Z_Sigma", ytitle="#sigma(#delta z) (#mum) for PV", **_commonZ),
+    Plot("RecoAllAssoc2GenMatched_ResolZ_vs_Z_Sigma", ytitle="#sigma(#delta z) (#mum)", **_commonZ),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolZ_vs_Z_Sigma", ytitle="#sigma(#delta z) for merged vertices (#mum)", **_commonZ),
 ], ncols=3)
 _commonPU = copy.copy(_commonZ)
 _commonPU.update(dict(xtitle="Simulated interactions", xmin=_minPU, xmax=_maxPU))
@@ -279,11 +282,84 @@ _extPullPU = PlotGroup("pullPU", [
     Plot("RecoAllAssoc2GenMatched_PullZ_vs_PU_Sigma", ytitle="Pull of z", **_commonPU),
     Plot("RecoAllAssoc2GenMatchedMerged_PullZ_vs_PU_Sigma", ytitle="Pull of z for merged vertices", **_commonPU),
 ], ncols=3)
-
+_commonNumTracks.update(dict(scale=1e4, ymin=_minResidual, ymax=_maxResidual))
+_extResidualNumTracks = PlotGroup("residualNumTracks", [
+    Plot("RecoPVAssoc2GenPVMatched_ResolX_vs_NumTracks_Mean", ytitle="< #delta x > (#mum) for PV", **_commonNumTracks),
+    Plot("RecoAllAssoc2GenMatched_ResolX_vs_NumTracks_Mean", ytitle="< #delta x > (#mum)", **_commonNumTracks),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolX_vs_NumTracks_Mean", ytitle="< #delta x > for merged vertices (#mum)", **_commonNumTracks),
+    #
+    Plot("RecoPVAssoc2GenPVMatched_ResolY_vs_NumTracks_Mean", ytitle="< #delta y > (#mum) for PV", **_commonNumTracks),
+    Plot("RecoAllAssoc2GenMatched_ResolY_vs_NumTracks_Mean", ytitle="< #delta y > (#mum)", **_commonNumTracks),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolY_vs_NumTracks_Mean", ytitle="< #delta y > for merged vertices (#mum)", **_commonNumTracks),
+    #
+    Plot("RecoPVAssoc2GenPVMatched_ResolZ_vs_NumTracks_Mean", ytitle="< #delta z > (#mum) for PV", **_commonNumTracks),
+    Plot("RecoAllAssoc2GenMatched_ResolZ_vs_NumTracks_Mean", ytitle="< #delta  z > (#mum)", **_commonNumTracks),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolZ_vs_NumTracks_Mean", ytitle="< #delta z > for merged vertices (#mum)", **_commonNumTracks),
+], ncols=3)
+_commonPt.update(dict(scale=1e4, ymin=_minResidual, ymax=_maxResidual))
+_extResidualPt = PlotGroup("residualPt", [
+    Plot("RecoPVAssoc2GenPVMatched_ResolX_vs_Pt_Mean", ytitle="< #delta x > (#mum) for PV", **_commonPt),
+    Plot("RecoAllAssoc2GenMatched_ResolX_vs_Pt_Mean", ytitle="< #delta x > (#mum)", **_commonPt),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolX_vs_Pt_Mean", ytitle="< #delta x > for merged vertices (#mum)", **_commonPt),
+    #
+    Plot("RecoPVAssoc2GenPVMatched_ResolY_vs_Pt_Mean", ytitle="< #delta y > (#mum) for PV", **_commonPt),
+    Plot("RecoAllAssoc2GenMatched_ResolY_vs_Pt_Mean", ytitle="< #delta y > (#mum)", **_commonPt),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolY_vs_Pt_Mean", ytitle="< #delta y > for merged vertices (#mum)", **_commonPt),
+    #
+    Plot("RecoPVAssoc2GenPVMatched_ResolZ_vs_Pt_Mean", ytitle="< #delta z > (#mum) for PV", **_commonPt),
+    Plot("RecoAllAssoc2GenMatched_ResolZ_vs_Pt_Mean", ytitle="< #delta z > (#mum)", **_commonPt),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolZ_vs_Pt_Mean", ytitle="< #delta z > for merged vertices (#mum)", **_commonPt),
+], ncols=3)
+_commonZ.update(dict(scale=1e4, ymin=_minResidual, ymax=_maxResidual))
+_extResidualZ = PlotGroup("residualZ", [
+    Plot("RecoPVAssoc2GenPVMatched_ResolX_vs_Z_Mean", ytitle="< #delta x > (#mum) for PV", **_commonZ),
+    Plot("RecoAllAssoc2GenMatched_ResolX_vs_Z_Mean", ytitle="< #delta x > (#mum)", **_commonZ),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolX_vs_Z_Mean", ytitle="< #delta x > for merged vertices (#mum)", **_commonZ),
+    #
+    Plot("RecoPVAssoc2GenPVMatched_ResolY_vs_Z_Mean", ytitle="< #delta y > (#mum) for PV", **_commonZ),
+    Plot("RecoAllAssoc2GenMatched_ResolY_vs_Z_Mean", ytitle="< #delta y > (#mum)", **_commonZ),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolY_vs_Z_Mean", ytitle="< #delta y > for merged vertices (#mum)", **_commonZ),
+    #
+    Plot("RecoPVAssoc2GenPVMatched_ResolZ_vs_Z_Mean", ytitle="< #delta z > (#mum) for PV", **_commonZ),
+    Plot("RecoAllAssoc2GenMatched_ResolZ_vs_Z_Mean", ytitle="< #delta z > (#mum)", **_commonZ),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolZ_vs_Z_Mean", ytitle="< #delta z > for merged vertices (#mum)", **_commonZ),
+], ncols=3)
+_commonPU.update(dict(scale=1e4, ymin=_minResidual, ymax=_maxResidual))
+_extResidualPU = PlotGroup("residualPU", [
+    Plot("RecoPVAssoc2GenPVMatched_ResolX_vs_PU_Mean", ytitle="< #delta x > (#mum) for PV", **_commonPU),
+    Plot("RecoAllAssoc2GenMatched_ResolX_vs_PU_Mean", ytitle="< #delta x > (#mum)", **_commonPU),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolX_vs_PU_Mean", ytitle="< #delta x > for merged vertices (#mum)", **_commonPU),
+    #
+    Plot("RecoPVAssoc2GenPVMatched_ResolY_vs_PU_Mean", ytitle="< #delta y > (#mum) for PV", **_commonPU),
+    Plot("RecoAllAssoc2GenMatched_ResolY_vs_PU_Mean", ytitle="< #delta y > (#mum)", **_commonPU),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolY_vs_PU_Mean", ytitle="< #delta y > for merged vertices (#mum)", **_commonPU),
+    #
+    Plot("RecoPVAssoc2GenPVMatched_ResolZ_vs_PU_Mean", ytitle="< #delta z > (#mum) for PV", **_commonPU),
+    Plot("RecoAllAssoc2GenMatched_ResolZ_vs_PU_Mean", ytitle="< #delta z > (#mum)", **_commonPU),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolZ_vs_PU_Mean", ytitle="< #delta z > for merged vertices (#mum)", **_commonPU),
+], ncols=3)
 _extDqm = PlotGroup("dqm", [
     Plot("tagVtxTrksVsZ", xtitle="z_{vertex} - z_{beamspot} (cm)", ytitle="Tracks / selected PV"),
     Plot("otherVtxTrksVsZ", xtitle="z_{vertex} - z_{beamspot} (cm)", ytitle="Tracks / pileup vertex"),
     Plot("vtxNbr", xtitle="Reconstructed vertices", ytitle="Events", stat=True, drawStyle="hist", xmin=_minVtx, xmax=_maxVtx),
+])
+_common = dict(ytitle="Vertices", stat=True)
+_extDqmDiff = PlotGroup("dqmDiff", [
+    Plot("tagDiffX", xtitle="PV x_{vertex} - x_{beamspot} (#mum)", **_common),
+    Plot("otherDiffX", xtitle="Pileup vertex x_{vertex} - x_{beamspot} (#mum)", **_common),
+    #
+    Plot("tagDiffY", xtitle="PV y_{vertex} - y_{beamspot} (#mum)", **_common),
+    Plot("otherDiffY", xtitle="Pileup vertex y_{vertex} - y_{beamspot} (#mum)", **_common),
+])
+_extDqmErr = PlotGroup("dqmErr", [
+    Plot("tagErrX", xtitle="PV uncertainty in x (um)", **_common),
+    Plot("otherErrX", xtitle="Pileup vertex uncertainty in x (um)", **_common),
+    #
+    Plot("otherErrY", xtitle="Pileup vertex uncertainty in y (um)", **_common),
+    Plot("tagErrY", xtitle="PV uncertainty in y (um)", **_common),
+    #
+    Plot("otherErrZ", xtitle="Pileup vertex uncertainty in z (um)", **_common),
+    Plot("tagErrZ", xtitle="PV uncertainty in z (um)", **_common),
 ])
 
 class VertexSummaryTable:
@@ -375,8 +451,7 @@ plotter.append("", _vertexFolders, PlotFolder(
     _puritymissing,
     _sumpt2,
     purpose=PlotPurpose.Vertexing,
-    page="vertex",
-    onlyForPileup=True
+    page="vertex"
 ))
 plotter.appendTable("", _vertexFolders, VertexSummaryTable())
 plotter.append("K0", [x+"/K0" for x in _v0Folders], PlotFolder(
@@ -401,6 +476,10 @@ plotterExt.append("", _vertexFolders, PlotFolder(
     _extResolutionPU,
     _extPullZ,
     _extPullPU,
+    _extResidualNumTracks,
+    _extResidualPt,
+    _extResidualZ,
+    _extResidualPU,
     purpose=PlotPurpose.Vertexing,
     page="vertex",
     onlyForPileup=True,
@@ -408,6 +487,8 @@ plotterExt.append("", _vertexFolders, PlotFolder(
 ))
 plotterExt.append("dqm", _vertexDqmFolders, PlotFolder(
     _extDqm,
+    _extDqmDiff,
+    _extDqmErr,
     loopSubFolders=False,
     purpose=PlotPurpose.Vertexing,
     page="vertex",

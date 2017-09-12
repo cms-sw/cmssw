@@ -38,11 +38,11 @@ class ElectronAnalyzer : public ElectronDqmAnalyzerBase
   public:
 
     explicit ElectronAnalyzer(const edm::ParameterSet& conf);
-    virtual ~ElectronAnalyzer();
+    ~ElectronAnalyzer() override;
 
 //    virtual void book() ;
-    virtual void bookHistograms( DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) ;
-    virtual void analyze( const edm::Event & e, const edm::EventSetup & c) ;
+    void bookHistograms( DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override ;
+    void analyze( const edm::Event & e, const edm::EventSetup & c) override ;
 
   private:
 
@@ -301,6 +301,9 @@ class ElectronAnalyzer : public ElectronDqmAnalyzerBase
     // di-electron mass
     MonitorElement * h1_mee ;
     MonitorElement * h1_mee_os ;
+    MonitorElement * h1_mee_os_bb ;
+    MonitorElement * h1_mee_os_ee ;
+    MonitorElement * h1_mee_os_eb ;
 
 
     // histos for matching and matched objects

@@ -23,11 +23,13 @@ ObjMonitor::ObjMonitor( const edm::ParameterSet& iConfig ) :
   , muoToken_             ( mayConsume<reco::MuonCollection>       (iConfig.getParameter<edm::InputTag>("muons")     ) )
   , do_met_ (iConfig.getParameter<bool>("doMETHistos") )
   , do_jet_ (iConfig.getParameter<bool>("doJetHistos") )
+  , do_ht_  (iConfig.getParameter<bool>("doHTHistos")  )
   , num_genTriggerEventFlag_(std::make_unique<GenericTriggerEventFlag>(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"),consumesCollector(), *this))
   , den_genTriggerEventFlag_(std::make_unique<GenericTriggerEventFlag>(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"),consumesCollector(), *this))
   , metSelection_ ( iConfig.getParameter<std::string>("metSelection") )
   , jetSelection_ ( iConfig.getParameter<std::string>("jetSelection") )
   , jetId_        ( iConfig.getParameter<std::string>("jetId")        )
+  , htjetSelection_ ( iConfig.getParameter<std::string>("htjetSelection"))
   , eleSelection_ ( iConfig.getParameter<std::string>("eleSelection") )
   , muoSelection_ ( iConfig.getParameter<std::string>("muoSelection") )
   , njets_      ( iConfig.getParameter<int>("njets" )      )
@@ -40,12 +42,12 @@ ObjMonitor::ObjMonitor( const edm::ParameterSet& iConfig ) :
   if (do_jet_){
     jetDQM_.initialise(iConfig);
   }
+  if (do_ht_ ){
+    htDQM_.initialise(iConfig);
+  }
 }
 
-ObjMonitor::~ObjMonitor()
-{
-
-}
+ObjMonitor::~ObjMonitor() = default;
 
 void ObjMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 				 edm::Run const        & iRun,
@@ -57,6 +59,7 @@ void ObjMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 
   if (do_met_) metDQM_.bookHistograms(ibooker);
   if (do_jet_) jetDQM_.bookHistograms(ibooker);
+  if (do_ht_ ) htDQM_.bookHistograms(ibooker);
 
   // Initialize the GenericTriggerEventFlag
   if ( num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() ) num_genTriggerEventFlag_->initRun( iRun, iSetup );
@@ -80,6 +83,7 @@ void ObjMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   edm::Handle<reco::PFJetCollection> jetHandle;
   iEvent.getByToken( jetToken_, jetHandle );
   std::vector<reco::PFJet> jets;
+  std::vector<reco::PFJet> htjets;
   if ( int(jetHandle->size()) < njets_ ) return;
   for ( auto const & j : *jetHandle ) {
     if ( jetSelection_( j ) ) {
@@ -96,6 +100,7 @@ void ObjMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       }
       else jets.push_back(j);
     }
+    if ( htjetSelection_( j ) ) htjets.push_back(j);
   }
   if ( int(jets.size()) < njets_ ) return;
   
@@ -123,6 +128,7 @@ void ObjMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
   if (do_met_) metDQM_.fillHistograms(met,phi,ls,passNumCond);
   if (do_jet_) jetDQM_.fillHistograms(jets,pfmet,ls,passNumCond);
+  if (do_ht_ ) htDQM_.fillHistograms(htjets,met,ls,passNumCond);
 
 }
 
@@ -178,6 +184,7 @@ void ObjMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<std::string>("metSelection", "pt > 0");
   desc.add<std::string>("jetSelection", "pt > 0");
   desc.add<std::string>("jetId", "");
+  desc.add<std::string>("htjetSelection", "pt > 30");
   desc.add<std::string>("eleSelection", "pt > 0");
   desc.add<std::string>("muoSelection", "pt > 0");
   desc.add<int>("njets",      0);
@@ -206,7 +213,8 @@ void ObjMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   METDQM::fillMetDescription(histoPSet);
   desc.add<bool>("doJetHistos", true);
   JetDQM::fillJetDescription(histoPSet);
-
+  desc.add<bool>("doHTHistos", true);
+  HTDQM::fillHtDescription(histoPSet);
 
   desc.add<edm::ParameterSetDescription>("histoPSet",histoPSet);
 

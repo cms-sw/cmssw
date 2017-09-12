@@ -41,7 +41,7 @@ void HcalGeometryPlan1Tester::analyze(const edm::Event& /*iEvent*/,
   edm::ESHandle<HcalTopology> topologyHandle;
   iSetup.get<HcalRecNumberingRecord>().get(topologyHandle);
   const HcalTopology topology = (*topologyHandle);
-  HcalGeometry* geom(0);
+  HcalGeometry* geom(nullptr);
   if (geomES_) {
     edm::ESHandle<CaloGeometry> pG;
     iSetup.get<CaloGeometryRecord>().get(pG);

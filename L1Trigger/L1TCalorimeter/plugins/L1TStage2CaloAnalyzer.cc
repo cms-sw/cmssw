@@ -679,10 +679,10 @@ namespace l1t {
         het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 2200000, -2199999500, 2200000500) ));
       }
       else if (*itr==MPSumMHTx  || *itr==MPSumMHTxHF  || *itr==MPSumMHTy || *itr==MPSumMHTyHF ) {
-	het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 2000, -199950, 200050) ));
+	het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "",  2200000, -2199999500, 2200000500) ));
       }
       else if (*itr==SumET || *itr==SumETEm || *itr==MPSumETEm || *itr==MPSumET || *itr==MPSumETHF || *itr==SumHT || *itr==MPSumHT || *itr==MPSumHTHF ) {
-        het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 350, -0.5, 6999.5) )); 
+        het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 100000, -0.5, 99999.5) )); 
       }
       else if (*itr==MPMinBiasHFP0 ||
                *itr==MPMinBiasHFM0 ||

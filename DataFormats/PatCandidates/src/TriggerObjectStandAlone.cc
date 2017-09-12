@@ -5,6 +5,7 @@
 #include "FWCore/Common/interface/TriggerNames.h"
 
 #include <boost/algorithm/string.hpp>
+#include <tbb/concurrent_unordered_map.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/PatCandidates/interface/libminifloat.h"
 
@@ -12,7 +13,6 @@
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
 
 using namespace pat;
 
@@ -393,7 +393,7 @@ namespace {
           }
        };
   typedef tbb::concurrent_unordered_map<edm::ParameterSetID, std::vector<std::string>, key_hash> AllLabelsMap;
-  [[cms::thread_safe]] static AllLabelsMap allLabelsMap;
+  [[cms::thread_safe]] AllLabelsMap allLabelsMap;
 }
 
 std::vector<std::string>  const* TriggerObjectStandAlone::allLabels(edm::ParameterSetID const& psetid, const edm::EventBase &event,const edm::TriggerResults &res) const {
@@ -406,10 +406,10 @@ std::vector<std::string>  const* TriggerObjectStandAlone::allLabels(edm::Paramet
          return &iter->second;
       }
 
-      auto   triggerNames= event.triggerNames(res); //this also ensure that the registry is filled
-      edm::pset::Registry* psetRegistry = edm::pset::Registry::instance();
-      edm::ParameterSet const* pset=0;
-      if (0!=(pset=psetRegistry->getMapped(psetid ))) {
+      auto   triggerNames= event.triggerNames(res); 
+      edm::ParameterSet const* pset=nullptr;
+      //getting the ParameterSet from the event ensures that the registry is filled
+      if (nullptr!=(pset=event.parameterSet(psetid ))) {
    	using namespace std;
 	using namespace edm;
    	using namespace trigger;

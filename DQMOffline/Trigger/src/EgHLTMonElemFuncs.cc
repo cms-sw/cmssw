@@ -109,7 +109,7 @@ void MonElemFuncs::initStdEffHists(std::vector<MonElemWithCutBase<OffPho>*>& his
 void MonElemFuncs::initStdEffHists(std::vector<MonElemWithCutBase<OffEle>*>& histVec,const std::string& filterName,const std::string& baseName,int nrBins,double xMin,double xMax,float (OffEle::*vsVarFunc)()const,const CutMasks& masks)
 {
   //some convience typedefs, I hate typedefs but atleast here where they are defined is obvious
-  typedef EgHLTDQMVarCut<OffEle> VarCut;
+  using VarCut = EgHLTDQMVarCut<egHLT::OffEle>;
   typedef MonElemWithCutEBEE<OffEle,float> MonElemFloat;
   int stdCutCode = masks.stdEle;
 
@@ -167,7 +167,7 @@ void MonElemFuncs::initStdEffHists(std::vector<MonElemWithCutBase<OffEle>*>& his
 void MonElemFuncs::initStdEffHists(std::vector<MonElemWithCutBase<OffPho>*>& histVec,const std::string& filterName,const std::string& baseName,int nrBins,double xMin,double xMax,float (OffPho::*vsVarFunc)()const,const CutMasks& masks)
 {
   //some convenience typedefs, I hate typedefs but atleast here where they are defined is obvious
-  typedef EgHLTDQMVarCut<OffPho> VarCut;
+  using VarCut = EgHLTDQMVarCut<egHLT::OffPho>;
   typedef MonElemWithCutEBEE<OffPho,float> MonElemFloat;
   int stdCutCode = masks.stdPho;
 
@@ -224,15 +224,15 @@ void MonElemFuncs::initStdEleCutHists(std::vector<MonElemWithCutBase<OffEle>*>& 
   histVec.push_back(new MonElemWithCutEBEE<OffEle,float>(iBooker,baseName+"_eta",
 							 baseName+" #eta;#eta",
 							 bins.eta.nr,bins.eta.min,bins.eta.max,
-							 &OffEle::detEta,cut ? cut->clone(): NULL));		
+							 &OffEle::detEta,cut ? cut->clone(): nullptr));		
   histVec.push_back(new MonElemWithCutEBEE<OffEle,float>(iBooker,baseName+"_phi",
 							 baseName+" #phi;#phi (rad)",
 							 bins.phi.nr,bins.phi.min,bins.phi.max,
-							 &OffEle::phi,cut ? cut->clone():NULL));		
+							 &OffEle::phi,cut ? cut->clone():nullptr));		
   histVec.push_back(new MonElemWithCutEBEE<OffEle,int>(iBooker,baseName+"_nVertex",
 							 baseName+" nVertex;nVertex",
 							 bins.nVertex.nr,bins.nVertex.min,bins.nVertex.max,
-							 &OffEle::NVertex,cut ? cut->clone():NULL));
+							 &OffEle::NVertex,cut ? cut->clone():nullptr));
   /*  histVec.push_back(new MonElemWithCutEBEE<OffEle,int>(iBooker,baseName+"_charge",
 						       baseName+" Charge; charge",
 						       bins.charge.nr,bins.charge.min,bins.charge.max,
@@ -248,11 +248,11 @@ void MonElemFuncs::initStdPhoCutHists(std::vector<MonElemWithCutBase<OffPho>*>& 
   histVec.push_back(new MonElemWithCutEBEE<OffPho,float>(iBooker,baseName+"_eta",
 							 baseName+" #eta;#eta",
 							 bins.eta.nr,bins.eta.min,bins.eta.max,
-							 &OffPho::detEta,cut ? cut->clone(): NULL));		
+							 &OffPho::detEta,cut ? cut->clone(): nullptr));		
   histVec.push_back(new MonElemWithCutEBEE<OffPho,float>(iBooker,baseName+"_phi",
 							 baseName+" #phi;#phi (rad)",
 							 bins.phi.nr,bins.phi.min,bins.phi.max,
-							 &OffPho::phi,cut ? cut->clone():NULL));
+							 &OffPho::phi,cut ? cut->clone():nullptr));
   /* histVec.push_back(new MonElemWithCutEBEE<OffPho,int>(iBooker,baseName+"_charge",
 						       baseName+" Charge; charge",
 						       bins.charge.nr,bins.charge.min,bins.charge.max,
@@ -303,14 +303,14 @@ void MonElemFuncs::addTightLooseTrigHist(std::vector<MonElemContainer<OffEle>*>&
 					 EgHLTDQMCut<OffEle>* eleCut,
 					 const std::string& histId,const BinData& bins)
 {
-  MonElemContainer<OffEle>* passMonElem = NULL;
+  MonElemContainer<OffEle>* passMonElem = nullptr;
   passMonElem = new MonElemContainer<OffEle>(tightTrig+"_"+looseTrig+"_"+histId+"_passTrig","",
 					     &(*(new EgMultiCut<OffEle>) << 
 					       new EgObjTrigCut<OffEle>(trigCodes.getCode(tightTrig+":"+looseTrig),EgObjTrigCut<OffEle>::AND)  <<
 					       eleCut->clone()));
   
   
-  MonElemContainer<OffEle>* failMonElem = NULL;
+  MonElemContainer<OffEle>* failMonElem = nullptr;
   failMonElem = new MonElemContainer<OffEle>(tightTrig+"_"+looseTrig+"_"+histId+"_failTrig","",
 					     &(*(new EgMultiCut<OffEle>) << 
 					       new EgObjTrigCut<OffEle>(trigCodes.getCode(looseTrig),EgObjTrigCut<OffEle>::AND,trigCodes.getCode(tightTrig))  << 
@@ -329,14 +329,14 @@ void MonElemFuncs::addTightLooseTrigHist(std::vector<MonElemContainer<OffPho>*>&
 					 EgHLTDQMCut<OffPho>* phoCut,
 					 const std::string& histId,const BinData& bins)
 {
-  MonElemContainer<OffPho>* passMonElem = NULL;
+  MonElemContainer<OffPho>* passMonElem = nullptr;
   passMonElem = new MonElemContainer<OffPho>(tightTrig+"_"+looseTrig+"_"+histId+"_passTrig","",
 					     &(*(new EgMultiCut<OffPho>) << 
 					       new EgObjTrigCut<OffPho>(trigCodes.getCode(tightTrig+":"+looseTrig),EgObjTrigCut<OffPho>::AND)  <<
 					       phoCut->clone()));
   
   
-  MonElemContainer<OffPho>* failMonElem = NULL;
+  MonElemContainer<OffPho>* failMonElem = nullptr;
   failMonElem = new MonElemContainer<OffPho>(tightTrig+"_"+looseTrig+"_"+histId+"_failTrig","",
 					     &(*(new EgMultiCut<OffPho>) << 
 					       new EgObjTrigCut<OffPho>(trigCodes.getCode(looseTrig),EgObjTrigCut<OffPho>::AND,trigCodes.getCode(tightTrig))  << 
@@ -353,9 +353,9 @@ void MonElemFuncs::addTightLooseTrigHist(std::vector<MonElemContainer<OffPho>*>&
 //we transfer ownership of eleCut to the monitor elements
 void MonElemFuncs::initTightLooseTrigHistsTrigCuts(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::vector<std::string>& tightLooseTrigs,const BinData& bins)
 {
-  for(size_t trigNr=0;trigNr<tightLooseTrigs.size();trigNr++){
+  for(auto const & tightLooseTrig : tightLooseTrigs){
     std::vector<std::string> splitString;
-    boost::split(splitString,tightLooseTrigs[trigNr],boost::is_any_of(std::string(":")));
+    boost::split(splitString,tightLooseTrig,boost::is_any_of(std::string(":")));
     if(splitString.size()!=2) continue; //format incorrect
     const std::string& tightTrig = splitString[0];
     const std::string& looseTrig = splitString[1];
@@ -367,9 +367,9 @@ void MonElemFuncs::initTightLooseTrigHistsTrigCuts(std::vector<MonElemContainer<
 //we transfer ownership of phoCut to the monitor elements
 void MonElemFuncs::initTightLooseTrigHistsTrigCuts(std::vector<MonElemContainer<OffPho>*>& phoMonElems,const std::vector<std::string>& tightLooseTrigs,const BinData& bins)
 {
-  for(size_t trigNr=0;trigNr<tightLooseTrigs.size();trigNr++){
+  for(auto const & tightLooseTrig : tightLooseTrigs){
     std::vector<std::string> splitString;
-    boost::split(splitString,tightLooseTrigs[trigNr],boost::is_any_of(std::string(":")));
+    boost::split(splitString,tightLooseTrig,boost::is_any_of(std::string(":")));
     if(splitString.size()!=2) continue; //format incorrect
     const std::string& tightTrig = splitString[0];
     const std::string& looseTrig = splitString[1];
@@ -382,9 +382,9 @@ void MonElemFuncs::initTightLooseTrigHistsTrigCuts(std::vector<MonElemContainer<
 //we transfer ownership of eleCut to the monitor elements
 void MonElemFuncs::initTightLooseDiObjTrigHistsTrigCuts(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::vector<std::string>& tightLooseTrigs,const BinData& bins)
 {
-  for(size_t trigNr=0;trigNr<tightLooseTrigs.size();trigNr++){
+  for(auto const & tightLooseTrig : tightLooseTrigs){
     std::vector<std::string> splitString;
-    boost::split(splitString,tightLooseTrigs[trigNr],boost::is_any_of(std::string(":")));
+    boost::split(splitString,tightLooseTrig,boost::is_any_of(std::string(":")));
     if(splitString.size()!=2) continue; //format incorrect
     const std::string& tightTrig = splitString[0];
     const std::string& looseTrig = splitString[1];
@@ -397,9 +397,9 @@ void MonElemFuncs::initTightLooseDiObjTrigHistsTrigCuts(std::vector<MonElemConta
 //we transfer ownership of phoCut to the monitor elements
 void MonElemFuncs::initTightLooseDiObjTrigHistsTrigCuts(std::vector<MonElemContainer<OffPho>*>& phoMonElems,const std::vector<std::string>& tightLooseTrigs,const BinData& bins)
 {
-  for(size_t trigNr=0;trigNr<tightLooseTrigs.size();trigNr++){
+  for(auto const & tightLooseTrig : tightLooseTrigs){
     std::vector<std::string> splitString;
-    boost::split(splitString,tightLooseTrigs[trigNr],boost::is_any_of(std::string(":")));
+    boost::split(splitString,tightLooseTrig,boost::is_any_of(std::string(":")));
     if(splitString.size()!=2) continue; //format incorrect
     const std::string& tightTrig = splitString[0];
     const std::string& looseTrig = splitString[1];
@@ -413,11 +413,10 @@ void MonElemFuncs::initTightLooseDiObjTrigHistsTrigCuts(std::vector<MonElemConta
 //tag and probe trigger efficiencies
 //this is to measure the trigger efficiency with respect to a fully selected offline electron
 //using a tag and probe technique (note: this will be different to the trigger efficiency normally calculated) 
-void MonElemFuncs::initTrigTagProbeHists(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::vector<std::string> filterNames,int cutMask,const BinData& bins)
+void MonElemFuncs::initTrigTagProbeHists(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::vector<std::string>& filterNames,int cutMask,const BinData& bins)
 {
-  for(size_t filterNr=0;filterNr<filterNames.size();filterNr++){ 
+  for(auto trigName : filterNames){ 
     
-    std::string trigName(filterNames[filterNr]);
     //  float etCutValue = trigTools::getSecondEtThresFromName(trigName);
     float etCutValue = 0.;
     //std::cout<<"TrigName= "<<trigName<<"   etCutValue= "<<etCutValue<<std::endl;
@@ -443,9 +442,9 @@ void MonElemFuncs::initTrigTagProbeHists(std::vector<MonElemContainer<OffEle>*>&
 }
 
 //Only one at a time so I can set the folder
-void MonElemFuncs::initTrigTagProbeHist(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::string filterName,int cutMask,const BinData& bins)
+void MonElemFuncs::initTrigTagProbeHist(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::string& filterName,int cutMask,const BinData& bins)
 {   
-  std::string trigName(filterName);
+  const std::string& trigName(filterName);
   //float etCutValue = 1.1*trigTools::getSecondEtThresFromName(filterName);
   float etCutValue = 0.;
   //std::cout<<"TrigName= "<<trigName<<"   etCutValue= "<<etCutValue<<std::endl;
@@ -469,7 +468,7 @@ void MonElemFuncs::initTrigTagProbeHist(std::vector<MonElemContainer<OffEle>*>& 
 }
 
 
-void MonElemFuncs::initTrigTagProbeHist_2Leg(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::string filterName,int cutMask,const BinData& bins)
+void MonElemFuncs::initTrigTagProbeHist_2Leg(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::string& filterName,int cutMask,const BinData& bins)
 {  
  
   std::string trigNameLeg1 = filterName.substr(0,filterName.find("::")); 
@@ -488,11 +487,10 @@ void MonElemFuncs::initTrigTagProbeHist_2Leg(std::vector<MonElemContainer<OffEle
 
 
 //Now same for photons
-void MonElemFuncs::initTrigTagProbeHists(std::vector<MonElemContainer<OffPho>*>& phoMonElems,const std::vector<std::string> filterNames,int cutMask,const BinData& bins)
+void MonElemFuncs::initTrigTagProbeHists(std::vector<MonElemContainer<OffPho>*>& phoMonElems,const std::vector<std::string>& filterNames,int cutMask,const BinData& bins)
 {
-  for(size_t filterNr=0;filterNr<filterNames.size();filterNr++){ 
+  for(auto trigName : filterNames){ 
     
-    std::string trigName(filterNames[filterNr]);
     //float etCutValue = trigTools::getSecondEtThresFromName(trigName);
     float etCutValue = 0.;
     //std::cout<<"TrigName= "<<trigName<<"   etCutValue= "<<etCutValue<<std::endl;
@@ -517,9 +515,9 @@ void MonElemFuncs::initTrigTagProbeHists(std::vector<MonElemContainer<OffPho>*>&
    
 }
 
-void MonElemFuncs::initTrigTagProbeHist(std::vector<MonElemContainer<OffPho>*>& phoMonElems,const std::string filterName,int cutMask,const BinData& bins)
+void MonElemFuncs::initTrigTagProbeHist(std::vector<MonElemContainer<OffPho>*>& phoMonElems,const std::string& filterName,int cutMask,const BinData& bins)
 {
-    std::string trigName(filterName);
+    const std::string& trigName(filterName);
     //float etCutValue = 1.1*trigTools::getSecondEtThresFromName(trigName);
     float etCutValue = 0.;
     //std::cout<<"TrigName= "<<trigName<<"   etCutValue= "<<etCutValue<<std::endl;

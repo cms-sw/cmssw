@@ -5,6 +5,7 @@
 #include <iostream>
 #include <iomanip>
 #include <algorithm>
+#include <cstddef>
 
 CSCGangedWireGrouping::CSCGangedWireGrouping( 
   const Container& consecutiveGroups, 
@@ -16,17 +17,15 @@ CSCGangedWireGrouping::CSCGangedWireGrouping(
   int firstWire = 1;         // (virtual) wire number which is 1st in a group
   int countConsecutive = 0;  // counter for the sections in DDD
 
-  for ( CIterator it = consecutiveGroups.begin();
-	it != consecutiveGroups.end(); ++it ) {
-    int igs = *it;
+  for (int igs : consecutiveGroups) {
     if ( igs != 0 ) {
       // igs is number of consecutive groups each containing
       // an identical number of wires
       countGroups += igs;
       for ( int ic = 0; ic != igs; ++ic ) {
-        theFirstWireOfEachWireGroup.push_back( firstWire );
+        theFirstWireOfEachWireGroup.emplace_back( firstWire );
         int wiresInGroup= wiresInConsecutiveGroups[countConsecutive];
-        theNumberOfWiresPerWireGroup.push_back( wiresInGroup );
+        theNumberOfWiresPerWireGroup.emplace_back( wiresInGroup );
         firstWire += wiresInGroup; // ready for next group
       }
     }

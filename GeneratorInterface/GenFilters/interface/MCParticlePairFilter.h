@@ -38,9 +38,6 @@
 namespace edm {
   class HepMCProduct;
 }
-namespace HepMC {
-   class FourVector;
-}
 
 class MCParticlePairFilter : public edm::EDFilter {
    public:
@@ -52,7 +49,6 @@ class MCParticlePairFilter : public edm::EDFilter {
    private:
       // ----------memeber function----------------------
        int charge(const int& Id);
-       HepMC::FourVector zboost(const HepMC::FourVector&);
 
       // ----------member data ---------------------------
       

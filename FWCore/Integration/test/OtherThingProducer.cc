@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Integration/test/OtherThingAlgorithm.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
@@ -12,13 +12,13 @@
 
 
 namespace edmtest {
-  class OtherThingProducer : public edm::EDProducer {
+  class OtherThingProducer : public edm::global::EDProducer<> {
   public:
     explicit OtherThingProducer(edm::ParameterSet const& ps);
     
-    virtual ~OtherThingProducer();
+    ~OtherThingProducer() override;
     
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
     
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     
@@ -43,7 +43,7 @@ namespace edmtest {
   OtherThingProducer::~OtherThingProducer() {}  
 
   // Functions that gets called by framework every event
-  void OtherThingProducer::produce(edm::Event& e, edm::EventSetup const&) {
+  void OtherThingProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 

@@ -18,7 +18,7 @@ from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 #if not (stage1L1Trigger.isChosen() or stage2L1Trigger.isChosen()):
 #    sys.stderr.write("L1TGlobal conditions configured for Run1 (Legacy) trigger. \n")
-# 
+#
 
 #
 # Stage-1 Trigger:  No Hacks Needed
@@ -30,8 +30,7 @@ from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 # Stage-2 Trigger
 #
 if stage2L1Trigger.isChosen():
-    from L1Trigger.L1TGlobal.StableParameters_cff import *
-#    from L1Trigger.L1TGlobal.GlobalParameters_cff import *
+    from L1Trigger.L1TGlobal.GlobalParameters_cff import *
     from L1Trigger.L1TGlobal.PrescalesVetos_cff import *
 #   from L1Trigger.L1TGlobal.TriggerMenu_cff import *
 #   TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2015_25nsStage1_v7_uGT.xml')

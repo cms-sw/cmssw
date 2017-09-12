@@ -113,24 +113,24 @@ class ESProducer : public ESProxyFactoryProducer
          */
       template<typename T>
          void setWhatProduced(T* iThis, const es::Label& iLabel = es::Label()) {
-            //BOOST_STATIC_ASSERT((typename boost::is_base_and_derived<ED, T>::type));
+            //static_assert((typename std::is_base_of<ED, T>::type));
             setWhatProduced(iThis , &T::produce, iLabel);
          }
 
       template<typename T>
          void setWhatProduced(T* iThis, const char* iLabel) {
-            //BOOST_STATIC_ASSERT((typename boost::is_base_and_derived<ED, T>::type));
+            //static_assert((typename std::is_base_of<ED, T>::type));
             setWhatProduced(iThis , es::Label(iLabel));
          }
       template<typename T>
          void setWhatProduced(T* iThis, const std::string& iLabel) {
-            //BOOST_STATIC_ASSERT((typename boost::is_base_and_derived<ED, T>::type));
+            //static_assert((typename std::is_base_of<ED, T>::type));
             setWhatProduced(iThis , es::Label(iLabel));
          }
       
       template<typename T, typename TDecorator >
          void setWhatProduced(T* iThis, const TDecorator& iDec, const es::Label& iLabel = es::Label()) {
-            //BOOST_STATIC_ASSERT((typename boost::is_base_and_derived<ED, T>::type));
+            //static_assert((typename std::is_base_of<ED, T>::type));
             setWhatProduced(iThis , &T::produce, iDec, iLabel);
          }
       /** \param iThis the 'this' pointer to an inheriting class instance
@@ -168,7 +168,7 @@ class ESProducer : public ESProxyFactoryProducer
                              static_cast<const typename eventsetup::produce::product_traits<TReturn>::type *>(nullptr),
                              static_cast<const TRecord*>(nullptr),
                              iLabel);
-            //BOOST_STATIC_ASSERT((boost::is_base_and_derived<ED, T>::type));
+            //static_assert((std::is_base_of<ED, T>::type));
          }
 
       /*
@@ -176,7 +176,7 @@ class ESProducer : public ESProxyFactoryProducer
          void setWhatProduced(T* iThis, TReturn (T ::* iMethod)(const TArg&)) {
             registerProducts(iThis, static_cast<const typename produce::product_traits<TReturn>::type *>(nullptr));
             registerGet(iThis, static_cast<const TArg*>(nullptr));
-            //BOOST_STATIC_ASSERT((boost::is_base_and_derived<ED, T>::type));
+            //static_assert((std::is_base_of<ED, T>::type));
          }
       */
    private:

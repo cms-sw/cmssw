@@ -188,7 +188,7 @@ bool cond::UntypedPayloadProxy::get( cond::Time_t targetTime, bool debug ){
     m_session.transaction().start();
 
     auto iIov = m_iov.find( targetTime );
-    if(iIov == m_iov.end() ) cond::throwException(std::string("Tag ")+m_iov.tag()+": No iov available for the target time:"+boost::lexical_cast<std::string>(targetTime),"UntypedPayloadProxy::get");
+    if(iIov == m_iov.end() ) cond::throwException(std::string("Tag ")+m_iov.tag()+": No iov available for the target time:"+std::to_string(targetTime),"UntypedPayloadProxy::get");
     m_data->current = *iIov;
     event <<"For target time "<<targetTime<<" got a valid since:"<<m_data->current.since<<" from group ["<<m_iov.loadedGroup().first<<" - "<<m_iov.loadedGroup().second<<"]"; 
 

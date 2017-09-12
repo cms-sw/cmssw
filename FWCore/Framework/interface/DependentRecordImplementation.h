@@ -22,6 +22,7 @@
 #include "boost/mpl/begin_end.hpp"
 #include "boost/mpl/find.hpp"
 #include <sstream>
+#include <type_traits>
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
@@ -48,7 +49,7 @@ class DependentRecordImplementation : public EventSetupRecordImplementation<Reco
         //Make sure that DepRecordT is a type in ListT
         typedef typename boost::mpl::end< ListT >::type EndItrT;
         typedef typename boost::mpl::find< ListT, DepRecordT>::type FoundItrT;
-        BOOST_STATIC_ASSERT((! boost::is_same<FoundItrT, EndItrT>::value));
+        static_assert(! std::is_same<FoundItrT, EndItrT>::value, "Trying to get a Record from another Record where the second Record is not dependent on the first Record.");
         try {
           EventSetup const& eventSetupT = this->eventSetup();
           return eventSetupT.get<DepRecordT>();
@@ -65,7 +66,7 @@ class DependentRecordImplementation : public EventSetupRecordImplementation<Reco
         //Make sure that DepRecordT is a type in ListT
         typedef typename boost::mpl::end< ListT >::type EndItrT;
         typedef typename boost::mpl::find< ListT, DepRecordT>::type FoundItrT;
-        BOOST_STATIC_ASSERT((! boost::is_same<FoundItrT, EndItrT>::value));
+        static_assert(! std::is_same<FoundItrT, EndItrT>::value, "Trying to get a Record from another Record where the second Record is not dependent on the first Record.");
         EventSetup const& eventSetupT = this->eventSetup();
         return eventSetupT.tryToGet<DepRecordT>();
       }

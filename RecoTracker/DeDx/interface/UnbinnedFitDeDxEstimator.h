@@ -19,14 +19,14 @@ class UnbinnedFitDeDxEstimator: public BaseDeDxEstimator
     fitter.setFunction((f1 = new TF1("myLandau","TMath::Landau(x,[0],[1],1)",0,255)));
   }
   
-  virtual ~UnbinnedFitDeDxEstimator() {
+  ~UnbinnedFitDeDxEstimator() override {
     // clean up everything
     delete f1;
   }
  
-  virtual std::pair<float,float> dedx(const reco::DeDxHitCollection & Hits){
+  std::pair<float,float> dedx(const reco::DeDxHitCollection & Hits) override{
     // if there is no hit, returns invalid.
-    if(Hits.size()==0) return std::make_pair(-1,-1);
+    if(Hits.empty()) return std::make_pair(-1,-1);
     // sets the initial parameters
     f1->SetParameters(3.0 , 0.3);
     // fills a temporary array and performs the fit

@@ -1,8 +1,4 @@
 #include "DetectorDescription/Parser/src/DDDividedGeometryObject.h"
-
-#include <iostream>
-#include <utility>
-
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDName.h"
@@ -10,6 +6,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Math/GenVector/RotationZ.h"
+
+#include <iostream>
+#include <utility>
 
 DDDividedGeometryObject::DDDividedGeometryObject( const DDDivision& div, DDCompactView* cpv ) 
   : div_( div ),

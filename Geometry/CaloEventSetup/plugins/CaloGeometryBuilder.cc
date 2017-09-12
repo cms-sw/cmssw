@@ -45,7 +45,7 @@ CaloGeometryBuilder::CaloGeometryBuilder( const edm::ParameterSet& iConfig )
    //now do what ever other initialization is needed
    
    theCaloList = iConfig.getParameter< std::vector<std::string> >("SelectedCalos");
-   if ( theCaloList.size() == 0 ) throw cms::Exception("Configuration") 
+   if ( theCaloList.empty() ) throw cms::Exception("Configuration") 
       << "No calorimeter specified for geometry, aborting";
 }
 

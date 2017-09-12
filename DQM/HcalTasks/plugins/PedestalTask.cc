@@ -947,8 +947,8 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 		if (did.subdet() != HcalForward) {
 			continue;
 		}
-		int digiSizeToUse = floor(digi.samples()/constants::CAPS_NUM)*
-			constants::CAPS_NUM-1;
+		// HF has 3 samples in global, so impossible to make divisible by 4
+		int digiSizeToUse = (digi.samples() >= 4 ? floor(digi.samples()/constants::CAPS_NUM)*constants::CAPS_NUM-1 : digi.samples());
 		nHF++;
 		for (int i=0; i<digiSizeToUse; i++)
 		{

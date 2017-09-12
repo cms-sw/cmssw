@@ -39,6 +39,7 @@ the worker is reset().
 #include "FWCore/ServiceRegistry/interface/PlaceInPathContext.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueueChain.h"
+#include "FWCore/Concurrency/interface/LimitedTaskQueue.h"
 #include "FWCore/Concurrency/interface/FunctorTask.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
@@ -78,6 +79,34 @@ namespace edm {
   public:
     enum State { Ready, Pass, Fail, Exception };
     enum Types { kAnalyzer, kFilter, kProducer, kOutputModule};
+    struct TaskQueueAdaptor {
+      SerialTaskQueueChain* serial_ = nullptr;
+      LimitedTaskQueue* limited_ = nullptr;
+      
+      TaskQueueAdaptor() = default;
+      TaskQueueAdaptor(SerialTaskQueueChain* iChain): serial_(iChain) {}
+      TaskQueueAdaptor(LimitedTaskQueue* iLimited): limited_(iLimited) {}
+      
+      operator bool() { return serial_ != nullptr or limited_ != nullptr; }
+      
+      template <class F>
+      void push(F&& iF) {
+        if(serial_) {
+          serial_->push(iF);
+        } else {
+          limited_->push(iF);
+        }
+      }
+      template <class F>
+      void pushAndWait(F&& iF) {
+        if(serial_) {
+          serial_->pushAndWait(iF);
+        } else {
+          limited_->pushAndWait(iF);
+        }
+      }
+      
+    };
 
     Worker(ModuleDescription const& iMD, ExceptionToActionTable const* iActions);
     virtual ~Worker();
@@ -236,7 +265,7 @@ namespace edm {
 
     virtual void implRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) = 0;
     
-    virtual SerialTaskQueueChain* serializeRunModule() = 0;
+    virtual TaskQueueAdaptor serializeRunModule() = 0;
     
     static void exceptionContext(cms::Exception& ex,
                                  ModuleCallingContext const* mcc);
@@ -256,7 +285,7 @@ namespace edm {
     class TransitionIDValue : public TransitionIDValueBase {
     public:
       TransitionIDValue(T const& iP): p_(iP) {}
-      virtual std::string value() const override {
+      std::string value() const override {
         std::ostringstream iost;
         iost<<p_.id();
         return iost.str();
@@ -361,7 +390,7 @@ namespace edm {
             auto parentContext = m_parentContext;
             auto serviceToken = m_serviceToken;
             auto sContext = m_context;
-            queue->push( [worker, &principal, &es, streamID,parentContext,sContext, serviceToken]()
+            queue.push( [worker, &principal, &es, streamID,parentContext,sContext, serviceToken]()
             {
               //Need to make the services available
               ServiceRegistry::Operate guard(serviceToken);
@@ -706,7 +735,7 @@ namespace edm {
         this->waitingTasks_.doneWaiting(exceptionPtr);
       };
       if(auto queue = this->serializeRunModule()) {
-        queue->push( toDo);
+        queue.push( toDo);
       } else {
         auto task = make_functor_task( tbb::task::allocate_root(), toDo);
         tbb::task::spawn(*task);
@@ -806,7 +835,7 @@ namespace edm {
     prefetchSentry.release();
     if(auto queue = serializeRunModule()) {
       auto serviceToken = ServiceRegistry::instance().presentToken();
-      queue->pushAndWait([&]() {
+      queue.pushAndWait([&]() {
         //Need to make the services available
         ServiceRegistry::Operate guard(serviceToken);
         try {

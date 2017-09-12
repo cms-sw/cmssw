@@ -98,7 +98,7 @@
 
 #include <vector>
 
-#include "Alignment/ReferenceTrajectories/interface/GblTrajectory.h"
+#include "GblTrajectory.h"
 
 
 class ReferenceTrajectoryBase : public ReferenceCounted

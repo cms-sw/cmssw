@@ -52,7 +52,7 @@ DDEcalEndcapAlgo::DDEcalEndcapAlgo() :
    m_vecEESCCtrs(),
    m_EEnCRSC       ( 0 ) ,
    m_vecEECRCtrs(),
-   m_cutParms      ( 0 ),
+   m_cutParms      ( nullptr ),
    m_cutBoxName    ( "" ),
    m_envName    ( "" ),
    m_alvName    ( "" ),

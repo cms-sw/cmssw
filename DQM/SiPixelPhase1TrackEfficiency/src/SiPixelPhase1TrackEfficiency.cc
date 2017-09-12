@@ -98,7 +98,8 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
 
       bool isHitValid   = hit->getType()==TrackingRecHit::valid;
       bool isHitMissing = hit->getType()==TrackingRecHit::missing;
-      
+      bool isHitInactive = hit->getType()==TrackingRecHit::inactive;
+
       /*
       const SiPixelRecHit* pixhit = dynamic_cast<const SiPixelRecHit*>(hit);
       const PixelGeomDetUnit* geomdetunit = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(id) );
@@ -126,10 +127,14 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
         histo[MISSING].fill(id, &iEvent);
         histo[EFFICIENCY].fill(0, id, &iEvent);
       }
+      if (isHitInactive)   {
+        histo[INACTIVE].fill(id, &iEvent);
+      }
     }
   }
-histo[VALID  ].executePerEventHarvesting(&iEvent);
-histo[MISSING].executePerEventHarvesting(&iEvent);
+  histo[VALID   ].executePerEventHarvesting(&iEvent);
+  histo[MISSING ].executePerEventHarvesting(&iEvent);
+  histo[INACTIVE].executePerEventHarvesting(&iEvent);
 }
 
 DEFINE_FWK_MODULE(SiPixelPhase1TrackEfficiency);

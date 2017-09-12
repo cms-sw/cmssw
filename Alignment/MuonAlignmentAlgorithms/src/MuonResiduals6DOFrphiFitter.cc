@@ -22,7 +22,7 @@ namespace
 
   //const CSCGeometry *cscGeometry;
   //static CSCDetId cscDetId;
-  static double csc_R;
+  double csc_R;
 
 
   double getResidual(double delta_x, double delta_y, double delta_z, 

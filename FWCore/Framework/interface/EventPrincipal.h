@@ -59,7 +59,7 @@ namespace edm {
         HistoryAppender* historyAppender,
         unsigned int streamIndex = 0,
         bool isForPrimaryProcess = true);
-    ~EventPrincipal() {}
+    ~EventPrincipal() override {}
 
     void fillEventPrincipal(EventAuxiliary const& aux,
         ProcessHistoryRegistry const& processHistoryRegistry,
@@ -158,9 +158,9 @@ namespace edm {
         std::unique_ptr<WrapperBase> edp,
         ProductProvenance const* productProvenance) const;
 
-    virtual WrapperBase const* getIt(ProductID const& pid) const override;
-    virtual WrapperBase const* getThinnedProduct(ProductID const& pid, unsigned int& key) const override;
-    virtual void getThinnedProducts(ProductID const& pid,
+    WrapperBase const* getIt(ProductID const& pid) const override;
+    WrapperBase const* getThinnedProduct(ProductID const& pid, unsigned int& key) const override;
+    void getThinnedProducts(ProductID const& pid,
                                     std::vector<WrapperBase const*>& foundContainers,
                                     std::vector<unsigned int>& keys) const override;
 
@@ -178,7 +178,7 @@ namespace edm {
 
     edm::ThinnedAssociation const* getThinnedAssociation(edm::BranchID const& branchID) const;
 
-    virtual unsigned int transitionIndex_() const override;
+    unsigned int transitionIndex_() const override;
     
     std::shared_ptr<ProductProvenanceRetriever const> provRetrieverPtr() const {return get_underlying_safe(provRetrieverPtr_);}
     std::shared_ptr<ProductProvenanceRetriever>& provRetrieverPtr() {return get_underlying_safe(provRetrieverPtr_);}

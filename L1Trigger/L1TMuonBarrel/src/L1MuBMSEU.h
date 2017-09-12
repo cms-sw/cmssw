@@ -53,13 +53,13 @@ class L1MuBMSEU : public L1AbstractProcessor {
     L1MuBMSEU(const L1MuBMSectorProcessor& sp, Extrapolation ext, unsigned int tsId );
 
     /// destructor
-    virtual ~L1MuBMSEU();
+    ~L1MuBMSEU() override;
 
     /// run SEU
-    virtual void run(const edm::EventSetup& c);
+    void run(const edm::EventSetup& c) override;
 
     /// reset SEU
-    virtual void reset();
+    void reset() override;
 
     /// reset single extrapolation
     void reset(unsigned int relAdr);

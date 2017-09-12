@@ -13,7 +13,7 @@ class HGCalTriggerGeometryImp1 : public HGCalTriggerGeometryGenericMapping
     public:
         HGCalTriggerGeometryImp1(const edm::ParameterSet& conf);
 
-        virtual void initialize(const es_info& ) override final;
+        virtual void initialize(const edm::ESHandle<CaloGeometry>& ) override final;
 
     private:
         edm::FileInPath l1tCellsMapping_;
@@ -30,13 +30,14 @@ HGCalTriggerGeometryImp1::HGCalTriggerGeometryImp1(const edm::ParameterSet& conf
 
 
 /*****************************************************************/
-void HGCalTriggerGeometryImp1::initialize(const es_info& esInfo)
+void HGCalTriggerGeometryImp1::initialize(const edm::ESHandle<CaloGeometry>& calo_geometry)
 /*****************************************************************/
 {
     // FIXME: !!!Only for HGCEE for the moment!!!
     edm::LogWarning("HGCalTriggerGeometry") << "WARNING: This HGCal trigger geometry is incomplete.\n"\
                                             << "WARNING: Only the EE part is covered.\n"\
                                             << "WARNING: There is no neighbor information.\n";
+    setCaloGeometry(calo_geometry);
     //
     // read trigger cell mapping file
     std::ifstream l1tCellsMappingStream(l1tCellsMapping_.fullPath());
@@ -95,7 +96,7 @@ void HGCalTriggerGeometryImp1::initialize(const es_info& esInfo)
         for(const auto& cell : cellIds)
         {
             HGCTriggerDetId cellId(cell);
-            triggercellVector += esInfo.geom_ee->getPosition(cellId).basicVector();
+            triggercellVector += eeGeometry().getPosition(cellId).basicVector();
         }
         GlobalPoint triggercellPoint( triggercellVector/cellIds.size() );
         const auto& tc2mItr = trigger_cells_to_modules_.find(triggercellId);

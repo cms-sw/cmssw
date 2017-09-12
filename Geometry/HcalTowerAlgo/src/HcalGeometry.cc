@@ -37,6 +37,7 @@ void HcalGeometry::init() {
 }
 
 void HcalGeometry::fillDetIds() const {
+  // this must test the last record filled to avoid a race condition
   if(!m_emptyIds.isSet()) {
     std::unique_ptr<std::vector<DetId>> p_hbIds{new std::vector<DetId>};
     std::unique_ptr<std::vector<DetId>> p_heIds{new std::vector<DetId>};
@@ -48,13 +49,13 @@ void HcalGeometry::fillDetIds() const {
     for (unsigned int i ( 0 ) ; i != baseIds.size() ; ++i) {
       const DetId id ( baseIds[i] );
       if (id.subdetId() == HcalBarrel) {
-	p_hbIds->push_back( id ) ;
+	p_hbIds->emplace_back( id ) ;
       } else if (id.subdetId() == HcalEndcap) {
-	p_heIds->push_back( id ) ;
+	p_heIds->emplace_back( id ) ;
       } else if (id.subdetId() == HcalOuter)  {
-	p_hoIds->push_back( id ) ;
+	p_hoIds->emplace_back( id ) ;
       } else if (id.subdetId() == HcalForward) {
-	p_hfIds->push_back( id ) ;
+	p_hfIds->emplace_back( id ) ;
       }
     }
     std::sort( p_hbIds->begin(), p_hbIds->end() ) ;
@@ -74,7 +75,7 @@ void HcalGeometry::fillDetIds() const {
 const std::vector<DetId>& 
 HcalGeometry::getValidDetIds( DetId::Detector det,
 			      int             subdet ) const {
-  if( 0 != subdet && !m_hbIds.isSet() ) fillDetIds() ;
+  if( 0 != subdet ) fillDetIds() ;
   return ( 0 == subdet ? CaloSubdetectorGeometry::getValidDetIds() :
 	   ( HcalBarrel == subdet ? *m_hbIds.load() :
 	     ( HcalEndcap == subdet ? *m_heIds.load() :
@@ -129,7 +130,7 @@ DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const {
     HcalDetId bestId;
     for ( ; currentId != HcalDetId(); m_topology.incrementDepth(currentId)) {
       const CaloCellGeometry * cell = getGeometry(currentId);
-      if (cell == 0) {
+      if (cell == nullptr) {
         assert (bestId != HcalDetId());
         break;
       } else {
@@ -232,7 +233,7 @@ CaloSubdetectorGeometry::DetIdSet HcalGeometry::getCells(const GlobalPoint& r,
 		   const HcalDetId did ( hs[is], ieta, iphi, idep ) ;
 		   if (m_topology.valid(did)) {
 		     const CaloCellGeometry* cell ( getGeometry( did ) );
-		     if (0 != cell ) {
+		     if (nullptr != cell ) {
 		       const GlobalPoint& p   ( cell->getPosition() ) ;
 		       const double       eta ( p.eta() ) ;
 		       const double       phi ( p.phi() ) ;
@@ -432,7 +433,7 @@ void HcalGeometry::newCell(const GlobalPoint& f1 ,
   unsigned int din = newCellImpl(f1,f2,f3,parm,detId);
 
   addValidID( detId ) ;
-  m_dins.push_back( din );
+  m_dins.emplace_back( din );
 }
 
 void HcalGeometry::newCellFast(const GlobalPoint& f1 ,
@@ -443,12 +444,12 @@ void HcalGeometry::newCellFast(const GlobalPoint& f1 ,
 
   unsigned int din = newCellImpl(f1,f2,f3,parm,detId);
 
-  m_validIds.push_back( detId ) ;
-  m_dins.push_back( din );
+  m_validIds.emplace_back( detId ) ;
+  m_dins.emplace_back( din );
 }
 
 const CaloCellGeometry* HcalGeometry::cellGeomPtr( unsigned int din ) const {
-  const CaloCellGeometry* cell ( 0 ) ;
+  const CaloCellGeometry* cell ( nullptr ) ;
   if( m_hbCellVec.size() > din ) {
     cell = &m_hbCellVec[ din ] ;
   } else {
@@ -466,7 +467,7 @@ const CaloCellGeometry* HcalGeometry::cellGeomPtr( unsigned int din ) const {
     }
   }
    
-  return (( 0 == cell || 0 == cell->param()) ? 0 : cell ) ;
+  return (( nullptr == cell || nullptr == cell->param()) ? nullptr : cell ) ;
 }
 
 void HcalGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec,
@@ -479,11 +480,9 @@ void HcalGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec,
   dVec.reserve( numberOfShapes()*numberOfParametersPerShape());
   dinsVec.reserve( m_topology.ncells());
    
-  for (ParVecVec::const_iterator ivv (parVecVec().begin()); 
-       ivv != parVecVec().end() ; ++ivv) {
-    const ParVec& pv ( *ivv ) ;
-    for (ParVec::const_iterator iv ( pv.begin() ) ; iv != pv.end() ; ++iv) {
-      dVec.push_back( *iv ) ;
+  for (const auto & pv : parVecVec()) {
+    for (float iv : pv) {
+      dVec.emplace_back( iv ) ;
     }
   }
    
@@ -491,8 +490,8 @@ void HcalGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec,
     Tr3D tr ;
     const CaloCellGeometry* ptr ( cellGeomPtr( i ) ) ;
        
-    if (0 != ptr) {
-      dinsVec.push_back( i );
+    if (nullptr != ptr) {
+      dinsVec.emplace_back( i );
 
       const CCGFloat* par ( ptr->param() ) ;
 
@@ -512,9 +511,9 @@ void HcalGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec,
       assert( 9999 != ishape ) ;
       
       const unsigned int nn (( numberOfShapes()==1) ? (unsigned int)1 : m_dins.size() ) ; 
-      if( iVec.size() < nn ) iVec.push_back( ishape ) ;
+      if( iVec.size() < nn ) iVec.emplace_back( ishape ) ;
 
-      ptr->getTransform( tr, ( Pt3DVec* ) 0 ) ;
+      ptr->getTransform( tr, ( Pt3DVec* ) nullptr ) ;
 
       if( Tr3D() == tr ) { // for preshower there is no rotation
 	const GlobalPoint& gp ( ptr->getPosition() ) ; 
@@ -522,9 +521,9 @@ void HcalGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec,
       }
 
       const CLHEP::Hep3Vector  tt ( tr.getTranslation() ) ;
-      tVec.push_back( tt.x() ) ;
-      tVec.push_back( tt.y() ) ;
-      tVec.push_back( tt.z() ) ;
+      tVec.emplace_back( tt.x() ) ;
+      tVec.emplace_back( tt.y() ) ;
+      tVec.emplace_back( tt.z() ) ;
       if (6 == numberOfTransformParms()) {
 	const CLHEP::HepRotation rr ( tr.getRotation() ) ;
 	const ROOT::Math::Transform3D rtr (rr.xx(), rr.xy(), rr.xz(), tt.x(),
@@ -532,9 +531,9 @@ void HcalGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec,
 					   rr.zx(), rr.zy(), rr.zz(), tt.z());
 	ROOT::Math::EulerAngles ea ;
 	rtr.GetRotation( ea ) ;
-	tVec.push_back( ea.Phi() ) ;
-	tVec.push_back( ea.Theta() ) ;
-	tVec.push_back( ea.Psi() ) ;
+	tVec.emplace_back( ea.Phi() ) ;
+	tVec.emplace_back( ea.Theta() ) ;
+	tVec.emplace_back( ea.Psi() ) ;
       }
     }
   }

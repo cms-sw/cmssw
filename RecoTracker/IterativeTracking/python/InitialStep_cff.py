@@ -9,11 +9,11 @@ from RecoTracker.TransientTrackingRecHit.TTRHBuilders_cff import *
 
 # SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
-import RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff
+import RecoTracker.TkSeedingLayers.PixelLayerQuadruplets_cfi
 initialStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone()
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
 trackingPhase1.toModify(initialStepSeedLayers,
-    layerList = RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff.PixelSeedMergerQuadruplets.layerList.value()
+    layerList = RecoTracker.TkSeedingLayers.PixelLayerQuadruplets_cfi.PixelLayerQuadruplets.layerList.value()
 )
 from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
 trackingPhase1QuadProp.toModify(initialStepSeedLayers,
@@ -26,7 +26,7 @@ trackingPhase1QuadProp.toModify(initialStepSeedLayers,
     ]
 )
 trackingPhase2PU140.toModify(initialStepSeedLayers,
-    layerList = RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff.PixelSeedMergerQuadruplets.layerList.value()
+    layerList = RecoTracker.TkSeedingLayers.PixelLayerQuadruplets_cfi.PixelLayerQuadruplets.layerList.value()
 )
 
 # TrackingRegion
@@ -60,8 +60,26 @@ from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_
 initialStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
     seedingHitSets = "initialStepHitTriplets",
 )
+from RecoPixelVertexing.PixelTriplets.caHitQuadrupletEDProducer_cfi import caHitQuadrupletEDProducer as _caHitQuadrupletEDProducer
+_initialStepCAHitQuadruplets = _caHitQuadrupletEDProducer.clone(
+    doublets = "initialStepHitDoublets",
+    extraHitRPhitolerance = initialStepHitTriplets.extraHitRPhitolerance,
+    SeedComparitorPSet = initialStepHitTriplets.SeedComparitorPSet,
+    maxChi2 = dict(
+        pt1    = 0.7, pt2    = 2,
+        value1 = 200, value2 = 50,
+    ),
+    useBendingCorrection = True,
+    fitFastCircle = True,
+    fitFastCircleChi2Cut = True,
+    CAThetaCut = 0.0012,
+    CAPhiCut = 0.2,
+)
+initialStepHitQuadruplets = _initialStepCAHitQuadruplets.clone()
+trackingPhase1.toModify(initialStepHitDoublets, layerPairs = [0,1,2]) # layer pairs (0,1), (1,2), (2,3)
+
 from RecoPixelVertexing.PixelTriplets.pixelQuadrupletEDProducer_cfi import pixelQuadrupletEDProducer as _pixelQuadrupletEDProducer
-initialStepHitQuadruplets = _pixelQuadrupletEDProducer.clone(
+trackingPhase1QuadProp.toReplaceWith(initialStepHitQuadruplets, _pixelQuadrupletEDProducer.clone(
     triplets = "initialStepHitTriplets",
     extraHitRZtolerance = initialStepHitTriplets.extraHitRZtolerance,
     extraHitRPhitolerance = initialStepHitTriplets.extraHitRPhitolerance,
@@ -79,45 +97,12 @@ initialStepHitQuadruplets = _pixelQuadrupletEDProducer.clone(
     fitFastCircle = True,
     fitFastCircleChi2Cut = True,
     SeedComparitorPSet = initialStepHitTriplets.SeedComparitorPSet
-)
-
-from RecoPixelVertexing.PixelTriplets.caHitQuadrupletEDProducer_cfi import caHitQuadrupletEDProducer as _caHitQuadrupletEDProducer
-trackingPhase1.toModify(initialStepHitDoublets, layerPairs = [0,1,2]) # layer pairs (0,1), (1,2), (2,3)
-trackingPhase1.toReplaceWith(initialStepHitQuadruplets, _caHitQuadrupletEDProducer.clone(
-    doublets = "initialStepHitDoublets",
-    extraHitRPhitolerance = initialStepHitTriplets.extraHitRPhitolerance,
-    SeedComparitorPSet = initialStepHitTriplets.SeedComparitorPSet,
-    maxChi2 = dict(
-        pt1    = 0.7, pt2    = 2,
-        value1 = 200, value2 = 50,
-    ),
-    useBendingCorrection = True,
-    fitFastCircle = True,
-    fitFastCircleChi2Cut = True,
-    CAThetaCut = 0.0012,
-    CAPhiCut = 0.2,
 ))
 
 trackingPhase2PU140.toModify(initialStepHitDoublets, layerPairs = [0,1,2]) # layer pairs (0,1), (1,2), (2,3)
-trackingPhase2PU140.toReplaceWith(initialStepHitQuadruplets, _caHitQuadrupletEDProducer.clone(
-    doublets = "initialStepHitDoublets",
-    extraHitRPhitolerance = initialStepHitTriplets.extraHitRPhitolerance,
-    SeedComparitorPSet = initialStepHitTriplets.SeedComparitorPSet,
-    maxChi2 = dict(
-        pt1    = 0.7, pt2    = 2,
-        value1 = 200, value2 = 50,
-    ),
-    useBendingCorrection = True,
-    fitFastCircle = True,
-    fitFastCircleChi2Cut = True,
+trackingPhase2PU140.toModify(initialStepHitQuadruplets,
     CAThetaCut = 0.0010,
     CAPhiCut = 0.175,
-))
-
-
-trackingPhase2PU140.toModify(initialStepHitTriplets,
-    produceSeedingHitSets = False,
-    produceIntermediateHitTriplets = True,
 )
 
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer_cff import seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer as _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer

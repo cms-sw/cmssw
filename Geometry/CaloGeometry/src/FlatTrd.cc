@@ -55,7 +55,7 @@ CornersMgr*  cMgr ,
   m_axis           ( ( bCtr - fCtr ).unit() ) ,
   m_corOne         ( cor1.x(), cor1.y(), cor1.z() ),
   m_local          (0., 0., 0.) {
-  getTransform(m_tr,0);
+  getTransform(m_tr,nullptr);
   Pt3D glb = m_tr*m_local;
   m_global = GlobalPoint(glb.x(),glb.y(),glb.z());
 #ifdef DebugLog
@@ -70,7 +70,7 @@ FlatTrd::FlatTrd( const CornersVec& corn ,
   CaloCellGeometry ( corn, par  ) , 
   m_corOne         ( corn[0].x(), corn[0].y(), corn[0].z() ),
   m_local          (0., 0., 0.) {
-  getTransform(m_tr,0);
+  getTransform(m_tr,nullptr);
   m_axis   = makeAxis();
   Pt3D glb = m_tr*m_local;
   m_global = GlobalPoint(glb.x(),glb.y(),glb.z());
@@ -163,7 +163,7 @@ void  FlatTrd::createCorners( const std::vector<CCGFloat>&  pv ,
 void FlatTrd::localCorners( Pt3DVec&        lc  ,
 			    const CCGFloat* pv  ,
 			    Pt3D&           ref   ) {
-   assert( 0 != pv ) ;
+   assert( nullptr != pv ) ;
    assert( 8 == lc.size() ) ;
 
    const CCGFloat dz ( pv[0] ) ;
@@ -197,7 +197,7 @@ void FlatTrd::getTransform( Tr3D& tr, Pt3DVec* lptr ) const {
   const DPt3D        dgFront ( p.x(), p.y(), p.z() ) ;
 
   Pt3D  lFront ;
-  assert( 0 != param() ) ;
+  assert( nullptr != param() ) ;
   std::vector<Pt3D > lc( 8, Pt3D(0,0,0) ) ;
   localCorners( lc, param(), lFront ) ;
 
@@ -233,7 +233,7 @@ void FlatTrd::getTransform( Tr3D& tr, Pt3DVec* lptr ) const {
   tr = Tr3D( dlFront , dlBack , dlOne ,
 	     dgFront , dgBack , dgOne    ) ;
 
-  if( 0 != lptr ) (*lptr) = lc ;
+  if( nullptr != lptr ) (*lptr) = lc ;
 }
 
 void FlatTrd::initCorners(CaloCellGeometry::CornersVec& co) {

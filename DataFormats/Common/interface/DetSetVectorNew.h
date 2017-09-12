@@ -683,8 +683,7 @@ namespace edmNew {
 }
 
 #include "DataFormats/Common/interface/Ref.h"
-#include <boost/mpl/assert.hpp>
-#include <boost/type_traits/is_same.hpp>
+#include <type_traits>
 
 //specialize behavior of edm::Ref to get access to the 'Det'
 namespace edm {
@@ -722,7 +721,7 @@ namespace edmNew {
   edm::Ref<typename HandleT::element_type, typename HandleT::element_type::value_type::value_type>
   makeRefTo(const HandleT& iHandle,
              typename HandleT::element_type::value_type::const_iterator itIter) {
-    BOOST_MPL_ASSERT((boost::is_same<typename HandleT::element_type, DetSetVector<typename HandleT::element_type::value_type::value_type> >));
+    static_assert(std::is_same<typename HandleT::element_type, DetSetVector<typename HandleT::element_type::value_type::value_type> >::value, "Handle and DetSetVector do not have compatible types.");
     auto index = itIter - &iHandle->data().front(); 
     return edm::Ref<typename HandleT::element_type,
 	       typename HandleT::element_type::value_type::value_type>

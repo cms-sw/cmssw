@@ -210,6 +210,27 @@ def getSequence(process, collection,
         options["TrackHitFilter"]["Tracker"].update({
                 "minimumHits": 10,
                 })
+    elif collection == "ALCARECOTkAlJpsiMuMu":
+        options["TrackSelector"]["Alignment"].update({
+                "ptMin": 1.0,
+                "etaMin": -2.4,
+                "etaMax": 2.4,
+                "nHitMin": 10,
+                "applyMultiplicityFilter": True,
+                "minMultiplicity": 2,
+                "maxMultiplicity": 2,
+                ("minHitsPerSubDet", "inPIXEL"): 1,
+                ("TwoBodyDecaySelector", "applyChargeFilter"): True,
+                ("TwoBodyDecaySelector", "charge"): 0,
+                ("TwoBodyDecaySelector",
+                 "applyMassrangeFilter"): not openMassWindow,
+                ("TwoBodyDecaySelector", "minXMass"): 2.7,
+                ("TwoBodyDecaySelector", "maxXMass"): 3.4,
+                ("TwoBodyDecaySelector", "daughterMass"): 0.105
+                })
+        options["TrackHitFilter"]["Tracker"].update({
+                "minimumHits": 10,
+                })
     else:
         raise ValueError("Unknown input track collection: {}".format(collection))
 
@@ -258,10 +279,17 @@ def getSequence(process, collection,
 
     if momentumConstraint is not None:
         for mod in options["TrackRefitter"]:
-            options["TrackRefitter"][mod].update({
-                "constraint": "momentum",
-                "srcConstr": momentumConstraint
-                })
+            momconstrspecs = momentumConstraint.split(',')
+            if len(momconstrspecs)==1:
+                options["TrackRefitter"][mod].update({
+                    "constraint": "momentum",
+                    "srcConstr": momconstrspecs[0]
+                    })
+            else:
+                options["TrackRefitter"][mod].update({
+                    "constraint": momconstrspecs[1],
+                    "srcConstr": momconstrspecs[0]
+                    })
 
 
 
@@ -295,7 +323,19 @@ def getSequence(process, collection,
         modules.append(getattr(process, src))
 
     moduleSum = process.offlineBeamSpot        # first element of the sequence
-    for module in modules: moduleSum += module # append the other modules
+    for module in modules:
+        # Spply srcConstr fix here
+        if hasattr(module,"srcConstr"):
+           strSrcConstr = module.srcConstr.getModuleLabel()
+           if strSrcConstr:
+               procsrcconstr = getattr(process,strSrcConstr)
+               if procsrcconstr.src != module.src:
+                  module.srcConstr=''
+                  module.constraint=''
+               else:
+                  moduleSum += procsrcconstr
+
+        moduleSum += module # append the other modules
 
     return cms.Sequence(moduleSum)
 

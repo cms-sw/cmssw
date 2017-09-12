@@ -218,10 +218,10 @@ int ibins[nbins+1] = { 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
 		      186,191,196,201,206,211,221,231,241,251,261};
 
 void plotEMean(std::string fname="MinBias_TuneZ2star_8TeV_pythia6.root", std::string hlt="MinBias PyThia6 Z2Star", int var=0, int eta=0, int pv=0, int dataMC=1, bool raio=false, bool approve=false, int savePlot=-1);
-TCanvas* plotEMeanDraw(std::vector<std::string> fnames, std::vector<std::string> hlts, int var, int eta, int pv=0, bool approve=false, std::string dtype="Data");
-TCanvas* plotEMeanRatioDraw(std::vector<std::string> fnames, std::vector<std::string> hlts, int var, int eta, int pv=0, bool approve=false, std::string dtype="Data");
-TCanvas* plotEnergies(std::vector<std::string> fnames, std::vector<std::string> hlts, int var=0, int ien=0, int eta=0, int pv=0, bool varbin=false, int rebin=1, bool approve=false, std::string dtype="Data", bool logy=true, int pos=0);
-TCanvas* plotEnergy(std::string fname="hlt.root", std::string HLT="All HLTs", int var=0, int ien=0, int eta=0, bool varbin=false, int rebin=1, bool approve=false, bool logy=true, int pos=0);
+TCanvas* plotEMeanDraw(std::vector<std::string> fnames, std::vector<std::string> hlts, int var, int eta, int pv=0, bool approve=false, std::string dtype="Data", int coloff=0);
+TCanvas* plotEMeanRatioDraw(std::vector<std::string> fnames, std::vector<std::string> hlts, int var, int eta, int pv=0, bool approve=false, std::string dtype="Data", int coloff=0);
+TCanvas* plotEnergies(std::vector<std::string> fnames, std::vector<std::string> hlts, int var=0, int ien=0, int eta=0, int pv=0, bool varbin=false, int rebin=1, bool approve=false, std::string dtype="Data", bool logy=true, int pos=0, int coloff=0);
+TCanvas* plotEnergy(std::string fname="hlt.root", std::string HLT="All HLTs", int var=0, int ien=0, int eta=0, bool varbin=false, int rebin=1, bool approve=false, bool logy=true, int pos=0, int coloff=0);
 void plotEMeanPVAll(std::string fname="StudyHLT_ZeroBias_1PV.root", std::string HLT="Zero Bias", int var=-1, int eta=-1, bool approve=true);
 TCanvas* plotEMeanDrawPV(std::string fname="StudyHLT_ZeroBias_1PV.root", std::string HLT="Zero Bias", int var=0, int eta=0, bool approve=true);
 TCanvas* plotEnergyPV(std::string fnamee="StudyHLT_HLTZeroBias.root", std::string HLT="Zero Bias", int var=0, int ien=0, int eta=0, bool varbin=false, int rebin=1, bool approve=false, bool logy=true, int pos=0);
@@ -269,35 +269,34 @@ void plotEnergyAll(std::string fname="hlt.root", std::string hlt="All HLTs",
 
   std::string files[2]={"ZeroBiasStudyHLT.root","MinimumBiasStudyHLT.root"};
   std::string types[2]={"Zero Bias Data","Minimum Bias Data"};
+  std::string filem[5]={"pikp/QFBE0p2StudyHLT.root", "pikp/FBE2p2StudyHLT.root", "pikp/FBE0p2StudyHLT.root", "pikp/QFBE2p2StudyHLT.root", "pikp/FBAE2p2StudyHLT.root"};
+  std::string typem[5]={"10.0.p02 QGSP_FTFP_BERT_EML","10.2.p02 FTFP_BERT_EMM","10.0.p02 FTFP_BERT_EML","10.2.p02 QGSP_FTFP_BERT_EMM","10.2.p02 FTFP_BERT_ATL_EMM"};
+  std::string filex[6]={"AllDataStudyHLT.root","pikp/QFBE0p2StudyHLT.root", "pikp/FBE2p2StudyHLT.root", "pikp/FBE0p2StudyHLT.root", "pikp/QFBE2p2StudyHLT.root", "pikp/FBAE2p2StudyHLT.root"};
+  std::string typex[6]={"Data (2016B)","10.0.p02 QGSP_FTFP_BERT_EML","10.2.p02 FTFP_BERT_EMM","10.0.p02 FTFP_BERT_EML","10.2.p02 QGSP_FTFP_BERT_EMM","10.2.p02 FTFP_BERT_ATL_EMM"};
   /*
   std::string files[3]={"StudyHLT_ZeroBias_1PV.root","StudyHLT_PixelTrack_1PV.root","StudyHLT_1PV.root"};
   std::string types[3]={"Zero Bias HLT","Pixel Track HLT","All HLTs"};
   std::string files[5]={"StudyHLT_HLTZeroBias.root","StudyHLT_PixelTrack.root","StudyHLT_HLTJetE.root","StudyHLT_HLTPhysics.root","StudyHLT_All.root"};
   std::string hltx[5]={"Zero Bias HLT","Pixel Track HLT","JetE HLT","Physics HLT","All HLTs"};
-  */
-  std::string filem[4]={"pikp/QFBE0p2StudyHLT.root", "pikp/FBE0p2StudyHLT.root", "pikp/QFBE2p2StudyHLT.root", "pikp/FBE2p2StudyHLT.root"};
-  std::string typem[4]={"10.0.p02 QGSP_FTFP_BERT_EML","10.0.p02 FTFP_BERT_EML","10.2.p02 QGSP_FTFP_BERT_EMM","10.2.p02 FTFP_BERT_EMM"};
-  /*
   std::string filem[3]={"StudyHLT_95p02_QGSP_FTFP_BERT.root", "StudyHLT_96p02_QGSP_FTFP_BERT.root", "StudyHLT_96p02_FTFP_BERT.root"};
   std::string typem[3]={"Pythia8 (9.5.p02 QGSP_FTFP_BERT)","Pythia8 (9.6.p02 QGSP_FTFP_BERT)","Pythia8 (9.6.p02 FTFP_BERT)"};
-  */
   std::string filex[3]={"AllDataStudyHLT.root","pikp/QFBE0p2StudyHLT.root", "pikp/FBE2p2StudyHLT.root"};
   std::string typex[3]={"Data (2016B)","10.0.p02 QGSP_FTFP_BERT_EML","10.2.p02 FTFP_BERT_EMM"};
+  */
   std::vector<std::string> fnames, hlts;
-  std::string dtype("MC");
-  if      (data == 1) dtype = "Data";
-  else if (data == 4) dtype = "MC";
+  std::string dtype = (data == 1) ? "Data" : "MC";
+  int coloff = (data == 4) ? 0 : 1;
   if (fname == "") {
     if (data == 1) {
       for (int i=0; i<2; ++i) {
 	fnames.push_back(files[i]); hlts.push_back(types[i]);
       }
     } else if (data == 4) {
-      for (int i=0; i<3; ++i) {
+      for (int i=0; i<6; ++i) {
 	fnames.push_back(filex[i]); hlts.push_back(typex[i]);
       }
     } else {
-      for (int i=0; i<4; ++i) {
+      for (int i=0; i<5; ++i) {
 	fnames.push_back(filem[i]); hlts.push_back(typem[i]);
       }
     }
@@ -311,7 +310,7 @@ void plotEnergyAll(std::string fname="hlt.root", std::string hlt="All HLTs",
     for (int ene=enemin; ene<=enemax; ++ene) {
       for (int eta=etamin; eta<=etamax; ++eta) {
 	TCanvas *c = plotEnergies(fnames, hlts, var, ene, eta, pv, varbin,
-				  rebin, approve, dtype, logy, pos);
+				  rebin, approve, dtype, logy, pos, coloff);
 	if (c != 0 && savePlot >= 0 && savePlot < 3) {
 	  std::string ext[3] = {"eps", "gif", "pdf"};
 	  char name[200];
@@ -342,35 +341,38 @@ void plotEMean(std::string fname, std::string hlt, int var, int eta, int pv,
 
   std::string files[2]={"ZeroBiasStudyHLT.root","MinimumBiasStudyHLT.root"};
   std::string types[2]={"Zero Bias Data","Minimum Bias Data"};
+  std::string filem[5]={"pikp/QFBE0p2StudyHLT.root", "pikp/FBE2p2StudyHLT.root", "pikp/FBE0p2StudyHLT.root", "pikp/QFBE2p2StudyHLT.root", "pikp/FBAE2p2StudyHLT.root"};
+  std::string typem[5]={"10.0.p02 QGSP_FTFP_BERT_EML","10.2.p02 FTFP_BERT_EMM","10.0.p02 FTFP_BERT_EML","10.2.p02 QGSP_FTFP_BERT_EMM","10.2.p02 FTFP_BERT_ATL_EMM"};
+  std::string filex[6]={"AllDataStudyHLT.root","pikp/QFBE0p2StudyHLT.root", "pikp/FBE2p2StudyHLT.root", "pikp/FBE0p2StudyHLT.root", "pikp/QFBE2p2StudyHLT.root", "pikp/FBAE2p2StudyHLT.root"};
+  std::string typex[6]={"Data (2016B)","10.0.p02 QGSP_FTFP_BERT_EML","10.2.p02 FTFP_BERT_EMM","10.0.p02 FTFP_BERT_EML","10.2.p02 QGSP_FTFP_BERT_EMM","10.2.p02 FTFP_BERT_ATL_EMM"};
   /*
   std::string files[3]={"StudyHLT_ZeroBias_1PV.root","StudyHLT_PixelTrack_1PV.root","StudyHLT_1PV.root"};
   std::string types[3]={"Zero Bias HLT","Pixel Track HLT","All HLTs"};
   std::string files[5]={"StudyHLT_HLTZeroBias.root","StudyHLT_PixelTrack.root","StudyHLT_HLTJetE.root","StudyHLT_HLTPhysics.root","StudyHLT_All.root"};
   std::string hltx[5]={"Zero Bias HLT","Pixel Track HLT","JetE HLT","Physics HLT","All HLTs"};
-  */
-  std::string filem[4]={"pikp/QFBE0p2StudyHLT.root", "pikp/FBE0p2StudyHLT.root", "pikp/QFBE2p2StudyHLT.root", "pikp/FBE2p2StudyHLT.root"};
-  std::string typem[4]={"10.0.p02 QGSP_FTFP_BERT_EML","10.0.p02 FTFP_BERT_EML","10.2.p02 QGSP_FTFP_BERT_EMM","10.2.p02 FTFP_BERT_EMM"};
-  /*
   std::string filem[3]={"StudyHLT_95p02_QGSP_FTFP_BERT.root", "StudyHLT_96p02_QGSP_FTFP_BERT.root", "StudyHLT_96p02_FTFP_BERT.root"};
   std::string typem[3]={"Pythia8 (9.5.p02 QGSP_FTFP_BERT)","Pythia8 (9.6.p02 QGSP_FTFP_BERT)","Pythia8 (9.6.p02 FTFP_BERT)"};
-  */
   std::string filex[3]={"AllDataStudyHLT.root","pikp/QFBE0p2StudyHLT.root", "pikp/FBE2p2StudyHLT.root"};
   std::string typex[3]={"Data (2016B)","10.0.p02 QGSP_FTFP_BERT_EML","10.2.p02 FTFP_BERT_EMM"};
+  */
   std::vector<std::string> fnames, hlts;
-  std::string dtype("MC");
-  if      (data == 1) dtype = "Data";
-  else if (data == 4) dtype = "MC";
+  std::string dtype = (data == 1) ? "Data" : "MC";
+  int coloff = (data == 4 || data == 3) ? 0 : 1;
   if (fname == "") {
     if (data == 1) {
       for (int i=0; i<2; ++i) {
 	fnames.push_back(files[i]); hlts.push_back(types[i]);
       }
     } else if (data == 4) {
+      for (int i=0; i<6; ++i) {
+	fnames.push_back(filex[i]); hlts.push_back(typex[i]);
+      }
+    } else if (data == 3) {
       for (int i=0; i<3; ++i) {
 	fnames.push_back(filex[i]); hlts.push_back(typex[i]);
       }
     } else {
-      for (int i=0; i<4; ++i) {
+      for (int i=0; i<5; ++i) {
 	fnames.push_back(filem[i]); hlts.push_back(typem[i]);
       }
     }
@@ -388,9 +390,9 @@ void plotEMean(std::string fname, std::string hlt, int var, int eta, int pv,
       for (int pv=pvmin; pv<=pvmax; ++pv) {
 	TCanvas* c(0);
 	if (ratio) {
-	  c = plotEMeanRatioDraw(fnames, hlts, var, eta, pv, approve, dtype);
+	  c = plotEMeanRatioDraw(fnames, hlts, var, eta, pv, approve, dtype, coloff);
 	} else {
-	  c = plotEMeanDraw(fnames, hlts, var, eta, pv, approve, dtype);
+	  c = plotEMeanDraw(fnames, hlts, var, eta, pv, approve, dtype, coloff);
 	}
 	if (c != 0 && savePlot >= 0 && savePlot < 3) {
 	  std::string ext[3] = {"eps", "gif", "pdf"};
@@ -405,7 +407,7 @@ void plotEMean(std::string fname, std::string hlt, int var, int eta, int pv,
 
 TCanvas* plotEMeanDraw(std::vector<std::string> fnames, 
 		       std::vector<std::string> hlts, int var, int eta, int pv,
-		       bool approve, std::string dtype) {
+		       bool approve, std::string dtype, int coloff) {
 
   bool debug(false);
   std::vector<TGraphAsymmErrors*> graphs;
@@ -435,10 +437,11 @@ TCanvas* plotEMeanDraw(std::vector<std::string> fnames,
 		  << std::endl;
     }
     TGraphAsymmErrors *graph = new TGraphAsymmErrors(NPT, mom, mean, dmom,dmom, dmean,dmean);
-    graph->SetMarkerStyle(styles[k]);
-    graph->SetMarkerColor(colors[k]);
+    graph->SetMarkerStyle(styles[coloff+k]);
+    graph->SetMarkerColor(colors[coloff+k]);
     graph->SetMarkerSize(1.6);
-    graph->SetLineColor(colors[k]);
+    graph->SetLineColor(colors[coloff+k]);
+    graph->SetLineWidth(2);
     graphs.push_back(graph);
     legend->AddEntry(graph, hlts[k].c_str(), "lp");
     if (debug)  std::cout << "Complete " << hlts[k] << std::endl;
@@ -494,7 +497,8 @@ TCanvas* plotEMeanDraw(std::vector<std::string> fnames,
 
 TCanvas* plotEMeanRatioDraw(std::vector<std::string> fnames, 
 			    std::vector<std::string> hlts, int var, int eta, 
-			    int pv, bool approve, std::string dtype) {
+			    int pv, bool approve, std::string dtype,
+			    int coloff) {
 
   bool debug(false);
   std::vector<TGraphAsymmErrors*> graphs;
@@ -558,10 +562,11 @@ TCanvas* plotEMeanRatioDraw(std::vector<std::string> fnames,
 		    << std::endl;
       }
       TGraphAsymmErrors *graph = new TGraphAsymmErrors(NPT, mom, mean, dmom,dmom, dmean,dmean);
-      graph->SetMarkerStyle(styles[k]);
-      graph->SetMarkerColor(colors[k]);
+      graph->SetMarkerStyle(styles[coloff+k]);
+      graph->SetMarkerColor(colors[coloff+k]);
       graph->SetMarkerSize(1.6);
-      graph->SetLineColor(colors[k]);
+      graph->SetLineColor(colors[coloff+k]);
+      graph->SetLineWidth(2);
       graphs.push_back(graph);
       char text[100];
       if (approve) {
@@ -625,7 +630,7 @@ TCanvas* plotEMeanRatioDraw(std::vector<std::string> fnames,
 TCanvas* plotEnergies(std::vector<std::string> fnames, 
 		      std::vector<std::string> hlts, int var, int ien, int eta,
 		      int pv, bool varbin, int rebin, bool approve, 
-		      std::string dtype, bool logy, int pos) {
+		      std::string dtype, bool logy, int pos, int coloff) {
 
   //  bool debug(false);
   TLegend*  legend = new TLegend(0.55, 0.70, 0.95, 0.85);
@@ -649,7 +654,7 @@ TCanvas* plotEnergies(std::vector<std::string> fnames,
       }
       histArr.AddLast(histo);
       labels.push_back(hlts[k]);
-      color.push_back(colors[k]);
+      color.push_back(colors[coloff+k]);
       int ibin = histo->GetMaximumBin();
       if (histo->GetBinContent(ibin) > ymx0) ymx0 = histo->GetBinContent(ibin);
     }
@@ -676,7 +681,7 @@ TCanvas* plotEnergies(std::vector<std::string> fnames,
 
 TCanvas* plotEnergy(std::string fname, std::string HLT, int var, int ien, 
 		    int eta, bool varbin, int rebin, bool approve, bool logy,
-		    int pos) {
+		    int pos, int coloff) {
 
   TFile *file = TFile::Open(fname.c_str());
   char                     name[100];
@@ -691,7 +696,7 @@ TCanvas* plotEnergy(std::string fname, std::string HLT, int var, int ien,
       histArr.AddLast(histo);
       sprintf (name, "p=%s, #eta=%s %s", varPs[ien].c_str(), varEta[eta].c_str(), namefull[i+3].c_str());
       labels.push_back(name);
-      color.push_back(colors[i]);
+      color.push_back(colors[coloff+i]);
       int ibin = histo->GetMaximumBin();
       if (histo->GetBinContent(ibin) > ymx0) ymx0 = histo->GetBinContent(ibin);
     }
@@ -756,6 +761,7 @@ TCanvas* plotEMeanDrawPV(std::string fname, std::string HLT, int var, int eta,
     graph->SetMarkerColor(colors[k]);
     graph->SetMarkerSize(1.6);
     graph->SetLineColor(colors[k]);
+    graph->SetLineWidth(2);
     graphs.push_back(graph);
     sprintf (name, "PV=%d:%d", pvBins[k], pvBins[k+1]-1);
     legend->AddEntry(graph, name, "lp");

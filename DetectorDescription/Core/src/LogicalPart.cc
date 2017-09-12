@@ -8,10 +8,15 @@
 
 using DDI::LogicalPart;
 
-LogicalPart::LogicalPart(const DDMaterial & m,
-                         const DDSolid & s,
-			 DDEnums::Category c)
- : material_(m), solid_(s), cat_(c), weight_(0), specifics_(0), hasDDValue_(1,false)
+LogicalPart::LogicalPart( const DDMaterial & m,
+			  const DDSolid & s,
+			  DDEnums::Category c )
+ : material_(m),
+   solid_(s),
+   cat_(c),
+   weight_(0),
+   specifics_(0),
+   hasDDValue_( 1, false )
 { }
 
 const DDMaterial & LogicalPart::material() const { return material_; }
@@ -25,7 +30,7 @@ void LogicalPart::stream(std::ostream & os)
   os << std::endl << " mat=" << material().ddname() << std::endl << " solid=" << solid();
 }
 
-double & LogicalPart::weight()  { return weight_; }
+double & LogicalPart::weight() { return weight_; }
 
 void LogicalPart::addSpecifics(const std::pair<const DDPartSelection*, const DDsvalues_type*> & s)
 {
@@ -35,7 +40,7 @@ void LogicalPart::addSpecifics(const std::pair<const DDPartSelection*, const DDs
 	      << s.first << "," << s.second << std::endl;
     return;
   }
-  specifics_.push_back(s);
+  specifics_.emplace_back(s);
   for( const auto& it : *s.second ) {
     unsigned int id = it.first;
     if ( id < hasDDValue_.size() ) {
@@ -78,7 +83,7 @@ void LogicalPart::specificsV(std::vector<const DDsvalues_type*> & result) const
   for( const auto& it : specifics_ ) {
     const DDPartSelection & ps = *(it.first);
     if (ps.size()==1 && ps[0].selectionType_==ddanylogp) {
-      result.push_back(it.second);
+      result.emplace_back(it.second);
     }
   }
 }

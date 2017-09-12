@@ -27,9 +27,9 @@ class DTSuperLayer : public GeomDet {
   public:
 
 /* Constructor */ 
-    DTSuperLayer(DTSuperLayerId id,
+    DTSuperLayer(const DTSuperLayerId& id,
                  ReferenceCountingPointer<BoundPlane>& plane,
-                 const DTChamber* ch=0);
+                 const DTChamber* ch=nullptr);
 
 /* Destructor */ 
     ~DTSuperLayer() override ;
@@ -61,7 +61,7 @@ class DTSuperLayer : public GeomDet {
     const DTChamber* chamber() const;
 
     /// Return the layer corresponding to the given id 
-    const DTLayer* layer(DTLayerId id) const;
+    const DTLayer* layer(const DTLayerId& id) const;
   
     /// Return the given layer.
     /// Layers are numbered 1-4.

@@ -46,24 +46,19 @@
 class ttHFGenFilter : public edm::stream::EDFilter<> {
    public:
       explicit ttHFGenFilter(const edm::ParameterSet&);
-      ~ttHFGenFilter();
+      ~ttHFGenFilter() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginStream(edm::StreamID) override;
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endStream() override;
+      void beginStream(edm::StreamID) override;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endStream() override;
 
       virtual bool HasAdditionalBHadron(const std::vector<int>&, const std::vector<int>&,const std::vector<reco::GenParticle>&,std::vector<const reco::Candidate*>&);
       virtual bool analyzeMothersRecursive(const reco::Candidate*,std::vector<const reco::Candidate*>& AllTopMothers);
       virtual std::vector<const reco::Candidate*> GetTops(const std::vector<reco::GenParticle> &,std::vector<const reco::Candidate*>& AllTopMothers);
       virtual void FindAllTopMothers(const reco::Candidate* particle,std::vector<const reco::Candidate*>&);
-
-      //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-      //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
       const edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
       const edm::EDGetTokenT<std::vector<int> > genBHadFlavourToken_;
@@ -154,21 +149,21 @@ ttHFGenFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 bool ttHFGenFilter::HasAdditionalBHadron(const std::vector<int>& genBHadIndex, const std::vector<int>& genBHadFlavour,const std::vector<reco::GenParticle>& genBHadPlusMothers,std::vector<const reco::Candidate*>& AllTopMothers){
 
-  for(uint i=0; i<genBHadIndex.size();i++){
+  for(unsigned int i=0; i<genBHadIndex.size();i++){
 
-    const reco::GenParticle* bhadron = genBHadIndex[i]>=0&&genBHadIndex[i]<int(genBHadPlusMothers.size()) ? &(genBHadPlusMothers[genBHadIndex[i]]) : 0;
+    const reco::GenParticle* bhadron = genBHadIndex[i]>=0&&genBHadIndex[i]<int(genBHadPlusMothers.size()) ? &(genBHadPlusMothers[genBHadIndex[i]]) : nullptr;
     int motherflav = genBHadFlavour[i];
     bool from_tth=(abs(motherflav)==6||abs(motherflav)==25); //b-hadron comes from top or higgs decay
     bool fromhp=false;
 
   if(!OnlyHardProcessBHadrons_){
-    if(bhadron!=0&&!from_tth){
+    if(bhadron!=nullptr&&!from_tth){
       return true;
     }
   }
 
   if(OnlyHardProcessBHadrons_){
-    if(bhadron!=0&&!from_tth){
+    if(bhadron!=nullptr&&!from_tth){
       //std::cout << "PT: " << bhadron->pt() << " , eta: " << bhadron->eta() << std::endl;
 
       fromhp=analyzeMothersRecursive(bhadron,AllTopMothers);
@@ -187,38 +182,31 @@ bool ttHFGenFilter::HasAdditionalBHadron(const std::vector<int>& genBHadIndex, c
 
 //recursive function, that loops over all chain particles  until it finds the protons
 bool ttHFGenFilter::analyzeMothersRecursive(const reco::Candidate* particle,std::vector<const reco::Candidate*>& AllTopMothers){
-  //std::cout << "Particle: " << particle->pdgId() << " , Status: " << particle->status() << " , numberOfMothers: " << particle->numberOfMothers() << std::endl;
   if(particle->status()>20&&particle->status()<30){ //particle comes from hardest process in event
     return true;
   }
-  for(uint k=0; k<AllTopMothers.size();k++){
-    if(particle==AllTopMothers[k]){ //partcile comes from  ISR
-
+  for(unsigned int k=0; k<AllTopMothers.size();k++){
+    if(particle==AllTopMothers[k]){ //particle comes from  ISR
       return true;
     }
   }
-    bool IsFromHardProcess=false;
-  /*if(analyzeMothersRecursive(particle)){
-    return true;
-  }*/
-    for(uint i=0;i<particle->numberOfMothers();i++){
-      //std::cout << "i " <<  i << std::endl;
-      const reco::Candidate* mother = particle->mother(i);
-      IsFromHardProcess=analyzeMothersRecursive(mother,AllTopMothers);
-      if(IsFromHardProcess){
-        return true;
-      }
-
+  bool isFromHardProcess=false;
+  for(unsigned int i=0;i<particle->numberOfMothers();i++){
+    const reco::Candidate* mother = particle->mother(i);
+    isFromHardProcess=analyzeMothersRecursive(mother,AllTopMothers);
+    if(isFromHardProcess){
+      return true;
     }
-
-  return IsFromHardProcess;
+  }
+  return isFromHardProcess;
 }
 
 std::vector< const reco::Candidate*> ttHFGenFilter::GetTops(const std::vector<reco::GenParticle>& genParticles, std::vector<const reco::Candidate*>& AllTopMothers){
-  const reco::GenParticle* FirstTop = 0;
-  const reco::GenParticle* FirstTopBar = 0;
-  bool FoundTop = false;
-  bool FoundTopBar =false;
+  //  std::vector<const reco::Candidate*> tops;
+  const reco::GenParticle* firstTop = nullptr;
+  const reco::GenParticle* firstTopBar = nullptr;
+  bool foundTop = false;
+  bool foundTopBar = false;
   std::vector<const reco::GenParticle*> Tops;
 
   //loop over all genParticles and find  a Top and AntiTop quark
@@ -226,27 +214,27 @@ std::vector< const reco::Candidate*> ttHFGenFilter::GetTops(const std::vector<re
   //this is then used to  if the b-hadron is an inital state radiation particle
 
    for(reco::GenParticleCollection::const_iterator i_particle = genParticles.begin(); i_particle != genParticles.end(); ++i_particle){
-       const reco::GenParticle* thisParticle = &*i_particle;
-     if(thisParticle->pdgId()==6){
-       FirstTop = thisParticle;
-       FoundTop = true;
+     const reco::GenParticle* thisParticle = &*i_particle;
+     if(!foundTop && thisParticle->pdgId()==6){
+       firstTop = thisParticle;
+       for(unsigned int i=0; i<firstTop->numberOfMothers();i++){
+         FindAllTopMothers(thisParticle->mother(i),AllTopMothers);
+       }
+       foundTop = true;
      }
-     if(thisParticle->pdgId()==-6){
-        FirstTopBar = thisParticle;
-        FoundTopBar = true;
+     else if(!foundTopBar && thisParticle->pdgId()==-6){
+       firstTopBar = thisParticle;
+       for(unsigned int i=0; i<firstTopBar->numberOfMothers();i++){
+         FindAllTopMothers(firstTopBar->mother(i),AllTopMothers);
+       }
+       foundTopBar = true;
      }
-     if(FoundTopBar&&FoundTop){
-       //Tops.push_back(FirstTop);
-       //Tops.push_back(FirstTopBar);
-       //return Tops;
+     if(foundTopBar&&foundTop){
+       //tops.push_back(firstTop);
+       //tops.push_back(firstTopBar);
+       //return tops;
        break;
      }
-   }
-   for(uint i=0; i<FirstTop->numberOfMothers();i++){
-     FindAllTopMothers(FirstTop->mother(i),AllTopMothers);
-   }
-   for(uint i=0; i<FirstTopBar->numberOfMothers();i++){
-     FindAllTopMothers(FirstTopBar->mother(i),AllTopMothers);
    }
    return AllTopMothers;
 }
@@ -255,8 +243,8 @@ std::vector< const reco::Candidate*> ttHFGenFilter::GetTops(const std::vector<re
 
 void ttHFGenFilter::FindAllTopMothers(const reco::Candidate* particle, std::vector<const reco::Candidate*>& AllTopMothers){
  // std::cout << "particle mother: " << particle->mother(0) << std::endl;
-  for(uint i=0;i<particle->numberOfMothers();i++){
-    if(abs(particle->mother(i)->pdgId())!=6&&particle->mother(i)->pdgId()!=2212){
+  for(unsigned int i=0;i<particle->numberOfMothers();i++){
+    if(abs(particle->mother(i)->pdgId())!=6 && particle->mother(i)->pdgId()!=2212){
       AllTopMothers.push_back(particle->mother(i));
       if(particle->mother(i)->pdgId()!=2212 || particle->mother(i)->numberOfMothers()>1){
         //std::cout << "Size of vector in loop = " << AllTopMothers.size() << std::endl;

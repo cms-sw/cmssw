@@ -19,22 +19,19 @@ namespace ecaldqm {
     void runOnRecHits(EcalRecHitCollection const&, Collections);
     void runOnUncalibRecHits(EcalUncalibratedRecHitCollection const&);
 
-    enum Constants {
-      nBXBins = 15
-    };
-
   private:
     void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
     void beginEvent(edm::Event const&, edm::EventSetup const&) override;
     void setParams(edm::ParameterSet const&) override;
 
-    std::array<int,nBXBins+1> bxBinEdges_;
+    std::vector<int> bxBinEdges_;
     double bxBin_;
 
     float chi2ThresholdEB_;
     float chi2ThresholdEE_;
     float energyThresholdEB_;
     float energyThresholdEE_;
+    float timingVsBXThreshold_;
 
     MESet* meTimeMapByLS;
   };

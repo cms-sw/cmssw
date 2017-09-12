@@ -35,6 +35,8 @@ def run(args):
         o2ocmd += ' --hashmapDb {hashmapDb}'
         if args.skiplistFile:
             o2ocmd += ' --skiplistFile %s' % args.skiplistFile
+        if args.whitelistFile:
+            o2ocmd += ' --whitelistFile %s' % args.whitelistFile
         if args.debug:
             o2ocmd += ' --debug'
 
@@ -96,6 +98,7 @@ def main():
     parser.add_argument('since', metavar='SINCE', type=str, help='Run number.')
     parser.add_argument('cfgfile', metavar='CFGLINES', help='File containing configuration lines.')
     parser.add_argument('--skiplistFile', default='', help='File containing the devices to be skipped in G1 O2O.')
+    parser.add_argument('--whitelistFile', default='', help='File of the whitelisted devices in G1 O2O.')
 
     parser.add_argument('--analyzers',
                         default='SiStripO2OBadStrip,SiStripO2OFedCabling,SiStripO2OLatency,SiStripO2ONoises,SiStripO2OPedestals,SiStripO2OThreshold',

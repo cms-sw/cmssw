@@ -20,7 +20,7 @@ class CaloGeometryDBWriter
       static void write( const TrVec&  tvec, 
 			 const DimVec& dvec, 
 			 const IVec&   ivec,
-			 std::string   tag   )
+			 const std::string&   tag   )
       {
 	 const IVec dins;
 	 PCaloGeometry* peg = new PCaloGeometry( tvec, dvec, ivec, dins );  
@@ -54,7 +54,7 @@ class CaloGeometryDBWriter
 				const DimVec& dvec, 
 				const IVec&   ivec,
 				const IVec&   dins,
-				std::string   tag   )
+				const std::string&   tag   )
       {
 	 PCaloGeometry* peg = new PCaloGeometry( tvec, dvec, ivec, dins );  
   

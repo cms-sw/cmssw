@@ -28,11 +28,6 @@ namespace edm {
     WorkerInPath(Worker*, FilterAction theAction, unsigned int placeInPath);
 
     template <typename T>
-    bool runWorker(typename T::MyPrincipal const&, EventSetup const&,
-                   StreamID streamID,
-                   typename T::Context const* context);
-
-    template <typename T>
     void runWorkerAsync(WaitingTask* iTask,
                         typename T::MyPrincipal const&, EventSetup const&,
                         StreamID streamID,
@@ -128,46 +123,7 @@ namespace edm {
       ParentContext parentContext(context);
       worker_->doWorkNoPrefetchingAsync<T>(iTask,ep, es,streamID, parentContext, context);
     }
-  }
-  
-  template <typename T>
-  bool WorkerInPath::runWorker(typename T::MyPrincipal const& ep, EventSetup const & es,
-                               StreamID streamID,
-                               typename T::Context const* context) {
-
-    if (T::isEvent_) {
-      ++timesVisited_;
-    }
-    bool rc = true;
-
-    try {
-	// may want to change the return value from the worker to be 
-	// the Worker::FilterAction so conditions in the path will be easier to 
-	// identify
-        if(T::isEvent_) {
-          ParentContext parentContext(&placeInPathContext_);          
-          rc = worker_->doWork<T>(ep, es,streamID, parentContext, context);
-        } else {
-          ParentContext parentContext(context);
-          rc = worker_->doWork<T>(ep, es,streamID, parentContext, context);
-        }
-        // Ignore return code for non-event (e.g. run, lumi) calls
-	if (!T::isEvent_) rc = true;
-	else if (filterAction_ == Veto) rc = !rc;
-        else if (filterAction_ == Ignore) rc = true;
-
-	if (T::isEvent_) {
-	  if(rc) ++timesPassed_; else ++timesFailed_;
-	}
-    }
-    catch(...) {
-	if (T::isEvent_) ++timesExcept_;
-	throw;
-    }
-
-    return rc;
-  }
-
+  }  
 }
 
 #endif

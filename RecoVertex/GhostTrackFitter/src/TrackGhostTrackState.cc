@@ -20,7 +20,7 @@
 using namespace reco;
 
 namespace {
-	static inline double sqr(double arg) { return arg * arg; }
+	inline double sqr(double arg) { return arg * arg; }
 
 	using namespace ROOT::Math;
 
@@ -31,7 +31,7 @@ namespace {
 	typedef SMatrix<double, 3, 3> Matrix33;
 	typedef SMatrix<double, 3, 6> Matrix36;
 
-	static inline Vector3 conv(const GlobalVector &vec)
+	inline Vector3 conv(const GlobalVector &vec)
 	{
 		Vector3 result;
 		result[0] = vec.x();

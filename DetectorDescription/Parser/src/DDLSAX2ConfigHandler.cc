@@ -6,6 +6,7 @@
 #include "DetectorDescription/Core/interface/DDRoot.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Utilities/Xerces/interface/XercesStrUtils.h"
+
 #include <string>
 #include <vector>
 
@@ -45,8 +46,8 @@ DDLSAX2ConfigHandler::startElement( const XMLCh* const uri,
     std::string name = toString(attrs.getValue(uStr("name").ptr()));
     std::string url = toString(attrs.getValue(uStr("url").ptr()));
 
-    files_.push_back(name);
-    urls_.push_back(url);
+    files_.emplace_back(name);
+    urls_.emplace_back(url);
   }
   else if( XMLString::equals( qname, uStr("Root").ptr()))
   {
@@ -61,7 +62,7 @@ DDLSAX2ConfigHandler::startElement( const XMLCh* const uri,
   else if( XMLString::equals( qname, uStr("Schema").ptr()))
   {
     schemaLocation_ = toString(attrs.getValue(uStr("schemaLocation").ptr()));
-    doValidation_ = (XMLString::equals(attrs.getValue(uStr("validation").ptr()), uStr("true").ptr()) ? true : false);
+    doValidation_ = XMLString::equals(attrs.getValue(uStr("validation").ptr()), uStr("true").ptr());
   }
 }
 

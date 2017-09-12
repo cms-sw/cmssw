@@ -12,9 +12,9 @@
 
 namespace {
   const edm::EDGetTokenT<edm::ValueMap<float> > empty_token;
-  const static edm::InputTag empty_tag("");
+  const edm::InputTag empty_tag("");
 
-  const static std::array<std::string,7>  electron_vars = { { "sumChargedHadronPt",
+  const std::array<std::string,7>  electron_vars = { { "sumChargedHadronPt",
                                                               "sumNeutralHadronEt",
                                                               "sumPhotonEt",
                                                               "sumChargedParticlePt",
@@ -22,7 +22,7 @@ namespace {
                                                               "sumPhotonEtHighThreshold",
                                                               "sumPUPt" } };
   
-  const static std::array<std::string,9> photon_vars = { { "chargedHadronIso",
+  const std::array<std::string,9> photon_vars = { { "chargedHadronIso",
                                                            "chargedHadronIsoWrongVtx",
                                                            "neutralHadronIso",
                                                            "photonIso",

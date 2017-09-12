@@ -1,8 +1,4 @@
 #include "DetectorDescription/Parser/src/DDLCompositeMaterial.h"
-
-#include <stddef.h>
-#include <map>
-#include <utility>
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/ClhepEvaluator.h"
@@ -10,6 +6,10 @@
 #include "DetectorDescription/Parser/src/DDLMaterial.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <cstddef>
+#include <map>
+#include <utility>
 
 class DDCompactView;
 

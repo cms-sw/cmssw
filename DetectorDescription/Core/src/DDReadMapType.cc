@@ -3,6 +3,7 @@
 
 namespace dddDetails {
   void errorReadMapType(const std::string & key) {
-    throw cms::Exception("DDException") << "ReadMapType::operator[] key not found:" << key;
+    throw cms::Exception("DDException")
+      << "ReadMapType::operator[] key not found:" << key;
   }
 }

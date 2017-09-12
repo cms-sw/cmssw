@@ -61,11 +61,10 @@ void HcalLayerDepthMap::initialize(const int subdet, const int ietaMax,
   }
   for (int eta=ietaMin_; eta<=ietaMax_; ++eta) {
     int dmin(99), dmax(-1);
-    for (std::map<std::pair<int,int>,int>::iterator itr=layer2Depth_.begin();
-	 itr != layer2Depth_.end(); ++itr) {
-      if ((itr->first).first == eta) {
-	if ((itr->second) < dmin) dmin = (itr->second);
-	if ((itr->second) > dmax) dmax = (itr->second);
+    for (auto & itr : layer2Depth_) {
+      if ((itr.first).first == eta) {
+	if ((itr.second) < dmin) dmin = (itr.second);
+	if ((itr.second) > dmax) dmax = (itr.second);
       }
     }
     if (subdet == 2) {
@@ -205,10 +204,9 @@ void HcalLayerDepthMap::getLayerDepth(const int subdet, const int eta,
 				      std::map<int,int>& layers) const {
   layers.clear();
   if (isValid(subdet,phi,zside)) {
-    for (std::map<std::pair<int,int>,int>::const_iterator itr=layer2Depth_.begin();
-	 itr != layer2Depth_.end(); ++itr) {
-      if ((itr->first).first == eta) {
-	layers[((itr->first).second)+1] = (itr->second);
+    for (const auto & itr : layer2Depth_) {
+      if ((itr.first).first == eta) {
+	layers[((itr.first).second)+1] = (itr.second);
       }
     }
   }
@@ -225,10 +223,9 @@ void HcalLayerDepthMap::getLayerDepth(const int eta,
 				      std::map<int,int>& layers) const {
   layers.clear();
   if (subdet_ > 0) {
-    for (std::map<std::pair<int,int>,int>::const_iterator itr=layer2Depth_.begin();
-	 itr != layer2Depth_.end(); ++itr) {
-      if ((itr->first).first == eta) {
-	layers[((itr->first).second)+1] = (itr->second);
+    for (const auto & itr : layer2Depth_) {
+      if ((itr.first).first == eta) {
+	layers[((itr.first).second)+1] = (itr.second);
       }
     }
   }

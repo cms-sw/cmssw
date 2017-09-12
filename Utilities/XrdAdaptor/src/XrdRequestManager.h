@@ -41,7 +41,7 @@ public:
       : Exception(code), m_code(xrootd_status.code)
     {}
 
-    virtual ~XrootdException() throw() {};
+    ~XrootdException() noexcept override {};
 
     uint16_t getCode() { return m_code; }
 

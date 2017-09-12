@@ -23,6 +23,16 @@ using namespace edm;
 //
 // member functions
 //
+SerialTaskQueue::~SerialTaskQueue()
+{
+  //be certain all tasks have completed
+  bool isEmpty = m_tasks.empty();
+  bool isTaskChosen = m_taskChosen;
+  if ( (not isEmpty and not isPaused()) or isTaskChosen) {
+    pushAndWait([]() {return;});
+  }
+}
+
 bool
 SerialTaskQueue::resume() {
   if(0==--m_pauseCount) {

@@ -42,6 +42,7 @@ public:
   virtual unsigned short adc2Linear(HcalQIESample sample,HcalDetId id) const override;
   virtual float getLUTPedestal(HcalDetId id) const override;
   virtual float getLUTGain(HcalDetId id) const override;
+  virtual std::vector<unsigned short> getLinearizationLUT(HcalDetId id) const override;
 
   void update(const HcalDbService& conditions);
   void update(const char* filename, bool appendMSB = false);
@@ -84,6 +85,7 @@ private:
   std::vector< Lut > inputLUT_;
   std::vector< Lut > upgradeQIE10LUT_;
   std::vector< Lut > upgradeQIE11LUT_;
+  std::vector<int> QIEType_;
   std::vector<float> gain_;
   std::vector<float> ped_;
 };

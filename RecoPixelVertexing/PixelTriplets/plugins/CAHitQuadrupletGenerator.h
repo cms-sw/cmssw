@@ -1,7 +1,6 @@
 #ifndef RECOPIXELVERTEXING_PIXELTRIPLETS_CAHITQUADRUPLETGENERATOR_H
 #define RECOPIXELVERTEXING_PIXELTRIPLETS_CAHITQUADRUPLETGENERATOR_H
 
-#include "RecoPixelVertexing/PixelTriplets/interface/HitQuadrupletGenerator.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitorFactory.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/RZLine.h"
@@ -18,9 +17,9 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "RecoTracker/TkHitPairs/interface/IntermediateHitDoublets.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitSeeds.h"
 
 class TrackingRegion;
-class HitQuadrupletGeneratorFromTripletAndLayers;
 class SeedingLayerSetsHits;
 
 namespace edm {
@@ -29,7 +28,7 @@ namespace edm {
     class ParameterSetDescription;
 }
 
-class CAHitQuadrupletGenerator : public HitQuadrupletGenerator {
+class CAHitQuadrupletGenerator {
 public:
     typedef LayerHitMapCache LayerCacheType;
 
@@ -38,36 +37,22 @@ public:
 
 public:
 
-    CAHitQuadrupletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC, bool needSeedingLayerSetsHits=true): CAHitQuadrupletGenerator(cfg, iC, needSeedingLayerSetsHits) {}
-    CAHitQuadrupletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC, bool needSeedingLayerSetsHits=true);
+    CAHitQuadrupletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC): CAHitQuadrupletGenerator(cfg, iC) {}
+    CAHitQuadrupletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
-    virtual ~CAHitQuadrupletGenerator();
+    ~CAHitQuadrupletGenerator() = default;
 
     static void fillDescriptions(edm::ParameterSetDescription& desc);
     static const char *fillDescriptionsLabel() { return "caHitQuadruplet"; }
 
     void initEvent(const edm::Event& ev, const edm::EventSetup& es);
 
-
-    /// from base class
-    virtual void hitQuadruplets(const TrackingRegion& reg, OrderedHitSeeds & quadruplets,
-            const edm::Event & ev, const edm::EventSetup& es);
-
-    // new-style
     void hitNtuplets(const IntermediateHitDoublets& regionDoublets,
                      std::vector<OrderedHitSeeds>& result,
                      const edm::EventSetup& es,
                      const SeedingLayerSetsHits& layers);
 
 private:
-    // actual work
-    void hitQuadruplets(const TrackingRegion& reg, OrderedHitSeeds& result,
-                        std::vector<const HitDoublets *>& hitDoublets,
-                        CAGraph& g,
-                        const edm::EventSetup& es);
-
-    edm::EDGetTokenT<SeedingLayerSetsHits> theSeedingLayerToken;
-
     LayerCacheType theLayerCache;
 
     std::unique_ptr<SeedComparitor> theComparitor;
@@ -146,6 +131,5 @@ private:
     const float caThetaCut = 0.00125f;
     const float caPhiCut = 0.1f;
     const float caHardPtCut = 0.f;
-    const bool caOnlyOneLastHitPerLayerFilter = false;
 };
 #endif

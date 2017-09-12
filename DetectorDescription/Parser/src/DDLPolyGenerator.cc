@@ -1,15 +1,14 @@
 #include "DetectorDescription/Parser/src/DDLPolyGenerator.h"
-
-#include <stddef.h>
-#include <map>
-#include <utility>
-#include <vector>
-
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/ClhepEvaluator.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDLSolid.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
+
+#include <cstddef>
+#include <map>
+#include <utility>
+#include <vector>
 
 class DDCompactView;
 
@@ -41,13 +40,13 @@ DDLPolyGenerator::processElement( const std::string& name, const std::string& nm
   for (size_t i = 0; i < myRZPoints->size(); ++i)
   {
     atts = myRZPoints->getAttributeSet(i);
-    z.push_back(ev.eval(nmspace, atts.find("z")->second));
-    r.push_back(ev.eval(nmspace, atts.find("r")->second));
+    z.emplace_back(ev.eval(nmspace, atts.find("z")->second));
+    r.emplace_back(ev.eval(nmspace, atts.find("r")->second));
   }
 
   // if z is empty, then it better not have been a polycone defined
   // by RZPoints, instead, it must be a ZSection defined polycone.
-  if (z.size() == 0 )
+  if (z.empty() )
   {
     // get zSection information, note, we already have a z declared above
     // and we will use r for rmin.  In this case, no use "trying" because
@@ -57,9 +56,9 @@ DDLPolyGenerator::processElement( const std::string& name, const std::string& nm
     for (size_t i = 0; i < myZSection->size(); ++i)
     {
       atts = myZSection->getAttributeSet(i);
-      z.push_back(ev.eval(nmspace, atts.find("z")->second));
-      r.push_back(ev.eval(nmspace, atts.find("rMin")->second));
-      rMax.push_back(ev.eval(nmspace, atts.find("rMax")->second));
+      z.emplace_back(ev.eval(nmspace, atts.find("z")->second));
+      r.emplace_back(ev.eval(nmspace, atts.find("rMin")->second));
+      rMax.emplace_back(ev.eval(nmspace, atts.find("rMax")->second));
     }
     atts = getAttributeSet();
     if (name == "Polycone") // defined with ZSections 

@@ -27,10 +27,10 @@ class L1TMuonBarrelTrackProducer: public edm::one::EDProducer<edm::one::SharedRe
   L1TMuonBarrelTrackProducer(const edm::ParameterSet & pset);
 
   /// Destructor
-  virtual ~L1TMuonBarrelTrackProducer();
+  ~L1TMuonBarrelTrackProducer() override;
 
   /// Produce digis out of raw data
-  void produce(edm::Event & e, const edm::EventSetup& c);
+  void produce(edm::Event & e, const edm::EventSetup& c) override;
 
  private:
 

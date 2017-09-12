@@ -24,9 +24,9 @@ class DDTECModuleAlgo : public DDAlgorithm {
 
 private:
   //this positions  toPos in mother
-  void doPos( DDLogicalPart toPos,  DDLogicalPart mother, int copyNr,
+  void doPos( const DDLogicalPart& toPos,  const DDLogicalPart& mother, int copyNr,
 	      double x, double y, double z, 
-	      std::string rotName, DDCompactView& cpv);                     
+	      const std::string& rotName, DDCompactView& cpv);                     
   void doPos( DDLogicalPart toPos,
 	      double x, double y, double z, 
 	      std::string rotName, DDCompactView& cpv);                     

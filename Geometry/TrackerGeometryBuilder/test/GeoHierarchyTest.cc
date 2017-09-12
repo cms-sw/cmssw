@@ -51,8 +51,8 @@ struct Print {
   // typedef edm::TrieNode<Det> const node;
   void operator()(Det det, std::string const & label) const {
     if (!det) return; 
-    for (size_t i=0; i<label.size();++i)
-      std::cout << int(label[i]) <<'/';
+    for (char i : label)
+      std::cout << int(i) <<'/';
     std::cout << " " << det->geographicalId().rawId() << std::endl;
   }
   
@@ -85,7 +85,7 @@ GeoHierarchy::~GeoHierarchy()
 template<typename Iter>
 void constructAndDumpTrie(const TrackerTopology* tTopo, Iter b, Iter e) {
   typedef typename std::iterator_traits<Iter>::value_type Det;
-  edm::Trie<Det> trie(0);
+  edm::Trie<Det> trie(nullptr);
   typedef edm::TrieNode<Det> Node;
   typedef Node const * node_pointer; // sigh....
   typedef edm::TrieNodeIter<Det> node_iterator;

@@ -1,5 +1,5 @@
 #include "Geometry/CaloGeometry/interface/IdealObliquePrism.h"
-#include <math.h>
+#include <cmath>
 
 typedef IdealObliquePrism::CCGFloat CCGFloat ;
 typedef IdealObliquePrism::Pt3D     Pt3D     ;
@@ -69,15 +69,6 @@ IdealObliquePrism::vocalCorners( Pt3DVec&        vec ,
    localCorners( vec, pv, ref ) ; 
 }
 
-  /*
-   static GlobalPoint etaPhiR( float eta, float phi, float rad )
-   {
-      return GlobalPoint( rad*cosf(phi)/coshf(eta) , 
-			  rad*sinf(phi)/coshf(eta) ,
-			  rad*tanhf(eta)            ) ;
-   }
-  */
-
 GlobalPoint
 IdealObliquePrism::etaPhiPerp( float eta, float phi, float perp )  
 {
@@ -99,7 +90,7 @@ void IdealObliquePrism::localCorners( Pt3DVec&        lc  ,
 				      Pt3D&           ref   )
 {
    assert( 8 == lc.size() ) ;
-   assert( 0 != pv ) ;
+   assert( nullptr != pv ) ;
    
    const CCGFloat dEta ( pv[0] ) ;
    const CCGFloat dPhi ( pv[1] ) ;

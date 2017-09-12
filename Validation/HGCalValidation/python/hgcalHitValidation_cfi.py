@@ -14,3 +14,7 @@ hgcalHitValidation = cms.EDAnalyzer("HGCalHitValidation",
                                     ietaExcludeBH  = cms.vint32([]),
                                     ifHCAL         = cms.bool(False)
                                     )
+
+from Validation.HGCalValidation.hgcalHitCalibration_cfi import hgcalHitCalibration
+
+hgcalHitValidationSequence = cms.Sequence(hgcalHitValidation+hgcalHitCalibration)

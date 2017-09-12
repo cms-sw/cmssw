@@ -48,11 +48,9 @@ RazorMonitor::RazorMonitor( const edm::ParameterSet& iConfig ) :
 
 }
 
-RazorMonitor::~RazorMonitor()
-{
-}
+RazorMonitor::~RazorMonitor() = default;
 
-void RazorMonitor::setMETitle(RazorME& me, std::string titleX, std::string titleY)
+void RazorMonitor::setMETitle(RazorME& me, const std::string& titleX, const std::string& titleY)
 {
   me.numerator->setAxisTitle(titleX,1);
   me.numerator->setAxisTitle(titleY,2);

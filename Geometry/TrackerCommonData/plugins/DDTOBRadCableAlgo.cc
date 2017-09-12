@@ -225,17 +225,17 @@ void DDTOBRadCableAlgo::execute(DDCompactView& cpv) {
     rin   = 0.5*(rodRin[i]+rodRout[i]);
     rout = ( i+1 == (int)(names.size()) ? rMax : 0.5*(rodRin[i+1]+rodRout[i+1]));
     std::vector<double> pgonZ;
-    pgonZ.push_back(-0.5*cableT); 
-    pgonZ.push_back(cableT*(rin/rMax-0.5));
-    pgonZ.push_back(0.5*cableT);
+    pgonZ.emplace_back(-0.5*cableT); 
+    pgonZ.emplace_back(cableT*(rin/rMax-0.5));
+    pgonZ.emplace_back(0.5*cableT);
     std::vector<double> pgonRmin;
-    pgonRmin.push_back(rin); 
-    pgonRmin.push_back(rin); 
-    pgonRmin.push_back(rin); 
+    pgonRmin.emplace_back(rin); 
+    pgonRmin.emplace_back(rin); 
+    pgonRmin.emplace_back(rin); 
     std::vector<double> pgonRmax;
-    pgonRmax.push_back(rout); 
-    pgonRmax.push_back(rout); 
-    pgonRmax.push_back(rout); 
+    pgonRmax.emplace_back(rout); 
+    pgonRmax.emplace_back(rout); 
+    pgonRmax.emplace_back(rout); 
     solid = DDSolidFactory::polycone(DDName(name,idNameSpace), 0, CLHEP::twopi,
 				     pgonZ, pgonRmin, pgonRmax);
     LogDebug("TOBGeom") << "DDTOBRadCableAlgo test: " 

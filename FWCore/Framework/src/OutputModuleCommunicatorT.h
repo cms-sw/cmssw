@@ -16,11 +16,15 @@ namespace edm {
   namespace global {
     class OutputModuleBase;
   }
+  namespace limited {
+    class OutputModuleBase;
+  }
   namespace impl {
     std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(void *);
     std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::OutputModule *);
     std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::one::OutputModuleBase *);
     std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::global::OutputModuleBase *);
+    std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::limited::OutputModuleBase *);
   }
   
   template <typename T>
@@ -29,33 +33,33 @@ namespace edm {
   public:
     OutputModuleCommunicatorT(T* iModule):
     module_(iModule){}
-    virtual void closeFile() override;
+    void closeFile() override;
     
     ///\return true if output module wishes to close its file
-    virtual bool shouldWeCloseFile() const override;
+    bool shouldWeCloseFile() const override;
     
     ///\return true if no event filtering is applied to OutputModule
-    virtual bool wantAllEvents() const override;
+    bool wantAllEvents() const override;
     
-    virtual void openFile(edm::FileBlock const& fb) override;
+    void openFile(edm::FileBlock const& fb) override;
     
-    virtual void writeRun(edm::RunPrincipal const& rp, ProcessContext const*) override;
+    void writeRun(edm::RunPrincipal const& rp, ProcessContext const*) override;
     
-    virtual void writeLumi(edm::LuminosityBlockPrincipal const& lbp, ProcessContext const*) override;
+    void writeLumi(edm::LuminosityBlockPrincipal const& lbp, ProcessContext const*) override;
     
     ///\return true if OutputModule has reached its limit on maximum number of events it wants to see
-    virtual bool limitReached() const override;
+    bool limitReached() const override;
     
-    virtual void configure(edm::OutputModuleDescription const& desc) override;
+    void configure(edm::OutputModuleDescription const& desc) override;
     
-    virtual edm::SelectedProductsForBranchType const& keptProducts() const override;
+    edm::SelectedProductsForBranchType const& keptProducts() const override;
     
-    virtual void selectProducts(edm::ProductRegistry const& preg, ThinnedAssociationsHelper const&) override;
+    void selectProducts(edm::ProductRegistry const& preg, ThinnedAssociationsHelper const&) override;
     
-    virtual void setEventSelectionInfo(std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
+    void setEventSelectionInfo(std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
                                        bool anyProductProduced) override;
     
-    virtual ModuleDescription const& description() const override;
+    ModuleDescription const& description() const override;
 
     static std::unique_ptr<edm::OutputModuleCommunicator> createIfNeeded(T* iMod) {
       return std::move(impl::createCommunicatorIfNeeded(iMod));

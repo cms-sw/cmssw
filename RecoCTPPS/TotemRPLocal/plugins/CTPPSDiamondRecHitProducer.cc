@@ -28,18 +28,18 @@
 #include "RecoCTPPS/TotemRPLocal/interface/CTPPSDiamondRecHitProducerAlgorithm.h"
 
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
-#include "Geometry/VeryForwardGeometryBuilder/interface/TotemRPGeometry.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 
 class CTPPSDiamondRecHitProducer : public edm::stream::EDProducer<>
 {
   public:
     explicit CTPPSDiamondRecHitProducer( const edm::ParameterSet& );
-    ~CTPPSDiamondRecHitProducer();
+    ~CTPPSDiamondRecHitProducer() override;
 
     static void fillDescriptions( edm::ConfigurationDescriptions& );
 
   private:
-    virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+    void produce( edm::Event&, const edm::EventSetup& ) override;
 
     edm::EDGetTokenT< edm::DetSetVector<CTPPSDiamondDigi> > digiToken_;
 
@@ -69,7 +69,7 @@ CTPPSDiamondRecHitProducer::produce( edm::Event& iEvent, const edm::EventSetup& 
   iEvent.getByToken( digiToken_, digis );
 
   // get the geometry
-  edm::ESHandle<TotemRPGeometry> geometry;
+  edm::ESHandle<CTPPSGeometry> geometry;
   iSetup.get<VeryForwardRealGeometryRecord>().get( geometry );
 
   // produce the rechits collection
@@ -81,11 +81,16 @@ CTPPSDiamondRecHitProducer::produce( edm::Event& iEvent, const edm::EventSetup& 
 void
 CTPPSDiamondRecHitProducer::fillDescriptions( edm::ConfigurationDescriptions& descr )
 {
-  // The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descr.addDefault( desc );
+
+  desc.add<edm::InputTag>( "digiTag", edm::InputTag( "ctppsDiamondRawToDigi", "TimingDiamond" ) )
+    ->setComment( "input digis collection to retrieve" );
+  desc.add<double>( "timeSliceNs", 25.0/1024.0 )
+    ->setComment( "conversion constant between HPTDC timing bin size and nanoseconds" );
+  desc.add<int>( "timeShift", 0 ) // to be determined at calibration level, will be replaced by a map channel id -> time shift
+    ->setComment( "overall time offset to apply on all hits in all channels" );
+
+  descr.add( "ctppsDiamondRecHits", desc );
 }
 
 DEFINE_FWK_MODULE( CTPPSDiamondRecHitProducer );

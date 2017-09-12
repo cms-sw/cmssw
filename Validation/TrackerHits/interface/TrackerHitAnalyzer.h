@@ -112,6 +112,7 @@ private:
 
  bool runStandalone;
  std::string fOutputFile;
+ bool pixelOutput;
 
 };
 

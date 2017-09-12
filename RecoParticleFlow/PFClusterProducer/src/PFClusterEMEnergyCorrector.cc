@@ -335,18 +335,33 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt,
     int coridx = 0;
     int regind = 0;
     if (!iseb) regind = 4;
-    if (clusFlag==1)
+    
+    ///////////////////////////////////////////////////////////////////////////////////
+    ///a hit can be ZS or forced ZS. A hit can be in Full readout or Forced to be FULL readout
+    ///if it is ZS, then clusFlag (in binary) = 0001
+    ///if it is forced ZS, then clusFlag (in binary) = 0101
+    ///if it is FR, then clusFlag (in binary) = 0011
+    ///if it is forced FR, then clusFlag (in binary) = 0111
+    ///i.e 3rd bit is set.
+    ///Even if it is forced, we should mark it is as ZS or FR. To take care of it, just check the LSB and second LSB(SLSB)
+    ///////////////////////////////////////////////////////////////////////////////////
+    int ZS_bit = clusFlag>>0&1;
+    int FR_bit = clusFlag>>1&1;
+    
+    
+
+    if (ZS_bit!=0 && FR_bit==0) ///it is clusFlag==1, 5
       coridx = 0 + regind;
-    else {
+    else{
       if (pt<2.5) coridx = 1 + regind;
       else if (pt>=2.5 && pt<6.) coridx = 2 + regind;
       else if (pt>=6.) coridx = 3 + regind;
     }
-    if (clusFlag!=1 && clusFlag!=3) {
-      edm::LogWarning("PFClusterEMEnergyCorrector") << "We can only correct regions readout in ZS (flag 1) or FULL readout (flag 3). Flag " << clusFlag << " is not recognized."
+    if (ZS_bit==0 || clusFlag > 7) {
+      edm::LogWarning("PFClusterEMEnergyCorrector") << "We can only correct regions readout in ZS (flag 1,5) or FULL readout (flag 3,7). Flag " << clusFlag << " is not recognized."
 						    << "\n" << "Assuming FULL readout and continuing";
     }
-           
+
     const GBRForestD &meanforest = *forestH_mean[coridx].product();
     const GBRForestD &sigmaforest = *forestH_sigma[coridx].product();
 

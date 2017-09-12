@@ -217,7 +217,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
             reqObjResult = muCondition.condLastResult();
 
             cond0Comb = (muCondition.getCombinationsInCond());
-            cond0bx = (corrMuon->condRelativeBx());
+            cond0bx = bxEval + (corrMuon->condRelativeBx());
 
             cndObjTypeVec[0] = (corrMuon->objectType())[0];
 
@@ -239,7 +239,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
             reqObjResult = caloCondition.condLastResult();
 
             cond0Comb = (caloCondition.getCombinationsInCond());
-            cond0bx = (corrCalo->condRelativeBx());
+            cond0bx = bxEval + (corrCalo->condRelativeBx());
 
             cndObjTypeVec[0] = (corrCalo->objectType())[0];
 
@@ -260,7 +260,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
             reqObjResult = eSumCondition.condLastResult();
 
             cond0Comb = (eSumCondition.getCombinationsInCond());
-            cond0bx = (corrEnergySum->condRelativeBx());
+            cond0bx = bxEval + (corrEnergySum->condRelativeBx());
 
             cndObjTypeVec[0] = (corrEnergySum->objectType())[0];
 
@@ -300,7 +300,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
             reqObjResult = muCondition.condLastResult();
 
             cond1Comb = (muCondition.getCombinationsInCond());
-            cond1bx = (corrMuon->condRelativeBx());
+            cond1bx = bxEval + (corrMuon->condRelativeBx());
             cndObjTypeVec[1] = (corrMuon->objectType())[0];
 
             if (m_verbosity) {
@@ -320,7 +320,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
             reqObjResult = caloCondition.condLastResult();
 
             cond1Comb = (caloCondition.getCombinationsInCond());
-            cond1bx = (corrCalo->condRelativeBx());
+            cond1bx = bxEval + (corrCalo->condRelativeBx());
 
             cndObjTypeVec[1] = (corrCalo->objectType())[0];
 
@@ -342,7 +342,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
             reqObjResult = eSumCondition.condLastResult();
 
             cond1Comb = (eSumCondition.getCombinationsInCond());
-            cond1bx = (corrEnergySum->condRelativeBx());
+            cond1bx = bxEval + (corrEnergySum->condRelativeBx());
             cndObjTypeVec[1] = (corrEnergySum->objectType())[0];
 
             if (m_verbosity) {
@@ -383,7 +383,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
             reqObjResult = muCondition.condLastResult();
 
             cond2Comb = (muCondition.getCombinationsInCond());
-            cond2bx = (corrMuon->condRelativeBx());
+            cond2bx = bxEval + (corrMuon->condRelativeBx());
             cndObjTypeVec[2] = (corrMuon->objectType())[0];
 
             if (m_verbosity) {
@@ -403,7 +403,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
             reqObjResult = caloCondition.condLastResult();
 
             cond2Comb = (caloCondition.getCombinationsInCond());
-            cond2bx = (corrCalo->condRelativeBx());
+            cond2bx = bxEval + (corrCalo->condRelativeBx());
             cndObjTypeVec[2] = (corrCalo->objectType())[0];
 
             if (m_verbosity ) {
@@ -424,7 +424,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
             reqObjResult = eSumCondition.condLastResult();
 
             cond2Comb = (eSumCondition.getCombinationsInCond());
-            cond2bx = (corrEnergySum->condRelativeBx());
+            cond2bx = bxEval + (corrEnergySum->condRelativeBx());
             cndObjTypeVec[2] = (corrEnergySum->objectType())[0];
 
             if (m_verbosity) {
@@ -1225,7 +1225,8 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
               //If we are dealing with the same object type avoid the two legs
               // either being the same object
               if( cndObjTypeVec[0] == cndObjTypeVec[1] &&
-                obj0Index == obj1Index ) {
+		  obj0Index == obj1Index &&
+		  cond0bx == cond1bx) {
 
                 LogDebug("L1TGlobal") << "Corr Condition looking at same leg...skip" << std::endl;
                 continue;

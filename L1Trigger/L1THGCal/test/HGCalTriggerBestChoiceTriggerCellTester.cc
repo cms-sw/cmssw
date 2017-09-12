@@ -28,6 +28,8 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerFECodecBase.h"
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellBestChoiceCodecImpl.h"
@@ -51,7 +53,7 @@ class HGCalTriggerBestChoiceTriggerCellTester : public edm::EDAnalyzer
     private:
         void checkSelectedCells(const edm::Event&, const edm::EventSetup&);
         void rerunBestChoiceFragments(const edm::Event&, const edm::EventSetup&);
-        void fillModule(const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>&, const std::vector<std::pair<HGCalDetId, uint32_t > >&, const HGCalTriggerCellBestChoiceDataPayload&,  const HGCalTriggerCellBestChoiceDataPayload&,const HGCalTriggerCellBestChoiceDataPayload&,   const std::map <HGCalDetId,double>&, const std::unordered_map<uint32_t, double>& );
+        void fillModule(const std::vector<HGCDataFrame<DetId,HGCSample>>&, const std::vector<std::pair<DetId, uint32_t > >&, const HGCalTriggerCellBestChoiceDataPayload&,  const HGCalTriggerCellBestChoiceDataPayload&,const HGCalTriggerCellBestChoiceDataPayload&,   const std::map <HGCalDetId,double>&, const std::unordered_map<uint32_t, double>& );
 
         // inputs
         edm::EDGetToken inputee_, inputfh_, inputbh_, inputbeall_, inputbeselect_;
@@ -61,7 +63,6 @@ class HGCalTriggerBestChoiceTriggerCellTester : public edm::EDAnalyzer
         edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
         std::unique_ptr<HGCalTriggerCellBestChoiceCodecImpl> codec_;
         edm::Service<TFileService> fs_;
-        HGCalTriggerGeometryBase::es_info info_;
 
         // histos
         TH1F* hgcCellData_;
@@ -160,18 +161,7 @@ HGCalTriggerBestChoiceTriggerCellTester::~HGCalTriggerBestChoiceTriggerCellTeste
 void HGCalTriggerBestChoiceTriggerCellTester::beginRun(const edm::Run& /*run*/, 
         const edm::EventSetup& es)
 {
-    es.get<IdealGeometryRecord>().get(triggerGeometry_);
-
-    const std::string& ee_sd_name = triggerGeometry_->eeSDName();
-    const std::string& fh_sd_name = triggerGeometry_->fhSDName();
-    const std::string& bh_sd_name = triggerGeometry_->bhSDName();
-    es.get<IdealGeometryRecord>().get(ee_sd_name,info_.geom_ee);
-    es.get<IdealGeometryRecord>().get(fh_sd_name,info_.geom_fh);
-    es.get<IdealGeometryRecord>().get(bh_sd_name,info_.geom_bh);
-    es.get<IdealGeometryRecord>().get(ee_sd_name,info_.topo_ee);
-    es.get<IdealGeometryRecord>().get(fh_sd_name,info_.topo_fh);
-    es.get<IdealGeometryRecord>().get(bh_sd_name,info_.topo_bh);
-
+    es.get<CaloGeometryRecord>().get(triggerGeometry_);
 }
 
 void HGCalTriggerBestChoiceTriggerCellTester::analyze(const edm::Event& e, 
@@ -309,7 +299,7 @@ void HGCalTriggerBestChoiceTriggerCellTester::rerunBestChoiceFragments(const edm
             simid = (HGCalDetId)simhit.id();
             HGCalTestNumbering::unpackHexagonIndex(simid, subdet, zp, layer, sec, subsec, cell); 
             mysubdet = (ForwardSubdetector)(subdet);
-            std::pair<int,int> recoLayerCell = info_.topo_ee->dddConstants().simToReco(cell,layer,sec,info_.topo_ee->detectorType());
+            std::pair<int,int> recoLayerCell = triggerGeometry_->eeTopology().dddConstants().simToReco(cell,layer,sec,triggerGeometry_->eeTopology().detectorType());
             cell  = recoLayerCell.first;
             layer = recoLayerCell.second;
             if (layer<0 || cell<0) {
@@ -346,7 +336,7 @@ void HGCalTriggerBestChoiceTriggerCellTester::rerunBestChoiceFragments(const edm
             simid = (HGCalDetId) simhit.id();
             HGCalTestNumbering::unpackHexagonIndex(simid, subdet, zp, layer, sec, subsec, cell); 
             mysubdet = (ForwardSubdetector)(subdet);
-            std::pair<int,int> recoLayerCell = info_.topo_fh->dddConstants().simToReco(cell,layer,sec,info_.topo_fh->detectorType());
+            std::pair<int,int> recoLayerCell = triggerGeometry_->fhTopology().dddConstants().simToReco(cell,layer,sec,triggerGeometry_->fhTopology().detectorType());
             cell  = recoLayerCell.first;
             layer = recoLayerCell.second;
             if (layer<0 || cell<0) {
@@ -388,8 +378,8 @@ void HGCalTriggerBestChoiceTriggerCellTester::rerunBestChoiceFragments(const edm
     for( const auto& module_hits : hit_modules_ee ) 
     {        
         // prepare input data
-        std::vector<HGCDataFrame<HGCalDetId,HGCSample>> dataframes;
-        std::vector<std::pair<HGCalDetId, uint32_t > > linearized_dataframes;
+        std::vector<HGCDataFrame<DetId,HGCSample>> dataframes;
+        std::vector<std::pair<DetId, uint32_t > > linearized_dataframes;
         // loop over EE and fill digis belonging to that module
         for(const auto& eedata : module_hits.second)
         {
@@ -429,8 +419,8 @@ void HGCalTriggerBestChoiceTriggerCellTester::rerunBestChoiceFragments(const edm
     for( const auto& module_hits : hit_modules_fh ) 
     {        
         // prepare input data
-        std::vector<HGCDataFrame<HGCalDetId,HGCSample>> dataframes;
-        std::vector<std::pair<HGCalDetId, uint32_t > > linearized_dataframes;
+        std::vector<HGCDataFrame<DetId,HGCSample>> dataframes;
+        std::vector<std::pair<DetId, uint32_t > > linearized_dataframes;
         // loop over FH digis and fill digis belonging to that module
         for(const auto& fhdata : module_hits.second)
         {
@@ -471,7 +461,7 @@ void HGCalTriggerBestChoiceTriggerCellTester::rerunBestChoiceFragments(const edm
 }
 
 
-void HGCalTriggerBestChoiceTriggerCellTester::fillModule( const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>& dataframes,  const std::vector<std::pair<HGCalDetId, uint32_t > >& linearized_dataframes, const HGCalTriggerCellBestChoiceDataPayload& fe_payload_TCsums_woBestChoice, const HGCalTriggerCellBestChoiceDataPayload& fe_payload_TCsums_BestChoice, const HGCalTriggerCellBestChoiceDataPayload& fe_payload, const std::map <HGCalDetId,double>& simhit_energies, const std::unordered_map<uint32_t, double>& TC_simhit_energies)
+void HGCalTriggerBestChoiceTriggerCellTester::fillModule( const std::vector<HGCDataFrame<DetId,HGCSample>>& dataframes,  const std::vector<std::pair<DetId, uint32_t > >& linearized_dataframes, const HGCalTriggerCellBestChoiceDataPayload& fe_payload_TCsums_woBestChoice, const HGCalTriggerCellBestChoiceDataPayload& fe_payload_TCsums_BestChoice, const HGCalTriggerCellBestChoiceDataPayload& fe_payload, const std::map <HGCalDetId,double>& simhit_energies, const std::unordered_map<uint32_t, double>& TC_simhit_energies)
 {
 
     // HGC cells part

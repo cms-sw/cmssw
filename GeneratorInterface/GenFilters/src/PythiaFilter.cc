@@ -1,5 +1,6 @@
 
 #include "GeneratorInterface/GenFilters/interface/PythiaFilter.h"
+#include "GeneratorInterface/GenFilters/interface/MCFilterZboostHelper.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include <iostream>
@@ -23,7 +24,8 @@ minphicut(iConfig.getUntrackedParameter("MinPhi", -3.5)),
 maxphicut(iConfig.getUntrackedParameter("MaxPhi", 3.5)),
 status(iConfig.getUntrackedParameter("Status", 0)),
 motherID(iConfig.getUntrackedParameter("MotherID", 0)),
-processID(iConfig.getUntrackedParameter("ProcessID", 0))
+processID(iConfig.getUntrackedParameter("ProcessID", 0)),
+betaBoost(iConfig.getUntrackedParameter("BetaBoost",0.))
 {
    //now do what ever initialization is needed
 
@@ -57,16 +59,16 @@ bool PythiaFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      
      for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
 	   p != myGenEvent->particles_end(); ++p ) {
-       
-       rapidity = 0.5*log( ((*p)->momentum().e()+(*p)->momentum().pz()) / ((*p)->momentum().e()-(*p)->momentum().pz()) );
+       HepMC::FourVector mom = MCFilterZboostHelper::zboost((*p)->momentum(),betaBoost);
+       rapidity = 0.5*log( (mom.e()+mom.pz()) / (mom.e()-mom.pz()) );
        
        if ( abs((*p)->pdg_id()) == particleID 
-	    && (*p)->momentum().rho() > minpcut 
-	    && (*p)->momentum().rho() < maxpcut
+	    && mom.rho() > minpcut 
+	    && mom.rho() < maxpcut
 	    && (*p)->momentum().perp() > minptcut 
 	    && (*p)->momentum().perp() < maxptcut
-	    && (*p)->momentum().eta() > minetacut
-	    && (*p)->momentum().eta() < maxetacut 
+	    && mom.eta() > minetacut
+	    && mom.eta() < maxetacut 
 	    && rapidity > minrapcut
 	    && rapidity < maxrapcut 
 	    && (*p)->momentum().phi() > minphicut
@@ -121,4 +123,3 @@ bool PythiaFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    return true; } else {return false;}
 
 }
-

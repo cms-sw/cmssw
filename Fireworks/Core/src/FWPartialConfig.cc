@@ -127,7 +127,7 @@ void FWPartialConfigLoadGUI::Load()
 
             for(FWConfiguration::KeyValues::iterator it = kv->begin(); it != kv->end(); ++it)
             {
-                if ( key.compare(it->first) == 0) {
+                if ( key == it->first) {
                     kv->erase(it);
                     break;
                 }
@@ -205,11 +205,11 @@ FWPartialConfigSaveGUI::WriteConfig()
             // printf("ON check key %s\n", key.c_str());
             for(FWConfiguration::KeyValues::iterator it = cur_kv->begin(); it != cur_kv->end(); ++it)
             {
-                if ( key.compare(it->first) == 0) {
+                if ( key == it->first) {
                     bool replace = false;
                     if (old_kv) {
                         for(FWConfiguration::KeyValues::iterator oldit = old_kv->begin(); oldit != old_kv->end(); ++oldit) {
-                            if ( key.compare(oldit->first) == 0) {
+                            if ( key == oldit->first) {
                                 replace = true;
                                 oldit->second.swap(it->second);
                                 break;

@@ -2,13 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 #IsolatedPixelTrackCandidateProducer default configuration
 isolPixelTrackProd    = cms.EDProducer("IsolatedPixelTrackCandidateL1TProducer",
-    L1eTauJetsSource           = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
+    L1eTauJetsSource           = cms.InputTag( 'hltGtStage2Digis','Tau' ),
     tauAssociationCone         = cms.double( 0.0 ),
     tauUnbiasCone              = cms.double( 1.2 ),
     PixelTracksSources         = cms.VInputTag( "hltPixelTracks" ),
     ExtrapolationConeSize      = cms.double(1.0),
     PixelIsolationConeSizeAtEC = cms.double(40),
-    L1GTSeedLabel              = cms.InputTag( "hltL1sIsoTrack" ),
+    L1GTSeedLabel              = cms.InputTag( "hltL1sV0SingleJet60" ),
     MaxVtxDXYSeed              = cms.double( 101.0 ),
     MaxVtxDXYIsol              = cms.double( 101.0 ),
     VertexLabel                = cms.InputTag( "hltTrimmedPixelVertices" ),

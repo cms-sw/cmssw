@@ -205,7 +205,7 @@ TGeoFromDddService::createManager(int level)
 	 for(unsigned int i=0; i<parentStack.size();++i) {
 	    std::cout <<" ";
 	 }
-	 std::cout << info.first.name()<<" "<<info.second->copyno_<<" "
+	 std::cout << info.first.name()<<" "<<info.second->copyno()<<" "
 		   << DDSolidShapesName::name(info.first.solid().shape())<<std::endl;
       }
 
@@ -216,7 +216,7 @@ TGeoFromDddService::createManager(int level)
       if (0!=child && info.second != 0)
       {
 	 parentStack.back()->AddNode(child,
-				 info.second->copyno_,
+				     info.second->copyno(),
 				 createPlacement(info.second->rotation(),
 						 info.second->translation()));
 	 child->SetLineColor(kBlue);

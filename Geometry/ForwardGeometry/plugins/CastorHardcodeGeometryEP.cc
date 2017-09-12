@@ -9,7 +9,7 @@ CastorHardcodeGeometryEP::CastorHardcodeGeometryEP(const edm::ParameterSet& iCon
    // data is being produced
    setWhatProduced( this, CastorGeometry::producerTag() );
 
-   loader_=0;
+   loader_=nullptr;
 }
 
 

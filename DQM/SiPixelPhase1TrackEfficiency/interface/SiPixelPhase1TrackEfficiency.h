@@ -17,6 +17,7 @@ class SiPixelPhase1TrackEfficiency : public SiPixelPhase1Base {
   enum {
     VALID,
     MISSING,
+    INACTIVE,
     EFFICIENCY,
     VERTICES
   };

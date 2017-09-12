@@ -45,7 +45,7 @@ void ProductInfo::addBranchSizes(TBranch & branch, Long64_t &size)
    for (Long64_t i = 0; i < nB; ++i)
    {
       TBranch *btemp = (TBranch *)branch.GetListOfBranches()->At(i);
-      if (btemp != NULL)
+      if (btemp != nullptr)
       {
          addBranchSizes(*btemp, size);
       }

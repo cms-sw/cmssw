@@ -310,7 +310,7 @@ bool IsSpanningOver2APV(unsigned int FirstStrip, unsigned int ClusterSize)
 
 bool IsFarFromBorder(const TrajectoryStateOnSurface& trajState, const GeomDetUnit* it)
 {
-  if (dynamic_cast<const StripGeomDetUnit*>(it)==0 && dynamic_cast<const PixelGeomDetUnit*>(it)==0) {
+  if (dynamic_cast<const StripGeomDetUnit*>(it)==nullptr && dynamic_cast<const PixelGeomDetUnit*>(it)==nullptr) {
      edm::LogInfo("DeDxTools::IsFarFromBorder") << "this detID doesn't seem to belong to the Tracker" << std::endl;
      return false;
   }
@@ -322,20 +322,12 @@ bool IsFarFromBorder(const TrajectoryStateOnSurface& trajState, const GeomDetUni
   const TrapezoidalPlaneBounds* trapezoidalBounds( dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
   const RectangularPlaneBounds* rectangularBounds( dynamic_cast<const RectangularPlaneBounds*>(&(plane.bounds())));
 
+  if (!trapezoidalBounds && !rectangularBounds) return false;
+
   double DistFromBorder = 1.0;
   //double HalfWidth      = it->surface().bounds().width()  /2.0;
-  double HalfLength     = it->surface().bounds().length() /2.0;
-
-  if(trapezoidalBounds)
-  {
-      std::array<const float, 4> const & parameters = (*trapezoidalBounds).parameters();
-     HalfLength     = parameters[3];
-     //double t       = (HalfLength + HitLocalPos.y()) / (2*HalfLength) ;
-     //HalfWidth      = parameters[0] + (parameters[1]-parameters[0]) * t;
-  }else if(rectangularBounds){
-     //HalfWidth      = it->surface().bounds().width()  /2.0;
-     HalfLength     = it->surface().bounds().length() /2.0;
-  }else{return false;}
+  double HalfLength     = trapezoidalBounds ? (*trapezoidalBounds).parameters()[3] 
+                                            : it->surface().bounds().length() /2.0;
 
 //  if (fabs(HitLocalPos.x())+HitLocalError.xx() >= (HalfWidth  - DistFromBorder) ) return false;//Don't think is really necessary
   if (fabs(HitLocalPos.y())+HitLocalError.yy() >= (HalfLength - DistFromBorder) ) return false;
