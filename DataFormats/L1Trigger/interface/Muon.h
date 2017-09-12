@@ -36,7 +36,8 @@ namespace l1t {
       int hwEtaAtVtx = 0,
       int hwPhiAtVtx = 0,
       double etaAtVtx = 0.,
-      double phiAtVtx = 0.);
+      double phiAtVtx = 0.,
+      double ptNoVtx = 0.);
     
     Muon( const PolarLorentzVector& p4,
       int pt=0,
@@ -56,7 +57,8 @@ namespace l1t {
       int hwEtaAtVtx = 0,
       int hwPhiAtVtx = 0,
       double etaAtVtx = 0.,
-      double phiAtVtx = 0.);
+      double phiAtVtx = 0.,
+      double ptNoVtx = 0.);
 
     ~Muon();    
 
@@ -78,6 +80,8 @@ namespace l1t {
 
     inline void setDebug(bool debug) { debug_ = debug; };
 
+    inline void setPtNoVtx(float ptNoVtx) { ptNoVtx_ = ptNoVtx; }
+
     // methods to retrieve values
     inline int hwCharge() const { return hwCharge_; };
     inline int hwChargeValid() const { return hwChargeValid_; };
@@ -95,6 +99,8 @@ namespace l1t {
     inline int hwRank() const { return hwRank_; };
 
     inline bool debug() const { return debug_; };
+
+    inline float getPtNoVtx() const { return ptNoVtx_; }
     
   private:
     
@@ -116,6 +122,9 @@ namespace l1t {
     int hwPhiAtVtx_;
     double etaAtVtx_;
     double phiAtVtx_;
+
+    // additional phase-2 members
+    float ptNoVtx_;
   };
   
 }
