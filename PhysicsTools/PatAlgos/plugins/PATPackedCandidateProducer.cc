@@ -36,9 +36,9 @@ namespace pat {
     class PATPackedCandidateProducer : public edm::global::EDProducer<> {
         public:
             explicit PATPackedCandidateProducer(const edm::ParameterSet&);
-            ~PATPackedCandidateProducer();
+            ~PATPackedCandidateProducer() override;
 
-            virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+            void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
             //sorting of cands to maximize the zlib compression
             bool candsOrdering(pat::PackedCandidate i,pat::PackedCandidate j) const {
@@ -219,7 +219,7 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
 
     for(unsigned int ic=0, nc = cands->size(); ic < nc; ++ic) {
         const reco::PFCandidate &cand=(*cands)[ic];
-        const reco::Track *ctrack = 0;
+        const reco::Track *ctrack = nullptr;
         if ((abs(cand.pdgId()) == 11 || cand.pdgId() == 22) && cand.gsfTrackRef().isNonnull()) {
             ctrack = &*cand.gsfTrackRef();
         } else if (cand.trackRef().isNonnull()) {
