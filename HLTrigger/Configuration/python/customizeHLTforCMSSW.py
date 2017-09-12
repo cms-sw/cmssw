@@ -42,6 +42,15 @@ def customiseFor19989(process):
         process.GlobalParameters = GlobalParameters
     return process
 
+# new parameter for HCAL method 2 reconstruction
+def customiseFor20422(process):
+    from RecoLocalCalo.HcalRecProducers.HBHEMethod2Parameters_cfi import m2Parameters
+    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
+        producer.algorithm.applyDCConstraint = m2Parameters.applyDCConstraint
+    for producer in producers_by_type(process, "HcalHitReconstructor"):
+        producer.applyDCConstraint = m2Parameters.applyDCConstraint
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -51,5 +60,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     process = customiseFor19029(process)
     process = customiseFor20269(process)
     process = customiseFor19989(process)
+    process = customiseFor20422(process)
 
     return process
