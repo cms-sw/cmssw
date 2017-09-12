@@ -7,6 +7,7 @@
 
 #include "Validation/GlobalHits/interface/GlobalHitsProdHist.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), vtxunit(0), 
@@ -1807,19 +1808,19 @@ void GlobalHitsProdHist::fillHCal(edm::Event& iEvent,
 	 (subdetector == sdHcalFwd))) {
 
       // get the Cell geometry
-      const CaloCellGeometry *theDet = theCalo.
-	getSubdetectorGeometry(theDetUnitId)->getGeometry(theDetUnitId);
+      const HcalGeometry *theDet = (HcalGeometry*)
+	(theCalo.getSubdetectorGeometry(theDetUnitId));
 
       if (!theDet) {
 	edm::LogWarning(MsgLoggerCat)
-	  << "Unable to get CaloCellGeometry from HCalContainer for Hit " << i;
+	  << "Unable to get HcalGeometry from HCalContainer for Hit " << i;
 	continue;
       }
 
       ++j;
 
       // get the global position of the cell
-      const GlobalPoint& globalposition = theDet->getPosition();
+      const GlobalPoint& globalposition = theDet->getPosition(theDetUnitId);
 
       if (hCaloHcalE[0]) hCaloHcalE[0]->Fill(itHit->energy());
       if (hCaloHcalE[1]) hCaloHcalE[1]->Fill(itHit->energy());
