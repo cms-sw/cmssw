@@ -122,11 +122,11 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
     }
     
     // Produce muons
-    std::vector<int> vtxInd;
     float minDR2=1e-06;
     int index = 0;
     for (auto &muon : *ChargedCandidateCollection) {
       reco::RecoChargedCandidateRef muonRef = getRef(ChargedCandidateCollection, index);
+      std::vector<int> vtxInd;
       ++index;
       if (muonRef.isNull() || !muonRef.isAvailable())
 	continue;
@@ -176,6 +176,7 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
 			     track->dszError(),
 			     vtxInd
 			     );
+      vtxInd.clear();
     }
     
     // Put output
