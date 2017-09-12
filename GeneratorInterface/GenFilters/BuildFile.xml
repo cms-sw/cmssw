@@ -25,4 +25,5 @@
 <use   name="DataFormats/HepMCCandidate"/>
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/EgammaReco"/>
+<use   name="DataFormats/Math"/>
 <flags   EDM_PLUGIN="1"/>
