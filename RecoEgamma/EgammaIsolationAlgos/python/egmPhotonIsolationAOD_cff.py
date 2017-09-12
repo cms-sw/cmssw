@@ -1,21 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-from CommonTools.ParticleFlow.pfNoPileUpIso_cff import * 
-from CommonTools.ParticleFlow.pfParticleSelection_cff import * 
-from RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationMiniAOD_cff import IsoConeDefinitions
+from CommonTools.ParticleFlow.pfNoPileUpIso_cff import pfPileUpIso, pfNoPileUpIso, pfNoPileUpIsoSequence
+from RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationMiniAOD_cff import IsoConeDefinitions as _IsoConeDefinitions
+from RecoEgamma.EgammaIsolationAlgos.egmIsolationDefinitions_cff import pfNoPileUpCandidates
 
-pfNoPileUpCandidates = pfAllChargedHadrons.clone()
-pfNoPileUpCandidates.pdgId.extend(pfAllNeutralHadronsAndPhotons.pdgId)
 
-particleFlowTmpPtrs = cms.EDProducer("PFCandidateFwdPtrProducer",
-src = cms.InputTag('particleFlow')
-)
+egmPhotonIsolation = cms.EDProducer( "CITKPFIsolationSumProducer",
+                                     srcToIsolate = cms.InputTag("gedPhotons"),
+                                     srcForIsolationCone = cms.InputTag('pfNoPileUpCandidates'),
+                                     isolationConeDefinitions = _IsoConeDefinitions
+                                     )	
 
-egmPhotonIsolationAOD = cms.EDProducer( "CITKPFIsolationSumProducer",
-			  srcToIsolate = cms.InputTag("gedPhotons"),
-			  srcForIsolationCone = cms.InputTag('pfNoPileUpCandidates'),
-			  isolationConeDefinitions = IsoConeDefinitions
-  )	
-
-egmPhotonIsolationAODSequence = cms.Sequence(particleFlowTmpPtrs + pfParticleSelectionSequence + pfNoPileUpCandidates + egmPhotonIsolationAOD)
+egmPhotonIsolationAODSequence = cms.Sequence(pfNoPileUpIsoSequence + pfNoPileUpCandidates + egmPhotonIsolation)
 
