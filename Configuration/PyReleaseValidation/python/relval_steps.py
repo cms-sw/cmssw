@@ -389,6 +389,7 @@ steps['ZMM_13UP17']=gen2017('ZMM_13TeV_TuneCUETP8M1_cfi',Kby(18,100))
 steps['ZTT_13UP17']=gen2017('ZTT_All_hadronic_13TeV_TuneCUETP8M1_cfi',Kby(9,80))
 steps['H125GGgluonfusion_13UP17']=gen2017('H125GGgluonfusion_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
 steps['QQH1352T_13UP17']=gen2017('QQH1352T_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
+steps['SMS-T1tttt_mGl-1500_mLSP-100_13UP17']=gen2017('SMS-T1tttt_mGl-1500_mLSP-100_13TeV-pythia8_cfi',Kby(9,50))
 
 # 13TeV High Stats samples
 steps['ZMM_13_HS']=gen2015('ZMM_13TeV_TuneCUETP8M1_cfi',Kby(209,100))
@@ -535,7 +536,7 @@ steps['ZTT_13UP17INPUT']={'INPUT':InputInfo(dataSet='/RelValZTT_13/%s/GEN-SIM'%(
 steps['H125GGgluonfusion_13UP17INPUT']={'INPUT':InputInfo(dataSet='/RelValH125GGgluonfusion_13/%s/GEN-SIM'%(baseDataSetRelease[13],),location='STD')}
 steps['QQH1352T_13UP17INPUT']={'INPUT':InputInfo(dataSet='/RelValQQH1352T_13/%s/GEN-SIM'%(baseDataSetRelease[13],),location='STD')}
 steps['NuGun_UP17INPUT']={'INPUT':InputInfo(dataSet='/RelValNuGun/%s/GEN-SIM'%(baseDataSetRelease[13],),location='STD')}
-
+steps['SMS-T1tttt_mGl-1500_mLSP-100_13UP17INPUT']={'INPUT':InputInfo(dataSet='/RelValSMS-T1tttt_mGl-1500_mLSP-100_13/%s/GEN-SIM'%(baseDataSetRelease[13],),location='STD')}
 
 
 #input for fast sim workflows to be added - TODO
