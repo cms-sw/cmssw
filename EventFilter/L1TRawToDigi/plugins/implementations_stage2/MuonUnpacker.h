@@ -10,9 +10,9 @@ namespace l1t {
       class MuonUnpacker : public Unpacker {
          public:
             MuonUnpacker();
-            ~MuonUnpacker() {};
+            ~MuonUnpacker() override {};
 
-            virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
+            bool unpack(const Block& block, UnpackerCollections *coll) override;
 
             inline unsigned int getAlgoVersion() { return algoVersion_; };
             inline int getFedNumber() { return fed_; };

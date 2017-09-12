@@ -9,7 +9,7 @@ namespace l1t {
    namespace stage2 {
       class RegionalMuonGMTUnpacker : public Unpacker {
          public:
-            virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
+            bool unpack(const Block& block, UnpackerCollections *coll) override;
 
          private:
             static const unsigned int nWords_ = 6; // every link transmits 6 words (3 muons) per bx
