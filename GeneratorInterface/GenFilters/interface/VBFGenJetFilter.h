@@ -12,6 +12,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 // ROOT includes
 #include "TFile.h"
@@ -28,9 +29,9 @@
 class VBFGenJetFilter : public edm::EDFilter {
 public:
   explicit VBFGenJetFilter(const edm::ParameterSet&);
-  ~VBFGenJetFilter();
+  ~VBFGenJetFilter() override;
   
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 private:
   
   // ----------memeber function----------------------
@@ -42,7 +43,7 @@ private:
   double nuMET(std::vector<HepMC::GenParticle*> vNu);
   
   std::vector<const reco::GenJet*> filterGenJets(const std::vector<reco::GenJet>* jets);
-  //   std::vector<const reco::GenJet*> filterGenJets(const std::vector<reco::GenJet>* jets);
+  std::vector<const reco::GenParticle*> filterGenLeptons(const std::vector<reco::GenParticle>* particles);
   
   //**************************
   // Private Member data *****
@@ -52,6 +53,7 @@ private:
   
   // Dijet cut
   bool   oppositeHemisphere;
+  bool   leadJetsNoLepMass;
   double ptMin;
   double etaMin;
   double etaMax;
@@ -61,9 +63,13 @@ private:
   double maxDeltaPhi;
   double minDeltaEta;
   double maxDeltaEta;
+  double minLeadingJetsInvMass;
+  double maxLeadingJetsInvMass;
+  double deltaRJetLep;
   
   // Input tags
   edm::EDGetTokenT< reco::GenJetCollection > m_inputTag_GenJetCollection;
+  edm::EDGetTokenT< reco::GenParticleCollection > m_inputTag_GenParticleCollection;
   
 
 };
