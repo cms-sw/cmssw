@@ -23,6 +23,9 @@ m2Parameters = cms.PSet(
     timeMin               = cms.double(-12.5),#ns
     timeMax               = cms.double(12.5), #ns
     ts4chi2               = cms.vdouble(15.,15.),  #chi2 for triple pulse
-    fitTimes              = cms.int32(1)      # -1 means no constraint on number of fits per channel
-
+    fitTimes              = cms.int32(1),      # -1 means no constraint on number of fits per channel
+    applyDCConstraint     = cms.bool(False),
 )
+
+from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
+phase2_hcal.toModify(m2Parameters, applyDCConstraint = True)

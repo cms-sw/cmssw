@@ -154,7 +154,7 @@ namespace edm {
     // true).
 
     //Check that previousParentageId is still good by seeing if previousParentage matches gotBranchIDs_
-    bool sameAsPrevious = ((0 != previousParentage) && (previousParentage->size() == gotBranchIDs_.size()));
+    bool sameAsPrevious = ((nullptr != previousParentage) && (previousParentage->size() == gotBranchIDs_.size()));
     if(record_parents && !gotBranchIDs_.empty()) {
       gotBranchIDVector.reserve(gotBranchIDs_.size());
       std::vector<BranchID>::const_iterator itPrevious;
@@ -172,7 +172,7 @@ namespace edm {
           }
         }
       }
-      if(!sameAsPrevious && 0 != previousParentage) {
+      if(!sameAsPrevious && nullptr != previousParentage) {
         previousParentage->assign(gotBranchIDVector.begin(), gotBranchIDVector.end());
       }
     }
@@ -183,6 +183,9 @@ namespace edm {
     if(!previousParentage) {
       assert(!sameAsPrevious);
       previousParentageId = &temp;
+      if(!record_parents) {
+        sameAsPrevious = true;
+      }
     }
     while(pit != pie) {
       // set provenance
@@ -238,7 +241,7 @@ namespace edm {
   TriggerNames const&
   Event::triggerNames(edm::TriggerResults const& triggerResults) const {
     edm::TriggerNames const* names = triggerNames_(triggerResults);
-    if(names != 0) return *names;
+    if(names != nullptr) return *names;
 
     throw cms::Exception("TriggerNamesNotFound")
       << "TriggerNames not found in ParameterSet registry";
