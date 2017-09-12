@@ -633,7 +633,7 @@ void TrackerGeometryCompare::compareGeometries(Alignable* refAli, Alignable* cur
 		lWtotal.set(0.,0.,0.);
 
 		for (int i = 0; i < 100; i++){
-			AlgebraicVector diff = align::diffAlignables(curAli,refAli, _weightBy, _weightById, _weightByIdVector);
+			AlgebraicVector diff = align::diffAlignables(refAli, curAli, _weightBy, _weightById, _weightByIdVector);
 			CLHEP::Hep3Vector dR(diff[0],diff[1],diff[2]);
 			Rtotal+=dR;
 			CLHEP::Hep3Vector dW(diff[3],diff[4],diff[5]);
@@ -645,9 +645,9 @@ void TrackerGeometryCompare::compareGeometries(Alignable* refAli, Alignable* cur
 			lRtotal.set(diff[6],diff[7],diff[8]);
 			lWtotal.set(diff[9],diff[10],diff[11]);
 			
-			align::moveAlignable(refAli, diff);
+			align::moveAlignable(curAli, diff);
 			float tolerance = 1e-7;
-			AlgebraicVector check = align::diffAlignables(curAli,refAli, _weightBy, _weightById, _weightByIdVector);
+			AlgebraicVector check = align::diffAlignables(refAli, curAli, _weightBy, _weightById, _weightByIdVector);
 			align::GlobalVector checkR(check[0],check[1],check[2]);
 			align::GlobalVector checkW(check[3],check[4],check[5]);
 			if ((checkR.mag() > tolerance)||(checkW.mag() > tolerance)){
@@ -731,7 +731,7 @@ void TrackerGeometryCompare::diffCommonTrackerSystem(Alignable *refAli, Alignabl
 		CLHEP::Hep3Vector Rtotal, Wtotal;
 		Rtotal.set(0.,0.,0.); Wtotal.set(0.,0.,0.);
 		
-		AlgebraicVector diff = align::diffAlignables(curAli,refAli, _weightBy, _weightById, _weightByIdVector);
+		AlgebraicVector diff = align::diffAlignables(refAli, curAli, _weightBy, _weightById, _weightByIdVector);
 		CLHEP::Hep3Vector dR(diff[0],diff[1],diff[2]);
 		Rtotal+=dR;
 		CLHEP::Hep3Vector dW(diff[3],diff[4],diff[5]);
