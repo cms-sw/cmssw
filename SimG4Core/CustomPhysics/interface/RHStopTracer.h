@@ -6,6 +6,8 @@
 #include "SimG4Core/Watcher/interface/SimProducer.h"
 #include "SimG4Core/Notification/interface/Observer.h"
 
+#include <regex>
+
 class BeginOfRun;
 class BeginOfEvent;
 class BeginOfTrack;
@@ -43,7 +45,11 @@ class RHStopTracer :  public SimProducer,
   };
   bool mStopRegular;
   double mTraceEnergy;
+  int minPdgId;
+  int maxPdgId;
+  int otherPdgId;
   std::string mTraceParticleName;
+  std::regex rePartName;
   std::vector <StopPoint> mStopPoints;
 };
 
