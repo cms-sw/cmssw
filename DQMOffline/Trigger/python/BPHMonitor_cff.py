@@ -16,7 +16,7 @@ Dimuon0_Jpsi_tnp.muoSelection = cms.string("abs(eta)<2.4 & isPFMuon & isGlobalMu
 
 Dimuon25_Jpsi_tnp = hltBPHmonitoring.clone()
 Dimuon25_Jpsi_tnp.FolderName = cms.string('HLT/BPH/DiMu25_Jpsi_noCorr/')
-Dimuon25_Jpsi_tnp.tnp = cms.bool(False)
+Dimuon25_Jpsi_tnp.tnp = cms.bool(True)
 Dimuon25_Jpsi_tnp.enum = cms.int32(1)
 Dimuon25_Jpsi_tnp.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Dimuon25_Jpsi_noCorrL1_v*")
 Dimuon25_Jpsi_tnp.PrescaleTriggerEventPSet.prescaleWeightHltPaths = cms.vstring("HLT_Dimuon25_Jpsi_noCorrL1_v*")
@@ -736,7 +736,7 @@ Dimuon0_addTrackMu_Onia1.trOrMu = cms.int32(True)
 DimuonX_HLT_OS_Vtx = hltBPHmonitoring.clone()
 DimuonX_HLT_OS_Vtx.FolderName = cms.string('HLT/BPH/DimuX_HLT_OS_Vtx/')
 DimuonX_HLT_OS_Vtx.tnp = cms.bool(False)
-DimuonX_HLT_OS_Vtx.enum = cms.int32(1)
+DimuonX_HLT_OS_Vtx.enum = cms.int32(2)
 DimuonX_HLT_OS_Vtx.Jpsi = cms.int32(1)
 DimuonX_HLT_OS_Vtx.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Dimuon0_Jpsi_L1_NoOS_v*')
 DimuonX_HLT_OS_Vtx.PrescaleTriggerEventPSet.prescaleWeightHltPaths = cms.vstring('HLT_Dimuon0_Jpsi_L1_NoOS_v*')
@@ -801,7 +801,7 @@ bphHLTmonitoring = cms.Sequence(
     + Dimuon0_addTrackMu_Phi
     + Dimuon0_addTrackMu_Onia1
     + Dimuon0_addTrackMu_Phi1
-    #+ DimuonX_HLT_OS_Vtx
+    + DimuonX_HLT_OS_Vtx
 )
 
 

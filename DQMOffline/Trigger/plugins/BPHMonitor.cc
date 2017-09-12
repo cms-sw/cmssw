@@ -384,8 +384,8 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   edm::Handle<trigger::TriggerEvent> handleTriggerEvent; 
   edm::ESHandle<MagneticField> bFieldHandle;
   // Filter out events if Trigger Filtering is requested
-  int PrescaleWeight = prescaleWeightProvider_->prescaleWeight( iEvent, iSetup );  
-
+  double PrescaleWeight = prescaleWeightProvider_->prescaleWeight( iEvent, iSetup );  
+  
   if (tnp_>0) {//TnP method 
     if (den_genTriggerEventFlag_->on() && ! den_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
     iEvent.getByToken( hltInputTag_, handleTriggerEvent);
