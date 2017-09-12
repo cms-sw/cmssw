@@ -1437,8 +1437,17 @@ namespace edm {
 
   void EventProcessor::processEventAsync(WaitingTaskHolder iHolder,
                                          unsigned int iStreamIndex) {
+    tbb::task::spawn( *make_functor_task( tbb::task::allocate_root(), [=]() {
+      processEventAsyncImpl(iHolder, iStreamIndex);
+    }) );
+  }
+  
+  void EventProcessor::processEventAsyncImpl(WaitingTaskHolder iHolder,
+                                         unsigned int iStreamIndex) {
     auto pep = &(principalCache_.eventPrincipal(iStreamIndex));
     pep->setLuminosityBlockPrincipal(principalCache_.lumiPrincipalPtr());
+
+    ServiceRegistry::Operate operate(serviceToken_);
     Service<RandomNumberGenerator> rng;
     if(rng.isAvailable()) {
       Event ev(*pep, ModuleDescription(), nullptr);
