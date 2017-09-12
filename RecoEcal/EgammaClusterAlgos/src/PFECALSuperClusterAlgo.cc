@@ -393,7 +393,6 @@ buildSuperCluster(CalibClusterPtr& seed,
     }    
   }
 
-  //temporary fix for HGCal issue
   if (not_clustered == clusters.begin()) {
     if(dropUnseedable_){
       clusters.erase(clusters.begin());
