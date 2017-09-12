@@ -1,5 +1,6 @@
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/MuonDetId"/>
+<use   name="DataFormats/GEMDigi"/>
 
 <export>
   <lib   name="1"/>

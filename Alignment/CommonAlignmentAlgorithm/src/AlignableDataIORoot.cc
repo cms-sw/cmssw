@@ -128,6 +128,7 @@ AlignableAbsData AlignableDataIORoot::readAbsRaw(Alignable* ali,int& ierr)
 
   align::StructureType typeId = ali->alignableObjectId();
   align::ID id = ali->id();
+  std::vector<double> deformPars; deformPars.reserve(numDeformationValues_);
   int entry = findEntry(id,typeId);
   if(entry!=-1) {
     tree->GetEntry(entry);
@@ -138,13 +139,15 @@ AlignableAbsData AlignableDataIORoot::readAbsRaw(Alignable* ali,int& ierr)
     pos=pos2;
     rot=rot2;
 
-    // FIXME: Should add reading of deformation values?
-    //        Then call Alignable::setSurfaceDeformation(..) ...
+    for (unsigned int i = 0; i < numDeformationValues_; ++i) {
+      deformPars.push_back((double)deformationValues_[i]);
+    }
+
     ierr=0;
   }
   else ierr=-1;
 
-  return AlignableAbsData(pos,rot,id,typeId);
+  return AlignableAbsData(pos,rot,id,typeId,deformPars);
 }
 
 // ----------------------------------------------------------------------------
@@ -156,6 +159,7 @@ AlignableRelData AlignableDataIORoot::readRelRaw(Alignable* ali,int& ierr)
 
   align::StructureType typeId = ali->alignableObjectId();
   align::ID id = ali->id();
+  std::vector<double> deformPars; deformPars.reserve(numDeformationValues_);
   int entry = findEntry(id,typeId);
   if(entry!=-1) {
     tree->GetEntry(entry);
@@ -166,11 +170,13 @@ AlignableRelData AlignableDataIORoot::readRelRaw(Alignable* ali,int& ierr)
     pos=pos2;
     rot=rot2;
 
-    // FIXME: Should add reading of deformation values?
-    //        Then call Alignable::setSurfaceDeformation(..) ...
+    for (unsigned int i = 0; i < numDeformationValues_; ++i) {
+      deformPars.push_back((double)deformationValues_[i]);
+    }
+
     ierr=0;
   }
   else ierr=-1;
 
-  return AlignableRelData(pos,rot,id,typeId);
+  return AlignableRelData(pos,rot,id,typeId,deformPars);
 }

@@ -77,18 +77,20 @@ namespace l1t {
       {
          UnpackerMap res;
 
-         // input muons
+         // MP7 input link numbers are represented by even numbers starting from 0 (iLink=link*2)
+         // input muons on links 36-71
          auto gmt_in_unp = UnpackerFactory::get()->make("stage2::RegionalMuonGMTUnpacker");
          for (int iLink = 72; iLink < 144; iLink += 2)
             res[iLink] = gmt_in_unp;
 
-         // internal muons
+         // MP7 output link numbers are represented by odd numbers (oLink=link*2+1)
+         // internal muons on links 24-31
          auto gmt_imd_unp = static_pointer_cast<l1t::stage2::IntermediateMuonUnpacker>(UnpackerFactory::get()->make("stage2::IntermediateMuonUnpacker"));
          gmt_imd_unp->setAlgoVersion(fw);
-         for (int oLink = 49; oLink < 63; oLink += 2)
+         for (int oLink = 49; oLink < 65; oLink += 2)
             res[oLink] = gmt_imd_unp;
 
-         // output muons (6 copies)
+         // output muons on links 0-23 (6 copies on 4 links each)
          std::array<std::shared_ptr<l1t::stage2::MuonUnpacker>, 6> gmt_out_unps;
          int i = 0;
          for (auto gmt_out_unp:gmt_out_unps) {

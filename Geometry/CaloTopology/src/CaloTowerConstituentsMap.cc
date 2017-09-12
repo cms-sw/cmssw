@@ -57,7 +57,7 @@ void CaloTowerConstituentsMap::assign(const DetId& cell, const CaloTowerDetId& t
   if (m_items.find(cell)!=m_items.end()) {
     throw cms::Exception("CaloTowers") << "Cell with id " << std::hex << cell.rawId() << std::dec << " is already mapped to a CaloTower " << m_items.find(cell)->tower << std::endl;
   }
-  m_items.push_back(MapItem(cell,tower));
+  m_items.emplace_back(MapItem(cell,tower));
 }
 
 void CaloTowerConstituentsMap::sort() {
@@ -74,8 +74,8 @@ std::vector<DetId> CaloTowerConstituentsMap::constituentsOf(const CaloTowerDetId
   // build reverse map if needed
   if(!m_reverseItems.load(std::memory_order_acquire)) {
       std::unique_ptr<std::multimap<CaloTowerDetId,DetId>> ptr{new std::multimap<CaloTowerDetId,DetId>};
-      for (auto i=m_items.begin(); i!=m_items.end(); i++)
-          ptr->insert(std::pair<CaloTowerDetId,DetId>(i->tower,i->cell));
+      for (auto m_item : m_items)
+          ptr->insert(std::pair<CaloTowerDetId,DetId>(m_item.tower,m_item.cell));
       std::multimap<CaloTowerDetId,DetId>* expected = nullptr;
       if(m_reverseItems.compare_exchange_strong(expected, ptr.get(), std::memory_order_acq_rel)) {
           ptr.release();
@@ -86,7 +86,7 @@ std::vector<DetId> CaloTowerConstituentsMap::constituentsOf(const CaloTowerDetId
   std::multimap<CaloTowerDetId,DetId>::const_iterator j;
   auto range=(*m_reverseItems.load(std::memory_order_acquire)).equal_range(id);
   for (j=range.first; j!=range.second; j++)
-    items.push_back(j->second);
+    items.emplace_back(j->second);
 
   // dealing with topo dependency...
   //use cttopo when dealing with calotower detids
@@ -100,14 +100,14 @@ std::vector<DetId> CaloTowerConstituentsMap::constituentsOf(const CaloTowerDetId
 	if (m_hcaltopo->withSpecialRBXHBHE()) {
 	  HcalDetId hid = m_hcaltopo->mergedDepthDetId(HcalDetId(HcalBarrel,hcal_ieta*id.zside(),id.iphi(),i+sd));
 	  if (std::find(items.begin(),items.end(),hid) == items.end()) {
-	    items.push_back(hid);
+	    items.emplace_back(hid);
 #ifdef EDM_ML_DEBUG
 	    std::cout << id << " Depth " << i << ":" << i+sd << " " << hid <<"\n";
 #endif
 	  }
 	} else {
 	  HcalDetId hid(HcalBarrel,hcal_ieta*id.zside(),id.iphi(),i+sd);
-	  items.push_back(hid);
+	  items.emplace_back(hid);
 #ifdef EDM_ML_DEBUG
 	  std::cout << id << " Depth " << i << ":" << i+sd << " " << hid <<"\n";
 #endif
@@ -120,7 +120,7 @@ std::vector<DetId> CaloTowerConstituentsMap::constituentsOf(const CaloTowerDetId
       m_hcaltopo->depthBinInformation(HcalOuter,hcal_ieta,id.iphi(),id.zside(),nd,sd);
       for (int i=0; i<nd; i++) {
 	HcalDetId hid(HcalOuter,hcal_ieta*id.zside(),id.iphi(),i+sd);
-        items.push_back(hid);
+        items.emplace_back(hid);
 #ifdef EDM_ML_DEBUG
 	std::cout << id << " Depth " << i << ":" << i+sd << " " << hid <<"\n";
 #endif
@@ -134,14 +134,14 @@ std::vector<DetId> CaloTowerConstituentsMap::constituentsOf(const CaloTowerDetId
 	if (m_hcaltopo->withSpecialRBXHBHE()) {
 	  HcalDetId hid = m_hcaltopo->mergedDepthDetId(HcalDetId(HcalEndcap,hcal_ieta*id.zside(),id.iphi(),i+sd));
 	  if (std::find(items.begin(),items.end(),hid) == items.end()) {
-	    items.push_back(hid);
+	    items.emplace_back(hid);
 #ifdef EDM_ML_DEBUG
 	    std::cout << id << " Depth " << i << ":" << i+sd << " " << hid <<"\n";
 #endif
 	  } 
 	} else {
 	  HcalDetId hid(HcalEndcap,hcal_ieta*id.zside(),id.iphi(),i+sd);
-	  items.push_back(hid);
+	  items.emplace_back(hid);
 #ifdef EDM_ML_DEBUG
 	  std::cout << id << " Depth " << i << ":" << i+sd << " " << hid <<"\n";
 #endif
@@ -154,7 +154,7 @@ std::vector<DetId> CaloTowerConstituentsMap::constituentsOf(const CaloTowerDetId
       m_hcaltopo->depthBinInformation(HcalForward,hcal_ieta,id.iphi(),id.zside(),nd,sd);
       for (int i=0; i<nd; i++) {
 	HcalDetId hid(HcalForward,hcal_ieta*id.zside(),id.iphi(),i+sd);
-        items.push_back(hid);
+        items.emplace_back(hid);
 #ifdef EDM_ML_DEBUG
 	std::cout << id << " Depth " << i << ":" << i+sd << " " << hid <<"\n";
 #endif
@@ -165,7 +165,7 @@ std::vector<DetId> CaloTowerConstituentsMap::constituentsOf(const CaloTowerDetId
         m_hcaltopo->depthBinInformation(HcalForward,hcal_ieta2,id.iphi(),id.zside(),nd,sd);
         for (int i=0; i<nd; i++) {
 	  HcalDetId hid(HcalForward,hcal_ieta2*id.zside(),id.iphi(),i+sd);
-          items.push_back(hid);
+          items.emplace_back(hid);
 #ifdef EDM_ML_DEBUG
 	  std::cout << id << " Depth " << i << ":" << i+sd << " " << hid <<"\n";
 #endif
@@ -185,7 +185,7 @@ std::vector<DetId> CaloTowerConstituentsMap::constituentsOf(const CaloTowerDetId
     }
     for (int ie=etaMin; ie<=etaMax; ie++)
       for (int ip=hid.crystal_iphi_low(); ip<=hid.crystal_iphi_high(); ip++)
-        items.push_back(EBDetId(ie,ip));
+        items.emplace_back(EBDetId(ie,ip));
   }
   return items;
 }

@@ -32,6 +32,7 @@
 #include "TF1.h"
 #include "TRegexp.h"
 #include "TLatex.h"
+#include <TRandom3.h>
 
 // This line works only if we have a CMSSW environment...
 #include "Alignment/OfflineValidation/interface/TkOffTreeVariables.h"
@@ -791,7 +792,7 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
     plotinfo.firsthisto = true;
 
     openSummaryFile();
-    vmean.clear(); vrms.clear(); vdeltamean.clear();
+    vmean.clear(); vrms.clear(); vdeltamean.clear(); vmeanerror.clear(); vPValueEqualSplitMeans.clear(), vAlignmentUncertainty.clear(); vPValueMeanEqualIdeal.clear(); vPValueRMSEqualIdeal.clear();
 
     for(std::vector<TkOfflineVariables*>::iterator it = sourceList.begin();
 	it != sourceList.end(); ++it) {
@@ -820,8 +821,13 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
             if ((plotinfo.variable == "medianX" || plotinfo.variable == "medianY") && /*!plotinfo.plotLayers && */layer==0) {
               vmean.push_back(nan(""));
               vrms.push_back(nan(""));
+              vmeanerror.push_back(nan(""));
+              vAlignmentUncertainty.push_back(nan(""));
+              vPValueMeanEqualIdeal.push_back(nan(""));
+              vPValueRMSEqualIdeal.push_back(nan(""));
               if (plotinfo.plotSplits && plotinfo.plotPlain) {
                 vdeltamean.push_back(nan(""));
+                vPValueEqualSplitMeans.push_back(nan(""));
               }
             }
           }
@@ -980,6 +986,66 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
                   << "format={:.3g}\t"
                   << "latexformat=${:.3g}$";
       for (auto dmu : vdeltamean) summaryfile << "\t" << dmu;
+      summaryfile << "\n";
+    }
+    if (vmeanerror.size()) {
+      summaryfile << "  sigma_mu_" << subdet ;
+      if (plotinfo.variable == "medianY") summaryfile << "_y";
+      summaryfile << " (um)\t"
+                  << "latexname=$\\sigma\\mu_\\text{" << subdet << "}";
+      if (plotinfo.variable == "medianY") summaryfile << "^{y}";
+      summaryfile << "$ ($\\mu$m)\t"
+                  << "format={:.3g}\t"
+                  << "latexformat=${:.3g}$";
+      for (auto dmu : vmeanerror) summaryfile << "\t" << dmu;
+      summaryfile << "\n";
+    }
+    if (vPValueEqualSplitMeans.size()) {
+      summaryfile << "  p_delta_mu_equal_zero_" << subdet ;
+      if (plotinfo.variable == "medianY") summaryfile << "_y";
+      summaryfile << "\t"
+                  << "latexname=$P(\\delta\\mu_\\text{" << subdet << "}=0)";
+      if (plotinfo.variable == "medianY") summaryfile << "^{y}";
+      summaryfile << "$\t"
+                  << "format={:.3g}\t"
+                  << "latexformat=${:.3g}$";
+      for (auto dmu : vPValueEqualSplitMeans) summaryfile << "\t" << dmu;
+      summaryfile << "\n";
+    }
+    if (vAlignmentUncertainty.size()) {
+      summaryfile << "  alignment_uncertainty_" << subdet ;
+      if (plotinfo.variable == "medianY") summaryfile << "_y";
+      summaryfile << " (um)\t"
+                  << "latexname=$\\sigma_\\text{align}_\\text{" << subdet << "}";
+      if (plotinfo.variable == "medianY") summaryfile << "^{y}";
+      summaryfile << "$ ($\\mu$m)\t"
+                  << "format={:.3g}\t"
+                  << "latexformat=${:.3g}$";
+      for (auto dmu : vAlignmentUncertainty) summaryfile << "\t" << dmu;
+      summaryfile << "\n";
+    }
+    if (vPValueMeanEqualIdeal.size()) {
+      summaryfile << "  p_mean_equals_ideal_" << subdet ;
+      if (plotinfo.variable == "medianY") summaryfile << "_y";
+      summaryfile << "\t"
+                  << "latexname=$P(\\mu_\\text{" << subdet << "}=\\mu_\\text{ideal})";
+      if (plotinfo.variable == "medianY") summaryfile << "^{y}";
+      summaryfile << "$\t"
+                  << "format={:.3g}\t"
+                  << "latexformat=${:.3g}$";
+      for (auto dmu : vPValueMeanEqualIdeal) summaryfile << "\t" << dmu;
+      summaryfile << "\n";
+    }
+    if (vPValueRMSEqualIdeal.size()) {
+      summaryfile << "  p_RMS_equals_ideal_" << subdet ;
+      if (plotinfo.variable == "medianY") summaryfile << "_y";
+      summaryfile << "\t"
+                  << "latexname=$P(\\sigma_\\text{" << subdet << "}=\\sigma_\\text{ideal})";
+      if (plotinfo.variable == "medianY") summaryfile << "^{y}";
+      summaryfile << "$\t"
+                  << "format={:.3g}\t"
+                  << "latexformat=${:.3g}$";
+      for (auto dmu : vPValueRMSEqualIdeal) summaryfile << "\t" << dmu;
       summaryfile << "\n";
     }
   }
@@ -1621,6 +1687,21 @@ setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo
   if ((plotinfo.variable == "medianX" || plotinfo.variable == "medianY") && /*!plotinfo.plotLayers && */layer==0 && direction==0) {
     vmean.push_back(mean);
     vrms.push_back(rms);
+    vmeanerror.push_back(meanerror);
+  TH1F* ideal = (TH1F*)plotinfo.hstack->GetHists()->At(0);
+  TH1F* h = plotinfo.h;
+  if(h->GetRMS() >= ideal->GetRMS())
+  {
+  vAlignmentUncertainty.push_back(sqrt(pow(h->GetRMS(),2)-pow(ideal->GetRMS(),2)));
+  }
+  else{
+  vAlignmentUncertainty.push_back(nan(""));
+  }
+  float p = (float)resampleTestOfEqualMeans(ideal, h, 10000);
+  vPValueMeanEqualIdeal.push_back(p);
+  p=resampleTestOfEqualRMS(ideal, h, 10000);
+  vPValueRMSEqualIdeal.push_back(p);
+
   }
 
   // Legend: Delta mu for split plots
@@ -1637,6 +1718,11 @@ setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo
 
     if ((plotinfo.variable == "medianX" || plotinfo.variable == "medianY") && /*!plotinfo.plotLayers && */layer==0 && direction==0) {
       vdeltamean.push_back(deltamu);
+      if(plotinfo.h1->GetEntries()&&plotinfo.h2->GetEntries()){
+          float p = (float)resampleTestOfEqualMeans(plotinfo.h1,plotinfo.h2, 10000);
+          vPValueEqualSplitMeans.push_back(p);
+          
+      }
     }
   }
 
@@ -1730,6 +1816,108 @@ void PlotAlignmentValidation::modifySSHistAndLegend(THStack* hs, TLegend* legend
 
   // Make some room for the legend
   hs->SetMaximum(hs->GetMaximum("nostack PE")*1.3);
+}
+
+
+//random variable: \sigma_{X_1}-\sigma_{X_2}-\delta_{RMS}
+//is centered approx around 0
+//null hypothesis: \delta_{RMS}=0
+//so \delta_\sigma is a realization of this random variable
+//how probable is it to get our value of \delta_\sigma?
+//->p-value
+double PlotAlignmentValidation::resampleTestOfEqualRMS(TH1F* h1, TH1F* h2, int numSamples){
+//vector to store realizations of random variable
+    vector<double> diff;
+    diff.clear();
+//"true" (in bootstrap terms) difference of the samples' RMS
+    double rmsdiff = abs(h1->GetRMS()-h2->GetRMS());
+//means of the samples to calculate RMS
+    double m1 = h1->GetMean();
+    double m2 = h2->GetMean();
+//realization of random variable
+    double d1 = 0;
+    double d2 = 0;
+//mean of random variable
+    double test_mean=0;
+    for(int i=0;i<numSamples;i++){
+        d1=0;
+        d2=0;
+        for(int i=0;i<h1->GetEntries();i++){
+            d1+=h1->GetRandom()-m1;
+        }
+        for(int i=0;i<h2->GetEntries();i++){
+            d2+=h2->GetRandom()+m2;
+        }
+        d1/=h1->GetEntries();
+        d2/=h2->GetEntries();
+        diff.push_back(abs(d1-d2-rmsdiff));
+        test_mean+=abs(d1-d2-rmsdiff);
+    }
+    test_mean/=numSamples;
+//p value
+    double p=0;
+    for(double d:diff){
+        if(d>rmsdiff){
+            p+=1;
+        }
+    }
+    
+    p/=numSamples;
+    return p;
+}
+
+
+
+
+
+//random variable: (\overline{X_1}-\mu_1)-(\overline{X_2}-\mu_2)
+//is centered approx around 0
+//null hypothesis: \mu_1-\mu_2=0
+//so \delta_\mu is a realization of this random variable
+//how probable is it to get our value of \delta_\mu?
+//->p-value
+double PlotAlignmentValidation::resampleTestOfEqualMeans(TH1F* h1, TH1F* h2, int numSamples){
+//vector to store realization of random variable
+    vector<double> diff;
+    diff.clear();
+//"true" (in bootstrap terms) difference of the samples' means
+    double meandiff = abs(h1->GetMean()-h2->GetMean());
+//realization of random variable
+    double d1 = 0;
+    double d2=0;
+//mean of random variable
+    double test_mean=0;
+    for(int i=0;i<numSamples;i++){
+        d1=0;
+        d2=0;
+        for(int i=0;i<h1->GetEntries();i++){
+            d1+=h1->GetRandom();
+        }
+        for(int i=0;i<h2->GetEntries();i++){
+            d2+=h2->GetRandom();
+        }
+        d1/=h1->GetEntries();
+        d2/=h2->GetEntries();
+        diff.push_back(abs(d1-d2-meandiff));
+        test_mean+=abs(d1-d2-meandiff);
+    }
+    test_mean/=numSamples;
+//p-value
+    double p=0;
+    for(double d:diff){
+        if(d>meandiff){
+            p+=1;
+        }
+    }
+    
+    p/=numSamples;
+    return p;
+}
+
+
+
+float PlotAlignmentValidation::twotailedStudentTTestEqualMean(float t, float v){
+return 2*(1-ROOT::Math::tdistribution_cdf(abs(t),v));
 }
 
 const TString PlotAlignmentValidation::summaryfilename = "OfflineValidationSummary.txt";

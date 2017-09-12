@@ -53,9 +53,15 @@ void ME0PadDigiClusterProducer::produce(edm::Event& e, const edm::EventSetup& ev
 }
 
 
-void ME0PadDigiClusterProducer::buildClusters(const ME0PadDigiCollection &det_pads, ME0PadDigiClusterCollection &out_clusters)
+void ME0PadDigiClusterProducer::buildClusters(const ME0PadDigiCollection &det_pads,
+                                              ME0PadDigiClusterCollection &out_clusters)
 {
-  for (const auto& ch: geometry_->chambers()) {
+  // construct clusters
+  for (const auto& ch: geometry_->layers()) {
+
+    // proto collection
+    std::vector<std::pair<ME0DetId, ME0PadDigiCluster> > proto_clusters;
+
     for (const auto& part: ch->etaPartitions()) {
       auto pads = det_pads.get(part->id());
       std::vector<uint16_t> cl;
@@ -65,22 +71,36 @@ void ME0PadDigiClusterProducer::buildClusters(const ME0PadDigiCollection &det_pa
           cl.push_back((*d).pad());
         }
         else {
-          if ((*d).bx() == startBX and (*d).pad() == cl.back() + 1) {
+          if ((*d).bx() == startBX and // same bunch crossing
+              (*d).pad() == cl.back() + 1 // pad difference is 1
+              and cl.size()<maxClusterSize_) { // max 8 in cluster
             cl.push_back((*d).pad());
           }
           else {
+            // put the current cluster in the proto collection
             ME0PadDigiCluster pad_cluster(cl, startBX);
-            out_clusters.insertDigi(part->id(), pad_cluster);
+            proto_clusters.emplace_back(part->id(), pad_cluster);
+
+            // start a new cluster
             cl.clear();
             cl.push_back((*d).pad());
           }
         }
         startBX = (*d).bx();
       }
+      // put the last cluster in the proto collection
       if (pads.first != pads.second){
         ME0PadDigiCluster pad_cluster(cl, startBX);
-        out_clusters.insertDigi(part->id(), pad_cluster);
+        proto_clusters.emplace_back(part->id(), pad_cluster);
       }
+    } // end of partition loop
+
+    // cluster selection: pick first maxClusters_ for now
+    unsigned loopMax=std::min(maxClusters_,unsigned(proto_clusters.size()));
+    for ( unsigned int i=0; i<loopMax; i++) {
+      const auto& detid(proto_clusters[i].first);
+      const auto& cluster(proto_clusters[i].second);
+      out_clusters.insertDigi(detid, cluster);
     }
-  }
+  } // end of chamber loop
 }

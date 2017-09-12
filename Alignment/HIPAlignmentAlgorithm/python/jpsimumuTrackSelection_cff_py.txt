@@ -1,0 +1,51 @@
+import Alignment.CommonAlignment.tools.trackselectionRefitting as TrackRefitterSequencer
+
+strTBDConstrainer=None
+if hasattr(optpy, "TBDconstraint"):
+   strtbdconstr=optpy.TBDconstraint
+   if "momconstr" in strtbdconstr:
+      process.load("RecoTracker.TrackProducer.TwoBodyDecayMomConstraintProducer_cff")
+      process.TwoBodyDecayMomConstraint.src = "AlignmentTrackSelector"
+      process.TwoBodyDecayMomConstraint.primaryMass = cms.double(3.0969)
+      process.TwoBodyDecayMomConstraint.primaryWidth = cms.double(0.03)
+      process.TwoBodyDecayMomConstraint.sigmaPositionCut = cms.double(0.05)
+      process.TwoBodyDecayMomConstraint.rescaleError = cms.double(1.0)
+      process.TwoBodyDecayMomConstraint.chi2Cut = cms.double(99999.)
+      #process.TwoBodyDecayMomConstraint.EstimatorParameters.RobustificationConstant = cms.double(1.0)
+      strTBDConstrainer="TwoBodyDecayMomConstraint,momentum"
+
+   elif "fullconstr" in strtbdconstr:
+      process.load("RecoTracker.TrackProducer.TwoBodyDecayConstraintProducer_cff")
+      process.TwoBodyDecayConstraint.src = "AlignmentTrackSelector"
+      process.TwoBodyDecayConstraint.primaryMass = cms.double(3.0969)
+      process.TwoBodyDecayConstraint.primaryWidth = cms.double(0.03)
+      process.TwoBodyDecayConstraint.sigmaPositionCut = cms.double(0.05)
+      process.TwoBodyDecayConstraint.rescaleError = cms.double(1.0)
+      process.TwoBodyDecayConstraint.chi2Cut = cms.double(99999.)
+      #process.TwoBodyDecayConstraint.EstimatorParameters.RobustificationConstant = cms.double(1.0)
+      strTBDConstrainer="TwoBodyDecayConstraint,trackParameters"
+
+process.TrackRefitterSequence = TrackRefitterSequencer.getSequence(
+   process,
+   strtrackcollname,
+   TTRHBuilder = strTTRHBuilder,
+   usePixelQualityFlag = None, # Keep default behavior ("WithAngleAndTemplate" -> True, "WithTrackAngle" -> False)
+   openMassWindow = False,
+   cosmicsDecoMode = False,
+   cosmicsZeroTesla = False,
+   momentumConstraint = strTBDConstrainer, # Should be a momentum constraint object name or None
+   cosmicTrackSplitting = False,
+   use_d0cut = True
+   )
+
+# Override TrackRefitterSequencer defaults
+process.HighPurityTrackSelector.pMin   = 0.0
+process.AlignmentTrackSelector.pMin    = 0.0
+process.AlignmentTrackSelector.ptMin   = 3.0
+process.AlignmentTrackSelector.etaMin  = -3.0
+process.AlignmentTrackSelector.etaMax  = 3.0
+process.AlignmentTrackSelector.nHitMin  = 4
+process.AlignmentTrackSelector.minHitsPerSubDet.inPIXEL = cms.int32(1)
+process.AlignmentTrackSelector.TwoBodyDecaySelector.daughterMass = 0.105658
+process.AlignmentTrackSelector.TwoBodyDecaySelector.minXMass = 2.9
+process.AlignmentTrackSelector.TwoBodyDecaySelector.maxXMass = 3.25

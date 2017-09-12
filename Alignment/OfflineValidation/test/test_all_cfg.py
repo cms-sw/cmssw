@@ -95,7 +95,7 @@ else:
                                    connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
                                    timetype = cms.string("runnumber"),
                                    toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentErrorExtendedRcd'),
-                                                              tag = cms.string('TrackerAlignmentExtendedErrors_2015StartupPessimisticScenario_mc')
+                                                              tag = cms.string('TrackerAlignmentErrorsExtended_Upgrade2017_design_v0')
                                                               )
                                                      )
                                    )
@@ -109,7 +109,7 @@ else:
           process.trackerBows = cms.ESSource("PoolDBESSource",CondDBSetup,
                                              connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
                                              toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerSurfaceDeformationRcd'),
-                                                                        tag = cms.string('TrackerSurfaceDeformations_2011Realistic_v2_mc')
+                                                                        tag = cms.string('TrackerSurfaceDeformations_zero')
                                                                         )
                                                                )
                                              )

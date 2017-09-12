@@ -22,7 +22,7 @@
 
 namespace
 {
-   const static std::string cname("particleFlowRecHitHCALUpgrade");
+   const std::string cname("particleFlowRecHitHCALUpgrade");
 
 void  addLineToLineSet(TEveStraightLineSet* ls, const float* p, int i1, int i2)
 {

@@ -1,11 +1,10 @@
 #include "DetectorDescription/Parser/src/DDLString.h"
-
-#include <map>
-#include <utility>
-
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDString.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
+
+#include <map>
+#include <utility>
 
 class DDCompactView;
 class DDLElementRegistry;

@@ -9,7 +9,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMChannel.h"
-#include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
 #include <stdio.h>
 #include <sstream>
 #include <math.h>

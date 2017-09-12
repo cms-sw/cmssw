@@ -30,7 +30,9 @@
 PuppiPhoton::PuppiPhoton(const edm::ParameterSet& iConfig) {
   tokenPFCandidates_     = consumes<CandidateView>(iConfig.getParameter<edm::InputTag>("candName"));
   tokenPuppiCandidates_  = consumes<CandidateView>(iConfig.getParameter<edm::InputTag>("puppiCandName"));
-  tokenPhotonCandidates_ = consumes<CandidateView>(iConfig.getParameter<edm::InputTag>("photonName"));
+  usePFphotons_          = iConfig.getParameter<bool>("usePFphotons");
+  if(!usePFphotons_)
+    tokenPhotonCandidates_ = consumes<CandidateView>(iConfig.getParameter<edm::InputTag>("photonName"));
   usePhotonId_           = (iConfig.getParameter<edm::InputTag>("photonId")).label().size() != 0;
   if(usePhotonId_)
     tokenPhotonId_         = consumes<edm::ValueMap<bool>  >(iConfig.getParameter<edm::InputTag>("photonId"));
@@ -54,13 +56,6 @@ PuppiPhoton::PuppiPhoton(const edm::ParameterSet& iConfig) {
 PuppiPhoton::~PuppiPhoton(){}
 // ------------------------------------------------------------------------------------------
 void PuppiPhoton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
-  edm::Handle<CandidateView> hPhoProduct;
-  iEvent.getByToken(tokenPhotonCandidates_,hPhoProduct);
-  const CandidateView *phoCol = hPhoProduct.product();
-
-  edm::Handle<edm::ValueMap<bool> > photonId;
-  if(usePhotonId_) iEvent.getByToken(tokenPhotonId_,photonId);
   int iC = -1;
   std::vector<const reco::Candidate*> phoCands;
   std::vector<uint16_t> phoIndx;
@@ -76,7 +71,25 @@ void PuppiPhoton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<CandidateView> hPuppiProduct;
   iEvent.getByToken(tokenPuppiCandidates_,hPuppiProduct);
   const CandidateView *pupCol = hPuppiProduct.product();
-  for(CandidateView::const_iterator itPho = phoCol->begin(); itPho!=phoCol->end(); itPho++) {
+  if(usePFphotons_) {
+   for(const auto & pho : *pfCol) {
+    iC++;
+    if(pho.pt() < pt_) continue;
+    if(std::abs(pho.pdgId())!=22) continue;
+    if(fabs(pho.eta()) < eta_ ) {
+     phoIndx.push_back(iC);
+     phoCands.push_back(&pho);
+    }
+   }
+  } else {
+   edm::Handle<CandidateView> hPhoProduct;
+   iEvent.getByToken(tokenPhotonCandidates_,hPhoProduct);
+   const CandidateView *phoCol = hPhoProduct.product();
+
+   edm::Handle<edm::ValueMap<bool> > photonId;
+   if(usePhotonId_) iEvent.getByToken(tokenPhotonId_,photonId);
+
+   for(CandidateView::const_iterator itPho = phoCol->begin(); itPho!=phoCol->end(); itPho++) {
     iC++;
     bool passObject = false;
     if(itPho->isPhoton() && usePhotonId_)   passObject =  (*photonId)  [phoCol->ptrAt(iC)];
@@ -109,6 +122,7 @@ void PuppiPhoton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	  }
       }
     }
+   }
   }
   //Get Weights
   edm::Handle<edm::ValueMap<float> > pupWeights; 
@@ -186,6 +200,7 @@ void PuppiPhoton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 }
 // ------------------------------------------------------------------------------------------
 bool PuppiPhoton::matchPFCandidate(const reco::Candidate *iPF,const reco::Candidate *iPho) { 
+  if(iPF->pdgId() != iPho->pdgId()) return false;
   double lDR = deltaR(iPF->eta(),iPF->phi(),iPho->eta(),iPho->phi());
   for(unsigned int i0 = 0; i0 < pdgIds_.size(); i0++) {
     if(std::abs(iPF->pdgId()) == pdgIds_[i0] && lDR < dRMatch_[i0])  return true;

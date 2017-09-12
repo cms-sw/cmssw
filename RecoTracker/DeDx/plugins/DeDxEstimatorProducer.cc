@@ -57,6 +57,7 @@ DeDxEstimatorProducer::DeDxEstimatorProducer(const edm::ParameterSet& iConfig)
    if     (estimatorName == "median")              m_estimator = new MedianDeDxEstimator(iConfig);
    else if(estimatorName == "generic")             m_estimator = new GenericAverageDeDxEstimator  (iConfig);
    else if(estimatorName == "truncated")           m_estimator = new TruncatedAverageDeDxEstimator(iConfig);
+   else if(estimatorName == "genericTruncated")    m_estimator = new GenericTruncatedAverageDeDxEstimator(iConfig);
    else if(estimatorName == "unbinnedFit")         m_estimator = new UnbinnedFitDeDxEstimator(iConfig);
    else if(estimatorName == "productDiscrim")      m_estimator = new ProductDeDxDiscriminator(iConfig);
    else if(estimatorName == "btagDiscrim")         m_estimator = new BTagLikeDeDxDiscriminator(iConfig);
@@ -91,9 +92,8 @@ DeDxEstimatorProducer::~DeDxEstimatorProducer()
 // ------------ method called once each job just before starting event loop  ------------
 void  DeDxEstimatorProducer::beginRun(edm::Run const& run, const edm::EventSetup& iSetup)
 {
-   if(useCalibration && calibGains.size()==0){
-      edm::ESHandle<TrackerGeometry> tkGeom;
-      iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
+   iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
+   if(useCalibration && calibGains.empty()){
       m_off = tkGeom->offsetDU(GeomDetEnumerators::PixelBarrel); //index start at the first pixel
 
       DeDxTools::makeCalibrationMap(m_calibrationPath, *tkGeom, calibGains, m_off);
@@ -162,18 +162,20 @@ void DeDxEstimatorProducer::processHit(const TrackingRecHit* recHit, float track
       if(clus.isPixel()){
           if(!usePixel) return;
 
-          auto& detUnit     = *(recHit->detUnit());
-          float pathLen     = detUnit.surface().bounds().thickness()/fabs(cosine);
+          const auto * detUnit = recHit->detUnit();
+          if (detUnit == nullptr) detUnit = tkGeom->idToDet(thit.geographicalId());
+          float pathLen     = detUnit->surface().bounds().thickness()/fabs(cosine);
           float chargeAbs   = clus.pixelCluster().charge();
           float charge      = meVperADCPixel*chargeAbs/pathLen;
           dedxHits.push_back( DeDxHit( charge, trackMomentum, pathLen, thit.geographicalId()) );
        }else if(clus.isStrip() && !thit.isMatched()){
           if(!useStrip) return;
 
-          auto& detUnit     = *(recHit->detUnit());
+          const auto * detUnit = recHit->detUnit();
+          if (detUnit == nullptr) detUnit = tkGeom->idToDet(thit.geographicalId());
           int   NSaturating = 0;
-          float pathLen     = detUnit.surface().bounds().thickness()/fabs(cosine);
-          float chargeAbs   = DeDxTools::getCharge(&(clus.stripCluster()),NSaturating, detUnit, calibGains, m_off);
+          float pathLen     = detUnit->surface().bounds().thickness()/fabs(cosine);
+          float chargeAbs   = DeDxTools::getCharge(&(clus.stripCluster()),NSaturating, *detUnit, calibGains, m_off);
           float charge      = meVperADCStrip*chargeAbs/pathLen;
           if(!shapetest || (shapetest && DeDxTools::shapeSelection(clus.stripCluster()))){
              dedxHits.push_back( DeDxHit( charge, trackMomentum, pathLen, thit.geographicalId()) );
@@ -184,6 +186,7 @@ void DeDxEstimatorProducer::processHit(const TrackingRecHit* recHit, float track
           const SiStripMatchedRecHit2D* matchedHit=dynamic_cast<const SiStripMatchedRecHit2D*>(recHit);
           if(!matchedHit)return;
           const GluedGeomDet* gdet = static_cast<const GluedGeomDet*>(matchedHit->det());
+          if (gdet == nullptr) gdet = static_cast<const GluedGeomDet*>(tkGeom->idToDet(thit.geographicalId()));
 
           auto& detUnitM     = *(gdet->monoDet());
           int   NSaturating = 0;

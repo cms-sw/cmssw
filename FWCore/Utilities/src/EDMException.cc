@@ -82,7 +82,7 @@ namespace edm {
     category_(other.category_) {
   }
 
-  Exception::~Exception() throw() {
+  Exception::~Exception() noexcept {
   }
 
   Exception&

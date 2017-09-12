@@ -31,8 +31,8 @@
 #include "L1Trigger/L1TMuonEndCap/interface/MakeRegionalCand.h"
 
 // New EDM output for detailed track and hit information - AWB 01.04.16
-#include "L1Trigger/L1TMuonEndCap/interface/EMTFTrackTools.h"
-#include "L1Trigger/L1TMuonEndCap/interface/EMTFHitTools.h"
+#include "L1Trigger/L1TMuonEndCap/interface/EMTFTrack2016Tools.h"
+#include "L1Trigger/L1TMuonEndCap/interface/EMTFHit2016Tools.h"
 
 using namespace L1TMuon;
 class RPCGeometry;
@@ -48,11 +48,11 @@ L1TMuonEndCapTrackProducer::L1TMuonEndCapTrackProducer(const PSet& p) {
   inputTokenRPC = consumes<RPCDigiCollection>(p.getParameter<edm::InputTag>("RPCInput"));
   
   produces<l1t::RegionalMuonCandBxCollection >("EMTF");
-  produces< l1t::EMTFTrackCollection >("");
-  produces< l1t::EMTFHitCollection >("");  
-  produces< l1t::EMTFTrackExtraCollection >("");
-  produces< l1t::EMTFHitExtraCollection >("CSC");  
-  produces< l1t::EMTFHitExtraCollection >("RPC");  
+  produces< l1t::EMTFTrack2016Collection >("");
+  produces< l1t::EMTFHit2016Collection >("");  
+  produces< l1t::EMTFTrack2016ExtraCollection >("");
+  produces< l1t::EMTFHit2016ExtraCollection >("CSC");  
+  produces< l1t::EMTFHit2016ExtraCollection >("RPC");  
 
 }
 
@@ -67,11 +67,11 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
   //std::auto_ptr<L1TMuon::InternalTrackCollection> FoundTracks (new L1TMuon::InternalTrackCollection);
   auto FoundTracks = std::make_unique<L1TMuon::InternalTrackCollection>();
   auto OutputCands = std::make_unique<l1t::RegionalMuonCandBxCollection>();
-  auto OutTracks = std::make_unique<l1t::EMTFTrackCollection>();
-  auto OutHits = std::make_unique<l1t::EMTFHitCollection>();
-  auto OutputTracks = std::make_unique<l1t::EMTFTrackExtraCollection>();
-  auto OutputHits = std::make_unique<l1t::EMTFHitExtraCollection>();
-  auto OutputHitsRPC = std::make_unique<l1t::EMTFHitExtraCollection>();
+  auto OutTracks = std::make_unique<l1t::EMTFTrack2016Collection>();
+  auto OutHits = std::make_unique<l1t::EMTFHit2016Collection>();
+  auto OutputTracks = std::make_unique<l1t::EMTFTrack2016ExtraCollection>();
+  auto OutputHits = std::make_unique<l1t::EMTFHit2016ExtraCollection>();
+  auto OutputHitsRPC = std::make_unique<l1t::EMTFHit2016ExtraCollection>();
 
   std::vector<BTrack> PTracks[NUM_SECTORS];
   std::vector<BTrack> PTracks_BX[NUM_SECTORS][3];
@@ -109,7 +109,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
       CSCCorrelatedLCTDigi tmp_digi = *digi;
       tmp_digi.setBX( tmp_digi.getBX() + std::max(bxShiftCSC, -1*tmp_digi.getBX()) );
       out.push_back(TriggerPrimitive((*chamber).first,tmp_digi));
-      l1t::EMTFHitExtra thisHit;
+      l1t::EMTFHit2016Extra thisHit;
       thisHit.ImportCSCDetId( (*chamber).first );
       thisHit.ImportCSCCorrelatedLCTDigi( tmp_digi );
       if (thisHit.Station() == 1 && thisHit.Ring() == 1 && thisHit.Strip() > 127) thisHit.set_ring(4);
@@ -117,7 +117,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
       OutputHits->push_back( thisHit );
       if ( ((thisHit.Ring() != 1 || thisHit.Station() == 1) && (thisHit.Chamber() % 6 == 2)) ||
 	   ((thisHit.Ring() == 1 && thisHit.Station()  > 1) && (thisHit.Chamber() % 3 == 1)) ) {
-	l1t::EMTFHitExtra neighborHit = thisHit;
+	l1t::EMTFHit2016Extra neighborHit = thisHit;
 	neighborHit.set_neighbor(1);
 	OutputHits->push_back( neighborHit );
       }
@@ -172,9 +172,9 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
     } // End loop: for(unsigned int i2=i1+1;i2<out.size();i2++)
   } // End loop: for(unsigned int i1=0;i1<out.size();i1++)
 
-  uint nHits = OutputHits->size();
-  for (uint iHit = 0; iHit < nHits; iHit++) {
-    for (uint jHit = iHit+1; jHit < nHits; jHit++) {
+  unsigned int nHits = OutputHits->size();
+  for (unsigned int iHit = 0; iHit < nHits; iHit++) {
+    for (unsigned int jHit = iHit+1; jHit < nHits; jHit++) {
       if ( OutputHits->at(iHit).Chamber() != OutputHits->at(jHit).Chamber() ) continue;
       if ( (OutputHits->at(iHit).Ring() % 3) != (OutputHits->at(jHit).Ring() % 3) ) continue;
       if ( OutputHits->at(iHit).Sector() != OutputHits->at(jHit).Sector() ) continue;
@@ -185,8 +185,8 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
       if ( OutputHits->at(iHit).Strip() == OutputHits->at(jHit).Strip() ) continue;
       if ( OutputHits->at(iHit).Wire() == OutputHits->at(jHit).Wire() ) continue;
       
-      l1t::EMTFHitExtra new_hit_1 = OutputHits->at(iHit).Clone();
-      l1t::EMTFHitExtra new_hit_2 = OutputHits->at(jHit).Clone();
+      l1t::EMTFHit2016Extra new_hit_1 = OutputHits->at(iHit).Clone();
+      l1t::EMTFHit2016Extra new_hit_2 = OutputHits->at(jHit).Clone();
       new_hit_1.set_wire( OutputHits->at(jHit).Wire() );
       new_hit_2.set_wire( OutputHits->at(iHit).Wire() );
       new_hit_1.SetCSCLCTDigi( new_hit_1.CreateCSCCorrelatedLCTDigi() );
@@ -208,16 +208,16 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
     std::vector<ConvertedHit> ConvHits = primConv_.convert(tester,SectIndex);
     CHits[SectIndex] = ConvHits;
 
-    l1t::EMTFHitExtraCollection tmp_hits_rpc = primConvRPC_.convert(tester_rpc, SectIndex, _geom_rpc); 
-    for (uint iHit = 0; iHit < tmp_hits_rpc.size(); iHit++) 
+    l1t::EMTFHit2016ExtraCollection tmp_hits_rpc = primConvRPC_.convert(tester_rpc, SectIndex, _geom_rpc); 
+    for (unsigned int iHit = 0; iHit < tmp_hits_rpc.size(); iHit++) 
       OutputHitsRPC->push_back( tmp_hits_rpc.at(iHit) );
     std::vector<ConvertedHit> ConvHitsRPC = primConvRPC_.fillConvHits(tmp_hits_rpc);
     
     // Fill OutputHits with ConvertedHit information
-    for (uint iCHit = 0; iCHit < ConvHits.size(); iCHit++) {
+    for (unsigned int iCHit = 0; iCHit < ConvHits.size(); iCHit++) {
       // bool isMatched = false;
       
-      for (uint iHit = 0; iHit < OutputHits->size(); iHit++) {
+      for (unsigned int iHit = 0; iHit < OutputHits->size(); iHit++) {
 	if ( ConvHits.at(iCHit).Station()   == OutputHits->at(iHit).Station() &&
 	     ( ConvHits.at(iCHit).Id()      == OutputHits->at(iHit).CSC_ID()  ||
 	       ConvHits.at(iCHit).Id()      == ( (OutputHits->at(iHit).Ring() != 4) // Account for either ME1/1a 
@@ -246,9 +246,9 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
 	  OutputHits->at(iHit).set_theta_rad    ( l1t::calc_theta_rad_from_int( OutputHits->at(iHit).Theta_int() ) );
 	  OutputHits->at(iHit).set_eta( l1t::calc_eta_from_theta_rad( OutputHits->at(iHit).Theta_rad() ) * OutputHits->at(iHit).Endcap() );
 	  
-	  OutHits->push_back( OutputHits->at(iHit).CreateEMTFHit() );
+	  OutHits->push_back( OutputHits->at(iHit).CreateEMTFHit2016() );
 	}
-      } // End loop: for (uint iHit = 0; iHit < OutputHits->size(); iHit++)
+      } // End loop: for (unsigned int iHit = 0; iHit < OutputHits->size(); iHit++)
 
       // if (isMatched == false) {
       //   std::cout << "***********************************************" << std::endl;
@@ -258,8 +258,8 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
       // 	      << ", wire = " << ConvHits.at(iCHit).Wire() << ", strip = " << ConvHits.at(iCHit).Strip()
       // 	      << ", BX = " << ConvHits.at(iCHit).BX() << ", neighbor = " << ConvHits.at(iCHit).IsNeighbor() << std::endl;
       
-      //   for (uint iHit = 0; iHit < OutputHits->size(); iHit++) {
-      //     std::cout << "EMTFHitExtra: station = " << OutputHits->at(iHit).Station() << ", CSC ID = " << OutputHits->at(iHit).CSC_ID()
+      //   for (unsigned int iHit = 0; iHit < OutputHits->size(); iHit++) {
+      //     std::cout << "EMTFHit2016Extra: station = " << OutputHits->at(iHit).Station() << ", CSC ID = " << OutputHits->at(iHit).CSC_ID()
       // 		<< ", sector index = " << OutputHits->at(iHit).Sector_index() << ", subsector = " << OutputHits->at(iHit).Subsector() 
       // 		<< ", wire = " << OutputHits->at(iHit).Wire() << ", strip = " << OutputHits->at(iHit).Strip()
       // 		<< ", BX = " << OutputHits->at(iHit).BX() << ", neighbor = " << OutputHits->at(iHit).Neighbor()
@@ -268,7 +268,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
       //   }
       // }
       
-    } // End loop: for (uint iCHit = 0; iCHit < ConvHits.size(); iCHit++)
+    } // End loop: for (unsigned int iCHit = 0; iCHit < ConvHits.size(); iCHit++)
     
     
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -434,7 +434,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
 
       if (tempTrack.theta == 0) LogTrace("L1TMuonEndCapTrackProducer") << "Track has theta 0" << std::endl;
       
-      l1t::EMTFTrackExtra thisTrack;
+      l1t::EMTFTrack2016Extra thisTrack;
       thisTrack.set_phi_loc_int ( AllTracks[fbest].phi           );
       thisTrack.set_theta_int   ( AllTracks[fbest].theta         );
       thisTrack.set_rank        ( AllTracks[fbest].winner.Rank() );
@@ -472,10 +472,10 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
 	if(A->Phi() != -999){
 	  cHits_in_station[A->TP().detId<CSCDetId>().station() - 1] += 1;
 	  
-	  l1t::EMTFHitExtra thisHit;
+	  l1t::EMTFHit2016Extra thisHit;
 	  // thisHit.ImportCSCDetId( A->TP().detId<CSCDetId>() );
 
-	  for (uint iHit = 0; iHit < OutputHits->size(); iHit++) {
+	  for (unsigned int iHit = 0; iHit < OutputHits->size(); iHit++) {
 	    if ( (A->TP().detId<CSCDetId>().endcap() == 1) == (OutputHits->at(iHit).Endcap() == 1) &&
 		 A->TP().detId<CSCDetId>().station()       == OutputHits->at(iHit).Station() &&
 		 A->TP().detId<CSCDetId>().triggerSector() == OutputHits->at(iHit).Sector()  &&
@@ -503,7 +503,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
 		      << ", sector index " << A->SectorIndex() << ", subsector " << A->Sub()
 		      << ", wire " << A->Wire() << ", strip " << A->Strip() << ", BX " << A->TP().getCSCData().bx - 6 
 		      << ", neighbor " << A->IsNeighbor() << " has no match" << std::endl;
-	    for (uint iHit = 0; iHit < OutputHits->size(); iHit++) 
+	    for (unsigned int iHit = 0; iHit < OutputHits->size(); iHit++) 
 	      LogTrace("L1TMuonEndCapTrackProducer") << "!@#$ Option " << iHit+1 << " with endcap " << OutputHits->at(iHit).Endcap() 
 			<< ", station " << OutputHits->at(iHit).Station() << ", CSC_ID " << OutputHits->at(iHit).CSC_ID() 
 			<< ", ring " << OutputHits->at(iHit).Ring() << ", chamber " << OutputHits->at(iHit).Chamber()
@@ -667,7 +667,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
       thisTrack.set_isGMT( 1 );
 
       OutputTracks->push_back( thisTrack );
-      OutTracks->push_back( thisTrack.CreateEMTFTrack() );
+      OutTracks->push_back( thisTrack.CreateEMTFTrack2016() );
     }
   }
 
@@ -691,11 +691,11 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
   
   //ev.put(std::move(FoundTracks), "DataITC");
   ev.put(std::move(OutputCands), "EMTF");
-  ev.put(std::move(OutHits), "");      // EMTFHitCollection
-  ev.put(std::move(OutTracks), "");    // EMTFTrackCollection
-  ev.put(std::move(OutputHits), "CSC");   // EMTFHitExtraCollection
-  ev.put(std::move(OutputHitsRPC), "RPC");   // EMTFHitExtraCollection
-  ev.put(std::move(OutputTracks), ""); // EMTFTrackExtraCollection
+  ev.put(std::move(OutHits), "");      // EMTFHit2016Collection
+  ev.put(std::move(OutTracks), "");    // EMTFTrack2016Collection
+  ev.put(std::move(OutputHits), "CSC");   // EMTFHit2016ExtraCollection
+  ev.put(std::move(OutputHitsRPC), "RPC");   // EMTFHit2016ExtraCollection
+  ev.put(std::move(OutputTracks), ""); // EMTFTrack2016ExtraCollection
   
 }//analyzer
 

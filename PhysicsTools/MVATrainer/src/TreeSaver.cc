@@ -91,7 +91,7 @@ class TreeSaver : public TrainProcessor {
 	bool				flagsPassed, begun;
 };
 
-static TreeSaver::Registry registry("TreeSaver");
+TreeSaver::Registry registry("TreeSaver");
 
 TreeSaver::TreeSaver(const char *name, const AtomicId *id,
                    MVATrainer *trainer) :

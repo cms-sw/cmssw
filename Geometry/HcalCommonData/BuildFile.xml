@@ -1,5 +1,6 @@
 <use   name="DetectorDescription/Core"/>
 <use   name="DataFormats/HcalDetId"/>
+<use   name="clhep"/>
 <export>
   <lib   name="1"/>
 </export>

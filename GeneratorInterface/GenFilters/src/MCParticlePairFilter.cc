@@ -2,6 +2,7 @@
 //-ap #include "Configuration/CSA06Skimming/interface/MCParticlePairFilter.h"
 
 #include "GeneratorInterface/GenFilters/interface/MCParticlePairFilter.h"
+#include "GeneratorInterface/GenFilters/interface/MCFilterZboostHelper.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include <iostream>
@@ -126,7 +127,7 @@ bool MCParticlePairFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
        }
      }
      if(gottypeAID) {
-       HepMC::FourVector mom = zboost((*p)->momentum());
+       HepMC::FourVector mom = MCFilterZboostHelper::zboost((*p)->momentum(),betaBoost);
        if ( mom.perp() > ptMin[0] && mom.rho() > pMin[0] && mom.eta() > etaMin[0] 
 	    && mom.eta() < etaMax[0] && ((*p)->status() == status[0] || status[0] == 0)) { 
 	 // passed A type conditions ...
@@ -156,7 +157,7 @@ bool MCParticlePairFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 	   charge1 = charge((*p)->pdg_id());
 	   //totmomentum = momentum1 + typeBpassed[i]->momentum();
 	   //invmass = totmomentum.m();
-      HepMC::FourVector mom_i = zboost(typeBpassed[i]->momentum());
+      HepMC::FourVector mom_i = MCFilterZboostHelper::zboost(typeBpassed[i]->momentum(),betaBoost);
 	   tot_x += mom_i.px();
 	   tot_y += mom_i.py();
 	   tot_z += mom_i.pz();
@@ -198,7 +199,7 @@ bool MCParticlePairFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
        }
      }
      if(gottypeBID) {
-       HepMC::FourVector mom = zboost((*p)->momentum());
+       HepMC::FourVector mom = MCFilterZboostHelper::zboost((*p)->momentum(),betaBoost);
        if ( mom.perp() > ptMin[1] && mom.rho() > pMin[1] && mom.eta() > etaMin[1] 
 	    && mom.eta() < etaMax[1] && ((*p)->status() == status[1] || status[1] == 0)) { 
 	 // passed B type conditions ...
@@ -229,7 +230,7 @@ bool MCParticlePairFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 	     charge1 = charge((*p)->pdg_id());
 	     //totmomentum = momentum1 + typeApassed[i]->momentum();
         //invmass = totmomentum.m();
-        HepMC::FourVector mom_i = zboost(mom_i);
+        HepMC::FourVector mom_i = MCFilterZboostHelper::zboost(mom_i,betaBoost);
 	     tot_x += mom_i.px();
 	     tot_y += mom_i.py();
 	     tot_z += mom_i.pz();
@@ -338,14 +339,4 @@ int MCParticlePairFilter::charge(const int& Id){
 
   // cout << hepchg<< endl;
   return hepchg;
-}
-
-HepMC::FourVector MCParticlePairFilter::zboost(const HepMC::FourVector& mom) {
-   //Boost this Lorentz vector (from TLorentzVector::Boost)
-   double b2 = betaBoost*betaBoost;
-   double gamma = 1.0 / sqrt(1.0 - b2);
-   double bp = betaBoost*mom.pz();
-   double gamma2 = b2 > 0 ? (gamma - 1.0)/b2 : 0.0;
-
-   return HepMC::FourVector(mom.px(), mom.py(), mom.pz() + gamma2*bp*betaBoost + gamma*betaBoost*mom.e(), gamma*(mom.e()+bp));
 }

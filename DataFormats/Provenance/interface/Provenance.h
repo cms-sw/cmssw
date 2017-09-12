@@ -54,6 +54,7 @@ namespace edm {
     std::string const& friendlyClassName() const {return stable().friendlyClassName();}
     ProductProvenanceRetriever const* store() const {return store_;}
     ProcessHistory const& processHistory() const {return stable().processHistory();}
+    ProcessHistory const* processHistoryPtr() const {return stable().processHistoryPtr();}
     bool getProcessConfiguration(ProcessConfiguration& pc) const {return stable().getProcessConfiguration(pc);}
     ReleaseVersion releaseVersion() const {return stable().releaseVersion();}
     std::set<std::string> const& branchAliases() const {return stable().branchAliases();}

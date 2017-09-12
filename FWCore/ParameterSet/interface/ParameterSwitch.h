@@ -38,24 +38,24 @@ namespace edm {
       }
     }
 
-    virtual ParameterDescriptionNode* clone() const {
+    ParameterDescriptionNode* clone() const override {
       return new ParameterSwitch(*this);
     }
 
   private:
 
-    virtual void checkAndGetLabelsAndTypes_(std::set<std::string> & usedLabels,
-                                            std::set<ParameterTypes> & parameterTypes,
-                                            std::set<ParameterTypes> & wildcardTypes) const {
+    void checkAndGetLabelsAndTypes_(std::set<std::string> & usedLabels,
+                                    std::set<ParameterTypes> & parameterTypes,
+                                    std::set<ParameterTypes> & wildcardTypes) const override {
 
       std::set<std::string> caseLabels;
       std::set<ParameterTypes> caseParameterTypes;
       std::set<ParameterTypes> caseWildcardTypes;
       for_all(cases_, std::bind(&ParameterSwitch::checkCaseLabels,
-                                  std::placeholders::_1,
-                                  std::ref(caseLabels),
-                                  std::ref(caseParameterTypes),
-                                  std::ref(caseWildcardTypes)));
+                                std::placeholders::_1,
+                                std::ref(caseLabels),
+                                std::ref(caseParameterTypes),
+                                std::ref(caseWildcardTypes)));
 
       insertAndCheckLabels(switch_.label(),
                            usedLabels,
@@ -72,9 +72,9 @@ namespace edm {
       }
     }
 
-    virtual void validate_(ParameterSet & pset,
-                           std::set<std::string> & validatedLabels,
-                           bool optional) const {
+    void validate_(ParameterSet & pset,
+                   std::set<std::string> & validatedLabels,
+                   bool optional) const override {
 
       switch_.validate(pset, validatedLabels, optional);
       if (switch_.exists(pset)) {
@@ -109,10 +109,10 @@ namespace edm {
       }
     }
 
-    virtual void writeCfi_(std::ostream & os,
-                          bool & startWithComma,
-                          int indentation,
-                          bool & wroteSomething) const {
+    void writeCfi_(std::ostream & os,
+                   bool & startWithComma,
+                   int indentation,
+                   bool & wroteSomething) const override {
       switch_.writeCfi(os, startWithComma, indentation, wroteSomething);
 
       typename CaseMap::const_iterator selectedCase = cases_.find(switch_.getDefaultValue());
@@ -121,27 +121,27 @@ namespace edm {
       }
     }
 
-    virtual void print_(std::ostream & os,
-                        bool optional,
-                        bool writeToCfi,
-                        DocFormatHelper & dfh) const {
+    void print_(std::ostream & os,
+                bool optional,
+                bool writeToCfi,
+                DocFormatHelper & dfh) const override {
       printBase(os, optional, writeToCfi, dfh, switch_.label(), switch_.isTracked(), parameterTypeEnumToString(switch_.type()));
     }
 
-    virtual void printNestedContent_(std::ostream & os,
-                                     bool optional,
-                                     DocFormatHelper & dfh) const {
+    void printNestedContent_(std::ostream & os,
+                             bool optional,
+                             DocFormatHelper & dfh) const override {
 
       DocFormatHelper new_dfh(dfh);
       printNestedContentBase(os, dfh, new_dfh, switch_.label());
 
       switch_.print(os, optional, true, new_dfh);
       for_all(cases_, std::bind(&ParameterSwitchBase::printCaseT<T>,
-                                  std::placeholders::_1,
-                                  std::ref(os),
-                                  optional,
-                                  std::ref(new_dfh),
-                                  std::cref(switch_.label())));
+                                std::placeholders::_1,
+                                std::ref(os),
+                                optional,
+                                std::ref(new_dfh),
+                                std::cref(switch_.label())));
 
       new_dfh.setPass(1);
       new_dfh.setCounter(0);
@@ -168,7 +168,7 @@ namespace edm {
                                   std::cref(switch_.label())));
     }
 
-    virtual bool exists_(ParameterSet const& pset) const { return switch_.exists(pset); }
+    bool exists_(ParameterSet const& pset) const override { return switch_.exists(pset); }
 
     static void checkCaseLabels(std::pair<T, edm::value_ptr<ParameterDescriptionNode> > const& thePair,
                                 std::set<std::string> & labels,

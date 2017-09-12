@@ -46,6 +46,7 @@ def runjob(args):
                     '_HASHMAPDB_': args.hashmapDb,
                     '_MAPDBFILE_': 'sqlite:///%s' % hashmap_db,
                     '_SKIPPED_'  : '',
+                    '_WHITELISTED_': '',
                     }
     if args.analyzer == 'SiStripO2OApvGain':
         # special treatment for G1 O2O
@@ -55,8 +56,15 @@ def runjob(args):
                 skipped = skipfile.read()
         else:
             logging.warning('Skipped module list not provided! No module will be skipped...')
+        whitelisted = ''
+        if args.whitelistFile:
+            with open(args.whitelistFile) as wfile:
+                whitelisted = wfile.read()
+        else:
+            logging.warning('Module whitelist not provided!')
         replace_dict['_USEANALYSIS_'] = 'True'
         replace_dict['_SKIPPED_'] = skipped
+        replace_dict['_WHITELISTED_'] = whitelisted
         replace_dict['_HASHMAPDB_'] = ''
         replace_dict['_MAPDBFILE_'] = ''
 
@@ -120,6 +128,7 @@ def main():
     parser.add_argument('--condDbRead', default='oracle://cms_orcon_prod/CMS_CONDITIONS', help='Connection string for the DB from which the fast O2O retrives payloads.')
     parser.add_argument('--hashmapDb', default='', help='DB to read and write config-to-payload hash (for fast O2O).')
     parser.add_argument('--skiplistFile', default='', help='File containing the devices to be skipped in G1 O2O.')
+    parser.add_argument('--whitelistFile', default='', help='File of the whitelisted devices in G1 O2O.')
 
     parser.add_argument('--no-upload', action="store_true", default=False, help='Do not upload payload. Default: %(default)s.')
     parser.add_argument('--use-uploader', action="store_true", default=False, help='Use conditionUploader instead of conddb copy. Default: %(default)s.')
@@ -151,6 +160,8 @@ def main():
     args.cfgfile = os.path.abspath(args.cfgfile)
     if args.skiplistFile:
         args.skiplistFile = os.path.abspath(args.skiplistFile)
+    if args.whitelistFile:
+        args.whitelistFile = os.path.abspath(args.whitelistFile)
 
     # change to O2O working directory
     jobdir = os.path.join(jobdirbase, args.since, args.analyzer)

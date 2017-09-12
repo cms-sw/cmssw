@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cstdio>
 #include <string>
+#include <utility>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
@@ -217,9 +218,9 @@ void DDTECModuleAlgo::initialize(const DDNumericArguments & nArgs,
   }
 }
 
-void DDTECModuleAlgo::doPos(DDLogicalPart toPos, DDLogicalPart mother, 
+void DDTECModuleAlgo::doPos(const DDLogicalPart& toPos, const DDLogicalPart& mother, 
 			    int copyNr, double x, double y, double z, 
-			    std::string rotName, DDCompactView& cpv) {
+			    const std::string& rotName, DDCompactView& cpv) {
 
   DDTranslation tran(z, x, y);
   DDRotation rot;
@@ -254,7 +255,7 @@ void DDTECModuleAlgo::doPos(DDLogicalPart toPos, double x, double y, double z,
   }
   if (rotName == "NULL") rotName = standardRot;
 
-  doPos(toPos,parent(),copyNr,x,y,z,rotName, cpv);
+  doPos(std::move(toPos),parent(),copyNr,x,y,z,rotName, cpv);
 }
 
 void DDTECModuleAlgo::execute(DDCompactView& cpv) {

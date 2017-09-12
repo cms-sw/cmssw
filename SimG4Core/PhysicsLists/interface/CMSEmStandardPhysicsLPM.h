@@ -7,7 +7,7 @@
 
 class CMSEmStandardPhysicsLPM : public G4VPhysicsConstructor {
 
-public:
+public: 
   CMSEmStandardPhysicsLPM(G4int ver);
   virtual ~CMSEmStandardPhysicsLPM();
 

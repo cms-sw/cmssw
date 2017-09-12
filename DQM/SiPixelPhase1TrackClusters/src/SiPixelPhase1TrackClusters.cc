@@ -51,12 +51,14 @@ enum {  // copy paste from cfy: the only safe way to doit....
 
   SiPixelPhase1TrackClustersOnTrackSizeXOuter,
   SiPixelPhase1TrackClustersOnTrackSizeXInner,
+  SiPixelPhase1TrackClustersOnTrackSizeXF,
   SiPixelPhase1TrackClustersOnTrackSizeYOuter,
-  SiPixelPhase1TrackClustersOnTrackSizeYInner, 
-
+  SiPixelPhase1TrackClustersOnTrackSizeYInner,
+  SiPixelPhase1TrackClustersOnTrackSizeYF,
+    
   SiPixelPhase1TrackClustersOnTrackSizeXYOuter,
   SiPixelPhase1TrackClustersOnTrackSizeXYInner,
-
+  SiPixelPhase1TrackClustersOnTrackSizeXYF,
 
   SiPixelPhase1TrackClustersEnumSize
 };
@@ -80,9 +82,9 @@ SiPixelPhase1TrackClusters::SiPixelPhase1TrackClusters(const edm::ParameterSet& 
   applyVertexCut_(iConfig.getUntrackedParameter<bool>("VertexCut",true)),
   tracksToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"))),
   offlinePrimaryVerticesToken_(applyVertexCut_ ?
-                              consumes<reco::VertexCollection>(std::string("offlinePrimaryVertices")) :
+                              consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices")) :
                               edm::EDGetTokenT<reco::VertexCollection>()),
-  pixelClusterShapeCacheToken_(consumes<SiPixelClusterShapeCache>( edm::InputTag("siPixelClusterShapeCache")))
+  pixelClusterShapeCacheToken_(consumes<SiPixelClusterShapeCache>(iConfig.getParameter<edm::InputTag>("clusterShapeCache")))
 {}
 
 void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -125,6 +127,10 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
 
   edm::Handle<SiPixelClusterShapeCache> pixelClusterShapeCacheH;
   iEvent.getByToken(pixelClusterShapeCacheToken_, pixelClusterShapeCacheH);
+  if ( !pixelClusterShapeCacheH.isValid() ) {
+    edm::LogWarning("SiPixelPhase1TrackClusters")  << "PixelClusterShapeCache collection is not valid";
+    return;
+  }  
   auto const & pixelClusterShapeCache = *pixelClusterShapeCacheH;
 
   
@@ -154,6 +160,7 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
       if (subdetid == PixelSubdetector::PixelBarrel) isBpixtrack = true;
       if (subdetid == PixelSubdetector::PixelEndcap) isFpixtrack = true;
       if (subdetid != PixelSubdetector::PixelBarrel && subdetid != PixelSubdetector::PixelEndcap) continue;
+      bool iAmBarrel = subdetid ==PixelSubdetector::PixelBarrel;
       auto pixhit = dynamic_cast<const SiPixelRecHit*>(hit->hit());
       if (!pixhit) continue;
 
@@ -180,18 +187,24 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
       std::pair<float,float> pred;
       if(shapeFilter.getSizes(*pixhit,localDir,pixelClusterShapeCache, part,meas, pred)) {
        auto shape = shapeFilter.isCompatible(*pixhit,localDir,pixelClusterShapeCache);
-       if(tkTpl.pxbLadder(id)%2==1) {
-         histo[SiPixelPhase1TrackClustersOnTrackSizeXOuter].fill(pred.first, cluster.sizeX(), id, &iEvent);
-       	 histo[SiPixelPhase1TrackClustersOnTrackSizeYOuter].fill(pred.second,cluster.sizeY(), id, &iEvent);
-         histo[SiPixelPhase1TrackClustersOnTrackSizeXYOuter].fill(pred.second-cluster.sizeY(),pred.first-cluster.sizeX(), id, &iEvent);
+       if (iAmBarrel) {
+         if(tkTpl.pxbLadder(id)%2==1) {
+           histo[SiPixelPhase1TrackClustersOnTrackSizeXOuter].fill(pred.first, cluster.sizeX(), id, &iEvent);
+           histo[SiPixelPhase1TrackClustersOnTrackSizeYOuter].fill(pred.second,cluster.sizeY(), id, &iEvent);
+           histo[SiPixelPhase1TrackClustersOnTrackSizeXYOuter].fill(cluster.sizeY(),cluster.sizeX(), id, &iEvent);
 
-         histo[SiPixelPhase1TrackClustersOnTrackShapeOuter].fill(shape?1:0,id, &iEvent);
+           histo[SiPixelPhase1TrackClustersOnTrackShapeOuter].fill(shape?1:0,id, &iEvent);
+         } else {
+           histo[SiPixelPhase1TrackClustersOnTrackSizeXInner].fill(pred.first, cluster.sizeX(), id, &iEvent);
+           histo[SiPixelPhase1TrackClustersOnTrackSizeYInner].fill(pred.second,cluster.sizeY(), id, &iEvent);
+           histo[SiPixelPhase1TrackClustersOnTrackSizeXYInner].fill(cluster.sizeY(),cluster.sizeX(), id, &iEvent);
+
+           histo[SiPixelPhase1TrackClustersOnTrackShapeInner].fill(shape?1:0,id, &iEvent);
+         }
        } else {
-         histo[SiPixelPhase1TrackClustersOnTrackSizeXInner].fill(pred.first, cluster.sizeX(), id, &iEvent);
-         histo[SiPixelPhase1TrackClustersOnTrackSizeYInner].fill(pred.second,cluster.sizeY(), id, &iEvent);
-         histo[SiPixelPhase1TrackClustersOnTrackSizeXYInner].fill(pred.second-cluster.sizeY(),pred.first-cluster.sizeX(), id, &iEvent);
-
-         histo[SiPixelPhase1TrackClustersOnTrackShapeInner].fill(shape?1:0,id, &iEvent);
+           histo[SiPixelPhase1TrackClustersOnTrackSizeXF].fill(pred.first, cluster.sizeX(), id, &iEvent);
+           histo[SiPixelPhase1TrackClustersOnTrackSizeYF].fill(pred.second,cluster.sizeY(), id, &iEvent);
+           histo[SiPixelPhase1TrackClustersOnTrackSizeXYF].fill(cluster.sizeY(),cluster.sizeX(), id, &iEvent);
        }
        histo[SiPixelPhase1TrackClustersOnTrackShape].fill(shape?1:0,id, &iEvent);
       }

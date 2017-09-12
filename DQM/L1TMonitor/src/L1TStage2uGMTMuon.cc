@@ -29,7 +29,7 @@ void L1TStage2uGMTMuon::bookHistograms(DQMStore::IBooker& ibooker, const edm::Ru
   // Subsystem Monitoring and Muon Output
   ibooker.setCurrentFolder(monitorDir);
 
-  ugmtMuonBX = ibooker.book1D("ugmtMuonBX", (titlePrefix+"BX").c_str(), 5, -2.5, 2.5);
+  ugmtMuonBX = ibooker.book1D("ugmtMuonBX", (titlePrefix+"BX").c_str(), 7, -3.5, 3.5);
   ugmtMuonBX->setAxisTitle("BX", 1);
 
   ugmtnMuons = ibooker.book1D("ugmtnMuons", (titlePrefix+"Multiplicity").c_str(), 9, -0.5, 8.5);

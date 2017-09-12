@@ -14,6 +14,7 @@ static std::unique_ptr<PulseShapeFitOOTPileupCorrection>
 parseHBHEMethod2Description(const edm::ParameterSet& conf)
 {
     const bool iPedestalConstraint = conf.getParameter<bool>  ("applyPedConstraint");
+    const bool iDCConstraint = conf.getParameter<bool>  ("applyDCConstraint");
     const bool iTimeConstraint =     conf.getParameter<bool>  ("applyTimeConstraint");
     const bool iAddPulseJitter =     conf.getParameter<bool>  ("applyPulseJitter");
     const bool iApplyTimeSlew =      conf.getParameter<bool>  ("applyTimeSlew");
@@ -48,7 +49,7 @@ parseHBHEMethod2Description(const edm::ParameterSet& conf)
 		      iPedMean, iPedSigHPD, iPedSigSiPM,
                       iNoiseHPD, iNoiseSiPM,
 		      iTMin, iTMax, its4Chi2,
-                      HcalTimeSlew::Medium, iFitTimes);
+                      HcalTimeSlew::Medium, iFitTimes, iDCConstraint);
 
     return corr;
 }

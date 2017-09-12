@@ -173,7 +173,7 @@ void TriggerBxVsOrbitMonitor::bookHistograms(DQMStore::IBooker & booker, edm::Ru
     m_orbit_bx_all->SetCanExtend(TH1::kAllAxes);
     
     for (unsigned int i = 0; i < nLS; ++i) {
-      std::string iname = boost::lexical_cast<std::string>(i);
+      std::string iname = std::to_string(i);
       m_orbit_bx_all_byLS.at(i) = booker.book2D("OrbitVsBX_LS"+iname, "OrbitVsBX_LS"+iname, nBX, float(m_minBX)-0.5, float(m_maxBX)+0.5, s_orbit_range+1, -0.5, float(s_orbit_range)+0.5)->getTH2F();
       m_orbit_bx_all_byLS.at(i)->GetXaxis()->SetTitle("BX");
       m_orbit_bx_all_byLS.at(i)->GetYaxis()->SetTitle("orbit");

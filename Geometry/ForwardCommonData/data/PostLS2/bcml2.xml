@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="bcml2.xml" eval="true">
+  <Constant name="BCML2Dx1"      value="15.0*cm"/>
+  <Constant name="BCML2Dx2"      value="14.6*cm"/>
+  <Constant name="BCML2Dx3"      value="([BCML2Dx2]-0.25*mm)"/>
+  <Constant name="BCML2Dy1"      value="14.0*cm"/>
+  <Constant name="BCML2Dy2"      value="13.9*cm"/>
+  <Constant name="BCML2Dy3"      value="([BCML2Dy2]-0.25*mm)"/>
+  <Constant name="BCML2Dz0"      value="2.35*cm"/>
+  <Constant name="BCML2Dz1"      value="0.15*cm"/>
+  <Constant name="BCML2Dz2"      value="1.63*cm"/>
+  <Constant name="BCML2Dz3"      value="([BCML2Dz0]-3*[BCML2Dz1]-[BCML2Dz2])"/>
+  <Constant name="BCML2Dz2"      value="1.63*cm"/>
+  <Constant name="BCML2HoleR"    value="4.87*cm"/>
+  <Constant name="BCML2DetDx"    value="1.25*cm"/>
+  <Constant name="BCML2DetDy"    value="1.25*cm"/>
+  <Constant name="BCML2DetDz"    value="0.155*cm"/>
+  <Constant name="BCML2DetR1"    value="7.0*cm"/>
+  <Constant name="BCML2DetR2"    value="11.0*cm"/>
+  <Constant name="BCML2Z1"       value="([cms:TotemBeamZ2]+[BCML2Dz1])"/>
+  <Constant name="BCML2Z2"       value="([BCML2Z1]+2*[BCML2Dz1])"/>
+  <Constant name="BCML2Z3"       value="([BCML2Z2]+[BCML2Dz1]+[BCML2Dz3])"/>
+  <Constant name="BCML2Z4"       value="([BCML2Z3]+[BCML2Dz3]+[BCML2Dz2])"/>
+  <Constant name="BCML2Z5"       value="([BCML2Z4]+[BCML2Dz2]+[BCML2Dz1])"/>
+</ConstantsSection>
+
+<SolidSection label="bcml2.xml">
+ <Box  name="BCML2Box1"  dx="[BCML2Dx1]" dy="[BCML2Dy1]" dz="[BCML2Dz1]"/>
+ <Tubs name="BCML2Hole1" rMin="[cms:Rmin]" rMax="[BCML2HoleR]" dz="[BCML2Dz1]" startPhi="0*deg" deltaPhi="360*deg"/>
+ <SubtractionSolid name="BCML2Plane1">
+   <rSolid name="BCML2Box1"/>
+   <rSolid name="BCML2Hole1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm" y="0*fm" z="0.0*fm"/>
+ </SubtractionSolid>
+ <Box  name="BCML2Box2"  dx="[BCML2Dx2]" dy="[BCML2Dy2]" dz="[BCML2Dz1]"/>
+ <SubtractionSolid name="BCML2Plane5">
+   <rSolid name="BCML2Box2"/>
+   <rSolid name="BCML2Hole1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm" y="0*fm" z="0.0*fm"/>
+ </SubtractionSolid>
+ <Box  name="BCML2Box3"  dx="[BCML2Dx2]" dy="[BCML2Dy2]" dz="[BCML2Dz3]"/>
+ <Tubs name="BCML2Hole2" rMin="[cms:Rmin]" rMax="[BCML2HoleR]" dz="[BCML2Dz3]" startPhi="0*deg" deltaPhi="360*deg"/>
+ <SubtractionSolid name="BCML2Plane2">
+   <rSolid name="BCML2Box3"/>
+   <rSolid name="BCML2Hole2"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm" y="0*fm" z="0.0*fm"/>
+ </SubtractionSolid>
+ <Box  name="BCML2Box4"  dx="[BCML2Dx3]" dy="[BCML2Dy3]" dz="[BCML2Dz3]"/>
+ <SubtractionSolid name="BCML2Plane3">
+   <rSolid name="BCML2Box4"/>
+   <rSolid name="BCML2Hole2"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm" y="0*fm" z="0.0*fm"/>
+ </SubtractionSolid>
+ <Box  name="BCML2Box5"  dx="[BCML2Dx2]" dy="[BCML2Dy2]" dz="[BCML2Dz2]"/>
+ <Box  name="BCML2Box6"  dx="[BCML2Dx3]" dy="[BCML2Dy3]" dz="[BCML2Dz2]"/>
+ <SubtractionSolid name="BCML2Plane4">
+   <rSolid name="BCML2Box5"/>
+   <rSolid name="BCML2Box6"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm" y="0*fm" z="0.0*fm"/>
+ </SubtractionSolid>
+ <Box  name="BCML2Det"   dx="[BCML2DetDx]" dy="[BCML2DetDy]" dz="[BCML2DetDz]"/>
+</SolidSection>
+
+<LogicalPartSection label="bcml2.xml">
+  <LogicalPart name="BCML2Plane1" category="unspecified">
+    <rSolid name="BCML2Plane1"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="BCML2Plane5" category="unspecified">
+    <rSolid name="BCML2Plane5"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="BCML2Plane2" category="unspecified">
+    <rSolid name="BCML2Plane2"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="BCML2Plane3" category="unspecified">
+    <rSolid name="BCML2Plane3"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="BCML2Plane4" category="unspecified">
+    <rSolid name="BCML2Plane4"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="BCML2Det" category="unspecified">
+    <rSolid name="BCML2Det"/>
+    <rMaterial name="materials:Diamond"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="bcml2.xml">
+  <PosPart copyNumber="1">
+    <rParent name="forward:BCML2"/>
+    <rChild name="bcml2:BCML2Plane1"/>
+    <Translation x="0*fm" y="0*fm" z="[BCML2Z1]"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="forward:BCML2"/>
+    <rChild name="bcml2:BCML2Plane1"/>
+    <Translation x="0*fm" y="0*fm" z="[BCML2Z2]"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="forward:BCML2"/>
+    <rChild name="bcml2:BCML2Plane2"/>
+    <Translation x="0*fm" y="0*fm" z="[BCML2Z3]"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="bcml2:BCML2Plane2"/>
+    <rChild name="bcml2:BCML2Plane3"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="forward:BCML2"/>
+    <rChild name="bcml2:BCML2Plane4"/>
+    <Translation x="0*fm" y="0*fm" z="[BCML2Z4]"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="5">
+    <rParent name="forward:BCML2"/>
+    <rChild name="bcml2:BCML2Plane5"/>
+    <Translation x="0*fm" y="0*fm" z="[BCML2Z5]"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+</PosPartSection>
+
+<Algorithm name="hcal:DDHCalAngular">
+  <rParent name="bcml2:BCML2Plane3"/>
+  <String name="ChildName" value="BCML2Det"/>
+  <String name="RotNameSpace" value="bcml2rotations"/>
+  <Numeric name="n" value="8"/>
+  <Numeric name="startCopyNo" value="1"/>
+  <Numeric name="incrCopyNo" value="1"/>
+  <Numeric name="rangeAngle" value="360*deg"/>
+  <Numeric name="startAngle" value="22.5*deg"/>
+  <Numeric name="shiftY" value="0*fm"/>
+  <Numeric name="shiftX" value="[bcml2:BCML2DetR1]"/>
+  <Numeric name="zoffset" value="0*fm"/>
+</Algorithm>
+<Algorithm name="hcal:DDHCalAngular">
+  <rParent name="bcml2:BCML2Plane3"/>
+  <String name="ChildName" value="BCML2Det"/>
+  <String name="RotNameSpace" value="bcml2rotations"/>
+  <Numeric name="n" value="8"/>
+  <Numeric name="startCopyNo" value="9"/>
+  <Numeric name="incrCopyNo" value="1"/>
+  <Numeric name="rangeAngle" value="360*deg"/>
+  <Numeric name="startAngle" value="22.5*deg"/>
+  <Numeric name="shiftY" value="0*fm"/>
+  <Numeric name="shiftX" value="[bcml2:BCML2DetR2]"/>
+  <Numeric name="zoffset" value="0*fm"/>
+</Algorithm>
+</DDDefinition>

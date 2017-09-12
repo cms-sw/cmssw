@@ -8,7 +8,7 @@
 using namespace reco;
 
 namespace {
-	static inline double sqr(double arg) { return arg * arg; }
+	inline double sqr(double arg) { return arg * arg; }
 }
 
 SequentialGhostTrackFitter::SequentialGhostTrackFitter() :

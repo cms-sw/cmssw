@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os
+import sys, os
 import argparse
 from extend_argparse import *
 
@@ -17,7 +17,6 @@ formatter = FixedWidthFormatter( HelpFormatterRespectNewlines, width = textwidth
 
 parser = argparse.ArgumentParser(
   description       = 'Extract an HLT configuration (or fragment thereof) from the ConfDB database.''',
-  epilog            = 'Note: using "--online", overriding the GlobalTag or the L1 menu is meaningful only in a full, self-contained dump. A cff file does not provide the modules to be overriden.''',
   argument_default  = argparse.SUPPRESS,
   formatter_class   = formatter,
   add_help          = False )
@@ -201,7 +200,7 @@ group.add_argument('--full',
                     action  = 'store_false',
                     default = not defaults.fragment,
                     help    = 'Generate a full configuration file, with minimal modifications (default)' )
-group.add_argument('--cff',
+group.add_argument('--fragment', '--cff',
                     dest    = 'fragment',
                     action  = 'store_true',
                     default = defaults.fragment,
@@ -209,15 +208,13 @@ group.add_argument('--cff',
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--online',
-                    dest    = 'online',
+                    dest    = 'unused',
                     action  = 'store_true',
-                    default = defaults.online,
-                    help    = 'Generate a configuration file suitable for running online (use the online compliant connection string)' )
+                    help    = 'Ignored' )
 group.add_argument('--offline',
-                    dest    = 'online',
-                    action  = 'store_false',
-                    default = not defaults.online,
-                    help    = 'Generate a configuration file suitable for running offline (override the connection string) (default)' )
+                    dest    = 'unused',
+                    action  = 'store_true',
+                    help    = 'Ignored' )
 
 # redefine "--help" to be the last option, and use a customized message
 parser.add_argument('--help',
@@ -226,4 +223,10 @@ parser.add_argument('--help',
 
 # parse command line arguments and options
 config = parser.parse_args(namespace = options.HLTProcessOptions())
+
+cmdArgs = sys.argv
+cmdArgs[0] = os.path.basename(sys.argv[0])
+cmdLine = ' '.join(cmdArgs)
+print '# ' + cmdLine
+print
 print confdb.HLTProcess(config).dump()

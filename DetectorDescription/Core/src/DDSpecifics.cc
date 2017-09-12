@@ -11,7 +11,8 @@
 
 using DDI::Specific;
 
-DDSpecifics::DDSpecifics() : DDBase<DDName,Specific*>()
+DDSpecifics::DDSpecifics()
+  : DDBase<DDName,Specific*>()
 { }
 
 DDSpecifics::DDSpecifics(const DDName & name) : DDBase<DDName,Specific*>()

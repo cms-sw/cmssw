@@ -154,7 +154,7 @@ class TotemRPLocalTrack
     double track_params_vector_[dimension];
 
     /// z where x0 and y0 are evaluated.
-    /// filled from TotemRPGeometry::GetRPGlobalTranslation
+    /// filled from CTPPSGeometry::getRPTranslation
     double z0_; 
 
     double par_covariance_matrix_[covarianceSize];

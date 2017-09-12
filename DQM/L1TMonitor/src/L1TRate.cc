@@ -24,8 +24,6 @@
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsAlgoTrigRcd.h"
 
-#include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
-
 #include "TList.h"
 
 using namespace edm;
@@ -64,7 +62,7 @@ L1TRate::L1TRate(const ParameterSet & ps) :
   // What to do if we want our output to be saved to a external file
   m_outputFile = ps.getUntrackedParameter < string > ("outputFile", "");
   
-  if (m_outputFile.size() != 0) {
+  if (!m_outputFile.empty()) {
     cout << "L1T Monitoring histograms will be saved to " << m_outputFile.c_str() << endl;
   }
   
@@ -220,7 +218,7 @@ void L1TRate::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup co
   
   // Checking if all necessary quantities are defined for our calculations
   bool isDefRate,isDefLumi,isDefPrescaleIndex;
-  map<TString,double>* rates=0;
+  map<TString,double>* rates=nullptr;
   double               lumi=0;
   int                  prescalesIndex=0;
 
@@ -337,7 +335,7 @@ void L1TRate::analyze(const Event & iEvent, const EventSetup & eventSetup){
   }
   
   // Getting from the SCAL the luminosity information and buffering it
-  if(colLScal.isValid() && colLScal->size()){
+  if(colLScal.isValid() && !colLScal->empty()){
     
     LumiScalersCollection::const_iterator itLScal = colLScal->begin();
     unsigned int scalLS  = itLScal->sectionNumber();

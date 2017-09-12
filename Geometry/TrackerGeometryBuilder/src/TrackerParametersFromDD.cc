@@ -32,5 +32,5 @@ TrackerParametersFromDD::putOne( int subdet, std::vector<int> & vpars, PTrackerP
   PTrackerParameters::Item item;
   item.id = subdet;
   item.vpars = vpars;
-  ptp.vitems.push_back( item );
+  ptp.vitems.emplace_back( item );
 }

@@ -9,7 +9,7 @@ DEFINE_EDM_PLUGIN(HGCalTriggerFECodecFactory,
 void HGCal64BitRandomCodec::
 setDataPayloadImpl(const HGCEEDigiCollection&,
                    const HGCHEDigiCollection&,
-                   const HGCHEDigiCollection& ) {
+                   const HGCBHDigiCollection& ) {
   codecImpl_.setDataPayload(data_);
 }
 

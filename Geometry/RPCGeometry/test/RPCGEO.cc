@@ -123,7 +123,7 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
      // The DetId can be a chamber or a roll
      // Consider only the chambers and ask the rolls belonging to this chamber later on
      // So this is a loop on the chambers
-     if( dynamic_cast< const RPCChamber* >( *it ) != 0 ){
+     if( dynamic_cast< const RPCChamber* >( *it ) != nullptr ){
        const RPCChamber* ch = dynamic_cast< const RPCChamber* >( *it ); 
        std::vector< const RPCRoll*> rolls = (ch->rolls());
        //detailstream<<"RPC Chamber"<<ch->id()<<std::endl;       

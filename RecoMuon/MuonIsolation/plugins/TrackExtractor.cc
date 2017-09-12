@@ -61,7 +61,7 @@ IsoDeposit TrackExtractor::deposit(const Event & event, const EventSetup & event
   LogTrace(metname)<<"***** Muon vz: "<<vtx_z;
   reco::TrackBase::Point beamPoint(0,0, 0);
 
-  if (theBeamlineOption.compare("BeamSpotFromEvent") == 0){
+  if (theBeamlineOption == "BeamSpotFromEvent"){
     //pick beamSpot
     reco::BeamSpot beamSpot;
     edm::Handle<reco::BeamSpot> beamSpotH;

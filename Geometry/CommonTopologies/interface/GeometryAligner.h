@@ -148,7 +148,7 @@ void GeometryAligner::attachSurfaceDeformations( C* geometry,
 
       // remove SurfaceDeformation from GeomDetUnit (i.e. set NULL pointer)
       GeomDetUnit* geomDetUnit = const_cast<GeomDetUnit*>((*iPair).second);
-      this->setSurfaceDeformation( *geomDetUnit, 0 );
+      this->setSurfaceDeformation( *geomDetUnit, nullptr );
 
       ++iPair;
       if ( iPair==theMap.end() )
@@ -213,7 +213,7 @@ void GeometryAligner::removeGlobalTransform( const Alignments* alignments,
     newPosition = inverseGlobalRotation * ( (*iAlign).translation() - globalShift );
     newRotation = (*iAlign).rotation() * globalRotation;
     
-    newAlignments->m_align.push_back( AlignTransform(newPosition,
+    newAlignments->m_align.emplace_back( AlignTransform(newPosition,
                                                      newRotation,
                                                      (*iAlign).rawId()) );
     
@@ -221,7 +221,7 @@ void GeometryAligner::removeGlobalTransform( const Alignments* alignments,
     // as it wasn't applied. Just fill vector with original
     // values
     GlobalErrorExtended error( asSMatrix<6>((*iAlignError).matrix()) );
-    newAlignmentErrorsExtended->m_alignError.push_back( AlignTransformErrorExtended( (*iAlignError).matrix(),
+    newAlignmentErrorsExtended->m_alignError.emplace_back( AlignTransformErrorExtended( (*iAlignError).matrix(),
 								     (*iAlignError).rawId() ) );
 
     //if ( error.cxx() || error.cyy() || error.czz() ||
@@ -244,7 +244,7 @@ void GeometryAligner::removeGlobalTransform( const Alignments* alignments,
     //as = as.similarityT( am );
     
     //GlobalErrorExtended newError( as );
-    //newAlignmentErrorsExtended->m_alignError.push_back( AlignTransformErrorExtended( newError.matrix(),
+    //newAlignmentErrorsExtended->m_alignError.emplace_back( AlignTransformErrorExtended( newError.matrix(),
     //                                                                 (*iAlignError).rawId() ) );
     //++nAPE;
   }

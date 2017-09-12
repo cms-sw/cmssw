@@ -1,23 +1,26 @@
 import FWCore.ParameterSet.Config as cms
 
-bxBins = [
-    "1",
-    "271",
-    "541",
-    "892",
-    "1162",
-    "1432",
-    "1783",
-    "2053",
-    "2323",
-    "2674",
-    "2944",
-    "3214",
-    "3446",
-    "3490",
-    "3491",
-    "3565"
-]
+bxBins = [1]
+
+bxStepSizes = [9, 50, 100, 300]
+bxMaxVals = [101, 1501, 2401, 3601]
+runningMinVal = 1
+
+for stepCounter in range(len(bxStepSizes)):
+    runningMinVal = bxBins[-1]
+    bxStepSize = bxStepSizes[stepCounter]
+    bxMaxVal = bxMaxVals[stepCounter]
+    bxBins += list(range(runningMinVal + bxStepSize, bxMaxVal, bxStepSize))
+
+bxBinLabels = [str(bxBins[0])]
+for bxBinCounter in range(0, -1+len(bxBins)):
+    bxBinLabels += [str(1+bxBins[bxBinCounter]) + "-->" + str(bxBins[bxBinCounter+1])]
+
+nBXBins = len(bxBins)
+
+bxBinsFine = [i for i in range(1, 3601)]
+bxBinLabelsFine = [str(i) if (i%100 == 0) else "" for i in range(1, 3601)]
+nBXBinsFine = len(bxBinsFine)
 
 EaxisEdges = []
 for i in range(50) :
@@ -27,15 +30,19 @@ chi2ThresholdEE = 50.
 chi2ThresholdEB = 16.
 energyThresholdEE = 3.
 energyThresholdEB = 1.
+timingVsBXThreshold = 2.02
 timeWindow = 12.5
 summaryTimeWindow = 7.
 
 ecalTimingTask = cms.untracked.PSet(
     params = cms.untracked.PSet(
+        bxBins = cms.untracked.vint32(bxBins),
+        bxBinsFine = cms.untracked.vint32(bxBinsFine),
         chi2ThresholdEE = cms.untracked.double(chi2ThresholdEE),
         chi2ThresholdEB = cms.untracked.double(chi2ThresholdEB),
         energyThresholdEE = cms.untracked.double(energyThresholdEE),
-        energyThresholdEB = cms.untracked.double(energyThresholdEB)
+        energyThresholdEB = cms.untracked.double(energyThresholdEB),
+        timingVsBXThreshold = cms.untracked.double(timingVsBXThreshold)
     ),
     MEs = cms.untracked.PSet(
         TimeMap = cms.untracked.PSet(
@@ -121,22 +128,39 @@ ecalTimingTask = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sTimingTask/%(prefix)sTMT timing vs amplitude %(sm)s'),
             description = cms.untracked.string('Correlation between hit timing and energy. Only hits with GOOD or OUT_OF_TIME reconstruction flags are used.')
         ),
-        TimingVsBX = cms.untracked.PSet(
-            path = cms.untracked.string('%(subdet)s/%(prefix)sTimingTask/%(prefix)sTMT Timing vs BX%(suffix)s'),
+        BarrelTimingVsBX = cms.untracked.PSet(
+            path = cms.untracked.string('EcalBarrel/EBTimingTask/EBTMT Timing vs BX'),
             kind = cms.untracked.string('TProfile'),
-            otype = cms.untracked.string('Ecal3P'),
+            otype = cms.untracked.string('EB'),
             xaxis = cms.untracked.PSet(
-                high = cms.untracked.double(16.0),
-                nbins = cms.untracked.int32(16),
+                high = cms.untracked.double(1.0*nBXBins),
+                nbins = cms.untracked.int32(nBXBins),
                 low = cms.untracked.double(0.0),
                 title = cms.untracked.string('bunch crossing'),
-                labels = cms.untracked.vstring(bxBins)
+                labels = cms.untracked.vstring(bxBinLabels)
             ),
             yaxis = cms.untracked.PSet(
                 title = cms.untracked.string('Timing (ns)')
             ),
             btype = cms.untracked.string('User'),
-            description = cms.untracked.string('Average hit timing in the partition as a function of BX number.')
+            description = cms.untracked.string('Average hit timing in the barrel as a function of BX number.')
+        ),
+        BarrelTimingVsBXFineBinned = cms.untracked.PSet(
+            path = cms.untracked.string('EcalBarrel/EBTimingTask/EBTMT Timing vs Finely Binned BX'),
+            kind = cms.untracked.string('TProfile'),
+            otype = cms.untracked.string('EB'),
+            xaxis = cms.untracked.PSet(
+                high = cms.untracked.double(1.0*nBXBinsFine),
+                nbins = cms.untracked.int32(nBXBinsFine),
+                low = cms.untracked.double(0.0),
+                title = cms.untracked.string('bunch crossing'),
+                labels = cms.untracked.vstring(bxBinLabelsFine)
+            ),
+            yaxis = cms.untracked.PSet(
+                title = cms.untracked.string('Timing (ns)')
+            ),
+            btype = cms.untracked.string('User'),
+            description = cms.untracked.string('Average hit timing in the barrel as a finely-binned function of BX number.')
         ),
         TimeAmpBXm = cms.untracked.PSet(
             kind = cms.untracked.string('TH2F'),

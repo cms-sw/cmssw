@@ -101,23 +101,23 @@ bool CSCGeometryParsFromDD::build( const DDCompactView* cview
 	for (;  it != (**spit).end(); it++) {
 	  LogDebug(myName) << "it->second.name()=" << it->second.name();  
 	  if (it->second.name() == "upar") {
-	    uparvals.push_back(it->second.doubles().size());
-	    for ( size_t i = 0; i < it->second.doubles().size(); ++i) {
-	      uparvals.push_back(it->second.doubles()[i]);
+	    uparvals.emplace_back(it->second.doubles().size());
+	    for (double i : it->second.doubles()) {
+	      uparvals.emplace_back(i);
 	    }
 	    LogDebug(myName) << "found upars ";
 	  } else if (it->second.name() == "NoOfAnonParams") {
 	    noOfAnonParams = static_cast<int>( it->second.doubles()[0] );
 	  } else if (it->second.name() == "NumWiresPerGrp") {
 	    //numWiresInGroup = it->second.doubles();
-	    for ( size_t i = 0 ; i < it->second.doubles().size(); i++) {
-	      wg.wiresInEachGroup.push_back( int( it->second.doubles()[i] ) );
+	    for (double i : it->second.doubles()) {
+	      wg.wiresInEachGroup.emplace_back( int( i ) );
 	    }
 	    LogDebug(myName) << "found upars " << std::endl;
 	  } else if ( it->second.name() == "NumGroups" ) {
 	    //numGroups = it->second.doubles();
-	    for ( size_t i = 0 ; i < it->second.doubles().size(); i++) {
-	      wg.consecutiveGroups.push_back( int( it->second.doubles()[i] ) );
+	    for (double i : it->second.doubles()) {
+	      wg.consecutiveGroups.emplace_back( int( i ) );
 	    }
 	  } else if ( it->second.name() == "WireSpacing" ) {
 	    wg.wireSpacing = it->second.doubles()[0];
@@ -138,24 +138,24 @@ bool CSCGeometryParsFromDD::build( const DDCompactView* cview
       /** crap: using a constructed wg to deconstruct it and put it in db... alternative?
 	  use temporary (not wg!) storage.
 	  
-	  format as inserted is best documented by the actualy push_back statements below.
+	  format as inserted is best documented by the actualy emplace_back statements below.
 	  
 	  fupar size now becomes origSize+6+wg.wiresInEachGroup.size()+wg.consecutiveGroups.size()
       **/
-      uparvals.push_back( wg.wireSpacing );
-      uparvals.push_back( wg.alignmentPinToFirstWire );
-      uparvals.push_back( wg.numberOfGroups );
-      uparvals.push_back( wg.narrowWidthOfWirePlane );
-      uparvals.push_back( wg.wideWidthOfWirePlane );
-      uparvals.push_back( wg.lengthOfWirePlane );
-      uparvals.push_back( wg.wiresInEachGroup.size() ); 
+      uparvals.emplace_back( wg.wireSpacing );
+      uparvals.emplace_back( wg.alignmentPinToFirstWire );
+      uparvals.emplace_back( wg.numberOfGroups );
+      uparvals.emplace_back( wg.narrowWidthOfWirePlane );
+      uparvals.emplace_back( wg.wideWidthOfWirePlane );
+      uparvals.emplace_back( wg.lengthOfWirePlane );
+      uparvals.emplace_back( wg.wiresInEachGroup.size() ); 
       for (CSCWireGroupPackage::Container::const_iterator it = wg.wiresInEachGroup.begin();
 	   it != wg.wiresInEachGroup.end(); ++it) {
-	uparvals.push_back(*it);
+	uparvals.emplace_back(*it);
       }
       for (CSCWireGroupPackage::Container::const_iterator it = wg.consecutiveGroups.begin();
 	   it != wg.consecutiveGroups.end(); ++it) {
-	uparvals.push_back(*it);
+	uparvals.emplace_back(*it);
       }
       /** end crap **/
     }
@@ -176,10 +176,10 @@ bool CSCGeometryParsFromDD::build( const DDCompactView* cview
       dpar[4]/cm << ", " << dpar[8]/cm << ", " << 
       dpar[3]/cm << ", " << dpar[0]/cm;
 
-    fpar.push_back( ( dpar[4]/cm) );
-    fpar.push_back( ( dpar[8]/cm ) ); 
-    fpar.push_back( ( dpar[3]/cm ) ); 
-    fpar.push_back( ( dpar[0]/cm ) ); 
+    fpar.emplace_back( ( dpar[4]/cm) );
+    fpar.emplace_back( ( dpar[8]/cm ) ); 
+    fpar.emplace_back( ( dpar[3]/cm ) ); 
+    fpar.emplace_back( ( dpar[0]/cm ) ); 
 
     LogTrace(myName) << myName  << ": fill gtran...";
 
@@ -245,11 +245,11 @@ bool CSCGeometryParsFromDD::build( const DDCompactView* cview
 
       rig.insert( id, gtran, grmat, fpar );
       if ( !chSpecsAlreadyExist ) {
-	//	rdp.pCSCDetIds.push_back(CSCDetId(id));
+	//	rdp.pCSCDetIds.emplace_back(CSCDetId(id));
 	LogDebug(myName) << " inserting chamber type " << chamberType << std::endl;
-	rdp.pChamberType.push_back(chamberType);
-	rdp.pUserParOffset.push_back(rdp.pfupars.size());
-	rdp.pUserParSize.push_back(uparvals.size());
+	rdp.pChamberType.emplace_back(chamberType);
+	rdp.pUserParOffset.emplace_back(rdp.pfupars.size());
+	rdp.pUserParSize.emplace_back(uparvals.size());
 	std::copy ( uparvals.begin(), uparvals.end(), std::back_inserter(rdp.pfupars));
       }
 
@@ -275,11 +275,11 @@ bool CSCGeometryParsFromDD::build( const DDCompactView* cview
 	// then its in already, don't put it
 	LogDebug(myName) << "found chamber type " << chtypeA << " so don't put it in! ";
       } else {
-	//	rdp.pCSCDetIds.push_back(detid1a);
+	//	rdp.pCSCDetIds.emplace_back(detid1a);
 	LogDebug(myName) << " inserting chamber type " << chtypeA;
-	rdp.pChamberType.push_back(chtypeA);
-	rdp.pUserParOffset.push_back(rdp.pfupars.size());
-	rdp.pUserParSize.push_back(uparvals.size());
+	rdp.pChamberType.emplace_back(chtypeA);
+	rdp.pUserParOffset.emplace_back(rdp.pfupars.size());
+	rdp.pUserParSize.emplace_back(uparvals.size());
 	std::copy ( uparvals.begin(), uparvals.end(), std::back_inserter(rdp.pfupars));
       }
       
@@ -287,11 +287,11 @@ bool CSCGeometryParsFromDD::build( const DDCompactView* cview
     else {
       rig.insert( id, gtran, grmat, fpar );
       if ( !chSpecsAlreadyExist ) {
-	//   rdp.pCSCDetIds.push_back(CSCDetId(id));
+	//   rdp.pCSCDetIds.emplace_back(CSCDetId(id));
 	LogDebug(myName) << " inserting chamber type " << chamberType;
-	rdp.pChamberType.push_back(chamberType);
-	rdp.pUserParOffset.push_back(rdp.pfupars.size());
-	rdp.pUserParSize.push_back(uparvals.size());
+	rdp.pChamberType.emplace_back(chamberType);
+	rdp.pUserParOffset.emplace_back(rdp.pfupars.size());
+	rdp.pUserParSize.emplace_back(uparvals.size());
 	std::copy ( uparvals.begin(), uparvals.end(), std::back_inserter(rdp.pfupars));
       }
     }

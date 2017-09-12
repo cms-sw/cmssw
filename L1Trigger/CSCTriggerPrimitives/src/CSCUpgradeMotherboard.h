@@ -46,7 +46,7 @@ public:
    //Default constructor for testing
   CSCUpgradeMotherboard();
 
-  virtual ~CSCUpgradeMotherboard();
+  ~CSCUpgradeMotherboard() override;
 
   template <class S>
   bool compare(const S& p, const S& q);
@@ -55,8 +55,8 @@ public:
   S intersection(const S& d1, const S& d2);
 
   /** Methods to sort the LCTs */
-  static bool sortLCTsByQuality(const CSCCorrelatedLCTDigi&, const CSCCorrelatedLCTDigi&); 
-  static bool sortLCTsByGEMDphi(const CSCCorrelatedLCTDigi&, const CSCCorrelatedLCTDigi&); 
+  static bool sortLCTsByQuality(const CSCCorrelatedLCTDigi&, const CSCCorrelatedLCTDigi&);
+  static bool sortLCTsByGEMDphi(const CSCCorrelatedLCTDigi&, const CSCCorrelatedLCTDigi&);
   void sortLCTs(std::vector<CSCCorrelatedLCTDigi>& lcts, bool (*sorter)(const CSCCorrelatedLCTDigi&,const CSCCorrelatedLCTDigi&));
 
   void setCSCGeometry(const CSCGeometry *g) { csc_g = g; }
@@ -72,7 +72,7 @@ public:
 
   edm::ParameterSet tmbParams_;
   edm::ParameterSet commonParams_;
-  
+
   const CSCGeometry* csc_g;
   const CSCChamber* cscChamber;
 
@@ -108,8 +108,8 @@ public:
 
 template <class S>
 bool CSCUpgradeMotherboard::compare(const S& p, const S& q)
-{ 
-  return (p.first == q.first) and (p.second == q.second); 
+{
+  return (p.first == q.first) and (p.second == q.second);
 }
 
 template <class S>

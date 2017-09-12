@@ -24,7 +24,7 @@ class MuonSubDetector {
    * "MuonDTHits", "MuonCSCHits", "MuonRPCHits", "MuonGEMHits", "MuonME0Hits"
    */
 
-  MuonSubDetector(std::string name);
+  MuonSubDetector(const std::string& name);
   ~MuonSubDetector(){};
 
   bool isBarrel();

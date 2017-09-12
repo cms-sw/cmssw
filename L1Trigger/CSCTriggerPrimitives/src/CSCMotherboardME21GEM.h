@@ -23,25 +23,25 @@ class GEMSuperChamber;
 
 class CSCMotherboardME21GEM : public CSCMotherboard
 {
-  typedef std::pair<unsigned int, const GEMPadDigi> GEMPadBX;
+  typedef std::pair<unsigned int, GEMPadDigi> GEMPadBX;
   typedef std::vector<GEMPadBX> GEMPadsBX;
   typedef std::map<int, GEMPadsBX> GEMPads;
 
  public:
   /** Normal constructor. */
-  CSCMotherboardME21GEM(unsigned endcap, unsigned station, unsigned sector, 
+  CSCMotherboardME21GEM(unsigned endcap, unsigned station, unsigned sector,
 		 unsigned subsector, unsigned chamber,
 		 const edm::ParameterSet& conf);
 
   /** Default destructor. */
-  ~CSCMotherboardME21GEM();
+  ~CSCMotherboardME21GEM() override;
 
   void clear();
 
   /** Run function for normal usage.  Runs cathode and anode LCT processors,
       takes results and correlates into CorrelatedLCT. */
-  void run(const CSCWireDigiCollection* wiredc, 
-           const CSCComparatorDigiCollection* compdc, 
+  void run(const CSCWireDigiCollection* wiredc,
+           const CSCComparatorDigiCollection* compdc,
            const GEMPadDigiCollection* gemPads);
 
   /// set CSC and GEM geometries for the matching needs
@@ -59,21 +59,29 @@ class CSCMotherboardME21GEM : public CSCMotherboard
 
   void printGEMTriggerPads(int minBX, int maxBx, bool iscopad = false);
 
-  GEMPadsBX matchingGEMPads(const CSCCLCTDigi& cLCT, const GEMPadsBX& pads = GEMPadsBX(), 
-                            bool isCopad = false, bool first = true);  
-  GEMPadsBX matchingGEMPads(const CSCALCTDigi& aLCT, const GEMPadsBX& pads = GEMPadsBX(), 
-                            bool isCopad = false, bool first = true);  
-  GEMPadsBX matchingGEMPads(const CSCCLCTDigi& cLCT, const CSCALCTDigi& aLCT, const GEMPadsBX& pads = GEMPadsBX(), 
-                            bool isCopad = false, bool first = true);  
+  GEMPadsBX matchingGEMPads(const CSCCLCTDigi& cLCT, const GEMPadsBX& pads = GEMPadsBX(),
+                            bool isCopad = false, bool first = true);
+  GEMPadsBX matchingGEMPads(const CSCALCTDigi& aLCT, const GEMPadsBX& pads = GEMPadsBX(),
+                            bool isCopad = false, bool first = true);
+  GEMPadsBX matchingGEMPads(const CSCCLCTDigi& cLCT, const CSCALCTDigi& aLCT, const GEMPadsBX& pads = GEMPadsBX(),
+                            bool isCopad = false, bool first = true);
+  GEMPadsBX matchingGEMPads(const CSCCLCTDigi& cLCT, const CSCCLCTDigi& aLCT, const GEMPadsBX& pads = GEMPadsBX(),
+                            bool isCopad = false);
+  GEMPadsBX matchingGEMPads(const CSCALCTDigi& cLCT, const CSCALCTDigi& aLCT, const GEMPadsBX& pads = GEMPadsBX(),
+                            bool isCopad = false);
+  GEMPadsBX matchingGEMPads(const CSCCLCTDigi& cLCT, const CSCCLCTDigi&,
+                            const CSCALCTDigi& aLCT, const CSCALCTDigi&,
+                            const GEMPadsBX& pads = GEMPadsBX(),
+                            bool isCopad = false, bool first = true);
 
-  unsigned int findQualityGEM(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, 
+  unsigned int findQualityGEM(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT,
 			      bool hasPad, bool hasCoPad);
 
   void correlateLCTs(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
 		     CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
                      CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2,
                      const GEMPadsBX& pads = GEMPadsBX(), const GEMPadsBX& copads = GEMPadsBX());
-  
+
   void correlateLCTsGEM(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
 			GEMPadDigi gemPad,
 			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2);
@@ -88,11 +96,11 @@ class CSCMotherboardME21GEM : public CSCMotherboard
 			const GEMPadsBX& pads = GEMPadsBX(), const GEMPadsBX& copads = GEMPadsBX());
 
   CSCCorrelatedLCTDigi constructLCTsGEM(const CSCALCTDigi& alct, const GEMPadDigi& gem,
-                                        bool oldDataFormat = false); 
+                                        bool oldDataFormat = false);
   CSCCorrelatedLCTDigi constructLCTsGEM(const CSCCLCTDigi& clct, const GEMPadDigi& gem, int roll,
-                                        bool oldDataFormat = true); 
-  CSCCorrelatedLCTDigi constructLCTsGEM(const CSCALCTDigi& alct, const CSCCLCTDigi& clct, 
-					bool hasPad, bool hasCoPad); 
+                                        bool oldDataFormat = true);
+  CSCCorrelatedLCTDigi constructLCTsGEM(const CSCALCTDigi& alct, const CSCCLCTDigi& clct,
+					bool hasPad, bool hasCoPad);
 
   /** additional processor for GEMs */
   std::unique_ptr<GEMCoPadProcessor> coPadProcessor;
@@ -107,7 +115,7 @@ class CSCMotherboardME21GEM : public CSCMotherboard
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs();
   std::vector<GEMCoPadDigi> readoutCoPads();
 
- private: 
+ private:
 
   /** for the case when more than 2 LCTs/BX are allowed;
       maximum match window = 15 */
@@ -119,8 +127,8 @@ class CSCMotherboardME21GEM : public CSCMotherboard
 
   const CSCGeometry* csc_g;
   const GEMGeometry* gem_g;
-  
-  
+
+
   std::vector<CSCALCTDigi> alctV;
   std::vector<CSCCLCTDigi> clctV;
   std::vector<GEMCoPadDigi> gemCoPadV;
@@ -133,7 +141,7 @@ class CSCMotherboardME21GEM : public CSCMotherboard
   /** whether to not reuse CLCTs that were used by previous matching ALCTs
       in ALCT-to-CLCT algorithm */
   bool drop_used_clcts;
-  
+
   unsigned int tmb_cross_bx_algo;
 
   /** maximum lcts per BX in ME2 */
@@ -145,18 +153,18 @@ class CSCMotherboardME21GEM : public CSCMotherboard
   // debug gem matching
   bool debug_gem_matching;
   bool debug_luts;
-  bool debug_gem_dphi;
 
   //  deltas used to match to GEM pads
   int maxDeltaBXPad_;
   int maxDeltaPadPad_;
   int maxDeltaPadPadEven_;
   int maxDeltaPadPadOdd_;
-  int maxDeltaWg_;
 
   //  deltas used to match to GEM coincidence pads
   int maxDeltaBXCoPad_;
   int maxDeltaPadCoPad_;
+  int maxDeltaPadCoPadEven_;
+  int maxDeltaPadCoPadOdd_;
 
   bool doLCTGhostBustingWithGEMs_;
 
@@ -181,8 +189,8 @@ class CSCMotherboardME21GEM : public CSCMotherboard
   bool promoteCLCTGEMquality_;
 
   std::map<int,std::pair<double,double> > gemRollToEtaLimits_;
-  std::map<int,int> cscWgToGemRoll_; 
-  
+  std::map<int,int> cscWgToGemRoll_;
+
   // map of pad to HS
   std::map<int,int> gemPadToCscHs_;
   std::map<int,std::pair<int,int>> cscHsToGemPad_;

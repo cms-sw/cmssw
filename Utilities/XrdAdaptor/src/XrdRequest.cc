@@ -39,12 +39,33 @@ XrdAdaptor::ClientRequest::HandleResponse(XrdCl::XRootDStatus *stat, XrdCl::AnyO
         {
             XrdCl::ChunkInfo *read_info;
             response->Get(read_info);
+            if( read_info == nullptr) {
+              edm::Exception ex(edm::errors::FileReadError);
+              ex<<"nullptr returned from response->Get().";
+              ex.addContext("XrdAdaptor::ClientRequest::HandleResponse() called." );
+              m_promise.set_exception( std::make_exception_ptr(ex));
+              return;
+            }
+            if( read_info->length == 0) {edm::LogWarning("XrdAdaptorInternal") << "XrdAdaptor::ClientRequest::HandleResponse: While reading from\n "
+              << m_manager.getFilename() << "\n  received a read_info->length = 0 and read_info->offset = "<<read_info->offset;
+            }
             m_promise.set_value(read_info->length);
         }
         else
         {
             XrdCl::VectorReadInfo *read_info;
             response->Get(read_info);
+            if( read_info == nullptr) {
+              edm::Exception ex(edm::errors::FileReadError);
+              ex<<"nullptr returned from response->Get() from vector read.";
+              ex.addContext("XrdAdaptor::ClientRequest::HandleResponse() called." );
+              m_promise.set_exception( std::make_exception_ptr(ex));
+              return;
+            }
+            if( read_info->GetSize() == 0) {edm::LogWarning("XrdAdaptorInternal") << "XrdAdaptor::ClientRequest::HandleResponse: While reading from\n "
+              << m_manager.getFilename() << "\n  received a read_info->GetSize() = 0";
+            }
+
             m_promise.set_value(read_info->GetSize());
         }
     }

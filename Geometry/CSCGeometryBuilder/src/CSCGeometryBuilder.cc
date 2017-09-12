@@ -16,7 +16,7 @@ CSCGeometryBuilder::CSCGeometryBuilder() : myName("CSCGeometryBuilder"){}
 CSCGeometryBuilder::~CSCGeometryBuilder(){}
 
 
-void CSCGeometryBuilder::build( std::shared_ptr<CSCGeometry> theGeometry
+void CSCGeometryBuilder::build( const std::shared_ptr<CSCGeometry>& theGeometry
 				, const RecoIdealGeometry& rig
 				, const CSCRecoDigiParameters& cscpars ) {
 
@@ -35,24 +35,24 @@ void CSCGeometryBuilder::build( std::shared_ptr<CSCGeometry> theGeometry
     endIt = rig.shapeEnd(idt);
     fpar.clear();
     for ( it = rig.shapeStart(idt); it != endIt; ++it) {
-      fpar.push_back( (float)(*it) );
+      fpar.emplace_back( (float)(*it) );
     }
 
     gtran.clear();
     endIt = rig.tranEnd(idt);
     for ( it = rig.tranStart(idt); it != endIt; ++it ) {
-      gtran.push_back((float)(*it));
+      gtran.emplace_back((float)(*it));
     }
     grmat.clear();
     endIt = rig.rotEnd(idt);
     for ( it = rig.rotStart(idt) ; it != endIt; ++it ) {
-      grmat.push_back((float)(*it));
+      grmat.emplace_back((float)(*it));
     }
 
     // get the chamber type from existing info
     int chamberType = CSCChamberSpecs::whatChamberType( jstation, jring );
     size_t cs = 0;
-    assert ( cscpars.pChamberType.size() != 0 );
+    assert ( !cscpars.pChamberType.empty() );
     while (cs < cscpars.pChamberType.size() && chamberType != cscpars.pChamberType[cs]) {
       ++cs;
     }
@@ -70,7 +70,7 @@ void CSCGeometryBuilder::build( std::shared_ptr<CSCGeometry> theGeometry
 		     << " in pfupars and go to " << numfuPars << "." << std::endl;
       for ( ++fu; fu < numfuPars; ++fu ) {
 	LogTrace(myName) << myName << ": pfupars[" << fu << "]=" << cscpars.pfupars[fu] << std::endl;
-	fupar.push_back(cscpars.pfupars[fu]);
+	fupar.emplace_back(cscpars.pfupars[fu]);
       }
     // now, we need to start from "here" at fu to go on and build wg...
     wg.wireSpacing = cscpars.pfupars[fu++];
@@ -83,11 +83,11 @@ void CSCGeometryBuilder::build( std::shared_ptr<CSCGeometry> theGeometry
     size_t maxFu = fu + 1 + numgrp;
     fu++;
     for ( ;fu < maxFu; ++fu ) {
-      wg.wiresInEachGroup.push_back(int(cscpars.pfupars[fu]));
+      wg.wiresInEachGroup.emplace_back(int(cscpars.pfupars[fu]));
     } 
     maxFu = fu + numgrp;
     for ( ;fu < maxFu; ++fu ) {
-      wg.consecutiveGroups.push_back(int(cscpars.pfupars[fu]));
+      wg.consecutiveGroups.emplace_back(int(cscpars.pfupars[fu]));
     } 
           
     if ( wg.numberOfGroups != 0 ) {
@@ -117,7 +117,7 @@ void CSCGeometryBuilder::build( std::shared_ptr<CSCGeometry> theGeometry
 }
 
 void CSCGeometryBuilder::buildChamber (  
-				       std::shared_ptr<CSCGeometry> theGeometry // the geometry container
+				       const std::shared_ptr<CSCGeometry>& theGeometry // the geometry container
 				       , CSCDetId chamberId                         // the DetId for this chamber
 				       , const std::vector<float>& fpar           // volume parameters hB, hT. hD, hH	
 				       , const std::vector<float>& fupar          // user parameters 
@@ -161,10 +161,10 @@ void CSCGeometryBuilder::buildChamber (
     LogTrace(myName) << myName <<": CSCChamberSpecs::build requested for ME" << jstat << jring ;
      int chamberType = CSCChamberSpecs::whatChamberType( jstat, jring );
      const CSCChamberSpecs* aSpecs = theGeometry->findSpecs( chamberType );
-    if ( fupar.size() != 0 && aSpecs == 0 ) {
+    if ( !fupar.empty() && aSpecs == nullptr ) {
       // make new one:
       aSpecs = theGeometry->buildSpecs (chamberType, fpar, fupar, wg);
-    } else if ( fupar.size() == 0 && aSpecs == 0 ) {
+    } else if ( fupar.empty() && aSpecs == nullptr ) {
       edm::LogError(myName) << "SHOULD BE THROW? Error, wg and/or fupar size are 0 BUT this Chamber Spec has not been built!";
     }
 
@@ -269,7 +269,7 @@ void CSCGeometryBuilder::buildChamber (
       // extra-careful check that we haven't already built this layer
       const CSCLayer* cLayer = dynamic_cast<const CSCLayer*> (theGeometry->idToDet( layerId ) );
 
-      if ( cLayer == 0 ) {
+      if ( cLayer == nullptr ) {
 
 	// build the layer - need the chamber's specs and an appropriate layer-geometry
          const CSCChamberSpecs* aSpecs = chamber->specs();

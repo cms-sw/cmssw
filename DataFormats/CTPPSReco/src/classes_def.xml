@@ -70,6 +70,26 @@
   <class name="edm::DetSetVector<CTPPSDiamondLocalTrack>"/>
   <class name="edm::Wrapper< edm::DetSetVector<CTPPSDiamondLocalTrack> >"/>
 
+<!-- pixel objects -->
+
+  <class name="CTPPSPixelCluster" ClassVersion="3">
+    <version ClassVersion="3" checksum="2858478211"/>
+  </class>
+  <class name="edm::DetSet<CTPPSPixelCluster>"/>
+  <class name="std::vector<CTPPSPixelCluster>"/>
+  <class name="std::vector<edm::DetSet<CTPPSPixelCluster> >"/>
+  <class name="edm::DetSetVector<CTPPSPixelCluster>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<CTPPSPixelCluster> >"/>
+
+  <class name="CTPPSPixelRecHit" ClassVersion="3">
+    <version ClassVersion="3" checksum="2784452215"/>
+  </class>
+  <class name="edm::DetSet<CTPPSPixelRecHit>"/>
+  <class name="std::vector<CTPPSPixelRecHit>"/>
+  <class name="std::vector<edm::DetSet<CTPPSPixelRecHit> >"/>
+  <class name="edm::DetSetVector<CTPPSPixelRecHit>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<CTPPSPixelRecHit> >"/>
+
 <!-- common objects -->
 
   <class name="CTPPSLocalTrackLite" ClassVersion="3">
@@ -79,3 +99,4 @@
   <class name="edm::Wrapper<CTPPSLocalTrackLite>"/>
   <class name="edm::Wrapper<std::vector<CTPPSLocalTrackLite>>"/>
 </lcgdict>
+

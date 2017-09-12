@@ -29,7 +29,7 @@
 //-------------------------------
 
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackSegPhi.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhi.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSEU.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMEUX.h"
 
@@ -109,8 +109,8 @@ void L1MuBMERS::reset() {
   for ( int id  = 0; id < 2; id++ ) {
     m_quality[id] = 0;
     m_address[id] = 15;
-    m_start[id]   = 0;
-    m_target[id]  = 0;
+    m_start[id]   = nullptr;
+    m_target[id]  = nullptr;
   }
 
 }

@@ -34,7 +34,7 @@ class ESDataFormatterV4 : public ESDataFormatter {
   ~ESDataFormatterV4();
 
 
-  void DigiToRaw(int fedId, Digis & digis, FEDRawData& fedRawData);
+  void DigiToRaw(int fedId, Digis & digis, FEDRawData& fedRawData, Meta_Data const & meta_data) const;
 
 
   private :    

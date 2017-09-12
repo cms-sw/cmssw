@@ -17,8 +17,8 @@
 #include "CalibCalorimetry/HcalTPGAlgos/interface/LutXml.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
-#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
-//#include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseImpl.hh"
+#include "CondFormats/HcalObjects/interface/AllObjects.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HCALConfigDB.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/LMap.h"
 #include "CalibFormats/HcalObjects/interface/HcalTPGCoder.h"
@@ -48,6 +48,11 @@ class HcalLutManager{
   HcalLutManager(const HcalElectronicsMap * _emap,
 		 const HcalChannelQuality * _cq = 0,
 		 uint32_t _status_word_to_mask = 0x0000);
+
+  HcalLutManager(const HcalDbService *conditions,
+		 const HcalChannelQuality * _cq = 0,
+		 uint32_t _status_word_to_mask = 0x0000);
+
   ~HcalLutManager( );
 
   void init( void );
@@ -78,6 +83,8 @@ class HcalLutManager{
   std::map<int, boost::shared_ptr<LutXml> > getLinearizationLutXmlFromCoder( const HcalTPGCoder & _coder,
 								      std::string _tag,
 								      bool split_by_crate = true );
+
+  std::map<int, boost::shared_ptr<LutXml> > getMasks(int var, std::string _tag, bool split_by_crate = true );
 
   std::map<int, boost::shared_ptr<LutXml> > getLinearizationLutXmlFromCoderEmap( const HcalTPGCoder & _coder,
 									  std::string _tag,
@@ -157,6 +164,7 @@ class HcalLutManager{
   HcalAssistant _ass;
   const HcalElectronicsMap * emap;
   const HcalChannelQuality * cq;
+  const HcalDbService* conditions;
   uint32_t status_word_to_mask;
 };
 

@@ -34,15 +34,15 @@ namespace edm {
     {
     }
 
-    virtual ParameterDescriptionNode* clone() const {
+    ParameterDescriptionNode* clone() const override {
       return new AllowedLabelsDescription(*this);
     }
 
   private:
 
-    virtual void validateAllowedLabel_(std::string const& allowedLabel,
-                                       ParameterSet & pset,
-                                       std::set<std::string> & validatedLabels) const {
+    void validateAllowedLabel_(std::string const& allowedLabel,
+                               ParameterSet & pset,
+                               std::set<std::string> & validatedLabels) const override {
       if (pset.existsAs<T>(allowedLabel, isTracked())) {
         validatedLabels.insert(allowedLabel);
       }
@@ -67,17 +67,17 @@ namespace edm {
                              ParameterSetDescription const& value,
                              bool isTracked);
 
-    virtual ParameterDescriptionNode* clone() const;
+    ParameterDescriptionNode* clone() const override;
 
   private:
 
-    virtual void printNestedContent_(std::ostream & os,
-                                     bool optional,
-                                     DocFormatHelper & helper) const;
+    void printNestedContent_(std::ostream & os,
+                             bool optional,
+                             DocFormatHelper & helper) const override;
 
-    virtual void validateAllowedLabel_(std::string const& allowedLabel,
-                                       ParameterSet & pset,
-                                       std::set<std::string> & validatedLabels) const;
+    void validateAllowedLabel_(std::string const& allowedLabel,
+                               ParameterSet & pset,
+                               std::set<std::string> & validatedLabels) const override;
 
     value_ptr<ParameterSetDescription> psetDesc_;
   };
@@ -100,17 +100,17 @@ namespace edm {
                              ParameterSetDescription const& value,
                              bool isTracked);
 
-    virtual ParameterDescriptionNode* clone() const;
+    ParameterDescriptionNode* clone() const override;
 
   private:
 
-    virtual void printNestedContent_(std::ostream & os,
-                                     bool optional,
-                                     DocFormatHelper & helper) const;
+    void printNestedContent_(std::ostream & os,
+                             bool optional,
+                             DocFormatHelper & helper) const override;
 
-    virtual void validateAllowedLabel_(std::string const& allowedLabel,
-                                       ParameterSet & pset,
-                                       std::set<std::string> & validatedLabels) const;
+    void validateAllowedLabel_(std::string const& allowedLabel,
+                               ParameterSet & pset,
+                               std::set<std::string> & validatedLabels) const override;
 
     value_ptr<ParameterSetDescription> psetDesc_;
   };

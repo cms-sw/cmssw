@@ -9,6 +9,7 @@
 #include <xercesc/framework/MemBufInputSource.hpp>
 #include <xercesc/sax2/XMLReaderFactory.hpp>
 #include <xercesc/util/XMLUni.hpp>
+
 #include <iostream>
 
 class DDCompactView;
@@ -135,7 +136,7 @@ DDLParser::parseOneFile( const std::string& fullname )
 void
 DDLParser::parse( const std::vector<unsigned char>& ablob, unsigned int bsize )
 {
-  char* dummy(0);
+  char* dummy(nullptr);
   MemBufInputSource  mbis( &*ablob.begin(), bsize, dummy );
   SAX2Parser_->parse(mbis);
 }
@@ -158,14 +159,14 @@ DDLParser::parse( const DDLDocumentProvider& dp )
   { 
     std::string ts = urlList[fileIndex];
     std::string tf = fileList[fileIndex];
-    if ( ts.size() > 0 ) {
+    if ( !ts.empty() ) {
       if ( ts[ts.size() - 1] == '/') {
-	fullFileName.push_back( ts + tf );
+	fullFileName.emplace_back( ts + tf );
       } else {
-	fullFileName.push_back( ts + "/" + tf );
+	fullFileName.emplace_back( ts + "/" + tf );
       }
     } else {
-      fullFileName.push_back( tf );
+      fullFileName.emplace_back( tf );
     }
   }
 

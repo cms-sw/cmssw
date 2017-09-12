@@ -34,11 +34,11 @@ class HGCalBestChoiceCodecImpl
         std::vector<bool> encode(const data_type&) const ;
         data_type         decode(const std::vector<bool>&) const;  
 
-        void linearize(const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>&,
-                std::vector<std::pair<HGCalDetId, uint32_t > >&);
+        void linearize(const std::vector<HGCDataFrame<DetId,HGCSample>>&,
+                std::vector<std::pair<DetId, uint32_t > >&);
 
         void triggerCellSums(const HGCalTriggerGeometryBase& ,
-                const std::vector<std::pair<HGCalDetId, uint32_t > >&,
+                const std::vector<std::pair<DetId, uint32_t > >&,
                 data_type&);
         void bestChoiceSelect(data_type&);
 

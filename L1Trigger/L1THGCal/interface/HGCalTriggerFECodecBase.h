@@ -41,7 +41,7 @@ class HGCalTriggerFECodecBase {
   // with the approprate data
   virtual void setDataPayload(const HGCEEDigiCollection&,
                               const HGCHEDigiCollection&,
-                              const HGCHEDigiCollection& ) = 0;
+                              const HGCBHDigiCollection& ) = 0;
   virtual void setDataPayload(const l1t::HGCFETriggerDigi&) = 0;
   virtual void unSetDataPayload() = 0;
   // get the set data out for your own enjoyment
@@ -95,7 +95,7 @@ namespace HGCalTriggerFE {
     
     virtual void setDataPayload(const HGCEEDigiCollection& ee, 
                                 const HGCHEDigiCollection& fh,
-                                const HGCHEDigiCollection& bh ) override final {
+                                const HGCBHDigiCollection& bh ) override final {
       if( dataIsSet_ ) {
         edm::LogWarning("HGCalTriggerFECodec|OverwritePayload")
           << "Data payload was already set for HGCTriggerFECodec: "

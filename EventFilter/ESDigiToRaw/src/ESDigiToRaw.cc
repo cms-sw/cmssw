@@ -11,29 +11,21 @@
 using namespace std;
 using namespace edm;
 
-ESDigiToRaw::ESDigiToRaw(const edm::ParameterSet& ps) : ESDataFormatter_(0)
+ESDigiToRaw::ESDigiToRaw(const edm::ParameterSet& ps) : ESDataFormatter_(0),
+  label_(ps.getParameter<string>("Label")),
+  instanceName_(ps.getParameter<string>("InstanceES")),
+  ESDigiToken_(consumes<ESDigiCollection>(edm::InputTag(label_, instanceName_))),
+  lookup_(ps.getUntrackedParameter<FileInPath>("LookupTable")),
+  debug_(ps.getUntrackedParameter<bool>("debugMode", false)),
+  formatMajor_(ps.getUntrackedParameter<int>("formatMajor", 4)),
+  formatMinor_(ps.getUntrackedParameter<int>("formatMinor", 1))
 {
-  
-  label_ = ps.getParameter<string>("Label");
-  instanceName_ = ps.getParameter<string>("InstanceES");
-  edm::InputTag ESTag = edm::InputTag(label_, instanceName_);
-  ESDigiToken_ = consumes<ESDigiCollection>(ESTag);
-  debug_ = ps.getUntrackedParameter<bool>("debugMode", false);
-  formatMajor_ = ps.getUntrackedParameter<int>("formatMajor", 4);
-  formatMinor_ = ps.getUntrackedParameter<int>("formatMinor", 1);
-  lookup_ = ps.getUntrackedParameter<FileInPath>("LookupTable");
-
-  counter_ = 0;
-  kchip_ec_ = 0; 
-  kchip_bc_ = 0; 
-
-  produces<FEDRawDataCollection>();
-  
   if (formatMajor_ == 4) 
     ESDataFormatter_ = new ESDataFormatterV4(ps);
   else 
     ESDataFormatter_ = new ESDataFormatterV1_1(ps);
 
+  produces<FEDRawDataCollection>();
   // initialize look-up table
   for (int i=0; i<2; ++i)
     for (int j=0; j<2; ++j)
@@ -63,26 +55,15 @@ ESDigiToRaw::~ESDigiToRaw() {
   if (ESDataFormatter_) delete ESDataFormatter_;
 }
 
-void ESDigiToRaw::beginJob() {
-}
-
-void ESDigiToRaw::produce(edm::Event& ev, const edm::EventSetup& es) {
-
-  run_number_ = ev.id().run();
-  orbit_number_ = counter_ / LHC_BX_RANGE;
-  bx_ = (counter_ % LHC_BX_RANGE);
+void ESDigiToRaw::produce(edm::StreamID, edm::Event& ev, const edm::EventSetup& es) const {
+  ESDataFormatter::Meta_Data meta_data;
+  meta_data.lv1 = ev.id().event();
+  meta_data.run_number = ev.id().run();
+  meta_data.orbit_number = meta_data.lv1 / LHC_BX_RANGE;
+  meta_data.bx = (meta_data.lv1 % LHC_BX_RANGE);
    
-  lv1_ = ev.id().event();
-  kchip_ec_ = (lv1_ % KCHIP_EC_RANGE); 
-  kchip_bc_ = (counter_ % KCHIP_BC_RANGE);
-  counter_++;
-
-  ESDataFormatter_->setRunNumber(run_number_);
-  ESDataFormatter_->setOrbitNumber(orbit_number_);
-  ESDataFormatter_->setBX(bx_);
-  ESDataFormatter_->setLV1(lv1_);
-  ESDataFormatter_->setKchipBC(kchip_bc_);
-  ESDataFormatter_->setKchipEC(kchip_ec_);
+  meta_data.kchip_ec = (meta_data.lv1 % KCHIP_EC_RANGE); 
+  meta_data.kchip_bc = (meta_data.lv1 % KCHIP_BC_RANGE);
 
   edm::Handle<ESDigiCollection> digis;
   ev.getByToken(ESDigiToken_, digis);
@@ -109,7 +90,7 @@ void ESDigiToRaw::produce(edm::Event& ev, const edm::EventSetup& es) {
     int fId = (*itfed).first ; 
 
     FEDRawData& fedRawData = productRawData->FEDData(fId); 
-    ESDataFormatter_->DigiToRaw(fId, Digis, fedRawData); 
+    ESDataFormatter_->DigiToRaw(fId, Digis, fedRawData, meta_data); 
 
     if (debug_) cout<<"FED : "<<fId<<" Data size : "<<fedRawData.size()<<" (Bytes)"<<endl;
   } 
@@ -119,5 +100,3 @@ void ESDigiToRaw::produce(edm::Event& ev, const edm::EventSetup& es) {
   return;
 }
 
-void ESDigiToRaw::endJob() {
-}

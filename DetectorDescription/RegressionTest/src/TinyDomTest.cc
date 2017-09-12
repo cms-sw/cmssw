@@ -1,10 +1,8 @@
 #include "DetectorDescription/RegressionTest/src/TinyDomTest.h"
-
-#include <utility>
-
-#include "DetectorDescription/Core/interface/adjgraph.h"
+#include "DataFormats/Math/interface/Graph.h"
 #include "DetectorDescription/RegressionTest/src/TagName.h"
 
+#include <utility>
 
 TinyDomTest::TinyDomTest(const TinyDom & d) 
  : dom_(d) 
@@ -21,7 +19,7 @@ unsigned int TinyDomTest::allNodes(const NodeName & tagName, std::vector<const A
      TinyDom::edge_list::const_iterator el_ed = el.end();
      for (; el_it != el_ed; ++el_it) {
        if ( dom_.nodeData(el_it->first).sameName(tagName) ) {
-         result.push_back(& dom_.edgeData(el_it->second));
+         result.emplace_back(& dom_.edgeData(el_it->second));
        }
      }
    }

@@ -74,21 +74,22 @@ from DQMOffline.Trigger.HiggsMonitoring_cff import *
 from DQMOffline.Trigger.StandardModelMonitoring_cff import *
 # TOP
 from DQMOffline.Trigger.TopMonitoring_cff import *
-
 # BTV
 from DQMOffline.Trigger.BTaggingMonitoring_cff import *
 # BPH
 from DQMOffline.Trigger.BPHMonitor_cff import *
 # remove quadJetAna
 from DQMOffline.Trigger.topHLTOfflineDQM_cff import *
-offlineHLTSource = cms.Sequence(
+from DQMOffline.Trigger.JetMETPromptMonitor_cff import *
+
+# offline DQM for running also on AOD (w/o the need of the RECO step on-the-fly)
+## ADD here sequences/modules which rely ONLY on collections stored in the AOD format
+offlineHLTSourceOnAOD = cms.Sequence(
     hltResults *
     lumiMonitorHLTsequence *
-    hcalMonitoringSequence *
     egHLTOffDQMSource *
     muonFullOfflineDQM *
     HLTTauDQMOffline *
-    jetMETHLTOfflineAnalyzer * 
     fsqHLTOfflineSourceSequence *
     HILowLumiHLTOfflineSourceSequence *
     hltInclusiveVBFSource *
@@ -107,10 +108,22 @@ offlineHLTSource = cms.Sequence(
     topMonitorHLT *
     btagMonitorHLT *
     bphMonitorHLT *
-    hltObjectsMonitor
-    )
+    hltObjectsMonitor *
+    jetmetMonitorHLT
+)
+
+# offline DQM for running in the standard RECO,DQM (in PromptReco, ReReco, relval, etc)
+## ADD here only sequences/modules which rely on transient collections produced by the RECO step
+## and not stored in the AOD format
+offlineHLTSource = cms.Sequence(
+    offlineHLTSourceOnAOD
+    + hcalMonitoringSequence
+    + jetMETHLTOfflineAnalyzer
+)
 
 # offline DQM for the HLTMonitoring stream
+## ADD here only sequences/modules which rely on HLT collections which are stored in the HLTMonitoring stream
+## and are not available in the standard RAW format
 dqmInfoHLTMon = cms.EDAnalyzer("DQMEventInfo",
     subSystemFolder = cms.untracked.string('HLT')
     )
@@ -122,6 +135,7 @@ OfflineHLTMonitoring = cms.Sequence(
     sipixelMonitorHLTsequence * # pixel
     BTVHLTOfflineSource *
     trackingMonitorHLT * # tracking
+    trackingMonitorHLTDisplacedJet* #DisplacedJet Tracking 
     egmTrackingMonitorHLT * # egm tracking
     vertexingMonitorHLT # vertexing
     )

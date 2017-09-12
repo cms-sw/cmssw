@@ -169,7 +169,7 @@ bTagCommonBlock = cms.PSet(
             folder = cms.string("Ctagger_CvsL"),
             doCTagPlots = cms.bool(True),
             differentialPlots = cms.bool(True),
-            discrCut = cms.double(-0.48)
+            discrCut = cms.double(-0.1)
         ),
         cms.PSet(
             cTagGenericAnalysisBlock,
@@ -177,7 +177,7 @@ bTagCommonBlock = cms.PSet(
             folder = cms.string("Ctagger_CvsB"),
             doCTagPlots = cms.bool(True),
             differentialPlots = cms.bool(True),
-            discrCut = cms.double(-0.17)
+            discrCut = cms.double(0.08)
         ),
         cms.PSet(
             cTagCorrelationAnalysisBlock,

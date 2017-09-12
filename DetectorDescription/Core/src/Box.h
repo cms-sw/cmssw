@@ -16,9 +16,9 @@ namespace DDI {
     Box(double xHalf, double yHalf, double zHalf)
      : Solid(ddbox)
     { 
-      p_.push_back(xHalf);
-      p_.push_back(yHalf);
-      p_.push_back(zHalf);
+      p_.emplace_back(xHalf);
+      p_.emplace_back(yHalf);
+      p_.emplace_back(zHalf);
     }  
     ~Box() override { }
     

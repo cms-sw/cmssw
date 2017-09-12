@@ -43,7 +43,9 @@ namespace l1t {
     typedef std::vector<bool> data_payload;
     typedef uint32_t key_type; 
 
-    HGCFETriggerDigi() : codec_((unsigned char)0xffff) {}
+    HGCFETriggerDigi() : codec_((unsigned char)0xffff) {
+      detid_ = 0;
+    }
     ~HGCFETriggerDigi() {}
     
     //detector id information

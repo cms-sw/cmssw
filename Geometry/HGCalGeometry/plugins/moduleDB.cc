@@ -77,7 +77,7 @@ CaloGeometryDBEP<HGCalGeometry, CaloGeometryDBReader>::produceAligned( const typ
     DimVec::const_iterator dsrc( dvec.begin() + layer * nPerShape );
     for( unsigned int j ( 0 ) ; j != nPerShape ; ++j )
     {
-      dims.push_back( *dsrc ) ;
+      dims.emplace_back( *dsrc ) ;
       ++dsrc ;
     }
     

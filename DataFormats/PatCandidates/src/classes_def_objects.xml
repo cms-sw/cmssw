@@ -16,7 +16,8 @@
   <class name="pat::Lepton<reco::BaseTau>" />
 
   <!-- PAT Objects, and embedded data  -->
-  <class name="pat::Electron"  ClassVersion="36">
+  <class name="pat::Electron"  ClassVersion="37">
+   <version ClassVersion="37" checksum="4284869321"/>
    <version ClassVersion="36" checksum="199321903"/>
    <version ClassVersion="35" checksum="482655666"/>
    <version ClassVersion="34" checksum="3720919820"/>
@@ -59,7 +60,8 @@
   </ioread>
 
 
-  <class name="pat::Muon"  ClassVersion="21">
+  <class name="pat::Muon"  ClassVersion="22">
+   <version ClassVersion="22" checksum="1816533594"/>
    <version ClassVersion="21" checksum="1539691612"/>
    <version ClassVersion="20" checksum="357097717"/>
    <version ClassVersion="19" checksum="2754486523"/>
@@ -353,6 +355,10 @@
   </ioread>
   <ioread sourceClass="pat::PackedCandidate"  version="[1-]" targetClass="pat::PackedCandidate" source="" target="track_">
     <![CDATA[delete track_.exchange(nullptr);
+    ]]>
+  </ioread>
+  <ioread sourceClass="pat::PackedCandidate"  version="[1-]" targetClass="pat::PackedCandidate" source="" target="m_">
+    <![CDATA[delete m_.exchange(nullptr);
     ]]>
   </ioread>
   <ioread sourceClass="pat::PackedCandidate" source="uint16_t packedCovarianceDxyDxy_; uint16_t packedCovarianceDxyDz_; uint16_t packedCovarianceDzDz_;   int8_t packedCovarianceDlambdaDz_; int8_t packedCovarianceDphiDxy_;  int8_t packedCovarianceDptDpt_; int8_t packedCovarianceDetaDeta_;  int8_t packedCovarianceDphiDphi_ " version="[-28]" targetClass="pat::PackedCandidate"

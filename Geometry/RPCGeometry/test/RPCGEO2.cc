@@ -79,7 +79,7 @@ RPCGEO2::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
    iSetup.get<MuonGeometryRecord>().get(rpcGeo);
 
    for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
-     if( dynamic_cast< const RPCChamber* >( *it ) != 0 ){
+     if( dynamic_cast< const RPCChamber* >( *it ) != nullptr ){
        const RPCChamber* ch = dynamic_cast< const RPCChamber* >( *it ); 
        std::vector< const RPCRoll*> roles = (ch->rolls());
        

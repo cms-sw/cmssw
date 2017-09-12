@@ -51,20 +51,20 @@ extern "C" {
 
 // helpers
 namespace {
-	static inline bool call_hwmatch()
+	inline bool call_hwmatch()
 	{
 		int result;
 		hwmatch(&result);
 		return result;
 	}  
-	static inline bool call_hwmsct()
+	inline bool call_hwmsct()
 	{
 		int result;
 		hwmsct(&result);
 		return result;
 	}
 
-	static int pdgToHerwig(int ipdg, char *nwig)
+	int pdgToHerwig(int ipdg, char *nwig)
 	{
 		int iopt = 1;
 		int iwig = 0;
@@ -72,7 +72,7 @@ namespace {
 		return ipdg ? iwig : 0;
 	}
 
-	static bool markStable(int pdgId)
+	bool markStable(int pdgId)
 	{
 		char nwig[9] = "        ";
 		if (!pdgToHerwig(pdgId, nwig))

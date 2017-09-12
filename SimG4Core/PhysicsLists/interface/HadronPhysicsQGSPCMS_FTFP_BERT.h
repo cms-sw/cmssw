@@ -27,7 +27,7 @@
 
 class HadronPhysicsQGSPCMS_FTFP_BERT : public G4VPhysicsConstructor
 {
-  public: 
+  public:
     HadronPhysicsQGSPCMS_FTFP_BERT(G4int verbose);
     virtual ~HadronPhysicsQGSPCMS_FTFP_BERT();
 

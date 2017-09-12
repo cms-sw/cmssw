@@ -24,14 +24,10 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
     // matching of std::strings, and knows about wildcarding rules.
     inline
     bool
-    partial_match(const boost::regex& regularExpression,
+    partial_match(const std::regex& regularExpression,
   		  const std::string& branchstring)
     {
-      if (regularExpression.empty()) {
-        if (branchstring == "") return true;
-        else return false;
-      }
-      return boost::regex_match(branchstring, regularExpression);
+      return std::regex_match(branchstring, regularExpression);
     }
   }
 
@@ -168,14 +164,10 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
         << "Exception thrown from ProductSelectorRules::Rule\n";
       }
 
-      // Assign the std::strings to the regex (regular expression) objects
-      // If the std::string is empty we skip the assignment and leave
-      // the regular expression also empty.
-
-      if (parts[0] != "") productType_  = parts[0];
-      if (parts[1] != "") moduleLabel_  = parts[1];
-      if (parts[2] != "") instanceName_ = parts[2];
-      if (parts[3] != "") processName_  = parts[3];
+      productType_  = parts[0];
+      moduleLabel_  = parts[1];
+      instanceName_ = parts[2];
+      processName_  = parts[3];
     }
   }
 

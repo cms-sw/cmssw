@@ -39,7 +39,7 @@ class ProcOptional : public VarProcessor {
 	std::vector<double>	neutralPos;
 };
 
-static ProcOptional::Registry registry("ProcOptional");
+ProcOptional::Registry registry("ProcOptional");
 
 ProcOptional::ProcOptional(const char *name,
                           const Calibration::ProcOptional *calib,

@@ -12,19 +12,13 @@
 
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
-#include "DataFormats/CaloRecHit/interface/CaloID.h"
 
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 
-#include "DataFormats/CaloRecHit/interface/CaloID.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 
@@ -89,7 +83,8 @@ class HcalHaloAlgo{
   float SumEnergyThreshold;
   int NHitsThreshold;
 
-  const CaloGeometry *geo;
+  const CaloGeometry *geo_;
+  const HcalGeometry *hgeo_;
   math::XYZPoint getPosition(const DetId &id, reco::Vertex::Point vtx);
   
 };

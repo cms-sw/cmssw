@@ -4,9 +4,9 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "CalibTracker/SiStripCommon/interface/Book.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include <TTree.h>
 #include "SymmetryFit.h"
 class TProfile;
@@ -15,26 +15,28 @@ class LA_Filler_Fitter {
 
  public:
 
- //ensemble constructor
-  LA_Filler_Fitter(int methods, int M, int N, double low, double up, unsigned max) :
+  //ensemble constructor
+  LA_Filler_Fitter(int methods, int M, int N, double low, double up, unsigned max, const TrackerTopology *tTopo) :
     ensembleSize_(M),
     ensembleBins_(N),ensembleLow_(low),ensembleUp_(up),
     byLayer_(true),byModule_(false),
     localYbin_(0),
     stripsPerBin_(0),
     maxEvents_(max),
-    methods_(methods) {};
-    
+    methods_(methods),
+    tTopo_(tTopo) {}
+
   //measurement constructor
-  LA_Filler_Fitter(int methods, bool layer, bool module, float localybin, unsigned stripbin, unsigned max) : 
+  LA_Filler_Fitter(int methods, bool layer, bool module, float localybin, unsigned stripbin, unsigned max, const TrackerTopology *tTopo) :
     ensembleSize_(0),
     ensembleBins_(0),ensembleLow_(0),ensembleUp_(0),
     byLayer_(layer),byModule_(module),
     localYbin_(localybin),
     stripsPerBin_(stripbin),
     maxEvents_(max),
-    methods_(methods) {};
-  
+    methods_(methods),
+    tTopo_(tTopo) {}
+
   enum Method { WIDTH =1<<0, FIRST_METHOD=1<<0, 
 		PROB1 =1<<1,
 		AVGV2 =1<<2,  
@@ -80,7 +82,7 @@ class LA_Filler_Fitter {
   poly<std::string> granularity(const SiStripDetId, const float, const Long64_t, const float, const unsigned) const;
   static std::string subdetLabel(const SiStripDetId);
   static std::string moduleLabel(const SiStripDetId);
-  static std::string layerLabel(const SiStripDetId);
+  std::string layerLabel(const SiStripDetId) const;
   static unsigned layer_index(bool TIB, bool stereo, unsigned layer) { return  layer + (TIB?0:6) +(stereo?1:0) + ( (layer>2)?1:(layer==1)?-1:0 );}
 
   //Located in src/LA_Fitter.cc
@@ -100,7 +102,7 @@ class LA_Filler_Fitter {
   static std::map< std::string, std::vector<EnsembleSummary> > ensemble_summary(const Book& );
   static std::pair<std::pair<float,float>, std::pair<float,float> > offset_slope(const std::vector<EnsembleSummary>&);
   static float pull(const std::vector<EnsembleSummary>&);
-    
+ 
  private:
   
   const int ensembleSize_, ensembleBins_;
@@ -110,6 +112,7 @@ class LA_Filler_Fitter {
   const unsigned stripsPerBin_;
   const Long64_t maxEvents_;
   const int methods_;
+  const TrackerTopology* tTopo_;
 };
 
 std::ostream& operator<<(std::ostream&, const LA_Filler_Fitter::Result&);

@@ -97,7 +97,7 @@ void DTSummaryClients::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
   for(int wheel = 1; wheel != 6; ++wheel) { // loop over the wheels
     int nDisablesROS = 0;
     for(int sect = 1; sect != 13; ++sect) { // loop over sectors
-      if(dataIntegritySummary->getBinContent(sect,wheel) == 1) {
+      if(dataIntegritySummary->getBinContent(sect,wheel) == 0) {
 	nDisablesROS++;
       }
     }

@@ -7,7 +7,11 @@
 #include <utility>
 
 struct BlobComplexData {
-  BlobComplexData() {}
+  BlobComplexData(){
+    a = 0;
+    b = 0;
+  }
+
 
   void fill(unsigned int &serial);
   void print() const;
@@ -40,7 +44,10 @@ struct BlobComplexContent {
 };
 
 struct BlobComplexObjects {
-  BlobComplexObjects() {}
+  BlobComplexObjects() {
+    a = 0;
+    b = 0;
+  }
 
   void fill(unsigned int &serial);
   void print() const;

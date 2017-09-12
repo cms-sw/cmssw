@@ -1,5 +1,5 @@
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 #include <xercesc/sax2/XMLReaderFactory.hpp>
 #include <fstream>
@@ -78,7 +78,7 @@ int main(int argC, char* argV[])
         return 1;
     }
 
-    const char*                  xmlFile      = 0;
+    const char*                  xmlFile      = nullptr;
     SAX2XMLReader::ValSchemes    valScheme    = SAX2XMLReader::Val_Auto;
     bool                         doNamespaces = true;
     bool                         doSchema = true;

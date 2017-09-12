@@ -99,7 +99,7 @@ public:
   }
 
 
-  ~TagNames() throw(){
+  ~TagNames() noexcept(false){
     
     try{
 

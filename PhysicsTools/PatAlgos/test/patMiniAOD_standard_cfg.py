@@ -29,11 +29,13 @@ miniAOD_customizeMC(process)
 #
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
-from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarPileUpGENSIMRECO
-process.source.fileNames = filesRelValTTbarPileUpGENSIMRECO
+from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValZeeGENSIMRECO
+process.source.fileNames = filesRelValZeeGENSIMRECO
+#from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarGENSIMRECO
+#process.source.fileNames = filesRelValTTbarGENSIMRECO
 
 #                                         ##
-process.maxEvents.input = 100
+process.maxEvents.input = 500
 #                                         ##
 process.out.outputCommands = process.MicroEventContentMC.outputCommands
 from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeOutput

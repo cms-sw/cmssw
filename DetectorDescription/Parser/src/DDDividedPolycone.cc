@@ -1,11 +1,4 @@
 #include "DetectorDescription/Parser/src/DDDividedPolycone.h"
-
-#include <stddef.h>
-#include <iostream>
-#include <string>
-#include <utility>
-#include <vector>
-
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
@@ -17,6 +10,12 @@
 #include "DetectorDescription/Parser/src/DDDividedGeometryObject.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
+#include <cstddef>
+#include <iostream>
+#include <string>
+#include <utility>
+#include <vector>
 
 class DDCompactView;
 
@@ -123,8 +122,8 @@ DDDividedPolyconeRho::makeDDLogicalPart( const int copyNo ) const
     // not compWidth_
     // 	  newrMinVec[ii] = localrMinVec[ii]+div_.offset()+compWidth_*copyNo;
     // 	  newrMaxVec[ii] = localrMinVec[ii]+div_.offset()+compWidth_*(copyNo+1);
-    newrMinVec.push_back(localrMinVec[ii]+div_.offset()+width*copyNo);
-    newrMaxVec.push_back(localrMinVec[ii]+div_.offset()+width*(copyNo+1));
+    newrMinVec.emplace_back(localrMinVec[ii]+div_.offset()+width*copyNo);
+    newrMaxVec.emplace_back(localrMinVec[ii]+div_.offset()+width*(copyNo+1));
   }
   solname = DDName( div_.parent().ddname().name() + "_DIVCHILD" + std::to_string(copyNo),
 		    div_.parent().ddname().ns());

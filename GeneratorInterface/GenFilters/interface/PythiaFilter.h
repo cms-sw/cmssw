@@ -31,7 +31,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
 //
 // class decleration
 //
@@ -42,10 +41,10 @@ namespace edm {
 class PythiaFilter : public edm::EDFilter {
    public:
       explicit PythiaFilter(const edm::ParameterSet&);
-      ~PythiaFilter();
+      ~PythiaFilter() override;
 
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::Event&, const edm::EventSetup&) override;
    private:
       // ----------member data ---------------------------
       
@@ -67,5 +66,7 @@ class PythiaFilter : public edm::EDFilter {
        int status; 
        int motherID;   
        int processID;    
+
+       double betaBoost;
 };
 #endif

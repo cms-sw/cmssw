@@ -129,7 +129,8 @@ namespace {
 
 
     unsigned char qualMask = ~0;
-    if (m_minQuality!=reco::TrackBase::undefQuality) qualMask = 1<<m_minQuality; 
+    const bool acceptAll = m_minQuality==reco::TrackBase::undefQuality;
+    if (!acceptAll) qualMask = 1<<m_minQuality;
     
     
     // load tracks
@@ -147,7 +148,7 @@ namespace {
       edm::Handle<QualityMaskCollection> hqual;
       evt.getByToken(srcQuals[i], hqual);
       for (auto j=0U; j<size; ++j) {
-	if (! (qualMask&(* hqual)[j]) ) continue;
+	if (! (acceptAll || (qualMask&(* hqual)[j]) ) ) continue;
 	mvas[k]=(*hmva)[j];
 	quals[k] = (*hqual)[j];
 	tkInds[k]=j;
@@ -283,19 +284,16 @@ namespace {
       producer(srcColls[i],selId);
       assert(producer.selTracks_->size()==nsel);
       assert(tid.size()==nsel-isel);
-      if(doMerging) { // override these only if the merging was run
-        auto k=0U;
-        for (;isel<nsel;++isel) {
-          auto & otk = (*producer.selTracks_)[isel];
-          otk.setQualityMask((*pquals)[isel]);
+      auto k=0U;
+      for (;isel<nsel;++isel) {
+        auto & otk = (*producer.selTracks_)[isel];
+        otk.setQualityMask((*pquals)[isel]);       // needed also without merging
+        if(doMerging) {
           otk.setOriginalAlgorithm(oriAlgo[tid[k]]);
           otk.setAlgoMask(algoMask[tid[k++]]);
         }
-        assert(tid.size()==k);
       }
-      else {
-        isel = nsel; // update the internal bookkeeping
-      }
+      if(doMerging) assert(tid.size()==k);
     }
 
     assert(producer.selTracks_->size()==pmvas->size());

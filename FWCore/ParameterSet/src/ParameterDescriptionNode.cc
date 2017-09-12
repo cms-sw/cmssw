@@ -86,6 +86,10 @@ namespace edm {
     return "";
   }
 
+  Comment::Comment() {}
+  Comment::Comment(std::string const& iComment) : comment_(iComment) {}
+  Comment::Comment(char const* iComment) : comment_(iComment) {}
+
   ParameterDescriptionNode::~ParameterDescriptionNode() {
   }
 

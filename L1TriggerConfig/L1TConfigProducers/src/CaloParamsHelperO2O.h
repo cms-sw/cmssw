@@ -453,8 +453,8 @@ namespace l1t {
     void setLayer1HCalScalePhiBins(const std::vector<unsigned> params) { pnode_[layer1HCal].uparams_ = params; }
     void setLayer1HFScalePhiBins(const std::vector<unsigned> params)   { pnode_[layer1HF  ].uparams_ = params; }
 
-    l1t::LUT* layer1HOverELUT() { return &pnode_[layer1HOverE].LUT_; }
-    void setLayer1HOverELUT(const l1t::LUT & lut) { pnode_[layer1HOverE].LUT_ = lut; }
+    std::vector<unsigned> layer1SecondStageLUT() { return pnode_[layer1HOverE].uparams_; }
+    void setLayer1SecondStageLUT(const std::vector<unsigned>& lut) { pnode_[layer1HOverE].uparams_ = lut; }
 
 
   private:

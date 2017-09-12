@@ -34,7 +34,7 @@ void L1ValidatorHists::Book(DQMStore::IBooker &iBooker){
   int Nptbin = 13;
 
   for(int i=0; i<Type::Number; i++){
-    N[i] = iBooker.book1D( (Name[i]+"_N").c_str(), (Name[i]+" Number").c_str(), 5, -0.5, 4.5);
+    N[i] = iBooker.book1D( (Name[i]+"_N").c_str(), ("L1 " + Name[i]+" Number with BX=0").c_str(), 16, -0.5, 15.5);
 
     Eff_Pt[i] = iBooker.book1D( (Name[i]+"_Eff_Pt").c_str(), (Name[i]+" Efficiency vs Pt; Gen p_{T} [GeV]; L1T Efficiency").c_str(), Nptbin, ptbins);
     Eff_Pt_Denom[i] = iBooker.book1D( (Name[i]+"_Eff_Pt_Denom").c_str(), (Name[i]+" Efficiency vs Pt Denom; Gen p_{T} [GeV]; Entries").c_str(), Nptbin, ptbins);
@@ -57,26 +57,28 @@ void L1ValidatorHists::Book(DQMStore::IBooker &iBooker){
 }
 
 void L1ValidatorHists::Fill(int i, const reco::LeafCandidate *GenPart, const reco::LeafCandidate *L1Part){
-  if(L1Part==NULL) {
-     Eff_Pt_Denom[i]->Fill(GenPart->pt());
+  double GenPartPt = GenPart->pt();
+  // fill the overflow in the last bin
+  if(GenPart->pt()>=160.0) GenPartPt = 159.0;
+  if(L1Part==nullptr) {
+     Eff_Pt_Denom[i]->Fill(GenPartPt);
      if(GenPart->pt()>10)Eff_Eta_Denom[i]->Fill(GenPart->eta());
-     TurnOn_15_Denom[i]->Fill(GenPart->pt());
-     TurnOn_30_Denom[i]->Fill(GenPart->pt());
+     TurnOn_15_Denom[i]->Fill(GenPartPt);
+     TurnOn_30_Denom[i]->Fill(GenPartPt);
   } else {
      double idR = reco::deltaR(GenPart->eta(), GenPart->phi(), L1Part->eta(), L1Part->phi());
      bool matched  = idR < 0.15;
-     Eff_Pt_Denom[i]->Fill(GenPart->pt());
+     Eff_Pt_Denom[i]->Fill(GenPartPt);
      if(GenPart->pt()>10)Eff_Eta_Denom[i]->Fill(GenPart->eta());
-     if(matched)Eff_Pt_Nomin[i]->Fill(GenPart->pt());
+     if(matched)Eff_Pt_Nomin[i]->Fill(GenPartPt);
      if(matched && GenPart->pt()>10)Eff_Eta_Nomin[i]->Fill(GenPart->eta());
-     TurnOn_15_Denom[i]->Fill(GenPart->pt());
-     TurnOn_30_Denom[i]->Fill(GenPart->pt());
-     if(L1Part->pt()>15 && matched) TurnOn_15_Nomin[i]->Fill(GenPart->pt());
-     if(L1Part->pt()>30 && matched) TurnOn_30_Nomin[i]->Fill(GenPart->pt());
+     TurnOn_15_Denom[i]->Fill(GenPartPt);
+     TurnOn_30_Denom[i]->Fill(GenPartPt);
+     if(L1Part->pt()>15 && matched) TurnOn_15_Nomin[i]->Fill(GenPartPt);
+     if(L1Part->pt()>30 && matched) TurnOn_30_Nomin[i]->Fill(GenPartPt);
      dR[i]->Fill(idR);
      dPt[i]->Fill( (L1Part->pt()-GenPart->pt()) / GenPart->pt() );
      dR_vs_Pt[i]->Fill(GenPart->pt(), idR);
-     dPt[i]->Fill( (L1Part->pt()-GenPart->pt()) / GenPart->pt() );
      dPt_vs_Pt[i]->Fill( GenPart->pt(),  (L1Part->pt()-GenPart->pt()) / GenPart->pt() );
   }
 }

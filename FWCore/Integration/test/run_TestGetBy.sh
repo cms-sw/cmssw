@@ -30,6 +30,12 @@ pushd ${LOCAL_TMP_DIR}
   cmsRun ${LOCAL_TEST_DIR}/testDuplicateProcess_cfg.py &> testDuplicateProcess.log && die 'Failed to get exception running testDuplicateProcess_cfg.py' 1
   grep -q "Duplicate Process" testDuplicateProcess.log || die 'Failed to print out exception message for duplicate process name' $?
 
+  echo "testGetBy1Mod"
+  cmsRun -p ${LOCAL_TEST_DIR}/${test}1Mod_cfg.py > testGetBy1Mod.log 2>/dev/null || die "cmsRun ${test}1Mod_cfg.py" $?
+
+  echo "testGetByMerge"
+  cmsRun -p ${LOCAL_TEST_DIR}/${test}Merge_cfg.py > testGetByMerge.log 2>/dev/null || die "cmsRun ${test}Merge_cfg.py" $?
+
 popd
 
 exit 0

@@ -60,7 +60,7 @@ namespace {
    // for the strings are assigned at compile time via a macro call
    using TypeNameToValueMap = tbb::concurrent_unordered_map<const char*, const std::type_info*, StringHash, StringEqual>;
 
-   static TypeNameToValueMap& typeNameToValueMap() {
+   TypeNameToValueMap& typeNameToValueMap() {
       static TypeNameToValueMap s_map;
       return s_map;
    }

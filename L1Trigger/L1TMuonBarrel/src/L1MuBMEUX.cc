@@ -30,7 +30,7 @@
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSectorProcessor.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSEU.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackSegPhi.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhi.h"
 
 #include "CondFormats/L1TObjects/interface/L1MuDTExtLut.h"
 #include "CondFormats/DataRecord/interface/L1MuDTExtLutRcd.h"
@@ -50,7 +50,7 @@ using namespace std;
 L1MuBMEUX::L1MuBMEUX(const L1MuBMSectorProcessor& sp, const L1MuBMSEU& seu, int id) :
     m_sp(sp), m_seu(seu), m_id(id),
     m_result(false), m_quality(0), m_address(15),
-    m_start(0), m_target(0),
+    m_start(nullptr), m_target(nullptr),
     theExtFilter(L1MuBMTFConfig::getExtTSFilter()),
     nbit_phi(L1MuBMTFConfig::getNbitsExtPhi()),
     nbit_phib(L1MuBMTFConfig::getNbitsExtPhib())
@@ -103,7 +103,7 @@ void L1MuBMEUX::run(const edm::EventSetup& c) {
   if ( L1MuBMTFConfig::Debug(4) ) cout << "start :  " << *m_start  << endl;
   if ( L1MuBMTFConfig::Debug(4) ) cout << "target : " << *m_target << endl;
 
-  if ( m_start == 0 || m_target == 0 ) {
+  if ( m_start == nullptr || m_target == nullptr ) {
     if ( L1MuBMTFConfig::Debug(4) ) cout << "Error: EUX has no data loaded" << endl;
     delete theExtLUTs;
     return;
@@ -141,7 +141,7 @@ void L1MuBMEUX::run(const edm::EventSetup& c) {
   if ( m_seu.ext() == EX24 ) qcut = pars.get_soc_qcut_st2(m_sp.id().wheel(), m_sp.id().sector());
   if ( m_seu.ext() == EX34 ) qcut = pars.get_soc_qcut_st4(m_sp.id().wheel(), m_sp.id().sector());
 
-  if ( m_start->quality() < qcut ) {     
+  if ( m_start->quality() < qcut ) {
     delete theExtLUTs;
     return;
   }
@@ -229,8 +229,8 @@ void L1MuBMEUX::reset() {
   m_quality = 0;
   m_address = 15;
 
-  m_start  = 0;
-  m_target = 0;
+  m_start  = nullptr;
+  m_target = nullptr;
 
 }
 

@@ -30,7 +30,7 @@ generalV0Candidates = cms.EDProducer("V0Producer",
    # Track normalized Chi2 <
    tkChi2Cut = cms.double(10.),
    # Number of valid hits on track >=
-   tkNHitsCut = cms.int32(7),
+   tkNHitsCut = cms.int32(3),
    # Pt of track >
    tkPtCut = cms.double(0.35),
    # Track impact parameter significance >
@@ -39,22 +39,22 @@ generalV0Candidates = cms.EDProducer("V0Producer",
 
    # -- cuts on the vertex --
    # Vertex chi2 <
-   vtxChi2Cut = cms.double(15.),
+   vtxChi2Cut = cms.double(6.63),
    # XY decay distance significance >
-   vtxDecaySigXYCut = cms.double(10.),
+   vtxDecaySigXYCut = cms.double(15.),
    # XYZ decay distance significance >
    vtxDecaySigXYZCut = cms.double(-1.),
 
    # -- miscellaneous cuts --
    # POCA distance between tracks <
-   tkDCACut = cms.double(2.),
+   tkDCACut = cms.double(1.),
    # invariant mass of track pair - assuming both tracks are charged pions <
    mPiPiCut = cms.double(0.6),
    # check if either track has a hit radially inside the vertex position minus this number times the sigma of the vertex fit
    # note: Set this to -1 to disable this cut, which MUST be done if you want to run V0Producer on the AOD track collection!
    innerHitPosCut = cms.double(4.),
    # cos(angleXY) between x and p of V0 candidate >
-   cosThetaXYCut = cms.double(0.9998),
+   cosThetaXYCut = cms.double(0.998),
    # cos(angleXYZ) between x and p of V0 candidate >
    cosThetaXYZCut = cms.double(-2.),
 

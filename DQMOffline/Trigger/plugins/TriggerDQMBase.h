@@ -8,8 +8,8 @@
 class TriggerDQMBase
 {
  public:
-  TriggerDQMBase(){};  
-  virtual ~TriggerDQMBase(){};
+  TriggerDQMBase()= default;;  
+  virtual ~TriggerDQMBase()= default;;
 
   struct MEbinning {
     unsigned nbins;
@@ -18,18 +18,14 @@ class TriggerDQMBase
   };
   
   struct ObjME {
-    MonitorElement* numerator;
-    MonitorElement* denominator;
-    inline void clear(){
-      numerator = nullptr;
-      denominator = nullptr;
-    };
+    MonitorElement* numerator = nullptr;
+    MonitorElement* denominator = nullptr;
   };
 
   static void fillHistoPSetDescription(edm::ParameterSetDescription & pset);
   static void fillHistoLSPSetDescription(edm::ParameterSetDescription & pset);
-  static MEbinning getHistoPSet    (edm::ParameterSet pset);
-  static MEbinning getHistoLSPSet  (edm::ParameterSet pset);
+  static MEbinning getHistoPSet    (const edm::ParameterSet& pset);
+  static MEbinning getHistoLSPSet  (const edm::ParameterSet& pset);
 
  protected:
   void bookME(DQMStore::IBooker &, ObjME& me, const std::string& histname, const std::string& histtitle, unsigned nbins, double xmin, double xmax);

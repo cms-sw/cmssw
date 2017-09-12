@@ -94,13 +94,13 @@ TrackerDigiGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::Event
    PRINT("TrackerDigiGeometryAnalyzer")<<" I have "<<pDD->detTypes().size() <<" types"<<'\n';
 
    for(auto const & it : pDD->detUnits()){
-       if(dynamic_cast<const PixelGeomDetUnit*>((it))!=0){
+       if(dynamic_cast<const PixelGeomDetUnit*>((it))!=nullptr){
 	const BoundPlane& p = (dynamic_cast<const PixelGeomDetUnit*>((it)))->specificSurface();
 	PRINT("TrackerDigiGeometryAnalyzer") << it->geographicalId()
               <<" RadLeng Pixel "<<p.mediumProperties().radLen()<<' ' <<" Xi Pixel "<<p.mediumProperties().xi()<<'\n';
        } 
 
-       if(dynamic_cast<const StripGeomDetUnit*>((it))!=0){
+       if(dynamic_cast<const StripGeomDetUnit*>((it))!=nullptr){
 	const BoundPlane& s = (dynamic_cast<const StripGeomDetUnit*>((it)))->specificSurface();
 	PRINT("TrackerDigiGeometryAnalyzer")<< it->geographicalId()
              << " RadLeng Strip "<<s.mediumProperties().radLen() <<" Xi Strip "<<s.mediumProperties().xi()<<'\n';
@@ -111,7 +111,7 @@ TrackerDigiGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::Event
     }	
 
    for (auto const & it  :pDD->detTypes() ){
-     if (dynamic_cast<const PixelGeomDetType*>((it))!=0){
+     if (dynamic_cast<const PixelGeomDetType*>((it))!=nullptr){
        const PixelTopology& p = (dynamic_cast<const PixelGeomDetType*>((it)))->specificTopology();
        PRINT("TrackerDigiGeometryAnalyzer")<<" PIXEL Det " // << it->geographicalId()
                       <<"    Rows    "<<p.nrows() <<"    Columns "<<p.ncolumns()<<'\n';
@@ -131,11 +131,11 @@ void TrackerDigiGeometryAnalyzer::analyseTrapezoidal( const GeomDetUnit& det)
 
   const Bounds& bounds = det.surface().bounds();
   const TrapezoidalPlaneBounds* tb = dynamic_cast<const TrapezoidalPlaneBounds*>(&bounds);
-  if (tb == 0) return; // not trapezoidal
+  if (tb == nullptr) return; // not trapezoidal
 
   checkTopology( det);
 
-  GlobalPoint pos = det.position();
+  const GlobalPoint& pos = det.position();
   double length = tb->length();
   double width = tb->width();
 

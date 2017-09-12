@@ -1,8 +1,8 @@
 #include "DQMOffline/Trigger/plugins/METDQM.h"
 
-METDQM::METDQM(){}
+METDQM::METDQM()= default;
 
-METDQM::~METDQM(){}
+METDQM::~METDQM()= default;
 
 void METDQM::initialise(const edm::ParameterSet& iConfig ){
 
@@ -11,14 +11,6 @@ void METDQM::initialise(const edm::ParameterSet& iConfig ){
   phi_binning_ = getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("phiPSet"));
   ls_binning_ = getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("lsPSet")     );
   
-  metME_.numerator   = nullptr;
-  metME_.denominator = nullptr;
-  metME_variableBinning_.numerator   = nullptr;
-  metME_variableBinning_.denominator = nullptr;
-  metVsLS_.numerator   = nullptr;
-  metVsLS_.denominator = nullptr;
-  metPhiME_.numerator   = nullptr;
-  metPhiME_.denominator = nullptr;
 }
 
 void METDQM::bookHistograms(DQMStore::IBooker     & ibooker) 

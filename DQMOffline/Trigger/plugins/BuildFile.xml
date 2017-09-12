@@ -20,6 +20,7 @@
 <use   name="DQMServices/Core"/>
 <use   name="CommonTools/Utils"/>
 <use   name="CommonTools/TriggerUtils"/>
+<use   name="DataFormats/VertexReco"/>
 <use   name="root"/>
 <use   name="roofit"/>
 <use   name="boost"/>

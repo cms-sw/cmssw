@@ -26,18 +26,6 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
-
-
-# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
-#from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023SHCal 
-#from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023Muon 
-
-#call to customisation function cust_2023SHCal imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
-#process = cust_2023SHCal(process)
-#process = cust_2023Muon(process)
-
-
-
 # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.me0Customs
 from SLHCUpgradeSimulations.Configuration.me0Customs import customise 
 process = customise(process)

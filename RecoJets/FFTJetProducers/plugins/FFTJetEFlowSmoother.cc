@@ -34,7 +34,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/View.h"
-#include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
+#include <TH3F.h>
 
 // parameter parser header
 #include "RecoJets/FFTJetProducers/interface/FFTJetParameterParser.h"

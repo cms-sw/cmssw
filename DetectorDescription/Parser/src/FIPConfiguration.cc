@@ -1,8 +1,8 @@
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
 
-#include <ext/alloc_traits.h>
-#include <stddef.h>
+#include <cstddef>
 #include <iostream>
+#include <memory>
 
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
@@ -82,8 +82,8 @@ FIPConfiguration::readConfig( const std::string& filename, bool fullPath )
   {
     edm::FileInPath fp(vURLs[ind] + "/" + vFiles[ind]);
     //    std::cout << "FileInPath says..." << fp.fullPath() << std::endl;
-    files_.push_back(fp.fullPath());
-    urls_.push_back("");
+    files_.emplace_back(fp.fullPath());
+    urls_.emplace_back("");
   }
 
   //   std::vector<std::string> fnames = configHandler_.getFileNames();

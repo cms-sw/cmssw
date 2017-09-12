@@ -92,8 +92,8 @@ void DDPixFwdBlades::initialize(const DDNumericArguments & nArgs,
   
   // -- Static initialization :  -----------------------------------------------------------
 
-  nippleRotationZPlus = 0;
-  nippleRotationZMinus = 0;
+  nippleRotationZPlus = nullptr;
+  nippleRotationZMinus = nullptr;
   nippleTranslationX = 0.;
   nippleTranslationY = 0.;
   nippleTranslationZ = 0.;

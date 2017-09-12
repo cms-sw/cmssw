@@ -21,7 +21,18 @@ process.load('Geometry.VeryForwardGeometry.geometryRP_cfi')
 process.load('RecoCTPPS.TotemRPLocal.totemRPLocalReconstruction_cff')
 process.load('RecoCTPPS.TotemRPLocal.ctppsDiamondLocalReconstruction_cff')
 
-process.load('RecoCTPPS.TotemRPLocal.ctppsLocalTrackLiteProducer_cfi')
+# if a RP or projection needs adjustment of the above settings, you can use the following format
+#process.totemRPUVPatternFinder.exceptionalSettings = cms.VPSet(
+#    cms.PSet(
+#        rpId = cms.uint32(1998061568), # RP id according to CTPPSDetId
+#        minPlanesPerProjectionToFit_U = cms.uint32(2),
+#        minPlanesPerProjectionToFit_V = cms.uint32(3),
+#        threshold_U = cms.double(1.99),
+#        threshold_V = cms.double(2.99)
+#    )
+#)
+
+process.load('RecoCTPPS.TotemRPLocal.ctppsLocalTrackLiteProducer_cff')
 process.ctppsLocalTrackLiteProducer.doNothing = cms.bool(False)
 
 process.output = cms.OutputModule("PoolOutputModule",

@@ -46,6 +46,17 @@ namespace l1t {
     static const int kNrTowers = ((kHFEnd-kHFBegin+1)*kHFNrPhi + kHBHEEnd*kHBHENrPhi )*2;
     static const int kNrHBHETowers = kHBHEEnd*kHBHENrPhi*2;
 
+    // These are the saturation codes sent from Layer 1 as the tower pT to Layer 2
+    // 509 = Layer 1 received saturated HCAL TP
+    // 510 = Layer 1 received saturated ECAL TP
+    // 511 = Layer 1 received both saturated ECAL & HCAL TPs
+    static const int kSatHcal = 509;
+    static const int kSatEcal = 510;
+    static const int kSatTower = 511;
+
+    // Jet saturation value
+    static const int kSatJet = 65535;
+
   public:
     enum SubDet{ECAL=0x1,HCAL=0x2,CALO=0x3}; //CALO is a short cut for ECAL|HCAL
 

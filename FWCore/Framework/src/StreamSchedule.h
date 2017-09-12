@@ -182,11 +182,6 @@ namespace edm {
                               std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters);
 
     template <typename T>
-    void processOneStream(typename T::MyPrincipal& principal,
-                          EventSetup const& eventSetup,
-                          bool cleaningUpAfterException = false);
-
-    template <typename T>
     void processOneStreamAsync(WaitingTaskHolder iTask,
                                typename T::MyPrincipal& principal,
                                EventSetup const& eventSetup,
@@ -302,12 +297,6 @@ namespace edm {
                        EventPrincipal& ep, EventSetup const& es);
     std::exception_ptr finishProcessOneEvent(std::exception_ptr);
     
-    template <typename T>
-    bool runTriggerPaths(typename T::MyPrincipal const&, EventSetup const&, typename T::Context const*);
-
-    template <typename T>
-    void runEndPaths(typename T::MyPrincipal const&, EventSetup const&, typename T::Context const*);
-
     void reportSkipped(EventPrincipal const& ep) const;
 
     void fillWorkers(ParameterSet& proc_pset,
@@ -392,41 +381,6 @@ namespace edm {
   }
 
   template <typename T>
-  void StreamSchedule::processOneStream(typename T::MyPrincipal& ep,
-                                  EventSetup const& es,
-                                  bool cleaningUpAfterException) {
-    this->resetAll();
-
-    T::setStreamContext(streamContext_, ep);
-    StreamScheduleSignalSentry<T> sentry(actReg_.get(), &streamContext_);
-
-    SendTerminationSignalIfException terminationSentry(actReg_.get(), &streamContext_);
-
-    // This call takes care of the unscheduled processing.
-    workerManager_.processOneOccurrence<T>(ep, es, streamID_, &streamContext_, &streamContext_, cleaningUpAfterException);
-
-    try {
-      convertException::wrap([&]() {
-        runTriggerPaths<T>(ep, es, &streamContext_);
-
-        if (endpathsAreActive_) runEndPaths<T>(ep, es, &streamContext_);
-      });
-    }
-    catch(cms::Exception& ex) {
-      if (ex.context().empty()) {
-        addContextAndPrintException("Calling function StreamSchedule::processOneStream", ex, cleaningUpAfterException);
-      } else {
-        addContextAndPrintException("", ex, cleaningUpAfterException);
-      }
-      throw;
-    }
-    terminationSentry.completedSuccessfully();
-
-    //If we got here no other exception has happened so we can propogate any Service related exceptions
-    sentry.allowThrow();
-  }
-
-  template <typename T>
   void StreamSchedule::processOneStreamAsync(WaitingTaskHolder iHolder,
                                              typename T::MyPrincipal& ep,
                                              EventSetup const& es,
@@ -497,26 +451,6 @@ namespace edm {
       tbb::task::spawn( *task);
     } else {
       tbb::task::enqueue( *task);
-    }
-  }
-  
-  
-  template <typename T>
-  bool
-  StreamSchedule::runTriggerPaths(typename T::MyPrincipal const& ep, EventSetup const& es, typename T::Context const* context) {
-    for(auto& p : trig_paths_) {
-      p.processOneOccurrence<T>(ep, es, streamID_, context);
-    }
-    return results_->accept();
-  }
-
-  template <typename T>
-  void
-  StreamSchedule::runEndPaths(typename T::MyPrincipal const& ep, EventSetup const& es, typename T::Context const* context) {
-    // Note there is no state-checking safety controlling the
-    // activation/deactivation of endpaths.
-    for(auto& p : end_paths_) {
-      p.processOneOccurrence<T>(ep, es, streamID_, context);
     }
   }
 }

@@ -40,7 +40,7 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) : nevents(
   neventsROS25 = 0;
 
   FEDIDmin = FEDNumbering::MINDTFEDID;
-  FEDIDMax = FEDNumbering::MAXDTFEDID;
+  FEDIDMax = 774; // FEDNumbering::MAXDTFEDID; Monitoring only real used FEDs
 
 //   If you want info VS time histos
 //   doTimeHisto =  ps.getUntrackedParameter<bool>("doTimeHisto", false);
@@ -99,6 +99,7 @@ void DTDataIntegrityTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
   // book FED integrity histos
   bookHistos(ibooker, FEDIDmin, FEDIDMax);
 
+  if(mode == 0 || mode ==2){
   // static booking of the histograms
   for(int fed = FEDIDmin; fed <= FEDIDMax; ++fed) { // loop over the FEDs in the readout
     DTROChainCoding code;
@@ -113,6 +114,7 @@ void DTDataIntegrityTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
       bookHistosROS25(ibooker, code);
     }
   }
+  } //Not in HLT or SM mode
 }
 
 void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, const int fedMin, const int fedMax) {
@@ -129,6 +131,7 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, const int fedM
   hFEDFatal = ibooker.book1D("FEDFatal","# fatal errors DT FED",nFED,fedMin,fedMax+1);
   hFEDNonFatal = ibooker.book1D("FEDNonFatal","# NON fatal errors DT FED",nFED,fedMin,fedMax+1);
 
+  if(mode == 3 || mode ==1) return; //Avoid duplication of Info in FEDIntegrity_EvF
 
   ibooker.setCurrentFolder(topFolder(false));
   hTTSSummary = ibooker.book2D("TTSSummary","Summary Status TTS",nFED,fedMin,fedMax+1,9,1,10);
@@ -188,7 +191,7 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
     histoTitle = "Event Lenght (Bytes) FED " +  dduID_s.str();
     (dduHistos[histoType])[code.getDDUID()] = ibooker.book1D(histoName,histoTitle,501,0,16032);
 
-    if(mode > 2) return;
+    if(mode == 3 || mode ==1) return; //Avoid duplication of Info in FEDIntegrity_EvF
 
     histoType = "ROSStatus";
     histoName = "FED" + dduID_s.str() + "_" + histoType;
@@ -220,7 +223,7 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
     histo->setBinLabel(11,"ROS 11",2);
     histo->setBinLabel(12,"ROS 12",2);
 
-    if(mode > 1) return;
+    if(mode > 0) return; //Info for Online only
 
     histoType = "FEDAvgEvLenghtvsLumi";
     histoName = "FED" + dduID_s.str() + "_" + histoType;
@@ -278,6 +281,8 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
   if ( folder == "ROS_S" ) { // The summary of the error of the ROS on the same FED
     ibooker.setCurrentFolder(topFolder(false));
 
+    if(mode == 3 || mode ==1) return; //Avoid duplication of Info in FEDIntegrity_EvF
+
     histoType = "ROSSummary";
     histoName = "FED" + dduID_s.str() + "_ROSSummary";
     string histoTitle = "Summary Wheel" + wheel_s.str() + " (FED " + dduID_s.str() + ")";
@@ -324,11 +329,12 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
   if ( folder == "ROS" ) {
     ibooker.setCurrentFolder(topFolder(false) + "FED" + dduID_s.str() + "/" + folder + rosID_s.str());
 
+    if(mode == 3 || mode ==1) return; //Avoid duplication of Info in FEDIntegrity_EvF
 
     histoType = "ROSError";
     histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_ROSError";
     histoTitle = histoName + " (ROBID error summary)";
-    if(mode <= 1)
+    if(mode < 1) //Online only
       (rosHistos[histoType])[code.getROSID()] = ibooker.book2D(histoName,histoTitle,17,0,17,26,0,26);
     else
       (rosHistos[histoType])[code.getROSID()] = ibooker.book2D(histoName,histoTitle,11,0,11,26,0,26);
@@ -346,7 +352,7 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
     histo->setBinLabel(9,"Ch. blocked",1);
     histo->setBinLabel(10,"Ev. Id. Mis.",1);
     histo->setBinLabel(11,"CEROS blocked",1);
-    if(mode <= 1) {
+    if(mode < 1) { //Online only
       // TDC error bins
       histo->setBinLabel(12,"TDC Fatal",1);
       histo->setBinLabel(13,"TDC RO FIFO ov.",1);
@@ -465,7 +471,7 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
   if ( folder == "SC" ) {
     // The plots are per wheel
     ibooker.setCurrentFolder(topFolder(false) + "FED" + dduID_s.str());
-
+    if(mode == 3 || mode ==1) return; //Avoid duplication of Info in FEDIntegrity_EvF
     // SC data Size
     histoType = "SCSizeVsROSSize";
     histoName = "FED" + dduID_s.str() + "_SCSizeVsROSSize";
@@ -480,7 +486,7 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
 void DTDataIntegrityTask::bookHistosROS25(DQMStore::IBooker & ibooker, DTROChainCoding code) {
   bookHistos(ibooker, string("ROS"), code);
 
-    if(mode <= 1)
+    if(mode < 1)
       if(getSCInfo)
 	bookHistos(ibooker, string("SC"), code);
 }
@@ -497,6 +503,8 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
   DTROChainCoding code;
   code.setDDU(ddu);
   code.setROS(ros);
+
+  if(mode == 3 || mode ==1) return; //Avoid duplication of Info in FEDIntegrity_EvF
 
   MonitorElement* ROSSummary = rosSHistos["ROSSummary"][code.getDDUID()];
 
@@ -641,7 +649,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
   }
 
 
-  if(mode <= 1) { // produce only when not in HLT
+  if(mode < 1) { // produce only when not in HLT or SM
     // ROB Trailer
     for (vector<DTROBTrailerWord>::const_iterator robt_it = data.getROBTrailers().begin();
 	 robt_it != data.getROBTrailers().end(); robt_it++) { // loop over ROB trailers
@@ -760,7 +768,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
   }
 
   // Read SC data
-  if (mode <= 1 && getSCInfo) {
+  if (mode < 1 && getSCInfo) {
     // NumberOf16bitWords counts the # of words + 1 subheader
     // the SC includes the SC "private header" and the ROS header and trailer (= NumberOf16bitWords +3)
     rosHistos["SCSizeVsROSSize"][code.getSCID()]->Fill(ros,data.getSCTrailer().wordCount());
@@ -804,6 +812,8 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
     hFEDFatal->Fill(code.getDDUID());
     hCorruptionSummary->Fill(code.getDDUID(), 6);
   }
+
+ if(mode == 3 || mode ==1) return; //Avoid duplication of Info in FEDIntegrity_EvF
 
   DTDDUSecondStatusWord secondWord = data.getSecondStatusWord();
 
@@ -883,7 +893,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
     ttsCodeValue = 7;
   }
   }
-  if(mode <= 1) dduHistos["TTSValues"][code.getDDUID()]->Fill(ttsCodeValue);
+  if(mode < 1) dduHistos["TTSValues"][code.getDDUID()]->Fill(ttsCodeValue);
   if(ttsSummaryBin != -1) {
     hTTSSummary->Fill(ddu, ttsSummaryBin);
   }
@@ -1081,8 +1091,8 @@ std::string DTDataIntegrityTask::topFolder(bool isFEDIntegrity) const {
 
   string folder = isFEDIntegrity ? fedIntegrityFolder : "DT/00-DataIntegrity/";
 
-//  if (!isFEDIntegrity)
-//    folder += (mode==1) ? "_SM/" : (mode==3) ? "_EvF/" : "/";
+  if (mode == 0 || mode == 2)
+    folder = "DT/00-DataIntegrity/"; //Move everything from FEDIntegrity except for SM and HLT modes
 
   return folder;
 

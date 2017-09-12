@@ -39,8 +39,8 @@ behavior (usually a core dump).
 #include <iterator>
 #include <vector>
 
+#include <type_traits>
 #include "boost/concept_check.hpp"
-#include "boost/mpl/if.hpp"
 
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/DetSet.h"
@@ -83,10 +83,10 @@ namespace edm {
   // T is defined to inherit from DoNotSortUponInsertion).
 
   template <class T>
-  class DetSetVector : 
-    public boost::mpl::if_c<boost::is_base_of<edm::DoNotSortUponInsertion, T>::value,
+  class DetSetVector :
+    public std::conditional_t<std::is_base_of<edm::DoNotSortUponInsertion, T>::value,
 			    edm::DoNotSortUponInsertion,
-			    Other>::type
+			    Other>
   {
     /// DetSetVector requires that T objects can be compared with
     /// operator<.

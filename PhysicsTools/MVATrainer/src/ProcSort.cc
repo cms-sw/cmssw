@@ -48,7 +48,7 @@ class ProcSort : public TrainProcessor {
 	bool		descending;
 };
 
-static ProcSort::Registry registry("ProcSort");
+ProcSort::Registry registry("ProcSort");
 
 ProcSort::ProcSort(const char *name, const AtomicId *id, MVATrainer *trainer) :
 	TrainProcessor(name, id, trainer)

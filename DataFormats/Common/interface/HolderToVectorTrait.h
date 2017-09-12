@@ -2,7 +2,6 @@
 #define DataFormats_Common_HolderToVectorTrait_h
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <memory>
-//#include <boost/static_assert.hpp>
 
 namespace edm {
   namespace reftobase {
@@ -23,7 +22,7 @@ namespace edm {
 
     template<typename T, typename REF>
     struct HolderToVectorTrait {
-      //      BOOST_STATIC_ASSERT(sizeof(REF) == 0); 
+      //      static_assert(sizeof(REF) == 0); 
       typedef InvalidHolderToVector<T, REF> type;
     };
 
@@ -40,7 +39,7 @@ namespace edm {
     
     template<typename REF>
     struct RefHolderToRefVectorTrait {
-      //      BOOST_STATIC_ASSERT(sizeof(REF) == 0); 
+      //      static_assert(sizeof(REF) == 0); 
       typedef InvalidRefHolderToRefVector<REF> type;
     };
 

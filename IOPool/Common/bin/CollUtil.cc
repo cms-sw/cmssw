@@ -24,7 +24,7 @@ namespace edm {
   TFile* openFileHdl(std::string const& fname) {
     TFile *hdl = TFile::Open(fname.c_str(), "read");
 
-    if (0 == hdl) {
+    if (nullptr == hdl) {
       std::cout << "ERR Could not open file " << fname.c_str() << std::endl;
       exit(1);
     }
@@ -36,7 +36,7 @@ namespace edm {
     hdl->ls();
     TList *keylist = hdl->GetListOfKeys();
     TIterator *iter = keylist->MakeIterator();
-    TKey *key = 0;
+    TKey *key = nullptr;
     while ((key = (TKey*)iter->Next())) {
       TObject *obj = hdl->Get(key->GetName());
       if (obj->IsA() == TTree::Class()) {
@@ -71,7 +71,7 @@ namespace edm {
   }
 
   void printBranchNames(TTree *tree) {
-    if (tree != 0) {
+    if (tree != nullptr) {
       Long64_t nB = tree->GetListOfBranches()->GetEntries();
       for (Long64_t i = 0; i < nB; ++i) {
         Long64_t size = 0LL;
@@ -85,7 +85,7 @@ namespace edm {
   }
 
   void longBranchPrint(TTree *tr) {
-    if (tr != 0) {
+    if (tr != nullptr) {
       Long64_t nB = tr->GetListOfBranches()->GetEntries();
       for (Long64_t i = 0; i < nB; ++i) {
         tr->GetListOfBranches()->At(i)->Print();
@@ -115,7 +115,7 @@ namespace edm {
   static void preIndexIntoFilePrintEventLists(TFile*, FileFormatVersion const& fileFormatVersion, TTree *metaDataTree) {
     FileIndex fileIndex;
     FileIndex *findexPtr = &fileIndex;
-    if (metaDataTree->FindBranch(poolNames::fileIndexBranchName().c_str()) != 0) {
+    if (metaDataTree->FindBranch(poolNames::fileIndexBranchName().c_str()) != nullptr) {
       TBranch *fndx = metaDataTree->GetBranch(poolNames::fileIndexBranchName().c_str());
       fndx->SetAddress(&findexPtr);
       fndx->GetEntry(0);
@@ -150,7 +150,7 @@ namespace edm {
   static void postIndexIntoFilePrintEventLists(TFile* tfl, FileFormatVersion const& fileFormatVersion, TTree *metaDataTree) {
     IndexIntoFile indexIntoFile;
     IndexIntoFile *findexPtr = &indexIntoFile;
-    if (metaDataTree->FindBranch(poolNames::indexIntoFileBranchName().c_str()) != 0) {
+    if (metaDataTree->FindBranch(poolNames::indexIntoFileBranchName().c_str()) != nullptr) {
       TBranch *fndx = metaDataTree->GetBranch(poolNames::indexIntoFileBranchName().c_str());
       fndx->SetAddress(&findexPtr);
       fndx->GetEntry(0);
@@ -162,10 +162,10 @@ namespace edm {
     }
     //need to read event # from the EventAuxiliary branch
     TTree* eventsTree = dynamic_cast<TTree*>(tfl->Get(poolNames::eventTreeName().c_str()));
-    TBranch* eventAuxBranch = 0;
-    assert(0 != eventsTree);
+    TBranch* eventAuxBranch = nullptr;
+    assert(nullptr != eventsTree);
     char const* const kEventAuxiliaryBranchName = "EventAuxiliary";
-    if(eventsTree->FindBranch(kEventAuxiliaryBranchName) != 0){
+    if(eventsTree->FindBranch(kEventAuxiliaryBranchName) != nullptr){
       eventAuxBranch = eventsTree->GetBranch(kEventAuxiliaryBranchName);
     } else {
       std::cout << "Failed to find " << kEventAuxiliaryBranchName << " branch in Events TTree.  Something is wrong with this file." << std::endl;
@@ -228,11 +228,11 @@ namespace edm {
 
   void printEventLists(TFile *tfl) {
     TTree *metaDataTree = dynamic_cast<TTree *>(tfl->Get(poolNames::metaDataTreeName().c_str()));
-    assert(0 != metaDataTree);
+    assert(nullptr != metaDataTree);
 
     FileFormatVersion fileFormatVersion;
     FileFormatVersion *fftPtr = &fileFormatVersion;
-    if (metaDataTree->FindBranch(poolNames::fileFormatVersionBranchName().c_str()) != 0) {
+    if (metaDataTree->FindBranch(poolNames::fileFormatVersionBranchName().c_str()) != nullptr) {
       TBranch *fft = metaDataTree->GetBranch(poolNames::fileFormatVersionBranchName().c_str());
       fft->SetAddress(&fftPtr);
       fft->GetEntry(0);
@@ -247,7 +247,7 @@ namespace edm {
   static void preIndexIntoFilePrintEventsInLumis(TFile*, FileFormatVersion const& fileFormatVersion, TTree *metaDataTree) {
     FileIndex fileIndex;
     FileIndex *findexPtr = &fileIndex;
-    if (metaDataTree->FindBranch(poolNames::fileIndexBranchName().c_str()) != 0) {
+    if (metaDataTree->FindBranch(poolNames::fileIndexBranchName().c_str()) != nullptr) {
       TBranch *fndx = metaDataTree->GetBranch(poolNames::fileIndexBranchName().c_str());
       fndx->SetAddress(&findexPtr);
       fndx->GetEntry(0);
@@ -296,7 +296,7 @@ namespace edm {
   static void postIndexIntoFilePrintEventsInLumis(TFile* tfl, FileFormatVersion const& fileFormatVersion, TTree *metaDataTree) {
     IndexIntoFile indexIntoFile;
     IndexIntoFile *findexPtr = &indexIntoFile;
-    if (metaDataTree->FindBranch(poolNames::indexIntoFileBranchName().c_str()) != 0) {
+    if (metaDataTree->FindBranch(poolNames::indexIntoFileBranchName().c_str()) != nullptr) {
       TBranch *fndx = metaDataTree->GetBranch(poolNames::indexIntoFileBranchName().c_str());
       fndx->SetAddress(&findexPtr);
       fndx->GetEntry(0);
@@ -353,11 +353,11 @@ namespace edm {
 
   void printEventsInLumis(TFile *tfl) {
     TTree *metaDataTree = dynamic_cast<TTree *>(tfl->Get(poolNames::metaDataTreeName().c_str()));
-    assert(0 != metaDataTree);
+    assert(nullptr != metaDataTree);
 
     FileFormatVersion fileFormatVersion;
     FileFormatVersion *fftPtr = &fileFormatVersion;
-    if (metaDataTree->FindBranch(poolNames::fileFormatVersionBranchName().c_str()) != 0) {
+    if (metaDataTree->FindBranch(poolNames::fileFormatVersionBranchName().c_str()) != nullptr) {
       TBranch *fft = metaDataTree->GetBranch(poolNames::fileFormatVersionBranchName().c_str());
       fft->SetAddress(&fftPtr);
       fft->GetEntry(0);

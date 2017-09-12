@@ -17,7 +17,8 @@ DDLMultiUnionSolid::DDLMultiUnionSolid( DDLElementRegistry* myreg )
 
 // Clear out rSolids.
 void
-DDLMultiUnionSolid::preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
+DDLMultiUnionSolid::preProcessElement( const std::string& name, const std::string& nmspace,
+				       DDCompactView& cpv )
 {
   myRegistry_->getElement( "rSolid" )->clear();
 }
@@ -26,7 +27,8 @@ DDLMultiUnionSolid::preProcessElement( const std::string& name, const std::strin
 // hit two rSolid calls and possibly one rRotation and one Translation.
 // So, retrieve them and make the call to DDCore.
 void
-DDLMultiUnionSolid::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
+DDLMultiUnionSolid::processElement( const std::string& name, const std::string& nmspace,
+				    DDCompactView& cpv )
 {
   // new DDLMultiUnion will handle:
    // <MultiUnionSolid> <rSolid...> <Translation...> <rRotation...> <rSolid...> <Translation...> <rRotation...> ... </MultiUnionSolid>

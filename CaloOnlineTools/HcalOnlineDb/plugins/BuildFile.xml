@@ -13,6 +13,6 @@
 <use   name="CalibCalorimetry/CaloTPG"/>
 <use   name="CalibCalorimetry/HcalTPGAlgos"/>
 <use   name="CaloOnlineTools/HcalOnlineDb"/>
-<library   file="Module.cc" name="CaloOnlineToolsHcalOnlineDbPlugins">
+<library   file="*.cc" name="CaloOnlineToolsHcalOnlineDbPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

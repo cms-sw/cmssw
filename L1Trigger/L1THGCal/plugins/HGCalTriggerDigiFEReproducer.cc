@@ -9,6 +9,8 @@
 #include "DataFormats/L1THGCal/interface/HGCFETriggerDigiFwd.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerFECodecBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerBackendProcessor.h"
@@ -59,7 +61,7 @@ HGCalTriggerDigiFEReproducer::HGCalTriggerDigiFEReproducer(const edm::ParameterS
 void HGCalTriggerDigiFEReproducer::beginRun(const edm::Run& /*run*/, const edm::EventSetup& es) 
 /*****************************************************************/
 {
-    es.get<IdealGeometryRecord>().get(triggerGeometry_);
+    es.get<CaloGeometryRecord>().get(triggerGeometry_);
     codec_->setGeometry(triggerGeometry_.product());
     backEndProcessor_->setGeometry(triggerGeometry_.product());
 }

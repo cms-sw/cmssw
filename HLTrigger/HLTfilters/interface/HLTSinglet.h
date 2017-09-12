@@ -38,7 +38,8 @@ class HLTSinglet : public HLTFilter {
       const int    min_N_;                                  // number of objects passing cuts required
       const double min_E_;                                  // energy threshold in GeV
       const double min_Pt_;                                 // pt threshold in GeV
-      const double min_Mass_;                               // mass threshold in GeV
+      const double min_Mass_;                               // min mass threshold in GeV
+      const double max_Mass_;                               // max mass threshold in GeV
       const double min_Eta_;                                // lower eta cut to define eta-range (symmetric)
       const double max_Eta_;                                // upper eta cut to define eta-range (symmetric)
 };

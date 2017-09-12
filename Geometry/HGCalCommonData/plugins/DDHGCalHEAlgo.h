@@ -31,7 +31,7 @@ public:
 
 protected:
 
-  void constructLayers (DDLogicalPart, DDCompactView& cpv);
+  void constructLayers (const DDLogicalPart&, DDCompactView& cpv);
   HGCalHEPar parameterLayer(double rinF, double routF, double rinB,
 			    double routB, double zi, double zo);
   HGCalHEPar parameterLayer(int type, double rinF, double routF, double rinB,

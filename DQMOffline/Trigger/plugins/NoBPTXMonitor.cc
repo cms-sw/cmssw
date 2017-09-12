@@ -59,9 +59,7 @@ NoBPTXMonitor::NoBPTXMonitor( const edm::ParameterSet& iConfig ) :
 
 }
 
-NoBPTXMonitor::~NoBPTXMonitor()
-{
-}
+NoBPTXMonitor::~NoBPTXMonitor() = default;
 
 NoBPTXMonitor::NoBPTXbinning NoBPTXMonitor::getHistoPSet(const edm::ParameterSet & pset)
 {
@@ -81,7 +79,7 @@ NoBPTXMonitor::NoBPTXbinning NoBPTXMonitor::getHistoLSPSet(const edm::ParameterS
       };
 }
 
-void NoBPTXMonitor::setNoBPTXTitle(NoBPTXME& me, std::string titleX, std::string titleY, bool bookDen)
+void NoBPTXMonitor::setNoBPTXTitle(NoBPTXME& me, const std::string& titleX, const std::string& titleY, bool bookDen)
 {
   me.numerator->setAxisTitle(titleX,1);
   me.numerator->setAxisTitle(titleY,2);

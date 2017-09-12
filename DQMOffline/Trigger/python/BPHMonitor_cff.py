@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.Trigger.BPHMonitor_cfi import hltBPHmonitoring
+# Tau3Mu
+from DQMOffline.Trigger.Tau3MuMonitor_cff import *
 
 # HLT_PFMETNoMu90_PFMHTNoMu90_IDTight
 Dimuon20_Jpsi_BPHMonitoring = hltBPHmonitoring.clone()
@@ -32,6 +34,7 @@ bphHLTmonitoring = cms.Sequence(
 
 
 bphMonitorHLT = cms.Sequence(
-    bphHLTmonitoring
+    bphHLTmonitoring * 
+    tau3MuMonitorHLT    
 )
 

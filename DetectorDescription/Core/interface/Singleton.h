@@ -1,5 +1,5 @@
-#ifndef DDI_Singleton_h
-#define DDI_Singleton_h
+#ifndef DETECTOR_DESCRIPTION_CORE_DDI_SINGLETON_H
+#define DETECTOR_DESCRIPTION_CORE_DDI_SINGLETON_H
 
 namespace DDI {
  template <class I> 
@@ -10,10 +10,10 @@ namespace DDI {
    virtual ~Singleton() {}
    static value_type & instance();
    
- private:
    Singleton(void) = delete;
    Singleton(const Singleton&) = delete;
    Singleton& operator=(const Singleton &) = delete;
  };
 }
+
 #endif

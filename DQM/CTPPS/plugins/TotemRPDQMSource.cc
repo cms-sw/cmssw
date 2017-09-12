@@ -29,7 +29,7 @@
 //#include "RecoTotemRP/RPRecoDataFormats/interface/RPMulFittedTrackCollection.h"
 
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
-#include "Geometry/VeryForwardGeometryBuilder/interface/TotemRPGeometry.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 #include "Geometry/VeryForwardRPTopology/interface/RPTopology.h"
 
 #include <string>
@@ -40,7 +40,7 @@ class TotemRPDQMSource: public DQMEDAnalyzer
 {
   public:
     TotemRPDQMSource(const edm::ParameterSet& ps);
-    virtual ~TotemRPDQMSource();
+    ~TotemRPDQMSource() override;
   
   protected:
     void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
@@ -64,8 +64,8 @@ class TotemRPDQMSource: public DQMEDAnalyzer
     /// plots related to the whole system
     struct GlobalPlots
     {
-      MonitorElement *events_per_bx = NULL, *events_per_bx_short = NULL;
-      MonitorElement *h_trackCorr_hor = NULL;
+      MonitorElement *events_per_bx = nullptr, *events_per_bx_short = nullptr;
+      MonitorElement *h_trackCorr_hor = nullptr;
 
       void Init(DQMStore::IBooker &ibooker);
     };
@@ -77,8 +77,8 @@ class TotemRPDQMSource: public DQMEDAnalyzer
     {
       int id;
 
-      MonitorElement *h_lrc_x_d=NULL, *h_lrc_x_n=NULL, *h_lrc_x_f=NULL;
-      MonitorElement *h_lrc_y_d=NULL, *h_lrc_y_n=NULL, *h_lrc_y_f=NULL;
+      MonitorElement *h_lrc_x_d=nullptr, *h_lrc_x_n=nullptr, *h_lrc_x_f=nullptr;
+      MonitorElement *h_lrc_y_d=nullptr, *h_lrc_y_n=nullptr, *h_lrc_y_f=nullptr;
 
       DiagonalPlots() {}
 
@@ -92,8 +92,8 @@ class TotemRPDQMSource: public DQMEDAnalyzer
     {
       int id;
 
-      MonitorElement *h_numRPWithTrack_top=NULL, *h_numRPWithTrack_hor=NULL, *h_numRPWithTrack_bot=NULL;
-      MonitorElement *h_trackCorr=NULL, *h_trackCorr_overlap=NULL;
+      MonitorElement *h_numRPWithTrack_top=nullptr, *h_numRPWithTrack_hor=nullptr, *h_numRPWithTrack_bot=nullptr;
+      MonitorElement *h_trackCorr=nullptr, *h_trackCorr_overlap=nullptr;
 
       ArmPlots(){}
 
@@ -114,16 +114,16 @@ class TotemRPDQMSource: public DQMEDAnalyzer
     /// plots related to one RP
     struct PotPlots
     {
-      MonitorElement *vfat_problem=NULL, *vfat_missing=NULL, *vfat_ec_bc_error=NULL, *vfat_corruption=NULL;
+      MonitorElement *vfat_problem=nullptr, *vfat_missing=nullptr, *vfat_ec_bc_error=nullptr, *vfat_corruption=nullptr;
 
-      MonitorElement *activity=NULL, *activity_u=NULL, *activity_v=NULL;
-      MonitorElement *activity_per_bx=NULL, *activity_per_bx_short=NULL;
-      MonitorElement *hit_plane_hist=NULL;
-      MonitorElement *patterns_u=NULL, *patterns_v=NULL;
-      MonitorElement *h_planes_fit_u=NULL, *h_planes_fit_v=NULL;
-      MonitorElement *event_category=NULL;
-      MonitorElement *trackHitsCumulativeHist=NULL;
-      MonitorElement *track_u_profile=NULL, *track_v_profile=NULL;
+      MonitorElement *activity=nullptr, *activity_u=nullptr, *activity_v=nullptr;
+      MonitorElement *activity_per_bx=nullptr, *activity_per_bx_short=nullptr;
+      MonitorElement *hit_plane_hist=nullptr;
+      MonitorElement *patterns_u=nullptr, *patterns_v=nullptr;
+      MonitorElement *h_planes_fit_u=nullptr, *h_planes_fit_v=nullptr;
+      MonitorElement *event_category=nullptr;
+      MonitorElement *trackHitsCumulativeHist=nullptr;
+      MonitorElement *track_u_profile=nullptr, *track_v_profile=nullptr;
 
       PotPlots() {}
       PotPlots(DQMStore::IBooker &ibooker, unsigned int id);
@@ -134,11 +134,11 @@ class TotemRPDQMSource: public DQMEDAnalyzer
     /// plots related to one RP plane
     struct PlanePlots
     {
-      MonitorElement *digi_profile_cumulative = NULL;
-      MonitorElement *cluster_profile_cumulative = NULL;
-      MonitorElement *hit_multiplicity = NULL;
-      MonitorElement *cluster_size = NULL;
-      MonitorElement *efficiency_num = NULL, *efficiency_den = NULL;
+      MonitorElement *digi_profile_cumulative = nullptr;
+      MonitorElement *cluster_profile_cumulative = nullptr;
+      MonitorElement *hit_multiplicity = nullptr;
+      MonitorElement *cluster_size = nullptr;
+      MonitorElement *efficiency_num = nullptr, *efficiency_den = nullptr;
 
       PlanePlots() {}
       PlanePlots(DQMStore::IBooker &ibooker, unsigned int id);
@@ -425,7 +425,7 @@ void TotemRPDQMSource::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
 void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& eventSetup)
 {
   // get event setup data
-  ESHandle<TotemRPGeometry> geometry;
+  ESHandle<CTPPSGeometry> geometry;
   eventSetup.get<VeryForwardRealGeometryRecord>().get(geometry);
 
   // get event data
@@ -597,7 +597,7 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
       if (!ft.isValid())
         continue;
 
-      double rp_z = geometry->GetRPGlobalTranslation(rpId).z();
+      double rp_z = geometry->getRPTranslation(rpId).z();
 
       for (unsigned int plNum = 0; plNum < 10; ++plNum)
       {
@@ -608,7 +608,7 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
         double ft_x = ft.getX0() + ft.getTx() * (ft_z - rp_z);
         double ft_y = ft.getY0() + ft.getTy() * (ft_z - rp_z);
 
-        double ft_v = geometry->GlobalToLocal(plId, CLHEP::Hep3Vector(ft_x, ft_y, ft_z)).y();
+        double ft_v = geometry->globalToLocal(plId, CLHEP::Hep3Vector(ft_x, ft_y, ft_z)).y();
 
         bool hasMatchingHit = false;
         const auto &hit_ds_it = hits->find(plId);
@@ -819,14 +819,14 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
       TotemRPDetId plId_V(rpId); plId_V.setPlane(0);
       TotemRPDetId plId_U(rpId); plId_U.setPlane(1);
 
-      double rp_x = ( geometry->GetDetector(plId_V)->translation().x() +
-                      geometry->GetDetector(plId_U)->translation().x() ) / 2.;
-      double rp_y = ( geometry->GetDetector(plId_V)->translation().y() +
-                      geometry->GetDetector(plId_U)->translation().y() ) / 2.;
+      double rp_x = ( geometry->getSensor(plId_V)->translation().x() +
+                      geometry->getSensor(plId_U)->translation().x() ) / 2.;
+      double rp_y = ( geometry->getSensor(plId_V)->translation().y() +
+                      geometry->getSensor(plId_U)->translation().y() ) / 2.;
   
       // mean read-out direction of U and V planes
-      CLHEP::Hep3Vector rod_U = geometry->LocalToGlobalDirection(plId_U, CLHEP::Hep3Vector(0., 1., 0.));
-      CLHEP::Hep3Vector rod_V = geometry->LocalToGlobalDirection(plId_V, CLHEP::Hep3Vector(0., 1., 0.));
+      CLHEP::Hep3Vector rod_U = geometry->localToGlobalDirection(plId_U, CLHEP::Hep3Vector(0., 1., 0.));
+      CLHEP::Hep3Vector rod_V = geometry->localToGlobalDirection(plId_V, CLHEP::Hep3Vector(0., 1., 0.));
   
       double x = ft.getX0() - rp_x;
       double y = ft.getY0() - rp_y;

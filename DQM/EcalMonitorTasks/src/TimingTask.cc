@@ -13,23 +13,26 @@ namespace ecaldqm
 {
   TimingTask::TimingTask() :
     DQWorkerTask(),
-    bxBinEdges_{ {1, 271, 541, 892, 1162, 1432, 1783, 2053, 2323, 2674, 2944, 3214, 3446, 3490, 3491, 3565} },
+    bxBinEdges_(),
     bxBin_(0.),
     chi2ThresholdEB_(0.),
     chi2ThresholdEE_(0.),
     energyThresholdEB_(0.),
     energyThresholdEE_(0.),
-    meTimeMapByLS(0)
+    timingVsBXThreshold_(0.),
+    meTimeMapByLS(nullptr)
   {
   }
 
   void
   TimingTask::setParams(edm::ParameterSet const& _params)
   {
+    bxBinEdges_ = onlineMode_? _params.getUntrackedParameter<std::vector<int> >("bxBins"): _params.getUntrackedParameter<std::vector<int> >("bxBinsFine");
     chi2ThresholdEB_   = _params.getUntrackedParameter<double>("chi2ThresholdEB");
     chi2ThresholdEE_   = _params.getUntrackedParameter<double>("chi2ThresholdEE");
     energyThresholdEB_ = _params.getUntrackedParameter<double>("energyThresholdEB");
     energyThresholdEE_ = _params.getUntrackedParameter<double>("energyThresholdEE");
+    timingVsBXThreshold_ = _params.getUntrackedParameter<double>("timingVsBXThreshold");
   }
 
   bool
@@ -62,7 +65,7 @@ namespace ecaldqm
   TimingTask::beginEvent(edm::Event const& _evt, edm::EventSetup const&  _es)
   {
     using namespace std;
-    int* pBin(std::upper_bound(bxBinEdges_.begin(), bxBinEdges_.end(), _evt.bunchCrossing()));
+    std::vector<int>::iterator pBin = std::upper_bound(bxBinEdges_.begin(), bxBinEdges_.end(), _evt.bunchCrossing());
     bxBin_ = static_cast<int>(pBin - bxBinEdges_.begin()) - 0.5;
   }
 
@@ -71,7 +74,7 @@ namespace ecaldqm
   {
     MESet& meTimeAmp(MEs_.at("TimeAmp"));
     MESet& meTimeAmpAll(MEs_.at("TimeAmpAll"));
-    MESet& meTimingVsBX(MEs_.at("TimingVsBX"));
+    MESet& meTimingVsBX(onlineMode_? MEs_.at("BarrelTimingVsBX"): MEs_.at("BarrelTimingVsBXFineBinned"));
     MESet& meTimeAll(MEs_.at("TimeAll"));
     MESet& meTimeAllMap(MEs_.at("TimeAllMap"));
     MESet& meTimeMap(MEs_.at("TimeMap")); // contains cumulative run stats => not suitable for Trend plots
@@ -108,7 +111,7 @@ namespace ecaldqm
                     meTimeAmp.fill(id, energy, time);
                     meTimeAmpAll.fill(id, energy, time);
 
-                    meTimingVsBX.fill(signedSubdet, bxBin_, time);
+                    if (energy > timingVsBXThreshold_ && signedSubdet == EcalBarrel) meTimingVsBX.fill(bxBin_, time);
 
                     if(energy > threshold){
                       meTimeAll.fill(id, time);

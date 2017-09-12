@@ -1,6 +1,8 @@
 #include "CalibTracker/SiStripLorentzAngle/plugins/EnsembleCalibrationLA.h"
 #include "CalibTracker/SiStripCommon/interface/Book.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include <TChain.h>
 #include <TFile.h>
 #include <boost/foreach.hpp>
@@ -21,8 +23,7 @@ EnsembleCalibrationLA::EnsembleCalibrationLA(const edm::ParameterSet& conf) :
   vMethods( conf.getParameter<std::vector<int> >("Methods"))
 {}
 
-void EnsembleCalibrationLA::
-endJob() 
+void EnsembleCalibrationLA::endJob() 
 {
   Book book("la_ensemble");
   TChain*const chain = new TChain("la_ensemble"); 
@@ -30,8 +31,7 @@ endJob()
 
   int methods = 0;  BOOST_FOREACH(unsigned method, vMethods) methods|=method;
 
-  LA_Filler_Fitter 
-    laff(methods,samples,nbins,lowBin,highBin,maxEvents);
+  LA_Filler_Fitter laff(methods,samples,nbins,lowBin,highBin,maxEvents,tTopo_);
   laff.fill(chain,book);           
   laff.fit(book);                  
   laff.summarize_ensembles(book);  
@@ -42,8 +42,15 @@ endJob()
   write_calibrations();
 }
 
-void EnsembleCalibrationLA::
-write_ensembles_text(const Book& book) {
+void EnsembleCalibrationLA::endRun(const edm::Run&, const edm::EventSetup& eSetup)
+{
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  tTopo_ = tTopoHandle.product();
+}
+
+void EnsembleCalibrationLA::write_ensembles_text(const Book& book)
+{
   std::pair<std::string, std::vector<LA_Filler_Fitter::EnsembleSummary> > ensemble;
   BOOST_FOREACH(ensemble, LA_Filler_Fitter::ensemble_summary(book)) {
     std::fstream file((Prefix+ensemble.first+".dat").c_str(),std::ios::out);

@@ -702,6 +702,7 @@ namespace pat {
     //static std::atomic<CovarianceParameterization*> covarianceParameterization_;
     static std::once_flag covariance_load_flag;
     const CovarianceParameterization & covarianceParameterization() const {
+	if (!hasTrackDetails()) throw edm::Exception(edm::errors::InvalidReference, "Trying to access covariance matrix for a PackedCandidate for which it's not available. Check hasTrackDetails() before!\n");
 	std::call_once(covariance_load_flag,[](int v) { covarianceParameterization_.load(v); } ,covarianceVersion_ );
         if(covarianceParameterization_.loadedVersion() != covarianceVersion_ )
         {

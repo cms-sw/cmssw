@@ -1,9 +1,4 @@
 #include "DetectorDescription/Parser/src/DDDividedCons.h"
-
-#include <iostream>
-#include <string>
-#include <utility>
-
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
@@ -15,6 +10,10 @@
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Parser/src/DDDividedGeometryObject.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <iostream>
+#include <string>
+#include <utility>
 
 class DDCompactView;
 

@@ -83,6 +83,8 @@ void IsolatedPixelTrackCandidateL1TProducer::beginRun(const edm::Run &run, const
   const VolumeBasedMagneticField* vbfCPtr = dynamic_cast<const VolumeBasedMagneticField*>(&(*vbfField));
   GlobalVector BField = vbfCPtr->inTesla(GlobalPoint(0,0,0));
   bfVal_=BField.mag();
+  edm::LogVerbatim("IsoTrack") << "rEB " << rEB_ << " zEE " << zEE_ << " B "
+			       << bfVal_ << std::endl;
 }
 
 void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
@@ -116,26 +118,31 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
   std::vector< edm::Ref<l1t::TauBxCollection> > l1tauobjref;
   std::vector< edm::Ref<l1t::JetBxCollection> > l1jetobjref;
   
-  l1trigobj->getObjects(trigger::TriggerTau, l1tauobjref);
-  l1trigobj->getObjects(trigger::TriggerJet, l1jetobjref);
+  //  l1trigobj->getObjects(trigger::TriggerTau, l1tauobjref);
+  l1trigobj->getObjects(trigger::TriggerL1Tau, l1tauobjref);
+  //  l1trigobj->getObjects(trigger::TriggerJet, l1jetobjref);
+  l1trigobj->getObjects(trigger::TriggerL1Jet, l1jetobjref);
   
-  for (unsigned int p=0; p<l1tauobjref.size(); p++) {
-    if (l1tauobjref[p]->pt()>ptTriggered) {
-      ptTriggered  = l1tauobjref[p]->pt(); 
-      phiTriggered = l1tauobjref[p]->phi();
-      etaTriggered = l1tauobjref[p]->eta();
+  for (auto p : l1tauobjref) {
+    if (p->pt()>ptTriggered) {
+      ptTriggered  = p->pt(); 
+      phiTriggered = p->phi();
+      etaTriggered = p->eta();
     }
   }
-  for (unsigned int p=0; p<l1jetobjref.size(); p++) {
-    if (l1jetobjref[p]->pt()>ptTriggered) {
-      ptTriggered  = l1jetobjref[p]->pt();
-      phiTriggered = l1jetobjref[p]->phi();
-      etaTriggered = l1jetobjref[p]->eta();
+  for (auto p : l1jetobjref) {
+    if (p->pt()>ptTriggered) {
+      ptTriggered  = p->pt();
+      phiTriggered = p->phi();
+      etaTriggered = p->eta();
     }
   }
+  edm::LogVerbatim("IsoTrack") << "Sizes " << l1tauobjref.size() << ":" 
+			       << l1jetobjref.size() << " Trig " << ptTriggered
+			       << ":" << etaTriggered << ":" << phiTriggered 
+			       << std::endl;
 
   double drMaxL1Track_ = tauAssocCone_;
-  
   int ntr = 0;
   std::vector<seedAtEC>  VecSeedsatEC;
   //loop to select isolated tracks
@@ -158,10 +165,15 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
     } else {
       vtxMatch=true;
     }
+    edm::LogVerbatim("IsoTrack") << "minZD " << minDZ << " Found " << found 
+				 << ":" << vtxMatch << std::endl;
 
     //select tracks not matched to triggered L1 jet
     double R=reco::deltaR(etaTriggered, phiTriggered, 
 			  pixelTrackRefs[iS]->eta(), pixelTrackRefs[iS]->phi());
+    edm::LogVerbatim("IsoTrack") << "Distance to L1 " << R << ":" 
+				 << tauUnbiasCone_ << " Result "
+				 << (R<tauUnbiasCone_) << std::endl;
     if (R<tauUnbiasCone_) continue;
 
     //check taujet matching
@@ -172,7 +184,7 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
       selj   = tj;
       tmatch = true;
     } //loop over L1 tau
-
+    edm::LogVerbatim("IsoTrack") << "tMatch " << tmatch << std::endl;
     
     //propagate seed track to ECAL surface:
     std::pair<double,double> seedCooAtEC;
@@ -182,8 +194,9 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
     else       seedCooAtEC=GetEtaPhiAtEcal(pixelTrackRefs[iS]->eta(), pixelTrackRefs[iS]->phi(), pixelTrackRefs[iS]->pt(), pixelTrackRefs[iS]->charge(), 0);
     seedAtEC seed(iS,(tmatch||vtxMatch),seedCooAtEC.first,seedCooAtEC.second);
     VecSeedsatEC.push_back(seed);
+    edm::LogVerbatim("IsoTrack") << "Seed " << seedCooAtEC.first 
+				 << seedCooAtEC.second << std::endl;
   }
-
   for (unsigned int i=0; i<VecSeedsatEC.size(); i++) {
     unsigned int iSeed = VecSeedsatEC[i].index;
     if (!VecSeedsatEC[i].ok) continue;
@@ -225,6 +238,7 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
       ntr++;
     }    
   }
+  edm::LogVerbatim("IsoTrack") << "Number of Isolated Track " << ntr << "\n";
   // put the product in the event
   theEvent.put(std::move(trackCollection));
 }
@@ -301,5 +315,4 @@ std::pair<double,double> IsolatedPixelTrackCandidateL1TProducer::GetEtaPhiAtEcal
   std::pair<double,double> retVal(etaEC,phiEC);
   return retVal;
 }
-
 

@@ -125,21 +125,21 @@ std::vector<DetId> CastorTopology::incSector(const DetId& id) const{
     if(castorId.sector()==1) {
       castorDetId = HcalCastorDetId(castorId.section(), isPositive, castorId.sector()+1, 
 castorId.module());
-      vNeighborsDetId.push_back(castorDetId.rawId());
+      vNeighborsDetId.emplace_back(castorDetId.rawId());
       return vNeighborsDetId;
     }
     if(castorId.sector()== 16){
       castorDetId = HcalCastorDetId(castorId.section(), isPositive, castorId.sector()-1, 
 castorId.module());
-      vNeighborsDetId.push_back(castorDetId.rawId());
+      vNeighborsDetId.emplace_back(castorDetId.rawId());
       return vNeighborsDetId;
     }
     castorDetId = HcalCastorDetId(castorId.section(), isPositive, castorId.sector()-1, 
 castorId.module());
-    vNeighborsDetId.push_back(castorDetId.rawId());
+    vNeighborsDetId.emplace_back(castorDetId.rawId());
     castorDetId = HcalCastorDetId(castorId.section(), isPositive, castorId.sector()+1, 
 castorId.module());
-    vNeighborsDetId.push_back(castorDetId.rawId());
+    vNeighborsDetId.emplace_back(castorDetId.rawId());
   }
   return vNeighborsDetId;
 }
@@ -153,30 +153,30 @@ std::vector<DetId> CastorTopology::incModule(const DetId& id) const{
     if(castorId.zside()==1)isPositive = true;
     if(castorId.module()==1){
       castorDetId = HcalCastorDetId(castorId.section(), isPositive, castorId.sector(), castorId.module()+1);
-      vNeighborsDetId.push_back(castorDetId.rawId());
+      vNeighborsDetId.emplace_back(castorDetId.rawId());
       return vNeighborsDetId;
     }
     if(castorId.module()== MODULE_EM_MAX){
       castorDetId = HcalCastorDetId(castorId.section(), isPositive, castorId.sector(), castorId.module()-1);
-      vNeighborsDetId.push_back(castorDetId.rawId());
+      vNeighborsDetId.emplace_back(castorDetId.rawId());
       return vNeighborsDetId;
     }
     castorDetId = HcalCastorDetId(castorId.section(), isPositive, castorId.sector(), castorId.module()-1);
-    vNeighborsDetId.push_back(castorDetId.rawId());
+    vNeighborsDetId.emplace_back(castorDetId.rawId());
     castorDetId = HcalCastorDetId(castorId.section(), isPositive, castorId.sector(), castorId.module()+1);
-    vNeighborsDetId.push_back(castorDetId.rawId());
+    vNeighborsDetId.emplace_back(castorDetId.rawId());
   }
   if(validRaw(castorId) && castorId.section()== HcalCastorDetId::HAD){
     bool isPositive = false;
     if(castorId.zside()==1)isPositive = true;
     if(castorId.module()==1){
       castorDetId = HcalCastorDetId(castorId.section(), isPositive, castorId.sector(), castorId.module()+1);
-      vNeighborsDetId.push_back(castorDetId.rawId());
+      vNeighborsDetId.emplace_back(castorDetId.rawId());
       return vNeighborsDetId;
     }
     if(castorId.module()== MODULE_HAD_MAX){
       castorDetId = HcalCastorDetId(castorId.section(), isPositive, castorId.sector(), castorId.module()-1);
-      vNeighborsDetId.push_back(castorDetId.rawId());
+      vNeighborsDetId.emplace_back(castorDetId.rawId());
       return vNeighborsDetId;
     }
   }

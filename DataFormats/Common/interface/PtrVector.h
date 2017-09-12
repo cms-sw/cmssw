@@ -25,8 +25,7 @@
 #include "DataFormats/Common/interface/FillViewHelperVector.h"
 
 // system include files
-#include "boost/static_assert.hpp"
-#include "boost/type_traits/is_base_of.hpp"
+#include <type_traits>
 #include <typeinfo>
 #include <vector>
 
@@ -118,7 +117,7 @@ namespace edm {
 
     template <typename U>
     PtrVector(PtrVector<U> const& iOther): PtrVectorBase(iOther) {
-      BOOST_STATIC_ASSERT( (boost::is_base_of<T, U>::value) );
+      static_assert(std::is_base_of<T, U>::value, "PtrVector being copied is not of compatible type" );
     }
 
     // ---------- const member functions ---------------------
@@ -147,7 +146,7 @@ namespace edm {
     template<typename U>
     void push_back(Ptr<U> const& iPtr) {
       //check that types are assignable
-      BOOST_STATIC_ASSERT( (boost::is_base_of<T, U>::value) );
+      static_assert( std::is_base_of<T, U>::value, "Ptr used in push_back can not be converted to type used by PtrVector." );
       this->push_back_base(iPtr.refCore(),
                            iPtr.key(),
                            iPtr.hasProductCache() ? iPtr.operator->() : static_cast<void const*>(0));

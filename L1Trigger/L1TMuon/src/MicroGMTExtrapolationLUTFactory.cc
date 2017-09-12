@@ -25,9 +25,9 @@ namespace l1t {
     }
 
     if (fwVersion >= 1 && fwVersion < 0x4010000) {
-      p = ReturnType(new MicroGMTExtrapolationLUT(filename, outWidth, 6, 6));
+      p = std::make_shared<l1t::MicroGMTExtrapolationLUT>(filename, outWidth, 6, 6);
     } else if (fwVersion >= 0x4010000) {
-      p = ReturnType(new MicroGMTExtrapolationLUT(filename, 4, 5, 7));
+      p = std::make_shared<l1t::MicroGMTExtrapolationLUT>(filename, 4, 5, 7);
     } else {
       LogError("MicroGMTExtrapolationLUTFactory") << "Invalid firmware version requested: 0x" << std::hex << fwVersion << std::dec;
     }
@@ -44,9 +44,9 @@ namespace l1t {
     }
 
     if (fwVersion >= 1 && fwVersion < 0x4010000) {
-      p = ReturnType(new MicroGMTExtrapolationLUT(lut, outWidth, 6, 6));
+      p = std::make_shared<l1t::MicroGMTExtrapolationLUT>(lut, outWidth, 6, 6);
     } else if (fwVersion >= 0x4010000) {
-      p = ReturnType(new MicroGMTExtrapolationLUT(lut, 4, 5, 7));
+      p = std::make_shared<l1t::MicroGMTExtrapolationLUT>(lut, 4, 5, 7);
     } else {
       LogError("MicroGMTExtrapolationLUTFactory") << "Invalid firmware version requested: 0x" << std::hex << fwVersion << std::dec;
     }

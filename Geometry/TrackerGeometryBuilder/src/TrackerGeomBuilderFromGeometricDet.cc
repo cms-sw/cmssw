@@ -76,8 +76,8 @@ TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const PTracke
   std::vector<const GeometricDet*> & tob  = dets[4];  tob.reserve(comp.size());
   std::vector<const GeometricDet*> & tec  = dets[5];  tec.reserve(comp.size());
 
-  for(u_int32_t i = 0;i<comp.size();i++)
-    dets[comp[i]->geographicalID().subdetId()-1].push_back(comp[i]);
+  for(auto & i : comp)
+    dets[i->geographicalID().subdetId()-1].emplace_back(i);
   
   //loop on all the six elements of dets and firstly check if they are from pixel-like detector and call buildPixel, then loop again and check if they are strip and call buildSilicon. "unknown" can be filled either way but the vector of GeometricDet must be empty !!
   // this order is VERY IMPORTANT!!!!! For the moment I (AndreaV) understand that some pieces of code rely on pixel-like being before strip-like 
@@ -137,7 +137,7 @@ TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const PTracke
   // and finally the "empty" subdetectors (maybe it is not needed)
   for(unsigned int i=0;i<6;++i) {
     if(gdsubdetmap[i] == GeometricDet::unknown) {
-      if(dets[i].size()!=0) throw cms::Exception("NotEmptyUnknownSubDet") << "Subdetector " << i+1 << " is unknown but it is not empty: " << dets[i].size();
+      if(!dets[i].empty()) throw cms::Exception("NotEmptyUnknownSubDet") << "Subdetector " << i+1 << " is unknown but it is not empty: " << dets[i].size();
       buildSilicon(dets[i],tracker,GeomDetEnumerators::tkDetEnum[i+1], "barrel"); // "barrel" is used but it is irrelevant
     }
   }
@@ -163,30 +163,30 @@ void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricD
   
   tracker->setOffsetDU(GeomDetEnumerators::subDetGeom[det]);
 
-  for(u_int32_t i=0; i<gdv.size(); i++){
+  for(auto i : gdv){
 
-    std::string const & detName = gdv[i]->name().fullname();
+    std::string const & detName = i->name().fullname();
     if (thePixelDetTypeMap.find(detName) == thePixelDetTypeMap.end()) {
-      std::unique_ptr<const Bounds> bounds(gdv[i]->bounds());
+      std::unique_ptr<const Bounds> bounds(i->bounds());
       
       PixelTopology* t = 
 	  PixelTopologyBuilder().build(&*bounds,
 				       upgradeGeometry,
-				       gdv[i]->pixROCRows(),
-				       gdv[i]->pixROCCols(),
+				       i->pixROCRows(),
+				       i->pixROCCols(),
 				       BIG_PIX_PER_ROC_X,
 				       BIG_PIX_PER_ROC_Y,
-				       gdv[i]->pixROCx(), gdv[i]->pixROCy());
+				       i->pixROCx(), i->pixROCy());
       
       thePixelDetTypeMap[detName] = new PixelGeomDetType(t,detName,det);
       tracker->addType(thePixelDetTypeMap[detName]);
     }
 
-    PlaneBuilderFromGeometricDet::ResultType plane = buildPlaneWithMaterial(gdv[i]);
-    GeomDetUnit* temp =  new PixelGeomDetUnit(&(*plane),thePixelDetTypeMap[detName],gdv[i]->geographicalID());
+    PlaneBuilderFromGeometricDet::ResultType plane = buildPlaneWithMaterial(i);
+    GeomDetUnit* temp =  new PixelGeomDetUnit(&(*plane),thePixelDetTypeMap[detName],i->geographicalID());
 
     tracker->addDetUnit(temp);
-    tracker->addDetUnitId(gdv[i]->geographicalID());
+    tracker->addDetUnitId(i->geographicalID());
   }
   tracker->setEndsetDU(GeomDetEnumerators::subDetGeom[det]);
 }
@@ -203,27 +203,27 @@ void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const Geometri
   
   tracker->setOffsetDU(GeomDetEnumerators::subDetGeom[det]);
 
-  for(u_int32_t i=0;i<gdv.size();i++){
+  for(auto i : gdv){
 
-    std::string const & detName = gdv[i]->name().fullname();
+    std::string const & detName = i->name().fullname();
     if (theStripDetTypeMap.find(detName) == theStripDetTypeMap.end()) {
-       std::unique_ptr<const Bounds> bounds(gdv[i]->bounds());
+       std::unique_ptr<const Bounds> bounds(i->bounds());
        StripTopology* t =
 	   StripTopologyBuilder().build(&*bounds,
-				       gdv[i]->siliconAPVNum(),
+				       i->siliconAPVNum(),
 				       part);
       theStripDetTypeMap[detName] = new  StripGeomDetType( t,detName,det,
-						   gdv[i]->stereo());
+						   i->stereo());
       tracker->addType(theStripDetTypeMap[detName]);
     }
      
-    double scale  = (theTopo->partnerDetId(gdv[i]->geographicalID())) ? 0.5 : 1.0 ;	
+    double scale  = (theTopo->partnerDetId(i->geographicalID())) ? 0.5 : 1.0 ;	
 
-    PlaneBuilderFromGeometricDet::ResultType plane = buildPlaneWithMaterial(gdv[i],scale);  
-    GeomDetUnit* temp = new StripGeomDetUnit(&(*plane), theStripDetTypeMap[detName],gdv[i]->geographicalID());
+    PlaneBuilderFromGeometricDet::ResultType plane = buildPlaneWithMaterial(i,scale);  
+    GeomDetUnit* temp = new StripGeomDetUnit(&(*plane), theStripDetTypeMap[detName],i->geographicalID());
     
     tracker->addDetUnit(temp);
-    tracker->addDetUnitId(gdv[i]->geographicalID());
+    tracker->addDetUnitId(i->geographicalID());
   }  
   tracker->setEndsetDU(GeomDetEnumerators::subDetGeom[det]);
 

@@ -9,6 +9,8 @@ OutALCARECOHcalCalIsoTrkFilter_noDrop = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECOHcalCalIsoTrkFilter')
     ),
     outputCommands = cms.untracked.vstring( 
+        'keep *_gtStage2Digis_*_*',
+        'keep *_hbheprereco_*_*',
         'keep *_hbhereco_*_*',
         'keep *_ecalRecHit_*_*',
         'keep *_towerMaker_*_*',

@@ -53,7 +53,7 @@ runType.setRunType(options.runkey.strip())
 
 if not options.inputFiles:
     # Input source
-    nextLumiTimeoutMillis = 90000
+    nextLumiTimeoutMillis = 240000
     endOfRunKills = True
     
     if options.scanOnce:

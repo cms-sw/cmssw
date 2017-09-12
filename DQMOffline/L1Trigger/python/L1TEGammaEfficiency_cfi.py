@@ -6,15 +6,28 @@ variables = {
     'photon': L1TEGammaOffline_cfi.photonEfficiencyThresholds,
 }
 
+deepInspectionThresholds = {
+    'electron': L1TEGammaOffline_cfi.deepInspectionElectronThresholds,
+    'photon': [],
+}
+
 plots = {
     'electron': [
         "efficiencyElectronET_EB", "efficiencyElectronET_EE",
-        "efficiencyElectronET_EB_EE"
+        "efficiencyElectronET_EB_EE", "efficiencyElectronPhi_vs_Eta",
     ],
     'photon': [
         "efficiencyPhotonET_EB", "efficiencyPhotonET_EE",
         "efficiencyPhotonET_EB_EE"
     ]
+}
+
+deepInspectionPlots = {
+    'electron': [
+        'efficiencyElectronEta', 'efficiencyElectronPhi',
+        'efficiencyElectronNVertex'
+    ],
+    'photon': [],
 }
 
 allEfficiencyPlots = []
@@ -25,7 +38,13 @@ for variable, thresholds in variables.iteritems():
             plotName = '{0}_threshold_{1}'.format(plot, threshold)
             add_plot(plotName)
 
-from DQMOffline.L1Trigger.L1TEfficiencyHarvesting2_cfi import l1tEfficiencyHarvesting
+for variable, thresholds in deepInspectionThresholds.iteritems():
+    for plot in deepInspectionPlots[variable]:
+        for threshold in thresholds:
+            plotName = '{0}_threshold_{1}'.format(plot, threshold)
+            add_plot(plotName)
+
+from DQMOffline.L1Trigger.L1TEfficiencyHarvesting_cfi import l1tEfficiencyHarvesting
 l1tEGammaEfficiency = l1tEfficiencyHarvesting.clone(
     plotCfgs=cms.untracked.VPSet(
         cms.untracked.PSet(

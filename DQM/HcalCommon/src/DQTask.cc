@@ -191,7 +191,7 @@ namespace hcaldqm
 			int cval = (int)((HcalDCCHeader const*)(fd.data()))->getCalibType();
 			if (cval>7)
 				_logger.warn("Unexpected Calib Type in FED " + 
-					boost::lexical_cast<std::string>(i));
+					std::to_string(i));
 			types[cval]++;
 		}
 		for (int i=FED_uTCA_MIN; i<=FED_uTCA_MAX; i++)
@@ -205,7 +205,7 @@ namespace hcaldqm
 			int cval = (int)((HcalDCCHeader const*)(fd.data()))->getCalibType();
 			if (cval>7)
 				_logger.warn("Unexpected Calib Type in FED " + 
-					boost::lexical_cast<std::string>(i));
+					std::to_string(i));
 			types[cval]++;
 		}
 
@@ -220,7 +220,7 @@ namespace hcaldqm
 		}
 		if (max!=(FED_VME_NUM+(FED_uTCA_MAX-FED_uTCA_MIN+1)-badFEDs))
 			_logger.warn("Conflicting Calibration Types found. Assigning " +
-				boost::lexical_cast<std::string>(calibType));
+				std::to_string(calibType));
 
 		return calibType;
 	}

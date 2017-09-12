@@ -56,14 +56,14 @@ CmsTrackerDiskBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
   {
     if( fabs( comp[2*j]->translation().z()) > fabs( comp[ 2*j +1 ]->translation().z()))
     {
-      zmaxpanels.push_back( det->component(2*j) );
-      zminpanels.push_back( det->component(2*j+1) );
+      zmaxpanels.emplace_back( det->component(2*j) );
+      zminpanels.emplace_back( det->component(2*j+1) );
 
     }
     else if( fabs( comp[2*j]->translation().z()) < fabs( comp[ 2*j +1 ]->translation().z()))
     {
-      zmaxpanels.push_back( det->component(2*j+1) );
-      zminpanels.push_back( det->component(2*j) );
+      zmaxpanels.emplace_back( det->component(2*j+1) );
+      zminpanels.emplace_back( det->component(2*j) );
     }
     else
     {

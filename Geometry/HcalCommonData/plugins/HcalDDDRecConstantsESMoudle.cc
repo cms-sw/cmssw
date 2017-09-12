@@ -50,7 +50,7 @@ private:
   HcalDDDRecConstants* hcalDDDConst_;
 };
 
-HcalDDDRecConstantsESModule::HcalDDDRecConstantsESModule(const edm::ParameterSet& iConfig) : hcalDDDConst_(0) {
+HcalDDDRecConstantsESModule::HcalDDDRecConstantsESModule(const edm::ParameterSet& iConfig) : hcalDDDConst_(nullptr) {
 #ifdef EDM_ML_DEBUG
   std::cout <<"constructing HcalDDDRecConstantsESModule" << std::endl;
 #endif
@@ -70,7 +70,7 @@ HcalDDDRecConstantsESModule::produce(const HcalRecNumberingRecord& iRecord) {
 #ifdef EDM_ML_DEBUG
   std::cout << "in HcalDDDRecConstantsESModule::produce" << std::endl;
 #endif
-  if (hcalDDDConst_ == 0) {
+  if (hcalDDDConst_ == nullptr) {
     edm::ESHandle<HcalParameters>         parHandle;
     iRecord.getRecord<HcalParametersRcd>().get(parHandle);
     edm::ESHandle<HcalDDDSimConstants>    hdc;

@@ -205,7 +205,8 @@ AlignmentParameters::collapseSymMatrix(const AlgebraicSymMatrix& m,
 
   // Check size matching
   if ( nRows != size ) 
-    throw cms::Exception("LogicError") << "Size mismatch in parameters";
+    throw cms::Exception("LogicError") << "Size mismatch in parameters"
+    << " (input symmatrix = " << nRows << ", selection: " << size << ")";
 
   // If OK, continue
   std::vector<int> rowvec;
@@ -233,7 +234,8 @@ AlgebraicVector AlignmentParameters::collapseVector(const AlgebraicVector& m,
 
   // Check size matching
   if ( nRows != size ) 
-    throw cms::Exception("LogicError") << "Size mismatch in parameters";
+    throw cms::Exception("LogicError") << "Size mismatch in parameters"
+    << " (input vector = " << nRows << ", selection: " << size << ")";
 
   // If OK, continue
   std::vector<int> rowvec;
@@ -264,7 +266,8 @@ AlgebraicSymMatrix AlignmentParameters::expandSymMatrix(const AlgebraicSymMatrix
 
   // Check size matching
   if( nRows != static_cast<int>(rowvec.size()) ) 
-    throw cms::Exception("LogicError") << "Size mismatch in parameters";
+    throw cms::Exception("LogicError") << "Size mismatch in parameters"
+    << " (input symmatrix = " << nRows << ", selection: " << size << ")";
 
   // If OK, continue
   AlgebraicSymMatrix result(size,0);
@@ -290,7 +293,8 @@ AlgebraicVector AlignmentParameters::expandVector(const AlgebraicVector& m,
 
   // Check size matching
   if( nRows != static_cast<int>(rowvec.size()) ) 
-    throw cms::Exception("LogicError") << "Size mismatch in parameters";
+    throw cms::Exception("LogicError") << "Size mismatch in parameters"
+    << " (input vector = " << nRows << ", selection: " << size << ")";
 
   // If OK, continue
   AlgebraicVector result(size,0);

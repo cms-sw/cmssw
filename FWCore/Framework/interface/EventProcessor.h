@@ -29,8 +29,6 @@ configured in the user's main() function, and is set running.
 
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
-#include "boost/thread/condition.hpp"
-
 #include <map>
 #include <memory>
 #include <set>
@@ -251,6 +249,9 @@ namespace edm {
     //process the already read event using Stream iStreamIndex
     void processEventAsync(WaitingTaskHolder iHolder,
                            unsigned int iStreamIndex);
+
+    void processEventAsyncImpl(WaitingTaskHolder iHolder,
+                               unsigned int iStreamIndex);
 
     //returns true if an asynchronous stop was requested
     bool checkForAsyncStopRequest(StatusCode&);

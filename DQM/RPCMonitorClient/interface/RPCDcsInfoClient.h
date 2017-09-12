@@ -10,7 +10,7 @@ class RPCDcsInfoClient : public DQMEDHarvester {
 
 public:
   RPCDcsInfoClient( const edm::ParameterSet& ps);
-  ~RPCDcsInfoClient();
+  ~RPCDcsInfoClient() override;
 
 protected:
 

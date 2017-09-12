@@ -87,24 +87,11 @@ topSingleLeptonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
    trigger = cms.PSet(
       src    = cms.InputTag("TriggerResults","","HLT"),
 ### Updating to HLT paths to be monitored by TOP PAG in 2017  
-       select = cms.vstring(['HLT_Mu20_v*',
-                             'HLT_TkMu20_v*' ,
-                             'HLT_IsoMu20_v*',
-                             'HLT_IsoTkMu20_v*',
-                             'HLT_IsoMu24_eta2p1_v*',
-                             'HLT_IsoMu24_v*',
-                             'HLT_IsoTkMu24_eta2p1_v*',
-                             'HLT_IsoTkMu24_v*',
-                             'HLT_Mu27_v*',
-                             'HLT_TkMu27_v*',
-                             'HLT_IsoMu27_v*',
-                             'HLT_IsoTkMu27_v*',
-                             'HLT_TkMu50_v*',
-                             'HLT_Mu50_v*',
-                             'HLT_Ele30_eta2p1_WPTight_Gsf_v*',
-                             'HLT_Ele35_WPTight_Gsf_v*',
-                             'HLT_Ele38_WPTight_Gsf_v*',
-                             'HLT_Ele40_WPTight_Gsf_v*',
+       select = cms.vstring(['HLT_IsoMu27_v',
+                             'HLT_Mu50_v'
+                             'HLT_Ele35_WPTight_Gsf_v',
+                             'HLT_Ele38_WPTight_Gsf_v',
+                             'HLT_Ele40_WPTight_Gsf_v',
                              
        ]),
   ),
@@ -215,20 +202,8 @@ topSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
     triggerExtras = cms.PSet(
       src   = cms.InputTag("TriggerResults","","HLT"),
 ### Updating to HLT paths to be monitored by TOP PAG in 2017
-        paths = cms.vstring(['HLT_Mu20_v*',
-                             'HLT_TkMu20_v*' ,
-                             'HLT_IsoMu20_v*',
-                             'HLT_IsoTkMu20_v*',
-                             'HLT_IsoMu24_eta2p1_v*',
-                             'HLT_IsoMu24_v*',
-                             'HLT_IsoTkMu24_eta2p1_v*',
-                             'HLT_IsoTkMu24_v*',
-                             'HLT_Mu27_v*',
-                             'HLT_TkMu27_v*',
-                             'HLT_IsoMu27_v*',
-                             'HLT_IsoTkMu27_v*',
-                             'HLT_TkMu50_v*',
-                             'HLT_Mu50_v*'])
+        paths = cms.vstring(['HLT_IsoMu27_v',
+                             'HLT_Mu50_v'])
     )
   ),
   ## ------------------------------------------------------
@@ -242,20 +217,8 @@ topSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
    trigger = cms.PSet(
       src    = cms.InputTag("TriggerResults","","HLT"),
 ### Updating to HLT paths to be monitored by TOP PAG in 2017
-    select = cms.vstring(['HLT_Mu20_v*',
-                          'HLT_TkMu20_v*' ,
-                          'HLT_IsoMu20_v*',
-                          'HLT_IsoTkMu20_v*',
-                          'HLT_IsoMu24_eta2p1_v*',
-                          'HLT_IsoMu24_v*',
-                          'HLT_IsoTkMu24_eta2p1_v*',
-                          'HLT_IsoTkMu24_v*',
-                          'HLT_Mu27_v*',
-                          'HLT_TkMu27_v*',
-                          'HLT_IsoMu27_v*',
-                          'HLT_IsoTkMu27_v*',
-                          'HLT_TkMu50_v*',
-                          'HLT_Mu50_v*'])
+    select = cms.vstring(['HLT_IsoMu27_v',
+                          'HLT_Mu50_v'])
   ),
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
@@ -395,10 +358,9 @@ topSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
     triggerExtras = cms.PSet(
       src   = cms.InputTag("TriggerResults","","HLT"),
 ### Updating to HLT paths to be monitored by TOP PAG in 2017
-    paths = cms.vstring(['HLT_Ele30_eta2p1_WPTight_Gsf_v*',
-                         'HLT_Ele35_WPTight_Gsf_v*',
-                         'HLT_Ele38_WPTight_Gsf_v*',
-                         'HLT_Ele40_WPTight_Gsf_v*',])       
+    paths = cms.vstring(['HLT_Ele35_WPTight_Gsf_v',
+                         'HLT_Ele38_WPTight_Gsf_v',
+                         'HLT_Ele40_WPTight_Gsf_v',])       
     )
   ),
   ## ------------------------------------------------------
@@ -412,10 +374,9 @@ topSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
    trigger = cms.PSet(
       src    = cms.InputTag("TriggerResults","","HLT"),
 ### Updating to HLT paths to be monitored by TOP PAG in 2017                                                                                                                 
-     select = cms.vstring(['HLT_Ele30_eta2p1_WPTight_Gsf_v*',
-                           'HLT_Ele35_WPTight_Gsf_v*',
-                           'HLT_Ele38_WPTight_Gsf_v*',
-                           'HLT_Ele40_WPTight_Gsf_v*',])            
+     select = cms.vstring(['HLT_Ele35_WPTight_Gsf_v',
+                           'HLT_Ele38_WPTight_Gsf_v',
+                           'HLT_Ele40_WPTight_Gsf_v',])            
   ),
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(

@@ -13,7 +13,7 @@ class GEMEtaPartition : public GeomDetUnit
 {
 public:
   
-  GEMEtaPartition(GEMDetId id, BoundPlane::BoundPlanePointer bp, GEMEtaPartitionSpecs* rrs);
+  GEMEtaPartition(GEMDetId id, const BoundPlane::BoundPlanePointer& bp, GEMEtaPartitionSpecs* rrs);
   ~GEMEtaPartition() override;
 
   const GEMEtaPartitionSpecs* specs() const { return specs_; }

@@ -14,24 +14,6 @@ from FWCore.PythonUtilities.LumiList import LumiList
 from helperFunctions import cache
 from TkAlExceptions import AllInOneError
 
-#####################################################################
-#can remove this section and others below once dasgoclient is updated
-#(search for olddas)
-from helperFunctions import getCommandOutput2
-try:
-    dasgoversion = getCommandOutput2("dasgoclient --version")
-except RuntimeError:
-    olddas = True
-    #could be no proxy inited, but this will pop up later in any case
-else:
-    dasgoversion = dasgoversion.split()[1].split("git=v")[1]
-    dasgoversion = tuple(int(_) for _ in dasgoversion.split("."))
-    if dasgoversion < (1, 0, 5):
-        olddas = True
-    else:
-        olddas = False
-#####################################################################
-
 class Dataset(object):
     def __init__( self, datasetName, dasLimit = 0, tryPredefinedFirst = True,
                   cmssw = os.environ["CMSSW_BASE"], cmsswrelease = os.environ["CMSSW_RELEASE_BASE"],
@@ -369,12 +351,7 @@ class Dataset(object):
         return forcerunrangefunction
 
     def __getData( self, dasQuery, dasLimit = 0 ):
-	dasData = das_client.get_data(dasQuery, dasLimit,
-        ############################################
-        #can remove this once dasgoclient is updated
-        cmd="das_client" if olddas else None
-        ############################################
-        )
+	dasData = das_client.get_data(dasQuery, dasLimit)
         if isinstance(dasData, str):
             jsondict = json.loads( dasData )
         else:
@@ -419,10 +396,6 @@ class Dataset(object):
 
         dasQuery_type = ( 'dataset dataset=%s instance=%s detail=true | grep dataset.datatype,'
                           'dataset.name'%( self.__name, self.__dasinstance ) )
-        #####################################################################
-        #can remove this once dasgoclient is updated
-        if olddas: dasQuery_type = dasQuery_type.replace("detail=true", "")
-        #####################################################################
         data = self.__getData( dasQuery_type )
 
         try:
@@ -551,10 +524,6 @@ class Dataset(object):
 
         if run > 0:
             dasQuery = ('run=%s instance=%s detail=true'%(run, self.__dasinstance))   #for data
-            #####################################################################
-            #can remove this once dasgoclient is updated
-            if olddas: dasQuery = dasQuery.replace("detail=true", "")
-            #####################################################################
             data = self.__getData(dasQuery)
             try:
                 return self.__findInJson(data, ["run","bfield"])
@@ -611,10 +580,6 @@ class Dataset(object):
         dasQuery_files = ( 'file dataset=%s instance=%s detail=true | grep file.name, file.nevents, '
                            'file.creation_time, '
                            'file.modification_time'%( searchdataset, self.__dasinstance ) )
-        #####################################################################
-        #can remove this once dasgoclient is updated
-        if olddas: dasQuery_files = dasQuery_files.replace("detail=true", "")
-        #####################################################################
         print "Requesting file information for '%s' from DAS..."%( searchdataset ),
         sys.stdout.flush()
         data = self.__getData( dasQuery_files, dasLimit )

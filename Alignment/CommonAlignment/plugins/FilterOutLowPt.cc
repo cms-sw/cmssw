@@ -86,15 +86,15 @@ bool FilterOutLowPt::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   if(runControl_){
     if (debugOn){
-      for(unsigned int i=0;i<runControlNumbers_.size();i++){
-	edm::LogInfo("FilterOutLowPt")<<"run number:" <<iEvent.id().run()<<" keeping runs:"<<runControlNumbers_[i]<<std::endl;
+      for(unsigned int runControlNumber : runControlNumbers_){
+	edm::LogInfo("FilterOutLowPt")<<"run number:" <<iEvent.id().run()<<" keeping runs:"<<runControlNumber<<std::endl;
       }
     }
 
-    for(unsigned int j=0;j<runControlNumbers_.size();j++){
-      if(iEvent.eventAuxiliary().run() == runControlNumbers_[j]){ 
+    for(unsigned int runControlNumber : runControlNumbers_){
+      if(iEvent.eventAuxiliary().run() == runControlNumber){ 
 	if (debugOn){
-	  edm::LogInfo("FilterOutLowPt")<<"run number"<< runControlNumbers_[j] << " match!"<<std::endl;
+	  edm::LogInfo("FilterOutLowPt")<<"run number"<< runControlNumber << " match!"<<std::endl;
 	}
 	passesRunControl = true;
 	break;
@@ -172,8 +172,8 @@ void FilterOutLowPt::endJob(){
                     
   edm::LogVerbatim("FilterOutLowPt")<<"###################################### \n"
 				    <<"# Filter Summary events accepted by run";
-  for (std::map<unsigned int,std::pair<int,int> >::iterator it=eventsInRun_.begin(); it!=eventsInRun_.end(); ++it)			       
-    edm::LogVerbatim("FilterOutLowPt")<<"# run:" << it->first << " => events tested: " << (it->second).first << " | events passed: " << (it->second).second;  
+  for (auto & it : eventsInRun_)			       
+    edm::LogVerbatim("FilterOutLowPt")<<"# run:" << it.first << " => events tested: " << (it.second).first << " | events passed: " << (it.second).second;  
   edm::LogVerbatim("FilterOutLowPt")<<"###################################### \n";
 }
 

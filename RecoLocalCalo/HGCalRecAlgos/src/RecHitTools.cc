@@ -128,6 +128,39 @@ std::float_t RecHitTools::getRadiusToSide(const DetId& id) const {
   return size;
 }
 
+unsigned int RecHitTools::getLayer(const ForwardSubdetector type) const {
+
+  int layer;
+  switch (type) {
+    case(ForwardSubdetector::HGCEE): {
+      auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
+      layer       = (geomEE->topology().dddConstants()).layers(true);
+      break;
+    }
+    case (ForwardSubdetector::HGCHEF): {
+      auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
+      layer       = (geomFH->topology().dddConstants()).layers(true);
+      break;
+    } 
+    case (ForwardSubdetector::HGCHEB): {
+      auto geomBH = static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal,HcalSubdetector::HcalEndcap));
+      layer       = (geomBH->topology().dddConstants())->getMaxDepth(1);
+      break;
+    } 
+    case (ForwardSubdetector::ForwardEmpty): {
+      auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
+      layer       = (geomEE->topology().dddConstants()).layers(true);
+      auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
+      layer      += (geomFH->topology().dddConstants()).layers(true);
+      auto geomBH = static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal,HcalSubdetector::HcalEndcap));
+      layer      += (geomBH->topology().dddConstants())->getMaxDepth(1);
+      break;
+    }
+    default: layer = 0;
+  }
+  return (unsigned int)(layer);
+}
+
 unsigned int RecHitTools::getLayer(const DetId& id) const {
   unsigned int layer = std::numeric_limits<unsigned int>::max();
   if( id.det() == DetId::Forward) {

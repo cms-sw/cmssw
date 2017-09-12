@@ -18,8 +18,6 @@ set inputsource=$1
 set taskname=$2
 set options=$3
 
-set eos='/afs/cern.ch/project/eos/installation/cms/bin/eos.select'
-
 echo "Submitting validation for file $inputsource with $options in task $taskname"
 
 source /afs/cern.ch/cms/caf/setup.csh
@@ -90,22 +88,22 @@ if(${options} != "--dryRun") then
  echo "Content of working directory is: "
  \ls -lrt
 
- set reply=`${eos} find -d /store/caf/user/$USER/Alignment/PVValidation/${taskname}`
+ set reply=`eos find -d /store/caf/user/$USER/Alignment/PVValidation/${taskname}`
  set word=`echo $reply |awk '{split($0,a," "); print a[1]}'`
 
  if(${word} == "") then
  echo "Creating folder $taskname"
-    ${eos} mkdir /store/caf/user/$USER/Alignment/PVValidation/${taskname} 
+    eos mkdir /store/caf/user/$USER/Alignment/PVValidation/${taskname} 
  else 
     echo "Sorry /store/caf/user/$USER/Alignment/PVValidation/${taskname} already exists!"
  endif
 
  if (! -d  ${CMSSW_DIR}/test/PVValResults) then
      mkdir ${CMSSW_DIR}/PVValResults
-     ${eos} cp -f ${outfile} /store/caf/user/$USER/Alignment/PVValidation/${taskname}
+     eos cp -f ${outfile} /store/caf/user/$USER/Alignment/PVValidation/${taskname}
      cp ${jobname}.out ${CMSSW_DIR}/PVValResults 
  else     
-     ${eos} cp -f ${outfile} /store/caf/user/$USER/Alignment/PVValidation/${taskname}
+     eos cp -f ${outfile} /store/caf/user/$USER/Alignment/PVValidation/${taskname}
      cp ${jobname}.out ${CMSSW_DIR}/PVValResults 
  endif
 endif

@@ -62,7 +62,7 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <memory>
 #include <vector>
@@ -79,8 +79,8 @@ class GlobalHitsAnalyzer : public DQMEDAnalyzer
   //typedef std::vector<float> FloatVector;
 
   explicit GlobalHitsAnalyzer(const edm::ParameterSet&);
-  virtual ~GlobalHitsAnalyzer();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  ~GlobalHitsAnalyzer() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
  protected:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;

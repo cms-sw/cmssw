@@ -12,10 +12,10 @@ totalEvents_(0), passedEvents_(0)
   //here do whatever other initialization is needed
   src_ = consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("src"));
   
-  if(acceptLogic_.compare("LT")==0) whichlogic = LT;
-  else if(acceptLogic_.compare("GT")==0) whichlogic = GT;
-  else if(acceptLogic_.compare("EQ")==0) whichlogic = EQ;
-  else if(acceptLogic_.compare("NE")==0) whichlogic = NE;
+  if(acceptLogic_=="LT") whichlogic = LT;
+  else if(acceptLogic_=="GT") whichlogic = GT;
+  else if(acceptLogic_=="EQ") whichlogic = EQ;
+  else if(acceptLogic_=="NE") whichlogic = NE;
   else edm::LogError  ("cat_A")   << "wrong input for AcceptLogic string";
 
   

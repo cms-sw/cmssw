@@ -10,8 +10,9 @@
 
 
 namespace {
-  const float theRocWidth  = 8.1;
-  const float theRocHeight = 8.1;
+  // in cms units are in cm
+  constexpr float theRocWidth  = 0.81/2;
+  constexpr float theRocHeight = 0.81/2;
 }
 
 TkPixelMeasurementDet::TkPixelMeasurementDet( const GeomDet* gdet,
@@ -151,12 +152,13 @@ TkPixelMeasurementDet::compHits( const TrajectoryStateOnSurface& ts, const Measu
 bool
 TkPixelMeasurementDet::hasBadComponents( const TrajectoryStateOnSurface &tsos, const MeasurementTrackerEvent & data ) const {
     if (badRocPositions_.empty()) return false;
-    LocalPoint lp = tsos.localPosition();
-    LocalError le = tsos.localError().positionError();
-    double dx = 3*std::sqrt(le.xx()) + theRocWidth, dy = 3*std::sqrt(le.yy()) + theRocHeight;
-    for (std::vector<LocalPoint>::const_iterator it = badRocPositions_.begin(), ed = badRocPositions_.end(); it != ed; ++it) {
-        if ( (std::abs(it->x() - lp.x()) < dx) &&
-             (std::abs(it->y() - lp.y()) < dy) ) return true;
-    } 
+    auto lp = tsos.localPosition();
+    auto le = tsos.localError().positionError();
+    for (auto const & broc : badRocPositions_) {
+      auto dx = std::abs(broc.x() - lp.x()) - theRocWidth;
+      auto dy = std::abs(broc.y() - lp.y()) - theRocHeight;
+      if ( (dx<=0.f) & (dy<=0.f) ) return true;
+      if ( (dx*dx < 9.f*le.xx()) && (dy*dy< 9.f*le.yy()) ) return true;
+    }
     return false;
 }

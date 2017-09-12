@@ -1,5 +1,6 @@
 import os
 import ROOT
+import sys
 from TkAlExceptions import AllInOneError
 
 ####################--- Helpers ---############################
@@ -190,3 +191,38 @@ def cppboolstring(string, name):
     and makes it into a bool string for a C++ template
     """
     return pythonboolstring(string, name).lower()
+
+def conddb(*args):
+    """
+    Wrapper for conddb, so that you can run
+    conddb("--db", "myfile.db", "listTags"),
+    like from the command line, without explicitly
+    dealing with all the functions in CondCore/Utilities.
+    getcommandoutput2(conddb ...) doesn't work, it imports
+    the wrong sqlalchemy in CondCore/Utilities/python/conddblib.py
+    """
+    from tempfile import NamedTemporaryFile
+
+    with open(getCommandOutput2("which conddb").strip()) as f:
+        conddb = f.read()
+
+    def sysexit(number):
+        if number != 0:
+            raise AllInOneError("conddb exited with status {}".format(number))
+    namespace = {"sysexit": sysexit, "conddboutput": ""}
+
+    conddb = conddb.replace("sys.exit", "sysexit")
+
+    bkpargv = sys.argv
+    sys.argv[1:] = args
+    bkpstdout = sys.stdout
+    with NamedTemporaryFile(bufsize=0) as sys.stdout:
+        exec conddb in namespace
+        namespace["main"]()
+        with open(sys.stdout.name) as f:
+            result = f.read()
+
+    sys.argv[:] = bkpargv
+    sys.stdout = bkpstdout
+
+    return result

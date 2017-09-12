@@ -43,8 +43,8 @@ class CaloGeometryEPtest : public edm::ESProducer
       ~CaloGeometryEPtest<T>() override {}
       PtrType produceAligned( const typename T::AlignedRecord& iRecord ) 
       {
-	 const Alignments* alignPtr  ( 0 ) ;
-	 const Alignments* globalPtr ( 0 ) ;
+	 const Alignments* alignPtr  ( nullptr ) ;
+	 const Alignments* globalPtr ( nullptr ) ;
 	 if( m_applyAlignment ) // get ptr if necessary
 	 {
 	    edm::ESHandle< Alignments >                                      alignments ;

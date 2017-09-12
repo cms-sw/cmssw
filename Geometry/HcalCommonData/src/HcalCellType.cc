@@ -91,9 +91,9 @@ void HcalCellType::setPhi(const std::vector<std::pair<int,double> >& phis,
   thePhiOffset   = foff;
   theUnitPhi     = unit;
   thePhis.clear();
-  for (unsigned int k=0; k<phis.size(); ++k) {
-    if (std::find(iphiMiss.begin(),iphiMiss.end(),phis[k].first) == iphiMiss.end()) {
-      thePhis.push_back(phis[k]);
+  for (const auto & phi : phis) {
+    if (std::find(iphiMiss.begin(),iphiMiss.end(),phi.first) == iphiMiss.end()) {
+      thePhis.emplace_back(phi);
     }
   }
 }

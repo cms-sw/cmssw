@@ -13,6 +13,7 @@
 #include "classlib/utils/StringList.h"
 #include "classlib/utils/StringOps.h"
 #include "DataFormats/Histograms/interface/DQMToken.h"
+#include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
 
 using namespace lat;
 

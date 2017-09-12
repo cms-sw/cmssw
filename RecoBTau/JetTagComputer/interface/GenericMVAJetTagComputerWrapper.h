@@ -32,7 +32,7 @@
 
 namespace btau_dummy {
 	struct Null {};
-	extern const char none[];
+	constexpr const char none[] = "";
 }
 
 // 4 named TagInfos

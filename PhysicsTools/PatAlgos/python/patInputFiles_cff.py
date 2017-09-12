@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
 
+filesRelValZeeGENSIMRECO = cms.untracked.vstring(
+    '/store/relval/CMSSW_9_3_0_pre1/RelValZEE_13/GEN-SIM-RECO/PU25ns_92X_upgrade2017_realistic_v7-v1/00000/2A678BC2-3A61-E711-A1F5-0025905A6094.root'
+)
 # /RelValTTbar_13/CMSSW_8_0_0-PU25ns_80X_mcRun2_asymptotic_v4-v1/MINIAODSIM
 filesRelValTTbarPileUpMINIAODSIM = cms.untracked.vstring(
     #pickRelValInputFiles( cmsswVersion  = 'CMSSW_8_0_0'
@@ -37,7 +40,8 @@ filesRelValTTbarGENSIMRECO = cms.untracked.vstring(
                         #, numberOfFiles = 1
                         #, useDAS        = True
                         #)
-    '/store/relval/CMSSW_9_2_2/RelValTTbar_13/GEN-SIM-RECO/92X_upgrade2017_realistic_v1-v1/10000/C880B6BD-B14D-E711-A3C5-0CC47A4D767E.root',
+    '/store/relval/CMSSW_9_3_0_pre1/RelValTTbar_13/GEN-SIM-RECO/PU25ns_92X_upgrade2017_realistic_v7-v1/00000/32EA1438-3D61-E711-8FE7-0025905B85B2.root'
+    #'/store/relval/CMSSW_9_2_2/RelValTTbar_13/GEN-SIM-RECO/92X_upgrade2017_realistic_v1-v1/10000/C880B6BD-B14D-E711-A3C5-0CC47A4D767E.root',
     )
 
 # /RelValTTbar_13/CMSSW_8_0_0-PU25ns_80X_mcRun2_asymptotic_v4_FastSim-v2/GEN-SIM-DIGI-RECO

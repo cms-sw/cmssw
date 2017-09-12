@@ -11,10 +11,10 @@ enum Parity {Even=0, Odd=1};
 class CSCGEMMotherboardLUT
 {
  public:
-  
+
   CSCGEMMotherboardLUT();
   virtual ~CSCGEMMotherboardLUT();
-  
+
   virtual std::vector<int> get_gem_pad_to_csc_hs(Parity par, enum CSCPart) const=0;
   virtual std::vector<std::pair<int,int> > get_csc_hs_to_gem_pad(Parity par, enum CSCPart) const=0;
   std::vector<std::pair<int,int> > get_csc_wg_to_gem_roll(Parity par, int layer=1) const;
@@ -57,11 +57,11 @@ class CSCGEMMotherboardLUTME11 : public CSCGEMMotherboardLUT
  public:
 
   CSCGEMMotherboardLUTME11();
-  virtual ~CSCGEMMotherboardLUTME11();
+  ~CSCGEMMotherboardLUTME11() override;
 
-  virtual std::vector<int> get_gem_pad_to_csc_hs(Parity par, enum CSCPart) const;
-  virtual std::vector<std::pair<int,int> > get_csc_hs_to_gem_pad(Parity par, enum CSCPart) const;
-  virtual std::vector<std::vector<double> > get_lut_wg_vs_hs(enum CSCPart) const;
+  std::vector<int> get_gem_pad_to_csc_hs(Parity par, enum CSCPart) const override;
+  std::vector<std::pair<int,int> > get_csc_hs_to_gem_pad(Parity par, enum CSCPart) const override;
+  std::vector<std::vector<double> > get_lut_wg_vs_hs(enum CSCPart) const;
 
   // LUT for which ME1/1 wire group can cross which ME1/a halfstrip
   // 1st index: WG number
@@ -88,13 +88,13 @@ class CSCGEMMotherboardLUTME11 : public CSCGEMMotherboardLUT
 class CSCGEMMotherboardLUTME21 : public CSCGEMMotherboardLUT
 {
  public:
-  
+
   CSCGEMMotherboardLUTME21();
-  virtual ~CSCGEMMotherboardLUTME21();
-  
-  virtual std::vector<int> get_gem_pad_to_csc_hs(Parity par, enum CSCPart) const;
-  virtual std::vector<std::pair<int,int> > get_csc_hs_to_gem_pad(Parity par, enum CSCPart) const;
-  
+  ~CSCGEMMotherboardLUTME21() override;
+
+  std::vector<int> get_gem_pad_to_csc_hs(Parity par, enum CSCPart) const override;
+  std::vector<std::pair<int,int> > get_csc_hs_to_gem_pad(Parity par, enum CSCPart) const override;
+
   // map of pad to HS
   std::vector<int> gem_pad_to_csc_hs_odd;
   std::vector<int> gem_pad_to_csc_hs_even;
@@ -136,20 +136,20 @@ public:
   std::vector<int> csc_wg_to_rpc_roll_even;
 };
 
-class CSCRPCMotherboardLUTME31 : public CSCRPCMotherboardLUT 
+class CSCRPCMotherboardLUTME31 : public CSCRPCMotherboardLUT
 {
  public:
-  
+
   CSCRPCMotherboardLUTME31();
-  virtual ~CSCRPCMotherboardLUTME31() {}
+  ~CSCRPCMotherboardLUTME31() override {}
 };
 
-class CSCRPCMotherboardLUTME41 : public CSCRPCMotherboardLUT 
+class CSCRPCMotherboardLUTME41 : public CSCRPCMotherboardLUT
 {
  public:
-  
+
   CSCRPCMotherboardLUTME41();
-  virtual ~CSCRPCMotherboardLUTME41() {}  
+  ~CSCRPCMotherboardLUTME41() override {}
 };
 
 #endif

@@ -58,11 +58,11 @@
 class APVCyclePhaseProducerFromL1TS : public edm::stream::EDProducer<> {
    public:
       explicit APVCyclePhaseProducerFromL1TS(const edm::ParameterSet&);
-      ~APVCyclePhaseProducerFromL1TS();
+      ~APVCyclePhaseProducerFromL1TS() override;
 
 private:
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   bool isBadRun(const unsigned int) const;
   void printConfiguration(std::stringstream& ss) const;
@@ -158,8 +158,11 @@ APVCyclePhaseProducerFromL1TS::beginRun(const edm::Run& iRun, const edm::EventSe
     edm::ESHandle<SiStripConfObject> confObj;
     iSetup.get<SiStripConfObjectRcd>().get(m_rcdLabel,confObj);
 
+    edm::ESHandle<TrackerTopology> tTopo;
+    iSetup.get<TrackerTopologyRcd>().get(tTopo);
+
     std::stringstream summary;
-    confObj->printDebug(summary);
+    confObj->printDebug(summary, tTopo.product());
     LogDebug("SiStripConfObjectSummary") << summary.str();
 
     _defpartnames = confObj->get<std::vector<std::string> >("defaultPartitionNames");
@@ -205,7 +208,7 @@ APVCyclePhaseProducerFromL1TS::produce(edm::Event& iEvent, const edm::EventSetup
 
   long long orbitoffset = 0;
 
-  if(l1ts->size()>0) {
+  if(!l1ts->empty()) {
 
     if((*l1ts)[0].lastResync()!=0) {
       orbitoffset = _useEC0 ? (*l1ts)[0].lastEventCounter0() + _magicOffset : (*l1ts)[0].lastResync() + _magicOffset;

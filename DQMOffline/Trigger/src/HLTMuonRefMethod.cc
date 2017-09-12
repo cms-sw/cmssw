@@ -38,11 +38,11 @@ class HLTMuonRefMethod : public DQMEDHarvester {
 
 public:
   explicit HLTMuonRefMethod(const edm::ParameterSet& set);
-  ~HLTMuonRefMethod() {};
+  ~HLTMuonRefMethod() override = default;;
 
-  virtual void beginJob() override;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override ;
-  virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override ;
+  void beginJob() override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override ;
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override ;
   
 
 private:
@@ -58,7 +58,7 @@ private:
 
   void findAllSubdirectories (DQMStore::IBooker& ibooker,
 			      DQMStore::IGetter& igetter,
-			      std::string dir,
+			      const std::string& dir,
 			      std::set<std::string> * myList,
 			      const TString& pattern);
   
@@ -68,9 +68,9 @@ private:
 
 HLTMuonRefMethod::HLTMuonRefMethod(const edm::ParameterSet& pset)
 {
-  typedef std::vector<edm::ParameterSet> VPSet;
-  typedef std::vector<std::string> vstring;
-  typedef boost::escaped_list_separator<char> elsc;
+  using VPSet = std::vector<edm::ParameterSet>;
+  using vstring = std::vector<std::string>;
+  using elsc = boost::escaped_list_separator<char>;
 
   subDirs_     = pset.getUntrackedParameter<vstring>("subDirs");
   hltTriggers_ = pset.getUntrackedParameter<vstring>("hltTriggers");
@@ -88,7 +88,7 @@ HLTMuonRefMethod::beginJob()
 
 void HLTMuonRefMethod::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter)
 {
-  typedef std::vector<std::string> vstring;
+  using vstring = std::vector<std::string>;
   boost::regex metacharacters{"[\\^\\$\\.\\*\\+\\?\\|\\(\\)\\{\\}\\[\\]]"};
   boost::smatch what;
 
@@ -98,7 +98,7 @@ void HLTMuonRefMethod::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
   ibooker.cd();
   set<string> subDirSet;
 
-  for(vstring::const_iterator iSubDir = subDirs_.begin();
+  for(auto iSubDir = subDirs_.begin();
       iSubDir != subDirs_.end(); ++iSubDir) {
     string subDir = *iSubDir;
 
@@ -118,10 +118,7 @@ void HLTMuonRefMethod::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
     }
   }
   
-  for(set<string>::const_iterator iSubDir = subDirSet.begin();
-      iSubDir != subDirSet.end(); ++iSubDir) {
-    const string& subDir = *iSubDir;
-    
+  for(auto const & subDir : subDirSet) {
     for (unsigned int iEff = 0; iEff != efficiency_.size(); ++iEff){
       string eff = efficiency_[iEff];
 
@@ -132,7 +129,7 @@ void HLTMuonRefMethod::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
 
       
       // looping over all reference triggers 
-      for (vstring::const_iterator iTrigger = hltTriggers_.begin();
+      for (auto iTrigger = hltTriggers_.begin();
     	   iTrigger != hltTriggers_.end(); ++iTrigger){
     	string trig = *iTrigger;
 	MonitorElement* trigEff = igetter.get(subDir + "/" + trig + "/" + eff );
@@ -185,7 +182,7 @@ HLTMuonRefMethod::beginRun(const edm::Run& run, const edm::EventSetup& c)
 
 
 void
-HLTMuonRefMethod::findAllSubdirectories (DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, std::string dir, std::set<std::string> * myList,
+HLTMuonRefMethod::findAllSubdirectories (DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, const std::string& dir, std::set<std::string> * myList,
 					 const TString& _pattern = TString("")) {
   TString pattern = _pattern;
   TPRegexp nonPerlWildcard("\\w\\*|^\\*");
@@ -199,7 +196,7 @@ HLTMuonRefMethod::findAllSubdirectories (DQMStore::IBooker& ibooker, DQMStore::I
     TPRegexp regexp(pattern);
     ibooker.cd(dir);
     vector <string> foundDirs = igetter.getSubdirs();
-    for(vector<string>::const_iterator iDir = foundDirs.begin();
+    for(auto iDir = foundDirs.begin();
 	iDir != foundDirs.end(); ++iDir) {
       TString dirName = iDir->substr(iDir->rfind('/') + 1, iDir->length());
       if (dirName.Contains(regexp))

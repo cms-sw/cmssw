@@ -9,7 +9,7 @@ bool TrackerGeomDet::setAlignmentPositionError (const AlignmentPositionError& ap
   } 
   else *theAlignmentPositionError = ape;
 
-  GlobalErrorExtended apeError = ape.globalError();
+  const GlobalErrorExtended& apeError = ape.globalError();
   GlobalError translatApe(apeError.cxx(),apeError.cyx(),apeError.cyy(),apeError.czx(),apeError.czy(),apeError.czz());
 
   //check only translat part is valid 

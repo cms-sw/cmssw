@@ -4,10 +4,6 @@
 #include <DetectorDescription/Core/interface/DDSolidShapes.h>
 #include <DetectorDescription/Core/interface/DDSpecifics.h>
 #include <DetectorDescription/OfflineDBLoader/interface/DDCoreToDDXMLOutput.h>
-#include <stddef.h>
-#include <iomanip>
-#include <vector>
-
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
@@ -21,6 +17,10 @@
 #include "Math/GenVector/Cartesian3D.h"
 #include "Math/GenVector/DisplacementVector3D.h"
 #include "Math/GenVector/Rotation3D.h"
+
+#include <cstddef>
+#include <iomanip>
+#include <vector>
 
 void 
 DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos ) 
@@ -366,11 +366,11 @@ void DDCoreToDDXMLOutput::material( const DDMaterial& material, std::ostream& xo
    }
 }
 
-void DDCoreToDDXMLOutput::rotation( DDRotation& rotation, std::ostream& xos, const std::string& rotn ) 
+void DDCoreToDDXMLOutput::rotation( const DDRotation& rotation, std::ostream& xos, const std::string& rotn ) 
 {
    double tol = 1.0e-3; // Geant4 compatible
    DD3Vector x,y,z; 
-   rotation.matrix()->GetComponents(x,y,z); 
+   rotation.rotation()->GetComponents(x,y,z); 
    double check = (x.Cross(y)).Dot(z); // in case of a LEFT-handed orthogonal system 
                                        // this must be -1
    bool reflection((1.-check)>tol);
@@ -381,7 +381,7 @@ void DDCoreToDDXMLOutput::rotation( DDRotation& rotation, std::ostream& xos, con
       {
          rotName = rotn;
          std::cout << "about to try to make a new DDRotation... should fail!" << std::endl;
-         DDRotation rot( DDName(rotn), rotation.matrix() );
+         DDRotation rot( DDName(rotn), const_cast<DDRotationMatrix*>(rotation.rotation()));
          std:: cout << "new rotation: " << rot << std::endl;
       } 
       else 
@@ -416,32 +416,32 @@ void DDCoreToDDXMLOutput::logicalPart( const DDLogicalPart& lp, std::ostream& xo
 }
 
 void DDCoreToDDXMLOutput::position( const DDLogicalPart& parent,
-                                   const DDLogicalPart& child,
-                                   DDPosData* edgeToChild, 
-                                   int& rotNameSeed,
-                                   std::ostream& xos ) 
+				    const DDLogicalPart& child,
+				    DDPosData* edgeToChild, 
+				    int& rotNameSeed,
+				    std::ostream& xos ) 
 {
-   std::string rotName = edgeToChild->rot_.toString();
-   DDRotationMatrix myIDENT;
+  std::string rotName = edgeToChild->ddrot().toString();
+  DDRotationMatrix myIDENT;
    
-   xos << "<PosPart copyNumber=\"" << edgeToChild->copyno_ << "\">" << std::endl;
-   xos << "<rParent name=\"" << parent.toString() << "\"/>" << std::endl;
-   xos << "<rChild name=\"" << child.toString() << "\"/>" << std::endl;
-   if( *(edgeToChild->rot_.matrix()) != myIDENT ) 
-   {
-      if( rotName == ":" ) 
-      {
-         rotation(edgeToChild->rot_, xos);
-      }
-      else
-      {
-         xos << "<rRotation name=\"" << rotName << "\"/>" << std::endl;
-      }
-   } // else let default Rotation matrix be created?
-   xos << "<Translation x=\"" << edgeToChild->translation().x() <<"*mm\""
-   << " y=\"" << edgeToChild->translation().y() <<"*mm\""
-   << " z=\"" << edgeToChild->translation().z() <<"*mm\"/>" << std::endl;
-   xos << "</PosPart>" << std::endl;
+  xos << "<PosPart copyNumber=\"" << edgeToChild->copyno() << "\">" << std::endl;
+  xos << "<rParent name=\"" << parent.toString() << "\"/>" << std::endl;
+  xos << "<rChild name=\"" << child.toString() << "\"/>" << std::endl;
+  if( *(edgeToChild->ddrot().rotation()) != myIDENT ) 
+  {
+    if( rotName == ":" ) 
+    {
+      rotation(edgeToChild->ddrot(), xos);
+    }
+    else
+    {
+      xos << "<rRotation name=\"" << rotName << "\"/>" << std::endl;
+    }
+  } // else let default Rotation matrix be created?
+  xos << "<Translation x=\"" << edgeToChild->translation().x() <<"*mm\""
+      << " y=\"" << edgeToChild->translation().y() <<"*mm\""
+      << " z=\"" << edgeToChild->translation().z() <<"*mm\"/>" << std::endl;
+  xos << "</PosPart>" << std::endl;
 }
 
 void 

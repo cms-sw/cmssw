@@ -16,6 +16,7 @@
 
 // CMSSW includes
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
@@ -52,21 +53,12 @@
 #include "TrackingTools/IPTools/interface/IPTools.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "Alignment/OfflineValidation/interface/PVValidationHelpers.h"
 
 //
 // ancyllary enum for 
 // residuals moments estimation 
 //
-
-namespace statmode{
-  enum estimator 
-    { MEAN   = 1,
-      WIDTH  = 2, 
-      MEDIAN = 3,
-      MAD    = 4,
-      UNKWN  = -1
-    };
-}
 
 //
 // class decleration
@@ -76,33 +68,41 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
 
  public:
   explicit PrimaryVertexValidation(const edm::ParameterSet&);
-  ~PrimaryVertexValidation();
+  ~PrimaryVertexValidation() override;
 
  private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  virtual void beginJob() override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override;
   bool isBFieldConsistentWithMode(const edm::EventSetup& iSetup) const;
   bool isHit2D(const TrackingRecHit &hit) const;
-  bool hasFirstLayerPixelHits(const reco::TransientTrack track);
-  std::pair<bool,bool> pixelHitsCheck(const reco::TransientTrack track);
-  std::pair<Double_t,Double_t> getMedian(TH1F *histo);
-  std::pair<Double_t,Double_t> getMAD(TH1F *histo);
-  std::pair<std::pair<Double_t,Double_t>, std::pair<Double_t,Double_t> > fitResiduals(TH1 *hist);
-  void fillTrendPlot(TH1F* trendPlot, TH1F *residualsPlot[100], statmode::estimator fitPar_, TString var_);
-  void fillTrendPlotByIndex(TH1F* trendPlot,std::vector<TH1F*>& h, statmode::estimator fitPar_); 
+  bool hasFirstLayerPixelHits(const reco::TransientTrack& track);
+  std::pair<bool,bool> pixelHitsCheck(const reco::TransientTrack& track);
+  Measurement1D getMedian(TH1F *histo);
+  Measurement1D getMAD(TH1F *histo);
+  std::pair<Measurement1D, Measurement1D > fitResiduals(TH1 *hist);
+
+  void fillTrendPlot(TH1F* trendPlot, TH1F *residualsPlot[100], PVValHelper::estimator fitPar_, const std::string& var_);
+  void fillTrendPlotByIndex(TH1F* trendPlot,std::vector<TH1F*>& h, PVValHelper::estimator fitPar_,PVValHelper::plotVariable plotVar=PVValHelper::END_OF_PLOTS); 
 
   static bool vtxSort( const reco::Vertex &  a, const reco::Vertex & b );
-  bool passesTrackCuts(const reco::Track & track, const reco::Vertex & vertex,std::string qualityString_, double dxyErrMax_,double dzErrMax_, double ptErrMax_);
+  bool passesTrackCuts(const reco::Track & track, const reco::Vertex & vertex,const std::string& qualityString_, double dxyErrMax_,double dzErrMax_, double ptErrMax_);
 
-  std::vector<TH1F*> bookResidualsHistogram(TFileDirectory dir,unsigned int theNOfBins,TString resType,TString varType); 
-  std::map<std::string, TH1*> bookVertexHistograms(TFileDirectory dir);
+  std::vector<TH1F*> bookResidualsHistogram(const TFileDirectory& dir,unsigned int theNOfBins,PVValHelper::residualType resType,PVValHelper::plotVariable varType, bool isNormalized=false); 
+  std::map<std::string, TH1*> bookVertexHistograms(const TFileDirectory& dir);
+
   void fillTrackHistos(std::map<std::string, TH1*> & h, const std::string & ttype, const reco::TransientTrack *tt, const reco::Vertex & v,const reco::BeamSpot & beamSpot, double fBfield);
   void add(std::map<std::string, TH1*>& h, TH1* hist);
-  void fill(std::map<std::string, TH1*>& h, std::string s, double x);
-  void fill(std::map<std::string, TH1*>& h, std::string s, double x, double y);
-  void fillByIndex(std::vector<TH1F*>& h, unsigned int index, double x); 
-  void fillMap(TH2F* trendMap, TH1F* residualsMapPlot[100][100], statmode::estimator fitPar_);
+
+  void fill(std::map<std::string, TH1*>& h,const std::string& s, double x);
+  void fill(std::map<std::string, TH1*>& h,const std::string& s, double x, double y);
+  void fillByIndex(std::vector<TH1F*>& h, unsigned int index, double x,std::string tag=""); 
+
+  void shrinkHistVectorToFit(std::vector<TH1F*>&h,unsigned int desired_size);
+  std::tuple<std::string,std::string,std::string> getTypeString (PVValHelper::residualType type);
+  std::tuple<std::string,std::string,std::string> getVarString (PVValHelper::plotVariable var);
+
+  void fillMap(TH2F* trendMap, TH1F* residualsMapPlot[100][100], PVValHelper::estimator fitPar_);
   
   inline double square(double x){
     return x*x;
@@ -123,6 +123,9 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   bool lightNtupleSwitch_;   // switch to keep only info for daily validation     
   bool useTracksFromRecoVtx_; 
   
+  // histogram details
+  PVValHelper::histodetails theDetails_;
+  
   // requirements on the vertex
   double vertexZMax_;
 
@@ -134,7 +137,9 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   bool    doBPix_;
   bool    doFPix_;
   double  ptOfProbe_;
+  double  pOfProbe_;
   double  etaOfProbe_;
+  double  nHitsOfProbe_;
   bool    isPhase1_;
   int nBins_;                 // actual number of histograms     
   std::vector<unsigned int> runControlNumbers_;
@@ -156,9 +161,9 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   static const int cmToum = 10000;
   static const int nPtBins_ = 48;
 
-  float phiSect_;
-  float etaSect_;
-
+  unsigned int   nLadders_= 20;
+  unsigned int   nModZ_   =  8;
+  
   // pT binning as in paragraph 3.2 of CMS-PAS-TRK-10-005 (https://cds.cern.ch/record/1279383/files/TRK-10-005-pas.pdf)
 
   //                                      0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34  35  36   37  38   39  40  41  42  43  44  45   46  47  48
@@ -241,57 +246,68 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   int   hasRecVertex_[nMaxtracks_];
   int   isGoodTrack_[nMaxtracks_];
 
-  // histogram for max(eta)
+  edm::Service<TFileService> fs;
+
+  TFileDirectory MeanTrendsDir;
+  TFileDirectory WidthTrendsDir; 
+  TFileDirectory MedianTrendsDir;
+  TFileDirectory MADTrendsDir;   
+  				
+  TFileDirectory Mean2DMapsDir;  
+  TFileDirectory Width2DMapsDir; 
+
+  // histogram for sanity check
   TH1F* h_etaMax;
   TH1F* h_nbins;
+  TH1F* h_nLadders;
 
   // ---- directly histograms // ===> unbiased residuals
   
   // absolute residuals
 
-  TH1F* a_dxyPhiResiduals[nMaxBins_];
-  TH1F* a_dxyEtaResiduals[nMaxBins_];
+  std::vector<TH1F*> a_dxyPhiResiduals;
+  std::vector<TH1F*> a_dxyEtaResiduals;
 
-  TH1F* a_dxPhiResiduals[nMaxBins_];
-  TH1F* a_dxEtaResiduals[nMaxBins_];
+  std::vector<TH1F*> a_dxPhiResiduals;
+  std::vector<TH1F*> a_dxEtaResiduals;
 
-  TH1F* a_dyPhiResiduals[nMaxBins_];
-  TH1F* a_dyEtaResiduals[nMaxBins_];
+  std::vector<TH1F*> a_dyPhiResiduals;
+  std::vector<TH1F*> a_dyEtaResiduals;
 
-  TH1F* a_dzPhiResiduals[nMaxBins_];
-  TH1F* a_dzEtaResiduals[nMaxBins_];
+  std::vector<TH1F*> a_dzPhiResiduals;
+  std::vector<TH1F*> a_dzEtaResiduals;
   
-  TH1F* a_IP2DPhiResiduals[nMaxBins_];
-  TH1F* a_IP2DEtaResiduals[nMaxBins_];
+  std::vector<TH1F*> a_IP2DPhiResiduals;
+  std::vector<TH1F*> a_IP2DEtaResiduals;
   
-  TH1F* a_IP3DPhiResiduals[nMaxBins_];
-  TH1F* a_IP3DEtaResiduals[nMaxBins_];
+  std::vector<TH1F*> a_IP3DPhiResiduals;
+  std::vector<TH1F*> a_IP3DEtaResiduals;
 
-  TH1F* a_reszPhiResiduals[nMaxBins_];
-  TH1F* a_reszEtaResiduals[nMaxBins_];
+  std::vector<TH1F*> a_reszPhiResiduals;
+  std::vector<TH1F*> a_reszEtaResiduals;
 
-  TH1F* a_d3DPhiResiduals[nMaxBins_];
-  TH1F* a_d3DEtaResiduals[nMaxBins_];
+  std::vector<TH1F*> a_d3DPhiResiduals;
+  std::vector<TH1F*> a_d3DEtaResiduals;
 
   // normalized residuals
 
-  TH1F* n_dxyPhiResiduals[nMaxBins_];
-  TH1F* n_dxyEtaResiduals[nMaxBins_];
+  std::vector<TH1F*> n_dxyPhiResiduals;
+  std::vector<TH1F*> n_dxyEtaResiduals;
   
-  TH1F* n_dzPhiResiduals[nMaxBins_];
-  TH1F* n_dzEtaResiduals[nMaxBins_];
+  std::vector<TH1F*> n_dzPhiResiduals;
+  std::vector<TH1F*> n_dzEtaResiduals;
   
-  TH1F* n_IP2DPhiResiduals[nMaxBins_];
-  TH1F* n_IP2DEtaResiduals[nMaxBins_];
+  std::vector<TH1F*> n_IP2DPhiResiduals;
+  std::vector<TH1F*> n_IP2DEtaResiduals;
   
-  TH1F* n_IP3DPhiResiduals[nMaxBins_];
-  TH1F* n_IP3DEtaResiduals[nMaxBins_];
+  std::vector<TH1F*> n_IP3DPhiResiduals;
+  std::vector<TH1F*> n_IP3DEtaResiduals;
 
-  TH1F* n_reszPhiResiduals[nMaxBins_];
-  TH1F* n_reszEtaResiduals[nMaxBins_];
+  std::vector<TH1F*> n_reszPhiResiduals;
+  std::vector<TH1F*> n_reszEtaResiduals;
 
-  TH1F* n_d3DPhiResiduals[nMaxBins_];
-  TH1F* n_d3DEtaResiduals[nMaxBins_];
+  std::vector<TH1F*> n_d3DPhiResiduals;
+  std::vector<TH1F*> n_d3DEtaResiduals;
 
   // for the maps
 
@@ -347,6 +363,28 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   TH1F* n_dzpTCentralMeanTrend;
   TH1F* n_dzpTCentralWidthTrend;
 
+  // --- trend as a function of the ladder/module number
+
+  TH1F* a_dxymodZMeanTrend;					     		
+  TH1F* a_dxymodZWidthTrend; 					      			
+  TH1F* a_dzmodZMeanTrend; 		       		      			
+  TH1F* a_dzmodZWidthTrend; 
+					       			
+  TH1F* a_dxyladderMeanTrend;  						 			
+  TH1F* a_dxyladderWidthTrend; 					        		       
+  TH1F* a_dzladderMeanTrend;   					        			
+  TH1F* a_dzladderWidthTrend;  
+						 		      
+  TH1F* n_dxymodZMeanTrend;   						 			
+  TH1F* n_dxymodZWidthTrend;  					        			
+  TH1F* n_dzmodZMeanTrend;   					        			
+  TH1F* n_dzmodZWidthTrend;  
+						 			
+  TH1F* n_dxyladderMeanTrend;  						 			
+  TH1F* n_dxyladderWidthTrend; 						 			
+  TH1F* n_dzladderMeanTrend;   						 			
+  TH1F* n_dzladderWidthTrend; 
+
   // ---- medians and MAD
 
   TH1F* a_dxyPhiMedianTrend;
@@ -396,24 +434,26 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
 
   TH2F* n_dxyWidthMap;
   TH2F* n_dzWidthMap;
-
-  // ---- directly histograms =================> biased residuals
+  
+  //
+  // ---- directly histograms 
+  // biased residuals
   
   // absolute residuals
 
-  TH1F* a_dxyPhiBiasResiduals[nMaxBins_];
-  TH1F* a_dxyEtaBiasResiduals[nMaxBins_];
+  std::vector<TH1F*> a_dxyPhiBiasResiduals;
+  std::vector<TH1F*> a_dxyEtaBiasResiduals;
   
-  TH1F* a_dzPhiBiasResiduals[nMaxBins_];
-  TH1F* a_dzEtaBiasResiduals[nMaxBins_];
+  std::vector<TH1F*> a_dzPhiBiasResiduals;
+  std::vector<TH1F*> a_dzEtaBiasResiduals;
   
   // normalized BiasResiduals
 
-  TH1F* n_dxyPhiBiasResiduals[nMaxBins_];
-  TH1F* n_dxyEtaBiasResiduals[nMaxBins_];
+  std::vector<TH1F*> n_dxyPhiBiasResiduals;
+  std::vector<TH1F*> n_dxyEtaBiasResiduals;
   
-  TH1F* n_dzPhiBiasResiduals[nMaxBins_];
-  TH1F* n_dzEtaBiasResiduals[nMaxBins_];
+  std::vector<TH1F*> n_dzPhiBiasResiduals;
+  std::vector<TH1F*> n_dzEtaBiasResiduals;
   
   // for the maps
 
@@ -423,7 +463,7 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   TH1F* n_dxyBiasResidualsMap[nMaxBins_][nMaxBins_];  				 
   TH1F* n_dzBiasResidualsMap[nMaxBins_][nMaxBins_];
 
-  // ---- trends as function of phi
+  // ---- trends as function of phi / eta
   
   TH1F* a_dxyPhiMeanBiasTrend;
   TH1F* a_dxyPhiWidthBiasTrend;
@@ -547,6 +587,10 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   TH1F* h_probeHitsInBPIX_; 
   TH1F* h_probeHitsInFPIX_; 
 
+  TH1F* h_probeL1Ladder_;
+  TH1F* h_probeL1Module_;
+  TH1I* h_probeHasBPixL1Overlap_;  
+
   // check vertex
 
   TH1F* h_fitVtxNdof_;
@@ -575,6 +619,21 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   std::vector<TH1F*> h_dz_Central_pT_;
   std::vector<TH1F*> h_norm_dxy_Central_pT_;
   std::vector<TH1F*> h_norm_dz_Central_pT_;   
+
+  // histograms for the plots as function of module ladder and number
+
+  std::vector<TH1F*> h_dxy_modZ_;
+  std::vector<TH1F*> h_dz_modZ_;
+  std::vector<TH1F*> h_norm_dxy_modZ_;
+  std::vector<TH1F*> h_norm_dz_modZ_;
+
+  std::vector<TH1F*> h_dxy_ladderOverlap_;
+  std::vector<TH1F*> h_dxy_ladderNoOverlap_;
+
+  std::vector<TH1F*> h_dxy_ladder_;
+  std::vector<TH1F*> h_dz_ladder_;
+  std::vector<TH1F*> h_norm_dxy_ladder_;
+  std::vector<TH1F*> h_norm_dz_ladder_;   
 
 };
 

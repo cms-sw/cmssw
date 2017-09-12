@@ -10,3 +10,4 @@
 <library   file="HGCalTopologyTester.cc" name="testGeometryHGCalTopology"> </library>
 <library   file="CaloTowerTopologyTester.cc" name="testGeometryCaloTowerTopology"> </library>
 <library   file="FastTimeTopologyTester.cc" name="testGeometryFastTimeTopology"> </library>
+<library   file="CaloTowerMapTester.cc" name="testGeometryCaloTowerMap"> </library>

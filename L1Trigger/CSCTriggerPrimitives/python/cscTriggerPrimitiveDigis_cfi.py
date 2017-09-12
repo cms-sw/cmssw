@@ -343,8 +343,10 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
 # ==================================================
 copadParam = cms.PSet(
      verbosity = cms.uint32(0),
-     maxDeltaPadGE11 = cms.uint32(1),
+     maxDeltaPadGE11 = cms.uint32(2),
      maxDeltaPadGE21 = cms.uint32(2),
+     maxDeltaRollGE11 = cms.uint32(1),
+     maxDeltaRollGE21 = cms.uint32(1),
      maxDeltaBX = cms.uint32(1)
  )
 
@@ -370,7 +372,6 @@ me11tmbSLHCGEM = cms.PSet(
     ## run in debug mode
     debugLUTs = cms.bool(False),
     debugMatching = cms.bool(False),
-    debugGEMDphi = cms.bool(False),
 
     ## use old dataformat
     useOldLCTDataFormat = cms.bool(True),
@@ -378,14 +379,14 @@ me11tmbSLHCGEM = cms.PSet(
     ## matching to pads in case LowQ CLCT
     maxDeltaBXPadEven = cms.int32(1),
     maxDeltaBXPadOdd = cms.int32(1),
-    maxDeltaPadPadEven = cms.int32(2),
-    maxDeltaPadPadOdd = cms.int32(3),
+    maxDeltaPadPadEven = cms.int32(12),
+    maxDeltaPadPadOdd = cms.int32(24),
 
     ## matching to pads in case absent CLCT
-    maxDeltaBXCoPadEven = cms.int32(0),
-    maxDeltaBXCoPadOdd = cms.int32(0),
-    maxDeltaPadCoPadEven = cms.int32(2),
-    maxDeltaPadCoPadOdd = cms.int32(3),
+    maxDeltaBXCoPadEven = cms.int32(1),
+    maxDeltaBXCoPadOdd = cms.int32(1),
+    maxDeltaPadCoPadEven = cms.int32(12),
+    maxDeltaPadCoPadOdd = cms.int32(24),
 
     ## efficiency recovery switches
     dropLowQualityCLCTsNoGEMs_ME1a = cms.bool(False),
@@ -402,9 +403,6 @@ me11tmbSLHCGEM = cms.PSet(
     promoteALCTGEMquality = cms.bool(True),
     promoteCLCTGEMquality_ME1a = cms.bool(True),
     promoteCLCTGEMquality_ME1b = cms.bool(True),
-
-    ## cross BX algorithm
-    firstTwoLCTsInChamber = cms.bool(True),
 )
 
 # to be used by ME21 chambers with GEM-CSC ILT
@@ -429,20 +427,19 @@ me21tmbSLHCGEM = cms.PSet(
     ## run in debug mode
     debugLUTs = cms.bool(False),
     debugMatching = cms.bool(False),
-    debugGEMDphi = cms.bool(False),
 
     ## use old dataformat
     useOldLCTDataFormat = cms.bool(True),
 
     ## matching to pads in case LowQ CLCT
     maxDeltaBXPad = cms.int32(1),
-    maxDeltaPadPadOdd = cms.int32(4),
-    maxDeltaPadPadEven = cms.int32(3),
-    maxDeltaWg = cms.int32(2),
+    maxDeltaPadPadEven = cms.int32(6),
+    maxDeltaPadPadOdd = cms.int32(12),
 
     ## matching to pads in case absent CLCT
     maxDeltaBXCoPad = cms.int32(1),
-    maxDeltaPadCoPad = cms.int32(2),
+    maxDeltaPadCoPadEven = cms.int32(6),
+    maxDeltaPadCoPadOdd = cms.int32(12),
 
     ## efficiency recovery switches
     dropLowQualityALCTsNoGEMs = cms.bool(False),
@@ -454,8 +451,6 @@ me21tmbSLHCGEM = cms.PSet(
     promoteALCTGEMpattern = cms.bool(True),
     promoteALCTGEMquality = cms.bool(True),
     promoteCLCTGEMquality = cms.bool(True),
-
-    firstTwoLCTsInChamber = cms.bool(True),
 )
 
 # to be used by ME31-ME41 chambers with RPC-CSC ILT
@@ -522,13 +517,16 @@ run3_GEM.toModify( cscTriggerPrimitiveDigis,
 ## GEM-CSC ILT in ME2/1, CSC-RPC ILT in ME3/1 and ME4/1
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toModify( cscTriggerPrimitiveDigis,
-                      RPCDigiProducer = cms.InputTag("simMuonRPCDigis"),
+                      ## on rpc digis -> no integrated CSC-RCP stubs
+                      RPCDigiProducer = cms.InputTag(""),
                       commonParam = dict(runME21ILT = cms.bool(True),
-                                         runME3141ILT = cms.bool(False)),
+                                         ## to use the upgraded ALCT, CLCT processor
+                                         runME3141ILT = cms.bool(True)), 
                       alctSLHCME21 = cscTriggerPrimitiveDigis.alctSLHC.clone(alctNplanesHitPattern = 3),
                       clctSLHCME21 = cscTriggerPrimitiveDigis.clctSLHC.clone(clctNplanesHitPattern = 3),
-                      alctSLHCME3141 = cscTriggerPrimitiveDigis.alctSLHC.clone(alctNplanesHitPattern = 3),
-                      clctSLHCME3141 = cscTriggerPrimitiveDigis.clctSLHC.clone(clctNplanesHitPattern = 3),
+                      ## use the upgrade processors!
+                      alctSLHCME3141 = cscTriggerPrimitiveDigis.alctSLHC.clone(alctNplanesHitPattern = 4),
+                      clctSLHCME3141 = cscTriggerPrimitiveDigis.clctSLHC.clone(clctNplanesHitPattern = 4),
                       me21tmbSLHCGEM = me21tmbSLHCGEM,
                       me3141tmbSLHCRPC = me3141tmbSLHCRPC,
                       copadParam = copadParam

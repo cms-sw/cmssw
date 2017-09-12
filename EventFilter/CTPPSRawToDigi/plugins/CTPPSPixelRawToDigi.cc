@@ -49,33 +49,44 @@ void CTPPSPixelRawToDigi::produce( edm::Event& ev,
 				   const edm::EventSetup& es) 
 {
 
-  edm::ESHandle<CTPPSPixelDAQMapping> mapping;
-  es.get<CTPPSPixelDAQMappingRcd>().get(mappingLabel_, mapping);
-
-
-
-  fedIds_   = mapping->fedIds();
 
   edm::Handle<FEDRawDataCollection> buffers;
   ev.getByToken(FEDRawDataCollection_, buffers);
 
+  edm::ESHandle<CTPPSPixelDAQMapping> mapping;
+
+  bool data_exist=false;
+  for(int fed = FEDNumbering::MINCTPPSPixelsFEDID; fed <=  FEDNumbering::MAXCTPPSPixelsFEDID; fed++){
+    const FEDRawData& tempRawData = buffers->FEDData( fed );
+    if(tempRawData.size()!=0){
+      data_exist=true;
+      break;
+    }
+  }
 /// create product (digis & errors)
   auto collection = std::make_unique<edm::DetSetVector<CTPPSPixelDigi>>();
 
-  CTPPSPixelDataFormatter formatter(mapping->ROCMapping);
 
-  bool errorsInEvent = false; 
-  for (auto aFed = fedIds_.begin(); aFed != fedIds_.end(); ++aFed) {
-    int fedId = *aFed;
- 
-    edm::LogInfo("CTPPSPixelRawToDigi")<< " PRODUCE DIGI FOR FED: " <<  dec <<fedId << endl;
+  if(data_exist){
+  es.get<CTPPSPixelDAQMappingRcd>().get( mapping);
+
+
+    fedIds_   = mapping->fedIds();
+
+    CTPPSPixelDataFormatter formatter(mapping->ROCMapping);
+    
+    bool errorsInEvent = false; 
+    for (auto aFed = fedIds_.begin(); aFed != fedIds_.end(); ++aFed) {
+      int fedId = *aFed;
+      
+      edm::LogInfo("CTPPSPixelRawToDigi")<< " PRODUCE DIGI FOR FED: " <<  dec <<fedId << endl;
 
 /// get event data for this fed
-    const FEDRawData& fedRawData = buffers->FEDData( fedId );
-
-    formatter.interpretRawData( errorsInEvent, fedId, fedRawData, *collection);
+      const FEDRawData& fedRawData = buffers->FEDData( fedId );
+      
+      formatter.interpretRawData( errorsInEvent, fedId, fedRawData, *collection);
+    }
   }
-
 ///send digis and errors back to framework 
   ev.put(std::move(collection));
 

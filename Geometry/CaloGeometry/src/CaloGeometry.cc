@@ -7,7 +7,7 @@
 const std::vector<DetId> CaloGeometry::k_emptyVec ( 0 ) ;
 
 CaloGeometry::CaloGeometry() :
-   m_geos ( kLength, 0 )
+   m_geos ( kLength, nullptr )
 {
 }
 
@@ -100,10 +100,10 @@ std::vector<DetId> CaloGeometry::getValidDetIds() const
       if( nullptr != m_geos[i] )
       {
 	 const std::vector< DetId >& aVec = m_geos[i]->getValidDetIds();	 
-	 if( 0 == aVec.size() ) {
+	 if( aVec.empty() ) {
 	   edm::LogWarning("EmptyDetIdList") << "Valid det id list at index " << i << " is empty!" << std::endl;
 	 }
-	 const bool isHcal ( aVec.size() && DetId::Hcal == aVec.front().det() ) ;
+	 const bool isHcal ( !aVec.empty() && DetId::Hcal == aVec.front().det() ) ;
 	 if( !doneHcal ||
 	     !isHcal      )
 	 {

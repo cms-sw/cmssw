@@ -51,10 +51,14 @@ class BowedSurfaceDeformation : public SurfaceDeformation
   /// parameters, i.e. sagittae as given in the constructor
   std::vector<double> parameters() const override;
 
+  // the size
+  static constexpr unsigned int parSize = 3;
+  static constexpr unsigned int parameterSize() { return parSize; }
+
   /// minimum size of vector that is accepted by constructor from vector
-  static unsigned int minParameterSize() { return 3;}
+  static constexpr unsigned int minParameterSize() { return parameterSize(); }
   /// maximum size of vector that is accepted by constructor from vector
-  static unsigned int maxParameterSize() { return 3;}
+  static constexpr unsigned int maxParameterSize() { return parameterSize(); }
 
  private:
   double theSagittaX;

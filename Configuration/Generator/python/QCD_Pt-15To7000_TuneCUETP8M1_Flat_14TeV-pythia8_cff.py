@@ -11,7 +11,10 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
         maxEventsToPrint = cms.untracked.int32(1),
         pythiaHepMCVerbosity = cms.untracked.bool(False),
         pythiaPylistVerbosity = cms.untracked.int32(1),
-        #reweightGen = cms.bool(True), #
+        #reweightGen = cms.bool(
+        #                pTRef = cms.double(15.0),
+        #                power = cms.double(4.5)
+        #                ), #
 
         PythiaParameters = cms.PSet(
                 pythia8CommonSettingsBlock,

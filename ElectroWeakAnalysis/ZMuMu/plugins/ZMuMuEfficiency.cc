@@ -537,7 +537,7 @@ bool ZMuMuEfficiency::check_ifZmumu(const Candidate * dauGen0, const Candidate *
   if (partId0==13 || partId1==13 || partId2==13) muminusFound=true;
   if (partId0==-13 || partId1==-13 || partId2==-13) muplusFound=true;
   if (partId0==23 || partId1==23 || partId2==23) ZFound=true;
-  return muplusFound*muminusFound*ZFound;
+  return ( muplusFound && muminusFound && ZFound );
 }
 
 float ZMuMuEfficiency::getParticlePt(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2)

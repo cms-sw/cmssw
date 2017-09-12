@@ -12,10 +12,7 @@ namespace {
   constexpr float zseparation_HBHE = 380.;
 };
 
-
-using namespace std;
 using namespace reco;
-using namespace edm;
 
 #include <iomanip>
 bool CompareTime(const HBHERecHit* x, const HBHERecHit* y ){ return x->time() < y->time() ;}
@@ -23,14 +20,12 @@ bool CompareTowers(const CaloTower* x, const CaloTower* y ){
   return x->iphi()*1000 + x->ieta() < y->iphi()*1000 + y->ieta();
 }
 
-HcalHaloAlgo::HcalHaloAlgo()
+HcalHaloAlgo::HcalHaloAlgo() : geo_(0), hgeo_(0)
 {
   HBRecHitEnergyThreshold = 0.;
   HERecHitEnergyThreshold = 0.;
   SumEnergyThreshold = 0.;
   NHitsThreshold = 0;
-
-  geo = 0;
 }
 
 HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::Handle<HBHERecHitCollection>& TheHBHERecHits, edm::Handle<EBRecHitCollection>& TheEBRecHits,edm::Handle<EERecHitCollection>& TheEERecHits,const edm::EventSetup& TheSetup){
@@ -145,7 +140,7 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
   std::map<int, float> iPhiHadEtMap;
   std::vector<const CaloTower*> sortedCaloTowers;
   for(CaloTowerCollection::const_iterator tower = TheCaloTowers->begin(); tower != TheCaloTowers->end(); tower++) {
-    if(abs(tower->ieta()) > maxAbsIEta) continue;
+    if(std::abs(tower->ieta()) > maxAbsIEta) continue;
 
     int iPhi = tower->iphi();
     if(!iPhiHadEtMap.count(iPhi)) iPhiHadEtMap[iPhi] = 0.0;
@@ -205,7 +200,7 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
         float energyRatio = 0.0;
         if(iPhiHadEtMap.count(iPhiLower)) energyRatio += iPhiHadEtMap[iPhiLower];
         if(iPhiHadEtMap.count(iPhiUpper)) energyRatio += iPhiHadEtMap[iPhiUpper];
-        iPhiHadEtMap[iPhi] = max(iPhiHadEtMap[iPhi], 0.001F);
+        iPhiHadEtMap[iPhi] = std::max(iPhiHadEtMap[iPhi], 0.001F);
 
         energyRatio /= iPhiHadEtMap[iPhi];
         strip.energyRatio = energyRatio;
@@ -224,10 +219,10 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
     prevHadEt = tower->hadEt();
   }
 
-  geo = 0;
   edm::ESHandle<CaloGeometry> pGeo;
   TheSetup.get<CaloGeometryRecord>().get(pGeo);
-  geo = pGeo.product();
+  geo_  = pGeo.product();
+  hgeo_ = dynamic_cast<const HcalGeometry*>(geo_->getSubdetectorGeometry(DetId::Hcal, 1));
 
   //Halo cluster building:
   //Various clusters are built, depending on the subdetector. 
@@ -520,7 +515,12 @@ bool HcalHaloAlgo::HEClusterShapeandTimeStudy( HaloClusterCandidateHCAL hcand, b
 
 math::XYZPoint HcalHaloAlgo::getPosition(const DetId &id, reco::Vertex::Point vtx){
 
-  const GlobalPoint& pos=geo->getPosition(id);
+  GlobalPoint pos;
+  if (id.det() == DetId::Hcal) {
+    pos = hgeo_->getPosition(id);
+  } else {
+    pos = GlobalPoint(geo_->getPosition(id));
+  }
   math::XYZPoint posV(pos.x() - vtx.x(),pos.y() - vtx.y(),pos.z() - vtx.z());
   return posV;
 }

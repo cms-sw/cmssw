@@ -211,10 +211,10 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 	       <<"\nD0 = "<<DD0
 	       << std::endl ;
 
-      const HepGeom::Point3D<double>  A0 (AA0) ;
-      const HepGeom::Point3D<double>  B0 (BB0) ;
-      const HepGeom::Point3D<double>  C0 (CC0) ;
-      const HepGeom::Point3D<double>  D0 (DD0) ;
+      const HepGeom::Point3D<double>&  A0 (AA0) ;
+      const HepGeom::Point3D<double>&  B0 (BB0) ;
+      const HepGeom::Point3D<double>&  C0 (CC0) ;
+      const HepGeom::Point3D<double>&  D0 (DD0) ;
 
       const double angle ( (C0-B0).angle( A0-B0 ) ) ;
 
@@ -308,7 +308,7 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 	 const HepGeom::Point3D<double>  SB ( sur[4*i+2] ) ;
 	 const HepGeom::Point3D<double>  SC ( sur[4*i+3] ) ;*/
 
-	 const HepGeom::Point3D<double>  aa ( SA ) ;
+	 const HepGeom::Point3D<double>&  aa ( SA ) ;
 	 const HepGeom::Point3D<double>  bb ( SA + ( SB-SA ).unit()*(B0-A0).mag() ) ;
 
 	 const HepGeom::Plane3D<double>  plane ( aa, bb, SC ) ;

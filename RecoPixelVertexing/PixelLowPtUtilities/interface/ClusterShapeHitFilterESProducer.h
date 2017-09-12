@@ -47,7 +47,8 @@ class ClusterShapeHitFilterESProducer : public edm::ESProducer
   ReturnType produce(const ClusterShapeHitFilter::Record &);
 
  private:
-  const std::string use_PixelShapeFile;
+  const std::string pixelShapeFile;
+  const std::string pixelShapeFileL1; 
   bool cutOnPixelCharge_, cutOnStripCharge_;
   float minGoodPixelCharge_, minGoodStripCharge_;
   bool cutOnPixelShape_, cutOnStripShape_;

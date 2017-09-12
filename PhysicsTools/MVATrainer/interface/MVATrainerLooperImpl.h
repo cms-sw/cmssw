@@ -77,8 +77,8 @@ class MVATrainerContainerLooperImpl : public MVATrainerLooper {
 			}
 
 			if (!trainedCalib)
-				trainedCalib = TrainContainer(
-					new Calibration::MVAComputerContainer);
+				trainedCalib = std::make_shared<PhysicsTools::Calibration::MVAComputerContainer>(
+					);
 
 			trainedCalib->add(trainer->calibrationRecord) =
 				*trainer->getTrainer()->getCalibration();

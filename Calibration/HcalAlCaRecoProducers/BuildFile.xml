@@ -18,13 +18,8 @@
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/L1GlobalTrigger"/>
 <use   name="DataFormats/Luminosity"/>
-<use   name="DataFormats/Math"/>
 <use   name="DataFormats/METReco"/>
-<use   name="DataFormats/MuonReco"/>
 <use   name="DataFormats/RecoCandidate"/>
-<use   name="Geometry/CaloGeometry"/>
-<use   name="Geometry/CaloTopology"/>
-<use   name="Geometry/EcalAlgo"/>
 <use   name="HLTrigger/HLTcore"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>

@@ -1,15 +1,14 @@
 #include "DetectorDescription/Parser/src/DDLPgonGenerator.h"
-
-#include <stddef.h>
-#include <map>
-#include <utility>
-#include <vector>
-
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/ClhepEvaluator.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDLSolid.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
+
+#include <cstddef>
+#include <map>
+#include <utility>
+#include <vector>
 
 class DDCompactView;
 
@@ -45,10 +44,10 @@ DDLPgonGenerator::processElement( const std::string& name,
     atts = myXYPoints->getAttributeSet( i );
     auto xit = atts.find( "x" );
     if( xit != atts.end())
-      x.push_back( ev.eval( nmspace, xit->second ));
+      x.emplace_back( ev.eval( nmspace, xit->second ));
     auto yit = atts.find( "y" );
     if( yit != atts.end())
-      y.push_back( ev.eval( nmspace, yit->second ));
+      y.emplace_back( ev.eval( nmspace, yit->second ));
   }
   assert( x.size() == y.size());
 
@@ -60,16 +59,16 @@ DDLPgonGenerator::processElement( const std::string& name,
     atts = myZXYSection->getAttributeSet( i );
     auto zit = atts.find( "z" );
     if( zit != atts.end())
-      z.push_back( ev.eval( nmspace, zit->second ));
+      z.emplace_back( ev.eval( nmspace, zit->second ));
     auto xit = atts.find( "x" );
     if( xit != atts.end())
-      zx.push_back( ev.eval( nmspace, xit->second ));
+      zx.emplace_back( ev.eval( nmspace, xit->second ));
     auto yit = atts.find( "y" );
     if( yit != atts.end())
-      zy.push_back( ev.eval( nmspace, yit->second ));
+      zy.emplace_back( ev.eval( nmspace, yit->second ));
     auto sit = atts.find( "scale" );
     if( sit != atts.end())
-      zscale.push_back( std::stod( sit->second ));
+      zscale.emplace_back( std::stod( sit->second ));
   }
   assert( z.size() == zx.size());
   assert( z.size() == zy.size());

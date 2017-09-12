@@ -5,9 +5,9 @@
 void RPCEfficiency::bookDetUnitSeg(DQMStore::IBooker & ibooker, RPCDetId & detId,int nstrips,std::string folderPath, std::map<std::string, MonitorElement*> & meMap) {
   
   
-  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure(); 
+  RPCBookFolderStructure folderStr;
 
-  std::string folder = folderPath +  folderStr->folderStructure(detId);
+  std::string folder = folderPath +  folderStr.folderStructure(detId);
 
 
 
@@ -39,8 +39,6 @@ void RPCEfficiency::bookDetUnitSeg(DQMStore::IBooker & ibooker, RPCDetId & detId
     meMap[meId] = ibooker.book1D(meId, meTitle, nstrips, 0.5, nstrips+0.5);
     
   }
-
-  delete folderStr;
 
 }
 

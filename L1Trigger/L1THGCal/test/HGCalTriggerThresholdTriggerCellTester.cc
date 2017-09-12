@@ -28,6 +28,8 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerFECodecBase.h"
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellThresholdCodecImpl.h"
@@ -51,7 +53,7 @@ class HGCalTriggerThresholdTriggerCellTester : public edm::EDAnalyzer
     private:
         void checkSelectedCells(const edm::Event&, const edm::EventSetup&);
         void rerunThresholdFragments(const edm::Event&, const edm::EventSetup&);
-        void fillModule(const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>&, const std::vector<std::pair<HGCalDetId, uint32_t > >&, const HGCalTriggerCellThresholdDataPayload&,  const HGCalTriggerCellThresholdDataPayload&,const HGCalTriggerCellThresholdDataPayload&,   const std::map <HGCalDetId,double>&, const std::unordered_map<uint32_t, double>& );
+        void fillModule(const std::vector<HGCDataFrame<DetId,HGCSample>>&, const std::vector<std::pair<DetId, uint32_t > >&, const HGCalTriggerCellThresholdDataPayload&,  const HGCalTriggerCellThresholdDataPayload&,const HGCalTriggerCellThresholdDataPayload&,   const std::map <HGCalDetId,double>&, const std::unordered_map<uint32_t, double>& );
 
         // inputs
         edm::EDGetToken inputee_, inputfh_, inputbh_, inputbeall_, inputbeselect_;
@@ -61,7 +63,6 @@ class HGCalTriggerThresholdTriggerCellTester : public edm::EDAnalyzer
         edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
         std::unique_ptr<HGCalTriggerCellThresholdCodecImpl> codec_;
         edm::Service<TFileService> fs_;
-        HGCalTriggerGeometryBase::es_info info_;
 
         // histos
         TH1F* hgcCellData_;
@@ -160,18 +161,7 @@ HGCalTriggerThresholdTriggerCellTester::~HGCalTriggerThresholdTriggerCellTester(
 void HGCalTriggerThresholdTriggerCellTester::beginRun(const edm::Run& /*run*/, 
         const edm::EventSetup& es)
 {
-    es.get<IdealGeometryRecord>().get(triggerGeometry_);
-
-    const std::string& ee_sd_name = triggerGeometry_->eeSDName();
-    const std::string& fh_sd_name = triggerGeometry_->fhSDName();
-    const std::string& bh_sd_name = triggerGeometry_->bhSDName();
-    es.get<IdealGeometryRecord>().get(ee_sd_name,info_.geom_ee);
-    es.get<IdealGeometryRecord>().get(fh_sd_name,info_.geom_fh);
-    es.get<IdealGeometryRecord>().get(bh_sd_name,info_.geom_bh);
-    es.get<IdealGeometryRecord>().get(ee_sd_name,info_.topo_ee);
-    es.get<IdealGeometryRecord>().get(fh_sd_name,info_.topo_fh);
-    es.get<IdealGeometryRecord>().get(bh_sd_name,info_.topo_bh);
-
+    es.get<CaloGeometryRecord>().get(triggerGeometry_);
 }
 
 void HGCalTriggerThresholdTriggerCellTester::analyze(const edm::Event& e, 
@@ -280,7 +270,7 @@ void HGCalTriggerThresholdTriggerCellTester::rerunThresholdFragments(const edm::
             simid = (HGCalDetId)simhit.id();
             HGCalTestNumbering::unpackHexagonIndex(simid, subdet, zp, layer, sec, subsec, cell); 
             mysubdet = (ForwardSubdetector)(subdet);
-            std::pair<int,int> recoLayerCell = info_.topo_ee->dddConstants().simToReco(cell,layer,sec,info_.topo_ee->detectorType());
+            std::pair<int,int> recoLayerCell = triggerGeometry_->eeTopology().dddConstants().simToReco(cell,layer,sec,triggerGeometry_->eeTopology().detectorType());
             cell  = recoLayerCell.first;
             layer = recoLayerCell.second;
             if (layer<0 || cell<0) {
@@ -317,7 +307,7 @@ void HGCalTriggerThresholdTriggerCellTester::rerunThresholdFragments(const edm::
             simid = (HGCalDetId) simhit.id();
             HGCalTestNumbering::unpackHexagonIndex(simid, subdet, zp, layer, sec, subsec, cell); 
             mysubdet = (ForwardSubdetector)(subdet);
-            std::pair<int,int> recoLayerCell = info_.topo_fh->dddConstants().simToReco(cell,layer,sec,info_.topo_fh->detectorType());
+            std::pair<int,int> recoLayerCell = triggerGeometry_->fhTopology().dddConstants().simToReco(cell,layer,sec,triggerGeometry_->fhTopology().detectorType());
             cell  = recoLayerCell.first;
             layer = recoLayerCell.second;
             if (layer<0 || cell<0) {
@@ -359,8 +349,8 @@ void HGCalTriggerThresholdTriggerCellTester::rerunThresholdFragments(const edm::
     for( const auto& module_hits : hit_modules_ee ) 
     {        
         // prepare input data
-        std::vector<HGCDataFrame<HGCalDetId,HGCSample>> dataframes;
-        std::vector<std::pair<HGCalDetId, uint32_t > > linearized_dataframes;
+        std::vector<HGCDataFrame<DetId,HGCSample>> dataframes;
+        std::vector<std::pair<DetId, uint32_t > > linearized_dataframes;
         // loop over EE and fill digis belonging to that module
         for(const auto& eedata : module_hits.second)
         {
@@ -400,8 +390,8 @@ void HGCalTriggerThresholdTriggerCellTester::rerunThresholdFragments(const edm::
     for( const auto& module_hits : hit_modules_fh ) 
     {        
         // prepare input data
-        std::vector<HGCDataFrame<HGCalDetId,HGCSample>> dataframes;
-        std::vector<std::pair<HGCalDetId, uint32_t > > linearized_dataframes;
+        std::vector<HGCDataFrame<DetId,HGCSample>> dataframes;
+        std::vector<std::pair<DetId, uint32_t > > linearized_dataframes;
         // loop over FH digis and fill digis belonging to that module
         for(const auto& fhdata : module_hits.second)
         {
@@ -442,7 +432,7 @@ void HGCalTriggerThresholdTriggerCellTester::rerunThresholdFragments(const edm::
 }
 
 
-void HGCalTriggerThresholdTriggerCellTester::fillModule( const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>& dataframes,  const std::vector<std::pair<HGCalDetId, uint32_t > >& linearized_dataframes, const HGCalTriggerCellThresholdDataPayload& fe_payload_TCsums_woThreshold, const HGCalTriggerCellThresholdDataPayload& fe_payload_TCsums_Threshold, const HGCalTriggerCellThresholdDataPayload& fe_payload, const std::map <HGCalDetId,double>& simhit_energies, const std::unordered_map<uint32_t, double>& TC_simhit_energies)
+void HGCalTriggerThresholdTriggerCellTester::fillModule( const std::vector<HGCDataFrame<DetId,HGCSample>>& dataframes,  const std::vector<std::pair<DetId, uint32_t > >& linearized_dataframes, const HGCalTriggerCellThresholdDataPayload& fe_payload_TCsums_woThreshold, const HGCalTriggerCellThresholdDataPayload& fe_payload_TCsums_Threshold, const HGCalTriggerCellThresholdDataPayload& fe_payload, const std::map <HGCalDetId,double>& simhit_energies, const std::unordered_map<uint32_t, double>& TC_simhit_energies)
 {
 
     // HGC cells part

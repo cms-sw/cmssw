@@ -49,9 +49,9 @@ namespace cond {
 
   SynchronizationType synchronizationTypeFromName( const std::string& name ){
     for (auto const &i : s_synchronizationTypeArray)
-      if (name.compare(i.first)==0) return i.second;
+      if (name==i.first) return i.second;
     for (auto const &i : s_obsoleteSynchronizationTypeArray)
-      if (name.compare(i.first)==0) return i.second;
+      if (name==i.first) return i.second;
     throwException( "SynchronizationType \""+name+"\" is unknown.","synchronizationTypeFromName");
   }
 

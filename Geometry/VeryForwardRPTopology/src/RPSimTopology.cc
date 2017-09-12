@@ -41,7 +41,7 @@ std::vector<strip_info> RPSimTopology::GetStripsInvolved(double x, double y, dou
   {
     double low_strip_range = ((double)i-0.5)*pitch_;
     double high_strip_range = low_strip_range+pitch_;
-    theRelevantStrips_.push_back(strip_info(low_strip_range, high_strip_range, hit_factor, (unsigned short)i));
+    theRelevantStrips_.emplace_back(strip_info(low_strip_range, high_strip_range, hit_factor, (unsigned short)i));
   }
   return theRelevantStrips_;
 }

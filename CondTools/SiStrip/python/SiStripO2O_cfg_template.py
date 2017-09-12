@@ -36,6 +36,9 @@ process.SiStripCondObjBuilderFromDb.UseAnalysis = _USEANALYSIS_
 process.SiStripCondObjBuilderFromDb.SkippedDevices = cms.untracked.VPSet(
 _SKIPPED_
 )
+process.SiStripCondObjBuilderFromDb.WhitelistedDevices = cms.untracked.VPSet(
+_WHITELISTED_
+)
 
 process.load("CondCore.CondDB.CondDB_cfi")
 process.siStripO2O = cms.EDAnalyzer( "_ANALYZER_",

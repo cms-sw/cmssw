@@ -12,6 +12,7 @@ class EnsembleCalibrationLA : public edm::EDAnalyzer {
 
   explicit EnsembleCalibrationLA(const edm::ParameterSet&);
   void analyze(const edm::Event&, const edm::EventSetup&) {}
+  void endRun(const edm::Run&, const edm::EventSetup&);
   void endJob();
 
  private:
@@ -38,6 +39,7 @@ class EnsembleCalibrationLA : public edm::EDAnalyzer {
   };
   std::map<std::string,MethodCalibrations> calibrations;
   
+  const TrackerTopology* tTopo_;
 };
 }
 #endif

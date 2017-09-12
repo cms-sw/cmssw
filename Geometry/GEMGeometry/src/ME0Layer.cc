@@ -19,7 +19,7 @@ bool ME0Layer::operator==(const ME0Layer& ch) const {
 }
 
 void ME0Layer::add(const ME0EtaPartition* rl) {
-  etaPartitions_.push_back(rl);
+  etaPartitions_.emplace_back(rl);
 }
 
 std::vector<const GeomDet*> ME0Layer::components() const {
@@ -39,7 +39,7 @@ int ME0Layer::nEtaPartitions() const {
 }
 
 const ME0EtaPartition* ME0Layer::etaPartition(ME0DetId id) const {
-  if (id.layerId()!=detId_) return 0; // not in this eta partition!
+  if (id.layerId()!=detId_) return nullptr; // not in this eta partition!
   return etaPartition(id.roll());
 }
 
@@ -48,5 +48,5 @@ const ME0EtaPartition* ME0Layer::etaPartition(int isl) const {
     if (roll->id().roll()==isl) 
       return roll;
   }
-  return 0;
+  return nullptr;
 }

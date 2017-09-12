@@ -164,26 +164,30 @@ namespace edm {
   }
 
   bool
-  RootEmbeddedFileSequence::readOneSequential(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine*, EventID const*) {
+  RootEmbeddedFileSequence::readOneSequential(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine*, EventID const*, bool recycleFiles) {
     assert(rootFile());
     rootFile()->nextEventEntry();
     bool found = rootFile()->readCurrentEvent(cache);
     if(!found) {
       setAtNextFile();
       if(noMoreFiles()) {
-        setAtFirstFile();
+        if (recycleFiles) {
+          setAtFirstFile();
+        } else {
+          return false;
+        }
       }
       initFile(false);
       assert(rootFile());
       rootFile()->setAtEventEntry(IndexIntoFile::invalidEntry);
-      return readOneSequential(cache, fileNameHash, nullptr, nullptr);
+      return readOneSequential(cache, fileNameHash, nullptr, nullptr, recycleFiles);
     }
     fileNameHash = lfnHash();
     return true;
   }
 
   bool
-  RootEmbeddedFileSequence::readOneSequentialWithID(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine*, EventID const* idp) {
+  RootEmbeddedFileSequence::readOneSequentialWithID(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine*, EventID const* idp, bool recycleFiles) {
     assert(idp);
     EventID const& id = *idp;
     int offset = initialNumberOfEventsToSkip_;
@@ -191,7 +195,7 @@ namespace edm {
     if(offset > 0) {
       assert(rootFile());
       while(offset > 0) {
-        bool found = readOneSequentialWithID(cache, fileNameHash, nullptr, idp);
+        bool found = readOneSequentialWithID(cache, fileNameHash, nullptr, idp, recycleFiles);
         if(!found) {
           return false;
         }
@@ -217,7 +221,7 @@ namespace edm {
       if(!found) {
         return false;
       }
-      return readOneSequentialWithID(cache, fileNameHash, nullptr, idp);
+      return readOneSequentialWithID(cache, fileNameHash, nullptr, idp, recycleFiles);
     }
     fileNameHash = lfnHash();
     return true;
@@ -242,7 +246,7 @@ namespace edm {
   }
 
   bool
-  RootEmbeddedFileSequence::readOneRandom(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine* engine, EventID const*) {
+  RootEmbeddedFileSequence::readOneRandom(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine* engine, EventID const*, bool) {
     assert(rootFile());
     assert(engine);
     unsigned int currentSeqNumber = sequenceNumberOfFile();
@@ -275,7 +279,7 @@ namespace edm {
   }
 
   bool
-  RootEmbeddedFileSequence::readOneRandomWithID(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine* engine, EventID const* idp) {
+  RootEmbeddedFileSequence::readOneRandomWithID(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine* engine, EventID const* idp, bool recycleFiles) {
     assert(engine);
     assert(idp);
     EventID const& id = *idp;
@@ -307,17 +311,17 @@ namespace edm {
       if(!found) {
         return false;
       }
-      return readOneRandomWithID(cache, fileNameHash, engine, idp);
+      return readOneRandomWithID(cache, fileNameHash, engine, idp, recycleFiles);
     }
     fileNameHash = lfnHash();
     return true;
   }
 
   bool
-  RootEmbeddedFileSequence::readOneEvent(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine* engine, EventID const* id) {
+  RootEmbeddedFileSequence::readOneEvent(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine* engine, EventID const* id, bool recycleFiles) {
     assert(!sameLumiBlock_ || id != nullptr);
     assert(sequential_ || engine != nullptr);
-    return (this->*fptr_)(cache, fileNameHash, engine, id);
+    return (this->*fptr_)(cache, fileNameHash, engine, id, recycleFiles);
   }
 
   void

@@ -78,7 +78,7 @@ UrbanMscModel93::UrbanMscModel93(const G4String& nam)
   theta0max     = pi/6.;
   rellossmax    = 0.50;
   third         = 1./3.;
-  particle      = 0;
+  particle      = nullptr;
   theManager    = G4LossTableManager::Instance(); 
   firstStep     = true; 
   inside        = false;  
@@ -97,8 +97,8 @@ UrbanMscModel93::UrbanMscModel93(const G4String& nam)
     = zPathLength = par1 = par2 = par3 = 0;
 
   currentMaterialIndex = -1;
-  fParticleChange = 0;
-  couple = 0;
+  fParticleChange = nullptr;
+  couple = nullptr;
   SetSampleZ(false);
 }
 
@@ -110,7 +110,7 @@ UrbanMscModel93::~UrbanMscModel93()
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void UrbanMscModel93::Initialise(const G4ParticleDefinition* p,
-				   const G4DataVector&)
+				 const G4DataVector&)
 {
   skindepth = skin*stepmin;
 

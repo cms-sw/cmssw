@@ -70,6 +70,8 @@ namespace edm {
       m_pauseCount{0}
       {  }
       
+      ~SerialTaskQueue();
+      
       // ---------- const member functions ---------------------
       /// Checks to see if the queue has been paused.
       /**\return true if the queue is paused
@@ -141,7 +143,7 @@ namespace edm {
       /** Base class for all tasks held by the SerialTaskQueue */
       class TaskBase : public tbb::task {
          friend class SerialTaskQueue;
-         TaskBase(): m_queue(0) {}
+         TaskBase(): m_queue(nullptr) {}
          
       protected:
          tbb::task* finishedTask();
@@ -158,7 +160,7 @@ namespace edm {
          m_action(iAction) {}
          
       private:
-         tbb::task* execute();
+         tbb::task* execute() override;
          
          T m_action;
       };

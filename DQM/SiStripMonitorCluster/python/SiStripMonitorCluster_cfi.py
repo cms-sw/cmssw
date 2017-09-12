@@ -25,7 +25,7 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
     StripDCSfilter = cms.PSet(),
 
     CreateTrendMEs = cms.bool(False),
-    TrendVsLS = cms.bool(False),
+    TrendVsLS = cms.bool(True),
 
     Trending = cms.PSet(
         Nbins = cms.int32(600),
@@ -309,6 +309,16 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
         ymax = cms.double(199999.5),
         globalswitchon = cms.bool(True)
         ),
+
+     TProfNClustersFED = cms.PSet(
+         Nbinsx          = cms.int32(500),
+         xmax           = cms.double(500),
+         xmin           = cms.double(0),
+         Nbinsy = cms.int32(200),
+         ymin = cms.double(-0.5),
+         ymax = cms.double(199999.5),
+         globalswitchon = cms.bool(True)
+         ),
 
 #****************************************
     TH1StripNoise2ApvCycle = cms.PSet(

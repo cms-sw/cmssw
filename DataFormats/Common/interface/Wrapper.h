@@ -28,7 +28,7 @@ namespace edm {
     typedef T wrapped_type; // used with the dictionary to identify Wrappers
     Wrapper() : WrapperBase(), present(false), obj() {}
     explicit Wrapper(std::unique_ptr<T> ptr);
-    virtual ~Wrapper() {}
+    ~Wrapper() override {}
     T const* product() const {return (present ? &obj : 0);}
     T const* operator->() const {return product();}
 
@@ -43,32 +43,32 @@ namespace edm {
     CMS_CLASS_VERSION(3)
 
 private:
-    virtual bool isPresent_() const override {return present;}
-    virtual std::type_info const& dynamicTypeInfo_() const override {return typeid(T);}
-    virtual std::type_info const& wrappedTypeInfo_() const override {return typeid(Wrapper<T>);}
+    bool isPresent_() const override {return present;}
+    std::type_info const& dynamicTypeInfo_() const override {return typeid(T);}
+    std::type_info const& wrappedTypeInfo_() const override {return typeid(Wrapper<T>);}
 
-    virtual std::type_info const& valueTypeInfo_() const override;
-    virtual std::type_info const& memberTypeInfo_() const override;
-    virtual bool isMergeable_() const override;
-    virtual bool mergeProduct_(WrapperBase const* newProduct) override;
-    virtual bool hasIsProductEqual_() const override;
-    virtual bool isProductEqual_(WrapperBase const* newProduct) const override;
+    std::type_info const& valueTypeInfo_() const override;
+    std::type_info const& memberTypeInfo_() const override;
+    bool isMergeable_() const override;
+    bool mergeProduct_(WrapperBase const* newProduct) override;
+    bool hasIsProductEqual_() const override;
+    bool isProductEqual_(WrapperBase const* newProduct) const override;
 
-    virtual void do_fillView(ProductID const& id,
+    void do_fillView(ProductID const& id,
                              std::vector<void const*>& pointers,
                              FillViewHelperVector& helpers) const override;
-    virtual void do_setPtr(std::type_info const& iToType,
+    void do_setPtr(std::type_info const& iToType,
                            unsigned long iIndex,
                            void const*& oPtr) const override;
-    virtual void do_fillPtrVector(std::type_info const& iToType,
+    void do_fillPtrVector(std::type_info const& iToType,
                                   std::vector<unsigned long> const& iIndices,
                                   std::vector<void const*>& oPtr) const override;
 
   private:
     // We wish to disallow copy construction and assignment.
     // We make the copy constructor and assignment operator private.
-    Wrapper(Wrapper<T> const& rh); // disallow copy construction
-    Wrapper<T>& operator=(Wrapper<T> const&); // disallow assignment
+    Wrapper(Wrapper<T> const& rh) = delete; // disallow copy construction
+    Wrapper<T>& operator=(Wrapper<T> const&) = delete; // disallow assignment
 
     bool present;
     T obj;

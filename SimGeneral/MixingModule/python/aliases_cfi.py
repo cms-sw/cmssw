@@ -42,5 +42,5 @@ fastSim.toModify(simCastorDigis, mix = None)
 fastSim.toModify(simSiPixelDigis, mix = None)
 fastSim.toModify(simSiStripDigis, mix = None)
 
-from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-phase2_common.toModify(simCastorDigis, mix = None)
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(simCastorDigis, mix = None)

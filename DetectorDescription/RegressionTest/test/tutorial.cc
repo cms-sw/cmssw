@@ -3,9 +3,8 @@
 // . rotation matrices and translation std::vectors of module CLHEP/Vector
 //   (they are typedef'd to DDRotationMatrix and DDTranslation in
 //   DDD/DDCore/interface/DDTransform.h
-#include <stdlib.h>
-#include <sys/time.h>
-#include <time.h>
+#include <cstdlib>
+#include <chrono>
 #include <fstream>
 #include <map>
 #include <memory>
@@ -35,7 +34,7 @@
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
-#include "DetectorDescription/Core/interface/adjgraph.h"
+#include "DataFormats/Math/interface/Graph.h"
 #include "DetectorDescription/Core/interface/ClhepEvaluator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Math/GenVector/Cartesian3D.h"
@@ -70,14 +69,14 @@ DDTranslation calc(const DDGeoHistory & aHist)
   std::vector<DDRotationMatrix> vr;
   std::vector<DDTranslation> vt;
   DDRotationMatrix r;
-  vr.push_back(r);
+  vr.emplace_back(r);
   
   if (h.size()>1) {
-    vt.push_back(h[1].posdata()->translation());
+    vt.emplace_back(h[1].posdata()->translation());
     unsigned int i = 1;
     for (; i <= sz-2; ++i) {
-      vr.push_back( vr.back() * *(h[i].posdata()->rot_.rotation()) );
-      vt.push_back(h[i+1].posdata()->translation());
+      vr.emplace_back( vr.back() * *(h[i].posdata()->ddrot().rotation()) );
+      vt.emplace_back(h[i+1].posdata()->translation());
     }
   }
   
@@ -100,7 +99,7 @@ void debugHistory(const DDGeoHistory & h)
   }
 }
 
-void goPersistent(const DDCompactView & cv, std::string file) {
+void goPersistent(const DDCompactView & cv, const std::string& file) {
   std::ofstream f(file.c_str());
   typedef DDCompactView::graph_type graph_t;
   const graph_t & g = cv.graph();
@@ -110,16 +109,16 @@ void goPersistent(const DDCompactView & cv, std::string file) {
     graph_t::const_edge_iterator eit = it->begin();
     for (; eit != it->end(); ++eit) {
       unsigned int eindex = eit->first;
-      int copyno = g.edgeData(eit->second)->copyno_;
+      int copyno = g.edgeData(eit->second)->copyno();
       double x,y,z;
       
-      x = g.edgeData(eit->second)->trans_.x()/mm;
-      y = g.edgeData(eit->second)->trans_.y()/mm;
-      z = g.edgeData(eit->second)->trans_.z()/mm;
+      x = g.edgeData(eit->second)->trans().x()/mm;
+      y = g.edgeData(eit->second)->trans().y()/mm;
+      z = g.edgeData(eit->second)->trans().z()/mm;
       f << node << " " << eindex << " " << copyno 
         << " " << x << " " << y << " " << z 
-	<< " " << g.edgeData(eit->second)->rot_.ddname().ns()
-	<< " " << g.edgeData(eit->second)->rot_.ddname().name()
+	<< " " << g.edgeData(eit->second)->ddrot().ddname().ns()
+	<< " " << g.edgeData(eit->second)->ddrot().ddname().name()
         << std::endl;
     }
     ++node;  
@@ -269,11 +268,11 @@ void tutorial()
 	    << cpv.root() << "]" << std::endl << std::endl;
  
   // The same, but creating a reference to it:
-  DDLogicalPart root = cpv.root(); 
-  DDLogicalPart world = root; //(DDName("CMS","cms"));
+  const DDLogicalPart& root = cpv.root(); 
+  const DDLogicalPart& world = root; //(DDName("CMS","cms"));
   std::cout << "The world volume is described by following solid:" << std::endl;
   std::cout << world.solid() << std::endl << std::endl;
-  DDMaterial worldMaterial = root.material();
+  const DDMaterial& worldMaterial = root.material();
   std::cout << "The world volume is filled with following material:" << std::endl;
   std::cout << worldMaterial << std::endl << std::endl;
  
@@ -355,7 +354,7 @@ void tutorial()
       std::cin >> flog;
       if(flog=="end") 
 	break;
-      vecF.push_back(f);
+      vecF.emplace_back(f);
       while (moreFilterCriteria) {
 	std::cout << " logic   = ";
 	std::cin >> ls;
@@ -415,7 +414,7 @@ void tutorial()
 	  for (; i<s; ++i) {
 	    int k;
 	    std::cin >> k;
-	    n.push_back(k);
+	    n.emplace_back(k);
 	  }
 	  std::cout << "input=" << n << std::endl;
 	  if (e.goTo(n)) {
@@ -591,7 +590,7 @@ void tutorial()
     // ask each expanded-not for its specifics 
     // std::vector<..>.size() will be 0 if there are no specifics
     std::vector<const DDsvalues_type *>  spec = ex.specifics();
-    if (spec.size()) {
+    if (!spec.empty()) {
       std::cout << spec.size() << " different specific-data sets found for " << std::endl; 
       dumpHistory(ex.geoHistory(),true) ;    
       std::cout << std::endl;

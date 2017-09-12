@@ -5,6 +5,7 @@
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include <utility>
 #include <vector>
 #include <iostream>
 
@@ -12,13 +13,13 @@ class EcalEndcapTopology final : public CaloSubdetectorTopology {
 
  public:
   /// create a new Topology
-  EcalEndcapTopology() : theGeom_(0) {};
+  EcalEndcapTopology() : theGeom_(nullptr) {};
 
   /// virtual destructor
   ~EcalEndcapTopology() override { }  
   
   /// create a new Topology from geometry
-  EcalEndcapTopology(edm::ESHandle<CaloGeometry> theGeom) : theGeom_(theGeom)
+  EcalEndcapTopology(edm::ESHandle<CaloGeometry> theGeom) : theGeom_(std::move(theGeom))
     {
     }
 
@@ -31,7 +32,7 @@ class EcalEndcapTopology final : public CaloSubdetectorTopology {
       EEDetId nextId= goNorth(id);
       std::vector<DetId> vNeighborsDetId;
       if (! (nextId==EEDetId(0)))
-	vNeighborsDetId.push_back(DetId(nextId.rawId()));
+	vNeighborsDetId.emplace_back(DetId(nextId.rawId()));
       return vNeighborsDetId;
     }
 
@@ -44,7 +45,7 @@ class EcalEndcapTopology final : public CaloSubdetectorTopology {
       EEDetId nextId= goSouth(id);
       std::vector<DetId> vNeighborsDetId;
       if (! (nextId==EEDetId(0)))
-	vNeighborsDetId.push_back(DetId(nextId.rawId()));
+	vNeighborsDetId.emplace_back(DetId(nextId.rawId()));
       return vNeighborsDetId;
     }
 
@@ -57,7 +58,7 @@ class EcalEndcapTopology final : public CaloSubdetectorTopology {
       EEDetId nextId=goEast(id);
       std::vector<DetId> vNeighborsDetId;
       if (! (nextId==EEDetId(0)))
-	vNeighborsDetId.push_back(DetId(nextId.rawId()));
+	vNeighborsDetId.emplace_back(DetId(nextId.rawId()));
       return vNeighborsDetId;
     }
 
@@ -70,7 +71,7 @@ class EcalEndcapTopology final : public CaloSubdetectorTopology {
       EEDetId nextId=goWest(id);
       std::vector<DetId> vNeighborsDetId;
       if (! (nextId==EEDetId(0)))
-	vNeighborsDetId.push_back(DetId(nextId.rawId()));
+	vNeighborsDetId.emplace_back(DetId(nextId.rawId()));
       return vNeighborsDetId;
     }
   

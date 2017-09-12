@@ -9,6 +9,9 @@ hltBTVmonitoring.histoPSet.metPSet = cms.PSet(
   xmin  = cms.double(   0   ),
   xmax  = cms.double(  300  ),
 )
+hltBTVmonitoring.histoPSet.lsPSet = cms.PSet(
+  nbins = cms.uint32( 2500 ),
+)
 hltBTVmonitoring.histoPSet.ptPSet = cms.PSet(
   nbins = cms.uint32(  100  ),
   xmin  = cms.double(   0   ),
@@ -39,6 +42,16 @@ hltBTVmonitoring.histoPSet.DRPSet = cms.PSet(
   xmin  = cms.double( 0.0 ),
   xmax  = cms.double( 6.0 ),
 )
+hltBTVmonitoring.histoPSet.invMassPSet = cms.PSet(
+  nbins = cms.uint32( 40 ),
+  xmin  = cms.double( 0.0 ),
+  xmax  = cms.double( 80.0  ),
+)
+hltBTVmonitoring.histoPSet.MHTPSet = cms.PSet(
+ nbins = cms.uint32(   80  ),
+ xmin  = cms.double(   60   ),
+ xmax  = cms.double(  300  ),
+)
 
 
 #MET and HT binning
@@ -50,7 +63,7 @@ hltBTVmonitoring.histoPSet.jetEtaBinning = cms.vdouble(-2.4,-2.1,-1.5,-0.9,-0.3,
 hltBTVmonitoring.histoPSet.muEtaBinning  = cms.vdouble(-2.4,-2.1,-1.5,-0.9,-0.3,0.,0.3,0.9,1.5,2.1,2.4)
 #pt binning
 hltBTVmonitoring.histoPSet.elePtBinning = cms.vdouble(0,3,5,8,15,20,25,30,40,50,60,80,120,200,400,700)
-hltBTVmonitoring.histoPSet.jetPtBinning = cms.vdouble(0,3,5,8,15,20,25,30,40,50,70,100,150,200,400,700,1000,1500)
+hltBTVmonitoring.histoPSet.jetPtBinning = cms.vdouble(0,3,5,8,15,20,25,30,40,50,70,100,150,200,400,700,1000,1500,3000)
 hltBTVmonitoring.histoPSet.muPtBinning  = cms.vdouble(0,3,5,7,10,15,20,30,40,50,70,100,150,200,400,700)
 #Eta binning 2D
 hltBTVmonitoring.histoPSet.eleEtaBinning2D = cms.vdouble(-2.5,-1.5,-0.6,0.,0.6,1.5,2.5)
@@ -75,6 +88,8 @@ hltBTVmonitoring.workingpoint     = cms.double(-1.) #no cut applied
 
 hltBTVmonitoring.HTdefinition = cms.string('pt>30 & abs(eta)<2.5')
 hltBTVmonitoring.leptJetDeltaRmin = cms.double(0.0)
+hltBTVmonitoring.bJetMuDeltaRmax  = cms.double(9999.)
+hltBTVmonitoring.bJetDeltaEtaMax  = cms.double(9999.)
 #always monitor CSV score for one jet
 hltBTVmonitoring.nbjets = cms.uint32(1)
 hltBTVmonitoring.bjetSelection = cms.string('pt>30 & abs(eta)<2.4')

@@ -159,7 +159,8 @@ StableParametersTrivialProducer::~StableParametersTrivialProducer() {
 // method called to produce the data
 std::shared_ptr<L1TGlobalParameters> StableParametersTrivialProducer::produceGtStableParameters(const L1TGlobalParametersRcd& iRecord) {
 
-  auto pL1uGtStableParameters = std::shared_ptr<L1TGlobalParameters>(data_.getWriteInstance());
+  // Return copy so that we don't give away our owned pointer to framework
+  auto pL1uGtStableParameters = std::make_shared<L1TGlobalParameters>(*data_.getWriteInstance());
 
   return pL1uGtStableParameters;
   

@@ -107,7 +107,7 @@ std::vector<GlobalPoint> FastTimeDDDConstants::getCorners(int type, int izeta,
   std::vector<GlobalPoint> pts;
   for (unsigned int i=0; i != 8; ++i) {
     GlobalPoint p(x+signx[i]*dx,y+signy[i]*dx,z+signz[i]*dz);
-    pts.push_back(p);
+    pts.emplace_back(p);
   }
   return pts;
 }
@@ -210,7 +210,7 @@ void FastTimeDDDConstants::initialize() {
     double eta   = etaMin_ + k*dEta_;
     double theta = 2.0*atan(exp(-eta));
     double rval  = (ftpar_->geomParEndcap_[2])*tan(theta);
-    rLimits_.push_back(rval);
+    rLimits_.emplace_back(rval);
   }
   dZBarrel_   = ftpar_->geomParBarrel_[1]/ftpar_->nZBarrel_;
   dPhiBarrel_ = CLHEP::twopi/ftpar_->nPhiBarrel_;

@@ -53,7 +53,7 @@ class ProcLinear : public TrainProcessor {
 	double theoffset;
 };
 
-static ProcLinear::Registry registry("ProcLinear");
+ProcLinear::Registry registry("ProcLinear");
 
 ProcLinear::ProcLinear(const char *name, const AtomicId *id,
                              MVATrainer *trainer) :

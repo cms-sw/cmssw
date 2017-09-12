@@ -51,8 +51,8 @@ namespace  {
     }
 
     bool operator==(ErrorSummaryMapKey const& iOther) const {
-      return ((0==category.compare(iOther.category)) and
-              (0==module.compare(iOther.module)) and
+      return ((iOther.category==category) and
+              (iOther.module==module) and
               (severity.getLevel() ==iOther.severity.getLevel()));
     }
     size_t smallHash() const {

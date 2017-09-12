@@ -2,6 +2,8 @@
 #define libminifloat_h
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include <cstdint>
+#include <cassert>
+#include <algorithm>
 
 // ftp://ftp.fox-toolkit.org/pub/fasthalffloatconversion.pdf
 class MiniFloatConverter {
@@ -54,27 +56,52 @@ class MiniFloatConverter {
             return conv.flt;
         }
 
+        class ReduceMantissaToNbitsRounding {
+            public:
+                ReduceMantissaToNbitsRounding(int bits) : 
+                    shift(23-bits), mask((0xFFFFFFFF >> (shift)) << (shift)), 
+                    test(1 << (shift-1)), maxn((1<<bits)-2) {
+                        assert(bits <= 23); // "max mantissa size is 23 bits"
+                    }
+                float operator()(float f) const {
+                    constexpr uint32_t low23 = (0x007FFFFF); // mask to keep lowest 23 bits = mantissa
+                    constexpr uint32_t  hi9  = (0xFF800000); // mask to keep highest 9 bits = the rest
+                    union { float flt; uint32_t i32; } conv;
+                    conv.flt=f;
+                    if (conv.i32 & test) { // need to round
+                        uint32_t mantissa = (conv.i32 & low23) >> shift;
+                        if (mantissa < maxn) mantissa++;
+                        conv.i32 = (conv.i32 & hi9) | (mantissa << shift);
+                    } else {
+                        conv.i32 &= mask;
+                    }
+                    return conv.flt;
+                }
+            private:
+                const int shift;
+                const uint32_t mask, test, maxn;           
+        };
+
         template<int bits>
         inline static float reduceMantissaToNbitsRounding(const float &f)
         {
-            static_assert(bits <= 23,"max mantissa size is 23 bits");
-            constexpr int      shift = (23-bits);    // bits I throw away
-            constexpr uint32_t mask  = (0xFFFFFFFF >> (shift)) << (shift); // mask for truncation
-            constexpr uint32_t test  = 1 << (shift-1); // most significant bit I throw away
-            constexpr uint32_t low23 = (0x007FFFFF); // mask to keep lowest 23 bits = mantissa
-            constexpr uint32_t  hi9  = (0xFF800000); // mask to keep highest 9 bits = the rest
-            constexpr uint32_t maxn  = (1<<bits)-2; // max number I can increase before overflowing
-            union { float flt; uint32_t i32; } conv;
-            conv.flt=f;
-            if (conv.i32 & test) { // need to round
-                uint32_t mantissa = (conv.i32 & low23) >> shift;
-                if (mantissa < maxn) mantissa++;
-                conv.i32 = (conv.i32 & hi9) | (mantissa << shift);
-            } else {
-                conv.i32 &= mask;
-            }
-            return conv.flt;
+            static const ReduceMantissaToNbitsRounding reducer(bits);
+            return reducer(f);
         }
+
+
+
+        inline static float reduceMantissaToNbitsRounding(float f, int bits) 
+        {
+            return ReduceMantissaToNbitsRounding(bits)(f);
+        }
+
+        template<typename InItr, typename OutItr>
+        static void reduceMantissaToNbitsRounding(int bits, InItr begin, InItr end, OutItr out) 
+        {
+            std::transform(begin, end, out, ReduceMantissaToNbitsRounding(bits));
+        }
+        
 
         inline static float max() {
             union { float flt; uint32_t i32; } conv;

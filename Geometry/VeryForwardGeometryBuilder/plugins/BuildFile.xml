@@ -1,4 +1,3 @@
-<use name="DetectorDescription/Core"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/AlignmentRecord"/>
 <use name="DataFormats/DetId"/>

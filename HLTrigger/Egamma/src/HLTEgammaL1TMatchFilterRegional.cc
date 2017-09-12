@@ -91,6 +91,10 @@ HLTEgammaL1TMatchFilterRegional::hltFilter(edm::Event& iEvent, const edm::EventS
     filterproduct.addCollectionTag(l1EGTag_);
     filterproduct.addCollectionTag(l1JetsTag_);
     filterproduct.addCollectionTag(l1TausTag_);
+    filterproduct.addCollectionTag(candIsolatedTag_);
+    if(!doIsolated_ && !candNonIsolatedTag_.label().empty()) {
+      filterproduct.addCollectionTag(candNonIsolatedTag_);
+    }
   }
 
   edm::Ref<reco::RecoEcalCandidateCollection> ref;
@@ -123,7 +127,7 @@ HLTEgammaL1TMatchFilterRegional::hltFilter(edm::Event& iEvent, const edm::EventS
   int countCand=0;
   for (auto recoecalcand= recoIsolecalcands->begin(); recoecalcand!=recoIsolecalcands->end(); recoecalcand++) {
     countCand++;
-    if(fabs(recoecalcand->eta()) < endcap_end_){
+    if(std::abs(recoecalcand->eta()) < endcap_end_){
       //SC should be inside the ECAL fiducial volume
 
       //now EGamma is just one collection so automatically matches to Isolated and NonIsolated Seeds
@@ -152,7 +156,7 @@ HLTEgammaL1TMatchFilterRegional::hltFilter(edm::Event& iEvent, const edm::EventS
     for (auto recoecalcand= recoNonIsolecalcands->begin(); recoecalcand!=recoNonIsolecalcands->end(); recoecalcand++) {
       countCand++;
  
-      if(fabs(recoecalcand->eta()) < endcap_end_){
+      if(std::abs(recoecalcand->eta()) < endcap_end_){
 	bool matchedSCEG =  matchedToL1Cand(l1EGs,recoecalcand->eta(),recoecalcand->phi());
 	bool matchedSCJet = matchedToL1Cand(l1Jets,recoecalcand->eta(),recoecalcand->phi());
 	bool matchedSCTau = matchedToL1Cand(l1Taus,recoecalcand->eta(),recoecalcand->phi());
@@ -183,7 +187,7 @@ HLTEgammaL1TMatchFilterRegional::matchedToL1Cand(const std::vector<l1t::EGammaRe
     //ORCA matching method
     double etaBinLow  = 0.;
     double etaBinHigh = 0.;	
-    if(fabs(scEta) < barrel_end_){
+    if(std::abs(scEta) < barrel_end_){
       etaBinLow = l1Cand->eta() - region_eta_size_/2.;
       etaBinHigh = etaBinLow + region_eta_size_;
     }
@@ -192,7 +196,7 @@ HLTEgammaL1TMatchFilterRegional::matchedToL1Cand(const std::vector<l1t::EGammaRe
       etaBinHigh = etaBinLow + region_eta_size_ecap_;
     }
 
-    float deltaphi=fabs(scPhi -l1Cand->phi());
+    float deltaphi=std::abs(scPhi -l1Cand->phi());
     if(deltaphi>TWOPI) deltaphi-=TWOPI;
     if(deltaphi>TWOPI/2.) deltaphi=TWOPI-deltaphi;
 
@@ -211,7 +215,7 @@ HLTEgammaL1TMatchFilterRegional::matchedToL1Cand(const std::vector<l1t::JetRef>&
     //ORCA matching method
     double etaBinLow  = 0.;
     double etaBinHigh = 0.;	
-    if(fabs(scEta) < barrel_end_){
+    if(std::abs(scEta) < barrel_end_){
       etaBinLow = l1Cand->eta() - region_eta_size_/2.;
       etaBinHigh = etaBinLow + region_eta_size_;
     }
@@ -220,7 +224,7 @@ HLTEgammaL1TMatchFilterRegional::matchedToL1Cand(const std::vector<l1t::JetRef>&
       etaBinHigh = etaBinLow + region_eta_size_ecap_;
     }
 
-    float deltaphi=fabs(scPhi -l1Cand->phi());
+    float deltaphi=std::abs(scPhi -l1Cand->phi());
     if(deltaphi>TWOPI) deltaphi-=TWOPI;
     if(deltaphi>TWOPI/2.) deltaphi=TWOPI-deltaphi;
 
@@ -238,7 +242,7 @@ HLTEgammaL1TMatchFilterRegional::matchedToL1Cand(const std::vector<l1t::TauRef>&
     //ORCA matching method
     double etaBinLow  = 0.;
     double etaBinHigh = 0.;	
-    if(fabs(scEta) < barrel_end_){
+    if(std::abs(scEta) < barrel_end_){
       etaBinLow = l1Cand->eta() - region_eta_size_/2.;
       etaBinHigh = etaBinLow + region_eta_size_;
     }
@@ -247,7 +251,7 @@ HLTEgammaL1TMatchFilterRegional::matchedToL1Cand(const std::vector<l1t::TauRef>&
       etaBinHigh = etaBinLow + region_eta_size_ecap_;
     }
 
-    float deltaphi=fabs(scPhi -l1Cand->phi());
+    float deltaphi=std::abs(scPhi -l1Cand->phi());
     if(deltaphi>TWOPI) deltaphi-=TWOPI;
     if(deltaphi>TWOPI/2.) deltaphi=TWOPI-deltaphi;
 

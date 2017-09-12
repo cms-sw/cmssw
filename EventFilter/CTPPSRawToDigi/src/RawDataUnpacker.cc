@@ -3,6 +3,7 @@
 * This is a part of TOTEM offline software.
 * Authors: 
 *   Jan Kašpar (jan.kaspar@gmail.com)
+*   Nicola Minafra
 *
 ****************************************************************************/
 
@@ -14,13 +15,13 @@
 
 using namespace std;
 using namespace edm;
+using namespace ctpps;
 
 //----------------------------------------------------------------------------------------------------
 
-RawDataUnpacker::RawDataUnpacker(const edm::ParameterSet &conf) :
-  verbosity(conf.getUntrackedParameter<unsigned int>("verbosity", 0))
-{
-}
+RawDataUnpacker::RawDataUnpacker(const edm::ParameterSet& iConfig) :
+  verbosity(iConfig.getUntrackedParameter<unsigned int>("verbosity", 0))
+{}
 
 //----------------------------------------------------------------------------------------------------
 
@@ -80,11 +81,14 @@ int RawDataUnpacker::ProcessOptoRxFrame(const word *buf, unsigned int frameSize,
   #endif
 
   // parallel or serial transmission?
-  if (FOV == 1)
-    return ProcessOptoRxFrameSerial(buf, frameSize, fc);
-
-  if (FOV == 2)
-    return ProcessOptoRxFrameParallel(buf, frameSize, fedInfo, fc);
+  switch (FOV) {
+    case 1:
+      return ProcessOptoRxFrameSerial(buf, frameSize, fc);
+    case 2:
+    case 3:
+      return ProcessOptoRxFrameParallel(buf, frameSize, fedInfo, fc);
+    default: break;
+  }
 
   if (verbosity)
     LogWarning("Totem") << "Error in RawDataUnpacker::ProcessOptoRxFrame > " << "Unknown FOV = " << FOV << endl;
@@ -198,7 +202,7 @@ int RawDataUnpacker::ProcessOptoRxFrameParallel(const word *buf, unsigned int fr
   // process all VFAT data
   for (unsigned int offset = 0; offset < nWords;)
   {
-    unsigned int wordsProcessed = ProcessVFATDataParallel(payload + offset, OptoRxId, fc);
+    unsigned int wordsProcessed = ProcessVFATDataParallel(payload + offset, nWords, OptoRxId, fc);
     offset += wordsProcessed;
   }
 
@@ -207,7 +211,7 @@ int RawDataUnpacker::ProcessOptoRxFrameParallel(const word *buf, unsigned int fr
 
 //----------------------------------------------------------------------------------------------------
 
-int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int OptoRxId, SimpleVFATFrameCollection *fc) const
+int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int maxWords, unsigned int OptoRxId, SimpleVFATFrameCollection *fc) const
 {
   // start counting processed words
   unsigned int wordsProcessed = 1;
@@ -218,7 +222,7 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int O
 
   // check header flag
   unsigned int hFlag = (buf[0] >> 8) & 0xFF;
-  if (hFlag != vmCluster && hFlag != vmRaw)
+  if (hFlag != vmCluster && hFlag != vmRaw && hFlag != vmDiamondCompact)
   {
     if (verbosity)
       LogWarning("Totem") << "Error in RawDataUnpacker::ProcessVFATDataParallel > "
@@ -264,17 +268,20 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int O
   unsigned int dataOffset = wordsProcessed;
 
   // find trailer
-  if (hFlag == vmCluster)
-  {
-    unsigned int nCl = 0;
-    while ( (buf[wordsProcessed + nCl] >> 12) != 0xF )
-      nCl++;
-
-    wordsProcessed += nCl;
+  switch (hFlag) {
+    case vmCluster: {
+      unsigned int nCl = 0;
+      while ( (buf[wordsProcessed + nCl] >> 12) != 0xF && ( wordsProcessed + nCl < maxWords ) ) nCl++;
+      wordsProcessed += nCl;
+    } break;
+    case vmRaw:
+      wordsProcessed += 9;
+      break;
+    case vmDiamondCompact: {
+      wordsProcessed--;
+      while ( (buf[wordsProcessed] & 0xFFF0)!= 0xF000 && ( wordsProcessed < maxWords ) ) wordsProcessed++;
+    } break;
   }
-
-  if (hFlag == vmRaw)
-    wordsProcessed += 9;
 
   // process trailer
   unsigned int tSig = buf[wordsProcessed] >> 12;
@@ -322,7 +329,7 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int O
   // get channel data - cluster mode
   if (hFlag == vmCluster)
   {
-    for (unsigned int nCl = 0; (buf[dataOffset + nCl] >> 12) != 0xF; ++nCl)
+    for (unsigned int nCl = 0; (buf[dataOffset + nCl] >> 12) != 0xF && ( dataOffset + nCl < maxWords ); ++nCl)
     {
       const uint16_t &w = buf[dataOffset + nCl];
       unsigned int upperBlock = w >> 8;
@@ -373,6 +380,43 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int O
     // copy CRC
     presenceFlags |= 0x8;
     fd[0] = buf[dataOffset + 8];
+  }
+  
+  // get channel data for diamond compact mode
+  if (hFlag == vmDiamondCompact)
+  {
+    for (unsigned int i = 1; (buf[i+1] & 0xFFF0)!= 0xF000 && ( i+1 < maxWords ); i++) {
+      if ( ( buf[i] & 0xF000 ) == VFAT_HEADER_OF_EC ) {
+        // Event Counter word is found
+        fd[10] = buf[i];
+        continue;
+      }
+      switch ( buf[i] & 0xF800 ) {
+        case VFAT_DIAMOND_HEADER_OF_WORD_2:
+          // word 2 of the diamond VFAT frame is found
+          fd[1] = buf[i + 1];
+          fd[2] = buf[i];
+          break;
+        case VFAT_DIAMOND_HEADER_OF_WORD_3:
+          // word 3 of the diamond VFAT frame is found
+          fd[3] = buf[i];
+          fd[4] = buf[i - 1];
+          break;
+        case VFAT_DIAMOND_HEADER_OF_WORD_5:
+          // word 5 of the diamond VFAT frame is found
+          fd[5] = buf[i];
+          fd[6] = buf[i - 1];
+          break;
+        case VFAT_DIAMOND_HEADER_OF_WORD_7:
+          // word 7 of the diamond VFAT frame is found
+          fd[7] = buf[i];
+          fd[8] = buf[i - 1];
+          break;
+        default:
+          break;
+      }
+      presenceFlags |= 0x8;
+    }
   }
 
   // save frame to output

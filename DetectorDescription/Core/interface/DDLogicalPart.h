@@ -91,9 +91,7 @@ std::ostream & operator<<( std::ostream &, const DDLogicalPart &);
 */    
 class DDLogicalPart : public DDBase<DDName,DDI::LogicalPart*>
 {
-  friend std::ostream & operator<<( std::ostream &, const DDLogicalPart &);
-
-public:  
+ public:  
   //! The default constructor provides an uninitialzed reference object. 
   DDLogicalPart( void ) : DDBase<DDName,DDI::LogicalPart*>(){ }   
   

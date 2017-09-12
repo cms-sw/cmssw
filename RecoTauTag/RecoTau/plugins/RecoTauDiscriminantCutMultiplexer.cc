@@ -204,7 +204,7 @@ void RecoTauDiscriminantCutMultiplexer::beginEvent(const edm::Event& evt, const 
 	mvaOutput_normalization_ = loadObjectFromFile<TFormula>(*inputFile, mvaOutputNormalizationName_);
       } else {
 	auto temp = loadTFormulaFromDB(es, mvaOutputNormalizationName_, Form("%s_mvaOutput_normalization", moduleLabel_.data()), verbosity_);
-	mvaOutput_normalization_.reset(temp.release());
+	mvaOutput_normalization_ = std::move(temp);
       }
     }
     for ( DiscriminantCutMap::iterator cut = cuts_.begin();

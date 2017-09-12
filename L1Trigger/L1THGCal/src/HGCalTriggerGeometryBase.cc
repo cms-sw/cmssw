@@ -4,10 +4,7 @@
 
 HGCalTriggerGeometryBase::
 HGCalTriggerGeometryBase(const edm::ParameterSet& conf) : 
-  name_(conf.getParameter<std::string>("TriggerGeometryName")),
-  ee_sd_name_(conf.getParameter<std::string>("eeSDName")),
-  fh_sd_name_(conf.getParameter<std::string>("fhSDName")),
-  bh_sd_name_(conf.getParameter<std::string>("bhSDName")) 
+  name_(conf.getParameter<std::string>("TriggerGeometryName"))
 {
 }
 

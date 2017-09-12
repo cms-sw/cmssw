@@ -1,10 +1,4 @@
 #include "DetectorDescription/Parser/src/DDLRotationAndReflection.h"
-
-#include <cmath>
-#include <iostream>
-#include <map>
-#include <utility>
-
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
@@ -16,6 +10,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Math/GenVector/Cartesian3D.h"
 #include "Math/GenVector/DisplacementVector3D.h"
+
+#include <cmath>
+#include <iostream>
+#include <map>
+#include <utility>
 
 class DDCompactView;
 
@@ -92,7 +91,7 @@ DDLRotationAndReflection::processElement( const std::string& name, const std::st
 //
 
 int
-DDLRotationAndReflection::isLeftHanded (DD3Vector x, DD3Vector y, DD3Vector z, const std::string & nmspace)
+DDLRotationAndReflection::isLeftHanded (const DD3Vector& x, const DD3Vector& y, const DD3Vector& z, const std::string & nmspace)
 {
   int ret = 0;
 
@@ -174,15 +173,15 @@ DDLRotationAndReflection::isLeftHanded (DD3Vector x, DD3Vector y, DD3Vector z, c
 }
 
 DD3Vector
-DDLRotationAndReflection::makeX(std::string nmspace)
+DDLRotationAndReflection::makeX(const std::string& nmspace)
 {
   DD3Vector x;
   DDXMLAttribute atts = getAttributeSet();
   if (atts.find("thetaX") != atts.end())
   {
     ClhepEvaluator & ev = myRegistry_->evaluator(); 
-    double thetaX = ev.eval(nmspace, atts.find("thetaX")->second.c_str());
-    double phiX = ev.eval(nmspace, atts.find("phiX")->second.c_str());
+    double thetaX = ev.eval(nmspace, atts.find("thetaX")->second);
+    double phiX = ev.eval(nmspace, atts.find("phiX")->second);
     // colx
     x.SetX(sin(thetaX) * cos(phiX));
     x.SetY(sin(thetaX) * sin(phiX));
@@ -192,15 +191,15 @@ DDLRotationAndReflection::makeX(std::string nmspace)
 }
 
 DD3Vector
-DDLRotationAndReflection::makeY(std::string nmspace)
+DDLRotationAndReflection::makeY(const std::string& nmspace)
 {
   DD3Vector y;
   DDXMLAttribute atts = getAttributeSet();
   if (atts.find("thetaY") != atts.end())
   {
     ClhepEvaluator & ev = myRegistry_->evaluator(); 
-    double thetaY = ev.eval(nmspace, atts.find("thetaY")->second.c_str());
-    double phiY = ev.eval(nmspace, atts.find("phiY")->second.c_str());
+    double thetaY = ev.eval(nmspace, atts.find("thetaY")->second);
+    double phiY = ev.eval(nmspace, atts.find("phiY")->second);
       
     // coly
     y.SetX(sin(thetaY) * cos(phiY));
@@ -210,15 +209,15 @@ DDLRotationAndReflection::makeY(std::string nmspace)
   return y;
 }
 
-DD3Vector DDLRotationAndReflection::makeZ(std::string nmspace)
+DD3Vector DDLRotationAndReflection::makeZ(const std::string& nmspace)
 {
   DD3Vector z;
   DDXMLAttribute atts = getAttributeSet();
   if (atts.find("thetaZ") != atts.end())
   {
     ClhepEvaluator & ev = myRegistry_->evaluator(); 
-    double thetaZ = ev.eval(nmspace, atts.find("thetaZ")->second.c_str());
-    double phiZ = ev.eval(nmspace, atts.find("phiZ")->second.c_str());
+    double thetaZ = ev.eval(nmspace, atts.find("thetaZ")->second);
+    double phiZ = ev.eval(nmspace, atts.find("phiZ")->second);
       
     // colz
     z.SetX(sin(thetaZ) * cos(phiZ));

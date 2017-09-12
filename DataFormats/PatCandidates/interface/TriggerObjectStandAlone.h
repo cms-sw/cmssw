@@ -100,11 +100,16 @@ namespace pat {
       /// Constructors from Lorentz-vectors and (optional) PDG ID
       TriggerObjectStandAlone( const reco::Particle::LorentzVector & vec, int id = 0 );
       TriggerObjectStandAlone( const reco::Particle::PolarLorentzVector & vec, int id = 0 );
+      TriggerObjectStandAlone( const TriggerObjectStandAlone& ) = default;
 
       /// Destructor
       virtual ~TriggerObjectStandAlone() {};
 
       /// Methods
+
+      TriggerObjectStandAlone copy() const {
+        return *this;
+      }
 
       /// Adds a new HLT filter label
       void addFilterLabel( const std::string & filterLabel ) { addFilterOrCondition( filterLabel ); };

@@ -642,9 +642,8 @@ class ConfigBuilder(object):
                         output.dataset.filterName = cms.untracked.string('StreamALCACombined')
 
                 if "MINIAOD" in streamType:
-                    output.dropMetaData = cms.untracked.string('ALL')
-                    output.fastCloning= cms.untracked.bool(False)
-                    output.overrideInputFileSplitLevels = cms.untracked.bool(True)                      
+                    from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeOutput
+                    miniAOD_customizeOutput(output)
 
                 outputModuleName=streamType+'output'
                 setattr(self.process,outputModuleName,output)
@@ -980,6 +979,7 @@ class ConfigBuilder(object):
         self.ENDJOBDefaultSeq='endOfProcess'
         self.REPACKDefaultSeq='DigiToRawRepack'
 	self.PATDefaultSeq='miniAOD'
+	self.PATGENDefaultSeq='miniGEN'
 
         self.EVTCONTDefaultCFF="Configuration/EventContent/EventContent_cff"
 
@@ -991,6 +991,7 @@ class ConfigBuilder(object):
                 self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_cff"
 		self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_cff"
 		self.PATDefaultCFF="Configuration/StandardSequences/PATMC_cff"
+		self.PATGENDefaultCFF="Configuration/StandardSequences/PATGEN_cff"
                 self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineMC_cff"
                 self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreamsMC_cff"
 	else:
@@ -1674,6 +1675,16 @@ class ConfigBuilder(object):
 
 #            self.renameHLTprocessInSequence(sequence)
 
+        return
+
+    def prepare_PATGEN(self, sequence = "miniGEN"):
+        ''' Enrich the schedule with PATGEN '''
+        self.loadDefaultOrSpecifiedCFF(sequence,self.PATGENDefaultCFF) #this is unscheduled
+        self.labelsToAssociate.append('patGENTask')
+	if not self._options.runUnscheduled:	
+		raise Exception("MiniGEN production can only run in unscheduled mode, please run cmsDriver with --runUnscheduled")
+        if self._options.isData:
+            raise Exception("PATGEN step can only run on MC")
         return
 
     def prepare_EI(self, sequence = None):

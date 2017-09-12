@@ -92,8 +92,8 @@ HGCalBestChoiceCodecImpl::data_type HGCalBestChoiceCodecImpl::decode(const std::
 
 
 /*****************************************************************/
-void HGCalBestChoiceCodecImpl::linearize(const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>& dataframes,
-        std::vector<std::pair<HGCalDetId, uint32_t > >& linearized_dataframes)
+void HGCalBestChoiceCodecImpl::linearize(const std::vector<HGCDataFrame<DetId,HGCSample>>& dataframes,
+        std::vector<std::pair<DetId, uint32_t > >& linearized_dataframes)
 /*****************************************************************/
 {
     double amplitude; uint32_t amplitude_int;
@@ -116,7 +116,7 @@ void HGCalBestChoiceCodecImpl::linearize(const std::vector<HGCDataFrame<HGCalDet
   
 
 /*****************************************************************/
-void HGCalBestChoiceCodecImpl::triggerCellSums(const HGCalTriggerGeometryBase& geometry,  const std::vector<std::pair<HGCalDetId, uint32_t > >& linearized_dataframes, data_type& data)
+void HGCalBestChoiceCodecImpl::triggerCellSums(const HGCalTriggerGeometryBase& geometry,  const std::vector<std::pair<DetId, uint32_t > >& linearized_dataframes, data_type& data)
 /*****************************************************************/
 {
     if(linearized_dataframes.size()==0) return;
@@ -124,7 +124,7 @@ void HGCalBestChoiceCodecImpl::triggerCellSums(const HGCalTriggerGeometryBase& g
     // sum energies in trigger cells
     for(const auto& frame : linearized_dataframes)
     {
-        HGCalDetId cellid(frame.first);
+        DetId cellid(frame.first);
         // find trigger cell associated to cell
         uint32_t tcid = geometry.getTriggerCellFromCell(cellid);
         HGCalDetId triggercellid( tcid );

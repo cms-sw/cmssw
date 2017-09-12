@@ -126,7 +126,7 @@ void Vx3DHLTAnalyzer::analyze (const Event& iEvent, const EventSetup& iSetup)
 	    {
 	      cout << "[Vx3DHLTAnalyzer]::\tVertex selections:" << endl;
 	      cout << "[Vx3DHLTAnalyzer]::\tEvent ID = " << iEvent.id() << endl;
-              cout << "[Vx3DHLTAnalyzer]::\tVertex number = " << it3DVx - Vx3DCollection->begin() << endl;
+	      cout << "[Vx3DHLTAnalyzer]::\tVertex number = " << it3DVx - Vx3DCollection->begin() << endl;
 	      cout << "[Vx3DHLTAnalyzer]::\tisValid = " << it3DVx->isValid() << endl;
 	      cout << "[Vx3DHLTAnalyzer]::\tisFake = " << it3DVx->isFake() << endl;
 	      cout << "[Vx3DHLTAnalyzer]::\tnodof = " << it3DVx->ndof() << endl;
@@ -652,6 +652,10 @@ void Vx3DHLTAnalyzer::reset (string ResetType)
       Vx_X->Reset();
       Vx_Y->Reset();
       Vx_Z->Reset();
+
+      Vx_X_Fit->Reset();
+      Vx_Y_Fit->Reset();
+      Vx_Z_Fit->Reset();
       
       Vx_ZX->Reset();
       Vx_ZY->Reset();
@@ -717,6 +721,15 @@ void Vx3DHLTAnalyzer::reset (string ResetType)
 
       if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tReset issued: whole" << endl;
       if ((debugMode == true) && (outputDebugFile.is_open() == true)) outputDebugFile << "Reset -whole- issued\n" << endl;
+    }
+  else if (ResetType.compare("fit") == 0)
+    {
+      Vx_X_Fit->Reset();
+      Vx_Y_Fit->Reset();
+      Vx_Z_Fit->Reset();
+
+      if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tReset issued: fit" << endl;
+      if ((debugMode == true) && (outputDebugFile.is_open() == true)) outputDebugFile << "Reset -fit- issued\n" << endl;
     }
   else if (ResetType.compare("hitCounter") == 0)
     {
@@ -906,6 +919,7 @@ void Vx3DHLTAnalyzer::beginLuminosityBlock (const LuminosityBlock& lumiBlock, co
 void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, const EventSetup& iSetup)
 {
   stringstream histTitle;
+  double minXfit, maxXfit;
   int goodData;
 
   if ((nLumiFit != 0) && (lumiCounter%nLumiFit == 0) && (beginTimeOfFit != 0) && (runNumber != 0))
@@ -1038,7 +1052,34 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
 
       statusCounter->getTH1()->SetBinContent(lastLumiOfFit, (double)goodData);
       statusCounter->getTH1()->SetBinError(lastLumiOfFit, 1e-3);
+ 
+      // Copy vertex position histograms into to-fit histograms
+      if (goodData == 0) reset("fit");
+      else if (lumiCounter >= maxLumiIntegration)
+	{
+	  reset("fit");
+	  reset("whole");
+	}
 
+      for (int i = 0; i < Vx_X_Fit->getTH1()->GetNbinsX(); i++)
+	{
+	  Vx_X_Fit->getTH1()->SetBinContent(i+1,Vx_X_Fit->getTH1()->GetBinContent(i+1) + Vx_X->getTH1()->GetBinContent(i+1));
+	  Vx_X_Fit->getTH1()->SetBinError(i+1,sqrt(Vx_X_Fit->getTH1()->GetBinContent(i+1)));
+	}
+
+      for (int i = 0; i < Vx_Y_Fit->getTH1()->GetNbinsX(); i++)
+	{
+	  Vx_Y_Fit->getTH1()->SetBinContent(i+1,Vx_Y_Fit->getTH1()->GetBinContent(i+1) + Vx_Y->getTH1()->GetBinContent(i+1));
+	  Vx_Y_Fit->getTH1()->SetBinError(i+1,sqrt(Vx_Y_Fit->getTH1()->GetBinContent(i+1)));
+	}
+
+      for (int i = 0; i < Vx_Z_Fit->getTH1()->GetNbinsX(); i++)
+	{
+	  Vx_Z_Fit->getTH1()->SetBinContent(i+1,Vx_Z_Fit->getTH1()->GetBinContent(i+1) + Vx_Z->getTH1()->GetBinContent(i+1));
+	  Vx_Z_Fit->getTH1()->SetBinError(i+1,sqrt(Vx_Z_Fit->getTH1()->GetBinContent(i+1)));
+	}
+
+      // Check data quality
       if (goodData == 0)
 	{
 	  numberGoodFits++;
@@ -1055,7 +1096,6 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
 	    {
 	      statusCounter->getTH1()->SetBinContent(lastLumiOfFit, -5);
 	      statusCounter->getTH1()->SetBinError(lastLumiOfFit, 1e-3);
-	      reset("whole");
 	    }
 	  else reset("hitCounter");
 	}
@@ -1152,6 +1192,88 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
 
       delete myLinFit;
       vals.clear();
+
+      // Gaussian fit to 1D vertex coordinate distributions
+      TF1* myGaussFit = new TF1("myGaussFit", "[0]*exp(-(x-[1])*(x-[1])/(2*[2]*[2]))", Vx_Z_Fit->getTH1()->GetXaxis()->GetXmin(), Vx_Z_Fit->getTH1()->GetXaxis()->GetXmax());
+      myGaussFit->SetLineColor(2);
+      myGaussFit->SetLineWidth(2);
+      myGaussFit->SetParName(0,"Ampl.");
+      myGaussFit->SetParName(1,"#mu");
+      myGaussFit->SetParName(2,"#sigma");
+
+      myGaussFit->SetParameter(0, Vx_X_Fit->getTH1()->GetMaximum());
+      myGaussFit->SetParameter(1, Vx_X_Fit->getTH1()->GetMean());
+      myGaussFit->SetParameter(2, Vx_X_Fit->getTH1()->GetRMS());
+      minXfit = Vx_X_Fit->getTH1()->GetBinLowEdge(1);
+      for (int i = 0; i < Vx_X_Fit->getTH1()->GetNbinsX(); i++)
+	{
+	  if (Vx_X_Fit->getTH1()->GetBinContent(i+1) > 0)
+	    {
+	      minXfit = Vx_X_Fit->getTH1()->GetBinLowEdge(i+1);
+	      break;
+	    }
+	}
+      maxXfit = Vx_X_Fit->getTH1()->GetBinLowEdge(Vx_X_Fit->getTH1()->GetNbinsX());
+      for (int i = Vx_X_Fit->getTH1()->GetNbinsX(); i > 0; i--)
+	{
+	  if (Vx_X_Fit->getTH1()->GetBinContent(i) > 0)
+	    {
+	      maxXfit = Vx_X_Fit->getTH1()->GetBinLowEdge(i);
+	      break;
+	    }
+	}
+      myGaussFit->SetRange(minXfit - (maxXfit-minXfit)/2.,maxXfit + (maxXfit-minXfit)/2.);
+      Vx_X_Fit->getTH1()->Fit(myGaussFit,"QR");
+
+      myGaussFit->SetParameter(0, Vx_Y_Fit->getTH1()->GetMaximum());
+      myGaussFit->SetParameter(1, Vx_Y_Fit->getTH1()->GetMean());
+      myGaussFit->SetParameter(2, Vx_Y_Fit->getTH1()->GetRMS());
+      minXfit = Vx_Y_Fit->getTH1()->GetBinLowEdge(1);
+      for (int i = 0; i < Vx_Y_Fit->getTH1()->GetNbinsX(); i++)
+	{
+	  if (Vx_Y_Fit->getTH1()->GetBinContent(i+1) > 0)
+	    {
+	      minXfit = Vx_Y_Fit->getTH1()->GetBinLowEdge(i+1);
+	      break;
+	    }
+	}
+      maxXfit = Vx_Y_Fit->getTH1()->GetBinLowEdge(Vx_Y_Fit->getTH1()->GetNbinsX());
+      for (int i = Vx_Y_Fit->getTH1()->GetNbinsX(); i > 0; i--)
+	{
+	  if (Vx_Y_Fit->getTH1()->GetBinContent(i) > 0)
+	    {
+	      maxXfit = Vx_Y_Fit->getTH1()->GetBinLowEdge(i);
+	      break;
+	    }
+	}
+      myGaussFit->SetRange(minXfit - (maxXfit-minXfit)/2.,maxXfit + (maxXfit-minXfit)/2.);
+      Vx_Y_Fit->getTH1()->Fit(myGaussFit,"QR");
+
+      myGaussFit->SetParameter(0, Vx_Z_Fit->getTH1()->GetMaximum());
+      myGaussFit->SetParameter(1, Vx_Z_Fit->getTH1()->GetMean());
+      myGaussFit->SetParameter(2, Vx_Z_Fit->getTH1()->GetRMS());
+      minXfit = Vx_Z_Fit->getTH1()->GetBinLowEdge(1);
+      for (int i = 0; i < Vx_Z_Fit->getTH1()->GetNbinsX(); i++)
+	{
+	  if (Vx_Z_Fit->getTH1()->GetBinContent(i+1) > 0)
+	    {
+	      minXfit = Vx_Z_Fit->getTH1()->GetBinLowEdge(i+1);
+	      break;
+	    }
+	}
+      maxXfit = Vx_Z_Fit->getTH1()->GetBinLowEdge(Vx_Z_Fit->getTH1()->GetNbinsX());
+      for (int i = Vx_Z_Fit->getTH1()->GetNbinsX(); i > 0; i--)
+	{
+	  if (Vx_Z_Fit->getTH1()->GetBinContent(i) > 0)
+	    {
+	      maxXfit = Vx_Z_Fit->getTH1()->GetBinLowEdge(i);
+	      break;
+	    }
+	}
+      myGaussFit->SetRange(minXfit - (maxXfit-minXfit)/2.,maxXfit + (maxXfit-minXfit)/2.);
+      Vx_Z_Fit->getTH1()->Fit(myGaussFit,"QR");
+
+      delete myGaussFit;
     }
   else if ((nLumiFit != 0) && (lumiCounter%nLumiFit != 0) && (beginTimeOfFit != 0) && (runNumber != 0))
     {
@@ -1197,9 +1319,19 @@ void Vx3DHLTAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, Run const & iR
   Vx_Z->setAxisTitle("Primary Vertices Z [cm]",1);
   Vx_Z->setAxisTitle("Entries [#]",2);
 
-  Vx_X_Cum = ibooker.book1D("H - vertex x cum", "Primary Vertex X Distribution (Cumulative)", int(rint(xRange/xStep)), -xRange/2., xRange/2.);
-  Vx_Y_Cum = ibooker.book1D("H - vertex y cum", "Primary Vertex Y Distribution (Cumulative)", int(rint(yRange/yStep)), -yRange/2., yRange/2.);
-  Vx_Z_Cum = ibooker.book1D("H - vertex z cum", "Primary Vertex Z Distribution (Cumulative)", int(rint(zRange/zStep)), -zRange/2., zRange/2.);
+  Vx_X_Fit = ibooker.book1D("G - vertex x fit", "Primary Vertex X Distribution (For Fit)", int(rint(xRange/xStep)), -xRange/2., xRange/2.);
+  Vx_Y_Fit = ibooker.book1D("G - vertex y fit", "Primary Vertex Y Distribution (For Fit)", int(rint(yRange/yStep)), -yRange/2., yRange/2.);
+  Vx_Z_Fit = ibooker.book1D("G - vertex z fit", "Primary Vertex Z Distribution (For Fit)", int(rint(zRange/zStep)), -zRange/2., zRange/2.);
+  Vx_X_Fit->setAxisTitle("Primary Vertices X [cm]",1);
+  Vx_X_Fit->setAxisTitle("Entries [#]",2);
+  Vx_Y_Fit->setAxisTitle("Primary Vertices Y [cm]",1);
+  Vx_Y_Fit->setAxisTitle("Entries [#]",2);
+  Vx_Z_Fit->setAxisTitle("Primary Vertices Z [cm]",1);
+  Vx_Z_Fit->setAxisTitle("Entries [#]",2);
+
+  Vx_X_Cum = ibooker.book1D("I - vertex x cum", "Primary Vertex X Distribution (Cumulative)", int(rint(xRange/xStep)), -xRange/2., xRange/2.);
+  Vx_Y_Cum = ibooker.book1D("I - vertex y cum", "Primary Vertex Y Distribution (Cumulative)", int(rint(yRange/yStep)), -yRange/2., yRange/2.);
+  Vx_Z_Cum = ibooker.book1D("I - vertex z cum", "Primary Vertex Z Distribution (Cumulative)", int(rint(zRange/zStep)), -zRange/2., zRange/2.);
   Vx_X_Cum->setAxisTitle("Primary Vertices X [cm]",1);
   Vx_X_Cum->setAxisTitle("Entries [#]",2);
   Vx_Y_Cum->setAxisTitle("Primary Vertices Y [cm]",1);
@@ -1255,9 +1387,9 @@ void Vx3DHLTAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, Run const & iR
   Vx_XY->setAxisTitle("Primary Vertices Y [cm]",2);
   Vx_XY->setAxisTitle("Entries [#]",3);
 
-  Vx_ZX_Cum = ibooker.book2D("G - vertex zx cum", "Primary Vertex ZX Distribution (Cumulative)", int(rint(zRange/zStep)), -zRange/2., zRange/2., int(rint(xRange/xStep)), -xRange/2., xRange/2.);
-  Vx_ZY_Cum = ibooker.book2D("G - vertex zy cum", "Primary Vertex ZY Distribution (Cumulative)", int(rint(zRange/zStep)), -zRange/2., zRange/2., int(rint(yRange/yStep)), -yRange/2., yRange/2.);
-  Vx_XY_Cum = ibooker.book2D("G - vertex xy cum", "Primary Vertex XY Distribution (Cumulative)", int(rint(xRange/xStep)), -xRange/2., xRange/2., int(rint(yRange/yStep)), -yRange/2., yRange/2.);
+  Vx_ZX_Cum = ibooker.book2D("H - vertex zx cum", "Primary Vertex ZX Distribution (Cumulative)", int(rint(zRange/zStep)), -zRange/2., zRange/2., int(rint(xRange/xStep)), -xRange/2., xRange/2.);
+  Vx_ZY_Cum = ibooker.book2D("H - vertex zy cum", "Primary Vertex ZY Distribution (Cumulative)", int(rint(zRange/zStep)), -zRange/2., zRange/2., int(rint(yRange/yStep)), -yRange/2., yRange/2.);
+  Vx_XY_Cum = ibooker.book2D("H - vertex xy cum", "Primary Vertex XY Distribution (Cumulative)", int(rint(xRange/xStep)), -xRange/2., xRange/2., int(rint(yRange/yStep)), -yRange/2., yRange/2.);
   Vx_ZX_Cum->setAxisTitle("Primary Vertices Z [cm]",1);
   Vx_ZX_Cum->setAxisTitle("Primary Vertices X [cm]",2);
   Vx_ZX_Cum->setAxisTitle("Entries [#]",3);
@@ -1273,12 +1405,12 @@ void Vx3DHLTAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, Run const & iR
   hitCounter->setAxisTitle("Pixel-Hits [#]",2);
   hitCounter->getTH1()->SetOption("E1");
 
-  goodVxCounter = ibooker.book1D("I - good vertices vs lumi", "# Good vertices vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
+  goodVxCounter = ibooker.book1D("K - good vertices vs lumi", "# Good vertices vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
   goodVxCounter->setAxisTitle("Lumisection [#]",1);
   goodVxCounter->setAxisTitle("Good vertices [#]",2);
   goodVxCounter->getTH1()->SetOption("E1");
 
-  statusCounter = ibooker.book1D("K - status vs lumi", "App. Status vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
+  statusCounter = ibooker.book1D("L - status vs lumi", "App. Status vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
   statusCounter->setAxisTitle("Lumisection [#]",1);
   statusCounter->getTH1()->SetOption("E1");
   statusCounter->getTH1()->GetYaxis()->Set(11,-5.5,5.5);

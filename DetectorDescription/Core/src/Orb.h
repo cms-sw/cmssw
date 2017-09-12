@@ -16,7 +16,7 @@ namespace DDI {
     Orb(double rMax)
      : Solid(ddorb)
     { 
-      p_.push_back(rMax);
+      p_.emplace_back(rMax);
     }  
     ~Orb() override { }
     

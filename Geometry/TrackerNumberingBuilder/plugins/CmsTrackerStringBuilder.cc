@@ -18,7 +18,7 @@ void CmsTrackerStringBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
 
   std::stable_sort(comp.begin(),comp.end(),LessModZ()); 
   
-  if(comp.size()){
+  if(!comp.empty()){
     for(uint32_t i=0; i<comp.size();i++){
       det->component(i)->setGeographicalID(DetId(i+1));
     }

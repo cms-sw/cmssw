@@ -43,7 +43,7 @@ BPHMonitor::~BPHMonitor()
   if (den_genTriggerEventFlag_) delete den_genTriggerEventFlag_;
 }
 
-MEbinning BPHMonitor::getHistoPSet(edm::ParameterSet pset)
+MEbinning BPHMonitor::getHistoPSet(const edm::ParameterSet& pset)
 {
   return MEbinning{
     pset.getParameter<int32_t>("nbins"),
@@ -52,7 +52,7 @@ MEbinning BPHMonitor::getHistoPSet(edm::ParameterSet pset)
       };
 }
 
-MEbinning BPHMonitor::getHistoLSPSet(edm::ParameterSet pset)
+MEbinning BPHMonitor::getHistoLSPSet(const edm::ParameterSet& pset)
 {
   return MEbinning{
     pset.getParameter<int32_t>("nbins"),
@@ -61,7 +61,7 @@ MEbinning BPHMonitor::getHistoLSPSet(edm::ParameterSet pset)
       };
 }
 
-void BPHMonitor::setMETitle(METME& me, std::string titleX, std::string titleY)
+void BPHMonitor::setMETitle(METME& me, const std::string& titleX, const std::string& titleY)
 {
   me.numerator->setAxisTitle(titleX,1);
   me.numerator->setAxisTitle(titleY,2);
@@ -163,7 +163,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     muPhi_.denominator->Fill(m.phi());
     muEta_.denominator->Fill(m.eta());
     muPt_.denominator ->Fill(m.pt());
-    const reco::Track * track = 0;
+    const reco::Track * track = nullptr;
     if (m.isTrackerMuon()) track = & * m.innerTrack();
     else if (m.isStandAloneMuon()) track = & * m.outerTrack();
     if (track) {
@@ -180,7 +180,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     muPhi_.numerator->Fill(m.phi());
     muEta_.numerator->Fill(m.eta());
     muPt_.numerator ->Fill(m.pt());
-    const reco::Track * track = 0;
+    const reco::Track * track = nullptr;
     if (m.isTrackerMuon()) track = & * m.innerTrack();
     else if (m.isStandAloneMuon()) track = & * m.outerTrack();
     if (track) {

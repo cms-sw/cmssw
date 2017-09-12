@@ -18,7 +18,7 @@
 // This Class's Header --
 //-----------------------
 
-#include "L1MuBMAssignmentUnit.h"
+#include "L1Trigger/L1TMuonBarrel/src/L1MuBMAssignmentUnit.h"
 
 //---------------
 // C++ Headers --
@@ -32,13 +32,13 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include "L1MuBMTFConfig.h"
-#include "L1MuBMSectorProcessor.h"
-#include "L1MuBMDataBuffer.h"
-#include "L1MuBMTrackSegPhi.h"
-#include "L1MuBMTrackSegLoc.h"
-#include "L1MuBMTrackAssembler.h"
-#include "L1MuBMTrackAssParam.h"
+#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
+#include "L1Trigger/L1TMuonBarrel/src/L1MuBMSectorProcessor.h"
+#include "L1Trigger/L1TMuonBarrel/src/L1MuBMDataBuffer.h"
+#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackAssembler.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhi.h"
+#include "DataFormats/L1TMuon/interface/BMTF/L1MuBMTrackSegLoc.h"
+#include "DataFormats/L1TMuon/interface/BMTF/L1MuBMTrackAssParam.h"
 
 #include <iostream>
 #include <iomanip>
@@ -153,11 +153,11 @@ void L1MuBMAssignmentUnit::PhiAU(const edm::EventSetup& c) {
     phi2 = second->phi() >> sh_phi;
     sector = second->sector();
   }
-  else if ( second == 0 && first ) {
+  else if ( second == nullptr && first ) {
     phi2 = first->phi() >> sh_phi;
     sector = first->sector();
   }
-  else if ( second == 0 && forth ) {
+  else if ( second == nullptr && forth ) {
     phi2 = forth->phi() >> sh_phi;
     sector = forth->sector();
   }
@@ -179,12 +179,12 @@ void L1MuBMAssignmentUnit::PhiAU(const edm::EventSetup& c) {
    phi_f=phi_f-std::abs(bit_div_phi);
   int phi_8 = static_cast<int>(floor(phi_f*k));
 
-  if ( second == 0 && first ) {
+  if ( second == nullptr && first ) {
     int bend_angle = (first->phib() >> sh_phib) << sh_phib;
     phi_8 = phi_8 + thePhiLUTs->getDeltaPhi(0,bend_angle);
     //phi_8 = phi_8 + getDeltaPhi(0, bend_angle, bmtfParams->phi_lut());
   }
-  else if ( second == 0 && forth ) {
+  else if ( second == nullptr && forth ) {
 
     int bend_angle = (forth->phib() >> sh_phib) << sh_phib;
     phi_8 = phi_8 + thePhiLUTs->getDeltaPhi(1,bend_angle);
@@ -196,7 +196,7 @@ void L1MuBMAssignmentUnit::PhiAU(const edm::EventSetup& c) {
   phi_8 += sectordiff*48;
 
   int phi = phi_8 + 24;
-  // 78 phi bins (-8 to 69) correspond 30 degree sector plus 
+  // 78 phi bins (-8 to 69) correspond 30 degree sector plus
   // additional lower and higher bins for neighboring sectors.
   if (phi >  69) phi =  69;
   if (phi < -8) phi = -8;
@@ -332,12 +332,12 @@ unsigned int L1MuBMAssignmentUnit::Quality() {
 void L1MuBMAssignmentUnit::TSR() {
 
   // get the track segments from the data buffer
-  const L1MuBMTrackSegPhi* ts = 0;
+  const L1MuBMTrackSegPhi* ts = nullptr;
   for ( int stat = 1; stat <= 4; stat++ ) {
     int adr = m_addArray.station(stat);
     if ( adr != 15 ) {
       ts = m_sp.data()->getTSphi(stat,adr);
-      if ( ts != 0 ) m_TSphi.push_back( ts );
+      if ( ts != nullptr ) m_TSphi.push_back( ts );
     }
   }
 
@@ -358,7 +358,7 @@ const L1MuBMTrackSegPhi* L1MuBMAssignmentUnit::getTSphi(int station) const {
     }
   }
 
-  return 0;
+  return nullptr;
 
 }
 
@@ -434,9 +434,9 @@ L1MuBMLUTHandler::PtAssMethod L1MuBMAssignmentUnit::getPtMethod() const {
   int threshold = thePtaLUTs->getPtLutThreshold(method);
 
   // phib values of track segments from stations 1, 2 and 4
-  int phib1 = ( getTSphi(1) != 0 ) ? getTSphi(1)->phib() : 0;
-  int phib2 = ( getTSphi(2) != 0 ) ? getTSphi(2)->phib() : 0;
-  int phib4 = ( getTSphi(4) != 0 ) ? getTSphi(4)->phib() : 0;
+  int phib1 = ( getTSphi(1) != nullptr ) ? getTSphi(1)->phib() : 0;
+  int phib2 = ( getTSphi(2) != nullptr ) ? getTSphi(2)->phib() : 0;
+  int phib4 = ( getTSphi(4) != nullptr ) ? getTSphi(4)->phib() : 0;
 
   L1MuBMLUTHandler::PtAssMethod pam = L1MuBMLUTHandler::NODEF;
 
@@ -538,9 +538,9 @@ int L1MuBMAssignmentUnit::phiDiff(int stat1, int stat2) const {
 L1MuBMLUTHandler::PtAssMethod L1MuBMAssignmentUnit::getPt1Method(L1MuBMLUTHandler::PtAssMethod method) const {
 
   // quality values of track segments from stations 1, 2 and 4
-  int qual1 = ( getTSphi(1) != 0 ) ? getTSphi(1)->quality() : 0;
-  int qual2 = ( getTSphi(2) != 0 ) ? getTSphi(2)->quality() : 0;
-  int qual4 = ( getTSphi(4) != 0 ) ? getTSphi(4)->quality() : 0;
+  int qual1 = ( getTSphi(1) != nullptr ) ? getTSphi(1)->quality() : 0;
+  int qual2 = ( getTSphi(2) != nullptr ) ? getTSphi(2)->quality() : 0;
+  int qual4 = ( getTSphi(4) != nullptr ) ? getTSphi(4)->quality() : 0;
 
   L1MuBMLUTHandler::PtAssMethod pam = L1MuBMLUTHandler::NODEF;
 
@@ -566,7 +566,7 @@ L1MuBMLUTHandler::PtAssMethod L1MuBMAssignmentUnit::getPt1Method(L1MuBMLUTHandle
 L1MuBMLUTHandler::PtAssMethod L1MuBMAssignmentUnit::getPt2Method(L1MuBMLUTHandler::PtAssMethod method) const {
 
   // quality values of track segments from stations 2 and 4
-  int qual2 = ( getTSphi(2) != 0 ) ? getTSphi(2)->quality() : 0;
+  int qual2 = ( getTSphi(2) != nullptr ) ? getTSphi(2)->quality() : 0;
   //  int qual4 = ( getTSphi(4) != 0 ) ? getTSphi(4)->quality() : 0;
 
   L1MuBMLUTHandler::PtAssMethod pam = L1MuBMLUTHandler::NODEF;
@@ -593,9 +593,9 @@ L1MuBMLUTHandler::PtAssMethod L1MuBMAssignmentUnit::getPt2Method(L1MuBMLUTHandle
 int L1MuBMAssignmentUnit::getPt1Address(L1MuBMLUTHandler::PtAssMethod method) const {
 
   // phib values of track segments from stations 1, 2 and 4
-  int phib1 = ( getTSphi(1) != 0 ) ? getTSphi(1)->phib() : -999;
-  int phib2 = ( getTSphi(2) != 0 ) ? getTSphi(2)->phib() : -999;
-  int phib4 = ( getTSphi(4) != 0 ) ? getTSphi(4)->phib() : -999;
+  int phib1 = ( getTSphi(1) != nullptr ) ? getTSphi(1)->phib() : -999;
+  int phib2 = ( getTSphi(2) != nullptr ) ? getTSphi(2)->phib() : -999;
+  int phib4 = ( getTSphi(4) != nullptr ) ? getTSphi(4)->phib() : -999;
 
 
   int bendangle = -999;
@@ -621,8 +621,8 @@ int L1MuBMAssignmentUnit::getPt1Address(L1MuBMLUTHandler::PtAssMethod method) co
 int L1MuBMAssignmentUnit::getPt2Address(L1MuBMLUTHandler::PtAssMethod method) const {
 
   // phib values of track segments from stations 1, 2 and 4
-  int phib2 = ( getTSphi(2) != 0 ) ? getTSphi(2)->phib() : -999;
-  int phib4 = ( getTSphi(4) != 0 ) ? getTSphi(4)->phib() : -999;
+  int phib2 = ( getTSphi(2) != nullptr ) ? getTSphi(2)->phib() : -999;
+  int phib4 = ( getTSphi(4) != nullptr ) ? getTSphi(4)->phib() : -999;
 
 
   int bendangle = -999;
