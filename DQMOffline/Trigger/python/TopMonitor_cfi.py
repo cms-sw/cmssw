@@ -64,6 +64,8 @@ hltTOPmonitoring.histoPSet.MHTPSet = cms.PSet(
 )
 
 
+hltTOPmonitoring.enablePhotonPlot = cms.bool(False)
+
 #MET and HT binning
 hltTOPmonitoring.histoPSet.metBinning = cms.vdouble(0,20,40,60,80,100,125,150,175,200)
 hltTOPmonitoring.histoPSet.HTBinning  = cms.vdouble(0,20,40,60,80,100,125,150,175,200,300,400,500,700)
@@ -79,10 +81,12 @@ hltTOPmonitoring.histoPSet.muPtBinning  = cms.vdouble(0,5,10,20,30,40,50,70,100,
 hltTOPmonitoring.histoPSet.eleEtaBinning2D = cms.vdouble(-2.5,-1.5,-0.6,0.,0.6,1.5,2.5)
 hltTOPmonitoring.histoPSet.jetEtaBinning2D = cms.vdouble(-2.5,-1.5,-0.6,0.,0.6,1.5,2.5)
 hltTOPmonitoring.histoPSet.muEtaBinning2D  = cms.vdouble(-2.5,-1.5,-0.6,0.,0.6,1.5,2.5)
+hltTOPmonitoring.histoPSet.phoEtaBinning2D = cms.vdouble(-2.5,-1.5,-0.6,0.,0.6,1.5,2.5)
 #pt binning 2D
 hltTOPmonitoring.histoPSet.elePtBinning2D = cms.vdouble(0,20,30,50,100,200,400)
 hltTOPmonitoring.histoPSet.jetPtBinning2D = cms.vdouble(0,20,30,50,100,200,400)
 hltTOPmonitoring.histoPSet.muPtBinning2D  = cms.vdouble(0,20,30,50,100,200,400)
+hltTOPmonitoring.histoPSet.phoPtBinning2D = cms.vdouble(0,20,30,50,100,200,400)
 #HT and phi binning 2D
 hltTOPmonitoring.histoPSet.HTBinning2D  = cms.vdouble(0,20,40,70,100,150,200,400,700)
 hltTOPmonitoring.histoPSet.phiBinning2D = cms.vdouble(-3.1416,-1.8849,-0.6283,0.6283,1.8849,3.1416)
@@ -92,6 +96,7 @@ hltTOPmonitoring.met       = cms.InputTag("pfMetEI") # pfMet
 hltTOPmonitoring.jets      = cms.InputTag("ak4PFJetsCHS") # ak4PFJets, ak4PFJetsCHS, pfJetsEI
 hltTOPmonitoring.electrons = cms.InputTag("gedGsfElectrons") # while pfIsolatedElectronsEI are reco::PFCandidate !
 hltTOPmonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI are reco::PFCandidate !
+hltTOPmonitoring.photons   = cms.InputTag("photons") #reco::Photon 
 #Suvankar
 hltTOPmonitoring.vertices  = cms.InputTag("offlinePrimaryVertices")
 
