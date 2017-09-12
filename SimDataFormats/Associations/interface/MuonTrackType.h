@@ -24,7 +24,7 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 
 namespace reco {
-    enum MuonTrackType { InnerTk, OuterTk, GlobalTk, Segments };
+    enum MuonTrackType { InnerTk, OuterTk, GlobalTk, Segments, GlbOrTrk };
 
     struct RefToBaseSort { 
       template<typename T> bool operator()(const edm::RefToBase<T> &r1, const edm::RefToBase<T> &r2) const { 
