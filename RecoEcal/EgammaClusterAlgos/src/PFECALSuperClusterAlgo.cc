@@ -395,8 +395,17 @@ buildSuperCluster(CalibClusterPtr& seed,
 
   //temporary fix for HGCal issue
   if (not_clustered == clusters.begin()) {
-    clusters.erase(clusters.begin());
-    return;
+    if(dropUnseedable_){
+      clusters.erase(clusters.begin());
+      return;
+    }
+    else {
+      throw cms::Exception("PFECALSuperClusterAlgo::buildSuperCluster")
+        << "Cluster is not seedable!" << std::endl 
+        << "\tNon-Clustered cluster: e = " << (*not_clustered)->energy_nocalib()
+        << " eta = " << (*not_clustered)->eta() << " phi = " << (*not_clustered)->phi()
+        << std::endl;
+    }
   }
 
   // move the clustered clusters out of available cluster list
