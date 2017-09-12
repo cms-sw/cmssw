@@ -84,7 +84,7 @@ class HGCalShowerSeparation : public DQMEDAnalyzer {
   std::vector<MonitorElement*> idealDeltaXY_;
   std::vector<MonitorElement*> centers_;
 
-  static const int layers_ = 52;
+  static constexpr int layers_ = 52;
 };
 
 HGCalShowerSeparation::HGCalShowerSeparation(const edm::ParameterSet& iConfig)
