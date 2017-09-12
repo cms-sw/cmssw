@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "EventFilter/L1TRawToDigi/interface/AMCSpec.h"
+#include "EventFilter/L1TRawToDigi/interface/BxBlock.h"
 
 namespace l1t {
    enum block_t { MP7 = 0, CTP7, MTF7 };
@@ -50,8 +51,8 @@ namespace l1t {
       public:
          Block(const BlockHeader& h, const uint32_t * payload_start, const uint32_t * payload_end) :
             header_(h), payload_(payload_start, payload_end) {};
-         Block(unsigned int id, const std::vector<uint32_t>& payload, unsigned int capID=0, block_t type=MP7) :
-            header_(id, payload.size(), capID, type), payload_(payload) {};
+         Block(unsigned int id, const std::vector<uint32_t>& payload, unsigned int capID=0, unsigned int flags=0, block_t type=MP7) :
+            header_(id, payload.size(), capID, flags, type), payload_(payload) {};
 
          bool operator<(const Block& o) const { return header() < o.header(); };
 
@@ -63,6 +64,7 @@ namespace l1t {
          void amc(const amc::Header& h) { amc_ = h; };
          amc::Header amc() const { return amc_; };
 
+         BxBlocks getBxBlocks(unsigned int payloadWordsPerBx, bool bxHeader) const;
       private:
          BlockHeader header_;
          amc::Header amc_;
