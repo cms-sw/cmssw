@@ -186,7 +186,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
 #endif
 
   bool debug = debug_state;
-  float timeTOA = 0.;
+  float timeTOA = 0.f;
 
 
   //first look at time
@@ -196,11 +196,11 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
   //noise fluctuation on charge is added after ToA computation
   //do not recheck the ToA firing threshold tdcForToaOnset_fC_[thickness-1] not to bias the efficiency 
   //to be done properly with realistic ToA shaper and jitter for the moment accounted in the smearing 
-  if(toaColl[fireBX] != 0.){
+  if(toaColl[fireBX] != 0.f){
     timeTOA = toaColl[fireBX];
     if(jitterNoise2_ns_[0] != 0) timeTOA = CLHEP::RandGaussQ::shoot(engine, timeTOA, getTimeJitter(chargeColl[fireBX], thickness));
     else timeTOA = CLHEP::RandGaussQ::shoot(engine, timeTOA, tdcResolutionInNs_);
-    if(timeTOA >= 0. && timeTOA <= 25.) toaFlags[fireBX] = true;
+    if(timeTOA >= 0.f && timeTOA <= 25.f) toaFlags[fireBX] = true;
   }
 
   //now look at charge

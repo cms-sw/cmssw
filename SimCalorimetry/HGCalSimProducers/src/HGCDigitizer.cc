@@ -399,7 +399,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
 
     //working version with pileup only for in-time hits
     int waferThickness = getCellThickness(geom,id);
-    float accChargeForToA = 0;
+    float accChargeForToA = 0.f;
     bool orderChanged = false;
     if(itime == 9){
       if(hitRefs_bx0[id].empty()){
@@ -432,8 +432,8 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
 	    ((simHitIt->second).hit_info[1][itime] == 0 || orderChanged == true) ){
       float fireTDC = hitRefs_bx0[id].back().second;
       if (hitRefs_bx0[id].size() > 1){
-	float chargeBeforeThr = 0.;
-	float tofchargeBeforeThr = 0.;
+	float chargeBeforeThr = 0.f;
+	float tofchargeBeforeThr = 0.f;
 	for(const auto& step : hitRefs_bx0[id]){
 	  if(step.first + chargeBeforeThr <= tdcForToaOnset[waferThickness-1]){
 	    chargeBeforeThr += step.first;
