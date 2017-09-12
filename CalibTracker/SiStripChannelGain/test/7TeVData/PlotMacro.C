@@ -39,11 +39,11 @@ TH1D* ChargeToMPV(TH2* InputHisto, std::string Name, bool DivideByX);
 
 
 
-void PlotMacro(std::string modeName="IsoBunch", std::string TextToPrint_="CMS Preliminary 2015"){
+void PlotMacro(std::string modeName="StdBunch", std::string TextToPrint_="CMS Preliminary 2017"){
    system("mkdir Pictures");
    printf("Plotting histograms for %s calibration\n", modeName.c_str());   
    PlotMacro_Core("file:Gains_Tree.root"     , "SiStripCalib/"          , modeName, "Pictures/Gains"     , TextToPrint_ + "  -  Particle Gain");
-   PlotMacro_Core("file:Validation_Tree.root", "SiStripCalibValidation/", modeName, "Pictures/Validation", TextToPrint_ + "  -  Gain Validation");
+   //PlotMacro_Core("file:Validation_Tree.root", "SiStripCalibValidation/", modeName, "Pictures/Validation", TextToPrint_ + "  -  Gain Validation");
 }
 
 
@@ -79,9 +79,8 @@ void PlotMacro_Core(std::string input, std::string moduleName, std::string modeN
 
    TFile* f1     = new TFile(input.c_str());
    TTree *t1     = (TTree*)GetObjectFromPath(f1,moduleName+"APVGain");
-
+   cout<<"Mode name = "<<modeName<<endl;
    if(t1==0) return;
-
    t1->SetBranchAddress("Index"             ,&tree_Index      );
    t1->SetBranchAddress("DetId"             ,&tree_DetId      );
    t1->SetBranchAddress("APVId"             ,&tree_APVId      );
@@ -104,8 +103,7 @@ void PlotMacro_Core(std::string input, std::string moduleName, std::string modeN
    t1->SetBranchAddress("PrevGainTick"      ,&tree_PrevGainTick);
    t1->SetBranchAddress("NEntries"          ,&tree_NEntries   );
    t1->SetBranchAddress("isMasked"          ,&tree_isMasked   );
-
-   TH2S* ChargeDistrib  = (TH2S*)GetObjectFromPath(f1,moduleName+"Charge_Vs_Index_"+modeName);
+   TH2D* ChargeDistrib  = (TH2D*)GetObjectFromPath(f1,moduleName+"Charge_Vs_Index_"+modeName);
    //TH2D* ChargeDistribA = (TH2D*)GetObjectFromPath(f1,moduleName+"Charge_Vs_Index_Absolute_"+modeName);
 
    TH2D* Charge_Vs_PathlengthTIB   = (TH2D*)GetObjectFromPath(f1,moduleName+"Charge_Vs_PathlengthTIB_"+modeName);
@@ -204,6 +202,25 @@ void PlotMacro_Core(std::string input, std::string moduleName, std::string modeN
    TH2D* MPVErrorVsN    = new TH2D("MPVErrorVsN"   ,"MPVErrorVsN"   ,500,    0,1000, 150, 0, 150);              
 
 
+   TH1D* ChargeWoG1     = new TH1D("ChargeWoG1"    ,"ChargeWoG1"    ,               2000, 0,4000); 
+   TH1D* ChargeWoG1TIB  = new TH1D("ChargeWoG1TIB" ,"ChargeWoG1TIB" ,               2000, 0,4000);
+   TH1D* ChargeWoG1TID  = new TH1D("ChargeWoG1TID" ,"ChargeWoG1TID" ,               2000, 0,4000);
+   TH1D* ChargeWoG1TOB  = new TH1D("ChargeWoG1TOB" ,"ChargeWoG1TOB" ,               2000, 0,4000);
+   TH1D* ChargeWoG1TEC  = new TH1D("ChargeWoG1TEC" ,"ChargeWoG1TEC" ,               2000, 0,4000);
+   
+   TH1D* ChargeWoG1G2     = new TH1D("ChargeWoG1G2"    ,"ChargeWoG1G2"    ,               2000, 0,4000); 
+   TH1D* ChargeWoG1G2TIB  = new TH1D("ChargeWoG1G2TIB" ,"ChargeWoG1G2TIB" ,               2000, 0,4000);
+   TH1D* ChargeWoG1G2TID  = new TH1D("ChargeWoG1G2TID" ,"ChargeWoG1G2TID" ,               2000, 0,4000);
+   TH1D* ChargeWoG1G2TOB  = new TH1D("ChargeWoG1G2TOB" ,"ChargeWoG1G2TOB" ,               2000, 0,4000);
+   TH1D* ChargeWoG1G2TEC  = new TH1D("ChargeWoG1G2TEC" ,"ChargeWoG1G2TEC" ,               2000, 0,4000);
+
+
+   TH1D* ChargeWoG2     = new TH1D("ChargeWoG2"    ,"ChargeWoG2"    ,               2000, 0,4000); 
+   TH1D* ChargeWoG2TIB  = new TH1D("ChargeWoG2TIB" ,"ChargeWoG2TIB" ,               2000, 0,4000);
+   TH1D* ChargeWoG2TID  = new TH1D("ChargeWoG2TID" ,"ChargeWoG2TID" ,               2000, 0,4000);
+   TH1D* ChargeWoG2TOB  = new TH1D("ChargeWoG2TOB" ,"ChargeWoG2TOB" ,               2000, 0,4000);
+   TH1D* ChargeWoG2TEC  = new TH1D("ChargeWoG2TEC" ,"ChargeWoG2TEC" ,               2000, 0,4000);
+
 
    TH1D* ChargePIB      = new TH1D("ChargePIB"     ,"ChargePIB"     ,               2000, 0,4000);
    TH1D* ChargePIE      = new TH1D("ChargePIE"     ,"ChargePIE"     ,               2000, 0,4000);
@@ -252,7 +269,7 @@ void PlotMacro_Core(std::string input, std::string moduleName, std::string modeN
    TH2D* GainVsPrevGainTID      = new TH2D("GainVsPrevGainTID"     ,"GainVsPrevGainTID"     ,               100, 0,2, 100, 0,2);
    TH2D* GainVsPrevGainTOB      = new TH2D("GainVsPrevGainTOB"     ,"GainVsPrevGainTOB"     ,               100, 0,2, 100, 0,2);
    TH2D* GainVsPrevGainTEC      = new TH2D("GainVsPrevGainTEC"     ,"GainVsPrevGainTEC"     ,               100, 0,2, 100, 0,2);
-
+   
    printf("Progressing Bar              :0%%       20%%       40%%       60%%       80%%       100%%\n");
    printf("Looping on the Tree          :");
    int TreeStep = t1->GetEntries()/50;if(TreeStep==0)TreeStep=1;
@@ -262,6 +279,9 @@ void PlotMacro_Core(std::string input, std::string moduleName, std::string modeN
 
       int bin = ChargeDistrib->GetXaxis()->FindBin(tree_Index);
       TH1D* Proj         = ChargeDistrib ->ProjectionY("proj" ,bin, bin);
+      TH1D* ProjScaledG1     = new TH1D("projScaledG1"      ,"projScaledG1"    ,               2000, 0,4000); 
+      TH1D* ProjScaledG1G2   = new TH1D("projScaledG1G2"    ,"projScaledG1G2"  ,               2000, 0,4000); 
+      TH1D* ProjScaledG2     = new TH1D("projScaledG2"      ,"projScaledG2"    ,               2000, 0,4000); 
       //TH1D* ProjAbsolute = ChargeDistribA->ProjectionY("projA",bin, bin);
 
       if(tree_SubDet>=3 && tree_FitMPV<0      ) NoMPV         ->Fill(tree_z ,tree_R);
@@ -306,19 +326,38 @@ void PlotMacro_Core(std::string input, std::string moduleName, std::string modeN
                                                 MPVErrorVsPhi ->Fill(tree_Phi,tree_FitMPVErr);
                                                 MPVErrorVsN   ->Fill(tree_NEntries,tree_FitMPVErr);
       }
+      
+      // Rescaling histogram...
+      if (tree_PrevGainTick>0 && tree_PrevGain >0){
+         for (int binId=0; binId<Proj->GetXaxis()->GetNbins(); binId++){
+/*            float binX = Proj->GetXaxis()->GetBinCenter(binId);
+            ProjScaledG1->Fill(tree_PrevGainTick*binX,Proj->GetBinContent(binId));   
+            ProjScaledG1G2->Fill(tree_PrevGainTick*tree_PrevGain*binX,Proj->GetBinContent(binId));   
+            ProjScaledG2->Fill(tree_PrevGain*binX,Proj->GetBinContent(binId));   */
+            ProjScaledG1->SetBinContent(tree_PrevGainTick*binId,Proj->GetBinContent(binId));   
+            ProjScaledG1G2->SetBinContent(tree_PrevGainTick*tree_PrevGain*binId,Proj->GetBinContent(binId));   
+            ProjScaledG2->SetBinContent(tree_PrevGain*binId,Proj->GetBinContent(binId));
+         }
+      }
+      
+      ChargeWoG1 ->Add(ProjScaledG1,1);
 
-      if(tree_SubDet==1                       ) ChargePIB  ->Add(Proj,1);
-      if(tree_SubDet==2                       ) ChargePIE  ->Add(Proj,1);
-      if(tree_SubDet==3                       ) ChargeTIB  ->Add(Proj,1);
-      if(tree_SubDet==4                       ) ChargeTID  ->Add(Proj,1);
-      if(tree_SubDet==4 && tree_Eta<0         ) ChargeTIDM ->Add(Proj,1);
-      if(tree_SubDet==4 && tree_Eta>0         ) ChargeTIDP ->Add(Proj,1);
-      if(tree_SubDet==5                       ) ChargeTOB  ->Add(Proj,1);
-      if(tree_SubDet==6                       ) ChargeTEC  ->Add(Proj,1);
-      if(tree_SubDet==6 && tree_Thickness<0.04) ChargeTEC1 ->Add(Proj,1);
-      if(tree_SubDet==6 && tree_Thickness>0.04) ChargeTEC2 ->Add(Proj,1);
-      if(tree_SubDet==6 && tree_Eta>0         ) ChargeTECP ->Add(Proj,1);
-      if(tree_SubDet==6 && tree_Eta<0         ) ChargeTECM ->Add(Proj,1);
+      if(tree_SubDet==1                       ) {ChargePIB  ->Add(Proj,1);} 
+      if(tree_SubDet==2                       ) {ChargePIE  ->Add(Proj,1);}
+      if(tree_SubDet==3                       ) {ChargeTIB  ->Add(Proj,1); ChargeWoG1TIB->Add(ProjScaledG1,1);
+                                                ChargeWoG1G2TIB->Add(ProjScaledG1G2,1); ChargeWoG2TIB->Add(ProjScaledG2,1);}
+      if(tree_SubDet==4                       ) {ChargeTID  ->Add(Proj,1); ChargeWoG1TID->Add(ProjScaledG1,1);
+                                                ChargeWoG1G2TID->Add(ProjScaledG1G2,1); ChargeWoG2TID->Add(ProjScaledG2,1);}
+      if(tree_SubDet==4 && tree_Eta<0         ) {ChargeTIDM ->Add(Proj,1);}
+      if(tree_SubDet==4 && tree_Eta>0         ) {ChargeTIDP ->Add(Proj,1);}
+      if(tree_SubDet==5                       ) {ChargeTOB  ->Add(Proj,1); ChargeWoG1TOB->Add(ProjScaledG1,1);
+                                                ChargeWoG1G2TOB->Add(ProjScaledG1G2,1); ChargeWoG2TOB->Add(ProjScaledG2,1);}
+      if(tree_SubDet==6                       ) {ChargeTEC  ->Add(Proj,1); ChargeWoG1TEC->Add(ProjScaledG1,1);
+                                                ChargeWoG1G2TEC->Add(ProjScaledG1G2,1); ChargeWoG2TEC->Add(ProjScaledG2,1);}
+      if(tree_SubDet==6 && tree_Thickness<0.04) {ChargeTEC1 ->Add(Proj,1);}
+      if(tree_SubDet==6 && tree_Thickness>0.04) {ChargeTEC2 ->Add(Proj,1);}
+      if(tree_SubDet==6 && tree_Eta>0         ) {ChargeTECP ->Add(Proj,1);}
+      if(tree_SubDet==6 && tree_Eta<0         ) {ChargeTECM ->Add(Proj,1);}
       if(tree_SubDet==6 && tree_Eta<0 && tree_Thickness<0.04) ChargeTECM1 ->Add(Proj,1);
       if(tree_SubDet==6 && tree_Eta<0 && tree_Thickness>0.04) ChargeTECM2 ->Add(Proj,1);
       if(tree_SubDet==6 && tree_Eta>0 && tree_Thickness<0.04) ChargeTECP1 ->Add(Proj,1);
@@ -359,6 +398,9 @@ void PlotMacro_Core(std::string input, std::string moduleName, std::string modeN
 
 
       delete Proj;
+      delete ProjScaledG1;
+      delete ProjScaledG2;
+      delete ProjScaledG1G2;
       //delete ProjAbsolute;
    }printf("\n");
 
@@ -371,6 +413,7 @@ void PlotMacro_Core(std::string input, std::string moduleName, std::string modeN
    unsigned int CountAPV_NoGain   = 0;
    unsigned int CountAPV_NoGainU  = 0;
    unsigned int CountAPV_LowGain  = 0;
+   unsigned int CountAPV_HighGain = 0;
    unsigned int CountAPV_DiffGain = 0;
 
    TrackerMap* tkmap = new TrackerMap("  ParticleGain  ");
@@ -384,6 +427,7 @@ void PlotMacro_Core(std::string input, std::string moduleName, std::string modeN
    for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
       if(ientry%TreeStep==0){printf(".");fflush(stdout);}     
       t1->GetEntry(ientry);
+      if (tree_DetId<369120277)continue;
       if(previousMod>0&&tree_APVId==0){fprintf(pFile,"%i %f\n",previousMod,MaxGain); tkmap->fill(previousMod, MaxGain);  MaxGain=1;  } 
       previousMod = tree_DetId;
       if(fabs(tree_Gain-1.0)>fabs(MaxGain-1))MaxGain=tree_Gain;
@@ -396,63 +440,104 @@ void PlotMacro_Core(std::string input, std::string moduleName, std::string modeN
    tkmap->reset();    
 
 
-   pFile = fopen((output + "_LowResponseModule.txt").c_str(),"w");
+   pFile = fopen((output + "_NoClusterForAll.txt").c_str(),"w");
    fprintf(pFile,"\n\nALL APVs WITH NO ENTRIES (NO RECO CLUSTER ON IT)\n--------------------------------------------\n");
    printf("Looping on the Tree          :");
    for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {      
       if(ientry%TreeStep==0){printf(".");fflush(stdout);}
       t1->GetEntry(ientry);  if(tree_SubDet<3)continue;
+      if (tree_DetId<369120277)continue;
       CountAPV_Total++;
-      if(tree_NEntries==0){fprintf(pFile,"%i-%i, ",tree_DetId,tree_APVId);  CountAPV_NoEntry++;}
+      if(tree_NEntries==0){fprintf(pFile,"%i-%i\n",tree_DetId,tree_APVId);  CountAPV_NoEntry++;}
    }printf("\n");
    fprintf(pFile,"\n--> %i / %i = %f%% APV Concerned\n",CountAPV_NoEntry,CountAPV_Total,(100.0*CountAPV_NoEntry)/CountAPV_Total);
+   fclose(pFile);
 
 
-   fprintf(pFile,"\n\nUNMASKED APVs WITH NO ENTRIES (NO RECO CLUSTER ON IT)\n--------------------------------------------\n");
+   pFile = fopen((output + "_NoClusterForUnmasked.txt").c_str(),"w");
+   fprintf(pFile,"\n\nUNMASKED APVs WITHOUT ANY CLUSTER (NO RECO CLUSTER ON IT)\n--------------------------------------------\n");
    printf("Looping on the Tree          :");
    for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
       if(ientry%TreeStep==0){printf(".");fflush(stdout);}
       t1->GetEntry(ientry);   if(tree_SubDet<3)continue;
-      if(tree_NEntries==0 && !tree_isMasked){fprintf(pFile,"%i-%i, ",tree_DetId,tree_APVId); tkmap->fill(tree_DetId, 1); CountAPV_NoEntryU++;}
+      if (tree_DetId<369120277)continue;
+      if(tree_NEntries==0 && !tree_isMasked){fprintf(pFile,"%i-%i\n",tree_DetId,tree_APVId); tkmap->fill(tree_DetId, 1); CountAPV_NoEntryU++;}
    }printf("\n");
    fprintf(pFile,"\n--> %i / %i = %f%% APV Concerned\n",CountAPV_NoEntryU,CountAPV_Total,(100.0*CountAPV_NoEntryU)/CountAPV_Total);
+   fclose(pFile);
 
    tkmap->setTitle(TextToPrint + " : #Unmasked APV without any cluster");
    tkmap->save                 (true, 1.0, 6.0, output + "_TKMap_NoCluster_MECH.png");
    tkmap->reset();    
 
 
+   pFile = fopen((output + "_NoGainForAll.txt").c_str(),"w");
    fprintf(pFile,"\n\nALL APVs WITH NO GAIN COMPUTED\n--------------------------------------------\n");
    printf("Looping on the Tree          :");
    for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
       if(ientry%TreeStep==0){printf(".");fflush(stdout);}
       t1->GetEntry(ientry);   if(tree_SubDet<3)continue;
-      if(tree_FitMPV<0){fprintf(pFile,"%i-%i, ",tree_DetId,tree_APVId); CountAPV_NoGain++;}
+      if (tree_DetId<369120277)continue;
+      if(tree_FitMPV<0){fprintf(pFile,"%i-%i\n",tree_DetId,tree_APVId); CountAPV_NoGain++;}
    }printf("\n");
    fprintf(pFile,"\n--> %i / %i = %f%% APV Concerned\n",CountAPV_NoGain,CountAPV_Total,(100.0*CountAPV_NoGain)/CountAPV_Total);
+   fclose(pFile);
 
+   pFile = fopen((output + "_NoGainForUnmasked.txt").c_str(),"w");
    fprintf(pFile,"\n\nUNMASKED APVs WITH NO GAIN COMPUTED\n--------------------------------------------\n");
    printf("Looping on the Tree          :");
    for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
       if(ientry%TreeStep==0){printf(".");fflush(stdout);}
       t1->GetEntry(ientry);   if(tree_SubDet<3)continue;
-      if(tree_FitMPV<0 && !tree_isMasked){fprintf(pFile,"%i-%i, ",tree_DetId,tree_APVId);  tkmap->fill(tree_DetId, 1); CountAPV_NoGainU++;}
+      if (tree_DetId<369120277)continue;
+      if(tree_FitMPV<0 && !tree_isMasked){fprintf(pFile,"%i-%i\n",tree_DetId,tree_APVId);  tkmap->fill(tree_DetId, 1); CountAPV_NoGainU++;}
    }printf("\n");
    fprintf(pFile,"\n--> %i / %i = %f%% APV Concerned\n",CountAPV_NoGainU,CountAPV_Total,(100.0*CountAPV_NoGainU)/CountAPV_Total);
+   fclose(pFile);
 
    tkmap->setTitle(TextToPrint + " : #Unmasked APV for which no gain was computed");
    tkmap->save                 (true, 1.0, 6.0, output + "_TKMap_NoGain_MECH.png");
    tkmap->reset();
 
 
+   pFile = fopen((output + "_LowResponseForUnmasked.txt").c_str(),"w");
    fprintf(pFile,"\n\nUNMASKED APVs WITH LOW RESPONSE\n--------------------------------------------\n");
+   fprintf(pFile,"  ID-APV     Fit MPV   Gain\n");
    printf("Looping on the Tree          :");
    for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
       if(ientry%TreeStep==0){printf(".");fflush(stdout);}
       t1->GetEntry(ientry);   if(tree_SubDet<3)continue;
-      if(tree_FitMPV>0 && tree_FitMPV<220 && !tree_isMasked){fprintf(pFile,"%i-%i, ",tree_DetId,tree_APVId); tkmap->fill(tree_DetId, 1); CountAPV_LowGain++;}
+      if (tree_DetId<369120277)continue;
+      if(tree_FitMPV>0 && tree_FitMPV<220 && !tree_isMasked) {
+          fprintf(pFile,"%i-%i   %5.1f   %4.1f\n",tree_DetId,tree_APVId,tree_FitMPV,tree_Gain); 
+          tkmap->fill(tree_DetId, 1); 
+          CountAPV_LowGain++;
+      }
    }printf("\n");
    fprintf(pFile,"\n--> %i / %i = %f%% APV Concerned\n",CountAPV_LowGain,CountAPV_Total,(100.0*CountAPV_LowGain)/CountAPV_Total);
+   fclose(pFile);
+
+   tkmap->setTitle(TextToPrint + " : #Unmasked APV with a gain > 1.26");
+   tkmap->save                 (true, 1.0, 6.0, output + "_TKMap_highGain_MECH.png");
+   tkmap->reset();
+
+
+   pFile = fopen((output + "_HighResponseForUnmasked.txt").c_str(),"w");
+   fprintf(pFile,"\n\nUNMASKED APVs WITH HIGH RESPONSE\n--------------------------------------------\n");
+   fprintf(pFile,"  ID-APV     Fit MPV   Gain\n");
+   printf("Looping on the Tree          :");
+   for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
+      if(ientry%TreeStep==0){printf(".");fflush(stdout);}
+      t1->GetEntry(ientry);   if(tree_SubDet<3)continue;
+      if (tree_DetId<369120277)continue;
+      if(tree_FitMPV>0 && tree_FitMPV>380 && !tree_isMasked) {
+          fprintf(pFile,"%i-%i   %5.1f   %4.1f\n",tree_DetId,tree_APVId,tree_FitMPV,tree_Gain);
+          tkmap->fill(tree_DetId, 1);
+          CountAPV_HighGain++;
+      }
+   }printf("\n");
+   fprintf(pFile,"\n--> %i / %i = %f%% APV Concerned\n",CountAPV_HighGain,CountAPV_Total,(100.0*CountAPV_HighGain)/CountAPV_Total);
+   fclose(pFile);
 
 
    tkmap->setTitle(TextToPrint + " : #Unmasked APV with a gain<0.75");
@@ -460,12 +545,15 @@ void PlotMacro_Core(std::string input, std::string moduleName, std::string modeN
    tkmap->reset();
 
 
+
+   pFile = fopen((output + "_BigGainChangeForUnmasked.txt").c_str(),"w");
    fprintf(pFile,"\n\nUNMASKED APVs WITH SIGNIFICANT CHANGE OF GAIN VALUE\n--------------------------------------------\n");
    printf("Looping on the Tree          :");
    for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
       if(ientry%TreeStep==0){printf(".");fflush(stdout);}
       t1->GetEntry(ientry);   if(tree_SubDet<3)continue;
-      if(tree_FitMPV>0 && !tree_isMasked && (tree_Gain/tree_PrevGain<0.7 || tree_Gain/tree_PrevGain>1.3)){fprintf(pFile,"%i-%i, ",tree_DetId,tree_APVId); tkmap->fill(tree_DetId, 1); CountAPV_DiffGain++;}
+      if (tree_DetId<369120277)continue;
+      if(tree_FitMPV>0 && !tree_isMasked && (tree_Gain/tree_PrevGain<0.7 || tree_Gain/tree_PrevGain>1.3)){fprintf(pFile,"%i-%i\n",tree_DetId,tree_APVId); tkmap->fill(tree_DetId, 1); CountAPV_DiffGain++;}
    }printf("\n");
    fprintf(pFile,"\n--> %i / %i = %f%% APV Concerned\n",CountAPV_DiffGain,CountAPV_Total,(100.0*CountAPV_DiffGain)/CountAPV_Total);
    fclose(pFile);
@@ -482,6 +570,7 @@ void PlotMacro_Core(std::string input, std::string moduleName, std::string modeN
    for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
       if(ientry%TreeStep==0){printf(".");fflush(stdout);}     
       t1->GetEntry(ientry);
+      if (tree_DetId<369120277)continue;
       if(previousMod>0&&tree_APVId==0&&MaxError>=0){tkmap->fill(previousMod, 100.0*MaxError);  MaxError=-1;  } 
       previousMod = tree_DetId;
       if(tree_FitMPV>0 && tree_FitMPVErr/300.0>MaxError)MaxError=tree_FitMPVErr/300.0;
@@ -494,20 +583,41 @@ void PlotMacro_Core(std::string input, std::string moduleName, std::string modeN
 
 
    printf("Looping on the Tree          :");
-   double MaxRatio=-1;  previousMod=0;
+   double MaxRatio=0;  previousMod=0;
    for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
       if(ientry%TreeStep==0){printf(".");fflush(stdout);}
       t1->GetEntry(ientry);
-      if(previousMod>0&&tree_APVId==0&&MaxRatio>=0){tkmap->fill(previousMod, MaxRatio);  MaxRatio=-1;  }
+      if (tree_DetId<369120277)continue;
+      if(previousMod>0&&tree_APVId==0&&fabs(MaxRatio)>=0){tkmap->fill(previousMod, MaxRatio);  MaxRatio=0;  }
       previousMod = tree_DetId;
-      if(tree_FitMPV>0 && fabs((tree_Gain/tree_PrevGain)-1)>MaxRatio)MaxRatio=fabs((tree_Gain/tree_PrevGain)-1);
+      if(tree_FitMPV>0 && fabs((tree_Gain/tree_PrevGain)-1)>fabs(MaxRatio))MaxRatio=(tree_Gain/tree_PrevGain)-1;
    }printf("\n");
    if(previousMod>0){tkmap->fill(previousMod, MaxRatio); }
-   tkmap->setTitle(TextToPrint + " : | (G2new / G2gt) - 1 | per module");
-   tkmap->save                 (true, 0.0, 0.5, output + "_TKMap_GainRatio_MECH.png");
+   tkmap->setTitle(TextToPrint + " :  (G2new / G2gt) - 1  per module");
+   tkmap->save                 (true, -0.5, 0.5, output + "_TKMap_GainRatio_MECH.png");
+   tkmap->save                 (true, -0.1, 0.1, output + "_TKMap_GainRatio_MECH_zoom.png");
    tkmap->reset();
 
 
+   printf("Looping on the Tree          :");
+   double prevEntries=-1;  previousMod=0; double nEntriesMax=-1;
+   for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
+      if(ientry%TreeStep==0){printf(".");fflush(stdout);}
+      t1->GetEntry(ientry);
+      if (tree_DetId<369120277)continue;
+      if(previousMod>0&&tree_APVId==0&&prevEntries>0){
+         tkmap->fill(previousMod, prevEntries); 
+         if(prevEntries>nEntriesMax)nEntriesMax=prevEntries;
+         prevEntries=-1;  
+         }
+      previousMod=tree_DetId;
+      prevEntries+=tree_NEntries;
+   }printf("\n");
+   if(previousMod>0){tkmap->fill(previousMod, prevEntries+1); }
+   tkmap->setTitle(TextToPrint + " : Number of entries");
+   tkmap->save                 (true, 0.0, nEntriesMax, output + "_TKMap_Nentries.png");
+   tkmap->save                 (true, 0.0, 5000, output + "_TKMap_Nentries_zoom.png");
+   tkmap->reset();
    // ######################################################### PRINT DISTRIBUTION INFO #################################
     gROOT->Reset();
    setTDRStyle();
@@ -534,6 +644,42 @@ void PlotMacro_Core(std::string input, std::string moduleName, std::string modeN
    DrawPreliminary(TextToPrint);
    SaveCanvas(c1,output,"SubDetChargePIB");
    fprintf(pFile,"PIB   MPV=%7.2f +- %7.2f  Chi2=%7.2f\n",Results[0],Results[1],Results[4]);
+   
+   c1 = new TCanvas("c1","c1,",600,600);      legend.clear();
+   Histos[0] = ChargeWoG2TEC;               legend.push_back("TEC");
+   Histos[1] = ChargeWoG2TIB;               legend.push_back("TIB");
+   Histos[2] = ChargeWoG2TID;               legend.push_back("TID");
+   Histos[3] = ChargeWoG2TOB;               legend.push_back("TOB");
+   DrawSuperposedHistos((TH1**)Histos, legend, "",  "Charge after G2 removal [ADC/mm]", "Number of Clusters", 0,800 , 0,0);
+   TLine* l0s = new TLine(300, 0,300,((TH1*)Histos[0])->GetMaximum()); l0s->SetLineWidth(3); l0s->SetLineStyle(2); l0s->Draw("same");
+   DrawLegend(Histos,legend,"","P");
+   DrawPreliminary(TextToPrint);
+   SaveCanvas(c1,output,"ChargeWithoutG2SubDet");
+   delete l0s;
+
+   c1 = new TCanvas("c1","c1,",600,600);      legend.clear();
+   Histos[0] = ChargeWoG1G2TEC;               legend.push_back("TEC");
+   Histos[1] = ChargeWoG1G2TIB;               legend.push_back("TIB");
+   Histos[2] = ChargeWoG1G2TID;               legend.push_back("TID");
+   Histos[3] = ChargeWoG1G2TOB;               legend.push_back("TOB");
+   DrawSuperposedHistos((TH1**)Histos, legend, "",  "Charge after G1&G2 removal [ADC/mm]", "Number of Clusters", 0,800 , 0,0);
+   l0s = new TLine(300, 0,300,((TH1*)Histos[0])->GetMaximum()); l0s->SetLineWidth(3); l0s->SetLineStyle(2); l0s->Draw("same");
+   DrawLegend(Histos,legend,"","P");
+   DrawPreliminary(TextToPrint);
+   SaveCanvas(c1,output,"ChargeWithoutG1G2SubDet");
+   delete l0s;
+
+   c1 = new TCanvas("c1","c1,",600,600);      legend.clear();
+   Histos[0] = ChargeWoG1TEC;               legend.push_back("TEC");
+   Histos[1] = ChargeWoG1TIB;               legend.push_back("TIB");
+   Histos[2] = ChargeWoG1TID;               legend.push_back("TID");
+   Histos[3] = ChargeWoG1TOB;               legend.push_back("TOB");
+   DrawSuperposedHistos((TH1**)Histos, legend, "",  "Charge after G1 removal [ADC/mm]", "Number of Clusters", 0,800 , 0,0);
+   l0s = new TLine(300, 0,300,((TH1*)Histos[0])->GetMaximum()); l0s->SetLineWidth(3); l0s->SetLineStyle(2); l0s->Draw("same");
+   DrawLegend(Histos,legend,"","P");
+   DrawPreliminary(TextToPrint);
+   SaveCanvas(c1,output,"ChargeWithoutG1SubDet");
+   delete l0s;
 
    landau = getLandau(ChargePIE, Results, 0, 5400);
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
@@ -729,6 +875,7 @@ void PlotMacro_Core(std::string input, std::string moduleName, std::string modeN
     DrawSuperposedHistos((TH1**)Histos, legend, "",  "Error on MPV [ADC/mm]", "Number of APVs", 0,500, 0,0);
     DrawStatBox(Histos,legend,true);
     c1->SetLogy(true);
+    c1->SetLogx(true);
     DrawPreliminary(TextToPrint);
     SaveCanvas(c1,output,"Error");
     delete c1;
@@ -736,7 +883,8 @@ void PlotMacro_Core(std::string input, std::string moduleName, std::string modeN
     c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
     Histos[0] = MPVErrorVsMPV;                     legend.push_back("Error Vs MPV");
     DrawTH2D((TH2D**)Histos,legend, "COLZ", "MPV [ADC/mm]", "Error on MPV [ADC/mm]", 0,0, 0,0);
-    c1->SetLogz(true);
+    c1->SetLogy(false);
+    c1->SetLogz();
     DrawPreliminary(TextToPrint);
     SaveCanvas(c1,output,"Error_Vs_MPV", true);
     delete c1;
@@ -744,7 +892,8 @@ void PlotMacro_Core(std::string input, std::string moduleName, std::string modeN
     c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
     Histos[0] = MPVErrorVsEta;                     legend.push_back("Error Vs Eta");
     DrawTH2D((TH2D**)Histos,legend, "COLZ", "module #eta", "Error on MPV [ADC/mm]", 0,0, 0,0);
-    c1->SetLogz(true);
+    c1->SetLogy(false);
+    c1->SetLogz();
     DrawPreliminary(TextToPrint);
     SaveCanvas(c1,output,"Error_Vs_Eta", true);
     delete c1;
@@ -752,7 +901,8 @@ void PlotMacro_Core(std::string input, std::string moduleName, std::string modeN
     c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
     Histos[0] = MPVErrorVsPhi;                     legend.push_back("Error Vs Phi");
     DrawTH2D((TH2D**)Histos,legend, "COLZ", "module #phi", "Error on MPV [ADC/mm]", 0,0, 0,0);
-    c1->SetLogz(true);
+    c1->SetLogy(false);
+    c1->SetLogz();
     DrawPreliminary(TextToPrint);
     SaveCanvas(c1,output,"Error_Vs_Phi", true);
     delete c1;
@@ -760,6 +910,8 @@ void PlotMacro_Core(std::string input, std::string moduleName, std::string modeN
     c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
     Histos[0] = MPVErrorVsN;                       legend.push_back("Error Vs Entries");
     DrawTH2D((TH2D**)Histos,legend, "COLZ", "Number of Entries", "Error on MPV [ADC/mm]", 0,0, 0,0);
+    c1->SetLogx(true);
+    c1->SetLogy(true);
     c1->SetLogz(true);
     DrawPreliminary(TextToPrint);
     SaveCanvas(c1,output,"Error_Vs_N", true);
