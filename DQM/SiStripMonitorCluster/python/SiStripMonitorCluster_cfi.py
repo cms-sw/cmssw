@@ -25,7 +25,7 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
     StripDCSfilter = cms.PSet(),
 
     CreateTrendMEs = cms.bool(False),
-    TrendVsLS = cms.bool(False),
+    TrendVsLS = cms.bool(True),
 
     Trending = cms.PSet(
         Nbins = cms.int32(600),
