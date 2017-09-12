@@ -28,6 +28,7 @@ BPHMonitor::BPHMonitor( const edm::ParameterSet& iConfig ) :
   , prob_binning_           ( getHistoPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("probPSet")     ) )
   , num_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"),consumesCollector(), *this))
   , den_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"),consumesCollector(), *this))
+  , prescaleWeightProvider_( new PrescaleWeightProvider( iConfig.getParameter<edm::ParameterSet>("PrescaleTriggerEventPSet"),consumesCollector(), *this))
   , muoSelection_ ( iConfig.getParameter<std::string>("muoSelection") )
   , muoSelection_ref ( iConfig.getParameter<std::string>("muoSelection_ref") )
   , muoSelection_tag ( iConfig.getParameter<std::string>("muoSelection_tag") )
@@ -61,7 +62,6 @@ BPHMonitor::BPHMonitor( const edm::ParameterSet& iConfig ) :
   , trSelection_ ( iConfig.getParameter<std::string>("muoSelection") )
   , trSelection_ref ( iConfig.getParameter<std::string>("trSelection_ref") )
   , DMSelection_ref ( iConfig.getParameter<std::string>("DMSelection_ref") )
-
 {
 
   muPhi_.numerator   = nullptr;
@@ -130,6 +130,7 @@ BPHMonitor::~BPHMonitor()
 {
   if (num_genTriggerEventFlag_) delete num_genTriggerEventFlag_;
   if (den_genTriggerEventFlag_) delete den_genTriggerEventFlag_;
+  delete prescaleWeightProvider_;
 }
 
 MEbinning BPHMonitor::getHistoPSet(edm::ParameterSet pset)
@@ -355,7 +356,7 @@ void BPHMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   // Initialize the GenericTriggerEventFlag
   if ( num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() ) num_genTriggerEventFlag_->initRun( iRun, iSetup );
   if ( den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on() ) den_genTriggerEventFlag_->initRun( iRun, iSetup );
-
+  prescaleWeightProvider_->initRun( iRun, iSetup );
 }
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -383,6 +384,8 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   edm::Handle<trigger::TriggerEvent> handleTriggerEvent; 
   edm::ESHandle<MagneticField> bFieldHandle;
   // Filter out events if Trigger Filtering is requested
+  int PrescaleWeight = prescaleWeightProvider_->prescaleWeight( iEvent, iSetup );  
+
   if (tnp_>0) {//TnP method 
     if (den_genTriggerEventFlag_->on() && ! den_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
     iEvent.getByToken( hltInputTag_, handleTriggerEvent);
@@ -402,9 +405,9 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
           muEta_.denominator->Fill(m.eta());
           muPt_.denominator ->Fill(m.pt());
           if (muoSelection_( m )){
-            muPhi_.numerator->Fill(m.phi());
-            muEta_.numerator->Fill(m.eta());
-            muPt_.numerator ->Fill(m.pt());
+            muPhi_.numerator->Fill(m.phi(),PrescaleWeight);
+            muEta_.numerator->Fill(m.eta(),PrescaleWeight);
+            muPt_.numerator ->Fill(m.pt(),PrescaleWeight);
           }
         }      
       }
@@ -837,15 +840,15 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 	    if (DiMuMass> maxmassUpsilon || DiMuMass< minmassUpsilon)continue;
 	  }
 	  if (dimuonCL<minprob)continue;
-	  mu1Phi_.numerator->Fill(m.phi());
-	  mu1Eta_.numerator->Fill(m.eta());
-	  mu1Pt_.numerator ->Fill(m.pt());
-	  mu2Phi_.numerator->Fill(m1.phi());
-	  mu2Eta_.numerator->Fill(m1.eta());
-	  mu2Pt_.numerator ->Fill(m1.pt());
-	  DiMuPt_.numerator ->Fill((m1.p4()+m.p4()).Pt() );
-	  DiMuEta_.numerator ->Fill((m1.p4()+m.p4()).Eta() );
-	  DiMuPhi_.numerator ->Fill((m1.p4()+m.p4()).Phi());
+	  mu1Phi_.numerator->Fill(m.phi(),PrescaleWeight);
+	  mu1Eta_.numerator->Fill(m.eta(),PrescaleWeight);
+	  mu1Pt_.numerator ->Fill(m.pt(),PrescaleWeight);
+	  mu2Phi_.numerator->Fill(m1.phi(),PrescaleWeight);
+	  mu2Eta_.numerator->Fill(m1.eta(),PrescaleWeight);
+	  mu2Pt_.numerator ->Fill(m1.pt(),PrescaleWeight);
+	  DiMuPt_.numerator ->Fill((m1.p4()+m.p4()).Pt() ,PrescaleWeight);
+	  DiMuEta_.numerator ->Fill((m1.p4()+m.p4()).Eta() ,PrescaleWeight);
+	  DiMuPhi_.numerator ->Fill((m1.p4()+m.p4()).Phi(),PrescaleWeight);
 	  break;
 	case 3:
 	  if ((Jpsi_) && (!Upsilon_)){
@@ -856,10 +859,10 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 	    if (DiMuMass> maxmassUpsilon || DiMuMass< minmassUpsilon)continue;
 	  }
 	  if (dimuonCL<minprob)continue;
-	  mu1Eta_.numerator->Fill(m.eta());
-	  mu1Pt_.numerator ->Fill(m.pt());
-	  mu2Eta_.numerator->Fill(m1.eta());
-	  mu2Pt_.numerator ->Fill(m1.pt());
+	  mu1Eta_.numerator->Fill(m.eta(),PrescaleWeight);
+	  mu1Pt_.numerator ->Fill(m.pt(),PrescaleWeight);
+	  mu2Eta_.numerator->Fill(m1.eta(),PrescaleWeight);
+	  mu2Pt_.numerator ->Fill(m1.pt(),PrescaleWeight);
 	  break; 
 	case 4:
 	  if (dimuonCL<minprob)continue;
@@ -870,16 +873,16 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 	  if ((!Jpsi_) && (Upsilon_)){
 	    if (DiMuMass> maxmassUpsilon || DiMuMass< minmassUpsilon)continue;
 	  }
-	  mu1Phi_.numerator->Fill(m.phi());
-	  mu1Eta_.numerator->Fill(m.eta());
-	  mu1Pt_.numerator ->Fill(m.pt());
-	  mu2Phi_.numerator->Fill(m1.phi());
-	  mu2Eta_.numerator->Fill(m1.eta());
-	  mu2Pt_.numerator ->Fill(m1.pt());
-	  DiMuPt_.numerator ->Fill((m1.p4()+m.p4()).Pt() );
-	  DiMuEta_.numerator ->Fill((m1.p4()+m.p4()).Eta() );
-	  DiMuPhi_.numerator ->Fill((m1.p4()+m.p4()).Phi());
-	  DiMudR_.numerator ->Fill(reco::deltaR(m,m1));
+	  mu1Phi_.numerator->Fill(m.phi(),PrescaleWeight);
+	  mu1Eta_.numerator->Fill(m.eta(),PrescaleWeight);
+	  mu1Pt_.numerator ->Fill(m.pt(),PrescaleWeight);
+	  mu2Phi_.numerator->Fill(m1.phi(),PrescaleWeight);
+	  mu2Eta_.numerator->Fill(m1.eta(),PrescaleWeight);
+	  mu2Pt_.numerator ->Fill(m1.pt(),PrescaleWeight);
+	  DiMuPt_.numerator ->Fill((m1.p4()+m.p4()).Pt() ,PrescaleWeight);
+	  DiMuEta_.numerator ->Fill((m1.p4()+m.p4()).Eta() ,PrescaleWeight);
+	  DiMuPhi_.numerator ->Fill((m1.p4()+m.p4()).Phi(),PrescaleWeight);
+	  DiMudR_.numerator ->Fill(reco::deltaR(m,m1),PrescaleWeight);
 	  break;
 	case 5:
 	  if (dimuonCL<minprob)continue;
@@ -889,16 +892,16 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 	  if ((!Jpsi_) && (Upsilon_)){
 	    if (DiMuMass> maxmassUpsilon || DiMuMass< minmassUpsilon)continue;
 	  }
-	  mu1Phi_.numerator->Fill(m.phi());
-	  mu1Eta_.numerator->Fill(m.eta());
-	  mu1Pt_.numerator ->Fill(m.pt());
-	  mu2Phi_.numerator->Fill(m1.phi());
-	  mu2Eta_.numerator->Fill(m1.eta());
-	  mu2Pt_.numerator ->Fill(m1.pt());
-	  DiMuPt_.numerator ->Fill((m1.p4()+m.p4()).Pt() );
-	  DiMuEta_.numerator ->Fill((m1.p4()+m.p4()).Eta() );
-	  DiMuPhi_.numerator ->Fill((m1.p4()+m.p4()).Phi());
-	  DiMudR_.numerator ->Fill(reco::deltaR(m,m1));
+	  mu1Phi_.numerator->Fill(m.phi(),PrescaleWeight);
+	  mu1Eta_.numerator->Fill(m.eta(),PrescaleWeight);
+	  mu1Pt_.numerator ->Fill(m.pt(),PrescaleWeight);
+	  mu2Phi_.numerator->Fill(m1.phi(),PrescaleWeight);
+	  mu2Eta_.numerator->Fill(m1.eta(),PrescaleWeight);
+	  mu2Pt_.numerator ->Fill(m1.pt(),PrescaleWeight);
+	  DiMuPt_.numerator ->Fill((m1.p4()+m.p4()).Pt() ,PrescaleWeight);
+	  DiMuEta_.numerator ->Fill((m1.p4()+m.p4()).Eta() ,PrescaleWeight);
+	  DiMuPhi_.numerator ->Fill((m1.p4()+m.p4()).Phi(),PrescaleWeight);
+	  DiMudR_.numerator ->Fill(reco::deltaR(m,m1),PrescaleWeight);
 	  break;
 	case 6: 
 	  if (dimuonCL<minprob)continue;
@@ -911,15 +914,15 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 	  for (auto const & m2 : *muoHandle) {//triple muon paths
 	    if(false && !matchToTrigger(hltpath1,m2, handleTriggerEvent)) continue;
 	    if (m2.pt() == m.pt())continue;
-	    mu1Phi_.numerator->Fill(m.phi());
-	    mu1Eta_.numerator->Fill(m.eta());
-	    mu1Pt_.numerator ->Fill(m.pt());
-	    mu2Phi_.numerator->Fill(m1.phi());
-	    mu2Eta_.numerator->Fill(m1.eta());
-	    mu2Pt_.numerator ->Fill(m1.pt());
-	    mu3Phi_.numerator->Fill(m2.phi());
-	    mu3Eta_.numerator->Fill(m2.eta());
-	    mu3Pt_.numerator ->Fill(m2.pt());
+	    mu1Phi_.numerator->Fill(m.phi(),PrescaleWeight);
+	    mu1Eta_.numerator->Fill(m.eta(),PrescaleWeight);
+	    mu1Pt_.numerator ->Fill(m.pt(),PrescaleWeight);
+	    mu2Phi_.numerator->Fill(m1.phi(),PrescaleWeight);
+	    mu2Eta_.numerator->Fill(m1.eta(),PrescaleWeight);
+	    mu2Pt_.numerator ->Fill(m1.pt(),PrescaleWeight);
+	    mu3Phi_.numerator->Fill(m2.phi(),PrescaleWeight);
+	    mu3Eta_.numerator->Fill(m2.eta(),PrescaleWeight);
+	    mu3Pt_.numerator ->Fill(m2.pt(),PrescaleWeight);
 	  }      
 	  break;    
 	case 7:// the hists for photon monitoring will be filled on 515 line
@@ -932,13 +935,13 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 	  if ((!Jpsi_) && (Upsilon_)){
 	    if (DiMuMass> maxmassUpsilon || DiMuMass< minmassUpsilon)continue;
 	  }
-	  DiMuProb_.numerator ->Fill( dimuonCL);
+	  DiMuProb_.numerator ->Fill( dimuonCL,PrescaleWeight);
 	  if (dimuonCL<minprob)continue;
-	  DiMuDS_.numerator ->Fill( displacementFromBeamspotJpsi.perp()/sqrt(jerr.rerr(displacementFromBeamspotJpsi)));
-	  DiMuPVcos_.numerator ->Fill(jpsi_cos );
-	  DiMuPt_.numerator ->Fill((m1.p4()+m.p4()).Pt() );
-	  DiMuEta_.numerator ->Fill((m1.p4()+m.p4()).Eta() );
-	  DiMuDCA_.numerator ->Fill( cApp.distance());
+	  DiMuDS_.numerator ->Fill( displacementFromBeamspotJpsi.perp()/sqrt(jerr.rerr(displacementFromBeamspotJpsi)),PrescaleWeight);
+	  DiMuPVcos_.numerator ->Fill(jpsi_cos ,PrescaleWeight);
+	  DiMuPt_.numerator ->Fill((m1.p4()+m.p4()).Pt() ,PrescaleWeight);
+	  DiMuEta_.numerator ->Fill((m1.p4()+m.p4()).Eta() ,PrescaleWeight);
+	  DiMuDCA_.numerator ->Fill( cApp.distance(),PrescaleWeight);
 	  break;
 	case 9:
 	  if (dimuonCL<minprob)continue;
@@ -990,9 +993,9 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 	      if (JpsiTkCL<minprob)continue;
 	      if (fabs(jpsiKcos)<mincos)continue;
 	      if ((displacementFromBeamspot.perp()/sqrt(err.rerr(displacementFromBeamspot)))<minDS)continue;
-	      muPhi_.numerator->Fill(t.phi());
-	      muEta_.numerator->Fill(t.eta());
-	      muPt_.numerator ->Fill(t.pt());
+	      muPhi_.numerator->Fill(t.phi(),PrescaleWeight);
+	      muEta_.numerator->Fill(t.eta(),PrescaleWeight);
+	      muPt_.numerator ->Fill(t.pt(),PrescaleWeight);
 	    }
 	  }
 	  break;
@@ -1039,9 +1042,9 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 						    0);
 	      reco::Vertex::Point vperp(displacementFromBeamspot.x(),displacementFromBeamspot.y(),0.);
 	      if (JpsiTkCL<minprob)continue;
-	      muPhi_.numerator->Fill(m1.phi());
-	      muEta_.numerator->Fill(m1.eta());
-	      muPt_.numerator ->Fill(m1.pt());
+	      muPhi_.numerator->Fill(m1.phi(),PrescaleWeight);
+	      muEta_.numerator->Fill(m1.eta(),PrescaleWeight);
+	      muPt_.numerator ->Fill(m1.pt(),PrescaleWeight);
 	    }
 	  }
 	  break;
@@ -1106,12 +1109,12 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 		if (JpsiTkCL<minprob)continue;
 		if (fabs(jpsiKcos)<mincos)continue;
 		if ((displacementFromBeamspot.perp()/sqrt(err.rerr(displacementFromBeamspot)))<minDS)continue;
-		mu1Phi_.numerator->Fill(t.phi());
-		mu1Eta_.numerator->Fill(t.eta());
-		mu1Pt_.numerator ->Fill(t.pt());
-		mu2Phi_.numerator->Fill(t1.phi());
-		mu2Eta_.numerator->Fill(t1.eta());
-		mu2Pt_.numerator ->Fill(t1.pt());
+		mu1Phi_.numerator->Fill(t.phi(),PrescaleWeight);
+		mu1Eta_.numerator->Fill(t.eta(),PrescaleWeight);
+		mu1Pt_.numerator ->Fill(t.pt(),PrescaleWeight);
+		mu2Phi_.numerator->Fill(t1.phi(),PrescaleWeight);
+		mu2Eta_.numerator->Fill(t1.eta(),PrescaleWeight);
+		mu2Pt_.numerator ->Fill(t1.pt(),PrescaleWeight);
 	      } 
 	      /////////////////////////
 	    }
@@ -1124,9 +1127,9 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       const std::string &hltpath = hltpaths_num[0];
       for (auto const & p : *phHandle) {
         if(false && !matchToTrigger(hltpath,p, handleTriggerEvent)) continue;
-        phPhi_.numerator->Fill(p.phi());
-        phEta_.numerator->Fill(p.eta());
-        phPt_.numerator ->Fill(p.pt());
+        phPhi_.numerator->Fill(p.phi(),PrescaleWeight);
+        phEta_.numerator->Fill(p.eta(),PrescaleWeight);
+        phPt_.numerator ->Fill(p.pt(),PrescaleWeight);
       }
     }
   }
@@ -1205,9 +1208,15 @@ void BPHMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   genericTriggerEventPSet.add<bool>("errorReplyL1",true);
   genericTriggerEventPSet.add<bool>("l1BeforeMask",true);
   genericTriggerEventPSet.add<unsigned int>("verbosityLevel",0);
-
   desc.add<edm::ParameterSetDescription>("numGenericTriggerEventPSet", genericTriggerEventPSet);
   desc.add<edm::ParameterSetDescription>("denGenericTriggerEventPSet", genericTriggerEventPSet);
+
+  edm::ParameterSetDescription PrescaleTriggerEventPSet;
+  PrescaleTriggerEventPSet.add<unsigned int>("prescaleWeightVerbosityLevel",0);
+  PrescaleTriggerEventPSet.add<edm::InputTag>("prescaleWeightTriggerResults",edm::InputTag("TriggerResults::HLT"));
+  PrescaleTriggerEventPSet.add<edm::InputTag>("prescaleWeightL1GtTriggerMenuLite",edm::InputTag("l1GtTriggerMenuLite"));
+  PrescaleTriggerEventPSet.add<std::vector<std::string>>("prescaleWeightHltPaths",{});
+  desc.add<edm::ParameterSetDescription>("PrescaleTriggerEventPSet", PrescaleTriggerEventPSet);
 
   edm::ParameterSetDescription histoPSet;
   edm::ParameterSetDescription phiPSet;
