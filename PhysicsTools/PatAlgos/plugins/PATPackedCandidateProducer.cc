@@ -190,7 +190,9 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
 
     for(unsigned int ic=0, nc = cands->size(); ic < nc; ++ic) {
         const reco::PFCandidate &cand=(*cands)[ic];
+	float trkPt = cand.pt();
         float phiAtVtx = cand.phi();
+        float etaAtVtx = cand.eta();
         const reco::Track *ctrack = 0;
         if ((abs(cand.pdgId()) == 11 || cand.pdgId() == 22) && cand.gsfTrackRef().isNonnull()) {
             ctrack = &*cand.gsfTrackRef();
@@ -215,7 +217,9 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
           //   vtx = tsos.globalPosition();
           //          phiAtVtx = tsos.globalDirection().phi();
           vtx = ctrack->referencePoint();
+	  trkPt = ctrack->pt();
           phiAtVtx = ctrack->phi();
+	  etaAtVtx = ctrack->eta();
           int nlost = ctrack->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
           if (nlost == 0) { 
             if (ctrack->hitPattern().hasValidHitInFirstPixelBarrel()) {
@@ -226,14 +230,16 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
           }
 
 
-          outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), vtx, phiAtVtx, cand.pdgId(), PVRefProd, PV.key()));
+          outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), vtx, trkPt, etaAtVtx, phiAtVtx, cand.pdgId(), PVRefProd, PV.key()));
           outPtrP->back().setAssociationQuality(pat::PackedCandidate::PVAssociationQuality(qualityMap[quality]));
           if(cand.trackRef().isNonnull() && PVOrig->trackWeight(cand.trackRef()) > 0.5 && quality == 7) {
                   outPtrP->back().setAssociationQuality(pat::PackedCandidate::UsedInFitTight);
           }
           // properties of the best track 
           outPtrP->back().setLostInnerHits( lostHits );
-          if(outPtrP->back().pt() > minPtForTrackProperties_ || whiteList.find(ic)!=whiteList.end()) {
+          if(outPtrP->back().pt() > minPtForTrackProperties_ ||
+	     outPtrP->back().ptTrk() > minPtForTrackProperties_ ||
+	     whiteList.find(ic)!=whiteList.end()) {
             outPtrP->back().setTrackProperties(*ctrack);
             //outPtrP->back().setTrackProperties(*ctrack,tsos.curvilinearError());
           }
@@ -250,7 +256,7 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
             PVpos = PV->position();
           }
 
-          outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), PVpos, cand.phi(), cand.pdgId(), PVRefProd, PV.key()));
+          outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), PVpos, cand.pt(), cand.eta(), cand.phi(), cand.pdgId(), PVRefProd, PV.key()));
           outPtrP->back().setAssociationQuality(pat::PackedCandidate::PVAssociationQuality(pat::PackedCandidate::UsedInFitTight));
         }
 
