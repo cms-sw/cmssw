@@ -51,6 +51,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 //#include "DataFormats/EcalDetId/interface/EcalDetId.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -68,7 +69,7 @@ std::vector<std::pair<int,float> > CalorimetryManager::myZero_ = std::vector<std
   (1,std::pair<int,float>(0,0.));
 
 CalorimetryManager::CalorimetryManager() : 
-  myCalorimeter_(0),
+  myCalorimeter_(nullptr),
   //  myHistos(0),
   initialized_(false)
 {;}
@@ -81,7 +82,7 @@ CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent,
   : 
   mySimEvent(aSimEvent), 
   initialized_(false),
-  theMuonEcalEffects(0), theMuonHcalEffects (0), bFixedLength_(false)
+  theMuonEcalEffects(nullptr), theMuonHcalEffects(nullptr), bFixedLength_(false)
 {
   
   aLandauGenerator = new LandauFluctuationGenerator;
@@ -172,7 +173,7 @@ CalorimetryManager::~CalorimetryManager()
 void CalorimetryManager::reconstruct(RandomEngineAndDistribution const* random)
 {
   
-  if(evtsToDebug_.size())
+  if(!evtsToDebug_.empty())
     {
       std::vector<unsigned int>::const_iterator itcheck=find(evtsToDebug_.begin(),evtsToDebug_.end(),mySimEvent->id().event());
       debug_=(itcheck!=evtsToDebug_.end());
@@ -277,7 +278,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack,
   //  std::cout << " Ecal entrance " << ecalentrance << std::endl;
   
   // The preshower
-  PreshowerHitMaker * myPreshower = NULL ;
+  PreshowerHitMaker * myPreshower = nullptr;
   if(simulatePreshower_ && (onLayer1 || onLayer2))
     {
       XYZPoint layer1entrance,layer2entrance;
@@ -356,9 +357,9 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack,
   } 
   
   // After the different protections, this shouldn't happen. 
-  if(thePart.size()==0) 
+  if(thePart.empty()) 
     { 
-      if(myPreshower==NULL) return; 
+      if(myPreshower==nullptr) return; 
       delete myPreshower; 
       return; 
     } 
@@ -375,7 +376,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack,
   //  if ( maxEnergy < threshold3x3 ) size = 3;
   
   
-  EMShower theShower(random,aGammaGenerator,&showerparam,&thePart,  NULL, NULL, bFixedLength_);
+  EMShower theShower(random,aGammaGenerator,&showerparam,&thePart,nullptr,nullptr,bFixedLength_);
   
   
   double maxShower = theShower.getMaximumOfShower();
@@ -479,7 +480,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack,
   updateHCAL(myHcalHitMaker.getHits(),myTrack.id());
   
   // delete the preshower
-  if(myPreshower!=0) {
+  if(myPreshower!=nullptr) {
     updatePreshower(myPreshower->getHits(),myTrack.id());
     delete myPreshower;
     //  std::cout << " Deleting myPreshower " << std::endl;
@@ -543,7 +544,7 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack,
   
   if(emeas > 0.) {  
     DetId cell = myCalorimeter_->getClosestCell(trackPosition.Vect(),false,false);
-    double tof = (myCalorimeter_->getHcalGeometry()->getGeometry(cell)->getPosition().mag())/29.98;//speed of light
+    double tof = (((HcalGeometry*)(myCalorimeter_->getHcalGeometry()))->getPosition(cell).mag())/29.98;//speed of light
     CaloHitID current_id(cell.rawId(),tof,myTrack.id());
     std::map<CaloHitID,float> hitMap;
     hitMap[current_id] = emeas;
@@ -555,7 +556,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
   // const edm::ParameterSet& fastCalo){
   
   //  TimeMe t(" FASTEnergyReconstructor::HDShower");
-  XYZTLorentzVector moment = myTrack.momentum();
+  const XYZTLorentzVector& moment = myTrack.momentum();
   
   if(debug_)
     LogInfo("FastCalorimetry") 
@@ -834,7 +835,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
       if(myTrack.onHcal() || myTrack.onVFcal())
 	{
 	  DetId cell = myCalorimeter_->getClosestCell(trackPosition.Vect(),false,false);
-	  double tof = (myCalorimeter_->getHcalGeometry()->getGeometry(cell)->getPosition().mag())/29.98;//speed of light
+	  double tof = (((HcalGeometry*)(myCalorimeter_->getHcalGeometry()))->getPosition(cell).mag())/29.98;//speed of light
 	  CaloHitID current_id(cell.rawId(),tof,myTrack.id());
 	  std::map<CaloHitID,float> hitMap;
 	  hitMap[current_id] = emeas;
@@ -956,8 +957,8 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack, RandomEngin
   int ifirstHcal=-1;
   int ilastEcal=-1;
   
-  EnergyLossSimulator* energyLossECAL = 0;
-  if (theMuonEcalEffects) energyLossECAL = theMuonEcalEffects->energyLossSimulator();
+  EnergyLossSimulator* energyLossECAL = (theMuonEcalEffects) ?
+    theMuonEcalEffects->energyLossSimulator() : nullptr;
   //  // Muon brem in ECAL
   //  MuonBremsstrahlungSimulator* muonBremECAL = 0;
   //  if (theMuonEcalEffects) muonBremECAL = theMuonEcalEffects->muonBremsstrahlungSimulator();
@@ -973,7 +974,7 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack, RandomEngin
       if (segmentSizeinX0>0.001 && segments[iseg].material()==CaloSegment::PbWO4 ) {
 	// The energy loss simulator
 	float charge = (float)(myTrack.charge());
-	ParticlePropagator theMuon(moment,trackPosition,charge,0);
+	ParticlePropagator theMuon(moment,trackPosition,charge,nullptr);
 	theMuon.setID(-(int)charge*13);
 	if ( energyLossECAL ) { 
 	  energyLossECAL->updateState(theMuon, segmentSizeinX0, random);
@@ -1013,8 +1014,8 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack, RandomEngin
   int ilastHcal=-1;
   float mipenergy=0.0;
   
-  EnergyLossSimulator* energyLossHCAL = 0;
-  if (theMuonHcalEffects) energyLossHCAL = theMuonHcalEffects->energyLossSimulator();
+  EnergyLossSimulator* energyLossHCAL =  (theMuonHcalEffects) ?
+    theMuonHcalEffects->energyLossSimulator() : nullptr;
   //  // Muon Brem effect
   //  MuonBremsstrahlungSimulator* muonBremHCAL = 0;
   //  if (theMuonHcalEffects) muonBremHCAL = theMuonHcalEffects->muonBremsstrahlungSimulator(); 
@@ -1028,7 +1029,7 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack, RandomEngin
 	  if (segmentSizeinX0>0.001) {
 	    // The energy loss simulator
 	    float charge = (float)(myTrack.charge());
-	    ParticlePropagator theMuon(moment,trackPosition,charge,0);
+	    ParticlePropagator theMuon(moment,trackPosition,charge,nullptr);
 	    theMuon.setID(-(int)charge*13);
 	    energyLossHCAL->updateState(theMuon, segmentSizeinX0, random);
 	    mipenergy = energyLossHCAL->deltaMom().E();
