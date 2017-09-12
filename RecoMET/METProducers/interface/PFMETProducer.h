@@ -67,7 +67,7 @@ namespace cms
     private:
 
       reco::METCovMatrix getMETCovMatrix(const edm::Event& event, const edm::EventSetup&, 
-					 const edm::View<reco::Candidate>& input) const;
+					 const edm::Handle<edm::View<reco::Candidate> >& input) const;
 
 
       edm::EDGetTokenT<edm::View<reco::Candidate> > inputToken_;

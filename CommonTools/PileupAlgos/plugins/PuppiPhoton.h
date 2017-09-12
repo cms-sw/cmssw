@@ -34,15 +34,17 @@ private:
 	edm::EDGetTokenT< CandidateView >        tokenPFCandidates_;
 	edm::EDGetTokenT< CandidateView >        tokenPuppiCandidates_;
 	edm::EDGetTokenT< CandidateView >        tokenPhotonCandidates_;
+        edm::EDGetTokenT< edm::ValueMap<std::vector<reco::PFCandidateRef> > > reco2pf_;
 	edm::EDGetTokenT< edm::ValueMap<float> > tokenWeights_; 
 	edm::EDGetTokenT< edm::ValueMap<bool>  > tokenPhotonId_; 
 	double pt_;
 	double eta_;
 	bool   usePFRef_;
+	bool   runOnMiniAOD_;
 	bool   usePhotonId_;
 	std::vector<double>  dRMatch_;
 	std::vector<int32_t> pdgIds_; 
-        std::auto_ptr< PFOutputCollection > corrCandidates_;
+	std::unique_ptr< PFOutputCollection > corrCandidates_;
 	double weight_;
 	bool   useValueMap_;
 };
