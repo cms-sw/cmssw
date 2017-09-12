@@ -211,7 +211,7 @@ class MatrixInjector(object):
             wmsplit['HLTDR2_50ns']=1
             wmsplit['HLTDR2_25ns']=1
             wmsplit['HLTDR2_2016']=1
-            wmplit['HLTDR2_2017']=1
+            wmsplit['HLTDR2_2017']=1
             wmsplit['Hadronizer']=1
             wmsplit['DIGIUP15']=1 
             wmsplit['RECOUP15']=1 
