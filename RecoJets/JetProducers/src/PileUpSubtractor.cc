@@ -22,6 +22,7 @@ PileUpSubtractor::PileUpSubtractor(const edm::ParameterSet& iConfig, edm::Consum
 	doRhoFastjet_	= iConfig.getParameter<bool>("doRhoFastjet");
 	nSigmaPU_	= iConfig.getParameter<double>("nSigmaPU");
 	radiusPU_	= iConfig.getParameter<double>("radiusPU");
+	jetPtMin_	= iConfig.getParameter<double>("jetPtMin");
 	puPtMin_	= iConfig.getParameter<double>("puPtMin");
 	ghostEtaMax 	= iConfig.getParameter<double>("Ghost_EtaMax");
 	activeAreaRepeats = iConfig.getParameter<int>("Active_Area_Repeats");
@@ -258,7 +259,7 @@ void PileUpSubtractor::offsetCorrectJets()
   LogDebug("PileUpSubtractor")<<"The subtractor correcting jets...\n";
   jetOffset_.clear();
   using namespace reco;
-  
+ 
   //    
   // Reestimate energy of jet (energy of jet with initial map)
   //
@@ -286,11 +287,11 @@ void PileUpSubtractor::offsetCorrectJets()
 	jetOffset_[ijet] += Original_Et - etnew;
       }
     double mScale = newjetet/pseudojetTMP->Et();
-    LogDebug("PileUpSubtractor")<<"pseudojetTMP->Et() : "<<pseudojetTMP->Et()<<"\n";
-    LogDebug("PileUpSubtractor")<<"newjetet : "<<newjetet<<"\n";
-    LogDebug("PileUpSubtractor")<<"jetOffset_[ijet] : "<<jetOffset_[ijet]<<"\n";
-    LogDebug("PileUpSubtractor")<<"pseudojetTMP->Et() - jetOffset_[ijet] : "<<pseudojetTMP->Et() - jetOffset_[ijet]<<"\n";
-    LogDebug("PileUpSubtractor")<<"Scale is : "<<mScale<<"\n";
+    LogDebug("PileUpSubtractor")<<"pseudojetTMP->Et() : "<<pseudojetTMP->Et()<<'\n';
+    LogDebug("PileUpSubtractor")<<"newjetet : "<<newjetet<<'\n';
+    LogDebug("PileUpSubtractor")<<"jetOffset_[ijet] : "<<jetOffset_[ijet]<<'\n';
+    LogDebug("PileUpSubtractor")<<"pseudojetTMP->Et() - jetOffset_[ijet] : "<<pseudojetTMP->Et() - jetOffset_[ijet]<<'\n';
+    LogDebug("PileUpSubtractor")<<"Scale is : "<<mScale<<'\n';
     int cshist = pseudojetTMP->cluster_hist_index();
     pseudojetTMP->reset_momentum(pseudojetTMP->px()*mScale, pseudojetTMP->py()*mScale,
 				 pseudojetTMP->pz()*mScale, pseudojetTMP->e()*mScale);
@@ -378,6 +379,7 @@ void PileUpSubtractor::fillDescriptions(edm::ConfigurationDescriptions& descript
 	desc.add<double> ("Ghost_EtaMax", 5);
 	desc.add<double> ("GhostArea", 0.01);
 	desc.add<int> ("Active_Area_Repeats", 1);
+	desc.add<double> ("jetPtMin",	10.);
 	desc.add<double> ("puPtMin", 	10.);
 	desc.add<double> ("nSigmaPU", 	1.);
 	desc.add<double> ("radiusPU", 	0.5);
