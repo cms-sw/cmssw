@@ -2,3 +2,15 @@
   <use   name="RecoTauTag/RecoTau"/>
   <use   name="cppunit"/>
 </bin>
+<library name="rerunMVAIsolationOnMiniAOD" file="rerunMVAIsolationOnMiniAOD.cc">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="DataFormats/PatCandidates"/>
+  <use name="DataFormats/TauReco"/>
+  <use name="RecoTauTag/RecoTau"/>
+  <use name="PhysicsTools/PatAlgos"/>
+  <use name="clhep"/>
+  <use name="root"/>
+<flags EDM_PLUGIN="1"/>
+</library>

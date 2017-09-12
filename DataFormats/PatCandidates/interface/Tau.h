@@ -1,6 +1,3 @@
-//
-//
-
 #ifndef DataFormats_PatCandidates_Tau_h
 #define DataFormats_PatCandidates_Tau_h
 
@@ -346,6 +343,8 @@ namespace pat {
       float ecalEnergyLeadChargedHadrCand() const { return pfEssential().ecalEnergyLeadChargedHadrCand_; }
       /// return hcal energy from LeadChargedHadrCand
       float hcalEnergyLeadChargedHadrCand() const { return pfEssential().hcalEnergyLeadChargedHadrCand_; }
+      /// return phiAtEcalEntrance
+      float phiAtEcalEntrance() const { return pfEssential().phiAtEcalEntrance_; }
       /// return etaAtEcalEntrance
       float etaAtEcalEntrance() const { return pfEssential().etaAtEcalEntrance_; }
       /// return etaAtEcalEntrance from LeadChargedCand
