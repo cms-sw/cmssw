@@ -35,8 +35,8 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
 
   /// Get the maximum number of stubs per ROC
   /// (CBC3-style)
-  //  unsigned maxStubs = theStackedTracker->getCBC3MaxStubs();
-  unsigned maxStubs = 3;
+  //  unsigned maxStubs = theStackedTracker->getCBC3MaxStubs();  
+  unsigned maxStubs = 0; // 0 is default, cut is disabled
 
   for (auto gd=theTrackerGeom->dets().begin(); gd != theTrackerGeom->dets().end(); gd++) {
       DetId detid = (*gd)->geographicalId();
