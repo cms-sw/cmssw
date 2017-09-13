@@ -305,7 +305,7 @@ void SimTrackManager::fillMotherList()
 
 void SimTrackManager::cleanTracksWithHistory(){
 
-  if (*m_trksForThisEvent->empty() && idsave.empty()) { return; }
+  if ((*m_trksForThisEvent).empty() && idsave.empty()) { return; }
 
 #ifdef DebugLog
   LogDebug("SimTrackManager") 
