@@ -38,7 +38,7 @@ class HitParentTest: public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::S
 public:
 
   HitParentTest(const edm::ParameterSet& ps);
-  ~HitParentTest() {}
+  ~HitParentTest() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:

@@ -23,9 +23,9 @@ public:
   HGCalTB16SD01(G4String , const DDCompactView &, 
 		const SensitiveDetectorCatalog &, edm::ParameterSet const &, 
 		const SimTrackManager*);
-  virtual ~HGCalTB16SD01();
-  virtual double   getEnergyDeposit(G4Step* );
-  virtual uint32_t setDetUnitId(G4Step* step);
+  ~HGCalTB16SD01() override;
+  double   getEnergyDeposit(G4Step* ) override;
+  uint32_t setDetUnitId(G4Step* step) override;
   static uint32_t  packIndex(int det, int lay, int x, int y);
   static void      unpackIndex(const uint32_t & idx, int& det, int& lay,
 			       int& x, int& y);

@@ -32,7 +32,7 @@ CustomPhysicsListSS::CustomPhysicsListSS(std::string name, const edm::ParameterS
   edm::LogInfo("SimG4CoreCustomPhysics")
     <<"CustomPhysicsListSS: Path for custom particle definition file: \n" 
     <<particleDefFilePath;
-  myHelper = 0;  
+  myHelper = nullptr;  
 }
 
 CustomPhysicsListSS::~CustomPhysicsListSS() {

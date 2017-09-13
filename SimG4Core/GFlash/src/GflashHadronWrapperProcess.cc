@@ -13,10 +13,10 @@
 using namespace CLHEP;
 
 GflashHadronWrapperProcess::GflashHadronWrapperProcess(G4String processName) :
-  particleChange(0), 
-  pmanager(0), 
-  fProcessVector(0),
-  fProcess(0) 
+  particleChange(nullptr), 
+  pmanager(nullptr), 
+  fProcessVector(nullptr),
+  fProcess(nullptr) 
 {
   theProcessName = processName;
 }

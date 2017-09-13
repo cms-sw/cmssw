@@ -111,7 +111,7 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
 
   int xentries = 0;  
   int XTALSid=0;
-  CaloG4HitCollection* theXTHC=0;
+  CaloG4HitCollection* theXTHC=nullptr;
 
   if (!hcalOnly) {
     // XTALS
@@ -234,7 +234,7 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
     // Find Primary info:
     //	
     int trackID = 0;
-    G4PrimaryParticle* thePrim=0;
+    G4PrimaryParticle* thePrim=nullptr;
     G4int nvertex = (*evt)()->GetNumberOfPrimaryVertex();
     LogDebug("HcalTBSim") << "HcalTB02Analysis :: Event has " << nvertex 
 			  << " vertex";
@@ -245,20 +245,20 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
     for (int i = 0 ; i<nvertex; i++) {
 	
       G4PrimaryVertex* avertex = (*evt)()->GetPrimaryVertex(i);
-      if (avertex == 0) {
+      if (avertex == nullptr) {
 	edm::LogWarning("HcalTBSim") << "HcalTB02Analysis:: End Of Event "
 				     << "ERROR: pointer to vertex = 0";
       } else {
 	int npart = avertex->GetNumberOfParticle();
 	LogDebug("HcalTBSim") << "HcalTB02Analysis::Vertex number :" << i 
 			      << " with " << npart << " particles";
-	if (thePrim==0) thePrim=avertex->GetPrimary(trackID);
+	if (thePrim==nullptr) thePrim=avertex->GetPrimary(trackID);
       }
     }
     
     double px=0.,py=0.,pz=0.;
     
-    if (thePrim != 0) {
+    if (thePrim != nullptr) {
       px = thePrim->GetPx();
       py = thePrim->GetPy();
       pz = thePrim->GetPz();
@@ -340,7 +340,7 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
 
       if (!hcalOnly) {
 	//	assert(theXTHC);
-	if ( theXTHC != 0 ) {
+	if ( theXTHC != nullptr ) {
 	  CaloG4Hit* xfirstHit =(*theXTHC)[0];
 	  xIncidentEnergy = xfirstHit->getIncidentEnergy()/GeV;
 	}

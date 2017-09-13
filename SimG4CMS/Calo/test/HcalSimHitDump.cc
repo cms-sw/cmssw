@@ -32,13 +32,13 @@ class HcalSimHitDump: public edm::EDAnalyzer{
 public:
 
   HcalSimHitDump(const edm::ParameterSet& ps);
-  ~HcalSimHitDump() {}
+  ~HcalSimHitDump() override {}
 
 protected:
 
-  void beginJob () {}
-  void endJob   () {}
-  void analyze  (const edm::Event& e, const edm::EventSetup& c);
+  void beginJob () override {}
+  void endJob   () override {}
+  void analyze  (const edm::Event& e, const edm::EventSetup& c) override;
 
   void analyzeHits  (std::vector<PCaloHit> &);
 

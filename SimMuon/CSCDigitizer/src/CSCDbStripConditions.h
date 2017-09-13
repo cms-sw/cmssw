@@ -9,29 +9,29 @@ class CSCDbStripConditions : public CSCStripConditions
 {
 public:
   explicit CSCDbStripConditions(const edm::ParameterSet & pset);
-  virtual ~CSCDbStripConditions();
+  ~CSCDbStripConditions() override;
 
   /// fetch the maps from the database
-  virtual void initializeEvent(const edm::EventSetup & es);
+  void initializeEvent(const edm::EventSetup & es) override;
 
   /// channels count from 1
-  virtual float gain(const CSCDetId & detId, int channel) const;
+  float gain(const CSCDetId & detId, int channel) const override;
   /// total calibration precision
-  virtual float gainSigma(const CSCDetId & detId, int channel) const {return 0.005;}
+  float gainSigma(const CSCDetId & detId, int channel) const override {return 0.005;}
 
   /// in ADC counts
-  virtual float pedestal(const CSCDetId & detId, int channel) const;
-  virtual float pedestalSigma(const CSCDetId & detId, int channel) const;
+  float pedestal(const CSCDetId & detId, int channel) const override;
+  float pedestalSigma(const CSCDetId & detId, int channel) const override;
 
-  virtual void crosstalk(const CSCDetId&detId, int channel,
+  void crosstalk(const CSCDetId&detId, int channel,
                  double stripLength, bool leftRight,
-                 float & capacitive, float & resistive) const;
+                 float & capacitive, float & resistive) const override;
 
   /// check list of bad chambers from db
-  virtual bool isInBadChamber( const CSCDetId& id ) const;
+  bool isInBadChamber( const CSCDetId& id ) const override;
 
 private:
-  virtual void fetchNoisifier(const CSCDetId & detId, int istrip);  
+  void fetchNoisifier(const CSCDetId & detId, int istrip) override;  
 
   CSCConditions theConditions;
 
