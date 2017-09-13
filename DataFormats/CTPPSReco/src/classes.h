@@ -102,6 +102,8 @@ namespace DataFormats_CTPPSReco {
 
     math::GlobalPoint gpp;
     edm::Wrapper<math::GlobalPoint> gppW;
+    CTPPSPixelFittedRecHit pfrh;
+    edm::Wrapper<CTPPSPixelFittedRecHit> wpfrh;
     //--- common objects
 
     CTPPSLocalTrackLite cltl;
