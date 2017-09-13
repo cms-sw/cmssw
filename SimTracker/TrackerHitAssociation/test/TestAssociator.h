@@ -37,9 +37,9 @@ class TestAssociator : public edm::EDAnalyzer
   
   explicit TestAssociator(const edm::ParameterSet& conf);
   
-  virtual ~TestAssociator();
+  ~TestAssociator() override;
 
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   
   std::vector<PSimHit> matched;
 

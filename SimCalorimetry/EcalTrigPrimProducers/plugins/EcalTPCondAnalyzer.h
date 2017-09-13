@@ -55,13 +55,13 @@ class CaloSubdetectorGeometry ;
 class EcalTPCondAnalyzer : public edm::one::EDAnalyzer<> {
  public:
   explicit EcalTPCondAnalyzer(const edm::ParameterSet&);
-  ~EcalTPCondAnalyzer();
+  ~EcalTPCondAnalyzer() override;
 
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginJob();
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override;
   void beginRun(const edm::Run & run, const edm::EventSetup& es);
-  virtual void endJob();
+  void endJob() override;
 
  private:
 
