@@ -273,6 +273,8 @@ namespace edm {
   void
   RootOutputTree::writeTTree(TTree* tree) {
     if(tree->GetNbranches() != 0) {
+      // This is required when Fill is called on individual branches
+      // in the TTree instead of calling Fill once for the entire TTree.
       tree->SetEntries(-1);
     }
     setRefCoreStreamer(true);
