@@ -305,9 +305,9 @@ void RPixPlaneCombinatoryTracking::findTracks(){
           double yDistance = yResidual*yResidual;
           double distance = xDistance + yDistance;
           if(xDistance < maximumXdistance && yDistance < maximumYdistance && distance < minimumDistance){
-            std::pair<double,double> residuals = std::make_pair(xResidual,yResidual);
+            LocalPoint residuals(xResidual,yResidual);
             TMatrixD globalError = hit.globalError;
-            std::pair<double,double> pulls = std::make_pair(xResidual/TMath::Sqrt(globalError[0][0]),yResidual/TMath::Sqrt(globalError[1][1]));
+            LocalPoint pulls(xResidual/TMath::Sqrt(globalError[0][0]),yResidual/TMath::Sqrt(globalError[1][1]));
             delete fittedRecHit;
             fittedRecHit = new CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit(hit.recHit, pointOnDet, residuals, pulls);
             fittedRecHit->setIsRealHit(true);
@@ -436,10 +436,10 @@ CTPPSPixelLocalTrack RPixPlaneCombinatoryTracking::fitTrack(std::vector<RPixDetP
     }
     double xResidual = globalPoint.x() - pointOnDet.x();
     double yResidual = globalPoint.y() - pointOnDet.y();
-    std::pair<double,double> residuals = std::make_pair(xResidual,yResidual);
+    LocalPoint residuals(xResidual,yResidual);
 
     TMatrixD globalError(hit.globalError);
-    std::pair<double,double> pulls = std::make_pair(xResidual/TMath::Sqrt(globalError[0][0]),yResidual/TMath::Sqrt(globalError[1][1]));
+    LocalPoint pulls(xResidual/TMath::Sqrt(globalError[0][0]),yResidual/TMath::Sqrt(globalError[1][1]));
 
     CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit fittedRecHit(hit.recHit, pointOnDet, residuals, pulls);
     fittedRecHit.setIsUsedForFit(true);

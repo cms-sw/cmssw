@@ -91,7 +91,7 @@
   <class name="edm::Wrapper<edm::DetSetVector<CTPPSPixelRecHit> >"/>
 
   <class name="CTPPSPixelLocalTrack" ClassVersion="3">
-    <version ClassVersion="3" checksum="2132523066"/> 
+    <version ClassVersion="3" checksum="166602192"/> 
   </class>
   <class name="edm::DetSet<CTPPSPixelLocalTrack>"/>
   <class name="std::vector<CTPPSPixelLocalTrack>"/>
