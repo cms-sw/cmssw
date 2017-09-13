@@ -115,6 +115,9 @@ void l1t::L1TGlobalUtil::retrieveL1Setup(const edm::EventSetup& evSetup) {
 	// clear and dimension
 	resetPrescaleVectors();
 	resetMaskVectors();
+	m_PreScaleColumn = 0;
+	m_numberOfPreScaleColumns = 0;
+	m_numberPhysTriggers = 0;
 
 	edm::ESHandle< L1TGlobalPrescalesVetos > l1GtPrescalesVetoes;
 	evSetup.get< L1TGlobalPrescalesVetosRcd >().get( l1GtPrescalesVetoes );
@@ -122,6 +125,7 @@ void l1t::L1TGlobalUtil::retrieveL1Setup(const edm::EventSetup& evSetup) {
 	m_l1GtPrescalesVetoes = PrescalesVetosHelper::readFromEventSetup(es);
 
 	m_prescaleFactorsAlgoTrig = &(m_l1GtPrescalesVetoes->prescaleTable());
+	m_numberOfPreScaleColumns = m_prescaleFactorsAlgoTrig->size();
 	m_numberPhysTriggers = (*m_prescaleFactorsAlgoTrig)[0].size(); // assumes all prescale columns are the same length
 
 	m_triggerMaskAlgoTrig   = &(m_l1GtPrescalesVetoes->triggerAlgoBxMask());
@@ -145,7 +149,7 @@ void l1t::L1TGlobalUtil::retrieveL1Setup(const edm::EventSetup& evSetup) {
     }
 
     //Protect against poor prescale column choice (I don't think there is a way this happen as currently structured)
-    if(m_PreScaleColumn > m_prescaleFactorsAlgoTrig->size() || m_PreScaleColumn < 1) {
+    if(m_PreScaleColumn > m_prescaleFactorsAlgoTrig->size()) {
       LogTrace("l1t|Global")
 	<< "\nNo Prescale Set: " << m_PreScaleColumn
 	<< "\nMax Prescale Set value : " << m_prescaleFactorsAlgoTrig->size()
