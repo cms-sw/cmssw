@@ -40,14 +40,10 @@ class CTPPSPixelLocalTrack
     
         inline double getXResidual() const { return residual_.first; }
         inline double getYResidual() const { return residual_.second; }
-        inline void setXResidual(double residual) { residual_.first = residual; }
-        inline void setYResidual(double residual) { residual_.second = residual; }
-    
+        
         inline double getXPull() const { return pull_.first; }
         inline double getYPull() const { return pull_.second; }
-        inline void setXPull(double pull) { pull_.first = pull; }
-        inline void setYPull(double pull) { pull_.second = pull; }
-    
+        
         inline double getXPullNormalization() const { return residual_.first / pull_.first; }
         inline double getYPullNormalization() const { return residual_.second / pull_.second; }
 
@@ -154,12 +150,12 @@ class CTPPSPixelLocalTrack
     friend bool operator< (const CTPPSPixelLocalTrack &l, const CTPPSPixelLocalTrack &r);
 
   private:
-    inline const double& CovarianceMatrixElement(int i, int j) const
+    inline const float& CovarianceMatrixElement(int i, int j) const
     {
       return par_covariance_matrix_[i * dimension + j];
     }
 
-    inline double& CovarianceMatrixElement(int i, int j)
+    inline float& CovarianceMatrixElement(int i, int j)
     {
       return par_covariance_matrix_[i * dimension + j];
     }
