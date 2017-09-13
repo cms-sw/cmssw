@@ -656,5 +656,22 @@ void test_throwIfImproperDependencies::twoPathsWithCycleTest()
     CPPUNIT_ASSERT_THROW( testCase(md,paths), cms::Exception);
   }
 
+  {
+    // The data dependency for 'D" can be met
+    // by the order of modules on path p2
+    // but NOT by path3
+    ModuleDependsOnMap md = {
+      {"A_TR", {"zEP1","zEP2"}},
+      { "B",{}},
+      {"zFilter", {"A_TR"}}
+    };
+    PathToModules paths = {
+      {"p1", {"zFilter","B","zEP1"}},
+      {"p2", {"zFilter", "B","zEP2"}}
+    };
+    
+    CPPUNIT_ASSERT_THROW( testCase(md,paths), cms::Exception);
+  }
+
 }
 
