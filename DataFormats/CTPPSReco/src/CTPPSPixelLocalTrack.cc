@@ -25,7 +25,7 @@ math::Matrix<2,2>::type CTPPSPixelLocalTrack::trackPointInterpolationCovariance(
   CovarianceMatrix cov_matr;
   for(unsigned int i=0; i<dimension; ++i)
     for(unsigned int j=0; j<dimension; ++j)
-      cov_matr[i][j]=CovarianceMatrixElement(i,j);
+      cov_matr[i][j]=covarianceMatrixElement(i,j);
 
   math::Matrix<dimension,2>::type  hT = ROOT::Math::Transpose(h);
   
@@ -47,7 +47,7 @@ CTPPSPixelLocalTrack::CTPPSPixelLocalTrack(float z0, const ParameterVector & tra
     track_params_vector_[i]=track_params_vector[i];
     for(unsigned int j=0; j<dimension; ++j)
     {
-      CovarianceMatrixElement(i,j)=par_covariance_matrix(i,j);
+      covarianceMatrixElement(i,j)=par_covariance_matrix(i,j);
     }
   }
 }
@@ -80,7 +80,7 @@ CTPPSPixelLocalTrack::CovarianceMatrix CTPPSPixelLocalTrack::getCovarianceMatrix
   
   for(int i=0; i<dimension; ++i)
     for(int j=0; j<dimension; ++j)
-      m(i,j) = CovarianceMatrixElement(i,j);
+      m(i,j) = covarianceMatrixElement(i,j);
       
   return m;
 }
@@ -91,7 +91,7 @@ void CTPPSPixelLocalTrack::setCovarianceMatrix(const CovarianceMatrix &par_covar
 {
   for(int i=0; i<dimension; ++i)
     for(int j=0; j<dimension; ++j)
-      CovarianceMatrixElement(i,j) = par_covariance_matrix(i,j);
+      covarianceMatrixElement(i,j) = par_covariance_matrix(i,j);
 }
 
 //----------------------------------------------------------------------------------------------------
