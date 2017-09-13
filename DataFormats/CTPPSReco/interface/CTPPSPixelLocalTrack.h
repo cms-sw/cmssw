@@ -95,21 +95,21 @@ class CTPPSPixelLocalTrack: public CTPPSPixelFittedRecHit
     }
 
     inline float getX0() const { return track_params_vector_[0]; }
-    inline float getX0Sigma() const { return sqrt(CovarianceMatrixElement(0, 0)); }
-    inline float getX0Variance() const { return CovarianceMatrixElement(0, 0); }
+    inline float getX0Sigma() const { return sqrt(covarianceMatrixElement(0, 0)); }
+    inline float getX0Variance() const { return covarianceMatrixElement(0, 0); }
 
     inline float getY0() const { return track_params_vector_[1]; }
-    inline float getY0Sigma() const { return sqrt(CovarianceMatrixElement(1, 1)); }
-    inline float getY0Variance() const { return CovarianceMatrixElement(1, 1); }
+    inline float getY0Sigma() const { return sqrt(covarianceMatrixElement(1, 1)); }
+    inline float getY0Variance() const { return covarianceMatrixElement(1, 1); }
 
     inline float getZ0() const { return z0_; }
     inline void setZ0(float z0) { z0_ = z0; }
 
     inline float getTx() const { return track_params_vector_[2]; }
-    inline float getTxSigma() const { return sqrt(CovarianceMatrixElement(2, 2)); }
+    inline float getTxSigma() const { return sqrt(covarianceMatrixElement(2, 2)); }
 
     inline float getTy() const { return track_params_vector_[3]; }
-    inline float getTySigma() const { return sqrt(CovarianceMatrixElement(3, 3)); }
+    inline float getTySigma() const { return sqrt(covarianceMatrixElement(3, 3)); }
 
     inline math::GlobalVector getDirectionVector() const
     {
@@ -154,12 +154,12 @@ class CTPPSPixelLocalTrack: public CTPPSPixelFittedRecHit
     friend bool operator< (const CTPPSPixelLocalTrack &l, const CTPPSPixelLocalTrack &r);
 
   private:
-    inline const float& CovarianceMatrixElement(int i, int j) const
+    inline const float& covarianceMatrixElement(int i, int j) const
     {
       return par_covariance_matrix_[i * dimension + j];
     }
 
-    inline float& CovarianceMatrixElement(int i, int j)
+    inline float& covarianceMatrixElement(int i, int j)
     {
       return par_covariance_matrix_[i * dimension + j];
     }
