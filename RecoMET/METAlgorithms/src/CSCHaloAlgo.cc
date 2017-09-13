@@ -14,7 +14,7 @@ using namespace edm;
 namespace {
   constexpr float c_cm_per_ns  = 29.9792458;
 };
-CSCHaloAlgo::CSCHaloAlgo() : geo_(0), hgeo_(0)
+CSCHaloAlgo::CSCHaloAlgo() : geo_(nullptr), hgeo_(nullptr)
 {
   deta_threshold = 0.;
   min_inner_radius = 0.;
