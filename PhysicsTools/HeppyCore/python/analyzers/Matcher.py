@@ -1,5 +1,5 @@
-from heppy.framework.analyzer import Analyzer
-from heppy.utils.deltar import matchObjectCollection, deltaR
+from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
+from PhysicsTools.HeppyCore.utils.deltar import matchObjectCollection, deltaR
 
 import collections
 
@@ -10,10 +10,11 @@ class Matcher(Analyzer):
 
     Simple example configuration: 
     
-    from heppy_fcc.analyzers.Matcher import Matcher
+    from PhysicsTools.HeppyCore.analyzers.Matcher import Matcher
     papas_jet_match = cfg.Analyzer(
       Matcher,
       instance_label = 'papas', 
+      delta_r = 0.3,
       match_particles = 'gen_jets',
       particles = 'papas_jets'
     )
@@ -32,6 +33,7 @@ class Matcher(Analyzer):
     papas_particle_match_g2r = cfg.Analyzer(
       Matcher,
       instance_label = 'papas_g2r', 
+      delta_r = 0.3, 
       particles = 'gen_particles_stable',
       match_particles = [
         ('papas_rec_particles', None),
@@ -48,9 +50,24 @@ class Matcher(Analyzer):
                      if any. 
       - etc. 
 
+    TODO: Colin: was well adapted, but probably better to do something more modular.
+    for example: 
+    papas_jet_match = cfg.Analyzer(
+      Matcher,
+      instance_label = 'gen_jets_match', 
+      delta_r = 0.3,
+      match_particles = 'gen_jets',
+      particles = 'papas_jets'
+    )
+    would create for each papas_jet: 
+      papas_jet.gen_jets_match
+    that is a match object with 2 attributes: particle, distance
+    in the more complicated case, just need to use a Filter to select the particles,
+    and have several Matcher instances 
+
+    note: one cannot attach the distance to the matched particle as 
+    the match particle can be matched to another object... 
     '''
-    
-    
     def beginLoop(self, setup):
         super(Matcher, self).beginLoop(setup)
         self.match_collections = []
@@ -69,7 +86,7 @@ class Matcher(Analyzer):
                 match_ptcs_filtered = [ptc for ptc in match_ptcs
                                        if ptc.pdgid()==pdgid]
             pairs = matchObjectCollection(particles, match_ptcs_filtered,
-                                          0.3**2)
+                                          self.cfg_ana.delta_r)
             for ptc in particles:
                 matchname = 'match'
                 if pdgid: 

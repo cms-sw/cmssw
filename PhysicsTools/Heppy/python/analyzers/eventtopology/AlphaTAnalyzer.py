@@ -1,71 +1,68 @@
-import operator 
-import itertools
-import copy
 from math import *
 
-#from ROOT import TLorentzVector, TVectorD
-
-from PhysicsTools.HeppyCore.utils.deltar import deltaR, deltaPhi
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.HeppyCore.framework.event import Event
-from PhysicsTools.HeppyCore.statistics.counter import Counter, Counters
-from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
-
-# from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import Lepton
-# from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import Photon
-# from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import Electron
-# from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import Muon
-# from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import Tau
-from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import Jet
 
 import ROOT
-from ROOT.heppy import AlphaT
 
-
-import os
-
-class AlphaTAnalyzer( Analyzer ):
+##__________________________________________________________________||
+class AlphaTAnalyzer(Analyzer):
     def __init__(self, cfg_ana, cfg_comp, looperName ):
-        super(AlphaTAnalyzer,self).__init__(cfg_ana,cfg_comp,looperName) 
+        super(AlphaTAnalyzer, self).__init__(cfg_ana, cfg_comp, looperName)
+        self.alphaTCalc = ROOT.heppy.AlphaT()
 
-    def declareHandles(self):
-        super(AlphaTAnalyzer, self).declareHandles()
-       #genJets                                                                                                                                                                     
-        self.handles['genJets'] = AutoHandle( 'slimmedGenJets','std::vector<reco::GenJet>')
-
-    def beginLoop(self,setup):
-        super(AlphaTAnalyzer,self).beginLoop(setup)
-        self.counters.addCounter('pairs')
-        count = self.counters.counter('pairs')
-        count.register('all events')
-
-
-    # Calculate alphaT using jet ET
-    def makeAlphaT(self, jets):
-
-        if len(jets) == 0:
-            return 0.
-        
-        px  = ROOT.std.vector('double')()
-        py  = ROOT.std.vector('double')()
-        et  = ROOT.std.vector('double')()
-
-        #Make alphaT from lead 10 jets
-	for jet in jets[:10]:
-            px.push_back(jet.px())
-            py.push_back(jet.py())
-            et.push_back(jet.et())
-
-        alphaTCalc   = AlphaT()
-        return alphaTCalc.getAlphaT( et, px, py )
+        self.usePt = hasattr(self.cfg_ana, 'usePt') and self.cfg_ana.usePt
 
     def process(self, event):
         self.readCollections( event.input )
 
-        event.alphaT = self.makeAlphaT(event.cleanJets)
+        jets = getattr(event, self.cfg_ana.jets)
 
-        #Do the same with gen jets for MC
-        if self.cfg_comp.isMC:
-            event.genAlphaT = self.makeAlphaT(event.cleanGenJets)
+        if self.cfg_ana.jetSelectionFunc is not None:
+            jets = [j for j in jets if self.cfg_ana.jetSelectionFunc(j)]
+
+        alphaT, minDeltaHT, jetFlags = self.makeAlphaT(jets)
+
+        setattr(event, self.cfg_ana.alphaT, alphaT)
+
+        if self.cfg_ana.minDeltaHT is not None: setattr(event, self.cfg_ana.minDeltaHT, minDeltaHT)
+
+        if self.cfg_ana.pseudoJetFlag is not None:
+            for i, jet in enumerate(getattr(event, self.cfg_ana.jets)):
+                pseudoJetFlag = jetFlags[i] if i < len(jetFlags) else -1
+                setattr(jet, self.cfg_ana.pseudoJetFlag, pseudoJetFlag)
+
+        if self.cfg_ana.inPseudoJet is not None:
+            for i, jet in enumerate(getattr(event, self.cfg_ana.jets)):
+                inPseudoJet = i < len(jetFlags)
+                setattr(jet, self.cfg_ana.inPseudoJet, inPseudoJet)
 
         return True
+
+    def makeAlphaT(self, jets):
+
+        if len(jets) < 2: return -1, 0, [ ] # alphat, minDeltaHT, jetFlags
+        
+        jets = jets[:10] # use lead 10 jets
+
+        px  = ROOT.std.vector('double')()
+        py  = ROOT.std.vector('double')()
+
+        for jet in jets:
+            px.push_back(jet.px())
+            py.push_back(jet.py())
+
+        et  = ROOT.std.vector('double')()
+
+        if self.usePt:
+            for jet in jets: et.push_back(jet.pt())
+        else:
+            for jet in jets: et.push_back(jet.et())
+
+        minDeltaHT = ROOT.Double(0.)
+        jetFlags   = ROOT.std.vector('int')()
+
+        alphaT =  self.alphaTCalc.getAlphaT(et, px, py, jetFlags, minDeltaHT)
+        return alphaT, float(minDeltaHT), list(jetFlags)
+
+##__________________________________________________________________||

@@ -1,5 +1,6 @@
 from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import printOut 
 from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import GenParticle 
+import ROOT
 
 def findStatus1Leptons(particle):
     '''Returns status 1 e and mu among the particle daughters'''
@@ -107,6 +108,11 @@ def realGenMothers(gp):
         else:
             ret.append(mom)
     return ret
+
+def motherRef(gp,i=0):
+    return (gp.mother(), ROOT.heppy.GenParticleRefHelper.motherKey(gp,i))
+def daughterRef(gp,i=0):
+    return (gp.daughter(), ROOT.heppy.GenParticleRefHelper.daughterKey(gp,i))
 
 def lastGenCopy(gp):
     me = gp.pdgId();

@@ -8,6 +8,7 @@ import os
 import re
 import pprint
 import time
+import socket
 
 import eostools as castortools
 
@@ -30,14 +31,14 @@ class BatchManager:
         # how to add more doc to the help?
         self.parser_ = OptionParser()
         self.parser_.add_option("-o", "--output-dir", dest="outputDir",
-                                help="Name of the local output directory for your jobs. This directory will be created automatically.",
-                                default=None)
+                          help="Name of the local output directory for your jobs. This directory will be created automatically.",
+                          default=None)
         self.parser_.add_option("-r", "--remote-copy", dest="remoteCopy",
-                                help="remote output directory for your jobs. Example: /store/cmst3/user/cbern/CMG/HT/Run2011A-PromptReco-v1/AOD/PAT_CMG/RA2. This directory *must* be provided as a logical file name (LFN). When this option is used, all root files produced by a job are copied to the remote directory, and the job index is appended to the root file name. The Logger directory  will be sent back to the submision directory. For remote copy to PSI specify path like: '/pnfs/psi.ch/...'. Note: enviromental variable X509_USER_PROXY must point to home area before renewing proxy",
-                                default=None)
+                          help="remote output directory for your jobs. Example: /store/cmst3/user/cbern/CMG/HT/Run2011A-PromptReco-v1/AOD/PAT_CMG/RA2. This directory *must* be provided as a logical file name (LFN). When this option is used, all root files produced by a job are copied to the remote directory, and the job index is appended to the root file name. The Logger directory is tarred and compressed into Logger.tgz, and sent to the remote output directory as well. Afterwards, use logger.py to access the information contained in Logger.tgz. For remote copy to PSI specify path like: '/pnfs/psi.ch/...'. Logs will be sent back to the submision directory. NOTE: so far this option has been implemented and validated to work only for a remote copy to PSI",
+                          default=None)
         self.parser_.add_option("-f", "--force", action="store_true",
                                 dest="force", default=False,
-                                help="Don't ask any questions, just over-write")
+                                help="Don't ask any questions, just over-write")        
         # this opt can be removed
         self.parser_.add_option("-n", "--negate", action="store_true",
                                 dest="negate", default=False,
@@ -52,11 +53,11 @@ class BatchManager:
                                 default=[],
                                 help="Save one extra option (either a flag, or a key=value pair) that can be then accessed from the job config file")
 
-    def ParseOptions(self):
+    def ParseOptions(self):     
         (self.options_,self.args_) = self.parser_.parse_args()
         if self.options_.remoteCopy == None:
             self.remoteOutputDir_ = ""
-        else:
+        else: 
             # removing possible trailing slash
             self.remoteOutputDir_ = self.options_.remoteCopy.rstrip('/')
             if "psi.ch" in self.remoteOutputDir_: # T3 @ PSI:
@@ -82,9 +83,9 @@ class BatchManager:
                 if not castortools.isLFN( self.remoteOutputDir_ ):
                     print 'When providing an output directory, you must give its LFN, starting by /store. You gave:'
                     print self.remoteOutputDir_
-                    sys.exit(1)
+                    sys.exit(1)          
                 self.remoteOutputDir_ = castortools.lfnToEOS( self.remoteOutputDir_ )
-                dirExist = castortools.isDirectory( self.remoteOutputDir_ )
+                dirExist = castortools.isDirectory( self.remoteOutputDir_ )           
                 # nsls = 'nsls %s > /dev/null' % self.remoteOutputDir_
                 # dirExist = os.system( nsls )
                 if dirExist is False:
@@ -99,21 +100,17 @@ class BatchManager:
                     if self.options_.negate is False and self.options_.force is False:
                         #COLIN need to reimplement protectedRemove in eostools
                         raise ValueError(  ' '.join(['directory ', self.remoteOutputDir_, ' already exists.']))
-                    # if not castortools.protectedRemove( self.remoteOutputDir_, '.*root'):
-                    # the user does not want to delete the root files
-
         self.remoteOutputFile_ = ""
-        self.ManageOutputDir()
         return (self.options_, self.args_)
 
-
+        
     def PrepareJobs(self, listOfValues, listOfDirNames=None):
+        self.ManageOutputDir()
         print 'PREPARING JOBS ======== '
         self.listOfJobs_ = []
-
         if listOfDirNames is None:
-            for value in listOfValues:
-                self.PrepareJob( value )
+            for value in listOfValues:       
+                self.PrepareJob( value )      
         else:
             for value, name in zip( listOfValues, listOfDirNames):
                 self.PrepareJob( value, name )
@@ -124,57 +121,55 @@ class BatchManager:
 
     # create output dir, if necessary
     def ManageOutputDir( self ):
+        '''Create output directory, if necessary.
 
-        #if the output dir is not specified, generate a name
-        #else
-        #test if the directory exists
-        #if yes, returns
-
+        if the output dir is not specified, generate a name
+        else 
+        test if the directory exists 
+        if yes, returns.
+        '''
         outputDir = self.options_.outputDir
-
         if outputDir==None:
             today = datetime.today()
             outputDir = 'OutCmsBatch_%s' % today.strftime("%d%h%y_%H%M%S")
-            print 'output directory not specified, using %s' % outputDir
-
+            print 'output directory not specified, using %s' % outputDir                
         self.outputDir_ = os.path.abspath(outputDir)
-
-        if( os.path.isdir(self.outputDir_) == True ):
+        if( os.path.isdir(self.outputDir_) == True and os.listdir(self.outputDir_) ):
             input = ''
             if not self.options_.force:
                 while input != 'y' and input != 'n':
-                    input = raw_input( 'The directory ' + self.outputDir_ + ' exists. Are you sure you want to continue? its contents will be overwritten [y/n] ' )
+                    input = raw_input( 'The directory ' + self.outputDir_ + ' exists. Are you sure you want to continue? its contents will be overwritten [y/n]' )
             if input == 'n':
                 sys.exit(1)
             else:
                 os.system( 'rm -rf ' + self.outputDir_)
-
+                
         self.mkdir( self.outputDir_ )
-
+ 
 
     def PrepareJob( self, value, dirname=None):
         '''Prepare a job for a given value.
 
         calls PrepareJobUser, which should be overloaded by the user.
         '''
-        print 'PrepareJob : %s' % value
+        print 'PrepareJob : %s' % value 
         dname = dirname
         if dname  is None:
             dname = 'Job_{value}'.format( value=value )
         jobDir = '/'.join( [self.outputDir_, dname])
-        print '\t',jobDir
+        print '\t',jobDir 
         self.mkdir( jobDir )
         self.listOfJobs_.append( jobDir )
         self.PrepareJobUser( jobDir, value )
-
+        
     def PrepareJobUser(self, value ):
         '''Hook allowing user to define how one of his jobs should be prepared.'''
         print '\to be customized'
 
-
+   
     def SubmitJobs( self, waitingTimeInSec=0 ):
         '''Submit all jobs. Possibly wait between each job'''
-
+        
         if(self.options_.negate):
             print '*NOT* SUBMITTING JOBS - exit '
             return
@@ -193,7 +188,7 @@ class BatchManager:
 
     def SubmitJob( self, jobDir ):
         '''Hook for job submission.'''
-        print 'submitting (to be customized): ', jobDir
+        print 'submitting (to be customized): ', jobDir  
         os.system( self.options_.batch )
 
 
@@ -205,7 +200,7 @@ class BatchManager:
 
         if batchScript == '':
             return
-
+        
         if( os.path.isfile(batchScript)== False ):
             print 'file ',batchScript,' does not exist'
             sys.exit(3)
@@ -238,7 +233,7 @@ class BatchManager:
         if( ret != 0 ):
             print 'please remove or rename directory: ', dirname
             sys.exit(4)
-
+       
 
     def RunningMode(self, batch):
 
@@ -252,15 +247,14 @@ class BatchManager:
 
         In all other cases, a CmsBatchException is raised
         '''
-
-        hostName = os.environ['HOSTNAME']
-
+        
+        hostName = socket.gethostname()
         onLxplus = hostName.startswith('lxplus')
         onPSI    = hostName.startswith('t3ui')
         onNAF =  hostName.startswith('naf')
 
         batchCmd = batch.split()[0]
-
+        
         if batchCmd == 'bsub':
             if not onLxplus:
                 err = 'Cannot run %s on %s' % (batchCmd, hostName)
