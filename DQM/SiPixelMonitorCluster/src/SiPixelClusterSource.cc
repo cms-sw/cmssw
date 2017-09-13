@@ -160,6 +160,7 @@ void SiPixelClusterSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run 
     if (i==1) { ybins = 42; ymin = -10.5; ymax = 10.5; }
     if (i==2) { ybins = 66; ymin = -16.5; ymax = 16.5; }
     if (i==3) { ybins = 90; ymin = -22.5; ymax = 22.5; }
+    if (i==4) { ybins = 130; ymin = -32.5; ymax = 32.5; }
     ss1.str(std::string()); ss1 << "pix_bar Occ_roc_online_" + digisrc_. label() + "_layer_" << i;
     ss2.str(std::string()); ss2 << "Pixel Barrel Occupancy, ROC level (Online): Layer " << i;
     meZeroRocBPIX.push_back(iBooker.book2D(ss1.str(),ss2.str(),72,-4.5,4.5,ybins,ymin,ymax));
