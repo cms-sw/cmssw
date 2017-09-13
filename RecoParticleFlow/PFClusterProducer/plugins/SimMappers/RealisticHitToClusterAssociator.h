@@ -315,6 +315,7 @@ class RealisticHitToClusterAssociator
                         auto layerId = hit.layerId_;
                         if(XYdistanceFromPointOnSameLayer(hitId, cluster.getCenterOfGravity(layerId)) > maxDistance)
                         {
+                            cluster.increaseEnergy(-hit.totalEnergy_*hAndF[i].second);
                             cluster.modifyFractionByIndex(0.f, i);
                         }
                     }
