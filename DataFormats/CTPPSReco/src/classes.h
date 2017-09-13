@@ -100,8 +100,8 @@ namespace DataFormats_CTPPSReco {
     std::vector<edm::DetSet<CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit> > vdsrpltfrh;
     std::vector<CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit> vrpltfrh;
 
-
-
+    math::GlobalPoint gpp;
+    edm::Wrapper<math::GlobalPoint> gppW;
     //--- common objects
 
     CTPPSLocalTrackLite cltl;
