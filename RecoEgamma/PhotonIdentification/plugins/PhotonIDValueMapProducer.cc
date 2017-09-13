@@ -42,13 +42,13 @@ class PhotonIDValueMapProducer : public edm::stream::EDProducer<> {
   public:
   
   explicit PhotonIDValueMapProducer(const edm::ParameterSet&);
-  ~PhotonIDValueMapProducer();
+  ~PhotonIDValueMapProducer() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
   
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   void writeValueMap(edm::Event &iEvent,
 		     const edm::Handle<edm::View<reco::Photon> > & handle,
@@ -269,7 +269,7 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
   if( !pfCandidatesHandle.isValid() )
     iEvent.getByToken(pfCandidatesTokenMiniAOD_, pfCandidatesHandle);
 
-  if( !isAOD && src->size() ) {
+  if( !isAOD && !src->empty() ) {
     edm::Ptr<pat::Photon> test(src->ptrAt(0));
     if( test.isNull() || !test.isAvailable() ) {
       throw cms::Exception("InvalidConfiguration")
@@ -519,7 +519,7 @@ float PhotonIDValueMapProducer
     allIsolations.push_back(sum);
   }
 
-  if( allIsolations.size()>0 )
+  if( !allIsolations.empty() )
     worstIsolation = * std::max_element( allIsolations.begin(), allIsolations.end() );
   
   return worstIsolation;
