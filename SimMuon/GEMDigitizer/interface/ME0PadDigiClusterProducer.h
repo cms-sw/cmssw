@@ -1,12 +1,12 @@
 #ifndef SimMuon_GEMDigitizer_ME0PadDigiClusterProducer_h
 #define SimMuon_GEMDigitizer_ME0PadDigiClusterProducer_h
 
-/** 
+/**
  *  \class ME0PadDigiClusterProducer
  *
  *  Produces ME0 pad clusters from at most 8 adjacent ME0 pads.
- *  Clusters are used downstream to build triggers. 
- *  
+ *  Clusters are used downstream to build triggers.
+ *
  *  \author Sven Dildick (TAMU)
  */
 
@@ -28,14 +28,14 @@ public:
 
   explicit ME0PadDigiClusterProducer(const edm::ParameterSet& ps);
 
-  virtual ~ME0PadDigiClusterProducer();
+  ~ME0PadDigiClusterProducer() override;
 
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  
+
   void buildClusters(const ME0PadDigiCollection &pads, ME0PadDigiClusterCollection &out_clusters);
 
   /// Name of input digi Collection
