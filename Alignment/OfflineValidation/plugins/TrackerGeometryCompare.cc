@@ -59,23 +59,23 @@
 #include <sstream> 
 
 TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg) :	
-  referenceTracker(0),
-  dummyTracker(0),
-  currentTracker(0),
+  referenceTracker(nullptr),
+  dummyTracker(nullptr),
+  currentTracker(nullptr),
   theSurveyIndex(0),
-  theSurveyValues(0),
-  theSurveyErrors(0),
+  theSurveyValues(nullptr),
+  theSurveyErrors(nullptr),
   _levelStrings(cfg.getUntrackedParameter< std::vector<std::string> >("levels")),
   _writeToDB(cfg.getUntrackedParameter<bool>("writeToDB")),
   _commonTrackerLevel(align::invalid),
-  _moduleListFile(0),
+  _moduleListFile(nullptr),
   _moduleList(0),
-  _inputRootFile1(0),
-  _inputRootFile2(0),
-  _inputTree01(0),
-  _inputTree02(0),
-  _inputTree11(0),
-  _inputTree12(0),
+  _inputRootFile1(nullptr),
+  _inputRootFile2(nullptr),
+  _inputTree01(nullptr),
+  _inputTree02(nullptr),
+  _inputTree11(nullptr),
+  _inputTree12(nullptr),
   m_nBins(10000),
   m_rangeLow(-.1),
   m_rangeHigh(.1), 
@@ -702,7 +702,7 @@ void TrackerGeometryCompare::setCommonTrackerSystem(){
 	
 	//adjust translational difference factoring in different rotational CM
 	//needed because rotateInGlobalFrame is about CM of alignable, not Tracker
-	align::GlobalVector::BasicVectorType lpvgf = cmDiff.basicVector();
+	const align::GlobalVector::BasicVectorType& lpvgf = cmDiff.basicVector();
 	align::GlobalVector moveV( rot.multiplyInverse(lpvgf) - lpvgf);
 	align::GlobalVector theRprime(theR + moveV);
 	
@@ -920,7 +920,7 @@ void TrackerGeometryCompare::surveyToTracker(AlignableTracker* ali, Alignments* 
 	for(std::vector<Alignable*>::iterator k = rcdAlis.begin(); k != rcdAlis.end(); k++){
 		
 		const SurveyDet* surveyInfo = (*k)->survey();
-		align::PositionType pos(surveyInfo->position());
+		const align::PositionType& pos(surveyInfo->position());
 		align::RotationType rot(surveyInfo->rotation());
 		CLHEP::Hep3Vector clhepVector(pos.x(),pos.y(),pos.z());
 		CLHEP::HepRotation clhepRotation( CLHEP::HepRep3x3(rot.xx(),rot.xy(),rot.xz(),rot.yx(),rot.yy(),rot.yz(),rot.zx(),rot.zy(),rot.zz()));
