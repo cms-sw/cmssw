@@ -22,9 +22,12 @@ SiPixelPhase1TrackResiduals::SiPixelPhase1TrackResiduals(const edm::ParameterSet
   SiPixelPhase1Base(iConfig),
   validator(iConfig, consumesCollector())
 {
-  offlinePrimaryVerticesToken_ = consumes<reco::VertexCollection>(std::string("offlinePrimaryVertices"));
+  //  offlinePrimaryVerticesToken_ = consumes<reco::VertexCollection>(std::string("offlinePrimaryVertices"));
 
   applyVertexCut_=iConfig.getUntrackedParameter<bool>("VertexCut",true);
+
+  offlinePrimaryVerticesToken_= consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"));
+			       
 }
 
 void SiPixelPhase1TrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -34,9 +37,14 @@ void SiPixelPhase1TrackResiduals::analyze(const edm::Event& iEvent, const edm::E
   assert(tracker.isValid());
 
   edm::Handle<reco::VertexCollection> vertices;
-  iEvent.getByToken(offlinePrimaryVerticesToken_, vertices);
+  if(applyVertexCut_) {
+    iEvent.getByToken(offlinePrimaryVerticesToken_, vertices);
+    if (!vertices.isValid() || vertices->empty()) return;
+  }
 
-  if (applyVertexCut_ && (!vertices.isValid() || vertices->size() == 0)) return;
+  //iEvent.getByToken(offlinePrimaryVerticesToken_, vertices);
+
+  //if (applyVertexCut_ && (!vertices.isValid() || vertices->size() == 0)) return;
   
   std::vector<TrackerValidationVariables::AVTrackStruct> vtracks;
 
