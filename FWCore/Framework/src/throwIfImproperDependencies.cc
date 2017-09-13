@@ -70,6 +70,28 @@ namespace {
   typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS> Graph;
   
   typedef boost::graph_traits<Graph>::edge_descriptor Edge;
+  
+  template<typename T>
+  std::unordered_set<T> intersect(std::unordered_set<T> const& iLHS, std::unordered_set<T> const& iRHS) {
+    std::unordered_set<T> result;
+    if(iLHS.size() < iRHS.size()) {
+      result.reserve(iLHS.size());
+      for(auto const& l: iLHS) {
+        if(iRHS.find(l) != iRHS.end()) {
+          result.insert(l);
+        }
+      }
+      return result;
+    }
+    result.reserve(iRHS.size());
+    for(auto const& r: iRHS) {
+      if(iLHS.find(r) != iLHS.end()) {
+        result.insert(r);
+      }
+    }
+    return result;
+  }
+  
   struct cycle_detector : public boost::dfs_visitor<> {
     
     static const unsigned int kRootVertexIndex=0;
@@ -402,7 +424,8 @@ namespace {
             }
           }
         }
-        if((pathsOnEdge != lastPathsSeen) ) {
+        auto sharedPaths = intersect(pathsOnEdge,lastPathsSeen);
+        if(sharedPaths.empty() ) {
           if((not edgeHasDataDependency) and (not lastEdgeHasDataDepencency) and (not lastPathsSeen.empty())) {
             //If we jumped from one path to another without a data dependency
             // than the cycle is just because two independent modules were
@@ -450,6 +473,8 @@ namespace {
           lastPathsSeen = pathsOnEdge;
           lastOut = out;
           lastEdgeHasDataDepencency =edgeHasDataDependency;
+        } else {
+          lastPathsSeen = sharedPaths;
         }
       }
       if(moduleAppearedEarlierInPath and not pathToModulesWhichMustAppearLater.empty()) {
