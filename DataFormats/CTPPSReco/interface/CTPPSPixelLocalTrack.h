@@ -27,24 +27,23 @@
 class CTPPSPixelFittedRecHit: public CTPPSPixelRecHit
 {
 public:
-CTPPSPixelFittedRecHit(const CTPPSPixelRecHit &hit, const math::GlobalPoint &space_point_on_det, std::pair<float,float> residual, std::pair<float,float> pull) :
+CTPPSPixelFittedRecHit(const CTPPSPixelRecHit &hit, const math::GlobalPoint &space_point_on_det, LocalPoint residual, LocalPoint pull) :
   CTPPSPixelRecHit(hit), space_point_on_det_(space_point_on_det), residual_(residual), pull_(pull), isUsedForFit_(false), isRealHit_(false) {}
     
-CTPPSPixelFittedRecHit() : CTPPSPixelRecHit(), residual_(std::pair<float,float>(0,0)), pull_(std::pair<float,float>(0,0)), isUsedForFit_(false), isRealHit_(false) {}
+CTPPSPixelFittedRecHit() : CTPPSPixelRecHit(), residual_(LocalPoint(0,0)), pull_(LocalPoint(0,0)), isUsedForFit_(false), isRealHit_(false) {}
     
   virtual ~CTPPSPixelFittedRecHit() {}
     
   inline const math::GlobalPoint & getGlobalCoordinates() const { return space_point_on_det_; }
-  inline void setGlobalCoordinates(const math::GlobalPoint & space_point_on_det) { space_point_on_det_ = space_point_on_det; }
-    
-  inline float getXResidual() const { return residual_.first; }
-  inline float getYResidual() const { return residual_.second; }
+  inline void setGlobalCoordinates(const math::GlobalPoint & space_point_on_det) { space_point_on_det_ = space_point_on_det;   }
+  inline float getXResidual() const { return residual_.x(); }
+  inline float getYResidual() const { return residual_.y(); }
         
-  inline float getXPull() const { return pull_.first; }
-  inline float getYPull() const { return pull_.second; }
+  inline float getXPull() const { return pull_.x(); }
+  inline float getYPull() const { return pull_.y(); }
         
-  inline float getXPullNormalization() const { return residual_.first / pull_.first; }
-  inline float getYPullNormalization() const { return residual_.second / pull_.second; }
+  inline float getXPullNormalization() const { return residual_.x() / pull_.x(); }
+  inline float getYPullNormalization() const { return residual_.y() / pull_.y(); }
 
   inline void setIsUsedForFit(bool usedForFit) {
     if(usedForFit) isRealHit_ = true; 
@@ -60,8 +59,8 @@ CTPPSPixelFittedRecHit() : CTPPSPixelRecHit(), residual_(std::pair<float,float>(
     
 private:
   math::GlobalPoint space_point_on_det_ ;  ///< mm
-  std::pair<float,float> residual_;  ///< mm
-  std::pair<float,float> pull_    ;  ///< normalised residual
+  LocalPoint residual_;  ///< mm
+  LocalPoint pull_    ;  ///< normalised residual
   bool isUsedForFit_;
   bool isRealHit_;
 };
