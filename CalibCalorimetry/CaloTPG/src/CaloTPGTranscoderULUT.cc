@@ -40,7 +40,7 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
 
     // Compute compression LUT
     for (unsigned int i=0; i < OUTPUT_LUT_SIZE; i++) {
-	analyticalLUT[i] = min((unsigned int)(sqrt(14.94*log(1.+i/14.94)*i) + 0.5), TPGMAX - 1);
+	analyticalLUT[i] = min((allLinear_ ? (unsigned int)(i) : (unsigned int)(sqrt(14.94*log(1.+i/14.94)*i) + 0.5)), TPGMAX - 1);
 	linearRctLUT[i] = min((unsigned int)(i/rct_factor_), TPGMAX - 1);
 	linearNctLUT[i] = min((unsigned int)(i/nct_factor_), TPGMAX - 1);
     }
@@ -89,18 +89,30 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
 	double granularity =  meta->getLutGranularity(); 
 
 	if(isHBHE){
-	    double factor = nominal_gain_ / cosh_ieta * granularity;
-	    LUT tpg = outputLUT_[index][0];
-	    int low = 0;
-	    for (unsigned int i = 0; i < getOutputLUTSize(id); ++i){
-		if (outputLUT_[index][i] != tpg){
-		   unsigned int mid = (low + i)/2; 
-		   hcaluncomp_[index][tpg] = (tpg == 0 ? low : factor * mid);
-		   low = i;
-		   tpg = outputLUT_[index][i];
-		}
-	    }
-	    hcaluncomp_[index][tpg] = factor * low;
+           if (allLinear_) {
+              LUT tpg = outputLUT_[index][0];
+              hcaluncomp_[index][tpg] = 0;
+              for (unsigned int i = 0; i < getOutputLUTSize(id); ++i){
+                 if (outputLUT_[index][i] != tpg){
+                    tpg = outputLUT_[index][i];
+                    hcaluncomp_[index][tpg] = lsb_factor_ * i;
+                 }
+              }
+           } else {
+              double factor = nominal_gain_ / cosh_ieta * granularity;
+              LUT tpg = outputLUT_[index][0];
+              int low = 0;
+              for (unsigned int i = 0; i < getOutputLUTSize(id); ++i){
+                 if (outputLUT_[index][i] != tpg){
+                    unsigned int mid = (low + i)/2; 
+                    hcaluncomp_[index][tpg] = (tpg == 0 ? low : factor * mid);
+                    std::cout << "UNCOMP " << int(tpg) << " -> " << hcaluncomp_[index][tpg] << std::endl;
+                    low = i;
+                    tpg = outputLUT_[index][i];
+                 }
+              }
+              hcaluncomp_[index][tpg] = factor * low;
+           }
 	}
 	else{
 	    LUT tpg = outputLUT_[index][0];
@@ -238,11 +250,13 @@ const std::vector<unsigned int> CaloTPGTranscoderULUT::getCompressionLUT(const H
    return result;
 }
 
-void CaloTPGTranscoderULUT::setup(HcalLutMetadata const& lutMetadata, HcalTrigTowerGeometry const& theTrigTowerGeometry, int nctScaleShift, int rctScaleShift)
+void CaloTPGTranscoderULUT::setup(HcalLutMetadata const& lutMetadata, HcalTrigTowerGeometry const& theTrigTowerGeometry, int nctScaleShift, int rctScaleShift, bool allLinear)
 {
     theTopology	    = lutMetadata.topo();
     nominal_gain_   = lutMetadata.getNominalGain();
     lsb_factor_	    = lutMetadata.getRctLsb();
+
+    allLinear_ = allLinear;
 
     rct_factor_  = lsb_factor_/(HcaluLUTTPGCoder::lsb_*(1<<rctScaleShift));
     nct_factor_  = lsb_factor_/(HcaluLUTTPGCoder::lsb_*(1<<nctScaleShift));

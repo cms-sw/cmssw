@@ -60,6 +60,7 @@ private:
   std::vector<int> ietah;
   std::vector<int> ZS;
   std::vector<int> LUTfactor;
+  bool linearLUTs_;
   double nominal_gain;
   double RCTLSB;
   int NCTScaleShift;
@@ -95,6 +96,7 @@ CaloTPGTranscoderULUTs::CaloTPGTranscoderULUTs(const edm::ParameterSet& iConfig)
    ietah = iConfig.getParameter< std::vector<int> >("ietaUpperBound");
    ZS = iConfig.getParameter< std::vector<int> >("ZS");
    LUTfactor = iConfig.getParameter< std::vector<int> >("LUTfactor");
+   linearLUTs_ = iConfig.getParameter<bool>("linearLUTs");
    nominal_gain = iConfig.getParameter<double>("nominal_gain");
    RCTLSB = iConfig.getParameter<double>("RCTLSB");
 
@@ -162,7 +164,7 @@ CaloTPGTranscoderULUTs::produce(const CaloTPGRecord& iRecord)
    fullLut.setTopo(htopo.product());
 
    std::auto_ptr<CaloTPGTranscoderULUT> pTCoder(new CaloTPGTranscoderULUT(file1, file2));
-   pTCoder->setup(fullLut, *theTrigTowerGeometry, NCTScaleShift, RCTScaleShift);
+   pTCoder->setup(fullLut, *theTrigTowerGeometry, NCTScaleShift, RCTScaleShift, linearLUTs_);
    return std::auto_ptr<CaloTPGTranscoder>( pTCoder );
 }
 

@@ -51,7 +51,7 @@ private:
   // ----------member data ---------------------------
   ReturnType coder_;  
   HcaluLUTTPGCoder* theCoder_;
-  bool read_FGLut_, read_Ascii_,read_XML_,LUTGenerationMode_;
+  bool read_FGLut_, read_Ascii_,read_XML_,LUTGenerationMode_,linearLUTs_;
   int maskBit_;
   unsigned int FG_HF_threshold_;
   edm::FileInPath fgfile_,ifilename_;
@@ -79,6 +79,7 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig)
   if (!(read_Ascii_ || read_XML_)) {
     setWhatProduced(this,(dependsOn(&HcalTPGCoderULUT::dbRecordCallback)));
     LUTGenerationMode_ = iConfig.getParameter<bool>("LUTGenerationMode");
+    linearLUTs_ = iConfig.getParameter<bool>("linearLUTs");
     maskBit_ = iConfig.getParameter<int>("MaskBit");
     FG_HF_threshold_ = iConfig.getParameter<uint32_t>("FG_HF_threshold"); 
   } else {
@@ -105,6 +106,7 @@ void HcalTPGCoderULUT::buildCoder(const HcalTopology* topo) {
       theCoder_->update(fgfile_.fullPath().c_str(), true);
     } 
   } else {
+    theCoder_->setAllLinear(linearLUTs_);
     theCoder_->setLUTGenerationMode(LUTGenerationMode_);
     theCoder_->setMaskBit(maskBit_);
     theCoder_->setFGHFthreshold(FG_HF_threshold_);
