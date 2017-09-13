@@ -68,6 +68,7 @@ particleFlowSuperClusterECALBox = cms.EDProducer(
     doSatelliteClusterMerge = cms.bool(False),
     satelliteClusterSeedThreshold = cms.double(50.0),
     satelliteMajorityFraction = cms.double(0.5),
+    dropUnseedable = cms.bool(False),
     #thresh_PFClusterMustacheOutBarrel = cms.double(0.),
     #thresh_PFClusterMustacheOutEndcap = cms.double(0.),                                             
 
@@ -142,6 +143,7 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
     doSatelliteClusterMerge = cms.bool(False),
     satelliteClusterSeedThreshold = cms.double(50.0),
     satelliteMajorityFraction = cms.double(0.5),
+    dropUnseedable = cms.bool(False),
     #thresh_PFClusterMustacheOutBarrel = cms.double(0.),
     #thresh_PFClusterMustacheOutEndcap = cms.double(0.), 
 
