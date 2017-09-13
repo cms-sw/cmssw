@@ -801,7 +801,7 @@ bphHLTmonitoring = cms.Sequence(
     + Dimuon0_addTrackMu_Phi
     + Dimuon0_addTrackMu_Onia1
     + Dimuon0_addTrackMu_Phi1
-    + DimuonX_HLT_OS_Vtx
+   # + DimuonX_HLT_OS_Vtx
 )
 
 
