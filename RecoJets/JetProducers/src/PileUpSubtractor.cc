@@ -370,22 +370,6 @@ int PileUpSubtractor::iphi(const reco::CandidatePtr & in) const {
   return it;
 }
 
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void PileUpSubtractor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-
-	edm::ParameterSetDescription desc;
-	desc.add<bool> ("doAreaFastjet", 	false);
-	desc.add<bool> ("doRhoFastjet", 	false);
-	desc.add<double> ("Ghost_EtaMax", 5);
-	desc.add<double> ("GhostArea", 0.01);
-	desc.add<int> ("Active_Area_Repeats", 1);
-	desc.add<double> ("jetPtMin",	10.);
-	desc.add<double> ("puPtMin", 	10.);
-	desc.add<double> ("nSigmaPU", 	1.);
-	desc.add<double> ("radiusPU", 	0.5);
-	descriptions.addDefault(desc);
-}
-
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 EDM_REGISTER_PLUGINFACTORY(PileUpSubtractorFactory,"PileUpSubtractorFactory");
 
