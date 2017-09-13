@@ -15,10 +15,12 @@
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelRecHit.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h"
 
+#include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/Math/interface/Vector.h"
+#include "DataFormats/Math/interface/Error.h"
+#include "DataFormats/Math/interface/Matrix.h"
 
-#include "TVector3.h"
-#include "TMatrixD.h"
-#include "TVectorD.h"
 
 //----------------------------------------------------------------------------------------------------
 
@@ -28,15 +30,15 @@ class CTPPSPixelLocalTrack
     class CTPPSPixelFittedRecHit: public CTPPSPixelRecHit
     {
       public:
-        CTPPSPixelFittedRecHit(const CTPPSPixelRecHit &hit, const TVector3 &space_point_on_det, std::pair<float,float> residual, std::pair<float,float> pull) :
+        CTPPSPixelFittedRecHit(const CTPPSPixelRecHit &hit, const math::GlobalPoint &space_point_on_det, std::pair<float,float> residual, std::pair<float,float> pull) :
             CTPPSPixelRecHit(hit), space_point_on_det_(space_point_on_det), residual_(residual), pull_(pull), isUsedForFit_(false), isRealHit_(false) {}
     
         CTPPSPixelFittedRecHit() : CTPPSPixelRecHit(), residual_(std::pair<float,float>(0,0)), pull_(std::pair<float,float>(0,0)), isUsedForFit_(false), isRealHit_(false) {}
     
         virtual ~CTPPSPixelFittedRecHit() {}
     
-        inline const TVector3 & getGlobalCoordinates() const { return space_point_on_det_; }
-        inline void setGlobalCoordinates(const TVector3 & space_point_on_det) { space_point_on_det_ = space_point_on_det; }
+        inline const math::GlobalPoint & getGlobalCoordinates() const { return space_point_on_det_; }
+        inline void setGlobalCoordinates(const math::GlobalPoint & space_point_on_det) { space_point_on_det_ = space_point_on_det; }
     
         inline float getXResidual() const { return residual_.first; }
         inline float getYResidual() const { return residual_.second; }
@@ -60,7 +62,7 @@ class CTPPSPixelLocalTrack
         inline bool getIsRealHit() const { return isRealHit_; }
     
       private:
-        TVector3 space_point_on_det_ ;  ///< mm
+        math::GlobalPoint space_point_on_det_ ;  ///< mm
         std::pair<float,float> residual_;  ///< mm
         std::pair<float,float> pull_    ;  ///< normalised residual
         bool isUsedForFit_;
@@ -69,17 +71,19 @@ class CTPPSPixelLocalTrack
 
   public:
     ///< parameter vector size
-    static const int dimension = 4;
+    static constexpr int dimension = 4;
+    typedef math::Error<dimension>::type CovarianceMatrix;
+    typedef math::Vector<dimension>::type ParameterVector;
 
     ///< covariance matrix size
-    static const int covarianceSize = dimension * dimension;
+    static constexpr int covarianceSize = dimension * dimension;
 
     CTPPSPixelLocalTrack() : z0_(0), chiSquared_(0), valid_(false), numberOfPointUsedForFit_(0)
     {
     }
 
-    CTPPSPixelLocalTrack(float z0, const TVectorD &track_params_vector,
-      const TMatrixD &par_covariance_matrix, float chiSquared);
+    CTPPSPixelLocalTrack(float z0, const ParameterVector & track_params_vector,
+      const CovarianceMatrix &par_covariance_matrix, float chiSquared);
 
     virtual ~CTPPSPixelLocalTrack() {}
 
@@ -107,41 +111,41 @@ class CTPPSPixelLocalTrack
     inline float getTy() const { return track_params_vector_[3]; }
     inline float getTySigma() const { return sqrt(CovarianceMatrixElement(3, 3)); }
 
-    inline TVector3 getDirectionVector() const
+    inline math::GlobalVector getDirectionVector() const
     {
-      TVector3 vect(getTx(), getTy(), 1);
-      vect.SetMag(1.0);
-      return vect;
+      math::GlobalVector vect(getTx(), getTy(), 1);
+      return vect.unit();
     }
 
-    TVectorD getParameterVector() const;
-    void setParameterVector(const TVectorD & track_params_vector);
+    ParameterVector getParameterVector() const;
+    void setParameterVector(const ParameterVector & track_params_vector);
 
-    TMatrixD getCovarianceMatrix() const;
-    void setCovarianceMatrix(const TMatrixD &par_covariance_matrix);
+    CovarianceMatrix getCovarianceMatrix() const;
+    void setCovarianceMatrix(const CovarianceMatrix &par_covariance_matrix);
 
     inline float getChiSquared() const { return chiSquared_; }
     inline void setChiSquared(float & chiSquared) { chiSquared_ = chiSquared; }
 
-    inline float getChiSquaredOverNDF() const { return chiSquared_ / (2*numberOfPointUsedForFit_ - 4); }
+    inline float getChiSquaredOverNDF() const { return chiSquared_ / (2*numberOfPointUsedForFit_ - dimension); }
 
-    inline int getNDF() const {return (2*numberOfPointUsedForFit_ - 4); }
+    inline int getNDF() const {return (2*numberOfPointUsedForFit_ - dimension); }
 
-    /// returns (x, y) vector
-    inline TVector2 getTrackPoint(float z) const 
+    /// returns the point from which the track is passing by at the selected z
+    inline math::GlobalPoint getTrackPoint(float z) const 
     {
       float delta_z = z - z0_;
-      return TVector2(
+      return math::GlobalPoint(
         track_params_vector_[0] + track_params_vector_[2] * delta_z,
-        track_params_vector_[1] + track_params_vector_[3] * delta_z);
+        track_params_vector_[1] + track_params_vector_[3] * delta_z,
+        z);
     }
 
-    inline TVector3 getTrackCentrePoint()
+    inline math::GlobalPoint getTrackCentrePoint()
     {
-      return TVector3(track_params_vector_[0], track_params_vector_[1], z0_);
+      return math::GlobalPoint(track_params_vector_[0], track_params_vector_[1], z0_);
     }
 
-    TMatrixD trackPointInterpolationCovariance(float z) const;
+    math::Matrix<2,2>::type trackPointInterpolationCovariance(float z) const;
 
     inline bool isValid() const { return valid_; }
 

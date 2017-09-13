@@ -47,7 +47,7 @@ class RPixPlaneCombinatoryTracking : public RPixDetTrackFinder{
         std::vector<RPixDetPatternFinder::PointInPlane> tmpHitVector,
         std::map< std::map<CTPPSPixelDetId, size_t>, std::vector<RPixDetPatternFinder::PointInPlane> > &outputMap);
     std::map< std::map<CTPPSPixelDetId, size_t>, std::vector<RPixDetPatternFinder::PointInPlane> > produceAllHitCombination(std::vector<std::vector<uint32_t> > inputPlaneCombination);
-    bool calculatePointOnDetector(CTPPSPixelLocalTrack track, CTPPSPixelDetId planeId, TVector3 &planeLineIntercept);
+    bool calculatePointOnDetector(CTPPSPixelLocalTrack track, CTPPSPixelDetId planeId, math::GlobalPoint &planeLineIntercept);
     static bool functionForPlaneOrdering(
         std::pair<std::map<CTPPSPixelDetId, size_t>, std::vector<RPixDetPatternFinder::PointInPlane> > a,
         std::pair<std::map<CTPPSPixelDetId, size_t>, std::vector<RPixDetPatternFinder::PointInPlane> > b) { 

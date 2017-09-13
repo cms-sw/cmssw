@@ -3,6 +3,9 @@
 
 #include <algorithm>
 
+
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+
 #include "TMatrixD.h"
 #include "TVectorD.h"
 #include "TVector3.h"
@@ -281,7 +284,7 @@ void RPixPlaneCombinatoryTracking::findTracks(){
       CTPPSPixelDetId tmpPlaneId = romanPotId_; //in order to avoid to modify the data member
       tmpPlaneId.setPlane(plane);
       CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit *fittedRecHit = new CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit();
-      TVector3 pointOnDet;
+      math::GlobalPoint pointOnDet;
       calculatePointOnDetector(bestTrack, tmpPlaneId, pointOnDet);
 
 
@@ -296,8 +299,8 @@ void RPixPlaneCombinatoryTracking::findTracks(){
         double_t maximumYdistance = maxGlobalPointDistance[1]*maxGlobalPointDistance[1];
         double_t minimumDistance = 1. + maximumXdistance + maximumYdistance; // to be sure that the first min distance is from a real point
         for(const auto & hit : hitMap_[tmpPlaneId]){
-          double xResidual = hit.globalPoint.x() - pointOnDet.X();
-          double yResidual = hit.globalPoint.y() - pointOnDet.Y();
+          double xResidual = hit.globalPoint.x() - pointOnDet.x();
+          double yResidual = hit.globalPoint.y() - pointOnDet.y();
           double xDistance = xResidual*xResidual;
           double yDistance = yResidual*yResidual;
           double distance = xDistance + yDistance;
@@ -404,21 +407,35 @@ CTPPSPixelLocalTrack RPixPlaneCombinatoryTracking::fitTrack(std::vector<RPixDetP
   TVectorD xyCoordinatesMinusZmatrixTimesParameters = xyCoordinates - (zMatrix * parameters);
 
   double_t chiSquare = xyCoordinatesMinusZmatrixTimesParameters * (varianceMatrix * xyCoordinatesMinusZmatrixTimesParameters);
+
+  //I convert the TMatrixD into a SMatrix
+  CTPPSPixelLocalTrack::CovarianceMatrix covatianceMatrix;
+  for(unsigned int i=0; i<4; ++i){
+    for(unsigned int j=0; j<4; ++j){
+      covatianceMatrix[i][j] = parametersCovatianceMatrix[i][j];
+    }
+  }
   
-  CTPPSPixelLocalTrack goodTrack(z0_, parameters, parametersCovatianceMatrix, chiSquare);
+  //I convert the TVectorD into a SVector
+  CTPPSPixelLocalTrack::ParameterVector parameterVector;
+  for(unsigned int i=0; i<4; ++i){
+    parameterVector[i] = parameters[i];
+  }
+
+  CTPPSPixelLocalTrack goodTrack(z0_, parameterVector, covatianceMatrix, chiSquare);
   goodTrack.setValid(true);
 
   for(const auto & hit : pointList){
     CLHEP::Hep3Vector globalPoint = hit.globalPoint;
-    TVector3 pointOnDet;
+    math::GlobalPoint pointOnDet;
     bool foundPoint = calculatePointOnDetector(goodTrack, CTPPSPixelDetId(hit.detId), pointOnDet);
     if(!foundPoint){
       CTPPSPixelLocalTrack badTrack;
       badTrack.setValid(false);
       return badTrack;
     }
-    double xResidual = globalPoint.x() - pointOnDet.X();
-    double yResidual = globalPoint.y() - pointOnDet.Y();
+    double xResidual = globalPoint.x() - pointOnDet.x();
+    double yResidual = globalPoint.y() - pointOnDet.y();
     std::pair<double,double> residuals = std::make_pair(xResidual,yResidual);
 
     TMatrixD globalError(hit.globalError);
@@ -436,14 +453,14 @@ CTPPSPixelLocalTrack RPixPlaneCombinatoryTracking::fitTrack(std::vector<RPixDetP
 //------------------------------------------------------------------------------------------------//
 
 //The method calculates the hit pointed by the track on the detector plane
-bool RPixPlaneCombinatoryTracking::calculatePointOnDetector(CTPPSPixelLocalTrack track, CTPPSPixelDetId planeId, TVector3 &planeLineIntercept){
+bool RPixPlaneCombinatoryTracking::calculatePointOnDetector(CTPPSPixelLocalTrack track, CTPPSPixelDetId planeId, math::GlobalPoint &planeLineIntercept){
   double z0 = track.getZ0();
-  TVectorD parameters = track.getParameterVector();
+  CTPPSPixelLocalTrack::ParameterVector parameters = track.getParameterVector();
 
 
   TVectorD pointOnLine(0,2,parameters[0], parameters[1], z0,"END");
-  TVector3 tmpLineUnitVector = track.getDirectionVector();
-  TVectorD lineUnitVector(0,2,tmpLineUnitVector.X(),tmpLineUnitVector.Y(),tmpLineUnitVector.Z(),"END");
+  math::GlobalVector tmpLineUnitVector = track.getDirectionVector();
+  TVectorD lineUnitVector(0,2,tmpLineUnitVector.x(),tmpLineUnitVector.y(),tmpLineUnitVector.z(),"END");
 
   CLHEP::Hep3Vector tmpPointOnPlane = planePointMap_[planeId];
   TVectorD pointOnPlane(0,2,tmpPointOnPlane.x(), tmpPointOnPlane.y(), tmpPointOnPlane.z(),"END");
@@ -460,7 +477,7 @@ bool RPixPlaneCombinatoryTracking::calculatePointOnDetector(CTPPSPixelLocalTrack
   double_t distanceFromLinePoint = (pointOnPlane - pointOnLine)*planeUnitVector / denominator;
 
   TVectorD tmpPlaneLineIntercept = distanceFromLinePoint*lineUnitVector + pointOnLine;
-  planeLineIntercept = {tmpPlaneLineIntercept[0], tmpPlaneLineIntercept[1], tmpPlaneLineIntercept[2]};
+  planeLineIntercept = math::GlobalPoint(tmpPlaneLineIntercept[0], tmpPlaneLineIntercept[1], tmpPlaneLineIntercept[2]);
 
   return true;
 
