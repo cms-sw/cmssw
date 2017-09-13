@@ -173,7 +173,7 @@ class CTPPSPixelLocalTrack
     /// filled from TotemRPGeometry::GetRPGlobalTranslation
     double z0_; 
 
-    double par_covariance_matrix_[covarianceSize];
+    float par_covariance_matrix_[covarianceSize];
   
     /// fit chi^2
     double chiSquared_;
