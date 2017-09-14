@@ -80,6 +80,8 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
   etaOfProbe_(iConfig.getUntrackedParameter<double>("probeEta",2.4)),
   nHitsOfProbe_(iConfig.getUntrackedParameter<double>("probeNHits",0.)),
   nBins_(iConfig.getUntrackedParameter<int>("numberOfBins",24)),
+  minPt_(iConfig.getUntrackedParameter<double>("minPt",0.5)),
+  maxPt_(iConfig.getUntrackedParameter<double>("maxPt",20.)),
   debug_(iConfig.getParameter<bool>("Debug")),
   runControl_(iConfig.getUntrackedParameter<bool>("runControl",false))
 {
@@ -141,8 +143,9 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
     }
   }
 
+  edm::LogVerbatim("PrimaryVertexValidation") <<"######################################";
   for (const auto & it : theDetails_.range){
-    edm::LogVerbatim("PrimaryVertexValidation")<<std::setw(10) << std::get<0>(PVValHelper::getTypeString(it.first.first)) << " "<< std::setw(10)<< std::get<0>(PVValHelper::getVarString(it.first.second)) << " (" << std::setw(5)<< it.second.first << ";" <<std::setw(5)<< it.second.second << ")"<<std::endl;
+    edm::LogVerbatim("PrimaryVertexValidation")<< "|" <<std::setw(10) << std::get<0>(PVValHelper::getTypeString(it.first.first)) << "|" << std::setw(10)<< std::get<0>(PVValHelper::getVarString(it.first.second)) << "| (" << std::setw(5)<< it.second.first << ";" <<std::setw(5)<< it.second.second << ") |"<<std::endl;
   }
 
   theDetails_.trendbins[PVValHelper::phi] = PVValHelper::generateBins(nBins_+1,-180.,360.);
@@ -162,6 +165,20 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
     edm::LogVerbatim("PrimaryVertexValidation") << "\n";
   }
   
+  // create the bins of the pT-binned distributions 
+
+  mypT_bins_ = PVValHelper::makeLogBins<float,nPtBins_>(minPt_,maxPt_);
+
+  std::string toOutput="";
+  for (auto ptbin: mypT_bins_){
+    toOutput+=" ";
+    toOutput+=std::to_string(ptbin);
+    toOutput+=",";
+  }
+  
+  edm::LogVerbatim("PrimaryVertexValidation") <<"######################################\n";
+  edm::LogVerbatim("PrimaryVertexValidation") <<"The pT binning is: [" << toOutput << "] \n";
+
 }
    
 // Destructor
@@ -863,6 +880,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 		// probe checks
 		h_probePt_->Fill(theTrack.pt());
+		h_probePtRebin_->Fill(theTrack.pt());
 		h_probeP_->Fill(theTrack.p());
 		h_probeEta_->Fill(theTrack.eta());
 		h_probePhi_->Fill(theTrack.phi());
@@ -1260,6 +1278,7 @@ void PrimaryVertexValidation::beginJob()
   TFileDirectory ProbeFeatures = fs->mkdir("ProbeTrackFeatures");
 
   h_probePt_         = ProbeFeatures.make<TH1F>("h_probePt","p_{T} of probe track;track p_{T} (GeV); tracks",100,0.,50.);   
+  h_probePtRebin_    = ProbeFeatures.make<TH1F>("h_probePtRebin","p_{T} of probe track;track p_{T} (GeV); tracks",mypT_bins_.size()-1,mypT_bins_.data());   
   h_probeP_          = ProbeFeatures.make<TH1F>("h_probeP","momentum of probe track;track p (GeV); tracks",100,0.,100.);   
   h_probeEta_        = ProbeFeatures.make<TH1F>("h_probeEta","#eta of the probe track;track #eta;tracks",54,-2.8,2.8);  
   h_probePhi_        = ProbeFeatures.make<TH1F>("h_probePhi","#phi of probe track;track #phi (rad);tracks",100,-3.15,3.15);  
@@ -1631,68 +1650,68 @@ void PrimaryVertexValidation::beginJob()
   
   a_dxypTMeanTrend  = MeanTrendsDir.make<TH1F> ("means_dxy_pT",
 						"#LT d_{xy} #GT vs pT;p_{T} [GeV];#LT d_{xy} #GT [#mum]",
-						48,mypT_bins_); 
+						mypT_bins_.size()-1,mypT_bins_.data()); 
   
   a_dxypTWidthTrend = WidthTrendsDir.make<TH1F>("widths_dxy_pT",
 						"#sigma_{d_{xy}} vs pT;p_{T} [GeV];#sigma_{d_{xy}} [#mum]",
-						48,mypT_bins_);
+						mypT_bins_.size()-1,mypT_bins_.data());
   
   a_dzpTMeanTrend   = MeanTrendsDir.make<TH1F> ("means_dz_pT",
 						"#LT d_{z} #GT vs pT;p_{T} [GeV];#LT d_{z} #GT [#mum]",
-						48,mypT_bins_); 
+						mypT_bins_.size()-1,mypT_bins_.data()); 
   
   a_dzpTWidthTrend  = WidthTrendsDir.make<TH1F>("widths_dz_pT","#sigma_{d_{z}} vs pT;p_{T} [GeV];#sigma_{d_{z}} [#mum]",
-						48,mypT_bins_);
+						mypT_bins_.size()-1,mypT_bins_.data());
   
   
   n_dxypTMeanTrend  = MeanTrendsDir.make<TH1F> ("norm_means_dxy_pT",
 						"#LT d_{xy}/#sigma_{d_{xy}} #GT vs pT;p_{T} [GeV];#LT d_{xy}/#sigma_{d_{xy}} #GT",
-						48,mypT_bins_);
+						mypT_bins_.size()-1,mypT_bins_.data());
   
   n_dxypTWidthTrend = WidthTrendsDir.make<TH1F>("norm_widths_dxy_pT",
 						"width(d_{xy}/#sigma_{d_{xy}}) vs pT;p_{T} [GeV]; width(d_{xy}/#sigma_{d_{xy}})",
-						48,mypT_bins_);
+						mypT_bins_.size()-1,mypT_bins_.data());
   
   n_dzpTMeanTrend   = MeanTrendsDir.make<TH1F> ("norm_means_dz_pT",
 						"#LT d_{z}/#sigma_{d_{z}} #GT vs pT;p_{T} [GeV];#LT d_{z}/#sigma_{d_{z}} #GT",
-						48,mypT_bins_); 
+						mypT_bins_.size()-1,mypT_bins_.data()); 
   
   n_dzpTWidthTrend  = WidthTrendsDir.make<TH1F>("norm_widths_dz_pT",
 						"width(d_{z}/#sigma_{d_{z}}) vs pT;p_{T} [GeV];width(d_{z}/#sigma_{d_{z}})",
-						48,mypT_bins_);
+						mypT_bins_.size()-1,mypT_bins_.data());
 
 
   a_dxypTCentralMeanTrend  = MeanTrendsDir.make<TH1F> ("means_dxy_pTCentral",
 						       "#LT d_{xy} #GT vs p_{T};p_{T}(|#eta|<1.) [GeV];#LT d_{xy} #GT [#mum]",
-						       48,mypT_bins_);
+						       mypT_bins_.size()-1,mypT_bins_.data());
   
   a_dxypTCentralWidthTrend = WidthTrendsDir.make<TH1F>("widths_dxy_pTCentral",
 						       "#sigma_{d_{xy}} vs p_{T};p_{T}(|#eta|<1.) [GeV];#sigma_{d_{xy}} [#mum]",
-						       48,mypT_bins_);
+						       mypT_bins_.size()-1,mypT_bins_.data());
   
   a_dzpTCentralMeanTrend   = MeanTrendsDir.make<TH1F> ("means_dz_pTCentral",
 						       "#LT d_{z} #GT vs p_{T};p_{T}(|#eta|<1.) [GeV];#LT d_{z} #GT [#mum]"
-						       ,48,mypT_bins_); 
+						       ,mypT_bins_.size()-1,mypT_bins_.data()); 
   
   a_dzpTCentralWidthTrend  = WidthTrendsDir.make<TH1F>("widths_dz_pTCentral",
 						       "#sigma_{d_{z}} vs p_{T};p_{T}(|#eta|<1.) [GeV];#sigma_{d_{z}} [#mum]",
-						       48,mypT_bins_);
+						       mypT_bins_.size()-1,mypT_bins_.data());
   
   n_dxypTCentralMeanTrend  = MeanTrendsDir.make<TH1F> ("norm_means_dxy_pTCentral",
 						       "#LT d_{xy}/#sigma_{d_{xy}} #GT vs p_{T};p_{T}(|#eta|<1.) [GeV];#LT d_{xy}/#sigma_{d_{z}} #GT",
-						       48,mypT_bins_);
+						       mypT_bins_.size()-1,mypT_bins_.data());
   
   n_dxypTCentralWidthTrend = WidthTrendsDir.make<TH1F>("norm_widths_dxy_pTCentral",
 						       "width(d_{xy}/#sigma_{d_{xy}}) vs p_{T};p_{T}(|#eta|<1.) [GeV];width(d_{xy}/#sigma_{d_{z}})",
-						       48,mypT_bins_);
+						       mypT_bins_.size()-1,mypT_bins_.data());
   
   n_dzpTCentralMeanTrend   = MeanTrendsDir.make<TH1F> ("norm_means_dz_pTCentral",
 						       "#LT d_{z}/#sigma_{d_{z}} #GT vs p_{T};p_{T}(|#eta|<1.) [GeV];#LT d_{z}/#sigma_{d_{z}} #GT",
-						       48,mypT_bins_);  
+						       mypT_bins_.size()-1,mypT_bins_.data());  
   
   n_dzpTCentralWidthTrend  = WidthTrendsDir.make<TH1F>("norm_widths_dz_pTCentral",
 						       "width(d_{z}/#sigma_{d_{z}}) vs p_{T};p_{T}(|#eta|<1.) [GeV];width(d_{z}/#sigma_{d_{z}})",
-						       48,mypT_bins_); 
+						       mypT_bins_.size()-1,mypT_bins_.data()); 
 
   // 2D maps
 

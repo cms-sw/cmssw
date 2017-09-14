@@ -18,10 +18,6 @@ process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string('checkAllFilesOpened')
                             )
 
-process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.destinations = ['cout', 'cerr']
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
-
 runboundary = 1
 process.source.firstRun = cms.untracked.uint32(int(runboundary))
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
@@ -40,9 +36,24 @@ else:
 ###################################################################
 # Messages
 ###################################################################
-process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.destinations = ['cout', 'cerr']
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.load('FWCore.MessageService.MessageLogger_cfi')   
+process.MessageLogger.categories.append("PrimaryVertexValidation")  
+process.MessageLogger.categories.append("FilterOutLowPt")  
+process.MessageLogger.destinations = cms.untracked.vstring("cout")
+process.MessageLogger.cout = cms.untracked.PSet(
+    threshold = cms.untracked.string("INFO"),
+    default   = cms.untracked.PSet(limit = cms.untracked.int32(0)),                       
+    FwkReport = cms.untracked.PSet(limit = cms.untracked.int32(-1),
+                                   reportEvery = cms.untracked.int32(1000)
+                                   ),                                                      
+    PrimaryVertexValidation = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
+    FilterOutLowPt          = cms.untracked.PSet( limit = cms.untracked.int32(-1))
+    )
+process.MessageLogger.statistics.append('cout') 
+
+# process.load("FWCore.MessageService.MessageLogger_cfi")
+# process.MessageLogger.destinations = ['cout', 'cerr']
+# process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 ####################################################################
 # Produce the Transient Track Record in the event
@@ -207,6 +218,8 @@ if isDA:
                                            isLightNtuple = cms.bool(True),
                                            askFirstLayerHit = cms.bool(False),
                                            probePt = cms.untracked.double(3.),
+                                           minPt   = cms.untracked.double(1.),
+                                           maxPt   = cms.untracked.double(30.),
                                            runControl = cms.untracked.bool(True),
                                            runControlNumber = cms.untracked.vuint32(int(runboundary)),
                                            
@@ -249,6 +262,8 @@ else:
                                            useTracksFromRecoVtx = cms.bool(False),
                                            askFirstLayerHit = cms.bool(False),
                                            probePt = cms.untracked.double(3.),
+                                           minPt   = cms.untracked.double(1.),
+                                           maxPt   = cms.untracked.double(30.),
                                            runControl = cms.untracked.bool(True),
                                            runControlNumber = cms.untracked.vuint32(int(runboundary)),
                                            
