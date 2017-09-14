@@ -3,7 +3,7 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from DQMOffline.Trigger.VBFSUSYMonitor_Client_cff import *
 from DQMOffline.Trigger.LepHTMonitor_cff import *
 from DQMOffline.Trigger.susyHLTEleCaloJetsClient_cfi import *
-import FWCore.ParameterSet.Config as cms
+from DQMOffline.Trigger.RazorMonitor_Client_cff import *
 
 #george
 double_soft_muon_muonpt_efficiency = DQMEDHarvester("DQMGenericClient",
