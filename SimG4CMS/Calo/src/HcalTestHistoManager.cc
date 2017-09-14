@@ -11,7 +11,7 @@
 #include <cmath>
 
 HcalTestHistoManager::HcalTestHistoManager(const std::string & file) :
-  tree(0), h(0), kount(0) {
+  tree(nullptr), h(nullptr), kount(0) {
   if (fs.isAvailable()) {
     h    = new HcalTestHistoClass();
 

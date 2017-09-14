@@ -37,13 +37,13 @@ public:
   Bcm1fSD(std::string, const DDCompactView &, 
 		       const SensitiveDetectorCatalog &,
 		       edm::ParameterSet const &, const SimTrackManager*);
-  virtual ~Bcm1fSD();
+  ~Bcm1fSD() override;
 
-  virtual bool     ProcessHits(G4Step *,G4TouchableHistory *);
-  virtual uint32_t setDetUnitId(G4Step*);
-  virtual void EndOfEvent(G4HCofThisEvent*);
+  bool     ProcessHits(G4Step *,G4TouchableHistory *) override;
+  uint32_t setDetUnitId(G4Step*) override;
+  void EndOfEvent(G4HCofThisEvent*) override;
 
-  void fillHits (edm::PSimHitContainer&, std::string use);
+  void fillHits (edm::PSimHitContainer&, std::string use) override;
 
 private:
 
@@ -52,10 +52,10 @@ private:
   virtual bool   newHit(G4Step *);
   virtual bool   closeHit(G4Step *);
   virtual void   createHit(G4Step *);
-  void           update(const BeginOfEvent *);
-  void           update(const BeginOfTrack *);
-  void           update(const BeginOfJob *);
-  virtual void   clearHits();
+  void           update(const BeginOfEvent *) override;
+  void           update(const BeginOfTrack *) override;
+  void           update(const BeginOfJob *) override;
+  void   clearHits() override;
   TrackInformation* getOrCreateTrackInformation(const G4Track *);
 
 private:
