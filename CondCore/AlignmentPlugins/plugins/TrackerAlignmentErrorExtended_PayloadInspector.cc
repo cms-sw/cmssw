@@ -41,7 +41,7 @@ namespace {
       Base::setSingleIov( true );
     }
     
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       
       for ( auto const & iov: iovs) {
 	std::shared_ptr<AlignmentErrorsExtended> payload = Base::fetchPayload( std::get<1>(iov) );
@@ -87,14 +87,14 @@ namespace {
       setSingleIov( true );
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       auto iov = iovs.front();
       std::shared_ptr<AlignmentErrorsExtended> payload = fetchPayload( std::get<1>(iov) );
 
       std::string titleMap = "APE #sqrt{d_{"+getStringFromIndex(i)+"}} value (payload : "+std::get<1>(iov)+")";
 
       std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("APE_dii"));
-      tmap->setTitle(titleMap.c_str());
+      tmap->setTitle(titleMap);
       tmap->setPalette(1);
    
       std::vector<AlignTransformErrorExtended> alignErrors = payload->m_alignError;
@@ -125,7 +125,7 @@ namespace {
       //=========================
    
       std::string fileName(m_imageFileName);
-      tmap->save(true,0,0,fileName.c_str());
+      tmap->save(true,0,0,fileName);
 
       return true;
     }
