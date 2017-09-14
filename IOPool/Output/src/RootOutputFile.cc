@@ -34,6 +34,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/ExceptionPropagate.h"
 #include "IOPool/Common/interface/getWrapperBasePtr.h"
+#include "IOPool/Provenance/interface/CommonProvenanceFiller.h"
 
 #include "TTree.h"
 #include "TFile.h"
@@ -543,14 +544,7 @@ namespace edm {
   }
 
   void RootOutputFile::writeProcessHistoryRegistry() {
-    ProcessHistoryVector procHistoryVector;
-    for(auto const& ph : processHistoryRegistry_) {
-      procHistoryVector.push_back(ph.second);
-    }
-    ProcessHistoryVector* p = &procHistoryVector;
-    TBranch* b = metaDataTree_->Branch(poolNames::processHistoryBranchName().c_str(), &p, om_->basketSize(), 0);
-    assert(b);
-    b->Fill();
+    fillProcessHistoryBranch(metaDataTree_.get(), om_->basketSize(), processHistoryRegistry_);
   }
 
   void RootOutputFile::writeBranchIDListRegistry() {
@@ -568,16 +562,7 @@ namespace edm {
   }
 
   void RootOutputFile::writeParameterSetRegistry() {
-    std::pair<ParameterSetID, ParameterSetBlob> idToBlob;
-    std::pair<ParameterSetID, ParameterSetBlob>* pIdToBlob = &idToBlob;
-    TBranch* b = parameterSetsTree_->Branch(poolNames::idToParameterSetBlobsBranchName().c_str(),&pIdToBlob,om_->basketSize(), 0);
-
-    for(auto const& pset : *pset::Registry::instance()) {
-      idToBlob.first = pset.first;
-      idToBlob.second.pset() = pset.second.toString();
-
-      b->Fill();
-    }
+    fillParameterSetBranch(parameterSetsTree_.get(), om_->basketSize());
   }
 
   void RootOutputFile::writeProductDescriptionRegistry() {
