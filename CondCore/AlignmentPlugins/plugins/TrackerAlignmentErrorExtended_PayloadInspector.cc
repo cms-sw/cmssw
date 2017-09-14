@@ -24,6 +24,16 @@
 #include <memory>
 #include <sstream>
 
+// include ROOT 
+#include "TH2F.h"
+#include "TLegend.h"
+#include "TCanvas.h"
+#include "TLine.h"
+#include "TStyle.h"
+#include "TLatex.h"
+#include "TPave.h"
+#include "TPaveStats.h"
+
 const float cmToUm = 10000;
 
 namespace {
@@ -77,6 +87,103 @@ namespace {
   typedef TrackerAlignmentErrorExtendedValue<AlignmentPI::XY> TrackerAlignmentErrorExtendedXYValue; 
   typedef TrackerAlignmentErrorExtendedValue<AlignmentPI::XZ> TrackerAlignmentErrorExtendedXZValue; 
   typedef TrackerAlignmentErrorExtendedValue<AlignmentPI::YZ> TrackerAlignmentErrorExtendedYZValue; 
+
+  // /************************************************
+  //   Summary spectra of sqrt(d_ii) of 1 IOV
+  // *************************************************/
+ 
+  template<AlignmentPI::index i> class TrackerAlignmentErrorExtendedSummary : public cond::payloadInspector::PlotImage<AlignmentErrorsExtended> {
+  public:
+    TrackerAlignmentErrorExtendedSummary() : cond::payloadInspector::PlotImage<AlignmentErrorsExtended>( "Summary per Tracker Partition of sqrt(d_{"+getStringFromIndex(i)+"}) of APE matrix" ){
+      setSingleIov( true );
+    }
+    
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+      auto iov = iovs.front();
+      std::shared_ptr<AlignmentErrorsExtended> payload = fetchPayload( std::get<1>(iov) );
+      std::vector<AlignTransformErrorExtended> alignErrors = payload->m_alignError;
+
+      auto indices = AlignmentPI::getIndices(i);
+
+      TCanvas canvas("Partion summary","partition summary",1200,1000); 
+      canvas.Divide(3,2);
+      std::map<std::string,int> colormap;
+      colormap["PXB"] = kCyan;
+      colormap["PXF"] = kMagenta;
+      colormap["TIB"] = kRed;           
+      colormap["TOB"] = kGreen;	    
+      colormap["TID"] = kBlack;	    
+      colormap["TEC"] = kBlue; 	    
+      
+      std::map<std::string,std::shared_ptr<TH1F> > APE_spectra; 
+      std::vector<std::string> parts = {"PXB","PXF","TIB","TID","TOB","TEC"};
+      
+      auto s_index = getStringFromIndex(i);
+
+      for ( const auto &part : parts){
+  	APE_spectra[part]   = std::make_shared<TH1F>(Form("hAPE_%s",part.c_str()),Form("APE #sqrt{d_{%s}} for %s;APE #sqrt{d_{%s}} [#mum];modules",s_index.c_str(),part.c_str(),s_index.c_str()),200,0.,200.);       
+      }
+
+      for (const auto& it : alignErrors ){
+	    
+      	CLHEP::HepSymMatrix errMatrix = it.matrix();
+      	int subid = DetId(it.rawId()).subdetId();
+	
+      	switch(subid){
+      	case 1 : 
+      	  APE_spectra["PXB"]->Fill(std::min(200.,sqrt(errMatrix[indices.first][indices.second])*cmToUm));
+      	  break;
+      	case 2 : 
+      	  APE_spectra["PXF"]->Fill(std::min(200.,sqrt(errMatrix[indices.first][indices.second])*cmToUm));
+      	  break;
+      	case 3 : 
+	  APE_spectra["TIB"]->Fill(std::min(200.,sqrt(errMatrix[indices.first][indices.second])*cmToUm));
+      	  break;
+      	case 4 : 
+	  APE_spectra["TID"]->Fill(std::min(200.,sqrt(errMatrix[indices.first][indices.second])*cmToUm));
+      	  break;
+      	case 5 : 
+	  APE_spectra["TOB"]->Fill(std::min(200.,sqrt(errMatrix[indices.first][indices.second])*cmToUm));
+      	  break;
+      	case 6 : 
+	  APE_spectra["TEC"]->Fill(std::min(200.,sqrt(errMatrix[indices.first][indices.second])*cmToUm));
+      	  break;
+      	default : std::cout<<"will do nothing"<< std::endl;
+      	  break;
+      	}
+      }
+      
+      int c_index=1;
+      for (const auto &part : parts){
+      	canvas.cd(c_index)->SetLogy();
+	canvas.cd(c_index)->SetBottomMargin(0.18);
+	canvas.cd(c_index)->SetLeftMargin(0.16);
+	canvas.cd(c_index)->SetRightMargin(0.10);
+	AlignmentPI::makeNicePlotStyle(APE_spectra[part].get());
+      	APE_spectra[part]->SetStats(true);
+      	APE_spectra[part]->SetLineWidth(2);
+      	//APE_spectra[part]->SetLineColor(colormap[part]);
+      	APE_spectra[part]->Draw("HIST");
+      	c_index++;
+      }
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }
+  };
+
+  // diagonal elements
+  typedef TrackerAlignmentErrorExtendedSummary<AlignmentPI::XX> TrackerAlignmentErrorExtendedXXSummary; 
+  typedef TrackerAlignmentErrorExtendedSummary<AlignmentPI::YY> TrackerAlignmentErrorExtendedYYSummary; 
+  typedef TrackerAlignmentErrorExtendedSummary<AlignmentPI::ZZ> TrackerAlignmentErrorExtendedZZSummary; 
+
+  // off-diagonal elements
+  typedef TrackerAlignmentErrorExtendedSummary<AlignmentPI::XY> TrackerAlignmentErrorExtendedXYSummary; 
+  typedef TrackerAlignmentErrorExtendedSummary<AlignmentPI::XZ> TrackerAlignmentErrorExtendedXZSummary; 
+  typedef TrackerAlignmentErrorExtendedSummary<AlignmentPI::YZ> TrackerAlignmentErrorExtendedYZSummary; 
+
 
   // /************************************************
   //   TrackerMap of sqrt(d_ii) of 1 IOV
@@ -140,497 +247,7 @@ namespace {
   typedef TrackerAlignmentErrorExtendedTrackerMap<AlignmentPI::XY> TrackerAlignmentErrorExtendedXYTrackerMap; 
   typedef TrackerAlignmentErrorExtendedTrackerMap<AlignmentPI::XZ> TrackerAlignmentErrorExtendedXZTrackerMap; 
   typedef TrackerAlignmentErrorExtendedTrackerMap<AlignmentPI::YZ> TrackerAlignmentErrorExtendedYZTrackerMap; 
-  
-  // /************************************************
-  //   TrackerMap of SiStripApvGains (average gain per detid)
-  // *************************************************/
-  // class SiStripApvGainsAverageTrackerMap : public cond::payloadInspector::PlotImage<SiStripApvGain> {
-  // public:
-  //   SiStripApvGainsAverageTrackerMap() : cond::payloadInspector::PlotImage<SiStripApvGain>( "Tracker Map of average SiStripGains" ){
-  //     setSingleIov( true );
-  //   }
-
-  //   bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
-  //     auto iov = iovs.front();
-  //     std::shared_ptr<SiStripApvGain> payload = fetchPayload( std::get<1>(iov) );
-
-  //     std::string titleMap = "SiStrip APV Gain average per module (payload : "+std::get<1>(iov)+")";
-
-  //     std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripApvGains"));
-  //     tmap->setTitle(titleMap.c_str());
-  //     tmap->setPalette(1);
-      
-  //     std::vector<uint32_t> detid;
-  //     payload->getDetIds(detid);
-      
-  //     for (const auto & d : detid) {
-  // 	SiStripApvGain::Range range=payload->getRange(d);
-  // 	float sumOfGains=0;
-  // 	float nAPVsPerModule=0.;
-  // 	for(int it=0;it<range.second-range.first;it++){
-  // 	  nAPVsPerModule+=1;
-  // 	  sumOfGains+=payload->getApvGain(it,range);
-  // 	} // loop over APVs
-  // 	// fill the tracker map taking the average gain on a single DetId
-  // 	tmap->fill(d,(sumOfGains/nAPVsPerModule));
-  //     } // loop over detIds
-
-  //     //=========================
-      
-  //     std::string fileName(m_imageFileName);
-  //     tmap->save(true,0,0,fileName.c_str());
-
-  //     return true;
-  //   }
-  // };
-  
-  // /************************************************
-  //   TrackerMap of SiStripApvGains (ratio with previous gain per detid)
-  // *************************************************/
-  // class SiStripApvGainsRatioWithPreviousIOVTrackerMap : public cond::payloadInspector::PlotImage<SiStripApvGain> {
-  // public:
-  //   SiStripApvGainsRatioWithPreviousIOVTrackerMap() : cond::payloadInspector::PlotImage<SiStripApvGain>( "Tracker Map of ratio of SiStripGains with previous IOV" ){
-  //     setSingleIov( false );
-  //   }
-
-  //   bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
-      
-  //     std::vector<std::tuple<cond::Time_t,cond::Hash> > sorted_iovs = iovs;
-
-  //     // make absolute sure the IOVs are sortd by since
-  //     std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
-  // 	  return std::get<0>(t1) < std::get<0>(t2);
-  // 	});
-      
-  //     auto firstiov  = sorted_iovs.front();
-  //     auto lastiov   = sorted_iovs.back();
-      
-  //     std::shared_ptr<SiStripApvGain> last_payload  = fetchPayload( std::get<1>(lastiov) );
-  //     std::shared_ptr<SiStripApvGain> first_payload = fetchPayload( std::get<1>(firstiov) );
-      
-  //     std::string titleMap = "SiStrip APV Gain ratio per module average (IOV: ";
-
-  //     titleMap+=std::to_string(std::get<0>(firstiov));
-  //     titleMap+="/ IOV:";
-  //     titleMap+=std::to_string(std::get<0>(lastiov));
-  //     titleMap+=")";
-
-  //     std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripApvGains"));
-  //     tmap->setTitle(titleMap.c_str());
-  //     tmap->setPalette(1);
-
-  //     std::map<uint32_t,float> lastmap,firstmap;
-
-  //     std::vector<uint32_t> detid;
-  //     last_payload->getDetIds(detid);
-
-  //     // cache the last IOV
-  //     for (const auto & d : detid) {
-  // 	SiStripApvGain::Range range=last_payload->getRange(d);
-  // 	float Gain=0;
-  // 	float nAPV=0;
-  // 	for(int it=0;it<range.second-range.first;it++){
-  // 	  nAPV+=1;
-  // 	  Gain+=last_payload->getApvGain(it,range);
-  // 	} // loop over APVs
-  // 	lastmap[d]=(Gain/nAPV);
-  //     } // loop over detIds
-      
-  //     detid.clear();
-      
-  //     first_payload->getDetIds(detid);
-      
-  //     // cache the first IOV
-  //     for (const auto & d : detid) {
-  // 	SiStripApvGain::Range range=first_payload->getRange(d);
-  // 	float Gain=0;
-  // 	float nAPV=0;
-  // 	for(int it=0;it<range.second-range.first;it++){
-  // 	  nAPV+=1;
-  // 	  Gain+=first_payload->getApvGain(it,range);
-  // 	} // loop over APVs
-  // 	firstmap[d]=(Gain/nAPV);
-  //     } // loop over detIds
-      
-
-  //     std::map<uint32_t,float> cachedRatio; 
-  //     for(const auto &d : detid){
-  // 	float ratio = firstmap[d]/lastmap[d];
-  // 	tmap->fill(d,ratio);
-  // 	cachedRatio[d] = ratio;
-  //     }
-    
-  //     //=========================
-  //     auto range = getTheRange(cachedRatio);
-
-  //     std::string fileName(m_imageFileName);
-  //     tmap->save(true,range.first,range.second,fileName.c_str());
-
-  //     return true;
-  //   }
-  // };
-
-  // /************************************************
-  //   TrackerMap of SiStripApvGains (ratio for largest deviation with previous gain per detid)
-  // *************************************************/
-  // class SiStripApvGainsRatioMaxDeviationWithPreviousIOVTrackerMap : public cond::payloadInspector::PlotImage<SiStripApvGain> {
-  // public:
-  //   SiStripApvGainsRatioMaxDeviationWithPreviousIOVTrackerMap() : cond::payloadInspector::PlotImage<SiStripApvGain>( "Tracker Map of ratio (for largest deviation) of SiStripGains with previous IOV" ){
-  //     setSingleIov( false );
-  //   }
-
-  //   bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
-      
-  //     std::vector<std::tuple<cond::Time_t,cond::Hash> > sorted_iovs = iovs;
-
-  //     // make absolute sure the IOVs are sortd by since
-  //     std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
-  // 	  return std::get<0>(t1) < std::get<0>(t2);
-  // 	});
-      
-  //     auto firstiov  = sorted_iovs.front();
-  //     auto lastiov   = sorted_iovs.back();
-      
-  //     std::shared_ptr<SiStripApvGain> last_payload  = fetchPayload( std::get<1>(lastiov) );
-  //     std::shared_ptr<SiStripApvGain> first_payload = fetchPayload( std::get<1>(firstiov) );
-      
-  //     std::string titleMap = "SiStrip APV Gain ratio for largest deviation per module (IOV: ";
-
-  //     titleMap+=std::to_string(std::get<0>(firstiov));
-  //     titleMap+="/ IOV:";
-  //     titleMap+=std::to_string(std::get<0>(lastiov));
-  //     titleMap+=")";
-
-  //     std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripApvGains"));
-  //     tmap->setTitle(titleMap.c_str());
-  //     tmap->setPalette(1);
-
-  //     std::map<std::pair<uint32_t,int>,float> lastmap,firstmap;
-
-  //     std::vector<uint32_t> detid;
-  //     last_payload->getDetIds(detid);
-      
-  //     // cache the last IOV
-  //     for (const auto & d : detid) {
-  // 	SiStripApvGain::Range range=last_payload->getRange(d);
-  // 	float Gain=0;
-  // 	float nAPV=0;
-  // 	for(int it=0;it<range.second-range.first;it++){
-  // 	  nAPV+=1;
-  // 	  Gain+=last_payload->getApvGain(it,range);
-  // 	  std::pair<uint32_t,int> index = std::make_pair(d,nAPV);
-  // 	  lastmap[index]=(Gain/nAPV);
-  // 	} // loop over APVs
-  //     } // loop over detIds
-      
-  //     detid.clear();
-      
-  //     first_payload->getDetIds(detid);
-      
-  //     // cache the first IOV
-  //     for (const auto & d : detid) {
-  // 	SiStripApvGain::Range range=first_payload->getRange(d);
-  // 	float Gain=0;
-  // 	float nAPV=0;
-  // 	for(int it=0;it<range.second-range.first;it++){
-  // 	  nAPV+=1;
-  // 	  Gain+=first_payload->getApvGain(it,range);
-  // 	  std::pair<uint32_t,int> index = std::make_pair(d,nAPV);
-  // 	  firstmap[index]=(Gain/nAPV);
-  // 	} // loop over APVs
-  //     } // loop over detIds
-      
-  //     // find the largest deviation
-  //     std::map<uint32_t,float> cachedRatio; 
-
-  //     for(const auto &item : firstmap ){
-	
-  // 	// packed index (detid,APV)
-  // 	auto index   = item.first;
-  // 	auto mod     = item.first.first;
-	
-  // 	float ratio = firstmap[index]/lastmap[index];
-  // 	// if we have already cached something
-  // 	if(cachedRatio[mod]){
-  // 	  if(std::abs(cachedRatio[mod])>std::abs(ratio)){
-  // 	    cachedRatio[mod]=ratio;
-  // 	  }
-  // 	} else {
-  // 	  cachedRatio[mod]=ratio;
-  // 	}
-  //     }
-
-  //     for (const auto &element : cachedRatio){
-  // 	tmap->fill(element.first,element.second);
-  //     }
-
-  //     // get the range of the TrackerMap (saturate at +/-2 std deviations)
-  //     auto range = getTheRange(cachedRatio);
-      
-  //     //=========================
-      
-  //     std::string fileName(m_imageFileName);
-  //     tmap->save(true,range.first,range.second,fileName.c_str());
-
-  //     return true;
-  //   }
-  // };
-
-  // /************************************************
-  //   TrackerMap of SiStripApvGains (maximum gain per detid)
-  // *************************************************/
-  // class SiStripApvGainsMaximumTrackerMap : public cond::payloadInspector::PlotImage<SiStripApvGain> {
-  // public:
-  //   SiStripApvGainsMaximumTrackerMap() : cond::payloadInspector::PlotImage<SiStripApvGain>( "Tracker Map of SiStripAPVGains (maximum per DetId)" ){
-  //     setSingleIov( true );
-  //   }
-    
-  //   bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
-  //     auto iov = iovs.front();
-  //     std::shared_ptr<SiStripApvGain> payload = fetchPayload( std::get<1>(iov) );
-
-  //     std::string titleMap = "SiStrip APV Gain maximum per module (payload : "+std::get<1>(iov)+")";
-
-  //     std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripApvGains"));
-  //     tmap->setTitle(titleMap.c_str());
-  //     tmap->setPalette(1);
-      
-  //     std::vector<uint32_t> detid;
-  //     payload->getDetIds(detid);
-      
-  //     for (const auto & d : detid) {
-  // 	SiStripApvGain::Range range=payload->getRange(d);
-  // 	float theMaxGain=0;
-  // 	for(int it=0;it<range.second-range.first;it++){
-	  
-  // 	  float currentGain = payload->getApvGain(it,range);
-  // 	  if(currentGain > theMaxGain){
-  // 	    theMaxGain=currentGain;
-  // 	  }
-  // 	} // loop over APVs
-  // 	// fill the tracker map taking the average gain on a single DetId
-  // 	tmap->fill(d,theMaxGain);
-  //     } // loop over detIds
-
-  //     //=========================
-      
-  //     std::string fileName(m_imageFileName);
-  //     tmap->save(true,0,0,fileName.c_str());
-
-  //     return true;
-  //   }
-  // };
-
-  // /************************************************
-  //   TrackerMap of SiStripApvGains (minimum gain per detid)
-  // *************************************************/
-  // class SiStripApvGainsMinimumTrackerMap : public cond::payloadInspector::PlotImage<SiStripApvGain> {
-  // public:
-  //   SiStripApvGainsMinimumTrackerMap() : cond::payloadInspector::PlotImage<SiStripApvGain>( "Tracker Map of SiStripAPVGains (minimum per DetId)" ){
-  //     setSingleIov( true );
-  //   }
-
-  //   bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
-  //     auto iov = iovs.front();
-  //     std::shared_ptr<SiStripApvGain> payload = fetchPayload( std::get<1>(iov) );
-
-  //     std::string titleMap = "SiStrip APV Gain minumum per module (payload : "+std::get<1>(iov)+")";
-
-  //     std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripApvGains"));
-  //     tmap->setTitle(titleMap.c_str());
-  //     tmap->setPalette(1);
-      
-  //     std::vector<uint32_t> detid;
-  //     payload->getDetIds(detid);
-      
-  //     for (const auto & d : detid) {
-  // 	SiStripApvGain::Range range=payload->getRange(d);
-  // 	float theMinGain=999.;
-  // 	for(int it=0;it<range.second-range.first;it++){
-  // 	  float currentGain = payload->getApvGain(it,range);
-  // 	  if(currentGain < theMinGain){
-  // 	    theMinGain=currentGain;
-  // 	  }
-  // 	} // loop over APVs
-  // 	// fill the tracker map taking the average gain on a single DetId
-  // 	tmap->fill(d,theMinGain);
-  //     } // loop over detIds
-
-  //     //=========================
-      
-  //     std::string fileName(m_imageFileName);
-  //     tmap->save(true,0,0,fileName.c_str());
-
-  //     return true;
-  //   }
-  // };
-
-
-  // /************************************************
-  //   time history histogram of SiStripApvGains 
-  // *************************************************/
-
-  // class SiStripApvGainByRunMeans : public cond::payloadInspector::HistoryPlot<SiStripApvGain,float> {
-  // public:
-  //   SiStripApvGainByRunMeans() : cond::payloadInspector::HistoryPlot<SiStripApvGain,float>( "SiStripApv Gains average","average Strip APV gain value"){}
-  //   virtual ~SiStripApvGainByRunMeans() = default;
-
-  //   float getFromPayload( SiStripApvGain& payload ){
      
-  //     std::vector<uint32_t> detid;
-  //     payload.getDetIds(detid);
-      
-  //     float nAPVs=0;
-  //     float sumOfGains=0;
-
-  //     for (const auto & d : detid) {
-  // 	SiStripApvGain::Range range=payload.getRange(d);
-  // 	for(int it=0;it<range.second-range.first;it++){
-  // 	  nAPVs+=1;
-  // 	  sumOfGains+=payload.getApvGain(it,range);
-  // 	} // loop over APVs
-  //     } // loop over detIds
-
-  //     return sumOfGains/nAPVs;      
-  //   } // payload
-  // };
-
-  // /************************************************
-  //   time history histogram of TIB SiStripApvGains 
-  // *************************************************/
-
-  // class SiStripApvTIBGainByRunMeans : public cond::payloadInspector::HistoryPlot<SiStripApvGain,float> {
-  // public:
-  //   SiStripApvTIBGainByRunMeans() : cond::payloadInspector::HistoryPlot<SiStripApvGain,float>( "SiStripApv Gains average","average Tracker Inner Barrel APV gain value"){}
-  //   virtual ~SiStripApvTIBGainByRunMeans() = default;
-
-  //   float getFromPayload( SiStripApvGain& payload ){
-     
-  //     std::vector<uint32_t> detid;
-  //     payload.getDetIds(detid);
-      
-  //     float nAPVs=0;
-  //     float sumOfGains=0;
-
-  //     for (const auto & d : detid) {
-
-  // 	int subid = DetId(d).subdetId();
-  // 	if(subid!=StripSubdetector::TIB) continue;
-	
-  // 	SiStripApvGain::Range range=payload.getRange(d);
-  // 	for(int it=0;it<range.second-range.first;it++){
-  // 	  nAPVs+=1;
-  // 	  sumOfGains+=payload.getApvGain(it,range);
-  // 	} // loop over APVs
-  //     } // loop over detIds
-
-  //     return sumOfGains/nAPVs;
-
-  //   } // payload
-  // };
-
-  // /************************************************
-  //   time history histogram of TOB SiStripApvGains 
-  // *************************************************/
-
-  // class SiStripApvTOBGainByRunMeans : public cond::payloadInspector::HistoryPlot<SiStripApvGain,float> {
-  // public:
-  //   SiStripApvTOBGainByRunMeans() : cond::payloadInspector::HistoryPlot<SiStripApvGain,float>( "SiStripApv Gains average","average Tracker Outer Barrel gain value"){}
-  //   virtual ~SiStripApvTOBGainByRunMeans() = default;
-
-  //   float getFromPayload( SiStripApvGain& payload ){
-     
-  //     std::vector<uint32_t> detid;
-  //     payload.getDetIds(detid);
-      
-  //     float nAPVs=0;
-  //     float sumOfGains=0;
-      
-  //     for (const auto & d : detid) {
-
-  // 	int subid = DetId(d).subdetId();
-  // 	if(subid!=StripSubdetector::TOB) continue;
-
-  // 	SiStripApvGain::Range range=payload.getRange(d);
-  // 	for(int it=0;it<range.second-range.first;it++){
-  // 	  nAPVs+=1;
-  // 	  sumOfGains+=payload.getApvGain(it,range);
-  // 	} // loop over APVs
-  //     } // loop over detIds
-
-  //     return sumOfGains/nAPVs;
-
-  //   } // payload
-  // };
-
-  // /************************************************
-  //   time history histogram of TID SiStripApvGains 
-  // *************************************************/
-
-  // class SiStripApvTIDGainByRunMeans : public cond::payloadInspector::HistoryPlot<SiStripApvGain,float> {
-  // public:
-  //   SiStripApvTIDGainByRunMeans() : cond::payloadInspector::HistoryPlot<SiStripApvGain,float>( "SiStripApv Gains average","average Tracker Inner Disks APV gain value"){}
-  //   virtual ~SiStripApvTIDGainByRunMeans() = default;
-
-  //   float getFromPayload( SiStripApvGain& payload ){
-     
-  //     std::vector<uint32_t> detid;
-  //     payload.getDetIds(detid);
-      
-  //     float nAPVs=0;
-  //     float sumOfGains=0;
-  //     for (const auto & d : detid) {
-	
-  // 	int subid = DetId(d).subdetId();
-  // 	if(subid!=StripSubdetector::TID) continue;
-	
-  // 	SiStripApvGain::Range range=payload.getRange(d);
-  // 	for(int it=0;it<range.second-range.first;it++){
-  // 	  nAPVs+=1;
-  // 	  sumOfGains+=payload.getApvGain(it,range);
-  // 	} // loop over APVs
-  //     } // loop over detIds
-
-  //     return sumOfGains/nAPVs;
-
-  //   } // payload
-  // };
-
-  // /************************************************
-  //   time history histogram of TEC SiStripApvGains 
-  // *************************************************/
-
-  // class SiStripApvTECGainByRunMeans : public cond::payloadInspector::HistoryPlot<SiStripApvGain,float> {
-  // public:
-  //   SiStripApvTECGainByRunMeans() : cond::payloadInspector::HistoryPlot<SiStripApvGain,float>( "SiStripApv Gains average in TEC","average Tracker Endcaps APV gain value"){}
-  //   virtual ~SiStripApvTECGainByRunMeans() = default;
-
-  //   float getFromPayload( SiStripApvGain& payload ){
-     
-  //     std::vector<uint32_t> detid;
-  //     payload.getDetIds(detid);
-      
-  //     float nAPVs=0;
-  //     float sumOfGains=0;
-
-  //     for (const auto & d : detid) {
-
-  // 	int subid = DetId(d).subdetId();
-  // 	if(subid!=StripSubdetector::TEC) continue;
-	
-  // 	SiStripApvGain::Range range=payload.getRange(d);
-  // 	for(int it=0;it<range.second-range.first;it++){
-  // 	  nAPVs+=1;
-  // 	  sumOfGains+=payload.getApvGain(it,range);
-  // 	} // loop over APVs
-  //     } // loop over detIds
-
-  //     return sumOfGains/nAPVs;
-
-  //   } // payload
-  // };
-
-    
 } // close namespace
 
 // Register the classes as boost python plugin
@@ -641,6 +258,12 @@ PAYLOAD_INSPECTOR_MODULE(TrackerAlignmentErrorExtended){
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXYValue);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXZValue);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedYZValue);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXXSummary);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedYYSummary);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedZZSummary);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXYSummary);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXZSummary);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedYZSummary);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXXTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedYYTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedZZTrackerMap);
