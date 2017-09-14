@@ -9,6 +9,10 @@
 
 namespace AlignmentPI {
 
+  // M.M. 2017/09/12
+  // As the matrix is symmetric, we map only 6/9 terms
+  // More terms for the extended APE can be added to the following methods
+
   enum index {
     XX=1,
     XY=2,
@@ -33,7 +37,10 @@ namespace AlignmentPI {
     }
   }
 
-  std::pair<int,int> getIndices(AlignmentPI::index i){
+  /*--------------------------------------------------------------------*/
+  std::pair<int,int> getIndices(AlignmentPI::index i)
+  /*--------------------------------------------------------------------*/    
+  {
     switch(i){
     case XX : return std::make_pair(0,0);
     case XY : return std::make_pair(0,1);
@@ -45,6 +52,25 @@ namespace AlignmentPI {
     }
   }
   
+  /*--------------------------------------------------------------------*/
+  void makeNicePlotStyle(TH1 *hist)
+  /*--------------------------------------------------------------------*/
+  { 
+    hist->SetStats(kFALSE);  
+    hist->SetLineWidth(2);
+    hist->GetXaxis()->CenterTitle(true);
+    hist->GetYaxis()->CenterTitle(true);
+    hist->GetXaxis()->SetTitleFont(42); 
+    hist->GetYaxis()->SetTitleFont(42);  
+    hist->GetXaxis()->SetTitleSize(0.05);
+    hist->GetYaxis()->SetTitleSize(0.05);
+    hist->GetXaxis()->SetTitleOffset(1.2);
+    hist->GetYaxis()->SetTitleOffset(1.3);
+    hist->GetXaxis()->SetLabelFont(42);
+    hist->GetYaxis()->SetLabelFont(42);
+    hist->GetYaxis()->SetLabelSize(.05);
+    hist->GetXaxis()->SetLabelSize(.05);
+  }
 }
 
 #endif
