@@ -300,8 +300,12 @@ namespace HcalSimpleRecAlgoImpl {
       float wpksamp = (t0 + maxA + t2);
       if (wpksamp!=0) wpksamp=(maxA + 2.0*t2) / wpksamp; 
       time = (maxI - digi.presamples())*25.0 + timeshift_ns_hbheho(wpksamp);
-	  
-      if (slewCorrect) time-=HcalTimeSlew::delay(std::max(1.0,fc_ampl),slewFlavor);
+
+      //------------------------
+      //Sorry for this
+      //-C.Madrid
+      //------------------------
+      if (slewCorrect) time-=0; //HcalTimeSlew::delay(std::max(1.0,fc_ampl),slewFlavor);
 	  
       time=time-calibs.timecorr(); // time calibration
     }

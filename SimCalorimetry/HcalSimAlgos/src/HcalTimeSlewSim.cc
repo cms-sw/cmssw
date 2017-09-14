@@ -10,9 +10,10 @@
 
 #include "CLHEP/Random/RandGaussQ.h"
 
-HcalTimeSlewSim::HcalTimeSlewSim(const CaloVSimParameterMap * parameterMap, double minFCToDelay)
+HcalTimeSlewSim::HcalTimeSlewSim(const CaloVSimParameterMap* parameterMap, double minFCToDelay, const HcalTimeSlew* hcalTimeSlew_delay)
   : theParameterMap(parameterMap),
-    minFCToDelay_(minFCToDelay)
+    minFCToDelay_(minFCToDelay),
+    hcalTimeSlew_delay_(hcalTimeSlew_delay)
 {
 }
 
@@ -40,7 +41,7 @@ void HcalTimeSlewSim::delay(CaloSamples & cs, CLHEP::HepRandomEngine* engine) co
 
   if(hcalDetId.subdet() == HcalBarrel || hcalDetId.subdet() == HcalEndcap || hcalDetId.subdet() == HcalOuter ) {
 
-    HcalTimeSlew::BiasSetting biasSetting = (hcalDetId.subdet() == HcalOuter) ? HcalTimeSlew::Slow : HcalTimeSlew::Medium;
+    HcalTimeSlew::BiasSetting biasSetting = (hcalDetId.subdet() == HcalOuter) ? HcalTimeSlew::Slow : HcalTimeSlew::HBHE2018;
 
     // double totalCharge = charge(cs); // old TS... 
 
@@ -76,7 +77,7 @@ void HcalTimeSlewSim::delay(CaloSamples & cs, CLHEP::HepRandomEngine* engine) co
 
       // until we get more precise/reliable QIE8 simulation...  
       if(totalCharge <= 0.) totalCharge = eps; // protecion against negaive v.
-      tshift += HcalTimeSlew::delay(totalCharge, biasSetting);      
+      tshift += hcalTimeSlew_delay_->delay(totalCharge, biasSetting);      
       if(tshift <= 0.) tshift = eps;
 	  
       if ( cut > -999. ) { //preserve compatibility
