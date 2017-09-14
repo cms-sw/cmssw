@@ -79,21 +79,22 @@ CTPPSPixelLocalTrack::CovarianceMatrix CTPPSPixelLocalTrack::getCovarianceMatrix
 
 //----------------------------------------------------------------------------------------------------
 
-bool operator< (const CTPPSPixelLocalTrack &l, const CTPPSPixelLocalTrack &r)
+bool CTPPSPixelLocalTrack::operator< (const CTPPSPixelLocalTrack &r)
 {
-  if (l.z0_ < r.z0_)
+  if (z0_ < r.z0_)
     return true;
-  if (l.z0_ > r.z0_)
+  if (z0_ > r.z0_)
     return false;
  
   for (int i = 0; i < CTPPSPixelLocalTrack::dimension; ++i)
   {
-    if (l.track_params_vector_[i] < r.track_params_vector_[i])
+    if (track_params_vector_[i] < r.track_params_vector_[i])
       return true;
-    if (l.track_params_vector_[i] > r.track_params_vector_[i])
+    if (track_params_vector_[i] > r.track_params_vector_[i])
       return false;
   }
  
   return false;
+
 }
 

@@ -151,8 +151,8 @@ class CTPPSPixelLocalTrack: public CTPPSPixelFittedRecHit
 
     inline void setValid(bool valid) { valid_ = valid; }
 
-    friend bool operator< (const CTPPSPixelLocalTrack &l, const CTPPSPixelLocalTrack &r);
-
+    bool operator< (const CTPPSPixelLocalTrack &r);
+    
   private:
     inline const float& covarianceMatrixElement(int i, int j) const
     {
