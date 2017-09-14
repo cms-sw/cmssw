@@ -56,9 +56,9 @@ class RPixPlaneCombinatoryTracking : public RPixDetTrackFinder{
         std::map< std::map<CTPPSPixelDetId, size_t>, std::vector<RPixDetPatternFinder::PointInPlane> > inputMap);
 
 
-    inline uint32_t Factorial(uint32_t x) {
+    inline uint32_t factorial(uint32_t x) {
       if(x==0) return 1;
-      return (x == 1 ? x : x * Factorial(x - 1));
+      return (x == 1 ? x : x * factorial(x - 1));
     }
 
 };
