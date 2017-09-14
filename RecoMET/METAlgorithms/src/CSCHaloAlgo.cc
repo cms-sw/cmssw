@@ -14,7 +14,7 @@ using namespace edm;
 namespace {
   constexpr float c_cm_per_ns  = 29.9792458;
 };
-CSCHaloAlgo::CSCHaloAlgo()
+CSCHaloAlgo::CSCHaloAlgo() : geo_(nullptr), hgeo_(nullptr)
 {
   deta_threshold = 0.;
   min_inner_radius = 0.;
@@ -61,8 +61,6 @@ CSCHaloAlgo::CSCHaloAlgo()
   dt_highthresh_segvsrh_eb=30;
   dt_highthresh_segvsrh_ee=30;
 
-  geo = 0;
-
 
   
 }
@@ -92,11 +90,11 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
   bool ECALEmatched =false;
   bool HCALmatched =false;
 
-  //  if(!geo){
-  geo = 0;
   edm::ESHandle<CaloGeometry> pGeo;
   TheSetup.get<CaloGeometryRecord>().get(pGeo);
-  geo = pGeo.product();
+  geo_  = pGeo.product();
+  hgeo_ = dynamic_cast<const HcalGeometry*>(geo_->getSubdetectorGeometry(DetId::Hcal, 1));
+
   //}
   bool trkmuunvetoisdefault = false; //Pb with low pt tracker muons that veto good csc segments/halo triggers. 
   //Test to "unveto" low pt trk muons. 
@@ -521,7 +519,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 
 math::XYZPoint CSCHaloAlgo::getPosition(const DetId &id, reco::Vertex::Point vtx){
 
-  const GlobalPoint& pos=geo->getPosition(id);
+  const GlobalPoint pos = ((id.det() == DetId::Hcal) ? hgeo_->getPosition(id) :	GlobalPoint(geo_->getPosition(id)));
   math::XYZPoint posV(pos.x() - vtx.x(),pos.y() - vtx.y(),pos.z() - vtx.z());
   return posV;
 }
