@@ -517,6 +517,7 @@ private:
   bool                     extendedDescendants_;
   bool                     excludeESModules_;
   bool                     showOtherModules_;
+  bool                     productRegistryPresent_;
   bool                     showTopLevelPSets_;
   std::vector<std::string> findMatch_;
   bool                     dontPrintProducts_;
@@ -549,6 +550,7 @@ ProvenanceDumper::ProvenanceDumper(std::string const& filename,
   extendedDescendants_(extendedDescendants),
   excludeESModules_(excludeESModules),
   showOtherModules_(showOtherModules),
+  productRegistryPresent_(true),
   showTopLevelPSets_(showTopLevelPSets),
   findMatch_(findMatch),
   dontPrintProducts_(dontPrintProducts),
@@ -606,7 +608,7 @@ ProvenanceDumper::dumpEventFilteringParameterSets_(TFile* file) {
     TTree* events = dynamic_cast<TTree*>(file->Get(edm::poolNames::eventTreeName().c_str()));
     assert (events != nullptr);
     TBranch* eventSelectionsBranch = events->GetBranch(edm::poolNames::eventSelectionsBranchName().c_str());
-    assert (eventSelectionsBranch != nullptr);
+    if (eventSelectionsBranch == nullptr) return;
     edm::EventSelectionIDVector ids;
     edm::EventSelectionIDVector* pids = &ids;
     eventSelectionsBranch->SetAddress(&pids);
@@ -690,7 +692,11 @@ ProvenanceDumper::work_() {
   assert(nullptr != meta);
 
   edm::ProductRegistry* pReg = &reg_;
-  meta->SetBranchAddress(edm::poolNames::productDescriptionBranchName().c_str(), &pReg);
+  if(meta->FindBranch(edm::poolNames::productDescriptionBranchName().c_str()) != nullptr) {
+    meta->SetBranchAddress(edm::poolNames::productDescriptionBranchName().c_str(), &pReg);
+  } else {
+    productRegistryPresent_ = false;
+  }
 
   ParameterSetMap* pPsm = &psm_;
   if(meta->FindBranch(edm::poolNames::parameterSetMapBranchName().c_str()) != nullptr) {
@@ -777,7 +783,9 @@ ProvenanceDumper::work_() {
   if(showDependencies_ || extendedAncestors_ || extendedDescendants_){
     TTree* parentageTree = dynamic_cast<TTree*>(inputFile_->Get(edm::poolNames::parentageTreeName().c_str()));
     if(nullptr == parentageTree) {
-      std::cerr << "ERROR, no Parentage tree available so can not show dependencies/n";
+      std::cerr << "ERROR, no Parentage tree available so cannot show dependencies, ancestors, or descendants.\n";
+      std::cerr << "Possibly this is not a standard EDM format file. For example, dependency, ancestor, and\n";
+      std::cerr << "descendant options to edmProvDump will not work with nanoAOD format files.\n\n";
       showDependencies_ = false;
       extendedAncestors_ = false;
       extendedDescendants_ = false;
@@ -867,7 +875,9 @@ ProvenanceDumper::work_() {
 
   dumpProcessHistory_();
 
-  std::cout << "---------Producers with data in file---------" << std::endl;
+  if (productRegistryPresent_) {
+    std::cout << "---------Producers with data in file---------" << std::endl;
+  }
 
   //using edm::ParameterSetID as the key does not work
   //   typedef std::map<edm::ParameterSetID, std::vector<edm::BranchDescription> > IdToBranches
@@ -1011,8 +1021,11 @@ ProvenanceDumper::work_() {
       std::cout <<sout.str()<<std::endl;
     }
   } // end loop over module label/process
-  if(showOtherModules_) {
+  if(productRegistryPresent_ && showOtherModules_) {
     std::cout << "---------Other Modules---------" << std::endl;
+    historyGraph_.printOtherModulesHistory(psm_, moduleToIdBranches, findMatch_, errorLog_);
+  } else if (!productRegistryPresent_) {
+    std::cout << "---------All Modules---------" << std::endl;
     historyGraph_.printOtherModulesHistory(psm_, moduleToIdBranches, findMatch_, errorLog_);
   }
 
