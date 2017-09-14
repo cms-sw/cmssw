@@ -66,14 +66,6 @@ CTPPSPixelLocalTrack::ParameterVector CTPPSPixelLocalTrack::getParameterVector()
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSPixelLocalTrack::setParameterVector(const ParameterVector & track_params_vector)
-{
-  for (unsigned int i = 0; i < dimension; ++i)
-    track_params_vector_[i] = track_params_vector[i];
-}
-
-//----------------------------------------------------------------------------------------------------
-
 CTPPSPixelLocalTrack::CovarianceMatrix CTPPSPixelLocalTrack::getCovarianceMatrix() const 
 {
   CovarianceMatrix m;
@@ -83,15 +75,6 @@ CTPPSPixelLocalTrack::CovarianceMatrix CTPPSPixelLocalTrack::getCovarianceMatrix
       m(i,j) = covarianceMatrixElement(i,j);
       
   return m;
-}
-
-//----------------------------------------------------------------------------------------------------
-
-void CTPPSPixelLocalTrack::setCovarianceMatrix(const CovarianceMatrix &par_covariance_matrix)
-{
-  for(int i=0; i<dimension; ++i)
-    for(int j=0; j<dimension; ++j)
-      covarianceMatrixElement(i,j) = par_covariance_matrix(i,j);
 }
 
 //----------------------------------------------------------------------------------------------------
