@@ -30,30 +30,36 @@ class RPixPlaneCombinatoryTracking : public RPixDetTrackFinder{
     void findTracks() override;
 
   private:
+    typedef std::vector<std::vector<uint32_t> > PlaneCombinations;
+    typedef std::vector<RPixDetPatternFinder::PointInPlane> PointInPlaneList;
+    typedef std::map<CTPPSPixelDetId, size_t> HitReferences;
+    typedef std::map< HitReferences, PointInPlaneList > PointAndReferenceMap;
+    typedef std::pair<HitReferences, PointInPlaneList > PointAndReferencePair;
+
     edm::ParameterSet param_;
     int verbosity_;
     uint32_t trackMinNumberOfPoints_;
     double maximumChi2OverNDF_;
     double maximumXLocalDistanceFromTrack_;
     double maximumYLocalDistanceFromTrack_;
-    std::vector<std::vector<uint32_t> > possiblePlaneCombinations_;
+    PlaneCombinations possiblePlaneCombinations_;
     
-    std::vector<std::vector<uint32_t> > getPlaneCombinations(std::vector<uint32_t> inputPlaneList, uint32_t numberToExtract);
-    CTPPSPixelLocalTrack fitTrack(std::vector<RPixDetPatternFinder::PointInPlane> pointList);
+    PlaneCombinations getPlaneCombinations(std::vector<uint32_t> inputPlaneList, uint32_t numberToExtract);
+    CTPPSPixelLocalTrack fitTrack(PointInPlaneList pointList);
     void getHitCombinations(
-        const std::map<CTPPSPixelDetId, std::vector<RPixDetPatternFinder::PointInPlane> > &mapOfAllHits, 
-        std::map<CTPPSPixelDetId, std::vector<RPixDetPatternFinder::PointInPlane> >::iterator mapIterator,
-        std::map<CTPPSPixelDetId, size_t> tmpHitPlaneMap,
-        std::vector<RPixDetPatternFinder::PointInPlane> tmpHitVector,
-        std::map< std::map<CTPPSPixelDetId, size_t>, std::vector<RPixDetPatternFinder::PointInPlane> > &outputMap);
-    std::map< std::map<CTPPSPixelDetId, size_t>, std::vector<RPixDetPatternFinder::PointInPlane> > produceAllHitCombination(std::vector<std::vector<uint32_t> > inputPlaneCombination);
+        const std::map<CTPPSPixelDetId, PointInPlaneList > &mapOfAllHits, 
+        std::map<CTPPSPixelDetId, PointInPlaneList >::iterator mapIterator,
+        HitReferences tmpHitPlaneMap,
+        PointInPlaneList tmpHitVector,
+        PointAndReferenceMap &outputMap);
+    PointAndReferenceMap produceAllHitCombination(PlaneCombinations inputPlaneCombination);
     bool calculatePointOnDetector(CTPPSPixelLocalTrack track, CTPPSPixelDetId planeId, math::GlobalPoint &planeLineIntercept);
     static bool functionForPlaneOrdering(
-        std::pair<std::map<CTPPSPixelDetId, size_t>, std::vector<RPixDetPatternFinder::PointInPlane> > a,
-        std::pair<std::map<CTPPSPixelDetId, size_t>, std::vector<RPixDetPatternFinder::PointInPlane> > b) { 
+        PointAndReferencePair a,
+        PointAndReferencePair b) { 
         return (a.second.size() > b.second.size()); }
-    std::vector<std::pair <std::map<CTPPSPixelDetId, size_t>, std::vector<RPixDetPatternFinder::PointInPlane> > > orderCombinationsPerNumberOrPoints(
-        std::map< std::map<CTPPSPixelDetId, size_t>, std::vector<RPixDetPatternFinder::PointInPlane> > inputMap);
+    std::vector<PointAndReferencePair > orderCombinationsPerNumberOrPoints(
+        PointAndReferenceMap inputMap);
 
 
     inline uint32_t factorial(uint32_t x) {
