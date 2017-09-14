@@ -31,7 +31,7 @@ public:
 
   // ---------- Constructor and destructor -----------------
   TotemT2NumberingSchemeGem(int i);
-  ~TotemT2NumberingSchemeGem();
+  ~TotemT2NumberingSchemeGem() override;
 	 
   //  virtual uint32_t GetUnitID(const G4Step* aStep) const ;
 

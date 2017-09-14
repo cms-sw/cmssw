@@ -21,8 +21,8 @@ class MuonDDDConstants;
 class MuonRPCFrameRotation : public MuonFrameRotation {
  public:
   MuonRPCFrameRotation( const MuonDDDConstants& constants );
-  virtual ~MuonRPCFrameRotation();
-  virtual Local3DPoint transformPoint(const Local3DPoint &, const G4Step *) const;
+  ~MuonRPCFrameRotation() override;
+  Local3DPoint transformPoint(const Local3DPoint &, const G4Step *) const override;
  private:
   MuonG4Numbering* g4numbering;
   int theRegion;
