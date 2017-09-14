@@ -13,6 +13,22 @@
 
 namespace PVValHelper {
 
+  // helper logarithmic bin generator
+
+  template <typename T, size_t N>
+  std::array<T, N+1> makeLogBins(const double min, const double max) {
+    const double minLog10 = std::log10(min);
+    const double maxLog10 = std::log10(max);
+    const double width = (maxLog10-minLog10)/N;
+    std::array<T, N+1> ret;
+    ret[0] = std::pow(10, minLog10);
+    const double mult = std::pow(10, width);
+    for ( size_t i=1; i<=N; ++i) {
+      ret[i] = ret[i-1]*mult;
+    }
+    return ret;
+  }
+
   // helper data formats
 
   enum estimator 
