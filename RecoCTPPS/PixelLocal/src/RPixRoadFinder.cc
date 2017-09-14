@@ -28,10 +28,10 @@ RPixRoadFinder::RPixRoadFinder(edm::ParameterSet const& parameterSet) :
 	RPixDetPatternFinder(parameterSet),
 	param_(parameterSet){
 
-	verbosity_ = param_.getUntrackedParameter<int> ("RPixVerbosity");
-  roadRadius_ = param_.getParameter<double>("RPixRoadRadius");
-  minRoadSize_ = param_.getParameter<int>("RPixMinRoadSize");
-  maxRoadSize_ = param_.getParameter<int>("RPixMaxRoadSize");
+	verbosity_ = param_.getUntrackedParameter<int> ("verbosity");
+  roadRadius_ = param_.getParameter<double>("roadRadius");
+  minRoadSize_ = param_.getParameter<int>("minRoadSize");
+  maxRoadSize_ = param_.getParameter<int>("maxRoadSize");
 
 }
 
