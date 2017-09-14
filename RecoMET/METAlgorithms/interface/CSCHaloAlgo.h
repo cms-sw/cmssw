@@ -62,6 +62,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCChamber.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
@@ -154,7 +155,8 @@ class CSCHaloAlgo {
 
   
   
-  const CaloGeometry *geo;
+  const CaloGeometry *geo_;
+  const HcalGeometry *hgeo_;
   math::XYZPoint getPosition(const DetId &id, reco::Vertex::Point vtx);
   bool HCALSegmentMatching(edm::Handle<HBHERecHitCollection>& rechitcoll, float et_thresh_rh, float dphi_thresh_segvsrh, float dr_lowthresh_segvsrh, float dr_highthresh_segvsrh, float dt_lowthresh_segvsrh, float dt_highthresh_segvsrh, float iZ, float iR, float iT, float iPhi);
   bool ECALSegmentMatching(edm::Handle<EcalRecHitCollection>& rechitcoll,  float et_thresh_rh, float dphi_thresh_segvsrh, float dr_lowthresh_segvsrh, float dr_highthresh_segvsrh, float dt_lowthresh_segvsrh, float dt_highthresh_segvsrh, float iZ, float iR, float iT, float iPhi );
