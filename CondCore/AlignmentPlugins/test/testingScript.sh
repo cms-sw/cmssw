@@ -11,29 +11,111 @@ cd $W_DIR;
 source /afs/cern.ch/cms/cmsset_default.sh;
 eval `scram run -sh`;
 
-$W_DIR/getPayloadData.py  \
+mkdir -p $W_DIR/results
+
+# /afs/cern.ch/user/c/condbpro/public/BROWSER_PI//getPayloadData.py  \
+#     --plugin pluginTrackerAlignmentErrorExtended_PayloadInspector \
+#     --plot plot_TrackerAlignmentErrorExtendedXValue \
+#     --tag  TrackerAlignmentExtendedErr_2009_v2_express_IOVs\
+#     --time_type Run \
+#     --iovs '{"start_iov": "298450", "end_iov": "298450"}' \
+#     --db Prod \
+#     --test;
+
+# /afs/cern.ch/user/c/condbpro/public/BROWSER_PI//getPayloadData.py  \
+#     --plugin pluginTrackerAlignmentErrorExtended_PayloadInspector \
+#     --plot plot_TrackerAlignmentErrorExtendedYValue \
+#     --tag  TrackerAlignmentExtendedErr_2009_v2_express_IOVs\
+#     --time_type Run \
+#     --iovs '{"start_iov": "298450", "end_iov": "298450"}' \
+#     --db Prod \
+#     --test;
+
+# /afs/cern.ch/user/c/condbpro/public/BROWSER_PI//getPayloadData.py  \
+#     --plugin pluginTrackerAlignmentErrorExtended_PayloadInspector \
+#     --plot plot_TrackerAlignmentErrorExtendedZValue \
+#     --tag  TrackerAlignmentExtendedErr_2009_v2_express_IOVs\
+#     --time_type Run \
+#     --iovs '{"start_iov": "298450", "end_iov": "298450"}' \
+#     --db Prod \
+#     --test;
+
+#*************************************************************************#
+
+/afs/cern.ch/user/c/condbpro/public/BROWSER_PI//getPayloadData.py  \
     --plugin pluginTrackerAlignmentErrorExtended_PayloadInspector \
-    --plot plot_TrackerAlignmentErrorExtendedXValue \
+    --plot plot_TrackerAlignmentErrorExtendedXXTrackerMap \
     --tag  TrackerAlignmentExtendedErr_2009_v2_express_IOVs\
     --time_type Run \
-    --iovs '{"start_iov": "298450", "end_iov": "298450"}' \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
     --db Prod \
     --test;
 
-$W_DIR/getPayloadData.py  \
+mv *.png $W_DIR/results/TrackerAlignmentErrorExtendedXXTrackerMap.png
+
+#*************************************************************************#
+
+/afs/cern.ch/user/c/condbpro/public/BROWSER_PI//getPayloadData.py  \
     --plugin pluginTrackerAlignmentErrorExtended_PayloadInspector \
-    --plot plot_TrackerAlignmentErrorExtendedYValue \
+    --plot plot_TrackerAlignmentErrorExtendedYYTrackerMap \
     --tag  TrackerAlignmentExtendedErr_2009_v2_express_IOVs\
     --time_type Run \
-    --iovs '{"start_iov": "298450", "end_iov": "298450"}' \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
     --db Prod \
     --test;
 
-$W_DIR/getPayloadData.py  \
+mv *.png $W_DIR/results/TrackerAlignmentErrorExtendedYYTrackerMap.png
+
+#*************************************************************************#
+
+/afs/cern.ch/user/c/condbpro/public/BROWSER_PI//getPayloadData.py  \
     --plugin pluginTrackerAlignmentErrorExtended_PayloadInspector \
-    --plot plot_TrackerAlignmentErrorExtendedZValue \
+    --plot plot_TrackerAlignmentErrorExtendedZZTrackerMap \
     --tag  TrackerAlignmentExtendedErr_2009_v2_express_IOVs\
     --time_type Run \
-    --iovs '{"start_iov": "298450", "end_iov": "298450"}' \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
     --db Prod \
     --test;
+
+mv *.png $W_DIR/results/TrackerAlignmentErrorExtendedZZTrackerMap.png
+
+#*************************************************************************#
+
+/afs/cern.ch/user/c/condbpro/public/BROWSER_PI//getPayloadData.py  \
+    --plugin pluginTrackerAlignmentErrorExtended_PayloadInspector \
+    --plot plot_TrackerAlignmentErrorExtendedXYTrackerMap \
+    --tag  TrackerAlignmentExtendedErr_2009_v2_express_IOVs\
+    --time_type Run \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
+    --db Prod \
+    --test;
+
+mv *.png $W_DIR/results/TrackerAlignmentErrorExtendedXYTrackerMap.png
+
+#*************************************************************************#
+
+/afs/cern.ch/user/c/condbpro/public/BROWSER_PI//getPayloadData.py  \
+    --plugin pluginTrackerAlignmentErrorExtended_PayloadInspector \
+    --plot plot_TrackerAlignmentErrorExtendedXZTrackerMap \
+    --tag  TrackerAlignmentExtendedErr_2009_v2_express_IOVs\
+    --time_type Run \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
+    --db Prod \
+    --test;
+
+mv *.png $W_DIR/results/TrackerAlignmentErrorExtendedXZTrackerMap.png
+
+#*************************************************************************#
+
+/afs/cern.ch/user/c/condbpro/public/BROWSER_PI//getPayloadData.py  \
+    --plugin pluginTrackerAlignmentErrorExtended_PayloadInspector \
+    --plot plot_TrackerAlignmentErrorExtendedYZTrackerMap \
+    --tag  TrackerAlignmentExtendedErr_2009_v2_express_IOVs\
+    --time_type Run \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
+    --db Prod \
+    --test;
+
+mv *.png $W_DIR/results/TrackerAlignmentErrorExtendedYZTrackerMap.png
+
+#*************************************************************************#

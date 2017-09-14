@@ -18,6 +18,9 @@
 // needed for the tracker map
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 
+// needed for mapping
+#include "CondCore/AlignmentPlugins/interface/AlignmentPayloadInspectorHelper.h"
+
 #include <memory>
 #include <sstream>
 
@@ -26,118 +29,61 @@ const float cmToUm = 10000;
 namespace {
 
   /************************************************
-    1d histogram of sqrt(d_xx) of 1 IOV 
+    1d histogram of sqrt(d_ii) of 1 IOV 
   *************************************************/
 
   // inherit from one of the predefined plot class: Histogram1D
-  class TrackerAlignmentErrorExtendedXValue : public cond::payloadInspector::Histogram1D<AlignmentErrorsExtended> {
+  template<AlignmentPI::index i> class TrackerAlignmentErrorExtendedValue : public cond::payloadInspector::Histogram1D<AlignmentErrorsExtended> {
     
   public:
-    TrackerAlignmentErrorExtendedXValue () : cond::payloadInspector::Histogram1D<AlignmentErrorsExtended>("TrackerAlignmentErrorExtendedXValue",
-													  "TrackerAlignmentErrorExtendedXValue",500,0.0,500.0){
+    TrackerAlignmentErrorExtendedValue () : cond::payloadInspector::Histogram1D<AlignmentErrorsExtended>("TrackerAlignmentErrorExtendedValue",
+													 "TrackerAlignmentErrorExtendedValue sqrt(d_{"+getStringFromIndex(i)+"})",500,0.0,500.0){
       Base::setSingleIov( true );
     }
     
     bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+      
       for ( auto const & iov: iovs) {
 	std::shared_ptr<AlignmentErrorsExtended> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
 	  
 	  std::vector<AlignTransformErrorExtended> alignErrors = payload->m_alignError;
+	  auto indices = AlignmentPI::getIndices(i);
+	  
 	  for (const auto& it : alignErrors ){
-
-	    CLHEP::HepSymMatrix errMatrix = it.matrix();
-	
 	    
+	    CLHEP::HepSymMatrix errMatrix = it.matrix();
 	    int subid = DetId(it.rawId()).subdetId();	    
 
 	    if(subid==1){
-	      std::cout << it.rawId() << " | " << sqrt(errMatrix[0][0])*cmToUm << std::endl;
+	      std::cout << it.rawId() << " | " << sqrt(errMatrix[indices.first][indices.second])*cmToUm << std::endl;
 	    }
 
 	    // to be used to fill the histogram
-	    fillWithValue(sqrt(errMatrix[0][0])*cmToUm);
-	    
+	    fillWithValue(sqrt(errMatrix[indices.first][indices.second])*cmToUm);	    
 	  } // loop on the vector of modules
 	}// payload
       }// iovs
       return true;
     }// fill
   };
+  
+  // diagonal elements
+  typedef TrackerAlignmentErrorExtendedValue<AlignmentPI::XX> TrackerAlignmentErrorExtendedXXValue; 
+  typedef TrackerAlignmentErrorExtendedValue<AlignmentPI::YY> TrackerAlignmentErrorExtendedYYValue; 
+  typedef TrackerAlignmentErrorExtendedValue<AlignmentPI::ZZ> TrackerAlignmentErrorExtendedZZValue; 
 
-
-  /************************************************
-    1d histogram of sqrt(d_yy) of 1 IOV 
-  *************************************************/
-
-  // inherit from one of the predefined plot class: Histogram1D
-  class TrackerAlignmentErrorExtendedYValue : public cond::payloadInspector::Histogram1D<AlignmentErrorsExtended> {
-    
-  public:
-    TrackerAlignmentErrorExtendedYValue () : cond::payloadInspector::Histogram1D<AlignmentErrorsExtended>("TrackerAlignmentErrorExtendedYValue",
-													  "TrackerAlignmentErrorExtendedYValue",500,0.0,500.0){
-      Base::setSingleIov( true );
-    }
-    
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
-      for ( auto const & iov: iovs) {
-	std::shared_ptr<AlignmentErrorsExtended> payload = Base::fetchPayload( std::get<1>(iov) );
-	if( payload.get() ){
-	  
-	  std::vector<AlignTransformErrorExtended> alignErrors = payload->m_alignError;
-	  for (const auto& it : alignErrors ){
-
-	    CLHEP::HepSymMatrix errMatrix = it.matrix();
-		   
-	    // to be used to fill the histogram
-	    fillWithValue(sqrt(errMatrix[1][1])*cmToUm);
-	    
-	  } // loop on the vector of modules
-	}// payload
-      }// iovs
-      return true;
-    }// fill
-  };
-
-  /************************************************
-    1d histogram of sqrt(d_zz) of 1 IOV 
-  *************************************************/
-
-  // inherit from one of the predefined plot class: Histogram1D
-  class TrackerAlignmentErrorExtendedZValue : public cond::payloadInspector::Histogram1D<AlignmentErrorsExtended> {
-    
-  public:
-    TrackerAlignmentErrorExtendedZValue () : cond::payloadInspector::Histogram1D<AlignmentErrorsExtended>("TrackerAlignmentErrorExtendedZValue",
-													  "TrackerAlignmentErrorExtendedZValue",500,0.0,500.0){
-      Base::setSingleIov( true );
-    }
-    
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
-      for ( auto const & iov: iovs) {
-	std::shared_ptr<AlignmentErrorsExtended> payload = Base::fetchPayload( std::get<1>(iov) );
-	if( payload.get() ){
-	  
-	  std::vector<AlignTransformErrorExtended> alignErrors = payload->m_alignError;
-	  for (const auto& it : alignErrors ){
-
-	    CLHEP::HepSymMatrix errMatrix = it.matrix();
-
-	    // to be used to fill the histogram
-	    fillWithValue(sqrt(errMatrix[2][2])*cmToUm);
-	    
-	  } // loop on the vector of modules
-	}// payload
-      }// iovs
-      return true;
-    }// fill
-  };
+  // off-diagonal elements
+  typedef TrackerAlignmentErrorExtendedValue<AlignmentPI::XY> TrackerAlignmentErrorExtendedXYValue; 
+  typedef TrackerAlignmentErrorExtendedValue<AlignmentPI::XZ> TrackerAlignmentErrorExtendedXZValue; 
+  typedef TrackerAlignmentErrorExtendedValue<AlignmentPI::YZ> TrackerAlignmentErrorExtendedYZValue; 
 
   // /************************************************
-  //   TrackerMap of sqrt(d_xx)
+  //   TrackerMap of sqrt(d_ii) of 1 IOV
   // *************************************************/
-  class TrackerAlignmentErrorExtendedXTrackerMap : public cond::payloadInspector::PlotImage<AlignmentErrorsExtended> {
+  template<AlignmentPI::index i> class TrackerAlignmentErrorExtendedTrackerMap : public cond::payloadInspector::PlotImage<AlignmentErrorsExtended> {
   public:
-    TrackerAlignmentErrorExtendedXTrackerMap() : cond::payloadInspector::PlotImage<AlignmentErrorsExtended>( "Tracker Map of d_{xx} of APE" ){
+    TrackerAlignmentErrorExtendedTrackerMap() : cond::payloadInspector::PlotImage<AlignmentErrorsExtended>( "Tracker Map of sqrt(d_{"+getStringFromIndex(i)+"}) of APE matrix" ){
       setSingleIov( true );
     }
 
@@ -145,13 +91,15 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<AlignmentErrorsExtended> payload = fetchPayload( std::get<1>(iov) );
 
-      std::string titleMap = "APE d_{xx} value (payload : "+std::get<1>(iov)+")";
+      std::string titleMap = "APE #sqrt{d_{"+getStringFromIndex(i)+"}} value (payload : "+std::get<1>(iov)+")";
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("APE_dxx"));
+      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("APE_dii"));
       tmap->setTitle(titleMap.c_str());
       tmap->setPalette(1);
    
       std::vector<AlignTransformErrorExtended> alignErrors = payload->m_alignError;
+
+      auto indices = AlignmentPI::getIndices(i);
 
       bool isPhase0(false);
       if(alignErrors.size()==19876) isPhase0 = true;
@@ -166,10 +114,10 @@ namespace {
 
 	if(isPhase0){
 	  tmap->addPixel(true);
-	  tmap->fill(it.rawId(),sqrt(errMatrix[0][0])*cmToUm);
+	  tmap->fill(it.rawId(),sqrt(errMatrix[indices.first][indices.second])*cmToUm);
 	} else {
 	  if(subid!=1 && subid!=2){
-	    tmap->fill(it.rawId(),sqrt(errMatrix[0][0])*cmToUm);
+	    tmap->fill(it.rawId(),sqrt(errMatrix[indices.first][indices.second])*cmToUm);
 	  }
 	}
       } // loop over detIds
@@ -183,6 +131,16 @@ namespace {
     }
   };
 
+  // diagonal elements
+  typedef TrackerAlignmentErrorExtendedTrackerMap<AlignmentPI::XX> TrackerAlignmentErrorExtendedXXTrackerMap; 
+  typedef TrackerAlignmentErrorExtendedTrackerMap<AlignmentPI::YY> TrackerAlignmentErrorExtendedYYTrackerMap; 
+  typedef TrackerAlignmentErrorExtendedTrackerMap<AlignmentPI::ZZ> TrackerAlignmentErrorExtendedZZTrackerMap; 
+
+  // off-diagonal elements
+  typedef TrackerAlignmentErrorExtendedTrackerMap<AlignmentPI::XY> TrackerAlignmentErrorExtendedXYTrackerMap; 
+  typedef TrackerAlignmentErrorExtendedTrackerMap<AlignmentPI::XZ> TrackerAlignmentErrorExtendedXZTrackerMap; 
+  typedef TrackerAlignmentErrorExtendedTrackerMap<AlignmentPI::YZ> TrackerAlignmentErrorExtendedYZTrackerMap; 
+  
   // /************************************************
   //   TrackerMap of SiStripApvGains (average gain per detid)
   // *************************************************/
@@ -677,8 +635,16 @@ namespace {
 
 // Register the classes as boost python plugin
 PAYLOAD_INSPECTOR_MODULE(TrackerAlignmentErrorExtended){
-  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXValue);
-  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedYValue);
-  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedZValue);
-  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXXValue);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedYYValue);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedZZValue);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXYValue);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXZValue);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedYZValue);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXXTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedYYTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedZZTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXYTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXZTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedYZTrackerMap);
 }
