@@ -14,6 +14,7 @@
 #include "CondFormats/HcalObjects/interface/HBHEDarkening.h"
 #include "DataFormats/HcalCalibObjects/interface/HFRecalibration.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 
 #include <vector>
 
@@ -58,6 +59,8 @@ public:
   void setZDCNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
   void setQIE10NoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
   void setQIE11NoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
+
+  const HcalTimeSlew* hcalTimeSlew_delay_;
 
 private:
   void accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const& hcalHits, edm::Handle<std::vector<PCaloHit> > const& zdcHits, int bunchCrossing, CLHEP::HepRandomEngine*, const HcalTopology *h);

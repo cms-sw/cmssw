@@ -33,6 +33,7 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDigi/interface/HcalQIENum.h"
 #include "CondFormats/DataRecord/interface/HBHEDarkeningRecord.h"
+#include "CalibCalorimetry/HcalPlugins/src/HcalTimeSlewEP.h"
 
 //#define DebugLog
 
@@ -160,7 +161,8 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   theTimeSlewSim = nullptr;
   if(doTimeSlew) {
     // no time slewing for HF
-    theTimeSlewSim = new HcalTimeSlewSim(theParameterMap,minFCToDelay);
+    hcalTimeSlew_delay_ = nullptr;
+    theTimeSlewSim = new HcalTimeSlewSim(theParameterMap,minFCToDelay,hcalTimeSlew_delay_);
     theHBHEAmplifier->setTimeSlewSim(theTimeSlewSim);
     theHBHEQIE11Amplifier->setTimeSlewSim(theTimeSlewSim);
     theHOAmplifier->setTimeSlewSim(theTimeSlewSim);
@@ -540,6 +542,10 @@ void HcalDigitizer::beginRun(const edm::EventSetup & es) {
     es.get<HBHEDarkeningRecord>().get("HE",hdark);
     m_HEDarkening = &*hdark;
   }
+
+  edm::ESHandle<HcalTimeSlew> delay;
+  es.get<HcalTimeSlewRecord>().get("", delay);
+  hcalTimeSlew_delay_ = &*delay;
 }
 
 
