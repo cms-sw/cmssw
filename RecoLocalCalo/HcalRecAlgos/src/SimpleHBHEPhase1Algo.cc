@@ -226,8 +226,11 @@ float SimpleHBHEPhase1Algo::m0Time(const HBHEChannelInfo& info,
             time = (maxI - soi)*25.f + timeshift_ns_hbheho(wpksamp);
 
             // Legacy QIE8 timing correction
-            time -= HcalTimeSlew::delay(std::max(1.0, fc_ampl),
-                                        HcalTimeSlew::Medium);
+	    //-------------------
+	    //Sorry for this
+	    //C.Madrid
+	    //-------------------
+            time -= 0;//HcalTimeSlew::delay(std::max(1.0, fc_ampl), HcalTimeSlew::Medium);
             // Time calibration
             time -= calibs.timecorr();
         }
