@@ -133,6 +133,57 @@ namespace {
   };
 
   // /************************************************
+  //   TrackerMap of sqrt(d_xx)
+  // *************************************************/
+  class TrackerAlignmentErrorExtendedXTrackerMap : public cond::payloadInspector::PlotImage<AlignmentErrorsExtended> {
+  public:
+    TrackerAlignmentErrorExtendedXTrackerMap() : cond::payloadInspector::PlotImage<AlignmentErrorsExtended>( "Tracker Map of d_{xx} of APE" ){
+      setSingleIov( true );
+    }
+
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+      auto iov = iovs.front();
+      std::shared_ptr<AlignmentErrorsExtended> payload = fetchPayload( std::get<1>(iov) );
+
+      std::string titleMap = "APE d_{xx} value (payload : "+std::get<1>(iov)+")";
+
+      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("APE_dxx"));
+      tmap->setTitle(titleMap.c_str());
+      tmap->setPalette(1);
+   
+      std::vector<AlignTransformErrorExtended> alignErrors = payload->m_alignError;
+
+      bool isPhase0(false);
+      if(alignErrors.size()==19876) isPhase0 = true;
+      
+      for (const auto& it : alignErrors ){
+
+	CLHEP::HepSymMatrix errMatrix = it.matrix();
+
+	// fill the tracker map
+
+	int subid = DetId(it.rawId()).subdetId();	    
+
+	if(isPhase0){
+	  tmap->addPixel(true);
+	  tmap->fill(it.rawId(),sqrt(errMatrix[0][0])*cmToUm);
+	} else {
+	  if(subid!=1 && subid!=2){
+	    tmap->fill(it.rawId(),sqrt(errMatrix[0][0])*cmToUm);
+	  }
+	}
+      } // loop over detIds
+
+      //=========================
+   
+      std::string fileName(m_imageFileName);
+      tmap->save(true,0,0,fileName.c_str());
+
+      return true;
+    }
+  };
+
+  // /************************************************
   //   TrackerMap of SiStripApvGains (average gain per detid)
   // *************************************************/
   // class SiStripApvGainsAverageTrackerMap : public cond::payloadInspector::PlotImage<SiStripApvGain> {
@@ -629,4 +680,5 @@ PAYLOAD_INSPECTOR_MODULE(TrackerAlignmentErrorExtended){
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXValue);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedYValue);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedZValue);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXTrackerMap);
 }
