@@ -96,15 +96,8 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
   HFGflash::Hit oneHit;
 
   G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
-  //G4StepPoint * postStepPoint = aStep->GetPostStepPoint(); 
   G4Track *     track    = aStep->GetTrack();
-  // Get Z-direction 
-  const G4DynamicParticle *aParticle = track->GetDynamicParticle();
-  const G4ThreeVector& momDir = aParticle->GetMomentumDirection();
-
-  const G4ThreeVector& hitPoint = preStepPoint->GetPosition();   
   G4String      partType = track->GetDefinition()->GetParticleName();
-  //  int           parCode  = track->GetDefinition()->GetPDGEncoding();
 
   // This part of code is copied from the original GFlash Fortran code.
   // reference : hep-ex/0001020v1
