@@ -343,8 +343,6 @@ void BscTest::update(const G4Step * aStep) {
   G4ThreeVector   trackmom       = theTrack->GetMomentum();
   G4double       entot          = theTrack->GetTotalEnergy();   //   !!! deposited on step
   G4int         curstepnumber  = theTrack->GetCurrentStepNumber();
-  const G4ThreeVector&   vert_pos       = theTrack->GetVertexPosition(); // vertex ,where this track was created
-  const G4ThreeVector&   vert_mom       = theTrack->GetVertexMomentumDirection();
   G4double        stepl         = aStep->GetStepLength();
   G4double        EnerDeposit   = aStep->GetTotalEnergyDeposit();
   G4StepPoint*      preStepPoint = aStep->GetPreStepPoint(); 
