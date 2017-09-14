@@ -63,12 +63,12 @@ void RPixPlaneCombinatoryTracking::initialize(){
 //------------------------------------------------------------------------------------------------//
     
 //This function produces all the possible plane combinations extracting numberToExtract planes over numberOfPlanes planes
-std::vector<std::vector<uint32_t> > RPixPlaneCombinatoryTracking::getPlaneCombinations(std::vector<uint32_t> inputPlaneList, uint32_t numberToExtract)
+RPixPlaneCombinatoryTracking::PlaneCombinations RPixPlaneCombinatoryTracking::getPlaneCombinations(std::vector<uint32_t> inputPlaneList, uint32_t numberToExtract)
 {
     uint32_t numberOfPlanes = inputPlaneList.size();
     std::string bitmask(numberToExtract, 1); // numberToExtract leading 1's
     bitmask.resize(numberOfPlanes, 0); // numberOfPlanes-numberToExtract trailing 0's
-    std::vector<std::vector<uint32_t> > planeCombinations;
+    PlaneCombinations planeCombinations;
 
     // store the combination and permute bitmask
     do {
@@ -90,11 +90,11 @@ std::vector<std::vector<uint32_t> > RPixPlaneCombinatoryTracking::getPlaneCombin
 //The output is stored in a map containing the vector of points and as a key the map of the point forming this vector.
 //This allows to erase the points already used for the track fit
 void RPixPlaneCombinatoryTracking::getHitCombinations(
-  const std::map<CTPPSPixelDetId, std::vector<RPixDetPatternFinder::PointInPlane> > &mapOfAllHits, 
-  std::map<CTPPSPixelDetId, std::vector<RPixDetPatternFinder::PointInPlane> >::iterator mapIterator,
-  std::map<CTPPSPixelDetId, size_t> tmpHitPlaneMap,
-  std::vector<RPixDetPatternFinder::PointInPlane> tmpHitVector,
-  std::map< std::map<CTPPSPixelDetId, size_t>, std::vector<RPixDetPatternFinder::PointInPlane> > &outputMap)
+  const std::map<CTPPSPixelDetId, PointInPlaneList > &mapOfAllHits, 
+  std::map<CTPPSPixelDetId, PointInPlaneList >::iterator mapIterator,
+  HitReferences tmpHitPlaneMap,
+  PointInPlaneList tmpHitVector,
+  PointAndReferenceMap &outputMap)
 {
     //At this point I selected one hit per plane
     if (mapIterator == mapOfAllHits.end())
@@ -103,27 +103,27 @@ void RPixPlaneCombinatoryTracking::getHitCombinations(
         return;
     }
     for (size_t i=0; i<mapIterator->second.size(); i++){
-      std::map<CTPPSPixelDetId, size_t> newHitPlaneMap = tmpHitPlaneMap;
+      HitReferences newHitPlaneMap = tmpHitPlaneMap;
       newHitPlaneMap[mapIterator->first] = i;
-      std::vector<RPixDetPatternFinder::PointInPlane> newVector = tmpHitVector;
+      PointInPlaneList newVector = tmpHitVector;
       newVector.push_back(mapIterator->second.at(i));
-      std::map<CTPPSPixelDetId, std::vector<RPixDetPatternFinder::PointInPlane> >::iterator tmpMapIterator = mapIterator;
+      std::map<CTPPSPixelDetId, PointInPlaneList >::iterator tmpMapIterator = mapIterator;
       getHitCombinations(mapOfAllHits, ++tmpMapIterator, newHitPlaneMap, newVector, outputMap);
     }
 }
 
 //------------------------------------------------------------------------------------------------//
 
-std::map< std::map<CTPPSPixelDetId, size_t>, std::vector<RPixDetPatternFinder::PointInPlane> > RPixPlaneCombinatoryTracking::produceAllHitCombination(std::vector<std::vector<uint32_t> > inputPlaneCombination){
+RPixPlaneCombinatoryTracking::PointAndReferenceMap RPixPlaneCombinatoryTracking::produceAllHitCombination(PlaneCombinations inputPlaneCombination){
   
-  std::map< std::map<CTPPSPixelDetId, size_t>, std::vector<RPixDetPatternFinder::PointInPlane> > mapOfAllPoints;
+  PointAndReferenceMap mapOfAllPoints;
   CTPPSPixelDetId tmpRpId = romanPotId_; //in order to avoid to modify the data member
   
   if(verbosity_>2) std::cout<<"Searching for all combinations..."<<std::endl;
   //Loop on all the plane combinations
   for( const auto & planeCombination : inputPlaneCombination){
 
-    std::map<CTPPSPixelDetId, std::vector<RPixDetPatternFinder::PointInPlane> > selectedCombinationHitOnPlane;
+    std::map<CTPPSPixelDetId, PointInPlaneList > selectedCombinationHitOnPlane;
     bool allPlaneAsHits = true;
 
     //Loop on all the possible combinations
@@ -145,9 +145,9 @@ std::map< std::map<CTPPSPixelDetId, size_t>, std::vector<RPixDetPatternFinder::P
     if(!allPlaneAsHits) continue;
     
     //I add the all the hit combinations to the full list of plane combinations
-    std::map<CTPPSPixelDetId, std::vector<RPixDetPatternFinder::PointInPlane> >::iterator mapIterator=selectedCombinationHitOnPlane.begin();
-    std::map<CTPPSPixelDetId, size_t> tmpHitPlaneMap; //empty map of plane id and hit number needed the getHitCombinations algorithm
-    std::vector<RPixDetPatternFinder::PointInPlane> tmpHitVector; //empty vector of hits needed for the getHitCombinations algorithm
+    std::map<CTPPSPixelDetId, PointInPlaneList >::iterator mapIterator=selectedCombinationHitOnPlane.begin();
+    HitReferences tmpHitPlaneMap; //empty map of plane id and hit number needed the getHitCombinations algorithm
+    PointInPlaneList tmpHitVector; //empty vector of hits needed for the getHitCombinations algorithm
     getHitCombinations(selectedCombinationHitOnPlane,mapIterator,tmpHitPlaneMap,tmpHitVector,mapOfAllPoints);
     if(verbosity_>2) std::cout<<"Number of possible tracks "<<mapOfAllPoints.size()<<std::endl;
 
@@ -172,14 +172,14 @@ void RPixPlaneCombinatoryTracking::findTracks(){
     
     //I create the map of all the possible combinations of a group of trackMinNumberOfPoints_ points
     //and the key keeps the reference of which planes and which hit numbers form the combination
-    std::map< std::map<CTPPSPixelDetId, size_t>, std::vector<RPixDetPatternFinder::PointInPlane> > mapOfAllMinRequiredPoint;
+    PointAndReferenceMap mapOfAllMinRequiredPoint;
     //I produce the map for all cominations of all hits with all trackMinNumberOfPoints_ plane combinations
     mapOfAllMinRequiredPoint =produceAllHitCombination(possiblePlaneCombinations_);
 
     //Fit all the possible combinations with minimum number of planes required and find the track with minimum chi2
     double theMinChiSquaredOverNDF = maximumChi2OverNDF_+1.; //in order to break the loop in case no track is found;
-    std::map<CTPPSPixelDetId, size_t> pointMapWithMinChiSquared;
-    std::vector<RPixDetPatternFinder::PointInPlane> pointsWithMinChiSquared;
+    HitReferences pointMapWithMinChiSquared;
+    PointInPlaneList pointsWithMinChiSquared;
     CTPPSPixelLocalTrack bestTrack;
 
     if(verbosity_>2) std::cout<<"Number of combinations of trackMinNumberOfPoints_ planes "<<mapOfAllMinRequiredPoint.size()<<std::endl;
@@ -211,20 +211,20 @@ void RPixPlaneCombinatoryTracking::findTracks(){
 
     //I produce all the possible combinations of planes to be added to the track,
     //excluding the case of no other plane added since it has been already fitted.
-    std::vector<std::vector<uint32_t> > planePointedHitListCombination;
+    PlaneCombinations planePointedHitListCombination;
     for(uint32_t i=1; i<=listOfExcludedPlanes.size(); ++i){
-      std::vector<std::vector<uint32_t> > tmpPlaneCombination = getPlaneCombinations(listOfExcludedPlanes,i);
+      PlaneCombinations tmpPlaneCombination = getPlaneCombinations(listOfExcludedPlanes,i);
       for(const auto & combination : tmpPlaneCombination) planePointedHitListCombination.push_back(combination);
     }
 
     //I produce all the possible combinations of points to be added to the track
-    std::map< std::map<CTPPSPixelDetId, size_t>, std::vector<RPixDetPatternFinder::PointInPlane> > mapOfAllPointWithAtLeastBestFitSelected;
-    std::map< std::map<CTPPSPixelDetId, size_t>, std::vector<RPixDetPatternFinder::PointInPlane> > mapOfPointCombinationToBeAdded;
+    PointAndReferenceMap mapOfAllPointWithAtLeastBestFitSelected;
+    PointAndReferenceMap mapOfPointCombinationToBeAdded;
     mapOfPointCombinationToBeAdded = produceAllHitCombination(planePointedHitListCombination);
     //The found hit combination is added to the hits selected by the best fit;
     for(const auto & element : mapOfPointCombinationToBeAdded){
-      std::map<CTPPSPixelDetId, size_t> newPointMap = pointMapWithMinChiSquared; 
-      std::vector<RPixDetPatternFinder::PointInPlane> newPoints = pointsWithMinChiSquared;
+      HitReferences newPointMap = pointMapWithMinChiSquared; 
+      PointInPlaneList newPoints = pointsWithMinChiSquared;
       for(const auto & pointRef : element.first ) newPointMap[pointRef.first] = pointRef.second; //add the new point reference
       for(const auto & point    : element.second) newPoints.push_back(point);
       mapOfAllPointWithAtLeastBestFitSelected[newPointMap]=newPoints;
@@ -235,7 +235,7 @@ void RPixPlaneCombinatoryTracking::findTracks(){
 
     // I look for the tracks with maximum number of points with a chiSquare over NDF smaller than maximumChi2OverNDF_
     // If more than one track fulfill the chiSquare requirement with the same number of points I choose the one with smaller chiSquare
-    std::vector<std::pair <std::map<CTPPSPixelDetId, size_t>, std::vector<RPixDetPatternFinder::PointInPlane> > > orderedVectorOfAllPointWithAtLeastBestFitSelected =
+    std::vector<PointAndReferencePair > orderedVectorOfAllPointWithAtLeastBestFitSelected =
       orderCombinationsPerNumberOrPoints(mapOfAllPointWithAtLeastBestFitSelected);
     int currentNumberOfPlanes = 0;
     theMinChiSquaredOverNDF = maximumChi2OverNDF_+1.; //in order to break the loop in case no track is found;
@@ -262,7 +262,7 @@ void RPixPlaneCombinatoryTracking::findTracks(){
     std::vector<uint32_t>  listOfPlaneNotUsedForFit = listOfAllPlanes_;
     //remove the hits belonging to the tracks from the full list of hits
     for(const auto & hitToErase : pointMapWithMinChiSquared){
-      std::map<CTPPSPixelDetId, std::vector<RPixDetPatternFinder::PointInPlane> >::iterator hitMapElement = hitMap_.find(hitToErase.first);
+      std::map<CTPPSPixelDetId, PointInPlaneList >::iterator hitMapElement = hitMap_.find(hitToErase.first);
       if(hitMapElement==hitMap_.end()){
            throw cms::Exception("RPixPlaneCombinatoryTracking") <<"The found tracks has hit belonging to a plane which does not have hits";
       }
@@ -346,7 +346,7 @@ void RPixPlaneCombinatoryTracking::findTracks(){
 
 //------------------------------------------------------------------------------------------------//
 
-CTPPSPixelLocalTrack RPixPlaneCombinatoryTracking::fitTrack(std::vector<RPixDetPatternFinder::PointInPlane> pointList){
+CTPPSPixelLocalTrack RPixPlaneCombinatoryTracking::fitTrack(PointInPlaneList pointList){
   
   uint32_t numberOfPoints = pointList.size();
   TVectorD xyCoordinates(2*numberOfPoints);
@@ -485,11 +485,11 @@ bool RPixPlaneCombinatoryTracking::calculatePointOnDetector(CTPPSPixelLocalTrack
 //------------------------------------------------------------------------------------------------//
 
 // The method sorts the possible point combinations in order to process before fits on the highest possible number of points
-std::vector<std::pair <std::map<CTPPSPixelDetId, size_t>, std::vector<RPixDetPatternFinder::PointInPlane> > > 
+std::vector<RPixPlaneCombinatoryTracking::PointAndReferencePair > 
   RPixPlaneCombinatoryTracking::orderCombinationsPerNumberOrPoints(
-  std::map< std::map<CTPPSPixelDetId, size_t>, std::vector<RPixDetPatternFinder::PointInPlane> > inputMap){
+  PointAndReferenceMap inputMap){
 
-  std::vector<std::pair <std::map<CTPPSPixelDetId, size_t>, std::vector<RPixDetPatternFinder::PointInPlane> > > sortedVector(inputMap.begin(),inputMap.end());
+  std::vector<PointAndReferencePair > sortedVector(inputMap.begin(),inputMap.end());
   std::sort(sortedVector.begin(),sortedVector.end(),functionForPlaneOrdering);
 
   return sortedVector;
