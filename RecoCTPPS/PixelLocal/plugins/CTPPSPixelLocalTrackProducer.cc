@@ -1,8 +1,33 @@
+#include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "RecoCTPPS/PixelLocal/interface/CTPPSPixelLocalTrackProducer.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSet.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+ 
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
+#include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
+
+#include "DataFormats/CTPPSReco/interface/CTPPSPixelRecHit.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSPixelLocalTrack.h"
+#include "DataFormats/DetId/interface/DetId.h"
+
+
+#include "RecoCTPPS/PixelLocal/interface/RPixDetPatternFinder.h"
+#include "RecoCTPPS/PixelLocal/interface/RPixDetTrackFinder.h"
+
+#include <string>
+#include <vector>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -11,39 +36,64 @@
 #include "RecoCTPPS/PixelLocal/interface/RPixRoadFinder.h"
 #include "RecoCTPPS/PixelLocal/interface/RPixPlaneCombinatoryTracking.h"
 
-#include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
-
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/Common/interface/DetSet.h"
-
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Vector/RotationInterfaces.h"
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 #include "TMatrixD.h"
 #include "TVectorD.h"
 
+
+class CTPPSPixelLocalTrackProducer : public edm::stream::EDProducer<>
+{
+public:
+  explicit CTPPSPixelLocalTrackProducer(const edm::ParameterSet& parameterSet);
+ 
+  ~CTPPSPixelLocalTrackProducer() override;
+
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
+private:
+  int verbosity_;
+  int maxHitPerPlane_;
+  int maxHitPerRomanPot_;
+  int maxTrackPerRomanPot_;
+  int maxTrackPerPattern_;
+ 
+  edm::InputTag inputTag_;
+  edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelRecHit>> tokenCTPPSPixelRecHit_;
+  edm::ESWatcher<VeryForwardRealGeometryRecord> geometryWatcher_;
+  uint32_t numberOfPlanesPerPot_;
+  std::vector<uint32_t> listOfAllPlanes_;
+
+  RPixDetPatternFinder *patternFinder_;
+  RPixDetTrackFinder   *trackFinder_;
+  
+  void run(const edm::DetSetVector<CTPPSPixelRecHit> &input, edm::DetSetVector<CTPPSPixelLocalTrack> &output);
+  
+};
+
 //------------------------------------------------------------------------------------------------//
 
-CTPPSPixelLocalTrackProducer::CTPPSPixelLocalTrackProducer(const edm::ParameterSet& parameterSet) :
-  parameterSet_(parameterSet){
+CTPPSPixelLocalTrackProducer::CTPPSPixelLocalTrackProducer(const edm::ParameterSet& parameterSet)
+{
+  inputTag_             = parameterSet.getParameter<std::string>  ("label");
+  verbosity_            = parameterSet.getUntrackedParameter<int> ("verbosity");
+  maxHitPerRomanPot_    = parameterSet.getParameter<int> ("maxHitPerRomanPot");
+  maxHitPerPlane_       = parameterSet.getParameter<int> ("maxHitPerPlane");
+  maxTrackPerRomanPot_  = parameterSet.getParameter<int> ("maxTrackPerRomanPot");
+  maxTrackPerPattern_   = parameterSet.getParameter<int> ("maxTrackPerPattern");
+  numberOfPlanesPerPot_ = parameterSet.getParameter<int> ("numberOfPlanesPerPot");
 
-  inputTag_             = parameterSet_.getParameter<std::string>  ("label"                  );
-  verbosity_            = parameterSet_.getUntrackedParameter<int> ("RPixVerbosity"          );
-  maxHitPerRomanPot_    = parameterSet_.getUntrackedParameter<int> ("RPixMaxHitPerRomanPot"  );
-  maxHitPerPlane_       = parameterSet_.getUntrackedParameter<int> ("RPixMaxHitPerPlane"     );
-  maxTrackPerRomanPot_  = parameterSet_.getUntrackedParameter<int> ("RPixMaxTrackPerRomanPot");
-  maxTrackPerPattern_   = parameterSet_.getUntrackedParameter<int> ("RPixMaxTrackPerPattern" );
-  numberOfPlanesPerPot_ = parameterSet_.getUntrackedParameter<int> ("NumberOfPlanesPerPot"   );
+  std::string patternFinderAlgorithm = parameterSet.getParameter<std::string>("patternFinderAlgorithm");
+  std::string trackFitterAlgorithm  = parameterSet.getParameter<std::string>("trackFinderAlgorithm" );
 
-  std::string patterFinderAlgorithm = parameterSet_.getParameter<std::string>("RPixPatterFinderAlgorithm");
-  std::string trackFitterAlgorithm  = parameterSet_.getParameter<std::string>("RPixTrackFinderAlgorithm" );
-
-  // patter algorithm selector
-  if(patterFinderAlgorithm == "RPixRoadFinder"){
-   patternFinder_ = new RPixRoadFinder(parameterSet_);
+  // pattern algorithm selector
+  if(patternFinderAlgorithm == "RPixRoadFinder"){
+    patternFinder_ = new RPixRoadFinder(parameterSet);
   }
   else{
-    throw cms::Exception("CTPPSPixelLocalTrackProducer") << "Pattern finder algorithm" << patterFinderAlgorithm << " does not exist";
+    throw cms::Exception("CTPPSPixelLocalTrackProducer") << "Pattern finder algorithm" << patternFinderAlgorithm << " does not exist";
   }
   
   for(uint32_t i=0; i<numberOfPlanesPerPot_; ++i){
@@ -52,7 +102,7 @@ CTPPSPixelLocalTrackProducer::CTPPSPixelLocalTrackProducer(const edm::ParameterS
 
   //tracking algorithm selector
   if(trackFitterAlgorithm == "RPixPlaneCombinatoryTracking"){
-    trackFinder_ = new RPixPlaneCombinatoryTracking(parameterSet_);
+    trackFinder_ = new RPixPlaneCombinatoryTracking(parameterSet);
   }
   else{
     throw cms::Exception("CTPPSPixelLocalTrackProducer") << "Tracking fitter algorithm" << trackFitterAlgorithm << " does not exist";
@@ -82,35 +132,35 @@ void CTPPSPixelLocalTrackProducer::fillDescriptions(edm::ConfigurationDescriptio
 
   desc.add<std::string>    ("label"                            , "ctppsPixelRecHits"           )
     ->setComment( "label of the RecHits input for the tracking algorithm"                       );
-  desc.add<std::string>    ("RPixPatterFinderAlgorithm"        , "RPixRoadFinder"              )
+  desc.add<std::string>    ("patternFinderAlgorithm"           , "RPixRoadFinder"              )
     ->setComment( "algorithm type for pattern finder"                                           );
-  desc.add<std::string>    ("RPixTrackFinderAlgorithm"         , "RPixPlaneCombinatoryTracking")
+  desc.add<std::string>    ("trackFinderAlgorithm"             , "RPixPlaneCombinatoryTracking")
     ->setComment( "algorithm type for track finder"                                             );
-  desc.addUntracked<uint>  ("RPixTrackMinNumberOfPoints"       , 3                             )
+  desc.add<uint>           ("trackMinNumberOfPoints"           , 3                             )
     ->setComment( "minimum number of planes to produce a track"                                 );
-  desc.addUntracked<int>   ("RPixVerbosity"                    , 0                             )
+  desc.addUntracked<int>   ("verbosity"                        , 0                             )
     ->setComment( "verbosity for track producer"                                                );
-  desc.add<double>         ("MaximumChi2OverNDF"               , 5.                            )
+  desc.add<double>         ("maximumChi2OverNDF"               , 5.                            )
     ->setComment( "maximum Chi2OverNDF for accepting the track"                                 );
-  desc.add<double>         ("MaximumXLocalDistanceFromTrack"   , 0.2                           )
+  desc.add<double>         ("maximumXLocalDistanceFromTrack"   , 0.2                           )
     ->setComment( "maximum x distance in mm to associate a point not used for fit to the track" );
-  desc.add<double>         ("MaximumYLocalDistanceFromTrack"   , 0.3                           )
+  desc.add<double>         ("maximumYLocalDistanceFromTrack"   , 0.3                           )
     ->setComment( "maximum y distance in mm to associate a point not used for fit to the track" );
-  desc.addUntracked<int>   ("RPixMaxHitPerPlane"               , 20                            )
-    ->setComment( "maximum hits per plane, events with higher number will not be fitted"         );
-  desc.addUntracked<int>   ("RPixMaxHitPerRomanPot"            , 60                            )
-    ->setComment( "maximum hits per roman pot, events with higher number will not be fitted"     );
-  desc.addUntracked<int>   ("RPixMaxTrackPerRomanPot"          , 10                            )
+  desc.add<int>            ("maxHitPerPlane"                   , 20                            )
+    ->setComment( "maximum hits per plane, events with higher number will not be fitted"        );
+  desc.add<int>            ("maxHitPerRomanPot"                , 60                            )
+    ->setComment( "maximum hits per roman pot, events with higher number will not be fitted"    );
+  desc.add<int>            ("maxTrackPerRomanPot"              , 10                            )
     ->setComment( "maximum tracks per roman pot, events with higher track will not be saved"    );
-  desc.addUntracked<int>   ("RPixMaxTrackPerPattern"           , 5                             )
+  desc.add<int>            ("maxTrackPerPattern"               , 5                             )
     ->setComment( "maximum tracks per pattern, events with higher track will not be saved"      );
-  desc.addUntracked<int>   ("NumberOfPlanesPerPot"             , 6                             )
+  desc.add<int>            ("numberOfPlanesPerPot"             , 6                             )
     ->setComment( "number of planes per pot"                                                    );
-  desc.add<double>         ("RPixRoadRadius"                   , 1.0                           )
+  desc.add<double>         ("roadRadius"                       , 1.0                           )
     ->setComment( "radius of pattern search window"                                             );
-  desc.add<int>            ("RPixMinRoadSize"                  , 3                             )
+  desc.add<int>            ("minRoadSize"                      , 3                             )
     ->setComment( "minimum number of points in a pattern"                                       );
-  desc.add<int>            ("RPixMaxRoadSize"                  , 20                            )
+  desc.add<int>            ("maxRoadSize"                      , 20                            )
     ->setComment( "maximum number of points in a pattern"                                       );
 
   descriptions.add("ctppsPixelLocalTracks", desc);
