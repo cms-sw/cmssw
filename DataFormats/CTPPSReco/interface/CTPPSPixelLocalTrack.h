@@ -123,7 +123,10 @@ class CTPPSPixelLocalTrack: public CTPPSPixelFittedRecHit
 
     inline float getChiSquared() const { return chiSquared_; }
 
-    inline float getChiSquaredOverNDF() const { return chiSquared_ / (2*numberOfPointUsedForFit_ - dimension); }
+    inline float getChiSquaredOverNDF() const { 
+      if(numberOfPointUsedForFit_<= 2.) return -999.;
+      else return chiSquared_ / (2*numberOfPointUsedForFit_ - dimension); 
+    }
 
     inline int getNDF() const {return (2*numberOfPointUsedForFit_ - dimension); }
 
