@@ -62,9 +62,9 @@ PFAlgo::PFAlgo()
     nSigmaHCAL_(1),
     algo_(1),
     debug_(false),
-    pfele_(0),
-    pfpho_(0),
-    pfegamma_(0),
+    pfele_(nullptr),
+    pfpho_(nullptr),
+    pfegamma_(nullptr),
     useVertices_(false)
 {}
 
@@ -804,7 +804,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	    if(elements[iEle].trackRef()->quality(reco::TrackBase::highPurity))continue;
 	    const reco::PFBlockElementTrack * trackRef = dynamic_cast<const reco::PFBlockElementTrack*>((&elements[iEle]));
 	    if(!(trackRef->trackType(reco::PFBlockElement::T_FROM_GAMMACONV)))continue;
-	    if(elements[iEle].convRefs().size())active[iEle]=false;
+	    if(!elements[iEle].convRefs().empty())active[iEle]=false;
 	  }
       }
     }
@@ -994,7 +994,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 				  sortedHCAL,
 				  reco::PFBlockElement::HCAL,
 				  reco::PFBlock::LINKTEST_ALL );
-	if ( !sortedHCAL.size() ) continue;
+	if ( sortedHCAL.empty() ) continue;
 	//std::cout << "With an HCAL cluster " << sortedHCAL.begin()->first << std::endl;
 	ntt++;
 	
@@ -1013,7 +1013,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 				reco::PFBlockElement::HCAL,
 				reco::PFBlock::LINKTEST_ALL );
 
-      if ( debug_ && hcalElems.size() ) 
+      if ( debug_ && !hcalElems.empty() ) 
 	std::cout << "Track linked back to HCAL due to ECAL sharing with other tracks" << std::endl;
     }
     
@@ -1389,7 +1389,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  (*pfCandidates_)[tmpe].setPs2Energy( ps2Ene[0] );
 	  (*pfCandidates_)[tmpe].addElementInBlock( blockref, index );
 	  // Check that there is at least one track
-	  if(assTracks.size()) {
+	  if(!assTracks.empty()) {
 	    (*pfCandidates_)[tmpe].addElementInBlock( blockref, assTracks.begin()->second );
 	    
 	    // Assign the position of the track at the ECAL entrance
@@ -1495,7 +1495,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       for (unsigned ic=0; ic<tmpi.size();++ic) { 
 	const PFCandidate& pfc = (*pfCandidates_)[tmpi[ic]];
 	const PFCandidate::ElementsInBlocks& eleInBlocks = pfc.elementsInBlocks();
-	if ( eleInBlocks.size() == 0 ) { 
+	if ( eleInBlocks.empty() ) { 
 	  if ( debug_ )std::cout << "Single track / Fill element in block! " << std::endl;
 	  (*pfCandidates_)[tmpi[ic]].addElementInBlock( blockref, kTrack[ic] );
 	}
@@ -3111,9 +3111,9 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt, bool allowLo
   const reco::PFBlockElementTrack* eltTrack 
     = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
 
-  reco::TrackRef trackRef = eltTrack->trackRef();
+  const reco::TrackRef& trackRef = eltTrack->trackRef();
   const reco::Track& track = *trackRef;
-  reco::MuonRef muonRef = eltTrack->muonRef();
+  const reco::MuonRef& muonRef = eltTrack->muonRef();
   int charge = track.charge()>0 ? 1 : -1;
 
   // Assume this particle is a charged Hadron
@@ -3283,8 +3283,10 @@ PFAlgo::reconstructCluster(const reco::PFCluster& cluster,
   //Set the cnadidate Vertex
   pfCandidates_->back().setVertex(vertexPos);  
 
-  //Set the time
-  pfCandidates_->back().setTime( cluster.time(), cluster.timeError() );
+  //*TODO* cluster time is not reliable at the moment, so only use track timing
+  if (false) {
+    pfCandidates_->back().setTime( cluster.time(), cluster.timeError() );
+  }
 
   if(debug_) 
     cout<<"** candidate: "<<pfCandidates_->back()<<endl; 
@@ -3564,7 +3566,7 @@ PFAlgo::checkCleaning( const reco::PFRecHitCollection& cleanedHits ) {
   
 
   // No hits to recover, leave.
-  if ( !cleanedHits.size() ) return;
+  if ( cleanedHits.empty() ) return;
 
   //Compute met and met significance (met/sqrt(SumEt))
   double metX = 0.;

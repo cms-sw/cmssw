@@ -106,7 +106,7 @@ TransientTrackBuilder::build ( const edm::Handle<reco::TrackCollection> & trkCol
     TrackRef ref(trkColl, i);
     double time = trackTimes[ref];
     double timeReso = trackTimeResos[ref];
-    timeReso = ( timeReso > 1e-6 ? timeReso : fakeBeamSpotTimeWidth ); // make the error much larger than the BS time width
+    timeReso = ( timeReso > 1e-6 ? timeReso : 2.0*fakeBeamSpotTimeWidth ); // make the error much larger than the BS time width
     if( edm::isNotFinite(time) ) {
       time = 0.0;
       timeReso = 2.0*fakeBeamSpotTimeWidth;
@@ -127,7 +127,7 @@ TransientTrackBuilder::build (const edm::Handle<reco::GsfTrackCollection> & trkC
     GsfTrackRef ref(trkColl, i);
     double time = trackTimes[ref];
     double timeReso = trackTimeResos[ref];
-    timeReso = ( timeReso > 1e-6 ? timeReso : fakeBeamSpotTimeWidth ); // make the error much larger than the BS time width
+    timeReso = ( timeReso > 1e-6 ? timeReso : 2.0*fakeBeamSpotTimeWidth ); // make the error much larger than the BS time width
     if( edm::isNotFinite(time) ) {
       time = 0.0;
       timeReso = 2.0*fakeBeamSpotTimeWidth;
@@ -152,7 +152,7 @@ TransientTrackBuilder::build (const edm::Handle<edm::View<Track> > & trkColl,
       GsfTrackRef ref = RefToBase<Track>(trkColl, i).castTo<GsfTrackRef>();
       double time = trackTimes[ref];
       double timeReso = trackTimeResos[ref];
-      timeReso = ( timeReso > 1e-6 ? timeReso : fakeBeamSpotTimeWidth ); // make the error much larger than the BS time width
+      timeReso = ( timeReso > 1e-6 ? timeReso : 2.0*fakeBeamSpotTimeWidth ); // make the error much larger than the BS time width
       if( edm::isNotFinite(time) ) {
 	time = 0.0;
 	timeReso = 2.0*fakeBeamSpotTimeWidth;
@@ -163,7 +163,7 @@ TransientTrackBuilder::build (const edm::Handle<edm::View<Track> > & trkColl,
       TrackRef ref = RefToBase<Track>(trkColl, i).castTo<TrackRef>();
       double time = trackTimes[ref];
       double timeReso = trackTimeResos[ref];
-      timeReso = ( timeReso > 1e-6 ? timeReso : fakeBeamSpotTimeWidth ); // make the error much larger than the BS time width
+      timeReso = ( timeReso > 1e-6 ? timeReso : 2.0*fakeBeamSpotTimeWidth ); // make the error much larger than the BS time width
       if( edm::isNotFinite(time) ) {
 	time = 0.0;
 	timeReso = 2.0*fakeBeamSpotTimeWidth;

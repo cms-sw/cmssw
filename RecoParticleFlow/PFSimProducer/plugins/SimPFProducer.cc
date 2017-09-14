@@ -58,9 +58,9 @@
 class SimPFProducer : public edm::global::EDProducer<> {
 public:    
   SimPFProducer(const edm::ParameterSet&);
-  ~SimPFProducer() { }
+  ~SimPFProducer() override { }
   
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   
 private:  
   // parameters
@@ -318,12 +318,26 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
 	    if( supercluster_index != -1 ) {
 	      edm::Ref<reco::PFBlockCollection> blockRef(blocksHandle,block_index);
 	      for( const auto& elem : blockRef->elements() ) {
-		auto ref = elem.clusterRef();
+		const auto& ref = elem.clusterRef();
 		if( !usedSimCluster[ref.key()] ) {
 		  candidate.addElementInBlock(blockRef,elem.index());
 		  usedSimCluster[ref.key()] = true;
 		}
 	      }
+	      
+              //*TODO* cluster time is not reliable at the moment, so just keep time from the track if available
+              if (false) {
+                const reco::PFCluster *seed = dynamic_cast<const reco::PFCluster *>((*superClustersHandle)[supercluster_index].seed().get());
+                assert(seed != nullptr);
+                if (seed->timeError() > 0) {
+                  if (candidate.isTimeValid() && candidate.timeError() > 0) {
+                    double wCand = 1.0/std::pow(candidate.timeError(),2), wSeed = 1.0/std::pow(seed->timeError(),2);
+                    candidate.setTime((wCand*candidate.time() + wSeed*seed->time())/(wCand + wSeed) , 1.0f/std::sqrt(float(wCand + wSeed)));
+                  } else {
+                    candidate.setTime(seed->time(), seed->timeError());
+                  }
+                }
+              }
 	    }
 	  }
 	}
@@ -342,7 +356,7 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
     reco::PFBlockRef blref(blocksHandle,ibl);
     const auto& elements = theblocks[ibl].elements();
     for( const auto& elem : elements ) {
-      auto ref = elem.clusterRef();
+      const auto& ref = elem.clusterRef();
       const auto& simtruth = SimClustersTruth[ref.key()];
       reco::PFCandidate::ParticleType part_type;
       if( !usedSimCluster[ref.key()] ) {
