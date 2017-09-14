@@ -118,13 +118,10 @@ class CTPPSPixelLocalTrack: public CTPPSPixelFittedRecHit
     }
 
     ParameterVector getParameterVector() const;
-    void setParameterVector(const ParameterVector & track_params_vector);
 
     CovarianceMatrix getCovarianceMatrix() const;
-    void setCovarianceMatrix(const CovarianceMatrix &par_covariance_matrix);
 
     inline float getChiSquared() const { return chiSquared_; }
-    inline void setChiSquared(float & chiSquared) { chiSquared_ = chiSquared; }
 
     inline float getChiSquaredOverNDF() const { return chiSquared_ / (2*numberOfPointUsedForFit_ - dimension); }
 
