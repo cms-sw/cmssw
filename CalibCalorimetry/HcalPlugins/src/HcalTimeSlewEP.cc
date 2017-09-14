@@ -25,22 +25,25 @@ void HcalTimeSlewEP::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& 
 void HcalTimeSlewEP::fillDescriptions( edm::ConfigurationDescriptions & descriptions ) {
   //Ask Kevin What goes here??????
   edm::ParameterSetDescription desc;
-  desc.add<int>("ieta_shift");
-  desc.add<double>("drdA");
-  desc.add<double>("drdB");
-  edm::ParameterSetDescription desc_dosemaps;
-  desc_dosemaps.add<int>("energy");
-  desc_dosemaps.add<edm::FileInPath>("file");
-  std::vector<edm::ParameterSet> default_dosemap(1);
-  desc.addVPSet("dosemaps",desc_dosemaps,default_dosemap);
-  edm::ParameterSetDescription desc_years;
-  desc_years.add<std::string>("year");
-  desc_years.add<double>("intlumi");
-  desc_years.add<double>("lumirate");
-  desc_years.add<int>("energy");
-  std::vector<edm::ParameterSet> default_year(1);
-  desc.addVPSet("years",desc_years,default_year);
-  
+
+  edm::ParameterSetDescription desc_M2;
+  desc_M2.add<std::string>("bias");
+  desc_M2.add<double>("tzero");
+  desc_M2.add<double>("slope");
+  std::vector<edm::ParameterSet> default_M2(1);
+  desc.addVPSet("delay_M2",desc_M2,default_M2);  
+
+  edm::ParameterSetDescription desc_M3;
+  desc_M3.add<double>("cap"); 
+  desc_M3.add<double>("tspar0");
+  desc_M3.add<double>("tspar1");
+  desc_M3.add<double>("tspar2");
+  desc_M3.add<double>("tspar0_siPM");
+  desc_M3.add<double>("tspar1_siPM");
+  desc_M3.add<double>("tspar2_siPM");
+  std::vector<edm::ParameterSet> default_M3(1);
+  desc.addVPSet("delay_M3",desc_M3,default_M3);  
+
   descriptions.addDefault(desc);
 }
 
