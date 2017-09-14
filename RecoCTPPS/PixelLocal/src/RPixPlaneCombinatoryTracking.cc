@@ -43,7 +43,7 @@ RPixPlaneCombinatoryTracking::~RPixPlaneCombinatoryTracking() {
 
 void RPixPlaneCombinatoryTracking::initialize(){
  
-  uint32_t numberOfCombinations = Factorial(numberOfPlanesPerPot_)/(Factorial(numberOfPlanesPerPot_-trackMinNumberOfPoints_)*Factorial(trackMinNumberOfPoints_));
+  uint32_t numberOfCombinations = factorial(numberOfPlanesPerPot_)/(factorial(numberOfPlanesPerPot_-trackMinNumberOfPoints_)*factorial(trackMinNumberOfPoints_));
   if(verbosity_>=2) std::cout<<"Number of combinations = "<<numberOfCombinations<<std::endl;
   possiblePlaneCombinations_.reserve(numberOfCombinations);
 
