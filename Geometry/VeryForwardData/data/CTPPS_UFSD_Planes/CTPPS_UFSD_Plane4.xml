@@ -33,7 +33,7 @@
 
     <PosPart copyNumber="4">
       <rParent name="CTPPS_UFSD_Plane"/>
-      <rChild name="CTPPS_UFSD_Detector_Assembly:PCB"/>
+      <rChild name="CTPPS_Diamond_Detector_Assembly:PCB"/>
       <Translation x="-[CTPPS_UFSD_Parameters:UFSD_dx]*2-[CTPPS_UFSD_Parameters:Edge_dx]+[CTPPS_UFSD_Parameters:PCB_dx]/2" y="-[CTPPS_UFSD_Parameters:Shift_dy]" z="([CTPPS_UFSD_Parameters:UFSD_dz]+[CTPPS_UFSD_Parameters:Metalized_thick]+[CTPPS_UFSD_Parameters:PCB_thick])/2"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
