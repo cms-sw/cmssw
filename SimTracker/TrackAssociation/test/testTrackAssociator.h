@@ -21,9 +21,9 @@ class testTrackAssociator : public edm::EDAnalyzer {
   
  public:
   testTrackAssociator(const edm::ParameterSet& conf);
-  virtual ~testTrackAssociator();
-  virtual void beginJob() {}  
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  ~testTrackAssociator() override;
+  void beginJob() override {}  
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   
  private:
   reco::TrackToTrackingParticleAssociator const * associatorByChi2;
