@@ -25,7 +25,7 @@
 class RPixDetTrackFinder{
 
   public:
-    RPixDetTrackFinder(edm::ParameterSet const& parameterSet): parameterSet_(parameterSet), romanPotId_(CTPPSPixelDetId(0, 2, 3, 0)) {}
+    RPixDetTrackFinder(edm::ParameterSet const& parameterSet): romanPotId_(CTPPSPixelDetId(0, 2, 3, 0)) {}
     //romanPotId_ is needed to be defined in order to 
 
     virtual ~RPixDetTrackFinder();
@@ -46,7 +46,6 @@ class RPixDetTrackFinder{
 
 
   protected:
-    edm::ParameterSet parameterSet_;
     std::map<CTPPSPixelDetId, std::vector<RPixDetPatternFinder::PointInPlane> > hitMap_;
     std::vector<CTPPSPixelLocalTrack>  localTrackVector_;
     CTPPSPixelDetId  romanPotId_;

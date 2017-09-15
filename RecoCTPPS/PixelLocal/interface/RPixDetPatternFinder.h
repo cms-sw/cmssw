@@ -29,7 +29,7 @@
 class RPixDetPatternFinder{
   
 public:
-  RPixDetPatternFinder(edm::ParameterSet const& parameterSet): parameterSet_(parameterSet) {}
+  RPixDetPatternFinder(edm::ParameterSet const& parameterSet) {}
   
   virtual ~RPixDetPatternFinder();
 
@@ -51,7 +51,6 @@ public:
   void setPlaneRotationMatrices(std::map<CTPPSPixelDetId, TMatrixD> planeRotationMatrixMap) { planeRotationMatrixMap_ = planeRotationMatrixMap; }
   
 protected:
-  edm::ParameterSet parameterSet_;
   edm::DetSetVector<CTPPSPixelRecHit> hitVector_;
   std::vector<Road> patternVector_;
   CTPPSGeometry geometry_;
