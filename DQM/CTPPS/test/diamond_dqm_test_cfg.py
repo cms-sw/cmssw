@@ -32,7 +32,7 @@ process.dqmSaver.path = ""
 process.dqmSaver.tag = "CTPPS"
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '92X_dataRun2_HLT_v7', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_hlt_relval', '')
 
 
 # raw data source

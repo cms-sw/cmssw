@@ -35,7 +35,7 @@
     <Constant name="Metalized_thick" value="[Aluminium_thic]k"/>
 
     <!-- Detector Shift & Gaps -->    
-    <Constant name="Edge_dx" value="4.5*mm"/>
+    <Constant name="Edge_dx" value="5.8*mm"/>
     <Constant name="Shift_dy" value="1.0*mm"/>
     <Constant name="Strip_gap" value="0.05*mm"/>
 
