@@ -32,7 +32,7 @@ public:
   explicit FakeTBHodoscopeRawInfoProducer(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~FakeTBHodoscopeRawInfoProducer();
+  ~FakeTBHodoscopeRawInfoProducer() override;
   
   /// Produce digis out of raw data
   void produce(edm::Event & event, const edm::EventSetup& eventSetup) override;

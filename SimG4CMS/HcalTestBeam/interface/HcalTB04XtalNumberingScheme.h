@@ -25,8 +25,8 @@ class HcalTB04XtalNumberingScheme : public EcalNumberingScheme {
 
 public:
   HcalTB04XtalNumberingScheme();
-  ~HcalTB04XtalNumberingScheme();
-  virtual uint32_t getUnitID(const EcalBaseNumber& baseNumber) const ;
+  ~HcalTB04XtalNumberingScheme() override;
+  uint32_t getUnitID(const EcalBaseNumber& baseNumber) const override ;
 
 };
 

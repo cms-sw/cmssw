@@ -22,20 +22,20 @@ public:
 
   HFChamberSD(std::string, const DDCompactView&, const SensitiveDetectorCatalog&,
 	  edm::ParameterSet const &, const SimTrackManager*);
-  virtual ~HFChamberSD();
+  ~HFChamberSD() override;
 
-  virtual void     Initialize(G4HCofThisEvent*HCE);
-  virtual G4bool   ProcessHits(G4Step* aStep,G4TouchableHistory* ROhist);
-  virtual void     EndOfEvent(G4HCofThisEvent* HCE);
-  virtual void     clear();
-  virtual void     DrawAll();
-  virtual void     PrintAll();
+  void     Initialize(G4HCofThisEvent*HCE) override;
+  G4bool   ProcessHits(G4Step* aStep,G4TouchableHistory* ROhist) override;
+  void     EndOfEvent(G4HCofThisEvent* HCE) override;
+  void     clear() override;
+  void     DrawAll() override;
+  void     PrintAll() override;
 
 protected:
 
-  virtual void     clearHits();
-  virtual uint32_t setDetUnitId(G4Step*);
-  virtual void     fillHits(edm::PCaloHitContainer&, std::string);
+  void     clearHits() override;
+  uint32_t setDetUnitId(G4Step*) override;
+  void     fillHits(edm::PCaloHitContainer&, std::string) override;
 
 private:
 
