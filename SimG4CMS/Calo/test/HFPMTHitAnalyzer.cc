@@ -36,7 +36,7 @@ class HFPMTHitAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::on
 
 public:
   explicit HFPMTHitAnalyzer(const edm::ParameterSet&);
-  ~HFPMTHitAnalyzer() {}
+  ~HFPMTHitAnalyzer() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:

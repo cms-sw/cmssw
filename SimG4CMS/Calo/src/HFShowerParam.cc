@@ -28,8 +28,8 @@
 //#define mkdebug
 
 HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
-                             edm::ParameterSet const & p) : showerLibrary(0), 
-                                                            fibre(0), gflash(0),
+                             edm::ParameterSet const & p) : showerLibrary(nullptr), 
+                                                            fibre(nullptr), gflash(nullptr),
                                                             fillHisto(false) { 
   edm::ParameterSet m_HF  = p.getParameter<edm::ParameterSet>("HFShower");
   pePerGeV                = m_HF.getParameter<double>("PEPerGeV");
@@ -118,7 +118,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep,
 						       double weight) {
   G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
   G4Track *     track    = aStep->GetTrack();   
-  G4ThreeVector hitPoint = preStepPoint->GetPosition();   
+  const G4ThreeVector& hitPoint = preStepPoint->GetPosition();   
   G4int         particleCode = track->GetDefinition()->GetPDGEncoding();
   double        zv = std::abs(hitPoint.z()) - gpar[4] - 0.5*gpar[1];
   G4ThreeVector localPoint = G4ThreeVector(hitPoint.x(),hitPoint.y(),zv);

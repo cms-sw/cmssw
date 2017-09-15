@@ -39,7 +39,7 @@ HGCSD::HGCSD(G4String name, const DDCompactView & cpv,
   CaloSD(name, cpv, clg, p, manager,
          (float)(p.getParameter<edm::ParameterSet>("HGCSD").getParameter<double>("TimeSliceUnit")),
          p.getParameter<edm::ParameterSet>("HGCSD").getParameter<bool>("IgnoreTrackID")), 
-  numberingScheme(0), mouseBite_(0), slopeMin_(0), levelT_(99) {
+  numberingScheme(nullptr), mouseBite_(nullptr), slopeMin_(0), levelT_(99) {
 
   edm::ParameterSet m_HGC = p.getParameter<edm::ParameterSet>("HGCSD");
   eminHit          = m_HGC.getParameter<double>("EminHit")*CLHEP::MeV;
@@ -95,7 +95,7 @@ bool HGCSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 
   NaNTrap( aStep ) ;
   
-  if (aStep == NULL) {
+  if (aStep == nullptr) {
     return true;
   } else {
     double r = aStep->GetPreStepPoint()->GetPosition().perp();

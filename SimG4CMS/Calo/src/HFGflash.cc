@@ -30,7 +30,7 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-#include <math.h>
+#include <cmath>
 
 //#define DebugLog
 
@@ -96,15 +96,8 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
   HFGflash::Hit oneHit;
 
   G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
-  //G4StepPoint * postStepPoint = aStep->GetPostStepPoint(); 
   G4Track *     track    = aStep->GetTrack();
-  // Get Z-direction 
-  const G4DynamicParticle *aParticle = track->GetDynamicParticle();
-  G4ThreeVector momDir = aParticle->GetMomentumDirection();
-
-  G4ThreeVector hitPoint = preStepPoint->GetPosition();   
   G4String      partType = track->GetDefinition()->GetParticleName();
-  //  int           parCode  = track->GetDefinition()->GetPDGEncoding();
 
   // This part of code is copied from the original GFlash Fortran code.
   // reference : hep-ex/0001020v1

@@ -195,7 +195,7 @@ TH1F* BscAnalysisHistManager::GetHisto(Int_t Number)
 {
   // Get a histogram from the array with index = Number
 
-  if (Number <= fHistArray->GetLast()  && fHistArray->At(Number) != (TObject*)0){
+  if (Number <= fHistArray->GetLast()  && fHistArray->At(Number) != (TObject*)nullptr){
 
     return (TH1F*)(fHistArray->At(Number));
 
@@ -214,7 +214,7 @@ TH2F* BscAnalysisHistManager::GetHisto2(Int_t Number)
 {
   // Get a histogram from the array with index = Number
 
-  if (Number <= fHistArray->GetLast()  && fHistArray->At(Number) != (TObject*)0){
+  if (Number <= fHistArray->GetLast()  && fHistArray->At(Number) != (TObject*)nullptr){
 
     return (TH2F*)(fHistArray->At(Number));
 
@@ -332,7 +332,7 @@ void BscTest::update(const G4Step * aStep) {
   // track on aStep:                                                                                         !
   G4Track*     theTrack     = aStep->GetTrack();   
   TrackInformation* trkInfo = dynamic_cast<TrackInformation*> (theTrack->GetUserInformation());
-  if (trkInfo == 0) {
+  if (trkInfo == nullptr) {
     std::cout << "BscTest on aStep: No trk info !!!! abort " << std::endl;
   } 
   G4int         id             = theTrack->GetTrackID();
@@ -343,16 +343,14 @@ void BscTest::update(const G4Step * aStep) {
   G4ThreeVector   trackmom       = theTrack->GetMomentum();
   G4double       entot          = theTrack->GetTotalEnergy();   //   !!! deposited on step
   G4int         curstepnumber  = theTrack->GetCurrentStepNumber();
-  G4ThreeVector   vert_pos       = theTrack->GetVertexPosition(); // vertex ,where this track was created
-  G4ThreeVector   vert_mom       = theTrack->GetVertexMomentumDirection();
   G4double        stepl         = aStep->GetStepLength();
   G4double        EnerDeposit   = aStep->GetTotalEnergyDeposit();
   G4StepPoint*      preStepPoint = aStep->GetPreStepPoint(); 
-  G4ThreeVector     preposition   = preStepPoint->GetPosition();	
+  const G4ThreeVector&     preposition   = preStepPoint->GetPosition();	
   G4ThreeVector     prelocalpoint = theTrack->GetTouchable()->GetHistory()->
     GetTopTransform().TransformPoint(preposition);
   G4VPhysicalVolume* currentPV     = preStepPoint->GetPhysicalVolume();
-  G4String         prename       = currentPV->GetName();
+  const G4String&         prename       = currentPV->GetName();
 
   const G4VTouchable*  pre_touch    = preStepPoint->GetTouchable();
   int          pre_levels   = detLevels(pre_touch);
@@ -555,7 +553,7 @@ void BscTest::detectorLevel(const G4VTouchable* touch, int& level,
     for (int ii = 0; ii < level; ii++) {
       int i      = level - ii - 1;
       G4VPhysicalVolume* pv = touch->GetVolume(i);
-      if (pv != 0) 
+      if (pv != nullptr) 
         name[ii] = pv->GetName();
       else
         name[ii] = "Unknown";
@@ -578,7 +576,7 @@ void BscTest::update(const EndOfEvent * evt) {
 
   //
   int trackID = 0;
-  G4PrimaryParticle* thePrim=0;
+  G4PrimaryParticle* thePrim=nullptr;
 
 
   // prim.vertex:
@@ -588,7 +586,7 @@ void BscTest::update(const EndOfEvent * evt) {
 
   for (int i = 0 ; i<nvertex; i++) {
     G4PrimaryVertex* avertex = (*evt)()->GetPrimaryVertex(i);
-    if (avertex == 0)
+    if (avertex == nullptr)
       std::cout << "BscTest  End Of Event ERR: pointer to vertex = 0"
 		<< std::endl;
     G4int npart = avertex->GetNumberOfParticle();
@@ -597,9 +595,9 @@ void BscTest::update(const EndOfEvent * evt) {
     if (npart ==0)
       std::cout << "BscTest End Of Event ERR: no NumberOfParticle" << std::endl;
 
-    if (thePrim==0) thePrim=avertex->GetPrimary(trackID);
+    if (thePrim==nullptr) thePrim=avertex->GetPrimary(trackID);
 
-    if (thePrim!=0) {
+    if (thePrim!=nullptr) {
       // primary vertex:
       G4double vx=0.,vy=0.,vz=0.;
       vx = avertex->GetX0();
@@ -616,7 +614,7 @@ void BscTest::update(const EndOfEvent * evt) {
   // prim.vertex loop end
 
   //=========================== thePrim != 0 ================================================================================
-  if (thePrim != 0) {
+  if (thePrim != nullptr) {
     //
     // number of secondary particles deposited their energy along primary track
     //UserNtuples->fillg518(numofpart,1.);
