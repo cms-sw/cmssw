@@ -59,10 +59,12 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
     jetFlavourInfoToken_ = consumes<reco::JetFlavourInfoMatchingCollection>(iConfig.getParameter<edm::InputTag>( "JetFlavourInfoSource" ));
   addGenPartonMatch_ = iConfig.getParameter<bool>( "addGenPartonMatch" );
   embedGenPartonMatch_ = iConfig.getParameter<bool>( "embedGenPartonMatch" );
-  genPartonToken_ = mayConsume<edm::Association<reco::GenParticleCollection> >(iConfig.getParameter<edm::InputTag>( "genPartonMatch" ));
+  if (addGenPartonMatch_)
+    genPartonToken_ = consumes<edm::Association<reco::GenParticleCollection> >(iConfig.getParameter<edm::InputTag>( "genPartonMatch" ));
   addGenJetMatch_ = iConfig.getParameter<bool>( "addGenJetMatch" );
   embedGenJetMatch_ = iConfig.getParameter<bool>( "embedGenJetMatch" );
-  genJetToken_ = mayConsume<edm::Association<reco::GenJetCollection> >(iConfig.getParameter<edm::InputTag>( "genJetMatch" ));
+  if (addGenJetMatch_)
+    genJetToken_ = consumes<edm::Association<reco::GenJetCollection> >(iConfig.getParameter<edm::InputTag>( "genJetMatch" ));
   addPartonJetMatch_ = iConfig.getParameter<bool>( "addPartonJetMatch" );
 //   partonJetToken_ = mayConsume<reco::SomePartonJetType>(iConfig.getParameter<edm::InputTag>( "partonJetSource" ));
   addJetCorrFactors_ = iConfig.getParameter<bool>( "addJetCorrFactors" );
@@ -77,11 +79,14 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
   tagInfoTags_ = iConfig.getParameter<std::vector<edm::InputTag> >( "tagInfoSources" );
   tagInfoTokens_ =edm::vector_transform(tagInfoTags_, [this](edm::InputTag const & tag){return mayConsume<edm::View<reco::BaseTagInfo> >(tag);});
   addAssociatedTracks_ = iConfig.getParameter<bool>( "addAssociatedTracks" );
-  trackAssociationToken_ = mayConsume<reco::JetTracksAssociation::Container>(iConfig.getParameter<edm::InputTag>( "trackAssociationSource" ));
+  if (addAssociatedTracks_)
+    trackAssociationToken_ = consumes<reco::JetTracksAssociation::Container>(iConfig.getParameter<edm::InputTag>( "trackAssociationSource" ));
   addJetCharge_ = iConfig.getParameter<bool>( "addJetCharge" );
-  jetChargeToken_ = mayConsume<reco::JetFloatAssociation::Container>(iConfig.getParameter<edm::InputTag>( "jetChargeSource" ));
+  if (addJetCharge_)
+    jetChargeToken_ = consumes<reco::JetFloatAssociation::Container>(iConfig.getParameter<edm::InputTag>( "jetChargeSource" ));
   addJetID_ = iConfig.getParameter<bool>( "addJetID");
-  jetIDMapToken_ = mayConsume<reco::JetIDValueMap>(iConfig.getParameter<edm::InputTag>( "jetIDMap"));
+  if (addJetID_)
+    jetIDMapToken_ = consumes<reco::JetIDValueMap>(iConfig.getParameter<edm::InputTag>( "jetIDMap"));
   // Efficiency configurables
   addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
   if (addEfficiencies_) {
