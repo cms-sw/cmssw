@@ -23,7 +23,7 @@ class HcalHitAnalyzer : public edm::one::EDAnalyzer<>
 public:
 
   explicit HcalHitAnalyzer(edm::ParameterSet const& conf);
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+  void analyze(edm::Event const& e, edm::EventSetup const& c) override;
 
 
 private:

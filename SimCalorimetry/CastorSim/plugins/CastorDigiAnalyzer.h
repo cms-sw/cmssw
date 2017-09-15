@@ -23,7 +23,7 @@ class CastorDigiAnalyzer : public edm::one::EDAnalyzer<>
 public:
 
   explicit CastorDigiAnalyzer(edm::ParameterSet const& conf);
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+  void analyze(edm::Event const& e, edm::EventSetup const& c) override;
 
 
 private:
