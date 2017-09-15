@@ -78,5 +78,4 @@ HcalPulseContainmentManager::get(const HcalDetId & detId, int toAdd, float fixed
   HcalPulseContainmentEntry entry(toAdd, fixedphase_ns, shape, HcalPulseContainmentCorrection(shape, toAdd, fixedphase_ns, max_fracerror_, hcalTimeSlew_delay_));
   entries_.push_back(entry);
   return &(entries_.back().correction_);
-} 
-
+}
