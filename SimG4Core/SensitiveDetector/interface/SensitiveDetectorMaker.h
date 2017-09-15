@@ -36,14 +36,14 @@ class SensitiveDetectorMaker : public SensitiveDetectorMakerBase
      //virtual ~SensitiveDetectorMaker();
 
       // ---------- const member functions ---------------------
-      virtual void make(const std::string& iname,
+      void make(const std::string& iname,
 			const DDCompactView& cpv,
 			const SensitiveDetectorCatalog& clg,
 			const edm::ParameterSet& p,
 			const SimTrackManager* m,
 			SimActivityRegistry& reg,
 			std::auto_ptr<SensitiveTkDetector>& oTK,
-			std::auto_ptr<SensitiveCaloDetector>& oCalo) const
+			std::auto_ptr<SensitiveCaloDetector>& oCalo) const override
       {
 	std::auto_ptr<T> returnValue(new T(iname, cpv, clg, p, m));
 	SimActivityRegistryEnroller::enroll(reg, returnValue.get());
@@ -58,9 +58,9 @@ class SensitiveDetectorMaker : public SensitiveDetectorMakerBase
       // ---------- member functions ---------------------------
 
    private:
-      SensitiveDetectorMaker(const SensitiveDetectorMaker&); // stop default
+      SensitiveDetectorMaker(const SensitiveDetectorMaker&) = delete; // stop default
 
-      const SensitiveDetectorMaker& operator=(const SensitiveDetectorMaker&); // stop default
+      const SensitiveDetectorMaker& operator=(const SensitiveDetectorMaker&) = delete; // stop default
 
       // ---------- member data --------------------------------
 

@@ -56,15 +56,15 @@ class HGCalTBAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one
 
 public:
   explicit HGCalTBAnalyzer(edm::ParameterSet const&);
-  ~HGCalTBAnalyzer();
+  ~HGCalTBAnalyzer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginJob() override ;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override {}
-  virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void beginJob() override ;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
   void analyzeSimHits(int type, std::vector<PCaloHit>& hits, double zFront);
   void analyzeSimTracks(edm::Handle<edm::SimTrackContainer> const& SimTk, 
 			edm::Handle<edm::SimVertexContainer> const& SimVtx);
@@ -158,7 +158,7 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig) {
   for (auto id : idBeams_) std::cout << " " << id;
   std::cout << std::endl;
 #endif
-  if (idBeams_.size() == 0) idBeams_.push_back(1001);
+  if (idBeams_.empty()) idBeams_.push_back(1001);
 
   edm::InputTag tmp0 = iConfig.getParameter<edm::InputTag>("GeneratorSrc");
   tok_hepMC_   = consumes<edm::HepMCProduct>(tmp0);
@@ -405,7 +405,7 @@ void HGCalTBAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
       iSetup.get<IdealGeometryRecord>().get(detectorEE_, geom);
       hgeom_[0] = geom.product();
     } else {
-      hgeom_[0] = 0;
+      hgeom_[0] = nullptr;
     }
     for (unsigned int l=0; l<hgcons_[0]->layers(false); ++l) {
       sprintf (name, "SimHitEnA%d%s", l, detectorEE_.c_str());
@@ -424,8 +424,8 @@ void HGCalTBAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
 	      << hgcons_[0]->layers(false) << " layers" << std::endl;
 #endif
   } else {
-    hgcons_[0] = 0;
-    hgeom_[0]  = 0;
+    hgcons_[0] = nullptr;
+    hgeom_[0]  = nullptr;
   }
 
   if (ifFH_) {
@@ -437,7 +437,7 @@ void HGCalTBAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
       iSetup.get<IdealGeometryRecord>().get(detectorFH_, geom);
       hgeom_[1] = geom.product();
     } else {
-      hgeom_[1] = 0;
+      hgeom_[1] = nullptr;
     }
     for (unsigned int l=0; l<hgcons_[1]->layers(false); ++l) {
       sprintf (name, "SimHitEnA%d%s", l, detectorFH_.c_str());
@@ -456,8 +456,8 @@ void HGCalTBAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
 	      << hgcons_[1]->layers(false) << " layers" << std::endl;
 #endif
   } else {
-    hgcons_[1] = 0;
-    hgeom_[1]  = 0;
+    hgcons_[1] = nullptr;
+    hgeom_[1]  = nullptr;
   }
 
   if (ifBH_) {
@@ -649,7 +649,7 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent,
 #endif
 	for (auto it : *theDigiContainers) {
 	  HGCEEDetId detId     = (it.id());
-	  HGCSample  hgcSample = it.sample(sampleIndex_);
+	  const HGCSample&  hgcSample = it.sample(sampleIndex_);
 	  uint16_t   adc       = hgcSample.data();
 	  analyzeDigi(0, detId, adc);
 	}
@@ -665,7 +665,7 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent,
 #endif
 	for (auto it : *theDigiContainers) {
 	  HGCHEDetId detId     = (it.id());
-	  HGCSample  hgcSample = it.sample(sampleIndex_);
+	  const HGCSample&  hgcSample = it.sample(sampleIndex_);
 	  uint16_t   adc       = hgcSample.data();
 	  analyzeDigi(1, detId, adc);
 	}

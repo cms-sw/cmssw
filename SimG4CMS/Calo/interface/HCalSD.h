@@ -39,17 +39,17 @@ public:
 
   HCalSD(G4String , const DDCompactView &, const SensitiveDetectorCatalog &,
          edm::ParameterSet const &, const SimTrackManager*);
-  virtual ~HCalSD();
-  virtual bool                  ProcessHits(G4Step * , G4TouchableHistory * );
-  virtual double                getEnergyDeposit(G4Step* );
-  virtual uint32_t              setDetUnitId(G4Step* step);
+  ~HCalSD() override;
+  bool                  ProcessHits(G4Step * , G4TouchableHistory * ) override;
+  double                getEnergyDeposit(G4Step* ) override;
+  uint32_t              setDetUnitId(G4Step* step) override;
   void                          setNumberingScheme(HcalNumberingScheme* );
 
 protected:
 
-  virtual void                  update(const BeginOfJob *);
-  virtual void                  initRun();
-  virtual bool                  filterHit(CaloG4Hit*, double);
+  void                  update(const BeginOfJob *) override;
+  void                  initRun() override;
+  bool                  filterHit(CaloG4Hit*, double) override;
 
 private:    
 
