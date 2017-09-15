@@ -13,7 +13,7 @@
 
 class GEMGeometry;
 
-/// \class GEMPadDigiProducer 
+/// \class GEMPadDigiProducer
 /// producer for GEM-CSC trigger pads
 
 class GEMPadDigiProducer : public edm::stream::EDProducer<>
@@ -24,14 +24,14 @@ public:
 
   explicit GEMPadDigiProducer(const edm::ParameterSet& ps);
 
-  virtual ~GEMPadDigiProducer();
+  ~GEMPadDigiProducer() override;
 
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  
+
   void buildPads(const GEMDigiCollection &digis, GEMPadDigiCollection &out_pads) const;
 
   /// Name of input digi Collection
