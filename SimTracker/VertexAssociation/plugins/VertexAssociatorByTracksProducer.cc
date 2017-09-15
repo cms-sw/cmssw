@@ -16,12 +16,12 @@
 class VertexAssociatorByTracksProducer: public edm::global::EDProducer<> {
 public:
   explicit VertexAssociatorByTracksProducer(const edm::ParameterSet&);
-  ~VertexAssociatorByTracksProducer();
+  ~VertexAssociatorByTracksProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
   const double R2SMatchedSimRatio_;
