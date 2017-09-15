@@ -20,7 +20,7 @@ SUSY_HLT_DiJet_MET = cms.EDAnalyzer("SUSY_HLT_DiJet_MET",
   OfflineMetCut = cms.untracked.double(250.0),
 )
 
-SUSY_HLT_DiJet_MET_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
+SUSYoHLToDiJetMEToPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_DiCentralPFJet55_PFMET110_v"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),

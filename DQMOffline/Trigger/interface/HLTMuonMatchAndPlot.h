@@ -49,7 +49,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //////// Typedefs and Constants //////////////////////////////////////////////
 
-typedef math::XYZTLorentzVector LorentzVector;
+using LorentzVector = math::XYZTLorentzVector;
 
 const double NOMATCH = 999.;
 const std::string EFFICIENCY_SUFFIXES[2] = {"denom", "numer"};
@@ -70,13 +70,14 @@ class HLTMuonMatchAndPlot
   void beginRun(DQMStore::IBooker &, const edm::Run &, const edm::EventSetup &);
   void analyze(edm::Handle<reco::MuonCollection> &, edm::Handle<reco::BeamSpot> &, 
 	       edm::Handle<reco::VertexCollection> &, edm::Handle<trigger::TriggerEvent> &, 
-	       edm::Handle<edm::TriggerResults> &);
+	       edm::Handle<edm::TriggerResults> &,
+	       const edm::TriggerNames&);
   void endRun(const edm::Run &, const edm::EventSetup &);
 
   // Helper Methods
   void fillEdges(size_t & nBins, float * & edges, const std::vector<double>& binning);
   template <class T> void 
-    fillMapFromPSet(std::map<std::string, T> &, const edm::ParameterSet&, std::string);
+    fillMapFromPSet(std::map<std::string, T> &, const edm::ParameterSet&, const std::string&);
   template <class T1, class T2> std::vector<size_t> 
     matchByDeltaR(const std::vector<T1> &, const std::vector<T2> &, 
                   const double maxDeltaR = NOMATCH);
@@ -84,8 +85,8 @@ class HLTMuonMatchAndPlot
  private:
 
   // Internal Methods
-  void book1D(DQMStore::IBooker &, std::string, std::string, std::string);
-  void book2D(DQMStore::IBooker &, std::string, std::string, std::string, std::string);
+  void book1D(DQMStore::IBooker &, std::string, const std::string&, std::string);
+  void book2D(DQMStore::IBooker &, const std::string&, const std::string&, const std::string&, const std::string&);
   reco::MuonCollection selectedMuons(
     const reco::MuonCollection &,
     const reco::BeamSpot &,
@@ -97,7 +98,7 @@ class HLTMuonMatchAndPlot
     const trigger::TriggerObjectCollection &,
     const trigger::TriggerEvent &,
     bool hasTriggerCuts,
-    const StringCutObjectSelector<trigger::TriggerObject> triggerSelector);
+    const StringCutObjectSelector<trigger::TriggerObject>& triggerSelector);
  
   // Input from Configuration File
   std::string hltProcessName_;

@@ -33,38 +33,38 @@ from HLTriggerOffline.SUSYBSM.SUSYBSM_ElecFakes_cff import *
 SusyExoPostVal = cms.Sequence(SUSY_HLT_HT_MET_POSTPROCESSING +
                               SUSY_HLT_InclusiveHT_POSTPROCESSING +
                               SUSY_HLT_InclusiveMET_POSTPROCESSING +
-                              SUSY_HLT_MET_BTAG_POSTPROCESSING + 
+                              SUSYoHLToMEToBTAGoPOSTPROCESSING + 
                               SUSY_HLT_MET_MUON_POSTPROCESSING +
-                              SUSY_HLT_MET_MUON_ER_POSTPROCESSING +
-                              SUSY_HLT_MET_HT_MUON_POSTPROCESSING +
-                              SUSY_HLT_MET_HT_MUON_ER_POSTPROCESSING +
-                              SUSY_HLT_MET_HT_MUON_BTAG_POSTPROCESSING + 
-                              SUSY_HLT_Razor_PostVal_POSTPROCESSING + 
-                              SUSY_HLT_CaloHT_POSTPROCESSING + 
-                              SUSY_HLT_PhotonHT_POSTPROCESSING +                             
-                              SUSY_HLT_PhotonMET_pt36_POSTPROCESSING +
-                              SUSY_HLT_PhotonMET_pt50_POSTPROCESSING +
-                              SUSY_HLT_PhotonMET_pt75_POSTPROCESSING +
-                              SUSY_HLT_HT_DoubleMuon_POSTPROCESSING +
-                              SUSY_HLT_HT_DoubleEle_POSTPROCESSING +
-                              SUSY_HLT_HT_MuEle_POSTPROCESSING +
-							  SUSY_HLT_HT250_DoubleMuon_POSTPROCESSING +
-                              SUSY_HLT_HT250_DoubleEle_POSTPROCESSING +
-                              SUSY_HLT_HT250_MuEle_POSTPROCESSING +
-                              SUSY_HLT_Muon_BJet_POSTPROCESSING +
-                              SUSY_HLT_Electron_BJet_POSTPROCESSING +
+                              SUSYoHLToMEToMUONoERoPOSTPROCESSING +
+                              SUSYoHLToMEToHToMUONoPOSTPROCESSING +
+                              SUSYoHLToMEToHToMUONoERoPOSTPROCESSING +
+                              SUSYoHLToMEToHToMUONoBTAGoPOSTPROCESSING + 
+                              SUSYoHLToRazorPostValPOSTPROCESSING + 
+                              SUSYoHLToCaloHToPOSTPROCESSING + 
+                              SUSYoHLToPhotonHToPOSTPROCESSING +                             
+                              SUSYoHLToPhotonMETpt36oPOSTPROCESSING +
+                              SUSYoHLToPhotonMETpt50oPOSTPROCESSING +
+                              SUSYoHLToPhotonMETpt75oPOSTPROCESSING +
+                              SUSYoHLToHToDoubleMuonPOSTPROCESSING +
+                              SUSYoHLToHToDoubleElePOSTPROCESSING +
+                              SUSYoHLToHToMuElePOSTPROCESSING +
+							  SUSYoHLToHT250oDoubleMuonPOSTPROCESSING +
+                              SUSYoHLToHT250oDoubleElePOSTPROCESSING +
+                              SUSYoHLToHT250oMuElePOSTPROCESSING +
+                              SUSYoHLToMuonBJetPOSTPROCESSING +
+                              SUSYoHLToElectronBJetPOSTPROCESSING +
                               SUSY_HLT_Mu_HT_SingleLepton_POSTPROCESSING +
                               SUSY_HLT_Mu_HT_MET_SingleLepton_POSTPROCESSING +
-                              SUSY_HLT_Mu_HT_BTag_SingleLepton_POSTPROCESSING +
-                              SUSY_HLT_Mu_HT_Control_SingleLepton_POSTPROCESSING +
+                              SUSYoHLToMuHToBTagSingleLeptonPOSTPROCESSING +
+                              SUSYoHLToMuHToControlSingleLeptonPOSTPROCESSING +
                               SUSY_HLT_Ele_HT_SingleLepton_POSTPROCESSING +
                               SUSY_HLT_Ele_HT_MET_SingleLepton_POSTPROCESSING +
-                              SUSY_HLT_Ele_HT_BTag_SingleLepton_POSTPROCESSING +
-                              SUSY_HLT_Ele_HT_Control_SingleLepton_POSTPROCESSING +
-                              SUSY_HLT_alphaT_POSTPROCESSING +
-                              SUSY_HLT_DiJet_MET_POSTPROCESSING +
-                              SUSY_HLT_Ele_HT_Control_SingleLepton_POSTPROCESSING+
-                              SUSY_HLT_alphaT_POSTPROCESSING+
+                              SUSYoHLToEleHToBTagSingleLeptonPOSTPROCESSING +
+                              SUSYoHLToEleHToControlSingleLeptonPOSTPROCESSING +
+                              SUSYoHLTalphaToPOSTPROCESSING +
+                              SUSYoHLToDiJetMEToPOSTPROCESSING +
+                              SUSYoHLToEleHToControlSingleLeptonPOSTPROCESSING+
+                              SUSYoHLTalphaToPOSTPROCESSING+
                               SUSY_HLT_Mu_VBF_POSTPROCESSING+
                               SUSY_HLT_ElecFakes_POSTPROCESSING+
                               SUSY_HLT_MuonFakes_POSTPROCESSING
