@@ -9,7 +9,9 @@
 
 #include "DataFormats/HcalRecHit/interface/HBHERecHitAuxSetter.h"
 #include "DataFormats/METReco/interface/HcalPhase1FlagLabels.h"
-
+#include "CalibCalorimetry/HcalPlugins/src/HcalTimeSlewEP.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 // Maximum fractional error for calculating Method 0
 // pulse containment correction
@@ -33,11 +35,16 @@ SimpleHBHEPhase1Algo::SimpleHBHEPhase1Algo(
       psFitOOTpuCorr_(std::move(m2)),
       hltOOTpuCorr_(std::move(detFit))
 {
+  hcalTimeSlew_delay_ = nullptr;
 }
 
 void SimpleHBHEPhase1Algo::beginRun(const edm::Run& r,
                                     const edm::EventSetup& es)
 {
+    edm::ESHandle<HcalTimeSlew> delay;
+    es.get<HcalTimeSlewRecord>().get("", delay);
+    hcalTimeSlew_delay_ = &*delay;
+  
     runnum_ = r.run();
     pulseCorr_.beginRun(es);
 }
@@ -203,11 +210,7 @@ float SimpleHBHEPhase1Algo::m0Time(const HBHEChannelInfo& info,
             time = (maxI - soi)*25.f + timeshift_ns_hbheho(wpksamp);
 
             // Legacy QIE8 timing correction
-	    //-------------------
-	    //Sorry for this
-	    //C.Madrid
-	    //-------------------
-            time -= 0;//HcalTimeSlew::delay(std::max(1.0, fc_ampl), HcalTimeSlew::Medium);
+            time -= hcalTimeSlew_delay_->delay(std::max(1.0, fc_ampl), HcalTimeSlew::Medium);
             // Time calibration
             time -= calibs.timecorr();
         }
