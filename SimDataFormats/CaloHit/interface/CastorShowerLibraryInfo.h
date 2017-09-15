@@ -12,7 +12,7 @@
 class SLBin: public TObject {
       public:
              SLBin() {};
-             ~SLBin() {};
+             ~SLBin() override {};
 // Setters
              void Clear()                       {NEvts=NBins=NEvtPerBin=0;Bins.clear();};
              void setNEvts(unsigned int n)      {NEvts = n;};
@@ -39,7 +39,7 @@ class CastorShowerLibraryInfo : public TObject {
   public:
   
     CastorShowerLibraryInfo();
-    ~CastorShowerLibraryInfo();
+    ~CastorShowerLibraryInfo() override;
     
     void Clear();
     
