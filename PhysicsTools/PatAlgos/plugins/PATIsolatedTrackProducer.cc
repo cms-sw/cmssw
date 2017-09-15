@@ -54,6 +54,12 @@ namespace pat {
           void getIsolation(const LorentzVector& p4, const pat::PackedCandidateCollection* pc, int pc_idx,
                             pat::PFIsolation &iso, pat::PFIsolation &miniiso) const;
 
+          bool getPFLeptonOverlap(const LorentzVector& p4, const pat::PackedCandidateCollection* pc, int pc_idx) const;
+
+          float getPFNeutralSum(const LorentzVector& p4, const pat::PackedCandidateCollection* pc, int pc_idx) const;
+
+          void getNearestPCRef(const LorentzVector& p4, const pat::PackedCandidateCollection *pc, int pc_idx, int& pc_ref_idx) const;
+      
           float getDeDx(const reco::DeDxHitInfo *hitInfo, bool doPixel, bool doStrip) const ;
 
           TrackDetMatchInfo getTrackDetMatchInfo(const edm::Event&, const edm::EventSetup&, const reco::Track&);
@@ -84,6 +90,11 @@ namespace pat {
           const float relIso_cut_;
           const float miniRelIso_cut_;
           const float caloJet_DR_;  // save energy of nearest calojet within caloJet_DR_
+          const float pflepoverlap_DR_;  // pf lepton overlap radius
+          const float pflepoverlap_pTmin_;  // pf lepton overlap min pT (only look at PF candidates with pT>pflepoverlap_pTmin_)
+          const float pcRefNearest_DR_;  // radius for nearest charged packed candidate
+          const float pcRefNearest_pTmin_;  // min pT for nearest charged packed candidate
+          const float pfneutralsum_DR_;  // pf lepton overlap radius
           const bool saveDeDxHitInfo_;
           StringCutObjectSelector<pat::IsolatedTrack> saveDeDxHitInfoCut_;
 
@@ -118,6 +129,11 @@ pat::PATIsolatedTrackProducer::PATIsolatedTrackProducer(const edm::ParameterSet&
   relIso_cut_     (iConfig.getParameter<double>("relIso_cut")),
   miniRelIso_cut_ (iConfig.getParameter<double>("miniRelIso_cut")),
   caloJet_DR_     (iConfig.getParameter<double>("caloJet_DR")),
+  pflepoverlap_DR_ (iConfig.getParameter<double>("pflepoverlap_DR")),
+  pflepoverlap_pTmin_ (iConfig.getParameter<double>("pflepoverlap_pTmin")),
+  pcRefNearest_DR_ (iConfig.getParameter<double>("pcRefNearest_DR")),
+  pcRefNearest_pTmin_ (iConfig.getParameter<double>("pcRefNearest_pTmin")),
+  pfneutralsum_DR_ (iConfig.getParameter<double>("pfneutralsum_DR")),
   saveDeDxHitInfo_(iConfig.getParameter<bool>("saveDeDxHitInfo")),
   saveDeDxHitInfoCut_(iConfig.getParameter<std::string>("saveDeDxHitInfoCut"))
 {
@@ -152,6 +168,7 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
     // lostTracks collection
     edm::Handle<pat::PackedCandidateCollection> lt_h;
     iEvent.getByToken( lt_, lt_h );
+    const pat::PackedCandidateCollection *lt = lt_h.product();
 
     // generalTracks collection
     edm::Handle<reco::TrackCollection> gt_h;
@@ -227,22 +244,26 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
         int pdgId, charge, fromPV;
         float dz, dxy, dzError, dxyError;
         int pfCandInd; //to avoid counting packedPFCands in their own isolation
+	int ltCandInd; //to avoid pointing lost track to itself when looking for closest
 
         // get the four-momentum and charge
         if(isInPackedCands){
             p4        = pfCand.p4();
             charge    = pfCand.charge();
             pfCandInd = pcref.key();
+	    ltCandInd = -1;
         }else if(isInLostTracks){
             p4        = lostTrack.p4();
             charge    = lostTrack.charge();
             pfCandInd = -1;
+	    ltCandInd = ltref.key();
         }else{
             double m = 0.13957018; //assume pion mass
             double E = sqrt(m*m + gentk.p()*gentk.p());
             p4.SetPxPyPzE(gentk.px(), gentk.py(), gentk.pz(), E);
             charge = gentk.charge();
             pfCandInd = -1;
+	    ltCandInd = -1;
         }
 
         int prescaled = 0;
@@ -300,6 +321,21 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
         float caloJetEm, caloJetHad;
         getCaloJetEnergy(p4, caloJets.product(), caloJetEm, caloJetHad);
 
+	bool pfLepOverlap = getPFLeptonOverlap(p4, pc, pfCandInd);
+	float pfNeutralSum = getPFNeutralSum(p4, pc, pfCandInd);
+	
+	pat::PackedCandidateRef refToNearestPF = pat::PackedCandidateRef();
+	int refToNearestPF_idx=-1;
+	getNearestPCRef(p4, pc, pfCandInd, refToNearestPF_idx);
+	if(refToNearestPF_idx!=-1)
+	  refToNearestPF = pat::PackedCandidateRef(pc_h, refToNearestPF_idx);
+	
+	pat::PackedCandidateRef refToNearestLostTrack = pat::PackedCandidateRef();
+	int refToNearestLostTrack_idx=-1;
+	getNearestPCRef(p4, lt, ltCandInd, refToNearestLostTrack_idx);
+	if(refToNearestLostTrack_idx!=-1)
+	  refToNearestLostTrack = pat::PackedCandidateRef(lt_h, refToNearestLostTrack_idx);
+	
         // if no dEdx info exists, just store -1
         float dEdxPixel=-1, dEdxStrip=-1;        
         if(usePrecomputedDeDxStrip_ && gt2dedxStrip.isValid() && gt2dedxStrip->contains(tkref.id())){
@@ -337,11 +373,12 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
         if(deltaPhi < -250) deltaPhi = -250;
         if(deltaPhi > 250)  deltaPhi = 250;
 
-        outPtrP->push_back(pat::IsolatedTrack(isolationDR03, miniIso, caloJetEm, caloJetHad, p4,
+        outPtrP->push_back(pat::IsolatedTrack(isolationDR03, miniIso, caloJetEm, caloJetHad, pfLepOverlap, pfNeutralSum, p4,
                                               charge, pdgId, dz, dxy, dzError, dxyError,
                                               gentk.hitPattern(), dEdxStrip, dEdxPixel, fromPV, trackQuality,
                                               crossedEcalStatus, crossedHcalStatus,
-                                              deltaEta, deltaPhi, refToCand));
+                                              deltaEta, deltaPhi, refToCand,
+					      refToNearestPF, refToNearestLostTrack));
         outPtrP->back().setStatus(prescaled);
 
         if (saveDeDxHitInfo_) {
@@ -409,6 +446,21 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
         float caloJetEm, caloJetHad;
         getCaloJetEnergy(p4, caloJets.product(), caloJetEm, caloJetHad);
 
+	bool pfLepOverlap = getPFLeptonOverlap(p4, pc, ipc);
+	float pfNeutralSum = getPFNeutralSum(p4, pc, ipc);
+
+	pat::PackedCandidateRef refToNearestPF = pat::PackedCandidateRef();
+	int refToNearestPF_idx=-1;
+	getNearestPCRef(p4, pc, ipc, refToNearestPF_idx);
+	if(refToNearestPF_idx!=-1)
+	  refToNearestPF = pat::PackedCandidateRef(pc_h, refToNearestPF_idx);
+	
+	pat::PackedCandidateRef refToNearestLostTrack = pat::PackedCandidateRef();
+	int refToNearestLostTrack_idx=-1;
+	getNearestPCRef(p4, lt, -1, refToNearestLostTrack_idx);
+	if(refToNearestLostTrack_idx!=-1)
+	  refToNearestLostTrack = pat::PackedCandidateRef(lt_h, refToNearestLostTrack_idx);
+
         // fill with default values
         reco::HitPattern hp;
         float dEdxPixel=-1, dEdxStrip=-1;
@@ -418,10 +470,12 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
         int deltaEta=0;
         int deltaPhi=0;
 
-        outPtrP->push_back(pat::IsolatedTrack(isolationDR03, miniIso, caloJetEm, caloJetHad, p4,
+        outPtrP->push_back(pat::IsolatedTrack(isolationDR03, miniIso, caloJetEm, caloJetHad, pfLepOverlap, pfNeutralSum, p4,
                                               charge, pdgId, dz, dxy, dzError, dxyError,
                                               hp, dEdxStrip, dEdxPixel, fromPV, trackQuality,
-                                              ecalStatus, hcalStatus, deltaEta, deltaPhi, refToCand));
+                                              ecalStatus, hcalStatus, deltaEta, deltaPhi, refToCand,
+					      refToNearestPF, refToNearestLostTrack));
+
         dEdXass.push_back(-1); // these never have dE/dx hit info, as there's no track
     }
     
@@ -483,6 +537,108 @@ void pat::PATIsolatedTrackProducer::getIsolation(const LorentzVector& p4,
         iso = pat::PFIsolation(chiso,nhiso,phiso,puiso);
         miniiso = pat::PFIsolation(chmiso,nhmiso,phmiso,pumiso);
 
+}
+
+//get overlap of isolated track with a PF lepton
+bool pat::PATIsolatedTrackProducer::getPFLeptonOverlap(const LorentzVector& p4, const pat::PackedCandidateCollection *pc, int pc_idx) const
+{
+        bool isOverlap = false;
+	float dr_min = pflepoverlap_DR_;
+	int id_drmin = 0;
+        for(pat::PackedCandidateCollection::const_iterator pf_it = pc->begin(); pf_it != pc->end(); pf_it++){
+//	    // Count candidate itself (commenting out lines below): exclude isolated track that is a pf lepton
+//            if(int(pf_it - pc->begin()) == pc_idx)
+//                continue;
+            int id = std::abs(pf_it->pdgId());
+	    int charge = std::abs(pf_it->charge());
+            bool fromPV = (pf_it->fromPV()>1 || fabs(pf_it->dz()) < pfIsolation_DZ_);
+            float pt = pf_it->p4().pt();
+            float dr = deltaR(p4, pf_it->p4());
+	    if(charge==0) // exclude neutral candidates
+	      continue;
+	    if(!(fromPV)) // exclude candidates not from PV
+	      continue;
+	    if(pt < pflepoverlap_pTmin_) // exclude pf candidates w/ pT below threshold
+	      continue;
+            if(dr > pflepoverlap_DR_) // exclude pf candidates far from isolated track
+	      continue;
+
+	    if(dr < dr_min){
+	      dr_min = dr;
+	      id_drmin = id;
+	    }
+	    
+        }
+
+	if(dr_min<pflepoverlap_DR_ && (id_drmin==11 || id_drmin==13))
+	  isOverlap = true;
+	
+	return isOverlap;
+}
+
+//get ref to nearest pf packed candidate
+void pat::PATIsolatedTrackProducer::getNearestPCRef(const LorentzVector& p4, const pat::PackedCandidateCollection *pc, int pc_idx, int& pc_ref_idx) const
+{
+	float dr_min = pcRefNearest_DR_;
+	float dr_min_pu = pcRefNearest_DR_;
+	int pc_ref_idx_pu=-1;
+        for(pat::PackedCandidateCollection::const_iterator pf_it = pc->begin(); pf_it != pc->end(); pf_it++){
+            if(int(pf_it - pc->begin()) == pc_idx)  //don't count itself
+                continue;
+	    int charge = std::abs(pf_it->charge());
+            bool fromPV = (pf_it->fromPV()>1 || fabs(pf_it->dz()) < pfIsolation_DZ_);
+            float pt = pf_it->p4().pt();
+            float dr = deltaR(p4, pf_it->p4());
+	    if(charge==0) // exclude neutral candidates
+	      continue;
+	    if(pt < pcRefNearest_pTmin_) // exclude candidates w/ pT below threshold
+	      continue;
+	    if(dr > dr_min && dr > dr_min_pu) // exclude too far candidates
+	      continue;
+
+	    if(fromPV){ // Priority to candidates from PV
+	      if(dr < dr_min){
+		dr_min = dr;
+		pc_ref_idx = int(pf_it - pc->begin());
+	      }
+	    }
+	    else{ // Otherwise, store candidate from non-PV if no candidate from PV found
+	      if(dr < dr_min_pu){
+		dr_min_pu = dr;
+		pc_ref_idx_pu = int(pf_it - pc->begin());
+	      }
+	    }
+        }
+
+	if(pc_ref_idx == -1 && pc_ref_idx_pu != -1) // If no candidate from PV was found, store candidate from non-PV (if found)
+	  pc_ref_idx = pc_ref_idx_pu;
+}
+
+// get PF neutral pT sum around isolated track
+float pat::PATIsolatedTrackProducer::getPFNeutralSum(const LorentzVector& p4, const pat::PackedCandidateCollection *pc, int pc_idx) const
+{
+        float nsum=0;
+        float nhsum=0, phsum=0;
+        for(pat::PackedCandidateCollection::const_iterator pf_it = pc->begin(); pf_it != pc->end(); pf_it++){
+            if(int(pf_it - pc->begin()) == pc_idx)  //don't count itself
+                continue;
+            int id = std::abs(pf_it->pdgId());
+            float pt = pf_it->p4().pt();
+            float dr = deltaR(p4, pf_it->p4());
+
+            if(dr < pfneutralsum_DR_){
+	      // neutral hadron sum
+	      if(id==130)
+		nhsum += pt;
+	      // photon iso
+	      if(id==22)
+		phsum += pt;
+            }
+        }
+
+	nsum = nhsum + phsum;
+	
+	return nsum;
 }
 
 // get the estimated DeDx in either the pixels or strips (or both)
