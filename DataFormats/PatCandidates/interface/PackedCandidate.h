@@ -649,7 +649,7 @@ namespace pat {
     };
 
     /// time (wrt nominal zero of the collision)
-    virtual float time(size_t ipv=0)  const { return vertexRef()->t() + dtimeAssociatedPV(); }
+    virtual float time()  const { return vertexRef()->t() + dtimeAssociatedPV(); }
     /// dtime with respect to the PV[ipv]
     virtual float dtime(size_t ipv=0)  const { return dtimeAssociatedPV() + (*pvRefProd_)[pvRefKey_].t()-(*pvRefProd_)[ipv].t(); }
     /// dtime with respect to the PV ref
