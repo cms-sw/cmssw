@@ -59,11 +59,12 @@ void RHStopTracer::update (const BeginOfEvent * fEvent) {
 void RHStopTracer::update (const BeginOfTrack * fTrack) {
   const G4Track* track = (*fTrack)();
   const G4ParticleDefinition* part = track->GetDefinition();
-  std::string stringPartName = part->GetParticleName();
+  const std::string& stringPartName = part->GetParticleName();
   bool matched = false;
-  if( (abs(part->GetPDGEncoding())>minPdgId && abs(part->GetPDGEncoding())<maxPdgId) || abs(part->GetPDGEncoding())==otherPdgId )
+  int pdgid = std::abs(part->GetPDGEncoding());
+  if( (pdgid>minPdgId && pdgid<maxPdgId) || pdgid==otherPdgId )
      matched = std::regex_match(stringPartName,rePartName);
-  if((part && matched) ||  track->GetKineticEnergy() > mTraceEnergy) {
+  if( matched ||  track->GetKineticEnergy() > mTraceEnergy) {
     LogDebug("SimG4CoreCustomPhysics")
       << "RHStopTracer::update-> new track: ID/Name/pdgId/mass/charge/Parent: " 
       << track->GetTrackID() << '/' << part->GetParticleName() << '/' 
@@ -81,11 +82,12 @@ void RHStopTracer::update (const BeginOfTrack * fTrack) {
 void RHStopTracer::update (const EndOfTrack * fTrack) {
   const G4Track* track = (*fTrack)();
   const G4ParticleDefinition* part = track->GetDefinition();
-  std::string stringPartName = part->GetParticleName();
+  const std::string& stringPartName = part->GetParticleName();
   bool matched = false;
-  if( (abs(part->GetPDGEncoding())>minPdgId && abs(part->GetPDGEncoding())<maxPdgId) || abs(part->GetPDGEncoding())==otherPdgId )
+  int pdgid = std::abs(part->GetPDGEncoding());
+  if( (pdgid>minPdgId && pdgid<maxPdgId) || pdgid==otherPdgId )
      matched = std::regex_match(stringPartName,rePartName);
-  if((part && matched) ||  track->GetKineticEnergy() > mTraceEnergy) {
+  if( matched ||  track->GetKineticEnergy() > mTraceEnergy) {
     LogDebug("SimG4CoreCustomPhysics")
       << "RHStopTracer::update-> stop track: ID/Name/pdgId/mass/charge/Parent: " 
       << track->GetTrackID() << '/' << part->GetParticleName() << '/' 
