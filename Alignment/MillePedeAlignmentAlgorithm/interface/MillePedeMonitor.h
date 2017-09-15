@@ -20,6 +20,8 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 #include <vector>
+#include <array>
+
 #include <TString.h>
 #include <TH1.h>
 #include <TH2.h>
@@ -83,6 +85,11 @@ class MillePedeMonitor
 				       const TString &namAd, const TString &titAd) const;
   template <class OBJECT_TYPE>  
   void addToDirectory(const std::vector<OBJECT_TYPE*> &objs, TDirectory *dir) const;
+  template <typename T, size_t SIZE>
+  std::array<int,SIZE> indexArray1D(const std::vector<T*>& hists, const char* title);
+  template <typename T, size_t SIZE>
+  std::array<std::array<int,SIZE>,SIZE> indexArray2D(const std::vector<T*>& hists,
+                                                     const char* title);
 
   TDirectory *myRootDir;
   bool        myDeleteDir; 
@@ -147,6 +154,28 @@ void MillePedeMonitor::addToDirectory(const std::vector<OBJECT_TYPE*> &obs,
        iter != iterEnd; ++iter) {
     if (*iter) (*iter)->SetDirectory(dir);
   }
+}
+
+template <typename T, size_t SIZE>
+std::array<int,SIZE>
+MillePedeMonitor::indexArray1D(const std::vector<T*>& hists, const char* title) {
+  std::array<int,SIZE> result{};
+  for (size_t i = 0; i < SIZE; ++i) {
+    result[i] = this->GetIndex(hists, Form(title, i));
+  }
+  return result;
+}
+
+template <typename T, size_t SIZE>
+std::array<std::array<int,SIZE>,SIZE>
+MillePedeMonitor::indexArray2D(const std::vector<T*>& hists, const char* title) {
+  std::array<std::array<int,SIZE>,SIZE> result{};
+  for (size_t i = 0; i < SIZE; ++i) {
+    for (size_t j = 0; j < SIZE; ++j) {
+      result[i][j] = this->GetIndex(hists, Form(title, i, j));
+    }
+  }
+  return result;
 }
 
 #endif
