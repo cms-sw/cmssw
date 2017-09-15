@@ -173,8 +173,7 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event& iEvent, const edm::EventS
   
   edm::Handle<edm::DetSetVector<CTPPSPixelRecHit> > recHits;
   iEvent.getByToken(tokenCTPPSPixelRecHit_, recHits);
-  const edm::DetSetVector<CTPPSPixelRecHit> &recHitVectorOrig = *recHits;
-  edm::DetSetVector<CTPPSPixelRecHit> recHitVector = recHitVectorOrig;
+  edm::DetSetVector<CTPPSPixelRecHit> recHitVector(*recHits);
 
   // get geometry
   edm::ESHandle<CTPPSGeometry> geometryHandler;
