@@ -61,7 +61,6 @@ uint32_t AHCalSD::setDetUnitId(G4Step * aStep) {
 
   G4StepPoint* preStepPoint = aStep->GetPreStepPoint(); 
   const G4VTouchable* touch = preStepPoint->GetTouchable();
-  G4ThreeVector hitPoint    = preStepPoint->GetPosition();
 
   int depth = (touch->GetReplicaNumber(1));
   int incol = ((touch->GetReplicaNumber(0))%10);

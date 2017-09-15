@@ -23,8 +23,8 @@ class MuonME0FrameRotation : public MuonFrameRotation {
 
 public:
   MuonME0FrameRotation( const MuonDDDConstants& muonConstants );
-  virtual ~MuonME0FrameRotation();
-  virtual Local3DPoint transformPoint(const Local3DPoint &, const G4Step *) const;
+  ~MuonME0FrameRotation() override;
+  Local3DPoint transformPoint(const Local3DPoint &, const G4Step *) const override;
 
 private:
   MuonG4Numbering* g4numbering;
