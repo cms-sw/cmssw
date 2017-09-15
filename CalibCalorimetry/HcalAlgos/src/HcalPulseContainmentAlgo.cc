@@ -4,8 +4,6 @@
 #include <cmath>
 #include <iostream>
 
-#include <CalibCalorimetry/HcalAlgos/src/HcalPulseContainmentAlgo.h>
-
 // Function generates a lookup map for a passed-in function (via templated object algoObject,
 // which must contain method "calcpair" that spits out (x,y) pair from a type float seed.
 // Each map y-value is separated from the previous value by a programmable fractional error
@@ -69,10 +67,7 @@ HcalPulseContainmentAlgo::init(int num_samples)
 std::pair<double,double> 
 HcalPulseContainmentAlgo::calcpair(double truefc)
 {
-  ///////////////////////////////
-  //double timeslew_ns = HcalTimeSlew::delay(std::max(0.0,(double)truefc), HcalTimeSlew::Medium);
   double timeslew_ns = hcalTimeSlew_delay_->delay(std::max(0.0,(double)truefc), HcalTimeSlew::Medium);
-  ///////////////////////////////
 
   double shift_ns  = fixedphasens_ - time0shiftns_ + timeslew_ns;
   //std::cout << "SHIFT " << fixedphasens_ << " " << time0shiftns_ << " " << timeslew_ns << std::endl;

@@ -55,15 +55,14 @@ HcalTimeSlewEP::produce(const HcalTimeSlewRecord& iRecord){
   std::vector<edm::ParameterSet> p_TimeSlewM2 = pset_.getParameter<std::vector<edm::ParameterSet>>("timeSlewParametersM2");
   std::vector<edm::ParameterSet> p_TimeSlewM3 = pset_.getParameter<std::vector<edm::ParameterSet>>("timeSlewParametersM3");
 
-  ReturnType myResult( new HcalTimeSlew());
+  ReturnType hcalTimeSlew( new HcalTimeSlew());
 
   //loop over the VPSets  
   for(const auto& p_timeslew : p_TimeSlewM2){
     double t0       = p_timeslew.getParameter<double>("tzero");
     double m        = p_timeslew.getParameter<double>("slope");
     double tmaximum = p_timeslew.getParameter<double>("tmax");
-    myResult->HcalTimeSlew::addM2ParameterSet(t0, m, tmaximum);				      
-    //dosemaps.emplace(file_energy,HcalTimeSlew::readDoseMap(fp.fullPath()));
+    hcalTimeSlew->addM2ParameterSet(t0, m, tmaximum);				      
   }
 
   for(const auto& p_timeslew : p_TimeSlewM3){
@@ -74,10 +73,10 @@ HcalTimeSlewEP::produce(const HcalTimeSlewRecord& iRecord){
     double tspar0_siPM_ = p_timeslew.getParameter<double>("tspar1");
     double tspar1_siPM_ = p_timeslew.getParameter<double>("tspar1");
     double tspar2_siPM_ = p_timeslew.getParameter<double>("tspar1");
-    myResult->HcalTimeSlew::addM3ParameterSet(cap_,tspar0_,tspar1_,tspar2_,tspar0_siPM_,tspar1_siPM_,tspar2_siPM_);
+    hcalTimeSlew->addM3ParameterSet(cap_,tspar0_,tspar1_,tspar2_,tspar0_siPM_,tspar1_siPM_,tspar2_siPM_);
   }
   
-  return myResult;
+  return hcalTimeSlew;
 }
 
 DEFINE_FWK_EVENTSETUP_SOURCE(HcalTimeSlewEP);

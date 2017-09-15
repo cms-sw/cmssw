@@ -18,11 +18,12 @@
 
 #include "RecoLocalCalo/HcalRecAlgos/src/HybridMinimizer.h"
 
+class HcalTimeSlew;
 
 class PulseShapeFitOOTPileupCorrection
 {
 public:
-    PulseShapeFitOOTPileupCorrection();
+    PulseShapeFitOOTPileupCorrection(const HcalTimeSlew* hcalTimeSlew_delay);
     ~PulseShapeFitOOTPileupCorrection();
 
     void phase1Apply(const HBHEChannelInfo& channelData,
@@ -92,6 +93,7 @@ private:
 
     bool isCurrentChannelHPD_;
 
+    const HcalTimeSlew* hcalTimeSlew_delay_;
 };
 
 #endif // PulseShapeFitOOTPileupCorrection_h
