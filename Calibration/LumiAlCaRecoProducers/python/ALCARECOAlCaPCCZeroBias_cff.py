@@ -13,6 +13,10 @@ from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import siPixelDigis
 siPixelDigisForLumiZB = siPixelDigis.clone()
 siPixelDigisForLumiZB.InputLabel = cms.InputTag("hltFEDSelectorLumiPixels")
 
+# Modify for if the phase 1 pixel detector is active
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toModify(siPixelDigisForLumiZB, isUpgrade=cms.untracked.bool(True) )
+
 from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizerPreSplitting_cfi import siPixelClustersPreSplitting
 siPixelClustersForLumiZB = siPixelClustersPreSplitting.clone()
 siPixelClustersForLumiZB.src = cms.InputTag("siPixelDigisForLumiZB")
