@@ -29,11 +29,11 @@ public:
 
   explicit GEMPadDigiClusterProducer(const edm::ParameterSet& ps);
 
-  virtual ~GEMPadDigiClusterProducer();
+  ~GEMPadDigiClusterProducer() override;
 
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
   
