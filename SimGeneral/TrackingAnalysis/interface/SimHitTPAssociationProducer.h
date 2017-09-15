@@ -20,12 +20,12 @@ public:
   typedef std::vector<SimHitTPPair> SimHitTPAssociationList;
 
   explicit SimHitTPAssociationProducer(const edm::ParameterSet&);
-  ~SimHitTPAssociationProducer();
+  ~SimHitTPAssociationProducer() override;
 
   static bool simHitTPAssociationListGreater(SimHitTPPair i,SimHitTPPair j) { return (i.first.key()>j.first.key()); }
 
 private:
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   std::vector<edm::EDGetTokenT<edm::PSimHitContainer> > _simHitSrc;
   edm::EDGetTokenT<TrackingParticleCollection> _trackingParticleSrc;
