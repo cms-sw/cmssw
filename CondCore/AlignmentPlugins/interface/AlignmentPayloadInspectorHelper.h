@@ -5,7 +5,9 @@
 #include <numeric>
 #include <string>
 #include "TH1.h"
-#include "TPaveText.h"
+#include "TPaveStats.h"
+#include "TStyle.h"
+#include "TList.h"
 
 namespace AlignmentPI {
 
@@ -53,23 +55,55 @@ namespace AlignmentPI {
   }
   
   /*--------------------------------------------------------------------*/
-  void makeNicePlotStyle(TH1 *hist)
+  void makeNicePlotStyle(TH1 *hist,int color)
   /*--------------------------------------------------------------------*/
   { 
-    hist->SetStats(kFALSE);  
+
+    hist->SetStats(kFALSE);
+
+    hist->GetXaxis()->SetTitleColor(color);
+    hist->SetLineColor(color);
+    hist->SetTitleSize(0.08);
     hist->SetLineWidth(2);
     hist->GetXaxis()->CenterTitle(true);
     hist->GetYaxis()->CenterTitle(true);
     hist->GetXaxis()->SetTitleFont(42); 
     hist->GetYaxis()->SetTitleFont(42);  
-    hist->GetXaxis()->SetTitleSize(0.05);
-    hist->GetYaxis()->SetTitleSize(0.05);
-    hist->GetXaxis()->SetTitleOffset(1.2);
+    hist->GetXaxis()->SetNdivisions(505);
+    hist->GetXaxis()->SetTitleSize(0.06);
+    hist->GetYaxis()->SetTitleSize(0.06);
+    hist->GetXaxis()->SetTitleOffset(1.0);
     hist->GetYaxis()->SetTitleOffset(1.3);
     hist->GetXaxis()->SetLabelFont(42);
     hist->GetYaxis()->SetLabelFont(42);
     hist->GetYaxis()->SetLabelSize(.05);
     hist->GetXaxis()->SetLabelSize(.05);
+
+  }
+  
+  /*--------------------------------------------------------------------*/
+  void makeNiceStats(TH1F* hist, std::string part,int color)
+  /*--------------------------------------------------------------------*/
+  {
+    char   buffer[255]; 
+    TPaveText* stat = new TPaveText(0.60,0.75,0.95,0.97,"NDC");
+    sprintf(buffer,"%s \n",part.c_str());
+    stat->AddText(buffer);
+
+    sprintf(buffer,"Entries : %i\n",(int)hist->GetEntries());
+    stat->AddText(buffer);
+    
+    sprintf(buffer,"Mean    : %6.2f\n",hist->GetMean());
+    stat->AddText(buffer);
+    
+    sprintf(buffer,"RMS     : %6.2f\n",hist->GetRMS());
+    stat->AddText(buffer);
+    
+    stat->SetLineColor(color);
+    stat->SetTextColor(color);
+    stat->SetFillColor(10);
+    stat->SetShadowColor(10);
+    stat->Draw(); 
   }
 }
 

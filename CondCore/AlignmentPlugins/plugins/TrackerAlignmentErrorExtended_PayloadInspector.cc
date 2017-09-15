@@ -23,6 +23,7 @@
 
 #include <memory>
 #include <sstream>
+#include <iostream>
 
 // include ROOT 
 #include "TH2F.h"
@@ -108,12 +109,12 @@ namespace {
       TCanvas canvas("Partion summary","partition summary",1200,1000); 
       canvas.Divide(3,2);
       std::map<std::string,int> colormap;
-      colormap["PXB"] = kCyan;
-      colormap["PXF"] = kMagenta;
+      colormap["PXB"] = kBlue;
+      colormap["PXF"] = kBlue+2;
       colormap["TIB"] = kRed;           
-      colormap["TOB"] = kGreen;	    
-      colormap["TID"] = kBlack;	    
-      colormap["TEC"] = kBlue; 	    
+      colormap["TOB"] = kRed+2;
+      colormap["TID"] = kRed+4;	    
+      colormap["TEC"] = kRed+6; 	    
       
       std::map<std::string,std::shared_ptr<TH1F> > APE_spectra; 
       std::vector<std::string> parts = {"PXB","PXF","TIB","TID","TOB","TEC"};
@@ -121,13 +122,15 @@ namespace {
       auto s_index = getStringFromIndex(i);
 
       for ( const auto &part : parts){
-  	APE_spectra[part]   = std::make_shared<TH1F>(Form("hAPE_%s",part.c_str()),Form("APE #sqrt{d_{%s}} for %s;APE #sqrt{d_{%s}} [#mum];modules",s_index.c_str(),part.c_str(),s_index.c_str()),200,0.,200.);       
+  	APE_spectra[part]   = std::make_shared<TH1F>(Form("hAPE_%s",part.c_str()),Form(";%s APE #sqrt{d_{%s}} [#mum];n. of modules",part.c_str(),s_index.c_str()),200,-10.,200.);       
       }
 
       for (const auto& it : alignErrors ){
 	    
       	CLHEP::HepSymMatrix errMatrix = it.matrix();
       	int subid = DetId(it.rawId()).subdetId();
+
+	if(errMatrix[indices.first][indices.second]==0.) std::cout<< it.rawId() << "\n";
 	
       	switch(subid){
       	case 1 : 
@@ -150,20 +153,21 @@ namespace {
       	  break;
       	default : std::cout<<"will do nothing"<< std::endl;
       	  break;
+
       	}
       }
       
       int c_index=1;
       for (const auto &part : parts){
       	canvas.cd(c_index)->SetLogy();
-	canvas.cd(c_index)->SetBottomMargin(0.18);
-	canvas.cd(c_index)->SetLeftMargin(0.16);
-	canvas.cd(c_index)->SetRightMargin(0.10);
-	AlignmentPI::makeNicePlotStyle(APE_spectra[part].get());
-      	APE_spectra[part]->SetStats(true);
+	canvas.cd(c_index)->SetTopMargin(0.03);
+	canvas.cd(c_index)->SetBottomMargin(0.15);
+	canvas.cd(c_index)->SetLeftMargin(0.14);
+	canvas.cd(c_index)->SetRightMargin(0.05);
       	APE_spectra[part]->SetLineWidth(2);
-      	//APE_spectra[part]->SetLineColor(colormap[part]);
+	AlignmentPI::makeNicePlotStyle(APE_spectra[part].get(),colormap[part]);
       	APE_spectra[part]->Draw("HIST");
+	AlignmentPI::makeNiceStats(APE_spectra[part].get(),part,colormap[part]);
       	c_index++;
       }
 
