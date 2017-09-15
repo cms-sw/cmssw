@@ -106,7 +106,7 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
         if ((pos !=  std::string::npos) && (pos != label.length() - 7)) {
             label.erase(pos+7); // trim a tail after "JetTags"
         }
-        if(it->instance().size()) {
+        if(!it->instance().empty()) {
             label = (label+std::string(":")+it->instance()); 
         }
         discriminatorLabels_.push_back(label);
@@ -240,8 +240,8 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     // add the FwdPtrs to the CaloTowers
     if ( (ajet.isCaloJet() || ajet.isJPTJet() ) && embedCaloTowers_) {
-      const reco::CaloJet *cj = 0;
-      const reco::JPTJet * jptj = 0;
+      const reco::CaloJet *cj = nullptr;
+      const reco::JPTJet * jptj = nullptr;
       if ( ajet.isCaloJet()) cj = dynamic_cast<const reco::CaloJet *>(jetRef.get());
       else {
 	jptj = dynamic_cast<const reco::JPTJet *>(jetRef.get() );
@@ -336,7 +336,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	// set the "forward" ref to the thinned collection
 	edm::Ref<reco::GenJetCollection > genForwardRef ( h_genJetsOut, genJetsOut->size() - 1 );
 	// set the "backward" ref to the original collection
-	edm::Ref<reco::GenJetCollection > genBackRef ( genjet );
+	const edm::Ref<reco::GenJetCollection >& genBackRef ( genjet );
 	// make the FwdPtr
 	edm::FwdRef<reco::GenJetCollection > genjetFwdRef ( genForwardRef, genBackRef );
 	ajet.setGenJetRef(genjetFwdRef );
@@ -383,7 +383,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	      // set the "forward" ptr to the thinned collection
 	      edm::Ptr<reco::BaseTagInfo> tagInfoForwardPtr ( h_tagInfosOut.id(), &tagInfosOut->back(), tagInfosOut->size() - 1 );
 	      // set the "backward" ptr to the original collection for association
-	      edm::Ptr<reco::BaseTagInfo> tagInfoBackPtr ( match );
+	      const edm::Ptr<reco::BaseTagInfo>& tagInfoBackPtr ( match );
 	      // make FwdPtr
 	      TagInfoFwdPtrCollection::value_type tagInfoFwdPtr( tagInfoForwardPtr, tagInfoBackPtr ) ;
 	      ajet.addTagInfo(tagInfoLabels_[k], tagInfoFwdPtr );
