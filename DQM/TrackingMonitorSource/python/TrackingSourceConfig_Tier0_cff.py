@@ -248,6 +248,9 @@ for step in seedInputTag.iterkeys():
         locals()[label].doRegionPlots = True
         locals()[label].RegionProducer = regionLabel[step]
         locals()[label].RegionCandidates = regionCandidateLabel[step]
+    if step in trajCandPerSeedBin:
+        locals()[label].SeedCandBin = trajCandPerSeedBin[step]
+        locals()[label].SeedCandMax = trajCandPerSeedMax[step]
 
 # DQM Services
 dqmInfoTracking = cms.EDAnalyzer("DQMEventInfo",

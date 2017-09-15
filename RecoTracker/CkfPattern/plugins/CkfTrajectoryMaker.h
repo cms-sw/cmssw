@@ -17,6 +17,7 @@
 #include "RecoTracker/CkfPattern/interface/RedundantSeedCleaner.h"
 #include "RecoTracker/CkfPattern/interface/CkfTrackCandidateMakerBase.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h" 
+#include "DataFormats/TrackReco/interface/SeedStopInfo.h"
 
 class TransientInitialStateEstimator;
 
@@ -35,6 +36,7 @@ namespace cms
       if (theTrackCandidateOutput)
 	produces<TrackCandidateCollection>();
       produces<TrajectoryCollection>();
+      produces<std::vector<SeedStopInfo> >();
     }
 
     virtual ~CkfTrajectoryMaker(){;}
