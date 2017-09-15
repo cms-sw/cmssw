@@ -6,6 +6,8 @@
 #include "SimG4Core/Watcher/interface/SimProducer.h"
 #include "SimG4Core/Notification/interface/Observer.h"
 
+#include <regex>
+
 class BeginOfRun;
 class BeginOfEvent;
 class BeginOfTrack;
@@ -21,12 +23,12 @@ class RHStopTracer :  public SimProducer,
 {
  public:
   RHStopTracer(edm::ParameterSet const & p);
-  virtual ~RHStopTracer();
-  void update(const BeginOfRun *);
-  void update(const BeginOfEvent *);
-  void update(const BeginOfTrack *);
-  void update(const EndOfTrack *);
-  void produce(edm::Event&, const edm::EventSetup&);
+  ~RHStopTracer() override;
+  void update(const BeginOfRun *) override;
+  void update(const BeginOfEvent *) override;
+  void update(const BeginOfTrack *) override;
+  void update(const EndOfTrack *) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
  private:
   struct StopPoint {
     StopPoint (const std::string& fName, double fX, double fY, double fZ, double fT, int fId, double fMass, double fCharge) 
@@ -43,8 +45,11 @@ class RHStopTracer :  public SimProducer,
   };
   bool mStopRegular;
   double mTraceEnergy;
+  int minPdgId;
+  int maxPdgId;
+  int otherPdgId;
   std::string mTraceParticleName;
-  const G4ParticleDefinition* mParticle;
+  std::regex rePartName;
   std::vector <StopPoint> mStopPoints;
 };
 
