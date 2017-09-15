@@ -68,9 +68,9 @@ EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterS
   useFullReadout_ = false;
   useFullReadout_ = params.getParameter<bool>("UseFullReadout");
 
-  theGeometry = 0;
-  theTriggerTowerMap = 0;
-  theElecMap = 0;
+  theGeometry = nullptr;
+  theTriggerTowerMap = nullptr;
+  theElecMap = nullptr;
 
   EB_token = consumes<EBDigiCollection>(edm::InputTag(digiProducer_, ebdigiCollection_));
   EE_token = consumes<EEDigiCollection>(edm::InputTag(digiProducer_, eedigiCollection_));;
@@ -131,7 +131,7 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
     eeSrFlags = unique_ptr<EESrFlagCollection>(new EESrFlagCollection);
   }
 
-  if(suppressor_.get() == 0){
+  if(suppressor_.get() == nullptr){
     //Check the validity of EcalSRSettings
     checkValidity(*settings_);
     
@@ -316,7 +316,7 @@ void EcalSelectiveReadoutProducer::checkWeights(const edm::Event& evt,
 	"The last weights will be discarded.";
   }
 
-  if(weights.size()>0){
+  if(!weights.empty()){
     int iMaxWeight = 0;
     double maxWeight = weights[iMaxWeight];
     //looks for index of maximum weight
