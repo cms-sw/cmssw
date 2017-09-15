@@ -53,9 +53,9 @@ namespace reco{
     
     
   private:
-    TrackToGenParticleAssociatorBaseImpl(const TrackToGenParticleAssociatorBaseImpl&); // stop default
+    TrackToGenParticleAssociatorBaseImpl(const TrackToGenParticleAssociatorBaseImpl&) = delete; // stop default
     
-    const TrackToGenParticleAssociatorBaseImpl& operator=(const TrackToGenParticleAssociatorBaseImpl&); // stop default
+    const TrackToGenParticleAssociatorBaseImpl& operator=(const TrackToGenParticleAssociatorBaseImpl&) = delete; // stop default
     
   };
 }
