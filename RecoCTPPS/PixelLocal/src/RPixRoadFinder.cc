@@ -49,23 +49,23 @@ void RPixRoadFinder::findPattern(){
 // convert local hit sto global and push them to a vector
   for(const auto & ds_rh2 : hitVector_){
     uint32_t myid = ds_rh2.id;
-    for (const auto & _rh : ds_rh2.data){
+    for (const auto & it_rh : ds_rh2.data){
       PointInPlane thePointAndRecHit;
-      thePointAndRecHit.recHit=_rh; 
-      CLHEP::Hep3Vector localV(_rh.getPoint().x(),_rh.getPoint().y(),_rh.getPoint().z() );
+      thePointAndRecHit.recHit=it_rh; 
+      CLHEP::Hep3Vector localV(it_rh.getPoint().x(),it_rh.getPoint().y(),it_rh.getPoint().z() );
       CLHEP::Hep3Vector globalV = geometry_.localToGlobal(ds_rh2.id,localV);
       thePointAndRecHit.globalPoint=globalV;
       TMatrixD localError(3,3);
-      localError[0][0] = _rh.getError().xx();
-      localError[0][1] = _rh.getError().xy();
+      localError[0][0] = it_rh.getError().xx();
+      localError[0][1] = it_rh.getError().xy();
       localError[0][2] =                  0.;
-      localError[1][0] = _rh.getError().xy();
-      localError[1][1] = _rh.getError().yy();
+      localError[1][0] = it_rh.getError().xy();
+      localError[1][1] = it_rh.getError().yy();
       localError[1][2] =                  0.;
       localError[2][0] =                  0.;
       localError[2][1] =                  0.;
       localError[2][2] =                  0.;
-      if(verbosity_>2) std::cout<<"Hits = "<<ds_rh2.data.size()<<std::endl;
+      if(verbosity_>2) edm::LogInfo("RPixRoadFinder")<<"Hits = "<<ds_rh2.data.size();
       TMatrixD theRotationTMatrix(planeRotationMatrixMap_[CTPPSPixelDetId(ds_rh2.id)]);
 
       TMatrixD theRotationTMatrixInverted(theRotationTMatrix);
@@ -93,13 +93,13 @@ void RPixRoadFinder::findPattern(){
 
     CLHEP::Hep3Vector currPoint = _gh1->globalPoint;
     CTPPSPixelDetId currDet = CTPPSPixelDetId(_gh1->detId);
-    if(verbosity_>1)  std::cout << " current point " << currPoint << std::endl;
+
     while( _gh2 != temp_all_hits.end()){
       bool same_pot = false;
       CTPPSPixelDetId tmpGh2Id = CTPPSPixelDetId(_gh2->detId);
       if(    currDet.arm() == tmpGh2Id.arm() && currDet.station() == tmpGh2Id.station() && currDet.rp() == tmpGh2Id.rp() )same_pot = true;
       CLHEP::Hep3Vector subtraction = currPoint - _gh2->globalPoint;
-      if(verbosity_>1) std::cout << "             Subtraction " << currPoint << " - " << _gh2->globalPoint << " " << subtraction.perp() << std::endl;
+
       if(subtraction.perp() < roadRadius_ && same_pot) {  /// 1mm
         temp_road.push_back(*_gh2);
         temp_all_hits.erase(_gh2);
@@ -114,13 +114,7 @@ void RPixRoadFinder::findPattern(){
   }
 // end of algorithm
 
-  if(verbosity_)std::cout << "+-+-+-+-+-+-    Number of pseudo tracks " << patternVector_.size() <<std::endl;
 
-  if(!patternVector_.empty())
-    for (auto const & ptrack : patternVector_){
-
-      if(verbosity_) std::cout << "     ptrack size = "<<ptrack.size() << std::endl;
-    }
 
 }
 
