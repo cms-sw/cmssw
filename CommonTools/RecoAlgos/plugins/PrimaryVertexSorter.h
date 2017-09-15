@@ -344,14 +344,16 @@ bool PrimaryVertexSorter<std::vector<reco::PFCandidate>>::needsProductsForTiming
 }
 
 template<>
-std::pair<int,PrimaryVertexAssignment::Quality> PrimaryVertexSorter<std::vector<reco::RecoChargedRefCandidate>>::runAlgo( const reco::VertexCollection& vertices, const reco::RecoChargedRefCandidate & pf, const edm::ValueMap<float> *trackTimeTag,
+std::pair<int,PrimaryVertexAssignment::Quality>
+PrimaryVertexSorter<std::vector<reco::RecoChargedRefCandidate>>::runAlgo( const reco::VertexCollection& vertices, const reco::RecoChargedRefCandidate & pf, const edm::ValueMap<float> *trackTimeTag,
                                    const edm::ValueMap<float> *trackTimeResoTag, const edm::View<reco::Candidate>& jets, const TransientTrackBuilder& builder) 
 {
     return assignmentAlgo_.chargedHadronVertex( vertices, pf, trackTimeTag, trackTimeResoTag, jets, builder);
 }
 
 template<>
-std::pair<int,PrimaryVertexAssignment::Quality> PrimaryVertexSorter<std::vector<reco::PFCandidate>>::runAlgo( const reco::VertexCollection& vertices, const reco::PFCandidate & pf, const edm::ValueMap<float> *trackTimeTag,
+std::pair<int,PrimaryVertexAssignment::Quality>
+PrimaryVertexSorter<std::vector<reco::PFCandidate>>::runAlgo( const reco::VertexCollection& vertices, const reco::PFCandidate & pf, const edm::ValueMap<float> *trackTimeTag,
                                    const edm::ValueMap<float> *trackTimeResoTag, const edm::View<reco::Candidate>& jets, const TransientTrackBuilder& builder) 
 {
     return assignmentAlgo_.chargedHadronVertex( vertices, pf, jets, builder);
