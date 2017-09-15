@@ -390,23 +390,54 @@ void pat::PackedCandidate::setDTimeAssociatedPV(float aTime, float aTimeError) {
 }
 
 /// static to allow unit testing
-uint8_t pat::PackedCandidate::packTimeError(float timeError) { return timeError <= 0 ? 0 : std::max<uint8_t>( std::min(std::round(std::ldexp(std::log2(timeError/0.002f), +5)), 255.f), 1); }
-float pat::PackedCandidate::unpackTimeError(uint8_t timeError) { return timeError > 0 ? 0.002f * std::exp2(std::ldexp(float(timeError),-5)) : -1.0f; }
-float pat::PackedCandidate::unpackTimeNoError(int16_t time) { return (time > 0 ? 0.0002f : -0.0002f) * std::exp2(std::ldexp(float(std::abs(time)),-6)); }
-int16_t pat::PackedCandidate::packTimeNoError(float time) { return (time > 0 ? +1 : -1)*std::min(std::round(std::ldexp(std::log2(std::abs(time/0.0002f)),+6)), 32767.f); }
+uint8_t pat::PackedCandidate::packTimeError(float timeError) {
+    if (timeError <= 0) return 0;
+    // log-scale packing.
+    // for MIN_TIMEERROR = 0.002, EXPO_TIMEERROR = 5:
+    //      minimum value 0.002 = 2ps (packed as 1)
+    //      maximum value 0.5 ns      (packed as 255)
+    //      constant *relative* precision of about 2%
+    return std::max<uint8_t>( std::min(std::round(std::ldexp(std::log2(timeError/MIN_TIMEERROR), +EXPO_TIMEERROR)), 255.f), 1);
+}
+float pat::PackedCandidate::unpackTimeError(uint8_t timeError) {
+    return timeError > 0 ? MIN_TIMEERROR * std::exp2(std::ldexp(float(timeError),-EXPO_TIMEERROR)) : -1.0f;
+}
+float pat::PackedCandidate::unpackTimeNoError(int16_t time) {
+    if (time == 0) return 0.f;
+    return (time > 0 ? MIN_TIME_NOERROR : -MIN_TIME_NOERROR) * std::exp2(std::ldexp(float(std::abs(time)),-EXPO_TIME_NOERROR));
+}
+int16_t pat::PackedCandidate::packTimeNoError(float time) {
+    // encoding in log scale to store times in a large range with few bits.
+    // for MIN_TIME_NOERROR = 0.0002 and EXPO_TIME_NOERROR = 6:
+    //    smallest non-zero time = 0.2 ps (encoded as +/-1)
+    //    one BX, +/- 12.5 ns, is fully covered with 11 bits (+/- 1023)
+    //    12 bits cover by far any plausible value (+/-2047 corresponds to about +/- 0.8 ms!)
+    //    constant *relative* ~1% precision
+    if (std::abs(time) < MIN_TIME_NOERROR) return 0; // prevent underflows
+    float fpacked = std::ldexp(std::log2(std::abs(time/MIN_TIME_NOERROR)),+EXPO_TIME_NOERROR);
+    return (time > 0 ? +1 : -1)*std::min(std::round(fpacked), 2047.f);
+}
 float pat::PackedCandidate::unpackTimeWithError(int16_t time, uint8_t timeError) {
-    if (time % 2 == 0) { // no overflow
-        return std::ldexp(unpackTimeError(timeError), -6) * float(time/2);
+    if (time % 2 == 0) {
+        // no overflow: drop rightmost bit and unpack in units of timeError
+        return std::ldexp(unpackTimeError(timeError), EXPO_TIME_WITHERROR) * float(time/2);
     } else {
+        // overflow: drop rightmost bit, unpack using the noError encoding
         return pat::PackedCandidate::unpackTimeNoError(time/2);
     }
 }
 int16_t pat::PackedCandidate::packTimeWithError(float   time, float   timeError) {
-    float fpacked = std::round(time/std::ldexp(timeError, -6));
-    if (std::abs(fpacked) < 16383.f) {
-        return int16_t(fpacked) * 2;
+    // Encode in units of timeError * 2^EXPO_TIME_WITHERROR (~1.6% if EXPO_TIME_WITHERROR = -6)
+    // the largest value that can be stored in 14 bits + sign bit + overflow bit is about 260 sigmas
+    // values larger than that will be stored using the no-timeError packing (with less precision).
+    // overflows of these kinds should happen only for particles that are late arriving, out-of-time,
+    // or mis-reconstructed, as timeError is O(20ps) and the beam spot witdth is O(200ps)
+    float fpacked = std::round(time/std::ldexp(timeError, EXPO_TIME_WITHERROR));
+    if (std::abs(fpacked) < 16383.f) { // 16383 = (2^14 - 1) = largest absolute value for a signed 15 bit integer
+        return int16_t(fpacked) * 2; // make it even, and fit in a signed 16 bit int
     } else {
-        return packTimeNoError(time) * 2 + (time > 0 ? +1 : -1);
+        int16_t packed = packTimeNoError(time); // encode
+        return packed * 2 + (time > 0 ? +1 : -1); // make it odd, to signal that there was an overlow
     }
 }
 

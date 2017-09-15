@@ -762,7 +762,11 @@ namespace pat {
     static int16_t packTimeNoError(float time) ;
     static float unpackTimeWithError(int16_t time, uint8_t timeError) ;
     static int16_t packTimeWithError(float   time, float   timeError) ;
-
+    static constexpr float MIN_TIMEERROR = 0.002f; // 2 ps, smallest storable non-zero uncertainty
+    static constexpr float MIN_TIME_NOERROR = 0.0002f; // 0.2 ps, smallest non-zero time that can be stored by packTimeNoError
+    static constexpr int EXPO_TIMEERROR = 5; // power of 2 used in encoding timeError
+    static constexpr int EXPO_TIME_NOERROR = 6; // power of 2 used in encoding time without timeError
+    static constexpr int EXPO_TIME_WITHERROR = -6; // power of 2 used in encoding time with timeError
   public:
     uint16_t firstHit_;
     
