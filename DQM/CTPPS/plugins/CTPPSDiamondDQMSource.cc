@@ -600,6 +600,14 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
           hitHistoTmp->Fill( detId.plane(), hitHistoTmpYAxis->GetBinCenter(startBin+i) + UFSDShift );
         }
       }
+        
+      TH2F *hitHistoTmp = potPlots_[detId_pot].hitDistribution2d->getTH2F();
+      TAxis *hitHistoTmpYAxis = hitHistoTmp->GetYaxis();
+      int startBin = hitHistoTmpYAxis->FindBin( rechit.getX() - 0.5*rechit.getXWidth() );
+      int numOfBins = rechit.getXWidth()/DISPLAY_RESOLUTION_FOR_HITS_MM;
+      for ( int i=0; i<numOfBins; ++i) {
+        hitHistoTmp->Fill( detId.plane() + UFSDShift, hitHistoTmpYAxis->GetBinCenter(startBin+i) );
+      }
 
       if ( rechit.getToT() != 0 ) {
         // Both
