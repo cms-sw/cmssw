@@ -37,6 +37,15 @@ isolatedTracks = cms.EDProducer("PATIsolatedTrackProducer",
 
     caloJet_DR = cms.double(0.3),
 
+    pflepoverlap_DR = cms.double(0.001),
+    pflepoverlap_pTmin = cms.double(5.0),
+
+    pcRefNearest_DR = cms.double(0.3),
+    pcRefNearest_pTmin = cms.double(5.0),
+
+    pfneutralsum_DR = cms.double(0.05),
+
     saveDeDxHitInfo = cms.bool(True),
-    saveDeDxHitInfoCut = cms.string("pt > 50"), 
+#    saveDeDxHitInfoCut = cms.string("pt > 50"), 
+    saveDeDxHitInfoCut = cms.string("pt > 10. && (pt > 15. || hitPattern().pixelLayersWithMeasurement() == hitPattern().trackerLayersWithMeasurement()) && abs(dxy) < 0.02 && abs(dz) < 0.1 && ((pfIsolationDR03().chargedHadronIso() < 5.0 && pfIsolationDR03().chargedHadronIso()/pt < 0.2) || miniPFIsolation().chargedHadronIso()/pt < 0.2) && !(pfLepOverlap) && pfNeutralSum/pt < 0.2"), 
 )
