@@ -40,7 +40,7 @@ CTPPSPixelLocalTrackProducer::CTPPSPixelLocalTrackProducer(const edm::ParameterS
 
   // patter algorithm selector
   if(patterFinderAlgorithm == "RPixRoadFinder"){
-   patternFinder_ = new RPixRoadFinder(parameterSet_);
+    patternFinder_ = std::unique_ptr<RPixRoadFinder>(new RPixRoadFinder(parameterSet_));
   }
   else{
     throw cms::Exception("CTPPSPixelLocalTrackProducer") << "Pattern finder algorithm" << patterFinderAlgorithm << " does not exist";
@@ -52,7 +52,7 @@ CTPPSPixelLocalTrackProducer::CTPPSPixelLocalTrackProducer(const edm::ParameterS
 
   //tracking algorithm selector
   if(trackFitterAlgorithm == "RPixPlaneCombinatoryTracking"){
-    trackFinder_ = new RPixPlaneCombinatoryTracking(parameterSet_);
+    trackFinder_ = std::unique_ptr<RPixPlaneCombinatoryTracking>(new RPixPlaneCombinatoryTracking(parameterSet_));
   }
   else{
     throw cms::Exception("CTPPSPixelLocalTrackProducer") << "Tracking fitter algorithm" << trackFitterAlgorithm << " does not exist";
@@ -71,8 +71,6 @@ CTPPSPixelLocalTrackProducer::CTPPSPixelLocalTrackProducer(const edm::ParameterS
 //------------------------------------------------------------------------------------------------//
 
 CTPPSPixelLocalTrackProducer::~CTPPSPixelLocalTrackProducer(){
-  delete patternFinder_;
-  delete trackFinder_ ;
 }
 
 //------------------------------------------------------------------------------------------------//

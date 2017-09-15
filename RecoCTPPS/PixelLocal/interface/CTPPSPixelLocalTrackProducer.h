@@ -58,13 +58,13 @@ private:
   int maxTrackPerPattern_;
  
   edm::InputTag inputTag_;
-  edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelRecHit>> tokenCTPPSPixelRecHit_;
+  edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelRecHit> > tokenCTPPSPixelRecHit_;
   edm::ESWatcher<VeryForwardRealGeometryRecord> geometryWatcher_;
   uint32_t numberOfPlanesPerPot_;
   std::vector<uint32_t> listOfAllPlanes_;
 
-  RPixDetPatternFinder *patternFinder_;
-  RPixDetTrackFinder   *trackFinder_;
+  std::unique_ptr<RPixDetPatternFinder> patternFinder_;
+  std::unique_ptr<RPixDetTrackFinder>   trackFinder_  ;
   
   void run(const edm::DetSetVector<CTPPSPixelRecHit> &input, edm::DetSetVector<CTPPSPixelLocalTrack> &output);
   
