@@ -177,9 +177,7 @@ void TrackTimeValueMapProducer::produce(edm::StreamID sid, edm::Event& evt, cons
   double meanSimTime = sumSimTime/double(nsim);
   double varSimTime = sumSimTimeSq/double(nsim) - meanSimTime*meanSimTime;
   double rmsSimTime = std::sqrt(std::max(0.1*0.1,varSimTime));
-  
-//   printf("meanSimTime = %5e, rmsSimTime = %5e\n",meanSimTime,rmsSimTime);
-    
+
   for( unsigned itk = 0; itk < TrackCollection.size(); ++itk ) {
     const auto tkref = TrackCollection.refAt(itk);
     reco::RecoToSimCollection::const_iterator track_tps = associatedTracks.back().end();
@@ -214,7 +212,6 @@ void TrackTimeValueMapProducer::produce(edm::StreamID sid, edm::Event& evt, cons
       const reco::Track& tk = TrackCollection[i];
       const float absEta = std::abs(tk.eta());
       bool inAcceptance = absEta < etaMax_ && absEta >= etaMin_ && tk.p()>pMin_ && (absEta>etaMaxForPtThreshold_ || tk.pt()>ptMin_);
-//       bool inAcceptance = absEta < etaMax_ && absEta >= etaMin_ && tk.pt()>pMin_ && (absEta>etaMaxForPtThreshold_ || tk.pt()>ptMin_);
       if (inAcceptance) {
         const float resolution = reso->getTimeResolution(tk);
         times.push_back( CLHEP::RandGauss::shoot(rng_engine, generalTrackTimes[i], resolution) );
@@ -236,9 +233,8 @@ extractTrackVertexTime( const TrackingParticle &tp, const reco::TransientTrack &
   int pdgid = tp.pdgId();
   const auto& tvertex = tp.parentVertex();
   math::XYZTLorentzVectorD result = tvertex->position();
-//   result = tvertex->position().T()*CLHEP::second; // convert into nano-seconds
-  // account for secondary vertices...
   
+  // account for secondary vertices...
   if( tvertex->nSourceTracks() && tvertex->sourceTracks()[0]->pdgId()==pdgid ) {
     auto pvertex = tvertex->sourceTracks()[0]->parentVertex();
     result = pvertex->position();
@@ -265,8 +261,6 @@ extractTrackVertexTime( const TrackingParticle &tp, const reco::TransientTrack &
   
   float speed = std::sqrt(1./(1.+m_pion/p))*CLHEP::c_light/CLHEP::cm;  //speed in cm/ns
   float dt = pathlength/speed;
-  
-//   printf("pdgid = %i, time = %5e, dt = %5e\n",pdgid,time,dt);
-  
+
   return time-dt;
 }
