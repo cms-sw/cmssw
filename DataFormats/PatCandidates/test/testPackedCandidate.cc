@@ -179,16 +179,17 @@ void testPackedCandidate::testPackUnpackTime() {
   if (debug) std::cout << "Average rel uncertainty: " << (avgres/navg) << std::endl;
   if (debug) std::cout << std::endl;
 
+  if (debug) std::cout << "Zero time standalone (pos): " << pat::PackedCandidate::unpackTimeNoError(0) << std::endl;
   if (debug) std::cout << "Minimum time standalone (pos): " << pat::PackedCandidate::unpackTimeNoError(+1) << std::endl;
   if (debug) std::cout << "Minimum time standalone (neg): " << pat::PackedCandidate::unpackTimeNoError(-1) << std::endl;
   if (debug) std::cout << "Maximum time standalone, 8 bits (pos): " << pat::PackedCandidate::unpackTimeNoError(+255) << std::endl;
   if (debug) std::cout << "Maximum time standalone, 8 bits (neg): " << pat::PackedCandidate::unpackTimeNoError(-255) << std::endl;
   if (debug) std::cout << "Maximum time standalone, 10 bits (pos): " << pat::PackedCandidate::unpackTimeNoError(+1023) << std::endl;
   if (debug) std::cout << "Maximum time standalone, 10 bits (neg): " << pat::PackedCandidate::unpackTimeNoError(-1023) << std::endl;
-  if (debug) std::cout << "Maximum time standalone, 12 bits (pos): " << pat::PackedCandidate::unpackTimeNoError(+4095) << std::endl;
-  if (debug) std::cout << "Maximum time standalone, 12 bits (neg): " << pat::PackedCandidate::unpackTimeNoError(-4095) << std::endl;
+  if (debug) std::cout << "Maximum time standalone, 11 bits (pos): " << pat::PackedCandidate::unpackTimeNoError(+2047) << std::endl;
+  if (debug) std::cout << "Maximum time standalone, 11 bits (neg): " << pat::PackedCandidate::unpackTimeNoError(-2047) << std::endl;
   avgres = 0; navg = 0;
-  for (int i = 2; i < 4096; i *= 1.5) {
+  for (int i = 2; i < 2040; i *= 1.5) {
     float unp = pat::PackedCandidate::unpackTimeNoError(i);
     float res = 0.5*(pat::PackedCandidate::unpackTimeNoError(i+1)-pat::PackedCandidate::unpackTimeNoError(i-1));
     avgres += (res/unp); navg++;
