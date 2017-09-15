@@ -45,7 +45,6 @@ class RPixRoadFinder : public RPixDetPatternFinder{
     void findPattern() override;
 
   private:
-    edm::ParameterSet param_;
     int verbosity_;
     double roadRadius_;
     unsigned int minRoadSize_;

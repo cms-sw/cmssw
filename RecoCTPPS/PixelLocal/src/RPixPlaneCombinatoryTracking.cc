@@ -16,15 +16,14 @@
 //------------------------------------------------------------------------------------------------//
 
 RPixPlaneCombinatoryTracking::RPixPlaneCombinatoryTracking(edm::ParameterSet const& parameterSet) : 
-  RPixDetTrackFinder(parameterSet),
-  param_(parameterSet){
+  RPixDetTrackFinder(parameterSet){
 
-  trackMinNumberOfPoints_ = param_.getParameter<uint>("trackMinNumberOfPoints");
-  verbosity_ = param_.getUntrackedParameter<int> ("verbosity");
-  maximumChi2OverNDF_ = param_.getParameter<double>("maximumChi2OverNDF");
-  maximumXLocalDistanceFromTrack_= param_.getParameter<double>("maximumXLocalDistanceFromTrack");
-  maximumYLocalDistanceFromTrack_= param_.getParameter<double>("maximumYLocalDistanceFromTrack");
-  numberOfPlanesPerPot_ = parameterSet_.getParameter<int> ("numberOfPlanesPerPot"   );
+  trackMinNumberOfPoints_ = parameterSet.getParameter<uint>("trackMinNumberOfPoints");
+  verbosity_ = parameterSet.getUntrackedParameter<int> ("verbosity");
+  maximumChi2OverNDF_ = parameterSet.getParameter<double>("maximumChi2OverNDF");
+  maximumXLocalDistanceFromTrack_= parameterSet.getParameter<double>("maximumXLocalDistanceFromTrack");
+  maximumYLocalDistanceFromTrack_= parameterSet.getParameter<double>("maximumYLocalDistanceFromTrack");
+  numberOfPlanesPerPot_ = parameterSet.getParameter<int> ("numberOfPlanesPerPot"   );
 
   if(trackMinNumberOfPoints_<3){
     throw cms::Exception("RPixPlaneCombinatoryTracking") << "Minimum number of planes required for tracking is 3, tracking is not possible with " << trackMinNumberOfPoints_ << " hits";
