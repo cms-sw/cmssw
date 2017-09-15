@@ -104,7 +104,7 @@ void SimRunInterface::abortRun(bool softAbort)
 
 G4SimEvent* SimRunInterface::simEvent()
 {
-  G4SimEvent* ptr = 0;
+  G4SimEvent* ptr = nullptr;
   if(m_runManager) {
     ptr = m_runManager->simEvent();
   } else if(m_runManagerMTWorker) {
