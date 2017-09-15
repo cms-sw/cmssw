@@ -18,10 +18,10 @@ public:
   GflashHadronWrapperProcess(G4String processName);	
   //  GflashHadronWrapperProcess();	
   
-  virtual ~GflashHadronWrapperProcess();	
+  ~GflashHadronWrapperProcess() override;	
   
   // Override PostStepDoIt  method
-  G4VParticleChange* PostStepDoIt(const G4Track& track, const G4Step& step);
+  G4VParticleChange* PostStepDoIt(const G4Track& track, const G4Step& step) override;
 
   G4String GetName() { return theProcessName; };
 

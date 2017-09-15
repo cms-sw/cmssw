@@ -23,15 +23,15 @@ public:
 		        G4double df = 1.0,
                         const G4String& nam = "BetheHeitlerLPM");
 
-  virtual ~CMSDarkPairProduction();
+  ~CMSDarkPairProduction() override;
 
-  virtual G4double ComputeCrossSectionPerAtom(
+  G4double ComputeCrossSectionPerAtom(
                       const G4ParticleDefinition*,
                       G4double kinEnergy,
                       G4double Z,
                       G4double A=0.,
                       G4double cut=0.,
-                      G4double emax=DBL_MAX);
+                      G4double emax=DBL_MAX) override;
 
 private:
 

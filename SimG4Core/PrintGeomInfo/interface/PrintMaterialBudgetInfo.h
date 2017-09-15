@@ -27,10 +27,10 @@ class PrintMaterialBudgetInfo : public SimWatcher,
 
 public:
   PrintMaterialBudgetInfo(edm::ParameterSet const & p);
-  ~PrintMaterialBudgetInfo();
+  ~PrintMaterialBudgetInfo() override;
 private:
-  void update(const BeginOfJob* job) {};
-  void update(const BeginOfRun* run);
+  void update(const BeginOfJob* job) override {};
+  void update(const BeginOfRun* run) override;
   void dumpHeader(std::ostream& out = std::cout);
   void dumpLaTeXHeader(std::ostream& out = std::cout);
   void dumpHierarchyLeaf(G4VPhysicalVolume* pv, G4LogicalVolume* lv, unsigned int leafDepth,
