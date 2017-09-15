@@ -23,6 +23,7 @@ Monitoring source for general quantities related to tracks.
 
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/TrackReco/interface/SeedStopInfo.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
@@ -38,13 +39,14 @@ class TrackBuildingAnalyzer
         using QualityMaskCollection = std::vector<unsigned char>;
 
         TrackBuildingAnalyzer(const edm::ParameterSet&);
-        ~TrackBuildingAnalyzer();
+        ~TrackBuildingAnalyzer() = default;
         void initHisto(DQMStore::IBooker & ibooker, const edm::ParameterSet&);
         void analyze
         (
             const edm::Event& iEvent, 
             const edm::EventSetup& iSetup, 
             const TrajectorySeed& seed, 
+            const SeedStopInfo& stopInfo,
             const reco::BeamSpot& bs, 
             const edm::ESHandle<MagneticField>& theMF,
             const edm::ESHandle<TransientTrackingRecHitBuilder>& theTTRHBuilder
@@ -77,40 +79,50 @@ class TrackBuildingAnalyzer
         // ----------member data ---------------------------
 
         // Candidates used for tracking regions
-        MonitorElement* TrackingRegionCandidatePt;
-        MonitorElement* TrackingRegionCandidateEta;
-        MonitorElement* TrackingRegionCandidatePhi;
-        MonitorElement* TrackingRegionCandidatePhiVsEta;
+        MonitorElement* TrackingRegionCandidatePt = nullptr;
+        MonitorElement* TrackingRegionCandidateEta = nullptr;
+        MonitorElement* TrackingRegionCandidatePhi = nullptr;
+        MonitorElement* TrackingRegionCandidatePhiVsEta = nullptr;
 
         // Track Seeds
-        MonitorElement* SeedPt;
-        MonitorElement* SeedEta;
-        MonitorElement* SeedPhi;
-	MonitorElement* SeedPhiVsEta;
-        MonitorElement* SeedTheta;
-        MonitorElement* SeedQ;
-        MonitorElement* SeedDxy;
-        MonitorElement* SeedDz;
-        MonitorElement* NumberOfRecHitsPerSeed;
-        MonitorElement* NumberOfRecHitsPerSeedVsPhiProfile;
-        MonitorElement* NumberOfRecHitsPerSeedVsEtaProfile;
+        MonitorElement* SeedPt = nullptr;
+        MonitorElement* SeedEta = nullptr;
+        MonitorElement* SeedPhi = nullptr;
+        MonitorElement* SeedPhiVsEta = nullptr;
+        MonitorElement* SeedTheta = nullptr;
+        MonitorElement* SeedQ = nullptr;
+        MonitorElement* SeedDxy = nullptr;
+        MonitorElement* SeedDz = nullptr;
+        MonitorElement* NumberOfRecHitsPerSeed = nullptr;
+        MonitorElement* NumberOfRecHitsPerSeedVsPhiProfile = nullptr;
+        MonitorElement* NumberOfRecHitsPerSeedVsEtaProfile = nullptr;
+
+        MonitorElement *seedStoppingSource = nullptr;
+        MonitorElement *seedStoppingSourceVsPhi = nullptr;
+        MonitorElement *seedStoppingSourceVsEta = nullptr;
+
+        MonitorElement *numberOfTrajCandsPerSeed = nullptr;
+        MonitorElement *numberOfTrajCandsPerSeedVsPhi = nullptr;
+        MonitorElement *numberOfTrajCandsPerSeedVsEta = nullptr;
+
+        MonitorElement *seedStoppingSourceVsNumberOfTrajCandsPerSeed = nullptr;
 
         // Track Candidate
-        MonitorElement* TrackCandPt;
-        MonitorElement* TrackCandEta;
-        MonitorElement* TrackCandPhi;
-        MonitorElement* TrackCandPhiVsEta;
-	MonitorElement* TrackCandTheta;
-        MonitorElement* TrackCandQ;
-        MonitorElement* TrackCandDxy;
-        MonitorElement* TrackCandDz;
-        MonitorElement* NumberOfRecHitsPerTrackCand;
-        MonitorElement* NumberOfRecHitsPerTrackCandVsPhiProfile;
-        MonitorElement* NumberOfRecHitsPerTrackCandVsEtaProfile;
+        MonitorElement* TrackCandPt = nullptr;
+        MonitorElement* TrackCandEta = nullptr;
+        MonitorElement* TrackCandPhi = nullptr;
+        MonitorElement* TrackCandPhiVsEta = nullptr;
+        MonitorElement* TrackCandTheta = nullptr;
+        MonitorElement* TrackCandQ = nullptr;
+        MonitorElement* TrackCandDxy = nullptr;
+        MonitorElement* TrackCandDz = nullptr;
+        MonitorElement* NumberOfRecHitsPerTrackCand = nullptr;
+        MonitorElement* NumberOfRecHitsPerTrackCandVsPhiProfile = nullptr;
+        MonitorElement* NumberOfRecHitsPerTrackCandVsEtaProfile = nullptr;
 
-	MonitorElement* stoppingSource;
-	MonitorElement* stoppingSourceVSeta;
-	MonitorElement* stoppingSourceVSphi;
+	MonitorElement* stoppingSource = nullptr;
+	MonitorElement* stoppingSourceVSeta = nullptr;
+	MonitorElement* stoppingSourceVSphi = nullptr;
 
 	std::vector<MonitorElement *> trackMVAs;
 	std::vector<MonitorElement *> trackMVAsHP;
@@ -122,23 +134,23 @@ class TrackBuildingAnalyzer
         std::string histname;  //for naming the histograms according to algorithm used
 
 	//to disable some plots
-	bool doAllPlots;
-	bool doAllSeedPlots;
-	bool doTCPlots;
-	bool doAllTCPlots;
-       	bool doPT;
-	bool doETA;
-	bool doPHI;
-	bool doPHIVsETA;
-	bool doTheta;
-	bool doQ;
-	bool doDxy;
-	bool doDz;
-	bool doNRecHits;
-	bool doProfPHI;
-	bool doProfETA;
-	bool doStopSource;
-	bool doMVAPlots;
-	bool doRegionPlots;
+	const bool doAllPlots;
+	const bool doAllSeedPlots;
+	const bool doTCPlots;
+	const bool doAllTCPlots;
+	const bool doPT;
+	const bool doETA;
+	const bool doPHI;
+	const bool doPHIVsETA;
+	const bool doTheta;
+	const bool doQ;
+	const bool doDxy;
+	const bool doDz;
+	const bool doNRecHits;
+	const bool doProfPHI;
+	const bool doProfETA;
+	const bool doStopSource;
+	const bool doMVAPlots;
+	const bool doRegionPlots;
 };
 #endif
