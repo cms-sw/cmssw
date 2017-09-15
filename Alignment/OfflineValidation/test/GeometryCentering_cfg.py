@@ -9,18 +9,18 @@ process.MessageLogger.destinations = ['cout', 'cerr']
 
 ### needed to get the geometry
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag,"auto:run2_design")
+process.GlobalTag = GlobalTag(process.GlobalTag,"auto:phase1_2017_design")
 
 from CondCore.CondDB.CondDB_cfi import *
 
 CondDBAlignment = CondDB.clone(connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'))
                             
-### example starting MC geometry that is known to be off-centered
+### example starting data geometry that is known to have an off-centered BPIX
 process.ZeroGeom = cms.ESSource("PoolDBESSource",
                                 CondDBAlignment,
                                 timetype = cms.string("runnumber"),
                                 toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentRcd'),
-                                                           tag = cms.string('TrackerAlignment_Asymptotic_Run2016_v1_mc')
+                                                           tag = cms.string('TrackerAlignment_StartUp17_v11')
                                                            )
                                                   )                                                            
                                 )
@@ -31,7 +31,7 @@ process.ZeroAPE = cms.ESSource("PoolDBESSource",
                                CondDBAPE,
                                timetype = cms.string("runnumber"),
                                toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentErrorExtendedRcd'),
-                                                          tag = cms.string('TrackerIdealGeometryErrorsExtended210_mc')
+                                                          tag = cms.string('TrackerAlignmentErrorsExtended_Upgrade2017_design_v0')
                                                           )
                                                  )
                                )
@@ -56,7 +56,7 @@ process.dump = cms.EDAnalyzer("TrackerGeometryIntoNtuples",
 process.load("Alignment.OfflineValidation.TrackerGeometryCompare_cfi")
 process.TrackerGeometryCompare.inputROOTFile1 = 'IDEAL'
 process.TrackerGeometryCompare.inputROOTFile2 = GeometryIntoNtuplesRootFile
-process.TrackerGeometryCompare.setCommonTrackerSystem = "TPBBarrel"  # for MC
+process.TrackerGeometryCompare.setCommonTrackerSystem = "P1PXBBarrel"  # for MC
 #process.TrackerGeometryCompare.setCommonTrackerSystem = "TOBBarrel"  # for Data
 process.TrackerGeometryCompare.levels = []
 process.TrackerGeometryCompare.writeToDB = True
@@ -66,7 +66,7 @@ process.TFileService = cms.Service("TFileService",
                                    #fileName=cms.string("TOBCenteredOutputComparison.root") #for Data
                                    )
 
-CondDBoutput=CondDB.clone(connect = cms.string('sqlite_file:TrackerAlignment_Asymptotic_Run2016_v1_mc_Centred.db'))
+CondDBoutput=CondDB.clone(connect = cms.string('sqlite_file:TrackerAlignment_StartUp17_v11_BPIX-Centred.db'))
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           CondDBoutput,
