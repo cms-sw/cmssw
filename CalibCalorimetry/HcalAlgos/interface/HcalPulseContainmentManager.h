@@ -31,9 +31,7 @@ private:
   float fixedphase_ns_;
   float max_fracerror_;
 
-  /////////////
   const HcalTimeSlew* hcalTimeSlew_delay_;
-  ////////////
 };
 
 #endif
