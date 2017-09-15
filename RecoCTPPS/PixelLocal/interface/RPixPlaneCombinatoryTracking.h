@@ -36,7 +36,6 @@ class RPixPlaneCombinatoryTracking : public RPixDetTrackFinder{
     typedef std::map< HitReferences, PointInPlaneList > PointAndReferenceMap;
     typedef std::pair<HitReferences, PointInPlaneList > PointAndReferencePair;
 
-    edm::ParameterSet param_;
     int verbosity_;
     uint32_t trackMinNumberOfPoints_;
     double maximumChi2OverNDF_;
