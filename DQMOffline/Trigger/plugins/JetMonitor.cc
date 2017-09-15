@@ -105,7 +105,8 @@ void JetMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   std::string hist_obtag = "";
   std::string histtitle_obtag = "";
   std::string currentFolder = folderName_ ;
-  ibooker.setCurrentFolder(currentFolder.c_str());
+  //  ibooker.setCurrentFolder(currentFolder.c_str());
+  ibooker.setCurrentFolder(currentFolder);
 
   if (isPFJetTrig) {hist_obtag = "pfjet";          histtitle_obtag =  "PFJet";}
   else if (isCaloJetTrig) {hist_obtag = "calojet"; histtitle_obtag =  "CaloJet"; }
@@ -131,6 +132,7 @@ void JetMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   histname = hist_obtag +"AbsEtaVsPhi_HEM17"; histtitle = histtitle_obtag + " |eta| Vs phi (HEM17) ";
   bookME(ibooker,jetHEM17_AbsEtaVsPhi_,histname,histtitle, eta_binning_hep17_.nbins, eta_binning_hep17_.xmin, eta_binning_hep17_.xmax, phi_binning_hep17_.nbins,phi_binning_hep17_.xmin,phi_binning_hep17_.xmax);
   setMETitle(jetHEM17_AbsEtaVsPhi_,histtitle_obtag + " |#eta|","#phi");
+  */
 
   histname = hist_obtag +"abseta_HEP17"; histtitle = histtitle_obtag + " |#eta| (HEP17) ";
   bookME(ibooker,jetHEP17_AbsEta_,histname,histtitle, eta_binning_hep17_.nbins, eta_binning_hep17_.xmin, eta_binning_hep17_.xmax);
@@ -139,7 +141,6 @@ void JetMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   histname = hist_obtag +"abseta_HEM17"; histtitle = histtitle_obtag + " |eta| (HEM17) ";
   bookME(ibooker,jetHEM17_AbsEta_,histname,histtitle, eta_binning_hep17_.nbins, eta_binning_hep17_.xmin, eta_binning_hep17_.xmax);
   setMETitle(jetHEM17_AbsEta_,histtitle_obtag + " |#eta|","events / |#eta|");
-  */
 
   // Initialize the GenericTriggerEventFlag
   if ( num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() ) num_genTriggerEventFlag_->initRun( iRun, iSetup );
@@ -181,7 +182,8 @@ void JetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 //    cout << "jetpt (view ) : " << ijet->pt() << endl;
   }
 
-  if (v_jetpt.size() < 1) {return;}
+  //  if (v_jetpt.size() < 1) {return;}
+  if ( v_jetpt.empty() ) return;
   double jetpt_ = v_jetpt[0];
   double jeteta_ = v_jeteta[0];
   double jetphi_ = v_jetphi[0];
@@ -189,76 +191,78 @@ void JetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   FillME(a_ME,jetpt_,jetphi_,jeteta_,ls,"denominator"); 
   if (isBarrel( jeteta_ ) )
   {
-     FillME(a_ME_HB,jetpt_,jetphi_,jeteta_,ls,"denominator"); 
+    FillME(a_ME_HB,jetpt_,jetphi_,jeteta_,ls,"denominator", true, true, true, false); 
   }
-  if (isEndCapP( jeteta_ ) )
+  else if (isEndCapP( jeteta_ ) )
   {
-     FillME(a_ME_HE,jetpt_,jetphi_,jeteta_,ls,"denominator"); 
-     FillME(a_ME_HE_p,jetpt_,jetphi_,jeteta_,ls,"denominator"); 
+    FillME(a_ME_HE,  jetpt_,jetphi_,jeteta_,ls,"denominator",true, true, true, false); 
+    FillME(a_ME_HE_p,jetpt_,jetphi_,jeteta_,ls,"denominator",true, true, true, false); 
   }
-  if (isEndCapM( jeteta_ ) )
+  else if (isEndCapM( jeteta_ ) )
   {
-     FillME(a_ME_HE,jetpt_,jetphi_,jeteta_,ls,"denominator"); 
-     FillME(a_ME_HE_m,jetpt_,jetphi_,jeteta_,ls,"denominator"); 
+    FillME(a_ME_HE,  jetpt_,jetphi_,jeteta_,ls,"denominator",true, true, true, false); 
+    FillME(a_ME_HE_m,jetpt_,jetphi_,jeteta_,ls,"denominator",true, true, true, false); 
   }
-  if (isForward( jeteta_ ) )
+  else if (isForward( jeteta_ ) )
   {
-     FillME(a_ME_HF,jetpt_,jetphi_,jeteta_,ls,"denominator"); 
+    FillME(a_ME_HF,jetpt_,jetphi_,jeteta_,ls,"denominator"); 
   }
 
   if (isHEP17( jeteta_, jetphi_ ) )
   {
-    FillME(a_ME_HEP17,jetpt_,jetphi_,jeteta_,ls,"denominator",true,false,false); // doPhi, doEta, doEtaPhi
+    FillME(a_ME_HEP17,jetpt_,jetphi_,jeteta_,ls,"denominator",true,false,false, false); // doPhi, doEta, doEtaPhi, doVsLS
      //     jetHEP17_AbsEtaVsPhi_.denominator->Fill(abs(jeteta_),jetphi_);
     jetHEP17_AbsEta_.denominator->Fill(abs(jeteta_));
   }
-  if (isHEM17( jeteta_, jetphi_ ) )
+  else if (isHEM17( jeteta_, jetphi_ ) )
   {
-     FillME(a_ME_HEM17,jetpt_,jetphi_,jeteta_,ls,"denominator",true,false,false); // doPhi, doEta, doEtaPhi
+    FillME(a_ME_HEM17,jetpt_,jetphi_,jeteta_,ls,"denominator",true,false,false, false); // doPhi, doEta, doEtaPhi
      //     jetHEM17_AbsEtaVsPhi_.denominator->Fill(abs(jeteta_),jetphi_);
      jetHEM17_AbsEta_.denominator->Fill(abs(jeteta_));
   }
-  if (isHEP18( jeteta_, jetphi_ ) )
+  else if (isHEP18( jeteta_, jetphi_ ) )
   {
-     FillME(a_ME_HEP18,jetpt_,jetphi_,jeteta_,ls,"denominator",false,false,false); // doPhi, doEta, doEtaPhi 
+    FillME(a_ME_HEP18,jetpt_,jetphi_,jeteta_,ls,"denominator",false,false,false, false); // doPhi, doEta, doEtaPhi 
   }
+
+
   if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return; // Require Numerator //
 
   FillME(a_ME,jetpt_,jetphi_,jeteta_,ls,"numerator"); 
-
   if (isBarrel( jeteta_ ) )
   {
-     FillME(a_ME_HB,jetpt_,jetphi_,jeteta_,ls,"numerator"); 
+    FillME(a_ME_HB,jetpt_,jetphi_,jeteta_,ls,"numerator",true, true, true, false); 
   }
-  if (isEndCapP( jeteta_ ) )
+  else if (isEndCapP( jeteta_ ) )
   {
-     FillME(a_ME_HE,jetpt_,jetphi_,jeteta_,ls,"numerator"); 
-     FillME(a_ME_HE_p,jetpt_,jetphi_,jeteta_,ls,"numerator"); 
+    FillME(a_ME_HE,  jetpt_,jetphi_,jeteta_,ls,"numerator",true, true, true, false); 
+    FillME(a_ME_HE_p,jetpt_,jetphi_,jeteta_,ls,"numerator",true, true, true, false); 
   }
-  if (isEndCapM( jeteta_ ) )
+  else if (isEndCapM( jeteta_ ) )
   {
-     FillME(a_ME_HE,jetpt_,jetphi_,jeteta_,ls,"numerator"); 
-     FillME(a_ME_HE_m,jetpt_,jetphi_,jeteta_,ls,"numerator"); 
+    FillME(a_ME_HE,  jetpt_,jetphi_,jeteta_,ls,"numerator",true, true, true, false); 
+    FillME(a_ME_HE_m,jetpt_,jetphi_,jeteta_,ls,"numerator",true, true, true, false); 
   }
-  if (isForward( jeteta_ ) )
+  else if (isForward( jeteta_ ) )
   {
-     FillME(a_ME_HF,jetpt_,jetphi_,jeteta_,ls,"numerator"); 
+    FillME(a_ME_HF,jetpt_,jetphi_,jeteta_,ls,"numerator",true, true, true, false); 
   }
+
   if (isHEP17( jeteta_, jetphi_ ) )
   {
-     FillME(a_ME_HEP17,jetpt_,jetphi_,jeteta_,ls,"numerator",true,false,false); // doPhi, doEta, doEtaPhi
+    FillME(a_ME_HEP17,jetpt_,jetphi_,jeteta_,ls,"numerator",true,false,false, false); // doPhi, doEta, doEtaPhi, doVsLS
      //     jetHEP17_AbsEtaVsPhi_.numerator->Fill(abs(jeteta_),jetphi_);
-     jetHEP17_AbsEta_.numerator->Fill(abs(jeteta_));
+    jetHEP17_AbsEta_.numerator->Fill(abs(jeteta_));
   }
-  if (isHEM17( jeteta_, jetphi_ ) )
+  else if (isHEM17( jeteta_, jetphi_ ) )
   {
-     FillME(a_ME_HEM17,jetpt_,jetphi_,jeteta_,ls,"numerator",true,false,false); // doPhi, doEta, doEtaPhi
-     //     jetHEM17_AbsEtaVsPhi_.numerator->Fill(abs(jeteta_),jetphi_);
-     jetHEM17_AbsEta_.numerator->Fill(abs(jeteta_));
+    FillME(a_ME_HEM17,jetpt_,jetphi_,jeteta_,ls,"numerator",true,false,false,false); // doPhi, doEta, doEtaPhi, doVsLS
+    //     jetHEM17_AbsEtaVsPhi_.numerator->Fill(abs(jeteta_),jetphi_);
+    jetHEM17_AbsEta_.numerator->Fill(abs(jeteta_));
   }
-  if (isHEP18( jeteta_, jetphi_ ) )
+  else if (isHEP18( jeteta_, jetphi_ ) )
   {
-     FillME(a_ME_HEP18,jetpt_,jetphi_,jeteta_,ls,"numerator",false,false,false); // doPhi, doEta, doEtaPhi
+    FillME(a_ME_HEP18,jetpt_,jetphi_,jeteta_,ls,"numerator",false,false,false,false); // doPhi, doEta, doEtaPhi, doVsLS
   }
 
 }
@@ -384,7 +388,7 @@ bool JetMonitor::isHEP18(double eta, double phi){
       a_me[i].numerator = nullptr;
    }
 }*/
-void JetMonitor::FillME(JetME* a_me,double pt_, double phi_, double eta_, int ls_,const std::string& denu, bool doPhi, bool doEta, bool doEtaPhi){
+void JetMonitor::FillME(JetME* a_me,double pt_, double phi_, double eta_, int ls_,const std::string& denu, bool doPhi, bool doEta, bool doEtaPhi, bool doVsLS){
    std::string isDeno = "";
    isDeno = denu;
    std::string DenoOrNume = "";
@@ -396,7 +400,7 @@ void JetMonitor::FillME(JetME* a_me,double pt_, double phi_, double eta_, int ls
       // 5 = eta vs phi, 6 = eta vs pt , 7 = abs(eta) , 8 = abs(eta) vs phi 
       a_me[0].denominator->Fill(pt_);// pt
       a_me[1].denominator->Fill(pt_);// jetpT Threshold binning for pt 
-      a_me[2].denominator->Fill(ls_,pt_);// pt vs ls
+      if ( doVsLS   ) a_me[2].denominator->Fill(ls_,pt_);// pt vs ls
       if ( doPhi    ) a_me[3].denominator->Fill(phi_);// phi       
       if ( doEta    ) a_me[4].denominator->Fill(eta_);// eta
       if ( doEtaPhi ) a_me[5].denominator->Fill(eta_,phi_);// eta vs phi
@@ -406,7 +410,7 @@ void JetMonitor::FillME(JetME* a_me,double pt_, double phi_, double eta_, int ls
    {
       a_me[0].numerator->Fill(pt_);// pt 
       a_me[1].numerator->Fill(pt_);// jetpT Threshold binning for pt 
-      a_me[2].numerator->Fill(ls_,pt_);// pt vs ls
+      if ( doVsLS   ) a_me[2].numerator->Fill(ls_,pt_);// pt vs ls
       if ( doPhi    ) a_me[3].numerator->Fill(phi_);// phi
       if ( doEta    ) a_me[4].numerator->Fill(eta_);// eat
       if ( doEtaPhi ) a_me[5].numerator->Fill(eta_,phi_);// eta vs phi

@@ -88,8 +88,8 @@ protected:
   bool isHEP18(double eta, double phi); // -0.87< Phi < -1.22 
   //void FillME(std::vector<MonitorElement*> v_me,std::vector<double>v_pt, std::vector<double> v_phi); //Fill Histograms 
   //void AutoNullPtr(JetME* a_me,const int len_); //Fill Histograms 
-  void bookMESub(DQMStore::IBooker &,JetME* a_me,const int len_,const std::string& h_Name ,const std::string& h_Title, const std::string& h_subOptName, std::string h_subOptTitle, bool doPhi = true, bool doEta = true, bool doEtaPhi = true ); //Fill Histograms 
-  void FillME(JetME* a_me,double pt_, double phi_, double eta_, int ls_, const std::string& denu, bool doPhi = true, bool doEta = true, bool doEtaPhi = true); //Fill Histograms 
+  void bookMESub(DQMStore::IBooker &,JetME* a_me,const int len_,const std::string& h_Name ,const std::string& h_Title, const std::string& h_subOptName, std::string h_subOptTitle, bool doPhi = true, bool doEta = true, bool doEtaPhi = true); //Fill Histograms 
+  void FillME(JetME* a_me,double pt_, double phi_, double eta_, int ls_, const std::string& denu, bool doPhi = true, bool doEta = true, bool doEtaPhi = true, bool doVsLS = true); //Fill Histograms 
 
 private:
   static MEbinning getHistoPSet    (const edm::ParameterSet& pset);
