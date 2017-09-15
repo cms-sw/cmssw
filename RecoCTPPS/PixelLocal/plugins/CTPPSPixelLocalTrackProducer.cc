@@ -228,8 +228,8 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event& iEvent, const edm::EventS
 
   //remove rechit for pot with too many hits or containing planes with too many hits
   for(const auto & recHitSet : recHitVector){
-    CTPPSPixelDetId tmpRomanPotId = CTPPSPixelDetId(recHitSet.detId()).getRPId();
-    CTPPSPixelDetId tmpDetectorId = CTPPSPixelDetId(recHitSet.detId());
+    const auto tmpDetectorId = CTPPSPixelDetId(recHitSet.detId());
+    const auto tmpRomanPotId = tmpDetectorId.getRPId();
 
     if((maxHitPerRomanPot_>=0 && mapHitPerPot[tmpRomanPotId]>(uint32_t)maxHitPerRomanPot_) || 
       find (listOfPotWithHighOccupancyPlanes.begin(), listOfPotWithHighOccupancyPlanes.end(), tmpRomanPotId) != listOfPotWithHighOccupancyPlanes.end() ){
