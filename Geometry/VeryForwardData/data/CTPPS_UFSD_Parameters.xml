@@ -47,7 +47,7 @@
     <Constant name="Strip2A_dy" value="3.08*mm"/>
     <Constant name="Strip2B_dy" value="2.87*mm"/>
 
-    <Constant name="Str_dz" value="2*[Metalized_thick]"/>
+    <Constant name="Strip_dz" value="2*[Metalized_thick]"/>
 
     <!-- Detector Planes -->
     <Constant name="Plane_dx" value="[UFSD_dx]"/>
