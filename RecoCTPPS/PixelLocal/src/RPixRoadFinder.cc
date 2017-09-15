@@ -79,34 +79,34 @@ void RPixRoadFinder::findPattern(){
 
   }
   
-  Road::iterator _gh1 = temp_all_hits.begin();
-  Road::iterator _gh2;
+  Road::iterator it_gh1 = temp_all_hits.begin();
+  Road::iterator it_gh2;
 
   patternVector_.clear();
 
 //look for points near wrt each other
 // starting algorithm
-  while( _gh1 != temp_all_hits.end() && temp_all_hits.size() > minRoadSize_){
+  while( it_gh1 != temp_all_hits.end() && temp_all_hits.size() > minRoadSize_){
     Road temp_road;
   
-    _gh2 = _gh1;
+    it_gh2 = it_gh1;
 
-    CLHEP::Hep3Vector currPoint = _gh1->globalPoint;
-    CTPPSPixelDetId currDet = CTPPSPixelDetId(_gh1->detId);
+    CLHEP::Hep3Vector currPoint = it_gh1->globalPoint;
+    CTPPSPixelDetId currDet = CTPPSPixelDetId(it_gh1->detId);
 
-    while( _gh2 != temp_all_hits.end()){
+    while( it_gh2 != temp_all_hits.end()){
       bool same_pot = false;
-      CTPPSPixelDetId tmpGh2Id = CTPPSPixelDetId(_gh2->detId);
-      if(    currDet.arm() == tmpGh2Id.arm() && currDet.station() == tmpGh2Id.station() && currDet.rp() == tmpGh2Id.rp() )same_pot = true;
-      CLHEP::Hep3Vector subtraction = currPoint - _gh2->globalPoint;
+      CTPPSPixelDetId tmpGh2Id = CTPPSPixelDetId(it_gh2->detId);
+      if ( currDet.getRPId() == tmpGh2Id.getRPId() ) same_pot = true;
+      CLHEP::Hep3Vector subtraction = currPoint - it_gh2->globalPoint;
 
       if(subtraction.perp() < roadRadius_ && same_pot) {  /// 1mm
-        temp_road.push_back(*_gh2);
-        temp_all_hits.erase(_gh2);
+        temp_road.push_back(*it_gh2);
+        temp_all_hits.erase(it_gh2);
       }else{
-        ++_gh2;
+        ++it_gh2;
       }
-      if(verbosity_>1)std::cout << " SIZE " << temp_all_hits.size() <<std::endl;
+
     }
 
     if(temp_road.size() > minRoadSize_ && temp_road.size() < maxRoadSize_ )patternVector_.push_back(temp_road);
