@@ -25,7 +25,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-DDG4DispContainer * DDG4Builder::theVectorOfDDG4Dispatchables_ = 0;
+DDG4DispContainer * DDG4Builder::theVectorOfDDG4Dispatchables_ = nullptr;
 
 DDG4DispContainer * DDG4Builder::theVectorOfDDG4Dispatchables() { 
   return theVectorOfDDG4Dispatchables_; 
@@ -67,7 +67,7 @@ G4VSolid * DDG4Builder::convertSolid(const DDSolid & solid) {
 
 G4Material * DDG4Builder::convertMaterial(const DDMaterial & material) {
   LogDebug("SimG4CoreGeometry") << "DDDetConstr::ConvertMaterial: material=" << material << "\n";
-  G4Material * result = 0;
+  G4Material * result = nullptr;
   if (material) {
     // only if it's a valid DDD-material
     if ((result = mats_[material])) {
@@ -124,7 +124,7 @@ DDGeometryReturnType DDG4Builder::BuildGeometry() {
     }
     G4LogicalVolume * g4LV = convertLV(ddLP);
     ++i;	
-    if (git->size()) {
+    if (!git->empty()) {
       // ask for children of ddLP  
       graph_type::edge_list::const_iterator cit  = git->begin();
       graph_type::edge_list::const_iterator cend = git->end();
@@ -233,7 +233,7 @@ double DDG4Builder::getDouble(const std::string & s,
     }
     double v;
     std::string unit;
-    std::istringstream is(temp[0].c_str());
+    std::istringstream is(temp[0]);
     is >> v >> unit;
     v  = v*G4UnitDefinition::GetValueOf(unit.substr(1,unit.size()));
     return v;

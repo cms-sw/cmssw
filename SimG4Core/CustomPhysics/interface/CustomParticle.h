@@ -31,7 +31,7 @@ class CustomParticle : public G4ParticleDefinition
    void SetSpectator(G4ParticleDefinition* theSpectator);
    G4ParticleDefinition* GetCloud();
    G4ParticleDefinition* GetSpectator();
-   virtual ~CustomParticle() {}
+   ~CustomParticle() override {}
 };
 
 inline void CustomParticle::SetCloud(G4ParticleDefinition* theCloud){ m_cloud = theCloud; }
