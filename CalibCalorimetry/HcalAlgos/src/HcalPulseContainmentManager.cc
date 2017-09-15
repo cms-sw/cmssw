@@ -8,18 +8,14 @@ HcalPulseContainmentManager::HcalPulseContainmentManager(float max_fracerror )
   shapes_(),
   max_fracerror_(max_fracerror)
 {
-  ////////////////////
   hcalTimeSlew_delay_ = nullptr;
-  ////////////////////
 }
 
 void HcalPulseContainmentManager::beginRun(edm::EventSetup const & es)
 {
-  ///////////////////
   edm::ESHandle<HcalTimeSlew> delay;
   es.get<HcalTimeSlewRecord>().get("", delay);
   hcalTimeSlew_delay_ = &*delay;
-  ///////////////////
 
   shapes_.beginRun(es);
 }
