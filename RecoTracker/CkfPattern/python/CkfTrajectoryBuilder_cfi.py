@@ -16,7 +16,6 @@ CkfTrajectoryBuilder = cms.PSet(
 #    propagatorOpposite = cms.string('PropagatorWithMaterialParabolicMfOpposite'),
     lostHitPenalty = cms.double(30.0),
     #SharedSeedCheck = cms.bool(False)
-    produceSeedStopReasons = cms.bool(False), # useful only for ntuple/debugging
 )
 
 

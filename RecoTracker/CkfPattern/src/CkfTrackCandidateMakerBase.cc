@@ -8,7 +8,7 @@
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/Common/interface/View.h"
-#include "DataFormats/TrackReco/interface/SeedStopReason.h"
+#include "DataFormats/TrackReco/interface/SeedStopInfo.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
@@ -67,16 +67,15 @@ namespace cms{
     doSeedingRegionRebuilding(conf.getParameter<bool>("doSeedingRegionRebuilding")),
     cleanTrajectoryAfterInOut(conf.getParameter<bool>("cleanTrajectoryAfterInOut")),
     reverseTrajectories(conf.existsAs<bool>("reverseTrajectories") && conf.getParameter<bool>("reverseTrajectories")),
-    produceSeedStopReasons_(false),
     theMaxNSeeds(conf.getParameter<unsigned int>("maxNSeeds")),
     theTrajectoryBuilder(createBaseCkfTrajectoryBuilder(conf.getParameter<edm::ParameterSet>("TrajectoryBuilderPSet"), iC)),
     theTrajectoryCleanerName(conf.getParameter<std::string>("TrajectoryCleaner")),
-    theTrajectoryCleaner(0),
+    theTrajectoryCleaner(nullptr),
     theInitialState(new TransientInitialStateEstimator(conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters"))),
     theMagFieldName(conf.exists("SimpleMagneticField") ? conf.getParameter<std::string>("SimpleMagneticField") : ""),
     theNavigationSchoolName(conf.getParameter<std::string>("NavigationSchool")),
-    theNavigationSchool(0),
-    theSeedCleaner(0),
+    theNavigationSchool(nullptr),
+    theSeedCleaner(nullptr),
     maxSeedsBeforeCleaning_(0),
     theMTELabel(iC.consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("MeasurementTrackerEvent"))),
     skipClusters_(false),
@@ -113,7 +112,7 @@ namespace cms{
 	conf.getParameter<bool>("onlyPixelHitsForSeedCleaner") : false;
       theSeedCleaner = new CachingSeedCleanerBySharedInput(numHitsForSeedCleaner,onlyPixelHits);
     } else if (cleaner == "none") {
-        theSeedCleaner = 0;
+        theSeedCleaner = nullptr;
     } else {
         throw cms::Exception("RedundantSeedCleaner not found", cleaner);
     }
@@ -210,21 +209,18 @@ namespace cms{
     // Step C: Create empty output collection
     auto output = std::make_unique<TrackCandidateCollection>();
     auto outputT = std::make_unique<std::vector<Trajectory>>();
-    std::unique_ptr<std::vector<short> > outputSeedStopReasons;
-    if(produceSeedStopReasons_) {
-      outputSeedStopReasons = std::make_unique<std::vector<short> >(collseed->size(), SeedStopReason::UNINITIALIZED);
-    }
+    auto outputSeedStopInfos = std::make_unique<std::vector<SeedStopInfo> >(collseed->size());
 
     if ( (*collseed).size()>theMaxNSeeds ) {
       LogError("TooManySeeds")<<"Exceeded maximum numeber of seeds! theMaxNSeeds="<<theMaxNSeeds<<" nSeed="<<(*collseed).size();
       if (theTrackCandidateOutput){e.put(std::move(output));}
       if (theTrajectoryOutput){e.put(std::move(outputT));}
-      if (produceSeedStopReasons_){e.put(std::move(outputSeedStopReasons));}
+      e.put(std::move(outputSeedStopInfos));
       return;
     }
 
     // Step D: Invoke the building algorithm
-    if ((*collseed).size()>0){
+    if (!(*collseed).empty()){
 
       unsigned int lastCleanResult=0;
       std::vector<Trajectory> rawResult;
@@ -295,20 +291,22 @@ namespace cms{
 	// Check if seed hits already used by another track
 	if (theSeedCleaner && !theSeedCleaner->good( &((*collseed)[j])) ) {
           LogDebug("CkfTrackCandidateMakerBase")<<" Seed cleaning kills seed "<<j;
-          if(produceSeedStopReasons_) (*outputSeedStopReasons)[j] = SeedStopReason::SEED_CLEANING;
+          (*outputSeedStopInfos)[j].setStopReason(SeedStopReason::SEED_CLEANING);
           return;  // from the lambda!
         }}
 
 
 	// Build trajectory from seed outwards
         theTmpTrajectories.clear();
-	auto const & startTraj = theTrajectoryBuilder->buildTrajectories( (*collseed)[j], theTmpTrajectories, nullptr );
-        if(theTmpTrajectories.empty()) {
-          if(produceSeedStopReasons_) {
-            Lock lock(theMutex);
-            (*outputSeedStopReasons)[j] = SeedStopReason::NO_TRAJECTORY;
+        unsigned int nCandPerSeed = 0;
+        auto const & startTraj = theTrajectoryBuilder->buildTrajectories( (*collseed)[j], theTmpTrajectories, nCandPerSeed, nullptr );
+        {
+          Lock lock(theMutex);
+          (*outputSeedStopInfos)[j].setCandidatesPerSeed(nCandPerSeed);
+          if(theTmpTrajectories.empty()) {
+            (*outputSeedStopInfos)[j].setStopReason(SeedStopReason::NO_TRAJECTORY);
+            return; // from the lambda!
           }
-          return; // from the lambda!
         }
 
 	LogDebug("CkfPattern") << "======== In-out trajectory building found " << theTmpTrajectories.size()
@@ -335,6 +333,11 @@ namespace cms{
   	  LogDebug("CkfPattern") << "======== Out-in trajectory building found " << theTmpTrajectories.size()
   			              << " valid/invalid trajectories from seed " << j << " ========\n"
 				 <<PrintoutHelper::dumpCandidates(theTmpTrajectories);
+          if(theTmpTrajectories.empty()) {
+            Lock lock(theMutex);
+            (*outputSeedStopInfos)[j].setStopReason(SeedStopReason::SEED_REGION_REBUILD);
+            return;
+          }
         }
 
 
@@ -350,7 +353,7 @@ namespace cms{
 	    it!=theTmpTrajectories.end(); it++){
 	  if( it->isValid() ) {
 	    it->setSeedRef(collseed->refAt(j));
-            if(produceSeedStopReasons_) (*outputSeedStopReasons)[j] = SeedStopReason::NOT_STOPPED;
+            (*outputSeedStopInfos)[j].setStopReason(SeedStopReason::NOT_STOPPED);
 	    // Store trajectory
 	    rawResult.push_back(std::move(*it));
   	    // Tell seed cleaner which hits this trajectory used.
@@ -410,14 +413,12 @@ namespace cms{
 
       LogDebug("CkfPattern") << "removing invalid trajectories.";
 
-      if(produceSeedStopReasons_) {
-        // Assuming here that theLoop() gives at most one Trajectory per seed
-        for(const auto& traj: rawResult) {
-          if(!traj.isValid()) {
-            const auto seedIndex = traj.seedRef().key();
-            if((*outputSeedStopReasons)[seedIndex] == SeedStopReason::NOT_STOPPED) {
-              (*outputSeedStopReasons)[seedIndex] = SeedStopReason::FINAL_CLEAN;
-            }
+      // Assuming here that theLoop() gives at most one Trajectory per seed
+      for(const auto& traj: rawResult) {
+        if(!traj.isValid()) {
+          const auto seedIndex = traj.seedRef().key();
+          if((*outputSeedStopInfos)[seedIndex].stopReason() == SeedStopReason::NOT_STOPPED) {
+            (*outputSeedStopInfos)[seedIndex].setStopReason(SeedStopReason::FINAL_CLEAN);
           }
         }
       }
@@ -432,7 +433,7 @@ namespace cms{
         for (auto it = unsmoothedResult.begin(), ed = unsmoothedResult.end(); it != ed; ++it) {
           // reverse the trajectory only if it has valid hit on the last measurement (should happen)
           if (it->lastMeasurement().updatedState().isValid() &&
-              it->lastMeasurement().recHit().get() != 0     &&
+              it->lastMeasurement().recHit().get() != nullptr     &&
               it->lastMeasurement().recHit()->isValid()) {
             // I can't use reverse in place, because I want to change the seed
             // 1) reverse propagation direction
@@ -506,10 +507,8 @@ namespace cms{
          } while(failed && trialTrajectory.foundHits() > 3);
 
          if(failed) {
-           if(produceSeedStopReasons_) {
-             const auto seedIndex = it->seedRef().key();
-             (*outputSeedStopReasons)[seedIndex] = SeedStopReason::SMOOTHING_FAILED;
-           }
+           const auto seedIndex = it->seedRef().key();
+           (*outputSeedStopInfos)[seedIndex].setStopReason(SeedStopReason::SMOOTHING_FAILED);
            continue;
          }
 
@@ -549,7 +548,7 @@ namespace cms{
     // Step G: write output to file
     if (theTrackCandidateOutput){e.put(std::move(output));}
     if (theTrajectoryOutput){e.put(std::move(outputT));}
-    if (produceSeedStopReasons_){e.put(std::move(outputSeedStopReasons));}
+    e.put(std::move(outputSeedStopInfos));
   }
 
 }
