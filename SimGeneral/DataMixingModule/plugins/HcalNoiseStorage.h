@@ -40,7 +40,7 @@ namespace edm
     public:
 
       HcalNoiseStorage() {};
-      ~HcalNoiseStorage() {};
+      ~HcalNoiseStorage() override {};
 
      /** standard constructor*/
      // explicit HcalNoiseStorage();
