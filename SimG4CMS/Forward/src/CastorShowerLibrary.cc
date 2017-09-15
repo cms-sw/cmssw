@@ -21,7 +21,7 @@
 //#define DebugLog
 
 CastorShowerLibrary::CastorShowerLibrary(std::string & name, edm::ParameterSet const & p) 
-                                          : hf(0), evtInfo(0), emBranch(0), hadBranch(0),
+                                          : hf(nullptr), evtInfo(nullptr), emBranch(nullptr), hadBranch(nullptr),
                                             nMomBin(0), totEvents(0), evtPerBin(0),
                                             nBinsE(0),nBinsEta(0),nBinsPhi(0),
                                             nEvtPerBinE(0),nEvtPerBinEta(0),nEvtPerBinPhi(0),
@@ -212,14 +212,9 @@ void CastorShowerLibrary::initParticleTable(G4ParticleTable * theParticleTable) 
 CastorShowerEvent CastorShowerLibrary::getShowerHits(G4Step * aStep, bool & ok) {
 
   G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
-  // G4StepPoint * postStepPoint = aStep->GetPostStepPoint(); 
   G4Track *     track         = aStep->GetTrack();
-  // Get Z-direction 
-  const G4DynamicParticle *aParticle = track->GetDynamicParticle();
-  G4ThreeVector               momDir = aParticle->GetMomentumDirection();
-  //  double mom = aParticle->GetTotalMomentum();
 
-  G4ThreeVector hitPoint = preStepPoint->GetPosition();   
+  const G4ThreeVector& hitPoint = preStepPoint->GetPosition();   
   G4String      partType = track->GetDefinition()->GetParticleName();
   int           parCode  = track->GetDefinition()->GetPDGEncoding();
 
@@ -233,10 +228,7 @@ CastorShowerEvent CastorShowerLibrary::getShowerHits(G4Step * aStep, bool & ok) 
     return hit;
   ok = true;
 
-  double pin    = preStepPoint->GetTotalEnergy();
-  //  double etain  = momDir.getEta();
-  //double phiin  = momDir.getPhi();
-  
+  double pin  = preStepPoint->GetTotalEnergy();
   double zint = hitPoint.z();
   double R=sqrt(hitPoint.x()*hitPoint.x() + hitPoint.y()*hitPoint.y());
   double theta = atan2(R,std::abs(zint));

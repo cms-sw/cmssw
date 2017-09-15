@@ -32,8 +32,8 @@ CastorSD::CastorSD(G4String name, const DDCompactView & cpv,
 		   const SensitiveDetectorCatalog & clg,
 		   edm::ParameterSet const & p, 
 		   const SimTrackManager* manager) : 
-  CaloSD(name, cpv, clg, p, manager), numberingScheme(0), lvC3EF(0),
-  lvC3HF(0), lvC4EF(0), lvC4HF(0), lvCAST(0) {
+  CaloSD(name, cpv, clg, p, manager), numberingScheme(nullptr), lvC3EF(nullptr),
+  lvC3HF(nullptr), lvC4EF(nullptr), lvC4HF(nullptr), lvCAST(nullptr) {
   
   edm::ParameterSet m_CastorSD = p.getParameter<edm::ParameterSet>("CastorSD");
   useShowerLibrary  = m_CastorSD.getParameter<bool>("useShowerLibrary");
@@ -61,7 +61,7 @@ CastorSD::CastorSD(G4String name, const DDCompactView & cpv,
     if (strcmp(((*lvcite)->GetName()).c_str(),"C4EF") == 0) lvC4EF = (*lvcite);
     if (strcmp(((*lvcite)->GetName()).c_str(),"C4HF") == 0) lvC4HF = (*lvcite);
     if (strcmp(((*lvcite)->GetName()).c_str(),"CAST") == 0) lvCAST = (*lvcite);
-    if (lvC3EF != 0 && lvC3HF != 0 && lvC4EF != 0 && lvC4HF != 0 && lvCAST != 0) break;
+    if (lvC3EF != nullptr && lvC3HF != nullptr && lvC4EF != nullptr && lvC4HF != nullptr && lvCAST != nullptr) break;
   }
   edm::LogInfo("ForwardSim") << "CastorSD:: LogicalVolume pointers\n"
 			     << lvC3EF << " for C3EF; " << lvC3HF 
@@ -96,7 +96,7 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
   
   double NCherPhot = 0.;
 
-  if (aStep == NULL) 
+  if (aStep == nullptr) 
     return 0;
 
   // Get theTrack 
@@ -168,8 +168,8 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
   
   // if particle moves from interaction point or "backwards (halo)
   bool backward = false;
-  G4ThreeVector  hitPoint = preStepPoint->GetPosition();	
-  G4ThreeVector  hit_mom  = preStepPoint->GetMomentumDirection();
+  const G4ThreeVector&  hitPoint = preStepPoint->GetPosition();	
+  const G4ThreeVector&  hit_mom  = preStepPoint->GetMomentumDirection();
   double zint = hitPoint.z();
   double pz   = hit_mom.z();
   
@@ -531,14 +531,14 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
 //=======================================================================================
 
 uint32_t CastorSD::setDetUnitId(G4Step* aStep) {
-  return (numberingScheme == 0 ? 0 : numberingScheme->getUnitID(aStep));
+  return (numberingScheme == nullptr ? 0 : numberingScheme->getUnitID(aStep));
 }
 
 //=======================================================================================
 
 void CastorSD::setNumberingScheme(CastorNumberingScheme* scheme) {
 
-  if (scheme != 0) {
+  if (scheme != nullptr) {
     edm::LogInfo("ForwardSim") << "CastorSD: updates numbering scheme for " 
 			       << GetName();
     if (numberingScheme) delete numberingScheme;
