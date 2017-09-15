@@ -31,14 +31,14 @@ process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",ignoreTotal = cms.un
 process.source = cms.Source("PoolSource",
     skipEvents = cms.untracked.uint32(0),
     fileNames = cms.untracked.vstring(
- 'root://cms-xrd-global.cern.ch//store/data/Run2017A/ZeroBias2/AOD/PromptReco-v1/000/294/736/00000/44589413-F73F-E711-9E8D-02163E014337.root',
- 'root://cms-xrd-global.cern.ch//store/data/Run2017A/ZeroBias2/AOD/PromptReco-v1/000/294/736/00000/4493383A-F63F-E711-A67F-02163E011870.root',
- 'root://cms-xrd-global.cern.ch//store/data/Run2017A/ZeroBias2/AOD/PromptReco-v1/000/294/736/00000/5C6E42A5-0640-E711-9C3E-02163E011B62.root',
- 'root://cms-xrd-global.cern.ch//store/data/Run2017A/ZeroBias2/AOD/PromptReco-v1/000/294/736/00000/98F7DD15-F93F-E711-87E1-02163E019D62.root',
- 'root://cms-xrd-global.cern.ch//store/data/Run2017A/ZeroBias2/AOD/PromptReco-v1/000/294/736/00000/A01D8813-0A40-E711-A300-02163E01A211.root',
- 'root://cms-xrd-global.cern.ch//store/data/Run2017A/ZeroBias2/AOD/PromptReco-v1/000/294/736/00000/B83C33DB-F63F-E711-82FC-02163E019DF3.root',
- 'root://cms-xrd-global.cern.ch//store/data/Run2017A/ZeroBias2/AOD/PromptReco-v1/000/294/736/00000/D6706DD8-F93F-E711-9F6D-02163E019D7F.root',
- 'root://cms-xrd-global.cern.ch//store/data/Run2017A/ZeroBias2/AOD/PromptReco-v1/000/294/736/00000/E206A2BF-FA3F-E711-8E72-02163E01369C.root'
+ '/store/data/Run2017A/ZeroBias2/AOD/PromptReco-v1/000/294/736/00000/44589413-F73F-E711-9E8D-02163E014337.root',
+ '/store/data/Run2017A/ZeroBias2/AOD/PromptReco-v1/000/294/736/00000/4493383A-F63F-E711-A67F-02163E011870.root',
+ '/store/data/Run2017A/ZeroBias2/AOD/PromptReco-v1/000/294/736/00000/5C6E42A5-0640-E711-9C3E-02163E011B62.root',
+ '/store/data/Run2017A/ZeroBias2/AOD/PromptReco-v1/000/294/736/00000/98F7DD15-F93F-E711-87E1-02163E019D62.root',
+ '/store/data/Run2017A/ZeroBias2/AOD/PromptReco-v1/000/294/736/00000/A01D8813-0A40-E711-A300-02163E01A211.root',
+ '/store/data/Run2017A/ZeroBias2/AOD/PromptReco-v1/000/294/736/00000/B83C33DB-F63F-E711-82FC-02163E019DF3.root',
+ '/store/data/Run2017A/ZeroBias2/AOD/PromptReco-v1/000/294/736/00000/D6706DD8-F93F-E711-9F6D-02163E019D7F.root',
+ '/store/data/Run2017A/ZeroBias2/AOD/PromptReco-v1/000/294/736/00000/E206A2BF-FA3F-E711-8E72-02163E01369C.root'
 ),
 duplicateCheckMode = cms.untracked.string("checkEachFile")
 )
