@@ -93,6 +93,7 @@ class TrackingMonitor : public DQMEDAnalyzer
 	edm::EDGetTokenT<edm::View<reco::Track> > trackToken_;
 	edm::EDGetTokenT<TrackCandidateCollection> trackCandidateToken_;
 	edm::EDGetTokenT<edm::View<TrajectorySeed> > seedToken_;
+	edm::EDGetTokenT<std::vector<SeedStopInfo> > seedStopInfoToken_;
 	edm::EDGetTokenT<edm::OwnVector<TrackingRegion> > regionToken_;
 	edm::EDGetTokenT<reco::CandidateView> regionCandidateToken_;
 
