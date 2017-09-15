@@ -44,7 +44,7 @@ l1tStage2CaloLayer2OfflineDQM = cms.EDAnalyzer(
     "L1TStage2CaloLayer2Offline",
     electronCollection=cms.InputTag("gedGsfElectrons"),
     caloJetCollection=cms.InputTag("ak4CaloJets"),
-    caloMETCollection=cms.InputTag("caloMet"),
+    caloMETCollection=cms.InputTag("caloMetBE"),
     conversionsCollection=cms.InputTag("allConversions"),
     PVCollection=cms.InputTag("offlinePrimaryVerticesWithBS"),
     beamSpotCollection=cms.InputTag("offlineBeamSpot"),
