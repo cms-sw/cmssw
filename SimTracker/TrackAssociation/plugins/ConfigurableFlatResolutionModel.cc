@@ -7,8 +7,8 @@ public:
     reso_( conf.getParameter<double>("resolutionInNs") ) {
   }
   
-  virtual float getTimeResolution(const reco::Track&) const override { return reso_; }
-  virtual float getTimeResolution(const reco::PFCluster&) const override { return reso_; }
+  float getTimeResolution(const reco::Track&) const override { return reso_; }
+  float getTimeResolution(const reco::PFCluster&) const override { return reso_; }
   
 private:
   const float reso_;

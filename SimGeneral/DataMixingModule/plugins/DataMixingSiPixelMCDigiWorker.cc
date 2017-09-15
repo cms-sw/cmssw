@@ -154,8 +154,8 @@ namespace edm
         thePUEfficiency.push_back(conf.getParameter<std::vector<double> >("thePUEfficiency_BPix1"));
         thePUEfficiency.push_back(conf.getParameter<std::vector<double> >("thePUEfficiency_BPix2"));
         thePUEfficiency.push_back(conf.getParameter<std::vector<double> >("thePUEfficiency_BPix3"));		    		    
-        if ( ((thePUEfficiency[0].size()==0) || (thePUEfficiency[1].size()==0) || 
-              (thePUEfficiency[2].size()==0)) && (NumberOfBarrelLayers==3) )
+        if ( ((thePUEfficiency[0].empty()) || (thePUEfficiency[1].empty()) || 
+              (thePUEfficiency[2].empty())) && (NumberOfBarrelLayers==3) )
           throw cms::Exception("Configuration") << "At least one PU efficiency (BPix) number is needed in efficiency config!";
       }
       // The next is needed for Phase2 Tracker studies
@@ -201,7 +201,7 @@ namespace edm
         theOuterEfficiency_FPix[i++] = conf.getParameter<double>("theOuterEfficiency_FPix2");
         thePUEfficiency.push_back(conf.getParameter<std::vector<double> >("thePUEfficiency_FPix_Inner"));
         thePUEfficiency.push_back(conf.getParameter<std::vector<double> >("thePUEfficiency_FPix_Outer"));
-        if ( ((thePUEfficiency[3].size()==0) || (thePUEfficiency[4].size()==0)) && (NumberOfEndcapDisks==2) )
+        if ( ((thePUEfficiency[3].empty()) || (thePUEfficiency[4].empty())) && (NumberOfEndcapDisks==2) )
           throw cms::Exception("Configuration") << "At least one (FPix) PU efficiency number is needed in efficiency config!";
         pu_scale.resize(thePUEfficiency.size());
       }
@@ -233,7 +233,7 @@ void DataMixingSiPixelMCDigiWorker::PixelEfficiencies::init_from_db(const edm::E
   
   // Loop on all modules, calculate geometrical scale factors and store in map for easy access
   for(TrackerGeometry::DetUnitContainer::const_iterator it_module = geom->detUnits().begin(); it_module != geom->detUnits().end(); it_module++) {
-    if( dynamic_cast<PixelGeomDetUnit const*>((*it_module))==0) continue;
+    if( dynamic_cast<PixelGeomDetUnit const*>((*it_module))==nullptr) continue;
     const DetId detid = (*it_module)->geographicalId();
     uint32_t rawid = detid.rawId();
     PixelGeomFactors[rawid] = 1;
@@ -250,7 +250,7 @@ void DataMixingSiPixelMCDigiWorker::PixelEfficiencies::init_from_db(const edm::E
   for (auto factor : PUFactors) {
     const DetId db_id = DetId(factor.first);
     for(TrackerGeometry::DetUnitContainer::const_iterator it_module = geom->detUnits().begin(); it_module != geom->detUnits().end(); it_module++) {
-      if( dynamic_cast<PixelGeomDetUnit const*>((*it_module))==0) continue;
+      if( dynamic_cast<PixelGeomDetUnit const*>((*it_module))==nullptr) continue;
       const DetId detid = (*it_module)->geographicalId();
       if (!matches(detid, db_id, DetIdmasks)) continue;
       if (iPU.count(detid.rawId())) {
@@ -486,7 +486,7 @@ bool DataMixingSiPixelMCDigiWorker::PixelEfficiencies::matches(const DetId& deti
 	signal_map_type& theSignal = _signal[detID];
 
 	// if we have some hits...
-	if(theSignal.size()>0) {
+	if(!theSignal.empty()) {
 
 	  edm::DetSet<PixelDigi> SPD(detID);  // make empty vector with this detID so we can push back digis at the end 
 

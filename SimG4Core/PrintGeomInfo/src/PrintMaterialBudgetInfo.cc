@@ -61,7 +61,7 @@ void PrintMaterialBudgetInfo::update(const BeginOfRun* run) {
   G4LogicalVolume*  lv = theTopPV->GetLogicalVolume();
   unsigned int leafDepth = 0;
   // the first time fill the vectors of elements
-  if( elementNames.size()==0 && elementTotalWeight.size()==0 && elementWeightFraction.size()==0) {
+  if( elementNames.empty() && elementTotalWeight.empty() && elementWeightFraction.empty()) {
     for(unsigned int iElement = 0;
 	iElement < G4Element::GetNumberOfElements();
 	iElement++) { // first element in table is 0

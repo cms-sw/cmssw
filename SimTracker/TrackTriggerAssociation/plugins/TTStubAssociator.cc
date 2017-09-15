@@ -52,7 +52,7 @@ void TTStubAssociator< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, co
 
     /// Loop over the input Stubs
 
-    if ( TTStubHandle->size() > 0 )
+    if ( !TTStubHandle->empty() )
     {
     for (auto gd=theTrackerGeom->dets().begin(); gd != theTrackerGeom->dets().end(); gd++) 
     {
@@ -143,7 +143,7 @@ void TTStubAssociator< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, co
           else
           {
             /// Here, at least one cluster is combinatoric
-            TrackingParticle* prevTPAddress = NULL;
+            TrackingParticle* prevTPAddress = nullptr;
             unsigned int whichTP = 0;
 
             std::vector< edm::Ptr< TrackingParticle > > trackingParticles0 = TTClusterAssociationMapHandle->findTrackingParticlePtrs( tempStubRef->getClusterRef(0) );
@@ -166,7 +166,7 @@ void TTStubAssociator< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, co
                 if ( trackingParticles0.at(i).get() == trackingParticles1.at(k).get() )
                 {
                   /// Same SimTrack is present in both clusters
-                  if ( prevTPAddress == NULL )
+                  if ( prevTPAddress == nullptr )
                   {
                     prevTPAddress = const_cast< TrackingParticle* >(trackingParticles1.at(k).get());
                     whichTP = k;
@@ -188,7 +188,7 @@ void TTStubAssociator< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, co
             if ( escape )
               continue;
 
-            if ( prevTPAddress == NULL )
+            if ( prevTPAddress == nullptr )
             {
               /// No SimTracks were found to be in both clusters
               continue;

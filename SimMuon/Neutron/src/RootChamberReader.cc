@@ -5,8 +5,8 @@
 using namespace std;
 
 RootChamberReader::RootChamberReader()
-: theTree(0),
-  theHits(0),
+: theTree(nullptr),
+  theHits(nullptr),
   thePosition(0),
   theSize(0)
 {
@@ -19,7 +19,7 @@ RootChamberReader::RootChamberReader(TFile * file, const std::string & treeName)
   thePosition(-1),
   theSize(0)
 {
-  if(theTree != 0) 
+  if(theTree != nullptr) 
   {
     theTree->SetBranchAddress("Hits", &theHits);
     theSize = theTree->GetEntries();
@@ -37,7 +37,7 @@ RootChamberReader::~RootChamberReader()
 void RootChamberReader::read(edm::PSimHitContainer & hits)
 {
   // if there's no tree, make no events
-  if(theTree != 0 && theSize != 0)
+  if(theTree != nullptr && theSize != 0)
   {
     ++thePosition;
     // start again from the beginning, if needed

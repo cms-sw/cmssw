@@ -192,7 +192,7 @@ void EcalFenixTcp::process_part2_endcap(std::vector<std::vector<int> > & bypassl
   //call formatter
   int eTTotShift=2; // Pascal: endcap has 12 bits as in EB (bug in FENIX!!!!) so shift must be applied to just keep [11:2]
 
-  this->getFormatter()->setParameters(towid.rawId(),ecaltpgLutGroup,ecaltpgLut,ecaltpgbadTT,0);
+  this->getFormatter()->setParameters(towid.rawId(),ecaltpgLutGroup,ecaltpgLut,ecaltpgbadTT,nullptr);
 
   this->getFormatter()->process(adder_out_,fgvb_out_,strip_fgvb_out_,eTTotShift,tcp_out,tcp_outTcc,isInInnerRings);
   //this is a test:
