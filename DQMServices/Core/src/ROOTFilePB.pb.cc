@@ -89,7 +89,7 @@ namespace {
 
 void protobuf_AssignDescriptors() {
   AddDescriptors();
-  ::google::protobuf::MessageFactory* factory = NULL;
+  ::google::protobuf::MessageFactory* factory = nullptr;
   AssignDescriptors(
       "DQMServices/Core/src/ROOTFilePB.proto", schemas, file_default_instances, TableStruct::offsets, factory,
       file_level_metadata, NULL, NULL);
@@ -225,7 +225,7 @@ const ROOTFilePB_Histo& ROOTFilePB_Histo::default_instance() {
 
 ROOTFilePB_Histo* ROOTFilePB_Histo::New(::google::protobuf::Arena* arena) const {
   ROOTFilePB_Histo* n = new ROOTFilePB_Histo;
-  if (arena != NULL) {
+  if (arena != nullptr) {
     arena->Own(n);
   }
   return n;
@@ -507,7 +507,7 @@ void ROOTFilePB_Histo::MergeFrom(const ::google::protobuf::Message& from) {
   const ROOTFilePB_Histo* source =
       ::google::protobuf::internal::DynamicCastToGenerated<const ROOTFilePB_Histo>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:dqmstorepb.ROOTFilePB.Histo)
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {
@@ -814,7 +814,7 @@ const ROOTFilePB& ROOTFilePB::default_instance() {
 
 ROOTFilePB* ROOTFilePB::New(::google::protobuf::Arena* arena) const {
   ROOTFilePB* n = new ROOTFilePB;
-  if (arena != NULL) {
+  if (arena != nullptr) {
     arena->Own(n);
   }
   return n;
@@ -949,7 +949,7 @@ void ROOTFilePB::MergeFrom(const ::google::protobuf::Message& from) {
   const ROOTFilePB* source =
       ::google::protobuf::internal::DynamicCastToGenerated<const ROOTFilePB>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:dqmstorepb.ROOTFilePB)
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {
