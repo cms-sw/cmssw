@@ -27,8 +27,8 @@ public:
 					      std::vector<int> & charges);
 
 private:
-  TreatSecondary(const TreatSecondary&); // stop default
-  const TreatSecondary& operator=(const TreatSecondary&);
+  TreatSecondary(const TreatSecondary&) = delete; // stop default
+  const TreatSecondary& operator=(const TreatSecondary&) = delete;
 
 private:
   int                                  verbosity, minSec, killAfter;

@@ -9,8 +9,8 @@ class KillSecondariesStackingAction : public G4UserStackingAction
 {
 public:
     KillSecondariesStackingAction() {}
-    ~KillSecondariesStackingAction() {}	
-    virtual G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track *);
+    ~KillSecondariesStackingAction() override {}	
+    G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track *) override;
 };
 
 #endif 
