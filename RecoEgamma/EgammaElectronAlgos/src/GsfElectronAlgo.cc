@@ -213,7 +213,6 @@ struct GsfElectronAlgo::EventData
   edm::Handle<reco::VertexCollection> vertices;
 
   // isolation helpers
-  ElectronTkIsolation * tkIsolation03, * tkIsolation04 ;
   EgammaTowerIsolation * hadDepth1Isolation03, * hadDepth1Isolation04 ;
   EgammaTowerIsolation * hadDepth2Isolation03, * hadDepth2Isolation04 ;
   EgammaTowerIsolation * hadDepth1Isolation03Bc, * hadDepth1Isolation04Bc ;
@@ -231,7 +230,6 @@ GsfElectronAlgo::EventData::EventData()
  : event(0), beamspot(0),
    originalCtfTrackCollectionRetreived(false),
    originalGsfTrackCollectionRetreived(false),
-   tkIsolation03(0), tkIsolation04(0),
    hadDepth1Isolation03(0), hadDepth1Isolation04(0),
    hadDepth2Isolation03(0), hadDepth2Isolation04(0),
    hadDepth1Isolation03Bc(0), hadDepth1Isolation04Bc(0),
@@ -244,8 +242,6 @@ GsfElectronAlgo::EventData::EventData()
 
 GsfElectronAlgo::EventData::~EventData()
  {
-  delete tkIsolation03 ;
-  delete tkIsolation04 ;
   delete hadDepth1Isolation03 ;
   delete hadDepth1Isolation04 ;
   delete hadDepth2Isolation03 ;
@@ -738,11 +734,15 @@ GsfElectronAlgo::GsfElectronAlgo
    EcalClusterFunctionBaseClass * crackCorrectionFunction,
    const SoftElectronMVAEstimator::Configuration & mva_NIso_Cfg,
    const ElectronMVAEstimator::Configuration & mva_Iso_Cfg,
-   const RegressionHelper::Configuration & regCfg
+   const RegressionHelper::Configuration & regCfg,
+   const edm::ParameterSet& tkIsol03Cfg,
+   const edm::ParameterSet& tkIsol04Cfg
+   
  )
    : generalData_(new GeneralData(inputCfg,strategyCfg,cutsCfg,cutsCfgPflow,hcalCfg,hcalCfgPflow,isoCfg,recHitsCfg,superClusterErrorFunction,crackCorrectionFunction,mva_NIso_Cfg,mva_Iso_Cfg,regCfg)),
    eventSetupData_(new EventSetupData),
-   eventData_(0), electronData_(0)
+   eventData_(0), electronData_(0),
+   tkIsol03Calc_(tkIsol03Cfg),tkIsol04Calc_(tkIsol04Cfg)
  {}
 
 GsfElectronAlgo::~GsfElectronAlgo()
@@ -851,12 +851,6 @@ void GsfElectronAlgo::beginEvent( edm::Event & event )
   generalData_->hcalHelperPflow->readEvent(event) ;
 
   // Isolation algos
-  float extRadiusSmall=0.3, extRadiusLarge=0.4 ;
-  float intRadiusBarrel=generalData_->isoCfg.intRadiusBarrelTk, intRadiusEndcap=generalData_->isoCfg.intRadiusEndcapTk, stripBarrel=generalData_->isoCfg.stripBarrelTk, stripEndcap=generalData_->isoCfg.stripEndcapTk ;
-  float ptMin=generalData_->isoCfg.ptMinTk, maxVtxDist=generalData_->isoCfg.maxVtxDistTk, drb=generalData_->isoCfg.maxDrbTk;
-  eventData_->tkIsolation03 = new ElectronTkIsolation(extRadiusSmall,intRadiusBarrel,intRadiusEndcap,stripBarrel,stripEndcap,ptMin,maxVtxDist,drb,eventData_->currentCtfTracks.product(),eventData_->beamspot->position()) ;
-  eventData_->tkIsolation04 = new ElectronTkIsolation(extRadiusLarge,intRadiusBarrel,intRadiusEndcap,stripBarrel,stripEndcap,ptMin,maxVtxDist,drb,eventData_->currentCtfTracks.product(),eventData_->beamspot->position()) ;
-
   float egHcalIsoConeSizeOutSmall=0.3, egHcalIsoConeSizeOutLarge=0.4;
   float egHcalIsoConeSizeIn=generalData_->isoCfg.intRadiusHcal,egHcalIsoPtMin=generalData_->isoCfg.etMinHcal;
   int egHcalDepth1=1, egHcalDepth2=2;
@@ -1543,8 +1537,9 @@ void GsfElectronAlgo::createElectron(const gsfAlgoHelpers::HeavyObjectCache* hoc
   //====================================================
 
   reco::GsfElectron::IsolationVariables dr03, dr04 ;
-  dr03.tkSumPt = eventData_->tkIsolation03->getPtTracks(ele);
-  dr04.tkSumPt = eventData_->tkIsolation04->getPtTracks(ele);
+  dr03.tkSumPt = tkIsol03Calc_.calIsolPt(*ele->gsfTrack(),*eventData_->currentCtfTracks);
+  dr04.tkSumPt = tkIsol04Calc_.calIsolPt(*ele->gsfTrack(),*eventData_->currentCtfTracks);
+ 
   if( !(region==DetId::Forward || region == DetId::Hcal) ) {  
     dr03.hcalDepth1TowerSumEt = eventData_->hadDepth1Isolation03->getTowerEtSum(ele) ;
     dr03.hcalDepth2TowerSumEt = eventData_->hadDepth2Isolation03->getTowerEtSum(ele) ;

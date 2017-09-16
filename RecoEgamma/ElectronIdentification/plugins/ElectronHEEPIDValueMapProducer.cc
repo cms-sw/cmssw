@@ -70,7 +70,8 @@ private:
 
   float calTrkIso(const reco::GsfElectron& ele,		  
 		  const edm::View<reco::GsfElectron>& eles,
-		  const std::vector<edm::Handle<pat::PackedCandidateCollection> >& handles);
+		  const std::vector<edm::Handle<pat::PackedCandidateCollection> >& handles,
+		  const std::vector<EleTkIsolFromCands::PIDVeto>& pidVetos)const;
     
   template <typename T> void setToken(edm::EDGetTokenT<T>& token,edm::InputTag tag){token=consumes<T>(tag);}
   template <typename T> void setToken(edm::EDGetTokenT<T>& token,const edm::ParameterSet& iPara,const std::string& tag){token=consumes<T>(iPara.getParameter<edm::InputTag>(tag));}
@@ -130,6 +131,13 @@ private:
     return handles;
   }
   
+  template<typename T> bool isEventAOD(const edm::Event& iEvent,const DualToken<T>& token){
+    edm::Handle<T> handle;
+    if(!token.aod.isUninitialized()) iEvent.getByToken(token.aod,handle);
+    if(handle.isValid()) return true;
+    else return false;
+  }
+
   
   
   DualToken<EcalRecHitCollection> ebRecHitToken_;
@@ -140,6 +148,8 @@ private:
 
   EleTkIsolFromCands trkIsoCalc_;
   DataFormat dataFormat_;
+  std::vector<EleTkIsolFromCands::PIDVeto> candVetosAOD_;
+  std::vector<EleTkIsolFromCands::PIDVeto> candVetosMiniAOD_;
   
   static const std::string eleTrkPtIsoLabel_;
   static const std::string eleNrSaturateIn5x5Label_;
@@ -160,6 +170,20 @@ ElectronHEEPIDValueMapProducer::ElectronHEEPIDValueMapProducer(const edm::Parame
   setToken(candTokens_,iConfig,"candsAOD","candsMiniAOD",dataFormat_);
   setToken(beamSpotToken_,iConfig,"beamSpot");
   
+  auto fillVetos=[](const auto& in,auto& out){
+    std::transform(in.begin(),in.end(),std::back_inserter(out),EleTkIsolFromCands::pidVetoFromStr);
+  };
+  
+  fillVetos(iConfig.getParameter<std::vector<std::string> >("candVetosAOD"),candVetosAOD_);
+  if(candVetosAOD_.size()!=iConfig.getParameter<std::vector<edm::InputTag> >("candsAOD").size()){
+    throw cms::Exception("ConfigError") <<" Error candVetosAOD should be the same size as candsAOD "<<std::endl;
+  }
+
+  fillVetos(iConfig.getParameter<std::vector<std::string> >("candVetosMiniAOD"),candVetosMiniAOD_);
+  if(candVetosMiniAOD_.size()!=iConfig.getParameter<std::vector<edm::InputTag> >("candsMiniAOD").size()){
+    throw cms::Exception("ConfigError") <<" Error candVetosMiniAOD should be the same size as candsMiniAOD "<<std::endl;
+  }
+
   produces<edm::ValueMap<float> >(eleTrkPtIsoLabel_);  
   produces<edm::ValueMap<int> >(eleNrSaturateIn5x5Label_);  
 }
@@ -177,7 +201,9 @@ void ElectronHEEPIDValueMapProducer::produce(edm::Event& iEvent, const edm::Even
   auto beamSpotHandle = getHandle(iEvent,beamSpotToken_);
   auto candHandles = getHandles(iEvent,candTokens_);
 
-  
+  bool isAOD = isEventAOD(iEvent,eleToken_);
+  auto candVetos = isAOD ? candVetosAOD_ : candVetosMiniAOD_;
+
   edm::ESHandle<CaloTopology> caloTopoHandle;
   iSetup.get<CaloTopologyRecord>().get(caloTopoHandle);
   
@@ -185,7 +211,7 @@ void ElectronHEEPIDValueMapProducer::produce(edm::Event& iEvent, const edm::Even
   std::vector<int> eleNrSaturateIn5x5;
   for(size_t eleNr=0;eleNr<eleHandle->size();eleNr++){
     auto elePtr = eleHandle->ptrAt(eleNr);
-    eleTrkPtIso.push_back(calTrkIso(*elePtr,*eleHandle,candHandles));
+    eleTrkPtIso.push_back(calTrkIso(*elePtr,*eleHandle,candHandles,candVetos));
     eleNrSaturateIn5x5.push_back(nrSaturatedCrysIn5x5(*elePtr,ebRecHitHandle,eeRecHitHandle,caloTopoHandle));    
   }
   
@@ -204,16 +230,23 @@ int ElectronHEEPIDValueMapProducer::nrSaturatedCrysIn5x5(const reco::GsfElectron
 
 }
 
-float ElectronHEEPIDValueMapProducer::calTrkIso(const reco::GsfElectron& ele,		  
-						const edm::View<reco::GsfElectron>& eles,
-						const std::vector<edm::Handle<pat::PackedCandidateCollection> >& handles)
+float ElectronHEEPIDValueMapProducer::
+calTrkIso(const reco::GsfElectron& ele,		  
+	  const edm::View<reco::GsfElectron>& eles,
+	  const std::vector<edm::Handle<pat::PackedCandidateCollection> >& handles,
+	  const std::vector<EleTkIsolFromCands::PIDVeto>& pidVetos)const
 {
   if(ele.gsfTrack().isNull()) return std::numeric_limits<float>::max();
   else{
     float trkIso=0.; 
-    for(auto& handle: handles){
+    for(size_t handleNr=0;handleNr<handles.size();handleNr++){
+      auto& handle = handles[handleNr];
       if(handle.isValid()){
-	trkIso+= trkIsoCalc_.calIsolPt(*ele.gsfTrack(),*handle,eles);
+	if(handleNr<pidVetos.size()){
+	  trkIso+= trkIsoCalc_.calIsolPt(*ele.gsfTrack(),*handle,pidVetos[handleNr]);
+	}else{
+	  throw cms::Exception("LogicError") <<" somehow the pidVetos and handles do not much, given this is checked at construction time, something has gone wrong in the code handle nr "<<handleNr<<" size of vetos "<<pidVetos.size();
+	}
       }
     }
     return trkIso;
@@ -240,11 +273,13 @@ void ElectronHEEPIDValueMapProducer::fillDescriptions(edm::ConfigurationDescript
   desc.add<edm::InputTag>("ebRecHitsAOD",edm::InputTag("reducedEcalRecHitsEB"));
   desc.add<edm::InputTag>("eeRecHitsAOD",edm::InputTag("reducedEcalRecHitsEE"));
   desc.add<std::vector<edm::InputTag> >("candsAOD",{edm::InputTag("packedCandidates")});
+  desc.add<std::vector<std::string> >("candVetosAOD",{"none"});
   desc.add<edm::InputTag>("elesAOD",edm::InputTag("gedGsfElectrons"));
   
   desc.add<edm::InputTag>("ebRecHitsMiniAOD",edm::InputTag("reducedEcalRecHitsEB"));
   desc.add<edm::InputTag>("eeRecHitsMiniAOD",edm::InputTag("reducedEcalRecHitsEE"));
   desc.add<std::vector<edm::InputTag> >("candsMiniAOD",{edm::InputTag("packedCandidates")});
+  desc.add<std::vector<std::string> >("candVetosMiniAOD",{"none"});
   desc.add<edm::InputTag>("elesMiniAOD",edm::InputTag("gedGsfElectrons"));
   desc.add<int>("dataFormat",0);
   

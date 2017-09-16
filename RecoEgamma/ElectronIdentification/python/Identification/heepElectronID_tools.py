@@ -199,8 +199,7 @@ def psetGsfEleFull5x5SigmaIEtaIEtaWithSatCut(wpEB, wpEE):
         maxSigmaIEtaIEtaEE = cms.double( wpEE.full5x5SigmaIEtaIEtaCut ),
         maxNrSatCrysIn5x5EB =cms.int32( 0 ),
         maxNrSatCrysIn5x5EE =cms.int32( 0 ),
-        nrSatCrysValueMap = cms.InputTag("heepIDVarValueMaps","eleNrSaturateIn5x5"),
-        needsAdditionalProducts = cms.bool(True),
+        needsAdditionalProducts = cms.bool(False), 
         
         isIgnored = cms.bool(False)
         )
@@ -229,8 +228,7 @@ def psetGsfEleFull5x5E2x5OverE5x5WithSatCut(wpEB, wpEE):
         minE2x5OverE5x5EE = cms.double( wpEE.minE2x5OverE5x5Cut ),
         maxNrSatCrysIn5x5EB =cms.int32( 0 ),
         maxNrSatCrysIn5x5EE =cms.int32( 0 ),
-        nrSatCrysValueMap = cms.InputTag("heepIDVarValueMaps","eleNrSaturateIn5x5"),
-        needsAdditionalProducts = cms.bool(True),
+        needsAdditionalProducts = cms.bool(False),
         isIgnored = cms.bool(False)
         )
 # Configure the cut of E/H
@@ -452,6 +450,31 @@ def configureHEEPElectronID_V70(idName, wpEB, wpEE):
             psetGsfEleFull5x5E2x5OverE5x5WithSatCut(wpEB,wpEE),  #5
             psetGsfEleHadronicOverEMLinearCut(wpEB,wpEE), #6 
             psetGsfEleTrkPtFall16IsoCut(wpEB,wpEE),    #7
+            psetGsfEleEmHadD1IsoRhoCut(wpEB,wpEE),        #8
+            psetGsfEleDxyCut(wpEB,wpEE),                  #9
+            psetGsfEleMissingHitsCut(wpEB,wpEE),          #10,
+            psetGsfEleEcalDrivenCut(wpEB,wpEE)            #11
+            )
+        )
+    return parameterSet
+
+def configureHEEPElectronID_V80(idName, wpEB, wpEE):
+    """
+    This function configures the full cms.PSet for a VID ID and returns it.
+    The inputs: two objects of the type HEEP_WorkingPoint_V1, one
+    containing the cuts for the Barrel (EB) and the other one for the Endcap (EE).
+    """
+    parameterSet = cms.PSet(
+        idName = cms.string(idName),
+        cutFlow = cms.VPSet(
+            psetMinPtCut(),                               #0
+            psetGsfEleSCEtaMultiRangeCut(),               #1
+            psetGsfEleDEtaInSeedCut(wpEB,wpEE),           #2
+            psetGsfEleDPhiInCut(wpEB,wpEE),               #3
+            psetGsfEleFull5x5SigmaIEtaIEtaWithSatCut(wpEB,wpEE), #4
+            psetGsfEleFull5x5E2x5OverE5x5WithSatCut(wpEB,wpEE),  #5
+            psetGsfEleHadronicOverEMLinearCut(wpEB,wpEE), #6 
+            psetGsfEleTrkPtIsoCut(wpEB,wpEE),             #7
             psetGsfEleEmHadD1IsoRhoCut(wpEB,wpEE),        #8
             psetGsfEleDxyCut(wpEB,wpEE),                  #9
             psetGsfEleMissingHitsCut(wpEB,wpEE),          #10,

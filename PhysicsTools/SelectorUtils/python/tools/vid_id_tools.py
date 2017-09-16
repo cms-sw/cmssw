@@ -99,8 +99,10 @@ def setupVIDElectronSelection(process,cutflow,patProducer=None,addUserData=True,
     #we know cutflow has a name otherwise an exception would have been thrown in setupVIDSelection
     #run this for all heep IDs except V60 standard for which it is not needed
     #it is needed for V61 and V70
+    #for V80 (9X) it is no longer needed
     if (cutflow.idName.value().find("HEEP")!=-1 and
-        cutflow.idName.value()!="heepElectronID-HEEPV60"):
+        cutflow.idName.value()!="heepElectronID-HEEPV60" and 
+        cutflow.idName.value()!="heepElectronID-HEEPV80"):
 
         #not the ideal way but currently the easiest
         useMiniAOD = process.egmGsfElectronIDs.physicsObjectSrc == cms.InputTag('slimmedElectrons')
