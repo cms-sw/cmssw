@@ -6,6 +6,7 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -41,7 +42,7 @@ void CaloGeometryHelper::initialize(double bField)
   buildCrystalArray();
   buildNeighbourArray();
   bfield_ = bField;
-  preshowerPresent_=(getEcalPreshowerGeometry()!=0);
+  preshowerPresent_=(getEcalPreshowerGeometry()!=nullptr);
     
   if(preshowerPresent_)
     {
@@ -98,7 +99,7 @@ DetId CaloGeometryHelper::getClosestCell(const XYZPoint& point, bool ecal, bool 
     }
   else
     {
-      result=HcalGeometry_->getClosestCell(GlobalPoint(point.X(),point.Y(),point.Z()));
+      result=((HcalGeometry*)(HcalGeometry_))->getClosestCell(GlobalPoint(point.X(),point.Y(),point.Z()));
       HcalDetId myDetId(result);
 
       // special patch for HF
@@ -146,7 +147,7 @@ DetId CaloGeometryHelper::getClosestCell(const XYZPoint& point, bool ecal, bool 
 	  return result;
 	}
       GlobalPoint ip=GlobalPoint(point.x(),point.y(),point.z());
-      GlobalPoint cc=HcalGeometry_->getGeometry(result)->getPosition();
+      GlobalPoint cc=((HcalGeometry*)(HcalGeometry_))->getPosition(result);
       float deltaeta2 = ip.eta()-cc.eta();
       deltaeta2 *= deltaeta2;
       float deltaphi2 = acos(cos(ip.phi()-cc.phi()));
@@ -352,7 +353,7 @@ bool CaloGeometryHelper::simplemove(DetId& cell, const CaloDirection& dir) const
   else if(cell.subdetId()==EcalEndcap)
     neighbours= EcalEndcapTopology_->getNeighbours(cell,dir);
   
-  if(neighbours.size()>0 && !neighbours[0].null())
+  if ((!neighbours.empty()) && (!neighbours[0].null()))
     {
       cell = neighbours[0];
       return true;
@@ -459,7 +460,7 @@ void CaloGeometryHelper::buildCrystalArray()
   //std::cout << " Building the array of crystals (barrel) " ;
   const std::vector<DetId>&  vec(EcalBarrelGeometry_->getValidDetIds(DetId::Ecal,EcalBarrel));
   unsigned size=vec.size();    
-  const CaloCellGeometry * geom=0;
+  const CaloCellGeometry * geom=nullptr;
   for(unsigned ic=0; ic<size; ++ic) 
     {
       unsigned hashedindex=EBDetId(vec[ic]).hashedIndex();
