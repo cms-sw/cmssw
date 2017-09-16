@@ -8,10 +8,10 @@ class CMSEmStandardPhysicsXS : public G4VPhysicsConstructor {
 
 public: 
   CMSEmStandardPhysicsXS(G4int ver);
-  virtual ~CMSEmStandardPhysicsXS();
+  ~CMSEmStandardPhysicsXS() override;
 
-  virtual void ConstructParticle();
-  virtual void ConstructProcess();
+  void ConstructParticle() override;
+  void ConstructProcess() override;
 
 private:
   G4int               verbose;

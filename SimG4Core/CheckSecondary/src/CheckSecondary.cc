@@ -22,13 +22,13 @@
 #include <iostream>
 #include <iomanip>
 
-CheckSecondary::CheckSecondary(const edm::ParameterSet &p): treatSecondary(0),
-							    typeEnumerator(0),
-							    nsec(0),procids(0),
-							    px(0),py(0),pz(0),
-							    mass(0),deltae(0),
-							    procs(0),file(0),
-							    tree(0) {
+CheckSecondary::CheckSecondary(const edm::ParameterSet &p): treatSecondary(nullptr),
+							    typeEnumerator(nullptr),
+							    nsec(nullptr),procids(nullptr),
+							    px(nullptr),py(nullptr),pz(nullptr),
+							    mass(nullptr),deltae(nullptr),
+							    procs(nullptr),file(nullptr),
+							    tree(nullptr) {
 
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("CheckSecondary");
   std::string saveFile = m_p.getUntrackedParameter<std::string>("SaveInFile", "None");
