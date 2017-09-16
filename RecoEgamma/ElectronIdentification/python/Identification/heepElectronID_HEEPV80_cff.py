@@ -2,21 +2,18 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 
 # Common functions and classes for ID definition are imported here:
-from RecoEgamma.ElectronIdentification.Identification.heepElectronID_tools import HEEP_WorkingPoint_V1,configureHEEPElectronID_V70
+from RecoEgamma.ElectronIdentification.Identification.heepElectronID_tools import HEEP_WorkingPoint_V1,configureHEEPElectronID_V80
 
 #
-# The HEEP ID cuts V6.0 below are optimized IDs for PHYS14 Scenario PU 20, bx 25ns
+# The HEEP ID cuts V8.0 below are high energy optimised cuts
 # The cut values are taken from the twiki:
-#       https://twiki.cern.ch/twiki/bin/view/CMS/HEEPElectronIdentificationRun2#Selection_Cuts_HEEP_V5_1
-#       (where they may not stay, if a newer version of cuts becomes available for these
-#        conditions)
-# See also the presentation explaining these working points (this will not change):
-#   [ ... none available for this particular version ... ]
-
+#       https://twiki.cern.ch/twiki/bin/view/CMS/HEEPElectronIdentificationRun2
+# HEEP ID V8.0 is really V6.0 with a new name, the changes all happend to the object
+# I bumped the name to make it was clear its for 9X
 
 # The cut values for the  Barrel and Endcap
-idName = "heepElectronID-HEEPV70"
-WP_HEEP70_EB = HEEP_WorkingPoint_V1(
+idName = "heepElectronID-HEEPV80"
+WP_HEEP80_EB = HEEP_WorkingPoint_V1(
     idName=idName,     
     dEtaInSeedCut=0.004,     
     dPhiInCut=0.06,      
@@ -50,8 +47,8 @@ WP_HEEP70_EB = HEEP_WorkingPoint_V1(
     ecalDrivenCut=1
     )
 
-WP_HEEP70_EE = HEEP_WorkingPoint_V1(
-     idName=idName,     
+WP_HEEP80_EE = HEEP_WorkingPoint_V1(
+    idName=idName,     
     dEtaInSeedCut=0.006,     
     dPhiInCut=0.06,      
     full5x5SigmaIEtaIEtaCut=0.03,     
@@ -88,7 +85,7 @@ WP_HEEP70_EE = HEEP_WorkingPoint_V1(
 #
 # Finally, set up VID configuration for all cuts
 #
-heepElectronID_HEEPV70  = configureHEEPElectronID_V70 (idName, WP_HEEP70_EB, WP_HEEP70_EE )
+heepElectronID_HEEPV80  = configureHEEPElectronID_V80 (idName, WP_HEEP80_EB, WP_HEEP80_EE )
 
 #
 # The MD5 sum numbers below reflect the exact set of cut variables
@@ -98,9 +95,6 @@ heepElectronID_HEEPV70  = configureHEEPElectronID_V70 (idName, WP_HEEP70_EB, WP_
 # 3) update the MD5 sum strings below and uncomment the lines again.
 #
 
-#in 9X, the number of saturated crystals is in the electron so I updated the showershape cuts
-#to use that instead, its slightly differently defined but for our intents and purposes is fine
-#this meant changing the md5sum though, hence why its changed from 45d49ea5f46f3f13f579d208e5e3412b
-central_id_registry.register(heepElectronID_HEEPV70.idName,"49b6b60e9f16727f241eb34b9d345a8f")
-heepElectronID_HEEPV70.isPOGApproved = cms.untracked.bool(True)
+central_id_registry.register(heepElectronID_HEEPV80.idName,"d997fbe84d9a0e48b959405def3bc7ec")
+heepElectronID_HEEPV80.isPOGApproved = cms.untracked.bool(True)
  
