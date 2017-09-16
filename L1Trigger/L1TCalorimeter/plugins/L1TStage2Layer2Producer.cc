@@ -39,6 +39,7 @@
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 #include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TCaloParamsO2ORcd.h"
 
 #include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
 #include "DataFormats/L1Trigger/interface/EGamma.h"
@@ -126,6 +127,7 @@ L1TStage2Layer2Producer::~L1TStage2Layer2Producer() {
 void
 L1TStage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+
   using namespace edm;
 
   using namespace l1t;
@@ -268,12 +270,21 @@ L1TStage2Layer2Producer::beginRun(edm::Run const& iRun, edm::EventSetup const& i
 
     m_paramsCacheId = id;
 
-    edm::ESHandle<CaloParams> paramsHandle;
+    edm::ESHandle<CaloParams> paramsHandle, o2oProtoHandle;
     iSetup.get<L1TCaloParamsRcd>().get(paramsHandle);
+    iSetup.get<L1TCaloParamsO2ORcd>().get(o2oProtoHandle);
 
     // replace our local copy of the parameters with a new one using placement new
+    //  KK: this nifty trick works as long as current definition of CaloParams
+    //      takes more space than the one obtained from the record
     m_params->~CaloParamsHelper();
-    m_params = new (m_params) CaloParamsHelper(*paramsHandle.product());
+    m_params = new (m_params) CaloParamsHelper(*o2oProtoHandle.product());
+
+    // KK: now copy all the pnodes that were present at the time the payload was created
+    //  and put those over the values of prototype, generated above
+    std::unique_ptr<l1t::CaloParamsHelper> params(new l1t::CaloParamsHelper(*(paramsHandle.product ())));
+    for(size_t n = 0; n < params->getNodes().size(); ++n)
+        m_params->setNode(n,params->getNodes()[n]);
 
     LogDebug("L1TDebug") << *m_params << std::endl;
 
