@@ -74,7 +74,7 @@ class G4MonopoleTransportation : public G4VProcess
   public:  // with description
 
      G4MonopoleTransportation(const G4Monopole* p, sim::ChordFinderSetter *chordFinderSetter, G4int verbosityLevel= 1);
-     ~G4MonopoleTransportation(); 
+     ~G4MonopoleTransportation() override; 
 
      G4double      AlongStepGetPhysicalInteractionLength(
                              const G4Track& track,
@@ -82,24 +82,24 @@ class G4MonopoleTransportation : public G4VProcess
                                    G4double  currentMinimumStep, 
                                    G4double& currentSafety,
                                    G4GPILSelection* selection
-                            );
+                            ) override;
 
      G4VParticleChange* AlongStepDoIt(
                              const G4Track& track,
                              const G4Step& stepData
-                            );
+                            ) override;
 
      G4VParticleChange* PostStepDoIt(
                              const G4Track& track,
                              const G4Step&  stepData
-                            );
+                            ) override;
        // Responsible for the relocation.
 
      G4double PostStepGetPhysicalInteractionLength(
                              const G4Track& ,
                              G4double   previousStepSize,
                              G4ForceCondition* pForceCond
-                            );
+                            ) override;
        // Forces the PostStepDoIt action to be called, 
        // but does not limit the step.
 
@@ -138,16 +138,16 @@ class G4MonopoleTransportation : public G4VProcess
      G4double AtRestGetPhysicalInteractionLength(
                              const G4Track& ,
                              G4ForceCondition* 
-                            ) { return -1.0; };
+                            ) override { return -1.0; };
        // No operation in  AtRestDoIt.
 
      G4VParticleChange* AtRestDoIt(
                              const G4Track& ,
                              const G4Step&
-                            ) {return 0;};
+                            ) override {return nullptr;};
        // No operation in  AtRestDoIt.
 
-  void StartTracking(G4Track* aTrack);
+  void StartTracking(G4Track* aTrack) override;
        // Reset state for new (potentially resumed) track 
 
   protected:

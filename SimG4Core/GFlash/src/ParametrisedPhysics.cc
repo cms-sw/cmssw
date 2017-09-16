@@ -68,7 +68,7 @@ void ParametrisedPhysics::ConstructProcess() {
     for(const auto& particleName : emList.PartNames()) {
       G4ParticleDefinition* particle = table->FindParticle(particleName);
       G4ProcessManager * pmanager = particle->GetProcessManager();
-      G4String pname = particle->GetParticleName();
+      const G4String& pname = particle->GetParticleName();
       if(pname == "e-" || pname == "e+") {
 	pmanager->AddDiscreteProcess(tpdata->theFastSimulationManagerProcess);
       }

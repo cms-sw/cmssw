@@ -19,11 +19,11 @@ class PrintSensitive : public SimWatcher,
 public:
 
   PrintSensitive(edm::ParameterSet const & p);
-  ~PrintSensitive();
+  ~PrintSensitive() override;
 
 private:
 
-  void update(const BeginOfRun * run);
+  void update(const BeginOfRun * run) override;
   void dumpTouch(G4VPhysicalVolume * pv, unsigned int leafDepth, bool printIt,
 		 std::ostream & out = std::cout);
   G4VPhysicalVolume * getTopPV();
