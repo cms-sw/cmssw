@@ -31,7 +31,7 @@ class Crystal
   /// Empty constructor 
   Crystal(){number_ = 0;};
   /// constructor from DetId
-  Crystal(const DetId&  cell,const BaseCrystal* bc=0);
+  Crystal(const DetId&  cell,const BaseCrystal* bc=nullptr);
 
   /// get the i-th corner
   inline const XYZPoint& getCorner(unsigned i) const { return myCrystal_->getCorner(i);};
