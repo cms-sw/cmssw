@@ -440,6 +440,8 @@ namespace l1t {
     std::vector<unsigned> layer1SecondStageLUT() { return pnode_[layer1HOverE].uparams_; }
     void setLayer1SecondStageLUT(const std::vector<unsigned>& lut) { pnode_[layer1HOverE].uparams_ = lut; }
 
+    void setNode(int pos, const Node &n){ pnode_[pos] = n; }
+    const std::vector<Node>& getNodes(void) const { return pnode_; }
 
   private:
     L1CaloEtScale emScale_;
