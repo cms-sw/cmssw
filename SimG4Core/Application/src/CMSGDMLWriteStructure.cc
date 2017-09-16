@@ -25,7 +25,7 @@ void
 CMSGDMLWriteStructure::AddExtension(xercesc::DOMElement* volumeElement,
 				     const G4LogicalVolume* const glv)
 {
-  xercesc::DOMElement* auxiliaryElement = 0;
+  xercesc::DOMElement* auxiliaryElement = nullptr;
   std::stringstream ss;
   const char* cutnames[4] = {"pcutg","pcutem","pcutep","pcutp"};
  

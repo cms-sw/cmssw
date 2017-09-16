@@ -26,7 +26,7 @@ class GflashG4Watcher : public SimWatcher,
 
  public:
   GflashG4Watcher(const edm::ParameterSet& p);
-  ~GflashG4Watcher();
+  ~GflashG4Watcher() override;
   
  private:
 
@@ -37,9 +37,9 @@ class GflashG4Watcher : public SimWatcher,
   G4ThreeVector inc_direction;
   G4ThreeVector inc_position;
 
-  void update(const BeginOfEvent* );
-  void update(const EndOfEvent* );
-  void update(const G4Step* );
+  void update(const BeginOfEvent* ) override;
+  void update(const EndOfEvent* ) override;
+  void update(const G4Step* ) override;
 
   // histograms for GflashG4Watcher
 

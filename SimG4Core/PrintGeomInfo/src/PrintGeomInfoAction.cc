@@ -125,7 +125,7 @@ void PrintGeomInfoAction::dumpSummary(std::ostream & out) {
 
   //---------- Dump number of objects of each class
   out << " @@@@@@@@@@@@@@@@@@ Dumping G4 geometry objects Summary " << G4endl;
-  if (theTopPV == 0) {
+  if (theTopPV == nullptr) {
     out << " No volume created " << G4endl;
     return;
   }
@@ -267,7 +267,7 @@ void PrintGeomInfoAction::dumpLV(G4LogicalVolume * lv, unsigned int leafDepth, s
     if (_dumpAtts) {
       //--- Visualisation attributes
       const G4VisAttributes * fVA = lv->GetVisAttributes();
-      if (fVA!=0) {
+      if (fVA!=nullptr) {
 	out <<  spaces << "  VISUALISATION ATTRIBUTES: " << G4endl;
 	out <<  spaces << "    IsVisible " << fVA->IsVisible() << G4endl;
 	out <<  spaces << "    IsDaughtersInvisible " << fVA->IsDaughtersInvisible() << G4endl;
@@ -281,7 +281,7 @@ void PrintGeomInfoAction::dumpLV(G4LogicalVolume * lv, unsigned int leafDepth, s
       //--- User Limits
       G4UserLimits * fUL = lv->GetUserLimits();
       G4Track dummy;
-      if (fUL!=0) {
+      if (fUL!=nullptr) {
 	out <<  spaces << "    MaxAllowedStep " << fUL->GetMaxAllowedStep(dummy) << G4endl;
 	out <<  spaces << "    UserMaxTrackLength " << fUL->GetUserMaxTrackLength(dummy) << G4endl;
 	out <<  spaces << "    UserMaxTime " << fUL->GetUserMaxTime(dummy) << G4endl;
@@ -324,7 +324,7 @@ void PrintGeomInfoAction::dumpPV(G4VPhysicalVolume * pv, unsigned int leafDepth,
   }
   if (!pv->IsReplicated()) {
     if (_dumpPV) {
-      if(pv->GetRotation() == 0) out << " with no rotation" << G4endl;
+      if(pv->GetRotation() == nullptr) out << " with no rotation" << G4endl;
       else  if(!_dumpRotation)   out << " with rotation" << G4endl; //just rotation name
       else                       out << " with rotation " << *(pv->GetRotation()) << G4endl;
     }
@@ -339,13 +339,13 @@ void PrintGeomInfoAction::dumpPV(G4VPhysicalVolume * pv, unsigned int leafDepth,
       pv->GetReplicationData(axis, nReplicas, width, offset, consuming);
       out << spaces << "     axis " << axis << G4endl
 	  << spaces << "     nReplicas " << nReplicas << G4endl;
-      if (pv->GetParameterisation() != 0) 
+      if (pv->GetParameterisation() != nullptr) 
 	out << spaces << "    It is parameterisation " << G4endl;
       else 
 	out << spaces << "     width " << width << G4endl
 	    << spaces << "     offset " << offset << G4endl
 	    << spaces << "     consuming" <<  consuming << G4endl;
-      if (pv->GetParameterisation() != 0) 
+      if (pv->GetParameterisation() != nullptr) 
 	out << spaces << "    It is parameterisation " << G4endl;
     }
   }
