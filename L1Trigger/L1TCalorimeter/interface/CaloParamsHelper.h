@@ -440,6 +440,8 @@ namespace l1t {
     l1t::LUT* layer1HOverELUT() { return &pnode_[layer1HOverE].LUT_; }
     void setLayer1HOverELUT(const l1t::LUT & lut) { pnode_[layer1HOverE].LUT_ = lut; }
 
+    void setNode(int pos, const Node &n){ pnode_[pos] = n; }
+    const std::vector<Node>& getNodes(void) const { return pnode_; }
 
   private:
     L1CaloEtScale emScale_;
