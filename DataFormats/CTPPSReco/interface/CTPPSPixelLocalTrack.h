@@ -35,7 +35,6 @@ CTPPSPixelFittedRecHit() : CTPPSPixelRecHit(), residual_(LocalPoint(0,0)), pull_
   virtual ~CTPPSPixelFittedRecHit() {}
     
   inline const math::GlobalPoint & getGlobalCoordinates() const { return space_point_on_det_; }
-  inline void setGlobalCoordinates(const math::GlobalPoint & space_point_on_det) { space_point_on_det_ = space_point_on_det;   }
   inline float getXResidual() const { return residual_.x(); }
   inline float getYResidual() const { return residual_.y(); }
         

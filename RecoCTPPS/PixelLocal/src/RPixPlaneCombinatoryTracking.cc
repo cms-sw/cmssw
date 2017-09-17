@@ -304,9 +304,9 @@ void RPixPlaneCombinatoryTracking::findTracks(){
           double yDistance = yResidual*yResidual;
           double distance = xDistance + yDistance;
           if(xDistance < maximumXdistance && yDistance < maximumYdistance && distance < minimumDistance){
-            LocalPoint residuals(xResidual,yResidual);
+            LocalPoint residuals(xResidual,yResidual,0.);
             TMatrixD globalError = hit.globalError;
-            LocalPoint pulls(xResidual/TMath::Sqrt(globalError[0][0]),yResidual/TMath::Sqrt(globalError[1][1]));
+            LocalPoint pulls(xResidual/TMath::Sqrt(globalError[0][0]),yResidual/TMath::Sqrt(globalError[1][1]),0.);
             delete fittedRecHit;
             fittedRecHit = new CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit(hit.recHit, pointOnDet, residuals, pulls);
             fittedRecHit->setIsRealHit(true);
@@ -314,8 +314,11 @@ void RPixPlaneCombinatoryTracking::findTracks(){
         }
       }
       else{
-        fittedRecHit->setIsRealHit(false);
-        fittedRecHit->setGlobalCoordinates(pointOnDet);
+        LocalPoint fakePoint;
+        LocalError fakeError;
+        CTPPSPixelRecHit fakeRecHit(fakePoint,fakeError);
+        delete fittedRecHit;
+        fittedRecHit = new CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit(fakeRecHit, pointOnDet, fakePoint, fakePoint);
       }
 
       bestTrack.addHit(tmpPlaneId, *fittedRecHit);
