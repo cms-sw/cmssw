@@ -54,11 +54,11 @@ using namespace trigger;
 class HeavyFlavorValidation : public DQMEDAnalyzer {
   public:
     explicit HeavyFlavorValidation(const edm::ParameterSet&);
-    ~HeavyFlavorValidation();
+    ~HeavyFlavorValidation() override;
   protected:
     void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
     void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
   private:
     int getMotherId( const Candidate * p );
     void match( MonitorElement * me, vector<LeafCandidate> & from, vector<LeafCandidate> & to, double deltaRMatchingCut, vector<int> & map );
@@ -173,7 +173,7 @@ void HeavyFlavorValidation::dqmBeginRun(const edm::Run& iRun, const edm::EventSe
 		}
 	}
 
-	if(filterNamesLevels.size()==0){
+	if(filterNamesLevels.empty()){
 		LogDebug("HLTriggerOfflineHeavyFlavor")<<"Bad Trigger Path: "<<triggerPathName<<endl;
 		return;
 	}else{
@@ -285,7 +285,7 @@ void HeavyFlavorValidation::bookHistograms(DQMStore::IBooker & ibooker,
 }
 
 void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetup){
-  if(filterNamesLevels.size()==0){
+  if(filterNamesLevels.empty()){
     return;
   }
 //access the containers and create LeafCandidate copies
