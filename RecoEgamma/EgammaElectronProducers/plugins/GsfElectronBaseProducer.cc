@@ -331,7 +331,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, 
   regressionCfg.ecalWeightsFromDB = cfg.getParameter<bool>("ecalWeightsFromDB");
   regressionCfg.combinationWeightsFromDB = cfg.getParameter<bool>("combinationWeightsFromDB");
   // functions for corrector
-  EcalClusterFunctionBaseClass * superClusterErrorFunction = 0 ;
+  EcalClusterFunctionBaseClass * superClusterErrorFunction = nullptr ;
   std::string superClusterErrorFunctionName
    = cfg.getParameter<std::string>("superClusterErrorFunction") ;
   if (superClusterErrorFunctionName!="")
@@ -344,7 +344,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, 
    superClusterErrorFunction
     = EcalClusterFunctionFactory::get()->create("EcalClusterEnergyUncertaintyObjectSpecific",cfg) ;
   }
-  EcalClusterFunctionBaseClass * crackCorrectionFunction = 0 ;
+  EcalClusterFunctionBaseClass * crackCorrectionFunction = nullptr ;
   std::string crackCorrectionFunctionName
    = cfg.getParameter<std::string>("crackCorrectionFunction") ;
   if (crackCorrectionFunctionName!="")
