@@ -192,7 +192,15 @@ void LayerMeasurements::addInvalidMeas( vector<TrajectoryMeasurement>& measVec,
   }
   else if (!group.empty()) {
     // invalid state on first compatible Det
-    measVec.emplace_back(group.front().trajectoryState(), 
-			 std::make_shared<InvalidTrackingRecHit>(*group.front().det(), TrackingRecHit::missing), 0.,&layer);
+    auto const & ts = group.front().trajectoryState();
+    if (ts.globalMomentum().perp2()<0.81f || 
+        group.front().det()->surface().bounds().inside(ts.localPosition(), 
+				   ts.localError().positionError(),-3))
+      measVec.emplace_back(group.front().trajectoryState(), 
+    			 std::make_shared<InvalidTrackingRecHit>(*group.front().det(), TrackingRecHit::missing), 0.,&layer);
+    else
+      measVec.emplace_back(group.front().trajectoryState(),
+                         std::make_shared<InvalidTrackingRecHit>(*group.front().det(), TrackingRecHit::inactive), 0.,&layer);
+
   }
 }
