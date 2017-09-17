@@ -87,6 +87,7 @@ private:
 
   // ----------member data ---------------------------
   static const int           nPBin=10, nEtaBin=4, nPVBin=4;
+  static const int           nGen=(nPVBin+12);
   HLTConfigProvider          hltConfig_;
   edm::Service<TFileService> fs_;
   int                        verbosity_;
@@ -114,8 +115,8 @@ private:
   TH1I                      *h_goodPV, *h_goodRun;
   TH2I                      *h_nHLTvsRN;
   std::vector<TH1I*>         h_HLTAccepts;
-  TH1D                      *h_p[nPVBin+12], *h_pt[nPVBin+12];
-  TH1D                      *h_eta[nPVBin+12], *h_phi[nPVBin+12];
+  TH1D                      *h_p[nGen+1], *h_pt[nGen+1];
+  TH1D                      *h_eta[nGen+1], *h_phi[nGen+1];
   TH1I                      *h_ntrk[2];
   TH1D                      *h_maxNearP[2], *h_ene1[2], *h_ene2[2], *h_ediff[2];
   TH1D                      *h_energy[nPVBin+8][nPBin][nEtaBin][6];
@@ -388,6 +389,15 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
     //=== genParticle information
     edm::Handle<reco::GenParticleCollection> genParticles;
     iEvent.getByToken(tok_parts_, genParticles);
+    if (genParticles.isValid()) {
+      for (const auto & p : (reco::GenParticleCollection)(*genParticles)) {
+	double pt1         = p.momentum().Rho();
+	double p1          = p.momentum().R();
+	double eta1        = p.momentum().Eta();
+	double phi1        = p.momentum().Phi();
+	fillTrack(nGen, pt1,p1,eta1,phi1);
+      }
+    }
 
     edm::Handle<reco::TrackCollection> trkCollection;
     iEvent.getByToken(tok_genTrack_, trkCollection);
@@ -531,13 +541,16 @@ void StudyHLT::beginJob() {
   }
   std::string TrkNames[8]       = {"All", "Quality", "NoIso", "okEcal", "EcalCharIso", "HcalCharIso", "EcalNeutIso", "HcalNeutIso"};
   std::string particle[4]       = {"Electron", "Pion", "Kaon", "Proton"};
-  for (unsigned int i=0; i<8+nPVBin+4; i++) {
+  for (unsigned int i=0; i<=nGen; i++) {
     if (i < 8) {
       sprintf(hname, "h_pt_%s", TrkNames[i].c_str());
       sprintf(htit, "p_{T} of %s tracks", TrkNames[i].c_str());
     } else if (i < 8+nPVBin) {
       sprintf(hname, "h_pt_%s_%d", TrkNames[7].c_str(), i-8);
       sprintf(htit, "p_{T} of %s tracks (PV=%d:%d)", TrkNames[7].c_str(), pvBin[i-8], pvBin[i-7]-1);
+    } else if (i == nGen) {
+      sprintf(hname, "h_pt_%s_1", TrkNames[0].c_str());
+      sprintf(htit, "p_{T} of %s Generator tracks", TrkNames[0].c_str());
     } else {
       sprintf(hname, "h_pt_%s_%s", TrkNames[7].c_str(), particle[i-8-nPVBin].c_str());
       sprintf(htit, "p_{T} of %s tracks (%s)", TrkNames[7].c_str(), particle[i-8-nPVBin].c_str());
@@ -551,6 +564,9 @@ void StudyHLT::beginJob() {
     } else if (i < 8+nPVBin) {
       sprintf(hname, "h_p_%s_%d", TrkNames[7].c_str(), i-8);
       sprintf(htit, "Momentum of %s tracks (PV=%d:%d)", TrkNames[7].c_str(), pvBin[i-8], pvBin[i-7]-1);
+    } else if (i == nGen) {
+      sprintf(hname, "h_p_%s_1", TrkNames[0].c_str());
+      sprintf(htit, "Momentum of %s Generator tracks", TrkNames[0].c_str());
     } else {
       sprintf(hname, "h_p_%s_%s", TrkNames[7].c_str(), particle[i-8-nPVBin].c_str());
       sprintf(htit, "Momentum of %s tracks (%s)", TrkNames[7].c_str(), particle[i-8-nPVBin].c_str());
@@ -564,6 +580,9 @@ void StudyHLT::beginJob() {
     } else if (i < 8+nPVBin) {
       sprintf(hname, "h_eta_%s_%d", TrkNames[7].c_str(), i-8);
       sprintf(htit, "Eta of %s tracks (PV=%d:%d)", TrkNames[7].c_str(), pvBin[i-8], pvBin[i-7]-1);
+    } else if (i == nGen) {
+      sprintf(hname, "h_eta_%s_1", TrkNames[0].c_str());
+      sprintf(htit, "Eta of %s Generator tracks", TrkNames[0].c_str());
     } else {
       sprintf(hname, "h_eta_%s_%s", TrkNames[7].c_str(), particle[i-8-nPVBin].c_str());
       sprintf(htit, "Eta of %s tracks (%s)", TrkNames[7].c_str(), particle[i-8-nPVBin].c_str());
@@ -577,6 +596,9 @@ void StudyHLT::beginJob() {
     } else if (i < 8+nPVBin) {
       sprintf(hname, "h_phi_%s_%d", TrkNames[7].c_str(), i-8);
       sprintf(htit, "Phi of %s tracks (PV=%d:%d)", TrkNames[7].c_str(), pvBin[i-8], pvBin[i-7]-1);
+    } else if (i == nGen) {
+      sprintf(hname, "h_phi_%s_1", TrkNames[0].c_str());
+      sprintf(htit, "Phi of %s Generator tracks", TrkNames[0].c_str());
     } else {
       sprintf(hname, "h_phi_%s_%s", TrkNames[7].c_str(), particle[i-8-nPVBin].c_str());
       sprintf(htit, "Phi of %s tracks (%s)", TrkNames[7].c_str(), particle[i-8-nPVBin].c_str());

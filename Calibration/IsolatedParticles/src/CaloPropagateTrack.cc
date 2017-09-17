@@ -8,6 +8,7 @@
 
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 #include "Calibration/IsolatedParticles/interface/CaloConstants.h"
 #include "Calibration/IsolatedParticles/interface/CaloPropagateTrack.h"
@@ -599,6 +600,27 @@ namespace spr{
     GlobalVector momentum (track->px(), track->py(), track->pz());
     int charge (track->charge());
     return spr::propagateECAL (vertex, momentum, charge, bfield, debug);
+  }
+
+  std::pair<DetId,bool> propagateIdECAL(const HcalDetId& id, const CaloGeometry* geo, const MagneticField* bField, bool debug) {
+
+    const HcalGeometry* gHB = (const HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
+    GlobalPoint vertex(0,0,0);
+    GlobalPoint hit(gHB->getPosition(id));
+    GlobalVector momentum = GlobalVector(hit.x(),hit.y(),hit.z());
+    std::pair<math::XYZPoint,bool> info = propagateECAL(vertex,momentum,0,bField,debug);
+    DetId eId(0);
+    if (info.second) {
+      const GlobalPoint point(info.first.x(),info.first.y(),info.first.z());
+      if (std::abs(point.eta())<spr::etaBEEcal) {
+	const EcalBarrelGeometry *barrelGeom = (dynamic_cast< const EcalBarrelGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel)));
+	eId = barrelGeom->getClosestCell(point);
+      } else {
+	const EcalEndcapGeometry *endcapGeom = (dynamic_cast< const EcalEndcapGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap)));
+	eId = endcapGeom->getClosestCell(point);
+      }
+    }
+    return std::pair<DetId,bool>(eId,info.second);
   }
 
   std::pair<math::XYZPoint,bool> propagateECAL(const GlobalPoint& vertex, const GlobalVector& momentum, int charge, const MagneticField* bfield, bool debug) {
