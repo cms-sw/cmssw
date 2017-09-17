@@ -80,10 +80,7 @@ MicroEventContentGEN = cms.PSet(
         'keep GenLumiInfoHeader_generator_*_*',
         'keep GenLumiInfoProduct_*_*_*',
         'keep GenEventInfoProduct_generator_*_*',
-        'keep *_slimmedGenJetsFlavourInfos_*_*',
         'keep *_slimmedGenJets__*',
-        'keep *_slimmedGenJetsAK8__*',
-        'keep *_genMetTrue_*_*',
         # RUN
         'keep LHERunInfoProduct_*_*_*',
         'keep GenRunInfoProduct_*_*_*',
@@ -101,3 +98,7 @@ MicroEventContentMC.outputCommands += [
                                         'keep L1GtTriggerMenuLite_l1GtTriggerMenuLite__*'
                                       ]
 
+# avoid genMetTrue to be stored into MINIAODSIM but still keep it for MINIGEN
+MicroEventContentGEN.outputCommands += [
+                                        'keep *_genMetTrue_*_*',
+                                      ]
