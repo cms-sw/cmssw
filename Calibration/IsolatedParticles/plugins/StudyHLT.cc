@@ -65,15 +65,15 @@ class StudyHLT : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::Share
 
 public:
   explicit StudyHLT(const edm::ParameterSet&);
-  ~StudyHLT();
+  ~StudyHLT() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
-  virtual void beginJob() override;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void beginJob() override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
@@ -296,11 +296,11 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
 	  h_HLTAccepts[nRun]->Fill(iHLT+1);
 	  h_HLTAccept->Fill(ipos);
 	}
-	if (trigNames_.size() < 1) {
+	if (trigNames_.empty()) {
 	  ok = true;
 	} else {
 	  for (unsigned int i=0; i<trigNames_.size(); ++i) {
-	    if (newtriggerName.find(trigNames_[i].c_str())!=std::string::npos) {
+	    if (newtriggerName.find(trigNames_[i])!=std::string::npos) {
 	      if (verbosity_%10 > 0)  
 		edm::LogInfo("IsoTrack") << newtriggerName;
 	      if (hlt > 0) {
@@ -310,7 +310,7 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
 	    }
 	  }
 	  for (int i=0; i<5; ++i) {
-	    if (newtriggerName.find(newNames[i].c_str())!=std::string::npos) {
+	    if (newtriggerName.find(newNames[i])!=std::string::npos) {
 	      if (verbosity_%10 > 0)
 		edm::LogInfo("IsoTrack") << "[" << i << "] " << newNames[i] 
 					 << " : " << newtriggerName;
@@ -378,7 +378,7 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
     h_goodPV->Fill(ngoodPV,tr_eventWeight);
     tr_goodPV   = ngoodPV;
     
-    if (puWeights_.size() > 0) {
+    if (!puWeights_.empty()) {
       int npbin = h_goodPV->FindBin(ngoodPV);
       if (npbin > 0 && npbin <= (int)(puWeights_.size())) 
 	tr_eventWeight *= puWeights_[npbin-1];
@@ -517,7 +517,7 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
       }
     }
     h_ntrk[1]->Fill(ntrk,tr_eventWeight);
-    if (tr_TrkPt.size() > 0 && doTree_) tree_->Fill();
+    if ((!tr_TrkPt.empty()) && doTree_) tree_->Fill();
   }
   firstEvent_ = false;
 }
