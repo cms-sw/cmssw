@@ -1,16 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import string
 
-from Configuration.StandardSequences.Eras import eras
-
 process = cms.Process('RECODQM')
-
-# import of standard configurations
-process.load('Configuration.StandardSequences.Services_cff')
-process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('Configuration.EventContent.EventContent_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.verbosity = cms.untracked.PSet( input = cms.untracked.int32(-1) )
@@ -31,17 +22,12 @@ process.dqmEnv.eventInfoFolder = "EventInfo"
 process.dqmSaver.path = ""
 process.dqmSaver.tag = "CTPPS"
 
-from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_hlt_relval', '')
-
-
 # raw data source
-process.source = cms.Source("PoolSource",
+process.source = cms.Source("NewEventStreamFileReader",
   fileNames = cms.untracked.vstring(
     #'file:/afs/cern.ch/user/j/jkaspar/public/run273062_ls0001-2_stream.root'
     #'/store/t0streamer/Data/Physics/000/294/737/run294737_ls0011_streamPhysics_StorageManager.dat',
-    #'/store/t0streamer/Minidaq/A/000/295/626/run295626_ls0001_streamA_StorageManager.dat',
-    '/store/data/Run2017C/ZeroBias/RAW/v1/000/300/401/00000/025708B7-C678-E711-991A-02163E01A6B4.root',
+    '/store/t0streamer/Minidaq/A/000/295/626/run295626_ls0001_streamA_StorageManager.dat',
   )
 )
 
