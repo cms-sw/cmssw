@@ -13,10 +13,6 @@ from RecoCTPPS.PixelLocal.ctppsPixelRecHits_cfi import ctppsPixelRecHits
 # local track producer
 from RecoCTPPS.PixelLocal.ctppsPixelLocalTracks_cfi import ctppsPixelLocalTracks
 
-#ctppsPixelTracks = cms.EDProducer('CTPPSPixelLocalTrackProducer',
-#  patterFinderAlgorithm = cms.string('testPatternAlgorithm')
-#)
-
 from Geometry.VeryForwardGeometryBuilder.ctppsIncludeAlignments_cfi import *
 ctppsIncludeAlignments.RealFiles = cms.vstring("Alignment/CTPPS/data/RPixGeometryCorrections.xml")
 
