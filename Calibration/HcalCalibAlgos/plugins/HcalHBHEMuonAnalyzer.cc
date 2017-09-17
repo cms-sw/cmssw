@@ -208,7 +208,7 @@ HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig) : h
   if (fileInCorr_ != "") {
     std::ifstream infile(fileInCorr_.c_str());
     if (infile.is_open()) {
-      while (1) {
+      while (true) {
 	unsigned int id;
 	double       cfac;
 	infile >> id >> cfac;
