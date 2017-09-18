@@ -274,7 +274,6 @@ void PixelThresholdClusterizer::copy_to_buffer( DigiIterator begin, DigiIterator
     if (adc!=adcOld) std::cout << "VI " << eqD  <<' '<< ic  <<' '<< end-begin <<' '<< i <<' '<< di->adc() <<' ' << adc <<' '<< adcOld << std::endl; else ++eqD;
 #endif
 
-    //if(adc<0) cout<<" negative amplitude "<<adc<<" "<<row<<" "<<col<<" "<<calibrate(di->adc(),col,row)<<" "<<detid_<<endl;   
     if(adc<100) adc=100; // put all negative pixel charges into the 100 elec bin 
 
     if ( adc >= thePixelThreshold) {
@@ -331,8 +330,6 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row)
 	  float DBgain     = theSiPixelGainCalibrationService_->getGain(detid_, col, row);
 	  float pedestal   = theSiPixelGainCalibrationService_->getPedestal(detid_, col, row);
 	  float DBpedestal = pedestal * DBgain;
-	  //float DBpedestal = theSiPixelGainCalibrationService_->getPedestal(detid_, col, row) * DBgain;
-	  
 	  
 	  // Roc-6 average
 	  //const float gain = 1./0.313; // 1 ADC = 3.19 VCALs 
@@ -358,25 +355,6 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row)
 	  } else {
 	    electrons = int( vcal * theConversionFactor + theOffset); 
 	  }
-
-
-	  // if(adc<0 || adc>255) cout<<" adc wrong range "<<adc<<endl;
-
-	  // if(layer_>0) {
-	  //   if( (layer_==1  && (pedestal<-40. || pedestal>170.) ) || 
-	  // 	(layer_==2  && (pedestal<-260.|| pedestal>230.) ) || 
-	  // 	(layer_==3  && (pedestal<-130.|| pedestal>80.) ) || 
-	  // 	(layer_==4  && (pedestal<-90. || pedestal>110.) ) ) 
-
-	  //     cout<<"PED outside range: layer "<<layer_<<" "<<pedestal<<" "<<DBgain<<" "<<DBpedestal
-	  // 	  <<" "<<adc<<" "<<vcal<<" "<<electrons<<" det: "
-	  // 	  <<detid_<<" row: "<<row<<" col: "<<col<<endl;
-
-	  // }
-
-	  if(electrons<0) 
-	    cout<<" layer "<<layer_<<" "<<adc<<" "<<DBgain<<" "<<pedestal<<" "<<DBpedestal<<" "<<vcal
-		<<" - ";
 
 	}
     }
