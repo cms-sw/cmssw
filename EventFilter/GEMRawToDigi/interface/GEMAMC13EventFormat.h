@@ -503,4 +503,3 @@ class AMC13Event
   }
 
 };
-
