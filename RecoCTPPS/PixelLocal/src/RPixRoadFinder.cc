@@ -51,7 +51,7 @@ void RPixRoadFinder::findPattern(){
     const auto myid = CTPPSPixelDetId(ds_rh2.id);
     for (const auto & it_rh : ds_rh2.data){
       CLHEP::Hep3Vector localV(it_rh.getPoint().x(),it_rh.getPoint().y(),it_rh.getPoint().z() );
-      CLHEP::Hep3Vector globalV = geometry_.localToGlobal(ds_rh2.id,localV);
+      CLHEP::Hep3Vector globalV = geometry_->localToGlobal(ds_rh2.id,localV);
       TMatrixD localError(3,3);
       localError[0][0] = it_rh.getError().xx();
       localError[0][1] = it_rh.getError().xy();
@@ -63,7 +63,13 @@ void RPixRoadFinder::findPattern(){
       localError[2][1] =                  0.;
       localError[2][2] =                  0.;
       if(verbosity_>2) edm::LogInfo("RPixRoadFinder")<<"Hits = "<<ds_rh2.data.size();
-      TMatrixD theRotationTMatrix(planeRotationMatrixMap_[CTPPSPixelDetId(ds_rh2.id)]);
+
+      DDRotationMatrix theRotationMatrix = geometry_->getSensor(myid)->rotation();
+      TMatrixD theRotationTMatrix;
+      theRotationTMatrix.ResizeTo(3,3);
+      theRotationMatrix.GetComponents(theRotationTMatrix[0][0], theRotationTMatrix[0][1], theRotationTMatrix[0][2],
+                                      theRotationTMatrix[1][0], theRotationTMatrix[1][1], theRotationTMatrix[1][2],
+                                      theRotationTMatrix[2][0], theRotationTMatrix[2][1], theRotationTMatrix[2][2]);
 
       TMatrixD theRotationTMatrixInverted(theRotationTMatrix);
       theRotationTMatrixInverted.Invert();
