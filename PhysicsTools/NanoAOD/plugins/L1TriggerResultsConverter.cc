@@ -50,12 +50,12 @@
 class L1TriggerResultsConverter : public edm::global::EDProducer<> {
    public:
       explicit L1TriggerResultsConverter(const edm::ParameterSet&);
-      ~L1TriggerResultsConverter();
+      ~L1TriggerResultsConverter() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+      void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
       virtual void beginRun(edm::StreamID, edm::Run const&, edm::EventSetup const&);
 
       // ----------member data ---------------------------

@@ -25,7 +25,7 @@ class GenVisTauProducer : public edm::global::EDProducer<>
     produces<reco::GenParticleCollection>();
   }
   
-  virtual ~GenVisTauProducer() {}
+  ~GenVisTauProducer() override {}
 
   void produce(edm::StreamID id, edm::Event& evt, const edm::EventSetup& es) const override 
   {

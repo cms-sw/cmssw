@@ -18,7 +18,7 @@ class LHETablesProducer : public edm::global::EDProducer<> {
             produces<FlatTable>();
         }
 
-        virtual ~LHETablesProducer() {}
+        ~LHETablesProducer() override {}
 
         void produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const override {
             auto lheTab  = std::make_unique<FlatTable>(1, "LHE", true);

@@ -8,7 +8,7 @@ void
 TriggerOutputBranches::updateTriggerNames(TTree & tree, const edm::TriggerNames & names, const edm::TriggerResults & triggers) 
 {  
    std::vector<std::string> newNames(triggers.getTriggerNames());
-   if(newNames.size()==0) {
+   if(newNames.empty()) {
        for(unsigned int j=0;j<triggers.size();j++) {
  	   newNames.push_back(names.triggerName(j));
        }
@@ -46,8 +46,8 @@ TriggerOutputBranches::updateTriggerNames(TTree & tree, const edm::TriggerNames 
 
 edm::TriggerNames TriggerOutputBranches::triggerNames(const edm::TriggerResults triggerResults){
     edm::pset::Registry* psetRegistry = edm::pset::Registry::instance();
-    edm::ParameterSet const* pset=0;
-    if (0!=(pset=psetRegistry->getMapped(triggerResults.parameterSetID()))) {
+    edm::ParameterSet const* pset=nullptr;
+    if (nullptr!=(pset=psetRegistry->getMapped(triggerResults.parameterSetID()))) {
 
          if (pset->existsAs<std::vector<std::string> >("@trigger_paths", true)) {
             edm::TriggerNames triggerNames(*pset);

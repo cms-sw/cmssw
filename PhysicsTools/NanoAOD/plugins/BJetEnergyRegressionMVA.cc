@@ -39,20 +39,20 @@ class BJetEnergyRegressionMVA : public BaseMVAValueMapProducer<pat::Jet> {
 
 		
 	  }
-	  virtual void readAdditionalCollections(edm::Event&iEvent, const edm::EventSetup&) override {
+	  void readAdditionalCollections(edm::Event&iEvent, const edm::EventSetup&) override {
 		iEvent.getByToken(pvsrc_, pvs_);
 		iEvent.getByToken(svsrc_, svs_);
 	  }
 
-          virtual void fillAdditionalVariables(const pat::Jet&j)  override {
+          void fillAdditionalVariables(const pat::Jet&j)  override {
 		this->setValue("nPVs",pvs_->size());
 		BaseMVAValueMapProducer<pat::Jet>::setValue("Jet_leptonPtRel",0);
 
-		if(j.overlaps("muons").size() >0) { 
+		if(!j.overlaps("muons").empty()) { 
 			const auto *lep=dynamic_cast<const pat::Muon *>(&*j.overlaps("muons")[0]);
 			if(lep!=nullptr) {BaseMVAValueMapProducer<pat::Jet>::setValue("Jet_leptonPtRel",lep->userFloat("ptRel"));}
 		}
-		else if(j.overlaps("electrons").size() >0) {
+		else if(!j.overlaps("electrons").empty()) {
 			const auto *lep=dynamic_cast<const pat::Electron *>(&*j.overlaps("electrons")[0]);
 			if(lep!=nullptr) {BaseMVAValueMapProducer<pat::Jet>::setValue("Jet_leptonPtRel",lep->userFloat("ptRel"));}
 		}

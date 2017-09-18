@@ -42,7 +42,7 @@ class TriggerObjectTableProducer : public edm::global::EDProducer<> {
             produces<FlatTable>();
         }
 
-        ~TriggerObjectTableProducer() {}
+        ~TriggerObjectTableProducer() override {}
 
     private:
         void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override ;

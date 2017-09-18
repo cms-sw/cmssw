@@ -67,9 +67,9 @@ namespace pat {
             produces<std::vector<T>>();
         }
 
-      ~PATObjectUserDataEmbedder() {}
+      ~PATObjectUserDataEmbedder() override {}
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
           edm::ParameterSetDescription desc;

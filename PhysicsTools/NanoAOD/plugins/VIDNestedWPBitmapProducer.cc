@@ -54,14 +54,14 @@ class VIDNestedWPBitmapProducer : public edm::stream::EDProducer<> {
     nWP = src_bitmaps_.size();
     produces<edm::ValueMap<int>>();
   }
-  ~VIDNestedWPBitmapProducer() {}
+  ~VIDNestedWPBitmapProducer() override {}
   
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-  virtual void beginStream(edm::StreamID) override {};
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endStream() override {};
+  void beginStream(edm::StreamID) override {};
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endStream() override {};
 
       //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
