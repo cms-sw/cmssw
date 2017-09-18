@@ -46,7 +46,7 @@ class HGCDigitizerBase {
   float keV2fC() const { return keV2fC_; }
   bool toaModeByEnergy() const { return (myFEelectronics_->toaMode()==HGCFEElectronics<DFr>::WEIGHTEDBYE); }
   float tdcOnset() const { return myFEelectronics_->getTDCOnset(); }
-  std::array<float,3> tdcForToaOnset() const { return myFEelectronics_->getTDCForToaOnset(); }
+  std::array<float,3> tdcForToAOnset() const { return myFEelectronics_->getTDCForToAOnset(); }
 
   /**
      @short a trivial digitization: sum energies and digitize without noise

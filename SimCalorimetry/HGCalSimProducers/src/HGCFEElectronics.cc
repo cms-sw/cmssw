@@ -54,10 +54,10 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet &ps) :
     }
   if( ps.exists("adcThreshold_fC") )                adcThreshold_fC_                = ps.getParameter<double>("adcThreshold_fC");
   if( ps.exists("tdcOnset_fC") )                    tdcOnset_fC_                    = ps.getParameter<double>("tdcOnset_fC");
-  if( ps.exists("tdcForToaOnset_fC") ){
-    auto temp = ps.getParameter< std::vector<double> >("tdcForToaOnset_fC");
+  if( ps.exists("tdcForToAOnset_fC") ){
+    auto temp = ps.getParameter< std::vector<double> >("tdcForToAOnset_fC");
     for( unsigned i = 0; i < temp.size(); ++i ) {
-      tdcForToaOnset_fC_[i] = (float)temp[i];
+      tdcForToAOnset_fC_[i] = (float)temp[i];
     }
   }
   if( ps.exists("toaLSB_ns") )                      toaLSB_ns_                      = ps.getParameter<double>("toaLSB_ns");
@@ -186,7 +186,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
 #endif
 
   bool debug = debug_state;
-  float timeTOA = 0.f;
+  float timeToA = 0.f;
 
 
   //first look at time
@@ -194,13 +194,13 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
   //ToA is in central BX if fired -- std::floor(BX/25.)+9;
   int fireBX = 9; 
   //noise fluctuation on charge is added after ToA computation
-  //do not recheck the ToA firing threshold tdcForToaOnset_fC_[thickness-1] not to bias the efficiency 
+  //do not recheck the ToA firing threshold tdcForToAOnset_fC_[thickness-1] not to bias the efficiency 
   //to be done properly with realistic ToA shaper and jitter for the moment accounted in the smearing 
   if(toaColl[fireBX] != 0.f){
-    timeTOA = toaColl[fireBX];
-    if(jitterNoise2_ns_[0] != 0) timeTOA = CLHEP::RandGaussQ::shoot(engine, timeTOA, getTimeJitter(chargeColl[fireBX], thickness));
-    else timeTOA = CLHEP::RandGaussQ::shoot(engine, timeTOA, tdcResolutionInNs_);
-    if(timeTOA >= 0.f && timeTOA <= 25.f) toaFlags[fireBX] = true;
+    timeToA = toaColl[fireBX];
+    if(jitterNoise2_ns_[0] != 0) timeToA = CLHEP::RandGaussQ::shoot(engine, timeToA, getTimeJitter(chargeColl[fireBX], thickness));
+    else timeToA = CLHEP::RandGaussQ::shoot(engine, timeToA, tdcResolutionInNs_);
+    if(timeToA >= 0.f && timeToA <= 25.f) toaFlags[fireBX] = true;
   }
 
   //now look at charge
@@ -221,7 +221,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
 
       //raise TDC mode for charge computation
       //ToA anyway fired independently will be sorted out with realistic ToA dedicated shaper
-      float toa = timeTOA;
+      float toa = timeToA;
       totFlags[it]=true;
 
 
@@ -367,7 +367,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
     }
   }
   */
-  //timeTOA is already in 0-25ns range by construction
+  //timeToA is already in 0-25ns range by construction
 
   //set new ADCs and ToA
   if(debug) edm::LogVerbatim("HGCFE") << "\t final result : ";
@@ -384,7 +384,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
 	      //brute force saturation, maybe could to better with an exponential like saturation
 	      const float saturatedCharge(std::min(newCharge[it],tdcSaturation_fC_));	      
 	      //working version for in-time PU and signal 
-	      newSample.set(true,true,(uint16_t)(timeTOA/toaLSB_ns_),(uint16_t)(std::floor(saturatedCharge/tdcLSB_fC_)));
+	      newSample.set(true,true,(uint16_t)(timeToA/toaLSB_ns_),(uint16_t)(std::floor(saturatedCharge/tdcLSB_fC_)));
 	      if(toaFlags[it]) newSample.setToAValid(true);
 	    }
 	  else
@@ -397,7 +397,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
 	   //brute force saturation, maybe could to better with an exponential like saturation
           const float saturatedCharge(std::min(newCharge[it],adcSaturation_fC_));
 	  //working version for in-time PU and signal 
-	  newSample.set(newCharge[it]>adj_thresh, false, (uint16_t)(timeTOA/toaLSB_ns_), (uint16_t)(std::floor(saturatedCharge/adcLSB_fC_)));
+	  newSample.set(newCharge[it]>adj_thresh, false, (uint16_t)(timeToA/toaLSB_ns_), (uint16_t)(std::floor(saturatedCharge/adcLSB_fC_)));
 	  if(toaFlags[it]) newSample.setToAValid(true);
 	}
       dataFrame.setSample(it,newSample);
