@@ -70,7 +70,7 @@ public:
                            TrajectoryFilter *inOutFilter=nullptr);
   BaseCkfTrajectoryBuilder(const BaseCkfTrajectoryBuilder &) = delete;
   BaseCkfTrajectoryBuilder& operator=(const BaseCkfTrajectoryBuilder&) = delete;
-  virtual ~BaseCkfTrajectoryBuilder();
+  ~BaseCkfTrajectoryBuilder() override;
 
   // new interface returning the start Trajectory...
   virtual TempTrajectory buildTrajectories (const TrajectorySeed& seed,
@@ -84,8 +84,8 @@ public:
 
   void setNavigationSchool(NavigationSchool const * nv) { theNavigationSchool=nv;}
 
-  virtual void setEvent(const edm::Event& event) const ;
-  virtual void unset() const;
+  void setEvent(const edm::Event& event) const override ;
+  void unset() const override;
 
   void setEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup, const MeasurementTrackerEvent *data);
 
