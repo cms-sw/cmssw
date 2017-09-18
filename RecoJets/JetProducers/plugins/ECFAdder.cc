@@ -4,15 +4,21 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 ECFAdder::ECFAdder(const edm::ParameterSet& iConfig) :
   src_(iConfig.getParameter<edm::InputTag>("src")),
   src_token_(consumes<edm::View<reco::Jet>>(src_)),
   Njets_(iConfig.getParameter<std::vector<unsigned> >("Njets")),
+  cuts_(iConfig.getParameter<std::vector<std::string>>("cuts")),
   ecftype_(iConfig.getParameter<std::string>("ecftype")),
   alpha_(iConfig.getParameter<double>("alpha")),
   beta_(iConfig.getParameter<double>("beta"))
 {
+
+  if ( cuts_.size() != Njets_.size() ) {
+    throw cms::Exception("ConfigurationError") << "cuts and Njets must be the same size in ECFAdder" << std::endl;
+  }
 
     for ( std::vector<unsigned>::const_iterator n = Njets_.begin(); n != Njets_.end(); ++n )
       {
@@ -46,7 +52,13 @@ ECFAdder::ECFAdder(const edm::ParameterSet& iConfig) :
 	variables_.push_back(ecfN_str.str());
 	produces<edm::ValueMap<float> >(ecfN_str.str());
 	routine_.push_back(pfunc);
+
+
+	
+	selectors_.push_back( StringCutObjectSelector<reco::Jet>( cuts_[ n - Njets_.begin()] ) );
       }
+
+
 
 }
 
@@ -66,7 +78,10 @@ void ECFAdder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
 	edm::Ptr<reco::Jet> jetPtr = jets->ptrAt(jetIt - jets->begin());
 
-	float t=getECF( i, jetPtr );
+	
+	float t= -1.0;
+	if ( selectors_[n - Njets_.begin()] (*jetIt) )
+	  t = getECF( i, jetPtr );	
 
 	ecfN.push_back(t);
       }
@@ -119,10 +134,10 @@ void ECFAdder::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 
   iDesc.add<edm::InputTag>("src", edm::InputTag("no default"))->setComment("input collection");
   iDesc.add<std::vector<unsigned> >("Njets", {1,2,3} )->setComment("Number of jets to emulate");
+  iDesc.add<std::vector<std::string>> ("cuts", {"", "", ""})->setComment("Jet selections for each N value. Size must match Njets.");
   iDesc.add<double>("alpha",1.0)->setComment("alpha factor, only valid for N2");
   iDesc.add<double>("beta",1.0)->setComment("angularity factor");
   iDesc.add<std::string>("ecftype","")->setComment("ECF type: ECF or empty; C; D; N; M; U;");
-
   descriptions.add("ECFAdder", iDesc);
 }
 
