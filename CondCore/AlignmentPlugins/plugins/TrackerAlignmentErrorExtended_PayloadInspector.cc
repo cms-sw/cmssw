@@ -20,6 +20,7 @@
 
 // needed for mapping
 #include "CondCore/AlignmentPlugins/interface/AlignmentPayloadInspectorHelper.h"
+#include "CalibTracker/SiStripCommon/interface/StandaloneTrackerTopology.h" 
 
 #include <memory>
 #include <sstream>
@@ -64,11 +65,6 @@ namespace {
 	  for (const auto& it : alignErrors ){
 	    
 	    CLHEP::HepSymMatrix errMatrix = it.matrix();
-	    int subid = DetId(it.rawId()).subdetId();	    
-
-	    if(subid==1){
-	      std::cout << it.rawId() << " | " << sqrt(errMatrix[indices.first][indices.second])*cmToUm << std::endl;
-	    }
 
 	    // to be used to fill the histogram
 	    fillWithValue(sqrt(errMatrix[indices.first][indices.second])*cmToUm);	    
@@ -104,6 +100,9 @@ namespace {
       std::shared_ptr<AlignmentErrorsExtended> payload = fetchPayload( std::get<1>(iov) );
       std::vector<AlignTransformErrorExtended> alignErrors = payload->m_alignError;
 
+      const char * path_toTopologyXML = (alignErrors.size()==AlignmentPI::phase0size) ? "Geometry/TrackerCommonData/data/trackerParameters.xml" : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath(path_toTopologyXML).fullPath()); 
+
       auto indices = AlignmentPI::getIndices(i);
 
       TCanvas canvas("Partion summary","partition summary",1200,1000); 
@@ -129,8 +128,6 @@ namespace {
 	    
       	CLHEP::HepSymMatrix errMatrix = it.matrix();
       	int subid = DetId(it.rawId()).subdetId();
-
-	if(errMatrix[indices.first][indices.second]==0.) std::cout<< it.rawId() << "\n";
 	
       	switch(subid){
       	case 1 : 
@@ -140,16 +137,24 @@ namespace {
       	  APE_spectra["PXF"]->Fill(std::min(200.,sqrt(errMatrix[indices.first][indices.second])*cmToUm));
       	  break;
       	case 3 : 
-	  APE_spectra["TIB"]->Fill(std::min(200.,sqrt(errMatrix[indices.first][indices.second])*cmToUm));
+	  if(!tTopo.tibIsDoubleSide(it.rawId())){ // no glued DetIds
+	    APE_spectra["TIB"]->Fill(std::min(200.,sqrt(errMatrix[indices.first][indices.second])*cmToUm));
+	  }
       	  break;
       	case 4 : 
-	  APE_spectra["TID"]->Fill(std::min(200.,sqrt(errMatrix[indices.first][indices.second])*cmToUm));
+	  if(!tTopo.tidIsDoubleSide(it.rawId())){ // no glued DetIds
+	    APE_spectra["TID"]->Fill(std::min(200.,sqrt(errMatrix[indices.first][indices.second])*cmToUm));
+	  }
       	  break;
-      	case 5 : 
-	  APE_spectra["TOB"]->Fill(std::min(200.,sqrt(errMatrix[indices.first][indices.second])*cmToUm));
+      	case 5 :
+	  if(!tTopo.tobIsDoubleSide(it.rawId())){ // no glued DetIds
+	    APE_spectra["TOB"]->Fill(std::min(200.,sqrt(errMatrix[indices.first][indices.second])*cmToUm));
+	  }
       	  break;
-      	case 6 : 
-	  APE_spectra["TEC"]->Fill(std::min(200.,sqrt(errMatrix[indices.first][indices.second])*cmToUm));
+      	case 6 :
+	  if(!tTopo.tecIsDoubleSide(it.rawId())){ // no glued DetIds
+	    APE_spectra["TEC"]->Fill(std::min(200.,sqrt(errMatrix[indices.first][indices.second])*cmToUm));
+	  }
       	  break;
       	default : std::cout<<"will do nothing"<< std::endl;
       	  break;
@@ -213,7 +218,7 @@ namespace {
       auto indices = AlignmentPI::getIndices(i);
 
       bool isPhase0(false);
-      if(alignErrors.size()==19876) isPhase0 = true;
+      if(alignErrors.size()==AlignmentPI::phase0size) isPhase0 = true;
       
       for (const auto& it : alignErrors ){
 
