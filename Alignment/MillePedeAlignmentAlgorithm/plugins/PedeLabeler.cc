@@ -28,9 +28,8 @@ PedeLabeler::PedeLabeler(const PedeLabelerBase::TopLevelAlignables& alignables,
   alis.push_back(alignables.aliMuon_);
 
   if (alignables.aliExtras_) {
-    align::Alignables allExtras = alignables.aliExtras_->components();
-    for ( std::vector<Alignable*>::iterator it = allExtras.begin(); it != allExtras.end(); ++it ) {
-      alis.push_back(*it);
+    for (const auto& ali: alignables.aliExtras_->components()) {
+      alis.push_back(ali);
     }
   }
 
@@ -157,17 +156,16 @@ unsigned int PedeLabeler::buildMap(const std::vector<Alignable*> &alis)
 
   std::vector<Alignable*> allComps;
 
-  for (std::vector<Alignable*>::const_iterator iAli = alis.begin(); iAli != alis.end(); ++iAli) {
-    if (*iAli) {
-      allComps.push_back(*iAli);
-      (*iAli)->recursiveComponents(allComps);
+  for (const auto& iAli: alis) {
+    if (iAli) {
+      allComps.push_back(iAli);
+      iAli->recursiveComponents(allComps);
     }
   }
 
   unsigned int id = theMinLabel;
-  for (std::vector<Alignable*>::const_iterator iter = allComps.begin();
-       iter != allComps.end(); ++iter) {
-    theAlignableToIdMap.insert(AlignableToIdPair(*iter, id));
+  for (const auto& iter: allComps) {
+    theAlignableToIdMap.insert(AlignableToIdPair(iter, id));
     id += theMaxNumParam;
   }
   
@@ -195,23 +193,18 @@ unsigned int PedeLabeler::buildMap(const std::vector<Alignable*> &alis)
 //_________________________________________________________________________
 unsigned int PedeLabeler::buildReverseMap()
 {
-
   // alignables
   theIdToAlignableMap.clear();  // just in case of re-use...
 
-  for (AlignableToIdMap::iterator it = theAlignableToIdMap.begin();
-       it != theAlignableToIdMap.end(); ++it) {
-    const unsigned int key = (*it).second;
-    Alignable *ali = (*it).first;
-    theIdToAlignableMap[key] = ali;
+  for (const auto& it: theAlignableToIdMap) {
+    theIdToAlignableMap[it.second] = it.first;
   }
 
   // las beams
   theLabelToLasBeamMap.clear(); // just in case of re-use...
 
-  for (UintUintMap::const_iterator it = theLasBeamToLabelMap.begin();
-       it != theLasBeamToLabelMap.end(); ++it) {
-    theLabelToLasBeamMap[it->second] = it->first; //revert key/value
+  for (const auto& it: theLasBeamToLabelMap) {
+    theLabelToLasBeamMap[it.second] = it.first; //revert key/value
   }
 
   // return combined size
