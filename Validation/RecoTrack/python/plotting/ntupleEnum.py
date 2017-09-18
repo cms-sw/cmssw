@@ -93,9 +93,10 @@ SeedStopReason = _Enum(
   NOT_STOPPED = 1,
   SEED_CLEANING = 2,
   NO_TRAJECTORY = 3,
-  FINAL_CLEAN = 4,
-  SMOOTHING_FAILED = 5,
-  SIZE = 6
+  SEED_REGION_REBUILD = 4,
+  FINAL_CLEAN = 5,
+  SMOOTHING_FAILED = 6,
+  SIZE = 7
 )
 
 # to be kept is synch with enum HitSimType in TrackingNtuple.py

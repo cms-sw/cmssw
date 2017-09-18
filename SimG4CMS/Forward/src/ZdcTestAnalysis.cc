@@ -118,14 +118,14 @@ void ZdcTestAnalysis::update(const G4Step * aStep) {
     G4String particleType = theTrack->GetDefinition()->GetParticleName();
     G4int pdgcode         = theTrack->GetDefinition()->GetPDGEncoding();
     
-    G4ThreeVector vert_mom = theTrack->GetVertexMomentumDirection();
+    const G4ThreeVector& vert_mom = theTrack->GetVertexMomentumDirection();
     G4double vpx = vert_mom.x();
     G4double vpy = vert_mom.y();
     G4double vpz = vert_mom.z();
     double eta = 0.5 * log( (1.+vpz) / (1.-vpz) );
     double phi = atan2(vpy,vpx);
     
-    G4ThreeVector hitPoint = preStepPoint->GetPosition();
+    const G4ThreeVector& hitPoint = preStepPoint->GetPosition();
     G4ThreeVector localPoint = theTrack->GetTouchable()->GetHistory()->
     GetTopTransform().TransformPoint(hitPoint);
     
@@ -188,11 +188,11 @@ void ZdcTestAnalysis::update(const G4Step * aStep) {
     else if (historyDepth == 0) { 
       int theReplicaNumber = touch->GetReplicaNumber(0);
       G4VPhysicalVolume* thePhysicalVolume = touch->GetVolume(0);
-      G4String thePVname = thePhysicalVolume->GetName();
+      const G4String& thePVname = thePhysicalVolume->GetName();
       G4LogicalVolume * theLogicalVolume = thePhysicalVolume->GetLogicalVolume();
-      G4String theLVname = theLogicalVolume->GetName();
+      const G4String& theLVname = theLogicalVolume->GetName();
       G4Material * theMaterial = theLogicalVolume->GetMaterial();
-      G4String theMaterialName = theMaterial->GetName();
+      const G4String& theMaterialName = theMaterial->GetName();
       if (verbosity >= 2)
 	std::cout << " hd=0 " << theReplicaNumber << "," 
 		  << thePVname << "," << theLVname << "," 
@@ -320,7 +320,7 @@ void ZdcTestAnalysis::update(const EndOfEvent * evt) {
 
       // Find Primary info:
       int trackID = 0;
-      G4PrimaryParticle* thePrim=0;
+      G4PrimaryParticle* thePrim=nullptr;
       G4int nvertex = (*evt)()->GetNumberOfPrimaryVertex();
       std::cout << "Event has " << nvertex << " vertex" << std::endl;
       if (nvertex==0)
@@ -329,7 +329,7 @@ void ZdcTestAnalysis::update(const EndOfEvent * evt) {
       for (int i = 0 ; i<nvertex; i++) {
 	
 	G4PrimaryVertex* avertex = (*evt)()->GetPrimaryVertex(i);
-	if (avertex == 0) {
+	if (avertex == nullptr) {
 	  std::cout << "ZdcTest End Of Event ERR: pointer to vertex = 0"
 		       << std::endl;
 	} else {
@@ -337,14 +337,14 @@ void ZdcTestAnalysis::update(const EndOfEvent * evt) {
 	  int npart = avertex->GetNumberOfParticle();
 	  if (npart ==0)
 	    std::cout << "ZdcTest End Of Event ERR: no primary!" << std::endl;
-	  if (thePrim==0) thePrim=avertex->GetPrimary(trackID);
+	  if (thePrim==nullptr) thePrim=avertex->GetPrimary(trackID);
 	}
       }
       
       double px=0.,py=0.,pz=0.;
       double pInit = 0.;
       
-      if (thePrim != 0) {
+      if (thePrim != nullptr) {
 	px = thePrim->GetPx();
 	py = thePrim->GetPy();
 	pz = thePrim->GetPz();

@@ -636,13 +636,6 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
       }
 
       size_t StopReasonNameSize = sizeof(StopReasonName::StopReasonName)/sizeof(std::string);
-      if(StopReasonNameSize != static_cast<unsigned int>(StopReason::SIZE)) {
-        throw cms::Exception("Assert") << "StopReason::SIZE is " << static_cast<unsigned int>(StopReason::SIZE)
-                                       << " but StopReasonName's only for "
-                                       << StopReasonNameSize
-                                       << ". Please update DataFormats/TrackReco/interface/TrajectoryStopReasons.h.";
-      }
-
       histname = "stoppingSource_";
       stoppingSource = ibooker.book1D(histname+CategoryName, histname+CategoryName, StopReasonNameSize, 0., double(StopReasonNameSize));
       stoppingSource->setAxisTitle("stopping reason",1);

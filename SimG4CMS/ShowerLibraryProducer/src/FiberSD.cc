@@ -22,7 +22,7 @@ FiberSD::FiberSD(std::string name, const DDCompactView & cpv,
 		 const SensitiveDetectorCatalog & clg, edm::ParameterSet const & p,
 		 const SimTrackManager* manager) :
   SensitiveCaloDetector(name, cpv, clg, p), theName(name),
-  m_trackManager(manager), theHCID(-1), theHC(0) {
+  m_trackManager(manager), theHCID(-1), theHC(nullptr) {
 
   collectionName.insert(name);
   LogDebug("FiberSim") << "***************************************************"
@@ -71,7 +71,7 @@ G4bool FiberSD::ProcessHits(G4Step * aStep, G4TouchableHistory*) {
   std::vector<HFShower::Hit> hits = theShower->getHits(aStep,true,zoffset);
 
   
-  if (hits.size() > 0) {
+  if (!hits.empty()) {
     std::vector<HFShowerPhoton> thePE;
     for (unsigned int i=0; i<hits.size(); i++) {
       //std::cout<<"hit position z "<<hits[i].position.z()<<std::endl;
@@ -135,7 +135,7 @@ void FiberSD::update(const BeginOfJob * job) {
   es->get<HcalSimNumberingRecord>().get(hdc);
   if (hdc.isValid()) {
     HcalDDDSimConstants *hcalConstants = (HcalDDDSimConstants*)(&(*hdc));
-    theShower->initRun(0, hcalConstants);
+    theShower->initRun(nullptr, hcalConstants);
   } else {
     edm::LogError("HcalSim") << "HCalSD : Cannot find HcalDDDSimConstant";
     throw cms::Exception("Unknown", "HCalSD") << "Cannot find HcalDDDSimConstant" << "\n";

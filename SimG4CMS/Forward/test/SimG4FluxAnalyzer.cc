@@ -34,15 +34,15 @@ class SimG4FluxAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::o
 
 public:
   explicit SimG4FluxAnalyzer(edm::ParameterSet const&);
-  ~SimG4FluxAnalyzer();
+  ~SimG4FluxAnalyzer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginJob() override;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override {}
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override {}
-  virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void beginJob() override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override {}
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
 
   edm::Service<TFileService>                   fs_;
   std::vector<std::string>                     lvNames_;
@@ -122,7 +122,7 @@ void SimG4FluxAnalyzer::analyze(const edm::Event& iEvent,
     iEvent.getByToken(token, pFlux);
     if (pFlux.isValid()) {
       const ParticleFlux             *pflux = pFlux.product();
-      std::string                     name = pflux->getName();
+      const std::string&                     name = pflux->getName();
       int                             id   = pflux->getId();
       std::vector<ParticleFlux::flux> flux = pflux->getFlux();
 #ifdef EDM_ML_DEBUG
@@ -159,7 +159,7 @@ void SimG4FluxAnalyzer::analyze(const edm::Event& iEvent,
   std::cout << "All flux compnents have " << detName_.size() << " entries" 
 	    << std::endl;
 #endif
-  if (detName_.size() > 0) tree_->Fill();
+  if (!detName_.empty()) tree_->Fill();
 
 }
   
