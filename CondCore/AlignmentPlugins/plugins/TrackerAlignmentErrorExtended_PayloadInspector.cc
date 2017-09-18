@@ -39,8 +39,6 @@
 #include "TPave.h"
 #include "TPaveStats.h"
 
-const float cmToUm = 10000;
-
 namespace {
 
   /************************************************
@@ -75,7 +73,7 @@ namespace {
 	    }
 	    
 	    // to be used to fill the histogram
-	    fillWithValue(sqrt(errMatrix[indices.first][indices.second])*cmToUm);	    
+	    fillWithValue(sqrt(errMatrix[indices.first][indices.second])*AlignmentPI::cmToUm);	    
 	  } // loop on the vector of modules
 	}// payload
       }// iovs
@@ -115,28 +113,33 @@ namespace {
 
       TCanvas canvas("Partion summary","partition summary",1200,1000); 
       canvas.Divide(3,2);
-      std::map<std::string,int> colormap;
-      colormap["PXB"] = kBlue;
-      colormap["PXF"] = kBlue+2;
-      colormap["TIB"] = kRed;           
-      colormap["TOB"] = kRed+2;
-      colormap["TID"] = kRed+4;	    
-      colormap["TEC"] = kRed+6; 	    
+      std::map<AlignmentPI::partitions,int> colormap;
+      colormap[AlignmentPI::BPix] = kBlue;
+      colormap[AlignmentPI::FPix] = kBlue+2;
+      colormap[AlignmentPI::TIB] = kRed;           
+      colormap[AlignmentPI::TOB] = kRed+2;
+      colormap[AlignmentPI::TID] = kRed+4;	    
+      colormap[AlignmentPI::TEC] = kRed+6; 	    
       
-      std::map<std::string,std::shared_ptr<TH1F> > APE_spectra; 
-      std::vector<std::string> parts = {"PXB","PXF","TIB","TID","TOB","TEC"};
+      std::map<AlignmentPI::partitions,std::shared_ptr<TH1F> > APE_spectra; 
+      std::vector<AlignmentPI::partitions> parts = {AlignmentPI::BPix,AlignmentPI::FPix,AlignmentPI::TIB,AlignmentPI::TID,AlignmentPI::TOB,AlignmentPI::TEC};
       
       auto s_index = getStringFromIndex(i);
 
       for ( const auto &part : parts){
-  	APE_spectra[part]   = std::make_shared<TH1F>(Form("hAPE_%s",part.c_str()),Form(";%s APE #sqrt{d_{%s}} [#mum];n. of modules",part.c_str(),s_index.c_str()),200,-10.,200.);       
+
+	std::string s_part = AlignmentPI::getStringFromPart(part);
+	
+  	APE_spectra[part]   = std::make_shared<TH1F>(Form("hAPE_%s",s_part.c_str()),Form(";%s APE #sqrt{d_{%s}} [#mum];n. of modules",s_part.c_str(),s_index.c_str()),200,-10.,200.);       
+	
       }
 
       for (const auto& it : alignErrors ){
 	    
       	CLHEP::HepSymMatrix errMatrix = it.matrix();
       	int subid = DetId(it.rawId()).subdetId();
-	
+	double matrixElement = sqrt(errMatrix[indices.first][indices.second]);
+
 	if(DetId(it.rawId()).det() != DetId::Tracker){
 	  edm::LogWarning("TrackerAlignmentErrorExtended_PayloadInspector") << "Encountered invalid Tracker DetId:" << it.rawId() <<" - terminating ";
 	  return false;
@@ -144,34 +147,33 @@ namespace {
 
       	switch(subid){
       	case 1 : 
-      	  APE_spectra["PXB"]->Fill(std::min(200.,sqrt(errMatrix[indices.first][indices.second])*cmToUm));
+      	  APE_spectra[AlignmentPI::BPix]->Fill(std::min(200.,matrixElement)*AlignmentPI::cmToUm);
       	  break;
       	case 2 : 
-      	  APE_spectra["PXF"]->Fill(std::min(200.,sqrt(errMatrix[indices.first][indices.second])*cmToUm));
+      	  APE_spectra[AlignmentPI::FPix]->Fill(std::min(200.,matrixElement)*AlignmentPI::cmToUm);
       	  break;
       	case 3 : 
 	  if(!tTopo.tibIsDoubleSide(it.rawId())){ // no glued DetIds
-	    APE_spectra["TIB"]->Fill(std::min(200.,sqrt(errMatrix[indices.first][indices.second])*cmToUm));
+	    APE_spectra[AlignmentPI::TIB]->Fill(std::min(200.,matrixElement)*AlignmentPI::cmToUm);
 	  }
-      	  break;
-      	case 4 : 
+	  break;
+	case 4 : 
 	  if(!tTopo.tidIsDoubleSide(it.rawId())){ // no glued DetIds
-	    APE_spectra["TID"]->Fill(std::min(200.,sqrt(errMatrix[indices.first][indices.second])*cmToUm));
+	    APE_spectra[AlignmentPI::TID]->Fill(std::min(200.,matrixElement)*AlignmentPI::cmToUm);
 	  }
       	  break;
       	case 5 :
 	  if(!tTopo.tobIsDoubleSide(it.rawId())){ // no glued DetIds
-	    APE_spectra["TOB"]->Fill(std::min(200.,sqrt(errMatrix[indices.first][indices.second])*cmToUm));
+	    APE_spectra[AlignmentPI::TOB]->Fill(std::min(200.,matrixElement)*AlignmentPI::cmToUm);
 	  }
       	  break;
       	case 6 :
 	  if(!tTopo.tecIsDoubleSide(it.rawId())){ // no glued DetIds
-	    APE_spectra["TEC"]->Fill(std::min(200.,sqrt(errMatrix[indices.first][indices.second])*cmToUm));
+	    APE_spectra[AlignmentPI::TEC]->Fill(std::min(200.,matrixElement)*AlignmentPI::cmToUm);
 	  }
       	  break;
       	default : std::cout<<"will do nothing"<< std::endl;
       	  break;
-
       	}
       }
       
@@ -248,10 +250,10 @@ namespace {
 
 	if(isPhase0){
 	  tmap->addPixel(true);
-	  tmap->fill(it.rawId(),sqrt(errMatrix[indices.first][indices.second])*cmToUm);
+	  tmap->fill(it.rawId(),sqrt(errMatrix[indices.first][indices.second])*AlignmentPI::cmToUm);
 	} else {
 	  if(subid!=1 && subid!=2){
-	    tmap->fill(it.rawId(),sqrt(errMatrix[indices.first][indices.second])*cmToUm);
+	    tmap->fill(it.rawId(),sqrt(errMatrix[indices.first][indices.second])*AlignmentPI::cmToUm);
 	  }
 	}
       } // loop over detIds
