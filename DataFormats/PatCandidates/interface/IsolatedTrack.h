@@ -58,7 +58,7 @@ namespace pat {
 	  nearestPFPackedCandRef_(refToNearestPF),
 	  nearestLostTrackPackedCandRef_(refToNearestLostTrack) {}
 
-        ~IsolatedTrack() {}
+        ~IsolatedTrack() override {}
 
         const PFIsolation& pfIsolationDR03() const  { return pfIsolationDR03_; }
 
@@ -71,9 +71,9 @@ namespace pat {
 	float pfNeutralSum() const { return pfNeutralSum_; }
 
         float dz() const { return dz_; }
-        float dzError() const { return dzError_; }
+        float dzError() const override { return dzError_; }
         float dxy() const { return dxy_; }
-        float dxyError() const { return dxyError_; }
+        float dxyError() const override { return dxyError_; }
 
         int fromPV() const { return fromPV_; }
 
