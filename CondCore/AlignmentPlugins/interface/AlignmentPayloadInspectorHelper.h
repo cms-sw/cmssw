@@ -11,6 +11,9 @@
 
 namespace AlignmentPI {
 
+  // size of the phase-I APE payload (including both SS + DS modules)
+  static const unsigned int phase0size=19876;
+
   // M.M. 2017/09/12
   // As the matrix is symmetric, we map only 6/9 terms
   // More terms for the extended APE can be added to the following methods
