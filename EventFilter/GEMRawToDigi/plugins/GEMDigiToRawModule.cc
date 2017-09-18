@@ -53,7 +53,7 @@ void GEMDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c ){
   c.get<GEMChamberMapRcd>().get(gemChamberMap); 
   const GEMChamberMap* theMapping = gemChamberMap.product();
 
-  auto fed_buffers = std::make_unique<FEDRawDataCollection>();
+  auto fedRawDataCol = std::make_unique<FEDRawDataCollection>();
 
   // Take digis from the event
   edm::Handle<GEMDigiCollection> gemDigi;
@@ -66,33 +66,33 @@ void GEMDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c ){
   e.getByToken( padDigiCluster_token, gemPadDigiCluster );
   e.getByToken( coPadDigi_token, gemCoPadDigi );
 
+  for (unsigned int id=FEDNumbering::MINGEMFEDID; id<=FEDNumbering::MAXGEMFEDID; ++id){ 
 
-  // for (unsigned int id=FEDNumbering::MINGEMFEDID; id<=FEDNumbering::MAXGEMFEDID; ++id){ 
+    FEDRawData& fed = fedRawDataCol->FEDData(id);
+    
+    FEDHeader::set(data.data() + size * 8, event_type_, e.id().event(), e.bunchCrossing(), fed_amcs.first);
 
-  //   FEDHeader::set(data.data() + size * 8, event_type_, e.id().event(), e.bunchCrossing(), fed_amcs.first);
+    std::vector<unsigned char> byteVec;  
+    // make FEROL headers
+    uint64_t m_word;
 
-  // std::vector<unsigned char> byteVec;  
-  // // make FEROL headers
-  // uint64_t m_word;
+    // 
+    m_AMC13Event = new AMC13Event();
+    m_AMC13Event->setCDFHeader(m_word);
+    m_AMC13Event->setAMC13header(m_word);
 
-  // // 
-  // m_AMC13Event = new AMC13Event();
-  // m_AMC13Event->setCDFHeader(m_word);
-  // m_AMC13Event->setAMC13header(m_word);
+    for (unsigned short i = 0; i < m_AMC13Event->nAMC(); i++){
+      std::fread(&m_word, sizeof(uint64_t), 1, m_file);
+      if(verbose_)  printf("%016lX\n", m_word);
+      //    GEMUnpacker::ByteVector(byteVec, m_word);
+      m_AMC13Event->addAMCheader(m_word);
+    }
 
-  // for (unsigned short i = 0; i < m_AMC13Event->nAMC(); i++){
-  //   std::fread(&m_word, sizeof(uint64_t), 1, m_file);
-  //   if(verbose_)  printf("%016lX\n", m_word);
-  //   //    GEMUnpacker::ByteVector(byteVec, m_word);
-  //   m_AMC13Event->addAMCheader(m_word);
-  // }
-
-  // // Create the packed data
-  // //  packer->createFedBuffers(*gemDigi, *gemPadDigi, *gemPadDigiCluster, *gemCoPadDigi
-  //                          *(fed_buffers.get()), theMapping, e);
+    // Create the packed data
+    //  packer->createFedBuffers(*gemDigi, *gemPadDigi, *gemPadDigiCluster, *gemCoPadDigi *(fedRawDataCol.get()), theMapping, e);
   
-  // put the raw data to the event
-  e.put(std::move(fed_buffers), "GEMRawData");
+    // put the raw data to the event
+  }
+  e.put(std::move(fedRawDataCol));
 }
-
 
