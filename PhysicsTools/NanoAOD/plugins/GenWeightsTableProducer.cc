@@ -126,7 +126,7 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
             }
         }
 
-        virtual ~GenWeightsTableProducer() {}
+        ~GenWeightsTableProducer() override {}
 
         void produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const override {
             // get my counter for weights

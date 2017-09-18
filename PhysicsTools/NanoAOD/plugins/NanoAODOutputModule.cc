@@ -45,17 +45,17 @@
 class NanoAODOutputModule : public edm::one::OutputModule<> {
 public:
   NanoAODOutputModule(edm::ParameterSet const& pset);
-  virtual ~NanoAODOutputModule();
+  ~NanoAODOutputModule() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void write(edm::EventForOutput const& e) override;
-  virtual void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
-  virtual void writeRun(edm::RunForOutput const&) override;
-  virtual bool isFileOpen() const override;
-  virtual void openFile(edm::FileBlock const&) override;
-  virtual void reallyCloseFile() override;
+  void write(edm::EventForOutput const& e) override;
+  void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
+  void writeRun(edm::RunForOutput const&) override;
+  bool isFileOpen() const override;
+  void openFile(edm::FileBlock const&) override;
+  void reallyCloseFile() override;
 
   std::string m_fileName;
   std::string m_logicalFileName;

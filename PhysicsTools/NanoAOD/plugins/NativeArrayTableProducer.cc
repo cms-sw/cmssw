@@ -16,7 +16,7 @@ class NativeArrayTableProducer : public edm::stream::EDProducer<> {
             produces<FlatTable>();
         }
 
-        virtual ~NativeArrayTableProducer() {}
+        ~NativeArrayTableProducer() override {}
 
         void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
             edm::Handle<TIn> src;

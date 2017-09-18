@@ -57,12 +57,12 @@ class LeptonJetVarProducer : public edm::global::EDProducer<> {
     produces<edm::ValueMap<float>>("jetNDauChargedMVASel");
     produces<edm::ValueMap<reco::CandidatePtr>>("jetForLepJetVar");
   }
-  ~LeptonJetVarProducer() {};
+  ~LeptonJetVarProducer() override {};
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   std::tuple<float,float,float> calculatePtRatioRel(auto &lep, auto &jet, auto &vtx) const;
 

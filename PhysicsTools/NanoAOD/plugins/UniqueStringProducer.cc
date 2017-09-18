@@ -15,7 +15,7 @@ class UniqueStringProducer : public edm::global::EDProducer<edm::BeginRunProduce
             }
         }
 
-        virtual ~UniqueStringProducer() {}
+        ~UniqueStringProducer() override {}
 
         void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {} // do nothing
 

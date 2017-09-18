@@ -3,9 +3,9 @@
 class NanoAODSimpleCrossCleaner : public NanoAODBaseCrossCleaner {
 public:
       NanoAODSimpleCrossCleaner(const edm::ParameterSet&p):NanoAODBaseCrossCleaner(p){}
-      ~NanoAODSimpleCrossCleaner(){}
+      ~NanoAODSimpleCrossCleaner() override{}
 
-      virtual void objectSelection( const edm::View<pat::Jet> & jets, const edm::View<pat::Muon>  & muons, const edm::View<pat::Electron> & eles,
+      void objectSelection( const edm::View<pat::Jet> & jets, const edm::View<pat::Muon>  & muons, const edm::View<pat::Electron> & eles,
                                     const edm::View<pat::Tau> & taus, const edm::View<pat::Photon>  & photons,
                                     std::vector<uint8_t> & jetBits, std::vector<uint8_t> & muonBits, std::vector<uint8_t> & eleBits,
                                     std::vector<uint8_t> & tauBits, std::vector<uint8_t> & photonBits) override     {

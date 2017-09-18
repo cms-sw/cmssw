@@ -35,7 +35,7 @@ class SimpleFlatTableProducerBase : public edm::stream::EDProducer<> {
             produces<FlatTable>();
         }
 
-        virtual ~SimpleFlatTableProducerBase() {}
+        ~SimpleFlatTableProducerBase() override {}
 
         // this is to be overriden by the child class
         virtual std::unique_ptr<FlatTable> fillTable(const edm::Event &iEvent, const edm::Handle<TProd> & prod) const = 0;
@@ -83,7 +83,7 @@ class SimpleFlatTableProducerBase : public edm::stream::EDProducer<> {
                 public:
                     FuncVariable(const std::string & aname, FlatTable::ColumnType atype, const edm::ParameterSet & cfg) :
                         Variable(aname, atype, cfg), func_(cfg.getParameter<std::string>("expr"), true) {}
-                    ~FuncVariable() {}
+                    ~FuncVariable() override {}
                     void fill(std::vector<const T *> selobjs, FlatTable & out) const override {
                         std::vector<ValType> vals(selobjs.size());
                         for (unsigned int i = 0, n = vals.size(); i < n; ++i) {
@@ -127,7 +127,7 @@ class SimpleFlatTableProducer : public SimpleFlatTableProducerBase<T, edm::View<
             }
         }
 
-        virtual ~SimpleFlatTableProducer() {}
+        ~SimpleFlatTableProducer() override {}
 
         std::unique_ptr<FlatTable> fillTable(const edm::Event &iEvent, const edm::Handle<edm::View<T>> & prod) const override {
             std::vector<const T *> selobjs;
@@ -168,7 +168,7 @@ class SimpleFlatTableProducer : public SimpleFlatTableProducerBase<T, edm::View<
             public:
                 ValueMapVariable(const std::string & aname, FlatTable::ColumnType atype, const edm::ParameterSet & cfg, edm::ConsumesCollector && cc) : 
                     ExtVariable(aname, atype, cfg), token_(cc.consumes<edm::ValueMap<TIn>>(cfg.getParameter<edm::InputTag>("src"))) {}
-                virtual void fill(const edm::Event & iEvent, std::vector<edm::Ptr<T>> selptrs, FlatTable & out) const override {
+                void fill(const edm::Event & iEvent, std::vector<edm::Ptr<T>> selptrs, FlatTable & out) const override {
                     edm::Handle<edm::ValueMap<TIn>> vmap;
                     iEvent.getByToken(token_, vmap);
                     std::vector<ValType> vals(selptrs.size());   

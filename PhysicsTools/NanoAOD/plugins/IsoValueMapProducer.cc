@@ -71,13 +71,13 @@ class IsoValueMapProducer : public edm::global::EDProducer<> {
       rho_pfiso_ = consumes<double>(iConfig.getParameter<edm::InputTag>("rho_PFIso"));
     }
   }
-  ~IsoValueMapProducer() {}
+  ~IsoValueMapProducer() override {}
   
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
 
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
       // ----------member data ---------------------------
 
