@@ -11,6 +11,19 @@ tkAssocParamBlock.TrackAssociatorParameters.EBRecHitCollectionLabel = cms.InputT
 tkAssocParamBlock.TrackAssociatorParameters.HBHERecHitCollectionLabel = cms.InputTag("reducedHcalRecHits","hbhereco")
 tkAssocParamBlock.TrackAssociatorParameters.HORecHitCollectionLabel = cms.InputTag("reducedHcalRecHits","horeco")
 
+_susySoftDisappearingTrackCut = (
+    "pt > 10. && (pt > 15. || hitPattern().pixelLayersWithMeasurement() == hitPattern().trackerLayersWithMeasurement())  && "+
+    " abs(dxy) < 0.02 && abs(dz) < 0.1 && "+
+    " (miniPFIsolation().chargedHadronIso()/pt < 0.2) && "+
+    " !(pfLepOverlap) && "+
+    " pfNeutralSum/pt < 0.2"
+)
+_exoHighPtTrackCut = (
+    "pt > 50 && "+
+    " isHighPurityTrack && "+
+    " abs(dxy) < 0.5 && abs(dz) < 0.5 && "+
+    " (miniPFIsolation().chargedHadronIso()/pt < 1.0 || pt > 100)"
+)
 isolatedTracks = cms.EDProducer("PATIsolatedTrackProducer",
     tkAssocParamBlock,
     packedPFCandidates = cms.InputTag("packedPFCandidates"),
@@ -22,7 +35,7 @@ isolatedTracks = cms.EDProducer("PATIsolatedTrackProducer",
     dEdxDataPixel = cms.InputTag("dedxPixelHarmonic2"),
     dEdxHitInfo = cms.InputTag("dedxHitInfo"),
     dEdxHitInfoPrescale = cms.InputTag("dedxHitInfo","prescale"), 
-    addPrescaledDeDxTracks = cms.bool(True),
+    addPrescaledDeDxTracks = cms.bool(False),
     usePrecomputedDeDxStrip = cms.bool(True),        # if these are set to True, will get estimated DeDx from DeDxData branches
     usePrecomputedDeDxPixel = cms.bool(True),        # if set to False, will manually compute using dEdxHitInfo
     pT_cut = cms.double(5.0),         # save tracks above this pt
@@ -46,6 +59,5 @@ isolatedTracks = cms.EDProducer("PATIsolatedTrackProducer",
     pfneutralsum_DR = cms.double(0.05),
 
     saveDeDxHitInfo = cms.bool(True),
-#    saveDeDxHitInfoCut = cms.string("pt > 50"), 
-    saveDeDxHitInfoCut = cms.string("pt > 10. && (pt > 15. || hitPattern().pixelLayersWithMeasurement() == hitPattern().trackerLayersWithMeasurement()) && abs(dxy) < 0.02 && abs(dz) < 0.1 && ((pfIsolationDR03().chargedHadronIso() < 5.0 && pfIsolationDR03().chargedHadronIso()/pt < 0.2) || miniPFIsolation().chargedHadronIso()/pt < 0.2) && !(pfLepOverlap) && pfNeutralSum/pt < 0.2"), 
+    saveDeDxHitInfoCut = cms.string("(%s) || (%s)" % (_susySoftDisappearingTrackCut,_exoHighPtTrackCut)), 
 )
