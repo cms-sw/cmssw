@@ -32,7 +32,7 @@ class RPCSimModelTiming : public RPCSim
 {
  public:
   RPCSimModelTiming(const edm::ParameterSet& config);
-  ~RPCSimModelTiming();
+  ~RPCSimModelTiming() override;
   void simulate(const RPCRoll* roll,
                 const edm::PSimHitContainer& rpcHits,
                  CLHEP::HepRandomEngine*) override;

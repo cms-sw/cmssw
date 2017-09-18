@@ -18,7 +18,7 @@ IRPCDigitizer::IRPCDigitizer(const edm::ParameterSet& config) {
 IRPCDigitizer::~IRPCDigitizer() {
   if( theRPCSim )
     delete theRPCSim;
-  theRPCSim = 0;
+  theRPCSim = nullptr;
 }
 
 void IRPCDigitizer::doAction(MixCollection<PSimHit> & simHits, 
@@ -65,7 +65,7 @@ void IRPCDigitizer::doAction(MixCollection<PSimHit> & simHits,
 }
 
 const RPCRoll * IRPCDigitizer::findDet(int detId) const {
-  assert(theGeometry != 0);
+  assert(theGeometry != nullptr);
   const GeomDetUnit* detUnit = theGeometry->idToDetUnit(RPCDetId(detId));
   return dynamic_cast<const RPCRoll *>(detUnit);
 }
