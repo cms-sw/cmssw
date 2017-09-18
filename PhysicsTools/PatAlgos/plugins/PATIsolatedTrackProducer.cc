@@ -46,9 +46,9 @@ namespace pat {
           typedef pat::IsolatedTrack::LorentzVector LorentzVector;
 
           explicit PATIsolatedTrackProducer(const edm::ParameterSet&);
-          ~PATIsolatedTrackProducer();
+          ~PATIsolatedTrackProducer() override;
 
-          virtual void produce(edm::Event&, const edm::EventSetup&) override;
+          void produce(edm::Event&, const edm::EventSetup&) override;
         
           // compute iso/miniiso
           void getIsolation(const LorentzVector& p4, const pat::PackedCandidateCollection* pc, int pc_idx,
@@ -644,7 +644,7 @@ float pat::PATIsolatedTrackProducer::getPFNeutralSum(const LorentzVector& p4, co
 // get the estimated DeDx in either the pixels or strips (or both)
 float pat::PATIsolatedTrackProducer::getDeDx(const reco::DeDxHitInfo *hitInfo, bool doPixel, bool doStrip) const
 {
-    if(hitInfo == NULL){
+    if(hitInfo == nullptr){
         return -1;
     }
 
