@@ -14,10 +14,10 @@ class HcalTrigPrimDigiProducer : public edm::stream::EDProducer<>
 public:
 
   explicit HcalTrigPrimDigiProducer(const edm::ParameterSet& ps);
-  virtual ~HcalTrigPrimDigiProducer() {}
+  ~HcalTrigPrimDigiProducer() override {}
 
   /**Produces the EDM products,*/
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 
 private:
 

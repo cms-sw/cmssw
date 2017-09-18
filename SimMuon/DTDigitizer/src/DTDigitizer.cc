@@ -181,7 +181,7 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
   for(DTWireIdMapConstIter wire = wireMap.begin(); wire!=wireMap.end(); wire++){
     // SimHit Container associated to the wire
     const vector<const PSimHit*> & vhit = (*wire).second; 
-    if(vhit.size()!=0) {
+    if(!vhit.empty()) {
       TDContainer tdCont; // It is a vector<pair<const PSimHit*,float> >;
       
       //************ 4 ***************

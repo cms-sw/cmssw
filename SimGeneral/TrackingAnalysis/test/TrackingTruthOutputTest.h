@@ -8,9 +8,9 @@ class TrackingTruthOutputTest  : public edm::EDAnalyzer {
 
   explicit TrackingTruthOutputTest(const edm::ParameterSet& conf);
 
-  virtual ~TrackingTruthOutputTest(){}
+  ~TrackingTruthOutputTest() override{}
 
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
  private:
   edm::ParameterSet conf_;

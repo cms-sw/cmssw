@@ -30,7 +30,7 @@ class RPCSimAverage : public RPCSim
  public:
 
   RPCSimAverage(const edm::ParameterSet& config);
-  ~RPCSimAverage();
+  ~RPCSimAverage() override;
 
   void simulate(const RPCRoll* roll,
 		const edm::PSimHitContainer& rpcHits,

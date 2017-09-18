@@ -43,9 +43,9 @@ namespace edm
   class TestMix : public edm::one::EDAnalyzer<> {
   public:
     explicit TestMix(const edm::ParameterSet&);
-    virtual ~TestMix();
+    ~TestMix() override;
 
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   private:
     int level_;

@@ -20,7 +20,7 @@ class RPCSimTriv : public RPCSim
 {
  public:
   RPCSimTriv(const edm::ParameterSet& config);
-  ~RPCSimTriv();
+  ~RPCSimTriv() override;
 
   void simulate(const RPCRoll* roll,
 		const edm::PSimHitContainer& rpcHits,
