@@ -112,11 +112,11 @@
             <rChild name="RP_220_Right_Station_Tube_2"/>
             <Translation x="0*mm" y="0*mm" z="-[RP_220_Right_Station_Length]/2+([RP_220_Right_Prim_Vert_z]+[RP_220_Right_Prim_Hor_z])/2"/>
         </PosPart>
-        <PosPart>
-            <rParent name="RP_220_Right_Station"/>
-            <rChild name="RP_220_Right_Station_Tube_3"/>
-            <Translation x="0*mm" y="0*mm" z="-[RP_220_Right_Station_Length]/2+([RP_220_Right_Prim_Hor_z]+[RP_220_Right_Sec_Hor_z])/2"/>
-        </PosPart>
+        <!--<PosPart>-->
+            <!--<rParent name="RP_220_Right_Station"/>-->
+            <!--<rChild name="RP_220_Right_Station_Tube_3"/>-->
+            <!--<Translation x="0*mm" y="0*mm" z="-[RP_220_Right_Station_Length]/2+([RP_220_Right_Prim_Hor_z]+[RP_220_Right_Sec_Hor_z])/2"/>-->
+        <!--</PosPart>-->
         <PosPart>
             <rParent name="RP_220_Right_Station"/>
             <rChild name="RP_220_Right_Station_Tube_4"/>
