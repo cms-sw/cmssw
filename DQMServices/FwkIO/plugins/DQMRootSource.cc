@@ -34,6 +34,7 @@
 #include "FWCore/MessageLogger/interface/JobReport.h"
 //#include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/ExceptionPropagate.h"
 
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
@@ -796,7 +797,22 @@ DQMRootSource::setupFile(unsigned int iIndex)
   m_file.reset();
   std::auto_ptr<TFile> newFile;
   try {
+    // ROOT's context management implicitly assumes that a file is opened and
+    // closed on the same thread.  To avoid the problem, we declare a local
+    // TContext object; when it goes out of scope, its destructor unregisters
+    // the context, guaranteeing the context is unregistered in the same thread
+    // it was registered in.
+    TDirectory::TContext contextEraser;
     newFile = std::auto_ptr<TFile>(TFile::Open(m_catalog.fileNames()[iIndex].c_str()));
+
+    //Since ROOT6, we can not propagate an exception through ROOT's plugin
+    // system so we trap them and then pull from this function
+    std::exception_ptr e = edm::threadLocalException::getException();
+    if(e != std::exception_ptr()) {
+      edm::threadLocalException::setException(std::exception_ptr());
+      std::rethrow_exception(e);
+    }
+
   } catch(cms::Exception const& e) {
     if(!m_skipBadFiles) {
       edm::Exception ex(edm::errors::FileOpenError,"",e);
