@@ -37,7 +37,7 @@ class CaloSimHitStudy: public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one:
 public:
 
   CaloSimHitStudy(const edm::ParameterSet& ps);
-  ~CaloSimHitStudy() {}
+  ~CaloSimHitStudy() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:

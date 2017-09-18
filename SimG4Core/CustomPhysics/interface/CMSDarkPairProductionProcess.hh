@@ -27,20 +27,20 @@ public:  // with description
   		      const G4String& processName ="conv",
 		      G4ProcessType type = fElectromagnetic);
 
-  virtual ~CMSDarkPairProductionProcess();
+  ~CMSDarkPairProductionProcess() override;
 
   // true for Gamma only.
-  virtual G4bool IsApplicable(const G4ParticleDefinition&);
+  G4bool IsApplicable(const G4ParticleDefinition&) override;
 
-  virtual G4double MinPrimaryEnergy(const G4ParticleDefinition*,
-				    const G4Material*);
+  G4double MinPrimaryEnergy(const G4ParticleDefinition*,
+				    const G4Material*) override;
 
   // Print few lines of informations about the process: validity range,
-  virtual void PrintInfo();
+  void PrintInfo() override;
 
 protected:
 
-  virtual void InitialiseProcess(const G4ParticleDefinition*);
+  void InitialiseProcess(const G4ParticleDefinition*) override;
 
 private:
   G4bool  isInitialised;

@@ -292,7 +292,7 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
   }
   //  edm::LogInfo("SimG4CoreCustomPhysics")<<"The size of the ReactionProductList is: "<<theReactionProductList.size()<<G4endl;
 
-  if (theReactionProductList.size()==0) G4Exception("G4ProcessHelper", "NoProcessPossible", FatalException,
+  if (theReactionProductList.empty()) G4Exception("G4ProcessHelper", "NoProcessPossible", FatalException,
 						    "GetFinalState: No process could be selected from the given list.");
 
   // For the Regge model no phase space considerations. We pick a process at random

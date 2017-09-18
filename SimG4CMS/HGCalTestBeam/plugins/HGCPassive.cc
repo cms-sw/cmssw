@@ -19,7 +19,7 @@
 
 //#define EDM_ML_DEBUG
 
-HGCPassive::HGCPassive(const edm::ParameterSet &p) : topPV_(0), topLV_(0),
+HGCPassive::HGCPassive(const edm::ParameterSet &p) : topPV_(nullptr), topLV_(nullptr),
 						     count_(0), init_(false) {
 
   edm::ParameterSet m_Passive = p.getParameter<edm::ParameterSet>("HGCPassive");
@@ -54,7 +54,7 @@ void HGCPassive::produce(edm::Event& e, const edm::EventSetup&) {
 void HGCPassive::update(const BeginOfRun * run) {
 
   topPV_ = getTopPV();
-  if (topPV_ == 0) {
+  if (topPV_ == nullptr) {
     edm::LogWarning("HGCPassive") << "Cannot find top level volume\n";
   } else {
     init_ = true;
@@ -89,16 +89,16 @@ void HGCPassive::update(const BeginOfEvent * evt) {
 //=================================================================== each STEP
 void HGCPassive::update(const G4Step * aStep) {
 
-  if (aStep != NULL) {
+  if (aStep != nullptr) {
 
     G4VSensitiveDetector* curSD = aStep->GetPreStepPoint()->GetSensitiveDetector();
-    if (curSD==NULL) {
+    if (curSD==nullptr) {
      
       G4TouchableHistory* touchable = (G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();
       G4LogicalVolume* plv = (G4LogicalVolume*)touchable->GetVolume()->GetLogicalVolume();
       auto it = (init_) ? mapLV_.find(plv) : findLV(plv);
-      if (((aStep->GetPostStepPoint() == 0) || 
-	   (aStep->GetTrack()->GetNextVolume() == 0)) &&
+      if (((aStep->GetPostStepPoint() == nullptr) || 
+	   (aStep->GetTrack()->GetNextVolume() == nullptr)) &&
 	  (aStep->IsLastStepInVolume())) {
 #ifdef EDM_ML_DEBUG
 	std::cout << plv->GetName() << " F|L Step " 
@@ -119,7 +119,7 @@ void HGCPassive::update(const G4Step * aStep) {
 			 aStep->GetTotalEnergyDeposit())/CLHEP::GeV;
 	if (it != mapLV_.end()) {
 	  storeInfo(it, plv, 0, time, energy);
-	} else if (topLV_ != 0) {
+	} else if (topLV_ != nullptr) {
 	  auto itr = (init_) ? mapLV_.find(topLV_) : findLV(topLV_);
 	  if (itr != mapLV_.end()) {
 	    storeInfo(itr, topLV_, 0, time, energy);
@@ -131,7 +131,7 @@ void HGCPassive::update(const G4Step * aStep) {
 	double time = (aStep->GetPostStepPoint()->GetGlobalTime());
 	double edeposit = (aStep->GetTotalEnergyDeposit())/CLHEP::GeV;
 	storeInfo(it, plv, copy, time, edeposit);
-      } else if (topLV_ != 0) {
+      } else if (topLV_ != nullptr) {
 	auto itr = findLV(topLV_);
 	if (itr != mapLV_.end()) {
 	  double time = (aStep->GetPostStepPoint()->GetGlobalTime());
@@ -185,7 +185,7 @@ HGCPassive::volumeIterator HGCPassive::findLV(G4LogicalVolume * plv) {
       }
     }
   }
-  if (topLV_ == 0) {
+  if (topLV_ == nullptr) {
     if (std::string(plv->GetName()) == motherName_) topLV_ = plv;
   }
   return itr;

@@ -46,23 +46,23 @@ void  CollectionMerger<T1,T2>::fill_output_obj_tracker(std::unique_ptr<MergeColl
 
     std::map<uint32_t, std::vector<BaseHit> >   output_map;
   // First merge the collections with the help of the output map
-  for (auto inputCollection : inputCollections){
+  for (auto const & inputCollection : inputCollections){
    for ( typename MergeCollection::const_iterator clustSet = inputCollection->begin(); clustSet!= inputCollection->end(); ++clustSet ) {
       DetId detIdObject( clustSet->detId() );
-      for (typename edmNew::DetSet<BaseHit>::const_iterator clustIt = clustSet->begin(); clustIt != clustSet->end(); ++clustIt ) { 	
-        output_map[detIdObject.rawId()].push_back(*clustIt);	
+      for (typename edmNew::DetSet<BaseHit>::const_iterator clustIt = clustSet->begin(); clustIt != clustSet->end(); ++clustIt ) {
+        output_map[detIdObject.rawId()].push_back(*clustIt);
        }
-    } 
+    }
   }
   // Now save it into the standard CMSSW format, with the standard Filler
   for (typename std::map<uint32_t, std::vector<BaseHit> >::const_iterator outHits = output_map.begin(); outHits != output_map.end(); ++outHits ) {
      DetId detIdObject(outHits->first);
      typename MergeCollection::FastFiller spc(*output, detIdObject);
-     for (auto Hit : outHits->second){ 
+     for (auto Hit : outHits->second){
        spc.push_back(Hit);
-     }     
-   } 
-  
+     }
+   }
+
 }
 
 
@@ -71,21 +71,21 @@ void  CollectionMerger<T1,T2>::fill_output_obj_tracker(std::unique_ptr<MergeColl
 template <typename T1, typename T2>
 void  CollectionMerger<T1,T2>::fill_output_obj_calo(std::unique_ptr<MergeCollection > & output, std::vector<edm::Handle<MergeCollection> > &inputCollections)
 {
- std::map<uint32_t, BaseHit >   output_map;  
- // First merge the two collections again
- for (auto inputCollection : inputCollections){
-  for ( typename MergeCollection::const_iterator recHit = inputCollection->begin(); recHit!= inputCollection->end(); ++recHit ) {
-    DetId detIdObject( recHit->detid().rawId() );
-    T2 *akt_calo_obj = &output_map[detIdObject.rawId()];
-    float new_energy = akt_calo_obj->energy() + recHit->energy();
-    T2 newRecHit(*recHit);
-    newRecHit.setEnergy(new_energy);
-    *akt_calo_obj = newRecHit;
-  } 
+  std::map<uint32_t, BaseHit >   output_map;
+  // First merge the two collections again
+  for (auto const & inputCollection : inputCollections){
+    for ( typename MergeCollection::const_iterator recHit = inputCollection->begin(); recHit!= inputCollection->end(); ++recHit ) {
+      DetId detIdObject( recHit->detid().rawId() );
+      T2 *akt_calo_obj = &output_map[detIdObject.rawId()];
+      float new_energy = akt_calo_obj->energy() + recHit->energy();
+      T2 newRecHit(*recHit);
+      newRecHit.setEnergy(new_energy);
+      *akt_calo_obj = newRecHit;
+    }
+  }
   // Now save it into the standard CMSSW format
-    for (typename std::map<uint32_t, BaseHit >::const_iterator outHits = output_map.begin(); outHits != output_map.end(); ++outHits ) {
-      output->push_back(outHits->second);
-    }   
+  for (typename std::map<uint32_t, BaseHit >::const_iterator outHits = output_map.begin(); outHits != output_map.end(); ++outHits ) {
+    output->push_back(outHits->second);
   }
   output->sort(); //Do a sort for this collection
 }
@@ -98,16 +98,16 @@ void  CollectionMerger<T1,T2>::fill_output_obj_muonchamber(std::unique_ptr<Merge
 {
   std::map<uint32_t, std::vector<BaseHit> >   output_map;
   // First merge the collections with the help of the output map
-  for (auto inputCollection : inputCollections){
+  for (auto const & inputCollection : inputCollections){
    for ( typename MergeCollection::const_iterator recHit = inputCollection->begin(); recHit!= inputCollection->end(); ++recHit ) {
-      DetId detIdObject( recHit->geographicalId() );	
-      output_map[detIdObject].push_back(*recHit);	
+      DetId detIdObject( recHit->geographicalId() );
+      output_map[detIdObject].push_back(*recHit);
       }
-  } 
+  }
   // Now save it into the standard CMSSW format, with the standard Filler
   for (typename std::map<uint32_t, std::vector<BaseHit> >::const_iterator outHits = output_map.begin(); outHits != output_map.end(); ++outHits ) {
-        output->put((typename T1::id_iterator::value_type) outHits->first , outHits->second.begin(), outHits->second.end()); // The DTLayerId misses the automatic type cast 
-   }  
+        output->put((typename T1::id_iterator::value_type) outHits->first , outHits->second.begin(), outHits->second.end()); // The DTLayerId misses the automatic type cast
+   }
 }
 
 
@@ -126,7 +126,7 @@ template <>
 void  CollectionMerger<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster>::fill_output_obj(std::unique_ptr<MergeCollection > & output, std::vector<edm::Handle<MergeCollection> > &inputCollections)
 {
  fill_output_obj_tracker(output,inputCollections,true);
- 
+
 }
 
 

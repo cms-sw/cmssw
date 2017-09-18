@@ -124,6 +124,7 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
   trackToken_          = consumes<edm::View<reco::Track> >(trackProducer);
   trackCandidateToken_ = consumes<TrackCandidateCollection>(tcProducer); 
   seedToken_           = consumes<edm::View<TrajectorySeed> >(seedProducer);
+  seedStopInfoToken_   = consumes<std::vector<SeedStopInfo> >(tcProducer);
 
   doMVAPlots = iConfig.getParameter<bool>("doMVAPlots");
   if(doMVAPlots) {
@@ -930,10 +931,10 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	// get the seed collection
 	edm::Handle<edm::View<TrajectorySeed> > seedHandle;
 	iEvent.getByToken(seedToken_, seedHandle );
-	const edm::View<TrajectorySeed>& seedCollection = *seedHandle;
 	
 	// fill the seed info
 	if (seedHandle.isValid()) {
+          const auto& seedCollection = *seedHandle;
 	  
 	  if(doAllSeedPlots || doSeedNumberPlot) {
 	    NumberOfSeeds->Fill(seedCollection.size());
@@ -951,23 +952,31 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  }
 	  
 	  if (doAllSeedPlots || runTrackBuildingAnalyzerForSeed){
+            edm::Handle<std::vector<SeedStopInfo> > stopHandle;
+            iEvent.getByToken(seedStopInfoToken_, stopHandle);
+            const auto& seedStopInfo = *stopHandle;
+
+            if(seedStopInfo.size() == seedCollection.size()) {
+              //here duplication of mag field and be informations is needed to allow seed and track cand histos to be independent
+              // magnetic field
+              edm::ESHandle<MagneticField> theMF;
+              iSetup.get<IdealMagneticFieldRecord>().get(theMF);
 	    
-	    //here duplication of mag field and be informations is needed to allow seed and track cand histos to be independent
-	    // magnetic field
-	    edm::ESHandle<MagneticField> theMF;
-	    iSetup.get<IdealMagneticFieldRecord>().get(theMF);  
+              // get the beam spot
+              edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+              iEvent.getByToken(bsSrcToken_, recoBeamSpotHandle);
+              const reco::BeamSpot& bs = *recoBeamSpotHandle;
 	    
-	    // get the beam spot
-	    edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-	    iEvent.getByToken(bsSrcToken_, recoBeamSpotHandle );
-	    const reco::BeamSpot& bs = *recoBeamSpotHandle;      
-	    
-	    iSetup.get<TransientRecHitRecord>().get(builderName,theTTRHBuilder);
-	    for(size_t i=0; i < seedHandle->size(); ++i) {
-	      
-	      edm::RefToBase<TrajectorySeed> seed(seedHandle, i);
-	      theTrackBuildingAnalyzer->analyze(iEvent, iSetup, *seed, bs, theMF, theTTRHBuilder);
-	    }
+              iSetup.get<TransientRecHitRecord>().get(builderName,theTTRHBuilder);
+              for(size_t i=0; i < seedCollection.size(); ++i) {
+                theTrackBuildingAnalyzer->analyze(iEvent, iSetup, seedCollection[i], seedStopInfo[i], bs, theMF, theTTRHBuilder);
+              }
+            }
+            else {
+              edm::LogWarning("TrackingMonitor") << "Seed collection size (" << seedCollection.size()
+                                                 << ") differs from seed stop info collection size (" << seedStopInfo.size()
+                                                 << "). This is a sign of inconsistency in the configuration. Not filling associated histograms.";
+            }
 	  }
 	  
 	} else {

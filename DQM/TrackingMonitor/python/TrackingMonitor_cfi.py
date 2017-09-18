@@ -424,6 +424,11 @@ TrackMon.RegionCandidatePtBin = cms.int32(100)
 TrackMon.RegionCandidatePtMax = cms.double(1000)
 TrackMon.RegionCandidatePtMin = cms.double(0)
 
+# Number of candidates/seed within pattern recognition
+TrackMon.SeedCandBin = cms.int32(20)
+TrackMon.SeedCandMax = cms.double(19.5)
+TrackMon.SeedCandMin = cms.double(-0.5)
+
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase1Pixel.toModify(TrackMon, EtaBin=30, EtaMin=-3, EtaMax=3)

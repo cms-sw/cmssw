@@ -57,10 +57,10 @@ using std::string;
 FP420SD::FP420SD(std::string name, const DDCompactView & cpv,
 		 const SensitiveDetectorCatalog & clg,
 		 edm::ParameterSet const & p, const SimTrackManager* manager) :
-  SensitiveTkDetector(name, cpv, clg, p), numberingScheme(0), name(name),
-  hcID(-1), theHC(0), theManager(manager), currentHit(0), theTrack(0), 
-  currentPV(0), unitID(0),  previousUnitID(0), preStepPoint(0), 
-  postStepPoint(0), eventno(0){
+  SensitiveTkDetector(name, cpv, clg, p), numberingScheme(nullptr), name(name),
+  hcID(-1), theHC(nullptr), theManager(manager), currentHit(nullptr), theTrack(nullptr), 
+  currentPV(nullptr), unitID(0),  previousUnitID(0), preStepPoint(nullptr), 
+  postStepPoint(nullptr), eventno(0){
 //-------------------------------------------------------------------
 /*
 FP420SD::FP420SD(G4String name, const DDCompactView & cpv,
@@ -157,7 +157,7 @@ void FP420SD::Initialize(G4HCofThisEvent * HCE) {
 
 bool FP420SD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 
-  if (aStep == NULL) {
+  if (aStep == nullptr) {
     return true;
   } else {
     GetStepInfo(aStep);
@@ -225,7 +225,7 @@ void FP420SD::GetStepInfo(G4Step* aStep) {
 
 uint32_t FP420SD::setDetUnitId(G4Step * aStep) { 
 
-  return (numberingScheme == 0 ? 0 : numberingScheme->getUnitID(aStep));
+  return (numberingScheme == nullptr ? 0 : numberingScheme->getUnitID(aStep));
 }
 
 
@@ -287,7 +287,7 @@ void FP420SD::ResetForNewPrimary() {
 void FP420SD::StoreHit(FP420G4Hit* hit){
 
   //  if (primID<0) return;
-  if (hit == 0 ) {
+  if (hit == nullptr ) {
     edm::LogWarning("FP420Sim") << "FP420SD: hit to be stored is NULL !!";
     return;
   }

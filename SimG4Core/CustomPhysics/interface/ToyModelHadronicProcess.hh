@@ -16,11 +16,11 @@ public:
   
   ToyModelHadronicProcess(HadronicProcessHelper * aHelper, const G4String& processName = "ToyModelHadronicProcess");
     
-  virtual ~ToyModelHadronicProcess(){};
+  ~ToyModelHadronicProcess() override{};
   
-  G4bool IsApplicable(const G4ParticleDefinition& aP);
+  G4bool IsApplicable(const G4ParticleDefinition& aP) override;
   
-  G4VParticleChange *PostStepDoIt(const G4Track &aTrack, const G4Step &aStep);
+  G4VParticleChange *PostStepDoIt(const G4Track &aTrack, const G4Step &aStep) override;
  
   void setVerbosity(int level) { m_verboseLevel = level; }
 private:    
@@ -29,7 +29,7 @@ private:
 					       const G4Element *anElement, 
 					       G4double aTemp );
   
-  G4double GetMeanFreePath(const G4Track& aTrack, G4double, G4ForceCondition*);
+  G4double GetMeanFreePath(const G4Track& aTrack, G4double, G4ForceCondition*) override;
   
   int m_verboseLevel;
   HadronicProcessHelper* m_helper;
