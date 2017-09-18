@@ -1,4 +1,4 @@
-#include "CalibTracker/SiStripCommon/interface/StandaloneTrackerTopology.h"
+#include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
 #include <memory>
 #include "FWCore/Concurrency/interface/Xerces.h"
