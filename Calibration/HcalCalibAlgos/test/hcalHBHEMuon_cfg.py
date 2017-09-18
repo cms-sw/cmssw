@@ -3,11 +3,13 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("RaddamMuon")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
+process.load("Configuration.Geometry.GeometryExtended2017Plan1_cff")
+process.load("Configuration.Geometry.GeometryExtended2017Plan1Reco_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("RecoJets.Configuration.CaloTowersES_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag=autoCond['run2_mc']
+process.GlobalTag.globaltag=autoCond['run2_data']
 
 process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
 process.load("Calibration.HcalCalibAlgos.hcalHBHEMuon_cfi")
