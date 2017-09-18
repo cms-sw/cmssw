@@ -9,6 +9,8 @@
 #include "TMatrixD.h"
 #include "TVectorD.h"
 #include "TVector3.h"
+#include "DataFormats/Math/interface/Error.h"
+#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 #include "TMath.h"
 #include <cmath>
 #include <algorithm>
@@ -26,7 +28,9 @@ RPixPlaneCombinatoryTracking::RPixPlaneCombinatoryTracking(edm::ParameterSet con
   numberOfPlanesPerPot_ = parameterSet.getParameter<int> ("numberOfPlanesPerPot"   );
 
   if(trackMinNumberOfPoints_<3){
-    throw cms::Exception("RPixPlaneCombinatoryTracking") << "Minimum number of planes required for tracking is 3, tracking is not possible with " << trackMinNumberOfPoints_ << " hits";
+    throw cms::Exception("RPixPlaneCombinatoryTracking") << "Minimum number of planes required for tracking is 3, "
+                                                         << "tracking is not possible with " 
+                                                         << trackMinNumberOfPoints_ << " hits";
   }
  
   
@@ -42,7 +46,9 @@ RPixPlaneCombinatoryTracking::~RPixPlaneCombinatoryTracking() {
 
 void RPixPlaneCombinatoryTracking::initialize(){
  
-  uint32_t numberOfCombinations = factorial(numberOfPlanesPerPot_)/(factorial(numberOfPlanesPerPot_-trackMinNumberOfPoints_)*factorial(trackMinNumberOfPoints_));
+  uint32_t numberOfCombinations = factorial(numberOfPlanesPerPot_)/
+                                  (factorial(numberOfPlanesPerPot_-trackMinNumberOfPoints_)
+                                   *factorial(trackMinNumberOfPoints_));
   if(verbosity_>=2) std::cout<<"Number of combinations = "<<numberOfCombinations<<std::endl;
   possiblePlaneCombinations_.reserve(numberOfCombinations);
 
@@ -62,7 +68,8 @@ void RPixPlaneCombinatoryTracking::initialize(){
 //------------------------------------------------------------------------------------------------//
     
 //This function produces all the possible plane combinations extracting numberToExtract planes over numberOfPlanes planes
-RPixPlaneCombinatoryTracking::PlaneCombinations RPixPlaneCombinatoryTracking::getPlaneCombinations(std::vector<uint32_t> inputPlaneList, uint32_t numberToExtract)
+RPixPlaneCombinatoryTracking::PlaneCombinations
+RPixPlaneCombinatoryTracking::getPlaneCombinations(std::vector<uint32_t> inputPlaneList, uint32_t numberToExtract)
 {
     uint32_t numberOfPlanes = inputPlaneList.size();
     std::string bitmask(numberToExtract, 1); // numberToExtract leading 1's
@@ -113,7 +120,8 @@ void RPixPlaneCombinatoryTracking::getHitCombinations(
 
 //------------------------------------------------------------------------------------------------//
 
-RPixPlaneCombinatoryTracking::PointAndReferenceMap RPixPlaneCombinatoryTracking::produceAllHitCombination(PlaneCombinations inputPlaneCombination){
+RPixPlaneCombinatoryTracking::PointAndReferenceMap
+RPixPlaneCombinatoryTracking::produceAllHitCombination(PlaneCombinations inputPlaneCombination){
   
   PointAndReferenceMap mapOfAllPoints;
   CTPPSPixelDetId tmpRpId = romanPotId_; //in order to avoid to modify the data member
@@ -126,25 +134,28 @@ RPixPlaneCombinatoryTracking::PointAndReferenceMap RPixPlaneCombinatoryTracking:
     bool allPlaneAsHits = true;
 
     //Loop on all the possible combinations
-    //In this loop the selectedCombinationHitOnPlane is filled and cases in which one of the selected plane is empty are skipped
+    //In this loop the selectedCombinationHitOnPlane is filled 
+    //and cases in which one of the selected plane is empty are skipped
     for( const auto & plane : planeCombination){
       tmpRpId.setPlane(plane);
       CTPPSPixelDetId planeDetId = tmpRpId;
       if(hitMap_.find(planeDetId) == hitMap_.end()){
-        if(verbosity_>2) std::cout<<"No data on arm "<<planeDetId.arm()<<" station "<<planeDetId.station()<<" rp " <<planeDetId.rp()<<" plane "<<planeDetId.plane()<<std::endl;
+        if(verbosity_>2) std::cout<<"No data on arm "<<planeDetId.arm()<<" station "<<planeDetId.station()
+                                  <<" rp " <<planeDetId.rp()<<" plane "<<planeDetId.plane()<<std::endl;
         allPlaneAsHits = false;
         break;
       }
       if(selectedCombinationHitOnPlane.find(planeDetId)!=selectedCombinationHitOnPlane.end()){
-           throw cms::Exception("RPixPlaneCombinatoryTracking") <<"selectedCombinationHitOnPlane contains already detId "<<planeDetId<<std::endl<<
-           "Error in the algorithm which created all the possible plane combinations";
+           throw cms::Exception("RPixPlaneCombinatoryTracking") 
+             <<"selectedCombinationHitOnPlane contains already detId "<<planeDetId<<std::endl
+             <<"Error in the algorithm which created all the possible plane combinations";
       }
       selectedCombinationHitOnPlane[planeDetId] = hitMap_[planeDetId];
     }
     if(!allPlaneAsHits) continue;
     
     //I add the all the hit combinations to the full list of plane combinations
-    std::map<CTPPSPixelDetId, PointInPlaneList >::iterator mapIterator=selectedCombinationHitOnPlane.begin();
+    auto mapIterator=selectedCombinationHitOnPlane.begin();
     HitReferences tmpHitPlaneMap; //empty map of plane id and hit number needed the getHitCombinations algorithm
     PointInPlaneList tmpHitVector; //empty vector of hits needed for the getHitCombinations algorithm
     getHitCombinations(selectedCombinationHitOnPlane,mapIterator,tmpHitPlaneMap,tmpHitVector,mapOfAllPoints);
@@ -167,7 +178,11 @@ void RPixPlaneCombinatoryTracking::findTracks(){
   while(hitMap_.size()>=trackMinNumberOfPoints_){
 
     if(verbosity_>=1) std::cout<<"Number of plane with hits "<<hitMap_.size()<<std::endl;
-    if(verbosity_>=2) for(const auto & plane : hitMap_) std::cout<<"\tarm "<<plane.first.arm()<<" station "<<plane.first.station()<<" rp " <<plane.first.rp()<<" plane "<<plane.first.plane()<<" : "<<plane.second.size()<<std::endl;
+    if(verbosity_>=2) for(const auto & plane : hitMap_) std::cout<<"\tarm "<<plane.first.arm()
+                                                                 <<" station "<<plane.first.station()
+                                                                 <<" rp " <<plane.first.rp()
+                                                                 <<" plane "<<plane.first.plane()
+                                                                 <<" : "<<plane.second.size()<<std::endl;
     
     //I create the map of all the possible combinations of a group of trackMinNumberOfPoints_ points
     //and the key keeps the reference of which planes and which hit numbers form the combination
@@ -181,7 +196,8 @@ void RPixPlaneCombinatoryTracking::findTracks(){
     PointInPlaneList pointsWithMinChiSquared;
     CTPPSPixelLocalTrack bestTrack;
 
-    if(verbosity_>2) std::cout<<"Number of combinations of trackMinNumberOfPoints_ planes "<<mapOfAllMinRequiredPoint.size()<<std::endl;
+    if(verbosity_>2) std::cout<<"Number of combinations of trackMinNumberOfPoints_ planes "
+                              <<mapOfAllMinRequiredPoint.size()<<std::endl;
     for(const auto & pointsAndRef : mapOfAllMinRequiredPoint){
       CTPPSPixelLocalTrack tmpTrack = fitTrack(pointsAndRef.second);
       double tmpChiSquaredOverNDF = tmpTrack.getChiSquaredOverNDF();
@@ -205,7 +221,8 @@ void RPixPlaneCombinatoryTracking::findTracks(){
       CTPPSPixelDetId tmpRpId = romanPotId_; //in order to avoid to modify the data member
       tmpRpId.setPlane(plane);
       CTPPSPixelDetId planeDetId = tmpRpId;
-      if(pointMapWithMinChiSquared.find(planeDetId)==pointMapWithMinChiSquared.end()) listOfExcludedPlanes.push_back(plane);
+      if(pointMapWithMinChiSquared.find(planeDetId)==pointMapWithMinChiSquared.end()) 
+        listOfExcludedPlanes.push_back(plane);
     }
 
     //I produce all the possible combinations of planes to be added to the track,
@@ -263,7 +280,8 @@ void RPixPlaneCombinatoryTracking::findTracks(){
     for(const auto & hitToErase : pointMapWithMinChiSquared){
       std::map<CTPPSPixelDetId, PointInPlaneList >::iterator hitMapElement = hitMap_.find(hitToErase.first);
       if(hitMapElement==hitMap_.end()){
-           throw cms::Exception("RPixPlaneCombinatoryTracking") <<"The found tracks has hit belonging to a plane which does not have hits";
+           throw cms::Exception("RPixPlaneCombinatoryTracking") 
+             <<"The found tracks has hit belonging to a plane which does not have hits";
       }
       std::vector<uint32_t>::iterator planeIt;
       planeIt = std::find (listOfPlaneNotUsedForFit.begin(), listOfPlaneNotUsedForFit.end(), hitToErase.first.plane());
@@ -282,21 +300,22 @@ void RPixPlaneCombinatoryTracking::findTracks(){
     for(const auto & plane : listOfPlaneNotUsedForFit){
       CTPPSPixelDetId tmpPlaneId = romanPotId_; //in order to avoid to modify the data member
       tmpPlaneId.setPlane(plane);
-      CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit *fittedRecHit = new CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit();
+      std::unique_ptr<CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit> 
+        fittedRecHit(new CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit());
       math::GlobalPoint pointOnDet;
       calculatePointOnDetector(bestTrack, tmpPlaneId, pointOnDet);
 
 
       if(hitMap_.find(tmpPlaneId) != hitMap_.end()){
         //I convert the hit search window defined in local coordinated into global
-        //This avoid to convert the global plane-line interseption in order not to call the the geometry 
+        //This avoids to convert the global plane-line intersection in order not to call the the geometry 
         TVectorD maxGlobalPointDistance(0,2,maximumXLocalDistanceFromTrack_,maximumYLocalDistanceFromTrack_,0.,"END");
         TMatrixD tmpPlaneRotationMatrixMap = planeRotationMatrixMap_[tmpPlaneId];
         maxGlobalPointDistance = tmpPlaneRotationMatrixMap * maxGlobalPointDistance;
         //I avoid the Sqrt since it will not be saved
-        double_t maximumXdistance = maxGlobalPointDistance[0]*maxGlobalPointDistance[0];
-        double_t maximumYdistance = maxGlobalPointDistance[1]*maxGlobalPointDistance[1];
-        double_t minimumDistance = 1. + maximumXdistance + maximumYdistance; // to be sure that the first min distance is from a real point
+        double maximumXdistance = maxGlobalPointDistance[0]*maxGlobalPointDistance[0];
+        double maximumYdistance = maxGlobalPointDistance[1]*maxGlobalPointDistance[1];
+        double minimumDistance = 1. + maximumXdistance + maximumYdistance; // to be sure that the first min distance is from a real point
         for(const auto & hit : hitMap_[tmpPlaneId]){
           double xResidual = hit.globalPoint.x() - pointOnDet.x();
           double yResidual = hit.globalPoint.y() - pointOnDet.y();
@@ -306,9 +325,8 @@ void RPixPlaneCombinatoryTracking::findTracks(){
           if(xDistance < maximumXdistance && yDistance < maximumYdistance && distance < minimumDistance){
             LocalPoint residuals(xResidual,yResidual,0.);
             TMatrixD globalError = hit.globalError;
-            LocalPoint pulls(xResidual/TMath::Sqrt(globalError[0][0]),yResidual/TMath::Sqrt(globalError[1][1]),0.);
-            delete fittedRecHit;
-            fittedRecHit = new CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit(hit.recHit, pointOnDet, residuals, pulls);
+            LocalPoint pulls(xResidual/std::sqrt(globalError[0][0]),yResidual/std::sqrt(globalError[1][1]),0.);
+            fittedRecHit.reset(new CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit(hit.recHit, pointOnDet, residuals, pulls));
             fittedRecHit->setIsRealHit(true);
           }
         }
@@ -317,8 +335,7 @@ void RPixPlaneCombinatoryTracking::findTracks(){
         LocalPoint fakePoint;
         LocalError fakeError;
         CTPPSPixelRecHit fakeRecHit(fakePoint,fakeError);
-        delete fittedRecHit;
-        fittedRecHit = new CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit(fakeRecHit, pointOnDet, fakePoint, fakePoint);
+        fittedRecHit.reset(new CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit(fakeRecHit, pointOnDet, fakePoint, fakePoint));
       }
 
       bestTrack.addHit(tmpPlaneId, *fittedRecHit);
@@ -337,7 +354,8 @@ void RPixPlaneCombinatoryTracking::findTracks(){
           if(fittedhit.getIsRealHit()) ++pointOnTrack;
         }
       }
-      std::cout<<"Best track has "<<pointForTracking<<" points used for the fit and " << pointOnTrack<<" points belonging to the track\n";
+      std::cout<<"Best track has "<<pointForTracking<<" points used for the fit and "
+               << pointOnTrack<<" points belonging to the track\n";
     }
 
   } //close of the while loop on all the hits
@@ -389,11 +407,11 @@ CTPPSPixelLocalTrack RPixPlaneCombinatoryTracking::fitTrack(PointInPlaneList poi
 
   TMatrixD zMatrixTranspose(TMatrixD::kTransposed,zMatrix);
   TMatrixD zMatrixTransposeTimesVarianceMatrix = zMatrixTranspose *  varianceMatrix;
-  TMatrixD parametersCovatianceMatrix = zMatrixTransposeTimesVarianceMatrix * zMatrix;
+  TMatrixD parametersCovarianceMatrix = zMatrixTransposeTimesVarianceMatrix * zMatrix;
 
-  //for having the real parameter covaraince matrix parametersCovatianceMatrix, need to be inverted
+  //for having the real parameter covaraince matrix parametersCovarianceMatrix, need to be inverted
   try{
-    parametersCovatianceMatrix.Invert();
+    parametersCovarianceMatrix.Invert();
   }
   catch (cms::Exception &e){
     edm::LogError("RPixPlaneCombinatoryTracking") << "Error in RPixPlaneCombinatoryTracking::fitTrack -> "
@@ -405,16 +423,17 @@ CTPPSPixelLocalTrack RPixPlaneCombinatoryTracking::fitTrack(PointInPlaneList poi
 
   // track parameters: (x0, y0, tx, ty); x = x0 + tx*(z-z0)
   TVectorD zMatrixTransposeTimesVarianceMatrixTimesXyCoordinates= zMatrixTransposeTimesVarianceMatrix * xyCoordinates;
-  TVectorD parameters = parametersCovatianceMatrix*zMatrixTransposeTimesVarianceMatrixTimesXyCoordinates;
+  TVectorD parameters = parametersCovarianceMatrix*zMatrixTransposeTimesVarianceMatrixTimesXyCoordinates;
   TVectorD xyCoordinatesMinusZmatrixTimesParameters = xyCoordinates - (zMatrix * parameters);
 
-  double_t chiSquare = xyCoordinatesMinusZmatrixTimesParameters * (varianceMatrix * xyCoordinatesMinusZmatrixTimesParameters);
+  double chiSquare = xyCoordinatesMinusZmatrixTimesParameters 
+                     * (varianceMatrix * xyCoordinatesMinusZmatrixTimesParameters);
 
   //I convert the TMatrixD into a SMatrix
-  CTPPSPixelLocalTrack::CovarianceMatrix covatianceMatrix;
+  CTPPSPixelLocalTrack::CovarianceMatrix covarianceMatrix;
   for(unsigned int i=0; i<4; ++i){
     for(unsigned int j=0; j<4; ++j){
-      covatianceMatrix[i][j] = parametersCovatianceMatrix[i][j];
+      covarianceMatrix[i][j] = parametersCovarianceMatrix[i][j];
     }
   }
   
@@ -424,7 +443,7 @@ CTPPSPixelLocalTrack RPixPlaneCombinatoryTracking::fitTrack(PointInPlaneList poi
     parameterVector[i] = parameters[i];
   }
 
-  CTPPSPixelLocalTrack goodTrack(z0_, parameterVector, covatianceMatrix, chiSquare);
+  CTPPSPixelLocalTrack goodTrack(z0_, parameterVector, covarianceMatrix, chiSquare);
   goodTrack.setValid(true);
 
   for(const auto & hit : pointList){
@@ -441,7 +460,7 @@ CTPPSPixelLocalTrack RPixPlaneCombinatoryTracking::fitTrack(PointInPlaneList poi
     LocalPoint residuals(xResidual,yResidual);
 
     TMatrixD globalError(hit.globalError);
-    LocalPoint pulls(xResidual/TMath::Sqrt(globalError[0][0]),yResidual/TMath::Sqrt(globalError[1][1]));
+    LocalPoint pulls(xResidual/std::sqrt(globalError[0][0]),yResidual/std::sqrt(globalError[1][1]));
 
     CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit fittedRecHit(hit.recHit, pointOnDet, residuals, pulls);
     fittedRecHit.setIsUsedForFit(true);
@@ -455,7 +474,8 @@ CTPPSPixelLocalTrack RPixPlaneCombinatoryTracking::fitTrack(PointInPlaneList poi
 //------------------------------------------------------------------------------------------------//
 
 //The method calculates the hit pointed by the track on the detector plane
-bool RPixPlaneCombinatoryTracking::calculatePointOnDetector(CTPPSPixelLocalTrack track, CTPPSPixelDetId planeId, math::GlobalPoint &planeLineIntercept){
+bool RPixPlaneCombinatoryTracking::calculatePointOnDetector(CTPPSPixelLocalTrack track, CTPPSPixelDetId planeId,
+                                                            math::GlobalPoint &planeLineIntercept){
   double z0 = track.getZ0();
   CTPPSPixelLocalTrack::ParameterVector parameters = track.getParameterVector();
 
@@ -469,14 +489,15 @@ bool RPixPlaneCombinatoryTracking::calculatePointOnDetector(CTPPSPixelLocalTrack
   TVectorD planeUnitVector(0,2,0.,0.,1.,"END");
   planeUnitVector = planeRotationMatrixMap_[planeId] * planeUnitVector;
 
-  double_t denominator = (lineUnitVector*planeUnitVector);
+  double denominator = (lineUnitVector*planeUnitVector);
   if(denominator==0){
-    edm::LogError("RPixPlaneCombinatoryTracking") << "Error in RPixPlaneCombinatoryTracking::calculatePointOnDetector -> "
-    << "Fitted line and plane are parallel. Removing this track";
+    edm::LogError("RPixPlaneCombinatoryTracking")
+      << "Error in RPixPlaneCombinatoryTracking::calculatePointOnDetector -> "
+      << "Fitted line and plane are parallel. Removing this track";
     return false;
   }
 
-  double_t distanceFromLinePoint = (pointOnPlane - pointOnLine)*planeUnitVector / denominator;
+  double distanceFromLinePoint = (pointOnPlane - pointOnLine)*planeUnitVector / denominator;
 
   TVectorD tmpPlaneLineIntercept = distanceFromLinePoint*lineUnitVector + pointOnLine;
   planeLineIntercept = math::GlobalPoint(tmpPlaneLineIntercept[0], tmpPlaneLineIntercept[1], tmpPlaneLineIntercept[2]);
