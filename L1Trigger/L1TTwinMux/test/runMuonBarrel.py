@@ -54,7 +54,7 @@ process.esProdTM = cms.EDAnalyzer("EventSetupRecordDataGetter",
 process.load('L1Trigger.L1TTwinMux.simTwinMuxDigis_cfi')
 process.load('L1Trigger.L1TMuonBarrel.simBmtfDigis_cfi')
 process.simBmtfDigis.Debug = cms.untracked.int32(0)
-process.simBmtfDigis.DTDigi_Source = cms.InputTag("simTwinMuxDigisEmu:TwinMuxEmulator")
+process.simBmtfDigis.DTDigi_Source = cms.InputTag("simTwinMuxDigis:TwinMuxEmulator")
 
 
 ###TwinMux Emulator
@@ -66,7 +66,7 @@ process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 
 process.L1TMuonSeq = cms.Sequence( process.esProd         
 				   + process.esProdTM 
-                                   + process.simTwinMuxDigisEmu 
+                                   + process.simTwinMuxDigis 
                                    + process.simBmtfDigis 
 #                                   + process.dumpED
 #                                   + process.dumpES

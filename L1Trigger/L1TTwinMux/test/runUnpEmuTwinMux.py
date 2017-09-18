@@ -53,9 +53,9 @@ process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
 
 ###TwinMux Emulator
 process.load('L1Trigger.L1TTwinMux.simTwinMuxDigis_cfi')
-process.simTwinMuxDigisEmu.DTDigi_Source = cms.InputTag("twinMuxStage2Digis:PhIn")
-process.simTwinMuxDigisEmu.DTThetaDigi_Source = cms.InputTag("twinMuxStage2Digis:ThIn")
-process.simTwinMuxDigisEmu.RPC_Source = cms.InputTag("RPCTwinMuxRawToDigi")
+process.simTwinMuxDigis.DTDigi_Source = cms.InputTag("twinMuxStage2Digis:PhIn")
+process.simTwinMuxDigis.DTThetaDigi_Source = cms.InputTag("twinMuxStage2Digis:ThIn")
+process.simTwinMuxDigis.RPC_Source = cms.InputTag("RPCTwinMuxRawToDigi")
 
 
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
@@ -78,7 +78,7 @@ process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 #)
 #
 #process.L1TwinMuxProducerEmulator = process.L1TwinMuxProducer.clone(
-#     twinmuxOutputDigis = cms.InputTag("simTwinMuxDigisEmu:TwinMuxEmulator"),
+#     twinmuxOutputDigis = cms.InputTag("simTwinMuxDigis:TwinMuxEmulator"),
 #     twinmuxInputPhDigis = cms.InputTag("twinMuxStage2Digis:PhIn"),
 #        twinmuxInputThDigis = cms.InputTag("twinMuxStage2Digis:ThIn"),
 #     twinmuxInputRPCDigis = cms.InputTag("RPCTwinMuxRawToDigi")
@@ -100,7 +100,7 @@ process.L1TMuonSeq = cms.Sequence(process.RPCTwinMuxRawToDigi
                      + process.twinMuxStage2Digis
                      + process.rpcUnpackingModule
                      + process.esProd
-                     + process.simTwinMuxDigisEmu                     
+                     + process.simTwinMuxDigis                     
 #                     + process.EVRTProducer
 #                     + process.L1TwinMuxProducer    
 #                     + process.L1TwinMuxProducerEmulator  
