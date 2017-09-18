@@ -54,7 +54,7 @@ hgceeDigitizer = cms.PSet(
             # raise usage of TDC and mode flag (from J. Kaplon)
             tdcOnset_fC       = cms.double(60),
             # raise usage of TDC for TOA only
-            tdcForToaOnset_fC = cms.vdouble(60., 60., 60.),
+            tdcForToAOnset_fC = cms.vdouble(60., 60., 60.),
             # LSB for time of arrival estimate from TDC in ns
             toaLSB_ns         = cms.double(0.005),
             #toa computation mode (0=by weighted energy, 1=simple threshold)
@@ -113,7 +113,7 @@ hgchefrontDigitizer = cms.PSet(
             # raise usage of TDC and mode flag (from J. Kaplon)
             tdcOnset_fC       = cms.double(60), 
             # raise usage of TDC for TOA only                                                                                                                            
-            tdcForToaOnset_fC = cms.vdouble(60., 60., 60.),
+            tdcForToAOnset_fC = cms.vdouble(60., 60., 60.),
             # LSB for time of arrival estimate from TDC in ns
             toaLSB_ns         = cms.double(0.005),
             #toa computation mode (0=by weighted energy, 1=simple threshold)

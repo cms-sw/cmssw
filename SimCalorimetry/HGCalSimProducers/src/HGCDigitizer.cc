@@ -315,22 +315,22 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
   
   //configuration to apply for the computation of time-of-flight
   bool weightToAbyEnergy(false);
-  std::array<float, 3> tdcForToaOnset{ {0.f, 0.f, 0.f} };
+  std::array<float, 3> tdcForToAOnset{ {0.f, 0.f, 0.f} };
   float keV2fC(0.f);
   switch( mySubDet_ ) {
   case ForwardSubdetector::HGCEE:
     weightToAbyEnergy = theHGCEEDigitizer_->toaModeByEnergy();
-    tdcForToaOnset    = theHGCEEDigitizer_->tdcForToaOnset();
+    tdcForToAOnset    = theHGCEEDigitizer_->tdcForToAOnset();
     keV2fC            = theHGCEEDigitizer_->keV2fC();
     break;
   case ForwardSubdetector::HGCHEF:
     weightToAbyEnergy = theHGCHEfrontDigitizer_->toaModeByEnergy();
-    tdcForToaOnset    = theHGCHEfrontDigitizer_->tdcForToaOnset();
+    tdcForToAOnset    = theHGCHEfrontDigitizer_->tdcForToAOnset();
     keV2fC            = theHGCHEfrontDigitizer_->keV2fC();
     break;
   case ForwardSubdetector::HGCHEB:
     weightToAbyEnergy = theHGCHEbackDigitizer_->toaModeByEnergy();
-    tdcForToaOnset    = theHGCHEbackDigitizer_->tdcForToaOnset();
+    tdcForToAOnset    = theHGCHEbackDigitizer_->tdcForToAOnset();
     keV2fC            = theHGCHEbackDigitizer_->keV2fC();     
     break;
   default:
@@ -411,7 +411,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
 	std::sort(hitRefs_bx0[id].begin(), hitRefs_bx0[id].end(), comparePairs);
 	for(const auto& step : hitRefs_bx0[id]){
 	  accChargeForToA += step.first;
-	  if(accChargeForToA > tdcForToaOnset[waferThickness-1] && step.second != hitRefs_bx0[id].back().second){
+	  if(accChargeForToA > tdcForToAOnset[waferThickness-1] && step.second != hitRefs_bx0[id].back().second){
 	    while(step != hitRefs_bx0[id].back())  hitRefs_bx0[id].pop_back();
 	    break;
 	  }
@@ -419,7 +419,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
 	orderChanged = true;
       }
       else{
-        if(accCharge - charge <= tdcForToaOnset[waferThickness-1]){
+        if(accCharge - charge <= tdcForToAOnset[waferThickness-1]){
           hitRefs_bx0[id].push_back(std::pair<float, float>(charge, tof));
           accChargeForToA = accCharge;
         }
@@ -428,14 +428,14 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
 
     //time-of-arrival (check how to be used)
     if(weightToAbyEnergy) (simHitIt->second).hit_info[1][itime] += charge*tof;
-    else if(accChargeForToA > tdcForToaOnset[waferThickness-1] &&
+    else if(accChargeForToA > tdcForToAOnset[waferThickness-1] &&
 	    ((simHitIt->second).hit_info[1][itime] == 0 || orderChanged == true) ){
       float fireTDC = hitRefs_bx0[id].back().second;
       if (hitRefs_bx0[id].size() > 1){
 	float chargeBeforeThr = 0.f;
 	float tofchargeBeforeThr = 0.f;
 	for(const auto& step : hitRefs_bx0[id]){
-	  if(step.first + chargeBeforeThr <= tdcForToaOnset[waferThickness-1]){
+	  if(step.first + chargeBeforeThr <= tdcForToAOnset[waferThickness-1]){
 	    chargeBeforeThr += step.first;
 	    tofchargeBeforeThr = step.second;
 	  }
@@ -443,7 +443,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
 	}
 	float deltaQ = accChargeForToA - chargeBeforeThr;
 	float deltaTOF = fireTDC - tofchargeBeforeThr;
-	fireTDC = (tdcForToaOnset[waferThickness-1] - chargeBeforeThr) * deltaTOF / deltaQ + tofchargeBeforeThr;
+	fireTDC = (tdcForToAOnset[waferThickness-1] - chargeBeforeThr) * deltaTOF / deltaQ + tofchargeBeforeThr;
       }
       (simHitIt->second).hit_info[1][itime] = fireTDC;                                                                  
     }
