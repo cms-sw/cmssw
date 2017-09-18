@@ -245,7 +245,7 @@ unsigned int RunRangeDependentPedeLabeler::alignableLabelFromLabel(unsigned int 
 Alignable* RunRangeDependentPedeLabeler::alignableFromLabel(unsigned int label) const
 {
   const unsigned int aliLabel = this->alignableLabelFromLabel(label);
-  if (aliLabel < theMinLabel) return 0; // error already given
+  if (aliLabel < theMinLabel) return nullptr; // error already given
   
   IdToAlignableMap::const_iterator position = theIdToAlignableMap.find(aliLabel);
   if (position != theIdToAlignableMap.end()) {
@@ -257,7 +257,7 @@ Alignable* RunRangeDependentPedeLabeler::alignableFromLabel(unsigned int label) 
       edm::LogError("LogicError") << "@SUB=RunRangeDependentPedeLabeler::alignableFromLabel"
 				  << "Alignable label " << aliLabel << " not in map.";
     }
-    return 0;
+    return nullptr;
   }
 }
 
@@ -381,7 +381,7 @@ unsigned int RunRangeDependentPedeLabeler::buildRunRangeDependencyMap(AlignableT
 
 	std::vector<std::string> tokens = edm::tokenize(iRunRange, ":");
 	first = cond::timeTypeSpecs[cond::runnumber].beginValue;
-	temp = strtol(tokens[0].c_str(), 0, 0);
+	temp = strtol(tokens[0].c_str(), nullptr, 0);
 	if (temp!=-1) first = temp;
 	
       }
