@@ -48,13 +48,10 @@ void RPixRoadFinder::findPattern(){
 
 // convert local hit sto global and push them to a vector
   for(const auto & ds_rh2 : hitVector_){
-    uint32_t myid = ds_rh2.id;
+    const auto myid = CTPPSPixelDetId(ds_rh2.id);
     for (const auto & it_rh : ds_rh2.data){
-      PointInPlane thePointAndRecHit;
-      thePointAndRecHit.recHit=it_rh; 
       CLHEP::Hep3Vector localV(it_rh.getPoint().x(),it_rh.getPoint().y(),it_rh.getPoint().z() );
       CLHEP::Hep3Vector globalV = geometry_.localToGlobal(ds_rh2.id,localV);
-      thePointAndRecHit.globalPoint=globalV;
       TMatrixD localError(3,3);
       localError[0][0] = it_rh.getError().xx();
       localError[0][1] = it_rh.getError().xy();
@@ -71,9 +68,7 @@ void RPixRoadFinder::findPattern(){
       TMatrixD theRotationTMatrixInverted(theRotationTMatrix);
       theRotationTMatrixInverted.Invert();
       TMatrixD globalError = theRotationTMatrixInverted * localError * theRotationTMatrix;
-      thePointAndRecHit.globalError.ResizeTo(3,3);
-      thePointAndRecHit.globalError=globalError;
-      thePointAndRecHit.detId = myid;
+      PointInPlane thePointAndRecHit = {globalV,globalError,it_rh,myid};
       temp_all_hits.push_back(thePointAndRecHit);
     }
 
