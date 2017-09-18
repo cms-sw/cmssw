@@ -13,58 +13,50 @@ eval `scram run -sh`;
 
 mkdir -p $W_DIR/results
 
-# matrixelements=(XX YY ZZ XY XZ YZ)
+matrixelements=(XX YY ZZ XY XZ YZ)
 
-# for i in "${matrixelements[@]}"
-# do
-#     echo "Processing: $i element"
+for i in "${matrixelements[@]}"
+do
+    echo "Processing: $i element"
     
-#     #*************************************************************************#
+    #*************************************************************************#
 
-#     /afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py  \
-# 	--plugin pluginTrackerAlignmentErrorExtended_PayloadInspector \
-# 	--plot plot_TrackerAlignmentErrorExtended${i}Summary \
-# 	--tag  TrackerAlignmentExtendedErr_2009_v2_express_IOVs \
-# 	--time_type Run \
-# 	--iovs '{"start_iov": "298759", "end_iov": "298759"}' \
-# 	--db Prod \
-# 	--test;
+    /afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py  \
+	--plugin pluginTrackerAlignmentErrorExtended_PayloadInspector \
+	--plot plot_TrackerAlignmentErrorExtended${i}Summary \
+	--tag  TrackerAlignmentExtendedErr_2009_v2_express_IOVs \
+	--time_type Run \
+	--iovs '{"start_iov": "298759", "end_iov": "298759"}' \
+	--db Prod \
+	--test;
 
-#     mv *.png $W_DIR/results/TrackerAlignmentErrorExtended${i}Summary.png
+    mv *.png $W_DIR/results/TrackerAlignmentErrorExtended${i}Summary.png
     
-#     #*************************************************************************#
+    #*************************************************************************#
 
-#     /afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py  \
-# 	--plugin pluginTrackerAlignmentErrorExtended_PayloadInspector \
-# 	--plot plot_TrackerAlignmentErrorExtended${i}Value \
-# 	--tag  TrackerAlignmentExtendedErr_2009_v2_express_IOVs \
-# 	--time_type Run \
-# 	--iovs '{"start_iov": "1", "end_iov": "1"}' \
-# 	--db Prod \
-# 	--test;
+    /afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py  \
+	--plugin pluginTrackerAlignmentErrorExtended_PayloadInspector \
+	--plot plot_TrackerAlignmentErrorExtended${i}Value \
+	--tag  TrackerAlignmentExtendedErr_2009_v2_express_IOVs \
+	--time_type Run \
+	--iovs '{"start_iov": "1", "end_iov": "1"}' \
+	--db Prod \
+	--test;
 
-#     #*************************************************************************#
+    #*************************************************************************#
     
-#     /afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py  \
-# 	--plugin pluginTrackerAlignmentErrorExtended_PayloadInspector \
-# 	--plot plot_TrackerAlignmentErrorExtended${i}TrackerMap \
-# 	--tag  TrackerAlignmentExtendedErr_2009_v2_express_IOVs \
-# 	--time_type Run \
-# 	--iovs '{"start_iov": "298759", "end_iov": "298759"}' \
-# 	--db Prod \
-# 	--test;
+    /afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py  \
+	--plugin pluginTrackerAlignmentErrorExtended_PayloadInspector \
+	--plot plot_TrackerAlignmentErrorExtended${i}TrackerMap \
+	--tag  TrackerAlignmentExtendedErr_2009_v2_express_IOVs \
+	--time_type Run \
+	--iovs '{"start_iov": "298759", "end_iov": "298759"}' \
+	--db Prod \
+	--test;
     
-#     mv *.png $W_DIR/results/TrackerAlignmentErrorExtended${i}TrackerMap.png
+    mv *.png $W_DIR/results/TrackerAlignmentErrorExtended${i}TrackerMap.png
     
-#     #*************************************************************************#
+    #*************************************************************************#
       
-# done
+done
 
-./my_getPayloadData.py  \
-    --plugin pluginTrackerAlignmentErrorExtended_PayloadInspector \
-    --plot plot_TrackerAlignmentErrorExtendedXXSummary \
-    --tag  TrackerAlignmentExtendedErr_2009_v2_express_IOVs \
-    --time_type Run \
-    --iovs '{"start_iov": "1", "end_iov": "1"}' \
-    --db Prod \
-    --test;
