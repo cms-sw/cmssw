@@ -38,7 +38,8 @@
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
-#include "CondFormats/DataRecord/interface/L1TCaloStage2ParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TCaloParamsO2ORcd.h"
 
 #include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
 #include "DataFormats/L1Trigger/interface/EGamma.h"
@@ -55,18 +56,18 @@ using namespace l1t;
   class L1TStage2Layer2Producer : public edm::EDProducer {
   public:
     explicit L1TStage2Layer2Producer(const edm::ParameterSet& ps);
-    ~L1TStage2Layer2Producer();
+    ~L1TStage2Layer2Producer() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions)
       ;
 
   private:
-    virtual void beginJob() override;
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
-    virtual void endJob() override;
+    void beginJob() override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
+    void endJob() override;
 
-    virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-    virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+    void beginRun(edm::Run const&, edm::EventSetup const&) override;
+    void endRun(edm::Run const&, edm::EventSetup const&) override;
     //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
     //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
@@ -126,6 +127,7 @@ L1TStage2Layer2Producer::~L1TStage2Layer2Producer() {
 void
 L1TStage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+
   using namespace edm;
 
   using namespace l1t;
@@ -262,18 +264,27 @@ L1TStage2Layer2Producer::beginRun(edm::Run const& iRun, edm::EventSetup const& i
 
   // parameters
 
-  unsigned long long id = iSetup.get<L1TCaloStage2ParamsRcd>().cacheIdentifier();
+  unsigned long long id = iSetup.get<L1TCaloParamsRcd>().cacheIdentifier();
 
   if (id != m_paramsCacheId) {
 
     m_paramsCacheId = id;
 
-    edm::ESHandle<CaloParams> paramsHandle;
-    iSetup.get<L1TCaloStage2ParamsRcd>().get(paramsHandle);
+    edm::ESHandle<CaloParams> paramsHandle, o2oProtoHandle;
+    iSetup.get<L1TCaloParamsRcd>().get(paramsHandle);
+    iSetup.get<L1TCaloParamsO2ORcd>().get(o2oProtoHandle);
 
     // replace our local copy of the parameters with a new one using placement new
+    //  KK: this nifty trick works as long as current definition of CaloParams
+    //      takes more space than the one obtained from the record
     m_params->~CaloParamsHelper();
-    m_params = new (m_params) CaloParamsHelper(*paramsHandle.product());
+    m_params = new (m_params) CaloParamsHelper(*o2oProtoHandle.product());
+
+    // KK: now copy all the pnodes that were present at the time the payload was created
+    //  and put those over the values of prototype, generated above
+    std::unique_ptr<l1t::CaloParamsHelper> params(new l1t::CaloParamsHelper(*(paramsHandle.product ())));
+    for(size_t n = 0; n < params->getNodes().size(); ++n)
+        m_params->setNode(n,params->getNodes()[n]);
 
     LogDebug("L1TDebug") << *m_params << std::endl;
 
