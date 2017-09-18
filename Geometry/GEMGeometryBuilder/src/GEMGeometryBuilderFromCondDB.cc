@@ -161,12 +161,8 @@ GEMGeometryBuilderFromCondDB::build(const std::shared_ptr<GEMGeometry>& theGeome
 	  const GEMDetId detId( superChamber->id());
 	  if (detId.region() != re || detId.station() != st || detId.ring() != ri) continue;
 	  
-	  auto ch1 = theGeometry->chamber( GEMDetId( detId.region(), detId.ring(), detId.station(), 1, detId.chamber(), 0 ));
-	  auto ch2 = theGeometry->chamber( GEMDetId( detId.region(), detId.ring(), detId.station(), 2, detId.chamber(), 0 ));
-	  superChamber->add( const_cast<GEMChamber*>( ch1 ));
-	  superChamber->add( const_cast<GEMChamber*>( ch2 ));
-	  // superChamber->add( ch1 );
-	  // superChamber->add( ch2 );
+	  superChamber->add( theGeometry->chamber( GEMDetId( detId.region(), detId.ring(), detId.station(), 1, detId.chamber(), 0 )));
+	  superChamber->add( theGeometry->chamber( GEMDetId( detId.region(), detId.ring(), detId.station(), 2, detId.chamber(), 0 )));
 	  ring->add( superChamber );
 	  theGeometry->add( superChamber );
 	  LogDebug("GEMGeometryBuilderFromDDD") << "Adding super chamber " << detId << " to ring: " 
