@@ -70,21 +70,36 @@ MicroEventContent = cms.PSet(
         'keep CTPPSLocalTrackLites_ctppsLocalTrackLiteProducer_*_*'
     )
 )
-MicroEventContentMC = cms.PSet(
-    outputCommands = cms.untracked.vstring(MicroEventContent.outputCommands)
-)
-MicroEventContentMC.outputCommands += [
-        'keep *_slimmedGenJets*_*_*',
+
+MicroEventContentGEN = cms.PSet(
+    outputCommands = cms.untracked.vstring(
         'keep patPackedGenParticles_packedGenParticles_*_*',
         'keep recoGenParticles_prunedGenParticles_*_*',
         'keep LHEEventProduct_*_*_*',
-        'keep PileupSummaryInfos_slimmedAddPileupInfo_*_*',
         'keep GenFilterInfo_*_*_*',
         'keep GenLumiInfoHeader_generator_*_*',
         'keep GenLumiInfoProduct_*_*_*',
         'keep GenEventInfoProduct_generator_*_*',
+        'keep *_slimmedGenJets__*',
+        'keep *_slimmedGenJetsAK8__*',
         # RUN
         'keep LHERunInfoProduct_*_*_*',
         'keep GenRunInfoProduct_*_*_*',
-        'keep L1GtTriggerMenuLite_l1GtTriggerMenuLite__*',
-]
+    )
+)
+
+
+MicroEventContentMC = cms.PSet(
+    outputCommands = cms.untracked.vstring(MicroEventContent.outputCommands)
+)
+MicroEventContentMC.outputCommands += MicroEventContentGEN.outputCommands
+MicroEventContentMC.outputCommands += [
+                                        'keep PileupSummaryInfos_slimmedAddPileupInfo_*_*',
+                                        # RUN
+                                        'keep L1GtTriggerMenuLite_l1GtTriggerMenuLite__*'
+                                      ]
+
+# avoid genMetTrue to be stored into MINIAODSIM but still keep it for MINIGEN
+MicroEventContentGEN.outputCommands += [
+                                        'keep *_genMetTrue_*_*',
+                                      ]
