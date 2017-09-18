@@ -3,13 +3,12 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("RaddamMuon")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load("Configuration.Geometry.GeometryExtended2017Plan1_cff")
-process.load("Configuration.Geometry.GeometryExtended2017Plan1Reco_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")  
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("RecoJets.Configuration.CaloTowersES_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag=autoCond['run2_data']
+process.GlobalTag.globaltag='92X_dataRun2_Prompt_v5'
 
 process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
 process.load("Calibration.HcalCalibAlgos.hcalHBHEMuon_cfi")
@@ -30,7 +29,7 @@ process.TFileService = cms.Service("TFileService",
 )
 
 process.hcalHBHEMuon.UseRaw = False
-process.hcalHBHEMuon.UnCorrect = True
+process.hcalHBHEMuon.UnCorrect = False
 process.hcalHBHEMuon.GetCharge = True
 process.hcalHBHEMuon.CollapseDepth = False
 process.hcalHBHEMuon.IsItPlan1 = True
@@ -38,6 +37,6 @@ process.hcalHBHEMuon.IgnoreHECorr = False
 process.hcalHBHEMuon.IsItPreRecHit = True
 process.hcalHBHEMuon.MaxDepth = 7
 process.hcalHBHEMuon.LabelHBHERecHit = cms.InputTag("hbheprereco")
-process.hcalHBHEMuon.Verbosity = 1111
+process.hcalHBHEMuon.Verbosity = 0
 
 process.p = cms.Path(process.hcalHBHEMuon)
