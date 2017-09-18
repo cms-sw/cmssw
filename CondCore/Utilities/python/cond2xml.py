@@ -73,14 +73,22 @@ class CondXmlProcessor(object):
         libDir = os.path.join( os.environ["CMSSW_BASE"], 'lib', os.environ["SCRAM_ARCH"] )
         devLibDir = libDir
         libPath = os.path.join( devLibDir, libName )
-        devCheckout = ("CMSSW_RELEASE_BASE" in os.environ)
+        releaseBase = os.environ["CMSSW_RELEASE_BASE"]
+        devCheckout = (releaseBase != '')
+        if not devCheckout:
+           logging.debug('Looks like the current working environment is a read-only release')
         if not os.path.exists( libPath ) and devCheckout:
            # main release ( for dev checkouts )
-           libDir = os.path.join( os.environ["CMSSW_RELEASE_BASE"], 'lib', os.environ["SCRAM_ARCH"] )
+           libDir = os.path.join( releaseBase, 'lib', os.environ["SCRAM_ARCH"] )
            libPath = os.path.join( libDir, libName )
+           if not os.path.exists( libPath ):
+              if "CMSSW_FULL_RELEASE_BASE" in os.environ:
+                 libDir = os.path.join( os.environ["CMSSW_FULL_RELEASE_BASE"], 'lib', os.environ["SCRAM_ARCH"] )
+                 libPath = os.path.join( libDir, libName )
         if not os.path.exists( libPath ):
            # it should never happen!
-           raise Exception('No built-in library found with XML converters.')
+           raise Exception('No built-in library %s found with XML converters.' %libPath)
+        logging.debug("Importing built-in library %s" %libPath)
         module = importlib.import_module( libName.replace('.so', '') )
         functors = dir(module)
         funcName = payloadType+'2xml'
