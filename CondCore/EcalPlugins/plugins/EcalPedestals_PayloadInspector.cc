@@ -311,10 +311,10 @@ namespace {
 	//		  << " max " << pEEmax[gId] << std::endl;
 	if(pEEmin[gId] < 0.) pEEmin[gId] = 0.;
       }
-      float bmin[kGains] ={0.7, 0.5, 0.4};
-      float bmax[kGains] ={2.2, 1.3, 0.7};
-      float emin[kGains] ={1.5, 0.8, 0.4};
-      float emax[kGains] ={2.5, 1.5, 0.8};
+      //float bmin[kGains] ={0.7, 0.5, 0.4};
+      //float bmax[kGains] ={2.2, 1.3, 0.7};
+      //float emin[kGains] ={1.5, 0.8, 0.4};
+      //float emax[kGains] ={2.5, 1.5, 0.8};
       //      TLine* l = new TLine(0., 0., 0., 0.);
       //      l->SetLineWidth(1);
       for (int gId = 0; gId < kGains; gId++) {
