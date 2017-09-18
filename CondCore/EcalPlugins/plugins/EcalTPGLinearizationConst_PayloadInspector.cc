@@ -222,7 +222,7 @@ namespace {
       }
 
       unsigned int run[2], irun = 0;
-      float gEB[3][kEBChannels], gEE[3][kEEChannels];
+      //float gEB[3][kEBChannels], gEE[3][kEEChannels];
       for ( auto const & iov: iovs) {
 	std::shared_ptr<EcalTPGLinearizationConst> payload = fetchPayload( std::get<1>(iov) );
 	run[irun] = std::get<0>(iov);
