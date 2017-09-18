@@ -12,6 +12,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 //
 //
 #include "DataMixingPileupCopy.h"
@@ -38,6 +40,8 @@ namespace edm
     BunchSpacingInputTag_ = ps.getParameter<edm::InputTag>("BunchSpacingInputTag");
     CFPlaybackInputTag_ = ps.getParameter<edm::InputTag>("CFPlaybackInputTag");
 
+    if( ps.exists("GenPUProtonsInputTags") )
+       GenPUProtonsInputTags_ = ps.getParameter<std::vector<edm::InputTag> >("GenPUProtonsInputTags");
 
     // apparently, we don't need consumes from Secondary input stream
     //iC.consumes<std::vector<PileupSummaryInfo>>(PileupInfoInputTag_);
@@ -77,6 +81,18 @@ namespace edm
       bsStorage_=10000;
     }
 
+    // Gen. PU protons
+    std::shared_ptr<edm::Wrapper<std::vector<reco::GenParticle> > const> GenPUProtonsPTR;
+    GenPUProtons_.resize( GenPUProtonsInputTags_.size() );
+    GenPUProtons_labels_.resize( GenPUProtonsInputTags_.size() );
+    size_t idx = 0;
+    for(std::vector<edm::InputTag>::const_iterator it_InputTag = GenPUProtonsInputTags_.begin(); 
+                                                   it_InputTag != GenPUProtonsInputTags_.end(); ++it_InputTag, ++idx){ 
+      GenPUProtonsPTR = getProductByTag<std::vector<reco::GenParticle> >( *ep, *it_InputTag , mcc);
+      GenPUProtons_[idx] = *(GenPUProtonsPTR->product());
+      GenPUProtons_labels_[idx] = it_InputTag->label();
+    }
+
     // Playback
     std::shared_ptr<Wrapper<CrossingFramePlaybackInfoNew>  const> PlaybackPTR =
       getProductByTag<CrossingFramePlaybackInfoNew>(*ep,CFPlaybackInputTag_, mcc);
@@ -105,7 +121,19 @@ namespace edm
     e.put(std::move(PSIVector));
     e.put(std::move(bsInt),"bunchSpacing");
 
+    // Gen. PU protons
+    for(size_t idx = 0; idx < GenPUProtons_.size(); ++idx){
+       std::unique_ptr<std::vector<reco::GenParticle> > GenPUProtons_ptr( new std::vector<reco::GenParticle>() );
+       std::vector<reco::GenParticle>::const_iterator it_GenParticle = GenPUProtons_.at(idx).begin();
+       std::vector<reco::GenParticle>::const_iterator it_GenParticle_end = GenPUProtons_.at(idx).end();
+       for(; it_GenParticle != it_GenParticle_end; ++ it_GenParticle) GenPUProtons_ptr->push_back( *it_GenParticle );
+
+       e.put( std::move(GenPUProtons_ptr), GenPUProtons_labels_.at(idx) );
+    }
+
     // clear local storage after this event
     PileupSummaryStorage_.clear();
+    GenPUProtons_.clear();
+    GenPUProtons_labels_.clear();
   }
 } //edm
