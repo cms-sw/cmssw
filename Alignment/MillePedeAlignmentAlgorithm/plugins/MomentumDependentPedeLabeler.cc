@@ -252,7 +252,6 @@ Alignable* MomentumDependentPedeLabeler::alignableFromLabel(unsigned int label) 
   const unsigned int aliLabel = this->alignableLabelFromLabel(label);
   if (aliLabel < theMinLabel) return 0; // error already given
   
-  if (theIdToAlignableMap.empty()) const_cast<MomentumDependentPedeLabeler*>(this)->buildReverseMap();
   IdToAlignableMap::const_iterator position = theIdToAlignableMap.find(aliLabel);
   if (position != theIdToAlignableMap.end()) {
     return position->second;
@@ -273,7 +272,6 @@ unsigned int MomentumDependentPedeLabeler::lasBeamIdFromLabel(unsigned int label
   const unsigned int aliLabel = this->alignableLabelFromLabel(label);
   if (aliLabel < theMinLabel) return 0; // error already given
   
-  if (theLabelToLasBeamMap.empty()) const_cast<MomentumDependentPedeLabeler*>(this)->buildReverseMap();
   UintUintMap::const_iterator position = theLabelToLasBeamMap.find(aliLabel);
   if (position != theLabelToLasBeamMap.end()) {
     return position->second;
