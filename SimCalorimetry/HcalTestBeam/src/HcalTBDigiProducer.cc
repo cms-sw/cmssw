@@ -23,8 +23,8 @@ HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet& ps, edm::stream:
   theHcalIntegratedShape(new CaloShapeIntegrator(theHcalShape)),
   theHBHEResponse(new CaloHitResponse(theParameterMap, theHcalIntegratedShape)),
   theHOResponse(new CaloHitResponse(theParameterMap, theHcalIntegratedShape)),
-  theAmplifier(0), theCoderFactory(0), theElectronicsSim(0), 
-  theTimeSlewSim(0), theHBHEDigitizer(0), theHODigitizer(0), theHBHEHits(),
+  theAmplifier(nullptr), theCoderFactory(nullptr), theElectronicsSim(nullptr), 
+  theTimeSlewSim(nullptr), theHBHEDigitizer(nullptr), theHODigitizer(nullptr), theHBHEHits(),
   theHOHits(), thisPhaseShift(0) {
   std::string const instance("simHcalDigis");
   mixMod.produces<HBHEDigiCollection>(instance);

@@ -43,11 +43,11 @@ public:
 
   explicit GEMDigiSimLinkReader(const edm::ParameterSet& pset);
 
-  virtual ~GEMDigiSimLinkReader()
+  ~GEMDigiSimLinkReader() override
   {
   }
 
-  void analyze(const edm::Event &, const edm::EventSetup&);
+  void analyze(const edm::Event &, const edm::EventSetup&) override;
 
 private:
 
@@ -338,7 +338,7 @@ void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
     for (const auto& p : ElecCluster) myCluster.emplace(p);
     for (const auto& p : MuCluster)  if (std::abs(p.second) == 13) muonFired.emplace_back(p.first);
 
-    if (myCluster.size() != 0)
+    if (!myCluster.empty())
     {
       LogDebug("GEMDigiSimLinkReader") << "=+=+=+=+=+=+=+=" << std::endl;
       LogDebug("GEMDigiSimLinkReader") << "Muon size " << muonFired.size() << std::endl;

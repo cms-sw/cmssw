@@ -185,7 +185,7 @@ void HcalTrigPrimDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup
     edm::ESHandle < HcalDbService > pSetup;
     eventSetup.get<HcalDbRecord> ().get(pSetup);
 
-    HcalFeatureBit* hfembit = 0;
+    HcalFeatureBit* hfembit = nullptr;
 
     if(HFEMB_)
     {
@@ -214,7 +214,7 @@ void HcalTrigPrimDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup
         edm::Handle < FEDRawDataCollection > fedHandle;
         iEvent.getByToken(tok_raw_, fedHandle);
 
-        if (fedHandle.isValid() && emap != 0) {
+        if (fedHandle.isValid() && emap != nullptr) {
             theAlgo_.runFEFormatError(fedHandle.product(), emap, *result);
         } else {
             edm::LogInfo("HcalTrigPrimDigiProducer")

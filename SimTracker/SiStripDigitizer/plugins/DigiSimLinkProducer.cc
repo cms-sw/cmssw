@@ -171,7 +171,7 @@ void DigiSimLinkProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     }
     GlobalVector bfield=pSetup->inTesla((*iu)->surface().position());
     auto sgd = dynamic_cast<StripGeomDetUnit const*>((*iu));
-    if (sgd != 0){
+    if (sgd != nullptr){
       edm::DetSet<SiStripDigi> collectorZS((*iu)->geographicalId().rawId());
       edm::DetSet<SiStripRawDigi> collectorRaw((*iu)->geographicalId().rawId());
       edm::DetSet<StripDigiSimLink> linkcollector((*iu)->geographicalId().rawId());
@@ -179,20 +179,20 @@ void DigiSimLinkProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       theDigiAlgo->run(collectorZS,collectorRaw,SimHitMap[(*iu)->geographicalId().rawId()],sgd,bfield,langle,
 		       gainHandle,thresholdHandle,noiseHandle,pedestalHandle, deadChannelHandle, tTopo, engine);
       if(zeroSuppression){
-        if(collectorZS.data.size()>0){
+        if(!collectorZS.data.empty()){
           theDigiVector.push_back(collectorZS);
-          if(SimHitMap[(*iu)->geographicalId().rawId()].size()>0){
+          if(!SimHitMap[(*iu)->geographicalId().rawId()].empty()){
             linkcollector.data = theDigiAlgo->make_link();
-            if(linkcollector.data.size()>0)
+            if(!linkcollector.data.empty())
               theDigiLinkVector.push_back(linkcollector);
           }
         }
       }else{
-        if(collectorRaw.data.size()>0){
+        if(!collectorRaw.data.empty()){
           theRawDigiVector.push_back(collectorRaw);
-          if(SimHitMap[(*iu)->geographicalId().rawId()].size()>0){
+          if(!SimHitMap[(*iu)->geographicalId().rawId()].empty()){
             linkcollector.data = theDigiAlgo->make_link();
-            if(linkcollector.data.size()>0)
+            if(!linkcollector.data.empty())
               theDigiLinkVector.push_back(linkcollector);
           }
         }

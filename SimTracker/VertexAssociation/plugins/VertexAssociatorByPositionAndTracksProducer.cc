@@ -18,12 +18,12 @@
 class VertexAssociatorByPositionAndTracksProducer: public edm::global::EDProducer<> {
 public:
   explicit VertexAssociatorByPositionAndTracksProducer(const edm::ParameterSet&);
-  ~VertexAssociatorByPositionAndTracksProducer();
+  ~VertexAssociatorByPositionAndTracksProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);      
 
 private:
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
       
   // ----------member data ---------------------------
   const double absZ_;

@@ -16,8 +16,8 @@
 EBHitResponse::EBHitResponse( const CaloVSimParameterMap* parameterMap , 
 			      const CaloVShape*           shape        ,
 			      bool                        apdOnly      ,
-			      const APDSimParameters*     apdPars  = 0 , 
-			      const CaloVShape*           apdShape = 0   ) :
+			      const APDSimParameters*     apdPars  = nullptr , 
+			      const CaloVShape*           apdShape = nullptr   ) :
 
    EcalHitResponse( parameterMap, shape ) ,
 
@@ -25,16 +25,16 @@ EBHitResponse::EBHitResponse( const CaloVSimParameterMap* parameterMap ,
    m_apdPars  ( apdPars  ) ,
    m_apdShape ( apdShape ) ,
    m_timeOffVec ( kNOffsets, apdParameters()->timeOffset() ) ,
-   pcub ( 0 == apdPars ? 0 : apdParameters()->nonlParms()[0] ) ,
-   pqua ( 0 == apdPars ? 0 : apdParameters()->nonlParms()[1] ) ,
-   plin ( 0 == apdPars ? 0 : apdParameters()->nonlParms()[2] ) ,
-   pcon ( 0 == apdPars ? 0 : apdParameters()->nonlParms()[3] ) ,
-   pelo ( 0 == apdPars ? 0 : apdParameters()->nonlParms()[4] ) ,
-   pehi ( 0 == apdPars ? 0 : apdParameters()->nonlParms()[5] ) ,
-   pasy ( 0 == apdPars ? 0 : apdParameters()->nonlParms()[6] ) ,
-   pext ( 0 == apdPars ? 0 : nonlFunc1( pelo ) ) ,
-   poff ( 0 == apdPars ? 0 : nonlFunc1( pehi ) ) ,
-   pfac ( 0 == apdPars ? 0 : ( pasy - poff )*2./M_PI ),
+   pcub ( nullptr == apdPars ? 0 : apdParameters()->nonlParms()[0] ) ,
+   pqua ( nullptr == apdPars ? 0 : apdParameters()->nonlParms()[1] ) ,
+   plin ( nullptr == apdPars ? 0 : apdParameters()->nonlParms()[2] ) ,
+   pcon ( nullptr == apdPars ? 0 : apdParameters()->nonlParms()[3] ) ,
+   pelo ( nullptr == apdPars ? 0 : apdParameters()->nonlParms()[4] ) ,
+   pehi ( nullptr == apdPars ? 0 : apdParameters()->nonlParms()[5] ) ,
+   pasy ( nullptr == apdPars ? 0 : apdParameters()->nonlParms()[6] ) ,
+   pext ( nullptr == apdPars ? 0 : nonlFunc1( pelo ) ) ,
+   poff ( nullptr == apdPars ? 0 : nonlFunc1( pehi ) ) ,
+   pfac ( nullptr == apdPars ? 0 : ( pasy - poff )*2./M_PI ),
    m_isInitialized(false)
 {
    const EBDetId detId ( EBDetId::detIdFromDenseIndex( 0 ) ) ;
@@ -72,14 +72,14 @@ EBHitResponse::initialize(CLHEP::HepRandomEngine* engine)
 const APDSimParameters*
 EBHitResponse::apdParameters() const
 {
-   assert ( 0 != m_apdPars ) ;
+   assert ( nullptr != m_apdPars ) ;
    return m_apdPars ;
 }
 
 const CaloVShape*
 EBHitResponse::apdShape() const
 {
-   assert( 0 != m_apdShape ) ;
+   assert( nullptr != m_apdShape ) ;
    return m_apdShape ;
 }
 
@@ -139,7 +139,7 @@ EBHitResponse::apdSignalAmplitude( const PCaloHit& hit, CLHEP::HepRandomEngine* 
       CLHEP::RandPoissonQ randPoissonQ(*engine, npe);
       npe = randPoissonQ.fire();
    }
-   assert( 0 != m_intercal ) ;
+   assert( nullptr != m_intercal ) ;
    double fac ( 1 ) ;
    findIntercalibConstant( hit.id(), fac ) ;
 
@@ -166,7 +166,7 @@ EBHitResponse::findIntercalibConstant( const DetId& detId,
 {
    EcalIntercalibConstantMC thisconst ( 1. ) ;
 
-   if( 0 == m_intercal )
+   if( nullptr == m_intercal )
    {
       edm::LogError( "EBHitResponse" ) << 
 	 "No intercal constant defined for EBHitResponse" ;
@@ -192,11 +192,11 @@ EBHitResponse::findIntercalibConstant( const DetId& detId,
 
 void 
 EBHitResponse::initializeHits() {
-   if( 0 != index().size() ) blankOutUsedSamples() ;
+   if( !index().empty() ) blankOutUsedSamples() ;
 
    const unsigned int bSize ( EBDetId::kSizeForDenseIndexing ) ;
 
-   if( 0 == m_apdNpeVec.size() )
+   if( m_apdNpeVec.empty() )
    {
       m_apdNpeVec  = std::vector<double>( bSize, (double)0.0 ) ;
       m_apdTimeVec = std::vector<double>( bSize, (double)0.0 ) ;
@@ -228,7 +228,7 @@ EBHitResponse::finalizeHits() {
 void 
 EBHitResponse::add( const PCaloHit& hit, CLHEP::HepRandomEngine* engine )
 {
-  if (!edm::isNotFinite( hit.time() ) && ( 0 == hitFilter() || hitFilter()->accepts( hit ) ) ) {
+  if (!edm::isNotFinite( hit.time() ) && ( nullptr == hitFilter() || hitFilter()->accepts( hit ) ) ) {
     int iddepth = (hit.depth() & PCaloHit::kEcalDepthIdMask);
     if ( 0 == iddepth ) // for now take only nonAPD hits
      {
@@ -250,11 +250,11 @@ EBHitResponse::add( const PCaloHit& hit, CLHEP::HepRandomEngine* engine )
 void 
 EBHitResponse::run( MixCollection<PCaloHit>& hits, CLHEP::HepRandomEngine* engine )
 {
-   if( 0 != index().size() ) blankOutUsedSamples() ;
+   if( !index().empty() ) blankOutUsedSamples() ;
 
    const unsigned int bSize ( EBDetId::kSizeForDenseIndexing ) ;
 
-   if( 0 == m_apdNpeVec.size() ) 
+   if( m_apdNpeVec.empty() ) 
    {
       m_apdNpeVec  = std::vector<double>( bSize, (double)0.0 ) ;
       m_apdTimeVec = std::vector<double>( bSize, (double)0.0 ) ;
@@ -268,7 +268,7 @@ EBHitResponse::run( MixCollection<PCaloHit>& hits, CLHEP::HepRandomEngine* engin
       if( minBunch() <= bunch  &&
 	  maxBunch() >= bunch  &&
 	  !edm::isNotFinite( hit.time() ) &&
-	  ( 0 == hitFilter() ||
+	  ( nullptr == hitFilter() ||
 	    hitFilter()->accepts( hit ) ) )
       { 
 	int iddepth = (hit.depth() & PCaloHit::kEcalDepthIdMask);

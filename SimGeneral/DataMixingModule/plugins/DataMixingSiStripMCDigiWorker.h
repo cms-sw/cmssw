@@ -108,7 +108,7 @@ namespace edm
       const SignalMapType* getSignal(uint32_t detID) const {
 	auto where = signals_.find(detID);
 	if(where == signals_.end()) {
-	  return 0;
+	  return nullptr;
 	}
 	return &where->second;
       }
