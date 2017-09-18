@@ -45,7 +45,7 @@ process.load('L1Trigger.L1TTwinMux.simTwinMuxDigis_cfi')
 
 process.L1TMuonSeq = cms.Sequence(  
         process.esProd
-       +process.simTwinMuxDigisEmu
+       +process.simTwinMuxDigis
 )
 
 process.L1TMuonPath = cms.Path(process.L1TMuonSeq)
