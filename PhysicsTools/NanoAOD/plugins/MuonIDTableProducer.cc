@@ -27,7 +27,7 @@ class MuonIDTableProducer : public edm::global::EDProducer<> {
             produces<FlatTable>();
         }
 
-        ~MuonIDTableProducer() {};
+        ~MuonIDTableProducer() override {};
 
         static void fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
             edm::ParameterSetDescription desc;

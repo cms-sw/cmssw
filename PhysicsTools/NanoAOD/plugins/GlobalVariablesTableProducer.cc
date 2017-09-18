@@ -29,7 +29,7 @@ class GlobalVariablesTableProducer : public edm::stream::EDProducer<> {
             produces<FlatTable>();
         }
 
-        virtual ~GlobalVariablesTableProducer() {}
+        ~GlobalVariablesTableProducer() override {}
 
         void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
             auto out = std::make_unique<FlatTable>(1, "", true);
@@ -111,7 +111,7 @@ class GlobalVariablesTableProducer : public edm::stream::EDProducer<> {
                 public:
                     VariableT(const std::string & aname, FlatTable::ColumnType atype, const edm::ParameterSet & cfg, edm::ConsumesCollector && cc) :
                         Variable(aname, atype, cfg), src_(cc.consumes<ValType>(cfg.getParameter<edm::InputTag>("src"))) {}
-                    ~VariableT() {}
+                    ~VariableT() override {}
                     void fill(const edm::Event &iEvent, FlatTable & out) const override {
                         edm::Handle<ValType> handle;
                         iEvent.getByToken(src_, handle);

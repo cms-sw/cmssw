@@ -29,9 +29,9 @@ namespace edm {
       produces<edm::ValueMap<int>>();
     }
     /// default destructor
-    virtual ~FilterValueMapWrapper(){}
+    ~FilterValueMapWrapper() override{}
     /// everything which has to be done during the event loop. NOTE: We can't use the eventSetup in FWLite so ignore it
-    virtual void produce(edm::Event& event, const edm::EventSetup& eventSetup) override {
+    void produce(edm::Event& event, const edm::EventSetup& eventSetup) override {
       // create a collection of the objects to put into the event
       auto objsToPut = std::make_unique<C>();
       // get the handle to the objects in the event.

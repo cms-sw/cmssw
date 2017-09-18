@@ -49,12 +49,12 @@ public:
   {
     produces<edm::ValueMap<float>>("eCorr");
   }
-    ~EGMEnergyVarProducer() {};
+    ~EGMEnergyVarProducer() override {};
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
 

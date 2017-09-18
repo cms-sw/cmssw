@@ -45,7 +45,7 @@ class CandMCMatchTableProducer : public edm::global::EDProducer<> {
 	    }
         }
 
-        virtual ~CandMCMatchTableProducer() {}
+        ~CandMCMatchTableProducer() override {}
 
         void produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const override {
 

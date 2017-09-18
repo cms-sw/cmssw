@@ -22,7 +22,7 @@ class IsolatedTrackCleaner : public edm::global::EDProducer<> {
             produces<std::vector<pat::IsolatedTrack>>();
         }
 
-        virtual ~IsolatedTrackCleaner() {}
+        ~IsolatedTrackCleaner() override {}
 
         void produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const override {
             auto out  = std::make_unique<std::vector<pat::IsolatedTrack>>();

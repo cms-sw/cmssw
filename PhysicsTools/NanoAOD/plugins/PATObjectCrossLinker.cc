@@ -46,14 +46,14 @@
 class PATObjectCrossLinker : public edm::stream::EDProducer<> {
    public:
       explicit PATObjectCrossLinker(const edm::ParameterSet&);
-      ~PATObjectCrossLinker();
+      ~PATObjectCrossLinker() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginStream(edm::StreamID) override;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endStream() override;
+      void beginStream(edm::StreamID) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endStream() override;
 
       void matchOneToMany(const auto & refProdOne, auto & itemsOne, const std::string & nameOne,
                     const auto & refProdMany, auto& itemsMany, const std::string & nameMany);

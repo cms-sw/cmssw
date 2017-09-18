@@ -69,7 +69,7 @@ class BaseMVAValueMapProducer : public edm::stream::EDProducer<> {
       produces<edm::ValueMap<float>>();
 
   }
-  ~BaseMVAValueMapProducer() {}
+  ~BaseMVAValueMapProducer() override {}
 
   void setValue(const std::string var,float val) {
 	values_[positions_[var]]=val;
@@ -79,9 +79,9 @@ class BaseMVAValueMapProducer : public edm::stream::EDProducer<> {
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-  virtual void beginStream(edm::StreamID) override {};
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endStream() override {};
+  void beginStream(edm::StreamID) override {};
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endStream() override {};
 
   ///to be implemented in derived classes, filling values for additional variables
   virtual void readAdditionalCollections(edm::Event&, const edm::EventSetup&)  {}

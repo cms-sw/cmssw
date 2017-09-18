@@ -24,9 +24,9 @@ namespace pat {
             produces<std::vector<T>>();
         }
 
-      ~LeptonUpdater() {}
+      ~LeptonUpdater() override {}
 
-      void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const ;
+      void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override ;
 
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
           edm::ParameterSetDescription desc;
