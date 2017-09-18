@@ -77,18 +77,23 @@ JetSubstructurePacker::produce(edm::Event& iEvent, const edm::EventSetup&)
 
     // fix daughters
     if (fixDaughters_) {
+
         std::vector<reco::CandidatePtr> daughtersInSubjets;
         std::vector<reco::CandidatePtr> daughtersNew;
-        const std::vector<reco::CandidatePtr> & jdaus = outputs->back().daughterPtrVector();
-        //std::cout << "Jet with pt " << outputs->back().pt() << ", " << outputs->back().numberOfDaughters() << " daughters, " << outputs->back().subjets().size() << ", subjets" << std::endl;
+        const std::vector<reco::CandidatePtr> & jdausPF = outputs->back().daughterPtrVector();
+	std::vector<reco::CandidatePtr> jdaus;
+	jdaus.reserve( jdausPF.size() );
+	// Convert the daughters to packed candidates. This is easier than ref-navigating through PUPPI or CHS to particleFlow.
+	for ( auto const & jdau : jdausPF ) {
+	  jdaus.push_back( edm::refToPtr((*pf2pc)[jdau]) );
+	}
+		
         for ( const edm::Ptr<pat::Jet> & subjet : outputs->back().subjets()) {
             const std::vector<reco::CandidatePtr> & sjdaus = subjet->daughterPtrVector();
-
             // check that the subjet does not contain any extra constituents not contained in the jet
             bool skipSubjet = false;
             for (const reco::CandidatePtr & dau : sjdaus) {
-                reco::CandidatePtr rekeyed = edm::refToPtr((*pc2pf)[dau]);
-                if (std::find(jdaus.begin(), jdaus.end(), rekeyed) == jdaus.end()) {
+                if (std::find(jdaus.begin(), jdaus.end(), dau) == jdaus.end()) {
                     skipSubjet = true;
                     break;
                 }
@@ -97,25 +102,12 @@ JetSubstructurePacker::produce(edm::Event& iEvent, const edm::EventSetup&)
 
             daughtersInSubjets.insert(daughtersInSubjets.end(), sjdaus.begin(), sjdaus.end());
             daughtersNew.push_back( reco::CandidatePtr(subjet) );
-            //std::cout << "     found  " << subjet->numberOfDaughters() << " daughters in a subjet" << std::endl;
         }
-        //if (!daughtersInSubjets.empty()) std::cout << "     subjet daughters are from collection " << daughtersInSubjets.front().id() << std::endl;
-        //std::cout << "     in total,  " << daughtersInSubjets.size() << " daughters from subjets" << std::endl;
         for (const reco::CandidatePtr & dau : jdaus) {
-            //if (!pf2pc->contains(dau.id())) {
-            //    std::cout << "     daughter from collection " << dau.id() << " not in the value map!" << std::endl;
-            //    std::cout << "     map expects collection " << pf2pc->ids().front().first << std::endl;
-            //    continue;
-            //}
-            reco::CandidatePtr rekeyed = edm::refToPtr((*pf2pc)[dau]);
-            if (std::find(daughtersInSubjets.begin(), daughtersInSubjets.end(), rekeyed) == daughtersInSubjets.end()) {
-                daughtersNew.push_back( rekeyed );
+            if (std::find(daughtersInSubjets.begin(), daughtersInSubjets.end(), dau) == daughtersInSubjets.end()) {
+                daughtersNew.push_back( dau );
             }
         }
-        //std::cout << "     in total,  " << daughtersNew.size() << " daughters including subjets" << std::endl;
-        //if (daughtersNew.size() + daughtersInSubjets.size() - outputs->back().subjets().size() == outputs->back().numberOfDaughters()) {
-        //    std::cout << "     it all adds up to the original number of daughters" << std::endl;
-        //}
         outputs->back().clearDaughters();
         for (const auto & dau : daughtersNew) outputs->back().addDaughter(dau);
     }
