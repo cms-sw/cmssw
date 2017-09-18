@@ -339,7 +339,7 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
         cms.untracked.PSet(
             name        = cms.string('MediumChargedIsoPFTau50_Trk30_eta2p1_1pr'),
             xvariable   = cms.string('Tau'),
-            nPtBins     = cms.int32(20),
+            nPtBins     = cms.int32(30),
             ptmin       = cms.double(0.),
             ptmax       = cms.double(300.),
             nEtaBins    = cms.int32(20),
@@ -444,7 +444,7 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
         cms.untracked.PSet(
             name        = cms.string('MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1'),
             xvariable   = cms.string('Tau'),
-            nPtBins     = cms.int32(20),
+            nPtBins     = cms.int32(50),
             ptmin       = cms.double(0.),
             ptmax       = cms.double(500.),
             nEtaBins    = cms.int32(20),
@@ -459,7 +459,7 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
         cms.untracked.PSet(
             name        = cms.string('MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_1pr'),
             xvariable   = cms.string('Tau'),
-            nPtBins     = cms.int32(20),
+            nPtBins     = cms.int32(50),
             ptmin       = cms.double(0.),
             ptmax       = cms.double(500.),
             nEtaBins    = cms.int32(20),
@@ -564,7 +564,7 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
         cms.untracked.PSet(
             name        = cms.string('MET90'),
             xvariable   = cms.string('MET'),
-            nPtBins     = cms.int32(20),
+            nPtBins     = cms.int32(50),
             ptmin       = cms.double(0.),
             ptmax       = cms.double(500.),
             nPhiBins    = cms.int32(20),
@@ -576,7 +576,7 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
         cms.untracked.PSet(
             name        = cms.string('MET100'),
             xvariable   = cms.string('MET'),
-            nPtBins     = cms.int32(20),
+            nPtBins     = cms.int32(50),
             ptmin       = cms.double(0.),   
             ptmax       = cms.double(500.),
             nPhiBins    = cms.int32(20),
