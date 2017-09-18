@@ -13,6 +13,7 @@ namespace AlignmentPI {
 
   // size of the phase-I APE payload (including both SS + DS modules)
   static const unsigned int phase0size=19876;
+  static const float cmToUm = 10000;      
 
   // M.M. 2017/09/12
   // As the matrix is symmetric, we map only 6/9 terms
@@ -25,6 +26,15 @@ namespace AlignmentPI {
     YZ=4,
     YY=5,
     ZZ=6
+  };
+
+  enum partitions {
+    BPix=1,
+    FPix=2,
+    TIB=3,
+    TID=4,
+    TOB=5,
+    TEC=6
   };
 
   /*--------------------------------------------------------------------*/
@@ -41,6 +51,22 @@ namespace AlignmentPI {
     default : return "should never be here!";
     }
   }
+  
+  /*--------------------------------------------------------------------*/
+  std::string getStringFromPart (AlignmentPI::partitions i)
+  /*--------------------------------------------------------------------*/
+  {
+    switch(i){
+    case BPix : return "BPix";
+    case FPix : return "FPix";
+    case TIB  : return "TIB";
+    case TID  : return "TID";
+    case TOB  : return "TOB";
+    case TEC  : return "TEC";
+    default : return "should never be here!";
+    }
+  }
+
 
   /*--------------------------------------------------------------------*/
   std::pair<int,int> getIndices(AlignmentPI::index i)
@@ -85,12 +111,12 @@ namespace AlignmentPI {
   }
   
   /*--------------------------------------------------------------------*/
-  void makeNiceStats(TH1F* hist, std::string part,int color)
+  void makeNiceStats(TH1F* hist,AlignmentPI::partitions part,int color)
   /*--------------------------------------------------------------------*/
   {
     char   buffer[255]; 
     TPaveText* stat = new TPaveText(0.60,0.75,0.95,0.97,"NDC");
-    sprintf(buffer,"%s \n",part.c_str());
+    sprintf(buffer,"%s \n",AlignmentPI::getStringFromPart(part).c_str());
     stat->AddText(buffer);
 
     sprintf(buffer,"Entries : %i\n",(int)hist->GetEntries());
