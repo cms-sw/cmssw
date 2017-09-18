@@ -35,6 +35,7 @@ PedeLabeler::PedeLabeler(const PedeLabelerBase::TopLevelAlignables& alignables,
   }
 
   this->buildMap(alis);
+  this->buildReverseMap();
 }
 
 //___________________________________________________________________________
@@ -119,7 +120,6 @@ Alignable* PedeLabeler::alignableFromLabel(unsigned int label) const
   const unsigned int aliLabel = this->alignableLabelFromLabel(label);
   if (aliLabel < theMinLabel) return 0; // error already given
   
-  if (theIdToAlignableMap.empty()) const_cast<PedeLabeler*>(this)->buildReverseMap();
   IdToAlignableMap::const_iterator position = theIdToAlignableMap.find(aliLabel);
   if (position != theIdToAlignableMap.end()) {
     return position->second;
@@ -140,7 +140,6 @@ unsigned int PedeLabeler::lasBeamIdFromLabel(unsigned int label) const
   const unsigned int aliLabel = this->alignableLabelFromLabel(label);
   if (aliLabel < theMinLabel) return 0; // error already given
   
-  if (theLabelToLasBeamMap.empty()) const_cast<PedeLabeler*>(this)->buildReverseMap();
   UintUintMap::const_iterator position = theLabelToLasBeamMap.find(aliLabel);
   if (position != theLabelToLasBeamMap.end()) {
     return position->second;
