@@ -47,14 +47,12 @@ public:
     patternVector_.clear();
   }
   std::vector<Road> getPatterns() {return patternVector_; }
-  void setGeometry(CTPPSGeometry geometry) {geometry_ = geometry; }
-  void setPlaneRotationMatrices(std::map<CTPPSPixelDetId, TMatrixD> planeRotationMatrixMap) { planeRotationMatrixMap_ = planeRotationMatrixMap; }
+  void setGeometry(const CTPPSGeometry *geometry) {geometry_ = geometry; }
   
 protected:
   edm::DetSetVector<CTPPSPixelRecHit> hitVector_;
   std::vector<Road> patternVector_;
-  CTPPSGeometry geometry_;
-  std::map<CTPPSPixelDetId, TMatrixD> planeRotationMatrixMap_;
+  const CTPPSGeometry *geometry_;
   
 };
 
