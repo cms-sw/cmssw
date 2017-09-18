@@ -43,12 +43,12 @@ namespace cms {
 
     explicit PileupVertexAccumulator(const edm::ParameterSet& conf, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
 
-    virtual ~PileupVertexAccumulator();
+    ~PileupVertexAccumulator() override;
 
-    virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
-    virtual void accumulate(edm::Event const& e, edm::EventSetup const& c) override;
-    virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
-    virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
+    void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
+    void accumulate(edm::Event const& e, edm::EventSetup const& c) override;
+    void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
+    void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
 
     virtual void beginJob() {}
 

@@ -15,8 +15,8 @@ namespace cms{
   class CosmicTIFTrigFilter : public edm::stream::EDFilter<> {
   public:
   CosmicTIFTrigFilter(const edm::ParameterSet& conf);
-  virtual ~CosmicTIFTrigFilter() {}
-  bool filter(edm::Event & iEvent, edm::EventSetup const& c);
+  ~CosmicTIFTrigFilter() override {}
+  bool filter(edm::Event & iEvent, edm::EventSetup const& c) override;
   bool Sci_trig(const HepMC::FourVector&, const  HepMC::FourVector&,const  HepMC::FourVector&);
 
  private:

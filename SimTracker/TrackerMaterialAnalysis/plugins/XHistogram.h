@@ -59,15 +59,15 @@ public:
   {
     // setup unnamed ROOT histograms
     for (size_t i = 0; i < m_size; ++i) {
-      m_histograms[i].reset(new Histogram( 0, 0, bins_x, x.first, x.second, bins_y, y.first, y.second ));
+      m_histograms[i].reset(new Histogram( nullptr, nullptr, bins_x, x.first, x.second, bins_y, y.first, y.second ));
       m_histograms[i]->SetMinimum( 0. );
       m_histograms[i]->SetMaximum( max[i] );
     }
-    m_normalization.reset(new Histogram( 0, 0, bins_x, x.first, x.second, bins_y, y.first, y.second ));
-    m_colormap.reset(new ColorMap( 0, 0, bins_x, x.first, x.second, bins_y, y.first, y.second ));
+    m_normalization.reset(new Histogram( nullptr, nullptr, bins_x, x.first, x.second, bins_y, y.first, y.second ));
+    m_colormap.reset(new ColorMap( nullptr, nullptr, bins_x, x.first, x.second, bins_y, y.first, y.second ));
     m_colormap->SetMinimum( 0 );
     m_colormap->SetMaximum( zones );
-    Histogram( 0, 0, 0, 0., 0., 0, 0., 0. );        // make ROOT "forget" about unnamed histograms
+    Histogram( nullptr, nullptr, 0, 0., 0., 0, 0., 0. );        // make ROOT "forget" about unnamed histograms
   }
 
   /// fill one point
@@ -89,21 +89,21 @@ public:
   Histogram * get(size_t h = 0) const
   {
     if (h < m_size)
-      return (Histogram *) m_histograms[h]->Clone(0);
+      return (Histogram *) m_histograms[h]->Clone(nullptr);
     else
-      return 0;
+      return nullptr;
   }
 
   /// access the normalization
   Histogram * normalization(void) const
   {
-    return (Histogram *) m_normalization->Clone(0);
+    return (Histogram *) m_normalization->Clone(nullptr);
   }
 
   /// access the colormap
   ColorMap * colormap(void) const
   {
-    return (ColorMap *) m_colormap->Clone(0);
+    return (ColorMap *) m_colormap->Clone(nullptr);
   }
 
   /// set the minimum length of sub-segment a segment should be split into:
