@@ -9,13 +9,13 @@ class TrackerTopology;
 class SiTrivialInduceChargeOnStrips: public SiInduceChargeOnStrips {
  public:
   SiTrivialInduceChargeOnStrips(const edm::ParameterSet& conf,double g);
-  virtual ~SiTrivialInduceChargeOnStrips() {}
+  ~SiTrivialInduceChargeOnStrips() override {}
   void  induce(const SiChargeCollectionDrifter::collection_type& collection_points,
 	       const StripGeomDetUnit& det,
 	       std::vector<float>& localAmplitudes,
 	       size_t& recordMinAffectedStrip,
 	       size_t& recordMaxAffectedStrip,
-	       const TrackerTopology *tTopo) const;
+	       const TrackerTopology *tTopo) const override;
   
  private:
 
