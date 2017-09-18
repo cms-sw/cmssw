@@ -143,7 +143,7 @@ offlineHLTSourceOnAODextra = cms.Sequence(
     * susHLTDQMSourceExtra
     * topHLTDQMSourceExtra
     * fsqHLTDQMSourceExtra
-    * hinHLTDQMSourceExtra
+#    * hinHLTDQMSourceExtra
 )
 
 # offline DQM to be run on AOD (w/o the need of the RECO step on-the-fly) in the VALIDATION of the HLT menu based on data
