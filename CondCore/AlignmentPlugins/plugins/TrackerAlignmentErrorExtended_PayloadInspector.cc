@@ -6,6 +6,8 @@
   \date $Date: 2017/07/10 10:59:24 $
 */
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "CondCore/Utilities/interface/PayloadInspectorModule.h"
 #include "CondCore/Utilities/interface/PayloadInspector.h"
 #include "CondCore/CondDB/interface/Time.h"
@@ -14,6 +16,7 @@
 #include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h" 
+#include "DataFormats/DetId/interface/DetId.h"
 
 // needed for the tracker map
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
@@ -66,6 +69,11 @@ namespace {
 	    
 	    CLHEP::HepSymMatrix errMatrix = it.matrix();
 
+	    if(DetId(it.rawId()).det() != DetId::Tracker){
+	      edm::LogWarning("TrackerAlignmentErrorExtended_PayloadInspector") << "Encountered invalid Tracker DetId:" << it.rawId() <<" - terminating ";
+	      return false;
+	    }
+	    
 	    // to be used to fill the histogram
 	    fillWithValue(sqrt(errMatrix[indices.first][indices.second])*cmToUm);	    
 	  } // loop on the vector of modules
@@ -129,6 +137,11 @@ namespace {
       	CLHEP::HepSymMatrix errMatrix = it.matrix();
       	int subid = DetId(it.rawId()).subdetId();
 	
+	if(DetId(it.rawId()).det() != DetId::Tracker){
+	  edm::LogWarning("TrackerAlignmentErrorExtended_PayloadInspector") << "Encountered invalid Tracker DetId:" << it.rawId() <<" - terminating ";
+	  return false;
+	}
+
       	switch(subid){
       	case 1 : 
       	  APE_spectra["PXB"]->Fill(std::min(200.,sqrt(errMatrix[indices.first][indices.second])*cmToUm));
@@ -227,6 +240,11 @@ namespace {
 	// fill the tracker map
 
 	int subid = DetId(it.rawId()).subdetId();	    
+
+	if(DetId(it.rawId()).det() != DetId::Tracker){
+	  edm::LogWarning("TrackerAlignmentErrorExtended_PayloadInspector") << "Encountered invalid Tracker DetId:" << it.rawId() <<" - terminating ";
+	  return false;
+	}
 
 	if(isPhase0){
 	  tmap->addPixel(true);
