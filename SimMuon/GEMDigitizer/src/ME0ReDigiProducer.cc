@@ -156,8 +156,8 @@ ME0ReDigiProducer::ME0ReDigiProducer(const edm::ParameterSet& ps) :
 		<< "ME0ReDigiProducer::ME0PreRecoDigiProducer() - RandomNumberGeneratorService is not present in configuration file.\n"
 		<< "Add the service in the configuration file or remove the modules that require it.";
 	}
-	geometry = 0;
-	tempGeo = 0;
+	geometry = nullptr;
+	tempGeo = nullptr;
 	useBuiltinGeo = true;
 
 	if(useCusGeoFor1PartGeo){

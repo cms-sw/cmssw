@@ -80,7 +80,7 @@ namespace edm
 
    Handle< EBRecHitCollection > pEBRecHits;
 
-   const EBRecHitCollection*  EBRecHits = 0;
+   const EBRecHitCollection*  EBRecHits = nullptr;
 
    if(e.getByToken(EBRecHitToken_, pEBRecHits) ){
      EBRecHits = pEBRecHits.product(); // get a ptr to the product
@@ -107,7 +107,7 @@ namespace edm
 
    Handle< EERecHitCollection > pEERecHits;
 
-   const EERecHitCollection*  EERecHits = 0;
+   const EERecHitCollection*  EERecHits = nullptr;
 
    
    if(e.getByToken(EERecHitToken_, pEERecHits) ){
@@ -135,7 +135,7 @@ namespace edm
 
    Handle< ESRecHitCollection > pESRecHits;
 
-   const ESRecHitCollection*  ESRecHits = 0;
+   const ESRecHitCollection*  ESRecHits = nullptr;
 
    
    if(e.getByToken( ESRecHitToken_, pESRecHits) ){

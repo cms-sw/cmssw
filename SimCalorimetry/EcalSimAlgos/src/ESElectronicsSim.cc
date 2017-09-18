@@ -9,7 +9,7 @@
 #include <iostream>
 
 ESElectronicsSim::ESElectronicsSim (bool addNoise):
-  addNoise_(addNoise), peds_(0), mips_(0)
+  addNoise_(addNoise), peds_(nullptr), mips_(nullptr)
 {
   // Preshower Electronics Simulation
   // gain = 1 : low gain for data taking 
