@@ -52,7 +52,7 @@ namespace cms
 	  {	    
 	    // Get the muon position and momentum
 	    HepMC::GenVertex* pv = (*i)->production_vertex();
-	    HepMC::FourVector vertex = pv->position();
+	    const HepMC::FourVector& vertex = pv->position();
 	    
 	    HepMC::FourVector  momentum=(*i)->momentum();
 

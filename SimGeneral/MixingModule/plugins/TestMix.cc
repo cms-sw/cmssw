@@ -278,7 +278,7 @@ TestMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     // test case 1
     std::cout<<"\n[ Testing abnormal conditions case 1] Should throw an exception " <<std::endl;
-    MixCollection<PSimHit> * col21=0;
+    MixCollection<PSimHit> * col21=nullptr;
     col21=new MixCollection<PSimHit>(cf_simhit.product(),std::pair<int,int>(-10,20));
     delete col21;
   }

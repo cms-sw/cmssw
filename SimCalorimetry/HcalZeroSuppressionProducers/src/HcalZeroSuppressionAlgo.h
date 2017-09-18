@@ -26,7 +26,7 @@ public:
   virtual bool shouldKeep(const QIE10DataFrame& digi) const = 0;
   virtual bool shouldKeep(const QIE11DataFrame& digi) const = 0;
   void setDbService(const HcalDbService* db) { m_dbService=db; }
-  void clearDbService() { m_dbService=0; }
+  void clearDbService() { m_dbService=nullptr; }
   //  template <class DIGI> bool keepMe(const DIGI& inp, int threshold);
 
 protected:

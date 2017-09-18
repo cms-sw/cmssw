@@ -35,10 +35,10 @@
 class TrackAssociatorEDProducer : public edm::global::EDProducer<> {
 public:
   explicit TrackAssociatorEDProducer(const edm::ParameterSet&);
-  ~TrackAssociatorEDProducer();
+  ~TrackAssociatorEDProducer() override;
   
 private:
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   
   bool  theIgnoremissingtrackcollection;
 
