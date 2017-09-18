@@ -37,7 +37,7 @@ public:
     CLHEP::Hep3Vector globalPoint;
     TMatrixD          globalError;
     CTPPSPixelRecHit  recHit     ;
-    uint32_t          detId      ; //I cannot use directy the CTPPSPixelDetId because it needs to be declared
+    CTPPSPixelDetId   detId      ;
   } PointInPlane;
   typedef std::vector<PointInPlane> Road;
   

@@ -449,7 +449,7 @@ CTPPSPixelLocalTrack RPixPlaneCombinatoryTracking::fitTrack(PointInPlaneList poi
   for(const auto & hit : pointList){
     CLHEP::Hep3Vector globalPoint = hit.globalPoint;
     math::GlobalPoint pointOnDet;
-    bool foundPoint = calculatePointOnDetector(goodTrack, CTPPSPixelDetId(hit.detId), pointOnDet);
+    bool foundPoint = calculatePointOnDetector(goodTrack, hit.detId, pointOnDet);
     if(!foundPoint){
       CTPPSPixelLocalTrack badTrack;
       badTrack.setValid(false);
@@ -464,7 +464,7 @@ CTPPSPixelLocalTrack RPixPlaneCombinatoryTracking::fitTrack(PointInPlaneList poi
 
     CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit fittedRecHit(hit.recHit, pointOnDet, residuals, pulls);
     fittedRecHit.setIsUsedForFit(true);
-    goodTrack.addHit(CTPPSPixelDetId(hit.detId), fittedRecHit);
+    goodTrack.addHit(hit.detId, fittedRecHit);
   }
 
   return goodTrack;
