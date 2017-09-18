@@ -20,7 +20,7 @@
     typedef math::XYZPoint Point;
 
     CastorShowerEvent();
-    ~CastorShowerEvent();
+    ~CastorShowerEvent() override;
     
     void Clear();
     

@@ -15,11 +15,11 @@ namespace HepPDT { class ParticleData; }
 class PdtEntry {
 public:
   /// default construct
-  explicit PdtEntry() : pdgId_( 0 ), data_( 0 ) { }
+  explicit PdtEntry() : pdgId_( 0 ), data_( nullptr ) { }
   /// construct from PDG id
-  explicit PdtEntry( int pdgId ) : pdgId_( pdgId ), data_( 0 ) { }
+  explicit PdtEntry( int pdgId ) : pdgId_( pdgId ), data_( nullptr ) { }
   /// construct from particle name
-  explicit PdtEntry( const std::string & name ) : pdgId_( 0 ), name_( name ), data_( 0 ) { }
+  explicit PdtEntry( const std::string & name ) : pdgId_( 0 ), name_( name ), data_( nullptr ) { }
   /// PDG id
   int pdgId() const;
   /// particle name
@@ -62,7 +62,7 @@ namespace edm {
   inline PdtEntry ParameterSet::getUntrackedParameter<PdtEntry>(std::string const& name, 
 								PdtEntry const& defaultValue) const {
     Entry const* e = retrieveUntracked(name);
-    if (e == 0) return defaultValue;
+    if (e == nullptr) return defaultValue;
     return pdtentry::getPdtEntry(*e, name.c_str());
   }
 
@@ -82,7 +82,7 @@ namespace edm {
   inline PdtEntry ParameterSet::getUntrackedParameter<PdtEntry>(char const* name, 
 								PdtEntry const& defaultValue) const {
     Entry const* e = retrieveUntracked(name);
-    if (e == 0) return defaultValue;
+    if (e == nullptr) return defaultValue;
     return pdtentry::getPdtEntry(*e, name);
   }
 
@@ -102,7 +102,7 @@ namespace edm {
   inline std::vector<PdtEntry> ParameterSet::getUntrackedParameter<std::vector<PdtEntry> >(std::string const& name,
 								   std::vector<PdtEntry> const& defaultValue) const {
     Entry const* e = retrieveUntracked(name);
-    if (e == 0) return defaultValue;
+    if (e == nullptr) return defaultValue;
     return pdtentry::getPdtEntryVector(*e, name.c_str());
   }
 
@@ -122,7 +122,7 @@ namespace edm {
   inline std::vector<PdtEntry> ParameterSet::getUntrackedParameter<std::vector<PdtEntry> >(char const* name,
 								   std::vector<PdtEntry> const& defaultValue) const {
     Entry const* e = retrieveUntracked(name);
-    if (e == 0) return defaultValue;
+    if (e == nullptr) return defaultValue;
     return pdtentry::getPdtEntryVector(*e, name);
   }
 

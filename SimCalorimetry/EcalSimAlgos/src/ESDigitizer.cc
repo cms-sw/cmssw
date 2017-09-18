@@ -14,8 +14,8 @@ ESDigitizer::ESDigitizer( EcalHitResponse*      hitResponse    ,
 			  ESElectronicsSimFast* electronicsSim ,
 			  bool                  addNoise         ) :
    EcalTDigitizer< ESDigitizerTraits >( hitResponse, electronicsSim, addNoise ) ,
-   m_detIds      ( 0              ) ,
-   m_ranGeneral  ( 0              ) ,
+   m_detIds      ( nullptr              ) ,
+   m_ranGeneral  ( nullptr              ) ,
    m_ESGain      ( 0              ) ,
    m_histoBin    ( 0              ) ,
    m_histoInf    ( 0              ) ,
@@ -35,7 +35,7 @@ ESDigitizer::~ESDigitizer()
 void 
 ESDigitizer::setDetIds( const std::vector<DetId>& detIds )
 {
-   assert( 0       == m_detIds ||
+   assert( nullptr       == m_detIds ||
 	   &detIds == m_detIds    ) ; // sanity check; don't allow to change midstream
    m_detIds = &detIds ;
 }
@@ -49,8 +49,8 @@ ESDigitizer::setGain( const int gain )
    }
    else
    {
-      assert( 0 != m_detIds &&
-	      0 != m_detIds->size() ) ; // detIds must already be set as we need size
+      assert( nullptr != m_detIds &&
+	      !m_detIds->empty() ) ; // detIds must already be set as we need size
 
       assert( 1 == gain ||
 	      2 == gain    ) ; // legal values
@@ -166,10 +166,10 @@ ESDigitizer::setGain( const int gain )
 void 
 ESDigitizer::run( ESDigiCollection& output, CLHEP::HepRandomEngine* engine )
 {
-    assert( 0 != m_detIds         &&
-	    0 != m_detIds->size() &&
+    assert( nullptr != m_detIds         &&
+	    !m_detIds->empty() &&
 	    ( !addNoise()         ||
-	      0 != m_ranGeneral ) ) ; // sanity check
+	      nullptr != m_ranGeneral ) ) ; // sanity check
 
     // reserve space for how many digis we expect, with some cushion
     output.reserve( 2*( (int) m_meanNoisy ) + hitResponse()->samplesSize() ) ;
