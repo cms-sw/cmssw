@@ -5,6 +5,7 @@
   <use   name="CondCore/CondDB"/>
   <use   name="CondFormats/Common"/>
   <use   name="CommonTools/TrackerMap"/>
+  <use   name="CalibTracker/StandaloneTrackerTopology"/>
   <use   name="boost_python"/>
 </library>
 
@@ -14,6 +15,7 @@
   <use   name="CondFormats/Common"/>
   <use   name="CondFormats/SiStripObjects"/>
   <use   name="CommonTools/TrackerMap"/>
+  <use   name="CalibTracker/StandaloneTrackerTopology"/>
   <use   name="boost_python"/>
 </library>
 
@@ -23,6 +25,7 @@
   <use   name="CondFormats/Common"/>
   <use   name="CondFormats/SiStripObjects"/>
   <use   name="CommonTools/TrackerMap"/>
+  <use   name="CalibTracker/StandaloneTrackerTopology"/>
   <use   name="boost_python"/>
 </library>
 
