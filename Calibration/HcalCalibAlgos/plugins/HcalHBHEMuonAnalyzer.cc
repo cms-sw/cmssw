@@ -180,7 +180,6 @@ HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig) : h
   fileInCorr_        = iConfig.getUntrackedParameter<std::string>("FileInCorr","");
   writeRespCorr_     = iConfig.getUntrackedParameter<bool>("WriteRespCorr",false);
 
-  if (getCharge_) unCorrect_ = true;
   mergedDepth_  = (!isItPreRecHit_) || (collapseDepth_);
   tok_trigRes_  = consumes<edm::TriggerResults>(HLTriggerResults_);
   tok_bs_       = consumes<reco::BeamSpot>(labelBS_);
@@ -563,18 +562,20 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	      if (unCorrect_) {
 		double corr = (ignoreHECorr_ && (subdet0==HcalEndcap)) ? 1.0 : respCorr(DetId(hcid0));
 		if (corr != 0) {ene /= corr; chg /= corr;}
-		double gain(1.0);
-		if (getCharge_) {
-		  if (!(ignoreHECorr_ && (subdet0==HcalEndcap))) {
-		    gain  = gainFactor(conditions,hcid0);
-		    if (gain  != 0) chg  /= gain;
-		  }
-		}
 #ifdef EDM_ML_DEBUG
 		edm::LogVerbatim("HBHEMuon") << hcid0 << " Corr " << corr
-					     << " Gain " << gain << " E "
-					     << ene << ":" << enec << " C "
-					     << chg;
+					     << " E " << ene << ":" << enec;
+#endif
+	      }
+	      if (getCharge_) {
+		double gain(1.0);
+		if (!(ignoreHECorr_ && (subdet0==HcalEndcap))) {
+		  gain  = gainFactor(conditions,hcid0);
+		  if (gain  != 0) chg  /= gain;
+		}
+#ifdef EDM_ML_DEBUG
+		edm::LogVerbatim("HBHEMuon") << hcid0 << " Gain " << gain
+					     << " C " << chg;
 #endif
 	      }
 	      int depth  = ehdepth[i].second  - 1;
