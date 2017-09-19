@@ -102,6 +102,16 @@ patMuons = cms.EDProducer("PATMuonProducer",
     pfCandsForMiniIso = cms.InputTag("packedPFCandidates"),
     miniIsoParams = cms.vdouble(0.05, 0.2, 10.0, 0.5, 0.0001, 0.01, 0.01, 0.01, 0.0),
 
+    # Standard Muon Selectors and Jet-related observables
+    computeMuonMVA = cms.bool(True),
+    recomputeBasicSelectors = cms.bool(True),
+    mvaUseJec = cms.bool(True),
+    mvaDrMax = cms.double(0.4),
+    mvaJetTag = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+    mvaL1Corrector = cms.InputTag("ak4PFCHSL1FastjetCorrector"),
+    mvaL1L2L3ResCorrector = cms.InputTag("ak4PFCHSL1FastL2L3Corrector"),
+    rho = cms.InputTag("fixedGridRhoFastjetCentralNeutral")
+                          
 )
 
 
