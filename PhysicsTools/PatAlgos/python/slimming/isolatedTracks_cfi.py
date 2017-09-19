@@ -61,3 +61,8 @@ isolatedTracks = cms.EDProducer("PATIsolatedTrackProducer",
     saveDeDxHitInfo = cms.bool(True),
     saveDeDxHitInfoCut = cms.string("(%s) || (%s)" % (_susySoftDisappearingTrackCut,_exoHighPtTrackCut)), 
 )
+
+def miniAOD_customizeIsolatedTracksFastSim(process):
+    """Switch off dE/dx hit info on fast sim, as it's not available"""
+    process.isolatedTracks.saveDeDxHitInfo = False
+    return process
