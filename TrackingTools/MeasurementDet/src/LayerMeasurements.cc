@@ -186,21 +186,17 @@ void LayerMeasurements::addInvalidMeas( vector<TrajectoryMeasurement>& measVec,
 {
   if (!measVec.empty()) {
     // invalidMeas on Det of most compatible hit
+    auto const & ts = measVec.front().predictedState();
+    auto toll = measVec.front().recHitR().det()->surface().bounds().howMuchInside(ts.localPosition(),ts.localError().positionError());
     measVec.emplace_back(measVec.front().predictedState(), 
-			 std::make_shared<InvalidTrackingRecHit>(*measVec.front().recHit()->det(), TrackingRecHit::missing),
-			 0.,&layer);
+			 std::make_shared<InvalidTrackingRecHit>(*measVec.front().recHitR().det(), TrackingRecHit::missing),
+			 toll,&layer);
   }
   else if (!group.empty()) {
     // invalid state on first compatible Det
     auto const & ts = group.front().trajectoryState();
-    if (ts.globalMomentum().perp2()<0.81f || 
-        group.front().det()->surface().bounds().inside(ts.localPosition(), 
-				   ts.localError().positionError(),-3))
+    auto toll = group.front().det()->surface().bounds().howMuchInside(ts.localPosition(),ts.localError().positionError());
       measVec.emplace_back(group.front().trajectoryState(), 
-    			 std::make_shared<InvalidTrackingRecHit>(*group.front().det(), TrackingRecHit::missing), 0.,&layer);
-    else
-      measVec.emplace_back(group.front().trajectoryState(),
-                         std::make_shared<InvalidTrackingRecHit>(*group.front().det(), TrackingRecHit::inactive), 0.,&layer);
-
+    			 std::make_shared<InvalidTrackingRecHit>(*group.front().det(), TrackingRecHit::missing), toll,&layer);
   }
 }
