@@ -30,11 +30,10 @@ class RPixDetTrackFinder{
     
     virtual ~RPixDetTrackFinder() {};
 
-    void setHits(const std::map<CTPPSPixelDetId, std::vector<RPixDetPatternFinder::PointInPlane> > hitMap) {hitMap_ = hitMap; }
-      virtual void findTracks()=0;
-      virtual void initialize()=0;
+    void setHits(std::map<CTPPSPixelDetId, std::vector<RPixDetPatternFinder::PointInPlane> > *hitMap) {hitMap_ = hitMap; }
+    virtual void findTracks()=0;
+    virtual void initialize()=0;
     void clear(){
-      hitMap_.clear();
       localTrackVector_.clear();
     }
     std::vector<CTPPSPixelLocalTrack> getLocalTracks() {return localTrackVector_; }
@@ -45,7 +44,7 @@ class RPixDetTrackFinder{
 
 
   protected:
-    std::map<CTPPSPixelDetId, std::vector<RPixDetPatternFinder::PointInPlane> > hitMap_;
+    std::map<CTPPSPixelDetId, std::vector<RPixDetPatternFinder::PointInPlane> > *hitMap_;
     std::vector<CTPPSPixelLocalTrack>  localTrackVector_;
     CTPPSPixelDetId  romanPotId_;
     const CTPPSGeometry *geometry_;
