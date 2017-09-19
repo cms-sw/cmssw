@@ -31,7 +31,7 @@ thicknessCorrection_200 = thicknessCorrection[1]
 fe_codec = cms.PSet( CodecName  = cms.string('HGCalTriggerCellThresholdCodec'),
                      CodecIndex = cms.uint32(2),
                      MaxCellsInModule = cms.uint32(288),
-                     DataLength = cms.uint32(16),
+                     DataLength = cms.uint32(20),
                      linLSB = cms.double(triggerCellLsbBeforeCompression),
                      linnBits = cms.uint32(16),
                      triggerCellTruncationBits = cms.uint32(triggerCellTruncationBits),
@@ -65,7 +65,11 @@ C2d_parValues = cms.PSet( seeding_threshold_silicon = cms.double(5), # MipT
 
 C3d_parValues = cms.PSet( dR_multicluster = cms.double(0.01), # dR in normalized plane used to clusterize C2d
                           minPt_multicluster = cms.double(0.5), # minimum pt of the multicluster (GeV)
-                          calibSF_multicluster = cms.double(1.084)
+                          calibSF_multicluster = cms.double(1.084),
+                          type_multicluster = cms.string('dRC3d'), #'DBSCANC3d' for the DBSCAN algorithm 
+                          dist_dbscan_multicluster = cms.double(0.01),
+                          minN_dbscan_multicluster = cms.uint32(2)
+
                           )
 cluster_algo =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoThreshold'),
                           FECodec = fe_codec.clone(),
