@@ -65,6 +65,7 @@ namespace edm {
       EDPutTokenT<T> token_;
       
       operator EDPutTokenT<T>() { return token_;}
+      operator EDPutToken() { return EDPutToken(token_.index()); }
     };
 
     typedef std::vector<TypeLabelItem> TypeLabelList;
