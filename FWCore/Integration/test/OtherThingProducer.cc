@@ -8,6 +8,7 @@
 
 #include "FWCore/Integration/test/OtherThingAlgorithm.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 
@@ -25,13 +26,14 @@ namespace edmtest {
   private:
     OtherThingAlgorithm alg_;
     edm::EDGetToken thingToken_;
+    edm::EDPutToken putToken_;
     bool useRefs_;
     bool refsAreTransient_;
   };
 
   
   OtherThingProducer::OtherThingProducer(edm::ParameterSet const& pset): alg_(), refsAreTransient_(false) {
-    produces<OtherThingCollection>("testUserTag");
+    putToken_ = produces<OtherThingCollection>("testUserTag");
     useRefs_ = pset.getUntrackedParameter<bool>("useRefs");
     if(useRefs_) {
       thingToken_=consumes<ThingCollection>(pset.getParameter<edm::InputTag>("thingTag"));
