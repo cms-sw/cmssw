@@ -36,18 +36,20 @@ slimmedJetsWithUserData = cms.EDProducer("PATJetUserDataEmbedder",
      ),
 )
 
-from  PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cfi import *
+
 from  PhysicsTools.PatAlgos.recoLayer0.jetCorrFactors_cfi import *
+jetCorrFactors = patJetCorrFactors.clone(src='slimmedJetsWithUserData',
+    levels = cms.vstring('L1FastJet',
+        'L2Relative',
+        'L3Absolute',
+	'L2L3Residual'),
+    primaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
+)
+from  PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cfi import *
 updatedJets = updatedPatJets.clone(
 	addBTagInfo=False,
 	jetSource='slimmedJetsWithUserData',
 	jetCorrFactorsSource=cms.VInputTag(cms.InputTag("jetCorrFactors") ),
-)
-jetCorrFactors = patJetCorrFactors.clone(src='slimmedJetsWithUserData',
-    levels = cms.vstring('L1FastJet',
-        'L2Relative',
-        'L3Absolute'),
-    primaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
 )
 
 finalJets = cms.EDFilter("PATJetRefSelector",
