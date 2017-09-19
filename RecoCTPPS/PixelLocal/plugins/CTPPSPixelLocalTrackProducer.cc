@@ -275,7 +275,7 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event& iEvent, const edm::EventS
     trackFinder_->clear();
     trackFinder_->setRomanPotId(romanPotId);
     trackFinder_->setHits(hitOnPlaneMap);
-    trackFinder_->setPlaneRotationMatrices(planeRotationMatrixMap);
+    trackFinder_->setGeometry(&geometry);
     trackFinder_->setPointOnPlanes(planePointMap);
     trackFinder_->setZ0(geometry.getRPTranslation(romanPotId).z());
     trackFinder_->findTracks();
