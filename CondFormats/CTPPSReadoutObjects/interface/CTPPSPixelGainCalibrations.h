@@ -20,8 +20,8 @@ class CTPPSPixelGainCalibrations{
 
   const CalibMap & getCalibMap()const { return m_calibrations;}
 
-  CTPPSPixelGainCalibration getGainCalibration(const uint32_t & detid) const;
-  CTPPSPixelGainCalibration & getGainCalibration(const uint32_t & detid);
+  const CTPPSPixelGainCalibration & getGainCalibration(const uint32_t & detid) const;
+//  CTPPSPixelGainCalibration & getGainCalibration(const uint32_t & detid);
 
   
   
