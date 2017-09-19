@@ -56,8 +56,10 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet &ps) :
   if( ps.exists("tdcOnset_fC") )                    tdcOnset_fC_                    = ps.getParameter<double>("tdcOnset_fC");
   if( ps.exists("tdcForToAOnset_fC") ){
     auto temp = ps.getParameter< std::vector<double> >("tdcForToAOnset_fC");
-    for( unsigned i = 0; i < temp.size(); ++i ) {
-      tdcForToAOnset_fC_[i] = (float)temp[i];
+    if(temp.size() == tdcForToAOnset_fC_.size()){ std::copy_n(temp.begin(), temp.size(), tdcForToAOnset_fC_.begin()); }
+    else{
+      throw cms::Exception("BadConfiguration")
+     	<< " HGCFEElectronics wrong size for ToA thresholds ";
     }
   }
   if( ps.exists("toaLSB_ns") )                      toaLSB_ns_                      = ps.getParameter<double>("toaLSB_ns");
@@ -71,14 +73,19 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet &ps) :
 
   if( ps.exists("jitterNoise_ns") ){
     auto temp = ps.getParameter< std::vector<double> >("jitterNoise_ns");
-    for( unsigned i = 0; i < temp.size(); ++i ) {
-      jitterNoise2_ns_[i] = ((float)temp[i] * (float)temp[i]);
+    if(temp.size() == jitterNoise2_ns_.size()){ std::copy_n(temp.begin(), temp.size(), jitterNoise2_ns_.begin()); }
+    else{
+      throw cms::Exception("BadConfiguration")
+     	<< " HGCFEElectronics wrong size for ToA jitterNoise ";
     }
   }
   if( ps.exists("jitterConstant_ns") ){
     auto temp = ps.getParameter< std::vector<double> >("jitterConstant_ns");
-    for( unsigned i = 0; i < temp.size(); ++i ) {
-      jitterConstant2_ns_[i] = ((float)temp[i] * (float)temp[i]);
+    if(temp.size() == jitterConstant2_ns_.size()){ 
+      std::copy_n(temp.begin(), temp.size(), jitterConstant2_ns_.begin()); }
+    else{
+      throw cms::Exception("BadConfiguration")
+    	<< " HGCFEElectronics wrong size for ToA jitterConstant ";
     }
   }
 }
@@ -306,7 +313,6 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
         if(toaMode_==WEIGHTEDBYE) finalToA /= totalCharge;
       }
       
-      //toaFromToT[it] = CLHEP::RandGaussQ::shoot(engine,finalToA,tdcResolutionInNs_);
       newCharge[it]  = (totalCharge-tdcOnset_fC_);      
       
       if(debug) edm::LogVerbatim("HGCFE") << "\t Final busy estimate="<< integTime << " ns = " << busyBxs << " bxs" << std::endl
