@@ -1,5 +1,4 @@
 #include "FWCore/Integration/test/ThingProducer.h"
-#include "DataFormats/TestObjects/interface/ThingCollection.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -11,7 +10,7 @@ namespace edmtest {
        iConfig.getParameter<int>("nThings")),
   noPut_(iConfig.getUntrackedParameter<bool>("noPut")) // used for testing with missing products
   {
-    produces<ThingCollection>();
+    evToken_ = produces<ThingCollection>();
     produces<ThingCollection, edm::Transition::BeginLuminosityBlock>("beginLumi");
     produces<ThingCollection, edm::Transition::EndLuminosityBlock>("endLumi");
     produces<ThingCollection, edm::Transition::BeginRun>("beginRun");
