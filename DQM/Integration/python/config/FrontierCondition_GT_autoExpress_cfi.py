@@ -7,7 +7,7 @@ from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
 # https://cmsweb.cern.ch/t0wmadatasvc/prod/express_config
 # would tell you.
 GlobalTag.connect = cms.string("frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierProd)(serverurl=http://localhost:8000/FrontierProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_CONDITIONS")
-GlobalTag.globaltag = "92X_dataRun2_Express_v2"
+GlobalTag.globaltag = "92X_dataRun2_Express_v7"
 
 # ===== auto -> Automatically get the GT string from current Tier0 configuration via a Tier0Das call.
 #       This needs a valid proxy to access the cern.ch network from the .cms one.
