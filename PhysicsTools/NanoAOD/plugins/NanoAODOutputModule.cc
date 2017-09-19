@@ -317,7 +317,7 @@ NanoAODOutputModule::fillDescriptions(edm::ConfigurationDescriptions& descriptio
         ->setComment("Change the OutputModule name in the fwk job report to fake PoolOutputModule. This is needed to run on cran (and publish) till crab is fixed");
 
   //replace with whatever you want to get from the EDM by default
-  const std::vector<std::string> keep = {"drop *", "keep FlatTable_*_*_*"};
+  const std::vector<std::string> keep = {"drop *", "keep FlatTable_*Table_*_*", "keep edmTriggerResults_*_*_*", "keep MergableCounterTable_*Table_*_*", "keep UniqueString_nanoMetadata_*_*"};
   edm::OutputModule::fillDescription(desc, keep);
   
   //Used by Workflow management for their own meta data
