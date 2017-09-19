@@ -172,6 +172,7 @@ L1TStage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
     LogDebug("L1TDebug") << "BX=" << ibx << ", N(Towers)=" << towers->size(ibx) << std::endl;
 
+std::cout << "!!!!10" << std::endl;
     for(std::vector<CaloTower>::const_iterator tower = towers->begin(ibx);
 	tower != towers->end(ibx);
 	++tower) {
@@ -192,6 +193,7 @@ L1TStage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
     LogDebug("L1TDebug") << "BX=" << ibx << ", N(Towers)=" << localTowers->size() << std::endl;
 
+std::cout << "!!!!20" << std::endl;
     m_processor->processEvent(*localTowers,
 			      *localOutTowers,
 			      *localClusters,
@@ -226,6 +228,7 @@ L1TStage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       etsums->push_back(ibx, CaloTools::etSumP4Demux(*etsum));
 
   
+std::cout << "!!!!30" << std::endl;
     LogDebug("L1TDebug") << "BX=" << ibx << ", N(Cluster)=" << localClusters->size() << ", N(EG)=" << localEGammas->size() << ", N(Tau)=" << localTaus->size() << ", N(Jet)=" << localJets->size() << ", N(Sums)=" << localEtSums->size() << std::endl;
 
   }
@@ -273,12 +276,12 @@ L1TStage2Layer2Producer::beginRun(edm::Run const& iRun, edm::EventSetup const& i
     // fetch payload corresponding to the current run from the CondDB
     edm::ESHandle<CaloParams> candidateHandle;
     iSetup.get<L1TCaloParamsRcd>().get(candidateHandle);
-    std::unique_ptr<l1t::CaloParamsHelper> candidate(new l1t::CaloParamsHelper( *candidateHandle.product() ));
+    std::unique_ptr<l1t::CaloParams> candidate(new l1t::CaloParams( *candidateHandle.product() ));
 
     // fetch the latest greatest prototype (equivalent of static payload)
     edm::ESHandle<CaloParams> o2oProtoHandle;
     iSetup.get<L1TCaloParamsO2ORcd>().get(o2oProtoHandle);
-    std::unique_ptr<l1t::CaloParamsHelper> prototype(new l1t::CaloParamsHelper( *o2oProtoHandle.product() ));
+    std::unique_ptr<l1t::CaloParams> prototype(new l1t::CaloParams( *o2oProtoHandle.product() ));
 
     // prepare to set the emulator's configuration
     //  and then replace our local copy of the parameters with a new one using placement new
@@ -287,7 +290,7 @@ L1TStage2Layer2Producer::beginRun(edm::Run const& iRun, edm::EventSetup const& i
     // compare the candidate payload misses some of the pnodes compared to the prototype,
     // if this is the case - the candidate is an old payload that'll crash the Stage2 emulator
     // and we better use the prototype for the emulator's configuration
-    if( candidate->getNodes().size() < prototype->getNodes().size() )
+    if( ((CaloParamsHelper*)candidate.get())->getNodes().size() < ((CaloParamsHelper*)prototype.get())->getNodes().size() )
         m_params = new (m_params) CaloParamsHelper( *o2oProtoHandle.product() );
     else
         m_params = new (m_params) CaloParamsHelper( *candidateHandle.product() );
