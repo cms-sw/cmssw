@@ -63,25 +63,29 @@ class FileListCreator(object):
         self._formatted_dataset = merge_strings(
             [re.sub(self._dataset_regex, r"\1_\2_\3", dataset)
              for dataset in self._datasets])
-        self._cache = _DasCache(self._formatted_dataset)
+        self._output_dir = os.path.join(self._args.output_dir,
+                                        self._formatted_dataset)
+        self._cache = _DasCache(self._output_dir)
         self._prepare_iov_datastructures()
         self._prepare_run_datastructures()
 
         try:
-            os.makedirs(self._formatted_dataset)
+            os.makedirs(self._output_dir)
         except OSError as e:
             if e.args == (17, "File exists"):
-                if self._args.use_cache:
-                    self._cache.load()
-                    files = glob.glob(os.path.join(self._formatted_dataset, "*"))
-                    for f in files: os.remove(f)
+                if self._args.force:
+                    pass        # do nothing, just clear the existing output
+                elif self._args.use_cache:
+                    self._cache.load() # load cache before clearing the output
                 else:
                     print_msg("Directory '{}' already exists from previous runs"
                               " of the script. Use '--use-cache' if you want to"
-                              " use the cached DAS-query results. Otherwise, "
-                              "remove it, please."
-                              .format(self._formatted_dataset))
+                              " use the cached DAS-query results Or use "
+                              "'--force' to remove it."
+                              .format(self._output_dir))
                     sys.exit(1)
+                files = glob.glob(os.path.join(self._output_dir, "*"))
+                for f in files: os.remove(f)
             else:
                 raise
 
@@ -155,6 +159,12 @@ class FileListCreator(object):
         parser.add_argument("--use-cache", dest = "use_cache",
                             action = "store_true", default = False,
                             help = "use DAS-query results of previous run")
+        parser.add_argument("-o", "--output-dir", dest = "output_dir",
+                            metavar = "PATH", default = os.getcwd(),
+                            help = "output base directory (default: %(default)s)")
+        parser.add_argument("--force", action = "store_true", default = False,
+                            help = ("remove output directory from previous "
+                                    "runs, if existing"))
         return parser
 
 
@@ -390,8 +400,7 @@ class FileListCreator(object):
     def _print_eventcounts(self):
         """Print the event counts per file list and per IOV."""
 
-        log = os.path.join(self._formatted_dataset,
-                           FileListCreator._event_count_log)
+        log = os.path.join(self._output_dir, FileListCreator._event_count_log)
 
         print_msg("Using {0:d} events for alignment ({1:.2f}%)."
                   .format(self._events_for_alignment,
@@ -482,7 +491,7 @@ class FileListCreator(object):
 
         name += ".txt"
         print_msg("Creating dataset file list: "+name)
-        with open(os.path.join(self._formatted_dataset, name), "w") as f:
+        with open(os.path.join(self._output_dir, name), "w") as f:
             f.write("\n".join(file_list))
 
 
@@ -517,7 +526,7 @@ class FileListCreator(object):
                            if self._args.json else ""),
             files = file_list_str)
 
-        with open(os.path.join(self._formatted_dataset, name), "w") as f:
+        with open(os.path.join(self._output_dir, name), "w") as f:
             f.write(fragment)
 
 
