@@ -60,19 +60,19 @@ using namespace l1t;
   class L1TMuonProducer : public edm::EDProducer {
      public:
         explicit L1TMuonProducer(const edm::ParameterSet&);
-        ~L1TMuonProducer();
+        ~L1TMuonProducer() override;
 
         static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
      private:
-        virtual void beginJob() ;
-        virtual void produce(edm::Event&, const edm::EventSetup&);
-        virtual void endJob() ;
+        void beginJob() override ;
+        void produce(edm::Event&, const edm::EventSetup&) override;
+        void endJob() override ;
 
-        virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-        virtual void endRun(edm::Run const&, edm::EventSetup const&);
-        virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-        virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+        void beginRun(edm::Run const&, edm::EventSetup const&) override;
+        void endRun(edm::Run const&, edm::EventSetup const&) override;
+        void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+        void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
         static bool compareMuons(const std::shared_ptr<MicroGMTConfiguration::InterMuon>& mu1,
                                 const std::shared_ptr<MicroGMTConfiguration::InterMuon>& mu2);
@@ -522,7 +522,7 @@ L1TMuonProducer::beginRun(edm::Run const& run, edm::EventSetup const& iSetup)
   microGMTParamsRcd.get(microGMTParamsHandle);
 
   std::unique_ptr<L1TMuonGlobalParams_PUBLIC> microGMTParams( new L1TMuonGlobalParams_PUBLIC( cast_to_L1TMuonGlobalParams_PUBLIC(*microGMTParamsHandle.product()) ) );
-  if( microGMTParams->pnodes_.size() == 0 ){ 
+  if( microGMTParams->pnodes_.empty() ){ 
       edm::ESHandle<L1TMuonGlobalParams> o2oProtoHandle;
       iSetup.get<L1TMuonGlobalParamsO2ORcd>().get(o2oProtoHandle);
       microGMTParamsHelper = std::unique_ptr<L1TMuonGlobalParamsHelper>(new L1TMuonGlobalParamsHelper(*o2oProtoHandle.product()));
