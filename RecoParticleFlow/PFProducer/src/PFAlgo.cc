@@ -3284,9 +3284,6 @@ PFAlgo::reconstructCluster(const reco::PFCluster& cluster,
   pfCandidates_->back().setVertex(vertexPos);  
 
   //*TODO* cluster time is not reliable at the moment, so only use track timing
-  if (false) {
-    pfCandidates_->back().setTime( cluster.time(), cluster.timeError() );
-  }
 
   if(debug_) 
     cout<<"** candidate: "<<pfCandidates_->back()<<endl; 
