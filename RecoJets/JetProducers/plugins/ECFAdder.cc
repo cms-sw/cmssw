@@ -80,7 +80,7 @@ void ECFAdder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
 	
 	float t= -1.0;
-	if ( jetPtr->numberOfDaughters() > n && selectors_[n - Njets_.begin()] (*jetIt) )
+	if ( selectors_[n - Njets_.begin()] (*jetIt) )
 	  t = getECF( i, jetPtr );	
 
 	ecfN.push_back(t);
@@ -122,7 +122,10 @@ float ECFAdder::getECF(unsigned index, const edm::Ptr<reco::Jet> & object) const
       else
 	edm::LogWarning("MissingJetConstituent") << "Jet constituent required for ECF computation is missing!";
     }
-    return routine_[index]->result(join(FJparticles)); 
+  if ( FJparticles.size() > Njets_[index] )
+    return routine_[index]->result(join(FJparticles));
+  else
+    return -1.0;
 }
 
 
