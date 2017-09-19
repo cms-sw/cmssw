@@ -42,6 +42,10 @@ namespace edmtest {
   private:
     ThingAlgorithm alg_;
     edm::EDPutTokenT<ThingCollection> evToken_;
+    edm::EDPutTokenT<ThingCollection> brToken_;
+    edm::EDPutTokenT<ThingCollection> erToken_;
+    edm::EDPutTokenT<ThingCollection> blToken_;
+    edm::EDPutTokenT<ThingCollection> elToken_;
     bool noPut_;
   };
 }

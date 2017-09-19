@@ -11,10 +11,10 @@ namespace edmtest {
   noPut_(iConfig.getUntrackedParameter<bool>("noPut")) // used for testing with missing products
   {
     evToken_ = produces<ThingCollection>();
-    produces<ThingCollection, edm::Transition::BeginLuminosityBlock>("beginLumi");
-    produces<ThingCollection, edm::Transition::EndLuminosityBlock>("endLumi");
-    produces<ThingCollection, edm::Transition::BeginRun>("beginRun");
-    produces<ThingCollection, edm::Transition::EndRun>("endRun");
+    blToken_ = produces<ThingCollection, edm::Transition::BeginLuminosityBlock>("beginLumi");
+    elToken_= produces<ThingCollection, edm::Transition::EndLuminosityBlock>("endLumi");
+    brToken_ = produces<ThingCollection, edm::Transition::BeginRun>("beginRun");
+    erToken_ = produces<ThingCollection, edm::Transition::EndRun>("endRun");
   }
 
   // Virtual destructor needed.
@@ -31,7 +31,7 @@ namespace edmtest {
     alg_.run(*result);
 
     // Step D: Put outputs into event
-    if (!noPut_) e.put(std::move(result));
+    if (!noPut_) e.put(evToken_,std::move(result));
   }
 
   // Functions that gets called by framework every luminosity block
@@ -45,7 +45,7 @@ namespace edmtest {
     alg_.run(*result);
 
     // Step D: Put outputs into lumi block
-    if (!noPut_) lb.put(std::move(result), "beginLumi");
+    if (!noPut_) lb.put(blToken_, std::move(result));
   }
 
   void ThingProducer::globalEndLuminosityBlockProduce(edm::LuminosityBlock& lb, edm::EventSetup const&) const {
@@ -58,7 +58,7 @@ namespace edmtest {
     alg_.run(*result);
 
     // Step D: Put outputs into lumi block
-    if (!noPut_) lb.put(std::move(result), "endLumi");
+    if (!noPut_) lb.put(elToken_,std::move(result));
   }
 
   // Functions that gets called by framework every run
@@ -72,7 +72,7 @@ namespace edmtest {
     alg_.run(*result);
 
     // Step D: Put outputs into event
-    if (!noPut_) r.put(std::move(result), "beginRun");
+    if (!noPut_) r.put(brToken_,std::move(result));
   }
 
   void ThingProducer::globalEndRunProduce(edm::Run& r, edm::EventSetup const&) const {
@@ -85,7 +85,7 @@ namespace edmtest {
     alg_.run(*result);
 
     // Step D: Put outputs into event
-    if (!noPut_) r.put(std::move(result), "endRun");
+    if (!noPut_) r.put(erToken_,std::move(result));
   }
 
   void ThingProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

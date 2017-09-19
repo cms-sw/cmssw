@@ -64,7 +64,7 @@ namespace edmtest {
     alg_.run(parentHandle, *result, useRefs_, refsAreTransient_);
 
     // Step E: Put outputs into event
-    e.put(std::move(result), std::string("testUserTag"));
+    e.put(putToken_,std::move(result));
   }
   
   void OtherThingProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
