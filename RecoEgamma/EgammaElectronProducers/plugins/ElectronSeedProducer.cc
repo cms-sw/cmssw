@@ -273,8 +273,8 @@ void ElectronSeedProducer::filterClusters
          scle = scl.energy() ;
          int det_group = scl.seed()->hitsAndFractions()[0].first.det() ;
          int detector = scl.seed()->hitsAndFractions()[0].first.subdetId() ;
-         if (detector==EcalBarrel && (had<maxHBarrel_ || had/scle<maxHOverEBarrel_)) HoeVeto=true;
-         else if( detector==EcalEndcap && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_) ) HoeVeto=true;
+         if ( detector==EcalBarrel && (had<maxHBarrel_ || had/scle<maxHOverEBarrel_)) HoeVeto=true;
+         else if( !allowHGCal_ && detector==EcalEndcap && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_) ) HoeVeto=true;
          else if( allowHGCal_ && (detector==HcalEndcap || det_group == DetId::Forward) ) {
            float had_fraction = hgcClusterTools_->getClusterHadronFraction(*(scl.seed()));
            had1 = had_fraction*scl.seed()->energy();
