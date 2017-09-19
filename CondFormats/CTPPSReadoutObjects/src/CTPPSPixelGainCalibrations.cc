@@ -49,20 +49,15 @@ void CTPPSPixelGainCalibrations::setGainCalibrations(const std::vector<uint32_t>
   }
 }
 
-
-CTPPSPixelGainCalibration & CTPPSPixelGainCalibrations::getGainCalibration(const uint32_t & detid) { // returns the ref and if does not exist it creates
-  return m_calibrations[detid];
-}
-
-CTPPSPixelGainCalibration  CTPPSPixelGainCalibrations::getGainCalibration(const uint32_t & detid) const{ // returns the object does not change the map
+const CTPPSPixelGainCalibration  & CTPPSPixelGainCalibrations::getGainCalibration(const uint32_t & detid) const{ // returns the object does not change the map
   CalibMap::const_iterator it = m_calibrations.find(detid);
-  if (it != m_calibrations.end())
+  if (it != m_calibrations.end()){
     return it->second;
-
-  else
-    edm::LogError("CTPPSPixelGainCalibrations")<< "No gain calibrations defined for detid " << detid << "\n";
-
-  CTPPSPixelGainCalibration a;
+  }
+  else{
+    throw cms::Exception("CTPPSPixelGainCalibrations: ") <<" No gain calibrations defined for detid ";
+  }
+  static const CTPPSPixelGainCalibration a;
   return a;
 
 }
