@@ -39,6 +39,7 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
+#include <atomic>
 #include <fstream>
 #include <sstream>
 #include <algorithm>
@@ -485,11 +486,11 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
   std::vector<std::vector<ParameterId> > paramIdsVec;
   std::vector<std::vector<double> > factorsVec;
   const bool allConstr = false; // true; // make configurable?
-  static bool first = true;
-  if (allConstr && first) {
+  static std::atomic<bool> allConstrWarning{false};
+  bool expected{false};
+  if (allConstr && allConstrWarning.compare_exchange_strong(expected, true)) {
     edm::LogWarning("Alignment") << "@SUB=PedeSteerer::hierarchyConstraint"
 				 << "changed to use all 6 constraints";
-    first = false;
   }
   if (!myParameterStore->hierarchyConstraints(ali, components, paramIdsVec, factorsVec, allConstr,
 					      theMinHieraConstrCoeff)){
