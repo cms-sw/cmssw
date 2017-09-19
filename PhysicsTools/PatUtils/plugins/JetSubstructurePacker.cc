@@ -46,53 +46,35 @@ JetSubstructurePacker::produce(edm::Event& iEvent, const edm::EventSetup&)
   for ( size_t i = 0; i < algoTags_.size(); ++i ) {
     iEvent.getByToken( algoTokens_[i], algoHandles[i] ); 
   }
-
+  
   // Loop over the input jets that will be modified.
   for ( auto const & ijet : *jetHandle  ) {
     // Copy the jet.
     outputs->push_back( ijet );
-
     // Loop over the substructure collections
     unsigned int index = 0;
+    
     for ( auto const & ialgoHandle : algoHandles ) {      
       std::vector< edm::Ptr<pat::Jet> > nextSubjets;
       float dRMin = distMax_;
-
-      for ( auto const & jjet : *ialgoHandle ) {
-	
+      for ( auto const & jjet : *ialgoHandle ) {       
 	if ( reco::deltaR( ijet, jjet ) < dRMin ) {
-
 	  for ( auto const & userfloatstr : jjet.userFloatNames() ) {
-	    if ( std::find( outputs->back().userFloatNames().begin(), outputs->back().userFloatNames().end(), userfloatstr) == outputs->back().userFloatNames().end() ) 
-	      outputs->back().addUserFloat( userfloatstr, jjet.userFloat(userfloatstr) );
-	    else {
-	      throw cms::Exception("DuplicateUserData") << " User data replicated. Exiting: " << userfloatstr << std::endl;
-	    }
+	    outputs->back().addUserFloat( userfloatstr, jjet.userFloat(userfloatstr) );
 	  }
 	  for ( auto const & userintstr : jjet.userIntNames() ) {
-	    if ( std::find( outputs->back().userIntNames().begin(), outputs->back().userIntNames().end(), userintstr) == outputs->back().userIntNames().end() ) 
-	      outputs->back().addUserInt( userintstr, jjet.userInt(userintstr) );
-	    else {
-	      throw cms::Exception("DuplicateUserData") << " User data replicated. Exiting: " << userintstr << std::endl;
-	    }
+	    outputs->back().addUserInt( userintstr, jjet.userInt(userintstr) );
 	  }
 	  for ( auto const & usercandstr : jjet.userCandNames() ) {
-	    if ( std::find( outputs->back().userCandNames().begin(), outputs->back().userCandNames().end(), usercandstr) == outputs->back().userCandNames().end() ) 
-	      outputs->back().addUserCand( usercandstr, jjet.userCand(usercandstr) );
-	    else {
-	      throw cms::Exception("DuplicateUserData") << " User data replicated. Exiting: " << usercandstr << std::endl;
-	    }
+	    outputs->back().addUserCand( usercandstr, jjet.userCand(usercandstr) );
 	  }
 	  for ( size_t ida = 0; ida < jjet.numberOfDaughters(); ++ida ) {
-
 	    reco::CandidatePtr candPtr =  jjet.daughterPtr( ida);
 	    nextSubjets.push_back( edm::Ptr<pat::Jet> ( candPtr ) );
 	  }
 	  break;
 	}
-	
       }
-
       outputs->back().addSubjets( nextSubjets, algoLabels_[index] );
       ++index; 
     }
