@@ -47,7 +47,7 @@ void RPixRoadFinder::findPattern(){
   temp_all_hits.clear();
 
 // convert local hit sto global and push them to a vector
-  for(const auto & ds_rh2 : hitVector_){
+  for(const auto & ds_rh2 : *hitVector_){
     const auto myid = CTPPSPixelDetId(ds_rh2.id);
     for (const auto & it_rh : ds_rh2.data){
       CLHEP::Hep3Vector localV(it_rh.getPoint().x(),it_rh.getPoint().y(),it_rh.getPoint().z() );

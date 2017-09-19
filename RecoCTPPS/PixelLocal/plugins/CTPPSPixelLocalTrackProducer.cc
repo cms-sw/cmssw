@@ -217,7 +217,7 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event& iEvent, const edm::EventS
   // Pattern finder
 
   patternFinder_->clear();
-  patternFinder_->setHits(recHitVector);
+  patternFinder_->setHits(&recHitVector);
   patternFinder_->setGeometry(&geometry);
   patternFinder_->findPattern();
   std::vector<RPixDetPatternFinder::Road> patternVector = patternFinder_->getPatterns();
