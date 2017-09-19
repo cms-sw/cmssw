@@ -139,7 +139,7 @@ RPixPlaneCombinatoryTracking::produceAllHitCombination(PlaneCombinations inputPl
     for( const auto & plane : planeCombination){
       tmpRpId.setPlane(plane);
       CTPPSPixelDetId planeDetId = tmpRpId;
-      if(hitMap_.find(planeDetId) == hitMap_.end()){
+      if(hitMap_->find(planeDetId) == hitMap_->end()){
         if(verbosity_>2) std::cout<<"No data on arm "<<planeDetId.arm()<<" station "<<planeDetId.station()
                                   <<" rp " <<planeDetId.rp()<<" plane "<<planeDetId.plane()<<std::endl;
         allPlaneAsHits = false;
@@ -150,7 +150,7 @@ RPixPlaneCombinatoryTracking::produceAllHitCombination(PlaneCombinations inputPl
              <<"selectedCombinationHitOnPlane contains already detId "<<planeDetId<<std::endl
              <<"Error in the algorithm which created all the possible plane combinations";
       }
-      selectedCombinationHitOnPlane[planeDetId] = hitMap_[planeDetId];
+      selectedCombinationHitOnPlane[planeDetId] = (*hitMap_)[planeDetId];
     }
     if(!allPlaneAsHits) continue;
     
@@ -175,10 +175,10 @@ void RPixPlaneCombinatoryTracking::findTracks(){
   //The loop stops when the number of planes with recorded hits is less than the minimum number of planes required
   //or if the track with minimum chiSquare found has a chiSquare higher than the maximum required
 
-  while(hitMap_.size()>=trackMinNumberOfPoints_){
+  while(hitMap_->size()>=trackMinNumberOfPoints_){
 
-    if(verbosity_>=1) std::cout<<"Number of plane with hits "<<hitMap_.size()<<std::endl;
-    if(verbosity_>=2) for(const auto & plane : hitMap_) std::cout<<"\tarm "<<plane.first.arm()
+    if(verbosity_>=1) std::cout<<"Number of plane with hits "<<hitMap_->size()<<std::endl;
+    if(verbosity_>=2) for(const auto & plane : *hitMap_) std::cout<<"\tarm "<<plane.first.arm()
                                                                  <<" station "<<plane.first.station()
                                                                  <<" rp " <<plane.first.rp()
                                                                  <<" plane "<<plane.first.plane()
@@ -278,8 +278,8 @@ void RPixPlaneCombinatoryTracking::findTracks(){
     std::vector<uint32_t>  listOfPlaneNotUsedForFit = listOfAllPlanes_;
     //remove the hits belonging to the tracks from the full list of hits
     for(const auto & hitToErase : pointMapWithMinChiSquared){
-      std::map<CTPPSPixelDetId, PointInPlaneList >::iterator hitMapElement = hitMap_.find(hitToErase.first);
-      if(hitMapElement==hitMap_.end()){
+      std::map<CTPPSPixelDetId, PointInPlaneList >::iterator hitMapElement = hitMap_->find(hitToErase.first);
+      if(hitMapElement==hitMap_->end()){
            throw cms::Exception("RPixPlaneCombinatoryTracking") 
              <<"The found tracks has hit belonging to a plane which does not have hits";
       }
@@ -288,7 +288,7 @@ void RPixPlaneCombinatoryTracking::findTracks(){
       listOfPlaneNotUsedForFit.erase(planeIt);
       hitMapElement->second.erase(hitMapElement->second.begin()+hitToErase.second);
       //if the plane at which the hit was erased is empty it is removed from the hit map
-      if(hitMapElement->second.empty()) hitMap_.erase(hitMapElement);
+      if(hitMapElement->second.empty()) hitMap_->erase(hitMapElement);
     }
 
     //search for hit on the other planes which may belong to the same track
@@ -306,7 +306,7 @@ void RPixPlaneCombinatoryTracking::findTracks(){
       calculatePointOnDetector(bestTrack, tmpPlaneId, pointOnDet);
 
 
-      if(hitMap_.find(tmpPlaneId) != hitMap_.end()){
+      if(hitMap_->find(tmpPlaneId) != hitMap_->end()){
         //I convert the hit search window defined in local coordinated into global
         //This avoids to convert the global plane-line intersection in order not to call the the geometry 
         TVectorD maxGlobalPointDistance(0,2,maximumXLocalDistanceFromTrack_,maximumYLocalDistanceFromTrack_,0.,"END");
@@ -323,7 +323,7 @@ void RPixPlaneCombinatoryTracking::findTracks(){
         double maximumXdistance = maxGlobalPointDistance[0]*maxGlobalPointDistance[0];
         double maximumYdistance = maxGlobalPointDistance[1]*maxGlobalPointDistance[1];
         double minimumDistance = 1. + maximumXdistance + maximumYdistance; // to be sure that the first min distance is from a real point
-        for(const auto & hit : hitMap_[tmpPlaneId]){
+        for(const auto & hit : (*hitMap_)[tmpPlaneId]){
           double xResidual = hit.globalPoint.x() - pointOnDet.x();
           double yResidual = hit.globalPoint.y() - pointOnDet.y();
           double xDistance = xResidual*xResidual;
