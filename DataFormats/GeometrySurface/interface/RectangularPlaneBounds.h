@@ -55,6 +55,9 @@ public:
 
   virtual bool inside( const Local2DPoint& p, const LocalError& err, float scale=1.f) const;
 
+  float howMuchInside(const Local3DPoint&, const LocalError&) const;
+
+
   // compatible of being inside or outside...
  std::pair<bool,bool> inout( const Local3DPoint& p, const LocalError& err, float scale=1.f) const;
 
