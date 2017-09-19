@@ -9,9 +9,10 @@ ProductRegistryHelper:
 
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/Transition.h"
+#include "FWCore/Utilities/interface/EDPutToken.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include <string>
-#include <list>
+#include <vector>
 
 namespace edm {
   class ModuleDescription;
@@ -35,10 +36,10 @@ namespace edm {
       void setBranchAlias(std::string const& alias) const {branchAlias_ = alias;}
     };
 
-    typedef std::list<TypeLabelItem> TypeLabelList;
+    typedef std::vector<TypeLabelItem> TypeLabelList;
 
     /// used by the fwk to register the list of products of this module 
-    TypeLabelList & typeLabelList();
+    TypeLabelList const& typeLabelList() const;
 
     static
     void addToRegistry(TypeLabelList::const_iterator const& iBegin,
@@ -56,51 +57,53 @@ namespace edm {
 
 
     template <class ProductType> 
-    TypeLabelItem const& produces() {
+    EDPutTokenT<ProductType> produces() {
       return produces<ProductType, InEvent>(std::string());
     }
 
     template <class ProductType> 
-    TypeLabelItem const& produces(std::string const& instanceName) {
+    EDPutTokenT<ProductType> produces(std::string const& instanceName) {
       return produces<ProductType, InEvent>(instanceName);
     }
 
     template <typename ProductType, BranchType B> 
-    TypeLabelItem const& produces() {
+    EDPutTokenT<ProductType> produces() {
       return produces<ProductType, B>(std::string());
     }
 
     template <typename ProductType, BranchType B> 
-    TypeLabelItem const& produces(std::string const& instanceName) {
+    EDPutTokenT<ProductType> produces(std::string const& instanceName) {
       TypeID tid(typeid(ProductType));
-      return produces<B>(tid,instanceName);
+      return EDPutTokenT<ProductType>{produces<B>(tid,instanceName).index()};
     }
 
     template <typename ProductType, Transition B>
-    TypeLabelItem const& produces() {
+    EDPutTokenT<ProductType> produces() {
       return produces<ProductType, B>(std::string());
     }
     
     template <typename ProductType, Transition B>
-    TypeLabelItem const& produces(std::string const& instanceName) {
+    EDPutTokenT<ProductType> produces(std::string const& instanceName) {
       TypeID tid(typeid(ProductType));
-      return produces<B>(tid,instanceName);
+      return EDPutTokenT<ProductType>{produces<B>(tid,instanceName).index()};
     }
 
    
-    TypeLabelItem const& produces(const TypeID& id, std::string const& instanceName=std::string()) {
+    EDPutToken produces(const TypeID& id, std::string const& instanceName=std::string()) {
       return produces<Transition::Event>(id,instanceName);
     }
 
     template <BranchType B>
-    TypeLabelItem const& produces(const TypeID& id, std::string const& instanceName=std::string()) {
+    EDPutToken produces(const TypeID& id, std::string const& instanceName=std::string()) {
+      unsigned int index =typeLabelList_.size();
        typeLabelList_.emplace_back(convertToTransition(B), id, instanceName);
-       return *typeLabelList_.rbegin();
+      return EDPutToken{static_cast<unsigned int>(index)};
     }
     template <Transition B>
-    TypeLabelItem const& produces(const TypeID& id, std::string const& instanceName=std::string()) {
+    EDPutToken produces(const TypeID& id, std::string const& instanceName=std::string()) {
+      unsigned int index =typeLabelList_.size();
       typeLabelList_.emplace_back(B, id, instanceName);
-      return *typeLabelList_.rbegin();
+      return EDPutToken{ index };
     }
 
   private:
