@@ -123,9 +123,13 @@ float ECFAdder::getECF(unsigned index, const edm::Ptr<reco::Jet> & object) const
 	edm::LogWarning("MissingJetConstituent") << "Jet constituent required for ECF computation is missing!";
     }
   if ( FJparticles.size() > Njets_[index] )
-    return routine_[index]->result(join(FJparticles));
+    {
+      return routine_[index]->result(join(FJparticles));
+    }
   else
-    return -1.0;
+    {
+      return -1.0;
+    }
 }
 
 
