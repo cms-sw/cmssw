@@ -89,7 +89,7 @@ BTagMu_AK8Jet300_Mu5.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_BTag
 BTagMu_AK8Jet300_Mu5.histoPSet.jetPtBinning = cms.vdouble(0,250,280,300,320,360,400,700,1000,1500,3000)
 
 BTagMu_AK8Jet170_DoubleMu5 = hltBTVmonitoring.clone()
-BTagMu_AK8Jet170_DoubleMu5.FolderName = cms.string('HLT/BTV/BTagMu_Jet/BTagMu_AK8Jet170_DoubleMu5')
+BTagMu_AK8Jet170_DoubleMu5.FolderName = cms.string('HLT/BTV/BTagDiMu_Jet/BTagMu_AK8Jet170_DoubleMu5')
 BTagMu_AK8Jet170_DoubleMu5.nmuons = cms.uint32(2)
 BTagMu_AK8Jet170_DoubleMu5.nelectrons = cms.uint32(0)
 BTagMu_AK8Jet170_DoubleMu5.njets = cms.uint32(1)
