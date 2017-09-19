@@ -664,8 +664,7 @@ int HeavyFlavorValidation::getFilterLevel(const std::string &moduleName, const H
   };
 
   // helper lambda to check if string s is any of the strings in vector ms
-  // using an initializer_list of char*, because std::sting has no constexpr constructor
-  const auto isAnyOf = [](const std::string &s, const std::initializer_list<const char* const>& ms) -> bool {
+  const auto isAnyOf = [](const std::string &s, const std::vector<std::string>& ms) -> bool {
     for (const auto &m : ms) {
       if (s == m) return true;
     }
@@ -680,12 +679,12 @@ int HeavyFlavorValidation::getFilterLevel(const std::string &moduleName, const H
   // With the current definition this yields the exact same levels as before, but weeds out some
   // of the "false" positives at level 3 (naming matches also to some HLTMuonL1TFilter modules due to
   // the 'forIterL3' in the name)
-  constexpr auto l1Filter = "HLTMuonL1TFilter";
-  constexpr auto l2Filter = "HLTMuonL2FromL1TPreFilter";
-  constexpr auto l3Filters = {"HLTMuonDimuonL3Filter", "HLTMuonL3PreFilter"};
-  constexpr auto l4Filters = {"HLTDisplacedmumuFilter", "HLTDiMuonGlbTrkFilter",
+  const std::string l1Filter = "HLTMuonL1TFilter";
+  const std::string l2Filter = "HLTMuonL2FromL1TPreFilter";
+  const std::vector<std::string> l3Filters = {"HLTMuonDimuonL3Filter", "HLTMuonL3PreFilter"};
+  const std::vector<std::string> l4Filters = {"HLTDisplacedmumuFilter", "HLTDiMuonGlbTrkFilter",
                               "HLTMuonTrackMassFilter"};
-  constexpr auto l5Filters = {"HLTmumutkFilter", "HLT2MuonMuonDZ", "HLTDisplacedmumuFilter"};
+  const std::vector<std::string> l5Filters = {"HLTmumutkFilter", "HLT2MuonMuonDZ", "HLTDisplacedmumuFilter"};
 
   if (contains(moduleName, "Filter") && hltConfig.moduleEDMType(moduleName) == "EDFilter") {
     int level = -1; // if we get here, one of the following clauses should always catch!
