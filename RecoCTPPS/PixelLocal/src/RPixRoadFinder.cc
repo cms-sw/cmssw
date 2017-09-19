@@ -15,7 +15,10 @@
 //needed for the geometry:
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "TMatrixD.h"
+
+#include "TMath.h"
+#include "DataFormats/Math/interface/Error.h"
+#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 
 #include <vector>
 #include <memory>
@@ -52,7 +55,7 @@ void RPixRoadFinder::findPattern(){
     for (const auto & it_rh : ds_rh2.data){
       CLHEP::Hep3Vector localV(it_rh.getPoint().x(),it_rh.getPoint().y(),it_rh.getPoint().z() );
       CLHEP::Hep3Vector globalV = geometry_->localToGlobal(ds_rh2.id,localV);
-      TMatrixD localError(3,3);
+      math::Error<3>::type localError;
       localError[0][0] = it_rh.getError().xx();
       localError[0][1] = it_rh.getError().xy();
       localError[0][2] =                  0.;
@@ -65,15 +68,12 @@ void RPixRoadFinder::findPattern(){
       if(verbosity_>2) edm::LogInfo("RPixRoadFinder")<<"Hits = "<<ds_rh2.data.size();
 
       DDRotationMatrix theRotationMatrix = geometry_->getSensor(myid)->rotation();
-      TMatrixD theRotationTMatrix;
-      theRotationTMatrix.ResizeTo(3,3);
-      theRotationMatrix.GetComponents(theRotationTMatrix[0][0], theRotationTMatrix[0][1], theRotationTMatrix[0][2],
-                                      theRotationTMatrix[1][0], theRotationTMatrix[1][1], theRotationTMatrix[1][2],
-                                      theRotationTMatrix[2][0], theRotationTMatrix[2][1], theRotationTMatrix[2][2]);
+      AlgebraicMatrix33 theRotationTMatrix;
+      theRotationMatrix.GetComponents(theRotationTMatrix(0, 0), theRotationTMatrix(0, 1), theRotationTMatrix(0, 2),
+                                      theRotationTMatrix(1, 0), theRotationTMatrix(1, 1), theRotationTMatrix(1, 2),
+                                      theRotationTMatrix(2, 0), theRotationTMatrix(2, 1), theRotationTMatrix(2, 2));
 
-      TMatrixD theRotationTMatrixInverted(theRotationTMatrix);
-      theRotationTMatrixInverted.Invert();
-      TMatrixD globalError = theRotationTMatrixInverted * localError * theRotationTMatrix;
+      math::Error<3>::type globalError = ROOT::Math::SimilarityT(theRotationTMatrix, localError);
       PointInPlane thePointAndRecHit = {globalV,globalError,it_rh,myid};
       temp_all_hits.push_back(thePointAndRecHit);
     }

@@ -9,6 +9,7 @@
 #include "TMatrixD.h"
 #include "TVectorD.h"
 #include "TVector3.h"
+#include "DataFormats/Math/interface/Vector.h"
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 #include "TMath.h"
@@ -309,14 +310,13 @@ void RPixPlaneCombinatoryTracking::findTracks(){
       if(hitMap_->find(tmpPlaneId) != hitMap_->end()){
         //I convert the hit search window defined in local coordinated into global
         //This avoids to convert the global plane-line intersection in order not to call the the geometry 
-        TVectorD maxGlobalPointDistance(0,2,maximumXLocalDistanceFromTrack_,maximumYLocalDistanceFromTrack_,0.,"END");
+        math::Vector<3>::type maxGlobalPointDistance(maximumXLocalDistanceFromTrack_,maximumYLocalDistanceFromTrack_,0.);
         
         DDRotationMatrix theRotationMatrix = geometry_->getSensor(tmpPlaneId)->rotation();
-        TMatrixD tmpPlaneRotationMatrixMap;
-        tmpPlaneRotationMatrixMap.ResizeTo(3,3);
-        theRotationMatrix.GetComponents(tmpPlaneRotationMatrixMap[0][0], tmpPlaneRotationMatrixMap[0][1], tmpPlaneRotationMatrixMap[0][2],
-                                        tmpPlaneRotationMatrixMap[1][0], tmpPlaneRotationMatrixMap[1][1], tmpPlaneRotationMatrixMap[1][2],
-                                        tmpPlaneRotationMatrixMap[2][0], tmpPlaneRotationMatrixMap[2][1], tmpPlaneRotationMatrixMap[2][2]);
+        AlgebraicMatrix33 tmpPlaneRotationMatrixMap;
+        theRotationMatrix.GetComponents(tmpPlaneRotationMatrixMap(0, 0), tmpPlaneRotationMatrixMap(0, 1), tmpPlaneRotationMatrixMap(0, 2),
+                                        tmpPlaneRotationMatrixMap(1, 0), tmpPlaneRotationMatrixMap(1, 1), tmpPlaneRotationMatrixMap(1, 2),
+                                        tmpPlaneRotationMatrixMap(2, 0), tmpPlaneRotationMatrixMap(2, 1), tmpPlaneRotationMatrixMap(2, 2));
 
         maxGlobalPointDistance = tmpPlaneRotationMatrixMap * maxGlobalPointDistance;
         //I avoid the Sqrt since it will not be saved
@@ -331,7 +331,7 @@ void RPixPlaneCombinatoryTracking::findTracks(){
           double distance = xDistance + yDistance;
           if(xDistance < maximumXdistance && yDistance < maximumYdistance && distance < minimumDistance){
             LocalPoint residuals(xResidual,yResidual,0.);
-            TMatrixD globalError = hit.globalError;
+            math::Error<3>::type globalError = hit.globalError;
             LocalPoint pulls(xResidual/std::sqrt(globalError[0][0]),yResidual/std::sqrt(globalError[1][1]),0.);
             fittedRecHit.reset(new CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit(hit.recHit, pointOnDet, residuals, pulls));
             fittedRecHit->setIsRealHit(true);
@@ -391,11 +391,11 @@ CTPPSPixelLocalTrack RPixPlaneCombinatoryTracking::fitTrack(PointInPlaneList poi
     zMatrix      [hitCounter+1][1] = 1.                 ;
     zMatrix      [hitCounter+1][3] = globalPoint.z()-z0_;
 
-    TMatrixD globalError = hit.globalError;
-    varianceMatrix[hitCounter][hitCounter]     = globalError[0][0];
-    varianceMatrix[hitCounter][hitCounter+1]   = globalError[0][1];
-    varianceMatrix[hitCounter+1][hitCounter]   = globalError[1][0];
-    varianceMatrix[hitCounter+1][hitCounter+1] = globalError[1][1];
+    AlgebraicMatrix33 globalError = hit.globalError;
+    varianceMatrix[hitCounter][hitCounter]     = globalError(0, 0);
+    varianceMatrix[hitCounter][hitCounter+1]   = globalError(0, 1);
+    varianceMatrix[hitCounter+1][hitCounter]   = globalError(1, 0);
+    varianceMatrix[hitCounter+1][hitCounter+1] = globalError(1, 1);
     
     hitCounter+=2;
   }
@@ -416,7 +416,7 @@ CTPPSPixelLocalTrack RPixPlaneCombinatoryTracking::fitTrack(PointInPlaneList poi
   TMatrixD zMatrixTransposeTimesVarianceMatrix = zMatrixTranspose *  varianceMatrix;
   TMatrixD parametersCovarianceMatrix = zMatrixTransposeTimesVarianceMatrix * zMatrix;
 
-  //for having the real parameter covaraince matrix parametersCovarianceMatrix, need to be inverted
+  //for having the real parameter covariance matrix parametersCovarianceMatrix, need to be inverted
   try{
     parametersCovarianceMatrix.Invert();
   }
@@ -466,8 +466,8 @@ CTPPSPixelLocalTrack RPixPlaneCombinatoryTracking::fitTrack(PointInPlaneList poi
     double yResidual = globalPoint.y() - pointOnDet.y();
     LocalPoint residuals(xResidual,yResidual);
 
-    TMatrixD globalError(hit.globalError);
-    LocalPoint pulls(xResidual/std::sqrt(globalError[0][0]),yResidual/std::sqrt(globalError[1][1]));
+    math::Error<3>::type globalError(hit.globalError);
+    LocalPoint pulls(xResidual/std::sqrt(globalError(0, 0)),yResidual/std::sqrt(globalError(0, 0)));
 
     CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit fittedRecHit(hit.recHit, pointOnDet, residuals, pulls);
     fittedRecHit.setIsUsedForFit(true);
@@ -487,26 +487,25 @@ bool RPixPlaneCombinatoryTracking::calculatePointOnDetector(CTPPSPixelLocalTrack
   CTPPSPixelLocalTrack::ParameterVector parameters = track.getParameterVector();
 
 
-  TVectorD pointOnLine(0,2,parameters[0], parameters[1], z0,"END");
+  math::Vector<3>::type pointOnLine(parameters[0], parameters[1], z0);
   math::GlobalVector tmpLineUnitVector = track.getDirectionVector();
-  TVectorD lineUnitVector(0,2,tmpLineUnitVector.x(),tmpLineUnitVector.y(),tmpLineUnitVector.z(),"END");
+  math::Vector<3>::type lineUnitVector(tmpLineUnitVector.x(),tmpLineUnitVector.y(),tmpLineUnitVector.z());
 
   CLHEP::Hep3Vector tmpPointLocal(0.,0.,0.);
   CLHEP::Hep3Vector tmpPointOnPlane = geometry_->localToGlobal(planeId,tmpPointLocal);
  
-  TVectorD pointOnPlane(0,2,tmpPointOnPlane.x(), tmpPointOnPlane.y(), tmpPointOnPlane.z(),"END");
-  TVectorD planeUnitVector(0,2,0.,0.,1.,"END");
+  math::Vector<3>::type pointOnPlane(tmpPointOnPlane.x(), tmpPointOnPlane.y(), tmpPointOnPlane.z());
+  math::Vector<3>::type planeUnitVector(0.,0.,1.);
 
   DDRotationMatrix theRotationMatrix = geometry_->getSensor(planeId)->rotation();
-  TMatrixD tmpPlaneRotationMatrixMap;
-  tmpPlaneRotationMatrixMap.ResizeTo(3,3);
-  theRotationMatrix.GetComponents(tmpPlaneRotationMatrixMap[0][0], tmpPlaneRotationMatrixMap[0][1], tmpPlaneRotationMatrixMap[0][2],
-                                  tmpPlaneRotationMatrixMap[1][0], tmpPlaneRotationMatrixMap[1][1], tmpPlaneRotationMatrixMap[1][2],
-                                  tmpPlaneRotationMatrixMap[2][0], tmpPlaneRotationMatrixMap[2][1], tmpPlaneRotationMatrixMap[2][2]);
+  AlgebraicMatrix33 tmpPlaneRotationMatrixMap;
+  theRotationMatrix.GetComponents(tmpPlaneRotationMatrixMap(0, 0), tmpPlaneRotationMatrixMap(0, 1), tmpPlaneRotationMatrixMap(0, 2),
+                                  tmpPlaneRotationMatrixMap(1, 0), tmpPlaneRotationMatrixMap(1, 1), tmpPlaneRotationMatrixMap(1, 2),
+                                  tmpPlaneRotationMatrixMap(2, 0), tmpPlaneRotationMatrixMap(2, 1), tmpPlaneRotationMatrixMap(2, 2));
 
   planeUnitVector = tmpPlaneRotationMatrixMap * planeUnitVector;
 
-  double denominator = (lineUnitVector*planeUnitVector);
+  double denominator = ROOT::Math::Dot(lineUnitVector, planeUnitVector);
   if(denominator==0){
     edm::LogError("RPixPlaneCombinatoryTracking")
       << "Error in RPixPlaneCombinatoryTracking::calculatePointOnDetector -> "
@@ -514,9 +513,9 @@ bool RPixPlaneCombinatoryTracking::calculatePointOnDetector(CTPPSPixelLocalTrack
     return false;
   }
 
-  double distanceFromLinePoint = (pointOnPlane - pointOnLine)*planeUnitVector / denominator;
+  double distanceFromLinePoint = ROOT::Math::Dot((pointOnPlane - pointOnLine), planeUnitVector) / denominator;
 
-  TVectorD tmpPlaneLineIntercept = distanceFromLinePoint*lineUnitVector + pointOnLine;
+  math::Vector<3>::type tmpPlaneLineIntercept = distanceFromLinePoint*lineUnitVector + pointOnLine;
   planeLineIntercept = math::GlobalPoint(tmpPlaneLineIntercept[0], tmpPlaneLineIntercept[1], tmpPlaneLineIntercept[2]);
 
   return true;
