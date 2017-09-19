@@ -70,7 +70,6 @@ private:
 DEFINE_FWK_MODULE(TrackTimeValueMapProducer);
 
 namespace {
-  constexpr float fakeBeamSpotTimeWidth = 0.300f; // ns
   constexpr float m_pion = 139.57061e-3;
   const std::string resolution("Resolution");
 
