@@ -22,6 +22,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Common/interface/RunBase.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 
@@ -52,6 +53,10 @@ namespace edm {
 
     void setSharedResourcesAcquirer( SharedResourcesAcquirer* iResourceAcquirer) {
       provRecorder_.setSharedResourcesAcquirer(iResourceAcquirer);
+    }
+
+    void setProducer(ProducerBase const* iProducer) {
+      provRecorder_.setProducer(iProducer);
     }
 
     typedef PrincipalGetAdapter Base;
@@ -114,6 +119,14 @@ namespace edm {
     template <typename PROD>
     void
     put(std::unique_ptr<PROD> product, std::string const& productInstanceName);
+
+    template<typename PROD>
+    void
+    put(EDPutToken token, std::unique_ptr<PROD> product);
+    
+    template<typename PROD>
+    void
+    put(EDPutTokenT<PROD> token, std::unique_ptr<PROD> product);
 
     Provenance
     getProvenance(BranchID const& theID) const;
@@ -194,6 +207,18 @@ namespace edm {
 
     // product.release(); // The object has been copied into the Wrapper.
     // The old copy must be deleted, so we cannot release ownership.
+  }
+
+  template<typename PROD>
+  void
+  Run::put(EDPutTokenT<PROD> token, std::unique_ptr<PROD> product) {
+    put(std::move(product), provRecorder_.productInstanceLabel(token));
+  }
+  
+  template<typename PROD>
+  void
+  Run::put(EDPutToken token, std::unique_ptr<PROD> product) {
+    put(std::move(product), provRecorder_.productInstanceLabel(token));
   }
 
   template <typename PROD>

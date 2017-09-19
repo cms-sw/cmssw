@@ -112,6 +112,7 @@ namespace edm {
         if(T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache or T::HasAbility::kBeginRunProducer) {
           Run r(rp, this->moduleDescription(), mcc);
           r.setConsumer(this->consumer());
+          r.setProducer(this->producer());
           Run const& cnstR = r;
           RunIndex ri = rp.index();
           MyGlobalRun::beginRun(cnstR,c,m_global.get(),m_runs[ri]);
@@ -131,6 +132,7 @@ namespace edm {
           
           Run r(rp, this->moduleDescription(), mcc);
           r.setConsumer(this->consumer());
+          r.setProducer(this->producer());
 
           RunIndex ri = rp.index();
           typename T::RunContext rc(m_runs[ri].get(),m_global.get());
@@ -149,6 +151,7 @@ namespace edm {
         if(T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache or T::HasAbility::kBeginLuminosityBlockProducer) {
           LuminosityBlock lb(lbp, this->moduleDescription(), mcc);
           lb.setConsumer(this->consumer());
+          lb.setProducer(this->producer());
           LuminosityBlock const& cnstLb = lb;
           LuminosityBlockIndex li = lbp.index();
           RunIndex ri = lbp.runPrincipal().index();
@@ -170,7 +173,8 @@ namespace edm {
           
           LuminosityBlock lb(lbp, this->moduleDescription(), mcc);
           lb.setConsumer(this->consumer());
-          
+          lb.setProducer(this->producer());
+
           LuminosityBlockIndex li = lbp.index();
           RunIndex ri = lbp.runPrincipal().index();
           typename T::LuminosityBlockContext lc(m_lumis[li].get(),m_runs[ri].get(),m_global.get());
