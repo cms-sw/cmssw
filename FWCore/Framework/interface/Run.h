@@ -44,7 +44,7 @@ namespace edm {
   public:
     Run(RunPrincipal const& rp, ModuleDescription const& md,
         ModuleCallingContext const*);
-    ~Run();
+    ~Run() override;
 
     //Used in conjunction with EDGetToken
     void setConsumer(EDConsumerBase const* iConsumer) {
@@ -61,7 +61,7 @@ namespace edm {
 
     typedef PrincipalGetAdapter Base;
     // AUX functions are defined in RunBase
-    RunAuxiliary const& runAuxiliary() const {return aux_;}
+    RunAuxiliary const& runAuxiliary() const override {return aux_;}
     // AUX functions.
 //     RunID const& id() const {return aux_.id();}
 //     RunNumber_t run() const {return aux_.run();}
@@ -158,7 +158,7 @@ namespace edm {
     runPrincipal() const;
 
     // Override version from RunBase class
-    virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const;
+    BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const override;
 
     typedef std::vector<std::pair<edm::propagate_const<std::unique_ptr<WrapperBase>>, BranchDescription const*>> ProductPtrVec;
     ProductPtrVec& putProducts() {return putProducts_;}
