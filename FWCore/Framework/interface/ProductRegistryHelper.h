@@ -24,16 +24,47 @@ namespace edm {
     ~ProductRegistryHelper();
  
     struct TypeLabelItem {
-      TypeLabelItem (Transition const& transition, TypeID const& tid, std::string const& pin) :
+      TypeLabelItem (Transition const& transition, TypeID const& tid, std::string pin) :
 	      transition_(transition),
         typeID_(tid),
-        productInstanceName_(pin),
+        productInstanceName_(std::move(pin)),
         branchAlias_() {}
       Transition transition_;
       TypeID typeID_;
       std::string productInstanceName_;
-      mutable std::string branchAlias_;
-      void setBranchAlias(std::string const& alias) const {branchAlias_ = alias;}
+      std::string branchAlias_;
+    };
+
+    struct BranchAliasSetter {
+      BranchAliasSetter(TypeLabelItem& iItem, EDPutToken iToken):
+      value_(iItem), token_(std::move(iToken)) {}
+      
+      BranchAliasSetter& setBranchAlias(std::string alias) {
+        value_.branchAlias_ = std::move(alias);
+        return *this;
+      }
+      TypeLabelItem& value_;
+      EDPutToken token_;
+      
+      operator EDPutToken() { return token_;}
+    };
+
+    template <typename T>
+    struct BranchAliasSetterT {
+      BranchAliasSetterT(TypeLabelItem& iItem, EDPutTokenT<T> iToken):
+      value_(iItem), token_(std::move(iToken)) {}
+
+      BranchAliasSetterT( BranchAliasSetter&& iS):
+      value_(iS.value_), token_(iS.token_.index()) {}
+      
+      BranchAliasSetter& setBranchAlias(std::string alias) {
+        value_.branchAlias_ = std::move(alias);
+        return this;
+      }
+      TypeLabelItem& value_;
+      EDPutTokenT<T> token_;
+      
+      operator EDPutTokenT<T>() { return token_;}
     };
 
     typedef std::vector<TypeLabelItem> TypeLabelList;
@@ -57,53 +88,53 @@ namespace edm {
 
 
     template <class ProductType> 
-    EDPutTokenT<ProductType> produces() {
+    BranchAliasSetterT<ProductType> produces() {
       return produces<ProductType, InEvent>(std::string());
     }
 
     template <class ProductType> 
-    EDPutTokenT<ProductType> produces(std::string const& instanceName) {
+    BranchAliasSetterT<ProductType> produces(std::string const& instanceName) {
       return produces<ProductType, InEvent>(instanceName);
     }
 
     template <typename ProductType, BranchType B> 
-    EDPutTokenT<ProductType> produces() {
+    BranchAliasSetterT<ProductType> produces() {
       return produces<ProductType, B>(std::string());
     }
 
     template <typename ProductType, BranchType B> 
-    EDPutTokenT<ProductType> produces(std::string const& instanceName) {
+    BranchAliasSetterT<ProductType> produces(std::string const& instanceName) {
       TypeID tid(typeid(ProductType));
-      return EDPutTokenT<ProductType>{produces<B>(tid,instanceName).index()};
+      return BranchAliasSetterT<ProductType>{produces<B>(tid,instanceName)};
     }
 
     template <typename ProductType, Transition B>
-    EDPutTokenT<ProductType> produces() {
+    BranchAliasSetterT<ProductType> produces() {
       return produces<ProductType, B>(std::string());
     }
     
     template <typename ProductType, Transition B>
-    EDPutTokenT<ProductType> produces(std::string const& instanceName) {
+    BranchAliasSetterT<ProductType> produces(std::string const& instanceName) {
       TypeID tid(typeid(ProductType));
-      return EDPutTokenT<ProductType>{produces<B>(tid,instanceName).index()};
+      return BranchAliasSetterT<ProductType>{produces<B>(tid,instanceName)};
     }
 
    
-    EDPutToken produces(const TypeID& id, std::string const& instanceName=std::string()) {
+    BranchAliasSetter produces(const TypeID& id, std::string const& instanceName=std::string()) {
       return produces<Transition::Event>(id,instanceName);
     }
 
     template <BranchType B>
-    EDPutToken produces(const TypeID& id, std::string const& instanceName=std::string()) {
+    BranchAliasSetter produces(const TypeID& id, std::string const& instanceName=std::string()) {
       unsigned int index =typeLabelList_.size();
        typeLabelList_.emplace_back(convertToTransition(B), id, instanceName);
-      return EDPutToken{static_cast<unsigned int>(index)};
+      return BranchAliasSetter{typeLabelList_.back(),EDPutToken{static_cast<unsigned int>(index)}};
     }
     template <Transition B>
-    EDPutToken produces(const TypeID& id, std::string const& instanceName=std::string()) {
+    BranchAliasSetter produces(const TypeID& id, std::string const& instanceName=std::string()) {
       unsigned int index =typeLabelList_.size();
       typeLabelList_.emplace_back(B, id, instanceName);
-      return EDPutToken{ index };
+      return BranchAliasSetter{typeLabelList_.back(),EDPutToken{ index }};
     }
 
   private:
