@@ -116,10 +116,10 @@ namespace {
       std::map<AlignmentPI::partitions,int> colormap;
       colormap[AlignmentPI::BPix] = kBlue;
       colormap[AlignmentPI::FPix] = kBlue+2;
-      colormap[AlignmentPI::TIB] = kRed;           
-      colormap[AlignmentPI::TOB] = kRed+2;
-      colormap[AlignmentPI::TID] = kRed+4;	    
-      colormap[AlignmentPI::TEC] = kRed+6; 	    
+      colormap[AlignmentPI::TIB]  = kRed;           
+      colormap[AlignmentPI::TOB]  = kRed+2;
+      colormap[AlignmentPI::TID]  = kRed+4;	    
+      colormap[AlignmentPI::TEC]  = kRed+6; 	    
       
       std::map<AlignmentPI::partitions,std::shared_ptr<TH1F> > APE_spectra; 
       std::vector<AlignmentPI::partitions> parts = {AlignmentPI::BPix,AlignmentPI::FPix,AlignmentPI::TIB,AlignmentPI::TID,AlignmentPI::TOB,AlignmentPI::TEC};
@@ -208,7 +208,6 @@ namespace {
   typedef TrackerAlignmentErrorExtendedSummary<AlignmentPI::XZ> TrackerAlignmentErrorExtendedXZSummary; 
   typedef TrackerAlignmentErrorExtendedSummary<AlignmentPI::YZ> TrackerAlignmentErrorExtendedYZSummary; 
 
-
   // /************************************************
   //   TrackerMap of sqrt(d_ii) of 1 IOV
   // *************************************************/
@@ -276,7 +275,116 @@ namespace {
   typedef TrackerAlignmentErrorExtendedTrackerMap<AlignmentPI::XY> TrackerAlignmentErrorExtendedXYTrackerMap; 
   typedef TrackerAlignmentErrorExtendedTrackerMap<AlignmentPI::XZ> TrackerAlignmentErrorExtendedXZTrackerMap; 
   typedef TrackerAlignmentErrorExtendedTrackerMap<AlignmentPI::YZ> TrackerAlignmentErrorExtendedYZTrackerMap; 
+   
+  // /************************************************
+  //  Pixel details of 1 IOV
+  // *************************************************/
+  class TrackerAlignmentErrorExtendedPixelDetail : public cond::payloadInspector::PlotImage<AlignmentErrorsExtended> {
+  public:
+    TrackerAlignmentErrorExtendedPixelDetail() : cond::payloadInspector::PlotImage<AlignmentErrorsExtended>( "Details for BPix" ){
+      setSingleIov( true );
+    }
+
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+      auto iov = iovs.front();
+      std::shared_ptr<AlignmentErrorsExtended> payload = fetchPayload( std::get<1>(iov) );
+  
+      std::vector<AlignTransformErrorExtended> alignErrors = payload->m_alignError;
+
+      const char * path_toTopologyXML = (alignErrors.size()==AlignmentPI::phase0size) ? "Geometry/TrackerCommonData/data/trackerParameters.xml" : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath(path_toTopologyXML).fullPath()); 
+
+      TCanvas canvas("Pixel summary","Pixel summary",1200,1200); 
+      canvas.Divide(3,2);
+
+      std::map< std::pair<AlignmentPI::index,AlignmentPI::regions>,std::shared_ptr<TH1F> > APE_spectraByRegion;
+      std::map< AlignmentPI::index,std::shared_ptr<TH1F> > summaries; 
+
+      for(int k = AlignmentPI::XX; k<=AlignmentPI::ZZ;k++){
+
+	AlignmentPI::index coord = (AlignmentPI::index) k;
+	std::string s_coord = AlignmentPI::getStringFromIndex(coord);
+
+	summaries[coord] = std::make_shared<TH1F>(Form("Summary_%s",s_coord.c_str()),Form("Summary for d_{%s} APE;;APE d_{%s} [#mum]",s_coord.c_str(),s_coord.c_str()),14,0,14);
+
+	for(int j = AlignmentPI::BPixL1o; j<=AlignmentPI::FPixpL3; j++){
+
+	  AlignmentPI::regions part = (AlignmentPI::regions) j;  
+	  std::string s_part =  AlignmentPI::getStringFromRegionEnum(part);
+	  
+	  auto hash = std::make_pair(coord,part);
+	  
+	  APE_spectraByRegion[hash] = std::make_shared<TH1F>(Form("hAPE_%s_%s",s_coord.c_str(),s_part.c_str()),Form(";%s APE #sqrt{d_{%s}} [#mum];n. of modules",s_part.c_str(),s_coord.c_str()),1000,0.,1000.);       
+	  	 
+	}
+      }
+
+      // loop on the vector of errors
+      for (const auto& it : alignErrors ){
+
+	CLHEP::HepSymMatrix errMatrix = it.matrix();
+	
+	if(DetId(it.rawId()).det() != DetId::Tracker){
+	  edm::LogWarning("TrackerAlignmentErrorExtended_PayloadInspector") << "Encountered invalid Tracker DetId:" << it.rawId() <<" - terminating ";
+	  return false;
+	}
+
+	int subid = DetId(it.rawId()).subdetId();	    
+	if(subid!=1 && subid!=2) continue;
+
+	// fill the struct
+	AlignmentPI::topolInfo t_info_fromXML;
+	t_info_fromXML.init();
+	t_info_fromXML.m_rawid = it.rawId();
+	DetId detid(t_info_fromXML.m_rawid);
+	t_info_fromXML.m_subdetid = subid;
+	t_info_fromXML.fillGeometryInfo(detid,tTopo);
+	t_info_fromXML.printAll();
+
+	AlignmentPI::regions thePart = t_info_fromXML.filterThePartition();
+	std::cout<< AlignmentPI::getStringFromRegionEnum(thePart) << std::endl;
+	
+	for(int k = AlignmentPI::XX; k<=AlignmentPI::ZZ;k++){
+	
+	  AlignmentPI::index coord = (AlignmentPI::index) k;
+	  auto indices = AlignmentPI::getIndices(coord);
+	  auto hash = std::make_pair(coord,thePart);
+
+	  APE_spectraByRegion[hash]->Fill(sqrt(errMatrix[indices.first][indices.second])*AlignmentPI::cmToUm);
+
+	} // loop on the coordinate indices
+
+      } // loop over detIds
+
+      for(int k = AlignmentPI::XX; k<=AlignmentPI::ZZ;k++){
+	AlignmentPI::index coord = (AlignmentPI::index) k;
+	for(int j = AlignmentPI::BPixL1o; j<=AlignmentPI::FPixpL3; j++){
+	  AlignmentPI::regions part = (AlignmentPI::regions) j;  
+	  auto hash = std::make_pair(coord,part);
+	  summaries[coord]->GetXaxis()->SetBinLabel(j+1, AlignmentPI::getStringFromRegionEnum(part).c_str());
+	  summaries[coord]->SetBinContent(j+1,APE_spectraByRegion[hash]->GetMean());
+	  summaries[coord]->SetBinError(j+1,APE_spectraByRegion[hash]->GetRMS());
+	  AlignmentPI::makeNicePlotStyle(summaries[coord].get(),kBlue);
+	  summaries[coord]->GetXaxis()->LabelsOption("v");
+	  summaries[coord]->GetXaxis()->SetLabelSize(0.6);
+	}
      
+	canvas.cd(k);
+	canvas.cd(k)->SetTopMargin(0.07);
+	canvas.cd(k)->SetBottomMargin(0.15);
+	canvas.cd(k)->SetLeftMargin(0.18);
+	canvas.cd(k)->SetRightMargin(0.05);
+	summaries[coord]->Draw("E1");
+	
+      }
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }
+  };
+ 
 } // close namespace
 
 // Register the classes as boost python plugin
@@ -299,4 +407,5 @@ PAYLOAD_INSPECTOR_MODULE(TrackerAlignmentErrorExtended){
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXYTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXZTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedYZTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedPixelDetail);
 }
