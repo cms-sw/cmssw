@@ -39,6 +39,8 @@
 
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "CommonTools/Utils/interface/TMVAZipReader.h"
+
 #include <string>
 //
 // class declaration
@@ -65,7 +67,8 @@ class BaseMVAValueMapProducer : public edm::stream::EDProducer<> {
 	reader_.AddVariable(v,(&values_.front())+i);
 	i++;
       }
-      reader_.BookMVA(name_,iConfig.getParameter<edm::FileInPath>("weightFile").fullPath() );
+//      reader_.BookMVA(name_,iConfig.getParameter<edm::FileInPath>("weightFile").fullPath() );
+      reco::details::loadTMVAWeights(&reader_, name_, iConfig.getParameter<edm::FileInPath>("weightFile").fullPath());
       produces<edm::ValueMap<float>>();
 
   }
