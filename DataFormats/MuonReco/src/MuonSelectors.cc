@@ -929,3 +929,46 @@ int muon::sharedSegments( const reco::Muon& mu, const reco::Muon& mu2, unsigned 
   
     return ret; 
 }
+
+void muon::setCutBasedSelectorFlags(reco::Muon& muon, 
+				    const reco::Vertex* vertex)
+{
+  // https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideMuonIdRun2
+  unsigned int selection = muon.getSelectionMask();
+  // Compute Id and Isolation variables
+  double chIso  = muon.pfIsolationR04().sumChargedHadronPt;
+  double nIso   = muon.pfIsolationR04().sumNeutralHadronEt;
+  double phoIso = muon.pfIsolationR04().sumPhotonEt;
+  double puIso  = muon.pfIsolationR04().sumPUPt;
+  double dbCorrectedIsolation = chIso + std::max( nIso + phoIso - .5*puIso, 0. ) ;
+  double dbCorectedRelIso = dbCorrectedIsolation/muon.pt();
+  double tkRelIso = muon.isolationR03().sumPt/muon.pt();
+
+  // Base selectors
+  if (muon::isLooseMuon(muon))        selection |= reco::Muon::CutBasedIdLoose;
+  if (vertex){
+    if (muon::isTightMuon(muon,*vertex))  selection |= reco::Muon::CutBasedIdTight;
+    if (muon::isSoftMuon(muon,*vertex))   selection |= reco::Muon::SoftCutBasedId;
+    if (muon::isHighPtMuon(muon,*vertex)) selection |= reco::Muon::CutBasedIdHighPt;
+  }
+  if (muon::isMediumMuon(muon)){
+    selection |= reco::Muon::CutBasedIdMedium;
+    if ( vertex and 
+	 fabs(muon.muonBestTrack()->dz( vertex->position()))<0.1 and 
+	 fabs(muon.muonBestTrack()->dxy(vertex->position()))< 0.02 )
+      selection |= reco::Muon::CutBasedIdMediumPrompt;
+  }
+
+  // PF isolation
+  if (dbCorectedRelIso<0.40)    selection |= reco::Muon::PFIsoVeryLoose;
+  if (dbCorectedRelIso<0.25)    selection |= reco::Muon::PFIsoLoose;
+  if (dbCorectedRelIso<0.20)    selection |= reco::Muon::PFIsoMedium;
+  if (dbCorectedRelIso<0.15)    selection |= reco::Muon::PFIsoTight;
+  if (dbCorectedRelIso<0.10)    selection |= reco::Muon::PFIsoVeryTight;
+  
+  // Tracker isolation
+  if (tkRelIso<0.10)            selection |= reco::Muon::TkIsoLoose;
+  if (tkRelIso<0.05)            selection |= reco::Muon::TkIsoTight;
+
+  muon.setSelectionMask(selection);
+}
