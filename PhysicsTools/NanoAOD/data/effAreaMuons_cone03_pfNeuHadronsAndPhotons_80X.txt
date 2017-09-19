@@ -1,0 +1,8 @@
+# Spring15_25ns_v1 version of muon effective areas for dR=0.3,
+# neutral+photon PF isolation component, for usage with mini-isolation
+# |eta| min   |eta| max   effective area
+0.0000         0.8000        0.0735
+0.8000         1.3000        0.0619
+1.3000         2.0000        0.0465
+2.0000         2.2000        0.0433
+2.2000         2.4000        0.0577

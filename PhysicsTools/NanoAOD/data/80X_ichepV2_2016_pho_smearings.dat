@@ -1,0 +1,9 @@
+#category				 Emean	err_Emean	rho		err_rho		phi		err_phi
+absEta_0_1-highR9		 6.60		0		0.0083	0.0005		M_PI_2	M_PI_2
+absEta_0_1-lowR9		 6.73		0		0.0095 	0.0007		M_PI_2	M_PI_2
+absEta_1_1.4442-highR9	 6.52		0		0.0105 	0.0019 		M_PI_2	M_PI_2
+absEta_1_1.4442-lowR9	 6.72		0		0.0159 	0.0013		M_PI_2	M_PI_2
+absEta_1.566_2-highR9	 6.76		0		0.0182 	0.0016		M_PI_2	M_PI_2
+absEta_1.566_2-lowR9	 6.77		0		0.0218 	0.0013		M_PI_2	M_PI_2
+absEta_2_2.5-highR9		 6.54		0		0.0229 	0.0005		M_PI_2	M_PI_2
+absEta_2_2.5-lowR9		 6.73		0		0.0247 	0.0019		M_PI_2	M_PI_2
