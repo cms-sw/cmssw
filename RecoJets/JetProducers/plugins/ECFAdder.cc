@@ -80,7 +80,7 @@ void ECFAdder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
 	
 	float t= -1.0;
-	if ( selectors_[n - Njets_.begin()] (*jetIt) )
+	if ( jetPtr->numberOfDaughters() > n && selectors_[n - Njets_.begin()] (*jetIt) )
 	  t = getECF( i, jetPtr );	
 
 	ecfN.push_back(t);
