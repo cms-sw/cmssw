@@ -172,7 +172,7 @@ void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker & iBooker,
     book1D(iBooker, "massVsDZZ_" + suffix,  "z0", ";z0;");
 
     
-    if (requiredTriggers_.size() > 0){
+    if (!requiredTriggers_.empty()){
       book1D(iBooker, "Refefficiency_Eta_Mu1_" + suffix, "etaCoarse", ";#eta;");
       book1D(iBooker, "Refefficiency_Eta_Mu2_" + suffix, "etaCoarse", ";#eta;");
       book1D(iBooker, "Refefficiency_TurnOn_Mu1_" + suffix, "ptCoarse", ";p_{T};");
@@ -192,7 +192,7 @@ void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker & iBooker,
     // string MRbaseDir = boost::replace_all_copy<string>(baseDir, "HLT/Muon","HLT/Muon/MR");
     iBooker.setCurrentFolder(MRbaseDir + pathSansSuffix + "/");
 
-    if (requiredTriggers_.size() > 0){
+    if (!requiredTriggers_.empty()){
       book1D(iBooker, "MR_Refefficiency_TurnOn_Mu1_" + suffix, "pt", ";p_{T};");
       book1D(iBooker, "MR_Refefficiency_TurnOn_Mu2_" + suffix, "pt", ";p_{T};");
       book1D(iBooker, "MR_Refefficiency_Vertex_" + suffix, "NVertexFine", ";NVertex;");
@@ -427,7 +427,7 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
   if (!isLastFilter_) return;
   unsigned int numTriggers = trigNames.size();
   bool passTrigger = false;
-  if (requiredTriggers_.size() == 0) passTrigger = true;
+  if (requiredTriggers_.empty()) passTrigger = true;
   for (auto const & requiredTrigger : requiredTriggers_) {
     for ( unsigned int hltIndex = 0; hltIndex < numTriggers; ++hltIndex){
       passTrigger = (trigNames.triggerName(hltIndex).find(requiredTrigger) != std::string::npos && triggerResults->wasrun(hltIndex) && triggerResults->accept(hltIndex));
@@ -439,7 +439,7 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
   for (unsigned long matche : matches){
     if (matche < targetMuons.size()) nMatched++;
   }
-  if (requiredTriggers_.size() > 0 && targetMuons.size() > 1 && passTrigger){
+  if (!requiredTriggers_.empty() && targetMuons.size() > 1 && passTrigger){
     // denominator: 
     hists_["Refefficiency_Eta_Mu1_denom"]->Fill( targetMuons.at(0).eta());					
     hists_["Refefficiency_Eta_Mu2_denom"]->Fill( targetMuons.at(1).eta());
