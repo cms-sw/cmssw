@@ -270,21 +270,29 @@ L1TStage2Layer2Producer::beginRun(edm::Run const& iRun, edm::EventSetup const& i
 
     m_paramsCacheId = id;
 
-    edm::ESHandle<CaloParams> paramsHandle, o2oProtoHandle;
-    iSetup.get<L1TCaloParamsRcd>().get(paramsHandle);
+    // fetch payload corresponding to the current run from the CondDB
+    edm::ESHandle<CaloParams> candidateHandle;
+    iSetup.get<L1TCaloParamsRcd>().get(candidateHandle);
+    std::unique_ptr<l1t::CaloParamsHelper> candidate(new l1t::CaloParamsHelper( *candidateHandle.product() ));
+
+    // fetch the latest greatest prototype (equivalent of static payload)
+    edm::ESHandle<CaloParams> o2oProtoHandle;
     iSetup.get<L1TCaloParamsO2ORcd>().get(o2oProtoHandle);
+    std::unique_ptr<l1t::CaloParamsHelper> prototype(new l1t::CaloParamsHelper( *o2oProtoHandle.product() ));
 
-    // replace our local copy of the parameters with a new one using placement new
-    //  KK: this nifty trick works as long as current definition of CaloParams
-    //      takes more space than the one obtained from the record
+    // prepare to set the emulator's configuration
+    //  and then replace our local copy of the parameters with a new one using placement new
     m_params->~CaloParamsHelper();
-    m_params = new (m_params) CaloParamsHelper(*o2oProtoHandle.product());
 
-    // KK: now copy all the pnodes that were present at the time the payload was created
-    //  and put those over the values of prototype, generated above
-    std::unique_ptr<l1t::CaloParamsHelper> params(new l1t::CaloParamsHelper(*(paramsHandle.product ())));
-    for(size_t n = 0; n < params->getNodes().size(); ++n)
-        m_params->setNode(n,params->getNodes()[n]);
+    // compare the candidate payload misses some of the pnodes compared to the prototype,
+    // if this is the case - the candidate is an old payload that'll crash the Stage2 emulator
+    // and we better use the prototype for the emulator's configuration
+    if( candidate->getNodes().size() < prototype->getNodes().size() )
+        m_params = new (m_params) CaloParamsHelper( *o2oProtoHandle.product() );
+    else
+        m_params = new (m_params) CaloParamsHelper( *candidateHandle.product() );
+    // KK: the nifty tricks above (placement new) work as long as current definition of
+    //     CaloParams takes more space than the one obtained from the record
 
     LogDebug("L1TDebug") << *m_params << std::endl;
 
