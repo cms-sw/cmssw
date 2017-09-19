@@ -395,9 +395,9 @@ namespace pat {
     virtual void setPz( double pz ) {
       maybeUnpackBoth(); // changing px,py,pz changes also mapping between dxy,dz and x,y,z
       *p4c_ = LorentzVector(p4c_.load()->Px(), p4c_.load()->Py(), pz, p4c_.load()->E());
-      dphi_+=polarP4().Phi()-(*p4c_).Phi();
-      deta_+=polarP4().Eta()-(*p4c_).Eta();
-      dtrkpt_+=polarP4().Pt()-(*p4c_).Pt();
+      dphi_+=polarP4().Phi()- p4c_.load()->Phi();
+      deta_+=polarP4().Eta()- p4c_.load()->Eta();
+      dtrkpt_+=polarP4().Pt()- p4c_.load()->Pt();
       *p4_  = PolarLorentzVector(p4c_.load()->Pt(), p4c_.load()->Eta(), p4c_.load()->Phi(), p4c_.load()->M());
       packBoth();
     }
