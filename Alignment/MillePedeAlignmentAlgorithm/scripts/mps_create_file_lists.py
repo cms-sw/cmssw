@@ -56,9 +56,20 @@ class FileListCreator(object):
 
         self._dataset_regex = re.compile(r"^/([^/]+)/([^/]+)/([^/]+)$")
         self._validate_input()
+
+        if self._args.test_mode:
+            import Configuration.PyReleaseValidation.relval_steps as rvs
+            import Configuration.PyReleaseValidation.relval_production as rvp
+            self._args.datasets = [rvs.steps[rvp.workflows[1000][1][0]]["INPUT"].dataSet]
+            self._validate_input() # ensure that this change is valid
+
         self._datasets = sorted([dataset
                                  for pattern in self._args.datasets
                                  for dataset in get_datasets(pattern)])
+        if len(self._datasets) == 0:
+            print_msg("Found no dataset matching the pattern(s):")
+            for d in self._args.datasets: print_msg("\t"+d)
+            sys.exit(1)
 
         self._formatted_dataset = merge_strings(
             [re.sub(self._dataset_regex, r"\1_\2_\3", dataset)
@@ -165,6 +176,9 @@ class FileListCreator(object):
         parser.add_argument("--force", action = "store_true", default = False,
                             help = ("remove output directory from previous "
                                     "runs, if existing"))
+        parser.add_argument("--test-mode", dest = "test_mode",
+                            action = "store_true", default = False,
+                            help = argparse.SUPPRESS) # hidden option
         return parser
 
 
@@ -320,6 +334,8 @@ class FileListCreator(object):
         self._file_info = {}
         for item in result: self._file_info.update(dict(item))
         self._files = sorted(self._file_info.keys())
+        if self._args.test_mode:
+            self._files = self._files[-200:] # take only last chunk of files
 
         # write information to cache
         self._cache.set(self._events_in_dataset, self._files, self._file_info)
@@ -653,7 +669,7 @@ def das_client(query, check_key = None):
                 break
 
             result_count = 0
-            for d in find_key(das_data["data"], check_key):
+            for d in find_key(das_data["data"], [check_key]):
                 result_count += len(d)
             if result_count == 0:
                 das_data["status"] = "error"
@@ -671,19 +687,30 @@ def das_client(query, check_key = None):
     return das_data["data"]
 
 
-def find_key(collection, key):
+def find_key(collection, key_chain):
     """Searches for `key` in `collection` and returns first corresponding value.
 
     Arguments:
     - `collection`: list of dictionaries
-    - `key`: key to be searched for
+    - `key_chain`: chain of keys to be searched for
     """
 
-    for item in collection:
-        if key in item:
-            return item[key]
-    print collection
-    raise KeyError(key)
+    result = None
+    for i,key in enumerate(key_chain):
+        for item in collection:
+            if key in item:
+                if i == len(key_chain) - 1:
+                    result = item[key]
+                else:
+                    try:
+                        result = find_key(item[key], key_chain[i+1:])
+                    except LookupError:
+                        pass    # continue with next `item` in `collection`
+            else:
+                pass            # continue with next `item` in `collection`
+
+    if result is not None: return result
+    raise LookupError(key_chain, collection) # put
 
 
 def print_msg(text, line_break = True, log_file = None):
@@ -725,10 +752,10 @@ def get_files(dataset_name):
     - `dataset_name`: name of the dataset
     """
 
-    data = das_client(("file dataset={0:s} system=dbs3 | "+
+    data = das_client(("file dataset={0:s} system=dbs3 detail=True | "+
                        "grep file.name, file.nevents > 0").format(dataset_name),
                       "file")
-    return [find_key(f["file"], "name") for f in data]
+    return [find_key(f["file"], ["name"]) for f in data]
 
 
 def get_datasets(dataset_pattern):
@@ -738,9 +765,9 @@ def get_datasets(dataset_pattern):
     - `dataset_pattern`: pattern of dataset names
     """
 
-    data = das_client("dataset dataset={0:s} system=dbs3 | grep dataset.name"
-                      .format(dataset_pattern), "dataset")
-    return [find_key(f["dataset"], "name") for f in data]
+    data = das_client("dataset dataset={0:s} system=dbs3 detail=True"
+                      "| grep dataset.name".format(dataset_pattern), "dataset")
+    return sorted(set([find_key(f["dataset"], ["name"]) for f in data]))
 
 
 def get_events_per_dataset(dataset_name):
@@ -771,9 +798,9 @@ def _get_events(entity, name):
     - `name`: name of entity
     """
 
-    data = das_client("{0:s}={1:s} system=dbs3 | grep {0:s}.nevents"
+    data = das_client("{0:s}={1:s} system=dbs3 detail=True | grep {0:s}.nevents"
                       .format(entity, name), entity)
-    return int(find_key(find_key(data, entity), "nevents"))
+    return int(find_key(data, [entity, "nevents"]))
 
 
 def _get_properties(name, entity, properties, filters, sub_entity = None):
@@ -794,10 +821,10 @@ def _get_properties(name, entity, properties, filters, sub_entity = None):
     conditions = ["{0:s}.{1:s}".format(sub_entity, filt)
                   for filt in filters]
 
-    data = das_client("{0:s} {1:s}={2:s} system=dbs3 | grep {3:s}"
+    data = das_client("{0:s} {1:s}={2:s} system=dbs3 detail=True | grep {3:s}"
                       .format(sub_entity, entity, name,
                               ", ".join(props+conditions)), sub_entity)
-    return [[find_key(f[sub_entity], prop) for prop in properties] for f in data]
+    return [[find_key(f[sub_entity], [prop]) for prop in properties] for f in data]
 
 
 def get_chunks(long_list, chunk_size):
