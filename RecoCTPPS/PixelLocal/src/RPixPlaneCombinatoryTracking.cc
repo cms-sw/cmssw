@@ -303,7 +303,7 @@ void RPixPlaneCombinatoryTracking::findTracks(){
       std::unique_ptr<CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit> 
         fittedRecHit(new CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit());
       math::GlobalPoint pointOnDet;
-      calculatePointOnDetector(bestTrack, tmpPlaneId, pointOnDet);
+      calculatePointOnDetector(&bestTrack, tmpPlaneId, pointOnDet);
 
 
       if(hitMap_->find(tmpPlaneId) != hitMap_->end()){
@@ -456,7 +456,7 @@ CTPPSPixelLocalTrack RPixPlaneCombinatoryTracking::fitTrack(PointInPlaneList poi
   for(const auto & hit : pointList){
     CLHEP::Hep3Vector globalPoint = hit.globalPoint;
     math::GlobalPoint pointOnDet;
-    bool foundPoint = calculatePointOnDetector(goodTrack, hit.detId, pointOnDet);
+    bool foundPoint = calculatePointOnDetector(&goodTrack, hit.detId, pointOnDet);
     if(!foundPoint){
       CTPPSPixelLocalTrack badTrack;
       badTrack.setValid(false);
@@ -481,14 +481,14 @@ CTPPSPixelLocalTrack RPixPlaneCombinatoryTracking::fitTrack(PointInPlaneList poi
 //------------------------------------------------------------------------------------------------//
 
 //The method calculates the hit pointed by the track on the detector plane
-bool RPixPlaneCombinatoryTracking::calculatePointOnDetector(CTPPSPixelLocalTrack track, CTPPSPixelDetId planeId,
+bool RPixPlaneCombinatoryTracking::calculatePointOnDetector(CTPPSPixelLocalTrack *track, CTPPSPixelDetId planeId,
                                                             math::GlobalPoint &planeLineIntercept){
-  double z0 = track.getZ0();
-  CTPPSPixelLocalTrack::ParameterVector parameters = track.getParameterVector();
+  double z0 = track->getZ0();
+  CTPPSPixelLocalTrack::ParameterVector parameters = track->getParameterVector();
 
 
   TVectorD pointOnLine(0,2,parameters[0], parameters[1], z0,"END");
-  math::GlobalVector tmpLineUnitVector = track.getDirectionVector();
+  math::GlobalVector tmpLineUnitVector = track->getDirectionVector();
   TVectorD lineUnitVector(0,2,tmpLineUnitVector.x(),tmpLineUnitVector.y(),tmpLineUnitVector.z(),"END");
 
   CLHEP::Hep3Vector tmpPointLocal(0.,0.,0.);
