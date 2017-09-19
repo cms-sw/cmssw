@@ -172,7 +172,6 @@ L1TStage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
     LogDebug("L1TDebug") << "BX=" << ibx << ", N(Towers)=" << towers->size(ibx) << std::endl;
 
-std::cout << "!!!!10" << std::endl;
     for(std::vector<CaloTower>::const_iterator tower = towers->begin(ibx);
 	tower != towers->end(ibx);
 	++tower) {
@@ -193,7 +192,6 @@ std::cout << "!!!!10" << std::endl;
 
     LogDebug("L1TDebug") << "BX=" << ibx << ", N(Towers)=" << localTowers->size() << std::endl;
 
-std::cout << "!!!!20" << std::endl;
     m_processor->processEvent(*localTowers,
 			      *localOutTowers,
 			      *localClusters,
@@ -228,7 +226,6 @@ std::cout << "!!!!20" << std::endl;
       etsums->push_back(ibx, CaloTools::etSumP4Demux(*etsum));
 
   
-std::cout << "!!!!30" << std::endl;
     LogDebug("L1TDebug") << "BX=" << ibx << ", N(Cluster)=" << localClusters->size() << ", N(EG)=" << localEGammas->size() << ", N(Tau)=" << localTaus->size() << ", N(Jet)=" << localJets->size() << ", N(Sums)=" << localEtSums->size() << std::endl;
 
   }
