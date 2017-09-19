@@ -497,10 +497,6 @@ bool RPixPlaneCombinatoryTracking::calculatePointOnDetector(CTPPSPixelLocalTrack
   TVectorD pointOnPlane(0,2,tmpPointOnPlane.x(), tmpPointOnPlane.y(), tmpPointOnPlane.z(),"END");
   TVectorD planeUnitVector(0,2,0.,0.,1.,"END");
 
-  if(geometry_->getSensor(planeId) == NULL){
-    std::cout<<"Sensor with id "<<planeId<<" not found in the geometry\n";
-    return false;
-  }
   DDRotationMatrix theRotationMatrix = geometry_->getSensor(planeId)->rotation();
   TMatrixD tmpPlaneRotationMatrixMap;
   tmpPlaneRotationMatrixMap.ResizeTo(3,3);
