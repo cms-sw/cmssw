@@ -803,7 +803,8 @@ def _get_events(entity, name):
     return int(find_key(data, [entity, "nevents"]))
 
 
-def _get_properties(name, entity, properties, filters, sub_entity = None):
+def _get_properties(name, entity, properties, filters = None, sub_entity = None,
+                    aggregators = None):
     """Retrieve `properties` from `entity` called `name`.
 
     Arguments:
@@ -813,17 +814,20 @@ def _get_properties(name, entity, properties, filters, sub_entity = None):
     - `filters`: list of filters on properties
     - `sub_entity`: type of entity from which to extract the properties;
                     defaults to `entity`
+    - `aggregators`: additional aggregators/filters to amend to query
     """
 
     if sub_entity is None: sub_entity = entity
+    if filters is None:    filters    = []
     props = ["{0:s}.{1:s}".format(sub_entity,prop.split()[0])
              for prop in properties]
     conditions = ["{0:s}.{1:s}".format(sub_entity, filt)
                   for filt in filters]
+    add_ons = "" if aggregators is None else " | "+" | ".join(aggregators)
 
-    data = das_client("{0:s} {1:s}={2:s} system=dbs3 detail=True | grep {3:s}"
+    data = das_client("{0:s} {1:s}={2:s} system=dbs3 detail=True | grep {3:s}{4:s}"
                       .format(sub_entity, entity, name,
-                              ", ".join(props+conditions)), sub_entity)
+                              ", ".join(props+conditions), add_ons), sub_entity)
     return [[find_key(f[sub_entity], [prop]) for prop in properties] for f in data]
 
 
