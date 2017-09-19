@@ -81,7 +81,7 @@ public:
 
   
   /// Returns the position of reference for this cell 
-  const GlobalPoint& getPosition() const {return m_refPoint;}
+  virtual const GlobalPoint& getPosition() const {return m_refPoint;}
   const GlobalPoint& getBackPoint() const {return m_backPoint;} 
 
   RhoEtaPhi const & repPos() const { return m_rep;}
