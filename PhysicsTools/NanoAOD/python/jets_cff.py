@@ -7,7 +7,6 @@ from  PhysicsTools.NanoAOD.common_cff import *
 from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
 
 chsForSATkJets = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string('charge()!=0 && pvAssociationQuality()>=5 && vertexRef().key()==0'))
-#chsForSATkJets = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string('charge()!=0 && fromPV && vertexRef().key()==0'))
 softActivityJets = ak4PFJets.clone(src = 'chsForSATkJets', doAreaFastjet = False, jetPtMin=1) 
 softActivityJets10 = cms.EDFilter("CandPtrSelector", src = cms.InputTag("chsForSATkJets"), cut = cms.string('pt>10'))
 softActivityJets5 = cms.EDFilter("CandPtrSelector", src = cms.InputTag("chsForSATkJets"), cut = cms.string('pt>5'))
@@ -28,6 +27,7 @@ tightJetId = cms.EDProducer("PatJetIDValueMapProducer",
                           src = cms.InputTag("slimmedJets")
 )
 
+
 slimmedJetsWithUserData = cms.EDProducer("PATJetUserDataEmbedder",
      src = cms.InputTag("slimmedJets"),
      userInts = cms.PSet(
@@ -36,9 +36,22 @@ slimmedJetsWithUserData = cms.EDProducer("PATJetUserDataEmbedder",
      ),
 )
 
+from  PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cfi import *
+from  PhysicsTools.PatAlgos.recoLayer0.jetCorrFactors_cfi import *
+updatedJets = updatedPatJets.clone(
+	addBTagInfo=False,
+	jetSource='slimmedJetsWithUserData',
+	jetCorrFactorsSource=cms.VInputTag(cms.InputTag("jetCorrFactors") ),
+)
+jetCorrFactors = patJetCorrFactors.clone(src='slimmedJetsWithUserData',
+    levels = cms.vstring('L1FastJet',
+        'L2Relative',
+        'L3Absolute'),
+    primaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
+)
 
 finalJets = cms.EDFilter("PATJetRefSelector",
-    src = cms.InputTag("slimmedJetsWithUserData"),
+    src = cms.InputTag("updatedJets"),
     cut = cms.string("pt > 15")
 )
 
@@ -228,7 +241,7 @@ genJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 
 
 #before cross linking
-jetSequence = cms.Sequence(looseJetId+tightJetId+slimmedJetsWithUserData+chsForSATkJets+softActivityJets+softActivityJets2+softActivityJets5+softActivityJets10+finalJets)
+jetSequence = cms.Sequence(looseJetId+tightJetId+slimmedJetsWithUserData+jetCorrFactors+updatedJets+chsForSATkJets+softActivityJets+softActivityJets2+softActivityJets5+softActivityJets10+finalJets)
 #after cross linkining
 jetTables = cms.Sequence(bjetMVA+ jetTable+fatJetTable+subJetTable+saJetTable+saTable)
 
