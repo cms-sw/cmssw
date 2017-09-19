@@ -18,6 +18,7 @@
 
 
 #include "CLHEP/Vector/ThreeVector.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 
 #include <vector>
 #include <map>
@@ -26,8 +27,7 @@ class RPixDetTrackFinder{
 
   public:
     RPixDetTrackFinder(edm::ParameterSet const& parameterSet): romanPotId_(CTPPSPixelDetId(0, 2, 3, 0)) {}
-    //romanPotId_ is needed to be defined in order to 
-
+    
     virtual ~RPixDetTrackFinder() {};
 
     void setHits(const std::map<CTPPSPixelDetId, std::vector<RPixDetPatternFinder::PointInPlane> > hitMap) {hitMap_ = hitMap; }
@@ -39,7 +39,7 @@ class RPixDetTrackFinder{
     }
     std::vector<CTPPSPixelLocalTrack> getLocalTracks() {return localTrackVector_; }
     void setRomanPotId(CTPPSPixelDetId rpId) {romanPotId_ = rpId;};
-    void setPlaneRotationMatrices(std::map<CTPPSPixelDetId, TMatrixD> planeRotationMatrixMap) { planeRotationMatrixMap_ = planeRotationMatrixMap; }
+    void setGeometry(const CTPPSGeometry *geometry) {geometry_ = geometry; }
     void setPointOnPlanes(std::map<CTPPSPixelDetId, CLHEP::Hep3Vector> planePointMap) { planePointMap_ = planePointMap; }
     void setListOfPlanes(std::vector<uint32_t> listOfAllPlanes) { listOfAllPlanes_ = listOfAllPlanes; } 
     void setZ0(double z0) { z0_ = z0; }
@@ -49,8 +49,8 @@ class RPixDetTrackFinder{
     std::map<CTPPSPixelDetId, std::vector<RPixDetPatternFinder::PointInPlane> > hitMap_;
     std::vector<CTPPSPixelLocalTrack>  localTrackVector_;
     CTPPSPixelDetId  romanPotId_;
-    std::map<CTPPSPixelDetId, TMatrixD> planeRotationMatrixMap_;
     std::map<CTPPSPixelDetId, CLHEP::Hep3Vector> planePointMap_;
+    const CTPPSGeometry *geometry_;
     uint32_t numberOfPlanesPerPot_;
     std::vector<uint32_t> listOfAllPlanes_;
     double z0_;

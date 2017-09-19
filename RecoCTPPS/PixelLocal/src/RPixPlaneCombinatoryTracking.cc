@@ -310,7 +310,14 @@ void RPixPlaneCombinatoryTracking::findTracks(){
         //I convert the hit search window defined in local coordinated into global
         //This avoids to convert the global plane-line intersection in order not to call the the geometry 
         TVectorD maxGlobalPointDistance(0,2,maximumXLocalDistanceFromTrack_,maximumYLocalDistanceFromTrack_,0.,"END");
-        TMatrixD tmpPlaneRotationMatrixMap = planeRotationMatrixMap_[tmpPlaneId];
+        
+        DDRotationMatrix theRotationMatrix = geometry_->getSensor(tmpPlaneId)->rotation();
+        TMatrixD tmpPlaneRotationMatrixMap;
+        tmpPlaneRotationMatrixMap.ResizeTo(3,3);
+        theRotationMatrix.GetComponents(tmpPlaneRotationMatrixMap[0][0], tmpPlaneRotationMatrixMap[0][1], tmpPlaneRotationMatrixMap[0][2],
+                                        tmpPlaneRotationMatrixMap[1][0], tmpPlaneRotationMatrixMap[1][1], tmpPlaneRotationMatrixMap[1][2],
+                                        tmpPlaneRotationMatrixMap[2][0], tmpPlaneRotationMatrixMap[2][1], tmpPlaneRotationMatrixMap[2][2]);
+
         maxGlobalPointDistance = tmpPlaneRotationMatrixMap * maxGlobalPointDistance;
         //I avoid the Sqrt since it will not be saved
         double maximumXdistance = maxGlobalPointDistance[0]*maxGlobalPointDistance[0];
@@ -487,7 +494,19 @@ bool RPixPlaneCombinatoryTracking::calculatePointOnDetector(CTPPSPixelLocalTrack
   CLHEP::Hep3Vector tmpPointOnPlane = planePointMap_[planeId];
   TVectorD pointOnPlane(0,2,tmpPointOnPlane.x(), tmpPointOnPlane.y(), tmpPointOnPlane.z(),"END");
   TVectorD planeUnitVector(0,2,0.,0.,1.,"END");
-  planeUnitVector = planeRotationMatrixMap_[planeId] * planeUnitVector;
+
+  if(geometry_->getSensor(planeId) == NULL){
+    std::cout<<"Sensor with id "<<planeId<<" not found in the geometry\n";
+    return false;
+  }
+  DDRotationMatrix theRotationMatrix = geometry_->getSensor(planeId)->rotation();
+  TMatrixD tmpPlaneRotationMatrixMap;
+  tmpPlaneRotationMatrixMap.ResizeTo(3,3);
+  theRotationMatrix.GetComponents(tmpPlaneRotationMatrixMap[0][0], tmpPlaneRotationMatrixMap[0][1], tmpPlaneRotationMatrixMap[0][2],
+                                  tmpPlaneRotationMatrixMap[1][0], tmpPlaneRotationMatrixMap[1][1], tmpPlaneRotationMatrixMap[1][2],
+                                  tmpPlaneRotationMatrixMap[2][0], tmpPlaneRotationMatrixMap[2][1], tmpPlaneRotationMatrixMap[2][2]);
+
+  planeUnitVector = tmpPlaneRotationMatrixMap * planeUnitVector;
 
   double denominator = (lineUnitVector*planeUnitVector);
   if(denominator==0){
