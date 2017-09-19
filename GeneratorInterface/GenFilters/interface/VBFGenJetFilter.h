@@ -12,6 +12,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 // ROOT includes
 #include "TFile.h"
@@ -21,6 +22,7 @@
 #include <memory>
 #include <map>
 
+#include <unordered_set>
 //
 // class declaration
 //
@@ -41,8 +43,13 @@ private:
   void printGenVector(std::vector<HepMC::GenParticle*> vec);
   double nuMET(std::vector<HepMC::GenParticle*> vNu);
   
-  std::vector<const reco::GenJet*> filterGenJets(const std::vector<reco::GenJet>* jets);
-  //   std::vector<const reco::GenJet*> filterGenJets(const std::vector<reco::GenJet>* jets);
+  std::vector<const reco::GenJet*>      filterGenJets(const std::vector<reco::GenJet>* jets);
+  std::vector<const reco::GenParticle*> filterGenLeptons(const std::vector<reco::GenParticle>* particles);
+  
+  bool isHardProcess(const reco::GenParticle &p);
+  const reco::GenParticle * firstCopy(const reco::GenParticle &p);
+  const reco::GenParticle * previousCopy(const reco::GenParticle &p);
+  const reco::GenParticle * nextCopy(const reco::GenParticle &p);
   
   //**************************
   // Private Member data *****
@@ -52,11 +59,15 @@ private:
   
   // Dijet cut
   bool   oppositeHemisphere;
+  bool   leadJetsNoLepMass;
   double ptMin;
   double etaMin;
   double etaMax;
   double minInvMass;
   double maxInvMass;
+  double minLeadingJetsInvMass;
+  double maxLeadingJetsInvMass;
+  double deltaRNoLep;
   double minDeltaPhi;
   double maxDeltaPhi;
   double minDeltaEta;
@@ -64,8 +75,12 @@ private:
   
   // Input tags
   edm::EDGetTokenT< reco::GenJetCollection > m_inputTag_GenJetCollection;
+  edm::EDGetTokenT< reco::GenParticleCollection > m_inputTag_GenParticleCollection;
   
 
 };
+
+
+
 
 #endif
