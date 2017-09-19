@@ -9,7 +9,6 @@
 */
 
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelLocalTrack.h"
-// #include "TMatrixD.h"
 // #include "Rtypes.h"
 
 //----------------------------------------------------------------------------------------------------

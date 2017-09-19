@@ -182,7 +182,7 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event& iEvent, const edm::EventS
 
   for(const auto & recHitSet : recHitVector){
     
-    if(verbosity_>2) std::cout<<"Hits found in plane = "<<recHitSet.detId()<< " number = " << recHitSet.size() <<std::endl;
+    if(verbosity_>2) edm::LogInfo("CTPPSPixelLocalTrackProducer")<<"Hits found in plane = "<<recHitSet.detId()<< " number = " << recHitSet.size() ;
     CTPPSPixelDetId tmpRomanPotId = CTPPSPixelDetId(recHitSet.detId()).getRPId();
     uint32_t hitOnPlane = recHitSet.size();
 
@@ -194,7 +194,7 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event& iEvent, const edm::EventS
 
     //check is the plane occupancy is too high and save the corresponding pot
     if(maxHitPerPlane_>=0 && hitOnPlane>(uint32_t)maxHitPerPlane_){
-      if(verbosity_>2) std::cout<<" ---> To many hits in the plane, pot will be excluded from tracking cleared"<<std::endl;
+      if(verbosity_>2) edm::LogInfo("CTPPSPixelLocalTrackProducer")<<" ---> To many hits in the plane, pot will be excluded from tracking cleared";
       listOfPotWithHighOccupancyPlanes.push_back(tmpRomanPotId);
     }
   }
@@ -258,9 +258,9 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event& iEvent, const edm::EventS
     trackFinder_->findTracks();
     std::vector<CTPPSPixelLocalTrack> tmpTracksVector = trackFinder_->getLocalTracks();
 
-    if(verbosity_>2)std::cout<<"tmpTracksVector = "<<tmpTracksVector.size()<<std::endl;
+    if(verbosity_>2)edm::LogInfo("CTPPSPixelLocalTrackProducer")<<"tmpTracksVector = "<<tmpTracksVector.size();
     if(maxTrackPerPattern_>=0 && tmpTracksVector.size()>(uint32_t)maxTrackPerPattern_){
-      if(verbosity_>2)std::cout<<" ---> To many tracks in the pattern, cleared"<<std::endl;
+      if(verbosity_>2)edm::LogInfo("CTPPSPixelLocalTrackProducer")<<" ---> To many tracks in the pattern, cleared";
       continue;
     }
 
@@ -274,12 +274,12 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event& iEvent, const edm::EventS
 
   }
 
-  if(verbosity_>1) std::cout<<"Number of tracks will be saved = "<<numberOfTracks<<std::endl;
+  if(verbosity_>1) edm::LogInfo("CTPPSPixelLocalTrackProducer")<<"Number of tracks will be saved = "<<numberOfTracks;
 
   for(const auto & track : foundTracks){
-    if(verbosity_>1) std::cout<<"Track found in detId = "<<track.detId()<< " number = " << track.size() <<std::endl;
+    if(verbosity_>1) edm::LogInfo("CTPPSPixelLocalTrackProducer")<<"Track found in detId = "<<track.detId()<< " number = " << track.size() ;
     if(maxTrackPerRomanPot_>=0 && track.size()>(uint32_t)maxTrackPerRomanPot_){
-      if(verbosity_>1) std::cout<<" ---> To many tracks in the pot, cleared"<<std::endl;
+      if(verbosity_>1) edm::LogInfo("CTPPSPixelLocalTrackProducer")<<" ---> To many tracks in the pot, cleared";
       CTPPSPixelDetId tmpRomanPotId = CTPPSPixelDetId(track.detId());
       edm::DetSet<CTPPSPixelLocalTrack> &tmpDetSet = foundTracks[tmpRomanPotId];
       tmpDetSet.clear();
