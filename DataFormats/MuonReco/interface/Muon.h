@@ -183,6 +183,43 @@ namespace reco {
 			   RPCHitAndTrackArbitration, GEMSegmentAndTrackArbitration, ME0SegmentAndTrackArbitration };
     
     ///
+    /// ====================== STANDARD SELECTORS ===========================
+    ///
+    enum Selector {
+      CutBasedIdLoose        = 1UL<< 0,  
+      CutBasedIdMedium       = 1UL<< 1,  
+      CutBasedIdMediumPrompt = 1UL<< 2,  // IP cuts
+      CutBasedIdTight        = 1UL<< 3,  
+      CutBasedIdHighPt       = 1UL<< 4,
+      PFIsoVeryLoose         = 1UL<< 5,  // reliso<0.40
+      PFIsoLoose             = 1UL<< 6,  // reliso<0.25
+      PFIsoMedium            = 1UL<< 7,  // reliso<0.20
+      PFIsoTight             = 1UL<< 8,  // reliso<0.15
+      PFIsoVeryTight         = 1UL<< 9,  // reliso<0.10
+      TkIsoLoose             = 1UL<<10,  // reliso<0.10
+      TkIsoTight             = 1UL<<11,  // reliso<0.05
+      SoftCutBasedId         = 1UL<<12,  
+      SoftMvaId              = 1UL<<13,  
+      MvaLoose               = 1UL<<14,  
+      MvaMedium              = 1UL<<15,  
+      MvaTight               = 1UL<<16,
+      MiniIsoLoose           = 1UL<<17,  // reliso<0.40
+      MiniIsoMedium          = 1UL<<18,  // reliso<0.20
+      MiniIsoTight           = 1UL<<19,  // reliso<0.10
+      MiniIsoVeryTight       = 1UL<<20   // reliso<0.05
+    };
+    
+    bool passed( unsigned int selection ) const { return (selectors_ & selection)==selection; }
+    unsigned int getSelectionMask() const { return selectors_; }
+    void setSelectionMask( unsigned int mask ){ selectors_ = mask; }
+    void setSelector(Selector selector, bool passed){ 
+      if (passed)
+	selectors_ |= selector;
+      else
+	selectors_ &= ~selector;
+    }
+
+    ///
     /// ====================== USEFUL METHODs ===========================
     ///
     /// number of chambers (MuonChamberMatches include RPC rolls, GEM and ME0 segments)
@@ -288,7 +325,8 @@ namespace reco {
     /// get pointers to best segment and corresponding chamber in vector of chambers
     std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> pair( const std::vector<const MuonChamberMatch*> &,
 									ArbitrationType type = SegmentAndTrackArbitration ) const;
-     
+    /// selector bitmap
+    unsigned int selectors_;
    public:
      /// get number of segments
      int numberOfSegments( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;

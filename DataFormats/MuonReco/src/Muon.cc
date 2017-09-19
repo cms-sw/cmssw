@@ -17,6 +17,7 @@ Muon::Muon(  Charge q, const LorentzVector & p4, const Point & vtx ) :
      type_ = 0;
      bestTunePTrackType_ = reco::Muon::None;
      bestTrackType_ = reco::Muon::None;
+     selectors_ = 0;
 }
 
 Muon::Muon() {
@@ -29,7 +30,7 @@ Muon::Muon() {
    type_ = 0;
    bestTrackType_ = reco::Muon::None;
    bestTunePTrackType_ = reco::Muon::None;
-
+   selectors_ = 0;
 }
 
 bool Muon::overlap( const Candidate & c ) const {
