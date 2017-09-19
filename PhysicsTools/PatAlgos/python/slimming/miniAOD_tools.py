@@ -403,3 +403,12 @@ def miniAOD_customizeAllMC(process):
     miniAOD_customizeCommon(process)
     miniAOD_customizeMC(process)
     return process
+
+def miniAOD_customizeAllMCFastSim(process):
+    miniAOD_customizeCommon(process)
+    miniAOD_customizeMC(process)
+    from PhysicsTools.PatAlgos.slimming.metFilterPaths_cff import miniAOD_customizeMETFiltersFastSim
+    process = miniAOD_customizeMETFiltersFastSim(process)
+    from PhysicsTools.PatAlgos.slimming.isolatedTracks_cfi import miniAOD_customizeIsolatedTracksFastSim
+    process = miniAOD_customizeIsolatedTracksFastSim(process)
+    return process
