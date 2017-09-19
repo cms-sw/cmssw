@@ -180,10 +180,6 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event& iEvent, const edm::EventS
   std::vector<CTPPSPixelDetId> listOfPotWithHighOccupancyPlanes; 
   std::map<CTPPSPixelDetId, uint32_t> mapHitPerPot;
 
-
-  std::map<CTPPSPixelDetId, TMatrixD> planeRotationMatrixMap;
-  std::map<CTPPSPixelDetId, CLHEP::Hep3Vector> planePointMap;
-
   for(const auto & recHitSet : recHitVector){
     
     if(verbosity_>2) std::cout<<"Hits found in plane = "<<recHitSet.detId()<< " number = " << recHitSet.size() <<std::endl;
@@ -193,24 +189,6 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event& iEvent, const edm::EventS
     //Get the number of hits per pot
     if(mapHitPerPot.find(tmpRomanPotId)==mapHitPerPot.end()){
       mapHitPerPot[tmpRomanPotId] = hitOnPlane;
-
-      //I store a point on the plane and the rotation matrix for all the planes on the pot
-      for(const auto & plane : listOfAllPlanes_){
-        CTPPSPixelDetId tmpDetectorId = tmpRomanPotId;
-        tmpDetectorId.setPlane(plane);
-        DDRotationMatrix theRotationMatrix = geometry.getSensor(tmpDetectorId)->rotation();
-        TMatrixD theRotationTMatrix;
-        theRotationTMatrix.ResizeTo(3,3);
-        theRotationMatrix.GetComponents(theRotationTMatrix[0][0], theRotationTMatrix[0][1], theRotationTMatrix[0][2],
-                                        theRotationTMatrix[1][0], theRotationTMatrix[1][1], theRotationTMatrix[1][2],
-                                        theRotationTMatrix[2][0], theRotationTMatrix[2][1], theRotationTMatrix[2][2]);
-        planeRotationMatrixMap[tmpDetectorId] = TMatrixD();
-        planeRotationMatrixMap[tmpDetectorId].ResizeTo(3,3);
-        planeRotationMatrixMap[tmpDetectorId] = theRotationTMatrix;
-        CLHEP::Hep3Vector localV(0.,0.,0.);
-        CLHEP::Hep3Vector globalV = geometry.localToGlobal(tmpDetectorId,localV);
-        planePointMap[tmpDetectorId] = globalV;
-      }
     }
     else mapHitPerPot[tmpRomanPotId]+=hitOnPlane;
 
@@ -276,7 +254,6 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event& iEvent, const edm::EventS
     trackFinder_->setRomanPotId(romanPotId);
     trackFinder_->setHits(hitOnPlaneMap);
     trackFinder_->setGeometry(&geometry);
-    trackFinder_->setPointOnPlanes(planePointMap);
     trackFinder_->setZ0(geometry.getRPTranslation(romanPotId).z());
     trackFinder_->findTracks();
     std::vector<CTPPSPixelLocalTrack> tmpTracksVector = trackFinder_->getLocalTracks();
