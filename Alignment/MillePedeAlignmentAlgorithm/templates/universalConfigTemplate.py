@@ -96,11 +96,19 @@ import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.SetCondition as tagw
 
 # You can use tagwriter.setCondition() to overwrite conditions in globaltag
 #
-# Example:
+# Examples (ideal phase-1 tracker-alignment conditions):
+# tagwriter.setCondition(process,
+#       connect = "frontier://FrontierProd/CMS_CONDITIONS",
+#       record = "TrackerAlignmentRcd",
+#       tag = "TrackerAlignment_Upgrade2017_design_v4")
 # tagwriter.setCondition(process,
 #       connect = "frontier://FrontierProd/CMS_CONDITIONS",
 #       record = "TrackerAlignmentErrorExtendedRcd",
-#       tag = "TrackerIdealGeometryErrorsExtended210_mc")
+#       tag = "TrackerAlignmentErrorsExtended_Upgrade2017_design_v0")
+# tagwriter.setCondition(process,
+#       connect = "frontier://FrontierProd/CMS_CONDITIONS",
+#       record = "TrackerSurfaceDeformationRcd",
+#       tag = "TrackerSurfaceDeformations_zero")
 
 
 #######################
