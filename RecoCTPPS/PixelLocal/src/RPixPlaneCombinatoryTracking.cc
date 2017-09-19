@@ -491,7 +491,9 @@ bool RPixPlaneCombinatoryTracking::calculatePointOnDetector(CTPPSPixelLocalTrack
   math::GlobalVector tmpLineUnitVector = track.getDirectionVector();
   TVectorD lineUnitVector(0,2,tmpLineUnitVector.x(),tmpLineUnitVector.y(),tmpLineUnitVector.z(),"END");
 
-  CLHEP::Hep3Vector tmpPointOnPlane = planePointMap_[planeId];
+  CLHEP::Hep3Vector tmpPointLocal(0.,0.,0.);
+  CLHEP::Hep3Vector tmpPointOnPlane = geometry_->localToGlobal(planeId,tmpPointLocal);
+ 
   TVectorD pointOnPlane(0,2,tmpPointOnPlane.x(), tmpPointOnPlane.y(), tmpPointOnPlane.z(),"END");
   TVectorD planeUnitVector(0,2,0.,0.,1.,"END");
 

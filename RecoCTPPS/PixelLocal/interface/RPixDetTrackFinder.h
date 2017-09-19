@@ -40,7 +40,6 @@ class RPixDetTrackFinder{
     std::vector<CTPPSPixelLocalTrack> getLocalTracks() {return localTrackVector_; }
     void setRomanPotId(CTPPSPixelDetId rpId) {romanPotId_ = rpId;};
     void setGeometry(const CTPPSGeometry *geometry) {geometry_ = geometry; }
-    void setPointOnPlanes(std::map<CTPPSPixelDetId, CLHEP::Hep3Vector> planePointMap) { planePointMap_ = planePointMap; }
     void setListOfPlanes(std::vector<uint32_t> listOfAllPlanes) { listOfAllPlanes_ = listOfAllPlanes; } 
     void setZ0(double z0) { z0_ = z0; }
 
@@ -49,7 +48,6 @@ class RPixDetTrackFinder{
     std::map<CTPPSPixelDetId, std::vector<RPixDetPatternFinder::PointInPlane> > hitMap_;
     std::vector<CTPPSPixelLocalTrack>  localTrackVector_;
     CTPPSPixelDetId  romanPotId_;
-    std::map<CTPPSPixelDetId, CLHEP::Hep3Vector> planePointMap_;
     const CTPPSGeometry *geometry_;
     uint32_t numberOfPlanesPerPot_;
     std::vector<uint32_t> listOfAllPlanes_;
