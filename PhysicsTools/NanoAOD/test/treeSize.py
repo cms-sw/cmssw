@@ -113,12 +113,15 @@ for treeName in "Events", "Runs", "Lumis":
     # now we start to create branch groups
     for b in allbranches:
         if b.name in counters:
-		 toplevelDoc[b.name[1:]]=b.doc
+		 if len(b.doc) > 0:
+			 toplevelDoc[b.name[1:]]=b.doc
 		 continue # skip counters
         if "_" in b.name:
             head, tail = b.name.split("_",1)
         else:
             head = b.name
+            toplevelDoc[b.name]=b.doc
+
         if head not in branchgroups:
             branchgroups[head] = BranchGroup(head)
         branchgroups[head].append(b)
