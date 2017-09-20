@@ -38,7 +38,7 @@
 //#define EDM_ML_DEBUG
 
 // class declaration
-class RecAnalyzerHF : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
+class RecAnalyzerHF : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 
 public:
   explicit RecAnalyzerHF(const edm::ParameterSet&);
@@ -50,8 +50,6 @@ private:
   void analyze(edm::Event const&, edm::EventSetup const&) override;
   void beginJob() override;
   void endJob() override;
-  void beginRun(edm::Run const&, edm::EventSetup const&) override {}
-  void endRun(edm::Run const&, edm::EventSetup const&) override {}
     
 private:
   void analyzeHcal(const HFPreRecHitCollection&, int, bool);
@@ -155,7 +153,7 @@ void RecAnalyzerHF::beginJob() {
     hist_[i] = fs_->make<TH1D>(name,title,50,xmin,xmax);
   }
 
-  for (auto id : hcalID_) {
+  for (const auto & id : hcalID_) {
     HcalDetId hid = HcalDetId(id);
     TH1D *h1(0), *h2(0);
     for (int i=0; i<2; ++i) {
@@ -196,7 +194,7 @@ void RecAnalyzerHF::endJob() {
 
   if (fillTree_) {
     cells = 0;
-    for (auto itr : myMap_) {
+    for (const auto & itr : myMap_) {
       edm::LogVerbatim("AnalyzerHF") << "Fired trigger bit number "
 				     << itr.first.first;
 #ifdef EDM_ML_DEBUG
@@ -248,9 +246,7 @@ void RecAnalyzerHF::endJob() {
     std::cout << "cells" << " " << cells << std::endl;
 #endif
   }
-#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("AnalyzerHF") << "Exiting from RecAnalyzerHF::endjob";
-#endif
 }
 
 //
@@ -325,13 +321,11 @@ void RecAnalyzerHF::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
 void RecAnalyzerHF::analyzeHcal(const HFPreRecHitCollection & Hithf,
 				int algoBit, bool fill) {
  
-#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("AnalyzerHF") << "Enter analyzeHcal for bit " << algoBit
 				 << " Fill " << fill << " Collection size "
 				 << Hithf.size();
-#endif
   // Signal part for HF
-  for (auto hfItr : Hithf ) {
+  for (const auto & hfItr : Hithf) {
     HcalDetId hid = hfItr.id(); 
     double e0     = (hfItr.getHFQIE10Info(0)==nullptr) ? 0 : hfItr.getHFQIE10Info(0)->energy();
     double e1     = (hfItr.getHFQIE10Info(1)==nullptr) ? 0 : hfItr.getHFQIE10Info(1)->energy();
@@ -342,10 +336,8 @@ void RecAnalyzerHF::analyzeHcal(const HFPreRecHitCollection & Hithf,
       f1         /= energy;
       f2         /= energy;
     }
-#ifdef EDM_ML_DEBUG
     edm::LogVerbatim("AnalyzerHF") << hid << " E " << e0 << ":" << e1 
 				   << " F " << f1 << ":" << f2;
-#endif
     if (fill) {
       for (unsigned int i = 0; i < hcalID_.size(); i++) {
 	if (hcalID_[i] == hid.rawId()) {
