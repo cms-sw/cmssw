@@ -40,13 +40,13 @@ void CTPPSPixelClusterProducer::produce(edm::Event& iEvent, const edm::EventSetu
 // get analysis mask to mask channels
   edm::ESHandle<CTPPSPixelAnalysisMask> aMask;
 
-  if(rpd->size())
+  if(!rpd->empty())
     iSetup.get<CTPPSPixelAnalysisMaskRcd>().get(aMask);
   
   edm::DetSetVector<CTPPSPixelCluster>  output;
 
 // run clusterisation
-  if (rpd->size()){
+  if (!rpd->empty()){
 // get calibration DB
     theGainCalibrationDB.getDB(iEvent,iSetup);
     run(*rpd, output, aMask.product());
