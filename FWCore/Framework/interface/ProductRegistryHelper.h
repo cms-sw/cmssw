@@ -59,7 +59,7 @@ namespace edm {
       
       BranchAliasSetter& setBranchAlias(std::string alias) {
         value_.branchAlias_ = std::move(alias);
-        return this;
+        return *this;
       }
       TypeLabelItem& value_;
       EDPutTokenT<T> token_;
