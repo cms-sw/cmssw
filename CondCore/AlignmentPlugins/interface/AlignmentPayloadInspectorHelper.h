@@ -39,62 +39,92 @@ namespace AlignmentPI {
   };
 
   enum regions {
-    BPixL1o,   //1  Barrel Pixel Layer 1 outer
-    BPixL1i,   //2  Barrel Pixel Layer 1 inner
-    BPixL2o,   //3  Barrel Pixel Layer 2 outer
-    BPixL2i,   //4  Barrel Pixel Layer 2 inner
-    BPixL3o,   //5  Barrel Pixel Layer 3 outer
-    BPixL3i,   //6  Barrel Pixel Layer 3 inner
-    BPixL4o,   //7  Barrel Pixel Layer 4 outer
-    BPixL4i,   //8  Barrel Pixel Layer 4 inner
-    FPixmL1,   //9  Forward Pixel Minus side Disk 1
-    FPixmL2,   //10 Forward Pixel Minus side Disk 2
-    FPixmL3,   //11 Forward Pixel Minus side Disk 3
-    FPixpL1,   //12 Forward Pixel Plus side Disk 1
-    FPixpL2,   //13 Forward Pixel Plus side Disk 2
-    FPixpL3,   //14 Forward Pixel Plus side Disk 3
-    TIBL1Ro,   //15 Inner Barrel Layer 1 Rphi outer
-    TIBL1Ri,   //16 Inner Barrel Layer 1 Rphi inner
-    TIBL1So,   //17 Inner Barrel Layer 1 Stereo outer
-    TIBL1Si,   //18 Inner Barrel Layer 1 Stereo inner
-    TIBL2Ro,   //19 Inner Barrel Layer 2 Rphi outer  
-    TIBL2Ri,   //20 Inner Barrel Layer 2 Rphi inner  
-    TIBL2So,   //21 Inner Barrel Layer 2 Stereo outer
-    TIBL2Si,   //22 Inner Barrel Layer 2 Stereo inner
-    TIBL3o,    //23 Inner Barrel Layer 3 outer  
-    TIBL3i,    //24 Inner Barrel Layer 3 inner  
-    TIBL4o,    //25 Inner Barrel Layer 4 outer
-    TIBL4i,    //26 Inner Barrel Layer 4 inner
-    TOBL1Ro,   //27 Outer Barrel Layer 1 Rphi outer  
-    TOBL1Ri,   //28 Outer Barrel Layer 1 Rphi inner  
-    TOBL1So,   //29 Outer Barrel Layer 1 Stereo outer
-    TOBL1Si,   //30 Outer Barrel Layer 1 Stereo inner
-    TOBL2Ro,   //31 Outer Barrel Layer 2 Rphi outer  
-    TOBL2Ri,   //32 Outer Barrel Layer 2 Rphi inner  
-    TOBL2So,   //33 Outer Barrel Layer 2 Stereo outer
-    TOBL2Si,   //34 Outer Barrel Layer 2 Stereo inner
-    TOBL3o,    //35 Outer Barrel Layer 3 outer
-    TOBL3i,    //36 Outer Barrel Layer 3 inner
-    TOBL4o,    //37 Outer Barrel Layer 4 outer
-    TOBL4i,    //38 Outer Barrel Layer 4 inner
-    TOBL5o,    //39 Outer Barrel Layer 5 outer
-    TOBL5i,    //40 Outer Barrel Layer 5 inner
-    TOBL6o,    //41 Outer Barrel Layer 6 outer
-    TOBL6i,    //42 Outer Barrel Layer 6 inner
-    TIDmR1R,   //43 Inner Disk Minus side Ring 1 Rphi
-    TIDmR1S,   //44 Inner Disk Minus side Ring 1 Stereo
-    TIDmR2R,   //45 Inner Disk Minus side Ring 2 Rphi  
-    TIDmR2S,   //46 Inner Disk Minus side Ring 2 Stereo
-    TIDmR3,    //47 Inner Disk Minus side Ring 3 
-    TIDpR1R,   //48 Inner Disk Plus side Ring 1 Rphi  
-    TIDpR1S,   //49 Inner Disk Plus side Ring 1 Stereo
-    TIDpR2R,   //50 Inner Disk Plus side Ring 2 Rphi  
-    TIDpR2S,   //51 Inner Disk Plus side Ring 2 Stereo
-    TIDpR3,    //52 Inner Disk Plus side Ring 3
-    NUM_OF_REGIONS
+    BPixL1o,   //0  Barrel Pixel Layer 1 outer
+    BPixL1i,   //1  Barrel Pixel Layer 1 inner
+    BPixL2o,   //2  Barrel Pixel Layer 2 outer
+    BPixL2i,   //3  Barrel Pixel Layer 2 inner
+    BPixL3o,   //4  Barrel Pixel Layer 3 outer
+    BPixL3i,   //5  Barrel Pixel Layer 3 inner
+    BPixL4o,   //6  Barrel Pixel Layer 4 outer
+    BPixL4i,   //7  Barrel Pixel Layer 4 inner
+    FPixmL1,   //8  Forward Pixel Minus side Disk 1
+    FPixmL2,   //9 Forward Pixel Minus side Disk 2
+    FPixmL3,   //10 Forward Pixel Minus side Disk 3
+    FPixpL1,   //11 Forward Pixel Plus side Disk 1
+    FPixpL2,   //12 Forward Pixel Plus side Disk 2
+    FPixpL3,   //13 Forward Pixel Plus side Disk 3
+    TIBL1Ro,   //14 Inner Barrel Layer 1 Rphi outer
+    TIBL1Ri,   //15 Inner Barrel Layer 1 Rphi inner
+    TIBL1So,   //16 Inner Barrel Layer 1 Stereo outer
+    TIBL1Si,   //17 Inner Barrel Layer 1 Stereo inner
+    TIBL2Ro,   //18 Inner Barrel Layer 2 Rphi outer  
+    TIBL2Ri,   //19 Inner Barrel Layer 2 Rphi inner  
+    TIBL2So,   //20 Inner Barrel Layer 2 Stereo outer
+    TIBL2Si,   //21 Inner Barrel Layer 2 Stereo inner
+    TIBL3o,    //22 Inner Barrel Layer 3 outer  
+    TIBL3i,    //23 Inner Barrel Layer 3 inner  
+    TIBL4o,    //24 Inner Barrel Layer 4 outer
+    TIBL4i,    //25 Inner Barrel Layer 4 inner
+    TOBL1Ro,   //26 Outer Barrel Layer 1 Rphi outer  
+    TOBL1Ri,   //27 Outer Barrel Layer 1 Rphi inner  
+    TOBL1So,   //28 Outer Barrel Layer 1 Stereo outer
+    TOBL1Si,   //29 Outer Barrel Layer 1 Stereo inner
+    TOBL2Ro,   //30 Outer Barrel Layer 2 Rphi outer  
+    TOBL2Ri,   //31 Outer Barrel Layer 2 Rphi inner  
+    TOBL2So,   //32 Outer Barrel Layer 2 Stereo outer
+    TOBL2Si,   //33 Outer Barrel Layer 2 Stereo inner
+    TOBL3o,    //34 Outer Barrel Layer 3 outer
+    TOBL3i,    //35 Outer Barrel Layer 3 inner
+    TOBL4o,    //36 Outer Barrel Layer 4 outer
+    TOBL4i,    //37 Outer Barrel Layer 4 inner
+    TOBL5o,    //38 Outer Barrel Layer 5 outer
+    TOBL5i,    //39 Outer Barrel Layer 5 inner
+    TOBL6o,    //40 Outer Barrel Layer 6 outer
+    TOBL6i,    //41 Outer Barrel Layer 6 inner
+    TIDmR1R,   //42 Inner Disk Minus side Ring 1 Rphi
+    TIDmR1S,   //43 Inner Disk Minus side Ring 1 Stereo
+    TIDmR2R,   //44 Inner Disk Minus side Ring 2 Rphi  
+    TIDmR2S,   //45 Inner Disk Minus side Ring 2 Stereo
+    TIDmR3,    //46 Inner Disk Minus side Ring 3 
+    TIDpR1R,   //47 Inner Disk Plus side Ring 1 Rphi  
+    TIDpR1S,   //48 Inner Disk Plus side Ring 1 Stereo
+    TIDpR2R,   //49 Inner Disk Plus side Ring 2 Rphi  
+    TIDpR2S,   //50 Inner Disk Plus side Ring 2 Stereo
+    TIDpR3,    //51 Inner Disk Plus side Ring 3
+    TECmR1R,   //52 Endcaps Minus side Ring 1 Rphi
+    TECmR1S,   //53 Endcaps Minus side Ring 1 Stereo
+    TECmR2R,   //54 Encdaps Minus side Ring 2 Rphi
+    TECmR2S,   //55 Endcaps Minus side Ring 2 Stereo
+    TECmR3,    //56 Endcaps Minus side Ring 3
+    TECmR4,    //57 Endcaps Minus side Ring 4
+    TECmR5,    //58 Endcaps Minus side Ring 5
+    TECmR6,    //59 Endcaps Minus side Ring 6
+    TECmR7,    //60 Endcaps Minus side Ring 7        
+    TECpR1R,   //61 Endcaps Plus side Ring 1 Rphi   
+    TECpR1S,   //62 Endcaps Plus side Ring 1 Stereo 
+    TECpR2R,   //63 Encdaps Plus side Ring 2 Rphi   
+    TECpR2S,   //64 Endcaps Plus side Ring 2 Stereo 
+    TECpR3,    //65 Endcaps Plus side Ring 3	     
+    TECpR4,    //66 Endcaps Plus side Ring 4	     
+    TECpR5,    //67 Endcaps Plus side Ring 5	     
+    TECpR6,    //68 Endcaps Plus side Ring 6	     
+    TECpR7,    //67 Endcaps Plus side Ring 7        
+    StripDoubleSide, // 70 -- not to be considered
+    NUM_OF_REGIONS   // 71 -- default
   };
   
-  std::string getStringFromRegionEnum(AlignmentPI::regions e){
+  std::map<AlignmentPI::partitions,std::pair<AlignmentPI::regions,AlignmentPI::regions> > partLimits =
+    {{AlignmentPI::BPix,std::make_pair(AlignmentPI::BPixL1o,AlignmentPI::BPixL4i)},
+     {AlignmentPI::FPix,std::make_pair(AlignmentPI::FPixmL1,AlignmentPI::FPixpL3)},
+     {AlignmentPI::TIB, std::make_pair(AlignmentPI::TIBL1Ro,AlignmentPI::TIBL4i)},
+     {AlignmentPI::TOB, std::make_pair(AlignmentPI::TOBL1Ro,AlignmentPI::TOBL6i)},
+     {AlignmentPI::TID, std::make_pair(AlignmentPI::TIDmR1R,AlignmentPI::TIDpR3)},
+     {AlignmentPI::TEC, std::make_pair(AlignmentPI::TECmR1R,AlignmentPI::TECpR7)}};
+
+  /*--------------------------------------------------------------------*/
+  std::string getStringFromRegionEnum(AlignmentPI::regions e)
+  /*--------------------------------------------------------------------*/
+  {
   switch(e)
     {
     case AlignmentPI::BPixL1o : return "BPixL1o";            
@@ -149,12 +179,50 @@ namespace AlignmentPI {
     case AlignmentPI::TIDpR2R : return "TIDpR2R"; 
     case AlignmentPI::TIDpR2S : return "TIDpR2S"; 
     case AlignmentPI::TIDpR3  : return "TIDpR3";  
+    case AlignmentPI::TECmR1R : return "TECmR1R";   
+    case AlignmentPI::TECmR1S : return "TECmR1S";   
+    case AlignmentPI::TECmR2R : return "TECmR2R";   
+    case AlignmentPI::TECmR2S : return "TECmR2S";   
+    case AlignmentPI::TECmR3  : return "TECmR3";    
+    case AlignmentPI::TECmR4  : return "TECmR4";    
+    case AlignmentPI::TECmR5  : return "TECmR5";    
+    case AlignmentPI::TECmR6  : return "TECmR6";    
+    case AlignmentPI::TECmR7  : return "TECmR7";    
+    case AlignmentPI::TECpR1R : return "TECpR1R";   
+    case AlignmentPI::TECpR1S : return "TECpR1S";   
+    case AlignmentPI::TECpR2R : return "TECpR2R";   
+    case AlignmentPI::TECpR2S : return "TECpR2S";   
+    case AlignmentPI::TECpR3  : return "TECpR3";    
+    case AlignmentPI::TECpR4  : return "TECpR4";    
+    case AlignmentPI::TECpR5  : return "TECpR5";    
+    case AlignmentPI::TECpR6  : return "TECpR6";    
+    case AlignmentPI::TECpR7  : return "TECpR7";     
     default: 
       edm::LogWarning("LogicError") << "Unknown partition: " <<  e;
       return "";
     }
   }
 
+  /*--------------------------------------------------------------------*/
+  bool isBPixOuterLadder(const DetId& detid, const TrackerTopology& tTopo,bool isPhase0) 
+  /*--------------------------------------------------------------------*/  
+  {
+    bool isOuter=false;
+    int layer = tTopo.pxbLayer(detid.rawId());
+    bool odd_ladder = tTopo.pxbLadder(detid.rawId())%2;
+    if (isPhase0) {
+      if (layer==2) isOuter = !odd_ladder;
+      else isOuter = odd_ladder;
+    } else  {
+      if (layer==4) isOuter = odd_ladder;
+      else isOuter = !odd_ladder;
+    }
+    return isOuter;
+  }
+
+  // ancillary struct to manage the topology 
+  // info in a more compact way
+  
   struct topolInfo
   {
     uint32_t m_rawid;  
@@ -166,14 +234,15 @@ namespace AlignmentPI {
     bool     m_isDoubleSide;
     bool     m_isInternal;
     void init();
-    void fillGeometryInfo(const DetId& detId,const TrackerTopology& tTopo);
+    void fillGeometryInfo(const DetId& detId,const TrackerTopology& tTopo,bool isPhase0);
     AlignmentPI::regions filterThePartition();
     void printAll();
   }; 
     
-
-  void
-  topolInfo::printAll(){
+  /*--------------------------------------------------------------------*/
+  void topolInfo::printAll()
+  /*--------------------------------------------------------------------*/
+  {
     
     std::cout<<" detId:"       <<   m_rawid     
 	     <<" subdetid: "   <<   m_subdetid  
@@ -186,8 +255,10 @@ namespace AlignmentPI {
 	     << std::endl;
   }
 
-  void 
-  topolInfo::init(){
+  /*--------------------------------------------------------------------*/
+  void topolInfo::init()
+  /*--------------------------------------------------------------------*/
+  {
     m_rawid         = 0;  
     m_subdetid      = -1;
     m_layer         = -1;
@@ -198,9 +269,10 @@ namespace AlignmentPI {
     m_isInternal    = false;
   };
 
-  void 
-  topolInfo::fillGeometryInfo(const DetId& detId, 
-			      const TrackerTopology& tTopo){
+  /*--------------------------------------------------------------------*/
+  void topolInfo::fillGeometryInfo(const DetId& detId,const TrackerTopology& tTopo,bool isPhase0)
+  /*--------------------------------------------------------------------*/
+  {
     
     unsigned int subdetId = static_cast<unsigned int>(detId.subdetId());
     
@@ -216,7 +288,6 @@ namespace AlignmentPI {
       m_side   = tTopo.tobSide(detId.rawId());
       m_isRphi = tTopo.isRPhi(detId.rawId()); 
       m_isDoubleSide = tTopo.tobIsDoubleSide(detId.rawId()); 
- 
     }
     else if ( subdetId ==  StripSubdetector::TID) { 
       m_layer  = tTopo.tidWheel(detId.rawId());
@@ -235,7 +306,8 @@ namespace AlignmentPI {
       m_isInternal = tTopo.tecPetalInfo(detId.rawId())[0];
     }
     else if ( subdetId ==  PixelSubdetector::PixelBarrel ) { 
-      m_layer = tTopo.pxbLayer(detId.rawId());  
+      m_layer = tTopo.pxbLayer(detId.rawId());
+      m_isInternal = !AlignmentPI::isBPixOuterLadder(detId,tTopo,isPhase0);
     }
     else if ( subdetId ==  PixelSubdetector::PixelEndcap ) { 
       m_layer = tTopo.pxfDisk(detId.rawId()); 
@@ -246,13 +318,16 @@ namespace AlignmentPI {
   }
 
   // ------------ method to assign a partition based on the topology struct info ---------------
-  AlignmentPI::regions
-  topolInfo::filterThePartition(){
+
+  /*--------------------------------------------------------------------*/
+  AlignmentPI::regions topolInfo::filterThePartition()
+  /*--------------------------------------------------------------------*/
+  {
   
     AlignmentPI::regions ret = AlignmentPI::NUM_OF_REGIONS;
 
     if(m_isDoubleSide){
-      return ret;
+      return AlignmentPI::StripDoubleSide;
     }
 
     // BPix
@@ -381,38 +456,46 @@ namespace AlignmentPI {
 	}
       // TEC
     } else if (m_subdetid==6) {
-      ret = AlignmentPI::NUM_OF_REGIONS;
-    }
-    /*
       switch(m_ring)
-      {
-      case 1:
-      break;
-      case 2:
-      break;
-      case 3:
-      break;
-      case 4:
-      break;
-      case 5:
-      break;
-      case 6:
-      break;
-      case 7:
-      break;
-      case 8:
-      break;
-      case 9:
-      break
-      default
-      break;
-      }
-      }
-    */
-  return ret;
-
-}
-
+	{
+	case 1:
+	  if(m_isRphi){
+	    m_side > 1 ? ret = AlignmentPI::TECpR1R  : ret = AlignmentPI::TECmR1R;
+	  } else {
+	    m_side > 1 ? ret = AlignmentPI::TECpR1S  : ret = AlignmentPI::TECmR1S;
+	  }
+	  break;
+	case 2:
+	    if(m_isRphi){
+	    m_side > 1 ? ret = AlignmentPI::TECpR2R  : ret = AlignmentPI::TECmR2R;
+	  } else {
+	    m_side > 1 ? ret = AlignmentPI::TECpR2S  : ret = AlignmentPI::TECmR2S;
+	  }
+	  break;
+	case 3:
+	  m_side > 1 ? ret = AlignmentPI::TECpR3 : ret = AlignmentPI::TECmR3; 
+	  break;
+	case 4:
+	  m_side > 1 ? ret = AlignmentPI::TECpR4 : ret = AlignmentPI::TECmR4; 
+	  break;
+	case 5:
+	  m_side > 1 ? ret = AlignmentPI::TECpR5 : ret = AlignmentPI::TECmR5; 
+	  break;
+	case 6:
+	  m_side > 1 ? ret = AlignmentPI::TECpR6 : ret = AlignmentPI::TECmR6; 
+	  break;
+	case 7:
+	  m_side > 1 ? ret = AlignmentPI::TECpR7 : ret = AlignmentPI::TECmR7; 
+	  break;	  
+	default:
+	  edm::LogWarning("LogicError") << "Unknow TEC ring: " <<  m_ring;
+	  break;
+	}
+    }
+   
+    return ret;
+    
+  }
 
   /*--------------------------------------------------------------------*/
   std::string getStringFromIndex (AlignmentPI::index i)

@@ -279,13 +279,16 @@ namespace {
   // /************************************************
   //  Pixel details of 1 IOV
   // *************************************************/
-  class TrackerAlignmentErrorExtendedPixelDetail : public cond::payloadInspector::PlotImage<AlignmentErrorsExtended> {
+  template <AlignmentPI::partitions q> class TrackerAlignmentErrorExtendedDetail : public cond::payloadInspector::PlotImage<AlignmentErrorsExtended> {
   public:
-    TrackerAlignmentErrorExtendedPixelDetail() : cond::payloadInspector::PlotImage<AlignmentErrorsExtended>( "Details for BPix" ){
+    TrackerAlignmentErrorExtendedDetail() : cond::payloadInspector::PlotImage<AlignmentErrorsExtended>( "Details for "+AlignmentPI::getStringFromPart(q)){
       setSingleIov( true );
     }
 
     bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+
+      gStyle->SetPaintTextFormat(".1f");
+
       auto iov = iovs.front();
       std::shared_ptr<AlignmentErrorsExtended> payload = fetchPayload( std::get<1>(iov) );
   
@@ -297,6 +300,12 @@ namespace {
       TCanvas canvas("Pixel summary","Pixel summary",1200,1200); 
       canvas.Divide(3,2);
 
+      // define the paritions range to act upon
+      auto begin = AlignmentPI::partLimits[q].first;
+      auto end = AlignmentPI::partLimits[q].second;
+      // dinamically defined range
+      auto range = (end-begin)+1;
+
       std::map< std::pair<AlignmentPI::index,AlignmentPI::regions>,std::shared_ptr<TH1F> > APE_spectraByRegion;
       std::map< AlignmentPI::index,std::shared_ptr<TH1F> > summaries; 
 
@@ -305,9 +314,11 @@ namespace {
 	AlignmentPI::index coord = (AlignmentPI::index) k;
 	std::string s_coord = AlignmentPI::getStringFromIndex(coord);
 
-	summaries[coord] = std::make_shared<TH1F>(Form("Summary_%s",s_coord.c_str()),Form("Summary for d_{%s} APE;;APE d_{%s} [#mum]",s_coord.c_str(),s_coord.c_str()),14,0,14);
+	summaries[coord] = std::make_shared<TH1F>(Form("Summary_%s",s_coord.c_str()),Form("Summary for d_{%s} APE;;APE d_{%s} [#mum]",s_coord.c_str(),s_coord.c_str()),range,0,range);
 
-	for(int j = AlignmentPI::BPixL1o; j<=AlignmentPI::FPixpL3; j++){
+	//std::cout<<"begin ( "<< begin << "): " << AlignmentPI::getStringFromRegionEnum(begin) << " end ( " << end << "): " <<  AlignmentPI::getStringFromRegionEnum(end) <<" | range = "<< range << std::endl;
+
+	for(int j = begin; j<=end; j++){
 
 	  AlignmentPI::regions part = (AlignmentPI::regions) j;  
 	  std::string s_part =  AlignmentPI::getStringFromRegionEnum(part);
@@ -318,6 +329,9 @@ namespace {
 	  	 
 	}
       }
+
+      bool isPhase0(false);
+      if(alignErrors.size()==AlignmentPI::phase0size) isPhase0 = true;
 
       // loop on the vector of errors
       for (const auto& it : alignErrors ){
@@ -330,7 +344,7 @@ namespace {
 	}
 
 	int subid = DetId(it.rawId()).subdetId();	    
-	if(subid!=1 && subid!=2) continue;
+	if(subid!=q) continue;
 
 	// fill the struct
 	AlignmentPI::topolInfo t_info_fromXML;
@@ -338,11 +352,15 @@ namespace {
 	t_info_fromXML.m_rawid = it.rawId();
 	DetId detid(t_info_fromXML.m_rawid);
 	t_info_fromXML.m_subdetid = subid;
-	t_info_fromXML.fillGeometryInfo(detid,tTopo);
-	t_info_fromXML.printAll();
+	t_info_fromXML.fillGeometryInfo(detid,tTopo,isPhase0);
+	//t_info_fromXML.printAll();
 
 	AlignmentPI::regions thePart = t_info_fromXML.filterThePartition();
-	std::cout<< AlignmentPI::getStringFromRegionEnum(thePart) << std::endl;
+
+	// skip the glued detector detIds
+	if(thePart==AlignmentPI::StripDoubleSide) continue;
+
+	//std::cout<< AlignmentPI::getStringFromRegionEnum(thePart) << std::endl;
 	
 	for(int k = AlignmentPI::XX; k<=AlignmentPI::ZZ;k++){
 	
@@ -353,30 +371,41 @@ namespace {
 	  APE_spectraByRegion[hash]->Fill(sqrt(errMatrix[indices.first][indices.second])*AlignmentPI::cmToUm);
 
 	} // loop on the coordinate indices
-
       } // loop over detIds
 
+      // plotting section
+
       for(int k = AlignmentPI::XX; k<=AlignmentPI::ZZ;k++){
+
 	AlignmentPI::index coord = (AlignmentPI::index) k;
-	for(int j = AlignmentPI::BPixL1o; j<=AlignmentPI::FPixpL3; j++){
+
+	for(int j=begin; j<=end; j++){
+
 	  AlignmentPI::regions part = (AlignmentPI::regions) j;  
 	  auto hash = std::make_pair(coord,part);
-	  summaries[coord]->GetXaxis()->SetBinLabel(j+1, AlignmentPI::getStringFromRegionEnum(part).c_str());
-	  summaries[coord]->SetBinContent(j+1,APE_spectraByRegion[hash]->GetMean());
-	  summaries[coord]->SetBinError(j+1,APE_spectraByRegion[hash]->GetRMS());
+	  summaries[coord]->GetXaxis()->SetBinLabel((j-begin)+1, AlignmentPI::getStringFromRegionEnum(part).c_str());
+	  summaries[coord]->SetBinContent((j-begin)+1,APE_spectraByRegion[hash]->GetMean());
+	  //summaries[coord]->SetBinError((j-begin)+1,APE_spectraByRegion[hash]->GetRMS());
 	  AlignmentPI::makeNicePlotStyle(summaries[coord].get(),kBlue);
 	  summaries[coord]->GetXaxis()->LabelsOption("v");
-	  summaries[coord]->GetXaxis()->SetLabelSize(0.6);
-	}
+	  summaries[coord]->GetXaxis()->SetLabelSize(0.06);
+
+	} // loop over the detector regions
      
 	canvas.cd(k);
 	canvas.cd(k)->SetTopMargin(0.07);
 	canvas.cd(k)->SetBottomMargin(0.15);
-	canvas.cd(k)->SetLeftMargin(0.18);
+	canvas.cd(k)->SetLeftMargin(0.17);
 	canvas.cd(k)->SetRightMargin(0.05);
-	summaries[coord]->Draw("E1");
+	summaries[coord]->SetFillColorAlpha(kRed,0.35);
+	summaries[coord]->SetMarkerSize(2.5);
+	summaries[coord]->SetMarkerColor(kRed);
+	summaries[coord]->GetYaxis()->SetRangeUser(0.,summaries[coord]->GetMaximum()*1.20);
+	summaries[coord]->Draw("text90");
+	summaries[coord]->Draw("HISTsame");
+
 	
-      }
+      } // loop over the matrix elements
 
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
@@ -385,6 +414,13 @@ namespace {
     }
   };
  
+  typedef TrackerAlignmentErrorExtendedDetail<AlignmentPI::BPix> TrackerAlignmentErrorExtendedBPixDetail;
+  typedef TrackerAlignmentErrorExtendedDetail<AlignmentPI::FPix> TrackerAlignmentErrorExtendedFPixDetail;
+  typedef TrackerAlignmentErrorExtendedDetail<AlignmentPI::TIB>  TrackerAlignmentErrorExtendedTIBDetail;
+  typedef TrackerAlignmentErrorExtendedDetail<AlignmentPI::TOB>  TrackerAlignmentErrorExtendedTOBDetail;
+  typedef TrackerAlignmentErrorExtendedDetail<AlignmentPI::TID>  TrackerAlignmentErrorExtendedTIDDetail;
+  typedef TrackerAlignmentErrorExtendedDetail<AlignmentPI::TEC>  TrackerAlignmentErrorExtendedTECDetail;
+
 } // close namespace
 
 // Register the classes as boost python plugin
@@ -407,5 +443,10 @@ PAYLOAD_INSPECTOR_MODULE(TrackerAlignmentErrorExtended){
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXYTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXZTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedYZTrackerMap);
-  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedPixelDetail);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedBPixDetail);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedFPixDetail);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedTIBDetail);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedTOBDetail);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedTIDDetail);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedTECDetail);
 }
