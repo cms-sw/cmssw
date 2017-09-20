@@ -96,7 +96,8 @@ namespace {
       l = new TLine(0., 0., 72., 0.);
       l->Draw();
 
-      canvas.SaveAs("ecalTPGtowerstatus.png");
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
       return true;
     }// fill method
   };
@@ -220,7 +221,8 @@ namespace {
       l = new TLine(0., 0., 72., 0.);
       l->Draw();
 
-      canvas.SaveAs("ecalTPGtowerstatusDiff.png");
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
       return true;
     }// fill method
   };

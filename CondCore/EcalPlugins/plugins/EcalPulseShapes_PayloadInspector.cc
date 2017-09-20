@@ -169,7 +169,9 @@ namespace {
 	ipad++;
       }
 
-      canvas.SaveAs("ecalpulseshapes.png");
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
+
       return true;
     }// fill method
   };
@@ -248,7 +250,8 @@ namespace {
       pad[1]->cd();
       endcap->Draw("");
 
-      canvas.SaveAs("ecalpulseshapesProfile.png");
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
       return true;
     }// fill method
 

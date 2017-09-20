@@ -180,7 +180,8 @@ namespace {
 	DrawEE(endc_p_r[gId], rEEmin[gId], rEEmax[gId]);
       }
 
-      canvas.SaveAs("ecalTPGLinearizationConst.png");
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
       return true;
     }// fill method
   };
@@ -417,7 +418,8 @@ namespace {
 	DrawEE(endc_p_r[gId], rEEmin[gId], rEEmax[gId]);
       }
 
-      canvas.SaveAs("ecalTPGLinearizationConstDiff.png");
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
       return true;
     }// fill method
   };
