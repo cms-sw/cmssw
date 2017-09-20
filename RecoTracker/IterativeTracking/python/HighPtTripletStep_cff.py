@@ -206,7 +206,7 @@ highPtTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProdu
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
 highPtTripletStep = TrackMVAClassifierPrompt.clone(
     src	= 'highPtTripletStepTracks',
-    GBRForestLabel = 'MVASelectorHighPtTripletStep_Phase1',
+    mva = dict(GBRForestLabel = 'MVASelectorHighPtTripletStep_Phase1'),
     qualityCuts	= [0.2,0.3,0.4],
 )
 

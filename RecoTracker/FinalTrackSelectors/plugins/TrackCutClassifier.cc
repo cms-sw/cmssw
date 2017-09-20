@@ -175,12 +175,12 @@ namespace {
       fillArrayF(drWPVerr_par, dr_par,"drWPVerr_par");
     }
     
-    
+    void beginStream() {}
+    void initEvent(const edm::EventSetup&) {}
     
     float operator()(reco::Track const & trk,
 		     reco::BeamSpot const & beamSpot,
-		     reco::VertexCollection const & vertices,
-		     GBRForest const *) const {
+		     reco::VertexCollection const & vertices) const {
       
       float ret = 1.f;
       // minimum number of hits for by-passing the other checks
