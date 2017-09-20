@@ -393,7 +393,7 @@ namespace {
   class SiStripBadStripByRegion : public cond::payloadInspector::PlotImage<SiStripBadStrip> {
   public:
     SiStripBadStripByRegion() : cond::payloadInspector::PlotImage<SiStripBadStrip>( "SiStrip BadStrip By Region" ),
-      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
+      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
     {
       setSingleIov( true );
     }

@@ -24,7 +24,7 @@
 // gSystem->Load("libCalibTrackerStandaloneTrackerTopology.so")
 
 
-TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXML(std::string(gSystem->Getenv("CMSSW_RELEASE_BASE"))+"/src/Geometry/TrackerCommonData/data/trackerParameters.xml");
+TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(std::string(gSystem->Getenv("CMSSW_RELEASE_BASE"))+"/src/Geometry/TrackerCommonData/data/trackerParameters.xml");
 
 #include<vector>
 #include"tdrstyle.C"
