@@ -220,11 +220,11 @@ lowPtTripletStep.qualityCuts = [-0.6,-0.3,-0.1]
 
 trackingPhase1.toReplaceWith(lowPtTripletStep, lowPtTripletStep.clone(
      mva = dict(GBRForestLabel = 'MVASelectorLowPtTripletStep_Phase1'),
-     qualityCuts = [0.0,0.2,0.4],
+     qualityCuts = [-0.4,0.0,0.3],
 ))
 trackingPhase1QuadProp.toReplaceWith(lowPtTripletStep, lowPtTripletStep.clone(
      mva = dict(GBRForestLabel = 'MVASelectorLowPtTripletStep_Phase1'),
-     qualityCuts = [0.0,0.2,0.4],
+     qualityCuts = [-0.4,0.0,0.3],
 ))
 
 
