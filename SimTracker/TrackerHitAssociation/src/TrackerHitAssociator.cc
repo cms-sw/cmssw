@@ -154,7 +154,7 @@ void TrackerHitAssociator::makeMaps(const edm::Event& theEvent, const TrackerHit
       if (theEvent.getByToken(cfToken, cf_simhit)) {
         std::unique_ptr<MixCollection<PSimHit> > thisContainerHits(new MixCollection<PSimHit>(cf_simhit.product())); 
         theEvent.labelsForToken(cfToken, labels);
-        if(std::strstr(labels.productInstance, highTag) != NULL) {
+        if(std::strstr(labels.productInstance, highTag) != nullptr) {
           tofBin = StripDigiSimLink::HighTof;
         } else {
           tofBin = StripDigiSimLink::LowTof; 
@@ -176,7 +176,7 @@ void TrackerHitAssociator::makeMaps(const edm::Event& theEvent, const TrackerHit
       // int Nhits = 0;
       if(theEvent.getByToken(simHitToken, simHits)) {
         theEvent.labelsForToken(simHitToken, labels);
-        if(std::strstr(labels.productInstance, highTag) != NULL) {
+        if(std::strstr(labels.productInstance, highTag) != nullptr) {
           tofBin = StripDigiSimLink::HighTof;
         } else {
           tofBin = StripDigiSimLink::LowTof; 
@@ -226,7 +226,7 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
 
   // Get the vector of simHits associated with this rechit
 
-  if (!assocHitbySimTrack_ && simhitCFPos.size() > 0) {
+  if (!assocHitbySimTrack_ && !simhitCFPos.empty()) {
     // We use the indices to the simHit collections taken
     //  from the DigiSimLinks and returned in simhitCFPos.
     //  simhitCFPos[i] contains the full address of the ith simhit:
@@ -417,7 +417,7 @@ void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* cl
   if(isearch != stripdigisimlink->end()) {  //if it is not empty
     edm::DetSet<StripDigiSimLink> link_detset = (*isearch);
     
-    if(clust!=0){//the cluster is valid
+    if(clust!=nullptr){//the cluster is valid
       int clusiz = clust->amplitudes().size();
       int first  = clust->firstStrip();     
       int last   = first + clusiz;
@@ -459,7 +459,7 @@ void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* cl
 	    simtrackid.push_back(currentId);
 	  }
 	  	  
-	  if (simhitCFPos != 0) {
+	  if (simhitCFPos != nullptr) {
 	  //create a vector that contains all the position (in the MixCollection) of the SimHits that contributed to the RecHit
 	  //write position only once
 	    unsigned int currentCFPos = linkiter->CFposition();
@@ -575,7 +575,7 @@ void TrackerHitAssociator::associatePhase2TrackerRecHit(const Phase2TrackerRecHi
 	    idcachev.push_back(currentId);
 	  }
 
-	  if (simhitCFPos != 0) {
+	  if (simhitCFPos != nullptr) {
 	  //create a vector that contains all the position (in the MixCollection) of the SimHits that contributed to the RecHit
 	  //write position only once
 	    unsigned int currentCFPos = linkiter->CFposition();
@@ -646,7 +646,7 @@ void  TrackerHitAssociator::associatePixelRecHit(const SiPixelRecHit * pixelrech
 	    idcachev.push_back(currentId);
 	  }
 
-	  if (simhitCFPos != 0) {
+	  if (simhitCFPos != nullptr) {
 	  //create a vector that contains all the position (in the MixCollection) of the SimHits that contributed to the RecHit
 	  //write position only once
 	    unsigned int currentCFPos = linkiter->CFposition();

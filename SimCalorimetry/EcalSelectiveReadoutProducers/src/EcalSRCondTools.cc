@@ -129,7 +129,7 @@ EcalSRCondTools::analyze(const edm::Event& event, const edm::EventSetup& es){
       cout << "EcalTPGPhysicsConst record not found. Check the Cond DB Global tag.\n";
     } else{
       const EcalTPGPhysicsConst * tp = hTp.product();
-      const EcalTPGPhysicsConstMap mymap = tp->getMap();
+      const EcalTPGPhysicsConstMap& mymap = tp->getMap();
       if(mymap.size()!=2){
         cout << "Error: TPG physics record is of unexpected size: "
              << mymap.size()  << " elements instead of two (one for EB, one for EE)\n";
@@ -261,7 +261,7 @@ void EcalSRCondTools::importSrpConfigFile(EcalSRSettings& sr, std::istream& f, b
 
     while(((sValue = tokenize(line, " \t", pos))!=string(""))
 	  && (iCh<nChs[iValueSet]) && sErr.str().empty()){
-      value = strtoul(sValue.c_str(), 0, 0);
+      value = strtoul(sValue.c_str(), nullptr, 0);
       const int iSrp = iValueSet%EcalSRSettings::nSrps_;
       if(iValueSet<12){//TCC
 	assert((unsigned)iSrp < sizeof(tccNum) / sizeof(tccNum[0]));
@@ -395,7 +395,7 @@ void EcalSRCondTools::importSrpConfigFile(EcalSRSettings& sr, std::istream& f, b
     sErr << "Syntax Error in imported SRP system configuration file "
       /*<< filename <<*/ " line " << iLine << ".";
   }
-  if(sErr.str().size()!=0) throw cms::Exception("SyntaxError") << sErr.str();
+  if(!sErr.str().empty()) throw cms::Exception("SyntaxError") << sErr.str();
 }
 
 double EcalSRCondTools::normalizeWeights(int hwWeight){

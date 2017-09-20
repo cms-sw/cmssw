@@ -18,6 +18,7 @@ void HGCalImagingAlgo::populate(const HGCRecHitCollection& hits){
     computeThreshold();
   }
 
+  std::vector<bool> firstHit(2*(maxlayer+1), true);
   for (unsigned int i=0;i<hits.size();++i) {
 
     const HGCRecHit& hgrh = hits[i];
@@ -48,9 +49,10 @@ void HGCalImagingAlgo::populate(const HGCRecHitCollection& hits){
     points[layer].emplace_back(Hexel(hgrh,detid,isHalf,sigmaNoise,thickness,&rhtools_),position.x(),position.y());
 
     // for each layer, store the minimum and maximum x and y coordinates for the KDTreeBox boundaries
-    if(minpos[layer][0] == 0.0f){
+    if(firstHit[layer]){
       minpos[layer][0] = position.x(); minpos[layer][1] = position.y();
       maxpos[layer][0] = position.x(); maxpos[layer][1] = position.y();
+      firstHit[layer] = false;
     }else{
       minpos[layer][0] = std::min((float)position.x(),minpos[layer][0]);
       minpos[layer][1] = std::min((float)position.y(),minpos[layer][1]);
@@ -240,7 +242,7 @@ double HGCalImagingAlgo::calculateDistanceToHigher(std::vector<KDNode> &nd){
   int nearestHigher = -1;
 
 
-  if(rs.size()>0)
+  if(!rs.empty())
     maxdensity = nd[rs[0]].data.rho;
   else
     return maxdensity; // there are no hits

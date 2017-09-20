@@ -78,10 +78,10 @@ public:
 
 private:
   /// stop default copy ctor
-  MaterialAccountingGroup(const MaterialAccountingGroup & layer);
+  MaterialAccountingGroup(const MaterialAccountingGroup & layer) = delete;
 
   /// stop default assignment operator
-  MaterialAccountingGroup& operator=( const MaterialAccountingGroup & layer);
+  MaterialAccountingGroup& operator=( const MaterialAccountingGroup & layer) = delete;
 
 public:
   /// buffer material from a detector, if the detector is inside the DetLayer bounds

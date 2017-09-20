@@ -16,7 +16,7 @@ class  CosmicParametersDefinerForTPESProducer: public edm::ESProducer{
 
  public:
   CosmicParametersDefinerForTPESProducer(const edm::ParameterSet & p);
-  virtual ~CosmicParametersDefinerForTPESProducer(); 
+  ~CosmicParametersDefinerForTPESProducer() override; 
   std::shared_ptr<CosmicParametersDefinerForTP> produce(const TrackAssociatorRecord &);
 
 };
