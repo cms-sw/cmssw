@@ -102,7 +102,6 @@ else:
 #### select tracks based on MaximumImpactParameter, MaximumZ, MinimumTotalLayers, MinimumPixelLayers and MaximumNormChi2
 process.pixelTracksCutClassifier = cms.EDProducer( "TrackCutClassifier",
     src = cms.InputTag( "pixelTracks" ),
-    GBRForestLabel = cms.string( "" ),
     beamspot = cms.InputTag( "offlineBeamSpot" ),
 #    vertices = cms.InputTag( "pixelVertices" ),
     vertices = cms.InputTag( "" ),

@@ -172,12 +172,12 @@ jetCoreRegionalStep.vertices = 'firstStepGoodPrimaryVertices'
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
 trackingPhase1.toReplaceWith(jetCoreRegionalStep, TrackMVAClassifierPrompt.clone(
      src = 'jetCoreRegionalStepTracks',
-     GBRForestLabel = 'MVASelectorJetCoreRegionalStep_Phase1',
+     mva = dict(GBRForestLabel = 'MVASelectorJetCoreRegionalStep_Phase1'),
      qualityCuts = [-0.2,0.0,0.4],
 ))
 trackingPhase1QuadProp.toReplaceWith(jetCoreRegionalStep, TrackMVAClassifierPrompt.clone(
      src = 'jetCoreRegionalStepTracks',
-     GBRForestLabel = 'MVASelectorJetCoreRegionalStep_Phase1',
+     mva = dict(GBRForestLabel = 'MVASelectorJetCoreRegionalStep_Phase1'),
      qualityCuts = [-0.2,0.0,0.4],
 ))
 
