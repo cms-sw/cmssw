@@ -190,16 +190,20 @@ void fastsim::MuonBremsstrahlung::interact(fastsim::Particle & particle,
     // Energy of these photons
     for(unsigned int i=0; i<nPhotons; ++i)
     {
+        // Throw momentum of the photon
+        math::XYZTLorentzVector photonMom = brem(particle, xmin, random);
+
         // Check that there is enough energy left.
-        if(particle.momentum().E() - particle.momentum().mass() < minPhotonEnergy_)break;
-        
+        if(particle.momentum().E() - particle.momentum().mass() < photonMom.E()) break;
+
+        // Rotate to the lab frame
+        photonMom = ROOT::Math::RotationZ(phi) * (ROOT::Math::RotationY(theta) * photonMom);
+
         // Add a photon
-        secondaries.emplace_back(new fastsim::Particle(22,particle.position(),brem(particle, xmin, random)));
-        // Rotate to lab frame
-        secondaries.back()->momentum() = ROOT::Math::RotationZ(phi)*(ROOT::Math::RotationY(theta)*secondaries.back()->momentum());
+        secondaries.emplace_back(new fastsim::Particle(22, particle.position(), photonMom));        
         
         // Update the original e+/-
-        particle.momentum() -= secondaries.back()->momentum();
+        particle.momentum() -= photonMom;
     }
 }	
 
