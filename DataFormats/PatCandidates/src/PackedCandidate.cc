@@ -150,7 +150,8 @@ float pat::PackedCandidate::dxy(const Point &p) const {
 float pat::PackedCandidate::dz(const Point &p) const {
     maybeUnpackBoth();
     const float phi = float(p4_.load()->Phi())+dphi_;
-    return (vertex_.load()->Z()-p.Z())  - ((vertex_.load()->X()-p.X()) * std::cos(phi) + (vertex_.load()->Y()-p.Y()) * std::sin(phi)) * p4_.load()->Pz()/p4_.load()->Pt();
+    const float pzpt = deta_ ? std::sinh(etaAtVtx()) : p4_.load()->Pz()/p4_.load()->Pt();
+    return (vertex_.load()->Z()-p.Z())  - ((vertex_.load()->X()-p.X()) * std::cos(phi) + (vertex_.load()->Y()-p.Y()) * std::sin(phi)) * pzpt;
 }
 
 void pat::PackedCandidate::unpackTrk() const {
@@ -298,11 +299,11 @@ bool pat::PackedCandidate::overlap( const reco::Candidate & o ) const {
 }
 
 const reco::Candidate * pat::PackedCandidate::daughter( size_type ) const {
-  return 0;
+  return nullptr;
 }
 
 const reco::Candidate * pat::PackedCandidate::mother( size_type ) const {
-  return 0;
+  return nullptr;
 }
 
 const reco::Candidate * pat::PackedCandidate::daughter(const std::string&) const {
@@ -320,7 +321,7 @@ reco::Candidate * pat::PackedCandidate::daughter(const std::string&) {
 
 
 reco::Candidate * pat::PackedCandidate::daughter( size_type ) {
-  return 0;
+  return nullptr;
 }
 
 double pat::PackedCandidate::vertexChi2() const {
