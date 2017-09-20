@@ -241,11 +241,11 @@ from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierDetached_cfi import *
 mixedTripletStepClassifier1 = TrackMVAClassifierDetached.clone()
 mixedTripletStepClassifier1.src = 'mixedTripletStepTracks'
-mixedTripletStepClassifier1.GBRForestLabel = 'MVASelectorIter4_13TeV'
+mixedTripletStepClassifier1.mva.GBRForestLabel = 'MVASelectorIter4_13TeV'
 mixedTripletStepClassifier1.qualityCuts = [-0.5,0.0,0.5]
 mixedTripletStepClassifier2 = TrackMVAClassifierPrompt.clone()
 mixedTripletStepClassifier2.src = 'mixedTripletStepTracks'
-mixedTripletStepClassifier2.GBRForestLabel = 'MVASelectorIter0_13TeV'
+mixedTripletStepClassifier2.mva.GBRForestLabel = 'MVASelectorIter0_13TeV'
 mixedTripletStepClassifier2.qualityCuts = [-0.2,-0.2,-0.2]
 
 from RecoTracker.FinalTrackSelectors.ClassifierMerger_cfi import *
@@ -253,11 +253,11 @@ mixedTripletStep = ClassifierMerger.clone()
 mixedTripletStep.inputClassifiers=['mixedTripletStepClassifier1','mixedTripletStepClassifier2']
 
 trackingPhase1.toReplaceWith(mixedTripletStep, mixedTripletStepClassifier1.clone(
-     GBRForestLabel = 'MVASelectorMixedTripletStep_Phase1',
+     mva = dict(GBRForestLabel = 'MVASelectorMixedTripletStep_Phase1'),
      qualityCuts = [-0.5,0.0,0.5],
 ))
 trackingPhase1QuadProp.toReplaceWith(mixedTripletStep, mixedTripletStepClassifier1.clone(
-     GBRForestLabel = 'MVASelectorMixedTripletStep_Phase1',
+     mva = dict(GBRForestLabel = 'MVASelectorMixedTripletStep_Phase1'),
      qualityCuts = [-0.5,0.0,0.5],
 ))
 
