@@ -34,7 +34,7 @@ finalMuons = cms.EDFilter("PATMuonRefSelector",
 
 muonMVATTH= cms.EDProducer("MuonBaseMVAValueMapProducer",
     src = cms.InputTag("linkedObjects","muons"),
-    weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/mu_BDTG.weights.xml"),
+    weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/mu_BDTG.weights.xml.gz"),
     name = cms.string("muonMVATTH"),
     isClassifier = cms.bool(True),
     variablesOrder = cms.vstring(["LepGood_pt","LepGood_eta","LepGood_jetNDauChargedMVASel","LepGood_miniRelIsoCharged","LepGood_miniRelIsoNeutral","LepGood_jetPtRelv2","LepGood_jetPtRatio","LepGood_jetBTagCSV","LepGood_sip3d","LepGood_dxy","LepGood_dz","LepGood_segmentCompatibility"]),
