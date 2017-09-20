@@ -40,7 +40,7 @@
 class HcalTPGCoderULUT : public edm::ESProducer {
 public:
   HcalTPGCoderULUT(const edm::ParameterSet&);
-  ~HcalTPGCoderULUT();
+  ~HcalTPGCoderULUT() override;
      
   typedef std::shared_ptr<HcalTPGCoder> ReturnType;
   void dbRecordCallback(const HcalDbRecord&);
@@ -86,7 +86,7 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig)
     setWhatProduced(this);
   }
 
-  theCoder_=0;
+  theCoder_=nullptr;
 }
 
   
@@ -128,7 +128,7 @@ HcalTPGCoderULUT::~HcalTPGCoderULUT() {
 HcalTPGCoderULUT::ReturnType
 HcalTPGCoderULUT::produce(const HcalTPGRecord& iRecord)
 {
-  if (theCoder_==0) {
+  if (theCoder_==nullptr) {
     edm::ESHandle<HcalTopology> htopo;
     iRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
     const HcalTopology* topo=&(*htopo);
@@ -146,7 +146,7 @@ void HcalTPGCoderULUT::dbRecordCallback(const HcalDbRecord& theRec) {
   theRec.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
 
-  if (theCoder_==0) {
+  if (theCoder_==nullptr) {
     buildCoder(topo);
   }
 
