@@ -1,6 +1,5 @@
 /** Implementation of the ME0 Geometry Builder from DDD
  *
- *  \author Port of: MuDDDME0Builder (ORCA)
  *  \author M. Maggi - INFN Bari
  *  \edited by D. Nash
  */
@@ -9,9 +8,9 @@
 #include "Geometry/GEMGeometry/interface/ME0Chamber.h"
 #include "Geometry/GEMGeometry/interface/ME0EtaPartitionSpecs.h"
 
-#include <DetectorDescription/Core/interface/DDFilter.h>
-#include <DetectorDescription/Core/interface/DDFilteredView.h>
-#include <DetectorDescription/Core/interface/DDSolid.h>
+#include "DetectorDescription/Core/interface/DDFilter.h"
+#include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
 
 #include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
@@ -25,9 +24,9 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <iostream>
 #include <algorithm>
-#include <boost/lexical_cast.hpp>
+#include <iostream>
+#include <string>
 
 ME0GeometryBuilderFromDDD::ME0GeometryBuilderFromDDD()
 { 
@@ -58,14 +57,13 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
 					<<" First logical part "
 					<<fview.logicalPart().name().name();
 
-
   bool doSubDets = fview.firstChild();
  
   LogDebug("ME0GeometryBuilderFromDDD") << "doSubDets = " << doSubDets;
 
-   LogDebug("ME0GeometryBuilderFromDDD") <<"start the loop"; 
+  LogDebug("ME0GeometryBuilderFromDDD") <<"start the loop"; 
 
-   int nChambers(0);
+  int nChambers(0);
   while (doSubDets)
   {
     // Get the Base Muon Number
@@ -82,27 +80,17 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     // chamber id for this partition. everything is the same; but partition number is 0 and layer number is 0.
     LogDebug("ME0GeometryBuilderFromDDD") << "ME0 chamber rawId: " << ME0DetId(rollDetId.chamberId()).rawId() << ", detId: " << ME0DetId(rollDetId.chamberId());
 
-    //Commented out, we don't have stations
-    //const int stationId(rollDetId.station());
-    //if (stationId > maxStation) maxStation = stationId;
-    
     if (rollDetId.roll()==1) ++nChambers;
-
 
     std::vector<double> dpar=fview.logicalPart().solid().parameters();
     std::string name = fview.logicalPart().name().name();
     DDTranslation tran = fview.translation();
     DDRotationMatrix rota = fview.rotation();
     Surface::PositionType pos(tran.x()/cm, tran.y()/cm, tran.z()/cm);
-    // CLHEP way
-    // Surface::RotationType rot(rota.xx(),rota.xy(),rota.xz(),
-    //           	      rota.yx(),rota.yy(),rota.yz(),
-    // 			      rota.zx(),rota.zy(),rota.zz());
 
-    //ROOT::Math way
     DD3Vector x, y, z;
     rota.GetComponents(x,y,z);
-    // doesn't this just re-inverse???
+
     Surface::RotationType rot(float(x.X()), float(x.Y()), float(x.Z()),
 			      float(y.X()), float(y.Y()), float(y.Z()),
 			      float(z.X()), float(z.Y()), float(z.Z())); 
@@ -129,10 +117,9 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     
     ME0EtaPartitionSpecs* e_p_specs = new ME0EtaPartitionSpecs(GeomDetEnumerators::ME0, name, pars);
 
-      //Change of axes for the forward
+    //Change of axes for the forward
     Basic3DVector<float> newX(1.,0.,0.);
     Basic3DVector<float> newY(0.,0.,1.);
-    //      if (tran.z() > 0. )
     newY *= -1;
     Basic3DVector<float> newZ(0.,1.,0.);
     rot.rotateAxes (newX, newY, newZ);
@@ -157,24 +144,15 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
 
     // go to next layer
     doSubDets = fview.nextSibling(); 
-
-
   }
-  
   
   auto& partitions(geometry->etaPartitions());
   // build the chambers and add them to the geometry
   std::vector<ME0DetId> vDetId;
-  //int oldRollNumber = 1;
   int oldLayerNumber = 1;
   for (unsigned i=1; i<=partitions.size(); ++i){
     ME0DetId detId(partitions.at(i-1)->id());
     LogDebug("ME0GeometryBuilderFromDDD") << "Making ME0DetId = " <<detId;
-
-    //The GEM methodology depended on rollNumber changing from chamber to chamber, we need to use layer ID
-    //const int rollNumber(detId.roll());
-    // new batch of eta partitions --> new chamber
-    //if (rollNumber < oldRollNumber || i == partitions.size()) {
 
     const int layerNumber(detId.layer());
     if (layerNumber < oldLayerNumber || i == partitions.size()) {
@@ -208,6 +186,5 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     oldLayerNumber = layerNumber;
   }
   
-
   return geometry;
 }
