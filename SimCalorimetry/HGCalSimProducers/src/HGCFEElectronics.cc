@@ -360,8 +360,9 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
   runChargeSharing();
 
 
+  //For the future need to understand how to deal with toa for out of time signals
+  //and for that should keep track of the BX firing the ToA somewhere (also to restore the use of finalToA) 
   /*
-  //should keep track of the BX firing the ToA somewhere to restore the use of finalToA 
   float finalToA(0.);
   for(int it=0; it<(int)(newCharge.size()); it++){
     if(toaFlags[it]){
