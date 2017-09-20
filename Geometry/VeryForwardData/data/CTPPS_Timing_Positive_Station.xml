@@ -53,12 +53,6 @@
       <rRotation name="rotations:000D"/>
       <Translation x="0*mm" y="0*mm" z="-([CTPPS_Timing_Station_Parameters:Station_Length]/2-([CTPPS_Timing_Station_Parameters:Station_Pipe_Length]+[RP_220_Right_Station:RP_220_Right_Prim_Hor_z]+[RP_Device:RP_Device_Length_z]/2)/2)"/>
     </PosPart>
-    <!--<PosPart copyNumber="1">-->
-      <!--<rParent name="CTPPS_Timing_Positive_Station:CTPPS_Timing_Positive_Station"/>-->
-      <!--<rChild name="CTPPS_Timing_Positive_Station_Tube_2"/>-->
-      <!--<rRotation name="rotations:000D"/>-->
-      <!--<Translation x="0*mm" y="0*mm" z="([CTPPS_Timing_Station_Parameters:Station_Length]/2-[CTPPS_Timing_Station_Parameters:Station_Pipe_Length]/2)"/>-->
-    <!--</PosPart>-->
   </PosPartSection>
 
 </DDDefinition>
