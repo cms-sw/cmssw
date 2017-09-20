@@ -84,6 +84,20 @@ public :
   std::vector<double>       *hcal_activeHotL5;
   std::vector<double>       *hcal_activeHotL6;
   std::vector<double>       *hcal_activeHotL7;
+  std::vector<double>       *hcal_cdepthHot1;
+  std::vector<double>       *hcal_cdepthHot2;
+  std::vector<double>       *hcal_cdepthHot3;
+  std::vector<double>       *hcal_cdepthHot4;
+  std::vector<double>       *hcal_cdepthHot5;
+  std::vector<double>       *hcal_cdepthHot6;
+  std::vector<double>       *hcal_cdepthHot7;
+  std::vector<double>       *hcal_cdepthHotBG1;
+  std::vector<double>       *hcal_cdepthHotBG2;
+  std::vector<double>       *hcal_cdepthHotBG3;
+  std::vector<double>       *hcal_cdepthHotBG4;
+  std::vector<double>       *hcal_cdepthHotBG5;
+  std::vector<double>       *hcal_cdepthHotBG6;
+  std::vector<double>       *hcal_cdepthHotBG7;
   std::vector<double>       *TrackerLayer;
   std::vector<double>       *matchedId;
   std::vector<bool>         *innerTrack;
@@ -193,6 +207,20 @@ public :
   TBranch                   *b_hcal_activeHotL5;                    //!
   TBranch                   *b_hcal_activeHotL6;                    //!
   TBranch                   *b_hcal_activeHotL7;                    //!
+  TBranch                   *b_hcal_cdepthHot1;                     //!
+  TBranch                   *b_hcal_cdepthHot2;                     //!
+  TBranch                   *b_hcal_cdepthHot3;                     //!
+  TBranch                   *b_hcal_cdepthHot4;                     //!
+  TBranch                   *b_hcal_cdepthHot5;                     //!
+  TBranch                   *b_hcal_cdepthHot6;                     //!
+  TBranch                   *b_hcal_cdepthHot7;                     //!
+  TBranch                   *b_hcal_cdepthHotBG1;                   //!
+  TBranch                   *b_hcal_cdepthHotBG2;                   //!
+  TBranch                   *b_hcal_cdepthHotBG3;                   //!
+  TBranch                   *b_hcal_cdepthHotBG4;                   //!
+  TBranch                   *b_hcal_cdepthHotBG5;                   //!
+  TBranch                   *b_hcal_cdepthHotBG6;                   //!
+  TBranch                   *b_hcal_cdepthHotBG7;                   //!
   TBranch                   *b_TrackerLayer;                        //!
   TBranch                   *b_matchedId;                           //!
   TBranch                   *b_innerTrack;                          //!
@@ -443,6 +471,20 @@ void HBHEMuonOfflineAnalyzer::Init(TTree *tree, int flag, int mode, int maxDHB,
   hcal_edepthHotCorrect5 = 0;
   hcal_edepthHotCorrect6 = 0;
   hcal_edepthHotCorrect7 = 0;
+  hcal_cdepthHot1 = 0;
+  hcal_cdepthHot2 = 0;
+  hcal_cdepthHot3 = 0;
+  hcal_cdepthHot4 = 0;
+  hcal_cdepthHot5 = 0;
+  hcal_cdepthHot6 = 0;
+  hcal_cdepthHot7 = 0;
+  hcal_cdepthHotBG1 = 0;
+  hcal_cdepthHotBG2 = 0;
+  hcal_cdepthHotBG3 = 0;
+  hcal_cdepthHotBG4 = 0;
+  hcal_cdepthHotBG5 = 0;
+  hcal_cdepthHotBG6 = 0;
+  hcal_cdepthHotBG7 = 0;
   TrackerLayer = 0;
   matchedId = 0;
   innerTrack = 0;
@@ -557,6 +599,20 @@ void HBHEMuonOfflineAnalyzer::Init(TTree *tree, int flag, int mode, int maxDHB,
   fChain->SetBranchAddress("hcal_edepthHotCorrect5", &hcal_edepthHotCorrect5, &b_hcal_edepthHotCorrect5);
   fChain->SetBranchAddress("hcal_edepthHotCorrect6", &hcal_edepthHotCorrect6, &b_hcal_edepthHotCorrect6);
   fChain->SetBranchAddress("hcal_edepthHotCorrect7", &hcal_edepthHotCorrect7, &b_hcal_edepthHotCorrect7);
+   fChain->SetBranchAddress("hcal_cdepthHot1", &hcal_cdepthHot1, &b_hcal_cdepthHot1);
+   fChain->SetBranchAddress("hcal_cdepthHot2", &hcal_cdepthHot2, &b_hcal_cdepthHot2);
+   fChain->SetBranchAddress("hcal_cdepthHot3", &hcal_cdepthHot3, &b_hcal_cdepthHot3);
+   fChain->SetBranchAddress("hcal_cdepthHot4", &hcal_cdepthHot4, &b_hcal_cdepthHot4);
+   fChain->SetBranchAddress("hcal_cdepthHot5", &hcal_cdepthHot5, &b_hcal_cdepthHot5);
+   fChain->SetBranchAddress("hcal_cdepthHot6", &hcal_cdepthHot6, &b_hcal_cdepthHot6);
+   fChain->SetBranchAddress("hcal_cdepthHot7", &hcal_cdepthHot7, &b_hcal_cdepthHot7);
+   fChain->SetBranchAddress("hcal_cdepthHotBG1", &hcal_cdepthHotBG1, &b_hcal_cdepthHotBG1);
+   fChain->SetBranchAddress("hcal_cdepthHotBG2", &hcal_cdepthHotBG2, &b_hcal_cdepthHotBG2);
+   fChain->SetBranchAddress("hcal_cdepthHotBG3", &hcal_cdepthHotBG3, &b_hcal_cdepthHotBG3);
+   fChain->SetBranchAddress("hcal_cdepthHotBG4", &hcal_cdepthHotBG4, &b_hcal_cdepthHotBG4);
+   fChain->SetBranchAddress("hcal_cdepthHotBG5", &hcal_cdepthHotBG5, &b_hcal_cdepthHotBG5);
+   fChain->SetBranchAddress("hcal_cdepthHotBG6", &hcal_cdepthHotBG6, &b_hcal_cdepthHotBG6);
+   fChain->SetBranchAddress("hcal_cdepthHotBG7", &hcal_cdepthHotBG7, &b_hcal_cdepthHotBG7);
   fChain->SetBranchAddress("TrackerLayer", &TrackerLayer, &b_TrackerLayer);
   fChain->SetBranchAddress("matchedId", &matchedId, &b_matchedId);
   fChain->SetBranchAddress("innerTrack", &innerTrack, &b_innerTrack);

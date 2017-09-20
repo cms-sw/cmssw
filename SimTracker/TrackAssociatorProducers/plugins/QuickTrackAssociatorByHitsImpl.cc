@@ -205,10 +205,6 @@ reco::RecoToSimCollection QuickTrackAssociatorByHitsImpl::associateRecoToSimImpl
 			if( absoluteNumberOfHits_ ) quality = numberOfSharedClusters;
 			else if( numberOfValidTrackClusters != 0.0 ) quality = numberOfSharedClusters / numberOfValidTrackClusters;
 			else quality=0;
-
-			if( quality > 1 )
-                          edm::LogError("TrackAssociator") << "quality of the track cannot be more than 1!!";
-
 			if( quality > cutRecoToSim_ && !(threeHitTracksAreSpecial_ && pTrack->numberOfValidHits() == 3 && numberOfSharedClusters < 3.0) )
 			{
 				// Getting the RefToBase is dependent on the type of trackCollection, so delegate that to an overload.
@@ -270,9 +266,6 @@ reco::SimToRecoCollection QuickTrackAssociatorByHitsImpl::associateSimToRecoImpl
 			else if( simToRecoDenominator_==denomsim && numberOfSimulatedHits != 0 ) quality = numberOfSharedClusters/static_cast<double>(numberOfSimulatedHits);
 			else if( simToRecoDenominator_==denomreco && numberOfValidTrackClusters != 0 ) quality=purity;
 			else quality=0;
-
-			if( quality > 1 )
-                          edm::LogError("TrackAssociator") << "quality of the track cannot be more than 1!!";
 
 			if( quality>qualitySimToReco_ && !( threeHitTracksAreSpecial_ && numberOfSimulatedHits==3 && numberOfSharedClusters<3.0 ) && ( absoluteNumberOfHits_ || (purity>puritySimToReco_) ) )
 			{
@@ -652,9 +645,6 @@ reco::RecoToSimCollectionSeed QuickTrackAssociatorByHitsImpl::associateRecoToSim
 			else if( numberOfValidTrackClusters != 0.0 ) quality = numberOfSharedClusters / numberOfValidTrackClusters;
 			else quality=0;
 
-			if( quality > 1 )
-                          edm::LogError("TrackAssociator") << "quality of the track cannot be more than 1!!";
-
 			if( quality > cutRecoToSim_ && !(threeHitTracksAreSpecial_ && pSeed->nHits() == 3 && numberOfSharedClusters < 3.0) )
 			{
 				returnValue.insert( edm::RefToBase < TrajectorySeed > (pSeedCollectionHandle_, i), std::make_pair( trackingParticleRef, quality ) );
@@ -726,9 +716,6 @@ reco::SimToRecoCollectionSeed QuickTrackAssociatorByHitsImpl::associateSimToReco
 					/ static_cast<double>( numberOfSimulatedHits );
 			else if( simToRecoDenominator_ == denomreco && numberOfValidTrackClusters != 0.0 ) quality=purity;
 			else quality=0;
-
-			if( quality > 1 )
-                          edm::LogError("TrackAssociator") << "quality of the track cannot be more than 1!!";
 
 			if( quality > qualitySimToReco_ && !(threeHitTracksAreSpecial_ && numberOfSimulatedHits == 3 && numberOfSharedClusters < 3.0)
 					&& (absoluteNumberOfHits_ || (purity > puritySimToReco_)) )

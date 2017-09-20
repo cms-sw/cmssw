@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-pythia8CP5 = cms.PSet(
+pythia8CP5SettingsBlock = cms.PSet(
     pythia8CP5Settings = cms.vstring(
     'Tune:pp 14',
         'Tune:ee 7',

@@ -6,8 +6,8 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 MuonTruth::MuonTruth(const edm::Event& event, const edm::EventSetup& setup, const edm::ParameterSet& conf): 
-  theDigiSimLinks(0),
-  theWireDigiSimLinks(0),
+  theDigiSimLinks(nullptr),
+  theWireDigiSimLinks(nullptr),
   linksTag(conf.getParameter<edm::InputTag>("CSClinksTag")),
   wireLinksTag(conf.getParameter<edm::InputTag>("CSCwireLinksTag")),
   // CrossingFrame used or not ?
@@ -20,8 +20,8 @@ MuonTruth::MuonTruth(const edm::Event& event, const edm::EventSetup& setup, cons
 }
 
 MuonTruth::MuonTruth( const edm::ParameterSet& conf, edm::ConsumesCollector && iC ): 
-  theDigiSimLinks(0),
-  theWireDigiSimLinks(0),
+  theDigiSimLinks(nullptr),
+  theWireDigiSimLinks(nullptr),
   linksTag(conf.getParameter<edm::InputTag>("CSClinksTag")),
   wireLinksTag(conf.getParameter<edm::InputTag>("CSCwireLinksTag")),
   // CrossingFrame used or not ?
@@ -97,7 +97,7 @@ void MuonTruth::initEvent(const edm::Event& event, const edm::EventSetup& setup)
 
 float MuonTruth::muonFraction()
 {
-  if(theChargeMap.size() == 0) return 0.;
+  if(theChargeMap.empty()) return 0.;
 
   float muonCharge = 0.;
   for(std::map<SimHitIdpr, float>::const_iterator chargeMapItr = theChargeMap.begin();

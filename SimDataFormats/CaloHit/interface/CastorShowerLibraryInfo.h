@@ -12,7 +12,7 @@
 class SLBin: public TObject {
       public:
              SLBin() {};
-             ~SLBin() {};
+             ~SLBin() override {};
 // Setters
              void Clear()                       {NEvts=NBins=NEvtPerBin=0;Bins.clear();};
              void setNEvts(unsigned int n)      {NEvts = n;};
@@ -31,7 +31,7 @@ class SLBin: public TObject {
              unsigned int        NBins;
              unsigned int        NEvtPerBin;
              std::vector<double> Bins;
-    ClassDef(SLBin,2);
+    ClassDefOverride(SLBin,2);
 };
 
 class CastorShowerLibraryInfo : public TObject {
@@ -39,7 +39,7 @@ class CastorShowerLibraryInfo : public TObject {
   public:
   
     CastorShowerLibraryInfo();
-    ~CastorShowerLibraryInfo();
+    ~CastorShowerLibraryInfo() override;
     
     void Clear();
     
@@ -48,7 +48,7 @@ class CastorShowerLibraryInfo : public TObject {
     SLBin Eta;
     SLBin Phi;
 
-    ClassDef(CastorShowerLibraryInfo,2);
+    ClassDefOverride(CastorShowerLibraryInfo,2);
     
   };
 

@@ -103,7 +103,7 @@ namespace edm
 	 (isub == StripSubdetector::TEC)) {
 
 	auto stripdet = dynamic_cast<StripGeomDetUnit const*>((*iu));
-	assert(stripdet != 0);
+	assert(stripdet != nullptr);
 	DMinitializeDetUnit(stripdet, iSetup);
       }
     }
@@ -436,7 +436,7 @@ namespace edm
     for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
 
       const StripGeomDetUnit* sgd = dynamic_cast<const StripGeomDetUnit*>((*iu));
-      if (sgd != 0){
+      if (sgd != nullptr){
 
 	uint32_t detID = sgd->geographicalId().rawId();
 
