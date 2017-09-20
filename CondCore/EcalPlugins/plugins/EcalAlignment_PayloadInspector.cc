@@ -96,7 +96,8 @@ namespace {
       align->GetYaxis()->SetTickLength(0.);
       align->GetYaxis()->SetLabelSize(0.);
 
-      canvas.SaveAs(Form("%sAlignment.png", subdet.c_str()));
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
       return true;
     }// fill method
   };
@@ -191,7 +192,8 @@ namespace {
       align->GetYaxis()->SetTickLength(0.);
       align->GetYaxis()->SetLabelSize(0.);
 
-      canvas.SaveAs(Form("%sAlignmentDiff.png", subdet.c_str()));
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
       return true;
     }// fill method
   };
