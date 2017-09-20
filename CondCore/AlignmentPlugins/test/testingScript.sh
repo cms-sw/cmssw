@@ -60,3 +60,22 @@ do
       
 done
 
+partitions=(BPix FPix TIB TOB TID)
+
+for i in "${partitions[@]}"
+do 
+    echo "Processing $i partition"
+#--iovs '{"start_iov": "298759", "end_iov": "298759"}' \
+
+    ./getPayloadData.py  \
+	--plugin pluginTrackerAlignmentErrorExtended_PayloadInspector \
+	--plot plot_TrackerAlignmentErrorExtended${i}Detail \
+	--tag TrackerAlignmentExtendedErr_2009_v2_express_IOVs \
+	--time_type Run \
+	--iovs '{"start_iov": "1", "end_iov": "1"}' \
+	--db Prod \
+	--test;
+
+    mv *.png $W_DIR/results/TrackerAlignmentErrorExtended${i}Detail.png
+
+done
