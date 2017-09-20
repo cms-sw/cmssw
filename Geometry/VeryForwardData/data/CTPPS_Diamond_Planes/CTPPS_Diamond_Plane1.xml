@@ -29,13 +29,6 @@
 
   <PosPartSection label="CTPPS_Diamond_Plane1.xml">
 
-    <PosPart copyNumber="1">
-      <rParent name="CTPPS_Diamond_Plane"/>
-      <rChild name="CTPPS_Diamond_Detector_Assembly:PCB"/>
-      <Translation x="-[CTPPS_Diamond_Parameters:Diamond_dx]*2+[CTPPS_Diamond_Parameters:PCB_dx]/2+[CTPPS_Diamond_Parameters:PCB_extend_dx]" y="0*mm" z="([CTPPS_Diamond_Parameters:Diamond_dz]+[CTPPS_Diamond_Parameters:Metalized_thick]+[CTPPS_Diamond_Parameters:PCB_thick])/2"/>
-      <rRotation name="rotations:000D"/>
-    </PosPart>
-
     <!-- ******** Pattern 4 ********* -->
     <PosPart copyNumber="000">
       <rParent name="CTPPS_Diamond_Plane"/>
