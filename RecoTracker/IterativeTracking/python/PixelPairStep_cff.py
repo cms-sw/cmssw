@@ -268,6 +268,9 @@ pixelPairStep.src = 'pixelPairStepTracks'
 pixelPairStep.mva.GBRForestLabel = 'MVASelectorIter2_13TeV'
 pixelPairStep.qualityCuts = [-0.2,0.0,0.3]
 
+trackingPhase1.toModify(pixelPairStep, mva=dict(GBRForestLabel = 'MVASelectorPixelPairStep_Phase1'))
+trackingPhase1QuadProp.toModify(pixelPairStep, mva=dict(GBRForestLabel = 'MVASelectorPixelPairStep_Phase1'))
+
 # For LowPU and Phase2PU140
 import RecoTracker.IterativeTracking.LowPtTripletStep_cff
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
