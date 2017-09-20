@@ -18,12 +18,12 @@ private:
   std::vector<std::string> splitString(const std::string&);
   unsigned int getDetIdHE(int ieta, int iphi, int depth);
   unsigned int getDetId(int subdet, int ieta, int iphi, int depth);
-  unsigned int correctDetId(unsigned int detId);
+  unsigned int correctDetId(const unsigned int& detId);
 
-  static const unsigned int nmax_=10;
-  bool                      debug_;
-  std::map<unsigned int,float> corrFac_[nmax_];
-  std::vector<int>             runlow_;
+  static const     unsigned int nmax_=10;
+  bool                          debug_;
+  std::map<unsigned int,float>  corrFac_[nmax_];
+  std::vector<int>              runlow_;
 };
 
 CalibCorr::CalibCorr(const std::string& infile, bool debug) : debug_(debug) {
@@ -138,6 +138,8 @@ unsigned int CalibCorr::getDetIdHE(int ieta, int iphi, int depth) {
 }
 
 unsigned int CalibCorr::getDetId(int subdet, int ieta, int iphi, int depth) {
+  // All numbers used here are described as masks/offsets in 
+  // DataFormats/HcalDetId/interface/HcalDetId.h
   unsigned int id_ = ((4<<28)|((subdet&0x7)<<25));
   id_ |= ((0x1000000) | ((depth&0xF)<<20) |
 	  ((ieta>0)?(0x80000|(ieta<<10)):((-ieta)<<10)) |
@@ -145,7 +147,9 @@ unsigned int CalibCorr::getDetId(int subdet, int ieta, int iphi, int depth) {
   return id_;
 }
 
-unsigned int CalibCorr::correctDetId(unsigned int detId) {
+unsigned int CalibCorr::correctDetId(const unsigned int & detId) {
+  // All numbers used here are described as masks/offsets in 
+  // DataFormats/HcalDetId/interface/HcalDetId.h
   int subdet = ((detId >> 25) & (0x7));
   int ieta, zside, depth, iphi;
   if ((detId&0x1000000) == 0) {

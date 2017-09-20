@@ -89,7 +89,7 @@ void Run(const char *inFileName="Silver",
 	 const char *outFileName="Silver_out.root",
 	 const char *corrFileName="Silver_corr.txt",
 	 const char *dupFileName="events_DXS2.txt", 
-	 const std::string rcorFileName="",
+	 const std::string& rcorFileName="",
 	 bool useweight=true, bool useMean=true, int nMin=0, bool inverse=true,
 	 double ratMin=0.25, double ratMax=3., int ietaMax=25, 
 	 int sysmode=0, bool puCorr=true, int applyL1Cut=1, double l1Cut=0.5, 
@@ -187,12 +187,12 @@ public :
 
   TH1D                                             *h_pbyE, *h_cvg;
   TProfile                                         *h_Ebyp_bfr, *h_Ebyp_aftr;
-  CalibCorr                                       *cFactor_;
-  bool                                              truncateFlag_, useMean_;
-  int                                               runlo_, runhi_;
-  int                                               phimin_, phimax_;
-  int                                               zside_, sysmode_;
-  bool                                              puCorr_, useGen_;
+  CalibCorr                                        *cFactor_;
+  const bool                                        truncateFlag_, useMean_;
+  const int                                         runlo_, runhi_;
+  const int                                         phimin_, phimax_;
+  const int                                         zside_, sysmode_;
+  const bool                                        puCorr_, useGen_;
   double                                            log2by18_, eHcalDelta_;
   std::vector<Long64_t>                             entries;
   std::vector<unsigned int>                         detIds;
@@ -206,7 +206,7 @@ public :
     double fact0, fact1, fact2;
   };
 
-  CalibTree(const char *dupFileName, std::string rcorFileName, bool flag,
+  CalibTree(const char *dupFileName, const std::string& rcorFileName, bool flag,
 	    bool useMean, int runlo, int runhi, int phimin, int phimax,
 	    int zside, int sysmode, bool puCorr, bool useGen, TTree *tree=0);
   virtual ~CalibTree();
@@ -247,7 +247,7 @@ void doIt(const char* infile, const char* dup) {
 
 void Run(const char *inFileName, const char *dirName, const char *treeName, 
 	 const char *outFileName, const char *corrFileName,
-	 const char *dupFileName, const std::string rcorFileName, 
+	 const char *dupFileName, const std::string& rcorFileName, 
 	 bool useweight, bool useMean, int nMin, bool inverse, double ratMin, 
 	 double ratMax, int ietaMax, int sysmode, bool puCorr, int applyL1Cut,
 	 double l1Cut, bool truncateFlag, int maxIter, bool useGen, int runlo,
@@ -305,14 +305,15 @@ void Run(const char *inFileName, const char *dirName, const char *treeName,
   fout->Close();
 }
 
-CalibTree::CalibTree(const char *dupFileName, std::string rcorFileName,
+CalibTree::CalibTree(const char *dupFileName, const std::string& rcorFileName,
 		     bool flag, bool useMean, int runlo, int runhi, int phimin,
 		     int phimax, int zside, int mode, bool pu, bool gen,
-		     TTree *tree) : fChain(0), cFactor_(0), truncateFlag_(flag),
-				    useMean_(useMean), runlo_(runlo),
-				    runhi_(runhi), phimin_(phimin),
-				    phimax_(phimax), zside_(zside), 
-				    sysmode_(mode), puCorr_(pu), useGen_(gen) {
+		     TTree *tree) : fChain(nullptr), cFactor_(nullptr),
+				    truncateFlag_(flag), useMean_(useMean),
+				    runlo_(runlo), runhi_(runhi), 
+				    phimin_(phimin), phimax_(phimax), 
+				    zside_(zside), sysmode_(mode), 
+				    puCorr_(pu), useGen_(gen) {
   // if parameter tree is not specified (or zero), connect the file
   // used to generate this class and read the Tree.
   if (tree == 0) {
@@ -518,7 +519,7 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
     }
   }
   unsigned int k(0);
-  for (std::map<unsigned int, TH1D*>::iterator itr = histos.begin();
+  for (std::map<unsigned int, TH1D*>::const_iterator itr = histos.begin();
        itr != histos.end(); ++itr,++k) {
     if (debug) {
       std::cout << "histos[" << k << "] " << std::hex << itr->first 
@@ -658,7 +659,7 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 	      ((pmom-t_eMipDR)/(pufac*Etot));
 	    double Fac2= Wi*Fac*Fac;
 	    TH1D* hist(0);
-	    std::map<unsigned int,TH1D*>::iterator itr = histos.find(detid);
+	    std::map<unsigned int,TH1D*>::const_iterator itr = histos.find(detid);
 	    if (itr != histos.end()) hist = itr->second;
 	    if (debug) std::cout << "Det Id " << std::hex << detid << std::dec 
 				 << " " << hist << std::endl;
@@ -693,7 +694,7 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
   std::map<unsigned int, std::pair<double,double> > cfactors;
   unsigned int kount(0), kountus(0);
   double       sumfactor(0);
-  for (std::map<unsigned int,TH1D*>::iterator itr = histos.begin();
+  for (std::map<unsigned int,TH1D*>::const_iterator itr = histos.begin();
        itr != histos.end(); ++itr) {
     if (writeHisto) {
       std::pair<double,double> result_write = fitMean(itr->second, 0);
@@ -706,7 +707,7 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 			 << std::endl;
   }
 
-  for (std::map<unsigned int,TH1D*>::iterator itr = histos.begin();
+  for (std::map<unsigned int,TH1D*>::const_iterator itr = histos.begin();
        itr != histos.end(); ++itr,++kount) {
     std::pair<double,double> result = fitMean(itr->second, 0);
     double factor = (inverse) ? (2.-result.first) : result.first;
@@ -729,7 +730,7 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
     }
   }
   
-  std::map<unsigned int, myEntry>::iterator SumWItr = SumW.begin();
+  std::map<unsigned int, myEntry>::const_iterator SumWItr = SumW.begin();
   for (; SumWItr != SumW.end(); SumWItr++) {
     unsigned int detid = SumWItr->first;
     int subdet = (detid >> 25) & (0x7);
@@ -761,7 +762,7 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 
   double dets[150], cfacs[150], wfacs[150], myId[150], nTrk[150];
   kount = 0;
-  std::map<unsigned int,std::pair<double,double> >::iterator itr=cfactors.begin();
+  std::map<unsigned int,std::pair<double,double> >::const_iterator itr=cfactors.begin();
   for (; itr !=cfactors.end(); ++itr,++kount) {
     unsigned int detid = itr->first;
     int depth  = (detid >> 20) & (0xF);
@@ -829,7 +830,7 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
     g_nTrk->Write(fname);
   }
   std::cout << "The new factors are :" << std::endl;
-  std::map<unsigned int, std::pair<double,double> >::iterator CprevItr = Cprev.begin();
+  std::map<unsigned int, std::pair<double,double> >::const_iterator CprevItr = Cprev.begin();
   unsigned int indx(0);
   for (; CprevItr != Cprev.end(); CprevItr++, indx++){
     unsigned int detid = CprevItr->first;

@@ -186,18 +186,21 @@ public :
     double   p_;
   };
 
-  CalibMonitor(std::string fname, std::string dirname, 
-	       std::string dupFileName, std::string outTxtFileName, 
-	       std::string prefix="", std::string corrFileName="",
-	       std::string rcorFileName="", int flag=0, int numb=42, 
-	       bool datMC=true, bool useGen=false, double scale=1.0, 
-	       int etalo=0, int etahi=30, int runlo=-1, int runhi=99999999,
-	       int phimin=1, int phimax=72, int zside=1);
+  CalibMonitor(const std::string& fname,
+	       const std::string& dirname, 
+	       const std::string& dupFileName, 
+	       const std::string& outTxtFileName, 
+	       const std::string& prefix="", 
+	       const std::string& corrFileName="",
+	       const std::string& rcorFileName="", 
+	       int flag=0, int numb=42, bool datMC=true, bool useGen=false, 
+	       double scale=1.0, int etalo=0, int etahi=30, int runlo=-1, 
+	       int runhi=99999999, int phimin=1, int phimax=72, int zside=1);
   virtual ~CalibMonitor();
   virtual Int_t              Cut(Long64_t entry);
   virtual Int_t              GetEntry(Long64_t entry);
   virtual Long64_t           LoadTree(Long64_t entry);
-  virtual void               Init(TTree *tree, std::string& dupFileName);
+  virtual void               Init(TTree *tree, const std::string& dupFileName);
   virtual void               Loop();
   virtual Bool_t             Notify();
   virtual void               Show(Long64_t entry = -1);
@@ -205,20 +208,23 @@ public :
   bool                       SelectPhi(bool debug);
   void                       PlotHist(int type, int num, bool save=false);
   template<class Hist> void  DrawHist(Hist*, TCanvas*);
-  void                       SavePlot(std::string theName, bool append, bool all=false);
-  bool                       ReadCorrFactor(std::string &fName);
+  void                       SavePlot(const std::string& theName, 
+				      bool append, bool all=false);
+  bool                       ReadCorrFactor(const std::string& fName);
   std::vector<std::string>   SplitString (const std::string& fLine);
 private:
 
   static const unsigned int npbin=5, kp50=2;
-  CalibCorr*               cFactor_;
-  std::string               fname_, dirnm_, prefix_, outTxtFileName_;
-  int                       flag_, numb_, flexibleSelect_;
-  bool                      dataMC_, useGen_, corrPU_, corrE_, selRBX_;
-  bool                      coarseBin_;
-  int                       plotType_, etalo_, etahi_, runlo_, runhi_;
-  int                       phimin_, phimax_, zside_;
-  double                    scale_, log2by18_;
+  CalibCorr*                cFactor_;
+  const std::string         fname_, dirnm_, prefix_, outTxtFileName_;
+  const int                 flag_, numb_;
+  const bool                dataMC_, useGen_;
+  const int                 etalo_, etahi_, runlo_, runhi_;
+  const int                 phimin_,phimax_,zside_;
+  const double              scale_;
+  bool                      corrPU_, corrE_, selRBX_, coarseBin_;
+  int                       plotType_, flexibleSelect_;
+  double                    log2by18_;
   std::vector<Long64_t>     entries_;
   std::vector<double>       etas_, ps_, dl1_;
   std::vector<int>          nvx_, ietas_;
@@ -230,14 +236,17 @@ private:
   std::map<std::pair<int,int>,double> cfactors_;
 };
 
-CalibMonitor::CalibMonitor(std::string fname, std::string dirnm, 
-			   std::string dupFileName, std::string outTxtFileName,
-			   std::string prefix, std::string corrFileName,
-			   std::string rcorFileName, int flag, 
+CalibMonitor::CalibMonitor(const std::string& fname, 
+			   const std::string& dirnm, 
+			   const std::string& dupFileName, 
+			   const std::string& outTxtFileName,
+			   const std::string& prefix, 
+			   const std::string& corrFileName,
+			   const std::string& rcorFileName, int flag, 
 			   int numb, bool dataMC, bool useGen, double scale, 
 			   int etalo, int etahi, int runlo, int runhi, 
 			   int phimin, int phimax, 
-			   int zside) : cFactor_(0), fname_(fname),
+			   int zside) : cFactor_(nullptr), fname_(fname),
 					dirnm_(dirnm), prefix_(prefix), 
 					outTxtFileName_(outTxtFileName),
 					flag_(flag), numb_(numb),
@@ -298,7 +307,7 @@ Long64_t CalibMonitor::LoadTree(Long64_t entry) {
   return centry;
 }
 
-void CalibMonitor::Init(TTree *tree, std::string& dupFileName) {
+void CalibMonitor::Init(TTree *tree, const std::string& dupFileName) {
   // The Init() function is called when the selector needs to initialize
   // a new tree or chain. Typically here the branch addresses and branch
   // pointers of the tree will be set.
@@ -763,7 +772,7 @@ void CalibMonitor::Loop() {
 	int depth  = ((*t_DetIds)[k] >> 20) & (0xF);
 	int zside  = ((*t_DetIds)[k]&0x80000)?(1):(-1);
 	int ieta   = ((*t_DetIds)[k] >> 10) & (0x1FF);
-	std::map<std::pair<int,int>,double>::iterator 
+	std::map<std::pair<int,int>,double>::const_iterator 
 	  itr = cfactors_.find(std::pair<int,int>(zside*ieta,depth));
 	double cfac = (itr == cfactors_.end()) ? 1.0 : itr->second;
 	if (cFactor_ != 0) cfac *= cFactor_->getCorr(t_Run,(*t_DetIds)[k]);
@@ -869,7 +878,7 @@ bool CalibMonitor::GoodTrack(double& eHcal, double &cuti, bool debug) {
 	int depth  = ((*t_DetIds1)[idet] >> 20) & (0xF);
 	int zside  = ((*t_DetIds1)[idet]&0x80000)?(1):(-1);
 	int ieta   = ((*t_DetIds1)[idet] >> 10) & (0x1FF);
-	std::map<std::pair<int,int>,double>::iterator 
+	std::map<std::pair<int,int>,double>::const_iterator 
 	  itr = cfactors_.find(std::pair<int,int>(zside*ieta,depth));
 	double cfac = (itr == cfactors_.end()) ? 1.0 : itr->second;
 	if (cFactor_ != 0) cfac *= cFactor_->getCorr(t_Run,(*t_DetIds1)[idet]);
@@ -880,7 +889,7 @@ bool CalibMonitor::GoodTrack(double& eHcal, double &cuti, bool debug) {
 	int depth  = ((*t_DetIds3)[idet] >> 20) & (0xF);
 	int zside  = ((*t_DetIds3)[idet]&0x80000)?(1):(-1);
 	int ieta   = ((*t_DetIds3)[idet] >> 10) & (0x1FF);
-	std::map<std::pair<int,int>,double>::iterator 
+	std::map<std::pair<int,int>,double>::const_iterator 
 	  itr = cfactors_.find(std::pair<int,int>(zside*ieta,depth));
 	double cfac = (itr == cfactors_.end()) ? 1.0 : itr->second;
 	if (cFactor_ != 0) cfac *= cFactor_->getCorr(t_Run,(*t_DetIds3)[idet]);
@@ -995,7 +1004,7 @@ void CalibMonitor::PlotHist(int itype, int inum, bool save) {
   }
 }
 
-bool CalibMonitor::ReadCorrFactor(std::string &fname) {
+bool CalibMonitor::ReadCorrFactor(const std::string& fname) {
   bool ok(false);
   if (fname != "") {
     std::ifstream fInput(fname.c_str());
@@ -1060,7 +1069,7 @@ template<class Hist> void CalibMonitor::DrawHist(Hist* hist, TCanvas* pad) {
   pad->Update();
 }
 
-void CalibMonitor::SavePlot(std::string theName, bool append, bool all) {
+void CalibMonitor::SavePlot(const std::string& theName, bool append, bool all) {
 
   TFile* theFile(0);
   if (append) {
@@ -1155,7 +1164,7 @@ public :
   TBranch                   *b_t_ietaAll;       //!
   TBranch                   *b_t_ietaGood;      //!
 
-  GetEntries(std::string fname, std::string dirname);
+  GetEntries(const std::string& fname, const std::string& dirname);
   virtual ~GetEntries();
   virtual Int_t    Cut(Long64_t entry);
   virtual Int_t    GetEntry(Long64_t entry);
@@ -1170,7 +1179,7 @@ private:
   TH1D            *h_eff;
 };
 
-GetEntries::GetEntries(std::string fname, std::string dirnm) {
+GetEntries::GetEntries(const std::string& fname, const std::string& dirnm) {
 
   TFile      *file = new TFile(fname.c_str());
   TDirectory *dir  = (TDirectory*)file->FindObjectAny(dirnm.c_str());
