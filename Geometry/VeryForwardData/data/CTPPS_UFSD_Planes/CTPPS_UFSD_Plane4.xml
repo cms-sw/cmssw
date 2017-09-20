@@ -2,7 +2,7 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
   <ConstantsSection label="CTPPS_UFSD_Plane4.xml">
-    <Constant name="Strip1_dx" value="-[CTPPS_UFSD_Parameters:Edge_dx]-[CTPPS_UFSD_Parameters:UFSD_dx]/2+[CTPPS_UFSD_Parameters:Strip1_dx]/2"/>
+    <Constant name="Strip1_dx" value="-[CTPPS_UFSD_Parameters:UFSD_dx]/2+[CTPPS_UFSD_Parameters:Strip1_dx]/2"/>
     <Constant name="Strip2_dx" value="[Strip1_dx]+[CTPPS_UFSD_Parameters:Strip1_dx]+[CTPPS_UFSD_Parameters:Strip_gap]"/>
     <Constant name="Strip3_dx" value="[Strip2_dx]+[CTPPS_UFSD_Parameters:Strip1_dx]+[CTPPS_UFSD_Parameters:Strip_gap]"/>
     <Constant name="Strip12_dx" value="[Strip3_dx]+[CTPPS_UFSD_Parameters:Strip1_dx]+[CTPPS_UFSD_Parameters:Strip_gap]"/>
@@ -19,7 +19,7 @@
   </ConstantsSection>
 
   <SolidSection label="CTPPS_UFSD_Plane4.xml">
-    <Box name="Plane" dx="[CTPPS_UFSD_Parameters:Edge_dx]+[CTPPS_UFSD_Parameters:Plane_dx]/2" dy="[CTPPS_UFSD_Parameters:Plane_dy]/2" dz="[CTPPS_UFSD_Parameters:Plane_dz]/2"/>
+    <Box name="Plane" dx="[CTPPS_UFSD_Parameters:Plane_dx]/2" dy="[CTPPS_UFSD_Parameters:Plane_dy]/2" dz="[CTPPS_UFSD_Parameters:Plane_dz]/2"/>
   </SolidSection>
 
   <LogicalPartSection label="CTPPS_UFSD_Plane4.xml">
