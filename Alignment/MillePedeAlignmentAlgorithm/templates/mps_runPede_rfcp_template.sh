@@ -117,8 +117,8 @@ if [ "${MSSDIRPOOL}" != "cmscafuser" ]; then
   echo copytreefile rfcp ${MSSDIR}/treeFileISN.root ${BATCH_DIR} >> parallel-copy-commands.txt
 else
   MSSCAFDIR=`echo ${MSSDIR} | perl -pe 's/\/castor\/cern.ch\/cms//gi'`
-  echo untilSuccess xrdcp ${MSSCAFDIR}/milleBinaryISN.dat.gz milleBinaryISN.dat.gz >> parallel-copy-commands.txt
-  echo copytreefile xrdcp ${MSSCAFDIR}/treeFileISN.root treeFileISN.root >> parallel-copy-commands.txt
+  echo untilSuccess xrdcp ${MSSCAFDIR}/binaries/milleBinaryISN.dat.gz milleBinaryISN.dat.gz >> parallel-copy-commands.txt
+  echo copytreefile xrdcp ${MSSCAFDIR}/tree_files/treeFileISN.root treeFileISN.root >> parallel-copy-commands.txt
 fi
 xargs -a stager_get-commands.txt -n 1 -P 10 -I {} bash -c '$@' _ {}
 xargs -a parallel-copy-commands.txt -n 1 -P 10 -I {} bash -c '$@' _ {}

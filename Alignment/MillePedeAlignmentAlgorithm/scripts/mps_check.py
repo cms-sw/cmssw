@@ -19,9 +19,9 @@ import os
 lib = mpslib.jobdatabase()
 lib.read_db()
 
-# create a list of eos ls entries containing files on eos
-command = ' ls -l '+lib.mssDir
-eoslsoutput = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True).split('\n')
+# create a list of eos ls entries containing files on eos binary store
+command = ["ls", "-l", os.path.join(lib.mssDir, "binaries")]
+eoslsoutput = subprocess.check_output(command, stderr=subprocess.STDOUT).split('\n')
 
 # loop over FETCH jobs
 for i in xrange(len(lib.JOBID)):
@@ -418,7 +418,6 @@ for i in xrange(len(lib.JOBID)):
         # udate Jobstatus
         lib.JOBSTATUS[i] = disabled+okStatus
         # update cputime
-        print cputime
         lib.JOBRUNTIME[i] = cputime
         # update remark
         lib.JOBREMARK[i] = remark
