@@ -22,8 +22,8 @@ void CTPPSPixelClusterProducer::fillDescriptions(edm::ConfigurationDescriptions 
   edm::ParameterSetDescription desc;
   desc.addUntracked<int>("RPixVerbosity",0);
   desc.add<std::string>("label", "ctppsPixelDigis");
-  desc.add<int>("SeedADCThreshold",15);
-  desc.add<int>("ADCThreshold",10);
+  desc.add<int>("SeedADCThreshold",2);
+  desc.add<int>("ADCThreshold",2);
   desc.add<double>("ElectronADCGain",135.0);
   desc.add<int>("VCaltoElectronGain",50);
   desc.add<int>("VCaltoElectronOffset",-411);
