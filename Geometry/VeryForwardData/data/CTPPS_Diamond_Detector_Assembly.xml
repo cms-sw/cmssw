@@ -15,7 +15,6 @@
       <rRotation name="rotations:90YX"/>
       <Translation x="-[CTPPS_Diamond_Parameters:PCB_dx]/2-[CTPPS_Diamond_Parameters:PCB_extend_dx]/2" y="0*mm" z="0*mm"/>
     </UnionSolid>
-    <!--<Box name="Downstream_Plane" dx="0*mm" dy="0*mm" dz="0*mm"/>-->
     <Box name="PCB_main" dx="[CTPPS_Diamond_Parameters:PCB_dx]/2" dy="[CTPPS_Diamond_Parameters:PCB_dy]/2" dz="[CTPPS_Diamond_Parameters:PCB_thick]/2"/>
     <Trd1 name="PCB_extra" dz="[CTPPS_Diamond_Parameters:PCB_extend_dx]/2" dy1="[CTPPS_Diamond_Parameters:PCB_extend_dy1]/2" dy2="[CTPPS_Diamond_Parameters:PCB_extend_dy2]/2" dx1="[CTPPS_Diamond_Parameters:PCB_thick]/2" dx2="[CTPPS_Diamond_Parameters:PCB_thick]/2"/>
     <UnionSolid name="PCB">
@@ -61,24 +60,11 @@
       <Translation y="0*cm" x="[Shift_dx]" z="([CTPPS_Diamond_Parameters:Plane_dz]+[CTPPS_Diamond_Parameters:Plane_gap])/2"/>
       <rRotation name="CTPPS_Diamond_Transformations:planes_x_rotation"/>
     </PosPart>
-    <!--<PosPart copyNumber="4">-->
-      <!--<rParent name="CTPPS_Diamond_Main_Box"/>-->
-      <!--<rChild name="CTPPS_Diamond_Plane4:CTPPS_Diamond_Plane"/>-->
-      <!--<Translation y="0*cm" x="[Shift_dx]" z="([CTPPS_Diamond_Parameters:Plane_dz]+[CTPPS_Diamond_Parameters:Plane_gap])*3/2"/>-->
-      <!--<rRotation name="CTPPS_Diamond_Transformations:planes_x_rotation"/>-->
-    <!--</PosPart>-->
     <PosPart copyNumber="4">
       <rParent name="CTPPS_Diamond_Main_Box"/>
       <rChild name="CTPPS_UFSD_Plane4:CTPPS_UFSD_Plane"/>
       <Translation y="0*cm" x="[Shift_dx]" z="([CTPPS_Diamond_Parameters:Plane_dz]+[CTPPS_Diamond_Parameters:Plane_gap])*3/2"/>
-<!--       <rRotation name="CTPPS_Diamond_Transformations:planes_x_rotation"/> -->
     </PosPart>
-<!--    <PosPart copyNumber="4">
-      <rParent name="CTPPS_Diamond_Main_Box"/>
-      <rChild name="CTPPS_Diamond_Plane4:CTPPS_Diamond_Plane"/>
-      <Translation y="0*cm" x="[Shift_dx]" z="([CTPPS_Diamond_Parameters:Plane_dz]+[CTPPS_Diamond_Parameters:Plane_gap])*3/2"/>
-      <rRotation name="CTPPS_Diamond_Transformations:planes_x_rotation"/>
-    </PosPart>-->
   </PosPartSection>
 
 </DDDefinition>
