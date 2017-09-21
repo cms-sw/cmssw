@@ -49,7 +49,7 @@ class RPixPlaneCombinatoryTracking : public RPixDetTrackFinder{
         const std::map<CTPPSPixelDetId, PointInPlaneList > &mapOfAllHits, 
         std::map<CTPPSPixelDetId, PointInPlaneList >::iterator mapIterator,
         HitReferences tmpHitPlaneMap,
-        PointInPlaneList tmpHitVector,
+        const PointInPlaneList &tmpHitVector,
         PointAndReferenceMap &outputMap);
     PointAndReferenceMap produceAllHitCombination(PlaneCombinations inputPlaneCombination);
     bool calculatePointOnDetector(CTPPSPixelLocalTrack *track, CTPPSPixelDetId planeId, math::GlobalPoint &planeLineIntercept);
