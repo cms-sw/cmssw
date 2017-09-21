@@ -18,7 +18,7 @@ MuonMonitor::MuonMonitor( const edm::ParameterSet& iConfig ) :
   , muon_variable_binning_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("muonBinning") )
   , muoneta_variable_binning_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("muonetaBinning") )
   , muon_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("muonPSet")    ) )
-  , ls_binning_           ( getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("lsPSet")     ) )
+  , ls_binning_           ( getHistoPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("lsPSet")     ) )
   , muPt_variable_binning_2D_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("muPtBinning2D") )
   , elePt_variable_binning_2D_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("elePtBinning2D") )
   , muEta_variable_binning_2D_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("muEtaBinning2D") )
@@ -66,7 +66,7 @@ MuonMonitor::~MuonMonitor() = default;
 MEbinning MuonMonitor::getHistoPSet(edm::ParameterSet const& pset)
 {
   return MEbinning{
-    pset.getParameter<int32_t>("nbins"),
+    pset.getParameter<unsigned>("nbins"),
     pset.getParameter<double>("xmin"),
     pset.getParameter<double>("xmax"),
   };
@@ -75,7 +75,7 @@ MEbinning MuonMonitor::getHistoPSet(edm::ParameterSet const& pset)
 MEbinning MuonMonitor::getHistoLSPSet(edm::ParameterSet const& pset)
 {
   return MEbinning{
-    pset.getParameter<int32_t>("nbins"),
+    pset.getParameter<unsigned>("nbins"),
     0.,
     double(pset.getParameter<int32_t>("nbins"))
   };
@@ -296,14 +296,16 @@ void MuonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 
 void MuonMonitor::fillHistoPSetDescription(edm::ParameterSetDescription & pset)
 {
-  pset.add<int>   ( "nbins");
-  pset.add<double>( "xmin" );
-  pset.add<double>( "xmax" );
+  pset.add<unsigned int>   ( "nbins");
+  pset.add<double>         ( "xmin" );
+  pset.add<double>         ( "xmax" );
 }
 
 void MuonMonitor::fillHistoLSPSetDescription(edm::ParameterSetDescription & pset)
 {
-  pset.add<int>   ( "nbins", 2500);
+  pset.add<unsigned int>   ( "nbins", 2500 );
+  pset.add<double>         ( "xmin",     0.);
+  pset.add<double>         ( "xmax",  2500.);
 }
 
 void MuonMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
