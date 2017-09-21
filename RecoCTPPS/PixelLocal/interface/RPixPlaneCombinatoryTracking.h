@@ -61,7 +61,7 @@ class RPixPlaneCombinatoryTracking : public RPixDetTrackFinder{
         PointAndReferenceMap inputMap);
 
 
-    inline uint32_t factorial(uint32_t x) {
+    inline uint32_t factorial(uint32_t x) const {
       if(x==0) return 1;
       return (x == 1 ? x : x * factorial(x - 1));
     }
