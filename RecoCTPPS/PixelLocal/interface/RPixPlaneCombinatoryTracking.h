@@ -16,7 +16,7 @@
 
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelLocalTrack.h"
 #include "RecoCTPPS/PixelLocal/interface/RPixDetTrackFinder.h"
-
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include <vector>
 #include <map>
