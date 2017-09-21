@@ -177,17 +177,16 @@ for i in range(len(Run_Number)):
     else:
         os.makedirs(str(Run_Number[i])+'/'+Run_type)
         
-#######**Temporary solution**##############
-    ####After switch production to 9_3_X release, please comment out this section ##########
+#######Getting GT##############
+    ####After switch production to 10_X_X release, the clean up section need to be reviewed and modified  ##########
     globalTag_v0 = os.popen('getGTfromDQMFile.py '+ filepath+File_Name+' ' +str(Run_Number[i])+' globalTag_Step1').readline().strip()
     print "Global Tag: " + globalTag_v0
-    
-    globalTag = raw_input("Please enter the GlobalTag that shows above: ")
-    ########################################################################################
+    globalTag = globalTag_v0
 
-    ######and uncomment this two lines##################
-#    globalTag = os.popen('getGTfromDQMFile.py '+ filepath+File_Name+' ' +str(Run_Number[i])+' globalTag_Step1').readline().strip()
-#    print "Global Tag: " + globalTag
+    for z in range(len(globalTag_v0)-2):#clean up the garbage string in the GT
+        if (globalTag_v0[z].isdigit()) and  (globalTag_v0[z+1].isdigit()) and(globalTag_v0[z+2].isupper()):
+            globalTag = globalTag_v0[z:]
+
     ####################################################
 
     if globalTag == "":

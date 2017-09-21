@@ -21,7 +21,8 @@
 #include "TGaxis.h"
 #include "TLatex.h"
 #include "TArrow.h"
-
+#include "TLegend.h"
+#include "TH1F.h"
 
 /**********************************************************
 Allocate all the modules in a map of TmModule
@@ -910,6 +911,12 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     ary.Draw();
     arz.Draw();
     arphi.Draw();
+    TLegend *MyL = buildLegend();
+    
+    if (((title.find("QTestAlarm")!=std::string::npos) || (maxvalue == minvalue))){
+
+      MyL->Draw();
+    }
     MyC->Update();
     if(filetype=="png"){
       
@@ -931,6 +938,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     system(command1);
     MyC->Clear();
     delete MyC;
+    delete MyL;
     if (printflag)delete axis;
     for(std::vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
       delete (*pos1);}
@@ -3610,4 +3618,38 @@ for (int layer=1; layer < 44; layer++){
     xmlfile->close();delete xmlfile;
   }
 saveAsSingleLayer=false;
+}
+
+TLegend* TrackerMap::buildLegend() {
+  if ( legInfos_.empty() ) {
+    legInfos_.reserve(8);
+    legInfos_.push_back(new TH1F("green","green",1,0.,1.));
+    legInfos_.back()->SetFillColor(kGreen);
+    legInfos_.push_back(new TH1F("blue","blue",1,0.,1.));
+    legInfos_.back()->SetFillColor(kBlue-9);
+    legInfos_.push_back(new TH1F("dark red","dark red",1,0.,1.));
+    legInfos_.back()->SetFillColor(kRed+2);
+    legInfos_.push_back(new TH1F("magenta","magenta",1,0.,1.));
+    legInfos_.back()->SetFillColor(kPink-9);
+    legInfos_.push_back(new TH1F("orange","orange",1,0.,1.));
+    legInfos_.back()->SetFillColor(kOrange+2);
+    legInfos_.push_back(new TH1F("yellow","yellow",1,0.,1.));
+    legInfos_.back()->SetFillColor(kYellow);
+    legInfos_.push_back(new TH1F("red","red",1,0.,1.));
+    legInfos_.back()->SetFillColor(kRed+1);
+    legInfos_.push_back(new TH1F("purple","purple",1,0.,1.));
+    legInfos_.back()->SetFillColor(kViolet-5);
+    legKeys_ = { "Good Modules","Excluded FED","FED errors", "# Clusters", 
+		 "# Digis", "PCL bad", "# Clusters & Digis", "DCS Error"};
+  }
+  
+  TLegend* myL=new TLegend(0.56,0.87,0.95,0.99);
+  myL->SetNColumns(2);
+  myL->SetBorderSize(0);
+  myL->SetFillColor(38);
+  for ( unsigned int i=0; i< legInfos_.size(); i++ ) {
+    myL->AddEntry((TObject*)legInfos_[i],legKeys_[i].c_str(),"f");
+  }
+  //  myL->Draw();
+  return myL;
 }
