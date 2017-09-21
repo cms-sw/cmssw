@@ -67,7 +67,7 @@ private:
 };
 
 
-class CTPPSPixelLocalTrack: public CTPPSPixelFittedRecHit
+class CTPPSPixelLocalTrack
 {
 
   public:
@@ -86,7 +86,7 @@ class CTPPSPixelLocalTrack: public CTPPSPixelFittedRecHit
     CTPPSPixelLocalTrack(float z0, const ParameterVector & track_params_vector,
       const CovarianceMatrix &par_covariance_matrix, float chiSquared);
 
-    ~CTPPSPixelLocalTrack() override {}
+    ~CTPPSPixelLocalTrack() {}
 
     inline const edm::DetSetVector<CTPPSPixelFittedRecHit>& getHits() const { return track_hits_vector_; }
     inline void addHit(unsigned int detId, const CTPPSPixelFittedRecHit &hit)
