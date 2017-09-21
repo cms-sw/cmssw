@@ -267,7 +267,6 @@ void RPixPlaneCombinatoryTracking::findTracks(){
       if(tmpChiSquaredOverNDF<theMinChiSquaredOverNDF){
         theMinChiSquaredOverNDF = tmpChiSquaredOverNDF;
         pointMapWithMinChiSquared = pointsAndRef.first;
-        pointsWithMinChiSquared = pointsAndRef.second;
         bestTrack = tmpTrack;
         currentNumberOfPlanes = tmpNumberOfPlanes;
         foundTrackWithCurrentNumberOfPlanes = true;
