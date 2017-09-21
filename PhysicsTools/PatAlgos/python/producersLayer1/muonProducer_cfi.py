@@ -103,7 +103,9 @@ patMuons = cms.EDProducer("PATMuonProducer",
     miniIsoParams = cms.vdouble(0.05, 0.2, 10.0, 0.5, 0.0001, 0.01, 0.01, 0.01, 0.0),
 
     # Standard Muon Selectors and Jet-related observables
-    computeMuonMVA = cms.bool(True),
+    # Depends on MiniIsolation, so only works in miniaod
+    # Don't forget to set flags properly in miniAOD_tools.py                      
+    computeMuonMVA = cms.bool(False),
     recomputeBasicSelectors = cms.bool(True),
     mvaUseJec = cms.bool(True),
     mvaDrMax = cms.double(0.4),

@@ -26,6 +26,7 @@ def miniAOD_customizeCommon(process):
     process.patMuons.puppiNoLeptonsIsolationPhotons        = cms.InputTag("muonPUPPINoLeptonsIsolation","gamma-DR040-ThresholdVeto000-ConeVeto001")
 
     process.patMuons.computeMiniIso = cms.bool(True)
+    process.patMuons.computeMuonMVA = cms.bool(True)
     
     #
     # disable embedding of electron and photon associated objects already stored by the ReducedEGProducer
