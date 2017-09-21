@@ -52,7 +52,7 @@ class RPixPlaneCombinatoryTracking : public RPixDetTrackFinder{
         const PointInPlaneList &tmpHitVector,
         PointAndReferenceMap &outputMap);
     PointAndReferenceMap produceAllHitCombination(PlaneCombinations inputPlaneCombination);
-    bool calculatePointOnDetector(CTPPSPixelLocalTrack *track, CTPPSPixelDetId planeId, math::GlobalPoint &planeLineIntercept);
+    bool calculatePointOnDetector(CTPPSPixelLocalTrack *track, CTPPSPixelDetId planeId, GlobalPoint &planeLineIntercept);
     static bool functionForPlaneOrdering(
         PointAndReferencePair a,
         PointAndReferencePair b) { 

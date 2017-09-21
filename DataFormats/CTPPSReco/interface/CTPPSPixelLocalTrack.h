@@ -15,27 +15,26 @@
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelRecHit.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h"
 
-#include "DataFormats/Math/interface/Point3D.h"
-#include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/Vector.h"
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/Math/interface/Matrix.h"
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 
-
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 //----------------------------------------------------------------------------------------------------
 
 class CTPPSPixelFittedRecHit: public CTPPSPixelRecHit
 {
  public:
- CTPPSPixelFittedRecHit(const CTPPSPixelRecHit &hit, const math::GlobalPoint &space_point_on_det, const LocalPoint& residual, const LocalPoint& pull) :
+ CTPPSPixelFittedRecHit(const CTPPSPixelRecHit &hit, const GlobalPoint &space_point_on_det, const LocalPoint& residual, const LocalPoint& pull) :
   CTPPSPixelRecHit(hit), space_point_on_det_(space_point_on_det), residual_(residual), pull_(pull), isUsedForFit_(false), isRealHit_(false) {}
   
  CTPPSPixelFittedRecHit() : CTPPSPixelRecHit(), residual_(LocalPoint(0,0)), pull_(LocalPoint(0,0)), isUsedForFit_(false), isRealHit_(false) {}
     
   virtual ~CTPPSPixelFittedRecHit() {}
     
-  inline const math::GlobalPoint & getGlobalCoordinates() const { return space_point_on_det_; }
+  inline const GlobalPoint & getGlobalCoordinates() const { return space_point_on_det_; }
   inline float getXResidual() const { return residual_.x(); }
   inline float getYResidual() const { return residual_.y(); }
         
@@ -58,7 +57,7 @@ class CTPPSPixelFittedRecHit: public CTPPSPixelRecHit
   inline bool getIsRealHit() const { return isRealHit_; }
     
 private:
-  math::GlobalPoint space_point_on_det_ ;  ///< mm
+  GlobalPoint space_point_on_det_ ;  ///< mm
   LocalPoint residual_;  ///< mm
   LocalPoint pull_    ;  ///< normalised residual
   bool isUsedForFit_;
@@ -114,9 +113,9 @@ class CTPPSPixelLocalTrack
     inline float getTy() const { return track_params_vector_[TrackPar::ty]; }
     inline float getTySigma() const { return sqrt(par_covariance_matrix_[TrackPar::ty][TrackPar::ty]); }
 
-    inline math::GlobalVector getDirectionVector() const
+    inline GlobalVector getDirectionVector() const
     {
-      math::GlobalVector vect(getTx(), getTy(), 1);
+      GlobalVector vect(getTx(), getTy(), 1);
       return vect.unit();
     }
 
@@ -134,18 +133,18 @@ class CTPPSPixelLocalTrack
     inline int getNDF() const {return (2*numberOfPointUsedForFit_ - dimension); }
 
     /// returns the point from which the track is passing by at the selected z
-    inline math::GlobalPoint getTrackPoint(float z) const 
+    inline GlobalPoint getTrackPoint(float z) const 
     {
       float delta_z = z - z0_;
-      return math::GlobalPoint(
+      return GlobalPoint(
         track_params_vector_[TrackPar::x0] + track_params_vector_[TrackPar::tx] * delta_z,
         track_params_vector_[TrackPar::y0] + track_params_vector_[TrackPar::ty] * delta_z,
         z);
     }
 
-    inline math::GlobalPoint getTrackCentrePoint()
+    inline GlobalPoint getTrackCentrePoint()
     {
-      return math::GlobalPoint(track_params_vector_[TrackPar::x0], track_params_vector_[TrackPar::y0], z0_);
+      return GlobalPoint(track_params_vector_[TrackPar::x0], track_params_vector_[TrackPar::y0], z0_);
     }
 
     AlgebraicSymMatrix22 trackPointInterpolationCovariance(float z) const;

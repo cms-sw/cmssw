@@ -99,9 +99,6 @@ namespace DataFormats_CTPPSReco {
     edm::Wrapper<edm::DetSetVector<CTPPSPixelFittedRecHit>> wdsvrplcfrh;
     std::vector<edm::DetSet<CTPPSPixelFittedRecHit> > vdsrpltfrh;
     std::vector<CTPPSPixelFittedRecHit> vrpltfrh;
-
-    math::GlobalPoint gpp;
-    edm::Wrapper<math::GlobalPoint> gppW;
     CTPPSPixelFittedRecHit pfrh;
     edm::Wrapper<CTPPSPixelFittedRecHit> wpfrh;
     //--- common objects
