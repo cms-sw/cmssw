@@ -105,8 +105,7 @@
   <class name="math::GlobalPoint"/>
   <class name="edm::Wrapper<math::GlobalPoint>"/>
   <class name="CTPPSPixelFittedRecHit"/>
-<!--  <class name="edm::Wrapper<CTPPSPixelFittedRecHit>"/>
--->
+
 <!-- common objects -->
 
   <class name="CTPPSLocalTrackLite" ClassVersion="3">
