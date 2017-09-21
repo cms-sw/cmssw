@@ -120,7 +120,7 @@ class CTPPSPixelLocalTrack
       return vect.unit();
     }
 
-    ParameterVector getParameterVector() const;
+    const ParameterVector& getParameterVector() const;
 
     CovarianceMatrix getCovarianceMatrix() const;
 
@@ -170,7 +170,7 @@ class CTPPSPixelLocalTrack
     edm::DetSetVector<CTPPSPixelFittedRecHit> track_hits_vector_;
 
     /// track parameters: (x0, y0, tx, ty); x = x0 + tx*(z-z0) ...
-    float track_params_vector_[dimension];
+    ParameterVector track_params_vector_;
 
     /// z where x0 and y0 are evaluated.
     /// filled from TotemRPGeometry::GetRPGlobalTranslation

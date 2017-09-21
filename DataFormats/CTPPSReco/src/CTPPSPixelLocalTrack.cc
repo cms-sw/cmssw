@@ -33,11 +33,11 @@ AlgebraicSymMatrix22 CTPPSPixelLocalTrack::trackPointInterpolationCovariance(flo
 
 CTPPSPixelLocalTrack::CTPPSPixelLocalTrack(float z0, const ParameterVector & track_params_vector, 
       const CovarianceMatrix &par_covariance_matrix, float chiSquared) 
-      : z0_(z0), chiSquared_(chiSquared), valid_(true), numberOfPointUsedForFit_(0)
+      : track_params_vector_(track_params_vector), z0_(z0), chiSquared_(chiSquared), valid_(true), numberOfPointUsedForFit_(0)
 {
   for(unsigned int i=0; i<dimension; ++i)
   {
-    track_params_vector_[i]=track_params_vector[i];
+    // track_params_vector_[i]=track_params_vector[i];
     for(unsigned int j=0; j<dimension; ++j)
     {
       covarianceMatrixElement(i,j)=par_covariance_matrix(i,j);
@@ -47,14 +47,14 @@ CTPPSPixelLocalTrack::CTPPSPixelLocalTrack(float z0, const ParameterVector & tra
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSPixelLocalTrack::ParameterVector CTPPSPixelLocalTrack::getParameterVector() const 
+const CTPPSPixelLocalTrack::ParameterVector& CTPPSPixelLocalTrack::getParameterVector() const 
 {
-  ParameterVector v;
+  // ParameterVector v;
   
-  for (unsigned int i = 0; i < dimension; ++i)
-    v[i] = track_params_vector_[i];
+  // for (unsigned int i = 0; i < dimension; ++i)
+  //   v[i] = track_params_vector_[i];
       
-  return v;
+  return track_params_vector_;
 }
 
 //----------------------------------------------------------------------------------------------------
