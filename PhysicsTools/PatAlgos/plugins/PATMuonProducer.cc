@@ -480,7 +480,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   // Need a separate loop over muons to have all inputs properly
   // computed and stored in the object.
   edm::Handle<double> rho;
-  iEvent.getByToken(rho_,rho);
+  if (computeMuonMVA_) iEvent.getByToken(rho_,rho);
   const reco::Vertex* pv(0);
   if (primaryVertexIsValid) pv = &primaryVertex;
   for(auto& muon: *patMuons){
