@@ -16,7 +16,7 @@ NoBPTXMonitor::NoBPTXMonitor( const edm::ParameterSet& iConfig ) :
   , muonPt_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("muonPtPSet")    ) )
   , muonEta_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("muonEtaPSet")    ) )
   , muonPhi_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("muonPhiPSet")    ) )
-  , ls_binning_           ( getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("lsPSet")     ) )
+  , ls_binning_           ( getHistoPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("lsPSet")     ) )
   , bx_binning_           ( getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("bxPSet")     ) )
   , num_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"),consumesCollector(), *this))
   , den_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"),consumesCollector(), *this))
@@ -377,7 +377,7 @@ void NoBPTXMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptio
   fillHistoPSetDescription(muonPtPSet);
   fillHistoPSetDescription(muonEtaPSet);
   fillHistoPSetDescription(muonPhiPSet);
-  fillHistoLSPSetDescription(lsPSet);
+  fillHistoPSetDescription(lsPSet);
   fillHistoLSPSetDescription(bxPSet);
   histoPSet.add<edm::ParameterSetDescription>("jetEPSet", jetEPSet);
   histoPSet.add<edm::ParameterSetDescription>("jetEtaPSet", jetEtaPSet);

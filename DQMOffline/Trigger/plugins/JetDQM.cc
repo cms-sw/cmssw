@@ -16,7 +16,7 @@ void JetDQM::initialise(const edm::ParameterSet& iConfig){
   detajj_binning_ = getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("detajjPSet"));
   dphijj_binning_ = getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("dphijjPSet"));
   mindphijmet_binning_ = getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("mindphijmetPSet"));
-  ls_binning_ = getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("jetlsPSet"));
+  ls_binning_ = getHistoPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("jetlsPSet"));
 
 }
 
