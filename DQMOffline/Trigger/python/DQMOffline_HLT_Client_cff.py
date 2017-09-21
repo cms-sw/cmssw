@@ -25,12 +25,9 @@ from DQMOffline.Trigger.B2GMonitoring_Client_cff import *
 from DQMOffline.Trigger.HiggsMonitoring_Client_cff import *
 from DQMOffline.Trigger.StandardModelMonitoring_Client_cff import *
 from DQMOffline.Trigger.TopMonitoring_Client_cff import *
-
 from DQMOffline.Trigger.BTaggingMonitoring_Client_cff import *
 from DQMOffline.Trigger.BPHMonitoring_Client_cff import *
 from DQMOffline.Trigger.JetMETPromptMonitoring_Client_cff import *
-from DQMOffline.Trigger.DiJetMonitor_Client_cff import *
-
 hltOfflineDQMClient = cms.Sequence(
 #    hltGeneralSeqClient *
     sipixelHarvesterHLTsequence *
@@ -52,7 +49,6 @@ hltOfflineDQMClient = cms.Sequence(
     topClient *
     btaggingClient *
     bphClient*
-    JetMetPromClient *
-    dijetClient
+    JetMetPromClient
     )
 

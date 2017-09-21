@@ -157,20 +157,17 @@ double_soft_muon_backup_90_mhtpt.histoPSet.MHTVariableBinning      =cms.vdouble(
 double_soft_muon_backup_90_mhtpt.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_DoubleMu3_DZ_PFMET90_PFMHT90_v*')
 double_soft_muon_backup_90_mhtpt.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*')
 
-#triple muon
-triple_muon_mupt = hltTOPmonitoring.clone()
-triple_muon_mupt.FolderName   = cms.string('HLT/SUSY/SOS/TrileMu/Muon')
-# Selections
-triple_muon_mupt.nmuons           = cms.uint32(3)
-triple_muon_mupt.muoSelection     =cms.string('isGlobalMuon() ')
-triple_muon_mupt.invMassUppercut       = cms.double(50)
-triple_muon_mupt.invMassLowercut       = cms.double(10)
-triple_muon_mupt.invMassCutInAllMuPairs=cms.bool(True)
-# Binning
-
-# Triggers
-triple_muon_mupt.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_TripleMu_5_3_3_Mass3p8to60_DZ_v*')
-triple_muon_mupt.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Trimuon5_3p5_2_Upsilon_Muon_v*')
+susyMuEGMonitoring = hltTOPmonitoring.clone()
+susyMuEGMonitoring.FolderName = cms.string('HLT/SUSY/MuonEG/')
+susyMuEGMonitoring.nmuons = cms.uint32(1)
+susyMuEGMonitoring.nphotons = cms.uint32(1)
+susyMuEGMonitoring.nelectrons = cms.uint32(0)
+susyMuEGMonitoring.njets = cms.uint32(0)
+susyMuEGMonitoring.enablePhotonPlot =  cms.bool(True)
+susyMuEGMonitoring.muoSelection = cms.string('pt>26 & abs(eta)<2.1 & isPFMuon & isGlobalMuon & isTrackerMuon & numberOfMatches>1  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0  & globalTrack.hitPattern.numberOfValidMuonHits>0 & globalTrack.normalizedChi2<10 & (pfIsolationR04.sumChargedHadronPt + max(pfIsolationR04.sumNeutralHadronEt + pfIsolationR04.sumPhotonEt - (pfIsolationR04.sumPUPt)/2.,0.) )/pt<0.15') 
+susyMuEGMonitoring.phoSelection = cms.string('(pt > 30 && abs(eta)<1.4442 && hadTowOverEm<0.0597 && full5x5_sigmaIetaIeta()<0.01031 && chargedHadronIso<1.295 && neutralHadronIso < 5.931+0.0163*pt+0.000014*pt*pt && photonIso < 6.641+0.0034*pt) || (pt > 30 && abs(eta)>1.4442 && hadTowOverEm<0.0481 && full5x5_sigmaIetaIeta()<0.03013 && chargedHadronIso<1.011 && neutralHadronIso < 1.715+0.0163*pt+0.000014*pt*pt && photonIso < 3.863+0.0034*pt)')
+susyMuEGMonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu17_Photon30_IsoCaloId*')
+susyMuEGMonitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring('')
 
 susyMonitorHLT = cms.Sequence(
     susyHLTRazorMonitoring
@@ -185,5 +182,5 @@ susyMonitorHLT = cms.Sequence(
   + double_soft_muon_backup_70_mhtpt
   + double_soft_muon_backup_90_metpt
   + double_soft_muon_backup_90_mhtpt
- +triple_muon_mupt
+  + susyMuEGMonitoring 
 )

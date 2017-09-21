@@ -88,7 +88,7 @@ from DQMOffline.Trigger.JetMETPromptMonitor_cff import *
 offlineHLTSourceOnAOD = cms.Sequence(
     hltResults *
     lumiMonitorHLTsequence *
-    egHLTOffDQMSource *
+    egHLTOffDQMSource * ## NEEDED in VALIDATION, not really in MONITORING
     muonFullOfflineDQM *
     HLTTauDQMOffline *
     fsqHLTOfflineSourceSequence *
@@ -99,7 +99,7 @@ offlineHLTSourceOnAOD = cms.Sequence(
     topHLTriggerOfflineDQM *
     eventshapeDQMSequence *
     HeavyIonUCCDQMSequence *
-    hotlineDQMSequence *
+#    hotlineDQMSequence * ## ORPHAN !!!!
     egammaMonitorHLT * 
     exoticaMonitorHLT *
     susyMonitorHLT *
