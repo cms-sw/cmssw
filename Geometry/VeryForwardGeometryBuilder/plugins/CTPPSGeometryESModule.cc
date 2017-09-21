@@ -107,6 +107,7 @@ CTPPSGeometryESModule::applyAlignments( const edm::ESHandle<DetGeomDesc>& idealG
     // Is it sensor? If yes, apply full sensor alignments
     if ( name == DDD_TOTEM_RP_SENSOR_NAME
       || name == DDD_CTPPS_DIAMONDS_SEGMENT_NAME
+      || name == DDD_CTPPS_UFSD_SEGMENT_NAME
       || name == DDD_CTPPS_PIXELS_SENSOR_NAME ) {
       unsigned int plId = pD->geographicalID();
 
@@ -118,8 +119,9 @@ CTPPSGeometryESModule::applyAlignments( const edm::ESHandle<DetGeomDesc>& idealG
 
     // Is it RP box? If yes, apply RP alignments
     if ( name == DDD_TOTEM_RP_RP_NAME
-      || name == DDD_CTPPS_PIXELS_RP_NAME
-      || name == DDD_CTPPS_DIAMONDS_RP_NAME ) {
+      || name == DDD_CTPPS_DIAMONDS_RP_NAME
+      || name == DDD_CTPPS_UFSD_PLANE_NAME
+      || name == DDD_CTPPS_PIXELS_RP_NAME ) {
       unsigned int rpId = pD->geographicalID();
       
       if ( alignments.isValid() ) {
@@ -210,8 +212,22 @@ CTPPSGeometryESModule::buildDetGeomDesc( DDFilteredView* fv, DetGeomDesc* gd )
       newGD->setGeographicalID( CTPPSPixelDetId( arm, station, rp, detector ) );
     }
 
-    // diamond sensors
-    else if ( name == DDD_CTPPS_DIAMONDS_SEGMENT_NAME ) {
+    // pixel RPs
+    else if ( name == DDD_CTPPS_PIXELS_RP_NAME ) {
+      uint32_t decRPId = fv->copyno();
+    
+      // check it is a pixel RP
+      if ( decRPId >= 10000 ) {
+        decRPId = decRPId % 10000;
+        const uint32_t armIdx = ( decRPId / 100 ) % 10;
+        const uint32_t stIdx = ( decRPId / 10 ) % 10;
+        const uint32_t rpIdx = decRPId % 10;
+        newGD->setGeographicalID( CTPPSPixelDetId( armIdx, stIdx, rpIdx ) );
+      }
+    }
+
+    // diamond/UFSD sensors
+    else if ( name == DDD_CTPPS_DIAMONDS_SEGMENT_NAME || name == DDD_CTPPS_UFSD_SEGMENT_NAME ) {
       const std::vector<int>& copy_num = fv->copyNumbers();
 
       const unsigned int id = copy_num[copy_num.size()-1];
