@@ -3,9 +3,6 @@
 
 #include <algorithm>
 
-
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-
 #include "TMatrixD.h"
 #include "TVectorD.h"
 #include "TVector3.h"

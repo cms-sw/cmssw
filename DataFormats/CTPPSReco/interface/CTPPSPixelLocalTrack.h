@@ -19,6 +19,7 @@
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/Math/interface/Matrix.h"
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
