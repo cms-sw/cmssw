@@ -136,19 +136,4 @@ void MuonMvaEstimator::computeMva(const pat::Muon& muon,
   if (jetPtRatio_>1.5) jetPtRatio_ = 1.5;
   if (jetBTagCSV_<0) jetBTagCSV_ = 0;
   mva_ = tmvaReader_.EvaluateMVA("BDTG");
-  // if (pt_>20){
-  //   printf("pt: %0.6f\n",pt_);
-  //   printf("\teta:\t %0.6f\n",eta_);
-  //   printf("\tjetNDauCharged:\t %0.6f\n",jetNDauCharged_);
-  //   printf("\tminiRelIsoCharged:\t %0.6f\n",miniRelIsoCharged_);
-  //   printf("\tminiRelIsoNeutral:\t %0.6f\n",miniRelIsoNeutral_);
-  //   printf("\tjetPtRel:\t %0.6f\n",jetPtRel_);
-  //   printf("\tjetPtRatio:\t %0.6f\n",jetPtRatio_);
-  //   printf("\tjetBTagCSV:\t %0.6f\n",jetBTagCSV_);
-  //   printf("\tsip:\t %0.6f\n",sip_);
-  //   printf("\tlog_abs_dxyBS:\t %0.6f\n",log_abs_dxyBS_);
-  //   printf("\tlog_abs_dzPV:\t %0.6f\n",log_abs_dzPV_);
-  //   printf("\tsegmentCompatibility:\t %0.6f\n",segmentCompatibility_);
-  //   printf("\tmva:\t %0.6f\n",mva_);
-  // }
 };
