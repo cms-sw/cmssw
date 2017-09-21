@@ -20,6 +20,7 @@
 #include "DataFormats/Math/interface/Vector.h"
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/Math/interface/Matrix.h"
+#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 
 
 //----------------------------------------------------------------------------------------------------
@@ -147,7 +148,7 @@ class CTPPSPixelLocalTrack
       return math::GlobalPoint(track_params_vector_[TrackPar::x0], track_params_vector_[TrackPar::y0], z0_);
     }
 
-    math::Matrix<2,2>::type trackPointInterpolationCovariance(float z) const;
+    AlgebraicSymMatrix22 trackPointInterpolationCovariance(float z) const;
 
     inline bool isValid() const { return valid_; }
 
