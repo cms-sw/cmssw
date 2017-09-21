@@ -36,12 +36,6 @@
 #include "RecoCTPPS/PixelLocal/interface/RPixRoadFinder.h"
 #include "RecoCTPPS/PixelLocal/interface/RPixPlaneCombinatoryTracking.h"
 
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Vector/RotationInterfaces.h"
-#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
-#include "TMatrixD.h"
-#include "TVectorD.h"
-
 
 class CTPPSPixelLocalTrackProducer : public edm::stream::EDProducer<>
 {
