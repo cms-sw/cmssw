@@ -26,6 +26,113 @@ from Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.helper import checked_
 from functools import reduce
 
 
+def main(argv = None):
+    """Main routine. Not called, if this module is loaded via `import`.
+
+    Arguments:
+    - `argv`: Command line arguments passed to the script.
+    """
+
+    if argv == None:
+        argv = sys.argv[1:]
+
+    # --------------------------------------------------------------------------
+    # set up argument parser and config parser
+
+    helpEpilog ="""Builds the config-templates from a universal config-template
+    for each dataset specified in .ini-file that is passed to this script.  Then
+    calls mps_setup.pl for all datasets."""
+    parser = argparse.ArgumentParser(
+        description="Setup the alignment as configured in the alignment_config file.",
+        epilog=helpEpilog)
+    # optional argmuent: verbose (toggles output of mps_setup)
+    parser.add_argument("-v", "--verbose", action="store_true",
+                        help="display detailed output of mps_setup")
+    # optional argmuent: weight (new weights for additional merge job)
+    parser.add_argument("-w", "--weight", action="store_true",
+                        help=("create an additional mergejob with (possibly new)"
+                              " weights from .ini-config"))
+    # positional argument: config file
+    parser.add_argument("alignmentConfig",
+                        help=("name of the .ini config file that specifies the "
+                              "datasets to be used"))
+    # parse argument
+    args = parser.parse_args(argv)
+    aligmentConfig = args.alignmentConfig
+
+    # parse config file
+    config = ConfigParser.ConfigParser()
+    config.optionxform = str # default would give lowercase options -> not wanted
+    config.read(aligmentConfig)
+
+
+
+    #---------------------------------------------------------------------------
+    # construct directories
+
+    # set variables that are not too specific (millescript, pedescript, etc.)
+    mpsTemplates = os.path.join("src", "Alignment",
+                                "MillePedeAlignmentAlgorithm", "templates")
+    if checked_out_MPS()[0]:
+        mpsTemplates = os.path.join(os.environ["CMSSW_BASE"], mpsTemplates)
+    else:
+        mpsTemplates = os.path.join(os.environ["CMSSW_RELEASE_BASE"], mpsTemplates)
+    mille_script = os.path.join(mpsTemplates, "mps_runMille_template.sh")
+    pede_script  = os.path.join(mpsTemplates, "mps_runPede_rfcp_template.sh")
+
+    # get working directory name
+    currentDir = os.getcwd()
+    mpsdirname = ''
+    match = re.search(re.compile('mpproduction\/mp(.+?)$', re.M|re.I),currentDir)
+    if match:
+        mpsdirname = 'mp'+match.group(1)
+    else:
+        print "Current location does not seem to be a MillePede campaign directory:",
+        print currentDir
+        sys.exit(1)
+
+
+    # read general-section
+    general_options = {}
+    general_options.update(fetch_essentials(config))
+    general_options.update(fetch_defaults(config))
+    general_options['datasetdir'] = fetch_dataset_directory(config)
+
+    mss_dir = create_mass_storage_directory(mpsdirname, general_options)
+    pede_settings = fetch_pede_settings(config)
+    weight_confs = get_weight_configs(config)
+
+
+    if args.weight:
+        global_tag, first_run, override_gt \
+            = create_additional_pede_jobs(config, pede_settings, weight_confs, args)
+    else:
+        # loop over dataset-sections
+        dataset_options, config_template, override_gt \
+            = create_mille_jobs(config, general_options,
+                                mille_script, pede_script,
+                                mss_dir, args)
+        global_tag = dataset_options["globaltag"]
+        first_run = general_options["FirstRunForStartGeometry"]
+
+        create_pede_jobs(config_template = config_template,
+                         pede_settings = pede_settings,
+                         weight_confs = weight_confs,
+                         global_tag = global_tag,
+                         first_run = first_run,
+                         args = args,
+                         override_gt = override_gt,
+                         first_pede_config = True)
+
+    if override_gt.strip() != "":
+        print "="*60
+        msg = ("Overriding global tag with single-IOV tags extracted from '{}' "
+               "for run number '{}'.".format(global_tag, first_run))
+        print msg
+        print "-"*60
+        print override_gt
+
+
 def handle_process_call(command, verbose = False):
     """
     Wrapper around subprocess calls which treats output depending on verbosity
@@ -289,103 +396,376 @@ def create_tracker_tree(global_tag, first_run):
     config.firstRun = first_run
     return mpsv_trackerTree.check(config)
 
-# ------------------------------------------------------------------------------
-# set up argument parser and config parser
 
-helpEpilog ='''Builds the config-templates from a universal config-template for each
-dataset specified in .ini-file that is passed to this script.
-Then calls mps_setup.pl for all datasets.'''
-parser = argparse.ArgumentParser(
-        description='Setup the alignment as configured in the alignment_config file.',
-        epilog=helpEpilog)
-# optional argmuent: verbose (toggles output of mps_setup)
-parser.add_argument('-v', '--verbose', action='store_true',
-                    help='display detailed output of mps_setup')
-# optional argmuent: weight (new weights for additional merge job)
-parser.add_argument('-w', '--weight', action='store_true',
-                    help='create an additional mergejob with (possibly new) weights from .ini-config')
-# positional argument: config file
-parser.add_argument('alignmentConfig', action='store',
-                    help='name of the .ini config file that specifies the datasets to be used')
-# parse argument
-args = parser.parse_args()
-aligmentConfig = args.alignmentConfig
+def fetch_essentials(config):
+    """Fetch general options from `config` file.
 
-# parse config file
-config = ConfigParser.ConfigParser()
-config.optionxform = str    # default would give lowercase options -> not wanted
-config.read(aligmentConfig)
+    Arguments:
+    - `config`: ConfigParser object
+    """
+
+    essentials = {}
+    for var in ("classInf","pedeMem","jobname", "FirstRunForStartGeometry"):
+        try:
+            essentials[var] = config.get('general',var)
+        except ConfigParser.NoOptionError:
+            print "No", var, "found in [general] section. Please check ini-file."
+            sys.exit(1)
+
+    return essentials
 
 
+def fetch_defaults(config):
+    """Fetch default general options from `config` file.
 
-#------------------------------------------------------------------------------
-# construct directories
+    Arguments:
+    - `config`: ConfigParser object
+    """
 
-# set variables that are not too specific (millescript, pedescript, etc.)
-mpsTemplates = os.path.join("src", "Alignment", "MillePedeAlignmentAlgorithm", "templates")
-if checked_out_MPS()[0]:
-    mpsTemplates = os.path.join(os.environ["CMSSW_BASE"], mpsTemplates)
-else:
-    mpsTemplates = os.path.join(os.environ["CMSSW_RELEASE_BASE"], mpsTemplates)
-milleScript = os.path.join(mpsTemplates, "mps_runMille_template.sh")
-pedeScript  = os.path.join(mpsTemplates, "mps_runPede_rfcp_template.sh")
+    defaults = {}
+    for var in ("globaltag", "configTemplate", "json", "massStorageDir",
+                "testMode"):
+        try:
+            defaults[var] = config.get('general',var)
+        except ConfigParser.NoOptionError:
+            if var == "testMode": continue
+            print "No '" + var + "' given in [general] section."
 
-# get working directory name
-currentDir = os.getcwd()
-mpsdirname = ''
-match = re.search(re.compile('mpproduction\/mp(.+?)$', re.M|re.I),currentDir)
-if match:
-    mpsdirname = 'mp'+match.group(1)
-else:
-    print "Current location does not seem to be a MillePede campaign directory:",
-    print currentDir
-    sys.exit(1)
+    return defaults
 
 
+def fetch_dataset_directory(config):
+    """Fetch 'datasetDir' variable from general section and add it to the
+       'os.environ' dictionary.
 
-#------------------------------------------------------------------------------
-# read general-section
-generalOptions = {}
+    Arguments:
+    - `config`: ConfigParser object
+    """
 
-# essential variables
-for var in ["classInf","pedeMem","jobname", "FirstRunForStartGeometry"]:
-    try:
-        generalOptions[var] = config.get('general',var)
-    except ConfigParser.NoOptionError:
-        print "No", var, "found in [general] section. Please check ini-file."
+    if config.has_option('general','datasetdir'):
+        dataset_directory = config.get('general','datasetdir')
+        # add it to environment for later variable expansion:
+        os.environ["datasetdir"] = dataset_directory
+        return dataset_directory
+    else:
+        print "No datasetdir given in [general] section.",
+        print "Be sure to give a full path in inputFileList."
+        return ""
+
+
+def fetch_pede_settings(config):
+    """Fetch 'pedesettings' from general section in `config` file.
+
+    Arguments:
+    - `config`: ConfigParser object
+    """
+
+    return ([x.strip() for x in config.get("general", "pedesettings").split(",")]
+            if config.has_option("general", "pedesettings") else [None])
+
+
+def create_mille_jobs(config, general_options, mille_script, pede_script,
+                      mss_dir, args):
+    """Create the mille jobs based on the [dataset:<name>] sections.
+
+    Arguments:
+    - `config`: ConfigParser object
+    - `general_options`: dictionary containing general options
+    - `mille_script`: template to create mille execution script
+    - `pede_script`: template to create pede execution script
+    - `mss_dir`: path to mass storage directory
+    - `args`: command line arguments
+    """
+
+    first_dataset = True
+    override_gt = ""
+    for section in config.sections():
+        if "general" in section: continue
+        elif section.startswith("dataset:"):
+            dataset_options={}
+            print "-"*60
+
+            # set name from section-name
+            dataset_options["name"] = section[8:]
+
+            # extract essential variables
+            for var in ("inputFileList", "collection"):
+                try:
+                    dataset_options[var] = config.get(section,var)
+                except ConfigParser.NoOptionError:
+                    print "No", var, "found in", section+". Please check ini-file."
+                    sys.exit(1)
+
+            # get globaltag and configTemplate. If none in section, try to get
+            # default from [general] section.
+            for var in ("configTemplate", "globaltag"):
+                if config.has_option(section,var):
+                    dataset_options[var] = config.get(section,var)
+                else:
+                    try:
+                        dataset_options[var] = general_options[var]
+                    except KeyError:
+                        print "No",var,"found in ["+section+"]",
+                        print "and no default in [general] section."
+                        sys.exit(1)
+
+            # extract non-essential options
+            dataset_options["cosmicsZeroTesla"] = False
+            if config.has_option(section,"cosmicsZeroTesla"):
+                dataset_options["cosmicsZeroTesla"] = config.getboolean(section,"cosmicsZeroTesla")
+
+            dataset_options["cosmicsDecoMode"] = False
+            if config.has_option(section,"cosmicsDecoMode"):
+                dataset_options["cosmicsDecoMode"] = config.getboolean(section,"cosmicsDecoMode")
+
+            dataset_options["primaryWidth"] = -1.0
+            if config.has_option(section,"primaryWidth"):
+                dataset_options["primaryWidth"] = config.getfloat(section,"primaryWidth")
+
+            dataset_options["json"] = ""
+            if config.has_option(section, "json"):
+                dataset_options["json"] = config.get(section,"json")
+            else:
+                try:
+                    dataset_options["json"] = general_options["json"]
+                except KeyError:
+                    print "No json given in either [general] or ["+section+"] sections.",
+                    print "Proceeding without json-file."
+
+
+            # replace ${datasetdir} and other variables in inputFileList-path
+            dataset_options["inputFileList"] = os.path.expandvars(dataset_options["inputFileList"])
+
+            # replace variables in configTemplate-path, e.g. $CMSSW_BASE
+            dataset_options["configTemplate"] = os.path.expandvars(dataset_options["configTemplate"])
+
+
+            # Get number of jobs from lines in inputfilelist
+            dataset_options["njobs"] = 0
+            try:
+                with open(dataset_options["inputFileList"], "r") as filelist:
+                    for line in filelist:
+                        if "CastorPool" in line:
+                            continue
+                        # ignore empty lines
+                        if not line.strip()=="":
+                            dataset_options["njobs"] += 1
+            except IOError:
+                print "Inputfilelist", dataset_options["inputFileList"], "does not exist."
+                sys.exit(1)
+            if dataset_options["njobs"] == 0:
+                print "Number of jobs is 0. There may be a problem with the inputfilelist:"
+                print dataset_options["inputFileList"]
+                sys.exit(1)
+
+            # Check if njobs gets overwritten in .ini-file
+            if config.has_option(section, "njobs"):
+                if config.getint(section, "njobs") <= dataset_options["njobs"]:
+                    dataset_options["njobs"] = config.getint(section, "njobs")
+                else:
+                    print "'njobs' is bigger than the number of files for this",
+                    print "dataset:", dataset_options["njobs"]
+                    print "Using default."
+            else:
+                print "No number of jobs specified. Using number of files in",
+                print "inputfilelist as the number of jobs."
+
+
+            # Build config from template/Fill in variables
+            try:
+                with open(dataset_options["configTemplate"],"r") as INFILE:
+                    tmpFile = INFILE.read()
+            except IOError:
+                print "The config-template called",
+                print dataset_options["configTemplate"], "cannot be found."
+                sys.exit(1)
+
+            tmpFile = re.sub('setupGlobaltag\s*\=\s*[\"\'](.*?)[\"\']',
+                             'setupGlobaltag = \"'+dataset_options["globaltag"]+'\"',
+                             tmpFile)
+            tmpFile = re.sub(re.compile("setupRunStartGeometry\s*\=\s*.*$", re.M),
+                             "setupRunStartGeometry = "+
+                             general_options["FirstRunForStartGeometry"], tmpFile)
+            tmpFile = re.sub('setupCollection\s*\=\s*[\"\'](.*?)[\"\']',
+                             'setupCollection = \"'+dataset_options["collection"]+'\"',
+                             tmpFile)
+            if dataset_options['cosmicsZeroTesla']:
+                tmpFile = re.sub(re.compile('setupCosmicsZeroTesla\s*\=\s*.*$', re.M),
+                                 'setupCosmicsZeroTesla = True',
+                                 tmpFile)
+            if dataset_options['cosmicsDecoMode']:
+                tmpFile = re.sub(re.compile('setupCosmicsDecoMode\s*\=\s*.*$', re.M),
+                                 'setupCosmicsDecoMode = True',
+                                 tmpFile)
+            if dataset_options['primaryWidth'] > 0.0:
+                tmpFile = re.sub(re.compile('setupPrimaryWidth\s*\=\s*.*$', re.M),
+                                 'setupPrimaryWidth = '+str(dataset_options["primaryWidth"]),
+                                 tmpFile)
+            if dataset_options['json'] != '':
+                tmpFile = re.sub(re.compile('setupJson\s*\=\s*.*$', re.M),
+                                 'setupJson = \"'+dataset_options["json"]+'\"',
+                                 tmpFile)
+
+            thisCfgTemplate = "tmp.py"
+            with open(thisCfgTemplate, "w") as OUTFILE:
+                OUTFILE.write(tmpFile)
+
+
+            # Set mps_setup append option for datasets following the first one
+            append = "-a"
+            if first_dataset:
+                append = ""
+                first_dataset = False
+                config_template = tmpFile
+                cms_process = mps_tools.get_process_object(thisCfgTemplate)
+                override_gt = create_input_db(cms_process,
+                                             general_options["FirstRunForStartGeometry"])
+
+            with open(thisCfgTemplate, "a") as f: f.write(override_gt)
+
+
+            # create mps_setup command
+            command = ["mps_setup.pl",
+                       "-m",
+                       append,
+                       "-M", general_options["pedeMem"],
+                       "-N", dataset_options["name"],
+                       mille_script,
+                       thisCfgTemplate,
+                       dataset_options["inputFileList"],
+                       str(dataset_options["njobs"]),
+                       general_options["classInf"],
+                       general_options["jobname"],
+                       pede_script,
+                       "cmscafuser:"+mss_dir]
+            command = filter(lambda x: len(x.strip()) > 0, command)
+
+            # Some output:
+            print "Submitting dataset:", dataset_options["name"]
+            print "Baseconfig:        ", dataset_options["configTemplate"]
+            print "Collection:        ", dataset_options["collection"]
+            if dataset_options["collection"] in ("ALCARECOTkAlCosmicsCTF0T",
+                                                "ALCARECOTkAlCosmicsInCollisions"):
+                print "cosmicsDecoMode:   ", dataset_options["cosmicsDecoMode"]
+                print "cosmicsZeroTesla:  ", dataset_options["cosmicsZeroTesla"]
+            print "Globaltag:         ", dataset_options["globaltag"]
+            print "Number of jobs:    ", dataset_options["njobs"]
+            print "Inputfilelist:     ", dataset_options["inputFileList"]
+            if dataset_options["json"] != "":
+                print "Jsonfile:          ", dataset_options["json"]
+            print "Pass to mps_setup: ", " ".join(command)
+
+            # call the command and toggle verbose output
+            handle_process_call(command, args.verbose)
+
+            # remove temporary file
+            handle_process_call(["rm", thisCfgTemplate])
+
+    if first_dataset:
+        print "No dataset section defined in '{0}'".format(aligmentConfig)
+        print "At least one section '[dataset:<name>]' is required."
         sys.exit(1)
 
-# check if datasetdir is given
-generalOptions['datasetdir'] = ''
-if config.has_option('general','datasetdir'):
-    generalOptions['datasetdir'] = config.get('general','datasetdir')
-    # add it to environment for later variable expansion:
-    os.environ["datasetdir"] = generalOptions['datasetdir']
-else:
-    print "No datasetdir given in [general] section.",
-    print "Be sure to give a full path in inputFileList."
-
-# check for default options
-for var in ("globaltag", "configTemplate", "json", "massStorageDir", "testMode"):
-    try:
-        generalOptions[var] = config.get('general',var)
-    except ConfigParser.NoOptionError:
-        if var == "testMode": continue
-        print "No '" + var + "' given in [general] section."
-
-# create mass storage directory
-mssDir = create_mass_storage_directory(mpsdirname, generalOptions)
+    return dataset_options, config_template, override_gt
 
 
-pedesettings = ([x.strip() for x in config.get("general", "pedesettings").split(",")]
-                if config.has_option("general", "pedesettings") else [None])
 
-weight_confs = get_weight_configs(config)
+def create_pede_jobs(config_template, pede_settings, weight_confs, global_tag,
+                     first_run, args,
+                     override_gt = None, first_pede_config = False):
+    """Create pede jobs from the given input. Return GT override snippet.
+
+    Arguments:
+    - `config_template`: configuration config template
+    - `pede_settings`: list of names of pede setting files
+    - `weight_confs`: dictionary containing the weights to be applied to the
+                      different input datasets
+    - `global_tag`: global tag to be used for the pede job
+    - `first_run`: first run for the start geometry
+    - `args`: command line arguments
+    - `override_gt`: snippet to appended in case of conditions to be overridden
+    - `first_pede_config`: flag indicating if the first pede config still has to
+                           be created
+    """
+
+    for setting in pede_settings:
+        print
+        print "="*60
+        if setting is None:
+            print "Creating pede job."
+        else:
+            print "Creating pede jobs using settings from '{0}'.".format(setting)
+        for weight_conf in weight_confs:
+            print "-"*60
+            # blank weights
+            handle_process_call(["mps_weight.pl", "-c"])
+
+            thisCfgTemplate = "tmp.py"
+            with open(thisCfgTemplate, "w") as f: f.write(config_template)
+            if override_gt is None:
+                cms_process = mps_tools.get_process_object(thisCfgTemplate)
+                override_gt = create_input_db(cms_process, first_run)
+            with open(thisCfgTemplate, "a") as f: f.write(override_gt)
+
+            for name,weight in weight_conf:
+                handle_process_call(["mps_weight.pl", "-N", name, weight], True)
+
+            if not first_pede_config:
+                # create new mergejob
+                handle_process_call(["mps_setupm.pl"], True)
+
+            # read mps.db to find directory of new mergejob
+            lib = mpslib.jobdatabase()
+            lib.read_db()
+
+            # short cut for jobm path
+            jobm_path = os.path.join("jobData", lib.JOBDIR[-1])
+
+            # delete old merge-config
+            command = ["rm", "-f", os.path.join(jobm_path, "alignment_merge.py")]
+            handle_process_call(command, args.verbose)
+
+            # create new merge-config
+            command = [
+                "mps_merge.py",
+                "-w", thisCfgTemplate,
+                os.path.join(jobm_path, "alignment_merge.py"),
+                jobm_path,
+                str(lib.nJobs),
+            ]
+            if setting is not None: command.extend(["-a", setting])
+            print " ".join(command)
+            handle_process_call(command, args.verbose)
+            tracker_tree_path = create_tracker_tree(global_tag, first_run)
+            if first_pede_config:
+                os.symlink(tracker_tree_path,
+                           os.path.abspath(os.path.join(jobm_path,
+                                                        ".TrackerTree.root")))
+                first_pede_config = False
+
+            # store weights configuration
+            with open(os.path.join(jobm_path, ".weights.pkl"), "wb") as f:
+                cPickle.dump(weight_conf, f, 2)
+
+    # remove temporary file
+    handle_process_call(["rm", thisCfgTemplate])
+
+    return override_gt
 
 
-#------------------------------------------------------------------------------
-# -w option: Get new weights from .ini and create additional mergejob with these
-if args.weight:
+def create_additional_pede_jobs(config, pede_settings, weight_confs, args):
+    """
+    Create pede jobs in addition to already existing ones. Return GT override
+    snippet.
+
+    Arguments:
+    - `config`: ConfigParser object
+    - `pede_settings`: list of names of pede setting files
+    - `weight_confs`: dictionary containing the weights to be applied to the
+                      different input datasets
+    - `args`: command line arguments
+    """
+
 
     # do some basic checks
     if not os.path.isdir("jobData"):
@@ -397,7 +777,7 @@ if args.weight:
 
     # check if default configTemplate is given
     try:
-        configTemplate = config.get('general','configTemplate')
+        config_template = config.get('general','configTemplate')
     except ConfigParser.NoOptionError:
         print 'No default configTemplate given in [general] section.'
         print 'When using -w, a default configTemplate is needed to build a merge-config.'
@@ -405,7 +785,7 @@ if args.weight:
 
     # check if default globaltag is given
     try:
-        globalTag = config.get('general','globaltag')
+        global_tag = config.get('general','globaltag')
     except ConfigParser.NoOptionError:
         print "No default 'globaltag' given in [general] section."
         print "When using -w, a default configTemplate is needed to build a merge-config."
@@ -427,14 +807,14 @@ if args.weight:
                 sys.exit(1)
 
     try:
-        with open(configTemplate,"r") as f:
+        with open(config_template,"r") as f:
             tmpFile = f.read()
     except IOError:
-        print "The config-template '"+configTemplate+"' cannot be found."
+        print "The config-template '"+config_template+"' cannot be found."
         sys.exit(1)
 
     tmpFile = re.sub('setupGlobaltag\s*\=\s*[\"\'](.*?)[\"\']',
-                     'setupGlobaltag = \"'+globalTag+'\"',
+                     'setupGlobaltag = \"'+global_tag+'\"',
                      tmpFile)
     tmpFile = re.sub('setupCollection\s*\=\s*[\"\'](.*?)[\"\']',
                      'setupCollection = \"'+collection+'\"',
@@ -443,331 +823,19 @@ if args.weight:
                      "setupRunStartGeometry = "+first_run,
                      tmpFile)
 
-    thisCfgTemplate = "tmp.py"
-    with open(thisCfgTemplate, "w") as f: f.write(tmpFile)
-
-    cms_process = mps_tools.get_process_object(thisCfgTemplate)
-
-    overrideGT = create_input_db(cms_process, first_run)
-    with open(thisCfgTemplate, "a") as f: f.write(overrideGT)
-
-    for setting in pedesettings:
-        print
-        print "="*60
-        if setting is None:
-            print "Creating pede job."
-        else:
-            print "Creating pede jobs using settings from '{0}'.".format(setting)
-        for weight_conf in weight_confs:
-            print "-"*60
-            # blank weights
-            handle_process_call(["mps_weight.pl", "-c"])
-
-            for name,weight in weight_conf:
-                handle_process_call(["mps_weight.pl", "-N", name, weight], True)
-
-            # create new mergejob
-            handle_process_call(["mps_setupm.pl"], True)
-
-            # read mps.db to find directory of new mergejob
-            lib = mpslib.jobdatabase()
-            lib.read_db()
-
-            # short cut for jobm path
-            jobm_path = os.path.join("jobData", lib.JOBDIR[-1])
-
-            # delete old merge-config
-            command = [
-                "rm", "-f",
-                os.path.join(jobm_path, "alignment_merge.py")]
-            handle_process_call(command, args.verbose)
-
-            # create new merge-config
-            command = [
-                "mps_merge.py",
-                "-w", thisCfgTemplate,
-                os.path.join(jobm_path, "alignment_merge.py"),
-                jobm_path,
-                str(lib.nJobs),
-            ]
-            if setting is not None: command.extend(["-a", setting])
-            print " ".join(command)
-            handle_process_call(command, args.verbose)
-            create_tracker_tree(globalTag, first_run)
-
-            # store weights configuration
-            with open(os.path.join(jobm_path, ".weights.pkl"), "wb") as f:
-                cPickle.dump(weight_conf, f, 2)
+    return global_tag, first_run, create_pede_jobs(config_template = tmpFile,
+                                                   pede_settings = pede_settings,
+                                                   weight_confs = weight_confs,
+                                                   global_tag = global_tag,
+                                                   first_run = first_run,
+                                                   args = args,
+                                                   override_gt = None,
+                                                   first_pede_config = False)
 
 
-    # remove temporary file
-    handle_process_call(["rm", thisCfgTemplate])
-
-    if overrideGT.strip() != "":
-        print "="*60
-        msg = ("Overriding global tag with single-IOV tags extracted from '{}' "
-               "for run number '{}'.".format(generalOptions["globaltag"],
-                                             first_run))
-        print msg
-        print "-"*60
-        print overrideGT
-
-    sys.exit()
-
-
-#------------------------------------------------------------------------------
-# loop over dataset-sections
-firstDataset = True
-overrideGT = ""
-for section in config.sections():
-    if 'general' in section:
-        continue
-    elif section.startswith("dataset:"):
-        datasetOptions={}
-        print "-"*60
-
-        # set name from section-name
-        datasetOptions['name'] = section[8:]
-
-        # extract essential variables
-        for var in ['inputFileList','collection']:
-            try:
-                datasetOptions[var] = config.get(section,var)
-            except ConfigParser.NoOptionError:
-                print 'No', var, 'found in', section+'. Please check ini-file.'
-                sys.exit(1)
-
-        # get globaltag and configTemplate. If none in section, try to get default from [general] section.
-        for var in ['configTemplate','globaltag']:
-            if config.has_option(section,var):
-                datasetOptions[var] = config.get(section,var)
-            else:
-                try:
-                    datasetOptions[var] = generalOptions[var]
-                except KeyError:
-                    print "No",var,"found in ["+section+"]",
-                    print "and no default in [general] section."
-                    sys.exit(1)
-
-        # extract non-essential options
-        datasetOptions['cosmicsZeroTesla'] = False
-        if config.has_option(section,'cosmicsZeroTesla'):
-            datasetOptions['cosmicsZeroTesla'] = config.getboolean(section,'cosmicsZeroTesla')
-
-        datasetOptions['cosmicsDecoMode'] = False
-        if config.has_option(section,'cosmicsDecoMode'):
-            datasetOptions['cosmicsDecoMode'] = config.getboolean(section,'cosmicsDecoMode')
-
-        datasetOptions['primaryWidth'] = -1.0
-        if config.has_option(section,'primaryWidth'):
-            datasetOptions['primaryWidth'] = config.getfloat(section,'primaryWidth')
-
-        datasetOptions['json'] = ''
-        if config.has_option(section, 'json'):
-            datasetOptions['json'] = config.get(section,'json')
-        else:
-            try:
-                datasetOptions['json'] = generalOptions['json']
-            except KeyError:
-                print "No json given in either [general] or ["+section+"] sections.",
-                print "Proceeding without json-file."
-
-
-        # replace '${datasetdir}' and other variables in inputFileList-path
-        datasetOptions['inputFileList'] = os.path.expandvars(datasetOptions['inputFileList'])
-
-        # replace variables in configTemplate-path, e.g. $CMSSW_BASE
-        datasetOptions['configTemplate'] = os.path.expandvars(datasetOptions['configTemplate'])
-
-
-        # Get number of jobs from lines in inputfilelist
-        datasetOptions['njobs'] = 0
-        try:
-            with open(datasetOptions['inputFileList'],'r') as filelist:
-                for line in filelist:
-                    if 'CastorPool' in line:
-                        continue
-                    # ignore empty lines
-                    if not line.strip()=='':
-                        datasetOptions['njobs'] += 1
-        except IOError:
-            print 'Inputfilelist', datasetOptions['inputFileList'], 'does not exist.'
-            sys.exit(1)
-        if datasetOptions['njobs'] == 0:
-            print 'Number of jobs is 0. There may be a problem with the inputfilelist:'
-            print datasetOptions['inputFileList']
-            sys.exit(1)
-
-        # Check if njobs gets overwritten in .ini-file
-        if config.has_option(section,'njobs'):
-            if config.getint(section,'njobs')<=datasetOptions['njobs']:
-                datasetOptions['njobs'] = config.getint(section,'njobs')
-            else:
-                print 'njobs is bigger than the default',datasetOptions['njobs'],'. Using default.'
-        else:
-            print 'No number of jobs specified. Using number of files in inputfilelist as the number of jobs.'
-
-
-        # Build config from template/Fill in variables
-        try:
-            with open(datasetOptions['configTemplate'],'r') as INFILE:
-                tmpFile = INFILE.read()
-        except IOError:
-            print 'The config-template called',datasetOptions['configTemplate'],'cannot be found.'
-            sys.exit(1)
-
-        tmpFile = re.sub('setupGlobaltag\s*\=\s*[\"\'](.*?)[\"\']',
-                         'setupGlobaltag = \"'+datasetOptions['globaltag']+'\"',
-                         tmpFile)
-        tmpFile = re.sub(re.compile("setupRunStartGeometry\s*\=\s*.*$", re.M),
-                         "setupRunStartGeometry = "+
-                         generalOptions["FirstRunForStartGeometry"], tmpFile)
-        tmpFile = re.sub('setupCollection\s*\=\s*[\"\'](.*?)[\"\']',
-                         'setupCollection = \"'+datasetOptions['collection']+'\"',
-                         tmpFile)
-        if datasetOptions['cosmicsZeroTesla']:
-            tmpFile = re.sub(re.compile('setupCosmicsZeroTesla\s*\=\s*.*$', re.M),
-                             'setupCosmicsZeroTesla = True',
-                             tmpFile)
-        if datasetOptions['cosmicsDecoMode']:
-            tmpFile = re.sub(re.compile('setupCosmicsDecoMode\s*\=\s*.*$', re.M),
-                             'setupCosmicsDecoMode = True',
-                             tmpFile)
-        if datasetOptions['primaryWidth'] > 0.0:
-            tmpFile = re.sub(re.compile('setupPrimaryWidth\s*\=\s*.*$', re.M),
-                             'setupPrimaryWidth = '+str(datasetOptions['primaryWidth']),
-                             tmpFile)
-        if datasetOptions['json'] != '':
-            tmpFile = re.sub(re.compile('setupJson\s*\=\s*.*$', re.M),
-                             'setupJson = \"'+datasetOptions['json']+'\"',
-                             tmpFile)
-
-        thisCfgTemplate = 'tmp.py'
-        with open(thisCfgTemplate, 'w') as OUTFILE:
-            OUTFILE.write(tmpFile)
-
-
-        # Set mps_setup append option for datasets following the first one
-        append = "-a"
-        if firstDataset:
-            append = ''
-            firstDataset = False
-            configTemplate = tmpFile
-            cms_process = mps_tools.get_process_object(thisCfgTemplate)
-            overrideGT = create_input_db(cms_process,
-                                         generalOptions["FirstRunForStartGeometry"])
-
-        with open(thisCfgTemplate, "a") as f: f.write(overrideGT)
-
-
-        # create mps_setup command
-        command = ["mps_setup.pl",
-                   "-m",
-                   append,
-                   "-M", generalOptions["pedeMem"],
-                   "-N", datasetOptions["name"],
-                   milleScript,
-                   thisCfgTemplate,
-                   datasetOptions["inputFileList"],
-                   str(datasetOptions["njobs"]),
-                   generalOptions["classInf"],
-                   generalOptions["jobname"],
-                   pedeScript,
-                   "cmscafuser:"+mssDir]
-        command = filter(lambda x: len(x.strip()) > 0, command)
-
-        # Some output:
-        print 'Submitting dataset:', datasetOptions['name']
-        print 'Baseconfig:        ', datasetOptions['configTemplate']
-        print 'Collection:        ', datasetOptions['collection']
-        if datasetOptions["collection"] in ("ALCARECOTkAlCosmicsCTF0T",
-                                            "ALCARECOTkAlCosmicsInCollisions"):
-            print 'cosmicsDecoMode:   ', datasetOptions['cosmicsDecoMode']
-            print 'cosmicsZeroTesla:  ', datasetOptions['cosmicsZeroTesla']
-        print 'Globaltag:         ', datasetOptions['globaltag']
-        print 'Number of jobs:    ', datasetOptions['njobs']
-        print 'Inputfilelist:     ', datasetOptions['inputFileList']
-        if datasetOptions['json'] != '':
-            print 'Jsonfile:          ', datasetOptions['json']
-        print 'Pass to mps_setup: ', " ".join(command)
-
-        # call the command and toggle verbose output
-        handle_process_call(command, args.verbose)
-
-        # remove temporary file
-        handle_process_call(["rm", thisCfgTemplate])
-
-if firstDataset:
-    print "No dataset section defined in '{0}'".format(aligmentConfig)
-    print "At least one section '[dataset:<name>]' is required."
-    sys.exit(1)
-
-firstPedeConfig = True
-for setting in pedesettings:
-    print
-    print "="*60
-    if setting is None:
-        print "Creating pede job."
-    else:
-        print "Creating pede jobs using settings from '{0}'.".format(setting)
-    for weight_conf in weight_confs:
-        print "-"*60
-        # blank weights
-        handle_process_call(["mps_weight.pl", "-c"])
-
-        for name,weight in weight_conf:
-            handle_process_call(["mps_weight.pl", "-N", name, weight], True)
-
-        if not firstPedeConfig:
-            # create new mergejob
-            handle_process_call(["mps_setupm.pl"], True)
-
-        # read mps.db to find directory of new mergejob
-        lib = mpslib.jobdatabase()
-        lib.read_db()
-
-        # short cut for jobm path
-        jobm_path = os.path.join("jobData", lib.JOBDIR[-1])
-
-        # delete old merge-config
-        command = ["rm", "-f", os.path.join(jobm_path, "alignment_merge.py")]
-        handle_process_call(command, args.verbose)
-
-        thisCfgTemplate = "tmp.py"
-        with open(thisCfgTemplate, "w") as f:
-            f.write(configTemplate+overrideGT)
-
-        # create new merge-config
-        command = [
-            "mps_merge.py",
-            "-w", thisCfgTemplate,
-            os.path.join(jobm_path, "alignment_merge.py"),
-            jobm_path,
-            str(lib.nJobs),
-        ]
-        if setting is not None: command.extend(["-a", setting])
-        print " ".join(command)
-        handle_process_call(command, args.verbose)
-        tracker_tree_path = create_tracker_tree(datasetOptions["globaltag"],
-                                                generalOptions["FirstRunForStartGeometry"])
-        if firstPedeConfig:
-            os.symlink(tracker_tree_path,
-                       os.path.abspath(os.path.join(jobm_path,
-                                                    ".TrackerTree.root")))
-            firstPedeConfig = False
-
-        # store weights configuration
-        with open(os.path.join(jobm_path, ".weights.pkl"), "wb") as f:
-            cPickle.dump(weight_conf, f, 2)
-
-    # remove temporary file
-    handle_process_call(["rm", thisCfgTemplate])
-
-if overrideGT.strip() != "":
-    print "="*60
-    msg = ("Overriding global tag with single-IOV tags extracted from '{}' for "
-           "run number '{}'.".format(generalOptions["globaltag"],
-                                     generalOptions["FirstRunForStartGeometry"]))
-    print msg
-    print "-"*60
-    print overrideGT
+################################################################################
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        pass
