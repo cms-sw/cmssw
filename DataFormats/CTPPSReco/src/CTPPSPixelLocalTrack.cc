@@ -19,13 +19,8 @@ AlgebraicSymMatrix22 CTPPSPixelLocalTrack::trackPointInterpolationCovariance(flo
   h(1,1)=1;
   h(0,2)=z-z0_;
   h(1,3)=z-z0_;
-  
-  CovarianceMatrix cov_matr;
-  for(unsigned int i=0; i<dimension; ++i)
-    for(unsigned int j=0; j<dimension; ++j)
-      cov_matr[i][j]=covarianceMatrixElement(i,j);
 
-  return ROOT::Math::Similarity(h,cov_matr);
+  return ROOT::Math::Similarity(h,par_covariance_matrix_);
   
 }
 
@@ -33,41 +28,24 @@ AlgebraicSymMatrix22 CTPPSPixelLocalTrack::trackPointInterpolationCovariance(flo
 
 CTPPSPixelLocalTrack::CTPPSPixelLocalTrack(float z0, const ParameterVector & track_params_vector, 
       const CovarianceMatrix &par_covariance_matrix, float chiSquared) 
-      : track_params_vector_(track_params_vector), z0_(z0), chiSquared_(chiSquared), valid_(true), numberOfPointUsedForFit_(0)
+      : track_params_vector_(track_params_vector), z0_(z0), par_covariance_matrix_(par_covariance_matrix),
+      chiSquared_(chiSquared), valid_(true), numberOfPointUsedForFit_(0)
 {
-  for(unsigned int i=0; i<dimension; ++i)
-  {
-    // track_params_vector_[i]=track_params_vector[i];
-    for(unsigned int j=0; j<dimension; ++j)
-    {
-      covarianceMatrixElement(i,j)=par_covariance_matrix(i,j);
-    }
-  }
+
 }
 
 //----------------------------------------------------------------------------------------------------
 
 const CTPPSPixelLocalTrack::ParameterVector& CTPPSPixelLocalTrack::getParameterVector() const 
-{
-  // ParameterVector v;
-  
-  // for (unsigned int i = 0; i < dimension; ++i)
-  //   v[i] = track_params_vector_[i];
-      
+{      
   return track_params_vector_;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSPixelLocalTrack::CovarianceMatrix CTPPSPixelLocalTrack::getCovarianceMatrix() const 
-{
-  CovarianceMatrix m;
-  
-  for(int i=0; i<dimension; ++i)
-    for(int j=0; j<dimension; ++j)
-      m(i,j) = covarianceMatrixElement(i,j);
-      
-  return m;
+const CTPPSPixelLocalTrack::CovarianceMatrix& CTPPSPixelLocalTrack::getCovarianceMatrix() const 
+{     
+  return par_covariance_matrix_;
 }
 
 //----------------------------------------------------------------------------------------------------

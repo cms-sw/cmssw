@@ -98,21 +98,21 @@ class CTPPSPixelLocalTrack
     }
 
     inline float getX0() const { return track_params_vector_[TrackPar::x0]; }
-    inline float getX0Sigma() const { return sqrt(covarianceMatrixElement(TrackPar::x0, TrackPar::x0)); }
-    inline float getX0Variance() const { return covarianceMatrixElement(TrackPar::x0, TrackPar::x0); }
+    inline float getX0Sigma() const { return sqrt(par_covariance_matrix_[TrackPar::x0][TrackPar::x0]); }
+    inline float getX0Variance() const { return par_covariance_matrix_[TrackPar::x0][TrackPar::x0]; }
 
     inline float getY0() const { return track_params_vector_[TrackPar::y0]; }
-    inline float getY0Sigma() const { return sqrt(covarianceMatrixElement(TrackPar::y0, TrackPar::y0)); }
-    inline float getY0Variance() const { return covarianceMatrixElement(TrackPar::y0, TrackPar::y0); }
+    inline float getY0Sigma() const { return sqrt(par_covariance_matrix_[TrackPar::y0][TrackPar::y0]); }
+    inline float getY0Variance() const { return par_covariance_matrix_[TrackPar::y0][TrackPar::y0]; }
 
     inline float getZ0() const { return z0_; }
     inline void setZ0(float z0) { z0_ = z0; }
 
     inline float getTx() const { return track_params_vector_[TrackPar::tx]; }
-    inline float getTxSigma() const { return sqrt(covarianceMatrixElement(TrackPar::tx, TrackPar::tx)); }
+    inline float getTxSigma() const { return sqrt(par_covariance_matrix_[TrackPar::tx][TrackPar::tx]); }
 
     inline float getTy() const { return track_params_vector_[TrackPar::ty]; }
-    inline float getTySigma() const { return sqrt(covarianceMatrixElement(TrackPar::ty, TrackPar::ty)); }
+    inline float getTySigma() const { return sqrt(par_covariance_matrix_[TrackPar::ty][TrackPar::ty]); }
 
     inline math::GlobalVector getDirectionVector() const
     {
@@ -122,7 +122,7 @@ class CTPPSPixelLocalTrack
 
     const ParameterVector& getParameterVector() const;
 
-    CovarianceMatrix getCovarianceMatrix() const;
+    const CovarianceMatrix& getCovarianceMatrix() const;
 
     inline float getChiSquared() const { return chiSquared_; }
 
@@ -157,16 +157,6 @@ class CTPPSPixelLocalTrack
     bool operator< (const CTPPSPixelLocalTrack &r);
     
   private:
-    inline const float& covarianceMatrixElement(int i, int j) const
-    {
-      return par_covariance_matrix_[i * dimension + j];
-    }
-
-    inline float& covarianceMatrixElement(int i, int j)
-    {
-      return par_covariance_matrix_[i * dimension + j];
-    }
-
     edm::DetSetVector<CTPPSPixelFittedRecHit> track_hits_vector_;
 
     /// track parameters: (x0, y0, tx, ty); x = x0 + tx*(z-z0) ...
@@ -176,7 +166,7 @@ class CTPPSPixelLocalTrack
     /// filled from TotemRPGeometry::GetRPGlobalTranslation
     float z0_; 
 
-    float par_covariance_matrix_[covarianceSize];
+    CovarianceMatrix par_covariance_matrix_;
   
     /// fit chi^2
     float chiSquared_;
