@@ -91,7 +91,7 @@ namespace {
   *************************************************/
   class SiStripBadModuleTrackerMap : public cond::payloadInspector::PlotImage<SiStripBadStrip> {
   public:
-    SiStripBadModuleTrackerMap() : cond::payloadInspector::PlotImage<SiStripBadStrip>( "Tracker Map of SiStripAPVGains (minimum per DetId)" ){
+    SiStripBadModuleTrackerMap() : cond::payloadInspector::PlotImage<SiStripBadStrip>( "Tracker Map of SiStrip Bad Strips" ){
       setSingleIov( true );
     }
 
@@ -126,7 +126,7 @@ namespace {
   *************************************************/
   class SiStripBadStripFractionTrackerMap : public cond::payloadInspector::PlotImage<SiStripBadStrip> {
   public:
-    SiStripBadStripFractionTrackerMap() : cond::payloadInspector::PlotImage<SiStripBadStrip>( "Tracker Map of SiStripAPVGains (minimum per DetId)" ){
+    SiStripBadStripFractionTrackerMap() : cond::payloadInspector::PlotImage<SiStripBadStrip>( "Tracker Map of SiStrip Bad Components fraction" ){
       setSingleIov( true );
     }
 

@@ -1,5 +1,5 @@
 /*!
-  \file SiStripApvGains_PayloadInspector
+  \file SiStripLorentzAngle_PayloadInspector
   \Payload Inspector Plugin for SiStrip Lorentz angles
   \author M. Musich
   \version $Revision: 1.0 $
