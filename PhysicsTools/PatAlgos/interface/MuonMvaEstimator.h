@@ -1,5 +1,5 @@
-#ifndef __RecoMuon_MuonIdentification_MuonMvaEstimator__
-#define __RecoMuon_MuonIdentification_MuonMvaEstimator__
+#ifndef __PhysicsTools_PatAlgos_MuonMvaEstimator__
+#define __PhysicsTools_PatAlgos_MuonMvaEstimator__
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
