@@ -139,4 +139,4 @@ tkConversionValidation = DQMEDAnalyzer('TkConvValidator',
 
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toModify(tkConversionValidation, simTracks = "famosSimHits")
+fastSim.toModify(tkConversionValidation, simTracks = "fastSimProducer")
