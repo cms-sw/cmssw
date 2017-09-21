@@ -48,13 +48,12 @@ float ptRel(const reco::Candidate::LorentzVector& muP4,
   return ptrel;
 }
 
-void MuonMvaEstimator::computeMva(const pat::Muon& imuon,
+void MuonMvaEstimator::computeMva(const pat::Muon& muon,
 				  const reco::Vertex& vertex,
 				  const reco::JetTagCollection& bTags,
 				  const reco::JetCorrector* correctorL1,
 				  const reco::JetCorrector* correctorL1L2L3Res)
 {
-  const pat::Muon& muon(imuon); // temporary hack to handle improper accessors to mini isolation
   if (not initialized_) 
     throw cms::Exception("FatalError") << "MuonMVA is not initialized";
   pt_                   = muon.pt();
