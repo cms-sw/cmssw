@@ -4,6 +4,11 @@ from DQMOffline.Trigger.topMonitoring_cfi import topMonitoring
 
 hltSUSYmonitoring = topMonitoring.clone()
 hltSUSYmonitoring.FolderName = cms.string('HLT/SUSY/default/')
+hltSUSYmonitoring.histoPSet.lsPSet = cms.PSet(
+  nbins = cms.uint32 ( 250 ),
+  xmin  = cms.double(    0.),
+  xmax  = cms.double( 2500.),
+)
 hltSUSYmonitoring.histoPSet.metPSet = cms.PSet(
   nbins = cms.uint32(  30   ),
   xmin  = cms.double(   0   ),

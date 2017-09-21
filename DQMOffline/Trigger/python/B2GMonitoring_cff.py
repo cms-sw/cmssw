@@ -74,3 +74,6 @@ b2gMonitorHLT = cms.Sequence(
     B2GegmGsfElectronIDsForDQM*
     B2GegHLTDQMOfflineTnPSource
 )
+
+b2gHLTDQMSourceExtra = cms.Sequence(
+)

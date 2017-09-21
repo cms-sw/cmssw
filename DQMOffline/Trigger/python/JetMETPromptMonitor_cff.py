@@ -5,3 +5,6 @@ from DQMOffline.Trigger.JetMonitor_cff import *
 jetmetMonitorHLT = cms.Sequence(
     HLTJetmonitoring
 )
+
+jmeHLTDQMSourceExtra = cms.Sequence(
+)
