@@ -29,18 +29,18 @@ namespace pat {
     float dRmax_;
     
     /// MVA VAriables
-    Float_t pt_;
-    Float_t eta_;
-    Float_t jetNDauCharged_;
-    Float_t miniRelIsoCharged_;
-    Float_t miniRelIsoNeutral_;
-    Float_t jetPtRel_;
-    Float_t jetPtRatio_;
-    Float_t jetBTagCSV_;
-    Float_t sip_;
-    Float_t log_abs_dxyBS_; 
-    Float_t log_abs_dzPV_;            
-    Float_t segmentCompatibility_;
+    float pt_;
+    float eta_;
+    float jetNDauCharged_;
+    float miniRelIsoCharged_;
+    float miniRelIsoNeutral_;
+    float jetPtRel_;
+    float jetPtRatio_;
+    float jetBTagCSV_;
+    float sip_;
+    float log_abs_dxyBS_; 
+    float log_abs_dzPV_;            
+    float segmentCompatibility_;
   };
 }
 #endif
