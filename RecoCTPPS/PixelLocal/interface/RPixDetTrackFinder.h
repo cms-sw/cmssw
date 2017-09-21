@@ -36,7 +36,7 @@ class RPixDetTrackFinder{
     void clear(){
       localTrackVector_.clear();
     }
-    std::vector<CTPPSPixelLocalTrack> getLocalTracks() {return localTrackVector_; }
+    std::vector<CTPPSPixelLocalTrack> const& getLocalTracks() const {return localTrackVector_; }
     void setRomanPotId(CTPPSPixelDetId rpId) {romanPotId_ = rpId;};
     void setGeometry(const CTPPSGeometry *geometry) {geometry_ = geometry; }
     void setListOfPlanes(std::vector<uint32_t> listOfAllPlanes) { listOfAllPlanes_ = listOfAllPlanes; } 
