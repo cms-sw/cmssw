@@ -72,7 +72,7 @@ void METplusTrackMonitor::bookHistograms(DQMStore::IBooker     &ibooker,
    std::string histname, histtitle;
 
    std::string currentFolder = folderName_;
-   ibooker.setCurrentFolder(currentFolder.c_str());
+   ibooker.setCurrentFolder(currentFolder);
 
    // MET leg histograms
 
@@ -155,7 +155,7 @@ void METplusTrackMonitor::bookHistograms(DQMStore::IBooker     &ibooker,
 
   edm::Handle<reco::VertexCollection> primaryVertices;
   iEvent.getByToken(vtxToken_, primaryVertices);
-  if(!primaryVertices->size()) return;
+  if(primaryVertices->empty()) return;
   const reco::Vertex* pv = nullptr;
   for(auto const& v: *primaryVertices) {
     if (!vtxSelection_(v)) continue;

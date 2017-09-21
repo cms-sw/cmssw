@@ -93,7 +93,7 @@ void JetDQM::fillHistograms(const std::vector<reco::PFJet> & jets,
 			    const bool passCond){
 
   // filling histograms (denominator)
-  if (jets.size()>0){
+  if (!jets.empty()){
     double eta1 = jets[0].eta();
     jet1ptME_.denominator -> Fill(jets[0].pt());
     jet1etaME_.denominator -> Fill(eta1);
@@ -135,7 +135,7 @@ void JetDQM::fillHistograms(const std::vector<reco::PFJet> & jets,
   // applying selection for numerator
   if (passCond){
     // filling histograms (num_genTriggerEventFlag_)  
-    if (jets.size()>0){
+    if (!jets.empty()){
       double eta1 = jets[0].eta();
       jet1ptME_.numerator -> Fill(jets[0].pt());
       jet1etaME_.numerator -> Fill(eta1);
