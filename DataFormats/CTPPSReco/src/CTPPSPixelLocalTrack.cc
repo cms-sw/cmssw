@@ -12,7 +12,7 @@
 
 //----------------------------------------------------------------------------------------------------
 
-math::Matrix<2,2>::type CTPPSPixelLocalTrack::trackPointInterpolationCovariance(float z) const
+AlgebraicSymMatrix22 CTPPSPixelLocalTrack::trackPointInterpolationCovariance(float z) const
 {
   math::Matrix<2, dimension>::type h;
   h(0,0)=1;
