@@ -34,3 +34,15 @@ cd $W_DIR;
     --db Prod \
     --test;
 
+######################
+# Test Backplane correction
+######################
+/afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py \
+    --plugin pluginSiStripBackPlaneCorrection_PayloadInspector \
+    --plot plot_SiStripBackPlaneCorrectionByPartition \
+    --tag SiStripBackPlaneCorrection_deco_GR10_v1_express \
+    --time_type Run \
+    --iovs '{"start_iov": "153690", "end_iov": "153690"}' \
+    --db Prod \
+    --test;
+

@@ -1,9 +1,9 @@
 /*!
-  \file SiStripApvGains_PayloadInspector
-  \Payload Inspector Plugin for SiStrip Lorentz angles
+  \file SiStripBackPlaneCorrection_PayloadInspector
+  \Payload Inspector Plugin for SiStrip Backplane corrections
   \author M. Musich
   \version $Revision: 1.0 $
-  \date $Date: 2017/09/21 10:59:56 $
+  \date $Date: 2017/09/21 10:01:03 $
 */
 
 #include "CondCore/Utilities/interface/PayloadInspectorModule.h"
@@ -11,7 +11,7 @@
 #include "CondCore/CondDB/interface/Time.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
-#include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
+#include "CondFormats/SiStripObjects/interface/SiStripBackPlaneCorrection.h"
 
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "CondCore/SiStripPlugins/interface/SiStripPayloadInspectorHelper.h"
@@ -34,28 +34,28 @@
 namespace {
 
   /************************************************
-    TrackerMap of SiStrip Lorentz Angle
+    TrackerMap of SiStrip BackPlane Correction
   *************************************************/
-  class SiStripLorentzAngle_TrackerMap : public cond::payloadInspector::PlotImage<SiStripLorentzAngle> {
+  class SiStripBackPlaneCorrection_TrackerMap : public cond::payloadInspector::PlotImage<SiStripBackPlaneCorrection> {
   public:
-    SiStripLorentzAngle_TrackerMap() : cond::payloadInspector::PlotImage<SiStripLorentzAngle>( "Tracker Map SiStrip Lorentz Angle" ){
+    SiStripBackPlaneCorrection_TrackerMap() : cond::payloadInspector::PlotImage<SiStripBackPlaneCorrection>( "Tracker Map SiStrip Backplane correction" ){
       setSingleIov( true );
     }
 
     bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       auto iov = iovs.front();
-      std::shared_ptr<SiStripLorentzAngle> payload = fetchPayload( std::get<1>(iov) );
+      std::shared_ptr<SiStripBackPlaneCorrection> payload = fetchPayload( std::get<1>(iov) );
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripLorentzAngle"));
+      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripBackPlaneCorrection"));
       tmap->setPalette(1);
-      std::string titleMap = "TrackerMap of SiStrip Lorentz Angle per module, payload : "+std::get<1>(iov);
+      std::string titleMap = "TrackerMap of SiStrip BP correction per module, payload : "+std::get<1>(iov);
       tmap->setTitle(titleMap);
 
-      std::map<uint32_t,float> LAMap_ = payload->getLorentzAngles();
+      std::map<uint32_t,float> BPMap_ = payload->getBackPlaneCorrections();
       
-      for(const auto &element : LAMap_){
+      for(const auto &element : BPMap_){
 	tmap->fill(element.first,element.second);
-      } // loop over the LA MAP
+      } // loop over the BP MAP
       
       std::string fileName(m_imageFileName);
       tmap->save(true,0,0,fileName);
@@ -65,12 +65,12 @@ namespace {
   };
 
   /************************************************
-    Plot Lorentz Angle averages by partition 
+    Plot SiStrip BackPlane Correction averages by partition 
   *************************************************/
 
-  class SiStripLorentzAngleByPartition : public cond::payloadInspector::PlotImage<SiStripLorentzAngle> {
+  class SiStripBackPlaneCorrectionByPartition : public cond::payloadInspector::PlotImage<SiStripBackPlaneCorrection> {
   public:
-    SiStripLorentzAngleByPartition() : cond::payloadInspector::PlotImage<SiStripLorentzAngle>( "SiStripLorentzAngle By Partition" ),
+    SiStripBackPlaneCorrectionByPartition() : cond::payloadInspector::PlotImage<SiStripBackPlaneCorrection>( "SiStripBackPlaneCorrection By Partition" ),
       m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
     {
       setSingleIov( true );
@@ -78,22 +78,22 @@ namespace {
 
     bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       auto iov = iovs.front();
-      std::shared_ptr<SiStripLorentzAngle> payload = fetchPayload( std::get<1>(iov) );
+      std::shared_ptr<SiStripBackPlaneCorrection> payload = fetchPayload( std::get<1>(iov) );
 
-      SiStripDetSummary summaryLA{&m_trackerTopo};
+      SiStripDetSummary summaryBP{&m_trackerTopo};
 
-      std::map<uint32_t,float> LAMap_ = payload->getLorentzAngles();
+      std::map<uint32_t,float> BPMap_ = payload->getBackPlaneCorrections();
       
-      for(const auto &element : LAMap_){
-	summaryLA.add(element.first,element.second);
+      for(const auto &element : BPMap_){
+	summaryBP.add(element.first,element.second);
       } 
 
-      std::map<unsigned int, SiStripDetSummary::Values> map = summaryLA.getCounts();
+      std::map<unsigned int, SiStripDetSummary::Values> map = summaryBP.getCounts();
       //=========================
       
       TCanvas canvas("Partion summary","partition summary",1200,1000); 
       canvas.cd();
-      auto h1 = std::unique_ptr<TH1F>(new TH1F("byPartition","SiStrip LA average by partition;; average SiStrip Lorentz Angle [rad]",map.size(),0.,map.size()));
+      auto h1 = std::unique_ptr<TH1F>(new TH1F("byPartition","SiStrip Backplane correction average by partition;; average SiStrip BackPlane Correction",map.size(),0.,map.size()));
       h1->SetStats(false);
       canvas.SetBottomMargin(0.18);
       canvas.SetLeftMargin(0.17);
@@ -180,7 +180,7 @@ namespace {
 
 }
 
-PAYLOAD_INSPECTOR_MODULE( SiStripLorentzAngle ){
-  PAYLOAD_INSPECTOR_CLASS( SiStripLorentzAngle_TrackerMap );
-  PAYLOAD_INSPECTOR_CLASS( SiStripLorentzAngleByPartition );
+PAYLOAD_INSPECTOR_MODULE( SiStripBackPlaneCorrection ){
+  PAYLOAD_INSPECTOR_CLASS( SiStripBackPlaneCorrection_TrackerMap );
+  PAYLOAD_INSPECTOR_CLASS( SiStripBackPlaneCorrectionByPartition );
 }
