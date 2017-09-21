@@ -3,9 +3,6 @@
 
 #include <algorithm>
 
-
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-
 #include "TMatrixD.h"
 #include "TVectorD.h"
 #include "TVector3.h"
@@ -302,7 +299,7 @@ void RPixPlaneCombinatoryTracking::findTracks(){
       tmpPlaneId.setPlane(plane);
       std::unique_ptr<CTPPSPixelFittedRecHit> 
         fittedRecHit(new CTPPSPixelFittedRecHit());
-      math::GlobalPoint pointOnDet;
+      GlobalPoint pointOnDet;
       calculatePointOnDetector(&bestTrack, tmpPlaneId, pointOnDet);
 
 
@@ -454,7 +451,7 @@ CTPPSPixelLocalTrack RPixPlaneCombinatoryTracking::fitTrack(PointInPlaneList poi
 
   for(const auto & hit : pointList){
     CLHEP::Hep3Vector globalPoint = hit.globalPoint;
-    math::GlobalPoint pointOnDet;
+    GlobalPoint pointOnDet;
     bool foundPoint = calculatePointOnDetector(&goodTrack, hit.detId, pointOnDet);
     if(!foundPoint){
       CTPPSPixelLocalTrack badTrack;
@@ -481,7 +478,7 @@ CTPPSPixelLocalTrack RPixPlaneCombinatoryTracking::fitTrack(PointInPlaneList poi
 
 //The method calculates the hit pointed by the track on the detector plane
 bool RPixPlaneCombinatoryTracking::calculatePointOnDetector(CTPPSPixelLocalTrack *track, CTPPSPixelDetId planeId,
-                                                            math::GlobalPoint &planeLineIntercept){
+                                                            GlobalPoint &planeLineIntercept){
   double z0 = track->getZ0();
   CTPPSPixelLocalTrack::ParameterVector parameters = track->getParameterVector();
 
@@ -514,7 +511,7 @@ bool RPixPlaneCombinatoryTracking::calculatePointOnDetector(CTPPSPixelLocalTrack
   double distanceFromLinePoint = ROOT::Math::Dot((pointOnPlane - pointOnLine), planeUnitVector) / denominator;
 
   math::Vector<3>::type tmpPlaneLineIntercept = distanceFromLinePoint*lineUnitVector + pointOnLine;
-  planeLineIntercept = math::GlobalPoint(tmpPlaneLineIntercept[0], tmpPlaneLineIntercept[1], tmpPlaneLineIntercept[2]);
+  planeLineIntercept = GlobalPoint(tmpPlaneLineIntercept[0], tmpPlaneLineIntercept[1], tmpPlaneLineIntercept[2]);
 
   return true;
 
