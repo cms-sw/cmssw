@@ -5,12 +5,8 @@
  *  Analyzer class computes the mean and RMS of t0 from pulses.
  *  Those values are written in the DB with cell granularity. The
  *  mean value for each channel is normalized to a reference time common to all the sector.
- *  The t0 of wires in odd layers are corrected for the relative difference between 
- *  odd and even layers 
- *
- *  $Date: 2012/04/10 17:55:08 $
- *  $Revision: 1.6 $
- *  \author S. Bolognesi - INFN Torino
+ *  The t0 of wires in odd layers are corrected for the relative difference between
+ *  odd and even layers
  */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
