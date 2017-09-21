@@ -10,6 +10,26 @@
 
 namespace SiStripPI {
   
+  enum estimator {
+    min,
+    max,
+    mean,
+    rms
+  };
+  
+  /*--------------------------------------------------------------------*/
+  std::string estimatorType(SiStripPI::estimator e)
+  /*--------------------------------------------------------------------*/
+  {
+    switch(e){
+    case SiStripPI::min : return "minimum";
+    case SiStripPI::max : return "maximum";
+    case SiStripPI::mean : return "mean";
+    case SiStripPI::rms  : return "RMS";
+    default: return "should never be here";
+    }
+  }
+    
   enum TrackerRegion { 
     TIB1r = 1010, TIB1s = 1011, 
     TIB2r = 1020, TIB2s = 1021,
