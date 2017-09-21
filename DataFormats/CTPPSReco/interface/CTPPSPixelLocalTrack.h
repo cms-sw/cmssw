@@ -26,11 +26,13 @@
 
 class CTPPSPixelFittedRecHit: public CTPPSPixelRecHit
 {
-public:
-CTPPSPixelFittedRecHit(const CTPPSPixelRecHit &hit, const math::GlobalPoint &space_point_on_det, LocalPoint residual, LocalPoint pull) :
+ public:
+  enum TrackPar {x0 = 0, y0 = 1, tx = 2, ty = 3}; 
+
+ CTPPSPixelFittedRecHit(const CTPPSPixelRecHit &hit, const math::GlobalPoint &space_point_on_det, LocalPoint residual, LocalPoint pull) :
   CTPPSPixelRecHit(hit), space_point_on_det_(space_point_on_det), residual_(residual), pull_(pull), isUsedForFit_(false), isRealHit_(false) {}
-    
-CTPPSPixelFittedRecHit() : CTPPSPixelRecHit(), residual_(LocalPoint(0,0)), pull_(LocalPoint(0,0)), isUsedForFit_(false), isRealHit_(false) {}
+  
+ CTPPSPixelFittedRecHit() : CTPPSPixelRecHit(), residual_(LocalPoint(0,0)), pull_(LocalPoint(0,0)), isUsedForFit_(false), isRealHit_(false) {}
     
   virtual ~CTPPSPixelFittedRecHit() {}
     
@@ -93,22 +95,22 @@ class CTPPSPixelLocalTrack: public CTPPSPixelFittedRecHit
       if(hit.getIsUsedForFit()) ++numberOfPointUsedForFit_;
     }
 
-    inline float getX0() const { return track_params_vector_[0]; }
-    inline float getX0Sigma() const { return sqrt(covarianceMatrixElement(0, 0)); }
-    inline float getX0Variance() const { return covarianceMatrixElement(0, 0); }
+    inline float getX0() const { return track_params_vector_[TrackPar::x0]; }
+    inline float getX0Sigma() const { return sqrt(covarianceMatrixElement(TrackPar::x0, TrackPar::x0)); }
+    inline float getX0Variance() const { return covarianceMatrixElement(TrackPar::x0, TrackPar::x0); }
 
-    inline float getY0() const { return track_params_vector_[1]; }
-    inline float getY0Sigma() const { return sqrt(covarianceMatrixElement(1, 1)); }
-    inline float getY0Variance() const { return covarianceMatrixElement(1, 1); }
+    inline float getY0() const { return track_params_vector_[TrackPar::y0]; }
+    inline float getY0Sigma() const { return sqrt(covarianceMatrixElement(TrackPar::y0, TrackPar::y0)); }
+    inline float getY0Variance() const { return covarianceMatrixElement(TrackPar::y0, TrackPar::y0); }
 
     inline float getZ0() const { return z0_; }
     inline void setZ0(float z0) { z0_ = z0; }
 
-    inline float getTx() const { return track_params_vector_[2]; }
-    inline float getTxSigma() const { return sqrt(covarianceMatrixElement(2, 2)); }
+    inline float getTx() const { return track_params_vector_[TrackPar::tx]; }
+    inline float getTxSigma() const { return sqrt(covarianceMatrixElement(TrackPar::tx, TrackPar::tx)); }
 
-    inline float getTy() const { return track_params_vector_[3]; }
-    inline float getTySigma() const { return sqrt(covarianceMatrixElement(3, 3)); }
+    inline float getTy() const { return track_params_vector_[TrackPar::ty]; }
+    inline float getTySigma() const { return sqrt(covarianceMatrixElement(TrackPar::ty, TrackPar::ty)); }
 
     inline math::GlobalVector getDirectionVector() const
     {
@@ -134,14 +136,14 @@ class CTPPSPixelLocalTrack: public CTPPSPixelFittedRecHit
     {
       float delta_z = z - z0_;
       return math::GlobalPoint(
-        track_params_vector_[0] + track_params_vector_[2] * delta_z,
-        track_params_vector_[1] + track_params_vector_[3] * delta_z,
+        track_params_vector_[TrackPar::x0] + track_params_vector_[TrackPar::tx] * delta_z,
+        track_params_vector_[TrackPar::y0] + track_params_vector_[TrackPar::ty] * delta_z,
         z);
     }
 
     inline math::GlobalPoint getTrackCentrePoint()
     {
-      return math::GlobalPoint(track_params_vector_[0], track_params_vector_[1], z0_);
+      return math::GlobalPoint(track_params_vector_[TrackPar::x0], track_params_vector_[TrackPar::y0], z0_);
     }
 
     math::Matrix<2,2>::type trackPointInterpolationCovariance(float z) const;
