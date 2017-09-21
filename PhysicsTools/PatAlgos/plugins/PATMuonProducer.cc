@@ -481,7 +481,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   // computed and stored in the object.
   edm::Handle<double> rho;
   if (computeMuonMVA_) iEvent.getByToken(rho_,rho);
-  const reco::Vertex* pv(0);
+  const reco::Vertex* pv(nullptr);
   if (primaryVertexIsValid) pv = &primaryVertex;
   for(auto& muon: *patMuons){
     if (recomputeBasicSelectors_){

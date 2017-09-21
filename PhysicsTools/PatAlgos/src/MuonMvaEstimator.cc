@@ -54,7 +54,7 @@ void MuonMvaEstimator::computeMva(const pat::Muon& imuon,
 				  const reco::JetCorrector* correctorL1,
 				  const reco::JetCorrector* correctorL1L2L3Res)
 {
-  pat::Muon muon(imuon); // temporary hack to handle improper accessors to mini isolation
+  const pat::Muon& muon(imuon); // temporary hack to handle improper accessors to mini isolation
   if (not initialized_) 
     throw cms::Exception("FatalError") << "MuonMVA is not initialized";
   pt_                   = muon.pt();
@@ -92,7 +92,7 @@ void MuonMvaEstimator::computeMva(const pat::Muon& imuon,
     if(dr > minDr) continue;  
     minDr = dr;
       
-    reco::Candidate::LorentzVector muP4(muon.p4()); 
+    const reco::Candidate::LorentzVector& muP4(muon.p4()); 
     reco::Candidate::LorentzVector jetP4(tagI.first->p4());
 
     if (correctorL1 && correctorL1L2L3Res){
@@ -105,7 +105,7 @@ void MuonMvaEstimator::computeMva(const pat::Muon& imuon,
     jetNDauCharged_ = 0;
     for (auto jet: tagI.first->getJetConstituentsQuick()){
       const reco::PFCandidate *pfcand = dynamic_cast<const reco::PFCandidate*>(jet);
-      if (pfcand==0) continue;
+      if (pfcand==nullptr) continue;
       if (pfcand->charge()==0) continue;
       if (!pfcand->bestTrack()) continue;
       if (!pfcand->bestTrack()->quality(reco::Track::highPurity)) continue;
