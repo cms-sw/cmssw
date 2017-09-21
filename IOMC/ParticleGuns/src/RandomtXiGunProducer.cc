@@ -158,7 +158,7 @@ HepMC::FourVector RandomtXiGunProducer::make_particle(double t,double Xi,double 
 
        if (direction<1) theta = acos(-1.) - theta;
 
-       double px     = sMom*cos(phi)*sin(theta)*direction;
+       double px     = sMom*cos(phi)*sin(theta);
        double py     = sMom*sin(phi)*sin(theta);
        double pz     = sMom*cos(theta) ;  // the direction is already set by the theta angle
        if (fVerbosity > 0) 
