@@ -66,7 +66,7 @@ const CSCGeometry::DetTypeContainer& CSCGeometry::detTypes() const
 }
 
 
-const CSCGeometry::DetUnitContainer& CSCGeometry::detUnits() const
+const CSCGeometry::DetContainer& CSCGeometry::detUnits() const
 {
   return theDetUnits;
 }
@@ -90,9 +90,9 @@ const CSCGeometry::DetIdContainer& CSCGeometry::detIds() const
 }
 
 
-const GeomDetUnit* CSCGeometry::idToDetUnit(DetId id) const
+const GeomDet* CSCGeometry::idToDetUnit(DetId id) const
 {
-  return dynamic_cast<const GeomDetUnit*>(idToDet(id));
+  return dynamic_cast<const GeomDet*>(idToDet(id));
 }
 
 
