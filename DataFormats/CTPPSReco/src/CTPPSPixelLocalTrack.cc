@@ -9,7 +9,6 @@
 */
 
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelLocalTrack.h"
-// #include "Rtypes.h"
 
 //----------------------------------------------------------------------------------------------------
 
@@ -26,13 +25,8 @@ math::Matrix<2,2>::type CTPPSPixelLocalTrack::trackPointInterpolationCovariance(
     for(unsigned int j=0; j<dimension; ++j)
       cov_matr[i][j]=covarianceMatrixElement(i,j);
 
-  math::Matrix<dimension,2>::type  hT = ROOT::Math::Transpose(h);
+  return ROOT::Math::Similarity(h,cov_matr);
   
-  math::Matrix<dimension,2>::type V_hT = cov_matr * hT;//(cov_matr, TMatrixD::kMultTranspose, h);
-  //h*=V_hT;
-  //return h;
-  math::Matrix<2,2>::type h_V_hT = h * V_hT;
-  return h_V_hT;
 }
 
 //----------------------------------------------------------------------------------------------------
