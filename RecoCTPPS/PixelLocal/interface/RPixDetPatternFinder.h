@@ -46,7 +46,7 @@ public:
   void clear(){
     patternVector_.clear();
   }
-  const std::vector<Road>& getPatterns() const {return patternVector_; }
+  std::vector<Road> const& getPatterns() const {return patternVector_; }
   void setGeometry(const CTPPSGeometry *geometry) {geometry_ = geometry; }
   
 protected:
