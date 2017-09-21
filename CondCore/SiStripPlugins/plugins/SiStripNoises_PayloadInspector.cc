@@ -89,7 +89,7 @@ namespace {
   };
 
   /************************************************
-    Noise Tracker Map 
+    SiStrip Noise Tracker Map 
   *************************************************/
 
   template<SiStripPI::estimator est>  class SiStripNoiseTrackerMap : public cond::payloadInspector::PlotImage<SiStripNoises> {
@@ -183,6 +183,166 @@ namespace {
   typedef SiStripNoiseTrackerMap<SiStripPI::mean> SiStripNoiseMean_TrackerMap;
   typedef SiStripNoiseTrackerMap<SiStripPI::rms>  SiStripNoiseRMS_TrackerMap;
 
+  /************************************************
+  SiStrip Noise Tracker Summaries 
+  *************************************************/
+  
+   template<SiStripPI::estimator est> class SiStripNoiseByPartition : public cond::payloadInspector::PlotImage<SiStripNoises> {
+  public:
+     SiStripNoiseByPartition() : cond::payloadInspector::PlotImage<SiStripNoises>( "SiStrip Noise "+estimatorType(est)+" by Partition" ),
+      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
+    {
+      setSingleIov( true );
+    }
+
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+      auto iov = iovs.front();
+      std::shared_ptr<SiStripNoises> payload = fetchPayload( std::get<1>(iov) );
+      
+      SiStripDetSummary summaryNoise{&m_trackerTopo};
+
+      SiStripNoises::RegistryIterator rit=payload->getRegistryVectorBegin(), erit=payload->getRegistryVectorEnd();
+      uint16_t Nstrips;
+      std::vector<float> vstripnoise;
+      double mean,rms,min, max;
+      for(;rit!=erit;++rit){
+	Nstrips = (rit->iend-rit->ibegin)*8/9; //number of strips = number of chars * char size / strip noise size
+	vstripnoise.resize(Nstrips);
+	payload->allNoises(vstripnoise,make_pair(payload->getDataVectorBegin()+rit->ibegin,payload->getDataVectorBegin()+rit->iend));
+	
+	mean=0; rms=0; min=10000; max=0;  
+	
+	DetId detId(rit->detid);
+	
+	for(size_t i=0;i<Nstrips;++i){
+	  mean+=vstripnoise[i];
+	  rms+=vstripnoise[i]*vstripnoise[i];
+	  if(vstripnoise[i]<min) min=vstripnoise[i];
+	  if(vstripnoise[i]>max) max=vstripnoise[i];
+	}
+	
+	mean/=Nstrips;
+	if((rms/Nstrips-mean*mean)>0.){
+	  rms = sqrt(rms/Nstrips-mean*mean);
+	} else {
+	  rms=0.;
+	}       
+
+	switch(est){
+	case SiStripPI::min:
+	  summaryNoise.add(detId,min);
+	  break;
+	case SiStripPI::max:
+	  summaryNoise.add(detId,max);
+	  break;
+	case SiStripPI::mean:
+	  summaryNoise.add(detId,mean);
+	  break;
+	case SiStripPI::rms:
+	  summaryNoise.add(detId,rms);
+	  break;
+	default:
+	  edm::LogWarning("LogicError") << "Unknown estimator: " <<  est; 
+	  break;
+	}
+
+      }
+
+      std::map<unsigned int, SiStripDetSummary::Values> map = summaryNoise.getCounts();
+      //=========================
+      
+      TCanvas canvas("Partion summary","partition summary",1200,1000); 
+      canvas.cd();
+      auto h1 = std::unique_ptr<TH1F>(new TH1F("byPartition",Form("Average by partition of %s SiStrip Noise per module;;average SiStrip Noise %s [ADC counts]",estimatorType(est).c_str(),estimatorType(est).c_str()),map.size(),0.,map.size()));
+      h1->SetStats(false);
+      canvas.SetBottomMargin(0.18);
+      canvas.SetLeftMargin(0.17);
+      canvas.SetRightMargin(0.05);
+      canvas.Modified();
+
+      std::vector<int> boundaries;
+      unsigned int iBin=0;
+
+      std::string detector;
+      std::string currentDetector;
+
+      for (const auto &element : map){
+	iBin++;
+	int count   = element.second.count;
+	double mean = (element.second.mean)/count;
+	double rms  = (element.second.rms)/count - mean*mean;
+
+	if(rms <= 0)
+	  rms = 0;
+	else
+	  rms = sqrt(rms);
+
+	if(currentDetector.empty()) currentDetector="TIB";
+	
+	switch ((element.first)/1000) 
+	  {
+	  case 1:
+	    detector = "TIB";
+	    break;
+	  case 2:
+	    detector = "TOB";
+	    break;
+	  case 3:
+	    detector = "TEC";
+	    break;
+	  case 4:
+	    detector = "TID";
+	    break;
+	  }
+
+	h1->SetBinContent(iBin,mean);
+	h1->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first));
+	h1->GetXaxis()->LabelsOption("v");
+	
+	if(detector!=currentDetector) {
+	  boundaries.push_back(iBin);
+	  currentDetector=detector;
+	}
+      }
+
+      h1->SetMarkerStyle(20);
+      h1->SetMarkerSize(1);
+      h1->Draw("HIST");
+      h1->Draw("Psame");
+	    
+      canvas.Update();
+      
+      TLine l[boundaries.size()];
+      unsigned int i=0;
+      for (const auto & line : boundaries){
+	l[i] = TLine(h1->GetBinLowEdge(line),canvas.GetUymin(),h1->GetBinLowEdge(line),canvas.GetUymax());
+	l[i].SetLineWidth(1);
+	l[i].SetLineStyle(9);
+	l[i].SetLineColor(2);
+	l[i].Draw("same");
+	i++;
+      }
+      
+      TLegend legend = TLegend(0.52,0.82,0.95,0.9);
+      legend.SetHeader((std::get<1>(iov)).c_str(),"C"); // option "C" allows to center the header
+      legend.AddEntry(h1.get(),("IOV: "+std::to_string(std::get<0>(iov))).c_str(),"PL");
+      legend.SetTextSize(0.025);
+      legend.Draw("same");
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }
+  private:
+    TrackerTopology m_trackerTopo;
+  };
+
+  typedef SiStripNoiseByPartition<SiStripPI::mean> SiStripNoiseMeanByPartition;
+  typedef SiStripNoiseByPartition<SiStripPI::min> SiStripNoiseMinByPartition;
+  typedef SiStripNoiseByPartition<SiStripPI::max> SiStripNoiseMaxByPartition;
+  typedef SiStripNoiseByPartition<SiStripPI::rms> SiStripNoiseRMSByPartition;
+
 } // close namespace
 
 PAYLOAD_INSPECTOR_MODULE(SiStripNoises){
@@ -191,4 +351,8 @@ PAYLOAD_INSPECTOR_MODULE(SiStripNoises){
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMax_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMean_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseRMS_TrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMeanByPartition);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMinByPartition);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMaxByPartition);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseRMSByPartition);
 }
