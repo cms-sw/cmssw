@@ -5,7 +5,7 @@ from Configuration.StandardSequences.Eras import eras
 process = cms.Process("RECO",eras.Run2_2016,eras.fastSim)
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(1)
 )
 
 # load particle data table
@@ -23,7 +23,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 # read generator event from file
 process.source = cms.Source("PoolSource",
     dropDescendantsOfDroppedBranches = cms.untracked.bool(False),
-    fileNames = cms.untracked.vstring('file:gen_muGun.root'),
+    fileNames = cms.untracked.vstring('file:gen_ttbar.root'),
     inputCommands = cms.untracked.vstring('keep *', 
         'drop *_genParticlesForJets_*_*', 
         'drop *_kt4GenJets_*_*', 
@@ -41,7 +41,7 @@ process.source = cms.Source("PoolSource",
         'drop *_genMetTrue_*_*', 
         'drop *_genMetIC5GenJs_*_*'),
     secondaryFileNames = cms.untracked.vstring(),
-    #skipEvents=cms.untracked.uint32(150)
+    skipEvents=cms.untracked.uint32(993)
 )
 
 # configure random number generator for simhit production
@@ -67,7 +67,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
     mixGenPU = cms.PSet(process.RandomNumberGeneratorService.mixGenPU),
     mixSimCaloHits = cms.PSet(process.RandomNumberGeneratorService.mixSimCaloHits),
     mixRecoTracks = cms.PSet(process.RandomNumberGeneratorService.mixRecoTracks),
-    famosSimHits = cms.PSet(process.RandomNumberGeneratorService.famosSimHits),
+    #famosSimHits = cms.PSet(process.RandomNumberGeneratorService.famosSimHits),
     fastTrackerRecHits = cms.PSet(process.RandomNumberGeneratorService.fastTrackerRecHits),
     ecalRecHit = cms.PSet(process.RandomNumberGeneratorService.ecalRecHit),
     ecalPreshowerRecHit = cms.PSet(process.RandomNumberGeneratorService.ecalPreshowerRecHit),
@@ -225,7 +225,7 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
 
 
 # Path and EndPath definitions
-process.psim.replace(process.famosSimHits, process.fastSimProducer)
+#process.psim.replace(process.famosSimHits, process.fastSimProducer)
 process.simulation_step = cms.Path(process.psim)
 
 #process.simulation_step = cms.Path(process.fastSimProducer)

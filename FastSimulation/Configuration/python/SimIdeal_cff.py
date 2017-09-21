@@ -4,8 +4,8 @@ from FastSimulation.ParticlePropagator.MagneticFieldMapESProducer_cfi import *
 
 # need for any other modules from commoninputs?
 
-# Famos SimHits producer
-from FastSimulation.EventProducer.FamosSimHits_cff import *
+# FastSim SimHits producer
+from FastSimulation.SimplifiedGeometryPropagator.fastSimProducer_cff import *
 
 # Gaussian Smearing RecHit producer
 from FastSimulation.TrackingRecHitProducer.TrackingRecHitProducer_cfi import *
@@ -17,6 +17,6 @@ from FastSimulation.MuonSimHitProducer.MuonSimHitProducer_cfi import *
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 
 psim = cms.Sequence(
-    famosSimHits+
+    fastSimProducer+
     MuonSimHits
     )
