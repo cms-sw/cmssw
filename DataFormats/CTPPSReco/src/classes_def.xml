@@ -102,8 +102,6 @@
   <class name="edm::Wrapper<edm::DetSetVector<CTPPSPixelFittedRecHit>>"/>
   <class name="std::vector<edm::DetSet<CTPPSPixelFittedRecHit> >"/>
   <class name="std::vector<CTPPSPixelFittedRecHit>"/>
-  <class name="math::GlobalPoint"/>
-  <class name="edm::Wrapper<math::GlobalPoint>"/>
   <class name="CTPPSPixelFittedRecHit"/>
 
 <!-- common objects -->
