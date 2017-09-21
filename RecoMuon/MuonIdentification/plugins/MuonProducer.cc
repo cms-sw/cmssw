@@ -206,10 +206,10 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
    event.getByToken(thePFCandToken_, pfCandidates);
 
    edm::Handle<reco::VertexCollection> primaryVertices;
-   const reco::Vertex* vertex(0);
+   const reco::Vertex* vertex(nullptr);
    if (computeStandardSelectors_){
      event.getByToken(vertexes_, primaryVertices);
-     if (primaryVertices->size()>0)
+     if (!primaryVertices->empty())
        vertex = &(primaryVertices->front());
    }
 

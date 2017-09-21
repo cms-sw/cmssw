@@ -117,6 +117,6 @@ namespace muon {
                        unsigned int segmentArbitrationMask = reco::MuonSegmentMatch::BestInChamberByDR ) ;
 
    void setCutBasedSelectorFlags(reco::Muon& muon,
-				 const reco::Vertex* vertex=0);
+				 const reco::Vertex* vertex=nullptr);
 }
 #endif
