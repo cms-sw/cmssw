@@ -135,7 +135,7 @@ void MuonMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 {
   std::string histname, histtitle;
 
-  ibooker.setCurrentFolder(folderName_.c_str());
+  ibooker.setCurrentFolder(folderName_);
 
   histname = "muon_pt"; histtitle = "muon PT";
   bookME(ibooker, muonME_, histname, histtitle, muon_binning_.nbins, muon_binning_.xmin, muon_binning_.xmax);
@@ -247,7 +247,7 @@ void MuonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 
   // filling histograms (denominator)
   int ls = iEvent.id().luminosityBlock();
-  if(muons.size()>0)
+  if(!muons.empty())
 
   {
     muonME_.denominator -> Fill(muons[0].pt());
@@ -258,7 +258,7 @@ void MuonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     muonEtaPhiME_.denominator -> Fill(muons[0].eta(), muons[0].phi());
     muondxy_.denominator -> Fill(muons[0].muonBestTrack()->dxy(pv));
     muondz_.denominator -> Fill(muons[0].muonBestTrack()->dz(pv));
-    if(electrons.size()>0)
+    if(!electrons.empty())
     {
       eleME_variableBinning_.denominator -> Fill(electrons[0].pt());
       eleEtaME_.denominator->Fill(electrons[0].eta());
@@ -272,7 +272,7 @@ void MuonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
   // filling histograms (num_genTriggerEventFlag_)
-  if(muons.size()>0)
+  if(!muons.empty())
   {
     muonME_.numerator -> Fill(muons[0].pt());
     muonME_variableBinning_.numerator -> Fill(muons[0].pt());
@@ -282,7 +282,7 @@ void MuonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     muonEtaPhiME_.numerator -> Fill(muons[0].eta(), muons[0].phi());
     muondxy_.numerator -> Fill(muons[0].muonBestTrack()->dxy(pv));
     muondz_.numerator -> Fill(muons[0].muonBestTrack()->dz(pv));
-    if(electrons.size()>0)
+    if(!electrons.empty())
     {
       eleME_variableBinning_.numerator -> Fill(electrons[0].pt());
       eleEtaME_.numerator->Fill(electrons[0].eta());
