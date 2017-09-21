@@ -314,7 +314,7 @@ namespace {
 	AlignmentPI::index coord = (AlignmentPI::index) k;
 	std::string s_coord = AlignmentPI::getStringFromIndex(coord);
 
-	summaries[coord] = std::make_shared<TH1F>(Form("Summary_%s",s_coord.c_str()),Form("Summary for d_{%s} APE;;APE d_{%s} [#mum]",s_coord.c_str(),s_coord.c_str()),range,0,range);
+	summaries[coord] = std::make_shared<TH1F>(Form("Summary_%s",s_coord.c_str()),Form("Summary for #sqrt{d_{%s}} APE;;APE #sqrt{d_{%s}} [#mum]",s_coord.c_str(),s_coord.c_str()),range,0,range);
 
 	//std::cout<<"begin ( "<< begin << "): " << AlignmentPI::getStringFromRegionEnum(begin) << " end ( " << end << "): " <<  AlignmentPI::getStringFromRegionEnum(end) <<" | range = "<< range << std::endl;
 
