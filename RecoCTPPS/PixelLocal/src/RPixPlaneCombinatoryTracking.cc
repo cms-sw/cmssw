@@ -100,7 +100,7 @@ void RPixPlaneCombinatoryTracking::getHitCombinations(
   const std::map<CTPPSPixelDetId, PointInPlaneList > &mapOfAllHits, 
   std::map<CTPPSPixelDetId, PointInPlaneList >::iterator mapIterator,
   HitReferences tmpHitPlaneMap,
-  PointInPlaneList tmpHitVector,
+  const PointInPlaneList &tmpHitVector,
   PointAndReferenceMap &outputMap)
 {
     //At this point I selected one hit per plane
