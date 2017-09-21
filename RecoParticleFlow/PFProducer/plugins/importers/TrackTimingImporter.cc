@@ -51,39 +51,27 @@ importToBlock( const edm::Event& e,
   e.getByToken(srcTimeGsf_, timeGsfH);
   e.getByToken(srcTimeErrorGsf_, timeErrGsfH);
   
-  auto TKs_end = std::partition(elems.begin(),elems.end(),
-				[](const ElementType& a){
-			        return a->type() == reco::PFBlockElement::TRACK;
-				});  
-  auto btk_elems = elems.begin();  
-  for( auto track = btk_elems;  track != TKs_end; ++track) {
-    const auto& ref = (*track)->trackRef();
-    if (timeH->contains(ref.id())) {
-      (*track)->setTime( (*timeH)[ref], (*timeErrH)[ref] );
-    }
-    if( debug_ ) {
-      edm::LogInfo("TrackTimingImporter") 
-      	<< "Track with pT / eta " << ref->pt() << " / " << ref->eta() 
-	<< " has time: " << (*track)->time() << " +/- " << (*track)->timeError() << std::endl;
-    }
-    
-  }
-  
-  auto gsfTKs_end = std::partition(elems.begin(),elems.end(),
-				[](const ElementType& a){
-			        return a->type() == reco::PFBlockElement::GSF;
-				});  
-  auto gsfbtk_elems = elems.begin();  
-  for( auto track = gsfbtk_elems;  track != gsfTKs_end; ++track) {
-    const auto& ref = static_cast<const reco::PFBlockElementGsfTrack*>((*track).get())->GsftrackRef();
-    if (timeGsfH->contains(ref.id())) {
-      (*track)->setTime( (*timeGsfH)[ref], (*timeErrGsfH)[ref] );
-    }
-    if( debug_ ) {
-      edm::LogInfo("TrackTimingImporter") 
-      	<< "Track with pT / eta " << ref->pt() << " / " << ref->eta() 
-	<< " has time: " << (*track)->time() << " +/- " << (*track)->timeError() << std::endl;
-    }
-    
-  }
+  for( auto& elem : elems ) {
+    if( reco::PFBlockElement::TRACK == elem->type() ) {
+      const auto& ref = elem->trackRef();
+      if (timeH->contains(ref.id())) {
+	elem->setTime( (*timeH)[ref], (*timeErrH)[ref] );
+      }
+      if( debug_ ) {
+	edm::LogInfo("TrackTimingImporter") 
+	  << "Track with pT / eta " << ref->pt() << " / " << ref->eta() 
+	  << " has time: " << elem->time() << " +/- " << elem->timeError() << std::endl;
+      }
+    } else if ( reco::PFBlockElement::GSF == elem->type() ) {
+      const auto& ref = static_cast<const reco::PFBlockElementGsfTrack*>(elem.get())->GsftrackRef();
+      if (timeGsfH->contains(ref.id())) {
+	elem->setTime( (*timeGsfH)[ref], (*timeErrGsfH)[ref] );
+      }
+      if( debug_ ) {
+	edm::LogInfo("TrackTimingImporter") 
+	  << "Track with pT / eta " << ref->pt() << " / " << ref->eta() 
+	  << " has time: " << elem->time() << " +/- " << elem->timeError() << std::endl;
+      }
+    } 
+  }  
 }
