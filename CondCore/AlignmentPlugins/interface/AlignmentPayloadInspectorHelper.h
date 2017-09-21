@@ -281,7 +281,7 @@ namespace AlignmentPI {
       m_side   = tTopo.tibSide(detId.rawId());
       m_isRphi = tTopo.isRPhi(detId.rawId());
       m_isDoubleSide = tTopo.tibIsDoubleSide(detId.rawId());
-      m_isInternal = tTopo.tibStringInfo(detId.rawId())[1];
+      m_isInternal = tTopo.tibIsInternalString(detId.rawId());
     }
     else if ( subdetId ==  StripSubdetector::TOB ){
       m_layer  = tTopo.tobLayer(detId.rawId());
