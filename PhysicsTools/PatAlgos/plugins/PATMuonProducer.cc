@@ -38,7 +38,7 @@
 #include "FWCore/Utilities/interface/transform.h"
 
 #include "PhysicsTools/PatUtils/interface/MiniIsolation.h"
-#include "RecoMuon/MuonIdentification/interface/MuonMvaEstimator.h"
+#include "PhysicsTools/PatAlgos/interface/MuonMvaEstimator.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 
