@@ -21,8 +21,8 @@ siPixelClusters = cms.EDProducer("SiPixelClusterProducer",
     payloadType = cms.string('Offline'),
     #payloadType = cms.string('Full'),
     SeedThreshold = cms.int32(1000),
-    ClusterThreshold    = cms.int32(1000),
-    ClusterThreshold_L1 = cms.int32(1000),
+    ClusterThreshold    = cms.int32(4000),
+    ClusterThreshold_L1 = cms.int32(4000),
     # **************************************
     maxNumberOfClusters = cms.int32(-1), # -1 means no limit.
 )
@@ -36,8 +36,8 @@ phase1Pixel.toModify(siPixelClusters,
   VCaltoElectronOffset_L1 = cms.int32(-670), # L1:   -670 +- 220
   ChannelThreshold        = cms.int32(10),
   SeedThreshold           = cms.int32(1000),
-  ClusterThreshold        = cms.int32(1000),
-  ClusterThreshold_L1     = cms.int32(1000)
+  ClusterThreshold        = cms.int32(4000),
+  ClusterThreshold_L1     = cms.int32(2000)
 
 )
 
