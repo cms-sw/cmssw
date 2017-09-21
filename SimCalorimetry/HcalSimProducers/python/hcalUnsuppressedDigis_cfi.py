@@ -45,7 +45,7 @@ hcalSimBlock = cms.PSet(
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toModify( hcalSimBlock, hitsProducer=cms.string('famosSimHits') )
+fastSim.toModify( hcalSimBlock, hitsProducer=cms.string('fastSimProducers') )
 
 from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 run2_HCAL_2017.toModify( hcalSimBlock, TestNumbering = cms.bool(True) )
