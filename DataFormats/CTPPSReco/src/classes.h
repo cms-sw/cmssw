@@ -95,10 +95,10 @@ namespace DataFormats_CTPPSReco {
     std::vector<edm::DetSet<CTPPSPixelLocalTrack> > svdsrplt;
     edm::DetSetVector<CTPPSPixelLocalTrack> dsvrplt;
     edm::Wrapper<edm::DetSetVector<CTPPSPixelLocalTrack> > wdsvrplt;
-    edm::DetSetVector<CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit> dsvrplcfrh;
-    edm::Wrapper<edm::DetSetVector<CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit>> wdsvrplcfrh;
-    std::vector<edm::DetSet<CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit> > vdsrpltfrh;
-    std::vector<CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit> vrpltfrh;
+    edm::DetSetVector<CTPPSPixelFittedRecHit> dsvrplcfrh;
+    edm::Wrapper<edm::DetSetVector<CTPPSPixelFittedRecHit>> wdsvrplcfrh;
+    std::vector<edm::DetSet<CTPPSPixelFittedRecHit> > vdsrpltfrh;
+    std::vector<CTPPSPixelFittedRecHit> vrpltfrh;
 
     math::GlobalPoint gpp;
     edm::Wrapper<math::GlobalPoint> gppW;

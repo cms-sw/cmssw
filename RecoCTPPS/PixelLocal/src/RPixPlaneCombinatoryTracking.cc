@@ -301,8 +301,8 @@ void RPixPlaneCombinatoryTracking::findTracks(){
     for(const auto & plane : listOfPlaneNotUsedForFit){
       CTPPSPixelDetId tmpPlaneId = romanPotId_; //in order to avoid to modify the data member
       tmpPlaneId.setPlane(plane);
-      std::unique_ptr<CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit> 
-        fittedRecHit(new CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit());
+      std::unique_ptr<CTPPSPixelFittedRecHit> 
+        fittedRecHit(new CTPPSPixelFittedRecHit());
       math::GlobalPoint pointOnDet;
       calculatePointOnDetector(&bestTrack, tmpPlaneId, pointOnDet);
 
@@ -333,7 +333,7 @@ void RPixPlaneCombinatoryTracking::findTracks(){
             LocalPoint residuals(xResidual,yResidual,0.);
             math::Error<3>::type globalError = hit.globalError;
             LocalPoint pulls(xResidual/std::sqrt(globalError[0][0]),yResidual/std::sqrt(globalError[1][1]),0.);
-            fittedRecHit.reset(new CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit(hit.recHit, pointOnDet, residuals, pulls));
+            fittedRecHit.reset(new CTPPSPixelFittedRecHit(hit.recHit, pointOnDet, residuals, pulls));
             fittedRecHit->setIsRealHit(true);
           }
         }
@@ -342,7 +342,7 @@ void RPixPlaneCombinatoryTracking::findTracks(){
         LocalPoint fakePoint;
         LocalError fakeError;
         CTPPSPixelRecHit fakeRecHit(fakePoint,fakeError);
-        fittedRecHit.reset(new CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit(fakeRecHit, pointOnDet, fakePoint, fakePoint));
+        fittedRecHit.reset(new CTPPSPixelFittedRecHit(fakeRecHit, pointOnDet, fakePoint, fakePoint));
       }
 
       bestTrack.addHit(tmpPlaneId, *fittedRecHit);
@@ -469,7 +469,7 @@ CTPPSPixelLocalTrack RPixPlaneCombinatoryTracking::fitTrack(PointInPlaneList poi
     math::Error<3>::type globalError(hit.globalError);
     LocalPoint pulls(xResidual/std::sqrt(globalError(0, 0)),yResidual/std::sqrt(globalError(0, 0)));
 
-    CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit fittedRecHit(hit.recHit, pointOnDet, residuals, pulls);
+    CTPPSPixelFittedRecHit fittedRecHit(hit.recHit, pointOnDet, residuals, pulls);
     fittedRecHit.setIsUsedForFit(true);
     goodTrack.addHit(hit.detId, fittedRecHit);
   }

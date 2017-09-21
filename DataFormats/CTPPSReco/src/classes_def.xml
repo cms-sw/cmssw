@@ -91,17 +91,17 @@
   <class name="edm::Wrapper<edm::DetSetVector<CTPPSPixelRecHit> >"/>
 
   <class name="CTPPSPixelLocalTrack" ClassVersion="3">
-    <version ClassVersion="3" checksum="166602192"/> 
+    <version ClassVersion="3" checksum="1805396184"/> 
   </class>
   <class name="edm::DetSet<CTPPSPixelLocalTrack>"/>
   <class name="std::vector<CTPPSPixelLocalTrack>"/>
   <class name="std::vector<edm::DetSet<CTPPSPixelLocalTrack> >"/>
   <class name="edm::DetSetVector<CTPPSPixelLocalTrack>"/>
   <class name="edm::Wrapper<edm::DetSetVector<CTPPSPixelLocalTrack> >"/>
-  <class name="edm::DetSetVector<CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit>"/>
-  <class name="edm::Wrapper<edm::DetSetVector<CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit>>"/>
-  <class name="std::vector<edm::DetSet<CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit> >"/>
-  <class name="std::vector<CTPPSPixelLocalTrack::CTPPSPixelFittedRecHit>"/>
+  <class name="edm::DetSetVector<CTPPSPixelFittedRecHit>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<CTPPSPixelFittedRecHit>>"/>
+  <class name="std::vector<edm::DetSet<CTPPSPixelFittedRecHit> >"/>
+  <class name="std::vector<CTPPSPixelFittedRecHit>"/>
   <class name="math::GlobalPoint"/>
   <class name="edm::Wrapper<math::GlobalPoint>"/>
   <class name="CTPPSPixelFittedRecHit"/>
