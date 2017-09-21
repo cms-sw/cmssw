@@ -30,7 +30,7 @@ namespace {
   *************************************************/
   class SiStripLorentzAngle_TrackerMap : public cond::payloadInspector::PlotImage<SiStripLorentzAngle> {
   public:
-    SiStripLorentzAngle_TrackerMap() : cond::payloadInspector::PlotImage<SiStripLorentzAngle>( "Tracker Map IsModuleLVOff" ){
+    SiStripLorentzAngle_TrackerMap() : cond::payloadInspector::PlotImage<SiStripLorentzAngle>( "Tracker Map SiStrip Lorentz Angle" ){
       setSingleIov( true );
     }
 
@@ -56,8 +56,123 @@ namespace {
     }
   };
 
+  /************************************************
+    Plot Lorentz Angle averages by partition 
+  *************************************************/
+
+  class SiStripLorentzAngleByPartition : public cond::payloadInspector::PlotImage<SiStripLorentzAngle> {
+  public:
+    SiStripLorentzAngleByPartition() : cond::payloadInspector::PlotImage<SiStripLorentzAngle>( "SiStripLorentzAngle By Partition" ),
+      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
+    {
+      setSingleIov( true );
+    }
+
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+      auto iov = iovs.front();
+      std::shared_ptr<SiStripLorentzAngle> payload = fetchPayload( std::get<1>(iov) );
+
+      SiStripDetSummary summaryLA{&m_trackerTopo};
+
+      std::map<uint32_t,float> LAMap_ = payload->getLorentzAngles();
+      
+      for(const auto &element : LAMap_){
+	summaryLA.add(element.first,element.second);
+      } 
+
+      std::map<unsigned int, SiStripDetSummary::Values> map = summaryLA.getCounts();
+      //=========================
+      
+      TCanvas canvas("Partion summary","partition summary",1200,1000); 
+      canvas.cd();
+      auto h1 = std::unique_ptr<TH1F>(new TH1F("byPartition","SiStrip LA average by partition;; average SiStrip Lorentz Angle [rad]",map.size(),0.,map.size()));
+      h1->SetStats(false);
+      canvas.SetBottomMargin(0.18);
+      canvas.SetLeftMargin(0.17);
+      canvas.SetRightMargin(0.05);
+      canvas.Modified();
+
+      std::vector<int> boundaries;
+      unsigned int iBin=0;
+
+      std::string detector;
+      std::string currentDetector;
+
+      for (const auto &element : map){
+	iBin++;
+	int count   = element.second.count;
+	double mean = (element.second.mean)/count;
+	double rms  = (element.second.rms)/count - mean*mean;
+
+	if(rms <= 0)
+	  rms = 0;
+	else
+	  rms = sqrt(rms);
+
+	if(currentDetector.empty()) currentDetector="TIB";
+	
+	switch ((element.first)/1000) 
+	  {
+	  case 1:
+	    detector = "TIB";
+	    break;
+	  case 2:
+	    detector = "TOB";
+	    break;
+	  case 3:
+	    detector = "TEC";
+	    break;
+	  case 4:
+	    detector = "TID";
+	    break;
+	  }
+
+	h1->SetBinContent(iBin,mean);
+	h1->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first));
+	h1->GetXaxis()->LabelsOption("v");
+	
+	if(detector!=currentDetector) {
+	  boundaries.push_back(iBin);
+	  currentDetector=detector;
+	}
+      }
+
+      h1->SetMarkerStyle(20);
+      h1->SetMarkerSize(1);
+      h1->Draw("HIST");
+      h1->Draw("Psame");
+	    
+      canvas.Update();
+      
+      TLine l[boundaries.size()];
+      unsigned int i=0;
+      for (const auto & line : boundaries){
+	l[i] = TLine(h1->GetBinLowEdge(line),canvas.GetUymin(),h1->GetBinLowEdge(line),canvas.GetUymax());
+	l[i].SetLineWidth(1);
+	l[i].SetLineStyle(9);
+	l[i].SetLineColor(2);
+	l[i].Draw("same");
+	i++;
+      }
+      
+      TLegend legend = TLegend(0.52,0.82,0.95,0.9);
+      legend.SetHeader((std::get<1>(iov)).c_str(),"C"); // option "C" allows to center the header
+      legend.AddEntry(h1.get(),("IOV: "+std::to_string(std::get<0>(iov))).c_str(),"PL");
+      legend.SetTextSize(0.025);
+      legend.Draw("same");
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }
+  private:
+    TrackerTopology m_trackerTopo;
+  };
+
 }
 
-PAYLOAD_INSPECTOR_MODULE( SiStripLorentaAngle ){
+PAYLOAD_INSPECTOR_MODULE( SiStripLorentzAngle ){
   PAYLOAD_INSPECTOR_CLASS( SiStripLorentzAngle_TrackerMap );
+  PAYLOAD_INSPECTOR_CLASS( SiStripLorentzAngleByPartition );
 }
