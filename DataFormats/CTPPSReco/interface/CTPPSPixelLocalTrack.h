@@ -27,8 +27,6 @@
 class CTPPSPixelFittedRecHit: public CTPPSPixelRecHit
 {
  public:
-  enum TrackPar {x0 = 0, y0 = 1, tx = 2, ty = 3}; 
-
  CTPPSPixelFittedRecHit(const CTPPSPixelRecHit &hit, const math::GlobalPoint &space_point_on_det, LocalPoint residual, LocalPoint pull) :
   CTPPSPixelRecHit(hit), space_point_on_det_(space_point_on_det), residual_(residual), pull_(pull), isUsedForFit_(false), isRealHit_(false) {}
   
@@ -71,6 +69,9 @@ class CTPPSPixelLocalTrack
 {
 
   public:
+  
+  enum TrackPar {x0 = 0, y0 = 1, tx = 2, ty = 3}; 
+
     ///< parameter vector size
     static constexpr int dimension = 4;
     typedef math::Error<dimension>::type CovarianceMatrix;
