@@ -94,7 +94,9 @@ class FlatTable {
             vec.push_back( value );
         }
     }
- 
+
+    void addExtension(const FlatTable & extension) ;
+
     template<typename T> static ColumnType defaultColumnType() { throw cms::Exception("unsupported type"); }
 
     // this below needs to be public for ROOT, but it is to be considered private otherwise
