@@ -371,36 +371,35 @@ void RPixPlaneCombinatoryTracking::findTracks(){
 
 CTPPSPixelLocalTrack RPixPlaneCombinatoryTracking::fitTrack(PointInPlaneList pointList){
   
-  uint32_t numberOfPoints = pointList.size();
-  TVectorD xyCoordinates(2*numberOfPoints);
-  TMatrixD varianceMatrix(2*numberOfPoints,2*numberOfPoints);
-  TMatrixD zMatrix(2*numberOfPoints,4);
+  uint32_t const numberOfPlanes = 6;
+  math::Vector<2*numberOfPlanes>::type xyCoordinates;
+  math::Error<2*numberOfPlanes>::type varianceMatrix;
+  math::Matrix<2*numberOfPlanes, 4>::type zMatrix;
   
   //The matrices and vector xyCoordinates, varianceMatrix and varianceMatrix are built from the points
-  uint32_t hitCounter=0;
-  for(const auto & hit : pointList){
-    CLHEP::Hep3Vector globalPoint  = hit.globalPoint    ;
-    xyCoordinates[hitCounter]      = globalPoint.x()    ;
-    xyCoordinates[hitCounter+1]    = globalPoint.y()    ;
-    zMatrix      [hitCounter][0]   = 1.                 ;
-    zMatrix      [hitCounter][2]   = globalPoint.z()-z0_;
-    zMatrix      [hitCounter+1][1] = 1.                 ;
-    zMatrix      [hitCounter+1][3] = globalPoint.z()-z0_;
-
-    AlgebraicMatrix33 globalError = hit.globalError;
-    varianceMatrix[hitCounter][hitCounter]     = globalError(0, 0);
-    varianceMatrix[hitCounter][hitCounter+1]   = globalError(0, 1);
-    varianceMatrix[hitCounter+1][hitCounter]   = globalError(1, 0);
-    varianceMatrix[hitCounter+1][hitCounter+1] = globalError(1, 1);
-    
-    hitCounter+=2;
+  for(uint32_t iHit = 0; iHit < numberOfPlanes; iHit++) {
+    if (iHit < pointList.size()) {
+      CLHEP::Hep3Vector globalPoint = pointList[iHit].globalPoint;
+      xyCoordinates[2*iHit]        = globalPoint.x()    ;
+      xyCoordinates[2*iHit + 1]    = globalPoint.y()    ;
+      zMatrix      (2*iHit, 0)     = 1.                 ;
+      zMatrix      (2*iHit, 2)     = globalPoint.z()-z0_;
+      zMatrix      (2*iHit + 1, 1) = 1.                 ;
+      zMatrix      (2*iHit+ 1 , 3) = globalPoint.z()-z0_;
+      
+      AlgebraicMatrix33 globalError = pointList[iHit].globalError;
+      varianceMatrix(2*iHit, 2*iHit)         = globalError(0, 0);
+      varianceMatrix(2*iHit, 2*iHit + 1)     = globalError(0, 1);
+      varianceMatrix(2*iHit + 1, 2*iHit)     = globalError(1, 0);
+      varianceMatrix(2*iHit + 1, 2*iHit + 1) = globalError(1, 1);
+    } else {
+      varianceMatrix(2*iHit, 2*iHit)         = 1.;
+      varianceMatrix(2*iHit + 1, 2*iHit + 1) = 1.;
+    }    
   }
 
-  //for having the real point variance matrix, varianceMatrix need to be inverted
-  try{
-    varianceMatrix.Invert();
-  }
-  catch (cms::Exception &e){
+  //Get real point variance matrix
+  if (!varianceMatrix.Invert()) {
     edm::LogError("RPixPlaneCombinatoryTracking") << "Error in RPixPlaneCombinatoryTracking::fitTrack -> "
     << "Point variance matrix is singular, skipping.";
     CTPPSPixelLocalTrack badTrack;
@@ -408,15 +407,10 @@ CTPPSPixelLocalTrack RPixPlaneCombinatoryTracking::fitTrack(PointInPlaneList poi
     return badTrack;
   }
 
-  TMatrixD zMatrixTranspose(TMatrixD::kTransposed,zMatrix);
-  TMatrixD zMatrixTransposeTimesVarianceMatrix = zMatrixTranspose *  varianceMatrix;
-  TMatrixD parametersCovarianceMatrix = zMatrixTransposeTimesVarianceMatrix * zMatrix;
+  math::Error<4>::type covarianceMatrix = ROOT::Math::SimilarityT(zMatrix, varianceMatrix);
 
-  //for having the real parameter covariance matrix parametersCovarianceMatrix, need to be inverted
-  try{
-    parametersCovarianceMatrix.Invert();
-  }
-  catch (cms::Exception &e){
+  //To have the real parameter covariance matrix, covarianceMatrix needs to be inverted
+  if (!covarianceMatrix.Invert()) {
     edm::LogError("RPixPlaneCombinatoryTracking") << "Error in RPixPlaneCombinatoryTracking::fitTrack -> "
     << "Parameter covariance matrix is singular, skipping.";
     CTPPSPixelLocalTrack badTrack;
@@ -425,26 +419,15 @@ CTPPSPixelLocalTrack RPixPlaneCombinatoryTracking::fitTrack(PointInPlaneList poi
   }
 
   // track parameters: (x0, y0, tx, ty); x = x0 + tx*(z-z0)
-  TVectorD zMatrixTransposeTimesVarianceMatrixTimesXyCoordinates= zMatrixTransposeTimesVarianceMatrix * xyCoordinates;
-  TVectorD parameters = parametersCovarianceMatrix*zMatrixTransposeTimesVarianceMatrixTimesXyCoordinates;
-  TVectorD xyCoordinatesMinusZmatrixTimesParameters = xyCoordinates - (zMatrix * parameters);
+  math::Vector<4>::type zMatrixTransposeTimesVarianceMatrixTimesXyCoordinates = 
+    ROOT::Math::Transpose(zMatrix) * varianceMatrix * xyCoordinates;
+  math::Vector<4>::type parameterVector = 
+    covarianceMatrix * zMatrixTransposeTimesVarianceMatrixTimesXyCoordinates;
+  math::Vector<2*numberOfPlanes>::type xyCoordinatesMinusZmatrixTimesParameters =
+    xyCoordinates - (zMatrix * parameterVector);
 
-  double chiSquare = xyCoordinatesMinusZmatrixTimesParameters 
-                     * (varianceMatrix * xyCoordinatesMinusZmatrixTimesParameters);
-
-  //I convert the TMatrixD into a SMatrix
-  CTPPSPixelLocalTrack::CovarianceMatrix covarianceMatrix;
-  for(unsigned int i=0; i<4; ++i){
-    for(unsigned int j=0; j<4; ++j){
-      covarianceMatrix[i][j] = parametersCovarianceMatrix[i][j];
-    }
-  }
-  
-  //I convert the TVectorD into a SVector
-  CTPPSPixelLocalTrack::ParameterVector parameterVector;
-  for(unsigned int i=0; i<4; ++i){
-    parameterVector[i] = parameters[i];
-  }
+  double chiSquare =
+    ROOT::Math::Dot(xyCoordinatesMinusZmatrixTimesParameters, (varianceMatrix * xyCoordinatesMinusZmatrixTimesParameters));
 
   CTPPSPixelLocalTrack goodTrack(z0_, parameterVector, covarianceMatrix, chiSquare);
   goodTrack.setValid(true);
