@@ -9,3 +9,12 @@ NanoAODEDMEventContent = cms.PSet(
         "keep UniqueString_nanoMetadata_*_*",   # basic metadata
     )
 )
+
+NANOAODEventContent = NanoAODEDMEventContent.clone(
+    compressionLevel = cms.untracked.int32(9),
+    compressionAlgorithm = cms.untracked.string("LZMA"),
+)
+NANOAODSIMEventContent = NanoAODEDMEventContent.clone(
+    compressionLevel = cms.untracked.int32(9),
+    compressionAlgorithm = cms.untracked.string("LZMA"),
+)

@@ -24,6 +24,7 @@ process.source.fileNames = [
 ]
 
 process.load("PhysicsTools.NanoAOD.nano_cff")
+process.load("PhysicsTools.NanoAOD.adaptFrom92X_cff")
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     calibratedPatElectrons = cms.PSet(initialSeed = cms.untracked.uint32(81),
@@ -33,7 +34,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
                                       engineName = cms.untracked.string('TRandom3'),
                                       ),
 )
-process.nanoPath = cms.Path(process.nanoSequenceMC)
+process.nanoPath = cms.Path(process.adapt_nano + process.nanoSequenceMC)
 process.calibratedPatElectrons.isMC = cms.bool(True)
 process.calibratedPatPhotons.isMC = cms.bool(True)
 #for data:
