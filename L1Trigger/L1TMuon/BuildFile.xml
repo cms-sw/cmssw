@@ -6,11 +6,6 @@
 </export>
 
 
-<!-- <use name="root"/> -->
-<!-- <use name="rootmath"/> -->
-<!-- <use name="rootrflx"/> -->
-<!-- <use name="rootgraphics"/> -->
-
 <use name="DataFormats/L1TMuon"/>
 <use name="DataFormats/ParticleFlowCandidate"/>
 <use name="DataFormats/ParticleFlowReco"/>
