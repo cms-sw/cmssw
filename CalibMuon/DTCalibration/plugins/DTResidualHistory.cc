@@ -153,33 +153,6 @@ void DTResidualHistory::analyze(const edm::Event& event, const edm::EventSetup& 
   }
 }
 
-float DTResidualHistory::segmentToWireDistance(const DTRecHit1D& recHit1D, const DTRecSegment4D& segment){
-
-  // Get the layer and the wire position
-  const DTWireId wireId = recHit1D.wireId();
-  const DTLayer* layer = dtGeom_->layer(wireId);
-  float wireX = layer->specificTopology().wirePosition(wireId.wire());
-      
-  // Extrapolate the segment to the z of the wire
-  // Get wire position in chamber RF
-  // (y and z must be those of the hit to be coherent in the transf. of RF in case of rotations of the layer alignment)
-  LocalPoint wirePosInLay(wireX,recHit1D.localPosition().y(),recHit1D.localPosition().z());
-  GlobalPoint wirePosGlob = layer->toGlobal(wirePosInLay);
-  const DTChamber* chamber = dtGeom_->chamber(wireId.layerId().chamberId());
-  LocalPoint wirePosInChamber = chamber->toLocal(wirePosGlob);
-      
-  // Segment position at Wire z in chamber local frame
-  LocalPoint segPosAtZWire = segment.localPosition()	+ segment.localDirection()*wirePosInChamber.z()/cos(segment.localDirection().theta());
-      
-  // Compute the distance of the segment from the wire
-  int sl = wireId.superlayer();
-  float segmDistance = -1;
-  if(sl == 1 || sl == 3) segmDistance = fabs(wirePosInChamber.x() - segPosAtZWire.x());
-  else if(sl == 2)       segmDistance =  fabs(segPosAtZWire.y() - wirePosInChamber.y());
-     
-  return segmDistance;
-}
-
 void DTResidualHistory::endJob(){
   
   edm::LogVerbatim("Calibration") << "[DTResidualHistory] Writing histos to file.";
