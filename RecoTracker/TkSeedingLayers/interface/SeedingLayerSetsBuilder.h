@@ -26,8 +26,6 @@ public:
   SeedingLayerSetsBuilder(const edm::ParameterSet & cfg, edm::ConsumesCollector&& iC);
   ~SeedingLayerSetsBuilder();
 
-  ctfseeding::SeedingLayerSets layers(const edm::EventSetup& es); // only for backwards-compatibility
-
   bool check(const edm::EventSetup& es);
   void updateEventSetup(const edm::EventSetup& es);
 
