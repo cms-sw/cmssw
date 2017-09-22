@@ -26,20 +26,20 @@ using namespace emtf;
 //////////////////////////////////////////////////////////////////////////
 
 // Array of GeV values for error calculation.
-const Double_t emtf::ptscale[31] =  { 0,
+const double emtf::ptscale[31] =  { 0,
                  1.5,   2.0,   2.5,   3.0,   3.5,   4.0,
                  4.5,   5.0,   6.0,   7.0,   8.0,  10.0,  12.0,  14.0,
                  16.0,  18.0,  20.0,  25.0,  30.0,  35.0,  40.0,  45.0,
                  50.0,  60.0,  70.0,  80.0,  90.0, 100.0, 120.0, 140.0 };
 
-const std::vector<Double_t> ptScale = std::vector<Double_t>(ptscale, ptscale + sizeof ptscale / sizeof ptscale[0]);
+const std::vector<double> ptScale = std::vector<double>(ptscale, ptscale + sizeof ptscale / sizeof ptscale[0]);
 
 // Array of counts for error calculation.
-const Double_t emtf::twoJets_scale[16] =  { 0,
+const double emtf::twoJets_scale[16] =  { 0,
                        0.5,   1.0,   2.0,   3.0,   4.0,   5.0, 10.0, 20.0, 50.0,
                        100,   500,   1000,   5000,   7500,  50000};
 
-const std::vector<Double_t> emtf::twoJetsScale = std::vector<Double_t>(twoJets_scale, twoJets_scale + sizeof twoJets_scale / sizeof twoJets_scale[0]);
+const std::vector<double> emtf::twoJetsScale = std::vector<double>(twoJets_scale, twoJets_scale + sizeof twoJets_scale / sizeof twoJets_scale[0]);
 
 
 
@@ -103,11 +103,11 @@ void sortNtupleByEvent(const char* ntuplename, const char* filenametosort, const
         //TFile f("../../all_test_redux_post.root");
         TFile f(filenametosort);
         TNtuple *tree = (TNtuple*)f.Get(ntuplename);
-        Int_t nentries = (Int_t)tree->GetEntries();
+        int nentries = (int)tree->GetEntries();
         //Drawing variable pz with no graphics option.
         //variable pz stored in array fV1 (see TTree::Draw)
         tree->Draw("Event","","goff");
-        Int_t *index = new Int_t[nentries];
+        int *index = new int[nentries];
         //sort array containing pz in decreasing order
         //The array index contains the entry numbers in decreasing order
         TMath::Sort(nentries,tree->GetV1(),index);
@@ -118,7 +118,7 @@ void sortNtupleByEvent(const char* ntuplename, const char* filenametosort, const
 
         //Create an empty clone of the original tree
         TTree *tsorted = (TTree*)tree->CloneTree(0);
-        for (Int_t i=0;i<nentries;i++) {
+        for (int i=0;i<nentries;i++) {
                 tree->GetEntry(index[i]);
                 tsorted->Fill();
         }

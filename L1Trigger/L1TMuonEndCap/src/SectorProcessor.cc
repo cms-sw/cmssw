@@ -23,13 +23,22 @@ void SectorProcessor::configure(
     int maxRoadsPerZone, int maxTracks, bool useSecondEarliest, bool bugSameSectorPt0,
     int ptLUTVersion, bool readPtLUTFile, bool fixMode15HighPt, bool bug9BitDPhi, bool bugMode7CLCT, bool bugNegPt, bool bugGMTPhi, bool promoteMode7
 ) {
-  assert(MIN_ENDCAP <= endcap && endcap <= MAX_ENDCAP);
-  assert(MIN_TRIGSECTOR <= sector && sector <= MAX_TRIGSECTOR);
-
-  assert(tp_geom != nullptr);
-  assert(cond != nullptr);
-  assert(lut != nullptr);
-  assert(pt_assign_engine != nullptr);
+  if (not(emtf::MIN_ENDCAP <= endcap && endcap <= emtf::MAX_ENDCAP))
+    { edm::LogError("L1T") << "emtf::MIN_ENDCAP = " << emtf::MIN_ENDCAP 
+			   << ", emtf::MAX_ENDCAP = " << emtf::MAX_ENDCAP
+			   << ", endcap = " << endcap; return; }
+  if (not(emtf::MIN_TRIGSECTOR <= sector && sector <= emtf::MAX_TRIGSECTOR))
+    { edm::LogError("L1T") << "emtf::MIN_TRIGSECTOR = " << emtf::MIN_TRIGSECTOR 
+			   << ", emtf::MAX_TRIGSECTOR = " << emtf::MAX_TRIGSECTOR
+			   << ", endcap = " << sector; return; }
+  if (not(tp_geom != nullptr))
+    { edm::LogError("L1T") << "tp_geom = nullptr"; return; }
+  if (not(cond != nullptr))
+    { edm::LogError("L1T") << "cond = nullptr"; return; }
+  if (not(lut != nullptr))
+    { edm::LogError("L1T") << "lut = nullptr"; return; }
+  if (not(pt_assign_engine != nullptr))
+    { edm::LogError("L1T") << "pt_assign_engine = nullptr"; return; }
 
   tp_geom_          = tp_geom;
   cond_             = cond;
@@ -285,7 +294,7 @@ void SectorProcessor::process(
     if (bx >= minBX_ + delayBX) {
       extended_conv_hits.pop_front();
 
-      int n = zone_array<int>().size();
+      int n = emtf::zone_array<int>().size();
       extended_best_track_cands.erase(extended_best_track_cands.end()-n, extended_best_track_cands.end());  // pop_back
     }
   }  // end loop over bx
@@ -380,9 +389,9 @@ void SectorProcessor::process_single_bx(
   EMTFHitCollection conv_hits;  // "converted" hits converted by primitive converter
   EMTFHitCollection inclusive_conv_hits;
 
-  zone_array<EMTFRoadCollection> zone_roads;  // each zone has its road collection
+  emtf::zone_array<EMTFRoadCollection> zone_roads;  // each zone has its road collection
 
-  zone_array<EMTFTrackCollection> zone_tracks;  // each zone has its track collection
+  emtf::zone_array<EMTFTrackCollection> zone_tracks;  // each zone has its track collection
 
   EMTFTrackCollection best_tracks;  // "best" tracks selected from all the zones
 

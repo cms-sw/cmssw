@@ -14,7 +14,7 @@ public:
   );
 
   void process(
-      zone_array<EMTFTrackCollection>& zone_tracks
+      emtf::zone_array<EMTFTrackCollection>& zone_tracks
   ) const;
 
   void calculate_angles(EMTFTrack& track) const;

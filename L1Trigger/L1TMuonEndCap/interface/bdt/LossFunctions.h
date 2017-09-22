@@ -23,11 +23,11 @@ class LossFunction
         // The gradient of the loss function.
         // Each tree is a step in the direction of the gradient
         // towards the minimum of the Loss Function.
-        virtual Double_t target(Event* e) = 0;
+        virtual double target(Event* e) = 0;
 
         // The fit should minimize the loss function in each
         // terminal node at each iteration.
-        virtual Double_t fit(std::vector<Event*>& v) = 0;
+        virtual double fit(std::vector<Event*>& v) = 0;
         virtual std::string name() = 0;
         virtual int id() = 0;
 };
@@ -42,17 +42,17 @@ class LeastSquares : public LossFunction
         LeastSquares(){}
         ~LeastSquares(){}
 
-        Double_t target(Event* e) override
+        double target(Event* e) override
         {
         // Each tree fits the residuals when using LeastSquares.
         return e->trueValue - e->predictedValue;
         }
 
-        Double_t fit(std::vector<Event*>& v) override
+        double fit(std::vector<Event*>& v) override
         {
         // The average of the residuals minmizes the Loss Function for LS.
 
-            Double_t SUM = 0;
+            double SUM = 0;
             for(unsigned int i=0; i<v.size(); i++)
             {
                 Event* e = v[i];
@@ -76,7 +76,7 @@ class AbsoluteDeviation : public LossFunction
         AbsoluteDeviation(){}
         ~AbsoluteDeviation(){}
 
-        Double_t target(Event* e) override
+        double target(Event* e) override
         {
         // The gradient.
             if ((e->trueValue - e->predictedValue) >= 0)
@@ -85,11 +85,11 @@ class AbsoluteDeviation : public LossFunction
                 return -1;
         }
 
-        Double_t fit(std::vector<Event*>& v) override
+        double fit(std::vector<Event*>& v) override
         {
         // The median of the residuals minimizes absolute deviation.
             if(v.empty()) return 0;
-            std::vector<Double_t> residuals(v.size());
+            std::vector<double> residuals(v.size());
        
             // Load the residuals into a vector. 
             for(unsigned int i=0; i<v.size(); i++)
@@ -112,9 +112,9 @@ class AbsoluteDeviation : public LossFunction
             else
             {
                 std::nth_element(residuals.begin(), residuals.begin()+median_loc, residuals.end());
-                Double_t low = residuals[median_loc];
+                double low = residuals[median_loc];
                 std::nth_element(residuals.begin()+median_loc+1, residuals.begin()+median_loc+1, residuals.end());
-                Double_t high = residuals[median_loc+1];
+                double high = residuals[median_loc+1];
                 return (high + low)/2;
             }
         }
@@ -135,17 +135,17 @@ class Huber : public LossFunction
         double quantile;
         double residual_median;
 
-        Double_t target(Event* e) override
+        double target(Event* e) override
         {
         // The gradient of the loss function.
 
-            if (TMath::Abs(e->trueValue - e->predictedValue) <= quantile)
+            if (std::abs(e->trueValue - e->predictedValue) <= quantile)
                 return (e->trueValue - e->predictedValue);
             else
                 return quantile*(((e->trueValue - e->predictedValue) > 0)?1.0:-1.0);
         }
 
-        Double_t fit(std::vector<Event*>& v) override
+        double fit(std::vector<Event*>& v) override
         {
         // The constant fit that minimizes Huber in a region.
 
@@ -158,7 +158,7 @@ class Huber : public LossFunction
                 Event* e = v[i];
                 double residual = e->trueValue - e->predictedValue;
                 double diff = residual - residual_median; 
-                x += ((diff > 0)?1.0:-1.0)*std::min(quantile, TMath::Abs(diff));
+                x += ((diff > 0)?1.0:-1.0)*std::min(quantile, std::abs(diff));
             }
 
            return (residual_median + x/v.size());
@@ -171,13 +171,13 @@ class Huber : public LossFunction
         double calculateQuantile(std::vector<Event*>& v, double whichQuantile)
         {
             // Container for the residuals.
-            std::vector<Double_t> residuals(v.size());
+            std::vector<double> residuals(v.size());
        
             // Load the residuals into a vector. 
             for(unsigned int i=0; i<v.size(); i++)
             {
                 Event* e = v[i];
-                residuals[i] = TMath::Abs(e->trueValue - e->predictedValue);
+                residuals[i] = std::abs(e->trueValue - e->predictedValue);
             }
 
             std::sort(residuals.begin(), residuals.end());             
@@ -196,19 +196,19 @@ class PercentErrorSquared : public LossFunction
         PercentErrorSquared(){}
         ~PercentErrorSquared(){}
 
-        Double_t target(Event* e) override
+        double target(Event* e) override
         {   
         // The gradient of the squared percent error.
             return (e->trueValue - e->predictedValue)/(e->trueValue * e->trueValue);
         }   
 
-        Double_t fit(std::vector<Event*>& v) override
+        double fit(std::vector<Event*>& v) override
         {   
         // The average of the weighted residuals minimizes the squared percent error.
         // Weight(i) = 1/true(i)^2. 
     
-            Double_t SUMtop = 0;
-            Double_t SUMbottom = 0;
+            double SUMtop = 0;
+            double SUMbottom = 0;
     
             for(unsigned int i=0; i<v.size(); i++)
             {   
