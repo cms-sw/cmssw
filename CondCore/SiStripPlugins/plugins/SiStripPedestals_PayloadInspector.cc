@@ -1,9 +1,9 @@
 /*!
-  \file SiStripNoises_PayloadInspector
+  \file SiStripPedestals_PayloadInspector
   \Payload Inspector Plugin for SiStrip Noises
   \author M. Musich
   \version $Revision: 1.0 $
-  \date $Date: 2017/09/21 13:59:56 $
+  \date $Date: 2017/09/22 11:02:00 $
 */
 
 #include "CondCore/Utilities/interface/PayloadInspectorModule.h"
@@ -69,13 +69,16 @@ namespace {
 
 	  std::vector<uint32_t> detid;
 	  payload->getDetIds(detid);
-
+	  
 	  // for (const auto & d : detid) {
+	  //   int nstrip=0;
 	  //   SiStripPedestals::Range range=payload->getRange(d);
-	  //   for( std::vector<unsigned int>::const_iterator badStrip = range.first;badStrip != range.second; ++badStrip ) {
-	  //     ss << "DetId="<< d << " Strip=" << payload->decode(*badStrip).firstStrip <<":"<< payload->decode(*badStrip).range << " flag="<< payload->decode(*badStrip).flag << std::endl;
-	  //   }
-	  // }
+	  //   for( int it=0; it < (range.second-range.first)*8/10; ++it ){
+	  //     auto ped = payload->getPed(it,range);
+	  //     nstrip++;
+	  //     ss << "DetId="<< d << " Strip=" << nstrip <<": "<< ped << std::endl;
+	  //   } // end of loop on strips
+	  // } // end of loop on detIds
 	  
 	  std::cout<<ss.str()<<std::endl;
  
@@ -85,6 +88,41 @@ namespace {
     }// fill
   private:
     TrackerTopology m_trackerTopo;
+  };
+
+  /************************************************
+    1d histogram of SiStripNoises of 1 IOV 
+  *************************************************/
+
+  // inherit from one of the predefined plot class: Histogram1D
+  class SiStripPedestalsValue : public cond::payloadInspector::Histogram1D<SiStripPedestals> {
+    
+  public:
+    SiStripPedestalsValue() : cond::payloadInspector::Histogram1D<SiStripPedestals>("SiStrip Pedestals values",
+										 "SiStrip Pedestals values", 200,0.0,200.0){
+      Base::setSingleIov( true );
+    }
+    
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+      for ( auto const & iov: iovs) {
+	std::shared_ptr<SiStripPedestals> payload = Base::fetchPayload( std::get<1>(iov) );
+	if( payload.get() ){
+	 
+	  std::vector<uint32_t> detid;
+	  payload->getDetIds(detid);
+	  
+	  for (const auto & d : detid) {
+	    SiStripPedestals::Range range=payload->getRange(d);
+	    for( int it=0; it < (range.second-range.first)*8/10; ++it ){
+	      auto ped = payload->getPed(it,range);
+	      //to be used to fill the histogram
+	      fillWithValue(ped);
+	    }// loop over APVs
+	  } // loop over detIds
+	}// payload
+      }// iovs
+      return true;
+    }// fill
   };
 
   /************************************************
@@ -329,6 +367,7 @@ namespace {
 
 PAYLOAD_INSPECTOR_MODULE(SiStripPedestals){
   PAYLOAD_INSPECTOR_CLASS(SiStripPedestalsTest);
+  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalsValue);
   PAYLOAD_INSPECTOR_CLASS(SiStripPedestalsMin_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripPedestalsMax_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripPedestalsMean_TrackerMap);
