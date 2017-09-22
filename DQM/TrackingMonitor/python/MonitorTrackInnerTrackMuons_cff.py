@@ -1,8 +1,24 @@
 import FWCore.ParameterSet.Config as cms
 
+
+muonsPt10 = cms.EDFilter("MuonSelector",
+    src = cms.InputTag('muons'),
+    cut = cms.string(
+        'isGlobalMuon &'
+        'isTrackerMuon &'
+        'numberOfMatches > 1 &'
+        'globalTrack.hitPattern.numberOfValidMuonHits > 0 &'
+        'abs(eta) < 2.5 &'
+        'pt > 10'
+    ),
+    filter = cms.bool(False)
+)
+
+
 import SimMuon.MCTruth.MuonTrackProducer_cfi
 muonInnerTrack = SimMuon.MCTruth.MuonTrackProducer_cfi.muonTrackProducer.clone()
-muonInnerTrack.muonsTag = cms.InputTag("muons")
+#muonInnerTrack.muonsTag = cms.InputTag("muons")
+muonInnerTrack.muonsTag = cms.InputTag("muonsPt10")
 muonInnerTrack.selectionTags = ('All',)
 muonInnerTrack.trackType = "innerTrack"
 
@@ -27,4 +43,5 @@ MonitorTrackMuonsInnerTrack.doSIPPlots  = True
 MonitorTrackMuonsInnerTrack.doEffFromHitPatternVsPU = True
 MonitorTrackMuonsInnerTrack.doEffFromHitPatternVsBX = False
 
-MonitorTrackINNMuons = cms.Sequence(muonInnerTrack+MonitorTrackMuonsInnerTrack)
+#MonitorTrackINNMuons = cms.Sequence(muonInnerTrack+MonitorTrackMuonsInnerTrack)
+MonitorTrackINNMuons = cms.Sequence(muonsPt10+muonInnerTrack+MonitorTrackMuonsInnerTrack)
