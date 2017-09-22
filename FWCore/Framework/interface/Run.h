@@ -22,6 +22,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Common/interface/RunBase.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 
@@ -43,7 +44,7 @@ namespace edm {
   public:
     Run(RunPrincipal const& rp, ModuleDescription const& md,
         ModuleCallingContext const*);
-    ~Run();
+    ~Run() override;
 
     //Used in conjunction with EDGetToken
     void setConsumer(EDConsumerBase const* iConsumer) {
@@ -54,9 +55,13 @@ namespace edm {
       provRecorder_.setSharedResourcesAcquirer(iResourceAcquirer);
     }
 
+    void setProducer(ProducerBase const* iProducer) {
+      provRecorder_.setProducer(iProducer);
+    }
+
     typedef PrincipalGetAdapter Base;
     // AUX functions are defined in RunBase
-    RunAuxiliary const& runAuxiliary() const {return aux_;}
+    RunAuxiliary const& runAuxiliary() const override {return aux_;}
     // AUX functions.
 //     RunID const& id() const {return aux_.id();}
 //     RunNumber_t run() const {return aux_.run();}
@@ -115,6 +120,14 @@ namespace edm {
     void
     put(std::unique_ptr<PROD> product, std::string const& productInstanceName);
 
+    template<typename PROD>
+    void
+    put(EDPutToken token, std::unique_ptr<PROD> product);
+    
+    template<typename PROD>
+    void
+    put(EDPutTokenT<PROD> token, std::unique_ptr<PROD> product);
+
     Provenance
     getProvenance(BranchID const& theID) const;
 
@@ -145,7 +158,7 @@ namespace edm {
     runPrincipal() const;
 
     // Override version from RunBase class
-    virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const;
+    BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const override;
 
     typedef std::vector<std::pair<edm::propagate_const<std::unique_ptr<WrapperBase>>, BranchDescription const*>> ProductPtrVec;
     ProductPtrVec& putProducts() {return putProducts_;}
@@ -194,6 +207,18 @@ namespace edm {
 
     // product.release(); // The object has been copied into the Wrapper.
     // The old copy must be deleted, so we cannot release ownership.
+  }
+
+  template<typename PROD>
+  void
+  Run::put(EDPutTokenT<PROD> token, std::unique_ptr<PROD> product) {
+    put(std::move(product), provRecorder_.productInstanceLabel(token));
+  }
+  
+  template<typename PROD>
+  void
+  Run::put(EDPutToken token, std::unique_ptr<PROD> product) {
+    put(std::move(product), provRecorder_.productInstanceLabel(token));
   }
 
   template <typename PROD>

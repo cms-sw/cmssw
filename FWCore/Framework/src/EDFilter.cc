@@ -33,6 +33,7 @@ namespace edm {
     bool rc = false;
     Event e(ep, moduleDescription_, mcc);
     e.setConsumer(this);
+    e.setProducer(this);
     e.setSharedResourcesAcquirer(&resourceAcquirer_);
     EventSignalsSentry sentry(act,mcc);
     rc = this->filter(e, c);
