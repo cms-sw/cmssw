@@ -66,7 +66,6 @@ namespace {
 
 	  //payload->printDebug(ss);
 	  payload->printSummary(ss,&m_trackerTopo);
-	  //std::cout<<ss.str()<<std::endl;
 
 	  std::vector<uint32_t> detid;
 	  payload->getDetIds(detid);
@@ -307,6 +306,7 @@ namespace {
 
       h1->SetMarkerStyle(20);
       h1->SetMarkerSize(1);
+      h1->SetMaximum(h1->GetMaximum()*1.1);
       h1->Draw("HIST");
       h1->Draw("Psame");
 	    
@@ -339,9 +339,9 @@ namespace {
   };
 
   typedef SiStripNoiseByPartition<SiStripPI::mean> SiStripNoiseMeanByPartition;
-  typedef SiStripNoiseByPartition<SiStripPI::min> SiStripNoiseMinByPartition;
-  typedef SiStripNoiseByPartition<SiStripPI::max> SiStripNoiseMaxByPartition;
-  typedef SiStripNoiseByPartition<SiStripPI::rms> SiStripNoiseRMSByPartition;
+  typedef SiStripNoiseByPartition<SiStripPI::min>  SiStripNoiseMinByPartition;
+  typedef SiStripNoiseByPartition<SiStripPI::max>  SiStripNoiseMaxByPartition;
+  typedef SiStripNoiseByPartition<SiStripPI::rms>  SiStripNoiseRMSByPartition;
 
 } // close namespace
 
