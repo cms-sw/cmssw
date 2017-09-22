@@ -99,7 +99,7 @@ namespace {
     
   public:
     SiStripNoiseValue() : cond::payloadInspector::Histogram1D<SiStripNoises>("SiStrip Noise values",
-									     "SiStrip Noise values", 200,0.0,10.0){
+									     "SiStrip Noise values", 100,0.0,10.0){
       Base::setSingleIov( true );
     }
     
