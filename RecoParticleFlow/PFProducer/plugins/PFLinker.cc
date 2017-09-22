@@ -94,9 +94,6 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       reco::PFCandidate cand(candPtr);
       
       bool isphoton   = cand.particleId() == reco::PFCandidate::gamma && cand.mva_nothing_gamma()>0.;
-      if (cand.particleId() == reco::PFCandidate::gamma)
-          std::cout << "MVA for egamma candidate: " << cand.mva_nothing_gamma() << std::endl;
-          
       bool iselectron = cand.particleId() == reco::PFCandidate::e;
       // PFCandidates may have a valid MuonRef though they are not muons.
       bool hasNonNullMuonRef  = cand.muonRef().isNonnull() && fillMuonRefs_;
