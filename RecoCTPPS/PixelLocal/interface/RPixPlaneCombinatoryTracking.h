@@ -16,7 +16,7 @@
 
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelLocalTrack.h"
 #include "RecoCTPPS/PixelLocal/interface/RPixDetTrackFinder.h"
-
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include <vector>
 #include <map>
@@ -43,16 +43,16 @@ class RPixPlaneCombinatoryTracking : public RPixDetTrackFinder{
     double maximumYLocalDistanceFromTrack_;
     PlaneCombinations possiblePlaneCombinations_;
     
-    PlaneCombinations getPlaneCombinations(std::vector<uint32_t> inputPlaneList, uint32_t numberToExtract);
+    PlaneCombinations getPlaneCombinations(const std::vector<uint32_t> &inputPlaneList, uint32_t numberToExtract);
     CTPPSPixelLocalTrack fitTrack(PointInPlaneList pointList);
     void getHitCombinations(
         const std::map<CTPPSPixelDetId, PointInPlaneList > &mapOfAllHits, 
         std::map<CTPPSPixelDetId, PointInPlaneList >::iterator mapIterator,
         HitReferences tmpHitPlaneMap,
-        PointInPlaneList tmpHitVector,
+        const PointInPlaneList &tmpHitVector,
         PointAndReferenceMap &outputMap);
     PointAndReferenceMap produceAllHitCombination(PlaneCombinations inputPlaneCombination);
-    bool calculatePointOnDetector(CTPPSPixelLocalTrack *track, CTPPSPixelDetId planeId, math::GlobalPoint &planeLineIntercept);
+    bool calculatePointOnDetector(CTPPSPixelLocalTrack *track, CTPPSPixelDetId planeId, GlobalPoint &planeLineIntercept);
     static bool functionForPlaneOrdering(
         PointAndReferencePair a,
         PointAndReferencePair b) { 
@@ -61,7 +61,7 @@ class RPixPlaneCombinatoryTracking : public RPixDetTrackFinder{
         PointAndReferenceMap inputMap);
 
 
-    inline uint32_t factorial(uint32_t x) {
+    inline uint32_t factorial(uint32_t x) const {
       if(x==0) return 1;
       return (x == 1 ? x : x * factorial(x - 1));
     }
