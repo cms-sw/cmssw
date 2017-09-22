@@ -46,6 +46,10 @@ namespace edm {
     const_cast<LuminosityBlock*>(luminosityBlock_.get())->setSharedResourcesAcquirer(iResourceAcquirer);
   }
 
+  void
+  Event::setProducer( ProducerBase const* iProd) {
+    provRecorder_.setProducer(iProd);
+  }
 
   EventPrincipal const&
   Event::eventPrincipal() const {

@@ -71,7 +71,7 @@ namespace edm {
       typedef CallBeginLuminosityBlockProduce<T> MyBeginLuminosityBlockProduce;
       typedef CallEndLuminosityBlockProduce<T> MyEndLuminosityBlockProduce;
       
-      void setupStreamModules() override final {
+      void setupStreamModules() final {
         this->createStreamModules([this] () -> M* {
           auto tmp = impl::makeStreamModule<T>(*m_pset,m_global.get());
           MyGlobal::set(tmp,m_global.get());
@@ -80,27 +80,27 @@ namespace edm {
         m_pset= nullptr;
       }
 
-      void doEndJob() override final {
+      void doEndJob() final {
         MyGlobal::endJob(m_global.get());
       }
-      void setupRun(M* iProd, RunIndex iIndex) override final {
+      void setupRun(M* iProd, RunIndex iIndex) final {
         MyGlobalRun::set(iProd, m_runs[iIndex].get());
       }
       void streamEndRunSummary(M* iProd,
                                edm::Run const& iRun,
-                               edm::EventSetup const& iES) override final {
+                               edm::EventSetup const& iES) final {
         auto s = m_runSummaries[iRun.index()].get();
         std::lock_guard<decltype(m_runSummaryLock)> guard(m_runSummaryLock);
         MyGlobalRunSummary::streamEndRunSummary(iProd,iRun,iES,s);
       }
  
-      void setupLuminosityBlock(M* iProd, LuminosityBlockIndex iIndex) override final
+      void setupLuminosityBlock(M* iProd, LuminosityBlockIndex iIndex) final
       {
         MyGlobalLuminosityBlock::set(iProd, m_lumis[iIndex].get());
       }
       void streamEndLuminosityBlockSummary(M* iProd,
                                            edm::LuminosityBlock const& iLumi,
-                                           edm::EventSetup const& iES) override final {
+                                           edm::EventSetup const& iES) final {
         auto s = m_lumiSummaries[iLumi.index()].get();
         std::lock_guard<decltype(m_lumiSummaryLock)> guard(m_lumiSummaryLock);
         MyGlobalLuminosityBlockSummary::streamEndLuminosityBlockSummary(iProd,iLumi,iES,s);
@@ -108,10 +108,11 @@ namespace edm {
 
       void doBeginRun(RunPrincipal const& rp,
                       EventSetup const& c,
-                      ModuleCallingContext const* mcc) override final {
+                      ModuleCallingContext const* mcc) final {
         if(T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache or T::HasAbility::kBeginRunProducer) {
           Run r(rp, this->moduleDescription(), mcc);
           r.setConsumer(this->consumer());
+          r.setProducer(this->producer());
           Run const& cnstR = r;
           RunIndex ri = rp.index();
           MyGlobalRun::beginRun(cnstR,c,m_global.get(),m_runs[ri]);
@@ -125,12 +126,13 @@ namespace edm {
       }
       void doEndRun(RunPrincipal const& rp,
                     EventSetup const& c,
-                    ModuleCallingContext const* mcc) override final
+                    ModuleCallingContext const* mcc) final
       {
         if(T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache or T::HasAbility::kEndRunProducer) {
           
           Run r(rp, this->moduleDescription(), mcc);
           r.setConsumer(this->consumer());
+          r.setProducer(this->producer());
 
           RunIndex ri = rp.index();
           typename T::RunContext rc(m_runs[ri].get(),m_global.get());
@@ -144,11 +146,12 @@ namespace edm {
       }
 
       void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
-                                  ModuleCallingContext const* mcc) override final
+                                  ModuleCallingContext const* mcc) final
       {
         if(T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache or T::HasAbility::kBeginLuminosityBlockProducer) {
           LuminosityBlock lb(lbp, this->moduleDescription(), mcc);
           lb.setConsumer(this->consumer());
+          lb.setProducer(this->producer());
           LuminosityBlock const& cnstLb = lb;
           LuminosityBlockIndex li = lbp.index();
           RunIndex ri = lbp.runPrincipal().index();
@@ -165,12 +168,13 @@ namespace edm {
       }
       void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
                                 EventSetup const& c,
-                                ModuleCallingContext const* mcc) override final {
+                                ModuleCallingContext const* mcc) final {
         if(T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache or T::HasAbility::kEndLuminosityBlockProducer) {
           
           LuminosityBlock lb(lbp, this->moduleDescription(), mcc);
           lb.setConsumer(this->consumer());
-          
+          lb.setProducer(this->producer());
+
           LuminosityBlockIndex li = lbp.index();
           RunIndex ri = lbp.runPrincipal().index();
           typename T::LuminosityBlockContext lc(m_lumis[li].get(),m_runs[ri].get(),m_global.get());
