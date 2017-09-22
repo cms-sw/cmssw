@@ -7,9 +7,6 @@
 <use   name="FWCore/PluginManager"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondCore/DBOutputService"/>
-
-<use   name="Calibration/LumiAlCaRecoProducers"/>
-
 <library   file="AlcaPCCProducer.cc" name="AlcaPCCProducer">
   <flags   EDM_PLUGIN="1"/>
 </library>
