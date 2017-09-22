@@ -12,9 +12,11 @@
 #include <string>
 #include <vector>
 namespace edm { class Event; class EventSetup; class ConsumesCollector;}
+namespace ctfseeding {class HitExtractor; }
 class TrackerRecoGeometryRecord;
 class TransientRecHitRecord;
 class TransientTrackingRecHitBuilder;
+class DetLayer;
 
 class SeedingLayerSetsBuilder {
 
