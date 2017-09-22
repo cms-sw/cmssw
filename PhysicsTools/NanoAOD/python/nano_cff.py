@@ -12,7 +12,6 @@ from PhysicsTools.NanoAOD.met_cff import *
 from PhysicsTools.NanoAOD.triggerObjects_cff import *
 from PhysicsTools.NanoAOD.isotracks_cff import *
 from PhysicsTools.NanoAOD.NanoAODEDMEventContent_cff import *
-from PhysicsTools.NanoAOD.adaptFrom92X_cff import * # remove when 94X MC becomes available
 
 nanoMetadata = cms.EDProducer("UniqueStringProducer",
     strings = cms.PSet(
@@ -63,7 +62,6 @@ lheInfoTable = cms.EDProducer("LHETablesProducer",
 l1bits=cms.EDProducer("L1TriggerResultsConverter", src=cms.InputTag("gtStage2Digis"), legacyL1=cms.bool(False))
 
 nanoSequence = cms.Sequence(
-        adapt_nano + # remove when 94X MC becomes available
         nanoMetadata + muonSequence + jetSequence + tauSequence + electronSequence+photonSequence+vertexSequence+#metSequence+
         isoTrackSequence + # must be after all the leptons 
         linkedObjects  +
@@ -71,3 +69,30 @@ nanoSequence = cms.Sequence(
 	l1bits)
 
 nanoSequenceMC = cms.Sequence(genParticleSequence + nanoSequence + jetMC + muonMC + electronMC + photonMC + tauMC + metMC + globalTablesMC + genWeightsTable + genParticleTables + lheInfoTable)
+
+def nanoAOD_customizeCommon(process):
+    ## FIXME: make era-dependent?
+    if not hasattr(process, 'miniAOD'):
+        # assume we're reading old miniAOD for the moment
+        process.load("PhysicsTools.NanoAOD.adaptFrom92X_cff")
+        process.nanoSequence.insert(0, process.adapt_nano)
+    return process
+
+def nanoAOD_customizeData(process):
+    process = nanoAOD_customizeCommon(process)
+    process.calibratedPatElectrons.isMC = cms.bool(False)
+    process.calibratedPatPhotons.isMC = cms.bool(False)
+    return process
+
+def nanoAOD_customizeMC(process):
+    process = nanoAOD_customizeCommon(process)
+    ## FIXME: THIS SHOULD PROBABLY GO INTO Services_cff 
+    if not hasattr(process,'RandomNumberGeneratorService'):
+        process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService")
+    for X in 'calibratedPatElectrons','calibratedPatPhotons':
+        if not hasattr(process.RandomNumberGeneratorService,X):
+            setattr(process.RandomNumberGeneratorService, X, 
+                cms.PSet(initialSeed = cms.untracked.uint32(81), engineName = cms.untracked.string('TRandom3')))
+    process.calibratedPatElectrons.isMC = cms.bool(True)
+    process.calibratedPatPhotons.isMC = cms.bool(True)
+    return process
