@@ -62,8 +62,6 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
   // Marina
   , nbjets_    ( iConfig.getParameter<unsigned int>("nbjets"))
   , workingpoint_(iConfig.getParameter<double>("workingpoint"))
-  , bjetPtCut_(iConfig.getParameter<double>("bjetPtCut"))
-  , bjetAbsEtaCut_(iConfig.getParameter<double>("bjetAbsEtaCut"))
   //Suvankar
   , usePVcuts_ ( iConfig.getParameter<bool>("applyleptonPVcuts")    )
 {
@@ -908,8 +906,6 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   // Marina                               
   desc.add<unsigned int>("nbjets",     0);
   desc.add<double>("workingpoint",     0.8484); // medium CSV
-  desc.add<double>("bjetPtCut",        0);
-  desc.add<double>("bjetAbsEtaCut",    0);
   //Suvankar
   desc.add<bool>("applyleptonPVcuts", false);
 
@@ -982,8 +978,8 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<edm::ParameterSetDescription>("histoPSet",histoPSet);
   //Suvankar
   edm::ParameterSetDescription lPVcutPSet;
-  lPVcutPSet.add<double>( "dxy", 0. );
-  lPVcutPSet.add<double>( "dz",  0. );
+  lPVcutPSet.add<double>( "dxy", 9999. );
+  lPVcutPSet.add<double>( "dz",  9999. );
   desc.add<edm::ParameterSetDescription>("leptonPVcuts", lPVcutPSet);
 
   descriptions.add("topMonitoring", desc);
@@ -992,3 +988,4 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 // Define this as a plug-in
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(TopMonitor);
+
