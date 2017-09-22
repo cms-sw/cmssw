@@ -17,8 +17,8 @@ public:
 
   void process(
       const std::deque<EMTFHitCollection>& extended_conv_hits,
-      const zone_array<EMTFRoadCollection>& zone_roads,
-      zone_array<EMTFTrackCollection>& zone_tracks
+      const emtf::zone_array<EMTFRoadCollection>& zone_roads,
+      emtf::zone_array<EMTFTrackCollection>& zone_tracks
   ) const;
 
   void process_single_zone_station(

@@ -175,7 +175,7 @@ std::list<Node*>& Tree::getTerminalNodes()
 
 // ----------------------------------------------------------------------
 
-Int_t Tree::getNumTerminalNodes()
+int Tree::getNumTerminalNodes()
 {
     return numTerminalNodes;
 }
@@ -189,7 +189,7 @@ void Tree::calcError()
 // Loop through the separate predictive regions (terminal nodes) and 
 // add up the errors to get the error of the entire space.  
  
-    Double_t totalSquaredError = 0; 
+    double totalSquaredError = 0; 
  
     for(std::list<Node*>::iterator it=terminalNodes.begin(); it!=terminalNodes.end(); it++) 
     { 
@@ -200,10 +200,10 @@ void Tree::calcError()
 
 // ----------------------------------------------------------------------
 
-void Tree::buildTree(Int_t nodeLimit)
+void Tree::buildTree(int nodeLimit)
 {
     // We greedily pick the best terminal node to split.
-    Double_t bestNodeErrorReduction = -1;
+    double bestNodeErrorReduction = -1;
     Node* nodeToSplit = nullptr;
 
     if(numTerminalNodes == 1)
@@ -322,7 +322,7 @@ Node* Tree::filterEventRecursive(Node* node, Event* e)
 // ----------------------------------------------------------------------
 
 
-void Tree::rankVariablesRecursive(Node* node, std::vector<Double_t>& v)
+void Tree::rankVariablesRecursive(Node* node, std::vector<double>& v)
 {
 // We recursively go through all of the nodes in the tree and find the
 // total error reduction for each variable. The one with the most
@@ -334,8 +334,8 @@ void Tree::rankVariablesRecursive(Node* node, std::vector<Double_t>& v)
     // Terminal nodes don't contribute to error reduction.
     if(left==nullptr || right==nullptr) return;
 
-    Int_t sv =  node->getSplitVariable();
-    Double_t er = node->getErrorReduction();
+    int sv =  node->getSplitVariable();
+    double er = node->getErrorReduction();
 
     //if(sv == -1)
     //{
@@ -355,7 +355,7 @@ void Tree::rankVariablesRecursive(Node* node, std::vector<Double_t>& v)
 
 // ----------------------------------------------------------------------
 
-void Tree::rankVariables(std::vector<Double_t>& v)
+void Tree::rankVariables(std::vector<double>& v)
 {
     rankVariablesRecursive(rootNode, v);
 }
@@ -363,7 +363,7 @@ void Tree::rankVariables(std::vector<Double_t>& v)
 // ----------------------------------------------------------------------
 
 
-void Tree::getSplitValuesRecursive(Node* node, std::vector<std::vector<Double_t>>& v)
+void Tree::getSplitValuesRecursive(Node* node, std::vector<std::vector<double>>& v)
 {
 // We recursively go through all of the nodes in the tree and find the
 // split points used for each split variable.
@@ -374,8 +374,8 @@ void Tree::getSplitValuesRecursive(Node* node, std::vector<std::vector<Double_t>
     // Terminal nodes don't contribute.
     if(left==nullptr || right==nullptr) return;
 
-    Int_t sv =  node->getSplitVariable();
-    Double_t sp = node->getSplitValue();
+    int sv =  node->getSplitVariable();
+    double sp = node->getSplitValue();
 
     if(sv == -1)
     {
@@ -393,7 +393,7 @@ void Tree::getSplitValuesRecursive(Node* node, std::vector<std::vector<Double_t>
 
 // ----------------------------------------------------------------------
 
-void Tree::getSplitValues(std::vector<std::vector<Double_t>>& v)
+void Tree::getSplitValues(std::vector<std::vector<double>>& v)
 {
     getSplitValuesRecursive(rootNode, v);
 }
@@ -537,9 +537,9 @@ void Tree::loadFromXMLRecursive(TXMLEngine* xml, XMLNodePointer_t xnode, Node* t
  
     // Convert strings into numbers.
     std::stringstream converter;
-    Int_t splitVar;
-    Double_t splitVal;
-    Double_t fitVal;  
+    int splitVar;
+    double splitVal;
+    double fitVal;  
 
     converter << splitInfo[0];
     converter >> splitVar;

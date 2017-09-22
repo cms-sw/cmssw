@@ -40,8 +40,8 @@ import FWCore.PythonUtilities.LumiList as LumiList
 # process.source.lumisToProcess = LumiList.LumiList(filename = 'goodList.json').getVLuminosityBlockRange()
 
 ## Message Logger and Event range
-process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1)
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100000) )
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False))
 
 process.options = cms.untracked.PSet(
@@ -53,13 +53,13 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
 ## Default parameters for firmware version, pT LUT XMLs, and coordinate conversion LUTs
-# process.load('L1Trigger.L1TMuonEndCap.fakeEmtfParams_cff') 
-process.load('L1Trigger.L1TMuonEndCap.fakeEmtfParams_2016_data_cff') 
+process.load('L1Trigger.L1TMuonEndCap.fakeEmtfParams_cff') 
+# process.load('L1Trigger.L1TMuonEndCap.fakeEmtfParams_2016_data_cff') 
 
 # ## Un-comment out this line to choose the GlobalTag settings rather than fakeEmtfParams settings
 # ## Comment out this line to use default FW version rather than true FW version in data
 # process.es_prefer_GlobalTag = cms.ESPrefer("PoolDBESSource","GlobalTag")
-process.es_prefer_GlobalTag = cms.ESPrefer("PoolDBESSource","emtfParamsSource")
+# process.es_prefer_GlobalTag = cms.ESPrefer("PoolDBESSource","emtfParamsSource")
 
 
 readFiles = cms.untracked.vstring()
@@ -73,20 +73,20 @@ process.source = cms.Source(
 
 eos_cmd = '/afs/cern.ch/project/eos/installation/ams/bin/eos.select'
 
-# ## 2017 Collisions, with RPC!
-# # in_dir_name = '/eos/cms/tier0/store/data/Commissioning2017/L1Accept/RAW/v1/000/293/765/00000/'
-# # in_dir_name = '/eos/cms/tier0/store/data/Commissioning2017/MinimumBias/RAW/v1/000/293/765/00000/'
-# # in_dir_name = '/eos/cms/tier0/store/data/Run2017A/ZeroBias1/RAW/v1/000/295/128/00000/'
-# # in_dir_name = '/eos/cms/tier0/store/data/Run2017A/Commissioning1/RAW/v1/000/295/317/00000/'
-# # in_dir_name = '/eos/cms/tier0/store/data/Run2017A/ZeroBias1/RAW/v1/000/295/603/00000/'
-# # in_dir_name = '/eos/cms/tier0/store/data/Run2017A/ZeroBias/RAW/v1/000/296/677/00000/'
-# in_dir_name = '/eos/cms/tier0/store/data/Run2017B/DoubleMuon/RAW/v1/000/299/329/00000/'
+## 2017 Collisions, with RPC!
+# in_dir_name = '/eos/cms/tier0/store/data/Commissioning2017/L1Accept/RAW/v1/000/293/765/00000/'
+# in_dir_name = '/eos/cms/tier0/store/data/Commissioning2017/MinimumBias/RAW/v1/000/293/765/00000/'
+# in_dir_name = '/eos/cms/tier0/store/data/Run2017A/ZeroBias1/RAW/v1/000/295/128/00000/'
+# in_dir_name = '/eos/cms/tier0/store/data/Run2017A/Commissioning1/RAW/v1/000/295/317/00000/'
+# in_dir_name = '/eos/cms/tier0/store/data/Run2017A/ZeroBias1/RAW/v1/000/295/603/00000/'
+# in_dir_name = '/eos/cms/tier0/store/data/Run2017A/ZeroBias/RAW/v1/000/296/677/00000/'
+in_dir_name = '/eos/cms/tier0/store/data/Run2017D/DoubleMuon/RAW/v1/000/302/663/00000/'
 
 # ## 2017 Cosmics, with RPC!
 # in_dir_name = '/store/express/Commissioning2017/ExpressCosmics/FEVT/Express-v1/000/291/622/ 00000/'
 
-## ZeroBias, IsolatedBunch data
-in_dir_name = '/store/data/Run2016H/ZeroBiasIsolatedBunch0/RAW/v1/000/282/650/00000/'
+# ## ZeroBias, IsolatedBunch data
+# in_dir_name = '/store/data/Run2016H/ZeroBiasIsolatedBunch0/RAW/v1/000/282/650/00000/'
 
 # ## SingleMu, Z-->mumu, high pT RECO muon
 # in_dir_name = '/store/group/dpg_trigger/comm_trigger/L1Trigger/Data/Collisions/SingleMuon/Skims/200-pt-muon-skim_from-zmumu-skim-cmssw-8013/SingleMuon/'
@@ -101,10 +101,10 @@ for in_file_name in subprocess.check_output([eos_cmd, 'ls', in_dir_name]).splitl
     if not ('.root' in in_file_name): continue
     print in_file_name
     iFile += 1
-    if iFile > 10: break  ## Skip latest files in run
-    readFiles.extend( cms.untracked.vstring(in_dir_name+in_file_name) )
-    # in_dir_name_T0 = in_dir_name.replace('/eos/cms/tier0/', 'root://cms-xrd-tzero.cern.ch//')
-    # readFiles.extend( cms.untracked.vstring(in_dir_name_T0+in_file_name) )
+    if iFile > 1: break  ## Just test on one file
+    # readFiles.extend( cms.untracked.vstring(in_dir_name+in_file_name) )
+    in_dir_name_T0 = in_dir_name.replace('/eos/cms/tier0/', 'root://cms-xrd-tzero.cern.ch//')
+    readFiles.extend( cms.untracked.vstring(in_dir_name_T0+in_file_name) )
 
 # readFiles.extend([
 #         #'file:/afs/cern.ch/work/a/abrinke1/public/EMTF/Run2016G/RAW/279024/52622B4D-B265-E611-8099-FA163E326094.root'
@@ -208,10 +208,10 @@ out_dir = "./"
 
 process.out = cms.OutputModule("PoolOutputModule",
                                # fileName = cms.untracked.string("EMTF_Tree_highPt200MuonSkim_2016D_emu16_noGT_10k.root"),
-                               fileName = cms.untracked.string(out_dir+"EMTF_Tree_ZeroBias_IsoBunch_282650_emul16_noGT_test.root"),
+                               # fileName = cms.untracked.string(out_dir+"EMTF_Tree_ZeroBias_IsoBunch_282650_emul16_noGT_test.root"),
                                # fileName = cms.untracked.string("EMTF_Tree_Cosmics_291622_RPC_test.root"),
                                # fileName = cms.untracked.string(out_dir+"EMTF_Tree_Collisions_295665_exact_emul_500k.root"),
-                               # fileName = cms.untracked.string(out_dir+"EMTF_Tree_Collisions_296677_emul17_noGT_10k.root"),
+                               fileName = cms.untracked.string(out_dir+"EMTF_Tree_DoubleMu_302663_emul17_test.root"),
                                outputCommands = outCommands
                                )
 

@@ -29,9 +29,9 @@ class Tree
         void setTerminalNodes(std::list<Node*>& sTNodes);
         std::list<Node*>& getTerminalNodes();
 
-        Int_t getNumTerminalNodes();
+        int getNumTerminalNodes();
 
-        void buildTree(Int_t nodeLimit);
+        void buildTree(int nodeLimit);
         void calcError();
         void filterEvents(std::vector<Event*>& tEvents);
         void filterEventsRecursive(Node* node);
@@ -47,21 +47,21 @@ class Tree
         void loadFromCondPayload(const L1TMuonEndCapForest::DTree& tree);
         void loadFromCondPayloadRecursive(const L1TMuonEndCapForest::DTree& tree, const L1TMuonEndCapForest::DTreeNode& node, Node* tnode);
 
-        void rankVariables(std::vector<Double_t>& v);
-        void rankVariablesRecursive(Node* node, std::vector<Double_t>& v);
+        void rankVariables(std::vector<double>& v);
+        void rankVariablesRecursive(Node* node, std::vector<double>& v);
 
-        void getSplitValues(std::vector<std::vector<Double_t>>& v);
-        void getSplitValuesRecursive(Node* node, std::vector<std::vector<Double_t>>& v);
+        void getSplitValues(std::vector<std::vector<double>>& v);
+        void getSplitValuesRecursive(Node* node, std::vector<std::vector<double>>& v);
 
-        Double_t getBoostWeight(void) const   { return boostWeight; }
-        void     setBoostWeight(Double_t wgt) { boostWeight =  wgt; }
+        double getBoostWeight(void) const   { return boostWeight; }
+        void     setBoostWeight(double wgt) { boostWeight =  wgt; }
 
     private:
         Node *rootNode;
         std::list<Node*> terminalNodes;
-        Int_t numTerminalNodes;
-        Double_t rmsError;
-        Double_t boostWeight;
+        int numTerminalNodes;
+        double rmsError;
+        double boostWeight;
         unsigned xmlVersion; // affects only XML loading part, save uses an old format and looses the boostWeight
 
         // this is the main recursive workhorse function that compensates for Nodes being non-copyable

@@ -82,12 +82,12 @@ std::string Node::getName()
 
 // ----------------------------------------------------------------------
 
-void Node::setErrorReduction(Double_t sErrorReduction)
+void Node::setErrorReduction(double sErrorReduction)
 {
     errorReduction = sErrorReduction;
 }
 
-Double_t Node::getErrorReduction()
+double Node::getErrorReduction()
 {
     return errorReduction;
 }
@@ -128,68 +128,68 @@ Node * Node::getParent()
 
 // ----------------------------------------------------------------------
 
-void Node::setSplitValue(Double_t sSplitValue)
+void Node::setSplitValue(double sSplitValue)
 {
     splitValue = sSplitValue;
 }
 
-Double_t Node::getSplitValue()
+double Node::getSplitValue()
 {
     return splitValue;
 }
 
-void Node::setSplitVariable(Int_t sSplitVar)
+void Node::setSplitVariable(int sSplitVar)
 {
     splitVariable = sSplitVar;
 }
 
-Int_t Node::getSplitVariable()
+int Node::getSplitVariable()
 {
     return splitVariable;
 }
 
 // ----------------------------------------------------------------------
 
-void Node::setFitValue(Double_t sFitValue)
+void Node::setFitValue(double sFitValue)
 {
     fitValue = sFitValue;
 }
 
-Double_t Node::getFitValue()
+double Node::getFitValue()
 {
     return fitValue;
 }
 
 // ----------------------------------------------------------------------
 
-void Node::setTotalError(Double_t sTotalError)
+void Node::setTotalError(double sTotalError)
 {
     totalError = sTotalError;
 }
 
-Double_t Node::getTotalError()
+double Node::getTotalError()
 {
     return totalError;
 }
 
-void Node::setAvgError(Double_t sAvgError)
+void Node::setAvgError(double sAvgError)
 {
     avgError = sAvgError;
 }
 
-Double_t Node::getAvgError()
+double Node::getAvgError()
 {
     return avgError;
 }
 
 // ----------------------------------------------------------------------
 
-void Node::setNumEvents(Int_t sNumEvents)
+void Node::setNumEvents(int sNumEvents)
 {
     numEvents = sNumEvents;
 }
 
-Int_t Node::getNumEvents()
+int Node::getNumEvents()
 {
     return numEvents;
 }
@@ -218,21 +218,21 @@ void Node::calcOptimumSplit()
 // Check out the reference for a more in depth outline. This part is chapter 3.
 
     // Intialize some variables.
-    Double_t bestSplitValue = 0;
-    Int_t bestSplitVariable = -1; 
-    Double_t bestErrorReduction = -1;
+    double bestSplitValue = 0;
+    int bestSplitVariable = -1; 
+    double bestErrorReduction = -1;
 
-    Double_t SUM = 0;
-    Double_t SSUM = 0;
+    double SUM = 0;
+    double SSUM = 0;
     numEvents = events[0].size();
 
-    Double_t candidateErrorReduction = -1;
+    double candidateErrorReduction = -1;
 
     // Calculate the sum of the target variables and the sum of
     // the target variables squared. We use these later.
     for(unsigned int i=0; i<events[0].size(); i++)
     {   
-        Double_t target = events[0][i]->data[0];
+        double target = events[0][i]->data[0];
         SUM += target;
         SSUM += target*target;
     }  
@@ -244,14 +244,14 @@ void Node::calcOptimumSplit()
     { 
 
         // The sum of the target variables in the left, right nodes
-        Double_t SUMleft = 0;
-        Double_t SUMright = SUM;
+        double SUMleft = 0;
+        double SUMright = SUM;
 
         // The number of events in the left, right nodes
-        Int_t nleft = 1;
-        Int_t nright = events[variableToCheck].size()-1;
+        int nleft = 1;
+        int nright = events[variableToCheck].size()-1;
 
-        Int_t candidateSplitVariable = variableToCheck;
+        int candidateSplitVariable = variableToCheck;
 
         std::vector<Event*>& v = events[variableToCheck];
 
@@ -361,8 +361,8 @@ void Node::filterEventsToDaughters()
 // node depending on whether it is < or > the split point
 // for the given split variable. 
 
-    Int_t sv = splitVariable;
-    Double_t sp = splitValue;
+    int sv = splitVariable;
+    double sp = splitValue;
 
     Node* left = leftDaughter;
     Node* right = rightDaughter;
@@ -399,8 +399,8 @@ Node* Node::filterEventToDaughter(Event* e)
 // node depending on whether it is < or > the split point
 // for the given split variable. 
 
-    Int_t sv = splitVariable;
-    Double_t sp = splitValue;
+    int sv = splitVariable;
+    double sp = splitValue;
 
     Node* left = leftDaughter;
     Node* right = rightDaughter;

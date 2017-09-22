@@ -8,7 +8,6 @@
 #include <sstream>
 #include <algorithm>
 #include <utility>
-#include "TMath.h"
 
 namespace emtf {
 
@@ -17,12 +16,12 @@ namespace emtf {
 //////////////////////////////////////////////////////////////////////////
 
 // Array of counts for error calculation.
-extern const Double_t twoJets_scale[16];
-extern const std::vector<Double_t> twoJetsScale;
+extern const double twoJets_scale[16];
+extern const std::vector<double> twoJetsScale;
 
 // Array of GeV values for error calculation.
-extern const Double_t ptscale[31];
-extern const std::vector<Double_t> ptScale;
+extern const double ptscale[31];
+extern const std::vector<double> ptScale;
 
 template<class bidiiter>
 bidiiter shuffle(bidiiter begin, bidiiter end, size_t num_random)

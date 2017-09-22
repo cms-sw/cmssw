@@ -5,7 +5,6 @@
 #ifndef L1Trigger_L1TMuonEndCap_emtf_Event
 #define L1Trigger_L1TMuonEndCap_emtf_Event
 
-#include "TMath.h"
 #include <vector>
 #include <iostream>
 
@@ -18,18 +17,18 @@ namespace emtf {
 struct Event
 {
 
-    Double_t trueValue;
-    Double_t predictedValue;
-    Double_t DTPt;
-    Double_t CSCPt;
-    Double_t tmvaPt;
-    Double_t tmvaPt1;
-    Int_t Mode;
-    Int_t Quality;
+    double trueValue;
+    double predictedValue;
+    double DTPt;
+    double CSCPt;
+    double tmvaPt;
+    double tmvaPt1;
+    int Mode;
+    int Quality;
 
-    static Int_t sortingIndex;
-    Int_t id;    
-    std::vector<Double_t> data;         
+    static int sortingIndex;
+    int id;    
+    std::vector<double> data;         
 
     bool operator< (const Event &rhs) const
     {

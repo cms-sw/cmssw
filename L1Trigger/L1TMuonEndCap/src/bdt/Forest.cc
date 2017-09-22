@@ -180,7 +180,7 @@ void Forest::listEvents(std::vector< std::vector<Event*> >& e)
 
 // We have to initialize Event::sortingIndex outside of a function since
 // it is a static member.
-Int_t Event::sortingIndex = 1;
+int Event::sortingIndex = 1;
 
 bool compareEvents(Event* e1, Event* e2)
 {
@@ -247,11 +247,11 @@ void Forest::rankVariables(std::vector<int>& rank)
 
     // Change the storage format so that we can keep the index 
     // and the value associated after sorting.
-    std::vector< std::pair<double, Int_t> > w(events.size());
+    std::vector< std::pair<double, int> > w(events.size());
 
     for(unsigned int i=0; i<v.size(); i++)
     {
-        w[i] = std::pair<double, Int_t>(v[i],i);
+        w[i] = std::pair<double, int>(v[i],i);
     }
 
     // Sort so that we can output in order of importance.
@@ -391,7 +391,7 @@ void Forest::updateEvents(Tree* tree)
 // ____________________Do/Test_the Regression___________________________//
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::doRegression(Int_t nodeLimit, Int_t treeLimit, double learningRate, LossFunction* l, const char* savetreesdirectory, bool saveTrees)
+void Forest::doRegression(int nodeLimit, int treeLimit, double learningRate, LossFunction* l, const char* savetreesdirectory, bool saveTrees)
 {
 // Build the forest using the training sample.
 
@@ -461,7 +461,7 @@ void Forest::predictEvents(std::vector<Event*>& eventsp, unsigned int numtrees)
 // ----------------------------------------------------------------------
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::appendCorrection(std::vector<Event*>& eventsp, Int_t treenum)
+void Forest::appendCorrection(std::vector<Event*>& eventsp, int treenum)
 {
 // Update the prediction by appending the next correction.
 
@@ -502,7 +502,7 @@ void Forest::predictEvent(Event* e, unsigned int numtrees)
 // ----------------------------------------------------------------------
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::appendCorrection(Event* e, Int_t treenum)
+void Forest::appendCorrection(Event* e, int treenum)
 {
 // Update the prediction by appending the next correction.
 
@@ -594,7 +594,7 @@ void Forest::prepareRandomSubsample(double fraction)
 // ----------------------------------------------------------------------
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::doStochasticRegression(Int_t nodeLimit, Int_t treeLimit, double learningRate, double fraction, LossFunction* l)
+void Forest::doStochasticRegression(int nodeLimit, int treeLimit, double learningRate, double fraction, LossFunction* l)
 {
 // If the fraction of events to use is one then this algorithm is slower than doRegression due to the fact
 // that we have to sort the events every time we extract a subsample. Without random sampling we simply 

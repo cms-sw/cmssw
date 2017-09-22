@@ -1,4 +1,5 @@
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngineAux2017.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream> 
 #include <cassert>
 #include <cmath>
@@ -28,9 +29,10 @@ static const int dPhiNLBMap_7bit_512Max[128] =  {  0,   1,   2,   3,   4,   5,  
 
 
 int PtAssignmentEngineAux2017::getNLBdPhi(int dPhi, int bits, int max) const {
-  assert( (bits == 4 && max == 256) || 
-	  (bits == 5 && max == 256) || 
-	  (bits == 7 && max == 512) );
+  if (not( (bits == 4 && max == 256) || 
+	   (bits == 5 && max == 256) || 
+	   (bits == 7 && max == 512) ))
+    { edm::LogError("L1T") << "bits = " << bits << ", max = " << max; return 0; }
 
   int dPhi_ = max;
   int sign_ = 1;
@@ -74,15 +76,17 @@ int PtAssignmentEngineAux2017::getNLBdPhi(int dPhi, int bits, int max) const {
     } // End conditional: if (bits == 7)
   } // End conditional: else if (max == 512)
 
-  assert( abs(sign_) == 1 && dPhi_ >= 0 && dPhi_ < max);
+  if (not( abs(sign_) == 1 && dPhi_ >= 0 && dPhi_ < max))
+    { edm::LogError("L1T") << "sign_ = " << sign_ << ", dPhi_ = " << dPhi_ << ", max = " << max; return 0; }
   return (sign_ * dPhi_);
 } // End function: nt PtAssignmentEngineAux2017::getNLBdPhi()
 
 
 int PtAssignmentEngineAux2017::getNLBdPhiBin(int dPhi, int bits, int max) const {
-  assert( (bits == 4 && max == 256) || 
-	  (bits == 5 && max == 256) || 
-	  (bits == 7 && max == 512) );
+  if (not( (bits == 4 && max == 256) || 
+	   (bits == 5 && max == 256) || 
+	   (bits == 7 && max == 512) ))
+    { edm::LogError("L1T") << "bits = " << bits << ", max = " << max; return 0; }
   
   int dPhiBin_ = (1 << bits) - 1;
   int sign_ = 1;
@@ -123,15 +127,17 @@ int PtAssignmentEngineAux2017::getNLBdPhiBin(int dPhi, int bits, int max) const 
     } // End conditional: if (bits == 7)
   } // End conditional: else if (max == 512)
   
-  assert(dPhiBin_ >= 0 && dPhiBin_ < pow(2, bits));
+  if (not(dPhiBin_ >= 0 && dPhiBin_ < pow(2, bits)))
+    { edm::LogError("L1T") << "dPhiBin_ = " << dPhiBin_ << ", bits = " << bits; return 0; }
   return (dPhiBin_);
 } // End function: int PtAssignmentEngineAux2017::getNLBdPhiBin()
 
 
 int PtAssignmentEngineAux2017::getdPhiFromBin(int dPhiBin, int bits, int max) const {
-  assert( (bits == 4 && max == 256) || 
-	  (bits == 5 && max == 256) || 
-	  (bits == 7 && max == 512) );
+  if (not( (bits == 4 && max == 256) || 
+	   (bits == 5 && max == 256) || 
+	   (bits == 7 && max == 512) ))
+    { edm::LogError("L1T") << "bits = " << bits << ", max = " << max; return 0; }
   
   int dPhi_ = (1 << bits) - 1;
 
@@ -150,7 +156,8 @@ int PtAssignmentEngineAux2017::getdPhiFromBin(int dPhiBin, int bits, int max) co
       dPhi_ = dPhiNLBMap_7bit_512Max[dPhiBin];
   } // End conditional: else if (max == 512)
 
-  assert(dPhi_ >= 0 && dPhi_ < max);
+  if (not(dPhi_ >= 0 && dPhi_ < max))
+    { edm::LogError("L1T") << "dPhi_ = " << dPhi_ << ", max = " << max; return 0; }
   return (dPhi_);
 } // End function: int PtAssignmentEngineAux2017::getdPhiFromBin()
 
@@ -160,8 +167,10 @@ int PtAssignmentEngineAux2017::getCLCT(int clct, int endcap, int dPhiSign, int b
   // std::cout << "Inside getCLCT: clct = " << clct << ", endcap = " << endcap 
   // 	    << ", dPhiSign = " << dPhiSign << ", bits = " << bits << std::endl;
 
-  assert( clct >= 0 && clct <= 10 && abs(endcap) == 1 && 
-	  abs(dPhiSign) == 1 && (bits == 2 || bits == 3) );
+  if (not( clct >= 0 && clct <= 10 && abs(endcap) == 1 && 
+	   abs(dPhiSign) == 1 && (bits == 2 || bits == 3) ))
+    { edm::LogError("L1T") << "clct = " << clct << ", endcap = " << endcap
+			   << ", dPhiSign = " << dPhiSign << ", bits = " << bits; return 0; }
 
   // Convention here: endcap == +/-1, dPhiSign = +/-1.
   int clct_ = 0;
@@ -213,7 +222,8 @@ int PtAssignmentEngineAux2017::getCLCT(int clct, int endcap, int dPhiSign, int b
 
   // std::cout << "  * Output clct_ = " << clct_ << std::endl;
 
-  assert(clct_ >= 0 && clct_ < pow(2, bits));
+  if (not(clct_ >= 0 && clct_ < pow(2, bits)))
+    { edm::LogError("L1T") << "clct_ = " << clct_ << ", bits = " << bits; return 0; }
   return clct_;
 } // End function: int PtAssignmentEngineAux2017::getCLCT()
 
@@ -223,9 +233,12 @@ int PtAssignmentEngineAux2017::unpackCLCT(int clct, int endcap, int dPhiSign, in
   // std::cout << "Inside unpackCLCT: clct = " << clct << ", endcap = " << endcap 
   // 	    << ", dPhiSign = " << dPhiSign << ", bits = " << bits << std::endl;
 
-  assert(bits == 2 || bits == 3);
-  assert(clct >= 0 && clct < pow(2, bits));
-  assert(abs(dPhiSign) == 1);
+  if (not(bits == 2 || bits == 3))
+  { edm::LogError("L1T") << "bits = " << bits; return 0; }
+  if (not(clct >= 0 && clct < pow(2, bits)))
+    { edm::LogError("L1T") << "bits = " << bits << ", clct = " << clct; return 0; }
+  if (not(abs(dPhiSign) == 1))
+    { edm::LogError("L1T") << "dPhiSign = " << dPhiSign; return 0; }
 
   // Convention here: endcap == +/-1, dPhiSign = +/-1.
   int clct_ = -1;
@@ -255,13 +268,15 @@ int PtAssignmentEngineAux2017::unpackCLCT(int clct, int endcap, int dPhiSign, in
 
   // std::cout << "  * Output clct_ = " << clct_ << std::endl;
 
-  assert(clct_ >= 0 && clct_ <= 10);
+  if (not(clct_ >= 0 && clct_ <= 10))
+    { edm::LogError("L1T") << "clct_ = " << clct_; return 0; }
   return clct_;
 } // End function: int PtAssignmentEngineAux2017::unpackCLCT()
 
 
 int PtAssignmentEngineAux2017::getdTheta(int dTheta, int bits) const {
-  assert( bits == 2 || bits == 3 );
+  if (not( bits == 2 || bits == 3 ))
+    { edm::LogError("L1T") << "bits = " << bits; return 0; }
 
   int dTheta_ = -99;
 
@@ -297,13 +312,15 @@ int PtAssignmentEngineAux2017::getdTheta(int dTheta, int bits) const {
       dTheta_ = 7;
   } // End conditional: if (bits == 3)
 
-  assert(dTheta_ >= 0 && dTheta_ < pow(2, bits));
+  if (not(dTheta_ >= 0 && dTheta_ < pow(2, bits)))
+    { edm::LogError("L1T") << "dTheta_ = " << dTheta_ << ", bits = " << bits; return 0; }
   return (dTheta_);
 } // End function: int PtAssignmentEngineAux2017::getdTheta()
 
 
 int PtAssignmentEngineAux2017::unpackdTheta(int dTheta, int bits) const {
-  assert( bits == 2 || bits == 3 );
+  if (not( bits == 2 || bits == 3 ))
+    { edm::LogError("L1T") << "bits = " << bits; return 0; }
   int dTheta_ = -99;
 
   if        (bits == 2) { // For use in mode 15
@@ -328,15 +345,18 @@ int PtAssignmentEngineAux2017::unpackdTheta(int dTheta, int bits) const {
     }
   }
   
-  assert(dTheta_ >= -4 && dTheta_ <= 3);
+  if (not(dTheta_ >= -4 && dTheta_ <= 3))
+    { edm::LogError("L1T") << "dTheta_ = " << dTheta_; return 0; }
   return (dTheta_);
 } // End function: int PtAssignmentEngineAux2017::unpackdTheta(int dTheta, int bits)
 
 
 int PtAssignmentEngineAux2017::getTheta(int theta, int st1_ring2, int bits) const {
-  assert( theta >= 5 && theta < 128 && 
-	  (st1_ring2 == 0 || st1_ring2 == 1) && 
-	  (bits == 4 || bits == 5) );
+  if (not( theta >= 5 && theta < 128 && 
+	   (st1_ring2 == 0 || st1_ring2 == 1) && 
+	   (bits == 4 || bits == 5) ))
+    { edm::LogError("L1T") << "theta = " << theta << ", st1_ring2 = " << st1_ring2
+			   << ", bits = " << bits; return 0; }
 
   int theta_ = -99;
 
@@ -368,14 +388,17 @@ int PtAssignmentEngineAux2017::getTheta(int theta, int st1_ring2, int bits) cons
     }
   } // End conditional: else if (bits == 5)
 
-  assert(theta_ >= 0 && ((bits == 4 && theta_ <= 13) || (bits == 5 && theta_ < pow(2, bits))) );
+  if (not(theta_ >= 0 && ((bits == 4 && theta_ <= 13) || (bits == 5 && theta_ < pow(2, bits))) ))
+    { edm::LogError("L1T") << "theta_ = " << theta_ << ", bits = " << bits; return 0; }
   return (theta_);
 } // End function: int PtAssignmentEngineAux2017::getTheta()
 
 
 void PtAssignmentEngineAux2017::unpackTheta(int& theta, int& st1_ring2, int bits) const {
-  assert(bits == 4 || bits == 5);
-  assert(theta >= 0 && theta < pow(2, bits));
+  if (not(bits == 4 || bits == 5))
+    { edm::LogError("L1T") << "bits = " << bits; return; }
+  if (not(theta >= 0 && theta < pow(2, bits)))
+    { edm::LogError("L1T") << "theta = " << theta << ", bits = " << bits; return; }
 
   // For use in mode 15
   if (bits == 4) {
@@ -396,14 +419,17 @@ void PtAssignmentEngineAux2017::unpackTheta(int& theta, int& st1_ring2, int bits
     }
   }
 
-  assert(theta >= 5 && theta <= 104);
+  if (not(theta >= 5 && theta <= 104))
+    { edm::LogError("L1T") << "theta = " << theta; return; }
 
 } // End function: void PtAssignmentEngineAux2017::unpackTheta()
 
 
 int PtAssignmentEngineAux2017::unpackSt1Ring2(int theta, int bits) const {
-  assert(bits == 4 || bits == 5);
-  assert(theta >= 0 && theta < pow(2, bits));
+  if (not(bits == 4 || bits == 5))
+    { edm::LogError("L1T") << "bits = " << bits; return 0; }
+  if (not(theta >= 0 && theta < pow(2, bits)))
+    { edm::LogError("L1T") << "theta = " << theta << ", bits = " << bits; return 0; }
 
   // For use in mode 15
   if (bits == 4) {
@@ -426,14 +452,16 @@ int PtAssignmentEngineAux2017::get2bRPC(int clctA, int clctB, int clctC) const {
   else if (clctB == 0) rpc_2b = 2; 
   else                 rpc_2b = 3; 
 
-  assert (rpc_2b >= 0 && rpc_2b < 4);
+  if (not(rpc_2b >= 0 && rpc_2b < 4))
+  { edm::LogError("L1T") << "rpc_2b = " << rpc_2b; return 0; }
   return (rpc_2b);
 } // End function: int PtAssignmentEngineAux2017::get2bRPC()
 
 
 void PtAssignmentEngineAux2017::unpack2bRPC(int rpc_2b, int& rpcA, int& rpcB, int& rpcC) const {
 
-  assert(rpc_2b >= 0 && rpc_2b < 4);
+  if (not(rpc_2b >= 0 && rpc_2b < 4))
+  { edm::LogError("L1T") << "rpc_2b = " << rpc_2b; return; }
   
   rpcA = 0; rpcB = 0; rpcC = 0;
 
@@ -452,7 +480,8 @@ int PtAssignmentEngineAux2017::get8bMode15(int theta, int st1_ring2, int endcap,
 
   if (st1_ring2) theta = (std::min( std::max(theta, 46), 87) - 46) / 7;
   else           theta = (std::min( std::max(theta,  5), 52) -  5) / 6;
-  assert(theta >= 0 && theta < 10);
+  if (not(theta >= 0 && theta < 10))
+    { edm::LogError("L1T") << "theta = " << theta; return 0; }
   
   int clctA_2b = getCLCT(clctA, endcap, sPhiAB, 2);
   
@@ -484,7 +513,8 @@ int PtAssignmentEngineAux2017::get8bMode15(int theta, int st1_ring2, int endcap,
 
   // std::cout << "  * Output mode15_8b = " << mode15_8b << std::endl;
 
-  assert(mode15_8b >= 0 && mode15_8b < pow(2, 8));
+  if (not(mode15_8b >= 0 && mode15_8b < pow(2, 8)))
+    { edm::LogError("L1T") << "mode15_8b = " << mode15_8b; return 0; }
   return (mode15_8b);
 
 } // End function: int PtAssignmentEngineAux2017::get8bMode15()
@@ -497,8 +527,10 @@ void PtAssignmentEngineAux2017::unpack8bMode15( int mode15_8b, int& theta, int& 
   // 	    << ", st1_ring2 = " << st1_ring2  << ", endcap = " << endcap << ", sPhiAB = " << sPhiAB << ", clctA = " << clctA 
   // 	    << ", rpcA = " << rpcA << ", rpcB = " << rpcB << ", rpcC = " << rpcC << ", rpcD = " << rpcD << std::endl;
   
-  assert(mode15_8b >= 0 && mode15_8b < pow(2, 8));
-  assert(abs(endcap) == 1 && abs(sPhiAB) == 1);
+  if (not(mode15_8b >= 0 && mode15_8b < pow(2, 8)))
+    { edm::LogError("L1T") << "mode15_8b = " << mode15_8b; return; }
+  if (not(abs(endcap) == 1 && abs(sPhiAB) == 1))
+    { edm::LogError("L1T") << "endcap = " << endcap << ", sPhiAB = " << sPhiAB; return; }
 
   rpcA = 0; rpcB = 0; rpcC = 0; rpcD = 0;
 
@@ -557,6 +589,7 @@ void PtAssignmentEngineAux2017::unpack8bMode15( int mode15_8b, int& theta, int& 
   // std::cout << "  * Output theta = " << theta << ", st1_ring2 = " << st1_ring2 << ", clctA = " << clctA
   // 	    << ", rpcA = " << rpcA << ", rpcB = " << rpcB << ", rpcC = " << rpcC << ", rpcD = " << rpcD << std::endl;
 
-  assert(nRPC >= 0);
+  if (not(nRPC >= 0))
+    { edm::LogError("L1T") << "nRPC = " << nRPC; return; }
 
 } // End function: void PtAssignmentEngineAux2017::unpack8bMode15()
