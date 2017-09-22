@@ -178,7 +178,7 @@ MuonProducer::MuonProducer(const edm::ParameterSet& pSet):debug_(pSet.getUntrack
   }
   
   if (computeStandardSelectors_){
-    vertexes_ = consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
+    vertexes_ = consumes<reco::VertexCollection>(pSet.getParameter<edm::InputTag>("vertices"));
   }
 
 }
