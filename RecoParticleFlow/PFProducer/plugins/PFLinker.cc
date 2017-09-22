@@ -42,10 +42,13 @@ PFLinker::PFLinker(const edm::ParameterSet & iConfig) {
   fillMuonRefs_
     = iConfig.getParameter<bool>("FillMuonRefs");
 
+  forceElectronsInHGCAL_
+    = iConfig.getParameter<bool>("forceElectronsInHGCAL");
+
   // should not produce PFCandidates and read seve
   if(producePFCandidates_ && inputTagPFCandidates_.size()>1) {
     edm::LogError("PFLinker") << " cannot read several collections of PFCandidates and produce a new collection at the same time. " << std::endl;
-    assert(0);
+    assert(false);
   }
   if(producePFCandidates_) {
     produces<reco::PFCandidateCollection>(nameOutputPF_);
@@ -91,6 +94,9 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       reco::PFCandidate cand(candPtr);
       
       bool isphoton   = cand.particleId() == reco::PFCandidate::gamma && cand.mva_nothing_gamma()>0.;
+      if (cand.particleId() == reco::PFCandidate::gamma)
+          std::cout << "MVA for egamma candidate: " << cand.mva_nothing_gamma() << std::endl;
+          
       bool iselectron = cand.particleId() == reco::PFCandidate::e;
       // PFCandidates may have a valid MuonRef though they are not muons.
       bool hasNonNullMuonRef  = cand.muonRef().isNonnull() && fillMuonRefs_;
@@ -112,11 +118,18 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	GsfElectronEqual myEqual(gsfTrackRef);
 	std::vector<reco::GsfElectron>::const_iterator itcheck=find_if(gsfElectrons->begin(),gsfElectrons->end(),myEqual);
 	if(itcheck==gsfElectrons->end()) {
-	  std::ostringstream err;
-	  err << " Problem in PFLinker: no GsfElectron " << std::endl;
-	  edm::LogError("PFLinker") << err.str();
+          if (!forceElectronsInHGCAL_) {
+            std::ostringstream err;
+	    err << " Problem in PFLinker: no GsfElectron " << std::endl;
+	    edm::LogError("PFLinker") << err.str();
+          } else {
+            edm::LogError("PFLinker") 
+              << "Forcing an electron pfCandidate at: " << cand.eta() 
+              << " in HGCAL" << std::endl;
+            pfCandidates_p->push_back(cand);         
+          }
 	  continue; // Watch out ! Continue
-	} 
+	}
 	reco::GsfElectronRef electronRef(gsfElectrons,itcheck-gsfElectrons->begin());
 	cand.setGsfElectronRef(electronRef);
 	cand.setSuperClusterRef(electronRef->superCluster());
