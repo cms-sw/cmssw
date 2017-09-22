@@ -205,9 +205,29 @@ class EventSingletonSimpleFlatTableProducer : public SimpleFlatTableProducerBase
         }
 };
 
+template<typename T>
+class FirstObjectSimpleFlatTableProducer : public SimpleFlatTableProducerBase<T, edm::View<T>> {
+    public:
+        FirstObjectSimpleFlatTableProducer( edm::ParameterSet const & params ):
+          SimpleFlatTableProducerBase<T, edm::View<T>>(params) {}
+
+        ~FirstObjectSimpleFlatTableProducer() override {}
+
+        std::unique_ptr<FlatTable> fillTable(const edm::Event &iEvent, const edm::Handle<edm::View<T>> & prod) const override {
+            auto out = std::make_unique<FlatTable>(1, this->name_, true, this->extension_);
+            std::vector<const T *> selobjs(1, & (*prod)[0]);
+            for (const auto & var : this->vars_) var.fill(selobjs, *out);
+            return out;
+        }
+};
+
 #include "DataFormats/Candidate/interface/Candidate.h"
 typedef SimpleFlatTableProducer<reco::Candidate> SimpleCandidateFlatTableProducer;
 
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+typedef FirstObjectSimpleFlatTableProducer<PileupSummaryInfo> SimplePileupFlatTableProducer;
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SimpleCandidateFlatTableProducer);
+DEFINE_FWK_MODULE(SimplePileupFlatTableProducer);
 
