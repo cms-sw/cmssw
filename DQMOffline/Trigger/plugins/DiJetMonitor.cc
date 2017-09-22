@@ -63,27 +63,27 @@ void DiJetMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   setMETitle(jetptPrbME_,"Pt_prb [GeV]","events");
 
   histname = "jetptAsym"; histtitle = "Jet Pt Asymetry";
-  bookME(ibooker,jetptAsyME_,histname,histtitle,asy_binning_.nbins,asy_binning_.xmin, asy_binning_.xmax);
+  bookME(ibooker,jetptAsyME_,histname,histtitle,asy_binning.nbins,asy_binning.xmin, asy_binning.xmax);
   setMETitle(jetptAsyME_,"(pt_prb - pt_tag)/(pt_prb + pt_tag)","events");
 
   histname = "jetetaPrb"; histtitle = "Probe Jet eta";
-  bookME(ibooker,jetetaPrbME_,histname,histtitle,dijet_eta_binning_.nbins,dijet_eta_binning_.xmin, dijet_eta_binning_.xmax);
+  bookME(ibooker,jetetaPrbME_,histname,histtitle,dijet_eta_binning.nbins,dijet_eta_binning.xmin, dijet_eta_binning.xmax);
   setMETitle(jetetaPrbME_,"Eta_probe #eta","events");
 
   histname = "jetetaTag"; histtitle = "Tag Jet eta";
-  bookME(ibooker,jetetaTagME_,histname,histtitle,dijet_eta_binning_.nbins,dijet_eta_binning_.xmin, dijet_eta_binning_.xmax);
+  bookME(ibooker,jetetaTagME_,histname,histtitle,dijet_eta_binning.nbins,dijet_eta_binning.xmin, dijet_eta_binning.xmax);
   setMETitle(jetetaTagME_,"Eta_tag #eta","events");
 
   histname = "ptAsymVSetaPrb"; histtitle = "Pt_Asym vs eta_prb";
-  bookME(ibooker,jetAsyEtaME_,histname,histtitle,asy_binning_.nbins, asy_binning_.xmin, asy_binning_.xmax, dijet_eta_binning_.nbins, dijet_eta_binning_.xmin,dijet_eta_binning_.xmax);
+  bookME(ibooker,jetAsyEtaME_,histname,histtitle,asy_binning.nbins, asy_binning.xmin, asy_binning.xmax, dijet_eta_binning.nbins, dijet_eta_binning.xmin,dijet_eta_binning.xmax);
   setMETitle(jetAsyEtaME_,"(pt_prb - pt_tag)/(pt_prb + pt_tag)","Eta_probe #eta");
 
   histname = "etaPrbVSphiPrb"; histtitle = "eta_prb vs phi_prb";
-  bookME(ibooker,jetEtaPhiME_,histname,histtitle,dijet_eta_binning_.nbins, dijet_eta_binning_.xmin, dijet_eta_binning_.xmax, dijet_phi_binning_.nbins, dijet_phi_binning_.xmin,dijet_phi_binning_.xmax);
+  bookME(ibooker,jetEtaPhiME_,histname,histtitle,dijet_eta_binning.nbins, dijet_eta_binning.xmin, dijet_eta_binning.xmax, dijet_phi_binning.nbins, dijet_phi_binning.xmin,dijet_phi_binning.xmax);
   setMETitle(jetEtaPhiME_,"Eta_probe #eta","Phi_probe #phi");
 
   histname = "jetphiPrb"; histtitle = "Probe Jet phi";
-  bookME(ibooker,jetphiPrbME_,histname,histtitle,dijet_phi_binning_.nbins,dijet_phi_binning_.xmin, dijet_phi_binning_.xmax);
+  bookME(ibooker,jetphiPrbME_,histname,histtitle,dijet_phi_binning.nbins,dijet_phi_binning.xmin, dijet_phi_binning.xmax);
   setMETitle(jetphiPrbME_,"Phi_probe #phi","events");
 
   // Initialize the GenericTriggerEventFlag
@@ -99,14 +99,19 @@ void DiJetMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/Math/interface/deltaR.h" // For Delta R
 void DiJetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)  {
+  int Event = -999;
+  Event = iEvent.id().event();
   // Filter out events if Trigger Filtering is requested
   if (den_genTriggerEventFlag_->on() && ! den_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
  
+  std::vector<double> v_jetpt;
+  std::vector<double> v_jeteta;
+  std::vector<double> v_jetphi;
+	
   v_jetpt.clear();
   v_jeteta.clear();
   v_jetphi.clear();
 
-//  edm::Handle< edm::View<reco::Jet> > offjets;
   edm::Handle<reco::PFJetCollection > offjets;
   iEvent.getByToken( dijetSrc_, offjets );
   if (!offjets.isValid()){
@@ -129,74 +134,74 @@ void DiJetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
   double pt_avg_b = (pt_1 + pt_2)*0.5;
   int tag_id = -999, probe_id = -999;
 
-     jetpt1ME_.denominator -> Fill(pt_1);
-     jetpt2ME_.denominator -> Fill(pt_2);
+  jetpt1ME_.denominator    -> Fill(pt_1);
+  jetpt2ME_.denominator    -> Fill(pt_2);
   jetptAvgbME_.denominator -> Fill(pt_avg_b);
 
-  if( dijet_selection(eta_1, phi_1, eta_2, phi_2, pt_1, pt_2,tag_id, probe_id ) ){ 
+  if( dijet_selection(eta_1, phi_1, eta_2, phi_2, pt_1, pt_2,tag_id, probe_id,Event) ){ 
   
     if(tag_id == 0 && probe_id == 1) {
       double pt_asy = (pt_2 - pt_1)/(pt_1 + pt_2);
       double pt_avg = (pt_1 + pt_2)*0.5;
-    jetptAvgaME_.denominator -> Fill(pt_avg);
-    jetptAvgaThrME_.denominator -> Fill(pt_avg);
-     jetptTagME_.denominator -> Fill(pt_1);
-     jetptPrbME_.denominator -> Fill(pt_2);
-    jetetaPrbME_.denominator -> Fill(eta_2);
-    jetetaTagME_.denominator -> Fill(eta_1);
-     jetptAsyME_.denominator ->Fill(pt_asy);
-    jetphiPrbME_.denominator -> Fill(phi_2);
-    jetAsyEtaME_.denominator -> Fill(pt_asy,eta_2);
-  jetEtaPhiME_.denominator -> Fill(eta_2,phi_2);
+      jetptAvgaME_.denominator -> Fill(pt_avg);
+      jetptAvgaThrME_.denominator -> Fill(pt_avg);
+      jetptTagME_.denominator  -> Fill(pt_1);
+      jetptPrbME_.denominator  -> Fill(pt_2);
+      jetetaPrbME_.denominator -> Fill(eta_2);
+      jetetaTagME_.denominator -> Fill(eta_1);
+      jetptAsyME_.denominator  ->Fill(pt_asy);
+      jetphiPrbME_.denominator -> Fill(phi_2);
+      jetAsyEtaME_.denominator -> Fill(pt_asy,eta_2);
+      jetEtaPhiME_.denominator -> Fill(eta_2,phi_2);
     }
     if(tag_id == 1 && probe_id == 0) {
       double pt_asy = (pt_1 - pt_2)/(pt_2 + pt_1);
       double pt_avg = (pt_2 + pt_1)*0.5;
-   jetptAvgaME_.denominator -> Fill(pt_avg);
-   jetptAvgaThrME_.denominator -> Fill(pt_avg);
-    jetptTagME_.denominator -> Fill(pt_2);
-    jetptPrbME_.denominator -> Fill(pt_1);
-   jetetaPrbME_.denominator -> Fill(eta_1);
-   jetetaTagME_.denominator -> Fill(eta_2);
-    jetptAsyME_.denominator->Fill(pt_asy);
-   jetphiPrbME_.denominator -> Fill(phi_1);
-   jetAsyEtaME_.denominator -> Fill(pt_asy,eta_1);
-   jetEtaPhiME_.denominator -> Fill(eta_1,phi_1);
-   }
+      jetptAvgaME_.denominator -> Fill(pt_avg);
+      jetptAvgaThrME_.denominator -> Fill(pt_avg);
+      jetptTagME_.denominator  -> Fill(pt_2);
+      jetptPrbME_.denominator  -> Fill(pt_1);
+      jetetaPrbME_.denominator -> Fill(eta_1);
+      jetetaTagME_.denominator -> Fill(eta_2);
+      jetptAsyME_.denominator  ->Fill(pt_asy);
+      jetphiPrbME_.denominator -> Fill(phi_1);
+      jetAsyEtaME_.denominator -> Fill(pt_asy,eta_1);
+      jetEtaPhiME_.denominator -> Fill(eta_1,phi_1);
+    }
 
   if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return; 
 
-     jetpt1ME_.numerator -> Fill(pt_1);
-     jetpt2ME_.numerator -> Fill(pt_2);
-  jetptAvgbME_.numerator -> Fill(pt_avg_b);
+     jetpt1ME_.numerator   -> Fill(pt_1);
+     jetpt2ME_.numerator   -> Fill(pt_2);
+     jetptAvgbME_.numerator -> Fill(pt_avg_b);
 
     if(tag_id == 0 && probe_id == 1) {
       double pt_asy = (pt_2 - pt_1)/(pt_1 + pt_2);
       double pt_avg = (pt_1 + pt_2)*0.5;
-    jetptAvgaME_.numerator -> Fill(pt_avg);
-    jetptAvgaThrME_.numerator -> Fill(pt_avg);
-     jetptTagME_.numerator -> Fill(pt_1);
-     jetptPrbME_.numerator -> Fill(pt_2);
-    jetetaPrbME_.numerator -> Fill(eta_2);
-    jetetaTagME_.numerator -> Fill(eta_1);
-     jetptAsyME_.numerator->Fill(pt_asy);
-    jetphiPrbME_.numerator -> Fill(phi_2);
-    jetAsyEtaME_.numerator -> Fill(pt_asy,eta_2);
-    jetEtaPhiME_.numerator -> Fill(eta_2,phi_2);
+      jetptAvgaME_.numerator -> Fill(pt_avg);
+      jetptAvgaThrME_.numerator -> Fill(pt_avg);
+      jetptTagME_.numerator  -> Fill(pt_1);
+      jetptPrbME_.numerator  -> Fill(pt_2);
+      jetetaPrbME_.numerator -> Fill(eta_2);
+      jetetaTagME_.numerator -> Fill(eta_1);
+      jetptAsyME_.numerator  ->Fill(pt_asy);
+      jetphiPrbME_.numerator -> Fill(phi_2);
+      jetAsyEtaME_.numerator -> Fill(pt_asy,eta_2);
+      jetEtaPhiME_.numerator -> Fill(eta_2,phi_2);
     }
     if(tag_id == 1 && probe_id == 0) {
       double pt_asy = (pt_1 - pt_2)/(pt_2 + pt_1);
       double pt_avg = (pt_2 + pt_1)*0.5;
-    jetptAvgaME_.numerator -> Fill(pt_avg);
-    jetptAvgaThrME_.numerator -> Fill(pt_avg);
-     jetptTagME_.numerator -> Fill(pt_2);
-     jetptPrbME_.numerator -> Fill(pt_1);
-    jetetaPrbME_.numerator -> Fill(eta_1);
-    jetetaTagME_.numerator -> Fill(eta_2);
-     jetptAsyME_.numerator->Fill(pt_asy);
-    jetphiPrbME_.numerator -> Fill(phi_1);
-    jetAsyEtaME_.numerator -> Fill(pt_asy,eta_1);
-    jetEtaPhiME_.numerator -> Fill(eta_1,phi_1);
+      jetptAvgaME_.numerator -> Fill(pt_avg);
+      jetptAvgaThrME_.numerator -> Fill(pt_avg);
+      jetptTagME_.numerator  -> Fill(pt_2);
+      jetptPrbME_.numerator  -> Fill(pt_1);
+      jetetaPrbME_.numerator -> Fill(eta_1);
+      jetetaTagME_.numerator -> Fill(eta_2);
+      jetptAsyME_.numerator  ->Fill(pt_asy);
+      jetphiPrbME_.numerator -> Fill(phi_1);
+      jetAsyEtaME_.numerator -> Fill(pt_asy,eta_1);
+      jetEtaPhiME_.numerator -> Fill(eta_1,phi_1);
     }
   }
 }
@@ -249,39 +254,36 @@ void DiJetMonitor::fillDescriptions(edm::ConfigurationDescriptions & description
 }
 
 //---- Additional DiJet offline selection------
-bool DiJetMonitor::dijet_selection(double eta_1, double phi_1, double eta_2, double phi_2, double pt_1, double pt_2, int &tag_id, int &probe_id){
-  double etacut_ = 1.7;
-  double phicut_ = 2.7;
+bool DiJetMonitor::dijet_selection(double eta_1, double phi_1, double eta_2, double phi_2, double pt_1, double pt_2, int &tag_id, int &probe_id, int Event){
+  double etacut = 1.7;
+  double phicut = 2.7;
 	
-  bool passeta = false; //check that one of the jets in the barrel
-  if (abs(eta_1)< etacut_ || abs(eta_2) < etacut_ )  passeta=true;
-  
+  bool passeta = (std::abs(eta_1)< etacut || std::abs(eta_2) < etacut );//check that one of the jets in the barrel
+ 
   float delta_phi_1_2= (phi_1 - phi_2);
-  bool other_cuts = false;//check that jets are back to back
-  if (abs(delta_phi_1_2) >= phicut_) other_cuts=true;
+  bool other_cuts = (std::abs(delta_phi_1_2) >= phicut); //check that jets are back to back
 
-   if(fabs(eta_1)<etacut_ && fabs(eta_2)>etacut_) {
-    tag_id = 0; 
-    probe_id = 1;
+  if(std::abs(eta_1)<etacut && std::abs(eta_2)>etacut) {
+      tag_id = 0; 
+      probe_id = 1;
   }
   else 
-    if(fabs(eta_2)<etacut_ && fabs(eta_1)>etacut_) {
+  if(std::abs(eta_2)<etacut && std::abs(eta_1)>etacut) {
       tag_id = 1; 
       probe_id = 0;
-    }
-    else 
-      if(fabs(eta_2)<etacut_ && fabs(eta_1)<etacut_){
-    int ran = rand();
-    int numb = ran % 2 + 1;
-       if(numb==1){
-       tag_id = 0; 
-       probe_id = 1;
-       }
-       if(numb==2){
-         tag_id = 1; 
-         probe_id = 0;
-       }
-     }
+  }
+  else 
+  if(std::abs(eta_2)<etacut && std::abs(eta_1)<etacut){
+      int numb = Event % 2;
+      if(numb==0){
+        tag_id = 0; 
+        probe_id = 1;
+      }
+      if(numb==1){
+        tag_id = 1; 
+        probe_id = 0;
+      }
+  }
   if (passeta && other_cuts)
     return true;
   else
