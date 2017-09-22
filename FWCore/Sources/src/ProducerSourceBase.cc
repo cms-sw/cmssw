@@ -5,6 +5,8 @@
 
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -40,6 +42,12 @@ namespace edm {
   }
 
   ProducerSourceBase::~ProducerSourceBase() noexcept(false) {
+  }
+
+  
+  void
+  ProducerSourceBase::registerProducts() {
+    registerProducts(this,&productRegistryUpdate(),moduleDescription());
   }
 
   std::shared_ptr<RunAuxiliary>

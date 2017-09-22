@@ -11,13 +11,14 @@
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+#include "FWCore/Framework/interface/ProducerBase.h"
 
 #include <memory>
 
 namespace edm {
   class ParameterSet;
   class ParameterSetDescription;
-  class ProducerSourceBase : public InputSource {
+  class ProducerSourceBase : public InputSource, public ProducerBase {
   public:
     explicit ProducerSourceBase(ParameterSet const& pset, InputSourceDescription const& desc, bool realData);
     ~ProducerSourceBase() noexcept(false) override;
@@ -35,6 +36,9 @@ namespace edm {
     LuminosityBlockNumber_t luminosityBlock() const {return eventID_.luminosityBlock();}
 
     static void fillDescription(ParameterSetDescription& desc);
+    
+    using ProducerBase::registerProducts;
+    void registerProducts() final;
 
   protected:
 

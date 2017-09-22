@@ -44,7 +44,6 @@ namespace edm {
   }
 
   InputSource::InputSource(ParameterSet const& pset, InputSourceDescription const& desc) :
-      ProductRegistryHelper(),
       actReg_(desc.actReg_),
       maxEvents_(desc.maxEvents_),
       remainingEvents_(maxEvents_),
@@ -235,9 +234,6 @@ namespace edm {
 
   void
   InputSource::registerProducts() {
-    if(!typeLabelList().empty()) {
-      addToRegistry(typeLabelList().begin(), typeLabelList().end(), moduleDescription(), productRegistryUpdate());
-    }
   }
 
   // Return a dummy file block.

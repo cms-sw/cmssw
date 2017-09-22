@@ -47,7 +47,6 @@ Some examples of InputSource subclasses may be:
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
-#include "FWCore/Framework/interface/ProductRegistryHelper.h"
 
 #include "FWCore/Utilities/interface/Signal.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
@@ -72,7 +71,7 @@ namespace edm {
   class SharedResourcesAcquirer;
   class ThinnedAssociationsHelper;
 
-  class InputSource : private ProductRegistryHelper {
+  class InputSource {
   public:
     enum ItemType {
       IsInvalid,
@@ -91,7 +90,6 @@ namespace edm {
       RunsLumisAndEvents
     };
 
-    typedef ProductRegistryHelper::TypeLabelList TypeLabelList;
     /// Constructor
     explicit InputSource(ParameterSet const&, InputSourceDescription const&);
 
@@ -158,7 +156,7 @@ namespace edm {
     void issueReports(EventID const& eventID);
 
     /// Register any produced products
-    void registerProducts();
+    virtual void registerProducts();
 
     /// Accessors for product registry
     std::shared_ptr<ProductRegistry const> productRegistry() const {return get_underlying_safe(productRegistry_);}
@@ -257,9 +255,6 @@ namespace edm {
     bool randomAccess() const;
     ProcessingController::ForwardState forwardState() const;
     ProcessingController::ReverseState reverseState() const;
-
-    using ProductRegistryHelper::produces;
-    using ProductRegistryHelper::typeLabelList;
 
     class SourceSentry {
     public:
