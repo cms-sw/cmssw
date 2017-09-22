@@ -31,7 +31,7 @@ class RPixDetPatternFinder{
 public:
   RPixDetPatternFinder(edm::ParameterSet const& parameterSet) {}
   
-  virtual ~RPixDetPatternFinder();
+  virtual ~RPixDetPatternFinder() {};
 
   typedef struct{
     CLHEP::Hep3Vector    globalPoint;
