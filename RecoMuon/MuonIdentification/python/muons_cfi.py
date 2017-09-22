@@ -93,6 +93,7 @@ muons = cms.EDProducer("MuonProducer",
                        FillCosmicsIdMap = cms.bool(True),
                        CosmicIdMap = cms.InputTag("cosmicsVeto"),
 
-                       ComputeStandardSelectors = cms.bool(True)
+                       ComputeStandardSelectors = cms.bool(True),
+                       vertices = cms.InputTag("offlinePrimaryVertices")
                        
                        )
