@@ -70,7 +70,7 @@ void SiStripGainRandomCalculator::algoAnalyze(const edm::Event & event, const ed
     
     for( const auto& it : pDD->detUnits()) {
   
-      if( dynamic_cast<const StripGeomDetUnit*>(it)!=0){
+      if( dynamic_cast<const StripGeomDetUnit*>(it)!=nullptr){
 	uint32_t detid=(it->geographicalId()).rawId();            
 	const StripTopology & p = dynamic_cast<const StripGeomDetUnit*>(it)->specificTopology();
 	unsigned short NAPVs = p.nstrips()/128;
