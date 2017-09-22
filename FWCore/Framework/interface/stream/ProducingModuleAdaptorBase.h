@@ -121,6 +121,11 @@ namespace edm {
       const EDConsumerBase* consumer() {
         return m_streamModules[0];
       }
+      
+      const ProducerBase* producer() {
+        return m_streamModules[0];
+      }
+
     private:
       ProducingModuleAdaptorBase(const ProducingModuleAdaptorBase&) = delete; // stop default
       

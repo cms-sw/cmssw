@@ -12,6 +12,7 @@
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 #include "DataFormats/Common/interface/FunctorHandleExceptionFactory.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
+#include "FWCore/Framework/interface/ProducerBase.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -249,6 +250,11 @@ namespace edm {
     ProductResolverBase const*  phb = principal_.getProductResolverByIndex(index);
     assert(phb != nullptr);
     return phb->branchDescription();
+  }
+  
+  std::string const&
+  PrincipalGetAdapter::productInstanceLabel(EDPutToken iToken) const {
+    return prodBase_->typeLabelList()[iToken.index()].productInstanceName_;
   }
 
   EDProductGetter const*

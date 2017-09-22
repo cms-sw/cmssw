@@ -14,7 +14,7 @@
 namespace edm {
   ProductRegistryHelper::~ProductRegistryHelper() { }
 
-  ProductRegistryHelper::TypeLabelList & ProductRegistryHelper::typeLabelList() {
+  ProductRegistryHelper::TypeLabelList const& ProductRegistryHelper::typeLabelList() const {
     return typeLabelList_;
   }
 
