@@ -79,31 +79,25 @@ void DTResidualHistory::analyze(const edm::Event& event, const edm::EventSetup& 
   ++nevent;
   unsigned int run = event.id().run();
   if (run!=lastrun) {
-     TH1AddDirectorySentry addDir;
-     histoMapTH1F_.clear();
-     auto ch_it = dtGeom_->chambers().begin(); 	 
-     auto ch_end = dtGeom_->chambers().end(); 	 
-     for (; ch_it != ch_end; ++ch_it) { 	 
-        std::vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin(); 	 
-        std::vector<const DTSuperLayer*>::const_iterator sl_end = (*ch_it)->superLayers().end(); 	 
-        // Loop over the SLs 	 
-        for(; sl_it != sl_end; ++sl_it) { 
-           DTSuperLayerId slId = (*sl_it)->id();
-           bookHistos(slId,run);
-           if(detailedAnalysis_) {
-	      std::vector<const DTLayer*>::const_iterator layer_it = (*sl_it)->layers().begin(); 	 
-	      std::vector<const DTLayer*>::const_iterator layer_end = (*sl_it)->layers().end();
-	      for(; layer_it != layer_end; ++layer_it) { 
-		 DTLayerId layerId = (*layer_it)->id();
-		 bookHistos(layerId,run);
-              }
-           }
+    TH1AddDirectorySentry addDir;
+    histoMapTH1F_.clear();
+    for (auto ch_it : dtGeom_->chambers()) {
+      // Loop over the SLs
+      for (auto sl_it : ch_it->superLayers()) {
+        DTSuperLayerId slId = (sl_it)->id();
+        bookHistos(slId,run);
+        if(detailedAnalysis_) {
+          for (auto layer_it : (sl_it)->layers()) {
+            DTLayerId layerId = (layer_it)->id();
+            bookHistos(layerId,run);
+          }
         }
-      }    
+      }
+    }
 
-    std::stringstream runStr; runStr << run;
-    TDirectory* baseDir = rootFile_->GetDirectory(("Run"+runStr.str()).c_str());
-    if(!baseDir) baseDir = rootFile_->mkdir(("Run"+runStr.str()).c_str());
+    std::string runStr = "Run" + std::to_string(run);
+    TDirectory* baseDir = rootFile_->GetDirectory(runStr.c_str());
+    if(!baseDir) baseDir = rootFile_->mkdir(runStr.c_str());
     baseDir->cd();
     histoResLs = new TH2F("histoResLs","Residuals vs Lumisection",100,0,10000,100,-1,1);
     std::vector<TH2F*> histosTH2F;
@@ -202,39 +196,29 @@ void DTResidualHistory::bookHistos(DTSuperLayerId slId, unsigned int run) {
   cout << "[DTResidualHistory] Booking histos for SL: " << slId << endl;
 
   // Compose the chamber name
-  std::stringstream runStr; runStr << run;
-  std::stringstream wheelStr; wheelStr << slId.wheel();
-  std::stringstream stationStr; stationStr << slId.station();
-  std::stringstream sectorStr; sectorStr << slId.sector();
-  std::stringstream superLayerStr; superLayerStr << slId.superlayer();
+  std::string runStr = "Run" + std::to_string(run);
+  std::string wheelStr = std::to_string(slId.wheel());
   // Define the step
   int step = 3;
-  std::stringstream stepStr; stepStr << step;
 
   std::string slHistoName =
-    "_STEP" + stepStr.str() +
-    "_W" + wheelStr.str() +
-    "_St" + stationStr.str() +
-    "_Sec" + sectorStr.str() +
-    "_SL" + superLayerStr.str();
-  
-  TDirectory* baseDir = rootFile_->GetDirectory(("Run"+runStr.str()).c_str());
-  if(!baseDir) baseDir = rootFile_->mkdir(("Run"+runStr.str()).c_str());
+    "_STEP" + std::to_string(step) +
+    "_W" + wheelStr +
+    "_St" + std::to_string(slId.station()) +
+    "_Sec" + std::to_string(slId.sector()) +
+    "_SL" + std::to_string(slId.superlayer());
 
-  TDirectory* wheelDir = baseDir->GetDirectory(("Wheel" + wheelStr.str()).c_str());
-  if(!wheelDir) wheelDir = baseDir->mkdir(("Wheel" + wheelStr.str()).c_str());
+  TDirectory* baseDir = rootFile_->GetDirectory((runStr).c_str());
+  if(!baseDir) baseDir = rootFile_->mkdir((runStr).c_str());
 
-//  TDirectory* stationDir = wheelDir->GetDirectory(("Station" + stationStr.str()).c_str());
-//  if(!stationDir) stationDir = wheelDir->mkdir(("Station" + stationStr.str()).c_str());
-
-//  TDirectory* sectorDir = stationDir->GetDirectory(("Sector" + sectorStr.str()).c_str());
-//  if(!sectorDir) sectorDir = stationDir->mkdir(("Sector" + sectorStr.str()).c_str()); 
+  TDirectory* wheelDir = baseDir->GetDirectory(("Wheel" + wheelStr).c_str());
+  if(!wheelDir) wheelDir = baseDir->mkdir(("Wheel" + wheelStr).c_str());
 
   wheelDir->cd();
   // Create the monitor elements
   std::vector<TH1F*> histosTH1F;
   histosTH1F.push_back(new TH1F(("hRes"+slHistoName).c_str(),
-				 "Residuals on the dist. (cm) from wire (rec_hit - segm_extr)",
+                                 "Residuals on the dist. (cm) from wire (rec_hit - segm_extr)",
                                  200, -1., 1.));
   histoMapTH1F_[slId] = histosTH1F;
   
@@ -247,62 +231,44 @@ void DTResidualHistory::bookHistos(DTLayerId layerId, unsigned int run) {
   cout << "[DTResidualHistory] Booking histos for layer: " << layerId << endl;
 
   // Compose the chamber name
-  std::stringstream runStr; runStr << run;
-  std::stringstream wheelStr; wheelStr << layerId.wheel();
-  std::stringstream stationStr; stationStr << layerId.station();
-  std::stringstream sectorStr; sectorStr << layerId.sector();
-  std::stringstream superLayerStr; superLayerStr << layerId.superlayer();
-  std::stringstream layerStr; layerStr << layerId.layer();
+  std::string runStr = "Run" + std::to_string(run);
+  std::string wheelStr = std::to_string(layerId.wheel());
   // Define the step
   int step = 3;
-  std::stringstream stepStr; stepStr << step;
 
   std::string layerHistoName =
-    "_STEP" + stepStr.str() +
-    "_W" + wheelStr.str() +
-    "_St" + stationStr.str() +
-    "_Sec" + sectorStr.str() +
-    "_SL" + superLayerStr.str() + 
-    "_Layer" + layerStr.str();
-  
-  TDirectory* baseDir = rootFile_->GetDirectory(("Run"+runStr.str()).c_str());
-  if(!baseDir) baseDir = rootFile_->mkdir(("Run"+runStr.str()).c_str());
+    "_STEP" + std::to_string(step) +
+    "_W" + wheelStr +
+    "_St" + std::to_string(layerId.station()) +
+    "_Sec" + std::to_string(layerId.sector()) +
+    "_SL" + std::to_string(layerId.superlayer()) +
+    "_Layer" + std::to_string(layerId.layer());
 
-  TDirectory* wheelDir = baseDir->GetDirectory(("Wheel" + wheelStr.str()).c_str());
-  if(!wheelDir) wheelDir = baseDir->mkdir(("Wheel" + wheelStr.str()).c_str());
-/*
-  edm::LogVerbatim("Calibration") << "Accessing " << ("Station" + stationStr.str());
-  TDirectory* stationDir = wheelDir->GetDirectory(("Station" + stationStr.str()).c_str());
-  if(!stationDir) stationDir = wheelDir->mkdir(("Station" + stationStr.str()).c_str());
-  edm::LogVerbatim("Calibration") << "Accessing " << ("Sector" + sectorStr.str());
-  TDirectory* sectorDir = stationDir->GetDirectory(("Sector" + sectorStr.str()).c_str());
-  if(!sectorDir) sectorDir = stationDir->mkdir(("Sector" + sectorStr.str()).c_str()); 
-  edm::LogVerbatim("Calibration") << "Accessing " << ("SL" + superLayerStr.str());
-  TDirectory* superLayerDir = sectorDir->GetDirectory(("SL" + superLayerStr.str()).c_str());
-  if(!superLayerDir) superLayerDir = sectorDir->mkdir(("SL" + superLayerStr.str()).c_str()); 
-*/
+  TDirectory* baseDir = rootFile_->GetDirectory((runStr).c_str());
+  if(!baseDir) baseDir = rootFile_->mkdir((runStr).c_str());
+
+  TDirectory* wheelDir = baseDir->GetDirectory(("Wheel" + wheelStr).c_str());
+  if(!wheelDir) wheelDir = baseDir->mkdir(("Wheel" + wheelStr).c_str());
 
   wheelDir->cd();
 
   // Create histograms
   std::vector<TH1F*> histosTH1F;
   histosTH1F.push_back(new TH1F(("hRes"+layerHistoName).c_str(),
-				 "Residuals on the dist. (cm) from wire (rec_hit - segm_extr)",
+                                 "Residuals on the dist. (cm) from wire (rec_hit - segm_extr)",
                                  200, -1., 1.));
   histoMapPerLayerTH1F_[layerId] = histosTH1F;
 }
 
 // Fill a set of histograms for a given SL 
-void DTResidualHistory::fillHistos(DTSuperLayerId slId,
-				       float residualOnDistance) {
-  std::vector<TH1F*> const& histosTH1F = histoMapTH1F_[slId];                          
+void DTResidualHistory::fillHistos(DTSuperLayerId slId, float residualOnDistance) {
+  std::vector<TH1F*> const& histosTH1F = histoMapTH1F_[slId];
   histosTH1F[0]->Fill(residualOnDistance);
 }
 
 // Fill a set of histograms for a given layer 
-void DTResidualHistory::fillHistos(DTLayerId layerId,
-				       float residualOnDistance) {
-  std::vector<TH1F*> const& histosTH1F = histoMapPerLayerTH1F_[layerId];                          
+void DTResidualHistory::fillHistos(DTLayerId layerId, float residualOnDistance) {
+  std::vector<TH1F*> const& histosTH1F = histoMapPerLayerTH1F_[layerId];
   histosTH1F[0]->Fill(residualOnDistance);
 }
 
