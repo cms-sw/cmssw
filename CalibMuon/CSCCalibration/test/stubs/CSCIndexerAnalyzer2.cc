@@ -115,10 +115,10 @@ void CSCIndexerAnalyzer2::analyze( const edm::Event& iEvent, const edm::EventSet
   int icountAll = 0;
 
   // Iterate over the DetUnits in the CSCGeometry
-  for( CSCGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); ++it ){
+  for( const auto& it : pDD->detUnits()) {
 
     // Check each DetUnit really is a CSC layer
-    auto layer = dynamic_cast<const CSCLayer*>( *it );
+    auto layer = dynamic_cast<const CSCLayer*>( it );
      
     if( layer ) {
       ++icountAll; // how many layers we see
