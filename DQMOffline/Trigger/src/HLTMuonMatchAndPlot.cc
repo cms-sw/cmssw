@@ -506,16 +506,16 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
     }
 
     if (ssPath && targetMuons.size() > 1 && passTriggerSS){
-      if (targetMuons.at(0).charge() * targetMuons.at(1).charge() > 0){
-	hists_["Ref_SS_pt1_denom"]->Fill( targetMuons.at(0).pt() );
-	hists_["Ref_SS_pt2_denom"]->Fill( targetMuons.at(1).pt() );
-	hists_["Ref_SS_eta1_denom"]->Fill( targetMuons.at(0).eta() );
-	hists_["Ref_SS_eta2_denom"]->Fill( targetMuons.at(1).eta() );
+      if (targetMuons[0].charge() * targetMuons[1].charge() > 0){
+	hists_["Ref_SS_pt1_denom"]->Fill( targetMuons[0].pt() );
+	hists_["Ref_SS_pt2_denom"]->Fill( targetMuons[1].pt() );
+	hists_["Ref_SS_eta1_denom"]->Fill( targetMuons[0].eta() );
+	hists_["Ref_SS_eta2_denom"]->Fill( targetMuons[1].eta() );
 	if (nMatched > 1){
-	  hists_["Ref_SS_pt1_numer"]->Fill( targetMuons.at(0).pt() );
-	  hists_["Ref_SS_pt2_numer"]->Fill( targetMuons.at(1).pt() );
-	  hists_["Ref_SS_eta1_numer"]->Fill( targetMuons.at(0).eta() );
-	  hists_["Ref_SS_eta2_numer"]->Fill( targetMuons.at(1).eta() );
+	  hists_["Ref_SS_pt1_numer"]->Fill( targetMuons[0].pt() );
+	  hists_["Ref_SS_pt2_numer"]->Fill( targetMuons[1].pt() );
+	  hists_["Ref_SS_eta1_numer"]->Fill( targetMuons[0].eta() );
+	  hists_["Ref_SS_eta2_numer"]->Fill( targetMuons[1].eta() );
 	}
       }
     }
