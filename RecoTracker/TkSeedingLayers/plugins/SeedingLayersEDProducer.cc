@@ -1,7 +1,5 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSetsBuilder.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSets.h"
-
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
