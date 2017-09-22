@@ -332,27 +332,6 @@ void SeedingLayerSetsBuilder::updateEventSetup(const edm::EventSetup& es) {
   }
 }
 
-SeedingLayerSets SeedingLayerSetsBuilder::layers(const edm::EventSetup& es)
-{
-  updateEventSetup(es);
-
-  typedef std::vector<SeedingLayer> Set;
-  SeedingLayerSets  result;
-
-  for(size_t i=0, n=theLayerSetIndices.size(); i<n; i += theNumberOfLayersInSet) {
-    Set set;
-    for(size_t j=0; j<theNumberOfLayersInSet; ++j) {
-      const unsigned short layerIndex = theLayerSetIndices[i+j];
-      const LayerSpec& layer = theLayers[layerIndex];
-      const DetLayer *detLayer = theLayerDets[layerIndex];
-
-      set.push_back( SeedingLayer( theLayerNames[layerIndex], layerIndex, detLayer, theTTRHBuilders[layerIndex], layer.extractor.get()));
-    }
-    result.push_back(set);
-  }
-  return result;
-}
-
 bool SeedingLayerSetsBuilder::check(const edm::EventSetup& es) {
   // We want to evaluate both in the first invocation (to properly
   // initialize ESWatcher), and this way we avoid one branch compared
