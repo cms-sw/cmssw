@@ -71,6 +71,7 @@ namespace edm {
 
     using ProductRegistryHelper::produces;
     using ProductRegistryHelper::typeLabelList;
+    using ProductRegistryHelper::recordProvenanceList;
 
     void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func) {
        callWhenNewProductsRegistered_ = func;
