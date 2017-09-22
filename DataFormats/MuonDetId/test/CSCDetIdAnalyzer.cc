@@ -1,6 +1,5 @@
 // Test CSCDetId & CSCIndexer 13.11.2007 ptc
 
-//#include <memory>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/EventSetup.h>
