@@ -1,7 +1,7 @@
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "PhysicsTools/NanoAOD/interface/UniqueString.h"
+#include "DataFormats/NanoAOD/interface/UniqueString.h"
 
 #include <vector>
 

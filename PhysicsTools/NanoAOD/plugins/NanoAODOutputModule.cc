@@ -34,8 +34,8 @@
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
-#include "PhysicsTools/NanoAOD/interface/FlatTable.h"
-#include "PhysicsTools/NanoAOD/interface/UniqueString.h"
+#include "DataFormats/NanoAOD/interface/FlatTable.h"
+#include "DataFormats/NanoAOD/interface/UniqueString.h"
 #include "PhysicsTools/NanoAOD/plugins/TableOutputBranches.h"
 #include "PhysicsTools/NanoAOD/plugins/TriggerOutputBranches.h"
 #include "PhysicsTools/NanoAOD/plugins/SummaryTableOutputBranches.h"
@@ -247,7 +247,7 @@ NanoAODOutputModule::openFile(edm::FileBlock const&) {
   }
 
   for (const auto & keep : keeps[edm::InRun]) {
-      if(keep.first->className() == "MergableCounterTable" )
+      if(keep.first->className() == "MergeableCounterTable" )
 	      m_runTables.push_back(SummaryTableOutputBranches(keep.first, keep.second));
       else if(keep.first->className() == "UniqueString" && keep.first->moduleLabel() == "nanoMetadata")
 	      m_nanoMetadata.emplace_back(keep.first->productInstanceName(), keep.second);
@@ -317,7 +317,7 @@ NanoAODOutputModule::fillDescriptions(edm::ConfigurationDescriptions& descriptio
         ->setComment("Change the OutputModule name in the fwk job report to fake PoolOutputModule. This is needed to run on cran (and publish) till crab is fixed");
 
   //replace with whatever you want to get from the EDM by default
-  const std::vector<std::string> keep = {"drop *", "keep FlatTable_*Table_*_*", "keep edmTriggerResults_*_*_*", "keep MergableCounterTable_*Table_*_*", "keep UniqueString_nanoMetadata_*_*"};
+  const std::vector<std::string> keep = {"drop *", "keep FlatTable_*Table_*_*", "keep edmTriggerResults_*_*_*", "keep MergeableCounterTable_*Table_*_*", "keep UniqueString_nanoMetadata_*_*"};
   edm::OutputModule::fillDescription(desc, keep);
   
   //Used by Workflow management for their own meta data

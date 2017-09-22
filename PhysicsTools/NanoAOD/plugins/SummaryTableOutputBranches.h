@@ -5,7 +5,7 @@
 #include <vector>
 #include <TTree.h>
 #include "FWCore/Framework/interface/OccurrenceForOutput.h"
-#include "PhysicsTools/NanoAOD/interface/MergableCounterTable.h"
+#include "DataFormats/NanoAOD/interface/MergeableCounterTable.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
@@ -14,7 +14,7 @@ class SummaryTableOutputBranches {
     SummaryTableOutputBranches(const edm::BranchDescription *desc, const edm::EDGetToken & token ) :
         m_token(token), m_branchesBooked(false)
     {
-        if (desc->className() != "MergableCounterTable") throw cms::Exception("Configuration", "NanoAODOutputModule can only write out MergableCounterTable objects");
+        if (desc->className() != "MergeableCounterTable") throw cms::Exception("Configuration", "NanoAODOutputModule can only write out MergableCounterTable objects");
     }
 
     void fill(const edm::OccurrenceForOutput &iWhatever, TTree & tree) ;
@@ -40,7 +40,7 @@ class SummaryTableOutputBranches {
 
     bool m_branchesBooked;
 
-    void defineBranchesFromFirstEvent(const MergableCounterTable & tab, TTree & tree) ;
+    void defineBranchesFromFirstEvent(const MergeableCounterTable & tab, TTree & tree) ;
 
     template<typename Col> void makeScalarBranches(const std::vector<Col> & tabcols, TTree & tree, const std::string & rootType, std::vector<NamedBranchPtr> & branches);
     template<typename Col> void makeVectorBranches(const std::vector<Col> & tabcols, TTree & tree, const std::string & rootType, std::vector<NamedVectorBranchPtr> & branches );

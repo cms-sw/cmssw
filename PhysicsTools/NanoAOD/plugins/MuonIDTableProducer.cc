@@ -14,7 +14,7 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
-#include "PhysicsTools/NanoAOD/interface/FlatTable.h"
+#include "DataFormats/NanoAOD/interface/FlatTable.h"
 
 
 class MuonIDTableProducer : public edm::global::EDProducer<> {

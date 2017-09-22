@@ -1,13 +1,13 @@
-#ifndef PhysicsTools_NanoAOD_MergableCounterTable_h
-#define PhysicsTools_NanoAOD_MergableCounterTable_h
+#ifndef DataFormats_NanoAOD_MergeableCounterTable_h
+#define DataFormats_NanoAOD_MergeableCounterTable_h
 
 #include <FWCore/Utilities/interface/Exception.h>
 #include <vector>
 #include <string>
 
-class MergableCounterTable {
+class MergeableCounterTable {
     public:
-        MergableCounterTable() {}
+        MergeableCounterTable() {}
         typedef long long int_accumulator; // we accumulate in long long int, to avoid overflow
         typedef double float_accumulator; // we accumulate in double, to preserve precision
 
@@ -75,7 +75,7 @@ class MergableCounterTable {
         } 
 
 
-        bool mergeProduct(const MergableCounterTable & other) {
+        bool mergeProduct(const MergeableCounterTable & other) {
             if (!tryMerge(intCols_, other.intCols_)) return false;
             if (!tryMerge(vintCols_, other.vintCols_)) return false;
             if (!tryMerge(floatCols_, other.floatCols_)) return false;
