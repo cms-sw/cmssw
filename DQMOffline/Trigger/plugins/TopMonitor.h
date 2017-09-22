@@ -38,7 +38,9 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 // Marina
 #include "DataFormats/BTauReco/interface/JetTag.h"
-
+//Suvankar
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 //root
 #include "TLorentzVector.h"
@@ -56,6 +58,13 @@ struct METME {
   MonitorElement* numerator;
   MonitorElement* denominator;
 };
+
+//Suvankar
+struct PVcut {
+  double dxy;
+  double dz;
+};
+
 //
 // class declaration
 //
@@ -101,11 +110,12 @@ private:
 
   edm::EDGetTokenT<reco::PFMETCollection>       metToken_;
   edm::EDGetTokenT<reco::PFJetCollection>       jetToken_;
-  edm::EDGetTokenT<reco::GsfElectronCollection> eleToken_;
+  edm::EDGetTokenT<edm::View<reco::GsfElectron> > eleToken_;
   edm::EDGetTokenT<reco::MuonCollection>        muoToken_;
   // Marina
   edm::EDGetTokenT<reco::JetTagCollection>  jetTagToken_ ;
-
+  //Suvankar
+  edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
 
   MEbinning           met_binning_;
   MEbinning           ls_binning_;
@@ -218,6 +228,8 @@ private:
   StringCutObjectSelector<reco::Muon,true>        muoSelection_;
   StringCutObjectSelector<reco::PFJet,true   >    HTdefinition_;
   StringCutObjectSelector<reco::Jet,true   >      bjetSelection_;
+  //Suvankar
+  StringCutObjectSelector<reco::Vertex,true>      vtxSelection_;
 
   unsigned int njets_;
   unsigned int nelectrons_;
@@ -227,6 +239,11 @@ private:
   // Marina
   unsigned int nbjets_;
   double workingpoint_;
+  double bjetPtCut_;
+  double bjetAbsEtaCut_;
+  //Suvankar
+  PVcut  lepPVcuts_;
+  bool usePVcuts_;
   
 };
 
