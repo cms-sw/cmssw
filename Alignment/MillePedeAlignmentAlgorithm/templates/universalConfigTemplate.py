@@ -14,6 +14,7 @@
 #          - ALCARECOTkAlCosmicsCTF0T  -> Cosmics, either at 0T or 3.8T
 #          - ALCARECOTkAlMuonIsolated  -> Isolated Muon
 #          - ALCARECOTkAlZMuMu         -> Z decay to two Muons
+#          - ALCARECOTkAlUpsilonMuMu   -> Upsilon decay to two Muons
 #          - generalTracks             -> general tracks treated like Minimum Bias
 #          - ALCARECOTkAlCosmicsInCollisions -> Cosmics taken during collisions
 #
@@ -204,11 +205,13 @@ import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.SetCondition as tagw
 
 # # reasonable pede settings are already defined in
 # # 'confAliProducer.setConfiguration' above
+# #
 # # if you want obtain alignment errors, use "inversion 3 0.8" as
-# # process.AlignmentProducer.algoConfig.pedeSteerer.method and set
-# # process.AlignmentProducer.saveApeToDB = True
+# # process.AlignmentProducer.algoConfig.pedeSteerer.method
+# #
 # # a list of possible options is documented here:
 # # http://www.desy.de/~kleinwrt/MP2/doc/html/option_page.html#sec-cmd
+# #
 # # you can change pede settings as follows:
 #
 # import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.helper as helper
@@ -226,6 +229,14 @@ import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.SetCondition as tagw
 # process.load("Alignment.CommonAlignment.magneticFieldFilter_cfi")
 # process.magneticFieldFilter.magneticField = 38 # in units of kGauss (=0.1T)
 # helper.add_filter(process, process.magneticFieldFilter)
+#
+# # another useful filter selects only a given APV mode ("peak" or "deco")
+#
+# import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.helper as helper
+# process.load("Alignment.CommonAlignment.apvModeFilter_cfi")
+# processF.apvModeFilter.apvMode = "deco"
+# helper.add_filter(process, process.apvModeFilter)
+
 
 
 ################################################################################
