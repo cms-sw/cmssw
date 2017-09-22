@@ -12,6 +12,9 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+namespace {
+  const edm::ParentageID s_emptyParentage;
+}
 namespace edm {
 
   std::string const Event::emptyString_;
@@ -38,6 +41,7 @@ namespace edm {
   void
   Event::setConsumer(EDConsumerBase const* iConsumer) {
     provRecorder_.setConsumer(iConsumer);
+    gotBranchIDs_.reserve(provRecorder_.numberOfProductsConsumed());
     const_cast<LuminosityBlock*>(luminosityBlock_.get())->setConsumer(iConsumer);
   }
   
@@ -48,11 +52,24 @@ namespace edm {
   }
 
   void
-  Event::setProducer( ProducerBase const* iProd) {
+  Event::setProducer( ProducerBase const* iProd, std::vector<BranchID>* previousParentage) {
     provRecorder_.setProducer(iProd);
     //set appropriate size
     putProducts_.resize(
                         provRecorder_.putTokenIndexToProductResolverIndex().size());
+    previousBranchIDs_ =previousParentage;
+    if(previousParentage) {
+      //are we supposed to record parentage for at least one item?
+      bool record_parents = false;
+      for( auto v: provRecorder_.recordProvenanceList()) {
+        if (v) { record_parents = true; break;}
+      }
+      if(not record_parents) {
+        previousBranchIDs_ = nullptr;
+        return;
+      }
+      gotBranchIDsFromPrevious_.resize(previousParentage->size(),false);
+    }
   }
 
   EventPrincipal const&
@@ -128,8 +145,7 @@ namespace edm {
   }
 
   void
-  Event::commit_(std::vector<edm::ProductResolverIndex> const& iShouldPut,
-                 std::vector<BranchID>* previousParentage, ParentageID* previousParentageId) {
+  Event::commit_(std::vector<edm::ProductResolverIndex> const& iShouldPut, ParentageID* previousParentageId) {
     size_t nPut = 0;
     for(auto const& p: putProducts()) {
       if(p) {
@@ -137,7 +153,7 @@ namespace edm {
       }
     }
     if(nPut > 0) {
-      commit_aux(putProducts(), previousParentage, previousParentageId);
+      commit_aux(putProducts(), previousParentageId);
     }
     auto sz = iShouldPut.size();
     if(sz !=0 and sz != nPut) {
@@ -153,42 +169,36 @@ namespace edm {
   }
 
   void
-  Event::commit_aux(Event::ProductPtrVec& products,
-                    std::vector<BranchID>* previousParentage, ParentageID* previousParentageId) {
+  Event::commit_aux(Event::ProductPtrVec& products, ParentageID* previousParentageId) {
     // fill in guts of provenance here
     auto& ep = eventPrincipal();
 
-    std::vector<BranchID> gotBranchIDVector;
+    //If we don't have a valid previousParentage then we want to use a temp value in order to
+    // avoid constantly recalculating the ParentageID which is a time consuming operation
+    ParentageID const* presentParentageId;
 
-    // Note that gotBranchIDVector will remain empty if
-    // record_parents is false (and may be empty if record_parents is
-    // true).
-    bool record_parents = false;
-    for( auto v: provRecorder_.recordProvenanceList()) {
-      if (v) { record_parents = true; break;}
-    }
-    
-    //Check that previousParentageId is still good by seeing if previousParentage matches gotBranchIDs_
-    bool sameAsPrevious = ((nullptr != previousParentage) && (previousParentage->size() == gotBranchIDs_.size()));
-    if(record_parents && !gotBranchIDs_.empty()) {
-      gotBranchIDVector.reserve(gotBranchIDs_.size());
-      std::vector<BranchID>::const_iterator itPrevious;
-      if(previousParentage) {
-        itPrevious = previousParentage->begin();
-      }
-      for(BranchIDSet::const_iterator it = gotBranchIDs_.begin(), itEnd = gotBranchIDs_.end();
-          it != itEnd; ++it) {
-        gotBranchIDVector.push_back(*it);
-        if(sameAsPrevious) {
-          if(*it != *itPrevious) {
+    if(previousBranchIDs_) {
+      bool sameAsPrevious = gotBranchIDs_.empty();
+      if(sameAsPrevious) {
+        for(auto i: gotBranchIDsFromPrevious_) {
+          if(not i) {
             sameAsPrevious = false;
-          } else {
-            ++itPrevious;
+            break;
           }
         }
       }
-      if(!sameAsPrevious && nullptr != previousParentage) {
-        previousParentage->assign(gotBranchIDVector.begin(), gotBranchIDVector.end());
+      if( not sameAsPrevious) {
+        std::vector<BranchID> gotBranchIDVector{gotBranchIDs_.begin(),
+          gotBranchIDs_.end()};
+        //add items in common from previous
+        auto n = gotBranchIDsFromPrevious_.size();
+        for(size_t i =0;  i < n;++i) {
+          if(gotBranchIDsFromPrevious_[i]) {
+            gotBranchIDVector.push_back((*previousBranchIDs_)[i]);
+          }
+        }
+        std::sort(gotBranchIDVector.begin(),gotBranchIDVector.end());
+        previousBranchIDs_->assign(gotBranchIDVector.begin(), gotBranchIDVector.end());
         
         Parentage p;
         p.setParents(std::move(gotBranchIDVector));
@@ -196,14 +206,9 @@ namespace edm {
         ParentageRegistry::instance()->insertMapped(p);
 
       }
-    }
-
-    //If we don't have a valid previousParentage then we want to use a temp value in order to
-    // avoid constantly recalculating the ParentageID which is a time consuming operation
-    ParentageID temp;
-    if(!previousParentage) {
-      assert(!sameAsPrevious);
-      previousParentageId = &temp;
+      presentParentageId =previousParentageId;
+    } else {
+      presentParentageId = &s_emptyParentage;
     }
 
     auto const& recordProv = provRecorder_.recordProvenanceList();
@@ -211,9 +216,9 @@ namespace edm {
       auto& p = get_underlying_safe(products[i]);
       if (p) {
         if(recordProv[i]) {
-          ep.put(provRecorder_.putTokenIndexToProductResolverIndex()[i],  std::move(p), *previousParentageId);
+          ep.put(provRecorder_.putTokenIndexToProductResolverIndex()[i],  std::move(p), *presentParentageId);
         } else {
-          ep.put(provRecorder_.putTokenIndexToProductResolverIndex()[i], std::move(p), temp);
+          ep.put(provRecorder_.putTokenIndexToProductResolverIndex()[i], std::move(p), s_emptyParentage);
         }
       }
     }
@@ -224,7 +229,15 @@ namespace edm {
 
   void
   Event::addToGotBranchIDs(Provenance const& prov) const {
-    gotBranchIDs_.insert(prov.originalBranchID());
+    if(previousBranchIDs_) {
+      auto id = prov.originalBranchID();
+      auto range = std::equal_range(previousBranchIDs_->begin(), previousBranchIDs_->end(),id);
+      if(range.first ==range.second) {
+        gotBranchIDs_.insert(id.id());
+      } else {
+        gotBranchIDsFromPrevious_[range.first - previousBranchIDs_->begin()] = true;
+      }
+    }
   }
 
   ProcessHistory const&

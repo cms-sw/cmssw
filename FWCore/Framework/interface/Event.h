@@ -42,7 +42,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 
 #include <memory>
 #include <string>
-#include <set>
+#include <unordered_set>
 #include <typeinfo>
 #include <type_traits>
 #include <vector>
@@ -77,7 +77,7 @@ namespace edm {
 
     void setSharedResourcesAcquirer( SharedResourcesAcquirer* iResourceAcquirer);
     
-    void setProducer( ProducerBase const* iProd);
+    void setProducer( ProducerBase const* iProd, std::vector<BranchID>* previousParentage );
 
     // AUX functions are defined in EventBase
     EventAuxiliary const& eventAuxiliary() const override {return aux_;}
@@ -274,8 +274,8 @@ namespace edm {
     friend class ProducerBase;
     template<typename T> friend class stream::ProducingModuleAdaptorBase;
 
-    void commit_(std::vector<edm::ProductResolverIndex> const& iShouldPut, std::vector<BranchID>* previousParentage= nullptr, ParentageID* previousParentageId = nullptr);
-    void commit_aux(ProductPtrVec& products, std::vector<BranchID>* previousParentage = nullptr, ParentageID* previousParentageId = nullptr);
+    void commit_(std::vector<edm::ProductResolverIndex> const& iShouldPut, ParentageID* previousParentageId = nullptr);
+    void commit_aux(ProductPtrVec& products, ParentageID* previousParentageId = nullptr);
 
     BasicHandle
     getByProductID_(ProductID const& oid) const;
@@ -297,8 +297,11 @@ namespace edm {
     // which do not logically modify the PrincipalGetAdapter. gotBranchIDs_ is
     // merely a cache reflecting what has been retrieved from the
     // Principal class.
-    typedef std::set<BranchID> BranchIDSet;
+    typedef std::unordered_set<BranchID::value_type> BranchIDSet;
     mutable BranchIDSet gotBranchIDs_;
+    mutable std::vector<bool> gotBranchIDsFromPrevious_;
+    std::vector<BranchID>* previousBranchIDs_ = nullptr;
+    
     void addToGotBranchIDs(Provenance const& prov) const;
 
     // We own the retrieved Views, and have to destroy them.

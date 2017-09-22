@@ -116,9 +116,9 @@ namespace edm {
       void commit(LuminosityBlock& iLumi) {
         iLumi.commit_(m_streamModules[0]->indiciesForPutProducts(InLumi));
       }
-      template<typename L, typename I>
-      void commit(Event& iEvent, L* iList, I* iID) {
-        iEvent.commit_(m_streamModules[0]->indiciesForPutProducts(InEvent), iList,iID);
+      template<typename I>
+      void commit(Event& iEvent, I* iID) {
+        iEvent.commit_(m_streamModules[0]->indiciesForPutProducts(InEvent), iID);
       }
 
       const EDConsumerBase* consumer() {

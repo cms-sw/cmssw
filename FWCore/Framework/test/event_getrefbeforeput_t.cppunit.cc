@@ -160,7 +160,7 @@ void testEventGetRefBeforePut::getRefTest() {
     edm::ProducerBase prod;
     prod.produces<edmtest::IntProduct>(productInstanceName);
     const_cast<std::vector<edm::ProductResolverIndex>&>(prod.putTokenIndexToProductResolverIndex()).push_back(0);
-    event.setProducer(&prod);
+    event.setProducer(&prod,nullptr);
     auto pr = std::make_unique<edmtest::IntProduct>();
     pr->value = 10;
 

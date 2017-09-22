@@ -107,9 +107,9 @@ namespace edm {
       iPrincipal.commit_(putIndicies_[producerbasehelper::PrincipalTraits<P>::kBranchType]);
     }
 
-    template< typename P, typename L, typename I>
-    void commit_(P& iPrincipal, L* iList, I* iID) {
-      iPrincipal.commit_(putIndicies_[producerbasehelper::PrincipalTraits<P>::kBranchType], iList,iID);
+    template< typename P, typename I>
+    void commit_(P& iPrincipal, I* iID) {
+      iPrincipal.commit_(putIndicies_[producerbasehelper::PrincipalTraits<P>::kBranchType], iID);
     }
 
     std::function<void(BranchDescription const&)> callWhenNewProductsRegistered_;
