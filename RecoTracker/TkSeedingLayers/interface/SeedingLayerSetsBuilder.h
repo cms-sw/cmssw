@@ -2,7 +2,6 @@
 #define TkSeedingLayers_SeedingLayerSetsBuilder_H
 
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSets.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
