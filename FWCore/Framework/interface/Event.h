@@ -368,8 +368,8 @@ namespace edm {
     PROD const* prod = wp->product();
 
     putProducts()[index]=std::move(wp);
-    auto const& desc = provRecorder_.getBranchDescription(index);
-    return(OrphanHandle<PROD>(prod, makeProductID(desc)));
+    auto const& prodID = provRecorder_.getProductID(index);
+    return(OrphanHandle<PROD>(prod, prodID));
   }
 
   template<typename PROD>

@@ -259,7 +259,17 @@ namespace edm {
     assert(phb != nullptr);
     return phb->branchDescription();
   }
-  
+
+  ProductID const&
+  PrincipalGetAdapter::getProductID(unsigned int iPutTokenIndex) const {
+    auto index = prodBase_->putTokenIndexToProductResolverIndex()[iPutTokenIndex];
+    ProductResolverBase const*  phb = principal_.getProductResolverByIndex(index);
+    assert(phb != nullptr);
+    auto prov = phb->stableProvenance();
+    assert(prov != nullptr);
+    return prov->productID();
+  }
+
   Transition
   PrincipalGetAdapter::transition() const {
     if(likely(principal().branchType() == InEvent)) {

@@ -179,6 +179,7 @@ namespace edm {
 
     BranchDescription const&
     getBranchDescription(unsigned int iPutTokenIndex) const;
+    ProductID const& getProductID(unsigned int iPutTokenIndex) const;
     
     std::vector<edm::ProductResolverIndex> const&
     putTokenIndexToProductResolverIndex() const ;
