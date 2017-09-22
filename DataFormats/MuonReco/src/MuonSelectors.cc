@@ -901,6 +901,21 @@ bool muon::isHighPtMuon(const reco::Muon& muon, const reco::Vertex& vtx){
 
 }
 
+bool muon::isTrackerHighPtMuon(const reco::Muon& muon, const reco::Vertex& vtx){
+  bool muID =   muon.isTrackerMuon() && muon.track().isNonnull() && (muon.numberOfMatchedStations() > 1);
+  if(!muID) return false;
+
+  bool hits = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
+    muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0; 
+
+  bool momQuality = muon.tunePMuonBestTrack()->ptError()/muon.tunePMuonBestTrack()->pt() < 0.3;
+
+  bool ip = fabs(muon.innerTrack()->dxy(vtx.position())) < 0.2 && fabs(muon.innerTrack()->dz(vtx.position())) < 0.5;
+  
+  return muID && hits && momQuality && ip;
+
+}
+
 int muon::sharedSegments( const reco::Muon& mu, const reco::Muon& mu2, unsigned int segmentArbitrationMask ) {
     int ret = 0;
    
@@ -949,7 +964,8 @@ void muon::setCutBasedSelectorFlags(reco::Muon& muon,
   if (vertex){
     if (muon::isTightMuon(muon,*vertex))  selection |= reco::Muon::CutBasedIdTight;
     if (muon::isSoftMuon(muon,*vertex))   selection |= reco::Muon::SoftCutBasedId;
-    if (muon::isHighPtMuon(muon,*vertex)) selection |= reco::Muon::CutBasedIdHighPt;
+    if (muon::isHighPtMuon(muon,*vertex)) selection |= reco::Muon::CutBasedIdGlobalHighPt;
+    if (muon::isTrackerHighPtMuon(muon,*vertex)) selection |= reco::Muon::CutBasedIdTrkHighPt;
   }
   if (muon::isMediumMuon(muon)){
     selection |= reco::Muon::CutBasedIdMedium;

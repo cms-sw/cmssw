@@ -188,25 +188,27 @@ namespace reco {
     enum Selector {
       CutBasedIdLoose        = 1UL<< 0,  
       CutBasedIdMedium       = 1UL<< 1,  
-      CutBasedIdMediumPrompt = 1UL<< 2,  // IP cuts
+      CutBasedIdMediumPrompt = 1UL<< 2,  // medium with IP cuts
       CutBasedIdTight        = 1UL<< 3,  
-      CutBasedIdHighPt       = 1UL<< 4,
-      PFIsoVeryLoose         = 1UL<< 5,  // reliso<0.40
-      PFIsoLoose             = 1UL<< 6,  // reliso<0.25
-      PFIsoMedium            = 1UL<< 7,  // reliso<0.20
-      PFIsoTight             = 1UL<< 8,  // reliso<0.15
-      PFIsoVeryTight         = 1UL<< 9,  // reliso<0.10
-      TkIsoLoose             = 1UL<<10,  // reliso<0.10
-      TkIsoTight             = 1UL<<11,  // reliso<0.05
-      SoftCutBasedId         = 1UL<<12,  
-      SoftMvaId              = 1UL<<13,  
-      MvaLoose               = 1UL<<14,  
-      MvaMedium              = 1UL<<15,  
-      MvaTight               = 1UL<<16,
-      MiniIsoLoose           = 1UL<<17,  // reliso<0.40
-      MiniIsoMedium          = 1UL<<18,  // reliso<0.20
-      MiniIsoTight           = 1UL<<19,  // reliso<0.10
-      MiniIsoVeryTight       = 1UL<<20   // reliso<0.05
+      CutBasedIdGlobalHighPt = 1UL<< 4,  // high pt muon for Z',W' (better momentum resolution)
+      CutBasedIdTrkHighPt    = 1UL<< 5,  // high pt muon for boosted Z (better efficiency)
+      PFIsoVeryLoose         = 1UL<< 6,  // reliso<0.40
+      PFIsoLoose             = 1UL<< 7,  // reliso<0.25
+      PFIsoMedium            = 1UL<< 8,  // reliso<0.20
+      PFIsoTight             = 1UL<< 9,  // reliso<0.15
+      PFIsoVeryTight         = 1UL<<10,  // reliso<0.10
+      TkIsoLoose             = 1UL<<11,  // reliso<0.10
+      TkIsoTight             = 1UL<<12,  // reliso<0.05
+      SoftCutBasedId         = 1UL<<13,  
+      SoftMvaId              = 1UL<<14,  
+      MvaLoose               = 1UL<<15,  
+      MvaMedium              = 1UL<<16,  
+      MvaTight               = 1UL<<17,
+      MiniIsoLoose           = 1UL<<18,  // reliso<0.40
+      MiniIsoMedium          = 1UL<<19,  // reliso<0.20
+      MiniIsoTight           = 1UL<<20,  // reliso<0.10
+      MiniIsoVeryTight       = 1UL<<21   // reliso<0.05
+
     };
     
     bool passed( unsigned int selection ) const { return (selectors_ & selection)==selection; }

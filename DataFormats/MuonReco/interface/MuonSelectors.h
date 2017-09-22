@@ -90,6 +90,7 @@ namespace muon {
    bool isMediumMuon(const reco::Muon&);
    bool isSoftMuon(const reco::Muon&, const reco::Vertex&);
    bool isHighPtMuon(const reco::Muon&, const reco::Vertex&);
+   bool isTrackerHighPtMuon(const reco::Muon&, const reco::Vertex&);
    
    // determine if station was crossed well withing active volume
    unsigned int RequiredStationMask( const reco::Muon& muon,
