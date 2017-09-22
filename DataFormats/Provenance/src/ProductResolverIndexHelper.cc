@@ -591,7 +591,13 @@ namespace edm {
         auto const& indexAndNames = indexAndNames_[j];
         if(0 == strcmp(&processNames_[indexAndNames.startInProcessNames()], iProcessName.c_str())) {
           //The first null terminated string is the module label
-          result.emplace(&bigNamesContainer_[indexAndNames.startInBigNamesContainer()],indexAndNames.index());
+          auto pModLabel = &bigNamesContainer_[indexAndNames.startInBigNamesContainer()];
+          auto l = strlen(pModLabel);
+          auto pInstance = pModLabel+l+1;
+          result.emplace(pModLabel,
+                         std::make_tuple(&sortedTypeIDs_[i],
+                                         pInstance,
+                                         indexAndNames.index()));
         }
       }
     }

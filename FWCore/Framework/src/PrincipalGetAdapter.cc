@@ -252,11 +252,64 @@ namespace edm {
     return phb->branchDescription();
   }
   
+  BranchDescription const&
+  PrincipalGetAdapter::getBranchDescription(unsigned int iPutTokenIndex) const {
+    auto index = prodBase_->putTokenIndexToProductResolverIndex()[iPutTokenIndex];
+    ProductResolverBase const*  phb = principal_.getProductResolverByIndex(index);
+    assert(phb != nullptr);
+    return phb->branchDescription();
+  }
+  
+  Transition
+  PrincipalGetAdapter::transition() const {
+    if(likely(principal().branchType() == InEvent)) {
+      return Transition::Event;
+    }
+    if(principal().branchType() == InRun) {
+      if(principal().atEndTransition()) {
+        return Transition::EndRun;
+      } else {
+        return Transition::BeginRun;
+      }
+    }
+    if(principal().atEndTransition()) {
+      return Transition::EndLuminosityBlock;
+    }
+    return Transition::BeginLuminosityBlock;
+    //Must be lumi
+  }
+
+  unsigned int
+  PrincipalGetAdapter::getPutTokenIndex(TypeID const& type, std::string const& productInstanceName) const {
+    auto tran = transition();
+    size_t index = 0;
+    for(auto const& tl : prodBase_->typeLabelList()) {
+      if((tran == tl.transition_) and (type == tl.typeID_)
+         and (productInstanceName == tl.productInstanceName_)) {
+        return index;
+      }
+      ++index;
+    }
+    return std::numeric_limits<unsigned int>::max();
+  }
+
+  
   std::string const&
   PrincipalGetAdapter::productInstanceLabel(EDPutToken iToken) const {
     return prodBase_->typeLabelList()[iToken.index()].productInstanceName_;
   }
 
+  std::vector<edm::ProductResolverIndex> const&
+  PrincipalGetAdapter::putTokenIndexToProductResolverIndex() const {
+    return prodBase_->putTokenIndexToProductResolverIndex();
+  }
+
+  std::vector<bool> const&
+  PrincipalGetAdapter::recordProvenanceList() const {
+    return prodBase_->recordProvenanceList();
+  }
+
+  
   EDProductGetter const*
   PrincipalGetAdapter::prodGetter() const{
     return principal_.prodGetter();

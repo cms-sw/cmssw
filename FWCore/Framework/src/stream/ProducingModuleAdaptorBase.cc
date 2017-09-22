@@ -142,7 +142,7 @@ namespace edm {
     template< typename T>
     void
     ProducingModuleAdaptorBase<T>::resolvePutIndicies(BranchType iBranchType,
-                            std::unordered_multimap<std::string, edm::ProductResolverIndex> const& iIndicies,
+                            ModuleToResolverIndicies const& iIndicies,
                             std::string const& moduleLabel) {
       m_streamModules[0]->resolvePutIndicies(iBranchType,iIndicies,moduleLabel);
     }

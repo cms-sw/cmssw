@@ -77,12 +77,19 @@ namespace edm {
        callWhenNewProductsRegistered_ = func;
     }
     
+    using ModuleToResolverIndicies = std::unordered_multimap<std::string,
+    std::tuple<edm::TypeID const*, const char*, edm::ProductResolverIndex>>;
     void resolvePutIndicies(BranchType iBranchType,
-                            std::unordered_multimap<std::string, edm::ProductResolverIndex> const& iIndicies,
+                            ModuleToResolverIndicies const& iIndicies,
                             std::string const& moduleLabel);
     
     std::vector<edm::ProductResolverIndex> const& indiciesForPutProducts(BranchType iBranchType) const {
       return putIndicies_[iBranchType];
+    }
+    
+    std::vector<edm::ProductResolverIndex> const&
+    putTokenIndexToProductResolverIndex() const {
+      return putTokenToResolverIndex_;
     }
   private:
     friend class EDProducer;
@@ -107,6 +114,7 @@ namespace edm {
 
     std::function<void(BranchDescription const&)> callWhenNewProductsRegistered_;
     std::array<std::vector<edm::ProductResolverIndex>, edm::NumBranchTypes> putIndicies_;
+    std::vector<edm::ProductResolverIndex> putTokenToResolverIndex_;
   };
 }
 #endif

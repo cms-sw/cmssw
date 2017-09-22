@@ -5,6 +5,7 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
+#include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/SubProcess.h"
@@ -1068,6 +1069,16 @@ namespace edm {
       found->updateLookup(InRun,*runLookup);
       found->updateLookup(InLumi,*lumiLookup);
       found->updateLookup(InEvent,*eventLookup);
+      
+      auto const& processName = newMod->moduleDescription().processName();
+      auto const& runModuleToIndicies = runLookup->indiciesForModulesInProcess(processName);
+      auto const& lumiModuleToIndicies = lumiLookup->indiciesForModulesInProcess(processName);
+      auto const& eventModuleToIndicies = eventLookup->indiciesForModulesInProcess(processName);
+      found->resolvePutIndicies(InRun,runModuleToIndicies);
+      found->resolvePutIndicies(InLumi,lumiModuleToIndicies);
+      found->resolvePutIndicies(InEvent,eventModuleToIndicies);
+
+
     }
 
     return true;

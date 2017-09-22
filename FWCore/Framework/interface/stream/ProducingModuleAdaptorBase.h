@@ -93,8 +93,11 @@ namespace edm {
 
       std::vector<ConsumesInfo> consumesInfo() const;
 
+      using ModuleToResolverIndicies = std::unordered_multimap<std::string,
+      std::tuple<edm::TypeID const*, const char*, edm::ProductResolverIndex>>;
+      
       void resolvePutIndicies(BranchType iBranchType,
-                              std::unordered_multimap<std::string, edm::ProductResolverIndex> const& iIndicies,
+                              ModuleToResolverIndicies const& iIndicies,
                               std::string const& moduleLabel);
       
       std::vector<edm::ProductResolverIndex> const& indiciesForPutProducts(BranchType iBranchType) const;
