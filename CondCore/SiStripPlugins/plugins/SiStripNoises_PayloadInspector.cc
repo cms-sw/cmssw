@@ -69,13 +69,16 @@ namespace {
 
 	  std::vector<uint32_t> detid;
 	  payload->getDetIds(detid);
-
+	  
 	  // for (const auto & d : detid) {
+	  //   int nstrip=0;
 	  //   SiStripNoises::Range range=payload->getRange(d);
-	  //   for( std::vector<unsigned int>::const_iterator badStrip = range.first;badStrip != range.second; ++badStrip ) {
-	  //     ss << "DetId="<< d << " Strip=" << payload->decode(*badStrip).firstStrip <<":"<< payload->decode(*badStrip).range << " flag="<< payload->decode(*badStrip).flag << std::endl;
-	  //   }
-	  // }
+	  //   for( int it=0; it < (range.second-range.first)*8/9; ++it ){
+	  //     auto noise = payload->getNoise(it,range);
+	  //     nstrip++;
+	  //     ss << "DetId="<< d << " Strip=" << nstrip <<": "<< noise << std::endl;
+	  //   } // end of loop on strips
+	  // } // end of loop on detIds
 	  
 	  std::cout<<ss.str()<<std::endl;
  
@@ -87,6 +90,41 @@ namespace {
     TrackerTopology m_trackerTopo;
   };
 
+  /************************************************
+    1d histogram of SiStripNoises of 1 IOV 
+  *************************************************/
+
+  // inherit from one of the predefined plot class: Histogram1D
+  class SiStripNoiseValue : public cond::payloadInspector::Histogram1D<SiStripNoises> {
+    
+  public:
+    SiStripNoiseValue() : cond::payloadInspector::Histogram1D<SiStripNoises>("SiStrip Noise values",
+									     "SiStrip Noise values", 200,0.0,10.0){
+      Base::setSingleIov( true );
+    }
+    
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+      for ( auto const & iov: iovs) {
+	std::shared_ptr<SiStripNoises> payload = Base::fetchPayload( std::get<1>(iov) );
+	if( payload.get() ){
+	 
+	  std::vector<uint32_t> detid;
+	  payload->getDetIds(detid);
+	  
+	  for (const auto & d : detid) {
+	    SiStripNoises::Range range=payload->getRange(d);
+	    for( int it=0; it < (range.second-range.first)*8/9; ++it ){
+	      auto noise = payload->getNoise(it,range);
+	      //to be used to fill the histogram
+	      fillWithValue(noise);
+	    }// loop over APVs
+	  } // loop over detIds
+	}// payload
+      }// iovs
+      return true;
+    }// fill
+  };
+  
   /************************************************
     SiStrip Noise Tracker Map 
   *************************************************/
@@ -347,6 +385,7 @@ namespace {
 
 PAYLOAD_INSPECTOR_MODULE(SiStripNoises){
   PAYLOAD_INSPECTOR_CLASS(SiStripNoisesTest);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValue);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMin_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMax_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMean_TrackerMap);
