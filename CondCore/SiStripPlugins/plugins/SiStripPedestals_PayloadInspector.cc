@@ -99,7 +99,7 @@ namespace {
     
   public:
     SiStripPedestalsValue() : cond::payloadInspector::Histogram1D<SiStripPedestals>("SiStrip Pedestals values",
-										 "SiStrip Pedestals values", 200,0.0,200.0){
+										    "SiStrip Pedestals values", 300,0.0,300.0){
       Base::setSingleIov( true );
     }
     
