@@ -24,12 +24,17 @@
 #include "CondCore/SiStripPlugins/interface/SiStripPayloadInspectorHelper.h"
 #include "CalibTracker/SiStripCommon/interface/StandaloneTrackerTopology.h" 
 
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+
 #include <memory>
 #include <sstream>
 #include <iostream>
 
-// include ROOT 
+// include ROOT
 #include "TH2F.h"
+#include "TF1.h"
+#include "TGraphErrors.h"
 #include "TLegend.h"
 #include "TCanvas.h"
 #include "TLine.h"
@@ -381,6 +386,105 @@ namespace {
   typedef SiStripNoiseByPartition<SiStripPI::max>  SiStripNoiseMaxByPartition;
   typedef SiStripNoiseByPartition<SiStripPI::rms>  SiStripNoiseRMSByPartition;
 
+  /************************************************
+    Noise linearity
+  *************************************************/
+  class SiStripNoiseLinearity : public cond::payloadInspector::PlotImage<SiStripNoises> {
+  public:
+    SiStripNoiseLinearity() : cond::payloadInspector::PlotImage<SiStripNoises>( "Linearity of Strip Noise as a fuction of strip length" ){
+      setSingleIov( true );
+    }
+
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+      auto iov = iovs.front();
+      std::shared_ptr<SiStripNoises> payload = fetchPayload( std::get<1>(iov) );
+
+      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+
+      std::vector<uint32_t> detid;
+      payload->getDetIds(detid);
+      
+      std::map<float,std::tuple<int,float,float> > noisePerStripLength;
+
+      for (const auto & d : detid) {
+	SiStripNoises::Range range=payload->getRange(d);
+	for( int it=0; it < (range.second-range.first)*8/9; ++it ){
+	  auto noise = payload->getNoise(it,range);
+	  //to be used to fill the histogram
+	  float stripL = reader->getNumberOfApvsAndStripLength(d).second;
+	  std::get<0>(noisePerStripLength[stripL])+=1;
+	  std::get<1>(noisePerStripLength[stripL])+=noise;
+	  std::get<2>(noisePerStripLength[stripL])+=(noise*noise);
+	}// loop over strips
+      } // loop over detIds
+      
+      TCanvas canvas("Noise linearity","noise linearity",1200,1000); 
+      canvas.cd();
+
+      std::vector<float> x;  x.reserve(noisePerStripLength.size());
+      std::vector<float> y;  y.reserve(noisePerStripLength.size());
+      std::vector<float> ex; ex.reserve(noisePerStripLength.size());
+      std::vector<float> ey; ey.reserve(noisePerStripLength.size());
+
+      for (const auto &element : noisePerStripLength ){
+	x.push_back(element.first);
+	ex.push_back(0.);
+	float sum     = std::get<1>(element.second);
+	float sum2    = std::get<2>(element.second);
+	float nstrips = std::get<0>(element.second);
+	float mean    = sum/nstrips;
+	float rms     = sum2>0. ? sqrt(sum2/nstrips-mean*mean) : 0.;
+	y.push_back(mean);
+	ey.push_back(rms);
+	std::cout<<" strip lenght: " << element.first << " avg noise=" << mean <<" +/-" << rms << std::endl;
+      }
+
+      auto graph = std::unique_ptr<TGraphErrors>(new TGraphErrors(noisePerStripLength.size(),&x[0], &y[0],&ex[0],&ey[0]));
+      graph->SetTitle("SiStrip Noise Linearity");
+      graph->GetXaxis()->SetTitle("Strip length [cm]");
+      graph->GetYaxis()->SetTitle("Average Strip Noise [ADC counts]");
+      graph->SetMarkerColor(kBlue);
+      graph->SetMarkerStyle(20);
+      graph->SetMarkerSize(1.5);
+      canvas.SetBottomMargin(0.13);
+      canvas.SetLeftMargin(0.17);
+      canvas.SetRightMargin(0.05);
+      canvas.Modified();
+      canvas.cd();
+
+      graph->GetXaxis()->CenterTitle(true);
+      graph->GetYaxis()->CenterTitle(true);
+      graph->GetXaxis()->SetTitleFont(42); 
+      graph->GetYaxis()->SetTitleFont(42);  
+      graph->GetXaxis()->SetTitleSize(0.05);
+      graph->GetYaxis()->SetTitleSize(0.05);
+      graph->GetXaxis()->SetTitleOffset(1.1);
+      graph->GetYaxis()->SetTitleOffset(1.3);
+      graph->GetXaxis()->SetLabelFont(42);
+      graph->GetYaxis()->SetLabelFont(42);
+      graph->GetYaxis()->SetLabelSize(.05);
+      graph->GetXaxis()->SetLabelSize(.05);
+      
+      graph->Draw("AP");
+
+      gStyle->SetOptFit(1111);
+      graph->Fit("pol1");
+      //Access the fit resuts
+      TF1 *f1 = graph->GetFunction("pol1");
+      f1->SetLineWidth(2);
+      f1->SetLineColor(kBlue);
+      f1->Draw("same");
+
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      delete reader;
+      return true;
+    }
+  };
+
 } // close namespace
 
 PAYLOAD_INSPECTOR_MODULE(SiStripNoises){
@@ -394,4 +498,5 @@ PAYLOAD_INSPECTOR_MODULE(SiStripNoises){
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMinByPartition);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMaxByPartition);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseRMSByPartition);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseLinearity)
 }
