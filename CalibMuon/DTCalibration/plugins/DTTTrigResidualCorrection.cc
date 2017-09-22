@@ -158,21 +158,16 @@ const TH1F* DTTTrigResidualCorrection::getHisto(const DTSuperLayerId& slId) {
 string DTTTrigResidualCorrection::getHistoName(const DTSuperLayerId& slId) {
 
   int step = 3;
-  stringstream wheel; wheel << slId.wheel();
-  stringstream station; station << slId.station();
-  stringstream sector; sector << slId.sector();
-  stringstream superLayer; superLayer << slId.superlayer();
-  stringstream Step; Step << step;
+
+  std::string wheel = std::to_string(slId.wheel());
+  std::string station = std::to_string(slId.station());
+  std::string sector = std::to_string(slId.sector());
+  std::string superLayer = std::to_string(slId.superlayer());
+  std::string Step = std::to_string(step);
 
   string histoName =
-    rootBaseDir_ + "/Wheel" + wheel.str() + 
-    "/Station" + station.str() +
-    "/Sector" + sector.str() +
-    "/hResDist_STEP" + Step.str() +
-    "_W" + wheel.str() +
-    "_St" + station.str() +
-    "_Sec" + sector.str() +
-    "_SL" + superLayer.str();
+    rootBaseDir_ + "/Wheel" + wheel + "/Station" + station + "/Sector" + sector + 
+    "/hResDist_STEP" + Step + "_W" + wheel + "_St" + station + "_Sec" + sector + "_SL" + superLayer;
 
   return histoName;
 }

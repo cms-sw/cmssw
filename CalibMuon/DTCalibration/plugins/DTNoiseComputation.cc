@@ -111,17 +111,17 @@ void DTNoiseComputation::beginRun(const edm::Run&, const EventSetup& setup)
 	  TH1F *hCheckHisto = (TH1F *) theFile->Get(CheckHistoName.c_str());
 	  if(hCheckHisto){  
 	    delete hCheckHisto;
-	    stringstream wheel; wheel << ch.wheel();	
-	    stringstream station; station << ch.station();
+	    string wheel = std::to_string(ch.wheel());
+	    string station = std::to_string(ch.station());
 	  
 	    if(someHowNoisyC.find(make_pair(ch.wheel(),ch.station())) == someHowNoisyC.end()) {
-	      TString histoName_someHowNoisy = "somehowNoisyCell_W"+wheel.str()+"_St"+station.str();
+	      TString histoName_someHowNoisy = "somehowNoisyCell_W"+wheel+"_St"+station;
 	      hsomeHowNoisyC = new TH1F(histoName_someHowNoisy,histoName_someHowNoisy,getMaxNumBins(ch),1,getMaxNumBins(ch)+1);
 	      someHowNoisyC[make_pair(ch.wheel(),ch.station())]=hsomeHowNoisyC;
 	    }
 	  
 	    if(noisyC.find(make_pair(ch.wheel(),ch.station())) == noisyC.end()) {
-	      TString histoName_noisy = "noisyCell_W"+wheel.str()+"_St"+station.str();
+	      TString histoName_noisy = "noisyCell_W"+wheel+"_St"+station;
 	      hnoisyC = new TH1F(histoName_noisy,histoName_noisy,getMaxNumBins(ch),1,getMaxNumBins(ch)+1);
 	      noisyC[make_pair(ch.wheel(),ch.station())]=hnoisyC;
 	    }
@@ -193,8 +193,7 @@ void DTNoiseComputation::beginRun(const edm::Run&, const EventSetup& setup)
 	    // book the digi event plots every 1000 events
 	    int updates = MaxEvents/1000; 
 	    for(int evt=0; evt<updates; evt++){
-	      stringstream toAppend; toAppend << evt;
-	      Histo2Name = "DigiPerWirePerEvent_" + getLayerName(dtLId) + "_" + toAppend.str();
+	      Histo2Name = "DigiPerWirePerEvent_" + getLayerName(dtLId) + "_" + std::to_string(evt);
 	      theFile->cd();
 	      hEvtHisto = (TH2F *) theFile->Get(Histo2Name.c_str());
 	      if(hEvtHisto){
@@ -237,8 +236,7 @@ void DTNoiseComputation::endJob(){
 	  else { 
 	    if(toDel.find(wire) == toDel.end()) {
 	      toDel[wire] = false;
-	      stringstream toAppend; toAppend << bin;
-	      string Histo = "EvtDistancePerWire_" + getLayerName((*lHisto).first) + "_" + toAppend.str();
+	      string Histo = "EvtDistancePerWire_" + getLayerName((*lHisto).first) + "_" + std::to_string(bin);
 	      hEvtDistance = new TH1F(Histo.c_str(),Histo.c_str(), 50000,0.5,50000.5);
 	    }
 	    hEvtDistance->Fill(distanceEvt); 
@@ -350,8 +348,7 @@ void DTNoiseComputation::endJob(){
 	  string TitleHisto = "AverageNoise_" + getSuperLayerName(sl);
 	  cout<<"TitleHisto : "<<TitleHisto<<endl;
 	  hOccHisto->SetTitle(TitleHisto.c_str());
-	  stringstream layer; layer << layerId.layer();	
-	  string legendHisto = "layer " + layer.str();
+	  string legendHisto = "layer " + std::to_string(layerId.layer());
 	  leg->AddEntry(hOccHisto,legendHisto.c_str(),"L");
 	  hOccHisto->SetMaximum(getYMaximum(sl));
 	  histo=true;
@@ -400,40 +397,28 @@ string DTNoiseComputation::getLayerName(const DTLayerId& lId) const {
 
   const  DTSuperLayerId dtSLId = lId.superlayerId();
   const  DTChamberId dtChId = dtSLId.chamberId(); 
-  stringstream Layer; Layer << lId.layer();
-  stringstream superLayer; superLayer << dtSLId.superlayer();
-  stringstream wheel; wheel << dtChId.wheel();	
-  stringstream station; station << dtChId.station();	
-  stringstream sector; sector << dtChId.sector();
-  
-  string LayerName = 
-    "W" + wheel.str()
-    + "_St" + station.str() 
-    + "_Sec" + sector.str() 
-    + "_SL" + superLayer.str()
-    + "_L" + Layer.str();
-  
-  return LayerName;
+  string layerName = 
+    "W" + std::to_string(dtChId.wheel())
+    + "_St" + std::to_string(dtChId.station())
+    + "_Sec" + std::to_string(dtChId.sector())
+    + "_SL" + std::to_string(dtSLId.superlayer())
+    + "_L" + std::to_string(lId.layer());
 
+  return layerName;
 }
 
 
 string DTNoiseComputation::getSuperLayerName(const DTSuperLayerId& dtSLId) const {
 
   const  DTChamberId dtChId = dtSLId.chamberId(); 
-  stringstream superLayer; superLayer << dtSLId.superlayer();
-  stringstream wheel; wheel << dtChId.wheel();	
-  stringstream station; station << dtChId.station();	
-  stringstream sector; sector << dtChId.sector();
-  
-  string SuperLayerName = 
-    "W" + wheel.str()
-    + "_St" + station.str() 
-    + "_Sec" + sector.str() 
-    + "_SL" + superLayer.str();
-  
-  return SuperLayerName;
 
+  string superLayerName = 
+    "W" + std::to_string(dtChId.wheel())
+    + "_St" + std::to_string(dtChId.station())
+    + "_Sec" + std::to_string(dtChId.sector())
+    + "_SL" + std::to_string(dtSLId.superlayer());
+
+  return superLayerName;
 }
 
 
@@ -441,17 +426,12 @@ string DTNoiseComputation::getChamberName(const DTLayerId& lId) const {
 
   const  DTSuperLayerId dtSLId = lId.superlayerId();
   const  DTChamberId dtChId = dtSLId.chamberId(); 
-  stringstream wheel; wheel << dtChId.wheel();	
-  stringstream station; station << dtChId.station();	
-  stringstream sector; sector << dtChId.sector();
-  
-  string ChamberName = 
-    "W" + wheel.str()
-    + "_St" + station.str() 
-    + "_Sec" + sector.str();
-  
-  return ChamberName;
+  string chamberName =
+    "W" + std::to_string(dtChId.wheel())
+    + "_St" + std::to_string(dtChId.station())
+    + "_Sec" + std::to_string(dtChId.sector());
 
+  return chamberName;
 }
 
 

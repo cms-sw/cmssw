@@ -1,5 +1,7 @@
 /*
  *  See header file for a description of this class.
+ *
+ *  \author S. Bolognesi - INFN Torino
  */
 #include "CalibMuon/DTCalibration/plugins/DTT0Calibration.h"
 #include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
@@ -481,19 +483,15 @@ void DTT0Calibration::endJob() {
 }
 
 string DTT0Calibration::getHistoName(const DTWireId& wId) const {
-  string histoName;
-  stringstream theStream;
-  theStream << "Ch_" << wId.wheel() << "_" << wId.station() << "_" << wId.sector()
-	    << "_SL" << wId.superlayer() << "_L" << wId.layer() << "_W"<< wId.wire() <<"_hT0Histo";
-  theStream >> histoName;
+  string histoName = "Ch_" + std::to_string(wId.wheel()) + "_" + std::to_string(wId.station())
+                     + "_" + std::to_string(wId.sector()) + "_SL" + std::to_string(wId.superlayer()) 
+                     + "_L" + std::to_string(wId.layer()) + "_W" + std::to_string(wId.wire()) + "_hT0Histo";
   return histoName;
 }
 
 string DTT0Calibration::getHistoName(const DTLayerId& lId) const {
-  string histoName;
-  stringstream theStream;
-  theStream << "Ch_" << lId.wheel() << "_" << lId.station() << "_" << lId.sector()
-	    << "_SL" << lId.superlayer() << "_L" << lId.layer() <<"_hT0Histo";
-  theStream >> histoName;
+  string histoName = "Ch_" + std::to_string(lId.wheel()) + "_" + std::to_string(lId.station())
+                     + "_" + std::to_string(lId.sector()) + "_SL" + std::to_string(lId.superlayer()) 
+                     + "_L" + std::to_string(lId.layer()) + "_hT0Histo";
   return histoName;
 }

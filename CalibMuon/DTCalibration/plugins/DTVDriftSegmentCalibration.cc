@@ -149,14 +149,14 @@ void DTVDriftSegmentCalibration::endJob() {
 void DTVDriftSegmentCalibration::bookHistos(DTChamberId chId) {
 
   // Compose the chamber name
-  stringstream wheel; wheel << chId.wheel();
-  stringstream station; station << chId.station();
-  stringstream sector; sector << chId.sector();
+  std::string wheel = std::to_string(chId.wheel());
+  std::string station = std::to_string(chId.station());
+  std::string sector = std::to_string(chId.sector());
 
   string chHistoName =
-    "_W" + wheel.str() +
-    "_St" + station.str() +
-    "_Sec" + sector.str();
+    "_W" + wheel +
+    "_St" + station +
+    "_Sec" +  sector;
 
   vector<TH1F*> histosTH1F;
   histosTH1F.push_back(new TH1F(("hRPhiVDriftCorr" + chHistoName).c_str(), "v-drift corr. from Phi segments", 200, -0.4, 0.4));
