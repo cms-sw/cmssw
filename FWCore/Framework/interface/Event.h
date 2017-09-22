@@ -48,6 +48,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include <vector>
 
 class testEventGetRefBeforePut;
+class testEvent;
 
 namespace edm {
 
@@ -241,7 +242,7 @@ namespace edm {
 
     void labelsForToken(EDGetToken const& iToken, ProductLabels& oLabels) const { provRecorder_.labelsForToken(iToken, oLabels); }
 
-    typedef std::vector<std::pair<edm::propagate_const<std::unique_ptr<WrapperBase>>, BranchDescription const*> > ProductPtrVec;
+    typedef std::vector<edm::propagate_const<std::unique_ptr<WrapperBase>>> ProductPtrVec;
 
     EDProductGetter const&
     productGetter() const;
@@ -249,7 +250,8 @@ namespace edm {
   private:
     //for testing
     friend class ::testEventGetRefBeforePut;
-
+    friend class ::testEvent;
+    
     EventPrincipal const&
     eventPrincipal() const;
 
@@ -273,7 +275,7 @@ namespace edm {
     template<typename T> friend class stream::ProducingModuleAdaptorBase;
 
     void commit_(std::vector<edm::ProductResolverIndex> const& iShouldPut, std::vector<BranchID>* previousParentage= nullptr, ParentageID* previousParentageId = nullptr);
-    void commit_aux(ProductPtrVec& products, bool record_parents, std::vector<BranchID>* previousParentage = nullptr, ParentageID* previousParentageId = nullptr);
+    void commit_aux(ProductPtrVec& products, std::vector<BranchID>* previousParentage = nullptr, ParentageID* previousParentageId = nullptr);
 
     BasicHandle
     getByProductID_(ProductID const& oid) const;
@@ -281,25 +283,19 @@ namespace edm {
     ProductPtrVec& putProducts() {return putProducts_;}
     ProductPtrVec const& putProducts() const {return putProducts_;}
 
-    ProductPtrVec& putProductsWithoutParents() {return putProductsWithoutParents_;}
-
-    ProductPtrVec const& putProductsWithoutParents() const {return putProductsWithoutParents_;}
-
     PrincipalGetAdapter provRecorder_;
 
-    // putProducts_ and putProductsWithoutParents_ are the holding
-    // pens for EDProducts inserted into this PrincipalGetAdapter. Pointers
-    // in these collections own the products to which they point.
+    // putProducts_ is a holding pen for EDProducts inserted into this
+    // PrincipalGetAdapter.
     //
-    ProductPtrVec putProducts_;               // keep parentage info for these
-    ProductPtrVec putProductsWithoutParents_; // ... but not for these
+    ProductPtrVec putProducts_;
 
     EventAuxiliary const& aux_;
     std::shared_ptr<LuminosityBlock const> const luminosityBlock_;
 
     // gotBranchIDs_ must be mutable because it records all 'gets',
     // which do not logically modify the PrincipalGetAdapter. gotBranchIDs_ is
-    // merely a cache reflecting what has been retreived from the
+    // merely a cache reflecting what has been retrieved from the
     // Principal class.
     typedef std::set<BranchID> BranchIDSet;
     mutable BranchIDSet gotBranchIDs_;
@@ -313,33 +309,6 @@ namespace edm {
 
     static const std::string emptyString_;
   };
-
-  // The following functions objects are used by Event::put, under the
-  // control of a metafunction if, to put the given pair into the
-  // right collection.
-  template<typename PROD>
-  struct RecordInParentless {
-    typedef Event::ProductPtrVec ptrvec_t;
-    void do_it(ptrvec_t& /*ignored*/,
-               ptrvec_t& used,
-               std::unique_ptr<Wrapper<PROD> > wp,
-               BranchDescription const* desc) const {
-      used.emplace_back(std::move(wp), desc);
-    }
-  };
-
-  template<typename PROD>
-  struct RecordInParentfull {
-    typedef Event::ProductPtrVec ptrvec_t;
-
-    void do_it(ptrvec_t& used,
-               ptrvec_t& /*ignored*/,
-               std::unique_ptr<Wrapper<PROD> > wp,
-               BranchDescription const* desc) const {
-      used.emplace_back(std::move(wp), desc);
-    }
-  };
-
 
   template<typename PROD>
   bool
@@ -390,25 +359,16 @@ namespace edm {
                        DoNotPostInsert<PROD>> maybe_inserter;
     maybe_inserter(product.get());
 
-    BranchDescription const& desc =
-      provRecorder_.getBranchDescription(TypeID(*product), productInstanceName);
-
+    auto index =
+      provRecorder_.getPutTokenIndex(TypeID(*product), productInstanceName);
+    assert(index != std::numeric_limits<unsigned int>::max());
+    assert(index < putProducts().size());
+    
     std::unique_ptr<Wrapper<PROD> > wp(new Wrapper<PROD>(std::move(product)));
     PROD const* prod = wp->product();
 
-    std::conditional_t<detail::has_donotrecordparents<PROD>::value,
-                       RecordInParentless<PROD>,
-                       RecordInParentfull<PROD>> parentage_recorder;
-    parentage_recorder.do_it(putProducts(),
-                             putProductsWithoutParents(),
-                             std::move(wp),
-                             &desc);
-
-    //  putProducts().push_back(std::make_pair(edp, &desc));
-
-    // product.release(); // The object has been copied into the Wrapper.
-    // The old copy must be deleted, so we cannot release ownership.
-
+    putProducts()[index]=std::move(wp);
+    auto const& desc = provRecorder_.getBranchDescription(index);
     return(OrphanHandle<PROD>(prod, makeProductID(desc)));
   }
 

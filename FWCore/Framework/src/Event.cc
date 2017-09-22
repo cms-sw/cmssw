@@ -4,6 +4,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/StableProvenance.h"
+#include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "FWCore/Common/interface/TriggerResultsByName.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -49,6 +50,9 @@ namespace edm {
   void
   Event::setProducer( ProducerBase const* iProd) {
     provRecorder_.setProducer(iProd);
+    //set appropriate size
+    putProducts_.resize(
+                        provRecorder_.putTokenIndexToProductResolverIndex().size());
   }
 
   EventPrincipal const&
@@ -126,9 +130,15 @@ namespace edm {
   void
   Event::commit_(std::vector<edm::ProductResolverIndex> const& iShouldPut,
                  std::vector<BranchID>* previousParentage, ParentageID* previousParentageId) {
-    auto nPut = putProducts().size()+putProductsWithoutParents().size();
-    commit_aux(putProducts(), true, previousParentage, previousParentageId);
-    commit_aux(putProductsWithoutParents(), false);
+    size_t nPut = 0;
+    for(auto const& p: putProducts()) {
+      if(p) {
+        ++nPut;
+      }
+    }
+    if(nPut > 0) {
+      commit_aux(putProducts(), previousParentage, previousParentageId);
+    }
     auto sz = iShouldPut.size();
     if(sz !=0 and sz != nPut) {
       //some were missed
@@ -143,20 +153,21 @@ namespace edm {
   }
 
   void
-  Event::commit_aux(Event::ProductPtrVec& products, bool record_parents,
+  Event::commit_aux(Event::ProductPtrVec& products,
                     std::vector<BranchID>* previousParentage, ParentageID* previousParentageId) {
     // fill in guts of provenance here
     auto& ep = eventPrincipal();
-
-    ProductPtrVec::iterator pit(products.begin());
-    ProductPtrVec::iterator pie(products.end());
 
     std::vector<BranchID> gotBranchIDVector;
 
     // Note that gotBranchIDVector will remain empty if
     // record_parents is false (and may be empty if record_parents is
     // true).
-
+    bool record_parents = false;
+    for( auto v: provRecorder_.recordProvenanceList()) {
+      if (v) { record_parents = true; break;}
+    }
+    
     //Check that previousParentageId is still good by seeing if previousParentage matches gotBranchIDs_
     bool sameAsPrevious = ((nullptr != previousParentage) && (previousParentage->size() == gotBranchIDs_.size()));
     if(record_parents && !gotBranchIDs_.empty()) {
@@ -178,6 +189,12 @@ namespace edm {
       }
       if(!sameAsPrevious && nullptr != previousParentage) {
         previousParentage->assign(gotBranchIDVector.begin(), gotBranchIDVector.end());
+        
+        Parentage p;
+        p.setParents(std::move(gotBranchIDVector));
+        *previousParentageId = p.id();
+        ParentageRegistry::instance()->insertMapped(p);
+
       }
     }
 
@@ -187,22 +204,18 @@ namespace edm {
     if(!previousParentage) {
       assert(!sameAsPrevious);
       previousParentageId = &temp;
-      if(!record_parents) {
-        sameAsPrevious = true;
-      }
     }
-    while(pit != pie) {
-      // set provenance
-      if(!sameAsPrevious) {
-        ProductProvenance prov(pit->second->branchID(), std::move(gotBranchIDVector));
-        *previousParentageId = prov.parentageID();
-        ep.put(*pit->second, std::move(get_underlying_safe(pit->first)), prov);
-        sameAsPrevious = true;
-      } else {
-        ProductProvenance prov(pit->second->branchID(), *previousParentageId);
-        ep.put(*pit->second, std::move(get_underlying_safe(pit->first)), prov);
+
+    auto const& recordProv = provRecorder_.recordProvenanceList();
+    for(unsigned int i = 0; i< products.size();++i) {
+      auto& p = get_underlying_safe(products[i]);
+      if (p) {
+        if(recordProv[i]) {
+          ep.put(provRecorder_.putTokenIndexToProductResolverIndex()[i],  std::move(p), *previousParentageId);
+        } else {
+          ep.put(provRecorder_.putTokenIndexToProductResolverIndex()[i], std::move(p), temp);
+        }
       }
-      ++pit;
     }
 
     // the cleanup is all or none
@@ -221,7 +234,7 @@ namespace edm {
 
   size_t
   Event::size() const {
-    return putProducts().size() + provRecorder_.principal().size() + putProductsWithoutParents().size();
+    return std::count_if(putProducts().begin(),putProducts().end(),[](auto const& i) {return bool(i);}) + provRecorder_.principal().size();
   }
 
   BasicHandle

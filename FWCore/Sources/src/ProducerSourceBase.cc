@@ -71,6 +71,7 @@ namespace edm {
     EventAuxiliary aux(eventID_, processGUID(), Timestamp(presentTime_), isRealData_, eType_);
     eventPrincipal.fillEventPrincipal(aux, processHistoryRegistry());
     Event e(eventPrincipal, moduleDescription(), nullptr);
+    e.setProducer(this);
     produce(e);
     e.commit_(std::vector<ProductResolverIndex>());
     resetEventCached();
@@ -98,6 +99,20 @@ namespace edm {
 
   void
   ProducerSourceBase::beginJob() {
+    auto r = productRegistry();
+    auto const runLookup = r->productLookup(InRun);
+    auto const lumiLookup = r->productLookup(InLumi);
+    auto const eventLookup = r->productLookup(InEvent);
+    auto const& processName = moduleDescription().processName();
+    auto const& moduleLabel = moduleDescription().moduleLabel();
+
+    auto const& runModuleToIndicies = runLookup->indiciesForModulesInProcess(processName);
+    auto const& lumiModuleToIndicies = lumiLookup->indiciesForModulesInProcess(processName);
+    auto const& eventModuleToIndicies = eventLookup->indiciesForModulesInProcess(processName);
+    resolvePutIndicies(InRun,runModuleToIndicies,moduleLabel);
+    resolvePutIndicies(InLumi,lumiModuleToIndicies,moduleLabel);
+    resolvePutIndicies(InEvent,eventModuleToIndicies,moduleLabel);
+
     // initialize cannot be called from the constructor, because it is a virtual function
     // that needs to be invoked from a derived class if the derived class overrides it.
     initialize(eventID_, presentTime_, timeBetweenEvents_);

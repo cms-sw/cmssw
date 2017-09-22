@@ -37,6 +37,7 @@ namespace edm {
 
     static void fillDescription(ParameterSetDescription& desc);
     
+    using ProducerBase::resolvePutIndicies;
     using ProducerBase::registerProducts;
     void registerProducts() final;
 
