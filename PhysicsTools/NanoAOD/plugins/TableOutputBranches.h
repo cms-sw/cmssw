@@ -5,7 +5,7 @@
 #include <vector>
 #include <TTree.h>
 #include "FWCore/Framework/interface/EventForOutput.h"
-#include "PhysicsTools/NanoAOD/interface/FlatTable.h"
+#include "DataFormats/NanoAOD/interface/FlatTable.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 

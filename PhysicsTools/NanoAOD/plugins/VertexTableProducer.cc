@@ -35,7 +35,7 @@
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-#include "PhysicsTools/NanoAOD/interface/FlatTable.h"
+#include "DataFormats/NanoAOD/interface/FlatTable.h"
 #include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
 #include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"

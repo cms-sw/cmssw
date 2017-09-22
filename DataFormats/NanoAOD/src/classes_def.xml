@@ -1,0 +1,36 @@
+<lcgdict>
+    <class name="FlatTable::Column" ClassVersion="3">
+        <version ClassVersion="3" checksum="3947803302"/>
+    </class>
+    <class name="std::vector<FlatTable::Column>" />
+    <class name="FlatTable" ClassVersion="3">
+        <version ClassVersion="3" checksum="3559888950"/>
+    </class>
+    <class name="edm::Wrapper<FlatTable>" />
+
+    <class name="MergeableCounterTable::FloatColumn" ClassVersion="3">
+        <version ClassVersion="3" checksum="2459898836"/>
+    </class>
+    <class name="MergeableCounterTable::IntColumn" ClassVersion="3">
+        <version ClassVersion="3" checksum="213915508"/>
+    </class>
+    <class name="MergeableCounterTable::VFloatColumn" ClassVersion="3">
+        <version ClassVersion="3" checksum="3802388249"/>
+    </class>
+    <class name="MergeableCounterTable::VIntColumn" ClassVersion="3">
+        <version ClassVersion="3" checksum="3160379289"/>
+    </class>
+    <class name="std::vector<MergeableCounterTable::FloatColumn>" />
+    <class name="std::vector<MergeableCounterTable::VFloatColumn>" />
+    <class name="std::vector<MergeableCounterTable::IntColumn>" />
+    <class name="std::vector<MergeableCounterTable::VIntColumn>" />
+    <class name="MergeableCounterTable" ClassVersion="3">
+        <version ClassVersion="3" checksum="1055793220"/>
+    </class>
+    <class name="edm::Wrapper<MergeableCounterTable>" />
+    <class name="UniqueString" ClassVersion="3">
+        <version ClassVersion="3" checksum="3967771225"/>
+    </class>
+    <class name="edm::Wrapper<UniqueString>" />
+</lcgdict>
+

@@ -2,8 +2,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "PhysicsTools/NanoAOD/interface/FlatTable.h"
-#include "PhysicsTools/NanoAOD/interface/MergableCounterTable.h"
+#include "DataFormats/NanoAOD/interface/FlatTable.h"
+#include "DataFormats/NanoAOD/interface/MergeableCounterTable.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
@@ -120,7 +120,7 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
             produces<FlatTable>("LHEScale");
             produces<FlatTable>("LHEPdf");
             produces<FlatTable>("LHENamed");
-            produces<MergableCounterTable,edm::InRun>();
+            produces<MergeableCounterTable,edm::InRun>();
             if (namedWeightIDs_.size() != namedWeightLabels_.size()) {
                 throw cms::Exception("Configuration", "Size mismatch between namedWeightIDs & namedWeightLabels");
             }
@@ -355,7 +355,7 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
         }
         // write the total to the run 
         void globalEndRunProduce(edm::Run& iRun, edm::EventSetup const&, Counter const* runCounter) const override {
-            auto out = std::make_unique<MergableCounterTable>();
+            auto out = std::make_unique<MergeableCounterTable>();
             out->addInt("genEventCount", "event count", runCounter->num);
             out->addFloat("genEventSumw", "sum of gen weights", runCounter->sumw);
             out->addFloat("genEventSumw2", "sum of gen (weight^2)", runCounter->sumw2);

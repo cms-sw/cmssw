@@ -1,5 +1,5 @@
-#ifndef PhysicsTools_NanoAOD_FlatTable_h
-#define PhysicsTools_NanoAOD_FlatTable_h
+#ifndef DataFormats_NanoAOD_FlatTable_h
+#define DataFormats_NanoAOD_FlatTable_h
 
 #include <cstdint>
 #include <vector>

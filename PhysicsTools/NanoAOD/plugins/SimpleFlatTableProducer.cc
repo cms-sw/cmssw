@@ -3,7 +3,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "PhysicsTools/NanoAOD/interface/FlatTable.h"
+#include "DataFormats/NanoAOD/interface/FlatTable.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"

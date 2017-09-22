@@ -46,7 +46,7 @@ SummaryTableOutputBranches::fillVectorBranches(const std::vector<Col> & tabcols,
 
 
 void 
-SummaryTableOutputBranches::defineBranchesFromFirstEvent(const MergableCounterTable & tab, TTree & tree) 
+SummaryTableOutputBranches::defineBranchesFromFirstEvent(const MergeableCounterTable & tab, TTree & tree) 
 {
     makeScalarBranches(tab.intCols(), tree, "L", m_intBranches);
     makeScalarBranches(tab.floatCols(), tree, "D", m_floatBranches);
@@ -61,9 +61,9 @@ SummaryTableOutputBranches::defineBranchesFromFirstEvent(const MergableCounterTa
 
 void SummaryTableOutputBranches::fill(const edm::OccurrenceForOutput &iWhatever, TTree & tree) 
 {
-    edm::Handle<MergableCounterTable> handle;
+    edm::Handle<MergeableCounterTable> handle;
     iWhatever.getByToken(m_token, handle);
-    const MergableCounterTable & tab = *handle;
+    const MergeableCounterTable & tab = *handle;
     
     if(!m_branchesBooked) {
         defineBranchesFromFirstEvent(tab, tree);	
