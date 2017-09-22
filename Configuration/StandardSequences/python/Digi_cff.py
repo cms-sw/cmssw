@@ -28,7 +28,7 @@ from SimGeneral.Configuration.SimGeneral_cff import *
 # add updating the GEN information by default
 from Configuration.StandardSequences.Generator_cff import *
 from GeneratorInterface.Core.generatorSmeared_cfi import *
-from PhysicsTools.HepMCCandAlgos.genPUProtons_cfi import *
+from SimGeneral.PileupInformation.genPUProtons_cfi import *
 
 doAllDigi = cms.Sequence(generatorSmeared*calDigi+muonDigi)
 pdigi = cms.Sequence(generatorSmeared*fixGenInfo*cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("mix")*doAllDigi*addPileupInfo*genPUProtons)
