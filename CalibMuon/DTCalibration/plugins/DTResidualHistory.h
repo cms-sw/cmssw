@@ -44,7 +44,6 @@ class DTResidualHistory: public edm::EDAnalyzer{
   unsigned int nevent;
   unsigned int segmok,segmbad;
    
-  float segmentToWireDistance(const DTRecHit1D& recHit1D, const DTRecSegment4D& segment); 
   // Book a set of histograms for a given super-layer/layer
   void bookHistos(DTSuperLayerId slId, unsigned int run);
   void bookHistos(DTLayerId slId, unsigned int run);

@@ -247,7 +247,7 @@ void DTNoiseComputation::endJob(){
 	theHistoEvtDistancePerWire[wire] =  hEvtDistance;
 	theNewFile->cd();
 	theHistoEvtDistancePerWire[wire]->Fit("ExpoFit","R");
-	TH1F* funct = theHistoEvtDistancePerWire[wire]->GetFunction("ExpoFit");
+	TF1* funct = theHistoEvtDistancePerWire[wire]->GetFunction("ExpoFit");
 	double par0 = funct->GetParameter(0);
 	double par1 = funct->GetParameter(1);
 	cout<<"par0: "<<par0<<"  par1: "<<par1<<endl;
