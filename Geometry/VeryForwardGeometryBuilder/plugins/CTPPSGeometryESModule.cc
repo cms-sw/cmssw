@@ -187,10 +187,6 @@ CTPPSGeometryESModule::buildDetGeomDesc( DDFilteredView* fv, DetGeomDesc* gd )
         const unsigned int stIdx = ( decRPId / 10 ) % 10;
         const unsigned int rpIdx = decRPId % 10;
          newGD->setGeographicalID( CTPPSPixelDetId( armIdx, stIdx, rpIdx ) );
-//---
-	 CTPPSPixelDetId iiid( armIdx, stIdx, rpIdx );
-	 std::cout << iiid.rawId()<<std::endl;
-//---	 
       }else{
         const unsigned int armIdx = ( decRPId / 100 ) % 10;
         const unsigned int stIdx = ( decRPId / 10 ) % 10;
