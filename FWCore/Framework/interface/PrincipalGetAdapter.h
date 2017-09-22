@@ -151,6 +151,8 @@ namespace edm {
       prodBase_ = iProd;
     }
 
+    size_t numberOfProductsConsumed() const ;
+    
     bool isComplete() const;
 
     template <typename PROD>
