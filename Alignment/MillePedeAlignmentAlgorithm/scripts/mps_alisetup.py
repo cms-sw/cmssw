@@ -1,25 +1,16 @@
 #!/usr/bin/env python
 
-#############################################################################
-##  Builds the config-templates from the universal config-template for each
-##  dataset specified in .ini-file that is passed to this script as argument.
-##  Then calls mps_setup.pl for all datasets.
-##
-##  Usage:
-##     mps_alisetup.py [-h] [-v] [-w] myconfig.ini
-##
-
-import argparse
 import os
 import re
-import subprocess
-import ConfigParser
 import sys
 import cPickle
+import argparse
 import itertools
+import subprocess
 import collections
-import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
+import ConfigParser
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.tools as mps_tools
+import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
 import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.iniparser as mpsv_iniparser
 import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.trackerTree as mpsv_trackerTree
 from Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.helper import checked_out_MPS
