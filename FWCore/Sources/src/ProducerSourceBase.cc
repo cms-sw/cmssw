@@ -71,7 +71,7 @@ namespace edm {
     EventAuxiliary aux(eventID_, processGUID(), Timestamp(presentTime_), isRealData_, eType_);
     eventPrincipal.fillEventPrincipal(aux, processHistoryRegistry());
     Event e(eventPrincipal, moduleDescription(), nullptr);
-    e.setProducer(this);
+    e.setProducer(this,nullptr);
     produce(e);
     e.commit_(std::vector<ProductResolverIndex>());
     resetEventCached();

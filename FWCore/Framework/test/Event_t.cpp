@@ -233,7 +233,7 @@ testEvent::addProduct(std::unique_ptr<T> product,
                                          description->second.processName().c_str())
   );
 
-  temporaryEvent.setProducer(&prod);
+  temporaryEvent.setProducer(&prod,nullptr);
   OrphanHandle<T> h = temporaryEvent.put(std::move(product), productLabel);
   ProductID id = h.id();
   temporaryEvent.commit_(std::vector<ProductResolverIndex>());
@@ -254,7 +254,7 @@ testEvent::putProduct(std::unique_ptr<T> product,
                                                 currentModuleDescription_->processName().c_str());
   CPPUNIT_ASSERT(index != std::numeric_limits<unsigned int>::max());
   const_cast<std::vector<edm::ProductResolverIndex>&>(prod->putTokenIndexToProductResolverIndex()).push_back(index);
-  currentEvent_->setProducer(prod.get());
+  currentEvent_->setProducer(prod.get(),nullptr);
   currentEvent_->put(std::move(product), productInstanceLabel);
   if(doCommit) {
     currentEvent_->commit_(std::vector<ProductResolverIndex>());
