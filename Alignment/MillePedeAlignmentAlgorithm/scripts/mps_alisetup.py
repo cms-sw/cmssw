@@ -47,19 +47,24 @@ class SetupAlignment(object):
         self._args = None       # parsed command line arguments
         self._config = None     # ConfigParser object
         self._mss_dir = None    # mass storage directory
+        self._datasets = collections.OrderedDict() # final dataset configs
         self._first_run = None   # first run for start geometry
         self._cms_process = None # cms.Process extracted from CMSSW config
         self._override_gt = None # snippet to append to config
         self._pede_script = None # path to pede batch script template
+        self._weight_dict = collections.OrderedDict() # dictionary with dataset weights
         self._mille_script = None # path to mille batch script template
         self._mps_dir_name = None # MP campaign name (mp<ID>)
+        self._common_weights = {} # dictionary with dataset weights from [weights] section
         self._weight_configs = [] # list with combinations of dataset weights
         self._general_options = {} # general options extracted from ini file
+        self._external_datasets = collections.OrderedDict() # external dataset configs
         self._first_pede_config = True # does a pede job exist already?
 
         self._create_config()
-        self._construct_paths()
         self._fill_general_options()
+        self._fetch_datasets()
+        self._construct_paths()
         self._create_mass_storage_directory()
         self._fetch_pede_settings()
         self._create_weight_configs()
@@ -75,14 +80,13 @@ class SetupAlignment(object):
             self._create_pede_jobs()
 
         if self._override_gt.strip() != "":
-            print "="*60
             msg = ("Overriding global tag with single-IOV tags extracted from "
                    "'{}' for run number '{}'.".format(self._global_tag,
                                                       self._first_run))
             print msg
-            print "-"*60
+            print "-"*75
             print self._override_gt
-
+            print "="*75
 
 
     def _create_config(self):
@@ -109,6 +113,19 @@ class SetupAlignment(object):
         self._config.optionxform = str # default would give lowercase options
                                        # -> not wanted
         self._config.read(self._args.alignmentConfig)
+        self._config.config_path = self._args.alignmentConfig
+
+        if self._config.has_option("general", "externalDatasets"):
+            datasets = map(lambda x: x.strip(),
+                           self._config.get("general",
+                                            "externalDatasets").split(","))
+            datasets = filter(lambda x: len(x.strip()) > 0, datasets)
+            for dataset in datasets:
+                config = ConfigParser.ConfigParser()
+                config.optionxform = str
+                config.read(dataset)
+                config.config_path = dataset
+                self._external_datasets[dataset] = {"config": config}
 
 
     def _construct_paths(self):
@@ -137,6 +154,7 @@ class SetupAlignment(object):
     def _fill_general_options(self):
         """Create and fill `general_options` dictionary."""
 
+        print "="*75
         self._fetch_essentials()
         self._fetch_defaults()
         self._fetch_dataset_directory()
@@ -170,33 +188,12 @@ class SetupAlignment(object):
     def _create_weight_configs(self):
         """Extract different weight configurations from `self._config`."""
 
-        weight_dict = collections.OrderedDict()
-        common_weights = {}
-
-        # loop over datasets to reassign weights
-        for section in self._config.sections():
-            if 'general' in section:
-                continue
-            elif section == "weights":
-                for option in self._config.options(section):
-                    common_weights[option] \
-                        = [x.strip() for x in
-                           self._config.get(section, option).split(",")]
-            elif section.startswith("dataset:"):
-                name = section[8:]  # get name of dataset by stripping of "dataset:"
-                if self._config.has_option(section,'weight'):
-                    weight_dict[name] \
-                        = [x.strip() for x in
-                           self._config.get(section, "weight").split(",")]
-                else:
-                    weight_dict[name] = ['1.0']
-
-        weights_list = [[(name, weight) for weight in  weight_dict[name]]
-                        for name in weight_dict]
+        weights_list = [[(name, weight) for weight in self._weight_dict[name]]
+                        for name in self._weight_dict]
 
         common_weights_list = [[(name, weight)
-                                for weight in  common_weights[name]]
-                               for name in common_weights]
+                                for weight in  self._common_weights[name]]
+                               for name in self._common_weights]
         common_weights_dicts = []
         for item in itertools.product(*common_weights_list):
             d = {}
@@ -206,10 +203,11 @@ class SetupAlignment(object):
 
         self._weight_configs = []
         for weight_conf in itertools.product(*weights_list):
-            if len(common_weights) > 0:
+            if len(self._common_weights) > 0:
                 for common_weight in common_weights_dicts:
                     self._weight_configs.append([(dataset[0],
-                                     reduce(lambda x,y: x.replace(y, common_weight[y]),
+                                     reduce(lambda x,y: re.sub(r"^"+y+r"$",
+                                                               common_weight[y], x),
                                             common_weight, dataset[1]))
                                     for dataset in weight_conf])
             else:
@@ -229,200 +227,98 @@ class SetupAlignment(object):
         """Create the mille jobs based on the [dataset:<name>] sections."""
 
         first_dataset = True
-        for section in self._config.sections():
-            if "general" in section: continue
-            elif section.startswith("dataset:"):
-                self._dataset_options={}
-                print "-"*60
+        for name, dataset in self._datasets.iteritems():
+            print "="*75
+            # Build config from template/Fill in variables
+            try:
+                with open(dataset["configTemplate"],"r") as f:
+                    tmpFile = f.read()
+            except IOError:
+                print "The config-template called",
+                print dataset["configTemplate"], "cannot be found."
+                sys.exit(1)
 
-                # set name from section-name
-                self._dataset_options["name"] = section[8:]
-
-                # extract essential variables
-                for var in ("inputFileList", "collection"):
-                    try:
-                        self._dataset_options[var] = self._config.get(section,var)
-                    except ConfigParser.NoOptionError:
-                        print "No", var, "found in", section+". Please check ini-file."
-                        sys.exit(1)
-
-                # get globaltag and configTemplate. If none in section, try to get
-                # default from [general] section.
-                for var in ("configTemplate", "globaltag"):
-                    if self._config.has_option(section,var):
-                        self._dataset_options[var] = self._config.get(section,var)
-                    else:
-                        try:
-                            self._dataset_options[var] = self._general_options[var]
-                        except KeyError:
-                            print "No",var,"found in ["+section+"]",
-                            print "and no default in [general] section."
-                            sys.exit(1)
-
-                # extract non-essential options
-                self._dataset_options["cosmicsZeroTesla"] = False
-                if self._config.has_option(section,"cosmicsZeroTesla"):
-                    self._dataset_options["cosmicsZeroTesla"] \
-                        = self._config.getboolean(section,"cosmicsZeroTesla")
-
-                self._dataset_options["cosmicsDecoMode"] = False
-                if self._config.has_option(section,"cosmicsDecoMode"):
-                    self._dataset_options["cosmicsDecoMode"] \
-                        = self._config.getboolean(section,"cosmicsDecoMode")
-
-                self._dataset_options["primaryWidth"] = -1.0
-                if self._config.has_option(section,"primaryWidth"):
-                    self._dataset_options["primaryWidth"] \
-                        = self._config.getfloat(section,"primaryWidth")
-
-                self._dataset_options["json"] = ""
-                if self._config.has_option(section, "json"):
-                    self._dataset_options["json"] = self._config.get(section,"json")
-                else:
-                    try:
-                        self._dataset_options["json"] = self._general_options["json"]
-                    except KeyError:
-                        print "No json given in either [general] or ["+section+"] sections.",
-                        print "Proceeding without json-file."
-
-
-                # replace ${datasetdir} and other variables in inputFileList-path
-                self._dataset_options["inputFileList"] \
-                    = os.path.expandvars(self._dataset_options["inputFileList"])
-
-                # replace variables in configTemplate-path, e.g. $CMSSW_BASE
-                self._dataset_options["configTemplate"] \
-                    = os.path.expandvars(self._dataset_options["configTemplate"])
-
-
-                # Get number of jobs from lines in inputfilelist
-                self._dataset_options["njobs"] = 0
-                try:
-                    with open(self._dataset_options["inputFileList"], "r") as filelist:
-                        for line in filelist:
-                            if "CastorPool" in line:
-                                continue
-                            # ignore empty lines
-                            if not line.strip()=="":
-                                self._dataset_options["njobs"] += 1
-                except IOError:
-                    print "Inputfilelist", self._dataset_options["inputFileList"],
-                    print "does not exist."
-                    sys.exit(1)
-                if self._dataset_options["njobs"] == 0:
-                    print "Number of jobs is 0. There may be a problem with the inputfilelist:"
-                    print self._dataset_options["inputFileList"]
-                    sys.exit(1)
-
-                # Check if njobs gets overwritten in .ini-file
-                if self._config.has_option(section, "njobs"):
-                    if self._config.getint(section, "njobs") <= self._dataset_options["njobs"]:
-                        self._dataset_options["njobs"] = self._config.getint(section, "njobs")
-                    else:
-                        print "'njobs' is bigger than the number of files for this",
-                        print "dataset:", self._dataset_options["njobs"]
-                        print "Using default."
-                else:
-                    print "No number of jobs specified. Using number of files in",
-                    print "inputfilelist as the number of jobs."
-
-
-                # Build config from template/Fill in variables
-                try:
-                    with open(self._dataset_options["configTemplate"],"r") as f:
-                        tmpFile = f.read()
-                except IOError:
-                    print "The config-template called",
-                    print self._dataset_options["configTemplate"], "cannot be found."
-                    sys.exit(1)
-
-                tmpFile = re.sub('setupGlobaltag\s*\=\s*[\"\'](.*?)[\"\']',
-                                 'setupGlobaltag = \"'+self._dataset_options["globaltag"]+'\"',
+            tmpFile = re.sub('setupGlobaltag\s*\=\s*[\"\'](.*?)[\"\']',
+                             'setupGlobaltag = \"'+dataset["globaltag"]+'\"',
+                             tmpFile)
+            tmpFile = re.sub(re.compile("setupRunStartGeometry\s*\=\s*.*$", re.M),
+                             "setupRunStartGeometry = "+
+                             self._general_options["FirstRunForStartGeometry"], tmpFile)
+            tmpFile = re.sub('setupCollection\s*\=\s*[\"\'](.*?)[\"\']',
+                             'setupCollection = \"'+dataset["collection"]+'\"',
+                             tmpFile)
+            if dataset['cosmicsZeroTesla']:
+                tmpFile = re.sub(re.compile('setupCosmicsZeroTesla\s*\=\s*.*$', re.M),
+                                 'setupCosmicsZeroTesla = True',
                                  tmpFile)
-                tmpFile = re.sub(re.compile("setupRunStartGeometry\s*\=\s*.*$", re.M),
-                                 "setupRunStartGeometry = "+
-                                 self._general_options["FirstRunForStartGeometry"], tmpFile)
-                tmpFile = re.sub('setupCollection\s*\=\s*[\"\'](.*?)[\"\']',
-                                 'setupCollection = \"'+self._dataset_options["collection"]+'\"',
+            if dataset['cosmicsDecoMode']:
+                tmpFile = re.sub(re.compile('setupCosmicsDecoMode\s*\=\s*.*$', re.M),
+                                 'setupCosmicsDecoMode = True',
                                  tmpFile)
-                if self._dataset_options['cosmicsZeroTesla']:
-                    tmpFile = re.sub(re.compile('setupCosmicsZeroTesla\s*\=\s*.*$', re.M),
-                                     'setupCosmicsZeroTesla = True',
-                                     tmpFile)
-                if self._dataset_options['cosmicsDecoMode']:
-                    tmpFile = re.sub(re.compile('setupCosmicsDecoMode\s*\=\s*.*$', re.M),
-                                     'setupCosmicsDecoMode = True',
-                                     tmpFile)
-                if self._dataset_options['primaryWidth'] > 0.0:
-                    tmpFile = re.sub(re.compile('setupPrimaryWidth\s*\=\s*.*$', re.M),
-                                     'setupPrimaryWidth = '+str(self._dataset_options["primaryWidth"]),
-                                     tmpFile)
-                if self._dataset_options['json'] != '':
-                    tmpFile = re.sub(re.compile('setupJson\s*\=\s*.*$', re.M),
-                                     'setupJson = \"'+self._dataset_options["json"]+'\"',
-                                     tmpFile)
+            if dataset['primaryWidth'] > 0.0:
+                tmpFile = re.sub(re.compile('setupPrimaryWidth\s*\=\s*.*$', re.M),
+                                 'setupPrimaryWidth = '+str(dataset["primaryWidth"]),
+                                 tmpFile)
+            if dataset['json'] != '':
+                tmpFile = re.sub(re.compile('setupJson\s*\=\s*.*$', re.M),
+                                 'setupJson = \"'+dataset["json"]+'\"',
+                                 tmpFile)
 
-                thisCfgTemplate = "tmp.py"
-                with open(thisCfgTemplate, "w") as f:
-                    f.write(tmpFile)
+            thisCfgTemplate = "tmp.py"
+            with open(thisCfgTemplate, "w") as f:
+                f.write(tmpFile)
 
 
-                # Set mps_setup append option for datasets following the first one
-                append = "-a"
-                if first_dataset:
-                    append = ""
-                    first_dataset = False
-                    self._config_template = tmpFile
-                    self._cms_process = mps_tools.get_process_object(thisCfgTemplate)
-                    self._create_input_db()
+            # Set mps_setup append option for datasets following the first one
+            append = "-a"
+            if first_dataset:
+                append = ""
+                first_dataset = False
+                self._config_template = tmpFile
+                self._cms_process = mps_tools.get_process_object(thisCfgTemplate)
+                self._create_input_db()
 
-                with open(thisCfgTemplate, "a") as f: f.write(self._override_gt)
+            with open(thisCfgTemplate, "a") as f: f.write(self._override_gt)
 
 
-                # create mps_setup command
-                command = ["mps_setup.pl",
-                           "-m",
-                           append,
-                           "-M", self._general_options["pedeMem"],
-                           "-N", self._dataset_options["name"],
-                           self._mille_script,
-                           thisCfgTemplate,
-                           self._dataset_options["inputFileList"],
-                           str(self._dataset_options["njobs"]),
-                           self._general_options["classInf"],
-                           self._general_options["jobname"],
-                           self._pede_script,
-                           "cmscafuser:"+self._mss_dir]
-                command = filter(lambda x: len(x.strip()) > 0, command)
+            # create mps_setup command
+            command = ["mps_setup.pl",
+                       "-m",
+                       append,
+                       "-M", self._general_options["pedeMem"],
+                       "-N", name,
+                       self._mille_script,
+                       thisCfgTemplate,
+                       dataset["inputFileList"],
+                       str(dataset["njobs"]),
+                       self._general_options["classInf"],
+                       self._general_options["jobname"],
+                       self._pede_script,
+                       "cmscafuser:"+self._mss_dir]
+            command = filter(lambda x: len(x.strip()) > 0, command)
 
-                # Some output:
-                print "Submitting dataset:", self._dataset_options["name"]
-                print "Baseconfig:        ", self._dataset_options["configTemplate"]
-                print "Collection:        ", self._dataset_options["collection"]
-                if self._dataset_options["collection"] in ("ALCARECOTkAlCosmicsCTF0T",
-                                                           "ALCARECOTkAlCosmicsInCollisions"):
-                    print "cosmicsDecoMode:   ", self._dataset_options["cosmicsDecoMode"]
-                    print "cosmicsZeroTesla:  ", self._dataset_options["cosmicsZeroTesla"]
-                print "Globaltag:         ", self._dataset_options["globaltag"]
-                print "Number of jobs:    ", self._dataset_options["njobs"]
-                print "Inputfilelist:     ", self._dataset_options["inputFileList"]
-                if self._dataset_options["json"] != "":
-                    print "Jsonfile:          ", self._dataset_options["json"]
+            # Some output:
+            print "Creating jobs for dataset:", name
+            print "-"*75
+            print "Baseconfig:        ", dataset["configTemplate"]
+            print "Collection:        ", dataset["collection"]
+            if dataset["collection"] in ("ALCARECOTkAlCosmicsCTF0T",
+                                         "ALCARECOTkAlCosmicsInCollisions"):
+                print "cosmicsDecoMode:   ", dataset["cosmicsDecoMode"]
+                print "cosmicsZeroTesla:  ", dataset["cosmicsZeroTesla"]
+            print "Globaltag:         ", dataset["globaltag"]
+            print "Number of jobs:    ", dataset["njobs"]
+            print "Inputfilelist:     ", dataset["inputFileList"]
+            if dataset["json"] != "":
+                print "Jsonfile:          ", dataset["json"]
+            if self._args.verbose:
                 print "Pass to mps_setup: ", " ".join(command)
 
-                # call the command and toggle verbose output
-                self._handle_process_call(command, self._args.verbose)
+            # call the command and toggle verbose output
+            self._handle_process_call(command, self._args.verbose)
 
-                # remove temporary file
-                self._handle_process_call(["rm", thisCfgTemplate])
-
-        if first_dataset:
-            print "No dataset section defined in '{0}'".format(self._args.aligmentConfig)
-            print "At least one section '[dataset:<name>]' is required."
-            sys.exit(1)
-
-        self._global_tag = self._dataset_options["globaltag"]
-        self._first_run = self._general_options["FirstRunForStartGeometry"]
+            # remove temporary file
+            self._handle_process_call(["rm", thisCfgTemplate])
 
 
     def _create_pede_jobs(self):
@@ -430,13 +326,14 @@ class SetupAlignment(object):
 
         for setting in self._pede_settings:
             print
-            print "="*60
+            print "="*75
             if setting is None:
-                print "Creating pede job."
+                print "Creating pede job{}.".format(
+                    "s" if len(self._pede_settings)*len(self._weight_configs) > 1 else "")
+                print "-"*75
             else:
                 print "Creating pede jobs using settings from '{0}'.".format(setting)
             for weight_conf in self._weight_configs:
-                print "-"*60
                 # blank weights
                 self._handle_process_call(["mps_weight.pl", "-c"])
 
@@ -444,7 +341,7 @@ class SetupAlignment(object):
                 with open(thisCfgTemplate, "w") as f: f.write(self._config_template)
                 if self._override_gt is None:
                     self._cms_process = mps_tools.get_process_object(thisCfgTemplate)
-                    self.create_input_db()
+                    self._create_input_db()
                 with open(thisCfgTemplate, "a") as f: f.write(self._override_gt)
 
                 for name,weight in weight_conf:
@@ -452,7 +349,7 @@ class SetupAlignment(object):
 
                 if not self._first_pede_config:
                     # create new mergejob
-                    self._handle_process_call(["mps_setupm.pl"], True)
+                    self._handle_process_call(["mps_setupm.pl"], self._args.verbose)
 
                 # read mps.db to find directory of new mergejob
                 lib = mpslib.jobdatabase()
@@ -474,6 +371,7 @@ class SetupAlignment(object):
                     str(lib.nJobs),
                 ]
                 if setting is not None: command.extend(["-a", setting])
+                print "-"*75
                 print " ".join(command)
                 self._handle_process_call(command, self._args.verbose)
                 self._create_tracker_tree()
@@ -486,6 +384,7 @@ class SetupAlignment(object):
                 # store weights configuration
                 with open(os.path.join(jobm_path, ".weights.pkl"), "wb") as f:
                     cPickle.dump(weight_conf, f, 2)
+                print "="*75
 
         # remove temporary file
         self._handle_process_call(["rm", thisCfgTemplate])
@@ -507,41 +406,9 @@ class SetupAlignment(object):
             print "Properly set up the alignment before using the -w option."
             sys.exit(1)
 
-        # check if default configTemplate is given
-        try:
-            config_template = self._config.get("general", "configTemplate")
-        except ConfigParser.NoOptionError:
-            print "No default configTemplate given in [general] section."
-            print "When using -w, a default configTemplate is needed to build",
-            print "a merge-config."
-            sys.exit(1)
-
-        # check if default globaltag is given
-        try:
-            self._global_tag = self._config.get("general", "globaltag")
-        except ConfigParser.NoOptionError:
-            print "No default 'globaltag' given in [general] section."
-            print "When using -w, a default configTemplate is needed to build",
-            print "a merge-config."
-            sys.exit(1)
-
-        try:
-            self._first_run = self._config.get("general",
-                                               "FirstRunForStartGeometry")
-        except ConfigParser.NoOptionError:
-            print "Missing mandatory option 'FirstRunForStartGeometry'",
-            print "in [general] section."
-            sys.exit(1)
-
-        for section in self._config.sections():
-            if section.startswith("dataset:"):
-                try:
-                    collection = self._config.get(section, "collection")
-                    break
-                except ConfigParser.NoOptionError:
-                    print "Missing mandatory option 'collection' in section",
-                    print "["+section+"]."
-                    sys.exit(1)
+        firstDataset = next(self._datasets.itervalues())
+        config_template = firstDataset["configTemplate"]
+        collection = firstDataset["collection"]
 
         try:
             with open(config_template,"r") as f:
@@ -721,8 +588,8 @@ class SetupAlignment(object):
                 elif iov == input_iov:
                     input_indices[inp] -= 1
 
-        print "IOV consistency check successful."
-        print "-"*60
+        print " -> IOV consistency check successful."
+        print "="*75
 
         return problematic_gt_inputs
 
@@ -752,6 +619,7 @@ class SetupAlignment(object):
                 print "No", var, "found in [general] section.",
                 print "Please check ini-file."
                 sys.exit(1)
+        self._first_run = self._general_options["FirstRunForStartGeometry"]
 
 
     def _fetch_defaults(self):
@@ -764,6 +632,14 @@ class SetupAlignment(object):
             except ConfigParser.NoOptionError:
                 if var == "testMode": continue
                 print "No '" + var + "' given in [general] section."
+
+        for dataset in self._external_datasets.itervalues():
+            dataset["general"] = {}
+            for var in ("globaltag", "configTemplate", "json"):
+                try:
+                    dataset["general"][var] = dataset["config"].get("general", var)
+                except (ConfigParser.NoSectionError,ConfigParser.NoOptionError):
+                    pass
 
 
     def _fetch_dataset_directory(self):
@@ -781,6 +657,171 @@ class SetupAlignment(object):
             print "No datasetdir given in [general] section.",
             print "Be sure to give a full path in inputFileList."
             self._general_options["datasetdir"] = ""
+
+
+    def _fetch_datasets(self):
+        """Fetch internal and external dataset configurations."""
+
+        all_configs = collections.OrderedDict()
+        all_configs["main"] = {"config": self._config,
+                               "general": self._general_options}
+        all_configs.update(self._external_datasets)
+
+        for config in all_configs.itervalues():
+            common_weights = {}
+            weight_dict = {}
+            for section in config["config"].sections():
+                cache_datasetdir = os.environ["datasetdir"]
+                if "general" in section:
+                    if config["config"].has_option("general", "datasetdir"):
+                        os.environ["datasetdir"] = config["config"].get("general", "datasetdir")
+                elif section == "weights":
+                    for option in config["config"].options(section):
+                        common_weights[option] \
+                            = [x.strip() for x in
+                               config["config"].get(section, option).split(",")]
+                        # self._common_weights[option] \
+                        #     = [x.strip() for x in
+                        #        config["config"].get(section, option).split(",")]
+                        # common_weights[option] = self._common_weights[option]
+                elif section.startswith("dataset:"):
+                    print "-"*75
+                    # set name from section-name
+                    name = section[8:]
+                    if name in self._datasets:
+                        print "WARNING: Duplicate definition of dataset '{}'".format(name)
+                        print " -> Using defintion in '{}':\n".format(config["config"].config_path)
+                        print "    [{}]".format(section)
+                        for k,v in config["config"].items(section):
+                            print "   ", k, "=", v
+                        print
+                    self._datasets[name] = {}
+
+                    # extract weight for the dataset
+                    if config["config"].has_option(section, "weight"):
+                        self._weight_dict[name] \
+                            = [x.strip() for x in
+                               config["config"].get(section, "weight").split(",")]
+                    else:
+                        self._weight_dict[name] = ["1.0"]
+                    weight_dict[name] = self._weight_dict[name]
+
+                    # extract essential variables
+                    for var in ("inputFileList", "collection"):
+                        try:
+                            self._datasets[name][var] = config["config"].get(section, var)
+                        except ConfigParser.NoOptionError:
+                            print "No", var, "found in", section+". Please check ini-file."
+                            sys.exit(1)
+
+                    # get globaltag and configTemplate. If none in section, try to get
+                    # default from [general] section.
+                    for var in ("configTemplate", "globaltag"):
+                        try:
+                            self._datasets[name][var] = config["config"].get(section, var)
+                        except (ConfigParser.NoSectionError,ConfigParser.NoOptionError):
+                            try:
+                                self._datasets[name][var] = config["general"][var]
+                            except KeyError:
+                                try:
+                                    self._datasets[name][var] \
+                                        = all_configs["main"]["general"][var]
+                                except KeyError:
+                                    print "No",var,"found in ["+section+"]",
+                                    print "and no default in [general] section."
+                                    sys.exit(1)
+
+                    # extract non-essential options
+                    self._datasets[name]["cosmicsZeroTesla"] = False
+                    if config["config"].has_option(section,"cosmicsZeroTesla"):
+                        self._datasets[name]["cosmicsZeroTesla"] \
+                            = config["config"].getboolean(section,"cosmicsZeroTesla")
+
+                    self._datasets[name]["cosmicsDecoMode"] = False
+                    if config["config"].has_option(section,"cosmicsDecoMode"):
+                        self._datasets[name]["cosmicsDecoMode"] \
+                            = config["config"].getboolean(section,"cosmicsDecoMode")
+
+                    self._datasets[name]["primaryWidth"] = -1.0
+                    if config["config"].has_option(section,"primaryWidth"):
+                        self._datasets[name]["primaryWidth"] \
+                            = config["config"].getfloat(section,"primaryWidth")
+
+                    self._datasets[name]["json"] = ""
+                    try:
+                        self._datasets[name]["json"] = config["config"].get(section,"json")
+                    except ConfigParser.NoOptionError:
+                        try:
+                            self._datasets[name]["json"] = config["general"]["json"]
+                        except KeyError:
+                            try:
+                                self._datasets[name]["json"] \
+                                    = all_configs["main"]["general"]["json"]
+                            except KeyError:
+                                print "No json given in either [general] or",
+                                print "["+section+"] sections."
+                                print " -> Proceeding without json-file."
+
+
+                    # replace ${datasetdir} and other variables in inputFileList-path
+                    self._datasets[name]["inputFileList"] \
+                        = os.path.expandvars(self._datasets[name]["inputFileList"])
+
+                    # replace variables in configTemplate-path, e.g. $CMSSW_BASE
+                    self._datasets[name]["configTemplate"] \
+                        = os.path.expandvars(self._datasets[name]["configTemplate"])
+
+
+                    # Get number of jobs from lines in inputfilelist
+                    self._datasets[name]["njobs"] = 0
+                    try:
+                        with open(self._datasets[name]["inputFileList"], "r") as filelist:
+                            for line in filelist:
+                                if "CastorPool" in line:
+                                    continue
+                                # ignore empty lines
+                                if not line.strip()=="":
+                                    self._datasets[name]["njobs"] += 1
+                    except IOError:
+                        print "Inputfilelist", self._datasets[name]["inputFileList"],
+                        print "does not exist."
+                        sys.exit(1)
+                    if self._datasets[name]["njobs"] == 0:
+                        print "Number of jobs is 0. There may be a problem with the inputfilelist:"
+                        print self._datasets[name]["inputFileList"]
+                        sys.exit(1)
+
+                    # Check if njobs gets overwritten in .ini-file
+                    if config["config"].has_option(section, "njobs"):
+                        if config["config"].getint(section, "njobs") <= self._datasets[name]["njobs"]:
+                            self._datasets[name]["njobs"] = config["config"].getint(section, "njobs")
+                        else:
+                            print "'njobs' is bigger than the number of files for this",
+                            print "dataset:", self._datasets[name]["njobs"]
+                            print "Using default."
+                    else:
+                        print "No number of jobs specified. Using number of files in",
+                        print "inputfilelist as the number of jobs."
+
+            # check if local weights override global weights and resolve name clashes
+            for weight_name, weight_values in common_weights.iteritems():
+                for key, weight in weight_dict.iteritems():
+                    if weight_name in weight:
+                        self._common_weights[weight_name+config["config"].config_path] = weight_values
+                        self._weight_dict[key] = [re.sub(r"^"+weight_name+r"$", weight_name+config["config"].config_path, w) for w in weight]
+                    else:
+                        self._common_weights[weight_name] = weight_values
+                        self._weight_dict[key] = weight
+
+            os.environ["datasetdir"] = cache_datasetdir
+
+        if len(self._datasets) == 0:
+            print "No dataset section defined in '{0}'".format(
+                ", ".join([self._args.aligmentConfig]+self._external_datasets.keys()))
+            print "At least one section '[dataset:<name>]' is required."
+            sys.exit(1)
+
+        self._global_tag = self._datasets[name]["globaltag"]
 
 
 ################################################################################
