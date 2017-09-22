@@ -36,34 +36,38 @@ typedef emtf::CSCTag CSCTag;
 typedef emtf::RPCTag RPCTag;
 typedef emtf::GEMTag GEMTag;
 
-// Constants
+namespace emtf {
 
-// Phase 2 Geometry a.k.a. HL-LHC
-#define PHASE_TWO_GEOMETRY 0
+  // Constants
 
-// from DataFormats/MuonDetId/interface/CSCDetId.h
-#define MIN_ENDCAP 1
-#define MAX_ENDCAP 2
+  // Phase 2 Geometry a.k.a. HL-LHC
+  constexpr int PHASE_TWO_GEOMETRY = 0;
+  
+  // from DataFormats/MuonDetId/interface/CSCDetId.h
+  constexpr int MIN_ENDCAP = 1;
+  constexpr int MAX_ENDCAP = 2;
+  
+  // from DataFormats/MuonDetId/interface/CSCTriggerNumbering.h
+  constexpr int MIN_TRIGSECTOR = 1;
+  constexpr int MAX_TRIGSECTOR = 6;
+  constexpr int NUM_SECTORS = 12;
+  
+  // Zones
+  constexpr int NUM_ZONES = 4;
+  constexpr int NUM_ZONE_HITS = 160;
+  
+  // Stations
+  constexpr int NUM_STATIONS = 4;
+  constexpr int NUM_STATION_PAIRS = 6;
+  
+  // Fixed-size arrays
+  #include <array>
+  template<typename T>
+  using sector_array = std::array<T, NUM_SECTORS>;
+  template<typename T>
+  using zone_array = std::array<T, NUM_ZONES>;
 
-// from DataFormats/MuonDetId/interface/CSCTriggerNumbering.h
-#define MIN_TRIGSECTOR 1
-#define MAX_TRIGSECTOR 6
-#define NUM_SECTORS 12
-
-// Zones
-#define NUM_ZONES 4
-#define NUM_ZONE_HITS 160
-
-// Stations
-#define NUM_STATIONS 4
-#define NUM_STATION_PAIRS 6
-
-// Fixed-size arrays
-#include <array>
-template<typename T>
-using sector_array = std::array<T, NUM_SECTORS>;
-template<typename T>
-using zone_array = std::array<T, NUM_ZONES>;
+} // namespace emtf
 
 #endif
 

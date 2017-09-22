@@ -22,7 +22,7 @@ public:
   void process(
       const std::deque<EMTFHitCollection>& extended_conv_hits,
       std::map<pattern_ref_t, int>& patt_lifetime_map,
-      zone_array<EMTFRoadCollection>& zone_roads
+      emtf::zone_array<EMTFRoadCollection>& zone_roads
   ) const;
 
   bool is_zone_empty(

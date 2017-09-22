@@ -27,8 +27,8 @@ void PrimitiveMatching::configure(
 
 void PrimitiveMatching::process(
     const std::deque<EMTFHitCollection>& extended_conv_hits,
-    const zone_array<EMTFRoadCollection>& zone_roads,
-    zone_array<EMTFTrackCollection>& zone_tracks
+    const emtf::zone_array<EMTFRoadCollection>& zone_roads,
+    emtf::zone_array<EMTFTrackCollection>& zone_tracks
 ) const {
 
   // Function to update fs_history encoded in fs_segment
@@ -70,7 +70,7 @@ void PrimitiveMatching::process(
   }
 
   // Organize converted hits by (zone, station)
-  std::array<EMTFHitCollection, NUM_ZONES*NUM_STATIONS> zs_conv_hits;
+  std::array<EMTFHitCollection, emtf::NUM_ZONES*emtf::NUM_STATIONS> zs_conv_hits;
 
   bool use_fs_zone_code = true;  // use zone code as in firmware find_segment module
 
@@ -89,11 +89,11 @@ void PrimitiveMatching::process(
         zone_code = conv_hits_it->FS_zone_code();  // decide based on new zone code
 
       // A hit can go into multiple zones
-      for (int izone = 0; izone < NUM_ZONES; ++izone) {
+      for (int izone = 0; izone < emtf::NUM_ZONES; ++izone) {
         if (!zone_roads.at(izone).empty()) {
 
           if (zone_code & (1<<izone)) {
-            const int zs = (izone*NUM_STATIONS) + istation;
+            const int zs = (izone*emtf::NUM_STATIONS) + istation;
             zs_conv_hits.at(zs).push_back(*conv_hits_it);
 
             // Update fs_history and bt_history depending on the processor BX
@@ -114,9 +114,9 @@ void PrimitiveMatching::process(
   }  // end loop over extended_conv_hits
 
   if (verbose_ > 1) {  // debug
-    for (int izone = 0; izone < NUM_ZONES; ++izone) {
-      for (int istation = 0; istation < NUM_STATIONS; ++istation) {
-        const int zs = (izone*NUM_STATIONS) + istation;
+    for (int izone = 0; izone < emtf::NUM_ZONES; ++izone) {
+      for (int istation = 0; istation < emtf::NUM_STATIONS; ++istation) {
+        const int zs = (izone*emtf::NUM_STATIONS) + istation;
         for (const auto& conv_hit : zs_conv_hits.at(zs)) {
           std::cout << "z: " << izone << " st: " << istation+1 << " cscid: " << conv_hit.CSC_ID()
               << " ph_zone_phi: " << conv_hit.Zone_hit() << " ph_low_prec: " << (conv_hit.Zone_hit()<<5)
@@ -128,13 +128,13 @@ void PrimitiveMatching::process(
   }
 
   // Keep the best phi difference for every road by (zone, station)
-  std::array<std::vector<hit_sort_pair_t>, NUM_ZONES*NUM_STATIONS> zs_phi_differences;
+  std::array<std::vector<hit_sort_pair_t>, emtf::NUM_ZONES*emtf::NUM_STATIONS> zs_phi_differences;
 
   // Get the best-matching hits by comparing phi difference between
   // pattern and segment
-  for (int izone = 0; izone < NUM_ZONES; ++izone) {
-    for (int istation = 0; istation < NUM_STATIONS; ++istation) {
-      const int zs = (izone*NUM_STATIONS) + istation;
+  for (int izone = 0; izone < emtf::NUM_ZONES; ++izone) {
+    for (int istation = 0; istation < emtf::NUM_STATIONS; ++istation) {
+      const int zs = (izone*emtf::NUM_STATIONS) + istation;
 
       // This leaves zone_roads.at(izone) and zs_conv_hits.at(zs) unchanged
       // zs_phi_differences.at(zs) gets filled with a pair of <phi_diff, conv_hit> for the
@@ -146,17 +146,19 @@ void PrimitiveMatching::process(
           zs_phi_differences.at(zs)
       );
 
-      assert(zone_roads.at(izone).size() == zs_phi_differences.at(zs).size());
+      if (not(zone_roads.at(izone).size() == zs_phi_differences.at(zs).size()))
+	{ edm::LogError("L1T") << "zone_roads.at(izone).size() = " << zone_roads.at(izone).size()
+			       << ", zs_phi_differences.at(zs).size() = " << zs_phi_differences.at(zs).size(); return; }
     }  // end loop over stations
   }  // end loop over zones
 
   if (verbose_ > 1) {  // debug
-    for (int izone = 0; izone < NUM_ZONES; ++izone) {
+    for (int izone = 0; izone < emtf::NUM_ZONES; ++izone) {
       const auto& roads = zone_roads.at(izone);
       for (unsigned iroad = 0; iroad < roads.size(); ++iroad) {
         const auto& road = roads.at(iroad);
-        for (int istation = 0; istation < NUM_STATIONS; ++istation) {
-          const int zs = (izone*NUM_STATIONS) + istation;
+        for (int istation = 0; istation < emtf::NUM_STATIONS; ++istation) {
+          const int zs = (izone*emtf::NUM_STATIONS) + istation;
           int ph_diff = zs_phi_differences.at(zs).at(iroad).first;
           std::cout << "find seg: z: " << road.Zone()-1 << " r: " << road.Winner()
               << " st: " << istation << " ph_diff: " << ph_diff
@@ -168,7 +170,7 @@ void PrimitiveMatching::process(
 
 
   // Build all tracks in each zone
-  for (int izone = 0; izone < NUM_ZONES; ++izone) {
+  for (int izone = 0; izone < emtf::NUM_ZONES; ++izone) {
     const EMTFRoadCollection& roads = zone_roads.at(izone);
 
     for (unsigned iroad = 0; iroad < roads.size(); ++iroad) {
@@ -189,8 +191,8 @@ void PrimitiveMatching::process(
       track.clear_Hits();
 
       // Insert hits
-      for (int istation = 0; istation < NUM_STATIONS; ++istation) {
-        const int zs = (izone*NUM_STATIONS) + istation;
+      for (int istation = 0; istation < emtf::NUM_STATIONS; ++istation) {
+        const int zs = (izone*emtf::NUM_STATIONS) + istation;
 
         const EMTFHitCollection& conv_hits = zs_conv_hits.at(zs);
         int       ph_diff      = zs_phi_differences.at(zs).at(iroad).first;
@@ -204,7 +206,8 @@ void PrimitiveMatching::process(
       }
 
       if (fixZonePhi_) {
-        assert(!track.Hits().empty());
+        if (not(!track.Hits().empty()))
+	  { edm::LogError("L1T") << "track.Hits().empty() = " << track.Hits().empty(); return; }
       }
 
       // Output track
@@ -307,7 +310,8 @@ void PrimitiveMatching::process_single_zone_station(
   for (; roads_it != roads_end; ++roads_it) {
     int ph_pat = roads_it->Key_zhit();     // pattern key phi value
     int ph_q   = roads_it->Quality_code(); // pattern quality code
-    assert(ph_pat >= 0 && ph_q > 0);
+    if (not(ph_pat >= 0 && ph_q > 0))
+      { edm::LogError("L1T") << "ph_pat = " << ph_pat << ", ph_q = " << ph_q; return; }
 
     if (fixZonePhi_) {
       ph_pat <<= 5;  // add missing 5 lower bits to pattern phi
@@ -321,7 +325,8 @@ void PrimitiveMatching::process_single_zone_station(
     for (; conv_hits_it != conv_hits_end; ++conv_hits_it) {
       int ph_seg     = conv_hits_it->Phi_fp();  // ph from segments
       int ph_seg_red = ph_seg >> (bw_fph-bpow-1);  // remove unused low bits
-      assert(ph_seg >= 0);
+      if (not(ph_seg >= 0))
+	{ edm::LogError("L1T") << "ph_seg = " << ph_seg; return; }
 
       if (fixZonePhi_) {
         ph_seg_red = ph_seg;  // use full-precision phi
@@ -371,8 +376,13 @@ void PrimitiveMatching::process_single_zone_station(
           fs_segment = (fs_segment & 0x1);
           unsigned fw_sort_array_index = (fs_history * zone_cham * seg_ch) + (fs_chamber * seg_ch) + fs_segment;
 
-          assert(fs_history < max_drift && fs_chamber < zone_cham && fs_segment < seg_ch);
-          assert(fw_sort_array_index < fw_sort_array.size());
+          if (not(fs_history < max_drift && fs_chamber < zone_cham && fs_segment < seg_ch))
+	    { edm::LogError("L1T") << "fs_history = " << fs_history << ", max_drift = " << max_drift
+				   << ", fs_chamber = " << fs_chamber << ", zone_cham = " << zone_cham
+				   << ", fs_segment = " << fs_segment << ", seg_ch = " << seg_ch; return; }
+          if (not(fw_sort_array_index < fw_sort_array.size()))
+	    { edm::LogError("L1T") << "fw_sort_array_index = " << fw_sort_array_index
+				   << ", fw_sort_array.size() = " << fw_sort_array.size(); return; }
           fw_sort_array.at(fw_sort_array_index) = *phdiffs_it;
         }
 
@@ -459,7 +469,9 @@ void PrimitiveMatching::insert_hits(
       true
     ) {
       // All duplicates with the same strip but different wire must have same phi_fp
-      assert(conv_hit_i.Phi_fp() == conv_hit_j.Phi_fp());
+      if (not(conv_hit_i.Phi_fp() == conv_hit_j.Phi_fp()))
+	{ edm::LogError("L1T") << "conv_hit_i.Phi_fp() = " << conv_hit_i.Phi_fp() 
+			       << ", conv_hit_j.Phi_fp() = " << conv_hit_j.Phi_fp(); return; }
 
       track.push_Hit( conv_hit_i );
 
@@ -478,10 +490,12 @@ void PrimitiveMatching::insert_hits(
       //(conv_hit_i.Roll()       == conv_hit_j.Roll()) &&
       true
     ) {
-      // All duplicates with the same strip but different wire must have same phi_fp
-      //assert(conv_hit_i.Phi_fp() == conv_hit_j.Phi_fp());
-
-      //track.push_Hit( conv_hit_i );
+      // // All duplicates with the same strip but different wire must have same phi_fp
+      // if (not(conv_hit_i.Phi_fp() == conv_hit_j.Phi_fp()))
+      // 	{ edm::LogError("L1T") << "conv_hit_i.Phi_fp() = " << conv_hit_i.Phi_fp() 
+      // 			       << ", conv_hit_j.Phi_fp() = " << conv_hit_j.Phi_fp(); return; }
+      
+      // track.push_Hit( conv_hit_i );
 
       // Dirty hack
       EMTFHit tmp_hit = conv_hit_j;

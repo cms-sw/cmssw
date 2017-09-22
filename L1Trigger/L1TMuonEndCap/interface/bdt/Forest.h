@@ -38,25 +38,25 @@ class Forest
         // Helpful operations
         void listEvents(std::vector< std::vector<Event*> >& e);
         void sortEventVectors(std::vector< std::vector<Event*> >& e);
-        void generate(Int_t numTrainEvents, Int_t numTestEvents, double sigma);
+        void generate(int numTrainEvents, int numTestEvents, double sigma);
         void loadForestFromXML(const char* directory, unsigned int numTrees); 
         void loadFromCondPayload(const L1TMuonEndCapForest::DForest& payload);
 
         // Perform the regression
         void updateRegTargets(Tree *tree, double learningRate, LossFunction* l);
-        void doRegression(Int_t nodeLimit, Int_t treeLimit, double learningRate, LossFunction* l, 
+        void doRegression(int nodeLimit, int treeLimit, double learningRate, LossFunction* l, 
                           const char* savetreesdirectory, bool saveTrees);
 
         // Stochastic Gradient Boosting
         void prepareRandomSubsample(double fraction);
-        void doStochasticRegression(Int_t nodeLimit, Int_t treeLimit, double learningRate, 
+        void doStochasticRegression(int nodeLimit, int treeLimit, double learningRate, 
                                     double fraction, LossFunction* l);
 
         // Predict some events
         void updateEvents(Tree* tree);
-        void appendCorrection(std::vector<Event*>& eventsp, Int_t treenum);
+        void appendCorrection(std::vector<Event*>& eventsp, int treenum);
         void predictEvents(std::vector<Event*>& eventsp, unsigned int trees);
-        void appendCorrection(Event* e, Int_t treenum);
+        void appendCorrection(Event* e, int treenum);
         void predictEvent(Event* e, unsigned int trees);
 
         Tree* getTree(unsigned int i);

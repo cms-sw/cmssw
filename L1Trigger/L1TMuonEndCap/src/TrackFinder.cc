@@ -76,9 +76,9 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
   pc_lut_version_ = 777777;
 
   // Configure sector processors
-  for (int endcap = MIN_ENDCAP; endcap <= MAX_ENDCAP; ++endcap) {
-    for (int sector = MIN_TRIGSECTOR; sector <= MAX_TRIGSECTOR; ++sector) {
-      const int es = (endcap - MIN_ENDCAP) * (MAX_TRIGSECTOR - MIN_TRIGSECTOR + 1) + (sector - MIN_TRIGSECTOR);
+  for (int endcap = emtf::MIN_ENDCAP; endcap <= emtf::MAX_ENDCAP; ++endcap) {
+    for (int sector = emtf::MIN_TRIGSECTOR; sector <= emtf::MAX_TRIGSECTOR; ++sector) {
+      const int es = (endcap - emtf::MIN_ENDCAP) * (emtf::MAX_TRIGSECTOR - emtf::MIN_TRIGSECTOR + 1) + (sector - emtf::MIN_TRIGSECTOR);
       
       sector_processors_.at(es).configure(
           &geometry_translator_,
@@ -177,9 +177,9 @@ void TrackFinder::process(
   // Run each sector processor
 
   // MIN/MAX ENDCAP and TRIGSECTOR set in interface/Common.h
-  for (int endcap = MIN_ENDCAP; endcap <= MAX_ENDCAP; ++endcap) {
-    for (int sector = MIN_TRIGSECTOR; sector <= MAX_TRIGSECTOR; ++sector) {
-      const int es = (endcap - MIN_ENDCAP) * (MAX_TRIGSECTOR - MIN_TRIGSECTOR + 1) + (sector - MIN_TRIGSECTOR);
+  for (int endcap = emtf::MIN_ENDCAP; endcap <= emtf::MAX_ENDCAP; ++endcap) {
+    for (int sector = emtf::MIN_TRIGSECTOR; sector <= emtf::MAX_TRIGSECTOR; ++sector) {
+      const int es = (endcap - emtf::MIN_ENDCAP) * (emtf::MAX_TRIGSECTOR - emtf::MIN_TRIGSECTOR + 1) + (sector - emtf::MIN_TRIGSECTOR);
 
       // Run-dependent configure. This overwrites many of the configurables passed by the python config file.
       if (new_conditions) {
@@ -206,9 +206,9 @@ void TrackFinder::process(
 
   if (verbose_ > 0) {  // debug
 
-    for (int endcap = MIN_ENDCAP; endcap <= MAX_ENDCAP; ++endcap) {
-      for (int sector = MIN_TRIGSECTOR; sector <= MAX_TRIGSECTOR; ++sector) {
-        const int es = (endcap - MIN_ENDCAP) * (MAX_TRIGSECTOR - MIN_TRIGSECTOR + 1) + (sector - MIN_TRIGSECTOR);
+    for (int endcap = emtf::MIN_ENDCAP; endcap <= emtf::MAX_ENDCAP; ++endcap) {
+      for (int sector = emtf::MIN_TRIGSECTOR; sector <= emtf::MAX_TRIGSECTOR; ++sector) {
+        const int es = (endcap - emtf::MIN_ENDCAP) * (emtf::MAX_TRIGSECTOR - emtf::MIN_TRIGSECTOR + 1) + (sector - emtf::MIN_TRIGSECTOR);
 
         // _____________________________________________________________________
         // This prints the hits as raw text input to the firmware simulator

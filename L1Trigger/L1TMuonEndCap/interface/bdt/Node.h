@@ -21,8 +21,8 @@ class Node
         std::string getName();
         void setName(std::string sName);
 
-        Double_t getErrorReduction();
-        void setErrorReduction(Double_t sErrorReduction);
+        double getErrorReduction();
+        void setErrorReduction(double sErrorReduction);
 
         Node * getLeftDaughter();
         void setLeftDaughter(Node *sLeftDaughter);
@@ -33,23 +33,23 @@ class Node
         Node * getParent();
         void setParent(Node *sParent);
 
-        Double_t getSplitValue();
-        void setSplitValue(Double_t sSplitValue);
+        double getSplitValue();
+        void setSplitValue(double sSplitValue);
 
-        Int_t getSplitVariable();
-        void setSplitVariable(Int_t sSplitVar);
+        int getSplitVariable();
+        void setSplitVariable(int sSplitVar);
 
-        Double_t getFitValue();
-        void setFitValue(Double_t sFitValue);
+        double getFitValue();
+        void setFitValue(double sFitValue);
 
-        Double_t getTotalError();
-        void setTotalError(Double_t sTotalError);
+        double getTotalError();
+        void setTotalError(double sTotalError);
 
-        Double_t getAvgError();
-        void setAvgError(Double_t sAvgError);
+        double getAvgError();
+        void setAvgError(double sAvgError);
 
-        Int_t getNumEvents();
-        void setNumEvents(Int_t sNumEvents);
+        int getNumEvents();
+        void setNumEvents(int sNumEvents);
 
         std::vector< std::vector<Event*> >& getEvents();
         void setEvents(std::vector< std::vector<Event*> >& sEvents);
@@ -70,15 +70,15 @@ class Node
         Node *rightDaughter;
         Node *parent;
 
-        Double_t splitValue;
-        Int_t splitVariable;
+        double splitValue;
+        int splitVariable;
 
-        Double_t errorReduction;
-        Double_t totalError;
-        Double_t avgError;
+        double errorReduction;
+        double totalError;
+        double avgError;
 
-        Double_t fitValue;
-        Int_t numEvents;
+        double fitValue;
+        int numEvents;
 
         std::vector< std::vector<Event*> > events;
 };
