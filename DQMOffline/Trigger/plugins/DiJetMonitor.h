@@ -1,5 +1,5 @@
-#ifndef JETMETMONITOR_H
-#define JETMETMONITOR_H
+#ifndef DIJETMETMONITOR_H
+#define DIJETMETMONITOR_H
 
 #include <string>
 #include <vector>
@@ -57,7 +57,7 @@ protected:
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
-  bool dijet_selection(double eta_1, double phi_1, double eta_2, double phi_2, double pt_1, double pt_2, int &tag_id, int &probe_id);
+  bool dijet_selection(double eta_1, double phi_1, double eta_2, double phi_2, double pt_1, double pt_2, int &tag_id, int &probe_id, int Event);
 
 private:
 
@@ -94,31 +94,26 @@ private:
   int nmuons_;
   double ptcut_;
 
-
-  std::vector<double> v_jetpt;
-  std::vector<double> v_jeteta;
-  std::vector<double> v_jetphi;
-
   // Define Phi Bin //
-  double DiJet_MAX_PHI = 3.2;
+  const double DiJet_MAX_PHI = 3.2;
   unsigned int DiJet_N_PHI = 64;
-  MEbinning dijet_phi_binning_{
+  MEbinning dijet_phi_binning{
     DiJet_N_PHI, -DiJet_MAX_PHI, DiJet_MAX_PHI
   };
   // Define Eta Bin //
-  double DiJet_MAX_ETA = 5;
+  const double DiJet_MAX_ETA = 5;
   unsigned int DiJet_N_ETA = 50;
-  MEbinning dijet_eta_binning_{
+  MEbinning dijet_eta_binning{
     DiJet_N_ETA, -DiJet_MAX_ETA, DiJet_MAX_ETA
   };
 
-  double MAX_asy = 1;
-  double MIN_asy = -1;
+  const double MAX_asy = 1;
+  const double MIN_asy = -1;
   unsigned int N_asy = 100;
-  MEbinning asy_binning_{
+  MEbinning asy_binning{
     N_asy, MIN_asy, MAX_asy
   };
 
 };
 
-#endif // JETMETMONITOR_H
+#endif // DIJETMETMONITOR_H
