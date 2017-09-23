@@ -175,12 +175,15 @@ phase2_hgcal.toModify(
 
 
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
-_addTiming = {}
-for idx in _findIndicesByModule('GeneralTracksImporter') + _findIndicesByModule('GeneralTracksImporterWithVeto'):
-    _addTiming[idx] = dict( 
-            timeValueMap = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModel"),
-            timeErrorMap = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModelResolution")
-    ) 
+_addTiming = particleFlowBlock.elementImporters.copy()
+_addTiming.append( cms.PSet( importerName = cms.string("TrackTimingImporter"),
+                             timeValueMap = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModel"),
+                             timeErrorMap = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModelResolution"),
+                             timeValueMapGsf = cms.InputTag("gsfTrackTimeValueMapProducer:electronGsfTracksConfigurableFlatResolutionModel"),
+                             timeErrorMapGsf = cms.InputTag("gsfTrackTimeValueMapProducer:electronGsfTracksConfigurableFlatResolutionModelResolution")
+                             ) 
+                   )
+
 phase2_timing.toModify(
     particleFlowBlock,
     elementImporters = _addTiming
