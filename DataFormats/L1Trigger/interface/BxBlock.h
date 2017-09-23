@@ -1,5 +1,5 @@
-#ifndef EventFilter_L1TRawToDigi_BxBlock_h
-#define EventFilter_L1TRawToDigi_BxBlock_h
+#ifndef DataFormats_L1Trigger_BxBlock_h
+#define DataFormats_L1Trigger_BxBlock_h
 
 #include <memory>
 #include <vector>

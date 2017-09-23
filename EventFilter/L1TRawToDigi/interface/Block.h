@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "EventFilter/L1TRawToDigi/interface/AMCSpec.h"
-#include "EventFilter/L1TRawToDigi/interface/BxBlock.h"
+#include "DataFormats/L1Trigger/interface/BxBlock.h"
 
 namespace l1t {
    enum block_t { MP7 = 0, CTP7, MTF7 };
