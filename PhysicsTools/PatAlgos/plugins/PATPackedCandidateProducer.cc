@@ -36,9 +36,9 @@ namespace pat {
     class PATPackedCandidateProducer : public edm::global::EDProducer<> {
         public:
             explicit PATPackedCandidateProducer(const edm::ParameterSet&);
-            ~PATPackedCandidateProducer();
+            ~PATPackedCandidateProducer() override;
 
-            virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+            void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
             //sorting of cands to maximize the zlib compression
             bool candsOrdering(pat::PackedCandidate i,pat::PackedCandidate j) const {
@@ -90,6 +90,9 @@ namespace pat {
             const double minPtForTrackProperties_;
             const int covarianceVersion_;
             const std::vector<int> covariancePackingSchemas_;
+      
+            const bool storeTiming_;
+      
             // for debugging
             float calcDxy(float dx, float dy, float phi) const {
                 return - dx * std::sin(phi) + dy * std::cos(phi);
@@ -119,7 +122,8 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
   minPtForChargedHadronProperties_(iConfig.getParameter<double>("minPtForChargedHadronProperties")),
   minPtForTrackProperties_(iConfig.getParameter<double>("minPtForTrackProperties")),
   covarianceVersion_(iConfig.getParameter<int >("covarianceVersion")),
-  covariancePackingSchemas_(iConfig.getParameter<std::vector<int> >("covariancePackingSchemas"))
+  covariancePackingSchemas_(iConfig.getParameter<std::vector<int> >("covariancePackingSchemas")),
+  storeTiming_(iConfig.getParameter<bool>("storeTiming"))  
 {
   std::vector<edm::InputTag> sv_tags = iConfig.getParameter<std::vector<edm::InputTag> >("secondaryVerticesForWhiteList");
   for(auto itag : sv_tags){
@@ -215,7 +219,7 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
 
     for(unsigned int ic=0, nc = cands->size(); ic < nc; ++ic) {
         const reco::PFCandidate &cand=(*cands)[ic];
-        const reco::Track *ctrack = 0;
+        const reco::Track *ctrack = nullptr;
         if ((abs(cand.pdgId()) == 11 || cand.pdgId() == 22) && cand.gsfTrackRef().isNonnull()) {
             ctrack = &*cand.gsfTrackRef();
         } else if (cand.trackRef().isNonnull()) {
@@ -349,6 +353,10 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
           mappingPuppi[((*puppiCandsMap)[pkref]).key()]=ic;
         }
 	
+        if (storeTiming_ && cand.isTimeValid())  {
+          outPtrP->back().setTime(cand.time(), cand.timeError());
+        }
+
         mapping[ic] = ic; // trivial at the moment!
         if (cand.trackRef().isNonnull() && cand.trackRef().id() == TKOrigs.id()) {
 	  mappingTk[cand.trackRef().key()] = ic;	    
