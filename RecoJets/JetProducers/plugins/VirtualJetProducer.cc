@@ -166,6 +166,9 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
 	input_candidateview_token_ = consumes<reco::CandidateView>(src_);
 	input_candidatefwdptr_token_ = consumes<vector<edm::FwdPtr<reco::PFCandidate> > >(iConfig.getParameter<edm::InputTag>("src"));
 	input_packedcandidatefwdptr_token_ = consumes<vector<edm::FwdPtr<pat::PackedCandidate> > >(iConfig.getParameter<edm::InputTag>("src"));
+	input_gencandidatefwdptr_token_ = consumes<vector<edm::FwdPtr<reco::GenParticle> > >(iConfig.getParameter<edm::InputTag>("src"));
+	input_packedgencandidatefwdptr_token_ = consumes<vector<edm::FwdPtr<pat::PackedGenParticle> > >(iConfig.getParameter<edm::InputTag>("src"));
+	
 	//
 	// additional parameters to think about:
 	// - overlap threshold (set to 0.75 for the time being)
@@ -306,6 +309,8 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   
   edm::Handle< std::vector<edm::FwdPtr<reco::PFCandidate> > > pfinputsHandleAsFwdPtr; 
   edm::Handle< std::vector<edm::FwdPtr<pat::PackedCandidate> > > packedinputsHandleAsFwdPtr; 
+  edm::Handle< std::vector<edm::FwdPtr<reco::GenParticle> > > geninputsHandleAsFwdPtr; 
+  edm::Handle< std::vector<edm::FwdPtr<pat::PackedGenParticle> > > packedgeninputsHandleAsFwdPtr; 
   
   bool isView = iEvent.getByToken(input_candidateview_token_, inputsHandle);
   if ( isView ) {
@@ -318,6 +323,10 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
     }
   } else {
     bool isPF = iEvent.getByToken(input_candidatefwdptr_token_, pfinputsHandleAsFwdPtr);
+    bool isPFFwdPtr = iEvent.getByToken(input_packedcandidatefwdptr_token_, packedinputsHandleAsFwdPtr);
+    bool isGen = iEvent.getByToken(input_gencandidatefwdptr_token_, geninputsHandleAsFwdPtr);
+    bool isGenFwdPtr = iEvent.getByToken(input_packedgencandidatefwdptr_token_, packedgeninputsHandleAsFwdPtr);
+    
     if ( isPF ) {
       if ( pfinputsHandleAsFwdPtr->size() == 0) {
 	output( iEvent, iSetup );
@@ -331,8 +340,7 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
 	  inputs_.push_back( (*pfinputsHandleAsFwdPtr)[i].backPtr() );
 	}
       }
-    } else {
-      iEvent.getByToken(input_packedcandidatefwdptr_token_, packedinputsHandleAsFwdPtr);
+    } else if ( isPFFwdPtr ) {
       if ( packedinputsHandleAsFwdPtr->size() == 0) {
 	output( iEvent, iSetup );
 	return;
@@ -343,6 +351,32 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
 	}
 	else if ( (*packedinputsHandleAsFwdPtr)[i].backPtr().isAvailable() ) {
 	  inputs_.push_back( (*packedinputsHandleAsFwdPtr)[i].backPtr() );
+	}
+      }
+    } else if ( isGen ) {
+      if ( geninputsHandleAsFwdPtr->size() == 0) {
+	output( iEvent, iSetup );
+	return;
+      }
+      for (size_t i = 0; i < geninputsHandleAsFwdPtr->size(); ++i) {
+	if ( (*geninputsHandleAsFwdPtr)[i].ptr().isAvailable() ) {
+	  inputs_.push_back( (*geninputsHandleAsFwdPtr)[i].ptr() );
+	}
+	else if ( (*geninputsHandleAsFwdPtr)[i].backPtr().isAvailable() ) {
+	  inputs_.push_back( (*geninputsHandleAsFwdPtr)[i].backPtr() );
+	}
+      }
+    } else if ( isGenFwdPtr ) {
+      if ( geninputsHandleAsFwdPtr->size() == 0) {
+	output( iEvent, iSetup );
+	return;
+      }
+      for (size_t i = 0; i < packedgeninputsHandleAsFwdPtr->size(); ++i) {
+	if ( (*packedgeninputsHandleAsFwdPtr)[i].ptr().isAvailable() ) {
+	  inputs_.push_back( (*packedgeninputsHandleAsFwdPtr)[i].ptr() );
+	}
+	else if ( (*packedgeninputsHandleAsFwdPtr)[i].backPtr().isAvailable() ) {
+	  inputs_.push_back( (*packedgeninputsHandleAsFwdPtr)[i].backPtr() );
 	}
       }
     }

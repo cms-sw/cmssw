@@ -416,6 +416,10 @@
   <class name="edm::Wrapper<edm::FwdPtr<pat::PackedCandidate> >" />
   <class name="edm::Wrapper<std::vector<edm::FwdPtr<pat::PackedCandidate> > >" />
 
+  <class name="edm::FwdPtr<pat::PackedGenParticle>" />
+  <class name="std::vector<edm::FwdPtr<pat::PackedGenParticle> >" />
+  <class name="edm::Wrapper<edm::FwdPtr<pat::PackedGenParticle> >" />
+  <class name="edm::Wrapper<std::vector<edm::FwdPtr<pat::PackedGenParticle> > >" />
 
   <!-- PAT Object Collections -->
   <class name="std::vector<pat::Electron>" />

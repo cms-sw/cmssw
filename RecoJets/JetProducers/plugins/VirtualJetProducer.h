@@ -15,6 +15,7 @@
 #include "DataFormats/JetReco/interface/BasicJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
 
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
 
@@ -228,7 +229,9 @@ private:
   edm::EDGetTokenT<reco::CandidateView> input_candidateview_token_;
   edm::EDGetTokenT<std::vector<edm::FwdPtr<reco::PFCandidate> > > input_candidatefwdptr_token_;
   edm::EDGetTokenT<std::vector<edm::FwdPtr<pat::PackedCandidate> > > input_packedcandidatefwdptr_token_;
-
+  edm::EDGetTokenT<std::vector<edm::FwdPtr<reco::GenParticle> > > input_gencandidatefwdptr_token_;
+  edm::EDGetTokenT<std::vector<edm::FwdPtr<pat::PackedGenParticle> > > input_packedgencandidatefwdptr_token_;
+  
  protected:
   edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;
   
