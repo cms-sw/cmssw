@@ -50,7 +50,7 @@ class DiJetMonitor : public DQMEDAnalyzer  ,  public TriggerDQMBase
 {
 public:
   DiJetMonitor( const edm::ParameterSet& );
-  ~DiJetMonitor() throw() override;
+  ~DiJetMonitor() throw() override {};
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 protected:
