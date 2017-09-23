@@ -32,7 +32,7 @@ void DiJetMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   
   std::string histname, histtitle;
   std::string currentFolder = folderName_ ;
-  ibooker.setCurrentFolder(currentFolder.c_str());
+  ibooker.setCurrentFolder(currentFolder);
 
   histname = "jetpt1"; histtitle = "leading Jet Pt";
   bookME(ibooker,jetpt1ME_,histname,histtitle,dijetpt_binning_.nbins,dijetpt_binning_.xmin, dijetpt_binning_.xmax);
