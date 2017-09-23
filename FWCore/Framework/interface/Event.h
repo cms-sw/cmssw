@@ -264,6 +264,10 @@ namespace edm {
     //override used by EventBase class
     BasicHandle getImpl(std::type_info const& iProductType, ProductID const& pid) const override;
 
+    template<typename PROD>
+    OrphanHandle<PROD>
+    putImpl(EDPutToken::value_type token, std::unique_ptr<PROD> product);
+
     // commit_() is called to complete the transaction represented by
     // this PrincipalGetAdapter. The friendships required seems gross, but any
     // alternative is not great either.  Putting it into the
@@ -349,27 +353,19 @@ namespace edm {
 
   template<typename PROD>
   OrphanHandle<PROD>
-  Event::put(std::unique_ptr<PROD> product, std::string const& productInstanceName) {
-    if(product.get() == 0) {                // null pointer is illegal
-      TypeID typeID(typeid(PROD));
-      principal_get_adapter_detail::throwOnPutOfNullProduct("Event", typeID, productInstanceName);
-    }
-
+  Event::putImpl(EDPutToken::value_type index, std::unique_ptr<PROD> product) {
     // The following will call post_insert if T has such a function,
     // and do nothing if T has no such function.
     std::conditional_t<detail::has_postinsert<PROD>::value,
-                       DoPostInsert<PROD>,
-                       DoNotPostInsert<PROD>> maybe_inserter;
+    DoPostInsert<PROD>,
+    DoNotPostInsert<PROD>> maybe_inserter;
     maybe_inserter(product.get());
-
-    auto index =
-      provRecorder_.getPutTokenIndex(TypeID(*product), productInstanceName);
-    assert(index != std::numeric_limits<unsigned int>::max());
+    
     assert(index < putProducts().size());
     
     std::unique_ptr<Wrapper<PROD> > wp(new Wrapper<PROD>(std::move(product)));
     PROD const* prod = wp->product();
-
+    
     putProducts()[index]=std::move(wp);
     auto const& prodID = provRecorder_.getProductID(index);
     return(OrphanHandle<PROD>(prod, prodID));
@@ -377,14 +373,41 @@ namespace edm {
 
   template<typename PROD>
   OrphanHandle<PROD>
+  Event::put(std::unique_ptr<PROD> product, std::string const& productInstanceName) {
+    if(unlikely(product.get() == 0)) {                // null pointer is illegal
+      TypeID typeID(typeid(PROD));
+      principal_get_adapter_detail::throwOnPutOfNullProduct("Event", typeID, productInstanceName);
+    }
+
+    auto index =
+      provRecorder_.getPutTokenIndex(TypeID(*product), productInstanceName);
+    return putImpl(index, std::move(product));
+  }
+
+  template<typename PROD>
+  OrphanHandle<PROD>
   Event::put(EDPutTokenT<PROD> token, std::unique_ptr<PROD> product) {
-    return put(std::move(product), provRecorder_.productInstanceLabel(token));
+    if(unlikely(product.get() == 0)) {                // null pointer is illegal
+      TypeID typeID(typeid(PROD));
+      principal_get_adapter_detail::throwOnPutOfNullProduct("Event", typeID, provRecorder_.productInstanceLabel(token));
+    }
+    if(unlikely(token.isUninitialized())) {
+      principal_get_adapter_detail::throwOnPutOfUninitializedToken("Event", typeid(PROD));
+    }
+    return putImpl(token.index(),std::move(product));
   }
 
   template<typename PROD>
   OrphanHandle<PROD>
   Event::put(EDPutToken token, std::unique_ptr<PROD> product) {
-    return put(std::move(product), provRecorder_.productInstanceLabel(token));
+    if(unlikely(product.get() == 0)) {                // null pointer is illegal
+      TypeID typeID(typeid(PROD));
+      principal_get_adapter_detail::throwOnPutOfNullProduct("Event", typeID, provRecorder_.productInstanceLabel(token));
+    }
+    if(unlikely(token.isUninitialized())) {
+      principal_get_adapter_detail::throwOnPutOfUninitializedToken("Event", typeid(PROD));
+    }
+    return putImpl(token.index(),std::move(product));
   }
 
   template<typename PROD>

@@ -119,6 +119,8 @@ namespace edm {
     void
     throwOnPutOfNullProduct(char const* principalType, TypeID const& productType, std::string const& productInstanceName);
     void
+    throwOnPutOfUninitializedToken(char const* principalType, std::type_info const& productType);
+    void
     throwOnPrematureRead(char const* principalType, TypeID const& productType, std::string const& moduleLabel, std::string const& productInstanceName);
     void
     throwOnPrematureRead(char const* principalType, TypeID const& productType);
@@ -243,6 +245,9 @@ namespace edm {
     void
     throwAmbiguousException(TypeID const& productType, EDGetToken token) const;
 
+    void
+    throwUnregisteredPutException(TypeID const& type,
+                                  std::string const& productInstanceLabel) const;
   private:
     //------------------------------------------------------------
     // Data members

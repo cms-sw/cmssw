@@ -47,6 +47,17 @@ namespace edm {
   }
 
   void
+  principal_get_adapter_detail::throwOnPutOfUninitializedToken(char const* principalType, std::type_info const& type) {
+    TypeID productType{type};
+    throw Exception(errors::LogicError)
+    << principalType
+    << "::put: An uninitialized EDPutToken was passed to 'put'.\n"
+    << "The pointer is of type "
+    << productType
+    << "'.\n";
+  }
+
+  void
   principal_get_adapter_detail::throwOnPrematureRead(
 	char const* principalType,
 	TypeID const& productType,
@@ -225,32 +236,38 @@ namespace edm {
     return principal_.processHistory();
   }
 
+  void
+  PrincipalGetAdapter::throwUnregisteredPutException(TypeID const& type,
+                                                     std::string const& productInstanceName) const {
+    std::ostringstream str;
+    for(auto branchDescription: principal_.productRegistry().allBranchDescriptions()) {
+      if (branchDescription->moduleLabel() == md_.moduleLabel() and branchDescription->processName() == md_.processName()) {
+        str << *branchDescription<< "-----\n";
+      }
+    }
+    throw edm::Exception(edm::errors::InsertFailure)
+    << "Illegal attempt to 'put' an unregistered product.\n"
+    << "No product is registered for\n"
+    << "  product friendly class name: '" << type.friendlyClassName() << "'\n"
+    << "  module label:                '" << md_.moduleLabel() << "'\n"
+    << "  product instance name:       '" << productInstanceName << "'\n"
+    << "  process name:                '" << md_.processName() << "'\n"
+    
+    << "The following data products are registered for production by "<<md_.moduleLabel()<<":\n"
+    << str.str()
+    << '\n'
+    << "To correct the problem:\n"
+    "   1) make sure the proper 'produce' call is being made in the module's constructor,\n"
+    "   2) if 'produce' exists and uses a product instance name make sure that same name is used during the 'put' call.";
+  }
+
   BranchDescription const&
   PrincipalGetAdapter::getBranchDescription(TypeID const& type,
                                             std::string const& productInstanceName) const {
     ProductResolverIndexHelper const& productResolverIndexHelper = principal_.productLookup();
     ProductResolverIndex index = productResolverIndexHelper.index(PRODUCT_TYPE, type, md_.moduleLabel().c_str(),productInstanceName.c_str(), md_.processName().c_str());
-    if(index == ProductResolverIndexInvalid) {
-      std::ostringstream str;
-      for(auto branchDescription: principal_.productRegistry().allBranchDescriptions()) {
-        if (branchDescription->moduleLabel() == md_.moduleLabel() and branchDescription->processName() == md_.processName()) {
-          str << *branchDescription<< "-----\n";
-        }
-      }
-      throw edm::Exception(edm::errors::InsertFailure)
-      << "Illegal attempt to 'put' an unregistered product.\n"
-      << "No product is registered for\n"
-      << "  product friendly class name: '" << type.friendlyClassName() << "'\n"
-      << "  module label:                '" << md_.moduleLabel() << "'\n"
-      << "  product instance name:       '" << productInstanceName << "'\n"
-      << "  process name:                '" << md_.processName() << "'\n"
-
-      << "The following data products are registered for production by "<<md_.moduleLabel()<<":\n"
-      << str.str()
-      << '\n'
-      << "To correct the problem:\n"
-      "   1) make sure the proper 'produce' call is being made in the module's constructor,\n"
-      "   2) if 'produce' exists and uses a product instance name make sure that same name is used during the 'put' call.";
+    if(unlikely(index == ProductResolverIndexInvalid)) {
+      throwUnregisteredPutException(type, productInstanceName);
     }
     ProductResolverBase const*  phb = principal_.getProductResolverByIndex(index);
     assert(phb != nullptr);
@@ -305,6 +322,7 @@ namespace edm {
       }
       ++index;
     }
+    throwUnregisteredPutException(type, productInstanceName);
     return std::numeric_limits<unsigned int>::max();
   }
 
