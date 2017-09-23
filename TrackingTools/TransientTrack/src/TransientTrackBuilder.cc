@@ -10,7 +10,7 @@ using namespace std;
 using namespace edm;
 
 namespace {
-  constexpr float fakeBeamSpotTimeWidth = 0.175f;
+  constexpr float defaultInvalidTrackReso = 0.350f;
 }
 
 TransientTrack TransientTrackBuilder::build (const Track * t) const {
@@ -106,10 +106,10 @@ TransientTrackBuilder::build ( const edm::Handle<reco::TrackCollection> & trkCol
     TrackRef ref(trkColl, i);
     double time = trackTimes[ref];
     double timeReso = trackTimeResos[ref];
-    timeReso = ( timeReso > 1e-6 ? timeReso : fakeBeamSpotTimeWidth ); // make the error much larger than the BS time width
+    timeReso = ( timeReso > 1e-6 ? timeReso : defaultInvalidTrackReso ); // make the error much larger than the BS time width
     if( edm::isNotFinite(time) ) {
       time = 0.0;
-      timeReso = 2.0*fakeBeamSpotTimeWidth;
+      timeReso = defaultInvalidTrackReso;
     }
     ttVect.push_back(TransientTrack(ref, time, timeReso, theField, theTrackingGeometry));
   }
@@ -127,10 +127,10 @@ TransientTrackBuilder::build (const edm::Handle<reco::GsfTrackCollection> & trkC
     GsfTrackRef ref(trkColl, i);
     double time = trackTimes[ref];
     double timeReso = trackTimeResos[ref];
-    timeReso = ( timeReso > 1e-6 ? timeReso : fakeBeamSpotTimeWidth ); // make the error much larger than the BS time width
+    timeReso = ( timeReso > 1e-6 ? timeReso : defaultInvalidTrackReso ); // make the error much larger than the BS time width
     if( edm::isNotFinite(time) ) {
       time = 0.0;
-      timeReso = 2.0*fakeBeamSpotTimeWidth;
+      timeReso = defaultInvalidTrackReso;
     }
     ttVect.push_back( TransientTrack(
 	new GsfTransientTrack(ref, time, timeReso, theField, theTrackingGeometry)) );
@@ -152,10 +152,10 @@ TransientTrackBuilder::build (const edm::Handle<edm::View<Track> > & trkColl,
       GsfTrackRef ref = RefToBase<Track>(trkColl, i).castTo<GsfTrackRef>();
       double time = trackTimes[ref];
       double timeReso = trackTimeResos[ref];
-      timeReso = ( timeReso > 1e-6 ? timeReso : fakeBeamSpotTimeWidth ); // make the error much larger than the BS time width
+      timeReso = ( timeReso > 1e-6 ? timeReso : defaultInvalidTrackReso ); // make the error much larger than the BS time width
       if( edm::isNotFinite(time) ) {
 	time = 0.0;
-	timeReso = 2.0*fakeBeamSpotTimeWidth;
+	timeReso = defaultInvalidTrackReso;
       }
       ttVect.push_back( TransientTrack(
 	  new GsfTransientTrack(RefToBase<Track>(trkColl, i).castTo<GsfTrackRef>(), time, timeReso, theField, theTrackingGeometry)) );
@@ -163,10 +163,10 @@ TransientTrackBuilder::build (const edm::Handle<edm::View<Track> > & trkColl,
       TrackRef ref = RefToBase<Track>(trkColl, i).castTo<TrackRef>();
       double time = trackTimes[ref];
       double timeReso = trackTimeResos[ref];
-      timeReso = ( timeReso > 1e-6 ? timeReso : fakeBeamSpotTimeWidth ); // make the error much larger than the BS time width
+      timeReso = ( timeReso > 1e-6 ? timeReso : defaultInvalidTrackReso ); // make the error much larger than the BS time width
       if( edm::isNotFinite(time) ) {
 	time = 0.0;
-	timeReso = 2.0*fakeBeamSpotTimeWidth;
+	timeReso = defaultInvalidTrackReso;
       }
       ttVect.push_back(TransientTrack(RefToBase<Track>(trkColl, i).castTo<TrackRef>(), time, timeReso, theField, theTrackingGeometry));
     }

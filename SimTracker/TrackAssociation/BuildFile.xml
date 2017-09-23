@@ -18,6 +18,7 @@
 <use   name="DataFormats/HepMCCandidate"/>
 <use   name="DataFormats/TrackerCommon"/> 
 <use   name="Geometry/TrackerNumberingBuilder"/>
+<use   name="TrackingTools/TransientTrack"/>
 <use   name="clhep"/>
 <use   name="boost"/>
 <use   name="root"/>
