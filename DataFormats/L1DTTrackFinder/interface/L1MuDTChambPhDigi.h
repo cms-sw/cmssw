@@ -55,6 +55,7 @@ class L1MuDTChambPhDigi {
   int Ts2Tag()      const;
   int BxCnt()       const;
   int RpcBit()      const;
+  int UpDownTag()	const;
 
  private:
 
