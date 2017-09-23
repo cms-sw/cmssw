@@ -28,6 +28,8 @@ def applySubstructure( process, postfix="" ) :
                                                src = cms.InputTag("ak8GenJetsNoNuSoftDrop"+postfix, "SubJets"),
                                                packedGenParticles = cms.InputTag("packedGenParticles"),
                                                cut = cms.string(""),
+                                               cutLoose = cms.string(""),
+                                               nLoose = cms.uint32(0),
                                                clearDaughters = cms.bool(False), #False means rekeying
                                                dropSpecific = cms.bool(True),  # Save space
                                                ), process, task )
@@ -159,7 +161,8 @@ def applySubstructure( process, postfix="" ) :
                      )
     getattr(process,"patJetsAK8Puppi"+postfix).userData.userFloats.src = [] # start with empty list of user floats
     getattr(process,"selectedPatJetsAK8Puppi"+postfix).cut = cms.string("pt > 170")
-
+    getattr(process,"selectedPatJetsAK8Puppi"+postfix).cutLoose = cms.string("pt > 30")
+    getattr(process,"selectedPatJetsAK8Puppi"+postfix).nLoose = cms.uint32(2)
 
     from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import j2tParametersVX
     addToProcessAndTask('ak8PFJetsPuppiTracksAssociatorAtVertex'+postfix, cms.EDProducer("JetTracksAssociatorAtVertex",
