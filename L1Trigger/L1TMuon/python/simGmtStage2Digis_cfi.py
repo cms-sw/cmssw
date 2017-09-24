@@ -16,3 +16,15 @@ simGmtStage2Digis = cms.EDProducer('L1TMuonProducer',
     bxMin = cms.int32(-2),
     bxMax = cms.int32(2)
 )
+
+from CondCore.CondDB.CondDB_cfi import CondDB
+CondDB.connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
+l1ugmtdb = cms.ESSource("PoolDBESSource",
+       CondDB,
+       toGet   = cms.VPSet(
+            cms.PSet(
+                 record = cms.string('L1TMuonGlobalParamsO2ORcd'),
+                 tag = cms.string("L1TMuonGlobalParamsPrototype_Stage2v0_hlt")
+            )
+       )
+)
