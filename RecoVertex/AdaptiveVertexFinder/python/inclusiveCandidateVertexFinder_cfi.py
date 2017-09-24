@@ -6,6 +6,7 @@ inclusiveCandidateVertexFinder  = cms.EDProducer("InclusiveCandidateVertexFinder
        tracks = cms.InputTag("particleFlow"),
        minHits = cms.uint32(0),
        maximumLongitudinalImpactParameter = cms.double(0.3),
+       maximumTimeSignificance = cms.double(3.0),
        minPt = cms.double(0.8),
        maxNTracks = cms.uint32(30),
 
@@ -18,6 +19,7 @@ inclusiveCandidateVertexFinder  = cms.EDProducer("InclusiveCandidateVertexFinder
            clusterMaxSignificance = cms.double(4.5), #4.5 sigma
            distanceRatio = cms.double(20), # was cluster scale = 1 / density factor =0.05 
            clusterMinAngleCosine = cms.double(0.5), # only forward decays
+           maxTimeSignificance = cms.double(3.5) #3.5 sigma, since the time cut is track-to-track
        ),
 
        vertexMinAngleCosine = cms.double(0.95), # scalar prod direction of tracks and flight dir
