@@ -263,6 +263,17 @@ def miniAOD_customizeCommon(process):
     from RecoTauTag.Configuration.boostedHPSPFTaus_cfi import addBoostedTaus
     addBoostedTaus(process)
     #---------------------------------------------------------------------------
+    #Adding tau reco for 80X legacy reMiniAOD
+    #make a copy of makePatTauTask to avoid labels and substitution problems
+    _makePatTausTaskWithTauReReco = process.makePatTausTask.copy()
+    #add PFTau reco modules to cloned makePatTauTask
+    process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
+    _makePatTausTaskWithTauReReco.add(process.PFTauTask)
+    #replace original task by extended one for the miniAOD_80XLegacy era
+    from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+    run2_miniAOD_80XLegacy.toReplaceWith(
+        process.makePatTausTask, _makePatTausTaskWithTauReReco)
+    #---------------------------------------------------------------------------
 
     # Adding puppi jets
     if not hasattr(process, 'ak4PFJetsPuppi'): #MM: avoid confilct with substructure call
