@@ -15,12 +15,24 @@ def applySubstructure( process, postfix="" ) :
     # Configure the RECO jets
     from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJetsPuppi
     from RecoJets.JetProducers.ak8PFJets_cfi import ak8PFJetsPuppi, ak8PFJetsPuppiSoftDrop, ak8PFJetsPuppiConstituents, ak8PFJetsCHSConstituents
+    from RecoJets.JetProducers.ak8GenJets_cfi import ak8GenJets, ak8GenJetsSoftDrop, ak8GenJetsConstituents
     addToProcessAndTask('ak4PFJetsPuppi'+postfix,ak4PFJetsPuppi.clone(), process, task)
     addToProcessAndTask('ak8PFJetsPuppi'+postfix,ak8PFJetsPuppi.clone(), process, task)
     addToProcessAndTask('ak8PFJetsPuppiConstituents', ak8PFJetsPuppiConstituents.clone(cut = cms.string('pt > 170.0 && abs(rapidity()) < 2.4') ), process, task )
     addToProcessAndTask('ak8PFJetsCHSConstituents', ak8PFJetsCHSConstituents.clone(), process, task )
     addToProcessAndTask('ak8PFJetsPuppiSoftDrop'+postfix, ak8PFJetsPuppiSoftDrop.clone( src = cms.InputTag('ak8PFJetsPuppiConstituents', 'constituents') ), process, task)
-
+    addToProcessAndTask('ak8GenJetsNoNuConstituents'+postfix, ak8GenJetsConstituents.clone(src='ak8GenJetsNoNu'), process, task )
+    addToProcessAndTask('ak8GenJetsNoNuSoftDrop'+postfix,ak8GenJetsSoftDrop.clone(src=cms.InputTag('ak8GenJetsNoNuConstituents'+postfix, 'constituents')),process,task)
+    addToProcessAndTask('slimmedGenJetsAK8SoftDropSubJets'+postfix,
+                            cms.EDProducer("PATGenJetSlimmer",
+                                               src = cms.InputTag("ak8GenJetsNoNuSoftDrop"+postfix, "SubJets"),
+                                               packedGenParticles = cms.InputTag("packedGenParticles"),
+                                               cut = cms.string(""),
+                                               clearDaughters = cms.bool(False), #False means rekeying
+                                               dropSpecific = cms.bool(True),  # Save space
+                                               ), process, task )
+    
+    
     #add AK8 CHS
     addJetCollection(process, postfix=postfix, labelName = 'AK8',
                      jetSource = cms.InputTag('ak8PFJetsCHS'+postfix),
@@ -81,6 +93,7 @@ def applySubstructure( process, postfix="" ) :
         labelName = 'AK8PFPuppiSoftDrop' + postfix,
         jetSource = cms.InputTag('ak8PFJetsPuppiSoftDrop'+postfix),
         btagDiscriminators = ['None'],
+        genJetCollection = cms.InputTag('slimmedGenJetsAK8'), 
         jetCorrections = ('AK8PFPuppi', ['L2Relative', 'L3Absolute'], 'None'),
         getJetMCFlavour = False # jet flavor disabled
     )
@@ -96,7 +109,7 @@ def applySubstructure( process, postfix="" ) :
         jetCorrections = ('AK4PFPuppi', ['L2Relative', 'L3Absolute'], 'None'),
         explicitJTA = True,  # needed for subjet b tagging
         svClustering = True, # needed for subjet b tagging
-        genJetCollection = cms.InputTag('slimmedGenJets'), 
+        genJetCollection = cms.InputTag('slimmedGenJetsAK8SoftDropSubJets'), 
         fatJets=cms.InputTag('ak8PFJetsPuppi'),             # needed for subjet flavor clustering
         groomedFatJets=cms.InputTag('ak8PFJetsPuppiSoftDrop') # needed for subjet flavor clustering
     )
