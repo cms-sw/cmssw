@@ -34,22 +34,6 @@ CTPPSPixelLocalTrack::CTPPSPixelLocalTrack(float z0, const ParameterVector & tra
 
 }
 
-//----------------------------------------------------------------------------------------------------
-
-const CTPPSPixelLocalTrack::ParameterVector& CTPPSPixelLocalTrack::getParameterVector() const 
-{      
-  return track_params_vector_;
-}
-
-//----------------------------------------------------------------------------------------------------
-
-const CTPPSPixelLocalTrack::CovarianceMatrix& CTPPSPixelLocalTrack::getCovarianceMatrix() const 
-{     
-  return par_covariance_matrix_;
-}
-
-//----------------------------------------------------------------------------------------------------
-
 bool CTPPSPixelLocalTrack::operator< (const CTPPSPixelLocalTrack &r)
 {
   if (z0_ < r.z0_)
