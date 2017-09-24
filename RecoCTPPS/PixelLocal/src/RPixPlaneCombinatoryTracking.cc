@@ -3,10 +3,6 @@
 
 #include <algorithm>
 
-#include "TMatrixD.h"
-#include "TVectorD.h"
-#include "TVector3.h"
-
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 #include "TMath.h"
