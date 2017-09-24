@@ -127,7 +127,7 @@ int RPixDetClusterizer::calibrate(unsigned int detId, int adc, int row, int col,
   
   if(!doSingleCalibration_){
 
-    CTPPSPixelGainCalibration DetCalibs = pcalibrations->getGainCalibration(detId);
+    const CTPPSPixelGainCalibration& DetCalibs = pcalibrations->getGainCalibration(detId);
 
     if(DetCalibs.getDetId() != 0){
       gain = DetCalibs.getGain(col,row)*highRangeCal/lowRangeCal;
