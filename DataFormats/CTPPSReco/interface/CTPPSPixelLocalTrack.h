@@ -120,9 +120,13 @@ class CTPPSPixelLocalTrack
       return vect.unit();
     }
 
-    const ParameterVector& getParameterVector() const;
+    inline const ParameterVector& getParameterVector() const{
+      return track_params_vector_;
+    }
 
-    const CovarianceMatrix& getCovarianceMatrix() const;
+    inline const CovarianceMatrix& getCovarianceMatrix() const{
+      return par_covariance_matrix_;
+    }
 
     inline float getChiSquared() const { return chiSquared_; }
 
