@@ -8,7 +8,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DQMOffline/Trigger/plugins/TopMonitor.h"
-
+#include "TLorentzVector.h"
 
 // -----------------------------
 //  constructors and destructor
@@ -84,6 +84,7 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
   , opsign_ (iConfig.getParameter<bool>("oppositeSignMuons"))
   , MHTdefinition_ ( iConfig.getParameter<std::string>("MHTdefinition") )
   , MHTcut_     ( iConfig.getParameter<double>("MHTcut" )     )
+  , invMassCutInAllMuPairs_ (iConfig.getParameter<bool>("invMassCutInAllMuPairs"))
 {
 
     std::string metcut_str = iConfig.getParameter<std::string>("metSelection");
@@ -590,6 +591,21 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   if (eventHT < HTcut_) return;
   if (MHTcut_>0 && eventMHT.pt()<MHTcut_) return;
 
+//george
+  bool allpairs=false;
+  if (nmuons_>2) {     
+    float mumu_mass;
+    for (unsigned int idx=0; idx<muons.size(); idx++){
+      for (unsigned int idx2=idx+1; idx2<muons.size(); idx2++){
+         //compute inv mass of two different leptons
+         mumu_mass=(muons[idx2].p4() + muons[idx2].p4()).M();
+         if (mumu_mass<invMassLowercut_ || mumu_mass>invMassUppercut_) allpairs=true;
+      }
+   }
+ }
+  //cut only if enabled and the event has a pair that failed the mll range
+  if (allpairs && invMassCutInAllMuPairs_) return;         
+
   // Marina
   edm::Handle<reco::JetTagCollection> bjetHandle;
   iEvent.getByToken( jetTagToken_, bjetHandle );
@@ -905,7 +921,7 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<bool>("oppositeSignMuons",false);
   desc.add<std::string>("MHTdefinition", "pt > 0");
   desc.add<double>("MHTcut", -1);
-
+  desc.add<bool>("invMassCutInAllMuPairs",false);
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");
   genericTriggerEventPSet.add<edm::InputTag>("dcsInputTag", edm::InputTag("scalersRawToDigi") );
