@@ -44,17 +44,27 @@ void HGCalMulticlusteringImpl::findNeighbor( const std::vector<std::pair<int,dou
                                              const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs, 
                                              std::vector<int>& neighbors
                                             ){
+  
   if(clustersPtrs.size() <= searchInd || clustersPtrs.size() < rankedList.size()){
     throw cms::Exception("IndexOutOfBound: clustersPtrs in 'findNeighbor'");
   }
+  
   for(unsigned int ind = searchInd+1; ind < rankedList.size() && fabs(rankedList.at(ind).second - rankedList.at(searchInd).second) < distDbscan_ ; ind++){
-    if(((*(clustersPtrs[rankedList.at(ind).first])).centreProj() - (*(clustersPtrs[rankedList.at(searchInd).first])).centreProj()).mag() < distDbscan_){
+  
+    if(clustersPtrs.size() <= rankedList.at(ind).first){
+      throw cms::Exception("IndexOutOfBound: clustersPtrs in 'findNeighbor'");
+   
+    } else if(((*(clustersPtrs[rankedList.at(ind).first])).centreProj() - (*(clustersPtrs[rankedList.at(searchInd).first])).centreProj()).mag() < distDbscan_){
       neighbors.push_back(ind);
     }
   }
   
   for(unsigned int ind = 0; ind < searchInd && fabs(rankedList.at(searchInd).second - rankedList.at(ind).second) < distDbscan_ ; ind++){
-    if(((*(clustersPtrs[rankedList.at(ind).first])).centreProj() - (*(clustersPtrs[rankedList.at(searchInd).first])).centreProj()).mag() < distDbscan_){
+    
+    if(clustersPtrs.size() <= rankedList.at(ind).first){
+      throw cms::Exception("IndexOutOfBound: clustersPtrs in 'findNeighbor'");
+   
+    } else if(((*(clustersPtrs[rankedList.at(ind).first])).centreProj() - (*(clustersPtrs[rankedList.at(searchInd).first])).centreProj()).mag() < distDbscan_){
       neighbors.push_back(ind);
     }
   }
