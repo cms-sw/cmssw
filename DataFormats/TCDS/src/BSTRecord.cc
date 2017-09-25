@@ -2,35 +2,35 @@
 #include "DataFormats/TCDS/interface/TCDSRaw.h"
 
 BSTRecord::BSTRecord() :
-  gpsTime_(0),
-  bstMaster_(0),
-  turnCount_(0),
-  lhcFill_(0),
-  beamMode_(0),
-  particleBeam1_(0),
-  particleBeam2_(0),
-  beamMomentum_(0),
-  intensityBeam1_(0),
-  intensityBeam2_(0)
+  m_gpstime(0),
+  m_turnCount(0),
+  m_lhcFill(0),
+  m_intensityBeam1(0),
+  m_intensityBeam2(0),
+  m_beamMomentum(0),
+  m_beamMode(0),
+  m_particleBeam1(0),
+  m_particleBeam2(0),
+  m_bstMaster(0)
 {}
 
 
 BSTRecord::BSTRecord(const tcds::BST_v1& bst) :
-  gpsTime_(((uint64_t)(bst.gpstimehigh)<<32)|bst.gpstimelow),
-  bstMaster_(bst.bstMaster >> 8),
-  turnCount_(((uint32_t)(bst.turnCountHigh)<<16)|bst.turnCountLow),
-  lhcFill_(((uint32_t)(bst.lhcFillHigh)<<16)|bst.lhcFillLow),
-  beamMode_(bst.beamMode),
-  particleBeam1_(bst.particleTypes & 0xFF),
-  particleBeam2_(bst.particleTypes >> 8),
-  beamMomentum_(bst.beamMomentum),
-  intensityBeam1_(bst.intensityBeam1),
-  intensityBeam2_(bst.intensityBeam2)
+  m_gpstime(((uint64_t)(bst.gpstimehigh)<<32)|bst.gpstimelow),
+  m_turnCount(((uint32_t)(bst.turnCountHigh)<<16)|bst.turnCountLow),
+  m_lhcFill(((uint32_t)(bst.lhcFillHigh)<<16)|bst.lhcFillLow),
+  m_intensityBeam1(bst.intensityBeam1),
+  m_intensityBeam2(bst.intensityBeam2),
+  m_beamMomentum(bst.beamMomentum),
+  m_beamMode(bst.beamMode),
+  m_particleBeam1(bst.particleTypes & 0xFF),
+  m_particleBeam2(bst.particleTypes >> 8),
+  m_bstMaster(bst.bstMaster >> 8)
 {
-  if ( beamMomentum_ == 65535 ) // Invalid value
-    beamMomentum_ = -1;
-  else if ( lhcFill_ >= 5698 ) // scale factor changed from 1GeV/LSB to 120MeV/LSB
-    beamMomentum_ *= 0.120;
+  if ( m_beamMomentum == 65535 ) // Invalid value
+    m_beamMomentum = -1;
+  else if ( m_lhcFill >= 5698 ) // scale factor changed from 1GeV/LSB to 120MeV/LSB
+    m_beamMomentum *= 0.120;
 }
 
 
