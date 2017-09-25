@@ -11,7 +11,7 @@ namespace l1t {
       MicroGMTAbsoluteIsolationCheckLUT() {};
       explicit MicroGMTAbsoluteIsolationCheckLUT(const std::string& fname);
       explicit MicroGMTAbsoluteIsolationCheckLUT(l1t::LUT* lut);
-      virtual ~MicroGMTAbsoluteIsolationCheckLUT() {};
+      ~MicroGMTAbsoluteIsolationCheckLUT() override {};
 
       // returns the index corresponding to the calo tower sum 
       int lookup(int energySum) const;
