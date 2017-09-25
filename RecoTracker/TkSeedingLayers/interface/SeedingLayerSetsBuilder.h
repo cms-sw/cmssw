@@ -23,7 +23,7 @@ class SeedingLayerSetsBuilder {
 
 public:
 
-  SeedingLayerSetsBuilder();
+  SeedingLayerSetsBuilder() = default;
   SeedingLayerSetsBuilder(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC);
   SeedingLayerSetsBuilder(const edm::ParameterSet & cfg, edm::ConsumesCollector&& iC);
   ~SeedingLayerSetsBuilder();
@@ -46,7 +46,11 @@ private:
 
   struct LayerSpec { 
     LayerSpec(unsigned short index, const std::string& layerName, const edm::ParameterSet& cfgLayer, edm::ConsumesCollector& iC);
-    ~LayerSpec();
+    ~LayerSpec() = default;
+    LayerSpec(const LayerSpec&) = delete;
+    LayerSpec& operator=(const LayerSpec&) = delete;
+    LayerSpec(LayerSpec &&) = default;
+    LayerSpec& operator=(LayerSpec &&) = default;
     const unsigned short nameIndex;
     std::string pixelHitProducer;
     bool usePixelHitProducer;
@@ -55,7 +59,7 @@ private:
     GeomDetEnumerators::SubDetector subdet;
     TrackerDetSide::Side side;
     int idLayer;
-    std::shared_ptr<ctfseeding::HitExtractor> extractor;
+    std::unique_ptr<ctfseeding::HitExtractor> extractor;
 
     std::string print(const std::vector<std::string>& names) const;
   }; 

@@ -122,10 +122,10 @@ SeedingLayerSetsBuilder::LayerSpec::LayerSpec(unsigned short index, const std::s
   idLayer = std::get<2>(subdetData);
   if(subdet == GeomDetEnumerators::PixelBarrel ||
      subdet == GeomDetEnumerators::PixelEndcap) {
-    extractor = std::make_shared<HitExtractorPIX>(side, idLayer, pixelHitProducer, iC);
+    extractor = std::make_unique<HitExtractorPIX>(side, idLayer, pixelHitProducer, iC);
   }
   else if(subdet != GeomDetEnumerators::invalidDet) { // strip
-    std::shared_ptr<HitExtractorSTRP> extr = std::make_shared<HitExtractorSTRP>(subdet, side, idLayer, clusterChargeCut(cfgLayer) );
+    auto extr = std::make_unique<HitExtractorSTRP>(subdet, side, idLayer, clusterChargeCut(cfgLayer) );
     if (cfgLayer.exists("matchedRecHits")) {
       extr->useMatchedHits(cfgLayer.getParameter<edm::InputTag>("matchedRecHits"), iC);
     }
@@ -161,7 +161,6 @@ SeedingLayerSetsBuilder::LayerSpec::LayerSpec(unsigned short index, const std::s
     extractor->useSkipClusters(cfgLayer.getParameter<edm::InputTag>("skipClusters"), iC);
   }
 }
-SeedingLayerSetsBuilder::LayerSpec::~LayerSpec() {}
 
 std::string SeedingLayerSetsBuilder::LayerSpec::print(const std::vector<std::string>& names) const
 {
@@ -179,7 +178,6 @@ std::string SeedingLayerSetsBuilder::LayerSpec::print(const std::vector<std::str
   return str.str();
 }
 
-SeedingLayerSetsBuilder::SeedingLayerSetsBuilder() {}
 SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg, edm::ConsumesCollector&& iC):
   SeedingLayerSetsBuilder(cfg, iC)
 {}
