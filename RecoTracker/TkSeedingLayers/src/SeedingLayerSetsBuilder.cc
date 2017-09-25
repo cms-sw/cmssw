@@ -267,6 +267,12 @@ vector<vector<string> > SeedingLayerSetsBuilder::layerNamesInSets( const vector<
 }
 
 void SeedingLayerSetsBuilder::updateEventSetup(const edm::EventSetup& es) {
+  // We want to evaluate both in the first invocation (to properly
+  // initialize ESWatcher), and this way we avoid one branch compared
+  // to || (should be tiny effect)
+  if(! (geometryWatcher_.check(es) | trhWatcher_.check(es)) )
+    return;
+
   edm::ESHandle<GeometricSearchTracker> htracker;
   es.get<TrackerRecoGeometryRecord>().get( htracker );
   const GeometricSearchTracker& tracker = *htracker;
@@ -327,13 +333,6 @@ void SeedingLayerSetsBuilder::updateEventSetup(const edm::EventSetup& es) {
     theLayerDets[layer.nameIndex] = detLayer;
     theTTRHBuilders[layer.nameIndex] = builder.product();
   }
-}
-
-bool SeedingLayerSetsBuilder::check(const edm::EventSetup& es) {
-  // We want to evaluate both in the first invocation (to properly
-  // initialize ESWatcher), and this way we avoid one branch compared
-  // to || (should be tiny effect)
-  return geometryWatcher_.check(es) | trhWatcher_.check(es);
 }
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
