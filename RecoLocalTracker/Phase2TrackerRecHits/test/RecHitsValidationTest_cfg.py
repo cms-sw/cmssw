@@ -22,8 +22,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input file
 process.source = cms.Source('PoolSource',
-    fileNames = cms.untracked.vstring('file:step3.root'),
-    secondaryFileNames = cms.untracked.vstring('file:step2.root')
+    fileNames = cms.untracked.vstring('file:step3.root')
 )
 
 # Output
@@ -35,7 +34,7 @@ process.load('RecoLocalTracker.SiPhase2Clusterizer.phase2TrackerClusterizer_cfi'
 process.load('RecoLocalTracker.Phase2TrackerRecHits.Phase2StripCPEESProducer_cfi')
 #process.load('RecoLocalTracker.Phase2TrackerRecHits.Phase2StripCPEGeometricESProducer_cfi')
 process.load('RecoLocalTracker.Phase2TrackerRecHits.Phase2TrackerRecHits_cfi')
-process.siPhase2RecHits.Phase2StripCPE = cms.ESInputTag("phase2StripCPEESProducer", "Phase2StripCPE")
+#process.siPhase2RecHits.Phase2StripCPE = cms.ESInputTag("phase2StripCPEESProducer", "Phase2StripCPE")
 #process.siPhase2RecHits.Phase2StripCPE = cms.ESInputTag("phase2StripCPEGeometricESProducer", "Phase2StripCPEGeometric")
 
 
@@ -49,12 +48,14 @@ process.analysis = cms.EDAnalyzer('Phase2TrackerRecHitsValidation',
     simtracks = cms.InputTag("g4SimHits"),
     ECasRings = cms.bool(True),
     SimTrackMinPt = cms.double(2.),
+    MakeEtaPlots = cms.bool(False),
     MinEta = cms.double(0.),
     MaxEta = cms.double(10.)
 )
 
 # Processes to run
-process.rechits_step = cms.Path(process.siPhase2Clusters + process.siPhase2RecHits)
+#process.rechits_step = cms.Path(process.siPhase2Clusters + process.siPhase2RecHits)
+process.rechits_step = cms.Path(process.siPhase2RecHits)
 process.validation_step = cms.Path(process.analysis)
 
 process.schedule = cms.Schedule(process.rechits_step, process.validation_step)
