@@ -151,6 +151,14 @@ namespace edm {
     getRefBeforePut(std::string const& productInstanceName);
 
     template<typename PROD>
+    RefProd<PROD>
+    getRefBeforePut(EDPutTokenT<PROD>);
+
+    template<typename PROD>
+    RefProd<PROD>
+    getRefBeforePut(EDPutToken);
+
+    template<typename PROD>
     bool
     getByLabel(InputTag const& tag, Handle<PROD>& result) const;
 
@@ -417,12 +425,38 @@ namespace edm {
   template<typename PROD>
   RefProd<PROD>
   Event::getRefBeforePut(std::string const& productInstanceName) {
-    PROD* p = nullptr;
-    BranchDescription const& desc =
-      provRecorder_.getBranchDescription(TypeID(*p), productInstanceName);
+    auto index =
+    provRecorder_.getPutTokenIndex(TypeID{typeid(PROD)},
+                                   productInstanceName);
 
     //should keep track of what Ref's have been requested and make sure they are 'put'
-    return RefProd<PROD>(makeProductID(desc), provRecorder_.prodGetter());
+    return RefProd<PROD>(provRecorder_.getProductID(index),
+                         provRecorder_.prodGetter());
+  }
+
+  template<typename PROD>
+  RefProd<PROD>
+  Event::getRefBeforePut(EDPutTokenT<PROD> token)
+  {
+    if(unlikely(token.isUninitialized())) {
+      principal_get_adapter_detail::throwOnPutOfUninitializedToken("Event", typeid(PROD));
+    }
+   return RefProd<PROD>(provRecorder_.getProductID(token.index()),
+                         provRecorder_.prodGetter());
+  }
+  
+  template<typename PROD>
+  RefProd<PROD>
+  Event::getRefBeforePut(EDPutToken token)
+  {
+    if(unlikely(token.isUninitialized())) {
+      principal_get_adapter_detail::throwOnPutOfUninitializedToken("Event", typeid(PROD));
+    }
+    if(unlikely(provRecorder_.getTypeIDForPutTokenIndex(token.index()) != TypeID{typeid(PROD)})) {
+      principal_get_adapter_detail::throwOnPutOfWrongType(typeid(PROD), provRecorder_.getTypeIDForPutTokenIndex(token.index()));
+    }
+    return RefProd<PROD>(provRecorder_.getProductID(token.index()),
+                         provRecorder_.prodGetter());
   }
 
   template<typename PROD>

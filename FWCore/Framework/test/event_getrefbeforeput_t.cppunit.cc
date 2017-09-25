@@ -85,6 +85,8 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
      auto processConfiguration = std::make_shared<edm::ProcessConfiguration>();
      edm::ModuleDescription modDesc(pset.id(), "Blah", "blahs", processConfiguration.get(), edm::ModuleDescription::getUniqueID());
      edm::Event event(ep, modDesc, nullptr);
+     edm::ProducerBase prod;
+     event.setProducer(&prod,nullptr);
 
      std::string label("this does not exist");
      edm::RefProd<edmtest::DummyProduct> ref = event.getRefBeforePut<edmtest::DummyProduct>(label);
