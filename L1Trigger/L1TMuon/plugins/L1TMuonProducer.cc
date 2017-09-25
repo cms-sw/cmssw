@@ -160,7 +160,6 @@ L1TMuonProducer::L1TMuonProducer(const edm::ParameterSet& iConfig) : m_debugOut(
   m_caloTowerInputToken = consumes<MicroGMTConfiguration::CaloInputCollection>(m_trigTowerTag);
 
   //register your products
-  produces<MuonBxCollection>();
   produces<MuonBxCollection>("imdMuonsBMTF");
   produces<MuonBxCollection>("imdMuonsEMTFPos");
   produces<MuonBxCollection>("imdMuonsEMTFNeg");
@@ -168,6 +167,8 @@ L1TMuonProducer::L1TMuonProducer(const edm::ParameterSet& iConfig) : m_debugOut(
   produces<MuonBxCollection>("imdMuonsOMTFNeg");
   if (m_runPhase2)
     produces<MuonPhase2BxCollection>();
+  else
+    produces<MuonBxCollection>();
 }
 
 L1TMuonProducer::~L1TMuonProducer()
@@ -341,14 +342,15 @@ L1TMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         outMu.setEtaAtVtx(MicroGMTConfiguration::calcMuonEtaExtra(outMu));
         outMu.setPhiAtVtx(MicroGMTConfiguration::calcMuonPhiExtra(outMu));
         m_debugOut << mu->hwCaloPhi() << " " << mu->hwCaloEta() << std::endl;
-        outMuons->push_back(bx, outMu);
-	 if (m_runPhase2)
+        if (m_runPhase2)
 	  outMuonsPhase2->push_back(bx, MuonPhase2(outMu));
+	else
+          outMuons->push_back(bx, outMu);
       }
     }
   }
 
-  iEvent.put(std::move(outMuons));
+
   iEvent.put(std::move(imdMuonsBMTF), "imdMuonsBMTF");
   iEvent.put(std::move(imdMuonsEMTFPos), "imdMuonsEMTFPos");
   iEvent.put(std::move(imdMuonsEMTFNeg), "imdMuonsEMTFNeg");
@@ -356,6 +358,8 @@ L1TMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(std::move(imdMuonsOMTFNeg), "imdMuonsOMTFNeg");
   if (m_runPhase2)
     iEvent.put(std::move(outMuonsPhase2));
+  else
+    iEvent.put(std::move(outMuons));  
 }
 
 
