@@ -24,7 +24,7 @@ std::bitset<72> L1TMuonGlobalParamsHelper::inputFlags(const int &nodeIdx) const
     inputFlags[CALOLINK1 + i] = ((pnodes_[nodeIdx].uparams_[CALOINPUTS] >> i) & 0x1);
     if (i < CALOLINK1) {
       // disable unused inputs
-      inputFlags[i] = 0x1;
+      inputFlags[i] = true;
     }
     if (i < 12) {
       inputFlags[BMTFLINK1 + i] = ((pnodes_[nodeIdx].uparams_[BMTFINPUTS] >> i) & 0x1);
@@ -131,7 +131,7 @@ void L1TMuonGlobalParamsHelper::loadFromOnline(l1t::TriggerSystem& trgSys, const
   if (procId == "" ) {
     const std::map<std::string, std::string>& procRoleMap = trgSys.getProcToRoleAssignment();
     if (procRoleMap.size() != 1) {
-      if (procRoleMap.size() == 0) {
+      if (procRoleMap.empty()) {
         edm::LogError("uGMT config from online") << "No processor id found for uGMT HW configuration.";
       } else {
         edm::LogError("uGMT config from online") << "More than one processor id found for uGMT HW configuration.";
@@ -143,7 +143,7 @@ void L1TMuonGlobalParamsHelper::loadFromOnline(l1t::TriggerSystem& trgSys, const
 
   // get the settings and masks for the processor id
   std::map<std::string, l1t::Parameter> settings = trgSys.getParameters(procId.c_str());
-  std::map<std::string, l1t::Mask> masks = trgSys.getMasks(procId.c_str());
+  //std::map<std::string, l1t::Mask> masks = trgSys.getMasks(procId.c_str());
   //for (auto& it: settings) {
   //   std::cout << "Key: " << it.first << ", procRole: " << it.second.getProcRole() << ", type: " << it.second.getType() << ", id: " << it.second.getId() << ", value as string: [" << it.second.getValueAsStr() << "]" << std::endl;
   //}
