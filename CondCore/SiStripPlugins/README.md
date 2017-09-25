@@ -1,5 +1,5 @@
 This package contains a series of `cmssw` plugins for inspecting SiStrip conditions.
-The available inspector are:
+The available inspectors are:
 
 | Record                          | Object                      | Inspector                                 |
 | --------------------------------|-----------------------------| ------------------------------------------|
@@ -19,13 +19,5 @@ The available inspector are:
 | `SiStripDCSStatusRcd`           | `SiStripBadStrip`	        | `SiStripBadStrip_PayloadInspector.cc`     |
 | `SiStripDetVOffRcd`             | `SiStripDetVOff` 	        | `SiStripDetVOff_PayloadInspector.cc`      |
 
-Plots are will be shown within the **cmsDbBrowser** [payload inspector](https://cms-conddb.cern.ch/cmsDbBrowser/payload_inspector/Prod) application
-
-
-
-
-
-
-
-
-
+Plots will be shown within the **cmsDbBrowser** [payload inspector](https://cms-conddb.cern.ch/cmsDbBrowser/payload_inspector/Prod) application.
+In the `CondCore/SiStripPlugins/test` directory a few bash scripts to inspect conditions from command line are available (N.B.: to use this upon payloads store in the offline Conditions DB, you will need to ask AlCa/DB conveners appropriate keys to be able to read the DB.)
