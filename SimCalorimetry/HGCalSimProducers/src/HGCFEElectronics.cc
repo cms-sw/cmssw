@@ -54,6 +54,14 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet &ps) :
     }
   if( ps.exists("adcThreshold_fC") )                adcThreshold_fC_                = ps.getParameter<double>("adcThreshold_fC");
   if( ps.exists("tdcOnset_fC") )                    tdcOnset_fC_                    = ps.getParameter<double>("tdcOnset_fC");
+  if( ps.exists("tdcForToAOnset_fC") ){
+    auto temp = ps.getParameter< std::vector<double> >("tdcForToAOnset_fC");
+    if(temp.size() == tdcForToAOnset_fC_.size()){ std::copy_n(temp.begin(), temp.size(), tdcForToAOnset_fC_.begin()); }
+    else{
+      throw cms::Exception("BadConfiguration")
+     	<< " HGCFEElectronics wrong size for ToA thresholds ";
+    }
+  }
   if( ps.exists("toaLSB_ns") )                      toaLSB_ns_                      = ps.getParameter<double>("toaLSB_ns");
   if( ps.exists("tdcChargeDrainParameterisation") ) {
     for( auto val : ps.getParameter< std::vector<double> >("tdcChargeDrainParameterisation") ) {
@@ -62,6 +70,24 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet &ps) :
   }
   if( ps.exists("tdcResolutionInPs") )              tdcResolutionInNs_              = ps.getParameter<double>("tdcResolutionInPs")*1e-3; // convert to ns
   if( ps.exists("toaMode") )                        toaMode_                        = ps.getParameter<uint32_t>("toaMode");
+
+  if( ps.exists("jitterNoise_ns") ){
+    auto temp = ps.getParameter< std::vector<double> >("jitterNoise_ns");
+    if(temp.size() == jitterNoise2_ns_.size()){ std::copy_n(temp.begin(), temp.size(), jitterNoise2_ns_.begin()); }
+    else{
+      throw cms::Exception("BadConfiguration")
+     	<< " HGCFEElectronics wrong size for ToA jitterNoise ";
+    }
+  }
+  if( ps.exists("jitterConstant_ns") ){
+    auto temp = ps.getParameter< std::vector<double> >("jitterConstant_ns");
+    if(temp.size() == jitterConstant2_ns_.size()){ 
+      std::copy_n(temp.begin(), temp.size(), jitterConstant2_ns_.begin()); }
+    else{
+      throw cms::Exception("BadConfiguration")
+    	<< " HGCFEElectronics wrong size for ToA jitterConstant ";
+    }
+  }
 }
 
 
@@ -156,6 +182,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
 {
   busyFlags.fill(false);
   totFlags.fill(false);
+  toaFlags.fill(false);
   newCharge.fill( 0.f );
   toaFromToT.fill( 0.f );
 
@@ -166,25 +193,44 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
 #endif
 
   bool debug = debug_state;
+  float timeToA = 0.f;
 
+
+  //first look at time
+  //for pileup look only at intime signals
+  //ToA is in central BX if fired -- std::floor(BX/25.)+9;
+  int fireBX = 9; 
+  //noise fluctuation on charge is added after ToA computation
+  //do not recheck the ToA firing threshold tdcForToAOnset_fC_[thickness-1] not to bias the efficiency 
+  //to be done properly with realistic ToA shaper and jitter for the moment accounted in the smearing 
+  if(toaColl[fireBX] != 0.f){
+    timeToA = toaColl[fireBX];
+    if(jitterNoise2_ns_[0] != 0) timeToA = CLHEP::RandGaussQ::shoot(engine, timeToA, getTimeJitter(chargeColl[fireBX], thickness));
+    else timeToA = CLHEP::RandGaussQ::shoot(engine, timeToA, tdcResolutionInNs_);
+    if(timeToA >= 0.f && timeToA <= 25.f) toaFlags[fireBX] = true;
+  }
+
+  //now look at charge
   //first identify bunches which will trigger ToT
-  //if(debug_state) edm::LogVerbatim("HGCFE") << "[runShaperWithToT]" << std::endl;  
+  //if(debug_state) edm::LogVerbatim("HGCFE") << "[runShaperWithToT]" << std::endl;
   for(int it=0; it<(int)(chargeColl.size()); ++it)
     {
       debug = debug_state;
       //if already flagged as busy it can't be re-used to trigger the ToT
       if(busyFlags[it]) continue;
 
-      //if below TDC onset will be handled by SARS ADC later
+      //if below TDC onset will be handled by SARS ADC later 
       float charge = chargeColl[it];
-      if(charge < tdcOnset_fC_)  {
+      if(charge < tdcOnset_fC_){
         debug = false;
         continue;
       }
 
-      //raise TDC mode
-      float toa    = toaColl[it];
+      //raise TDC mode for charge computation
+      //ToA anyway fired independently will be sorted out with realistic ToA dedicated shaper
+      float toa = timeToA;
       totFlags[it]=true;
+
 
       if(debug) edm::LogVerbatim("HGCFE") << "\t q=" << charge << " fC with <toa>=" << toa << " ns, triggers ToT @ " << it << std::endl;
 
@@ -266,8 +312,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
         //finalize ToA contamination
         if(toaMode_==WEIGHTEDBYE) finalToA /= totalCharge;
       }
-
-      toaFromToT[it] = CLHEP::RandGaussQ::shoot(engine,finalToA,tdcResolutionInNs_);
+      
       newCharge[it]  = (totalCharge-tdcOnset_fC_);      
       
       if(debug) edm::LogVerbatim("HGCFE") << "\t Final busy estimate="<< integTime << " ns = " << busyBxs << " bxs" << std::endl
@@ -314,6 +359,23 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
   };
   runChargeSharing();
 
+
+  //For the future need to understand how to deal with toa for out of time signals
+  //and for that should keep track of the BX firing the ToA somewhere (also to restore the use of finalToA) 
+  /*
+  float finalToA(0.);
+  for(int it=0; it<(int)(newCharge.size()); it++){
+    if(toaFlags[it]){
+      finalToA = toaFromToT[it];
+      //to avoid +=25 for small negative time taken as 0          
+      while(finalToA < -1.e-5)  finalToA+=25.f;
+      while(finalToA > 25.f) finalToA-=25.f;
+      toaFromToT[it] = finalToA;
+    }
+  }
+  */
+  //timeToA is already in 0-25ns range by construction
+
   //set new ADCs and ToA
   if(debug) edm::LogVerbatim("HGCFE") << "\t final result : ";
   const float adj_thresh = thresholdFollowsMIP_ ? thickness*adcThreshold_fC_*cce : thickness*adcThreshold_fC_;
@@ -326,13 +388,11 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
 	{
 	  if(totFlags[it]) 
 	    {
-	      float finalToA(toaFromToT[it]);
-	      while(finalToA < 0.f)  finalToA+=25.f;
-	      while(finalToA > 25.f) finalToA-=25.f;
-
 	      //brute force saturation, maybe could to better with an exponential like saturation
 	      const float saturatedCharge(std::min(newCharge[it],tdcSaturation_fC_));	      
-	      newSample.set(true,true,(uint16_t)(finalToA/toaLSB_ns_),(uint16_t)(std::floor(saturatedCharge/tdcLSB_fC_)));
+	      //working version for in-time PU and signal 
+	      newSample.set(true,true,(uint16_t)(timeToA/toaLSB_ns_),(uint16_t)(std::floor(saturatedCharge/tdcLSB_fC_)));
+	      if(toaFlags[it]) newSample.setToAValid(true);
 	    }
 	  else
 	    {
@@ -343,7 +403,9 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
 	{
 	   //brute force saturation, maybe could to better with an exponential like saturation
           const float saturatedCharge(std::min(newCharge[it],adcSaturation_fC_));
-	  newSample.set(newCharge[it]>adj_thresh,false,(uint16_t)0,(uint16_t)(std::floor(saturatedCharge/adcLSB_fC_)));
+	  //working version for in-time PU and signal 
+	  newSample.set(newCharge[it]>adj_thresh, false, (uint16_t)(timeToA/toaLSB_ns_), (uint16_t)(std::floor(saturatedCharge/adcLSB_fC_)));
+	  if(toaFlags[it]) newSample.setToAValid(true);
 	}
       dataFrame.setSample(it,newSample);
     }

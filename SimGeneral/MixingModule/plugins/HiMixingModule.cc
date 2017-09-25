@@ -88,7 +88,7 @@ namespace edm{
    class HiMixingWorker : public HiMixingWorkerBase {
    public:
       HiMixingWorker(std::string& object, std::vector<InputTag>& tags, std::string& label) : HiMixingWorkerBase(object,tags, label) {;}
-      ~HiMixingWorker(){;}
+      ~HiMixingWorker() override{;}
       void addSignals(edm::Event &e) override {
 	 std::vector<Handle<std::vector<T> > > handles;
 	 bool get = true;
@@ -152,11 +152,11 @@ void HiMixingWorker<HepMCProduct>::addSignals(edm::Event &e){
 class HiMixingModule : public edm::stream::EDProducer<> {
    public:
       explicit HiMixingModule(const edm::ParameterSet&);
-      ~HiMixingModule();
+      ~HiMixingModule() override;
 
    private:
       //virtual void beginJob() override {}
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
       //virtual void endJob() override {}
       bool verifyRegistry(std::string object, std::string subdet, InputTag &tag,std::string &label);      
       // ----------member data ---------------------------

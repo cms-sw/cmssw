@@ -47,15 +47,15 @@ class EcalSimHitStudy: public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one:
 public:
 
   EcalSimHitStudy(const edm::ParameterSet& ps);
-  ~EcalSimHitStudy() {}
+  ~EcalSimHitStudy() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
 
-  virtual void beginJob() override;
-  virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override {}
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override {}
+  void beginJob() override;
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override {}
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
   void analyzeHits  (std::vector<PCaloHit> &, int);
 
 private:
@@ -281,7 +281,7 @@ void EcalSimHitStudy::analyze(const edm::Event& e, const edm::EventSetup& iS) {
     if (getHits) {
       std::vector<PCaloHit> caloHits;
       caloHits.insert(caloHits.end(),hitsCalo->begin(),hitsCalo->end());
-      if (caloHits.size() > 0) analyzeHits (caloHits, type);
+      if (!caloHits.empty()) analyzeHits (caloHits, type);
     }
   }
 }

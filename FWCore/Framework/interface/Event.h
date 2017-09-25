@@ -35,6 +35,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
@@ -59,6 +60,7 @@ namespace edm {
   class EDProductGetter;
   class ProducerBase;
   class SharedResourcesAcquirer;
+
   namespace stream {
     template< typename T> class ProducingModuleAdaptorBase;
   }
@@ -73,6 +75,8 @@ namespace edm {
     void setConsumer(EDConsumerBase const* iConsumer);
 
     void setSharedResourcesAcquirer( SharedResourcesAcquirer* iResourceAcquirer);
+    
+    void setProducer( ProducerBase const* iProd);
 
     // AUX functions are defined in EventBase
     EventAuxiliary const& eventAuxiliary() const override {return aux_;}
@@ -125,6 +129,14 @@ namespace edm {
     template<typename PROD>
     OrphanHandle<PROD>
     put(std::unique_ptr<PROD> product, std::string const& productInstanceName);
+
+    template<typename PROD>
+    OrphanHandle<PROD>
+    put(EDPutToken token, std::unique_ptr<PROD> product);
+
+    template<typename PROD>
+    OrphanHandle<PROD>
+    put(EDPutTokenT<PROD> token, std::unique_ptr<PROD> product);
 
     ///Returns a RefProd to a product before that product has been placed into the Event.
     /// The RefProd (and any Ref's made from it) will no work properly until after the
@@ -398,6 +410,18 @@ namespace edm {
     // The old copy must be deleted, so we cannot release ownership.
 
     return(OrphanHandle<PROD>(prod, makeProductID(desc)));
+  }
+
+  template<typename PROD>
+  OrphanHandle<PROD>
+  Event::put(EDPutTokenT<PROD> token, std::unique_ptr<PROD> product) {
+    return put(std::move(product), provRecorder_.productInstanceLabel(token));
+  }
+
+  template<typename PROD>
+  OrphanHandle<PROD>
+  Event::put(EDPutToken token, std::unique_ptr<PROD> product) {
+    return put(std::move(product), provRecorder_.productInstanceLabel(token));
   }
 
   template<typename PROD>

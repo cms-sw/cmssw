@@ -190,7 +190,7 @@ detachedQuadStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProduc
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierDetached_cfi import *
 detachedQuadStep = TrackMVAClassifierDetached.clone(
     src = 'detachedQuadStepTracks',
-    GBRForestLabel = 'MVASelectorDetachedQuadStep_Phase1',
+    mva = dict(GBRForestLabel = 'MVASelectorDetachedQuadStep_Phase1'),
     qualityCuts = [-0.5,0.0,0.5],
 )
 

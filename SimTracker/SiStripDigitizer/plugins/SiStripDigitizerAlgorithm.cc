@@ -30,7 +30,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "CLHEP/Random/RandFlat.h"
 
-#include <string.h>
+#include <cstring>
 #include <sstream>
 
 #include <boost/algorithm/string.hpp>
@@ -230,8 +230,8 @@ void SiStripDigitizerAlgorithm::calculateInstlumiScale(PileupMixingContent* puIn
 
   if (puInfo && FirstLumiCalc_) {
 
-    const std::vector<int> bunchCrossing = puInfo->getMix_bunchCrossing();
-    const std::vector<float> TrueInteractionList = puInfo->getMix_TrueInteractions();
+    const std::vector<int>& bunchCrossing = puInfo->getMix_bunchCrossing();
+    const std::vector<float>& TrueInteractionList = puInfo->getMix_TrueInteractions();
     const int bunchSpacing = puInfo->getMix_bunchSpacing();                                 
 
     double RevFreq = 11245.;
@@ -305,7 +305,7 @@ SiStripDigitizerAlgorithm::digitize(
 	std::bitset<6> bs;
 	for(int Napv=0;Napv<6;Napv++){
 	  float cursor=CLHEP::RandFlat::shoot(engine);
-	  bs[Napv]=cursor < iter->second*APVSaturationProb_ ? 1:0;  //APVSaturationProb has been scaled by PU luminosity
+	  bs[Napv]=cursor < iter->second*APVSaturationProb_ ? true:false;  //APVSaturationProb has been scaled by PU luminosity
 	}
 	SiStripTrackerAffectedAPVMap[iter->first]=bs;
       }

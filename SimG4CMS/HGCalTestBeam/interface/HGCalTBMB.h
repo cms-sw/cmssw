@@ -22,16 +22,16 @@ class HGCalTBMB : public SimWatcher,
 public:
 
   HGCalTBMB(const edm::ParameterSet&);
-  virtual ~HGCalTBMB();
+  ~HGCalTBMB() override;
   
 private:
 
-  HGCalTBMB(const HGCalTBMB&);          // stop default
-  const HGCalTBMB& operator=(const HGCalTBMB&); // ...
+  HGCalTBMB(const HGCalTBMB&) = delete;          // stop default
+  const HGCalTBMB& operator=(const HGCalTBMB&) = delete; // ...
   
-  void update(const BeginOfTrack*);
-  void update(const G4Step*);
-  void update(const EndOfTrack*);
+  void update(const BeginOfTrack*) override;
+  void update(const G4Step*) override;
+  void update(const EndOfTrack*) override;
 
   bool stopAfter(const G4Step*);
   int  findVolume(const G4VTouchable* touch, bool stop) const;

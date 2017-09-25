@@ -32,11 +32,11 @@ public:
   explicit SubsystemNeutronWriter(edm::ParameterSet const& pset);
 
   /// destructor prints statistics on number of events written
-  virtual ~SubsystemNeutronWriter();
+  ~SubsystemNeutronWriter() override;
 
   void printStats();
 
-  virtual void produce(edm::Event & e, edm::EventSetup const& c);
+  void produce(edm::Event & e, edm::EventSetup const& c) override;
 
   virtual int localDetId(int globalDetId) const = 0;
 

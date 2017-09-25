@@ -46,7 +46,7 @@ Local3DPoint SensitiveDetector::InitialStepPosition(G4Step * s, coordinates c)
 {
     currentStep = s;
     G4StepPoint * preStepPoint = currentStep->GetPreStepPoint();
-    G4ThreeVector globalCoordinates = preStepPoint->GetPosition();
+    const G4ThreeVector& globalCoordinates = preStepPoint->GetPosition();
     if (c == WorldCoordinates) return ConvertToLocal3DPoint(globalCoordinates);
     G4TouchableHistory * theTouchable=(G4TouchableHistory *)
                                       (preStepPoint->GetTouchable());
@@ -60,7 +60,7 @@ Local3DPoint SensitiveDetector::FinalStepPosition(G4Step * s, coordinates c)
     currentStep = s;
     G4StepPoint * postStepPoint = currentStep->GetPostStepPoint();
     G4StepPoint * preStepPoint  = currentStep->GetPreStepPoint();
-    G4ThreeVector globalCoordinates = postStepPoint->GetPosition();
+    const G4ThreeVector& globalCoordinates = postStepPoint->GetPosition();
     if (c == WorldCoordinates) return ConvertToLocal3DPoint(globalCoordinates);
     G4TouchableHistory * theTouchable = (G4TouchableHistory *)
                                         (preStepPoint->GetTouchable());
@@ -80,7 +80,7 @@ void SensitiveDetector::NaNTrap( G4Step* aStep )
     if ( aStep == nullptr ) return ;
     
     G4Track* CurrentTrk = aStep->GetTrack() ;
-    G4ThreeVector CurrentPos = CurrentTrk->GetPosition() ;
+    const G4ThreeVector& CurrentPos = CurrentTrk->GetPosition() ;
     G4ThreeVector CurrentMom = CurrentTrk->GetMomentum() ;
     G4VPhysicalVolume* pCurrentVol = CurrentTrk->GetVolume() ;
     G4String NameOfVol ;

@@ -35,11 +35,11 @@ class PhysicsListMaker : public PhysicsListMakerBase
       PhysicsListMaker(){}
 
       // ---------- const member functions ---------------------
-      virtual std::unique_ptr<PhysicsList> make(G4LogicalVolumeToDDLogicalPartMap& map_,
+      std::unique_ptr<PhysicsList> make(G4LogicalVolumeToDDLogicalPartMap& map_,
 					      const HepPDT::ParticleDataTable * table_,
 					      sim::ChordFinderSetter * chordFinderSetter_,
 					      const edm::ParameterSet& p,
-					      SimActivityRegistry& reg) const
+					      SimActivityRegistry& reg) const override
       {
 	std::unique_ptr<T> returnValue(new T(map_, table_, chordFinderSetter_, p));
 	SimActivityRegistryEnroller::enroll(reg, returnValue.get());

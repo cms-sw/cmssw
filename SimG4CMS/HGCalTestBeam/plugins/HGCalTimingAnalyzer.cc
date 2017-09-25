@@ -49,15 +49,15 @@ class HGCalTimingAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm:
 
 public:
   explicit HGCalTimingAnalyzer(edm::ParameterSet const&);
-  ~HGCalTimingAnalyzer();
+  ~HGCalTimingAnalyzer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginJob() override ;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override {}
-  virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void beginJob() override ;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
   void analyzeSimHits(int type, std::vector<PCaloHit> const& hits);
   void analyzeSimTracks(edm::Handle<edm::SimTrackContainer> const& SimTk, 
 			edm::Handle<edm::SimVertexContainer> const& SimVtx);
@@ -99,7 +99,7 @@ HGCalTimingAnalyzer::HGCalTimingAnalyzer(const edm::ParameterSet& iConfig) {
   for (const auto& id : idBeams_) std::cout << " " << id;
   std::cout << std::endl;
 #endif
-  if (idBeams_.size() == 0) idBeams_.push_back(1001);
+  if (idBeams_.empty()) idBeams_.push_back(1001);
 
   edm::InputTag tmp0 = iConfig.getParameter<edm::InputTag>("GeneratorSrc");
   tok_hepMC_   = consumes<edm::HepMCProduct>(tmp0);

@@ -265,7 +265,7 @@ pixelPairStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
 pixelPairStep =  TrackMVAClassifierPrompt.clone()
 pixelPairStep.src = 'pixelPairStepTracks'
-pixelPairStep.GBRForestLabel = 'MVASelectorIter2_13TeV'
+pixelPairStep.mva.GBRForestLabel = 'MVASelectorIter2_13TeV'
 pixelPairStep.qualityCuts = [-0.2,0.0,0.3]
 
 # For LowPU and Phase2PU140

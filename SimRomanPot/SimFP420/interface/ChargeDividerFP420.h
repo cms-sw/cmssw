@@ -16,10 +16,10 @@ class ChargeDividerFP420 : public CDividerFP420{
   explicit ChargeDividerFP420(double pit, double az420, double azD2, double azD3, int);
   
   
-  virtual ~ChargeDividerFP420();
+  ~ChargeDividerFP420() override;
   
   //  CDividerFP420::ionization_type divide(const SimHit&, const StripDet& det);
-  CDividerFP420::ionization_type divide(const PSimHit&, const double&);
+  CDividerFP420::ionization_type divide(const PSimHit&, const double&) override;
   
  private:
   

@@ -43,12 +43,12 @@ class TrackingVerboseAction :  public SimWatcher,
 
 public:
   TrackingVerboseAction(edm::ParameterSet const & p);
-  ~TrackingVerboseAction();
-  void update(const BeginOfRun *);
-  void update(const BeginOfEvent *);
-  void update(const BeginOfTrack *);
-  void update(const EndOfTrack *);
-  void update(const G4Step*);
+  ~TrackingVerboseAction() override;
+  void update(const BeginOfRun *) override;
+  void update(const BeginOfEvent *) override;
+  void update(const BeginOfTrack *) override;
+  void update(const EndOfTrack *) override;
+  void update(const G4Step*) override;
 private:
   void setTrackingVerbose(int verblev);
   bool checkTrackingVerbose(const G4Track*);

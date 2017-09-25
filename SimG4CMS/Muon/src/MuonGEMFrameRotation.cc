@@ -21,7 +21,7 @@ MuonGEMFrameRotation::~MuonGEMFrameRotation() {
   delete g4numbering;
 }
 
-Local3DPoint MuonGEMFrameRotation::transformPoint(const Local3DPoint & point,const G4Step * aStep=0) const {
+Local3DPoint MuonGEMFrameRotation::transformPoint(const Local3DPoint & point,const G4Step * aStep=nullptr) const {
   if (!aStep) return Local3DPoint(0.,0.,0.);  
 
   return Local3DPoint(point.x(),point.z(),-point.y());

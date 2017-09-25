@@ -25,14 +25,14 @@ public:
   explicit SensitiveDetector(std::string & iname, const DDCompactView & cpv,
 			     const SensitiveDetectorCatalog & ,
 			     edm::ParameterSet const & p);
-  virtual ~SensitiveDetector();
-  virtual void Initialize(G4HCofThisEvent * eventHC);
+  ~SensitiveDetector() override;
+  void Initialize(G4HCofThisEvent * eventHC) override;
   virtual void clearHits() = 0;
-  virtual G4bool ProcessHits(G4Step * step ,G4TouchableHistory * tHistory) = 0;
+  G4bool ProcessHits(G4Step * step ,G4TouchableHistory * tHistory) override = 0;
   virtual uint32_t setDetUnitId(G4Step * step) = 0;
   void Register();
   virtual void AssignSD(const std::string & vname);
-  virtual void EndOfEvent(G4HCofThisEvent * eventHC); 
+  void EndOfEvent(G4HCofThisEvent * eventHC) override; 
   enum coordinates {WorldCoordinates, LocalCoordinates};
   Local3DPoint InitialStepPosition(G4Step * s, coordinates);
   Local3DPoint FinalStepPosition(G4Step * s, coordinates);

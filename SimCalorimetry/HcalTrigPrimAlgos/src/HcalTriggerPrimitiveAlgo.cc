@@ -26,7 +26,7 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo( bool pf, const std::vector<d
                                                     int numberOfSamplesHF, int numberOfPresamplesHF,
                                                     uint32_t minSignalThreshold, uint32_t PMT_NoiseThreshold
                                                     )
-                                                   : incoder_(0), outcoder_(0),
+                                                   : incoder_(nullptr), outcoder_(nullptr),
                                                    theThreshold(0), peakfind_(pf), weights_(w), latency_(latency),
                                                    FG_threshold_(FG_threshold), FG_HF_threshold_(FG_HF_threshold), ZS_threshold_(ZS_threshold),
                                                    numberOfSamples_(numberOfSamples),
@@ -514,7 +514,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2016(
             if (details.LongDigi.id().ietaAbs() >= FIRST_FINEGRAIN_TOWER) {
                finegrain[ibin][1] = (ADCLong > FG_HF_threshold_ || ADCShort > FG_HF_threshold_);
 
-               if (embit != 0)
+               if (embit != nullptr)
                   finegrain[ibin][0] = embit->fineGrainbit(details.ShortDigi, details.LongDigi, ibin);
             }
         }
@@ -632,7 +632,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
                }
             }
 
-            if (embit != 0) {
+            if (embit != nullptr) {
                finegrain[ibin][0] = embit->fineGrainbit(
                      details[1].digi, details[3].digi,
                      details[0].digi, details[2].digi,

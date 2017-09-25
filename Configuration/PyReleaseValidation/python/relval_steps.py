@@ -283,6 +283,7 @@ steps['RunSinglePh2017B']={'INPUT':InputInfo(dataSet='/SinglePhoton/Run2017B-v1/
 steps['RunZeroBias2017B']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2017B-v1/RAW',label='zb2017B',events=100000,location='STD', ls=Run2017B)}
 steps['RunMuOnia2017B']={'INPUT':InputInfo(dataSet='/MuOnia/Run2017B-v1/RAW',label='muOnia2017B',events=100000,location='STD', ls=Run2017B)}
 steps['RunNoBPTX2017B']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2017B-v1/RAW',label='noBptx2017B',events=100000,location='STD', ls=Run2017B)}
+steps['RunHLTPhy2017B_AOD']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2017B-PromptReco-v1/AOD',label='hltPhy2017Baod',events=100000,location='STD', ls=Run2017B)}
 
 # Highstat HLTPhysics
 Run2015DHS=selectedLS([258712,258713,258714,258741,258742,258745,258749,258750,259626,259637,259683,259685,259686,259721,259809,259810,259818,259820,259821,259822,259862,259890,259891])
@@ -390,6 +391,7 @@ steps['ZMM_13UP17']=gen2017('ZMM_13TeV_TuneCUETP8M1_cfi',Kby(18,100))
 steps['ZTT_13UP17']=gen2017('ZTT_All_hadronic_13TeV_TuneCUETP8M1_cfi',Kby(9,80))
 steps['H125GGgluonfusion_13UP17']=gen2017('H125GGgluonfusion_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
 steps['QQH1352T_13UP17']=gen2017('QQH1352T_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
+steps['SMS-T1tttt_mGl-1500_mLSP-100_13UP17']=gen2017('SMS-T1tttt_mGl-1500_mLSP-100_13TeV-pythia8_cfi',Kby(9,50))
 
 # 13TeV High Stats samples
 steps['ZMM_13_HS']=gen2015('ZMM_13TeV_TuneCUETP8M1_cfi',Kby(209,100))
@@ -404,7 +406,7 @@ steps['TTbar_13_ID']=identitySim(steps['TTbar_13'])
 
 baseDataSetRelease=[
     'CMSSW_9_2_4-91X_mcRun1_realistic_v2-v1',               # 0 run1 samples; note TTbar GENSIM has v2 (see TTbarINPUT below)
-    'CMSSW_9_3_0_pre4-93X_mc2017_realistic_v1-v1',     # 1 GEN-SIM for HI RunII, 2018
+    'CMSSW_9_3_0_pre5-93X_mc2017_realistic_v2-v1',     # 1 GEN-SIM for HI RunII, 2018
     'CMSSW_6_2_0_pre8-PRE_ST62_V8_FastSim-v1',              # 2 for fastsim id test
 #    'CMSSW_7_1_0_pre5-START71_V1-v2',                      # 3 8 TeV , for the one sample which is part of the routine relval production (RelValZmumuJets_Pt_20_300, because of -v2)
                                                             # THIS ABOVE IS NOT USED, AT THE MOMENT
@@ -412,14 +414,14 @@ baseDataSetRelease=[
     'CMSSW_7_3_0_pre1-PRE_LS172_V15_FastSim-v1',                   # 4 - fast sim GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
     'CMSSW_9_0_0_pre4-PU25ns_90X_mcRun2_asymptotic_v1-v1',    # 5 - fullSim PU 25ns premix
     'CMSSW_8_1_0_pre15-PU50ns_81X_mcRun2_startup_v12-v1',        # 6 - fullSim PU 50ns premix
-    'CMSSW_9_3_0_pre4-93X_mcRun2_asymptotic_v0_FastSim-v1',    # 7 - fastSim MinBias for mixing
-    'CMSSW_9_3_0_pre4-PU25ns_93X_mcRun2_asymptotic_v0_FastSim-v1',# 8 - fastSim premixed MinBias
-    'CMSSW_9_3_0_pre4-93X_mc2017_realistic_v1-v1', 	   # 9 - Run2 HI GEN-SIM for mixing
+    'CMSSW_9_3_0_pre5-93X_mcRun2_asymptotic_v0_FastSim-v1',    # 7 - fastSim MinBias for mixing
+    'CMSSW_9_3_0_pre5-PU25ns_93X_mcRun2_asymptotic_v0_FastSim-v1',# 8 - fastSim premixed MinBias
+    'CMSSW_9_3_0_pre5-93X_mc2017_realistic_v2-v1', 	   # 9 - Run2 HI GEN-SIM for mixing
     'CMSSW_7_6_0-76X_mcRun2_asymptotic_v11-v1',                    # 10 - 13 TeV High Stats GEN-SIM
     'CMSSW_7_6_0_pre7-76X_mcRun2_asymptotic_v9_realBS-v1',         # 11 - 13 TeV High Stats MiniBias for mixing GEN-SIM
     'CMSSW_8_1_0_pre9_Geant4102-81X_mcRun2cosmics_startup_peak_v2-v1', # 12 - GEN-SIM input for 1307 cosmics wf from 810_p2
-    'CMSSW_9_3_0_pre4-93X_mc2017_realistic_v1-v1',     # 13 - 13 TeV samples with GEN-SIM from PhaseI upgrade
-    'CMSSW_9_3_0_pre4-PU25ns_93X_mc2017_realistic_v1-v1',     # 14 - fullSim PU 25ns UP17 premix
+    'CMSSW_9_3_0_pre5-93X_mc2017_realistic_v2-v1',     # 13 - 13 TeV samples with GEN-SIM from PhaseI upgrade
+    'CMSSW_9_3_0_pre5-PU25ns_93X_mc2017_realistic_v2-v1',     # 14 - fullSim PU 25ns UP17 premix
     ]
 
 
@@ -536,7 +538,7 @@ steps['ZTT_13UP17INPUT']={'INPUT':InputInfo(dataSet='/RelValZTT_13/%s/GEN-SIM'%(
 steps['H125GGgluonfusion_13UP17INPUT']={'INPUT':InputInfo(dataSet='/RelValH125GGgluonfusion_13/%s/GEN-SIM'%(baseDataSetRelease[13],),location='STD')}
 steps['QQH1352T_13UP17INPUT']={'INPUT':InputInfo(dataSet='/RelValQQH1352T_13/%s/GEN-SIM'%(baseDataSetRelease[13],),location='STD')}
 steps['NuGun_UP17INPUT']={'INPUT':InputInfo(dataSet='/RelValNuGun/%s/GEN-SIM'%(baseDataSetRelease[13],),location='STD')}
-
+steps['SMS-T1tttt_mGl-1500_mLSP-100_13UP17INPUT']={'INPUT':InputInfo(dataSet='/RelValSMS-T1tttt_mGl-1500_mLSP-100_13/%s/GEN-SIM'%(baseDataSetRelease[13],),location='STD')}
 
 
 #input for fast sim workflows to be added - TODO
@@ -1321,13 +1323,14 @@ steps['Pyquen_ZeemumuJets_pt10_2760GeV']=gen2018HiMix('Pyquen_ZeemumuJets_pt10_2
 
 # step3
 step3Defaults = {
-                  '-s'            : 'RAW2DIGI,L1Reco,RECO,EI,VALIDATION:@standardValidationNoHLT,DQM:@standardDQMFakeHLT',
+                  '-s'            : 'RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
+                  '--runUnscheduled':'',
                   '--conditions'  : 'auto:run1_mc',
                   '--no_exec'     : '',
-                  '--datatier'    : 'GEN-SIM-RECO,DQMIO',
-                  '--eventcontent': 'RECOSIM,DQM',
+                  '--datatier'    : 'GEN-SIM-RECO,MINIAODSIM,DQMIO',
+                  '--eventcontent': 'RECOSIM,MINIAODSIM,DQM',
                   }
-step3DefaultsAlCaCalo=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:EcalCalZElectron+EcalCalWElectron+EcalUncalZElectron+EcalUncalWElectron+HcalCalIsoTrk,VALIDATION:@standardValidationNoHLT,DQM:@standardDQMFakeHLT'}, step3Defaults])
+step3DefaultsAlCaCalo=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,ALCA:EcalCalZElectron+EcalCalWElectron+EcalUncalZElectron+EcalUncalWElectron+HcalCalIsoTrk,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM'},step3Defaults])
 
 steps['DIGIPU']=merge([{'--process':'REDIGI'},steps['DIGIPU1']])
 
@@ -1460,10 +1463,10 @@ steps['RECO']=merge([step3Defaults])
 
 steps['RECOAlCaCalo']=merge([step3DefaultsAlCaCalo])
 steps['RECODBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECO']])
-steps['RECOPROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO,EI', '--datatier' : 'GEN-SIM-RECO,AODSIM', '--eventcontent' : 'RECOSIM,AODSIM'},step3Defaults])
+steps['RECOPROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO,EI,PAT', '--datatier' : 'AODSIM,MINIAODSIM', '--eventcontent' : 'AODSIM,MINIAODSIM'},step3Defaults])
 #steps['RECOPRODUP15']=merge([{ '-s':'RAW2DIGI,L1Reco,RECO,EI,DQM:DQMOfflinePOGMC','--datatier':'AODSIM,DQMIO','--eventcontent':'AODSIM,DQM'},step3Up2015Defaults])
 steps['RECOPRODUP15']=merge([{ '-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,DQM:DQMOfflinePOGMC','--datatier':'AODSIM,MINIAODSIM,DQMIO','--eventcontent':'AODSIM,MINIAODSIM,DQM'},step3Up2015Defaults])
-steps['RECOCOS']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,DQM','--scenario':'cosmics'},stCond,step3Defaults])
+steps['RECOCOS']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,DQM','--scenario':'cosmics','--datatier':'GEN-SIM-RECO,DQMIO','--eventcontent':'RECOSIM,DQM'},stCond,step3Defaults])
 steps['RECOHAL']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,DQM','--scenario':'cosmics'},step3Up2015Hal])
 steps['RECOCOS_UP15']=merge([{'--conditions':'auto:run2_mc_cosmics','-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlGlobalCosmics,DQM','--scenario':'cosmics'},step3Up2015Hal])
 steps['RECOCOS_UP17']=merge([{'--conditions':'auto:phase1_2017_cosmics','-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlGlobalCosmics,DQM','--scenario':'cosmics','--era':'Run2_2017'},step3Up2015Hal])
@@ -1689,6 +1692,17 @@ steps['HARVESTDreHLT'] = merge([ {'--conditions':'auto:run1_data_%s'%menu}, step
 steps['HARVESTDR1reHLT'] = merge([ {'--conditions':'auto:run1_data_%s'%menu}, steps['HARVESTDR1'] ])
 steps['HARVESTDR2'] = merge([ {'--conditions':'auto:run2_data_relval'}, steps['HARVESTD'] ])
 steps['HARVEST2017'] = merge([ {'--conditions':'auto:run2_data_relval','--era':'Run2_2017','--conditions':'auto:run2_data_promptlike',}, steps['HARVESTD'] ])
+
+steps['DQMHLTonAOD_2017']={
+    '-s':'DQM:offlineHLTSourceOnAOD', ### DQM-only workflow on AOD input: for HLT
+    '--conditions':'auto:run2_data_promptlike',
+    '--data':'',
+    '--eventcontent':'DQM',
+    '--datatier':'DQMIO',
+    '--era':'Run2_2017',
+    '--fileout':'DQMHLTonAOD.root',
+    }
+steps['HARVESTDQMHLTonAOD_2017'] = merge([ {'--filein':'file:DQMHLTonAOD.root','-s':'HARVESTING:hltOfflineDQMClient'}, steps['HARVEST2017'] ]) ### Harvesting step for the DQM-only workflow
 
 steps['HARVESTDDQM']=merge([{'-s':'HARVESTING:@common+@muon+@hcal+@jetmet+@ecal'},steps['HARVESTD']])
 
@@ -1940,9 +1954,9 @@ steps['DBLMINIAODMCUP15NODQM'] = merge([{'--conditions':'auto:run2_mc',
 from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 
 defaultDataSets={}
-defaultDataSets['2017']='CMSSW_9_3_0_pre4-93X_mc2017_realistic_v1-v'
-defaultDataSets['2017Design']='CMSSW_9_3_0_pre4-93X_mc2017_design_IdealBS_v1-v'
-#defaultDataSets['2018']='CMSSW_9_3_0_pre4-93X_upgrade2018_realistic_v0-v'
+defaultDataSets['2017']='CMSSW_9_3_0_pre5-93X_mc2017_realistic_v2-v'
+defaultDataSets['2017Design']='CMSSW_9_3_0_pre5-93X_mc2017_design_IdealBS_v2-v'
+#defaultDataSets['2018']='CMSSW_9_3_0_pre5-93X_upgrade2018_realistic_v1-v'
 #defaultDataSets['2018Design']='CMSSW_8_1_0_pre16-81X_upgrade2017_design_IdealBS_v6-v'
 #defaultDataSets['2019']=''
 #defaultDataSets['2019Design']=''

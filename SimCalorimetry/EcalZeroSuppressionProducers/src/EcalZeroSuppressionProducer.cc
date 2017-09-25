@@ -37,8 +37,8 @@ void EcalZeroSuppressionProducer::produce(edm::Event& event, const edm::EventSet
   edm::Handle< EBDigiCollection > pEBDigis;
   edm::Handle< EEDigiCollection > pEEDigis;
   
-  const EBDigiCollection* fullBarrelDigis =0;
-  const EEDigiCollection* fullEndcapDigis =0;
+  const EBDigiCollection* fullBarrelDigis =nullptr;
+  const EEDigiCollection* fullEndcapDigis =nullptr;
   
   event.getByToken( EB_token, pEBDigis);
   if (pEBDigis.isValid()){ 

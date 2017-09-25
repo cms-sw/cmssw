@@ -32,7 +32,7 @@ public:
   /// constructor from parameter set
   HepPDTESSource( const edm::ParameterSet& );
   /// destructor
-  ~HepPDTESSource();
+  ~HepPDTESSource() override;
   /// define the particle data table type
   typedef HepPDT::ParticleDataTable PDT;
   /// define the return type
@@ -42,7 +42,7 @@ public:
   /// set validity interval
   void setIntervalFor( const edm::eventsetup::EventSetupRecordKey &,
 		       const edm::IOVSyncValue &,
-		       edm::ValidityInterval & );
+		       edm::ValidityInterval & ) override;
 
 private:
   edm::FileInPath pdtFileName;

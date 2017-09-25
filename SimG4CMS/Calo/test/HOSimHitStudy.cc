@@ -43,7 +43,7 @@ class HOSimHitStudy: public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::S
 public:
 
   HOSimHitStudy(const edm::ParameterSet& ps);
-  ~HOSimHitStudy() {}
+  ~HOSimHitStudy() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:

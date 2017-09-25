@@ -21,14 +21,14 @@ public:
 
    DummyChargeFlipProcess(const G4String& processName = "Dummy");
 
-   ~DummyChargeFlipProcess();
+   ~DummyChargeFlipProcess() override;
  
-   G4VParticleChange* PostStepDoIt(const G4Track& aTrack, const G4Step& aStep);
+   G4VParticleChange* PostStepDoIt(const G4Track& aTrack, const G4Step& aStep) override;
 
 
-   G4bool IsApplicable(const G4ParticleDefinition& aParticleType);
+   G4bool IsApplicable(const G4ParticleDefinition& aParticleType) override;
 
-   void BuildPhysicsTable(const G4ParticleDefinition& aParticleType);
+   void BuildPhysicsTable(const G4ParticleDefinition& aParticleType) override;
 
    void DumpPhysicsTable(const G4ParticleDefinition& aParticleType);
 

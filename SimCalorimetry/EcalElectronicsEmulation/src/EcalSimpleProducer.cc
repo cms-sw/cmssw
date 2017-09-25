@@ -15,7 +15,7 @@ using namespace edm;
 
 void EcalSimpleProducer::produce(edm::Event& evt, const edm::EventSetup&){
   const int ievt = evt.id().event();
-  if(formula_.get()!=0){
+  if(formula_.get()!=nullptr){
     unique_ptr<EBDigiCollection> digis(new EBDigiCollection);
     
     digis->reserve(170*360);
@@ -40,7 +40,7 @@ void EcalSimpleProducer::produce(edm::Event& evt, const edm::EventSetup&){
     //puts an empty digi collecion for endcap:
     evt.put(unique_ptr<EEDigiCollection>(new EEDigiCollection()));
   }
-  if(tpFormula_.get()!=0){
+  if(tpFormula_.get()!=nullptr){
     unique_ptr<EcalTrigPrimDigiCollection> tps
       = unique_ptr<EcalTrigPrimDigiCollection>(new EcalTrigPrimDigiCollection);
     tps->reserve(56*72);
@@ -71,7 +71,7 @@ void EcalSimpleProducer::produce(edm::Event& evt, const edm::EventSetup&){
     }
     evt.put(std::move(tps));
   }
-  if(simHitFormula_.get()!=0){//generation of barrel sim hits
+  if(simHitFormula_.get()!=nullptr){//generation of barrel sim hits
     unique_ptr<PCaloHitContainer> hits
       = unique_ptr<PCaloHitContainer>(new PCaloHitContainer);
     for(int iEta0=0; iEta0<170; ++iEta0){
@@ -131,7 +131,7 @@ EcalSimpleProducer::EcalSimpleProducer(const edm::ParameterSet& pset):
   replaceAll(simHitFormula, "iphi0", "y");
   replaceAll(simHitFormula, "ievt0", "z");
   
-  if(formula.size()!=0){
+  if(!formula.empty()){
     formula_ = unique_ptr<TFormula>(new TFormula("f", formula.c_str()));
     Int_t err = formula_->Compile();
     if(err!=0){
@@ -140,7 +140,7 @@ EcalSimpleProducer::EcalSimpleProducer(const edm::ParameterSet& pset):
     produces<EBDigiCollection>();
     produces<EEDigiCollection>();
   }
-  if(tpFormula.size()!=0){
+  if(!tpFormula.empty()){
     tpFormula_ = unique_ptr<TFormula>(new TFormula("f", tpFormula.c_str()));
     Int_t err = tpFormula_->Compile();
     if(err!=0){
@@ -148,7 +148,7 @@ EcalSimpleProducer::EcalSimpleProducer(const edm::ParameterSet& pset):
     }
     produces<EcalTrigPrimDigiCollection>();
   }
-  if(simHitFormula.size()!=0){
+  if(!simHitFormula.empty()){
     simHitFormula_
       = unique_ptr<TFormula>(new TFormula("f", simHitFormula.c_str()));
     Int_t err = simHitFormula_->Compile();

@@ -202,7 +202,7 @@ bool SteppingAction::initPointer()
   const G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();
   if (numberEkins > 0) {
     if (lvs) {
-      ekinVolumes.resize(numberEkins, 0);
+      ekinVolumes.resize(numberEkins, nullptr);
       std::vector<G4LogicalVolume*>::const_iterator lvcite;
       for (lvcite = lvs->begin(); lvcite != lvs->end(); ++lvcite) {
 	for (unsigned int i=0; i<numberEkins; ++i) {
@@ -235,7 +235,7 @@ bool SteppingAction::initPointer()
 
   const G4RegionStore * rs = G4RegionStore::GetInstance();
   if (numberTimes > 0) {
-    maxTimeRegions.resize(numberTimes, 0);
+    maxTimeRegions.resize(numberTimes, nullptr);
     std::vector<G4Region*>::const_iterator rcite;
     for (rcite = rs->begin(); rcite != rs->end(); ++rcite) {
       for (unsigned int i=0; i<numberTimes; ++i) {
@@ -247,7 +247,7 @@ bool SteppingAction::initPointer()
     }
   }
   if (ndeadRegions > 0) {
-    deadRegions.resize(ndeadRegions, 0);
+    deadRegions.resize(ndeadRegions, nullptr);
     std::vector<G4Region*>::const_iterator rcite;
     for (rcite = rs->begin(); rcite != rs->end(); ++rcite) {
       for (unsigned int i=0; i<ndeadRegions; ++i) {

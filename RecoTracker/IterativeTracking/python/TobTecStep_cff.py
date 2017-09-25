@@ -290,11 +290,11 @@ from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierDetached_cfi import *
 tobTecStepClassifier1 = TrackMVAClassifierDetached.clone()
 tobTecStepClassifier1.src = 'tobTecStepTracks'
-tobTecStepClassifier1.GBRForestLabel = 'MVASelectorIter6_13TeV'
+tobTecStepClassifier1.mva.GBRForestLabel = 'MVASelectorIter6_13TeV'
 tobTecStepClassifier1.qualityCuts = [-0.6,-0.45,-0.3]
 tobTecStepClassifier2 = TrackMVAClassifierPrompt.clone()
 tobTecStepClassifier2.src = 'tobTecStepTracks'
-tobTecStepClassifier2.GBRForestLabel = 'MVASelectorIter0_13TeV'
+tobTecStepClassifier2.mva.GBRForestLabel = 'MVASelectorIter0_13TeV'
 tobTecStepClassifier2.qualityCuts = [0.0,0.0,0.0]
 
 from RecoTracker.FinalTrackSelectors.ClassifierMerger_cfi import *
@@ -304,11 +304,11 @@ tobTecStep.inputClassifiers=['tobTecStepClassifier1','tobTecStepClassifier2']
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
 from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
 trackingPhase1.toReplaceWith(tobTecStep, tobTecStepClassifier1.clone(
-     GBRForestLabel = 'MVASelectorTobTecStep_Phase1',
+     mva = dict(GBRForestLabel = 'MVASelectorTobTecStep_Phase1'),
      qualityCuts = [-0.6,-0.45,-0.3],
 ))
 trackingPhase1QuadProp.toReplaceWith(tobTecStep, tobTecStepClassifier1.clone(
-     GBRForestLabel = 'MVASelectorTobTecStep_Phase1',
+     mva = dict(GBRForestLabel = 'MVASelectorTobTecStep_Phase1'),
      qualityCuts = [-0.6,-0.45,-0.3],
 ))
 

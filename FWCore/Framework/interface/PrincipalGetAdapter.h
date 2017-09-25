@@ -102,6 +102,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/ProductLabels.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
@@ -111,6 +112,7 @@ namespace edm {
 
   class ModuleCallingContext;
   class SharedResourcesAcquirer;
+  class ProducerBase;
 
   namespace principal_get_adapter_detail {
     void
@@ -144,6 +146,9 @@ namespace edm {
       resourcesAcquirer_ = iSra;
     }
 
+    void setProducer(ProducerBase const* iProd) {
+      prodBase_ = iProd;
+    }
 
     bool isComplete() const;
 
@@ -163,6 +168,7 @@ namespace edm {
     BranchDescription const&
     getBranchDescription(TypeID const& type, std::string const& productInstanceName) const;
 
+    std::string const& productInstanceLabel(EDPutToken) const;
     typedef std::vector<BasicHandle>  BasicHandleVec;
 
     //------------------------------------------------------------
@@ -235,6 +241,7 @@ namespace edm {
     
     EDConsumerBase const* consumer_;
     SharedResourcesAcquirer* resourcesAcquirer_; // We do not use propagate_const because the acquirer is itself mutable.
+    ProducerBase const* prodBase_ = nullptr;
   };
 
   template <typename PROD>

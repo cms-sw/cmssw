@@ -230,9 +230,9 @@ void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &iboo
     float LUMIMax = conf_->getParameter<double>("LUMIMax");
     
 
-    int NBINS[]        = { 60,   int(GetLumi::lastBunchCrossing),  LUMIBin, LUMIBin};
+    int NBINS[]        = { 150,   int(GetLumi::lastBunchCrossing),  LUMIBin, LUMIBin};
     float MIN[]        = { 0.5,     0.5,  LUMIMin, LUMIMin };
-    float MAX[]        = { 60.5, float(GetLumi::lastBunchCrossing)+0.5,  LUMIMax, LUMIMax };
+    float MAX[]        = { 150.5, float(GetLumi::lastBunchCrossing)+0.5,  LUMIMax, LUMIMax };
     std::string NAME[] = { "", "VsBX", "VsLUMI", "VsLUMI" };
    
     auto logBins = makeLogBins<float,LUMIBin>(LUMIMin,LUMIMax);
@@ -636,13 +636,6 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
       }
 
       size_t StopReasonNameSize = sizeof(StopReasonName::StopReasonName)/sizeof(std::string);
-      if(StopReasonNameSize != static_cast<unsigned int>(StopReason::SIZE)) {
-        throw cms::Exception("Assert") << "StopReason::SIZE is " << static_cast<unsigned int>(StopReason::SIZE)
-                                       << " but StopReasonName's only for "
-                                       << StopReasonNameSize
-                                       << ". Please update DataFormats/TrackReco/interface/TrajectoryStopReasons.h.";
-      }
-
       histname = "stoppingSource_";
       stoppingSource = ibooker.book1D(histname+CategoryName, histname+CategoryName, StopReasonNameSize, 0., double(StopReasonNameSize));
       stoppingSource->setAxisTitle("stopping reason",1);

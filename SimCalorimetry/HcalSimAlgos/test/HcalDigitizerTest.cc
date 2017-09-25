@@ -46,7 +46,7 @@ class HcalDigitizerTest : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 
 public:
   explicit HcalDigitizerTest(const edm::ParameterSet& iConfig);
-  ~HcalDigitizerTest();
+  ~HcalDigitizerTest() override;
 
 private:
   void beginJob() override;
