@@ -6,7 +6,6 @@
 #include <limits>
 #include <sstream>
 
-SeedingLayerSetsHits::SeedingLayerSetsHits(): nlayers_(0), layerSetIndices_(nullptr), layerNames_(nullptr) {}
 SeedingLayerSetsHits::SeedingLayerSetsHits(unsigned short nlayers,
                                            const std::vector<LayerSetIndex> *layerSetIndices,
                                            const std::vector<std::string> *layerNames,
@@ -17,9 +16,6 @@ SeedingLayerSetsHits::SeedingLayerSetsHits(unsigned short nlayers,
   layerDets_(layerDets)
 {
   layerHitIndices_.reserve(layerNames->size());
-}
-SeedingLayerSetsHits::~SeedingLayerSetsHits() {
-//   std::cout << "deleting eedingLayerSetsHits " << rechits_.size() << std::endl;
 }
 
 

@@ -169,7 +169,7 @@ public:
   };
 
 
-  SeedingLayerSetsHits();
+  SeedingLayerSetsHits() = default;
 
   /**
    * Constructor.
@@ -184,11 +184,11 @@ public:
                        const std::vector<std::string> *layerNames,
                        const std::vector<const DetLayer *>& layerDets);
 
-  ~SeedingLayerSetsHits();
-   SeedingLayerSetsHits(SeedingLayerSetsHits const&)=delete;
-   SeedingLayerSetsHits& operator=(SeedingLayerSetsHits const&)=delete;
-   SeedingLayerSetsHits(SeedingLayerSetsHits &&)=default;           
-   SeedingLayerSetsHits& operator=(SeedingLayerSetsHits &&)=default;
+  ~SeedingLayerSetsHits() = default;
+  SeedingLayerSetsHits(SeedingLayerSetsHits const&)=delete;
+  SeedingLayerSetsHits& operator=(SeedingLayerSetsHits const&)=delete;
+  SeedingLayerSetsHits(SeedingLayerSetsHits &&)=default;
+  SeedingLayerSetsHits& operator=(SeedingLayerSetsHits &&)=default;
 
 
   void addHits(LayerIndex layerIndex, OwnedHits&& hits);
@@ -228,18 +228,18 @@ private:
   Hits hits(LayerIndex layerIndex) const;
 
   /// Number of layers in a SeedingLayerSet
-  unsigned short nlayers_;
+  unsigned short nlayers_ = 0;
 
   /**
    * Stores SeedingLayerSets as nlayers_ consecutive layer indices.
    * Layer indices point to layerHitRanges_, layerNames_, and
    * layerDets_. Hence layerSetIndices.size() == nlayers_*"number of layer sets"
    */
-  const std::vector<LayerSetIndex> *layerSetIndices_;
+  const std::vector<LayerSetIndex> *layerSetIndices_ = nullptr;
 
   // following are indexed by LayerIndex
   std::vector<HitIndex> layerHitIndices_; // Indices to first hits in rechits_
-  const std::vector<std::string> *layerNames_; // Names of the layers
+  const std::vector<std::string> *layerNames_ = nullptr; // Names of the layers
   std::vector<const DetLayer *> layerDets_; // Pointers to corresponding DetLayer objects
 
   /**
