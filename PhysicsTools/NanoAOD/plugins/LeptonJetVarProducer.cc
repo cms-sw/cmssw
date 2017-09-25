@@ -37,6 +37,7 @@
 
 #include "TLorentzVector.h"
 #include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
 
 #include "PhysicsTools/NanoAOD/interface/MatchingUtils.h"
 
@@ -64,7 +65,7 @@ class LeptonJetVarProducer : public edm::global::EDProducer<> {
    private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-  std::tuple<float,float,float> calculatePtRatioRel(auto &lep, auto &jet, auto &vtx) const;
+  std::tuple<float,float,float> calculatePtRatioRel(edm::Ptr<reco::Candidate> lep, edm::Ptr<pat::Jet> jet, const reco::Vertex &vtx) const;
 
       // ----------member data ---------------------------
 
@@ -153,7 +154,7 @@ LeptonJetVarProducer<T>::produce(edm::StreamID streamID, edm::Event& iEvent, con
 
 template <typename T>
 std::tuple<float,float,float>
-LeptonJetVarProducer<T>::calculatePtRatioRel(auto &lep, auto &jet, auto &vtx) const {
+LeptonJetVarProducer<T>::calculatePtRatioRel(edm::Ptr<reco::Candidate> lep, edm::Ptr<pat::Jet> jet, const reco::Vertex &vtx) const {
  
   auto rawp4_ = jet->correctedP4("Uncorrected");
   auto rawp4 = TLorentzVector(rawp4_.pt(),rawp4_.eta(),rawp4_.phi(),rawp4_.energy());

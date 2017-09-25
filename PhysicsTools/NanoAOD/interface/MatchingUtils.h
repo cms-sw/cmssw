@@ -5,7 +5,8 @@
 #include <vector>
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 */
-bool matchByCommonSourceCandidatePtr(const auto & c1, const auto & c2) {
+template <class C1, class C2>
+bool matchByCommonSourceCandidatePtr(const C1 & c1, const C2 & c2) {
     for(unsigned int i1 = 0 ; i1 < c1.numberOfSourceCandidatePtrs();i1++){
         auto  c1s=c1.sourceCandidatePtr(i1);
             for(unsigned int i2 = 0 ; i2 < c2.numberOfSourceCandidatePtrs();i2++) {
@@ -15,7 +16,8 @@ bool matchByCommonSourceCandidatePtr(const auto & c1, const auto & c2) {
     return false;
 }
 
-bool matchByCommonParentSuperClusterRef(const auto & c1, const auto & c2) {
+template <class C1, class C2>
+bool matchByCommonParentSuperClusterRef(const C1 & c1, const C2  & c2) {
   auto c1s = c1.parentSuperCluster();
   auto c2s = c2.parentSuperCluster();
   return (c1s == c2s);
