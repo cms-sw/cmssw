@@ -26,18 +26,16 @@ public:
 
 private:
 
-    void findNeighbor( const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs, 
-		       const l1t::HGCalCluster & cluster,
-		       std::vector<int> & neighborList);
-
-    bool isNeighbor( const l1t::HGCalCluster & clu1, 
-		     const l1t::HGCalCluster & clu2) const;
+    void findNeighbor( const std::vector<std::pair<unsigned int,double>>&  rankedList,
+                       unsigned int searchInd,
+                       const edm::PtrVector<l1t::HGCalCluster> & clustersPtr, 
+                       std::vector<unsigned int>& neigbors);
     
     double dr_;
     double ptC3dThreshold_;
     double calibSF_;
     string multiclusterAlgoType_;
-    double distDbscan_ = 0.03;
+    double distDbscan_ = 0.005;
     unsigned minNDbscan_ = 3;
 
     HGCalShowerShape shape_;
