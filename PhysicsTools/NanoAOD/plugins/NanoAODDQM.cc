@@ -5,7 +5,8 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "PhysicsTools/NanoAOD/interface/FlatTable.h"
+#include "DataFormats/NanoAOD/interface/FlatTable.h"
+#include <boost/ptr_container/ptr_vector.hpp>
 
 class NanoAODDQM : public DQMEDAnalyzer {
     public:
@@ -20,19 +21,33 @@ class NanoAODDQM : public DQMEDAnalyzer {
 
     private:
         class Plot {
+            public: 
+                Plot(MonitorElement * me) : plot_(me) {}
+                virtual ~Plot() {}
+                virtual void fill(const FlatTable & table) = 0;
+                const std::string & name() const { return plot_->getName(); }
+            protected:
+                MonitorElement * plot_;
+        };
+        class Plot1D : public Plot {
             public:
-                Plot(DQMStore::IBooker & booker, const edm::ParameterSet & cfg) :
-                    col_(cfg.getParameter<std::string>("column")),
-                    plot_(booker.book1D(cfg.getParameter<std::string>("name").c_str(), "", cfg.getParameter<uint32_t>("nbins"), cfg.getParameter<double>("min"), cfg.getParameter<double>("max")))
+                Plot1D(DQMStore::IBooker & booker, const edm::ParameterSet & cfg) :
+                    Plot(booker.book1D(cfg.getParameter<std::string>("name").c_str(), "", cfg.getParameter<uint32_t>("nbins"), cfg.getParameter<double>("min"), cfg.getParameter<double>("max"))),
+                    col_(cfg.getParameter<std::string>("column")), once_(true)
                 {
                 }
-                void fill(const FlatTable & table) {
+                ~Plot1D() override {}
+                void fill(const FlatTable & table) override {
                     if (col_ == "@size") {
                         plot_->Fill(table.size());
                         return;
                     }
                     int icol = table.columnIndex(col_);
                     if (icol == -1) throw cms::Exception("LogicError", "Missing "+col_);
+                    if (once_) {
+                        plot_->setTitle(table.columnDoc(icol));
+                        once_ = false;
+                    }
                     switch(table.columnType(icol)) {
                         case FlatTable::FloatColumn: vfill<float>(table,icol); break;
                         case FlatTable::IntColumn: vfill<int>(table,icol); break;
@@ -42,24 +57,60 @@ class NanoAODDQM : public DQMEDAnalyzer {
                 }
             protected:
                 std::string col_;
-                FlatTable::ColumnType type_;
-                MonitorElement * plot_;
-
+                bool once_;
                 template<typename T>
                 void vfill(const FlatTable & table, int icol) {
                     for (const T & x : table.columnData<T>(icol)) plot_->Fill(x);
                 }
         };
+        class Profile1D : public Plot {
+            public:
+                Profile1D(DQMStore::IBooker & booker, const edm::ParameterSet & cfg) :
+                    Plot(booker.bookProfile(cfg.getParameter<std::string>("name"), "", 
+                            cfg.getParameter<uint32_t>("nbins"), cfg.getParameter<double>("min"), cfg.getParameter<double>("max"),
+                            0., 0., "")),
+                    ycol_(cfg.getParameter<std::string>("ycolumn")), xcol_(cfg.getParameter<std::string>("xcolumn")), once_(true)
+                {
+                }
+                ~Profile1D() override {}
+                void fill(const FlatTable & table) override {
+                    int icolx = table.columnIndex(xcol_);
+                    int icoly = table.columnIndex(ycol_);
+                    if (icolx == -1) throw cms::Exception("LogicError", "Missing "+xcol_);
+                    if (icoly == -1) throw cms::Exception("LogicError", "Missing "+ycol_);
+                    if (once_) {
+                        plot_->setTitle(table.columnDoc(icoly)+" vs "+xcol_);
+                        once_ = false;
+                    }
+                    for (unsigned int irow = 0, n = table.size(); irow < n; ++irow) {
+                        plot_->Fill(table.getAnyValue(irow,icolx), table.getAnyValue(irow,icoly));
+                    }
+                }
+            protected:
+                std::string ycol_, xcol_;
+                bool once_;
+        };
+
+
+
+        static std::unique_ptr<Plot> makePlot(DQMStore::IBooker & booker, const edm::ParameterSet & cfg) {
+            const std::string & kind = cfg.getParameter<std::string>("kind");
+            if (kind == "none") return nullptr;
+            if (kind == "hist1d") return std::make_unique<Plot1D>(booker,cfg);
+            if (kind == "prof1d") return std::make_unique<Profile1D>(booker,cfg);
+            throw cms::Exception("Configuration", "Unsupported plot kind '"+kind+"'");
+        }
 
         std::map<std::string, std::vector<edm::ParameterSet>> psets_;
-        std::map<std::string, std::vector<Plot>> plots_;
+        std::map<std::string, boost::ptr_vector<Plot>> plots_;
 };
 
 NanoAODDQM::NanoAODDQM(const edm::ParameterSet & iConfig) 
 {
     const edm::ParameterSet & vplots = iConfig.getParameter<edm::ParameterSet>("vplots");
-    for (const std::string & name : vplots.getParameterNamesForType<std::vector<edm::ParameterSet>>()) {
-        psets_[name] = vplots.getParameter<std::vector<edm::ParameterSet>>(name);
+    for (const std::string & name : vplots.getParameterNamesForType<edm::ParameterSet>()) {
+        const auto & pset = vplots.getParameter<edm::ParameterSet>(name);
+        psets_[name] = pset.getParameter<std::vector<edm::ParameterSet>>("plots");
     }
     consumesMany<FlatTable>();
 }
@@ -70,9 +121,12 @@ void NanoAODDQM::bookHistograms(DQMStore::IBooker & booker, edm::Run const &, ed
     plots_.clear();
     for (const auto & pair : psets_) {
         booker.setCurrentFolder("Physics/NanoAODDQM/"+pair.first);
-        std::vector<Plot> & plots = plots_[pair.first];
+        boost::ptr_vector<Plot> & plots = plots_[pair.first];
         plots.reserve(pair.second.size());
-        for (const auto & cfg : pair.second) plots.emplace_back(booker, cfg);
+        for (const auto & cfg : pair.second) {
+            auto plot = makePlot(booker, cfg);
+            if (plot) plots.push_back(plot.release());
+        }
     }
 }
 
@@ -104,7 +158,11 @@ void NanoAODDQM::analyze(const edm::Event &iEvent, const edm::EventSetup &) {
             }
             table = & merged;
         }
-        for (auto & plot : pair.second) plot.fill(*table);
+        for (auto & plot : pair.second) {
+            if (table->columnIndex(plot.name()) != -1) {
+                plot.fill(*table);
+            }
+        }
     }    
 }
 
