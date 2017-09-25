@@ -1,6 +1,6 @@
 <lcgdict>
   <class name="L1aInfo" ClassVersion="3">
-    <version ClassVersion="3" checksum="938245612"/>
+    <version ClassVersion="3" checksum="3147751090"/>
   </class>
   <class name="std::vector<L1aInfo>"/>
 
@@ -9,7 +9,7 @@
   </class>
 
   <class name="TCDSRecord" ClassVersion="3">
-    <version ClassVersion="3" checksum="3491510633"/>
+    <version ClassVersion="3" checksum="1408516613"/>
   </class>
 
   <class name="edm::RefProd<TCDSRecord>"/>
