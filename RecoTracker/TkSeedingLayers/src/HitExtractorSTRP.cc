@@ -26,7 +26,7 @@ using namespace ctfseeding;
 using namespace std;
 using namespace edm;
 
-HitExtractorSTRP::HitExtractorSTRP(GeomDetEnumerators::SubDetector subdet, SeedingLayer::Side & side, int idLayer, float iminGoodCharge):
+HitExtractorSTRP::HitExtractorSTRP(GeomDetEnumerators::SubDetector subdet, TrackerDetSide::Side & side, int idLayer, float iminGoodCharge):
   theLayerSubDet(subdet), theSide(side), theIdLayer(idLayer),
   minAbsZ(0), theMinRing(1), theMaxRing(0),
   hasMatchedHits(false), hasRPhiHits(false), hasStereoHits(false),

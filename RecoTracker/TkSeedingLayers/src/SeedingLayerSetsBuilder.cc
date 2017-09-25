@@ -31,7 +31,7 @@ using namespace std;
 
 SeedingLayerSetsBuilder::SeedingLayerId SeedingLayerSetsBuilder::nameToEnumId(const std::string& name) {
     GeomDetEnumerators::SubDetector subdet = GeomDetEnumerators::invalidDet;
-    SeedingLayer::Side side = SeedingLayer::Barrel;
+    TrackerDetSide::Side side = TrackerDetSide::Barrel;
     int idLayer = 0;
 
     size_t index;
@@ -40,7 +40,7 @@ SeedingLayerSetsBuilder::SeedingLayerId SeedingLayerSetsBuilder::nameToEnumId(co
     //
     if ((index = name.find("BPix")) != string::npos) {
       subdet = GeomDetEnumerators::PixelBarrel;
-      side = SeedingLayer::Barrel;
+      side = TrackerDetSide::Barrel;
       idLayer = atoi(name.substr(index+4,1).c_str());
     }
     //
@@ -50,9 +50,9 @@ SeedingLayerSetsBuilder::SeedingLayerId SeedingLayerSetsBuilder::nameToEnumId(co
       subdet = GeomDetEnumerators::PixelEndcap;
       idLayer = atoi(name.substr(index+4).c_str());
       if ( name.find("pos") != string::npos ) {
-        side = SeedingLayer::PosEndcap;
+        side = TrackerDetSide::PosEndcap;
       } else {
-        side = SeedingLayer::NegEndcap;
+        side = TrackerDetSide::NegEndcap;
       }
     }
     //
@@ -60,7 +60,7 @@ SeedingLayerSetsBuilder::SeedingLayerId SeedingLayerSetsBuilder::nameToEnumId(co
     //
     else if ((index = name.find("TIB")) != string::npos) {
       subdet = GeomDetEnumerators::TIB;
-      side = SeedingLayer::Barrel;
+      side = TrackerDetSide::Barrel;
       idLayer = atoi(name.substr(index+3,1).c_str());
     }
     //
@@ -70,9 +70,9 @@ SeedingLayerSetsBuilder::SeedingLayerId SeedingLayerSetsBuilder::nameToEnumId(co
       subdet = GeomDetEnumerators::TID;
       idLayer = atoi(name.substr(index+3,1).c_str());
       if ( name.find("pos") != string::npos ) {
-        side = SeedingLayer::PosEndcap;
+        side = TrackerDetSide::PosEndcap;
       } else {
-        side = SeedingLayer::NegEndcap;
+        side = TrackerDetSide::NegEndcap;
       }
     }
     //
@@ -80,7 +80,7 @@ SeedingLayerSetsBuilder::SeedingLayerId SeedingLayerSetsBuilder::nameToEnumId(co
     //
     else if ((index = name.find("TOB")) != string::npos) {
       subdet = GeomDetEnumerators::TOB;
-      side = SeedingLayer::Barrel;
+      side = TrackerDetSide::Barrel;
       idLayer = atoi(name.substr(index+3,1).c_str());
     }
     //
@@ -90,9 +90,9 @@ SeedingLayerSetsBuilder::SeedingLayerId SeedingLayerSetsBuilder::nameToEnumId(co
       subdet = GeomDetEnumerators::TEC;
       idLayer = atoi(name.substr(index+3,1).c_str());
       if ( name.find("pos") != string::npos ) {
-        side = SeedingLayer::PosEndcap;
+        side = TrackerDetSide::PosEndcap;
       } else {
-        side = SeedingLayer::NegEndcap;
+        side = TrackerDetSide::NegEndcap;
       }
     }
     return std::make_tuple(subdet, side, idLayer);
@@ -293,7 +293,7 @@ void SeedingLayerSetsBuilder::updateEventSetup(const edm::EventSetup& es) {
       detLayer = bpx[index];
     }
     else if (layer.subdet == GeomDetEnumerators::PixelEndcap) {
-      if (layer.side == SeedingLayer::PosEndcap) {
+      if (layer.side == TrackerDetSide::PosEndcap) {
         detLayer = fpx_pos[index];
       } else {
         detLayer = fpx_neg[index];
@@ -303,7 +303,7 @@ void SeedingLayerSetsBuilder::updateEventSetup(const edm::EventSetup& es) {
       detLayer = tib[index];
     }
     else if (layer.subdet == GeomDetEnumerators::TID) {
-      if (layer.side == SeedingLayer::PosEndcap) {
+      if (layer.side == TrackerDetSide::PosEndcap) {
         detLayer = tid_pos[index];
       } else {
         detLayer = tid_neg[index];
@@ -313,7 +313,7 @@ void SeedingLayerSetsBuilder::updateEventSetup(const edm::EventSetup& es) {
       detLayer = tob[index];
     }
     else if (layer.subdet == GeomDetEnumerators::TEC) {
-      if (layer.side == SeedingLayer::PosEndcap) {
+      if (layer.side == TrackerDetSide::PosEndcap) {
         detLayer = tec_pos[index];
       } else {
         detLayer = tec_neg[index];

@@ -13,15 +13,8 @@ class DetLayer;
 
 /**
  * Class to store TransientTrackingRecHits, names, and DetLayer
- * pointers of each ctfseeding::SeedingLayer as they come from
- * SeedingLayerSetsBuilder.
- *
- * In contrast to ctfseeding::SeedingLayerSets, this class requires
- * that all contained SeedingLayerSets have the same number of layers
- * in each set.
- *
- * This class was created in part for SeedingLayer getByToken
- * migration, and in part as a performance improvement.
+ * pointers of each seeding layer. It is required that all contained
+ * SeedingLayerSets have the same number of layers in each set.
  */
 class SeedingLayerSetsHits {
 public:

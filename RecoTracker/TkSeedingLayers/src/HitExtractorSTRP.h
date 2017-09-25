@@ -1,7 +1,7 @@
 #ifndef RecoTracker_TkSeedingLayers_HitExtractorSTRP_H
 #define RecoTracker_TkSeedingLayers_HitExtractorSTRP_H
 
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
+#include "DataFormats/TrackerCommon/interface/TrackerDetSide.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "HitExtractor.h"
 
@@ -24,7 +24,7 @@ class HitExtractorSTRP final : public HitExtractor {
 public:
   typedef SiStripRecHit2D::ClusterRef SiStripClusterRef;
 
-  HitExtractorSTRP(GeomDetEnumerators::SubDetector subdet, SeedingLayer::Side & side, int idLayer, float iminGoodCharge);
+  HitExtractorSTRP(GeomDetEnumerators::SubDetector subdet, TrackerDetSide::Side & side, int idLayer, float iminGoodCharge);
   ~HitExtractorSTRP() override{}
 
   HitExtractor::Hits hits( const TkTransientTrackingRecHitBuilder &ttrhBuilder, const edm::Event& , const edm::EventSetup&) const override;
@@ -56,8 +56,7 @@ private:
   void useSkipClusters_(const edm::InputTag & m, edm::ConsumesCollector& iC) override;
 private:
   const GeomDetEnumerators::SubDetector theLayerSubDet;
-  SeedingLayer::Side theSide;
-  mutable const SeedingLayer * theSLayer;
+  TrackerDetSide::Side theSide;
   int theIdLayer;
   double minAbsZ;
   int theMinRing, theMaxRing;
