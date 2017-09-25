@@ -54,7 +54,19 @@ namespace edm {
     << "::put: An uninitialized EDPutToken was passed to 'put'.\n"
     << "The pointer is of type "
     << productType
-    << "'.\n";
+    << ".\n";
+  }
+
+  void
+  principal_get_adapter_detail::throwOnPutOfWrongType(std::type_info const& wrongType, TypeID const& rightType) {
+    TypeID wrongTypeID{wrongType};
+    throw Exception(errors::LogicError)
+    << "The registered type for an EDPutToken does not match the put type.\n"
+    << "The expected type "
+    << rightType
+    << "\nThe put type "
+    << wrongTypeID
+    << ".\n";
   }
 
   void
@@ -331,6 +343,12 @@ namespace edm {
   PrincipalGetAdapter::productInstanceLabel(EDPutToken iToken) const {
     return prodBase_->typeLabelList()[iToken.index()].productInstanceName_;
   }
+  
+  TypeID const&
+  PrincipalGetAdapter::getTypeIDForPutTokenIndex(EDPutToken::value_type index) const {
+    return prodBase_->typeLabelList()[index].typeID_;
+  }
+
 
   std::vector<edm::ProductResolverIndex> const&
   PrincipalGetAdapter::putTokenIndexToProductResolverIndex() const {

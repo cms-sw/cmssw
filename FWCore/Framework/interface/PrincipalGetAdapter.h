@@ -121,6 +121,8 @@ namespace edm {
     void
     throwOnPutOfUninitializedToken(char const* principalType, std::type_info const& productType);
     void
+    throwOnPutOfWrongType(std::type_info const& wrongType, TypeID const& rightType);
+    void
     throwOnPrematureRead(char const* principalType, TypeID const& productType, std::string const& moduleLabel, std::string const& productInstanceName);
     void
     throwOnPrematureRead(char const* principalType, TypeID const& productType);
@@ -178,6 +180,7 @@ namespace edm {
     EDPutToken::value_type
     getPutTokenIndex(TypeID const& type, std::string const& productInstanceName) const;
 
+    TypeID const& getTypeIDForPutTokenIndex(EDPutToken::value_type index) const;
     std::string const& productInstanceLabel(EDPutToken) const;
     typedef std::vector<BasicHandle>  BasicHandleVec;
 
