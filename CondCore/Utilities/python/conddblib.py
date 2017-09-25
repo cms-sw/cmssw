@@ -267,6 +267,7 @@ class TagMetadata:
     __tablename__       = 'TAG_METADATA'
     columns             = { 'tag_name': (DbRef(Tag,'name'),_Col.pk), 
                             'min_serialization_v': (sqlalchemy.String(20),_Col.notNull),
+                            'min_since': (sqlalchemy.BIGINT,_Col.notNull),
                             'modification_time':(sqlalchemy.TIMESTAMP,_Col.notNull) }
 
 class Payload:
