@@ -175,7 +175,7 @@ namespace edm {
     BranchDescription const&
     getBranchDescription(TypeID const& type, std::string const& productInstanceName) const;
 
-    unsigned int
+    EDPutToken::value_type
     getPutTokenIndex(TypeID const& type, std::string const& productInstanceName) const;
 
     std::string const& productInstanceLabel(EDPutToken) const;

@@ -311,7 +311,7 @@ namespace edm {
     //Must be lumi
   }
 
-  unsigned int
+  EDPutToken::value_type
   PrincipalGetAdapter::getPutTokenIndex(TypeID const& type, std::string const& productInstanceName) const {
     auto tran = transition();
     size_t index = 0;
