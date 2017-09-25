@@ -4,6 +4,15 @@ from  PhysicsTools.NanoAOD.common_cff import *
 
 
 ##################### User floats producers, selectors ##########################
+## this can be merged with chsFor soft activity if we keep the same selection
+chsForTkMet = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string('charge()!=0 && pvAssociationQuality()>=5 && vertexRef().key()==0'))
+tkMet = cms.EDProducer(
+    "PFMETProducer",
+    src = cms.InputTag("chsForTkMet"),
+    alias = cms.string('tkMet'),
+    globalThreshold = cms.double(0.0),
+    calculateSignificance = cms.bool(False),
+)
 
 
 
@@ -49,6 +58,18 @@ puppiMetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     ),
 )
 
+tkMetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+    src = cms.InputTag("tkMet"),
+    name = cms.string("TkMET"),
+    doc = cms.string("Track MET computed with tracks from PV0 ( pvAssociationQuality()>=5 ) "),
+    singleton = cms.bool(True),  # there's always exactly one MET per event
+    extension = cms.bool(True), # this is the main table for the MET
+    variables = cms.PSet(PTVars,
+       sumEt = Var("sumEt()", float, doc="scalar sum of Et",precision=10),
+    ),
+)
+
+
 metMCTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = metTable.src,
     name = cms.string("MET"),
@@ -61,7 +82,9 @@ metMCTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     ),
 )
 
-#metSequence = cms.Sequence()
-metTables = cms.Sequence( metTable + caloMetTable + puppiMetTable )
+
+
+metSequence = cms.Sequence(chsForTkMet+tkMet)
+metTables = cms.Sequence( metTable + caloMetTable + puppiMetTable +tkMetTable)
 metMC = cms.Sequence( metMCTable )
 
