@@ -39,38 +39,37 @@ bool HGCalMulticlusteringImpl::isPertinent( const l1t::HGCalCluster & clu,
 }
 
 
-bool HGCalMulticlusteringImpl::isNeighbor( const l1t::HGCalCluster & clu1, 
-                                           const l1t::HGCalCluster & clu2) const
-{
-  HGCalDetId cluDetId( clu2.detId() );
-  HGCalDetId firstClusterDetId( clu1.detId() );
+void HGCalMulticlusteringImpl::findNeighbor( const std::vector<std::pair<unsigned int,double>>&  rankedList,
+                                             unsigned int searchInd,
+                                             const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs, 
+                                             std::vector<unsigned int>& neighbors
+                                            ){
   
-  if( cluDetId.zside() != firstClusterDetId.zside() ){
-    return false;
+  if(clustersPtrs.size() <= searchInd || clustersPtrs.size() < rankedList.size()){
+    throw cms::Exception("IndexOutOfBound: clustersPtrs in 'findNeighbor'");
   }
-  double dist = (clu1.centreProj() - clu2.centreProj() ).mag();
   
-  if(dist < distDbscan_ ) {
-    return true;
+  for(unsigned int ind = searchInd+1; ind < rankedList.size() && fabs(rankedList.at(ind).second - rankedList.at(searchInd).second) < distDbscan_ ; ind++){
+  
+    if(clustersPtrs.size() <= rankedList.at(ind).first){
+      throw cms::Exception("IndexOutOfBound: clustersPtrs in 'findNeighbor'");
+   
+    } else if(((*(clustersPtrs[rankedList.at(ind).first])).centreProj() - (*(clustersPtrs[rankedList.at(searchInd).first])).centreProj()).mag() < distDbscan_){
+      neighbors.push_back(ind);
+    }
   }
-  return false;
-}
-
-
-void HGCalMulticlusteringImpl::findNeighbor( const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs, 
-                                             const l1t::HGCalCluster & cluster,
-                                             std::vector<int> & neighbors
-                                            )
-{
-  int iclu = 0;
   
-  for(edm::PtrVector<l1t::HGCalCluster>::const_iterator clu = clustersPtrs.begin(); clu != clustersPtrs.end(); ++clu, ++iclu){
+  for(unsigned int ind = 0; ind < searchInd && fabs(rankedList.at(searchInd).second - rankedList.at(ind).second) < distDbscan_ ; ind++){
     
-    if(isNeighbor(cluster, **clu)){
-      neighbors.push_back(iclu);
+    if(clustersPtrs.size() <= rankedList.at(ind).first){
+      throw cms::Exception("IndexOutOfBound: clustersPtrs in 'findNeighbor'");
+   
+    } else if(((*(clustersPtrs[rankedList.at(ind).first])).centreProj() - (*(clustersPtrs[rankedList.at(searchInd).first])).centreProj()).mag() < distDbscan_){
+      neighbors.push_back(ind);
     }
   }
 }
+
 
 void HGCalMulticlusteringImpl::clusterizeDR( const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs, 
                                            l1t::HGCalMulticlusterBxCollection & multiclusters)
@@ -137,53 +136,65 @@ void HGCalMulticlusteringImpl::clusterizeDR( const edm::PtrVector<l1t::HGCalClus
 void HGCalMulticlusteringImpl::clusterizeDBSCAN( const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs, 
                                                  l1t::HGCalMulticlusterBxCollection & multiclusters)
 {
-  
+
   std::vector<l1t::HGCalMulticluster> multiclustersTmp;
   l1t::HGCalMulticluster mcluTmp;
   std::vector<bool> visited(clustersPtrs.size(),false);
   std::vector<bool> merged (clustersPtrs.size(),false);
-  std::vector<std::vector<int>> neighborList;
-  int iclu = 0, imclu = 0, neighNo = 0;
+  std::vector<std::pair<unsigned int,double>>  rankedList;
+  rankedList.reserve(clustersPtrs.size());
+  std::vector<std::vector<unsigned int>> neighborList;
+  neighborList.reserve(clustersPtrs.size());
+
+  int iclu = 0, imclu = 0, neighNo;
+  double dist = 0.;
 
   for(edm::PtrVector<l1t::HGCalCluster>::const_iterator clu = clustersPtrs.begin(); clu != clustersPtrs.end(); ++clu, ++iclu){
-    std::vector<int> neighbors;      
-      
+    dist = (*clu)->centreProj().mag()*HGCalDetId((*clu)->detId()).zside();
+    rankedList.push_back(std::make_pair(iclu,dist));
+  }  
+  iclu = 0;
+  std::sort(rankedList.begin(), rankedList.end(), [](auto &left, auto &right) {
+      return left.second < right.second;
+    });
+
+  for(auto cluRanked: rankedList){
+    std::vector<unsigned int> neighbors;      
+    
     if(!visited.at(iclu)){
-      visited.at(iclu)=true;
-      findNeighbor(clustersPtrs, **clu, neighbors);
+      visited.at(iclu) = true;
+      findNeighbor(rankedList, iclu, clustersPtrs, neighbors);
       neighborList.push_back(std::move(neighbors));
-        
-      if(neighborList.at(iclu).size() > minNDbscan_) {
-        multiclustersTmp.emplace_back( *clu );
+
+      if(neighborList.at(iclu).size() >= minNDbscan_) {
+        multiclustersTmp.emplace_back( clustersPtrs[cluRanked.first] );
         merged.at(iclu) = true;
         /* dynamic range loop: range-based loop syntax cannot be employed */
         for(unsigned int neighInd = 0; neighInd < neighborList.at(iclu).size(); neighInd++){
-            
           neighNo = neighborList.at(iclu).at(neighInd);
-          
+
           if(!visited.at(neighNo)){
             visited.at(neighNo) = true;
-            std::vector<int> secNeighbors;
-            findNeighbor(clustersPtrs,*(clustersPtrs[neighNo]), secNeighbors);
-            multiclustersTmp.at(imclu).addConstituent( clustersPtrs[neighNo]);
+            std::vector<unsigned int> secNeighbors;
+            findNeighbor(rankedList, neighNo,clustersPtrs, secNeighbors);
+            multiclustersTmp.at(imclu).addConstituent( clustersPtrs[rankedList.at(neighNo).first]);
             merged.at(neighNo) = true;
             
-            if(secNeighbors.size() > minNDbscan_){
+            if(secNeighbors.size() >= minNDbscan_){
               neighborList.at(iclu).insert(neighborList.at(iclu).end(), secNeighbors.begin(), secNeighbors.end());
             }
             
-            } else if(!merged.at(neighNo) ){
+          } else if(!merged.at(neighNo) ){
             merged.at(neighNo) = true;          
-            multiclustersTmp.at(imclu).addConstituent( clustersPtrs[neighNo] );
+            multiclustersTmp.at(imclu).addConstituent( clustersPtrs[rankedList.at(neighNo).first] );
           }
         }
         imclu++;
       }
     }
-    
     else neighborList.push_back(std::move(neighbors));
+    iclu++;    
   }
-  
   /* making the collection of multiclusters */
   for( unsigned i(0); i<multiclustersTmp.size(); ++i ){
     math::PtEtaPhiMLorentzVector calibP4( multiclustersTmp.at(i).pt() * calibSF_, 
@@ -208,4 +219,5 @@ void HGCalMulticlusteringImpl::clusterizeDBSCAN( const edm::PtrVector<l1t::HGCal
       multiclusters.push_back( 0, multiclustersTmp.at(i));  
     }
   }
+  
 }
