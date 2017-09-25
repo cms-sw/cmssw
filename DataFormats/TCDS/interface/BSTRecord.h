@@ -58,48 +58,48 @@ public:
   BSTRecord(const tcds::BST_v1&);
 
   // Microseconds since Epoch
-  uint64_t const getGpsTime() const  { return gpsTime_; }
+  uint64_t const getGpsTime() const  { return m_gpstime; }
 
   // BST beam master
-  uint8_t const getBstMaster() const { return bstMaster_; }
+  uint8_t const getBstMaster() const { return m_bstMaster; }
 
   // Turn count
-  uint32_t const getTurnCount() const { return turnCount_; }
+  uint32_t const getTurnCount() const { return m_turnCount; }
 
   // Fill number
-  uint32_t const getLhcFill() const { return lhcFill_; }
+  uint32_t const getLhcFill() const { return m_lhcFill; }
 
   // Beam Mode. The return value corresponds to BSTRecord::BeamMode
-  uint16_t const getBeamMode() const { return beamMode_; }
+  uint16_t const getBeamMode() const { return m_beamMode; }
 
   // Particle type BSTRecord::Particle in beam 1
-  uint8_t const getParticleBeam1() const { return particleBeam1_; }
+  uint8_t const getParticleBeam1() const { return m_particleBeam1; }
 
   // Particle type BSTRecord::Particle in beam 2
-  uint8_t const getParticleBeam2() const { return particleBeam2_; }
+  uint8_t const getParticleBeam2() const { return m_particleBeam2; }
 
   // Beam momentum (GeV/c). Returns -1 if no valid value is available
-  int32_t const getBeamMomentum() const { return beamMomentum_; }
+  int32_t const getBeamMomentum() const { return m_beamMomentum; }
 
   // Intensity of Beam 1 (10E10 charges)
-  uint32_t const getIntensityBeam1() const { return intensityBeam1_; }
+  uint32_t const getIntensityBeam1() const { return m_intensityBeam1; }
 
   // Intensity of Beam 2 (10E10 charges)
-  uint32_t const getIntensityBeam2() const { return intensityBeam2_; }
+  uint32_t const getIntensityBeam2() const { return m_intensityBeam2; }
 
 
  private:
 
-  uint64_t gpsTime_;
-  uint8_t bstMaster_;
-  uint32_t turnCount_;
-  uint32_t lhcFill_;
-  uint16_t beamMode_;
-  uint8_t particleBeam1_;
-  uint8_t particleBeam2_;
-  int32_t beamMomentum_;
-  uint32_t intensityBeam1_;
-  uint32_t intensityBeam2_;
+  uint64_t m_gpstime;
+  uint32_t m_turnCount;
+  uint32_t m_lhcFill;
+  uint32_t m_intensityBeam1;
+  uint32_t m_intensityBeam2;
+  int32_t m_beamMomentum;
+  uint16_t m_beamMode;
+  uint8_t m_particleBeam1;
+  uint8_t m_particleBeam2;
+  uint8_t m_bstMaster;
 
 };
 
