@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoEcal.EgammaClusterProducers.hybridSuperClusters_cfi import *
 from RecoEcal.EgammaClusterProducers.multi5x5BasicClusters_cfi import *
 
-from RecoEgamma.EgammaIsolationAlgos.electronTrackIsolations_cfi import trkIsol03CfgV2,trkIsol04CfgV2
+from RecoEgamma.EgammaIsolationAlgos.electronTrackIsolations_cfi import trkIsol03CfgV3,trkIsol04CfgV3
 
 #==============================================================================
 # Producer of transient ecal driven gsf electrons
@@ -118,8 +118,8 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronEcalDrivenProducer",
     #severityLevelCut = cms.int32(4),
 
     # Isolation algos configuration 
-    trkIsol03Cfg = trkIsol03CfgV2,
-    trkIsol04Cfg = trkIsol04CfgV2,                                        
+    trkIsol03Cfg = trkIsol03CfgV3,
+    trkIsol04Cfg = trkIsol04CfgV3,                                        
     intRadiusHcal = cms.double(0.15),
     etMinHcal = cms.double(0.0), 
     intRadiusEcalBarrel = cms.double(3.0), 

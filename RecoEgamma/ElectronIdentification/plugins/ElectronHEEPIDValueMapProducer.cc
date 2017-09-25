@@ -105,19 +105,25 @@ private:
     }
   }
       
-  template<typename T> edm::Handle<T> getHandle(const edm::Event& iEvent,const edm::EDGetTokenT<T>& token){
+  template<typename T>  
+  static edm::Handle<T> getHandle(const edm::Event& iEvent,
+				  const edm::EDGetTokenT<T>& token){
     edm::Handle<T> handle;
     iEvent.getByToken(token,handle);
     return handle;
   }
-  template<typename T> edm::Handle<T> getHandle(const edm::Event& iEvent,const DualToken<T>& token){
+  template<typename T> 
+  static edm::Handle<T> getHandle(const edm::Event& iEvent,
+				  const DualToken<T>& token){
     edm::Handle<T> handle;
     if(!token.aod.isUninitialized()) iEvent.getByToken(token.aod,handle);
     if(!handle.isValid() && !token.miniAOD.isUninitialized()) iEvent.getByToken(token.miniAOD,handle);
     return handle;
   }
 
-  template<typename T> std::vector<edm::Handle<T> > getHandles(const edm::Event& iEvent,const std::vector<DualToken<T> >& tokens){
+  template<typename T> 
+  static std::vector<edm::Handle<T> > 
+  getHandles(const edm::Event& iEvent,const std::vector<DualToken<T> >& tokens){
     std::vector<edm::Handle<T> > handles(tokens.size());
     if(tokens.empty()) return handles;
     if(!tokens[0].aod.isUninitialized()) iEvent.getByToken(tokens[0].aod,handles[0]);
@@ -131,7 +137,8 @@ private:
     return handles;
   }
   
-  template<typename T> bool isEventAOD(const edm::Event& iEvent,const DualToken<T>& token){
+  template<typename T> 
+  static bool isEventAOD(const edm::Event& iEvent,const DualToken<T>& token){
     edm::Handle<T> handle;
     if(!token.aod.isUninitialized()) iEvent.getByToken(token.aod,handle);
     if(handle.isValid()) return true;
@@ -202,7 +209,7 @@ void ElectronHEEPIDValueMapProducer::produce(edm::Event& iEvent, const edm::Even
   auto candHandles = getHandles(iEvent,candTokens_);
 
   bool isAOD = isEventAOD(iEvent,eleToken_);
-  auto candVetos = isAOD ? candVetosAOD_ : candVetosMiniAOD_;
+  const auto& candVetos = isAOD ? candVetosAOD_ : candVetosMiniAOD_;
 
   edm::ESHandle<CaloTopology> caloTopoHandle;
   iSetup.get<CaloTopologyRecord>().get(caloTopoHandle);
