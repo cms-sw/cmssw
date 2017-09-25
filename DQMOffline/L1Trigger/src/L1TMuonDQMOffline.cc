@@ -633,7 +633,7 @@ void L1TMuonDQMOffline::getMuonGmtPairs(edm::Handle<l1t::MuonBxCollection> & gmt
         m_EfficiencyHistos[0]["ProbeMuonPhi_Histo"]->Fill(phi);
         m_EfficiencyHistos[0]["ProbeMuonPt_Histo"]->Fill(pt);
 
-        MuonGmtPair pairBestCand((*probeMuIt),0);
+        MuonGmtPair pairBestCand((*probeMuIt),nullptr);
 //      pairBestCand.propagate(m_BField,m_propagatorAlong,m_propagatorOpposite);
         gmtIt = gmtContainer.begin();
 
