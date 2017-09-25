@@ -407,6 +407,10 @@ namespace edm {
     if(unlikely(token.isUninitialized())) {
       principal_get_adapter_detail::throwOnPutOfUninitializedToken("Event", typeid(PROD));
     }
+    if(unlikely(provRecorder_.getTypeIDForPutTokenIndex(token.index()) != TypeID{typeid(PROD)})) {
+      principal_get_adapter_detail::throwOnPutOfWrongType(typeid(PROD), provRecorder_.getTypeIDForPutTokenIndex(token.index()));
+    }
+
     return putImpl(token.index(),std::move(product));
   }
 
