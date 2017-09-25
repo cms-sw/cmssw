@@ -55,11 +55,13 @@ class PATObjectCrossLinker : public edm::stream::EDProducer<> {
       void produce(edm::Event&, const edm::EventSetup&) override;
       void endStream() override;
 
-      void matchOneToMany(const auto & refProdOne, auto & itemsOne, const std::string & nameOne,
-                    const auto & refProdMany, auto& itemsMany, const std::string & nameMany);
+      template < class C1, class C2,class C3, class C4>
+      void matchOneToMany(const C1 & refProdOne,  C2 &  itemsOne, const std::string & nameOne,
+                    const C3 & refProdMany, C4& itemsMany, const std::string & nameMany);
 
-      void matchElectronToPhoton(const auto & refProdOne, auto & itemsOne, const std::string & nameOne,
-                    const auto & refProdMany, auto& itemsMany, const std::string & nameMany);
+      template < class C1, class C2,class C3,class C4>
+      void matchElectronToPhoton(const C1 & refProdOne, C2 & itemsOne, const std::string & nameOne,
+                    const C3 & refProdMany, C4& itemsMany, const std::string & nameMany);
 
       //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
@@ -112,8 +114,9 @@ PATObjectCrossLinker::~PATObjectCrossLinker()
 // ------------ method called to produce the data  ------------
 
 ///
-void PATObjectCrossLinker::matchOneToMany(const auto & refProdOne, auto & itemsOne, const std::string & nameOne,
-		    const auto & refProdMany, auto& itemsMany, const std::string & nameMany)
+template < class C1, class C2,class C3,class C4>
+void PATObjectCrossLinker::matchOneToMany(const C1 & refProdOne, C2 & itemsOne, const std::string & nameOne,
+		    const C3 & refProdMany, C4& itemsMany, const std::string & nameMany)
 {
     size_t ji=0;
     for(auto & j: itemsOne) {
@@ -131,8 +134,9 @@ void PATObjectCrossLinker::matchOneToMany(const auto & refProdOne, auto & itemsO
    } 
 }
 
-void PATObjectCrossLinker::matchElectronToPhoton(const auto & refProdOne, auto & itemsOne, const std::string & nameOne,
-		    const auto & refProdMany, auto& itemsMany, const std::string & nameMany)
+template < class C1, class C2,class C3,class C4>
+void PATObjectCrossLinker::matchElectronToPhoton(const C1 & refProdOne, C2 & itemsOne, const std::string & nameOne,
+		    const C3 & refProdMany, C4& itemsMany, const std::string & nameMany)
 {
     size_t ji=0;
     for(auto & j: itemsOne) {
