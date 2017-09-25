@@ -177,9 +177,10 @@ void HeavyFlavorValidation::dqmBeginRun(const edm::Run& iRun, const edm::EventSe
 		LogDebug("HLTriggerOfflineHeavyFlavor")<<"Bad Trigger Path: "<<triggerPathName<<endl;
 		return;
 	}else{
-          	stringstream os;
-                for (const auto &filters : filterNamesLevels) os << " " << filters.first;
-		LogDebug("HLTriggerOfflineHeavyFlavor")<<"Trigger Path: "<<triggerPathName<<" has filters:"<<os.str();
+                std::string str;
+                str.reserve(512); // avoid too many realloctions in the following loop (allows for filter names with roughly 100 chars each)
+                for (const auto &filters : filterNamesLevels) str = str + " " + filters.first;
+		LogDebug("HLTriggerOfflineHeavyFlavor")<<"Trigger Path: "<<triggerPathName<<" has filters:"<<str;
 	}
 }
 
@@ -687,27 +688,24 @@ int HeavyFlavorValidation::getFilterLevel(const std::string &moduleName, const H
   const std::vector<std::string> l5Filters = {"HLTmumutkFilter", "HLT2MuonMuonDZ", "HLTDisplacedmumuFilter"};
 
   if (contains(moduleName, "Filter") && hltConfig.moduleEDMType(moduleName) == "EDFilter") {
-    int level = -1; // if we get here, one of the following clauses should always catch!
     if (contains(moduleName, "L1") && !contains(moduleName, "ForIterL3") &&
         hltConfig.moduleType(moduleName) == l1Filter) {
-      level = 1;
+      return 1;
     }
     if (contains(moduleName, "L2") && hltConfig.moduleType(moduleName) == l2Filter) {
-      level = 2;
+      return 2;
     }
     if (contains(moduleName, "L3") && isAnyOf(hltConfig.moduleType(moduleName), l3Filters)) {
-      level = 3;
+      return 3;
     }
-    if (containsAny(moduleName, {"mumuFilter", "DiMuon", "MuonL3Filtered", "TrackMassFiltered"}) &&
+    if (containsAny(moduleName, {"DisplacedmumuFilter", "DiMuon", "MuonL3Filtered", "TrackMassFiltered"}) &&
         isAnyOf(hltConfig.moduleType(moduleName), l4Filters)) {
-      level = 4;
+      return 4;
     }
     if (containsAny(moduleName, {"Vertex", "Dz"}) &&
         isAnyOf(hltConfig.moduleType(moduleName), l5Filters)) {
-      level = 5;
+      return 5;
     }
-
-    return level;
   }
 
   return -1;
