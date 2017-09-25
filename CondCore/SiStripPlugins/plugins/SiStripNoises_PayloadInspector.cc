@@ -434,10 +434,10 @@ namespace {
 	float sum2    = std::get<2>(element.second);
 	float nstrips = std::get<0>(element.second);
 	float mean    = sum/nstrips;
-	float rms     = sum2>0. ? sqrt(sum2/nstrips-mean*mean) : 0.;
+	float rms     = (sum2/nstrips-mean*mean)>0. ? sqrt(sum2/nstrips-mean*mean) : 0.;
 	y.push_back(mean);
 	ey.push_back(rms);
-	std::cout<<" strip lenght: " << element.first << " avg noise=" << mean <<" +/-" << rms << std::endl;
+	//std::cout<<" strip lenght: " << element.first << " avg noise=" << mean <<" +/-" << rms << std::endl;
       }
 
       auto graph = std::unique_ptr<TGraphErrors>(new TGraphErrors(noisePerStripLength.size(),&x[0], &y[0],&ex[0],&ey[0]));
@@ -449,6 +449,7 @@ namespace {
       graph->SetMarkerSize(1.5);
       canvas.SetBottomMargin(0.13);
       canvas.SetLeftMargin(0.17);
+      canvas.SetTopMargin(0.08);
       canvas.SetRightMargin(0.05);
       canvas.Modified();
       canvas.cd();
@@ -467,8 +468,6 @@ namespace {
       graph->GetXaxis()->SetLabelSize(.05);
       
       graph->Draw("AP");
-
-      gStyle->SetOptFit(1111);
       graph->Fit("pol1");
       //Access the fit resuts
       TF1 *f1 = graph->GetFunction("pol1");
@@ -476,14 +475,159 @@ namespace {
       f1->SetLineColor(kBlue);
       f1->Draw("same");
 
+      auto fits = std::unique_ptr<TPaveText>(new TPaveText(0.2,0.72,0.6,0.9,"NDC"));
+      char buffer[255];
+      sprintf(buffer,"fit function: p_{0} + p_{1} * l_{strip}");
+      fits->AddText(buffer);
+      sprintf(buffer,"p_{0} : %5.2f [ADC counts]",f1->GetParameter(0));
+      fits->AddText(buffer);
+      sprintf(buffer,"p_{1} : %5.2f [ADC counts/cm]",f1->GetParameter(1));
+      fits->AddText(buffer);
+      sprintf(buffer,"#chi^{2}/ndf = %5.2f / %i ",f1->GetChisquare(),f1->GetNDF());
+      fits->AddText(buffer);
+      fits->SetTextFont(42);
+      fits->SetTextColor(kBlue);
+      fits->SetFillColor(0);
+      fits->SetTextSize(0.03);
+      fits->SetBorderSize(1);
+      fits->SetLineColor(kBlue);
+      fits->SetMargin(0.05);
+      fits->SetTextAlign(12);
+      fits->Draw();
+
 
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 
+      delete f1;
       delete reader;
       return true;
     }
   };
+
+  /************************************************
+   template Noise history per subdetector
+  *************************************************/
+
+  template <StripSubdetector::SubDetector sub> class NoiseHistory : public cond::payloadInspector::HistoryPlot<SiStripNoises,std::pair<double,double> > {
+  public:
+    NoiseHistory(): cond::payloadInspector::HistoryPlot<SiStripNoises,std::pair<double,double> >( "Average "+SiStripPI::getStringFromSubdet(sub)+" noise vs run number", "average "+SiStripPI::getStringFromSubdet(sub)+" Noise"){
+    }
+    
+    std::pair<double,double> getFromPayload( SiStripNoises& payload ){
+      
+      std::vector<uint32_t> detid;
+      payload.getDetIds(detid);
+      
+      int nStrips=0;
+      float sum=0., sum2=0.;
+      for (const auto & d : detid) {
+	int subid = DetId(d).subdetId();
+	if(subid!=sub) continue;
+	SiStripNoises::Range range=payload.getRange(d);
+	for( int it=0; it < (range.second-range.first)*8/9; ++it ){
+	  nStrips++;
+	  auto noise = payload.getNoise(it,range);
+	  sum+=noise;
+	  sum2+=(noise*noise);
+	} // loop on strips
+      } // loop on detIds
+
+      float mean = sum/nStrips;
+      float rms  = (sum2/nStrips-mean*mean)>0. ? sqrt(sum2/nStrips-mean*mean) : 0.; 
+
+      return std::make_pair(mean,rms);
+
+    } // close getFromPayload
+  };
+
+  typedef NoiseHistory<StripSubdetector::TIB> TIBNoiseHistory;
+  typedef NoiseHistory<StripSubdetector::TOB> TOBNoiseHistory;
+  typedef NoiseHistory<StripSubdetector::TID> TIDNoiseHistory;
+  typedef NoiseHistory<StripSubdetector::TEC> TECNoiseHistory;
+
+
+  /************************************************
+   template Noise run history  per subdetector
+  *************************************************/
+
+  template <StripSubdetector::SubDetector sub> class NoiseRunHistory : public cond::payloadInspector::RunHistoryPlot<SiStripNoises,std::pair<double,double> > {
+  public:
+    NoiseRunHistory(): cond::payloadInspector::RunHistoryPlot<SiStripNoises,std::pair<double,double> >( "Average "+SiStripPI::getStringFromSubdet(sub)+" noise vs run number", "average "+SiStripPI::getStringFromSubdet(sub)+" Noise"){
+    }
+    
+    std::pair<double,double> getFromPayload( SiStripNoises& payload ){
+      
+      std::vector<uint32_t> detid;
+      payload.getDetIds(detid);
+      
+      int nStrips=0;
+      float sum=0., sum2=0.;
+      for (const auto & d : detid) {
+	int subid = DetId(d).subdetId();
+	if(subid!=sub) continue;
+	SiStripNoises::Range range=payload.getRange(d);
+	for( int it=0; it < (range.second-range.first)*8/9; ++it ){
+	  nStrips++;
+	  auto noise = payload.getNoise(it,range);
+	  sum+=noise;
+	  sum2+=(noise*noise);
+	} // loop on strips
+      } // loop on detIds
+
+      float mean = sum/nStrips;
+      float rms  = (sum2/nStrips-mean*mean)>0. ? sqrt(sum2/nStrips-mean*mean) : 0.; 
+
+      return std::make_pair(mean,rms);
+
+    } // close getFromPayload
+  };
+
+  typedef NoiseRunHistory<StripSubdetector::TIB> TIBNoiseRunHistory;
+  typedef NoiseRunHistory<StripSubdetector::TOB> TOBNoiseRunHistory;
+  typedef NoiseRunHistory<StripSubdetector::TID> TIDNoiseRunHistory;
+  typedef NoiseRunHistory<StripSubdetector::TEC> TECNoiseRunHistory;
+
+  /************************************************
+   template Noise Time history per subdetector
+  *************************************************/
+
+  template <StripSubdetector::SubDetector sub> class NoiseTimeHistory : public cond::payloadInspector::TimeHistoryPlot<SiStripNoises,std::pair<double,double> > {
+  public:
+    NoiseTimeHistory(): cond::payloadInspector::TimeHistoryPlot<SiStripNoises,std::pair<double,double> >( "Average "+SiStripPI::getStringFromSubdet(sub)+" noise vs run number", "average "+SiStripPI::getStringFromSubdet(sub)+" Noise"){
+    }
+    
+    std::pair<double,double> getFromPayload( SiStripNoises& payload ){
+      
+      std::vector<uint32_t> detid;
+      payload.getDetIds(detid);
+      
+      int nStrips=0;
+      float sum=0., sum2=0.;
+      for (const auto & d : detid) {
+	int subid = DetId(d).subdetId();
+	if(subid!=sub) continue;
+	SiStripNoises::Range range=payload.getRange(d);
+	for( int it=0; it < (range.second-range.first)*8/9; ++it ){
+	  nStrips++;
+	  auto noise = payload.getNoise(it,range);
+	  sum+=noise;
+	  sum2+=(noise*noise);
+	} // loop on strips
+      } // loop on detIds
+
+      float mean = sum/nStrips;
+      float rms  = (sum2/nStrips-mean*mean)>0. ? sqrt(sum2/nStrips-mean*mean) : 0.; 
+
+      return std::make_pair(mean,rms);
+
+    } // close getFromPayload
+  };
+
+  typedef NoiseTimeHistory<StripSubdetector::TIB> TIBNoiseTimeHistory;
+  typedef NoiseTimeHistory<StripSubdetector::TOB> TOBNoiseTimeHistory;
+  typedef NoiseTimeHistory<StripSubdetector::TID> TIDNoiseTimeHistory;
+  typedef NoiseTimeHistory<StripSubdetector::TEC> TECNoiseTimeHistory;
 
 } // close namespace
 
@@ -498,5 +642,17 @@ PAYLOAD_INSPECTOR_MODULE(SiStripNoises){
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMinByPartition);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMaxByPartition);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseRMSByPartition);
-  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseLinearity)
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseLinearity);
+  PAYLOAD_INSPECTOR_CLASS(TIBNoiseHistory);
+  PAYLOAD_INSPECTOR_CLASS(TOBNoiseHistory);
+  PAYLOAD_INSPECTOR_CLASS(TIDNoiseHistory);
+  PAYLOAD_INSPECTOR_CLASS(TECNoiseHistory);
+  PAYLOAD_INSPECTOR_CLASS(TIBNoiseRunHistory);
+  PAYLOAD_INSPECTOR_CLASS(TOBNoiseRunHistory);
+  PAYLOAD_INSPECTOR_CLASS(TIDNoiseRunHistory);
+  PAYLOAD_INSPECTOR_CLASS(TECNoiseRunHistory);
+  PAYLOAD_INSPECTOR_CLASS(TIBNoiseTimeHistory);
+  PAYLOAD_INSPECTOR_CLASS(TOBNoiseTimeHistory);
+  PAYLOAD_INSPECTOR_CLASS(TIDNoiseTimeHistory);
+  PAYLOAD_INSPECTOR_CLASS(TECNoiseTimeHistory);
 }
