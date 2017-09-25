@@ -69,6 +69,8 @@ class FlatTable {
          return * beginData<T>(column);
     }
 
+    double getAnyValue(unsigned int row, unsigned int column) const ;
+
     template<typename T, typename C = std::vector<T>>
     void addColumn(const std::string & name, const C & values, const std::string & docString, ColumnType type = defaultColumnType<T>(),int mantissaBits=-1) {
         if (columnIndex(name) != -1) throw cms::Exception("LogicError", "Duplicated column: "+name); 

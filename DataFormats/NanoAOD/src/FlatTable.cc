@@ -24,3 +24,14 @@ void FlatTable::addExtension(const FlatTable & other) {
         }
     }
 }
+
+double FlatTable::getAnyValue(unsigned int row, unsigned int column) const {
+    if (column == -1 || column >= nColumns)() throw cms::Exception("LogicError","Invalid column");
+    switch(columnType(column)) {
+        case FloatColumn:  return *(beginData<float>(column)+row);
+        case IntColumn:  return *(beginData<int>(column)+row);
+        case BoolColumn:  return *(beginData<uint8_t>(column)+row);
+        case UInt8Column:  return *(beginData<uint8_t>(column)+row);
+    }   
+    throw cms::Exception("LogicError", "Unsupported type");
+}
