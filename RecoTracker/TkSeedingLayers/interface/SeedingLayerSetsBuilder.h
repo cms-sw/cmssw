@@ -1,7 +1,6 @@
 #ifndef TkSeedingLayers_SeedingLayerSetsBuilder_H
 #define TkSeedingLayers_SeedingLayerSetsBuilder_H
 
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -9,6 +8,7 @@
 #include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
+#include "DataFormats/TrackerCommon/interface/TrackerDetSide.h"
 
 #include <string>
 #include <vector>
@@ -34,7 +34,7 @@ public:
   unsigned short numberOfLayers() const { return theLayers.size(); }
   std::unique_ptr<SeedingLayerSetsHits> hits(const edm::Event& ev, const edm::EventSetup& es) const;
 
-  using SeedingLayerId = std::tuple<GeomDetEnumerators::SubDetector, ctfseeding::SeedingLayer::Side, int>;
+  using SeedingLayerId = std::tuple<GeomDetEnumerators::SubDetector, TrackerDetSide::Side, int>;
   static SeedingLayerId nameToEnumId(const std::string& name);
   static std::vector<std::vector<std::string> > layerNamesInSets(const std::vector<std::string> & namesPSet) ;
 
@@ -53,7 +53,7 @@ private:
     const std::string hitBuilder;
 
     GeomDetEnumerators::SubDetector subdet;
-    ctfseeding::SeedingLayer::Side side;
+    TrackerDetSide::Side side;
     int idLayer;
     std::shared_ptr<ctfseeding::HitExtractor> extractor;
 
