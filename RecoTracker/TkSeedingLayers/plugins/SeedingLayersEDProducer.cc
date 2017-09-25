@@ -27,9 +27,7 @@ SeedingLayersEDProducer::SeedingLayersEDProducer(const edm::ParameterSet& iConfi
 SeedingLayersEDProducer::~SeedingLayersEDProducer() {}
 
 void SeedingLayersEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  if(builder_.check(iSetup)) {
-    builder_.updateEventSetup(iSetup);
-  }
+  builder_.updateEventSetup(iSetup);
 
   // Get hits
   auto prod = builder_.hits(iEvent, iSetup);
