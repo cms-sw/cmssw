@@ -43,7 +43,7 @@ def applySubstructure( process, postfix="" ) :
                      genJetCollection = cms.InputTag('slimmedGenJetsAK8')
                      )
     getattr(process,"patJetsAK8"+postfix).userData.userFloats.src = [] # start with empty list of user floats
-    getattr(process,"selectedPatJetsAK8").cut = cms.string("pt > 170")
+    getattr(process,"selectedPatJetsAK8").cut = cms.string("pt > 100")
 
 
     ## add AK8 groomed masses with CHS
@@ -65,7 +65,7 @@ def applySubstructure( process, postfix="" ) :
     addToProcessAndTask('NjettinessAK8'+postfix, process.Njettiness.clone(), process, task)
     getattr(process,"NjettinessAK8").src = cms.InputTag("ak8PFJetsCHS"+postfix)
     getattr(process,"NjettinessAK8").cone = cms.double(0.8)
-    getattr(process,"patJetsAK8").userData.userFloats.src += ['NjettinessAK8'+postfix+':tau1','NjettinessAK8'+postfix+':tau2','NjettinessAK8'+postfix+':tau3']
+    getattr(process,"patJetsAK8").userData.userFloats.src += ['NjettinessAK8'+postfix+':tau1','NjettinessAK8'+postfix+':tau2','NjettinessAK8'+postfix+':tau3','NjettinessAK8'+postfix+':tau4']
 
     # add Njetiness from CHS
     addToProcessAndTask('NjettinessAK8Subjets'+postfix, process.Njettiness.clone(), process, task)
@@ -127,7 +127,7 @@ def applySubstructure( process, postfix="" ) :
     addToProcessAndTask('nb2AK8PuppiSoftDropSubjets'+postfix, process.ecfNbeta2.clone(src = cms.InputTag("ak8PFJetsPuppiSoftDrop"+postfix, "SubJets")), process, task)
     getattr(process,"patJetsAK8PFPuppiSoftDropSubjets"+postfix).userData.userFloats.src += ['nb1AK8PuppiSoftDropSubjets'+postfix+':ecfN2','nb1AK8PuppiSoftDropSubjets'+postfix+':ecfN3']
     getattr(process,"patJetsAK8PFPuppiSoftDropSubjets"+postfix).userData.userFloats.src += ['nb2AK8PuppiSoftDropSubjets'+postfix+':ecfN2','nb2AK8PuppiSoftDropSubjets'+postfix+':ecfN3']
-    getattr(process,"patJetsAK8PFPuppiSoftDropSubjets"+postfix).userData.userFloats.src += ['NjettinessAK8Subjets'+postfix+':tau1','NjettinessAK8Subjets'+postfix+':tau2','NjettinessAK8Subjets'+postfix+':tau3']
+    getattr(process,"patJetsAK8PFPuppiSoftDropSubjets"+postfix).userData.userFloats.src += ['NjettinessAK8Subjets'+postfix+':tau1','NjettinessAK8Subjets'+postfix+':tau2','NjettinessAK8Subjets'+postfix+':tau3','NjettinessAK8Subjets'+postfix+':tau4']
 
     # rekey the groomed ECF value maps to the ungroomed reco jets, which will then be picked
     # up by PAT in the user floats. 
@@ -160,9 +160,9 @@ def applySubstructure( process, postfix="" ) :
                      genJetCollection = cms.InputTag('slimmedGenJetsAK8')
                      )
     getattr(process,"patJetsAK8Puppi"+postfix).userData.userFloats.src = [] # start with empty list of user floats
-    getattr(process,"selectedPatJetsAK8Puppi"+postfix).cut = cms.string("pt > 170")
+    getattr(process,"selectedPatJetsAK8Puppi"+postfix).cut = cms.string("pt > 100")
     getattr(process,"selectedPatJetsAK8Puppi"+postfix).cutLoose = cms.string("pt > 30")
-    getattr(process,"selectedPatJetsAK8Puppi"+postfix).nLoose = cms.uint32(2)
+    getattr(process,"selectedPatJetsAK8Puppi"+postfix).nLoose = cms.uint32(3)
 
     from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import j2tParametersVX
     addToProcessAndTask('ak8PFJetsPuppiTracksAssociatorAtVertex'+postfix, cms.EDProducer("JetTracksAssociatorAtVertex",
@@ -192,7 +192,7 @@ def applySubstructure( process, postfix="" ) :
     addToProcessAndTask('NjettinessAK8Puppi'+postfix, process.Njettiness.clone(), process, task)
     getattr(process,"NjettinessAK8Puppi"+postfix).src = cms.InputTag("ak8PFJetsPuppi"+postfix)
     getattr(process,"NjettinessAK8Puppi").cone = cms.double(0.8)
-    getattr(process,"patJetsAK8Puppi").userData.userFloats.src += ['NjettinessAK8Puppi'+postfix+':tau1','NjettinessAK8Puppi'+postfix+':tau2','NjettinessAK8Puppi'+postfix+':tau3']
+    getattr(process,"patJetsAK8Puppi").userData.userFloats.src += ['NjettinessAK8Puppi'+postfix+':tau1','NjettinessAK8Puppi'+postfix+':tau2','NjettinessAK8Puppi'+postfix+':tau3','NjettinessAK8Puppi'+postfix+':tau4']
 
     # Now combine the CHS and PUPPI information into the PUPPI jets via delta R value maps
     addToProcessAndTask("ak8PFJetsCHSValueMap"+postfix, cms.EDProducer("RecoJetToPatJetDeltaRValueMapProducer",
@@ -205,6 +205,7 @@ def applySubstructure( process, postfix="" ) :
                                                 'userFloat("NjettinessAK8'+postfix+':tau1")',
                                                 'userFloat("NjettinessAK8'+postfix+':tau2")',
                                                 'userFloat("NjettinessAK8'+postfix+':tau3")',
+                                                'userFloat("NjettinessAK8'+postfix+':tau4")',
                                                 'pt','eta','phi','mass'
                                             ]),
                                             valueLabels = cms.vstring( [
@@ -213,6 +214,7 @@ def applySubstructure( process, postfix="" ) :
                                                 'NjettinessAK8CHSTau1',
                                                 'NjettinessAK8CHSTau2',
                                                 'NjettinessAK8CHSTau3',
+                                                'NjettinessAK8CHSTau4',
                                                 'pt','eta','phi','mass'
                                             ]) ),
                         process, task)
@@ -225,6 +227,7 @@ def applySubstructure( process, postfix="" ) :
                                                    cms.InputTag('ak8PFJetsCHSValueMap'+postfix,'NjettinessAK8CHSTau1'),
                                                    cms.InputTag('ak8PFJetsCHSValueMap'+postfix,'NjettinessAK8CHSTau2'),
                                                    cms.InputTag('ak8PFJetsCHSValueMap'+postfix,'NjettinessAK8CHSTau3'),
+                                                   cms.InputTag('ak8PFJetsCHSValueMap'+postfix,'NjettinessAK8CHSTau4'),
                                                    cms.InputTag('ak8PFJetsCHSValueMap'+postfix,'pt'),
                                                    cms.InputTag('ak8PFJetsCHSValueMap'+postfix,'eta'),
                                                    cms.InputTag('ak8PFJetsCHSValueMap'+postfix,'phi'),
