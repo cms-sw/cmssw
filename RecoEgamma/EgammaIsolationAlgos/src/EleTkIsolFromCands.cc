@@ -130,16 +130,17 @@ bool EleTkIsolFromCands::passPIDVeto(const int pdgId,const EleTkIsolFromCands::P
   case PIDVeto::NONELES:
     if(pidAbs==11) return true;
     else return false;
-  default:
-    throw cms::Exception("CodeError") <<"invalid PIDVeto "<<static_cast<int>(veto)<<", EleTkIsolFromCands::PIDVeto has been updated without EleTkIsolFromCands::passPIDVeto also being updated";
   }
+  throw cms::Exception("CodeError") <<
+    "invalid PIDVeto "<<static_cast<int>(veto)<<", "<<
+    "this is likely due to some static casting of invalid ints somewhere";
 }
 
 EleTkIsolFromCands::PIDVeto EleTkIsolFromCands::pidVetoFromStr(const std::string& vetoStr) 
 {
-  if(vetoStr=="none") return PIDVeto::NONE;
-  else if(vetoStr=="eles") return PIDVeto::ELES;
-  else if(vetoStr=="noneles") return PIDVeto::NONELES;
+  if(vetoStr=="NONE") return PIDVeto::NONE;
+  else if(vetoStr=="ELES") return PIDVeto::ELES;
+  else if(vetoStr=="NONELES") return PIDVeto::NONELES;
   else{
     throw cms::Exception("CodeError") <<"unrecognised string "<<vetoStr<<", either a typo or this function needs to be updated";
   }

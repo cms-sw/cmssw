@@ -1,92 +1,47 @@
 import FWCore.ParameterSet.Config as cms
 
-trkIsol03CfgV1= cms.PSet(
-    barrelCuts=cms.PSet(
-        minPt=cms.double(0.7),
-        maxDR=cms.double(0.3),
-        minDR=cms.double(0.00),
-        minDEta=cms.double(0.015),
-        maxDZ=cms.double(0.2),
-        maxDPtPt=cms.double(-1),
-        minHits=cms.int32(-1),
-        minPixelHits=cms.int32(-1),
-        allowedQualities=cms.vstring(),
-        algosToReject=cms.vstring("jetCoreRegionalStep")
-        ),
-    endcapCuts=cms.PSet(
-        minPt=cms.double(0.7),
-        maxDR=cms.double(0.3),
-        minDR=cms.double(0.00),
-        minDEta=cms.double(0.015),
-        maxDZ=cms.double(0.2),
-        maxDPtPt=cms.double(-1),
-        minHits=cms.int32(-1),
-        minPixelHits=cms.int32(-1),
-        allowedQualities=cms.vstring(),
-        algosToReject=cms.vstring("jetCoreRegionalStep")
-        )
-    )
-trkIsol04CfgV1 = trkIsol03CfgV1.clone()
-trkIsol04CfgV1.barrelCuts.maxDR = cms.double(0.4)
-trkIsol04CfgV1.endcapCuts.maxDR = cms.double(0.4)
+#defaultCuts, set to be V3 barrel, cone of 0.3
+_defaultCuts = cms.PSet(
+    minPt=cms.double(1.0),
+    maxDR=cms.double(0.3),
+    minDR=cms.double(0.0),
+    minDEta=cms.double(0.005),
+    maxDZ=cms.double(0.1),
+    maxDPtPt=cms.double(0.1),
+    minHits=cms.int32(8),
+    minPixelHits=cms.int32(1),
+    allowedQualities=cms.vstring(),
+    algosToReject=cms.vstring("jetCoreRegionalStep")
+)
 
-trkIsol03CfgV2= cms.PSet(
-    barrelCuts=cms.PSet(
-        minPt=cms.double(1.0),
-        maxDR=cms.double(0.3),
-        minDR=cms.double(0.0),
-        minDEta=cms.double(0.005),
-        maxDZ=cms.double(0.1),
-        maxDPtPt=cms.double(0.1),
-        minHits=cms.int32(8),
-        minPixelHits=cms.int32(1),
-        allowedQualities=cms.vstring(),
-        algosToReject=cms.vstring()
-        ),
-    endcapCuts=cms.PSet(
-        minPt=cms.double(1.0),
-        maxDR=cms.double(0.3),
-        minDR=cms.double(0.0),
-        minDEta=cms.double(0.005),
-        maxDZ=cms.double(0.5),
-        maxDPtPt=cms.double(0.1),
-        minHits=cms.int32(8),
-        minPixelHits=cms.int32(1),
-        allowedQualities=cms.vstring(),
-        algosToReject=cms.vstring()
-        )
+#V1, used in 90X - 93X
+trkIsol03CfgV1 = cms.PSet(
+    barrelCuts=_defaultCuts.clone(minPt=0.7,minDEta=0.015,maxDZ=0.2,
+                                  maxDPtPt=-1,minHits=-1,minPixelHits=-1),
+    endcapCuts=_defaultCuts.clone(minPt=0.7,minDEta=0.015,maxDZ=0.2,
+                                  maxDPtPt=-1,minHits=-1,minPixelHits=-1)
     )
-trkIsol04CfgV2 = trkIsol03CfgV2.clone()
-trkIsol04CfgV2.barrelCuts.maxDR = cms.double(0.4)
-trkIsol04CfgV2.endcapCuts.maxDR = cms.double(0.4)
+trkIsol04CfgV1 = cms.PSet(
+    barrelCuts=trkIsol03CfgV1.barrelCuts.clone(maxDR=0.4),
+    endcapCuts=trkIsol03CfgV1.endcapCuts.clone(maxDR=0.4)
+)
 
-trkIsol03CfgV3= cms.PSet(
-    barrelCuts=cms.PSet(
-        minPt=cms.double(1.0),
-        maxDR=cms.double(0.3),
-        minDR=cms.double(0.0),
-        minDEta=cms.double(0.005),
-        maxDZ=cms.double(0.1),
-        maxDPtPt=cms.double(0.1),
-        minHits=cms.int32(8),
-        minPixelHits=cms.int32(1),
-        allowedQualities=cms.vstring(),
-        algosToReject=cms.vstring("jetCoreRegionalStep")
-        ),
-    endcapCuts=cms.PSet(
-        minPt=cms.double(1.0),
-        maxDR=cms.double(0.3),
-        minDR=cms.double(0.0),
-        minDEta=cms.double(0.005),
-        maxDZ=cms.double(0.5),
-        maxDPtPt=cms.double(0.1),
-        minHits=cms.int32(8),
-        minPixelHits=cms.int32(1),
-        allowedQualities=cms.vstring(),
-        algosToReject=cms.vstring("jetCoreRegionalStep")
-        )
-    )
-trkIsol04CfgV3 = trkIsol03CfgV3.clone()
-trkIsol04CfgV3.barrelCuts.maxDR = cms.double(0.4)
-trkIsol04CfgV3.endcapCuts.maxDR = cms.double(0.4)
+#V2, used by HEEP ID in 2016
+trkIsol03CfgV2 = cms.PSet(
+    barrelCuts=_defaultCuts.clone(algosToReject = cms.vstring()),
+    endcapCuts=_defaultCuts.clone(algosToReject = cms.vstring(),maxDZ=0.5)
+)
+trkIsol04CfgV2 = cms.PSet(
+    barrelCuts=trkIsol03CfgV2.barrelCuts.clone(maxDR=0.4),
+    endcapCuts=trkIsol03CfgV2.endcapCuts.clone(maxDR=0.4)
+)
 
+#V3, 94X+
+trkIsol03CfgV3 = cms.PSet(
+    barrelCuts=_defaultCuts.clone(),
+    endcapCuts=_defaultCuts.clone(maxDZ=0.5)
+)
+trkIsol04CfgV3 = cms.PSet(
+    barrelCuts=trkIsol03CfgV3.barrelCuts.clone(maxDR=0.4),
+    endcapCuts=trkIsol03CfgV3.endcapCuts.clone(maxDR=0.4)
+)

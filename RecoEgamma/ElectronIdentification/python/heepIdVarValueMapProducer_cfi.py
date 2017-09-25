@@ -12,14 +12,14 @@ heepIDVarValueMaps = cms.EDProducer("ElectronHEEPIDValueMapProducer",
                                     #because GsfTracks of electrons are in "packedPFCandidates" 
                                     #end KF tracks of electrons are in lostTracks:eleTracks, need to
                                     #tell producer to veto electrons in the first collection
-                                    candVetosAOD=cms.vstring("eles","none","noneles"),
+                                    candVetosAOD=cms.vstring("ELES","NONE","NONELES"),
                                     elesAOD=cms.InputTag("gedGsfElectrons"),
                                     ebRecHitsMiniAOD=cms.InputTag("reducedEgamma","reducedEBRecHits"),
                                     eeRecHitsMiniAOD=cms.InputTag("reducedEgamma","reducedEERecHits"),
                                     candsMiniAOD=cms.VInputTag("packedPFCandidates",
                                                                "lostTracks",
                                                                "lostTracks:eleTracks"),
-                                    candVetosMiniAOD=cms.vstring("eles","none","noneles"),
+                                    candVetosMiniAOD=cms.vstring("ELES","NONE","NONELES"),
                                     elesMiniAOD=cms.InputTag("slimmedElectrons"),
                                     dataFormat=cms.int32(0),#0 = auto detection, 1 = AOD, 2 = miniAOD
                                     trkIsoConfig= trkIsol03CfgV2
