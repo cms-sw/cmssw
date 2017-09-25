@@ -26,10 +26,10 @@ public:
 
 private:
 
-    void findNeighbor( const std::vector<std::pair<int,double>>&  rankedList,
+    void findNeighbor( const std::vector<std::pair<unsigned int,double>>&  rankedList,
                        unsigned int searchInd,
                        const edm::PtrVector<l1t::HGCalCluster> & clustersPtr, 
-                       std::vector<int>& neigbors);
+                       std::vector<unsigned int>& neigbors);
     
     double dr_;
     double ptC3dThreshold_;

@@ -39,10 +39,10 @@ bool HGCalMulticlusteringImpl::isPertinent( const l1t::HGCalCluster & clu,
 }
 
 
-void HGCalMulticlusteringImpl::findNeighbor( const std::vector<std::pair<int,double>>&  rankedList,
+void HGCalMulticlusteringImpl::findNeighbor( const std::vector<std::pair<unsigned int,double>>&  rankedList,
                                              unsigned int searchInd,
                                              const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs, 
-                                             std::vector<int>& neighbors
+                                             std::vector<unsigned int>& neighbors
                                             ){
   
   if(clustersPtrs.size() <= searchInd || clustersPtrs.size() < rankedList.size()){
@@ -141,9 +141,9 @@ void HGCalMulticlusteringImpl::clusterizeDBSCAN( const edm::PtrVector<l1t::HGCal
   l1t::HGCalMulticluster mcluTmp;
   std::vector<bool> visited(clustersPtrs.size(),false);
   std::vector<bool> merged (clustersPtrs.size(),false);
-  std::vector<std::pair<int,double>>  rankedList;
+  std::vector<std::pair<unsigned int,double>>  rankedList;
   rankedList.reserve(clustersPtrs.size());
-  std::vector<std::vector<int>> neighborList;
+  std::vector<std::vector<unsigned int>> neighborList;
   neighborList.reserve(clustersPtrs.size());
 
   int iclu = 0, imclu = 0, neighNo;
@@ -159,7 +159,7 @@ void HGCalMulticlusteringImpl::clusterizeDBSCAN( const edm::PtrVector<l1t::HGCal
     });
 
   for(auto cluRanked: rankedList){
-    std::vector<int> neighbors;      
+    std::vector<unsigned int> neighbors;      
     
     if(!visited.at(iclu)){
       visited.at(iclu) = true;
@@ -175,7 +175,7 @@ void HGCalMulticlusteringImpl::clusterizeDBSCAN( const edm::PtrVector<l1t::HGCal
 
           if(!visited.at(neighNo)){
             visited.at(neighNo) = true;
-            std::vector<int> secNeighbors;
+            std::vector<unsigned int> secNeighbors;
             findNeighbor(rankedList, neighNo,clustersPtrs, secNeighbors);
             multiclustersTmp.at(imclu).addConstituent( clustersPtrs[rankedList.at(neighNo).first]);
             merged.at(neighNo) = true;
