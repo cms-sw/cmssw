@@ -9,7 +9,7 @@
 SeedingLayerSetsHits::SeedingLayerSetsHits(unsigned short nlayers,
                                            const std::vector<LayerSetIndex> *layerSetIndices,
                                            const std::vector<std::string> *layerNames,
-                                           const std::vector<const DetLayer *>& layerDets):
+                                           const std::vector<const DetLayer *> *layerDets):
   nlayers_(nlayers),
   layerSetIndices_(layerSetIndices),
   layerNames_(layerNames),
