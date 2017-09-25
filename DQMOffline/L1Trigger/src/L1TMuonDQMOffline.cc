@@ -108,6 +108,7 @@ L1TMuonDQMOffline::L1TMuonDQMOffline(const ParameterSet & ps) :
     m_verbose(ps.getUntrackedParameter<bool>("verbose")),
     m_HistFolder(ps.getUntrackedParameter<string>("histFolder")),
     m_GmtPtCuts(ps.getUntrackedParameter< vector<int> >("gmtPtCuts")),
+    m_TagPtCut(ps.getUntrackedParameter<double>("tagPtCut")),
     m_MuonInputTag(consumes<reco::MuonCollection>(ps.getUntrackedParameter<InputTag>("muonInputTag"))),
     m_GmtInputTag(consumes<l1t::MuonBxCollection>(ps.getUntrackedParameter<InputTag>("gmtInputTag"))),
     m_VtxInputTag(consumes<VertexCollection>(ps.getUntrackedParameter<InputTag>("vtxInputTag"))),
@@ -165,7 +166,7 @@ void L1TMuonDQMOffline::bookHistograms(DQMStore::IBooker &ibooker, const edm::Ru
                 m_trigIndices.push_back(tIndex);
             }
         }
-        if (tIndex < 0 && m_verbose) cout << "[L1TMuonDQMOffline:] Warning: Could not find trigger " << (*trigNamesIt) << endl;   
+        if (tIndex < 0 && m_verbose) cout << "[L1TMuonDQMOffline:] Warning: Could not find trigger " << (*trigNamesIt) << endl;
     }
 }
 
@@ -233,10 +234,10 @@ void L1TMuonDQMOffline::analyze(const Event & iEvent, const EventSetup & eventSe
         float phi = muonGmtPairsIt->phi();
         int charge = muonGmtPairsIt->charge();
 
-        float gmtPt  = muonGmtPairsIt->gmtPt();        
+        float gmtPt  = muonGmtPairsIt->gmtPt();
         float gmtEta  = muonGmtPairsIt->gmtEta();
-        float gmtPhi  = muonGmtPairsIt->gmtPhi();        
-        int gmtCharge  = muonGmtPairsIt->gmtCharge();        
+        float gmtPhi  = muonGmtPairsIt->gmtPhi();
+        int gmtCharge  = muonGmtPairsIt->gmtCharge();
         int qual = muonGmtPairsIt->gmtQual();
 
         vector<int>::const_iterator gmtPtCutsIt  = m_GmtPtCuts.begin();
@@ -244,29 +245,31 @@ void L1TMuonDQMOffline::analyze(const Event & iEvent, const EventSetup & eventSe
 
         if ( (fabs(eta) < m_MaxMuonEta) && (gmtPt > 0) ) {
             m_ResolutionHistos["Pt_Res"]->Fill(pt - gmtPt);
-            if (qual >= 4)  m_ResolutionHistos["Pt_Res_OPEN"]->Fill(pt - gmtPt);
-            if (qual >= 8)  m_ResolutionHistos["Pt_Res_DOUBLE"]->Fill(pt - gmtPt);
-            if (qual >= 12) m_ResolutionHistos["Pt_Res_SINGLE"]->Fill(pt - gmtPt);
-
             m_ResolutionHistos["1overPt_Res"]->Fill(1/pt - 1/gmtPt);
-            if (qual >= 4)  m_ResolutionHistos["1overPt_Res_OPEN"]->Fill(1/pt - 1/gmtPt);
-            if (qual >= 8)  m_ResolutionHistos["1overPt_Res_DOUBLE"]->Fill(1/pt - 1/gmtPt);
-            if (qual >= 12) m_ResolutionHistos["1overPt_Res_SINGLE"]->Fill(1/pt - 1/gmtPt);
-
             m_ResolutionHistos["Eta_Res"]->Fill(eta - gmtEta);
-            if (qual >= 4)  m_ResolutionHistos["Eta_Res_OPEN"]->Fill(eta - gmtEta);
-            if (qual >= 8)  m_ResolutionHistos["Eta_Res_DOUBLE"]->Fill(eta - gmtEta);
-            if (qual >= 12) m_ResolutionHistos["Eta_Res_SINGLE"]->Fill(eta - gmtEta);
-
             m_ResolutionHistos["Phi_Res"]->Fill(phi - gmtPhi);
-            if (qual >= 4)  m_ResolutionHistos["Phi_Res_OPEN"]->Fill(phi - gmtPhi);
-            if (qual >= 8)  m_ResolutionHistos["Phi_Res_DOUBLE"]->Fill(phi - gmtPhi);
-            if (qual >= 12) m_ResolutionHistos["Phi_Res_SINGLE"]->Fill(phi - gmtPhi);
-
             m_ResolutionHistos["Charge_Res"]->Fill(charge - gmtCharge);
-            if (qual >= 4)  m_ResolutionHistos["Charge_Res_OPEN"]->Fill(charge - gmtCharge);
-            if (qual >= 8)  m_ResolutionHistos["Charge_Res_DOUBLE"]->Fill(charge - gmtCharge);
-            if (qual >= 12) m_ResolutionHistos["Charge_Res_SINGLE"]->Fill(charge - gmtCharge);
+            if (qual >= 4) {
+                m_ResolutionHistos["Pt_Res_OPEN"]->Fill(pt - gmtPt);
+                m_ResolutionHistos["1overPt_Res_OPEN"]->Fill(1/pt - 1/gmtPt);
+                m_ResolutionHistos["Eta_Res_OPEN"]->Fill(eta - gmtEta);
+                m_ResolutionHistos["Phi_Res_OPEN"]->Fill(phi - gmtPhi);
+                m_ResolutionHistos["Charge_Res_OPEN"]->Fill(charge - gmtCharge);
+                if (qual >= 8) {
+                    m_ResolutionHistos["Pt_Res_DOUBLE"]->Fill(pt - gmtPt);
+                    m_ResolutionHistos["1overPt_Res_DOUBLE"]->Fill(1/pt - 1/gmtPt);
+                    m_ResolutionHistos["Eta_Res_DOUBLE"]->Fill(eta - gmtEta);
+                    m_ResolutionHistos["Phi_Res_DOUBLE"]->Fill(phi - gmtPhi);
+                    m_ResolutionHistos["Charge_Res_DOUBLE"]->Fill(charge - gmtCharge);
+                    if (qual >= 12) {
+                        m_ResolutionHistos["Pt_Res_SINGLE"]->Fill(pt - gmtPt);
+                        m_ResolutionHistos["1overPt_Res_SINGLE"]->Fill(1/pt - 1/gmtPt);
+                        m_ResolutionHistos["Eta_Res_SINGLE"]->Fill(eta - gmtEta);
+                        m_ResolutionHistos["Phi_Res_SINGLE"]->Fill(phi - gmtPhi);
+                        m_ResolutionHistos["Charge_Res_SINGLE"]->Fill(charge - gmtCharge);
+                    }
+                }
+            }
         }
 
         for (; gmtPtCutsIt!=gmtPtCutsEnd; ++ gmtPtCutsIt) {
@@ -339,10 +342,10 @@ void L1TMuonDQMOffline::bookControlHistos(DQMStore::IBooker& ibooker) {
     m_ControlHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),25.,0.,2.5);
 
     name = "NTightVsAll";
-    m_ControlHistos[name] = ibooker.book2D(name.c_str(),name.c_str(),5,-0.5,4.5,5,-0.5,4.5);
+    m_ControlHistos[name] = ibooker.book2D(name.c_str(),name.c_str(),16,-0.5,15.5,16,-0.5,15.5);
 
     name = "NProbesVsTight";
-    m_ControlHistos[name] = ibooker.book2D(name.c_str(),name.c_str(),5,-0.5,4.5,5,-0.5,4.5);
+    m_ControlHistos[name] = ibooker.book2D(name.c_str(),name.c_str(),8,-0.5,7.5,8,-0.5,7.5);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
     string name1 = "TagMuonEta_Histo";
@@ -579,7 +582,7 @@ void L1TMuonDQMOffline::getProbeMuons(Handle<edm::TriggerResults> & trigResults,
             deltar = sqrt(dEta*dEta + dPhi*dPhi);
 
             if ( (*tagCandIt) == (*probeCandIt) || (deltar<0.7) ) continue; // CB has a little bias for closed-by muons     
-            tagHasTrig = matchHlt(trigEvent,(*tagCandIt)) && (*tagCandIt)->pt()>m_TagPtCut;
+            tagHasTrig = matchHlt(trigEvent,(*tagCandIt)) && (pt > m_TagPtCut);
             isProbe |= tagHasTrig;
             if (tagHasTrig) {
                 if (std::distance(m_TightMuons.begin(), m_TightMuons.end()) > 2 ) {

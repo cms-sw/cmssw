@@ -48,17 +48,11 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(50)
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False))
 process.source = cms.Source('PoolSource',
     fileNames = cms.untracked.vstring(
-    '/store/data/Run2016H/SingleMuon/RAW-RECO/ZMu-PromptReco-v3/000/284/036/00000/08B0B1C0-989F-E611-A9CE-02163E0143C2.root'
-#    '/store/data/Run2016D/SingleMuon/AOD/PromptReco-v2/000/276/315/00000/023D6C02-F844-E611-BE27-02163E014773.root',
-#    '/store/data/Run2016D/SingleMuon/AOD/PromptReco-v2/000/276/315/00000/02D20100-F844-E611-8AB4-02163E0141D8.root',
-#    '/store/data/Run2016D/SingleMuon/AOD/PromptReco-v2/000/276/315/00000/06C984E1-F744-E611-AB0A-02163E011D06.root',
-#    '/store/data/Run2016D/SingleMuon/AOD/PromptReco-v2/000/276/315/00000/0A20BBE6-F744-E611-B965-02163E011AA6.root',
-#    '/store/data/Run2016D/SingleMuon/AOD/PromptReco-v2/000/276/315/00000/0C1381D6-F744-E611-A5C6-02163E0125A4.root',
-#    '/store/data/Run2016D/SingleMuon/AOD/PromptReco-v2/000/276/315/00000/0C8BE40E-F844-E611-8FB4-02163E011F24.root'
+    '/store/data/Run2017B/SingleMuon/RAW-RECO/ZMu-PromptReco-v2/000/298/996/00000/4AAA21A6-186A-E711-A5B2-02163E019BD7.root'
     )
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100))     
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 process.load('DQMOffline.L1Trigger.L1TMuonDQMEfficiency_cff')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
