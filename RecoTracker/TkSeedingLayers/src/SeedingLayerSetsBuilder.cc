@@ -285,8 +285,7 @@ void SeedingLayerSetsBuilder::updateEventSetup(const edm::EventSetup& es) {
   const std::vector<ForwardDetLayer const*>& tid_neg = tracker.negTidLayers();
   const std::vector<ForwardDetLayer const*>& tec_neg = tracker.negTecLayers();
 
-  for(size_t i=0, n=theLayers.size(); i<n; ++i) {
-    const LayerSpec& layer = theLayers[i];
+  for(const auto& layer: theLayers) {
     const DetLayer * detLayer = nullptr;
     int index = layer.idLayer-1;
 
@@ -327,8 +326,8 @@ void SeedingLayerSetsBuilder::updateEventSetup(const edm::EventSetup& es) {
     edm::ESHandle<TransientTrackingRecHitBuilder> builder;
     es.get<TransientRecHitRecord>().get(layer.hitBuilder, builder);
 
-    theLayerDets[i] = detLayer;
-    theTTRHBuilders[i] = builder.product();
+    theLayerDets[layer.nameIndex] = detLayer;
+    theTTRHBuilders[layer.nameIndex] = builder.product();
   }
 }
 
@@ -340,16 +339,14 @@ bool SeedingLayerSetsBuilder::check(const edm::EventSetup& es) {
 }
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
-void
-SeedingLayerSetsBuilder::hits(const edm::Event& ev, const edm::EventSetup& es,
-			      std::vector<unsigned int> & indices, ctfseeding::SeedingLayer::Hits & hits) const {
-  indices.reserve(theLayers.size());
-  for(unsigned int i=0; i<theLayers.size(); ++i) {
-    // The index of the first hit of this layer
-    indices.push_back(hits.size());
+std::unique_ptr<SeedingLayerSetsHits> SeedingLayerSetsBuilder::hits(const edm::Event& ev, const edm::EventSetup& es) const {
+  auto ret = std::make_unique<SeedingLayerSetsHits>(theNumberOfLayersInSet,
+                                                    &theLayerSetIndices,
+                                                    &theLayerNames,
+                                                    theLayerDets);
 
-    // Obtain and copy the hits
-    ctfseeding::SeedingLayer::Hits && tmp = theLayers[i].extractor->hits((const TkTransientTrackingRecHitBuilder &)(*theTTRHBuilders[i]), ev, es);
-    std::move(tmp.begin(), tmp.end(), std::back_inserter(hits));
+  for(auto& layer: theLayers) {
+    ret->addHits(layer.nameIndex, layer.extractor->hits((const TkTransientTrackingRecHitBuilder &)(*theTTRHBuilders[layer.nameIndex]), ev, es));
   }
+  return ret;
 }

@@ -32,14 +32,7 @@ void SeedingLayersEDProducer::produce(edm::Event& iEvent, const edm::EventSetup&
   }
 
   // Get hits
-  auto prod = std::make_unique<SeedingLayerSetsHits>(builder_.numberOfLayersInSet(),
-                                                    &builder_.layerSetIndices(),
-                                                    &builder_.layerNames(),
-                                                     builder_.layerDets());
-  std::vector<unsigned int> idx; ctfseeding::SeedingLayer::Hits hits; 
-  builder_.hits(iEvent, iSetup,idx,hits);
-  hits.shrink_to_fit();
-  prod->swapHits(idx,hits);
+  auto prod = builder_.hits(iEvent, iSetup);
   //prod->print();
 
   iEvent.put(std::move(prod));

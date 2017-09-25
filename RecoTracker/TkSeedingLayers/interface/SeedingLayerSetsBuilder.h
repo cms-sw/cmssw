@@ -2,6 +2,7 @@
 #define TkSeedingLayers_SeedingLayerSetsBuilder_H
 
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -30,14 +31,8 @@ public:
   bool check(const edm::EventSetup& es);
   void updateEventSetup(const edm::EventSetup& es);
 
-  typedef unsigned short LayerSetIndex;
-  unsigned short numberOfLayersInSet() const { return theNumberOfLayersInSet; }
-  const std::vector<LayerSetIndex>& layerSetIndices() const { return theLayerSetIndices; }
-
   unsigned short numberOfLayers() const { return theLayers.size(); }
-  const std::vector<std::string>& layerNames() const { return theLayerNames; }
-  const std::vector<const DetLayer *>& layerDets() const { return theLayerDets; }
-  void hits(const edm::Event& ev, const edm::EventSetup& es, std::vector<unsigned int> & indices, ctfseeding::SeedingLayer::Hits & hits) const;
+  std::unique_ptr<SeedingLayerSetsHits> hits(const edm::Event& ev, const edm::EventSetup& es) const;
 
   using SeedingLayerId = std::tuple<GeomDetEnumerators::SubDetector, ctfseeding::SeedingLayer::Side, int>;
   static SeedingLayerId nameToEnumId(const std::string& name);
@@ -65,7 +60,7 @@ private:
     std::string print(const std::vector<std::string>& names) const;
   }; 
   unsigned short theNumberOfLayersInSet;
-  std::vector<LayerSetIndex> theLayerSetIndices; // indices to theLayers to form the layer sets
+  std::vector<SeedingLayerSetsHits::LayerSetIndex> theLayerSetIndices; // indices to theLayers to form the layer sets
   std::vector<std::string> theLayerNames;
   std::vector<const DetLayer *> theLayerDets;
   std::vector<const TransientTrackingRecHitBuilder *> theTTRHBuilders;

@@ -15,16 +15,22 @@ SeedingLayerSetsHits::SeedingLayerSetsHits(unsigned short nlayers,
   layerSetIndices_(layerSetIndices),
   layerNames_(layerNames),
   layerDets_(layerDets)
-{}
+{
+  layerHitIndices_.reserve(layerNames->size());
+}
 SeedingLayerSetsHits::~SeedingLayerSetsHits() {
 //   std::cout << "deleting eedingLayerSetsHits " << rechits_.size() << std::endl;
 }
 
 
 
-void SeedingLayerSetsHits::swapHits(std::vector<HitIndex>& layerHitIndices, OwnedHits& hits) {
-  layerHitIndices_.swap(layerHitIndices);
-  rechits_.swap(hits);
+void SeedingLayerSetsHits::addHits(LayerIndex layerIndex, OwnedHits&& hits) {
+  if(layerIndex != layerHitIndices_.size()) {
+    throw cms::Exception("Assert") << "SeedingLayerSetsHits::addHits() must be called in the order of the layers, got layer " << layerIndex << " while was expecting " << layerHitIndices_.size();
+  }
+
+  layerHitIndices_.push_back(rechits_.size());
+  std::move(hits.begin(), hits.end(), std::back_inserter(rechits_));
 }
 
 SeedingLayerSetsHits::Hits SeedingLayerSetsHits::hits(LayerIndex layerIndex) const {
