@@ -56,7 +56,7 @@ public:
      */
     LayerIndex index() const { return index_; }
     const std::string& name() const { return (*seedingLayerSets_->layerNames_)[index_]; }
-    const DetLayer *detLayer() const { return seedingLayerSets_->layerDets_[index_]; }
+    const DetLayer *detLayer() const { return (*seedingLayerSets_->layerDets_)[index_]; }
     Hits hits() const { return seedingLayerSets_->hits(index_); }
 
   private:
@@ -177,12 +177,12 @@ public:
    * \param nlayers         Number of layers in each SeedingLayerSet
    * \param layerSetIndices Pointer to a vector holding the indices of layer sets (pointer to vector is stored)
    * \param layerNames      Pointer to a vector holding the layer names (pointer to vector is stored)
-   * \param layerDets       Vector of pointers to layer DetLayer objects (vector is copied, i.e. DetLayer pointers are stored)
+   * \param layerDets       Pointer to a vector of pointers to layer DetLayer objects (pointer to vector is stored)
    */
   SeedingLayerSetsHits(unsigned short nlayers,
                        const std::vector<LayerSetIndex> *layerSetIndices,
                        const std::vector<std::string> *layerNames,
-                       const std::vector<const DetLayer *>& layerDets);
+                       const std::vector<const DetLayer *> *layerDets);
 
   ~SeedingLayerSetsHits() = default;
   SeedingLayerSetsHits(SeedingLayerSetsHits const&)=delete;
@@ -218,7 +218,7 @@ public:
     std::swap(layerSetIndices_, other.layerSetIndices_);
     layerHitIndices_.swap(other.layerHitIndices_);
     std::swap(layerNames_, other.layerNames_);
-    layerDets_.swap(other.layerDets_);
+    std::swap(layerDets_, other.layerDets_);
     rechits_.swap(other.rechits_);
   }
 
@@ -240,7 +240,7 @@ private:
   // following are indexed by LayerIndex
   std::vector<HitIndex> layerHitIndices_; // Indices to first hits in rechits_
   const std::vector<std::string> *layerNames_ = nullptr; // Names of the layers
-  std::vector<const DetLayer *> layerDets_; // Pointers to corresponding DetLayer objects
+  const std::vector<const DetLayer *> *layerDets_ = nullptr; // Pointers to corresponding DetLayer objects
 
   /**
    * List of RecHits of all SeedingLayers. Hits of each layer are
