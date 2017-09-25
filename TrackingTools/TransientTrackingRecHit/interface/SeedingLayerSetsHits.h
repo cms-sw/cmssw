@@ -191,7 +191,7 @@ public:
    SeedingLayerSetsHits& operator=(SeedingLayerSetsHits &&)=default;
 
 
-  void swapHits(std::vector<HitIndex>& layerHitIndices,  OwnedHits& hits);
+  void addHits(LayerIndex layerIndex, OwnedHits&& hits);
 
 
   /// Get number of layers in each SeedingLayerSets
