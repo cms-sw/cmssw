@@ -7,6 +7,7 @@
 #include "TH1.h"
 #include "TPaveText.h"
 #include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h" 
 
 namespace SiStripPI {
   
@@ -29,7 +30,20 @@ namespace SiStripPI {
     default: return "should never be here";
     }
   }
-    
+   
+  /*--------------------------------------------------------------------*/
+  std::string getStringFromSubdet(StripSubdetector::SubDetector sub)
+  /*-------------------------------------------------------------------*/
+  {
+    switch(sub){
+    case StripSubdetector::TIB : return "TIB";
+    case StripSubdetector::TOB : return "TOB";
+    case StripSubdetector::TID : return "TID";
+    case StripSubdetector::TEC : return "TEC";
+    default : return "should never be here"; 
+    }
+  }
+ 
   enum TrackerRegion { 
     TIB1r = 1010, TIB1s = 1011, 
     TIB2r = 1020, TIB2s = 1021,
