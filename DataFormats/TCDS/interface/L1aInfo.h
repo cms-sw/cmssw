@@ -38,9 +38,9 @@ public:
 
 private:
 
-  int16_t index_;
   uint64_t orbitNr_;
   uint16_t bxid_;
+  int16_t index_;
   uint8_t eventType_;
 
 };

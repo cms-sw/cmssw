@@ -5,21 +5,22 @@
 
 
 TCDSRecord::TCDSRecord() :
-  eventType_(0),
+  orbitNr_(0),
+  triggerCount_(0),
+  eventNumber_(0),
   macAddress_(0),
   swVersion_(0),
   fwVersion_(0),
   recordVersion_(0),
   runNumber_(0),
+  bstReceptionStatus_(0),
   nibble_(0),
   lumiSection_(0),
   nibblesPerLumiSection_(0),
+  eventType_(0),
   triggerTypeFlags_(0),
   inputs_(0),
-  bxid_(0),
-  orbitNr_(0),
-  triggerCount_(0),
-  eventNumber_(0)
+  bxid_(0)
 {}
 
 
@@ -28,7 +29,9 @@ TCDSRecord::TCDSRecord(const unsigned char* rawData)
   tcds::Raw_v1 const* tcdsRaw =
     reinterpret_cast<tcds::Raw_v1 const*>(rawData);
 
-  eventType_ = FED_EVTY_EXTRACT(tcdsRaw->fedHeader.eventid);
+  orbitNr_ = (tcdsRaw->header.orbitHigh << 16) | tcdsRaw->header.orbitLow;
+  triggerCount_ = tcdsRaw->header.triggerCount;
+  eventNumber_ = tcdsRaw->header.eventNumber;
   macAddress_ = tcdsRaw->header.macAddress;
   swVersion_ = tcdsRaw->header.swVersion;
   fwVersion_ = tcdsRaw->header.fwVersion;
@@ -38,12 +41,10 @@ TCDSRecord::TCDSRecord(const unsigned char* rawData)
   nibble_ = tcdsRaw->header.nibble;
   lumiSection_ = tcdsRaw->header.lumiSection;
   nibblesPerLumiSection_ = tcdsRaw->header.nibblesPerLumiSection;
+  eventType_ = FED_EVTY_EXTRACT(tcdsRaw->fedHeader.eventid);
   triggerTypeFlags_ = tcdsRaw->header.triggerTypeFlags;
   inputs_ = tcdsRaw->header.inputs;
   bxid_ = tcdsRaw->header.bxid;
-  orbitNr_ = (tcdsRaw->header.orbitHigh << 16) | tcdsRaw->header.orbitLow;
-  triggerCount_ = tcdsRaw->header.triggerCount;
-  eventNumber_ = tcdsRaw->header.eventNumber;
 
   activePartitions_  = ActivePartitions(tcdsRaw->header.activePartitions0);
   activePartitions_ |= ActivePartitions(tcdsRaw->header.activePartitions1) << 32;

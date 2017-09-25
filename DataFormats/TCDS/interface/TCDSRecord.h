@@ -136,7 +136,9 @@ public:
 
 private:
 
-  uint16_t eventType_;
+  uint64_t orbitNr_;
+  uint64_t triggerCount_;
+  uint64_t eventNumber_;
   uint64_t macAddress_;
   uint32_t swVersion_;
   uint32_t fwVersion_;
@@ -146,12 +148,10 @@ private:
   uint32_t nibble_;
   uint32_t lumiSection_;
   uint16_t nibblesPerLumiSection_;
+  uint16_t eventType_;
   uint16_t triggerTypeFlags_;
   uint16_t inputs_;
   uint16_t bxid_;
-  uint64_t orbitNr_;
-  uint64_t triggerCount_;
-  uint64_t eventNumber_;
 
   ActivePartitions activePartitions_;
   L1aHistory l1aHistory_;
