@@ -514,7 +514,7 @@ namespace {
     NoiseHistory(): cond::payloadInspector::HistoryPlot<SiStripNoises,std::pair<double,double> >( "Average "+SiStripPI::getStringFromSubdet(sub)+" noise vs run number", "average "+SiStripPI::getStringFromSubdet(sub)+" Noise"){
     }
     
-    std::pair<double,double> getFromPayload( SiStripNoises& payload ){
+    std::pair<double,double> getFromPayload( SiStripNoises& payload ) override{
       
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
@@ -556,7 +556,7 @@ namespace {
     NoiseRunHistory(): cond::payloadInspector::RunHistoryPlot<SiStripNoises,std::pair<double,double> >( "Average "+SiStripPI::getStringFromSubdet(sub)+" noise vs run number", "average "+SiStripPI::getStringFromSubdet(sub)+" Noise"){
     }
     
-    std::pair<double,double> getFromPayload( SiStripNoises& payload ){
+    std::pair<double,double> getFromPayload( SiStripNoises& payload ) override{
       
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
@@ -597,7 +597,7 @@ namespace {
     NoiseTimeHistory(): cond::payloadInspector::TimeHistoryPlot<SiStripNoises,std::pair<double,double> >( "Average "+SiStripPI::getStringFromSubdet(sub)+" noise vs run number", "average "+SiStripPI::getStringFromSubdet(sub)+" Noise"){
     }
     
-    std::pair<double,double> getFromPayload( SiStripNoises& payload ){
+    std::pair<double,double> getFromPayload( SiStripNoises& payload ) override{
       
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
