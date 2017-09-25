@@ -80,7 +80,7 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
   etaOfProbe_(iConfig.getUntrackedParameter<double>("probeEta",2.4)),
   nHitsOfProbe_(iConfig.getUntrackedParameter<double>("probeNHits",0.)),
   nBins_(iConfig.getUntrackedParameter<int>("numberOfBins",24)),
-  minPt_(iConfig.getUntrackedParameter<double>("minPt",0.5)),
+  minPt_(iConfig.getUntrackedParameter<double>("minPt",1.)),
   maxPt_(iConfig.getUntrackedParameter<double>("maxPt",20.)),
   debug_(iConfig.getParameter<bool>("Debug")),
   runControl_(iConfig.getUntrackedParameter<bool>("runControl",false))
