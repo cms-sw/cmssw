@@ -39,6 +39,13 @@ namespace edm {
     putOrMerge(bd,std::move(edp));
   }
 
+  void
+  LuminosityBlockPrincipal::put(ProductResolverIndex index,
+                                std::unique_ptr<WrapperBase> edp) const {
+    auto phb = getProductResolverByIndex(index);
+    phb->putOrMergeProduct(std::move(edp));
+  }
+
   unsigned int
   LuminosityBlockPrincipal::transitionIndex_() const {
     return index().value();
