@@ -152,7 +152,7 @@ TkPixelMeasurementDet::compHits( const TrajectoryStateOnSurface& ts, const Measu
 bool
 TkPixelMeasurementDet::hasBadComponents( const TrajectoryStateOnSurface &tsos, const MeasurementTrackerEvent & data ) const {
   auto badFEDChannelPositions=getBadFEDChannelPositions(data);
-  if (badRocPositions_.empty() && badFEDChannelPositions==NULL) return false;
+  if (badRocPositions_.empty() && badFEDChannelPositions==nullptr) return false;
 
     auto lp = tsos.localPosition();
     auto le = tsos.localError().positionError();
@@ -164,8 +164,8 @@ TkPixelMeasurementDet::hasBadComponents( const TrajectoryStateOnSurface &tsos, c
     }
 
   if (badFEDChannelPositions==NULL) return false;
-  float dx = 3.*std::sqrt(le.xx()) + theRocWidth, dy = 3.*std::sqrt(le.yy()) + theRocHeight;
-  for (auto p : *badFEDChannelPositions) {
+  float dx = 3.f*std::sqrt(le.xx()) + theRocWidth, dy = 3.f*std::sqrt(le.yy()) + theRocHeight;
+  for (auto const& p : *badFEDChannelPositions) {
     if ( lp.x() > (p.first.x()-dx) &&
 	 lp.x() < (p.second.x()+dx) &&
 	 lp.y() > (p.first.y()-dy) &&

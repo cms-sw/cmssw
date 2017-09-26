@@ -60,9 +60,6 @@ MeasurementTrackerEventProducer::produce(edm::Event &iEvent, const edm::EventSet
     edm::ESHandle<MeasurementTracker> measurementTracker;
     iSetup.get<CkfComponentsRecord>().get(measurementTrackerLabel_, measurementTracker);
 
-    edm::ESHandle<SiPixelFedCablingMap> cablingMap;
-    iSetup.get<SiPixelFedCablingMapRcd>().get(pixelCablingMapLabel_, cablingMap);
-
     // create new data structures from templates
     auto stripData = std::make_unique<StMeasurementDetSet>(measurementTracker->stripDetConditions());
     auto pixelData=  std::make_unique<PxMeasurementDetSet>(measurementTracker->pixelDetConditions());
@@ -72,7 +69,7 @@ MeasurementTrackerEventProducer::produce(edm::Event &iEvent, const edm::EventSet
     std::vector<bool> phase2ClustersToSkip;
     // fill them
     updateStrips(iEvent, *stripData, stripClustersToSkip);
-    updatePixels(iEvent, *pixelData, pixelClustersToSkip, dynamic_cast<const TrackerGeometry&>(*(measurementTracker->geomTracker())), *cablingMap);
+    updatePixels(iEvent, *pixelData, pixelClustersToSkip, dynamic_cast<const TrackerGeometry&>(*(measurementTracker->geomTracker())), iSetup);
     updatePhase2OT(iEvent, *phase2OTData);
     updateStacks(iEvent, *phase2OTData);
 
@@ -87,7 +84,7 @@ MeasurementTrackerEventProducer::produce(edm::Event &iEvent, const edm::EventSet
 
 void 
 MeasurementTrackerEventProducer::updatePixels( const edm::Event& event, PxMeasurementDetSet & thePxDets, std::vector<bool> & pixelClustersToSkip, 
-					       const TrackerGeometry& trackerGeom, const SiPixelFedCablingMap& cablingMap) const
+					       const TrackerGeometry& trackerGeom, const edm::EventSetup& iSetup) const
 {
   // start by clearinng everything
   thePxDets.setEmpty();
@@ -121,6 +118,9 @@ MeasurementTrackerEventProducer::updatePixels( const edm::Event& event, PxMeasur
   }
 
   if (!theBadPixelFEDChannelsLabels.empty()) {
+    edm::ESHandle<SiPixelFedCablingMap> cablingMap;
+    iSetup.get<SiPixelFedCablingMapRcd>().get(pixelCablingMapLabel_, cablingMap);
+
     edm::Handle<PixelFEDChannelCollection> pixelFEDChannelCollectionHandle;
     for (const edm::EDGetTokenT<PixelFEDChannelCollection>& tk: theBadPixelFEDChannelsLabels) {
       if (!event.getByToken(tk, pixelFEDChannelCollectionHandle)) continue;
@@ -130,8 +130,11 @@ MeasurementTrackerEventProducer::updatePixels( const edm::Event& event, PxMeasur
 	for(const auto& ch: disabledChannels) {
 	  const sipixelobjects::PixelROC *roc_first=NULL, *roc_last=NULL;
 	  sipixelobjects::CablingPathToDetUnit path = {ch.fed, ch.link, 0};
+	  // PixelFEDChannelCollection addresses the ROCs by their 'idInDetUnit' (from 0 to 15), ROCs also know their on 'idInDetUnit',
+	  // however the cabling map uses a numbering [1,numberOfROCs], see sipixelobjects::PixelFEDLink::roc(unsigned int id), not necessarily sorted in the same direction.
+	  // PixelFEDChannelCollection MUST be filled such that ch.roc_first (ch.roc_last) correspond to the lowest (highest) 'idInDetUnit' in the channel
 	  for (path.roc=1; path.roc<=(ch.roc_last-ch.roc_first)+1; path.roc++) {
-	    const sipixelobjects::PixelROC *roc = cablingMap.findItem(path);
+	    const sipixelobjects::PixelROC *roc = cablingMap->findItem(path);
 	    if (roc==NULL) continue;
 	    assert(roc->rawId()==disabledChannels.detId());
 	    if (roc->idInDetUnit()==ch.roc_first) roc_first=roc;
@@ -143,7 +146,7 @@ MeasurementTrackerEventProducer::updatePixels( const edm::Event& event, PxMeasur
 	  }
 	  const PixelGeomDetUnit * theGeomDet = dynamic_cast<const PixelGeomDetUnit*> (trackerGeom.idToDet(roc_first->rawId()));
 	  PixelTopology const * topology = &(theGeomDet->specificTopology());
-	  sipixelobjects::LocalPixel::RocRowCol local = {39, 25};   //corresponding to center of ROC row, col
+	  sipixelobjects::LocalPixel::RocRowCol local = {topology->rowsperroc()/2, topology->colsperroc()/2};   //corresponding to center of ROC row, col
 	  sipixelobjects::GlobalPixel global = roc_first->toGlobal(sipixelobjects::LocalPixel(local));
 	  LocalPoint lp1 = topology->localPosition(MeasurementPoint(global.row, global.col));
 	  global = roc_last->toGlobal(sipixelobjects::LocalPixel(local));

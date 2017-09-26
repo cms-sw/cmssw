@@ -22,7 +22,7 @@ private:
 
 protected:
       void updatePixels( const edm::Event&, PxMeasurementDetSet & thePxDets, std::vector<bool> & pixelClustersToSkip, 
-			 const TrackerGeometry& trackerGeom, const SiPixelFedCablingMap& cablingMap) const;
+			 const TrackerGeometry& trackerGeom, const edm::EventSetup& iSetup) const;
       void updateStrips( const edm::Event&, StMeasurementDetSet & theStDets, std::vector<bool> & stripClustersToSkip ) const;
       void updatePhase2OT( const edm::Event&, Phase2OTMeasurementDetSet & thePh2OTDets ) const;
       //FIXME:: going to be updated soon

@@ -245,17 +245,17 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 	  // in the configurable error list in the job option cfi.
 	  // Code needs to be here, because there can be a set of errors for each 
 	  // entry in the for loop over PixelDataFormatter::Errors
-	  edm::DetSet<SiPixelRawDataError>::const_iterator itPixelError=errorDetSet.begin();
+
 	  std::vector<PixelFEDChannel> disabledChannelsDetSet;
 
-	  for(; itPixelError!=errorDetSet.end(); ++itPixelError){
+	  for (auto const& aPixelError : errorDetSet) {
 	    // For the time being, we extend the error handling functionality with ErrorType 25
 	    // In the future, we should sort out how the usage of tkerrorlist can be generalized
-	    if (itPixelError->getType()==25) {
-	      assert(itPixelError->getFedId()==fedId);
+	    if (aPixelError.getType()==25) {
+	      assert(aPixelError.getFedId()==fedId);
 	      const sipixelobjects::PixelFEDCabling* fed = cabling_->fed(fedId);
 	      if (fed) {
-		cms_uint32_t linkId = (itPixelError->getWord32() >> formatter.LINK_shift) & formatter.LINK_mask;
+		cms_uint32_t linkId = formatter.linkId(aPixelError.getWord32());
 		const sipixelobjects::PixelFEDLink* link = fed->link(linkId);
 		if (link) {
 		  // The "offline" 0..15 numbering is fixed by definition, also, the FrameConversion depends on it
@@ -272,7 +272,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 	    } else {
 	      // fill list of detIds to be turned off by tracking
 	      if(!tkerrorlist.empty()) {
-		std::vector<int>::iterator it_find = find(tkerrorlist.begin(), tkerrorlist.end(), itPixelError->getType());
+		std::vector<int>::iterator it_find = find(tkerrorlist.begin(), tkerrorlist.end(), aPixelError.getType());
 		if(it_find != tkerrorlist.end()){
 		  tkerror_detidcollection->push_back(errordetid);
 		}
@@ -281,7 +281,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 
 	    // fill list of detIds with errors to be studied
 	    if(!usererrorlist.empty()) {
-	      std::vector<int>::iterator it_find = find(usererrorlist.begin(), usererrorlist.end(), itPixelError->getType());
+	      std::vector<int>::iterator it_find = find(usererrorlist.begin(), usererrorlist.end(), aPixelError.getType());
 	      if(it_find != usererrorlist.end()){
 		usererror_detidcollection->push_back(errordetid);
 	      }
