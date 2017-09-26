@@ -8,9 +8,8 @@
 
 class StripTopology;
 class ME0EtaPartitionSpecs;
-//class ME0Chamber;
 
-class ME0EtaPartition : public GeomDetUnit
+class ME0EtaPartition : public GeomDet
 {
 public:
   

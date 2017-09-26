@@ -45,7 +45,7 @@ void DTGeometry::add(DTLayer* l) {
 }
 
 
-const DTGeometry::DetUnitContainer& DTGeometry::detUnits() const{
+const DTGeometry::DetContainer& DTGeometry::detUnits() const{
   return theDetUnits;
 }
 
@@ -67,8 +67,8 @@ const DTGeometry::DetIdContainer& DTGeometry::detIds() const{
 }
 
 
-const GeomDetUnit* DTGeometry::idToDetUnit(DetId id) const{
-  return dynamic_cast<const GeomDetUnit*>(idToDet(id));
+const GeomDet* DTGeometry::idToDetUnit(DetId id) const{
+  return dynamic_cast<const GeomDet*>(idToDet(id));
 }
 
 
