@@ -3,6 +3,7 @@
 
 #include <vector>
 
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/DeepFormats/interface/JetFeatures.h"
 #include "DataFormats/DeepFormats/interface/SecondaryVertexFeatures.h"
 #include "DataFormats/DeepFormats/interface/ShallowTagInfoFeatures.h"
@@ -23,6 +24,9 @@ class DeepFlavourFeatures {
     std::vector<ChargedCandidateFeatures> c_pf_features;
     
     std::size_t npv; // used by deep flavour
+
+    // for ROOT schema evolution
+    CMS_CLASS_VERSION(10)
     
 };    
 

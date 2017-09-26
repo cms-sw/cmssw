@@ -1,6 +1,8 @@
 #ifndef DataFormats_DeepFormats_SecondaryVertexFeatures_h
 #define DataFormats_DeepFormats_SecondaryVertexFeatures_h
 
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
+
 namespace btagbtvdeep {
 
 class SecondaryVertexFeatures {
@@ -29,6 +31,9 @@ class SecondaryVertexFeatures {
     
     float costhetasvpv;
     float enratio;
+
+    // for ROOT schema evolution
+    CMS_CLASS_VERSION(10)
 
 };
 
