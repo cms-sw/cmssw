@@ -6,6 +6,7 @@
     <class name="nanoaod::FlatTable" ClassVersion="3">
         <version ClassVersion="3" checksum="2443023556"/>
     </class>
+    <class name="nanoaod::FlatTable::RowView" transient="true" />
     <class name="edm::Wrapper<nanoaod::FlatTable>" />
 
     <class name="nanoaod::MergeableCounterTable::FloatColumn" ClassVersion="3">
