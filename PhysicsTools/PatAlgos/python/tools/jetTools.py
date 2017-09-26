@@ -548,8 +548,6 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                     process, task)
 
             if btagInfo == 'pfDeepFlavourTagInfos':
-                # as if now the training tag info is based on corrected jets
-                # so we expect a bit of a loss on performance
                 addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
                                     btag.pfDeepFlavourTagInfos.clone(
                                       jets = jetSource,
