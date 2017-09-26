@@ -1,5 +1,6 @@
 #include "DataFormats/Luminosity/interface/LumiInfo.h"
 
+#include <vector>
 #include <iomanip>
 #include <ostream>
 #include <iostream>
@@ -31,12 +32,12 @@ bool LumiInfo::isProductEqual(LumiInfo const& next) const {
 	  instLumiByBX_ == next.instLumiByBX_);
 }
 
-void LumiInfo::fillInstLumi(const std::vector<float>& instLumiByBX) {
+void LumiInfo::setInstLumi(std::vector<float>& instLumiByBX) {
   instLumiByBX_.assign(instLumiByBX.begin(), instLumiByBX.end());
 }
 
-void LumiInfo::fill(const std::vector<float>& instLumiByBX) {
-  fillInstLumi(instLumiByBX);
+void LumiInfo::setErrLumiBX(std::vector<float>& errLumiByBX){
+  errLumiByBX_.assign(errLumiByBX.begin(),errLumiByBX.end());
 }
 
 std::ostream& operator<<(std::ostream& s, const LumiInfo& lumiInfo) {
