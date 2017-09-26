@@ -34,7 +34,7 @@ namespace fireworks {
 
 struct jetScaleMarker : public  scaleMarker {
    jetScaleMarker(TEveScalableStraightLineSet* ls, float et, float e, const FWViewContext* vc):
-      scaleMarker(ls, et, e, vc) , m_text(0) {}
+      scaleMarker(ls, et, e, vc) , m_text(nullptr) {}
    
    FWEveText* m_text;
 };
@@ -50,13 +50,13 @@ class FWJetProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Jet>
 {
 public:
    FWJetProxyBuilder();
-   virtual ~FWJetProxyBuilder();
+   ~FWJetProxyBuilder() override;
 
-   virtual bool havePerViewProduct(FWViewType::EType) const { return true; }
-   virtual bool haveSingleProduct() const { return false; } // different view types
-   virtual void cleanLocal();
+   bool havePerViewProduct(FWViewType::EType) const override { return true; }
+   bool haveSingleProduct() const override { return false; } // different view types
+   void cleanLocal() override;
 
-   virtual void setItem(const FWEventItem* iItem)
+   void setItem(const FWEventItem* iItem) override
    {
       FWProxyBuilderBase::setItem(iItem);
       if (iItem) {
@@ -70,19 +70,19 @@ public:
    
 protected:
    using FWSimpleProxyBuilderTemplate<reco::Jet>::buildViewType;
-   virtual void buildViewType(const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*);
+   void buildViewType(const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*) override;
 
 
-   virtual void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
-                                  FWViewType::EType viewType, const FWViewContext* vc);
+   void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
+                                  FWViewType::EType viewType, const FWViewContext* vc) override;
 
-   virtual void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc);
+   void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc) override;
 
 private:
    typedef std::vector<fireworks::jetScaleMarker> Lines_t;  
 
-   FWJetProxyBuilder( const FWJetProxyBuilder& ); // stop default
-   const FWJetProxyBuilder& operator=( const FWJetProxyBuilder& ); // stop default
+   FWJetProxyBuilder( const FWJetProxyBuilder& ) = delete; // stop default
+   const FWJetProxyBuilder& operator=( const FWJetProxyBuilder& ) = delete; // stop default
 
    TEveElementList* requestCommon();
    void setTextPos(fireworks::jetScaleMarker& s, const FWViewContext* vc, FWViewType::EType);
@@ -95,7 +95,7 @@ private:
 
 //______________________________________________________________________________
 FWJetProxyBuilder::FWJetProxyBuilder():
-   m_common(0)
+   m_common(nullptr)
 {
    m_common = new TEveElementList( "common electron scene" );
    m_common->IncDenyDestroy();
