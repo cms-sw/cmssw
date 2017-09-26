@@ -16,6 +16,15 @@ namespace AlignmentPI {
   static const unsigned int phase0size=19876;
   static const float cmToUm = 10000;      
 
+  enum coordinate {
+    t_x=1,
+    t_y=2,
+    t_z=3,
+    rot_alpha=4,
+    rot_beta=5,
+    rot_gamma=6,
+  };
+
   // M.M. 2017/09/12
   // As the matrix is symmetric, we map only 6/9 terms
   // More terms for the extended APE can be added to the following methods
@@ -498,6 +507,21 @@ namespace AlignmentPI {
   }
 
   /*--------------------------------------------------------------------*/
+  std::string getStringFromCoordinate (AlignmentPI::coordinate coord)
+  /*--------------------------------------------------------------------*/
+  {
+    switch(coord){
+    case t_x     : return "x-translation";
+    case t_y     : return "y-translation";
+    case t_z     : return "z-translation";
+    case rot_alpha  : return "#alpha angle rotation";
+    case rot_beta   : return "#beta angle rotation";
+    case rot_gamma  : return "#gamma angle rotation";
+    default : return "should never be here!";
+    }
+  }
+
+  /*--------------------------------------------------------------------*/
   std::string getStringFromIndex (AlignmentPI::index i)
   /*--------------------------------------------------------------------*/
   {
@@ -526,7 +550,6 @@ namespace AlignmentPI {
     default : return "should never be here!";
     }
   }
-
 
   /*--------------------------------------------------------------------*/
   std::pair<int,int> getIndices(AlignmentPI::index i)
