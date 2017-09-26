@@ -76,6 +76,25 @@ namespace pat {
       // get the MET significance
       double metSignificance() const;
 
+      // ----- CHS MET functions ----
+      // set CHS MET
+      void setCHSMETpt(const double& chsMETpt);
+      void setCHSMETphi(const double& chsMETphi);
+      void setCHSMETsumEt(const double& chsMETsumEt);
+      // get CHS MET
+      double CHSMETpt() const;
+      double CHSMETphi() const;
+      double CHSMETsumEt() const;
+
+      // ----- Track MET functions ----
+      // set Track MET
+      void setTrkMETpt(const double& trkMETpt);
+      void setTrkMETphi(const double& trkMETphi);
+      void setTrkMETsumEt(const double& trkMETsumEt);
+      // get Track MET
+      double TrkMETpt() const;
+      double TrkMETphi() const;
+      double TrkMETsumEt() const;
 
       // ---- methods for uncorrected MET ----
       // Methods not yet defined
@@ -252,6 +271,16 @@ namespace pat {
       // MET significance
       double metSig_;
       
+      // MET CHS
+      double chsMETpt_;
+      double chsMETphi_;
+      double chsMETsumEt_;
+
+      // MET Track
+      double trkMETpt_;
+      double trkMETphi_;
+      double trkMETsumEt_;
+
       const PackedMETUncertainty findMETTotalShift(MET::METCorrectionLevel cor, MET::METUncertainty shift) const;
    
       std::map<MET::METCorrectionLevel, std::vector<MET::METCorrectionType> > corMap_;

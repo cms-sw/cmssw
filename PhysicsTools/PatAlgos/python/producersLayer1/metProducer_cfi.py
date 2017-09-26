@@ -5,6 +5,8 @@ from RecoMET.METProducers.METSignificanceParams_cfi import METSignificanceParams
 patMETs = cms.EDProducer("PATMETProducer",
     # input
     metSource  = cms.InputTag("pfMetT1"),
+    chsmetSource = cms.InputTag("pfMetCHS"),                         
+    trkmetSource = cms.InputTag("pfMetTrk"),                         
 
     # add user data
     userData = cms.PSet(

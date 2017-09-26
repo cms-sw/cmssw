@@ -172,6 +172,60 @@ def miniAOD_customizeCommon(process):
     del process.slimmedMETsNoHF.caloMET
     # ================== NoHF pfMET
 
+    #  ==================  CHSMET 
+    process.CHSCands = cms.EDFilter("CandPtrSelector",
+                                    src=cms.InputTag("packedPFCandidates"),
+                                    cut=cms.string("fromPV(0) > 0")
+                                    )
+    task.add(process.CHSCands)
+
+    runMetCorAndUncForMiniAODProduction(process,
+                                        pfCandColl=cms.InputTag("CHSCands"),
+                                        recoMetFromPFCs=True,
+                                        postfix="CHS"
+                                        )
+
+    addToProcessAndTask('slimmedMETsCHS', process.slimmedMETs.clone(), process, task)
+    process.slimmedMETsCHS.src = cms.InputTag("patMETsCHS")
+    process.slimmedMETsCHS.rawVariation =  cms.InputTag("patPFMetCHS")
+    process.slimmedMETsCHS.t1Uncertainties = cms.InputTag("patPFMetT1%sCHS") 
+    process.slimmedMETsCHS.t01Variation = cms.InputTag("patPFMetT0pcT1CHS")
+    process.slimmedMETsCHS.t1SmearedVarsAndUncs = cms.InputTag("patPFMetT1Smear%sCHS")
+    process.slimmedMETsCHS.tXYUncForRaw = cms.InputTag("patPFMetTxyCHS")
+    process.slimmedMETsCHS.tXYUncForT1 = cms.InputTag("patPFMetT1TxyCHS")
+    process.slimmedMETsCHS.tXYUncForT01 = cms.InputTag("patPFMetT0pcT1TxyCHS")
+    process.slimmedMETsCHS.tXYUncForT1Smear = cms.InputTag("patPFMetT1SmearTxyCHS")
+    process.slimmedMETsCHS.tXYUncForT01Smear = cms.InputTag("patPFMetT0pcT1SmearTxyCHS")
+    del process.slimmedMETsCHS.caloMET
+    #  ==================  CHSMET 
+
+    #  ==================  TrkMET 
+    process.TrkCands = cms.EDFilter("CandPtrSelector",
+                                    src=cms.InputTag("packedPFCandidates"),
+                                    cut=cms.string("fromPV(0) > 0 && charge()!=0")
+                                    )
+    task.add(process.TrkCands)
+
+    runMetCorAndUncForMiniAODProduction(process,
+                                        pfCandColl=cms.InputTag("TrkCands"),
+                                        recoMetFromPFCs=True,
+                                        postfix="Trk"
+                                        )
+
+    addToProcessAndTask('slimmedMETsTrk', process.slimmedMETs.clone(), process, task)
+    process.slimmedMETsTrk.src = cms.InputTag("patMETsTrk")
+    process.slimmedMETsTrk.rawVariation =  cms.InputTag("patPFMetTrk")
+    process.slimmedMETsTrk.t1Uncertainties = cms.InputTag("patPFMetT1%sTrk") 
+    process.slimmedMETsTrk.t01Variation = cms.InputTag("patPFMetT0pcT1Trk")
+    process.slimmedMETsTrk.t1SmearedVarsAndUncs = cms.InputTag("patPFMetT1Smear%sTrk")
+    process.slimmedMETsTrk.tXYUncForRaw = cms.InputTag("patPFMetTxyTrk")
+    process.slimmedMETsTrk.tXYUncForT1 = cms.InputTag("patPFMetT1TxyTrk")
+    process.slimmedMETsTrk.tXYUncForT01 = cms.InputTag("patPFMetT0pcT1TxyTrk")
+    process.slimmedMETsTrk.tXYUncForT1Smear = cms.InputTag("patPFMetT1SmearTxyTrk")
+    process.slimmedMETsTrk.tXYUncForT01Smear = cms.InputTag("patPFMetT0pcT1SmearTxyTrk")
+    del process.slimmedMETsTrk.caloMET
+    #  ==================  TrkMET 
+
     ## PU JetID
     process.load("RecoJets.JetProducers.PileupJetID_cfi")
     task.add(process.pileUpJetIDTask)

@@ -21,6 +21,10 @@ PATMETProducer::PATMETProducer(const edm::ParameterSet & iConfig):
   // initialize the configurables
   metSrc_         = iConfig.getParameter<edm::InputTag>("metSource");
   metToken_       = consumes<edm::View<reco::MET> >(metSrc_);
+  chsmetSrc_      = iConfig.getParameter<edm::InputTag>("chsmetSource");
+  chsmetToken_    = consumes<edm::View<reco::MET> >(chsmetSrc_);
+  trkmetSrc_      = iConfig.getParameter<edm::InputTag>("trkmetSource");
+  trkmetToken_    = consumes<edm::View<reco::MET> >(trkmetSrc_);
   addGenMET_      = iConfig.getParameter<bool>         ("addGenMET");
   genMETToken_    = mayConsume<edm::View<reco::GenMET> >(iConfig.getParameter<edm::InputTag>("genMETSource"));
   addResolutions_ = iConfig.getParameter<bool>         ("addResolutions");
@@ -84,6 +88,12 @@ void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     iEvent.getByToken(genMETToken_, genMETs);
   }
 
+  edm::Handle<edm::View<reco::MET> > chsMETs;
+  iEvent.getByToken(chsmetToken_, chsMETs);
+
+  edm::Handle<edm::View<reco::MET> > trkMETs;
+  iEvent.getByToken(trkmetToken_, trkMETs);
+
   // loop over mets
   std::vector<MET> * patMETs = new std::vector<MET>();
   for (edm::View<reco::MET>::const_iterator itMET = mets->begin(); itMET != mets->end(); itMET++) {
@@ -94,6 +104,14 @@ void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     MET amet(metsRef);
     // add the generated MET
     if (addGenMET_) amet.setGenMET((*genMETs)[idx]);
+
+    amet.setCHSMETpt((*chsMETs)[idx].pt());
+    amet.setCHSMETphi((*chsMETs)[idx].phi());
+    amet.setCHSMETsumEt((*chsMETs)[idx].sumEt());
+
+    amet.setTrkMETpt((*trkMETs)[idx].pt());
+    amet.setTrkMETphi((*trkMETs)[idx].phi());
+    amet.setTrkMETsumEt((*trkMETs)[idx].sumEt());
 
     //add the MET significance
     if(calculateMETSignificance_) {
