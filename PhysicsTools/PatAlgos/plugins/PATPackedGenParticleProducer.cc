@@ -40,9 +40,9 @@ namespace pat {
   class PATPackedGenParticleProducer : public edm::global::EDProducer<> {
   public:
     explicit PATPackedGenParticleProducer(const edm::ParameterSet&);
-    ~PATPackedGenParticleProducer();
+    ~PATPackedGenParticleProducer() override;
     
-    virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const;
+    void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
     
   private:
     const edm::EDGetTokenT<reco::GenParticleCollection>    Cands_;

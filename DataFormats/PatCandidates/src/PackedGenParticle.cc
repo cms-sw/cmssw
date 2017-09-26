@@ -95,7 +95,7 @@ bool pat::PackedGenParticle::overlap( const reco::Candidate & o ) const {
 }
 
 const reco::Candidate * pat::PackedGenParticle::daughter( size_type ) const {
-  return 0;
+  return nullptr;
 }
 
 const reco::Candidate * pat::PackedGenParticle::mother( size_type ) const {
@@ -117,7 +117,7 @@ reco::Candidate * pat::PackedGenParticle::daughter(const std::string&) {
 
 
 reco::Candidate * pat::PackedGenParticle::daughter( size_type ) {
-  return 0;
+  return nullptr;
 }
 
 double pat::PackedGenParticle::vertexChi2() const {
