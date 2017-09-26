@@ -55,6 +55,7 @@ namespace fastsim
     	/*!
     		Calculation different for barrel/forward layers and straight/helix trajectory. Chooses which function has to be called.
 			\param layer A barrel or forward layer.
+			\param onLayer Specify if the particle already is on the layer (leads to different constraints for forward/barrel layers).
 			\return t*c [ns * cm/ns] of next intersection (-1 if there is none).
     	*/
 		double nextCrossingTimeC(const SimplifiedGeometry & layer, bool onLayer = false) const;
@@ -63,6 +64,7 @@ namespace fastsim
     	/*!
     		Since only momentum in Z direction matters, same function for straight and helix trajectories.
 			\param layer A forward layer.
+			\param onLayer Specify if the particle already is on the layer (in this case there is no solution).
 			\return t*c [ns * cm/ns] of next intersection (-1 if there is none).
     	*/
 		double nextCrossingTimeC(const ForwardSimplifiedGeometry & layer, bool onLayer = false) const;
@@ -71,6 +73,7 @@ namespace fastsim
     	/*!
     		Different treatment of intersection of straight/helix layers with barrel layers. Implementation in derived classes.
 			\param layer A barrel layer.
+			\param onLayer Specify if the particle already is on the layer (in that case the second solution has to be picked).
 			\return t*c [ns * cm/ns] of next intersection (-1 if there is none).
     	*/
 		virtual double nextCrossingTimeC(const BarrelSimplifiedGeometry & layer, bool onLayer = false) const = 0;
