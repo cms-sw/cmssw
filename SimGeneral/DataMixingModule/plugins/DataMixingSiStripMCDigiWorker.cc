@@ -433,9 +433,9 @@ namespace edm
     //Now, do noise, zero suppression, take into account bad channels, etc.
     // This section stolen from SiStripDigitizerAlgorithm
     // must loop over all detIds in the tracker to get all of the noise added properly.
-    for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
+    for( const auto& iu : pDD->detUnits()) {
 
-      const StripGeomDetUnit* sgd = dynamic_cast<const StripGeomDetUnit*>((*iu));
+      const StripGeomDetUnit* sgd = dynamic_cast<const StripGeomDetUnit*>(iu);
       if (sgd != nullptr){
 
 	uint32_t detID = sgd->geographicalId().rawId();

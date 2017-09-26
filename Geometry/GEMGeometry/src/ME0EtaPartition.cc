@@ -4,7 +4,7 @@
 
 
 ME0EtaPartition::ME0EtaPartition(ME0DetId id, const BoundPlane::BoundPlanePointer& bp, ME0EtaPartitionSpecs* rrs) :
-  GeomDetUnit(bp), id_(id),specs_(rrs)
+  GeomDet(bp), id_(id),specs_(rrs)
 {
   setDetId(id);
 }

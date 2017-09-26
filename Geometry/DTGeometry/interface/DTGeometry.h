@@ -39,7 +39,7 @@ class DTGeometry : public TrackingGeometry {
     const DetTypeContainer&  detTypes() const override;
 
     // Returm a vector of all GeomDetUnit
-    const DetUnitContainer&  detUnits() const override;
+    const DetContainer&  detUnits() const override;
 
     // Returm a vector of all GeomDet (including all GeomDetUnits)
     const DetContainer& dets() const override;
@@ -51,7 +51,7 @@ class DTGeometry : public TrackingGeometry {
     const DetIdContainer& detIds() const override;
 
     // Return the pointer to the GeomDetUnit corresponding to a given DetId
-    const GeomDetUnit* idToDetUnit(DetId) const override;
+    const GeomDet* idToDetUnit(DetId) const override;
 
     // Return the pointer to the GeomDet corresponding to a given DetId
     const GeomDet* idToDet(DetId) const override;
@@ -112,7 +112,7 @@ class DTGeometry : public TrackingGeometry {
 
     // These are used rarely; they could be computed at runtime 
     // to save memory.
-    DetUnitContainer  theDetUnits;       // all layers
+    DetContainer      theDetUnits;       // all layers
     DetContainer      theDets;           // all chambers, SL, layers
 
     // Replace local static with mutable members

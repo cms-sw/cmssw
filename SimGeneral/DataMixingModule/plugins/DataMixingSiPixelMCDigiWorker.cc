@@ -232,9 +232,9 @@ void DataMixingSiPixelMCDigiWorker::PixelEfficiencies::init_from_db(const edm::E
   std::vector<uint32_t > DetIdmasks = SiPixelDynamicInefficiency->getDetIdmasks();
   
   // Loop on all modules, calculate geometrical scale factors and store in map for easy access
-  for(TrackerGeometry::DetUnitContainer::const_iterator it_module = geom->detUnits().begin(); it_module != geom->detUnits().end(); it_module++) {
-    if( dynamic_cast<PixelGeomDetUnit const*>((*it_module))==nullptr) continue;
-    const DetId detid = (*it_module)->geographicalId();
+  for( const auto& it_module : geom->detUnits()) {
+    if( dynamic_cast<PixelGeomDetUnit const*>(it_module)==nullptr) continue;
+    const DetId detid = it_module->geographicalId();
     uint32_t rawid = detid.rawId();
     PixelGeomFactors[rawid] = 1;
     ColGeomFactors[rawid] = 1;
@@ -249,9 +249,9 @@ void DataMixingSiPixelMCDigiWorker::PixelEfficiencies::init_from_db(const edm::E
   size_t i=0;
   for (auto factor : PUFactors) {
     const DetId db_id = DetId(factor.first);
-    for(TrackerGeometry::DetUnitContainer::const_iterator it_module = geom->detUnits().begin(); it_module != geom->detUnits().end(); it_module++) {
-      if( dynamic_cast<PixelGeomDetUnit const*>((*it_module))==nullptr) continue;
-      const DetId detid = (*it_module)->geographicalId();
+    for( const auto& it_module : geom->detUnits()) {
+      if( dynamic_cast<PixelGeomDetUnit const*>(it_module)==nullptr) continue;
+      const DetId detid = it_module->geographicalId();
       if (!matches(detid, db_id, DetIdmasks)) continue;
       if (iPU.count(detid.rawId())) {
 	throw cms::Exception("Database")<<"Multiple db_ids match to same module in SiPixelDynamicInefficiency DB Object";
@@ -473,12 +473,12 @@ bool DataMixingSiPixelMCDigiWorker::PixelEfficiencies::matches(const DetId& deti
 
     setPileupInfo(ps, bs);
 
-    for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
+    for( const auto& iu : pDD->detUnits()) {
       
-      if((*iu)->type().isTrackerPixel()) {
+      if(iu->type().isTrackerPixel()) {
 
 	//
-	const PixelGeomDetUnit* pixdet = dynamic_cast<const PixelGeomDetUnit*>((*iu));
+	const PixelGeomDetUnit* pixdet = dynamic_cast<const PixelGeomDetUnit*>(iu);
 	uint32_t detID = pixdet->geographicalId().rawId();
 
 	// fetch merged hits for this detID
