@@ -382,7 +382,6 @@ public:
     }
     badFEDChannelPositionsSet_[i]->insert(badFEDChannelPositionsSet_[i]->end(), positions.begin(), positions.end());
   }
-  void clearBadFEDChannelPositions() { badFEDChannelPositionsSet_.clear(); }
 
   /** \brief Turn on/off the module for reconstruction for one events.
       This per-event flag is cleared by any call to 'update' or 'setEmpty'  */

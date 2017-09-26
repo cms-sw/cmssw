@@ -82,6 +82,8 @@ public:
 
   void formatRawData( unsigned int lvl1_ID, RawData & fedRawData, const Digis & digis);
 
+  cms_uint32_t linkId(cms_uint32_t word32) { return (word32 >> LINK_shift) & LINK_mask; }
+
 private:
   mutable int theDigiCounter;
   mutable int theWordCounter;
