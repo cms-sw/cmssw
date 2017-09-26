@@ -109,7 +109,7 @@ muonMCTable = cms.EDProducer("CandMCMatchTableProducer",
     mcMap   = cms.InputTag("muonsMCMatchForTable"),
     objName = muonTable.name,
     objType = muonTable.name, #cms.string("Muon"),
-    branchName = cms.string("mcMatch"),
+    branchName = cms.string("genPart"),
     docString = cms.string("MC matching to status==1 muons"),
 )
 
