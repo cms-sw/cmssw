@@ -51,6 +51,10 @@ namespace pat {
       // configurables
       edm::InputTag metSrc_;
       edm::EDGetTokenT<edm::View<reco::MET> > metToken_;
+      edm::InputTag chsmetSrc_;
+      edm::EDGetTokenT<edm::View<reco::MET> > chsmetToken_;
+      edm::InputTag trkmetSrc_;
+      edm::EDGetTokenT<edm::View<reco::MET> > trkmetToken_;
       bool          addGenMET_;
       edm::EDGetTokenT<edm::View<reco::GenMET> > genMETToken_;
       bool          addResolutions_;
