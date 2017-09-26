@@ -109,6 +109,19 @@ testPackedCandidate::testPackUnpack() {
   CPPUNIT_ASSERT(tolerance(pc.ptTrk(),trkPt,0.001));
   CPPUNIT_ASSERT(tolerance(pc.etaAtVtx(),trkEta,0.001));
   CPPUNIT_ASSERT(tolerance(pc.phiAtVtx(),trkPhi,0.001));
+  //Check again after a setP4
+  pc.setP4(plv*2);
+  CPPUNIT_ASSERT(tolerance(pc.ptTrk(),trkPt,0.001));
+  CPPUNIT_ASSERT(tolerance(pc.etaAtVtx(),trkEta,0.001));
+  CPPUNIT_ASSERT(tolerance(pc.phiAtVtx(),trkPhi,0.001));
+  pc.setP4(lv*3);
+  CPPUNIT_ASSERT(tolerance(pc.ptTrk(),trkPt,0.001));
+  CPPUNIT_ASSERT(tolerance(pc.etaAtVtx(),trkEta,0.001));
+  CPPUNIT_ASSERT(tolerance(pc.phiAtVtx(),trkPhi,0.001));
+  pc.setPz(pc.p4().Pz()+3.3);
+  CPPUNIT_ASSERT(tolerance(pc.ptTrk(),trkPt,0.005));
+  CPPUNIT_ASSERT(tolerance(pc.etaAtVtx(),trkEta,0.005));
+  CPPUNIT_ASSERT(tolerance(pc.phiAtVtx(),trkPhi,0.005));
 }
 
 void testPackedCandidate::testSimulateReadFromRoot() {
