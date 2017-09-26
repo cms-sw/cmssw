@@ -1,6 +1,7 @@
 #ifndef DataFormats_DeepFormats_DeepFlavourTagInfo_h
 #define DataFormats_DeepFormats_DeepFlavourTagInfo_h
 
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 #include "DataFormats/DeepFormats/interface/DeepFlavourFeatures.h"
 
@@ -22,6 +23,8 @@ template<class Features> class FeaturesTagInfo : public BaseTagInfo {
     virtual edm::RefToBase<Jet> jet() const { return jet_ref_; }
 
     const Features & features() const { return features_; }
+
+    CMS_CLASS_VERSION(10)
 
   private:
     Features features_;
