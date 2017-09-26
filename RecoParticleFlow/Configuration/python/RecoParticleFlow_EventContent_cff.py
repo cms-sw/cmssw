@@ -1,11 +1,11 @@
 # The following comments couldn't be translated into the new config version:
 
 #        "keep recoPFClusters_*_*_*",
-#        "keep recoPFBlocks_*_*_*",	
+#        "keep recoPFBlocks_*_*_*",
 
 import FWCore.ParameterSet.Config as cms
 
-# Full Event content 
+# Full Event content
 RecoParticleFlowFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring(
     'drop CaloTowersSorted_towerMakerPF_*_*',
@@ -21,7 +21,7 @@ RecoParticleFlowFEVT = cms.PSet(
     'keep recoPFRecHits_particleFlowRecHitHF_Cleaned_*',
     'keep recoPFRecHits_particleFlowRecHitPS_Cleaned_*',
     #'keep recoPFClusters_*_*_*',
-    'keep recoPFClusters_particleFlowClusterECAL_*_*',    
+    'keep recoPFClusters_particleFlowClusterECAL_*_*',
     'keep recoPFClusters_particleFlowClusterHCAL_*_*',
     'keep recoPFClusters_particleFlowClusterHO_*_*',
     'keep recoPFClusters_particleFlowClusterHF_*_*',
@@ -31,7 +31,7 @@ RecoParticleFlowFEVT = cms.PSet(
     #'keep recoPFCandidates_*_*_*',
     'keep recoPFCandidates_particleFlowEGamma_*_*',
     'keep recoCaloClusters_particleFlowEGamma_*_*',
-    'keep recoSuperClusters_particleFlowEGamma_*_*',    
+    'keep recoSuperClusters_particleFlowEGamma_*_*',
     'keep recoConversions_particleFlowEGamma_*_*',
     'keep recoPFCandidates_particleFlow_*_*',
     'keep recoPFCandidates_particleFlowTmp_*_*',
@@ -51,7 +51,7 @@ RecoParticleFlowFEVT = cms.PSet(
 # RECO content
 RecoParticleFlowRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(
-    'drop CaloTowersSorted_towerMakerPF_*_*', 
+    'drop CaloTowersSorted_towerMakerPF_*_*',
     #'keep recoPFRecHits_*_Cleaned_*',
     'keep recoPFRecHits_particleFlowClusterECAL_Cleaned_*',
     'keep recoPFRecHits_particleFlowClusterHCAL_Cleaned_*',
@@ -92,8 +92,8 @@ RecoParticleFlowRECO = cms.PSet(
     'keep *_particleFlowTmpPtrs_*_*',
     'keep *_chargedHadronPFTrackIsolation_*_*'
         )
-)    
-    
+)
+
 # AOD content
 RecoParticleFlowAOD = cms.PSet(
     outputCommands = cms.untracked.vstring(
@@ -147,7 +147,7 @@ def _modifyPFEventContentForHGCalFEVT( obj ):
 
 # mods for HGCAL
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-phase2_hgcal.toModify( RecoParticleFlowFEVT, outputCommands = RecoParticleFlowFEVT.outputCommands + [ 
+phase2_hgcal.toModify( RecoParticleFlowFEVT, outputCommands = RecoParticleFlowFEVT.outputCommands + [
         'keep recoPFRecHits_particleFlowClusterECAL__*',
         'keep recoPFRecHits_particleFlowClusterECAL_Cleaned_*',
         'keep recoPFRecHits_particleFlowRecHitHGC__*',
@@ -155,8 +155,7 @@ phase2_hgcal.toModify( RecoParticleFlowFEVT, outputCommands = RecoParticleFlowFE
         'keep recoPFClusters_particleFlowClusterHGCal__*',
         'keep recoPFClusters_particleFlowClusterHGCalFromMultiCl__*',
         'keep *_particleFlowSuperClusterHGCalFromMultiCl_*_*',
-        'keep *_simPFProducer_*_*',
-        'keep *_particleFlowTmp_*_*'
+        'keep *_simPFProducer_*_*'
     ]
 )
 phase2_hgcal.toModify( RecoParticleFlowRECO, outputCommands = RecoParticleFlowRECO.outputCommands + [
@@ -166,8 +165,7 @@ phase2_hgcal.toModify( RecoParticleFlowRECO, outputCommands = RecoParticleFlowRE
   'keep recoPFClusters_particleFlowClusterHGCalFromMultiCl__*',
   'keep *_particleFlowSuperClusterHGCalFromMultiCl_*_*',
   'keep recoPFBlocks_simPFProducer_*_*',
-  'keep recoSuperClusters_simPFProducer_*_*',
-  'keep *_particleFlowTmp_*_*'
+  'keep recoSuperClusters_simPFProducer_*_*'
   ] )
 phase2_hgcal.toModify( RecoParticleFlowAOD,  outputCommands = RecoParticleFlowAOD.outputCommands + [
 'keep recoPFRecHits_particleFlowClusterECAL_Cleaned_*',
@@ -178,18 +176,18 @@ phase2_hgcal.toModify( RecoParticleFlowAOD,  outputCommands = RecoParticleFlowAO
 
 #timing
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
-phase2_timing.toModify( 
-    RecoParticleFlowFEVT, 
+phase2_timing.toModify(
+    RecoParticleFlowFEVT,
     outputCommands = RecoParticleFlowFEVT.outputCommands + [
         'keep *_ecalBarrelClusterFastTimer_*_*'
         ])
-phase2_timing.toModify( 
-    RecoParticleFlowRECO, 
+phase2_timing.toModify(
+    RecoParticleFlowRECO,
     outputCommands = RecoParticleFlowRECO.outputCommands + [
         'keep *_ecalBarrelClusterFastTimer_*_*'
         ])
-phase2_timing.toModify( 
-    RecoParticleFlowAOD, 
+phase2_timing.toModify(
+    RecoParticleFlowAOD,
     outputCommands = RecoParticleFlowAOD.outputCommands + [
         'keep *_ecalBarrelClusterFastTimer_*_*'
         ])
