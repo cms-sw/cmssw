@@ -34,8 +34,11 @@ process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 # If you want to turn on/off pile-up
 process.famosPileUp.PileUpSimulator.averageNumber = 5.0
 # You may not want to simulate everything for your study
-process.famosSimHits.SimulateCalorimetry = True
-process.famosSimHits.SimulateTracking = True
+process.fastSimProducer.SimulateCalorimetry = True
+for layer in process.fastSimProducer.detectorDefinition.BarrelLayers: 
+    layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
+for layer in process.fastSimProducer.detectorDefinition.ForwardLayers: 
+    layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
 
 # Get frontier conditions    - not applied in the HCAL, see below
 # Values for globaltag are "STARTUP_V5::All", "1PB::All", "10PB::All", "IDEAL_V5::All"
@@ -45,7 +48,7 @@ process.GlobalTag.globaltag = "STARTUP_V5::All"
 process.caloRecHits.RecHitsFactory.doMiscalib = True
 
 # Apply Tracker misalignment
-process.famosSimHits.ApplyAlignment = True
+process.fastSimProducer.detectorDefinition.trackerAlignmentLabel = cms.untracked.string("MisAligned")
 process.misalignedTrackerGeometry.applyAlignment = True
 
 # Apply HCAL miscalibration (not ideal in that case) . Choose between hcalmiscalib_startup.xml , hcalmiscalib_1pb.xml , hcalmiscalib_10pb.xml (startup is the default)

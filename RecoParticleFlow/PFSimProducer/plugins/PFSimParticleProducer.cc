@@ -78,8 +78,8 @@ PFSimParticleProducer::PFSimParticleProducer(const edm::ParameterSet& iConfig)
   //retrieving collections for MC Truth Matching
 
   //modif-beg
-  inputTagFamosSimHits_  = iConfig.getUntrackedParameter<InputTag>("famosSimHits");
-  tokenFamosSimHits_  = consumes<edm::PCaloHitContainer>(inputTagFamosSimHits_);
+  inputTagFastSimProducer_  = iConfig.getUntrackedParameter<InputTag>("fastSimProducer");
+  tokenFastSimProducer_  = consumes<edm::PCaloHitContainer>(inputTagFastSimProducer_);
   mctruthMatchingInfo_ = 
     iConfig.getUntrackedParameter<bool>("MCTruthMatchingInfo",false);
   //modif-end
@@ -146,16 +146,16 @@ void PFSimParticleProducer::produce(Event& iEvent,
     //getting the PCAloHit
     edm::Handle<edm::PCaloHitContainer> pcalohits;
     //   bool found_phit 
-    //     = iEvent.getByLabel("famosSimHits","EcalHitsEB",
+    //     = iEvent.getByLabel("fastSimProducer","EcalHitsEB",
     // 			pcalohits);  
     //modif-beg
     bool found_phit 
-      = iEvent.getByToken(tokenFamosSimHits_,pcalohits);
+      = iEvent.getByToken(tokenFastSimProducer_,pcalohits);
     //modif-end
     
     if(!found_phit) {
       ostringstream err;
-      err<<"could not find pcaloHit "<<"famosSimHits:EcalHitsEB";
+      err<<"could not find pcaloHit "<<"fastSimProducer:EcalHitsEB";
       LogError("PFSimParticleProducer")<<err.str()<<endl;
       
       throw cms::Exception( "MissingProduct", err.str());

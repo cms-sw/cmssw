@@ -122,33 +122,35 @@ std::ostream& operator <<(std::ostream& o , const FSimTrack& t) {
   o.setf(std::ios::fixed, std::ios::floatfield);
   o.setf(std::ios::right, std::ios::adjustfield);
 
-  o << std::setw(4) << t.id() << " " 
-    << std::setw(4) << t.genpartIndex() << " " 
-    << name;
+  o << std::setw(4) << t.id() << "; " 
+    << std::setw(4) << t.genpartIndex() << "; " 
+    << name << "\n\t\t";
 
-  for(unsigned int k=0;k<11-name.length() && k<12; k++) o << " ";  
+  //for(unsigned int k=0;k<11-name.length() && k<12; k++) o << "; ";  
 
-  o << std::setw(6) << std::setprecision(2) << momentum1.eta() << " " 
-    << std::setw(6) << std::setprecision(2) << momentum1.phi() << " " 
-    << std::setw(6) << std::setprecision(2) << momentum1.pt() << " " 
-    << std::setw(6) << std::setprecision(2) << momentum1.e() << " " 
-    << std::setw(4) << vertexId1 << " " 
-    << std::setw(6) << std::setprecision(1) << vertex1.x() << " " 
-    << std::setw(6) << std::setprecision(1) << vertex1.y() << " " 
-    << std::setw(6) << std::setprecision(1) << vertex1.z() << " "
-    << std::setw(4) << (t.particleInfo() ? (t.noMother() ? -1 :t.mother().id()) :-1) << " ";
+  o << "Position: "
+   << std::setw(6) << std::setprecision(2) << momentum1.eta() << "; " 
+    << std::setw(6) << std::setprecision(2) << momentum1.phi() << "; " 
+    << std::setw(6) << std::setprecision(2) << momentum1.pt() << "; " 
+    << std::setw(6) << std::setprecision(2) << momentum1.e() << "; " 
+    << std::setw(4) << vertexId1 << "; " 
+    << std::setw(6) << std::setprecision(1) << vertex1.x() << "; " 
+    << std::setw(6) << std::setprecision(1) << vertex1.y() << "; " 
+    << std::setw(6) << std::setprecision(1) << vertex1.z() << "; "
+    << std::setw(4) << (t.particleInfo() ? (t.noMother() ? -1 :t.mother().id()) :-1) << "; " << "\n\t\t";
   
   if ( !t.noEndVertex() ) {
     XYZTLorentzVector vertex2 = t.endVertex().position();
     int vertexId2 = t.endVertex().id();
     
-    o << std::setw(4) << vertexId2 << " "
-      << std::setw(6) << std::setprecision(2) << vertex2.eta() << " " 
-      << std::setw(6) << std::setprecision(2) << vertex2.phi() << " " 
-      << std::setw(5) << std::setprecision(1) << vertex2.pt() << " " 
-      << std::setw(6) << std::setprecision(1) << vertex2.z() << " ";
+    o << "Decayed particle: "
+      << std::setw(4) << vertexId2 << "; "
+      << std::setw(6) << std::setprecision(2) << vertex2.eta() << "; " 
+      << std::setw(6) << std::setprecision(2) << vertex2.phi() << "; " 
+      << std::setw(5) << std::setprecision(1) << vertex2.pt() << "; " 
+      << std::setw(6) << std::setprecision(1) << vertex2.z() << "; ";
     for (int i=0; i<t.nDaughters(); ++i)
-      o << std::setw(4) << t.daughter(i).id() << " ";
+      o << std::setw(4) << t.daughter(i).id() << "; " << "\n\t\t";
 
   } else {
 
@@ -156,26 +158,68 @@ std::ostream& operator <<(std::ostream& o , const FSimTrack& t) {
 
       XYZTLorentzVector vertex2 = t.layer1Entrance().vertex();
       
-      o << std::setw(4) << -t.onLayer1() << " " 
-	<< std::setw(6) << std::setprecision(2) << vertex2.eta() << " " 
-	<< std::setw(6) << std::setprecision(2) << vertex2.phi() << " " 
-	<< std::setw(5) << std::setprecision(1) << vertex2.pt() << " " 
-	<< std::setw(6) << std::setprecision(1) << vertex2.z() << " "
-	<< std::setw(6) << std::setprecision(2) << t.layer1Entrance().pt() << " " 
-	<< std::setw(6) << std::setprecision(2) << t.layer1Entrance().e() << " ";
+      o << "Layer 1: "
+       << std::setw(4) << -t.onLayer1() << "; " 
+  << std::setw(6) << std::setprecision(2) << vertex2.eta() << "; " 
+  << std::setw(6) << std::setprecision(2) << vertex2.phi() << "; " 
+  << std::setw(5) << std::setprecision(1) << vertex2.pt() << "; " 
+  << std::setw(6) << std::setprecision(1) << vertex2.z() << "; "
+  << std::setw(6) << std::setprecision(2) << t.layer1Entrance().pt() << "; " 
+  << std::setw(6) << std::setprecision(2) << t.layer1Entrance().e() << "; " << "\n\t\t";
       
-    } else if ( t.onEcal() ) { 
+    } if ( t.onLayer2() ) {
+
+      XYZTLorentzVector vertex2 = t.layer2Entrance().vertex();
+      
+      o << "Layer 2: "
+       << std::setw(4) << -t.onLayer2() << "; " 
+  << std::setw(6) << std::setprecision(2) << vertex2.eta() << "; " 
+  << std::setw(6) << std::setprecision(2) << vertex2.phi() << "; " 
+  << std::setw(5) << std::setprecision(1) << vertex2.pt() << "; " 
+  << std::setw(6) << std::setprecision(1) << vertex2.z() << "; "
+  << std::setw(6) << std::setprecision(2) << t.layer2Entrance().pt() << "; " 
+  << std::setw(6) << std::setprecision(2) << t.layer2Entrance().e() << "; " << "\n\t\t";
+      
+    }
+    //if ( t.onEcal() ) { 
 
       XYZTLorentzVector vertex2 = t.ecalEntrance().vertex();
       
-      o << std::setw(4) << -t.onEcal() << " " 
-	<< std::setw(6) << std::setprecision(2) << vertex2.eta() << " " 
-	<< std::setw(6) << std::setprecision(2) << vertex2.phi() << " " 
-	<< std::setw(5) << std::setprecision(1) << vertex2.pt() << " " 
-	<< std::setw(6) << std::setprecision(1) << vertex2.z() << " "
-	<< std::setw(6) << std::setprecision(2) << t.ecalEntrance().pt() << " " 
-	<< std::setw(6) << std::setprecision(2) << t.ecalEntrance().e() << " ";
-    }
+      o << "ECAL: "
+       << std::setw(4) << -t.onEcal() << "; " 
+  << std::setw(6) << std::setprecision(2) << vertex2.eta() << "; " 
+  << std::setw(6) << std::setprecision(2) << vertex2.phi() << "; " 
+  << std::setw(5) << std::setprecision(1) << vertex2.pt() << "; " 
+  << std::setw(6) << std::setprecision(1) << vertex2.z() << "; "
+  << std::setw(6) << std::setprecision(2) << t.ecalEntrance().pt() << "; " 
+  << std::setw(6) << std::setprecision(2) << t.ecalEntrance().e() << "; " << "\n\t\t";
+    //}
+    //if ( t.onHcal() ) { 
+
+      vertex2 = t.hcalEntrance().vertex();
+      
+      o << "HCAL: "
+       << std::setw(4) << -t.onHcal() << "; " 
+  << std::setw(6) << std::setprecision(2) << vertex2.eta() << "; " 
+  << std::setw(6) << std::setprecision(2) << vertex2.phi() << "; " 
+  << std::setw(5) << std::setprecision(1) << vertex2.pt() << "; " 
+  << std::setw(6) << std::setprecision(1) << vertex2.z() << "; "
+  << std::setw(6) << std::setprecision(2) << t.hcalEntrance().pt() << "; " 
+  << std::setw(6) << std::setprecision(2) << t.hcalEntrance().e() << "; " << "\n\t\t";
+    //}
+    //if ( t.onVFcal() ) { 
+
+      vertex2 = t.vfcalEntrance().vertex();
+      
+      o << "VFCAL: "
+       << std::setw(4) << -t.onVFcal() << "; " 
+  << std::setw(6) << std::setprecision(2) << vertex2.eta() << "; " 
+  << std::setw(6) << std::setprecision(2) << vertex2.phi() << "; " 
+  << std::setw(5) << std::setprecision(1) << vertex2.pt() << "; " 
+  << std::setw(6) << std::setprecision(1) << vertex2.z() << "; "
+  << std::setw(6) << std::setprecision(2) << t.vfcalEntrance().pt() << "; " 
+  << std::setw(6) << std::setprecision(2) << t.vfcalEntrance().e() << "; " << "\n\t\t";
+    //}
   }
   return o;
 }

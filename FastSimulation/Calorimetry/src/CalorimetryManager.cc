@@ -222,6 +222,8 @@ void CalorimetryManager::reconstructTrack(FSimTrack& myTrack, RandomEngineAndDis
   if (debug_) {
     LogInfo("FastCalorimetry") << " ===> pid = "  << pid << std::endl;      
   }
+
+  //std::cout<<myTrack<<std::endl;
   
   
   // Check that the particle hasn't decayed

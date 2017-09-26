@@ -74,10 +74,10 @@ TreeWriterForEcalCorrection::analyze(const edm::Event& iEvent, const edm::EventS
   edm::Handle<edm::PCaloHitContainer> SimHitsES;
 
   // Finds out automatically, if this is fullsim or fastsim
-  bool isFastSim = iEvent.getByLabel( "famosSimHits", "EcalHitsEB", SimHitsEB );
+  bool isFastSim = iEvent.getByLabel( "fastSimProducer", "EcalHitsEB", SimHitsEB );
   if( isFastSim ) {
-    iEvent.getByLabel( "famosSimHits", "EcalHitsEE", SimHitsEE );
-    iEvent.getByLabel( "famosSimHits", "EcalHitsES", SimHitsES );
+    iEvent.getByLabel( "fastSimProducer", "EcalHitsEE", SimHitsEE );
+    iEvent.getByLabel( "fastSimProducer", "EcalHitsES", SimHitsES );
   } else {
     iEvent.getByLabel( "g4SimHits", "EcalHitsEB", SimHitsEB );
     iEvent.getByLabel( "g4SimHits", "EcalHitsEE", SimHitsEE );

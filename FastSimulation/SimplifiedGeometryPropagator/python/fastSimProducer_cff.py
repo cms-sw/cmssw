@@ -72,9 +72,6 @@ fastSimProducer = cms.EDProducer(
                 minMomentumCut = cms.double(0.1),
                 doHitsFromInboundParticles = cms.bool(False), # Track reconstruction not possible for those particles so hits do not have to be simulated
                 ),    
-            #dummyHits = cms.PSet(
-            #    className = cms.string("fastsim::DummyHitProducer")
-            #    ),
         ),
     Calorimetry = FamosCalorimetryBlock.Calorimetry,
     MaterialEffectsForMuonsInECAL = MaterialEffectsForMuonsInECALBlock.MaterialEffectsForMuonsInECAL,

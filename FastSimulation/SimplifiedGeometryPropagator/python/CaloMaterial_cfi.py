@@ -10,7 +10,6 @@ CaloMaterialBlock = cms.PSet(
     CaloMaterial = cms.PSet(
         maxRadius = cms.untracked.double(500.),
         maxZ = cms.untracked.double(1200.),
-        interactionModels = cms.untracked.vstring(),
         
         ######
         # The calorimetry

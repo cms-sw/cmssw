@@ -13,9 +13,6 @@ TrackerMaterialBlock = cms.PSet(
         maxZ = cms.untracked.double(325.),
         useTrackerRecoGeometryRecord = cms.untracked.bool(True),
         trackerAlignmentLabel = cms.untracked.string("MisAligned"),
-        interactionModels = cms.untracked.vstring(
-            _trackerMaterialInteractionModels #+ cms.untracked.vstring("dummyHits")
-        ),
 
         #############
         ### Hack to interface "old" calorimetry with "new" propagation in tracker
