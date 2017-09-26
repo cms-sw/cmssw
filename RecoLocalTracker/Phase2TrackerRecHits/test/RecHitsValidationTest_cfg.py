@@ -7,7 +7,7 @@ process = cms.Process('cluTest')
 # Import all the necessary files
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
