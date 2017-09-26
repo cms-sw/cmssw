@@ -28,7 +28,7 @@ supportedBtagInfos = [
     # C-Tagging tag infos
   , 'pfInclusiveSecondaryVertexFinderCvsLTagInfos'
   , 'pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos'
-    # DeepFlavour	
+    # DeepCSV
   , 'pfDeepCSVTagInfos'
   , 'pfDeepCSVNegativeTagInfos'
   , 'pfDeepCSVPositiveTagInfos'
@@ -38,7 +38,8 @@ supportedBtagInfos = [
   , 'pfDeepCMVAPositiveTagInfos'
     # TopTagInfos (unrelated to b tagging)
   , 'caTopTagInfos'
-  , 'pfDeepTagInfos'
+    # DeepFlavour tag infos
+  , 'pfDeepFlavourTagInfos'
   ]
 # extend for "internal use" in PAT/MINIAOD (renaming)
 supportedBtagInfos.append( 'caTopTagInfosPAT' )
