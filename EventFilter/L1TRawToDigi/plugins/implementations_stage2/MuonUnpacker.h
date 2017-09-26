@@ -23,8 +23,8 @@ namespace l1t {
             inline void setMuonCopy(const unsigned int copy) { muonCopy_ = copy; };
 
          private:
-            static const unsigned int nWords_ = 6; // every link transmits 6 words (3 muons) per bx
-            static const unsigned int bxzs_enable_shift_ = 1;
+	    static constexpr unsigned nWords_ = 6; // every link transmits 6 words (3 muons) per bx
+            static constexpr unsigned bxzs_enable_shift_ = 1;
 
             MuonBxCollection* res_;
             unsigned int algoVersion_;

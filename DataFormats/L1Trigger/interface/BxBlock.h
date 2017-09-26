@@ -27,13 +27,13 @@ namespace l1t {
                                      | ((flags_ & flags_mask) << flags_shift); };
 
       private:
-         static const unsigned int n_words = 6; // every link transmits 6 32 bit words per bx
-         static const unsigned int id_shift = 24;
-         static const unsigned int id_mask = 0xff;
-         static const unsigned int totalBx_shift = 16;
-         static const unsigned int totalBx_mask = 0xff;
-         static const unsigned int flags_shift = 0;
-         static const unsigned int flags_mask = 0xffff;
+         static constexpr unsigned n_words = 6; // every link transmits 6 32 bit words per bx
+         static constexpr unsigned id_shift = 24;
+         static constexpr unsigned id_mask = 0xff;
+         static constexpr unsigned totalBx_shift = 16;
+         static constexpr unsigned totalBx_mask = 0xff;
+         static constexpr unsigned flags_shift = 0;
+         static constexpr unsigned flags_mask = 0xffff;
 
          unsigned int id_;
          unsigned int totalBx_;
