@@ -128,7 +128,7 @@ tauMCTable = cms.EDProducer("CandMCMatchTableProducer",
     mcMapVisTau = cms.InputTag("tausMCMatchHadTauForTable"),                         
     objName = tauTable.name,
     objType = tauTable.name, #cms.string("Tau"),
-    branchName = cms.string("mcMatch"),
+    branchName = cms.string("genPart"),
     docString = cms.string("MC matching to status==2 taus"),
 )
 

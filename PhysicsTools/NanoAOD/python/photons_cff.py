@@ -125,7 +125,7 @@ photonMCTable = cms.EDProducer("CandMCMatchTableProducer",
     mcMap   = cms.InputTag("photonsMCMatchForTable"),
     objName = photonTable.name,
     objType = photonTable.name, #cms.string("Photon"),
-    branchName = cms.string("mcMatch"),
+    branchName = cms.string("genPart"),
     docString = cms.string("MC matching to status==1 photons or electrons"),
 )
 
