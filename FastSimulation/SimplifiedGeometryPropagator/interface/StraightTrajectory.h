@@ -36,7 +36,8 @@ namespace fastsim
 		//! Return delta time (t*c) of the next intersection of trajectory and barrel layer
     	/*!
     		This function solves the quadratic equation (basically intersection a circle with a given radius and a straight line) in order to calculate the moment in time when the particle's trajectory intersects with a given barrel layer.
-			If the radius of the helix is smaller than 5000cm a full analytic solution is calculated.
+			\param layer A barrel layer.
+			\param onLayer Specify if the particle already is on the layer (in that case the second solution has to be picked).
 			\return t*c [ns * cm/ns] of next intersection (-1 if there is none).
     	*/
 		double nextCrossingTimeC(const BarrelSimplifiedGeometry & layer, bool onLayer = 0) const override;

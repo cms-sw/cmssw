@@ -312,7 +312,7 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		// some part of the calorimetry but this is how the code works...
 	    // -----------------------------
 
-	    if(particle->position().Perp2() > 128.*128. || std::abs(particle->position().Z()) > 302.){
+	    if(particle->position().Perp2() >= 128.*128. || std::abs(particle->position().Z()) >= 302.){
 
 			LogDebug(MESSAGECATEGORY) << "\n   moving particle to calorimetry: " << *particle;
 

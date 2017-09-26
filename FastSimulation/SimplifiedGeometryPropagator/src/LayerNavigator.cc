@@ -104,7 +104,7 @@ bool fastsim::LayerNavigator::moveParticleToNextLayer(fastsim::Particle & partic
 		// assume barrel layers are ordered with increasing r
 		for(const auto & layer : geometry_->barrelLayers())
 		{
-			if(particle.isOnLayer(layer->isForward(), layer->index()) || layer->isOnSurface(particle.position())){
+			if(particle.isOnLayer(false, layer->index()) || std::abs(layer->getRadius() - particle.position().Rho()) < 1e-2){
 				if(particleMovesInwards){
 					nextBarrelLayer_ = layer.get();
 					break;
@@ -126,7 +126,7 @@ bool fastsim::LayerNavigator::moveParticleToNextLayer(fastsim::Particle & partic
 		//  layer.z > particle z (the closest layer with layer.z < particle.z will then be considered, too)
 		for(const auto & layer : geometry_->forwardLayers())
 		{
-			if(particle.isOnLayer(layer->isForward(), layer->index()) || layer->isOnSurface(particle.position())){
+			if(particle.isOnLayer(true, layer->index()) || std::abs(layer->getZ() - particle.position().Z()) < 1e-3){
 				if(particle.momentum().Z() < 0){
 					nextForwardLayer_ = layer.get();
 					break;
@@ -194,9 +194,6 @@ bool fastsim::LayerNavigator::moveParticleToNextLayer(fastsim::Particle & partic
     // move particle to first hit with one of the enclosing layers
     ////////////
     
-    // Possible improvement: for straight tracks you know in advance whether next or previous barrel layer will be hit: use that information
-
-    
     LogDebug(MESSAGECATEGORY) << "   particle between BarrelLayers: " << (previousBarrelLayer_ ? previousBarrelLayer_->index() : -1) << "/" << (nextBarrelLayer_ ? nextBarrelLayer_->index() : -1) << " (total: "<< geometry_->barrelLayers().size() <<")"
 			      << "\n   particle between ForwardLayers: " << (previousForwardLayer_ ? previousForwardLayer_->index() : -1) << "/" << (nextForwardLayer_ ? nextForwardLayer_->index() : -1) << " (total: "<< geometry_->forwardLayers().size() <<")";
     
@@ -247,6 +244,7 @@ bool fastsim::LayerNavigator::moveParticleToNextLayer(fastsim::Particle & partic
     double properDeltaTimeC = deltaTimeC / particle.gamma();
     if(!particle.isStable() && properDeltaTimeC > particle.remainingProperLifeTimeC())
     {
+    	// move particle in space, time and momentum until it decays
 		deltaTimeC = particle.remainingProperLifeTimeC() * particle.gamma();
 
 		trajectory->move(deltaTimeC);
@@ -255,19 +253,22 @@ bool fastsim::LayerNavigator::moveParticleToNextLayer(fastsim::Particle & partic
 
 		particle.setRemainingProperLifeTimeC(0.);
 
+		// particle no longer is on a layer
+    	particle.resetOnLayer();
 		LogDebug(MESSAGECATEGORY) << "    particle about to decay. Will not be moved all the way to the next layer.";
 		return 0;
     }
 
-    // move particle in space, time and momentum so it is on the next layer
     if(layer)
     {
+    	// move particle in space, time and momentum so it is on the next layer
     	trajectory->move(deltaTimeC);
 		particle.position() = trajectory->getPosition();
 		particle.momentum() = trajectory->getMomentum();
 
 		if(!particle.isStable()) particle.setRemainingProperLifeTimeC(particle.remainingProperLifeTimeC() - properDeltaTimeC);
 
+		// link the particle to the layer
 		particle.setOnLayer(layer->isForward(), layer->index());
 		LogDebug(MESSAGECATEGORY) << "    moved particle to layer: " << *layer;
     }else{

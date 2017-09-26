@@ -160,11 +160,11 @@ void fastsim::MultipleScattering::interact(fastsim::Particle & particle, const S
             particle.position().Y() * scalePos,
             particle.position().Z(),
             particle.position().T());
-    }
 
-    // Add a protection in case something goes wrong
-    if(!layer.isOnSurface(particle.position())){
-        throw cms::Exception("fastsim::MultipleScattering") << "particle no longer on layer's surface";
+        // Add a protection in case something goes wrong
+        if(std::abs(layer.getGeomProperty() - particle.position().Rho()) > 1e-2){
+            throw cms::Exception("fastsim::MultipleScattering") << "particle no longer on layer's surface";
+        }
     }
 }
 

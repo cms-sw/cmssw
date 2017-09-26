@@ -137,12 +137,6 @@ namespace fastsim
 		*/
 		virtual bool isForward() const = 0;
 
-		//! Check if a given position is on the layer.
-		/*!
-			Returns true if the particle is within an epsilon distance around the layer (numerical safety).
-		*/
-		virtual bool isOnSurface(const math::XYZTLorentzVector & position) const = 0;
-
 		//! Return the vector of all interaction models that are assigned with a layer.
 		/*!
 			This makes it easy to switch on/off some interactions for some layers.
@@ -163,9 +157,6 @@ namespace fastsim
 		double nuclearInteractionThicknessFactor_;  //!< Some layers have a different thickness for nuclear interactions.
 		std::vector<InteractionModel *> interactionModels_;  //!< Vector of all interaction models that are assigned with a layer.
 		CaloType caloType_; //!< Hack to interface "old" Calorimetry with "new" Tracker
-		
-		static constexpr double epsilonDistanceZ_ = 1.0e-3;  //!< Some epsilon distance in Z to check if particle is on forward layer
-		static constexpr double epsilonDistanceR_ = 1.0e-2;  //!< Some epsilon distance in R to check if particle is on barrel layer
     };
 
     std::ostream& operator << (std::ostream& os , const SimplifiedGeometry & layer);

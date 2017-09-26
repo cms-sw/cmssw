@@ -85,17 +85,6 @@ namespace fastsim{
 	  		\return true
 		*/
 		bool isForward() const override {return true;}
-		
-		//! Check if a given position is on the barrel layer.
-		/*!
-			Returns true if Z of the position and Z of the barrel layer agree within epsilon (numerical safety).
-			\param position A position.
-	  		\return Result of comparison.
-		*/
-		bool isOnSurface(const math::XYZTLorentzVector & position) const override
-		{
-		    return fabs(geomProperty_ - position.Z()) < epsilonDistanceZ_;
-		}
     };
 
 }
