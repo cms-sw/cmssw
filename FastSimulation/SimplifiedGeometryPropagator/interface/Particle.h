@@ -77,7 +77,7 @@ namespace fastsim
 		isOnLayerIndex_ = index;
 	}
 
-	//! Reset layer this particle is currently on
+	//! Reset layer this particle is currently on (i.e. particle is not on a layer anyomre)
 	void resetOnLayer(){
 		isOnLayerIndex_ = -1;
 	}
@@ -241,8 +241,8 @@ namespace fastsim
 	int simTrackIndex_;  //!< index of the simTrack
 	int simVertexIndex_;  //!< index of the origin vertex
 	int genParticleIndex_;  //!< index of the particle in the vector of genParticles (if applies)
-	bool isOnForwardLayer_;
-	int isOnLayerIndex_;
+	bool isOnForwardLayer_;  //!< the layer this particle is currently on: is it a ForwardLayer 
+	int isOnLayerIndex_;  //!< the layer this particle is currently on: the index of the layer
 	double energyDeposit_;  //!< energy deposit through ionization in the previous tracker layer
 	bool isLooper_;  //!< this particle is about to do a loop or momentum goes inwards
 	double motherDeltaR_;  //!< delta R to mother particle if both charged

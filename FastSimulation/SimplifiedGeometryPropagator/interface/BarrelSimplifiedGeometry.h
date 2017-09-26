@@ -91,17 +91,6 @@ namespace fastsim{
 		{ 
 		    return false;
 		}
-
-		//! Check if a given position is on the barrel layer.
-		/*!
-			Returns true if radius of the position and radius of the barrel layer agree within epsilon (numerical safety).
-			\param position A position.
-	  		\return Result of comparison.
-		*/
-		bool isOnSurface(const math::XYZTLorentzVector & position) const override
-		{
-		    return fabs(geomProperty_ - position.Rho()) < epsilonDistanceR_;
-		}
     };
 
 }
