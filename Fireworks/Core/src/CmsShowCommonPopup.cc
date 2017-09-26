@@ -19,6 +19,7 @@
 #include "Fireworks/Core/src/FWDialogBuilder.h"
 #include "Fireworks/Core/src/FWColorSelect.h"
 #include "Fireworks/Core/interface/FWViewEnergyScaleEditor.h"
+#include "Fireworks/Core/interface/FWViewEnergyScale.h"
 
 #include "Fireworks/Core/interface/FWParameterSetterEditorBase.h"
 
@@ -31,12 +32,12 @@
 CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, UInt_t w, UInt_t h) :
    TGTransientFrame(gClient->GetDefaultRoot(),p,w,h),
    m_common(model),
-   m_backgroundButton(0),
-   m_gammaSlider(0),
-   m_gammaButton(0),
-   m_colorRnrCtxHighlightWidget(0),
-   m_colorRnrCtxSelectWidget(0),
-   m_combo(0)
+   m_backgroundButton(nullptr),
+   m_gammaSlider(nullptr),
+   m_gammaButton(nullptr),
+   m_colorRnrCtxHighlightWidget(nullptr),
+   m_colorRnrCtxSelectWidget(nullptr),
+   m_combo(nullptr)
 {
    SetCleanup(kDeepCleanup);
 
@@ -59,7 +60,7 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
       TGLabel* xx = new TGLabel(vf2, "GlobalScales     ", fTextGC->GetGC());
       vf2->AddFrame(xx, new TGLayoutHints(kLHintsLeft, 2,2,4,4));
    }
-   FWViewEnergyScaleEditor* scaleEditor = new FWViewEnergyScaleEditor(m_common->m_energyScale.get(), vf2);
+   FWViewEnergyScaleEditor* scaleEditor = new FWViewEnergyScaleEditor(m_common->getEnergyScale(), vf2);
    vf2->AddFrame(scaleEditor);
    //==============================================================================
    // Projections
@@ -94,7 +95,7 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
       makeSetter(hf, &m_common->m_gamma);
    }
 
-   TGFont* smallFont = 0;
+   TGFont* smallFont = nullptr;
    FontStruct_t defaultFontStruct = m_backgroundButton->GetDefaultFontStruct();
    try
    { 
@@ -110,7 +111,7 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
 
 
    // color palette swapping
-   if (1) {
+   if (true) {
       const TGCompositeFrame* f = static_cast<const TGCompositeFrame*>(makeSetter(vf2, &m_common->m_palette));
       // MTXXXX combo is at(0) (label on right!) and there is a tgframeelement in between!
       // for (int i = 0; i < f->GetList()->GetEntries(); ++i)
@@ -185,8 +186,8 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
       vf2->AddFrame(xx, new TGLayoutHints(kLHintsLeft,2,2,8,0));
    }
 
-   TGHSlider* transpWidget2D = 0;
-   TGHSlider* transpWidget3D = 0;
+   TGHSlider* transpWidget2D = nullptr;
+   TGHSlider* transpWidget3D = nullptr;
    TGCompositeFrame* top  = new TGVerticalFrame(vf2);
    vf2->AddFrame(top, new TGLayoutHints(kLHintsNormal, 2, 2, 2, 0));
 
