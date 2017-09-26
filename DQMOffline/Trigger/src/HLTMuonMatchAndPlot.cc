@@ -502,7 +502,7 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
   bool passTriggerSS = false;
   if (ssPath){
     for ( unsigned int hltIndex = 0; hltIndex < numTriggers; ++hltIndex){
-      passTriggerSS = passTriggerSS ||  (trigNames.triggerName(hltIndex).find(nonSameSignPath) != std::string::npos && triggerResults->wasrun(hltIndex) && triggerResults->accept(hltIndex));
+      passTriggerSS = passTriggerSS ||  (trigNames.triggerName(hltIndex).substr(0,nonSameSignPath.size()) == nonSameSignPath && triggerResults->wasrun(hltIndex) && triggerResults->accept(hltIndex));
     }
 
     if (ssPath && targetMuons.size() > 1 && passTriggerSS){
