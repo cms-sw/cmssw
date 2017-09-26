@@ -100,6 +100,7 @@ namespace edm {
     friend class global::EDFilterBase;
     friend class limited::EDProducerBase;
     friend class limited::EDFilterBase;
+    friend class ProducerSourceBase;
     template<typename T> friend class stream::ProducingModuleAdaptorBase;
     
     template< typename P>

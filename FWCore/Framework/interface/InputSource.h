@@ -215,16 +215,16 @@ namespace edm {
     void doEndJob();
 
     /// Called by framework at beginning of lumi block
-    void doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext const*);
+    virtual void doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext const*);
 
     /// Called by framework at end of lumi block
-    void doEndLumi(LuminosityBlockPrincipal& lbp, bool cleaningUpAfterException, ProcessContext const*);
+    virtual void doEndLumi(LuminosityBlockPrincipal& lbp, bool cleaningUpAfterException, ProcessContext const*);
 
     /// Called by framework at beginning of run
-    void doBeginRun(RunPrincipal& rp, ProcessContext const*);
+    virtual void doBeginRun(RunPrincipal& rp, ProcessContext const*);
 
     /// Called by framework at end of run
-    void doEndRun(RunPrincipal& rp, bool cleaningUpAfterException, ProcessContext const*);
+    virtual void doEndRun(RunPrincipal& rp, bool cleaningUpAfterException, ProcessContext const*);
 
     /// Accessor for the current time, as seen by the input source
     Timestamp const& timestamp() const {return time_;}
@@ -400,10 +400,6 @@ namespace edm {
     virtual void setRun(RunNumber_t r);
     virtual void setLumi(LuminosityBlockNumber_t lb);
     virtual void rewind_();
-    virtual void beginLuminosityBlock(LuminosityBlock&);
-    virtual void endLuminosityBlock(LuminosityBlock&);
-    virtual void beginRun(Run&);
-    virtual void endRun(Run&);
     virtual void beginJob();
     virtual void endJob();
     virtual std::pair<SharedResourcesAcquirer*,std::recursive_mutex*> resourceSharedWithDelayedReader_();
