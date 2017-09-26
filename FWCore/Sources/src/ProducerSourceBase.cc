@@ -10,7 +10,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ExceptionHelpers.h"
 #include "FWCore/Sources/interface/ProducerSourceBase.h"
 
 namespace edm {
@@ -116,6 +119,38 @@ namespace edm {
     // initialize cannot be called from the constructor, because it is a virtual function
     // that needs to be invoked from a derived class if the derived class overrides it.
     initialize(eventID_, presentTime_, timeBetweenEvents_);
+  }
+
+  void
+  ProducerSourceBase::doBeginRun(RunPrincipal& rp, ProcessContext const* ) {
+    Run run(rp, moduleDescription(), nullptr);
+    run.setProducer(this);
+    callWithTryCatchAndPrint<void>( [this,&run](){ beginRun(run); }, "Calling Source::beginRun" );
+    commit_(run);
+  }
+  
+  void
+  ProducerSourceBase::doEndRun(RunPrincipal& rp, bool cleaningUpAfterException, ProcessContext const* ) {
+    Run run(rp, moduleDescription(), nullptr);
+    run.setProducer(this);
+    callWithTryCatchAndPrint<void>( [this,&run](){ endRun(run); }, "Calling Source::endRun", cleaningUpAfterException );
+    commit_(run);
+  }
+  
+  void
+  ProducerSourceBase::doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext const* ) {
+    LuminosityBlock lb(lbp, moduleDescription(), nullptr);
+    lb.setProducer(this);
+    callWithTryCatchAndPrint<void>( [this,&lb](){ beginLuminosityBlock(lb); }, "Calling Source::beginLuminosityBlock" );
+    commit_(lb);
+  }
+  
+  void
+  ProducerSourceBase::doEndLumi(LuminosityBlockPrincipal& lbp, bool cleaningUpAfterException, ProcessContext const* ) {
+    LuminosityBlock lb(lbp, moduleDescription(), nullptr);
+    lb.setProducer(this);
+    callWithTryCatchAndPrint<void>( [this,&lb](){ endLuminosityBlock(lb); }, "Calling Source::endLuminosityBlock", cleaningUpAfterException );
+    commit_(lb);
   }
 
   void
