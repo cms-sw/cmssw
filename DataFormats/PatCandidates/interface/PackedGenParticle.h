@@ -110,7 +110,18 @@ namespace pat {
     /// return mother at a given position (throws an exception)
     virtual const reco::Candidate * mother( size_type ) const;
     /// direct access to the mother reference (may be null)
-    const reco::GenParticleRef & motherRef() const { return mother_; }
+    reco::GenParticleRef motherRef() const { 
+	if(mother_.isNonnull() && mother_.isAvailable()&& mother_->status()==1 ){ //if pointing to the pruned version of myself
+   	  if(mother_->numberOfMothers() > 0) 
+	  	  return mother_->motherRef(0); // return my mother's (that is actually myself) mother
+	 	else
+		  return edm::Ref<reco::GenParticleCollection>(); // return null ref
+	} else { 
+	  return mother_; //the stored ref is really my mother, or null, return that
+	}
+    }
+    /// last surviving in pruned
+    const reco::GenParticleRef & lastPrunedRef() const { return mother_; }
 
     /// return daughter at a given position (throws an exception)
     virtual reco::Candidate * daughter( size_type );

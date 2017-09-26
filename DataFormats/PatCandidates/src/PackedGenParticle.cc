@@ -85,7 +85,7 @@ size_t pat::PackedGenParticle::numberOfDaughters() const {
 }
 
 size_t pat::PackedGenParticle::numberOfMothers() const { 
-  if(mother_.isNonnull())   return 1; 
+  if(motherRef().isNonnull())   return 1; 
   return 0;
 }
 
@@ -99,7 +99,7 @@ const reco::Candidate * pat::PackedGenParticle::daughter( size_type ) const {
 }
 
 const reco::Candidate * pat::PackedGenParticle::mother( size_type ) const {
-  return mother_.get();
+  return motherRef().get();
 }
 
 const reco::Candidate * pat::PackedGenParticle::daughter(const std::string&) const {
