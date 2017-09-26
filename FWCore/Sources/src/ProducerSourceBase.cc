@@ -23,7 +23,7 @@ namespace edm {
   
   ProducerSourceBase::ProducerSourceBase(ParameterSet const& pset,
 				       InputSourceDescription const& desc, bool realData) :
-      InputSource(pset, desc),
+      PuttableSourceBase(pset, desc),
       numberEventsInRun_(pset.getUntrackedParameter<unsigned int>("numberEventsInRun", remainingEvents())),
       numberEventsInLumi_(pset.getUntrackedParameter<unsigned int>("numberEventsInLuminosityBlock", remainingEvents())),
       presentTime_(pset.getUntrackedParameter<unsigned long long>("firstTime", 1ULL)),  //time in ns
@@ -48,11 +48,6 @@ namespace edm {
   }
 
   
-  void
-  ProducerSourceBase::registerProducts() {
-    registerProducts(this,&productRegistryUpdate(),moduleDescription());
-  }
-
   std::shared_ptr<RunAuxiliary>
   ProducerSourceBase::readRunAuxiliary_() {
     Timestamp ts = Timestamp(presentTime_);
@@ -102,71 +97,10 @@ namespace edm {
 
   void
   ProducerSourceBase::beginJob() {
-    auto r = productRegistry();
-    auto const runLookup = r->productLookup(InRun);
-    auto const lumiLookup = r->productLookup(InLumi);
-    auto const eventLookup = r->productLookup(InEvent);
-    auto const& processName = moduleDescription().processName();
-    auto const& moduleLabel = moduleDescription().moduleLabel();
-
-    auto const& runModuleToIndicies = runLookup->indiciesForModulesInProcess(processName);
-    auto const& lumiModuleToIndicies = lumiLookup->indiciesForModulesInProcess(processName);
-    auto const& eventModuleToIndicies = eventLookup->indiciesForModulesInProcess(processName);
-    resolvePutIndicies(InRun,runModuleToIndicies,moduleLabel);
-    resolvePutIndicies(InLumi,lumiModuleToIndicies,moduleLabel);
-    resolvePutIndicies(InEvent,eventModuleToIndicies,moduleLabel);
-
-    // initialize cannot be called from the constructor, because it is a virtual function
+    PuttableSourceBase::beginJob();
+    // Initialize cannot be called from the constructor, because it is a virtual function
     // that needs to be invoked from a derived class if the derived class overrides it.
     initialize(eventID_, presentTime_, timeBetweenEvents_);
-  }
-
-  void
-  ProducerSourceBase::doBeginRun(RunPrincipal& rp, ProcessContext const* ) {
-    Run run(rp, moduleDescription(), nullptr);
-    run.setProducer(this);
-    callWithTryCatchAndPrint<void>( [this,&run](){ beginRun(run); }, "Calling Source::beginRun" );
-    commit_(run);
-  }
-  
-  void
-  ProducerSourceBase::doEndRun(RunPrincipal& rp, bool cleaningUpAfterException, ProcessContext const* ) {
-    Run run(rp, moduleDescription(), nullptr);
-    run.setProducer(this);
-    callWithTryCatchAndPrint<void>( [this,&run](){ endRun(run); }, "Calling Source::endRun", cleaningUpAfterException );
-    commit_(run);
-  }
-  
-  void
-  ProducerSourceBase::doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext const* ) {
-    LuminosityBlock lb(lbp, moduleDescription(), nullptr);
-    lb.setProducer(this);
-    callWithTryCatchAndPrint<void>( [this,&lb](){ beginLuminosityBlock(lb); }, "Calling Source::beginLuminosityBlock" );
-    commit_(lb);
-  }
-  
-  void
-  ProducerSourceBase::doEndLumi(LuminosityBlockPrincipal& lbp, bool cleaningUpAfterException, ProcessContext const* ) {
-    LuminosityBlock lb(lbp, moduleDescription(), nullptr);
-    lb.setProducer(this);
-    callWithTryCatchAndPrint<void>( [this,&lb](){ endLuminosityBlock(lb); }, "Calling Source::endLuminosityBlock", cleaningUpAfterException );
-    commit_(lb);
-  }
-
-  void
-  ProducerSourceBase::beginRun(Run&) {
-  }
-
-  void
-  ProducerSourceBase::endRun(Run&) {
-  }
-
-  void
-  ProducerSourceBase::beginLuminosityBlock(LuminosityBlock&) {
-  }
-
-  void
-  ProducerSourceBase::endLuminosityBlock(LuminosityBlock&) {
   }
 
   void

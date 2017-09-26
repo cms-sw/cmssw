@@ -4,21 +4,20 @@
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Framework/interface/InputSource.h"
+#include "FWCore/Sources/interface/PuttableSourceBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
 
 #include <memory>
 
 namespace edm {
   class ParameterSet;
   class ParameterSetDescription;
-  class ProducerSourceBase : public InputSource, public ProducerBase {
+  class ProducerSourceBase : public PuttableSourceBase {
   public:
     explicit ProducerSourceBase(ParameterSet const& pset, InputSourceDescription const& desc, bool realData);
     ~ProducerSourceBase() noexcept(false) override;
@@ -37,10 +36,6 @@ namespace edm {
 
     static void fillDescription(ParameterSetDescription& desc);
     
-    using ProducerBase::resolvePutIndicies;
-    using ProducerBase::registerProducts;
-    void registerProducts() final;
-
   protected:
 
   private:
@@ -52,16 +47,6 @@ namespace edm {
     virtual size_t fileIndex() const;
     void beginJob() override;
     
-    void doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext const*) override;
-    void doEndLumi(LuminosityBlockPrincipal& lbp, bool cleaningUpAfterException, ProcessContext const*) override;
-    void doBeginRun(RunPrincipal& rp, ProcessContext const*) override;
-    void doEndRun(RunPrincipal& rp, bool cleaningUpAfterException, ProcessContext const*) override;
-    
-
-    virtual void beginRun(Run&);
-    virtual void endRun(Run&);
-    virtual void beginLuminosityBlock(LuminosityBlock&);
-    virtual void endLuminosityBlock(LuminosityBlock&);
     void readEvent_(EventPrincipal& eventPrincipal) override;
     std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
     std::shared_ptr<RunAuxiliary> readRunAuxiliary_() override;
