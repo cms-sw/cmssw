@@ -71,6 +71,20 @@ class FlatTable {
 
     double getAnyValue(unsigned int row, unsigned int column) const ;
 
+    class RowView {
+        public:
+            RowView() {}
+            RowView(const FlatTable & table, unsigned int row) : table_(&table), row_(row) {}
+            double getAnyValue(unsigned int column) const { return table_->getAnyValue(row_, column); }
+            double getAnyValue(const std::string & column) const { return table_->getAnyValue(row_, table_->columnIndex(column)); }
+            const FlatTable & table() const { return *table_; }
+            unsigned int row() const { return row_; }
+        private:
+            const FlatTable * table_;
+            unsigned int row_;
+    };
+    RowView row(unsigned int row) const { return RowView(*this, row); }
+
     template<typename T, typename C = std::vector<T>>
     void addColumn(const std::string & name, const C & values, const std::string & docString, ColumnType type = defaultColumnType<T>(),int mantissaBits=-1) {
         if (columnIndex(name) != -1) throw cms::Exception("LogicError", "Duplicated column: "+name); 

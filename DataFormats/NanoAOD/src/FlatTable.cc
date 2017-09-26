@@ -7,7 +7,7 @@ int nanoaod::FlatTable::columnIndex(const std::string & name) const {
     return -1;
 }
 
-void FlatTable::addExtension(const FlatTable & other) {
+void nanoaod::FlatTable::addExtension(const nanoaod::FlatTable & other) {
     if (extension() || !other.extension() || name() != other.name() || size() != other.size()) throw cms::Exception("LogicError", "Mismatch in adding extension");
     for (unsigned int i = 0, n = other.nColumns(); i < n; ++i) {
         switch(other.columnType(i)) {
@@ -25,8 +25,8 @@ void FlatTable::addExtension(const FlatTable & other) {
     }
 }
 
-double FlatTable::getAnyValue(unsigned int row, unsigned int column) const {
-    if (column == -1 || column >= nColumns)() throw cms::Exception("LogicError","Invalid column");
+double nanoaod::FlatTable::getAnyValue(unsigned int row, unsigned int column) const {
+    if (column >= nColumns()) throw cms::Exception("LogicError","Invalid column");
     switch(columnType(column)) {
         case FloatColumn:  return *(beginData<float>(column)+row);
         case IntColumn:  return *(beginData<int>(column)+row);
