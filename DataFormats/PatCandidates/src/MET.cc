@@ -16,11 +16,11 @@ MET::MET() {
 /// constructor from reco::MET
 MET::MET(const reco::MET & aMET) : PATObject<reco::MET>(aMET) {
     const reco::CaloMET * calo = dynamic_cast<const reco::CaloMET *>(&aMET);
-    if (calo != 0) caloMET_.push_back(calo->getSpecific());
+    if (calo != nullptr) caloMET_.push_back(calo->getSpecific());
     const reco::PFMET * pf = dynamic_cast<const reco::PFMET *>(&aMET);
-    if (pf != 0) pfMET_.push_back(pf->getSpecific());
+    if (pf != nullptr) pfMET_.push_back(pf->getSpecific());
     const pat::MET * pm = dynamic_cast<const pat::MET *>(&aMET);
-    if (pm != 0) this->operator=(*pm);
+    if (pm != nullptr) this->operator=(*pm);
 
     metSig_ =0.;
     chsMETpt_ =0.;
@@ -36,11 +36,11 @@ MET::MET(const reco::MET & aMET) : PATObject<reco::MET>(aMET) {
 /// constructor from ref to reco::MET
 MET::MET(const edm::RefToBase<reco::MET> & aMETRef) : PATObject<reco::MET>(aMETRef) {
     const reco::CaloMET * calo = dynamic_cast<const reco::CaloMET *>(aMETRef.get());
-    if (calo != 0) caloMET_.push_back(calo->getSpecific());
+    if (calo != nullptr) caloMET_.push_back(calo->getSpecific());
     const reco::PFMET * pf = dynamic_cast<const reco::PFMET *>(aMETRef.get());
-    if (pf != 0) pfMET_.push_back(pf->getSpecific());
+    if (pf != nullptr) pfMET_.push_back(pf->getSpecific());
     const pat::MET * pm = dynamic_cast<const pat::MET *>(aMETRef.get());
-    if (pm != 0) this->operator=(*pm);
+    if (pm != nullptr) this->operator=(*pm);
 
     metSig_ =0.;
     chsMETpt_ =0.;
@@ -55,11 +55,11 @@ MET::MET(const edm::RefToBase<reco::MET> & aMETRef) : PATObject<reco::MET>(aMETR
 /// constructor from ref to reco::MET
 MET::MET(const edm::Ptr<reco::MET> & aMETRef) : PATObject<reco::MET>(aMETRef) {
     const reco::CaloMET * calo = dynamic_cast<const reco::CaloMET *>(aMETRef.get());
-    if (calo != 0) caloMET_.push_back(calo->getSpecific());
+    if (calo != nullptr) caloMET_.push_back(calo->getSpecific());
     const reco::PFMET * pf = dynamic_cast<const reco::PFMET *>(aMETRef.get());
-    if (pf != 0) pfMET_.push_back(pf->getSpecific());
+    if (pf != nullptr) pfMET_.push_back(pf->getSpecific());
     const pat::MET * pm = dynamic_cast<const pat::MET *>(aMETRef.get());
-    if (pm != 0) this->operator=(*pm);
+    if (pm != nullptr) this->operator=(*pm);
 
     metSig_ =0.;
     chsMETpt_ = 0.;
@@ -144,7 +144,7 @@ MET& MET::operator=(MET const& iOther) {
 
 /// return the generated MET from neutrinos
 const reco::GenMET * MET::genMET() const {
-  return (genMET_.size() > 0 ? &genMET_.front() : 0 );
+  return (!genMET_.empty() ? &genMET_.front() : nullptr );
 }
 
 /// method to set the generated MET
@@ -320,7 +320,7 @@ MET::Vector2 MET::shiftedP2(MET::METUncertainty shift, MET::METCorrectionLevel c
   //backward compatibility with 74X samples -> the only one
   // with uncertaintiesType1_/uncertaintiesRaw_ not empty
   //will be removed once 74X is not used anymore
-  if(uncertaintiesType1_.size()!=0 || uncertaintiesRaw_.size()!=0) {
+  if(!uncertaintiesType1_.empty() || !uncertaintiesRaw_.empty()) {
     if(cor!=MET::METCorrectionLevel::RawCalo) {
       vo = shiftedP2_74x(shift, cor);
     } else {
@@ -343,7 +343,7 @@ MET::Vector MET::shiftedP3(MET::METUncertainty shift, MET::METCorrectionLevel co
   //backward compatibility with 74X samples -> the only one
   // with uncertaintiesType1_/uncertaintiesRaw_ not empty
   //will be removed once 74X is not used anymore
-  if(uncertaintiesType1_.size()!=0 || uncertaintiesRaw_.size()!=0) {
+  if(!uncertaintiesType1_.empty() || !uncertaintiesRaw_.empty()) {
     if(cor!=MET::METCorrectionLevel::RawCalo) {
       vo = shiftedP3_74x(shift, cor);
     } else {
@@ -366,7 +366,7 @@ MET::LorentzVector MET::shiftedP4(METUncertainty shift, MET::METCorrectionLevel 
   //backward compatibility with 74X samples -> the only one
   // with uncertaintiesType1_/uncertaintiesRaw_ not empty
   //will be removed once 74X is not used anymore
-  if(uncertaintiesType1_.size()!=0 || uncertaintiesRaw_.size()!=0) {
+  if(!uncertaintiesType1_.empty() || !uncertaintiesRaw_.empty()) {
     if(cor!=MET::METCorrectionLevel::RawCalo) {
       vo = shiftedP4_74x(shift, cor);
     } else {
@@ -391,7 +391,7 @@ double MET::shiftedSumEt(MET::METUncertainty shift, MET::METCorrectionLevel cor)
   //backward compatibility with 74X samples -> the only one
   // with uncertaintiesType1_/uncertaintiesRaw_ not empty
   //will be removed once 74X is not used anymore
-  if(uncertaintiesType1_.size()!=0 || uncertaintiesRaw_.size()!=0) {
+  if(!uncertaintiesType1_.empty() || !uncertaintiesRaw_.empty()) {
     if(cor!=MET::METCorrectionLevel::RawCalo) {
       sumEto = shiftedSumEt_74x(shift, cor);
     } else {

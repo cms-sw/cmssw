@@ -57,12 +57,12 @@ namespace pat {
       /// constructor for corrected METs (keeping specific informations from src MET)
       MET(const reco::MET & corMET, const MET& srcMET );
       /// destructor
-      virtual ~MET();
+      ~MET() override;
 
       MET& operator=(MET const&);
 
       /// required reimplementation of the Candidate's clone method
-      virtual MET * clone() const { return new MET(*this); }
+      MET * clone() const override { return new MET(*this); }
 
       // ---- methods for generated MET link ----
       /// return the associated GenMET
