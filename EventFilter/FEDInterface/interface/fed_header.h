@@ -1,7 +1,7 @@
 #ifndef EventFilter_FEDInterface_fed_header_h
 #define EventFilter_FEDInterface_fed_header_h
 
-#include <stdint.h>
+#include <cstdint>
 
 #ifdef __cplusplus
 extern "C" {
