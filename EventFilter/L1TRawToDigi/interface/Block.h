@@ -29,16 +29,16 @@ namespace l1t {
          uint32_t raw(block_t type=MP7) const;
 
       private:
-         static const unsigned int CTP7_shift = 0;
-         static const unsigned int CTP7_mask = 0xffff;
-         static const unsigned int ID_shift = 24;
-         static const unsigned int ID_mask = 0xff;
-         static const unsigned int size_shift = 16;
-         static const unsigned int size_mask = 0xff;
-         static const unsigned int capID_shift = 8;
-         static const unsigned int capID_mask = 0xff;
-         static const unsigned int flags_shift = 0;
-         static const unsigned int flags_mask = 0xff;
+         static constexpr unsigned CTP7_shift = 0;
+         static constexpr unsigned CTP7_mask = 0xffff;
+         static constexpr unsigned ID_shift = 24;
+         static constexpr unsigned ID_mask = 0xff;
+         static constexpr unsigned size_shift = 16;
+         static constexpr unsigned size_mask = 0xff;
+         static constexpr unsigned capID_shift = 8;
+         static constexpr unsigned capID_mask = 0xff;
+         static constexpr unsigned flags_shift = 0;
+         static constexpr unsigned flags_mask = 0xff;
 
          unsigned int id_;
          unsigned int size_;
@@ -109,13 +109,13 @@ namespace l1t {
          std::unique_ptr<Block> getBlock() override;
       private:
          // sizes in 16 bit words
-         static const unsigned int header_size = 12;
-         static const unsigned int counter_size = 4;
-         static const unsigned int trailer_size = 8;
+         static constexpr unsigned header_size = 12;
+         static constexpr unsigned counter_size = 4;
+         static constexpr unsigned trailer_size = 8;
 
          // maximum of the block length (64bits) and bit patterns of the
          // first bits (of 16bit words)
-         static const unsigned int max_block_length_ = 3;
+         static constexpr unsigned max_block_length_ = 3;
          static const std::vector<unsigned int> block_patterns_;
 
          int count(unsigned int pattern, unsigned int length) const;
@@ -129,8 +129,8 @@ namespace l1t {
          BlockHeader getHeader() override;
       private:
          // FIXME check values
-         static const unsigned int size_mask = 0xff;
-         static const unsigned int size_shift = 16;
+         static constexpr unsigned size_mask = 0xff;
+         static constexpr unsigned size_shift = 16;
 
          unsigned size_;
    };
