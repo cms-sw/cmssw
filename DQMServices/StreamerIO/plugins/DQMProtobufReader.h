@@ -7,13 +7,14 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Sources/interface/ProducerSourceBase.h"
+#include "FWCore/Sources/interface/PuttableSourceBase.h"
 
 #include "DQMFileIterator.h"
 #include "DQMMonitoringService.h"
 
 namespace dqmservices {
 
-class DQMProtobufReader : public edm::InputSource {
+class DQMProtobufReader : public edm::PuttableSourceBase {
  public:
   explicit DQMProtobufReader(edm::ParameterSet const&,
                              edm::InputSourceDescription const&);

@@ -11,7 +11,7 @@ using namespace dqmservices;
 
 DQMProtobufReader::DQMProtobufReader(edm::ParameterSet const& pset,
                                      edm::InputSourceDescription const& desc)
-    : InputSource(pset, desc), fiterator_(pset) {
+    : PuttableSourceBase(pset, desc), fiterator_(pset) {
 
   flagSkipFirstLumis_ = pset.getUntrackedParameter<bool>("skipFirstLumis");
   flagEndOfRunKills_ = pset.getUntrackedParameter<bool>("endOfRunKills");
