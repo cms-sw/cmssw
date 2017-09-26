@@ -187,12 +187,12 @@ namespace cms
     // FIX THIS! We only need to clear and (re)fill this map when the geometry type IOV changes.  Use ESWatcher to determine this.
     if(true) { // Replace with ESWatcher 
       detectorUnits.clear();
-      for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); ++iu) {
-        unsigned int detId = (*iu)->geographicalId().rawId();
-	if((*iu)->type().isTrackerPixel()) {
-          auto pixdet = dynamic_cast<const PixelGeomDetUnit*>((*iu));
+      for( const auto& iu : pDD->detUnits()) {
+        unsigned int detId = iu->geographicalId().rawId();
+	if(iu->type().isTrackerPixel()) {
+          auto pixdet = dynamic_cast<const PixelGeomDetUnit*>(iu);
           assert(pixdet != nullptr);
-	  if ((*iu)->subDetector()==GeomDetEnumerators::SubDetector::PixelEndcap) { // true ONLY for the phase 0 pixel deetctor
+	  if (iu->subDetector()==GeomDetEnumerators::SubDetector::PixelEndcap) { // true ONLY for the phase 0 pixel deetctor
 	    unsigned int disk = tTopo->layer(detId); // using the generic layer method
 	    //if using pilot blades, then allowing it for current detector only
 	    if ((disk == 3)&&((!pilotBlades)&&(NumberOfEndcapDisks == 2))) continue;
@@ -265,17 +265,17 @@ namespace cms
     }
     _pixeldigialgo->calculateInstlumiFactor(PileupInfo_);   
 
-    for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
+    for( const auto& iu : pDD->detUnits()) {
       
-      if((*iu)->type().isTrackerPixel()) {
+      if(iu->type().isTrackerPixel()) {
 
 	//
 
-        edm::DetSet<PixelDigi> collector((*iu)->geographicalId().rawId());
-        edm::DetSet<PixelDigiSimLink> linkcollector((*iu)->geographicalId().rawId());
+        edm::DetSet<PixelDigi> collector(iu->geographicalId().rawId());
+        edm::DetSet<PixelDigiSimLink> linkcollector(iu->geographicalId().rawId());
         
         
-        _pixeldigialgo->digitize(dynamic_cast<const PixelGeomDetUnit*>((*iu)),
+        _pixeldigialgo->digitize(dynamic_cast<const PixelGeomDetUnit*>(iu),
                                  collector.data,
                                  linkcollector.data,
 				 tTopo,
