@@ -144,7 +144,9 @@ namespace edm {
     ProducingModuleAdaptorBase<T>::resolvePutIndicies(BranchType iBranchType,
                             ModuleToResolverIndicies const& iIndicies,
                             std::string const& moduleLabel) {
-      m_streamModules[0]->resolvePutIndicies(iBranchType,iIndicies,moduleLabel);
+      for(auto mod: m_streamModules) {
+        mod->resolvePutIndicies(iBranchType,iIndicies,moduleLabel);
+      }
     }
 
 
