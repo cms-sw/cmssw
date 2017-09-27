@@ -20,10 +20,7 @@ HeavyIonUCCDQM::HeavyIonUCCDQM(const edm::ParameterSet& ps)
 	maxEt = ps.getParameter<double>("maxEt");
 }
 
-HeavyIonUCCDQM::~HeavyIonUCCDQM()
-{
-
-}
+HeavyIonUCCDQM::~HeavyIonUCCDQM() = default;
 
 
 void HeavyIonUCCDQM::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run const &, edm::EventSetup const &)

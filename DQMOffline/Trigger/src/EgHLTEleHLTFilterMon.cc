@@ -28,8 +28,8 @@ EleHLTFilterMon::EleHLTFilterMon(MonElemFuncs& monElemFuncs,const std::string& f
     eleMonElems_.push_back(new MonElemContainer<OffEle>("_posCharge"," q=+1 ",new ChargeCut<OffEle>(1)));
     eleMonElems_.push_back(new MonElemContainer<OffEle>("_negCharge"," q=-1 ",new ChargeCut<OffEle>(-1)));
   }
-  for(size_t i=0;i<eleMonElems_.size();i++){
-    monElemFuncs.initStdEleHists(eleMonElems_[i]->monElems(),filterName,filterName_+"_gsfEle_passFilter"+eleMonElems_[i]->name(),bins);
+  for(auto & eleMonElem : eleMonElems_){
+    monElemFuncs.initStdEleHists(eleMonElem->monElems(),filterName,filterName_+"_gsfEle_passFilter"+eleMonElem->name(),bins);
   }
   
   if(monHLTFailedEle){
@@ -51,11 +51,11 @@ EleHLTFilterMon::EleHLTFilterMon(MonElemFuncs& monElemFuncs,const std::string& f
   if(doTagAndProbe) eleEffHists_.push_back(new MonElemContainer<OffEle>("_tagProbe"," Tag and Probe ",new EgTagProbeCut<OffEle>(effProbeCutCode,&OffEle::cutCode,effTagCutCode,&OffEle::cutCode)));
   if(doFakeRate) eleEffHists_.push_back(new MonElemContainer<OffEle>("_fakeRate"," Fake Rate ",new EgJetTagProbeCut<OffEle>(fakeRateProbeCut,&OffEle::looseCutCode)));
   if(doN1andSingleEffs){
-    for(size_t i=0;i<eleEffHists_.size();i++){ 
-      monElemFuncs.initStdEffHists(eleEffHists_[i]->cutMonElems(),filterName,
-				    filterName_+"_gsfEle_effVsEt"+eleEffHists_[i]->name(),bins.et,&OffEle::et,masks);
-      monElemFuncs.initStdEffHists(eleEffHists_[i]->cutMonElems(),filterName,
-				    filterName_+"_gsfEle_effVsEta"+eleEffHists_[i]->name(),bins.eta,&OffEle::eta,masks); 
+    for(auto & eleEffHist : eleEffHists_){ 
+      monElemFuncs.initStdEffHists(eleEffHist->cutMonElems(),filterName,
+				    filterName_+"_gsfEle_effVsEt"+eleEffHist->name(),bins.et,&OffEle::et,masks);
+      monElemFuncs.initStdEffHists(eleEffHist->cutMonElems(),filterName,
+				    filterName_+"_gsfEle_effVsEta"+eleEffHist->name(),bins.eta,&OffEle::eta,masks); 
       /*  monElemFuncs.initStdEffHists(eleEffHists_[i]->cutMonElems(),filterName,
 	  filterName_+"_gsfEle_effVsPhi"+eleEffHists_[i]->name(),bins.phi,&OffEle::phi,masks); */
       // monElemFuncs.initStdEffHists(eleEffHists_[i]->cutMonElems(),filterName,
@@ -81,9 +81,9 @@ EleHLTFilterMon::EleHLTFilterMon(MonElemFuncs& monElemFuncs,const std::string& f
 
 EleHLTFilterMon::~EleHLTFilterMon()
 {
-  for(size_t i=0;i<eleMonElems_.size();i++) delete eleMonElems_[i];
-  for(size_t i=0;i<eleFailMonElems_.size();i++) delete eleFailMonElems_[i];
-  for(size_t i=0;i<eleEffHists_.size();i++) delete eleEffHists_[i];
+  for(auto & eleMonElem : eleMonElems_) delete eleMonElem;
+  for(auto & eleFailMonElem : eleFailMonElems_) delete eleFailMonElem;
+  for(auto & eleEffHist : eleEffHists_) delete eleEffHist;
   delete diEleMassBothME_;
   delete diEleMassOnlyOneME_;  
   delete diEleMassBothHighME_;
@@ -96,10 +96,10 @@ void EleHLTFilterMon::fill(const OffEvt& evt,float weight)
   for(size_t eleNr=0;eleNr<evt.eles().size();eleNr++){
     const OffEle& ele = evt.eles()[eleNr];
     if((ele.trigBits()&filterBit_)!=0){ //ele passes
-      for(size_t monElemNr=0;monElemNr<eleMonElems_.size();monElemNr++) eleMonElems_[monElemNr]->fill(ele,evt,weight);
-      for(size_t monElemNr=0;monElemNr<eleEffHists_.size();monElemNr++) eleEffHists_[monElemNr]->fill(ele,evt,weight);
+      for(auto & eleMonElem : eleMonElems_) eleMonElem->fill(ele,evt,weight);
+      for(auto & eleEffHist : eleEffHists_) eleEffHist->fill(ele,evt,weight);
     }else { //ele didnt pass trigger
-      for(size_t monElemNr=0;monElemNr<eleFailMonElems_.size();monElemNr++) eleFailMonElems_[monElemNr]->fill(ele,evt,weight);
+      for(auto & eleFailMonElem : eleFailMonElems_) eleFailMonElem->fill(ele,evt,weight);
     }
   }//end loop over electrons
 
