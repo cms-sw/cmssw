@@ -33,8 +33,11 @@ from RecoHI.HiEvtPlaneAlgos.HiEvtPlane_cfi import *
 from RecoMET.METProducers.hcalnoiseinfoproducer_cfi import *
 hcalnoise.trackCollName = 'hiGeneralTracks'
 
+from RecoLocalCalo.Configuration.hcalGlobalReco_cff import *
+
 # Global + High-Level Reco Sequence
 globalRecoPbPb = cms.Sequence(hiTracking_wSplitting
+                              * hcalGlobalRecoSequence
                               * hiParticleFlowLocalReco
                               * hiEcalClusters
                               * hiRecoJets
