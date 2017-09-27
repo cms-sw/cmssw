@@ -7,6 +7,8 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/PulseShapeFitOOTPileupCorrection.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalDeterministicFit.h"
 
+#include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
+
 // Phase 1 HBHE reco algorithm headers
 #include "RecoLocalCalo/HcalRecAlgos/interface/SimpleHBHEPhase1Algo.h"
 
@@ -59,12 +61,17 @@ parseHBHEMethod2Description(const edm::ParameterSet& conf)
     const double iTMax =             conf.getParameter<double>("timeMax");
     const std::vector<double> its4Chi2 =           conf.getParameter<std::vector<double>>("ts4chi2");
     const int iFitTimes =            conf.getParameter<int>   ("fitTimes");
-
     if (iTimeConstraint) assert(iTimeSigHPD);
     if (iTimeConstraint) assert(iTimeSigSiPM);
 
+    /////////////////////
+    //Sorry for this
+    //-C.Madrid
+    ////////////////////
+    hcalTimeSlew_delay_ = new HcalTimeSlew(); 
+
     std::unique_ptr<PulseShapeFitOOTPileupCorrection> corr =
-        std::make_unique<PulseShapeFitOOTPileupCorrection>();
+      std::make_unique<PulseShapeFitOOTPileupCorrection>(hcalTimeSlew_delay_);
 
     corr->setPUParams(iPedestalConstraint, iTimeConstraint, iAddPulseJitter,
                       iApplyTimeSlew, iTS4Min, iTS4Max,
