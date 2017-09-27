@@ -54,13 +54,13 @@ interestingTrackEcalDetIds.TrackCollection = "hiGeneralTracks"
 globalRecoPbPb = cms.Sequence(hiTracking_wSplitting
                               * hcalGlobalRecoSequence
                               * hiParticleFlowLocalReco
-                              * egammaHighLevelRecoPostPF
                               * hiEcalClusters
                               * hiRecoJets
                               * muonRecoPbPb
                               * hiElectronSequence 
                               * hiEgammaSequence
                               * hiParticleFlowReco
+                              * egammaHighLevelRecoPostPF
                               * hiCentrality
                               #* centralityBin  # temporarily removed
                               * hiClusterCompatibility
