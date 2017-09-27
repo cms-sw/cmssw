@@ -28,7 +28,7 @@ namespace edmtest {
     produces<Thing>("event");
     produces<Thing, edm::Transition::BeginLuminosityBlock>("beginLumi");
     produces<Thing, edm::Transition::EndLuminosityBlock>("endLumi");
-    produces<Thing, edm::Transition::BeginLuminosityBlock>("beginRun");
+    produces<Thing, edm::Transition::BeginRun>("beginRun");
     produces<Thing, edm::Transition::EndRun>("endRun");
 
     produces<ThingWithMerge>("event");
