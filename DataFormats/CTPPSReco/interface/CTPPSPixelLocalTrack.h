@@ -131,7 +131,7 @@ class CTPPSPixelLocalTrack
     inline float getChiSquared() const { return chiSquared_; }
 
     inline float getChiSquaredOverNDF() const { 
-      if(numberOfPointUsedForFit_<= 2.) return -999.;
+      if(numberOfPointUsedForFit_<= dimension/2) return -999.;
       else return chiSquared_ / (2*numberOfPointUsedForFit_ - dimension); 
     }
 
