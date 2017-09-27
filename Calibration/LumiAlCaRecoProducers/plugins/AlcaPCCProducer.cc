@@ -60,7 +60,7 @@ AlcaPCCProducer::AlcaPCCProducer(const edm::ParameterSet& iConfig)
 
     countLumi_ = 0;
 
-    produces<reco::PixelClusterCounts, edm::InLumi>(trigstring_);
+    produces<reco::PixelClusterCounts, edm::Transition::EndLuminosityBlock>(trigstring_);
     pixelToken=consumes<edmNew::DetSetVector<SiPixelCluster> >(fPixelClusterLabel);
 }
 
