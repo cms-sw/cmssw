@@ -17,6 +17,8 @@
 #include "SimDataFormats/EcalTestBeam/interface/PEcalTBInfo.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
+#include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
+
 HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet& ps, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
   theParameterMap(new HcalTBSimParameterMap(ps)), 
   theHcalShape(new HcalShape()),
@@ -49,7 +51,12 @@ HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet& ps, edm::stream:
   bool doTimeSlew = ps.getParameter<bool>("doTimeSlew");
   if(doTimeSlew) {
     // no time slewing for HF
-    theTimeSlewSim = new HcalTimeSlewSim(theParameterMap,minFCToDelay);
+    //////////////////////////
+    //Sorry for this
+    //C.Madrid
+    //////////////////////////
+    const HcalTimeSlew* hcalTimeSlew_delay = new HcalTimeSlew();
+    theTimeSlewSim = new HcalTimeSlewSim(theParameterMap,minFCToDelay,hcalTimeSlew_delay);
     theAmplifier->setTimeSlewSim(theTimeSlewSim);
   }
 

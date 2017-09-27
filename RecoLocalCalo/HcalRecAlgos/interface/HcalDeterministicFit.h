@@ -15,7 +15,7 @@
 
 class HcalDeterministicFit {
  public:
-  HcalDeterministicFit();
+  HcalDeterministicFit(const HcalTimeSlew* hcalTimeSlew_delay);
   ~HcalDeterministicFit();
 
   enum FType {shapeLandau, shape205, shape206, shape207};
@@ -37,6 +37,8 @@ class HcalDeterministicFit {
   HcalTimeSlew::BiasSetting fTimeSlewBias;
   PedestalSub fPedestalSubFxn_;
   bool applyTimeSlew_;
+
+  const HcalTimeSlew* hcalTimeSlew_delay_;
 
   double fpars[9];
   double frespCorr;
