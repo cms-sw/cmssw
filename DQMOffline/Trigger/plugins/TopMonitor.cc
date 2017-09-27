@@ -593,11 +593,11 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     for ( auto const & e : *eleHandle ) {
       const auto el = eleHandle->ptrAt(index);  //ATHER                                                                                                                                                                                   
       bool pass_id = (*eleIDHandle)[el];   //ATHER                                                                                                                                                                                         
+      index++;  //ATHER
       if (eleSelection_(e) && pass_id) electrons.push_back(e); //ATHER
       //Suvankar
       if ( usePVcuts_ &&
 	   (std::fabs(e.gsfTrack()->dxy(pv->position())) >= lepPVcuts_.dxy || std::fabs(e.gsfTrack()->dz(pv->position())) >= lepPVcuts_.dz) ) continue;
-      index++;  //ATHER
     }
     if ( electrons.size() < nelectrons_ ) return;
   }
