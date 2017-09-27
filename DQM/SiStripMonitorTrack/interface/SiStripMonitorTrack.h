@@ -143,7 +143,7 @@ private:
   );
 
   bool fillControlViewHistos(const edm::Event& ev, const edm::EventSetup& es);
-  void return2DME(MonitorElement* input, int binx, int biny, double value);
+  void return2DME(MonitorElement* input1,MonitorElement* input2, int binx, int biny, double value);
 
   // fill monitorables
 //  void fillModMEs(SiStripClusterInfo* cluster,std::string name, float cos, const uint32_t detid, const LocalVector LV);
@@ -303,6 +303,15 @@ private:
   MonitorElement* ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TOB    = 0;
   MonitorElement* ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECM   = 0;
   MonitorElement* ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP   = 0;
+  
+  MonitorElement* ClusterCount_OnTrack_FECCratevsFECSlot = 0;
+  MonitorElement* ClusterCount_OnTrack_FECSlotVsFECRing_TIBTID = 0;
+  MonitorElement* ClusterCount_OnTrack_FECSlotVsFECRing_TOB    = 0;
+  MonitorElement* ClusterCount_OnTrack_FECSlotVsFECRing_TECM   = 0;
+  MonitorElement* ClusterCount_OnTrack_FECSlotVsFECRing_TECP   = 0;
+  
+  
+  
 
 
 };

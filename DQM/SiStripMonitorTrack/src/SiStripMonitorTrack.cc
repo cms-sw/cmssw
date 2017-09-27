@@ -64,6 +64,7 @@ SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf):
 SiStripMonitorTrack::~SiStripMonitorTrack() {
   if (dcsStatus_) delete dcsStatus_;
   if (genTriggerEventFlag_) delete genTriggerEventFlag_;
+  
 }
 
 //------------------------------------------------------------------------
@@ -322,7 +323,44 @@ ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TIBTID =
     ibooker.book2D("ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP","TEC- [FECCrate=2] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
   ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP->setAxisTitle("FEC Ring",1);
   ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP->setAxisTitle("FEC Slot",2);
+  
+  //----------------------------------------
+  // for conting the number of clusters, for the mean S/N calculation
+   //book control view plots
+ 
+  ClusterCount_OnTrack_FECCratevsFECSlot =
+    ibooker.book2D("ClusterCount_OnTrack_FECCratevsFECSlot"," S/N (On track)",22,0.5,22.5,4,0.5,4.5);
+  ClusterCount_OnTrack_FECCratevsFECSlot->setAxisTitle("FEC Slot",1);
+  ClusterCount_OnTrack_FECCratevsFECSlot->setAxisTitle("FEC Crate (TTC partition)",2);
+  ClusterCount_OnTrack_FECCratevsFECSlot->setBinLabel(1,"TIB/TID",2);
+  ClusterCount_OnTrack_FECCratevsFECSlot->setBinLabel(2,"TEC+",2);
+  ClusterCount_OnTrack_FECCratevsFECSlot->setBinLabel(3,"TEC-",2);
+  ClusterCount_OnTrack_FECCratevsFECSlot->setBinLabel(4,"TOB",2);
 
+ClusterCount_OnTrack_FECSlotVsFECRing_TIBTID =
+  ibooker.book2D("ClusterCount_OnTrack_FECSlotVsFECRing_TIBTID","TIB/TID [FECCrate=1] (OnTrack)",10,-0.5,9.5,22,0.5,22.5)\
+  ;
+ ClusterCount_OnTrack_FECSlotVsFECRing_TIBTID->setAxisTitle("FEC Ring",1);
+ ClusterCount_OnTrack_FECSlotVsFECRing_TIBTID->setAxisTitle("FEC Slot",2);
+
+  ClusterCount_OnTrack_FECSlotVsFECRing_TOB =
+    ibooker.book2D("ClusterCount_OnTrack_FECSlotVsFECRing_TOB","TOB [FECCrate=4] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
+  ClusterCount_OnTrack_FECSlotVsFECRing_TOB->setAxisTitle("FEC Ring",1);
+  ClusterCount_OnTrack_FECSlotVsFECRing_TOB->setAxisTitle("FEC Slot",2);
+
+  ClusterCount_OnTrack_FECSlotVsFECRing_TECM =
+    ibooker.book2D("ClusterCount_OnTrack_FECSlotVsFECRing_TECM","TEC- [FECCrate=3] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
+  ClusterCount_OnTrack_FECSlotVsFECRing_TECM->setAxisTitle("FEC Ring",1);
+  ClusterCount_OnTrack_FECSlotVsFECRing_TECM->setAxisTitle("FEC Slot",2);
+
+  ClusterCount_OnTrack_FECSlotVsFECRing_TECP =
+    ibooker.book2D("ClusterCount_OnTrack_FECSlotVsFECRing_TECP","TEC- [FECCrate=2] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
+  ClusterCount_OnTrack_FECSlotVsFECRing_TECP->setAxisTitle("FEC Ring",1);
+  ClusterCount_OnTrack_FECSlotVsFECRing_TECP->setAxisTitle("FEC Slot",2);
+  
+  
+  
+  
 }
 
 //--------------------------------------------------------------------------------
@@ -1259,45 +1297,57 @@ bool SiStripMonitorTrack::fillControlViewHistos(const edm::Event& ev, const edm:
         //int binccuchan  = getFedChanConnections[i0]->ccuChan(); //will be used in a new PR
         //int binccuadd   = getFedChanConnections[i0]->ccuAddr(); //will be used in a new PR
 
-        return2DME(ClusterStoNCorr_OnTrack_FECCratevsFECSlot,binfecslot,binfeccrate,sovn);
+        return2DME(ClusterStoNCorr_OnTrack_FECCratevsFECSlot,ClusterCount_OnTrack_FECCratevsFECSlot, binfecslot,binfeccrate,sovn);
 
 	// TIB/TID
 	//        if ((sistripsubdet.find("TIB")) || (sistripsubdet.find("TID"))) {
         if ((DetId(thedetid).subdetId()==SiStripDetId::TIB) || ((DetId(thedetid).subdetId()==SiStripDetId::TID)) ) {
 	  ClusterStoNCorr_OnTrack_TIBTID->Fill(sovn);
-          return2DME(ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TIBTID,binfecring,binfecslot,sovn);
+          return2DME(ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TIBTID, ClusterCount_OnTrack_FECSlotVsFECRing_TIBTID, binfecring,binfecslot,sovn);
         }
 
 	// TOB
         if ( DetId(thedetid).subdetId()==SiStripDetId::TOB ) {
           ClusterStoNCorr_OnTrack_TOB->Fill(sovn);
-          return2DME(ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TOB,binfecring,binfecslot,sovn);
+          return2DME(ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TOB,ClusterCount_OnTrack_FECSlotVsFECRing_TOB,binfecring,binfecslot,sovn);
         }
 
         // TECM
         if ( (DetId(thedetid).subdetId()==SiStripDetId::TEC) && (tTopo->tecSide(thedetid)==1) ) {
           ClusterStoNCorr_OnTrack_TECM->Fill(sovn);
-          return2DME(ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECM,binfecring,binfecslot,sovn);
+          return2DME(ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECM,ClusterCount_OnTrack_FECSlotVsFECRing_TECM,binfecring,binfecslot,sovn);
         }
 
 	// TECP
         if ( (DetId(thedetid).subdetId()==SiStripDetId::TEC) && (tTopo->tecSide(thedetid)==2) ) {
           ClusterStoNCorr_OnTrack_TECP->Fill(sovn);
-          return2DME(ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP,binfecring,binfecslot,sovn);
+          return2DME(ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP,ClusterCount_OnTrack_FECSlotVsFECRing_TECP, binfecring,binfecslot,sovn);
         }
 
       } // end of looping over the fed chan connections
     } // end of looping over the rechits of the track
   } // end of looping over the tracks
-
+  
+  
+  
+  
   return true;
 }
 
 
-void SiStripMonitorTrack::return2DME(MonitorElement* input, int binx, int biny, double value) {
+void SiStripMonitorTrack::return2DME(MonitorElement* input1, MonitorElement* input2, int binx, int biny, double value) {
 
-  if (input->getBinContent(binx,biny)==0.) { input->setBinContent(binx,biny,value); }
-  else { input->setBinContent(binx,biny,((input->getBinContent(binx,biny)+value)/2.)); }
+  if (input1->getBinContent(binx,biny)==0.) { 
+    input1->setBinContent(binx,biny,value); 
+    input2->setBinContent(binx,biny,1);
+  }
+  else { 
+    double nentries = input2->getBinContent(binx,biny);
+    double theMeanSoN = (input1->getBinContent(binx,biny)*nentries + value)/(nentries+1);
+    //input1->setBinContent(binx,biny,((input1->getBinContent(binx,biny)+value)/2.)); 
+    input1->setBinContent(binx,biny,  theMeanSoN ); 
+    input2->setBinContent(binx,biny, input2->getBinContent(binx,biny)+1 );
+  }
 
 }
 
