@@ -82,12 +82,12 @@ pat::PATGenJetSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
     for (View<reco::GenJet>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
 
 	bool selectedLoose = false;
-	if ( nLoose_ > 0 && cutLoose_(*it) ) {
+	if ( nLoose_ > 0 && nl < nLoose_ && cutLoose_(*it) ) {
 	  selectedLoose = true;
 	  ++nl;
 	}
 
-	bool pass = cut_(*it) || ( nl <= nLoose_ && selectedLoose );
+	bool pass = cut_(*it) || selectedLoose;
         if (!pass ) {
             mapping->push_back(-1);
             continue;
