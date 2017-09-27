@@ -45,7 +45,6 @@
 
 //ATHER                                                                                                                                                                                                            
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
 class GenericTriggerEventFlag;
 
