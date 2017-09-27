@@ -33,13 +33,13 @@ ________________________________________________________________**/
 class AlcaPCCProducer : public edm::one::EDProducer<edm::EndLuminosityBlockProducer,edm::one::WatchLuminosityBlocks>{
   public:
     explicit AlcaPCCProducer(const edm::ParameterSet&);
-    ~AlcaPCCProducer();
+    ~AlcaPCCProducer() override;
 
   private:
-    virtual void beginLuminosityBlock     (edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) ;
-    virtual void endLuminosityBlock       (edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) ;
-    virtual void endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) ;
-    virtual void produce                  (edm::Event& iEvent, const edm::EventSetup& iSetup) ;
+    void beginLuminosityBlock     (edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) override ;
+    void endLuminosityBlock       (edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) override ;
+    void endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) override ;
+    void produce                  (edm::Event& iEvent, const edm::EventSetup& iSetup) override ;
  
     edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> >  pixelToken;
     edm::InputTag   fPixelClusterLabel;
