@@ -300,3 +300,6 @@ higgsMonitorHLT = cms.Sequence(
   + mssmHbbBtagTriggerMonitor 
   + mssmHbbMonitorHLT 
 )
+
+higHLTDQMSourceExtra = cms.Sequence(
+)
