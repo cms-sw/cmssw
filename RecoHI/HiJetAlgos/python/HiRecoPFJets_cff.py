@@ -6,7 +6,7 @@ from RecoHI.HiJetAlgos.HiPFJetParameters_cff import *
 
 #pseudo towers for noise suppression background subtraction
 PFTowers = cms.EDProducer("ParticleTowerProducer",
-                          src = cms.InputTag("particleFlowTmp"),
+                          src = cms.InputTag("particleFlow"),
                           useHF = cms.bool(False)
                           )
 
@@ -20,7 +20,7 @@ ak5PFJets = cms.EDProducer(
     jetAlgorithm = cms.string("AntiKt"),
     rParam       = cms.double(0.5)
     )
-ak5PFJets.src = cms.InputTag('particleFlowTmp')
+ak5PFJets.src = cms.InputTag('particleFlow')
 
 akPu5PFJets = ak5PFJets.clone(
     jetType = cms.string('BasicJet'),

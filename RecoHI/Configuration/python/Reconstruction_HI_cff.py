@@ -35,10 +35,26 @@ hcalnoise.trackCollName = 'hiGeneralTracks'
 
 from RecoLocalCalo.Configuration.hcalGlobalReco_cff import *
 
+#post PF egamma stuff
+from RecoHI.HiEgammaAlgos.HiEgammaPostPF_cff import *
+
+from RecoHI.HiJetAlgos.HiRecoPFJets_cff import *
+
+#reduced rechits
+from RecoEcal.EgammaClusterProducers.reducedRecHitsSequence_cff import *
+from RecoEcal.EgammaCoreTools.EcalNextToDeadChannelESProducer_cff import *
+
+
+from RecoLocalCalo.HcalRecProducers.HcalHitSelection_cfi import *
+reducedHcalRecHitsSequence = cms.Sequence( reducedHcalRecHits )
+reducedRecHits = cms.Sequence ( reducedEcalRecHitsSequence * reducedHcalRecHitsSequence )
+interestingTrackEcalDetIds.TrackCollection = "hiGeneralTracks"
+
 # Global + High-Level Reco Sequence
 globalRecoPbPb = cms.Sequence(hiTracking_wSplitting
                               * hcalGlobalRecoSequence
                               * hiParticleFlowLocalReco
+                              * egammaHighLevelRecoPostPF
                               * hiEcalClusters
                               * hiRecoJets
                               * muonRecoPbPb
@@ -51,6 +67,9 @@ globalRecoPbPb = cms.Sequence(hiTracking_wSplitting
                               * hiEvtPlane
                               * hcalnoise
                               * muonRecoHighLevelPbPb
+                              * particleFlowLinks
+                              * hiRecoPFJets
+                              * reducedRecHits
                               )
 globalRecoPbPb_wPhase1 = globalRecoPbPb.copy()
 globalRecoPbPb_wPhase1.replace(hiTracking_wSplitting, hiTracking_wSplitting_Phase1)
@@ -66,12 +85,16 @@ globalRecoPbPb_wConformalPixel = cms.Sequence(hiTracking_wConformalPixel
                                               * hiElectronSequence
                                               * hiEgammaSequence
                                               * hiParticleFlowReco
+                                              * egammaHighLevelRecoPostPF
                                               * hiCentrality
                                               #* centralityBin  # temporarily removed 
                                               * hiClusterCompatibility
                                               * hiEvtPlane
                                               * hcalnoise
                                               * muonRecoHighLevelPbPb
+                                              * particleFlowLinks
+                                              * hiRecoPFJets
+                                              * reducedRecHits
                                               )
 
 #--------------------------------------------------------------------------
