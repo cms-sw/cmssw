@@ -382,7 +382,7 @@ namespace edm {
   template<typename PROD>
   OrphanHandle<PROD>
   Event::put(std::unique_ptr<PROD> product, std::string const& productInstanceName) {
-    if(unlikely(product.get() == 0)) {                // null pointer is illegal
+    if(unlikely(product.get() == nullptr)) {                // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct("Event", typeID, productInstanceName);
     }
