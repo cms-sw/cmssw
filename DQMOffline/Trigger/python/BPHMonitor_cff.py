@@ -813,3 +813,6 @@ bphMonitorHLT = cms.Sequence(
     tau3MuMonitorHLT    
 )
 
+bphHLTDQMSourceExtra = cms.Sequence(
+)
+

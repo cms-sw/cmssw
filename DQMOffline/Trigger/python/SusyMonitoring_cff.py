@@ -184,3 +184,6 @@ susyMonitorHLT = cms.Sequence(
   + double_soft_muon_backup_90_mhtpt
   + susyMuEGMonitoring 
 )
+
+susHLTDQMSourceExtra = cms.Sequence(
+)

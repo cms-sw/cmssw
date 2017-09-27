@@ -164,3 +164,7 @@ egmTrackingMonitorHLT = cms.Sequence(
 #    + iter2HPForElectronsTracksMonitoringHLT
     + iterHLTTracksForElectronsMonitoringHLT
 )
+
+
+trkHLTDQMSourceExtra = cms.Sequence(
+)

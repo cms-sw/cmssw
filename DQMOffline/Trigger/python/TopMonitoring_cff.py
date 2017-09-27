@@ -631,3 +631,6 @@ topMonitorHLT = cms.Sequence(
     + fullyhadronic_DoubleBTag_DeepCSV_jet
     + fullyhadronic_DoubleBTag_DeepCSV_bjet
     )
+
+topHLTDQMSourceExtra = cms.Sequence(
+)
