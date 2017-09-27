@@ -101,8 +101,8 @@ ExpressLumiProducer::
 ExpressLumiProducer::ExpressLumiProducer(const edm::ParameterSet& iConfig):m_cachedrun(0),m_isNullRun(false),m_cachesize(0)
 {
   // register your products
-  produces<LumiSummary, edm::InLumi>();
-  produces<LumiDetails, edm::InLumi>();
+  produces<LumiSummary, edm::Transition::BeginLuminosityBlock>();
+  produces<LumiDetails, edm::Transition::BeginLuminosityBlock>();
   // set up cache
   m_connectStr=iConfig.getParameter<std::string>("connect");
   m_cachesize=iConfig.getUntrackedParameter<unsigned int>("ncacheEntries",5);

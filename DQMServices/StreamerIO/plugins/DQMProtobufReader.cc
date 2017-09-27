@@ -18,8 +18,8 @@ DQMProtobufReader::DQMProtobufReader(edm::ParameterSet const& pset,
   flagDeleteDatFiles_ = pset.getUntrackedParameter<bool>("deleteDatFiles");
   flagLoadFiles_ = pset.getUntrackedParameter<bool>("loadFiles");
 
-  produces<std::string, edm::InLumi>("sourceDataPath");
-  produces<std::string, edm::InLumi>("sourceJsonPath");
+  produces<std::string, edm::Transition::BeginLuminosityBlock>("sourceDataPath");
+  produces<std::string, edm::Transition::BeginLuminosityBlock>("sourceJsonPath");
 }
 
 DQMProtobufReader::~DQMProtobufReader() {}

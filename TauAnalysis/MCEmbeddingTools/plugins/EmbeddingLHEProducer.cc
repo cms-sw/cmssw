@@ -121,7 +121,7 @@ EmbeddingLHEProducer::EmbeddingLHEProducer(const edm::ParameterSet& iConfig)
 {
    //register your products
    produces<LHEEventProduct>();
-   produces<LHERunInfoProduct, edm::Transition::EndRun>();
+   produces<LHERunInfoProduct, edm::Transition::BeginRun>();
    produces<math::XYZTLorentzVectorD>("vertexPosition");
 
    muonsCollection_ = consumes<edm::View<pat::Muon>>(iConfig.getParameter<edm::InputTag>("src"));
