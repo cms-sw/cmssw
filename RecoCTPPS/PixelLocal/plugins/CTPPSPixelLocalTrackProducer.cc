@@ -90,6 +90,7 @@ CTPPSPixelLocalTrackProducer::CTPPSPixelLocalTrackProducer(const edm::ParameterS
     throw cms::Exception("CTPPSPixelLocalTrackProducer") << "Pattern finder algorithm" << patternFinderAlgorithm << " does not exist";
   }
   
+  listOfAllPlanes_.reserve(6);
   for(uint32_t i=0; i<numberOfPlanesPerPot_; ++i){
     listOfAllPlanes_.push_back(i);
   }
