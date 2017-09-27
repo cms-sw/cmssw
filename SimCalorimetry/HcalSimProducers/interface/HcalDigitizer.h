@@ -60,8 +60,6 @@ public:
   void setQIE10NoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
   void setQIE11NoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
 
-  const HcalTimeSlew* hcalTimeSlew_delay_;
-
 private:
   void accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const& hcalHits, edm::Handle<std::vector<PCaloHit> > const& zdcHits, int bunchCrossing, CLHEP::HepRandomEngine*, const HcalTopology *h);
 
@@ -163,6 +161,8 @@ private:
   const HBHEDarkening* m_HBDarkening;
   const HBHEDarkening* m_HEDarkening;
   std::unique_ptr<HFRecalibration> m_HFRecalibration;
+
+  const HcalTimeSlew* hcalTimeSlew_delay_;
 
   std::vector<double> injectedHitsEnergy_;
   std::vector<double> injectedHitsTime_;
