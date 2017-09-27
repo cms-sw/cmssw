@@ -128,19 +128,19 @@ MeasurementTrackerEventProducer::updatePixels( const edm::Event& event, PxMeasur
       for (const auto& disabledChannels: *pixelFEDChannelCollectionHandle) {	
 	PxMeasurementDetSet::BadFEDChannelPositions positions;
 	for(const auto& ch: disabledChannels) {
-	  const sipixelobjects::PixelROC *roc_first=NULL, *roc_last=NULL;
+	  const sipixelobjects::PixelROC *roc_first=nullptr, *roc_last=nullptr;
 	  sipixelobjects::CablingPathToDetUnit path = {ch.fed, ch.link, 0};
 	  // PixelFEDChannelCollection addresses the ROCs by their 'idInDetUnit' (from 0 to 15), ROCs also know their on 'idInDetUnit',
 	  // however the cabling map uses a numbering [1,numberOfROCs], see sipixelobjects::PixelFEDLink::roc(unsigned int id), not necessarily sorted in the same direction.
 	  // PixelFEDChannelCollection MUST be filled such that ch.roc_first (ch.roc_last) correspond to the lowest (highest) 'idInDetUnit' in the channel
 	  for (path.roc=1; path.roc<=(ch.roc_last-ch.roc_first)+1; path.roc++) {
 	    const sipixelobjects::PixelROC *roc = cablingMap->findItem(path);
-	    if (roc==NULL) continue;
+	    if (roc==nullptr) continue;
 	    assert(roc->rawId()==disabledChannels.detId());
 	    if (roc->idInDetUnit()==ch.roc_first) roc_first=roc;
 	    if (roc->idInDetUnit()==ch.roc_last) roc_last=roc;
 	  }
-	  if (roc_first==NULL || roc_last==NULL) { 
+	  if (roc_first==nullptr || roc_last==nullptr) { 
 	    edm::LogError("PixelFEDChannelCollection")<<"Do not find either roc_first or roc_last in the cabling map."; 
 	    continue; 
 	  }
@@ -155,7 +155,7 @@ MeasurementTrackerEventProducer::updatePixels( const edm::Event& event, PxMeasur
 	  LocalPoint ur(std::max(lp1.x(), lp2.x()), std::max(lp1.y(), lp2.y()), std::max(lp1.z(), lp2.z()));	  
 	  positions.push_back(std::make_pair(ll, ur));
 	} // loop on channels
-	if (positions.size()) {
+	if (!positions.empty()) {
 	  i=thePxDets.find(disabledChannels.detId(),i);
 	  assert(i!=thePxDets.size() && thePxDets.id(i)==disabledChannels.detId());
 	  thePxDets.addBadFEDChannelPositions(i, positions);
