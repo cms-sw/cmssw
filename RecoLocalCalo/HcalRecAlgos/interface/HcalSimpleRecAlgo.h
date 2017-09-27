@@ -23,6 +23,8 @@
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/PedestalSub.h"
 
+#include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
+
 /** \class HcalSimpleRecAlgo
 
    This class reconstructs RecHits from Digis for HBHE, HF, and HO by addition
