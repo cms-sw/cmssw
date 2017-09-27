@@ -58,16 +58,23 @@ void TSGForOI::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iSetup.get<GlobalTrackingGeometryRecord>().get(geometry_);
   iSetup.get<TrackingComponentsRecord>().get(estimatorName_,estimator_);
   iEvent.getByToken(measurementTrackerTag_, measurementTracker_);
+
+  edm::ESHandle<TrackerGeometry> tmpTkGeometry;
+  iSetup.get<TrackerDigiGeometryRecord>().get(tmpTkGeometry);
+
   edm::Handle<reco::TrackCollection> l2TrackCol;					
   iEvent.getByToken(src_, l2TrackCol);
 
-  //	The product:
+  //The product:
   std::unique_ptr<std::vector<TrajectorySeed> > result(new std::vector<TrajectorySeed>());
 
-  //	Get vector of Detector layers once:
   std::vector<BarrelDetLayer const*> const& tob = measurementTracker_->geometricSearchTracker()->tobLayers();
-  std::vector<ForwardDetLayer const*> const& tecPositive = measurementTracker_->geometricSearchTracker()->posTecLayers();
-  std::vector<ForwardDetLayer const*> const& tecNegative = measurementTracker_->geometricSearchTracker()->negTecLayers();
+  std::vector<ForwardDetLayer const*> const& tecPositive = tmpTkGeometry->isThere(GeomDetEnumerators::P2OTEC) ? 
+                                                                measurementTracker_->geometricSearchTracker()->posTidLayers() : 
+                                                                measurementTracker_->geometricSearchTracker()->posTecLayers(); 
+  std::vector<ForwardDetLayer const*> const& tecNegative = tmpTkGeometry->isThere(GeomDetEnumerators::P2OTEC) ? 
+                                                                measurementTracker_->geometricSearchTracker()->negTidLayers() : 
+                                                                measurementTracker_->geometricSearchTracker()->negTecLayers();
 
   //	Get the suitable propagators:
   std::unique_ptr<Propagator> propagatorAlong = SetPropagationDirection(*propagatorAlong_,alongMomentum);
