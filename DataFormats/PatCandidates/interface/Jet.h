@@ -98,9 +98,9 @@ namespace pat {
       /// constructure from ref to pat::Jet
       Jet(const edm::Ptr<pat::Jet> & aJetRef);
       /// destructor
-      virtual ~Jet();
+      ~Jet() override;
       /// required reimplementation of the Candidate's clone method
-      virtual Jet * clone() const { return new Jet(*this); }
+      Jet * clone() const override { return new Jet(*this); }
 
       /// ---- methods for MC matching ----
 
@@ -183,7 +183,7 @@ namespace pat {
       /// get list of tag info labels
       std::vector<std::string> const & tagInfoLabels() const { return tagInfoLabels_; }
       /// check to see if the given tag info is nonzero
-      bool hasTagInfo( const std::string label) const { return tagInfo(label) != 0; }
+      bool hasTagInfo( const std::string label) const { return tagInfo(label) != nullptr; }
       /// get a tagInfo with the given name, or NULL if none is found.
       /// You should omit the 'TagInfos' part from the label
       const reco::BaseTagInfo            * tagInfo(const std::string &label) const;
@@ -437,7 +437,7 @@ namespace pat {
       ///    If using refactorized PAT, return that. (constituents size > 0)
       ///    Else check the old version of PAT (embedded constituents size > 0)
       ///    Else return the reco Jet number of constituents
-      virtual const reco::Candidate * daughter(size_t i) const;
+      const reco::Candidate * daughter(size_t i) const override;
 
       using reco::LeafCandidate::daughter; // avoid hiding the base implementation
 
@@ -445,7 +445,7 @@ namespace pat {
       ///    If using refactorized PAT, return that. (constituents size > 0)
       ///    Else check the old version of PAT (embedded constituents size > 0)
       ///    Else return the reco Jet number of constituents
-      virtual size_t numberOfDaughters() const;
+      size_t numberOfDaughters() const override;
 
       /// accessing Jet ID information
       reco::JetID const & jetID () const { return jetID_;}
