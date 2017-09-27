@@ -4,6 +4,9 @@
 #include <memory>
 #include "RecoLocalCalo/HcalRecAlgos/interface/AbsHBHEPhase1Algo.h"
 
+class HcalTimeSlew;
+const HcalTimeSlew* hcalTimeSlew_delay_;
+
 namespace edm {
     class ParameterSet;
 }
