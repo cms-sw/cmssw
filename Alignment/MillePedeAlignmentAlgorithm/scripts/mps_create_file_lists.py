@@ -46,6 +46,7 @@ class FileListCreator(object):
         - `args`: command line arguments
         """
 
+        self._first_dataset_ini = True
         self._parser = self._define_parser()
         self._args = self._parser.parse_args(argv)
 
@@ -76,6 +77,7 @@ class FileListCreator(object):
              for dataset in self._datasets])
         self._output_dir = os.path.join(self._args.output_dir,
                                         self._formatted_dataset)
+        self._output_dir = os.path.abspath(self._output_dir)
         self._cache = _DasCache(self._output_dir)
         self._prepare_iov_datastructures()
         self._prepare_run_datastructures()
@@ -173,6 +175,10 @@ class FileListCreator(object):
         parser.add_argument("-o", "--output-dir", dest = "output_dir",
                             metavar = "PATH", default = os.getcwd(),
                             help = "output base directory (default: %(default)s)")
+        parser.add_argument("--create-ini", dest = "create_ini",
+                            action = "store_true", default = False,
+                            help = ("create dataset ini file based on the "
+                                    "created file lists"))
         parser.add_argument("--force", action = "store_true", default = False,
                             help = ("remove output directory from previous "
                                     "runs, if existing"))
@@ -459,6 +465,91 @@ class FileListCreator(object):
                       log_file = log)
 
 
+    def _create_dataset_ini_section(self, name, collection):
+        """Write dataset ini snippet.
+
+        Arguments:
+        - `edm_file`: CMSSW dataset file
+        """
+
+        output = "[dataset:{}]\n".format(name)
+        output += "collection = {}\n".format(collection)
+        output += "inputFileList = ${{datasetdir}}/{}.txt\n".format(name)
+        if collection in ("ALCARECOTkAlCosmicsCTF0T",
+                          "ALCARECOTkAlCosmicsInCollisions"):
+            if self._first_dataset_ini:
+                print_msg("\tDetermined cosmics dataset, i.e. please replace "
+                          "'DUMMY_DECO_MODE_FLAG' and 'DUMMY_ZERO_TESLA_FLAG' "
+                          "with the correct values.")
+                self._first_dataset_ini = False
+            output += "cosmicsDecoMode  = DUMMY_DECO_MODE_FLAG\n"
+            output += "cosmicsZeroTesla = DUMMY_ZERO_TESLA_FLAG\n"
+        output += "\n"
+
+        return output
+
+
+    def _get_track_collection(self, edm_file):
+        """Extract track collection from given `edm_file`.
+
+        Arguments:
+        - `edm_file`: CMSSW dataset file
+        """
+
+        # use global redirector to allow also files not yet at your site:
+        cmd = ["edmDumpEventContent", r"root://cms-xrd-global.cern.ch/"+edm_file]
+        try:
+            event_content = subprocess.check_output(cmd).split("\n")
+        except subprocess.CalledProcessError as e:
+            splitted = edm_file.split("/")
+            try:
+                alcareco = splitted[splitted.index("ALCARECO")+1].split("-")[0]
+                alcareco = alcareco.replace("TkAlCosmics0T", "TkAlCosmicsCTF0T")
+                alcareco = "ALCARECO" + alcareco
+                print_msg("\tDetermined track collection as '{}'.".format(alcareco))
+                return alcareco
+            except ValueError:
+                if "RECO" in splitted:
+                    print_msg("\tDetermined track collection as 'generalTracks'.")
+                    return "generalTracks"
+                else:
+                    print_msg("\tCould not determine track collection "
+                              "automatically.")
+                    print_msg("\tPlease replace 'DUMMY_TRACK_COLLECTION' with "
+                              "the correct value.")
+                    return "DUMMY_TRACK_COLLECTION"
+
+        track_collections = []
+        for line in event_content:
+            splitted = line.split()
+            if len(splitted) > 0 and splitted[0] == r"vector<reco::Track>":
+                track_collections.append(splitted[1].strip().strip('"'))
+        if len(track_collections) == 0:
+            print_msg("No track collection found in file '{}'.".format(edm_file))
+            sys.exit(1)
+        elif len(track_collections) == 1:
+            print_msg("\tDetermined track collection as "
+                      "'{}'.".format(track_collections[0]))
+            return track_collections[0]
+        else:
+            alcareco_tracks = filter(lambda x: x.startswith("ALCARECO"),
+                                     track_collections)
+            if len(alcareco_tracks) == 0 and "generalTracks" in track_collections:
+                print_msg("\tDetermined track collection as 'generalTracks'.")
+                return "generalTracks"
+            elif len(alcareco_tracks) == 1:
+                print_msg("\tDetermined track collection as "
+                          "'{}'.".format(alcareco_tracks[0]))
+                return alcareco_tracks[0]
+            print_msg("\tCould not unambiguously determine track collection in "
+                      "file '{}':".format(edm_file))
+            print_msg("\tPlease replace 'DUMMY_TRACK_COLLECTION' with "
+                      "the correct value from the following list.")
+            for collection in track_collections:
+                print_msg("\t - "+collection)
+            return "DUMMY_TRACK_COLLECTION"
+
+
     def _write_file_lists(self):
         """Write file lists to disk."""
 
@@ -471,21 +562,52 @@ class FileListCreator(object):
             "_".join(["Validation", self._formatted_dataset]),
             self._files_validation)
 
+
+        if self._args.create_ini:
+            dataset_ini_general = "[general]\n"
+            dataset_ini_general += "datasetdir = {}\n".format(self._output_dir)
+            dataset_ini_general += ("json = {}\n\n".format(self._args.json)
+                                    if self._args.json
+                                    else "\n")
+
+            ini_path = self._formatted_dataset + ".ini"
+            print_msg("Creating dataset ini file: " + ini_path)
+            ini_path = os.path.join(self._output_dir, ini_path)
+
+            collection = self._get_track_collection(self._files[0])
+
+            with open(ini_path, "w") as f:
+                f.write(dataset_ini_general)
+                f.write(self._create_dataset_ini_section(
+                    self._formatted_dataset, collection))
+
+            iov_wise_ini = dataset_ini_general
+
         for iov in sorted(self._iovs):
             iov_str = "since{0:d}".format(iov)
-            self._create_dataset_txt(
-                "_".join([self._formatted_dataset, iov_str]),
-                self._iov_info_alignment[iov]["files"])
+            iov_str = "_".join([self._formatted_dataset, iov_str])
+            if self._args.create_ini:
+                iov_wise_ini += self._create_dataset_ini_section(iov_str,
+                                                                 collection)
+
+            self._create_dataset_txt(iov_str,
+                                     self._iov_info_alignment[iov]["files"])
             self._create_dataset_cff(
-                "_".join(["Alignment", self._formatted_dataset, iov_str]),
+                "_".join(["Alignment", iov_str]),
                 self._iov_info_validation[iov]["files"])
 
             if (self._iov_info_validation[iov]["events"]
                 < self._args.minimum_events_validation):
                 continue
             self._create_dataset_cff(
-                "_".join(["Validation", self._formatted_dataset, iov_str]),
+                "_".join(["Validation", iov_str]),
                 self._iov_info_validation[iov]["files"])
+
+        if self._args.create_ini and iov_wise_ini != dataset_ini_general:
+            ini_path = self._formatted_dataset + "_IOVs.ini"
+            print_msg("Creating dataset ini file: " + ini_path)
+            ini_path = os.path.join(self._output_dir, ini_path)
+            with open(ini_path, "w") as f: f.write(iov_wise_ini)
 
         for run in sorted(self._run_info):
             if (self._run_info[run]["events"]
@@ -494,7 +616,6 @@ class FileListCreator(object):
             self._create_dataset_cff(
                 "_".join(["Validation", self._formatted_dataset, str(run)]),
                 self._run_info[run]["files"])
-
 
 
     def _create_dataset_txt(self, name, file_list):
