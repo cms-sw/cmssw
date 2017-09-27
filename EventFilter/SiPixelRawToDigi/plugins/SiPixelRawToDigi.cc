@@ -44,9 +44,9 @@ using namespace std;
 // -----------------------------------------------------------------------------
 SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf ) 
   : config_(conf), 
-    badPixelInfo_(0),
-    regions_(0),
-    hCPU(0), hDigi(0)
+    badPixelInfo_(nullptr),
+    regions_(nullptr),
+    hCPU(nullptr), hDigi(nullptr)
 {
 
   includeErrors = config_.getParameter<bool>("IncludeErrors");
@@ -74,7 +74,7 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
 
   // regions
   if (config_.exists("Regions")) {
-    if(config_.getParameter<edm::ParameterSet>("Regions").getParameterNames().size() > 0)
+    if(!config_.getParameter<edm::ParameterSet>("Regions").getParameterNames().empty())
     {
       regions_ = new PixelUnpackingRegions(config_, consumesCollector());
     }
@@ -289,7 +289,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 
 	  } // loop on DetSet of errors
 
-	  if (disabledChannelsDetSet.size()>0) {
+	  if (!disabledChannelsDetSet.empty()) {
 	    disabled_channelcollection->insert(errordetid, disabledChannelsDetSet.data(), disabledChannelsDetSet.size());
 	  }
 
