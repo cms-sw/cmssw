@@ -718,40 +718,74 @@ namespace {
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
       SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
-      std::string titleMap = "#Delta Fraction of bad Strips per module ("+lastIOVsince+" - "+firstIOVsince+" )";
+      std::string titleMap = "#Delta fraction of bad Strips per module (IOV:"+lastIOVsince+" - IOV:"+firstIOVsince+")";
 
       std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripBadStrips"));
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
       
-      std::vector<uint32_t> detid;
-      last_payload->getDetIds(detid);
+      std::vector<uint32_t> detid1;
+      last_payload->getDetIds(detid1);
       
-      std::map<uint32_t,int> FirstbadStripsFractionPerDetId;
-      std::map<uint32_t,int> LastbadStripsFractionPerDetId;
+      std::map<uint32_t,float> FirstFractionPerDetId;
+      std::map<uint32_t,float> LastFractionPerDetId;
 
-      for (const auto & d : detid) {
+      for (const auto & d : detid1) {
 	SiStripBadStrip::Range range=last_payload->getRange(d);
 	for( std::vector<unsigned int>::const_iterator badStrip = range.first;badStrip != range.second; ++badStrip ) {
-	  LastbadStripsFractionPerDetId[d]+= last_payload->decode(*badStrip).range;
+	  LastFractionPerDetId[d]+= last_payload->decode(*badStrip).range;
 	}
 	// normalize to the number of strips per module
-	LastbadStripsFractionPerDetId[d]/=(128.*reader->getNumberOfApvsAndStripLength(d).first);
+	LastFractionPerDetId[d]/=(128.*reader->getNumberOfApvsAndStripLength(d).first);
       } // loop over detIds
       
-      
-      for (const auto & d : detid) {
+      std::vector<uint32_t> detid2;
+      first_payload->getDetIds(detid2);
+
+      std::cout << "Size 2: " << detid1.size() << "| Size 1: "<< detid2.size() << std::endl;
+
+      for (const auto & d : detid2) {
 	SiStripBadStrip::Range range=first_payload->getRange(d);
 	for( std::vector<unsigned int>::const_iterator badStrip = range.first;badStrip != range.second; ++badStrip ) {
-	  FirstbadStripsFractionPerDetId[d]+= first_payload->decode(*badStrip).range;
+	  FirstFractionPerDetId[d]+= first_payload->decode(*badStrip).range;
 	}
 	// normalize to the number of strips per module
-	FirstbadStripsFractionPerDetId[d]/=(128.*reader->getNumberOfApvsAndStripLength(d).first);
+	FirstFractionPerDetId[d]/=(128.*reader->getNumberOfApvsAndStripLength(d).first);
       } // loop over detIds
 
-      for (const auto & d: detid ){
-	tmap->fill(d,(LastbadStripsFractionPerDetId[d]- FirstbadStripsFractionPerDetId[d]));
-      } 
+      std::vector<uint32_t> allDetIds = reader->getAllDetIds();
+
+      int countLastButNotFirst(0);
+      int countFirstButNotLast(0);
+      int countBoth(0);
+
+      for (const auto & d: allDetIds ){
+	if( LastFractionPerDetId.find(d)  != LastFractionPerDetId.end() && 
+	    FirstFractionPerDetId.find(d) ==  FirstFractionPerDetId.end() ) {
+	  
+	  tmap->fill(d,LastFractionPerDetId[d]);
+	  countLastButNotFirst++;
+	} 
+	else if ( LastFractionPerDetId.find(d)  == LastFractionPerDetId.end() && 
+		  FirstFractionPerDetId.find(d) !=  FirstFractionPerDetId.end() ) {
+	  
+	  tmap->fill(d,-FirstFractionPerDetId[d]);
+	  countFirstButNotLast++;
+	} 
+	else if ( LastFractionPerDetId.find(d)  != LastFractionPerDetId.end() && 
+		  FirstFractionPerDetId.find(d) != FirstFractionPerDetId.end() ) {
+	  
+	  float delta = (LastFractionPerDetId[d] - FirstFractionPerDetId[d]);
+	  if (delta!=0.){
+	    tmap->fill(d,delta);
+	  }
+	  countBoth++;
+	}
+      }
+
+      std::cout<<"In 2 but not in 1:"<<  countLastButNotFirst << std::endl;
+      std::cout<<"In 1 but not in 2:"<<  countFirstButNotLast << std::endl;
+      std::cout<<"In both:"<<  countBoth << std::endl;
 
       //=========================
       
