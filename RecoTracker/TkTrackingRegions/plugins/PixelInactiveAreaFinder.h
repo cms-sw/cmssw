@@ -4,6 +4,7 @@
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSetsBuilder.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -30,11 +31,13 @@ public:
   PixelInactiveAreaFinder(const edm::ParameterSet& iConfig);
   ~PixelInactiveAreaFinder() = default;
 
+  static void fillDescriptions(edm::ParameterSetDescription& desc);
+
   std::vector<AreaLayers> inactiveAreas(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
 private:
   // Configuration
-  const bool print_;
+  const bool debug_;
   const bool createPlottingFiles_;
 
 

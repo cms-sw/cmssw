@@ -8,9 +8,15 @@
 #include <queue>
 
 PixelInactiveAreaFinder::PixelInactiveAreaFinder(const edm::ParameterSet& iConfig):
-  print_(iConfig.getUntrackedParameter<bool>("print")),
+  debug_(iConfig.getUntrackedParameter<bool>("debug")),
   createPlottingFiles_(iConfig.getUntrackedParameter<bool>("createPlottingFiles"))
  {}
+
+void PixelInactiveAreaFinder::fillDescriptions(edm::ParameterSetDescription& desc) {
+  desc.addUntracked<bool>("debug", false);
+  desc.addUntracked<bool>("createPlottingFiles", false);
+}
+
 
 std::vector<PixelInactiveAreaFinder::AreaLayers>
 PixelInactiveAreaFinder::inactiveAreas(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -31,7 +37,7 @@ PixelInactiveAreaFinder::inactiveAreas(const edm::Event& iEvent, const edm::Even
   }
 
   // Comparing
-  if(print_) {
+  if(debug_) {
     this->printOverlapSpans();
   }
 
