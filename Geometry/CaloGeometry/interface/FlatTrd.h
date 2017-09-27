@@ -16,7 +16,7 @@
    
 */
 
-class FlatTrd  final : public CaloCellGeometry {
+class FlatTrd : public CaloCellGeometry {
 public:
 
   typedef CaloCellGeometry::CCGFloat CCGFloat ;
@@ -43,7 +43,7 @@ public:
 
   ~FlatTrd() override ;
   
-  virtual const GlobalPoint& getPosition() const { return m_global; }
+  const GlobalPoint& getPosition() const override { return m_global; }
   GlobalPoint getPosition( const Pt3D& local ) const;
   virtual float etaPos() const { return m_global.eta(); }
   virtual float phiPos() const { return m_global.phi(); }
