@@ -43,7 +43,7 @@ class RPixPlaneCombinatoryTracking : public RPixDetTrackFinder{
     double maximumYLocalDistanceFromTrack_;
     PlaneCombinations possiblePlaneCombinations_;
     
-    PlaneCombinations getPlaneCombinations(const std::vector<uint32_t> &inputPlaneList, uint32_t numberToExtract);
+    const PlaneCombinations & getPlaneCombinations(const std::vector<uint32_t> &inputPlaneList, uint32_t numberToExtract) const;
     CTPPSPixelLocalTrack fitTrack(PointInPlaneList pointList);
     void getHitCombinations(
         const std::map<CTPPSPixelDetId, PointInPlaneList > &mapOfAllHits, 

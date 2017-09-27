@@ -62,13 +62,14 @@ void RPixPlaneCombinatoryTracking::initialize(){
 //------------------------------------------------------------------------------------------------//
     
 //This function produces all the possible plane combinations extracting numberToExtract planes over numberOfPlanes planes
-RPixPlaneCombinatoryTracking::PlaneCombinations
-RPixPlaneCombinatoryTracking::getPlaneCombinations(const std::vector<uint32_t> &inputPlaneList, uint32_t numberToExtract)
+const RPixPlaneCombinatoryTracking::PlaneCombinations &
+RPixPlaneCombinatoryTracking::getPlaneCombinations(const std::vector<uint32_t> &inputPlaneList, uint32_t numberToExtract) const
 {
     uint32_t numberOfPlanes = inputPlaneList.size();
     std::string bitmask(numberToExtract, 1); // numberToExtract leading 1's
     bitmask.resize(numberOfPlanes, 0); // numberOfPlanes-numberToExtract trailing 0's
-    PlaneCombinations planeCombinations;
+    static PlaneCombinations planeCombinations;
+    planeCombinations.clear();
 
     // store the combination and permute bitmask
     do {
