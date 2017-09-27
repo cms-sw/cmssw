@@ -106,7 +106,7 @@ void RPixPlaneCombinatoryTracking::getHitCombinations(
       HitReferences newHitPlaneMap = tmpHitPlaneMap;
       newHitPlaneMap[mapIterator->first] = i;
       PointInPlaneList newVector = tmpHitVector;
-      newVector.push_back(mapIterator->second.at(i));
+      newVector.push_back(mapIterator->second[i]);
       std::map<CTPPSPixelDetId, PointInPlaneList >::iterator tmpMapIterator = mapIterator;
       getHitCombinations(mapOfAllHits, ++tmpMapIterator, newHitPlaneMap, newVector, outputMap);
     }
