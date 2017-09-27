@@ -1,9 +1,16 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 
 unpackedPatTrigger = cms.EDProducer("PATTriggerObjectStandAloneUnpacker",
     patTriggerObjectsStandAlone = cms.InputTag('slimmedPatTrigger'),
     triggerResults              = cms.InputTag('TriggerResults::HLT'),
     unpackFilterLabels = cms.bool(True)
+)
+# ERA-dependent configuration
+run2_miniAOD_80XLegacy.toModify(
+  unpackedPatTrigger,
+  patTriggerObjectsStandAlone = "selectedPatTrigger",
+  unpackFilterLabels = False 
 )
 
 triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",

@@ -72,11 +72,6 @@ nanoSequenceMC = cms.Sequence(genParticleSequence + nanoSequence + jetMC + muonM
 
 
 def nanoAOD_customizeCommon(process):
-    ## FIXME: make era-dependent?
-    if not hasattr(process, 'miniAOD'):
-        # assume we're reading old miniAOD for the moment
-        process.load("PhysicsTools.NanoAOD.adaptFrom92X_cff")
-        process.nanoSequence.insert(0, process.adapt_nano)
     return process
 
 def nanoAOD_customizeData(process):
@@ -87,7 +82,7 @@ def nanoAOD_customizeData(process):
 
 def nanoAOD_customizeMC(process):
     process = nanoAOD_customizeCommon(process)
-    ## FIXME: THIS SHOULD PROBABLY GO INTO Services_cff 
+    ## FIXME:  WILL NO LONGER NEED RANDOM SEEDS WHEN DETERMINISTIC SMEARING WILL BE IMPLEMENTED
     if not hasattr(process,'RandomNumberGeneratorService'):
         process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService")
     for X in 'calibratedPatElectrons','calibratedPatPhotons':
@@ -100,35 +95,6 @@ def nanoAOD_customizeMC(process):
 
 ### Era dependent customization
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-run2_miniAOD_80XLegacy.toModify(
-  jetTable.variables.qgl,
-  expr="-1"
-)
-run2_miniAOD_80XLegacy.toModify(
-  unpackedPatTrigger,
-  patTriggerObjectsStandAlone = "selectedPatTrigger",
-  unpackFilterLabels = False 
-)
-run2_miniAOD_80XLegacy.toModify(
-  fatJetTable.variables.mpruned,
-  expr = cms.string("userFloat(\'ak8PFJetsCHSPrunedMass\')"),
-)
-run2_miniAOD_80XLegacy.toModify(
-  fatJetTable.variables.msoftdrop,
-  expr = cms.string("userFloat(\'ak8PFJetsCHSSoftDropMass\')"),
-)
-run2_miniAOD_80XLegacy.toModify(
-  fatJetTable.variables.tau1,
-  expr = cms.string("userFloat(\'NjettinessAK8:tau1\')"),
-)
-run2_miniAOD_80XLegacy.toModify(
-  fatJetTable.variables.tau2,
-  expr = cms.string("userFloat(\'NjettinessAK8:tau2\')"),
-)
-run2_miniAOD_80XLegacy.toModify(
-  fatJetTable.variables.tau3,
-  expr = cms.string("userFloat(\'NjettinessAK8:tau3\')"),
-)
 #remove stuff 
 _80x_sequence = nanoSequence.copy()
 _80x_sequence.remove(isoTrackTable)
