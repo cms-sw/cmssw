@@ -39,11 +39,12 @@ def applySubstructure( process, postfix="" ) :
     addJetCollection(process, postfix=postfix, labelName = 'AK8',
                      jetSource = cms.InputTag('ak8PFJetsCHS'+postfix),
                      algo= 'AK', rParam = 0.8,
+                     btagDiscriminators = ['None'],
                      jetCorrections = ('AK8PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
                      genJetCollection = cms.InputTag('slimmedGenJetsAK8')
                      )
     getattr(process,"patJetsAK8"+postfix).userData.userFloats.src = [] # start with empty list of user floats
-    getattr(process,"selectedPatJetsAK8").cut = cms.string("pt > 100")
+    getattr(process,"selectedPatJetsAK8").cut = cms.string("pt > 170")
 
 
     ## add AK8 groomed masses with CHS
@@ -156,7 +157,15 @@ def applySubstructure( process, postfix="" ) :
                      jetSource = cms.InputTag('ak8PFJetsPuppi'+postfix),
                      algo= 'AK', rParam = 0.8,
                      jetCorrections = ('AK8PFPuppi', cms.vstring(['L2Relative', 'L3Absolute']), 'None'),
-                     btagDiscriminators = ([x.value() for x in patJetsDefault.discriminatorSources] + ['pfBoostedDoubleSecondaryVertexAK8BJetTags']),
+                     btagDiscriminators = ([
+                         'pfCombinedSecondaryVertexV2BJetTags',
+                         'pfCombinedInclusiveSecondaryVertexV2BJetTags',
+                         'pfCombinedMVAV2BJetTags',
+                         'pfDeepCSVJetTags:probb',
+                         'pfDeepCSVJetTags:probc',
+                         'pfDeepCSVJetTags:probudsg',
+                         'pfDeepCSVJetTags:probbb',
+                         'pfBoostedDoubleSecondaryVertexAK8BJetTags']),
                      genJetCollection = cms.InputTag('slimmedGenJetsAK8')
                      )
     getattr(process,"patJetsAK8Puppi"+postfix).userData.userFloats.src = [] # start with empty list of user floats
@@ -279,4 +288,7 @@ def applySubstructure( process, postfix="" ) :
 
     # switch off daughter re-keying since it's done in the JetSubstructurePacker (and can't be done afterwards)
     process.slimmedJetsAK8.rekeyDaughters = "0"
-
+    # Reconfigure the slimmedAK8 jet information to keep 
+    process.slimmedJetsAK8.dropDaughters = cms.string("pt < 170")
+    process.slimmedJetsAK8.dropSpecific = cms.string("pt < 170")
+    process.slimmedJetsAK8.dropTagInfos = cms.string("pt < 170")

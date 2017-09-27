@@ -69,15 +69,15 @@ namespace pat {
       for ( edm::View<pat::Jet>::const_iterator ibegin = h_jets->begin(),
 	      iend = h_jets->end(), ijet = ibegin;
 	    ijet != iend; ++ijet ) {
-
-	// Check the selection
+	
 	bool selectedLoose = false;
-	if ( nLoose_ > 0 && selectorLoose_(*ijet) ) {
+	if ( nLoose_ > 0 && nl < nLoose_ && selectorLoose_(*ijet) ) {
 	  selectedLoose = true;
 	  ++nl;
 	}
-	
-	if ( selector_(*ijet) || ( nl <= nLoose_ && selectedLoose ) ) {
+
+
+	if ( selector_(*ijet) || selectedLoose ) {
 	  // Copy over the calo towers
 	  for ( CaloTowerFwdPtrVector::const_iterator itowerBegin = ijet->caloTowersFwdPtr().begin(),
 		  itowerEnd = ijet->caloTowersFwdPtr().end(), itower = itowerBegin;
@@ -132,13 +132,13 @@ namespace pat {
 	      iend = h_jets->end(), ijet = ibegin;
 	    ijet != iend; ++ijet ) {
 
-	// Check the selection
 	bool selectedLoose = false;
-	if ( nLoose_ > 0 && selectorLoose_(*ijet) ) {
+	if ( nLoose_ > 0 && nl < nLoose_ && selectorLoose_(*ijet) ) {
 	  selectedLoose = true;
 	  ++nl;
-	}	
-	if ( selector_(*ijet) || (nl <= nLoose_ && selectedLoose ) ) {
+	}
+
+	if ( selector_(*ijet) || selectedLoose ) {
 	  // Add the jets that pass to the output collection
 	  patJets->push_back( *ijet );
 	 
