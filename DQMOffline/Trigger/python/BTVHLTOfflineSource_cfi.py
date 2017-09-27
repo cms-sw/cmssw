@@ -29,3 +29,6 @@ BTVHLTOfflineSource = cms.EDAnalyzer(
         )    
     )
 )
+
+btvHLTDQMSourceExtra = cms.Sequence(
+)
