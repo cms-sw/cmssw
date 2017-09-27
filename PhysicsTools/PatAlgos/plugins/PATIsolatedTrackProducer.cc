@@ -54,7 +54,7 @@ namespace pat {
           void getIsolation(const LorentzVector& p4, const pat::PackedCandidateCollection* pc, int pc_idx,
                             pat::PFIsolation &iso, pat::PFIsolation &miniiso) const;
 
-          bool getPFLeptonOverlap(const LorentzVector& p4, const pat::PackedCandidateCollection* pc, int pc_idx) const;
+          bool getPFLeptonOverlap(const LorentzVector& p4, const pat::PackedCandidateCollection* pc) const;
 
           float getPFNeutralSum(const LorentzVector& p4, const pat::PackedCandidateCollection* pc, int pc_idx) const;
 
@@ -321,7 +321,7 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
         float caloJetEm, caloJetHad;
         getCaloJetEnergy(p4, caloJets.product(), caloJetEm, caloJetHad);
 
-	bool pfLepOverlap = getPFLeptonOverlap(p4, pc, pfCandInd);
+	bool pfLepOverlap = getPFLeptonOverlap(p4, pc);
 	float pfNeutralSum = getPFNeutralSum(p4, pc, pfCandInd);
 	
 	pat::PackedCandidateRef refToNearestPF = pat::PackedCandidateRef();
@@ -446,7 +446,7 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
         float caloJetEm, caloJetHad;
         getCaloJetEnergy(p4, caloJets.product(), caloJetEm, caloJetHad);
 
-	bool pfLepOverlap = getPFLeptonOverlap(p4, pc, ipc);
+	bool pfLepOverlap = getPFLeptonOverlap(p4, pc);
 	float pfNeutralSum = getPFNeutralSum(p4, pc, ipc);
 
 	pat::PackedCandidateRef refToNearestPF = pat::PackedCandidateRef();
@@ -540,26 +540,24 @@ void pat::PATIsolatedTrackProducer::getIsolation(const LorentzVector& p4,
 }
 
 //get overlap of isolated track with a PF lepton
-bool pat::PATIsolatedTrackProducer::getPFLeptonOverlap(const LorentzVector& p4, const pat::PackedCandidateCollection *pc, int pc_idx) const
+bool pat::PATIsolatedTrackProducer::getPFLeptonOverlap(const LorentzVector& p4, const pat::PackedCandidateCollection *pc) const
 {
         bool isOverlap = false;
 	float dr_min = pflepoverlap_DR_;
 	int id_drmin = 0;
-        for(pat::PackedCandidateCollection::const_iterator pf_it = pc->begin(); pf_it != pc->end(); pf_it++){
-//	    // Count candidate itself (commenting out lines below): exclude isolated track that is a pf lepton
-//            if(int(pf_it - pc->begin()) == pc_idx)
-//                continue;
-            int id = std::abs(pf_it->pdgId());
-	    int charge = std::abs(pf_it->charge());
-            bool fromPV = (pf_it->fromPV()>1 || fabs(pf_it->dz()) < pfIsolation_DZ_);
-            float pt = pf_it->p4().pt();
-            float dr = deltaR(p4, pf_it->p4());
+        for (const auto & pf : *pc) {
+            int id = std::abs(pf.pdgId());
+	    int charge = std::abs(pf.charge());
+            bool fromPV = (pf.fromPV()>1 || std::abs(pf.dz()) < pfIsolation_DZ_);
+            float pt = pf.pt();
 	    if(charge==0) // exclude neutral candidates
 	      continue;
 	    if(!(fromPV)) // exclude candidates not from PV
 	      continue;
 	    if(pt < pflepoverlap_pTmin_) // exclude pf candidates w/ pT below threshold
 	      continue;
+
+            float dr = deltaR(p4, pf.p4());
             if(dr > pflepoverlap_DR_) // exclude pf candidates far from isolated track
 	      continue;
 
