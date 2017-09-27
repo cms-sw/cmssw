@@ -56,7 +56,7 @@ SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf):
   // Create DCS Status
   bool checkDCS    = conf_.getParameter<bool>("UseDCSFiltering");
   if (checkDCS) dcsStatus_ = new SiStripDCSStatus(consumesCollector());
-  else dcsStatus_ = 0;
+  else dcsStatus_ = nullptr;
 }
 
 //------------------------------------------------------------------------
@@ -206,7 +206,7 @@ void SiStripMonitorTrack::book(DQMStore::IBooker & ibooker , const TrackerTopolo
       }
 
       const char* subdet = det_layer_pair.first.c_str();
-      if ( std::strstr(subdet, tec) != NULL || std::strstr(subdet, tid) != NULL ) {
+      if ( std::strstr(subdet, tec) != nullptr || std::strstr(subdet, tid) != nullptr ) {
         std::string ring_id = hidmanager.getSubdetid(detid, tTopo, true);
         std::map<std::string, RingMEs>::iterator iRingME  = RingMEsMap.find(ring_id);
         if(iRingME==RingMEsMap.end()){
@@ -255,7 +255,7 @@ void SiStripMonitorTrack::book(DQMStore::IBooker & ibooker , const TrackerTopolo
       }
 
       const char* subdet = det_layer_pair.first.c_str();
-      if ( std::strstr(subdet, tec) != NULL || std::strstr(subdet, tid) != NULL ) {
+      if ( std::strstr(subdet, tec) != nullptr || std::strstr(subdet, tid) != nullptr ) {
         std::string ring_id = hidmanager.getSubdetid(detid, tTopo, true);
         std::map<std::string, RingMEs>::iterator iRingME  = RingMEsMap.find(ring_id);
         if(iRingME==RingMEsMap.end()){
@@ -325,7 +325,7 @@ void SiStripMonitorTrack::bookModMEs(DQMStore::IBooker & ibooker , const uint32_
 
 MonitorElement* SiStripMonitorTrack::handleBookMEs(DQMStore::IBooker & ibooker , std::string& viewParameter, std::string& id, std::string& histoParameters, std::string& histoName) {
 
-  MonitorElement* me = NULL;
+  MonitorElement* me = nullptr;
   bool view = false;
   view = (conf_.getParameter<edm::ParameterSet>(histoParameters.c_str())).getParameter<bool>(viewParameter.c_str());
   if ( id.find("TEC") == std::string::npos && id.find("TID") == std::string::npos ) {
@@ -541,14 +541,14 @@ void SiStripMonitorTrack::bookSubDetMEs(DQMStore::IBooker & ibooker , std::strin
   completeName = "Summary_TotalNumberOfClusters_OnTrack" + subdet_tag;
   axisName = "Number of on-track clusters in " + name;
   theSubDetMEs.nClustersOnTrack = bookME1D(ibooker , "TH1nClustersOn", completeName.c_str());
-  theSubDetMEs.nClustersOnTrack->setAxisTitle(axisName.c_str());
+  theSubDetMEs.nClustersOnTrack->setAxisTitle(axisName);
   theSubDetMEs.nClustersOnTrack->getTH1()->StatOverflows(kTRUE);
 
   // TotalNumber of Cluster OffTrack
   completeName = "Summary_TotalNumberOfClusters_OffTrack" + subdet_tag;
   axisName = "Number of off-track clusters in " + name;
   theSubDetMEs.nClustersOffTrack = bookME1D(ibooker , "TH1nClustersOff", completeName.c_str());
-  theSubDetMEs.nClustersOffTrack->setAxisTitle(axisName.c_str());
+  theSubDetMEs.nClustersOffTrack->setAxisTitle(axisName);
   theSubDetMEs.nClustersOffTrack->getTH1()->StatOverflows(kTRUE);
 
   // Cluster Gain
@@ -1048,7 +1048,7 @@ template <class T> void SiStripMonitorTrack::RecHitInfo(
     const SiStripQuality* stripQuality = qualityHandle.product();
 
     //Get SiStripCluster from SiStripRecHit
-    if ( tkrecHit != NULL ){
+    if ( tkrecHit != nullptr ){
       const SiStripCluster* SiStripCluster_ = &*(tkrecHit->cluster());
       SiStripClusterInfo SiStripClusterInfo_(*SiStripCluster_,es,detid);
 
@@ -1163,7 +1163,7 @@ bool SiStripMonitorTrack::clusterInfos(
 )
 {
 
-  if (cluster==NULL) return false;
+  if (cluster==nullptr) return false;
   // if one imposes a cut on the clusters, apply it
   if( (applyClusterQuality_) &&
       (cluster->signalOverNoise() < sToNLowerLimit_ ||
