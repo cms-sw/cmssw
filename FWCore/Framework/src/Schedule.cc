@@ -642,7 +642,7 @@ namespace edm {
     ParameterSet const& maxEventsPSet = proc_pset.getUntrackedParameterSet("maxEvents", ParameterSet());
     int maxEventSpecs = 0;
     int maxEventsOut = -1;
-    ParameterSet const* vMaxEventsOut = 0;
+    ParameterSet const* vMaxEventsOut = nullptr;
     std::vector<std::string> intNamesE = maxEventsPSet.getParameterNamesForType<int>(false);
     if (search_all(intNamesE, output)) {
       maxEventsOut = maxEventsPSet.getUntrackedParameter<int>(output);
@@ -662,7 +662,7 @@ namespace edm {
 
     for (auto& c : all_output_communicators_) {
       OutputModuleDescription desc(branchIDLists, maxEventsOut, subProcessParentageHelper);
-      if (vMaxEventsOut != 0 && !vMaxEventsOut->empty()) {
+      if (vMaxEventsOut != nullptr && !vMaxEventsOut->empty()) {
         std::string const& moduleLabel = c->description().moduleLabel();
         try {
           desc.maxEvents_ = vMaxEventsOut->getUntrackedParameter<int>(moduleLabel);

@@ -65,7 +65,7 @@ namespace edm {
   
     TypeID 
     getContainedType(TypeID const& typeID) {
-      std::string className = typeID.className();
+      const std::string& className = typeID.className();
       TypeWithDict const wrappedType = TypeWithDict::byName(wrappedClassName(className));
       TypeID const wrappedTypeID = TypeID(wrappedType.typeInfo());
       return getContainedTypeFromWrapper(wrappedTypeID, className);
@@ -158,7 +158,7 @@ namespace edm {
                                                              typeID,
                                                              moduleLabel,
                                                              instance,
-                                                             0);
+                                                             nullptr);
     unsigned int numberOfMatches = 1;
 
     if (startInIndexAndNames == std::numeric_limits<unsigned int>::max()) {
@@ -206,7 +206,7 @@ namespace edm {
         << "ProductResolverIndexHelper::insert - Attempt to insert more elements after frozen.\n";
     }
 
-    if (process == 0 || *process == '\0') {
+    if (process == nullptr || *process == '\0') {
       throw Exception(errors::LogicError)
         << "ProductResolverIndexHelper::insert - Empty process.\n";
     }
