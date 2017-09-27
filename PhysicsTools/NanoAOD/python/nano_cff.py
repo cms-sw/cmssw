@@ -70,6 +70,7 @@ nanoSequence = cms.Sequence(
 
 nanoSequenceMC = cms.Sequence(genParticleSequence + nanoSequence + jetMC + muonMC + electronMC + photonMC + tauMC + metMC + globalTablesMC + genWeightsTable + genParticleTables + lheInfoTable)
 
+
 def nanoAOD_customizeCommon(process):
     ## FIXME: make era-dependent?
     if not hasattr(process, 'miniAOD'):
@@ -96,3 +97,43 @@ def nanoAOD_customizeMC(process):
     process.calibratedPatElectrons.isMC = cms.bool(True)
     process.calibratedPatPhotons.isMC = cms.bool(True)
     return process
+
+### Era dependent customization
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+run2_miniAOD_80XLegacy.toModify(
+  jetTable.variables.qgl,
+  expr="-1"
+)
+run2_miniAOD_80XLegacy.toModify(
+  unpackedPatTrigger,
+  patTriggerObjectsStandAlone = "selectedPatTrigger",
+  unpackFilterLabels = False 
+)
+run2_miniAOD_80XLegacy.toModify(
+  fatJetTable.variables.mpruned,
+  expr = cms.string("userFloat(\'ak8PFJetsCHSPrunedMass\')"),
+)
+run2_miniAOD_80XLegacy.toModify(
+  fatJetTable.variables.msoftdrop,
+  expr = cms.string("userFloat(\'ak8PFJetsCHSSoftDropMass\')"),
+)
+run2_miniAOD_80XLegacy.toModify(
+  fatJetTable.variables.tau1,
+  expr = cms.string("userFloat(\'NjettinessAK8:tau1\')"),
+)
+run2_miniAOD_80XLegacy.toModify(
+  fatJetTable.variables.tau2,
+  expr = cms.string("userFloat(\'NjettinessAK8:tau2\')"),
+)
+run2_miniAOD_80XLegacy.toModify(
+  fatJetTable.variables.tau3,
+  expr = cms.string("userFloat(\'NjettinessAK8:tau3\')"),
+)
+#remove stuff 
+_80x_sequence = nanoSequence.copy()
+_80x_sequence.remove(isoTrackTable)
+_80x_sequence.remove(isoTrackSequence)
+run2_miniAOD_80XLegacy.toReplaceWith( nanoSequence, _80x_sequence)
+
+	
+
