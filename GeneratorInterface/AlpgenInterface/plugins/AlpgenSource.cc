@@ -140,7 +140,7 @@ AlpgenSource::AlpgenSource(const edm::ParameterSet &params,
       << "unweighted parameter file." << std::endl;
 
   // Declare the products.
-  produces<LHERunInfoProduct, edm::InRun>();
+   produces<LHERunInfoProduct, edm::Transition::BeginRun>();
   produces<LHEEventProduct>();
 }
 
