@@ -38,7 +38,7 @@ namespace fastsim
         PairProduction(const std::string & name,const edm::ParameterSet & cfg);
         
         //! Default destructor.
-        ~PairProduction(){;};
+        ~PairProduction() override{;};
 
         //! Perform the interaction.
         /*!
@@ -47,7 +47,7 @@ namespace fastsim
             \param secondaries Particles that are produced in the interaction (if any).
             \param random The Random Engine.
         */
-        void interact(fastsim::Particle & particle, const SimplifiedGeometry & layer,std::vector<std::unique_ptr<fastsim::Particle> > & secondaries,const RandomEngineAndDistribution & random);
+        void interact(fastsim::Particle & particle, const SimplifiedGeometry & layer,std::vector<std::unique_ptr<fastsim::Particle> > & secondaries,const RandomEngineAndDistribution & random) override;
         
         private:
         //! A universal angular distribution.

@@ -63,7 +63,7 @@ namespace fastsim
         NuclearInteraction(const std::string & name,const edm::ParameterSet & cfg);
 
         //! Default destructor.
-        ~NuclearInteraction();
+        ~NuclearInteraction() override;
 
         //! Perform the interaction.
         /*!
@@ -72,7 +72,7 @@ namespace fastsim
             \param secondaries Particles that are produced in the interaction (if any).
             \param random The Random Engine.
         */
-        void interact(fastsim::Particle & particle, const SimplifiedGeometry & layer,std::vector<std::unique_ptr<fastsim::Particle> > & secondaries,const RandomEngineAndDistribution & random);
+        void interact(fastsim::Particle & particle, const SimplifiedGeometry & layer,std::vector<std::unique_ptr<fastsim::Particle> > & secondaries,const RandomEngineAndDistribution & random) override;
 
         private:
         //! Return a hashed index for a given particle ID
@@ -96,7 +96,7 @@ namespace fastsim
         // Read/Save nuclear interactions from FullSim
         ///////////////
 
-        TFile* theFile = 0; //!< Necessary to read the FullSim interactions
+        TFile* theFile = nullptr; //!< Necessary to read the FullSim interactions
         std::vector< std::vector<TTree*> > theTrees; //!< Necessary to read the FullSim interactions
         std::vector< std::vector<TBranch*> > theBranches; //!< Necessary to read the FullSim interactions
         std::vector< std::vector<NUEvent*> > theNUEvents; //!< Necessary to read the FullSim interactions
@@ -247,10 +247,10 @@ fastsim::NuclearInteraction::NuclearInteraction(const std::string & name,const e
 
     // Prepare the map of files
     // Loop over the particle names
-    TFile* aVFile=0;
-    std::vector<TTree*> aVTree(theHadronEN.size(),static_cast<TTree*>(0));
-    std::vector<TBranch*> aVBranch(theHadronEN.size(),static_cast<TBranch*>(0));
-    std::vector<NUEvent*> aVNUEvents(theHadronEN.size(),static_cast<NUEvent*>(0));
+    TFile* aVFile=nullptr;
+    std::vector<TTree*> aVTree(theHadronEN.size(),static_cast<TTree*>(nullptr));
+    std::vector<TBranch*> aVBranch(theHadronEN.size(),static_cast<TBranch*>(nullptr));
+    std::vector<NUEvent*> aVNUEvents(theHadronEN.size(),static_cast<NUEvent*>(nullptr));
     std::vector<unsigned> aVCurrentEntry(theHadronEN.size(),static_cast<unsigned>(0));
     std::vector<unsigned> aVCurrentInteraction(theHadronEN.size(),static_cast<unsigned>(0));
     std::vector<unsigned> aVNumberOfEntries(theHadronEN.size(),static_cast<unsigned>(0));

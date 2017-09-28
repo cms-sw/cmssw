@@ -19,7 +19,7 @@ fastsim::SimplifiedGeometry::~SimplifiedGeometry()
 fastsim::SimplifiedGeometry::SimplifiedGeometry(double geomProperty)
     : geomProperty_(geomProperty)
     , index_(-1)
-    , detLayer_(0)
+    , detLayer_(nullptr)
     , nuclearInteractionThicknessFactor_(1.)
     , caloType_(fastsim::SimplifiedGeometry::NONE)
 {}

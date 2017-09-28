@@ -66,12 +66,12 @@
 class FastSimProducer : public edm::stream::EDProducer<> {
 	public:
     explicit FastSimProducer(const edm::ParameterSet&);
-    ~FastSimProducer(){;}
+    ~FastSimProducer() override{;}
 
 	private:
-	virtual void beginStream(edm::StreamID id);
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
-    virtual void endStream();
+	void beginStream(edm::StreamID id) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
+    void endStream() override;
     virtual FSimTrack createFSimTrack(fastsim::Particle* particle, fastsim::ParticleManager* particleManager);
 
     edm::EDGetTokenT<edm::HepMCProduct> genParticlesToken_; //!< Token to get the genParticles
@@ -132,7 +132,7 @@ FastSimProducer::FastSimProducer(const edm::ParameterSet& iConfig)
     //---------------
 
     if(simulateCalorimetry){
-		myCalorimetry.reset(new CalorimetryManager(0,
+		myCalorimetry.reset(new CalorimetryManager(nullptr,
 							iConfig.getParameter<edm::ParameterSet>("Calorimetry"),			     
 							iConfig.getParameter<edm::ParameterSet>("MaterialEffectsForMuonsInECAL"),
 							iConfig.getParameter<edm::ParameterSet>("MaterialEffectsForMuonsInHCAL"),
@@ -226,14 +226,14 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			      << "\n###############################";    
 
 	// loop over particles
-    for(std::unique_ptr<fastsim::Particle> particle = particleManager.nextParticle(*_randomEngine); particle != 0; particle=particleManager.nextParticle(*_randomEngine)) 
+    for(std::unique_ptr<fastsim::Particle> particle = particleManager.nextParticle(*_randomEngine); particle != nullptr; particle=particleManager.nextParticle(*_randomEngine)) 
     {
     	LogDebug(MESSAGECATEGORY) << "\n   moving NEXT particle: " << *particle;
 
     	if(particle->position().Perp2() < 128.*128. && std::abs(particle->position().Z()) < 302.){  // necessary because of hack for calorimetry...
 			// move the particle through the layers
 			fastsim::LayerNavigator layerNavigator(geometry_);
-			const fastsim::SimplifiedGeometry * layer = 0;
+			const fastsim::SimplifiedGeometry * layer = nullptr;
 
 			// moveParticleToNextLayer(..) returns 0 in case that particle decays
 			// in this case particle is propagated up to its decay vertex
@@ -246,7 +246,7 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 				// Particle reached calorimetry so stop further propagation
 				if(layer->getCaloType() == fastsim::SimplifiedGeometry::TRACKERBOUNDARY)
 				{
-					layer = 0;
+					layer = nullptr;
 					// particle no longer is on a layer
     				particle->resetOnLayer();
 					break;
@@ -255,7 +255,7 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 				// break after 25 ns: only happens for particles stuck in loops
 			    if(particle->position().T() > 25)
 			    {
-				    layer = 0;
+				    layer = nullptr;
 				    // particle no longer is on a layer
     				particle->resetOnLayer();
 					break;
@@ -280,7 +280,7 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 				    {	
 				    	// Add endvertex if particle did not create any secondaries
 				    	if(nSecondaries==0) particleManager.addEndVertex(particle.get());
-				    	layer = 0;
+				    	layer = nullptr;
 				    	break;
 				    }
 				}
@@ -401,7 +401,7 @@ FastSimProducer::createFSimTrack(fastsim::Particle* particle, fastsim::ParticleM
 
 	// move the particle through the caloLayers
 	fastsim::LayerNavigator caloLayerNavigator(caloGeometry_);
-	const fastsim::SimplifiedGeometry * caloLayer = 0;
+	const fastsim::SimplifiedGeometry * caloLayer = nullptr;
 
 	// moveParticleToNextLayer(..) returns 0 in case that particle decays
 	// in this case particle is propagated up to its decay vertex
@@ -413,7 +413,7 @@ FastSimProducer::createFSimTrack(fastsim::Particle* particle, fastsim::ParticleM
 		// break after 25 ns: only happens for particles stuck in loops
 	    if(particle->position().T() > 50)
 	    {
-		    caloLayer = 0;
+		    caloLayer = nullptr;
 			break;
 	    }
 
@@ -450,7 +450,7 @@ FastSimProducer::createFSimTrack(fastsim::Particle* particle, fastsim::ParticleM
 	    	// not necessary to continue propagation
 	    	if(caloLayer->getCaloType() == fastsim::SimplifiedGeometry::VFCAL)
 			{
-				caloLayer = 0;
+				caloLayer = nullptr;
 				break;
 			}
 
@@ -548,7 +548,7 @@ FastSimProducer::createFSimTrack(fastsim::Particle* particle, fastsim::ParticleM
 		// Particle reached end of detector
 		if(caloLayer->getCaloType() == fastsim::SimplifiedGeometry::VFCAL)
 		{
-			caloLayer = 0;
+			caloLayer = nullptr;
 			break;
 		}
 	    

@@ -39,7 +39,7 @@ namespace fastsim
         EnergyLoss(const std::string & name,const edm::ParameterSet & cfg);
 
         //! Default destructor.
-        ~EnergyLoss(){;};
+        ~EnergyLoss() override{;};
 
         //! Perform the interaction.
         /*!
@@ -48,7 +48,7 @@ namespace fastsim
             \param secondaries Particles that are produced in the interaction (if any).
             \param random The Random Engine.
         */
-        void interact(fastsim::Particle & particle, const SimplifiedGeometry & layer, std::vector<std::unique_ptr<fastsim::Particle> > & secondaries, const RandomEngineAndDistribution & random);
+        void interact(fastsim::Particle & particle, const SimplifiedGeometry & layer, std::vector<std::unique_ptr<fastsim::Particle> > & secondaries, const RandomEngineAndDistribution & random) override;
         
         private:
         LandauFluctuationGenerator theGenerator;  //!< Generator to do Landau fluctuation

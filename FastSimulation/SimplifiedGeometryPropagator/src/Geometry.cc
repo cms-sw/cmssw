@@ -23,7 +23,7 @@ using namespace fastsim;
 Geometry::~Geometry(){;}
 
 Geometry::Geometry(const edm::ParameterSet& cfg)
-    : magneticField_(0)
+    : magneticField_(nullptr)
     , useFixedMagneticFieldZ_(cfg.exists("magneticFieldZ"))
     , fixedMagneticFieldZ_(cfg.getUntrackedParameter<double>("magneticFieldZ",0.))
     , useTrackerRecoGeometryRecord_(cfg.getUntrackedParameter<bool>("useTrackerRecoGeometryRecord",true))
@@ -43,7 +43,7 @@ void Geometry::update(const edm::EventSetup & iSetup,const std::map<std::string,
     //----------------
     // find tracker reconstruction geometry
     //----------------
-    const GeometricSearchTracker * geometricSearchTracker = 0;
+    const GeometricSearchTracker * geometricSearchTracker = nullptr;
     if(useTrackerRecoGeometryRecord_)
     {
     	edm::ESHandle<GeometricSearchTracker> geometricSearchTrackerHandle;

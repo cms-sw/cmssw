@@ -65,7 +65,7 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextParticle(const 
     std::unique_ptr<fastsim::Particle> particle;
 
     // retrieve particle from buffer
-    if(particleBuffer_.size() > 0)
+    if(!particleBuffer_.empty())
     {
     	particle = std::move(particleBuffer_.back());
     	particleBuffer_.pop_back();
@@ -74,7 +74,7 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextParticle(const 
     else
     {
 	   particle = nextGenParticle();
-       if(!particle) return 0;
+       if(!particle) return nullptr;
     }
 
     // if filter does not accept, skip particle
@@ -139,7 +139,7 @@ void fastsim::ParticleManager::addSecondaries(
     }
 
     // no need to create vertex in case no particles are produced
-    if(secondaries.size()==0){
+    if(secondaries.empty()){
     	return;
     }
 
