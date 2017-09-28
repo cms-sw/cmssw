@@ -80,7 +80,7 @@ void GeometryAligner::applyAlignments( C* geometry,
   std::vector<AlignTransformErrorExtended>::const_iterator 
 	iAlignError = alignmentErrors->m_alignError.begin();
   //copy  geometry->theMap to a real map to order it....
-  std::map<unsigned int, GeomDet const *> theMap;
+  std::map<unsigned int, std::shared_ptr< GeomDet >> theMap;
   std::copy(geometry->theMap.begin(), geometry->theMap.end(), std::inserter(theMap,theMap.begin()));
   unsigned int nAPE = 0;
   for ( auto iPair = theMap.begin(); 
@@ -106,7 +106,7 @@ void GeometryAligner::applyAlignments( C* geometry,
 	  Surface::RotationType rotation( rotationHep.xx(), rotationHep.xy(), rotationHep.xz(), 
 					  rotationHep.yx(), rotationHep.yy(), rotationHep.yz(), 
 					  rotationHep.zx(), rotationHep.zy(), rotationHep.zz() );
-	  GeomDet* iGeomDet = const_cast<GeomDet*>((*iPair).second);
+	  auto iGeomDet = (*iPair).second;
 	  this->setGeomDetPosition( *iGeomDet, position, rotation );
 
 	  // Alignment Position Error only if non-zero to save memory

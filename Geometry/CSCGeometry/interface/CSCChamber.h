@@ -23,7 +23,7 @@ class CSCChamber : public GeomDet {
 
 public:
 
-  CSCChamber( const BoundPlane::BoundPlanePointer& bp, CSCDetId id, const CSCChamberSpecs* specs ) :
+  CSCChamber( const BoundPlane::BoundPlanePointer& bp, CSCDetId id, std::shared_ptr< CSCChamberSpecs > specs ) :
   GeomDet( bp ),  theChamberSpecs( specs ), 
     theComponents(6, nullptr) {
     setDetId(id);
@@ -39,7 +39,7 @@ public:
   // Which subdetector
   SubDetector subDetector() const override {return GeomDetEnumerators::CSC;}
 
-  const CSCChamberSpecs* specs() const { return theChamberSpecs; }
+  const std::shared_ptr< CSCChamberSpecs > specs() const { return theChamberSpecs; }
 
   /// Return the layers in this chamber
   std::vector< std::shared_ptr< GeomDet >> components() const override;
@@ -65,7 +65,7 @@ public:
 
 private:
 
-  const CSCChamberSpecs* theChamberSpecs;
+  std::shared_ptr< CSCChamberSpecs > theChamberSpecs;
   std::vector< std::shared_ptr< CSCLayer >> theComponents; // the 6 CSCLayers comprising a CSCChamber; are owned by this class
 };
 
