@@ -161,7 +161,7 @@ bool L1TDisplacedMuonStubRecovery::stubInEMTFTracks(const CSCCorrelatedLCTDigi& 
     for (const auto& hit : tftrack.Hits()){
 
       // check only CSC stubs
-      if (not hit.Is_CSC_hit()) continue;
+      if (not hit.Is_CSC()) continue;
 
       // does this stub match?
       if (stub == hit.CSC_LCTDigi()) return true;

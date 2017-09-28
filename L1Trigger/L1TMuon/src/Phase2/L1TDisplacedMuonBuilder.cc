@@ -33,7 +33,7 @@ void L1TDisplacedMuonBuilder::build(const CSCComparatorDigiCollection* comparato
                                     const GEMPadDigiCollection* pads,
                                     const GEMCoPadDigiCollection* copads,
                                     const ME0SegmentCollection* segments,
-                                    const l1t::EMTFTrack2016Collection* emtfTracks,
+                                    const l1t::EMTFTrackCollection* emtfTracks,
                                     const edm::Handle<l1t::MuonBxCollection>& inMuonsH,
                                     const edm::Handle<l1t::MuonBxCollection>& inBmtfH,
                                     const edm::Handle<l1t::MuonBxCollection>& inOmtfPos,
@@ -106,7 +106,7 @@ void L1TDisplacedMuonBuilder::build(const CSCComparatorDigiCollection* comparato
       // Step 3: The DisplacedL1MuMatcher checks for stubs that are already
       // available through the BMTF, OMTF or EMTF tracks.
       /*
-      l1t::EMTFTrack2016 bestTrack;
+      l1t::EMTFTrack bestTrack;
       float mindR = 999;
       for (const auto& track : *emtfTracks){
         float emtf_eta = track.Eta();
