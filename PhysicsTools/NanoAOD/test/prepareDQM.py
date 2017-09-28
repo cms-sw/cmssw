@@ -7,7 +7,7 @@ import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 ROOT.gROOT.SetBatch(True)
 
-from PhysicsTools.NanoAOD.nanoDQM_cff import nanoDQM, Plot1D, Count1D, shortDump
+from PhysicsTools.NanoAOD.nanoDQM_cfi import nanoDQM, NoPlot, Plot1D, Count1D, shortDump
 
 infile = sys.argv[1]
 if not os.path.isfile(infile): raise RuntimeError
@@ -82,6 +82,8 @@ def autoPlot1D(name, col, branch):
     xmin, xmax = tree.GetMinimum(branch.name), tree.GetMaximum(branch.name)
     if col == "@size":
         return Count1D(name, int(xmax+1 if xmax < 40 else 40), -0.5, xmax+0.5)
+    if branch.kind == "Int_t" and "Idx" in name:
+        return NoPlot(name)
     if branch.kind != "Float_t":
         xmin, xmax = map(int, (xmin,xmax))
         if xmax-xmin < 20:

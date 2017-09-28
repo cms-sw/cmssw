@@ -44,7 +44,7 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
         ),
         cms.PSet(
             name = cms.string("Tau"),
-            id = cms.int32(14),
+            id = cms.int32(15),
             sel = cms.string("type(84) && pt > 5 && coll('hltPFTaus')"), 
             l1seed = cms.string("type(-100) && coll('hltGtStage2Digis:Tau')"), l1deltaR = cms.double(0.3),
             l2seed = cms.string("type(84) && coll('hltL2TauJetsL1IsoTauSeeded')"),  l2deltaR = cms.double(0.3),
