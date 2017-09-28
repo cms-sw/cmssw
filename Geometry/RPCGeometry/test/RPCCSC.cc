@@ -110,22 +110,16 @@ RPCCSC::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
   iSetup.get<MuonGeometryRecord>().get(pCSCGeom);
   const CSCGeometry* cscGeometry = (const CSCGeometry*)&*pCSCGeom;
 
-  for (TrackingGeometry::DetContainer::const_iterator it=rpcGeometry->dets().begin();it<rpcGeometry->dets().end();it++){
-    if(dynamic_cast< const RPCChamber* >( *it ) != nullptr ){
-      const RPCChamber* ch = dynamic_cast< const RPCChamber* >( *it ); 
-      std::vector< const RPCRoll*> roles = (ch->rolls());
-      for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
-	RPCDetId rpcId = (*r)->id();
+  for( auto it : rpcGeometry->dets()) {
+    if( std::static_pointer_cast< RPCChamber >( it ) != nullptr ){
+      for( auto r : std::static_pointer_cast< RPCChamber >( it )->rolls() ){
+	RPCDetId rpcId = r->id();
 	int region=rpcId.region();
 	//booking all histograms
 	RPCGeomServ rpcsrv(rpcId);
 	std::string nameRoll = rpcsrv.name();
-	//std::cout<<"Booking for "<<nameRoll<<std::endl;
-	
+
 	if(region!=0){
-// 	  const TrapezoidalStripTopology* topE_=dynamic_cast<const TrapezoidalStripTopology*>(&((*r)->topology()));
-// 	  float stripl = topE_->stripLength();
-// 	  float stripw = topE_->pitch();
 	  int region=rpcId.region();
           int station=rpcId.station();
           int ring=rpcId.ring();
@@ -133,7 +127,6 @@ RPCCSC::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
           int cscstation=station;
 	  RPCGeomServ rpcsrv(rpcId);
 	  int rpcsegment = rpcsrv.segment(); //This replace rpcsrv.segment();
-	  //std::cout<<"My segment="<<mySegment(rpcId)<<" GeomServ="<<rpcsrv.segment()<<std::endl;
 	  int cscchamber = rpcsegment;//FIX THIS ACCORDING TO RPCGeomServ::segment()Definition
           if((station==2||station==3)&&ring==3){//Adding Ring 3 of RPC to the CSC Ring 2
             cscring = 2;
@@ -151,10 +144,11 @@ RPCCSC::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
       }
     }
   }
-  for (TrackingGeometry::DetContainer::const_iterator it=rpcGeometry->dets().begin();it<rpcGeometry->dets().end();it++){
-    if( dynamic_cast< const RPCChamber* >( *it ) != nullptr ){
-      const RPCChamber* ch = dynamic_cast< const RPCChamber* >( *it );                                                                         std::vector< const RPCRoll*> roles = (ch->rolls());                                                                          for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){                              
-	RPCDetId rpcId = (*r)->id();
+  for( auto it : rpcGeometry->dets() ) {
+    if( std::static_pointer_cast< RPCChamber >( it ) != nullptr ){
+      auto ch = std::static_pointer_cast<  RPCChamber >( it );
+      for( auto r : ch->rolls()) {
+	RPCDetId rpcId = r->id();
 	int region = rpcId.region();                                        
 	if(region!=0 && (rpcId.ring()==2 || rpcId.ring()==3)){                                                    
        	  int region=rpcId.region();                                                                                         
@@ -164,12 +158,9 @@ RPCCSC::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 	  
 	  if((station==2||station==3)&&ring==3) cscring = 2; //CSC Ring 2 covers rpc ring 2 & 3                              
 
-
           int cscstation=station;                                                                                            
           RPCGeomServ rpcsrv(rpcId);                                                                                         
-          int rpcsegment = rpcsrv.segment();                                                                                 
-                                                                                                                             
-                                                                                                                                       
+          int rpcsegment = rpcsrv.segment();
           int cscchamber = rpcsegment+1;                                                                                     
           if(cscchamber==37)cscchamber=1;                                                                                    
           CSCStationIndex ind(region,cscstation,cscring,cscchamber);                                                         
@@ -191,11 +182,6 @@ RPCCSC::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
     }
   }
 
-
-  //adding more rpcs 
-
-
-
   // Now check binding
   const CSCGeometry::ChamberContainer& cscChambers = cscGeometry->chambers();
   for(auto cscChamber : cscChambers){   
@@ -205,23 +191,20 @@ RPCCSC::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
     int cscEndCap = CSCId.endcap();
     int cscStation = CSCId.station();
     int cscRing = CSCId.ring();
-//     int cscChamber = CSCId.chamber();
+
     int rpcRegion = 1; if(cscEndCap==2) rpcRegion= -1;//Relacion entre las endcaps
     int rpcRing = cscRing;
     if(cscRing==4)rpcRing =1;
     int rpcStation = cscStation;
     int rpcSegment = CSCId.chamber();
 
-
-    //std::cout<<"CSC \t \t Getting chamber from Geometry"<<std::endl;
-    const CSCChamber* TheChamber=cscGeometry->chamber(CSCId); 
-    //std::cout<<"CSC \t \t Getting ID from Chamber"<<std::endl;
+    auto TheChamber=cscGeometry->chamber(CSCId); 
 
     std::set<RPCDetId> rollsForThisCSC = rollstoreCSC[CSCStationIndex(rpcRegion,rpcStation,rpcRing,rpcSegment)];
     if(CSCId.ring()!=1) std::cout<<"CSC for"<<CSCId<<" "<<rollsForThisCSC.size()<<" rolls."<<std::endl;
 
     for (auto iteraRoll : rollsForThisCSC){
-      const RPCRoll* rollasociated = rpcGeometry->roll(iteraRoll);
+      auto rollasociated = rpcGeometry->roll(iteraRoll);
       RPCDetId rpcId = rollasociated->id();
       RPCGeomServ rpcsrv(rpcId);
 
@@ -230,8 +213,6 @@ RPCCSC::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
       GlobalPoint CenterPointRollGlobal = RPCSurface.toGlobal(LocalPoint(0,0,0));
       GlobalPoint CenterPointCSCGlobal = TheChamber->toGlobal(LocalPoint(0,0,0));
       
-      //LocalPoint CenterRollinCSCFrame = TheChamber->toLocal(CenterPointRollGlobal);
-
       float rpcphi=0;
       float cscphi=0;
       
