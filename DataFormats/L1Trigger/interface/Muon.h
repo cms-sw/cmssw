@@ -65,7 +65,7 @@ namespace l1t {
 
     Muon( const Muon& );
 
-    ~Muon();    
+    ~Muon() override;    
 
     // set values
     inline void setHwCharge(int charge) { hwCharge_ = charge; };
