@@ -856,8 +856,13 @@ bool muon::isLooseMuon(const reco::Muon& muon){
 }
 
 
-bool muon::isMediumMuon(const reco::Muon& muon){
-  if( !( isLooseMuon(muon) && muon.innerTrack()->validFraction() > 0.8 )) return false; 
+bool muon::isMediumMuon(const reco::Muon& muon, bool run2016_hip_mitigation){
+  if( not isLooseMuon(muon) ) return false;
+  if (run2016_hip_mitigation){
+    if (muon.innerTrack()->validFraction() < 0.49 ) return false; 
+  } else {
+    if (muon.innerTrack()->validFraction() < 0.8 ) return false; 
+  }
 
   bool goodGlb = muon.isGlobalMuon() && 
     muon.globalTrack()->normalizedChi2() < 3. && 
@@ -867,8 +872,8 @@ bool muon::isMediumMuon(const reco::Muon& muon){
   return (segmentCompatibility(muon) > (goodGlb ? 0.303 : 0.451)); 
 }
 
-
-bool muon::isSoftMuon(const reco::Muon& muon, const reco::Vertex& vtx){
+bool muon::isSoftMuon(const reco::Muon& muon, const reco::Vertex& vtx,
+		      bool run2016_hip_mitigation){
 
   bool muID = muon::isGoodMuon(muon, TMOneStationTight);
 
@@ -881,7 +886,7 @@ bool muon::isSoftMuon(const reco::Muon& muon, const reco::Vertex& vtx){
   
   bool ip = fabs(muon.innerTrack()->dxy(vtx.position())) < 0.3 && fabs(muon.innerTrack()->dz(vtx.position())) < 20.;
   
-  return layers && ip && ishighq;
+  return layers && ip && (ishighq|run2016_hip_mitigation);
 }
 
 
@@ -946,7 +951,8 @@ int muon::sharedSegments( const reco::Muon& mu, const reco::Muon& mu2, unsigned 
 }
 
 void muon::setCutBasedSelectorFlags(reco::Muon& muon, 
-				    const reco::Vertex* vertex)
+				    const reco::Vertex* vertex,
+				    bool run2016_hip_mitigation)
 {
   // https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideMuonIdRun2
   unsigned int selection = muon.getSelectionMask();
@@ -963,11 +969,11 @@ void muon::setCutBasedSelectorFlags(reco::Muon& muon,
   if (muon::isLooseMuon(muon))        selection |= reco::Muon::CutBasedIdLoose;
   if (vertex){
     if (muon::isTightMuon(muon,*vertex))  selection |= reco::Muon::CutBasedIdTight;
-    if (muon::isSoftMuon(muon,*vertex))   selection |= reco::Muon::SoftCutBasedId;
+    if (muon::isSoftMuon(muon,*vertex,run2016_hip_mitigation))   selection |= reco::Muon::SoftCutBasedId;
     if (muon::isHighPtMuon(muon,*vertex)) selection |= reco::Muon::CutBasedIdGlobalHighPt;
     if (muon::isTrackerHighPtMuon(muon,*vertex)) selection |= reco::Muon::CutBasedIdTrkHighPt;
   }
-  if (muon::isMediumMuon(muon)){
+  if (muon::isMediumMuon(muon,run2016_hip_mitigation)){
     selection |= reco::Muon::CutBasedIdMedium;
     if ( vertex and 
 	 fabs(muon.muonBestTrack()->dz( vertex->position()))<0.1 and 
