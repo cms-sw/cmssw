@@ -57,8 +57,8 @@ class  CandidatePointSeededTrackingRegionsProducer : public TrackingRegionProduc
 {
 public:
 
-  typedef enum {BEAM_SPOT_FIXED, BEAM_SPOT_SIGMA, VERTICES_FIXED, VERTICES_SIGMA } Mode;
-  typedef enum {CANDIDATE_SEEDED, POINT_SEEDED, CANDIDATE_POINT_SEEDED} SeedingMode;
+  enum class Mode {BEAM_SPOT_FIXED, BEAM_SPOT_SIGMA, VERTICES_FIXED, VERTICES_SIGMA };
+  enum class SeedingMode {CANDIDATE_SEEDED, POINT_SEEDED, CANDIDATE_POINT_SEEDED};
 
   explicit CandidatePointSeededTrackingRegionsProducer(const edm::ParameterSet& conf,
 	edm::ConsumesCollector && iC)
@@ -67,35 +67,50 @@ public:
 
     // operation mode
     std::string modeString       = regPSet.getParameter<std::string>("mode");
-    if      (modeString == "BeamSpotFixed") m_mode = BEAM_SPOT_FIXED;
-    else if (modeString == "BeamSpotSigma") m_mode = BEAM_SPOT_SIGMA;
-    else if (modeString == "VerticesFixed") m_mode = VERTICES_FIXED;
-    else if (modeString == "VerticesSigma") m_mode = VERTICES_SIGMA;
-    else  edm::LogError ("CandidatePointSeededTrackingRegionsProducer")<<"Unknown mode string: "<<modeString;
+    if      (modeString == "BeamSpotFixed") m_mode = Mode::BEAM_SPOT_FIXED;
+    else if (modeString == "BeamSpotSigma") m_mode = Mode::BEAM_SPOT_SIGMA;
+    else if (modeString == "VerticesFixed") m_mode = Mode::VERTICES_FIXED;
+    else if (modeString == "VerticesSigma") m_mode = Mode::VERTICES_SIGMA;
+    else throw edm::Exception(edm::errors::Configuration) << "Unknown mode string: "<<modeString;
 
     // seeding mode
     std::string seedingModeString = regPSet.getParameter<std::string>("seedingMode");
-    if      (seedingModeString == "Candidate")      m_seedingMode = CANDIDATE_SEEDED;
-    else if (seedingModeString == "Point")          m_seedingMode = POINT_SEEDED;
-    else if (seedingModeString == "CandidatePoint") m_seedingMode = CANDIDATE_POINT_SEEDED;
-    else  edm::LogError ("CandidatePointSeededTrackingRegionsProducer")<<"Unknown seeding mode string: "<<seedingModeString;
+    if      (seedingModeString == "Candidate")      m_seedingMode = SeedingMode::CANDIDATE_SEEDED;
+    else if (seedingModeString == "Point")          m_seedingMode = SeedingMode::POINT_SEEDED;
+    else if (seedingModeString == "CandidatePoint") m_seedingMode = SeedingMode::CANDIDATE_POINT_SEEDED;
+    else throw edm::Exception(edm::errors::Configuration) << "Unknown seeding mode string: "<<seedingModeString;
 
     // basic inputs
-    if(m_seedingMode == CANDIDATE_SEEDED || m_seedingMode == CANDIDATE_POINT_SEEDED)
+    if(m_seedingMode == SeedingMode::CANDIDATE_SEEDED || m_seedingMode == SeedingMode::CANDIDATE_POINT_SEEDED)
       token_input        = iC.consumes<reco::CandidateView>(regPSet.getParameter<edm::InputTag>("input"));
 
     // Specific points in the detector
-    if(m_seedingMode == POINT_SEEDED || m_seedingMode == CANDIDATE_POINT_SEEDED){
+    if(m_seedingMode == SeedingMode::POINT_SEEDED || m_seedingMode == SeedingMode::CANDIDATE_POINT_SEEDED){
       edm::ParameterSet points = regPSet.getParameter<edm::ParameterSet>("points");
       etaPoints = points.getParameter<std::vector<double>>("eta");
       phiPoints = points.getParameter<std::vector<double>>("phi");
+      n_points = etaPoints.size();
+
       if (!(etaPoints.size() == phiPoints.size()))  throw edm::Exception(edm::errors::Configuration) << "The parameters 'eta' and 'phi' must have the same size";
+      if (n_points == 0) throw edm::Exception(edm::errors::Configuration) << "At least one point should be defined for point or candidate+point seeding modes";
+
+      for(size_t i = 0; i < n_points; ++i ){
+
+      	double x = std::cos(phiPoints[i]);
+	double y = std::sin(phiPoints[i]);
+	double theta = 2*std::atan(std::exp(-etaPoints[i]));
+	double z = 1./std::tan(theta);
+	GlobalVector direction( x,y,z );
+	directionPoints.push_back(direction);
+
+      }
+
     }
 
     m_maxNRegions      = regPSet.getParameter<int>("maxNRegions");
     token_beamSpot     = iC.consumes<reco::BeamSpot>(regPSet.getParameter<edm::InputTag>("beamSpot"));
     m_maxNVertices     = 1;
-    if (m_mode == VERTICES_FIXED || m_mode == VERTICES_SIGMA)
+    if (m_mode == Mode::VERTICES_FIXED || m_mode == Mode::VERTICES_SIGMA)
     {
       token_vertex       = iC.consumes<reco::VertexCollection>(regPSet.getParameter<edm::InputTag>("vertexCollection"));
       m_maxNVertices     = regPSet.getParameter<int>("maxNVertices");
@@ -109,19 +124,19 @@ public:
     m_deltaEta         = regPSet.getParameter<double>("deltaEta");
     m_deltaPhi         = regPSet.getParameter<double>("deltaPhi");
 
-    if (m_seedingMode == CANDIDATE_SEEDED){
+    if (m_seedingMode == SeedingMode::CANDIDATE_SEEDED){
       m_deltaEta_Cand = regPSet.getParameter<double>("deltaEta_Cand");
       if(m_deltaEta_Cand<0) m_deltaEta_Cand = m_deltaEta; //For backwards compatibility
       m_deltaPhi_Cand = regPSet.getParameter<double>("deltaPhi_Cand");
       if(m_deltaPhi_Cand<0) m_deltaPhi_Cand = m_deltaPhi; //For backwards compatibility
     }
-    else if (m_seedingMode == POINT_SEEDED){
+    else if (m_seedingMode == SeedingMode::POINT_SEEDED){
       m_deltaEta_Point = regPSet.getParameter<double>("deltaEta_Point");
       if(m_deltaEta_Point<0) m_deltaEta_Point = m_deltaEta; //For backwards compatibility
       m_deltaPhi_Point = regPSet.getParameter<double>("deltaPhi_Point");
       if(m_deltaPhi_Point<0) m_deltaPhi_Point = m_deltaPhi; //For backwards compatibility
     }
-    else if (m_seedingMode == CANDIDATE_POINT_SEEDED){
+    else if (m_seedingMode == SeedingMode::CANDIDATE_POINT_SEEDED){
       m_deltaEta_Cand = regPSet.getParameter<double>("deltaEta_Cand");
       m_deltaPhi_Cand = regPSet.getParameter<double>("deltaPhi_Cand");
       m_deltaEta_Point = regPSet.getParameter<double>("deltaEta_Point");
@@ -138,14 +153,14 @@ public:
     if (regPSet.exists("searchOpt")) m_searchOpt = regPSet.getParameter<bool>("searchOpt");
 
     // mode-dependent z-halflength of tracking regions
-    if (m_mode == VERTICES_SIGMA)  m_nSigmaZVertex   = regPSet.getParameter<double>("nSigmaZVertex");
-    if (m_mode == VERTICES_FIXED)  m_zErrorVetex     = regPSet.getParameter<double>("zErrorVetex");
+    if (m_mode == Mode::VERTICES_SIGMA)  m_nSigmaZVertex   = regPSet.getParameter<double>("nSigmaZVertex");
+    if (m_mode == Mode::VERTICES_FIXED)  m_zErrorVetex     = regPSet.getParameter<double>("zErrorVetex");
     m_nSigmaZBeamSpot = -1.;
-    if (m_mode == BEAM_SPOT_SIGMA)
+    if (m_mode == Mode::BEAM_SPOT_SIGMA)
     {
       m_nSigmaZBeamSpot = regPSet.getParameter<double>("nSigmaZBeamSpot");
       if (m_nSigmaZBeamSpot < 0.)
-        edm::LogError ("CandidatePointSeededTrackingRegionsProducer")<<"nSigmaZBeamSpot must be positive for BeamSpotSigma mode!";
+	throw edm::Exception(edm::errors::Configuration) << "nSigmaZBeamSpot must be positive for BeamSpotSigma mode!";
     }
   }
   
@@ -200,22 +215,17 @@ public:
   {
     std::vector<std::unique_ptr<TrackingRegion> > result;
 
-    // pick up the candidate objects of interest
+    // pick up the candidate objects of interest    
     edm::Handle< reco::CandidateView > objects;
     size_t n_objects = 0;
-    size_t n_points = 0;
 
-    if(m_seedingMode == CANDIDATE_SEEDED || m_seedingMode == CANDIDATE_POINT_SEEDED){
+    if(m_seedingMode == SeedingMode::CANDIDATE_SEEDED || m_seedingMode == SeedingMode::CANDIDATE_POINT_SEEDED){
       e.getByToken( token_input, objects );
       n_objects = objects->size();
       if (n_objects == 0) return result;
     }
 
-    if(m_seedingMode == POINT_SEEDED || m_seedingMode == CANDIDATE_POINT_SEEDED){
-      n_points = etaPoints.size();
-      if (n_points == 0) return result;
-    }
-	
+    const auto& objs = *objects;
 
     // always need the beam spot (as a fall back strategy for vertex modes)
     edm::Handle< reco::BeamSpot > bs;
@@ -229,14 +239,13 @@ public:
     std::vector< std::pair< GlobalPoint, float > > origins;
 
     // fill the origins and halfLengths depending on the mode
-    if (m_mode == BEAM_SPOT_FIXED || m_mode == BEAM_SPOT_SIGMA)
+    if (m_mode == Mode::BEAM_SPOT_FIXED || m_mode == Mode::BEAM_SPOT_SIGMA)
     {
-      origins.push_back( std::make_pair(
-          default_origin,
-          (m_mode == BEAM_SPOT_FIXED) ? m_zErrorBeamSpot : m_nSigmaZBeamSpot*bs->sigmaZ()
-      ));
+      origins.emplace_back( default_origin,
+			    (m_mode == Mode::BEAM_SPOT_FIXED) ? m_zErrorBeamSpot : m_nSigmaZBeamSpot*bs->sigmaZ()
+			    );
     }
-    else if (m_mode == VERTICES_FIXED || m_mode == VERTICES_SIGMA)
+    else if (m_mode == Mode::VERTICES_FIXED || m_mode == Mode::VERTICES_SIGMA)
     {
       edm::Handle< reco::VertexCollection > vertices;
       e.getByToken( token_vertex, vertices );
@@ -244,20 +253,17 @@ public:
       for (reco::VertexCollection::const_iterator v = vertices->begin(); v != vertices->end() && n_vert < m_maxNVertices; ++v)
       {
         if ( v->isFake() || !v->isValid() ) continue;
-
-        origins.push_back( std::make_pair(
-            GlobalPoint( v->x(), v->y(), v->z() ),
-            (m_mode == VERTICES_FIXED) ? m_zErrorVetex : m_nSigmaZVertex*v->zError()
-        ));
+	origins.emplace_back( GlobalPoint( v->x(), v->y(), v->z() ),
+			      (m_mode == Mode::VERTICES_FIXED) ? m_zErrorVetex : m_nSigmaZVertex*v->zError()
+			      );
         ++n_vert;
       }
       // no-vertex fall-back case:
       if (origins.empty())
       {
-        origins.push_back( std::make_pair(
-            default_origin,
-            (m_nSigmaZBeamSpot > 0.) ? m_nSigmaZBeamSpot*bs->z0Error() : m_zErrorBeamSpot
-        ));
+	origins.emplace_back( default_origin,
+			      (m_nSigmaZBeamSpot > 0.) ? m_nSigmaZBeamSpot*bs->z0Error() : m_zErrorBeamSpot
+			      );
       }
     }
     
@@ -272,13 +278,13 @@ public:
     // objects of interest (we expect that the collection was sorted in decreasing pt order)
     int n_regions = 0;
 
-    if(m_seedingMode == CANDIDATE_SEEDED) {
+    if(m_seedingMode == SeedingMode::CANDIDATE_SEEDED) {
 
       for(size_t i = 0; i < n_objects && n_regions < m_maxNRegions; ++i ) {
 
-	const reco::Candidate & object = (*objects)[i];
-	GlobalVector direction( object.momentum().x(), object.momentum().y(), object.momentum().z() );
-	
+	const reco::Candidate & object = objs[i];
+	GlobalVector direction( object.momentum().x(), object.momentum().y(), object.momentum().z() );	
+
 	for (size_t  j=0; j<origins.size() && n_regions < m_maxNRegions; ++j) {	
 
 	  result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>(
@@ -303,21 +309,14 @@ public:
     }
      
 
-    else if(m_seedingMode == POINT_SEEDED) {
+    else if(m_seedingMode == SeedingMode::POINT_SEEDED) {
 
-      for(size_t i = 0; i < n_points && n_regions < m_maxNRegions; ++i ) {
+      for(size_t i = 0; i < n_points && n_regions < m_maxNRegions; ++i ) {	
 
-	double x = std::cos(phiPoints[i]);
-	double y = std::sin(phiPoints[i]);
-	double theta = 2*std::atan(std::exp(-etaPoints[i]));
-	double z = 1./std::tan(theta);
-
-	GlobalVector direction( x,y,z );
-	
 	for (size_t  j=0; j<origins.size() && n_regions < m_maxNRegions; ++j) {
 	  	 
 	  result.push_back( std::make_unique<RectangularEtaPhiTrackingRegion>(
-			    direction, // GlobalVector
+			    directionPoints[i], // GlobalVector
 			    origins[j].first, // GlobalPoint
 			    m_ptMin,
 			    m_originRadius,
@@ -338,11 +337,11 @@ public:
     }
 
 
-    else if(m_seedingMode == CANDIDATE_POINT_SEEDED) {
-   
+    else if(m_seedingMode == SeedingMode::CANDIDATE_POINT_SEEDED) {        
+
       for(size_t i = 0; i < n_objects && n_regions < m_maxNRegions; ++i ) {
 
-	const reco::Candidate & object = (*objects)[i];
+	const reco::Candidate & object = objs[i];
 	double eta_Cand = object.eta();
 	double phi_Cand = object.phi();
 	
@@ -426,8 +425,11 @@ private:
   edm::EDGetTokenT<reco::CandidateView> token_input; 
   int m_maxNVertices;
 
+  size_t n_points;
   std::vector<double> etaPoints;
   std::vector<double> phiPoints;
+  std::vector<GlobalVector> directionPoints;
+
 
   float m_ptMin;
   float m_originRadius;
