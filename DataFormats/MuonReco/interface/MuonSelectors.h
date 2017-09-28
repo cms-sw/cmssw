@@ -87,8 +87,8 @@ namespace muon {
 
    bool isTightMuon(const reco::Muon&, const reco::Vertex&);
    bool isLooseMuon(const reco::Muon&);
-   bool isMediumMuon(const reco::Muon&);
-   bool isSoftMuon(const reco::Muon&, const reco::Vertex&);
+   bool isMediumMuon(const reco::Muon&, bool run2016_hip_mitigation=false);
+   bool isSoftMuon(const reco::Muon&, const reco::Vertex&, bool run2016_hip_mitigation=false);
    bool isHighPtMuon(const reco::Muon&, const reco::Vertex&);
    bool isTrackerHighPtMuon(const reco::Muon&, const reco::Vertex&);
    
@@ -118,6 +118,7 @@ namespace muon {
                        unsigned int segmentArbitrationMask = reco::MuonSegmentMatch::BestInChamberByDR ) ;
 
    void setCutBasedSelectorFlags(reco::Muon& muon,
-				 const reco::Vertex* vertex=nullptr);
+				 const reco::Vertex* vertex=nullptr,
+				 bool run2016_hip_mitigation=false);
 }
 #endif
