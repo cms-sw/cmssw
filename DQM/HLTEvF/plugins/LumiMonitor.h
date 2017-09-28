@@ -60,6 +60,7 @@ private:
 
   edm::EDGetTokenT<LumiScalersCollection> lumiScalersToken_;
   MEbinning lumi_binning_;
+  MEbinning pu_binning_;
   MEbinning ls_binning_;
 
   bool  doPixelLumi_;
@@ -76,6 +77,7 @@ private:
   MonitorElement* numberOfPixelClustersVsLS_;
   MonitorElement* numberOfPixelClustersVsLumi_;
   MonitorElement* lumiVsLS_;
+  MonitorElement* puVsLS_;
   MonitorElement* pixelLumiVsLS_;
   MonitorElement* pixelLumiVsLumi_;
 
