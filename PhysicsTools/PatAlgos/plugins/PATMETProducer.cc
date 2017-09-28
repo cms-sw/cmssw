@@ -105,13 +105,17 @@ void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     // add the generated MET
     if (addGenMET_) amet.setGenMET((*genMETs)[idx]);
 
-    amet.setCHSMETpt((*chsMETs)[idx].pt());
-    amet.setCHSMETphi((*chsMETs)[idx].phi());
-    amet.setCHSMETsumEt((*chsMETs)[idx].sumEt());
 
-    amet.setTrkMETpt((*trkMETs)[idx].pt());
-    amet.setTrkMETphi((*trkMETs)[idx].phi());
-    amet.setTrkMETsumEt((*trkMETs)[idx].sumEt());
+    if (chsMETs.isValid()){
+        amet.setCHSMETpt((*chsMETs)[idx].pt());
+        amet.setCHSMETphi((*chsMETs)[idx].phi());
+        amet.setCHSMETsumEt((*chsMETs)[idx].sumEt());
+    }
+    if (trkMETs.isValid()){
+        amet.setTrkMETpt((*trkMETs)[idx].pt());
+        amet.setTrkMETphi((*trkMETs)[idx].phi());
+        amet.setTrkMETsumEt((*trkMETs)[idx].sumEt());
+    }
 
     //add the MET significance
     if(calculateMETSignificance_) {
