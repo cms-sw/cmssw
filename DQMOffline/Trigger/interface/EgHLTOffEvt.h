@@ -15,6 +15,8 @@
 //       
 //      
 
+#include <utility>
+
 #include "DQMOffline/Trigger/interface/EgHLTOffEle.h"
 #include "DQMOffline/Trigger/interface/EgHLTOffPho.h"
 
@@ -38,8 +40,8 @@ namespace egHLT {
 
     
   public:
-    OffEvt(){}
-    ~OffEvt(){}
+    OffEvt()= default;
+    ~OffEvt()= default;
     
     //accessors
     //    const trigger::TriggerEvent& trigEvt()const{return *trigEvt_.product();}
@@ -53,7 +55,7 @@ namespace egHLT {
     //modifiers
     void clear();
     void setEvtTrigBits(TrigCodes::TrigBitSet bits){evtTrigBits_=bits;}
-    void setJets(edm::Handle<std::vector<reco::CaloJet> > jets){jets_=jets;}
+    void setJets(edm::Handle<std::vector<reco::CaloJet> > jets){jets_=std::move(jets);}
 
   };
 }

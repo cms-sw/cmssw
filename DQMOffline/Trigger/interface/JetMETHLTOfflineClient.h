@@ -64,9 +64,9 @@ class JetMETHLTOfflineClient : public DQMEDHarvester {
 
  public:
   explicit JetMETHLTOfflineClient(const edm::ParameterSet& );
-  virtual ~JetMETHLTOfflineClient();
+  ~JetMETHLTOfflineClient() override;
 
-  virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
   
 };
  
