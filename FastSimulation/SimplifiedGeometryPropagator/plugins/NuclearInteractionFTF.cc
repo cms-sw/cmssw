@@ -108,7 +108,7 @@ namespace fastsim
     NuclearInteractionFTF(const std::string & name,const edm::ParameterSet & cfg);
 
     //! Default destructor.
-    ~NuclearInteractionFTF();
+    ~NuclearInteractionFTF() override;
     
     //! Perform the interaction.
     /*!
@@ -117,7 +117,7 @@ namespace fastsim
         \param secondaries Particles that are produced in the interaction (if any).
         \param random The Random Engine.
     */
-    void interact(fastsim::Particle & particle, const SimplifiedGeometry & layer,std::vector<std::unique_ptr<fastsim::Particle> > & secondaries,const RandomEngineAndDistribution & random);
+    void interact(fastsim::Particle & particle, const SimplifiedGeometry & layer,std::vector<std::unique_ptr<fastsim::Particle> > & secondaries,const RandomEngineAndDistribution & random) override;
     
     private:
     static const int numHadrons = 30; //!< Number of G4 hadrons
@@ -239,7 +239,7 @@ namespace fastsim
     // Is this correct?
     // Thread safety
     static std::once_flag initializeOnce;
-    [[cms::thread_guard("initializeOnce")]] const G4ParticleDefinition* NuclearInteractionFTF::theG4Hadron[] = {0};
+    [[cms::thread_guard("initializeOnce")]] const G4ParticleDefinition* NuclearInteractionFTF::theG4Hadron[] = {nullptr};
     [[cms::thread_guard("initializeOnce")]] int NuclearInteractionFTF::theId[] = {0};
 }
 
@@ -325,7 +325,7 @@ fastsim::NuclearInteractionFTF::NuclearInteractionFTF(const std::string & name,c
     intLengthElastic = intLengthInelastic = 0.0;
     currIdx = 0;
     index = 0;
-    currTrack = 0;
+    currTrack = nullptr;
     currParticle = theG4Hadron[0];
 
     // fill projectile particle definitions
@@ -374,7 +374,7 @@ void fastsim::NuclearInteractionFTF::interact(fastsim::Particle & particle, cons
 
     // get the G4 hadron
     if(thePid != theId[currIdx]) {
-        currParticle = 0;
+        currParticle = nullptr;
         currIdx = 0;
         for(; currIdx<numHadrons; ++currIdx) {
             if(theId[currIdx] == thePid) {

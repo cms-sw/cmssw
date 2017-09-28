@@ -41,7 +41,7 @@ namespace fastsim
     	MultipleScattering(const std::string & name,const edm::ParameterSet & cfg);
 
         //! Default destructor.
-        ~MultipleScattering(){;};
+        ~MultipleScattering() override{;};
 
         //! Perform the interaction.
         /*!
@@ -50,7 +50,7 @@ namespace fastsim
             \param secondaries Particles that are produced in the interaction (if any).
             \param random The Random Engine.
         */
-    	void interact(Particle & particle,const SimplifiedGeometry & layer, std::vector<std::unique_ptr<Particle> > & secondaries, const RandomEngineAndDistribution & random);
+    	void interact(Particle & particle,const SimplifiedGeometry & layer, std::vector<std::unique_ptr<Particle> > & secondaries, const RandomEngineAndDistribution & random) override;
         
         private:
         //! Return an orthogonal vector.

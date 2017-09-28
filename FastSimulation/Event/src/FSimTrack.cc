@@ -7,9 +7,9 @@
 //using namespace HepPDT;
 
 FSimTrack:: FSimTrack() : 
-  SimTrack(), mom_(0), id_(-1), charge_(-999), endv_(-1),
+  SimTrack(), mom_(nullptr), id_(-1), charge_(-999), endv_(-1),
   layer1(0), layer2(0), ecal(0), hcal(0), vfcal(0), hcalexit(0), hoentr(0), 
-  prop(false), closestDaughterId_(-1), info_(0),
+  prop(false), closestDaughterId_(-1), info_(nullptr),
   properDecayTime(1E99) {;}
   
 FSimTrack::FSimTrack(const RawParticle* p, 
@@ -32,9 +32,9 @@ FSimTrack::FSimTrack(const RawParticle* p,
 // Not sure if momentum in constructor of SimTrack and momentum_ are correctly set...
 FSimTrack::FSimTrack(int ipart, const math::XYZTLorentzVector& p, int iv, int ig, int id, double charge, const math::XYZTLorentzVector& tkp, const math::XYZTLorentzVector& tkm, const SimVertex& tkv) :
   SimTrack(ipart, p, iv, ig, math::XYZVectorD(tkp.X(), tkp.Y(), tkp.Z()),  tkm), vertex_(tkv),
-  mom_(0), id_(id), charge_(charge), endv_(-1),
+  mom_(nullptr), id_(id), charge_(charge), endv_(-1),
   layer1(0), layer2(0), ecal(0), hcal(0), vfcal(0), hcalexit(0), hoentr(0), prop(false),
-  closestDaughterId_(-1), info_(0), momentum_(tkm),
+  closestDaughterId_(-1), info_(nullptr), momentum_(tkm),
   properDecayTime(-1) {;}
 
 FSimTrack::~FSimTrack() {;}
@@ -115,7 +115,7 @@ FSimTrack::setHO(const RawParticle& pp, int success) {
 
 std::ostream& operator <<(std::ostream& o , const FSimTrack& t) {
   std::string name = t.particleInfo() ? t.particleInfo()->name() : "Unknown";
-  XYZTLorentzVector momentum1 = t.momentum();
+  const XYZTLorentzVector& momentum1 = t.momentum();
   XYZVector vertex1 = t.vertex().position().Vect();
   int vertexId1 = t.vertex().id();
 

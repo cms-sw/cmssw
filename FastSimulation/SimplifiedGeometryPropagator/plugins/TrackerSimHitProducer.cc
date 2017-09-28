@@ -59,7 +59,7 @@ namespace fastsim
     	TrackerSimHitProducer(const std::string & name,const edm::ParameterSet & cfg);
 
         //! Default destructor.
-    	~TrackerSimHitProducer(){;}
+    	~TrackerSimHitProducer() override{;}
 
         //! Perform the interaction.
         /*!
@@ -71,10 +71,10 @@ namespace fastsim
     	void interact(Particle & particle,const SimplifiedGeometry & layer,std::vector<std::unique_ptr<Particle> > & secondaries,const RandomEngineAndDistribution & random) override;
     	
         //! Register the SimHit collection.
-        virtual void registerProducts(edm::ProducerBase & producer) const override;
+        void registerProducts(edm::ProducerBase & producer) const override;
 
         //! Store the SimHit collection.
-    	virtual void storeProducts(edm::Event & iEvent) override;
+    	void storeProducts(edm::Event & iEvent) override;
 
         //! Helper funtion to create the actual SimHit on a detector (sub-) module.
         /*!
@@ -273,7 +273,7 @@ std::pair<double, PSimHit*> fastsim::TrackerSimHitProducer::createHitOnDetector(
     	// case propagation fails
     	else
     	{
-    	    return std::pair<double, PSimHit*>(0, 0);
+    	    return std::pair<double, PSimHit*>(0, nullptr);
     	}
     }
 
@@ -294,7 +294,7 @@ std::pair<double, PSimHit*> fastsim::TrackerSimHitProducer::createHitOnDetector(
 	boundX *=  1. - localPosition.y() / detectorPlane.position().perp();
     if(fabs(localPosition.x()) > boundX  || fabs(localPosition.y()) > boundY )
     {
-	   return std::pair<double, PSimHit*>(0, 0);
+	   return std::pair<double, PSimHit*>(0, nullptr);
     }
 
     // Create the hit: the energy loss rescaled to the module thickness

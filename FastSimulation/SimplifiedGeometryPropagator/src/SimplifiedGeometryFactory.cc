@@ -8,7 +8,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "TH1F.h"
-#include "ctype.h"
+#include <cctype>
 
 
 fastsim::SimplifiedGeometryFactory::SimplifiedGeometryFactory(const GeometricSearchTracker * geometricSearchTracker,
@@ -74,7 +74,7 @@ std::unique_ptr<fastsim::SimplifiedGeometry> fastsim::SimplifiedGeometryFactory:
     // -------------------------------
 
     std::string detLayerName = cfg.getUntrackedParameter<std::string>("activeLayer","");
-    const DetLayer * detLayer = 0;
+    const DetLayer * detLayer = nullptr;
 
     if(!detLayerName.empty() && geometricSearchTracker_)
     {
@@ -169,7 +169,7 @@ std::unique_ptr<fastsim::SimplifiedGeometry> fastsim::SimplifiedGeometryFactory:
     }
     // create the histogram
     layer->thicknessHist_.reset(new TH1F("h", "h", limits.size()-1, &limits[0]));
-    layer->thicknessHist_->SetDirectory(0);
+    layer->thicknessHist_->SetDirectory(nullptr);
     for(unsigned i = 1; i < limits.size(); ++i){
 	   layer->thicknessHist_->SetBinContent(i, thickness[i-1]);
     }
@@ -185,7 +185,7 @@ std::unique_ptr<fastsim::SimplifiedGeometry> fastsim::SimplifiedGeometryFactory:
     // -----------------------------
     
     layer->magneticFieldHist_.reset(new TH1F("h", "h", 100, 0., isForward ? magneticFieldHistMaxR_ : magneticFieldHistMaxZ_));
-    layer->magneticFieldHist_->SetDirectory(0);
+    layer->magneticFieldHist_->SetDirectory(nullptr);
     for(int i = 1; i <= 101; i++)
     {
     	GlobalPoint point = isForward ? 
@@ -217,15 +217,15 @@ std::unique_ptr<fastsim::SimplifiedGeometry> fastsim::SimplifiedGeometryFactory:
     {
         std::string caloType = cfg.getUntrackedParameter<std::string>("caloType");
 
-        if(caloType.compare("PRESHOWER1") == 0){
+        if(caloType == "PRESHOWER1"){
             layer->setCaloType(SimplifiedGeometry::PRESHOWER1);
-        }else if(caloType.compare("PRESHOWER2") == 0){
+        }else if(caloType == "PRESHOWER2"){
             layer->setCaloType(SimplifiedGeometry::PRESHOWER2);
-        }else if(caloType.compare("ECAL") == 0){
+        }else if(caloType == "ECAL"){
             layer->setCaloType(SimplifiedGeometry::ECAL);
-        }else if(caloType.compare("HCAL") == 0){
+        }else if(caloType == "HCAL"){
             layer->setCaloType(SimplifiedGeometry::HCAL);
-        }else if(caloType.compare("VFCAL") == 0){
+        }else if(caloType == "VFCAL"){
             layer->setCaloType(SimplifiedGeometry::VFCAL);
         }else{
             throw cms::Exception("fastsim::SimplifiedGeometryFactory") << "unknown caloType '" << caloType << "' (defined PRESHOWER1, PRESHOWER2, ECAL, HCAL, VFCAL)";
@@ -245,7 +245,7 @@ fastsim::SimplifiedGeometryFactory::getDetLayer(const std::string & detLayerName
 {
     if(detLayerName.empty())
     {
-	   return 0;
+	   return nullptr;
     }
 
     // obtain the index from the detLayerName

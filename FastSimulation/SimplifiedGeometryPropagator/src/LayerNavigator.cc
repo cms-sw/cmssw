@@ -59,10 +59,10 @@ const std::string fastsim::LayerNavigator::MESSAGECATEGORY = "FastSimulation";
 
 fastsim::LayerNavigator::LayerNavigator(const fastsim::Geometry & geometry)
     : geometry_(&geometry)
-    , nextBarrelLayer_(0)
-    , previousBarrelLayer_(0)
-    , nextForwardLayer_(0)
-    , previousForwardLayer_(0)
+    , nextBarrelLayer_(nullptr)
+    , previousBarrelLayer_(nullptr)
+    , nextForwardLayer_(nullptr)
+    , previousForwardLayer_(nullptr)
 {;}
 
 bool fastsim::LayerNavigator::moveParticleToNextLayer(fastsim::Particle & particle,const fastsim::SimplifiedGeometry * & layer)
@@ -187,7 +187,7 @@ bool fastsim::LayerNavigator::moveParticleToNextLayer(fastsim::Particle & partic
 		}
 
 		// reset layer
-		layer = 0;
+		layer = nullptr;
     }
 
     ////////////
@@ -233,7 +233,7 @@ bool fastsim::LayerNavigator::moveParticleToNextLayer(fastsim::Particle & partic
     {
 		double tempDeltaTime = trajectory->nextCrossingTimeC(*_layer, particle.isOnLayer(_layer->isForward(), _layer->index()));
 		LogDebug(MESSAGECATEGORY) << "   particle crosses layer " << *_layer << " in time " << tempDeltaTime;
-		if(tempDeltaTime > 0 && (layer == 0 || tempDeltaTime<deltaTimeC || deltaTimeC < 0))
+		if(tempDeltaTime > 0 && (layer == nullptr || tempDeltaTime<deltaTimeC || deltaTimeC < 0))
 		{
 		    layer = _layer;
 		    deltaTimeC = tempDeltaTime;
@@ -256,7 +256,7 @@ bool fastsim::LayerNavigator::moveParticleToNextLayer(fastsim::Particle & partic
 		// particle no longer is on a layer
     	particle.resetOnLayer();
 		LogDebug(MESSAGECATEGORY) << "    particle about to decay. Will not be moved all the way to the next layer.";
-		return 0;
+		return false;
     }
 
     if(layer)
