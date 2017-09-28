@@ -188,6 +188,8 @@ def miniAOD_customizeCommon(process):
 
     task.add(process.pfMetCHS)    
 
+    process.patMETs.chsmetSource = cms.InputTag("pfMetCHS")
+
     #  ==================  CHSMET 
 
     #  ==================  TrkMET 
@@ -205,7 +207,11 @@ def miniAOD_customizeCommon(process):
                                       )
 
     task.add(process.pfMetTrk)
+
+    process.patMETs.trkmetSource = cms.InputTag("pfMetTrk")
+
     #  ==================  TrkMET 
+    
 
     ## PU JetID
     process.load("RecoJets.JetProducers.PileupJetID_cfi")
