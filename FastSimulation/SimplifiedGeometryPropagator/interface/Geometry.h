@@ -97,12 +97,12 @@ namespace fastsim{
 		*/
 		const BarrelSimplifiedGeometry * nextLayer(const BarrelSimplifiedGeometry * layer) const
 		{
-		    if(layer == 0)
+		    if(layer == nullptr)
 		    {
-			return 0;
+			return nullptr;
 		    }
 		    unsigned nextLayerIndex = layer->index() + 1;
-		    return nextLayerIndex < barrelLayers_.size() ? barrelLayers_[nextLayerIndex].get() : 0;
+		    return nextLayerIndex < barrelLayers_.size() ? barrelLayers_[nextLayerIndex].get() : nullptr;
 		}
 
 		//! Helps to navigate through the vector of forward layers.
@@ -113,12 +113,12 @@ namespace fastsim{
 		*/
 		const ForwardSimplifiedGeometry * nextLayer(const ForwardSimplifiedGeometry * layer) const
 		{
-		    if(layer == 0)
+		    if(layer == nullptr)
 		    {
-			return 0;
+			return nullptr;
 		    }
 		    unsigned nextLayerIndex = layer->index() + 1;
-		    return nextLayerIndex < forwardLayers_.size() ? forwardLayers_[nextLayerIndex].get() : 0;
+		    return nextLayerIndex < forwardLayers_.size() ? forwardLayers_[nextLayerIndex].get() : nullptr;
 		}
 
 		//! Helps to navigate through the vector of barrel layers.
@@ -129,11 +129,11 @@ namespace fastsim{
 		*/
 		const BarrelSimplifiedGeometry * previousLayer(const BarrelSimplifiedGeometry * layer) const
 		{
-		    if(layer == 0)
+		    if(layer == nullptr)
 		    {
 			return barrelLayers_.back().get();
 		    }
-		    return layer->index() > 0 ? barrelLayers_[layer->index() -1].get() : 0;
+		    return layer->index() > 0 ? barrelLayers_[layer->index() -1].get() : nullptr;
 		}
 
 		//! Helps to navigate through the vector of forward layers.
@@ -144,11 +144,11 @@ namespace fastsim{
 		*/
 		const ForwardSimplifiedGeometry * previousLayer(const ForwardSimplifiedGeometry * layer) const
 		{
-		    if(layer == 0)
+		    if(layer == nullptr)
 		    {
 			return forwardLayers_.back().get();
 		    }
-		    return layer->index() > 0 ? forwardLayers_[layer->index() -1].get() : 0;
+		    return layer->index() > 0 ? forwardLayers_[layer->index() -1].get() : nullptr;
 		}
 
 	    private:

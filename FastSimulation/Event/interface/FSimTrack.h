@@ -49,7 +49,7 @@ class FSimTrack : public SimTrack {
   
   /// charge
   inline float charge() const { 
-    if(particleInfo() == 0) return charge_; 
+    if(particleInfo() == nullptr) return charge_; 
     return particleInfo()->charge();
   }
   

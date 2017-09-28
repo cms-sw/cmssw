@@ -40,7 +40,7 @@ namespace fastsim
 			\param onLayer Specify if the particle already is on the layer (in that case the second solution has to be picked).
 			\return t*c [ns * cm/ns] of next intersection (-1 if there is none).
     	*/
-		double nextCrossingTimeC(const BarrelSimplifiedGeometry & layer, bool onLayer = 0) const override;
+		double nextCrossingTimeC(const BarrelSimplifiedGeometry & layer, bool onLayer = false) const override;
 
 		//! Move the particle along the helix trajectory for a given time.
     	/*!

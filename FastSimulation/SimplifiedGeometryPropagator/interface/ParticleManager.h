@@ -82,7 +82,7 @@ namespace fastsim {
 		    const math::XYZTLorentzVector & vertexPosition,
 		    int motherSimTrackId,
 		    std::vector<std::unique_ptr<Particle> > & secondaries,
-		    const SimplifiedGeometry * layer = 0);
+		    const SimplifiedGeometry * layer = nullptr);
 
 		//! Returns the simTracks so they can be added to the event.
 		std::unique_ptr<std::vector<SimTrack> > harvestSimTracks() { return std::move(simTracks_); }

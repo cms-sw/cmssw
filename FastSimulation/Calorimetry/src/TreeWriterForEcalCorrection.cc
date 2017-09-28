@@ -24,13 +24,13 @@
 class TreeWriterForEcalCorrection : public edm::EDAnalyzer {
   public:
     explicit TreeWriterForEcalCorrection(const edm::ParameterSet&);
-    ~TreeWriterForEcalCorrection(){};
+    ~TreeWriterForEcalCorrection() override{};
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
   private:
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     edm::Service<TFileService> file;
     TTree* tree;
