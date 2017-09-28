@@ -41,11 +41,11 @@ class GlobalTrackingGeometry : public TrackingGeometry
   const DetIdContainer& detIds() const override;
   
   // Return the pointer to the GeomDetUnit corresponding to a given DetId
-  const GeomDet* idToDetUnit(DetId) const override;
+  const std::shared_ptr< GeomDet > idToDetUnit(DetId) const override;
   
   // Return the pointer to the GeomDet corresponding to a given DetId
   // (valid also for GeomDetUnits)
-  const GeomDet* idToDet(DetId) const override; 
+  const std::shared_ptr< GeomDet > idToDet(DetId) const override; 
   
   /// Return the pointer to the actual geometry for a given DetId
   const TrackingGeometry* slaveGeometry(DetId id) const;

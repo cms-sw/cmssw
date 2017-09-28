@@ -22,8 +22,8 @@ class MyDet : public GeomDet {
     GeomDet(new BoundPlane(pos,RotationType(),new RectangularPlaneBounds(0,0,0))){}
   
   virtual DetId geographicalId() const {return DetId();}
-  std::vector< const GeomDet*> components() const override {
-    return std::vector< const GeomDet*>();
+  std::vector< std::shared_ptr< GeomDet >> components() const override {
+    return std::vector< std::shared_ptr< GeomDet >>();
   }
 
   /// Which subdetector

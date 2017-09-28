@@ -29,7 +29,7 @@ class GEMGeometryBuilderFromCondDB
   
  private:
 
-  std::map<GEMDetId, std::list<GEMEtaPartition *> > m_chids;
+  std::map<GEMDetId, std::list< std::shared_ptr< GEMEtaPartition > > > m_chids;
 };
 
 #endif

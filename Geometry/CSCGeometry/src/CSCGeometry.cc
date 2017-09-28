@@ -19,27 +19,14 @@ CSCGeometry::CSCGeometry( bool dbgv, bool gangedstripsME1a, bool onlywiresME1a, 
 }
 
 CSCGeometry::~CSCGeometry(){
-
-  // delete all the chambers (which will delete the layers)
-  for (ChamberContainer::const_iterator ich=theChambers.begin();
-       ich!=theChambers.end(); ++ich) delete (*ich);
-
-  // delete specs
-  for ( CSCSpecsContainer::const_iterator it =
-	   specsContainer.begin(); it!=specsContainer.end(); ++it) {
-    delete (*it).second; // they are never shared per chamber type so should be no possible double deletion.
-  }
-
 }  
 
-
-void CSCGeometry::addChamber(CSCChamber* ch){
+void CSCGeometry::addChamber( std::shared_ptr< CSCChamber > ch){
   theChambers.emplace_back(ch);
   addDet(ch);
 }
 
-
-void CSCGeometry::addLayer(CSCLayer* l) {
+void CSCGeometry::addLayer( std::shared_ptr< CSCLayer > l) {
   theDetUnits.emplace_back(l);
   theLayers.emplace_back(l);
   theDetTypes.emplace_back(l->chamber()->specs());
@@ -47,61 +34,53 @@ void CSCGeometry::addLayer(CSCLayer* l) {
   addDet(l);
 }
 
-
-void CSCGeometry::addDetType(GeomDetType* type) {
+void CSCGeometry::addDetType( std::shared_ptr< GeomDetType > type) {
   theDetTypes.emplace_back(type);
 }
 
-
-void CSCGeometry::addDet(GeomDet* det){
+void CSCGeometry::addDet( std::shared_ptr< GeomDet > det){
   theDets.emplace_back(det);  
   theDetIds.emplace_back(det->geographicalId());
   theMap.insert(CSCDetMap::value_type(det->geographicalId(),det));
 }
-
 
 const CSCGeometry::DetTypeContainer& CSCGeometry::detTypes() const 
 {
   return theDetTypes;
 }
 
-
 const CSCGeometry::DetContainer& CSCGeometry::detUnits() const
 {
   return theDetUnits;
 }
-
 
 const CSCGeometry::DetContainer& CSCGeometry::dets() const
 {
   return theDets;
 }
 
-
 const CSCGeometry::DetIdContainer& CSCGeometry::detUnitIds() const 
 {
   return theDetUnitIds;
 }
-
 
 const CSCGeometry::DetIdContainer& CSCGeometry::detIds() const 
 {
   return theDetIds;
 }
 
-
-const GeomDet* CSCGeometry::idToDetUnit(DetId id) const
+const std::shared_ptr< GeomDet >
+CSCGeometry::idToDetUnit(DetId id) const
 {
-  return dynamic_cast<const GeomDet*>(idToDet(id));
+  return std::static_pointer_cast< GeomDet >(idToDet(id));
 }
 
-
-const GeomDet* CSCGeometry::idToDet(DetId id) const{
+const std::shared_ptr< GeomDet >
+CSCGeometry::idToDet(DetId id) const{
   CSCDetMap::const_iterator i = theMap.find(id);
   return (i != theMap.end()) ?
     i->second : nullptr ;
 }
-
 
 const CSCGeometry::ChamberContainer& CSCGeometry::chambers() const
 {
@@ -115,14 +94,15 @@ const CSCGeometry::LayerContainer& CSCGeometry::layers() const
 }
 
 
-const CSCChamber* CSCGeometry::chamber(CSCDetId id) const {
+const std::shared_ptr< CSCChamber >
+CSCGeometry::chamber(CSCDetId id) const {
   CSCDetId id1(id.endcap(), id.station(), id.ring(), id.chamber(), 0);
-  return dynamic_cast<const CSCChamber*>(idToDet(id1));
+  return std::static_pointer_cast< CSCChamber >(idToDet(id1));
 }
 
-
-const CSCLayer* CSCGeometry::layer(CSCDetId id) const {
-  return dynamic_cast<const CSCLayer*>(idToDetUnit(id));
+const std::shared_ptr< CSCLayer >
+CSCGeometry::layer(CSCDetId id) const {
+  return std::static_pointer_cast< CSCLayer >(idToDetUnit(id));
 }
 
 void CSCGeometry::queryModelling() const {
@@ -166,21 +146,23 @@ void CSCGeometry::queryModelling() const {
   edm::LogInfo("CSC") << "CSCGeometry: strip plane centre-to-intersection ideal " << cti << " corrections " << "\n";
 }
 
-const CSCChamberSpecs* CSCGeometry::findSpecs( int iChamberType ) {
-  const CSCChamberSpecs* aSpecs = nullptr;
+const std::shared_ptr< CSCChamberSpecs >
+CSCGeometry::findSpecs( int iChamberType ) {
   CSCSpecsContainer::const_iterator it = specsContainer.find( iChamberType );
-  if (  it != specsContainer.end() )  aSpecs = (*it).second;
-  return aSpecs;
+  if (  it != specsContainer.end() )
+    return (*it).second;
+  return nullptr;
 } 
 
-const CSCChamberSpecs* CSCGeometry::buildSpecs( int iChamberType,
-					 const std::vector<float>& fpar,
-					 const std::vector<float>& fupar,
-					 const CSCWireGroupPackage& wg ) {
+const std::shared_ptr< CSCChamberSpecs >
+CSCGeometry::buildSpecs( int iChamberType,
+			 const std::vector<float>& fpar,
+			 const std::vector<float>& fupar,
+			 const CSCWireGroupPackage& wg ) {
 
   // Note arg list order is hbot, htop, apothem, hthickness
   TrapezoidalPlaneBounds bounds( fpar[0], fpar[1], fpar[3], fpar[2] );
-  const CSCChamberSpecs* aSpecs = new CSCChamberSpecs( this, iChamberType, bounds, fupar, wg );
+  auto aSpecs = std::make_shared< CSCChamberSpecs >( this, iChamberType, bounds, fupar, wg );
   specsContainer[ iChamberType ] = aSpecs;
   return aSpecs;
 }

@@ -26,11 +26,11 @@
 class TrackingGeometry
 {
 public:
-  using DetTypeContainer = std::vector< const GeomDetType* >;
-  using DetContainer = std::vector< const GeomDet* >;
+  using DetTypeContainer = std::vector< std::shared_ptr< const GeomDetType >>;
+  using DetContainer = std::vector< std::shared_ptr< GeomDet >>;
   using DetIdContainer = std::vector< DetId >;
-  using mapIdToDetUnit =  std::unordered_map< unsigned int, const GeomDet* >;
-  using mapIdToDet =  std::unordered_map< unsigned int, const GeomDet* >;
+  using mapIdToDetUnit =  std::unordered_map< unsigned int, std::shared_ptr< GeomDet >>;
+  using mapIdToDet =  std::unordered_map< unsigned int, std::shared_ptr< GeomDet >>;
 
   /// Destructor.
   virtual ~TrackingGeometry() {}
@@ -51,11 +51,11 @@ public:
   virtual const DetIdContainer& detIds() const = 0;
 
   /// Return the pointer to the GeomDetUnit corresponding to a given DetId
-  virtual const GeomDet* idToDetUnit(DetId) const = 0;
+  virtual const std::shared_ptr< GeomDet > idToDetUnit(DetId) const = 0;
 
   /// Return the pointer to the GeomDet corresponding to a given DetId
   /// (valid also for GeomDetUnits)
-  virtual const GeomDet* idToDet(DetId) const = 0;
+  virtual const std::shared_ptr< GeomDet > idToDet(DetId) const = 0;
 };
 
 #endif

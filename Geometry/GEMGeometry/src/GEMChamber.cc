@@ -24,19 +24,21 @@ bool GEMChamber::operator==(const GEMChamber& ch) const {
   return this->id()==ch.id();
 }
 
-void GEMChamber::add(GEMEtaPartition* rl) {
+void GEMChamber::add( std::shared_ptr< GEMEtaPartition > rl ) {
   etaPartitions_.emplace_back(rl);
 }
 
-std::vector<const GeomDet*> GEMChamber::components() const {
-  return std::vector<const GeomDet*>(etaPartitions_.begin(), etaPartitions_.end());
+std::vector< std::shared_ptr< GeomDet >> GEMChamber::components() const {
+  return std::vector< std::shared_ptr< GeomDet > >( etaPartitions_.begin(), etaPartitions_.end());
 }
 
-const GeomDet* GEMChamber::component(DetId id) const {
+const std::shared_ptr< GeomDet >
+GEMChamber::component( DetId id ) const {
   return etaPartition(GEMDetId(id.rawId()));
 }
 
-const std::vector<const GEMEtaPartition*>& GEMChamber::etaPartitions() const {
+const std::vector< std::shared_ptr< GEMEtaPartition >>&
+GEMChamber::etaPartitions() const {
   return etaPartitions_;
 }
 
@@ -44,12 +46,14 @@ int GEMChamber::nEtaPartitions() const {
   return etaPartitions_.size();
 }
 
-const GEMEtaPartition* GEMChamber::etaPartition(GEMDetId id) const {
+const std::shared_ptr< GEMEtaPartition >
+GEMChamber::etaPartition( GEMDetId id ) const {
   if (id.chamberId()!=detId_) return nullptr; // not in this eta partition!
   return etaPartition(id.roll());
 }
 
-const GEMEtaPartition* GEMChamber::etaPartition(int isl) const {
+const std::shared_ptr< GEMEtaPartition >
+GEMChamber::etaPartition( int isl ) const {
   for (auto roll : etaPartitions_){
     if (roll->id().roll()==isl) 
       return roll;

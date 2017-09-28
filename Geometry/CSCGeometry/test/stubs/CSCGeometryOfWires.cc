@@ -76,7 +76,7 @@ void
 
      // Do we really have a CSC layer?
 
-     auto layer = dynamic_cast<CSCLayer const*>( it );
+     auto layer = std::static_pointer_cast< CSCLayer >( it );
      
       if( layer ) {
         ++icount;
@@ -96,7 +96,7 @@ void
              " C" << CSCDetId::chamber(id) << 
  	     " L" << CSCDetId::layer(id) << " are:" << std::endl;
 
-        const CSCLayerGeometry* geom = layer->geometry();
+        auto geom = layer->geometry();
         std::cout << *geom;
 
         const CSCStripTopology* cst = geom->topology();
@@ -446,10 +446,10 @@ void
 
 
 	// Check idToDetUnit
-	const GeomDetUnit * gdu = pDD->idToDetUnit(detId);
+	auto gdu = pDD->idToDetUnit(detId);
 	assert(gdu==layer);
 	// Check idToDet
-	const GeomDet * gd = pDD->idToDet(detId);
+	auto gd = pDD->idToDet(detId);
 	assert(gd==layer);
     }
     else {

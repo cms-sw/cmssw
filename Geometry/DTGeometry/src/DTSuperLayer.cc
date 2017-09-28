@@ -20,15 +20,13 @@
 /* Constructor */ 
 DTSuperLayer::DTSuperLayer(const DTSuperLayerId& id,
                            ReferenceCountingPointer<BoundPlane>& plane,
-                           const DTChamber* ch) :
-  GeomDet(plane), theId(id) , theLayers(4,(const DTLayer*)nullptr), theCh(ch) {
+                           std::shared_ptr< DTChamber > ch) :
+  GeomDet(plane), theId(id) , theLayers(4, nullptr), theCh(ch) {
   setDetId(id);
 }
 
 /* Destructor */ 
 DTSuperLayer::~DTSuperLayer() {
-  for (std::vector<const DTLayer*>::const_iterator il=theLayers.begin();
-       il!=theLayers.end(); ++il) delete (*il);
 }
 
 /* Operations */ 
@@ -42,35 +40,38 @@ bool DTSuperLayer::operator==(const DTSuperLayer& sl) const {
 }
 
 /// Return the layers in the SL
-std::vector< const GeomDet*> DTSuperLayer::components() const {
-  return std::vector<const GeomDet*>(theLayers.begin(), theLayers.end());
+std::vector< std::shared_ptr< GeomDet >> DTSuperLayer::components() const {
+  return std::vector< std::shared_ptr< GeomDet > >(theLayers.begin(), theLayers.end());
 }
 
-
-const GeomDet* DTSuperLayer::component(DetId id) const {
+const std::shared_ptr< GeomDet >
+DTSuperLayer::component(DetId id) const {
   return layer(DTLayerId(id.rawId()));
 }
 
-
-const std::vector< const DTLayer*>& DTSuperLayer::layers() const {
+const std::vector< std::shared_ptr< DTLayer >>&
+DTSuperLayer::layers() const {
   return theLayers;
 }
 
-void DTSuperLayer::add(DTLayer* l) {
+void DTSuperLayer::add( std::shared_ptr< DTLayer > l ) {
   // theLayers size is preallocated.
   theLayers[l->id().layer()-1] = l;
 }
 
-const DTChamber* DTSuperLayer::chamber() const {
+const std::shared_ptr< DTChamber >
+DTSuperLayer::chamber() const {
   return theCh;
 }
 
-const DTLayer* DTSuperLayer::layer(const DTLayerId& id) const {
+const std::shared_ptr< DTLayer >
+DTSuperLayer::layer(const DTLayerId& id) const {
   if (id.superlayerId()!=theId) return nullptr; // not in this SL!
   return layer(id.layer());
 }
   
-const DTLayer* DTSuperLayer::layer(int ilay) const{
+const std::shared_ptr< DTLayer >
+DTSuperLayer::layer(int ilay) const{
   if ((ilay>=1) && (ilay<=4)) {
     return theLayers[ilay-1];
   } else {

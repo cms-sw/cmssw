@@ -154,8 +154,8 @@ ME0GeometryBuilderFromDDD10EtaPart::buildGeometry( DDFilteredView& fv,
     fv.parent();
 
     // build chamber 
-    ME0Chamber *me0Chamber = buildChamber(fv, detIdCh);
-    geometry->add(me0Chamber);
+    auto me0Chamber = buildChamber(fv, detIdCh);
+    geometry->add( me0Chamber );
 
     // loop over layers of the chamber
     bool doLayers = fv.firstChild();
@@ -170,7 +170,7 @@ ME0GeometryBuilderFromDDD10EtaPart::buildGeometry( DDFilteredView& fv,
       fv.parent();
 
       // build layer
-      ME0Layer *me0Layer = buildLayer(fv, detIdLa);
+      auto me0Layer = buildLayer(fv, detIdLa);
       me0Chamber->add(me0Layer);
       geometry->add(me0Layer);
 
@@ -185,7 +185,7 @@ ME0GeometryBuilderFromDDD10EtaPart::buildGeometry( DDFilteredView& fv,
 	ME0DetId detId = ME0DetId(rawId);
 
 	// build etapartition
-	ME0EtaPartition *etaPart = buildEtaPartition(fv, detId);
+	auto etaPart = buildEtaPartition(fv, detId);
 	me0Layer->add(etaPart);
 	geometry->add(etaPart);
 
@@ -201,7 +201,8 @@ ME0GeometryBuilderFromDDD10EtaPart::buildGeometry( DDFilteredView& fv,
   return geometry;
 }
 
-ME0Chamber* ME0GeometryBuilderFromDDD10EtaPart::buildChamber(DDFilteredView& fv, ME0DetId detId) const {
+std::shared_ptr< ME0Chamber >
+ME0GeometryBuilderFromDDD10EtaPart::buildChamber( DDFilteredView& fv, ME0DetId detId ) const {
   LogTrace("ME0GeometryBuilderFromDDD") << "buildChamber "<<fv.logicalPart().name().name() <<" "<< detId <<std::endl;
   
   DDBooleanSolid solid = (DDBooleanSolid)(fv.logicalPart().solid());
@@ -224,11 +225,12 @@ ME0Chamber* ME0GeometryBuilderFromDDD10EtaPart::buildChamber(DDFilteredView& fv,
 
   bool isOdd = false; // detId.chamber()%2;
   ME0BoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(b,B,L,T), isOdd ));
-  ME0Chamber* chamber = new ME0Chamber(detId.chamberId(), surf);
-  return chamber;
+  
+  return std::make_shared< ME0Chamber >(detId.chamberId(), surf);
 }
 
-ME0Layer* ME0GeometryBuilderFromDDD10EtaPart::buildLayer(DDFilteredView& fv, ME0DetId detId) const {
+std::shared_ptr< ME0Layer >
+ME0GeometryBuilderFromDDD10EtaPart::buildLayer( DDFilteredView& fv, ME0DetId detId ) const {
   LogTrace("ME0GeometryBuilderFromDDD") << "buildLayer "<<fv.logicalPart().name().name() <<" "<< detId <<std::endl;
   
   DDBooleanSolid solid = (DDBooleanSolid)(fv.logicalPart().solid());
@@ -253,11 +255,12 @@ ME0Layer* ME0GeometryBuilderFromDDD10EtaPart::buildLayer(DDFilteredView& fv, ME0
 
   bool isOdd = false; // detId.chamber()%2;
   ME0BoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(b,B,L,t), isOdd ));
-  ME0Layer* layer = new ME0Layer(detId.layerId(), surf);
-  return layer;
+
+  return std::make_shared< ME0Layer >( detId.layerId(), surf );
 }
 
-ME0EtaPartition* ME0GeometryBuilderFromDDD10EtaPart::buildEtaPartition(DDFilteredView& fv, ME0DetId detId) const {
+std::shared_ptr< ME0EtaPartition >
+ME0GeometryBuilderFromDDD10EtaPart::buildEtaPartition( DDFilteredView& fv, ME0DetId detId ) const {
   LogTrace("ME0GeometryBuilderFromDDD") << "buildEtaPartition "<<fv.logicalPart().name().name() <<" "<< detId <<std::endl;
   
   // EtaPartition specific parameter (nstrips and npads) 
@@ -303,8 +306,7 @@ ME0EtaPartition* ME0GeometryBuilderFromDDD10EtaPart::buildEtaPartition(DDFiltere
   std::string name = fv.logicalPart().name().name();
   ME0EtaPartitionSpecs* e_p_specs = new ME0EtaPartitionSpecs(GeomDetEnumerators::ME0, name, pars);
   
-  ME0EtaPartition* etaPartition = new ME0EtaPartition(detId, surf, e_p_specs);
-  return etaPartition;
+  return std::make_shared< ME0EtaPartition >(detId, surf, e_p_specs);
 }
 
 ME0GeometryBuilderFromDDD10EtaPart::ME0BoundPlane
