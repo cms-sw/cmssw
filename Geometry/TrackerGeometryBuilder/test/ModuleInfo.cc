@@ -450,7 +450,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
     }
     
     // Local axes from Reco
-    const GeomDet* geomdet = pDD->idToDet(module->geographicalID());
+    auto geomdet = pDD->idToDet(module->geographicalID());
     // Global Coordinates (i,j,k)
     LocalVector xLocal(1,0,0);
     LocalVector yLocal(0,1,0);

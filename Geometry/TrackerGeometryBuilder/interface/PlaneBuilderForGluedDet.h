@@ -10,7 +10,7 @@
 #include <vector>
 
 
-/** Builds the minimal rectangular box that contains all input GeomDetUnits fully.
+/** Builds the minimal rectangular box that contains all input GeomDet fully.
  */
 
 class PlaneBuilderForGluedDet {
@@ -20,14 +20,14 @@ public:
   /// Should be changed to return a ReferenceCountingPointer<BoundPlane>
   typedef ReferenceCountingPointer<Plane>  ResultType;
 
-  ResultType plane( const std::vector<const GeomDetUnit*> & dets) const;
+  ResultType plane( const std::vector< std::shared_ptr< GeomDet >> & dets) const;
 
 private:
   std::pair<RectangularPlaneBounds*, GlobalVector>
-  computeRectBounds( const std::vector<const GeomDetUnit*> & dets, const Plane& plane) const;
+		    computeRectBounds( const std::vector< std::shared_ptr< GeomDet >> & dets, const Plane& plane) const;
 
   Surface::RotationType 
-  computeRotation( const std::vector<const GeomDetUnit*> & dets, 
+		    computeRotation( const std::vector< std::shared_ptr< GeomDet >> & dets, 
 		   const Surface::PositionType& meanPos) const; 
 
 };

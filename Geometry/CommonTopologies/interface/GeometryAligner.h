@@ -132,7 +132,7 @@ void GeometryAligner::attachSurfaceDeformations( C* geometry,
 			    << "Starting to attach surface deformations.";
 
   //copy geometry->theMapUnit to a real map to order it....
-  std::map<unsigned int, GeomDetUnit const*> theMap;
+  std::map<unsigned int, std::shared_ptr< GeomDet >> theMap;
   std::copy(geometry->theMapUnit.begin(), geometry->theMapUnit.end(), std::inserter(theMap, theMap.begin()));
   
   unsigned int nSurfDef = 0;
@@ -147,7 +147,7 @@ void GeometryAligner::attachSurfaceDeformations( C* geometry,
     while ( (*iPair).first != (*iItem).m_rawId ) {
 
       // remove SurfaceDeformation from GeomDetUnit (i.e. set NULL pointer)
-      GeomDetUnit* geomDetUnit = const_cast<GeomDetUnit*>((*iPair).second);
+      auto geomDetUnit = (*iPair).second;
       this->setSurfaceDeformation( *geomDetUnit, nullptr );
 
       ++iPair;
@@ -164,7 +164,7 @@ void GeometryAligner::attachSurfaceDeformations( C* geometry,
     
     // create SurfaceDeformation via factory
     SurfaceDeformation * surfDef = SurfaceDeformationFactory::create( (*iItem).m_parametrizationType, parameters);
-    GeomDetUnit* geomDetUnit = const_cast<GeomDetUnit*>((*iPair).second);
+    auto geomDetUnit = (*iPair).second;
     this->setSurfaceDeformation( *geomDetUnit, surfDef );
     // delete is not needed since SurfaceDeformation is passed as a
     // DeepCopyPointerByClone which takes over ownership. Needs to be
