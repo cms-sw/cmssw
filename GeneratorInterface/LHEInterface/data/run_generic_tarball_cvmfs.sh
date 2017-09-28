@@ -47,8 +47,6 @@ LHEWORKDIR=`pwd`
 
 if [ "$use_gridpack_env" = false -a -n "$scram_arch_version" -a -n  "$cmssw_version" ]; then
   echo "%MSG-MG5 CMSSW version = $cmssw_version"
-  export VO_CMS_SW_DIR=/cvmfs/cms.cern.ch
-  source $VO_CMS_SW_DIR/cmsset_default.sh
   export SCRAM_ARCH=${scram_arch_version}
   scramv1 project CMSSW ${cmssw_version}
   cd ${cmssw_version}/src
