@@ -259,8 +259,10 @@ namespace {
 
       //=========================
    
+      auto autoRange = tmap->getAutomaticRange();
+
       std::string fileName(m_imageFileName);
-      tmap->save(true,0,0,fileName);
+      tmap->save(true,0.,autoRange.second,fileName);
 
       return true;
     }
@@ -360,8 +362,6 @@ namespace {
 	// skip the glued detector detIds
 	if(thePart==AlignmentPI::StripDoubleSide) continue;
 
-	//std::cout<< AlignmentPI::getStringFromRegionEnum(thePart) << std::endl;
-	
 	for(int k = AlignmentPI::XX; k<=AlignmentPI::ZZ;k++){
 	
 	  AlignmentPI::index coord = (AlignmentPI::index) k;
@@ -384,7 +384,10 @@ namespace {
 	  AlignmentPI::regions part = (AlignmentPI::regions) j;  
 	  auto hash = std::make_pair(coord,part);
 	  summaries[coord]->GetXaxis()->SetBinLabel((j-begin)+1, AlignmentPI::getStringFromRegionEnum(part).c_str());
-	  summaries[coord]->SetBinContent((j-begin)+1,APE_spectraByRegion[hash]->GetMean());
+
+	  // avoid filling the histogram with numerical noise 
+	  float mean = APE_spectraByRegion[hash]->GetMean() > 10.e-6 ? APE_spectraByRegion[hash]->GetMean() : 10.e-6;
+	  summaries[coord]->SetBinContent((j-begin)+1,mean);
 	  //summaries[coord]->SetBinError((j-begin)+1,APE_spectraByRegion[hash]->GetRMS());
 	  AlignmentPI::makeNicePlotStyle(summaries[coord].get(),kBlue);
 	  summaries[coord]->GetXaxis()->LabelsOption("v");
@@ -400,7 +403,9 @@ namespace {
 	summaries[coord]->SetFillColorAlpha(kRed,0.35);
 	summaries[coord]->SetMarkerSize(2.5);
 	summaries[coord]->SetMarkerColor(kRed);
-	summaries[coord]->GetYaxis()->SetRangeUser(0.,summaries[coord]->GetMaximum()*1.20);
+
+	// to ensure 0. is actually displayed as 0.
+	summaries[coord]->GetYaxis()->SetRangeUser(0.,std::max(1.,summaries[coord]->GetMaximum()*1.20));
 	summaries[coord]->Draw("text90");
 	summaries[coord]->Draw("HISTsame");
 
