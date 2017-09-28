@@ -16,6 +16,5 @@
   <use   name="CondFormats/Alignment"/>
   <use   name="CommonTools/TrackerMap"/>
   <use   name="Alignment/CommonAlignment"/>
-  <use   name="CLHEP/Vector"/>
   <use   name="boost_python"/>
 </library>
