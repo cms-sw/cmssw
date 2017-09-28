@@ -29,7 +29,7 @@ class GenParticles2HepMCConverterHTXS : public edm::stream::EDProducer<>
 {
 public:
   explicit GenParticles2HepMCConverterHTXS(const edm::ParameterSet& pset);
-  ~GenParticles2HepMCConverterHTXS() {};
+  ~GenParticles2HepMCConverterHTXS() override {};
 
   //void beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) override;
   void produce(edm::Event& event, const edm::EventSetup& eventSetup) override;

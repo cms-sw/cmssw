@@ -19,8 +19,8 @@
 #include "SimDataFormats/HTXS/interface/HiggsTemplateCrossSections.h"
 
 #include <vector>
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 
 
 using namespace Rivet;
@@ -44,16 +44,16 @@ public:
         produces<HTXS::HiggsClassification>("HiggsClassification").setBranchAlias("HiggsClassification");
 
     }
-    ~HTXSRivetProducer();
+    ~HTXSRivetProducer() override;
     
 private:
     
-    virtual void beginJob();
-    virtual void produce( edm::Event&, const edm::EventSetup&);
-    virtual void endJob();
+    void beginJob() override;
+    void produce( edm::Event&, const edm::EventSetup&) override;
+    void endJob() override;
     
-    virtual void beginRun(edm::Run const& iRun, edm::EventSetup const& es);
-    virtual void endRun(edm::Run const& iRun, edm::EventSetup const& es);
+    void beginRun(edm::Run const& iRun, edm::EventSetup const& es) override;
+    void endRun(edm::Run const& iRun, edm::EventSetup const& es) override;
     
     edm::EDGetTokenT<edm::HepMCProduct> _hepmcCollection;
     edm::EDGetTokenT<LHERunInfoProduct> _lheRunInfo;
