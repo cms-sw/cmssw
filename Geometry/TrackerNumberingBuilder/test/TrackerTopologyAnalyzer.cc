@@ -197,7 +197,7 @@ void TrackerTopologyAnalyzer::analyze( const edm::Event &iEvent, const edm::Even
 	  std::cout << "["<<resultsOld[i]<<","<<resultsNew[i]<< "] " <<std::endl;
       }
 
-      const GeomDet* geom = geo->idToDet(*id);
+      auto geom = geo->idToDet(*id);
       std::cout << "  (phi, z, r) : ("
                 << geom->surface().position().phi()  << " , "
                 << geom->surface().position().z()    << " , "

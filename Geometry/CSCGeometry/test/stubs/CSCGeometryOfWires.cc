@@ -96,7 +96,7 @@ void
              " C" << CSCDetId::chamber(id) << 
  	     " L" << CSCDetId::layer(id) << " are:" << std::endl;
 
-        const CSCLayerGeometry* geom = layer->geometry();
+        auto geom = layer->geometry();
         std::cout << *geom;
 
         const CSCStripTopology* cst = geom->topology();
