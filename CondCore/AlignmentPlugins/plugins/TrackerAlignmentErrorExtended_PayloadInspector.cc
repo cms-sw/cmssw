@@ -279,7 +279,7 @@ namespace {
   typedef TrackerAlignmentErrorExtendedTrackerMap<AlignmentPI::YZ> TrackerAlignmentErrorExtendedYZTrackerMap; 
    
   // /************************************************
-  //  Pixel details of 1 IOV
+  //  Partition details of 1 IOV
   // *************************************************/
   template <AlignmentPI::partitions q> class TrackerAlignmentErrorExtendedDetail : public cond::payloadInspector::PlotImage<AlignmentErrorsExtended> {
   public:
@@ -299,7 +299,10 @@ namespace {
       const char * path_toTopologyXML = (alignErrors.size()==AlignmentPI::phase0size) ? "Geometry/TrackerCommonData/data/trackerParameters.xml" : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
       TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath(path_toTopologyXML).fullPath()); 
 
-      TCanvas canvas("Pixel summary","Pixel summary",1200,1200); 
+      bool isPhase0(false);
+      if(alignErrors.size()==AlignmentPI::phase0size) isPhase0 = true;
+
+      TCanvas canvas("Summary","Summary",1200,1200); 
       canvas.Divide(3,2);
 
       // define the paritions range to act upon
@@ -323,6 +326,10 @@ namespace {
 	for(int j = begin; j<=end; j++){
 
 	  AlignmentPI::regions part = (AlignmentPI::regions) j;  
+
+	  // dont' book region that don't exist
+	  if(isPhase0 && (part==AlignmentPI::BPixL4o || part==AlignmentPI::BPixL4i || part==AlignmentPI::FPixmL3 || part == AlignmentPI::FPixpL3)) continue;
+
 	  std::string s_part =  AlignmentPI::getStringFromRegionEnum(part);
 	  
 	  auto hash = std::make_pair(coord,part);
@@ -331,9 +338,6 @@ namespace {
 	  	 
 	}
       }
-
-      bool isPhase0(false);
-      if(alignErrors.size()==AlignmentPI::phase0size) isPhase0 = true;
 
       // loop on the vector of errors
       for (const auto& it : alignErrors ){
@@ -382,6 +386,10 @@ namespace {
 	for(int j=begin; j<=end; j++){
 
 	  AlignmentPI::regions part = (AlignmentPI::regions) j;  
+
+	  // don't fill regions that do not exist
+	  if(isPhase0 && (part==AlignmentPI::BPixL4o || part==AlignmentPI::BPixL4i || part==AlignmentPI::FPixmL3 || part == AlignmentPI::FPixpL3)) continue;
+
 	  auto hash = std::make_pair(coord,part);
 	  summaries[coord]->GetXaxis()->SetBinLabel((j-begin)+1, AlignmentPI::getStringFromRegionEnum(part).c_str());
 
@@ -414,7 +422,7 @@ namespace {
 
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
-
+      
       return true;
     }
   };
@@ -425,6 +433,208 @@ namespace {
   typedef TrackerAlignmentErrorExtendedDetail<AlignmentPI::TOB>  TrackerAlignmentErrorExtendedTOBDetail;
   typedef TrackerAlignmentErrorExtendedDetail<AlignmentPI::TID>  TrackerAlignmentErrorExtendedTIDDetail;
   typedef TrackerAlignmentErrorExtendedDetail<AlignmentPI::TEC>  TrackerAlignmentErrorExtendedTECDetail;
+
+  // /************************************************
+  //  Tracker Aligment grand summary comparison of 2 IOVs
+  // *************************************************/
+
+  template<AlignmentPI::index i> class TrackerAlignmentErrorExtendedComparator : public cond::payloadInspector::PlotImage<AlignmentErrorsExtended> {
+  public:
+    TrackerAlignmentErrorExtendedComparator() : cond::payloadInspector::PlotImage<AlignmentErrorsExtended>( "Summary per Tracker region of sqrt(d_{"+getStringFromIndex(i)+"}) of APE matrix" ){
+      setSingleIov( false );
+    }
+    
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+
+      gStyle->SetPaintTextFormat(".1f");
+
+      std::vector<std::tuple<cond::Time_t,cond::Hash> > sorted_iovs = iovs;
+      
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
+	  return std::get<0>(t1) < std::get<0>(t2);
+	});
+      
+      auto firstiov  = sorted_iovs.front();
+      auto lastiov   = sorted_iovs.back();
+      
+      std::shared_ptr<AlignmentErrorsExtended> last_payload  = fetchPayload( std::get<1>(lastiov) );
+      std::shared_ptr<AlignmentErrorsExtended> first_payload = fetchPayload( std::get<1>(firstiov) );
+
+      std::vector<AlignTransformErrorExtended> f_alignErrors = first_payload->m_alignError;
+      std::vector<AlignTransformErrorExtended> l_alignErrors = last_payload->m_alignError;
+      
+      std::string lastIOVsince  = std::to_string(std::get<0>(lastiov));
+      std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
+
+      TCanvas canvas("Comparison","Comparison",1600,800); 
+
+      std::map<AlignmentPI::regions,std::shared_ptr<TH1F> > FirstAPE_spectraByRegion;
+      std::map<AlignmentPI::regions,std::shared_ptr<TH1F> > LastAPE_spectraByRegion;
+      std::shared_ptr<TH1F> summaryFirst;
+      std::shared_ptr<TH1F> summaryLast;
+      
+      // get the name of the index
+      std::string s_coord = AlignmentPI::getStringFromIndex(i);
+
+      // book the intermediate histograms
+      for(int r=AlignmentPI::BPixL1o; r!=AlignmentPI::StripDoubleSide; r++){
+
+	AlignmentPI::regions part = static_cast<AlignmentPI::regions>(r);
+	std::string s_part =  AlignmentPI::getStringFromRegionEnum(part);
+
+	FirstAPE_spectraByRegion[part] = std::make_shared<TH1F>(Form("hfirstAPE_%s_%s",s_coord.c_str(),s_part.c_str()),Form(";%s APE #sqrt{d_{%s}} [#mum];n. of modules",s_part.c_str(),s_coord.c_str()),1000,0.,1000.);       
+	LastAPE_spectraByRegion[part] = std::make_shared<TH1F>(Form("hlastAPE_%s_%s",s_coord.c_str(),s_part.c_str()),Form(";%s APE #sqrt{d_{%s}} [#mum];n. of modules",s_part.c_str(),s_coord.c_str()),1000,0.,1000.);       
+	
+      }
+
+      summaryFirst = std::make_shared<TH1F>(Form("first Summary_%s",s_coord.c_str()),Form("Summary for #sqrt{d_{%s}} APE;;APE #sqrt{d_{%s}} [#mum]",s_coord.c_str(),s_coord.c_str()),FirstAPE_spectraByRegion.size(),0,FirstAPE_spectraByRegion.size());
+      summaryLast  = std::make_shared<TH1F>(Form("last Summary_%s",s_coord.c_str()),Form("Summary for #sqrt{d_{%s}} APE;;APE #sqrt{d_{%s}} [#mum]",s_coord.c_str(),s_coord.c_str()),LastAPE_spectraByRegion.size(),0,LastAPE_spectraByRegion.size());
+
+      const char * path_toTopologyXML = (f_alignErrors.size()==AlignmentPI::phase0size) ? "Geometry/TrackerCommonData/data/trackerParameters.xml" : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      TrackerTopology f_tTopo = StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath(path_toTopologyXML).fullPath()); 
+      
+      bool isPhase0(false);
+      if(f_alignErrors.size()==AlignmentPI::phase0size) isPhase0 = true;
+
+      // -------------------------------------------------------------------
+      // loop on the first vector of errors
+      // -------------------------------------------------------------------
+      for (const auto& it : f_alignErrors ){
+
+	CLHEP::HepSymMatrix errMatrix = it.matrix();
+	
+	if(DetId(it.rawId()).det() != DetId::Tracker){
+	  edm::LogWarning("TrackerAlignmentErrorExtended_PayloadInspector") << "Encountered invalid Tracker DetId:" << it.rawId() <<" - terminating ";
+	  return false;
+	}
+
+	int subid = DetId(it.rawId()).subdetId();	    
+	AlignmentPI::topolInfo t_info_fromXML;
+	t_info_fromXML.init();
+	t_info_fromXML.m_rawid = it.rawId();
+	DetId detid(t_info_fromXML.m_rawid);
+	t_info_fromXML.m_subdetid = subid;
+	t_info_fromXML.fillGeometryInfo(detid,f_tTopo,isPhase0);
+
+	AlignmentPI::regions thePart = t_info_fromXML.filterThePartition();
+
+	// skip the glued detector detIds
+	if(thePart==AlignmentPI::StripDoubleSide) continue;
+
+	auto indices = AlignmentPI::getIndices(i);
+	FirstAPE_spectraByRegion[thePart]->Fill(sqrt(errMatrix[indices.first][indices.second])*AlignmentPI::cmToUm);
+      }// ends loop on the vector of error transforms
+
+
+      path_toTopologyXML = (l_alignErrors.size()==AlignmentPI::phase0size) ? "Geometry/TrackerCommonData/data/trackerParameters.xml" : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      TrackerTopology l_tTopo = StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath(path_toTopologyXML).fullPath()); 
+      
+      if(l_alignErrors.size()==AlignmentPI::phase0size) isPhase0 = true;
+
+      // -------------------------------------------------------------------
+      // loop on the second vector of errors
+      // -------------------------------------------------------------------
+      for (const auto& it : l_alignErrors ){
+
+	CLHEP::HepSymMatrix errMatrix = it.matrix();
+	
+	if(DetId(it.rawId()).det() != DetId::Tracker){
+	  edm::LogWarning("TrackerAlignmentErrorExtended_PayloadInspector") << "Encountered invalid Tracker DetId:" << it.rawId() <<" - terminating ";
+	  return false;
+	}
+
+	int subid = DetId(it.rawId()).subdetId();	    
+	AlignmentPI::topolInfo t_info_fromXML;
+	t_info_fromXML.init();
+	t_info_fromXML.m_rawid = it.rawId();
+	DetId detid(t_info_fromXML.m_rawid);
+	t_info_fromXML.m_subdetid = subid;
+	t_info_fromXML.fillGeometryInfo(detid,l_tTopo,isPhase0);
+
+	AlignmentPI::regions thePart = t_info_fromXML.filterThePartition();
+
+	// skip the glued detector detIds
+	if(thePart==AlignmentPI::StripDoubleSide) continue;
+
+	auto indices = AlignmentPI::getIndices(i);
+	LastAPE_spectraByRegion[thePart]->Fill(sqrt(errMatrix[indices.first][indices.second])*AlignmentPI::cmToUm);
+      }// ends loop on the vector of error transforms
+
+      // fill the summary plots
+      int bin=1;
+      for(int r=AlignmentPI::BPixL1o; r!=AlignmentPI::StripDoubleSide; r++){
+
+	AlignmentPI::regions part = static_cast<AlignmentPI::regions>(r);
+		
+	summaryFirst->GetXaxis()->SetBinLabel(bin, AlignmentPI::getStringFromRegionEnum(part).c_str());	  
+	// avoid filling the histogram with numerical noise 
+	float f_mean = FirstAPE_spectraByRegion[part]->GetMean() > 10.e-6 ? FirstAPE_spectraByRegion[part]->GetMean() : 10.e-6;
+	summaryFirst->SetBinContent(bin,f_mean);
+	//summaryFirst->SetBinError(bin,APE_spectraByRegion[hash]->GetRMS());
+
+	summaryLast->GetXaxis()->SetBinLabel(bin, AlignmentPI::getStringFromRegionEnum(part).c_str());	  
+	// avoid filling the histogram with numerical noise 
+	float l_mean = LastAPE_spectraByRegion[part]->GetMean() > 10.e-6 ? LastAPE_spectraByRegion[part]->GetMean() : 10.e-6;
+	summaryLast->SetBinContent(bin,l_mean);
+	//summaryLast->SetBinError(bin,APE_spectraByRegion[hash]->GetRMS());
+	bin++;
+      }
+     
+      AlignmentPI::makeNicePlotStyle(summaryFirst.get(),kBlue);
+      summaryFirst->SetMarkerColor(kBlue);
+      summaryFirst->GetXaxis()->LabelsOption("v");
+      summaryFirst->GetXaxis()->SetLabelSize(0.05);
+      summaryFirst->GetYaxis()->SetTitleOffset(0.9);
+      summaryFirst->SetLineStyle(9);
+
+      AlignmentPI::makeNicePlotStyle(summaryLast.get(),kRed);
+      summaryLast->SetMarkerColor(kRed);
+      summaryLast->GetYaxis()->SetTitleOffset(0.9);
+      summaryLast->GetXaxis()->LabelsOption("v");
+      summaryLast->GetXaxis()->SetLabelSize(0.05);
+
+      canvas.cd();
+
+      canvas.SetBottomMargin(0.18);
+      canvas.SetLeftMargin(0.11);
+      canvas.SetRightMargin(0.02);
+      canvas.Modified();
+
+      summaryFirst->SetFillColor(kBlue);
+      summaryLast->SetFillColor(kRed);
+      
+      summaryFirst->SetBarWidth(0.45);
+      summaryFirst->SetBarOffset(0.1);
+      //summaryFirst->SetFillColor(49);
+
+      summaryLast->SetBarWidth(0.4);
+      summaryLast->SetBarOffset(0.55);
+      //summaryLast->SetFillColor(50);
+
+      summaryFirst->GetYaxis()->SetRangeUser(0.,std::max(1.,summaryFirst->GetMaximum()*1.20));
+      summaryFirst->Draw("bar2");
+      //summaryFirst->Draw("text90same");
+      summaryLast->Draw("bar2,same");
+      //summaryLast->Draw("text180same");      
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+
+    } // ends fill method
+  };
+
+  // diagonal elements
+  typedef TrackerAlignmentErrorExtendedComparator<AlignmentPI::XX> TrackerAlignmentErrorExtendedXXComparator; 
+  typedef TrackerAlignmentErrorExtendedComparator<AlignmentPI::YY> TrackerAlignmentErrorExtendedYYComparator; 
+  typedef TrackerAlignmentErrorExtendedComparator<AlignmentPI::ZZ> TrackerAlignmentErrorExtendedZZComparator; 
+
+  // off-diagonal elements
+  typedef TrackerAlignmentErrorExtendedComparator<AlignmentPI::XY> TrackerAlignmentErrorExtendedXYComparator; 
+  typedef TrackerAlignmentErrorExtendedComparator<AlignmentPI::XZ> TrackerAlignmentErrorExtendedXZComparator; 
+  typedef TrackerAlignmentErrorExtendedComparator<AlignmentPI::YZ> TrackerAlignmentErrorExtendedYZComparator; 
 
 } // close namespace
 
@@ -454,4 +664,11 @@ PAYLOAD_INSPECTOR_MODULE(TrackerAlignmentErrorExtended){
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedTOBDetail);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedTIDDetail);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedTECDetail);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXXComparator);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedYYComparator);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedZZComparator);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXYComparator);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXZComparator);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedYZComparator);
+
 }
