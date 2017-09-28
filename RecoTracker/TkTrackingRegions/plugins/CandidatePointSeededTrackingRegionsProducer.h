@@ -250,13 +250,14 @@ public:
       edm::Handle< reco::VertexCollection > vertices;
       e.getByToken( token_vertex, vertices );
       int n_vert = 0;
-      for (reco::VertexCollection::const_iterator v = vertices->begin(); v != vertices->end() && n_vert < m_maxNVertices; ++v)
+      for ( const auto& v : (*vertices) )  
       {
-        if ( v->isFake() || !v->isValid() ) continue;
-	origins.emplace_back( GlobalPoint( v->x(), v->y(), v->z() ),
-			      (m_mode == Mode::VERTICES_FIXED) ? m_zErrorVetex : m_nSigmaZVertex*v->zError()
+        if ( v.isFake() || !v.isValid() ) continue;
+	origins.emplace_back( GlobalPoint( v.x(), v.y(), v.z() ),
+			      (m_mode == Mode::VERTICES_FIXED) ? m_zErrorVetex : m_nSigmaZVertex*v.zError()
 			      );
         ++n_vert;
+	if( !(n_vert < m_maxNVertices) ) break;
       }
       // no-vertex fall-back case:
       if (origins.empty())
@@ -280,19 +281,18 @@ public:
 
     if(m_seedingMode == SeedingMode::CANDIDATE_SEEDED) {
 
-      for(size_t i = 0; i < n_objects && n_regions < m_maxNRegions; ++i ) {
+      for(const auto& object : objs) {
 
-	const reco::Candidate & object = objs[i];
 	GlobalVector direction( object.momentum().x(), object.momentum().y(), object.momentum().z() );	
-
-	for (size_t  j=0; j<origins.size() && n_regions < m_maxNRegions; ++j) {	
+	
+	for(const auto& origin : origins) {
 
 	  result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>(
-		               direction,
-			       origins[j].first,
+		               direction,			       
+			       origin.first,
 			       m_ptMin,
 			       m_originRadius,
-			       origins[j].second,
+			       origin.second,
 			       m_deltaEta,
 			       m_deltaPhi,
 			       m_whereToUseMeasurementTracker,
@@ -300,9 +300,12 @@ public:
 			       measurementTracker,
 			       m_searchOpt
 			   ));
-	  ++n_regions;
+	  ++n_regions;	  
+	  if( !(n_regions<m_maxNRegions) ) break;
 
 	}
+
+	if( !(n_regions<m_maxNRegions) ) break;
 
       }
 
@@ -311,16 +314,16 @@ public:
 
     else if(m_seedingMode == SeedingMode::POINT_SEEDED) {
 
-      for(size_t i = 0; i < n_points && n_regions < m_maxNRegions; ++i ) {	
+      for( const auto& direction : directionPoints ){
 
-	for (size_t  j=0; j<origins.size() && n_regions < m_maxNRegions; ++j) {
+	for(const auto& origin : origins) {
 	  	 
 	  result.push_back( std::make_unique<RectangularEtaPhiTrackingRegion>(
-			    directionPoints[i], // GlobalVector
-			    origins[j].first, // GlobalPoint
+			    direction, // GlobalVector
+			    origin.first, // GlobalPoint
 			    m_ptMin,
 			    m_originRadius,
-			    origins[j].second,
+			    origin.second,
 			    m_deltaEta,
 			    m_deltaPhi,
 			    m_whereToUseMeasurementTracker,
@@ -329,8 +332,11 @@ public:
 			    m_searchOpt
 			   ));
 	  ++n_regions;
+	  if( !(n_regions<m_maxNRegions) ) break;
 
 	}
+
+	if( !(n_regions<m_maxNRegions) ) break;
 
       }
 
@@ -339,16 +345,15 @@ public:
 
     else if(m_seedingMode == SeedingMode::CANDIDATE_POINT_SEEDED) {        
 
-      for(size_t i = 0; i < n_objects && n_regions < m_maxNRegions; ++i ) {
+      for(const auto& object : objs) {
 
-	const reco::Candidate & object = objs[i];
 	double eta_Cand = object.eta();
 	double phi_Cand = object.phi();
-	
-	for(size_t j = 0 ; j < n_points && n_regions < m_maxNRegions; ++j) {
+		
+	for( const auto& directionPoint : directionPoints ){
 
-	  double eta_Point = etaPoints[j];
-	  double phi_Point = phiPoints[j];
+	  double eta_Point = directionPoint.eta();
+	  double phi_Point = directionPoint.phi();
 	  double dEta_Cand_Point = fabs(eta_Cand-eta_Point);
 	  double dPhi_Cand_Point = fabs(deltaPhi(phi_Cand,phi_Point));
 
@@ -383,27 +388,31 @@ public:
 
 	  GlobalVector direction( x,y,z );
       
-	  for (size_t  k=0; k<origins.size() && n_regions < m_maxNRegions; ++k)
-	    {
+	  for(const auto& origin : origins) {
 	      
-	      result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>(
+	    result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>(
 		direction,
-		origins[k].first,
+		origin.first,
 		m_ptMin,
 		m_originRadius,
-		origins[k].second,
+		origin.second,
 		deltaEta_RoI,
 		deltaPhi_RoI,
 		m_whereToUseMeasurementTracker,
 		m_precise,
 		measurementTracker,
 		m_searchOpt
-	     ));
+	        ));	        
 	    ++n_regions;
+	    if( !(n_regions<m_maxNRegions) ) break;
 
-	    }
+	  }
+
+	  if( !(n_regions<m_maxNRegions) ) break;
 
 	}
+
+	if( !(n_regions<m_maxNRegions) ) break;
 	
       }
 
