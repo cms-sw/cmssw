@@ -113,11 +113,11 @@ void CSCLayerGeometryInside::analyze( const edm::Event& iEvent, const edm::Event
    CSCDetId id1a(1, 1, 4, 1, 1);
    CSCDetId id1b(1, 1, 1, 1, 1);
    // Get a pointer to each layer
-   const CSCLayer* p1a = pgeom->layer( id1a );
-   const CSCLayer* p1b = pgeom->layer( id1b );
+   auto p1a = pgeom->layer( id1a );
+   auto p1b = pgeom->layer( id1b );
    // Get a pointer to each layer's layergeometry
-   const CSCLayerGeometry* lg1a = p1a->geometry();
-   const CSCLayerGeometry* lg1b = p1b->geometry();
+   auto lg1a = p1a->geometry();
+   auto lg1b = p1b->geometry();
 
    // Now generate a whole load of random LocalPoints and check whether they'e inside or outside the strip region
 

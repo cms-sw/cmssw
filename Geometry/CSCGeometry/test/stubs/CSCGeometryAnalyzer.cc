@@ -83,7 +83,7 @@ void
 
      // Do we really have a CSC layer?
 
-     auto layer = dynamic_cast<CSCLayer const*>( it );
+     auto layer = std::static_pointer_cast< CSCLayer >( it );
      
       if( layer ) {
         ++icount;
@@ -92,8 +92,6 @@ void
 
         DetId detId = layer->geographicalId();
         int id = detId(); // or detId.rawId()
-
-	//	std::cout << "GeomDetUnit is of type " << detId.det() << " and raw id = " << id << std::endl;
 
 	// There's going to be a lot of messing with field width (and precision) so
 	// save input values...
@@ -257,10 +255,10 @@ void
   
 
 	// Check idToDetUnit
-	const GeomDetUnit * gdu = pDD->idToDetUnit(detId);
+	auto gdu = pDD->idToDetUnit(detId);
 	assert(gdu==layer);
 	// Check idToDet
-	const GeomDet * gd = pDD->idToDet(detId);
+	auto gd = pDD->idToDet(detId);
 	assert(gd==layer);
     }
     else {

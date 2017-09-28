@@ -76,7 +76,7 @@ void
 
      // Do we really have a CSC layer?
 
-     auto layer = dynamic_cast<CSCLayer const*>( it );
+     auto layer = std::static_pointer_cast< CSCLayer >( it );
      
       if( layer ) {
         ++icount;
@@ -446,10 +446,10 @@ void
 
 
 	// Check idToDetUnit
-	const GeomDetUnit * gdu = pDD->idToDetUnit(detId);
+	auto gdu = pDD->idToDetUnit(detId);
 	assert(gdu==layer);
 	// Check idToDet
-	const GeomDet * gd = pDD->idToDet(detId);
+	auto gd = pDD->idToDet(detId);
 	assert(gd==layer);
     }
     else {
