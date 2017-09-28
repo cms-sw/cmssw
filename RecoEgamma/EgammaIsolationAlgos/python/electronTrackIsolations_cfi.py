@@ -35,13 +35,3 @@ trkIsol04CfgV2 = cms.PSet(
     barrelCuts=trkIsol03CfgV2.barrelCuts.clone(maxDR=0.4),
     endcapCuts=trkIsol03CfgV2.endcapCuts.clone(maxDR=0.4)
 )
-
-#V3, 94X+
-trkIsol03CfgV3 = cms.PSet(
-    barrelCuts=_defaultCuts.clone(),
-    endcapCuts=_defaultCuts.clone(maxDZ=0.5)
-)
-trkIsol04CfgV3 = cms.PSet(
-    barrelCuts=trkIsol03CfgV3.barrelCuts.clone(maxDR=0.4),
-    endcapCuts=trkIsol03CfgV3.endcapCuts.clone(maxDR=0.4)
-)

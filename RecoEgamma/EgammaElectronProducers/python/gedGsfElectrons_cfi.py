@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoEcal.EgammaClusterProducers.hybridSuperClusters_cfi import *
 from RecoEcal.EgammaClusterProducers.multi5x5BasicClusters_cfi import *
 
-from RecoEgamma.EgammaIsolationAlgos.electronTrackIsolations_cfi import trkIsol03CfgV3,trkIsol04CfgV3
+from RecoEgamma.EgammaIsolationAlgos.electronTrackIsolations_cfi import trkIsol03CfgV1,trkIsol04CfgV1
 
 
 gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
@@ -119,8 +119,8 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
     #severityLevelCut = cms.int32(4),
 
     # Isolation algos configuration
-    trkIsol03Cfg = trkIsol03CfgV3,
-    trkIsol04Cfg = trkIsol04CfgV3,
+    trkIsol03Cfg = trkIsol03CfgV1,
+    trkIsol04Cfg = trkIsol04CfgV1,
     intRadiusHcal = cms.double(0.15),
     etMinHcal = cms.double(0.0), 
     intRadiusEcalBarrel = cms.double(3.0), 
