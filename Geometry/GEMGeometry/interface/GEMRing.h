@@ -31,22 +31,22 @@ class GEMRing
   bool operator==(const GEMRing& sch) const;
 
   /// Add super chamber to the ring which takes ownership
-  void add(GEMSuperChamber* ch);
+  void add( std::shared_ptr< GEMSuperChamber > ch);
   
   /// Return the super chambers in the ring
-  std::vector<const GeomDet*> components() const;
+  std::vector< std::shared_ptr< GeomDet >> components() const;
 
   /// Return the sub-component (super chamber) with a given id in this ring
-  const GeomDet* component(DetId id) const;
+  const std::shared_ptr< GeomDet > component(DetId id) const;
 
   /// Return the chamber corresponding to the given id 
-  const GEMSuperChamber* superChamber(GEMDetId id) const;
+  const std::shared_ptr< GEMSuperChamber > superChamber(GEMDetId id) const;
 
   // Return a super chamber
-  const GEMSuperChamber* superChamber(int sch) const;
+  const std::shared_ptr< GEMSuperChamber > superChamber(int sch) const;
   
   /// Return the chambers in the ring
-  const std::vector<const GEMSuperChamber*>& superChambers() const;
+  const std::vector< std::shared_ptr< GEMSuperChamber >>& superChambers() const;
 
   /// Return numbers of chambers
   int nSuperChambers() const;
@@ -69,7 +69,7 @@ class GEMRing
   std::vector<GEMDetId> detIds_;
 
   // vector of chambers for a super chamber
-  std::vector<const GEMSuperChamber*> superChambers_;
+  std::vector< std::shared_ptr< GEMSuperChamber >> superChambers_;
 
 };
 #endif

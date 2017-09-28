@@ -14,20 +14,10 @@ GlobalTrackingGeometry::GlobalTrackingGeometry(std::vector<const TrackingGeometr
 {}
 
 GlobalTrackingGeometry::~GlobalTrackingGeometry()
-{
-    delete theDetTypes.load();
-    theDetTypes = nullptr;
-    delete theDetUnits.load();
-    theDetUnits = nullptr;
-    delete theDets.load();
-    theDets = nullptr;
-    delete theDetUnitIds.load();
-    theDetUnitIds = nullptr;
-    delete theDetIds.load();
-    theDetIds = nullptr;
-}
+{}
 
-const GeomDet* GlobalTrackingGeometry::idToDetUnit(DetId id) const {
+const std::shared_ptr< GeomDet >
+GlobalTrackingGeometry::idToDetUnit( DetId id ) const {
     
     const TrackingGeometry* tg = slaveGeometry(id);
     
@@ -39,7 +29,8 @@ const GeomDet* GlobalTrackingGeometry::idToDetUnit(DetId id) const {
 }
 
 
-const GeomDet* GlobalTrackingGeometry::idToDet(DetId id) const{
+const std::shared_ptr< GeomDet >
+GlobalTrackingGeometry::idToDet( DetId id ) const {
   
     const TrackingGeometry* tg = slaveGeometry(id);
     
