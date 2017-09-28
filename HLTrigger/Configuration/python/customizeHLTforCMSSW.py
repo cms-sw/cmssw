@@ -18,7 +18,7 @@ from HLTrigger.Configuration.common import *
 #     return process
 
 # Migrate uGT non-CondDB parameters to new cff: remove StableParameters dependence in favour of GlobalParameters
-def customiseFor19989(process):
+def customiseFor20689(process):
     if hasattr(process,'StableParametersRcdSource'):
         delattr(process,'StableParametersRcdSource')
     if hasattr(process,'StableParameters'):
@@ -34,6 +34,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
 
-    process = customiseFor19989(process)
+    process = customiseFor20689(process)
 
     return process
