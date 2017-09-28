@@ -446,7 +446,8 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
      // Standard Selectors - keep it at the end so that all inputs are available
      if (computeStandardSelectors_){
        outMuon.setSelectionMask(0); // reset flags
-       muon::setCutBasedSelectorFlags(outMuon, vertex);
+       bool isRun2016BCDEF = (272728 <= event.run() && event.run() <= 278808);
+       muon::setCutBasedSelectorFlags(outMuon, vertex, isRun2016BCDEF);
      }
 
      outputMuons->push_back(outMuon); 

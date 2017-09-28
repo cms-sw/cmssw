@@ -486,7 +486,8 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   for(auto& muon: *patMuons){
     if (recomputeBasicSelectors_){
       muon.setSelectionMask(0);
-      muon::setCutBasedSelectorFlags(muon, pv);
+      bool isRun2016BCDEF = (272728 <= iEvent.run() && iEvent.run() <= 278808);
+      muon::setCutBasedSelectorFlags(muon, pv, isRun2016BCDEF);
     }
     if (computeMiniIso_){
       // MiniIsolation working points
