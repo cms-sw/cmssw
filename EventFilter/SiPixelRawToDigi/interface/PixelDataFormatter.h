@@ -109,7 +109,6 @@ private:
   int maxROCIndex;
   bool phase1;
 
-  friend class SiPixelRawToDigi;
 
   int checkError(const Word32& data) const;
 
