@@ -594,8 +594,8 @@ namespace {
       summaryLast->GetXaxis()->LabelsOption("v");
       summaryLast->GetXaxis()->SetLabelSize(0.05);
 
-      canvas.cd();
-
+      canvas.cd()->SetGridy();
+      
       canvas.SetBottomMargin(0.18);
       canvas.SetLeftMargin(0.11);
       canvas.SetRightMargin(0.02);
