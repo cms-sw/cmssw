@@ -197,7 +197,7 @@ namespace {
 
   template<AlignmentPI::partitions q> class TrackerAlignmentSummary : public cond::payloadInspector::PlotImage<Alignments> {
   public:
-    TrackerAlignmentSummary() : cond::payloadInspector::PlotImage<Alignments>( "Comparison of all coordinate between two geometries for"+getStringFromPart (q) ){
+    TrackerAlignmentSummary() : cond::payloadInspector::PlotImage<Alignments>( "Comparison of all coordinates between two geometries for"+getStringFromPart (q) ){
       setSingleIov( false );
     }
     
@@ -238,7 +238,7 @@ namespace {
 	auto s_coord = AlignmentPI::getStringFromCoordinate(coord);	
 	std::string unit = (coord == AlignmentPI::t_x || coord == AlignmentPI::t_y  || coord == AlignmentPI::t_z ) ? "[#mum]" : "[mrad]";
 
-  	diffs[coord] = std::make_shared<TH1F>(Form("hDiff_%s",s_coord.c_str()),Form(";#Delta%s %s;n. of modules",s_coord.c_str(),unit.c_str()),200,-100.,100.);       
+  	diffs[coord] = std::make_shared<TH1F>(Form("hDiff_%s",s_coord.c_str()),Form(";#Delta%s %s;n. of modules",s_coord.c_str(),unit.c_str()),1000,-500.,500.);       
 	
       }
 
@@ -300,6 +300,13 @@ namespace {
 	canvas.cd(c_index)->SetRightMargin(0.05);
       	diffs[coord]->SetLineWidth(2);
 	AlignmentPI::makeNicePlotStyle(diffs[coord].get(),kBlack);
+
+	float x_max = diffs[coord]->GetXaxis()->GetBinCenter(diffs[coord]->FindLastBinAbove(0.));
+	float x_min = diffs[coord]->GetXaxis()->GetBinCenter(diffs[coord]->FindFirstBinAbove(0.));
+
+	float extremum = std::abs(x_max) > std::abs(x_min) ? std::abs(x_max) : std::abs(x_min);
+
+	diffs[coord]->GetXaxis()->SetRangeUser(-extremum*1.2,extremum*1.2);
       	diffs[coord]->Draw("HIST");
 	AlignmentPI::makeNiceStats(diffs[coord].get(),q,kBlack);
       	c_index++;
