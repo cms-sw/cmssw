@@ -50,7 +50,7 @@ private:
  
   // main filter function
  
-  virtual bool filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
+ bool filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override; 
  
  
   // input parameters
