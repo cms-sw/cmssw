@@ -3,7 +3,7 @@ from PhysicsTools.NanoAOD.common_cff import *
 
 finalIsolatedTracks = cms.EDProducer("IsolatedTrackCleaner",
     tracks = cms.InputTag("isolatedTracks"),
-    cut = cms.string("((pt>5 && (abs(pdgId) == 11 || abs(pdgId) == 13)) || pt > 10) && (abs(pdgId) < 15 || abs(eta) < 2.5) && abs(dxy) < 0.2 && abs(dz) < 0.1 && isHighPurityTrack && ((pfIsolationDR03().chargedHadronIso < 5 && pt < 25) || pfIsolationDR03().chargedHadronIso/pt < 0.2)"), 
+    cut = cms.string("((pt>5 && (abs(pdgId) == 11 || abs(pdgId) == 13)) || pt > 10) && (abs(pdgId) < 15 || abs(eta) < 2.5) && abs(dxy) < 0.2 && abs(dz) < 0.1 && ((pfIsolationDR03().chargedHadronIso < 5 && pt < 25) || pfIsolationDR03().chargedHadronIso/pt < 0.2)"), 
     finalLeptons = cms.VInputTag(
         cms.InputTag("finalElectrons"),
         cms.InputTag("finalMuons"),
@@ -31,12 +31,13 @@ isoTrackTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         pfRelIso03_all = Var("(pfIsolationDR03().chargedHadronIso + max(pfIsolationDR03().neutralHadronIso + pfIsolationDR03().photonIso - pfIsolationDR03().puChargedHadronIso/2,0.0))/pt",float,doc="PF relative isolation dR=0.3, total (deltaBeta corrections)",precision=10),
 	isPFcand = Var("?packedCandRef().isNonnull()?1:0",int,doc="if isolated track is a PF candidate"),
 	pdgId = Var("pdgId",int,doc="PDG id of PF cand"),
+	isHighPurityTrack = Var("isHighPurityTrack",int,doc="track is high purity"),
     ),
     externalVariables = cms.PSet(
         miniPFRelIso_chg = ExtVar("isoForIsoTk:miniIsoChg",float,doc="mini PF relative isolation, charged component",precision=10),
         miniPFRelIso_all = ExtVar("isoForIsoTk:miniIsoAll",float,doc="mini PF relative isolation, total (with scaled rho*EA PU corrections)",precision=10),
     ),
-)#
+)
 
 isoTrackSequence = cms.Sequence(finalIsolatedTracks + isoForIsoTk)
 isoTrackTables = cms.Sequence(isoTrackTable)
