@@ -62,18 +62,13 @@ void MuonMvaEstimator::computeMva(const pat::Muon& muon,
   miniRelIsoCharged_ = muon.miniPFIsolation().chargedHadronIso();
   miniRelIsoNeutral_ = muon.miniPFIsolation().neutralHadronIso();
 
-  double dB2D  = muon.dB(pat::Muon::BS2D);
+  double dB2D  = fabs(muon.dB(pat::Muon::BS2D));
   double dB3D  = muon.dB(pat::Muon::PV3D);
   double edB3D = muon.edB(pat::Muon::PV3D);
+  double dz    = fabs(muon.muonBestTrack()->dz(vertex.position()));
   sip_  = edB3D>0?fabs(dB3D/edB3D):0.0; 
-  log_abs_dxyBS_     = log(fabs(dB2D)); 
-  log_abs_dzPV_      = log(fabs(muon.muonBestTrack()->dz(vertex.position())));
-
-  // compute jet-related information
-  // jetPtRel_          = jetPtRel;
-  // jetPtRatio_        = std::min(jetPtRatio,1.5);
-  // jetBTagCSV_        = std::max(jetBTagCSV,0.0);
-  // jetNDauCharged_    = jetNDauCharged;
+  log_abs_dxyBS_     = dB2D>0?log(dB2D):0; 
+  log_abs_dzPV_      = dz>0?log(dz):0;
 
   //Initialise loop variables
   double minDr = 9999;
@@ -104,17 +99,18 @@ void MuonMvaEstimator::computeMva(const pat::Muon& muon,
     jetNDauCharged_ = 0;
     for (auto jet: tagI.first->getJetConstituentsQuick()){
       const reco::PFCandidate *pfcand = dynamic_cast<const reco::PFCandidate*>(jet);
-      if (pfcand==nullptr) continue;
+      if (pfcand==nullptr) throw cms::Exception("ConfigurationError") << "Cannot get jet constituents";
       if (pfcand->charge()==0) continue;
-      if (!pfcand->bestTrack()) continue;
-      if (!pfcand->bestTrack()->quality(reco::Track::highPurity)) continue;
-      if (pfcand->bestTrack()->pt()<1.) continue;
-      if (pfcand->bestTrack()->hitPattern().numberOfValidHits()<8) continue;
-      if (pfcand->bestTrack()->hitPattern().numberOfValidPixelHits()<2) continue;
-      if (pfcand->bestTrack()->normalizedChi2()>=5) continue;
+      auto bestTrackPtr = pfcand->bestTrack();
+      if (!bestTrackPtr) continue;
+      if (!bestTrackPtr->quality(reco::Track::highPurity)) continue;
+      if (bestTrackPtr->pt()<1.) continue;
+      if (bestTrackPtr->hitPattern().numberOfValidHits()<8) continue;
+      if (bestTrackPtr->hitPattern().numberOfValidPixelHits()<2) continue;
+      if (bestTrackPtr->normalizedChi2()>=5) continue;
 
-      if (std::fabs(pfcand->bestTrack()->dxy(vertex.position())) > 0.2) continue;
-      if (std::fabs(pfcand->bestTrack()->dz(vertex.position())) > 17) continue;
+      if (std::fabs(bestTrackPtr->dxy(vertex.position())) > 0.2) continue;
+      if (std::fabs(bestTrackPtr->dz(vertex.position())) > 17) continue;
       jetNDauCharged_++;
     }
 

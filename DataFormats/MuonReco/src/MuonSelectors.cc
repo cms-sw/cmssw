@@ -955,7 +955,7 @@ void muon::setCutBasedSelectorFlags(reco::Muon& muon,
 				    bool run2016_hip_mitigation)
 {
   // https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideMuonIdRun2
-  unsigned int selection = muon.getSelectionMask();
+  unsigned int selectors = muon.selectors();
   // Compute Id and Isolation variables
   double chIso  = muon.pfIsolationR04().sumChargedHadronPt;
   double nIso   = muon.pfIsolationR04().sumNeutralHadronEt;
@@ -966,31 +966,31 @@ void muon::setCutBasedSelectorFlags(reco::Muon& muon,
   double tkRelIso = muon.isolationR03().sumPt/muon.pt();
 
   // Base selectors
-  if (muon::isLooseMuon(muon))        selection |= reco::Muon::CutBasedIdLoose;
+  if (muon::isLooseMuon(muon))        selectors |= reco::Muon::CutBasedIdLoose;
   if (vertex){
-    if (muon::isTightMuon(muon,*vertex))  selection |= reco::Muon::CutBasedIdTight;
-    if (muon::isSoftMuon(muon,*vertex,run2016_hip_mitigation))   selection |= reco::Muon::SoftCutBasedId;
-    if (muon::isHighPtMuon(muon,*vertex)) selection |= reco::Muon::CutBasedIdGlobalHighPt;
-    if (muon::isTrackerHighPtMuon(muon,*vertex)) selection |= reco::Muon::CutBasedIdTrkHighPt;
+    if (muon::isTightMuon(muon,*vertex))  selectors |= reco::Muon::CutBasedIdTight;
+    if (muon::isSoftMuon(muon,*vertex,run2016_hip_mitigation))   selectors |= reco::Muon::SoftCutBasedId;
+    if (muon::isHighPtMuon(muon,*vertex)) selectors |= reco::Muon::CutBasedIdGlobalHighPt;
+    if (muon::isTrackerHighPtMuon(muon,*vertex)) selectors |= reco::Muon::CutBasedIdTrkHighPt;
   }
   if (muon::isMediumMuon(muon,run2016_hip_mitigation)){
-    selection |= reco::Muon::CutBasedIdMedium;
+    selectors |= reco::Muon::CutBasedIdMedium;
     if ( vertex and 
 	 fabs(muon.muonBestTrack()->dz( vertex->position()))<0.1 and 
 	 fabs(muon.muonBestTrack()->dxy(vertex->position()))< 0.02 )
-      selection |= reco::Muon::CutBasedIdMediumPrompt;
+      selectors |= reco::Muon::CutBasedIdMediumPrompt;
   }
 
   // PF isolation
-  if (dbCorectedRelIso<0.40)    selection |= reco::Muon::PFIsoVeryLoose;
-  if (dbCorectedRelIso<0.25)    selection |= reco::Muon::PFIsoLoose;
-  if (dbCorectedRelIso<0.20)    selection |= reco::Muon::PFIsoMedium;
-  if (dbCorectedRelIso<0.15)    selection |= reco::Muon::PFIsoTight;
-  if (dbCorectedRelIso<0.10)    selection |= reco::Muon::PFIsoVeryTight;
+  if (dbCorectedRelIso<0.40)    selectors |= reco::Muon::PFIsoVeryLoose;
+  if (dbCorectedRelIso<0.25)    selectors |= reco::Muon::PFIsoLoose;
+  if (dbCorectedRelIso<0.20)    selectors |= reco::Muon::PFIsoMedium;
+  if (dbCorectedRelIso<0.15)    selectors |= reco::Muon::PFIsoTight;
+  if (dbCorectedRelIso<0.10)    selectors |= reco::Muon::PFIsoVeryTight;
   
   // Tracker isolation
-  if (tkRelIso<0.10)            selection |= reco::Muon::TkIsoLoose;
-  if (tkRelIso<0.05)            selection |= reco::Muon::TkIsoTight;
+  if (tkRelIso<0.10)            selectors |= reco::Muon::TkIsoLoose;
+  if (tkRelIso<0.05)            selectors |= reco::Muon::TkIsoTight;
 
-  muon.setSelectionMask(selection);
+  muon.setSelectors(selectors);
 }
