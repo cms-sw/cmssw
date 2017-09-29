@@ -110,12 +110,6 @@ namespace {
 	iBin++;
 	int count   = element.second.count;
 	double mean = (element.second.mean)/count;
-	double rms  = (element.second.rms)/count - mean*mean;
-
-	if(rms <= 0)
-	  rms = 0;
-	else
-	  rms = sqrt(rms);
 
 	if(currentDetector.empty()) currentDetector="TIB";
 	
