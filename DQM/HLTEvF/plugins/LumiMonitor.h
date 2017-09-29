@@ -41,7 +41,7 @@ class LumiMonitor : public DQMEDAnalyzer
 {
 public:
   LumiMonitor( const edm::ParameterSet& );
-  ~LumiMonitor() = default;
+  ~LumiMonitor() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   static void fillHistoPSetDescription(edm::ParameterSetDescription & pset);
   static void fillHistoLSPSetDescription(edm::ParameterSetDescription & pset);
