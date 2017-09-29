@@ -212,8 +212,8 @@ namespace reco {
     };
     
     bool passed( unsigned int selection ) const { return (selectors_ & selection)==selection; }
-    unsigned int getSelectionMask() const { return selectors_; }
-    void setSelectionMask( unsigned int mask ){ selectors_ = mask; }
+    unsigned int selectors() const { return selectors_; }
+    void setSelectors( unsigned int selectors ){ selectors_ = selectors; }
     void setSelector(Selector selector, bool passed){ 
       if (passed)
 	selectors_ |= selector;

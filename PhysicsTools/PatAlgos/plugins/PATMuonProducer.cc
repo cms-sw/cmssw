@@ -142,6 +142,7 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
   // standard selectors
   recomputeBasicSelectors_ = iConfig.getParameter<bool>("recomputeBasicSelectors");
   computeMuonMVA_ = iConfig.getParameter<bool>("computeMuonMVA");
+  mvaTrainingFile_ = iConfig.getParameter<std::string>("mvaTrainingFile");
   if (computeMuonMVA_ and not computeMiniIso_) 
     throw cms::Exception("ConfigurationError") << "MiniIso is needed for Muon MVA calculation.\n";
 
@@ -155,7 +156,7 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
     mvaDrMax_  = iConfig.getParameter<double>("mvaDrMax");
 
     // xml training file
-    edm::FileInPath fip("RecoMuon/MuonIdentification/data/mu_BDTG.weights.xml");
+    edm::FileInPath fip(mvaTrainingFile_);
     mvaEstimator_.initialize(fip.fullPath(),mvaDrMax_);
   }
 
@@ -485,7 +486,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   if (primaryVertexIsValid) pv = &primaryVertex;
   for(auto& muon: *patMuons){
     if (recomputeBasicSelectors_){
-      muon.setSelectionMask(0);
+      muon.setSelectors(0);
       bool isRun2016BCDEF = (272728 <= iEvent.run() && iEvent.run() <= 278808);
       muon::setCutBasedSelectorFlags(muon, pv, isRun2016BCDEF);
     }
@@ -625,7 +626,7 @@ void PATMuonProducer::setMuonMiniIso(Muon& aMuon, const PackedCandidateCollectio
   aMuon.setMiniPFIsolation(miniiso);
 }
 
-double PATMuonProducer::getRelMiniIsoPUCorrected(pat::Muon& muon, float rho)
+double PATMuonProducer::getRelMiniIsoPUCorrected(const pat::Muon& muon, float rho)
 {
   float mindr(miniIsoParams_[0]);
   float maxdr(miniIsoParams_[1]);

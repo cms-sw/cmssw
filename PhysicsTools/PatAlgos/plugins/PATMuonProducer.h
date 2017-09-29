@@ -69,7 +69,7 @@ namespace pat {
     template<typename T> void readIsolationLabels( const edm::ParameterSet & iConfig, const char* psetName, IsolationLabels& labels, std::vector<edm::EDGetTokenT<edm::ValueMap<T> > > & tokens);
 
     void setMuonMiniIso(pat::Muon& aMuon, const pat::PackedCandidateCollection *pc);
-    double getRelMiniIsoPUCorrected(pat::Muon& muon, float rho);
+    double getRelMiniIsoPUCorrected(const pat::Muon& muon, float rho);
 
     // embed various impact parameters with errors
     // embed high level selection
@@ -173,6 +173,7 @@ namespace pat {
     edm::EDGetTokenT<reco::JetCorrector> mvaL1L2L3ResCorrector_;
     edm::EDGetTokenT<double> rho_;
     pat::MuonMvaEstimator mvaEstimator_;
+    std::string mvaTrainingFile_;
     
     /// --- tools ---
     /// comparator for pt ordering
