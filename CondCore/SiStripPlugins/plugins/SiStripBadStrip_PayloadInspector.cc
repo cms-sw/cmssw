@@ -742,7 +742,7 @@ namespace {
       std::vector<uint32_t> detid2;
       first_payload->getDetIds(detid2);
 
-      std::cout << "Size 2: " << detid1.size() << "| Size 1: "<< detid2.size() << std::endl;
+      //std::cout << "Size 2: " << detid1.size() << "| Size 1: "<< detid2.size() << std::endl;
 
       for (const auto & d : detid2) {
 	SiStripBadStrip::Range range=first_payload->getRange(d);
@@ -783,9 +783,11 @@ namespace {
 	}
       }
 
-      std::cout<<"In 2 but not in 1:"<<  countLastButNotFirst << std::endl;
-      std::cout<<"In 1 but not in 2:"<<  countFirstButNotLast << std::endl;
-      std::cout<<"In both:"<<  countBoth << std::endl;
+      /*
+	std::cout<<"In 2 but not in 1:"<<  countLastButNotFirst << std::endl;
+	std::cout<<"In 1 but not in 2:"<<  countFirstButNotLast << std::endl;
+	std::cout<<"In both:"<<  countBoth << std::endl;
+      */
 
       //=========================
       
