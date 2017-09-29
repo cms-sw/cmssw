@@ -55,10 +55,10 @@ PFIsolation getMiniPFIsolation(const pat::PackedCandidateCollection *pfcands,
 
 }
 
-  float relMiniIsoPUCorrected(const PFIsolation& iso,
-			      const math::XYZTLorentzVector& p4,
-			      float dr,
-			      float rho)
+  float muonRelMiniIsoPUCorrected(const PFIsolation& iso,
+				  const math::XYZTLorentzVector& p4,
+				  float dr,
+				  float rho)
   {
     double absEta = fabs(p4.eta());
     double ea = 0;

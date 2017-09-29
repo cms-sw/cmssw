@@ -632,7 +632,7 @@ double PATMuonProducer::getRelMiniIsoPUCorrected(const pat::Muon& muon, float rh
   float maxdr(miniIsoParams_[1]);
   float kt_scale(miniIsoParams_[2]);
   float drcut = pat::miniIsoDr(muon.p4(),mindr,maxdr,kt_scale);
-  return pat::relMiniIsoPUCorrected(muon.miniPFIsolation(), muon.p4(), drcut, rho);
+  return pat::muonRelMiniIsoPUCorrected(muon.miniPFIsolation(), muon.p4(), drcut, rho);
 }
 
 // ParameterSet description for module
