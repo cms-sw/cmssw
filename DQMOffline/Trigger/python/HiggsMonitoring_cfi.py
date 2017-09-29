@@ -4,6 +4,11 @@ from DQMOffline.Trigger.topMonitoring_cfi import topMonitoring
 
 hltHIGmonitoring = topMonitoring.clone()
 hltHIGmonitoring.FolderName = cms.string('HLT/Higgs/default/')
+hltHIGmonitoring.histoPSet.lsPSet = cms.PSet(
+  nbins = cms.uint32 ( 250 ),
+  xmin  = cms.double(    0.),
+  xmax  = cms.double( 2500.),
+)
 hltHIGmonitoring.histoPSet.metPSet = cms.PSet(
   nbins = cms.uint32 (  30   ),
   xmin  = cms.double(   0   ),
