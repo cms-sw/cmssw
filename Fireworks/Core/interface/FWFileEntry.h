@@ -41,7 +41,7 @@ public:
       FWEventSelector*   m_selector;  // owned by navigator
       bool               m_needsUpdate;
       
-      Filter(FWEventSelector* s) : m_eventList(0), m_selector(s), m_needsUpdate(true) {}
+      Filter(FWEventSelector* s) : m_eventList(nullptr), m_selector(s), m_needsUpdate(true) {}
       ~Filter()
       {
          delete m_eventList;
@@ -89,8 +89,8 @@ public:
    void RemovingEventItemCallIn(const FWEventItem* it);
 
 private:
-   FWFileEntry(const FWFileEntry&);    // stop default
-   const FWFileEntry& operator=(const FWFileEntry&);    // stop default
+   FWFileEntry(const FWFileEntry&) = delete;    // stop default
+   const FWFileEntry& operator=(const FWFileEntry&) = delete;    // stop default
 
    void runFilter(Filter* fe, const FWEventItemsManager* eiMng);
    bool filterEventsWithCustomParser(Filter* filter);

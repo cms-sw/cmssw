@@ -14,7 +14,7 @@
 #include <sstream>
 #include <boost/bind.hpp>
 #include <boost/program_options.hpp>
-#include <string.h>
+#include <cstring>
 
 #include "TSystem.h"
 #include "TGLWidget.h"
@@ -129,7 +129,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
                                       colorManager(),
                                       m_metadataManager.get())),
      m_loadedAnyInputFile(false),
-     m_openFile(0),
+     m_openFile(nullptr),
      m_live(false),
      m_liveTimer(new SignalTimer()),
      m_liveTimeout(600000),
@@ -137,7 +137,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
      m_noVersionCheck(false)
 {
    try {
-      TGLWidget* w = TGLWidget::Create(gClient->GetDefaultRoot(), kTRUE, kTRUE, 0, 10, 10);
+      TGLWidget* w = TGLWidget::Create(gClient->GetDefaultRoot(), kTRUE, kTRUE, nullptr, 10, 10);
       delete w;
    }
    catch (std::exception& iException) {
@@ -257,7 +257,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    }
 
    const char* cmspath = gSystem->Getenv("CMSSW_BASE");
-   if(0 == cmspath) {
+   if(nullptr == cmspath) {
       throw std::runtime_error("CMSSW_BASE environment variable not set");
    }
 
@@ -266,7 +266,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       m_inputFiles = vm[kInputFilesOpt].as< std::vector<std::string> >();
    }
 
-   if (!m_inputFiles.size())
+   if (m_inputFiles.empty())
       fwLog(fwlog::kInfo) << "No data file given." << std::endl;
    else if (m_inputFiles.size() == 1)
       fwLog(fwlog::kInfo) << "Input " << m_inputFiles.front() << std::endl;
@@ -448,7 +448,7 @@ public:
       Start(0, kTRUE);
    }
 
-   virtual Bool_t Notify() override
+   Bool_t Notify() override
    {
       TurnOff();
       fApp->doExit();
@@ -496,7 +496,7 @@ CmsShowMain::getCurrentEvent() const
 {
    if (m_navigator.get())
      return static_cast<const fwlite::Event*>(m_navigator->getCurrentEvent());
-   return 0;
+   return nullptr;
 }
 
 void
@@ -527,7 +527,7 @@ void CmsShowMain::resetInitialization() {
 
 void CmsShowMain::openData()
 {
-   const char* kRootType[] = {"ROOT files","*.root", 0, 0};
+   const char* kRootType[] = {"ROOT files","*.root", nullptr, nullptr};
    TGFileInfo fi;
    fi.fFileTypes = kRootType;
    /* this is how things used to be done:
@@ -552,7 +552,7 @@ void CmsShowMain::openData()
 
 void CmsShowMain::appendData()
 {
-   const char* kRootType[] = {"ROOT files","*.root", 0, 0};
+   const char* kRootType[] = {"ROOT files","*.root", nullptr, nullptr};
    TGFileInfo fi;
    fi.fFileTypes = kRootType;
    /* this is how things used to be done:
@@ -577,7 +577,7 @@ void CmsShowMain::appendData()
 void
 CmsShowMain::openDataViaURL()
 {
-   if (m_searchFiles.get() == 0) {
+   if (m_searchFiles.get() == nullptr) {
       m_searchFiles = std::auto_ptr<CmsShowSearchFiles>(new CmsShowSearchFiles("",
                                                                                "Open Remote Data Files",
                                                                                guiManager()->getMainFrame(),
@@ -587,7 +587,7 @@ CmsShowMain::openDataViaURL()
    std::string chosenFile = m_searchFiles->chooseFileFromURL();
    if(!chosenFile.empty()) {
       guiManager()->updateStatus("loading file ...");
-      if(m_navigator->openFile(chosenFile.c_str())) {
+      if(m_navigator->openFile(chosenFile)) {
          setLoadedAnyInputFileAfterStartup();
          m_navigator->firstEvent();
          checkPosition();
@@ -688,11 +688,11 @@ CmsShowMain::setupDataHandling()
    guiManager()->filterButtonClicked_.connect(boost::bind(&CmsShowMain::filterButtonClicked,this));
 
    // Data handling. File related and therefore not in the base class.
-   if (guiManager()->getAction(cmsshow::sOpenData)    != 0) 
+   if (guiManager()->getAction(cmsshow::sOpenData)    != nullptr) 
       guiManager()->getAction(cmsshow::sOpenData)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openData));
-   if (guiManager()->getAction(cmsshow::sAppendData)  != 0) 
+   if (guiManager()->getAction(cmsshow::sAppendData)  != nullptr) 
       guiManager()->getAction(cmsshow::sAppendData)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::appendData));
-   if (guiManager()->getAction(cmsshow::sSearchFiles) != 0)
+   if (guiManager()->getAction(cmsshow::sSearchFiles) != nullptr)
       guiManager()->getAction(cmsshow::sSearchFiles)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openDataViaURL));
 
    setupActions();
@@ -734,7 +734,7 @@ CmsShowMain::setupDataHandling()
 
       bool geoBrowser = (configFilename()[0] !='\0') && (eiManager()->begin() == eiManager()->end());
 
-      if (m_monitor.get() == 0 && (configurationManager()->getIgnore() == false) && ( !geoBrowser)) {
+      if (m_monitor.get() == nullptr && (configurationManager()->getIgnore() == false) && ( !geoBrowser)) {
          if (m_inputFiles.empty())
             openDataViaURL();
          else
