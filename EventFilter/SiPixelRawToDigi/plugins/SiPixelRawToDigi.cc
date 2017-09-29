@@ -99,7 +99,7 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
   usePhase1 = false;
   if (config_.exists("UsePhase1")) {
     usePhase1 = config_.getParameter<bool> ("UsePhase1");
-    if(usePhase1) edm::LogInfo("SiPixelRawToDigi")  << " Use pilot blade data (FED 40)";
+    if(usePhase1) edm::LogInfo("SiPixelRawToDigi")  << " Using phase1";
   }
   //CablingMap could have a label //Tav
   cablingMapLabel = config_.getParameter<std::string> ("CablingMapLabel");
