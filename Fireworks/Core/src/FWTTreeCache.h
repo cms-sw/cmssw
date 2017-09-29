@@ -42,7 +42,7 @@ protected:
 public:
    FWTTreeCache();
    FWTTreeCache(TTree *tree, Int_t buffersize=0);
-   virtual ~FWTTreeCache();
+   ~FWTTreeCache() override;
 
    static void LoggingOn();
    static void LoggingOff();
