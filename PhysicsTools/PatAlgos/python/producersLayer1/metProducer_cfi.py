@@ -7,10 +7,6 @@ patMETs = cms.EDProducer("PATMETProducer",
     # input
     metSource  = cms.InputTag("pfMetT1"),
 
-    # additional sources
-    chsmetSource = cms.InputTag(''),                         
-    trkmetSource = cms.InputTag(''),                         
-
     # add user data
     userData = cms.PSet(
       # add custom classes here
