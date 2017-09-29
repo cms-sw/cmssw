@@ -44,7 +44,7 @@ class EcalBadCalibFilter : public edm::global::EDFilter<> {
 public:
  
   explicit EcalBadCalibFilter(const edm::ParameterSet & iConfig);
-  ~EcalBadCalibFilter() {}
+  ~EcalBadCalibFilter() override {}
  
 private:
  
