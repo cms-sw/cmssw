@@ -51,8 +51,8 @@ MEbinning LumiMonitor::getHistoLSPSet(edm::ParameterSet pset)
 {
   return MEbinning{
     pset.getParameter<int32_t>("nbins"),
-      0.,
-      double(pset.getParameter<int32_t>("nbins"))
+      -0.5,
+      double(pset.getParameter<int32_t>("nbins")-0.5)
       };
 }
 
