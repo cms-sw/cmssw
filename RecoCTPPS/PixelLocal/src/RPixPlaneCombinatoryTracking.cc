@@ -46,7 +46,7 @@ void RPixPlaneCombinatoryTracking::initialize(){
   if(verbosity_>=2) edm::LogInfo("RPixPlaneCombinatoryTracking")<<"Number of combinations = "<<numberOfCombinations;
   possiblePlaneCombinations_.reserve(numberOfCombinations);
 
-  possiblePlaneCombinations_ = getPlaneCombinations(listOfAllPlanes_,trackMinNumberOfPoints_);
+  getPlaneCombinations(listOfAllPlanes_,trackMinNumberOfPoints_,possiblePlaneCombinations_);
 
   if(verbosity_>=2) {
     for( const auto & vec : possiblePlaneCombinations_){
@@ -62,13 +62,11 @@ void RPixPlaneCombinatoryTracking::initialize(){
 //------------------------------------------------------------------------------------------------//
     
 //This function produces all the possible plane combinations extracting numberToExtract planes over numberOfPlanes planes
-const RPixPlaneCombinatoryTracking::PlaneCombinations &
-RPixPlaneCombinatoryTracking::getPlaneCombinations(const std::vector<uint32_t> &inputPlaneList, uint32_t numberToExtract) const
+void RPixPlaneCombinatoryTracking::getPlaneCombinations(const std::vector<uint32_t> &inputPlaneList, uint32_t numberToExtract, PlaneCombinations &planeCombinations) const
 {
     uint32_t numberOfPlanes = inputPlaneList.size();
     std::string bitmask(numberToExtract, 1); // numberToExtract leading 1's
     bitmask.resize(numberOfPlanes, 0); // numberOfPlanes-numberToExtract trailing 0's
-    static PlaneCombinations planeCombinations;
     planeCombinations.clear();
 
     // store the combination and permute bitmask
@@ -79,7 +77,7 @@ RPixPlaneCombinatoryTracking::getPlaneCombinations(const std::vector<uint32_t> &
       }
     } while (std::prev_permutation(bitmask.begin(), bitmask.end()));
 
-    return planeCombinations;
+    return;
 }
 
 
@@ -223,7 +221,8 @@ void RPixPlaneCombinatoryTracking::findTracks(){
     //excluding the case of no other plane added since it has been already fitted.
     PlaneCombinations planePointedHitListCombination;
     for(uint32_t i=1; i<=listOfExcludedPlanes.size(); ++i){
-      PlaneCombinations tmpPlaneCombination = getPlaneCombinations(listOfExcludedPlanes,i);
+      PlaneCombinations tmpPlaneCombination;
+      getPlaneCombinations(listOfExcludedPlanes,i,tmpPlaneCombination);
       for(const auto & combination : tmpPlaneCombination) planePointedHitListCombination.push_back(combination);
     }
 
