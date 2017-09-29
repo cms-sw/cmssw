@@ -330,8 +330,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                                             postfix)
 
         #pre-preparation to run over miniAOD 
-        if onMiniAOD:
-            self.miniAODConfigurationPre(process, patMetModuleSequence, postfix)
+        if onMiniAOD:            
+            self.miniAODConfigurationPre(process, patMetModuleSequence, pfCandCollection, postfix)
 
         #default MET production
         self.produceMET(process, metType,patMetModuleSequence, postfix)
@@ -1509,7 +1509,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         
 
 
-    def miniAODConfigurationPre(self, process, patMetModuleSequence, postfix):
+    def miniAODConfigurationPre(self, process, patMetModuleSequence, pfCandCollection, postfix):
         
             #extractor for caloMET === temporary for the beginning of the data taking
             self.extractMET(process,"rawCalo",patMetModuleSequence,postfix)
@@ -1519,6 +1519,56 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                              metSource = "metrawCalo"
                              )
             getattr(process,"patCaloMet").addGenMET = False
+
+            ##adding the necessary chs and track met configuration
+            task = getPatAlgosToolsTask(process)
+
+            pfChs = cms.EDFilter("CandPtrSelector", src = pfCandCollection, cut = cms.string("fromPV(0)>0"))
+            addToProcessAndTask("pfChs", pfChs, process, task)
+            pfMetChs = cms.EDProducer("PFMETProducer",
+                                      src = cms.InputTag('pfChs'),
+                                      alias = cms.string('pfMet'),
+                                      globalThreshold = cms.double(0.0),
+                                      calculateSignificance = cms.bool(False),
+                                      )            
+
+            addToProcessAndTask("pfMetChs", pfMetChs, process, task)
+
+            addMETCollection(process,
+                             labelName = "patChsMet",
+                             metSource = "pfMetChs"
+                             )
+
+            getattr(process,"patChsMet").computeMETSignificance = cms.bool(False)
+            getattr(process,"patChsMet").addGenMET = False
+
+            patMetModuleSequence += getattr(process, "pfChs")
+            patMetModuleSequence += getattr(process, "pfMetChs")
+            patMetModuleSequence += getattr(process, "patChsMet")
+
+            pfTrk = cms.EDFilter("CandPtrSelector", src = pfCandCollection, cut = cms.string("fromPV(0) > 0 && charge()!=0"))
+            addToProcessAndTask("pfTrk", pfTrk, process, task)
+            pfMetTrk = cms.EDProducer("PFMETProducer",
+                                      src = cms.InputTag('pfTrk'),
+                                      alias = cms.string('pfMet'),
+                                      globalThreshold = cms.double(0.0),
+                                      calculateSignificance = cms.bool(False),
+                                      )            
+
+            addToProcessAndTask("pfMetTrk", pfMetTrk, process, task)
+
+            addMETCollection(process,
+                             labelName = "patTrkMet",
+                             metSource = "pfMetTrk"
+                             )
+
+            getattr(process,"patTrkMet").computeMETSignificance = cms.bool(False)
+            getattr(process,"patTrkMet").addGenMET = False
+
+            patMetModuleSequence += getattr(process, "pfTrk")
+            patMetModuleSequence += getattr(process, "pfMetTrk")
+            patMetModuleSequence += getattr(process, "patTrkMet")
+
 
     def miniAODConfigurationPost(self, process, postfix):
 

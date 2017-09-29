@@ -23,12 +23,6 @@ MET::MET(const reco::MET & aMET) : PATObject<reco::MET>(aMET) {
     if (pm != nullptr) this->operator=(*pm);
 
     metSig_ =0.;
-    chsMETpt_ =0.;
-    chsMETphi_ =0.;
-    chsMETsumEt_ =0.;
-    trkMETpt_ =0.;
-    trkMETphi_ =0.;
-    trkMETsumEt_ =0.;
     initCorMap();
 }
 
@@ -43,12 +37,6 @@ MET::MET(const edm::RefToBase<reco::MET> & aMETRef) : PATObject<reco::MET>(aMETR
     if (pm != nullptr) this->operator=(*pm);
 
     metSig_ =0.;
-    chsMETpt_ =0.;
-    chsMETphi_ =0.;
-    chsMETsumEt_ =0.;
-    trkMETpt_ =0.;
-    trkMETphi_ =0.;
-    trkMETsumEt_ =0.;
     initCorMap();
 }
 
@@ -62,12 +50,6 @@ MET::MET(const edm::Ptr<reco::MET> & aMETRef) : PATObject<reco::MET>(aMETRef) {
     if (pm != nullptr) this->operator=(*pm);
 
     metSig_ =0.;
-    chsMETpt_ = 0.;
-    chsMETphi_ =0.;
-    chsMETsumEt_ =0.;
-    trkMETpt_ =0.;
-    trkMETphi_ =0.;
-    trkMETsumEt_ =0.;
     initCorMap();
 }
 
@@ -78,12 +60,6 @@ genMET_(iOther.genMET_),
 caloMET_(iOther.caloMET_),
 pfMET_(iOther.pfMET_),
 metSig_(iOther.metSig_),
-chsMETpt_(iOther.chsMETpt_),
-chsMETphi_(iOther.chsMETphi_),
-chsMETsumEt_(iOther.chsMETsumEt_),
-trkMETpt_(iOther.trkMETpt_),
-trkMETphi_(iOther.trkMETphi_),
-trkMETsumEt_(iOther.trkMETsumEt_),
 uncertaintiesRaw_(iOther.uncertaintiesRaw_), //74X reading compatibility
 uncertaintiesType1_(iOther.uncertaintiesType1_), //74X compatibility
 uncertaintiesType1p2_(iOther.uncertaintiesType1p2_), //74X compatibility
@@ -102,12 +78,6 @@ genMET_(srcMET.genMET_),
 caloMET_(srcMET.caloMET_),
 pfMET_(srcMET.pfMET_),
 metSig_(srcMET.metSig_),
-chsMETpt_(srcMET.chsMETpt_),
-chsMETphi_(srcMET.chsMETphi_),
-chsMETsumEt_(srcMET.chsMETsumEt_),
-trkMETpt_(srcMET.trkMETpt_),
-trkMETphi_(srcMET.trkMETphi_),
-trkMETsumEt_(srcMET.trkMETsumEt_),
 caloPackedMet_(srcMET.caloPackedMet_) {
 
   setSignificanceMatrix(srcMET.getSignificanceMatrix());
@@ -131,12 +101,6 @@ MET& MET::operator=(MET const& iOther) {
    uncertainties_ = iOther.uncertainties_;
    corrections_ = iOther.corrections_;
    metSig_ = iOther.metSig_;
-   chsMETpt_ = iOther.chsMETpt_;
-   chsMETphi_ = iOther.chsMETphi_;
-   chsMETsumEt_ = iOther.chsMETsumEt_;
-   trkMETpt_ = iOther.trkMETpt_;
-   trkMETphi_ = iOther.trkMETphi_;
-   trkMETsumEt_ = iOther.trkMETsumEt_;
    caloPackedMet_ = iOther.caloPackedMet_;
 
    return *this;
@@ -162,61 +126,6 @@ void MET::setMETSignificance(const double& metSig) {
 double MET::metSignificance() const {
   return metSig_;
 }
-
-//Method to set the CHS MET
-void MET::setCHSMETpt(const double& chsMETpt) {
-  chsMETpt_ = chsMETpt;
-}
-
-double MET::CHSMETpt() const {
-  return chsMETpt_;
-}
-
-//Method to set the CHS MET
-void MET::setCHSMETphi(const double& chsMETphi) {
-  chsMETphi_ = chsMETphi;
-}
-
-double MET::CHSMETphi() const {
-  return chsMETphi_;
-}
-
-//Method to set the CHS MET
-void MET::setCHSMETsumEt(const double& chsMETsumEt) {
-  chsMETsumEt_ = chsMETsumEt;
-}
-
-double MET::CHSMETsumEt() const {
-  return chsMETsumEt_;
-}
-
-//Method to set the Track MET
-void MET::setTrkMETpt(const double& trkMETpt) {
-  trkMETpt_ = trkMETpt;
-}
-
-double MET::TrkMETpt() const {
-  return trkMETpt_;
-}
-
-//Method to set the CHS MET
-void MET::setTrkMETphi(const double& trkMETphi) {
-  trkMETphi_ = trkMETphi;
-}
-
-double MET::TrkMETphi() const {
-  return trkMETphi_;
-}
-
-//Method to set the CHS MET
-void MET::setTrkMETsumEt(const double& trkMETsumEt) {
-  trkMETsumEt_ = trkMETsumEt;
-}
-
-double MET::TrkMETsumEt() const {
-  return trkMETsumEt_;
-}
-
 
 void
 MET::initCorMap() {
@@ -274,6 +183,16 @@ MET::initCorMap() {
   std::vector<MET::METCorrectionType> tmpRawCalo;
   tmpRawCalo.push_back(MET::Calo);
   corMap_[MET::RawCalo] = tmpRawCalo;
+
+  //specific chs case
+  std::vector<MET::METCorrectionType> tmpRawChs;
+  tmpRawChs.push_back(MET::Chs);
+  corMap_[MET::RawChs] = tmpRawChs;
+
+  //specific chs case
+  std::vector<MET::METCorrectionType> tmpRawTrk;
+  tmpRawTrk.push_back(MET::Trk);
+  corMap_[MET::RawTrk] = tmpRawTrk;
 }
 
 const MET::PackedMETUncertainty

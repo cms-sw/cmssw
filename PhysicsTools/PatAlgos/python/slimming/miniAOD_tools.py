@@ -185,10 +185,14 @@ def miniAOD_customizeCommon(process):
                                       globalThreshold = cms.double(0.0),
                                       calculateSignificance = cms.bool(False),
                                       )
-
     task.add(process.pfMetCHS)    
 
-    process.patMETs.chsmetSource = cms.InputTag("pfMetCHS")
+    addMETCollection(process,
+                     labelName = "patChsMet",
+                     metSource = "pfMetCHS"
+                     )
+
+    process.patChsMet.computeMETSignificance = cms.bool(False)
 
     #  ==================  CHSMET 
 
@@ -208,7 +212,12 @@ def miniAOD_customizeCommon(process):
 
     task.add(process.pfMetTrk)
 
-    process.patMETs.trkmetSource = cms.InputTag("pfMetTrk")
+    addMETCollection(process,
+                     labelName = "patTrkMet",
+                     metSource = "pfMetTrk"
+                     )
+
+    process.patTrkMet.computeMETSignificance = cms.bool(False)
 
     #  ==================  TrkMET 
     
