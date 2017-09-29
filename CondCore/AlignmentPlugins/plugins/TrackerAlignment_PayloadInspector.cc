@@ -326,9 +326,76 @@ namespace {
   typedef TrackerAlignmentSummary<AlignmentPI::TID>  TrackerAlignmentSummaryTID;
   typedef TrackerAlignmentSummary<AlignmentPI::TOB>  TrackerAlignmentSummaryTOB;
   typedef TrackerAlignmentSummary<AlignmentPI::TEC>  TrackerAlignmentSummaryTEC;  
-  
-}
 
+  
+  //*******************************************//
+  // History of the position of the BPix Barycenter
+  //******************************************//
+
+  template<AlignmentPI::coordinate coord> class BPixBarycenterHistory : public cond::payloadInspector::HistoryPlot<Alignments,float> {
+  public:
+    BPixBarycenterHistory(): cond::payloadInspector::HistoryPlot<Alignments,float>(" Barrel Pixel "+AlignmentPI::getStringFromCoordinate(coord)+" positions vs time", AlignmentPI::getStringFromCoordinate(coord)+" position [cm]"){}
+    ~BPixBarycenterHistory() override = default;
+  
+    float getFromPayload( Alignments& payload ) override {
+     
+      std::vector<AlignTransform> alignments = payload.m_align;
+      
+      float barycenter=0.;
+      float nmodules(0.);
+      for(const auto& ali : alignments ){
+	int subid = DetId(ali.rawId()).subdetId();
+	if(subid!=PixelSubdetector::PixelBarrel) continue;
+	
+	nmodules++;
+	switch(coord){
+	case AlignmentPI::t_x :
+	  barycenter+=(ali.translation().x());
+	  break;
+	case AlignmentPI::t_y:
+	  barycenter+=(ali.translation().y());
+	  break;
+	case AlignmentPI::t_z:
+	  barycenter+=(ali.translation().z());
+	  break;
+	default:
+	  edm::LogError("TrackerAlignment_PayloadInspector") << "Unrecognized coordinate "<< coord << std::endl;
+	  break;
+	} // switch on the coordinate (only X,Y,Z are interesting)
+      } // ends loop on the alignments
+
+      std::cout<<"barycenter ("<<barycenter<<")/n. modules ("<< nmodules << ") =  "<< barycenter/nmodules << std::endl;
+      // take the mean
+      barycenter/=nmodules;
+
+      // switch(coord){
+      // case AlignmentPI::t_x :
+      // 	barycenter+=(-8.99999999999999967e-02);
+      // 	break;
+      // case AlignmentPI::t_y:
+      // 	barycenter+=(-1.10000000000000001e-01);
+      // 	break;
+      // case AlignmentPI::t_z:
+      // 	barycenter+=(-1.70000000000000012e-01);
+      // 	break;
+      // default:
+      // 	edm::LogError("TrackerAlignment_PayloadInspector") << "Unrecognized coordinate "<< coord << std::endl;
+      // }
+
+      // applied GPR correction to move barycenter to global CMS coordinates
+      barycenter+=AlignmentPI::hardcodeGPR[coord];
+
+      return barycenter;
+
+    } // payload
+  };
+
+  typedef BPixBarycenterHistory<AlignmentPI::t_x> X_BPixBarycenterHistory;
+  typedef BPixBarycenterHistory<AlignmentPI::t_y> Y_BPixBarycenterHistory;
+  typedef BPixBarycenterHistory<AlignmentPI::t_z> Z_BPixBarycenterHistory;
+
+
+}
 
 PAYLOAD_INSPECTOR_MODULE(TrackerAlignment){
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentCompareX);
@@ -343,4 +410,7 @@ PAYLOAD_INSPECTOR_MODULE(TrackerAlignment){
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentSummaryTID);  
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentSummaryTOB);  
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentSummaryTEC);  
+  PAYLOAD_INSPECTOR_CLASS(X_BPixBarycenterHistory);
+  PAYLOAD_INSPECTOR_CLASS(Y_BPixBarycenterHistory);
+  PAYLOAD_INSPECTOR_CLASS(Z_BPixBarycenterHistory);
 }
