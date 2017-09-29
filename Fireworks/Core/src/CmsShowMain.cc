@@ -63,6 +63,7 @@
 #include "Fireworks/Core/interface/CmsShowSearchFiles.h"
 
 #include "Fireworks/Core/interface/fwLog.h"
+#include "Fireworks/Core/src/FWTTreeCache.h"
 
 #include "FWCore/FWLite/interface/FWLiteEnabler.h"
 
@@ -89,7 +90,8 @@ static const char* const kPlayCommandOpt       = "play,p";
 static const char* const kLoopOpt              = "loop";
 static const char* const kLoopCommandOpt       = "loop";
 static const char* const kLogLevelCommandOpt   = "log";
-static const char* const kLogLevelOpt          = "log";
+static const char* const kLogTreeCacheOpt      = "log-tree-cache";
+static const char* const kSizeTreeCacheOpt     = "tree-cache-size";
 static const char* const kEveOpt               = "eve";
 static const char* const kEveCommandOpt        = "eve";
 static const char* const kAdvancedRenderOpt        = "shine";
@@ -187,6 +189,10 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    (kEveCommandOpt,                                    "Show TEveBrowser to help debug problems")
    (kEnableFPE,                                        "Enable detection of floating-point exceptions");
 
+ po::options_description tcachedesc("TreeCache");
+ tcachedesc.add_options()
+    (kLogTreeCacheOpt,                                 "Log tree cache operations and status")
+    (kSizeTreeCacheOpt, po::value<int>(),              "Set size of TTreeCache for data access in MB (default is 50)");
 
  po::options_description rnrdesc("Appearance");
  rnrdesc.add_options()
@@ -197,11 +203,11 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    p.add(kInputFilesOpt, -1);
 
 
- po::options_description hiddendesc("hidden");
- hiddendesc.add_options();
+   po::options_description hiddendesc("hidden");
+   hiddendesc.add_options();
 
    po::options_description all("");
- all.add(desc).add(rnrdesc).add(livedesc).add(debugdesc);
+   all.add(desc).add(rnrdesc).add(livedesc).add(debugdesc).add(tcachedesc);
 
 
    int newArgc = argc;
@@ -227,9 +233,22 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       exit(0);
    }
       
-   if(vm.count(kLogLevelOpt)) {
-      fwlog::LogLevel level = (fwlog::LogLevel)(vm[kLogLevelOpt].as<unsigned int>());
+   if(vm.count(kLogLevelCommandOpt)) {
+      fwlog::LogLevel level = (fwlog::LogLevel)(vm[kLogLevelCommandOpt].as<unsigned int>());
       fwlog::setPresentLogLevel(level);
+   }
+
+   if(vm.count(kLogTreeCacheOpt)) {
+      fwLog(fwlog::kInfo) << "Enabling logging of TTreCache operations." << std::endl;
+      FWTTreeCache::LoggingOn();
+   }
+
+   if(vm.count(kSizeTreeCacheOpt)) {
+      int ds = vm[kSizeTreeCacheOpt].as<int>();
+      if (ds < 0)    throw std::runtime_error("tree-cache-size should be non negative");
+      if (ds > 8192) throw std::runtime_error("tree-cache-size should be smaller than 8 GB");
+      fwLog(fwlog::kInfo) << "Setting default TTreeCache size to " << ds << " MB." << std::endl;
+      FWTTreeCache::SetDefaultCacheSize(ds * 1024 * 1024);
    }
 
    if(vm.count(kPlainRootCommandOpt)) {
