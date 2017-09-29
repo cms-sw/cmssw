@@ -54,7 +54,9 @@ void TriggerDQMBase::fillHistoPSetDescription(edm::ParameterSetDescription & pse
 
 void TriggerDQMBase::fillHistoLSPSetDescription(edm::ParameterSetDescription & pset)
 {
-  pset.add<unsigned>   ( "nbins", 2500);
+  pset.add<unsigned int>   ( "nbins", 2500 );
+  pset.add<double>         ( "xmin",     0.);
+  pset.add<double>         ( "xmax",  2500.);
 }
 
 TriggerDQMBase::MEbinning TriggerDQMBase::getHistoPSet(const edm::ParameterSet& pset)

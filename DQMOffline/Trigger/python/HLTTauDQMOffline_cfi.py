@@ -74,7 +74,7 @@ TauRefProducer = cms.EDProducer("HLTTauRefProducer",
 
 hltTauOfflineMonitor_PFTaus = cms.EDAnalyzer("HLTTauDQMOfflineSource",
     HLTProcessName = cms.untracked.string(hltTauDQMofflineProcess),
-    DQMBaseFolder = cms.untracked.string("HLT/TauOffline/PFTaus"),
+    DQMBaseFolder = cms.untracked.string("HLT/TAU/PFTaus"),
     TriggerResultsSrc = cms.untracked.InputTag("TriggerResults", "", hltTauDQMofflineProcess),
     TriggerEventSrc = cms.untracked.InputTag("hltTriggerSummaryAOD", "", hltTauDQMofflineProcess),
     L1Plotter = cms.untracked.PSet(
@@ -111,7 +111,7 @@ hltTauOfflineMonitor_PFTaus = cms.EDAnalyzer("HLTTauDQMOfflineSource",
 )
 
 hltTauOfflineMonitor_Inclusive = hltTauOfflineMonitor_PFTaus.clone(
-    DQMBaseFolder = "HLT/TauOffline/Inclusive",
+    DQMBaseFolder = "HLT/TAU/Inclusive",
     Matching = cms.PSet(
         doMatching            = cms.untracked.bool(False),
         matchFilters          = cms.untracked.VPSet(),
@@ -132,7 +132,7 @@ def TriggerSelectionParameters(hltpaths):
 
 
 hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
-    DQMBaseFolder = cms.untracked.string("HLT/TauOffline/TagAndProbe"),
+    DQMBaseFolder = cms.untracked.string("HLT/TAU/TagAndProbe"),
     Matching = cms.PSet(                                                                                                                                                                             
         doMatching            = cms.untracked.bool(True),                                                                                                                                            
         matchFilters          = cms.untracked.VPSet(                                                                                                                                                 
