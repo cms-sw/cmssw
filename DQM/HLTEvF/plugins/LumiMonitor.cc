@@ -64,7 +64,7 @@ void LumiMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   std::string histname, histtitle;
 
   std::string currentFolder = folderName_ ;
-  ibooker.setCurrentFolder(currentFolder.c_str());
+  ibooker.setCurrentFolder(currentFolder);
 
   if ( doPixelLumi_ ) {
     histname = "numberOfPixelClustersVsLS"; histtitle = "number of pixel clusters vs LS";
@@ -128,7 +128,7 @@ void LumiMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   float scal_pu   = -1.;
   edm::Handle<LumiScalersCollection> lumiScalers;
   iEvent.getByToken(lumiScalersToken_, lumiScalers);
-  if ( lumiScalers.isValid() && lumiScalers->size() ) {
+  if ( lumiScalers.isValid() && !lumiScalers->empty() ) {
     LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
     scal_lumi = scalit->instantLumi();
     scal_pu   = scalit->pileup();
