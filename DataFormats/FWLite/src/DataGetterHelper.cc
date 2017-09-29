@@ -259,7 +259,7 @@ namespace fwlite {
             }
             itFind = data_.insert(std::make_pair(newKey, theData)).first;
 
-            if(foundProcessLabel.size()) {
+            if(!foundProcessLabel.empty()) {
                 //also remember it with the process label
                 newProcess = new char[foundProcessLabel.size()+1];
                 std::strcpy(newProcess,foundProcessLabel.c_str());

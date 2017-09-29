@@ -107,12 +107,12 @@ public:
                 const FWViewManagerManager* iVMMgr,
                 FWNavigatorBase* navigator);
 
-   virtual ~FWGUIManager();
+   ~FWGUIManager() override;
    void     evePreTerminate();
    
    //configuration management interface
-   void addTo(FWConfiguration&) const;
-   void setFrom(const FWConfiguration&);
+   void addTo(FWConfiguration&) const override;
+   void setFrom(const FWConfiguration&) override;
    void setWindowInfoFrom(const FWConfiguration& iFrom, TGMainFrame* iFrame);
    void initEmpty();
 
@@ -161,7 +161,7 @@ public:
                             ViewBuildFunctor& iBuilder);
    
    
-   ViewMap_i createView(const std::string& iName, TEveWindowSlot* slot = 0);
+   ViewMap_i createView(const std::string& iName, TEveWindowSlot* slot = nullptr);
    void newViewSlot(const std::string& iName);
    
    void connectSubviewAreaSignals(FWGUISubviewArea*);
