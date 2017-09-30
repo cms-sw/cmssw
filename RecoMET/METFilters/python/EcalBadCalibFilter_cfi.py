@@ -1,10 +1,9 @@
 import FWCore.ParameterSet.Config as cms
  
-EcalBadCalibFilter = cms.EDFilter(
-  "EcalBadCalibFilter",
+ecalBadCalibSep2017ListFilter = cms.EDFilter(
+  "ecalBadCalibSep2017ListFilter",
  
   # use this if using AOD:
- 
   # the EB rechit collection found in AOD
   EBRecHitSource = cms.InputTag('reducedEcalRecHitsEB'), 
   # the EE rechit collection found in AOD
@@ -12,7 +11,6 @@ EcalBadCalibFilter = cms.EDFilter(
  
  
   # use this if using MINIAOD:
- 
   # the EB rechit collection found in MINIAOD
   # EBRecHitSource = cms.InputTag('reducedEgamma','reducedEBRecHits'), 
   # the EE rechit collection found in MINIAOD
@@ -21,9 +19,9 @@ EcalBadCalibFilter = cms.EDFilter(
  
  
   # minimum rechit et to flag as bad:  EB 
-  EBminet        = cms.double(50.),
+  ebMinEt        = cms.double(50.),
   # minimum rechit et to flag as bad:  EE 
-  EEminet        = cms.double(50.),
+  eeMinEt        = cms.double(50.),
   # DetId of bad channel: EE
   baddetEB        = cms.vuint32(0),
   # DetId of bad channel: EE
