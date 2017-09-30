@@ -44,6 +44,8 @@ private:
   std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
   std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
 
+  unsigned int nOfflineObjs;
+
   MonitorElement *h_num_pt;
   MonitorElement *h_den_pt;
 
