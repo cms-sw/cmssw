@@ -105,7 +105,7 @@ metFilters = cms.Sequence(
    #globalTightHalo2016Filter*
    #globalSuperTightHalo2016Filter*
    EcalDeadCellTriggerPrimitiveFilter* 
-   EcalBadCalibFilter*
+   ecalBadCalibSep2017ListFilter*
 #   *goodVertices * trackingFailureFilter *
    eeBadScFilter*
 #   ecalLaserCorrFilter *
