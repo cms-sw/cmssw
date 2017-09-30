@@ -92,15 +92,11 @@ CSCTimingExtractor::~CSCTimingExtractor()
 // member functions
 //
 
-// ------------ method called to produce the data  ------------
-void
-CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack, 
-                               const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence,
+				    const std::vector<const CSCSegment*> &segments,
+				    reco::TrackRef muonTrack,
+				    const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
-  if (debug) 
-    std::cout << " *** CSC Timimng Extractor ***" << std::endl;
-
   theService->update(iSetup);
 
   const GlobalTrackingGeometry *theTrackingGeometry = &*theService->trackingGeometry();
@@ -120,12 +116,9 @@ CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackR
   GlobalVector momv(mom.x(), mom.y(), mom.z());
   FreeTrajectoryState muonFTS(posp, momv, (TrackCharge)muonTrack->charge(), theService->magneticField().product());
 
-  // get the CSC segments that were used to construct the muon
-  std::vector<const CSCSegment*> range = theMatcher->matchCSC(*muonTrack,iEvent);
-
   // create a collection on TimeMeasurements for the track        
   std::vector<TimeMeasurement> tms;
-  for (std::vector<const CSCSegment*>::iterator rechit = range.begin(); rechit!=range.end();++rechit) {
+  for (std::vector<const CSCSegment*>::const_iterator rechit = segments.begin(); rechit!=segments.end();++rechit) {
 
     // Create the ChamberId
     DetId id = (*rechit)->geographicalId();
@@ -256,7 +249,22 @@ CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackR
 
   tmSequence.totalWeightInvbeta=totalWeightInvbeta;
   tmSequence.totalWeightTimeVtx=totalWeightTimeVtx;
+}
 
+
+// ------------ method called to produce the data  ------------
+void
+CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack, 
+                               const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+
+  if (debug) 
+    std::cout << " *** CSC Timimng Extractor ***" << std::endl;
+
+  // get the CSC segments that were used to construct the muon
+  std::vector<const CSCSegment*> range = theMatcher->matchCSC(*muonTrack,iEvent);
+  
+  fillTiming(tmSequence, range, muonTrack, iEvent, iSetup);
 }
 
 //define this as a plug-in

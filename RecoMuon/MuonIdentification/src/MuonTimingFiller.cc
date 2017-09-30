@@ -94,11 +94,27 @@ MuonTimingFiller::fillTiming( const reco::Muon& muon,
   if ( !(muon.combinedMuon().isNull()) ) {
     theDTTimingExtractor_->fillTiming(dtTmSeq, muon.combinedMuon(), iEvent, iSetup);
     theCSCTimingExtractor_->fillTiming(cscTmSeq, muon.combinedMuon(), iEvent, iSetup);
-  } else
+  } else {
     if ( !(muon.standAloneMuon().isNull()) ) {
       theDTTimingExtractor_->fillTiming(dtTmSeq, muon.standAloneMuon(), iEvent, iSetup);
       theCSCTimingExtractor_->fillTiming(cscTmSeq, muon.standAloneMuon(), iEvent, iSetup);
+    } else {
+      if ( muon.isTrackerMuon() ) {
+	std::vector<const DTRecSegment4D*> dtSegments;
+	std::vector<const CSCSegment*> cscSegments;
+	for( auto& chamber: muon.matches() ){
+	  for ( auto& segment : chamber.segmentMatches ){
+	    if ( !(segment.dtSegmentRef.isNull()))
+	      dtSegments.push_back(segment.dtSegmentRef.get());
+	    if ( !(segment.cscSegmentRef.isNull()))
+	      cscSegments.push_back(segment.cscSegmentRef.get());
+	  }
+	}
+	theDTTimingExtractor_->fillTiming(dtTmSeq, dtSegments, muon.innerTrack(), iEvent, iSetup);
+	theCSCTimingExtractor_->fillTiming(cscTmSeq, cscSegments, muon.innerTrack(), iEvent, iSetup);
+      }
     }
+  }
   
   // Fill DT-specific timing information block     
   fillTimeFromMeasurements(dtTmSeq, dtTime);
