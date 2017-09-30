@@ -4,9 +4,9 @@ process = cms.Process("GeometryInfo")
 # minimum of logs
 process.MessageLogger = cms.Service("MessageLogger",
     statistics = cms.untracked.vstring(),
-    destinations = cms.untracked.vstring('cerr'),
-    cerr = cms.untracked.PSet(
-        threshold = cms.untracked.string('WARNING')
+    destinations = cms.untracked.vstring('cout'),
+    cout = cms.untracked.PSet(
+        threshold = cms.untracked.string('INFO')
     )
 )
 
@@ -15,7 +15,7 @@ process.load("Geometry.VeryForwardGeometry.geometryRP_cfi")
 
 # load alignment correction
 process.load("Geometry.VeryForwardGeometryBuilder.ctppsIncludeAlignments_cfi")
-process.ctppsIncludeAlignments.RealFiles = cms.vstring("./alignment_corrections.xml")
+process.ctppsIncludeAlignments.RealFiles = cms.vstring("Alignment/CTPPS/data/RPixGeometryCorrections.xml")
 
 # no events to process
 process.source = cms.Source("EmptySource")
