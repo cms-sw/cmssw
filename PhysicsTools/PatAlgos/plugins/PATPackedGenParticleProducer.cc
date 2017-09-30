@@ -40,9 +40,9 @@ namespace pat {
   class PATPackedGenParticleProducer : public edm::global::EDProducer<> {
   public:
     explicit PATPackedGenParticleProducer(const edm::ParameterSet&);
-    ~PATPackedGenParticleProducer();
+    ~PATPackedGenParticleProducer() override;
     
-    virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const;
+    void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
     
   private:
     const edm::EDGetTokenT<reco::GenParticleCollection>    Cands_;
@@ -73,6 +73,7 @@ void pat::PATPackedGenParticleProducer::produce(edm::StreamID, edm::Event& iEven
     iEvent.getByToken( Cands_, cands );
     std::vector<reco::Candidate>::const_iterator cand;
 
+    //from prunedGenParticlesWithStatusOne to prunedGenParticles
     edm::Handle<edm::Association<reco::GenParticleCollection> > asso;
     iEvent.getByToken( Asso_, asso );
 
@@ -102,14 +103,18 @@ void pat::PATPackedGenParticleProducer::produce(edm::StreamID, edm::Event& iEven
 		// Obtain original gen particle collection reference from input reference and map
 		edm::Ref<reco::GenParticleCollection> inputRef = edm::Ref<reco::GenParticleCollection>(cands,ic);
 		edm::Ref<reco::GenParticleCollection> originalRef=reverseMap[inputRef];
+		edm::Ref<reco::GenParticleCollection> finalPrunedRef=(*asso)[inputRef];
 		mapping[originalRef.key()]=packed;
 		packed++;
-		if(cand.numberOfMothers() > 0) {
+		if(finalPrunedRef.isNonnull()){ //this particle exists also in the final pruned
+                        outPtrP->push_back( pat::PackedGenParticle(cand,finalPrunedRef));
+		}else{
+		  if(cand.numberOfMothers() > 0) {
 			edm::Ref<reco::GenParticleCollection> newRef=(*asso)[cand.motherRef(0)];
 	        	outPtrP->push_back( pat::PackedGenParticle(cand,newRef));
-		} else {
+	  	  } else {
 	        	outPtrP->push_back( pat::PackedGenParticle(cand,edm::Ref<reco::GenParticleCollection>()));
-			
+		  }
 		}
 
 	}	
