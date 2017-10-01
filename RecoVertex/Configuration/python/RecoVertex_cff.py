@@ -37,7 +37,7 @@ from RecoVertex.PrimaryVertexProducer.TkClusParameters_cff import DA2D_vectParam
 DA2D_vectParameters.TkDAClusParameters.verbose = cms.untracked.bool(False)
 unsortedOfflinePrimaryVertices4D = unsortedOfflinePrimaryVertices.clone( verbose = cms.untracked.bool(False),
                                                                          TkClusParameters = DA2D_vectParameters )
-unsortedOfflinePrimaryVertices4D.TkFilterParameters.minPt = cms.double(0.7)
+unsortedOfflinePrimaryVertices4D.TkFilterParameters.minPt = cms.double(0.0)
 unsortedOfflinePrimaryVertices4D.TrackTimesLabel = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModel")
 unsortedOfflinePrimaryVertices4D.TrackTimeResosLabel = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModelResolution")
 offlinePrimaryVertices4D=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices4D", particles="trackRefsForJetsBeforeSorting4D", trackTimeTag=cms.InputTag("trackTimeValueMapProducer","generalTracksConfigurableFlatResolutionModel"),trackTimeResoTag=cms.InputTag("trackTimeValueMapProducer","generalTracksConfigurableFlatResolutionModelResolution"),assignment=dict(useTiming=True))
