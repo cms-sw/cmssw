@@ -24,7 +24,7 @@
  * eta-phi TrackingRegions producer in directions defined by Candidate-based objects of interest
  * from a collection defined by the "input" parameter.
  *
- * Four operational modes are supported ("mode" parameter):
+ * Four operational modes are supported ("operationMode" parameter):
  *
  *   BeamSpotFixed:
  *     origin is defined by the beam spot
@@ -57,7 +57,7 @@ class  CandidatePointSeededTrackingRegionsProducer : public TrackingRegionProduc
 {
 public:
 
-  enum class Mode {BEAM_SPOT_FIXED, BEAM_SPOT_SIGMA, VERTICES_FIXED, VERTICES_SIGMA };
+  enum class OperationMode {BEAM_SPOT_FIXED, BEAM_SPOT_SIGMA, VERTICES_FIXED, VERTICES_SIGMA };
   enum class SeedingMode {CANDIDATE_SEEDED, POINT_SEEDED, CANDIDATE_POINT_SEEDED};
 
   explicit CandidatePointSeededTrackingRegionsProducer(const edm::ParameterSet& conf,
@@ -66,12 +66,12 @@ public:
     edm::ParameterSet regPSet = conf.getParameter<edm::ParameterSet>("RegionPSet");
 
     // operation mode
-    std::string modeString       = regPSet.getParameter<std::string>("mode");
-    if      (modeString == "BeamSpotFixed") m_mode = Mode::BEAM_SPOT_FIXED;
-    else if (modeString == "BeamSpotSigma") m_mode = Mode::BEAM_SPOT_SIGMA;
-    else if (modeString == "VerticesFixed") m_mode = Mode::VERTICES_FIXED;
-    else if (modeString == "VerticesSigma") m_mode = Mode::VERTICES_SIGMA;
-    else throw edm::Exception(edm::errors::Configuration) << "Unknown mode string: "<<modeString;
+    std::string operationModeString       = regPSet.getParameter<std::string>("operationMode");
+    if      (operationModeString == "BeamSpotFixed") m_operationMode = OperationMode::BEAM_SPOT_FIXED;
+    else if (operationModeString == "BeamSpotSigma") m_operationMode = OperationMode::BEAM_SPOT_SIGMA;
+    else if (operationModeString == "VerticesFixed") m_operationMode = OperationMode::VERTICES_FIXED;
+    else if (operationModeString == "VerticesSigma") m_operationMode = OperationMode::VERTICES_SIGMA;
+    else throw edm::Exception(edm::errors::Configuration) << "Unknown operation mode string: "<<operationModeString;
 
     // seeding mode
     std::string seedingModeString = regPSet.getParameter<std::string>("seedingMode");
@@ -110,7 +110,7 @@ public:
     m_maxNRegions      = regPSet.getParameter<int>("maxNRegions");
     token_beamSpot     = iC.consumes<reco::BeamSpot>(regPSet.getParameter<edm::InputTag>("beamSpot"));
     m_maxNVertices     = 1;
-    if (m_mode == Mode::VERTICES_FIXED || m_mode == Mode::VERTICES_SIGMA)
+    if (m_operationMode == OperationMode::VERTICES_FIXED || m_operationMode == OperationMode::VERTICES_SIGMA)
     {
       token_vertex       = iC.consumes<reco::VertexCollection>(regPSet.getParameter<edm::InputTag>("vertexCollection"));
       m_maxNVertices     = regPSet.getParameter<int>("maxNVertices");
@@ -121,20 +121,15 @@ public:
     m_originRadius     = regPSet.getParameter<double>("originRadius");
     m_zErrorBeamSpot   = regPSet.getParameter<double>("zErrorBeamSpot");
 
-    m_deltaEta         = regPSet.getParameter<double>("deltaEta");
-    m_deltaPhi         = regPSet.getParameter<double>("deltaPhi");
-
     if (m_seedingMode == SeedingMode::CANDIDATE_SEEDED){
-      m_deltaEta_Cand = regPSet.getParameter<double>("deltaEta_Cand");
-      if(m_deltaEta_Cand<0) m_deltaEta_Cand = m_deltaEta; //For backwards compatibility
+      m_deltaEta_Cand = regPSet.getParameter<double>("deltaEta_Cand"); 
       m_deltaPhi_Cand = regPSet.getParameter<double>("deltaPhi_Cand");
-      if(m_deltaPhi_Cand<0) m_deltaPhi_Cand = m_deltaPhi; //For backwards compatibility
+      if (m_deltaEta_Cand<0 || m_deltaPhi_Cand<0)  throw edm::Exception(edm::errors::Configuration) << "Delta eta and phi parameters must be set for candidates in candidate seeding mode";
     }
     else if (m_seedingMode == SeedingMode::POINT_SEEDED){
       m_deltaEta_Point = regPSet.getParameter<double>("deltaEta_Point");
-      if(m_deltaEta_Point<0) m_deltaEta_Point = m_deltaEta; //For backwards compatibility
       m_deltaPhi_Point = regPSet.getParameter<double>("deltaPhi_Point");
-      if(m_deltaPhi_Point<0) m_deltaPhi_Point = m_deltaPhi; //For backwards compatibility
+      if (m_deltaEta_Point<0 || m_deltaPhi_Point<0)  throw edm::Exception(edm::errors::Configuration) << "Delta eta and phi parameters must be set for points in point seeding mode";
     }
     else if (m_seedingMode == SeedingMode::CANDIDATE_POINT_SEEDED){
       m_deltaEta_Cand = regPSet.getParameter<double>("deltaEta_Cand");
@@ -153,10 +148,10 @@ public:
     if (regPSet.exists("searchOpt")) m_searchOpt = regPSet.getParameter<bool>("searchOpt");
 
     // mode-dependent z-halflength of tracking regions
-    if (m_mode == Mode::VERTICES_SIGMA)  m_nSigmaZVertex   = regPSet.getParameter<double>("nSigmaZVertex");
-    if (m_mode == Mode::VERTICES_FIXED)  m_zErrorVetex     = regPSet.getParameter<double>("zErrorVetex");
+    if (m_operationMode == OperationMode::VERTICES_SIGMA)  m_nSigmaZVertex   = regPSet.getParameter<double>("nSigmaZVertex");
+    if (m_operationMode == OperationMode::VERTICES_FIXED)  m_zErrorVetex     = regPSet.getParameter<double>("zErrorVetex");
     m_nSigmaZBeamSpot = -1.;
-    if (m_mode == Mode::BEAM_SPOT_SIGMA)
+    if (m_operationMode == OperationMode::BEAM_SPOT_SIGMA)
     {
       m_nSigmaZBeamSpot = regPSet.getParameter<double>("nSigmaZBeamSpot");
       if (m_nSigmaZBeamSpot < 0.)
@@ -169,7 +164,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
 
-    desc.add<std::string>("mode", "BeamSpotFixed");
+    desc.add<std::string>("operationMode", "BeamSpotFixed");
     desc.add<std::string>("seedingMode", "Candidate");
 
     desc.add<edm::InputTag>("input", edm::InputTag(""));
@@ -186,8 +181,6 @@ public:
     desc.add<double>("ptMin", 0.9);
     desc.add<double>("originRadius", 0.2);
     desc.add<double>("zErrorBeamSpot", 24.2);
-    desc.add<double>("deltaEta", 0.5);
-    desc.add<double>("deltaPhi", 0.5);
     desc.add<double>("deltaEta_Cand", -1.);
     desc.add<double>("deltaPhi_Cand", -1.);
     desc.add<double>("deltaEta_Point", -1.);
@@ -239,25 +232,25 @@ public:
     std::vector< std::pair< GlobalPoint, float > > origins;
 
     // fill the origins and halfLengths depending on the mode
-    if (m_mode == Mode::BEAM_SPOT_FIXED || m_mode == Mode::BEAM_SPOT_SIGMA)
+    if (m_operationMode == OperationMode::BEAM_SPOT_FIXED || m_operationMode == OperationMode::BEAM_SPOT_SIGMA)
     {
       origins.emplace_back( default_origin,
-			    (m_mode == Mode::BEAM_SPOT_FIXED) ? m_zErrorBeamSpot : m_nSigmaZBeamSpot*bs->sigmaZ()
+			    (m_operationMode == OperationMode::BEAM_SPOT_FIXED) ? m_zErrorBeamSpot : m_nSigmaZBeamSpot*bs->sigmaZ()
 			    );
     }
-    else if (m_mode == Mode::VERTICES_FIXED || m_mode == Mode::VERTICES_SIGMA)
+    else if (m_operationMode == OperationMode::VERTICES_FIXED || m_operationMode == OperationMode::VERTICES_SIGMA)
     {
       edm::Handle< reco::VertexCollection > vertices;
       e.getByToken( token_vertex, vertices );
       int n_vert = 0;
       for ( const auto& v : (*vertices) )  
       {
-        if ( v.isFake() || !v.isValid() ) continue;
+	if ( v.isFake() || !v.isValid() ) continue;
 	origins.emplace_back( GlobalPoint( v.x(), v.y(), v.z() ),
-			      (m_mode == Mode::VERTICES_FIXED) ? m_zErrorVetex : m_nSigmaZVertex*v.zError()
+			      (m_operationMode == OperationMode::VERTICES_FIXED) ? m_zErrorVetex : m_nSigmaZVertex*v.zError()
 			      );
-        ++n_vert;
-	if( !(n_vert < m_maxNVertices) ) break;
+	++n_vert;
+	if( n_vert >= m_maxNVertices ) break;
       }
       // no-vertex fall-back case:
       if (origins.empty())
@@ -284,7 +277,7 @@ public:
       for(const auto& object : objs) {
 
 	GlobalVector direction( object.momentum().x(), object.momentum().y(), object.momentum().z() );	
-	
+
 	for(const auto& origin : origins) {
 
 	  result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>(
@@ -293,19 +286,19 @@ public:
 			       m_ptMin,
 			       m_originRadius,
 			       origin.second,
-			       m_deltaEta,
-			       m_deltaPhi,
+			       m_deltaEta_Cand,
+			       m_deltaPhi_Cand,
 			       m_whereToUseMeasurementTracker,
 			       m_precise,
 			       measurementTracker,
 			       m_searchOpt
 			   ));
 	  ++n_regions;	  
-	  if( !(n_regions<m_maxNRegions) ) break;
+	  if( n_regions >= m_maxNRegions ) break;
 
 	}
 
-	if( !(n_regions<m_maxNRegions) ) break;
+	if( n_regions >= m_maxNRegions ) break;
 
       }
 
@@ -324,19 +317,19 @@ public:
 			    m_ptMin,
 			    m_originRadius,
 			    origin.second,
-			    m_deltaEta,
-			    m_deltaPhi,
+			    m_deltaEta_Point,
+			    m_deltaPhi_Point,
 			    m_whereToUseMeasurementTracker,
 			    m_precise,
 			    measurementTracker,
 			    m_searchOpt
 			   ));
 	  ++n_regions;
-	  if( !(n_regions<m_maxNRegions) ) break;
+	  if( n_regions >= m_maxNRegions ) break;
 
 	}
 
-	if( !(n_regions<m_maxNRegions) ) break;
+	if( n_regions >= m_maxNRegions ) break;
 
       }
 
@@ -354,8 +347,8 @@ public:
 
 	  double eta_Point = directionPoint.eta();
 	  double phi_Point = directionPoint.phi();
-	  double dEta_Cand_Point = fabs(eta_Cand-eta_Point);
-	  double dPhi_Cand_Point = fabs(deltaPhi(phi_Cand,phi_Point));
+	  double dEta_Cand_Point = std::abs(eta_Cand-eta_Point);
+	  double dPhi_Cand_Point = std::abs(deltaPhi(phi_Cand,phi_Point));
 
 	  //Check if there is an overlap between Candidate- and Point-based regions of interest
 	  if(dEta_Cand_Point > (m_deltaEta_Cand + m_deltaEta_Point) || dPhi_Cand_Point > (m_deltaPhi_Cand + m_deltaPhi_Point)) continue;
@@ -386,7 +379,7 @@ public:
 	  double theta = 2*std::atan(std::exp(-eta_RoI));
 	  double z = 1./std::tan(theta);
 
-	  GlobalVector direction( x,y,z );
+	  GlobalVector direction( x,y,z );		
       
 	  for(const auto& origin : origins) {
 	      
@@ -404,15 +397,15 @@ public:
 		m_searchOpt
 	        ));	        
 	    ++n_regions;
-	    if( !(n_regions<m_maxNRegions) ) break;
+	    if( n_regions >= m_maxNRegions ) break;
 
 	  }
 
-	  if( !(n_regions<m_maxNRegions) ) break;
+	  if( n_regions >= m_maxNRegions ) break;
 
 	}
 
-	if( !(n_regions<m_maxNRegions) ) break;
+	if( n_regions >= m_maxNRegions ) break;
 	
       }
 
@@ -425,7 +418,7 @@ public:
   
 private:
 
-  Mode m_mode;
+  OperationMode m_operationMode;
   SeedingMode m_seedingMode;
 
   int m_maxNRegions;
@@ -443,8 +436,6 @@ private:
   float m_ptMin;
   float m_originRadius;
   float m_zErrorBeamSpot;
-  float m_deltaEta;
-  float m_deltaPhi;
   float m_deltaEta_Cand;
   float m_deltaPhi_Cand;
   float m_deltaEta_Point;
