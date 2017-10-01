@@ -2212,6 +2212,14 @@ class ConfigBuilder(object):
 
 	self.pythonCfgCode += self.addCustomiseCmdLine()
 
+        if hasattr(self.process,"logErrorHarvester"):
+                #configure logErrorHarvester to wait for same EDProducers to finish as the OutputModules
+                self.pythonCfgCode +="\n#Have logErrorHarvester wait for the same EDProducers to finish as those providing data for the OutputModule\n"
+                self.pythonCfgCode +="from FWCore.Modules.logErrorHarvester_cff import customiseLogErrorHarvesterUsingOutputCommands\n"
+                self.pythonCfgCode +="process = customiseLogErrorHarvesterUsingOutputCommands(process)\n"
+                from FWCore.Modules.logErrorHarvester_cff import customiseLogErrorHarvesterUsingOutputCommands
+                self.process = customiseLogErrorHarvesterUsingOutputCommands(self.process)
+
         # Temporary hack to put the early delete customization after
         # everything else
         #
