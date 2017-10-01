@@ -275,7 +275,7 @@ MuonTimingFiller::rawFit(double &a, double &da, double &b, double &db, const std
   double sxx=0,sxy=0;
 
   a=b=0;
-  if (hitsx.size()==0) return;
+  if (hitsx.empty()) return;
   if (hitsx.size()==1) {
     b=hitsy[0];
   } else {

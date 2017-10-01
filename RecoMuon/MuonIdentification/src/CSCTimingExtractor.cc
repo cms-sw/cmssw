@@ -132,7 +132,7 @@ CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackR
     CSCDetId chamberId(id.rawId());
     //    int station = chamberId.station();
 
-    if (!(*rechit)->specificRecHits().size()) continue;
+    if ((*rechit)->specificRecHits().empty()) continue;
 
     const std::vector<CSCRecHit2D> hits2d = (*rechit)->specificRecHits();
 
