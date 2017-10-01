@@ -98,10 +98,11 @@ DTTimingExtractor::~DTTimingExtractor()
 //
 // member functions
 //
-void DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, 
-				   const std::vector<const DTRecSegment4D*> &segments,
-				   reco::TrackRef muonTrack,
-				   const edm::Event& iEvent, const edm::EventSetup& iSetup)
+
+// ------------ method called to produce the data  ------------
+void
+DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack,
+                              const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   if (debug) 
     std::cout << " *** DT Timimng Extractor ***" << std::endl;
@@ -125,9 +126,15 @@ void DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence,
   GlobalVector momv(mom.x(), mom.y(), mom.z());
   FreeTrajectoryState muonFTS(posp, momv, (TrackCharge)muonTrack->charge(), theService->magneticField().product());
 
+  // get the DT segments that were used to construct the muon
+  std::vector<const DTRecSegment4D*> range = theMatcher->matchDT(*muonTrack,iEvent);
+  
+  if (debug) 
+    std::cout << " The muon track matches " << range.size() << " segments." << std::endl;
+  
   // create a collection on TimeMeasurements for the track        
   std::vector<TimeMeasurement> tms;
-  for (std::vector<const DTRecSegment4D*>::const_iterator rechit = segments.begin(); rechit!=segments.end();++rechit) {
+  for (std::vector<const DTRecSegment4D*>::iterator rechit = range.begin(); rechit!=range.end();++rechit) {
 
     // Create the ChamberId
     DetId id = (*rechit)->geographicalId();
@@ -151,8 +158,8 @@ void DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence,
       }    
         else segm = dynamic_cast<const DTRecSegment2D*>((*rechit)->zSegment());
 
-      if(segm == nullptr) continue;
-      if (segm->specificRecHits().empty()) continue;
+      if(segm == 0) continue;
+      if (!segm->specificRecHits().size()) continue;
 
       const GeomDet* geomDet = theTrackingGeometry->idToDet(segm->geographicalId());
       const std::vector<DTRecHit1D> hits1d = segm->specificRecHits();
@@ -276,7 +283,7 @@ void DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence,
 	}
 
 	// a segment must have at least one left and one right hit
-	if ((hitxl.empty()) || (hityl.empty())) continue;
+	if ((!hitxl.size()) || (!hityl.size())) continue;
 
 	int segidx=0;
 	for (std::vector<TimeMeasurement>::const_iterator tm=seg.begin(); tm!=seg.end(); ++tm) {
@@ -366,19 +373,7 @@ void DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence,
 
   tmSequence.totalWeightInvbeta=totalWeightInvbeta;
   tmSequence.totalWeightTimeVtx=totalWeightTimeVtx;
-}
 
-// ------------ method called to produce the data  ------------
-void
-DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack,
-                              const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-  // get the DT segments that were used to construct the muon
-  std::vector<const DTRecSegment4D*> range = theMatcher->matchDT(*muonTrack,iEvent);
-  
-  if (debug) 
-    std::cout << " The muon track matches " << range.size() << " segments." << std::endl;
-  fillTiming(tmSequence,range,muonTrack,iEvent,iSetup);
 }
 
 double
