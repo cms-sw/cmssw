@@ -54,7 +54,7 @@ process.esProdTM = cms.EDAnalyzer("EventSetupRecordDataGetter",
 process.load('L1Trigger.L1TTwinMux.simTwinMuxDigis_cfi')
 process.load('L1Trigger.L1TMuonBarrel.simBmtfDigis_cfi')
 process.simBmtfDigis.Debug = cms.untracked.int32(0)
-process.simBmtfDigis.DTDigi_Source = cms.InputTag("simTwinMuxDigis:TwinMuxEmulator")
+process.simBmtfDigis.DTDigi_Source = cms.InputTag("simTwinMuxDigis")
 
 
 ###TwinMux Emulator
