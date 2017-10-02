@@ -14,10 +14,10 @@ class TableOutputBranches {
     TableOutputBranches(const edm::BranchDescription *desc, const edm::EDGetToken & token ) :
         m_token(token), m_extension(DontKnowYetIfMainOrExtension), m_branchesBooked(false)
     {
-        if (desc->className() != "FlatTable") throw cms::Exception("Configuration", "NanoAODOutputModule can only write out FlatTable objects");
+        if (desc->className() != "nanoaod::FlatTable") throw cms::Exception("Configuration", "NanoAODOutputModule can only write out nanoaod::FlatTable objects");
     }
 
-    void defineBranchesFromFirstEvent(const FlatTable & tab) ;
+    void defineBranchesFromFirstEvent(const nanoaod::FlatTable & tab) ;
     void branch(TTree &tree) ;
 
     /// Fill the current table, if extensions == table.extension().
@@ -44,7 +44,7 @@ class TableOutputBranches {
     bool m_branchesBooked;
 
     template<typename T>
-    void fillColumn(NamedBranchPtr & pair, const FlatTable & tab) {
+    void fillColumn(NamedBranchPtr & pair, const nanoaod::FlatTable & tab) {
         int idx = tab.columnIndex(pair.name);
         if (idx == -1) throw cms::Exception("LogicError", "Missing column in input for "+m_baseName+"_"+pair.name);
         pair.branch->SetAddress( const_cast<T *>(& tab.columnData<T>(idx).front() ) ); // SetAddress should take a const * !

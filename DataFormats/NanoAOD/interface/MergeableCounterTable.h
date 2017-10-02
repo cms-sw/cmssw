@@ -1,9 +1,11 @@
 #ifndef DataFormats_NanoAOD_MergeableCounterTable_h
 #define DataFormats_NanoAOD_MergeableCounterTable_h
 
-#include <FWCore/Utilities/interface/Exception.h>
+#include "FWCore/Utilities/interface/Exception.h"
 #include <vector>
 #include <string>
+
+namespace nanoaod {
 
 class MergeableCounterTable {
     public:
@@ -103,5 +105,7 @@ class MergeableCounterTable {
             return true;
         }
 };
+
+} // namespace nanoaod
 
 #endif

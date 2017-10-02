@@ -23,7 +23,7 @@ TriggerOutputBranches::updateTriggerNames(TTree & tree, const edm::TriggerNames 
    }
    // Find new ones
    for(unsigned int j=0;j<newNames.size();j++) {
-       const std::string & name=newNames[j];
+       std::string name=newNames[j]; // no const & as it will be modified below!
        std::size_t vfound = name.rfind("_v");
        if (vfound!=std::string::npos){
            name.replace(vfound,name.size()-vfound,"");
