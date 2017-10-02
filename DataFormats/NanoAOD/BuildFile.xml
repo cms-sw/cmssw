@@ -3,8 +3,6 @@
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/StdDictionaries"/>
 <use   name="boost"/>
-<flags LCG_DICT_HEADER="classes.h"/>
-<flags LCG_DICT_XML="classes_def.xml"/>
 <export>
   <lib   name="1"/>
 </export>

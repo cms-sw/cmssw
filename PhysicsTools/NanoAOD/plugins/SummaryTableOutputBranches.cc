@@ -46,7 +46,7 @@ SummaryTableOutputBranches::fillVectorBranches(const std::vector<Col> & tabcols,
 
 
 void 
-SummaryTableOutputBranches::defineBranchesFromFirstEvent(const MergeableCounterTable & tab, TTree & tree) 
+SummaryTableOutputBranches::defineBranchesFromFirstEvent(const nanoaod::MergeableCounterTable & tab, TTree & tree) 
 {
     makeScalarBranches(tab.intCols(), tree, "L", m_intBranches);
     makeScalarBranches(tab.floatCols(), tree, "D", m_floatBranches);
@@ -61,9 +61,9 @@ SummaryTableOutputBranches::defineBranchesFromFirstEvent(const MergeableCounterT
 
 void SummaryTableOutputBranches::fill(const edm::OccurrenceForOutput &iWhatever, TTree & tree) 
 {
-    edm::Handle<MergeableCounterTable> handle;
+    edm::Handle<nanoaod::MergeableCounterTable> handle;
     iWhatever.getByToken(m_token, handle);
-    const MergeableCounterTable & tab = *handle;
+    const nanoaod::MergeableCounterTable & tab = *handle;
     
     if(!m_branchesBooked) {
         defineBranchesFromFirstEvent(tab, tree);	

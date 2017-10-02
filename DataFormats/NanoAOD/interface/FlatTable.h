@@ -5,8 +5,10 @@
 #include <vector>
 #include <string>
 #include <boost/range/sub_range.hpp>
-#include <FWCore/Utilities/interface/Exception.h>
-#include <DataFormats/PatCandidates/interface/libminifloat.h>
+#include "FWCore/Utilities/interface/Exception.h"
+#include "DataFormats/PatCandidates/interface/libminifloat.h"
+
+namespace nanoaod {
 
 namespace flatTableHelper {
     template<typename T> struct MaybeMantissaReduce { 
@@ -21,6 +23,7 @@ namespace flatTableHelper {
         inline void bulk(boost::sub_range<std::vector<float>> data) const { if (bits_ > 0) MiniFloatConverter::reduceMantissaToNbitsRounding(bits_, data.begin(), data.end(), data.begin()); }
     };
 }
+
 class FlatTable {
   public:
     enum ColumnType { FloatColumn, IntColumn, UInt8Column, BoolColumn }; // We could have other Float types with reduced mantissa, and similar
@@ -155,5 +158,6 @@ template<> inline std::vector<float>   & FlatTable::bigVector<float>()   { retur
 template<> inline std::vector<int>     & FlatTable::bigVector<int>()     { return ints_; }
 template<> inline std::vector<uint8_t> & FlatTable::bigVector<uint8_t>() { return uint8s_; }
 
+} // nanoaod
 
 #endif

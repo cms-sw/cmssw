@@ -185,7 +185,7 @@ NanoAODOutputModule::writeRun(edm::RunForOutput const& iRun) {
 
   for (auto & t : m_runTables) t.fill(iRun,*m_runTree);
 
-  edm::Handle<UniqueString> hstring;
+  edm::Handle<nanoaod::UniqueString> hstring;
   for (const auto & p : m_nanoMetadata) {
     iRun.getByToken(p.second, hstring);
     TObjString *tos = dynamic_cast<TObjString *>(m_file->Get(p.first.c_str()));
@@ -237,7 +237,7 @@ NanoAODOutputModule::openFile(edm::FileBlock const&) {
   m_runTables.clear();
   const auto & keeps = keptProducts();
   for (const auto & keep : keeps[edm::InEvent]) {
-      if(keep.first->className() == "FlatTable" )
+      if(keep.first->className() == "nanoaod::FlatTable" )
 	      m_tables.emplace_back(keep.first, keep.second);
       else if(keep.first->className() == "edm::TriggerResults" )
 	  {
@@ -247,9 +247,9 @@ NanoAODOutputModule::openFile(edm::FileBlock const&) {
   }
 
   for (const auto & keep : keeps[edm::InRun]) {
-      if(keep.first->className() == "MergeableCounterTable" )
+      if(keep.first->className() == "nanoaod::MergeableCounterTable" )
 	      m_runTables.push_back(SummaryTableOutputBranches(keep.first, keep.second));
-      else if(keep.first->className() == "UniqueString" && keep.first->moduleLabel() == "nanoMetadata")
+      else if(keep.first->className() == "nanoaod::UniqueString" && keep.first->moduleLabel() == "nanoMetadata")
 	      m_nanoMetadata.emplace_back(keep.first->productInstanceName(), keep.second);
       else throw cms::Exception("Configuration", "NanoAODOutputModule cannot handle class " + keep.first->className() + " in Run branch");     
   }
