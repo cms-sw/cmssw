@@ -20,6 +20,7 @@ Test of the EventPrincipal class.
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
@@ -84,6 +85,8 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
      auto processConfiguration = std::make_shared<edm::ProcessConfiguration>();
      edm::ModuleDescription modDesc(pset.id(), "Blah", "blahs", processConfiguration.get(), edm::ModuleDescription::getUniqueID());
      edm::Event event(ep, modDesc, nullptr);
+     edm::ProducerBase prod;
+     event.setProducer(&prod,nullptr);
 
      std::string label("this does not exist");
      edm::RefProd<edmtest::DummyProduct> ref = event.getRefBeforePut<edmtest::DummyProduct>(label);
@@ -95,6 +98,27 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   catch (...) {
     CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
   }
+  
+  try {
+    edm::ParameterSet pset;
+    pset.registerIt();
+    auto processConfiguration = std::make_shared<edm::ProcessConfiguration>();
+    edm::ModuleDescription modDesc(pset.id(), "Blah", "blahs", processConfiguration.get(), edm::ModuleDescription::getUniqueID());
+    edm::Event event(ep, modDesc, nullptr);
+    edm::ProducerBase prod;
+    event.setProducer(&prod,nullptr);
+    
+    std::string label("this does not exist");
+    edm::RefProd<edmtest::DummyProduct> ref = event.getRefBeforePut<edmtest::DummyProduct>(edm::EDPutTokenT<edmtest::DummyProduct>{});
+    CPPUNIT_ASSERT("Failed to throw required exception" == 0);
+  }
+  catch (edm::Exception& x) {
+    // nothing to do
+  }
+  catch (...) {
+    CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
+  }
+
 }
 
 void testEventGetRefBeforePut::getRefTest() {
@@ -156,6 +180,10 @@ void testEventGetRefBeforePut::getRefTest() {
     edm::ModuleDescription modDesc("Blah", label, pcPtr.get());
 
     edm::Event event(ep, modDesc, nullptr);
+    edm::ProducerBase prod;
+    prod.produces<edmtest::IntProduct>(productInstanceName);
+    const_cast<std::vector<edm::ProductResolverIndex>&>(prod.putTokenIndexToProductResolverIndex()).push_back(0);
+    event.setProducer(&prod,nullptr);
     auto pr = std::make_unique<edmtest::IntProduct>();
     pr->value = 10;
 

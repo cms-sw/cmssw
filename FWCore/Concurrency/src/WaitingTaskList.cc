@@ -19,6 +19,7 @@
 
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 #include "FWCore/Concurrency/interface/hardware_pause.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 using namespace edm;
 //
@@ -82,7 +83,10 @@ WaitingTaskList::createNode(WaitingTask* iTask)
     returnValue->m_fromCache=false;
   }
   returnValue->m_task = iTask;
-  returnValue->m_next = returnValue;
+  //No other thread can see m_next yet. The caller to create node
+  // will be doing a synchronization operation anyway which will
+  // make sure m_task and m_next are synched across threads
+  returnValue->m_next.store(returnValue,std::memory_order_relaxed);
   
   return returnValue;
 }
@@ -92,7 +96,7 @@ void
 WaitingTaskList::add(WaitingTask* iTask) {
   iTask->increment_ref_count();
   if(!m_waiting) {
-    if(m_exceptionPtr) {
+    if(unlikely(bool(m_exceptionPtr))) {
       iTask->dependentTaskFailed(m_exceptionPtr);
     }
     if(0==iTask->decrement_ref_count()) {
@@ -100,6 +104,8 @@ WaitingTaskList::add(WaitingTask* iTask) {
     }
   } else {
     WaitNode* newHead = createNode(iTask);
+    //This exchange is sequentially consistent thereby
+    // ensuring ordering between it and setNextNode
     WaitNode* oldHead = m_head.exchange(newHead);
     newHead->setNextNode(oldHead);
 
@@ -139,7 +145,7 @@ WaitingTaskList::announce()
       hardware_pause();
     }
     auto t = n->m_task;
-    if(m_exceptionPtr) {
+    if(unlikely(bool(m_exceptionPtr))) {
       t->dependentTaskFailed(m_exceptionPtr);
     }
     if(0==t->decrement_ref_count()){

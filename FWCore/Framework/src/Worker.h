@@ -176,7 +176,7 @@ namespace edm {
     virtual void updateLookup(BranchType iBranchType,
                       ProductResolverIndexHelper const&) = 0;
     virtual void resolvePutIndicies(BranchType iBranchType,
-                                    std::unordered_multimap<std::string, edm::ProductResolverIndex> const& iIndicies) = 0;
+                                    std::unordered_multimap<std::string, std::tuple<TypeID const*, const char*, edm::ProductResolverIndex>> const& iIndicies) = 0;
 
     virtual void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
                                                  ProductRegistry const& preg,

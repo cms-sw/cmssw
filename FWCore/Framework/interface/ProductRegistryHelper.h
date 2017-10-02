@@ -13,16 +13,27 @@ ProductRegistryHelper:
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include <string>
 #include <vector>
+#include <type_traits>
 
 namespace edm {
   class ModuleDescription;
   class ProductRegistry;
+  class DoNotRecordParents;
+  
   class ProductRegistryHelper {
   public:
 
     ProductRegistryHelper() : typeLabelList_() {}
     ~ProductRegistryHelper();
- 
+
+    // has_donotrecordparents<T>::value is true if we should not
+    // record parentage for type T, and false otherwise.
+    template <typename T>
+    struct has_donotrecordparents {
+      static constexpr bool value =
+      std::is_base_of<DoNotRecordParents,T>::value;
+    };
+
     struct TypeLabelItem {
       TypeLabelItem (Transition const& transition, TypeID const& tid, std::string pin) :
 	      transition_(transition),
@@ -72,6 +83,8 @@ namespace edm {
 
     /// used by the fwk to register the list of products of this module 
     TypeLabelList const& typeLabelList() const;
+    
+    std::vector<bool> const& recordProvenanceList() const { return recordProvenanceList_;}
 
     static
     void addToRegistry(TypeLabelList::const_iterator const& iBegin,
@@ -94,8 +107,8 @@ namespace edm {
     }
 
     template <class ProductType> 
-    BranchAliasSetterT<ProductType> produces(std::string const& instanceName) {
-      return produces<ProductType, InEvent>(instanceName);
+    BranchAliasSetterT<ProductType> produces(std::string instanceName) {
+      return produces<ProductType, InEvent>( std::move(instanceName));
     }
 
     template <typename ProductType, BranchType B> 
@@ -104,9 +117,10 @@ namespace edm {
     }
 
     template <typename ProductType, BranchType B> 
-    BranchAliasSetterT<ProductType> produces(std::string const& instanceName) {
+    BranchAliasSetterT<ProductType> produces(std::string instanceName) {
       TypeID tid(typeid(ProductType));
-      return BranchAliasSetterT<ProductType>{produces<B>(tid,instanceName)};
+      return BranchAliasSetterT<ProductType>{produces<B>(tid,std::move(instanceName),
+                                                         (not has_donotrecordparents<ProductType>::value) and B == InEvent)};
     }
 
     template <typename ProductType, Transition B>
@@ -115,31 +129,35 @@ namespace edm {
     }
     
     template <typename ProductType, Transition B>
-    BranchAliasSetterT<ProductType> produces(std::string const& instanceName) {
+    BranchAliasSetterT<ProductType> produces(std::string instanceName) {
       TypeID tid(typeid(ProductType));
-      return BranchAliasSetterT<ProductType>{produces<B>(tid,instanceName)};
+      return BranchAliasSetterT<ProductType>{produces<B>(tid,std::move(instanceName),
+                                                         (not has_donotrecordparents<ProductType>::value) and B == Transition::Event)};
     }
 
    
-    BranchAliasSetter produces(const TypeID& id, std::string const& instanceName=std::string()) {
-      return produces<Transition::Event>(id,instanceName);
+    BranchAliasSetter produces(const TypeID& id, std::string instanceName=std::string(), bool recordProvenance = true) {
+      return produces<Transition::Event>(id,std::move(instanceName),recordProvenance);
     }
 
     template <BranchType B>
-    BranchAliasSetter produces(const TypeID& id, std::string const& instanceName=std::string()) {
+    BranchAliasSetter produces(const TypeID& id, std::string instanceName=std::string(), bool recordProvenance = true) {
       unsigned int index =typeLabelList_.size();
-       typeLabelList_.emplace_back(convertToTransition(B), id, instanceName);
+      typeLabelList_.emplace_back(convertToTransition(B), id, std::move(instanceName));
+      recordProvenanceList_.push_back(recordProvenance and B == InEvent);
       return BranchAliasSetter{typeLabelList_.back(),EDPutToken{static_cast<unsigned int>(index)}};
     }
     template <Transition B>
-    BranchAliasSetter produces(const TypeID& id, std::string const& instanceName=std::string()) {
+    BranchAliasSetter produces(const TypeID& id, std::string instanceName=std::string(), bool recordProvenance = true) {
       unsigned int index =typeLabelList_.size();
-      typeLabelList_.emplace_back(B, id, instanceName);
+      typeLabelList_.emplace_back(B, id, std::move(instanceName));
+      recordProvenanceList_.push_back(recordProvenance and B == Transition::Event);
       return BranchAliasSetter{typeLabelList_.back(),EDPutToken{ index }};
     }
 
   private:
     TypeLabelList typeLabelList_;
+    std::vector<bool> recordProvenanceList_;
   };
 
 
