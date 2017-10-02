@@ -44,4 +44,4 @@ MonitorTrackMuonsInnerTrack.doEffFromHitPatternVsPU = True
 MonitorTrackMuonsInnerTrack.doEffFromHitPatternVsBX = False
 
 #MonitorTrackINNMuons = cms.Sequence(muonInnerTrack+MonitorTrackMuonsInnerTrack)
-MonitorTrackINNMuons = cms.Sequence(muonsPt10+muonInnerTrack+MonitorTrackMuonsInnerTrack)
+MonitorTrackINNMuons = cms.Sequence(cms.ignore(muonsPt10)+muonInnerTrack+MonitorTrackMuonsInnerTrack)
