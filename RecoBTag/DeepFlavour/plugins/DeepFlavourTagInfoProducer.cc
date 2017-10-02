@@ -34,7 +34,7 @@ class DeepFlavourTagInfoProducer : public edm::stream::EDProducer<> {
 
   public:
 	  explicit DeepFlavourTagInfoProducer(const edm::ParameterSet&);
-	  ~DeepFlavourTagInfoProducer();
+	  ~DeepFlavourTagInfoProducer() override;
 
 	  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -44,9 +44,9 @@ class DeepFlavourTagInfoProducer : public edm::stream::EDProducer<> {
     typedef reco::VertexCollection VertexCollection;
     typedef edm::View<reco::ShallowTagInfo> ShallowTagInfoCollection;
 
-	  virtual void beginStream(edm::StreamID) override {}
-	  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-	  virtual void endStream() override {}
+	  void beginStream(edm::StreamID) override {}
+	  void produce(edm::Event&, const edm::EventSetup&) override;
+	  void endStream() override {}
 
     
     const double jet_radius_;

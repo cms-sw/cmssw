@@ -161,7 +161,7 @@ bool Session::initVariables(const std::string& restoreOpName, const std::string&
     std::string path = graph_->getExportDir() + "/variables/variables";
     size_t pathSize = path.size();
     size_t encodedPathSize = TF_StringEncodedSize(pathSize);
-    TF_Tensor* tf_varTensor = TF_AllocateTensor(TF_STRING, 0, 0, 8 + encodedPathSize);
+    TF_Tensor* tf_varTensor = TF_AllocateTensor(TF_STRING, nullptr, 0, 8 + encodedPathSize);
     void* data = TF_TensorData(tf_varTensor);
     memset(data, 0, 8);
     TF_StringEncode(path.c_str(), pathSize, 8 + (char*)data, encodedPathSize, status);

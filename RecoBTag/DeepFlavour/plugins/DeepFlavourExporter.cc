@@ -27,7 +27,7 @@ class DeepFlavourExporter : public edm::one::EDAnalyzer<edm::one::SharedResource
 
   public:
 	  explicit DeepFlavourExporter(const edm::ParameterSet&);
-	  ~DeepFlavourExporter();
+	  ~DeepFlavourExporter() override;
 
 	  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -36,9 +36,9 @@ class DeepFlavourExporter : public edm::one::EDAnalyzer<edm::one::SharedResource
     typedef std::vector<reco::DeepFlavourTagInfo> TagInfoCollection;
     typedef reco::JetTagCollection JetTagCollection;
 
-    virtual void beginJob() override;
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-    virtual void endJob() override;
+    void beginJob() override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void endJob() override;
 
 	  const edm::EDGetTokenT< TagInfoCollection > tag_info_src_;
 	  edm::EDGetTokenT<edm::View<pat::Jet>> jet_src_;
@@ -60,7 +60,7 @@ DeepFlavourExporter::DeepFlavourExporter(const edm::ParameterSet& iConfig) :
   disc_values_(disc_names_.size(),0.0)
 {
   auto jet_src_tag = iConfig.getParameter<edm::InputTag>("jet_src");
-  if (jet_src_tag.label().size() == 0) {
+  if (jet_src_tag.label().empty()) {
     use_jet_src_ = false;
   } else {
     jet_src_ = consumes<edm::View<pat::Jet>>(jet_src_tag);
