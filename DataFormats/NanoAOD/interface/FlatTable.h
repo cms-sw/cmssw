@@ -5,8 +5,8 @@
 #include <vector>
 #include <string>
 #include <boost/range/sub_range.hpp>
-#include <FWCore/Utilities/interface/Exception.h>
-#include <DataFormats/PatCandidates/interface/libminifloat.h>
+#include "FWCore/Utilities/interface/Exception.h"
+#include "DataFormats/PatCandidates/interface/libminifloat.h"
 
 namespace flatTableHelper {
     template<typename T> struct MaybeMantissaReduce { 
