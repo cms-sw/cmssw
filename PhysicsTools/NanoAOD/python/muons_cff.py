@@ -3,6 +3,7 @@ from PhysicsTools.NanoAOD.common_cff import *
 
 isoForMu = cms.EDProducer("MuonIsoValueMapProducer",
     src = cms.InputTag("slimmedMuons"),
+    relative = cms.bool(False),
     rho_MiniIso = cms.InputTag("fixedGridRhoFastjetCentralNeutral"),
     EAFile_MiniIso = cms.FileInPath("PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_80X.txt"),
 )
@@ -72,10 +73,11 @@ muonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         segmentComp   = Var("segmentCompatibility()", float, doc = "muon segment compatibility", precision=14), # keep higher precision since people have cuts with 3 digits on this
         nStations = Var("numberOfMatchedStations", int, doc = "number of matched stations with default arbitration (segment & track)"),
         jetIdx = Var("?hasUserCand('jet')?userCand('jet').key():-1", int, doc="index of the associated jet (-1 if none)"),
-        miniPFIso_chg = Var("userFloat('miniIsoChg')",float,doc="mini PF isolation, charged component"),
-        miniPFIso_all = Var("userFloat('miniIsoAll')",float,doc="mini PF isolation, total (with scaled rho*EA PU corrections)"),
-        PFIso03_chg = Var("pfIsolationR03().sumChargedHadronPt",float,doc="PF isolation dR=0.3, charged component"),
-        PFIso03_all = Var("(pfIsolationR03().sumChargedHadronPt + max(pfIsolationR03().sumNeutralHadronEt + pfIsolationR03().sumPhotonEt - pfIsolationR03().sumPUPt/2,0.0))",float,doc="PF isolation dR=0.3, total (deltaBeta corrections)"),
+        miniPFRelIso_chg = Var("userFloat('miniIsoChg')/pt",float,doc="mini PF relative isolation, charged component"),
+        miniPFRelIso_all = Var("userFloat('miniIsoAll')/pt",float,doc="mini PF relative isolation, total (with scaled rho*EA PU corrections)"),
+        pfRelIso03_chg = Var("pfIsolationR03().sumChargedHadronPt/pt",float,doc="PF relative isolation dR=0.3, charged component"),
+        pfRelIso03_all = Var("(pfIsolationR03().sumChargedHadronPt + max(pfIsolationR03().sumNeutralHadronEt + pfIsolationR03().sumPhotonEt - pfIsolationR03().sumPUPt/2,0.0))/pt",float,doc="PF relative isolation dR=0.3, total (deltaBeta corrections)"),
+        pfRelIso04_all = Var("(pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt",float,doc="PF relative isolation dR=0.4, total (deltaBeta corrections)"),
         tightCharge = Var("?(muonBestTrack().ptError()/muonBestTrack().pt() < 0.2)?2:0",int,doc="Tight charge criterion using pterr/pt of muonBestTrack (0:fail, 2:pass)"),
     ),
     externalVariables = cms.PSet(
@@ -107,7 +109,7 @@ muonMCTable = cms.EDProducer("CandMCMatchTableProducer",
     mcMap   = cms.InputTag("muonsMCMatchForTable"),
     objName = muonTable.name,
     objType = muonTable.name, #cms.string("Muon"),
-    branchName = cms.string("mcMatch"),
+    branchName = cms.string("genPart"),
     docString = cms.string("MC matching to status==1 muons"),
 )
 

@@ -13,6 +13,7 @@ finalIsolatedTracks = cms.EDProducer("IsolatedTrackCleaner",
 
 isoForIsoTk = cms.EDProducer("IsoTrackIsoValueMapProducer",
     src = cms.InputTag("finalIsolatedTracks"),
+    relative = cms.bool(True),
     rho_MiniIso = cms.InputTag("fixedGridRhoFastjetCentralNeutral"),
     EAFile_MiniIso = cms.FileInPath("PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_80X.txt"),
 )
@@ -27,12 +28,12 @@ isoTrackTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     variables = cms.PSet(P3Vars,
         dz = Var("dz",float,doc="dz (with sign) wrt first PV, in cm",precision=10),
         dxy = Var("dxy",float,doc="dxy (with sign) wrt first PV, in cm",precision=10),
-        PFIso03_chg = Var("pfIsolationDR03().chargedHadronIso",float,doc="PF isolation dR=0.3, charged component",precision=10),
-        PFIso03_all = Var("(pfIsolationDR03().chargedHadronIso + max(pfIsolationDR03().neutralHadronIso + pfIsolationDR03().photonIso - pfIsolationDR03().puChargedHadronIso/2,0.0))",float,doc="PF isolation dR=0.3, total (deltaBeta corrections)",precision=10),
+        pfRelIso03_chg = Var("pfIsolationDR03().chargedHadronIso/pt",float,doc="PF relative isolation dR=0.3, charged component",precision=10),
+        pfRelIso03_all = Var("(pfIsolationDR03().chargedHadronIso + max(pfIsolationDR03().neutralHadronIso + pfIsolationDR03().photonIso - pfIsolationDR03().puChargedHadronIso/2,0.0))/pt",float,doc="PF relative isolation dR=0.3, total (deltaBeta corrections)",precision=10),
     ),
     externalVariables = cms.PSet(
-        miniPFIso_chg = ExtVar("isoForIsoTk:miniIsoChg",float,doc="mini PF isolation, charged component",precision=10),
-        miniPFIso_all = ExtVar("isoForIsoTk:miniIsoAll",float,doc="mini PF isolation, total (with scaled rho*EA PU corrections)",precision=10),
+        miniPFRelIso_chg = ExtVar("isoForIsoTk:miniIsoChg",float,doc="mini PF relative isolation, charged component",precision=10),
+        miniPFRelIso_all = ExtVar("isoForIsoTk:miniIsoAll",float,doc="mini PF relative isolation, total (with scaled rho*EA PU corrections)",precision=10),
     ),
 )
 

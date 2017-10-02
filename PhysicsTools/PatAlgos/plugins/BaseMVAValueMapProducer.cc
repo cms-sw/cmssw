@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    PhysicsTools/NanoAOD
+// Package:    PhysicsTools/PatAlgos
 // Class:      BaseMVAValueMapProducer
 // 
-/**\class BaseMVAValueMapProducer BaseMVAValueMapProducer.cc PhysicsTools/NanoAOD/plugins/BaseMVAValueMapProducer.cc
+/**\class BaseMVAValueMapProducer BaseMVAValueMapProducer.cc PhysicsTools/PatAlgos/plugins/BaseMVAValueMapProducer.cc
 
  Description: [one line class summary]
 
@@ -23,7 +23,7 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
 
-#include "PhysicsTools/NanoAOD/plugins/BaseMVAValueMapProducer.h"
+#include "PhysicsTools/PatAlgos/plugins/BaseMVAValueMapProducer.h"
 
 typedef BaseMVAValueMapProducer<pat::Jet> JetBaseMVAValueMapProducer;
 typedef BaseMVAValueMapProducer<pat::Muon> MuonBaseMVAValueMapProducer;
