@@ -107,14 +107,17 @@ public:
 
     }
 
-    m_maxNRegions      = regPSet.getParameter<int>("maxNRegions");
+    m_maxNRegions      = regPSet.getParameter<unsigned int>("maxNRegions");
+    if(m_maxNRegions==0) throw edm::Exception(edm::errors::Configuration) << "maxNRegions should be greater than or equal to 1";
     token_beamSpot     = iC.consumes<reco::BeamSpot>(regPSet.getParameter<edm::InputTag>("beamSpot"));
     m_maxNVertices     = 1;
     if (m_operationMode == OperationMode::VERTICES_FIXED || m_operationMode == OperationMode::VERTICES_SIGMA)
     {
       token_vertex       = iC.consumes<reco::VertexCollection>(regPSet.getParameter<edm::InputTag>("vertexCollection"));
-      m_maxNVertices     = regPSet.getParameter<int>("maxNVertices");
+      m_maxNVertices     = regPSet.getParameter<unsigned int>("maxNVertices");
+      if(m_maxNVertices==0) throw edm::Exception(edm::errors::Configuration) << "maxNVertices should be greater than or equal to 1";
     }
+    
 
     // RectangularEtaPhiTrackingRegion parameters:
     m_ptMin            = regPSet.getParameter<double>("ptMin");
@@ -173,10 +176,10 @@ public:
     descPoints.add<std::vector<double>> ("phi", {} ); 
     desc.add<edm::ParameterSetDescription>("points", descPoints);
 
-    desc.add<int>("maxNRegions", 10);
+    desc.add<unsigned int>("maxNRegions", 10);
     desc.add<edm::InputTag>("beamSpot", edm::InputTag("hltOnlineBeamSpot"));
     desc.add<edm::InputTag>("vertexCollection", edm::InputTag("hltPixelVertices"));
-    desc.add<int>("maxNVertices", 1);
+    desc.add<unsigned int>("maxNVertices", 1);
 
     desc.add<double>("ptMin", 0.9);
     desc.add<double>("originRadius", 0.2);
