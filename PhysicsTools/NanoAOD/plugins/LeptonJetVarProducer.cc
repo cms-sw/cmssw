@@ -35,7 +35,6 @@
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-#include "TLorentzVector.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
 
@@ -156,15 +155,14 @@ template <typename T>
 std::tuple<float,float,float>
 LeptonJetVarProducer<T>::calculatePtRatioRel(edm::Ptr<reco::Candidate> lep, edm::Ptr<pat::Jet> jet, const reco::Vertex &vtx) const {
  
-  auto rawp4_ = jet->correctedP4("Uncorrected");
-  auto rawp4 = TLorentzVector(rawp4_.pt(),rawp4_.eta(),rawp4_.phi(),rawp4_.energy());
-  auto lepp4 = TLorentzVector(lep->pt(),lep->eta(),lep->phi(),lep->energy());
+  auto rawp4 = jet->correctedP4("Uncorrected");
+  auto lepp4 = lep->p4();
 
-  if ((rawp4-lepp4).Rho()<1e-4) return std::tuple<float,float,float>(1.0,0.0,0.0);
+  if ((rawp4-lepp4).R()<1e-4) return std::tuple<float,float,float>(1.0,0.0,0.0);
 
-  auto jetp4 = (rawp4 - lepp4*(1.0/jet->jecFactor("L1FastJet")))*(jet->pt()/rawp4.Pt())+lepp4;
-  auto ptratio = lepp4.Pt()/jetp4.Pt();
-  auto ptrel = lepp4.Perp((jetp4-lepp4).Vect());
+  auto jetp4 = (rawp4 - lepp4*(1.0/jet->jecFactor("L1FastJet")))*(jet->pt()/rawp4.pt())+lepp4;
+  auto ptratio = lepp4.pt()/jetp4.pt();
+  auto ptrel = lepp4.Vect().Cross((jetp4-lepp4).Vect().Unit()).R();
 
   unsigned int jndau = 0;
   for(const auto _d : jet->daughterPtrVector()) {
