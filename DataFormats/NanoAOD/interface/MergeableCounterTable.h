@@ -19,6 +19,8 @@ class MergeableCounterTable {
             std::string name, doc;
             T value;
             void operator+=(const SingleColumn<T> & other) {
+                //// if one arrives here from tryMerge the checks are already done in the compatible() function before.
+                //// you may however want to enable these and remove the 'return false' in tryMerge in order to see what's incompatible between the tables.
                 //if (name != other.name) throw cms::Exception("LogicError", "Trying to merge "+name+" with "+other.name+"\n");
                 value += other.value;
             }
@@ -38,6 +40,8 @@ class MergeableCounterTable {
             std::string name, doc;
             std::vector<T> values;
             void operator+=(const VectorColumn<T> & other) {
+                //// if one arrives here from tryMerge the checks are already done in the compatible() function before.
+                //// you may however want to enable these and remove the 'return false' in tryMerge in order to see what's incompatible between the tables.
                 //if (name != other.name) throw cms::Exception("LogicError", "Trying to merge "+name+" with "+other.name+"\n");
                 //if (values.size() != other.values.size()) throw cms::Exception("LogicError", "Trying to merge "+name+" with different number of values!\n");
                 for (unsigned int i = 0, n = values.size(); i < n; ++i) {
