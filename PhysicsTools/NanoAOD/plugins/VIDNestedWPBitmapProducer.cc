@@ -48,7 +48,7 @@ class VIDNestedWPBitmapProducer : public edm::stream::EDProducer<> {
   {
     auto vwp = iConfig.getParameter<std::vector<std::string>>("WorkingPoints");
     for (auto wp : vwp) {
-      src_bitmaps_.push_back(consumes<edm::ValueMap<unsigned> >(edm::InputTag(wp+std::string("Bitmap"))));
+      src_bitmaps_.push_back(consumes<edm::ValueMap<unsigned int> >(edm::InputTag(wp+std::string("Bitmap"))));
       src_cutflows_.push_back(consumes<edm::ValueMap<vid::CutFlowResult> >(edm::InputTag(wp)));
     }
     nWP = src_bitmaps_.size();
@@ -71,16 +71,16 @@ class VIDNestedWPBitmapProducer : public edm::stream::EDProducer<> {
       // ----------member data ---------------------------
 
   edm::EDGetTokenT<edm::View<T>> src_;
-  std::vector<edm::EDGetTokenT<edm::ValueMap<unsigned> > > src_bitmaps_;
+  std::vector<edm::EDGetTokenT<edm::ValueMap<unsigned int> > > src_bitmaps_;
   std::vector<edm::EDGetTokenT<edm::ValueMap<vid::CutFlowResult> > > src_cutflows_;
 
-  unsigned nWP;
-  unsigned nBits;
-  unsigned nCuts;
-  std::vector<unsigned> res_;
+  unsigned int nWP;
+  unsigned int nBits;
+  unsigned int nCuts;
+  std::vector<unsigned int> res_;
   bool isInit_;
 
-  void initNCuts(unsigned);
+  void initNCuts(unsigned int);
 
 };
 
@@ -100,22 +100,22 @@ VIDNestedWPBitmapProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup&
 
   edm::Handle<edm::View<T>> src;
   iEvent.getByToken(src_, src);
-  std::vector<edm::Handle<edm::ValueMap<unsigned>>> src_bitmaps(nWP);
-  for (uint i=0; i<nWP; i++) iEvent.getByToken(src_bitmaps_[i], src_bitmaps[i]);
+  std::vector<edm::Handle<edm::ValueMap<unsigned int>>> src_bitmaps(nWP);
+  for (unsigned int i=0; i<nWP; i++) iEvent.getByToken(src_bitmaps_[i], src_bitmaps[i]);
   std::vector<edm::Handle<edm::ValueMap<vid::CutFlowResult>>> src_cutflows(nWP);
-  for (uint i=0; i<nWP; i++) iEvent.getByToken(src_cutflows_[i], src_cutflows[i]);
+  for (unsigned int i=0; i<nWP; i++) iEvent.getByToken(src_cutflows_[i], src_cutflows[i]);
 
-  std::vector<unsigned> res;
+  std::vector<unsigned int> res;
 
   auto npho = src->size();
-  for (uint i=0; i<npho; i++){
+  for (unsigned int i=0; i<npho; i++){
     auto obj = src->ptrAt(i);
-    for (uint j=0; j<nWP; j++){
+    for (unsigned int j=0; j<nWP; j++){
       auto cutflow = (*(src_cutflows[j]))[obj];
       if (!isInit_) initNCuts(cutflow.cutFlowSize());
       if (cutflow.cutFlowSize()!=nCuts) throw cms::Exception("Configuration","Trying to compress VID bitmaps for cutflows of different size");
       auto bitmap = (*(src_bitmaps[j]))[obj];
-      for (uint k=0; k<nCuts; k++){
+      for (unsigned int k=0; k<nCuts; k++){
 	if (j==0) res_[k] = 0;
 	if (bitmap>>k & 1) {
 	  if (res_[k]!=j) throw cms::Exception("Configuration","Trying to compress VID bitmaps which are not nested in the correct order for all cuts");
@@ -125,7 +125,7 @@ VIDNestedWPBitmapProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup&
     }
 
     int out = 0;
-    for (uint k=0; k<nCuts; k++) out |= (res_[k] << (nBits*k));
+    for (unsigned int k=0; k<nCuts; k++) out |= (res_[k] << (nBits*k));
     res.push_back(out);
   }
 
@@ -141,7 +141,7 @@ VIDNestedWPBitmapProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup&
 
 template <typename T>
 void
-VIDNestedWPBitmapProducer<T>::initNCuts(uint n){
+VIDNestedWPBitmapProducer<T>::initNCuts(unsigned int n){
   nCuts = n;
   nBits = ceil(log2(nWP+1));
   if (nBits*nCuts>sizeof(int)*8) throw cms::Exception("Configuration","Integer cannot contain the compressed VID bitmap information");

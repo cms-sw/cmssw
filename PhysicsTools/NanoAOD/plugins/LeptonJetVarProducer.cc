@@ -100,8 +100,8 @@ LeptonJetVarProducer<T>::produce(edm::StreamID streamID, edm::Event& iEvent, con
   edm::Handle<std::vector<reco::Vertex>> srcVtx;
   iEvent.getByToken(srcVtx_, srcVtx);
 
-  unsigned nJet = srcJet->size();
-  unsigned nLep = srcLep->size();
+  unsigned int nJet = srcJet->size();
+  unsigned int nLep = srcLep->size();
 
   std::vector<float> ptRatio(nLep,-1);
   std::vector<float> ptRel(nLep,-1);
@@ -110,8 +110,8 @@ LeptonJetVarProducer<T>::produce(edm::StreamID streamID, edm::Event& iEvent, con
 
   const auto & pv = (*srcVtx)[0];
 
-  for (uint il = 0; il<nLep; il++){
-    for (uint ij = 0; ij<nJet; ij++){
+  for (unsigned int il = 0; il<nLep; il++){
+    for (unsigned int ij = 0; ij<nJet; ij++){
       auto lep = srcLep->ptrAt(il);
       auto jet = srcJet->ptrAt(ij);
       if(matchByCommonSourceCandidatePtr(*lep,*jet)){
@@ -166,7 +166,7 @@ LeptonJetVarProducer<T>::calculatePtRatioRel(edm::Ptr<reco::Candidate> lep, edm:
   auto ptratio = lepp4.Pt()/jetp4.Pt();
   auto ptrel = lepp4.Perp((jetp4-lepp4).Vect());
 
-  unsigned jndau = 0;
+  unsigned int jndau = 0;
   for(const auto _d : jet->daughterPtrVector()) {
     const auto d = dynamic_cast<const pat::PackedCandidate*>(_d.get());
     if (d->charge()==0) continue;

@@ -60,7 +60,7 @@ class IsoValueMapProducer : public edm::global::EDProducer<> {
       ea_pfiso_.reset(new EffectiveAreas((iConfig.getParameter<edm::FileInPath>("EAFile_PFIso")).fullPath()));
       rho_pfiso_ = consumes<double>(iConfig.getParameter<edm::InputTag>("rho_PFIso"));
     }
-    if ((typeid(T) == typeid(pat::Photon))) {
+    else if ((typeid(T) == typeid(pat::Photon))) {
       produces<edm::ValueMap<float>>("PFIsoChg");
       produces<edm::ValueMap<float>>("PFIsoAll");
       mapIsoChg_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("mapIsoChg"));
@@ -140,7 +140,7 @@ IsoValueMapProducer<T>::doMiniIso(edm::Event& iEvent) const{
   edm::Handle<double> rho;
   iEvent.getByToken(rho_miniiso_,rho);
 
-  unsigned nInput = src->size();
+  unsigned int nInput = src->size();
   
   std::vector<float> miniIsoChg, miniIsoAll;
   miniIsoChg.reserve(nInput);
@@ -190,7 +190,7 @@ IsoValueMapProducer<pat::Electron>::doPFIsoEle(edm::Event& iEvent) const{
   edm::Handle<double> rho;
   iEvent.getByToken(rho_pfiso_,rho);
   
-  unsigned nInput = src->size();
+  unsigned int nInput = src->size();
 
   std::vector<float> PFIsoChg, PFIsoAll;
   PFIsoChg.reserve(nInput);
@@ -240,13 +240,13 @@ IsoValueMapProducer<pat::Photon>::doPFIsoPho(edm::Event& iEvent) const {
   edm::Handle<edm::ValueMap<float> > mapIsoPho;
   iEvent.getByToken(mapIsoPho_, mapIsoPho);
   
-  unsigned nInput = src->size();
+  unsigned int nInput = src->size();
 
   std::vector<float> PFIsoChg, PFIsoAll;
   PFIsoChg.reserve(nInput);
   PFIsoAll.reserve(nInput);
   
-  for (uint i=0; i<nInput; i++){
+  for (unsigned int i=0; i<nInput; i++){
     auto obj = src->ptrAt(i);
     auto chg = (*mapIsoChg)[obj];
     auto neu = (*mapIsoNeu)[obj];
