@@ -1,12 +1,12 @@
-#ifndef PhysicsTools_NanoAOD_BaseMVAValueMapProducer
-#define PhysicsTools_NanoAOD_BaseMVAValueMapProducer
+#ifndef PhysicsTools_PatAlgos_BaseMVAValueMapProducer
+#define PhysicsTools_PatAlgos_BaseMVAValueMapProducer
 
 // -*- C++ -*-
 //
-// Package:    PhysicsTools/NanoAOD
+// Package:    PhysicsTools/PatAlgos
 // Class:      BaseMVAValueMapProducer
 // 
-/**\class BaseMVAValueMapProducer BaseMVAValueMapProducer.cc PhysicsTools/NanoAOD/plugins/BaseMVAValueMapProducer.cc
+/**\class BaseMVAValueMapProducer BaseMVAValueMapProducer.cc PhysicsTools/PatAlgos/plugins/BaseMVAValueMapProducer.cc
 
  Description: [one line class summary]
 
