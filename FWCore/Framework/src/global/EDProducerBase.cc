@@ -53,11 +53,11 @@ namespace edm {
                             ModuleCallingContext const* mcc) {
       Event e(ep, moduleDescription_, mcc);
       e.setConsumer(this);
-      e.setProducer(this);
+      const auto streamIndex = e.streamID().value();
+      e.setProducer(this, &previousParentages_[streamIndex]);
       EventSignalsSentry sentry(act,mcc);
       this->produce(e.streamID(), e, c);
-      const auto streamIndex = e.streamID().value();
-      commit_(e,&previousParentages_[streamIndex], &previousParentageIds_[streamIndex]);
+      commit_(e, &previousParentageIds_[streamIndex]);
       return true;
     }
 
