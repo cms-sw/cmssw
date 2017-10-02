@@ -355,6 +355,7 @@ def customiseMerging(process, changeProcessname=True,reselect=False):
 			process.merge_step +=getattr(process, akt_manimod.module_name)
 
 
+	process.merge_step += process.doAlldEdXEstimators
 	process.merge_step += process.vertexreco
 	process.unsortedOfflinePrimaryVertices.beamSpotLabel = cms.InputTag("offlineBeamSpot","",dataTier)
 	process.ak4CaloJetsForTrk.srcPVs = cms.InputTag("firstStepPrimaryVertices","",dataTier)
