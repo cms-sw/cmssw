@@ -189,7 +189,7 @@ MET::initCorMap() {
   tmpRawChs.push_back(MET::Chs);
   corMap_[MET::RawChs] = tmpRawChs;
 
-  //specific chs case
+  //specific trk case
   std::vector<MET::METCorrectionType> tmpRawTrk;
   tmpRawTrk.push_back(MET::Trk);
   corMap_[MET::RawTrk] = tmpRawTrk;
