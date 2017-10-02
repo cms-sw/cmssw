@@ -3,7 +3,7 @@
 #include "CondTools/Ecal/interface/EcalPedestalsHandler.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
-#include <string.h>
+#include <cstring>
 #include<iostream>
 #include <fstream>
 
@@ -11,6 +11,7 @@
 #include "TTree.h"
 
 const Int_t kChannels = 75848, kEBChannels = 61200, kEEChannels = 14648;
+const Int_t Nbpedxml = 17; // Number of Gain1 Gain6 files in 2017 
 
 popcon::EcalPedestalsHandler::EcalPedestalsHandler(const edm::ParameterSet & ps)
   :    m_name(ps.getUntrackedParameter<std::string>("name","EcalPedestalsHandler")) {
@@ -937,9 +938,15 @@ void popcon::EcalPedestalsHandler::readPedestalTree() {
       if(entry%1000 == 0) std::cout << " EE channel " << iChannel << " x " << ixEE[iChannel] << " y " << iyEE[iChannel] << " z " << izEE[iChannel] << std::endl;
     }
   }
-  Int_t pedxml[26] = {271948, 273634, 273931, 274705, 275403, 276108, 276510, 277169, 278123, 278183,
+  /*    2016
+  int Nbpedxml = 26;
+  Int_t pedxml[Nbpedxml] = {271948, 273634, 273931, 274705, 275403, 276108, 276510, 277169, 278123, 278183,
 		      278246, 278389, 278499, 278693, 278858, 278888, 278931, 279728, 280129, 280263,
 		      280941, 281753, 282631, 282833, 283199, 283766};
+  */
+  //  int Nbpedxml = 17;
+  Int_t pedxml[Nbpedxml] = {286535, 293513, 293632, 293732, 295507, 295672, 296391, 296917, 297388, 298481, 
+			    299279, 299710, 300186, 300581, 301191, 302006, 302293};
   Int_t run16Index = 0;
 
   Int_t fed[kChannels], chan[kChannels], id, run, run_type, seq_id, las_id, fill_num, run_num_infill, run_time, run_time_stablebeam, nxt, time[54];
@@ -999,10 +1006,16 @@ void popcon::EcalPedestalsHandler::readPedestalTree() {
   for(int entry = 0; entry < nevents; entry++) {
     tree->GetEntry(entry);
     if(run < first_run_kept) {
+      fout << " entry " << entry << " run " << run << " sequence " << seq_id << " run_time " << run_time
+	   << " before first wanted " << m_firstRun << std::endl;
       runold = run;
       continue;
     }
-    if(run_type  != run_type_kept) continue;     // use only wanted type runs
+    if(run_type  != run_type_kept) {
+      fout << " entry " << entry << " run " << run << " sequence " << seq_id << " run_time " << run_time
+	   << " run type " << run_type << std::endl;
+      continue;     // use only wanted type runs
+    }
     if(nxt != kChannels) {
       fout << " entry " << entry << " run " << run << " sequence " << seq_id << " run_time " << run_time
 	   << " ***********  Number of channels " << nxt << std::endl;
@@ -1060,7 +1073,7 @@ void popcon::EcalPedestalsHandler::readPedestalTree() {
 
 	// get gain 1 and 6 results
 	bool foundNew = false;
-	for(int i = run16Index; i < 26; i++) {
+	for(int i = run16Index; i < Nbpedxml; i++) {
 	  if(runold > pedxml[i]) {
 	    fout << " found a new gain 1, 6 file " <<  pedxml[i] << " at index " << i << std::endl;
 	    run16Index++;
@@ -1265,9 +1278,15 @@ void popcon::EcalPedestalsHandler::readPedestalTimestamp() {
 					     << iyEE[iChannel] << " z " << izEE[iChannel] << std::endl;
     }
   }
-  Int_t pedxml[26] = {271948, 273634, 273931, 274705, 275403, 276108, 276510, 277169, 278123, 278183,
+  /*    2016
+  int Nbpedxml = 26;
+  Int_t pedxml[Nbpedxml] = {271948, 273634, 273931, 274705, 275403, 276108, 276510, 277169, 278123, 278183,
 		      278246, 278389, 278499, 278693, 278858, 278888, 278931, 279728, 280129, 280263,
 		      280941, 281753, 282631, 282833, 283199, 283766};
+  */
+  //  int Nbpedxml = 17;
+  Int_t pedxml[Nbpedxml] = {286535, 293513, 293632, 293732, 295507, 295672, 296391, 296917, 297388, 298481, 
+			    299279, 299710, 300186, 300581, 301191, 302006, 302293};
   Int_t run16Index = 0;
 
   Int_t fed[kChannels], chan[kChannels], id, run, run_type, seq_id, las_id, fill_num, run_num_infill, run_time, run_time_stablebeam, nxt, time[54];
@@ -1322,16 +1341,19 @@ void popcon::EcalPedestalsHandler::readPedestalTimestamp() {
   int runold = -1, fillold = -1, firsttimeFEDold = -1;
   int firsttimeFED = -1;
   bool firstSeqAfterStable = false;
+  int transfer = 0;
+  int first_run_kept = (int)m_firstRun;  //  m_firstRun is unsigned!
   for(int entry = 0; entry < nevents; entry++) {
     tree->GetEntry(entry);
     if(nxt != kChannels) {
-      fout << " entry " << entry << " run " << run << " sequence " << seq_id << " run_time " << run_time
+      //      fout << " entry " << entry << " run " << run << " sequence " << seq_id << " run_time " << run_time
+      fout << " entry " << entry << " run " << run << " sequence " << seq_id // run_time always 0!
 	   << " ***********  Number of channels " << nxt;
-      if(seq_id == 0) {
-	fout << " rejected"  << std::endl;
-	continue;
-      }
-      else fout << std::endl;
+      //      if(seq_id == 0) {    corrected Sep 15 2017
+      fout << " rejected"  << std::endl;
+      continue;
+      //      }
+      //      else fout << std::endl;
     }
     if(las_id != 447) {
       fout << " entry " << entry << " run " << run << " sequence " << seq_id 
@@ -1339,16 +1361,27 @@ void popcon::EcalPedestalsHandler::readPedestalTimestamp() {
       continue;
     }
     if(bfield < 3.79) {
-      fout << " entry " << entry << " run " << run << " sequence " << seq_id << " run_time " << run_time
+      //      fout << " entry " << entry << " run " << run << " sequence " << seq_id << " run_time " << run_time
+      fout << " entry " << entry << " run " << run << " sequence " << seq_id 
 	   << " ***********  bfield = " << bfield << std::endl;
       //      continue;  keep these runs
     }
     fout << " entry "<< entry << " run " << run << " sequence " << seq_id;
-    if(run_type == 1) fout << " stable " << run_time_stablebeam;
+    if(run_type == 1) {
+      fout << " stable " << run_time_stablebeam;
+      if(run_time_stablebeam < first_run_kept) {
+	fout << " before first wanted " << m_firstRun << std::endl;
+	continue;
+      }
+    }
     firsttimeFED = time[0];
     for(int ifed = 0; ifed < 54; ifed++) {
       //      fout << " " << time[ifed];
       if(time[ifed] > firsttimeFEDold && firsttimeFED < time[ifed]) firsttimeFED = time[ifed];  // take the first AFTER the previous sequence one!...
+    }
+    if(firsttimeFED < first_run_kept) {
+      fout << " time " << firsttimeFED << " before first wanted " << m_firstRun << std::endl;
+      continue;
     }
     fout << " time " << firsttimeFED << std::endl;
     if(firsttimeFED <= firsttimeFEDold) {
@@ -1363,13 +1396,17 @@ void popcon::EcalPedestalsHandler::readPedestalTimestamp() {
     //    if(run != runold) firstSeqAfterStable = false;
     if(fill_num != fillold) firstSeqAfterStable = false;
     if(run_type == 1) {
-      if(firsttimeFED > run_time_stablebeam) {
-	if(!firstSeqAfterStable) {
-	  firstSeqAfterStable = true;
-	  firsttimeFED = run_time_stablebeam;
-	  fout << " first sequence after stable; change the IOV " << firsttimeFED << std::endl;
+      if(run_time_stablebeam > 0) {
+	if(firsttimeFED > run_time_stablebeam) {
+	  if(!firstSeqAfterStable) {
+	    firstSeqAfterStable = true;
+	    firsttimeFED = run_time_stablebeam;
+	    fout << " first sequence after stable; change the IOV " << firsttimeFED << std::endl;
+	  }
 	}
       }
+      else   //  problem with run_time_stablebeam
+	fout << " *** entry " << entry << " run_time_stablebeam " << run_time_stablebeam << std::endl;
     }  // only collision runs
 
     for(int ich = 0; ich < kChannels; ich++) {
@@ -1381,12 +1418,13 @@ void popcon::EcalPedestalsHandler::readPedestalTimestamp() {
     // get gain 1 and 6 results
     bool foundNew = false;
     if(run != runold) {
-      for(int i = run16Index; i < 26; i++) {
+      for(int i = run16Index; i < Nbpedxml; i++) {
 	if(run > pedxml[i]) {
 	  fout << " found a new gain 1, 6 file " <<  pedxml[i] << " at index " << i << std::endl;
 	  run16Index++;
 	  foundNew = true;
-	  if(runold < pedxml[i + 1]) break;
+	  //	  if(runold < pedxml[i + 1]) break;   why runold??
+	  if(run < pedxml[i + 1]) break;
 	}
       }
       if(foundNew) {
@@ -1476,6 +1514,8 @@ void popcon::EcalPedestalsHandler::readPedestalTimestamp() {
     }  // end loop over all channels
     uint64_t iov  = (uint64_t)firsttimeFED << 32;
     Time_t snc = (Time_t) iov;
+    transfer++;
+    fout << " entry " << entry << " transfer " << transfer << " iov " << iov << std::endl;
     m_to_transfer.push_back(std::make_pair((EcalPedestals*)pedestal, snc));   // time based IOV
     fout << "  m_to_transfer " << firsttimeFED << std::endl;
     runold = run;

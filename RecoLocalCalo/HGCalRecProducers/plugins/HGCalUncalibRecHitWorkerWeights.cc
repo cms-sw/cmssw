@@ -44,7 +44,7 @@ void configureIt(const edm::ParameterSet& conf,
     maker.set_TDCLSB(-1.);
     maker.set_tdcOnsetfC(-1.);
   } 
-    
+
   if( conf.exists(toaLSB_ns) ) {
     maker.set_toaLSBToNS(conf.getParameter<double>(toaLSB_ns));
   } else {

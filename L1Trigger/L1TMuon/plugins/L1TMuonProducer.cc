@@ -21,13 +21,12 @@
 // system include files
 #include <memory>
 #include <fstream>
-#include <sstream>
 
 // user include files
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -57,17 +56,15 @@
 //
 using namespace l1t;
 
-  class L1TMuonProducer : public edm::EDProducer {
+  class L1TMuonProducer : public edm::stream::EDProducer<> {
      public:
         explicit L1TMuonProducer(const edm::ParameterSet&);
         ~L1TMuonProducer() override;
 
         static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-     private:
-        void beginJob() override ;
+
         void produce(edm::Event&, const edm::EventSetup&) override;
-        void endJob() override ;
 
         void beginRun(edm::Run const&, edm::EventSetup const&) override;
         void endRun(edm::Run const&, edm::EventSetup const&) override;
@@ -500,17 +497,6 @@ L1TMuonProducer::convertMuons(const edm::Handle<MicroGMTConfiguration::InputColl
   for (int i = 0; i < 12; ++i) {
     if(wedges[i].size() > 3) edm::LogWarning("Input Mismatch") << " too many inputs per processor for barrel. Wedge " << i << ": Size " << wedges[i].size() << std::endl;
   }
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void
-L1TMuonProducer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void
-L1TMuonProducer::endJob() {
 }
 
 // ------------ method called when starting to processes a run  ------------

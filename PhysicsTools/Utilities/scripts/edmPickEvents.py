@@ -119,9 +119,9 @@ def getFileNames_das_client(event):
 
 def getFileNames_dasgoclient(event):
     """Return files for given DAS query via dasgoclient"""
-    query = "file dataset=%(dataset)s run=%(run)i lumi=%(lumi)i | grep file.name" % event
-    cmd = 'dasgoclient -query="%s" -json'
-    proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    query = "file dataset=%(dataset)s run=%(run)i lumi=%(lumi)i" % event
+    cmd = ['dasgoclient', '-query', query, '-json']
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     files = []
     err = proc.stderr.read()
     if  err:

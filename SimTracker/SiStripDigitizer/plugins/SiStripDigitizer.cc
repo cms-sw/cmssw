@@ -200,11 +200,11 @@ void SiStripDigitizer::initializeEvent(edm::Event const& iEvent, edm::EventSetup
   if(changes) { // Replace with ESWatcher
     detectorUnits.clear();
   }
-  for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); ++iu) {
-    unsigned int detId = (*iu)->geographicalId().rawId();
-    if((*iu)->type().isTrackerStrip()) {
-      auto stripdet = dynamic_cast<StripGeomDetUnit const*>((*iu));
-      assert(stripdet != 0);
+  for( const auto& iu : pDD->detUnits()) {
+    unsigned int detId = iu->geographicalId().rawId();
+    if(iu->type().isTrackerStrip()) {
+      auto stripdet = dynamic_cast<StripGeomDetUnit const*>(iu);
+      assert(stripdet != nullptr);
       if(changes) { // Replace with ESWatcher
         detectorUnits.insert(std::make_pair(detId, stripdet));
       }
@@ -232,26 +232,26 @@ void SiStripDigitizer::finalizeEvent(edm::Event& iEvent, edm::EventSetup const& 
   theDigiVector.reserve(10000);
   theDigiVector.clear();
 
-  for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
+  for( const auto& iu : pDD->detUnits()) {
     if(useConfFromDB){
       //apply the cable map _before_ digitization: consider only the detis that are connected 
-      if(theDetIdList.find((*iu)->geographicalId().rawId())==theDetIdList.end())
+      if(theDetIdList.find(iu->geographicalId().rawId())==theDetIdList.end())
         continue;
     }
-    auto sgd = dynamic_cast<StripGeomDetUnit const*>((*iu));
-    if (sgd != 0){
-      edm::DetSet<SiStripDigi> collectorZS((*iu)->geographicalId().rawId());
-      edm::DetSet<SiStripRawDigi> collectorRaw((*iu)->geographicalId().rawId());
-      edm::DetSet<StripDigiSimLink> collectorLink((*iu)->geographicalId().rawId());
+    auto sgd = dynamic_cast<StripGeomDetUnit const*>(iu);
+    if (sgd != nullptr){
+      edm::DetSet<SiStripDigi> collectorZS(iu->geographicalId().rawId());
+      edm::DetSet<SiStripRawDigi> collectorRaw(iu->geographicalId().rawId());
+      edm::DetSet<StripDigiSimLink> collectorLink(iu->geographicalId().rawId());
       theDigiAlgo->digitize(collectorZS,collectorRaw,collectorLink,sgd,
                             gainHandle,thresholdHandle,noiseHandle,pedestalHandle,theAffectedAPVvector,randomEngine(iEvent.streamID()));
       if(zeroSuppression){
-        if(collectorZS.data.size()>0){
+        if(!collectorZS.data.empty()){
           theDigiVector.push_back(collectorZS);
           if( !collectorLink.data.empty() ) pOutputDigiSimLink->insert(collectorLink);
         }
       }else{
-        if(collectorRaw.data.size()>0){
+        if(!collectorRaw.data.empty()){
           theRawDigiVector.push_back(collectorRaw);
           if( !collectorLink.data.empty() ) pOutputDigiSimLink->insert(collectorLink);
         }

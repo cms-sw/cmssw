@@ -927,6 +927,12 @@ bool L1TdeStage2CaloLayer2::compareSums(
   l1t::EtSumBxCollection::const_iterator dataIt = dataCol->begin(currBx);
   l1t::EtSumBxCollection::const_iterator emulIt = emulCol->begin(currBx);
 
+  // if either data or emulator collections are empty, or they have different
+  // size, mark the event as bad (this should never occur in normal running)
+  if (dataCol->isEmpty(currBx) == 0 || emulCol->isEmpty(currBx) == 0 ||
+      (dataCol->size() != emulCol->size()))
+    return false;
+
   while(true) {
 
     // It should be possible to implement this with a switch statement

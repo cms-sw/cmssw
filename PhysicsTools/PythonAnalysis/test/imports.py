@@ -1,7 +1,8 @@
 #!/usr/bin/env python
+import traceback
+import os, sys
 
 baseDirs=[]
-import os
 from subprocess import Popen,PIPE
 for p in ['py2-pippkgs','py2-pippkgs_depscipy']:
     comm="scram tool info "+p+" | grep PYTHONPATH | cut -f2 -d="
@@ -24,7 +25,7 @@ for baseDir in baseDirs:
 
 print l
 
-skipIt=['pytest','climate','xrootdpyfs','theanets','hyperopt','thriftpy']
+skipIt=['pytest','climate','theanets','hyperopt','thriftpy']
 # climate misses plac
 # pytest misses py
 # theanets misses plac
@@ -33,8 +34,15 @@ skipIt=['pytest','climate','xrootdpyfs','theanets','hyperopt','thriftpy']
 #hyperopt misses builtins
 #thriftpy misses ply
 import importlib
+err = 0
 for i in l:
     if i in skipIt: continue
     print "Importing",i,".....",
-    importlib.import_module(i)
-    print "Done"
+    try:
+      importlib.import_module(i)
+      print "Done"
+    except Exception as e:
+      print "Fail"
+      print traceback.format_exc()
+      err += 1
+sys.exit(err)

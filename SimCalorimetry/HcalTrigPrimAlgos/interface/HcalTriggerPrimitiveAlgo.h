@@ -155,6 +155,7 @@ public:
      IntegerCaloSamples samples;
      QIE10DataFrame digi;
      std::vector<bool> validity;
+     std::vector<bool> fgbit;
   };
   typedef std::map<HcalTrigTowerDetId, std::map<uint32_t, std::array<HFUpgradeDetails, 4>>> HFUpgradeDetailMap;
   HFUpgradeDetailMap theHFUpgradeDetailMap;

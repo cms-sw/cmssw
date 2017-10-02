@@ -11,9 +11,9 @@ public:
   //-------------------------
   GflashPiKShowerProfile (const edm::ParameterSet& parSet) : 
     GflashHadronShowerProfile (parSet) {}; 
-  ~GflashPiKShowerProfile () {};
+  ~GflashPiKShowerProfile () override {};
 
-  void loadParameters();
+  void loadParameters() override;
 };
 
 #endif

@@ -71,17 +71,25 @@ namespace edm {
 
     using ProductRegistryHelper::produces;
     using ProductRegistryHelper::typeLabelList;
+    using ProductRegistryHelper::recordProvenanceList;
 
     void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func) {
        callWhenNewProductsRegistered_ = func;
     }
     
+    using ModuleToResolverIndicies = std::unordered_multimap<std::string,
+    std::tuple<edm::TypeID const*, const char*, edm::ProductResolverIndex>>;
     void resolvePutIndicies(BranchType iBranchType,
-                            std::unordered_multimap<std::string, edm::ProductResolverIndex> const& iIndicies,
+                            ModuleToResolverIndicies const& iIndicies,
                             std::string const& moduleLabel);
     
     std::vector<edm::ProductResolverIndex> const& indiciesForPutProducts(BranchType iBranchType) const {
       return putIndicies_[iBranchType];
+    }
+    
+    std::vector<edm::ProductResolverIndex> const&
+    putTokenIndexToProductResolverIndex() const {
+      return putTokenToResolverIndex_;
     }
   private:
     friend class EDProducer;
@@ -92,6 +100,7 @@ namespace edm {
     friend class global::EDFilterBase;
     friend class limited::EDProducerBase;
     friend class limited::EDFilterBase;
+    friend class PuttableSourceBase;
     template<typename T> friend class stream::ProducingModuleAdaptorBase;
     
     template< typename P>
@@ -99,13 +108,14 @@ namespace edm {
       iPrincipal.commit_(putIndicies_[producerbasehelper::PrincipalTraits<P>::kBranchType]);
     }
 
-    template< typename P, typename L, typename I>
-    void commit_(P& iPrincipal, L* iList, I* iID) {
-      iPrincipal.commit_(putIndicies_[producerbasehelper::PrincipalTraits<P>::kBranchType], iList,iID);
+    template< typename P, typename I>
+    void commit_(P& iPrincipal, I* iID) {
+      iPrincipal.commit_(putIndicies_[producerbasehelper::PrincipalTraits<P>::kBranchType], iID);
     }
 
     std::function<void(BranchDescription const&)> callWhenNewProductsRegistered_;
     std::array<std::vector<edm::ProductResolverIndex>, edm::NumBranchTypes> putIndicies_;
+    std::vector<edm::ProductResolverIndex> putTokenToResolverIndex_;
   };
 }
 #endif

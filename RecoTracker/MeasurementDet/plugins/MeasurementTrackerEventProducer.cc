@@ -6,6 +6,11 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+#include "CondFormats/SiPixelObjects/interface/CablingPathToDetUnit.h"
+#include "CondFormats/SiPixelObjects/interface/PixelROC.h"
+#include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
+
+#include <algorithm>
 
 MeasurementTrackerEventProducer::MeasurementTrackerEventProducer(const edm::ParameterSet &iConfig) :
     measurementTrackerLabel_(iConfig.getParameter<std::string>("measurementTracker")),
@@ -13,6 +18,12 @@ MeasurementTrackerEventProducer::MeasurementTrackerEventProducer(const edm::Para
 {
     std::vector<edm::InputTag> inactivePixelDetectorTags(iConfig.getParameter<std::vector<edm::InputTag> >("inactivePixelDetectorLabels"));
     for (auto &t : inactivePixelDetectorTags) theInactivePixelDetectorLabels.push_back(consumes<DetIdCollection>(t));
+
+    if ( iConfig.exists("badPixelFEDChannelCollectionLabels") ) {
+      std::vector<edm::InputTag> badPixelFEDChannelCollectionTags(iConfig.getParameter<std::vector<edm::InputTag> >("badPixelFEDChannelCollectionLabels"));
+      for (auto &t : badPixelFEDChannelCollectionTags) theBadPixelFEDChannelsLabels.push_back(consumes<PixelFEDChannelCollection>(t));
+      pixelCablingMapLabel_ = iConfig.getParameter<std::string> ("pixelCablingMapLabel");
+    }
 
     std::vector<edm::InputTag> inactiveStripDetectorTags(iConfig.getParameter<std::vector<edm::InputTag> >("inactiveStripDetectorLabels"));
     for (auto &t : inactiveStripDetectorTags) theInactiveStripDetectorLabels.push_back(consumes<DetIdCollection>(t));
@@ -58,7 +69,7 @@ MeasurementTrackerEventProducer::produce(edm::Event &iEvent, const edm::EventSet
     std::vector<bool> phase2ClustersToSkip;
     // fill them
     updateStrips(iEvent, *stripData, stripClustersToSkip);
-    updatePixels(iEvent, *pixelData, pixelClustersToSkip);
+    updatePixels(iEvent, *pixelData, pixelClustersToSkip, dynamic_cast<const TrackerGeometry&>(*(measurementTracker->geomTracker())), iSetup);
     updatePhase2OT(iEvent, *phase2OTData);
     updateStacks(iEvent, *phase2OTData);
 
@@ -72,7 +83,8 @@ MeasurementTrackerEventProducer::produce(edm::Event &iEvent, const edm::EventSet
 }
 
 void 
-MeasurementTrackerEventProducer::updatePixels( const edm::Event& event, PxMeasurementDetSet & thePxDets, std::vector<bool> & pixelClustersToSkip ) const
+MeasurementTrackerEventProducer::updatePixels( const edm::Event& event, PxMeasurementDetSet & thePxDets, std::vector<bool> & pixelClustersToSkip, 
+					       const TrackerGeometry& trackerGeom, const edm::EventSetup& iSetup) const
 {
   // start by clearinng everything
   thePxDets.setEmpty();
@@ -104,6 +116,53 @@ MeasurementTrackerEventProducer::updatePixels( const edm::Event& event, PxMeasur
         thePxDets.setActiveThisEvent(i,false);
     }
   }
+
+  if (!theBadPixelFEDChannelsLabels.empty()) {
+    edm::ESHandle<SiPixelFedCablingMap> cablingMap;
+    iSetup.get<SiPixelFedCablingMapRcd>().get(pixelCablingMapLabel_, cablingMap);
+
+    edm::Handle<PixelFEDChannelCollection> pixelFEDChannelCollectionHandle;
+    for (const edm::EDGetTokenT<PixelFEDChannelCollection>& tk: theBadPixelFEDChannelsLabels) {
+      if (!event.getByToken(tk, pixelFEDChannelCollectionHandle)) continue;
+      int i=0;
+      for (const auto& disabledChannels: *pixelFEDChannelCollectionHandle) {	
+	PxMeasurementDetSet::BadFEDChannelPositions positions;
+	for(const auto& ch: disabledChannels) {
+	  const sipixelobjects::PixelROC *roc_first=nullptr, *roc_last=nullptr;
+	  sipixelobjects::CablingPathToDetUnit path = {ch.fed, ch.link, 0};
+	  // PixelFEDChannelCollection addresses the ROCs by their 'idInDetUnit' (from 0 to 15), ROCs also know their on 'idInDetUnit',
+	  // however the cabling map uses a numbering [1,numberOfROCs], see sipixelobjects::PixelFEDLink::roc(unsigned int id), not necessarily sorted in the same direction.
+	  // PixelFEDChannelCollection MUST be filled such that ch.roc_first (ch.roc_last) correspond to the lowest (highest) 'idInDetUnit' in the channel
+	  for (path.roc=1; path.roc<=(ch.roc_last-ch.roc_first)+1; path.roc++) {
+	    const sipixelobjects::PixelROC *roc = cablingMap->findItem(path);
+	    if (roc==nullptr) continue;
+	    assert(roc->rawId()==disabledChannels.detId());
+	    if (roc->idInDetUnit()==ch.roc_first) roc_first=roc;
+	    if (roc->idInDetUnit()==ch.roc_last) roc_last=roc;
+	  }
+	  if (roc_first==nullptr || roc_last==nullptr) { 
+	    edm::LogError("PixelFEDChannelCollection")<<"Do not find either roc_first or roc_last in the cabling map."; 
+	    continue; 
+	  }
+	  const PixelGeomDetUnit * theGeomDet = dynamic_cast<const PixelGeomDetUnit*> (trackerGeom.idToDet(roc_first->rawId()));
+	  PixelTopology const * topology = &(theGeomDet->specificTopology());
+	  sipixelobjects::LocalPixel::RocRowCol local = {topology->rowsperroc()/2, topology->colsperroc()/2};   //corresponding to center of ROC row, col
+	  sipixelobjects::GlobalPixel global = roc_first->toGlobal(sipixelobjects::LocalPixel(local));
+	  LocalPoint lp1 = topology->localPosition(MeasurementPoint(global.row, global.col));
+	  global = roc_last->toGlobal(sipixelobjects::LocalPixel(local));
+	  LocalPoint lp2 = topology->localPosition(MeasurementPoint(global.row, global.col));
+	  LocalPoint ll(std::min(lp1.x(), lp2.x()), std::min(lp1.y(), lp2.y()), std::min(lp1.z(), lp2.z()));
+	  LocalPoint ur(std::max(lp1.x(), lp2.x()), std::max(lp1.y(), lp2.y()), std::max(lp1.z(), lp2.z()));	  
+	  positions.push_back(std::make_pair(ll, ur));
+	} // loop on channels
+	if (!positions.empty()) {
+	  i=thePxDets.find(disabledChannels.detId(),i);
+	  assert(i!=thePxDets.size() && thePxDets.id(i)==disabledChannels.detId());
+	  thePxDets.addBadFEDChannelPositions(i, positions);
+	}
+      } // loop on DetId-s
+    } // loop on labels
+  } // if collection labels are populated
 
   // Pixel Clusters
   std::string pixelClusterProducer = pset_.getParameter<std::string>("pixelClusterProducer");

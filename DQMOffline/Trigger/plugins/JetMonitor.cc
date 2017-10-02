@@ -21,9 +21,9 @@ num_genTriggerEventFlag_ ( new GenericTriggerEventFlag(iConfig.getParameter<edm:
   folderName_            = iConfig.getParameter<std::string>("FolderName"); 
   jetSrc_  = mayConsume<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("jetSrc"));//jet 
   jetpT_variable_binning_  = iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetptBinning");
-  jetpT_binning           = getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("jetPSet")    );
-  jetptThr_binning_      = getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("jetPtThrPSet")    );
-  ls_binning_            = getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("lsPSet")     );
+  jetpT_binning            = getHistoPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("jetPSet")    );
+  jetptThr_binning_        = getHistoPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("jetPtThrPSet")    );
+  ls_binning_              = getHistoPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("lsPSet")     );
 
 
   ptcut_      = iConfig.getParameter<double>("ptcut" ); // for HLT Jet 
@@ -105,21 +105,24 @@ void JetMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   std::string hist_obtag = "";
   std::string histtitle_obtag = "";
   std::string currentFolder = folderName_ ;
-  ibooker.setCurrentFolder(currentFolder.c_str());
+  ibooker.setCurrentFolder(currentFolder);
 
   if (isPFJetTrig) {hist_obtag = "pfjet";          histtitle_obtag =  "PFJet";}
   else if (isCaloJetTrig) {hist_obtag = "calojet"; histtitle_obtag =  "CaloJet"; }
   else {hist_obtag = "pfjet"; histtitle_obtag =  "PFJet"; } //default is pfjet 
 
   bookMESub(ibooker,a_ME,sizeof(a_ME)/sizeof(a_ME[0]),hist_obtag,histtitle_obtag,"","");
-  bookMESub(ibooker,a_ME_HB,sizeof(a_ME_HB)/sizeof(a_ME_HB[0]),hist_obtag,histtitle_obtag,"HB","(HB)");
-  bookMESub(ibooker,a_ME_HE,sizeof(a_ME_HE)/sizeof(a_ME_HE[0]),hist_obtag,histtitle_obtag,"HE","(HE)");
-  bookMESub(ibooker,a_ME_HF,sizeof(a_ME_HF)/sizeof(a_ME_HF[0]),hist_obtag,histtitle_obtag,"HF","(HF)");
-  bookMESub(ibooker,a_ME_HE_p,sizeof(a_ME_HE_p)/sizeof(a_ME_HE_p[0]),hist_obtag,histtitle_obtag,"HE_p","(HE+)");
-  bookMESub(ibooker,a_ME_HE_m,sizeof(a_ME_HE_m)/sizeof(a_ME_HE_m[0]),hist_obtag,histtitle_obtag,"HE_m","(HE-)");
-  bookMESub(ibooker,a_ME_HEP17,sizeof(a_ME_HEP17)/sizeof(a_ME_HEP17[0]),hist_obtag,histtitle_obtag,"HEP17","(HEP17)");
-  bookMESub(ibooker,a_ME_HEM17,sizeof(a_ME_HEM17)/sizeof(a_ME_HEM17[0]),hist_obtag,histtitle_obtag,"HEM17","(HEM17)");
-  bookMESub(ibooker,a_ME_HEP18,sizeof(a_ME_HEP18)/sizeof(a_ME_HEP18[0]),hist_obtag,histtitle_obtag,"HEP18","(HEP18)");
+  bookMESub(ibooker,a_ME_HB,sizeof(a_ME_HB)/sizeof(a_ME_HB[0]),hist_obtag,histtitle_obtag,"HB","(HB)",true, true, true, false); 
+  bookMESub(ibooker,a_ME_HE,sizeof(a_ME_HE)/sizeof(a_ME_HE[0]),hist_obtag,histtitle_obtag,"HE","(HE)", true, true, true, false);
+  bookMESub(ibooker,a_ME_HF,sizeof(a_ME_HF)/sizeof(a_ME_HF[0]),hist_obtag,histtitle_obtag,"HF","(HF)",true, true, true, false); 
+  bookMESub(ibooker,a_ME_HE_p,sizeof(a_ME_HE_p)/sizeof(a_ME_HE_p[0]),hist_obtag,histtitle_obtag,"HE_p","(HE+)",true, true, true, false); 
+  bookMESub(ibooker,a_ME_HE_m,sizeof(a_ME_HE_m)/sizeof(a_ME_HE_m[0]),hist_obtag,histtitle_obtag,"HE_m","(HE-)",true, true, true, false); 
+  bookMESub(ibooker,a_ME_HEP17,sizeof(a_ME_HEP17)/sizeof(a_ME_HEP17[0]),hist_obtag,histtitle_obtag,"HEP17","(HEP17)", true, false, false, false);
+  bookMESub(ibooker,a_ME_HEM17,sizeof(a_ME_HEM17)/sizeof(a_ME_HEM17[0]),hist_obtag,histtitle_obtag,"HEM17","(HEM17)", true, false, false, false);
+  bookMESub(ibooker,a_ME_HEP18,sizeof(a_ME_HEP18)/sizeof(a_ME_HEP18[0]),hist_obtag,histtitle_obtag,"HEP18","(HEP18)", false, false, false, false);
+
+  /*
+    WE WOULD NEED TURNON CURVES TO BE COMPARED NOT JUST THE ZOOM OF A 2D MAP !!!
 
   histname = hist_obtag +"AbsEtaVsPhi_HEP17"; histtitle = histtitle_obtag + " |eta| Vs phi (HEP17) ";
   bookME(ibooker,jetHEP17_AbsEtaVsPhi_,histname,histtitle, eta_binning_hep17_.nbins, eta_binning_hep17_.xmin, eta_binning_hep17_.xmax, phi_binning_hep17_.nbins,phi_binning_hep17_.xmin,phi_binning_hep17_.xmax);
@@ -128,6 +131,7 @@ void JetMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   histname = hist_obtag +"AbsEtaVsPhi_HEM17"; histtitle = histtitle_obtag + " |eta| Vs phi (HEM17) ";
   bookME(ibooker,jetHEM17_AbsEtaVsPhi_,histname,histtitle, eta_binning_hep17_.nbins, eta_binning_hep17_.xmin, eta_binning_hep17_.xmax, phi_binning_hep17_.nbins,phi_binning_hep17_.xmin,phi_binning_hep17_.xmax);
   setMETitle(jetHEM17_AbsEtaVsPhi_,histtitle_obtag + " |#eta|","#phi");
+  */
 
   histname = hist_obtag +"abseta_HEP17"; histtitle = histtitle_obtag + " |#eta| (HEP17) ";
   bookME(ibooker,jetHEP17_AbsEta_,histname,histtitle, eta_binning_hep17_.nbins, eta_binning_hep17_.xmin, eta_binning_hep17_.xmax);
@@ -177,7 +181,7 @@ void JetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 //    cout << "jetpt (view ) : " << ijet->pt() << endl;
   }
 
-  if (v_jetpt.size() < 1) {return;}
+  if ( v_jetpt.empty() ) return;
   double jetpt_ = v_jetpt[0];
   double jeteta_ = v_jeteta[0];
   double jetphi_ = v_jetphi[0];
@@ -185,75 +189,74 @@ void JetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   FillME(a_ME,jetpt_,jetphi_,jeteta_,ls,"denominator"); 
   if (isBarrel( jeteta_ ) )
   {
-     FillME(a_ME_HB,jetpt_,jetphi_,jeteta_,ls,"denominator"); 
+    FillME(a_ME_HB,jetpt_,jetphi_,jeteta_,ls,"denominator",true, true, true, false); 
   }
-  if (isEndCapP( jeteta_ ) )
+  else if (isEndCapP( jeteta_ ) )
   {
-     FillME(a_ME_HE,jetpt_,jetphi_,jeteta_,ls,"denominator"); 
-     FillME(a_ME_HE_p,jetpt_,jetphi_,jeteta_,ls,"denominator"); 
+    FillME(a_ME_HE,  jetpt_,jetphi_,jeteta_,ls,"denominator",true, true, true, false); 
+    FillME(a_ME_HE_p,jetpt_,jetphi_,jeteta_,ls,"denominator",true, true, true, false); 
   }
-  if (isEndCapM( jeteta_ ) )
+  else if (isEndCapM( jeteta_ ) )
   {
-     FillME(a_ME_HE,jetpt_,jetphi_,jeteta_,ls,"denominator"); 
-     FillME(a_ME_HE_m,jetpt_,jetphi_,jeteta_,ls,"denominator"); 
+    FillME(a_ME_HE,  jetpt_,jetphi_,jeteta_,ls,"denominator",true, true, true, false); 
+    FillME(a_ME_HE_m,jetpt_,jetphi_,jeteta_,ls,"denominator",true, true, true, false); 
   }
-  if (isForward( jeteta_ ) )
+  else if (isForward( jeteta_ ) )
   {
-     FillME(a_ME_HF,jetpt_,jetphi_,jeteta_,ls,"denominator"); 
+    FillME(a_ME_HF,jetpt_,jetphi_,jeteta_,ls,"denominator",true, true, true, false); 
   }
+
   if (isHEP17( jeteta_, jetphi_ ) )
   {
-     FillME(a_ME_HEP17,jetpt_,jetphi_,jeteta_,ls,"denominator");
-     jetHEP17_AbsEtaVsPhi_.denominator->Fill(abs(jeteta_),jetphi_);
-     jetHEP17_AbsEta_.denominator->Fill(abs(jeteta_));
+    FillME(a_ME_HEP17,jetpt_,jetphi_,jeteta_,ls,"denominator",true,false,false, false); // doPhi, doEta, doEtaPhi, doVsLS
+    jetHEP17_AbsEta_.denominator->Fill(abs(jeteta_));
   }
-  if (isHEM17( jeteta_, jetphi_ ) )
+  else if (isHEM17( jeteta_, jetphi_ ) )
   {
-     FillME(a_ME_HEM17,jetpt_,jetphi_,jeteta_,ls,"denominator"); 
-     jetHEM17_AbsEtaVsPhi_.denominator->Fill(abs(jeteta_),jetphi_);
+    FillME(a_ME_HEM17,jetpt_,jetphi_,jeteta_,ls,"denominator",true,false,false, false); // doPhi, doEta, doEtaPhi
      jetHEM17_AbsEta_.denominator->Fill(abs(jeteta_));
   }
-  if (isHEP18( jeteta_, jetphi_ ) )
+  else if (isHEP18( jeteta_, jetphi_ ) )
   {
-     FillME(a_ME_HEP18,jetpt_,jetphi_,jeteta_,ls,"denominator"); 
+    FillME(a_ME_HEP18,jetpt_,jetphi_,jeteta_,ls,"denominator",false,false,false, false); // doPhi, doEta, doEtaPhi 
   }
+
+
   if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return; // Require Numerator //
 
   FillME(a_ME,jetpt_,jetphi_,jeteta_,ls,"numerator"); 
-
   if (isBarrel( jeteta_ ) )
   {
-     FillME(a_ME_HB,jetpt_,jetphi_,jeteta_,ls,"numerator"); 
+    FillME(a_ME_HB,jetpt_,jetphi_,jeteta_,ls,"numerator",true, true, true, false); 
   }
-  if (isEndCapP( jeteta_ ) )
+  else if (isEndCapP( jeteta_ ) )
   {
-     FillME(a_ME_HE,jetpt_,jetphi_,jeteta_,ls,"numerator"); 
-     FillME(a_ME_HE_p,jetpt_,jetphi_,jeteta_,ls,"numerator"); 
+    FillME(a_ME_HE,  jetpt_,jetphi_,jeteta_,ls,"numerator",true, true, true, false); 
+    FillME(a_ME_HE_p,jetpt_,jetphi_,jeteta_,ls,"numerator",true, true, true, false); 
   }
-  if (isEndCapM( jeteta_ ) )
+  else if (isEndCapM( jeteta_ ) )
   {
-     FillME(a_ME_HE,jetpt_,jetphi_,jeteta_,ls,"numerator"); 
-     FillME(a_ME_HE_m,jetpt_,jetphi_,jeteta_,ls,"numerator"); 
+    FillME(a_ME_HE,  jetpt_,jetphi_,jeteta_,ls,"numerator",true, true, true, false); 
+    FillME(a_ME_HE_m,jetpt_,jetphi_,jeteta_,ls,"numerator",true, true, true, false); 
   }
-  if (isForward( jeteta_ ) )
+  else if (isForward( jeteta_ ) )
   {
-     FillME(a_ME_HF,jetpt_,jetphi_,jeteta_,ls,"numerator"); 
+    FillME(a_ME_HF,jetpt_,jetphi_,jeteta_,ls,"numerator",true, true, true, false); 
   }
+
   if (isHEP17( jeteta_, jetphi_ ) )
   {
-     FillME(a_ME_HEP17,jetpt_,jetphi_,jeteta_,ls,"numerator"); 
-     jetHEP17_AbsEtaVsPhi_.numerator->Fill(abs(jeteta_),jetphi_);
-     jetHEP17_AbsEta_.numerator->Fill(abs(jeteta_));
+    FillME(a_ME_HEP17,jetpt_,jetphi_,jeteta_,ls,"numerator",true,false,false, false); // doPhi, doEta, doEtaPhi, doVsLS
+    jetHEP17_AbsEta_.numerator->Fill(abs(jeteta_));
   }
-  if (isHEM17( jeteta_, jetphi_ ) )
+  else if (isHEM17( jeteta_, jetphi_ ) )
   {
-     FillME(a_ME_HEM17,jetpt_,jetphi_,jeteta_,ls,"numerator"); 
-     jetHEM17_AbsEtaVsPhi_.numerator->Fill(abs(jeteta_),jetphi_);
-     jetHEM17_AbsEta_.numerator->Fill(abs(jeteta_));
+    FillME(a_ME_HEM17,jetpt_,jetphi_,jeteta_,ls,"numerator",true,false,false,false); // doPhi, doEta, doEtaPhi, doVsLS
+    jetHEM17_AbsEta_.numerator->Fill(abs(jeteta_));
   }
-  if (isHEP18( jeteta_, jetphi_ ) )
+  else if (isHEP18( jeteta_, jetphi_ ) )
   {
-     FillME(a_ME_HEP18,jetpt_,jetphi_,jeteta_,ls,"numerator"); 
+    FillME(a_ME_HEP18,jetpt_,jetphi_,jeteta_,ls,"numerator",false,false,false,false); // doPhi, doEta, doEtaPhi, doVsLS
   }
 
 }
@@ -268,6 +271,8 @@ void JetMonitor::fillHistoPSetDescription(edm::ParameterSetDescription & pset)
 void JetMonitor::fillHistoLSPSetDescription(edm::ParameterSetDescription & pset)
 {
   pset.add<unsigned int>   ( "nbins", 2500);
+  pset.add<double>         ( "xmin",     0.);
+  pset.add<double>         ( "xmax",  2500.);
 }
 
 void JetMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
@@ -332,14 +337,14 @@ bool JetMonitor::isBarrel(double eta){
 //------------------------------------------------------------------------//
 bool JetMonitor::isEndCapM(double eta){
   bool output = false;
-  if (fabs(eta) <= 3.0 && fabs(eta) > 1.3 && (eta < 0) ) output=true;
+  if (fabs(eta) <= 3.0 && fabs(eta) > 1.3 && (eta < 0) ) output=true; // (mia) this magic number should come from some file in CMSSW !!!
   return output;
 }
 /// For Hcal Endcap Plus Area
 bool JetMonitor::isEndCapP(double eta){
   bool output = false;
   //if ( eta<=3.0 && eta >1.3) output=true;
-  if (fabs(eta) <= 3.0 && fabs(eta) > 1.3 && (eta > 0) ) output=true;
+  if (fabs(eta) <= 3.0 && fabs(eta) > 1.3 && (eta > 0) ) output=true; // (mia) this magic number should come from some file in CMSSW !!!
   return output;
 }
 /// For Hcal Forward Plus Area
@@ -353,14 +358,14 @@ bool JetMonitor::isHEP17(double eta, double phi){
   bool output = false;
   // phi -0.87 to -0.52 
   if (fabs(eta) <= 3.0 && fabs(eta) > 1.3 && (eta > 0) &&
-      phi > -0.87 && phi <= -0.52 ) {output=true;}
+      phi > -0.87 && phi <= -0.52 ) {output=true;} // (mia) this magic number should come from some file in CMSSW !!!
   return output;
 }
 /// For Hcal HEM17 Area
 bool JetMonitor::isHEM17(double eta, double phi){
   bool output = false;
   if (fabs(eta) <= 3.0 && fabs(eta) > 1.3 && (eta < 0) &&
-      phi > -0.87 && phi <= -0.52 ) {output=true;}
+      phi > -0.87 && phi <= -0.52 ) {output=true;} // (mia) this magic number should come from some file in CMSSW !!!
   return output;
 }
 /// For Hcal HEP18 Area
@@ -368,7 +373,7 @@ bool JetMonitor::isHEP18(double eta, double phi){
   bool output = false;
   // phi -0.87 to -0.52 
   if (fabs(eta) <= 3.0 && fabs(eta) > 1.3 && (eta > 0) &&
-      phi > -0.52 && phi <= -0.17 ) {output=true;}
+      phi > -0.52 && phi <= -0.17 ) {output=true;} // (mia) this magic number should come from some file in CMSSW !!!
   return output;
 
 }
@@ -379,7 +384,7 @@ bool JetMonitor::isHEP18(double eta, double phi){
       a_me[i].numerator = nullptr;
    }
 }*/
-void JetMonitor::FillME(JetME* a_me,double pt_, double phi_, double eta_, int ls_,const std::string& denu){
+void JetMonitor::FillME(JetME* a_me,double pt_, double phi_, double eta_, int ls_,const std::string& denu, bool doPhi, bool doEta, bool doEtaPhi, bool doVsLS){
    std::string isDeno = "";
    isDeno = denu;
    std::string DenoOrNume = "";
@@ -391,27 +396,28 @@ void JetMonitor::FillME(JetME* a_me,double pt_, double phi_, double eta_, int ls
       // 5 = eta vs phi, 6 = eta vs pt , 7 = abs(eta) , 8 = abs(eta) vs phi 
       a_me[0].denominator->Fill(pt_);// pt
       a_me[1].denominator->Fill(pt_);// jetpT Threshold binning for pt 
-      a_me[2].denominator->Fill(ls_,pt_);// pt vs ls
-      a_me[3].denominator->Fill(phi_);// phi 
-      a_me[4].denominator->Fill(eta_);// eta
-      a_me[5].denominator->Fill(eta_,phi_);// eta vs phi
-      a_me[6].denominator->Fill(eta_,pt_);// eta vs pT
+      if ( doVsLS   ) a_me[2].denominator->Fill(ls_,pt_);// pt vs ls
+      if ( doPhi    ) a_me[3].denominator->Fill(phi_);// phi       
+      if ( doEta    ) a_me[4].denominator->Fill(eta_);// eta
+      if ( doEtaPhi ) a_me[5].denominator->Fill(eta_,phi_);// eta vs phi
+      if ( doEta    ) a_me[6].denominator->Fill(eta_,pt_);// eta vs pT
    }
    else if (DenoOrNume == "numerator")
    {
       a_me[0].numerator->Fill(pt_);// pt 
       a_me[1].numerator->Fill(pt_);// jetpT Threshold binning for pt 
-      a_me[2].numerator->Fill(ls_,pt_);// pt vs ls
-      a_me[3].numerator->Fill(phi_);// phi
-      a_me[4].numerator->Fill(eta_);// eat
-      a_me[5].numerator->Fill(eta_,phi_);// eta vs phi
-      a_me[6].numerator->Fill(eta_,pt_);// eta vs pT 
+      if ( doVsLS   ) a_me[2].numerator->Fill(ls_,pt_);// pt vs ls
+      if ( doPhi    ) a_me[3].numerator->Fill(phi_);// phi
+      if ( doEta    ) a_me[4].numerator->Fill(eta_);// eat
+      if ( doEtaPhi ) a_me[5].numerator->Fill(eta_,phi_);// eta vs phi
+      if ( doEta    ) a_me[6].numerator->Fill(eta_,pt_);// eta vs pT 
    }
    else {
       edm::LogWarning("JetMonitor") << "CHECK OUT denu option in FillME !!! DenoOrNume ? : " << DenoOrNume << std::endl;
    }
 }
-void JetMonitor::bookMESub(DQMStore::IBooker & Ibooker , JetME* a_me,const int len_,const std::string& h_Name ,const std::string& h_Title, const std::string& h_subOptName , std::string h_suOptTitle ){
+void JetMonitor::bookMESub(DQMStore::IBooker & Ibooker , JetME* a_me,const int len_,const std::string& h_Name ,const std::string& h_Title, const std::string& h_subOptName , std::string h_suOptTitle, bool doPhi, bool doEta, bool doEtaPhi, bool doVsLS){
+
    std::string hName = h_Name;
    std::string hTitle = h_Title;
    std::string hSubN =""; 
@@ -470,30 +476,40 @@ void JetMonitor::bookMESub(DQMStore::IBooker & Ibooker , JetME* a_me,const int l
    bookME(Ibooker,a_me[1],hName,hTitle,jetptThr_binning_.nbins,jetptThr_binning_.xmin, jetptThr_binning_.xmax);
    setMETitle(a_me[1],h_Title + "pT [GeV]","events / [GeV]");
 
-   hName = h_Name + "pTVsLS" + hSubN; 
-   hTitle = h_Title+" vs LS " + hSubT;
-   bookME(Ibooker,a_me[2],hName,hTitle,ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax,jetpT_binning.xmin, jetpT_binning.xmax);
-   setMETitle(a_me[2],"LS",h_Title + "pT [GeV]");
+   if ( doVsLS ) {
+     hName = h_Name + "pTVsLS" + hSubN; 
+     hTitle = h_Title+" vs LS " + hSubT;
+     bookME(Ibooker,a_me[2],hName,hTitle,ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax,jetpT_binning.xmin, jetpT_binning.xmax);
+     setMETitle(a_me[2],"LS",h_Title + "pT [GeV]");
+   }
 
-   hName = h_Name + "phi" + hSubN;
-   hTitle = h_Title+" phi " + hSubT;
-   bookME(Ibooker,a_me[3],hName,hTitle, nbin_phi, minbin_phi,maxbin_phi );
-   setMETitle(a_me[3],h_Title +" #phi","events / 0.1 rad");
-   
-   hName = h_Name + "eta"+ hSubN;
-   hTitle = h_Title+" eta " + hSubT;
-   bookME(Ibooker,a_me[4],hName,hTitle, nbin_eta, minbin_eta, maxbin_eta);
-   setMETitle(a_me[4],h_Title + " #eta","events / #eta");
-   
-   hName = h_Name + "EtaVsPhi"+hSubN;
-   hTitle = h_Title+" eta Vs phi " + hSubT;
-   bookME(Ibooker,a_me[5],hName,hTitle, nbin_eta, minbin_eta, maxbin_eta, nbin_phi, minbin_phi, maxbin_phi);
-   setMETitle(a_me[5],h_Title + " #eta","#phi");
-   
-   hName = h_Name + "EtaVspT"+hSubN;
-   hTitle = h_Title+" eta Vs pT " + hSubT;
-   bookME(Ibooker,a_me[6],hName,hTitle, nbin_eta, minbin_eta, maxbin_eta, jetpT_binning.nbins,jetpT_binning.xmin, jetpT_binning.xmax);
-   setMETitle(a_me[6],h_Title + " #eta","Leading Jet pT [GeV]");
+   if ( doPhi ) {
+     hName = h_Name + "phi" + hSubN;
+     hTitle = h_Title+" phi " + hSubT;
+     bookME(Ibooker,a_me[3],hName,hTitle, nbin_phi, minbin_phi,maxbin_phi );
+     setMETitle(a_me[3],h_Title +" #phi","events / 0.1 rad");
+   }
+
+   if ( doEta ) {
+     hName = h_Name + "eta"+ hSubN;
+     hTitle = h_Title+" eta " + hSubT;
+     bookME(Ibooker,a_me[4],hName,hTitle, nbin_eta, minbin_eta, maxbin_eta);
+     setMETitle(a_me[4],h_Title + " #eta","events / #eta");
+   }
+
+   if ( doEtaPhi ) {
+     hName = h_Name + "EtaVsPhi"+hSubN;
+     hTitle = h_Title+" eta Vs phi " + hSubT;
+     bookME(Ibooker,a_me[5],hName,hTitle, nbin_eta, minbin_eta, maxbin_eta, nbin_phi, minbin_phi, maxbin_phi);
+     setMETitle(a_me[5],h_Title + " #eta","#phi");
+   }
+
+   if ( doEta ) {
+     hName = h_Name + "EtaVspT"+hSubN;
+     hTitle = h_Title+" eta Vs pT " + hSubT;
+     bookME(Ibooker,a_me[6],hName,hTitle, nbin_eta, minbin_eta, maxbin_eta, jetpT_binning.nbins,jetpT_binning.xmin, jetpT_binning.xmax);
+     setMETitle(a_me[6],h_Title + " #eta","Leading Jet pT [GeV]");
+   }
 
 }
 // Define this as a plug-in

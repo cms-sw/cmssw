@@ -53,14 +53,14 @@ namespace cms
     typedef std::unordered_map<unsigned, TrackerGeometry::ModuleType>  ModuleTypeCache;
 
     explicit Phase2TrackerDigitizer(const edm::ParameterSet& iConfig, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
-    virtual ~Phase2TrackerDigitizer();
-    virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
-    virtual void accumulate(edm::Event const& e, edm::EventSetup const& c) override;
-    virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
-    virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
+    ~Phase2TrackerDigitizer() override;
+    void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
+    void accumulate(edm::Event const& e, edm::EventSetup const& c) override;
+    void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
+    void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
     virtual void beginJob() {}
-    virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& iSetup) override;
-    virtual void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& iSetup) override; 
+    void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& iSetup) override;
+    void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& iSetup) override; 
 
     template <class T>
     void accumulate_local(T const& iEvent, edm::EventSetup const& iSetup);

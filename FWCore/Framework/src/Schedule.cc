@@ -5,6 +5,7 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
+#include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/SubProcess.h"
@@ -641,7 +642,7 @@ namespace edm {
     ParameterSet const& maxEventsPSet = proc_pset.getUntrackedParameterSet("maxEvents", ParameterSet());
     int maxEventSpecs = 0;
     int maxEventsOut = -1;
-    ParameterSet const* vMaxEventsOut = 0;
+    ParameterSet const* vMaxEventsOut = nullptr;
     std::vector<std::string> intNamesE = maxEventsPSet.getParameterNamesForType<int>(false);
     if (search_all(intNamesE, output)) {
       maxEventsOut = maxEventsPSet.getUntrackedParameter<int>(output);
@@ -661,7 +662,7 @@ namespace edm {
 
     for (auto& c : all_output_communicators_) {
       OutputModuleDescription desc(branchIDLists, maxEventsOut, subProcessParentageHelper);
-      if (vMaxEventsOut != 0 && !vMaxEventsOut->empty()) {
+      if (vMaxEventsOut != nullptr && !vMaxEventsOut->empty()) {
         std::string const& moduleLabel = c->description().moduleLabel();
         try {
           desc.maxEvents_ = vMaxEventsOut->getUntrackedParameter<int>(moduleLabel);
@@ -1068,6 +1069,16 @@ namespace edm {
       found->updateLookup(InRun,*runLookup);
       found->updateLookup(InLumi,*lumiLookup);
       found->updateLookup(InEvent,*eventLookup);
+      
+      auto const& processName = newMod->moduleDescription().processName();
+      auto const& runModuleToIndicies = runLookup->indiciesForModulesInProcess(processName);
+      auto const& lumiModuleToIndicies = lumiLookup->indiciesForModulesInProcess(processName);
+      auto const& eventModuleToIndicies = eventLookup->indiciesForModulesInProcess(processName);
+      found->resolvePutIndicies(InRun,runModuleToIndicies);
+      found->resolvePutIndicies(InLumi,lumiModuleToIndicies);
+      found->resolvePutIndicies(InEvent,eventModuleToIndicies);
+
+
     }
 
     return true;

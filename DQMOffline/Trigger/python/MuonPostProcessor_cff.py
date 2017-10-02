@@ -22,7 +22,10 @@ hltMuonEfficiencies = DQMEDHarvester("DQMGenericClient",
         "Refefficiency_TurnOn_Mu2 'Reference efficiency; Pt; N(pass) / N' Refefficiency_TurnOn_Mu2_numer Refefficiency_TurnOn_Mu2_denom",
         "Refefficiency_DZ_Mu 'Reference efficiency; d_{z}; N(pass) / N' Refefficiency_DZ_Mu_numer Refefficiency_DZ_Mu_denom",
         "Refefficiency_DZ_Vertex 'Reference efficiency; d_{z}; N(pass) / N' Refefficiency_DZ_Vertex_numer Refefficiency_DZ_Vertex_denom",
-
+        "Ref_SS_pt1 'Same sign efficiency'; p_{T}; N(pass) / N' Ref_SS_pt1_numer Ref_SS_pt1_denom",
+        "Ref_SS_pt2 'Same sign efficiency'; p_{T}; N(pass) / N' Ref_SS_pt2_numer Ref_SS_pt2_denom",
+        "Ref_SS_eta1 'Same sign efficiency'; p_{T}; N(pass) / N' Ref_SS_eta1_numer Ref_SS_eta1_denom",
+        "Ref_SS_eta2 'Same sign efficiency'; p_{T}; N(pass) / N' Ref_SS_eta2_numer Ref_SS_eta2_denom",
         ),
                                      
 

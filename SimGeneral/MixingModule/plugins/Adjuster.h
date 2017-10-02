@@ -36,11 +36,11 @@ namespace edm {
   public:
     Adjuster(InputTag const& tag, edm::ConsumesCollector&& iC, bool wrap);
 
-    virtual ~Adjuster() {}
+    ~Adjuster() override {}
 
-    virtual void doOffset(int bunchspace, int bcr, const edm::EventPrincipal&, ModuleCallingContext const*, unsigned int EventNr, int vertexOffset);
+    void doOffset(int bunchspace, int bcr, const edm::EventPrincipal&, ModuleCallingContext const*, unsigned int EventNr, int vertexOffset) override;
 
-    virtual bool checkSignal(edm::Event const& event) {
+    bool checkSignal(edm::Event const& event) override {
       bool got = false;
       edm::Handle<T> result_t;
       got = event.getByToken(token_, result_t);

@@ -20,8 +20,8 @@
 class HcalRealisticZS : public edm::stream::EDProducer<> {
 public:
   explicit HcalRealisticZS(const edm::ParameterSet& ps);
-  virtual ~HcalRealisticZS();
-  virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
+  ~HcalRealisticZS() override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 private:
   std::unique_ptr<HcalZSAlgoRealistic> algo_;
   std::string inputLabel_;

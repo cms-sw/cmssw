@@ -17,7 +17,7 @@ class RootNeutronReader : public NeutronReader
 public:
   RootNeutronReader(const std::string & fileName);
 
-  virtual void readNextEvent(int chamberType, edm::PSimHitContainer & result);
+  void readNextEvent(int chamberType, edm::PSimHitContainer & result) override;
 
   RootChamberReader & chamberReader(int chamberType);
 
