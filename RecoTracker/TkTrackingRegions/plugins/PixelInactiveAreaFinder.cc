@@ -132,7 +132,14 @@ void PixelInactiveAreaFinder::detGroupSpanInfo(const DetGroupSpan & cspan, Strea
   using std::left;
   using std::right;
   std::string deli = "; ";
-  ss  << "subdetid:[" << cspan.subdetId << "]" << deli
+  ss  << "subdetid:[" << cspan.subdetId << "]" << deli;
+  if(cspan.subdetId == PixelSubdetector::PixelBarrel) {
+    ss << "layer:[" << cspan.layer << "]" << deli;
+  }
+  else {
+    ss << "disk:[" << cspan.disk << "]" << deli;
+  }
+  ss
     //<< setfill(' ') << setw(36) << " "
       << setprecision(16)
       << showpos
