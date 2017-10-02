@@ -7,4 +7,17 @@
    <version ClassVersion="11" checksum="1218239916"/>
    <version ClassVersion="10" checksum="64579558"/>
   </class>
+  <class name="PixelFEDChannel" ClassVersion="3">
+   <version ClassVersion="3" checksum="2591256255"/>
+  </class>
+  <class name="std::vector<PixelFEDChannel>"/>
+  <class name="edm::EDCollection<PixelFEDChannel>"/>
+  <class name="edmNew::DetSet<PixelFEDChannel>"/>
+  <class name="std::vector<edmNew::DetSet<PixelFEDChannel> >"/>
+  <class name="edmNew::DetSetVector<PixelFEDChannel>"/>
+  <class name="edm::Wrapper<std::vector<PixelFEDChannel> >"/>
+  <class name="edm::Wrapper<edm::EDCollection<PixelFEDChannel> >"/>
+  <class name="edm::Wrapper<edmNew::DetSet<PixelFEDChannel> >"/>
+  <class name="edm::Wrapper<std::vector<edmNew::DetSet<PixelFEDChannel> > >"/>
+  <class name="edm::Wrapper<edmNew::DetSetVector<PixelFEDChannel> >"/>
 </lcgdict>

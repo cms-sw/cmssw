@@ -10,6 +10,8 @@ MeasurementTrackerEvent = cms.EDProducer("MeasurementTrackerEventProducer",
 
     # One or more DetIdCollections of modules to mask on the fly for a given event
     inactivePixelDetectorLabels = cms.VInputTag(cms.InputTag('siPixelDigis')),
+    badPixelFEDChannelCollectionLabels = cms.VInputTag(cms.InputTag('siPixelDigis')),
+    pixelCablingMapLabel = cms.string(''),
     inactiveStripDetectorLabels = cms.VInputTag(cms.InputTag('siStripDigis')),
     switchOffPixelsIfEmpty = cms.bool(True), # let's keep it like this, for cosmics                                    
 )
