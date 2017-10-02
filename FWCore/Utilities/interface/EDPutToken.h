@@ -36,6 +36,7 @@ namespace edm {
     friend class ProductRegistryHelper;
     
   public:
+    using value_type = unsigned int;
     
     EDPutToken() : m_value{s_uninitializedValue} {}
 
@@ -43,7 +44,7 @@ namespace edm {
     EDPutToken(EDPutTokenT<T> iOther): m_value{iOther.m_value} {}
 
     // ---------- const member functions ---------------------
-    unsigned int index() const { return m_value; }
+    value_type index() const { return m_value; }
     bool isUninitialized() const { return m_value == s_uninitializedValue; }
 
   private:
@@ -55,7 +56,7 @@ namespace edm {
     explicit EDPutToken(unsigned int iValue) : m_value(iValue) { }
 
     // ---------- member data --------------------------------
-    unsigned int m_value;
+    value_type m_value;
   };
 
   template<typename T>
@@ -65,11 +66,13 @@ namespace edm {
     friend class EDPutToken;
 
   public:
+    using value_type = EDPutToken::value_type;
 
+    
     EDPutTokenT() : m_value{s_uninitializedValue} {}
   
     // ---------- const member functions ---------------------
-    unsigned int index() const { return m_value; }
+    value_type index() const { return m_value; }
     bool isUninitialized() const { return m_value == s_uninitializedValue; }
 
   private:
@@ -81,7 +84,7 @@ namespace edm {
     explicit EDPutTokenT(unsigned int iValue) : m_value(iValue) { }
 
     // ---------- member data --------------------------------
-    unsigned int m_value;
+    value_type m_value;
   };
 }
 
