@@ -25,6 +25,7 @@ from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 # Stage-2 Trigger
 #
 if stage2L1Trigger.isChosen():
+    from L1Trigger.L1TTwinMux.fakeTwinMuxParams_cff import *
     from L1Trigger.L1TMuonBarrel.fakeBmtfParams_cff import *
     from L1Trigger.L1TMuonOverlap.fakeOmtfParams_cff import *
     from L1Trigger.L1TMuonEndCap.fakeEmtfParams_cff import *
