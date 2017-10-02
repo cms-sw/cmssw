@@ -6,5 +6,5 @@ from CommonTools.PileupAlgos.Puppi_cff import puppi
 from PhysicsTools.PatAlgos.slimming.primaryVertexAssociation_cfi import primaryVertexAssociation
 
 
-pfDeepFlavourTaskNew = cms.Task(puppi, primaryVertexAssociation,
-                                pfDeepFlavourTagInfos, pfDeepFlavourJetTags)
+pfDeepFlavourTask = cms.Task(puppi, primaryVertexAssociation,
+                             pfDeepFlavourTagInfos, pfDeepFlavourJetTags)
