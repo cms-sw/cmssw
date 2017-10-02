@@ -236,6 +236,23 @@ SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg, 
 
 SeedingLayerSetsBuilder::~SeedingLayerSetsBuilder() {}
 
+void SeedingLayerSetsBuilder::fillDescriptions(edm::ParameterSetDescription& desc) {
+  edm::ParameterSetDescription empty;
+  empty.setAllowAnything(); // for now accept any parameter in the PSets, consider improving later
+
+  desc.add<std::vector<std::string> >("layerList", {});
+  desc.add<edm::ParameterSetDescription>("BPix", empty);
+  desc.add<edm::ParameterSetDescription>("FPix", empty);
+  desc.add<edm::ParameterSetDescription>("TIB", empty);
+  desc.add<edm::ParameterSetDescription>("TID", empty);
+  desc.add<edm::ParameterSetDescription>("TOB", empty);
+  desc.add<edm::ParameterSetDescription>("TEC", empty);
+  desc.add<edm::ParameterSetDescription>("MTIB", empty);
+  desc.add<edm::ParameterSetDescription>("MTID", empty);
+  desc.add<edm::ParameterSetDescription>("MTOB", empty);
+  desc.add<edm::ParameterSetDescription>("MTEC", empty);
+}
+
 edm::ParameterSet SeedingLayerSetsBuilder::layerConfig(const std::string & nameLayer,const edm::ParameterSet& cfg) const
 {
   edm::ParameterSet result;

@@ -4,6 +4,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 
@@ -27,6 +28,8 @@ public:
   SeedingLayerSetsBuilder(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC);
   SeedingLayerSetsBuilder(const edm::ParameterSet & cfg, edm::ConsumesCollector&& iC);
   ~SeedingLayerSetsBuilder();
+
+  static void fillDescriptions(edm::ParameterSetDescription& desc);
 
   bool check(const edm::EventSetup& es);
   void updateEventSetup(const edm::EventSetup& es);

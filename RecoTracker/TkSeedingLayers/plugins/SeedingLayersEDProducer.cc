@@ -13,6 +13,8 @@ public:
   SeedingLayersEDProducer(const edm::ParameterSet& iConfig);
   ~SeedingLayersEDProducer() override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
@@ -25,6 +27,13 @@ SeedingLayersEDProducer::SeedingLayersEDProducer(const edm::ParameterSet& iConfi
   produces<SeedingLayerSetsHits>();
 }
 SeedingLayersEDProducer::~SeedingLayersEDProducer() {}
+
+void SeedingLayersEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  SeedingLayerSetsBuilder::fillDescriptions(desc);
+
+  descriptions.add("seedingLayersEDProducer", desc);
+}
 
 void SeedingLayersEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   builder_.updateEventSetup(iSetup);
