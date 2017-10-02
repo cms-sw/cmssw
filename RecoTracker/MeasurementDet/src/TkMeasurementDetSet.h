@@ -337,12 +337,14 @@ class PxMeasurementDetSet {
 public:
   typedef edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> SiPixelClusterRef;
   typedef edmNew::DetSet<SiPixelCluster> PixelDetSet;
+  typedef std::vector<std::pair<LocalPoint,LocalPoint> > BadFEDChannelPositions;
 
   PxMeasurementDetSet(const PxMeasurementConditionSet &cond) : 
     conditionSet_(&cond),
     detSet_(cond.nDet()),
     empty_(cond.nDet(), true),
-    activeThisEvent_(cond.nDet(), true)  {}
+    activeThisEvent_(cond.nDet(), true),
+    badFEDChannelPositionsSet_(cond.nDet()) {}
 
   const PxMeasurementConditionSet & conditions() const { return *conditionSet_; } 
 
@@ -361,16 +363,26 @@ public:
   bool empty(int i) const { return empty_[i];}  
   bool isActive(int i) const { return activeThisEvent_[i] && conditions().isActiveThisPeriod(i); }
 
-  void setEmpty(int i) {empty_[i] = true; activeThisEvent_[i] = true; }
+  void setEmpty(int i) {empty_[i] = true; activeThisEvent_[i] = true; badFEDChannelPositionsSet_[i].reset(); }
   
   void setEmpty() {
     std::fill(empty_.begin(),empty_.end(),true);
     std::fill(activeThisEvent_.begin(), activeThisEvent_.end(),true);
+    std::fill(badFEDChannelPositionsSet_.begin(), badFEDChannelPositionsSet_.end(), nullptr);
   }
   void setActiveThisEvent(bool active) {
     std::fill(activeThisEvent_.begin(), activeThisEvent_.end(),active);
   }
   
+  const BadFEDChannelPositions* getBadFEDChannelPositions(int i) const { return badFEDChannelPositionsSet_[i].get(); }
+  void addBadFEDChannelPositions(int i, BadFEDChannelPositions& positions) { 
+    if (badFEDChannelPositionsSet_[i]==nullptr) {
+      badFEDChannelPositionsSet_[i]=std::make_unique<BadFEDChannelPositions>(positions);
+      return;
+    }
+    badFEDChannelPositionsSet_[i]->insert(badFEDChannelPositionsSet_[i]->end(), positions.begin(), positions.end());
+  }
+
   /** \brief Turn on/off the module for reconstruction for one events.
       This per-event flag is cleared by any call to 'update' or 'setEmpty'  */
   void setActiveThisEvent(int i, bool active) { activeThisEvent_[i] = active;  if (!active) empty_[i] = true; }
@@ -389,6 +401,7 @@ private:
   std::vector<PixelDetSet> detSet_;
   std::vector<bool> empty_;
   std::vector<bool> activeThisEvent_;
+  std::vector<std::unique_ptr<BadFEDChannelPositions> > badFEDChannelPositionsSet_;
 };
 
 //FIXME:just temporary solution for phase2 OT that works!
