@@ -39,7 +39,7 @@ class TriggerObjectTableProducer : public edm::global::EDProducer<> {
             idDoc_ = idstr.str();
             bitsDoc_ = qualitystr.str();
 
-            produces<FlatTable>();
+            produces<nanoaod::FlatTable>();
         }
 
         ~TriggerObjectTableProducer() override {}
@@ -136,14 +136,14 @@ TriggerObjectTableProducer::produce(edm::StreamID, edm::Event& iEvent, const edm
         }
     }
 
-    auto tab  = std::make_unique<FlatTable>(nobj, name_, false, false);
-    tab->addColumn<int>("id", id, idDoc_, FlatTable::IntColumn);
-    tab->addColumn<float>("pt", pt, "pt", FlatTable::FloatColumn, 12);
-    tab->addColumn<float>("eta", eta, "eta", FlatTable::FloatColumn, 12);
-    tab->addColumn<float>("phi", phi, "phi", FlatTable::FloatColumn, 12);
-    tab->addColumn<float>("l1pt", l1pt, "pt of associated L1 seed", FlatTable::FloatColumn, 10);
-    tab->addColumn<float>("l2pt", l2pt, "pt of associated 'L2' seed (i.e. HLT before tracking/PF)", FlatTable::FloatColumn, 10);
-    tab->addColumn<float>("filterBits", bits, "extra bits of associated information: "+bitsDoc_, FlatTable::FloatColumn, 10);
+    auto tab  = std::make_unique<nanoaod::FlatTable>(nobj, name_, false, false);
+    tab->addColumn<int>("id", id, idDoc_, nanoaod::FlatTable::IntColumn);
+    tab->addColumn<float>("pt", pt, "pt", nanoaod::FlatTable::FloatColumn, 12);
+    tab->addColumn<float>("eta", eta, "eta", nanoaod::FlatTable::FloatColumn, 12);
+    tab->addColumn<float>("phi", phi, "phi", nanoaod::FlatTable::FloatColumn, 12);
+    tab->addColumn<float>("l1pt", l1pt, "pt of associated L1 seed", nanoaod::FlatTable::FloatColumn, 10);
+    tab->addColumn<float>("l2pt", l2pt, "pt of associated 'L2' seed (i.e. HLT before tracking/PF)", nanoaod::FlatTable::FloatColumn, 10);
+    tab->addColumn<float>("filterBits", bits, "extra bits of associated information: "+bitsDoc_, nanoaod::FlatTable::FloatColumn, 10);
     iEvent.put(std::move(tab));
 }
 

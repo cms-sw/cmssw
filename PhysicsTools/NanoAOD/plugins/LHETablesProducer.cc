@@ -15,13 +15,13 @@ class LHETablesProducer : public edm::global::EDProducer<> {
         LHETablesProducer( edm::ParameterSet const & params ) :
             lheTag_(consumes<LHEEventProduct>(params.getParameter<edm::InputTag>("lheInfo")))
         {
-            produces<FlatTable>();
+            produces<nanoaod::FlatTable>();
         }
 
         ~LHETablesProducer() override {}
 
         void produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const override {
-            auto lheTab  = std::make_unique<FlatTable>(1, "LHE", true);
+            auto lheTab  = std::make_unique<nanoaod::FlatTable>(1, "LHE", true);
 
             edm::Handle<LHEEventProduct> lheInfo;
             if (iEvent.getByToken(lheTag_, lheInfo)) {
@@ -31,7 +31,7 @@ class LHETablesProducer : public edm::global::EDProducer<> {
             iEvent.put(std::move(lheTab));
         }
 
-        void fillLHEObjectTable(const LHEEventProduct & lheProd, FlatTable & out) const {
+        void fillLHEObjectTable(const LHEEventProduct & lheProd, nanoaod::FlatTable & out) const {
             double lheHT = 0, lheHTIncoming = 0;
             unsigned int lheNj = 0, lheNb = 0, lheNc = 0, lheNuds = 0, lheNglu = 0;
             double lheVpt = 0;
@@ -73,14 +73,14 @@ class LHETablesProducer : public edm::global::EDProducer<> {
                 lheVpt = std::hypot( pup[v.first][0] + pup[v.second][0], pup[v.first][1] + pup[v.second][1] ); 
             }
 
-            out.addColumnValue<uint8_t>("Njets", lheNj, "Number of jets (partons) at LHE step", FlatTable::UInt8Column);
-            out.addColumnValue<uint8_t>("Nb",    lheNb, "Number of b partons at LHE step", FlatTable::UInt8Column);
-            out.addColumnValue<uint8_t>("Nc",    lheNc, "Number of c partons at LHE step", FlatTable::UInt8Column);
-            out.addColumnValue<uint8_t>("Nuds", lheNuds, "Number of u,d,s partons at LHE step", FlatTable::UInt8Column);
-            out.addColumnValue<uint8_t>("Nglu", lheNglu, "Number of gluon partons at LHE step", FlatTable::UInt8Column);
-            out.addColumnValue<float>("HT", lheHT, "HT, scalar sum of parton pTs at LHE step", FlatTable::FloatColumn);
-            out.addColumnValue<float>("HTIncoming", lheHTIncoming, "HT, scalar sum of parton pTs at LHE step, restricted to partons", FlatTable::FloatColumn);
-            out.addColumnValue<float>("Vpt", lheVpt, "pT of the W or Z boson at LHE step", FlatTable::FloatColumn);
+            out.addColumnValue<uint8_t>("Njets", lheNj, "Number of jets (partons) at LHE step", nanoaod::FlatTable::UInt8Column);
+            out.addColumnValue<uint8_t>("Nb",    lheNb, "Number of b partons at LHE step", nanoaod::FlatTable::UInt8Column);
+            out.addColumnValue<uint8_t>("Nc",    lheNc, "Number of c partons at LHE step", nanoaod::FlatTable::UInt8Column);
+            out.addColumnValue<uint8_t>("Nuds", lheNuds, "Number of u,d,s partons at LHE step", nanoaod::FlatTable::UInt8Column);
+            out.addColumnValue<uint8_t>("Nglu", lheNglu, "Number of gluon partons at LHE step", nanoaod::FlatTable::UInt8Column);
+            out.addColumnValue<float>("HT", lheHT, "HT, scalar sum of parton pTs at LHE step", nanoaod::FlatTable::FloatColumn);
+            out.addColumnValue<float>("HTIncoming", lheHTIncoming, "HT, scalar sum of parton pTs at LHE step, restricted to partons", nanoaod::FlatTable::FloatColumn);
+            out.addColumnValue<float>("Vpt", lheVpt, "pT of the W or Z boson at LHE step", nanoaod::FlatTable::FloatColumn);
         }
 
         static void fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
