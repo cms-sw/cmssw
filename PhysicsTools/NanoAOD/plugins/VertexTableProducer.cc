@@ -149,12 +149,12 @@ VertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     for (const auto & sv : *svsIn) {
        if (svCut_(sv)) {
            Measurement1D dl= vdist.distance((*pvsIn)[0],VertexState(RecoVertex::convertPos(sv.position()),RecoVertex::convertError(sv.error())));
-	   if(dl.value() > dlenMin_ and dl.significance() > dlenSigMin_){
-                dlen.push_back(dl.value());	
-                dlenSig.push_back(dl.significance());	
-	 	edm::Ptr<reco::Candidate> c =  svsIn->ptrAt(i);
-		selCandSv->push_back(c);
-	   }
+           if(dl.value() > dlenMin_ and dl.significance() > dlenSigMin_){
+               dlen.push_back(dl.value());
+               dlenSig.push_back(dl.significance());
+               edm::Ptr<reco::Candidate> c =  svsIn->ptrAt(i);
+               selCandSv->push_back(c);
+           }
        }
        i++;
     }
