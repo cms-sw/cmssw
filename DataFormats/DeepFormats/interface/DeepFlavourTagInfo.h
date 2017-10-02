@@ -20,7 +20,7 @@ template<class Features> class FeaturesTagInfo : public BaseTagInfo {
       features_(features),
       jet_ref_(jet_ref) {}
 
-    virtual edm::RefToBase<Jet> jet() const { return jet_ref_; }
+    edm::RefToBase<Jet> jet() const override { return jet_ref_; }
 
     const Features & features() const { return features_; }
 

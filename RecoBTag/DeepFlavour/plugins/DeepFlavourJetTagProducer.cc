@@ -37,7 +37,7 @@ class DeepFlavourJetTagProducer : public edm::stream::EDProducer<edm::GlobalCach
 
   public:
     explicit DeepFlavourJetTagProducer(const edm::ParameterSet&, const Cache*);
-    ~DeepFlavourJetTagProducer();
+    ~DeepFlavourJetTagProducer() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
@@ -48,9 +48,9 @@ class DeepFlavourJetTagProducer : public edm::stream::EDProducer<edm::GlobalCach
     typedef std::vector<reco::DeepFlavourTagInfo> TagInfoCollection;
     typedef reco::JetTagCollection JetTagCollection;
 
-    virtual void beginStream(edm::StreamID) override {}
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
-    virtual void endStream() override {}
+    void beginStream(edm::StreamID) override {}
+    void produce(edm::Event&, const edm::EventSetup&) override;
+    void endStream() override {}
 
     const edm::EDGetTokenT< TagInfoCollection > src_;
     std::vector<std::pair<std::string,std::vector<unsigned int>>> flav_pairs_;
@@ -240,7 +240,7 @@ void DeepFlavourJetTagProducer::produce(edm::Event& iEvent, const edm::EventSetu
 
   // create output collection
   for (std::size_t i=0; i < flav_pairs_.size(); i++) {
-    if (tag_infos->size() > 0) {
+    if (!tag_infos->empty()) {
       auto jet_ref = tag_infos->begin()->jet();
       output_tags.emplace_back(std::make_unique<JetTagCollection>(
             edm::makeRefToBaseProdFrom(jet_ref, iEvent)));
