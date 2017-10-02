@@ -54,7 +54,7 @@ m_dtdigi      = consumes<L1MuDTChambPhContainer>(pset.getParameter<edm::InputTag
 m_dtthetadigi = consumes<L1MuDTChambThContainer>(pset.getParameter<edm::InputTag>("DTThetaDigi_Source"));
 m_rpcsource   = consumes<RPCDigiCollection>(pset.getParameter<edm::InputTag>("RPC_Source"));
 
-produces<L1MuDTChambPhContainer>("TwinMuxEmulator");
+produces<L1MuDTChambPhContainer>();
 
 }
 
@@ -93,7 +93,7 @@ void L1TTwinMuxProducer::produce(edm::Event& e, const edm::EventSetup& c) {
   m_l1tma->run(phiDigis, thetaDigis, rpcDigis,c);
   *l1ttmp = m_l1tma->get_ph_tm_output();
 
-  e.put(std::move(l1ttmp),"TwinMuxEmulator");
+  e.put(std::move(l1ttmp));
   //  e.put(std::move(l1ttmp));
 }
 

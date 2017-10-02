@@ -78,7 +78,7 @@ process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 #)
 #
 #process.L1TwinMuxProducerEmulator = process.L1TwinMuxProducer.clone(
-#     twinmuxOutputDigis = cms.InputTag("simTwinMuxDigis:TwinMuxEmulator"),
+#     twinmuxOutputDigis = cms.InputTag("simTwinMuxDigis"),
 #     twinmuxInputPhDigis = cms.InputTag("twinMuxStage2Digis:PhIn"),
 #        twinmuxInputThDigis = cms.InputTag("twinMuxStage2Digis:ThIn"),
 #     twinmuxInputRPCDigis = cms.InputTag("RPCTwinMuxRawToDigi")
