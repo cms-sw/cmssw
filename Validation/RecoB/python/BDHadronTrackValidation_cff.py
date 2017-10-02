@@ -14,7 +14,15 @@ from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import *
 BDHadronTrackMonitoringAnalyze.PatJetSource = cms.InputTag('patJetsBDHadron')
 
 bdHadronTrackValidationSeq = cms.Sequence(BDHadronTrackMonitoringAnalyze,
-                                          cms.Task(patJetCorrectionsTask, patJetsBDHadron)
+                                          cms.Task(patJetCorrectionsTask
+                                                   , patJetCharge
+                                                   , patJetPartonMatch
+                                                   , patJetGenJetMatch
+                                                   , patJetFlavourIdLegacyTask
+                                                   , patJetFlavourIdTask
+                                                   , patJetsBDHadron
+                                                   , tpClusterProducer)
 ) 
+
 					
 bdHadronTrackPostProcessor = cms.Sequence(BDHadronTrackMonitoringHarvest)
