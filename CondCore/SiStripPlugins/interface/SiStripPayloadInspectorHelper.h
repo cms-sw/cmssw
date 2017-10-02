@@ -6,6 +6,7 @@
 #include <string>
 #include "TH1.h"
 #include "TPaveText.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"   
 #include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h" 
 
@@ -257,6 +258,34 @@ namespace SiStripPI {
       
     }
   }
+
+
+  
+  // code is mutuated from CalibTracker/SiStripQuality/plugins/SiStripQualityStatistics
+
+  /*--------------------------------------------------------------------*/
+  void setBadComponents(int i, int component, SiStripQuality::BadComponent& BC,int NBadComponent[4][19][4])
+  /*--------------------------------------------------------------------*/
+  {
+   
+    if (BC.BadApvs){
+      NBadComponent[i][0][2]+= ( (BC.BadApvs>>5)&0x1 )+ ( (BC.BadApvs>>4)&0x1 ) + ( (BC.BadApvs>>3)&0x1 ) + 
+	( (BC.BadApvs>>2)&0x1 )+ ( (BC.BadApvs>>1)&0x1 ) + ( (BC.BadApvs)&0x1 );
+      NBadComponent[i][component][2]+= ( (BC.BadApvs>>5)&0x1 )+ ( (BC.BadApvs>>4)&0x1 ) + ( (BC.BadApvs>>3)&0x1 ) + 
+	( (BC.BadApvs>>2)&0x1 )+ ( (BC.BadApvs>>1)&0x1 ) + ( (BC.BadApvs)&0x1 );
+    }
+
+    if (BC.BadFibers){ 
+      NBadComponent[i][0][1]+= ( (BC.BadFibers>>2)&0x1 )+ ( (BC.BadFibers>>1)&0x1 ) + ( (BC.BadFibers)&0x1 );
+      NBadComponent[i][component][1]+= ( (BC.BadFibers>>2)&0x1 )+ ( (BC.BadFibers>>1)&0x1 ) + ( (BC.BadFibers)&0x1 );
+    }   
+
+    if (BC.BadModule){
+      NBadComponent[i][0][0]++;
+      NBadComponent[i][component][0]++;
+    }
+  }
+
 };
 
 #endif
