@@ -306,8 +306,8 @@ SiPixelPhase1ClustersChargeVsSizeOnTrack = DefaultHistoTrack.clone(
   title = "Cluster Charge vs. Cluster Size (OnTrack)",
   xlabel = "size[pixels]",
   ylabel = "Cluster charge",
-  range_min =  0, range_max = 30, range_nbins = 30,
-  range_y_min = 0, range_y_max = 150e3, range_y_nbins = 150,
+  range_min =  0, range_max = 30, range_nbins = 15,
+  range_y_min = 0, range_y_max = 80e3, range_y_nbins = 100,
   dimensions = 2,
   specs = VPSet(
     Specification().groupBy("PXBarrel/PXLayer").save(),
