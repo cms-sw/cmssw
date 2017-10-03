@@ -990,12 +990,12 @@ namespace {
 	ss << "\nTEC- Disk " << i-9 << " :\t\t"<<NBadComponent[3][i][0]<<"\t"<<NBadComponent[3][i][1]<<"\t"<<NBadComponent[3][i][2]<<"\t"<<NBadComponent[3][i][3];
       ss<< "\n";
 
-      //edm::LogInfo("SiStripQualityStatistics") << ss.str() << std::endl;
+      //edm::LogInfo("SiStripBadStrip_PayloadInspector") << ss.str() << std::endl;
       std::cout<<  ss.str() << std::endl;
 
       TH2I *masterTable = new TH2I("table","",4,0.,4.,39,0.,39.);
       
-      std::string labelsX[4]={"Modules","Fibers","APVs","Strips"};
+      std::string labelsX[4]={"Bad Modules","Bad Fibers","Bad APVs","Bad Strips"};
       std::string labelsY[40]={"Tracker","TIB","TID","TOB","TEC","TIB Layer 1","TIB Layer 2","TIB Layer 3","TIB Layer 4","TID+ Disk 1","TID+ Disk 2","TID+ Disk 3","TID- Disk 1","TID- Disk 2","TID- Disk 3","TOB Layer 1","TOB Layer 2","TOB Layer 3","TOB Layer 4","TOB Layer 5","TOB Layer 6","TEC+ Disk 1","TEC+ Disk 2","TEC+ Disk 3","TEC+ Disk 4","TEC+ Disk 5","TEC+ Disk 6","TEC+ Disk 7","TEC+ Disk 8","TEC+ Disk 9","TEC- Disk 1","TEC- Disk 2","TEC- Disk 3","TEC- Disk 4","TEC- Disk 5","TEC- Disk 6","TEC- Disk 7","TEC- Disk 8","TEC- Disk 9"};
 
       for(int iX=0;iX<=3;iX++){
@@ -1005,26 +1005,40 @@ namespace {
       for(int iY=39;iY>=1;iY--){
 	masterTable->GetYaxis()->SetBinLabel(iY,labelsY[39-iY].c_str());
       }
-
-
+                                 
+      //                        0 1 2  3   
+      int layerBoundaries[4] = {4,6,6,18};
+      std::vector<int> boundaries;
+      boundaries.push_back(39); 
+      boundaries.push_back(35);
+ 
+      int cursor=0;
+      int layerIndex=0;
       for(int iY=39;iY>=1;iY--){
        	for(int iX=0;iX<=3;iX++){
        	  if(iY==39){ 
        	    masterTable->SetBinContent(iX+1,iY,NTkBadComponent[iX]);
       	  } else if (iY>=35){
 	    masterTable->SetBinContent(iX+1,iY,NBadComponent[(39-iY)-1][0][iX]);
-	  } 
-	  //else {
-	  //  masterTable->SetBinContent(iX+1,iY,NBadComponent[]);
-	  //}
+	  } else {      
+	    if(iX==0) layerIndex++;
+	    //std::cout<<"iY:"<<iY << " cursor: "  <<cursor << " layerIndex: " << layerIndex << " layer check: "<< layerBoundaries[cursor] <<std::endl;
+	    masterTable->SetBinContent(iX+1,iY,NBadComponent[cursor][layerIndex][iX]);
+	  }
        	}
+	if(layerIndex==layerBoundaries[cursor]){
+	  // bring on the subdet counter and reset the layer count
+	  cursor++;
+	  layerIndex=0;
+	  boundaries.push_back(iY);
+	}
       }
 
       TCanvas canv("canv","canv",800,800);
       canv.cd();
 
       canv.SetTopMargin(0.05);
-      canv.SetBottomMargin(0.09);
+      canv.SetBottomMargin(0.07);
       canv.SetLeftMargin(0.18);
       canv.SetRightMargin(0.05);
 
@@ -1032,6 +1046,20 @@ namespace {
       canv.SetGrid();
      
       masterTable->Draw("text");
+
+      canv.Update();
+      canv.cd();
+
+      TLine l[boundaries.size()];
+      unsigned int i=0;
+      for (const auto & line : boundaries){
+        l[i] = TLine(canv.cd()->GetUxmin(),masterTable->GetYaxis()->GetBinLowEdge(line),canv.cd()->GetUxmax(),masterTable->GetYaxis()->GetBinLowEdge(line));
+	l[i].SetLineWidth(2);
+	l[i].SetLineStyle(9);
+	l[i].SetLineColor(kMagenta);
+	l[i].Draw("same");
+	i++;
+      }
 
       std::string fileName(m_imageFileName);
       canv.SaveAs(fileName.c_str());
