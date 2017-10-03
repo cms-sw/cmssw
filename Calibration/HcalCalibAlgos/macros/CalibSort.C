@@ -227,8 +227,8 @@ void CalibSort::Init(TTree *tree) {
   t_HitEnergies3 = 0;
   t_trgbits      = 0;
   // Set branch addresses and branch pointers
-  if (!tree) return;
   fChain = tree;
+  if (!tree) return;
   fCurrent = -1;
   fChain->SetMakeClass(1);
 

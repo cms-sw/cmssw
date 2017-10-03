@@ -46,6 +46,9 @@ float CalibCorr::getCorr(int run, unsigned int id) {
     if (itr != corrFac_[ip].end()) cfac = itr->second;
   }
   if (debug_) {
+    // The maskings are defined in DataFormats/DetId/interface/DetId.h
+    //                      and in DataFormats/HcalDetId/interface/HcalDetId.h
+    // The macro does not invoke the classes there and use them
     int subdet = (idx >> 25) & (0x7);
     int depth  = (idx >> 20) & (0xF);
     int zside  = (idx&0x80000)?(1):(-1);
@@ -60,7 +63,7 @@ float CalibCorr::getCorr(int run, unsigned int id) {
 
 void CalibCorr::readCorr(const std::string& infile) {
 
-  std::ifstream fInput(infile.c_str());
+  std::ifstream fInput(infile);
   unsigned int ncorr(0);
   if (!fInput.good()) {
     std::cout << "Cannot open file " << infile << std::endl;

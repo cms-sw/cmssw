@@ -87,7 +87,7 @@
 #include <vector>
 #include <string>
 
-#include <CalibCorr.C>
+#include "CalibCorr.C"
 
 class CalibMonitor {
 public :
@@ -282,7 +282,7 @@ CalibMonitor::CalibMonitor(const std::string& fname,
 }
 
 CalibMonitor::~CalibMonitor() {
-  if (cFactor_) delete cFactor_;
+  delete cFactor_;
   if (!fChain)  return;
   delete fChain->GetCurrentFile();
 }
@@ -654,10 +654,10 @@ void CalibMonitor::Loop() {
   std::ofstream fileout;
   if (((flag_/100)%10)>0) {
     if (((flag_/100)%10)==2) {
-      fileout.open(outTxtFileName_.c_str(), std::ofstream::out);
+      fileout.open(outTxtFileName_, std::ofstream::out);
       std::cout << "Opens " << outTxtFileName_ << " in output mode" <<std::endl;
     } else {
-      fileout.open(outTxtFileName_.c_str(), std::ofstream::app);
+      fileout.open(outTxtFileName_, std::ofstream::app);
       std::cout << "Opens " << outTxtFileName_ << " in append mode" <<std::endl;
     }
     fileout << "Input file: " << fname_ << " Directory: " << dirnm_ 
@@ -769,6 +769,7 @@ void CalibMonitor::Loop() {
     if (corrE_) {
       eHcal = 0;
       for (unsigned int k=0; k<t_HitEnergies->size(); ++k) {
+	// The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
 	int depth  = ((*t_DetIds)[k] >> 20) & (0xF);
 	int zside  = ((*t_DetIds)[k]&0x80000)?(1):(-1);
 	int ieta   = ((*t_DetIds)[k] >> 10) & (0x1FF);
@@ -874,6 +875,7 @@ bool CalibMonitor::GoodTrack(double& eHcal, double &cuti, bool debug) {
     double ediff = (t_eHcal30-t_eHcal10);
     if (t_DetIds1 != 0 && t_DetIds3 != 0) {
       double Etot1(0), Etot3(0);
+      // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
       for (unsigned int idet=0; idet<(*t_DetIds1).size(); idet++) { 
 	int depth  = ((*t_DetIds1)[idet] >> 20) & (0xF);
 	int zside  = ((*t_DetIds1)[idet]&0x80000)?(1):(-1);
@@ -921,6 +923,7 @@ bool CalibMonitor::SelectPhi(bool debug) {
   bool   select(true);
   if (phimin_ > 1 || phimax_ < 72) {
     double eTotal(0), eSelec(0);
+    // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
     for (unsigned int k=0; k<t_HitEnergies->size(); ++k) {
       int iphi  = ((*t_DetIds)[k]) & (0x3FF);
       int zside = ((*t_DetIds)[k]&0x80000)?(1):(-1);
