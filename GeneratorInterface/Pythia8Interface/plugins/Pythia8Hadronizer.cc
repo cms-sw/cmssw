@@ -440,7 +440,7 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
 
   edm::LogInfo("Pythia8Interface") << "Initializing MasterGen";
   if( vincia ) {
-    vincia->init(); status = 1;
+    vincia->init(); status = true;
   } else {
     status = fMasterGen->init();
   }
