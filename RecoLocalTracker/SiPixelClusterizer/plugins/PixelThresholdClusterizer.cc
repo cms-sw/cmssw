@@ -230,7 +230,7 @@ void PixelThresholdClusterizer::copy_to_buffer( DigiIterator begin, DigiIterator
     // std::cout << (doMissCalibrate ? "VI from db" : "VI linear") << std::endl;
   }
 #endif
-  int electron[end-begin];
+  int electron[end-begin]; // pixel charge in electrons 
   memset(electron, 0, sizeof(electron));
   if ( doMissCalibrate ) {
     if (layer_==1) {
@@ -266,12 +266,16 @@ void PixelThresholdClusterizer::copy_to_buffer( DigiIterator begin, DigiIterator
   for(DigiIterator di = begin; di != end; ++di) {
     int row = di->row();
     int col = di->column();
-    int adc = electron[i++];
+    int adc = electron[i++]; // this is in electrons 
+
 #ifdef PIXELREGRESSION
     int adcOld = calibrate(di->adc(),col,row);
     //assert(adc==adcOld);
     if (adc!=adcOld) std::cout << "VI " << eqD  <<' '<< ic  <<' '<< end-begin <<' '<< i <<' '<< di->adc() <<' ' << adc <<' '<< adcOld << std::endl; else ++eqD;
 #endif
+
+    if(adc<100) adc=100; // put all negative pixel charges into the 100 elec bin 
+
     if ( adc >= thePixelThreshold) {
       theBuffer.set_adc( row, col, adc);
       if ( adc >= theSeedThreshold) theSeeds.push_back( SiPixelCluster::PixelPos(row,col) );
@@ -324,8 +328,8 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row)
 	  //const float pedestal = -28.2 * gain; // -79.
 	  
 	  float DBgain     = theSiPixelGainCalibrationService_->getGain(detid_, col, row);
-	  float DBpedestal = theSiPixelGainCalibrationService_->getPedestal(detid_, col, row) * DBgain;
-	  
+	  float pedestal   = theSiPixelGainCalibrationService_->getPedestal(detid_, col, row);
+	  float DBpedestal = pedestal * DBgain;
 	  
 	  // Roc-6 average
 	  //const float gain = 1./0.313; // 1 ADC = 3.19 VCALs 
@@ -351,6 +355,7 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row)
 	  } else {
 	    electrons = int( vcal * theConversionFactor + theOffset); 
 	  }
+
 	}
     }
   else 

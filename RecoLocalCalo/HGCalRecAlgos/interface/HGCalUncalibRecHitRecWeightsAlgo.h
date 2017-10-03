@@ -53,7 +53,7 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
   virtual HGCUncalibratedRecHit makeRecHit( const C& dataFrame ) {
     double amplitude_(-1.),  pedestal_(-1.), jitter_(-1.), chi2_(-1.);
     uint32_t flag = 0;
-    
+
     constexpr int iSample=2; //only in-time sample
     const auto& sample = dataFrame.sample(iSample);
     
@@ -69,7 +69,7 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
         // LG (11/04/2016):
         // offset the TDC upwards to reflect the bin center
 	amplitude_ = ( std::floor(tdcOnsetfC_/adcLSB_) + 1.0 )* adcLSB_ + ( double(sample.data()) + 0.5) * tdcLSB_;
-	jitter_    = double(sample.toa()) * toaLSBToNS_;
+	if(sample.getToAValid()) jitter_    = double(sample.toa()) * toaLSBToNS_;
 	LogDebug("HGCUncalibratedRecHit") << "TDC+: set the charge to: " << amplitude_ << ' ' << sample.data() 
                                           << ' ' << tdcLSB_ << std::endl
                                           << "TDC+: set the ToA to: " << jitter_ << ' ' 
@@ -77,8 +77,11 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
                                           << " flag=" << flag << std::endl;
       } else {
 	amplitude_ = double(sample.data()) * adcLSB_;
+	if(sample.getToAValid()) jitter_    = double(sample.toa()) * toaLSBToNS_;
 	LogDebug("HGCUncalibratedRecHit") << "ADC+: set the charge to: " << amplitude_ << ' ' << sample.data() 
-                                          << ' ' << adcLSB_ << ' ' << std::endl;
+                                          << ' ' << adcLSB_ << ' ' 
+					  << "TDC+: set the ToA to: " << jitter_ << ' '
+                                          << sample.toa() << ' ' << toaLSBToNS_ << ' '<< std::endl;
       }
     } else {
       amplitude_ = double(sample.data()) * adcLSB_;
@@ -90,7 +93,7 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
     if( ddd_ != nullptr ) {
       HGCalDetId hid(dataFrame.id());
       thickness = ddd_->waferTypeL(hid.wafer());
-    }
+    }    
     amplitude_ = amplitude_/fCPerMIP_[thickness-1];
 
     LogDebug("HGCUncalibratedRecHit") << "Final uncalibrated amplitude : " << amplitude_ << std::endl;

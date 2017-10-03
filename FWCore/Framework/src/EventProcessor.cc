@@ -1004,6 +1004,11 @@ namespace edm {
 
   void EventProcessor::endRun(ProcessHistoryID const& phid, RunNumber_t run, bool cleaningUpAfterException) {
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(phid, run);
+    runPrincipal.setAtEndTransition(true);
+    //We need to reset failed items since they might
+    // be set this time around
+    runPrincipal.resetFailedFromThisProcess();
+
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
 
@@ -1050,7 +1055,6 @@ namespace edm {
       auto globalWaitTask = make_empty_waiting_task();
       globalWaitTask->increment_ref_count();
 
-      runPrincipal.setAtEndTransition(true);
       typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> Traits;
       endGlobalTransitionAsync<Traits>(WaitingTaskHolder(globalWaitTask.get()),
                                        *schedule_,
@@ -1141,6 +1145,11 @@ namespace edm {
 
   void EventProcessor::endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool cleaningUpAfterException) {
     LuminosityBlockPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(phid, run, lumi);
+    lumiPrincipal.setAtEndTransition(true);
+    //We need to reset failed items since they might
+    // be set this time around
+    lumiPrincipal.resetFailedFromThisProcess();
+
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
 
@@ -1187,7 +1196,6 @@ namespace edm {
       auto globalWaitTask = make_empty_waiting_task();
       globalWaitTask->increment_ref_count();
       
-      lumiPrincipal.setAtEndTransition(true);
       typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> Traits;
       endGlobalTransitionAsync<Traits>(WaitingTaskHolder(globalWaitTask.get()),
                                        *schedule_,

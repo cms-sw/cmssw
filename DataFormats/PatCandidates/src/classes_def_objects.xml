@@ -107,7 +107,8 @@
    <version ClassVersion="10" checksum="2244564938"/>
   </class>
 
-  <class name="pat::IsolatedTrack" ClassVersion="4">
+  <class name="pat::IsolatedTrack" ClassVersion="5">
+   <version ClassVersion="5" checksum="139818330"/>
    <version ClassVersion="4" checksum="71166093"/>
    <version ClassVersion="3" checksum="550880582"/>
   </class>
@@ -305,7 +306,8 @@
   <class name="pat::PackedCandidate::PackedCovariance" ClassVersion="3">
    <version ClassVersion="3" checksum="3320406063"/>
   </class>
-  <class name="pat::PackedCandidate" ClassVersion="31">
+  <class name="pat::PackedCandidate" ClassVersion="32">
+   <version ClassVersion="32" checksum="926869123"/>
    <version ClassVersion="31" checksum="1248040002"/>
    <version ClassVersion="30" checksum="3338823671"/>
    <version ClassVersion="29" checksum="649303924"/>

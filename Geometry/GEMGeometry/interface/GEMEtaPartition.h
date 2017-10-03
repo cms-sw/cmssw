@@ -9,7 +9,7 @@
 class StripTopology;
 class GEMEtaPartitionSpecs;
 
-class GEMEtaPartition : public GeomDetUnit
+class GEMEtaPartition : public GeomDet
 {
 public:
   

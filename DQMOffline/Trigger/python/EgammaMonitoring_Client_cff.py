@@ -58,7 +58,7 @@ def makeAllEGEffHistDefs():
 
 
 egTPEffClient = cms.EDProducer("DQMGenericClient",
-                               subDirs        = cms.untracked.vstring("HLT/EGTagAndProbeEffs/*"),
+                               subDirs        = cms.untracked.vstring("HLT/EGM/TagAndProbeEffs/*"),
                                verbose        = cms.untracked.uint32(0), 
                                resolution     = cms.vstring(),
                                efficiency     = cms.vstring(),

@@ -20,9 +20,9 @@ from DQMOffline.Trigger.HLTTauDQMOffline_cff import *
 from DQMOffline.Trigger.JetMETHLTOfflineAnalyzer_cff import *
 
 # BTV
-from DQMOffline.Trigger.BTVHLTOfflineSource_cfi import *
+from DQMOffline.Trigger.BTVHLTOfflineSource_cff import *
 
-from DQMOffline.Trigger.FSQHLTOfflineSource_cfi import *
+from DQMOffline.Trigger.FSQHLTOfflineSource_cff import *
 from DQMOffline.Trigger.HILowLumiHLTOfflineSource_cfi import *
 
 # TnP
@@ -87,7 +87,7 @@ from DQMOffline.Trigger.JetMETPromptMonitor_cff import *
 offlineHLTSourceOnAOD = cms.Sequence(
     hltResults *
     lumiMonitorHLTsequence *
-    egHLTOffDQMSource *
+    egHLTOffDQMSource * ## NEEDED in VALIDATION, not really in MONITORING
     muonFullOfflineDQM *
     HLTTauDQMOffline *
     fsqHLTOfflineSourceSequence *
@@ -98,7 +98,7 @@ offlineHLTSourceOnAOD = cms.Sequence(
     topHLTriggerOfflineDQM *
     eventshapeDQMSequence *
     HeavyIonUCCDQMSequence *
-    hotlineDQMSequence *
+#    hotlineDQMSequence * ## ORPHAN !!!!
     egammaMonitorHLT * 
     exoticaMonitorHLT *
     susyMonitorHLT *
@@ -113,12 +113,46 @@ offlineHLTSourceOnAOD = cms.Sequence(
 )
 
 # offline DQM for running in the standard RECO,DQM (in PromptReco, ReReco, relval, etc)
+## THIS IS THE SEQUENCE TO BE RUN AT TIER0
 ## ADD here only sequences/modules which rely on transient collections produced by the RECO step
 ## and not stored in the AOD format
 offlineHLTSource = cms.Sequence(
     offlineHLTSourceOnAOD
     + hcalMonitoringSequence
     + jetMETHLTOfflineAnalyzer
+)
+
+# offline DQM to be run on AOD (w/o the need of the RECO step on-the-fly) only in the VALIDATION of the HLT menu based on data
+# it is needed in order to have the DQM code in the release, w/o the issue of crashing the tier0
+# asa the new modules in the sequence offlineHLTSourceOnAODextra are tested,
+# these have to be migrated in the main offlineHLTSourceOnAOD sequence
+offlineHLTSourceOnAODextra = cms.Sequence(
+### POG
+    btvHLTDQMSourceExtra
+    * egmHLTDQMSourceExtra
+    * jmeHLTDQMSourceExtra
+    * muoHLTDQMSourceExtra
+    * tauHLTDQMSourceExtra
+    * trkHLTDQMSourceExtra
+### PAG
+    * b2gHLTDQMSourceExtra
+    * bphHLTDQMSourceExtra
+    * exoHLTDQMSourceExtra
+    * higHLTDQMSourceExtra
+    * smpHLTDQMSourceExtra
+    * susHLTDQMSourceExtra
+    * topHLTDQMSourceExtra
+    * fsqHLTDQMSourceExtra
+#    * hinHLTDQMSourceExtra
+)
+
+# offline DQM to be run on AOD (w/o the need of the RECO step on-the-fly) in the VALIDATION of the HLT menu based on data
+# it is needed in order to have the DQM code in the release, w/o the issue of crashing the tier0
+# asa the new modules in the sequence offlineHLTSourceOnAODextra are tested
+# these have to be migrated in the main offlineHLTSourceOnAOD sequence
+offlineValidationHLTSource = cms.Sequence(
+    offlineHLTSourceOnAOD 
+    + offlineHLTSourceOnAODextra
 )
 
 # offline DQM for the HLTMonitoring stream

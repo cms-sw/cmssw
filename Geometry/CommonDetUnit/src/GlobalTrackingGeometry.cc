@@ -27,7 +27,7 @@ GlobalTrackingGeometry::~GlobalTrackingGeometry()
     theDetIds = nullptr;
 }
 
-const GeomDetUnit* GlobalTrackingGeometry::idToDetUnit(DetId id) const {
+const GeomDet* GlobalTrackingGeometry::idToDetUnit(DetId id) const {
     
     const TrackingGeometry* tg = slaveGeometry(id);
     
@@ -84,20 +84,20 @@ GlobalTrackingGeometry::detTypes( void ) const
    return *theDetTypes.load(std::memory_order_acquire);
 }
 
-const TrackingGeometry::DetUnitContainer&
+const TrackingGeometry::DetContainer&
 GlobalTrackingGeometry::detUnits( void ) const
 {
    if (!theDetUnits.load(std::memory_order_acquire)) {
-       std::unique_ptr<DetUnitContainer> ptr{new DetUnitContainer()};
+       std::unique_ptr<DetContainer> ptr{new DetContainer()};
        for(auto theGeometrie : theGeometries)
        {
         if( theGeometrie == nullptr ) continue;
-        DetUnitContainer detUnits(theGeometrie->detUnits());
+        DetContainer detUnits(theGeometrie->detUnits());
         if( detUnits.size() + ptr->size() < ptr->capacity()) ptr->resize( detUnits.size() + ptr->size());
         for(auto detUnit : detUnits)
           ptr->emplace_back( detUnit );
        }
-       DetUnitContainer* expect = nullptr;
+       DetContainer* expect = nullptr;
        if(theDetUnits.compare_exchange_strong(expect, ptr.get(), std::memory_order_acq_rel)) {
            ptr.release();
        }
