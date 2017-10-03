@@ -325,9 +325,9 @@ void CalibMonitor::Init(TTree *tree, const std::string& dupFileName) {
   t_HitEnergies3 = 0;
   t_trgbits      = 0;
   // Set branch addresses and branch pointers
-  if (!tree) return;
-  fChain = tree;
+  fChain   = tree;
   fCurrent = -1;
+  if (!tree) return;
   fChain->SetMakeClass(1);
 
   fChain->SetBranchAddress("t_Run", &t_Run, &b_t_Run);
@@ -1231,9 +1231,9 @@ void GetEntries::Init(TTree *tree) {
   t_ietaAll      = 0;
   t_ietaGood     = 0;
   t_L1Bit        = false;
+  fChain         = tree;
+  fCurrent       = -1;
   if (!tree) return;
-  fChain = tree;
-  fCurrent = -1;
   fChain->SetMakeClass(1);
   fChain->SetBranchAddress("t_Tracks",      &t_Tracks,      &b_t_Tracks);
   fChain->SetBranchAddress("t_TracksProp",  &t_TracksProp,  &b_t_TracksProp);
