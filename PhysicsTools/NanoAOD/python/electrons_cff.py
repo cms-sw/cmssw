@@ -1,4 +1,6 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
 from PhysicsTools.NanoAOD.common_cff import *
 from math import ceil,log
 
@@ -58,10 +60,6 @@ energyCorrForEle =  cms.EDProducer("ElectronEnergyVarProducer",
     srcCorr = cms.InputTag("calibratedPatElectrons"),
 )
 
-finalElectrons = cms.EDFilter("PATElectronRefSelector",
-    src = cms.InputTag("slimmedElectronsWithUserData"),
-    cut = cms.string("pt > 5 ")
-)
 
 slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
     src = cms.InputTag("slimmedElectrons"),
@@ -94,6 +92,19 @@ slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
         jetForLepJetVar = cms.InputTag("ptRatioRelForEle:jetForLepJetVar") # warning: Ptr is null if no match is found
     ),
 )
+
+# this below is used only in some eras
+slimmedElectronsWithDZ = cms.EDProducer("PATElectronUpdater",
+    src = cms.InputTag("slimmedElectronsWithUserData"),
+    vertices = cms.InputTag("offlineSlimmedPrimaryVertices")
+)
+
+finalElectrons = cms.EDFilter("PATElectronRefSelector",
+    src = cms.InputTag("slimmedElectronsWithUserData"),
+    cut = cms.string("pt > 5 ")
+)
+run2_miniAOD_80XLegacy.toModify(finalElectrons, src = "slimmedElectronsWithDZ")
+run2_nanoAOD_92X.toModify(finalElectrons, src = "slimmedElectronsWithDZ")
 
 electronMVATTH= cms.EDProducer("EleBaseMVAValueMapProducer",
     src = cms.InputTag("linkedObjects","electrons"),
@@ -130,7 +141,7 @@ electronTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         #ptErr = Var("gsfTrack().ptError()",float,doc="pt error of the GSF track",precision=6),
         energyErr = Var("p4Error('P4_COMBINATION')*userFloat('eCorr')",float,doc="energy error of the cluster-track combination",precision=6),
         eCorr = Var("userFloat('eCorr')",float,doc="ratio of the calibrated energy/miniaod energy"),
-        dz = Var("abs(dB('PVDZ'))",float,doc="dz (with sign) wrt first PV, in cm",precision=10),
+        dz = Var("dB('PVDZ')",float,doc="dz (with sign) wrt first PV, in cm",precision=10),
         dzErr = Var("abs(edB('PVDZ'))",float,doc="dz uncertainty, in cm",precision=6),
         dxy = Var("dB('PV2D')",float,doc="dxy (with sign) wrt first PV, in cm",precision=10),
         dxyErr = Var("edB('PV2D')",float,doc="dxy uncertainty, in cm",precision=6),
@@ -186,3 +197,8 @@ electronMCTable = cms.EDProducer("CandMCMatchTableProducer",
 electronSequence = cms.Sequence(egmGsfElectronIDSequence + bitmapVIDForEle + isoForEle + ptRatioRelForEle + calibratedPatElectrons + energyCorrForEle + slimmedElectronsWithUserData + finalElectrons)
 electronTables = cms.Sequence (electronMVATTH + electronTable)
 electronMC = cms.Sequence(electronsMCMatchForTable + electronMCTable)
+
+_withDZ_sequence = electronSequence.copy()
+_withDZ_sequence.replace(finalElectrons, slimmedElectronsWithDZ+finalElectrons)
+run2_nanoAOD_92X.toReplaceWith(electronSequence, _withDZ_sequence)
+run2_miniAOD_80XLegacy.toReplaceWith(electronSequence, _withDZ_sequence)

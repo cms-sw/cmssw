@@ -1,4 +1,6 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
 from PhysicsTools.NanoAOD.common_cff import *
 
 isoForMu = cms.EDProducer("MuonIsoValueMapProducer",
@@ -27,11 +29,18 @@ slimmedMuonsWithUserData = cms.EDProducer("PATMuonUserDataEmbedder",
         jetForLepJetVar = cms.InputTag("ptRatioRelForMu:jetForLepJetVar") # warning: Ptr is null if no match is found
      ),
 )
+# this below is used only in some eras
+slimmedMuonsWithDZ = cms.EDProducer("PATMuonUpdater",
+    src = cms.InputTag("slimmedMuonsWithUserData"),
+    vertices = cms.InputTag("offlineSlimmedPrimaryVertices")
+)
 
 finalMuons = cms.EDFilter("PATMuonRefSelector",
     src = cms.InputTag("slimmedMuonsWithUserData"),
     cut = cms.string("pt > 3 && track.isNonnull && isLooseMuon")
 )
+run2_miniAOD_80XLegacy.toModify(finalMuons, src = "slimmedMuonsWithDZ")
+run2_nanoAOD_92X.toModify(finalMuons, src = "slimmedMuonsWithDZ")
 
 muonMVATTH= cms.EDProducer("MuonBaseMVAValueMapProducer",
     src = cms.InputTag("linkedObjects","muons"),
@@ -64,7 +73,7 @@ muonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     extension = cms.bool(False), # this is the main table for the muons
     variables = cms.PSet(CandVars,
         ptErr   = Var("bestTrack().ptError()", float, doc = "ptError of the muon track", precision=6),
-        dz = Var("abs(dB('PVDZ'))",float,doc="dz (with sign) wrt first PV, in cm",precision=10),
+        dz = Var("dB('PVDZ')",float,doc="dz (with sign) wrt first PV, in cm",precision=10),
         dzErr = Var("abs(edB('PVDZ'))",float,doc="dz uncertainty, in cm",precision=6),
         dxy = Var("dB('PV2D')",float,doc="dxy (with sign) wrt first PV, in cm",precision=10),
         dxyErr = Var("edB('PV2D')",float,doc="dxy uncertainty, in cm",precision=6),
@@ -117,3 +126,7 @@ muonSequence = cms.Sequence(isoForMu + ptRatioRelForMu + slimmedMuonsWithUserDat
 muonMC = cms.Sequence(muonsMCMatchForTable + muonMCTable)
 muonTables = cms.Sequence(muonMVATTH + muonTable + muonIDTable)
 
+_withDZ_sequence = muonSequence.copy()
+_withDZ_sequence.replace(finalMuons, slimmedMuonsWithDZ+finalMuons)
+run2_nanoAOD_92X.toReplaceWith(muonSequence, _withDZ_sequence)
+run2_miniAOD_80XLegacy.toReplaceWith(muonSequence, _withDZ_sequence)

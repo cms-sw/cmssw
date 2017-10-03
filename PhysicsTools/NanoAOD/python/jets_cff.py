@@ -1,4 +1,6 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+
 from  PhysicsTools.NanoAOD.common_cff import *
 
 
@@ -102,6 +104,8 @@ jetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 #jets are not as precise as muons
 jetTable.variables.pt.precision=10
 
+### Era dependent customization
+run2_miniAOD_80XLegacy.toModify( jetTable.variables.qgl, expr="-1" )
 
 bjetMVA= cms.EDProducer("BJetEnergyRegressionMVA",
     src = cms.InputTag("linkedObjects","jets"),
@@ -191,6 +195,12 @@ fatJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 #        rawFactor = Var("1.-jecFactor('Uncorrected')",float,doc="1 - Factor to get back to raw pT",precision=6),
     )
 )
+### Era dependent customization
+run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.mpruned, expr = cms.string("userFloat(\'ak8PFJetsCHSPrunedMass\')"),)
+run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.msoftdrop, expr = cms.string("userFloat(\'ak8PFJetsCHSSoftDropMass\')"),)
+run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau1, expr = cms.string("userFloat(\'NjettinessAK8:tau1\')"),)
+run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau2, expr = cms.string("userFloat(\'NjettinessAK8:tau2\')"),)
+run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau3, expr = cms.string("userFloat(\'NjettinessAK8:tau3\')"),)
 
 subJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("slimmedJetsAK8PFPuppiSoftDropPacked","SubJets"),

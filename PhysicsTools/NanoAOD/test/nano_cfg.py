@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
-process = cms.Process('NANO')
+from Configuration.StandardSequences.Eras import eras
+process = cms.Process('NANO',eras.Run2_2017,eras.run2_nanoAOD_92X)
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
@@ -7,7 +8,7 @@ process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load('Configuration.StandardSequences.Services_cff')
 from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['run2_mc']
+process.GlobalTag.globaltag = autoCond['phase1_2017_realistic']
 
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
@@ -24,7 +25,6 @@ process.source.fileNames = [
 ]
 
 process.load("PhysicsTools.NanoAOD.nano_cff")
-process.load("PhysicsTools.NanoAOD.adaptFrom92X_cff")
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     calibratedPatElectrons = cms.PSet(initialSeed = cms.untracked.uint32(81),
@@ -34,7 +34,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
                                       engineName = cms.untracked.string('TRandom3'),
                                       ),
 )
-process.nanoPath = cms.Path(process.adapt_nano + process.nanoSequenceMC)
+process.nanoPath = cms.Path(process.nanoSequenceMC)
 process.calibratedPatElectrons.isMC = cms.bool(True)
 process.calibratedPatPhotons.isMC = cms.bool(True)
 #for data:
