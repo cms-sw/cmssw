@@ -14,7 +14,7 @@ autoCond = {
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
     'run2_mc_50ns'      :   '92X_mcRun2_startup_v3',
     #GlobalTag for MC production with optimistic alignment and calibrations for Run2
-    'run2_mc'           :   '92X_mcRun2_asymptotic_v3',
+    'run2_mc'           :   '92X_mcRun2_asymptotic_v4',
     # GlobalTag for MC production (L1 Trigger Stage1) with starup-like alignment and calibrations for Run2, L1 trigger in Stage1 mode
     'run2_mc_l1stage1'  :   '92X_mcRun2_asymptotic_v1',
     # GlobalTag for MC production (cosmics) with starup-like alignment and calibrations for Run2, Strip tracker in peak mode
