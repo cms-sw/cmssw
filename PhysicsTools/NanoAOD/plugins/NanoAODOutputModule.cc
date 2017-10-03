@@ -63,6 +63,7 @@ private:
   std::string m_compressionAlgorithm;
   bool m_writeProvenance;
   bool m_fakeName; //crab workaround, remove after crab is fixed
+  int m_autoFlush;
   edm::ProcessHistoryRegistry m_processHistoryRegistry;
   edm::JobReport::Token m_jrToken;
   std::unique_ptr<TFile> m_file;
@@ -139,6 +140,7 @@ NanoAODOutputModule::NanoAODOutputModule(edm::ParameterSet const& pset):
   m_compressionAlgorithm(pset.getUntrackedParameter<std::string>("compressionAlgorithm")),
   m_writeProvenance(pset.getUntrackedParameter<bool>("saveProvenance", true)),
   m_fakeName(pset.getUntrackedParameter<bool>("fakeNameForCrab", false)),
+  m_autoFlush(pset.getUntrackedParameter<int>("autoFlush", -10000000)),
   m_processHistoryRegistry()
 {
 }
@@ -258,6 +260,7 @@ NanoAODOutputModule::openFile(edm::FileBlock const&) {
   // create the trees
   m_tree.reset(new TTree("Events","Events"));
   m_tree->SetAutoSave(std::numeric_limits<Long64_t>::max());
+  m_tree->SetAutoFlush(m_autoFlush);
   m_commonBranches.branch(*m_tree);
 
   m_lumiTree.reset(new TTree("LuminosityBlocks","LuminosityBlocks"));
