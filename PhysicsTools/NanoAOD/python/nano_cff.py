@@ -70,12 +70,8 @@ nanoSequence = cms.Sequence(
 
 nanoSequenceMC = cms.Sequence(genParticleSequence + nanoSequence + jetMC + muonMC + electronMC + photonMC + tauMC + metMC + globalTablesMC + genWeightsTable + genParticleTables + lheInfoTable)
 
+
 def nanoAOD_customizeCommon(process):
-    ## FIXME: make era-dependent?
-    if not hasattr(process, 'miniAOD'):
-        # assume we're reading old miniAOD for the moment
-        process.load("PhysicsTools.NanoAOD.adaptFrom92X_cff")
-        process.nanoSequence.insert(0, process.adapt_nano)
     return process
 
 def nanoAOD_customizeData(process):
@@ -86,7 +82,7 @@ def nanoAOD_customizeData(process):
 
 def nanoAOD_customizeMC(process):
     process = nanoAOD_customizeCommon(process)
-    ## FIXME: THIS SHOULD PROBABLY GO INTO Services_cff 
+    ## FIXME:  WILL NO LONGER NEED RANDOM SEEDS WHEN DETERMINISTIC SMEARING WILL BE IMPLEMENTED
     if not hasattr(process,'RandomNumberGeneratorService'):
         process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService")
     for X in 'calibratedPatElectrons','calibratedPatPhotons':
@@ -96,3 +92,14 @@ def nanoAOD_customizeMC(process):
     process.calibratedPatElectrons.isMC = cms.bool(True)
     process.calibratedPatPhotons.isMC = cms.bool(True)
     return process
+
+### Era dependent customization
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+#remove stuff 
+_80x_sequence = nanoSequence.copy()
+_80x_sequence.remove(isoTrackTable)
+_80x_sequence.remove(isoTrackSequence)
+run2_miniAOD_80XLegacy.toReplaceWith( nanoSequence, _80x_sequence)
+
+	
+
