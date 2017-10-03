@@ -10,6 +10,7 @@
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 
 #include <vector>
+#include <typeindex>
 
 namespace edm {
   ProductRegistryHelper::~ProductRegistryHelper() { }
@@ -27,6 +28,7 @@ namespace edm {
 
     std::vector<std::string> missingDictionaries;
     std::vector<std::string> producedTypes;
+    std::set<std::tuple<BranchType,std::type_index,std::string>> registeredProducts;
 
     for(TypeLabelList::const_iterator p = iBegin; p != iEnd; ++p) {
 
@@ -35,9 +37,20 @@ namespace edm {
         producedTypes.emplace_back(p->typeID_.className());
         continue;
       }
+      auto branchType = convertToBranchType(p->transition_);
+      if(branchType != InEvent) {
+        std::tuple<BranchType, std::type_index, std::string> entry{ branchType,p->typeID_.typeInfo(),p->productInstanceName_};
+        if(registeredProducts.end() != registeredProducts.find(entry) ) {
+          //ignore registration of items if in both begin and end transitions for now
+          // This is to work around ExternalLHEProducer
+          continue;
+        } else {
+          registeredProducts.insert(entry);
+        }
+      }
 
       TypeWithDict type(p->typeID_.typeInfo());
-      BranchDescription pdesc(convertToBranchType(p->transition_),
+      BranchDescription pdesc(branchType,
                               iDesc.moduleLabel(),
                               iDesc.processName(),
                               p->typeID_.userClassName(),
