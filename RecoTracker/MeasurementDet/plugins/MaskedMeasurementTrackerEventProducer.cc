@@ -8,7 +8,7 @@
 class dso_hidden MaskedMeasurementTrackerEventProducer final : public edm::stream::EDProducer<> {
 public:
       explicit MaskedMeasurementTrackerEventProducer(const edm::ParameterSet &iConfig) ;
-      ~MaskedMeasurementTrackerEventProducer() {}
+      ~MaskedMeasurementTrackerEventProducer() override {}
 private:
       void produce(edm::Event&, const edm::EventSetup&) override;
 
