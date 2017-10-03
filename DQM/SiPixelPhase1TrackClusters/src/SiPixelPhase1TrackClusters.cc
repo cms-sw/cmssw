@@ -82,7 +82,7 @@ SiPixelPhase1TrackClusters::SiPixelPhase1TrackClusters(const edm::ParameterSet& 
   applyVertexCut_(iConfig.getUntrackedParameter<bool>("VertexCut",true)),
   tracksToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"))),
   offlinePrimaryVerticesToken_(applyVertexCut_ ?
-                              consumes<reco::VertexCollection>(std::string("offlinePrimaryVertices")) :
+                              consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices")) :
                               edm::EDGetTokenT<reco::VertexCollection>()),
   pixelClusterShapeCacheToken_(consumes<SiPixelClusterShapeCache>( edm::InputTag("siPixelClusterShapeCache")))
 {}
