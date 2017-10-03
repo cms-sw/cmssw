@@ -127,16 +127,16 @@ void DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence,
 
   // create a collection on TimeMeasurements for the track        
   std::vector<TimeMeasurement> tms;
-  for (std::vector<const DTRecSegment4D*>::const_iterator rechit = segments.begin(); rechit!=segments.end();++rechit) {
+  for (const auto& rechit : segments ) {
 
     // Create the ChamberId
-    DetId id = (*rechit)->geographicalId();
+    DetId id = rechit->geographicalId();
     DTChamberId chamberId(id.rawId());
     int station = chamberId.station();
     if (debug) std::cout << "Matched DT segment in station " << station << std::endl;
 
     // use only segments with both phi and theta projections present (optional)
-    bool bothProjections = ( ((*rechit)->hasPhi()) && ((*rechit)->hasZed()) );
+    bool bothProjections = ( (rechit->hasPhi()) && (rechit->hasZed()) );
     if (requireBothProjections_ && !bothProjections) continue;
 
     // loop over (theta, phi) segments
@@ -146,10 +146,10 @@ void DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence,
 
       const DTRecSegment2D* segm;
       if (phi) { 
-        segm = dynamic_cast<const DTRecSegment2D*>((*rechit)->phiSegment()); 
+        segm = dynamic_cast<const DTRecSegment2D*>(rechit->phiSegment()); 
         if (debug) std::cout << " *** Segment t0: " << segm->t0() << std::endl;
       }    
-        else segm = dynamic_cast<const DTRecSegment2D*>((*rechit)->zSegment());
+        else segm = dynamic_cast<const DTRecSegment2D*>(rechit->zSegment());
 
       if(segm == nullptr) continue;
       if (segm->specificRecHits().empty()) continue;
@@ -158,16 +158,16 @@ void DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence,
       const std::vector<DTRecHit1D> hits1d = segm->specificRecHits();
 
       // store all the hits from the segment
-      for (std::vector<DTRecHit1D>::const_iterator hiti=hits1d.begin(); hiti!=hits1d.end(); hiti++) {
+      for (const auto& hiti : hits1d) {
 
-	const GeomDet* dtcell = theTrackingGeometry->idToDet(hiti->geographicalId());
+	const GeomDet* dtcell = theTrackingGeometry->idToDet(hiti.geographicalId());
 	TimeMeasurement thisHit;
 
 	std::pair< TrajectoryStateOnSurface, double> tsos;
 	tsos=propag->propagateWithPath(muonFTS,dtcell->surface());
 
         double dist;            
-        double dist_straight = dtcell->toGlobal(hiti->localPosition()).mag(); 
+        double dist_straight = dtcell->toGlobal(hiti.localPosition()).mag(); 
 	if (tsos.first.isValid()) { 
 	  dist = tsos.second+posp.mag(); 
 //	  std::cout << "Propagate distance: " << dist << " ( innermost: " << posp.mag() << ")" << std::endl; 
@@ -176,10 +176,10 @@ void DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence,
 //	  std::cout << "Geom distance: " << dist << std::endl; 
 	}
 
-	thisHit.driftCell = hiti->geographicalId();
-	if (hiti->lrSide()==DTEnums::Left) thisHit.isLeft=true; else thisHit.isLeft=false;
+	thisHit.driftCell = hiti.geographicalId();
+	if (hiti.lrSide()==DTEnums::Left) thisHit.isLeft=true; else thisHit.isLeft=false;
 	thisHit.isPhi = phi;
-	thisHit.posInLayer = geomDet->toLocal(dtcell->toGlobal(hiti->localPosition())).x();
+	thisHit.posInLayer = geomDet->toLocal(dtcell->toGlobal(hiti.localPosition())).x();
 	thisHit.distIP = dist;
 	thisHit.station = station;
 	if (useSegmentT0_ && segm->ist0Valid()) thisHit.timeCorr=segm->t0();
@@ -188,7 +188,7 @@ void DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence,
 	  
 	// signal propagation along the wire correction for unmached theta or phi segment hits
 	if (doWireCorr_ && !bothProjections && tsos.first.isValid()) {
-	  const DTLayer* layer = theDTGeom->layer(hiti->wireId());
+	  const DTLayer* layer = theDTGeom->layer(hiti.wireId());
 	  float propgL = layer->toLocal( tsos.first.globalPosition() ).y();
 	  float wirePropCorr = propgL/24.4*0.00543; // signal propagation speed along the wire
 	  if (thisHit.isLeft) wirePropCorr=-wirePropCorr;
@@ -237,9 +237,9 @@ void DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence,
         std::vector <TimeMeasurement> seg;
         std::vector <int> seg_idx;
 	int tmpos=0;
-	for (std::vector<TimeMeasurement>::iterator tm=tms.begin(); tm!=tms.end(); ++tm) {
-	  if ((tm->station==sta) && (tm->isPhi==phi)) {
-	    seg.push_back(*tm);
+	for (auto& tm : tms) {
+	  if ((tm.station==sta) && (tm.isPhi==phi)) {
+	    seg.push_back(tm);
 	    seg_idx.push_back(tmpos);
 	  }
 	  tmpos++;  
@@ -251,21 +251,21 @@ void DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence,
 	double a=0, b=0;
         std::vector <double> hitxl,hitxr,hityl,hityr;
 
-	for (std::vector<TimeMeasurement>::iterator tm=seg.begin(); tm!=seg.end(); ++tm) {
+	for (auto& tm : seg) {
  
-	  DetId id = tm->driftCell;
+	  DetId id = tm.driftCell;
 	  const GeomDet* dtcell = theTrackingGeometry->idToDet(id);
 	  DTChamberId chamberId(id.rawId());
 	  const GeomDet* dtcham = theTrackingGeometry->idToDet(chamberId);
 
 	  double celly=dtcham->toLocal(dtcell->position()).z();
             
-	  if (tm->isLeft) {
+	  if (tm.isLeft) {
 	    hitxl.push_back(celly);
-	    hityl.push_back(tm->posInLayer);
+	    hityl.push_back(tm.posInLayer);
 	  } else {
 	    hitxr.push_back(celly);
-	    hityr.push_back(tm->posInLayer);
+	    hityr.push_back(tm.posInLayer);
 	  }    
 	}
 
@@ -279,29 +279,29 @@ void DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence,
 	if ((hitxl.empty()) || (hityl.empty())) continue;
 
 	int segidx=0;
-	for (std::vector<TimeMeasurement>::const_iterator tm=seg.begin(); tm!=seg.end(); ++tm) {
+	for (const auto& tm : seg) {
 
-	  DetId id = tm->driftCell;
+	  DetId id = tm.driftCell;
 	  const GeomDet* dtcell = theTrackingGeometry->idToDet(id);
 	  DTChamberId chamberId(id.rawId());
 	  const GeomDet* dtcham = theTrackingGeometry->idToDet(chamberId);
 
 	  double layerZ  = dtcham->toLocal(dtcell->position()).z();
 	  double segmLocalPos = b+layerZ*a;
-	  double hitLocalPos = tm->posInLayer;
-	  int hitSide = -tm->isLeft*2+1;
-	  double t0_segm = (-(hitSide*segmLocalPos)+(hitSide*hitLocalPos))/0.00543+tm->timeCorr;
+	  double hitLocalPos = tm.posInLayer;
+	  int hitSide = -tm.isLeft*2+1;
+	  double t0_segm = (-(hitSide*segmLocalPos)+(hitSide*hitLocalPos))/0.00543+tm.timeCorr;
 	  
-	  if (debug) std::cout << "   Segm hit.  dstnc: " << tm->distIP << "   t0: " << t0_segm << std::endl;
+	  if (debug) std::cout << "   Segm hit.  dstnc: " << tm.distIP << "   t0: " << t0_segm << std::endl;
             
-	  dstnc.push_back(tm->distIP);
+	  dstnc.push_back(tm.distIP);
 	  local_t0.push_back(t0_segm);
 	  left.push_back(hitSide);
-	  hitWeightInvbeta.push_back(((double)seg.size()-2.)*tm->distIP*tm->distIP/((double)seg.size()*30.*30.*theError_*theError_));
+	  hitWeightInvbeta.push_back(((double)seg.size()-2.)*tm.distIP*tm.distIP/((double)seg.size()*30.*30.*theError_*theError_));
           hitWeightTimeVtx.push_back(((double)seg.size()-2.)/((double)seg.size()*theError_*theError_));
 	  hit_idx.push_back(seg_idx.at(segidx));
 	  segidx++;
-	  totalWeightInvbeta+=((double)seg.size()-2.)*tm->distIP*tm->distIP/((double)seg.size()*30.*30.*theError_*theError_);
+	  totalWeightInvbeta+=((double)seg.size()-2.)*tm.distIP*tm.distIP/((double)seg.size()*30.*30.*theError_*theError_);
 	  totalWeightTimeVtx+=((double)seg.size()-2.)/((double)seg.size()*theError_*theError_);
 	}
       }
