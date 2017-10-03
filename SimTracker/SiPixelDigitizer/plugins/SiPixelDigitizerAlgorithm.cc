@@ -239,10 +239,10 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   //tMax(conf.getUntrackedParameter<double>("deltaProductionCut",0.030)),
   tMax(conf.getParameter<double>("deltaProductionCut")),
 
-  fluctuate(fluctuateCharge ? new SiG4UniversalFluctuation() : 0),
-  theNoiser(addNoise ? new GaussianTailNoiseGenerator() : 0),
+  fluctuate(fluctuateCharge ? new SiG4UniversalFluctuation() : nullptr),
+  theNoiser(addNoise ? new GaussianTailNoiseGenerator() : nullptr),
   calmap(doMissCalibrate ? initCal() : std::map<int,CalParameters,std::less<int> >()),
-  theSiPixelGainCalibrationService_(use_ineff_from_db_ ? new SiPixelGainCalibrationOfflineSimService(conf) : 0),
+  theSiPixelGainCalibrationService_(use_ineff_from_db_ ? new SiPixelGainCalibrationOfflineSimService(conf) : nullptr),
   pixelEfficiencies_(conf, AddPixelInefficiency,NumberOfBarrelLayers,NumberOfEndcapDisks),
   pixelAging_(conf,AddPixelAging,NumberOfBarrelLayers,NumberOfEndcapDisks)
 {
@@ -424,8 +424,8 @@ SiPixelDigitizerAlgorithm::PixelEfficiencies::PixelEfficiencies(const edm::Param
         thePUEfficiency.push_back(conf.getParameter<std::vector<double> >("thePUEfficiency_BPix1"));
         thePUEfficiency.push_back(conf.getParameter<std::vector<double> >("thePUEfficiency_BPix2"));
         thePUEfficiency.push_back(conf.getParameter<std::vector<double> >("thePUEfficiency_BPix3"));		    		    
-        if ( ((thePUEfficiency[0].size()==0) || (thePUEfficiency[1].size()==0) || 
-              (thePUEfficiency[2].size()==0)) && (NumberOfBarrelLayers==3) )
+        if ( ((thePUEfficiency[0].empty()) || (thePUEfficiency[1].empty()) || 
+              (thePUEfficiency[2].empty())) && (NumberOfBarrelLayers==3) )
           throw cms::Exception("Configuration") << "At least one PU efficiency (BPix) number is needed in efficiency config!";
       }
       // The next is needed for Phase2 Tracker studies
@@ -471,7 +471,7 @@ SiPixelDigitizerAlgorithm::PixelEfficiencies::PixelEfficiencies(const edm::Param
         theOuterEfficiency_FPix[i++] = conf.getParameter<double>("theOuterEfficiency_FPix2");
         thePUEfficiency.push_back(conf.getParameter<std::vector<double> >("thePUEfficiency_FPix_Inner"));
         thePUEfficiency.push_back(conf.getParameter<std::vector<double> >("thePUEfficiency_FPix_Outer"));
-        if ( ((thePUEfficiency[3].size()==0) || (thePUEfficiency[4].size()==0)) && (NumberOfEndcapDisks==2) )
+        if ( ((thePUEfficiency[3].empty()) || (thePUEfficiency[4].empty())) && (NumberOfEndcapDisks==2) )
           throw cms::Exception("Configuration") << "At least one (FPix) PU efficiency number is needed in efficiency config!";
         pu_scale.resize(thePUEfficiency.size());
       }
@@ -501,9 +501,9 @@ void SiPixelDigitizerAlgorithm::PixelEfficiencies::init_from_db(const edm::ESHan
   std::vector<uint32_t > DetIdmasks = SiPixelDynamicInefficiency->getDetIdmasks();
   
   // Loop on all modules, calculate geometrical scale factors and store in map for easy access
-  for(TrackerGeometry::DetUnitContainer::const_iterator it_module = geom->detUnits().begin(); it_module != geom->detUnits().end(); it_module++) {
-    if( dynamic_cast<PixelGeomDetUnit const*>((*it_module))==0) continue;
-    const DetId detid = (*it_module)->geographicalId();
+  for( const auto& it_module : geom->detUnits()) {
+    if( dynamic_cast<PixelGeomDetUnit const*>(it_module)==nullptr) continue;
+    const DetId detid = it_module->geographicalId();
     uint32_t rawid = detid.rawId();
     PixelGeomFactors[rawid] = 1;
     ColGeomFactors[rawid] = 1;
@@ -518,9 +518,9 @@ void SiPixelDigitizerAlgorithm::PixelEfficiencies::init_from_db(const edm::ESHan
   size_t i=0;
   for (auto factor : PUFactors) {
     const DetId db_id = DetId(factor.first);
-    for(TrackerGeometry::DetUnitContainer::const_iterator it_module = geom->detUnits().begin(); it_module != geom->detUnits().end(); it_module++) {
-      if( dynamic_cast<PixelGeomDetUnit const*>((*it_module))==0) continue;
-      const DetId detid = (*it_module)->geographicalId();
+    for( const auto& it_module : geom->detUnits()) {
+      if( dynamic_cast<PixelGeomDetUnit const*>(it_module)==nullptr) continue;
+      const DetId detid = it_module->geographicalId();
       if (!matches(detid, db_id, DetIdmasks)) continue;
       if (iPU.count(detid.rawId())) {
 	throw cms::Exception("Database")<<"Multiple db_ids match to same module in SiPixelDynamicInefficiency DB Object";
@@ -636,8 +636,8 @@ void SiPixelDigitizerAlgorithm::calculateInstlumiFactor(PileupMixingContent* puI
   //Instlumi scalefactor calculating for dynamic inefficiency
 
   if (puInfo) {
-    const std::vector<int> bunchCrossing = puInfo->getMix_bunchCrossing();
-    const std::vector<float> TrueInteractionList = puInfo->getMix_TrueInteractions();      
+    const std::vector<int>& bunchCrossing = puInfo->getMix_bunchCrossing();
+    const std::vector<float>& TrueInteractionList = puInfo->getMix_TrueInteractions();      
     //const int bunchSpacing = puInfo->getMix_bunchSpacing();
 
     int pui = 0, p = 0;
@@ -734,10 +734,10 @@ void SiPixelDigitizerAlgorithm::digitize(const PixelGeomDetUnit* pixdet,
   
   // Do only if needed
   
-  if((AddPixelInefficiency) && (theSignal.size()>0))
+  if((AddPixelInefficiency) && (!theSignal.empty()))
     pixel_inefficiency(pixelEfficiencies_, pixdet, tTopo, engine); // Kill some pixels
   
-  if(use_ineff_from_db_ && (theSignal.size()>0))
+  if(use_ineff_from_db_ && (!theSignal.empty()))
     pixel_inefficiency_db(detID);
   
   if(use_module_killing_) {

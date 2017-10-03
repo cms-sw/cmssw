@@ -16,7 +16,8 @@
 #include "Fireworks/Core/interface/FWTextProjected.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWProxyBuilderConfiguration.h"
-#include "Fireworks/Core/interface/FWParameters.h"
+#include "Fireworks/Core/interface/Context.h"
+#include "Fireworks/Core/interface/CmsShowCommon.h"
 // user include files
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -27,13 +28,13 @@
 #include "Fireworks/Calo/interface/scaleMarker.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
-#include "Fireworks/Core/interface/FWBeamSpot.h"
+
 
 namespace fireworks {
 
 struct jetScaleMarker : public  scaleMarker {
    jetScaleMarker(TEveScalableStraightLineSet* ls, float et, float e, const FWViewContext* vc):
-      scaleMarker(ls, et, e, vc) , m_text(0) {}
+      scaleMarker(ls, et, e, vc) , m_text(nullptr) {}
    
    FWEveText* m_text;
 };
@@ -49,20 +50,19 @@ class FWJetProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Jet>
 {
 public:
    FWJetProxyBuilder();
-   virtual ~FWJetProxyBuilder();
+   ~FWJetProxyBuilder() override;
 
-   virtual bool havePerViewProduct(FWViewType::EType) const { return true; }
-   virtual bool haveSingleProduct() const { return false; } // different view types
-   virtual void cleanLocal();
+   bool havePerViewProduct(FWViewType::EType) const override { return true; }
+   bool haveSingleProduct() const override { return false; } // different view types
+   void cleanLocal() override;
 
-   virtual void setItem(const FWEventItem* iItem)
+   void setItem(const FWEventItem* iItem) override
    {
       FWProxyBuilderBase::setItem(iItem);
       if (iItem) {
       iItem->getConfig()->assertParam(kJetLabelsRhoPhiOn, false);
       iItem->getConfig()->assertParam(kJetLabelsRhoZOn, false);
       iItem->getConfig()->assertParam(kJetOffset, 2.1, 1.0, 5.0);
-      iItem->getConfig()->assertParam(kJetApexBeamSpot, false);
       }
    }
 
@@ -70,19 +70,19 @@ public:
    
 protected:
    using FWSimpleProxyBuilderTemplate<reco::Jet>::buildViewType;
-   virtual void buildViewType(const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*);
+   void buildViewType(const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*) override;
 
 
-   virtual void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
-                                  FWViewType::EType viewType, const FWViewContext* vc);
+   void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
+                                  FWViewType::EType viewType, const FWViewContext* vc) override;
 
-   virtual void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc);
+   void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc) override;
 
 private:
    typedef std::vector<fireworks::jetScaleMarker> Lines_t;  
 
-   FWJetProxyBuilder( const FWJetProxyBuilder& ); // stop default
-   const FWJetProxyBuilder& operator=( const FWJetProxyBuilder& ); // stop default
+   FWJetProxyBuilder( const FWJetProxyBuilder& ) = delete; // stop default
+   const FWJetProxyBuilder& operator=( const FWJetProxyBuilder& ) = delete; // stop default
 
    TEveElementList* requestCommon();
    void setTextPos(fireworks::jetScaleMarker& s, const FWViewContext* vc, FWViewType::EType);
@@ -95,7 +95,7 @@ private:
 
 //______________________________________________________________________________
 FWJetProxyBuilder::FWJetProxyBuilder():
-   m_common(0)
+   m_common(nullptr)
 {
    m_common = new TEveElementList( "common electron scene" );
    m_common->IncDenyDestroy();
@@ -115,11 +115,6 @@ FWJetProxyBuilder::requestCommon()
       {
          TEveJetCone* cone = fireworks::makeEveJetCone(modelData(i), context());
 
-         if (item()->getConfig()->value<bool>(kJetApexBeamSpot))
-         {
-            FWBeamSpot* bs = context().getBeamSpot();
-            cone->SetApex(TEveVector(bs->x0(), bs->y0(), bs->z0()));
-         }
          cone->SetFillColor(item()->defaultDisplayProperties().color());
          cone->SetLineColor(item()->defaultDisplayProperties().color());
          
@@ -180,13 +175,6 @@ FWJetProxyBuilder::buildViewType(const reco::Jet& iData, unsigned int iIndex, TE
          p2.Set((ecalR+size)*cos(phi), (ecalR+size)*sin(phi), 0);
       }
       
-      if (item()->getConfig()->value<bool>(kJetApexBeamSpot))
-      {
-         FWBeamSpot* bs = context().getBeamSpot();
-         TEveVector bsOff(bs->x0(), bs->y0(), bs->z0());
-         p1 += bsOff;
-         p2 += bsOff;
-      }
    
       markers.m_ls->SetScaleCenter(p1.fX, p1.fY, p1.fZ);
       markers.m_ls->AddLine(p1, p2);
@@ -252,6 +240,18 @@ FWJetProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType type,
          TEveStraightLineSetProjected* projLineSet = (TEveStraightLineSetProjected*)(*(*i).m_ls->BeginProjecteds());
          projLineSet->UpdateProjection();
       }
+   }
+
+   // move jets to eventCenter
+   fireworks::Context* contextGl =  fireworks::Context::getInstance();
+   TEveVector cv;
+   contextGl->commonPrefs()->getEventCenter(cv.Arr());
+   for (TEveElement::List_i i = m_common->BeginChildren(); i!= m_common->EndChildren(); ++ i)
+   {
+     TEveJetCone* cone = dynamic_cast<TEveJetCone*>(*i);
+     if (cone) {
+       cone->SetApex(cv);
+     }
    }
 }
 

@@ -9,11 +9,18 @@ DisplacedJetIter2TracksMonitoringHLT = trackingMonHLT.clone()
 DisplacedJetIter2TracksMonitoringHLT.FolderName       = 'HLT/EXO/DisplacedJet/Tracking/iter2MergedForBTag'
 DisplacedJetIter2TracksMonitoringHLT.TrackProducer    = 'hltIter2MergedForBTag'
 DisplacedJetIter2TracksMonitoringHLT.allTrackProducer = 'hltIter2MergedForBTag'
+DisplacedJetIter2TracksMonitoringHLT.doEffFromHitPatternVsPU   = cms.bool(False)
+DisplacedJetIter2TracksMonitoringHLT.doEffFromHitPatternVsBX   = cms.bool(False)
+DisplacedJetIter2TracksMonitoringHLT.doEffFromHitPatternVsLUMI = cms.bool(False)
+
 
 DisplacedJetIter4TracksMonitoringHLT = trackingMonHLT.clone()
 DisplacedJetIter4TracksMonitoringHLT.FolderName       = 'HLT/EXO/DisplacedJet/Tracking/iter4ForDisplaced'
 DisplacedJetIter4TracksMonitoringHLT.TrackProducer    = 'hltDisplacedhltIter4PFlowTrackSelectionHighPurity'
 DisplacedJetIter4TracksMonitoringHLT.allTrackProducer = 'hltDisplacedhltIter4PFlowTrackSelectionHighPurity'
+DisplacedJetIter4TracksMonitoringHLT.doEffFromHitPatternVsPU   = cms.bool(True)
+DisplacedJetIter4TracksMonitoringHLT.doEffFromHitPatternVsBX   = cms.bool(False)
+DisplacedJetIter4TracksMonitoringHLT.doEffFromHitPatternVsLUMI = cms.bool(False)
 
 trackingMonitorHLTDisplacedJet = cms.Sequence(
      DisplacedJetIter2TracksMonitoringHLT

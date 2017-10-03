@@ -41,8 +41,8 @@ public:
 private:
 
   // hide assignment operator
-  SiG4UniversalFluctuation & operator=(const SiG4UniversalFluctuation &right);
-  SiG4UniversalFluctuation(const SiG4UniversalFluctuation&);
+  SiG4UniversalFluctuation & operator=(const SiG4UniversalFluctuation &right) = delete;
+  SiG4UniversalFluctuation(const SiG4UniversalFluctuation&) = delete;
 
   double particleMass;
   double chargeSquare;

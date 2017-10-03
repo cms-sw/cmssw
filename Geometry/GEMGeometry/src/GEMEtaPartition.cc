@@ -4,7 +4,7 @@
 
 
 GEMEtaPartition::GEMEtaPartition(GEMDetId id, const BoundPlane::BoundPlanePointer& bp, GEMEtaPartitionSpecs* rrs) :
-  GeomDetUnit(bp), id_(id),specs_(rrs)
+  GeomDet(bp), id_(id),specs_(rrs)
 {
   setDetId(id);
 }

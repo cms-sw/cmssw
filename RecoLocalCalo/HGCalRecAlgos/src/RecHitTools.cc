@@ -104,7 +104,7 @@ std::float_t RecHitTools::getSiThickness(const DetId& id) const {
   auto geom = geom_->getSubdetectorGeometry(id);
   check_geom(geom);
   if( id.det() != DetId::Forward ) {
-    edm::LogError("getSiThickness::InvalidSiliconDetid")
+    LogDebug("getSiThickness::InvalidSiliconDetid")
       << "det id: " << id.rawId() << " is not HGCal silicon!";
   }
   const HGCalDetId hid(id);
@@ -141,12 +141,12 @@ unsigned int RecHitTools::getLayer(const ForwardSubdetector type) const {
       auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
       layer       = (geomFH->topology().dddConstants()).layers(true);
       break;
-    } 
+    }
     case (ForwardSubdetector::HGCHEB): {
       auto geomBH = static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal,HcalSubdetector::HcalEndcap));
       layer       = (geomBH->topology().dddConstants())->getMaxDepth(1);
       break;
-    } 
+    }
     case (ForwardSubdetector::ForwardEmpty): {
       auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
       layer       = (geomEE->topology().dddConstants()).layers(true);

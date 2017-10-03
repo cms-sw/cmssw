@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMOffline.Trigger.TopMonitor_cfi import hltTOPmonitoring
 
 topEleJet_jet = hltTOPmonitoring.clone()
-topEleJet_jet.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/EleJet/JetMonitor')
+topEleJet_jet.FolderName = cms.string('HLT/TOP/EleJet/JetMonitor')
 topEleJet_jet.nmuons = cms.uint32(0)
 topEleJet_jet.nelectrons = cms.uint32(1)
 topEleJet_jet.njets = cms.uint32(1)
@@ -21,7 +21,7 @@ topEleJet_jet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele35_WPTig
                                                              'HLT_Ele40_WPTight_Gsf_v*',)
 
 topEleJet_ele = hltTOPmonitoring.clone()
-topEleJet_ele.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/EleJet/ElectronMonitor')
+topEleJet_ele.FolderName = cms.string('HLT/TOP/EleJet/ElectronMonitor')
 topEleJet_ele.nmuons = cms.uint32(0)
 topEleJet_ele.nelectrons = cms.uint32(1)
 topEleJet_ele.njets = cms.uint32(1)
@@ -46,7 +46,7 @@ topEleJet_ele.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFJet60_v*'
                                                                 'HLT_PFJet550_v*',)
 
 topEleJet_all = hltTOPmonitoring.clone()
-topEleJet_all.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/EleJet/GlobalMonitor')
+topEleJet_all.FolderName = cms.string('HLT/TOP/EleJet/GlobalMonitor')
 topEleJet_all.nmuons = cms.uint32(0)
 topEleJet_all.nelectrons = cms.uint32(1)
 topEleJet_all.njets = cms.uint32(1)
@@ -63,7 +63,7 @@ topEleJet_all.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele30_eta2p
 
 
 topEleHT_ht = hltTOPmonitoring.clone()
-topEleHT_ht.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/EleHT/HTMonitor')
+topEleHT_ht.FolderName = cms.string('HLT/TOP/EleHT/HTMonitor')
 topEleHT_ht.nmuons = cms.uint32(0)
 topEleHT_ht.nelectrons = cms.uint32(1)
 topEleHT_ht.njets = cms.uint32(2)
@@ -84,7 +84,7 @@ topEleHT_ht.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele35_WPTight
                                                            'HLT_Ele40_WPTight_Gsf_v*',)
 
 topEleHT_ele = hltTOPmonitoring.clone()
-topEleHT_ele.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/EleHT/ElectronMonitor')
+topEleHT_ele.FolderName = cms.string('HLT/TOP/EleHT/ElectronMonitor')
 topEleHT_ele.nmuons = cms.uint32(0)
 topEleHT_ele.nelectrons = cms.uint32(1)
 topEleHT_ele.njets = cms.uint32(2)
@@ -110,7 +110,7 @@ topEleHT_ele.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT250_v*',
                                                                'HLT_PFHT890_v*',)
 
 topEleHT_all = hltTOPmonitoring.clone()
-topEleHT_all.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/EleHT/GlobalMonitor')
+topEleHT_all.FolderName = cms.string('HLT/TOP/EleHT/GlobalMonitor')
 topEleHT_all.nmuons = cms.uint32(0)
 topEleHT_all.nelectrons = cms.uint32(1)
 topEleHT_all.njets = cms.uint32(2)
@@ -132,7 +132,7 @@ topEleHT_all.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Ele28_eta2p1
 #ATHER
 #########SingleMuon
 topSingleMuonHLTMonitor_Mu24 = hltTOPmonitoring.clone()
-topSingleMuonHLTMonitor_Mu24.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/SingleLepton/SingleMuon/Mu24/')
+topSingleMuonHLTMonitor_Mu24.FolderName = cms.string('HLT/TOP/SingleLepton/SingleMuon/Mu24/')
 topSingleMuonHLTMonitor_Mu24.nmuons = cms.uint32(1)
 topSingleMuonHLTMonitor_Mu24.nelectrons = cms.uint32(0)
 topSingleMuonHLTMonitor_Mu24.njets = cms.uint32(0)
@@ -142,7 +142,7 @@ topSingleMuonHLTMonitor_Mu24.jetSelection = cms.string('pt>20 & abs(eta)<2.4')
 topSingleMuonHLTMonitor_Mu24.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_IsoMu24_eta2p1_v*', 'HLT_IsoMu24_v*'])
 
 topSingleMuonHLTMonitor_Mu27 = hltTOPmonitoring.clone()
-topSingleMuonHLTMonitor_Mu27.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/SingleLepton/SingleMuon/Mu27/')
+topSingleMuonHLTMonitor_Mu27.FolderName = cms.string('HLT/TOP/SingleLepton/SingleMuon/Mu27/')
 topSingleMuonHLTMonitor_Mu27.nmuons = cms.uint32(1)
 topSingleMuonHLTMonitor_Mu27.nelectrons = cms.uint32(0)
 topSingleMuonHLTMonitor_Mu27.njets = cms.uint32(0)
@@ -153,7 +153,7 @@ topSingleMuonHLTMonitor_Mu27.numGenericTriggerEventPSet.hltPaths = cms.vstring([
 
 
 topSingleMuonHLTMonitor_Mu50 = hltTOPmonitoring.clone()
-topSingleMuonHLTMonitor_Mu50.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/SingleLepton/SingleMuon/Mu50/')
+topSingleMuonHLTMonitor_Mu50.FolderName = cms.string('HLT/TOP/SingleLepton/SingleMuon/Mu50/')
 topSingleMuonHLTMonitor_Mu50.nmuons = cms.uint32(1)
 topSingleMuonHLTMonitor_Mu50.nelectrons = cms.uint32(0)
 topSingleMuonHLTMonitor_Mu50.njets = cms.uint32(0)
@@ -165,7 +165,7 @@ topSingleMuonHLTMonitor_Mu50.numGenericTriggerEventPSet.hltPaths = cms.vstring([
 
 #########DiElectron
 topDiElectronHLTMonitor = hltTOPmonitoring.clone()
-topDiElectronHLTMonitor.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/DiElectron/Ele23Ele12/')
+topDiElectronHLTMonitor.FolderName = cms.string('HLT/TOP/DiLepton/DiElectron/Ele23Ele12/')
 topDiElectronHLTMonitor.nmuons = cms.uint32(0)
 topDiElectronHLTMonitor.nelectrons = cms.uint32(2)
 topDiElectronHLTMonitor.njets = cms.uint32(0)
@@ -175,12 +175,12 @@ topDiElectronHLTMonitor.jetSelection = cms.string('pt>30 & abs(eta)<2.4')
 topDiElectronHLTMonitor.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*'])
 
 topDiElectronHLTMonitor_Dz = topDiElectronHLTMonitor.clone()
-topDiElectronHLTMonitor_Dz.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/DiElectron/Ele23Ele12_DzEfficiency/')
+topDiElectronHLTMonitor_Dz.FolderName = cms.string('HLT/TOP/DiLepton/DiElectron/Ele23Ele12_DzEfficiency/')
 topDiElectronHLTMonitor_Dz.denGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v*'])
 
 #########DiMuon
 topDiMuonHLTMonitor_noDz = hltTOPmonitoring.clone()
-topDiMuonHLTMonitor_noDz.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/DiMuon/Mu17_Mu8/')
+topDiMuonHLTMonitor_noDz.FolderName = cms.string('HLT/TOP/DiLepton/DiMuon/Mu17_Mu8/')
 topDiMuonHLTMonitor_noDz.nmuons = cms.uint32(2)
 topDiMuonHLTMonitor_noDz.nelectrons = cms.uint32(0)
 topDiMuonHLTMonitor_noDz.njets = cms.uint32(0)
@@ -190,7 +190,7 @@ topDiMuonHLTMonitor_noDz.jetSelection = cms.string('pt>30 & abs(eta)<2.4')
 topDiMuonHLTMonitor_noDz.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*'])
 
 topDiMuonHLTMonitor_Dz = hltTOPmonitoring.clone()
-topDiMuonHLTMonitor_Dz.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/DiMuon/Mu17_Mu8_Dz/')
+topDiMuonHLTMonitor_Dz.FolderName = cms.string('HLT/TOP/DiLepton/DiMuon/Mu17_Mu8_Dz/')
 topDiMuonHLTMonitor_Dz.nmuons = cms.uint32(2)
 topDiMuonHLTMonitor_Dz.nelectrons = cms.uint32(0)
 topDiMuonHLTMonitor_Dz.njets = cms.uint32(0)
@@ -200,12 +200,12 @@ topDiMuonHLTMonitor_Dz.jetSelection = cms.string('pt>30 & abs(eta)<2.4')
 topDiMuonHLTMonitor_Dz.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*'])
 
 topDiMuonHLTMonitor_Dz_Mu17_Mu8 = topDiMuonHLTMonitor_Dz.clone()
-topDiMuonHLTMonitor_Dz_Mu17_Mu8.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/DiMuon/Mu17_Mu8_DzEfficiency/')
+topDiMuonHLTMonitor_Dz_Mu17_Mu8.FolderName = cms.string('HLT/TOP/DiLepton/DiMuon/Mu17_Mu8_DzEfficiency/')
 topDiMuonHLTMonitor_Dz_Mu17_Mu8.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*')
 topDiMuonHLTMonitor_Dz_Mu17_Mu8.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*')
 
 topDiMuonHLTMonitor_Mass8 = hltTOPmonitoring.clone()
-topDiMuonHLTMonitor_Mass8.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/DiMuon/Mass8/')
+topDiMuonHLTMonitor_Mass8.FolderName = cms.string('HLT/TOP/DiLepton/DiMuon/Mass8/')
 topDiMuonHLTMonitor_Mass8.nmuons = cms.uint32(2)
 topDiMuonHLTMonitor_Mass8.nelectrons = cms.uint32(0)
 topDiMuonHLTMonitor_Mass8.njets = cms.uint32(0)
@@ -216,7 +216,7 @@ topDiMuonHLTMonitor_Mass8.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HL
 
 #########ElecMuon
 topElecMuonHLTMonitor = hltTOPmonitoring.clone()
-topElecMuonHLTMonitor.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/ElecMuon/OR/')
+topElecMuonHLTMonitor.FolderName = cms.string('HLT/TOP/DiLepton/ElecMuon/OR/')
 topElecMuonHLTMonitor.nmuons = cms.uint32(1)
 topElecMuonHLTMonitor.nelectrons = cms.uint32(1)
 topElecMuonHLTMonitor.njets = cms.uint32(0)
@@ -227,51 +227,51 @@ topElecMuonHLTMonitor.numGenericTriggerEventPSet.hltPaths = cms.vstring(['HLT_Mu
 
 #DZ monitor
 topElecMuonHLTMonitor_Dz_Mu12Ele23 = topElecMuonHLTMonitor.clone()
-topElecMuonHLTMonitor_Dz_Mu12Ele23.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/ElecMuon/Mu12Ele23_DzEfficiency/')
+topElecMuonHLTMonitor_Dz_Mu12Ele23.FolderName = cms.string('HLT/TOP/DiLepton/ElecMuon/Mu12Ele23_DzEfficiency/')
 topElecMuonHLTMonitor_Dz_Mu12Ele23.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v*')
 topElecMuonHLTMonitor_Dz_Mu12Ele23.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v*')
 
 topElecMuonHLTMonitor_Dz_Mu8Ele23 = topElecMuonHLTMonitor.clone()
-topElecMuonHLTMonitor_Dz_Mu8Ele23.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/ElecMuon/Mu8Ele23_DzEfficiency/')
+topElecMuonHLTMonitor_Dz_Mu8Ele23.FolderName = cms.string('HLT/TOP/DiLepton/ElecMuon/Mu8Ele23_DzEfficiency/')
 topElecMuonHLTMonitor_Dz_Mu8Ele23.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v*')
 topElecMuonHLTMonitor_Dz_Mu8Ele23.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v*')
 
 topElecMuonHLTMonitor_Dz_Mu23Ele12 = topElecMuonHLTMonitor.clone()
-topElecMuonHLTMonitor_Dz_Mu23Ele12.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/ElecMuon/Mu23Ele12_DzEfficiency/')
+topElecMuonHLTMonitor_Dz_Mu23Ele12.FolderName = cms.string('HLT/TOP/DiLepton/ElecMuon/Mu23Ele12_DzEfficiency/')
 topElecMuonHLTMonitor_Dz_Mu23Ele12.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*')
 topElecMuonHLTMonitor_Dz_Mu23Ele12.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v*')
 
 #individual paths
 topElecMuonHLTMonitor_Mu12Ele23 = topElecMuonHLTMonitor.clone()
-topElecMuonHLTMonitor_Mu12Ele23.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/ElecMuon/Mu12Ele23/')
+topElecMuonHLTMonitor_Mu12Ele23.FolderName = cms.string('HLT/TOP/DiLepton/ElecMuon/Mu12Ele23/')
 topElecMuonHLTMonitor_Mu12Ele23.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v*')
 
 topElecMuonHLTMonitor_Mu8Ele23 = topElecMuonHLTMonitor.clone()
-topElecMuonHLTMonitor_Mu8Ele23.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/ElecMuon/Mu8Ele23/')
+topElecMuonHLTMonitor_Mu8Ele23.FolderName = cms.string('HLT/TOP/DiLepton/ElecMuon/Mu8Ele23/')
 topElecMuonHLTMonitor_Mu8Ele23.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v*')
 
 topElecMuonHLTMonitor_Mu23Ele12 = topElecMuonHLTMonitor.clone()
-topElecMuonHLTMonitor_Mu23Ele12.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/ElecMuon/Mu23Ele12/')
+topElecMuonHLTMonitor_Mu23Ele12.FolderName = cms.string('HLT/TOP/DiLepton/ElecMuon/Mu23Ele12/')
 topElecMuonHLTMonitor_Mu23Ele12.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*')
 
 #reference paths
 topElecMuonHLTMonitor_Mu12Ele23_ref = topElecMuonHLTMonitor.clone()
-topElecMuonHLTMonitor_Mu12Ele23_ref.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/ElecMuon/Mu12Ele23_Ref/')
+topElecMuonHLTMonitor_Mu12Ele23_ref.FolderName = cms.string('HLT/TOP/DiLepton/ElecMuon/Mu12Ele23_Ref/')
 topElecMuonHLTMonitor_Mu12Ele23_ref.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v*')
 
 topElecMuonHLTMonitor_Mu8Ele23_ref = topElecMuonHLTMonitor.clone()
-topElecMuonHLTMonitor_Mu8Ele23_ref.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/ElecMuon/Mu8Ele23_Ref/')
+topElecMuonHLTMonitor_Mu8Ele23_ref.FolderName = cms.string('HLT/TOP/DiLepton/ElecMuon/Mu8Ele23_Ref/')
 topElecMuonHLTMonitor_Mu8Ele23_ref.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v*')
 
 topElecMuonHLTMonitor_Mu23Ele12_ref = topElecMuonHLTMonitor.clone()
-topElecMuonHLTMonitor_Mu23Ele12_ref.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/ElecMuon/Mu23Ele12_Ref/')
+topElecMuonHLTMonitor_Mu23Ele12_ref.FolderName = cms.string('HLT/TOP/DiLepton/ElecMuon/Mu23Ele12_Ref/')
 topElecMuonHLTMonitor_Mu23Ele12_ref.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v*')
 
 
 # Marina
 
 fullyhadronic_ref350 = hltTOPmonitoring.clone()
-fullyhadronic_ref350.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/Reference/PFHT350Monitor/')
+fullyhadronic_ref350.FolderName = cms.string('HLT/TOP/FullyHadronic/Reference/PFHT350Monitor/')
 # Selections
 fullyhadronic_ref350.leptJetDeltaRmin = cms.double(0.0)
 fullyhadronic_ref350.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
@@ -286,7 +286,7 @@ fullyhadronic_ref350.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoM
 
 
 fullyhadronic_ref370 = hltTOPmonitoring.clone()
-fullyhadronic_ref370.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/Reference/PFHT370Monitor/')
+fullyhadronic_ref370.FolderName = cms.string('HLT/TOP/FullyHadronic/Reference/PFHT370Monitor/')
 # Selections
 fullyhadronic_ref370.leptJetDeltaRmin = cms.double(0.0)
 fullyhadronic_ref370.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
@@ -300,7 +300,7 @@ fullyhadronic_ref370.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT
 fullyhadronic_ref370.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu27_v*')
 
 fullyhadronic_ref430 = hltTOPmonitoring.clone()
-fullyhadronic_ref430.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/Reference/PFHT430Monitor/')
+fullyhadronic_ref430.FolderName = cms.string('HLT/TOP/FullyHadronic/Reference/PFHT430Monitor/')
 # Selections
 fullyhadronic_ref430.leptJetDeltaRmin = cms.double(0.0)
 fullyhadronic_ref430.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
@@ -315,7 +315,7 @@ fullyhadronic_ref430.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoM
 
 
 fullyhadronic_DoubleBTag_all = hltTOPmonitoring.clone()
-fullyhadronic_DoubleBTag_all.FolderName   = cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/DoubleBTag/GlobalMonitor/')
+fullyhadronic_DoubleBTag_all.FolderName   = cms.string('HLT/TOP/FullyHadronic/DoubleBTag/GlobalMonitor/')
 # Selections
 fullyhadronic_DoubleBTag_all.leptJetDeltaRmin = cms.double(0.0)
 fullyhadronic_DoubleBTag_all.njets            = cms.uint32(6)
@@ -334,7 +334,7 @@ fullyhadronic_DoubleBTag_all.numGenericTriggerEventPSet.hltPaths = cms.vstring('
 fullyhadronic_DoubleBTag_all.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu27_v*')
 
 fullyhadronic_DoubleBTag_jet = hltTOPmonitoring.clone()
-fullyhadronic_DoubleBTag_jet.FolderName   = cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/DoubleBTag/JetMonitor/')
+fullyhadronic_DoubleBTag_jet.FolderName   = cms.string('HLT/TOP/FullyHadronic/DoubleBTag/JetMonitor/')
 # Selections
 fullyhadronic_DoubleBTag_jet.leptJetDeltaRmin = cms.double(0.0)
 fullyhadronic_DoubleBTag_jet.njets            = cms.uint32(6)
@@ -353,7 +353,7 @@ fullyhadronic_DoubleBTag_jet.numGenericTriggerEventPSet.hltPaths = cms.vstring('
 fullyhadronic_DoubleBTag_jet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT370_v*')
 
 fullyhadronic_DoubleBTag_bjet = hltTOPmonitoring.clone()
-fullyhadronic_DoubleBTag_bjet.FolderName   = cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/DoubleBTag/BJetMonitor/')
+fullyhadronic_DoubleBTag_bjet.FolderName   = cms.string('HLT/TOP/FullyHadronic/DoubleBTag/BJetMonitor/')
 # Selections
 fullyhadronic_DoubleBTag_bjet.leptJetDeltaRmin = cms.double(0.0)
 fullyhadronic_DoubleBTag_bjet.njets            = cms.uint32(6)
@@ -372,7 +372,7 @@ fullyhadronic_DoubleBTag_bjet.numGenericTriggerEventPSet.hltPaths = cms.vstring(
 fullyhadronic_DoubleBTag_bjet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT380_SixPFJet32_v*')
 
 fullyhadronic_DoubleBTag_ref = hltTOPmonitoring.clone()
-fullyhadronic_DoubleBTag_ref.FolderName   = cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/DoubleBTag/RefMonitor/')
+fullyhadronic_DoubleBTag_ref.FolderName   = cms.string('HLT/TOP/FullyHadronic/DoubleBTag/RefMonitor/')
 # Selections
 fullyhadronic_DoubleBTag_ref.leptJetDeltaRmin = cms.double(0.0)
 fullyhadronic_DoubleBTag_ref.njets            = cms.uint32(6)
@@ -391,7 +391,7 @@ fullyhadronic_DoubleBTag_ref.numGenericTriggerEventPSet.hltPaths = cms.vstring('
 fullyhadronic_DoubleBTag_ref.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu27_v*')
 
 fullyhadronic_SingleBTag_all = hltTOPmonitoring.clone()
-fullyhadronic_SingleBTag_all.FolderName= cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/SingleBTag/GlobalMonitor/')
+fullyhadronic_SingleBTag_all.FolderName= cms.string('HLT/TOP/FullyHadronic/SingleBTag/GlobalMonitor/')
 # Selections
 fullyhadronic_SingleBTag_all.leptJetDeltaRmin = cms.double(0.0)
 fullyhadronic_SingleBTag_all.njets            = cms.uint32(6)
@@ -410,7 +410,7 @@ fullyhadronic_SingleBTag_all.numGenericTriggerEventPSet.hltPaths = cms.vstring('
 fullyhadronic_SingleBTag_all.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu27_v*')
 
 fullyhadronic_SingleBTag_jet = hltTOPmonitoring.clone()
-fullyhadronic_SingleBTag_jet.FolderName= cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/SingleBTag/JetMonitor/')
+fullyhadronic_SingleBTag_jet.FolderName= cms.string('HLT/TOP/FullyHadronic/SingleBTag/JetMonitor/')
 # Selection
 fullyhadronic_SingleBTag_jet.leptJetDeltaRmin = cms.double(0.0)
 fullyhadronic_SingleBTag_jet.njets            = cms.uint32(6)
@@ -429,7 +429,7 @@ fullyhadronic_SingleBTag_jet.numGenericTriggerEventPSet.hltPaths = cms.vstring('
 fullyhadronic_SingleBTag_jet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT430_v*')
 
 fullyhadronic_SingleBTag_bjet = hltTOPmonitoring.clone()
-fullyhadronic_SingleBTag_bjet.FolderName= cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/SingleBTag/BJetMonitor/')
+fullyhadronic_SingleBTag_bjet.FolderName= cms.string('HLT/TOP/FullyHadronic/SingleBTag/BJetMonitor/')
 # Selection
 fullyhadronic_SingleBTag_bjet.leptJetDeltaRmin = cms.double(0.0)
 fullyhadronic_SingleBTag_bjet.njets            = cms.uint32(6)
@@ -448,7 +448,7 @@ fullyhadronic_SingleBTag_bjet.numGenericTriggerEventPSet.hltPaths = cms.vstring(
 fullyhadronic_SingleBTag_bjet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT430_SixPFJet40_v*')
 
 fullyhadronic_SingleBTag_ref = hltTOPmonitoring.clone()
-fullyhadronic_SingleBTag_ref.FolderName= cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/SingleBTag/RefMonitor/')
+fullyhadronic_SingleBTag_ref.FolderName= cms.string('HLT/TOP/FullyHadronic/SingleBTag/RefMonitor/')
 # Selection
 fullyhadronic_SingleBTag_ref.leptJetDeltaRmin = cms.double(0.0)
 fullyhadronic_SingleBTag_ref.njets            = cms.uint32(6)
@@ -468,7 +468,7 @@ fullyhadronic_SingleBTag_ref.denGenericTriggerEventPSet.hltPaths = cms.vstring('
 
 # TripleBTag
 fullyhadronic_TripleBTag_all = hltTOPmonitoring.clone()
-fullyhadronic_TripleBTag_all.FolderName   = cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/TripleBTag/GlobalMonitor/')
+fullyhadronic_TripleBTag_all.FolderName   = cms.string('HLT/TOP/FullyHadronic/TripleBTag/GlobalMonitor/')
 # Selections
 fullyhadronic_TripleBTag_all.leptJetDeltaRmin = cms.double(0.0)
 fullyhadronic_TripleBTag_all.njets            = cms.uint32(4)
@@ -487,7 +487,7 @@ fullyhadronic_TripleBTag_all.numGenericTriggerEventPSet.hltPaths = cms.vstring('
 fullyhadronic_TripleBTag_all.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu27_v*')
 
 fullyhadronic_TripleBTag_jet = hltTOPmonitoring.clone()
-fullyhadronic_TripleBTag_jet.FolderName   = cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/TripleBTag/JetMonitor/')
+fullyhadronic_TripleBTag_jet.FolderName   = cms.string('HLT/TOP/FullyHadronic/TripleBTag/JetMonitor/')
 # Selections
 fullyhadronic_TripleBTag_jet.leptJetDeltaRmin = cms.double(0.0)
 fullyhadronic_TripleBTag_jet.njets            = cms.uint32(4)
@@ -506,7 +506,7 @@ fullyhadronic_TripleBTag_jet.numGenericTriggerEventPSet.hltPaths = cms.vstring('
 fullyhadronic_TripleBTag_jet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT350_v*')
 
 fullyhadronic_TripleBTag_bjet = hltTOPmonitoring.clone()
-fullyhadronic_TripleBTag_bjet.FolderName   = cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/TripleBTag/BJetMonitor/')
+fullyhadronic_TripleBTag_bjet.FolderName   = cms.string('HLT/TOP/FullyHadronic/TripleBTag/BJetMonitor/')
 # Selections
 fullyhadronic_TripleBTag_bjet.leptJetDeltaRmin = cms.double(0.0)
 fullyhadronic_TripleBTag_bjet.njets            = cms.uint32(4)
@@ -527,7 +527,7 @@ fullyhadronic_TripleBTag_bjet.denGenericTriggerEventPSet.hltPaths = cms.vstring(
 #DeepCSV
 
 fullyhadronic_DoubleBTag_DeepCSV_all = hltTOPmonitoring.clone()
-fullyhadronic_DoubleBTag_DeepCSV_all.FolderName   = cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/DoubleBTag/GlobalMonitor_DeepCSV/')
+fullyhadronic_DoubleBTag_DeepCSV_all.FolderName   = cms.string('HLT/TOP/FullyHadronic/DoubleBTag/GlobalMonitor_DeepCSV/')
 # Selections
 fullyhadronic_DoubleBTag_DeepCSV_all.leptJetDeltaRmin = cms.double(0.0)
 fullyhadronic_DoubleBTag_DeepCSV_all.njets            = cms.uint32(6)
@@ -547,7 +547,7 @@ fullyhadronic_DoubleBTag_DeepCSV_all.numGenericTriggerEventPSet.hltPaths = cms.v
 fullyhadronic_DoubleBTag_DeepCSV_all.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu27_v*')
 
 fullyhadronic_DoubleBTag_DeepCSV_jet = hltTOPmonitoring.clone()
-fullyhadronic_DoubleBTag_DeepCSV_jet.FolderName   = cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/DoubleBTag/JetMonitor_DeepCSV/')
+fullyhadronic_DoubleBTag_DeepCSV_jet.FolderName   = cms.string('HLT/TOP/FullyHadronic/DoubleBTag/JetMonitor_DeepCSV/')
 # Selections
 fullyhadronic_DoubleBTag_DeepCSV_jet.leptJetDeltaRmin = cms.double(0.0)
 fullyhadronic_DoubleBTag_DeepCSV_jet.njets            = cms.uint32(6)
@@ -567,7 +567,7 @@ fullyhadronic_DoubleBTag_DeepCSV_jet.numGenericTriggerEventPSet.hltPaths = cms.v
 fullyhadronic_DoubleBTag_DeepCSV_jet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT370_v*')
 
 fullyhadronic_DoubleBTag_DeepCSV_bjet = hltTOPmonitoring.clone()
-fullyhadronic_DoubleBTag_DeepCSV_bjet.FolderName   = cms.string('HLT/TopHLTOffline/TopMonitor/FullyHadronic/DoubleBTag/BJetMonitor_DeepCSV/')
+fullyhadronic_DoubleBTag_DeepCSV_bjet.FolderName   = cms.string('HLT/TOP/FullyHadronic/DoubleBTag/BJetMonitor_DeepCSV/')
 # Selections
 fullyhadronic_DoubleBTag_DeepCSV_bjet.leptJetDeltaRmin = cms.double(0.0)
 fullyhadronic_DoubleBTag_DeepCSV_bjet.njets            = cms.uint32(6)
@@ -631,3 +631,6 @@ topMonitorHLT = cms.Sequence(
     + fullyhadronic_DoubleBTag_DeepCSV_jet
     + fullyhadronic_DoubleBTag_DeepCSV_bjet
     )
+
+topHLTDQMSourceExtra = cms.Sequence(
+)

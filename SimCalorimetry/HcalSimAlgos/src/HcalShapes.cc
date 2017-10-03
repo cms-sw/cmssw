@@ -47,8 +47,8 @@ HcalShapes::~HcalShapes()
     delete shapeItr.second;
   }
   theShapes.clear();
-  if (theMCParams!=0) delete theMCParams;
-  if (theTopology!=0) delete theTopology;
+  if (theMCParams!=nullptr) delete theMCParams;
+  if (theTopology!=nullptr) delete theTopology;
 }
 
 
@@ -70,9 +70,9 @@ void HcalShapes::beginRun(edm::EventSetup const & es)
 void HcalShapes::endRun()
 {
   if (theMCParams) delete theMCParams;
-  theMCParams = 0;
+  theMCParams = nullptr;
   if (theTopology) delete theTopology;
-  theTopology = 0;
+  theTopology = nullptr;
 }
 
 
@@ -105,7 +105,7 @@ const CaloVShape * HcalShapes::defaultShape(const DetId & detId, bool precise) c
   else if(subdet == HcalGenericDetId::HcalGenOuter) result = myShapes.find(HPD)->second;
   else if(subdet == HcalGenericDetId::HcalGenForward) result = myShapes.find(HF)->second;
   else if(subdet == HcalGenericDetId::HcalGenZDC) result = myShapes.find(ZDC)->second;
-  else result = 0;
+  else result = nullptr;
 
   edm::LogWarning("HcalShapes") << "Cannot find HCAL MC Params, so the default one is taken for subdet " << subdet;  
 

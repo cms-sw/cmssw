@@ -65,12 +65,12 @@ class MuonAssociatorByHits {
   /// Association Reco To Sim with Collections
   reco::RecoToSimCollection associateRecoToSim(const edm::RefToBaseVector<reco::Track>&,
 					       const edm::RefVector<TrackingParticleCollection>&,
-					       const edm::Event * event = 0, const edm::EventSetup * setup = 0) const;
+					       const edm::Event * event = nullptr, const edm::EventSetup * setup = nullptr) const;
   
   /// Association Sim To Reco with Collections
   reco::SimToRecoCollection associateSimToReco(const edm::RefToBaseVector<reco::Track>&,
 					       const edm::RefVector<TrackingParticleCollection>&,
-					       const edm::Event * event = 0, const edm::EventSetup * setup = 0) const;
+					       const edm::Event * event = nullptr, const edm::EventSetup * setup = nullptr) const;
 
  
  private:

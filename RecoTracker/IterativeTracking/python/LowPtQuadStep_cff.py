@@ -181,8 +181,8 @@ lowPtQuadStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
 lowPtQuadStep =  TrackMVAClassifierPrompt.clone(
     src = 'lowPtQuadStepTracks',
-    GBRForestLabel = 'MVASelectorLowPtQuadStep_Phase1',
-    qualityCuts = [-0.65,-0.35,-0.15],
+    mva = dict(GBRForestLabel = 'MVASelectorLowPtQuadStep_Phase1'),
+    qualityCuts = [-0.7,-0.35,-0.15],
 )
 
 # For Phase2PU140
