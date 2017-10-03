@@ -212,7 +212,7 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
       }
 
       for (int i =0; i<cluster.size(); i++){
-          const & SiPixelCluster::Pixel vecipxl = cluster.pixel(i);
+          SiPixelCluster::Pixel const & vecipxl = cluster.pixel(i);
           histo[SiPixelPhase1DigisHitmapOnTrack].fill(id, &iEvent, vecipxl.y, vecipxl.x);
       }
 
