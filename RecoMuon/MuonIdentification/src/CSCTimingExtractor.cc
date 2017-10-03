@@ -127,7 +127,7 @@ void CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence,
 
     if (rechit->specificRecHits().empty()) continue;
 
-    const std::vector<CSCRecHit2D> hits2d = rechit->specificRecHits();
+    const std::vector<CSCRecHit2D>& hits2d(rechit->specificRecHits());
 
     // store all the hits from the segment
     for (const auto& hiti : hits2d) {
