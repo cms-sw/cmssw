@@ -15,7 +15,7 @@
 //
 //   Changes & Notes:
 //   This version is able to unpack the normal and the zero suppressed data
-//   For storing the additional info from the ud flag in the raw data and not changing the output data format of the unpacker, it will be stored as the sign to the station number for Phi In and Out segments. ud == 0 is stored as a positive station number, while ud==1 is stored as a negative station number. Use abs(station) to obtain the real station. 
+//   For storing the additional info from the ud flag in the raw data and not changing the output data format of the unpacker, it will be stored as an additional bit in the Ts2TagCode. 
 //   This change is transparent to old data, too.
 //   The switch between old and new unpacker code is done by the firmware revision. If it >= 93 the new unpacker code is used, otherwise the old and unmodified code is used.
 //
