@@ -678,19 +678,19 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   if (eventHT < HTcut_) return;
   if (MHTcut_>0 && eventMHT.pt()<MHTcut_) return;
 
-    bool allpairs=false;
+  bool allpairs=false;
   if (nmuons_>2) {
     float mumu_mass;
     for (unsigned int idx=0; idx<muons.size(); idx++){
       for (unsigned int idx2=idx+1; idx2<muons.size(); idx2++){
-         //compute inv mass of two different leptons
-          mumu_mass=(muons[idx2].p4() + muons[idx2].p4()).M();
-           if (mumu_mass<invMassLowercut_ || mumu_mass>invMassUppercut_) allpairs=true;
-                       }
-            }
-          }
+        //compute inv mass of two different leptons
+        mumu_mass=(muons[idx2].p4() + muons[idx2].p4()).M();
+        if (mumu_mass<invMassLowercut_ || mumu_mass>invMassUppercut_) allpairs=true;
+      }
+    }
+  }
         //cut only if enabled and the event has a pair that failed the mll range
-     if (allpairs && invMassCutInAllMuPairs_) return;
+  if (allpairs && invMassCutInAllMuPairs_) return;
 
 
   // Marina
