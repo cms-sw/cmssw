@@ -44,13 +44,13 @@ void testVecArray::test() {
   ++iter;
   CPPUNIT_ASSERT(iter == end);
 
-  array.push_back_unchecked(2);
+  array.emplace_back_unchecked(2);
   CPPUNIT_ASSERT(array.size() == 2);
   CPPUNIT_ASSERT(array.back() == 2);
   array.push_back(3);
   CPPUNIT_ASSERT(array.size() == 3);
   CPPUNIT_ASSERT(array.back() == 3);
-  array.push_back(4);
+  array.emplace_back(4);
   CPPUNIT_ASSERT(array.size() == 4);
   CPPUNIT_ASSERT(array.front() == 1);
   CPPUNIT_ASSERT(array.back() == 4);
@@ -58,6 +58,13 @@ void testVecArray::test() {
 
   try {
     array.push_back(5);
+    CPPUNIT_ASSERT(false);
+  } catch(std::length_error& e) {
+    CPPUNIT_ASSERT(true);
+  }
+
+  try {
+    array.emplace_back(5);
     CPPUNIT_ASSERT(false);
   } catch(std::length_error& e) {
     CPPUNIT_ASSERT(true);
