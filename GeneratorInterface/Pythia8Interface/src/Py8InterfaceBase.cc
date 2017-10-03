@@ -49,7 +49,7 @@ useEvtGen(false), evtgenDecays(0)
 bool Py8InterfaceBase::readSettings( int ) 
 {
 
-   fMasterGen.reset(new Pythia);
+   if(!fMasterGen.get()) fMasterGen.reset(new Pythia);
    fDecayer.reset(new Pythia);
 
    //add settings for resonance decay filter
