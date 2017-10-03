@@ -329,15 +329,15 @@ namespace spr{
       trkD.detIdEHCAL= DetId(0);
       trkD.pdgId  = ((*p)->pdg_id());
       trkD.charge = ((pdt->particle(trkD.pdgId))->ID().threeCharge())/3;
-      GlobalVector momentum = GlobalVector((*p)->momentum().px(), (*p)->momentum().py(), (*p)->momentum().pz());
+      const GlobalVector momentum = GlobalVector((*p)->momentum().px(), (*p)->momentum().py(), (*p)->momentum().pz());
 #ifdef EDM_ML_DEBUG
       if (debug) std::cout << "Propagate track " << indx << " pdg " << trkD.pdgId << " charge " << trkD.charge << " p " << momentum << std::endl;
 #endif      
       // consider stable particles
       if ( (*p)->status()==1 && std::abs((*p)->momentum().eta()) < etaMax ) { 
-	GlobalPoint vertex = GlobalPoint(0.1*(*p)->production_vertex()->position().x(), 
-					 0.1*(*p)->production_vertex()->position().y(), 
-					 0.1*(*p)->production_vertex()->position().z());
+	const GlobalPoint vertex = GlobalPoint(0.1*(*p)->production_vertex()->position().x(), 
+					       0.1*(*p)->production_vertex()->position().y(), 
+					       0.1*(*p)->production_vertex()->position().z());
 	trkD.ok = true;
 	spr::propagatedTrack info = spr::propagateCalo (vertex, momentum, trkD.charge, bField, spr::zFrontEE, spr::rFrontEB, spr::etaBEEcal, debug);
 	GlobalPoint point(info.point.x(),info.point.y(),info.point.z());
@@ -408,13 +408,13 @@ namespace spr{
       trkD.detIdEHCAL= DetId(0);
       trkD.pdgId     = (p->pdgId());
       trkD.charge    = p->charge();
-      GlobalVector momentum = GlobalVector(p->momentum().x(), p->momentum().y(), p->momentum().z());
+      const GlobalVector momentum = GlobalVector(p->momentum().x(), p->momentum().y(), p->momentum().z());
 #ifdef EDM_ML_DEBUG
       if (debug) std::cout << "Propagate track " << indx << " pdg " << trkD.pdgId << " charge " << trkD.charge << " p " << momentum << std::endl;
 #endif      
       // consider stable particles
       if ( p->status()==1 && std::abs(momentum.eta()) < etaMax ) { 
-	GlobalPoint vertex = GlobalPoint(p->vertex().x(), p->vertex().y(), p->vertex().z());
+	const GlobalPoint vertex = GlobalPoint(p->vertex().x(), p->vertex().y(), p->vertex().z());
 	trkD.ok = true;
 	spr::propagatedTrack info = spr::propagateCalo (vertex, momentum, trkD.charge, bField, spr::zFrontEE, spr::rFrontEB, spr::etaBEEcal, debug);
 	GlobalPoint point(info.point.x(),info.point.y(),info.point.z());
@@ -544,7 +544,7 @@ namespace spr{
 #endif
     if (trkD.ok) {
       spr::propagatedTrack info = spr::propagateCalo (trk.position, trk.momentum, trk.charge, bField, spr::zBackHE, spr::rBackHB, spr::etaBEHcal, debug);
-      GlobalPoint point = GlobalPoint(info.point.x(),info.point.y(),info.point.z());
+      const GlobalPoint point = GlobalPoint(info.point.x(),info.point.y(),info.point.z());
       trkD.okHCAL        = info.ok;
       trkD.pointHCAL     = point;
       trkD.directionHCAL = info.direction;
@@ -567,8 +567,8 @@ namespace spr{
 
   std::pair<bool,HcalDetId> propagateHCALBack(const reco::Track* track, const CaloGeometry* geo, const MagneticField* bField, bool debug) {
     const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
-    GlobalPoint  vertex (track->vx(), track->vy(), track->vz());
-    GlobalVector momentum (track->px(), track->py(), track->pz());
+    const GlobalPoint  vertex (track->vx(), track->vy(), track->vz());
+    const GlobalVector momentum (track->px(), track->py(), track->pz());
     int charge (track->charge());
     spr::propagatedTrack info = spr::propagateCalo(vertex, momentum, charge, bField, spr::zBackHE, spr::rBackHB, spr::etaBEHcal, debug);
     if (info.ok) {
@@ -580,8 +580,8 @@ namespace spr{
   }
 
   propagatedTrack propagateTrackToECAL(const reco::Track *track, const MagneticField* bfield, bool debug) {
-    GlobalPoint  vertex (track->vx(), track->vy(), track->vz());
-    GlobalVector momentum (track->px(), track->py(), track->pz());
+    const GlobalPoint  vertex (track->vx(), track->vy(), track->vz());
+    const GlobalVector momentum (track->px(), track->py(), track->pz());
     int charge (track->charge());
     return spr::propagateCalo (vertex, momentum, charge, bfield, spr::zFrontEE, spr::rFrontEB, spr::etaBEEcal, debug);
   }
@@ -596,8 +596,8 @@ namespace spr{
   }
 
   std::pair<math::XYZPoint,bool> propagateECAL(const reco::Track *track, const MagneticField* bfield, bool debug) {    
-    GlobalPoint  vertex (track->vx(), track->vy(), track->vz());
-    GlobalVector momentum (track->px(), track->py(), track->pz());
+    const GlobalPoint  vertex (track->vx(), track->vy(), track->vz());
+    const GlobalVector momentum (track->px(), track->py(), track->pz());
     int charge (track->charge());
     return spr::propagateECAL (vertex, momentum, charge, bfield, debug);
   }
@@ -605,9 +605,9 @@ namespace spr{
   std::pair<DetId,bool> propagateIdECAL(const HcalDetId& id, const CaloGeometry* geo, const MagneticField* bField, bool debug) {
 
     const HcalGeometry* gHB = (const HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
-    GlobalPoint vertex(0,0,0);
-    GlobalPoint hit(gHB->getPosition(id));
-    GlobalVector momentum = GlobalVector(hit.x(),hit.y(),hit.z());
+    const GlobalPoint vertex(0,0,0);
+    const GlobalPoint hit(gHB->getPosition(id));
+    const GlobalVector momentum = GlobalVector(hit.x(),hit.y(),hit.z());
     std::pair<math::XYZPoint,bool> info = propagateECAL(vertex,momentum,0,bField,debug);
     DetId eId(0);
     if (info.second) {
@@ -629,8 +629,8 @@ namespace spr{
   }
 
   spr::propagatedTrack propagateTrackToHCAL(const reco::Track *track, const MagneticField* bfield, bool debug) {
-    GlobalPoint  vertex (track->vx(), track->vy(), track->vz());
-    GlobalVector momentum (track->px(), track->py(), track->pz());
+    const GlobalPoint  vertex (track->vx(), track->vy(), track->vz());
+    const GlobalVector momentum (track->px(), track->py(), track->pz());
     int charge (track->charge());
     return spr::propagateCalo (vertex, momentum, charge, bfield, spr::zFrontHE, spr::rFrontHB, spr::etaBEHcal, debug);
   }
@@ -644,8 +644,8 @@ namespace spr{
   }
 
   std::pair<math::XYZPoint,bool> propagateHCAL(const reco::Track *track, const MagneticField* bfield, bool debug) {
-    GlobalPoint  vertex (track->vx(), track->vy(), track->vz());
-    GlobalVector momentum (track->px(), track->py(), track->pz());
+    const GlobalPoint  vertex (track->vx(), track->vy(), track->vz());
+    const GlobalVector momentum (track->px(), track->py(), track->pz());
     int charge (track->charge());
     return spr::propagateHCAL (vertex, momentum, charge, bfield, debug);
   }
@@ -656,8 +656,8 @@ namespace spr{
   }
 
   std::pair<math::XYZPoint,bool> propagateTracker(const reco::Track *track, const MagneticField* bfield, bool debug) {
-    GlobalPoint  vertex (track->vx(), track->vy(), track->vz());
-    GlobalVector momentum (track->px(), track->py(), track->pz());
+    const GlobalPoint  vertex (track->vx(), track->vy(), track->vz());
+    const GlobalVector momentum (track->px(), track->py(), track->pz());
     int charge (track->charge());
     spr::propagatedTrack track1 = spr::propagateCalo (vertex, momentum, charge, bfield, spr::zBackTE, spr::rBackTB, spr::etaBETrak, debug);
     return std::pair<math::XYZPoint,bool>(track1.point,track1.ok);
@@ -670,8 +670,8 @@ namespace spr{
 #endif
 						       ) {
 
-    GlobalPoint  vertex (track->vx(), track->vy(), track->vz());
-    GlobalVector momentum (track->px(), track->py(), track->pz());
+    const GlobalPoint  vertex (track->vx(), track->vy(), track->vz());
+    const GlobalVector momentum (track->px(), track->py(), track->pz());
     int charge (track->charge());
     float radius = track->outerPosition().Rho();
     float zdist  = track->outerPosition().Z();
