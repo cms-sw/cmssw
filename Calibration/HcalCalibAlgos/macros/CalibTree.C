@@ -81,7 +81,7 @@
 #include <fstream>
 #include <sstream>
 
-#include <CalibCorr.C>
+#include "CalibCorr.C"
 
 void Run(const char *inFileName="Silver",
 	 const char *dirName="HcalIsoTrkAnalyzer",
@@ -336,7 +336,7 @@ CalibTree::CalibTree(const char *dupFileName, const std::string& rcorFileName,
 }
 
 CalibTree::~CalibTree() {
-  if (cFactor_) delete cFactor_;
+  delete cFactor_;
   if (!fChain) return;
   delete fChain->GetCurrentFile();
 }
@@ -509,6 +509,7 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
   if (debug) {
     std::cout << "Total of " << detIds.size() << " detIds and " 
 	      << histos.size() << " histos found" << std::endl;
+    // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
     for (unsigned int k=0; k<detIds.size(); ++k) {
       int subdet = (detIds[k] >> 25) & (0x7);
       int depth  = (detIds[k] >> 20) & (0xF);
@@ -533,6 +534,7 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
   for (unsigned int k=0; k<detIds.size(); ++k) {
     char name[20], title[100];
     sprintf (name, "Hist%d_%d", detIds[k], loop);
+    // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
     int subdet = (detIds[k] >> 25) & (0x7);
     int depth  = (detIds[k] >> 20) & (0xF);
     int zside  = (detIds[k]&0x80000)?(1):(-1);
@@ -575,7 +577,7 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 	    hitEn = Cprev[detid].first * (*t_HitEnergies)[idet];
 	  else 
 	    hitEn = (*t_HitEnergies)[idet];
-	  if (cFactor_ != 0) hitEn *= cFactor_->getCorr(t_Run,id);
+	  if (cFactor_) hitEn *= cFactor_->getCorr(t_Run,id);
 	  Etot  += hitEn;
 	  Etot2 += ((*t_HitEnergies)[idet]);
 	}
@@ -592,7 +594,7 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 	      hitEn = Cprev[detid].first * (*t_HitEnergies1)[idet];
 	    else 
 	      hitEn = (*t_HitEnergies1)[idet];
-	    if (cFactor_ != 0) hitEn *= cFactor_->getCorr(t_Run,id);
+	    if (cFactor_) hitEn *= cFactor_->getCorr(t_Run,id);
 	    Etot1  += hitEn;
 	  }
 	}
@@ -605,7 +607,7 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 	      hitEn = Cprev[detid].first * (*t_HitEnergies3)[idet];
 	    else 
 	      hitEn = (*t_HitEnergies3)[idet];
-	    if (cFactor_ != 0) hitEn *= cFactor_->getCorr(t_Run,id);
+	    if (cFactor_) hitEn *= cFactor_->getCorr(t_Run,id);
 	    Etot3  += hitEn;
 	  }
 	}
@@ -653,7 +655,7 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 	      hitEn = Cprev[detid].first * (*t_HitEnergies)[idet];
 	    else 
 	      hitEn = (*t_HitEnergies)[idet];
-	    if (cFactor_ != 0) hitEn *= cFactor_->getCorr(t_Run,id);
+	    if (cFactor_) hitEn *= cFactor_->getCorr(t_Run,id);
 	    double Wi  = evWt * hitEn/Etot;
 	    double Fac = (inverse) ? (pufac*Etot/(pmom-t_eMipDR)) : 
 	      ((pmom-t_eMipDR)/(pufac*Etot));
@@ -700,6 +702,7 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
       std::pair<double,double> result_write = fitMean(itr->second, 0);
       (itr->second)->Write();
     }
+    // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
     int subdet = ((itr->first) >> 25) & (0x7);
     int ieta   = ((itr->first) >> 10) & (0x1FF);
     if (debug) std::cout << "DETID :" << subdet << "  IETA :" << ieta
@@ -712,6 +715,7 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
     std::pair<double,double> result = fitMean(itr->second, 0);
     double factor = (inverse) ? (2.-result.first) : result.first;
     if (debug) {
+      // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
       int subdet = ((itr->first) >> 25) & (0x7);
       int depth  = ((itr->first) >> 20) & (0xF);
       int zside  = ((itr->first)&0x80000)?(1):(-1);
@@ -733,6 +737,7 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
   std::map<unsigned int, myEntry>::const_iterator SumWItr = SumW.begin();
   for (; SumWItr != SumW.end(); SumWItr++) {
     unsigned int detid = SumWItr->first;
+    // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
     int subdet = (detid >> 25) & (0x7);
     int depth  = (detid >> 20) & (0xF);
     int zside  = (detid&0x80000)?(1):(-1);
@@ -765,6 +770,7 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
   std::map<unsigned int,std::pair<double,double> >::const_iterator itr=cfactors.begin();
   for (; itr !=cfactors.end(); ++itr,++kount) {
     unsigned int detid = itr->first;
+    // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
     int depth  = (detid >> 20) & (0xF);
     int zside  = (detid&0x80000)?(1):(-1);
     int ieta   = (detid >> 10) & (0x1FF);
@@ -834,6 +840,7 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
   unsigned int indx(0);
   for (; CprevItr != Cprev.end(); CprevItr++, indx++){
     unsigned int detid = CprevItr->first;
+    // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
     int ieta   = ((detid >> 10) & 0x1FF);
     int zside  = (detid&0x80000)?(1):(-1);
     int depth  = ((detid >> 20) & 0xF);
@@ -907,6 +914,7 @@ void CalibTree::writeCorrFactor(const char *corrFileName, int ietaMax) {
     std::map<unsigned int, std::pair<double,double> >::const_iterator itr;
     for (itr=Cprev.begin(); itr != Cprev.end(); ++itr) {
       unsigned int detId = itr->first;
+      // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
       int etaAbs= ((detId>>10)&0x1FF);
       int ieta  = ((detId&0x80000) ? etaAbs : -etaAbs);
       int depth = (detId >> 20) & (0xF);
@@ -925,6 +933,7 @@ void CalibTree::writeCorrFactor(const char *corrFileName, int ietaMax) {
 
 bool CalibTree::selectPhi(unsigned int detId) {
   bool flag(true);
+  // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
   if (phimin_ > 1 || phimax_ < 72) {
     int iphi = ((detId&0x1000000) == 0) ? (detId & 0x3F) : (detId & 0x3FF);
     if ((iphi < phimin_) || (iphi > phimax_)) flag = false;
@@ -942,6 +951,7 @@ unsigned int CalibTree::truncateId(unsigned int detId) {
   //std::cout << "Truncate 1 " << std::hex << detId << " " << id << std::dec << std::endl;
   int subdet = ((detId >> 25) & (0x7));
   int ieta, zside, depth;
+  // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
   if ((id&0x1000000) == 0) {
     ieta   = ((detId >> 7) & 0x3F);
     zside  = (detId&0x2000)?(1):(-1);
@@ -952,6 +962,7 @@ unsigned int CalibTree::truncateId(unsigned int detId) {
     depth  = ((detId >> 20) & 0xF);
   }
   if (truncateFlag_) {
+    //Ignore depth index of ieta values of 15 and 16 of HB
     if ((subdet == 1) && (ieta > 14)) depth  = 1;
   }
   id = (subdet<<25) | (0x1000000) | ((depth&0xF)<<20) | ((zside>0)?(0x80000|(ieta<<10)):(ieta<<10));
@@ -1035,7 +1046,7 @@ void CalibTree::makeplots(double rmin, double rmax, int ietaMax,
 	  hitEn = Cprev[detid].first * (*t_HitEnergies)[idet];
 	else 
 	  hitEn = (*t_HitEnergies)[idet];
-	if (cFactor_ != 0) hitEn *= cFactor_->getCorr(t_Run,id);
+	if (cFactor_) hitEn *= cFactor_->getCorr(t_Run,id);
 	Etot += hitEn;
       }
       double evWt   = (useweight) ? t_EventWeight : 1.0; 

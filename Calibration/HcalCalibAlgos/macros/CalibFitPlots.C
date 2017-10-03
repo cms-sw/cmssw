@@ -988,7 +988,7 @@ void PlotHistCorrFactor(std::string infile, std::string text,
 			int nmin=20, bool save=false) {
 
   std::vector<cfactors> cfacs;
-  std::ifstream fInput(infile.c_str());
+  std::ifstream fInput(infile);
   int etamin(100), etamax(-100), maxdepth(0);
   if (!fInput.good()) {
     std::cout << "Cannot open file " << infile << std::endl;
@@ -1122,7 +1122,7 @@ void PlotHistCorrFactors(std::string infile1, std::string text1,
   unsigned int nhist[2];
   for (int k1=0; k1<2; ++k1) {
     std::string infile = (k1 == 0) ? infile1 : infile2;
-    std::ifstream fInput(infile.c_str());
+    std::ifstream fInput(infile);
     if (!fInput.good()) {
       std::cout << "Cannot open file " << infile << std::endl;
     } else {
