@@ -76,7 +76,7 @@ class Pythia8Hadronizer : public Py8InterfaceBase {
   public:
 
     Pythia8Hadronizer(const edm::ParameterSet &params);
-   ~Pythia8Hadronizer();
+   ~Pythia8Hadronizer() override;
  
     bool initializeForInternalPartons() override;
     bool initializeForExternalPartons();
@@ -98,7 +98,7 @@ class Pythia8Hadronizer : public Py8InterfaceBase {
 
     Vincia::VinciaPlugin* vincia;
 
-    virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override { p8SetRandomEngine(v); }
+    void doSetRandomEngine(CLHEP::HepRandomEngine* v) override { p8SetRandomEngine(v); }
     virtual std::vector<std::string> const& doSharedResources() const override { return p8SharedResources; }
 
     /// Center-of-Mass energy
