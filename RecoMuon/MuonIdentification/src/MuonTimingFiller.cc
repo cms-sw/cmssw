@@ -104,10 +104,16 @@ MuonTimingFiller::fillTiming( const reco::Muon& muon,
 	std::vector<const CSCSegment*> cscSegments;
 	for( auto& chamber: muon.matches() ){
 	  for ( auto& segment : chamber.segmentMatches ){
-	    if ( !(segment.dtSegmentRef.isNull()))
-	      dtSegments.push_back(segment.dtSegmentRef.get());
-	    if ( !(segment.cscSegmentRef.isNull()))
-	      cscSegments.push_back(segment.cscSegmentRef.get());
+	    // Use only the segments that passed arbitration to avoid mixing
+	    // segments from in-time and out-of-time muons that may bias the result
+	    // SegmentAndTrackArbitration
+            if(segment.isMask(reco::MuonSegmentMatch::BestInStationByDR) &&
+	       segment.isMask(reco::MuonSegmentMatch::BelongsToTrackByDR)){
+	      if ( !(segment.dtSegmentRef.isNull()))
+		dtSegments.push_back(segment.dtSegmentRef.get());
+	      if ( !(segment.cscSegmentRef.isNull()))
+		cscSegments.push_back(segment.cscSegmentRef.get());
+	    }
 	  }
 	}
 	theDTTimingExtractor_->fillTiming(dtTmSeq, dtSegments, muon.innerTrack(), iEvent, iSetup);
