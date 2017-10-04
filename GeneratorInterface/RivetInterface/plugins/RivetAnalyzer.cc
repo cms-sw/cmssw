@@ -56,7 +56,7 @@ _xsection(-1.)
   }
   if (_produceDQM){
     // book stuff needed for DQM
-    dbe = 0;
+    dbe = nullptr;
     dbe = edm::Service<DQMStore>().operator->();
     dbe->setVerbose(50);
   }  
@@ -106,7 +106,7 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
     } 
 
     if ( _useExternalWeight ){
-      if (tmpGenEvtPtr->weights().size() == 0) {
+      if (tmpGenEvtPtr->weights().empty()) {
 	throw cms::Exception("RivetAnalyzer") << "Original weight container has 0 size ";
       }
       if (tmpGenEvtPtr->weights().size() > 1) {
@@ -178,7 +178,7 @@ void RivetAnalyzer::normalizeTree()    {
   //tree.mkdir(tmpdir);
   foreach (const string& analysis, analyses) {
     if (_produceDQM){
-      dbe->setCurrentFolder(("Rivet/"+analysis).c_str());
+      dbe->setCurrentFolder("Rivet/"+analysis);
       //global variables that are always present
       //sumOfWeights
       TH1F nevent("nEvt", "n analyzed Events", 1, 0., 1.);
