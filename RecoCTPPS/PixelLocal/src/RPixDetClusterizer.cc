@@ -81,7 +81,7 @@ void RPixDetClusterizer::buildClusters(unsigned int detId, const std::vector<CTP
 void RPixDetClusterizer::make_cluster(RPixCalibDigi const &aSeed,  std::vector<CTPPSPixelCluster> &clusters ){
 /// check if seed already used
   unsigned int seedIndex = aSeed.column()*maxRow + aSeed.row();
-  if(calib_rpix_digi_map_.empty() || calib_rpix_digi_map_.find(seedIndex)==calib_rpix_digi_map_.end() ){
+  if( calib_rpix_digi_map_.find(seedIndex)==calib_rpix_digi_map_.end() ){
     return;
   }
 // creating a temporary cluster
