@@ -91,7 +91,7 @@ public:
       m_phiPoints = points.getParameter<std::vector<double>>("phi");
 
       if (!(m_etaPoints.size() == m_phiPoints.size()))  throw edm::Exception(edm::errors::Configuration) << "The parameters 'eta' and 'phi' must have the same size";
-      if (m_etaPoints.size() == 0) throw edm::Exception(edm::errors::Configuration) << "At least one point should be defined for point or candidate+point seeding modes";
+      if (m_etaPoints.empty()) throw edm::Exception(edm::errors::Configuration) << "At least one point should be defined for point or candidate+point seeding modes";
 
       for(size_t i = 0; i < m_etaPoints.size(); ++i ){
 
