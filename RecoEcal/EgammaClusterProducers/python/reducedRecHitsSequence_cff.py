@@ -174,3 +174,8 @@ _phase2_reducedEcalRecHitsSequence.remove(reducedEcalRecHitsES)
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toReplaceWith( reducedEcalRecHitsSequence , _phase2_reducedEcalRecHitsSequence )
+
+
+_fastSim_reducedEcalRecHitsSequence = reducedEcalRecHitsSequence.copyAndExclude([seldigis])
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toReplaceWith( reducedEcalRecHitsSequence, _fastSim_reducedEcalRecHitsSequence)

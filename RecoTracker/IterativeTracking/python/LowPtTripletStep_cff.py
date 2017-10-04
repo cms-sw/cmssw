@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016 as _tracker_apv_vfp30_2016
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 # NEW CLUSTERS (remove previously used clusters)
 lowPtTripletStepClusters = _cfg.clusterRemoverForIter("LowPtTripletStep")
@@ -90,6 +91,16 @@ from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_
 lowPtTripletStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
     seedingHitSets = "lowPtTripletStepHitTriplets",
 )
+import FastSimulation.Tracking.TrajectorySeedProducer_cfi
+_fastSim_lowPtTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
+    layerList = lowPtTripletStepSeedLayers.layerList.value(),
+    trackingRegions = "lowPtTripletStepTrackingRegions",
+    hitMasks = cms.InputTag("lowPtTripletStepMasks"),
+)
+from FastSimulation.Tracking.SeedingMigration import _hitSetProducerToFactoryPSet
+_fastSim_lowPtTripletStepSeeds.seedFinderSelector.pixelTripletGeneratorFactory = _hitSetProducerToFactoryPSet(lowPtTripletStepHitTriplets)
+_fastSim_lowPtTripletStepSeeds.seedFinderSelector.pixelTripletGeneratorFactory.SeedComparitorPSet.ComponentName = "none"
+fastSim.toReplaceWith(lowPtTripletStepSeeds,_fastSim_lowPtTripletStepSeeds)
 
 from RecoPixelVertexing.PixelTriplets.caHitTripletEDProducer_cfi import caHitTripletEDProducer as _caHitTripletEDProducer
 trackingPhase1.toModify(lowPtTripletStepHitDoublets, layerPairs = [0,1]) # layer pairs (0,1), (1,2)
@@ -199,11 +210,21 @@ lowPtTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.
     TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('lowPtTripletStepTrajectoryBuilder')),
     clustersToSkip = cms.InputTag('lowPtTripletStepClusters'),
     doSeedingRegionRebuilding = True,
-    useHitsSplitting = True
+    useHitsSplitting = True,
+    TrajectoryCleaner = 'lowPtTripletStepTrajectoryCleanerBySharedHits'
 )
+
 trackingPhase2PU140.toModify(lowPtTripletStepTrackCandidates,
     clustersToSkip = None,
     phase2clustersToSkip = cms.InputTag("lowPtTripletStepClusters")
+)
+
+import FastSimulation.Tracking.TrackCandidateProducer_cfi
+fastSim.toReplaceWith(lowPtTripletStepTrackCandidates,
+                      FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
+        src = cms.InputTag("lowPtTripletStepSeeds"),
+        MinNumberOfCrossedLayers = 3,
+        hitMasks = cms.InputTag("lowPtTripletStepMasks"))
 )
 
 # TRACK FITTING
@@ -213,6 +234,7 @@ lowPtTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProduc
     AlgorithmName = cms.string('lowPtTripletStep'),
     Fitter = cms.string('FlexibleKFFittingSmoother')
     )
+fastSim.toModify(lowPtTripletStepTracks, TTRHBuilder = 'WithoutRefit')
 
 from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi import trajectoryCleanerBySharedHits
 lowPtTripletStepTrajectoryCleanerBySharedHits = trajectoryCleanerBySharedHits.clone(
@@ -220,7 +242,6 @@ lowPtTripletStepTrajectoryCleanerBySharedHits = trajectoryCleanerBySharedHits.cl
             fractionShared = cms.double(0.16),
             allowSharedFirstHit = cms.bool(True)
             )
-lowPtTripletStepTrackCandidates.TrajectoryCleaner = 'lowPtTripletStepTrajectoryCleanerBySharedHits'
 trackingLowPU.toModify(lowPtTripletStepTrajectoryCleanerBySharedHits, fractionShared = 0.19)
 trackingPhase2PU140.toModify(lowPtTripletStepTrajectoryCleanerBySharedHits, fractionShared = 0.09)
 
@@ -239,6 +260,7 @@ trackingPhase1QuadProp.toReplaceWith(lowPtTripletStep, lowPtTripletStep.clone(
      mva = dict(GBRForestLabel = 'MVASelectorLowPtTripletStep_Phase1'),
      qualityCuts = [-0.4,0.0,0.3],
 ))
+fastSim.toModify(lowPtTripletStep, vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 
 # For LowPU and Phase2PU140
@@ -323,3 +345,14 @@ _LowPtTripletStep_LowPU_Phase2PU140 = LowPtTripletStep.copy()
 _LowPtTripletStep_LowPU_Phase2PU140.replace(lowPtTripletStep, lowPtTripletStepSelector)
 trackingLowPU.toReplaceWith(LowPtTripletStep, _LowPtTripletStep_LowPU_Phase2PU140)
 trackingPhase2PU140.toReplaceWith(LowPtTripletStep, _LowPtTripletStep_LowPU_Phase2PU140)
+#fastsim
+from FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi import maskProducerFromClusterRemover
+lowPtTripletStepMasks = maskProducerFromClusterRemover(lowPtTripletStepClusters)
+fastSim.toReplaceWith(LowPtTripletStep,
+                      cms.Sequence(lowPtTripletStepMasks
+                                   +lowPtTripletStepTrackingRegions
+                                   +lowPtTripletStepSeeds
+                                   +lowPtTripletStepTrackCandidates
+                                   +lowPtTripletStepTracks  
+                                   +lowPtTripletStep   
+                                   ))

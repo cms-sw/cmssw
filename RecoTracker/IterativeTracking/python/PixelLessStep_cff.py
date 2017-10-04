@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
 ##########################################################################
 # Large impact parameter tracking using TIB/TID/TEC stereo layer seeding #
 ##########################################################################
@@ -174,7 +175,17 @@ trackingLowPU.toModify(pixelLessStepSeeds,
         ClusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache") # not really needed here since FilterPixelHits=False
     )
 )
-
+#fastsim
+import FastSimulation.Tracking.TrajectorySeedProducer_cfi
+_fastSim_pixelLessStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
+    layerList = pixelLessStepSeedLayers.layerList.value(),
+    trackingRegions = "pixelLessStepTrackingRegions",
+    hitMasks = cms.InputTag("pixelLessStepMasks"),
+)
+from FastSimulation.Tracking.SeedingMigration import _hitSetProducerToFactoryPSet
+_fastSim_pixelLessStepSeeds.seedFinderSelector.MultiHitGeneratorFactory = _hitSetProducerToFactoryPSet(pixelLessStepHitTriplets)
+_fastSim_pixelLessStepSeeds.seedFinderSelector.MultiHitGeneratorFactory.refitHits = False
+fastSim.toReplaceWith(pixelLessStepSeeds,_fastSim_pixelLessStepSeeds)
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
@@ -221,7 +232,16 @@ pixelLessStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckf
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner = cms.int32(50),
     #onlyPixelHitsForSeedCleaner = cms.bool(True),
-    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('pixelLessStepTrajectoryBuilder'))
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('pixelLessStepTrajectoryBuilder')),
+    TrajectoryCleaner = 'pixelLessStepTrajectoryCleanerBySharedHits'
+)
+import FastSimulation.Tracking.TrackCandidateProducer_cfi
+fastSim.toReplaceWith(pixelLessStepTrackCandidates,
+                      FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
+        src = cms.InputTag("pixelLessStepSeeds"),
+        MinNumberOfCrossedLayers = 6, # ?
+        hitMasks = cms.InputTag("pixelLessStepMasks")
+        )
 )
 
 from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi import trajectoryCleanerBySharedHits
@@ -230,7 +250,6 @@ pixelLessStepTrajectoryCleanerBySharedHits = trajectoryCleanerBySharedHits.clone
     fractionShared = cms.double(0.11),
     allowSharedFirstHit = cms.bool(True)
     )
-pixelLessStepTrackCandidates.TrajectoryCleaner = 'pixelLessStepTrajectoryCleanerBySharedHits'
 trackingLowPU.toModify(pixelLessStepTrajectoryCleanerBySharedHits, fractionShared = 0.19)
 
 
@@ -241,7 +260,7 @@ pixelLessStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.
     AlgorithmName = cms.string('pixelLessStep'),
     Fitter = cms.string('FlexibleKFFittingSmoother')
     )
-
+fastSim.toModify(pixelLessStepTracks, TTRHBuilder = 'WithoutRefit')
 
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.
@@ -251,10 +270,13 @@ pixelLessStepClassifier1 = TrackMVAClassifierPrompt.clone()
 pixelLessStepClassifier1.src = 'pixelLessStepTracks'
 pixelLessStepClassifier1.mva.GBRForestLabel = 'MVASelectorIter5_13TeV'
 pixelLessStepClassifier1.qualityCuts = [-0.4,0.0,0.4]
+fastSim.toModify(pixelLessStepClassifier1, vertices = "firstStepPrimaryVerticesBeforeMixing" )
+
 pixelLessStepClassifier2 = TrackMVAClassifierPrompt.clone()
 pixelLessStepClassifier2.src = 'pixelLessStepTracks'
 pixelLessStepClassifier2.mva.GBRForestLabel = 'MVASelectorIter0_13TeV'
 pixelLessStepClassifier2.qualityCuts = [-0.0,0.0,0.0]
+fastSim.toModify(pixelLessStepClassifier2, vertices = "firstStepPrimaryVerticesBeforeMixing" )
 
 from RecoTracker.FinalTrackSelectors.ClassifierMerger_cfi import *
 pixelLessStep = ClassifierMerger.clone()
@@ -334,3 +356,16 @@ _PixelLessStep_LowPU = PixelLessStep.copyAndExclude([pixelLessStepHitTriplets, p
 _PixelLessStep_LowPU.replace(pixelLessStep, pixelLessStepSelector)
 trackingLowPU.toReplaceWith(PixelLessStep, _PixelLessStep_LowPU)
 
+#fastsim
+from FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi import maskProducerFromClusterRemover
+pixelLessStepMasks = maskProducerFromClusterRemover(pixelLessStepClusters)
+fastSim.toReplaceWith(PixelLessStep,
+                      cms.Sequence(pixelLessStepMasks
+                                   +pixelLessStepTrackingRegions
+                                   +pixelLessStepSeeds
+                                   +pixelLessStepTrackCandidates
+                                   +pixelLessStepTracks
+                                   +pixelLessStepClassifier1*pixelLessStepClassifier2
+                                   +pixelLessStep                             
+                                   )
+)
