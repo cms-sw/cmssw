@@ -5,6 +5,7 @@ Different versions of various subdetectors can be combined. The available versio
 Tracker:
 * T4: Phase2 flat tracker (v2016-04-12) w/ phase 2 pixel (v4.0.2.6)
 * T5: Phase2 tilted tracker (v6.1.3) w/ phase 2 pixel (v4.0.2.5) 
+* T6: Phase2 tilted tracker (v6.1.3) w/ phase 2 pixel (v4.0.4) (Inner Tracker barrel has lower radii than TDR T5 geometry)
 
 Calorimeters:
 * C3: HGCal (v8) + Phase2 HCAL and EB
@@ -24,6 +25,7 @@ Several detector combinations have been generated:
 * D17 = T5+C3+M2+I1+O2+F2 
 * D19 = T5+C3+M2+I2+O2+F2 
 * D20 = T4+C3+M2+I1+O2+F2 
+* D21 = T6+C3+M2+I1+O2+F2 
 
 Currently, D17 is considered to be the baseline for the Phase 2 Muon and Barrel TDRs.
 
