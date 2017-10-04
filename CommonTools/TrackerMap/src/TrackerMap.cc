@@ -3623,21 +3623,23 @@ saveAsSingleLayer=false;
 TLegend* TrackerMap::buildLegend() {
   if ( legInfos_.empty() ) {
     legInfos_.reserve(8);
-    legInfos_.push_back(new TH1F("green","green",1,0.,1.));
+    Double_t x[4] = {.2,.7,.6,.2};
+    Double_t y[4] = {.5,.1,.9,.5};
+    legInfos_.push_back(new TPolyLine(4,x,y));
     legInfos_.back()->SetFillColor(kGreen);
-    legInfos_.push_back(new TH1F("blue","blue",1,0.,1.));
+    legInfos_.push_back(new TPolyLine(4,x,y));
     legInfos_.back()->SetFillColor(kBlue-9);
-    legInfos_.push_back(new TH1F("dark red","dark red",1,0.,1.));
+    legInfos_.push_back(new TPolyLine(4,x,y));
     legInfos_.back()->SetFillColor(kRed+2);
-    legInfos_.push_back(new TH1F("magenta","magenta",1,0.,1.));
+    legInfos_.push_back(new TPolyLine(4,x,y));
     legInfos_.back()->SetFillColor(kPink-9);
-    legInfos_.push_back(new TH1F("orange","orange",1,0.,1.));
+    legInfos_.push_back(new TPolyLine(4,x,y));
     legInfos_.back()->SetFillColor(kOrange+2);
-    legInfos_.push_back(new TH1F("yellow","yellow",1,0.,1.));
+    legInfos_.push_back(new TPolyLine(4,x,y));
     legInfos_.back()->SetFillColor(kYellow);
-    legInfos_.push_back(new TH1F("red","red",1,0.,1.));
+    legInfos_.push_back(new TPolyLine(4,x,y));
     legInfos_.back()->SetFillColor(kRed+1);
-    legInfos_.push_back(new TH1F("purple","purple",1,0.,1.));
+    legInfos_.push_back(new TPolyLine(4,x,y));
     legInfos_.back()->SetFillColor(kViolet-5);
     legKeys_ = { "Good Modules","Excluded FED","FED errors", "# Clusters", 
 		 "# Digis", "PCL bad", "# Clusters & Digis", "DCS Error"};
