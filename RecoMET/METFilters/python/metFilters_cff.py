@@ -38,7 +38,7 @@ from RecoMET.METFilters.eeBadScFilter_cfi import *
 from RecoMET.METFilters.ecalLaserCorrFilter_cfi import *
 
 ## The ECAL bad calibration filter ____________________________________________||
-from RecoMET.METFilters.EcalBadCalibFilter_cfi import *
+from RecoMET.METFilters.ecalEEBadCalibSep2017ListFilter_cfi import *
 
 ## The Good vertices collection needed by the tracking failure filter ________||
 goodVertices = cms.EDFilter(
