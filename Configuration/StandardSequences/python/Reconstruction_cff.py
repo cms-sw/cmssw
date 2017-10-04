@@ -10,6 +10,9 @@ from RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff import *
 from TrackingTools.Configuration.TrackingTools_cff import *
 from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *
 from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
+
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+
 siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(
     src = 'siPixelClustersPreSplitting'
     )
@@ -73,6 +76,12 @@ _ctpps_2016_localreco_HcalNZS = localreco_HcalNZS.copy()
 _ctpps_2016_localreco_HcalNZS += recoCTPPS
 ctpps_2016.toReplaceWith(localreco_HcalNZS, _ctpps_2016_localreco_HcalNZS)
 
+###########################################
+# no castor, zdc, Totem/CTPPS RP in FastSim
+###########################################
+_fastSim_localreco = localreco.copyAndExclude([castorreco,totemRPLocalReconstruction,ctppsDiamondLocalReconstruction,ctppsLocalTrackLiteProducer,ctppsPixelLocalReconstruction,trackerlocalreco])
+fastSim.toReplaceWith(localreco, _fastSim_localreco)
+
 #
 # temporarily switching off recoGenJets; since this are MC and wil be moved to a proper sequence
 #
@@ -91,6 +100,11 @@ _globalreco_tracking_LowPU = globalreco_tracking.copy()
 _globalreco_tracking_LowPU.replace(trackingGlobalReco, recopixelvertexing+trackingGlobalReco)
 from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
 trackingLowPU.toReplaceWith(globalreco_tracking, _globalreco_tracking_LowPU)
+##########################################
+# offlineBeamSpot is reconstructed before mixing in fastSim
+##########################################
+_fastSim_globalreco_tracking = globalreco_tracking.copyAndExclude([offlineBeamSpot,MeasurementTrackerEventPreSplitting,siPixelClusterShapeCachePreSplitting])
+fastSim.toReplaceWith(globalreco_tracking,_fastSim_globalreco_tracking)
 
 globalreco = cms.Sequence(globalreco_tracking*
                           particleFlowCluster*
@@ -105,6 +119,12 @@ globalreco = cms.Sequence(globalreco_tracking*
 
 _run3_globalreco = globalreco.copyAndExclude([CastorFullReco])
 run3_common.toReplaceWith(globalreco, _run3_globalreco)
+
+_fastSim_globalreco = globalreco.copyAndExclude([CastorFullReco,muoncosmicreco])
+# insert the few tracking modules to be run after mixing back in the globalreco sequence
+_fastSim_globalreco.insert(0,newCombinedSeeds+trackExtrapolator+caloTowerForTrk+firstStepPrimaryVerticesUnsorted+ak4CaloJetsForTrk+initialStepTrackRefsForJets+firstStepPrimaryVertices)
+fastSim.toReplaceWith(globalreco,_fastSim_globalreco)
+
 
 globalreco_plusPL= cms.Sequence(globalreco*ctfTracksPixelLess)
 
@@ -133,6 +153,9 @@ _highlevelreco_HI = highlevelreco.copy()
 _highlevelreco_HI += hiCentrality
 _highlevelreco_HI += hiClusterCompatibility
 pp_on_XeXe_2017.toReplaceWith(highlevelreco, _highlevelreco_HI)
+# not commisoned and not relevant in FastSim (?):
+_fastSim_highlevelreco = highlevelreco.copyAndExclude([cosmicDCTracksSeq,muoncosmichighlevelreco])
+fastSim.toReplaceWith(highlevelreco,_fastSim_highlevelreco)
 
 from FWCore.Modules.logErrorHarvester_cfi import *
 

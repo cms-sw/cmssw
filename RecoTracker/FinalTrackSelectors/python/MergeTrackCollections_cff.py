@@ -50,6 +50,20 @@ generalTracksSequence = cms.Sequence(
     duplicateTrackClassifier*
     generalTracks
     )
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toReplaceWith(generalTracksSequence, 
+                      cms.Sequence(
+        duplicateTrackCandidates*
+        mergedDuplicateTracks*
+        duplicateTrackClassifier
+        )
+)
+def _fastSimGeneralTracks(process):
+    if hasattr(process,"generalTracks") and isinstance(process.generalTracks,cms.EDAlias):
+        return
+    from Configuration.StandardSequences.Digi_cff import generalTracks
+    process.generalTracks = generalTracks
+modifyMergeTrackCollections_fastSimGeneralTracks = fastSim.makeProcessModifier( _fastSimGeneralTracks )
 
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 conversionStepTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
