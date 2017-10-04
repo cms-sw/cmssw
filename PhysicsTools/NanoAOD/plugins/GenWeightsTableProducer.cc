@@ -120,7 +120,7 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
             produces<nanoaod::FlatTable>("LHEScale");
             produces<nanoaod::FlatTable>("LHEPdf");
             produces<nanoaod::FlatTable>("LHENamed");
-            produces<nanoaod::MergeableCounterTable,edm::InRun>();
+            produces<nanoaod::MergeableCounterTable,edm::Transition::EndRun>();
             if (namedWeightIDs_.size() != namedWeightLabels_.size()) {
                 throw cms::Exception("Configuration", "Size mismatch between namedWeightIDs & namedWeightLabels");
             }
