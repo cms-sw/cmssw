@@ -31,16 +31,16 @@ public:
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
+  SeedingLayerSetsBuilder seedingLayerSetsBuilder_;
   PixelInactiveAreaFinder inactiveAreaFinder_;
   AreaSeededTrackingRegionsBuilder trackingRegionsBuilder_;
-  //SeedingLayerSetsBuilder seedingLayerSetsBuilder_;
 };
 
 PixelInactiveAreaTrackingRegionsSeedingLayersProducer::PixelInactiveAreaTrackingRegionsSeedingLayersProducer(const edm::ParameterSet& iConfig):
-  inactiveAreaFinder_(iConfig),
+  seedingLayerSetsBuilder_(iConfig, consumesCollector()),
+  inactiveAreaFinder_(iConfig, seedingLayerSetsBuilder_.layers(), seedingLayerSetsBuilder_.layerSetIndices()),
   trackingRegionsBuilder_(iConfig.getParameter<edm::ParameterSet>("RegionPSet"), consumesCollector())
-  //seedingLayerSetsBuilder_(iConfig, consumesCollector())
-{  
+{
   produces<ProductType>();
 }
 
@@ -52,6 +52,7 @@ void PixelInactiveAreaTrackingRegionsSeedingLayersProducer::fillDescriptions(edm
   desc.add<edm::ParameterSetDescription>("RegionPSet", descRegion);
 
   PixelInactiveAreaFinder::fillDescriptions(desc);
+  SeedingLayerSetsBuilder::fillDescriptions(desc);
 
   descriptions.add("pixelInactiveAreaTrackingRegionsAndSeedingLayers", desc);
 }
