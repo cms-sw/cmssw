@@ -393,10 +393,19 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 			    //To handle the electron case
 			    if(lPF!=nullptr) {
 			      pfTrk=(lPF->trackRef().get()==nullptr)?lPF->gsfTrackRef().get():lPF->trackRef().get();
+			      internalId_.d0_ = std::abs(pfTrk->dxy(vtx->position()));
+			      internalId_.dZ_ = std::abs(pfTrk->dz(vtx->position()));
 			    }
-			    const reco::Track& impactTrack = (lPack==nullptr)?(*pfTrk):(lPack->pseudoTrack());
-			    internalId_.d0_ = std::abs(impactTrack.dxy(vtx->position()));
-			    internalId_.dZ_ = std::abs(impactTrack.dz(vtx->position()));
+			    if(lPack!=nullptr) {
+			      if (lPack->hasTrackDetails()) {
+			        const reco::Track& impactTrack = lPack->pseudoTrack();
+			        internalId_.d0_ = std::abs(impactTrack.dxy(vtx->position()));
+			        internalId_.dZ_ = std::abs(impactTrack.dz(vtx->position()));
+			      } else {
+			        internalId_.d0_ = -1000.;
+			        internalId_.dZ_ = -1000.;
+			      }
+			    }
 			  }
 			  else {
 			    internalId_.d0_ = std::abs(pfTrk->dxy(vtx->position()));
