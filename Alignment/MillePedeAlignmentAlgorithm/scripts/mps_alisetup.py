@@ -763,13 +763,10 @@ class SetupAlignment(object):
                                 print " -> Proceeding without json-file."
 
 
-                    # replace ${datasetdir} and other variables in inputFileList-path
-                    self._datasets[name]["inputFileList"] \
-                        = os.path.expandvars(self._datasets[name]["inputFileList"])
-
-                    # replace variables in configTemplate-path, e.g. $CMSSW_BASE
-                    self._datasets[name]["configTemplate"] \
-                        = os.path.expandvars(self._datasets[name]["configTemplate"])
+                    #replace ${datasetdir} and other variables, e.g. $CMSSW_BASE
+                    for var in ("inputFileList", "json", "configTemplate"):
+                        self._datasets[name][var] \
+                            = os.path.expandvars(self._datasets[name][var])
 
 
                     # Get number of jobs from lines in inputfilelist
