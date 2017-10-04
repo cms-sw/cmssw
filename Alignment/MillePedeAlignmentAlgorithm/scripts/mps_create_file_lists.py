@@ -15,6 +15,7 @@ import argparse
 import functools
 import subprocess
 import multiprocessing
+import FWCore.PythonUtilities.LumiList as LumiList
 import Utilities.General.cmssw_das_client as cmssw_das_client
 
 
@@ -179,6 +180,10 @@ class FileListCreator(object):
                             action = "store_true", default = False,
                             help = ("create dataset ini file based on the "
                                     "created file lists"))
+        parser.add_argument("--rereco", action = "store_true", default = False,
+                            help = ("create JSON files to model IOV-wise "
+                                    "splitting of datasets because rereco "
+                                    "datasets are not ordered by run"))
         parser.add_argument("--force", action = "store_true", default = False,
                             help = ("remove output directory from previous "
                                     "runs, if existing"))
@@ -309,13 +314,14 @@ class FileListCreator(object):
             print_msg("Using cached information.")
             (self._events_in_dataset,
              self._files,
-             self._file_info) = self._cache.get()
+             self._file_info,
+             self._max_run) = self._cache.get()
             if self._args.random: random.shuffle(self._files)
             return
 
         # workaround to deal with KeyboardInterrupts in the worker processes:
         # - ignore interrupt signals in workers (see initializer)
-        # - use a timeout of size sys.maxint to avoid a bug in multiprocessing
+        # - use a timeout of size sys.maxsize to avoid a bug in multiprocessing
         number_of_processes = multiprocessing.cpu_count() - 1
         number_of_processes = (number_of_processes
                                if number_of_processes > 0
@@ -331,6 +337,9 @@ class FileListCreator(object):
         result = pool.map_async(get_events_per_dataset, self._datasets).get(sys.maxsize)
         self._events_in_dataset = sum(result)
 
+        result = pool.map_async(get_max_run, self._datasets).get(sys.maxsize)
+        self._max_run = max(result)
+
         get_file_info = functools.partial(_get_properties,
                                           properties = ["name", "nevents"],
                                           filters = ["nevents > 0"],
@@ -344,7 +353,8 @@ class FileListCreator(object):
             self._files = self._files[-200:] # take only last chunk of files
 
         # write information to cache
-        self._cache.set(self._events_in_dataset, self._files, self._file_info)
+        self._cache.set(self._events_in_dataset, self._files, self._file_info,
+                        self._max_run)
         self._cache.dump()
         if self._args.random: random.shuffle(self._files)
 
@@ -357,6 +367,16 @@ class FileListCreator(object):
         self._files_validation = []
         self._events_for_alignment = 0
         self._events_for_validation = 0
+
+        # for rereco datasets the runs are spread over all files,
+        # i.e. file-based splitting makes no sense
+        if self._args.rereco:
+            self._files_alignment = self._files
+            self._files_validation = self._files
+            self._events_for_alignment = self._events_in_dataset
+            self._events_for_validation = self._events_in_dataset
+            return
+
         max_range = (0
                      if self._args.events <= 0
                      else int(math.ceil(len(self._files)*self._args.fraction)))
@@ -429,52 +449,65 @@ class FileListCreator(object):
                           100.0*
                           self._events_for_alignment/self._events_in_dataset),
                   log_file = log)
-        for iov in sorted(self._iov_info_alignment):
-            print_msg("Events for alignment in IOV since {0:d}: {1:d}"
-                      .format(iov, self._iov_info_alignment[iov]["events"]),
-                      log_file = log)
+        if not self._args.rereco:
+            for iov in sorted(self._iov_info_alignment):
+                print_msg("Events for alignment in IOV since {0:d}: {1:d}"
+                          .format(iov, self._iov_info_alignment[iov]["events"]),
+                          log_file = log)
 
         print_msg("Using {0:d} events for validation ({1:.2f}%)."
                   .format(self._events_for_validation,
                           100.0*
                           self._events_for_validation/self._events_in_dataset),
                   log_file = log)
-        for iov in sorted(self._iov_info_validation):
-            msg = "Events for validation in IOV since {0:d}: {1:d}".format(
-                iov, self._iov_info_validation[iov]["events"])
-            if (self._iov_info_validation[iov]["events"]
-                < self._args.minimum_events_validation):
-                msg += " (not enough events -> no dataset file will be created)"
-            print_msg(msg, log_file = log)
+        if not self._args.rereco:
+            for iov in sorted(self._iov_info_validation):
+                msg = "Events for validation in IOV since {0:d}: {1:d}".format(
+                    iov, self._iov_info_validation[iov]["events"])
+                if (self._iov_info_validation[iov]["events"]
+                    < self._args.minimum_events_validation):
+                    msg += " (not enough events -> no dataset file will be created)"
+                print_msg(msg, log_file = log)
 
-        for run in sorted(self._run_info):
-            msg = "Events for validation in run {0:d}: {1:d}".format(
-                run, self._run_info[run]["events"])
-            if (self._run_info[run]["events"]
-                < self._args.minimum_events_validation):
-                msg += " (not enough events -> no dataset file will be created)"
-            print_msg(msg, log_file = log)
+            for run in sorted(self._run_info):
+                msg = "Events for validation in run {0:d}: {1:d}".format(
+                    run, self._run_info[run]["events"])
+                if (self._run_info[run]["events"]
+                    < self._args.minimum_events_validation):
+                    msg += " (not enough events -> no dataset file will be created)"
+                print_msg(msg, log_file = log)
 
-        unused_events = (self._events_in_dataset
-                         - self._events_for_validation
-                         - self._events_for_alignment)
-        if unused_events > 0 != self._events_in_dataset:
-            print_msg("Unused events: {0:d} ({1:.2f}%)"
-                      .format(unused_events,
-                              100.0*unused_events/self._events_in_dataset),
-                      log_file = log)
+            unused_events = (self._events_in_dataset
+                             - self._events_for_validation
+                             - self._events_for_alignment)
+            if unused_events > 0 != self._events_in_dataset:
+                print_msg("Unused events: {0:d} ({1:.2f}%)"
+                          .format(unused_events,
+                                  100.0*unused_events/self._events_in_dataset),
+                          log_file = log)
 
 
-    def _create_dataset_ini_section(self, name, collection):
+    def _create_dataset_ini_section(self, name, collection, json_file = None):
         """Write dataset ini snippet.
 
         Arguments:
-        - `edm_file`: CMSSW dataset file
+        - `name`: name of the dataset section
+        - `collection`: track collection of this dataset
+        - `json_file`: JSON file to be used for this dataset (optional)
         """
 
+        if json_file:
+            splitted = name.split("_since")
+            file_list = "_since".join(splitted[:-1]
+                                      if len(splitted) > 1
+                                      else splitted)
+        else:
+            file_list = name
         output = "[dataset:{}]\n".format(name)
         output += "collection = {}\n".format(collection)
-        output += "inputFileList = ${{datasetdir}}/{}.txt\n".format(name)
+        output += "inputFileList = ${{datasetdir}}/{}.txt\n".format(file_list)
+        output += "json = ${{datasetdir}}/{}\n".format(json_file) if json_file else ""
+
         if collection in ("ALCARECOTkAlCosmicsCTF0T",
                           "ALCARECOTkAlCosmicsInCollisions"):
             if self._first_dataset_ini:
@@ -487,6 +520,33 @@ class FileListCreator(object):
         output += "\n"
 
         return output
+
+
+    def _create_json_file(self, name, first, last = None):
+        """
+        Create JSON file with `name` covering runs from `first` to `last`.  If a
+        global JSON is provided, the resulting file is the intersection of the
+        file created here and the global one.
+        Returns the name of the created JSON file.
+
+        Arguments:
+        - `name`: name of the creted JSON file
+        - `first`: first run covered by the JSON file
+        - `last`: last run covered by the JSON file
+
+        """
+
+        if last is None: last = self._max_run
+        name += "_JSON.txt"
+        print_msg("Creating JSON file: "+name)
+
+        json_file = LumiList.LumiList(runs = xrange(first, last+1))
+        if self._args.json:
+            global_json = LumiList.LumiList(filename = self._args.json)
+            json_file = json_file & global_json
+        json_file.writeJSON(os.path.join(self._output_dir, name))
+
+        return name
 
 
     def _get_track_collection(self, edm_file):
@@ -583,31 +643,52 @@ class FileListCreator(object):
 
             iov_wise_ini = dataset_ini_general
 
-        for iov in sorted(self._iovs):
+        for i,iov in enumerate(sorted(self._iovs)):
             iov_str = "since{0:d}".format(iov)
             iov_str = "_".join([self._formatted_dataset, iov_str])
+
+            if self._args.rereco:
+                if i == len(self._iovs) - 1:
+                    last = None
+                else:
+                    last = sorted(self._iovs)[i+1] - 1
+                local_json = self._create_json_file(iov_str, iov, last)
+            else:
+                local_json = None
+
             if self._args.create_ini:
                 iov_wise_ini += self._create_dataset_ini_section(iov_str,
-                                                                 collection)
+                                                                 collection,
+                                                                 local_json)
 
-            self._create_dataset_txt(iov_str,
-                                     self._iov_info_alignment[iov]["files"])
-            self._create_dataset_cff(
-                "_".join(["Alignment", iov_str]),
-                self._iov_info_validation[iov]["files"])
+            if self._args.rereco:
+                self._create_dataset_cff(
+                    "_".join(["Alignment", iov_str]),
+                    self._files_alignment, local_json)
+                self._create_dataset_cff(
+                    "_".join(["Validation", iov_str]),
+                    self._files_validation, local_json)
+            else:
+                self._create_dataset_txt(iov_str,
+                                         self._iov_info_alignment[iov]["files"])
+                self._create_dataset_cff(
+                    "_".join(["Alignment", iov_str]),
+                    self._iov_info_alignment[iov]["files"])
 
-            if (self._iov_info_validation[iov]["events"]
-                < self._args.minimum_events_validation):
-                continue
-            self._create_dataset_cff(
-                "_".join(["Validation", iov_str]),
-                self._iov_info_validation[iov]["files"])
+                if (self._iov_info_validation[iov]["events"]
+                    < self._args.minimum_events_validation):
+                    continue
+                self._create_dataset_cff(
+                    "_".join(["Validation", iov_str]),
+                    self._iov_info_validation[iov]["files"])
 
         if self._args.create_ini and iov_wise_ini != dataset_ini_general:
             ini_path = self._formatted_dataset + "_IOVs.ini"
             print_msg("Creating dataset ini file: " + ini_path)
             ini_path = os.path.join(self._output_dir, ini_path)
             with open(ini_path, "w") as f: f.write(iov_wise_ini)
+
+        if self._args.rereco: return
 
         for run in sorted(self._run_info):
             if (self._run_info[run]["events"]
@@ -632,14 +713,18 @@ class FileListCreator(object):
             f.write("\n".join(file_list))
 
 
-    def _create_dataset_cff(self, name, file_list):
+    def _create_dataset_cff(self, name, file_list, json_file = None):
         """
         Create configuration fragment to define a dataset.
 
         Arguments:
         - `name`: name of the configuration fragment
         - `file_list`: list of files to write to `name`
+        - `json_file`: JSON file to be used for this dataset (optional)
         """
+
+        if json_file is None: json_file = self._args.json # might still be None
+        if json_file is not None: json_file = os.path.abspath(json_file)
 
         name = "_".join(["Dataset",name, "cff.py"])
         print_msg("Creating dataset configuration fragment: "+name)
@@ -655,12 +740,11 @@ class FileListCreator(object):
                         "lumiSecs = cms.untracked.VLuminosityBlockRange()\n"
                         "goodLumiSecs = LumiList.LumiList(filename = "
                         "'{0:s}').getCMSSWString().split(',')"
-                        .format(self._args.json)
-                        if self._args.json else ""),
+                        .format(json_file)
+                        if json_file else ""),
             lumi_arg = ("lumisToProcess = lumiSecs,\n                    "
-                        if self._args.json else ""),
-            lumi_extend = ("lumiSecs.extend(goodLumiSecs)"
-                           if self._args.json else ""),
+                        if json_file else ""),
+            lumi_extend = "lumiSecs.extend(goodLumiSecs)" if json_file else "",
             files = file_list_str)
 
         with open(os.path.join(self._output_dir, name), "w") as f:
@@ -700,20 +784,23 @@ class _DasCache(object):
         self._events_in_dataset = 0
         self._files = []
         self._file_info = []
+        self._max_run = None
 
 
-    def set(self, total_events, file_list, file_info):
+    def set(self, total_events, file_list, file_info, max_run):
         """Set the content of the cache.
 
         Arguments:
         - `total_events`: total number of events in dataset
         - `file_list`: list of files in dataset
         - `file_info`: dictionary with numbers of events per file
+        - `max_run`: highest run number contained in the dataset
         """
 
         self._events_in_dataset = total_events
         self._files = file_list
         self._file_info = file_info
+        self._max_run = max_run
         self._empty = False
 
 
@@ -725,7 +812,7 @@ class _DasCache(object):
                      dictionary with numbers of events per file)
         """
 
-        return self._events_in_dataset, self._files, self._file_info
+        return self._events_in_dataset, self._files, self._file_info, self._max_run
 
 
     def load(self):
@@ -855,7 +942,7 @@ def print_msg(text, line_break = True, log_file = None):
 def guess_run(file_name):
     """
     Try to guess the run number from `file_name`. If run could not be
-    determined, 'sys.maxint' is returned.
+    determined, 'sys.maxsize' is returned.
 
     Arguments:
     - `file_name`: name of the considered file
@@ -864,6 +951,18 @@ def guess_run(file_name):
         return int("".join(file_name.split("/")[-4:-2]))
     except ValueError:
         return sys.maxsize
+
+
+def get_max_run(dataset_name):
+    """Retrieve the maximum run number in `dataset_name`.
+
+    Arguments:
+    - `dataset_name`: name of the dataset
+    """
+
+    data = das_client("run dataset={0:s} system=dbs3".format(dataset_name))
+    runs = [f["run"][0]["run_number"] for f in data]
+    return max(runs)
 
 
 def get_files(dataset_name):
