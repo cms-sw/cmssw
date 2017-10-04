@@ -142,18 +142,22 @@ VertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::Handle<edm::View<reco::VertexCompositePtrCandidate> > svsIn;
     iEvent.getByToken(svs_, svsIn);
     auto selCandSv = std::make_unique<PtrVector<reco::Candidate>>();
-    std::vector<float> dlen,dlenSig;
+    std::vector<float> dlen,dlenSig,pAngle;
     VertexDistance3D vdist;
 
     size_t i=0;
+    const auto & PV0 = pvsIn->front();
     for (const auto & sv : *svsIn) {
        if (svCut_(sv)) {
-           Measurement1D dl= vdist.distance((*pvsIn)[0],VertexState(RecoVertex::convertPos(sv.position()),RecoVertex::convertError(sv.error())));
+           Measurement1D dl= vdist.distance(PV0,VertexState(RecoVertex::convertPos(sv.position()),RecoVertex::convertError(sv.error())));
            if(dl.value() > dlenMin_ and dl.significance() > dlenSigMin_){
                dlen.push_back(dl.value());
                dlenSig.push_back(dl.significance());
                edm::Ptr<reco::Candidate> c =  svsIn->ptrAt(i);
                selCandSv->push_back(c);
+               double dx = (PV0.x() - sv.vx()), dy = (PV0.y() - sv.vy()), dz = (PV0.z() - sv.vz());
+               double pdotv = (dx * sv.px() + dy*sv.py() + dz*sv.pz())/sv.p();
+               pAngle.push_back(std::acos(pdotv));
            }
        }
        i++;
@@ -164,6 +168,7 @@ VertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     // For SV we fill from here only stuff that cannot be created with the SimpleFlatTableProducer 
     svsTable->addColumn<float>("dlen",dlen,"decay length in cm",nanoaod::FlatTable::FloatColumn,10);
     svsTable->addColumn<float>("dlenSig",dlenSig,"decay length significance",nanoaod::FlatTable::FloatColumn, 10);
+    svsTable->addColumn<float>("pAngle",pAngle,"pointing angle, i.e. acos(p_SV * (SV - PV)) ",nanoaod::FlatTable::FloatColumn,10);
  
 
     iEvent.put(std::move(pvTable),"pv");
