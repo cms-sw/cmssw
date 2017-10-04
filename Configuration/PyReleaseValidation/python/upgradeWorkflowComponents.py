@@ -67,6 +67,7 @@ upgradeSteps['baseline'] = {
         'HARVESTFast',
         'HARVESTFullGlobal',
         'ALCAFull',
+        'NanoFull',
     ],
     'PU' : [
         'DigiFullTrigger',
@@ -121,7 +122,7 @@ upgradeProperties[2017] = {
         'GT' : 'auto:phase1_2017_realistic',
         'HLTmenu': '@relval2017',
         'Era' : 'Run2_2017',
-        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','ALCAFull','HARVESTFull'],
+        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','ALCAFull','HARVESTFull','NanoFull'],
     },
     '2017Design' : {
         'Geom' : 'DB:Extended',
