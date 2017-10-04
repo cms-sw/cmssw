@@ -124,6 +124,9 @@
 #include "FWCore/SOA/interface/ColumnValues.h"
 #include "FWCore/SOA/interface/RowView.h"
 
+//The following is needed for edm::Wrapper
+#include "FWCore/SOA/interface/TableExaminer.h"
+
 // forward declarations
 
 namespace edm {
@@ -242,7 +245,7 @@ namespace soa {
     
     // Member data
     unsigned int m_size = 0;
-    std::array<void *, sizeof...(Args)> m_values = {{nullptr}};
+    std::array<void *, sizeof...(Args)> m_values = {{nullptr}}; //! keep ROOT from trying to store this
     
     template<typename U>
     void const* columnAddress() const {
@@ -445,8 +448,15 @@ namespace soa {
   template <typename TABLE, typename E>
   using RemoveColumn_t = typename RemoveColumn<TABLE,E>::type;
 
+  //This is used by edm::Wrapper
+  template< typename T> struct MakeTableExaminer;
+  
+  template<typename... Args>
+  struct MakeTableExaminer<Table<Args...>> {
+    static std::unique_ptr<TableExaminerBase> make(const Table<Args...>* iTable) {
+      return std::make_unique<TableExaminer<Table<Args...>> >(iTable);
+    }
+  };
 }
 }
-
-
 #endif
