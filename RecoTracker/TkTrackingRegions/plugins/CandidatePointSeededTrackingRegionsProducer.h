@@ -82,26 +82,27 @@ public:
 
     // basic inputs
     if(m_seedingMode == SeedingMode::CANDIDATE_SEEDED || m_seedingMode == SeedingMode::CANDIDATE_POINT_SEEDED)
-      token_input        = iC.consumes<reco::CandidateView>(regPSet.getParameter<edm::InputTag>("input"));
+      m_token_input        = iC.consumes<reco::CandidateView>(regPSet.getParameter<edm::InputTag>("input"));
 
     // Specific points in the detector
     if(m_seedingMode == SeedingMode::POINT_SEEDED || m_seedingMode == SeedingMode::CANDIDATE_POINT_SEEDED){
       edm::ParameterSet points = regPSet.getParameter<edm::ParameterSet>("points");
-      etaPoints = points.getParameter<std::vector<double>>("eta");
-      phiPoints = points.getParameter<std::vector<double>>("phi");
-      n_points = etaPoints.size();
+      m_etaPoints = points.getParameter<std::vector<double>>("eta");
+      m_phiPoints = points.getParameter<std::vector<double>>("phi");
 
-      if (!(etaPoints.size() == phiPoints.size()))  throw edm::Exception(edm::errors::Configuration) << "The parameters 'eta' and 'phi' must have the same size";
-      if (n_points == 0) throw edm::Exception(edm::errors::Configuration) << "At least one point should be defined for point or candidate+point seeding modes";
+      if (!(m_etaPoints.size() == m_phiPoints.size()))  throw edm::Exception(edm::errors::Configuration) << "The parameters 'eta' and 'phi' must have the same size";
+      if (m_etaPoints.size() == 0) throw edm::Exception(edm::errors::Configuration) << "At least one point should be defined for point or candidate+point seeding modes";
 
-      for(size_t i = 0; i < n_points; ++i ){
+      for(size_t i = 0; i < m_etaPoints.size(); ++i ){
 
-      	double x = std::cos(phiPoints[i]);
-	double y = std::sin(phiPoints[i]);
-	double theta = 2*std::atan(std::exp(-etaPoints[i]));
+	m_etaPhiPoints.push_back(std::make_pair(m_etaPoints[i],m_phiPoints[i]));
+
+      	double x = std::cos(m_phiPoints[i]);
+	double y = std::sin(m_phiPoints[i]);
+	double theta = 2*std::atan(std::exp(-m_etaPoints[i]));
 	double z = 1./std::tan(theta);
 	GlobalVector direction( x,y,z );
-	directionPoints.push_back(direction);
+	m_directionPoints.push_back(direction);
 
       }
 
@@ -109,11 +110,11 @@ public:
 
     m_maxNRegions      = regPSet.getParameter<unsigned int>("maxNRegions");
     if(m_maxNRegions==0) throw edm::Exception(edm::errors::Configuration) << "maxNRegions should be greater than or equal to 1";
-    token_beamSpot     = iC.consumes<reco::BeamSpot>(regPSet.getParameter<edm::InputTag>("beamSpot"));
+    m_token_beamSpot     = iC.consumes<reco::BeamSpot>(regPSet.getParameter<edm::InputTag>("beamSpot"));
     m_maxNVertices     = 1;
     if (m_operationMode == OperationMode::VERTICES_FIXED || m_operationMode == OperationMode::VERTICES_SIGMA)
     {
-      token_vertex       = iC.consumes<reco::VertexCollection>(regPSet.getParameter<edm::InputTag>("vertexCollection"));
+      m_token_vertex       = iC.consumes<reco::VertexCollection>(regPSet.getParameter<edm::InputTag>("vertexCollection"));
       m_maxNVertices     = regPSet.getParameter<unsigned int>("maxNVertices");
       if(m_maxNVertices==0) throw edm::Exception(edm::errors::Configuration) << "maxNVertices should be greater than or equal to 1";
     }
@@ -145,7 +146,7 @@ public:
     m_precise          = regPSet.getParameter<bool>("precise");
     m_whereToUseMeasurementTracker = RectangularEtaPhiTrackingRegion::stringToUseMeasurementTracker(regPSet.getParameter<std::string>("whereToUseMeasurementTracker"));
     if(m_whereToUseMeasurementTracker != RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever) {
-      token_measurementTracker = iC.consumes<MeasurementTrackerEvent>(regPSet.getParameter<edm::InputTag>("measurementTrackerName"));
+      m_token_measurementTracker = iC.consumes<MeasurementTrackerEvent>(regPSet.getParameter<edm::InputTag>("measurementTrackerName"));
     }
     m_searchOpt = false;
     if (regPSet.exists("searchOpt")) m_searchOpt = regPSet.getParameter<bool>("searchOpt");
@@ -216,7 +217,7 @@ public:
     size_t n_objects = 0;
 
     if(m_seedingMode == SeedingMode::CANDIDATE_SEEDED || m_seedingMode == SeedingMode::CANDIDATE_POINT_SEEDED){
-      e.getByToken( token_input, objects );
+      e.getByToken( m_token_input, objects );
       n_objects = objects->size();
       if (n_objects == 0) return result;
     }
@@ -225,7 +226,7 @@ public:
 
     // always need the beam spot (as a fall back strategy for vertex modes)
     edm::Handle< reco::BeamSpot > bs;
-    e.getByToken( token_beamSpot, bs );
+    e.getByToken( m_token_beamSpot, bs );
     if( !bs.isValid() ) return result;
 
     // this is a default origin for all modes
@@ -244,7 +245,7 @@ public:
     else if (m_operationMode == OperationMode::VERTICES_FIXED || m_operationMode == OperationMode::VERTICES_SIGMA)
     {
       edm::Handle< reco::VertexCollection > vertices;
-      e.getByToken( token_vertex, vertices );
+      e.getByToken( m_token_vertex, vertices );
       int n_vert = 0;
       for ( const auto& v : (*vertices) )  
       {
@@ -265,9 +266,9 @@ public:
     }
     
     const MeasurementTrackerEvent *measurementTracker = nullptr;
-    if(!token_measurementTracker.isUninitialized()) {
+    if(!m_token_measurementTracker.isUninitialized()) {
       edm::Handle<MeasurementTrackerEvent> hmte;
-      e.getByToken(token_measurementTracker, hmte);
+      e.getByToken(m_token_measurementTracker, hmte);
       measurementTracker = hmte.product();
     }
 
@@ -310,7 +311,7 @@ public:
 
     else if(m_seedingMode == SeedingMode::POINT_SEEDED) {
 
-      for( const auto& direction : directionPoints ){
+      for( const auto& direction : m_directionPoints ){
 
 	for(const auto& origin : origins) {
 	  	 
@@ -345,11 +346,11 @@ public:
 
 	double eta_Cand = object.eta();
 	double phi_Cand = object.phi();
-		
-	for( const auto& directionPoint : directionPoints ){
+	
+	for (const auto& etaPhiPoint : m_etaPhiPoints ){
 
-	  double eta_Point = directionPoint.eta();
-	  double phi_Point = directionPoint.phi();
+	  double eta_Point = etaPhiPoint.first;
+	  double phi_Point = etaPhiPoint.second;
 	  double dEta_Cand_Point = std::abs(eta_Cand-eta_Point);
 	  double dPhi_Cand_Point = std::abs(deltaPhi(phi_Cand,phi_Point));
 
@@ -382,7 +383,7 @@ public:
 	  double theta = 2*std::atan(std::exp(-eta_RoI));
 	  double z = 1./std::tan(theta);
 
-	  GlobalVector direction( x,y,z );		
+	  GlobalVector direction( x,y,z );
       
 	  for(const auto& origin : origins) {
 	      
@@ -425,15 +426,15 @@ private:
   SeedingMode m_seedingMode;
 
   int m_maxNRegions;
-  edm::EDGetTokenT<reco::VertexCollection> token_vertex; 
-  edm::EDGetTokenT<reco::BeamSpot> token_beamSpot; 
-  edm::EDGetTokenT<reco::CandidateView> token_input; 
+  edm::EDGetTokenT<reco::VertexCollection> m_token_vertex; 
+  edm::EDGetTokenT<reco::BeamSpot> m_token_beamSpot; 
+  edm::EDGetTokenT<reco::CandidateView> m_token_input; 
   int m_maxNVertices;
 
-  size_t n_points;
-  std::vector<double> etaPoints;
-  std::vector<double> phiPoints;
-  std::vector<GlobalVector> directionPoints;
+  std::vector<double> m_etaPoints;
+  std::vector<double> m_phiPoints;
+  std::vector<std::pair<double,double> > m_etaPhiPoints;
+  std::vector<GlobalVector> m_directionPoints;
 
 
   float m_ptMin;
@@ -444,7 +445,7 @@ private:
   float m_deltaEta_Point;
   float m_deltaPhi_Point;
   bool m_precise;
-  edm::EDGetTokenT<MeasurementTrackerEvent> token_measurementTracker;
+  edm::EDGetTokenT<MeasurementTrackerEvent> m_token_measurementTracker;
   RectangularEtaPhiTrackingRegion::UseMeasurementTracker m_whereToUseMeasurementTracker;
   bool m_searchOpt;
 
