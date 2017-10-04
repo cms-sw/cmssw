@@ -155,7 +155,7 @@ void DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence,
       if (segm->specificRecHits().empty()) continue;
 
       const GeomDet* geomDet = theTrackingGeometry->idToDet(segm->geographicalId());
-      const std::vector<DTRecHit1D> hits1d = segm->specificRecHits();
+      const std::vector<DTRecHit1D>& hits1d(segm->specificRecHits());
 
       // store all the hits from the segment
       for (const auto& hiti : hits1d) {
