@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    ecalBadCalibSep2017ListFilter
-// Class:      ecalBadCalibSep2017ListFilter
+// Package:    EcalBadCalibFilter
+// Class:      EcalBadCalibFilter
 //
-/**\class ecalBadCalibSep2017ListFilter ecalBadCalibSep2017ListFilter.cc
+/**\class EcalBadCalibFilter EcalBadCalibFilter.cc
  
  Description: <one line class summary>
  Event filtering to remove events with anomalous energy intercalibrations in specific ECAL channels
@@ -36,12 +36,12 @@
 using namespace std;
  
  
-class ecalBadCalibSep2017ListFilter : public edm::global::EDFilter<> {
+class EcalBadCalibFilter : public edm::global::EDFilter<> {
  
 public:
  
-  explicit ecalBadCalibSep2017ListFilter(const edm::ParameterSet & iConfig);
-  ~ecalBadCalibSep2017ListFilter() override {}
+  explicit EcalBadCalibFilter(const edm::ParameterSet & iConfig);
+  ~EcalBadCalibFilter() override {}
  
 private:
  
@@ -50,18 +50,13 @@ private:
  bool filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override; 
  
   // input parameters
- 
-  // eb rechit collection (from AOD)
-  const edm::EDGetTokenT<EcalRecHitCollection>  ebRHSrcToken_;  
-  // ee rechit collection (from AOD)
+  // ecal rechit collection (from AOD)
   const edm::EDGetTokenT<EcalRecHitCollection>  eeRHSrcToken_;
 
   //config parameters (defining the cuts on the bad SCs)
-  const double ebMin_;              // EB rechit et threshold
-  const double eeMin_;              // EE rechit et threshold
+  const double eeMin_;              // ecal rechit et threshold
  
-  const std::vector<unsigned int> baddetEB_;    // DetIds of bad EB channels  
-  const std::vector<unsigned int> baddetEE_;    // DetIds of bad EE channels
+  const std::vector<unsigned int> baddetEE_;    // DetIds of bad Ecal channels
  
   const bool taggingMode_;
   const bool debug_;                // prints out debug info if set to true
@@ -69,12 +64,9 @@ private:
 };
  
 // read the parameters from the config file
-ecalBadCalibSep2017ListFilter::ecalBadCalibSep2017ListFilter(const edm::ParameterSet & iConfig)
-  : ebRHSrcToken_     (consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EBRecHitSource")))
-  , eeRHSrcToken_     (consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EERecHitSource")))
-  , ebMin_          (iConfig.getParameter<double>("ebMinEt"))
+EcalBadCalibFilter::EcalBadCalibFilter(const edm::ParameterSet & iConfig) 
+  : eeRHSrcToken_   (consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EERecHitSource")))
   , eeMin_          (iConfig.getParameter<double>("eeMinEt"))
-  , baddetEB_       (iConfig.getParameter<std::vector<unsigned int> >("baddetEB"))
   , baddetEE_       (iConfig.getParameter<std::vector<unsigned int> >("baddetEE"))
   , taggingMode_    (iConfig.getParameter<bool>("taggingMode"))
   , debug_          (iConfig.getParameter<bool>("debug"))
@@ -83,16 +75,12 @@ ecalBadCalibSep2017ListFilter::ecalBadCalibSep2017ListFilter(const edm::Paramete
 }
  
 
-bool ecalBadCalibSep2017ListFilter::filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const {
+bool EcalBadCalibFilter::filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const {
 
 
   // load required collections
  
-  // EB rechit collection
-  edm::Handle<EcalRecHitCollection> ebRHs;
-  iEvent.getByToken(eeRHSrcToken_, ebRHs);
- 
-  // EE rechit collection
+   // Ecal rechit collection
   edm::Handle<EcalRecHitCollection> eeRHs;
   iEvent.getByToken(eeRHSrcToken_, eeRHs);
  
@@ -113,7 +101,7 @@ bool ecalBadCalibSep2017ListFilter::filter(edm::StreamID, edm::Event & iEvent, c
   float et=0;
  
   for (const auto eeit : baddetEE_) {
-    
+
     EEDetId eedet(eeit);
     
     if (eedet.rawId()==0) continue;
@@ -140,9 +128,9 @@ bool ecalBadCalibSep2017ListFilter::filter(edm::StreamID, edm::Event & iEvent, c
     
     // print some debug info
     if (debug_) {
-      edm::LogInfo("ecalBadCalibSep2017ListFilter") << "DetId=" <<  eedet.rawId();
-      edm::LogInfo("ecalBadCalibSep2017ListFilter") << "ix=" << ix << " iy=" << iy << " iz=" << iz;
-      edm::LogInfo("ecalBadCalibSep2017ListFilter") << "Et=" << et << " thresh=" << eeMin_;
+      edm::LogInfo("EcalBadCalibFilter") << "DetId=" <<  eedet.rawId();
+      edm::LogInfo("EcalBadCalibFilter") << "ix=" << ix << " iy=" << iy << " iz=" << iz;
+      edm::LogInfo("EcalBadCalibFilter") << "Et=" << et << " thresh=" << eeMin_;
     }
        
        
@@ -150,7 +138,7 @@ bool ecalBadCalibSep2017ListFilter::filter(edm::StreamID, edm::Event & iEvent, c
     if (et>eeMin_) {
       pass=false;
       if (debug_) {
-	edm::LogInfo("ecalBadCalibSep2017ListFilter") << "DUMP EVENT" << std::endl;
+	edm::LogInfo("EcalBadCalibFilter") << "DUMP EVENT" << std::endl;
       }
     }
 
@@ -158,7 +146,7 @@ bool ecalBadCalibSep2017ListFilter::filter(edm::StreamID, edm::Event & iEvent, c
   
  
   // print the decision if event is bad
-  if (pass==false && debug_) edm::LogInfo("ecalBadCalibSep2017ListFilter") << "REJECT EVENT!!!";
+  if (pass==false && debug_) edm::LogInfo("EcalBadCalibFilter") << "REJECT EVENT!!!";
    
   iEvent.put(std::make_unique<bool>(pass));
  
@@ -168,4 +156,4 @@ bool ecalBadCalibSep2017ListFilter::filter(edm::StreamID, edm::Event & iEvent, c
  
 #include "FWCore/Framework/interface/MakerMacros.h"
  
-DEFINE_FWK_MODULE(ecalBadCalibSep2017ListFilter);
+DEFINE_FWK_MODULE(EcalBadCalibFilter);
