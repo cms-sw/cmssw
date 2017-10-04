@@ -1,12 +1,7 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.MagneticField_cff import *
 ### HLT filter
 import copy
 from HLTrigger.HLTfilters.hltHighLevel_cfi import *
-from  SimGeneral.HepPDTESSource.pythiapdt_cfi import *
-from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi import *
-from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *
-from RecoMuon.MuonIsolationProducers.isoDepositProducerIOBlocks_cff import *
 from PhysicsTools.PatAlgos.producersLayer1.genericParticleProducer_cfi import patGenericParticles
 
 
@@ -86,9 +81,8 @@ looseIsoMuonsForZMuSkim = cms.EDFilter("PATGenericParticleSelector",
 
 
 
-
-
-MyPatMuons = cms.EDProducer("PATMuonProducer",
+###create the "tag collection" of muon candidate, embedding the relevant infos  
+tightMuonsCandidateForZMuSkim = cms.EDProducer("PATMuonProducer",
     muonSource      = cms.InputTag("muons"),
     useParticleFlow =  cms.bool( False ),
     pfMuonSource = cms.InputTag("particleFlow"),
@@ -128,9 +122,9 @@ MyPatMuons = cms.EDProducer("PATMuonProducer",
     miniIsoParams = cms.vdouble(0.05, 0.2, 10.0, 0.5, 0.0001, 0.01, 0.01, 0.01, 0.0),
 )
 
-
+##apply ~tight muon ID 
 tightMuonsForZMuSkim = cms.EDFilter("PATMuonSelector",
-                                    src = cms.InputTag("MyPatMuons"),       
+                                    src = cms.InputTag("tightMuonsCandidateForZMuSkim"),       
                                     cut = cms.string('(pt > 28) &&  (abs(eta)<2.4) && (isPFMuon>0) && (isGlobalMuon = 1) && (globalTrack().normalizedChi2() < 10) && (globalTrack().hitPattern().numberOfValidMuonHits()>0)&& (numberOfMatchedStations() > 1)&& (innerTrack().hitPattern().numberOfValidPixelHits() > 0)&& (innerTrack().hitPattern().trackerLayersWithMeasurement() > 5) && (abs(dB)<0.2)  && ((isolationR03().sumPt/pt)<0.1)'),
                                     filter = cms.bool(True)                                
                                     )
@@ -159,8 +153,14 @@ diMuonSelSeq = cms.Sequence(
                             tkIsoDepositTk *
                             allPatTracks *
                             looseIsoMuonsForZMuSkim * 
-                            MyPatMuons *
+                            tightMuonsCandidateForZMuSkim *
                             tightMuonsForZMuSkim *
                             dimuonsZMuSkim *
                             dimuonsFilterZMuSkim 
-                            )
+)
+
+
+
+
+
+
