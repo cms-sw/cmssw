@@ -1,16 +1,101 @@
 #include "PixelInactiveAreaFinder.h"
 
+#include "FWCore/Utilities/interface/VecArray.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include <fstream>
 #include <queue>
+#include <algorithm>
 
-PixelInactiveAreaFinder::PixelInactiveAreaFinder(const edm::ParameterSet& iConfig):
+std::ostream& operator<<(std::ostream& os, SeedingLayerSetsBuilder::SeedingLayerId layer) {
+  if(std::get<0>(layer) == GeomDetEnumerators::PixelBarrel) {
+    os << "BPix";
+  }
+  else {
+    os << "FPix";
+  }
+  os << std::get<2>(layer);
+  if(std::get<1>(layer) == TrackerDetSide::PosEndcap) {
+    os << "_pos";
+  }
+  else if(std::get<1>(layer) == TrackerDetSide::NegEndcap) {
+    os << "_neg";
+  }
+  return os;
+}
+
+namespace {
+  using LayerPair = std::pair<SeedingLayerSetsBuilder::SeedingLayerId, SeedingLayerSetsBuilder::SeedingLayerId>;
+  using ActiveLayerSetToInactiveSetsMap = std::map<LayerPair, edm::VecArray<LayerPair, 5> >;
+
+  ActiveLayerSetToInactiveSetsMap createActiveToInactiveMap() {
+    ActiveLayerSetToInactiveSetsMap map;
+
+    auto bpix = [](int layer) {
+      return SeedingLayerSetsBuilder::SeedingLayerId(GeomDetEnumerators::PixelBarrel, TrackerDetSide::Barrel, layer);
+    };
+    auto fpix_pos = [](int disk) {
+      return SeedingLayerSetsBuilder::SeedingLayerId(GeomDetEnumerators::PixelEndcap, TrackerDetSide::PosEndcap, disk);
+    };
+    auto fpix_neg = [](int disk) {
+      return SeedingLayerSetsBuilder::SeedingLayerId(GeomDetEnumerators::PixelEndcap, TrackerDetSide::NegEndcap, disk);
+    };
+
+    auto add_permutations = [&](std::array<SeedingLayerSetsBuilder::SeedingLayerId, 4> quads) {
+      do {
+        // skip permutations like BPix2+BPix1 or FPix1+BPix1
+        // operator> works automatically
+        if(quads[0] > quads[1] || quads[2] > quads[3]) continue;
+
+        map[std::make_pair(quads[0], quads[1])].emplace_back(quads[2], quads[3]);
+      } while(std::next_permutation(quads.begin(), quads.end()));
+    };
+
+    // 4 barrel
+    add_permutations({{bpix(1), bpix(2), bpix(3), bpix(4)}});
+
+    // 3 barrel, 1 forward
+    add_permutations({{bpix(1), bpix(2), bpix(3), fpix_pos(1)}});
+    add_permutations({{bpix(1), bpix(2), bpix(3), fpix_neg(1)}});
+
+    // 2 barrel, 2 forward
+    add_permutations({{bpix(1), bpix(2), fpix_pos(1), fpix_pos(2)}});
+    add_permutations({{bpix(1), bpix(2), fpix_neg(1), fpix_neg(2)}});
+
+    // 1 barrel, 3 forward
+    add_permutations({{bpix(1), fpix_pos(1), fpix_pos(2), fpix_pos(3)}});
+    add_permutations({{bpix(1), fpix_neg(1), fpix_neg(2), fpix_neg(3)}});
+
+#ifdef EDM_ML_DEBUG
+    LogDebug("PixelInactiveAreaFinder") << "Active to inactive mapping";
+    for(const auto& elem: map) {
+      std::stringstream ss;
+      for(const auto& layerPair: elem.second) {
+        ss << layerPair.first << "+" << layerPair.second << ",";
+      }
+      LogTrace("PixelInactiveAreaFinder") << " " << elem.first.first << "+" << elem.first.second << " => " << ss.str();
+    }
+#endif
+
+    return map;
+  }
+
+  static const auto activeToInactiveMap = createActiveToInactiveMap();
+}
+
+PixelInactiveAreaFinder::PixelInactiveAreaFinder(const edm::ParameterSet& iConfig, const std::vector<SeedingLayerSetsBuilder::SeedingLayerId>& seedingLayers,
+                                                 const std::vector<SeedingLayerSetsHits::LayerSetIndex>& layerSetIndices):
   debug_(iConfig.getUntrackedParameter<bool>("debug")),
   createPlottingFiles_(iConfig.getUntrackedParameter<bool>("createPlottingFiles"))
- {}
+{
+#ifdef EDM_ML_DEBUG
+  for(const auto& layer: seedingLayers) {
+    LogTrace("PixelInactiveAreaFinder") << "Input layer subdet " << std::get<0>(layer) << " side " << std::get<1>(layer) << " layer " << std::get<2>(layer);
+  }
+#endif
+}
 
 void PixelInactiveAreaFinder::fillDescriptions(edm::ParameterSetDescription& desc) {
   desc.addUntracked<bool>("debug", false);

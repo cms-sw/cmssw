@@ -28,7 +28,8 @@ public:
     std::vector<SeedingLayerId> layers_; // inner and outer active layer, so size always 2; is vector only because of client interface
   };
 
-  PixelInactiveAreaFinder(const edm::ParameterSet& iConfig);
+  PixelInactiveAreaFinder(const edm::ParameterSet& iConfig, const std::vector<SeedingLayerSetsBuilder::SeedingLayerId>& seedingLayers,
+                          const std::vector<SeedingLayerSetsHits::LayerSetIndex>& layerSetIndices);
   ~PixelInactiveAreaFinder() = default;
 
   static void fillDescriptions(edm::ParameterSetDescription& desc);
@@ -39,7 +40,6 @@ private:
   // Configuration
   const bool debug_;
   const bool createPlottingFiles_;
-
 
   // Output types
   struct DetGroupSpan {
