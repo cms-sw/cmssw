@@ -80,7 +80,7 @@ public:
      return theMeasurementVector;
   }
 
-  static Measurement* getMeasurementByName( const ALIstring& name, ALIbool exists = 1);
+  static Measurement* getMeasurementByName( const ALIstring& name, ALIbool exists = true);
 
   /// the name of the System Description File
   static ALIstring& SDFName(){

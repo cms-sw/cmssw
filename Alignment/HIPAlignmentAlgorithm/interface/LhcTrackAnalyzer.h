@@ -57,12 +57,12 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
 
  public:
   explicit LhcTrackAnalyzer(const edm::ParameterSet&);
-  ~LhcTrackAnalyzer();
+  ~LhcTrackAnalyzer() override;
 
  private:
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   // ----------member data ---------------------------
   edm::InputTag  TrackCollectionTag_;

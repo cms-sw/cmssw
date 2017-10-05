@@ -8,8 +8,8 @@
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 #include <iomanip>
 
 
@@ -423,19 +423,19 @@ int ALIUtils::getInt( const ALIstring& str )
     exit(1);
   } else {
     //----- Check that it is not a float, no decimal or E-n
-    bool isFloat = 0;
+    bool isFloat = false;
     int ch = str.find('.');
     ALIuint ii = 0;
     if(ch != -1 ) {
       for( ii = ch+1; ii < str.size(); ii++) {
-	if( str[ii] != '0' ) isFloat = 1;
+	if( str[ii] != '0' ) isFloat = true;
       }
     }
 
     ch = str.find('E');
     if(ch != -1 ) ch = str.find('e');
     if(ch != -1 ) {
-      if(str[ch+1] == '-') isFloat = 1;
+      if(str[ch+1] == '-') isFloat = true;
     }
 
     if(isFloat) {
@@ -799,7 +799,7 @@ double ALIUtils::addPii( double val )
 int ALIUtils::checkMatrixEquations( double angleX, double angleY, double angleZ, CLHEP::HepRotation* rot)
 {
   //-  std::cout << " cme " << angleX << " " << angleY << " " << angleZ << std::endl;
-  if( rot == 0 ) {
+  if( rot == nullptr ) {
     rot = new CLHEP::HepRotation();
     rot->rotateX( angleX );
     rot->rotateY( angleY );
