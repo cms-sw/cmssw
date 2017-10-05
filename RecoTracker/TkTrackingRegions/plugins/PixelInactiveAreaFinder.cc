@@ -5,6 +5,8 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
+#include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsLooper.h"
+
 #include <fstream>
 #include <queue>
 #include <algorithm>
@@ -82,17 +84,60 @@ namespace {
     return map;
   }
 
-  static const auto activeToInactiveMap = createActiveToInactiveMap();
 }
 
 PixelInactiveAreaFinder::PixelInactiveAreaFinder(const edm::ParameterSet& iConfig, const std::vector<SeedingLayerSetsBuilder::SeedingLayerId>& seedingLayers,
-                                                 const std::vector<SeedingLayerSetsHits::LayerSetIndex>& layerSetIndices):
+                                                 const SeedingLayerSetsLooper& seedingLayerSetsLooper):
   debug_(iConfig.getUntrackedParameter<bool>("debug")),
   createPlottingFiles_(iConfig.getUntrackedParameter<bool>("createPlottingFiles"))
 {
 #ifdef EDM_ML_DEBUG
   for(const auto& layer: seedingLayers) {
     LogTrace("PixelInactiveAreaFinder") << "Input layer subdet " << std::get<0>(layer) << " side " << std::get<1>(layer) << " layer " << std::get<2>(layer);
+  }
+#endif
+
+  auto findOrAdd = [&](SeedingLayerId layer) -> unsigned short {
+    auto found = std::find(layers_.cbegin(), layers_.cend(), layer);
+    if(found == layers_.cend()) {
+      auto ret = layers_.size();
+      layers_.push_back(layer);
+      return ret;
+    }
+    return std::distance(layers_.cbegin(), found);
+  };
+
+  // mapping from active layer pairs to inactive layer pairs
+  const auto activeToInactiveMap = createActiveToInactiveMap();
+
+  // convert input layer pairs (that are for active layers) to layer
+  // pairs to look for inactive areas
+  for(const auto& layerSet: seedingLayerSetsLooper.makeRange(seedingLayers)) {
+    assert(layerSet.size() == 2);
+    auto found = activeToInactiveMap.find(std::make_pair(layerSet[0], layerSet[1]));
+    if(found == activeToInactiveMap.end()) {
+      throw cms::Exception("Configuration") << "Encountered layer pair " << layerSet[0] << "+" << layerSet[1] << " not found from the internal 'active layer pairs' to 'inactive layer pairs' mapping; either fix the input or the mapping (in PixelInactiveAreaFinder.cc)";
+    }
+
+    LogTrace("PixelInactiveAreaFinder") << "Input layer set " << layerSet[0] << "+" << layerSet[1];
+    for(const auto& inactiveLayerSet: found->second) {
+      auto innerInd = findOrAdd(inactiveLayerSet.first);
+      auto outerInd = findOrAdd(inactiveLayerSet.second);
+
+      auto found = std::find(layerSetIndices_.cbegin(), layerSetIndices_.cend(), std::make_pair(innerInd, outerInd));
+      if(found == layerSetIndices_.end()) {
+        layerSetIndices_.emplace_back(innerInd, outerInd);
+      }
+
+      LogTrace("PixelInactiveAreaFinder") << " inactive layer set " << inactiveLayerSet.first << "+" << inactiveLayerSet.second;
+    }
+  }
+  
+
+#ifdef EDM_ML_DEBUG
+  LogDebug("PixelInactiveAreaFinder") << "All inactive layer sets";
+  for(const auto& idxPair: layerSetIndices_) {
+    LogTrace("PixelInactiveAreaFinder") << " " << layers_[idxPair.first] << "+" << layers_[idxPair.second];
   }
 #endif
 }
