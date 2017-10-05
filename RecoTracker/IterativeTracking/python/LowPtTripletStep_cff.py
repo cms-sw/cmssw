@@ -59,6 +59,17 @@ trackingPhase1.toModify(lowPtTripletStepTrackingRegions, RegionPSet = dict(ptMin
 trackingPhase1QuadProp.toModify(lowPtTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.35)) # FIXME: Phase1PU70 value, let's see if we can lower it to Run2 value (0.2)
 trackingPhase2PU140.toModify(lowPtTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.40))
 
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
+pp_on_XeXe_2017.toReplaceWith(lowPtTripletStepTrackingRegions, 
+                              _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
+            fixedError = 0.2,
+            ptMin = 0.25,
+            originRadius = 0.02
+            )
+                                                                      )
+)
+
 # seeding
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
 lowPtTripletStepHitDoublets = _hitPairEDProducer.clone(
@@ -126,6 +137,8 @@ _tracker_apv_vfp30_2016.toModify(lowPtTripletStepStandardTrajectoryFilter, maxCC
 from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
 trackingLowPU.toReplaceWith(lowPtTripletStepStandardTrajectoryFilter, _lowPtTripletStepStandardTrajectoryFilterBase)
 trackingPhase2PU140.toReplaceWith(lowPtTripletStepStandardTrajectoryFilter, _lowPtTripletStepStandardTrajectoryFilterBase)
+
+pp_on_XeXe_2017.toModify(lowPtTripletStepStandardTrajectoryFilter, minPt=0.3)
 
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeTrajectoryFilter_cfi import *
 # Composite filter

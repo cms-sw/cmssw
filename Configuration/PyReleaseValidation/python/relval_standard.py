@@ -402,6 +402,8 @@ workflows[1363.17] = ['', ['VBFHToBB_M125_Pow_py8_Evt_13UP17','DIGIUP17','RECOUP
 workflows[140] = ['',['HydjetQ_B12_5020GeV_2011','DIGIHI2011','RECOHI2011','HARVESTHI2011']]
 ### Run II cond., 2015
 workflows[145] = ['',['HydjetQ_B12_5020GeV_2015','DIGIHI2015','RECOHI2015','HARVESTHI2015']]
+### Run II cond., 2017
+workflows[148] = ['',['HydjetQ_MinBias_XeXe_5442GeV_2017','DIGIHI2017','RECOHI2017','HARVESTHI2017']]
 ### Run II cond., 2018
 workflows[150] = ['',['HydjetQ_B12_5020GeV_2018','DIGIHI2018','RECOHI2018','HARVESTHI2018']]
 workflows[150.1] = ['',['QCD_Pt_80_120_13_HI','DIGIHI2018','RECOHI2018','HARVESTHI2018']]

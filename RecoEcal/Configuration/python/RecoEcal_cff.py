@@ -20,3 +20,14 @@ from RecoEcal.EgammaClusterProducers.particleFlowSuperClusteringSequence_cff imp
 
 ecalClustersNoPFBox = cms.Sequence(hybridClusteringSequence*multi5x5ClusteringSequence*multi5x5PreshowerClusteringSequence)
 ecalClusters = cms.Sequence(ecalClustersNoPFBox*particleFlowSuperClusteringSequence)
+
+from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
+from Configuration.Eras.Modifier_peripheralPbPb_cff import peripheralPbPb
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+
+from RecoEcal.EgammaClusterProducers.islandBasicClusters_cfi import islandBasicClusters
+
+_ecalClustersHI = ecalClusters.copy()
+_ecalClustersHI += islandBasicClusters
+for e in [pA_2016, peripheralPbPb, pp_on_XeXe_2017]:
+    e.toReplaceWith(ecalClusters, _ecalClustersHI)
