@@ -110,6 +110,10 @@ if fastSim.isChosen():
     # besides: is this cross frame doing something, or is it a relic from the past?
     globalValidation.remove(ecalDigisValidationSequence)
     globalValidation.remove(ecalRecHitsValidationSequence)
+
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+if pp_on_XeXe_2017.isChosen():
+    globalValidation.remove(pfTauRunDQMValidation)
     
 #lite tracking validator to be used in the Validation matrix
 #lite validation

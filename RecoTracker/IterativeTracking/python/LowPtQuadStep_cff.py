@@ -26,6 +26,25 @@ from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU
 trackingPhase1QuadProp.toModify(lowPtQuadStepTrackingRegions, RegionPSet = dict(ptMin = 0.2))
 trackingPhase2PU140.toModify(lowPtQuadStepTrackingRegions, RegionPSet = dict(ptMin = 0.35,originRadius = 0.025))
 
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cfi import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
+
+pp_on_XeXe_2017.toReplaceWith(lowPtQuadStepTrackingRegions,
+                              _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
+            precise = True,
+            useMultipleScattering = False,
+            useFakeVertices       = False,
+            beamSpot = "offlineBeamSpot",
+            useFixedError = True,
+            nSigmaZ = 4.0,
+            sigmaZVertex = 4.0,
+            fixedError = 0.5,
+            VertexCollection = "firstStepPrimaryVertices",
+            ptMin = 0.25,
+            useFoundVertices = True,
+            originRadius = 0.02
+            ))
+                              )
 
 # seeding
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
@@ -102,6 +121,8 @@ lowPtQuadStepTrajectoryFilterBase = _lowPtQuadStepTrajectoryFilterBase.clone(
     minGoodStripCharge = dict(refToPSet_ = 'SiStripClusterChargeCutLoose')
 )
 trackingPhase2PU140.toReplaceWith(lowPtQuadStepTrajectoryFilterBase, _lowPtQuadStepTrajectoryFilterBase)
+
+pp_on_XeXe_2017.toModify(lowPtQuadStepTrajectoryFilterBase, minPt=0.3)
 
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeTrajectoryFilter_cfi import *
 # Composite filter

@@ -115,3 +115,7 @@ PFTauTask = cms.Task(
 PFTau = cms.Sequence(
     PFTauTask
 )
+
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+PFTauDummy=cms.Sequence()
+pp_on_XeXe_2017.toReplaceWith(PFTau,PFTauDummy)

@@ -45,6 +45,27 @@ detachedTripletStepTrackingRegions = _globalTrackingRegionFromBeamSpotFixedZ.clo
 ))
 trackingPhase1.toModify(detachedTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.25))
 
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cfi import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
+
+pp_on_XeXe_2017.toReplaceWith(detachedTripletStepTrackingRegions,
+                              _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
+            precise = True,
+            useMultipleScattering = False,
+            useFakeVertices       = False,
+            beamSpot = "offlineBeamSpot",
+            useFixedError = True,
+            nSigmaZ = 4.0,
+            sigmaZVertex = 4.0,
+            fixedError = 3,
+            VertexCollection = "firstStepPrimaryVertices",
+            ptMin = 0.8,
+            useFoundVertices = True,
+            originRadius = 1.5
+            ))
+                              )
+
+
 # seeding
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
 detachedTripletStepHitDoublets = _hitPairEDProducer.clone(
@@ -106,6 +127,9 @@ trackingLowPU.toReplaceWith(detachedTripletStepTrajectoryFilterBase, _detachedTr
     maxLostHitsFraction = 1./10.,
     constantValueForLostHitsFractionFilter = 0.701,
 ))
+
+pp_on_XeXe_2017.toModify(detachedTripletStepTrajectoryFilterBase, minPt=0.9)
+
 import RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi
 detachedTripletStepTrajectoryFilterShape = RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi.StripSubClusterShapeTrajectoryFilterTIX12.clone()
 detachedTripletStepTrajectoryFilter = cms.PSet(
