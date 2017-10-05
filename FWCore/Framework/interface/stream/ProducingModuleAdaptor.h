@@ -49,7 +49,7 @@ namespace edm {
         typename T::GlobalCache const* dummy=nullptr;
         m_global = impl::makeGlobal<T>(iPSet,dummy);
       }
-      ~ProducingModuleAdaptor() {
+      ~ProducingModuleAdaptor() override {
       }
       
       static void fillDescriptions(ConfigurationDescriptions& descriptions) {

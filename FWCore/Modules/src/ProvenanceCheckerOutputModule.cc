@@ -34,13 +34,13 @@ namespace edm {
    public:
       // We do not take ownership of passed stream.
       explicit ProvenanceCheckerOutputModule(ParameterSet const& pset);
-      virtual ~ProvenanceCheckerOutputModule();
+      ~ProvenanceCheckerOutputModule() override;
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void write(EventForOutput const& e) override;
-      virtual void writeLuminosityBlock(LuminosityBlockForOutput const&) override {}
-      virtual void writeRun(RunForOutput const&) override {}
+      void write(EventForOutput const& e) override;
+      void writeLuminosityBlock(LuminosityBlockForOutput const&) override {}
+      void writeRun(RunForOutput const&) override {}
    };
 
 
@@ -152,7 +152,7 @@ namespace edm {
          }
       }
 
-      if(missingFromMapper.size()) {
+      if(!missingFromMapper.empty()) {
          LogError("ProvenanceChecker") << "Missing the following BranchIDs from ProductProvenanceRetriever\n";
          for(std::set<BranchID>::iterator it = missingFromMapper.begin(), itEnd = missingFromMapper.end();
              it != itEnd;
@@ -161,7 +161,7 @@ namespace edm {
          }
       }
 
-      if(missingProductProvenance.size()) {
+      if(!missingProductProvenance.empty()) {
          LogError("ProvenanceChecker") << "The ProductResolvers for the following BranchIDs have no ProductProvenance\n";
          for(std::set<BranchID>::iterator it = missingProductProvenance.begin(), itEnd = missingProductProvenance.end();
              it != itEnd;
@@ -170,18 +170,18 @@ namespace edm {
          }
       }
 
-      if(missingFromReg.size()) {
+      if(!missingFromReg.empty()) {
          LogError("ProvenanceChecker") << "Missing the following BranchIDs from ProductRegistry\n";
          for(auto const& item : missingFromReg) {
             LogProblem("ProvenanceChecker") << item << " " << *(idToBranchDescriptions[item]);
          }
       }
 
-      if(missingFromMapper.size() || missingProductProvenance.size() || missingFromReg.size()) {
+      if(!missingFromMapper.empty() || !missingProductProvenance.empty() || !missingFromReg.empty()) {
          throw cms::Exception("ProvenanceError")
-         << (missingFromMapper.size() ? "Having missing ancestors from ProductProvenanceRetriever.\n" : "")
-         << (missingProductProvenance.size() ? " Have missing ProductProvenance's from ProductResolver in Event.\n" : "")
-         << (missingFromReg.size() ? " Have missing info from ProductRegistry.\n" : "");
+         << (!missingFromMapper.empty() ? "Having missing ancestors from ProductProvenanceRetriever.\n" : "")
+         << (!missingProductProvenance.empty() ? " Have missing ProductProvenance's from ProductResolver in Event.\n" : "")
+         << (!missingFromReg.empty() ? " Have missing info from ProductRegistry.\n" : "");
       }
    }
 

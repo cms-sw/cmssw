@@ -86,8 +86,8 @@ struct MessageDrop {
 private:
   MessageDrop();					// change log 10:
   							// moved to cc file  
-  MessageDrop( MessageDrop const& );
-  MessageDrop& operator=( MessageDrop const& );
+  MessageDrop( MessageDrop const& ) = delete;
+  MessageDrop& operator=( MessageDrop const& ) = delete;
 public:
   ~MessageDrop();					// change log 10
   static MessageDrop * instance ();
