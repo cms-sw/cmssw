@@ -303,7 +303,7 @@ namespace edm {
         << "EventSetupsController::getESProducerPSet\n"
         << "Subprocess index not found. This should never happen\n"
         << "Please report this to a Framework Developer\n";
-      return 0;
+      return nullptr;
     }
 
     void
