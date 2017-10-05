@@ -134,7 +134,7 @@ pp_on_XeXe_2017.toReplaceWith(tobTecStepTrackingRegionsPair,
                               _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
             fixedError = 7.5,
             ptMin = 2.0,
-            originRadius = 6.9
+            originRadius = 6.0
             )                                                                      )
 )
 
