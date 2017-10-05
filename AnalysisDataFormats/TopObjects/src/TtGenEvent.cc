@@ -69,7 +69,7 @@ TtGenEvent::fullLeptonicChannel() const
 const reco::GenParticle* 
 TtGenEvent::lepton(bool excludeTauLeptons) const 
 {
-  const reco::GenParticle* cand = 0;
+  const reco::GenParticle* cand = nullptr;
   const reco::GenParticleCollection& partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
     if (reco::isLepton(partsColl[i]) && partsColl[i].mother() &&
@@ -85,7 +85,7 @@ TtGenEvent::lepton(bool excludeTauLeptons) const
 const reco::GenParticle* 
 TtGenEvent::leptonBar(bool excludeTauLeptons) const 
 {
-  const reco::GenParticle* cand = 0;
+  const reco::GenParticle* cand = nullptr;
   const reco::GenParticleCollection& partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
     if (reco::isLepton(partsColl[i]) && partsColl[i].mother() &&
@@ -101,7 +101,7 @@ TtGenEvent::leptonBar(bool excludeTauLeptons) const
 const reco::GenParticle* 
 TtGenEvent::singleLepton(bool excludeTauLeptons) const 
 {
-  const reco::GenParticle* cand = 0;
+  const reco::GenParticle* cand = nullptr;
   if( isSemiLeptonic(excludeTauLeptons) ){
     const reco::GenParticleCollection& partsColl = *parts_;
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
@@ -117,7 +117,7 @@ TtGenEvent::singleLepton(bool excludeTauLeptons) const
 const reco::GenParticle* 
 TtGenEvent::neutrino(bool excludeTauLeptons) const 
 {
-  const reco::GenParticle* cand=0;
+  const reco::GenParticle* cand=nullptr;
   const reco::GenParticleCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
     if (reco::isNeutrino(partsColl[i]) && partsColl[i].mother() &&
@@ -133,7 +133,7 @@ TtGenEvent::neutrino(bool excludeTauLeptons) const
 const reco::GenParticle* 
 TtGenEvent::neutrinoBar(bool excludeTauLeptons) const 
 {
-  const reco::GenParticle* cand=0;
+  const reco::GenParticle* cand=nullptr;
   const reco::GenParticleCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
     if (reco::isNeutrino(partsColl[i]) && partsColl[i].mother() &&
@@ -149,7 +149,7 @@ TtGenEvent::neutrinoBar(bool excludeTauLeptons) const
 const reco::GenParticle* 
 TtGenEvent::singleNeutrino(bool excludeTauLeptons) const 
 {
-  const reco::GenParticle* cand=0;
+  const reco::GenParticle* cand=nullptr;
   if( isSemiLeptonic(excludeTauLeptons) ) {
     const reco::GenParticleCollection & partsColl = *parts_;
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
@@ -165,7 +165,7 @@ TtGenEvent::singleNeutrino(bool excludeTauLeptons) const
 const reco::GenParticle* 
 TtGenEvent::hadronicDecayQuark(bool invertFlavor) const 
 {
-  const reco::GenParticle* cand=0;
+  const reco::GenParticle* cand=nullptr;
   // catch W boson and check its daughters for a quark; 
   // make sure the decay is semi-leptonic first; this 
   // only makes sense if taus are not excluded from the 
@@ -179,7 +179,7 @@ TtGenEvent::hadronicDecayQuark(bool invertFlavor) const
 	  if( std::abs(wd->pdgId())<TopDecayID::tID ){
 	    if( invertFlavor?reco::flavour(*wd)<0:reco::flavour(*wd)>0 ){
 	      cand = dynamic_cast<const reco::GenParticle* > (&(*wd));
-	      if(cand == 0){
+	      if(cand == nullptr){
 		throw edm::Exception( edm::errors::InvalidReference, "Not a GenParticle" );
 	      }
 	      break;
@@ -195,7 +195,7 @@ TtGenEvent::hadronicDecayQuark(bool invertFlavor) const
 const reco::GenParticle* 
 TtGenEvent::hadronicDecayB(bool excludeTauLeptons) const 
 {
-  const reco::GenParticle* cand=0;
+  const reco::GenParticle* cand=nullptr;
   if( singleLepton(excludeTauLeptons) ){
     const reco::GenParticleCollection& partsColl = *parts_;
     const reco::GenParticle& singleLep = *singleLepton(excludeTauLeptons);
@@ -212,7 +212,7 @@ TtGenEvent::hadronicDecayB(bool excludeTauLeptons) const
 const reco::GenParticle* 
 TtGenEvent::hadronicDecayW(bool excludeTauLeptons) const 
 {
-  const reco::GenParticle* cand=0;
+  const reco::GenParticle* cand=nullptr;
   if( singleLepton(excludeTauLeptons) ){
     const reco::GenParticleCollection& partsColl = *parts_;
     const reco::GenParticle& singleLep = *singleLepton(excludeTauLeptons);
@@ -230,7 +230,7 @@ TtGenEvent::hadronicDecayW(bool excludeTauLeptons) const
 const reco::GenParticle* 
 TtGenEvent::hadronicDecayTop(bool excludeTauLeptons) const 
 {
-  const reco::GenParticle* cand=0;
+  const reco::GenParticle* cand=nullptr;
   if( singleLepton(excludeTauLeptons) ){
     const reco::GenParticleCollection& partsColl = *parts_;
     const reco::GenParticle& singleLep = *singleLepton(excludeTauLeptons);
@@ -247,7 +247,7 @@ TtGenEvent::hadronicDecayTop(bool excludeTauLeptons) const
 const reco::GenParticle* 
 TtGenEvent::leptonicDecayB(bool excludeTauLeptons) const 
 {
-  const reco::GenParticle* cand=0;
+  const reco::GenParticle* cand=nullptr;
   if( singleLepton(excludeTauLeptons) ){
     const reco::GenParticleCollection& partsColl = *parts_;
     const reco::GenParticle& singleLep = *singleLepton(excludeTauLeptons);
@@ -264,7 +264,7 @@ TtGenEvent::leptonicDecayB(bool excludeTauLeptons) const
 const reco::GenParticle* 
 TtGenEvent::leptonicDecayW(bool excludeTauLeptons) const 
 {
-  const reco::GenParticle* cand=0;
+  const reco::GenParticle* cand=nullptr;
   if( singleLepton(excludeTauLeptons) ){
     const reco::GenParticleCollection& partsColl = *parts_;
     const reco::GenParticle& singleLep = *singleLepton(excludeTauLeptons);
@@ -282,7 +282,7 @@ TtGenEvent::leptonicDecayW(bool excludeTauLeptons) const
 const reco::GenParticle* 
 TtGenEvent::leptonicDecayTop(bool excludeTauLeptons) const 
 {
-  const reco::GenParticle* cand=0;
+  const reco::GenParticle* cand=nullptr;
   if( singleLepton(excludeTauLeptons) ){
     const reco::GenParticleCollection& partsColl = *parts_;
     const reco::GenParticle& singleLep = *singleLepton(excludeTauLeptons);
