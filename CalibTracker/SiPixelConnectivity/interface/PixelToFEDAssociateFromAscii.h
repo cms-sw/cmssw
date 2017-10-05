@@ -24,10 +24,10 @@ public:
   PixelToFEDAssociateFromAscii(const std::string & fileName);
 
   /// FED id for module
-  virtual int operator()(const PixelModuleName &) const override;
+  int operator()(const PixelModuleName &) const override;
 
   /// version
-  virtual std::string version() const override;
+  std::string version() const override;
 
 
   /// FED id to which barrel modul (identified by name) should be assigned 

@@ -24,7 +24,7 @@ class ShallowClustersProducer : public edm::EDProducer {
 
   edm::InputTag theClustersLabel;
   std::string Prefix;
-  void produce( edm::Event &, const edm::EventSetup & );
+  void produce( edm::Event &, const edm::EventSetup & ) override;
 
   struct moduleVars {
     moduleVars(uint32_t, const TrackerTopology*);

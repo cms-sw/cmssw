@@ -311,8 +311,8 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
   
   for(histo=histolist.begin();histo!=histolist.end();++histo){
   
-  FitFunction = 0;
-  FitFunction2IT = 0;
+  FitFunction = nullptr;
+  FitFunction2IT = nullptr;
   bool Good2ITFit = false;
   bool ModuleHisto = true;
   
@@ -343,7 +343,7 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
     ModuleHisto=false;
     edm::LogInfo("SiStripCalibLorentzAngle")<<"### NO MODULE HISTOGRAM";}
     
-    if(stripdet!=0 && ModuleHisto==true){
+    if(stripdet!=nullptr && ModuleHisto==true){
     
       if(subid.subdetId() == int (StripSubdetector::TIB)){
       
@@ -367,7 +367,7 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
     
     //get magnetic field
     const StripGeomDetUnit* det = dynamic_cast<const StripGeomDetUnit*>(estracker->idToDetUnit(detid));
-    if (det==0){
+    if (det==nullptr){
     edm::LogError("SiStripCalibLorentzAngle") << "[SiStripCalibLorentzAngle::getNewObject] the detID " << id << " doesn't seem to belong to Tracker" <<std::endl; 	
     continue;
     }
@@ -376,7 +376,7 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
     theBfield = (theBfield > 0) ? theBfield : 0.00001; 
     TH1Ds["MagneticField"]->Fill(theBfield);    
     }
-    if(stripdet==0)continue;
+    if(stripdet==nullptr)continue;
       
     if(((*histo)->getEntries()<=FitCuts_Entries)&&ModuleHisto==true){
     if(((*histo)->getEntries()==0)&&ModuleHisto==true){    
@@ -404,10 +404,10 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
     gStyle->SetOptFit(111);  
     
     //Extract TProfile from Monitor Element to ProfileMap
-    Profiles[name.c_str()] = new TProfile;   
+    Profiles[name] = new TProfile;   
     TProfile* theProfile=ExtractTObject<TProfile>().extract(*histo);   
-    theProfile->Copy(*Profiles[name.c_str()]);    
-    Profiles[name.c_str()]->SetName(name.c_str());
+    theProfile->Copy(*Profiles[name]);    
+    Profiles[name]->SetName(name.c_str());
   
     if(((*histo)->getEntries()>FitCuts_Entries) && ModuleHisto==true){   
       histocounter++;            
@@ -427,7 +427,7 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
       fitfunc->FixParameter(3, pitch);
       fitfunc->FixParameter(4, thickness);
       
-      Profiles[name.c_str()]->Fit(fitfunc.get(),"E","",ModuleRangeMin, ModuleRangeMax);
+      Profiles[name]->Fit(fitfunc.get(),"E","",ModuleRangeMin, ModuleRangeMax);
             
       FitFunction = fitfunc.get();
       chi2norm = FitFunction->GetChisquare()/FitFunction->GetNDF();
@@ -443,7 +443,7 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
       fitfunc2IT->FixParameter(4, thickness);
       
       //2nd Iteration
-      Profiles[name.c_str()]->Fit(fitfunc2IT.get(),"E","",ModuleRangeMin2IT, ModuleRangeMax2IT);
+      Profiles[name]->Fit(fitfunc2IT.get(),"E","",ModuleRangeMin2IT, ModuleRangeMax2IT);
       
       FitFunction = fitfunc2IT.get();
       chi2norm = FitFunction->GetChisquare()/FitFunction->GetNDF();
@@ -453,9 +453,9 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
       if(FitFunction->GetParameter(0)>FitCuts_p0 || FitFunction->GetParameter(1)<FitCuts_p1 || FitFunction->GetParameter(2)<FitCuts_p2 || chi2norm>FitCuts_chi2 || FitFunction->GetParError(0)<FitCuts_ParErr_p0){
       
       if(subid.subdetId() == int (StripSubdetector::TIB)){
-      Profiles[name.c_str()]->SetDirectory(TIB_2IT_BadFit);
+      Profiles[name]->SetDirectory(TIB_2IT_BadFit);
       }else{
-      Profiles[name.c_str()]->SetDirectory(TOB_2IT_BadFit);} 
+      Profiles[name]->SetDirectory(TOB_2IT_BadFit);} 
             
       SecondIT_badfit++;
       badFit=1;     
@@ -467,9 +467,9 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
       if(FitFunction->GetParameter(0)<FitCuts_p0 && FitFunction->GetParameter(1)>FitCuts_p1 && FitFunction->GetParameter(2)>FitCuts_p2 && chi2norm<FitCuts_chi2 && FitFunction->GetParError(0)>FitCuts_ParErr_p0){
       
       if(subid.subdetId() == int (StripSubdetector::TIB)){
-      Profiles[name.c_str()]->SetDirectory(TIB_2IT_GoodFit);
+      Profiles[name]->SetDirectory(TIB_2IT_GoodFit);
       }else{
-      Profiles[name.c_str()]->SetDirectory(TOB_2IT_GoodFit);} 
+      Profiles[name]->SetDirectory(TOB_2IT_GoodFit);} 
       
       SecondIT_goodfit++;      
       Good2ITFit = true;
@@ -486,9 +486,9 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
 	goodFit1IT = 1;
 	
 	if(subid.subdetId() == int (StripSubdetector::TIB)){
-        Profiles[name.c_str()]->SetDirectory(TIB_1IT_GoodFit);
+        Profiles[name]->SetDirectory(TIB_1IT_GoodFit);
         }else{
-        Profiles[name.c_str()]->SetDirectory(TOB_1IT_GoodFit);} 
+        Profiles[name]->SetDirectory(TOB_1IT_GoodFit);} 
 	
 	}
 	

@@ -36,12 +36,12 @@ SiStripApvGain * SiStripGainFromAsciiFile::getNewObject(){
   FILE* infile = fopen (Asciifilename_.c_str(), "r");
   char line[4096];
   if (infile){
-    while(fgets(line, 4096, infile)!=NULL){
+    while(fgets(line, 4096, infile)!=nullptr){
        uint32_t detid;
        ModuleGain MG;
        MG.apv[0] = 0.0;  MG.apv[1] = 0.0; MG.apv[2] = 0.0; MG.apv[3] = 0.0; MG.apv[4] = 0.0; MG.apv[5] = 0.0;
        char* pch=strtok(line," "); int Arg=0;
-       while (pch!=NULL){
+       while (pch!=nullptr){
             if(Arg==0){
                sscanf(pch, "%d", &detid);
             }else if(Arg<=6){
@@ -49,7 +49,7 @@ SiStripApvGain * SiStripGainFromAsciiFile::getNewObject(){
             }else{
                //nothing to do here
             }       
-            pch=strtok(NULL," ");Arg++;
+            pch=strtok(nullptr," ");Arg++;
       }
       ss << detid << " " <<  MG.apv[0] << " " <<  MG.apv[1] << " " <<  MG.apv[2] << " " <<  MG.apv[3] << " " <<  MG.apv[4] << " " <<  MG.apv[5] << std::endl;
       GainsMap.insert(std::pair<unsigned int,ModuleGain>(detid,MG));
@@ -65,7 +65,7 @@ SiStripApvGain * SiStripGainFromAsciiFile::getNewObject(){
 
   SiStripDetInfoFileReader reader(fp_.fullPath());
   
-  const std::vector<uint32_t> DetIds = reader.getAllDetIds();
+  const std::vector<uint32_t>& DetIds = reader.getAllDetIds();
   
   ss.str("");
   ss << "[SiStripGainFromAsciiFile::getNewObject]\n Filling SiStripApvGain object";
