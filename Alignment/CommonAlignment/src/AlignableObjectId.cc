@@ -77,7 +77,7 @@ namespace {
     {align:: AlignableMuon        ,  "Muon"},
 
     {align::BeamSpot, "BeamSpot"},
-    {align::notfound, 0}
+    {align::notfound, nullptr}
   };
 
   constexpr AlignableObjectId::entry entries_PhaseI[] {
@@ -143,7 +143,7 @@ namespace {
     {align::AlignableMuon        ,  "Muon"},
 
     {align::BeamSpot, "BeamSpot"},
-    {align::notfound, 0}
+    {align::notfound, nullptr}
   };
 
   constexpr AlignableObjectId::entry entries_PhaseII[] {
@@ -211,7 +211,7 @@ namespace {
     {align::AlignableMuon        ,  "Muon"},
 
     {align::BeamSpot, "BeamSpot"},
-    {align::notfound, 0}
+    {align::notfound, nullptr}
   };
 
 
@@ -221,7 +221,7 @@ namespace {
 
   constexpr char const *objectIdToString(align::StructureType type,
                                          AlignableObjectId::entry const *entries) {
-    return !entries->name ?  0 :
+    return !entries->name ?  nullptr :
             entries->type == type ? entries->name :
                                     objectIdToString(type, entries+1);
   }
@@ -283,7 +283,7 @@ const char *AlignableObjectId::idToString(align::StructureType type) const
 {
   const char *result = objectIdToString(type, entries_);
 
-  if (result == 0)
+  if (result == nullptr)
   {
     throw cms::Exception("AlignableObjectIdError")
       << "Unknown alignableObjectId " << type;

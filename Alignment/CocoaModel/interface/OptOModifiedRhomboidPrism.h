@@ -23,16 +23,16 @@ public:
   OptOModifiedRhomboidPrism(){ };
   OptOModifiedRhomboidPrism(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data) : 
   OpticalObject( parent, type, name, copy_data){ };
-  ~OptOModifiedRhomboidPrism(){ };
+  ~OptOModifiedRhomboidPrism() override{ };
 
   //---------- Fast simulation of deviation of the light ray (reflection, shift, ...)
-  virtual void fastDeviatesLightRay( LightRay& lightray );
+  void fastDeviatesLightRay( LightRay& lightray ) override;
   //---------- Detailed simulation of the light ray traversing
-  virtual void fastTraversesLightRay( LightRay& lightray );
+  void fastTraversesLightRay( LightRay& lightray ) override;
   //---------- Detailed simulation of deviation of the light ray (reflection, shift, ...)
-  virtual void detailedDeviatesLightRay( LightRay& lightray );
+  void detailedDeviatesLightRay( LightRay& lightray ) override;
   //---------- Fast simulation of the light ray traversing
-  virtual void detailedTraversesLightRay( LightRay& lightray );
+  void detailedTraversesLightRay( LightRay& lightray ) override;
 
   //--------- Get the up and down plates rotated by an angle 'angle_planes'
   ALIPlane getRotatedPlate(const ALIbool forwardPlate);
@@ -41,7 +41,7 @@ public:
 #ifdef COCOA_VIS
   virtual void fillIguana();
 #endif
-  void constructSolidShape();
+  void constructSolidShape() override;
 
 };
 

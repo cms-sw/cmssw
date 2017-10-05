@@ -35,7 +35,7 @@ class AlignmentMonitorSegmentDifferences: public AlignmentMonitorBase
 {
 public:
   AlignmentMonitorSegmentDifferences(const edm::ParameterSet& cfg);
-  ~AlignmentMonitorSegmentDifferences() {}
+  ~AlignmentMonitorSegmentDifferences() override {}
 
   void book() override;
 
@@ -415,7 +415,7 @@ void AlignmentMonitorSegmentDifferences::processMuonResidualsFromTrack(MuonResid
       MuonChamberResidual *dt13 = mrft.chamberResidual(*chamberId, MuonChamberResidual::kDT13);
       MuonChamberResidual *dt2 = mrft.chamberResidual(*chamberId, MuonChamberResidual::kDT2);
       
-      if (dt13 != NULL  &&  dt13->numHits() >= m_minDT13Hits)
+      if (dt13 != nullptr  &&  dt13->numHits() >= m_minDT13Hits)
       {
         DTChamberId thisid(chamberId->rawId());
         for (std::vector<DetId>::const_iterator otherId = chamberIds.begin();  otherId != chamberIds.end();  ++otherId)
@@ -426,7 +426,7 @@ void AlignmentMonitorSegmentDifferences::processMuonResidualsFromTrack(MuonResid
             if (thisid.rawId() != thatid.rawId()  &&  thisid.wheel() == thatid.wheel()  &&  thisid.sector() == thatid.sector())
             {
               MuonChamberResidual *dt13other = mrft.chamberResidual(*otherId, MuonChamberResidual::kDT13);
-              if (dt13other != NULL  &&  dt13other->numHits() >= m_minDT13Hits)
+              if (dt13other != nullptr  &&  dt13other->numHits() >= m_minDT13Hits)
               {
                 double slopediff = 1000. * (dt13->global_resslope() - dt13other->global_resslope());
                 //double length = dt13->chamberAlignable()->surface().toGlobal(align::LocalPoint(0,0,0)).perp() -
@@ -465,7 +465,7 @@ void AlignmentMonitorSegmentDifferences::processMuonResidualsFromTrack(MuonResid
             if ( !( (thatid.station()==1 && thatid.ring()==3) || (thatid.station()==2 && thatid.ring()==2) ) ) continue;
 
             MuonChamberResidual *cscother = mrft.chamberResidual(*otherId, MuonChamberResidual::kCSC);
-            if (cscother != NULL  &&  cscother->numHits() >= m_minCSCHits)
+            if (cscother != nullptr  &&  cscother->numHits() >= m_minCSCHits)
             {
               // scale to adjust the csc residual size to be comparabe to dt's one
               double csc_scale = dt13->chamberAlignable()->surface().toGlobal(align::LocalPoint(dt13->trackx(), dt13->tracky(),0)).perp() /
@@ -492,7 +492,7 @@ void AlignmentMonitorSegmentDifferences::processMuonResidualsFromTrack(MuonResid
       } // end if DT13
 
       // z-direction
-      if (dt2 != NULL  &&  dt2->numHits() >= m_minDT2Hits && (dt2->chi2() / double(dt2->ndof())) < 2.0)
+      if (dt2 != nullptr  &&  dt2->numHits() >= m_minDT2Hits && (dt2->chi2() / double(dt2->ndof())) < 2.0)
       {
         DTChamberId thisid(chamberId->rawId());
         for (std::vector<DetId>::const_iterator otherId = chamberIds.begin();  otherId != chamberIds.end();  ++otherId)
@@ -503,7 +503,7 @@ void AlignmentMonitorSegmentDifferences::processMuonResidualsFromTrack(MuonResid
             if (thisid.rawId() != thatid.rawId()  &&  thisid.wheel() == thatid.wheel()  &&  thisid.sector() == thatid.sector())
             {
               MuonChamberResidual *dt2other = mrft.chamberResidual(*otherId, MuonChamberResidual::kDT2);
-              if (dt2other != NULL  &&  dt2other->numHits() >= m_minDT2Hits)
+              if (dt2other != nullptr  &&  dt2other->numHits() >= m_minDT2Hits)
               {
                 double slopediff = 1000. * (dt2->global_resslope() - dt2other->global_resslope());
                 //double length = dt2->chamberAlignable()->surface().toGlobal(align::LocalPoint(0,0,0)).perp() -
@@ -550,7 +550,7 @@ void AlignmentMonitorSegmentDifferences::processMuonResidualsFromTrack(MuonResid
             if (thisid.rawId() != thatid.rawId()  &&  thisid.endcap() == thatid.endcap())
             {
               MuonChamberResidual *cscother = mrft.chamberResidual(*otherId, MuonChamberResidual::kCSC);
-              if (cscother != NULL  &&  cscother->numHits() >= m_minCSCHits)
+              if (cscother != nullptr  &&  cscother->numHits() >= m_minCSCHits)
               {
                 double slopediff = 1000. * (csc->global_resslope() - cscother->global_resslope());
                 //double length = csc->chamberAlignable()->surface().toGlobal(align::LocalPoint(0,0,0)).z() -

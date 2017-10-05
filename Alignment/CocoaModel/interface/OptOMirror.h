@@ -23,24 +23,24 @@ public:
   OptOMirror(){ };
   OptOMirror(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data) : 
   OpticalObject( parent, type, name, copy_data){ };
-  ~OptOMirror(){ };
+  ~OptOMirror() override{ };
 
   //---------- Propagate light for measurement meas
   //----- Default behaviour: detailed deviation
-  void defaultBehaviour( LightRay& lightray, Measurement& meas );
+  void defaultBehaviour( LightRay& lightray, Measurement& meas ) override;
 
-  virtual void detailedDeviatesLightRay( LightRay& lightray );
+  void detailedDeviatesLightRay( LightRay& lightray ) override;
  
-  virtual void fastDeviatesLightRay( LightRay& lightray );
+  void fastDeviatesLightRay( LightRay& lightray ) override;
 
-  virtual void detailedTraversesLightRay( LightRay& lightray );
+  void detailedTraversesLightRay( LightRay& lightray ) override;
 
-  virtual void fastTraversesLightRay( LightRay& lightray );
+  void fastTraversesLightRay( LightRay& lightray ) override;
 
 #ifdef COCOA_VIS
   virtual void fillIguana();
 #endif
-  void constructSolidShape();
+  void constructSolidShape() override;
 
 };
 

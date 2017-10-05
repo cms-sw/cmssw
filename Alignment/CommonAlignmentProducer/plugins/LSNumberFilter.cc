@@ -21,13 +21,13 @@
 class LSNumberFilter : public edm::EDFilter {
 public:
   explicit LSNumberFilter(const edm::ParameterSet&);
-  ~LSNumberFilter();
+  ~LSNumberFilter() override;
 
 private:
 
-  virtual void beginJob() override ;
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   unsigned int minLS;
 };

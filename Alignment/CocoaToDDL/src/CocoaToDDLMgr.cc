@@ -19,7 +19,7 @@
 
 
 
-CocoaToDDLMgr* CocoaToDDLMgr::instance = 0;
+CocoaToDDLMgr* CocoaToDDLMgr::instance = nullptr;
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 CocoaToDDLMgr* CocoaToDDLMgr::getInstance()
@@ -622,7 +622,7 @@ void CocoaToDDLMgr::specPar(OpticalObject * opto)
   file_ << "   <Parameter name=\"cocoa_type\""  << " value=\"" << opto->type() << "\"   eval=\"false\" /> " << std::endl;
   file_ << "   <Parameter name=\"cmssw_ID\""  << " value=\"" << opto->getCmsswID() << "\" /> " << std::endl;
 
-  const std::vector< Entry* > coord = opto->CoordinateEntryList();
+  const std::vector< Entry* >& coord = opto->CoordinateEntryList();
   for( int ii=3; ii<6; ii++ ){
     Entry* ent = coord[ii];
     file_ << "   <Parameter name=\"" << ent->name()+std::string("_value") << "\" value=\"";
@@ -641,7 +641,7 @@ void CocoaToDDLMgr::specPar(OpticalObject * opto)
     file_ << "   <Parameter name=\"" << ent->name()+std::string("_quality") << "\" value=\"" << ent->quality() << "\" /> " << std::endl;
   }
   
-  const std::vector< Entry* > extraEnt = opto->ExtraEntryList();
+  const std::vector< Entry* >& extraEnt = opto->ExtraEntryList();
   for( ALIuint ii=0; ii<extraEnt.size(); ii++ ){
     Entry* ent = extraEnt[ii]; 
     file_ << "   <Parameter name=\"extra_entry\" value=\"" << ent->name() << "\"  eval=\"false\" /> " << std::endl;
