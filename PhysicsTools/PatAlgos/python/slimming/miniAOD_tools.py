@@ -199,7 +199,7 @@ def miniAOD_customizeCommon(process):
     #  ==================  TrkMET 
     process.TrkCands = cms.EDFilter("CandPtrSelector",
                                     src=cms.InputTag("packedPFCandidates"),
-                                    cut=cms.string("fromPV(0) > 0 && charge()!=0")
+                                    cut=cms.string("charge()!=0 && pvAssociationQuality()>=4 && vertexRef().key()==0")
                                     )
     task.add(process.TrkCands)
 
