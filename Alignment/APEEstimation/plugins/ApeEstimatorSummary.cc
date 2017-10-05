@@ -62,13 +62,13 @@
 class ApeEstimatorSummary : public edm::EDAnalyzer {
    public:
       explicit ApeEstimatorSummary(const edm::ParameterSet&);
-      ~ApeEstimatorSummary();
+      ~ApeEstimatorSummary() override;
 
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       
       void openInputFile();
       void getTrackerSectorStructs();
@@ -104,7 +104,7 @@ class ApeEstimatorSummary : public edm::EDAnalyzer {
 //
 ApeEstimatorSummary::ApeEstimatorSummary(const edm::ParameterSet& iConfig):
 parameterSet_(iConfig),
-inputFile_(0)
+inputFile_(nullptr)
 {
 }
 
@@ -148,7 +148,7 @@ ApeEstimatorSummary::getTrackerSectorStructs(){
   TString pluginName(inputFile_->GetListOfKeys()->At(0)->GetName());
   
   pluginName += "/";
-  TDirectory *sectorDir(0), *intervalDir(0);
+  TDirectory *sectorDir(nullptr), *intervalDir(nullptr);
   bool sectorBool(true);
   for(unsigned int iSector(1);sectorBool;++iSector){
     std::stringstream sectorName, fullSectorName;
@@ -182,7 +182,7 @@ ApeEstimatorSummary::getTrackerSectorStructs(){
 	  if(iSector==1)edm::LogInfo("CalculateAPE")<<"There are "<<iInterval-1<<" intervals per sector defined in input file";
 	}
       }
-      TDirectory *resultsDir(0);
+      TDirectory *resultsDir(nullptr);
       std::stringstream fullResultName;
       fullResultName << fullSectorName.str() << "Results/";
       fullName = fullResultName.str().c_str();
@@ -190,7 +190,7 @@ ApeEstimatorSummary::getTrackerSectorStructs(){
       if(resultsDir){
         resultsDir->GetObject("h_entriesX;1", tkSector.EntriesX);
 	if(tkSector.isPixel)resultsDir->GetObject("h_entriesY;1", tkSector.EntriesY);
-	TTree* rawIdTree(0);
+	TTree* rawIdTree(nullptr);
 	resultsDir->GetObject("rawIdTree", rawIdTree);
 	unsigned int rawId(0);
 	rawIdTree->SetBranchAddress("RawId", &rawId);
@@ -304,10 +304,10 @@ ApeEstimatorSummary::calculateApe(){
    // Read in baseline file for calculation of APE value (if not setting baseline)
    // Has same format as iterationFile
    const std::string baselineFileName(parameterSet_.getParameter<std::string>("BaselineFile"));
-   TFile* baselineFile(0);
-   TTree* baselineTreeX(0);
-   TTree* baselineTreeY(0);
-   TTree* sectorNameBaselineTree(0);
+   TFile* baselineFile(nullptr);
+   TTree* baselineTreeX(nullptr);
+   TTree* baselineTreeY(nullptr);
+   TTree* sectorNameBaselineTree(nullptr);
    if(!setBaseline){
      std::ifstream baselineFileStream;
      // Check if baseline file exists
@@ -334,12 +334,12 @@ ApeEstimatorSummary::calculateApe(){
    
    
    // Set up TTree for iterative APE values on first pass (first iteration) or read from file (further iterations)
-   TTree* iterationTreeX(0);
-   TTree* iterationTreeY(0);
+   TTree* iterationTreeX(nullptr);
+   TTree* iterationTreeY(nullptr);
    iterationFile->GetObject("iterTreeX;1",iterationTreeX);
    iterationFile->GetObject("iterTreeY;1",iterationTreeY);
    // The same for TTree containing the names of the sectors (no additional check, since always handled exactly as iterationTree)
-   TTree* sectorNameTree(0);
+   TTree* sectorNameTree(nullptr);
    iterationFile->GetObject("nameTree;1",sectorNameTree);
    
    bool firstIter(false);
@@ -381,8 +381,8 @@ ApeEstimatorSummary::calculateApe(){
      a_baselineSectorX[iSector] = -99.;
      a_baselineSectorY[iSector] = -99.;
      
-     a_sectorName[iSector] = 0;
-     a_sectorBaselineName[iSector] = 0;
+     a_sectorName[iSector] = nullptr;
+     a_sectorBaselineName[iSector] = nullptr;
      std::stringstream ss_sector, ss_sectorSuffixed;
      ss_sector << "Ape_Sector_" << iSector;
      if(!setBaseline && baselineTreeX){
@@ -697,12 +697,12 @@ ApeEstimatorSummary::calculateApe(){
      
      // Do the final calculations
      
-     if(v_weightAndResultsPerBinX.size()==0){
+     if(v_weightAndResultsPerBinX.empty()){
        edm::LogError("CalculateAPE")<<"NO error interval of sector "<<(*i_sector).first<<" has a valid x APE calculated,\n...so cannot set APE";
        continue;
      }
      
-     if((*i_sector).second.isPixel && v_weightAndResultsPerBinY.size()==0){
+     if((*i_sector).second.isPixel && v_weightAndResultsPerBinY.empty()){
        edm::LogError("CalculateAPE")<<"NO error interval of sector "<<(*i_sector).first<<" has a valid y APE calculated,\n...so cannot set APE";
        continue;
      }
@@ -875,8 +875,8 @@ ApeEstimatorSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	   // Read in baseline file for calculation of APE value (if not setting baseline)
 	   // Has same format as iterationFile
 	   const std::string baselineFileName(parameterSet_.getParameter<std::string>("BaselineFile"));
-	   TFile* baselineFile(0);
-	   TTree* sectorNameBaselineTree(0);
+	   TFile* baselineFile(nullptr);
+	   TTree* sectorNameBaselineTree(nullptr);
 	   if(!setBaseline){
 	     std::ifstream baselineFileStream;
 	     // Check if baseline file exists
@@ -899,12 +899,12 @@ ApeEstimatorSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	   TFile* defaultFile = new TFile(defaultFileName.c_str(),"RECREATE");
 	   
 	   // Naming in the root files has to be iterTreeX to be consistent for the plotting tool
-	   TTree* defaultTreeX(0);
-	   TTree* defaultTreeY(0);
+	   TTree* defaultTreeX(nullptr);
+	   TTree* defaultTreeY(nullptr);
 	   defaultFile->GetObject("iterTreeX;1",defaultTreeX);
 	   defaultFile->GetObject("iterTreeY;1",defaultTreeY);
 	   // The same for TTree containing the names of the sectors (no additional check, since always handled exactly as defaultTree)
-	   TTree* sectorNameTree(0);
+	   TTree* sectorNameTree(nullptr);
 	   defaultFile->GetObject("nameTree;1",sectorNameTree);
 	   
 	   bool firstIter(false);
@@ -933,8 +933,8 @@ ApeEstimatorSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	     a_defaultSectorX[iSector] = -99.;
 	     a_defaultSectorY[iSector] = -99.;
 	     
-	     a_sectorName[iSector] = 0;
-	     a_sectorBaselineName[iSector] = 0;
+	     a_sectorName[iSector] = nullptr;
+	     a_sectorBaselineName[iSector] = nullptr;
 	     std::stringstream ss_sector, ss_sectorSuffixed;
 	     ss_sector << "Ape_Sector_" << iSector;
 	     if(!setBaseline && sectorNameBaselineTree){

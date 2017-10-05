@@ -17,7 +17,7 @@
 #include <DataFormats/Math/interface/deltaR.h>
 
 //STL
-#include <math.h>
+#include <cmath>
 
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentGlobalTrackSelector.h"
 

@@ -17,7 +17,7 @@
 #include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
 
 #include "TDecompChol.h"
-#include <math.h>
+#include <cmath>
 
 
 MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
@@ -97,9 +97,9 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
         TrajectoryMeasurement trajMeasurement = *iTrajMeasurement;
 
         TrajectoryStateOnSurface tsos = m_tsoscomb(trajMeasurement.forwardPredictedState(), trajMeasurement.backwardPredictedState());
-        TrajectoryStateOnSurface tsosF = trajMeasurement.forwardPredictedState();
-        TrajectoryStateOnSurface tsosB = trajMeasurement.backwardPredictedState();
-        TrajectoryStateOnSurface tsosU = trajMeasurement.updatedState();
+        const TrajectoryStateOnSurface& tsosF = trajMeasurement.forwardPredictedState();
+        const TrajectoryStateOnSurface& tsosB = trajMeasurement.backwardPredictedState();
+        const TrajectoryStateOnSurface& tsosU = trajMeasurement.updatedState();
         if (m_debug) std::cout << "      TrajectoryMeasurement TSOS validity: " << tsos.isValid() << std::endl;
         if ( tsos.isValid() ) {
             double tsosGlobalPositionR = sqrt( tsos.globalPosition().x()*tsos.globalPosition().x() + tsos.globalPosition().y()*tsos.globalPosition().y() );
@@ -589,7 +589,7 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
 
                             DTRecSegment4DRef segmentDT = segMatch->dtSegmentRef;
                             const DTRecSegment4D* segment = segmentDT.get();
-                            if (segment == 0)  continue;
+                            if (segment == nullptr)  continue;
 
                             if ( segment->hasPhi()  &&  fabs(chamberMatch->x - segMatch->x) > maxResidual ) continue;
                             if ( segment->hasZed()  &&  fabs(chamberMatch->y - segMatch->y) > maxResidual ) continue;
@@ -691,18 +691,18 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
             MuonChamberResidual * MuonResidualsFromTrack::chamberResidual(DetId chamberId, int type)
             {
                 if (type == MuonChamberResidual::kDT13) {
-                    if (m_dt13.find(chamberId) == m_dt13.end()) return NULL;
+                    if (m_dt13.find(chamberId) == m_dt13.end()) return nullptr;
                     return m_dt13[chamberId];
                 }
                 else if (type == MuonChamberResidual::kDT2) {
-                    if (m_dt2.find(chamberId) == m_dt2.end()) return NULL;
+                    if (m_dt2.find(chamberId) == m_dt2.end()) return nullptr;
                     return m_dt2[chamberId];
                 }
                 else if (type == MuonChamberResidual::kCSC) {
-                    if (m_csc.find(chamberId) == m_csc.end()) return NULL;
+                    if (m_csc.find(chamberId) == m_csc.end()) return nullptr;
                     return m_csc[chamberId];
                 }
-                else return NULL;
+                else return nullptr;
             }
 
             void MuonResidualsFromTrack::addTrkCovMatrix(DetId chamberId, TrajectoryStateOnSurface &tsos)

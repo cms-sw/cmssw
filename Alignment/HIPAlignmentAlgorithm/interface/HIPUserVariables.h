@@ -37,9 +37,9 @@ public:
   {}
 
   /** destructor */
-  virtual ~HIPUserVariables(){};
+  ~HIPUserVariables() override{};
 
   /** clone method (copy constructor) */
-  HIPUserVariables* clone(void) const{ return new HIPUserVariables(*this); }
+  HIPUserVariables* clone(void) const override{ return new HIPUserVariables(*this); }
 
 };

@@ -25,7 +25,7 @@ AlignmentParameters* SurveyParameters::clone(const AlgebraicVector&,
 {
   throw cms::Exception("BadInheritance") 
       << "SurveyParameters::clone(): Not implemented.";
-  return 0;
+  return nullptr;
 }
 
 AlignmentParameters* SurveyParameters::cloneFromSelected(const AlgebraicVector&,
@@ -34,7 +34,7 @@ AlignmentParameters* SurveyParameters::cloneFromSelected(const AlgebraicVector&,
   throw cms::Exception("BadInheritance") 
       << "SurveyParameters::cloneFromSelected(): Not implemented.";
 
-  return 0;
+  return nullptr;
 }
 
 AlgebraicMatrix SurveyParameters::derivatives(const TrajectoryStateOnSurface&,
