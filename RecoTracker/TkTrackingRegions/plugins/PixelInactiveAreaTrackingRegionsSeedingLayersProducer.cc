@@ -38,7 +38,7 @@ private:
 
 PixelInactiveAreaTrackingRegionsSeedingLayersProducer::PixelInactiveAreaTrackingRegionsSeedingLayersProducer(const edm::ParameterSet& iConfig):
   seedingLayerSetsBuilder_(iConfig, consumesCollector()),
-  inactiveAreaFinder_(iConfig, seedingLayerSetsBuilder_.layers(), seedingLayerSetsBuilder_.layerSetIndices()),
+  inactiveAreaFinder_(iConfig, seedingLayerSetsBuilder_.layers(), seedingLayerSetsBuilder_.seedingLayerSetsLooper()),
   trackingRegionsBuilder_(iConfig.getParameter<edm::ParameterSet>("RegionPSet"), consumesCollector())
 {
   produces<ProductType>();
