@@ -80,9 +80,9 @@ public:
 
 private:
     virtual void beginJob() ;
-    virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);   
-    virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&);
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;   
+    void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
     virtual void endJob() ;
     
     void processEvent(const TrackerTopology* topo); //what really does the job
@@ -145,34 +145,34 @@ private:
     //Event data
     unsigned int                       eventnumber    =0;
     unsigned int                       runnumber      =0;
-    const std::vector<bool>*           TrigTech       =0;  edm::EDGetTokenT<std::vector<bool>           > TrigTech_token_;
+    const std::vector<bool>*           TrigTech       =nullptr;  edm::EDGetTokenT<std::vector<bool>           > TrigTech_token_;
 
     // Track data
-    const std::vector<double>*         trackchi2ndof  =0;  edm::EDGetTokenT<std::vector<double>         > trackchi2ndof_token_;
-    const std::vector<float>*          trackp         =0;  edm::EDGetTokenT<std::vector<float>          > trackp_token_;
-    const std::vector<float>*          trackpt        =0;  edm::EDGetTokenT<std::vector<float>          > trackpt_token_;
-    const std::vector<double>*         tracketa       =0;  edm::EDGetTokenT<std::vector<double>         > tracketa_token_;
-    const std::vector<double>*         trackphi       =0;  edm::EDGetTokenT<std::vector<double>         > trackphi_token_;
-    const std::vector<unsigned int>*   trackhitsvalid =0;  edm::EDGetTokenT<std::vector<unsigned int>   > trackhitsvalid_token_;
-    const std::vector<int>*            trackalgo      =0;  edm::EDGetTokenT<std::vector<int>   >          trackalgo_token_;
+    const std::vector<double>*         trackchi2ndof  =nullptr;  edm::EDGetTokenT<std::vector<double>         > trackchi2ndof_token_;
+    const std::vector<float>*          trackp         =nullptr;  edm::EDGetTokenT<std::vector<float>          > trackp_token_;
+    const std::vector<float>*          trackpt        =nullptr;  edm::EDGetTokenT<std::vector<float>          > trackpt_token_;
+    const std::vector<double>*         tracketa       =nullptr;  edm::EDGetTokenT<std::vector<double>         > tracketa_token_;
+    const std::vector<double>*         trackphi       =nullptr;  edm::EDGetTokenT<std::vector<double>         > trackphi_token_;
+    const std::vector<unsigned int>*   trackhitsvalid =nullptr;  edm::EDGetTokenT<std::vector<unsigned int>   > trackhitsvalid_token_;
+    const std::vector<int>*            trackalgo      =nullptr;  edm::EDGetTokenT<std::vector<int>   >          trackalgo_token_;
 
     // CalibTree data
-    const std::vector<int>*            trackindex     =0;  edm::EDGetTokenT<std::vector<int>            > trackindex_token_;
-    const std::vector<unsigned int>*   rawid          =0;  edm::EDGetTokenT<std::vector<unsigned int>   > rawid_token_;
-    const std::vector<double>*         localdirx      =0;  edm::EDGetTokenT<std::vector<double>         > localdirx_token_;
-    const std::vector<double>*         localdiry      =0;  edm::EDGetTokenT<std::vector<double>         > localdiry_token_;
-    const std::vector<double>*         localdirz      =0;  edm::EDGetTokenT<std::vector<double>         > localdirz_token_;
-    const std::vector<unsigned short>* firststrip     =0;  edm::EDGetTokenT<std::vector<unsigned short> > firststrip_token_;
-    const std::vector<unsigned short>* nstrips        =0;  edm::EDGetTokenT<std::vector<unsigned short> > nstrips_token_;
-    const std::vector<bool>*           saturation     =0;  edm::EDGetTokenT<std::vector<bool>           > saturation_token_;
-    const std::vector<bool>*           overlapping    =0;  edm::EDGetTokenT<std::vector<bool>           > overlapping_token_;
-    const std::vector<bool>*           farfromedge    =0;  edm::EDGetTokenT<std::vector<bool>           > farfromedge_token_;
-    const std::vector<unsigned int>*   charge         =0;  edm::EDGetTokenT<std::vector<unsigned int>   > charge_token_;
-    const std::vector<double>*         path           =0;  edm::EDGetTokenT<std::vector<double>         > path_token_;
-    const std::vector<double>*         chargeoverpath =0;  edm::EDGetTokenT<std::vector<double>         > chargeoverpath_token_;
-    const std::vector<unsigned char>*  amplitude      =0;  edm::EDGetTokenT<std::vector<unsigned char>  > amplitude_token_;
-    const std::vector<double>*         gainused       =0;  edm::EDGetTokenT<std::vector<double>         > gainused_token_;
-    const std::vector<double>*         gainusedTick   =0;  edm::EDGetTokenT<std::vector<double>         > gainusedTick_token_;
+    const std::vector<int>*            trackindex     =nullptr;  edm::EDGetTokenT<std::vector<int>            > trackindex_token_;
+    const std::vector<unsigned int>*   rawid          =nullptr;  edm::EDGetTokenT<std::vector<unsigned int>   > rawid_token_;
+    const std::vector<double>*         localdirx      =nullptr;  edm::EDGetTokenT<std::vector<double>         > localdirx_token_;
+    const std::vector<double>*         localdiry      =nullptr;  edm::EDGetTokenT<std::vector<double>         > localdiry_token_;
+    const std::vector<double>*         localdirz      =nullptr;  edm::EDGetTokenT<std::vector<double>         > localdirz_token_;
+    const std::vector<unsigned short>* firststrip     =nullptr;  edm::EDGetTokenT<std::vector<unsigned short> > firststrip_token_;
+    const std::vector<unsigned short>* nstrips        =nullptr;  edm::EDGetTokenT<std::vector<unsigned short> > nstrips_token_;
+    const std::vector<bool>*           saturation     =nullptr;  edm::EDGetTokenT<std::vector<bool>           > saturation_token_;
+    const std::vector<bool>*           overlapping    =nullptr;  edm::EDGetTokenT<std::vector<bool>           > overlapping_token_;
+    const std::vector<bool>*           farfromedge    =nullptr;  edm::EDGetTokenT<std::vector<bool>           > farfromedge_token_;
+    const std::vector<unsigned int>*   charge         =nullptr;  edm::EDGetTokenT<std::vector<unsigned int>   > charge_token_;
+    const std::vector<double>*         path           =nullptr;  edm::EDGetTokenT<std::vector<double>         > path_token_;
+    const std::vector<double>*         chargeoverpath =nullptr;  edm::EDGetTokenT<std::vector<double>         > chargeoverpath_token_;
+    const std::vector<unsigned char>*  amplitude      =nullptr;  edm::EDGetTokenT<std::vector<unsigned char>  > amplitude_token_;
+    const std::vector<double>*         gainused       =nullptr;  edm::EDGetTokenT<std::vector<double>         > gainused_token_;
+    const std::vector<double>*         gainusedTick   =nullptr;  edm::EDGetTokenT<std::vector<double>         > gainusedTick_token_;
 
     std::string EventPrefix_; //("");
     std::string EventSuffix_; //("");
