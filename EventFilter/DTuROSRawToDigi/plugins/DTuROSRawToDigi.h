@@ -33,7 +33,7 @@ class DTReadOutMapping;
 class DTuROSFEDData;
 
 
-class DTuROSRawToDigi : public edm::EDProducer {
+class DTuROSRawToDigi : public edm::stream::EDProducer {
 
 public:
 
