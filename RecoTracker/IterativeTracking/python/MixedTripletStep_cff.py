@@ -144,7 +144,7 @@ trackingPhase1QuadProp.toModify(mixedTripletStepSeedLayersB, layerList = ['BPix3
 
 # TrackingRegion
 _mixedTripletStepTrackingRegionsB = mixedTripletStepTrackingRegionsA.clone(RegionPSet = dict(ptMin=0.6))
-mixedTripletStepTrackingRegionsB = _mixedTripletStepTrackingRegionsB.clone(originHalfLength=10.0)
+mixedTripletStepTrackingRegionsB = _mixedTripletStepTrackingRegionsB.clone(originHalfLength=cms.double(10.0))
 pp_on_XeXe_2017.toReplaceWith(mixedTripletStepTrackingRegionsB, _mixedTripletStepTrackingRegionsB)
 
 from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
