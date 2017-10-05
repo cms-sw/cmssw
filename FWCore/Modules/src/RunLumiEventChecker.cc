@@ -43,19 +43,19 @@
 class RunLumiEventChecker : public edm::EDAnalyzer {
 public:
    explicit RunLumiEventChecker(edm::ParameterSet const&);
-   ~RunLumiEventChecker();
+   ~RunLumiEventChecker() override;
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-   virtual void beginJob() override;
-   virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
-   virtual void endJob() override;
+   void beginJob() override;
+   void analyze(edm::Event const&, edm::EventSetup const&) override;
+   void endJob() override;
 
-   virtual void beginRun(edm::Run const& run, edm::EventSetup const& es) override;
-   virtual void endRun(edm::Run const& run, edm::EventSetup const& es) override;
+   void beginRun(edm::Run const& run, edm::EventSetup const& es) override;
+   void endRun(edm::Run const& run, edm::EventSetup const& es) override;
    
-   virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es) override;
-   virtual void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es) override;
+   void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es) override;
+   void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es) override;
 
    void check(edm::EventID const& iID, bool isEvent);
    

@@ -59,10 +59,10 @@ protected:
     //typedef T worker_type;
     explicit WorkerMaker();
   private:
-    virtual void fillDescriptions(ConfigurationDescriptions& iDesc) const;
-    virtual std::unique_ptr<Worker> makeWorker(ExceptionToActionTable const* actions, ModuleDescription const& md, maker::ModuleHolder const* mod) const;
-    virtual std::shared_ptr<maker::ModuleHolder> makeModule(edm::ParameterSet const& p) const;
-    virtual const std::string& baseType() const;
+    void fillDescriptions(ConfigurationDescriptions& iDesc) const override;
+    std::unique_ptr<Worker> makeWorker(ExceptionToActionTable const* actions, ModuleDescription const& md, maker::ModuleHolder const* mod) const override;
+    std::shared_ptr<maker::ModuleHolder> makeModule(edm::ParameterSet const& p) const override;
+    const std::string& baseType() const override;
   };
 
   template <class T>

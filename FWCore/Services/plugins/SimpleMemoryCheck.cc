@@ -432,7 +432,7 @@ namespace edm {
 
     SimpleMemoryCheck::~SimpleMemoryCheck() {
 #ifdef LINUX
-      if(0 != smapsFile_) {
+      if(nullptr != smapsFile_) {
         fclose(smapsFile_);
       }
 #endif
@@ -463,7 +463,7 @@ namespace edm {
       if (monitorPssAndPrivate_) {
         std::ostringstream smapsNameOst;
         smapsNameOst <<"/proc/"<<getpid()<<"/smaps";
-        if((smapsFile_ =fopen(smapsNameOst.str().c_str(), "r"))==0) {
+        if((smapsFile_ =fopen(smapsNameOst.str().c_str(), "r"))==nullptr) {
           throw Exception(errors::Configuration) <<"Failed to open smaps file "<<smapsNameOst.str()<<std::endl;
         }
       }
