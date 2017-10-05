@@ -76,7 +76,7 @@ EventSetupRecordProviderFactoryManager::makeRecordProvider(const EventSetupRecor
    assert(itFound != factories_.end());
    
    const EventSetupRecordProviderFactory* factory = itFound->second;
-   assert(0 != factory);
+   assert(nullptr != factory);
    return std::unique_ptr<EventSetupRecordProvider>(factory->makeRecordProvider());
 }
 

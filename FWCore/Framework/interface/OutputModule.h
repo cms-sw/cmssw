@@ -56,7 +56,7 @@ namespace edm {
     typedef OutputModule ModuleType;
 
     explicit OutputModule(ParameterSet const& pset);
-    virtual ~OutputModule();
+    ~OutputModule() override;
 
     OutputModule(OutputModule const&) = delete; // Disallow copying and moving
     OutputModule& operator=(OutputModule const&) = delete; // Disallow copying and moving

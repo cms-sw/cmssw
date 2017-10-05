@@ -138,9 +138,9 @@ private:
       void unsetContext(ServiceToken const& iOldToken);
 
       ServiceRegistry();
-      ServiceRegistry(ServiceRegistry const&); // stop default
+      ServiceRegistry(ServiceRegistry const&) = delete; // stop default
 
-      ServiceRegistry const& operator=(ServiceRegistry const&); // stop default
+      ServiceRegistry const& operator=(ServiceRegistry const&) = delete; // stop default
 
       // ---------- member data --------------------------------
       std::shared_ptr<serviceregistry::ServicesManager> manager_;

@@ -71,7 +71,7 @@ namespace edm {
   public:
     explicit PathStatusFilter(ParameterSet const&);
     static void fillDescriptions(ConfigurationDescriptions&);
-    virtual bool filter(StreamID, Event&, EventSetup const&) const override final;
+    bool filter(StreamID, Event&, EventSetup const&) const final;
 
   private:
     edm::propagate_const<std::unique_ptr<pathStatusExpression::Evaluator>> evaluator_;
@@ -126,7 +126,7 @@ namespace edm {
     public:
       EvaluatorType type() const override { return Not; }
 
-      virtual void setLeft(std::unique_ptr<Evaluator> && v) override { operand_ = std::move(v); }
+      void setLeft(std::unique_ptr<Evaluator> && v) override { operand_ = std::move(v); }
 
       void print(std::ostream & out, unsigned int indentation) const override {
         out << std::string( indentation, ' ' ) << "not\n";
@@ -150,8 +150,8 @@ namespace edm {
     public:
       EvaluatorType type() const override;
 
-      virtual void setLeft(std::unique_ptr<Evaluator> && v) override { left_ = std::move(v); }
-      virtual void setRight(std::unique_ptr<Evaluator> && v) override { right_ = std::move(v); }
+      void setLeft(std::unique_ptr<Evaluator> && v) override { left_ = std::move(v); }
+      void setRight(std::unique_ptr<Evaluator> && v) override { right_ = std::move(v); }
 
       void print(std::ostream & out, unsigned int indentation) const override;
 
