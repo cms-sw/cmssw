@@ -85,7 +85,7 @@ class TEcnaObject : public TObject {
   //..... Methods
 
            TEcnaObject();
-  virtual  ~TEcnaObject();
+   ~TEcnaObject() override;
 
   void Init();
 

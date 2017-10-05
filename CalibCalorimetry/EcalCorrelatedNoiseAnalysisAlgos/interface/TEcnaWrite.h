@@ -6,8 +6,8 @@
 #include "TObject.h"
 #include "TSystem.h"
 #include "Riostream.h"
-#include <math.h>
-#include <time.h>
+#include <cmath>
+#include <ctime>
 
 #include "TVectorD.h"
 #include "TMatrixD.h"
@@ -152,7 +152,7 @@ class TEcnaWrite : public TObject {
   TEcnaWrite(const TString&, const TEcnaParPaths*, const TEcnaParCout*,
 	     const TEcnaParEcal*, const TEcnaNumbering*);
 
-  virtual  ~TEcnaWrite();
+   ~TEcnaWrite() override;
   
   void     Init();
   void     SetEcalSubDetector(const TString&);

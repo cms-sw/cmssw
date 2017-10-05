@@ -42,7 +42,7 @@ class TMatacq: public TObject
   TMatacq(int,int,int,int,int,int,int,int,int,int,int);
 
   // Destructor: Does nothing
-  virtual ~TMatacq();
+  ~TMatacq() override;
 
   // Initialize 
   void init();

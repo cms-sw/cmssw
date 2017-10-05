@@ -46,7 +46,7 @@ public:
   TEcnaResultType();
   TEcnaResultType(TEcnaObject*);
 
-  ~TEcnaResultType();
+  ~TEcnaResultType() override;
   void SetSizeMat(Int_t, Int_t);
   void SetSizeHis(Int_t, Int_t);
 

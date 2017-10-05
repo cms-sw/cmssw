@@ -43,7 +43,7 @@ namespace {
 	      <<  maxDepthHB << ", " <<  maxDepthHE << std::endl;
 #endif
 
-    if (result.size () <= 0) {
+    if (result.empty()) {
       for (int eta = -HcalDetId::kHcalEtaMask2; 
            eta <= HcalDetId::kHcalEtaMask2; eta++) {
         for (int phi = 0; phi <= HcalDetId::kHcalPhiMask2; phi++) {
@@ -484,7 +484,7 @@ std::unique_ptr<HcalRespCorrs> HcalHardcodeCalibrations::produceRespCorrs (const
       corr = 0.5/1.2;
     }
 
-    if ((hb_recalibration != 0 ) && (cell.genericSubdet() == HcalGenericDetId::HcalGenBarrel)) {
+    if ((hb_recalibration != nullptr ) && (cell.genericSubdet() == HcalGenericDetId::HcalGenBarrel)) {
       int depth_ = HcalDetId(cell).depth();
       int ieta_  = HcalDetId(cell).ieta();
       corr *= hb_recalibration->getCorr(ieta_, depth_); 
@@ -492,7 +492,7 @@ std::unique_ptr<HcalRespCorrs> HcalHardcodeCalibrations::produceRespCorrs (const
       std::cout << "HB ieta, depth = " << ieta_  << ",  " << depth_ << "   corr = "  << corr << std::endl;
 #endif
     }
-    else if ((he_recalibration != 0 ) && (cell.genericSubdet() == HcalGenericDetId::HcalGenEndcap)) {
+    else if ((he_recalibration != nullptr ) && (cell.genericSubdet() == HcalGenericDetId::HcalGenEndcap)) {
       int depth_ = HcalDetId(cell).depth();
       int ieta_  = HcalDetId(cell).ieta();
       corr *= he_recalibration->getCorr(ieta_, depth_); 
@@ -500,7 +500,7 @@ std::unique_ptr<HcalRespCorrs> HcalHardcodeCalibrations::produceRespCorrs (const
       std::cout << "HE ieta, depth = " << ieta_  << ",  " << depth_ << "   corr = "  << corr << std::endl;
 #endif
     }
-    else if ((hf_recalibration != 0 ) && (cell.genericSubdet() == HcalGenericDetId::HcalGenForward)) {
+    else if ((hf_recalibration != nullptr ) && (cell.genericSubdet() == HcalGenericDetId::HcalGenForward)) {
       int depth_ = HcalDetId(cell).depth();
       int ieta_  = HcalDetId(cell).ieta();
       corr = hf_recalibration->getCorr(ieta_, depth_, iLumi); 
