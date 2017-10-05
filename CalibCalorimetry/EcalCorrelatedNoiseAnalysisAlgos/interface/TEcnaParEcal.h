@@ -181,7 +181,7 @@ private:
   TEcnaParEcal(); 
   TEcnaParEcal(const TString&); 
   TEcnaParEcal(TEcnaObject*, const TString&);
-  ~TEcnaParEcal();
+  ~TEcnaParEcal() override;
 
   void    SetEcalSubDetector(const TString&);
   TString GetEcalSubDetector();

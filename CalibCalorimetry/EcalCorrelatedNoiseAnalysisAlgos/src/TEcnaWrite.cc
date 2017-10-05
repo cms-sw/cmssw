@@ -48,7 +48,7 @@ TEcnaWrite::TEcnaWrite(TEcnaObject* pObjectManager, const TString& SubDet)
   pObjectManager->RegisterPointer("TEcnaWrite", i_this);
 
   //............................ fCnaParCout
-  fCnaParCout = 0;
+  fCnaParCout = nullptr;
   Long_t iCnaParCout = pObjectManager->GetPointerValue("TEcnaParCout");
   if( iCnaParCout == 0 )
     {fCnaParCout = new TEcnaParCout(pObjectManager); /*fCnew++*/}
@@ -56,7 +56,7 @@ TEcnaWrite::TEcnaWrite(TEcnaObject* pObjectManager, const TString& SubDet)
     {fCnaParCout = (TEcnaParCout*)iCnaParCout;}
 
   //............................ fCnaParPaths
-  fCnaParPaths = 0;
+  fCnaParPaths = nullptr;
   Long_t iCnaParPaths = pObjectManager->GetPointerValue("TEcnaParPaths");
   if( iCnaParPaths == 0 )
     {fCnaParPaths = new TEcnaParPaths(pObjectManager); /*fCnew++*/}
@@ -70,7 +70,7 @@ TEcnaWrite::TEcnaWrite(TEcnaObject* pObjectManager, const TString& SubDet)
   fCnaParPaths->GetPathForResultsAsciiFiles();
 
   //............................ fEcal  => should be changed in fParEcal
-  fEcal = 0;
+  fEcal = nullptr;
   Long_t iParEcal = pObjectManager->GetPointerValue("TEcnaParEcal");
   if( iParEcal == 0 )
     {fEcal = new TEcnaParEcal(pObjectManager, SubDet.Data()); /*fCnew++*/}
@@ -78,7 +78,7 @@ TEcnaWrite::TEcnaWrite(TEcnaObject* pObjectManager, const TString& SubDet)
     {fEcal = (TEcnaParEcal*)iParEcal;}
 
   //............................ fEcalNumbering
-  fEcalNumbering = 0;
+  fEcalNumbering = nullptr;
   Long_t iEcalNumbering = pObjectManager->GetPointerValue("TEcnaNumbering");
   if( iEcalNumbering == 0 )
     {fEcalNumbering = new TEcnaNumbering(pObjectManager, SubDet.Data()); /*fCnew++*/}
@@ -100,8 +100,8 @@ TEcnaWrite::TEcnaWrite(const TString& SubDet,
   Init();
 
   //----------------------------- Object management
-  fCnaParPaths = 0;
-  if( pCnaParPaths == 0 )
+  fCnaParPaths = nullptr;
+  if( pCnaParPaths == nullptr )
     {fCnaParPaths = new TEcnaParPaths();  /*fCnew++*/ ;}
   else
     {fCnaParPaths = (TEcnaParPaths*)pCnaParPaths;}
@@ -111,20 +111,20 @@ TEcnaWrite::TEcnaWrite(const TString& SubDet,
   fCnaParPaths->GetPathForResultsRootFiles();
   fCnaParPaths->GetPathForResultsAsciiFiles();
 
-  fCnaParCout  = 0;
-  if( pCnaParCout == 0 )
+  fCnaParCout  = nullptr;
+  if( pCnaParCout == nullptr )
     {fCnaParCout  = new TEcnaParCout();   /*fCnew++*/;}
   else
     {fCnaParCout = (TEcnaParCout*)pCnaParCout;}
 
-  fEcal = 0;
-  if( pEcal == 0 )
+  fEcal = nullptr;
+  if( pEcal == nullptr )
     {fEcal = new TEcnaParEcal(SubDet.Data());  /*fCnew++*/;}
   else
     {fEcal = (TEcnaParEcal*)pEcal;}
 
-  fEcalNumbering = 0;
-  if( pEcalNumbering == 0 )
+  fEcalNumbering = nullptr;
+  if( pEcalNumbering == nullptr )
     {fEcalNumbering = new TEcnaNumbering(SubDet.Data(), fEcal);  /*fCnew++*/;}
   else
     {fEcalNumbering = (TEcnaNumbering*)pEcalNumbering;}
@@ -178,17 +178,17 @@ void  TEcnaWrite::Init()
   fStexStinUser = 0;
   fStinEchaUser = 0;
 
-  fjustap_2d_ev  = 0;
-  fjustap_1d_ev  = 0;
+  fjustap_2d_ev  = nullptr;
+  fjustap_1d_ev  = nullptr;
 
-  fjustap_2d_var = 0;
-  fjustap_1d_var = 0;
+  fjustap_2d_var = nullptr;
+  fjustap_1d_var = nullptr;
 
-  fjustap_2d_cc  = 0;
-  fjustap_1d_cc  = 0;
+  fjustap_2d_cc  = nullptr;
+  fjustap_1d_cc  = nullptr;
 
-  fjustap_2d_ss  = 0;
-  fjustap_1d_ss  = 0;
+  fjustap_2d_ss  = nullptr;
+  fjustap_1d_ss  = nullptr;
 
   fCodePrintAllComments = fCnaParCout->GetCodePrint("AllComments");
 
@@ -282,8 +282,8 @@ void TEcnaWrite::SetEcalSubDetector(const TString& SubDet,
  // Set Subdetector (EB or EE)
 
 
-  fEcal = 0;
-  if( pEcal == 0 )
+  fEcal = nullptr;
+  if( pEcal == nullptr )
     {fEcal = new TEcnaParEcal(SubDet.Data());  fCnew++;}
   else
     {fEcal = (TEcnaParEcal*)pEcal;}
@@ -292,8 +292,8 @@ void TEcnaWrite::SetEcalSubDetector(const TString& SubDet,
   fFlagSubDet.Resize(MaxCar);
   fFlagSubDet = fEcal->GetEcalSubDetector();
 
-  fEcalNumbering = 0;
-  if( pEcalNumbering == 0 )
+  fEcalNumbering = nullptr;
+  if( pEcalNumbering == nullptr )
     {fEcalNumbering = new TEcnaNumbering(SubDet.Data(), fEcal);  fCnew++;}
   else
     {fEcalNumbering = (TEcnaNumbering*)pEcalNumbering;}
@@ -1034,11 +1034,11 @@ void TEcnaWrite::fMakeResultsFileName(const Int_t&  i_code)
 	   << " No room enough for the extension. (ii = " << ii << ")"
 	   << fTTBELL  << std::endl; 
     }
-    delete [] f_name;        f_name       = 0;         fCdelete++;
-    delete [] f_name_short;  f_name_short = 0;         fCdelete++;
+    delete [] f_name;        f_name       = nullptr;         fCdelete++;
+    delete [] f_name_short;  f_name_short = nullptr;         fCdelete++;
 
-    delete [] f_in;          f_in       = 0;           fCdelete++;
-    delete [] f_in_short;    f_in_short = 0;           fCdelete++;
+    delete [] f_in;          f_in       = nullptr;           fCdelete++;
+    delete [] f_in_short;    f_in_short = nullptr;           fCdelete++;
 
 }  // end of fMakeResultsFileName
 
@@ -1562,7 +1562,7 @@ void  TEcnaWrite::fT2dWriteAscii(const Int_t&    i_code,
 
   if (i_code == fCodeCovCss      || i_code == fCodeCorCss ||
       i_code == fCodeAvMeanCorss || i_code == fCodeAvSigCorss){
-    if(fjustap_2d_ss == 0)
+    if(fjustap_2d_ss == nullptr)
       {
 	//................... Allocation
 	fjustap_2d_ss = new Double_t*[justap_samp];              fCnew++;  
