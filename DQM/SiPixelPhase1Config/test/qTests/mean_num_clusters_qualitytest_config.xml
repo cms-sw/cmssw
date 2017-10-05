@@ -5,149 +5,149 @@
     <!-- PXLAYER 1 -->
     <QTEST name="Yrange:PXLayer_1__Shell_mI:mean_num_clusters" activate="true">
       <TYPE>ContentsYRange</TYPE>
-      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="useEmptyBins">0</PARAM>
       <PARAM name="error">0.85</PARAM>
       <PARAM name="warning">0.95</PARAM>
-      <PARAM name="ymin">15.</PARAM>
-      <PARAM name="ymax">40.</PARAM>
+      <PARAM name="ymin">0.4</PARAM>
+      <PARAM name="ymax">120.</PARAM>
     </QTEST>
 
     <QTEST name="Yrange:PXLayer_1__Shell_mO:mean_num_clusters" activate="true">
       <TYPE>ContentsYRange</TYPE>
-      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="useEmptyBins">0</PARAM>
       <PARAM name="error">0.85</PARAM>
       <PARAM name="warning">0.95</PARAM>
-      <PARAM name="ymin">14.</PARAM>
-      <PARAM name="ymax">40.</PARAM>
+      <PARAM name="ymin">0.4</PARAM>
+      <PARAM name="ymax">130.</PARAM>
     </QTEST>
 
     <QTEST name="Yrange:PXLayer_1__Shell_pI:mean_num_clusters" activate="true">
       <TYPE>ContentsYRange</TYPE>
-      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="useEmptyBins">0</PARAM>
       <PARAM name="error">0.85</PARAM>
       <PARAM name="warning">0.95</PARAM>
-      <PARAM name="ymin">10.</PARAM>
-      <PARAM name="ymax">40.</PARAM>
+      <PARAM name="ymin">0.4</PARAM>
+      <PARAM name="ymax">120.</PARAM>
     </QTEST>
 
     <QTEST name="Yrange:PXLayer_1__Shell_pO:mean_num_clusters" activate="true">
       <TYPE>ContentsYRange</TYPE>
-      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="useEmptyBins">0</PARAM>
       <PARAM name="error">0.85</PARAM>
       <PARAM name="warning">0.95</PARAM>
-      <PARAM name="ymin">12.</PARAM>
-      <PARAM name="ymax">40.</PARAM>
+      <PARAM name="ymin">0.4</PARAM>
+      <PARAM name="ymax">140.</PARAM>
     </QTEST>
 
     <!-- PXLAYER 2 -->
     <QTEST name="Yrange:PXLayer_2__Shell_mI:mean_num_clusters" activate="true">
       <TYPE>ContentsYRange</TYPE>
-      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="useEmptyBins">0</PARAM>
       <PARAM name="error">0.85</PARAM>
       <PARAM name="warning">0.95</PARAM>
-      <PARAM name="ymin">2.5</PARAM>
-      <PARAM name="ymax">15.</PARAM>
+      <PARAM name="ymin">0.06</PARAM>
+      <PARAM name="ymax">25.</PARAM>
     </QTEST>
 
     <QTEST name="Yrange:PXLayer_2__Shell_mO:mean_num_clusters" activate="true">
       <TYPE>ContentsYRange</TYPE>
-      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="useEmptyBins">0</PARAM>
       <PARAM name="error">0.85</PARAM>
       <PARAM name="warning">0.95</PARAM>
-      <PARAM name="ymin">3.</PARAM>
-      <PARAM name="ymax">15.</PARAM>
+      <PARAM name="ymin">0.08</PARAM>
+      <PARAM name="ymax">25.</PARAM>
     </QTEST>
 
     <QTEST name="Yrange:PXLayer_2__Shell_pI:mean_num_clusters" activate="true">
       <TYPE>ContentsYRange</TYPE>
-      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="useEmptyBins">0</PARAM>
       <PARAM name="error">0.85</PARAM>
       <PARAM name="warning">0.95</PARAM>
-      <PARAM name="ymin">4.</PARAM>
-      <PARAM name="ymax">16.</PARAM>
+      <PARAM name="ymin">0.08</PARAM>
+      <PARAM name="ymax">30.</PARAM>
     </QTEST>
 
     <QTEST name="Yrange:PXLayer_2__Shell_pO:mean_num_clusters" activate="true">
       <TYPE>ContentsYRange</TYPE>
-      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="useEmptyBins">0</PARAM>
       <PARAM name="error">0.85</PARAM>
       <PARAM name="warning">0.95</PARAM>
-      <PARAM name="ymin">4.</PARAM>
-      <PARAM name="ymax">16.</PARAM>
+      <PARAM name="ymin">0.1</PARAM>
+      <PARAM name="ymax">30.</PARAM>
     </QTEST>
 
     <!-- PXLAYER 3 -->
     <QTEST name="Yrange:PXLayer_3__Shell_mI:mean_num_clusters" activate="true">
       <TYPE>ContentsYRange</TYPE>
-      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="useEmptyBins">0</PARAM>
       <PARAM name="error">0.85</PARAM>
       <PARAM name="warning">0.95</PARAM>
-      <PARAM name="ymin">2.</PARAM>
-      <PARAM name="ymax">10.</PARAM>
+      <PARAM name="ymin">0.06</PARAM>
+      <PARAM name="ymax">12.</PARAM>
     </QTEST>
 
     <QTEST name="Yrange:PXLayer_3__Shell_mO:mean_num_clusters" activate="true">
       <TYPE>ContentsYRange</TYPE>
-      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="useEmptyBins">0</PARAM>
       <PARAM name="error">0.85</PARAM>
       <PARAM name="warning">0.95</PARAM>
-      <PARAM name="ymin">2.5</PARAM>
-      <PARAM name="ymax">10.</PARAM>
+      <PARAM name="ymin">0.035</PARAM>
+      <PARAM name="ymax">12.</PARAM>
     </QTEST>
 
     <QTEST name="Yrange:PXLayer_3__Shell_pI:mean_num_clusters" activate="true">
       <TYPE>ContentsYRange</TYPE>
-      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="useEmptyBins">0</PARAM>
       <PARAM name="error">0.85</PARAM>
       <PARAM name="warning">0.95</PARAM>
-      <PARAM name="ymin">2.</PARAM>
-      <PARAM name="ymax">10.</PARAM>
+      <PARAM name="ymin">0.045</PARAM>
+      <PARAM name="ymax">14.</PARAM>
     </QTEST>
 
     <QTEST name="Yrange:PXLayer_3__Shell_pO:mean_num_clusters" activate="true">
       <TYPE>ContentsYRange</TYPE>
-      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="useEmptyBins">0</PARAM>
       <PARAM name="error">0.85</PARAM>
       <PARAM name="warning">0.95</PARAM>
-      <PARAM name="ymin">2.</PARAM>
-      <PARAM name="ymax">10.</PARAM>
+      <PARAM name="ymin">0.065</PARAM>
+      <PARAM name="ymax">14.</PARAM>
     </QTEST>
 
     <!-- PXLAYER 4 -->
     <QTEST name="Yrange:PXLayer_4__Shell_mI:mean_num_clusters" activate="true">
       <TYPE>ContentsYRange</TYPE>
-      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="useEmptyBins">0</PARAM>
       <PARAM name="error">0.85</PARAM>
       <PARAM name="warning">0.95</PARAM>
-      <PARAM name="ymin">1.</PARAM>
-      <PARAM name="ymax">5.</PARAM>
+      <PARAM name="ymin">0.03</PARAM>
+      <PARAM name="ymax">10.</PARAM>
     </QTEST>
 
     <QTEST name="Yrange:PXLayer_4__Shell_mO:mean_num_clusters" activate="true">
       <TYPE>ContentsYRange</TYPE>
-      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="useEmptyBins">0</PARAM>
       <PARAM name="error">0.85</PARAM>
       <PARAM name="warning">0.95</PARAM>
-      <PARAM name="ymin">1.</PARAM>
-      <PARAM name="ymax">5.</PARAM>
+      <PARAM name="ymin">0.025</PARAM>
+      <PARAM name="ymax">8.</PARAM>
     </QTEST>
 
     <QTEST name="Yrange:PXLayer_4__Shell_pI:mean_num_clusters" activate="true">
       <TYPE>ContentsYRange</TYPE>
-      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="useEmptyBins">0</PARAM>
       <PARAM name="error">0.85</PARAM>
       <PARAM name="warning">0.95</PARAM>
-      <PARAM name="ymin">1.</PARAM>
-      <PARAM name="ymax">5.</PARAM>
+      <PARAM name="ymin">0.035</PARAM>
+      <PARAM name="ymax">7.</PARAM>
     </QTEST>
 
     <QTEST name="Yrange:PXLayer_4__Shell_pO:mean_num_clusters" activate="true">
       <TYPE>ContentsYRange</TYPE>
-      <PARAM name="useEmptyBins">1</PARAM>
+      <PARAM name="useEmptyBins">0</PARAM>
       <PARAM name="error">0.85</PARAM>
       <PARAM name="warning">0.95</PARAM>
-      <PARAM name="ymin">1.</PARAM>
-      <PARAM name="ymax">5.</PARAM>
+      <PARAM name="ymin">0.025</PARAM>
+      <PARAM name="ymax">10.</PARAM>
     </QTEST>
 
   <!-- PXFORWARD -->
@@ -155,228 +155,228 @@
       <!-- PXRING 1 --> 
       <QTEST name="Yrange:HalfCylinder_mI__PXRing_1__PXDisk_-1:mean_num_clusters" activate="true">
         <TYPE>ContentsYRange</TYPE>
-        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">3.</PARAM>
-        <PARAM name="ymax">20.</PARAM>
+        <PARAM name="ymin">0.1</PARAM>
+        <PARAM name="ymax">24.</PARAM>
       </QTEST>
 
       <QTEST name="Yrange:HalfCylinder_mI__PXRing_1__PXDisk_-2:mean_num_clusters" activate="true">
         <TYPE>ContentsYRange</TYPE>
-        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">3.</PARAM>
-        <PARAM name="ymax">20.</PARAM>
+        <PARAM name="ymin">0.2</PARAM>
+        <PARAM name="ymax">28.</PARAM>
       </QTEST>
 
       <QTEST name="Yrange:HalfCylinder_mI__PXRing_1__PXDisk_-3:mean_num_clusters" activate="true">
         <TYPE>ContentsYRange</TYPE>
-        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">5.</PARAM>
-        <PARAM name="ymax">20.</PARAM>
+        <PARAM name="ymin">0.15</PARAM>
+        <PARAM name="ymax">30.</PARAM>
       </QTEST>
 
       <!-- PXRING 2 --> 
       <QTEST name="Yrange:HalfCylinder_mI__PXRing_2__PXDisk_-1:mean_num_clusters" activate="true">
         <TYPE>ContentsYRange</TYPE>
-        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">1.</PARAM>
+        <PARAM name="ymin">0.06</PARAM>
         <PARAM name="ymax">10.</PARAM>
       </QTEST>
 
       <QTEST name="Yrange:HalfCylinder_mI__PXRing_2__PXDisk_-2:mean_num_clusters" activate="true">
         <TYPE>ContentsYRange</TYPE>
-        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">1.</PARAM>
+        <PARAM name="ymin">0.025</PARAM>
         <PARAM name="ymax">10.</PARAM>
       </QTEST>
 
       <QTEST name="Yrange:HalfCylinder_mI__PXRing_2__PXDisk_-3:mean_num_clusters" activate="true">
         <TYPE>ContentsYRange</TYPE>
-        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">1.</PARAM>
-        <PARAM name="ymax">10.</PARAM>
+        <PARAM name="ymin">0.025</PARAM>
+        <PARAM name="ymax">12.</PARAM>
       </QTEST>
 
     <!-- HCMO -->
       <!-- PXRING 1 --> 
       <QTEST name="Yrange:HalfCylinder_mO__PXRing_1__PXDisk_-1:mean_num_clusters" activate="true">
         <TYPE>ContentsYRange</TYPE>
-        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">3.</PARAM>
-        <PARAM name="ymax">20.</PARAM>
+        <PARAM name="ymin">0.15</PARAM>
+        <PARAM name="ymax">25.</PARAM>
       </QTEST>
 
       <QTEST name="Yrange:HalfCylinder_mO__PXRing_1__PXDisk_-2:mean_num_clusters" activate="true">
         <TYPE>ContentsYRange</TYPE>
-        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">7.</PARAM>
-        <PARAM name="ymax">20.</PARAM>
+        <PARAM name="ymin">0.15</PARAM>
+        <PARAM name="ymax">28.</PARAM>
       </QTEST>
 
       <QTEST name="Yrange:HalfCylinder_mO__PXRing_1__PXDisk_-3:mean_num_clusters" activate="true">
         <TYPE>ContentsYRange</TYPE>
-        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">7.</PARAM>
-        <PARAM name="ymax">20.</PARAM>
+        <PARAM name="ymin">0.2</PARAM>
+        <PARAM name="ymax">28.</PARAM>
       </QTEST>
 
       <!-- PXRING 2 --> 
       <QTEST name="Yrange:HalfCylinder_mO__PXRing_2__PXDisk_-1:mean_num_clusters" activate="true">
         <TYPE>ContentsYRange</TYPE>
-        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">1.</PARAM>
+        <PARAM name="ymin">0.06</PARAM>
         <PARAM name="ymax">10.</PARAM>
       </QTEST>
 
       <QTEST name="Yrange:HalfCylinder_mO__PXRing_2__PXDisk_-2:mean_num_clusters" activate="true">
         <TYPE>ContentsYRange</TYPE>
-        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">1.</PARAM>
+        <PARAM name="ymin">0.04</PARAM>
         <PARAM name="ymax">10.</PARAM>
       </QTEST>
 
       <QTEST name="Yrange:HalfCylinder_mO__PXRing_2__PXDisk_-3:mean_num_clusters" activate="true">
         <TYPE>ContentsYRange</TYPE>
-        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">1.</PARAM>
-        <PARAM name="ymax">10.</PARAM>
+        <PARAM name="ymin">0.06</PARAM>
+        <PARAM name="ymax">12.</PARAM>
       </QTEST>
 
     <!-- HCPI -->
       <!-- PXRING 1 --> 
       <QTEST name="Yrange:HalfCylinder_pI__PXRing_1__PXDisk_+1:mean_num_clusters" activate="true">
         <TYPE>ContentsYRange</TYPE>
-        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">3.</PARAM>
-        <PARAM name="ymax">20.</PARAM>
+        <PARAM name="ymin">0.1</PARAM>
+        <PARAM name="ymax">25.</PARAM>
       </QTEST>
 
       <QTEST name="Yrange:HalfCylinder_pI__PXRing_1__PXDisk_+2:mean_num_clusters" activate="true">
         <TYPE>ContentsYRange</TYPE>
-        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">2.</PARAM>
-        <PARAM name="ymax">20.</PARAM>
+        <PARAM name="ymin">0.2</PARAM>
+        <PARAM name="ymax">28.</PARAM>
       </QTEST>
 
       <QTEST name="Yrange:HalfCylinder_pI__PXRing_1__PXDisk_+3:mean_num_clusters" activate="true">
         <TYPE>ContentsYRange</TYPE>
-        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">3.</PARAM>
-        <PARAM name="ymax">20.</PARAM>
+        <PARAM name="ymin">0.2</PARAM>
+        <PARAM name="ymax">28.</PARAM>
       </QTEST>
 
       <!-- PXRING 2 --> 
       <QTEST name="Yrange:HalfCylinder_pI__PXRing_2__PXDisk_+1:mean_num_clusters" activate="true">
         <TYPE>ContentsYRange</TYPE>
-        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">1.</PARAM>
+        <PARAM name="ymin">0.04</PARAM>
         <PARAM name="ymax">10.</PARAM>
       </QTEST>
 
       <QTEST name="Yrange:HalfCylinder_pI__PXRing_2__PXDisk_+2:mean_num_clusters" activate="true">
         <TYPE>ContentsYRange</TYPE>
-        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">1.</PARAM>
+        <PARAM name="ymin">0.04</PARAM>
         <PARAM name="ymax">10.</PARAM>
       </QTEST>
 
       <QTEST name="Yrange:HalfCylinder_pI__PXRing_2__PXDisk_+3:mean_num_clusters" activate="true">
         <TYPE>ContentsYRange</TYPE>
-        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">1.</PARAM>
-        <PARAM name="ymax">10.</PARAM>
+        <PARAM name="ymin">0.3</PARAM>
+        <PARAM name="ymax">12.</PARAM>
       </QTEST>
 
     <!-- HCPO -->
       <!-- PXRING 1 --> 
       <QTEST name="Yrange:HalfCylinder_pO__PXRing_1__PXDisk_+1:mean_num_clusters" activate="true">
         <TYPE>ContentsYRange</TYPE>
-        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">3.</PARAM>
-        <PARAM name="ymax">20.</PARAM>
+        <PARAM name="ymin">0.08</PARAM>
+        <PARAM name="ymax">26.</PARAM>
       </QTEST>
 
       <QTEST name="Yrange:HalfCylinder_pO__PXRing_1__PXDisk_+2:mean_num_clusters" activate="true">
         <TYPE>ContentsYRange</TYPE>
-        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">2.</PARAM>
-        <PARAM name="ymax">20.</PARAM>
+        <PARAM name="ymin">0.25</PARAM>
+        <PARAM name="ymax">26.</PARAM>
       </QTEST>
 
       <QTEST name="Yrange:HalfCylinder_pO__PXRing_1__PXDisk_+3:mean_num_clusters" activate="true">
         <TYPE>ContentsYRange</TYPE>
-        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">3.</PARAM>
-        <PARAM name="ymax">20.</PARAM>
+        <PARAM name="ymin">0.35</PARAM>
+        <PARAM name="ymax">28.</PARAM>
       </QTEST>
 
       <!-- PXRING 2 --> 
       <QTEST name="Yrange:HalfCylinder_pO__PXRing_2__PXDisk_+1:mean_num_clusters" activate="true">
         <TYPE>ContentsYRange</TYPE>
-        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">1.</PARAM>
+        <PARAM name="ymin">0.065</PARAM>
         <PARAM name="ymax">10.</PARAM>
       </QTEST>
 
       <QTEST name="Yrange:HalfCylinder_pO__PXRing_2__PXDisk_+2:mean_num_clusters" activate="true">
         <TYPE>ContentsYRange</TYPE>
-        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">1.</PARAM>
+        <PARAM name="ymin">0.075</PARAM>
         <PARAM name="ymax">10.</PARAM>
       </QTEST>
 
       <QTEST name="Yrange:HalfCylinder_pO__PXRing_2__PXDisk_+3:mean_num_clusters" activate="true">
         <TYPE>ContentsYRange</TYPE>
-        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
         <PARAM name="error">0.85</PARAM>
         <PARAM name="warning">0.95</PARAM>
-        <PARAM name="ymin">1.</PARAM>
-        <PARAM name="ymax">10.</PARAM>
+        <PARAM name="ymin">0.075</PARAM>
+        <PARAM name="ymax">12.</PARAM>
       </QTEST>
 
 
