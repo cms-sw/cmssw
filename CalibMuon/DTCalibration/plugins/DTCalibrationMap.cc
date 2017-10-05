@@ -118,7 +118,7 @@ const DTCalibrationMap::CalibConsts* DTCalibrationMap::getConsts(DTWireId wireId
     cache = (*res);
     return &((*res).second);
   } else {
-    return 0;
+    return nullptr;
   }
 }
   
@@ -128,7 +128,7 @@ const DTCalibrationMap::CalibConsts* DTCalibrationMap::getConsts(DTWireId wireId
 // constants available for a particluar wire
 float DTCalibrationMap::getField(DTWireId wireId, int field) const {
   const CalibConsts* cals = getConsts(wireId);
-  if (cals == 0) {
+  if (cals == nullptr) {
     throw cms::Exception("NoCalibConsts") << "DTCalibrationMap:" << endl
 						<< "No parameters for wire: " << wireId << endl
 						<< "Check the " << calibConstFileName << " file!" << endl;
