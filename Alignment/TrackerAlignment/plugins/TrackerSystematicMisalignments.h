@@ -32,9 +32,9 @@ public:
 								   );
 	
 	/// Read ideal tracker geometry from DB
-	virtual void beginJob();
+	void beginJob() override;
 	
-	virtual void analyze(const edm::Event&, const edm::EventSetup&);
+	void analyze(const edm::Event&, const edm::EventSetup&) override;
 	
 private:
 	

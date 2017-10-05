@@ -27,10 +27,10 @@ public:
 			   );
 	
   /// Read ideal tracker geometry from DB
-  virtual void analyze(
+  void analyze(
 		       const edm::Event&,
 		       const edm::EventSetup&
-		       );
+		       ) override;
 	
 private:
 	
