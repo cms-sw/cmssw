@@ -293,9 +293,10 @@ int HcalDDDRecConstants::getLayerFront(const int& idet, const int& ieta,
   int zside  = (ieta > 0) ? 1 : -1;
   int eta    = zside*ieta;
   int layFront = hcons.ldMap()->getLayerFront(subdet,eta,iphi,zside,depth);
-  if (layFront < 0) {
+  if ((layFront < 0) || 
+      ((subdet == static_cast<int>(HcalEndcap)) && (eta == 16))) {
     int laymin  = hcons.getFrontLayer(subdet, ieta);
-    if (eta == 16 && subdet == 2) {
+    if ((subdet == static_cast<int>(HcalEndcap)) && (eta == 16)) {
       layFront = laymin;
     } else if (eta <= hpar->etaMax[1]) {
       for (unsigned int k=0; k<layerGroupSize(eta-1); ++k) {
@@ -473,11 +474,14 @@ HcalDDDRecConstants::getThickActive(const int& type) const {
 	std::max(bin.layer[i].first,layf);
       int lmax = std::min(bin.layer[i].second,layl);
       for (int j = lmin; j <= lmax; ++j) {
-	if (type == 0 || j > 1) {
-	  double t = ((type == 0) ? gconsHB[j-1].second : gconsHE[j-1].second);
-	  if (t > 0) thick += t;
-	}
+	double t = ((type == 0) ? gconsHB[j-1].second : gconsHE[j-1].second);
+	if ((type == 1) && (ieta <= 18)) t = gconsHE[j].second;
+	if (t > 0) thick += t;
       }
+#ifdef EDM_ML_DEBUG
+      std::cout << "Type " << type << " L " << lmin << ":" << lmax << " T "
+		<< thick << std::endl;
+#endif
       thick *= (2.*scale);
       HcalDDDRecConstants::HcalActiveLength active(ieta,depth,zside,stype,zside*eta,thick);
       for (auto phi : bin.phis) 
