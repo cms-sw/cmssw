@@ -47,25 +47,14 @@ tobTecStepTrackingRegionsTripl = _globalTrackingRegionFromBeamSpotFixedZ.clone(R
 ))
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cfi import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
-
+from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
 pp_on_XeXe_2017.toReplaceWith(tobTecStepTrackingRegionsTripl, 
                               _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
-            precise = True,
-            useMultipleScattering = False,
-            useFakeVertices       = False,
-            beamSpot = "offlineBeamSpot",
-            useFixedError = True,#this means use fixedErrorBelow
-            nSigmaZ = 4.0,
-            sigmaZVertex = 4.0,
-            fixedError = 5.0,#a fourth the size of the pp version
-            VertexCollection = "firstStepPrimaryVertices",
+            fixedError = 5.0,
             ptMin = 2.0,
-            useFoundVertices = True,
             originRadius = 3.5
-            ))
+            )                                                                      )
 )
-
 
 # Triplet seeding
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import ClusterShapeHitFilterESProducer as _ClusterShapeHitFilterESProducer
@@ -140,24 +129,14 @@ tobTecStepTrackingRegionsPair = _globalTrackingRegionFromBeamSpotFixedZ.clone(Re
     originRadius = 6.0,
 ))
 
-
-pp_on_XeXe_2017.toReplaceWith(tobTecStepTrackingRegionsPair,
+from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
+pp_on_XeXe_2017.toReplaceWith(tobTecStepTrackingRegionsPair, 
                               _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
-            precise = True,
-            useMultipleScattering = False,
-            useFakeVertices       = False,
-            beamSpot = "offlineBeamSpot",
-            useFixedError = True,#this means use fixedErrorBelow
-            nSigmaZ = 4.0,
-            sigmaZVertex = 4.0,
-            fixedError = 7.5,#a fourth the size of the pp version
-            VertexCollection = "firstStepPrimaryVertices",
+            fixedError = 7.5,
             ptMin = 2.0,
-            useFoundVertices = True,
-            originRadius = 6.0
-            ))
-                              )
-
+            originRadius = 6.9
+            )                                                                      )
+)
 
 # Pair seeds
 tobTecStepHitDoubletsPair = _hitPairEDProducer.clone(

@@ -235,19 +235,6 @@ firstStepPrimaryVerticesUnsorted = _offlinePrimaryVertices.clone()
 firstStepPrimaryVerticesUnsorted.TrackLabel = cms.InputTag("initialStepTracks")
 firstStepPrimaryVerticesUnsorted.vertexCollections = [_offlinePrimaryVertices.vertexCollections[0].clone()]
 
-pp_on_XeXe_2017.toModify(firstStepPrimaryVerticesUnsorted.TkFilterParameters, maxD0Significance = cms.double(3.0))
-
-_pp_on_XeXe_2017_TkClusParameters = cms.PSet(
-    algorithm = cms.string("gap"),
-    TkGapClusParameters = cms.PSet(
-        zSeparation = cms.double(1.0)        
-        )
-    )
-
-pp_on_XeXe_2017.toReplaceWith(firstStepPrimaryVerticesUnsorted.TkClusParameters, _pp_on_XeXe_2017_TkClusParameters)
-
-
-
 from RecoJets.JetProducers.TracksForJets_cff import trackRefsForJets
 initialStepTrackRefsForJets = trackRefsForJets.clone(src = cms.InputTag('initialStepTracks'))
 from RecoJets.JetProducers.caloJetsForTrk_cff import *

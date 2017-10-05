@@ -64,15 +64,3 @@ _phase2_tktiming_vertexreco = cms.Sequence( vertexreco.copy() *
 
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 phase2_timing.toReplaceWith(vertexreco, _phase2_tktiming_vertexreco)
-
-from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-pp_on_XeXe_2017.toModify(unsortedOfflinePrimaryVertices.TkFilterParameters, maxD0Significance = cms.double(3.0))
-
-_pp_on_XeXe_2017_TkClusParameters = cms.PSet(
-    algorithm = cms.string("gap"),
-    TkGapClusParameters = cms.PSet(
-        zSeparation = cms.double(1.0)        
-        )
-    )
-
-pp_on_XeXe_2017.toReplaceWith(unsortedOfflinePrimaryVertices.TkClusParameters, _pp_on_XeXe_2017_TkClusParameters)
