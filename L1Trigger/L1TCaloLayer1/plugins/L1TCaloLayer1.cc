@@ -59,16 +59,16 @@ using namespace l1tcalo;
 class L1TCaloLayer1 : public edm::EDProducer {
 public:
   explicit L1TCaloLayer1(const edm::ParameterSet&);
-  ~L1TCaloLayer1();
+  ~L1TCaloLayer1() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginJob() override;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void beginJob() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
       
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
 
   //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
@@ -99,6 +99,7 @@ private:
   bool verbose;
   bool unpackHcalMask;
   bool unpackEcalMask;
+  int  fwVersion;
 
   UCTLayer1 *layer1;
 
@@ -131,13 +132,13 @@ L1TCaloLayer1::L1TCaloLayer1(const edm::ParameterSet& iConfig) :
   useHFLUT(iConfig.getParameter<bool>("useHFLUT")),
   verbose(iConfig.getParameter<bool>("verbose")), 
   unpackHcalMask(iConfig.getParameter<bool>("unpackHcalMask")),
-  unpackEcalMask(iConfig.getParameter<bool>("unpackEcalMask"))
+  unpackEcalMask(iConfig.getParameter<bool>("unpackEcalMask")),
+  fwVersion(iConfig.getParameter<int>("firmwareVersion"))
 {
   produces<CaloTowerBxCollection>();
   produces<L1CaloRegionCollection>();
 
   // See UCTLayer1.hh for firmware version definitions
-  int fwVersion = iConfig.getParameter<int>("firmwareVersion");
   layer1 = new UCTLayer1(fwVersion);
 
   vector<UCTCrate*> crates = layer1->getCrates();
@@ -162,7 +163,7 @@ L1TCaloLayer1::L1TCaloLayer1(const edm::ParameterSet& iConfig) :
 }
 
 L1TCaloLayer1::~L1TCaloLayer1() {
-  if(layer1 != 0) delete layer1;
+  if(layer1 != nullptr) delete layer1;
 }
 
 //
@@ -309,7 +310,7 @@ L1TCaloLayer1::endJob() {
 void
 L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
-  if(!L1TCaloLayer1FetchLUTs(iSetup, ecalLUT, hcalLUT, hfLUT, ePhiMap, hPhiMap, hfPhiMap, useLSB, useCalib, useECALLUT, useHCALLUT, useHFLUT)) {
+  if(!L1TCaloLayer1FetchLUTs(iSetup, ecalLUT, hcalLUT, hfLUT, ePhiMap, hPhiMap, hfPhiMap, useLSB, useCalib, useECALLUT, useHCALLUT, useHFLUT, fwVersion)) {
     LOG_ERROR << "L1TCaloLayer1::beginRun: failed to fetch LUTS - using unity" << std::endl;
     std::array< std::array< std::array<uint32_t, nEtBins>, nCalSideBins >, nCalEtaBins> eCalLayer1EtaSideEtArray;
     std::array< std::array< std::array<uint32_t, nEtBins>, nCalSideBins >, nCalEtaBins> hCalLayer1EtaSideEtArray;
