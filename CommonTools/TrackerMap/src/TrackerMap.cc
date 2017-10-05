@@ -3623,8 +3623,7 @@ saveAsSingleLayer=false;
 TLegend* TrackerMap::buildLegend() {
   if ( legInfos_.empty() ) {
     legInfos_.reserve(8);
-    Double_t x[4] = {.2,.7,.6,.2};
-    Double_t y[4] = {.5,.1,.9,.5};
+    double x[4],y[4];
     legInfos_.push_back(new TPolyLine(4,x,y));
     legInfos_.back()->SetFillColor(kGreen);
     legInfos_.push_back(new TPolyLine(4,x,y));
