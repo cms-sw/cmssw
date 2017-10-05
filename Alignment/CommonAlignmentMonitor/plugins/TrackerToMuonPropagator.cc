@@ -63,12 +63,12 @@
 class TrackerToMuonPropagator : public edm::EDProducer {
    public:
       explicit TrackerToMuonPropagator(const edm::ParameterSet&);
-      ~TrackerToMuonPropagator();
+      ~TrackerToMuonPropagator() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       
       // ----------member data ---------------------------
 
@@ -99,7 +99,7 @@ TrackerToMuonPropagator::TrackerToMuonPropagator(const edm::ParameterSet& iConfi
    if (m_refitTracker) {
       m_trackTransformer = new TrackTransformer(iConfig.getParameter<edm::ParameterSet>("trackerTrackTransformer"));
    }
-   else m_trackTransformer = NULL;
+   else m_trackTransformer = nullptr;
   
    produces<std::vector<Trajectory> >();
    produces<TrajTrackAssociationCollection>();
@@ -230,7 +230,7 @@ TrackerToMuonPropagator::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       } // end loop over standAloneMuon hits
 	 
       // if it has any successful extrapolations, make them into a Trajectory
-      if (muonHits.size() > 0) {
+      if (!muonHits.empty()) {
 	 PTrajectoryStateOnDet const & PTraj = trajectoryStateTransform::persistentState(tracker_tsos, outerDetId.rawId());
 	 TrajectorySeed trajectorySeed(PTraj, muonHits, alongMomentum);
 	 Trajectory trajectory(trajectorySeed, alongMomentum);

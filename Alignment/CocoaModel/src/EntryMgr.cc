@@ -11,7 +11,7 @@
 //----------------------------------------------------------------------------
 
 
-EntryMgr* EntryMgr::theInstance = 0;
+EntryMgr* EntryMgr::theInstance = nullptr;
 
 //----------------------------------------------------------------------------
 EntryMgr* EntryMgr::getInstance()
@@ -52,14 +52,14 @@ ALIbool EntryMgr::readEntryFromReportOut( const std::vector<ALIstring>& wl )
     data->fill( wl );
   }
 
-  return 1;  
+  return true;  
 }
 
 
 //----------------------------------------------------------------------------
 EntryData* EntryMgr::findEntryByShortName( const ALIstring& optoName, const ALIstring& entryName )
 {
-  EntryData* data = 0;
+  EntryData* data = nullptr;
 
   int icount = 0;
   std::vector<EntryData*>::iterator ite;
@@ -82,7 +82,7 @@ EntryData* EntryMgr::findEntryByShortName( const ALIstring& optoName, const ALIs
 //----------------------------------------------------------------------------
 EntryData* EntryMgr::findEntryByLongName( const ALIstring& optoName, const ALIstring& entryName )
 {
-  EntryData* data = 0;
+  EntryData* data = nullptr;
 
   int icount = 0;
   std::vector<EntryData*>::iterator ite;
@@ -112,7 +112,7 @@ EntryData* EntryMgr::findEntryByLongName( const ALIstring& optoName, const ALIst
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 EntryData* EntryMgr::findEntry( const std::vector<ALIstring>& wl )
 {
-  EntryData* data = 0;
+  EntryData* data = nullptr;
   ALIstring optoName = wl[2];
   ALIstring entryName = wl[3];
   data = findEntryByLongName( optoName, entryName );

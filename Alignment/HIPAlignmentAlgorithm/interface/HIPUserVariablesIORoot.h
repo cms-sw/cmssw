@@ -23,22 +23,22 @@ public:
 
 private:
   /** write AlignmentParameters of one Alignable */
-  int writeOne(Alignable* ali);
+  int writeOne(Alignable* ali) override;
 
   /** read AlignmentParameters of one Alignable */
-  AlignmentUserVariables* readOne(Alignable* ali, int& ierr);
+  AlignmentUserVariables* readOne(Alignable* ali, int& ierr) override;
 
   /** open IO */
-  int open(const char* filename, int iteration, bool writemode){ newopen=true; return openRoot(filename, iteration, writemode); }
+  int open(const char* filename, int iteration, bool writemode) override{ newopen=true; return openRoot(filename, iteration, writemode); }
 
   /** close IO */
-  int close(void){ return closeRoot(); }
+  int close(void) override{ return closeRoot(); }
 
   // helper functions
 
   int findEntry(unsigned int detId, int comp);
-  void createBranches(void);
-  void setBranchAddresses(void);
+  void createBranches(void) override;
+  void setBranchAddresses(void) override;
 
   // data members
 

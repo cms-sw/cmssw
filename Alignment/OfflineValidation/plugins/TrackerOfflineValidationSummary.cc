@@ -62,7 +62,7 @@
 class TrackerOfflineValidationSummary : public edm::EDAnalyzer {
    public:
       explicit TrackerOfflineValidationSummary(const edm::ParameterSet&);
-      ~TrackerOfflineValidationSummary();
+      ~TrackerOfflineValidationSummary() override;
 
 
    private:
@@ -97,8 +97,8 @@ class TrackerOfflineValidationSummary : public edm::EDAnalyzer {
 	HarvestingHistos harvestingHistos;
       };
       
-      virtual void analyze(const edm::Event& evt, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void analyze(const edm::Event& evt, const edm::EventSetup&) override;
+      void endJob() override ;
       
       void fillTree(TTree& tree, std::map<int, TrackerOfflineValidationSummary::ModuleHistos>& moduleHist, 
 		TkOffTreeVariables& treeMem, const TrackerGeometry& tkgeom,
@@ -153,7 +153,7 @@ class TrackerOfflineValidationSummary : public edm::EDAnalyzer {
 //
 TrackerOfflineValidationSummary::TrackerOfflineValidationSummary(const edm::ParameterSet& iConfig):
    parSet_(iConfig), moduleDirectory_(parSet_.getParameter<std::string>("moduleDirectoryInOutput")),
-   useFit_(parSet_.getParameter<bool>("useFit")), dbe_(0), moduleMapsInitialized(false), lastSetup_(nullptr)
+   useFit_(parSet_.getParameter<bool>("useFit")), dbe_(nullptr), moduleMapsInitialized(false), lastSetup_(nullptr)
 {
   //now do what ever initialization is needed
   dbe_ = edm::Service<DQMStore>().operator->();
@@ -243,9 +243,9 @@ TrackerOfflineValidationSummary::endJob()
   // of the module-based histograms from TrackerOfflineValidation
   this->collateHarvestingHists(*tree);
   
-  delete tree; tree = 0;
-  delete treeMemPtr; treeMemPtr = 0;
-  delete substructureName; substructureName = 0;
+  delete tree; tree = nullptr;
+  delete treeMemPtr; treeMemPtr = nullptr;
+  delete substructureName; substructureName = nullptr;
 }
 
 
@@ -648,8 +648,8 @@ TrackerOfflineValidationSummary::getMedian(const TH1 *histo) const
   }
   median = TMath::Median(nbins, x, y);
   
-  delete[] x; x = 0;
-  delete [] y; y = 0;  
+  delete[] x; x = nullptr;
+  delete [] y; y = nullptr;  
 
   return median;
 }
@@ -666,8 +666,8 @@ TrackerOfflineValidationSummary::collateHarvestingHists(TTree& tree)
 void
 TrackerOfflineValidationSummary::applyHarvestingHierarchy(TTree& tree)
 {
-  TkOffTreeVariables *treeMemPtr = 0;
-  std::map<std::string,std::string> *substructureName = 0;
+  TkOffTreeVariables *treeMemPtr = nullptr;
+  std::map<std::string,std::string> *substructureName = nullptr;
   tree.SetBranchAddress("TkOffTreeVariables", &treeMemPtr);
   tree.SetBranchAddress("SubstructureName", &substructureName);
   
@@ -754,8 +754,8 @@ TrackerOfflineValidationSummary::getBinning(const std::string& binningPSetName, 
 void
 TrackerOfflineValidationSummary::fillHarvestingHists(TTree& tree)
 {
-  TkOffTreeVariables *treeMemPtr = 0;
-  std::map<std::string,std::string> *substructureName = 0;
+  TkOffTreeVariables *treeMemPtr = nullptr;
+  std::map<std::string,std::string> *substructureName = nullptr;
   tree.SetBranchAddress("TkOffTreeVariables", &treeMemPtr);
   tree.SetBranchAddress("SubstructureName", &substructureName);
   

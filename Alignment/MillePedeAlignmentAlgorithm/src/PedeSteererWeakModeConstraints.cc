@@ -118,7 +118,7 @@ PedeSteererWeakModeConstraints::PedeSteererWeakModeConstraints(AlignableTracker 
     //of provided parameter is right.
     auto sysdeformation = this->verifyDeformationName(name,coefficients);
 
-    if(deadmodules_.size() == 0) { //fill the list of dead modules only once
+    if(deadmodules_.empty()) { //fill the list of dead modules only once
       edm::LogInfo("Alignment") << "@SUB=PedeSteererWeakModeConstraints"
                                 << "Load list of dead modules (size = " << dm.size()<< ").";
       for(const auto& it: dm) deadmodules_.push_back(it);
@@ -243,7 +243,7 @@ PedeSteererWeakModeConstraints::createAlignablesDataStructure()
         }
       }
 
-      if( usedinconstraint.size() > 0){
+      if( !usedinconstraint.empty()){
         iC.HLSsubdets_.push_back(std::make_pair(iHLS.first, usedinconstraint));
       } else {
         edm::LogInfo("Alignment") << "@SUB=PedeSteererWeakModeConstraints"
@@ -254,7 +254,7 @@ PedeSteererWeakModeConstraints::createAlignablesDataStructure()
 				  << "," << iHLS.first->globalPosition().z()
 				  << ") selected. Skip constraint";
       }
-      if(aliDaughts.size() == 0) {
+      if(aliDaughts.empty()) {
         edm::LogWarning("Alignment") << "@SUB=PedeSteererWeakModeConstraints::createAlignablesDataStructure"
                                      << "No active sub-alignables found for "
                                      << alignableObjectId_.idToString(iHLS.first->alignableObjectId())
@@ -476,7 +476,7 @@ PedeSteererWeakModeConstraints::writeOutput(const std::list<std::pair<unsigned i
     throw cms::Exception("FileFindError")
       << "[PedeSteererWeakModeConstraints] Cannot find output file.";
   } else {
-    if(output.size() > 0) {
+    if(!output.empty()) {
       const double constr = sum_xi_x0 * it.coefficients_.front();
       (*ofile) << "Constraint " << std::scientific << constr << std::endl;
       for(const auto& ioutput: output) {
@@ -804,7 +804,7 @@ PedeSteererWeakModeConstraints::verifyDeformationName(const std::string &name,
       << " variable have to be provided for the " << name << " constraint.";
   }
 
-  if(coefficients.size() == 0) {
+  if(coefficients.empty()) {
     throw cms::Exception("BadConfig")
       << "[PedeSteererWeakModeConstraints]" << " At least one coefficient has to be specified.";
   }

@@ -80,7 +80,7 @@ namespace gs {
           // performance even if the user wants to shoot himself
           // in a foot
           comprBuf_(bufSize > 1024U ? bufSize : 1024U),
-          sink_(0)
+          sink_(nullptr)
     {
         this->init(&buf_);
     }

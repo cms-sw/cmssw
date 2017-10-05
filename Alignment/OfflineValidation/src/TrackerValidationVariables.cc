@@ -146,7 +146,7 @@ void TrackerValidationVariables::fillHitQuantities(reco::Track const & track, st
           resYprimeErr = hitStruct.resErrY;
 
           const RectangularPlaneBounds *rectangularBound = dynamic_cast<const RectangularPlaneBounds*>(&bound);
-          if (rectangularBound!=NULL) {
+          if (rectangularBound!=nullptr) {
             hitStruct.inside = rectangularBound->inside(lPTrk);
             length = rectangularBound->length();
             width = rectangularBound->width();
@@ -295,7 +295,7 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
 	resYprimeErr = resYErr;
 
 	const RectangularPlaneBounds *rectangularBound = dynamic_cast<const RectangularPlaneBounds*>(&bound);
-	if (rectangularBound!=NULL) {
+	if (rectangularBound!=nullptr) {
 	  hitStruct.inside = rectangularBound->inside(lPTrk);
 	  length = rectangularBound->length();
 	  width = rectangularBound->width();
@@ -317,7 +317,7 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
 	resYprimeErr = resYErr;
 	
 	const RectangularPlaneBounds *rectangularBound = dynamic_cast<const RectangularPlaneBounds*>(&bound);
-	if (rectangularBound!=NULL) {
+	if (rectangularBound!=nullptr) {
 	  hitStruct.inside = rectangularBound->inside(lPTrk);
 	  length = rectangularBound->length();
 	  width = rectangularBound->width();
@@ -385,7 +385,7 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
 
 
 	const TrapezoidalPlaneBounds *trapezoidalBound = dynamic_cast < const TrapezoidalPlaneBounds * >(& bound);
-	if (trapezoidalBound!=NULL) {
+	if (trapezoidalBound!=nullptr) {
 	  hitStruct.inside = trapezoidalBound->inside(lPTrk);
 	  length = trapezoidalBound->length();
 	  width  = trapezoidalBound->width();
