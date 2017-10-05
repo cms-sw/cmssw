@@ -1,7 +1,6 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EleTkIsolFromCands.h"
-
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
 EleTkIsolFromCands::TrkCuts::TrkCuts(const edm::ParameterSet& para)
 {
@@ -63,38 +62,91 @@ edm::ParameterSetDescription EleTkIsolFromCands::pSetDescript()
 std::pair<int,double> 
 EleTkIsolFromCands::calIsol(const reco::TrackBase& eleTrk,
 			    const pat::PackedCandidateCollection& cands,
-			    const edm::View<reco::GsfElectron>& eles)
+			    const PIDVeto pidVeto)const
 {
-  return calIsol(eleTrk.eta(),eleTrk.phi(),eleTrk.vz(),cands,eles);
+  return calIsol(eleTrk.eta(),eleTrk.phi(),eleTrk.vz(),cands,pidVeto);
 }
 
 std::pair<int,double> 
 EleTkIsolFromCands::calIsol(const double eleEta,const double elePhi,
 			    const double eleVZ,
 			    const pat::PackedCandidateCollection& cands,
-			    const edm::View<reco::GsfElectron>& eles)
+			    const PIDVeto pidVeto)const
 {
-
   double ptSum=0.;
   int nrTrks=0;
 
   const TrkCuts& cuts = std::abs(eleEta)<1.5 ? barrelCuts_ : endcapCuts_;
   
   for(auto& cand  : cands){
-    if(cand.charge()!=0){
-      const reco::Track& trk = cand.pseudoTrack(); 
-      double trkPt = std::abs(cand.pdgId())!=11 ? trk.pt() : getTrkPt(trk,eles);
-      if(passTrkSel(trk,trkPt,cuts,eleEta,elePhi,eleVZ)){	
-	ptSum+=trkPt;
+    if(cand.hasTrackDetails() && cand.charge()!=0 && passPIDVeto(cand.pdgId(),pidVeto)){
+      const reco::Track& trk = cand.pseudoTrack();
+      if(passTrkSel(trk,trk.pt(),cuts,eleEta,elePhi,eleVZ)){	
+	ptSum+=trk.pt();
 	nrTrks++;
       }
     }
   }
   return {nrTrks,ptSum};	
 }
-	
 
-bool EleTkIsolFromCands::passTrkSel(const reco::Track& trk,
+
+
+std::pair<int,double> 
+EleTkIsolFromCands::calIsol(const reco::TrackBase& eleTrk,
+			    const reco::TrackCollection& tracks)const
+{
+  return calIsol(eleTrk.eta(),eleTrk.phi(),eleTrk.vz(),tracks);
+}
+
+std::pair<int,double> 
+EleTkIsolFromCands::calIsol(const double eleEta,const double elePhi,
+			    const double eleVZ,
+			    const reco::TrackCollection& tracks)const
+{
+  double ptSum=0.;
+  int nrTrks=0;
+
+  const TrkCuts& cuts = std::abs(eleEta)<1.5 ? barrelCuts_ : endcapCuts_;
+  
+  for(auto& trk  : tracks){
+    if(passTrkSel(trk,trk.pt(),cuts,eleEta,elePhi,eleVZ)){	
+      ptSum+=trk.pt();
+      nrTrks++;
+    }
+  }
+  return {nrTrks,ptSum};	
+}	
+
+bool EleTkIsolFromCands::passPIDVeto(const int pdgId,const EleTkIsolFromCands::PIDVeto veto)
+{
+  int pidAbs = std::abs(pdgId);
+  switch (veto){
+  case PIDVeto::NONE:
+    return true;
+  case PIDVeto::ELES:
+    if(pidAbs==11) return false;
+    else return true;
+  case PIDVeto::NONELES:
+    if(pidAbs==11) return true;
+    else return false;
+  }
+  throw cms::Exception("CodeError") <<
+    "invalid PIDVeto "<<static_cast<int>(veto)<<", "<<
+    "this is likely due to some static casting of invalid ints somewhere";
+}
+
+EleTkIsolFromCands::PIDVeto EleTkIsolFromCands::pidVetoFromStr(const std::string& vetoStr) 
+{
+  if(vetoStr=="NONE") return PIDVeto::NONE;
+  else if(vetoStr=="ELES") return PIDVeto::ELES;
+  else if(vetoStr=="NONELES") return PIDVeto::NONELES;
+  else{
+    throw cms::Exception("CodeError") <<"unrecognised string "<<vetoStr<<", either a typo or this function needs to be updated";
+  }
+}
+
+bool EleTkIsolFromCands::passTrkSel(const reco::TrackBase& trk,
 				    const double trkPt,const TrkCuts& cuts,
 				    const double eleEta,const double elePhi,
 				    const double eleVZ)
@@ -136,26 +188,3 @@ passAlgo(const reco::TrackBase& trk,
   return algosToRej.empty() || !std::binary_search(algosToRej.begin(),algosToRej.end(),trk.algo());
 }
 
-//so the working theory here is that the track we have is the electrons gsf track
-//if so, lets get the pt of the gsf track before E/p combinations
-//if no match found to a gsf ele with a gsftrack, return the pt of the input track
-double EleTkIsolFromCands::
-getTrkPt(const reco::TrackBase& trk,
-	 const edm::View<reco::GsfElectron>& eles)
-{
-  //note, the trk.eta(),trk.phi() should be identical to the gsf track eta,phi
-  //although this may not be the case due to roundings after packing
-  auto match=[](const reco::TrackBase& trk,const reco::GsfElectron& ele){
-    return std::abs(trk.eta()-ele.gsfTrack()->eta())<0.001 &&
-    reco::deltaPhi(trk.phi(),ele.gsfTrack()->phi())<0.001;// && 
-  };
-  for(auto& ele : eles){
-    if(ele.gsfTrack().isNonnull()){
-      if(match(trk,ele)){
-	return ele.gsfTrack()->pt();
-      }
-    }
-  }
-  return trk.pt();
-
-}
