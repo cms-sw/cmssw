@@ -84,7 +84,7 @@ reco::Particle StEvtSolution::getLept() const
 // FIXME: provide defaults if the genevent is invalid
 const reco::GenParticle * StEvtSolution::getGenBottom() const 
 { 
-  if(!theGenEvt_) return 0; 
+  if(!theGenEvt_) return nullptr; 
   else return theGenEvt_->decayB();
 }
 
@@ -97,25 +97,25 @@ const reco::GenParticle * StEvtSolution::getGenBottom() const
 
 const reco::GenParticle * StEvtSolution::getGenLepton() const 
 { 
-  if(!theGenEvt_) return 0; 
+  if(!theGenEvt_) return nullptr; 
   else return theGenEvt_->singleLepton(); 
 }
 
 const reco::GenParticle * StEvtSolution::getGenNeutrino() const 
 { 
-  if(!theGenEvt_) return 0; 
+  if(!theGenEvt_) return nullptr; 
   else return theGenEvt_->singleNeutrino(); 
 }
 
 const reco::GenParticle * StEvtSolution::getGenLepW() const 
 { 
-  if (!theGenEvt_) return 0; 
+  if (!theGenEvt_) return nullptr; 
   else return theGenEvt_->singleW(); 
 }
 
 const reco::GenParticle * StEvtSolution::getGenLept() const 
 { 
-  if (!theGenEvt_) return 0; 
+  if (!theGenEvt_) return nullptr; 
   else return theGenEvt_->singleTop(); 
 }
 

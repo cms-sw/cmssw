@@ -105,9 +105,9 @@ namespace edm {
          }
          
      private:
-         Callback(const Callback&); // stop default
+         Callback(const Callback&) = delete; // stop default
          
-         const Callback& operator=(const Callback&); // stop default
+         const Callback& operator=(const Callback&) = delete; // stop default
 
          std::vector<void*> proxyData_;
          edm::propagate_const<T*> producer_;
