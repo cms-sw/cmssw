@@ -13,7 +13,7 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <assert.h>
+#include <cassert>
 #include <stdexcept>
 
 using namespace pos;
@@ -196,7 +196,7 @@ PixelNameTranslation::PixelNameTranslation(std::vector< std::vector<std::string>
 
     std::vector<PixelROCName>& tmp= rocsFromFEDidAndChannel_[fednumber][fedchannel];
     
-    if (tmp.size()==0){
+    if (tmp.empty()){
       tmp.resize(24);
       counter[fednumber][fedchannel]=0;
       maxindex[fednumber][fedchannel]=0;
@@ -400,7 +400,7 @@ PixelNameTranslation::PixelNameTranslation(std::string filename):
 
     std::vector<PixelROCName>& tmp= rocsFromFEDidAndChannel_[fednumber][fedchannel];
     
-    if (tmp.size()==0){
+    if (tmp.empty()){
       tmp.resize(24);
       counter[fednumber][fedchannel]=0;
       maxindex[fednumber][fedchannel]=0;
@@ -536,7 +536,7 @@ const PixelHdwAddress& PixelNameTranslation::firstHdwAddress(const PixelModuleNa
 {
         std::string mthn = "[PixelNameTranslation::firstHdwAddress()]\t\t    " ;
 	std::set<PixelChannel> channelsOnModule = getChannelsOnModule(aModule);
-	if (channelsOnModule.size() == 0 ){
+	if (channelsOnModule.empty() ){
 	  cout << __LINE__ << "]\t" << mthn << "module=" << aModule << " has zero channels!" << endl;
 	  cout << __LINE__ << "]\t" << mthn << "Will terminate" << endl;
 	  ::abort();
