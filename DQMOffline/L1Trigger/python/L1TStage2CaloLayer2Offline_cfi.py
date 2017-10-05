@@ -10,14 +10,14 @@ jetEfficiencyBins = []
 jetEfficiencyBins.extend(list(xrange(0, 120, 10)))
 jetEfficiencyBins.extend(list(xrange(120, 180, 20)))
 jetEfficiencyBins.extend(list(xrange(180, 300, 40)))
-jetEfficiencyBins.extend(list(xrange(300, 400, 100)))
+jetEfficiencyBins.extend(list(xrange(300, 401, 100)))
 
 metEfficiencyBins = []
 metEfficiencyBins.extend(list(xrange(0, 40, 4)))
 metEfficiencyBins.extend(list(xrange(40, 70, 2)))
 metEfficiencyBins.extend(list(xrange(70, 100, 5)))
 metEfficiencyBins.extend(list(xrange(100, 160, 10)))
-metEfficiencyBins.extend(list(xrange(160, 260, 20)))
+metEfficiencyBins.extend(list(xrange(160, 261, 20)))
 
 mhtEfficiencyBins = []
 mhtEfficiencyBins.extend(list(xrange(30, 50, 1)))
@@ -25,20 +25,20 @@ mhtEfficiencyBins.extend(list(xrange(50, 80, 5)))
 mhtEfficiencyBins.extend(list(xrange(80, 140, 10)))
 mhtEfficiencyBins.extend(list(xrange(140, 200, 15)))
 mhtEfficiencyBins.extend(list(xrange(200, 300, 20)))
-mhtEfficiencyBins.extend(list(xrange(300, 400, 50)))
+mhtEfficiencyBins.extend(list(xrange(300, 401, 50)))
 
 ettEfficiencyBins = []
 ettEfficiencyBins.extend(list(xrange(0, 30, 30)))
 ettEfficiencyBins.extend(list(xrange(30, 50, 10)))
 ettEfficiencyBins.extend(list(xrange(50, 90, 5)))
-ettEfficiencyBins.extend(list(xrange(90, 140, 2)))
+ettEfficiencyBins.extend(list(xrange(90, 141, 2)))
 
 httEfficiencyBins = []
 httEfficiencyBins.extend(list(xrange(0, 100, 5)))
 httEfficiencyBins.extend(list(xrange(100, 200, 10)))
 httEfficiencyBins.extend(list(xrange(200, 400, 20)))
 httEfficiencyBins.extend(list(xrange(400, 500, 50)))
-httEfficiencyBins.extend(list(xrange(500, 600, 10)))
+httEfficiencyBins.extend(list(xrange(500, 601, 10)))
 
 l1tStage2CaloLayer2OfflineDQM = cms.EDAnalyzer(
     "L1TStage2CaloLayer2Offline",
