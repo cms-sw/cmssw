@@ -8,3 +8,4 @@ print
 
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
 globalSeedsFromTripletsWithVertices = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone()
+

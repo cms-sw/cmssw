@@ -114,6 +114,27 @@ trackingLowPU.toModify(pixelLessStepTrackingRegions, RegionPSet = dict(
 ))
 
 
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cfi import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
+
+pp_on_XeXe_2017.toReplaceWith(pixelLessStepTrackingRegions,
+                              _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
+            precise = True,
+            useMultipleScattering = False,
+            useFakeVertices       = False,
+            beamSpot = "offlineBeamSpot",
+            useFixedError = True,#this means use fixedErrorBelow
+            nSigmaZ = 4.0,
+            sigmaZVertex = 4.0,
+            fixedError = 3.0,#a fourth the size of the pp version
+            VertexCollection = "firstStepPrimaryVertices",
+            ptMin = 2.0,
+            useFoundVertices = True,
+            originRadius = 1.0
+            ))
+                              )
+
+
 # seeding
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import ClusterShapeHitFilterESProducer as _ClusterShapeHitFilterESProducer
 pixelLessStepClusterShapeHitFilter = _ClusterShapeHitFilterESProducer.clone(
@@ -178,6 +199,7 @@ pixelLessStepTrajectoryFilter = _pixelLessStepTrajectoryFilterBase.clone(
     seedPairPenalty = 1,
 )
 trackingLowPU.toReplaceWith(pixelLessStepTrajectoryFilter, _pixelLessStepTrajectoryFilterBase)
+pp_on_XeXe_2017.toModify(pixelLessStepTrajectoryFilter, minPt=2.0)
 
 import RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi
 pixelLessStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi.Chi2ChargeMeasurementEstimator.clone(
