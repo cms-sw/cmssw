@@ -1,5 +1,5 @@
-#include "L1Trigger/L1TMuon/interface/deprecate/GeometryTranslator.h"
-#include "L1Trigger/L1TMuon/interface/deprecate/MuonTriggerPrimitive.h"
+#include "L1Trigger/L1TMuon/interface/GeometryTranslator.h"
+#include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitive.h"
 
 // event setup stuff / geometries
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -12,13 +12,17 @@
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "L1Trigger/DTUtilities/interface/DTTrigGeom.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include <cmath> // for pi
 
 using namespace L1TMuon;
 
-GeometryTranslator::GeometryTranslator():  
-  _geom_cache_id(0ULL) {
+GeometryTranslator::GeometryTranslator():
+  _geom_cache_id(0ULL), _magfield_cache_id(0ULL) {
 }
 
 GeometryTranslator::~GeometryTranslator() {  
@@ -35,6 +39,9 @@ GeometryTranslator::calculateGlobalEta(const TriggerPrimitive& tp) const {
     break;
   case TriggerPrimitive::kRPC:
     return calcRPCSpecificEta(tp);
+    break;
+  case TriggerPrimitive::kGEM:
+    return calcGEMSpecificEta(tp);
     break;
   default:
     return std::nan("Invalid TP type!"); 
@@ -54,6 +61,9 @@ GeometryTranslator::calculateGlobalPhi(const TriggerPrimitive& tp) const {
   case TriggerPrimitive::kRPC:
     return calcRPCSpecificPhi(tp);
     break;
+  case TriggerPrimitive::kGEM:
+    return calcGEMSpecificPhi(tp);
+    break;
   default:
     return std::nan("Invalid TP type!");
     break;
@@ -72,8 +82,33 @@ GeometryTranslator::calculateBendAngle(const TriggerPrimitive& tp) const {
   case TriggerPrimitive::kRPC:
     return calcRPCSpecificBend(tp);
     break;
+  case TriggerPrimitive::kGEM:
+    return calcGEMSpecificBend(tp);
+    break;
   default:
     return std::nan("Invalid TP type!");
+    break;
+  }
+}
+
+GlobalPoint
+GeometryTranslator::getGlobalPoint(const TriggerPrimitive& tp) const {
+  switch(tp.subsystem()) {
+  case TriggerPrimitive::kDT:
+    return calcDTSpecificPoint(tp);
+    break;
+  case TriggerPrimitive::kCSC:
+    return getCSCSpecificPoint(tp);
+    break;
+  case TriggerPrimitive::kRPC:
+    return getRPCSpecificPoint(tp);
+    break;
+  case TriggerPrimitive::kGEM:
+    return getGEMSpecificPoint(tp);
+    break;
+  default:
+    GlobalPoint ret(GlobalPoint::Polar(std::nan("Invalid TP type!"), std::nan("Invalid TP type!"), std::nan("Invalid TP type!")));
+    return ret;
     break;
   }
 }
@@ -82,18 +117,59 @@ void GeometryTranslator::checkAndUpdateGeometry(const edm::EventSetup& es) {
   const MuonGeometryRecord& geom = es.get<MuonGeometryRecord>();
   unsigned long long geomid = geom.cacheIdentifier();
   if( _geom_cache_id != geomid ) {
-    geom.get(_georpc);  
-    geom.get(_geocsc);    
+    geom.get(_geogem);
+    geom.get(_georpc);
+    geom.get(_geocsc);
     geom.get(_geodt);
     _geom_cache_id = geomid;
-  }  
+  }
+
+  const IdealMagneticFieldRecord& magfield = es.get<IdealMagneticFieldRecord>();
+  unsigned long long magfieldid = magfield.cacheIdentifier();
+  if( _magfield_cache_id != magfieldid ) {
+    magfield.get(_magfield);
+    _magfield_cache_id = magfieldid;
+  }
 }
 
-GlobalPoint 
+GlobalPoint
+GeometryTranslator::getGEMSpecificPoint(const TriggerPrimitive& tp) const {
+  const GEMDetId id(tp.detId<GEMDetId>());
+  const GEMEtaPartition * roll = _geogem->etaPartition(id);
+  const uint16_t pad = tp.getGEMData().pad;
+  const LocalPoint lp = roll->centreOfPad(pad);
+  const GlobalPoint gp = roll->toGlobal(lp);
+
+  //roll.release();
+
+  return gp;
+}
+
+double
+GeometryTranslator::calcGEMSpecificEta(const TriggerPrimitive& tp) const {
+  return getGEMSpecificPoint(tp).eta();
+}
+
+double
+GeometryTranslator::calcGEMSpecificPhi(const TriggerPrimitive& tp) const {
+  return getGEMSpecificPoint(tp).phi();
+}
+
+// this function actually does nothing since GEM
+// hits are point-like objects
+double
+GeometryTranslator::calcGEMSpecificBend(const TriggerPrimitive& tp) const {
+  return 0.0;
+}
+
+
+GlobalPoint
 GeometryTranslator::getRPCSpecificPoint(const TriggerPrimitive& tp) const {
   const RPCDetId id(tp.detId<RPCDetId>());
   const RPCRoll * roll = _georpc->roll(id);
-  const uint16_t strip = tp.getRPCData().strip;
+  //const int strip = static_cast<int>(tp.getRPCData().strip);
+  // Use half-strip precision, - 0.5 at the end to get the center of the strip
+  const float strip = (0.5 * static_cast<float>(tp.getRPCData().strip_low + tp.getRPCData().strip_hi)) - 0.5;
   const LocalPoint lp = roll->centreOfStrip(strip);
   const GlobalPoint gp = roll->toGlobal(lp);
   
@@ -197,9 +273,9 @@ GeometryTranslator::calcCSCSpecificPhi(const TriggerPrimitive& tp) const {
   return getCSCSpecificPoint(tp).phi();
 }
 
-double 
-GeometryTranslator::calcCSCSpecificBend(const TriggerPrimitive& tp) const {  
-  return 0.0;
+double
+GeometryTranslator::calcCSCSpecificBend(const TriggerPrimitive& tp) const {
+  return tp.getCSCData().bend;
 }
 
 GlobalPoint

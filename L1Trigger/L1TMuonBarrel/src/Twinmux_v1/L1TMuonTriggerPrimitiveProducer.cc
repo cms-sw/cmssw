@@ -21,7 +21,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 
-#include "L1Trigger/L1TMuon/interface/deprecate/GeometryTranslator.h"
+#include "L1Trigger/L1TMuon/interface/GeometryTranslator.h"
 #include "L1Trigger/L1TMuonBarrel/src/Twinmux_v1/DTCollector.h"
 #include "L1Trigger/L1TMuonBarrel/src/Twinmux_v1/RPCCollector.h"
 
