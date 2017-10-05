@@ -50,7 +50,7 @@ HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(
   verbose(cfg.getParameter<bool>("verbosity")),
   theMonitorConfig(cfg),
   doTrackHitMonitoring(theMonitorConfig.fillTrackMonitoring || theMonitorConfig.fillTrackHitMonitoring),
-  defaultAlignableSpecs((Alignable*)0),
+  defaultAlignableSpecs((Alignable*)nullptr),
   surveyResiduals_(cfg.getUntrackedParameter<std::vector<std::string> >("surveyResiduals")),
   theTrackHitMonitorIORootFile(nullptr),
   theTrackMonitorTree(nullptr),
@@ -345,7 +345,7 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup){
   edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm] Terminating";
 
   // calculating survey residuals
-  if (theLevels.size()>0){
+  if (!theLevels.empty()){
     edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm] Using survey constraint";
 
     unsigned int nAlignable = theAlignables.size();
@@ -1114,7 +1114,7 @@ void HIPAlignmentAlgorithm::bookRoot(void){
   }
 
   // book survey-wise ROOT Tree only if survey is enabled
-  if (theLevels.size()>0){
+  if (!theLevels.empty()){
     TString tname=Form("T3_%i", theIteration);
     theSurveyIORootFile = TFile::Open(ssurveyfile.c_str(), "update");
     theSurveyIORootFile->cd();
@@ -1130,7 +1130,7 @@ void HIPAlignmentAlgorithm::bookRoot(void){
 // ----------------------------------------------------------------------------
 // fill alignable-wise root tree
 void HIPAlignmentAlgorithm::fillAlignablesMonitor(const edm::EventSetup& iSetup){
-  if (theAlignablesMonitorIORootFile==(TFile*)0) return;
+  if (theAlignablesMonitorIORootFile==(TFile*)nullptr) return;
   using std::setw;
   theAlignablesMonitorIORootFile->cd();
 

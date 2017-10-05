@@ -15,33 +15,33 @@ public:
   AlignableDet( const GeomDet* geomDet, bool addComponents = true );
   
   /// Destructor
-  virtual ~AlignableDet();
+  ~AlignableDet() override;
 
   /// Updater from GeomDet
   /// The given GeomDet id has to match the current id.
   void update(const GeomDet* geomDet, bool updateComponents = true);
 
   /// Set the AlignmentPositionError and, if (propagateDown), to all components
-  virtual void setAlignmentPositionError(const AlignmentPositionError &ape, bool propagateDown);
+  void setAlignmentPositionError(const AlignmentPositionError &ape, bool propagateDown) override;
 
   /// Add (or set if it does not exist yet) the AlignmentPositionError,
   /// if (propagateDown), add also to all components
-  virtual void addAlignmentPositionError(const AlignmentPositionError &ape, bool propagateDown);
+  void addAlignmentPositionError(const AlignmentPositionError &ape, bool propagateDown) override;
 
   /// Add (or set if it does not exist yet) the AlignmentPositionError
   /// resulting from a rotation in the global reference frame,
   /// if (propagateDown), add also to all components
-  virtual void addAlignmentPositionErrorFromRotation(const RotationType &rot, bool propagateDown);
+  void addAlignmentPositionErrorFromRotation(const RotationType &rot, bool propagateDown) override;
 
   // No need to overwrite, version from AlignableComposite is just fine:
   // virtual void addAlignmentPositionErrorFromLocalRotation(const RotationType &rot,
   //							  bool propagateDown);
 
   /// Return vector of alignment data
-  virtual Alignments* alignments() const;
+  Alignments* alignments() const override;
 
   /// Return vector of alignment errors
-  virtual AlignmentErrorsExtended* alignmentErrors() const;
+  AlignmentErrorsExtended* alignmentErrors() const override;
 
   /// alignment position error - for checking only, otherwise use alignmentErrors() above!  
   const AlignmentPositionError* alignmentPositionError() const { return theAlignmentPositionError;}

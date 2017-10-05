@@ -189,7 +189,7 @@ MuonResidualsFitter::~MuonResidualsFitter()
 void MuonResidualsFitter::fix(int parNum, bool dofix)
 {
   assert(0 <= parNum  &&  parNum < npar());
-  if (m_fixed.size() == 0) m_fixed.resize(npar(), false);
+  if (m_fixed.empty()) m_fixed.resize(npar(), false);
   m_fixed[parNum] = dofix;
 }
 
@@ -197,7 +197,7 @@ void MuonResidualsFitter::fix(int parNum, bool dofix)
 bool MuonResidualsFitter::fixed(int parNum)
 {
   assert(0 <= parNum  &&  parNum < npar());
-  if (m_fixed.size() == 0) return false;
+  if (m_fixed.empty()) return false;
   else return m_fixed[parNum];
 }
 
@@ -535,7 +535,7 @@ void MuonResidualsFitter::computeHistogramRangeAndBinning(int which, int &nbins,
   //double probabilities[n_quantiles] = {0.02275, 0.25, 0.75, 0.97725}; // "2 normal sigma"
   double quantiles[n_quantiles];
   std::sort(data, data + n);
-  TMath::Quantiles(n, n_quantiles, data, quantiles, probabilities, true, NULL, 7);
+  TMath::Quantiles(n, n_quantiles, data, quantiles, probabilities, true, nullptr, 7);
   delete [] data;
   double iqr = quantiles[4] - quantiles[2];
   
@@ -876,7 +876,7 @@ void MuonResidualsFitter::eraseNotSelectedResiduals()
 {
   // it should probably be faster then doing erase
   size_t n_ok = (size_t) std::count(m_residuals_ok.begin(), m_residuals_ok.end(), true);
-  std::vector<double*> tmp(n_ok, 0);
+  std::vector<double*> tmp(n_ok, nullptr);
   std::cout << "residuals sizes: all=" << m_residuals.size()<<" good="<<n_ok<<std::endl;
   int iok=0;
   for (size_t i = 0; i < m_residuals.size(); i++)

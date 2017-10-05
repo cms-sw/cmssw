@@ -47,14 +47,14 @@ class MillePedeDQMModule : public DQMEDHarvester {
   public: //====================================================================
 
     MillePedeDQMModule(const edm::ParameterSet&);
-    virtual ~MillePedeDQMModule();
+    ~MillePedeDQMModule() override;
 
-    virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &)  override;
+    void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &)  override;
 
   //========================= PRIVATE METHODS ==================================
   private: //===================================================================
 
-    virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+    void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
     void bookHistograms(DQMStore::IBooker&);
 

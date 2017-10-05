@@ -15,7 +15,7 @@ class FitParam : public TObject {
 
  public:   
   FitParam();
-  ~FitParam() {}
+  ~FitParam() override {}
   double InitialValue;
   double FittedValue;
   double InitialSigma; 
@@ -31,7 +31,7 @@ class OptObject : public TObject {
 
  public:   
   OptObject();
-  ~OptObject() {}
+  ~OptObject() override {}
   double CentreGlobal[3];
   double AnglesGlobal[3];
   double CentreLocal[3];
@@ -47,7 +47,7 @@ class Sensor2DMeas : public TObject {
 
  public:   
   Sensor2DMeas();
-  ~Sensor2DMeas() {}
+  ~Sensor2DMeas() override {}
   double Position[2];
   double PosError[2]; 
   double SimulatedPosition[2];
@@ -61,7 +61,7 @@ class DistancemeterMeas : public TObject {
 
  public:   
   DistancemeterMeas();
-  ~DistancemeterMeas() {}
+  ~DistancemeterMeas() override {}
   double Distance;
   double DisError; 
   double SimulatedDistance;
@@ -75,7 +75,7 @@ class Distancemeter1DimMeas : public TObject {
 
  public:   
   Distancemeter1DimMeas();
-  ~Distancemeter1DimMeas() {}
+  ~Distancemeter1DimMeas() override {}
   double Distance;
   double DisError; 
   double SimulatedDistance;
@@ -89,7 +89,7 @@ class TiltmeterMeas : public TObject {
 
  public:   
   TiltmeterMeas();
-  ~TiltmeterMeas() {}
+  ~TiltmeterMeas() override {}
   double Angle;
   double AngError;
   double SimulatedAngle;
@@ -103,7 +103,7 @@ class CopsMeas : public TObject {
 
  public:   
   CopsMeas();
-  ~CopsMeas() {}
+  ~CopsMeas() override {}
   double Position[4];
   double PosError[4]; 
   double SimulatedPosition[4];

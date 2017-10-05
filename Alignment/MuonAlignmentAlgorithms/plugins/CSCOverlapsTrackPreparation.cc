@@ -62,14 +62,14 @@
 class CSCOverlapsTrackPreparation : public edm::EDProducer {
    public:
       explicit CSCOverlapsTrackPreparation(const edm::ParameterSet&);
-      ~CSCOverlapsTrackPreparation();
+      ~CSCOverlapsTrackPreparation() override;
 
    private:
       enum {kNothing, kSimpleFit, kAllButOne, kExtrapolate};
 
-      virtual void beginJob() override;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
+      void beginJob() override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override;
       
       // ----------member data ---------------------------
       edm::InputTag m_src;
@@ -166,7 +166,7 @@ CSCOverlapsTrackPreparation::produce(edm::Event& iEvent, const edm::EventSetup& 
     assert(transHits.size() == TSOSes.size());
 
     // build the trajectory
-    if (clonedHits.size() > 0) {
+    if (!clonedHits.empty()) {
       PTrajectoryStateOnDet const PTraj = trajectoryStateTransform::persistentState(*(TSOSes.begin()), clonedHits.begin()->geographicalId().rawId());
       TrajectorySeed trajectorySeed(PTraj, clonedHits, alongMomentum);
       Trajectory trajectory(trajectorySeed, alongMomentum);
