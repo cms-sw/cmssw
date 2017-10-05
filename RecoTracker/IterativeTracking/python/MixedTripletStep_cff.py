@@ -76,26 +76,15 @@ mixedTripletStepTrackingRegionsA = _globalTrackingRegionFromBeamSpotFixedZ.clone
 trackingLowPU.toModify(mixedTripletStepTrackingRegionsA, RegionPSet = dict(originHalfLength = 10.0))
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cfi import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
-
-pp_on_XeXe_2017.toReplaceWith(mixedTripletStepTrackingRegionsA,
+from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
+pp_on_XeXe_2017.toReplaceWith(mixedTripletStepTrackingRegionsA, 
                               _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
-            precise = True,
-            useMultipleScattering = False,
-            useFakeVertices       = False,
-            beamSpot = "offlineBeamSpot",
-            useFixedError = True,#this means use fixedErrorBelow
-            nSigmaZ = 4.0,
-            sigmaZVertex = 4.0,
-            fixedError = 3.75,#a fourth the size of the pp version
-            VertexCollection = "firstStepPrimaryVertices",
+            fixedError = 3.75,
             ptMin = 0.4,
-            useFoundVertices = True,
             originRadius = 1.5
-            ))
-                              )
-
-
+            )
+                                                                      )
+)
 
 # seeding
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import ClusterShapeHitFilterESProducer as _ClusterShapeHitFilterESProducer
@@ -154,27 +143,19 @@ trackingPhase1.toModify(mixedTripletStepSeedLayersB, layerList = ['BPix3+BPix4+T
 trackingPhase1QuadProp.toModify(mixedTripletStepSeedLayersB, layerList = ['BPix3+BPix4+TIB1'])
 
 # TrackingRegion
-mixedTripletStepTrackingRegionsB = mixedTripletStepTrackingRegionsA.clone(RegionPSet = dict(ptMin=0.6))
+_mixedTripletStepTrackingRegionsB = mixedTripletStepTrackingRegionsA.clone(RegionPSet = dict(ptMin=0.6))
+mixedTripletStepTrackingRegionsB = _mixedTripletStepTrackingRegionsB.clone(originHalfLength=10.0)
+pp_on_XeXe_2017.toReplaceWith(mixedTripletStepTrackingRegionsB, _mixedTripletStepTrackingRegionsB)
 
-if not pp_on_XeXe_2017.isChosen():  mixedTripletStepTrackingRegionsA.RegionPSet.originHalfLength = 10.0
-
-pp_on_XeXe_2017.toReplaceWith(mixedTripletStepTrackingRegionsB,
+from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
+pp_on_XeXe_2017.toReplaceWith(mixedTripletStepTrackingRegionsB, 
                               _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
-            precise = True,
-            useMultipleScattering = False,
-            useFakeVertices       = False,
-            beamSpot = "offlineBeamSpot",
-            useFixedError = True,#this means use fixedErrorBelow                                                                                                             
-            nSigmaZ = 4.0,
-            sigmaZVertex = 4.0,
-            fixedError = 2.5,#a fourth the size of the pp version                                                                                                            
-            VertexCollection = "firstStepPrimaryVertices",
+            fixedError = 2.5,
             ptMin = 0.6,
-            useFoundVertices = True,
             originRadius = 1.5
-            ))
-                              )
-
+            )
+                                                                      )
+)
 
 # seeding
 mixedTripletStepHitDoubletsB = mixedTripletStepHitDoubletsA.clone(

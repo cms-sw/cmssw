@@ -33,25 +33,15 @@ trackingPhase2PU140.toReplaceWith(detachedQuadStepTrackingRegions, _globalTracki
 )))
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cfi import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
-
-pp_on_XeXe_2017.toReplaceWith(detachedQuadStepTrackingRegions,
+from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
+pp_on_XeXe_2017.toReplaceWith(detachedQuadStepTrackingRegions, 
                               _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
-            precise = True,
-            useMultipleScattering = False,
-            useFakeVertices       = False,
-            beamSpot = "offlineBeamSpot",
-            useFixedError = True,
-            nSigmaZ = 4.0,
-            sigmaZVertex = 4.0,
             fixedError = 3.75,
-            VertexCollection = "firstStepPrimaryVertices",
             ptMin = 0.8,
-            useFoundVertices = True,
             originRadius = 1.5
-            ))
-                              )
-
+            )
+                                                                      )
+)
 
 # seeding
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer

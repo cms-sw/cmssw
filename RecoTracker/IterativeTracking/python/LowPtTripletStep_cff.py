@@ -60,25 +60,15 @@ trackingPhase1QuadProp.toModify(lowPtTripletStepTrackingRegions, RegionPSet = di
 trackingPhase2PU140.toModify(lowPtTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.40))
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cfi import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
-
-pp_on_XeXe_2017.toReplaceWith(lowPtTripletStepTrackingRegions,
+from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
+pp_on_XeXe_2017.toReplaceWith(lowPtTripletStepTrackingRegions, 
                               _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
-            precise = True,
-            useMultipleScattering = False,
-            useFakeVertices       = False,
-            beamSpot = "offlineBeamSpot",
-            useFixedError = True,
-            nSigmaZ = 4.0,
-            sigmaZVertex = 4.0,
             fixedError = 0.2,
-            VertexCollection = "firstStepPrimaryVertices",
             ptMin = 0.25,
-            useFoundVertices = True,
             originRadius = 0.02
-            ))
-                              )
-
+            )
+                                                                      )
+)
 
 # seeding
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer

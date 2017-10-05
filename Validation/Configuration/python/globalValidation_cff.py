@@ -112,9 +112,8 @@ if fastSim.isChosen():
     globalValidation.remove(ecalRecHitsValidationSequence)
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-if pp_on_XeXe_2017.isChosen():
-    globalValidation.remove(pfTauRunDQMValidation)
-    
+pp_on_XeXe_2017.toReplaceWith(globalValidation, globalValidation.copyAndExclude([pfTauRunDQMValidation]))   
+
 #lite tracking validator to be used in the Validation matrix
 #lite validation
 globalValidationLiteTracking = cms.Sequence(globalValidation)
