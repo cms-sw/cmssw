@@ -16,6 +16,7 @@
   </class>
   <class name="LumiInfo"  ClassVersion="11">
    <version ClassVersion="11" checksum="3173942899"/>
+   <version ClassVersion="10" checksum="4234044727"/>
   </class>
   <class name="BeamCurrentInfo" ClassVersion="10">
    <version ClassVersion="10" checksum="706652033"/>
