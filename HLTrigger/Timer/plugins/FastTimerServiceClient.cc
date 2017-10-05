@@ -404,8 +404,8 @@ FastTimerServiceClient::fillPlotsVsLumi(DQMStore::IBooker & booker, DQMStore::IG
   std::vector<double> lumi;
   std::vector<int> LS;
   for ( size_t ibin=1; ibin <= size; ++ibin ) {
-    //    // avoid to store points w/ no info
-    //    if ( lumiVsLS->getTProfile()->GetBinContent(ibin) == 0. ) continue;
+    // avoid to store points w/ no info
+    if ( lumiVsLS->getTProfile()->GetBinContent(ibin) == 0. ) continue;
 
     lumi.push_back( lumiVsLS->getTProfile()->GetBinContent(ibin) );
     LS.push_back  ( lumiVsLS->getTProfile()->GetXaxis()->GetBinCenter(ibin) );
@@ -418,8 +418,8 @@ FastTimerServiceClient::fillPlotsVsLumi(DQMStore::IBooker & booker, DQMStore::IG
     label.erase(label.find("_byls"));
 
     MonitorElement* me = getter.get(current_path + "/" + m);
-    double ymin        = me->getTProfile()->GetMinimum();
-    double ymax        = me->getTProfile()->GetMaximum();
+    float ymin        = 0.;
+    float ymax        = std::numeric_limits<float>::max();
     std::string ytitle = me->getTProfile()->GetYaxis()->GetTitle();
 
     MonitorElement* meVsLumi = getter.get( current_path + "/" + label + "_" + suffix );
