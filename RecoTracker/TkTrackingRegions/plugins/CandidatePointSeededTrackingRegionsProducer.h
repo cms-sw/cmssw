@@ -87,19 +87,19 @@ public:
     // Specific points in the detector
     if(m_seedingMode == SeedingMode::POINT_SEEDED || m_seedingMode == SeedingMode::CANDIDATE_POINT_SEEDED){
       edm::ParameterSet points = regPSet.getParameter<edm::ParameterSet>("points");
-      m_etaPoints = points.getParameter<std::vector<double>>("eta");
-      m_phiPoints = points.getParameter<std::vector<double>>("phi");
+      std::vector<double> etaPoints = points.getParameter<std::vector<double>>("eta");
+      std::vector<double> phiPoints = points.getParameter<std::vector<double>>("phi");
 
-      if (!(m_etaPoints.size() == m_phiPoints.size()))  throw edm::Exception(edm::errors::Configuration) << "The parameters 'eta' and 'phi' must have the same size";
-      if (m_etaPoints.empty()) throw edm::Exception(edm::errors::Configuration) << "At least one point should be defined for point or candidate+point seeding modes";
+      if (!(etaPoints.size() == phiPoints.size()))  throw edm::Exception(edm::errors::Configuration) << "The parameters 'eta' and 'phi' must have the same size";
+      if (etaPoints.empty()) throw edm::Exception(edm::errors::Configuration) << "At least one point should be defined for point or candidate+point seeding modes";
 
-      for(size_t i = 0; i < m_etaPoints.size(); ++i ){
+      for(size_t i = 0; i < etaPoints.size(); ++i ){
 
-	m_etaPhiPoints.push_back(std::make_pair(m_etaPoints[i],m_phiPoints[i]));
+	m_etaPhiPoints.push_back(std::make_pair(etaPoints[i],phiPoints[i]));
 
-      	double x = std::cos(m_phiPoints[i]);
-	double y = std::sin(m_phiPoints[i]);
-	double theta = 2*std::atan(std::exp(-m_etaPoints[i]));
+      	double x = std::cos(phiPoints[i]);
+	double y = std::sin(phiPoints[i]);
+	double theta = 2*std::atan(std::exp(-etaPoints[i]));
 	double z = 1./std::tan(theta);
 	GlobalVector direction( x,y,z );
 	m_directionPoints.push_back(direction);
@@ -431,11 +431,8 @@ private:
   edm::EDGetTokenT<reco::CandidateView> m_token_input; 
   int m_maxNVertices;
 
-  std::vector<double> m_etaPoints;
-  std::vector<double> m_phiPoints;
   std::vector<std::pair<double,double> > m_etaPhiPoints;
   std::vector<GlobalVector> m_directionPoints;
-
 
   float m_ptMin;
   float m_originRadius;
