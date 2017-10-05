@@ -44,7 +44,7 @@
 
 #include "TString.h"
 #include <string>
-#include <stdlib.h> 
+#include <cstdlib> 
 #include <cstdio>
 
 #include "boost/filesystem.hpp"
@@ -305,7 +305,7 @@ void EvtGenInterface::init(){
   //Setup evtGen following instructions on http://evtgen.warwick.ac.uk/docs/external/ 
   bool convertPythiaCodes=fPSet->getUntrackedParameter<bool>("convertPythiaCodes",true); // Specify if we want to use Pythia 6 physics codes for decays
   std::string pythiaDir = getenv ("PYTHIA8DATA"); // Specify the pythia xml data directory to use the default PYTHIA8DATA location
-  if(pythiaDir==NULL){ 
+  if(pythiaDir==nullptr){ 
     edm::LogError("EvtGenInterface::~EvtGenInterface") << "EvtGenInterface::init() PYTHIA8DATA not defined. Terminating program "; 
     exit(0);
   }
@@ -314,7 +314,7 @@ void EvtGenInterface::init(){
   
   // Set up the default external generator list: Photos, Pythia and/or Tauola
   EvtExternalGenList genList(convertPythiaCodes, pythiaDir, photonType, useEvtGenRandom);
-  EvtAbsRadCorr* radCorrEngine=0; 
+  EvtAbsRadCorr* radCorrEngine=nullptr; 
   if(usePhotos) radCorrEngine = genList.getPhotosModel(); // Get interface to radiative correction engine
   std::list<EvtDecayBase*> extraModels = genList.getListOfModels(); // get interface to Pythia and Tauola
   std::list<EvtDecayBase*> myExtraModels;
@@ -363,7 +363,7 @@ void EvtGenInterface::init(){
   if (fPSet->exists("user_decay_embedded")){
     std::vector<std::string> user_decay_lines = fPSet->getParameter<std::vector<std::string> >("user_decay_embedded");
     auto tmp_dir = boost::filesystem::temp_directory_path();
-    tmp_dir += "%%%%-%%%%-%%%%-%%%%";
+    tmp_dir += "/%%%%-%%%%-%%%%-%%%%";
     auto tmp_path = boost::filesystem::unique_path(tmp_dir);
     std::string user_decay_tmp = std::string(tmp_path.c_str());
     FILE* tmpf = std::fopen(user_decay_tmp.c_str(), "w");
@@ -384,7 +384,7 @@ void EvtGenInterface::init(){
     std::vector<int> tmpPIDs = fPSet->getParameter< std::vector<int> >("operates_on_particles");
     m_PDGs.clear();
     bool goodinput=false;
-    if(tmpPIDs.size()>0){ if(tmpPIDs.size()==1 && tmpPIDs[0]==0) goodinput=false;
+    if(!tmpPIDs.empty()){ if(tmpPIDs.size()==1 && tmpPIDs[0]==0) goodinput=false;
                           else goodinput=true;
                         }
     else{goodinput=false;}
@@ -521,7 +521,7 @@ bool EvtGenInterface::addToHepMC(HepMC::GenParticle* partHep,const EvtId &idEvt,
   EvtVector4R vInit(posHep.t(),posHep.x(),posHep.y(),posHep.z());
   // Reset polarization if requested....
   if(EvtPDL::getSpinType(idEvt) == EvtSpinType::DIRAC && polarizations.count(partHep->pdg_id())>0){
-    HepMC::FourVector momHep = partHep->momentum();
+    const HepMC::FourVector& momHep = partHep->momentum();
     EvtVector4R momEvt;
     momEvt.set(momHep.t(),momHep.x(),momHep.y(),momHep.z());
     // Particle is spin 1/2, so we can polarize it. Check polarizations map for particle, grab its polarization if it exists
