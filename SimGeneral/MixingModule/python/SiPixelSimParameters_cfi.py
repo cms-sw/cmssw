@@ -18,9 +18,9 @@ def _modifyPixelDigitizerForPhase1Pixel( digitizer ) :
     #digitizer.DeadModules_DB = False
     digitizer.NumPixelBarrel = cms.int32(4)
     digitizer.NumPixelEndcap = cms.int32(3)
-    digitizer.ThresholdInElectrons_FPix = cms.double(1600.0)
-    digitizer.ThresholdInElectrons_BPix = cms.double(1600.0)
-    digitizer.ThresholdInElectrons_BPix_L1 = cms.double(5000.0)
+    digitizer.ThresholdInElectrons_FPix = cms.double(2000.0)
+    digitizer.ThresholdInElectrons_BPix = cms.double(2000.0)
+    digitizer.ThresholdInElectrons_BPix_L1 = cms.double(3000.0)
     digitizer.ThresholdInElectrons_BPix_L2 = cms.double(2600.0)
     digitizer.FPix_SignalResponse_p0 = cms.double(0.00171)
     digitizer.FPix_SignalResponse_p1 = cms.double(0.711)
