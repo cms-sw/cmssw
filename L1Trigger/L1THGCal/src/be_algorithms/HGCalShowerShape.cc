@@ -11,6 +11,20 @@
 #include <string>
 
 
+int HGCalShowerShape::HGC_layer(const uint32_t subdet, const uint32_t layer)    const {
+
+  int hgclayer = -1;
+  if(subdet==HGCEE) hgclayer=layer;//EE
+  else if(subdet==HGCHEF) hgclayer=layer+nLayersEE;//FH
+  else if(subdet==HGCHEB) hgclayer=layer+nLayersEE+nLayersFH;//BH
+
+  return hgclayer;
+
+}
+
+
+
+
 
 float HGCalShowerShape::sigmaEtaEta(const std::vector<float>& energy, const std::vector<float>& eta) const {
 
@@ -88,56 +102,44 @@ float HGCalShowerShape::sigmaZZ(const std::vector<float>& energy, const std::vec
 }
 
 
-int HGCalShowerShape::showerLength(const l1t::HGCalMulticluster& c3d) const {
-
-    const edm::PtrVector<l1t::HGCalCluster>& clustersPtrs = c3d.constituents();
-
-    int firstLayer=999;
-    int lastLayer=-999;
-    int layer=999;
-
-    int nLayersEE=28;
-    int nLayersFH=12;
-   
-    for(const auto& clu : clustersPtrs){
-
-        if(clu->subdetId()==HGCEE) layer=clu->layer();//EE
-        if(clu->subdetId()==HGCHEF) layer=clu->layer()+nLayersEE;//FH
-        if(clu->subdetId()==HGCHEB) layer=clu->layer()+nLayersEE+nLayersFH;//FH
-
-        if(layer<firstLayer) firstLayer=layer;
-        if(layer>lastLayer) lastLayer=layer;
-
-    }
-
-    int nLayers=lastLayer-firstLayer+1;
-
-    return nLayers;
-
-}
-
 
 int HGCalShowerShape::firstLayer(const l1t::HGCalMulticluster& c3d) const {
 
     const edm::PtrVector<l1t::HGCalCluster>& clustersPtrs = c3d.constituents();
 
     int firstLayer=999;
-    int layer=999;
-
-    int nLayersEE=28;
 
     for(const auto& clu : clustersPtrs){
-
-        if(clu->subdetId()==HGCEE) layer=clu->layer();//EE
-        if(clu->subdetId()==HGCHEF) layer=clu->layer()+nLayersEE;//FH
-
-        if(layer<firstLayer) firstLayer=layer;
+      
+      int layer = HGC_layer(clu->subdetId(),clu->layer());     
+      if(layer<firstLayer) firstLayer=layer;
 
     }
-
+    
     return firstLayer;
 
 }
+
+
+
+int HGCalShowerShape::lastLayer(const l1t::HGCalMulticluster& c3d) const {
+
+    const edm::PtrVector<l1t::HGCalCluster>& clustersPtrs = c3d.constituents();
+
+    int lastLayer=-999;
+    int layer=999;
+
+    for(const auto& clu : clustersPtrs){
+      
+      int layer = HGC_layer(clu->subdetId(),clu->layer());     
+      if(layer>lastLayer) lastLayer=layer;
+      
+    }
+
+    return lastLayer;
+    
+}
+
 
 
 
@@ -207,254 +209,101 @@ float HGCalShowerShape::sigmaPhiPhiTot(const l1t::HGCalMulticluster& c3d) const 
 
 float HGCalShowerShape::sigmaEtaEtaMax(const l1t::HGCalMulticluster& c3d) const {
 
-    const edm::PtrVector<l1t::HGCalCluster>& clustersPtrs = c3d.constituents();
+  std::map<int, vector<float> > tc_layer_energy;
+  std::map<int, vector<float> > tc_layer_eta;
 
-    std::vector<int> layer ; // Size : ncl2D
-    std::vector<int> subdetID ;
-    std::vector<int> nTC ;
-    std::vector<float> tc_energy ; 
-    std::vector<float> tc_eta ;
+  const edm::PtrVector<l1t::HGCalCluster>& clustersPtrs = c3d.constituents();
 
-    for(const auto& clu : clustersPtrs){
+  for(const auto& clu : clustersPtrs){
+    
+    int layer = HGC_layer(clu->subdetId(),clu->layer());    
+    
+    const edm::PtrVector<l1t::HGCalTriggerCell>& triggerCells = clu->constituents();
 
-        layer.emplace_back(clu->layer());
-        subdetID.emplace_back(clu->subdetId());
+    for(const auto& tc : triggerCells){
 
-        const edm::PtrVector<l1t::HGCalTriggerCell>& triggerCells = clu->constituents();
-        unsigned int ncells = triggerCells.size();
-        nTC.emplace_back(ncells);
-
-        for(const auto& tc : triggerCells){
-
-            tc_energy.emplace_back(tc->energy());
-            tc_eta.emplace_back(tc->eta());
-
-        }
+      tc_layer_energy[layer].emplace_back(tc->energy());
+      tc_layer_eta[layer].emplace_back(tc->eta());
 
     }
 
-    int ncl2D=layer.size();
+  }
 
-    float SigmaEtaEtaMax=0;
+  float SigmaEtaEtaMax=0;
 
-    std::vector<float> energy_layer ;
-    std::vector<float> eta_layer ;
-
-    int nLayersMax=40;//EE+FH
-    int nLayersEE=28;
-    int nLayersFH=12;
-
-    for(int ilayer=0;ilayer<nLayersMax;ilayer++){   //Loop on HGCal layers
-
-        int Layer_found=0;
-        float Layer_See=0;
-
-        int tc_index=0; // trigger cell index inside cl2D vector
-
-        for(int i2d=0;i2d<ncl2D;i2d++){   // Loop on cl2D inside 3DC
+  for(auto& tc_iter : tc_layer_energy){
     
-            int cl2D_layer=-999;
+    vector<float> energy_layer = tc_iter.second;
+    vector<float> eta_layer= tc_layer_eta[tc_iter.first];
 
-            if(subdetID.at(i2d)==HGCEE)cl2D_layer=layer.at(i2d);
-            if(subdetID.at(i2d)==HGCHEF)cl2D_layer=layer.at(i2d)+nLayersEE;
-            if(subdetID.at(i2d)==HGCHEB)cl2D_layer=layer.at(i2d)+nLayersEE+nLayersFH;
+    float SigmaEtaEtaLayer = sigmaEtaEta(energy_layer,eta_layer); 
+    if(SigmaEtaEtaLayer > SigmaEtaEtaMax) SigmaEtaEtaMax = SigmaEtaEtaLayer;
 
-            if (cl2D_layer==ilayer){
-
-                Layer_found=1; //+=1 il want to count cl2D per layer
-
-                int ntc=nTC.at(i2d);
-
-                for(int itc=0; itc<ntc ; itc++) {   //Loop on TC inside cl2D
-
-                    energy_layer.emplace_back(tc_energy.at(tc_index));
-                    eta_layer.emplace_back(tc_eta.at(tc_index));
-				    tc_index++;
-
-			    }
-
-            }
-
-            else{
-
-                if (Layer_found==1) break; //Go to next ilayer
-                tc_index+=nTC.at(i2d);
-        
-            }
-
-        }
+  }
 
 
-        if(Layer_found==1) Layer_See=sigmaEtaEta(energy_layer,eta_layer);    
-    
-        if(Layer_See>SigmaEtaEtaMax) SigmaEtaEtaMax=Layer_See;
-
-        energy_layer.clear();
-        eta_layer.clear();
-      
-    }    
-
-            
-    return SigmaEtaEtaMax;
+  return SigmaEtaEtaMax;
 
 
-}   
+}
+
+
 
 
 
 float HGCalShowerShape::sigmaPhiPhiMax(const l1t::HGCalMulticluster& c3d) const {
 
-    const edm::PtrVector<l1t::HGCalCluster>& clustersPtrs = c3d.constituents();
+  std::map<int, vector<float> > tc_layer_energy;
+  std::map<int, vector<float> > tc_layer_phi;
 
-    std::vector<int> layer ; // Size : ncl2D
-    std::vector<int> subdetID ;
-    std::vector<int> nTC ;
-    std::vector<float> tc_energy ; 
-    std::vector<float> tc_phi ;
+  const edm::PtrVector<l1t::HGCalCluster>& clustersPtrs = c3d.constituents();
 
-    for(const auto& clu : clustersPtrs){
+  for(const auto& clu : clustersPtrs){
+    
+    int layer = HGC_layer(clu->subdetId(),clu->layer());    
+    
+    const edm::PtrVector<l1t::HGCalTriggerCell>& triggerCells = clu->constituents();
 
-        layer.emplace_back(clu->layer());
-        subdetID.emplace_back(clu->subdetId());
+    for(const auto& tc : triggerCells){
 
-        const edm::PtrVector<l1t::HGCalTriggerCell>& triggerCells = clu->constituents();
-        unsigned int ncells = triggerCells.size();
-        nTC.emplace_back(ncells);
-
-        for(const auto& tc : triggerCells){
-
-            tc_energy.emplace_back(tc->energy());
-            tc_phi.emplace_back(tc->phi());
-
-        }
+      tc_layer_energy[layer].emplace_back(tc->energy());
+      tc_layer_phi[layer].emplace_back(tc->phi());
 
     }
 
-    int ncl2D=layer.size();
+  }
 
-    float SigmaPhiPhiMax=0;
+  float SigmaPhiPhiMax=0;
 
-    std::vector<float> energy_layer ;
-    std::vector<float> phi_layer ;
-
-    int nLayersMax=40;//EE+FH
-    int nLayersEE=28;
-    int nLayersFH=12;
-
-    for(int ilayer=0;ilayer<nLayersMax;ilayer++){   //Loop on HGCal layers
-
-        int Layer_found=0;
-        float Layer_Spp=0;
-
-        int tc_index=0; // trigger cell index inside cl2D vector
-
-        for(int i2d=0;i2d<ncl2D;i2d++){   // Loop on cl2D inside 3DC
+  for(auto& tc_iter : tc_layer_energy){
     
-            int cl2D_layer=-999;
+    vector<float> energy_layer = tc_iter.second;
+    vector<float> phi_layer= tc_layer_phi[tc_iter.first];
 
-            if(subdetID.at(i2d)==HGCEE)cl2D_layer=layer.at(i2d);
-            if(subdetID.at(i2d)==HGCHEF)cl2D_layer=layer.at(i2d)+nLayersEE;
-            if(subdetID.at(i2d)==HGCHEB)cl2D_layer=layer.at(i2d)+nLayersEE+nLayersFH;//FH
+    float SigmaPhiPhiLayer = sigmaPhiPhi(energy_layer,phi_layer); 
+    if(SigmaPhiPhiLayer > SigmaPhiPhiMax) SigmaPhiPhiMax = SigmaPhiPhiLayer;
 
-            if (cl2D_layer==ilayer){
+  }
 
-                Layer_found=1; //+=1 il want to count cl2D per layer
-
-                int ntc=nTC.at(i2d);
-
-                for(int itc=0; itc<ntc ; itc++) {   //Loop on TC inside cl2D
-
-                    energy_layer.emplace_back(tc_energy.at(tc_index));
-                    phi_layer.emplace_back(tc_phi.at(tc_index));
-				    tc_index++;
-
-			    }
-
-            }
-
-            else{
-
-                if (Layer_found==1) break; //Go to next ilayer
-                tc_index+=nTC.at(i2d);
-        
-            }
-
-        }
+  return SigmaPhiPhiMax;
 
 
-        if(Layer_found==1) Layer_Spp=sigmaPhiPhi(energy_layer,phi_layer);    
-    
-        if(Layer_Spp>SigmaPhiPhiMax) SigmaPhiPhiMax=Layer_Spp;
-
-        energy_layer.clear();
-        phi_layer.clear();
-      
-    }    
-
-            
-    return SigmaPhiPhiMax;
-
-
-}   
+}
 
 
 
 float HGCalShowerShape::eMax(const l1t::HGCalMulticluster& c3d) const {
+  
+   const edm::PtrVector<l1t::HGCalCluster>& clustersPtrs = c3d.constituents();
 
-    const edm::PtrVector<l1t::HGCalCluster>& clustersPtrs = c3d.constituents();
+   float EMax=0;   
 
-    std::vector<int> layer ; // Size : ncl2D
-    std::vector<int> subdetID ;
-    std::vector<float> energy ; 
+   for(const auto& clu : clustersPtrs){
 
-    for(const auto& clu : clustersPtrs){
+     if(clu->energy()>EMax)
+       EMax = clu->energy();
 
-        layer.emplace_back(clu->layer());
-        subdetID.emplace_back(clu->subdetId());
-        energy.emplace_back(clu->energy());
-
-    }
-
-    int ncl2D=layer.size();
-
-    float EMax=0;
-
-    int nLayersMax=40;//EE+FH
-    int nLayersEE=28;
-    int nLayersFH=12;
-
-    for(int ilayer=0;ilayer<nLayersMax;ilayer++){   //Loop on HGCal layers
-
-        int Layer_found=0;
-        float Layer_Energy=0;
-
-        for(int i2d=0;i2d<ncl2D;i2d++){   // Loop on cl2D inside 3DC
-    
-            int cl2D_layer=-999;
-
-            if(subdetID.at(i2d)==HGCEE)cl2D_layer=layer.at(i2d);
-            if(subdetID.at(i2d)==HGCHEF)cl2D_layer=layer.at(i2d)+nLayersEE;
-            if(subdetID.at(i2d)==HGCHEB)cl2D_layer=layer.at(i2d)+nLayersEE+nLayersFH;//FH
-
-            if (cl2D_layer==ilayer){
-
-                Layer_found=1; //+=1 il want to count cl2D per layer
-
-                Layer_Energy+=energy.at(i2d);
-
-            }
-
-            else{
-
-                if (Layer_found==1) break; //Go to next ilayer
-        
-            }
-
-        }    
-    
-        if(Layer_Energy>EMax) EMax=Layer_Energy;
-
-   }    
+   }
 
    return EMax;
 
@@ -462,12 +311,15 @@ float HGCalShowerShape::eMax(const l1t::HGCalMulticluster& c3d) const {
 
 
 
-float HGCalShowerShape::sigmaZZ(const l1t::HGCalMulticluster& c3d) const {
 
-    const edm::PtrVector<l1t::HGCalCluster>& clustersPtrs = c3d.constituents();
+
+
+float HGCalShowerShape::sigmaZZ(const l1t::HGCalMulticluster& c3d) const {
 
     std::vector<float> tc_energy ; 
     std::vector<float> tc_z ;
+
+    const edm::PtrVector<l1t::HGCalCluster>& clustersPtrs = c3d.constituents();
 
     for(const auto& clu : clustersPtrs){
 
