@@ -68,6 +68,18 @@ def hwEmulCompHistos(process):
     return process
 
 
+def L1NtupleRAWEMU(process):
+
+    process.load('L1Trigger.L1TNtuples.L1NtupleRAW_cff')
+    process.load('L1Trigger.L1TNtuples.L1NtupleEMU_cff')
+
+    process.l1ntuplerawemu = cms.Path( process.L1NtupleRAW
+                                    + process.L1NtupleEMU )
+    process.schedule.append(process.l1ntuplerawemu)
+    
+    return process
+
+
 def reEmulateLayer2ValHistos(process):
 
     process.load('EventFilter.L1TRawToDigi.caloTowersFilter_cfi')
@@ -75,10 +87,24 @@ def reEmulateLayer2ValHistos(process):
     reEmulateLayer2(process)
     hwEmulCompHistos(process)
 
-    #process.l1ntupleraw.insert(0,process.caloTowersFilter)
-    #process.l1ntuplesim.insert(0,process.caloTowersFilter)
     process.caloLayer2.insert(0,process.caloTowersFilter)
     process.hwEmulHistos.insert(0,process.caloTowersFilter)
+
+    return process
+
+
+
+def reEmulateLayer2ValHistosL1Ntuple(process):
+
+    process.load('EventFilter.L1TRawToDigi.caloTowersFilter_cfi')
+
+    reEmulateLayer2(process)
+    hwEmulCompHistos(process)
+    L1NtupleRAWEMU(process)
+
+    process.caloLayer2.insert(0,process.caloTowersFilter)
+    process.hwEmulHistos.insert(0,process.caloTowersFilter)
+    process.l1ntuplerawemu.insert(0,process.caloTowersFilter)
 
     return process
 
