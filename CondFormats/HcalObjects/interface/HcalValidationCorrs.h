@@ -18,11 +18,11 @@ class HcalValidationCorrs: public HcalCondObjectContainer<HcalValidationCorr>
 {
  public:
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalValidationCorrs():HcalCondObjectContainer<HcalValidationCorr>(0) {}
+  HcalValidationCorrs():HcalCondObjectContainer<HcalValidationCorr>(nullptr) {}
 #endif
   HcalValidationCorrs(const HcalTopology* topo):HcalCondObjectContainer<HcalValidationCorr>(topo) {}
 
-  std::string myname() const {return (std::string)"HcalValidationCorrs";}
+  std::string myname() const override {return (std::string)"HcalValidationCorrs";}
 
  private:
 
