@@ -3,13 +3,14 @@
 
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSetsBuilder.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "AreaSeededTrackingRegionsBuilder.h"
+
+class SiPixelQuality;
+class TrackerGeometry;
+class TrackerTopology;
 
 // Adapted from a summer student project of Niko Leskinen (HIP, Finland)
 
@@ -79,17 +80,19 @@ private:
   using DetGroupContainer = std::vector<DetGroup>;
   using DetectorSet = std::set<uint32_t>;
   using Stream = std::stringstream;
-  // data handles and containers; TODO convert containers to pointers
-  edm::ESHandle<SiPixelQuality> pixelQuality;
-  edm::ESHandle<TrackerGeometry> trackerGeometry;
-  edm::ESHandle<TrackerTopology> trackerTopology;
+  // data handles and containers;
+  edm::ESWatcher<TrackerDigiGeometryRecord> geometryWatcher_;
+
+  const SiPixelQuality *pixelQuality_ = nullptr;
+  const TrackerGeometry *trackerGeometry_ = nullptr;
+  const TrackerTopology *trackerTopology_ = nullptr;
+
   DetContainer pixelDetsBarrel;
   DetContainer pixelDetsEndcap;
   DetContainer badPixelDetsBarrel;
   DetContainer badPixelDetsEndcap;
   // functions for fetching date from handles
-  void getPixelDetsBarrel();
-  void getPixelDetsEndcap();
+  void updatePixelDets(const edm::EventSetup& iSetup);
   void getBadPixelDets();
   // Printing functions
   void detInfo(const det_t & det, Stream & ss);

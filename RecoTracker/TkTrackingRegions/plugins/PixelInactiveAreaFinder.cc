@@ -1,9 +1,12 @@
 #include "PixelInactiveAreaFinder.h"
 
 #include "FWCore/Utilities/interface/VecArray.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsLooper.h"
 
@@ -153,17 +156,27 @@ PixelInactiveAreaFinder::inactiveAreas(const edm::Event& iEvent, const edm::Even
   std::vector<PixelInactiveAreaFinder::AreaLayers> ret;
 
   // Set data to handles
-  iSetup.get<SiPixelQualityRcd>().get(pixelQuality);
-  iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometry);
-  iSetup.get<TrackerTopologyRcd>().get(trackerTopology);
+  {
+    edm::ESHandle<SiPixelQuality> pixelQuality;
+    iSetup.get<SiPixelQualityRcd>().get(pixelQuality);
+    pixelQuality_ = pixelQuality.product();
+
+    edm::ESHandle<TrackerGeometry> trackerGeometry;
+    iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometry);
+    trackerGeometry_ = trackerGeometry.product();
+
+    edm::ESHandle<TrackerTopology> trackerTopology;
+    iSetup.get<TrackerTopologyRcd>().get(trackerTopology);
+    trackerTopology_ = trackerTopology.product();
+  }
+
   // assign data to instance variables
-  this->getPixelDetsBarrel();
-  this->getPixelDetsEndcap();
   this->getBadPixelDets();
 
   //write files for plotting
   if(createPlottingFiles_) {
-    this->createPlottingFiles();
+    updatePixelDets(iSetup);
+    createPlottingFiles();
   }
 
   // Comparing
@@ -177,24 +190,28 @@ PixelInactiveAreaFinder::inactiveAreas(const edm::Event& iEvent, const edm::Even
 }
 
 // Functions for fetching date from handles
-void PixelInactiveAreaFinder::getPixelDetsBarrel(){
-  for(auto const & geomDetPtr : trackerGeometry->detsPXB() ) {
+void PixelInactiveAreaFinder::updatePixelDets(const edm::EventSetup& iSetup) {
+  if(!geometryWatcher_.check(iSetup))
+    return;
+
+  pixelDetsBarrel.clear();
+  pixelDetsEndcap.clear();
+
+  for(auto const & geomDetPtr : trackerGeometry_->detsPXB() ) {
     if(geomDetPtr->geographicalId().subdetId() == PixelSubdetector::PixelBarrel){
       pixelDetsBarrel.push_back(geomDetPtr->geographicalId().rawId());
     }
   }
-  std::sort(pixelDetsBarrel.begin(),pixelDetsBarrel.end());
-}
-void PixelInactiveAreaFinder::getPixelDetsEndcap(){
-  for(auto const & geomDetPtr : trackerGeometry->detsPXF() ) {
+  for(auto const & geomDetPtr : trackerGeometry_->detsPXF() ) {
     if(geomDetPtr->geographicalId().subdetId() == PixelSubdetector::PixelEndcap){
       pixelDetsEndcap.push_back(geomDetPtr->geographicalId().rawId());
     }
   }
+  std::sort(pixelDetsBarrel.begin(),pixelDetsBarrel.end());
   std::sort(pixelDetsEndcap.begin(),pixelDetsEndcap.end());
 }
 void PixelInactiveAreaFinder::getBadPixelDets(){
-  for(auto const & disabledModule : pixelQuality->getBadComponentList() ){
+  for(auto const & disabledModule : pixelQuality_->getBadComponentList() ){
     if( DetId(disabledModule.DetID).subdetId() == PixelSubdetector::PixelBarrel ){
       badPixelDetsBarrel.push_back( disabledModule.DetID );
     } else if ( DetId(disabledModule.DetID).subdetId() == PixelSubdetector::PixelEndcap ){
@@ -223,22 +240,22 @@ void PixelInactiveAreaFinder::detInfo(const det_t & det, Stream & ss){
   ss << "id:[" << det << "]" <<deli;
   ss << "subdetid:[" << DetId(det).subdetId() << "]" << deli;
   if(DetId(det).subdetId()==PixelSubdetector::PixelBarrel){
-    unsigned int layer  = trackerTopology->pxbLayer (DetId(det));
-    unsigned int ladder = trackerTopology->pxbLadder(DetId(det));
-    unsigned int module = trackerTopology->pxbModule(DetId(det));
+    unsigned int layer  = trackerTopology_->pxbLayer (DetId(det));
+    unsigned int ladder = trackerTopology_->pxbLadder(DetId(det));
+    unsigned int module = trackerTopology_->pxbModule(DetId(det));
     ss  << "layer:["                      << layer  << "]" << deli 
         << "ladder:[" << right << setw(2) << ladder << "]" << deli 
         << "module:["                     << module << "]" << deli;
   }else if(DetId(det).subdetId()==PixelSubdetector::PixelEndcap){
-    unsigned int disk  = trackerTopology->pxfDisk (DetId(det));
-    unsigned int blade = trackerTopology->pxfBlade(DetId(det));
-    unsigned int panel = trackerTopology->pxfPanel(DetId(det));
+    unsigned int disk  = trackerTopology_->pxfDisk (DetId(det));
+    unsigned int blade = trackerTopology_->pxfBlade(DetId(det));
+    unsigned int panel = trackerTopology_->pxfPanel(DetId(det));
     ss  << left << setw(6) << "disk:"  << "["            << right << disk  << "]" << deli 
         << left << setw(7) << "blade:" << "[" << setw(2) << right << blade << "]" << deli 
         << left << setw(7) << "panel:" << "["            << right << panel << "]" << deli;
   }
   float phiA,phiB,zA,zB,rA,rB;
-  auto detSurface = trackerGeometry->idToDet(DetId(det))->surface();
+  auto detSurface = trackerGeometry_->idToDet(DetId(det))->surface();
   tie(phiA,phiB) = detSurface.phiSpan();
   tie(zA,zB) = detSurface.zSpan();
   tie(rA,rB) = detSurface.rSpan();
@@ -443,7 +460,7 @@ PixelInactiveAreaFinder::DetGroup PixelInactiveAreaFinder::badAdjecentDetsBarrel
   using std::mem_fun;
 
   DetGroup adj;
-  auto const & tTopo = trackerTopology;
+  auto const tTopo = trackerTopology_;
   auto const & detId = DetId(det);
   unsigned int layer  = tTopo->pxbLayer (detId);
   unsigned int ladder = tTopo->pxbLadder(detId);
@@ -485,15 +502,15 @@ PixelInactiveAreaFinder::DetGroup PixelInactiveAreaFinder::badAdjecentDetsEndcap
   Span_t  phiSpan, phiSpanComp;
   float z, zComp;
   unsigned int disk, diskComp;
-  auto const & detSurf = trackerGeometry->idToDet(DetId(det))->surface();
+  auto const & detSurf = trackerGeometry_->idToDet(DetId(det))->surface();
   phiSpan = detSurf.phiSpan();
   tie(z,ignore) = detSurf.zSpan();
-  disk = trackerTopology->pxfDisk(DetId(det));
+  disk = trackerTopology_->pxfDisk(DetId(det));
   // add detectors from same disk whose phi ranges overlap to the adjecent list
   for(auto const & detComp : badPixelDetsEndcap){
     auto const & detIdComp = DetId(detComp);
-    auto const & detSurfComp = trackerGeometry->idToDet(detIdComp)->surface();
-    diskComp = trackerTopology->pxfDisk(detIdComp);
+    auto const & detSurfComp = trackerGeometry_->idToDet(detIdComp)->surface();
+    diskComp = trackerTopology_->pxfDisk(detIdComp);
     phiSpanComp = detSurfComp.phiSpan();
     tie(zComp,ignore) = detSurfComp.zSpan();
     if(det != detComp && disk == diskComp && z*zComp > 0
@@ -597,7 +614,7 @@ void PixelInactiveAreaFinder::getPhiSpanBarrel(const DetGroup & detGroup, DetGro
     cspan = DetGroupSpan();
     return;
   } else{
-    cspan.layer = trackerTopology->pxbLayer(DetId(detGroup[0]));
+    cspan.layer = trackerTopology_->pxbLayer(DetId(detGroup[0]));
     cspan.disk = 0;
   }
   using uint = unsigned int;
@@ -605,7 +622,7 @@ void PixelInactiveAreaFinder::getPhiSpanBarrel(const DetGroup & detGroup, DetGro
   using LadVec = std::vector<uint>;
   LadderSet lads;
   for(auto const & det : detGroup){
-    lads.insert(trackerTopology->pxbLadder(DetId(det)));
+    lads.insert(trackerTopology_->pxbLadder(DetId(det)));
   }
   LadVec ladv(lads.begin(),lads.end());
   uint nLadders = 0;
@@ -633,10 +650,10 @@ void PixelInactiveAreaFinder::getPhiSpanBarrel(const DetGroup & detGroup, DetGro
   }
   uint startLadder = currentLadder;
   uint endLadder = previousLadder;
-  auto detStart = trackerTopology->pxbDetId(cspan.layer,startLadder,1); 
-  auto detEnd = trackerTopology->pxbDetId(cspan.layer,endLadder,1); 
-  cspan.phiSpan.first  = trackerGeometry->idToDet(detStart)->surface().phiSpan().first;
-  cspan.phiSpan.second = trackerGeometry->idToDet(detEnd)->surface().phiSpan().second;
+  auto detStart = trackerTopology_->pxbDetId(cspan.layer,startLadder,1);
+  auto detEnd = trackerTopology_->pxbDetId(cspan.layer,endLadder,1);
+  cspan.phiSpan.first  = trackerGeometry_->idToDet(detStart)->surface().phiSpan().first;
+  cspan.phiSpan.second = trackerGeometry_->idToDet(detEnd)->surface().phiSpan().second;
 }
 void PixelInactiveAreaFinder::getPhiSpanEndcap(const DetGroup & detGroup, DetGroupSpan & cspan){
   // this is quite naive/bruteforce method
@@ -647,7 +664,7 @@ void PixelInactiveAreaFinder::getPhiSpanEndcap(const DetGroup & detGroup, DetGro
   //    have been work detector
   Stream ss;
   bool found = false;
-  auto const & tGeom = trackerGeometry;
+  auto const tGeom = trackerGeometry_;
   DetGroup::const_iterator startDetIter = detGroup.begin();
   Span_t phiSpan,phiSpanComp;
   unsigned int counter = 0;
@@ -701,39 +718,39 @@ void PixelInactiveAreaFinder::getPhiSpanEndcap(const DetGroup & detGroup, DetGro
 void PixelInactiveAreaFinder::getZSpan(const DetGroup & detGroup, DetGroupSpan & cspan){
   auto cmpFun = [this] (det_t detA, det_t detB){
     return
-    trackerGeometry->idToDet(DetId(detA))->surface().zSpan().first
+    trackerGeometry_->idToDet(DetId(detA))->surface().zSpan().first
     <
-    trackerGeometry->idToDet(DetId(detB))->surface().zSpan().first
+    trackerGeometry_->idToDet(DetId(detB))->surface().zSpan().first
     ;
   };
     
   auto minmaxIters = std::minmax_element(detGroup.begin(),detGroup.end(),cmpFun);
-  cspan.zSpan.first = trackerGeometry->idToDet(DetId(*(minmaxIters.first)))->surface().zSpan().first;
-  cspan.zSpan.second = trackerGeometry->idToDet(DetId(*(minmaxIters.second)))->surface().zSpan().second;
+  cspan.zSpan.first = trackerGeometry_->idToDet(DetId(*(minmaxIters.first)))->surface().zSpan().first;
+  cspan.zSpan.second = trackerGeometry_->idToDet(DetId(*(minmaxIters.second)))->surface().zSpan().second;
 }
 void PixelInactiveAreaFinder::getRSpan(const DetGroup & detGroup, DetGroupSpan & cspan){
   auto cmpFun = [this] (det_t detA, det_t detB){
     return
-    trackerGeometry->idToDet(DetId(detA))->surface().rSpan().first
+    trackerGeometry_->idToDet(DetId(detA))->surface().rSpan().first
     <
-    trackerGeometry->idToDet(DetId(detB))->surface().rSpan().first
+    trackerGeometry_->idToDet(DetId(detB))->surface().rSpan().first
     ;
   };
     
   auto minmaxIters = std::minmax_element(detGroup.begin(),detGroup.end(),cmpFun);
-  cspan.rSpan.first = trackerGeometry->idToDet(DetId(*(minmaxIters.first)))->surface().rSpan().first;
-  cspan.rSpan.second = trackerGeometry->idToDet(DetId(*(minmaxIters.second)))->surface().rSpan().second;
+  cspan.rSpan.first = trackerGeometry_->idToDet(DetId(*(minmaxIters.first)))->surface().rSpan().first;
+  cspan.rSpan.second = trackerGeometry_->idToDet(DetId(*(minmaxIters.second)))->surface().rSpan().second;
 }
 void PixelInactiveAreaFinder::getSpan(const DetGroup & detGroup, DetGroupSpan & cspan){
   auto firstDetIt = detGroup.begin();
   if(firstDetIt != detGroup.end()){
     cspan.subdetId = DetId(*firstDetIt).subdetId();
     if(cspan.subdetId == 1){
-      cspan.layer = trackerTopology->pxbLayer(DetId(*firstDetIt));
+      cspan.layer = trackerTopology_->pxbLayer(DetId(*firstDetIt));
       cspan.disk = 0;
       getPhiSpanBarrel(detGroup,cspan);    
     }else if(cspan.subdetId == 2){
-      cspan.disk = trackerTopology->pxfDisk(DetId(*firstDetIt));
+      cspan.disk = trackerTopology_->pxfDisk(DetId(*firstDetIt));
       cspan.layer = 0;
       getPhiSpanEndcap(detGroup,cspan);
     }
