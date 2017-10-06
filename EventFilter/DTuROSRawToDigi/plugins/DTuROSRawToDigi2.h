@@ -33,7 +33,7 @@ class DTReadOutMapping;
 class DTuROSFEDData;
 
 
-class DTuROSRawToDigi2 : public edm::stream::EDProducer {
+class DTuROSRawToDigi2 : public edm::stream::EDProducer<> {
 
 public:
 
@@ -41,10 +41,10 @@ public:
   DTuROSRawToDigi2(const edm::ParameterSet& pset);
 
   /// Destructor
-  ~DTuROSRawToDigi2() override;
+  ~DTuROSRawToDigi2() override ;
 
   /// Produce digis out of raw data
-  void produce(edm::Event& e, const edm::EventSetup& c) override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override ;
 
   /// Generate and fill FED raw data for a full event
   bool fillRawData(edm::Event& e, const edm::EventSetup& c,
