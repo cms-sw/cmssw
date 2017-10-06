@@ -101,10 +101,10 @@ SiPixelFedCablingTree * SiPixelFedCablingMapBuilder::produce( const edm::EventSe
 
   for (ITG it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
     const PixelGeomDetUnit * pxUnit = dynamic_cast<const PixelGeomDetUnit*>(*it);
-    if (pxUnit  ==0 ) continue;
+    if (pxUnit  ==nullptr ) continue;
     npxdets++;
     DetId geomid = pxUnit->geographicalId();
-    PixelModuleName * name =  0;
+    PixelModuleName * name =  nullptr;
     if (1 == geomid.subdetId()) {  // bpix 
       name = new PixelBarrelName(geomid,tt,phase1_);
     } else {                      // fpix 

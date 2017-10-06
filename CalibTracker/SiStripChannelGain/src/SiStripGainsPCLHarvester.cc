@@ -117,13 +117,13 @@ void SiStripGainsPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
   std::string DQM_dir = m_DQMdir;
    
   std::string stag =  *(std::find(dqm_tag_.begin(), dqm_tag_.end(),m_calibrationMode));
-  if(stag.size()!=0 && stag[0]!='_') stag.insert(0,1,'_');
+  if(!stag.empty() && stag[0]!='_') stag.insert(0,1,'_');
 
   std::string cvi      = DQM_dir + std::string("/Charge_Vs_Index") + stag;
      
-  MonitorElement* Charge_Vs_Index           = igetter_.get(cvi.c_str());
+  MonitorElement* Charge_Vs_Index           = igetter_.get(cvi);
   
-  if (Charge_Vs_Index==0) {
+  if (Charge_Vs_Index==nullptr) {
     edm::LogError("SiStripGainsPCLHarvester") << "Harvesting: could not retrieve " << cvi.c_str()
 					      << ", statistics will not be summed!" << std::endl;
   } else {
@@ -228,7 +228,7 @@ SiStripGainsPCLHarvester::gainQualityMonitor(DQMStore::IBooker& ibooker_, const 
   for(unsigned int a=0;a<APVsCollOrdered.size();a++){
 
     std::shared_ptr<stAPVGain> APV = APVsCollOrdered[a];
-    if(APV==NULL)continue;
+    if(APV==nullptr)continue;
 
     unsigned int  Index        = APV->Index;
     unsigned int  SubDet       = APV->SubDet;
@@ -339,11 +339,11 @@ void
 SiStripGainsPCLHarvester::algoComputeMPVandGain(const MonitorElement* Charge_Vs_Index) {
 
   unsigned int I=0;
-  TH1F* Proj = NULL;
+  TH1F* Proj = nullptr;
   double FitResults[6];
   double MPVmean = 300;
 
-  if ( Charge_Vs_Index==0 ) {
+  if ( Charge_Vs_Index==nullptr ) {
     edm::LogError("SiStripGainsPCLHarvester") << "Harvesting: could not execute algoComputeMPVandGain method because "
 					      << m_calibrationMode <<" statistics cannot be retrieved.\n"
 					      << "Please check if input contains " 
@@ -578,7 +578,7 @@ bool SiStripGainsPCLHarvester::produceTagFilter(const MonitorElement* Charge_Vs_
   // The goal of this function is to check wether or not there is enough statistics
   // to produce a meaningful tag for the DB
 
-  if( Charge_Vs_Index==0 ) {
+  if( Charge_Vs_Index==nullptr ) {
     edm::LogError("SiStripGainsPCLHarvester") << "produceTagFilter -> Return false: could not retrieve the "
 					      << m_calibrationMode <<" statistics.\n"
 					      << "Please check if input contains " 
@@ -620,7 +620,7 @@ SiStripGainsPCLHarvester::getNewObject(const MonitorElement* Charge_Vs_Index)
   unsigned int PreviousDetId = 0; 
   for(unsigned int a=0;a<APVsCollOrdered.size();a++){
     std::shared_ptr<stAPVGain> APV = APVsCollOrdered[a];
-    if(APV==NULL){ printf("Bug\n"); continue; }
+    if(APV==nullptr){ printf("Bug\n"); continue; }
     if(APV->SubDet<=2)continue;
     if(APV->DetId != PreviousDetId){
       if(!theSiStripVector.empty()){

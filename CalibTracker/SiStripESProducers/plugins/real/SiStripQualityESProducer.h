@@ -20,7 +20,7 @@
 class SiStripQualityESProducer : public edm::ESProducer {
  public:
   SiStripQualityESProducer(const edm::ParameterSet&);
-  ~SiStripQualityESProducer(){};
+  ~SiStripQualityESProducer() override{};
   
   std::shared_ptr<SiStripQuality> produce(const SiStripQualityRcd&);
    
