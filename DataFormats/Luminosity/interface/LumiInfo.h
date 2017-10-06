@@ -15,6 +15,8 @@
  *         Zhen Xie
  *         Paul Lujan
  * \version   1st Version June 7 2007, merged September 10 2014
+ * \update    October 2017 by Chris Palmer and Sam Higginbotham for PCC projects
+ * 
  *
  ************************************************************/
  
@@ -30,30 +32,53 @@ public:
   deadtimeFraction_(0)
   { 
     instLumiByBX_.assign(LumiConstants::numBX, 0.0);
-    errLumiByBX_.assign(LumiConstants::numBX, 0.0);
-    totalLuminosity_=0;
-    totalStatError_=0;
+    instLumiStatErrByBX_.assign(LumiConstants::numBX, 0.0);
+    totalInstLuminosity_=0;
+    totalInstLumiStatErr_=0;
   } 
   
-  /// constructor with fill
- LumiInfo(float deadtimeFraction,
-	  const std::vector<float>& instLumiByBX):
+  /// constructor with fill; if total algo is the same as summing
+ LumiInfo(float deadtimeFraction, const std::vector<float>& instLumiByBX):
   deadtimeFraction_(deadtimeFraction)
   {
     instLumiByBX_.assign(instLumiByBX.begin(), instLumiByBX.end());
+    instLumiStatErrByBX_.assign(LumiConstants::numBX, 0.0);
+    totalInstLuminosity_=instLuminosityBXSum();
+    totalInstLumiStatErr_=0;
+  }
+
+  /// constructor with fill; if total algo DIFFERS from summing
+ LumiInfo(float deadtimeFraction, const std::vector<float>& instLumiByBX, float totalInstLumi):
+  deadtimeFraction_(deadtimeFraction)
+  {
+    instLumiByBX_.assign(instLumiByBX.begin(), instLumiByBX.end());
+    instLumiStatErrByBX_.assign(LumiConstants::numBX, 0.0);
+    totalInstLuminosity_=totalInstLumi;
+    totalInstLumiStatErr_=0;
+  }
+
+  /// constructor with fill; if total algo DIFFERS from summing and adding including stats
+ LumiInfo(float deadtimeFraction, const std::vector<float>& instLumiByBX, float totalInstLumi,
+    const std::vector<float>& instLumiErrByBX, float totalInstLumiErr):
+  deadtimeFraction_(deadtimeFraction)
+  {
+    instLumiByBX_.assign(instLumiByBX.begin(), instLumiByBX.end());
+    instLumiStatErrByBX_.assign(instLumiErrByBX.begin(), instLumiErrByBX.end());
+    totalInstLuminosity_=totalInstLumi;
+    totalInstLumiStatErr_=totalInstLumiErr;
   }
 
   /// destructor
   ~LumiInfo(){}
 
   //Total Luminosity Saved 
-  float getTotalLumi() const{return totalLuminosity_;}
+  float getTotalInstLumi() const{return totalInstLuminosity_;}
 
   //Statistical Error on total lumi
-  float getTotalStatError() const{return totalStatError_;}
+  float getTotalInstStatError() const{return totalInstLumiStatErr_;}
 
   // Instantaneous luminosity (in Hz/ub)
-  float instLuminosity() const;
+  float instLuminosityBXSum() const;
 
   // Integrated (delivered) luminosity (in ub^-1)
   float integLuminosity() const;
@@ -76,7 +101,7 @@ public:
   // Inst lumi by bunch
   float getInstLumiBX(int bx) const { return instLumiByBX_.at(bx); }
   const std::vector<float>& getInstLumiAllBX() const { return instLumiByBX_; }
-  const std::vector<float>& getErrorLumiAllBX() const { return errLumiByBX_; }
+  const std::vector<float>& getErrorLumiAllBX() const { return instLumiStatErrByBX_; }
 
   bool isProductEqual(LumiInfo const& next) const;
 
@@ -86,16 +111,16 @@ public:
 
   void setDeadFraction(float deadtimeFraction) { deadtimeFraction_ = deadtimeFraction; }
   //set the total raw luminosity
-  void setTotalLumi(float totalLumi){ totalLuminosity_=totalLumi;}
+  void setTotalLumi(float totalLumi){ totalInstLuminosity_=totalLumi;}
   //set the statistical error
-  void setTotalStatError(float statError){ totalStatError_=statError;}
+  void setTotalStatError(float statError){ totalInstLumiStatErr_=statError;}
 
 private:
-  float totalLuminosity_;
-  float totalStatError_;
+  float totalInstLuminosity_;
+  float totalInstLumiStatErr_;
   float deadtimeFraction_;
   std::vector<float> instLumiByBX_;
-  std::vector<float> errLumiByBX_;
+  std::vector<float> instLumiStatErrByBX_;
 }; 
 
 std::ostream& operator<<(std::ostream& s, const LumiInfo& lumiInfo);
