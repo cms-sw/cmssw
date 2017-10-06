@@ -94,7 +94,7 @@ class TEcnaObject : public TObject {
   void    NumberCreateObjectMessage(const TString&, const Long_t&, const Int_t&);
   void    NumberReuseObjectMessage(const TString&, const Long_t&, const Int_t&);
   
-ClassDef(TEcnaObject,1)// Parameter management for CNA (Correlated Noises Analysis)
+ClassDefOverride(TEcnaObject,1)// Parameter management for CNA (Correlated Noises Analysis)
 
 };
 

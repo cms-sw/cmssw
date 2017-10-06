@@ -231,6 +231,6 @@ public:
 
   Int_t MaxCrysInStinEcna(const Int_t&, const Int_t&, const TString&); // for not connected and incomplete SC's
 
-  ClassDef(TEcnaNumbering,1)  //Channel Numbering for CNA
+  ClassDefOverride(TEcnaNumbering,1)  //Channel Numbering for CNA
 };
 #endif

@@ -79,7 +79,7 @@ class PulseFitWithFunction: public TObject
   
   
 
-  ClassDef(PulseFitWithFunction,0)     //!< The processed part of the class is persistant
+  ClassDefOverride(PulseFitWithFunction,0)     //!< The processed part of the class is persistant
 } ;
 
 #endif
