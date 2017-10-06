@@ -58,4 +58,5 @@ muoncosmichighlevelreco = cms.Sequence((muoncosmicreco2legsHighLevel+muoncosmicr
 #### High level sequence (i.e., post PF reconstruction) ###
 from RecoMuon.MuonIdentification.muons_cfi import *
 from RecoMuon.MuonIsolation.muonPFIsolation_cff import *
-muonshighlevelreco = cms.Sequence(muonPFIsolationSequence*muons) 
+from RecoMuon.SimMuonAlgos.muonSimClassificationByHits_cff import *
+muonshighlevelreco = cms.Sequence(muonPFIsolationSequence*muons*muonSimClassificationByHitsSequence) 
