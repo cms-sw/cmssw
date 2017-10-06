@@ -165,7 +165,7 @@ cond::XMLAuthenticationService::XMLAuthenticationService::processFile( const std
   }
   **/
   
-  xercesc::MemBufInputSource* memBufInputSource = 0;
+  xercesc::MemBufInputSource* memBufInputSource = nullptr;
   
   try
   {
@@ -206,7 +206,7 @@ cond::XMLAuthenticationService::XMLAuthenticationService::processFile( const std
           xercesc::XMLString::release( &connectionName );
 
           // Locate the credential
-          cond::XMLAuthenticationService::DataSourceEntry* credential = 0;
+          cond::XMLAuthenticationService::DataSourceEntry* credential = nullptr;
           std::map< std::string, cond::XMLAuthenticationService::DataSourceEntry* >::iterator iConnection = m_data.find( sConnectionName );
           if ( iConnection != m_data.end() ) {
             credential = iConnection->second;
