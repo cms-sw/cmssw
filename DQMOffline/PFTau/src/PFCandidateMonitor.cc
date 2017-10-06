@@ -22,15 +22,15 @@ PFCandidateMonitor::PFCandidateMonitor( float dRMax, bool matchCharge, Benchmark
   
   setRange( 0.0, 10e10, -10.0, 10.0, -3.14, 3.14);
   
-  pt_gen_   = 0;
-  eta_gen_  = 0;
-  phi_gen_  = 0;
+  pt_gen_   = nullptr;
+  eta_gen_  = nullptr;
+  phi_gen_  = nullptr;
 
-  pt_ref_   = 0;
-  eta_ref_  = 0;
-  phi_ref_  = 0;
+  pt_ref_   = nullptr;
+  eta_ref_  = nullptr;
+  phi_ref_  = nullptr;
 
-  deltaR_   = 0;
+  deltaR_   = nullptr;
 
   createReferenceHistos_ = false;
   histogramBooked_ = false;

@@ -57,11 +57,11 @@
 class ECALMultifitAnalyzer_HI : public DQMEDAnalyzer  {
 public:
   explicit ECALMultifitAnalyzer_HI(const edm::ParameterSet&);
-  ~ECALMultifitAnalyzer_HI() {}
+  ~ECALMultifitAnalyzer_HI() override {}
 
 private:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   edm::EDGetTokenT<std::vector<reco::Photon> > recoPhotonsCollection_;
   edm::EDGetTokenT<reco::CaloJetCollection> caloJetToken_;
@@ -224,31 +224,31 @@ ECALMultifitAnalyzer_HI::bookHistograms(DQMStore::IBooker& iBooker, edm::Run con
 
   iBooker.setCurrentFolder ("EcalCalibration/HIN_MultiFitAnalyzer");
 
-  eb_chi2 = 0;
-  eb_chi2_eta = 0;
-  eb_chi2_e5 = 0;
-  eb_chi2_e5_eta = 0;
-  eb_errors = 0;
-  eb_errors_eta = 0;
-  eb_errors_e5 = 0;
-  eb_errors_e5_eta = 0;
-  eb_chi2_photon15 = 0;
-  eb_errors_photon15 = 0;
-  eb_chi2_jet30 = 0;
-  eb_errors_jet30 = 0;
+  eb_chi2 = nullptr;
+  eb_chi2_eta = nullptr;
+  eb_chi2_e5 = nullptr;
+  eb_chi2_e5_eta = nullptr;
+  eb_errors = nullptr;
+  eb_errors_eta = nullptr;
+  eb_errors_e5 = nullptr;
+  eb_errors_e5_eta = nullptr;
+  eb_chi2_photon15 = nullptr;
+  eb_errors_photon15 = nullptr;
+  eb_chi2_jet30 = nullptr;
+  eb_errors_jet30 = nullptr;
 
-  ee_chi2 = 0;
-  ee_chi2_eta = 0;
-  ee_chi2_e5 = 0;
-  ee_chi2_e5_eta = 0;
-  ee_errors = 0;
-  ee_errors_eta = 0;
-  ee_errors_e5 = 0;
-  ee_errors_e5_eta = 0;
-  ee_chi2_photon15 = 0;
-  ee_errors_photon15 = 0;
-  ee_chi2_jet30 = 0;
-  ee_errors_jet30 = 0;
+  ee_chi2 = nullptr;
+  ee_chi2_eta = nullptr;
+  ee_chi2_e5 = nullptr;
+  ee_chi2_e5_eta = nullptr;
+  ee_errors = nullptr;
+  ee_errors_eta = nullptr;
+  ee_errors_e5 = nullptr;
+  ee_errors_e5_eta = nullptr;
+  ee_chi2_photon15 = nullptr;
+  ee_errors_photon15 = nullptr;
+  ee_chi2_jet30 = nullptr;
+  ee_errors_jet30 = nullptr;
 
   const int nBins = 500;
   const float maxChi2 = 70;

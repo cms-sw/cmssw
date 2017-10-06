@@ -25,10 +25,10 @@ class ElectronGeneralAnalyzer : public ElectronDqmAnalyzerBase
   public:
 
     explicit ElectronGeneralAnalyzer( const edm::ParameterSet & conf ) ;
-    virtual ~ElectronGeneralAnalyzer() ;
+    ~ElectronGeneralAnalyzer() override ;
 
-    virtual void bookHistograms( DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) ;
-    virtual void analyze( const edm::Event & e, const edm::EventSetup & c ) ;
+    void bookHistograms( DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override ;
+    void analyze( const edm::Event & e, const edm::EventSetup & c ) override ;
 
   private:
 
