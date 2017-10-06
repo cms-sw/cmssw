@@ -20,7 +20,7 @@
 class CSCFakeDBCrosstalk: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
    public:
       CSCFakeDBCrosstalk(const edm::ParameterSet&);
-      ~CSCFakeDBCrosstalk();
+      ~CSCFakeDBCrosstalk() override;
 
       inline static CSCDBCrosstalk * prefillDBCrosstalk(); 
 
@@ -30,7 +30,7 @@ class CSCFakeDBCrosstalk: public edm::ESProducer, public edm::EventSetupRecordIn
 
    private:
       // ----------member data ---------------------------
-    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
+    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
     Pointer cndbCrosstalk ;
 
 };

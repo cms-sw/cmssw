@@ -20,7 +20,7 @@
 class CSCFakePedestalsConditions: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
    public:
       CSCFakePedestalsConditions(const edm::ParameterSet&);
-      ~CSCFakePedestalsConditions();
+      ~CSCFakePedestalsConditions() override;
 
       float meanped,meanrms;
       int seed;long int M;
@@ -33,7 +33,7 @@ class CSCFakePedestalsConditions: public edm::ESProducer, public edm::EventSetup
 
    private:
       // ----------member data ---------------------------
-    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
+    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
       CSCPedestals *cnpedestals ;   
 };
 
