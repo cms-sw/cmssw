@@ -30,22 +30,22 @@ namespace pos{
     PixelMaxVsf(std::vector< std::vector < std::string> > &tableMat);
     PixelMaxVsf(std::string filename);
 
-    void writeASCII(std::string dir="") const;
-    void 	 writeXML(        pos::PixelConfigKey key, int version, std::string path) const {;}
-    virtual void writeXMLHeader(  pos::PixelConfigKey key, 
+    void writeASCII(std::string dir="") const override;
+    void 	 writeXML(        pos::PixelConfigKey key, int version, std::string path) const override {;}
+    void writeXMLHeader(  pos::PixelConfigKey key, 
 				  int version, 
 				  std::string path, 
 				  std::ofstream *out,
-				  std::ofstream *out1 = NULL,
-				  std::ofstream *out2 = NULL
-				  ) const ;
-    virtual void writeXML( 	  std::ofstream *out,			   	 			    
-			   	  std::ofstream *out1 = NULL ,
-			   	  std::ofstream *out2 = NULL ) const ;
-    virtual void writeXMLTrailer( std::ofstream *out, 
-				  std::ofstream *out1 = NULL,
-				  std::ofstream *out2 = NULL
-				  ) const ;
+				  std::ofstream *out1 = nullptr,
+				  std::ofstream *out2 = nullptr
+				  ) const override ;
+    void writeXML( 	  std::ofstream *out,			   	 			    
+			   	  std::ofstream *out1 = nullptr ,
+			   	  std::ofstream *out2 = nullptr ) const override ;
+    void writeXMLTrailer( std::ofstream *out, 
+				  std::ofstream *out1 = nullptr,
+				  std::ofstream *out2 = nullptr
+				  ) const override ;
 
     bool getVsf(PixelROCName roc, unsigned int& Vsf) const;
 
