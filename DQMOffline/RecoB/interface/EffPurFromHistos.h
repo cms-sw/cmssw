@@ -44,7 +44,7 @@ class EffPurFromHistos {
   void epsPlot(const std::string & name);
   void psPlot(const std::string & name);
 
-  void plot(TPad * theCanvas = 0);
+  void plot(TPad * theCanvas = nullptr);
   void plot(const std::string & name, const std::string & ext);
 
   FlavourHistograms<double>& discriminatorNoCutEffic() const { return *discrNoCutEffic; }

@@ -1,8 +1,8 @@
 #include "DQMOffline/Lumi/interface/TTrigger.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <string.h>
-#include <assert.h>
+#include <cstring>
+#include <cassert>
 #include <iostream>
 #include <fstream>
 #include <limits> 

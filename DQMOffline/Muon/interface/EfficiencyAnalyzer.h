@@ -40,7 +40,7 @@ class EfficiencyAnalyzer : public DQMEDAnalyzer {
   EfficiencyAnalyzer(const edm::ParameterSet& pset);
   
   /* Destructor */ 
-  virtual ~EfficiencyAnalyzer() ;
+  ~EfficiencyAnalyzer() override ;
 
   /* Operations */ 
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
