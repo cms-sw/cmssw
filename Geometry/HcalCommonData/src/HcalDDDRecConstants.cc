@@ -289,13 +289,13 @@ void HcalDDDRecConstants::getLayerDepth(const int& ieta, std::map<int,int>& laye
 
 int HcalDDDRecConstants::getLayerFront(const int& idet, const int& ieta,
 				       const int& iphi, const int& depth) const {
-  int subdet = (idet == 1) ? 1 : 2;
-  int zside  = (ieta > 0) ? 1 : -1;
-  int eta    = zside*ieta;
+  int subdet   = (idet == 1) ? 1 : 2;
+  int zside    = (ieta > 0) ? 1 : -1;
+  int eta      = zside*ieta;
   int layFront = hcons.ldMap()->getLayerFront(subdet,eta,iphi,zside,depth);
+  int laymin   = hcons.getFrontLayer(subdet, ieta);
   if ((layFront < 0) || 
       ((subdet == static_cast<int>(HcalEndcap)) && (eta == 16))) {
-    int laymin  = hcons.getFrontLayer(subdet, ieta);
     if ((subdet == static_cast<int>(HcalEndcap)) && (eta == 16)) {
       layFront = laymin;
     } else if (eta <= hpar->etaMax[1]) {
@@ -308,6 +308,8 @@ int HcalDDDRecConstants::getLayerFront(const int& idet, const int& ieta,
 	}
       }
     }
+  } else {
+    if (layFront < laymin) layFront = laymin;
   }
 #ifdef EDM_ML_DEBUG
   std::cout << "getLayerFront::Input " << idet << ":" << ieta << ":"
