@@ -68,12 +68,13 @@ trackingLowPU.toModify(mixedTripletStepSeedLayersA,
 
 # TrackingRegion
 from RecoTracker.TkTrackingRegions.globalTrackingRegionFromBeamSpotFixedZ_cfi import globalTrackingRegionFromBeamSpotFixedZ as _globalTrackingRegionFromBeamSpotFixedZ
-mixedTripletStepTrackingRegionsA = _globalTrackingRegionFromBeamSpotFixedZ.clone(RegionPSet = dict(
+_mixedTripletStepTrackingRegionsCommon = _globalTrackingRegionFromBeamSpotFixedZ.clone(RegionPSet = dict(
     ptMin = 0.4,
     originHalfLength = 15.0,
     originRadius = 1.5
 ))
-trackingLowPU.toModify(mixedTripletStepTrackingRegionsA, RegionPSet = dict(originHalfLength = 10.0))
+trackingLowPU.toModify(_mixedTripletStepTrackingRegionsCommon, RegionPSet = dict(originHalfLength = 10.0))
+mixedTripletStepTrackingRegionsA = _mixedTripletStepTrackingRegionsCommon.clone()
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
@@ -143,11 +144,7 @@ trackingPhase1.toModify(mixedTripletStepSeedLayersB, layerList = ['BPix3+BPix4+T
 trackingPhase1QuadProp.toModify(mixedTripletStepSeedLayersB, layerList = ['BPix3+BPix4+TIB1'])
 
 # TrackingRegion
-_mixedTripletStepTrackingRegionsB = mixedTripletStepTrackingRegionsA.clone(RegionPSet = dict(ptMin=0.6))
-mixedTripletStepTrackingRegionsB = _mixedTripletStepTrackingRegionsB.clone(RegionPSet = dict(originHalfLength=cms.double(10.0)))
-pp_on_XeXe_2017.toReplaceWith(mixedTripletStepTrackingRegionsB, _mixedTripletStepTrackingRegionsB)
-
-from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
+mixedTripletStepTrackingRegionsB = _mixedTripletStepTrackingRegionsCommon.clone(RegionPSet = dict(ptMin=0.6, originHalfLength=10.0))
 pp_on_XeXe_2017.toReplaceWith(mixedTripletStepTrackingRegionsB, 
                               _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
             fixedError = 2.5,
