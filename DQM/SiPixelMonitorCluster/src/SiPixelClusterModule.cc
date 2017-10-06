@@ -27,7 +27,7 @@
 #include <memory>
 #include <string>
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 
 // Data Formats
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"

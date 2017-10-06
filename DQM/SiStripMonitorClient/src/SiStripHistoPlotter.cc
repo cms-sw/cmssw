@@ -54,7 +54,7 @@ void SiStripHistoPlotter::setNewPlot(std::string& path, std::string& option, int
 // -- Create Plots 
 //
 void SiStripHistoPlotter::createPlots(DQMStore* dqm_store) {
-  if (plotList_.size() == 0) return;
+  if (plotList_.empty()) return;
   std::string name = "Dummy";
   if (!hasNamedImage(name)) createDummyImage(name);
   for (std::vector<PlotParameter>::iterator it = plotList_.begin(); 
@@ -83,7 +83,7 @@ void SiStripHistoPlotter::makePlot(DQMStore* dqm_store, const PlotParameter& par
 	me->kind() == MonitorElement::DQM_KIND_TPROFILE ||
         me->kind() == MonitorElement::DQM_KIND_TPROFILE2D ) {
       TH1* histo = me->getTH1();
-      TH1F* tproject = 0;
+      TH1F* tproject = nullptr;
       if (dopt == "projection") {
 	getProjection(me, tproject);
 	if (tproject) tproject->Draw();
@@ -167,7 +167,7 @@ void SiStripHistoPlotter::fillNamedImageBuffer(TCanvas * c1, const std::string& 
 // in the imgdump destructor
   TImage *image = imgdump.GetImage();
 
-  if( image == NULL )
+  if( image == nullptr )
   {
    std::cout << "No TImage found for "
 	<< name
@@ -324,7 +324,7 @@ void SiStripHistoPlotter::setNewCondDBPlot(std::string& path, std::string& optio
 // -- Create CondDB Plots 
 //
 void SiStripHistoPlotter::createCondDBPlots(DQMStore* dqm_store) {
-  if (condDBPlotList_.size() == 0) return;
+  if (condDBPlotList_.empty()) return;
   std::string name = "Dummy";
   if (!hasNamedImage(name)) createDummyImage(name);
 
@@ -350,7 +350,7 @@ void SiStripHistoPlotter::makeCondDBPlots(DQMStore* dqm_store, const PlotParamet
   for (std::vector<std::string>::const_iterator ih = htypes.begin();
        ih!= htypes.end(); ih++) {
     std::string type = (*ih);
-    if (type.size() == 0) continue;
+    if (type.empty()) continue;
     std::string tag = par.Path + "/";
     for (std::vector<MonitorElement *>::const_iterator it = all_mes.begin();
 	 it!= all_mes.end(); it++) {  

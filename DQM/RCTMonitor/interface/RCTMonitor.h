@@ -74,10 +74,10 @@ struct rct_location {
 class RCTMonitor : public DQMEDAnalyzer {
  public:
   explicit RCTMonitor(const edm::ParameterSet&);
-  ~RCTMonitor();
+  ~RCTMonitor() override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&,
                       edm::EventSetup const&) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void FillRCT(const edm::Event&, const edm::EventSetup&);
 
  private:

@@ -35,7 +35,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <sstream>
-#include <math.h>
+#include <cmath>
 
 using namespace edm;
 using namespace std;
@@ -328,7 +328,7 @@ void DTDigiTask::bookHistos(DQMStore::IBooker & ibooker, const DTChamberId& dtCh
   if (folder == "Occupancies")    {
 
     const DTChamber* dtchamber = muonGeom->chamber(dtCh);
-    const std::vector<const DTSuperLayer*> dtSupLylist = dtchamber->superLayers();
+    const std::vector<const DTSuperLayer*>& dtSupLylist = dtchamber->superLayers();
     std::vector<const DTSuperLayer*>::const_iterator suly = dtSupLylist.begin();
     std::vector<const DTSuperLayer*>::const_iterator sulyend = dtSupLylist.end();
 
@@ -525,7 +525,7 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
     // clear the map of # of digis per chamber: not needed anymore
     hitMap.clear();
 
-    if (syncNoisyChambers.size() != 0) {
+    if (!syncNoisyChambers.empty()) {
       LogVerbatim("DTDQM|DTMonitorModule|DTDigiTask") << "[DTDigiTask] Synch Noise in event: " << nevents;
       if(filterSyncNoise) LogVerbatim("DTDQM|DTMonitorModule|DTDigiTask") << "\tnoisy time-boxes and occupancy will not be filled!" << endl;
       syncNumTot++;

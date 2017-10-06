@@ -38,7 +38,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 //
 #include <string>
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 
@@ -699,7 +699,7 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup){
   
   for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
     
-    if(dynamic_cast<PixelGeomDetUnit const *>((*it))!=0){
+    if(dynamic_cast<PixelGeomDetUnit const *>((*it))!=nullptr){
 
       DetId detId = (*it)->geographicalId();
       const GeomDetUnit      * geoUnit = pDD->idToDetUnit( detId );

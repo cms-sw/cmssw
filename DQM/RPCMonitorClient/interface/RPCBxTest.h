@@ -17,7 +17,7 @@ public:
   RPCBxTest(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~RPCBxTest();
+  ~RPCBxTest() override;
 
   /// BeginJob
   void beginJob(DQMStore *);

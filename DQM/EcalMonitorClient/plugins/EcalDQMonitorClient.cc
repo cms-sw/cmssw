@@ -129,7 +129,7 @@ EcalDQMonitorClient::runWorkers(DQMStore::IGetter& _igetter, ecaldqm::DQWorkerCl
       client->releaseSource();
       client->resetMEs();
       if(!client->retrieveSource(_igetter, _type)) return;
-      if(client->onlineMode()) client->setTime(time(0));
+      if(client->onlineMode()) client->setTime(time(nullptr));
       client->producePlots(_type);                      
     }, "retrieveAndRun", "producing plots");
 

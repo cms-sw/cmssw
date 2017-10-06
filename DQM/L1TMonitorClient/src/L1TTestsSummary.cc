@@ -9,12 +9,12 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMChannel.h"
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include <TMath.h>
-#include <limits.h>
+#include <climits>
 #include <TFile.h>
 #include <TDirectory.h>
 #include <TProfile.h>
@@ -205,7 +205,7 @@ void L1TTestsSummary::updateL1TRateMonitor(DQMStore::IBooker &ibooker, DQMStore:
     if(myQReport) {
       float  qtresult  = myQReport->getQTresult(); // get QT result value
       int    qtstatus  = myQReport->getStatus();   // get QT status value (see table below)
-      string qtmessage = myQReport->getMessage() ; // get the whole QT result message
+      const string& qtmessage = myQReport->getMessage() ; // get the whole QT result message
       vector<DQMChannel> qtBadChannels = myQReport->getBadChannels();
 
       if(mVerbose) {
@@ -272,7 +272,7 @@ void L1TTestsSummary::updateL1TSyncMonitor(DQMStore::IBooker &ibooker, DQMStore:
     if(myQReport) {
       float              qtresult      = myQReport->getQTresult();    // get QT result value
       int                qtstatus      = myQReport->getStatus();      // get QT status value (see table below)
-      string             qtmessage     = myQReport->getMessage() ;    // get the whole QT result message
+      const string&             qtmessage     = myQReport->getMessage() ;    // get the whole QT result message
       vector<DQMChannel> qtBadChannels = myQReport->getBadChannels();
 
       if(mVerbose) {
@@ -337,7 +337,7 @@ void L1TTestsSummary::updateL1TOccupancyMonitor(DQMStore::IBooker &ibooker, DQMS
     if(myQReport) {
       float  qtresult  = myQReport->getQTresult();        // get QT result value
       int    qtstatus  = myQReport->getStatus();          // get QT status value (see table below)
-      string qtmessage = myQReport->getMessage() ; // get the whole QT result message
+      const string& qtmessage = myQReport->getMessage() ; // get the whole QT result message
       vector<DQMChannel> qtBadChannels = myQReport->getBadChannels();
 
       if(mVerbose) {

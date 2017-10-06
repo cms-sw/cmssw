@@ -143,7 +143,7 @@ double SiStripFineDelayTOF::getPhi(double* trackParameters, double* hit, bool on
 void SiStripFineDelayTOF::trackParameters(const reco::Track& tk,double* trackParameters)
 {
       math::XYZPoint position = tk.outerPosition();
-      math::XYZVector momentum = tk.outerMomentum();
+      const math::XYZVector& momentum = tk.outerMomentum();
       LogDebug("trackParameters") << "outer position: " << position.x() << " " << position.y() << " " << position.z();
       LogDebug("trackParameters") << "outer momentum: " << momentum.x() << " " << momentum.y() << " " << momentum.z();
       math::XYZVector fieldDirection(0,0,1);

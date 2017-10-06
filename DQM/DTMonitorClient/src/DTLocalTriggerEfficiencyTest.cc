@@ -35,13 +35,13 @@ using namespace edm;
 using namespace std;
 
 
-DTLocalTriggerEfficiencyTest::DTLocalTriggerEfficiencyTest(const edm::ParameterSet& ps) : trigGeomUtils(0) {
+DTLocalTriggerEfficiencyTest::DTLocalTriggerEfficiencyTest(const edm::ParameterSet& ps) : trigGeomUtils(nullptr) {
 
   setConfig(ps,"DTLocalTriggerEfficiency");
   baseFolderTM = "DT/03-LocalTrigger-TM/";
   baseFolderDDU = "DT/04-LocalTrigger-DDU/";
 
-  bookingdone = 0;
+  bookingdone = false;
 
 }
 
@@ -111,7 +111,7 @@ void DTLocalTriggerEfficiencyTest::Bookings(DQMStore::IBooker & ibooker, DQMStor
     }
   }
 
-  bookingdone = 1; 
+  bookingdone = true; 
 }
 
 void DTLocalTriggerEfficiencyTest::runClientDiagnostic(DQMStore::IBooker & ibooker,

@@ -61,14 +61,14 @@ const T & get(const edm::EventSetup & setup) {
 class TriggerRatesMonitor : public DQMEDAnalyzer {
 public:
   explicit TriggerRatesMonitor(edm::ParameterSet const &);
-  ~TriggerRatesMonitor();
+  ~TriggerRatesMonitor() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  virtual void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  virtual void analyze(edm::Event const &, edm::EventSetup const &) override;
+  void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(edm::Event const &, edm::EventSetup const &) override;
 
   // TCDS trigger types
   // see https://twiki.cern.ch/twiki/bin/viewauth/CMS/TcdsEventRecord

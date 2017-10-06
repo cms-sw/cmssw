@@ -30,11 +30,11 @@ class SiStripCommissioningRunTypeFilter : public edm::EDFilter {
    public:
 
       explicit SiStripCommissioningRunTypeFilter(const edm::ParameterSet&);
-      ~SiStripCommissioningRunTypeFilter() {}
+      ~SiStripCommissioningRunTypeFilter() override {}
 
    private:
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::Event&, const edm::EventSetup&) override;
       
       // ----------member data ---------------------------
       //      edm::InputTag inputModuleLabel_;

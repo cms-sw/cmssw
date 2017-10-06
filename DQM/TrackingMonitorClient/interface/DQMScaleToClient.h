@@ -31,7 +31,7 @@ class DQMScaleToClient: public DQMEDHarvester{
  public:
 
   DQMScaleToClient(const edm::ParameterSet& ps);
-  virtual ~DQMScaleToClient() = default;
+  ~DQMScaleToClient() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   static void fillMePSetDescription(edm::ParameterSetDescription & pset);
   static void fillOutputMePSetDescription(edm::ParameterSetDescription & pset);

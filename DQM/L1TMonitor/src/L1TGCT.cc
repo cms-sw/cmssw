@@ -77,7 +77,7 @@ L1TGCT::L1TGCT(const edm::ParameterSet & ps) :
     edm::LogInfo("L1TGCT") << "L1TGCT: constructor...." << std::endl;
 
   outputFile_ = ps.getUntrackedParameter < std::string > ("outputFile", "");
-  if (outputFile_.size() != 0) {
+  if (!outputFile_.empty()) {
     edm::LogInfo("L1TGCT") << "L1T Monitoring histograms will be saved to "
                            << outputFile_ << std::endl;
   }

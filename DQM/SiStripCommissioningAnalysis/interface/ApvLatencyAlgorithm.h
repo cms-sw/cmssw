@@ -19,7 +19,7 @@ class ApvLatencyAlgorithm : public CommissioningAlgorithm {
 
   ApvLatencyAlgorithm( const edm::ParameterSet & pset, ApvLatencyAnalysis* const );
 
-  virtual ~ApvLatencyAlgorithm() {;}
+  ~ApvLatencyAlgorithm() override {;}
   
   inline const Histo& histo() const;
   
@@ -27,9 +27,9 @@ class ApvLatencyAlgorithm : public CommissioningAlgorithm {
   
   ApvLatencyAlgorithm() {;}
   
-  void extract( const std::vector<TH1*>& );
+  void extract( const std::vector<TH1*>& ) override;
 
-  void analyse();
+  void analyse() override;
   
  private:
   

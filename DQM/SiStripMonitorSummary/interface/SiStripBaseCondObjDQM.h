@@ -76,11 +76,11 @@ class SiStripBaseCondObjDQM {
   protected:
     
     struct ModMEs{ 
-      ModMEs():ProfileDistr(0),	    
-	       CumulDistr(0),	    
-	       SummaryOfProfileDistr(0),
-	       SummaryOfCumulDistr(0),  
-	       SummaryDistr(0){;}
+      ModMEs():ProfileDistr(nullptr),	    
+	       CumulDistr(nullptr),	    
+	       SummaryOfProfileDistr(nullptr),
+	       SummaryOfCumulDistr(nullptr),  
+	       SummaryDistr(nullptr){;}
       MonitorElement* ProfileDistr;
       MonitorElement* CumulDistr;
       MonitorElement* SummaryOfProfileDistr;
