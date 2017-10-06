@@ -34,7 +34,7 @@ bool SiPixelConfigWriter::init() {
   if( theDomWriter == nullptr ) return false;
   if( theDomWriter->getDomConfig()->canSetParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true ))
     theDomWriter->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
-  theDoc = domImpl->createDocument(0,qtxml::_toDOMS("Layouts"), 0);
+  theDoc = domImpl->createDocument(nullptr,qtxml::_toDOMS("Layouts"), nullptr);
   if( theDoc == nullptr ) return false;
   theTopElement = theDoc->getDocumentElement();
   theTopElement->appendChild(theDoc->createTextNode(qtxml::_toDOMS("\n")));

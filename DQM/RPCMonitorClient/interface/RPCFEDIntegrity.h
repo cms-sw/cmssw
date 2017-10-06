@@ -26,7 +26,7 @@ public:
   RPCFEDIntegrity(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~RPCFEDIntegrity();
+  ~RPCFEDIntegrity() override;
 
   
     

@@ -47,7 +47,7 @@ class CommissioningHistograms {
            MonitorElement* const me,
            MonitorElement* const cme ) 
       : title_(title), me_(me), cme_(cme) {;}
-    Histo() : title_(""), me_(0), cme_(0) {;}
+    Histo() : title_(""), me_(nullptr), cme_(nullptr) {;}
     void print( std::stringstream& ) const;
     std::string title_;
     MonitorElement* me_;

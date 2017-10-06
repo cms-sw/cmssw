@@ -419,11 +419,11 @@ void EwkMuLumiMonitorDQM::analyze(const Event& ev, const EventSetup&) {
     if (nHighPtGlbMu > 1) {
       for (unsigned int i = 0; i < nHighPtGlbMu; i++) {
         reco::Muon muon1 = highPtGlbMuons[i];
-        math::XYZTLorentzVector mu1(muon1.p4());
+        const math::XYZTLorentzVector& mu1(muon1.p4());
         // double pt1= muon1.pt();
         for (unsigned int j = i + 1; j < nHighPtGlbMu; ++j) {
           reco::Muon muon2 = highPtGlbMuons[j];
-          math::XYZTLorentzVector mu2(muon2.p4());
+          const math::XYZTLorentzVector& mu2(muon2.p4());
           // double pt2= muon2.pt();
           if (muon1.charge() == muon2.charge()) continue;
           math::XYZTLorentzVector pair = mu1 + mu2;
@@ -583,7 +583,7 @@ if (!quality) continue;
     if (!(isZGolden2HLT_ || isZGolden1HLT_ || isZGoldenNoIso_)) {
       for (unsigned int i = 0; i < nHighPtGlbMu; ++i) {
         reco::Muon glbMuon = highPtGlbMuons[i];
-        math::XYZTLorentzVector mu1(glbMuon.p4());
+        const math::XYZTLorentzVector& mu1(glbMuon.p4());
         // double pt1= glbMuon.pt();
         // checking that the global muon is hlt matched otherwise skip the event
         singleTrigFlag1 =
@@ -599,7 +599,7 @@ if (!quality) continue;
         (nHighPtStaMu > 10) ? nHighPtStaMu = 10 : 1;
         for (unsigned int j = 0; j < nHighPtStaMu; ++j) {
           reco::Muon staMuon = highPtStaMuons[j];
-          math::XYZTLorentzVector mu2(staMuon.p4());
+          const math::XYZTLorentzVector& mu2(staMuon.p4());
           // double pt2= staMuon.pt();
           if (glbMuon.charge() == staMuon.charge()) continue;
           math::XYZTLorentzVector pair = mu1 + mu2;

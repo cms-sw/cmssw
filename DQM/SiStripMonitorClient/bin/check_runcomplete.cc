@@ -80,7 +80,7 @@ int read_runflag (std::string filename )
 
   TFile *dqmfile = TFile::Open ( filename.c_str() , "READ" );
 
-  if(dqmfile==0) return 1;
+  if(dqmfile==nullptr) return 1;
 
   std::string infodir = "DQMData/Run " + nrun + "/Info/Run summary/ProvInfo";
   gDirectory->cd(infodir.c_str());
@@ -93,7 +93,7 @@ int read_runflag (std::string filename )
   while  ( ( key = dynamic_cast<TKey*> ( next() ) ) ) 
     {
       std::string svar = key->GetName();
-      if ( svar.size() == 0 ) continue;
+      if ( svar.empty() ) continue;
       
       if ( svar.find( "runIsComplete" ) != std::string::npos )
 	{

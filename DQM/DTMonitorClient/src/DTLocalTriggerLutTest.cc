@@ -45,7 +45,7 @@ DTLocalTriggerLutTest::DTLocalTriggerLutTest(const edm::ParameterSet& ps){
   thresholdPhibRMS  = ps.getUntrackedParameter<double>("thresholdPhibRMS",.8);
   doCorrStudy       = ps.getUntrackedParameter<bool>("doCorrelationStudy",false);
 
-  bookingdone = 0;
+  bookingdone = false;
 
 }
 
@@ -105,7 +105,7 @@ void DTLocalTriggerLutTest::Bookings(DQMStore::IBooker & ibooker, DQMStore::IGet
     }	
   }
 
-  bookingdone = 1; 
+  bookingdone = true; 
 
 }
 

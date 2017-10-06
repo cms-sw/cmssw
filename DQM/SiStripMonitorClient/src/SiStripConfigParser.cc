@@ -48,7 +48,7 @@ bool SiStripConfigParser::getMENamesForSummary(std::map<std::string, std::string
     std::string me_type = qtxml::_toString(meElement->getAttribute (qtxml::_toDOMS ("type"))); 
     me_names.insert(std::pair<std::string,std::string>(me_name,me_type));    
   }
-  if (me_names.size() == 0) return false;
+  if (me_names.empty()) return false;
   else return true;
   
 }

@@ -46,7 +46,7 @@ public:
   DTChamberEfficiencyTask(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~DTChamberEfficiencyTask();
+  ~DTChamberEfficiencyTask() override;
 
   /// BeginRun
   void dqmBeginRun(const edm::Run& run, const edm::EventSetup& setup) override;
