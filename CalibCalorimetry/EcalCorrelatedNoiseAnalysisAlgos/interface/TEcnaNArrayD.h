@@ -73,6 +73,6 @@ public:
   Double_t &operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4);
   Double_t &operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4,Int_t i5);
   Double_t &operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4,Int_t i5,Int_t i6);
-  ClassDef(TEcnaNArrayD,1) //ROOT class for multidimensional arrays of Double_t
+  ClassDefOverride(TEcnaNArrayD,1) //ROOT class for multidimensional arrays of Double_t
 };
 #endif
