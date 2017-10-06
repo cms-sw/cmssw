@@ -31,6 +31,7 @@
 // tracks
 #include "DataFormats/L1TMuon/interface/EMTFTrack.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrack.h"
 
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
@@ -50,6 +51,7 @@ namespace L1TMuon {
 
   class L1TDisplacedMuonBuilder {
   public:
+
     L1TDisplacedMuonBuilder(const edm::ParameterSet& iConfig);
     ~L1TDisplacedMuonBuilder();
 
@@ -67,11 +69,7 @@ namespace L1TMuon {
                const GEMCoPadDigiCollection*,
                const ME0SegmentCollection*,
                const l1t::EMTFTrackCollection*,
-               const edm::Handle<l1t::MuonBxCollection>&,
-               const edm::Handle<l1t::MuonBxCollection>&,
-               const edm::Handle<l1t::MuonBxCollection>&,
-               const edm::Handle<l1t::MuonBxCollection>&,
-               const edm::Handle<l1t::MuonBxCollection>&,
+               const L1MuBMTrackCollection*,
                const edm::Handle<l1t::MuonBxCollection>&,
                std::unique_ptr<l1t::MuonBxCollection>&);
 
@@ -126,7 +124,7 @@ namespace L1TMuon {
     std::map<int, std::vector<float>> cscFitZLayers_;
     std::map<int, float> cscFitRLayers_;
 
-    enum MuonType{Barrel, Overlap, EndcapLow, EndcapHigh};
+    enum MuonType{Barrel, Overlap, EndcapLow, EndcapMedium, EndcapHigh};
   };
 }
 

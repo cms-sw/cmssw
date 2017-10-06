@@ -52,12 +52,8 @@ private:
   edm::InputTag me0TriggerTag_;
   edm::InputTag me0SegmentTag_;
   edm::InputTag emtfTag_;
-  edm::InputTag muonTag_;
   edm::InputTag bmtfTag_;
-  edm::InputTag omtfNegTag_;
-  edm::InputTag omtfPosTag_;
-  edm::InputTag emtfNegTag_;
-  edm::InputTag emtfPosTag_;
+  edm::InputTag muonTag_;
 
   edm::EDGetTokenT<CSCComparatorDigiCollection> comparatorToken_;
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> lctToken_;
@@ -66,12 +62,8 @@ private:
   edm::EDGetTokenT<ME0TriggerDigiCollection> me0triggerToken_;
   edm::EDGetTokenT<ME0SegmentCollection> segmentToken_;
   edm::EDGetTokenT<l1t::EMTFTrackCollection> emtfToken_;
+  edm::EDGetTokenT<L1MuBMTrackCollection> bmtfToken_;
   edm::EDGetTokenT<l1t::MuonBxCollection> muonToken_;
-  edm::EDGetTokenT<l1t::MuonBxCollection> bmtfToken_;
-  edm::EDGetTokenT<l1t::MuonBxCollection> emtfNegToken_;
-  edm::EDGetTokenT<l1t::MuonBxCollection> emtfPosToken_;
-  edm::EDGetTokenT<l1t::MuonBxCollection> omtfNegToken_;
-  edm::EDGetTokenT<l1t::MuonBxCollection> omtfPosToken_;
 
   edm::ParameterSet config_;
 };
@@ -97,12 +89,8 @@ L1TDisplacedMuonProducer::L1TDisplacedMuonProducer(const edm::ParameterSet& iCon
   me0TriggerTag_ = iConfig.getParameter<edm::InputTag>("me0TriggerTag");
   me0SegmentTag_ = iConfig.getParameter<edm::InputTag>("me0SegmentTag");
   emtfTag_ = iConfig.getParameter<edm::InputTag>("emtfTag");
-  muonTag_ = iConfig.getParameter<edm::InputTag>("muonTag");
   bmtfTag_ = iConfig.getParameter<edm::InputTag>("bmtfTag");
-  omtfNegTag_ = iConfig.getParameter<edm::InputTag>("omtfNegTag");
-  omtfPosTag_ = iConfig.getParameter<edm::InputTag>("omtfPosTag");
-  emtfNegTag_ = iConfig.getParameter<edm::InputTag>("emtfNegTag");
-  emtfPosTag_ = iConfig.getParameter<edm::InputTag>("emtfPosTag");
+  muonTag_ = iConfig.getParameter<edm::InputTag>("muonTag");
 
   comparatorToken_ = consumes<CSCComparatorDigiCollection>(cscCompTag_);
   lctToken_ = consumes<CSCCorrelatedLCTDigiCollection>(cscLctTag_);
@@ -111,12 +99,8 @@ L1TDisplacedMuonProducer::L1TDisplacedMuonProducer(const edm::ParameterSet& iCon
   me0triggerToken_ = consumes<ME0TriggerDigiCollection>(me0TriggerTag_);
   segmentToken_ = consumes<ME0SegmentCollection>(me0SegmentTag_);
   emtfToken_ = consumes<l1t::EMTFTrackCollection>(emtfTag_);
+  bmtfToken_ = consumes<L1MuBMTrackCollection>(bmtfTag_);
   muonToken_ = consumes<l1t::MuonBxCollection>(muonTag_);
-  bmtfToken_ = consumes<l1t::MuonBxCollection>(bmtfTag_);
-  omtfNegToken_ = consumes<l1t::MuonBxCollection>(omtfNegTag_);
-  omtfPosToken_ = consumes<l1t::MuonBxCollection>(omtfPosTag_);
-  emtfNegToken_ = consumes<l1t::MuonBxCollection>(emtfNegTag_);
-  emtfPosToken_ = consumes<l1t::MuonBxCollection>(emtfPosTag_);
 
   config_ = iConfig;
 
@@ -186,20 +170,8 @@ L1TDisplacedMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   edm::Handle<l1t::EMTFTrackCollection> emtfTracks;
   iEvent.getByToken(emtfToken_, emtfTracks);
 
-  edm::Handle<l1t::MuonBxCollection> inBmtf;
-  iEvent.getByToken(bmtfToken_, inBmtf);
-
-  edm::Handle<l1t::MuonBxCollection> inOmtfPos;
-  iEvent.getByToken(omtfPosToken_, inOmtfPos);
-
-  edm::Handle<l1t::MuonBxCollection> inOmtfNeg;
-  iEvent.getByToken(omtfNegToken_, inOmtfNeg);
-
-  edm::Handle<l1t::MuonBxCollection> inEmtfNeg;
-  iEvent.getByToken(emtfNegToken_, inEmtfNeg);
-
-  edm::Handle<l1t::MuonBxCollection> inEmtfPos;
-  iEvent.getByToken(emtfPosToken_, inEmtfPos);
+  edm::Handle<L1MuBMTrackCollection> bmtfTracks;
+  iEvent.getByToken(bmtfToken_, bmtfTracks);
 
   // new output collection
   std::unique_ptr<l1t::MuonBxCollection> outMuonsPhase2 (new l1t::MuonBxCollection());
@@ -211,8 +183,8 @@ L1TDisplacedMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
                  copads.product(),
                  segments.product(),
                  emtfTracks.product(),
+                 bmtfTracks.product(),
                  inMuonsPhase2,
-                 inBmtf, inOmtfPos, inOmtfNeg, inEmtfNeg, inEmtfPos,
                  outMuonsPhase2);
 
   // put output collection in event

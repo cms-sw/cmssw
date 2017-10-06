@@ -34,18 +34,13 @@ void L1TDisplacedMuonBuilder::build(const CSCComparatorDigiCollection* comparato
                                     const GEMCoPadDigiCollection* copads,
                                     const ME0SegmentCollection* segments,
                                     const l1t::EMTFTrackCollection* emtfTracks,
+                                    const L1MuBMTrackCollection* bmtfTracks,
                                     const edm::Handle<l1t::MuonBxCollection>& inMuonsH,
-                                    const edm::Handle<l1t::MuonBxCollection>& inBmtfH,
-                                    const edm::Handle<l1t::MuonBxCollection>& inOmtfPos,
-                                    const edm::Handle<l1t::MuonBxCollection>& inOmtfNeg,
-                                    const edm::Handle<l1t::MuonBxCollection>& inEmtfPos,
-                                    const edm::Handle<l1t::MuonBxCollection>& inEmtfNeg,
                                     std::unique_ptr<l1t::MuonBxCollection>& outMuons)
 {
   const std::string functionName("L1TDisplacedMuonBuilder::build");
 
   const BXVector<l1t::Muon>& inMuons(*inMuonsH.product());
-  const BXVector<l1t::Muon>& inBmtf(*inBmtfH.product());
 
   for (int ibx = inMuons.getFirstBX(); ibx <= inMuons.getLastBX(); ++ibx) {
 
@@ -72,36 +67,14 @@ void L1TDisplacedMuonBuilder::build(const CSCComparatorDigiCollection* comparato
         muon_type = L1TDisplacedMuonBuilder::Overlap;
       else if (std::abs(muon_eta) > 1.2 and std::abs(muon_eta) <= 1.6)
         muon_type = L1TDisplacedMuonBuilder::EndcapLow;
-      else if (std::abs(muon_eta) > 1.6 and std::abs(muon_eta) <= 2.4)
+      else if (std::abs(muon_eta) > 1.6 and std::abs(muon_eta) <= 2.0)
+        muon_type = L1TDisplacedMuonBuilder::EndcapMedium;
+      else if (std::abs(muon_eta) > 2.0 and std::abs(muon_eta) <= 2.4)
         muon_type = L1TDisplacedMuonBuilder::EndcapHigh;
 
       std::cout << "type " << muon_type << std::endl;
-      std::cout << "cands BMTF " << inBmtf.size(ibx);
+
       // Step 2: The class DisplacedL1MuMatcher is instantiated.
-      bool isBmtf = false;
-      bool isOmtfNeg = false;
-      bool isOmtfPos = false;
-      bool isEmtfNeg = false;
-      bool isEmtfPos = false;
-
-      float mindRBMTF = 999;
-
-      int iii = 0;
-      for (unsigned int k = 0; k<inBmtf.size(ibx); ++k) {
-        ++iii;
-        if (iii>10) break;
-        const l1t::Muon& l1mu = inBmtf.at(ibx,k);
-        const float m_eta = l1mu.eta();
-        const float m_phi = normalizedPhi(l1mu.phi());
-
-        float dr = reco::deltaR(m_eta, m_phi, muon_eta, muon_phi);
-        std::cout << "Other candidate " << m_eta << " "
-                  << m_phi << " dr " << dr << std::endl;
-        if (dr<mindRBMTF){
-          mindRBMTF = dr;
-        }
-      }
-      std::cout << "best dr " << mindRBMTF << std::endl;
 
       // Step 3: The DisplacedL1MuMatcher checks for stubs that are already
       // available through the BMTF, OMTF or EMTF tracks.
