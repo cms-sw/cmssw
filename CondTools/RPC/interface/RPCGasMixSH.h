@@ -26,9 +26,9 @@
 namespace popcon{
   class RpcDataGasMix : public popcon::PopConSourceHandler<RPCObGasMix>{
   public:
-    void getNewObjects();
-    std::string id() const { return m_name;}
-    ~RpcDataGasMix(); 
+    void getNewObjects() override;
+    std::string id() const override { return m_name;}
+    ~RpcDataGasMix() override; 
     RpcDataGasMix(const edm::ParameterSet& pset); 
 
     RPCObGasMix* GasMixdata;

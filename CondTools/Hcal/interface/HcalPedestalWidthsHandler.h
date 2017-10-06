@@ -25,9 +25,9 @@
 class HcalPedestalWidthsHandler : public popcon::PopConSourceHandler<HcalPedestalWidths>
 {
  public:
-  void getNewObjects();
-  std::string id() const { return m_name;}
-  ~HcalPedestalWidthsHandler();
+  void getNewObjects() override;
+  std::string id() const override { return m_name;}
+  ~HcalPedestalWidthsHandler() override;
   HcalPedestalWidthsHandler(edm::ParameterSet const &);
 
   void initObject(HcalPedestalWidths*);

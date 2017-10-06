@@ -98,14 +98,14 @@ private:
 };
 
   XMLDocument::XMLDocument () 
-    : mDoc (0)
+    : mDoc (nullptr)
   {
     cms::concurrency::xercesInitialize();
     mDom =  DOMImplementationRegistry::getDOMImplementation (transcode ("Core"));
     mDoc = mDom->createDocument(
-				0,                    // root element namespace URI.
+				nullptr,                    // root element namespace URI.
 				transcode ("ROOT"),         // root element name
-				0);                   // document type object (DTD).
+				nullptr);                   // document type object (DTD).
   }
 
   template <class T> DOMElement* XMLDocument::newElement (DOMElement* fParent, const T& fName) {
@@ -399,5 +399,5 @@ bool HcalDbXml::dumpObject (std::ostream& fOutput,
 bool HcalDbXml::dumpObject (std::ostream& fOutput, 
 			    unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, 
 			    const HcalRawGains& fObject) {
-  return dumpObject_ (fOutput, fRun, fGMTIOVBegin, fGMTIOVEnd, fTag, &fObject, (const HcalGainWidths*)0);
+  return dumpObject_ (fOutput, fRun, fGMTIOVBegin, fGMTIOVEnd, fTag, &fObject, (const HcalGainWidths*)nullptr);
 }

@@ -11,7 +11,7 @@
 #include <iostream>
 #include <string>
 #include <cstring>
-#include <time.h>
+#include <ctime>
 #include <unistd.h> 
 
 using std::string;
@@ -246,7 +246,7 @@ StoreEcalCondition::readEcalWeightXtalGroupsFromFile(const char* inputFile) {
 
   if(!groupid_in.is_open()) {
     edm::LogError("StoreEcalCondition")<< "*** Can not open file: "<< inputFile ;
-    return 0;
+    return nullptr;
   }  
 
   int smnumber=-99999;
@@ -255,7 +255,7 @@ StoreEcalCondition::readEcalWeightXtalGroupsFromFile(const char* inputFile) {
   groupid_in >> smnumber;
   if (smnumber == -99999) {
     edm::LogError("StoreEcalCondition") << "ERROR: SM number not found in file" << endl;
-    return 0;
+    return nullptr;
   }
   str << "sm= " << smnumber << endl;
   sm_constr_ = smnumber;
@@ -291,7 +291,7 @@ StoreEcalCondition::readEcalWeightXtalGroupsFromFile(const char* inputFile) {
 
   if (xtals != 1700) {
     edm::LogError("StoreEcalCondition") << "ERROR:  GROUPID file did not contain data for 1700 crystals" << endl;
-    return 0;
+    return nullptr;
   }
   
   edm::LogInfo("StoreEcalCondition") << "Groups for " << xtals << " xtals written into DB" ;
@@ -312,7 +312,7 @@ StoreEcalCondition::readEcalTBWeightsFromFile(const char* inputFile) {
   std::ifstream WeightsFileTB(inputFile);
   if(!WeightsFileTB.is_open()) {
     edm::LogError("StoreEcalCondition")<< "*** Can not open file: "<< inputFile ;
-    return 0;
+    return nullptr;
   }
 
   int smnumber=-99999;
@@ -320,7 +320,7 @@ StoreEcalCondition::readEcalTBWeightsFromFile(const char* inputFile) {
   std::ostringstream str;
   WeightsFileTB >> smnumber;
   if (smnumber == -99999)
-    return 0;
+    return nullptr;
 
   str << "sm= " << smnumber << endl;
 
@@ -456,7 +456,7 @@ StoreEcalCondition::readEcalADCToGeVConstantFromFile(const char* inputFile) {
     inpFile = fopen(inputFile,"r");
     if(!inpFile) {
       edm::LogError("StoreEcalCondition")<<"*** Can not open file: "<<inputFile;
-      return 0;
+      return nullptr;
     }
 
     char line[256];
@@ -520,7 +520,7 @@ StoreEcalCondition::readEcalIntercalibConstantsFromFile(const char* inputFile,co
     inpFile = fopen(inputFile,"r");
     if(!inpFile) {
       edm::LogError("StoreEcalCondition")<<"*** Can not open file: "<<inputFile;
-      return 0;
+      return nullptr;
     }
 
     char line[256];
@@ -686,7 +686,7 @@ StoreEcalCondition::readEcalIntercalibConstantsMCFromFile(const char* inputFile,
     inpFile = fopen(inputFile,"r");
     if(!inpFile) {
       edm::LogError("StoreEcalCondition")<<"*** Can not open file: "<<inputFile;
-      return 0;
+      return nullptr;
     }
 
     char line[256];
@@ -873,7 +873,7 @@ StoreEcalCondition::readEcalGainRatiosFromFile(const char* inputFile) {
     inpFile = fopen(inputFile,"r");
     if(!inpFile) {
       edm::LogError("StoreEcalCondition")<<"*** Can not open file: "<<inputFile;
-      return 0;
+      return nullptr;
     }
 
     char line[256];

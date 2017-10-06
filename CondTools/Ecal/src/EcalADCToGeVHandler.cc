@@ -97,7 +97,7 @@ void popcon::EcalADCToGeVHandler::getNewObjects() {
 	  
 	  econn->fetchDataSet(&dataset, &rp);
 	  
-	  if (!dataset.size()) {
+	  if (dataset.empty()) {
 	    throw(std::runtime_error("Zero rows read back"));
 	  } else {
 	    std::cout<< "retrieved magnet current"<<std::endl;  

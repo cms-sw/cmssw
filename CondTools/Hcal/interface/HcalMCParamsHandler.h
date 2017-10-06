@@ -25,9 +25,9 @@
 class HcalMCParamsHandler : public popcon::PopConSourceHandler<HcalMCParams>
 {
  public:
-  void getNewObjects();
-  std::string id() const { return m_name;}
-  ~HcalMCParamsHandler();
+  void getNewObjects() override;
+  std::string id() const override { return m_name;}
+  ~HcalMCParamsHandler() override;
   HcalMCParamsHandler(edm::ParameterSet const &);
 
   void initObject(HcalMCParams*);

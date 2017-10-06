@@ -62,7 +62,7 @@ void popcon::RPCObPVSSmapData::getNewObjects() {
     }
   std::cout << " >> Final object size: " << IDMapdata->ObIDMap_rpc.size() << std::endl;
 
-   if (IDMapdata->ObIDMap_rpc.size() > 0) {
+   if (!IDMapdata->ObIDMap_rpc.empty()) {
      niov = snc;
    } else {
      niov = snc;
