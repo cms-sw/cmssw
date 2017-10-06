@@ -121,7 +121,7 @@ getCombinationsInCondition(int algorithmBitNumber,
   unsigned short nObjectsPerCombination = m_conditionResults[startIndex + conditionNumber].nObjectsPerCombination();
 
   if (endObjectIndex == beginObjectIndex) {
-    return CombinationsInCondition(0, 0, 0);
+    return CombinationsInCondition(nullptr, 0, 0);
   }
   if (endObjectIndex < beginObjectIndex ||
       m_combinations.size() < endObjectIndex ||

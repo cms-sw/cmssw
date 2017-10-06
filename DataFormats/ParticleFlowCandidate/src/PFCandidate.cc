@@ -48,7 +48,7 @@ PFCandidate::PFCandidate() :
   mva_nothing_gamma_(bigMva_),
   mva_nothing_nh_(bigMva_),
   mva_gamma_nh_(bigMva_),
-  getter_(0),storedRefsBitPattern_(0),
+  getter_(nullptr),storedRefsBitPattern_(0),
   time_(0.f),timeError_(-1.f)
 {
 
@@ -90,7 +90,7 @@ PFCandidate::PFCandidate( Charge charge,
   mva_nothing_gamma_(bigMva_),
   mva_nothing_nh_(bigMva_),
   mva_gamma_nh_(bigMva_),
-  getter_(0),storedRefsBitPattern_(0),
+  getter_(nullptr),storedRefsBitPattern_(0),
   time_(0.f),timeError_(-1.f)
 {
   refsInfo_.reserve(3);
@@ -216,7 +216,7 @@ PFCandidate * PFCandidate::clone() const {
 void PFCandidate::addElementInBlock( const reco::PFBlockRef& blockref,
                                      unsigned elementIndex ) {
   //elementsInBlocks_.push_back( make_pair(blockref.key(), elementIndex) );
-  if (blocksStorage_.size()==0)
+  if (blocksStorage_.empty())
     blocksStorage_ =Blocks(blockref.id());
   blocksStorage_.push_back(blockref);
   elementsStorage_.push_back(elementIndex);
@@ -371,22 +371,22 @@ void PFCandidate::storeRefInfo(unsigned int iMask,
 			       const edm::EDProductGetter* iGetter) {
 
   size_t index = s_refsBefore[storedRefsBitPattern_ & iMask];
-  if ( 0 == getter_) {
+  if ( nullptr == getter_) {
     getter_ = iGetter;
   }
 
   if(iIsValid) {
     if(0 == (storedRefsBitPattern_ & iBit) ) {
       refsInfo_.insert(refsInfo_.begin()+index, bitPackRefInfo(iCore,iKey));
-      if (iGetter==0)
+      if (iGetter==nullptr)
 	refsCollectionCache_.insert(refsCollectionCache_.begin()+index,
 				    static_cast<void const*>(iCore.productPtr()));
       else
-	refsCollectionCache_.insert(refsCollectionCache_.begin()+index,0);
+	refsCollectionCache_.insert(refsCollectionCache_.begin()+index,nullptr);
     } else {
       assert(refsInfo_.size()>index);
       *(refsInfo_.begin()+index)=bitPackRefInfo(iCore,iKey);
-      if (iGetter==0)
+      if (iGetter==nullptr)
 	*(refsCollectionCache_.begin()+index)=static_cast<void const*>(iCore.productPtr());
       else
 	*(refsCollectionCache_.begin()+index)=nullptr;

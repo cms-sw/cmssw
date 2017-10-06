@@ -49,7 +49,7 @@ namespace fwlite {
    public:
 
       ChainEvent(std::vector<std::string> const& iFileNames);
-      virtual ~ChainEvent();
+      ~ChainEvent() override;
 
       ChainEvent const& operator++() override;
 
@@ -66,7 +66,7 @@ namespace fwlite {
       ChainEvent const& toBegin() override;
 
       // ---------- const member functions ---------------------
-      virtual std::string const getBranchNameFor(std::type_info const&,
+      std::string const getBranchNameFor(std::type_info const&,
                                                  char const*,
                                                  char const*,
                                                  char const*) const override;
@@ -74,20 +74,20 @@ namespace fwlite {
       using fwlite::EventBase::getByLabel;
 
       // This function should only be called by fwlite::Handle<>
-      virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const override;
+      bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const override;
       //void getByBranchName(std::type_info const&, char const*, void*&) const;
 
       bool isValid() const;
       operator bool() const;
-      virtual bool atEnd() const override;
+      bool atEnd() const override;
 
       Long64_t size() const;
 
-      virtual edm::EventAuxiliary const& eventAuxiliary() const override;
+      edm::EventAuxiliary const& eventAuxiliary() const override;
 
       std::vector<edm::BranchDescription> const& getBranchDescriptions() const;
       std::vector<std::string> const& getProcessHistory() const;
-      virtual edm::ProcessHistory const& processHistory() const override;
+      edm::ProcessHistory const& processHistory() const override;
       TFile* getTFile() const {
         return event_->getTFile();
       }
@@ -99,7 +99,7 @@ namespace fwlite {
       // 0 events. To get the path of the file where the current event resides
       // in, fwlite::ChainEvent::getTFile()->GetPath() is preferred.
       Long64_t eventIndex() const { return eventIndex_; }
-      virtual Long64_t fileIndex() const override { return eventIndex_; }
+      Long64_t fileIndex() const override { return eventIndex_; }
 
       void setGetter(std::shared_ptr<edm::EDProductGetter const> getter){
          event_->setGetter(getter);
@@ -107,18 +107,18 @@ namespace fwlite {
 
       Event const* event() const { return &*event_; }
 
-      virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const override;
+      edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const override;
       void fillParameterSetRegistry() const ;
-      virtual edm::TriggerResultsByName triggerResultsByName(edm::TriggerResults const& triggerResults) const override;
+      edm::TriggerResultsByName triggerResultsByName(edm::TriggerResults const& triggerResults) const override;
 
-      virtual edm::ParameterSet const* parameterSet(edm::ParameterSetID const& psID) const override;
+      edm::ParameterSet const* parameterSet(edm::ParameterSetID const& psID) const override;
 
       // ---------- static member functions --------------------
       static void throwProductNotFoundException(std::type_info const&, char const*, char const*, char const*);
 
       // ---------- member functions ---------------------------
 
-      virtual edm::WrapperBase const* getByProductID(edm::ProductID const&) const override;
+      edm::WrapperBase const* getByProductID(edm::ProductID const&) const override;
       edm::WrapperBase const* getThinnedProduct(edm::ProductID const& pid, unsigned int& key) const;
 
       void getThinnedProducts(edm::ProductID const& pid,

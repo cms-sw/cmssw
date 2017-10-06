@@ -35,7 +35,7 @@ namespace {
          <<"'\n  productInstance='"<<((nullptr != instance_)?instance_:"")<<"'\n  process='"<<((nullptr != process_)?process_:"")<<"'\n"
          "but no data is available for this Event";
       }
-      virtual ErrorThrower* clone() const override {
+      ErrorThrower* clone() const override {
          return new NoProductErrorThrower(*this);
       }
 
@@ -58,7 +58,7 @@ namespace {
          <<"'\n  productInstance='"<<((nullptr != instance_)?instance_:"")<<"'\n  process='"<<((nullptr != process_)?process_:"")<<"'";
       }
       
-      virtual ErrorThrower* clone() const override {
+      ErrorThrower* clone() const override {
          return new NoBranchErrorThrower(*this);
       }
       
@@ -74,7 +74,7 @@ namespace {
          throw cms::Exception("UnsetHandle")<<"The fwlite::Handle was never set";
       }
       
-      virtual ErrorThrower* clone() const override {
+      ErrorThrower* clone() const override {
          return new UnsetErrorThrower(*this);
       }
       

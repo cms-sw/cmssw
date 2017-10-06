@@ -62,13 +62,13 @@ namespace edm {
 
     /// General purpose constructor from handle.
     explicit RefProd(Handle<C> const& handle) :
-    product_(handle.id(), handle.product(), 0, false) {
+    product_(handle.id(), handle.product(), nullptr, false) {
       checkTypeAtCompileTime(handle.product());
     }
 
     /// General purpose constructor from orphan handle.
     explicit RefProd(OrphanHandle<C> const& handle) :
-    product_(handle.id(), handle.product(), 0, false) {
+    product_(handle.id(), handle.product(), nullptr, false) {
       checkTypeAtCompileTime(handle.product());
     }
 
@@ -96,7 +96,7 @@ namespace edm {
     // but have a pointer to a product getter (such as the EventPrincipal).
     // prodGetter will ususally be a pointer to the event principal.
     RefProd(ProductID const& productID, EDProductGetter const* prodGetter) :
-      product_(productID, 0, mustBeNonZero(prodGetter, "RefProd", productID), false) {
+      product_(productID, nullptr, mustBeNonZero(prodGetter, "RefProd", productID), false) {
     }
 
     /// Destructor
@@ -111,7 +111,7 @@ namespace edm {
     /// Returns C++ pointer to the product
     /// Will attempt to retrieve product
     product_type const* get() const {
-      return isNull() ? 0 : this->operator->();
+      return isNull() ? nullptr : this->operator->();
     }
 
     /// Returns C++ pointer to the product

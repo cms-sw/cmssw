@@ -140,7 +140,7 @@ namespace edm {
     void push_back(Ptr<T> const& iPtr) {
       this->push_back_base(iPtr.refCore(),
                            iPtr.key(),
-                           iPtr.hasProductCache() ? iPtr.operator->() : static_cast<void const*>(0));
+                           iPtr.hasProductCache() ? iPtr.operator->() : static_cast<void const*>(nullptr));
     }
 
     template<typename U>
@@ -149,7 +149,7 @@ namespace edm {
       static_assert( std::is_base_of<T, U>::value, "Ptr used in push_back can not be converted to type used by PtrVector." );
       this->push_back_base(iPtr.refCore(),
                            iPtr.key(),
-                           iPtr.hasProductCache() ? iPtr.operator->() : static_cast<void const*>(0));
+                           iPtr.hasProductCache() ? iPtr.operator->() : static_cast<void const*>(nullptr));
     }
 
     void swap(PtrVector& other) {
@@ -171,7 +171,7 @@ namespace edm {
   private:
 
     //PtrVector const& operator=(PtrVector const&); // stop default
-    std::type_info const& typeInfo() const {return typeid(T);}
+    std::type_info const& typeInfo() const override {return typeid(T);}
 
     // ---------- member data --------------------------------
     Ptr<T> fromItr(std::vector<void const*>::const_iterator const& iItr) const {
