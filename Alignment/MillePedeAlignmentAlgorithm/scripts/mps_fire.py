@@ -86,9 +86,6 @@ if not args.fireMerge:
     # "cmscafspec" found in $resources: special cmscaf resources
     if 'cmscafspec' in resources:
         print '\nWARNING:\n  Running mille jobs on cmscafspec, intended for pede only!\n\n'
-        queue = resources
-        queue = queue.replace('cmscafspec','cmscaf')
-        resources = '-q'+queue+'-R cmscafspec' # FIXME why?
         resources = '-q cmscafalcamille'
     # "cmscaf" found in $resources
     elif 'cmscaf' in resources:
@@ -134,9 +131,6 @@ else:
     # set the resources string coming from mps.db
     resources = lib.get_class('pede')
     if 'cmscafspec' in resources:
-        queue = resources
-        queue = queue.replace('cmscafspec','cmscaf')
-        resources = '-q '+queue+' -R cmscafspec' # FIXME why?
         resources = '-q cmscafalcamille'
     else:
         resources = '-q '+resources
