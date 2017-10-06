@@ -140,15 +140,15 @@ void GenericTriggerEventFlag::initRun( const edm::Run & run, const edm::EventSet
 {
 
   if ( watchDB_->check( setup ) ) {
-    if ( onGt_ && gtDBKey_.size() > 0 ) {
+    if ( onGt_ && !gtDBKey_.empty() ) {
       const std::vector< std::string > exprs( expressionsFromDB( gtDBKey_, setup ) );
       if ( exprs.empty() || exprs.at( 0 ) != configError_ ) gtLogicalExpressions_ = exprs;
     }
-    if ( onL1_ && l1DBKey_.size() > 0 ) {
+    if ( onL1_ && !l1DBKey_.empty() ) {
       const std::vector< std::string > exprs( expressionsFromDB( l1DBKey_, setup ) );
       if ( exprs.empty() || exprs.at( 0 ) != configError_ ) l1LogicalExpressionsCache_ = exprs;
     }
-    if ( onHlt_ && hltDBKey_.size() > 0 ) {
+    if ( onHlt_ && !hltDBKey_.empty() ) {
       const std::vector< std::string > exprs( expressionsFromDB( hltDBKey_, setup ) );
       if ( exprs.empty() || exprs.at( 0 ) != configError_ ) hltLogicalExpressionsCache_ = exprs;
     }
@@ -160,7 +160,7 @@ void GenericTriggerEventFlag::initRun( const edm::Run & run, const edm::EventSet
 
   hltConfigInit_ = false;
   if ( onHlt_ ) {
-    if ( hltInputTag_.process().size() == 0 ) {
+    if ( hltInputTag_.process().empty() ) {
       if ( verbose_ > 0 ) edm::LogError( "GenericTriggerEventFlag" ) << "HLT TriggerResults InputTag \"" << hltInputTag_.encode() << "\" specifies no process";
     } else {
       bool hltChanged( false );
@@ -266,7 +266,7 @@ bool GenericTriggerEventFlag::acceptDcs( const edm::Event & event )
     if ( verbose_ > 1 ) edm::LogWarning( "GenericTriggerEventFlag" ) << "DcsStatusCollection product with InputTag \"" << dcsInputTag_.encode() << "\" not in event ==> decision: " << errorReplyDcs_;
     return errorReplyDcs_;
   }
-  if ( ( *dcsStatus ).size() == 0 ) {
+  if ( ( *dcsStatus ).empty() ) {
     if ( verbose_ > 1 ) edm::LogWarning( "GenericTriggerEventFlag" ) << "DcsStatusCollection product with InputTag \"" << dcsInputTag_.encode() << "\" empty ==> decision: " << errorReplyDcs_;
     return errorReplyDcs_;
   }
@@ -651,7 +651,7 @@ bool GenericTriggerEventFlag::negate( std::string & word ) const
 /// Reads and returns logical expressions from DB
 std::vector< std::string > GenericTriggerEventFlag::expressionsFromDB( const std::string & key, const edm::EventSetup & setup )
 {  
-  if ( key.size() == 0 ) return std::vector< std::string >( 1, emptyKeyError_ );
+  if ( key.empty() ) return std::vector< std::string >( 1, emptyKeyError_ );
   edm::ESHandle< AlCaRecoTriggerBits > logicalExpressions;
   std::vector< edm::eventsetup::DataKey > labels;
   setup.get< AlCaRecoTriggerBitsRcd >().fillRegisteredDataKeys( labels );

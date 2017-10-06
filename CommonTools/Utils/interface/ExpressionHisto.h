@@ -82,12 +82,12 @@ void ExpressionHisto<T>::initialize(TFileDirectory& fs)
    char buff[1024],baff[1024];
    if (separatePlots) {
        for (uint32_t i = 0; i < nhistos; i++) {
-               if (strstr(name.c_str(), "%d") != 0) {
+               if (strstr(name.c_str(), "%d") != nullptr) {
                        snprintf(buff, 1024, name.c_str(), i+1);
                } else {
                        snprintf(buff, 1024, "%s [#%d]", name.c_str(), i+1);
                }
-               if (strstr(description.c_str(), "%d") != 0) {
+               if (strstr(description.c_str(), "%d") != nullptr) {
                        snprintf(baff, 1024, description.c_str(), i+1);
                } else {
                        snprintf(baff, 1024, "%s [#%d]", description.c_str(), i+1);

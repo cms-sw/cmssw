@@ -38,7 +38,7 @@ namespace reco {
       m_arg(std::move(iArg)) {}
        
       // ---------- const member functions ---------------------
-      virtual double evaluate(double const* iVariables, double const* iParameters) const override final {
+      double evaluate(double const* iVariables, double const* iParameters) const final {
         return -1. * m_arg->evaluate(iVariables,iParameters) ;
       }
 
