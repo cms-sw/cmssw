@@ -34,10 +34,10 @@
 class SelectHFMinBias : public edm::EDFilter {
 public:
   explicit SelectHFMinBias( const edm::ParameterSet & );
-  ~SelectHFMinBias();
+  ~SelectHFMinBias() override;
   
 private:
-  virtual bool filter ( edm::Event &, const edm::EventSetup&) override;
+  bool filter ( edm::Event &, const edm::EventSetup&) override;
 
 };
 
