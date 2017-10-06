@@ -35,7 +35,7 @@
 // required for compiling ( the only available constructor in this class ). Can't be used in persistency without this...
 namespace cond {
   template <> HcalCalibrationQIEData* createPayload<HcalCalibrationQIEData>( const std::string& payloadTypeName ){
-    if( payloadTypeName == "HcalCalibrationQIEData" ) return new HcalCalibrationQIEData(0);
+    if( payloadTypeName == "HcalCalibrationQIEData" ) return new HcalCalibrationQIEData(nullptr);
     throwException(std::string("Type mismatch, target object is type \"")+payloadTypeName+"\"",
 		   "createPayload" );
   }
