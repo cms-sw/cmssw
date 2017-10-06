@@ -55,7 +55,9 @@ RecoMuonAOD = cms.PSet(
                                            'keep TrackingRecHitsOwned_refittedStandAloneMuons_*_*',
                                            'keep recoTracks_displacedStandAloneMuons__*',
                                            'keep recoTrackExtras_displacedStandAloneMuons_*_*',
-                                           'keep TrackingRecHitsOwned_displacedStandAloneMuons_*_*'
+                                           'keep TrackingRecHitsOwned_displacedStandAloneMuons_*_*',
+                                           # Sim matching information
+                                           'keep *_muonSimClassifier_*_*'
                                            )
 )
 # RECO content
