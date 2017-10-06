@@ -11,11 +11,11 @@ class CPUSpender: public edm::stream::EDAnalyzer<> {
   CPUSpender(const edm::ParameterSet& pset) { timePerEvent_= pset.getUntrackedParameter<int>("secPerEvent");}
 
   /// Destructor
-  virtual ~CPUSpender() {}
+  ~CPUSpender() override {}
 
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) {
-    time_t s = time(0);
-    while (time(0)-s < timePerEvent_) { continue;}
+  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override {
+    time_t s = time(nullptr);
+    while (time(nullptr)-s < timePerEvent_) { continue;}
   }
 
   // Operations

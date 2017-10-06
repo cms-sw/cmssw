@@ -57,7 +57,7 @@ TFileService::~TFileService() {
 void TFileService::setDirectoryName(const edm::ModuleDescription & desc) {
   tFileDirectory_.file_ = file_;
   tFileDirectory_.dir_ = desc.moduleLabel();
-  tFileDirectory_.descr_ = (tFileDirectory_.dir_ + " (" + desc.moduleName() + ") folder").c_str();
+  tFileDirectory_.descr_ = tFileDirectory_.dir_ + " (" + desc.moduleName() + ") folder";
 }
 
 void TFileService::preModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const& mcc) {

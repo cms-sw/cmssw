@@ -20,7 +20,7 @@ class PuppiProducer : public edm::stream::EDProducer<> {
 
 public:
 	explicit PuppiProducer(const edm::ParameterSet&);
-	~PuppiProducer();
+	~PuppiProducer() override;
 
 	static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 	typedef math::XYZTLorentzVector LorentzVector;
@@ -34,7 +34,7 @@ public:
 
 private:
 	virtual void beginJob() ;
-	virtual void produce(edm::Event&, const edm::EventSetup&);
+	void produce(edm::Event&, const edm::EventSetup&) override;
 	virtual void endJob() ;
       
 	edm::EDGetTokenT< CandidateView > tokenPFCandidates_;

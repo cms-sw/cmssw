@@ -20,7 +20,7 @@ namespace converter {
       const reco::Track & trk = * trkRef;
       c.setCharge(trk.charge());
       c.setVertex(trk.vertex());
-      reco::Track::Vector p = trk.momentum();
+      const reco::Track::Vector& p = trk.momentum();
       double t = sqrt(massSqr_ + p.mag2());
       c.setP4(reco::Candidate::LorentzVector(p.x(), p.y(), p.z(), t));
       c.setTrack(trkRef);

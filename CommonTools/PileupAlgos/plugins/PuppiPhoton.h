@@ -19,7 +19,7 @@ class PuppiPhoton : public edm::stream::EDProducer<> {
 
 public:
 	explicit PuppiPhoton(const edm::ParameterSet&);
-	~PuppiPhoton();
+	~PuppiPhoton() override;
 
 	static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 	typedef math::XYZTLorentzVector                        LorentzVector;
@@ -29,7 +29,7 @@ public:
 	typedef edm::View<reco::PFCandidate>                   PFView;
 
 private:
-	virtual void produce(edm::Event&, const edm::EventSetup&);
+	void produce(edm::Event&, const edm::EventSetup&) override;
 	bool matchPFCandidate(const reco::Candidate *iPF,const reco::Candidate *iPho);
 	edm::EDGetTokenT< CandidateView >        tokenPFCandidates_;
 	edm::EDGetTokenT< CandidateView >        tokenPuppiCandidates_;
