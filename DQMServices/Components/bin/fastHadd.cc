@@ -104,7 +104,7 @@ PATH=/afs/cern.ch/work/r/rovere/protocolbuf/bin
 
 #include <sys/prctl.h>
 #include <sys/wait.h>
-#include <signal.h>
+#include <csignal>
 
 #define DEBUG(x, msg) if (debug >= x) std::cout << "DEBUG: " << msg << std::flush
 
@@ -180,10 +180,10 @@ if there are no more objects in the buffer, or a null pointer was
 serialised at this location. */
 inline TObject * extractNextObject(TBufferFile &buf) {
   if (buf.Length() == buf.BufferSize())
-    return 0;
+    return nullptr;
 
   buf.InitMap();
-  return reinterpret_cast<TObject *>(buf.ReadObjectAny(0));
+  return reinterpret_cast<TObject *>(buf.ReadObjectAny(nullptr));
 }
 
 static void get_info(const dqmstorepb::ROOTFilePB::Histo &h,
@@ -276,7 +276,7 @@ void processDirectory(TFile *file,
       processDirectory(file, subdir, micromes);
     } else if ((dynamic_cast<TH1 *>(obj)) || (dynamic_cast<TObjString *>(obj))) {
       if (dynamic_cast<TH1 *>(obj)) {
-        dynamic_cast<TH1 *>(obj)->SetDirectory(0);
+        dynamic_cast<TH1 *>(obj)->SetDirectory(nullptr);
       }
 
       DEBUG(2, curdir << "/" << obj->GetName() << "\n");
@@ -362,7 +362,7 @@ int convertFile(const std::string &output_filename,
 }
 
 int dumpFiles(const std::vector<std::string> &filenames) {
-  assert(filenames.size() > 0);
+  assert(!filenames.empty());
   for (int i = 0, e = filenames.size(); i != e; ++i) {
     DEBUG(0, "Dumping file " << filenames[i] << std::endl);
     dqmstorepb::ROOTFilePB dqmstore_message;
@@ -413,7 +413,7 @@ int addFile(MEStore& micromes, int fd) {
   for (int i = 0; i < dqmstore_msg.histo_size(); i++) {
     std::string path;
     std::string objname;
-    TObject *obj = NULL;
+    TObject *obj = nullptr;
     const dqmstorepb::ROOTFilePB::Histo &h = dqmstore_msg.histo(i);
     get_info(h, path, objname, &obj);
 
@@ -458,7 +458,7 @@ void tryRootPreload() {
     const dqmstorepb::ROOTFilePB::Histo &hr = preload_file.histo(0);
     std::string path;
     std::string objname;
-    TObject *obj = NULL;
+    TObject *obj = nullptr;
     get_info(hr, path, objname, &obj);
     delete obj;
 

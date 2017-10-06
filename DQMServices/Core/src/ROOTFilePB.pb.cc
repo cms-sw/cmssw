@@ -49,8 +49,8 @@ PROTOBUF_CONSTEXPR_VAR ::google::protobuf::internal::AuxillaryParseTableField
 };
 PROTOBUF_CONSTEXPR_VAR ::google::protobuf::internal::ParseTable const
     TableStruct::schema[] GOOGLE_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
-  { NULL, NULL, 0, -1, -1, -1, -1, NULL, false },
-  { NULL, NULL, 0, -1, -1, -1, -1, NULL, false },
+  { nullptr, nullptr, 0, -1, -1, -1, -1, nullptr, false },
+  { nullptr, nullptr, 0, -1, -1, -1, -1, nullptr, false },
 };
 
 const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
@@ -92,7 +92,7 @@ void protobuf_AssignDescriptors() {
   ::google::protobuf::MessageFactory* factory = nullptr;
   AssignDescriptors(
       "DQMServices/Core/src/ROOTFilePB.proto", schemas, file_default_instances, TableStruct::offsets, factory,
-      file_level_metadata, NULL, NULL);
+      file_level_metadata, nullptr, nullptr);
 }
 
 void protobuf_AssignDescriptorsOnce() {
@@ -162,7 +162,7 @@ const int ROOTFilePB_Histo::kFlagsFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 ROOTFilePB_Histo::ROOTFilePB_Histo()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  : ::google::protobuf::Message(), _internal_metadata_(nullptr) {
   if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
     protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::InitDefaults();
   }
@@ -171,7 +171,7 @@ ROOTFilePB_Histo::ROOTFilePB_Histo()
 }
 ROOTFilePB_Histo::ROOTFilePB_Histo(const ROOTFilePB_Histo& from)
   : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
+      _internal_metadata_(nullptr),
       _has_bits_(from._has_bits_),
       _cached_size_(0) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
@@ -768,7 +768,7 @@ const int ROOTFilePB::kHistoFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 ROOTFilePB::ROOTFilePB()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  : ::google::protobuf::Message(), _internal_metadata_(nullptr) {
   if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
     protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::InitDefaults();
   }
@@ -777,7 +777,7 @@ ROOTFilePB::ROOTFilePB()
 }
 ROOTFilePB::ROOTFilePB(const ROOTFilePB& from)
   : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
+      _internal_metadata_(nullptr),
       _has_bits_(from._has_bits_),
       _cached_size_(0),
       histo_(from.histo_) {

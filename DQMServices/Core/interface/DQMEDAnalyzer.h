@@ -26,12 +26,12 @@ public:
   // implicit copy constructor
   // implicit assignment operator
   // implicit destructor
-  virtual void beginStream(edm::StreamID id) final;
-  virtual void beginRun(edm::Run const &, edm::EventSetup const&) final;
+  void beginStream(edm::StreamID id) final;
+  void beginRun(edm::Run const &, edm::EventSetup const&) final;
   static std::shared_ptr<dqmDetails::NoCache> globalBeginRunSummary(edm::Run const&,
                                                         edm::EventSetup const&,
                                                         RunContext const*);
-  virtual void endRunSummary(edm::Run const&,
+  void endRunSummary(edm::Run const&,
                              edm::EventSetup const&,
                              dqmDetails::NoCache*) const final;
   static void globalEndRunSummary(edm::Run const&,
@@ -41,7 +41,7 @@ public:
   static std::shared_ptr<dqmDetails::NoCache> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&,
                                                                     edm::EventSetup const&,
                                                                     LuminosityBlockContext const*);
-  virtual void endLuminosityBlockSummary(edm::LuminosityBlock const&,
+  void endLuminosityBlockSummary(edm::LuminosityBlock const&,
                                          edm::EventSetup const&,
                                          dqmDetails::NoCache*) const final;
   static void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&,
@@ -69,7 +69,7 @@ namespace thread_unsafe {
     {
     public:
       DQMEDAnalyzer(void);
-      virtual void beginRun(edm::Run const &, edm::EventSetup const&) final;
+      void beginRun(edm::Run const &, edm::EventSetup const&) final;
       virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) {}
       virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) = 0;
       
