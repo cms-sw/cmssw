@@ -190,7 +190,7 @@ CastorPedestalsAnalysis::~CastorPedestalsAnalysis()
     std::string name2 = tempstringout.str() + "_pedplots_2d.png";
 
     TStyle *theStyle = new TStyle("style","null");
-    theStyle->SetPalette(1,0);
+    theStyle->SetPalette(1,nullptr);
     theStyle->SetCanvasDefH(1200); //Height of canvas
     theStyle->SetCanvasDefW(1600); //Width of canvas
 

@@ -43,7 +43,7 @@ class ESTrivialConditionRetriever : public edm::ESProducer,
 
 public:
   ESTrivialConditionRetriever(const edm::ParameterSet&  pset);
-  virtual ~ESTrivialConditionRetriever();
+  ~ESTrivialConditionRetriever() override;
 
   // ---------- member functions ---------------------------
   virtual std::unique_ptr<ESPedestals> produceESPedestals( const ESPedestalsRcd& );
@@ -62,12 +62,12 @@ public:
 
 protected:
   //overriding from ContextRecordIntervalFinder
-  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
                                const edm::IOVSyncValue& ,
-                               edm::ValidityInterval& ) ;
+                               edm::ValidityInterval& ) override ;
 private:
-  ESTrivialConditionRetriever( const ESTrivialConditionRetriever& ); // stop default
-  const  ESTrivialConditionRetriever& operator=( const ESTrivialConditionRetriever& ); // stop default
+  ESTrivialConditionRetriever( const ESTrivialConditionRetriever& ) = delete; // stop default
+  const  ESTrivialConditionRetriever& operator=( const ESTrivialConditionRetriever& ) = delete; // stop default
 
   void getWeightsFromConfiguration(const edm::ParameterSet& ps);
 

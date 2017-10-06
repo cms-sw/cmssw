@@ -28,10 +28,10 @@ public:
   DTT0FEBPathCorrection(const edm::ParameterSet&);
 
   // Destructor
-  virtual ~DTT0FEBPathCorrection();
+  ~DTT0FEBPathCorrection() override;
 
-  virtual void setES(const edm::EventSetup& setup);
-  virtual DTT0Data correction(const DTWireId&);
+  void setES(const edm::EventSetup& setup) override;
+  DTT0Data correction(const DTWireId&) override;
 
   float t0FEBPathCorrection(int wheel, int st, int sec, int sl, int l, int w);
 private:

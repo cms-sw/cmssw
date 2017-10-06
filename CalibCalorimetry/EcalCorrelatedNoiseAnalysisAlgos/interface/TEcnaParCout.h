@@ -41,7 +41,7 @@ class TEcnaParCout : public TObject {
   //..... Methods
            TEcnaParCout();
            TEcnaParCout(TEcnaObject*);
-  virtual  ~TEcnaParCout();
+   ~TEcnaParCout() override;
 
   void     Init();
   Int_t    GetCodePrint(const TString&);
