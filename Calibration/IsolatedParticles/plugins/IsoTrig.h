@@ -68,19 +68,19 @@ class IsoTrig : public edm::EDAnalyzer {
 
 public:
   explicit IsoTrig(const edm::ParameterSet&);
-  ~IsoTrig();
+  ~IsoTrig() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginJob() ;
-  virtual void endJob() ;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override ;
+  void endJob() override ;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   void clearMipCutTreeVectors();
   void clearChgIsolnTreeVectors();

@@ -31,7 +31,7 @@
 class ECALRegFEDSelector : public edm::EDProducer {
  public:
   ECALRegFEDSelector(const edm::ParameterSet&);
-  ~ECALRegFEDSelector();
+  ~ECALRegFEDSelector() override;
   std::unique_ptr<const EcalElectronicsMapping> ec_mapping;
 
   double delta_;
@@ -41,9 +41,9 @@ class ECALRegFEDSelector : public edm::EDProducer {
   edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_seed_;
   
  private:
-  virtual void beginJob() ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override ;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
   
 };
 
