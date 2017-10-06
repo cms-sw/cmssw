@@ -36,6 +36,9 @@ pushd ${LOCAL_TMP_DIR}
   echo "testGetByMerge"
   cmsRun -p ${LOCAL_TEST_DIR}/${test}Merge_cfg.py > testGetByMerge.log 2>/dev/null || die "cmsRun ${test}Merge_cfg.py" $?
 
+  echo "testGetByPlaceholder"
+  cmsRun -p ${LOCAL_TEST_DIR}/${test}Placeholder_cfg.py || die "cmsRun ${test}Placeholder_cfg.py" $?
+
 popd
 
 exit 0

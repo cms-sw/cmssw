@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/RPAlignmentCorrectionsDataSequence.h"
 #include "CondFormats/AlignmentRecord/interface/RPMeasuredAlignmentRecord.h"
 #include "CondFormats/AlignmentRecord/interface/RPRealAlignmentRecord.h"
@@ -63,8 +63,11 @@ using namespace edm;
 CTPPSIncludeAlignments::CTPPSIncludeAlignments(const edm::ParameterSet &pSet) :
   verbosity(pSet.getUntrackedParameter<unsigned int>("verbosity", 1))
 {
+  std::vector<std::string> realFiles;
+  for (auto rFile: pSet.getParameter< vector<string> >("RealFiles"))
+    realFiles.push_back(edm::FileInPath(rFile).fullPath());
   PrepareSequence("Measured", acsMeasured, pSet.getParameter< vector<string> >("MeasuredFiles"));
-  PrepareSequence("Real", acsReal, pSet.getParameter< vector<string> >("RealFiles"));
+  PrepareSequence("Real", acsReal, realFiles);
   PrepareSequence("Misaligned", acsMisaligned, pSet.getParameter< vector<string> >("MisalignedFiles"));
 
   setWhatProduced(this, &CTPPSIncludeAlignments::produceMeasured);

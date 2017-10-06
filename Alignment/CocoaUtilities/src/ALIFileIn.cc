@@ -8,7 +8,7 @@
 
 #include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <strstream>
 //#include <strstream.h>
 
@@ -167,7 +167,7 @@ ALIint ALIFileIn::getWordsInLine(std::vector<ALIstring>& wordlist)
     // typedef istream_iterator<ALIstring, ptrdiff_t> ALIstring_iter;
     // copy(ALIstring_iter(istr_line), ALIstring_iter(), back_inserter(wordlist));
     
-    if ( wordlist.size() != 0 ) {
+    if ( !wordlist.empty() ) {
       if( (*(wordlist.end()-1)) == "\\" ) {   //use '\' to mark continuing line  
 	wordlist.pop_back();
       } else {
@@ -219,7 +219,7 @@ ALIbool ALIFileIn::eof()
   //only real closing if all files are closed
   //-  std::cout << " eof " << isok << " " << theCurrentFile << std::endl;
   if( theCurrentFile != -1 ) { 
-    return 0;
+    return false;
   } else {
     return isok;
   }

@@ -17,7 +17,7 @@ private:
   const edm::EDGetTokenT< edmNew::DetSetVector<SiStripCluster> > clusters_token_;
 	std::vector< edm::EDGetTokenT<SiStripRecHit2DCollection> > rec_hits_tokens_;
   //std::vector<edm::InputTag> inputTags;
-  void produce( edm::Event &, const edm::EventSetup & );
+  void produce( edm::Event &, const edm::EventSetup & ) override;
 };
 
 #endif

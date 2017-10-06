@@ -30,7 +30,7 @@ class PulseFitWithFunction: public TObject
   PulseFitWithFunction() ;
 
   // Destructor: Does nothing
-  virtual ~PulseFitWithFunction() ;
+  ~PulseFitWithFunction() override ;
 
   // Initialize 
   virtual void init(int,int,int,int,double,double) ;

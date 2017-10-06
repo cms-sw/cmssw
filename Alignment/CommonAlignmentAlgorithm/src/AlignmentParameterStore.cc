@@ -280,7 +280,7 @@ Alignable* AlignmentParameterStore::alignableFromAlignableDet( const AlignableDe
     mother = mother->mother();
   }
 
-  return 0;
+  return nullptr;
 }
 
 //__________________________________________________________________________________________________
@@ -296,7 +296,7 @@ void AlignmentParameterStore::applyParameters(void)
 void AlignmentParameterStore::applyParameters(Alignable* alignable)
 {
 
-  AlignmentParameters *pars = (alignable ? alignable->alignmentParameters() : 0);
+  AlignmentParameters *pars = (alignable ? alignable->alignmentParameters() : nullptr);
   if (!pars) {
     throw cms::Exception("BadAlignable") 
       << "applyParameters: provided alignable does not have alignment parameters";
@@ -460,7 +460,7 @@ applyAlignableAbsolutePositions(const align::Alignables& alivec, const Alignable
           const align::RotationType& rold = ali->globalRotation();
           // Current surf. deformation
           std::vector<std::pair<int, SurfaceDeformation*> > dold_id_pairs;
-          SurfaceDeformation* dold_obj=0;
+          SurfaceDeformation* dold_obj=nullptr;
           SurfaceDeformationFactory::Type dtype = SurfaceDeformationFactory::kNoDeformations;
           std::vector<double> dold;
           if (1 == ali->surfaceDeformationIdPairs(dold_id_pairs)){ // might not have any...
@@ -550,7 +550,7 @@ applyAlignableRelativePositions(const align::Alignables& alivec, const Alignable
         else {
           // Current surf. deformation
           std::vector<std::pair<int, SurfaceDeformation*> > dold_id_pairs;
-          SurfaceDeformation* dold_obj=0;
+          SurfaceDeformation* dold_obj=nullptr;
           SurfaceDeformationFactory::Type dtype = SurfaceDeformationFactory::kNoDeformations;
           std::vector<double> dold;
           if (1 == ali->surfaceDeformationIdPairs(dold_id_pairs)){ // might not have any...

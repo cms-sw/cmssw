@@ -34,10 +34,10 @@ public:
   void setEmpty(PxMeasurementDetSet & data) { data.setEmpty(index());  }
   bool isEmpty(const PxMeasurementDetSet & data) const {return data.empty(index());}
 
-  virtual ~TkPixelMeasurementDet() { }
+  ~TkPixelMeasurementDet() override { }
 
   // all hits
-  virtual RecHitContainer recHits( const TrajectoryStateOnSurface&, const MeasurementTrackerEvent & dat) const override;
+  RecHitContainer recHits( const TrajectoryStateOnSurface&, const MeasurementTrackerEvent & dat) const override;
 
   // only hits compatible with tsos 
   RecHitContainer compHits( const TrajectoryStateOnSurface&, const MeasurementTrackerEvent & dat, float xl, float yl ) const;
@@ -45,16 +45,16 @@ public:
 
 
  // simple hits
-  virtual bool recHits(SimpleHitContainer & result,  
-		       const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator&, const MeasurementTrackerEvent & data) const {
+  bool recHits(SimpleHitContainer & result,  
+		       const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator&, const MeasurementTrackerEvent & data) const override {
     assert("not implemented for Pixel yet"==nullptr);
   }
 
  
 
-  virtual bool measurements( const TrajectoryStateOnSurface& stateOnThisDet,
+  bool measurements( const TrajectoryStateOnSurface& stateOnThisDet,
 			    const MeasurementEstimator& est, const MeasurementTrackerEvent & dat,
-			    TempMeasurements & result) const;
+			    TempMeasurements & result) const override;
 
 
   const PixelGeomDetUnit& specificGeomDet() const {return static_cast<PixelGeomDetUnit const &>(fastGeomDet());}
@@ -69,14 +69,18 @@ public:
              This per-event flag is cleared by any call to 'update' or 'setEmpty'  */
   void setActiveThisEvent(PxMeasurementDetSet & data, bool active) const { data.setActiveThisEvent(index(), active); }
   /** \brief Is this module active in reconstruction? It must be both 'setActiveThisEvent' and 'setActive'. */
-  bool isActive(const MeasurementTrackerEvent & data) const { return data.pixelData().isActive(index()); }
+  bool isActive(const MeasurementTrackerEvent & data) const override { return data.pixelData().isActive(index()); }
 
-  bool hasBadComponents( const TrajectoryStateOnSurface &tsos, const MeasurementTrackerEvent & dat ) const ; 
+  bool hasBadComponents( const TrajectoryStateOnSurface &tsos, const MeasurementTrackerEvent & dat ) const override ; 
 
   /** \brief Sets the list of bad ROCs, identified by the positions of their centers in the local coordinate frame*/
   void setBadRocPositions(std::vector< LocalPoint > & positions) { badRocPositions_.swap(positions); }
   /** \brief Clear the list of bad ROCs */
   void clearBadRocPositions() { badRocPositions_.clear(); }
+
+  const PxMeasurementDetSet::BadFEDChannelPositions* getBadFEDChannelPositions(const MeasurementTrackerEvent & data) const {
+    return data.pixelData().getBadFEDChannelPositions(index());
+  }
 
   int index() const { return index_; }
   void setIndex(int i) { index_ = i; }

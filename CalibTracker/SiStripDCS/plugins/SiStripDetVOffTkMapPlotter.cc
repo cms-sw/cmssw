@@ -21,9 +21,9 @@
 class SiStripDetVOffTkMapPlotter : public edm::EDAnalyzer {
 public:
   explicit SiStripDetVOffTkMapPlotter(const edm::ParameterSet& iConfig );
-  virtual ~SiStripDetVOffTkMapPlotter();
-  virtual void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup);
-  virtual void endJob();
+  ~SiStripDetVOffTkMapPlotter() override;
+  void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup) override;
+  void endJob() override;
 
 private:
   std::string formatIOV(cond::Time_t iov, std::string format="%Y-%m-%d__%H_%M_%S");

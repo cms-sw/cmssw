@@ -49,9 +49,9 @@ class EventSetupRecordProviderFactoryManager
 
    private:
       EventSetupRecordProviderFactoryManager();
-      EventSetupRecordProviderFactoryManager(const EventSetupRecordProviderFactoryManager&); // stop default
+      EventSetupRecordProviderFactoryManager(const EventSetupRecordProviderFactoryManager&) = delete; // stop default
 
-      const EventSetupRecordProviderFactoryManager& operator=(const EventSetupRecordProviderFactoryManager&); // stop default
+      const EventSetupRecordProviderFactoryManager& operator=(const EventSetupRecordProviderFactoryManager&) = delete; // stop default
 
       // ---------- member data --------------------------------
       std::map<EventSetupRecordKey, const EventSetupRecordProviderFactory*> factories_;

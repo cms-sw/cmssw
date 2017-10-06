@@ -13,3 +13,6 @@ egammaMonitorHLT = cms.Sequence(
     egHLTMuonPhoDQMOfflineTnPSource
     
 )
+
+egmHLTDQMSourceExtra = cms.Sequence(
+)

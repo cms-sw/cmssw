@@ -73,7 +73,7 @@ std::unique_ptr<SiStripRegionCabling> SiStripRegionConnectivity::produceRegionCa
     auto &  elem = regioncabling[reg][subdet][layer].back();
     elem.first=idet->first; elem.second.resize(conns.size());
     for ( ; iconn != jconn; ++iconn ) {
-      if ( ((*iconn) != 0) && ((*iconn)->apvPairNumber() < conns.size()) ) { 
+      if ( ((*iconn) != nullptr) && ((*iconn)->apvPairNumber() < conns.size()) ) { 
 	elem.second[(*iconn)->apvPairNumber()] = **iconn;
       }
     }

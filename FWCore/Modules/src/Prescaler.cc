@@ -10,10 +10,10 @@ namespace edm {
   class Prescaler : public global::EDFilter<> {
   public:
     explicit Prescaler(ParameterSet const&);
-    virtual ~Prescaler();
+    ~Prescaler() override;
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
-    virtual bool filter(StreamID, Event& e, EventSetup const& c) const override final;
+    bool filter(StreamID, Event& e, EventSetup const& c) const final;
 
   private:
     mutable std::atomic<int> count_;

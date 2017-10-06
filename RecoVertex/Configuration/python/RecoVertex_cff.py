@@ -34,18 +34,19 @@ vertexreco = cms.Sequence(unsortedOfflinePrimaryVertices*
 
 #timing
 from RecoVertex.PrimaryVertexProducer.TkClusParameters_cff import DA2D_vectParameters
-unsortedOfflinePrimaryVertices1D = unsortedOfflinePrimaryVertices.clone()
-unsortedOfflinePrimaryVertices1D.TkFilterParameters.minPt = cms.double(0.7)
-offlinePrimaryVertices1D=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices1D", particles="trackRefsForJetsBeforeSorting")
-offlinePrimaryVertices1DWithBS=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices1D:WithBS", particles="trackRefsForJetsBeforeSorting")
 DA2D_vectParameters.TkDAClusParameters.verbose = cms.untracked.bool(False)
 unsortedOfflinePrimaryVertices4D = unsortedOfflinePrimaryVertices.clone( verbose = cms.untracked.bool(False),
                                                                          TkClusParameters = DA2D_vectParameters )
 unsortedOfflinePrimaryVertices4D.TkFilterParameters.minPt = cms.double(0.7)
 unsortedOfflinePrimaryVertices4D.TrackTimesLabel = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModel")
 unsortedOfflinePrimaryVertices4D.TrackTimeResosLabel = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModelResolution")
-offlinePrimaryVertices4D=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices4D", particles="trackRefsForJetsBeforeSorting")
-offlinePrimaryVertices4DWithBS=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices4D:WithBS", particles="trackRefsForJetsBeforeSorting")
+offlinePrimaryVertices4D=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices4D", particles="trackRefsForJetsBeforeSorting4D", trackTimeTag=cms.InputTag("trackTimeValueMapProducer","generalTracksConfigurableFlatResolutionModel"),trackTimeResoTag=cms.InputTag("trackTimeValueMapProducer","generalTracksConfigurableFlatResolutionModelResolution"),assignment=dict(useTiming=True))
+offlinePrimaryVertices4DWithBS=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices4D:WithBS", particles="trackRefsForJetsBeforeSorting4D", trackTimeTag=cms.InputTag("trackTimeValueMapProducer","generalTracksConfigurableFlatResolutionModel"),trackTimeResoTag=cms.InputTag("trackTimeValueMapProducer","generalTracksConfigurableFlatResolutionModelResolution"),assignment=dict(useTiming=True))
+
+trackWithVertexRefSelectorBeforeSorting4D = trackWithVertexRefSelector.clone(vertexTag="unsortedOfflinePrimaryVertices4D")
+trackWithVertexRefSelectorBeforeSorting4D.ptMax=9e99
+trackWithVertexRefSelectorBeforeSorting4D.ptErrorCut=9e99
+trackRefsForJetsBeforeSorting4D = trackRefsForJets.clone(src="trackWithVertexRefSelectorBeforeSorting4D")
 
 from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import tpClusterProducer
 from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import quickTrackAssociatorByHits
@@ -54,9 +55,8 @@ _phase2_tktiming_vertexreco = cms.Sequence( vertexreco.copy() *
                                             tpClusterProducer *
                                             quickTrackAssociatorByHits *
                                             trackTimeValueMapProducer *
-                                            unsortedOfflinePrimaryVertices1D *
-                                            offlinePrimaryVertices1D *
-                                            offlinePrimaryVertices1DWithBS *
+                                            trackWithVertexRefSelectorBeforeSorting4D *
+                                            trackRefsForJetsBeforeSorting4D *
                                             unsortedOfflinePrimaryVertices4D *
                                             offlinePrimaryVertices4D *
                                             offlinePrimaryVertices4DWithBS 

@@ -3,7 +3,12 @@ import FWCore.ParameterSet.Config as cms
 from DQMOffline.Trigger.topMonitoring_cfi import topMonitoring
 
 hltTOPmonitoring = topMonitoring.clone()
-hltTOPmonitoring.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/default/')
+hltTOPmonitoring.FolderName = cms.string('HLT/TOP/default/')
+hltTOPmonitoring.histoPSet.lsPSet = cms.PSet(
+  nbins = cms.uint32 ( 250 ),
+  xmin  = cms.double(    0.),
+  xmax  = cms.double( 2500.),
+)
 hltTOPmonitoring.histoPSet.metPSet = cms.PSet(
   nbins = cms.uint32(  30   ),
   xmin  = cms.double(   0   ),

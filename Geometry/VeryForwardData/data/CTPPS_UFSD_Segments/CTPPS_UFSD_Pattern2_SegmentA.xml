@@ -1,0 +1,29 @@
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+  <SolidSection label="CTPPS_UFSD_Pattern2_SegmentA.xml">
+    <Box name="UFSD" dx="[CTPPS_UFSD_Parameters:Strip2_dx]/2" dy="[CTPPS_UFSD_Parameters:Strip2A_dy]/2" dz="[CTPPS_UFSD_Parameters:UFSD_dz]/2"/>
+    <Box name="Metalized_Layer" dx="[CTPPS_UFSD_Parameters:Strip2_dx]/2" dy="[CTPPS_UFSD_Parameters:Strip2A_dy]/2" dz="[CTPPS_UFSD_Parameters:Metalized_thick]/2"/>
+    <Box name="Aluminium_up" dx="[CTPPS_UFSD_Parameters:Strip2_dx]/2" dy="[CTPPS_UFSD_Parameters:Strip2A_dy]/2" dz="[CTPPS_UFSD_Parameters:Aluminium_thick]/2"/>
+    <Box name="Aluminium_down" dx="[CTPPS_UFSD_Parameters:Strip2_dx]/2" dy="[CTPPS_UFSD_Parameters:Strip2A_dy]/2" dz="[CTPPS_UFSD_Parameters:Aluminium_thick]/2"/>
+  </SolidSection>
+
+  <LogicalPartSection label="CTPPS_UFSD_Pattern2_SegmentA.xml">
+    <LogicalPart name="CTPPS_UFSD_Segment" category="sensitive">
+      <rSolid name="UFSD"/>
+      <rMaterial name="materials:Silicon"/>
+    </LogicalPart>
+    <LogicalPart name="Metalized_Layer" category="unspecified">
+      <rSolid name="Metalized_Layer"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Aluminium_up" category="unspecified">
+      <rSolid name="Aluminium_up"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="Aluminium_down" category="unspecified">
+      <rSolid name="Aluminium_down"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+  </LogicalPartSection>
+
+</DDDefinition>

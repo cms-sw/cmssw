@@ -19,18 +19,18 @@ class SiStripFedCablingFakeESSource : public SiStripFedCablingESProducer, public
  public:
   
   explicit SiStripFedCablingFakeESSource( const edm::ParameterSet& );
-  ~SiStripFedCablingFakeESSource();
+  ~SiStripFedCablingFakeESSource() override;
   
  protected:
   
-  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
 			       const edm::IOVSyncValue&,
-			       edm::ValidityInterval& );
+			       edm::ValidityInterval& ) override;
   
  private:
   
   /** Builds cabling map based on ascii files. */
-  virtual SiStripFedCabling* make( const SiStripFedCablingRcd& ); 
+  SiStripFedCabling* make( const SiStripFedCablingRcd& ) override; 
 
   /** Location of ascii file containing DetIds. */
   edm::FileInPath detIds_;

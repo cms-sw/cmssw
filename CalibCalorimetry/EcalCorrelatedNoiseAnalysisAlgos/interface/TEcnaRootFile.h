@@ -52,7 +52,7 @@ public:
   TEcnaRootFile(const Text_t*);
   TEcnaRootFile(const Text_t*, const TString&);
 
-  ~TEcnaRootFile();
+  ~TEcnaRootFile() override;
 
   void   ReStart(const Text_t*);
   void   ReStart(const Text_t*, const TString&);

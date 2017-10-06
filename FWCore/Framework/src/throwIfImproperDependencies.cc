@@ -70,6 +70,28 @@ namespace {
   typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS> Graph;
   
   typedef boost::graph_traits<Graph>::edge_descriptor Edge;
+  
+  template<typename T>
+  std::unordered_set<T> intersect(std::unordered_set<T> const& iLHS, std::unordered_set<T> const& iRHS) {
+    std::unordered_set<T> result;
+    if(iLHS.size() < iRHS.size()) {
+      result.reserve(iLHS.size());
+      for(auto const& l: iLHS) {
+        if(iRHS.find(l) != iRHS.end()) {
+          result.insert(l);
+        }
+      }
+      return result;
+    }
+    result.reserve(iRHS.size());
+    for(auto const& r: iRHS) {
+      if(iLHS.find(r) != iLHS.end()) {
+        result.insert(r);
+      }
+    }
+    return result;
+  }
+  
   struct cycle_detector : public boost::dfs_visitor<> {
     
     static const unsigned int kRootVertexIndex=0;
@@ -355,6 +377,10 @@ namespace {
           lastEdgeHasDataDepencency = true;
         }
       }
+      //Need to check that the
+      bool minimumInitialPathsSet = false;
+      std::unordered_set<unsigned int> initialPaths(lastPathsSeen);
+      std::unordered_set<unsigned int> sharedPaths;
       for(auto const& edge: iCycleEdges) {
         unsigned int in =index[source(edge,iGraph)];
         unsigned int out =index[target(edge,iGraph)];
@@ -402,11 +428,13 @@ namespace {
             }
           }
         }
-        if((pathsOnEdge != lastPathsSeen) ) {
+        sharedPaths = intersect(pathsOnEdge,lastPathsSeen);
+        if(sharedPaths.empty() ) {
+          minimumInitialPathsSet = true;
           if((not edgeHasDataDependency) and (not lastEdgeHasDataDepencency) and (not lastPathsSeen.empty())) {
             //If we jumped from one path to another without a data dependency
             // than the cycle is just because two independent modules were
-            // scheduled in different arbirary order on different paths
+            // scheduled in different arbitrary order on different paths
             return;
           }
           if(edgeHasDataDependency and not lastPathsSeen.empty()) {
@@ -448,14 +476,25 @@ namespace {
             }
           }
           lastPathsSeen = pathsOnEdge;
-          lastOut = out;
-          lastEdgeHasDataDepencency =edgeHasDataDependency;
+        } else {
+          lastPathsSeen = sharedPaths;
+          if (not minimumInitialPathsSet) {
+            initialPaths = sharedPaths;
+          }
         }
+        lastOut = out;
+        lastEdgeHasDataDepencency =edgeHasDataDependency;
       }
       if(moduleAppearedEarlierInPath and not pathToModulesWhichMustAppearLater.empty()) {
         return;
       }
       if(not hasDataDependency) {
+        return;
+      }
+      if( (not initialPaths.empty()) and intersect(initialPaths,sharedPaths).empty() ) {
+        //The effective start and end paths for the first graph
+        // node do not match. This can happen if the node
+        // appears on multiple paths
         return;
       }
       throwOnError(iCycleEdges,index,iGraph);

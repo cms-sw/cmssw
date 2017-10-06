@@ -236,7 +236,7 @@ namespace edm {
   Entry const*
   ParameterSet::getEntryPointerOrThrow_(std::string const& name) const {
     Entry const* result = retrieveUntracked(name);
-    if(result == 0)
+    if(result == nullptr)
       throw Exception(errors::Configuration, "MissingParameter:")
         << "The required parameter '" << name
         << "' was not specified.\n";
@@ -289,7 +289,7 @@ namespace edm {
   ParameterSet::retrieveUntracked(std::string const& name) const {
     table::const_iterator  it = tbl_.find(name);
 
-    if(it == tbl_.end()) return 0;
+    if(it == tbl_.end()) return nullptr;
     if(it->second.isTracked()) {
       if(name[0] == '@') {
         throw Exception(errors::Configuration, "StatusMismatch:")
@@ -334,7 +334,7 @@ namespace edm {
   ParameterSet::retrieveUntrackedParameterSet(std::string const& name) const {
     psettable::const_iterator  it = psetTable_.find(name);
 
-    if(it == psetTable_.end()) return 0;
+    if(it == psetTable_.end()) return nullptr;
     if(it->second.isTracked()) {
       if(name[0] == '@') {
         throw Exception(errors::Configuration, "StatusMismatch:")
@@ -373,7 +373,7 @@ namespace edm {
   ParameterSet::retrieveUntrackedVParameterSet(std::string const& name) const {
     vpsettable::const_iterator it = vpsetTable_.find(name);
 
-    if(it == vpsetTable_.end()) return 0;
+    if(it == vpsetTable_.end()) return nullptr;
     if(it->second.isTracked()) {
       throw Exception(errors::Configuration, "StatusMismatch:")
         << "VParameterSet '" << name
@@ -393,7 +393,7 @@ namespace edm {
   ParameterSet::retrieveUnknown(std::string const& name) const {
     table::const_iterator it = tbl_.find(name);
     if(it == tbl_.end()) {
-      return 0;
+      return nullptr;
     }
     return &it->second;
   }
@@ -402,7 +402,7 @@ namespace edm {
   ParameterSet::retrieveUnknownParameterSet(std::string const& name) const {
     psettable::const_iterator  it = psetTable_.find(name);
     if(it == psetTable_.end()) {
-      return 0;
+      return nullptr;
     }
     return &it->second;
   }
@@ -411,7 +411,7 @@ namespace edm {
   ParameterSet::retrieveUnknownVParameterSet(std::string const& name) const {
     vpsettable::const_iterator  it = vpsetTable_.find(name);
     if(it == vpsetTable_.end()) {
-      return 0;
+      return nullptr;
     }
     return &it->second;
   }
@@ -532,7 +532,7 @@ namespace edm {
     assert(!isRegistered());
     isTracked = false;
     psettable::iterator it = psetTable_.find(name);
-    if(it == psetTable_.end()) return 0;
+    if(it == psetTable_.end()) return nullptr;
     isTracked = it->second.isTracked();
     return &it->second.psetForUpdate();
   }
@@ -541,7 +541,7 @@ namespace edm {
   ParameterSet::getPSetVectorForUpdate(std::string const& name) {
     assert(!isRegistered());
     vpsettable::iterator it = vpsetTable_.find(name);
-    if(it == vpsetTable_.end()) return 0;
+    if(it == vpsetTable_.end()) return nullptr;
     return &it->second;
   }
 
@@ -1227,7 +1227,7 @@ namespace edm {
   bool
   ParameterSet::getUntrackedParameter<bool>(std::string const& name, bool const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getBool();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getBool();
   }
 
   template<>
@@ -1243,7 +1243,7 @@ namespace edm {
   int
   ParameterSet::getUntrackedParameter<int>(std::string const& name, int const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getInt32();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getInt32();
   }
 
   template<>
@@ -1256,7 +1256,7 @@ namespace edm {
   std::vector<int>
   ParameterSet::getUntrackedParameter<std::vector<int> >(std::string const& name, std::vector<int> const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getVInt32();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getVInt32();
   }
 
   template<>
@@ -1272,7 +1272,7 @@ namespace edm {
   unsigned int
   ParameterSet::getUntrackedParameter<unsigned int>(std::string const& name, unsigned int const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getUInt32();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getUInt32();
   }
 
   template<>
@@ -1285,7 +1285,7 @@ namespace edm {
   std::vector<unsigned int>
   ParameterSet::getUntrackedParameter<std::vector<unsigned int> >(std::string const& name, std::vector<unsigned int> const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getVUInt32();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getVUInt32();
   }
 
   template<>
@@ -1301,7 +1301,7 @@ namespace edm {
   unsigned long long
   ParameterSet::getUntrackedParameter<unsigned long long>(std::string const& name, unsigned long long const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getUInt64();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getUInt64();
   }
 
   template<>
@@ -1314,7 +1314,7 @@ namespace edm {
   std::vector<unsigned long long>
   ParameterSet::getUntrackedParameter<std::vector<unsigned long long> >(std::string const& name, std::vector<unsigned long long> const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getVUInt64();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getVUInt64();
   }
 
   template<>
@@ -1330,7 +1330,7 @@ namespace edm {
   long long
   ParameterSet::getUntrackedParameter<long long>(std::string const& name, long long const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getInt64();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getInt64();
   }
 
   template<>
@@ -1343,7 +1343,7 @@ namespace edm {
   std::vector<long long>
   ParameterSet::getUntrackedParameter<std::vector<long long> >(std::string const& name, std::vector<long long> const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getVInt64();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getVInt64();
   }
 
   template<>
@@ -1359,7 +1359,7 @@ namespace edm {
   double
   ParameterSet::getUntrackedParameter<double>(std::string const& name, double const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getDouble();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getDouble();
   }
 
   template<>
@@ -1371,7 +1371,7 @@ namespace edm {
   template<>
   std::vector<double>
   ParameterSet::getUntrackedParameter<std::vector<double> >(std::string const& name, std::vector<double> const& defaultValue) const {
-    Entry const* entryPtr = retrieveUntracked(name); return entryPtr == 0 ? defaultValue : entryPtr->getVDouble();
+    Entry const* entryPtr = retrieveUntracked(name); return entryPtr == nullptr ? defaultValue : entryPtr->getVDouble();
   }
 
   template<>
@@ -1387,7 +1387,7 @@ namespace edm {
   std::string
   ParameterSet::getUntrackedParameter<std::string>(std::string const& name, std::string const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getString();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getString();
   }
 
   template<>
@@ -1400,7 +1400,7 @@ namespace edm {
   std::vector<std::string>
   ParameterSet::getUntrackedParameter<std::vector<std::string> >(std::string const& name, std::vector<std::string> const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getVString();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getVString();
   }
 
   template<>
@@ -1416,7 +1416,7 @@ namespace edm {
   FileInPath
   ParameterSet::getUntrackedParameter<FileInPath>(std::string const& name, FileInPath const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getFileInPath();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getFileInPath();
   }
 
   template<>
@@ -1432,7 +1432,7 @@ namespace edm {
   InputTag
   ParameterSet::getUntrackedParameter<InputTag>(std::string const& name, InputTag const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getInputTag();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getInputTag();
   }
 
   template<>
@@ -1446,7 +1446,7 @@ namespace edm {
   ParameterSet::getUntrackedParameter<std::vector<InputTag> >(std::string const& name,
                                       std::vector<InputTag> const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getVInputTag();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getVInputTag();
   }
 
   template<>
@@ -1462,7 +1462,7 @@ namespace edm {
    ESInputTag
    ParameterSet::getUntrackedParameter<ESInputTag>(std::string const& name, ESInputTag const& defaultValue) const {
       Entry const* entryPtr = retrieveUntracked(name);
-      return entryPtr == 0 ? defaultValue : entryPtr->getESInputTag();
+      return entryPtr == nullptr ? defaultValue : entryPtr->getESInputTag();
    }
 
    template<>
@@ -1476,7 +1476,7 @@ namespace edm {
    ParameterSet::getUntrackedParameter<std::vector<ESInputTag> >(std::string const& name,
                                                                std::vector<ESInputTag> const& defaultValue) const {
       Entry const* entryPtr = retrieveUntracked(name);
-      return entryPtr == 0 ? defaultValue : entryPtr->getVESInputTag();
+      return entryPtr == nullptr ? defaultValue : entryPtr->getVESInputTag();
    }
 
    template<>
@@ -1492,7 +1492,7 @@ namespace edm {
   EventID
   ParameterSet::getUntrackedParameter<EventID>(std::string const& name, EventID const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getEventID();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getEventID();
   }
 
   template<>
@@ -1506,7 +1506,7 @@ namespace edm {
   ParameterSet::getUntrackedParameter<std::vector<EventID> >(std::string const& name,
                                       std::vector<EventID> const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getVEventID();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getVEventID();
   }
 
   template<>
@@ -1522,7 +1522,7 @@ namespace edm {
   LuminosityBlockID
   ParameterSet::getUntrackedParameter<LuminosityBlockID>(std::string const& name, LuminosityBlockID const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getLuminosityBlockID();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getLuminosityBlockID();
   }
 
   template<>
@@ -1536,7 +1536,7 @@ namespace edm {
   ParameterSet::getUntrackedParameter<std::vector<LuminosityBlockID> >(std::string const& name,
                                       std::vector<LuminosityBlockID> const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getVLuminosityBlockID();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getVLuminosityBlockID();
   }
 
   template<>
@@ -1552,7 +1552,7 @@ namespace edm {
   EventRange
   ParameterSet::getUntrackedParameter<EventRange>(std::string const& name, EventRange const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getEventRange();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getEventRange();
   }
 
   template<>
@@ -1566,7 +1566,7 @@ namespace edm {
   ParameterSet::getUntrackedParameter<std::vector<EventRange> >(std::string const& name,
                                       std::vector<EventRange> const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getVEventRange();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getVEventRange();
   }
 
   template<>
@@ -1582,7 +1582,7 @@ namespace edm {
   LuminosityBlockRange
   ParameterSet::getUntrackedParameter<LuminosityBlockRange>(std::string const& name, LuminosityBlockRange const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getLuminosityBlockRange();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getLuminosityBlockRange();
   }
 
   template<>
@@ -1596,7 +1596,7 @@ namespace edm {
   ParameterSet::getUntrackedParameter<std::vector<LuminosityBlockRange> >(std::string const& name,
                                       std::vector<LuminosityBlockRange> const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getVLuminosityBlockRange();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getVLuminosityBlockRange();
   }
 
   template<>
@@ -1857,7 +1857,7 @@ namespace edm {
   bool
   ParameterSet::getUntrackedParameter<bool>(char const* name, bool const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getBool();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getBool();
   }
 
   template<>
@@ -1873,7 +1873,7 @@ namespace edm {
   int
   ParameterSet::getUntrackedParameter<int>(char const* name, int const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getInt32();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getInt32();
   }
 
   template<>
@@ -1886,7 +1886,7 @@ namespace edm {
   std::vector<int>
   ParameterSet::getUntrackedParameter<std::vector<int> >(char const* name, std::vector<int> const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getVInt32();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getVInt32();
   }
 
   template<>
@@ -1902,7 +1902,7 @@ namespace edm {
   unsigned int
   ParameterSet::getUntrackedParameter<unsigned int>(char const* name, unsigned int const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getUInt32();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getUInt32();
   }
 
   template<>
@@ -1915,7 +1915,7 @@ namespace edm {
   std::vector<unsigned int>
   ParameterSet::getUntrackedParameter<std::vector<unsigned int> >(char const* name, std::vector<unsigned int> const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getVUInt32();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getVUInt32();
   }
 
   template<>
@@ -1931,7 +1931,7 @@ namespace edm {
   unsigned long long
   ParameterSet::getUntrackedParameter<unsigned long long>(char const* name, unsigned long long const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getUInt64();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getUInt64();
   }
 
   template<>
@@ -1944,7 +1944,7 @@ namespace edm {
   std::vector<unsigned long long>
   ParameterSet::getUntrackedParameter<std::vector<unsigned long long> >(char const* name, std::vector<unsigned long long> const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getVUInt64();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getVUInt64();
   }
 
   template<>
@@ -1960,7 +1960,7 @@ namespace edm {
   long long
   ParameterSet::getUntrackedParameter<long long>(char const* name, long long const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getInt64();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getInt64();
   }
 
   template<>
@@ -1973,7 +1973,7 @@ namespace edm {
   std::vector<long long>
   ParameterSet::getUntrackedParameter<std::vector<long long> >(char const* name, std::vector<long long> const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getVInt64();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getVInt64();
   }
 
   template<>
@@ -1989,7 +1989,7 @@ namespace edm {
   double
   ParameterSet::getUntrackedParameter<double>(char const* name, double const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getDouble();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getDouble();
   }
 
   template<>
@@ -2001,7 +2001,7 @@ namespace edm {
   template<>
   std::vector<double>
   ParameterSet::getUntrackedParameter<std::vector<double> >(char const* name, std::vector<double> const& defaultValue) const {
-    Entry const* entryPtr = retrieveUntracked(name); return entryPtr == 0 ? defaultValue : entryPtr->getVDouble();
+    Entry const* entryPtr = retrieveUntracked(name); return entryPtr == nullptr ? defaultValue : entryPtr->getVDouble();
   }
 
   template<>
@@ -2017,7 +2017,7 @@ namespace edm {
   std::string
   ParameterSet::getUntrackedParameter<std::string>(char const* name, std::string const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getString();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getString();
   }
 
   template<>
@@ -2030,7 +2030,7 @@ namespace edm {
   std::vector<std::string>
   ParameterSet::getUntrackedParameter<std::vector<std::string> >(char const* name, std::vector<std::string> const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getVString();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getVString();
   }
 
   template<>
@@ -2046,7 +2046,7 @@ namespace edm {
   FileInPath
   ParameterSet::getUntrackedParameter<FileInPath>(char const* name, FileInPath const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getFileInPath();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getFileInPath();
   }
 
   template<>
@@ -2062,7 +2062,7 @@ namespace edm {
   InputTag
   ParameterSet::getUntrackedParameter<InputTag>(char const* name, InputTag const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getInputTag();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getInputTag();
   }
 
   template<>
@@ -2076,7 +2076,7 @@ namespace edm {
   ParameterSet::getUntrackedParameter<std::vector<InputTag> >(char const* name,
                                       std::vector<InputTag> const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getVInputTag();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getVInputTag();
   }
 
   template<>
@@ -2092,7 +2092,7 @@ namespace edm {
    ESInputTag
    ParameterSet::getUntrackedParameter<ESInputTag>(char const* name, ESInputTag const& defaultValue) const {
       Entry const* entryPtr = retrieveUntracked(name);
-      return entryPtr == 0 ? defaultValue : entryPtr->getESInputTag();
+      return entryPtr == nullptr ? defaultValue : entryPtr->getESInputTag();
    }
 
    template<>
@@ -2106,7 +2106,7 @@ namespace edm {
    ParameterSet::getUntrackedParameter<std::vector<ESInputTag> >(char const* name,
                                                                std::vector<ESInputTag> const& defaultValue) const {
       Entry const* entryPtr = retrieveUntracked(name);
-      return entryPtr == 0 ? defaultValue : entryPtr->getVESInputTag();
+      return entryPtr == nullptr ? defaultValue : entryPtr->getVESInputTag();
    }
 
    template<>
@@ -2122,7 +2122,7 @@ namespace edm {
   EventID
   ParameterSet::getUntrackedParameter<EventID>(char const* name, EventID const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getEventID();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getEventID();
   }
 
   template<>
@@ -2136,7 +2136,7 @@ namespace edm {
   ParameterSet::getUntrackedParameter<std::vector<EventID> >(char const* name,
                                       std::vector<EventID> const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getVEventID();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getVEventID();
   }
 
   template<>
@@ -2152,7 +2152,7 @@ namespace edm {
   LuminosityBlockID
   ParameterSet::getUntrackedParameter<LuminosityBlockID>(char const* name, LuminosityBlockID const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getLuminosityBlockID();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getLuminosityBlockID();
   }
 
   template<>
@@ -2166,7 +2166,7 @@ namespace edm {
   ParameterSet::getUntrackedParameter<std::vector<LuminosityBlockID> >(char const* name,
                                       std::vector<LuminosityBlockID> const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getVLuminosityBlockID();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getVLuminosityBlockID();
   }
 
   template<>
@@ -2182,7 +2182,7 @@ namespace edm {
   EventRange
   ParameterSet::getUntrackedParameter<EventRange>(char const* name, EventRange const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getEventRange();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getEventRange();
   }
 
   template<>
@@ -2196,7 +2196,7 @@ namespace edm {
   ParameterSet::getUntrackedParameter<std::vector<EventRange> >(char const* name,
                                       std::vector<EventRange> const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getVEventRange();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getVEventRange();
   }
 
   template<>
@@ -2212,7 +2212,7 @@ namespace edm {
   LuminosityBlockRange
   ParameterSet::getUntrackedParameter<LuminosityBlockRange>(char const* name, LuminosityBlockRange const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getLuminosityBlockRange();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getLuminosityBlockRange();
   }
 
   template<>
@@ -2226,7 +2226,7 @@ namespace edm {
   ParameterSet::getUntrackedParameter<std::vector<LuminosityBlockRange> >(char const* name,
                                       std::vector<LuminosityBlockRange> const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getVLuminosityBlockRange();
+    return entryPtr == nullptr ? defaultValue : entryPtr->getVLuminosityBlockRange();
   }
 
   template<>
@@ -2378,7 +2378,7 @@ namespace edm {
   ParameterSet
   ParameterSet::getUntrackedParameterSet(char const* name, ParameterSet const& defaultValue) const {
     ParameterSetEntry const* entryPtr = retrieveUntrackedParameterSet(name);
-    if(entryPtr == 0) {
+    if(entryPtr == nullptr) {
       return defaultValue;
     }
     return entryPtr->pset();
@@ -2392,7 +2392,7 @@ namespace edm {
   ParameterSet const&
   ParameterSet::getUntrackedParameterSet(char const* name) const {
     ParameterSetEntry const* result = retrieveUntrackedParameterSet(name);
-    if(result == 0)
+    if(result == nullptr)
       throw Exception(errors::Configuration, "MissingParameter:")
         << "The required ParameterSet '" << name << "' was not specified.\n";
     return result->pset();
@@ -2416,7 +2416,7 @@ namespace edm {
   VParameterSet
   ParameterSet::getUntrackedParameterSetVector(char const* name, VParameterSet const& defaultValue) const {
     VParameterSetEntry const* entryPtr = retrieveUntrackedVParameterSet(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->vpset();
+    return entryPtr == nullptr ? defaultValue : entryPtr->vpset();
   }
 
   VParameterSet const&
@@ -2427,7 +2427,7 @@ namespace edm {
   VParameterSet const&
   ParameterSet::getUntrackedParameterSetVector(char const* name) const {
     VParameterSetEntry const* result = retrieveUntrackedVParameterSet(name);
-    if(result == 0)
+    if(result == nullptr)
       throw Exception(errors::Configuration, "MissingParameter:")
         << "The required ParameterSetVector '" << name << "' was not specified.\n";
     return result->vpset();

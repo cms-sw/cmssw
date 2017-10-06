@@ -26,7 +26,7 @@ class TPNFit: public TObject
   TPNFit();
 
   // Destructor: Does nothing
-  virtual ~TPNFit();
+  ~TPNFit() override;
 
   // Initialize 
   void init(int,int,int);

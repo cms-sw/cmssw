@@ -55,11 +55,12 @@ namespace edm {
                           ModuleCallingContext const* mcc) {
       Event e(ep, moduleDescription_, mcc);
       e.setConsumer(this);
+      e.setProducer(this,&previousParentage_);
       bool returnValue =true;
       e.setSharedResourcesAcquirer(&resourcesAcquirer_);
       EventSignalsSentry sentry(act,mcc);
       returnValue = this->filter(e, c);
-      commit_(e,&previousParentage_, &previousParentageId_);
+      commit_(e, &previousParentageId_);
       return returnValue;
     }
     
@@ -93,6 +94,7 @@ namespace edm {
       r.setConsumer(this);
       Run const& cnstR = r;
       this->doBeginRun_(cnstR, c);
+      r.setProducer(this);
       this->doBeginRunProduce_(r,c);
       commit_(r);
     }
@@ -104,6 +106,7 @@ namespace edm {
       r.setConsumer(this);
       Run const& cnstR = r;
       this->doEndRun_(cnstR, c);
+      r.setProducer(this);
       this->doEndRunProduce_(r, c);
       commit_(r);
     }
@@ -115,6 +118,7 @@ namespace edm {
       lb.setConsumer(this);
       LuminosityBlock const& cnstLb = lb;
       this->doBeginLuminosityBlock_(cnstLb, c);
+      lb.setProducer(this);
       this->doBeginLuminosityBlockProduce_(lb, c);
       commit_(lb);
     }
@@ -126,6 +130,7 @@ namespace edm {
       lb.setConsumer(this);
       LuminosityBlock const& cnstLb = lb;
       this->doEndLuminosityBlock_(cnstLb, c);
+      lb.setProducer(this);
       this->doEndLuminosityBlockProduce_(lb, c);
       commit_(lb);
     }

@@ -156,7 +156,7 @@ def get_boost_version_from_streamer_info( streamer_info ):
         raise Exception("Streamer info found in unexpected format.")
     return iovBoostVersion
 
-def do_update_tag_boost_version( tagBoostVersion, iovBoostVersion, iov, timetype, boost_run_map ):
+def do_update_tag_boost_version( tagBoostVersion, minIov, iovBoostVersion, iov, timetype, boost_run_map ):
     # for hash timetype we need to take the greatest version of the set                                                                                                                 
     if timetype == 'Hash':
         if tagBoostVersion is None or cmp_boost_version(tagBoostVersion,iovBoostVersion)<0:
@@ -166,17 +166,23 @@ def do_update_tag_boost_version( tagBoostVersion, iovBoostVersion, iov, timetype
         if tagBoostVersion is None:
             tagBoostVersion = iovBoostVersion
         else:
-            referenceBoost = lookup_boost_for_run( iov, timetype, boost_run_map )
-            if cmp_boost_version( referenceBoost, iovBoostVersion )<0:
+            iovRefBoost = lookup_boost_for_run( iov, timetype, boost_run_map )
+            # the case when the iov does not follow the standard run history
+            if cmp_boost_version( iovRefBoost, iovBoostVersion )<0:
                 if cmp_boost_version(  tagBoostVersion, iovBoostVersion )<0:
                     tagBoostVersion = iovBoostVersion
+            # iov in agreement witjh the standard run history
             else:
-                if cmp_boost_version(  tagBoostVersion, iovBoostVersion )>0:
-                    tagBoostVersion = iovBoostVersion
+                tagRefBoost = lookup_boost_for_run( minIov, timetype, boost_run_map )
+                # also the current tag follows the standard run history
+                if cmp_boost_version( tagRefBoost, tagBoostVersion )>=0:
+                    # in this case the min boost version should decrease to 
+                    if cmp_boost_version(  tagBoostVersion, iovRefBoost )>0:
+                        tagBoostVersion = iovRefBoost
     return tagBoostVersion
 
-def update_tag_boost_version( tagBoostVersion, streamer_info, iov, timetype, boost_run_map ):
+def update_tag_boost_version( tagBoostVersion, minIov, streamer_info, iov, timetype, boost_run_map ):
     iovBoostVersion = get_boost_version_from_streamer_info( streamer_info )
-    return iovBoostVersion, do_update_tag_boost_version( tagBoostVersion, iovBoostVersion, iov, timetype, boost_run_map )
+    return iovBoostVersion, do_update_tag_boost_version( tagBoostVersion, minIov, iovBoostVersion, iov, timetype, boost_run_map )
 
             

@@ -46,31 +46,35 @@ JetSubstructurePacker::produce(edm::Event& iEvent, const edm::EventSetup&)
   for ( size_t i = 0; i < algoTags_.size(); ++i ) {
     iEvent.getByToken( algoTokens_[i], algoHandles[i] ); 
   }
-
+  
   // Loop over the input jets that will be modified.
   for ( auto const & ijet : *jetHandle  ) {
     // Copy the jet.
     outputs->push_back( ijet );
-
     // Loop over the substructure collections
     unsigned int index = 0;
+    
     for ( auto const & ialgoHandle : algoHandles ) {      
       std::vector< edm::Ptr<pat::Jet> > nextSubjets;
       float dRMin = distMax_;
-
-      for ( auto const & jjet : *ialgoHandle ) {
-	
+      for ( auto const & jjet : *ialgoHandle ) {       
 	if ( reco::deltaR( ijet, jjet ) < dRMin ) {
+	  for ( auto const & userfloatstr : jjet.userFloatNames() ) {
+	    outputs->back().addUserFloat( userfloatstr, jjet.userFloat(userfloatstr) );
+	  }
+	  for ( auto const & userintstr : jjet.userIntNames() ) {
+	    outputs->back().addUserInt( userintstr, jjet.userInt(userintstr) );
+	  }
+	  for ( auto const & usercandstr : jjet.userCandNames() ) {
+	    outputs->back().addUserCand( usercandstr, jjet.userCand(usercandstr) );
+	  }
 	  for ( size_t ida = 0; ida < jjet.numberOfDaughters(); ++ida ) {
-
 	    reco::CandidatePtr candPtr =  jjet.daughterPtr( ida);
 	    nextSubjets.push_back( edm::Ptr<pat::Jet> ( candPtr ) );
 	  }
 	  break;
 	}
-	
       }
-
       outputs->back().addSubjets( nextSubjets, algoLabels_[index] );
       ++index; 
     }

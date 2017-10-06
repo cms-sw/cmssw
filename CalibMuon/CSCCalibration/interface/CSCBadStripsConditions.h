@@ -20,7 +20,7 @@
 class CSCBadStripsConditions: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
  public:
   CSCBadStripsConditions(const edm::ParameterSet&);
-  ~CSCBadStripsConditions();
+  ~CSCBadStripsConditions() override;
   
 
   inline static CSCBadStrips *  prefillBadStrips();
@@ -31,7 +31,7 @@ class CSCBadStripsConditions: public edm::ESProducer, public edm::EventSetupReco
   
  private:
   // ----------member data ---------------------------
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
   CSCBadStrips *cndbBadStrips ;
 
 };

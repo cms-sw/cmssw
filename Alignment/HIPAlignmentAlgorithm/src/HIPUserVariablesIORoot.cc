@@ -179,7 +179,7 @@ AlignmentUserVariables* HIPUserVariablesIORoot::readOne(Alignable* ali, int& ier
   }
 
   //  ierr=-1;
-  return 0;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------

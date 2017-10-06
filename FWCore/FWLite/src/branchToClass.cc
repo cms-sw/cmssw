@@ -27,14 +27,14 @@ public:
   
 private:
   ///NOTE: do not call this, it is only here because ROOT demands it
-  BranchToClass();
+  BranchToClass() = delete;
 };
 
 TClass*
 BranchToClass::doit( const TBranch* iBranch )
 {
   TClass* contained = nullptr;
-  TClass* type = TVirtualBranchBrowsable::GetCollectionContainedType(iBranch,0,contained);
+  TClass* type = TVirtualBranchBrowsable::GetCollectionContainedType(iBranch,nullptr,contained);
   if( type == nullptr) {
     type = contained;
   }

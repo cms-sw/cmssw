@@ -29,7 +29,7 @@
 #include <algorithm>
 #include <memory>
 #include <vector>
-#include <stdlib.h>
+#include <cstdlib>
 
 //
 // class decleration
@@ -38,14 +38,14 @@
 class AbortOnEventIDAnalyzer : public edm::EDAnalyzer {
 public:
    explicit AbortOnEventIDAnalyzer(edm::ParameterSet const&);
-   ~AbortOnEventIDAnalyzer();
+   ~AbortOnEventIDAnalyzer() override;
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
 private:
-   virtual void beginJob() override;
-   virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
-   virtual void endJob() override;
+   void beginJob() override;
+   void analyze(edm::Event const&, edm::EventSetup const&) override;
+   void endJob() override;
 
    // ----------member data ---------------------------
    std::vector<edm::EventID> ids_;
