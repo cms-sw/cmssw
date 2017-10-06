@@ -27,11 +27,16 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+
  
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
  
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+
+
  
 using namespace std;
  
@@ -51,12 +56,12 @@ private:
  
   // input parameters
   // ecal rechit collection (from AOD)
-  const edm::EDGetTokenT<EcalRecHitCollection>  eeRHSrcToken_;
+  const edm::EDGetTokenT<EcalRecHitCollection>  ecalRHSrcToken_;
 
   //config parameters (defining the cuts on the bad SCs)
-  const double eeMin_;              // ecal rechit et threshold
+  const double ecalMin_;              // ecal rechit et threshold
  
-  const std::vector<unsigned int> baddetEE_;    // DetIds of bad Ecal channels
+  const std::vector<unsigned int> baddetEcal_;    // DetIds of bad Ecal channels
  
   const bool taggingMode_;
   const bool debug_;                // prints out debug info if set to true
@@ -65,9 +70,9 @@ private:
  
 // read the parameters from the config file
 EcalBadCalibFilter::EcalBadCalibFilter(const edm::ParameterSet & iConfig) 
-  : eeRHSrcToken_   (consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EERecHitSource")))
-  , eeMin_          (iConfig.getParameter<double>("eeMinEt"))
-  , baddetEE_       (iConfig.getParameter<std::vector<unsigned int> >("baddetEE"))
+  : ecalRHSrcToken_   (consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EcalRecHitSource")))
+  , ecalMin_          (iConfig.getParameter<double>("ecalMinEt"))
+  , baddetEcal_       (iConfig.getParameter<std::vector<unsigned int> >("baddetEcal"))
   , taggingMode_    (iConfig.getParameter<bool>("taggingMode"))
   , debug_          (iConfig.getParameter<bool>("debug"))
 {
@@ -81,8 +86,8 @@ bool EcalBadCalibFilter::filter(edm::StreamID, edm::Event & iEvent, const edm::E
   // load required collections
  
    // Ecal rechit collection
-  edm::Handle<EcalRecHitCollection> eeRHs;
-  iEvent.getByToken(eeRHSrcToken_, eeRHs);
+  edm::Handle<EcalRecHitCollection> ecalRHs;
+  iEvent.getByToken(ecalRHSrcToken_, ecalRHs);
  
   // Calo Geometry - needed for computing E_t
   edm::ESHandle<CaloGeometry> pG;
@@ -91,51 +96,71 @@ bool EcalBadCalibFilter::filter(edm::StreamID, edm::Event & iEvent, const edm::E
   
   // by default the event is OK
   bool pass = true;
- 
- 
- 
-  // define energy variables and ix,iy,iz coordinates
-  int ix,iy,iz;
-  ix=0,iy=0,iz=0;
-  float ene=0;
-  float et=0;
- 
-  for (const auto eeit : baddetEE_) {
 
-    EEDetId eedet(eeit);
+  for (const auto ecalit : baddetEcal_) {
+
+    DetId ecaldet(ecalit);
     
-    if (eedet.rawId()==0) continue;
+    if (ecaldet.rawId()==0) continue;
      
     // find rechit corresponding to this DetId
-    EcalRecHitCollection::const_iterator eehit=eeRHs->find(eedet);
+    EcalRecHitCollection::const_iterator ecalhit=ecalRHs->find(ecaldet);
  
-    if (eehit==eeRHs->end()) continue;
+    if (ecalhit==ecalRHs->end()) continue;
  
     // if rechit not found, move to next DetId   
-    if (eehit->id().rawId()==0 || eehit->id().rawId()!= eedet.rawId()) { continue; }
-     
+    if (ecalhit->id().rawId()==0 || ecalhit->id().rawId()!= ecaldet.rawId()) { continue; }
     
-    // rechit has been found: obtain crystal coordinates, energy 
-    ix=eedet.ix();
-    iy=eedet.iy();
-    iz=eedet.zside();
-    ene=eehit->energy();
+
+    // define energy variables
+    float ene=0;
+    float et=0;
+
+    // rechit has been found: obtain crystal energy 
+    ene=ecalhit->energy();
  
     // compute transverse energy
-    GlobalPoint posee=pG->getPosition(eedet);
-    float pf = posee.perp()/posee.mag();
+    GlobalPoint posecal=pG->getPosition(ecaldet);
+    float pf = posecal.perp()/posecal.mag();
     et=ene*pf;
     
+
     // print some debug info
     if (debug_) {
-      edm::LogInfo("EcalBadCalibFilter") << "DetId=" <<  eedet.rawId();
-      edm::LogInfo("EcalBadCalibFilter") << "ix=" << ix << " iy=" << iy << " iz=" << iz;
-      edm::LogInfo("EcalBadCalibFilter") << "Et=" << et << " thresh=" << eeMin_;
+      
+      int ix,iy,iz;
+      ix=0,iy=0,iz=0;
+      
+      // ref: DataFormats/EcalDetId/interface/EcalSubdetector.h
+      // EcalBarrel
+      if (ecaldet.subdetId()==1) {
+	EBDetId ebdet(ecalit);
+	ix=ebdet.ieta();
+	iy=ebdet.iphi();
+	iz=ebdet.zside();
+	
+	edm::LogInfo("EcalBadCalibFilter") << "DetId=" <<  ecaldet.rawId();
+	edm::LogInfo("EcalBadCalibFilter") << "ieta=" << ix << " iphi=" << iy << " iz=" << iz;
+	edm::LogInfo("EcalBadCalibFilter") << "Et=" << et << " thresh=" << ecalMin_;
+      }
+
+      // EcalEndcap
+      if (ecaldet.subdetId()==2) {
+	EEDetId eedet(ecalit);
+	ix=eedet.ix();
+	iy=eedet.iy();
+	iz=eedet.zside();
+
+	edm::LogInfo("EcalBadCalibFilter") << "DetId=" <<  ecaldet.rawId();
+	edm::LogInfo("EcalBadCalibFilter") << "ix=" << ix << " iy=" << iy << " iz=" << iz;
+	edm::LogInfo("EcalBadCalibFilter") << "Et=" << et << " thresh=" << ecalMin_;
+      }
+     
     }
        
        
     // if transverse energy is above threshold and channel has bad IC 
-    if (et>eeMin_) {
+    if (et>ecalMin_) {
       pass=false;
       if (debug_) {
 	edm::LogInfo("EcalBadCalibFilter") << "DUMP EVENT" << std::endl;
