@@ -20,7 +20,7 @@ DQMOffline_Ele15_HT600 = cms.EDAnalyzer('LepHTMonitor',
                                               folderName = cms.string('HLT_Ele15_IsoVVVL_PFHT600'),
 
                                               jetPtCut = cms.untracked.double(30.0),
-                                              jetEtaCut = cms.untracked.double(3.0),
+                                              jetEtaCut = cms.untracked.double(2.5),
                                               metCut = cms.untracked.double(-1.0),
                                               htCut = cms.untracked.double(-1.0), 
                                               nels = cms.untracked.double(1),
