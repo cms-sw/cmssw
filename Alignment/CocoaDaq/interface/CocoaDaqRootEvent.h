@@ -58,7 +58,7 @@ public:
   Int_t    GetTimeStamp() const { return fTimeStamp; }
   void     DumpIt(const TString& Name);
 
-  ClassDef(AliDaqPosition2D,1)  
+  ClassDefOverride(AliDaqPosition2D,1)  
 };
 
 //-----------------------------------------------------------------------------
@@ -96,7 +96,7 @@ public:
   Int_t    GetTimeStamp()  const { return fTimeStamp; }
   void     DumpIt(const TString& Name);
 
-  ClassDef(AliDaqPositionCOPS,1)  
+  ClassDefOverride(AliDaqPositionCOPS,1)  
 };
 
 //-----------------------------------------------------------------------------
@@ -118,7 +118,7 @@ public:
   Int_t    GetTimeStamp() const { return fTimeStamp; }
   void     DumpIt(const TString& Name);
 
-  ClassDef(AliDaqTilt,1)
+  ClassDefOverride(AliDaqTilt,1)
 };
 
 //-----------------------------------------------------------------------------
@@ -163,7 +163,7 @@ public:
   Int_t    GetTimeStamp() const { return fTimeStamp; }
   void     DumpIt(const TString& Name);
 
-  ClassDef(AliDaqTemperature,1)
+  ClassDefOverride(AliDaqTemperature,1)
 };
 
 //-----------------------------------------------------------------------------
@@ -201,7 +201,7 @@ public:
   void     SetHeader(int run, int evt) {Header->SetRunEvt(run,evt); }
   void     DumpIt();
 
-  ClassDef(CocoaDaqRootEvent,1)  
+  ClassDefOverride(CocoaDaqRootEvent,1) Override 
 
  };
 
