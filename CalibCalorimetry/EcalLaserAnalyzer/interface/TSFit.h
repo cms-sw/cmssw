@@ -69,7 +69,7 @@ public :
 
   TSFit( int size = SDIM, int size_sh = PLSHDIM );
 
-  virtual ~TSFit() {}
+  ~TSFit() override {}
 
   void set_params( int, int, int, int, int, double, double, int, int );
 

@@ -91,7 +91,7 @@ public:
   TEcnaNumbering();
   TEcnaNumbering(TEcnaObject*, const TString&);
   TEcnaNumbering(const TString&, const TEcnaParEcal*);
-  ~TEcnaNumbering();
+  ~TEcnaNumbering() override;
 
   void SetEcalSubDetector(const TString&);
   void SetEcalSubDetector(const TString&, const TEcnaParEcal*);
