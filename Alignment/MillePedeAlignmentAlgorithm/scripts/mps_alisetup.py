@@ -94,7 +94,7 @@ class SetupAlignment(object):
 
         helpEpilog ="""Builds the config-templates from a universal
         config-template for each dataset specified in .ini-file that is passed
-        to this script.  Then calls mps_setup.pl for all datasets."""
+        to this script.  Then calls mps_setup.py for all datasets."""
         parser = argparse.ArgumentParser(
             description = ("Setup the alignment as configured in the "
                            "alignment_config file."),
@@ -282,7 +282,7 @@ class SetupAlignment(object):
 
 
             # create mps_setup command
-            command = ["mps_setup.pl",
+            command = ["mps_setup.py",
                        "-m",
                        append,
                        "-M", self._general_options["pedeMem"],
