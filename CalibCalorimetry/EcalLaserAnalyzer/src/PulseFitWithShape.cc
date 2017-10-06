@@ -68,7 +68,7 @@ double PulseFitWithShape::doFit(double *adc, double *cova)
   //     [2] = clock phase
 
   bool useCova=true;
-  if(cova==0) useCova=false;
+  if(cova==nullptr) useCova=false;
 
   double xpar[3]; 
   double chi2;
