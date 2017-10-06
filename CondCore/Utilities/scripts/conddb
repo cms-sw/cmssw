@@ -688,10 +688,10 @@ def _get_prompt_fcsr( session, timeType ):
         try:
             fcsr = t0DataSvc.getFirstSafeRun()
         except ValueError, e:
-            self.logdebug('ValueError for firstConditionSafeRun from Tier-0 %s ' % (str(e),) )
+            logging.error('ValueError for firstConditionSafeRun from Tier-0 %s ' % (str(e),) )
             # We got an answer but it is invalid. So far this usually means
             # "None" which is not JSON, when the Tier0 is stopped.
-            raise Exception('invalid firstConditionSafeRun from Tier-0')
+            raise Exception('Invalid firstConditionSafeRun from Tier-0')
         except Tier0Error:
             # Impossible to get anything from the server after retries,
             # i.e. unreachable, so no data.
@@ -1431,6 +1431,7 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
     
     # Copy the set of IOVs collected        
     session2.merge(Tag2(name=second,modification_time=copyTime))
+    minIov = None
     if payloadSerializationVersionMap is not None:
         BoostRunMap = session2.get_dbtype(conddb.BoostRunMap)
         q = session2.query(BoostRunMap).order_by(BoostRunMap.run_number)
@@ -1441,7 +1442,6 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
         TagMetadata = session2.get_dbtype(conddb.TagMetadata)
         q = session2.query(TagMetadata.min_serialization_v,TagMetadata.min_since).filter(TagMetadata.tag_name == second )
         tagBoostVersion = None
-        minIov = None
         for r in q:
             tagBoostVersion = r[0]
             minIov = r[1]
