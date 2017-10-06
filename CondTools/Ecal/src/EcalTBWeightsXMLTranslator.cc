@@ -111,7 +111,7 @@ EcalTBWeightsXMLTranslator::readWeightSet(xercesc::DOMNode* parentNode,
 
   DOMNode* rownode = getChildNode(wgtBSnode,row_tag);  
 
-  DOMElement* rowelement=0;
+  DOMElement* rowelement=nullptr;
 
   // loop on row nodes
   while  (rownode){
@@ -283,9 +283,9 @@ void
 EcalTBWeightsXMLTranslator::writeWeightMatrix(xercesc::DOMNode* node,
 					      const EcalWeightSet::EcalWeightMatrix& matrix){
 
-  DOMElement* row=0;
-  DOMAttr* rowid=0;
-  DOMText* rowvalue=0;
+  DOMElement* row=nullptr;
+  DOMAttr* rowid=nullptr;
+  DOMText* rowvalue=nullptr;
  
   const int ncols =10;
   const int nrows =3;
@@ -321,9 +321,9 @@ void
 EcalTBWeightsXMLTranslator::writeChi2WeightMatrix(xercesc::DOMNode* node,
 						  const EcalWeightSet::EcalChi2WeightMatrix& matrix){
 
-  DOMElement* row=0;
-  DOMAttr* rowid=0;
-  DOMText* rowvalue=0;
+  DOMElement* row=nullptr;
+  DOMAttr* rowid=nullptr;
+  DOMText* rowvalue=nullptr;
  
   const int ncols =10;
   const int nrows =10;
@@ -367,14 +367,14 @@ std::string EcalTBWeightsXMLTranslator::dumpXML(const EcalCondHeader& header,
   if( writer->getDomConfig()->canSetParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true ))
     writer->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
   
-  DOMDocumentType* doctype = impl->createDocumentType( cms::xerces::uStr("XML").ptr(), 0, 0 );
+  DOMDocumentType* doctype = impl->createDocumentType( cms::xerces::uStr("XML").ptr(), nullptr, nullptr );
   DOMDocument* doc =
-    impl->createDocument( 0, cms::xerces::uStr(EcalTBWeights_tag.c_str()).ptr(), doctype );
+    impl->createDocument( nullptr, cms::xerces::uStr(EcalTBWeights_tag.c_str()).ptr(), doctype );
   DOMElement* root = doc->getDocumentElement();
 
   xuti::writeHeader(root, header);
 
-  const EcalTBWeights::EcalTBWeightMap wmap= record.getMap();
+  const EcalTBWeights::EcalTBWeightMap& wmap= record.getMap();
 
   EcalTBWeights::EcalTBWeightMap::const_iterator it ;
   for (it =wmap.begin(); it!=wmap.end(); ++it){

@@ -40,8 +40,8 @@ string EcalAlignmentXMLTranslator::dumpXML(const EcalCondHeader& header,
   if( writer->getDomConfig()->canSetParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true ))
     writer->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
   
-  DOMDocumentType* doctype = impl->createDocumentType( cms::xerces::uStr("XML").ptr(), 0, 0 );
-  DOMDocument* doc = impl->createDocument( 0, cms::xerces::uStr(AlignmentConstant_tag.c_str()).ptr(), doctype );
+  DOMDocumentType* doctype = impl->createDocumentType( cms::xerces::uStr("XML").ptr(), nullptr, nullptr );
+  DOMDocument* doc = impl->createDocument( nullptr, cms::xerces::uStr(AlignmentConstant_tag.c_str()).ptr(), doctype );
   DOMElement* root = doc->getDocumentElement();
  
   xuti::writeHeader(root,header);

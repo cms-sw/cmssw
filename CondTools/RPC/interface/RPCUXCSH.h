@@ -26,9 +26,9 @@
 namespace popcon{
   class RpcDataUXC : public popcon::PopConSourceHandler<RPCObUXC>{
   public:
-    void getNewObjects();
-    std::string id() const { return m_name;}
-    ~RpcDataUXC(); 
+    void getNewObjects() override;
+    std::string id() const override { return m_name;}
+    ~RpcDataUXC() override; 
     RpcDataUXC(const edm::ParameterSet& pset); 
 
     RPCObUXC* UXCdata;

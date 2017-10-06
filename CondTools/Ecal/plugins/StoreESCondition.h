@@ -45,10 +45,10 @@ class  StoreESCondition : public edm::EDAnalyzer {
   void writeToLogFileResults(char* ) ;
   
   explicit  StoreESCondition(const edm::ParameterSet& iConfig );
-  ~StoreESCondition();
+  ~StoreESCondition() override;
   
-  virtual void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup);
-  virtual void endJob();
+  void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup) override;
+  void endJob() override;
   
  private:
   

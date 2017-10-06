@@ -7,7 +7,7 @@ class EcalADCToGeVConstantBTransitionAnalyzer: public cond::BTransitionAnalyzer<
 public:
   EcalADCToGeVConstantBTransitionAnalyzer( edm::ParameterSet const & pset ):
     cond::BTransitionAnalyzer<EcalADCToGeVConstant, EcalADCToGeVConstantRcd>( pset )  {}
-  bool equalPayloads( edm::ESHandle<EcalADCToGeVConstant> const & payloadHandle, edm::ESHandle<EcalADCToGeVConstant> const & payloadRefHandle ) {
+  bool equalPayloads( edm::ESHandle<EcalADCToGeVConstant> const & payloadHandle, edm::ESHandle<EcalADCToGeVConstant> const & payloadRefHandle ) override {
     bool areEquals = false;
     std::ostringstream os;
     os << "[" << "EcalADCToGeVConstantBTransitionAnalyzer::" << __func__ << "]: " << "Payload extracted starting from magnetic field value: ";
