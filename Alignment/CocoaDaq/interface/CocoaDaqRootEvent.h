@@ -201,7 +201,7 @@ public:
   void     SetHeader(int run, int evt) {Header->SetRunEvt(run,evt); }
   void     DumpIt();
 
-  ClassDefOverride(CocoaDaqRootEvent,1) Override 
+  ClassDefOverride(CocoaDaqRootEvent,1)
 
  };
 
