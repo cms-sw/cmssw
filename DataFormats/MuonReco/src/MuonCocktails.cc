@@ -32,7 +32,7 @@ reco::Muon::MuonTrackTypePair  muon::tevOptimized(const reco::TrackRef& combined
   // just not in the event, or if the (re)fit ended up with no valid
   // hits.
   double prob[nAlgo] = {0.,0.,0.,0.,0.};
-  bool valid[nAlgo] = {0,0,0,0,0};
+  bool valid[nAlgo] = {false,false,false,false,false};
 
   double dptmin = 1.;
 

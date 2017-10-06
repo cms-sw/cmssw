@@ -48,7 +48,7 @@ class FastTrackerRecHit : public BaseTrackerRecHit
     
     /// destructor
     ///
-    ~FastTrackerRecHit() {}
+    ~FastTrackerRecHit() override {}
     
     /// constructor
     /// requires a position with error in local detector coordinates,
@@ -60,7 +60,7 @@ class FastTrackerRecHit : public BaseTrackerRecHit
 	, recHitCombinationIndex_(-1)
 	{store();}
 
-    virtual FastTrackerRecHit * clone() const override {FastTrackerRecHit * p =  new FastTrackerRecHit( * this); p->load(); return p;}
+    FastTrackerRecHit * clone() const override {FastTrackerRecHit * p =  new FastTrackerRecHit( * this); p->load(); return p;}
 
     /// Steers behaviour of hit in track fit.
     /// Hit is interpreted as 1D or 2D depending on value of is2D_
@@ -72,7 +72,7 @@ class FastTrackerRecHit : public BaseTrackerRecHit
 
     /// Steers behaviour of hit in track fit.
     /// FastSim hit smearing assumes
-    virtual bool canImproveWithTrack() const override {return false;}
+    bool canImproveWithTrack() const override {return false;}
 
     /* getters */
 
@@ -98,11 +98,11 @@ class FastTrackerRecHit : public BaseTrackerRecHit
 
     /// bogus function : 
     /// implement purely virtual function of TrackingRecHit
-    virtual std::vector<const TrackingRecHit*> recHits() const override { return std::vector<TrackingRecHit const*>();}
+    std::vector<const TrackingRecHit*> recHits() const override { return std::vector<TrackingRecHit const*>();}
 
     /// bogus function : 
     /// implement purely virtual function of TrackingRecHit
-    virtual std::vector<TrackingRecHit*> recHits() override { return std::vector<TrackingRecHit*>();}
+    std::vector<TrackingRecHit*> recHits() override { return std::vector<TrackingRecHit*>();}
  
     /// bogus function : 
     /// implement purely virutal function of BaseTrackerRecHit
@@ -173,7 +173,7 @@ class FastTrackerRecHit : public BaseTrackerRecHit
 
     protected:
 
-    virtual FastTrackerRecHit * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
+    FastTrackerRecHit * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
 	return this->clone();
     }
   

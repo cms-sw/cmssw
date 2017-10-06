@@ -603,7 +603,7 @@ namespace pat {
             return static_cast<const T *>( baseTagInfo );
           }
         }
-        return 0;
+        return nullptr;
       }
 
       template<typename T> const T * tagInfoByTypeOrLabel(const std::string &label="") const

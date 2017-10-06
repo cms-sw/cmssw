@@ -25,15 +25,15 @@ namespace fwlite {
     class LumiHistoryGetter : public HistoryGetterBase{
         public:
             LumiHistoryGetter(const LuminosityBlock*);
-            virtual ~LumiHistoryGetter();
+            ~LumiHistoryGetter() override;
 
             // ---------- const member functions ---------------------
-            const edm::ProcessHistory& history() const;
+            const edm::ProcessHistory& history() const override;
 
         private:
-            LumiHistoryGetter(const LumiHistoryGetter&); // stop default
+            LumiHistoryGetter(const LumiHistoryGetter&) = delete; // stop default
 
-            const LumiHistoryGetter& operator=(const LumiHistoryGetter&); // stop default
+            const LumiHistoryGetter& operator=(const LumiHistoryGetter&) = delete; // stop default
 
             // ---------- member data --------------------------------
             const fwlite::LuminosityBlock* lumi_;

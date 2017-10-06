@@ -63,7 +63,7 @@ namespace l1extra {
 			 unsigned int detector = 0,
 			 int bx = 0 ) ;
 
-	 virtual ~L1MuonParticle() {}
+	 ~L1MuonParticle() override {}
 
 	 // ---------- const member functions ---------------------
          bool isIsolated() const
@@ -81,7 +81,7 @@ namespace l1extra {
 	 const L1MuGMTExtendedCand& gmtMuonCand() const
 	 { return cand_ ; }
 
-	 virtual L1MuonParticle* clone() const
+	 L1MuonParticle* clone() const override
 	 { return new L1MuonParticle( *this ) ; }
 
 	 int bx() const

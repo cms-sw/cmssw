@@ -1,7 +1,7 @@
 #ifndef DataFormats_Phase2TrackerDigi_Phase2TrackerDigi_H
 #define DataFormats_Phase2TrackerDigi_Phase2TrackerDigi_H
 
-#include <stdint.h>
+#include <cstdint>
 #include <utility>
 #include <cassert> 
 

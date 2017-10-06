@@ -29,7 +29,7 @@ namespace edm {
     Wrapper() : WrapperBase(), present(false), obj() {}
     explicit Wrapper(std::unique_ptr<T> ptr);
     ~Wrapper() override {}
-    T const* product() const {return (present ? &obj : 0);}
+    T const* product() const {return (present ? &obj : nullptr);}
     T const* operator->() const {return product();}
 
     //these are used by FWLite
