@@ -17,12 +17,12 @@ class SiStripHashedDetIdESModule : public SiStripHashedDetIdESProducer {
  public:
   
   SiStripHashedDetIdESModule( const edm::ParameterSet& );
-  virtual ~SiStripHashedDetIdESModule();
+  ~SiStripHashedDetIdESModule() override;
   
  private:
   
   /** Builds hashed DetId map based on geometry. */
-  virtual SiStripHashedDetId* make( const SiStripHashedDetIdRcd& ); 
+  SiStripHashedDetId* make( const SiStripHashedDetIdRcd& ) override; 
   
 };
 
