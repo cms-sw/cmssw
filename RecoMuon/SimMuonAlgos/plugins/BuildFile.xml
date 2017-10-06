@@ -1,0 +1,8 @@
+<library   name="RecoMuonSimMuonAlgos_plugins" file="*.cc">
+  <use   name="CommonTools/Utils"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="SimMuon/MCTruth"/>
+  <use   name="SimTracker/Records"/>
+  <use   name="SimTracker/TrackAssociation"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
