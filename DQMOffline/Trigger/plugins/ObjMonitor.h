@@ -109,10 +109,10 @@ private:
   StringCutObjectSelector<reco::GsfElectron,true> eleSelection_;
   StringCutObjectSelector<reco::Muon,true>        muoSelection_;
   StringCutObjectSelector<reco::Photon,true>      phoSelection_;
-  int njets_;
-  int nelectrons_;
-  int nmuons_;
-  int nphotons_;
+  unsigned njets_;
+  unsigned nelectrons_;
+  unsigned nmuons_;
+  unsigned nphotons_;
 
 };
 

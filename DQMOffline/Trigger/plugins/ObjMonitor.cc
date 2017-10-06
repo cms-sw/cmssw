@@ -87,7 +87,7 @@ void ObjMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   iEvent.getByToken( jetToken_, jetHandle );
   std::vector<reco::PFJet> jets;
   std::vector<reco::PFJet> htjets;
-  if ( int(jetHandle->size()) < njets_ ) return;
+  if ( jetHandle->size() < njets_ ) return;
   for ( auto const & j : *jetHandle ) {
     if ( jetSelection_( j ) ) {
       if (jetId_=="loose" || jetId_ =="tight"){
@@ -105,34 +105,34 @@ void ObjMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     }
     if ( htjetSelection_( j ) ) htjets.push_back(j);
   }
-  if ( int(jets.size()) < njets_ ) return;
+  if ( jets.size() < njets_ ) return;
   
   edm::Handle<reco::GsfElectronCollection> eleHandle;
   iEvent.getByToken( eleToken_, eleHandle );
   std::vector<reco::GsfElectron> electrons;
-  if ( int(eleHandle->size()) < nelectrons_ ) return;
+  if ( eleHandle->size() < nelectrons_ ) return;
   for ( auto const & e : *eleHandle ) {
     if ( eleSelection_( e ) ) electrons.push_back(e);
   }
-  if ( int(electrons.size()) < nelectrons_ ) return;
+  if ( electrons.size() < nelectrons_ ) return;
   
   edm::Handle<reco::MuonCollection> muoHandle;
   iEvent.getByToken( muoToken_, muoHandle );
-  if ( int(muoHandle->size()) < nmuons_ ) return;
+  if ( muoHandle->size() < nmuons_ ) return;
   std::vector<reco::Muon> muons;
   for ( auto const & m : *muoHandle ) {
     if ( muoSelection_( m ) ) muons.push_back(m);
   }
-  if ( int(muons.size()) < nmuons_ ) return;
+  if ( muons.size() < nmuons_ ) return;
 
   edm::Handle<reco::PhotonCollection> phoHandle;
   iEvent.getByToken( phoToken_, phoHandle );
-  if ( int(phoHandle->size()) < nphotons_ ) return;
+  if ( phoHandle->size() < nphotons_ ) return;
   std::vector<reco::Photon> photons;
   for ( auto const & m : *phoHandle ) {
     if ( phoSelection_( m ) ) photons.push_back(m);
   }
-  if ( int(photons.size()) < nphotons_ ) return;
+  if ( photons.size() < nphotons_ ) return;
 
 
   bool passNumCond = num_genTriggerEventFlag_->off() || num_genTriggerEventFlag_->accept( iEvent, iSetup);
