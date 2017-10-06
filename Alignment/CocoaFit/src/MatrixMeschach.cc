@@ -186,7 +186,7 @@ MatrixMeschach operator+( const MatrixMeschach& mat1, const MatrixMeschach& mat2
 MatrixMeschach operator-( const MatrixMeschach& mat1, const MatrixMeschach& mat2 )
 {
   MatrixMeschach matout( mat1 );
-  MatrixMeschach matout2( mat2 );
+  const MatrixMeschach& matout2( mat2 );
   matout += (-1 * matout2);
   return MatrixMeschach( matout );
 }

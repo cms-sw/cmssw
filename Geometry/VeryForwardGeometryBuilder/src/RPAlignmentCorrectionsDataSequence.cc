@@ -154,6 +154,7 @@ RPAlignmentCorrectionsDataSequence::loadXMLFile( const std::string& fileName )
     std::map<TimeValidityInterval,RPAlignmentCorrectionsData>::insert( std::make_pair( tvi, corrections ) );
   }
 
+  parser.reset();
   XMLPlatformUtils::Terminate();
 }
 

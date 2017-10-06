@@ -48,6 +48,7 @@
 #include <memory>
 #include <cstring>
 #include <string>
+#include <functional>
 
 #include "Rtypes.h"
 
@@ -86,9 +87,16 @@ namespace fwlite {
 
       public:
          // NOTE: Does NOT take ownership so iFile must remain around
-         // at least as long as Event
-         Event(TFile* iFile);
-         virtual ~Event();
+         // at least as long as Event.
+         // useCache and baFunc (branch-access-function) are passed to
+         // DataGetterHelper and help with external management of TTreeCache
+         // associated with the file. By default useCache is true and internal
+         // DataGetterHelper caching is enabled. When user sets useCache to
+         // false no cache is created unless user attaches and controls it
+         // himself.
+         Event(TFile* iFile, bool useCache=true,
+               std::function<void (TBranch const&)> baFunc=[](TBranch const&){});
+         ~Event() override;
 
          ///Advance to next event in the TFile
          Event const& operator++() override;
@@ -109,14 +117,14 @@ namespace fwlite {
 
          // ---------- const member functions ---------------------
          ///Return the branch name in the TFile which contains the data
-         virtual std::string const getBranchNameFor(std::type_info const&,
+         std::string const getBranchNameFor(std::type_info const&,
                                                     char const* iModuleLabel,
                                                     char const* iProductInstanceLabel,
                                                     char const* iProcessName) const override;
 
          using fwlite::EventBase::getByLabel;
          /// This function should only be called by fwlite::Handle<>
-         virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const override;
+         bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const override;
          //void getByBranchName(std::type_info const&, char const*, void*&) const;
 
          ///Properly setup for edm::Ref, etc and then call TTree method
@@ -127,12 +135,12 @@ namespace fwlite {
 
          bool isValid() const;
          operator bool () const;
-         virtual bool atEnd() const override;
+         bool atEnd() const override;
 
          ///Returns number of events in the file
          Long64_t size() const;
 
-         virtual edm::EventAuxiliary const& eventAuxiliary() const override;
+         edm::EventAuxiliary const& eventAuxiliary() const override;
 
          std::vector<edm::BranchDescription> const& getBranchDescriptions() const {
             return branchMap_.getBranchDescriptions();
@@ -142,19 +150,19 @@ namespace fwlite {
             return branchMap_.getFile();
          }
 
-         virtual edm::ParameterSet const* parameterSet(edm::ParameterSetID const& psID) const override;
+         edm::ParameterSet const* parameterSet(edm::ParameterSetID const& psID) const override;
 
-         virtual edm::WrapperBase const* getByProductID(edm::ProductID const&) const override;
+         edm::WrapperBase const* getByProductID(edm::ProductID const&) const override;
          edm::WrapperBase const* getThinnedProduct(edm::ProductID const& pid, unsigned int& key) const;
          void getThinnedProducts(edm::ProductID const& pid,
                                  std::vector<edm::WrapperBase const*>& foundContainers,
                                  std::vector<unsigned int>& keys) const;
 
-         virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const override;
+         edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const override;
 
-         virtual edm::TriggerResultsByName triggerResultsByName(edm::TriggerResults const& triggerResults) const override;
+         edm::TriggerResultsByName triggerResultsByName(edm::TriggerResults const& triggerResults) const override;
 
-         virtual edm::ProcessHistory const& processHistory() const override {return history();}
+         edm::ProcessHistory const& processHistory() const override {return history();}
 
          fwlite::LuminosityBlock const& getLuminosityBlock() const;
          fwlite::Run             const& getRun() const;
@@ -168,9 +176,9 @@ namespace fwlite {
          friend class ChainEvent;
          friend class EventHistoryGetter;
 
-         Event(Event const&); // stop default
+         Event(Event const&) = delete; // stop default
 
-         Event const& operator=(Event const&); // stop default
+         Event const& operator=(Event const&) = delete; // stop default
 
          edm::ProcessHistory const& history() const;
          void updateAux(Long_t eventIndex) const;

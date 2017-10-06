@@ -19,7 +19,7 @@
 
 //__________________________________________________________________________________________________
 BeamSpotAlignmentParameters::BeamSpotAlignmentParameters(Alignable* ali, bool calcMis) :
-  AlignmentParameters(ali, displacementFromAlignable(calcMis ? ali : 0),
+  AlignmentParameters(ali, displacementFromAlignable(calcMis ? ali : nullptr),
 		      AlgebraicSymMatrix(N_PARAM, 0))
 {
 

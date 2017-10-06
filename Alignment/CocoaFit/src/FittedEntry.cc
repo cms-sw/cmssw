@@ -57,7 +57,7 @@ FittedEntry::FittedEntry( ALIstring name, float value, float sigma)
   //  std::cout << " building theEntryName " << theEntryName << " " << pointold << " " << name << std::endl;
   Entry* entry = Model::getEntryByName( theOptOName, theEntryName ); 
 
-  theEntry = 0;
+  theEntry = nullptr;
 
   //------ store values and sigmas in dimensions indicated by global options
   ALIdouble dimv = entry->OutputValueDimensionFactor();

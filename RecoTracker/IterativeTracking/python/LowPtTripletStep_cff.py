@@ -215,16 +215,16 @@ trackingPhase2PU140.toModify(lowPtTripletStepTrajectoryCleanerBySharedHits, frac
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
 lowPtTripletStep =  TrackMVAClassifierPrompt.clone()
 lowPtTripletStep.src = 'lowPtTripletStepTracks'
-lowPtTripletStep.GBRForestLabel = 'MVASelectorIter1_13TeV'
+lowPtTripletStep.mva.GBRForestLabel = 'MVASelectorIter1_13TeV'
 lowPtTripletStep.qualityCuts = [-0.6,-0.3,-0.1]
 
 trackingPhase1.toReplaceWith(lowPtTripletStep, lowPtTripletStep.clone(
-     GBRForestLabel = 'MVASelectorLowPtTripletStep_Phase1',
-     qualityCuts = [0.0,0.2,0.4],
+     mva = dict(GBRForestLabel = 'MVASelectorLowPtTripletStep_Phase1'),
+     qualityCuts = [-0.4,0.0,0.3],
 ))
 trackingPhase1QuadProp.toReplaceWith(lowPtTripletStep, lowPtTripletStep.clone(
-     GBRForestLabel = 'MVASelectorLowPtTripletStep_Phase1',
-     qualityCuts = [0.0,0.2,0.4],
+     mva = dict(GBRForestLabel = 'MVASelectorLowPtTripletStep_Phase1'),
+     qualityCuts = [-0.4,0.0,0.3],
 ))
 
 

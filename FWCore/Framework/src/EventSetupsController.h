@@ -124,9 +124,9 @@ namespace edm {
          bool mustFinishConfiguration() const { return mustFinishConfiguration_; }
 
       private:
-         EventSetupsController(EventSetupsController const&); // stop default
+         EventSetupsController(EventSetupsController const&) = delete; // stop default
          
-         EventSetupsController const& operator=(EventSetupsController const&); // stop default
+         EventSetupsController const& operator=(EventSetupsController const&) = delete; // stop default
 
          void checkESProducerSharing();
          

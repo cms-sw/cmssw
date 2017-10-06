@@ -55,7 +55,7 @@ void SiStripNoiseNormalizedWithApvGainBuilder::analyze(const edm::Event& evt, co
   printDebug_ = pset_.getUntrackedParameter<uint32_t>("printDebug", 5);
 
   unsigned int count = 0;
-  const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo > DetInfos = reader.getAllData();
+  const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >& DetInfos = reader.getAllData();
   for(std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >::const_iterator it = DetInfos.begin(); it != DetInfos.end(); it++) {
 
     // Find if this DetId is in the input tag and if so how many are the Apvs for which it contains information

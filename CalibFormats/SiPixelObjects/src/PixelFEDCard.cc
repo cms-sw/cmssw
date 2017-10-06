@@ -246,7 +246,7 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat):PixelConfigBase(" 
   int size[3]   ;
   int indexsize = 0 ;   
   for(unsigned int r = 0 ; r < tableMat.size() ; r++){    //Goes to every row of the Matrix
-    if(tableMat[r].size() == 0)
+    if(tableMat[r].empty())
       {
 //        cout << __LINE__ << "]\t" << mthn << "__________________ NEW TABLE __________________"<< endl ;
         size[indexsize] = r ;
@@ -634,7 +634,7 @@ PixelFEDCard::PixelFEDCard(string fileName):
 
   //  cout << __LINE__ << "]\t" << mthn <<" Get setup parameters from file "<<fileName<<endl;
   FILE *infile = fopen((fileName.c_str()),"r");
-  if (infile == NULL)  throw std::runtime_error("Failed to open FED Card parameter file: "+fileName); 
+  if (infile == nullptr)  throw std::runtime_error("Failed to open FED Card parameter file: "+fileName); 
 
   //Fed Base Address
   fscanf(infile,"FED Base address                         :%lx\n",
@@ -1243,7 +1243,7 @@ void PixelFEDCard::writeASCII(std::string dir) const{
   std::string filename=dir+"params_fed_"+fedNum+".dat";
 
   FILE *outfile = fopen((filename.c_str()),"w");
-  if (outfile == NULL) {
+  if (outfile == nullptr) {
     cout<< __LINE__ << "]\t" << mthn << "Could not open file: " << filename << " for writing" << endl; 
     return;
   }

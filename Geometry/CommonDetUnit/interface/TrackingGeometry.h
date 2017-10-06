@@ -26,41 +26,36 @@
 class TrackingGeometry
 {
 public:
-  typedef std::vector<GeomDetType const*>          DetTypeContainer;
-  typedef std::vector<GeomDet const*>              DetContainer;
-  typedef std::vector<GeomDetUnit const*>          DetUnitContainer;
-  typedef std::vector<DetId>                 DetIdContainer;
-  typedef  std::unordered_map< unsigned int, GeomDetUnit const*> mapIdToDetUnit;
-  typedef  std::unordered_map< unsigned int, GeomDet const*>     mapIdToDet;
+  using DetTypeContainer = std::vector< const GeomDetType* >;
+  using DetContainer = std::vector< const GeomDet* >;
+  using DetIdContainer = std::vector< DetId >;
+  using mapIdToDetUnit =  std::unordered_map< unsigned int, const GeomDet* >;
+  using mapIdToDet =  std::unordered_map< unsigned int, const GeomDet* >;
 
-  // Default constructor
-  //  virtual TrackingGeometry() {}
-  
   /// Destructor.
   virtual ~TrackingGeometry() {}
   
   /// Return a vector of all det types.
-  virtual const DetTypeContainer&  detTypes()         const = 0;
+  virtual const DetTypeContainer&  detTypes() const = 0;
 
-  /// Returm a vector of all GeomDetUnit
-  virtual const DetUnitContainer&  detUnits()         const = 0;
+  /// Returm a vector of all GeomDet
+  virtual const DetContainer& detUnits() const = 0;
 
   /// Returm a vector of all GeomDet (including all GeomDetUnits)
-  virtual const DetContainer&      dets()             const = 0;
+  virtual const DetContainer& dets() const = 0;
 
   /// Returm a vector of all GeomDetUnit DetIds
-  virtual const DetIdContainer&    detUnitIds()       const = 0;
+  virtual const DetIdContainer& detUnitIds() const = 0;
 
   /// Returm a vector of all GeomDet DetIds (including those of GeomDetUnits)
-  virtual const DetIdContainer&    detIds()           const = 0;
+  virtual const DetIdContainer& detIds() const = 0;
 
   /// Return the pointer to the GeomDetUnit corresponding to a given DetId
-  virtual const GeomDetUnit*       idToDetUnit(DetId) const = 0;
+  virtual const GeomDet* idToDetUnit(DetId) const = 0;
 
   /// Return the pointer to the GeomDet corresponding to a given DetId
   /// (valid also for GeomDetUnits)
-  virtual const GeomDet*           idToDet(DetId)     const = 0; 
-
+  virtual const GeomDet* idToDet(DetId) const = 0;
 };
 
 #endif

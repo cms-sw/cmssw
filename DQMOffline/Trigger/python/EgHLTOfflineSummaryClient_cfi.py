@@ -17,7 +17,7 @@ egHLTOffQTester = cms.EDAnalyzer("QualityTester",
 
 egHLTOffDQMSummaryClient = cms.EDAnalyzer("EgHLTOfflineSummaryClient",
                                         egHLTOffFiltersToMon,
-                                        DQMDirName=cms.string("HLT/EgOffline"),
+                                        DQMDirName=cms.string("HLT/EGM"),
                                         hltTag = cms.string("HLT"),
                                         filterInactiveTriggers = cms.bool(True),
                                         runClientEndLumiBlock=cms.bool(False),

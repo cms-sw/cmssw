@@ -73,7 +73,7 @@ void  DeDxDiscriminatorLearner::algoBeginJob(const edm::EventSetup& iSetup)
 {
    Charge_Vs_Path = new TH3F ("Charge_Vs_Path"     , "Charge_Vs_Path" , P_NBins, P_Min, P_Max, Path_NBins, Path_Min, Path_Max, Charge_NBins, Charge_Min, Charge_Max);
 
-   if(useCalibration && calibGains.size()==0){
+   if(useCalibration && calibGains.empty()){
       edm::ESHandle<TrackerGeometry> tkGeom;
       iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
       m_off = tkGeom->offsetDU(GeomDetEnumerators::PixelBarrel); //index start at the first pixel
@@ -219,25 +219,25 @@ void DeDxDiscriminatorLearner::algoAnalyzeTheTree(const edm::EventSetup& iSetup)
       TString CalibPrefix("GainCalibration");
       TString CalibSuffix("");
 
-      unsigned int                 eventnumber    = 0;    tree->SetBranchAddress(EventPrefix + "event"          + EventSuffix, &eventnumber   , NULL);
-      unsigned int                 runnumber      = 0;    tree->SetBranchAddress(EventPrefix + "run"            + EventSuffix, &runnumber     , NULL);
-      std::vector<bool>*           TrigTech       = 0;    tree->SetBranchAddress(EventPrefix + "TrigTech"       + EventSuffix, &TrigTech   , NULL);
+      unsigned int                 eventnumber    = 0;    tree->SetBranchAddress(EventPrefix + "event"          + EventSuffix, &eventnumber   , nullptr);
+      unsigned int                 runnumber      = 0;    tree->SetBranchAddress(EventPrefix + "run"            + EventSuffix, &runnumber     , nullptr);
+      std::vector<bool>*           TrigTech       = nullptr;    tree->SetBranchAddress(EventPrefix + "TrigTech"       + EventSuffix, &TrigTech   , nullptr);
 
-      std::vector<double>*         trackchi2ndof  = 0;    tree->SetBranchAddress(TrackPrefix + "chi2ndof"       + TrackSuffix, &trackchi2ndof , NULL);
-      std::vector<float>*          trackp         = 0;    tree->SetBranchAddress(TrackPrefix + "momentum"       + TrackSuffix, &trackp        , NULL);
-      std::vector<float>*          trackpt        = 0;    tree->SetBranchAddress(TrackPrefix + "pt"             + TrackSuffix, &trackpt       , NULL);
-      std::vector<double>*         tracketa       = 0;    tree->SetBranchAddress(TrackPrefix + "eta"            + TrackSuffix, &tracketa      , NULL);
-      std::vector<double>*         trackphi       = 0;    tree->SetBranchAddress(TrackPrefix + "phi"            + TrackSuffix, &trackphi      , NULL);
-      std::vector<unsigned int>*   trackhitsvalid = 0;    tree->SetBranchAddress(TrackPrefix + "hitsvalid"      + TrackSuffix, &trackhitsvalid, NULL);
+      std::vector<double>*         trackchi2ndof  = nullptr;    tree->SetBranchAddress(TrackPrefix + "chi2ndof"       + TrackSuffix, &trackchi2ndof , nullptr);
+      std::vector<float>*          trackp         = nullptr;    tree->SetBranchAddress(TrackPrefix + "momentum"       + TrackSuffix, &trackp        , nullptr);
+      std::vector<float>*          trackpt        = nullptr;    tree->SetBranchAddress(TrackPrefix + "pt"             + TrackSuffix, &trackpt       , nullptr);
+      std::vector<double>*         tracketa       = nullptr;    tree->SetBranchAddress(TrackPrefix + "eta"            + TrackSuffix, &tracketa      , nullptr);
+      std::vector<double>*         trackphi       = nullptr;    tree->SetBranchAddress(TrackPrefix + "phi"            + TrackSuffix, &trackphi      , nullptr);
+      std::vector<unsigned int>*   trackhitsvalid = nullptr;    tree->SetBranchAddress(TrackPrefix + "hitsvalid"      + TrackSuffix, &trackhitsvalid, nullptr);
 
-      std::vector<int>*            trackindex     = 0;    tree->SetBranchAddress(CalibPrefix + "trackindex"     + CalibSuffix, &trackindex    , NULL);
-      std::vector<unsigned int>*   rawid          = 0;    tree->SetBranchAddress(CalibPrefix + "rawid"          + CalibSuffix, &rawid         , NULL);
-      std::vector<unsigned short>* firststrip     = 0;    tree->SetBranchAddress(CalibPrefix + "firststrip"     + CalibSuffix, &firststrip    , NULL);
-      std::vector<unsigned short>* nstrips        = 0;    tree->SetBranchAddress(CalibPrefix + "nstrips"        + CalibSuffix, &nstrips       , NULL);
-      std::vector<unsigned int>*   charge         = 0;    tree->SetBranchAddress(CalibPrefix + "charge"         + CalibSuffix, &charge        , NULL);
-      std::vector<float>*          path           = 0;    tree->SetBranchAddress(CalibPrefix + "path"           + CalibSuffix, &path          , NULL);
-      std::vector<unsigned char>*  amplitude      = 0;    tree->SetBranchAddress(CalibPrefix + "amplitude"      + CalibSuffix, &amplitude     , NULL);
-      std::vector<double>*         gainused       = 0;    tree->SetBranchAddress(CalibPrefix + "gainused"       + CalibSuffix, &gainused      , NULL);
+      std::vector<int>*            trackindex     = nullptr;    tree->SetBranchAddress(CalibPrefix + "trackindex"     + CalibSuffix, &trackindex    , nullptr);
+      std::vector<unsigned int>*   rawid          = nullptr;    tree->SetBranchAddress(CalibPrefix + "rawid"          + CalibSuffix, &rawid         , nullptr);
+      std::vector<unsigned short>* firststrip     = nullptr;    tree->SetBranchAddress(CalibPrefix + "firststrip"     + CalibSuffix, &firststrip    , nullptr);
+      std::vector<unsigned short>* nstrips        = nullptr;    tree->SetBranchAddress(CalibPrefix + "nstrips"        + CalibSuffix, &nstrips       , nullptr);
+      std::vector<unsigned int>*   charge         = nullptr;    tree->SetBranchAddress(CalibPrefix + "charge"         + CalibSuffix, &charge        , nullptr);
+      std::vector<float>*          path           = nullptr;    tree->SetBranchAddress(CalibPrefix + "path"           + CalibSuffix, &path          , nullptr);
+      std::vector<unsigned char>*  amplitude      = nullptr;    tree->SetBranchAddress(CalibPrefix + "amplitude"      + CalibSuffix, &amplitude     , nullptr);
+      std::vector<double>*         gainused       = nullptr;    tree->SetBranchAddress(CalibPrefix + "gainused"       + CalibSuffix, &gainused      , nullptr);
 
       printf("Number of Events = %i + %i = %i\n",NEvent,(unsigned int)tree->GetEntries(),(unsigned int)(NEvent+tree->GetEntries()));NEvent+=tree->GetEntries();
       printf("Progressing Bar              :0%%       20%%       40%%       60%%       80%%       100%%\n");

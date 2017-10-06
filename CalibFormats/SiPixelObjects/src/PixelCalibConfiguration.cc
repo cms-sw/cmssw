@@ -169,7 +169,7 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::vector< std::vector<std::s
     unsigned int  first,last,step;
     in >> first >> last >> step;
     unsigned int index=1;
-    if (dacs_.size()>0) {
+    if (!dacs_.empty()) {
       index=dacs_.back().index()*dacs_.back().getNPoints();
     }
     in >> tmp;
@@ -197,7 +197,7 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::vector< std::vector<std::s
 	  in >> val;
 	}
 	unsigned int index=1;
-	if (dacs_.size()>0) {
+	if (!dacs_.empty()) {
 	  index=dacs_.back().index()*dacs_.back().getNPoints();
 	}
 	PixelDACScanRange dacrange(dacname,values,index,false);
@@ -210,7 +210,7 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::vector< std::vector<std::s
 	unsigned int  first,last,step;
 	in >> first >> last >> step;
 	unsigned int index=1;
-	if (dacs_.size()>0) {
+	if (!dacs_.empty()) {
 	  index=dacs_.back().index()*dacs_.back().getNPoints();
 	}
 	in >> tmp;
@@ -231,7 +231,7 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::vector< std::vector<std::s
       int val;
       in >> val;
       unsigned int index=1;
-      if (dacs_.size()>0) index=dacs_.back().index()*dacs_.back().getNPoints();
+      if (!dacs_.empty()) index=dacs_.back().index()*dacs_.back().getNPoints();
       PixelDACScanRange dacrange(name,val,val,1,index,false);
       if (tmp=="SetRelative:") {
 	dacrange.setRelative();
@@ -408,7 +408,7 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
       unsigned int  first,last,step;
       in >> first >> last >> step;
       unsigned int index=1;
-      if (dacs_.size()>0) {
+      if (!dacs_.empty()) {
         index=dacs_.back().index()*dacs_.back().getNPoints();
       }
       in >> tmp;
@@ -436,7 +436,7 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
 	    in >> val;
 	  }
 	  unsigned int index=1;
-	  if (dacs_.size()>0) {
+	  if (!dacs_.empty()) {
 	    index=dacs_.back().index()*dacs_.back().getNPoints();
 	  }
 	  PixelDACScanRange dacrange(dacname,values,index,false);
@@ -449,7 +449,7 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
 	  unsigned int  first,last,step;
 	  in >> first >> last >> step;
 	  unsigned int index=1;
-	  if (dacs_.size()>0) {
+	  if (!dacs_.empty()) {
 	    index=dacs_.back().index()*dacs_.back().getNPoints();
 	  }
 	  in >> tmp;
@@ -471,7 +471,7 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
         in >> val;
 	unsigned int absval=std::abs(val);
         unsigned int index=1;
-        if (dacs_.size()>0) index=dacs_.back().index()*dacs_.back().getNPoints();
+        if (!dacs_.empty()) index=dacs_.back().index()*dacs_.back().getNPoints();
         PixelDACScanRange dacrange(name,absval,absval,1,index,false);
 	if (tmp=="SetRelative:") {
 	  dacrange.setRelative();
@@ -554,8 +554,8 @@ PixelCalibConfiguration::~PixelCalibConfiguration(){}
 
 void PixelCalibConfiguration::buildROCAndModuleLists(const PixelNameTranslation* translation, const PixelDetectorConfig* detconfig)
 {
-  assert( translation != 0 );
-  assert( detconfig != 0 );
+  assert( translation != nullptr );
+  assert( detconfig != nullptr );
 
   if ( rocAndModuleListsBuilt_ )
     {
@@ -748,7 +748,7 @@ void PixelCalibConfiguration::buildObjectsDependingOnTheNameTranslation(const Pi
 {
   assert( !objectsDependingOnTheNameTranslationBuilt_ );
   assert( rocAndModuleListsBuilt_ );
-  assert( aNameTranslation != 0 );
+  assert( aNameTranslation != nullptr );
   
   // Build the channel list.
   assert ( channels_.empty() );
@@ -938,7 +938,7 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
     ::abort();
   }
 
-  if (rocInfo_.size()==0){
+  if (rocInfo_.empty()){
     //here we will do some initialization...
     for(unsigned int i=0;i<rocs_.size();i++){
       const PixelHdwAddress* hdwadd=trans->getHdwAddress(rocs_[i]);
@@ -1161,7 +1161,7 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
         PixelROCMaskBits* rocMasks=rocInfo_[i].masks_;
         PixelROCTrimBits* rocTrims=rocInfo_[i].trims_;
 
-        if (mode==1) rocMasks=0;
+        if (mode==1) rocMasks=nullptr;
 
         //std::cout << "Will enable pixels!" <<std::endl;
         enablePixels(pixelFECs[theROC.fecnumber()], 
@@ -1269,13 +1269,13 @@ std::vector<std::pair<unsigned int, std::vector<unsigned int> > >& PixelCalibCon
 
     assert(rocAndModuleListsBuilt_);
     
-    assert(rocs_.size()!=0);
+    assert(!rocs_.empty());
 
     for(unsigned int i=0;i<rocs_.size();i++){
       PixelModuleName module(rocs_[i].rocname());
       if (!detconfig->containsModule(module)) continue;
       const PixelHdwAddress* hdw=translation->getHdwAddress(rocs_[i]);
-	assert(hdw!=0);
+	assert(hdw!=nullptr);
 	//std::cout << "ROC, fednumber:"<<rocs_[i]<<" "<<hdw->fednumber()
 	//	  << std::endl;
         //first check if fed associated with the roc is in the right crate
@@ -1320,7 +1320,7 @@ std::map <unsigned int, std::set<unsigned int> > PixelCalibConfiguration::getFED
   assert(rocAndModuleListsBuilt_);
   
   std::map <unsigned int, std::set<unsigned int> > fedsChannels;
-  assert(rocs_.size()!=0);
+  assert(!rocs_.empty());
   std::vector<PixelROCName>::iterator iroc=rocs_.begin();
 
   for (;iroc!=rocs_.end();++iroc){
@@ -1338,7 +1338,7 @@ std::set <unsigned int> PixelCalibConfiguration::getFEDCrates(const PixelNameTra
 	assert(rocAndModuleListsBuilt_);
 	
 	std::set<unsigned int> fedcrates;
-	assert(modules_.size()!=0);
+	assert(!modules_.empty());
 	std::set<PixelModuleName>::iterator imodule=modules_.begin();
 
 	for (;imodule!=modules_.end();++imodule)
@@ -1360,7 +1360,7 @@ std::set <unsigned int> PixelCalibConfiguration::getFECCrates(const PixelNameTra
 	assert(rocAndModuleListsBuilt_);
 	
 	std::set<unsigned int> feccrates;
-	assert(modules_.size()!=0);
+	assert(!modules_.empty());
 	std::set<PixelModuleName>::iterator imodule=modules_.begin();
 
 	for (;imodule!=modules_.end();++imodule)
@@ -1382,7 +1382,7 @@ std::set <unsigned int> PixelCalibConfiguration::getTKFECCrates(const PixelPortc
 	assert(rocAndModuleListsBuilt_);
 	
 	std::set<unsigned int> tkfeccrates;
-	assert(modules_.size()!=0);
+	assert(!modules_.empty());
 	std::set<PixelModuleName>::iterator imodule=modules_.begin();
 
 	for (;imodule!=modules_.end();++imodule)
@@ -1468,7 +1468,7 @@ void PixelCalibConfiguration::enablePixels(PixelFECConfigInterface* pixelFEC,
       unsigned int bits=trims->trim(cols_[icols][icol],rows_[irows][irow]);
 
       //if masks==0 always enable pixel
-      if (masks==0||
+      if (masks==nullptr||
 	  masks->mask(cols_[icols][icol],rows_[irows][irow])) bits|=0x80;
 
       pixelFEC->progpix(theROC.mfec(),

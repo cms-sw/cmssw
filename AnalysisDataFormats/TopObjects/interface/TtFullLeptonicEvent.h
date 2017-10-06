@@ -27,69 +27,69 @@ class TtFullLeptonicEvent: public TtEvent {
   /// empty constructor
   TtFullLeptonicEvent(){};
   /// default destructor
-  virtual ~TtFullLeptonicEvent(){};
+  ~TtFullLeptonicEvent() override{};
 
   /// get top of the given hypothesis
   const reco::Candidate* top(const std::string& key, const unsigned& cmb=0) const { return top(hypoClassKeyFromString(key), cmb); };
   /// get top of the given hypothesis
-  const reco::Candidate* top(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : eventHypo(key,cmb). daughter(TtFullLepDaughter::Top); };
+  const reco::Candidate* top(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? nullptr : eventHypo(key,cmb). daughter(TtFullLepDaughter::Top); };
   /// get b of the given hypothesis
   const reco::Candidate* b(const std::string& key, const unsigned& cmb=0) const { return b(hypoClassKeyFromString(key), cmb); };
   /// get b of the given hypothesis
-  const reco::Candidate* b(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : top(key,cmb)->daughter(TtFullLepDaughter::B); };
+  const reco::Candidate* b(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? nullptr : top(key,cmb)->daughter(TtFullLepDaughter::B); };
   /// get Wplus of the given hypothesis
   const reco::Candidate* wPlus(const std::string& key, const unsigned& cmb=0) const { return wPlus(hypoClassKeyFromString(key), cmb); };
   /// get Wplus of the given hypothesis
-  const reco::Candidate* wPlus(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : top(key,cmb)->daughter(TtFullLepDaughter::WPlus); };
+  const reco::Candidate* wPlus(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? nullptr : top(key,cmb)->daughter(TtFullLepDaughter::WPlus); };
   /// get anti-lepton of the given hypothesis
   const reco::Candidate* leptonBar(const std::string& key, const unsigned& cmb=0) const { return leptonBar(hypoClassKeyFromString(key), cmb); };
   /// get anti-lepton of the given hypothesis
-  const reco::Candidate* leptonBar(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : wPlus(key,cmb)->daughter(TtFullLepDaughter::LepBar); };
+  const reco::Candidate* leptonBar(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? nullptr : wPlus(key,cmb)->daughter(TtFullLepDaughter::LepBar); };
   /// get neutrino of the given hypothesis
   const reco::Candidate* neutrino(const std::string& key, const unsigned& cmb=0) const { return neutrino(hypoClassKeyFromString(key), cmb); };
   /// get neutrino of the given hypothesis
-  const reco::Candidate* neutrino(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : wPlus(key,cmb)->daughter(TtFullLepDaughter::Nu    ); };
+  const reco::Candidate* neutrino(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? nullptr : wPlus(key,cmb)->daughter(TtFullLepDaughter::Nu    ); };
   /// get anti-top of the given hypothesis
   const reco::Candidate* topBar(const std::string& key, const unsigned& cmb=0) const { return topBar(hypoClassKeyFromString(key), cmb); };
   /// get anti-top of the given hypothesis
-  const reco::Candidate* topBar(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : eventHypo(key,cmb). daughter(TtFullLepDaughter::TopBar); };
+  const reco::Candidate* topBar(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? nullptr : eventHypo(key,cmb). daughter(TtFullLepDaughter::TopBar); };
   /// get anti-b of the given hypothesis
   const reco::Candidate* bBar(const std::string& key, const unsigned& cmb=0) const { return bBar(hypoClassKeyFromString(key), cmb); };
   /// get anti-b of the given hypothesis
-  const reco::Candidate* bBar(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : topBar(key,cmb)->daughter(TtFullLepDaughter::BBar  ); };
+  const reco::Candidate* bBar(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? nullptr : topBar(key,cmb)->daughter(TtFullLepDaughter::BBar  ); };
   /// get Wminus of the given hypothesis
   const reco::Candidate* wMinus(const std::string& key, const unsigned& cmb=0) const { return wMinus(hypoClassKeyFromString(key), cmb); };
   /// get Wminus of the given hypothesis
-  const reco::Candidate* wMinus(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : topBar(key,cmb)->daughter(TtFullLepDaughter::WMinus); };
+  const reco::Candidate* wMinus(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? nullptr : topBar(key,cmb)->daughter(TtFullLepDaughter::WMinus); };
   /// get lepton of the given hypothesis
   const reco::Candidate* lepton(const std::string& key, const unsigned& cmb=0) const { return lepton(hypoClassKeyFromString(key), cmb); };
   /// get lepton of the given hypothesis
-  const reco::Candidate* lepton(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : wMinus(key,cmb)->daughter(TtFullLepDaughter::Lep   ); };
+  const reco::Candidate* lepton(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? nullptr : wMinus(key,cmb)->daughter(TtFullLepDaughter::Lep   ); };
   /// get anti-neutrino of the given hypothesis
   const reco::Candidate* neutrinoBar(const std::string& key, const unsigned& cmb=0) const { return neutrinoBar(hypoClassKeyFromString(key), cmb); };
   /// get anti-neutrino of the given hypothesis
-  const reco::Candidate* neutrinoBar(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : wMinus   (key,cmb)->daughter(TtFullLepDaughter::NuBar ); };
+  const reco::Candidate* neutrinoBar(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? nullptr : wMinus   (key,cmb)->daughter(TtFullLepDaughter::NuBar ); };
 
   /// get top of the TtGenEvent
-  const reco::GenParticle* genTop        () const { return (!genEvt_ ? 0 : this->genEvent()->top()        ); };
+  const reco::GenParticle* genTop        () const { return (!genEvt_ ? nullptr : this->genEvent()->top()        ); };
   /// get b of the TtGenEvent
-  const reco::GenParticle* genB          () const { return (!genEvt_ ? 0 : this->genEvent()->b()          ); };
+  const reco::GenParticle* genB          () const { return (!genEvt_ ? nullptr : this->genEvent()->b()          ); };
   /// get Wplus of the TtGenEvent
-  const reco::GenParticle* genWPlus      () const { return (!genEvt_ ? 0 : this->genEvent()->wPlus()      ); };
+  const reco::GenParticle* genWPlus      () const { return (!genEvt_ ? nullptr : this->genEvent()->wPlus()      ); };
   /// get anti-lepton of the TtGenEvent
-  const reco::GenParticle* genLeptonBar  () const { return (!genEvt_ ? 0 : this->genEvent()->leptonBar()  ); };
+  const reco::GenParticle* genLeptonBar  () const { return (!genEvt_ ? nullptr : this->genEvent()->leptonBar()  ); };
   /// get neutrino of the TtGenEvent
-  const reco::GenParticle* genNeutrino   () const { return (!genEvt_ ? 0 : this->genEvent()->neutrino()   ); };
+  const reco::GenParticle* genNeutrino   () const { return (!genEvt_ ? nullptr : this->genEvent()->neutrino()   ); };
   /// get anti-top of the TtGenEvent
-  const reco::GenParticle* genTopBar     () const { return (!genEvt_ ? 0 : this->genEvent()->topBar()     ); };
+  const reco::GenParticle* genTopBar     () const { return (!genEvt_ ? nullptr : this->genEvent()->topBar()     ); };
   /// get anti-b of the TtGenEvent
-  const reco::GenParticle* genBBar       () const { return (!genEvt_ ? 0 : this->genEvent()->bBar()       ); };
+  const reco::GenParticle* genBBar       () const { return (!genEvt_ ? nullptr : this->genEvent()->bBar()       ); };
   /// get Wminus of the TtGenEvent
-  const reco::GenParticle* genWMinus     () const { return (!genEvt_ ? 0 : this->genEvent()->wMinus()     ); };
+  const reco::GenParticle* genWMinus     () const { return (!genEvt_ ? nullptr : this->genEvent()->wMinus()     ); };
   /// get lepton of the TtGenEvent
-  const reco::GenParticle* genLepton     () const { return (!genEvt_ ? 0 : this->genEvent()->lepton()     ); };
+  const reco::GenParticle* genLepton     () const { return (!genEvt_ ? nullptr : this->genEvent()->lepton()     ); };
   /// get anti-neutrino of the TtGenEvent
-  const reco::GenParticle* genNeutrinoBar() const { return (!genEvt_ ? 0 : this->genEvent()->neutrinoBar()); };
+  const reco::GenParticle* genNeutrinoBar() const { return (!genEvt_ ? nullptr : this->genEvent()->neutrinoBar()); };
 
   /// return the weight of the kinematic solution of hypothesis 'cmb' if available; -1 else
   double solWeight(const unsigned& cmb=0) const { return (cmb<solWeight_.size() ? solWeight_[cmb] : -1.); }    

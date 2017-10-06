@@ -35,6 +35,13 @@ namespace edm {
     putOrMerge(bd,std::move(edp));
   }
 
+  void
+  RunPrincipal::put(ProductResolverIndex index,
+                    std::unique_ptr<WrapperBase> edp) const {
+    auto phb = getProductResolverByIndex(index);
+    phb->putOrMergeProduct(std::move(edp));
+  }
+  
   unsigned int
   RunPrincipal::transitionIndex_() const {
     return index().value();

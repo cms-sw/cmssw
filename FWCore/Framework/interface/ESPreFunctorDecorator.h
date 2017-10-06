@@ -53,7 +53,7 @@ class ESPreFunctorDecorator
    private:
       //ESPreFunctorDecorator(const ESPreFunctorDecorator&); // stop default
 
-      const ESPreFunctorDecorator& operator=(const ESPreFunctorDecorator&); // stop default
+      const ESPreFunctorDecorator& operator=(const ESPreFunctorDecorator&) = delete; // stop default
 
       // ---------- member data --------------------------------
       TFunctor caller_;

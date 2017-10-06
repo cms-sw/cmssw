@@ -27,81 +27,81 @@ class TtFullHadronicEvent: public TtEvent {
   /// empty constructor
   TtFullHadronicEvent(){};
   /// default destructor
-  virtual ~TtFullHadronicEvent(){};
+  ~TtFullHadronicEvent() override{};
 
   /// get top of the given hypothesis
   const reco::Candidate* top(const std::string& key, const unsigned& cmb=0) const { return top(hypoClassKeyFromString(key), cmb); };
   /// get top of the given hypothesis
-  const reco::Candidate* top(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : eventHypo(key,cmb). daughter(TtFullHadDaughter::Top); };
+  const reco::Candidate* top(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? nullptr : eventHypo(key,cmb). daughter(TtFullHadDaughter::Top); };
   /// get b of the given hypothesis
   const reco::Candidate* b(const std::string& key, const unsigned& cmb=0) const { return b(hypoClassKeyFromString(key), cmb); };
   /// get b of the given hypothesis
-  const reco::Candidate* b(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : top(key,cmb)->daughter(TtFullHadDaughter::B); };
+  const reco::Candidate* b(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? nullptr : top(key,cmb)->daughter(TtFullHadDaughter::B); };
 
   /// get light Q of the given hypothesis
   const reco::Candidate* lightQ(const std::string& key, const unsigned& cmb=0) const { return lightQ(hypoClassKeyFromString(key), cmb); };
   /// get light Q of the given hypothesis
-  const reco::Candidate* lightQ(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : wPlus(key,cmb)->daughter(TtFullHadDaughter::LightQ); };
+  const reco::Candidate* lightQ(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? nullptr : wPlus(key,cmb)->daughter(TtFullHadDaughter::LightQ); };
 
   /// get light P of the given hypothesis
   const reco::Candidate* lightP(const std::string& key, const unsigned& cmb=0) const { return lightP(hypoClassKeyFromString(key), cmb); };
   /// get light P of the given hypothesis
-  const reco::Candidate* lightP(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : wMinus(key,cmb)->daughter(TtFullHadDaughter::LightP); };
+  const reco::Candidate* lightP(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? nullptr : wMinus(key,cmb)->daughter(TtFullHadDaughter::LightP); };
 
   /// get Wplus of the given hypothesis
   const reco::Candidate* wPlus(const std::string& key, const unsigned& cmb=0) const { return wPlus(hypoClassKeyFromString(key), cmb); };
   /// get Wplus of the given hypothesis
-  const reco::Candidate* wPlus(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : top(key,cmb)->daughter(TtFullHadDaughter::WPlus); };
+  const reco::Candidate* wPlus(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? nullptr : top(key,cmb)->daughter(TtFullHadDaughter::WPlus); };
 
   /// get anti-top of the given hypothesis
   const reco::Candidate* topBar(const std::string& key, const unsigned& cmb=0) const { return topBar(hypoClassKeyFromString(key), cmb); };
   /// get anti-top of the given hypothesis
-  const reco::Candidate* topBar(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : eventHypo(key,cmb). daughter(TtFullHadDaughter::TopBar); };
+  const reco::Candidate* topBar(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? nullptr : eventHypo(key,cmb). daughter(TtFullHadDaughter::TopBar); };
   /// get anti-b of the given hypothesis
   const reco::Candidate* bBar(const std::string& key, const unsigned& cmb=0) const { return bBar(hypoClassKeyFromString(key), cmb); };
   /// get anti-b of the given hypothesis
-  const reco::Candidate* bBar(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : topBar(key,cmb)->daughter(TtFullHadDaughter::BBar  ); };
+  const reco::Candidate* bBar(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? nullptr : topBar(key,cmb)->daughter(TtFullHadDaughter::BBar  ); };
 
   /// get light Q bar of the given hypothesis
   const reco::Candidate* lightQBar(const std::string& key, const unsigned& cmb=0) const { return lightQBar(hypoClassKeyFromString(key), cmb); };
   /// get light Q bar of the given hypothesis
-  const reco::Candidate* lightQBar(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : wPlus(key,cmb)->daughter(TtFullHadDaughter::LightQBar); };
+  const reco::Candidate* lightQBar(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? nullptr : wPlus(key,cmb)->daughter(TtFullHadDaughter::LightQBar); };
 
   /// get light P bar of the given hypothesis
   const reco::Candidate* lightPBar(const std::string& key, const unsigned& cmb=0) const { return lightPBar(hypoClassKeyFromString(key), cmb); };
   /// get light P bar of the given hypothesis
-  const reco::Candidate* lightPBar(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : wMinus(key,cmb)->daughter(TtFullHadDaughter::LightPBar); };
+  const reco::Candidate* lightPBar(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? nullptr : wMinus(key,cmb)->daughter(TtFullHadDaughter::LightPBar); };
 
   /// get Wminus of the given hypothesis
   const reco::Candidate* wMinus(const std::string& key, const unsigned& cmb=0) const { return wMinus(hypoClassKeyFromString(key), cmb); };
   /// get Wminus of the given hypothesis
-  const reco::Candidate* wMinus(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : topBar(key,cmb)->daughter(TtFullHadDaughter::WMinus); };
+  const reco::Candidate* wMinus(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? nullptr : topBar(key,cmb)->daughter(TtFullHadDaughter::WMinus); };
 
   /// get top of the TtGenEvent
-  const reco::GenParticle* top        () const { return (!genEvt_ ? 0 : this->genEvent()->top()  ); };
+  const reco::GenParticle* top        () const { return (!genEvt_ ? nullptr : this->genEvent()->top()  ); };
   /// get b of the TtGenEvent
-  const reco::GenParticle* b          () const { return (!genEvt_ ? 0 : this->genEvent()->b()    ); };
+  const reco::GenParticle* b          () const { return (!genEvt_ ? nullptr : this->genEvent()->b()    ); };
 
   /// get light Q of the TtGenEvent
-  const reco::GenParticle* lightQ     () const { return (!genEvt_ ? 0 : this->genEvent()->daughterQuarkOfWPlus()   ); };
+  const reco::GenParticle* lightQ     () const { return (!genEvt_ ? nullptr : this->genEvent()->daughterQuarkOfWPlus()   ); };
   /// get light P of the TtGenEvent
-  const reco::GenParticle* lightP     () const { return (!genEvt_ ? 0 : this->genEvent()->daughterQuarkOfWMinus()  ); };
+  const reco::GenParticle* lightP     () const { return (!genEvt_ ? nullptr : this->genEvent()->daughterQuarkOfWMinus()  ); };
 
   /// get Wplus of the TtGenEvent
-  const reco::GenParticle* wPlus      () const { return (!genEvt_ ? 0 : this->genEvent()->wPlus()   ); };
+  const reco::GenParticle* wPlus      () const { return (!genEvt_ ? nullptr : this->genEvent()->wPlus()   ); };
 
   /// get anti-top of the TtGenEvent
-  const reco::GenParticle* topBar     () const { return (!genEvt_ ? 0 : this->genEvent()->topBar()  ); };
+  const reco::GenParticle* topBar     () const { return (!genEvt_ ? nullptr : this->genEvent()->topBar()  ); };
   /// get anti-b of the TtGenEvent
-  const reco::GenParticle* bBar       () const { return (!genEvt_ ? 0 : this->genEvent()->bBar()    ); };
+  const reco::GenParticle* bBar       () const { return (!genEvt_ ? nullptr : this->genEvent()->bBar()    ); };
 
   /// get light Q bar of the TtGenEvent
-  const reco::GenParticle* lightQBar  () const { return (!genEvt_ ? 0 : this->genEvent()->daughterQuarkBarOfWPlus()   ); };
+  const reco::GenParticle* lightQBar  () const { return (!genEvt_ ? nullptr : this->genEvent()->daughterQuarkBarOfWPlus()   ); };
   /// get light P bar of the TtGenEvent
-  const reco::GenParticle* lightPBar  () const { return (!genEvt_ ? 0 : this->genEvent()->daughterQuarkBarOfWMinus()  ); };
+  const reco::GenParticle* lightPBar  () const { return (!genEvt_ ? nullptr : this->genEvent()->daughterQuarkBarOfWMinus()  ); };
 
   /// get Wminus of the TtGenEvent
-  const reco::GenParticle* wMinus     () const { return (!genEvt_ ? 0 : this->genEvent()->wMinus()  ); };
+  const reco::GenParticle* wMinus     () const { return (!genEvt_ ? nullptr : this->genEvent()->wMinus()  ); };
 
   /// print full content of the structure as formated 
   /// LogInfo to the MessageLogger output for debugging  

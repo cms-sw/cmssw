@@ -40,7 +40,7 @@ FittedEntriesSet::FittedEntriesSet( const std::vector<ALIstring>& wl )
   theTime = "99:99";
   
   theMinEntryQuality = 2;
-  theEntriesErrorMatrix = (MatrixMeschach*)0;
+  theEntriesErrorMatrix = (MatrixMeschach*)nullptr;
   
   FillEntriesFromFile( wl );
 
@@ -53,7 +53,7 @@ FittedEntriesSet::FittedEntriesSet( const std::vector<FittedEntriesSet*>& vSets 
   theTime = "99:99";
   
   theMinEntryQuality = 2;
-  theEntriesErrorMatrix = (MatrixMeschach*)0;
+  theEntriesErrorMatrix = (MatrixMeschach*)nullptr;
   
   FillEntriesAveragingSets( vSets );
 

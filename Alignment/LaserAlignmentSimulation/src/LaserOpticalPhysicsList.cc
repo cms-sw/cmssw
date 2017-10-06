@@ -39,11 +39,11 @@ LaserOpticalPhysicsList::~LaserOpticalPhysicsList()
       std::cout << "<LaserOpticalPhysicsList::~LaserOpticalPhysicsList()> entering destructor ... " << std::endl;
       std::cout << "  deleting the processes ... ";
     }
-  if ( theWLSProcess != 0 )         { delete theWLSProcess; }
-  if ( theBoundaryProcess != 0 )    { delete theBoundaryProcess; }
-  if ( theRayleighScattering != 0 ) { delete theRayleighScattering; }
-  if ( theAbsorptionProcess != 0 )  { delete theAbsorptionProcess; }
-  if ( theScintProcess != 0 )       { delete theScintProcess; }
+  if ( theWLSProcess != nullptr )         { delete theWLSProcess; }
+  if ( theBoundaryProcess != nullptr )    { delete theBoundaryProcess; }
+  if ( theRayleighScattering != nullptr ) { delete theRayleighScattering; }
+  if ( theAbsorptionProcess != nullptr )  { delete theAbsorptionProcess; }
+  if ( theScintProcess != nullptr )       { delete theScintProcess; }
   if (verboseLevel > 0)
     std::cout << " done " << std::endl;
 }
@@ -73,7 +73,7 @@ void LaserOpticalPhysicsList::ConstructProcess()
   theAbsorptionProcess->SetVerboseLevel(verboseLevel);
   theBoundaryProcess->SetVerboseLevel(verboseLevel);
 
-  G4ProcessManager * pManager = 0;
+  G4ProcessManager * pManager = nullptr;
   
   pManager = G4OpticalPhoton::OpticalPhoton()->GetProcessManager();
   pManager->AddDiscreteProcess(theAbsorptionProcess);

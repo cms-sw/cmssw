@@ -8,6 +8,7 @@
 // Original Author:  Zoltan Gecse
 
 #include <memory>
+#include <initializer_list>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -53,11 +54,11 @@ using namespace trigger;
 class HeavyFlavorValidation : public DQMEDAnalyzer {
   public:
     explicit HeavyFlavorValidation(const edm::ParameterSet&);
-    ~HeavyFlavorValidation();
+    ~HeavyFlavorValidation() override;
   protected:
     void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
     void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
   private:
     int getMotherId( const Candidate * p );
     void match( MonitorElement * me, vector<LeafCandidate> & from, vector<LeafCandidate> & to, double deltaRMatchingCut, vector<int> & map );
@@ -73,6 +74,18 @@ class HeavyFlavorValidation : public DQMEDAnalyzer {
     void myBook1D(DQMStore::IBooker & ibooker, TString name, vector<double> &xBins, TString label ){
       myBook1D(ibooker, name, xBins, label, name );
     }
+
+    /**
+     * Get the filter "level" (as it is defined for the use of this module and its corresponding
+     * harvesting module).
+     *
+     * level 1 - 3 -> more or less synonymously to the the trigger levels
+     * level 4 and 5 -> vertex, dz, track, etc.. filters
+     *
+     * See the comments in the definition for some more details.
+     */
+    int getFilterLevel(const std::string &moduleName, const HLTConfigProvider &hltConfig);
+
     string dqmFolder;
     string triggerProcessName;
     string triggerPathName;
@@ -145,43 +158,30 @@ void HeavyFlavorValidation::dqmBeginRun(const edm::Run& iRun, const edm::EventSe
 		LogWarning("HLTriggerOfflineHeavyFlavor") << "Could not initialize HLTConfigProvider with process name: "<<triggerProcessName<<endl;
 		return;
 	}
-	stringstream os;
 	vector<string> triggerNames = hltConfig.triggerNames();
-	for( size_t i = 0; i < triggerNames.size(); i++) {
-		TString triggerName = triggerNames[i];
-		if (triggerName.Contains(triggerPathName)){ 
-			vector<string> moduleNames = hltConfig.moduleLabels( triggerNames[i] );
-			for( size_t j = 0; j < moduleNames.size(); j++) {
-				TString name = moduleNames[j];
-                                // MK 2016-12-09: added requirement for the module EDM type to be
-                                // EDFilter, as without it the name check can match also any EDProducer
-                                // (and would be fragile; ok I think it is still fragile, but the added
-                                // check allows PR #16792 to go forward)
-				if(name.Contains("Filter") && hltConfig.moduleEDMType(moduleNames[j]) == "EDFilter"){
-					int level = 0;
-					if(name.Contains("L1"))
-						level = 1;
-					if(name.Contains("L2"))
-						level = 2;
-					if(name.Contains("L3"))
-						level = 3;
-					if(name.Contains("mumuFilter") || name.Contains("DiMuon") || name.Contains("MuonL3Filtered") || name.Contains("TrackMassFiltered"))
-						level = 4;
-					if(name.Contains("Vertex") || name.Contains("Dz"))
-						level = 5;
-					filterNamesLevels.push_back( pair<string,int>(moduleNames[j],level) );
-					os<<" "<<moduleNames[j];
-				}
-			}
-			break;
+        for (const auto &trigName : triggerNames) {
+                // TString triggerName = trigName;
+                if (trigName.find(triggerPathName) != std::string::npos) {
+		        vector<string> moduleNames = hltConfig.moduleLabels( trigName );
+                        for (const auto &moduleName : moduleNames) {
+                                const int level = getFilterLevel(moduleName, hltConfig);
+                                if (level > 0) {
+                                        filterNamesLevels.push_back( {moduleName, level} );
+                                }
+                        }
+                        break;
 		}
 	}
-	if(filterNamesLevels.size()==0){
+
+	if(filterNamesLevels.empty()){
 		LogDebug("HLTriggerOfflineHeavyFlavor")<<"Bad Trigger Path: "<<triggerPathName<<endl;
 		return;
 	}else{
-		LogDebug("HLTriggerOfflineHeavyFlavor")<<"Trigger Path: "<<triggerPathName<<" has filters:"<<os.str();
-	}  
+                std::string str;
+                str.reserve(512); // avoid too many realloctions in the following loop (allows for filter names with roughly 100 chars each)
+                for (const auto &filters : filterNamesLevels) str = str + " " + filters.first;
+		LogDebug("HLTriggerOfflineHeavyFlavor")<<"Trigger Path: "<<triggerPathName<<" has filters:"<<str;
+	}
 }
 
 
@@ -193,7 +193,7 @@ void HeavyFlavorValidation::bookHistograms(DQMStore::IBooker & ibooker,
           ibooker.setCurrentFolder((dqmFolder+"/")+triggerProcessName+"/"+triggerPathName);
 
 	// create Monitor Elements
-	// Eta Pt Single  
+	// Eta Pt Single
 	  myBook2D(ibooker, "genMuon_genEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)");
 	  myBook2D(ibooker, "globMuon_genEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)");
 	  myBook2D(ibooker, "globMuon_recoEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)");
@@ -209,18 +209,18 @@ void HeavyFlavorValidation::bookHistograms(DQMStore::IBooker & ibooker,
 	    myBookProfile2D(ibooker, TString::Format("resFilt%dGlob_recoEtaPt",int(i+1)), muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)", filterNamesLevels[i].first);
 	  }
 	  myBookProfile2D(ibooker, "resPathGlob_recoEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)", triggerPathName);
-	// Eta Pt Double  
+	// Eta Pt Double
 	  myBook2D(ibooker, "genDimuon_genEtaPt", dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)");
 	  myBook2D(ibooker, "globDimuon_genEtaPt", dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)");
 	  myBook2D(ibooker, "globDimuon_recoEtaPt", dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)");
 	  for(size_t i=0; i<filterNamesLevels.size(); i++){
 	    myBook2D(ibooker, TString::Format("filt%dDimuon_recoEtaPt",int(i+1)), dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)", filterNamesLevels[i].first);
-	  }  
+	  }
 	  myBook2D(ibooker, "pathDimuon_recoEtaPt", dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)", triggerPathName);
 	  myBook2D(ibooker, "resultDimuon_recoEtaPt", dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)");
 	  for(size_t i=0; i<filterNamesLevels.size(); i++){
 	    myBook2D(ibooker, TString::Format("diFilt%dDimuon_recoEtaPt",int(i+1)), dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)", filterNamesLevels[i].first);
-	  }  
+	  }
 	  myBook2D(ibooker, "diPathDimuon_recoEtaPt", dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)", triggerPathName);
 	// Eta Phi Single
 	  myBook2D(ibooker, "genMuon_genEtaPhi", muonEtaBins, "#mu eta", muonPhiBins, "#mu phi");
@@ -237,14 +237,14 @@ void HeavyFlavorValidation::bookHistograms(DQMStore::IBooker & ibooker,
 	  myBook2D(ibooker, "globDimuon_recoRapPt", dimuonEtaBins, "#mu#mu rapidity", dimuonPtBins, " #mu#mu pT (GeV)");
 	  for(size_t i=0; i<filterNamesLevels.size(); i++){
 	    myBook2D(ibooker, TString::Format("filt%dDimuon_recoRapPt",int(i+1)), dimuonEtaBins, "#mu#mu rapidity", dimuonPtBins, " #mu#mu pT (GeV)", filterNamesLevels[i].first);
-	  }  
+	  }
 	  myBook2D(ibooker, "pathDimuon_recoRapPt", dimuonEtaBins, "#mu#mu rapidity", dimuonPtBins, " #mu#mu pT (GeV)", triggerPathName);
 	  myBook2D(ibooker, "resultDimuon_recoRapPt", dimuonEtaBins, "#mu#mu rapidity", dimuonPtBins, " #mu#mu pT (GeV)");
 	  for(size_t i=0; i<filterNamesLevels.size(); i++){
 	    myBook2D(ibooker, TString::Format("diFilt%dDimuon_recoRapPt",int(i+1)), dimuonEtaBins, "#mu#mu rapidity", dimuonPtBins, " #mu#mu pT (GeV)", filterNamesLevels[i].first);
-	  }  
+	  }
 	  myBook2D(ibooker, "diPathDimuon_recoRapPt", dimuonEtaBins, "#mu#mu rapidity", dimuonPtBins, " #mu#mu pT (GeV)", triggerPathName);
-	// Pt DR Double  
+	// Pt DR Double
 	  myBook2D(ibooker, "genDimuon_genPtDR", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP");
 	  myBook2D(ibooker, "globDimuon_genPtDR", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP");
 	  myBook2D(ibooker, "globDimuon_recoPtDR", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP");
@@ -254,10 +254,10 @@ void HeavyFlavorValidation::bookHistograms(DQMStore::IBooker & ibooker,
 	  myBook2D(ibooker, "pathDimuon_recoPtDR", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP", triggerPathName);
 	  for(size_t i=0; i<filterNamesLevels.size(); i++){
 	    myBook2D(ibooker, TString::Format("diFilt%dDimuon_recoPtDR",int(i+1)), dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP", filterNamesLevels[i].first);
-	  }  
+	  }
 	  myBook2D(ibooker, "diPathDimuon_recoPtDR", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP", triggerPathName);
 	  myBook2D(ibooker, "resultDimuon_recoPtDR", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP");
-	// Pt DRpos Double  
+	// Pt DRpos Double
 	  myBook2D(ibooker, "globDimuon_recoPtDRpos", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R in MS");
 	  for(size_t i=0; i<filterNamesLevels.size(); i++){
 	    myBook2D(ibooker, TString::Format("filt%dDimuon_recoPtDRpos",int(i+1)), dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R in MS", filterNamesLevels[i].first);
@@ -265,7 +265,7 @@ void HeavyFlavorValidation::bookHistograms(DQMStore::IBooker & ibooker,
 	  myBook2D(ibooker, "pathDimuon_recoPtDRpos", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R in MS", triggerPathName);
 	  for(size_t i=0; i<filterNamesLevels.size(); i++){
 	    myBook2D(ibooker, TString::Format("diFilt%dDimuon_recoPtDRpos",int(i+1)), dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R in MS", filterNamesLevels[i].first);
-	  }  
+	  }
 	  myBook2D(ibooker, "diPathDimuon_recoPtDRpos", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R in MS", triggerPathName);
 	  myBook2D(ibooker, "resultDimuon_recoPtDRpos", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R in MS");
 
@@ -273,7 +273,7 @@ void HeavyFlavorValidation::bookHistograms(DQMStore::IBooker & ibooker,
 	  myBook2D(ibooker, "globGen_deltaEtaDeltaPhi", deltaEtaBins, "#Delta eta", deltaPhiBins, "#Delta phi");
 	  for(size_t i=0; i<filterNamesLevels.size(); i++){
 	    myBook2D(ibooker, TString::Format("filt%dGlob_deltaEtaDeltaPhi",int(i+1)), deltaEtaBins, "#Delta eta", deltaPhiBins, "#Delta phi", filterNamesLevels[i].first);
-	  }    
+	  }
 	  myBook2D(ibooker, "pathGlob_deltaEtaDeltaPhi", deltaEtaBins, "#Delta eta", deltaPhiBins, "#Delta phi", triggerPathName);
 	// Size of containers
 	  vector<double> sizeBins; sizeBins.push_back(10); sizeBins.push_back(0); sizeBins.push_back(10);
@@ -281,24 +281,24 @@ void HeavyFlavorValidation::bookHistograms(DQMStore::IBooker & ibooker,
 	  myBook1D(ibooker, "globMuon_size", sizeBins, "container size" );
 	  for(size_t i=0; i<filterNamesLevels.size(); i++){
 	    myBook1D(ibooker, TString::Format("filt%dMuon_size",int(i+1)), sizeBins, "container size", filterNamesLevels[i].first);
-	  }    
+	  }
 	  myBook1D(ibooker, "pathMuon_size", sizeBins, "container size", triggerPathName );
 }
 
 void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetup){
-  if(filterNamesLevels.size()==0){ 
+  if(filterNamesLevels.empty()){
     return;
-  } 
+  }
 //access the containers and create LeafCandidate copies
   vector<LeafCandidate> genMuons;
   Handle<GenParticleCollection> genParticles;
   iEvent.getByToken(genParticlesToken, genParticles);
   if(genParticles.isValid()){
     for(GenParticleCollection::const_iterator p=genParticles->begin(); p!= genParticles->end(); ++p){
-      if( p->status() == 1 && std::abs(p->pdgId())==13 && 
+      if( p->status() == 1 && std::abs(p->pdgId())==13 &&
           ( find( motherIDs.begin(), motherIDs.end(), -1 )!=motherIDs.end() || find( motherIDs.begin(), motherIDs.end(), getMotherId(&(*p)) )!=motherIDs.end() ) ){
         genMuons.push_back( *p );
-      }  
+      }
     }
   }else{
     LogDebug("HLTriggerOfflineHeavyFlavor")<<"Could not access GenParticleCollection"<<endl;
@@ -306,7 +306,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
   sort(genMuons.begin(), genMuons.end(), GreaterByPt<LeafCandidate>());
   ME["genMuon_size"]->Fill(genMuons.size());
   LogDebug("HLTriggerOfflineHeavyFlavor")<<"GenParticleCollection from "<<genParticlesTag<<" has size: "<<genMuons.size()<<endl;
-  
+
   vector<LeafCandidate> globMuons;
   vector<LeafCandidate> globMuons_position;
   Handle<MuonCollection> recoMuonsHandle;
@@ -324,9 +324,9 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
   ME["globMuon_size"]->Fill(globMuons.size());
   LogDebug("HLTriggerOfflineHeavyFlavor")<<"Global Muons from "<<recoMuonsTag<<" has size: "<<globMuons.size()<<endl;
 
-// access RAW trigger event  
+// access RAW trigger event
   vector<vector<LeafCandidate> > muonsAtFilter;
-  vector<vector<LeafCandidate> > muonPositionsAtFilter;  
+  vector<vector<LeafCandidate> > muonPositionsAtFilter;
   for(size_t i=0; i<filterNamesLevels.size(); i++){
     muonsAtFilter.push_back(vector<LeafCandidate>());
     muonPositionsAtFilter.push_back(vector<LeafCandidate>());
@@ -344,7 +344,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
             muonsAtFilter[i].push_back(*l1Cands[j]);
           }
         }else{
-          vector<RecoChargedCandidateRef> hltCands;        
+          vector<RecoChargedCandidateRef> hltCands;
           rawTriggerEvent->getObjects( index, TriggerMuon, hltCands );
           for(size_t j=0; j<hltCands.size(); j++){
             muonsAtFilter[i].push_back(*hltCands[j]);
@@ -361,13 +361,13 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
     LogDebug("HLTriggerOfflineHeavyFlavor")<<"Could not access RAWTriggerEvent"<<endl;
   }
 
-// access AOD trigger event  
+// access AOD trigger event
   vector<LeafCandidate> pathMuons;
   Handle<TriggerEvent> aodTriggerEvent;
   iEvent.getByToken(triggerSummaryAODTag,aodTriggerEvent);
   if(aodTriggerEvent.isValid()){
     TriggerObjectCollection allObjects = aodTriggerEvent->getObjects();
-    for(int i=0; i<aodTriggerEvent->sizeFilters(); i++){         
+    for(int i=0; i<aodTriggerEvent->sizeFilters(); i++){
      if(aodTriggerEvent->filterTag(i)==InputTag((filterNamesLevels.end()-1)->first,"",triggerProcessName)){
         Keys keys = aodTriggerEvent->filterKeys(i);
         for(size_t j=0; j<keys.size(); j++){
@@ -409,7 +409,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
   match( ME["globGen_deltaEtaDeltaPhi"], genMuons, globMuons, genGlobDeltaRMatchingCut, glob_gen );
   vector<vector<int> > filt_glob;
   for(size_t i=0; i<filterNamesLevels.size(); i++){
-    filt_glob.push_back( vector<int>(globMuons.size(),-1) );            
+    filt_glob.push_back( vector<int>(globMuons.size(),-1) );
     if( filterNamesLevels[i].second == 1 ){
       match( ME[TString::Format("filt%dGlob_deltaEtaDeltaPhi",int(i+1))], globMuons_position, muonsAtFilter[i] ,globL1DeltaRMatchingCut, filt_glob[i] );
     }else if( filterNamesLevels[i].second == 2 ){
@@ -426,33 +426,33 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
   }else if( (filterNamesLevels.end()-1)->second > 2){
     match( ME["pathGlob_deltaEtaDeltaPhi"], globMuons, pathMuons ,globL3DeltaRMatchingCut, path_glob );
   }
-    
+
 //fill histos
   bool first = true;
-  for(size_t i=0; i<genMuons.size(); i++){ 
+  for(size_t i=0; i<genMuons.size(); i++){
     ME["genMuon_genEtaPt"]->Fill(genMuons[i].eta(), genMuons[i].pt());
     ME["genMuon_genEtaPhi"]->Fill(genMuons[i].eta(), genMuons[i].phi());
-    if(glob_gen[i] != -1) { 
+    if(glob_gen[i] != -1) {
       ME["resGlobGen_genEtaPt"]->Fill(genMuons[i].eta(), genMuons[i].pt(), (globMuons[glob_gen[i]].pt()-genMuons[i].pt())/genMuons[i].pt() );
       ME["globMuon_genEtaPt"]->Fill(genMuons[i].eta(), genMuons[i].pt());
       ME["globMuon_genEtaPhi"]->Fill(genMuons[i].eta(), genMuons[i].phi());
       ME["globMuon_recoEtaPt"]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].pt());
       ME["globMuon_recoEtaPhi"]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].phi());
-      for(size_t f=0; f<filterNamesLevels.size(); f++) { 
-        if(filt_glob[f][glob_gen[i]] != -1) { 
+      for(size_t f=0; f<filterNamesLevels.size(); f++) {
+        if(filt_glob[f][glob_gen[i]] != -1) {
           ME[TString::Format("resFilt%dGlob_recoEtaPt",int(f+1))]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].pt(), (muonsAtFilter[f][filt_glob[f][glob_gen[i]]].pt()-globMuons[glob_gen[i]].pt())/globMuons[glob_gen[i]].pt() );
           ME[TString::Format("filt%dMuon_recoEtaPt",int(f+1))]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].pt());
           ME[TString::Format("filt%dMuon_recoEtaPhi",int(f+1))]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].phi());
         }else{
           break;
-        }  
+        }
       }
       if(path_glob[glob_gen[i]] != -1){
         ME["resPathGlob_recoEtaPt"]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].pt(), (pathMuons[path_glob[glob_gen[i]]].pt()-globMuons[glob_gen[i]].pt())/globMuons[glob_gen[i]].pt() );
         ME["pathMuon_recoEtaPt"]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].pt());
         ME["pathMuon_recoEtaPhi"]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].phi());
       }
-//highest pt muon      
+//highest pt muon
       if( first ){
         first = false;
         if( triggerFired ){
@@ -460,10 +460,10 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
           ME["resultMuon_recoEtaPhi"]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].phi());
         }
       }
-    } 
-  }  
- 
-//fill dimuon histograms (highest pT, opposite charge) 
+    }
+  }
+
+//fill dimuon histograms (highest pT, opposite charge)
   int secondMuon = 0;
   for(size_t j=1; j<genMuons.size(); j++){
     if(genMuons[0].charge()*genMuons[j].charge()==-1){
@@ -495,7 +495,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
       ME["globDimuon_recoRapPt"]->Fill( globDimuonRap, globDimuonPt );
       if(highPt) ME["globDimuon_recoPtDR"]->Fill( globDimuonPt, globDimuonDR );
       if(highPt) ME["globDimuon_recoPtDRpos"]->Fill( globDimuonPt, globDimuonDRpos );
-//two filter objects    
+//two filter objects
       for(size_t f=0; f<filterNamesLevels.size(); f++){
         if(filt_glob[f][glob_gen[0]] != -1 && filt_glob[f][glob_gen[secondMuon]] != -1){
           ME[TString::Format("diFilt%dDimuon_recoEtaPt",int(f+1))]->Fill( globDimuonEta, globDimuonPt );
@@ -504,8 +504,8 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
           if(highPt) ME[TString::Format("diFilt%dDimuon_recoPtDRpos",int(f+1))]->Fill( globDimuonPt, globDimuonDRpos );
         }else{
           break;
-        }  
-      } 
+        }
+      }
 //one filter object
       for(size_t f=0; f<filterNamesLevels.size(); f++){
         if(filt_glob[f][glob_gen[0]] != -1 || filt_glob[f][glob_gen[secondMuon]] != -1){
@@ -647,6 +647,68 @@ void HeavyFlavorValidation::myBook1D(DQMStore::IBooker & ibooker, TString name, 
   h->SetTitle(title);
   ME[name] = ibooker.book1D( name.Data(), h );
   delete h;
+}
+
+int HeavyFlavorValidation::getFilterLevel(const std::string &moduleName, const HLTConfigProvider &hltConfig)
+{
+  // helper lambda to check if a string contains a substring
+  const auto contains = [](const std::string &s, const std::string &sub) -> bool {
+    return s.find(sub) != std::string::npos;
+  };
+
+  // helper lambda to check if a string contains any of a list of substrings
+  const auto containsAny = [](const std::string &s, const std::vector<std::string> &subs) -> bool {
+    for (const auto &sub : subs) {
+      if (s.find(sub) != std::string::npos) return true;
+    }
+    return false;
+  };
+
+  // helper lambda to check if string s is any of the strings in vector ms
+  const auto isAnyOf = [](const std::string &s, const std::vector<std::string>& ms) -> bool {
+    for (const auto &m : ms) {
+      if (s == m) return true;
+    }
+    return false;
+  };
+
+  // tmadlener, 20.08.2017:
+  // define the valid module names for the different "levels", to add a little bit more stability
+  // to the checking compared to just doing some name matching.
+  // Note, that the name matching is not completely remved, since at level 4 and 5 some of the
+  // valid modules are the same, so that the name matching is still needed.
+  // With the current definition this yields the exact same levels as before, but weeds out some
+  // of the "false" positives at level 3 (naming matches also to some HLTMuonL1TFilter modules due to
+  // the 'forIterL3' in the name)
+  const std::string l1Filter = "HLTMuonL1TFilter";
+  const std::string l2Filter = "HLTMuonL2FromL1TPreFilter";
+  const std::vector<std::string> l3Filters = {"HLTMuonDimuonL3Filter", "HLTMuonL3PreFilter"};
+  const std::vector<std::string> l4Filters = {"HLTDisplacedmumuFilter", "HLTDiMuonGlbTrkFilter",
+                              "HLTMuonTrackMassFilter"};
+  const std::vector<std::string> l5Filters = {"HLTmumutkFilter", "HLT2MuonMuonDZ", "HLTDisplacedmumuFilter"};
+
+  if (contains(moduleName, "Filter") && hltConfig.moduleEDMType(moduleName) == "EDFilter") {
+    if (contains(moduleName, "L1") && !contains(moduleName, "ForIterL3") &&
+        hltConfig.moduleType(moduleName) == l1Filter) {
+      return 1;
+    }
+    if (contains(moduleName, "L2") && hltConfig.moduleType(moduleName) == l2Filter) {
+      return 2;
+    }
+    if (contains(moduleName, "L3") && isAnyOf(hltConfig.moduleType(moduleName), l3Filters)) {
+      return 3;
+    }
+    if (containsAny(moduleName, {"DisplacedmumuFilter", "DiMuon", "MuonL3Filtered", "TrackMassFiltered"}) &&
+        isAnyOf(hltConfig.moduleType(moduleName), l4Filters)) {
+      return 4;
+    }
+    if (containsAny(moduleName, {"Vertex", "Dz"}) &&
+        isAnyOf(hltConfig.moduleType(moduleName), l5Filters)) {
+      return 5;
+    }
+  }
+
+  return -1;
 }
 
 HeavyFlavorValidation::~HeavyFlavorValidation(){

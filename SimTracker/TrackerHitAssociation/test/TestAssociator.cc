@@ -2,6 +2,7 @@
 // Author:  P. Azzi
 // Creation Date:  PA May 2006 Initial version.
 //                 Pixel RecHits added by V.Chiochia - 18/5/06
+// 25/9/17 (W.T.Ford) Add Phase 2 Outer Tracker, common template function
 //
 //--------------------------------------------
 #include <memory>
@@ -10,248 +11,150 @@
 
 #include "SimTracker/TrackerHitAssociation/test/TestAssociator.h"
 
-//--- for SimHit
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-
-//--- for Strip RecHit
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
-#include "DataFormats/Common/interface/OwnVector.h"
-
-//--- for Pixel RecHit
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-
-//--- for StripDigiSimLink
-#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
-
 //--- framework stuff
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 //--- for Geometry:
-#include "DataFormats/DetId/interface/DetId.h"
-
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+
+//--- for RecHits
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
+ 
+//--- for SimHits
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+
+using namespace std;
+using namespace edm;
+
+void TestAssociator::analyze(const edm::Event& e, const edm::EventSetup& es) {
+  
+  using namespace edm;
+  int pixelcounter = 0;
+  int stripcounter = 0;
+
+  cout << " === TestAssociator " << endl;  
+  
+  // Get inputs 
+  edm::Handle<SiStripMatchedRecHit2DCollection> rechitsmatched;
+  edm::Handle<SiStripRecHit2DCollection> rechitsrphi;
+  edm::Handle<SiStripRecHit2DCollection> rechitsstereo;
+  edm::Handle<SiPixelRecHitCollection> pixelrechits;
+  edm::Handle<Phase2TrackerRecHit1DCollectionNew> phase2rechits;
+
+  // Construct the associator object
+  TrackerHitAssociator associate(e,trackerHitAssociatorConfig_);
+
+  // Process each RecHit collection in turn
+  if(doPixel_) {
+    e.getByToken(siPixelRecHitsToken, pixelrechits);
+    if (pixelrechits.isValid())
+	printRechitSimhit(pixelrechits, "Pixel        ", pixelcounter, associate);
+  }
+  if(doStrip_) {
+    if (useOTph2_) {
+	e.getByToken(siPhase2RecHitsToken, phase2rechits);
+	if (phase2rechits.isValid())
+	  printRechitSimhit(phase2rechits, "Phase 2 OT   ", stripcounter, associate);
+    } else {
+	e.getByToken(rphiRecHitToken, rechitsrphi);
+	if (rechitsrphi.isValid())
+	  printRechitSimhit(rechitsrphi, "Strip rphi   ", stripcounter, associate);
+	e.getByToken(stereoRecHitToken, rechitsstereo);
+	if (rechitsstereo.isValid())
+	  printRechitSimhit(rechitsstereo, "Strip stereo ", stripcounter, associate);
+	e.getByToken(matchedRecHitToken, rechitsmatched);
+	if (rechitsmatched.isValid())
+	  printRechitSimhit(rechitsmatched, "Strip matched", stripcounter, associate);
+    }
+  }
+  if(!doPixel_ && !doStrip_) throw edm::Exception(errors::Configuration, "Strip and pixel association disabled");
+
+  cout << " === TestAssociator end " << endl << endl;  
+}
+
+template<typename rechitType>
+void TestAssociator::printRechitSimhit(const edm::Handle<edmNew::DetSetVector<rechitType>> rechitCollection,
+				       const char* rechitName, int hitCounter, TrackerHitAssociator& associate) const
+{
+  std::vector<PSimHit> matched;
+  // Loop over sensors with detected rechits of type rechitType
+  for (auto const& theDetSet : *rechitCollection) {
+    DetId detid = theDetSet.detId();
+    uint32_t myid = detid.rawId();       
+    // Loop over the RecHits in this sensor
+    for (auto const& rechit : theDetSet) {
+      int i=0;
+      hitCounter++;
+      cout << hitCounter <<") " << rechitName << " RecHit subDet, DetId " << detid.subdetId() << ", " << myid << " Pos = " << rechit.localPosition() << endl;
+      bool isPixel;
+      float mindist = 999999;
+      float dist, distx, disty;
+      PSimHit closest;
+      // Find the vector of SimHits matching this RecHit
+      matched.clear();
+      matched = associate.associateHit(rechit);
+      if(!matched.empty()){
+	// Print out the SimHit positions and residuals
+      	for(auto const& m : matched) {
+      	  cout << " simtrack ID = " << m.trackId() << "                            Simhit Pos = " << m.localPosition() << endl;
+	  // Seek the smallest residual
+	  if (const SiPixelRecHit* dummy = dynamic_cast<const SiPixelRecHit*>(&rechit)) {
+	    isPixel = true;
+	    dist = (rechit.localPosition() - m.localPosition()).mag();  // pixels measure 2 dimensions
+	  } else {
+	    isPixel = false;
+	    dist = fabs(rechit.localPosition().x() - m.localPosition().x());
+	  }
+      	  if(dist<mindist) {
+      	    mindist = dist;
+      	    closest = m;
+      	  }
+      	}
+      	cout << " Closest Simhit = " << closest.localPosition();
+	if (isPixel) {
+	  distx = fabs(rechit.localPosition().x() - closest.localPosition().x());
+	  disty = fabs(rechit.localPosition().y() - closest.localPosition().y());
+	  cout << ", diff(x,y) = (" << distx << ", " << disty << ")";
+	}
+	cout << ", |diff| = " << mindist << endl;
+      }
+      ++i;
+    }
+  } // end loop on detSets
+}
 
 //---------------
 // Constructor --
 //---------------
 
-using namespace std;
-using namespace edm;
-
-  void TestAssociator::analyze(const edm::Event& e, const edm::EventSetup& es) {
-    
-    using namespace edm;
-    bool pixeldebug = true;
-    int pixelcounter = 0;
-    int stripcounter=0;
-
-    
-    // Step A: Get Inputs 
-    edm::Handle<SiStripMatchedRecHit2DCollection> rechitsmatched;
-    edm::Handle<SiStripRecHit2DCollection> rechitsrphi;
-    edm::Handle<SiStripRecHit2DCollection> rechitsstereo;
-    edm::Handle<SiPixelRecHitCollection> pixelrechits;
-    std::string  rechitProducer = "siStripMatchedRecHits";
-
-    if(doStrip_) {
-      e.getByToken(matchedRecHitToken, rechitsmatched);
-      e.getByToken(rphiRecHitToken, rechitsrphi);
-      e.getByToken(stereoRecHitToken, rechitsstereo);
-    }
-    if(doPixel_) {
-      e.getByToken(siPixelRecHitsToken,pixelrechits);
-    }
-    if(!doPixel_ && !doStrip_)  throw edm::Exception(errors::Configuration,"Strip and pixel association disabled");
-
-    
-    //first instance tracking geometry
-    edm::ESHandle<TrackerGeometry> pDD;
-    es.get<TrackerDigiGeometryRecord> ().get (pDD);
-    
-    //construct the associator object
-    TrackerHitAssociator  associate(e,trackerHitAssociatorConfig_);
-
-    // loop over detunits
-    for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
-      uint32_t myid=((*it)->geographicalId()).rawId();       
-      DetId detid = ((*it)->geographicalId());
-      
-      if(myid!=999999999){ //if is valid detector
-
-	if(doPixel_) {
-	 
-	  SiPixelRecHitCollection::DetSet::const_iterator pixelrechitRangeIteratorBegin(nullptr);
-	  SiPixelRecHitCollection::DetSet::const_iterator pixelrechitRangeIteratorEnd = pixelrechitRangeIteratorBegin;
-          SiPixelRecHitCollection::const_iterator pixelrechitMatch = pixelrechits->find(detid);
-          if ( pixelrechitMatch != pixelrechits->end()) {
-               SiPixelRecHitCollection::DetSet pixelrechitRange = *pixelrechitMatch;
-               pixelrechitRangeIteratorBegin = pixelrechitRange.begin();
-               pixelrechitRangeIteratorEnd   = pixelrechitRange.end();
-          }
-	  SiPixelRecHitCollection::DetSet::const_iterator pixeliter = pixelrechitRangeIteratorBegin;
-	  
-	  // Do the pixels
-	  for ( ; pixeliter != pixelrechitRangeIteratorEnd; ++pixeliter) {
-	    pixelcounter++;
-	    if(pixeldebug) {
-	      cout << pixelcounter <<") Pixel RecHit subDet, DetId " << detid.subdetId() << ", " << detid.rawId() << " Pos = " << pixeliter->localPosition() << endl;
-	    }
-	    matched.clear();
-	    matched = associate.associateHit(*pixeliter);
-	    if(!matched.empty()){
-	      cout << " PIX detector =  " << myid << " PIX Rechit = " << pixeliter->localPosition() << endl; 
-	      cout << " PIX matched = " << matched.size() << endl;
-	    for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
-	      cout << " PIX hit  ID = " << (*m).trackId() << " PIX Simhit x = " << (*m).localPosition()
-		   << ", |diff| = " << (pixeliter->localPosition() - (*m).localPosition()).mag() << endl;
-	    }
-	    }  
-	  }
-	}
-	
-	if(doStrip_) {
-	  
-          // Do the strips
-          SiStripRecHit2DCollection::const_iterator detrphi = rechitsrphi->find(detid);
-          if (detrphi != rechitsrphi->end()) {
-          SiStripRecHit2DCollection::DetSet rphiHits = *detrphi;
-          SiStripRecHit2DCollection::DetSet::const_iterator iterrphi = rphiHits.begin(), rechitrphiRangeIteratorEnd = rphiHits.end(); 
-	  for(;iterrphi!=rechitrphiRangeIteratorEnd;++iterrphi){//loop on the rechit
-	    SiStripRecHit2D const rechit=*iterrphi;
-	    int i=0;
-	    stripcounter++;
-	    cout << stripcounter <<") Strip RecHit subDet, DetId " << detid.subdetId() << ", " << detid.rawId() << " Pos = " << rechit.localPosition() << endl;
-	    float mindist = 999999;
-	    float dist;
-	    PSimHit closest;
-	    matched.clear();
-	    matched = associate.associateHit(rechit);
-	    if(!matched.empty()){
-	      cout << " RPHI Strip detector =  " << myid << " Rechit = " << rechit.localPosition() << endl; 
-	      if(matched.size()>1) cout << " matched = " << matched.size() << endl;
-	      for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
-		cout << " simtrack ID = " << (*m).trackId() << " Simhit x = " << (*m).localPosition() << endl;
-		dist = fabs(rechit.localPosition().x() - (*m).localPosition().x());
-		if(dist<mindist){
-		  mindist = dist;
-		  closest = (*m);
-		}
-	      }  
-	      cout << " Closest Simhit = " << closest.localPosition() << ", |diff| = " << mindist << endl;
-	    }
-	    i++;
-	  }
-          } // if the det is there
-	  
-          SiStripRecHit2DCollection::const_iterator detster = rechitsstereo->find(detid);
-          if (detster != rechitsstereo->end()) {
-          SiStripRecHit2DCollection::DetSet sterHits = *detster;
-          SiStripRecHit2DCollection::DetSet::const_iterator iterster = sterHits.begin(), rechitsterRangeIteratorEnd = sterHits.end(); 
-	  for(;iterster!=rechitsterRangeIteratorEnd;++iterster){//loop on the rechit
-	    SiStripRecHit2D const rechit=*iterster;
-	    int i=0;
-	    stripcounter++;
-	    cout << stripcounter <<") Strip RecHit subDet, DetId " << detid.subdetId() << ", " << detid.rawId() << " Pos = " << rechit.localPosition() << endl;
-	    float mindist = 999999;
-	    float dist;
-	    PSimHit closest;
-	    matched.clear();
-	    matched = associate.associateHit(rechit);
-	    if(!matched.empty()){
-	      cout << " SAS Strip detector =  " << myid << " Rechit = " << rechit.localPosition() << endl; 
-	      if(matched.size()>1) cout << " matched = " << matched.size() << endl;
-	      for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
-		cout << " simtrack ID = " << (*m).trackId() << " Simhit x = " << (*m).localPosition() << endl;
-		dist = fabs(rechit.localPosition().x() - (*m).localPosition().x());
-		if(dist<mindist){
-		  mindist = dist;
-		  closest = (*m);
-		}
-	      }  
-	      cout << " Closest Simhit = " << closest.localPosition() << ", |diff| = " << mindist << endl;
-	    }
-	    i++;
-	  } 
-          } // end of if the det is there
-	  
-          SiStripMatchedRecHit2DCollection::const_iterator detmatch = rechitsmatched->find(detid);
-          if (detmatch != rechitsmatched->end()) {
-          SiStripMatchedRecHit2DCollection::DetSet matchHits = *detmatch;
-          SiStripMatchedRecHit2DCollection::DetSet::const_iterator itermatch = matchHits.begin(), rechitmatchRangeIteratorEnd = matchHits.end(); 
-	  for(;itermatch!=rechitmatchRangeIteratorEnd;++itermatch){//loop on the rechit
-	    SiStripMatchedRecHit2D const rechit=*itermatch;
-	    int i=0;
-	    stripcounter++;
-	    cout << stripcounter <<") Strip RecHit subDet, DetId " << detid.subdetId() << ", " << detid.rawId() << " Pos = " << rechit.localPosition() << endl;
-	    float mindist = 999999;
-	    float distx = 9999999;
-	    float disty = 9999999;
-	    float dist  = 9999999;
-	    PSimHit closest;
-	    matched.clear();
-	    matched = associate.associateHit(rechit);
-	    if(!matched.empty()){
-	      cout << " MTC Strip detector =  " << myid << " Rechit = " << rechit.localPosition() << endl; 
-	      if(matched.size()>1) cout << " matched = " << matched.size() << endl;
-	      for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
-		cout << " simtrack ID = " << (*m).trackId() << " Simhit x = " << (*m).localPosition() << endl;
-		
-		distx = fabs(rechit.localPosition().x() - (*m).localPosition().x());
-		disty = fabs(rechit.localPosition().y() - (*m).localPosition().y());
-		dist = sqrt(distx*distx+disty*disty);
-		if(dist<mindist){
-		  mindist = dist;
-		  closest = (*m);
-		}
-	      }  
-	      cout << " Closest Simhit = " << closest.localPosition() << ", |diff| = " << mindist << endl;
-	    }
-	    i++;
-	  } 
-          } // if the det is there
-	}
-      }
-    } 
-    cout << " === calling end job " << endl;  
-  }
-
-
 TestAssociator::TestAssociator(edm::ParameterSet const& conf) : 
   trackerHitAssociatorConfig_(conf, consumesCollector()),
   doPixel_( conf.getParameter<bool>("associatePixel") ),
-  doStrip_( conf.getParameter<bool>("associateStrip") ) {
-  cout << " Constructor " << endl;
+  doStrip_( conf.getParameter<bool>("associateStrip") ),
+  useOTph2_( conf.getParameter<bool>("usePhase2Tracker") ) {
   
   matchedRecHitToken=consumes<edmNew::DetSetVector<SiStripMatchedRecHit2D> >(conf.getParameter<edm::InputTag>("matchedRecHit"));
   rphiRecHitToken=consumes<edmNew::DetSetVector<SiStripRecHit2D> >(conf.getParameter<edm::InputTag>("rphiRecHit"));
   stereoRecHitToken=consumes<edmNew::DetSetVector<SiStripRecHit2D> >(conf.getParameter<edm::InputTag>("stereoRecHit"));
   siPixelRecHitsToken=consumes<edmNew::DetSetVector<SiPixelRecHit> >(conf.getParameter<edm::InputTag>("siPixelRecHits"));
+  siPhase2RecHitsToken=consumes<edmNew::DetSetVector<Phase2TrackerRecHit1D> >(conf.getParameter<edm::InputTag>("siPhase2RecHits"));
 }
 
-  TestAssociator::~TestAssociator() 
-  {
-    cout << " Destructor " << endl;
-  }
+//---------------
+// Destructor --
+//---------------
+
+  TestAssociator::~TestAssociator() {}
 
 

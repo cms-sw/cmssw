@@ -380,7 +380,7 @@ void HcalLogicalMapGenerator::buildHBEFTMap(const HcalTopology* topo,
 						  rbx, slbin, slbin2, slnam, rctnam
 						  );
 	      HBHEHFEntries.push_back(hbeflmapentry);
-	      LinearIndex2Entry.at(hbeflmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(1,0,HBHEHFEntries.size()-1);
+	      LinearIndex2Entry.at(hbeflmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(true,0,HBHEHFEntries.size()-1);
 
 	      const HcalGenericDetId hgdi(hbeflmapentry.getDetId());
 	      unsigned int denseId;
@@ -597,7 +597,7 @@ void HcalLogicalMapGenerator::buildHBEFTMap(const HcalTopology* topo,
 						  rbx, slbin, slbin2, slnam, rctnam
 						  );
 	      HBHEHFEntries.push_back(hbeflmapentry);
-	      LinearIndex2Entry.at(hbeflmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(1,0,HBHEHFEntries.size()-1);
+	      LinearIndex2Entry.at(hbeflmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(true,0,HBHEHFEntries.size()-1);
 
 	      const HcalGenericDetId hgdi(hbeflmapentry.getDetId());
 	      unsigned int denseId;
@@ -1328,7 +1328,7 @@ void HcalLogicalMapGenerator::buildHOXMap(const HcalTopology* topo,
 					 rbx, letter
 					 );
 	HOHXEntries.push_back(hoxlmapentry);
-	LinearIndex2Entry.at(hoxlmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(1,1,HOHXEntries.size()-1);
+	LinearIndex2Entry.at(hoxlmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(true,1,HOHXEntries.size()-1);
 
 	const HcalGenericDetId hgdi(hoxlmapentry.getDetId());
 	unsigned int denseId;
@@ -1372,7 +1372,7 @@ void HcalLogicalMapGenerator::buildHOXMap(const HcalTopology* topo,
 					     rbx, letter
 					     );
 	    HOHXEntries.push_back(hoxlmapentry);
-	    LinearIndex2Entry.at(hoxlmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(1,1,HOHXEntries.size()-1);
+	    LinearIndex2Entry.at(hoxlmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(true,1,HOHXEntries.size()-1);
 
 	    const HcalGenericDetId hgdi(hoxlmapentry.getDetId());
 	    unsigned int denseId;
@@ -1418,7 +1418,7 @@ void HcalLogicalMapGenerator::buildHOXMap(const HcalTopology* topo,
 					     rbx, letter
 					     );
 	    HOHXEntries.push_back(hoxlmapentry);
-	    LinearIndex2Entry.at(hoxlmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(1,1,HOHXEntries.size()-1);
+	    LinearIndex2Entry.at(hoxlmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(true,1,HOHXEntries.size()-1);
 
 	    const HcalGenericDetId hgdi(hoxlmapentry.getDetId());
 	    unsigned int denseId;
@@ -1588,7 +1588,7 @@ void HcalLogicalMapGenerator::buildCALIBMap(const HcalTopology* topo,
 					      subdet
 					      );
 	  CALIBEntries.push_back(caliblmapentry);
-	  LinearIndex2Entry.at(caliblmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(1,2,CALIBEntries.size()-1);
+	  LinearIndex2Entry.at(caliblmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(true,2,CALIBEntries.size()-1);
 
 	  const HcalGenericDetId hgdi(caliblmapentry.getDetId());	  
 	  const unsigned int hashedId=topo->detId2denseIdCALIB(hgdi);
@@ -1644,7 +1644,7 @@ void HcalLogicalMapGenerator::buildCALIBMap(const HcalTopology* topo,
 					    subdet
 					    );
 	CALIBEntries.push_back(caliblmapentry);
-	LinearIndex2Entry.at(caliblmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(1,2,CALIBEntries.size()-1);
+	LinearIndex2Entry.at(caliblmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(true,2,CALIBEntries.size()-1);
 
 	const HcalGenericDetId hgdi(caliblmapentry.getDetId());	  
 	const unsigned int hashedId=topo->detId2denseIdCALIB(hgdi);
@@ -1722,7 +1722,7 @@ void HcalLogicalMapGenerator::buildCALIBMap(const HcalTopology* topo,
 						subdet
 						);
 	    CALIBEntries.push_back(caliblmapentry);
-	    LinearIndex2Entry.at(caliblmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(1,2,CALIBEntries.size()-1);
+	    LinearIndex2Entry.at(caliblmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(true,2,CALIBEntries.size()-1);
 
 	    const HcalGenericDetId hgdi(caliblmapentry.getDetId());	  
 	    const unsigned int hashedId=topo->detId2denseIdCALIB(hgdi);
@@ -1814,7 +1814,7 @@ void HcalLogicalMapGenerator::buildZDCMap(const HcalTopology* topo, std::vector 
 				      iadc, irm_fi
 				      );
       ZDCEntries.push_back(zdclmapentry);
-      LinearIndex2Entry.at(zdclmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(1,3,ZDCEntries.size()-1);
+      LinearIndex2Entry.at(zdclmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(true,3,ZDCEntries.size()-1);
     }
   }
 }

@@ -3,7 +3,7 @@
 #include "Alignment/CocoaModel/interface/Model.h"
 #include <cstdlib>
 
-OpticalObjectMgr* OpticalObjectMgr::theInstance = 0;
+OpticalObjectMgr* OpticalObjectMgr::theInstance = nullptr;
   
 //-----------------------------------------------------------------------
 OpticalObjectMgr* OpticalObjectMgr::getInstance()
@@ -20,7 +20,7 @@ OpticalObjectMgr* OpticalObjectMgr::getInstance()
 //-----------------------------------------------------------------------
 OpticalObject* OpticalObjectMgr::findOptO( const ALIstring& longName, bool exists ) const
 {
-  OpticalObject* opto = 0;
+  OpticalObject* opto = nullptr;
   msopto::const_iterator cite = theOptODict.find( longName );
   if( cite == theOptODict.end() ) {
     if( exists ) {
@@ -53,7 +53,7 @@ std::vector<OpticalObject*> OpticalObjectMgr::findOptOs( const ALIstring& name, 
     }
   }
 
-  if( vopto.size() == 0 ) {
+  if( vopto.empty() ) {
     if( exists ) {
       std::cerr << "!!!! EXITING: OptO not found: " << name << std::endl;
       exit(1);
@@ -74,8 +74,8 @@ void OpticalObjectMgr::dumpOptOs( std::ostream& out ) const
   std::vector< OpticalObject* >::const_iterator vocite;
   for( vocite = Model::OptOList().begin(); vocite != Model::OptOList().end(); ++vocite ) {
     ALIstring name = (*vocite)->name();
-    ALIUtils::dump3v( (*vocite)->centreGlobal(), (name + " CENTRE GLOBAL: ").c_str() );
-    if( (*vocite)->parent() != 0 ) ALIUtils::dump3v( (*vocite)->centreLocal(),  (name + "  CENTRE LOCAL: ").c_str() ); //not for the 'system'
+    ALIUtils::dump3v( (*vocite)->centreGlobal(), name + " CENTRE GLOBAL: " );
+    if( (*vocite)->parent() != nullptr ) ALIUtils::dump3v( (*vocite)->centreLocal(),  name + "  CENTRE LOCAL: " ); //not for the 'system'
   }
 
 }

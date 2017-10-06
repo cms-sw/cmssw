@@ -12,6 +12,7 @@ HcalTPGCoderULUT = cms.ESProducer("HcalTPGCoderULUT",
     read_FG_LUTs = cms.bool(False),
     LUTGenerationMode = cms.bool(True),
     MaskBit = cms.int32(0x8000),
+    FG_HF_threshold = cms.uint32(17),
     inputLUTs = cms.FileInPath('CalibCalorimetry/HcalTPGAlgos/data/inputLUTcoder_physics.dat'),
     FGLUTs = cms.FileInPath('CalibCalorimetry/HcalTPGAlgos/data/HBHE_FG_LUT.dat'),
     RCalibFile = cms.FileInPath('CalibCalorimetry/HcalTPGAlgos/data/RecHit-TPG-calib.dat')

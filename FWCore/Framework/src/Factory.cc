@@ -41,7 +41,7 @@ namespace edm {
     {
       std::unique_ptr<Maker> wm(MakerPluginFactory::get()->create(modtype));
       
-      if(wm.get()==0)
+      if(wm.get()==nullptr)
         throw edm::Exception(errors::Configuration,"UnknownModule")
         << "Module " << modtype
         << " with version " << p.processConfiguration_->releaseVersion()

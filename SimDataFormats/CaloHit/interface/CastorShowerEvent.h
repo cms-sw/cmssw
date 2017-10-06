@@ -62,7 +62,7 @@
     float getPrimY()             { return primY; };
     float getPrimZ()             { return primZ; };
     
-    ClassDef(CastorShowerEvent,2)
+    ClassDefOverride(CastorShowerEvent,2)
     
   };
 

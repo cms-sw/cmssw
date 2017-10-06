@@ -7,7 +7,7 @@
 //#include <Riostream.h>
 #include <iostream>
 #include "TSystem.h"
-#include <time.h>
+#include <ctime>
 #include "TString.h"
 
 #include "TROOT.h"
@@ -991,7 +991,7 @@ class TEcnaHistos : public TObject {
 //	      const TEcnaNumbering*,
 //	      const TEcnaWrite*);
   
-  virtual  ~TEcnaHistos();
+   ~TEcnaHistos() override;
   
   void Init();
   void SetEcalSubDetector(const TString&);

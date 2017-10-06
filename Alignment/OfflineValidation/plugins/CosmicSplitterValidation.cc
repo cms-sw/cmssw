@@ -62,13 +62,13 @@
 class CosmicSplitterValidation : public edm::EDAnalyzer {
 public:
         explicit CosmicSplitterValidation(const edm::ParameterSet&);
-        ~CosmicSplitterValidation();
+        ~CosmicSplitterValidation() override;
 
 
 private:
-        virtual void beginJob() override;
-        virtual void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
-        virtual void endJob() override ;
+        void beginJob() override;
+        void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
+        void endJob() override ;
 
         bool is_gold_muon(const edm::Event& e);
 
@@ -212,7 +212,7 @@ CosmicSplitterValidation::CosmicSplitterValidation(const edm::ParameterSet& iCon
         twoTracksCtr(0),
         goldenPlusTwoTracksCtr(0),
         _passesTracksPlusMuonsCuts(0),
-        splitterTree_(0),
+        splitterTree_(nullptr),
         runNumber_(0), eventNumber_(0), luminosityBlock_(0),
         dcaX1_spl_(0), dcaY1_spl_(0), dcaZ1_spl_(0),
         dcaX2_spl_(0), dcaY2_spl_(0), dcaZ2_spl_(0),
@@ -391,8 +391,8 @@ void CosmicSplitterValidation::analyze(const edm::Event& iEvent, const edm::Even
                         reco::Track track1 = tracks->at(0);
                         reco::Track track2 = tracks->at(1);
 
-                        math::XYZPoint dca1 = track1.referencePoint();
-                        math::XYZPoint dca2 = track2.referencePoint();
+                        const math::XYZPoint& dca1 = track1.referencePoint();
+                        const math::XYZPoint& dca2 = track2.referencePoint();
 
                         // looping through the hits for track 1
                         int Nrechits1 =0;
@@ -472,7 +472,7 @@ void CosmicSplitterValidation::analyze(const edm::Event& iEvent, const edm::Even
 
                         // original tracks calculations
                         reco::Track origTrack = originalTracks->at(0);
-                        math::XYZPoint dca_org = origTrack.referencePoint();
+                        const math::XYZPoint& dca_org = origTrack.referencePoint();
 
                         // looping through the hits for the original track
                         int Nrechitsorg =0;

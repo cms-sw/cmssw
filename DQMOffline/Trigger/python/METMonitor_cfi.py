@@ -4,6 +4,11 @@ from DQMOffline.Trigger.metMonitoring_cfi import metMonitoring
 
 hltMETmonitoring = metMonitoring.clone()
 hltMETmonitoring.FolderName = cms.string('HLT/MET/PFMETNoMu120/')
+hltMETmonitoring.histoPSet.lsPSet = cms.PSet(
+  nbins = cms.uint32 ( 250 ),
+  xmin  = cms.double(    0.),
+  xmax  = cms.double( 2500.),
+)
 hltMETmonitoring.histoPSet.metPSet = cms.PSet(
   nbins = cms.uint32 (200),
   xmin  = cms.double(-0.5),

@@ -19,7 +19,7 @@ PhotonMonitor::PhotonMonitor( const edm::ParameterSet& iConfig ) :
   , photon_variable_binning_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("photonBinning") )
   , diphoton_mass_binning_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("massBinning") )
   , photon_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("photonPSet")    ) )
-  , ls_binning_           ( getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("lsPSet")     ) )
+  , ls_binning_           ( getHistoPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("lsPSet")     ) )
   , num_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"),consumesCollector(), *this))
   , den_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"),consumesCollector(), *this))
   , metSelection_ ( iConfig.getParameter<std::string>("metSelection") )
@@ -141,7 +141,7 @@ void PhotonMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   std::string histname, histtitle;
 
   std::string currentFolder = folderName_ ;
-  ibooker.setCurrentFolder(currentFolder.c_str());
+  ibooker.setCurrentFolder(currentFolder);
 
   histname = "photon_pt"; histtitle = "photon PT";
   bookME(ibooker,photonME_,histname,histtitle,photon_binning_.nbins,photon_binning_.xmin, photon_binning_.xmax);
@@ -326,7 +326,9 @@ void PhotonMonitor::fillHistoPSetDescription(edm::ParameterSetDescription & pset
 
 void PhotonMonitor::fillHistoLSPSetDescription(edm::ParameterSetDescription & pset)
 {
-  pset.add<unsigned int>   ( "nbins", 2500);
+  pset.add<unsigned int>   ( "nbins", 2500 );
+  pset.add<double>         ( "xmin",     0.);
+  pset.add<double>         ( "xmax",  2500.);
 }
 
 void PhotonMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)

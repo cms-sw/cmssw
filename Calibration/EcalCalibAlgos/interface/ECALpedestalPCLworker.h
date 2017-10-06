@@ -26,7 +26,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include <DataFormats/Scalers/interface/BSTRecord.h>
+#include "DataFormats/TCDS/interface/BSTRecord.h"
+#include "DataFormats/TCDS/interface/TCDSRecord.h"
 //
 // class declaration
 //
@@ -48,7 +49,7 @@ private:
 
     edm::EDGetTokenT<EBDigiCollection> digiTokenEB_; 
     edm::EDGetTokenT<EEDigiCollection> digiTokenEE_; 
-    edm::EDGetTokenT<BSTRecord>        bstToken_; 
+    edm::EDGetTokenT<TCDSRecord>       tcdsToken_; 
 
     std::vector<MonitorElement *> meEB_;
     std::vector<MonitorElement *> meEE_;

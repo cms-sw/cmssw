@@ -1,8 +1,8 @@
 #ifndef _MISCALIB_READER_FROM_XML_DOM_UTILS_H
 #define _MISCALIB_READER_FROM_XML_DOM_UTILS_H
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <string>
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/dom/DOMNamedNodeMap.hpp>
