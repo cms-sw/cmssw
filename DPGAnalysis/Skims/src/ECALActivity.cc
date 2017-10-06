@@ -67,8 +67,8 @@ bool ECALActivity::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle< EBRecHitCollection > pEBRecHits;
   Handle< EERecHitCollection > pEERecHits;
  
-  const EBRecHitCollection*  EBRecHits = 0;
-  const EERecHitCollection*  EERecHits = 0; 
+  const EBRecHitCollection*  EBRecHits = nullptr;
+  const EERecHitCollection*  EERecHits = nullptr; 
   
   if ( EBRecHitCollection_.label() != "" && EBRecHitCollection_.instance() != "" ) 
     {

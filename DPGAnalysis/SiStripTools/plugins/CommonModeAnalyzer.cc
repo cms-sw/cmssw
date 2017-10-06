@@ -66,15 +66,15 @@
 class CommonModeAnalyzer : public edm::EDAnalyzer {
 public:
   explicit CommonModeAnalyzer(const edm::ParameterSet&);
-  ~CommonModeAnalyzer();
+  ~CommonModeAnalyzer() override;
 
 
 private:
-  virtual void beginJob() override ;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   void updateDetCabling( const edm::EventSetup& setup );
 
@@ -136,7 +136,7 @@ CommonModeAnalyzer::CommonModeAnalyzer(const edm::ParameterSet& iConfig):
   m_cmvsorbitrun(),
   m_rhm(consumesCollector()),
   m_cacheIdDet(0),
-  m_detCabling(0)
+  m_detCabling(nullptr)
 {
    //now do what ever initialization is needed
 
