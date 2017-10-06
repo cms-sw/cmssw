@@ -40,7 +40,7 @@ class OptObject : public TObject {
   TString Type;
   int  Parent;
 
-  ClassDef(OptObject,1)
+  ClassDefOverride(OptObject,1)
 };
   
 class Sensor2DMeas : public TObject {
@@ -54,7 +54,7 @@ class Sensor2DMeas : public TObject {
   TString Name;
   int OptObjectIndex;
 
-  ClassDef(Sensor2DMeas,1)
+  ClassDefOverride(Sensor2DMeas,1)
 };
    
 class DistancemeterMeas : public TObject {
@@ -68,7 +68,7 @@ class DistancemeterMeas : public TObject {
   TString Name;
   int OptObjectIndex;
 
-  ClassDef(DistancemeterMeas,1)
+  ClassDefOverride(DistancemeterMeas,1)
 };
   
 class Distancemeter1DimMeas : public TObject {
@@ -82,7 +82,7 @@ class Distancemeter1DimMeas : public TObject {
   TString Name;
   int OptObjectIndex;
 
-  ClassDef(Distancemeter1DimMeas,1)
+  ClassDefOverride(Distancemeter1DimMeas,1)
 };
   
 class TiltmeterMeas : public TObject {
@@ -96,7 +96,7 @@ class TiltmeterMeas : public TObject {
   TString Name;
   int OptObjectIndex;
 
-  ClassDef(TiltmeterMeas,1)
+  ClassDefOverride(TiltmeterMeas,1)
 }; 
   
 class CopsMeas : public TObject {
@@ -110,7 +110,7 @@ class CopsMeas : public TObject {
   TString Name;
   int OptObjectIndex;
 
-  ClassDef(CopsMeas,1)
+  ClassDefOverride(CopsMeas,1)
 };
 
 #endif
