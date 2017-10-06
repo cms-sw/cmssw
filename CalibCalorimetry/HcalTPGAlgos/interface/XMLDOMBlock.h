@@ -59,15 +59,15 @@ class XMLDOMBlock
   int write( std::string target = "stdout" );
   virtual ~XMLDOMBlock();
   
-  const char * getTagValue( const std::string & tagName, int _item = 0, XERCES_CPP_NAMESPACE::DOMDocument * _document = NULL );
+  const char * getTagValue( const std::string & tagName, int _item = 0, XERCES_CPP_NAMESPACE::DOMDocument * _document = nullptr );
   const char * getTagValue( const std::string & tagName, int _item, XERCES_CPP_NAMESPACE::DOMElement * _document );
   const char * getTagAttribute( const std::string & tagName, const std::string & attrName, int _item = 0 );
 
   XERCES_CPP_NAMESPACE::DOMElement * add_element(XERCES_CPP_NAMESPACE::DOMElement * parent, XMLCh * tagname, XMLCh * value);
 
-  XERCES_CPP_NAMESPACE::DOMNode * setTagValue( const std::string & tagName, const std::string & tagValue, int _item = 0, XERCES_CPP_NAMESPACE::DOMDocument * _document = NULL );
+  XERCES_CPP_NAMESPACE::DOMNode * setTagValue( const std::string & tagName, const std::string & tagValue, int _item = 0, XERCES_CPP_NAMESPACE::DOMDocument * _document = nullptr );
   XERCES_CPP_NAMESPACE::DOMNode * setTagValue( XERCES_CPP_NAMESPACE::DOMElement * _elem, const std::string & tagName, const std::string & tagValue, int _item = 0 );
-  XERCES_CPP_NAMESPACE::DOMNode * setTagValue( const std::string & tagName, const int & tagValue, int _item = 0, XERCES_CPP_NAMESPACE::DOMDocument * _document = NULL );
+  XERCES_CPP_NAMESPACE::DOMNode * setTagValue( const std::string & tagName, const int & tagValue, int _item = 0, XERCES_CPP_NAMESPACE::DOMDocument * _document = nullptr );
   XERCES_CPP_NAMESPACE::DOMNode * setTagValue( XERCES_CPP_NAMESPACE::DOMElement * _elem, const std::string & tagName, const int & tagValue, int _item = 0 );
   XERCES_CPP_NAMESPACE::DOMNode * setTagAttribute( const std::string & tagName, const std::string & attrName, const std::string & attrValue, int _item = 0 );
   XERCES_CPP_NAMESPACE::DOMNode * setTagAttribute( XERCES_CPP_NAMESPACE::DOMElement * _elem, const std::string & tagName, const std::string & attrName, const std::string & attrValue, int _item = 0);

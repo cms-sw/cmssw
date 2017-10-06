@@ -19,7 +19,7 @@ class CastorDbRecord;
 class CastorDbProducer : public edm::ESProducer {
  public:
   CastorDbProducer( const edm::ParameterSet& );
-  ~CastorDbProducer();
+  ~CastorDbProducer() override;
   
   std::shared_ptr<CastorDbService> produce( const CastorDbRecord& );
 
