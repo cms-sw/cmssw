@@ -64,8 +64,8 @@ allAndOne(const unsigned width) const
 poly<std::string> LA_Filler_Fitter::
 varWidth(const unsigned width) const { 
   poly<std::string> vw; vw++; 
-  if(width==2 && methods_ & (AVGV2|RMSV2) ) vw*=method(AVGV2,0);
-  if(width==3 && methods_ & (AVGV3|RMSV3) ) vw*=method(AVGV3,0);
+  if(width==2 && methods_ & (AVGV2|RMSV2) ) vw*=method(AVGV2,false);
+  if(width==3 && methods_ & (AVGV3|RMSV3) ) vw*=method(AVGV3,false);
   return vw;
 }
 

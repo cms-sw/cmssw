@@ -7,14 +7,14 @@ TT6CommonModeCalculator::TT6CommonModeCalculator(TkNoiseCalculator* noise_calc, 
   theApvMask(mask_calc),
   alreadyUsedEvent(false)
 {
-  if (0) cout << "Constructing TT6CommonMode Calculator ..." << endl;
+  if (false) cout << "Constructing TT6CommonMode Calculator ..." << endl;
   cutToAvoidSignal = sig_cut;
 }
 //
 //  Destructor 
 //
 TT6CommonModeCalculator::~TT6CommonModeCalculator() {
-  if (0) cout << "Destructing TT6CommonModeCalculator " << endl;
+  if (false) cout << "Destructing TT6CommonModeCalculator " << endl;
 }
 //
 // Action :
@@ -26,7 +26,7 @@ ApvAnalysis::PedestalType TT6CommonModeCalculator::doIt
   ApvAnalysis::PedestalType out;
   calculateCommonMode(indat);
   int setNumber;
-  if(theCommonModeValues.size() >0) {
+  if(!theCommonModeValues.empty()) {
     for (unsigned int i=0; i<indat.size(); i++){
       setNumber = theTkCommonMode->topology().setOfStrip(i);
       out.push_back(indat[i] - theCommonModeValues[setNumber]);
@@ -48,7 +48,7 @@ void TT6CommonModeCalculator::calculateCommonMode(ApvAnalysis::PedestalType& ind
     ApvAnalysis::PedestalType strip_noise = theNoiseCalculator->noise();
     theCommonModeValues.clear();
     
-    if(strip_noise.size() > 0) {
+    if(!strip_noise.empty()) {
       int nSet = theTkCommonMode->topology().numberOfSets();
       for (int i=0; i<nSet; i++){
         int initial   = theTkCommonMode->topology().initialStrips()[i];
