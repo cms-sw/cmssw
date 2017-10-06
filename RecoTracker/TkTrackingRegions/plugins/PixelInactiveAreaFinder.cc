@@ -957,73 +957,58 @@ PixelInactiveAreaFinder::OverlapSpansContainer PixelInactiveAreaFinder::overlapp
   // returns pair where first is barrel spans and second endcap spans
   DetGroupSpanContainerPair cspans = detGroupSpans();
 
-  // First comparison between barrel detGroups
-  for(DetGroupSpanContainer::const_iterator barSpanIt = cspans.first.begin(); barSpanIt != cspans.first.end();++barSpanIt){
-    OverlapSpans overlapSpans;
-    for(DetGroupSpanContainer::const_iterator compIt = barSpanIt+1;compIt != cspans.first.end();++compIt){
-      if(phiRangesOverlap(barSpanIt->phiSpan,compIt->phiSpan)){
-        std::pair<float,float> range(0,0);
-        if(getZAxisOverlapRangeBarrel(*barSpanIt,*compIt,range)){
-          if(-zAxisThreshold <= range.second && range.first <= zAxisThreshold){
-            if(overlapSpans.empty()){
-              overlapSpans.push_back(*barSpanIt);
-            }
-            overlapSpans.push_back(*compIt);
+  // map spans to a vector with consisntent indexing with layers_ and layerSetIndices_
+  // TODO: try to move the inner logic towards this direction as well
+  std::vector<DetGroupSpanContainer> spans(layers_.size());
+
+  auto doWork = [&](const DetGroupSpanContainer& container) {
+    for(const auto& span: container) {
+      const auto subdet = span.subdetId == PixelSubdetector::PixelBarrel ? GeomDetEnumerators::PixelBarrel : GeomDetEnumerators::PixelEndcap;
+      const auto side = (subdet == GeomDetEnumerators::PixelBarrel ? TrackerDetSide::Barrel :
+                         (span.zSpan.first < 0 ? TrackerDetSide::NegEndcap : TrackerDetSide::PosEndcap));
+      const auto layer = subdet == GeomDetEnumerators::PixelBarrel ? span.layer : span.disk;
+      auto found = std::find(layers_.begin(), layers_.end(), SeedingLayerId(subdet, side, layer));
+      if(found != layers_.end()) { // it is possible that this layer is ignored by the configuration
+        spans[std::distance(layers_.begin(), found)].push_back(span);
+      }
+    }
+  };
+  doWork(cspans.first);
+  doWork(cspans.second);
+
+  for(const auto& layerIdxPair: layerSetIndices_) {
+    const auto& innerSpans = spans[layerIdxPair.first];
+    const auto& outerSpans = spans[layerIdxPair.second];
+
+    for(const auto& innerSpan: innerSpans) {
+      for(const auto& outerSpan: outerSpans) {
+
+        if(phiRangesOverlap(innerSpan.phiSpan, outerSpan.phiSpan)) {
+          std::pair<float,float> range(0,0);
+
+          bool zOverlap = false;
+          const auto innerDet = std::get<0>(layers_[layerIdxPair.first]);
+          const auto outerDet = std::get<0>(layers_[layerIdxPair.first]);
+          if(innerDet == GeomDetEnumerators::PixelBarrel) {
+            if(outerDet == GeomDetEnumerators::PixelBarrel)
+              zOverlap = getZAxisOverlapRangeBarrel(innerSpan, outerSpan, range);
+            else
+              zOverlap = getZAxisOverlapRangeBarrelEndcap(innerSpan, outerSpan, range);
+          }
+          else {
+            if(outerDet == GeomDetEnumerators::PixelEndcap)
+              zOverlap = getZAxisOverlapRangeEndcap(innerSpan, outerSpan, range);
+            else
+              throw cms::Exception("LogicError") << "Forward->barrel transition is not supported";
+          }
+
+          if(zOverlap && -zAxisThreshold <= range.second && range.first <= zAxisThreshold) {
+            overlapSpansContainer.push_back(OverlapSpans({{innerSpan, outerSpan}}));
           }
         }
-                
-      }       
-    }
-    if(!overlapSpans.empty()){
-      overlapSpansContainer.push_back(overlapSpans);
+      }
     }
   }
-
-
-  // Then comparison between endcap  detGroups
-  for(DetGroupSpanContainer::const_iterator endSpanIt = cspans.second.begin(); endSpanIt != cspans.second.end();++endSpanIt){
-    OverlapSpans overlapSpans;
-    for(DetGroupSpanContainer::const_iterator compIt = endSpanIt+1;compIt != cspans.second.end();++compIt){
-      if(phiRangesOverlap(endSpanIt->phiSpan,compIt->phiSpan)){
-        std::pair<float,float> range(0,0);
-        if(getZAxisOverlapRangeEndcap(*endSpanIt,*compIt,range)){
-          if(-zAxisThreshold <= range.second && range.first <= zAxisThreshold){
-            if(overlapSpans.empty()){
-              overlapSpans.push_back(*endSpanIt);
-            }
-            overlapSpans.push_back(*compIt);
-          }
-        }
-                
-      }       
-    }
-    if(!overlapSpans.empty()){
-      overlapSpansContainer.push_back(overlapSpans);
-    }
-  }
-
-  // Then comparison between barrel and endcap  detGroups
-  for(DetGroupSpanContainer::const_iterator barSpanIt = cspans.first.begin(); barSpanIt != cspans.first.end();++barSpanIt){
-    OverlapSpans overlapSpans;
-    for(DetGroupSpanContainer::const_iterator endSpanIt = cspans.second.begin();endSpanIt != cspans.second.end();++endSpanIt){
-      if(phiRangesOverlap(barSpanIt->phiSpan,endSpanIt->phiSpan)){
-        std::pair<float,float> range(0,0);
-        if(getZAxisOverlapRangeBarrelEndcap(*barSpanIt,*endSpanIt,range)){
-          if(-zAxisThreshold <= range.second && range.first <= zAxisThreshold){
-            if(overlapSpans.empty()){
-              overlapSpans.push_back(*barSpanIt);
-            }
-            overlapSpans.push_back(*endSpanIt);
-          }
-        }
-                
-      }       
-    }
-    if(!overlapSpans.empty()){
-      overlapSpansContainer.push_back(overlapSpans);
-    }
-  }
-
 
   return overlapSpansContainer;
 }
