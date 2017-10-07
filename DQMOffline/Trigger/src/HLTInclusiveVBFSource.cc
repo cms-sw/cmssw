@@ -148,8 +148,8 @@ HLTInclusiveVBFSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   if(!jetSrc.isValid()) return;
   const edm::View<reco::PFMET> & mets = *metSrc;
   const edm::View<reco::PFJet> & jets = *jetSrc;
-  if(jets.size()<=0)    return;
-  if(mets.size()<=0)    return;
+  if(jets.empty())    return;
+  if(mets.empty())    return;
 
   if(debug_) cout<<"DEBUG-2: AOD Information"<<endl;
   
@@ -724,7 +724,7 @@ bool HLTInclusiveVBFSource::isTriggerObjectFound(std::string objectName){
     edm::LogInfo("HLTInclusiveVBFSource") << "no index "<< index << " of that name ";
   } else {       
     const trigger::Keys & k = triggerObj_->filterKeys(index);
-    if (k.size()) output=true;
+    if (!k.empty()) output=true;
   }
   return output;
 }

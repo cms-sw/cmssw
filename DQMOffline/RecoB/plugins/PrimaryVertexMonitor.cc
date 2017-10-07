@@ -19,34 +19,34 @@ PrimaryVertexMonitor::PrimaryVertexMonitor(const edm::ParameterSet& pSet)
   , AlignmentLabel_( pSet.getParameter<std::string>("AlignmentLabel") )
   , ndof_          ( pSet.getParameter<int>        ("ndof")           )
   , errorPrinted_  ( false )
-  , nbvtx(NULL)
-  , bsX(NULL)
-  , bsY(NULL)
-  , bsZ(NULL)
-  , bsSigmaZ(NULL)
-  , bsDxdz(NULL)
-  , bsDydz(NULL)
-  , bsBeamWidthX(NULL)
-  , bsBeamWidthY(NULL)
-  , bsType(NULL)
-  , sumpt(NULL)
-  , ntracks(NULL)
-  , weight(NULL)
-  , chi2ndf(NULL)
-  , chi2prob(NULL)
-  , dxy(NULL)
-  , dxy2(NULL)
-  , dz(NULL)
-  , dxyErr(NULL)
-  , dzErr(NULL)
-  , dxyVsPhi_pt1(NULL)
-  , dzVsPhi_pt1(NULL)
-  , dxyVsEta_pt1(NULL)
-  , dzVsEta_pt1(NULL)
-  , dxyVsPhi_pt10(NULL)
-  , dzVsPhi_pt10(NULL)
-  , dxyVsEta_pt10(NULL)
-  , dzVsEta_pt10(NULL)
+  , nbvtx(nullptr)
+  , bsX(nullptr)
+  , bsY(nullptr)
+  , bsZ(nullptr)
+  , bsSigmaZ(nullptr)
+  , bsDxdz(nullptr)
+  , bsDydz(nullptr)
+  , bsBeamWidthX(nullptr)
+  , bsBeamWidthY(nullptr)
+  , bsType(nullptr)
+  , sumpt(nullptr)
+  , ntracks(nullptr)
+  , weight(nullptr)
+  , chi2ndf(nullptr)
+  , chi2prob(nullptr)
+  , dxy(nullptr)
+  , dxy2(nullptr)
+  , dz(nullptr)
+  , dxyErr(nullptr)
+  , dzErr(nullptr)
+  , dxyVsPhi_pt1(nullptr)
+  , dzVsPhi_pt1(nullptr)
+  , dxyVsEta_pt1(nullptr)
+  , dzVsEta_pt1(nullptr)
+  , dxyVsPhi_pt10(nullptr)
+  , dzVsPhi_pt10(nullptr)
+  , dxyVsEta_pt10(nullptr)
+  , dzVsEta_pt10(nullptr)
 {
   //  dqmStore_ = edm::Service<DQMStore>().operator->();
 
@@ -296,7 +296,7 @@ void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
     if (vx.isValid() && !vx.isFake()  && vx.ndof()>=ndof_) ++ng;
   nbgvtx->Fill(ng*1.);
 
-  if (scores.isValid() && (*scores).size()>0) {
+  if (scores.isValid() && !(*scores).empty()) {
     auto pvScore = (*scores).get(0);
     score[1]->Fill(std::sqrt(pvScore));
     for (unsigned int i=1; i<(*scores).size(); ++i) 
@@ -304,7 +304,7 @@ void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
   }
 
   // fill PV tracks MEs (as now, for alignment)
-  if (recVtxs->size() > 0) {
+  if (!recVtxs->empty()) {
 
     vertexPlots  (recVtxs->front(), beamSpot, 1);
     pvTracksPlots(recVtxs->front());

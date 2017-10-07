@@ -19,11 +19,11 @@ class L1TDiffHarvesting: public DQMEDHarvester {
 
 public:
   L1TDiffHarvesting(const edm::ParameterSet& ps);
-  virtual ~L1TDiffHarvesting();
+  ~L1TDiffHarvesting() override;
 
 protected:
 
-  virtual void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) override;
+  void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) override;
   virtual void dqmEndLuminosityBlock(DQMStore::IGetter &igetter, edm::LuminosityBlock const& lumiBlock,
       edm::EventSetup const& c);
 

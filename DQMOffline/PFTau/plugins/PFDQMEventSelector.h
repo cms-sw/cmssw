@@ -9,12 +9,12 @@ class PFDQMEventSelector : public edm::EDFilter {
 
 public:
    PFDQMEventSelector( const edm::ParameterSet & );
- ~PFDQMEventSelector();
+ ~PFDQMEventSelector() override;
 
 private:
-  void beginJob();
-  bool filter( edm::Event &, edm::EventSetup const& );
-  void endJob();
+  void beginJob() override;
+  bool filter( edm::Event &, edm::EventSetup const& ) override;
+  void endJob() override;
 
   bool openInputFile();
 

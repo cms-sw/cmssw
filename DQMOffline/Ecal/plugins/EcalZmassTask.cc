@@ -46,11 +46,11 @@ class EcalZmassTask: public DQMEDAnalyzer {
 
 public:
   explicit EcalZmassTask (const edm::ParameterSet &);
-  ~EcalZmassTask () {}
+  ~EcalZmassTask () override {}
 
 private:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  virtual void analyze (const edm::Event &, const edm::EventSetup &) override;
+  void analyze (const edm::Event &, const edm::EventSetup &) override;
 
   const edm::EDGetTokenT<reco::GsfElectronCollection> electronCollectionToken_;
   const edm::EDGetTokenT<reco::GsfTrackCollection> trackCollectionToken_;
@@ -242,9 +242,9 @@ EcalZmassTask::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&, edm::
 {
   std::string logTraceName("EcalZmassTask");
 
-  h_ee_invMass_EB = 0;
-  h_ee_invMass_EE = 0;
-  h_ee_invMass_BB = 0;
+  h_ee_invMass_EB = nullptr;
+  h_ee_invMass_EE = nullptr;
+  h_ee_invMass_BB = nullptr;
 
   LogTrace (logTraceName) << "Parameters initialization";
 
