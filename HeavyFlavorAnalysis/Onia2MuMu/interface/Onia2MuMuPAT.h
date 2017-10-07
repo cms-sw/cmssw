@@ -37,12 +37,12 @@ struct GreaterByVProb {
 class Onia2MuMuPAT : public edm::EDProducer {
  public:
   explicit Onia2MuMuPAT(const edm::ParameterSet&);
-  ~Onia2MuMuPAT();
+  ~Onia2MuMuPAT() override;
 
  private:
-  virtual void beginJob() ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override ;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
   bool isAbHadron(int pdgID);
   bool isAMixedbHadron(int pdgID, int momPdgID);
   std::pair<int, float> findJpsiMCInfo(reco::GenParticleRef genJpsi);

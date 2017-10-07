@@ -11,7 +11,7 @@
 OniaVtxReProducer::OniaVtxReProducer(const edm::Handle<reco::VertexCollection> &handle, const edm::Event &iEvent) 
 {
     const edm::Provenance *prov = handle.provenance();
-    if (prov == 0) throw cms::Exception("CorruptData") << "Vertex handle doesn't have provenance.";
+    if (prov == nullptr) throw cms::Exception("CorruptData") << "Vertex handle doesn't have provenance.";
     edm::ParameterSet psetFromProvenance = edm::parameterSet(*prov);
 
     bool is_primary_available = false;

@@ -38,12 +38,12 @@ class BPHParticlePtSelect: public BPHRecoSelect {
 
   /** Destructor
    */
-  virtual ~BPHParticlePtSelect() {}
+  ~BPHParticlePtSelect() override {}
 
   /** Operations
    */
   /// select particle
-  virtual bool accept( const reco::Candidate& cand ) const {
+  bool accept( const reco::Candidate& cand ) const override {
     return ( cand.p4().pt() > ptMin );
   }
 
@@ -56,8 +56,8 @@ class BPHParticlePtSelect: public BPHRecoSelect {
  private:
 
   // private copy and assigment constructors
-  BPHParticlePtSelect           ( const BPHParticlePtSelect& x );
-  BPHParticlePtSelect& operator=( const BPHParticlePtSelect& x );
+  BPHParticlePtSelect           ( const BPHParticlePtSelect& x ) = delete;
+  BPHParticlePtSelect& operator=( const BPHParticlePtSelect& x ) = delete;
 
   double ptMin;
 

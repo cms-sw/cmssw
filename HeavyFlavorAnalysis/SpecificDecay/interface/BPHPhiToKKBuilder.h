@@ -77,8 +77,8 @@ class BPHPhiToKKBuilder {
  private:
 
   // private copy and assigment constructors
-  BPHPhiToKKBuilder           ( const BPHPhiToKKBuilder& x );
-  BPHPhiToKKBuilder& operator=( const BPHPhiToKKBuilder& x );
+  BPHPhiToKKBuilder           ( const BPHPhiToKKBuilder& x ) = delete;
+  BPHPhiToKKBuilder& operator=( const BPHPhiToKKBuilder& x ) = delete;
 
   std::string kPosName;
   std::string kNegName;
