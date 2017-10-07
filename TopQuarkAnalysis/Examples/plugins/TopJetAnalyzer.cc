@@ -36,7 +36,7 @@ TopJetAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
 
   // produce printout if desired
 
-  if( jets->size()<1 || !verbose_ )
+  if( jets->empty() || !verbose_ )
     return;
 
   int lineWidth = 75;

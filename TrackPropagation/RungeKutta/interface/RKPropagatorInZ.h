@@ -16,15 +16,15 @@ public:
   TrajectoryStateOnSurface 
   myPropagate (const FreeTrajectoryState&, const Cylinder&) const;
 
-  virtual std::pair< TrajectoryStateOnSurface, double> 
-  propagateWithPath (const FreeTrajectoryState&, const Plane&) const;
+  std::pair< TrajectoryStateOnSurface, double> 
+  propagateWithPath (const FreeTrajectoryState&, const Plane&) const override;
 
-  virtual std::pair< TrajectoryStateOnSurface, double> 
-  propagateWithPath (const FreeTrajectoryState&, const Cylinder&) const;
+  std::pair< TrajectoryStateOnSurface, double> 
+  propagateWithPath (const FreeTrajectoryState&, const Cylinder&) const override;
 
-  virtual Propagator * clone() const;
+  Propagator * clone() const override;
 
-  virtual const MagneticField* magneticField() const {return theVolume;}
+  const MagneticField* magneticField() const override {return theVolume;}
 
 private:
 

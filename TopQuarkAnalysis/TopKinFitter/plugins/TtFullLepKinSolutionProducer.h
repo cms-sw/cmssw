@@ -22,11 +22,11 @@ class TtFullLepKinSolutionProducer : public edm::EDProducer {
   public:
 
     explicit TtFullLepKinSolutionProducer(const edm::ParameterSet & iConfig);
-    ~TtFullLepKinSolutionProducer();
+    ~TtFullLepKinSolutionProducer() override;
 
-    virtual void beginJob();
-    virtual void produce(edm::Event & evt, const edm::EventSetup & iSetup);
-    virtual void endJob();
+    void beginJob() override;
+    void produce(edm::Event & evt, const edm::EventSetup & iSetup) override;
+    void endJob() override;
 
   private:
 
@@ -151,14 +151,14 @@ void TtFullLepKinSolutionProducer::produce(edm::Event & evt, const edm::EventSet
   if(jets->size()>=2) { jetsFound = true; }
 
   //select MET (TopMET vector is sorted on ET)
-  if(mets->size()>=1) { METFound = true; }
+  if(!mets->empty()) { METFound = true; }
 
   // If we have electrons and muons available,
   // build a solutions with electrons and muons.
   if(muons->size() + electrons->size() >=2) {
     // select leptons
-    if(electrons->size() == 0) mumu = true;
-    else if(muons->size() == 0) ee = true;
+    if(electrons->empty()) mumu = true;
+    else if(muons->empty()) ee = true;
     else if(electrons->size() == 1) {
       if(muons->size() == 1) emu = true;
       else if(PTComp(&(*electrons)[0], &(*muons)[1])) emu = true;
@@ -414,7 +414,7 @@ void TtFullLepKinSolutionProducer::produce(edm::Event & evt, const edm::EventSet
     }
   }
 
-  if(weightsV.size()==0){
+  if(weightsV.empty()){
     //create dmummy vector
     std::vector<int> idcs;
     for(int i=0; i<6; ++i)
