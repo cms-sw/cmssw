@@ -43,14 +43,14 @@ using namespace std ;
 
 PVFitter::PVFitter(const edm::ParameterSet& iConfig,
                    edm::ConsumesCollector &&iColl)
-  : ftree_(0)
+  : ftree_(nullptr)
 {
   initialize(iConfig, iColl);
 }
 
 PVFitter::PVFitter(const edm::ParameterSet& iConfig,
                    edm::ConsumesCollector &iColl)
-    :ftree_(0)
+    :ftree_(nullptr)
 {
   initialize(iConfig, iColl);
 }
@@ -166,7 +166,7 @@ void PVFitter::readEvent(const edm::Event& iEvent)
           pvData.posCorr[2] = pv->covariance(1,2)/pv->yError()/pv->zError();
           pvStore_.push_back(pvData);
 
-      if(ftree_ != 0){
+      if(ftree_ != nullptr){
         theBeamSpotTreeData_.run(iEvent.id().run());
         theBeamSpotTreeData_.lumi(iEvent.luminosityBlock());
         theBeamSpotTreeData_.bunchCrossing(bx);

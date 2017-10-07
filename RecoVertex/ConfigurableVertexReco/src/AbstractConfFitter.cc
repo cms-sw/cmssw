@@ -4,7 +4,7 @@ AbstractConfFitter::AbstractConfFitter ( const VertexFitter<5> & f ) :
   theFitter ( f.clone() )
 {}
 
-AbstractConfFitter::AbstractConfFitter() : theFitter ( 0 )
+AbstractConfFitter::AbstractConfFitter() : theFitter ( nullptr )
 {}
 
 AbstractConfFitter::AbstractConfFitter ( const AbstractConfFitter & o ) :

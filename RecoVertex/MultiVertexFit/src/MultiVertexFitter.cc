@@ -223,7 +223,7 @@ vector < CachingVertex<5> > MultiVertexFitter::vertices (
     const vector < TransientTrack > & primaries )
 {
   // FIXME if vtces.size < 1 return sth that includes the primaries
-  if ( vtces.size() < 1 )
+  if ( vtces.empty() )
   {
     return vector < CachingVertex<5> > ();
   };
@@ -255,7 +255,7 @@ vector < CachingVertex<5> > MultiVertexFitter::vertices (
   clear();
   createPrimaries ( primaries );
   // FIXME if initials size < 1 return sth that includes the primaries
-  if (  initials.size() < 1 ) return initials;
+  if (  initials.empty() ) return initials;
   for ( vector< CachingVertex<5> >::const_iterator vtx=initials.begin();
         vtx!=initials.end() ; ++vtx )
   {

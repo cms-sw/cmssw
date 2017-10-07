@@ -16,21 +16,21 @@ public:
                              const AnnealingSchedule & s = DefaultMVFAnnealing(),
                              float revive=-1. );
   MultiVertexReconstructor ( const MultiVertexReconstructor & );
-  ~MultiVertexReconstructor();
+  ~MultiVertexReconstructor() override;
 
   std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> &,
-      const reco::BeamSpot & ) const; 
-  std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> &) const; 
+      const reco::BeamSpot & ) const override; 
+  std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> &) const override; 
   std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> &,
       const std::vector < reco::TransientTrack > & primaries ) const;
 
   std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> &,
       const std::vector < reco::TransientTrack > & primaries,
-      const reco::BeamSpot & spot ) const;
+      const reco::BeamSpot & spot ) const override;
 
   VertexReconstructor * reconstructor() const;
 
-  MultiVertexReconstructor * clone() const;
+  MultiVertexReconstructor * clone() const override;
 
 private:
   VertexReconstructor * theOldReconstructor;
