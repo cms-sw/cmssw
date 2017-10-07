@@ -37,7 +37,7 @@ public:
     inline unsigned size() const {return group_.size();}
 
     inline const uint32_t* groupData() const
-        {return group_.empty() ? 0 : &group_[0];}
+        {return group_.empty() ? nullptr : &group_[0];}
 
     inline unsigned getGroup(const unsigned linearChannel) const
         {return group_.at(linearChannel);}
@@ -46,7 +46,7 @@ public:
     {
         unsigned lg = 0;
         const unsigned sz = group_.size();
-        const uint32_t* dat = sz ? &group_[0] : 0;
+        const uint32_t* dat = sz ? &group_[0] : nullptr;
         for (unsigned i=0; i<sz; ++i)
             if (dat[i] > lg)
                 lg = dat[i];

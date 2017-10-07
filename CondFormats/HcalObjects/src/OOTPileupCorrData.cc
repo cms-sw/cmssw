@@ -46,10 +46,10 @@ void OOTPileupCorrData::apply(const HcalDetId& id,
     bool* readjustTiming) const
 {
     // Check the arguments
-    if (inputCharge == 0 || correctedCharge == 0 ||
+    if (inputCharge == nullptr || correctedCharge == nullptr ||
         lenCorrectedCharge < lenInputCharge ||
-        pulseShapeCorrApplied == 0 || leakCorrApplied == 0 ||
-        readjustTiming == 0)
+        pulseShapeCorrApplied == nullptr || leakCorrApplied == nullptr ||
+        readjustTiming == nullptr)
         throw cms::Exception(
             "Invalid arguments in OOTPileupCorrData::apply");
 
