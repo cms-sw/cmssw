@@ -40,9 +40,9 @@ class PFPileUp : public edm::stream::EDProducer<> {
 
   explicit PFPileUp(const edm::ParameterSet&);
 
-  ~PFPileUp();
+  ~PFPileUp() override;
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
 

@@ -28,7 +28,7 @@ class EventSelectorAdapter : public edm::global::EDFilter<>
   }
 
   // destructor
-  virtual ~EventSelectorAdapter() {}
+  ~EventSelectorAdapter() override {}
 
  private:
   bool filter(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const override { return eventSelector_(evt, es); }
