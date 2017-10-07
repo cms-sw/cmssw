@@ -43,9 +43,9 @@ phase1Pixel.toModify(seedGeneratorFromRegionHitsEDProducer, # FIXME
 )
 
 from Configuration.Eras.Modifier_peripheralPbPb_cff import peripheralPbPb
-peripheralPbPb.toModify(seedGeneratorFromRegionHitsEDProducer,
-                        doClusterCheck = True,  # FIXMETOO
-                        ClusterCheckPSet = dict(cut = "strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
+peripheralPbPb.toModify(seedGeneratorFromRegionHitsEDProducer,                        
+                        ClusterCheckPSet = dict(doClusterCheck = True,  # FIXMETOO
+                                                cut = "strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
                         )
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
