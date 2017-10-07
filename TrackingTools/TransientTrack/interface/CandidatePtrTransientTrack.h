@@ -32,52 +32,52 @@ namespace reco {
 
     CandidatePtrTransientTrack& operator=(const CandidatePtrTransientTrack & tt);
 
-    void setES(const edm::EventSetup& );
+    void setES(const edm::EventSetup& ) override;
 
-    void setTrackingGeometry(const edm::ESHandle<GlobalTrackingGeometry>& );
+    void setTrackingGeometry(const edm::ESHandle<GlobalTrackingGeometry>& ) override;
 
-    void setBeamSpot(const reco::BeamSpot& beamSpot);
+    void setBeamSpot(const reco::BeamSpot& beamSpot) override;
 
-    FreeTrajectoryState initialFreeState() const {return initialFTS;}
+    FreeTrajectoryState initialFreeState() const override {return initialFTS;}
 
-    TrajectoryStateOnSurface outermostMeasurementState() const;
+    TrajectoryStateOnSurface outermostMeasurementState() const override;
 
-    TrajectoryStateOnSurface innermostMeasurementState() const;
+    TrajectoryStateOnSurface innermostMeasurementState() const override;
 
     TrajectoryStateClosestToPoint
-      trajectoryStateClosestToPoint( const GlobalPoint & point ) const
+      trajectoryStateClosestToPoint( const GlobalPoint & point ) const override
       {return builder(initialFTS, point);}
 
    /**
     * The TSOS at any point. The initial state will be used for the propagation.
     */
-    TrajectoryStateOnSurface stateOnSurface(const GlobalPoint & point) const;
+    TrajectoryStateOnSurface stateOnSurface(const GlobalPoint & point) const override;
 
-    TrajectoryStateClosestToPoint impactPointTSCP() const;
+    TrajectoryStateClosestToPoint impactPointTSCP() const override;
 
-    TrajectoryStateOnSurface impactPointState() const;
+    TrajectoryStateOnSurface impactPointState() const override;
 
-    bool impactPointStateAvailable() const {return (m_TSOS.load()==kSet ? true : false); }
+    bool impactPointStateAvailable() const override {return (m_TSOS.load()==kSet ? true : false); }
 
   /**
    * access to original persistent track
    */
     TrackRef persistentTrackRef() const { return TrackRef(); }
 
-    TrackBaseRef trackBaseRef() const {return TrackBaseRef();}
+    TrackBaseRef trackBaseRef() const override {return TrackBaseRef();}
 
-    TrackCharge charge() const {return Track::charge();}
+    TrackCharge charge() const override {return Track::charge();}
 
-    CandidatePtr candidate() const {return ptr_; } 	
+    CandidatePtr candidate() const override {return ptr_; } 	
 
-    const MagneticField* field() const {return theField;}
+    const MagneticField* field() const override {return theField;}
 
-    const Track & track() const {return *this;}
+    const Track & track() const override {return *this;}
 
-    TrajectoryStateClosestToBeamLine stateAtBeamLine() const;
+    TrajectoryStateClosestToBeamLine stateAtBeamLine() const override;
     
-    double timeExt() const { return ( hasTime ? timeExt_ : std::numeric_limits<double>::quiet_NaN() ); }
-    double dtErrorExt() const { return ( hasTime ? dtErrorExt_ : std::numeric_limits<double>::quiet_NaN() ); }
+    double timeExt() const override { return ( hasTime ? timeExt_ : std::numeric_limits<double>::quiet_NaN() ); }
+    double dtErrorExt() const override { return ( hasTime ? dtErrorExt_ : std::numeric_limits<double>::quiet_NaN() ); }
 
   private:
 

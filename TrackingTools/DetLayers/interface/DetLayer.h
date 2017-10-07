@@ -26,7 +26,7 @@ class DetLayer : public GeometricSearchDet {
 
   DetLayer(bool doHaveGroup, bool ibar) : GeometricSearchDet(doHaveGroup), theSeqNum(-1), iAmBarrel(ibar) {}
 
-  virtual ~DetLayer();
+  ~DetLayer() override;
 
   // a detLayer can be either barrel or forward
   bool isBarrel() const { return iAmBarrel;}

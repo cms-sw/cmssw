@@ -37,7 +37,7 @@ public:
     theFwdPredictedState(fwdTrajectoryStateOnSurface),
     theUpdatedState(fwdTrajectoryStateOnSurface),
     theRecHit(aRecHit),
-    theLayer(0), theEstimate(0) {}
+    theLayer(nullptr), theEstimate(0) {}
 
   /// Constructor with forward predicted state, RecHit, estimate
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdTrajectoryStateOnSurface,
@@ -45,7 +45,7 @@ public:
     theFwdPredictedState(fwdTrajectoryStateOnSurface),
     theUpdatedState(fwdTrajectoryStateOnSurface),
     theRecHit(aRecHit), 
-    theLayer(0),
+    theLayer(nullptr),
     theEstimate(aEstimate) {}
 
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdTrajectoryStateOnSurface,
@@ -62,7 +62,7 @@ public:
                         ConstRecHitPointer aRecHit) :
     theFwdPredictedState(std::move(fwdPredTrajectoryStateOnSurface)),
     theUpdatedState(std::move(uTrajectoryStateOnSurface)),
-    theRecHit(std::move(aRecHit)), theLayer(0),
+    theRecHit(std::move(aRecHit)), theLayer(nullptr),
     theEstimate(0) {}
 
   /// Constructor with forward predicted & updated state, RecHit, estimate 
@@ -71,7 +71,7 @@ public:
                         ConstRecHitPointer aRecHit, float aEstimate) :
     theFwdPredictedState(std::move(fwdPredTrajectoryStateOnSurface)),
     theUpdatedState(std::move(uTrajectoryStateOnSurface)),
-    theRecHit(std::move(aRecHit)), theLayer(0),
+    theRecHit(std::move(aRecHit)), theLayer(nullptr),
     theEstimate(aEstimate) {}
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdPredTrajectoryStateOnSurface,
                         TrajectoryStateOnSurface uTrajectoryStateOnSurface,
@@ -92,7 +92,7 @@ public:
     theBwdPredictedState(bwdPredTrajectoryStateOnSurface),
     theUpdatedState(uTrajectoryStateOnSurface),
     theRecHit(aRecHit),
-    theLayer(0), theEstimate(0) {}
+    theLayer(nullptr), theEstimate(0) {}
 
   /** Constructor with forward predicted, backward predicted & updated state, 
    *  RecHit, estimate
@@ -105,7 +105,7 @@ public:
     theBwdPredictedState(bwdPredTrajectoryStateOnSurface),
     theUpdatedState(uTrajectoryStateOnSurface),
     theRecHit(aRecHit),
-    theLayer(0), theEstimate(aEstimate) {}
+    theLayer(nullptr), theEstimate(aEstimate) {}
 
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdPredTrajectoryStateOnSurface,
 			TrajectoryStateOnSurface bwdPredTrajectoryStateOnSurface,

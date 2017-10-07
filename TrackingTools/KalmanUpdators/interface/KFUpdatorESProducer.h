@@ -16,7 +16,7 @@
 class  KFUpdatorESProducer: public edm::ESProducer{
  public:
   KFUpdatorESProducer(const edm::ParameterSet & p);
-  virtual ~KFUpdatorESProducer(); 
+  ~KFUpdatorESProducer() override; 
   std::shared_ptr<TrajectoryStateUpdator> produce(const TrackingComponentsRecord &);
  private:
   std::shared_ptr<TrajectoryStateUpdator> _updator;
