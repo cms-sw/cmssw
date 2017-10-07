@@ -34,9 +34,9 @@ class HGCalShowerShape{
     float sigmaPhiPhi(const std::vector<float>& energy, const std::vector<float>& phi) const;   
     float sigmaZZ(const std::vector<float>& energy, const std::vector<float>& z) const;
 
-    static const int nLayersEE=28;
-    static const int nLayersFH=12;
-    static const int nLayersBH=12;
+    static const int kLayersEE_=28;
+    static const int kLayersFH_=12;
+    static const int kLayersBH_=12;
     int HGC_layer(const uint32_t subdet, const uint32_t layer) const;
 
 
