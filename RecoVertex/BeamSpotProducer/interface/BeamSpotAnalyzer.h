@@ -26,16 +26,16 @@ ________________________________________________________________**/
 class BeamSpotAnalyzer : public edm::EDAnalyzer {
  public:
   explicit BeamSpotAnalyzer(const edm::ParameterSet&);
-  ~BeamSpotAnalyzer();
+  ~BeamSpotAnalyzer() override;
 
  private:
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-									const edm::EventSetup& context) ;
-  virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-								  const edm::EventSetup& c);
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+									const edm::EventSetup& context) override ;
+  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+								  const edm::EventSetup& c) override;
 
   int    ftotalevents;
   int fitNLumi_;
