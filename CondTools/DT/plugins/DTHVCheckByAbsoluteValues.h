@@ -48,18 +48,18 @@ class DTHVCheckByAbsoluteValues: public DTHVAbstractCheck {
 
   /** Destructor
    */
-  virtual ~DTHVCheckByAbsoluteValues();
+  ~DTHVCheckByAbsoluteValues() override;
 
   /** Operations
    */
   /// check HV status
 //  virtual int checkCurrentStatus( 
-  virtual DTHVAbstractCheck::flag checkCurrentStatus( 
+  DTHVAbstractCheck::flag checkCurrentStatus( 
           int rawId, int type,
           float valueA, float valueC, float valueS,
           const std::map<int,timedMeasurement>& snapshotValues,
           const std::map<int,int>& aliasMap,
-          const std::map<int,int>& layerMap );
+          const std::map<int,int>& layerMap ) override;
 
  private:
 

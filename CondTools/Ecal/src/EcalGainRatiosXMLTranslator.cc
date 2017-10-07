@@ -93,12 +93,12 @@ std::string EcalGainRatiosXMLTranslator::dumpXML(const EcalCondHeader& header,co
   if( writer->getDomConfig()->canSetParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true ))
     writer->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
   
-  DOMDocumentType* doctype = impl->createDocumentType( cms::xerces::uStr("XML").ptr(), 0, 0 );
-  DOMDocument* doc = impl->createDocument( 0, cms::xerces::uStr(GainRatios_tag.c_str()).ptr(), doctype );
+  DOMDocumentType* doctype = impl->createDocumentType( cms::xerces::uStr("XML").ptr(), nullptr, nullptr );
+  DOMDocument* doc = impl->createDocument( nullptr, cms::xerces::uStr(GainRatios_tag.c_str()).ptr(), doctype );
   DOMElement* root = doc->getDocumentElement();
 
     xuti::writeHeader(root,header);
-    if (!record.barrelItems().size()) return std::string();
+    if (record.barrelItems().empty()) return std::string();
     for(int cellid = EBDetId::MIN_HASH;
 	cellid < EBDetId::kSizeForDenseIndexing;
 	++cellid)
@@ -115,7 +115,7 @@ std::string EcalGainRatiosXMLTranslator::dumpXML(const EcalCondHeader& header,co
 	WriteNodeWithValue(cellnode,Gain6Over1_tag,record[rawid].gain6Over1());
       }
 
-    if (!record.endcapItems().size()) return std::string();
+    if (record.endcapItems().empty()) return std::string();
     for(int cellid = 0;
 	cellid < EEDetId::kSizeForDenseIndexing;
 	++cellid)
