@@ -39,7 +39,7 @@ Double_t mygauss(Double_t*, Double_t*);
 class EcalZmassClient: public DQMEDHarvester {
 public:
   explicit EcalZmassClient(const edm::ParameterSet&);
-  ~EcalZmassClient();
+  ~EcalZmassClient() override;
 
 private:
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
@@ -108,7 +108,7 @@ EcalZmassClient::dqmEndJob(DQMStore::IBooker& _ibooker, DQMStore::IGetter& _iget
   MonitorElement *me2 = _igetter.get (prefixME_ + "/Zmass/Z peak - WP80 EE-EE");
   MonitorElement *me3 = _igetter.get (prefixME_ + "/Zmass/Z peak - WP80 EB-EE");
 
-  if (me1 != 0)
+  if (me1 != nullptr)
     {
       TH1F *B = me1->getTH1F ();
       TH1F *R1 = h_fitres1->getTH1F ();
@@ -167,7 +167,7 @@ EcalZmassClient::dqmEndJob(DQMStore::IBooker& _ibooker, DQMStore::IGetter& _iget
       R1->PutStats (stats);
     }
 /*******************************************************/
-  if (me1 != 0)
+  if (me1 != nullptr)
     {
       TH1F *Bbis = me1->getTH1F ();
       TH1F *R1bis = h_fitres1bis->getTH1F ();
@@ -227,7 +227,7 @@ EcalZmassClient::dqmEndJob(DQMStore::IBooker& _ibooker, DQMStore::IGetter& _iget
     }
 /****************************************/
 
-  if (me2 != 0)
+  if (me2 != nullptr)
     {
       TH1F *E = me2->getTH1F ();
       TH1F *R2 = h_fitres2->getTH1F ();
@@ -287,7 +287,7 @@ EcalZmassClient::dqmEndJob(DQMStore::IBooker& _ibooker, DQMStore::IGetter& _iget
     }
 /**************************************************************************/
 
-  if (me2 != 0)
+  if (me2 != nullptr)
     {
       TH1F *Ebis = me2->getTH1F ();
       TH1F *R2bis = h_fitres2bis->getTH1F ();
@@ -347,7 +347,7 @@ EcalZmassClient::dqmEndJob(DQMStore::IBooker& _ibooker, DQMStore::IGetter& _iget
     }
 /*********************************************************************************************/
 
-  if (me3 != 0)
+  if (me3 != nullptr)
     {
       TH1F *R3 = h_fitres3->getTH1F ();
       TH1F *M = me3->getTH1F ();
@@ -407,7 +407,7 @@ EcalZmassClient::dqmEndJob(DQMStore::IBooker& _ibooker, DQMStore::IGetter& _iget
     }
   /********************************************************************************/
 
-  if (me3 != 0)
+  if (me3 != nullptr)
     {
       TH1F *Mbis = me3->getTH1F ();
       TH1F *R3bis = h_fitres3bis->getTH1F ();
@@ -468,7 +468,7 @@ EcalZmassClient::dqmEndJob(DQMStore::IBooker& _ibooker, DQMStore::IGetter& _iget
 
   /*Chi2 */
 
-  if (me1 != 0)
+  if (me1 != nullptr)
     {
       TH1F *C1 = me1->getTH1F ();
       TH1F *S1 = h_fitres1Chi2->getTH1F ();
@@ -531,7 +531,7 @@ EcalZmassClient::dqmEndJob(DQMStore::IBooker& _ibooker, DQMStore::IGetter& _iget
     }
   /**********************************************/
 
-  if (me2 != 0)
+  if (me2 != nullptr)
     {
       TH1F *C2 = me2->getTH1F ();
       TH1F *S2 = h_fitres2Chi2->getTH1F ();
@@ -592,7 +592,7 @@ EcalZmassClient::dqmEndJob(DQMStore::IBooker& _ibooker, DQMStore::IGetter& _iget
       S2->PutStats (stats);
     }
   /**************************************************************************/
-  if (me3 != 0)
+  if (me3 != nullptr)
     {
       TH1F *C3 = me3->getTH1F ();
       TH1F *S3 = h_fitres3Chi2->getTH1F ();

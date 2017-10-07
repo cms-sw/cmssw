@@ -14,13 +14,13 @@ namespace edmtest
   class AlignPCLThresholdsReader : public edm::one::EDAnalyzer<> {
   public:
     explicit AlignPCLThresholdsReader(edm::ParameterSet const& p); 
-    ~AlignPCLThresholdsReader(); 
+    ~AlignPCLThresholdsReader() override; 
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
   private:
     
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
     // ----------member data ---------------------------
     const bool printdebug_;
@@ -72,7 +72,7 @@ namespace edmtest
       thresholds->printAll();
     }
  
-    FILE* pFile=NULL;
+    FILE* pFile=nullptr;
     if(formatedOutput_!="")pFile=fopen(formatedOutput_.c_str(), "w");
     if(pFile){
 

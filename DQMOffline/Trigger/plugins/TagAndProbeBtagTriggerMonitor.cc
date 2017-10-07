@@ -48,7 +48,7 @@ void TagAndProbeBtagTriggerMonitor::bookHistograms(DQMStore::IBooker     & ibook
 {  
    
   std::string currentFolder = folderName_ ;
-  ibooker.setCurrentFolder(currentFolder.c_str());
+  ibooker.setCurrentFolder(currentFolder);
   
   int ptnbins   = jetPtbins_.size()-1;
   int etanbins  = jetEtabins_.size()-1;

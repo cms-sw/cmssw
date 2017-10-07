@@ -17,7 +17,7 @@ class CSCTriggerSimpleMapping : public CSCTriggerMapping {
    CSCTriggerSimpleMapping();
 
   /// Destructor
-   virtual ~CSCTriggerSimpleMapping();
+   ~CSCTriggerSimpleMapping() override;
 
  private: 
 
@@ -26,7 +26,7 @@ class CSCTriggerSimpleMapping : public CSCTriggerMapping {
      * readout.
      *
      */
-    int hwId( int endcap, int station, int sector, int subsector, int cscid ) const;
+    int hwId( int endcap, int station, int sector, int subsector, int cscid ) const override;
 
 };
 

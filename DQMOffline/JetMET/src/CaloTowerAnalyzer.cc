@@ -93,7 +93,7 @@ void CaloTowerAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     //Store number of events which pass each HLT bit 
     for(unsigned int i = 0 ; i < HLTBitLabel_.size() ; i++ )
       {
-	if( HLTBitLabel_[i].label().size() )
+	if( !HLTBitLabel_[i].label().empty() )
 	  {
 	    hCT_NEvents_HLT.push_back( ibooker.book1D("METTask_CT_"+HLTBitLabel_[i].label(),HLTBitLabel_[i].label(),2,-0.5,1.5) );
 	  }
@@ -209,12 +209,12 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
       
       for( unsigned int index = 0 ; index < HLTBitLabel_.size(); index++)
 	{
-	  if( HLTBitLabel_[index].label().size() )
+	  if( !HLTBitLabel_[index].label().empty() )
 	    {
 	      //Change the default value since HLT requirement has been issued by the user
 	      if( index == 0 ) EventPasses = false; 
 	      //Get the HLT bit and check to make sure it is valid
-	      unsigned int bit = TheTriggerNames.triggerIndex( HLTBitLabel_[index].label().c_str());
+	      unsigned int bit = TheTriggerNames.triggerIndex( HLTBitLabel_[index].label());
 	      if( bit < TheHLTResults->size() )
 		{
 		  //If any of the HLT names given by the user accept, then the event passes

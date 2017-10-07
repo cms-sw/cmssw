@@ -57,7 +57,7 @@ class L1TStage2CaloLayer2Offline: public DQMEDAnalyzer {
 public:
 
   L1TStage2CaloLayer2Offline(const edm::ParameterSet& ps);
-  virtual ~L1TStage2CaloLayer2Offline();
+  ~L1TStage2CaloLayer2Offline() override;
 
   enum ControlPlots {
     L1MET,
@@ -81,10 +81,10 @@ protected:
 
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup);
-  void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup);
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
+  void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
 private:
   //histos booking function

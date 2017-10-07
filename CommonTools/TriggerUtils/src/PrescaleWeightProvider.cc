@@ -115,7 +115,7 @@ int PrescaleWeightProvider::prescaleWeight( const edm::Event & event, const edm:
     }
     if ( ! triggerResults->accept( hltIndex ) ) continue;
 
-    const std::vector< std::pair < bool, std::string > > level1Seeds = hltConfig.hltL1GTSeeds( hltPath );
+    const std::vector< std::pair < bool, std::string > >& level1Seeds = hltConfig.hltL1GTSeeds( hltPath );
     if ( level1Seeds.size() != 1 ) {
       if ( verbosity_ > 0 ) edm::LogError( "PrescaleWeightProvider::prescaleWeight" ) << "HLT path \"" << hltPath << "\" provides too many L1 seeds";
       return 1;

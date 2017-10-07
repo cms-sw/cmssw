@@ -24,18 +24,18 @@ public:
     HcalLinearCompositionFunctor(boost::shared_ptr<AbsHcalFunctor> p,
                                  double a, double b);
 
-    inline virtual ~HcalLinearCompositionFunctor() {}
+    inline ~HcalLinearCompositionFunctor() override {}
 
-    virtual double operator()(double x) const override;
+    double operator()(double x) const override;
 
-    inline virtual double xmin() const override {return other_->xmin();}
-    inline virtual double xmax() const override {return other_->xmax();}
+    inline double xmin() const override {return other_->xmin();}
+    inline double xmax() const override {return other_->xmax();}
 
     inline double a() const {return a_;}
     inline double b() const {return b_;}
 
 protected:
-    inline virtual bool isEqual(const AbsHcalFunctor& other) const override
+    inline bool isEqual(const AbsHcalFunctor& other) const override
     {
         const HcalLinearCompositionFunctor& r =
             static_cast<const HcalLinearCompositionFunctor&>(other);
