@@ -15,7 +15,7 @@ namespace dqm {
 class DQMFileSaverPB : public DQMFileSaverBase {
  public:
   DQMFileSaverPB(const edm::ParameterSet &ps);
-  ~DQMFileSaverPB();
+  ~DQMFileSaverPB() override;
 
   // used by the JsonWritingTimedPoolOutputModule,
   // fms will be nullptr in such case
@@ -24,9 +24,9 @@ class DQMFileSaverPB : public DQMFileSaverBase {
       const std::string mergeTypeStr, evf::FastMonitoringService *fms);
 
  protected:
-  virtual void initRun() const override;
-  virtual void saveLumi(const FileParameters& fp) const override;
-  virtual void saveRun(const FileParameters& fp) const override;
+  void initRun() const override;
+  void saveLumi(const FileParameters& fp) const override;
+  void saveRun(const FileParameters& fp) const override;
 
   bool fakeFilterUnitMode_;
   std::string streamLabel_;

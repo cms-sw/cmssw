@@ -80,7 +80,7 @@ DQMScalInfo::makeL1Scalars(const edm::Event& e)
 
   Level1TriggerScalersCollection::const_iterator it = l1ts->begin();
 
-  if(l1ts->size()==0) return;
+  if(l1ts->empty()) return;
   hlresync_->Fill((*l1ts)[0].lastResync());
   hlOC0_->Fill((*l1ts)[0].lastOrbitCounter0());
   hlTE_->Fill((*l1ts)[0].lastTestEnable());
@@ -104,7 +104,7 @@ DQMScalInfo::makeLumiScalars(const edm::Event& e)
 
   LumiScalersCollection::const_iterator it = lumiScalers->begin();
 
-  if(lumiScalers->size()){
+  if(!lumiScalers->empty()){
     unsigned int lumisection = it->sectionNumber();
     if(lumisection){
       hinstLumi_->setBinContent(lumisection + 1, it->instantLumi());

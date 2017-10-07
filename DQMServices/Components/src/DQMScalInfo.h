@@ -38,7 +38,7 @@ public:
   DQMScalInfo(const edm::ParameterSet& ps);
 
   /// Destructor
-  virtual ~DQMScalInfo();
+  ~DQMScalInfo() override;
 
 protected:
 
