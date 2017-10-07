@@ -169,6 +169,7 @@ private:
   TkHistoMap *tkhisto_StoNCorrOnTrack, *tkhisto_NumOnTrack, *tkhisto_NumOffTrack;
   TkHistoMap *tkhisto_ClChPerCMfromOrigin, *tkhisto_ClChPerCMfromTrack;
   TkHistoMap *tkhisto_NumMissingHits, *tkhisto_NumberInactiveHits, *tkhisto_NumberValidHits;
+  TkHistoMap *tkhisto_NoiseOnTrack, *tkhisto_NoiseOffTrack, *tkhisto_ClusterWidthOnTrack, *tkhisto_ClusterWidthOffTrack;
   //******** TkHistoMaps
   int numTracks;
 
