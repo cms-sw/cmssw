@@ -44,12 +44,12 @@ using namespace reco;
 class JetHTJetPlusHOFilter : public edm::EDFilter {
    public:
       explicit JetHTJetPlusHOFilter(const edm::ParameterSet&);
-      ~JetHTJetPlusHOFilter();
+      ~JetHTJetPlusHOFilter() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
   int Nevt;
@@ -138,7 +138,7 @@ JetHTJetPlusHOFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<PFClusterCollection> hoht;
   iEvent.getByToken(tok_hoht_,hoht);
   if (hoht.isValid()) {
-    if ((*hoht).size()>0) {
+    if (!(*hoht).empty()) {
       for (PFClusterCollection::const_iterator ij=(*hoht).begin(); ij!=(*hoht).end(); ij++){
 				double hoenr = (*ij).energy();
 				if (hoenr <hothres) continue;

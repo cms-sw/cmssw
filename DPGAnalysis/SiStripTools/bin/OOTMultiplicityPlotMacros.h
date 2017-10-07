@@ -8,8 +8,8 @@ class TFile;
 class OOTResult;
 class OOTSummary;
 
-OOTSummary* ComputeOOTFractionvsRun(TFile* ff, const char* itmodule, const char* ootmodule, const char* etmodule, const char* hname, OOTSummary* ootsumm=0);
-OOTSummary* ComputeOOTFractionvsFill(TFile* ff, const char* itmodule, const char* ootmodule, const char* etmodule, const char* hname, OOTSummary* ootsumm=0);
+OOTSummary* ComputeOOTFractionvsRun(TFile* ff, const char* itmodule, const char* ootmodule, const char* etmodule, const char* hname, OOTSummary* ootsumm=nullptr);
+OOTSummary* ComputeOOTFractionvsFill(TFile* ff, const char* itmodule, const char* ootmodule, const char* etmodule, const char* hname, OOTSummary* ootsumm=nullptr);
 OOTResult* ComputeOOTFraction(TFile* ff, const char* itmodule, const char* ootmodule, const char* etmodule, const int run, const char* hname, 
 			      const bool& perFill=false);
 std::vector<int> FillingScheme(TFile* ff, const char* path, const float thr=0.);
@@ -24,7 +24,7 @@ class OOTResult {
   float ootfracsumerr;
   int ngoodbx;
   int nfilledbx;  
- OOTResult(): hratio(0),ootfrac(-1.),ootfracerr(0.),ootfracsum(-1.),ootfracsumerr(0.),ngoodbx(0),nfilledbx(0) {}
+ OOTResult(): hratio(nullptr),ootfrac(-1.),ootfracerr(0.),ootfracsum(-1.),ootfracsumerr(0.),ngoodbx(0),nfilledbx(0) {}
   ~OOTResult() { delete hratio;}
 };
 
