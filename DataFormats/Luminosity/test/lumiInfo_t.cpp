@@ -53,7 +53,7 @@ TestLumiInfo::testFill() {
   CPPUNIT_ASSERT(std::abs(lumiInfo.getInstLumiBX(1) - 2.0f) < tol);
   CPPUNIT_ASSERT(std::abs(lumiInfo.getInstLumiBX(2) - 3.0f) < tol);
 
-  CPPUNIT_ASSERT(std::abs(lumiInfo.getTotalInstLumi() - 6.0f) < tol);
+  CPPUNIT_ASSERT(std::abs(lumiInfo.instLuminosityBXSum() - 6.0f) < tol);
   CPPUNIT_ASSERT(std::abs(lumiInfo.integLuminosity() - 6.0f*lumiInfo.lumiSectionLength()) < tol);
   CPPUNIT_ASSERT(std::abs(lumiInfo.recordedLuminosity() - 3.0f*lumiInfo.lumiSectionLength()) < tol);
   
