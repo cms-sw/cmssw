@@ -32,11 +32,11 @@ class PFMET : public edm::EDProducer {
 
   explicit PFMET(const edm::ParameterSet&);
 
-  ~PFMET();
+  ~PFMET() override;
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-  virtual void beginJob();
+  void beginJob() override;
 
  private:
 

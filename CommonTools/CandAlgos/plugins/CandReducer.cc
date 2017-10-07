@@ -25,7 +25,7 @@ public:
   /// constructor from parameter set
   explicit CandReducer( const edm::ParameterSet& );
   /// destructor
-  ~CandReducer();
+  ~CandReducer() override;
 private:
   /// process one evevnt
   void produce( edm::Event& evt, const edm::EventSetup& ) override;

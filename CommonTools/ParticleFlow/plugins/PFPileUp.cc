@@ -76,7 +76,7 @@ void PFPileUp::produce(Event& iEvent,
 
     // get PF Candidates
     Handle<PFCollection> pfCandidates;
-    PFCollection const * pfCandidatesRef = 0;
+    PFCollection const * pfCandidatesRef = nullptr;
     PFCollection usedIfNoFwdPtrs;
     bool getFromFwdPtr = iEvent.getByToken( tokenPFCandidates_, pfCandidates);
     if ( getFromFwdPtr ) {
@@ -101,7 +101,7 @@ void PFPileUp::produce(Event& iEvent,
       pfCandidatesRef = &usedIfNoFwdPtrs;
     }
 
-    if ( pfCandidatesRef == 0 ) {
+    if ( pfCandidatesRef == nullptr ) {
       throw cms::Exception("Something went dreadfully wrong with PFPileUp. pfCandidatesRef should never be zero, so this is a logic error.");
     }
 
