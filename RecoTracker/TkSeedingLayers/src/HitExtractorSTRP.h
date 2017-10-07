@@ -25,10 +25,10 @@ public:
   typedef SiStripRecHit2D::ClusterRef SiStripClusterRef;
 
   HitExtractorSTRP(GeomDetEnumerators::SubDetector subdet, SeedingLayer::Side & side, int idLayer, float iminGoodCharge);
-  virtual ~HitExtractorSTRP(){}
+  ~HitExtractorSTRP() override{}
 
-  virtual HitExtractor::Hits hits( const TkTransientTrackingRecHitBuilder &ttrhBuilder, const edm::Event& , const edm::EventSetup&) const override;
-  virtual HitExtractorSTRP * clone() const override { return new HitExtractorSTRP(*this); }
+  HitExtractor::Hits hits( const TkTransientTrackingRecHitBuilder &ttrhBuilder, const edm::Event& , const edm::EventSetup&) const override;
+  HitExtractorSTRP * clone() const override { return new HitExtractorSTRP(*this); }
 
   void useMatchedHits( const edm::InputTag & m, edm::ConsumesCollector& iC) { hasMatchedHits = true; theMatchedHits = iC.consumes<SiStripMatchedRecHit2DCollection>(m); }
   void useRPhiHits(    const edm::InputTag & m, edm::ConsumesCollector& iC) { hasRPhiHits    = true; theRPhiHits = iC.consumes<SiStripRecHit2DCollection>(m); }

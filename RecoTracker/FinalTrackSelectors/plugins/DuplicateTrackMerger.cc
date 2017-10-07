@@ -41,7 +41,7 @@ namespace {
     /// constructor
     explicit DuplicateTrackMerger(const edm::ParameterSet& iPara);
     /// destructor
-    virtual ~DuplicateTrackMerger();
+    ~DuplicateTrackMerger() override;
     
     using CandidateToDuplicate = std::vector<std::pair<int, int>>;
 	 
@@ -412,8 +412,8 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
     if(!TSCP1.isValid()) return false;
     if(!TSCP2.isValid()) return false;
 
-    const FreeTrajectoryState ftsn1 = TSCP1.theState();
-    const FreeTrajectoryState ftsn2 = TSCP2.theState();
+    const FreeTrajectoryState& ftsn1 = TSCP1.theState();
+    const FreeTrajectoryState& ftsn2 = TSCP2.theState();
  
     IfLogTrace(debug_, "DuplicateTrackMerger") << " DCA2 " << (ftsn2.position()-ftsn1.position()).mag2();
     if ( (ftsn2.position()-ftsn1.position()).mag2() > maxDCA2_ ) return false;

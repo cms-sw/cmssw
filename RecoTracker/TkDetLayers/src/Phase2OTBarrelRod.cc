@@ -295,7 +295,7 @@ void Phase2OTBarrelRod::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 			      vector<DetGroup>& brotherresult,
 			      bool checkClosest) const
 {
-  GlobalPoint gCrossingPos = crossing.position();
+  const GlobalPoint& gCrossingPos = crossing.position();
 
   const vector<const GeomDet*>& sRod( subRod( crossing.subLayerIndex()));
   const vector<const GeomDet*>& sBrotherRod( subRodBrothers( crossing.subLayerIndex()));
