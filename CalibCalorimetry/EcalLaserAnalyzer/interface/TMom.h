@@ -61,7 +61,7 @@ class TMom: public TObject
   double getMax();
   std::vector<double> getPeak();
 
-  ClassDef(TMom,0)
+  ClassDefOverride(TMom,0)
 };
 
 #endif

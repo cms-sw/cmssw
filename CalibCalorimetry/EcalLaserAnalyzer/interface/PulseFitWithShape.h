@@ -44,7 +44,7 @@ class PulseFitWithShape: public TObject
   int     fNum_samp_after_max  ; // number of samples after  maximum sample
  
   
-  ClassDef(PulseFitWithShape,0)     //!< The processed part of the class is persistant
+  ClassDefOverride(PulseFitWithShape,0)     //!< The processed part of the class is persistant
 
 } ;
 

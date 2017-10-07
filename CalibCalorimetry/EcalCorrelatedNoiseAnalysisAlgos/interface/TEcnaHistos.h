@@ -1340,7 +1340,7 @@ class TEcnaHistos : public TObject {
   Bool_t StatusFileFound();
   Bool_t StatusDataExist();
 
-ClassDef(TEcnaHistos,1)// methods for plots from ECNA (Ecal Correlated Noises Analysis)
+ClassDefOverride(TEcnaHistos,1)// methods for plots from ECNA (Ecal Correlated Noises Analysis)
 
 };
 

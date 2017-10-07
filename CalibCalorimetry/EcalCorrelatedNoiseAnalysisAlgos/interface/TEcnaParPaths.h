@@ -102,7 +102,7 @@ class TEcnaParPaths : public TObject {
   TString PathTestScramArch();
 
 
-ClassDef(TEcnaParPaths,1)// Parameter management for ECNA (Ecal Correlated Noises Analysis)
+ClassDefOverride(TEcnaParPaths,1)// Parameter management for ECNA (Ecal Correlated Noises Analysis)
 
 };
 
