@@ -24,7 +24,7 @@ class HeavyFlavorHarvesting : public DQMEDHarvester {
 
   public:
     HeavyFlavorHarvesting(const edm::ParameterSet& pset);
-    virtual ~HeavyFlavorHarvesting();
+    ~HeavyFlavorHarvesting() override;
     // virtual void endRun(const edm::Run &, const edm::EventSetup &) override;
   private:
     void calculateEfficiency(const ParameterSet& pset, DQMStore::IBooker &, DQMStore::IGetter &);
@@ -60,7 +60,7 @@ void HeavyFlavorHarvesting::calculateEfficiency(const ParameterSet& pset, DQMSto
   string numMEname = myDQMrootFolder+"/"+numDenEffMEnames[0];
   MonitorElement *denME = igetter_.get(denMEname);
   MonitorElement *numME = igetter_.get(numMEname);
-  if(denME==0 || numME==0){
+  if(denME==nullptr || numME==nullptr){
     LogDebug("HLTriggerOfflineHeavyFlavor") << "Could not find MEs: "<<denMEname<<" or "<<numMEname<<endl;
     return;
   }
