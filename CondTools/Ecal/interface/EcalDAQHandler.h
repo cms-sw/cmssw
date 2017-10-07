@@ -6,7 +6,7 @@
 #include <string>
 #include <map>
 #include <iostream>
-#include <time.h>
+#include <ctime>
 
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
@@ -49,10 +49,10 @@ namespace popcon {
     {
     public:
       EcalDAQHandler(edm::ParameterSet const & );
-      ~EcalDAQHandler(); 
+      ~EcalDAQHandler() override; 
 
-      void getNewObjects();
-      std::string id() const { return m_name;}
+      void getNewObjects() override;
+      std::string id() const override { return m_name;}
       EcalCondDBInterface* econn;
 
       int detIDToLogicID(int, int, int);

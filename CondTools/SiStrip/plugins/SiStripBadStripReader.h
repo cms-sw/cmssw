@@ -19,9 +19,9 @@ class SiStripBadStripReader : public edm::EDAnalyzer {
 
  public:
   explicit SiStripBadStripReader( const edm::ParameterSet& );
-  ~SiStripBadStripReader();
+  ~SiStripBadStripReader() override;
   
-  void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
     
  private:
   uint32_t printdebug_;

@@ -25,9 +25,9 @@
 class HcalElectronicsMapHandler : public popcon::PopConSourceHandler<HcalElectronicsMap>
 {
  public:
-  void getNewObjects();
-  std::string id() const { return m_name;}
-  ~HcalElectronicsMapHandler();
+  void getNewObjects() override;
+  std::string id() const override { return m_name;}
+  ~HcalElectronicsMapHandler() override;
   HcalElectronicsMapHandler(edm::ParameterSet const &);
 
   void initObject(HcalElectronicsMap*);

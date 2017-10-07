@@ -9,9 +9,9 @@
 
 class RunInfoHandler : public popcon::PopConSourceHandler<RunInfo>{
  public:
-  void getNewObjects();
-  std::string id() const { return m_name; }
-  ~RunInfoHandler();
+  void getNewObjects() override;
+  std::string id() const override { return m_name; }
+  ~RunInfoHandler() override;
   RunInfoHandler(const edm::ParameterSet& pset); 
   
  private:
