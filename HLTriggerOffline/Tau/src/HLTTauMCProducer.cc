@@ -107,7 +107,7 @@ void HLTTauMCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
       //check if it is the last tau in decay/radiation chain
       GenParticleRefVector daugTaus;
       getGenDecayProducts(genRef, daugTaus, 0, 15);      
-      if( daugTaus.size()==0 )
+      if( daugTaus.empty() )
 	allTaus.push_back(genRef);
     }
   }
