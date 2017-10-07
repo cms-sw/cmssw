@@ -36,12 +36,12 @@ class IsolatedParticlesGeneratedJets : public edm::EDAnalyzer {
 
 public:
   explicit IsolatedParticlesGeneratedJets(const edm::ParameterSet&);
-  ~IsolatedParticlesGeneratedJets();
+  ~IsolatedParticlesGeneratedJets() override;
 
 private:
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   void    BookHistograms();
   void    clearTreeVectors();

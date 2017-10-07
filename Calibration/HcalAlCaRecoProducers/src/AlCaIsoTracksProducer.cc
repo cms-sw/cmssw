@@ -88,20 +88,20 @@ namespace AlCaIsoTracks {
 class AlCaIsoTracksProducer : public edm::stream::EDProducer<edm::GlobalCache<AlCaIsoTracks::Counters> > {
 public:
   explicit AlCaIsoTracksProducer(edm::ParameterSet const&, const AlCaIsoTracks::Counters* count);
-  ~AlCaIsoTracksProducer();
+  ~AlCaIsoTracksProducer() override;
   
   static std::unique_ptr<AlCaIsoTracks::Counters> initializeGlobalCache(edm::ParameterSet const& ) {
     return std::make_unique<AlCaIsoTracks::Counters>();
   }
 
-  virtual void produce(edm::Event &, edm::EventSetup const&) override;
-  virtual void endStream() override;
+  void produce(edm::Event &, edm::EventSetup const&) override;
+  void endStream() override;
   static  void globalEndJob(const AlCaIsoTracks::Counters* counters);
  
 private:
 
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
   reco::HcalIsolatedTrackCandidateCollection* select(edm::Handle<edm::TriggerResults>& triggerResults, const std::vector<std::string> & triggerNames_, edm::Handle<reco::TrackCollection>& trkCollection, math::XYZPoint& leadPV,edm::Handle<EcalRecHitCollection>& barrelRecHitsHandle, edm::Handle<EcalRecHitCollection>& endcapRecHitsHandle, edm::Handle<HBHERecHitCollection>& hbhe, double ptL1, double etaL1, double phiL1);
   void setPtEtaPhi(std::vector< edm::Ref<l1extra::L1JetParticleCollection> >& objref, double &ptL1, double &etaL1, double &phiL1);
 
@@ -281,7 +281,7 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, edm::EventSetup const& i
   iEvent.getByToken(tok_bs_, beamSpotH);
   math::XYZPoint leadPV(0,0,0);
   if (valid) {
-    if (recVtxs->size()>0 && !((*recVtxs)[0].isFake())) {
+    if (!recVtxs->empty() && !((*recVtxs)[0].isFake())) {
       leadPV = math::XYZPoint((*recVtxs)[0].x(),(*recVtxs)[0].y(),
 			      (*recVtxs)[0].z());
     } else if (beamSpotH.isValid()) {
@@ -352,7 +352,7 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, edm::EventSetup const& i
 				   << isotk->size() << " isolated tracks";
 #endif
     
-      if (isotk->size() > 0) {
+      if (!isotk->empty()) {
 	int  ntrin(0), ntrout(0);
 	for (reco::HcalIsolatedTrackCandidateCollection::const_iterator itr=isotk->begin(); itr!=isotk->end(); ++itr) {
 	  if (itr->p() > pTrackLow_ && itr->p() < pTrackHigh_) ntrin++;
@@ -437,7 +437,7 @@ AlCaIsoTracksProducer::select(edm::Handle<edm::TriggerResults>& triggerResults,
   for (unsigned int iHLT=0; iHLT<triggerResults->size(); iHLT++) {
     int hlt    = triggerResults->accept(iHLT);
     for (unsigned int i=0; i<trigNames_.size(); ++i) {
-      if (triggerNames_[iHLT].find(trigNames_[i].c_str())!=std::string::npos) {
+      if (triggerNames_[iHLT].find(trigNames_[i])!=std::string::npos) {
 	if (hlt > 0) {
 	  ok = true;
 	}

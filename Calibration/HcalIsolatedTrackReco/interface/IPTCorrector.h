@@ -21,7 +21,7 @@ class IPTCorrector : public edm::global::EDProducer<>
 public:
   IPTCorrector (const edm::ParameterSet& ps);
 
-  virtual void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
+  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
 private:
   const edm::EDGetTokenT<reco::TrackCollection> tok_cor_;
