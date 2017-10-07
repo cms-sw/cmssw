@@ -59,7 +59,7 @@ class RecoTauCleanerImpl : public edm::stream::EDProducer<>
 
  public:
   explicit RecoTauCleanerImpl(const edm::ParameterSet& pset);
-  ~RecoTauCleanerImpl();
+  ~RecoTauCleanerImpl() override;
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
  private:

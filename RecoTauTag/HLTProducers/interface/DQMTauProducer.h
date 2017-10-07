@@ -18,8 +18,8 @@
 class DQMTauProducer: public edm::EDProducer {
  public:
   explicit DQMTauProducer(const edm::ParameterSet&);
-  ~DQMTauProducer();
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  ~DQMTauProducer() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
   edm::EDGetTokenT<reco::IsolatedTauTagInfoCollection> trackIsolatedJets_;

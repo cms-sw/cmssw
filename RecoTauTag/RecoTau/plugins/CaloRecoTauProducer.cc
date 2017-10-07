@@ -34,8 +34,8 @@ using namespace std;
 class CaloRecoTauProducer : public EDProducer {
  public:
   explicit CaloRecoTauProducer(const edm::ParameterSet& iConfig);
-  ~CaloRecoTauProducer();
-  virtual void produce(edm::Event&,const edm::EventSetup&) override;
+  ~CaloRecoTauProducer() override;
+  void produce(edm::Event&,const edm::EventSetup&) override;
  private:
   edm::InputTag CaloRecoTauTagInfoProducer_;
   edm::InputTag PVProducer_;
@@ -79,7 +79,7 @@ void CaloRecoTauProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSet
   iEvent.getByLabel(PVProducer_,thePVs);
   const VertexCollection vertCollection=*(thePVs.product());
   Vertex thePV;
-  if(vertCollection.size()) thePV=*(vertCollection.begin());
+  if(!vertCollection.empty()) thePV=*(vertCollection.begin());
   else{
     Vertex::Error SimPVError;
     SimPVError(0,0)=smearedPVsigmaX_*smearedPVsigmaX_;

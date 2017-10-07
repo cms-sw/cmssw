@@ -22,10 +22,10 @@ class  PFRecoTauAlgorithm  : public PFRecoTauAlgorithmBase {
  public:
   PFRecoTauAlgorithm();
   PFRecoTauAlgorithm(const edm::ParameterSet&);
-  ~PFRecoTauAlgorithm(){}
+  ~PFRecoTauAlgorithm() override{}
 
   // PFRecTrackCollection: Temporary until integrated to PFCandidate
-  reco::PFTau buildPFTau(const reco::PFTauTagInfoRef&,const reco::Vertex&);
+  reco::PFTau buildPFTau(const reco::PFTauTagInfoRef&,const reco::Vertex&) override;
  private:
   bool checkPos(const std::vector<math::XYZPoint>&,const math::XYZPoint&) const;
 
