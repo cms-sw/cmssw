@@ -6,7 +6,7 @@
 #include <vector>
 #include <sstream>
 #include <iostream>
-#include <assert.h>
+#include <cassert>
 #include <chrono>
 
 using namespace XrdAdaptor;
@@ -95,7 +95,7 @@ XrdFile::open (const char *name,
                int perms /* = 066 */)
 {
   // Actual open
-  if ((name == 0) || (*name == 0)) {
+  if ((name == nullptr) || (*name == 0)) {
     edm::Exception ex(edm::errors::FileOpenError);
     ex << "Cannot open a file without a name";
     ex.addContext("Calling XrdFile::open()");
@@ -152,7 +152,7 @@ XrdFile::open (const char *name,
   // Stat the file so we can keep track of the offset better.
   auto file = getActiveFile();
   XrdCl::XRootDStatus status;
-  XrdCl::StatInfo *statInfo = NULL;
+  XrdCl::StatInfo *statInfo = nullptr;
   if (! (status = file->Stat(false, statInfo)).IsOK()) {
     edm::Exception ex(edm::errors::FileOpenError);
     ex << "XrdCl::File::Stat(name='" << name
