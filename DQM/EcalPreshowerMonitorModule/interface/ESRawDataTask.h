@@ -17,7 +17,7 @@ class ESRawDataTask : public DQMEDAnalyzer {
    public:
 
       ESRawDataTask(const edm::ParameterSet& ps);
-      virtual ~ESRawDataTask() {}
+      ~ESRawDataTask() override {}
 
    protected:
 

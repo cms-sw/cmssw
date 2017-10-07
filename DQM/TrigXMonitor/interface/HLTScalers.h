@@ -66,7 +66,7 @@
 class HLTScalers : public DQMEDAnalyzer {
  public:
   HLTScalers(const edm::ParameterSet &ps);
-  virtual ~HLTScalers(){};
+  ~HLTScalers() override{};
   void beginJob(void);
   void dqmBeginRun(const edm::Run &run, const edm::EventSetup &c) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &,

@@ -29,7 +29,7 @@ class TotemDAQTriggerDQMSource: public DQMEDAnalyzer
 {
   public:
     TotemDAQTriggerDQMSource(const edm::ParameterSet& ps);
-    virtual ~TotemDAQTriggerDQMSource();
+    ~TotemDAQTriggerDQMSource() override;
   
   protected:
     void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;

@@ -112,9 +112,9 @@ SiStripPlotGain::getHistos(const uint32_t& detid, const TrackerTopology* tTopo, 
 TH1F*
 SiStripPlotGain::getHisto(const long unsigned int& index){
   if(vTH1.size()<index+1)
-    vTH1.resize(index+1,0);
+    vTH1.resize(index+1,nullptr);
   
-  if(vTH1[index]==0){
+  if(vTH1[index]==nullptr){
     char name[128];
     sprintf(name,"%lu",index);
     edm::LogInfo("")<<"[getHisto] creating index " << index << std::endl;
@@ -127,7 +127,7 @@ SiStripPlotGain::getHisto(const long unsigned int& index){
 void 
 SiStripPlotGain::endJob() {
   for(size_t i=0;i<vTH1.size();i++)
-    if(vTH1[i]!=0)
+    if(vTH1[i]!=nullptr)
       vTH1[i]->Write();
 
   file->Write();

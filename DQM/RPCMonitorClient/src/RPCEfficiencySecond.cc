@@ -186,7 +186,7 @@ void  RPCEfficiencySecond::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
     indexDisk[j]=0;
   }
   for(TrackingGeometry::DetContainer::const_iterator it=rpcGeo_->dets().begin(); it!=rpcGeo_->dets().end();it++){
-    if(dynamic_cast< const RPCChamber* >( *it ) != 0 ){
+    if(dynamic_cast< const RPCChamber* >( *it ) != nullptr ){
       const RPCChamber* ch = dynamic_cast< const RPCChamber* >( *it );
       std::vector< const RPCRoll*> roles = (ch->rolls());
       for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){

@@ -152,7 +152,7 @@ void dEdxHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
             reco::TrackRef track = reco::TrackRef( trackCollectionHandle, t );
 
             if(track->quality(reco::TrackBase::highPurity) ) {
-               const reco::DeDxHitInfo* dedxHits = NULL;
+               const reco::DeDxHitInfo* dedxHits = nullptr;
                if(!track.isNull()) {
                   reco::DeDxHitInfoRef dedxHitsRef = (*dEdxObjectHandle)[track];
                   if(!dedxHitsRef.isNull())dedxHits = &(*dedxHitsRef);

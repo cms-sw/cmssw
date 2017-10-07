@@ -40,7 +40,7 @@
 #include <algorithm>
 
 SiStripMonitorRawData::SiStripMonitorRawData(edm::ParameterSet const& iConfig):
-  BadFedNumber(0),
+  BadFedNumber(nullptr),
   dqmStore_(edm::Service<DQMStore>().operator->()),
   conf_(iConfig),
   m_cacheID_(0)
@@ -110,7 +110,7 @@ void SiStripMonitorRawData::analyze(edm::Event const& iEvent, edm::EventSetup co
                                iEnd=SelectedDetIds.end();idetid!=iEnd;++idetid){
     std::vector< edm::DetSet<SiStripRawDigi> >::const_iterator digis = digi_collection->find( (*idetid) );
     if (digis == digi_collection->end() ||
-        digis->data.size() == 0 || 
+        digis->data.empty() || 
         digis->data.size() > 768 )  {
       std::vector<const FedChannelConnection *> fed_conns = detcabling->getConnections((*idetid));
       for (unsigned int  k = 0; k < fed_conns.size() ; k++) {

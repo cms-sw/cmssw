@@ -17,7 +17,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
-#include <math.h>
+#include <cmath>
 
 #include <iostream>
 using namespace std;
@@ -31,8 +31,8 @@ SiPixelActionExecutor::SiPixelActionExecutor(bool offlineXMLfile,
   Tier0Flag_(Tier0Flag) {
   edm::LogInfo("SiPixelActionExecutor") << 
     " Creating SiPixelActionExecutor " << "\n" ;
-  configParser_ = 0;
-  configWriter_ = 0;
+  configParser_ = nullptr;
+  configWriter_ = nullptr;
   ndet_ = 0;
   //collationDone = false;
 }
@@ -54,7 +54,7 @@ void SiPixelActionExecutor::readConfiguration() {
   string localPath;
   if(offlineXMLfile_) localPath = string("DQM/SiPixelMonitorClient/test/sipixel_tier0_config.xml");
   else localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
-  if (configParser_ == 0) {
+  if (configParser_ == nullptr) {
     configParser_ = new SiPixelConfigParser();
     configParser_->getDocument(edm::FileInPath(localPath).fullPath());
   }
@@ -75,7 +75,7 @@ bool SiPixelActionExecutor::readConfiguration(int& tkmap_freq,
   string localPath;
   if(offlineXMLfile_) localPath = string("DQM/SiPixelMonitorClient/test/sipixel_tier0_config.xml");
   else localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
-  if (configParser_ == 0) {
+  if (configParser_ == nullptr) {
     configParser_ = new SiPixelConfigParser();
     configParser_->getDocument(edm::FileInPath(localPath).fullPath());
   }
@@ -121,7 +121,7 @@ bool SiPixelActionExecutor::readConfiguration(int& tkmap_freq, int& summary_freq
   string localPath;
   if(offlineXMLfile_) localPath = string("DQM/SiPixelMonitorClient/test/sipixel_tier0_config.xml");
   else localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
-  if (configParser_ == 0) {
+  if (configParser_ == nullptr) {
     configParser_ = new SiPixelConfigParser();
     configParser_->getDocument(edm::FileInPath(localPath).fullPath());
   }
@@ -149,7 +149,7 @@ void SiPixelActionExecutor::createSummary(DQMStore::IBooker & iBooker, DQMStore:
   if(offlineXMLfile_) localPath = string("DQM/SiPixelMonitorClient/test/sipixel_tier0_config.xml");
   else localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
 //  cout<<"*********************ATTENTION! LOCALPATH= "<<localPath<<endl;
-  if (configParser_ == 0) {
+  if (configParser_ == nullptr) {
     configParser_ = new SiPixelConfigParser();
     configParser_->getDocument(edm::FileInPath(localPath).fullPath());
   }
@@ -195,7 +195,7 @@ void SiPixelActionExecutor::createSummary(DQMStore::IBooker & iBooker, DQMStore:
     iGetter.setCurrentFolder("Pixel/");
   }
   if (configWriter_) delete configWriter_;
-  configWriter_ = 0;
+  configWriter_ = nullptr;
 //  cout<<"leaving SiPixelActionExecutor::createSummary..."<<endl;
 }
 
@@ -466,7 +466,7 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker& iBooker, DQMStore::IG
 	}
 	if(prefix=="SUMDIG" && (*iv)=="adc"){
 	  tag = "ALLMODS_" + (*iv) + "COMB_" + currDir.substr(currDir.find(dir_name));
-      temp = 0;
+      temp = nullptr;
       string fullpathname = iBooker.pwd() + "/" + tag;
       temp = iGetter.get(fullpathname);
       if (temp) {
@@ -478,7 +478,7 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker& iBooker, DQMStore::IG
 	}
 	if(prefix=="SUMCLU" && (*iv)=="charge"){
 	  tag = "ALLMODS_" + (*iv) + "COMB_" + currDir.substr(currDir.find(dir_name));
-      temp = 0;
+      temp = nullptr;
       string fullpathname = iBooker.pwd() + "/" + tag;
       temp = iGetter.get(fullpathname);
       if (temp) {
@@ -490,7 +490,7 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker& iBooker, DQMStore::IG
 	}
       }
     }
-    if (sum_mes.size() == 0) {
+    if (sum_mes.empty()) {
       edm::LogInfo("SiPixelActionExecutor") << " Summary MEs can not be created" << "\n" ;
       return;
     }
@@ -806,7 +806,7 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore::IBooker& iBooker,
 	sum_mes.push_back(temp);
       }
     }
-    if (sum_mes.size() == 0) {
+    if (sum_mes.empty()) {
       edm::LogInfo("SiPixelActionExecutor") << " Summary MEs can not be created" << "\n" ;
       return;
     }
@@ -952,7 +952,7 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore::IBooker & iBo
 	  if((var=="_charge_" || var=="_nclusters_" || var=="_size_" || var=="_sizeX_" || var=="_sizeY_") && 
 	     (*im).find("Track_")!=string::npos) continue;
 	  string full_path = (*it) + "/" +(*im);
-	  MonitorElement * me = iGetter.get(full_path.c_str());
+	  MonitorElement * me = iGetter.get(full_path);
 	  if (!me) continue; 
 	  if(source_type_==5||source_type_==6){
 	    if((*iv)=="errorType"||(*iv)=="NErrors"||(*iv)=="fullType"||(*iv)=="chanNmbr"||
@@ -1200,7 +1200,7 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore::IBooker& iBoo
 	  if((var=="_charge_" || var=="_nclusters_" || var=="_size_" || var=="_sizeX_" || var=="_sizeY_") && 
 	     (*im).find("Track_")!=string::npos) continue;
 	  string full_path = (*it) + "/" +(*im);
-	  MonitorElement * me = iGetter.get(full_path.c_str());
+	  MonitorElement * me = iGetter.get(full_path);
 	  if (!me) continue; 
 	  if(source_type_==5||source_type_==6){
 	    if((*iv)=="errorType"||(*iv)=="NErrors"||(*iv)=="fullType"||(*iv)=="chanNmbr"||
@@ -1416,7 +1416,7 @@ void SiPixelActionExecutor::getGrandSummaryME(DQMStore::IBooker& iBooker,
     }
   }
 
-  MonitorElement* temp_me(0);
+  MonitorElement* temp_me(nullptr);
   if(me_name.find("ALLMODS_adcCOMB_")!=string::npos) temp_me = iBooker.book1D(me_name.c_str(),me_name.c_str(),128,0,256);
   else if(me_name.find("ALLMODS_chargeCOMB_")!=string::npos) temp_me = iBooker.book1D(me_name.c_str(),me_name.c_str(),100,0,200);
   else temp_me = iBooker.book1D(me_name.c_str(),me_name.c_str(),nbin,1.,nbin+1.);
@@ -1435,7 +1435,7 @@ MonitorElement* SiPixelActionExecutor::getSummaryME(DQMStore::IBooker & iBooker,
                                                     string me_name,
                                                     bool isUpgrade) {
   //printing cout<<"Entering SiPixelActionExecutor::getSummaryME for: "<<me_name<<endl;
-  MonitorElement* me = 0;
+  MonitorElement* me = nullptr;
   if((iBooker.pwd()).find("Pixel")==string::npos) return me;
   vector<string> contents = iGetter.getMEs();    
 	
@@ -1482,7 +1482,7 @@ MonitorElement* SiPixelActionExecutor::getFEDSummaryME(DQMStore::IBooker & iBook
 						       DQMStore::IGetter & iGetter,
                                                        string me_name) {
   //printing cout<<"Entering SiPixelActionExecutor::getFEDSummaryME..."<<endl;
-  MonitorElement* me = 0;
+  MonitorElement* me = nullptr;
   if((iBooker.pwd()).find("Pixel")==string::npos) return me;
   vector<string> contents = iGetter.getMEs();
 	

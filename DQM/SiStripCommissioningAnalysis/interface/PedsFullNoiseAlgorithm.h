@@ -19,7 +19,7 @@ class PedsFullNoiseAlgorithm : public CommissioningAlgorithm {
 
   PedsFullNoiseAlgorithm( const edm::ParameterSet & pset, PedsFullNoiseAnalysis* const );
 
-  virtual ~PedsFullNoiseAlgorithm() {;}
+  ~PedsFullNoiseAlgorithm() override {;}
 
   inline const Histo& hPeds() const;
 
@@ -32,10 +32,10 @@ class PedsFullNoiseAlgorithm : public CommissioningAlgorithm {
   PedsFullNoiseAlgorithm() {;}
 
   /** Extracts and organises histograms. */
-  void extract( const std::vector<TH1*>& );
+  void extract( const std::vector<TH1*>& ) override;
 
   /** Performs histogram anaysis. */
-  void analyse();
+  void analyse() override;
 
  private:
 

@@ -7,9 +7,9 @@ class CalibrationSummaryFactory : public SummaryPlotFactory<CommissioningAnalysi
 
  protected:
 
-   void extract( Iterator );
+   void extract( Iterator ) override;
 
-   void format();
+   void format() override;
 
 };
      
