@@ -9,14 +9,15 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <unordered_map>
 
 
 int HGCalShowerShape::HGC_layer(const uint32_t subdet, const uint32_t layer)    const {
 
   int hgclayer = -1;
   if(subdet==HGCEE) hgclayer=layer;//EE
-  else if(subdet==HGCHEF) hgclayer=layer+nLayersEE;//FH
-  else if(subdet==HGCHEB) hgclayer=layer+nLayersEE+nLayersFH;//BH
+  else if(subdet==HGCHEF) hgclayer=layer+kLayersEE_;//FH
+  else if(subdet==HGCHEB) hgclayer=layer+kLayersEE_+kLayersFH_;//BH
 
   return hgclayer;
 
@@ -126,8 +127,7 @@ int HGCalShowerShape::lastLayer(const l1t::HGCalMulticluster& c3d) const {
 
     const edm::PtrVector<l1t::HGCalCluster>& clustersPtrs = c3d.constituents();
 
-    int lastLayer=-999;
-    int layer=999;
+    int lastLayer=-999;   
 
     for(const auto& clu : clustersPtrs){
       
@@ -209,8 +209,8 @@ float HGCalShowerShape::sigmaPhiPhiTot(const l1t::HGCalMulticluster& c3d) const 
 
 float HGCalShowerShape::sigmaEtaEtaMax(const l1t::HGCalMulticluster& c3d) const {
 
-  std::map<int, vector<float> > tc_layer_energy;
-  std::map<int, vector<float> > tc_layer_eta;
+  std::unordered_map<int, vector<float> > tc_layer_energy;
+  std::unordered_map<int, vector<float> > tc_layer_eta;
 
   const edm::PtrVector<l1t::HGCalCluster>& clustersPtrs = c3d.constituents();
 
@@ -220,10 +220,13 @@ float HGCalShowerShape::sigmaEtaEtaMax(const l1t::HGCalMulticluster& c3d) const 
     
     const edm::PtrVector<l1t::HGCalTriggerCell>& triggerCells = clu->constituents();
 
+    auto layer_energy_itr = tc_layer_energy.emplace(layer, 0).first;
+    auto layer_eta_itr = tc_layer_eta.emplace(layer, 0).first;
+
     for(const auto& tc : triggerCells){
 
-      tc_layer_energy[layer].emplace_back(tc->energy());
-      tc_layer_eta[layer].emplace_back(tc->eta());
+      layer_energy_itr->second.emplace_back(tc->energy());
+      layer_eta_itr->second.emplace_back(tc->eta());
 
     }
 
@@ -233,8 +236,8 @@ float HGCalShowerShape::sigmaEtaEtaMax(const l1t::HGCalMulticluster& c3d) const 
 
   for(auto& tc_iter : tc_layer_energy){
     
-    vector<float> energy_layer = tc_iter.second;
-    vector<float> eta_layer= tc_layer_eta[tc_iter.first];
+    const std::vector<float>& energy_layer = tc_iter.second;
+    const std::vector<float>& eta_layer= tc_layer_eta[tc_iter.first];
 
     float SigmaEtaEtaLayer = sigmaEtaEta(energy_layer,eta_layer); 
     if(SigmaEtaEtaLayer > SigmaEtaEtaMax) SigmaEtaEtaMax = SigmaEtaEtaLayer;
@@ -253,8 +256,8 @@ float HGCalShowerShape::sigmaEtaEtaMax(const l1t::HGCalMulticluster& c3d) const 
 
 float HGCalShowerShape::sigmaPhiPhiMax(const l1t::HGCalMulticluster& c3d) const {
 
-  std::map<int, vector<float> > tc_layer_energy;
-  std::map<int, vector<float> > tc_layer_phi;
+  std::unordered_map<int, vector<float> > tc_layer_energy;
+  std::unordered_map<int, vector<float> > tc_layer_phi;
 
   const edm::PtrVector<l1t::HGCalCluster>& clustersPtrs = c3d.constituents();
 
@@ -264,10 +267,13 @@ float HGCalShowerShape::sigmaPhiPhiMax(const l1t::HGCalMulticluster& c3d) const 
     
     const edm::PtrVector<l1t::HGCalTriggerCell>& triggerCells = clu->constituents();
 
+    auto layer_energy_itr = tc_layer_energy.emplace(layer, 0).first;
+    auto layer_phi_itr = tc_layer_phi.emplace(layer, 0).first;
+
     for(const auto& tc : triggerCells){
 
-      tc_layer_energy[layer].emplace_back(tc->energy());
-      tc_layer_phi[layer].emplace_back(tc->phi());
+      layer_energy_itr->second.emplace_back(tc->energy());
+      layer_phi_itr->second.emplace_back(tc->phi());
 
     }
 
@@ -277,8 +283,8 @@ float HGCalShowerShape::sigmaPhiPhiMax(const l1t::HGCalMulticluster& c3d) const 
 
   for(auto& tc_iter : tc_layer_energy){
     
-    vector<float> energy_layer = tc_iter.second;
-    vector<float> phi_layer= tc_layer_phi[tc_iter.first];
+    const std::vector<float>& energy_layer = tc_iter.second;
+    const std::vector<float>& phi_layer= tc_layer_phi[tc_iter.first];
 
     float SigmaPhiPhiLayer = sigmaPhiPhi(energy_layer,phi_layer); 
     if(SigmaPhiPhiLayer > SigmaPhiPhiMax) SigmaPhiPhiMax = SigmaPhiPhiLayer;
@@ -294,18 +300,27 @@ float HGCalShowerShape::sigmaPhiPhiMax(const l1t::HGCalMulticluster& c3d) const 
 
 float HGCalShowerShape::eMax(const l1t::HGCalMulticluster& c3d) const {
   
-   const edm::PtrVector<l1t::HGCalCluster>& clustersPtrs = c3d.constituents();
+  std::unordered_map<int, float> layer_energy;
 
-   float EMax=0;   
+  const edm::PtrVector<l1t::HGCalCluster>& clustersPtrs = c3d.constituents();
 
-   for(const auto& clu : clustersPtrs){
+  for(const auto& clu : clustersPtrs){
+    
+    int layer = HGC_layer(clu->subdetId(),clu->layer());        
+    layer_energy[layer] += clu->energy();
 
-     if(clu->energy()>EMax)
-       EMax = clu->energy();
+  }
+  
+  float EMax=0;   
+  
+  for(const auto& layer : layer_energy){
 
-   }
+     if(layer.second>EMax)
+       EMax = layer.second;
 
-   return EMax;
+  }
+
+  return EMax;
 
 }
 
