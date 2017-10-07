@@ -1125,7 +1125,7 @@ class TEcnaGui : public TGMainFrame {
   void MessageCnaCommandReplyA(const TString&);
   void MessageCnaCommandReplyB(const TString&);
 
-ClassDef(TEcnaGui,1)// Dialog box with GUI + methods for CNA (Correlated Noises Analysis)
+ClassDefOverride(TEcnaGui,1)// Dialog box with GUI + methods for CNA (Correlated Noises Analysis)
 
 };
 

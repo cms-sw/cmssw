@@ -52,6 +52,6 @@ public:
 
   CnaResultTyp GetTypOfEntry(Int_t);
 
-  ClassDef(TEcnaResultType,1) //One leaf of the CNA root file
+  ClassDefOverride(TEcnaResultType,1) //One leaf of the CNA root file
 };
 #endif
