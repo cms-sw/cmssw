@@ -11,6 +11,11 @@ def getRunNumber(filename):
 
 ###########################################barrel########################################################
 def countBadROCBarrel(fin, layerNo, os):
+    global bpix_tot_deadROC
+    global bpix_tot_ineffROC
+    global bpix_tot_Nrocspopulated
+    global bpix_tot_totalentries
+
     barrelPath  = commonPath + "PXBarrel/";
     histoname = ["digi_occupancy_per_SignedModuleCoord_per_SignedLadderCoord_PXLayer_1", "digi_occupancy_per_SignedModuleCoord_per_SignedLadderCoord_PXLayer_2",  
                  "digi_occupancy_per_SignedModuleCoord_per_SignedLadderCoord_PXLayer_3", "digi_occupancy_per_SignedModuleCoord_per_SignedLadderCoord_PXLayer_4"]
@@ -46,9 +51,18 @@ def countBadROCBarrel(fin, layerNo, os):
     ##Printing Layer no., #dead ROC, #inefficienct ROC, #mean occupancy of Non-zer roc
     tmpstr = "BPix L" + str(layerNo)
     print >> os, tmpstr, '{0:4d} {1:4d} {2:4.1f}'.format(NexpectedROC[layerNo-1] - Nrocspopulated, NineffROC, round(meanEntries,1))
+    bpix_tot_deadROC += NexpectedROC[layerNo-1] - Nrocspopulated
+    bpix_tot_ineffROC += NineffROC
+    bpix_tot_Nrocspopulated += Nrocspopulated
+    bpix_tot_totalentries += float(totalEntries)
     return 0;
 #############################################endacp#########################################
 def countBadROCForward(fin, ringNo, os):
+    global fpix_tot_deadROC
+    global fpix_tot_ineffROC
+    global fpix_tot_Nrocspopulated
+    global fpix_tot_totalentries
+
     forwardPath  = commonPath + "PXForward/";
     histoname = ["digi_occupancy_per_SignedDiskCoord_per_SignedBladePanelCoord_PXRing_1",
 "digi_occupancy_per_SignedDiskCoord_per_SignedBladePanelCoord_PXRing_2"]
@@ -99,12 +113,27 @@ def countBadROCForward(fin, ringNo, os):
         ##Printing Disc no., #dead ROC, #inefficienct ROC, #mean occupancy of Non-zer roc
 	tmpstr = "FPix R" + str(ringNo) + "D" + str(disc)
         print >> os, '{0:10s} {1:4d} {2:4d} {3:4.1f}'.format(tmpstr, NexpectedROC_perRing[ringNo-1] - Nrocspopulated[d], NineffROC[d], round(meanEntries[d],1))
+        fpix_tot_deadROC += NexpectedROC_perRing[ringNo-1] - Nrocspopulated[d]
+        fpix_tot_ineffROC += NineffROC[d]
+        fpix_tot_Nrocspopulated += Nrocspopulated[d]
+	fpix_tot_totalentries += float(totalEntries[d])
+	
     return 0;
 ################################################main#######################################
 fname=sys.argv[1]
 getRunNumber(fname)
 fin= TFile(fname)
 outname="PixZeroOccROCs_run" + str(runNumber) + ".txt"
+bpix_tot_deadROC = 0
+bpix_tot_ineffROC = 0
+bpix_tot_Nrocspopulated = 0
+bpix_tot_totalentries = 0
+
+fpix_tot_deadROC = 0
+fpix_tot_ineffROC = 0
+fpix_tot_Nrocspopulated = 0
+fpix_tot_totalentries = 0
+
 global commonPath
 commonPath  = "DQMData/Run " + str(runNumber) + "/PixelPhase1/Run summary/Phase1_MechanicalView/"
 #histogram of no. of pixel clusters
@@ -117,10 +146,11 @@ print >> out_file, "#Pixel Barrel Summary"
 for l in range(1,5):
     if countBadROCBarrel(fin, l, out_file) == 1:
         print >> out_file, "DQM histogram for Layer", str(l), " is empty!"
+print >> out_file, "BPix tot", '{0:4d} {1:4d} {2:4.1f}'.format(bpix_tot_deadROC, bpix_tot_ineffROC, round(float(bpix_tot_totalentries)/bpix_tot_Nrocspopulated,1))
 print >> out_file, "#Pixel Forward Summary"
 for ring in range(1,3):
     if countBadROCForward(fin, ring, out_file) == 1:
         print >> out_file, "DQM histogram for Ring", str(ring), " is empty!"
-
+print >> out_file, "FPix tot", '{0:4d} {1:4d} {2:4.1f}'.format(fpix_tot_deadROC, fpix_tot_ineffROC, round(float(fpix_tot_totalentries)/fpix_tot_Nrocspopulated,1))
 print >> out_file, "Number of clusters=", int(hnpixclus_bpix.GetEntries() + hnpixclus_fpix.GetEntries())
 out_file.close()	
