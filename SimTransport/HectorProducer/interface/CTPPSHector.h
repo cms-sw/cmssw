@@ -25,7 +25,7 @@
 #include <string>
 #include <map>
 #include <cmath>
-#include <math.h>
+#include <cmath>
 
 #include "SimTransport/HectorProducer/interface/CTPPSHectorParameters.h"
 
