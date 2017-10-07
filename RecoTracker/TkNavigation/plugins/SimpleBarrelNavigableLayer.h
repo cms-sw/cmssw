@@ -23,29 +23,29 @@ public:
 
   
   // NavigableLayer interface
-  virtual std::vector<const DetLayer*> 
+  std::vector<const DetLayer*> 
   nextLayers( NavigationDirection direction) const override;
 
-  virtual std::vector<const DetLayer*> 
+  std::vector<const DetLayer*> 
   nextLayers( const FreeTrajectoryState& fts, 
 	      PropagationDirection timeDirection) const override;
 
-  virtual std::vector<const DetLayer*> 
+  std::vector<const DetLayer*> 
   compatibleLayers( NavigationDirection direction) const override;
 
-  virtual std::vector<const DetLayer*> 
+  std::vector<const DetLayer*> 
   compatibleLayers( const FreeTrajectoryState& fts, 
 		    PropagationDirection dir) const override {
     int counter=0;
     return SimpleNavigableLayer::compatibleLayers(fts,dir,counter);
   }
 
-  virtual void setAdditionalLink(const DetLayer*, NavigationDirection direction=insideOut) override;
+  void setAdditionalLink(const DetLayer*, NavigationDirection direction=insideOut) override;
 
-  virtual const DetLayer* detLayer() const override { return theDetLayer;}
-  virtual void   setDetLayer( const DetLayer* dl) override;
+  const DetLayer* detLayer() const override { return theDetLayer;}
+  void   setDetLayer( const DetLayer* dl) override;
   
-  virtual void setInwardLinks(const BDLC& theBarrelv, const FDLC& theForwardv,TkLayerLess sorter = TkLayerLess(outsideIn)) override;
+  void setInwardLinks(const BDLC& theBarrelv, const FDLC& theForwardv,TkLayerLess sorter = TkLayerLess(outsideIn)) override;
 
 private:
   const BarrelDetLayer*   theDetLayer;

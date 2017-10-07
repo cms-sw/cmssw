@@ -11,10 +11,10 @@
 class dso_hidden QualityFilter final : public edm::stream::EDProducer<> {
  public:
   explicit QualityFilter(const edm::ParameterSet&);
-  ~QualityFilter();
+  ~QualityFilter() override;
   
  private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() ;
   
   // ----------member data ---------------------------
@@ -80,8 +80,8 @@ QualityFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   
   unique_ptr<TrackCollection> selTracks(new TrackCollection);
-  unique_ptr<TrackingRecHitCollection> selHits(copyExtras_ ? new TrackingRecHitCollection() : 0);
-  unique_ptr<TrackExtraCollection> selTrackExtras(copyExtras_ ? new TrackExtraCollection() : 0);
+  unique_ptr<TrackingRecHitCollection> selHits(copyExtras_ ? new TrackingRecHitCollection() : nullptr);
+  unique_ptr<TrackExtraCollection> selTrackExtras(copyExtras_ ? new TrackExtraCollection() : nullptr);
   unique_ptr<vector<Trajectory> > outputTJ(new vector<Trajectory> );
   unique_ptr<TrajTrackAssociationCollection> trajTrackMap( new TrajTrackAssociationCollection() );
   

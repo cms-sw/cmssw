@@ -297,7 +297,7 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     std::vector<std::pair<TrackingParticleRef, double> > tP;
     if(recSimColl.find(track) != recSimColl.end()){
       tP = recSimColl[track];
-      if (tP.size()!=0) {
+      if (!tP.empty()) {
 	edm::LogVerbatim("TestTrackHits") << "reco::Track #" << ++yyy << " with pt=" << track->pt() 
 					  << " associated with quality:" << tP.begin()->second <<" good track #" << ++yy << " has hits:" << track->numberOfValidHits() << "\n";
       }
@@ -338,7 +338,7 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       //TSOS state = tm->forwardPredictedState();
       TSOS state = combiner(tm->backwardPredictedState(), tm->forwardPredictedState());
 
-      if (rhit->isValid()==0 && rhit->det()!=0) continue;
+      if (rhit->isValid()==0 && rhit->det()!=nullptr) continue;
       evtHits++;
       LogTrace("TestTrackHits") << "valid hit #" << ++pp << "of hits=" << track->numberOfValidHits();
 
@@ -348,7 +348,7 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       LogTrace("TestTrackHits") << "subdetId=" << subdetId << " layerId=" << layerId ;
 
       const Surface * surf = rhit->surface();
-      if (surf==0) continue;
+      if (surf==nullptr) continue;
 
       double energyLoss_ = 0.;
       unsigned int monoId = 0;
@@ -728,12 +728,12 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	LogTrace("TestTrackHits") << "MONO HIT" ;
         auto m = dynamic_cast<const SiStripMatchedRecHit2D*>(rhit->hit())->monoHit();
 	CTTRHp tMonoHit = theBuilder->build(&m);
-	if (tMonoHit==0) continue;
+	if (tMonoHit==nullptr) continue;
 	vector<PSimHit> assMonoSimHits = hitAssociator.associateHit(*tMonoHit->hit());
-	if (assMonoSimHits.size()==0) continue;
+	if (assMonoSimHits.empty()) continue;
 	const PSimHit sMonoHit = *(assMonoSimHits.begin());
 	const Surface * monoSurf = &( tMonoHit->det()->surface() );
-	if (monoSurf==0) continue;
+	if (monoSurf==nullptr) continue;
 	TSOS monoState = thePropagatorAnyDir->propagate(state,*monoSurf);
 	if (monoState.isValid()==0) continue;
 
@@ -832,12 +832,12 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	LogTrace("TestTrackHits") << "STEREO HIT" ;
         auto s = dynamic_cast<const SiStripMatchedRecHit2D*>(rhit->hit())->stereoHit();
 	CTTRHp tStereoHit = theBuilder->build(&s);
-	if (tStereoHit==0) continue;
+	if (tStereoHit==nullptr) continue;
 	vector<PSimHit> assStereoSimHits = hitAssociator.associateHit(*tStereoHit->hit());
-	if (assStereoSimHits.size()==0) continue;
+	if (assStereoSimHits.empty()) continue;
 	const PSimHit sStereoHit = *(assStereoSimHits.begin());
 	const Surface * stereoSurf = &( tStereoHit->det()->surface() );
-	if (stereoSurf==0) continue;
+	if (stereoSurf==nullptr) continue;
 	TSOS stereoState = thePropagatorAnyDir->propagate(state,*stereoSurf);
 	if (stereoState.isValid()==0) continue;
 

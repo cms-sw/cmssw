@@ -490,7 +490,7 @@ bool SimpleCosmicBONSeeder::seeds(TrajectorySeedCollection &output, const edm::E
             continue;
         }
 
-        const Propagator * propagator = 0;  
+        const Propagator * propagator = nullptr;  
         if((outer.y()-inner.y())>0){
             if (seedVerbosity_ > 1)
                 std::cout << "Processing triplet " << it << ":  downgoing." << std::endl; 
