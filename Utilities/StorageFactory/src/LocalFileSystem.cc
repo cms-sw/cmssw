@@ -2,11 +2,11 @@
 #define _FILE_OFFSET_BITS 64
 #include "Utilities/StorageFactory/interface/LocalFileSystem.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
+#include <cerrno>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cassert>
 #include <sys/param.h>
 #if BSD
 # include <sys/statvfs.h>
@@ -78,8 +78,8 @@ LocalFileSystem::readFSTypes(void)
   int line = 0;
   while (! feof(fs))
   {
-    char *type = 0;
-    char *fstype = 0;
+    char *type = nullptr;
+    char *fstype = nullptr;
     size_t len = 0;
     ++line;
 
@@ -193,7 +193,7 @@ LocalFileSystem::initFSInfo(void *arg)
   i->fstype = -1;
   i->freespc = 0;
   i->local = 0;
-  i->checked = 0;
+  i->checked = false;
   i->bind = strstr(m->mnt_opts, "bind") != nullptr;
 
   for (size_t j = 0; j < fstypes_.size() && ! i->local; ++j)
@@ -272,7 +272,7 @@ LocalFileSystem::statFSInfo(FSInfo *i) const
   {
     if (lstat(i->dir, &s) < 0)
     {
-      i->checked = 1;
+      i->checked = true;
 
       int nerr = errno;
       if (nerr != ENOENT && nerr != EACCES)
@@ -284,7 +284,7 @@ LocalFileSystem::statFSInfo(FSInfo *i) const
 
     if (statfs(i->dir, &sfs) < 0)
     {
-      i->checked = 1;
+      i->checked = true;
       int nerr = errno;
       edm::LogWarning("LocalFileSystem::statFSInfo()")
 	<< "Cannot statfs('" << i->dir << "'): "
@@ -300,7 +300,7 @@ LocalFileSystem::statFSInfo(FSInfo *i) const
       i->freespc *= sfs.f_bsize;
       i->freespc /= 1024. * 1024. * 1024.;
     }
-    i->checked = 1;
+    i->checked = true;
   }
   else if (i->fstype == -1)
   {
@@ -337,7 +337,7 @@ LocalFileSystem::findMount(const char *path, struct statfs *sfs, struct stat *s,
     }
   }
 
-  FSInfo *best = 0;
+  FSInfo *best = nullptr;
   size_t bestlen = 0;
   size_t len = strlen(path);
   for (size_t i = 0; i < fs_.size(); ++i)
@@ -358,7 +358,7 @@ LocalFileSystem::findMount(const char *path, struct statfs *sfs, struct stat *s,
     {
       // Get the file system device and file system ids.
       if (statFSInfo(fs_[i]) < 0)
-	return 0;
+	return nullptr;
 
       // Check the path is on the same device / file system.  If this
       // fails, we found a better prefix match on path, but it's the
@@ -367,7 +367,7 @@ LocalFileSystem::findMount(const char *path, struct statfs *sfs, struct stat *s,
       // thing to do with e.g. loop-back or union mounts.
       if (fs_[i]->dev != s->st_dev || fs_[i]->fstype != sfs->f_type)
       {
-	best = 0;
+	best = nullptr;
 	continue;
       }
 
@@ -381,7 +381,7 @@ LocalFileSystem::findMount(const char *path, struct statfs *sfs, struct stat *s,
   {
     struct stat s2;
     struct statfs sfs2;
-    char *fullpath = realpath(best->origin, 0);
+    char *fullpath = realpath(best->origin, nullptr);
 
     if (! fullpath)
       fullpath = strdup(best->origin);
@@ -430,7 +430,7 @@ LocalFileSystem::isLocalPath(const std::string &path) const
 {
   struct stat s;
   struct statfs sfs;
-  char *fullpath = realpath(path.c_str(), 0);
+  char *fullpath = realpath(path.c_str(), nullptr);
 
   if (! fullpath)
     fullpath = strdup(path.c_str());
@@ -506,7 +506,7 @@ LocalFileSystem::findCachePath(const std::vector<std::string> &paths,
 	path = "/tmp";
     }
 
-    if (! (fullpath = realpath(path, 0)))
+    if (! (fullpath = realpath(path, nullptr)))
       fullpath = strdup(path);
 
 #if 0
@@ -580,7 +580,7 @@ LocalFileSystem::findCachePath(const std::vector<std::string> &paths,
   }
 
   std::string warning_str = warningst.str();
-  if (warning_str.size())
+  if (!warning_str.empty())
   {
     warning_str = warning_str.substr(0, warning_str.size()-2);
   }

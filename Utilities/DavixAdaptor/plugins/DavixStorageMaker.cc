@@ -11,7 +11,7 @@ class DavixStorageMaker : public StorageMaker {
 public:
   /** Open a storage object for the given URL (protocol + path), using the
       @a mode bits.  No temporary files are downloaded.  */
-  virtual std::unique_ptr<Storage> open(const std::string &proto, const std::string &path, int mode,
+  std::unique_ptr<Storage> open(const std::string &proto, const std::string &path, int mode,
                                         AuxSettings const &aux) const override {
     const StorageFactory *f = StorageFactory::get();
     std::string newurl((proto == "web" ? "http" : proto) + ":" + path);
@@ -19,14 +19,14 @@ public:
     return f->wrapNonLocalFile(std::move(file), proto, std::string(), mode);
   }
 
-  virtual bool check(const std::string &proto, const std::string &path, const AuxSettings &aux,
-                     IOOffset *size = 0) const override {
+  bool check(const std::string &proto, const std::string &path, const AuxSettings &aux,
+                     IOOffset *size = nullptr) const override {
     std::string newurl((proto == "web" ? "http" : proto) + ":" + path);
     Davix::DavixError *err = nullptr;
     Davix::Context c;
     Davix::DavPosix davixPosix(&c);
     Davix::StatInfo info;
-    davixPosix.stat64(NULL, newurl, &info, &err);
+    davixPosix.stat64(nullptr, newurl, &info, &err);
     if (err) {
       std::unique_ptr<Davix::DavixError> davixErrManaged(err);
       cms::Exception ex("FileCheckError");

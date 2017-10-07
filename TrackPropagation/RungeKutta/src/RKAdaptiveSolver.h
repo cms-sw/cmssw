@@ -17,10 +17,10 @@ public:
     typedef typename Base::Scalar               Scalar;
     typedef typename Base::Vector               Vector;
 
-    virtual Vector operator()( Scalar startPar, const Vector& startState,
+    Vector operator()( Scalar startPar, const Vector& startState,
 			       Scalar step, const RKDerivative<T,N>& deriv,
 			       const RKDistance<T,N>& dist,
-			       float eps);
+			       float eps) override;
 
 };
 
