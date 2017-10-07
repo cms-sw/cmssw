@@ -18,12 +18,12 @@ public:
 			    const float curvature,
 			    const PropagationDirection propDir = alongMomentum);
   // destructor
-  virtual ~HelixForwardPlaneCrossing() {}
+  ~HelixForwardPlaneCrossing() override {}
 
   /** Propagation status (true if valid) and (signed) path length 
    *  along the helix from the starting point to the plane.
    */
-  virtual std::pair<bool,double> pathLength(const Plane& plane) {
+  std::pair<bool,double> pathLength(const Plane& plane) override {
     //
     // Protect against p_z=0 and calculate path length
     //
@@ -41,11 +41,11 @@ public:
 
   /** Position at pathlength s from the starting point.
    */
-  virtual PositionType position(double s) const;
+  PositionType position(double s) const override;
 
   /** Direction at pathlength s from the starting point.
    */
-  virtual DirectionType direction(double s) const;
+  DirectionType direction(double s) const override;
 
 private:
   //

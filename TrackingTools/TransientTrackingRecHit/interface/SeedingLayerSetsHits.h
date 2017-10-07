@@ -44,7 +44,7 @@ public:
    */
   class SeedingLayer {
   public:
-    SeedingLayer(): seedingLayerSets_(0), index_(0) {}
+    SeedingLayer(): seedingLayerSets_(nullptr), index_(0) {}
     SeedingLayer(const SeedingLayerSetsHits *sls, LayerIndex index):
       seedingLayerSets_(sls), index_(index) {}
 
@@ -79,7 +79,7 @@ public:
       typedef SeedingLayer value_type;
       typedef internal_iterator_type::difference_type difference_type;
 
-      const_iterator(): seedingLayerSets_(0) {}
+      const_iterator(): seedingLayerSets_(nullptr) {}
       const_iterator(const SeedingLayerSetsHits *sls, internal_iterator_type iter): seedingLayerSets_(sls), iter_(iter) {}
 
       value_type operator*() const { return SeedingLayer(seedingLayerSets_, *iter_); }
@@ -99,7 +99,7 @@ public:
       internal_iterator_type iter_;
     };
 
-    SeedingLayerSet(): seedingLayerSets_(0) {}
+    SeedingLayerSet(): seedingLayerSets_(nullptr) {}
     SeedingLayerSet(const SeedingLayerSetsHits *sls, std::vector<LayerSetIndex>::const_iterator begin, std::vector<LayerSetIndex>::const_iterator end):
       seedingLayerSets_(sls), begin_(begin), end_(end) {}
 
@@ -148,7 +148,7 @@ public:
     typedef SeedingLayerSet value_type;
     typedef internal_iterator_type::difference_type difference_type;
 
-    const_iterator(): seedingLayerSets_(0) {}
+    const_iterator(): seedingLayerSets_(nullptr) {}
     const_iterator(const SeedingLayerSetsHits *sls, internal_iterator_type iter): seedingLayerSets_(sls), iter_(iter) {}
 
     value_type operator*() const { return SeedingLayerSet(seedingLayerSets_, iter_, iter_+seedingLayerSets_->nlayers_); }
