@@ -20,7 +20,7 @@ class TriggerRatesMonitorClient: public DQMEDHarvester{
  public:
 
   TriggerRatesMonitorClient(const edm::ParameterSet& ps);
-  virtual ~TriggerRatesMonitorClient() = default;
+  ~TriggerRatesMonitorClient() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
       
  protected:

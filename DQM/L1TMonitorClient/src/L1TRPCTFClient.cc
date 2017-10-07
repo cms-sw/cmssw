@@ -11,9 +11,9 @@
 #include "TRandom.h"
 
 #include <TF1.h>
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 #include <TProfile.h>
 #include <TProfile2D.h>
 
@@ -104,7 +104,7 @@ void L1TRPCTFClient::processHistograms(DQMStore::IGetter &igetter) {
    {
 
      MonitorElement *me
-         = igetter.get( (input_dir_+"/RPCTF_muons_eta_phi_bx0").c_str() );
+         = igetter.get( input_dir_+"/RPCTF_muons_eta_phi_bx0" );
 
      if (me){
        const QReport *qreport;
@@ -151,7 +151,7 @@ void L1TRPCTFClient::processHistograms(DQMStore::IGetter &igetter) {
          // for this MEs, get list of associated QTs
          std::vector<QReport *> Qtest_map = me->getQReports();
 
-         if (Qtest_map.size() > 0) {
+         if (!Qtest_map.empty()) {
            std::cout << "Test: " << full_path << std::endl;
            for (std::vector<QReport *>::const_iterator it = Qtest_map.begin();
                  it != Qtest_map.end();

@@ -3,7 +3,7 @@
 namespace ecaldqm
 {
   MESetDet0D::MESetDet0D(std::string const& _fullPath, binning::ObjectType _otype, binning::BinningType _btype, MonitorElement::Kind _kind) :
-    MESetEcal(_fullPath, _otype, _btype, _kind, 0, 0, 0)
+    MESetEcal(_fullPath, _otype, _btype, _kind, 0, nullptr, nullptr)
   {
     switch(kind_){
     case MonitorElement::DQM_KIND_REAL:

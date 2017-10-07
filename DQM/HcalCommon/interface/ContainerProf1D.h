@@ -27,32 +27,32 @@ namespace hcaldqm
 			ContainerProf1D(std::string const& folder, 
 				hashfunctions::HashType, 
 				Quantity *, Quantity*);
-			virtual ~ContainerProf1D() {}
+			~ContainerProf1D() override {}
 
-			virtual void initialize(std::string const& folder, 
+			void initialize(std::string const& folder, 
 				hashfunctions::HashType, 
 				Quantity*, Quantity*,
-				int debug=0);
+				int debug=0) override;
 
-			virtual void initialize(std::string const& folder, 
+			void initialize(std::string const& folder, 
 				std::string const& qname,
 				hashfunctions::HashType, 
 				Quantity*, Quantity*,
-				int debug=0);
+				int debug=0) override;
 
 			//	booking
-			virtual void book(DQMStore::IBooker&,
+			void book(DQMStore::IBooker&,
 				HcalElectronicsMap const*,
-				std::string subsystem="Hcal", std::string aux="");
-			virtual void book(DQMStore::IBooker&,
+				std::string subsystem="Hcal", std::string aux="") override;
+			void book(DQMStore::IBooker&,
 				HcalElectronicsMap const*, filter::HashFilter const&,
-				std::string subsystem="Hcal", std::string aux="");
-			virtual void book(DQMStore*,
+				std::string subsystem="Hcal", std::string aux="") override;
+			void book(DQMStore*,
 				HcalElectronicsMap const*,
-				std::string subsystem="Hcal", std::string aux="");
-			virtual void book(DQMStore*,
+				std::string subsystem="Hcal", std::string aux="") override;
+			void book(DQMStore*,
 				HcalElectronicsMap const*, filter::HashFilter const&,
-				std::string subsystem="Hcal", std::string aux="");
+				std::string subsystem="Hcal", std::string aux="") override;
 
 		protected:
 	};

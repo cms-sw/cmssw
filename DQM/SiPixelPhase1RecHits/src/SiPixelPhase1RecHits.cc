@@ -45,7 +45,7 @@ void SiPixelPhase1RecHits::analyze(const edm::Event& iEvent, const edm::EventSet
   edm::Handle<reco::VertexCollection> vertices;
   iEvent.getByToken(offlinePrimaryVerticesToken_, vertices);
 
-  if (applyVertexCut_ && (!vertices.isValid() || vertices->size() == 0)) return;
+  if (applyVertexCut_ && (!vertices.isValid() || vertices->empty())) return;
 
 
   for (auto const & track : *tracks) {

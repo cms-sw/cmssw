@@ -16,7 +16,7 @@ class ESPedestalTask : public DQMEDAnalyzer {
    public:
 
       ESPedestalTask(const edm::ParameterSet& ps);
-      virtual ~ESPedestalTask() {}
+      ~ESPedestalTask() override {}
 
    private:
 

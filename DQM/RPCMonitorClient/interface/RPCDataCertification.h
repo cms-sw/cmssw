@@ -14,7 +14,7 @@ public:
   RPCDataCertification(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~RPCDataCertification();
+  ~RPCDataCertification() override;
 
 protected:
   void beginJob() override;

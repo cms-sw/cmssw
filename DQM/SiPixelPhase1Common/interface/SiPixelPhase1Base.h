@@ -44,13 +44,13 @@ class SiPixelPhase1Base : public DQMEDAnalyzer, public HistogramManagerHolder {
   SiPixelPhase1Base(const edm::ParameterSet& iConfig);
 
   // You should analyze something, and call histoman.fill(...). Setting to pure virtual function
-  void analyze(edm::Event const& e, edm::EventSetup const& eSetup) = 0;
+  void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override = 0;
 
   // This booking is usually fine.
   // Also used to store the required triggers
-  void bookHistograms(DQMStore::IBooker& iBooker, edm::Run const& run, edm::EventSetup const& iSetup);
+  void bookHistograms(DQMStore::IBooker& iBooker, edm::Run const& run, edm::EventSetup const& iSetup) override;
 
-  virtual ~SiPixelPhase1Base() {};
+  ~SiPixelPhase1Base() override {};
 
   protected:
   // Returns a value of whether the trigger stored at position "trgidx" is properly fired.
@@ -71,7 +71,7 @@ class SiPixelPhase1Harvester : public DQMEDHarvester, public HistogramManagerHol
   SiPixelPhase1Harvester(const edm::ParameterSet& iConfig)
     : DQMEDHarvester(), HistogramManagerHolder(iConfig) {};
 
-  void dqmEndLuminosityBlock(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter, edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& eSetup) ;
-  void dqmEndJob(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter);
+  void dqmEndLuminosityBlock(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter, edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& eSetup) override ;
+  void dqmEndJob(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter) override;
 };
 #endif

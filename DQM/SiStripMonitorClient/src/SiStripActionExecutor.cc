@@ -25,11 +25,11 @@
 SiStripActionExecutor::SiStripActionExecutor(edm::ParameterSet const& ps):pSet_(ps) {
   edm::LogInfo("SiStripActionExecutor") << 
     " Creating SiStripActionExecutor " << "\n" ;
-  summaryCreator_ = 0;
-  tkMapCreator_   = 0;
-  qualityChecker_ = 0; 
-  configWriter_   = 0;
-  detInfoFileReader_ = 0;
+  summaryCreator_ = nullptr;
+  tkMapCreator_   = nullptr;
+  qualityChecker_ = nullptr; 
+  configWriter_   = nullptr;
+  detInfoFileReader_ = nullptr;
 }
 //
 // --  Destructor
@@ -219,7 +219,7 @@ void SiStripActionExecutor::createShiftReport(DQMStore * dqm_store){
   report_file.close();
   configWriter_->write("sistrip_shift_report.xml");
   delete configWriter_;
-  configWriter_ = 0;
+  configWriter_ = nullptr;
 }
 //
 //  -- Print Report Summary
@@ -253,7 +253,7 @@ void SiStripActionExecutor::printShiftHistoParameters(DQMStore * dqm_store, std:
     for (std::vector<std::string>::iterator im = it->second.begin(); 
 	 im != it->second.end(); im++) {  
       std::string path_name = (*im);
-      if (path_name.size() == 0) continue;
+      if (path_name.empty()) continue;
       MonitorElement* me = dqm_store->get(path_name);
       std::ostringstream entry_str, mean_str, rms_str;
       entry_str << std::setprecision(2);

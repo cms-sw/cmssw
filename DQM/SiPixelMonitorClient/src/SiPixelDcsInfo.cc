@@ -24,7 +24,7 @@ void SiPixelDcsInfo::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQMStore
   }
 
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-  if(0 != iSetup.find( recordKey ) ) {
+  if(nullptr != iSetup.find( recordKey ) ) {
       //all Pixel:
       Fraction_->Fill(1.);
       //Barrel:

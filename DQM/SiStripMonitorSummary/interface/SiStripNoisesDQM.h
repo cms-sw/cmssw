@@ -17,16 +17,16 @@ class SiStripNoisesDQM : public SiStripBaseCondObjDQM{
                    edm::ParameterSet const& hPSet,
                    edm::ParameterSet const& fPSet);
   
-  virtual ~SiStripNoisesDQM();
+  ~SiStripNoisesDQM() override;
   
-  void getActiveDetIds(const edm::EventSetup & eSetup);
+  void getActiveDetIds(const edm::EventSetup & eSetup) override;
 
-  void fillMEsForDet(const ModMEs& selModME_,uint32_t selDetId_, const TrackerTopology* tTopo);
-  void fillMEsForLayer( /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_, const TrackerTopology* tTopo);
+  void fillMEsForDet(const ModMEs& selModME_,uint32_t selDetId_, const TrackerTopology* tTopo) override;
+  void fillMEsForLayer( /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_, const TrackerTopology* tTopo) override;
 
-  unsigned long long getCache(const edm::EventSetup & eSetup){ return eSetup.get<SiStripNoisesRcd>().cacheIdentifier();}
+  unsigned long long getCache(const edm::EventSetup & eSetup) override{ return eSetup.get<SiStripNoisesRcd>().cacheIdentifier();}
   
-  void getConditionObject(const edm::EventSetup & eSetup){
+  void getConditionObject(const edm::EventSetup & eSetup) override{
     eSetup.get<SiStripNoisesRcd>().get(noiseHandle_);
     cacheID_memory = cacheID_current;
   }

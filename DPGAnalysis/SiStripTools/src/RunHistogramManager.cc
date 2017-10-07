@@ -34,7 +34,7 @@ RunHistogramManager::RunHistogramManager(edm::ConsumesCollector&& iC, const bool
 
 TH1F** RunHistogramManager::makeTH1F(const char* name, const char* title, const unsigned int nbinx, const double xmin, const double xmax) {
 
-  TH1F** pointer =new TH1F*(0);
+  TH1F** pointer =new TH1F*(nullptr);
 
   BaseHistoParams* hp = new HistoParams<TH1F>(pointer,"TH1F",name,title,nbinx,xmin,xmax);
   _histograms.push_back(hp);
@@ -58,7 +58,7 @@ RunHistogramManager::~RunHistogramManager() {
 
 TProfile** RunHistogramManager::makeTProfile(const char* name, const char* title, const unsigned int nbinx, const double xmin, const double xmax) {
 
-  TProfile** pointer =new TProfile*(0);
+  TProfile** pointer =new TProfile*(nullptr);
 
   BaseHistoParams* hp = new HistoParams<TProfile>(pointer,"TProfile",name,title,nbinx,xmin,xmax);
   _histograms.push_back(hp);
@@ -71,7 +71,7 @@ TProfile** RunHistogramManager::makeTProfile(const char* name, const char* title
 
 TH2F** RunHistogramManager::makeTH2F(const char* name, const char* title, const unsigned int nbinx, const double xmin, const double xmax, const unsigned int nbiny, const double ymin, const double ymax ) {
 
-  TH2F** pointer  = new TH2F*(0);
+  TH2F** pointer  = new TH2F*(nullptr);
 
   BaseHistoParams* hp = new HistoParams<TH2F>(pointer,"TH2F",name,title,nbinx,xmin,xmax,nbiny,ymin,ymax);
   _histograms.push_back(hp);
@@ -83,7 +83,7 @@ TH2F** RunHistogramManager::makeTH2F(const char* name, const char* title, const 
 
 TProfile2D** RunHistogramManager::makeTProfile2D(const char* name, const char* title, const unsigned int nbinx, const double xmin, const double xmax, const unsigned int nbiny, const double ymin, const double ymax ) {
 
-  TProfile2D** pointer  = new TProfile2D*(0);
+  TProfile2D** pointer  = new TProfile2D*(nullptr);
 
   BaseHistoParams* hp = new HistoParams<TProfile2D>(pointer,"TProfile2D",name,title,nbinx,xmin,xmax,nbiny,ymin,ymax);
   _histograms.push_back(hp);
