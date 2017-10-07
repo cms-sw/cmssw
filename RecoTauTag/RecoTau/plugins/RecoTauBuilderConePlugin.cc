@@ -34,7 +34,7 @@ typedef std::vector<RecoTauPiZero> PiZeroList;
 class RecoTauBuilderConePlugin : public RecoTauBuilderPlugin {
   public:
   explicit RecoTauBuilderConePlugin(const edm::ParameterSet& pset,edm::ConsumesCollector &&iC);
-    ~RecoTauBuilderConePlugin() {}
+    ~RecoTauBuilderConePlugin() override {}
     // Build a tau from a jet
     return_type operator()(const reco::PFJetRef& jet,
 	const std::vector<reco::PFRecoTauChargedHadron>& chargedHadrons,

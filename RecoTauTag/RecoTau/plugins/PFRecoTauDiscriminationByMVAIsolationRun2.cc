@@ -68,8 +68,8 @@ class PFRecoTauDiscriminationByMVAIsolationRun2 : public PFTauDiscriminationProd
   explicit PFRecoTauDiscriminationByMVAIsolationRun2(const edm::ParameterSet& cfg)
     : PFTauDiscriminationProducerBase(cfg),
       moduleLabel_(cfg.getParameter<std::string>("@module_label")),
-      mvaReader_(0),
-      mvaInput_(0),
+      mvaReader_(nullptr),
+      mvaInput_(nullptr),
       category_output_()
   {
     mvaName_ = cfg.getParameter<std::string>("mvaName");
@@ -114,13 +114,13 @@ class PFRecoTauDiscriminationByMVAIsolationRun2 : public PFTauDiscriminationProd
     produces<PFTauDiscriminator>("category");
   }
 
-  void beginEvent(const edm::Event&, const edm::EventSetup&);
+  void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
-  double discriminate(const PFTauRef&) const;
+  double discriminate(const PFTauRef&) const override;
 
-  void endEvent(edm::Event&);
+  void endEvent(edm::Event&) override;
 
-  ~PFRecoTauDiscriminationByMVAIsolationRun2()
+  ~PFRecoTauDiscriminationByMVAIsolationRun2() override
   {
     if(!loadMVAfromDB_) delete mvaReader_;
     delete[] mvaInput_;

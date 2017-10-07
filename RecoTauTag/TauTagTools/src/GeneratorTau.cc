@@ -14,7 +14,7 @@ const reco::GenParticle* GeneratorTau::findLeadTrack() {
   std::vector<const reco::GenParticle*>::const_iterator thePion =
     genChargedPions_.begin();
   double maxPt = 0;
-  const reco::GenParticle* output = NULL;
+  const reco::GenParticle* output = nullptr;
   for (; thePion != genChargedPions_.end(); ++thePion) {
     if ((*thePion)->pt() > maxPt) {
       maxPt = (*thePion)->pt();
@@ -48,7 +48,7 @@ float GeneratorTau::getGammaOpeningAngle() const {
 GeneratorTau::tauDecayModeEnum GeneratorTau::computeDecayMode(
     const reco::GenParticle* theTau) {
   //return kUndefined if not a tau
-  if (theTau == NULL || std::abs(theTau->pdgId()) != 15
+  if (theTau == nullptr || std::abs(theTau->pdgId()) != 15
       || theTau->status() != 2)
     return kUndefined;
 
