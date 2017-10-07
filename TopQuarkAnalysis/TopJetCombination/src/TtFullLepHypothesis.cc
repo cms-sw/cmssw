@@ -8,8 +8,8 @@ TtFullLepHypothesis::TtFullLepHypothesis(const edm::ParameterSet& cfg):
   jetsToken_ (consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))),
   metsToken_ (consumes<std::vector<pat::MET> >(cfg.getParameter<edm::InputTag>("mets"))),
 
-  lepton_(0), leptonBar_(0), b_(0),
-  bBar_(0), neutrino_(0), neutrinoBar_(0)
+  lepton_(nullptr), leptonBar_(nullptr), b_(nullptr),
+  bBar_(nullptr), neutrino_(nullptr), neutrinoBar_(nullptr)
 {
   getMatch_ = false;
   if( cfg.exists("match") ) {
@@ -97,12 +97,12 @@ TtFullLepHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
 void
 TtFullLepHypothesis::resetCandidates()
 {
-  lepton_     = 0;
-  leptonBar_  = 0;
-  b_          = 0;
-  bBar_       = 0;
-  neutrino_   = 0;
-  neutrinoBar_= 0;
+  lepton_     = nullptr;
+  leptonBar_  = nullptr;
+  b_          = nullptr;
+  bBar_       = nullptr;
+  neutrino_   = nullptr;
+  neutrinoBar_= nullptr;
   //met_        = 0;
 }
 
