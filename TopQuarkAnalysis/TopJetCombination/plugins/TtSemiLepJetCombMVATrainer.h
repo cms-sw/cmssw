@@ -27,13 +27,13 @@ class TtSemiLepJetCombMVATrainer : public edm::EDAnalyzer {
  public:
 
   explicit TtSemiLepJetCombMVATrainer(const edm::ParameterSet&);
-  ~TtSemiLepJetCombMVATrainer();
+  ~TtSemiLepJetCombMVATrainer() override;
 
  private:
 
-  virtual void beginJob();
-  virtual void analyze(const edm::Event& evt, const edm::EventSetup& setup);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event& evt, const edm::EventSetup& setup) override;
+  void endJob() override;
 
   WDecay::LeptonType readLeptonType(const std::string& str);
 
