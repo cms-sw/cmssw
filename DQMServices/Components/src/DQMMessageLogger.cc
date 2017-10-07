@@ -33,12 +33,12 @@ using namespace edm;
 
 DQMMessageLogger::DQMMessageLogger(const ParameterSet& parameters) {
 
-  categories_errors = NULL;
-  categories_warnings = NULL;
-  modules_errors = NULL;
-  modules_warnings = NULL;
-  total_errors = NULL;  
-  total_warnings = NULL;
+  categories_errors = nullptr;
+  categories_warnings = nullptr;
+  modules_errors = nullptr;
+  modules_warnings = nullptr;
+  total_errors = nullptr;  
+  total_warnings = nullptr;
 
   //Get from cfg file
   categories_vector = parameters.getParameter< vector<string> >("Categories");
@@ -83,7 +83,7 @@ void DQMMessageLogger::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
   // BOOK THE HISTOGRAMS
   LogTrace(metname)<<"[DQMMessageLogger] Parameters initialization";
     
-  if(moduleMap.size()!=0){
+  if(!moduleMap.empty()){
     ibooker.setCurrentFolder(directoryName + "/Errors"); 
     modules_errors = ibooker.book1D("modules_errors", "Errors per module", moduleMap.size(), 0, moduleMap.size()); 
     ibooker.setCurrentFolder(directoryName + "/Warnings"); 
@@ -99,7 +99,7 @@ void DQMMessageLogger::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
       
   }
     
-  if(categoryMap.size()!=0){
+  if(!categoryMap.empty()){
     ibooker.setCurrentFolder(directoryName + "/Errors"); 
     categories_errors = ibooker.book1D("categories_errors", "Errors per category", categoryMap.size(), 0, categoryMap.size());
     ibooker.setCurrentFolder(directoryName +"/Warnings"); 
@@ -145,11 +145,11 @@ void DQMMessageLogger::analyze(const Event& iEvent, const EventSetup& iSetup) {
   
 
   // Find the total number of errors in iEvent
-  if(errors->size()==0){
-    if(total_errors!=NULL){
+  if(errors->empty()){
+    if(total_errors!=nullptr){
       total_errors->Fill(0);
     }
-    if(total_warnings!=NULL){
+    if(total_warnings!=nullptr){
       total_warnings->Fill(0);
     }
   }else{
@@ -163,10 +163,10 @@ void DQMMessageLogger::analyze(const Event& iEvent, const EventSetup& iSetup) {
 	e+= (*errors)[i].count;
       }
     }
-    if(total_errors!=NULL){
+    if(total_errors!=nullptr){
       total_errors->Fill(e);
     }    
-    if(total_warnings!=NULL){
+    if(total_warnings!=nullptr){
       total_warnings->Fill(w);
     }
   }
@@ -178,10 +178,10 @@ void DQMMessageLogger::analyze(const Event& iEvent, const EventSetup& iSetup) {
     
     //cout << "Severity for error/warning: " << (*errors)[i].severity << " " <<(*errors)[i].module  << endl;
 
-    if(errors->size()>0){
+    if(!errors->empty()){
       // IF THIS IS AN ERROR on the ELseverityLevel SCALE, FILL ERROR HISTS
       if((*errors)[i].severity.getLevel() >= el.getLevel()){
-	if(categories_errors!=NULL){
+	if(categories_errors!=nullptr){
 	  map<string,int>::const_iterator it = categoryMap.find((*errors)[i].category);
 	  if (it!=categoryMap.end()){
 	    // FILL THE RIGHT BIN
@@ -191,7 +191,7 @@ void DQMMessageLogger::analyze(const Event& iEvent, const EventSetup& iSetup) {
 	//	if (categoryECount.size()<=40)
 	//	  categoryECount[(*errors)[i].category]+=(*errors)[i].count;
 
-	if(modules_errors!=NULL){
+	if(modules_errors!=nullptr){
 	  // remove the first part of the module string, what is before ":"
 	  string s = (*errors)[i].module;
 	  size_t pos = s.find(':');
@@ -204,7 +204,7 @@ void DQMMessageLogger::analyze(const Event& iEvent, const EventSetup& iSetup) {
 	}
 	// IF ONLY WARNING, FILL WARNING HISTS
       }else{
-	if(categories_warnings!=NULL){
+	if(categories_warnings!=nullptr){
 	  map<string,int>::const_iterator it = categoryMap.find((*errors)[i].category);
 	  if (it!=categoryMap.end()){
 	    // FILL THE RIGHT BIN
@@ -215,7 +215,7 @@ void DQMMessageLogger::analyze(const Event& iEvent, const EventSetup& iSetup) {
 	//	if (categoryWCount.size()<=40)
 	//	  categoryWCount[(*errors)[i].category]+=(*errors)[i].count;
 	
-	if(modules_warnings!=NULL){
+	if(modules_warnings!=nullptr){
 	  // remove the first part of the module string, what is before ":"
 	  string s = (*errors)[i].module;
 	  size_t pos = s.find(':');

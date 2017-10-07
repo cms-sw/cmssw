@@ -14,9 +14,9 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include <memory>
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 
 using namespace edm;
 using namespace std;
@@ -66,7 +66,7 @@ void QualityTester::beginRun(const edm::Run& run , const edm::EventSetup& iSetup
       xmlstr += *it;
     }
 
-    qtHandler->configureTests(xmlstr,bei,1);
+    qtHandler->configureTests(xmlstr,bei,true);
 
   }
 }
@@ -116,7 +116,7 @@ void QualityTester::performTests(void)
 
     bei->runQTests();
 
-    if (reportThreshold.size() != 0)
+    if (!reportThreshold.empty())
     {
       std::map< std::string, std::vector<std::string> > theAlarms
 	= qtHandler->checkDetailedQTStatus(bei);
