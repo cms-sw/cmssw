@@ -193,7 +193,7 @@ class TEcnaWrite : public TObject {
   void RegisterFileParameters(const TString&, const Int_t&, const Int_t&, const Int_t&,
 			      const Int_t&,  const Int_t&, const Int_t&);
   
-  ClassDef(TEcnaWrite,1)// Writing in file (.ascii, .root) methods for CNA (Correlated Noises Analysis)
+  ClassDefOverride(TEcnaWrite,1)// Writing in file (.ascii, .root) methods for CNA (Correlated Noises Analysis)
     };
     
 #endif   //    ZTR_TEcnaParameter

@@ -62,7 +62,7 @@ public:
   Bool_t ReadElement(Int_t);
   Bool_t ReadElement(CnaResultTyp,Int_t);
   Int_t  ReadElementNextEntryNumber(CnaResultTyp,Int_t);
-  ClassDef(TEcnaRootFile,1)  //Root file of CNA
+  ClassDefOverride(TEcnaRootFile,1)  //Root file of CNA
 };
 
 R__EXTERN TEcnaRootFile *gCnaRootFile;
