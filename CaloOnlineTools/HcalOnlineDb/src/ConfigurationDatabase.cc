@@ -2,7 +2,7 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabase.hh"
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationItemNotFoundException.hh"
 #include "CaloOnlineTools/HcalOnlineDb/interface/PluginManager.hh"
-#include <ctype.h>
+#include <cctype>
 
 #ifdef HAVE_XDAQ
 #include <toolbox/string.h>
@@ -13,7 +13,7 @@
 namespace hcal {
 
   ConfigurationDatabase::ConfigurationDatabase(log4cplus::Logger logger) : m_logger(logger) {
-    m_implementation=0;
+    m_implementation=nullptr;
   }
 
   void ConfigurationDatabase::open(const std::string& accessor) noexcept(false) {
@@ -28,8 +28,8 @@ namespace hcal {
     std::string user, host, method, db, port,password;
     ConfigurationDatabaseImpl::parseAccessor(accessor,method,host,port,user,db,params);
 
-    if (m_implementation==0 || !m_implementation->canHandleMethod(method)) {
-      m_implementation=0;
+    if (m_implementation==nullptr || !m_implementation->canHandleMethod(method)) {
+      m_implementation=nullptr;
       std::vector<ConfigurationDatabaseImpl*>::iterator j;
       for (j=m_implementationOptions.begin(); j!=m_implementationOptions.end(); j++)
         if ((*j)->canHandleMethod(method)) {
@@ -38,7 +38,7 @@ namespace hcal {
         }
     }
 
-    if (m_implementation==0)
+    if (m_implementation==nullptr)
       XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,toolbox::toString("Unable to open database using '%s'",accessor.c_str()));
     m_implementation->setLogger(m_logger);
     m_implementation->connect(accessor);
@@ -46,11 +46,11 @@ namespace hcal {
   }
 
   void ConfigurationDatabase::close() {
-    if (m_implementation!=0) m_implementation->disconnect();
+    if (m_implementation!=nullptr) m_implementation->disconnect();
   }
 
   unsigned int ConfigurationDatabase::getFirmwareChecksum(const std::string& board, unsigned int version) noexcept(false) {
-    if (m_implementation==0) {
+    if (m_implementation==nullptr) {
       XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Database connection not open");
     }
 
@@ -58,7 +58,7 @@ namespace hcal {
   }
 
   ConfigurationDatabase::ApplicationConfig ConfigurationDatabase::getApplicationConfig(const std::string& tag, const std::string& classname, int instance) noexcept(false) {
-    if (m_implementation==0) {
+    if (m_implementation==nullptr) {
       XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Database connection not open");
     }
     return m_implementation->getApplicationConfig(tag,classname,instance);
@@ -67,14 +67,14 @@ namespace hcal {
 
 
   std::string ConfigurationDatabase::getConfigurationDocument(const std::string& tag) noexcept(false) {
-    if (m_implementation==0) {
+    if (m_implementation==nullptr) {
       XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Database connection not open");
     }
     return m_implementation->getConfigurationDocument(tag);
   }
 
   void ConfigurationDatabase::getFirmwareMCS(const std::string& board, unsigned int version, std::vector<std::string>& mcsLines) noexcept(false) {
-    if (m_implementation==0) {
+    if (m_implementation==nullptr) {
       XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Database connection not open");
     }
 
@@ -84,7 +84,7 @@ namespace hcal {
 
   void ConfigurationDatabase::getLUTs(const std::string& tag, int crate, int slot, std::map<LUTId, LUT >& LUTs) noexcept(false) {
 
-    if (m_implementation==0) {
+    if (m_implementation==nullptr) {
       XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Database connection not open");
     }
 
@@ -92,7 +92,7 @@ namespace hcal {
 
     m_implementation->getLUTs(tag, crate, slot, LUTs);
 
-    if (LUTs.size()==0) {
+    if (LUTs.empty()) {
       XCEPT_RAISE(hcal::exception::ConfigurationItemNotFoundException,toolbox::toString("Not enough found (%d)",LUTs.size()));
     }
   }
@@ -100,7 +100,7 @@ namespace hcal {
   void ConfigurationDatabase::getLUTChecksums(const std::string& tag, std::map<LUTId, MD5Fingerprint>& checksums) noexcept(false) {
     checksums.clear();
 
-    if (m_implementation==0) {
+    if (m_implementation==nullptr) {
       XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Database connection not open");
     }
 
@@ -109,13 +109,13 @@ namespace hcal {
 
   void ConfigurationDatabase::getPatterns(const std::string& tag, int crate, int slot, std::map<PatternId, HTRPattern>& patterns) noexcept(false) {
 
-    if (m_implementation==0) {
+    if (m_implementation==nullptr) {
       XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Database connection not open");
     }
 
     m_implementation->getPatterns(tag,crate,slot,patterns);
 
-    if (patterns.size()==0) {
+    if (patterns.empty()) {
       XCEPT_RAISE(hcal::exception::ConfigurationItemNotFoundException,toolbox::toString("Not found '$s',%d,%d",tag.c_str(),crate,slot));
     }
   }
@@ -127,7 +127,7 @@ namespace hcal {
 					 std::map<RBXdatumId, RBXdatum>& RBXdata)
     noexcept(false) {
 
-    if (m_implementation==0) {
+    if (m_implementation==nullptr) {
       XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Database connection not open");
     }
 
@@ -139,7 +139,7 @@ namespace hcal {
 					     std::map<RBXdatumId, RBXpattern>& patterns)
     noexcept(false) {
 
-    if (m_implementation==0) {
+    if (m_implementation==nullptr) {
       XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Database connection not open");
     }
 
@@ -149,7 +149,7 @@ namespace hcal {
   void ConfigurationDatabase::getZSThresholds(const std::string& tag, int crate, int slot, std::map<ZSChannelId, int>& thresholds)
     noexcept(false) {
 
-    if (m_implementation==0) {
+    if (m_implementation==nullptr) {
       XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Database connection not open");
     }
 
@@ -159,7 +159,7 @@ namespace hcal {
   void ConfigurationDatabase::getHLXMasks(const std::string& tag, int crate, int slot, std::map<FPGAId, HLXMasks>& m)
     noexcept(false) {
 
-    if (m_implementation==0) {
+    if (m_implementation==nullptr) {
       XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Database connection not open");
     }
 

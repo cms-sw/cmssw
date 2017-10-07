@@ -52,11 +52,11 @@
 class HcalLutAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
    public:
       explicit HcalLutAnalyzer(const edm::ParameterSet&);
-      ~HcalLutAnalyzer(){};
+      ~HcalLutAnalyzer() override{};
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
 
       std::string inputDir;
       std::string plotsDir;
