@@ -64,7 +64,7 @@ void V0Validator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&,
 
   ibooker.cd();
   std::string subDirName = V0Validator::dirName + "/K0";
-  ibooker.setCurrentFolder(subDirName.c_str());
+  ibooker.setCurrentFolder(subDirName);
 
   candidateEffVsR_num_[V0Validator::KSHORT] = ibooker.book1D(
       "K0sEffVsR_num", "K^{0}_{S} Efficiency vs #rho", 80, 0., 40.);
@@ -128,7 +128,7 @@ void V0Validator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&,
   // Lambda Plots follow
 
   subDirName = V0Validator::dirName + "/Lambda";
-  ibooker.setCurrentFolder(subDirName.c_str());
+  ibooker.setCurrentFolder(subDirName);
 
   candidateEffVsR_num_[V0Validator::LAMBDA] = ibooker.book1D(
       "LamEffVsR_num", "#Lambda^{0} Efficiency vs #rho", 80, 0., 40.);
@@ -210,7 +210,7 @@ void V0Validator::doFakeRates(
   float CandidateR = 0.;
   int CandidateStatus = 0;
   const unsigned int NUM_DAUGHTERS = 2;
-  if (collection.size() > 0) {
+  if (!collection.empty()) {
     for (reco::VertexCompositeCandidateCollection::const_iterator iCandidate =
              collection.begin();
          iCandidate != collection.end(); iCandidate++) {
@@ -243,7 +243,7 @@ void V0Validator::doFakeRates(
         if (recotosimCollection.find(track) != recotosimCollection.end()) {
           const std::vector<std::pair<TrackingParticleRef, double> >& tp =
               recotosimCollection[track];
-          if (tp.size() != 0) {
+          if (!tp.empty()) {
             tpref = tp.begin()->first;
 
             TrackingVertexRef parentVertex = tpref->parentVertex();
@@ -337,7 +337,7 @@ void V0Validator::doEfficiencies(
    * indeed does not matter that much. */
 
   std::set<V0Couple> reconstructed_V0_couples;
-  if (collection.size() > 0) {
+  if (!collection.empty()) {
     for (reco::VertexCompositeCandidateCollection::const_iterator iCandidate =
              collection.begin();
          iCandidate != collection.end(); iCandidate++) {
@@ -395,8 +395,7 @@ void V0Validator::doEfficiencies(
               if (simtorecoCollection.find(
                       gen_vertex.daughterTracks()[daughter]) !=
                   simtorecoCollection.end()) {
-                if (simtorecoCollection[gen_vertex.daughterTracks()[daughter]]
-                        .size() != 0) {
+                if (!simtorecoCollection[gen_vertex.daughterTracks()[daughter]].empty()) {
                   candidateEff[daughter] = 1;  // Found a daughter track
                   reco_daughter[daughter] =
                       simtorecoCollection[gen_vertex.daughterTracks()[daughter]]

@@ -21,10 +21,10 @@
 class EcalTBValidation : public DQMEDAnalyzer {
  public:
   explicit EcalTBValidation( const edm::ParameterSet& );
-  ~EcalTBValidation();
+  ~EcalTBValidation() override;
   
   void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
-  virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
   
  private:
 

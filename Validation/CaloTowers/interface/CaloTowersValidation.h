@@ -33,9 +33,9 @@
 class CaloTowersValidation : public DQMEDAnalyzer {
  public:
    CaloTowersValidation(edm::ParameterSet const& conf);
-  ~CaloTowersValidation();
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& c) override;
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  ~CaloTowersValidation() override;
+  void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
  private:
   double dR(double eta1, double phi1, double eta2, double phi2);

@@ -43,12 +43,12 @@
 class NoiseRates : public DQMEDAnalyzer {
  public:
   explicit NoiseRates(const edm::ParameterSet&);
-  ~NoiseRates();
+  ~NoiseRates() override;
  
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &); 
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override; 
   
  private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   std::string outputFile_;
 

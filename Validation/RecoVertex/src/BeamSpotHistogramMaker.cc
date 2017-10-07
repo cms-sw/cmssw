@@ -10,10 +10,10 @@
 
 
 BeamSpotHistogramMaker::BeamSpotHistogramMaker(edm::ConsumesCollector&& iC):
-  _currdir(0), _histoParameters(), _rhm(iC) { }
+  _currdir(nullptr), _histoParameters(), _rhm(iC) { }
 
 BeamSpotHistogramMaker::BeamSpotHistogramMaker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC):
-  _currdir(0),
+  _currdir(nullptr),
   _histoParameters(iConfig.getUntrackedParameter<edm::ParameterSet>("histoParameters",edm::ParameterSet())),
   _rhm(iC)
 { }
@@ -83,7 +83,7 @@ void BeamSpotHistogramMaker::beginRun(const unsigned int nrun) {
   sprintf(runname,"run_%d",nrun);
 
   TFileDirectory* currdir = _currdir;
-  if(currdir==0) {
+  if(currdir==nullptr) {
     edm::Service<TFileService> tfserv;
     currdir = &(tfserv->tFileDirectory());
   }

@@ -49,18 +49,18 @@ public:
 EcalSimHitsValidation(const edm::ParameterSet& ps);
 
 /// Destructor
-~EcalSimHitsValidation();
+~EcalSimHitsValidation() override;
 
 protected:
 
 /// Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c);
+void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 // BeginJob
-void beginJob();
+void beginJob() override;
 
 // EndJob
-void endJob(void);
+void endJob(void) override;
 
 private:
 

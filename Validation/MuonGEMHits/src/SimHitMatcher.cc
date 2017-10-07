@@ -96,8 +96,8 @@ SimHitMatcher::getIdsOfSimTrackShower(unsigned int initial_trk_id,
   for (auto& t: sim_tracks)
   {
     SimTrack last_trk = t;
-    bool is_child = 0;
-    while (1)
+    bool is_child = false;
+    while (true)
     {
       if ( last_trk.noVertex() ) break;
       if ( sim_vertices[last_trk.vertIndex()].noParent() ) break;
@@ -105,7 +105,7 @@ SimHitMatcher::getIdsOfSimTrackShower(unsigned int initial_trk_id,
       unsigned parentId = sim_vertices[last_trk.vertIndex()].parentIndex();
       if ( parentId == initial_trk_id )
       {
-        is_child = 1;
+        is_child = true;
         break;
       }
       

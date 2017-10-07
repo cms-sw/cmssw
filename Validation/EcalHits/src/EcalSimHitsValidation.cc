@@ -28,7 +28,7 @@ EcalSimHitsValidation::EcalSimHitsValidation(const edm::ParameterSet& ps):
   // DQM ROOT output
   outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "");
  
-  if ( outputFile_.size() != 0 ) {
+  if ( !outputFile_.empty() ) {
     edm::LogInfo("OutputInfo") << " Ecal SimHits Task histograms will be saved to " << outputFile_.c_str();
   } else {
     edm::LogInfo("OutputInfo") << " Ecal SimHits Task histograms will NOT be saved";
@@ -38,7 +38,7 @@ EcalSimHitsValidation::EcalSimHitsValidation(const edm::ParameterSet& ps):
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
  
   // DQMServices                                                        
-  dbe_ = 0;
+  dbe_ = nullptr;
 
   // get hold of back-end interface
   dbe_ = edm::Service<DQMStore>().operator->();           
@@ -51,12 +51,12 @@ EcalSimHitsValidation::EcalSimHitsValidation(const edm::ParameterSet& ps):
     if ( verbose_ ) dbe_->showDirStructure();
   }
  
-  meGunEnergy_ = 0;
-  meGunEta_    = 0;   
-  meGunPhi_    = 0;   
-  meEBEnergyFraction_  = 0;
-  meEEEnergyFraction_  = 0;
-  meESEnergyFraction_  = 0;
+  meGunEnergy_ = nullptr;
+  meGunEta_    = nullptr;   
+  meGunPhi_    = nullptr;   
+  meEBEnergyFraction_  = nullptr;
+  meEEEnergyFraction_  = nullptr;
+  meESEnergyFraction_  = nullptr;
 
   Char_t histo[200];
  
@@ -87,7 +87,7 @@ EcalSimHitsValidation::EcalSimHitsValidation(const edm::ParameterSet& ps):
 
 EcalSimHitsValidation::~EcalSimHitsValidation(){
  
-  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
+  if ( !outputFile_.empty() && dbe_ ) dbe_->save(outputFile_);
 
 }
 

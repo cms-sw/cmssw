@@ -132,7 +132,7 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
   int    idOld   = id;
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   std::string         name  = touch->GetVolume(0)->GetName();
-  std::string         matName = material->GetName();
+  const std::string&         matName = material->GetName();
   if (printSum) {
     bool found = false;
     for (unsigned int ii=0; ii<matList.size(); ii++) {

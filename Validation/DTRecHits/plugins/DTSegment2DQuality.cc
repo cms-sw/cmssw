@@ -58,7 +58,7 @@ void DTSegment2DQuality::beginRun(const edm::Run& iRun, const edm::EventSetup &s
 
   // ----------------------                 
   // get hold of back-end interface 
-  dbe_ = 0;
+  dbe_ = nullptr;
   dbe_ = Service<DQMStore>().operator->();
   if ( dbe_ ) {
     if (debug) {
@@ -214,7 +214,7 @@ void DTSegment2DQuality::analyze(const Event & event, const EventSetup& eventSet
       // RecHits must have delta alpha and delta position within 5 sigma of
       // the residual distribution (we are looking for residuals of segments
       // usefull to the track fit) for efficency purpose
-      const DTRecSegment2D* bestRecHit = 0;
+      const DTRecSegment2D* bestRecHit = nullptr;
       bool bestRecHitFound = false;
       double deltaAlpha = 99999;
   
@@ -260,7 +260,7 @@ void DTSegment2DQuality::analyze(const Event & event, const EventSetup& eventSet
 	}
 
 	// Fill Residual histos
-	HRes2DHit *hRes = 0;
+	HRes2DHit *hRes = nullptr;
 	if((*slId).superlayer() == 1 || (*slId).superlayer() == 3) { //RPhi SL
 	  hRes = h2DHitRPhi;
 	} else if((*slId).superlayer() == 2) { //RZ SL
@@ -293,7 +293,7 @@ void DTSegment2DQuality::analyze(const Event & event, const EventSetup& eventSet
     } //end of if(nsegm!=0)
 
       // Fill Efficiency plot
-    HEff2DHit *hEff = 0;
+    HEff2DHit *hEff = nullptr;
     if((*slId).superlayer() == 1 || (*slId).superlayer() == 3) { //RPhi SL
       hEff = h2DHitEff_RPhi;
     } else if((*slId).superlayer() == 2) { //RZ SL

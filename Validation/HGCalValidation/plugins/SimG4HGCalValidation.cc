@@ -59,9 +59,9 @@ class SimG4HGCalValidation : public SimProducer,
 
 public:
   SimG4HGCalValidation(const edm::ParameterSet &p);
-  virtual ~SimG4HGCalValidation();
+  ~SimG4HGCalValidation() override;
 
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
   SimG4HGCalValidation(const SimG4HGCalValidation&); // stop default
@@ -70,9 +70,9 @@ private:
   void  init();
 
   // observer classes
-  void update(const BeginOfJob * job);
-  void update(const BeginOfEvent * evt);
-  void update(const G4Step * step);
+  void update(const BeginOfJob * job) override;
+  void update(const BeginOfEvent * evt) override;
+  void update(const G4Step * step) override;
 
   // analysis related class
   void layerAnalysis(PHGCalValidInfo&);
@@ -99,7 +99,7 @@ private:
 };
 
 SimG4HGCalValidation::SimG4HGCalValidation(const edm::ParameterSet &p): 
-  numberingFromDDD_(0), count_(0) {
+  numberingFromDDD_(nullptr), count_(0) {
 
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("SimG4HGCalValidation");
   names_        = m_Anal.getParameter<std::vector<std::string> >("Names");
@@ -212,13 +212,13 @@ void SimG4HGCalValidation::update(const BeginOfEvent * evt) {
 //=================================================================== each STEP
 void SimG4HGCalValidation::update(const G4Step * aStep) {
 
-  if (aStep != NULL) {
+  if (aStep != nullptr) {
     G4VPhysicalVolume* curPV  = aStep->GetPreStepPoint()->GetPhysicalVolume();
     G4VSensitiveDetector* curSD = aStep->GetPreStepPoint()->GetSensitiveDetector();
 
     // Only for Sensitive detector
-    if (curSD != 0) {
-      G4String name = curPV->GetName();
+    if (curSD != nullptr) {
+      const G4String& name = curPV->GetName();
       int type(-1);
       for (unsigned int k=0; k<names_.size(); ++k) {
 	if (name.find(names_[k].c_str()) != std::string::npos) {
@@ -281,7 +281,7 @@ void SimG4HGCalValidation::update(const G4Step * aStep) {
 	  if (layer < (int)(hgcHEBedep_.size())) hgcHEBedep_[layer] += edeposit;
 	}
 	G4String nextVolume("XXX");
-	if (aStep->GetTrack()->GetNextVolume()!=0)
+	if (aStep->GetTrack()->GetNextVolume()!=nullptr)
 	  nextVolume = aStep->GetTrack()->GetNextVolume()->GetName();
 
 	if (nextVolume.c_str()!=name.c_str()) { //save hit when it exits cell

@@ -36,19 +36,19 @@ public:
   DTSegment2DSLPhiQuality(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~DTSegment2DSLPhiQuality();
+  ~DTSegment2DSLPhiQuality() override;
 
   // Operations
 
   /// Perform the real analysis
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
 
-  virtual void beginRun(const edm::Run& iRun, const edm::EventSetup &setup);
+  void beginRun(const edm::Run& iRun, const edm::EventSetup &setup) override;
 
   // Write the histos to file
-  void endJob();
+  void endJob() override;
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-					   edm::EventSetup const& c);
+					   edm::EventSetup const& c) override;
 
 
 protected:

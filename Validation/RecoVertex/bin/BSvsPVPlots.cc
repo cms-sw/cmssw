@@ -396,7 +396,7 @@ void BSvsPVPlots(const char* fullname,const char* module, const char* label, con
   gStyle->SetOptStat(1111);
   gStyle->SetOptFit(0);
 
-  if(runs.size()) {
+  if(!runs.empty()) {
     std::string plotfilename;
     
     plotfilename = outtrunk;

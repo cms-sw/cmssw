@@ -221,7 +221,7 @@ void BasicHepMCValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
       double charge = 999.;	// for the charge it's needed a HepPDT method
       int status = ptcl->status();
       const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(Id));
-      if(PData==0) {
+      if(PData==nullptr) {
         //	    std::cout << "Unknown id = " << Id << '\n';
 	    ++unknownPDTNum;
       }

@@ -11,7 +11,7 @@ class ME0DigisValidation : public ME0BaseValidation
 {
 public:
     explicit ME0DigisValidation( const edm::ParameterSet& );
-    ~ME0DigisValidation();
+    ~ME0DigisValidation() override;
     void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
     void analyze(const edm::Event& e, const edm::EventSetup&) override;
     bool isMatched(const int, const int, const int, const int, const int, const int);

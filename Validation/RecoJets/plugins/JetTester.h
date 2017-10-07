@@ -44,10 +44,10 @@ class JetTester : public DQMEDAnalyzer {
  public:
 
   JetTester (const edm::ParameterSet&);
-  ~JetTester();
+  ~JetTester() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
  private:
   

@@ -19,19 +19,19 @@
 #include "DataFormats/GeometryVector/interface/Pi.h"
 #include <iostream>
 #include <vector>
-#include <math.h>
+#include <cmath>
 
 
 class HTrackVariables{
 public:
   
-  HTrackVariables(DQMStore::IBooker &ibooker,std::string dirName_, std::string name,std::string whereIs =""):theName(name.c_str()),where(whereIs.c_str()){
+  HTrackVariables(DQMStore::IBooker &ibooker,std::string dirName_, std::string name,std::string whereIs =""):theName(name),where(whereIs){
     ibooker.cd();
-    std::string dirName=dirName_;
+    const std::string& dirName=dirName_;
     //dirName+="/";
     //dirName+=name.c_str();
     
-    ibooker.setCurrentFolder(dirName.c_str());
+    ibooker.setCurrentFolder(dirName);
     
     hEta = ibooker.book1D(theName+"_Eta_"+where,"#eta at "+where,120,-3.,3.);
     hPhi = ibooker.book1D(theName+"_Phi_"+where,"#phi at "+where,100,-Geom::pi(),Geom::pi());
@@ -159,14 +159,14 @@ public:
 class HResolution {
 public:
   
-  HResolution(DQMStore::IBooker &ibooker, std::string dirName_,std::string name,std::string whereIs):theName(name.c_str()),where(whereIs.c_str()){
+  HResolution(DQMStore::IBooker &ibooker, std::string dirName_,std::string name,std::string whereIs):theName(name),where(whereIs){
     
     ibooker.cd();
-    std::string dirName=dirName_;
+    const std::string& dirName=dirName_;
     //dirName+="/";
     //dirName+=name.c_str();
     
-    ibooker.setCurrentFolder(dirName.c_str());
+    ibooker.setCurrentFolder(dirName);
     
     double eta = 15.; int neta = 800;
     double phi = 12.; int nphi = 400;
@@ -197,7 +197,7 @@ public:
     h2PhiVsEta = ibooker.book2D(theName+"_Phi_vs_Eta"+where,"#phi "+theName+" as a function of #eta",200,-2.5,2.5,nphi,-phi,phi);
   }
   
-    HResolution(DQMStore::IBooker &ibooker, std::string name, TFile* file):theName(name.c_str()){ 
+    HResolution(DQMStore::IBooker &ibooker, std::string name, TFile* file):theName(name){ 
     //    dynamic_cast<TH1F*>( file->Get(theName+"") );
   }
   
@@ -289,7 +289,7 @@ private:
 
 class HResolution1DRecHit{
  public:
-  HResolution1DRecHit(DQMStore::IBooker &ibooker, std::string name):theName(name.c_str()){
+  HResolution1DRecHit(DQMStore::IBooker &ibooker, std::string name):theName(name){
 
     // Position, sigma, residual, pull
     hResX        = ibooker.book1D (theName+"_X_Res", "X residual", 5000, -0.5,0.5);

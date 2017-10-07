@@ -32,14 +32,14 @@ class HcalSimHitStudy: public DQMEDAnalyzer {
 public:
 
   HcalSimHitStudy(const edm::ParameterSet& ps);
-  ~HcalSimHitStudy();
+  ~HcalSimHitStudy() override;
 
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const & , edm::EventSetup const & );
+  void bookHistograms(DQMStore::IBooker &, edm::Run const & , edm::EventSetup const & ) override;
 
 protected:
 
   //void endJob   ();
-  void analyze  (const edm::Event& e, const edm::EventSetup& c);
+  void analyze  (const edm::Event& e, const edm::EventSetup& c) override;
 
   void analyzeHits  (std::vector<PCaloHit> &);
 

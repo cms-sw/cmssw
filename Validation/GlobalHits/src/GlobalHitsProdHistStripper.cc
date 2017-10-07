@@ -39,7 +39,7 @@ GlobalHitsProdHistStripper::GlobalHitsProdHistStripper(const
   verbosity %= 10;
 
   // get dqm info
-  dbe = 0;
+  dbe = nullptr;
   dbe = edm::Service<DQMStore>().operator->();
   if (dbe) {
     if (verbosity > 0 ) {
@@ -74,7 +74,7 @@ GlobalHitsProdHistStripper::GlobalHitsProdHistStripper(const
 GlobalHitsProdHistStripper::~GlobalHitsProdHistStripper() 
 {
   if (doOutput)
-    if (outputfile.size() != 0 && dbe) dbe->save(outputfile);
+    if (!outputfile.empty() && dbe) dbe->save(outputfile);
 }
 
 void GlobalHitsProdHistStripper::beginJob( void )
@@ -164,7 +164,7 @@ void GlobalHitsProdHistStripper::endRun(const edm::Run& iRun,
       continue;      
     }
 
-    me[i] = 0;
+    me[i] = nullptr;
 
     /*
     std::cout << "Extracting histogram: " << std::endl

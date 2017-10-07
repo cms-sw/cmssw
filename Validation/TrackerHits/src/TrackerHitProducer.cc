@@ -31,7 +31,7 @@
 
 #include <cmath>
 #include <memory>
-#include <stdlib.h>
+#include <cstdlib>
 
 TrackerHitProducer::TrackerHitProducer(const edm::ParameterSet& iPSet)
   : getAllProvenances( iPSet.getParameter<edm::ParameterSet>( "ProvenanceLookup" ).getUntrackedParameter<bool>( "GetAllProvenances", false ) )

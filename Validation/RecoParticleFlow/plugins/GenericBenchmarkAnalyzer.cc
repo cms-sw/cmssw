@@ -56,7 +56,7 @@ GenericBenchmarkAnalyzer::GenericBenchmarkAnalyzer(const edm::ParameterSet& iCon
   maxDeltaPhi_                  = iConfig.getParameter<double>("maxDeltaPhi");
   doMetPlots_                   = iConfig.getParameter<bool>("doMetPlots");
 
-  if (outputFile_.size() > 0)
+  if (!outputFile_.empty())
     edm::LogInfo("OutputInfo") << " ParticleFLow Task histograms will be saved to '" << outputFile_.c_str()<< "'";
   else edm::LogInfo("OutputInfo") << " ParticleFlow Task histograms will NOT be saved";
 
@@ -79,7 +79,7 @@ GenericBenchmarkAnalyzer::beginJob()
     //string path = "PFTask/Benchmarks/" + benchmarkLabel_ + "/";
     std::string path = "ParticleFlow/" + benchmarkLabel_ + "/" ;
     if (plotAgainstRecoQuantities_) path += "Reco"; else path += "Gen";
-    dbe_->setCurrentFolder(path.c_str());
+    dbe_->setCurrentFolder(path);
     setup(dbe_, plotAgainstRecoQuantities_, minDeltaEt_, maxDeltaEt_, minDeltaPhi_, maxDeltaPhi_, doMetPlots_);
 
   }
@@ -150,6 +150,6 @@ void GenericBenchmarkAnalyzer::endJob()
 {
 
   // Store the DAQ Histograms
-  if (outputFile_.size() != 0)
+  if (!outputFile_.empty())
     dbe_->save(outputFile_);
 }

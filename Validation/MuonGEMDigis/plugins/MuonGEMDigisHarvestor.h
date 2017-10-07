@@ -24,9 +24,9 @@ public:
   /// constructor
   explicit MuonGEMDigisHarvestor(const edm::ParameterSet&);
   /// destructor
-  virtual ~MuonGEMDigisHarvestor();
+  ~MuonGEMDigisHarvestor() override;
 
-  virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
   void ProcessBooking( DQMStore::IBooker& , DQMStore::IGetter&, const char* label, TString suffix, TH1F* track_hist, TH1F* sh_hist );
   TProfile* ComputeEff(TH1F* num, TH1F* denum );
 

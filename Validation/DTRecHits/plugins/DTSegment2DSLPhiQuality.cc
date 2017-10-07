@@ -61,7 +61,7 @@ DTSegment2DSLPhiQuality::DTSegment2DSLPhiQuality(const ParameterSet& pset)  {
 void DTSegment2DSLPhiQuality::beginRun(const edm::Run& iRun, const edm::EventSetup &setup) {
 
   // get hold of back-end interface 
-  dbe_ = 0;
+  dbe_ = nullptr;
   dbe_ = Service<DQMStore>().operator->();
   if ( dbe_ ) {
     if (debug) {
@@ -195,7 +195,7 @@ void DTSegment2DSLPhiQuality::analyze(const Event & event, const EventSetup& eve
       // RecHits must have delta alpha and delta position within 5 sigma of
       // the residual distribution (we are looking for residuals of segments
       // usefull to the track fit) for efficency purpose
-      const DTRecSegment2D* bestRecHit = 0;
+      const DTRecSegment2D* bestRecHit = nullptr;
       bool bestRecHitFound = false;
       double deltaAlpha = 99999;
 

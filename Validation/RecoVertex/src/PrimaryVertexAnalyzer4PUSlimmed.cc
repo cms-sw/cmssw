@@ -634,7 +634,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillRecoAssociatedGenVertexHistograms(
   if (v.closest_vertex_distance_z > 0.)
     mes_[label]["GenAllAssoc2Reco_ClosestDistanceZ"]
         ->Fill(v.closest_vertex_distance_z);
-  if (v.rec_vertices.size()) {
+  if (!v.rec_vertices.empty()) {
     mes_[label]["GenAllAssoc2RecoMatched_X"]->Fill(v.x);
     mes_[label]["GenAllAssoc2RecoMatched_Y"]->Fill(v.y);
     mes_[label]["GenAllAssoc2RecoMatched_Z"]->Fill(v.z);
@@ -688,7 +688,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillGenAssociatedRecoVertexHistograms(
   if (v.closest_vertex_distance_z > 0.)
     mes_[label]["RecoAllAssoc2Gen_ClosestDistanceZ"]
         ->Fill(v.closest_vertex_distance_z);
-  if (v.sim_vertices.size()) {
+  if (!v.sim_vertices.empty()) {
     v.kind_of_vertex |= recoPrimaryVertex::MATCHED;
     mes_[label]["RecoAllAssoc2GenMatched_X"]->Fill(v.x);
     mes_[label]["RecoAllAssoc2GenMatched_Y"]->Fill(v.y);
@@ -978,7 +978,7 @@ PrimaryVertexAnalyzer4PUSlimmed::getSimPVs(
       assert((**iTrack).eventId().bunchCrossing() == 0);
     }
     // TODO(rovere) maybe get rid of this old logic completely ... ?
-    simPrimaryVertex* vp = NULL;  // will become non-NULL if a vertex
+    simPrimaryVertex* vp = nullptr;  // will become non-NULL if a vertex
                                   // is found and then point to it
     for (std::vector<simPrimaryVertex>::iterator v0 = simpv.begin();
          v0 != simpv.end(); v0++) {
@@ -1204,7 +1204,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::matchSim2RecoVertices(
     }
 
     if (verbose_) {
-      if (vsim->rec_vertices.size()) {
+      if (!vsim->rec_vertices.empty()) {
         for (auto const& v : vsim->rec_vertices) {
           std::cout << "Found a matching vertex for genVtx "
                     << vsim->z << " at " << v->z()
@@ -1416,7 +1416,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
           mistag = 0.;
           kind_of_signal_vertex |= (1 << IS_ASSOC2FIRST_RECO);
         } else {
-          if (v.rec_vertices.size()) {
+          if (!v.rec_vertices.empty()) {
             kind_of_signal_vertex |= (1 << IS_ASSOC2ANY_RECO);
           }
         }
@@ -1498,7 +1498,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
         }
       }
 
-      if (v.rec_vertices.size()) num_total_gen_vertices_assoc2reco++;
+      if (!v.rec_vertices.empty()) num_total_gen_vertices_assoc2reco++;
       if (v.rec_vertices.size() > 1) num_total_gen_vertices_multiassoc2reco++;
       // No need to N-tplicate the Gen-related cumulative histograms:
       // fill them only at the first iteration
@@ -1515,7 +1515,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
         ->Fill(simpv.size(), num_total_gen_vertices_multiassoc2reco);
     for (auto & v : recopv) {
       fillGenAssociatedRecoVertexHistograms(label, num_pileup_vertices, v);
-      if (v.sim_vertices.size()) {
+      if (!v.sim_vertices.empty()) {
         num_total_reco_vertices_assoc2gen++;
         if (v.sim_vertices_internal[0]->rec_vertices.size() > 1) {
           num_total_reco_vertices_duplicate++;
