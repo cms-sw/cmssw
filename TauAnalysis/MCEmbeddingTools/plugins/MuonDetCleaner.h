@@ -37,10 +37,10 @@ class MuonDetCleaner : public edm::stream::EDProducer<>
 {
  public:
   explicit MuonDetCleaner(const edm::ParameterSet&);
-  ~MuonDetCleaner();
+  ~MuonDetCleaner() override;
 
  private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   typedef edm::RangeMap<T1, edm::OwnVector<T2> > RecHitCollection;
   void fillVetoHits(const TrackingRecHit& , std::vector<uint32_t>* );
@@ -83,7 +83,7 @@ void MuonDetCleaner<T1,T2>::produce(edm::Event& iEvent, const edm::EventSetup& e
    iEvent.getByToken(mu_input_, muonHandle);
    edm::View<pat::Muon> muons = *muonHandle;
    for (edm::View<pat::Muon>::const_iterator iMuon = muons.begin(); iMuon != muons.end(); ++iMuon) {     
-      const reco::Track* track = 0;
+      const reco::Track* track = nullptr;
       if( iMuon->isGlobalMuon() ) track = iMuon->outerTrack().get();
       else if  ( iMuon->isStandAloneMuon() ) track =   iMuon->outerTrack().get();
       else if  ( iMuon->isRPCMuon() ) track =   iMuon->innerTrack().get(); // To add, try to access the rpc track 
@@ -133,7 +133,7 @@ template <typename T1, typename T2>
 void MuonDetCleaner<T1,T2>::fillVetoHits(const TrackingRecHit& rh, std::vector<uint32_t>* HitsList)
 {
     std::vector<const TrackingRecHit*> rh_components = rh.recHits();
-    if ( rh_components.size() == 0 ) {
+    if ( rh_components.empty() ) {
       HitsList->push_back(rh.rawId());
     } 
     else {

@@ -39,10 +39,10 @@ class TrackMergeremb : public edm::stream::EDProducer<>
 {
  public:
   explicit TrackMergeremb(const edm::ParameterSet&);
-  ~TrackMergeremb();
+  ~TrackMergeremb() override;
 
  private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
   typedef T1 TrackCollectionemb;
   
