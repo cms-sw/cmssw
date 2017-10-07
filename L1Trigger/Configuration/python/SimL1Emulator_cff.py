@@ -54,7 +54,7 @@ SimL1Emulator = cms.Sequence( SimL1EmulatorCore )
 # from L1Trigger.L1TGlobal.hackConditions_cff import *
 
 # 2017 EMTF emulator uses payloads and forests from DB, but not yet in GT
-from L1Trigger.L1TMuonEndCap.fakeEmtfParams_2017_data_cff import *
+from L1Trigger.L1TMuonEndCap.fakeEmtfParams_2017_MC_cff import *
 
 from L1Trigger.L1TGlobal.GlobalParameters_cff import *
 
