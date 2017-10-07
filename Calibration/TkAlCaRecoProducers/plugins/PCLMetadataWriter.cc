@@ -65,7 +65,7 @@ void PCLMetadataWriter::beginRun(const edm::Run& run, const edm::EventSetup& eSe
 
 void PCLMetadataWriter::endRun(const edm::Run& run, const edm::EventSetup& eSetup) {
 
-  const DropBoxMetadata *metadata = 0;
+  const DropBoxMetadata *metadata = nullptr;
 
   if(readFromDB) {
     // Read the objects

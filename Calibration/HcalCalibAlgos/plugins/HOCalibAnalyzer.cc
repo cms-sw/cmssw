@@ -176,7 +176,7 @@ void fcnbg(Int_t &npar, Double_t* gin, Double_t &f, Double_t* par, Int_t flag) {
   double fval = -par[0];
   for (unsigned ij=0; ij<cro_ssg[ietafit][iphifit].size(); ij++) {
     double xval = (double)cro_ssg[ietafit][iphifit][ij];
-    fval +=std::log(std::max(1.e-30,par[0]*TMath::Gaus(xval, par[1], par[2], 1)));
+    fval +=std::log(std::max(1.e-30,par[0]*TMath::Gaus(xval, par[1], par[2], true)));
     //    fval +=std::log(par[0]*TMath::Gaus(xval, par[1], par[2], 1));
   }
   f = -fval;
@@ -218,14 +218,14 @@ void set_sigma(double& x, bool mdigi) {
 class HOCalibAnalyzer : public edm::EDAnalyzer {
    public:
       explicit HOCalibAnalyzer(const edm::ParameterSet&);
-      ~HOCalibAnalyzer();
+      ~HOCalibAnalyzer() override;
 
 
    private:
 
-      virtual void beginJob() override ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       int  getHOieta(int ij) { return  (ij<netamx/2) ? -netamx/2 + ij : -netamx/2 + ij + 1;}
       int  invert_HOieta(int ieta) {return (ieta<0) ? netamx/2 + ieta : netamx/2 + ieta - 1;}
@@ -1025,7 +1025,7 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   if (m_allHOsignal) {
     edm::Handle<HORecHitCollection> hoht;
     iEvent.getByToken(tok_allho_,hoht); 
-    if (hoht.isValid() && (*hoht).size()>0) {
+    if (hoht.isValid() && !(*hoht).empty()) {
       ho_entry->Fill(-1., -1.); //Count of total number of entries
       for (HORecHitCollection::const_iterator ij=(*hoht).begin(); ij!=(*hoht).end(); ij++){
 	HcalDetId id =(*ij).id();
@@ -1054,7 +1054,7 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   } catch ( cms::Exception &iEvent ) { isCosMu = false; } 
   if (Nevents%5000==1) edm::LogInfo("HOCalib") <<"nmuon event # "<<Nevents<<" Run # "<<iEvent.id().run()<<" Evt # "<<iEvent.id().event()<<" "<<ipass;
 
-  if (isCosMu && (*HOCalib).size() >0 ) { 
+  if (isCosMu && !(*HOCalib).empty() ) { 
     nmuon = (*HOCalib).size();
     for (HOCalibVariableCollection::const_iterator hoC=(*HOCalib).begin(); hoC!=(*HOCalib).end(); hoC++){
       //      itrg1 = (*hoC).trig1;
@@ -1718,8 +1718,8 @@ HOCalibAnalyzer::endJob() {
   gStyle->SetPadBottomMargin(0.11);
   gStyle->SetPadLeftMargin(0.12);
   gStyle->SetPadRightMargin(0.15);
-  gStyle->SetPadGridX(3);
-  gStyle->SetPadGridY(3);
+  gStyle->SetPadGridX(true);
+  gStyle->SetPadGridY(true);
   gStyle->SetGridStyle(2);
   gStyle->SetNdivisions(303,"XY");
 
@@ -1789,15 +1789,15 @@ HOCalibAnalyzer::endJob() {
   gStyle->SetOptStat(1110);
 
   const int nsample =8;  
-  TF1*  gx0[nsample]={0};
-  TF1* ped0fun[nsample]={0};
-  TF1* signal[nsample]={0};
-  TF1* pedfun[nsample]={0};
-  TF1* sigfun[nsample]={0};
-  TF1* signalx[nsample]={0};
+  TF1*  gx0[nsample]={nullptr};
+  TF1* ped0fun[nsample]={nullptr};
+  TF1* signal[nsample]={nullptr};
+  TF1* pedfun[nsample]={nullptr};
+  TF1* sigfun[nsample]={nullptr};
+  TF1* signalx[nsample]={nullptr};
   
-  TH1F* signall[nsample]={0};
-  TH1F* pedstll[nsample]={0};
+  TH1F* signall[nsample]={nullptr};
+  TH1F* pedstll[nsample]={nullptr};
 
   if (m_constant) { 
 
@@ -1822,8 +1822,8 @@ HOCalibAnalyzer::endJob() {
     gStyle->SetTitleSize(0.065,"XYZ");
     gStyle->SetLabelSize(0.075,"XYZ");
     gStyle->SetLabelOffset(0.012,"XYZ");
-    gStyle->SetPadGridX(1);
-    gStyle->SetPadGridY(1);
+    gStyle->SetPadGridX(true);
+    gStyle->SetPadGridY(true);
     gStyle->SetGridStyle(3);
     gStyle->SetNdivisions(101,"XY");
     gStyle->SetOptLogy(0);
@@ -2095,8 +2095,8 @@ HOCalibAnalyzer::endJob() {
 		for (int lm=0; lm<nbgpr; lm++) {parall[lm] = gaupr[lm];}
 	      }
 	      
-	      set_mean(parall[1], 0);
-	      set_sigma(parall[2], 0);
+	      set_mean(parall[1], false);
+	      set_sigma(parall[2], false);
 
 	      parall[0] = 0.9*pedht; //GM for Z-mumu, there is almost no pedestal
 	      parall[3] = 0.14;
@@ -2141,8 +2141,8 @@ HOCalibAnalyzer::endJob() {
 		if (sig_reg[ietafit][iphifit][ij] >gaupr[1]-3*gaupr[2] && sig_reg[ietafit][iphifit][ij]<gaupr[1]+gaupr[2]) pedhtx++;
 	      }
 	      
-	      set_mean(gaupr[1], 0);
-	      set_sigma(gaupr[2], 0);
+	      set_mean(gaupr[1], false);
+	      set_sigma(gaupr[2], false);
 
 	      TString name[nsgpr] = {"const", "mean", "sigma","Width","MP","Area","GSigma"};
 	      double strt[nsgpr] = {0.9*pedhtx, gaupr[1], gaupr[2], fitprm[3][jk], fitprm[4][jk], signall[izone]->GetEntries(), fitprm[6][jk]};
@@ -2355,14 +2355,14 @@ HOCalibAnalyzer::endJob() {
 	    c0->Update();   
 
 	    for (int kl=0; kl<nsample; kl++) {
-	      if (gx0[kl]) {delete gx0[kl];gx0[kl] = 0;}
-	      if (ped0fun[kl]) {delete ped0fun[kl];ped0fun[kl] = 0;}
-	      if (signal[kl]) {delete signal[kl];signal[kl] = 0;}
-	      if (pedfun[kl]) {delete pedfun[kl];pedfun[kl] = 0;}
-	      if (sigfun[kl]) {delete sigfun[kl];sigfun[kl] = 0;}
-	      if (signalx[kl]) {delete signalx[kl];signalx[kl] = 0;}
-	      if (signall[kl]) {delete signall[kl];signall[kl] = 0;}
-	      if (pedstll[kl]) {delete pedstll[kl];pedstll[kl] = 0;}
+	      if (gx0[kl]) {delete gx0[kl];gx0[kl] = nullptr;}
+	      if (ped0fun[kl]) {delete ped0fun[kl];ped0fun[kl] = nullptr;}
+	      if (signal[kl]) {delete signal[kl];signal[kl] = nullptr;}
+	      if (pedfun[kl]) {delete pedfun[kl];pedfun[kl] = nullptr;}
+	      if (sigfun[kl]) {delete sigfun[kl];sigfun[kl] = nullptr;}
+	      if (signalx[kl]) {delete signalx[kl];signalx[kl] = nullptr;}
+	      if (signall[kl]) {delete signall[kl];signall[kl] = nullptr;}
+	      if (pedstll[kl]) {delete pedstll[kl];pedstll[kl] = nullptr;}
 	    }
 
 	  }
@@ -2382,14 +2382,14 @@ HOCalibAnalyzer::endJob() {
     if (iiter%nsample!=0) { 
       c0->Update(); 
       for (int kl=0; kl<nsample; kl++) {
-	if (gx0[kl]) {delete gx0[kl];gx0[kl] = 0;}
-	if (ped0fun[kl]) {delete ped0fun[kl];ped0fun[kl] = 0;}
-	if (signal[kl]) {delete signal[kl];signal[kl] = 0;}
-	if (pedfun[kl]) {delete pedfun[kl];pedfun[kl] = 0;}
-	if (sigfun[kl]) {delete sigfun[kl];sigfun[kl] = 0;}
-	if (signalx[kl]) {delete signalx[kl];signalx[kl] = 0;}
-	if (signall[kl]) {delete signall[kl];signall[kl] = 0;}
-	if (pedstll[kl]) {delete pedstll[kl];pedstll[kl] = 0;}
+	if (gx0[kl]) {delete gx0[kl];gx0[kl] = nullptr;}
+	if (ped0fun[kl]) {delete ped0fun[kl];ped0fun[kl] = nullptr;}
+	if (signal[kl]) {delete signal[kl];signal[kl] = nullptr;}
+	if (pedfun[kl]) {delete pedfun[kl];pedfun[kl] = nullptr;}
+	if (sigfun[kl]) {delete sigfun[kl];sigfun[kl] = nullptr;}
+	if (signalx[kl]) {delete signalx[kl];signalx[kl] = nullptr;}
+	if (signall[kl]) {delete signall[kl];signall[kl] = nullptr;}
+	if (pedstll[kl]) {delete pedstll[kl];pedstll[kl] = nullptr;}
       }
     }
 

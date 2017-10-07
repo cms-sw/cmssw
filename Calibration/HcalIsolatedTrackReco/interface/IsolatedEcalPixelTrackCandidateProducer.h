@@ -21,10 +21,10 @@ class IsolatedEcalPixelTrackCandidateProducer : public edm::global::EDProducer<>
 
 public:
   explicit IsolatedEcalPixelTrackCandidateProducer(const edm::ParameterSet&);
-  ~IsolatedEcalPixelTrackCandidateProducer();
+  ~IsolatedEcalPixelTrackCandidateProducer() override;
 
 private:
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   const edm::EDGetTokenT<EcalRecHitCollection> tok_ee;
   const edm::EDGetTokenT<EcalRecHitCollection> tok_eb;

@@ -39,7 +39,7 @@ trivialParser::parse (std::string configFile)
     std::string valuestring (linea,linea.find ('=', 0) + 1,
                              linea.size () - linea.find ('=', 0) - 1) ;
     eraseSpaces (valuestring) ;
-    double value = strtod ( valuestring.c_str (), NULL ) ;
+    double value = strtod ( valuestring.c_str (), nullptr ) ;
     m_config [name] = value ;
   } while (!input.eof () ) ;
 }

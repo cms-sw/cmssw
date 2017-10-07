@@ -39,20 +39,20 @@ class AlCaIsoTracksProducerFilter : public edm::stream::EDFilter<edm::GlobalCach
 public:
   explicit AlCaIsoTracksProducerFilter(edm::ParameterSet const&,
 				       const AlCaIsoTracksProdFilter::Counters* count);
-  ~AlCaIsoTracksProducerFilter();
+  ~AlCaIsoTracksProducerFilter() override;
     
   static std::unique_ptr<AlCaIsoTracksProdFilter::Counters> initializeGlobalCache(edm::ParameterSet const& iConfig) {
     return std::make_unique<AlCaIsoTracksProdFilter::Counters>();
   }
 
-  virtual bool filter(edm::Event&, edm::EventSetup const&) override;
-  virtual void endStream() override;
+  bool filter(edm::Event&, edm::EventSetup const&) override;
+  void endStream() override;
   static  void globalEndJob(const AlCaIsoTracksProdFilter::Counters* counters);
   static  void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 private:
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
   
   // ----------member data ---------------------------
   HLTConfigProvider             hltConfig_;
@@ -96,7 +96,7 @@ bool AlCaIsoTracksProducerFilter::filter(edm::Event& iEvent,
   
   //Find if the event passes one of the chosen triggers
   bool triggerSatisfied(false);
-  if (trigNames_.size() == 0) {
+  if (trigNames_.empty()) {
     triggerSatisfied = true;
   } else {
     edm::Handle<edm::TriggerResults> triggerResults;
@@ -108,7 +108,7 @@ bool AlCaIsoTracksProducerFilter::filter(edm::Event& iEvent,
       for (unsigned int iHLT=0; iHLT<triggerResults->size(); iHLT++) {
 	int hlt    = triggerResults->accept(iHLT);
 	for (unsigned int i=0; i<trigNames_.size(); ++i) {
-	  if (triggerNames_[iHLT].find(trigNames_[i].c_str())!=std::string::npos) {
+	  if (triggerNames_[iHLT].find(trigNames_[i])!=std::string::npos) {
 	    edm::LogInfo("HcalIsoTrack") << triggerNames_[iHLT] 
 					 << " has got HLT flag " << hlt 
 					 << ":" << triggerSatisfied
