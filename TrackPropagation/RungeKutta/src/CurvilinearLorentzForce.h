@@ -16,7 +16,7 @@ public:
 
     CurvilinearLorentzForce( const RKLocalFieldProvider& field) : theField(field) {}
 
-    virtual Vector operator()( Scalar z, const Vector& state) const;
+    Vector operator()( Scalar z, const Vector& state) const override;
 
 private:
 
