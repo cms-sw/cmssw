@@ -28,8 +28,8 @@ DQMScope::~DQMScope(void)
 // -------------------------------------------------------------------
 DQMService::DQMService(const edm::ParameterSet &pset, edm::ActivityRegistry &ar)
   : store_(&*edm::Service<DQMStore>()),
-    net_(0),
-    filter_(0),
+    net_(nullptr),
+    filter_(nullptr),
     lastFlush_(0),
     publishFrequency_(5.0)
 {
@@ -144,7 +144,7 @@ void DQMService::flushStandalone()
           if (me.reference_)
 	    buffer.WriteObject(me.reference_);
           else
-	    buffer.WriteObjectAny(0, 0);
+	    buffer.WriteObjectAny(nullptr, nullptr);
           o.rawdata.resize(buffer.Length());
           memcpy(&o.rawdata[0], buffer.Buffer(), buffer.Length());
           DQMNet::packQualityData(o.qdata, me.data_.qreports);

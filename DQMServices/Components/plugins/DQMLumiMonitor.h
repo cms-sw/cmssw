@@ -31,16 +31,16 @@
 class DQMLumiMonitor : public edm::EDAnalyzer {
 public:
   DQMLumiMonitor( const edm::ParameterSet& );
-  ~DQMLumiMonitor();
+  ~DQMLumiMonitor() override;
 
 protected:
 
-  void beginJob();
-  void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup);
-  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup);
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup);
-  void endRun(edm::Run const& iRun,  edm::EventSetup const& iSetup);
-  void endJob();
+  void beginJob() override;
+  void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
+  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override;
+  void endRun(edm::Run const& iRun,  edm::EventSetup const& iSetup) override;
+  void endJob() override;
 
 private:
 
