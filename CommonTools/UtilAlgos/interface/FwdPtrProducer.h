@@ -32,9 +32,9 @@ namespace edm {
       produces< std::vector< edm::FwdPtr<T> > > ();
     }
 
-    ~FwdPtrProducer() {}
+    ~FwdPtrProducer() override {}
 
-    virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override {
+    void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override {
 
       edm::Handle< edm::View<T> > hSrc;
       iEvent.getByToken( srcToken_, hSrc );

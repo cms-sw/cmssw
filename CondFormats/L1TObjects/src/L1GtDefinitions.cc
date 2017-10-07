@@ -52,7 +52,7 @@ constexpr entry<L1GtBoardType> l1GtBoardTypeStringToEnumMap[] = {
             {"TCS", TCS},
             {"TIM", TIM},
             {"BoardNull", BoardNull},
-            {0, (L1GtBoardType)-1}
+            {nullptr, (L1GtBoardType)-1}
 };
 
 constexpr entry<L1GtPsbQuad> l1GtPsbQuadStringToEnumMap[] = {
@@ -82,7 +82,7 @@ constexpr entry<L1GtPsbQuad> l1GtPsbQuadStringToEnumMap[] = {
         {"BptxQ", BptxQ},
         {"GtExternalQ", GtExternalQ},
         {"PsbQuadNull", PsbQuadNull},
-        {0, (L1GtPsbQuad) - 1}
+        {nullptr, (L1GtPsbQuad) - 1}
 };
 
 // L1GtConditionType
@@ -104,7 +104,7 @@ constexpr entry<L1GtConditionType> l1GtConditionTypeStringToEnumMap[] = {
         {"TypeHfRingEtSums", TypeHfRingEtSums},
         {"TypeBptx", TypeBptx},
         {"TypeExternal", TypeExternal},
-        {0, (L1GtConditionType) - 1}
+        {nullptr, (L1GtConditionType) - 1}
 };
 
 // L1GtConditionCategory
@@ -120,7 +120,7 @@ constexpr entry<L1GtConditionCategory> l1GtConditionCategoryStringToEnumMap[] = 
   {"CondHfRingEtSums", CondHfRingEtSums},
   {"CondBptx", CondBptx},
   {"CondExternal", CondExternal},
-  {0, (L1GtConditionCategory) - 1}
+  {nullptr, (L1GtConditionCategory) - 1}
 };
 
 }

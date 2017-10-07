@@ -141,7 +141,7 @@ namespace reco {
         produces<OutputCollection>();
       }
 	/// destructor
-      virtual ~CandCombiner() { }
+      ~CandCombiner() override { }
 
     private:
       /// process an event

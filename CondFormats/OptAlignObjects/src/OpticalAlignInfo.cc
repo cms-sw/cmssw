@@ -69,7 +69,7 @@ OpticalAlignParam::OpticalAlignParam( const OpticalAlignParam &rhs )
 
 OpticalAlignParam* OpticalAlignInfo::findExtraEntry( std::string& name )
 {
-  OpticalAlignParam* param = 0;
+  OpticalAlignParam* param = nullptr;
   std::vector<OpticalAlignParam>::iterator ite;
   for( ite = extraEntries_.begin(); ite != extraEntries_.end(); ite++ ){
     if( (*ite).name_ == name ){

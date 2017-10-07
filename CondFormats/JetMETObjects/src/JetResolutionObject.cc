@@ -176,7 +176,7 @@ namespace JME {
     }
 
     void JetResolutionObject::Definition::init() {
-        if (m_formula_str.size())
+        if (!m_formula_str.empty())
             m_formula = std::make_shared<TFormula>("jet_resolution_formula", m_formula_str.c_str());
 
         for (const auto& bin: m_bins_name) {
@@ -240,12 +240,12 @@ namespace JME {
         }
 
         for (std::string line; std::getline(f, line); ) {
-            if ((line.size() == 0) || (line[0] == '#'))
+            if ((line.empty()) || (line[0] == '#'))
                 continue;
 
             std::string definition = getDefinitionLine(line);
 
-            if (definition.size() > 0) {
+            if (!definition.empty()) {
                 m_definition = Definition(definition);
             } else {
                 m_records.push_back(Record(line, m_definition));

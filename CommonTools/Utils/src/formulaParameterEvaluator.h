@@ -35,7 +35,7 @@ namespace reco {
       
 
       // ---------- const member functions ---------------------
-      double evaluate(double const* iVariables, double const* iParameters) const override final;
+      double evaluate(double const* iVariables, double const* iParameters) const final;
       
     private:
       ParameterEvaluator(const ParameterEvaluator&) = delete;

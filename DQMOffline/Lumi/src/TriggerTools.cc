@@ -28,7 +28,7 @@ TriggerObjects TriggerTools::matchHLT(const double eta, const double phi,
           trigger::size_type hltf = keys[hlto];
           const trigger::TriggerObject& tobj(toc[hltf]);
           if(reco::deltaR(eta,phi,tobj.eta(),tobj.phi()) < dRMax) {
-            matchBits[filterBit] = 1;
+            matchBits[filterBit] = true;
           }
         }
       }

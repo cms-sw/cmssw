@@ -54,7 +54,7 @@ public:
     L1GtExternalTemplate(const L1GtExternalTemplate&);
 
     // destructor
-    virtual ~L1GtExternalTemplate();
+    ~L1GtExternalTemplate() override;
 
     // assign operator
     L1GtExternalTemplate& operator=(const L1GtExternalTemplate&);
@@ -62,7 +62,7 @@ public:
 public:
 
     /// print the condition
-    virtual void print(std::ostream& myCout) const;
+    void print(std::ostream& myCout) const override;
 
     /// output stream operator
     friend std::ostream& operator<<(std::ostream&, const L1GtExternalTemplate&);

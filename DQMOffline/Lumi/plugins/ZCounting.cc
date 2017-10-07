@@ -193,7 +193,7 @@ void ZCounting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   for(unsigned int irec=0; irec<fTrigger->fRecords.size(); irec++) {
     if(fTrigger->fRecords[irec].hltPathIndex == (unsigned int)-1) continue;
     if(hTrgRes->accept(fTrigger->fRecords[irec].hltPathIndex)) {
-      triggerBits [fTrigger->fRecords[irec].baconTrigBit] = 1;
+      triggerBits [fTrigger->fRecords[irec].baconTrigBit] = true;
     }
   }
   //if(fSkipOnHLTFail && triggerBits == 0) return;

@@ -423,7 +423,7 @@ JetMETHLTOfflineSource::fillMEforTriggerNTfired()
       if(l1found && !(triggerResults_->accept(index)))v.getMEhisto_TriggerSummary()->Fill(6.);
       if(!(triggerResults_->accept(index)) && l1found){ 
 	//cout<<v->getTriggerType()<<endl;
-	if((v.getTriggerType() == "SingleJet_Trigger") && (calojetColl_.isValid()) && calojet.size()){
+	if((v.getTriggerType() == "SingleJet_Trigger") && (calojetColl_.isValid()) && !calojet.empty()){
 	  auto jet = calojet.begin();
 	  v.getMEhisto_JetPt()->Fill(jet->pt());
 	  v.getMEhisto_EtavsPt()->Fill(jet->eta(),jet->pt());
@@ -431,7 +431,7 @@ JetMETHLTOfflineSource::fillMEforTriggerNTfired()
 	}
 	// single jet trigger is not fired
 
-	if((v.getTriggerType() == "DiJet_Trigger") && calojetColl_.isValid()  && calojet.size()){
+	if((v.getTriggerType() == "DiJet_Trigger") && calojetColl_.isValid()  && !calojet.empty()){
 	  v.getMEhisto_JetSize()->Fill(calojet.size());
 	  if (calojet.size()>=2){
 	    auto jet = calojet.begin();
@@ -914,7 +914,7 @@ JetMETHLTOfflineSource::fillMEforEffAllTrigger(const Event & iEvent, const edm::
       //double ljemf    = CaloJetEMF[0];
       double ljfhpd   = CaloJetfHPD[0];
       double ljn90    = CaloJetn90[0];
-      if((v.getTriggerType() == "SingleJet_Trigger") && calojet.size()){ //this line stops the central jets
+      if((v.getTriggerType() == "SingleJet_Trigger") && !calojet.empty()){ //this line stops the central jets
 	if( (ljfhpd < _fHPD) && (ljn90 > _n90Hits )){
 	  if(verbose_) cout<<"Passed CaloJet ID -------------------" << endl;
 	  jetIDbool = true;
@@ -1074,7 +1074,7 @@ JetMETHLTOfflineSource::fillMEforEffAllTrigger(const Event & iEvent, const edm::
       double pfMHTx    = pfMHTx_All;
       double pfMHTy    = pfMHTy_All;
       //
-      if((v.getTriggerType() == "SingleJet_Trigger") && pfjet.size()){ //this line stops the central jets
+      if((v.getTriggerType() == "SingleJet_Trigger") && !pfjet.empty()){ //this line stops the central jets
 	
 	//======get pfmht
 	_pfMHT = sqrt(pfMHTx*pfMHTx + pfMHTy*pfMHTy);
@@ -3055,7 +3055,7 @@ bool JetMETHLTOfflineSource::isTriggerObjectFound(std::string objectName){
     edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< index << " of that name ";
   } else {       
     const trigger::Keys & k = triggerObj_->filterKeys(index);
-    if (k.size()) output=true;
+    if (!k.empty()) output=true;
   }
   return output;
 }
