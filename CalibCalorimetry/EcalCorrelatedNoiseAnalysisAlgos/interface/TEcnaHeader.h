@@ -111,6 +111,6 @@ public:
 
   using TNamed::Print;
   void Print();
-  ClassDef(TEcnaHeader,1)  //Header of CNA ROOT file
+  ClassDefOverride(TEcnaHeader,1)  //Header of CNA ROOT file
 };
 #endif

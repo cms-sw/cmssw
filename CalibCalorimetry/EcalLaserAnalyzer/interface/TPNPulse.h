@@ -40,7 +40,7 @@ class TPNPulse: public TObject
   double getPedestal();
   double* getAdcWithoutPedestal();
   void setPresamples(int);
-  ClassDef(TPNPulse,0)
+  ClassDefOverride(TPNPulse,0)
 };
 
 #endif

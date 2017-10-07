@@ -29,7 +29,7 @@ class TMem: public TObject
   bool isMemRelevant(int);
   int Mem(int, int);
 
-  ClassDef(TMem,0)
+  ClassDefOverride(TMem,0)
 };
 
 #endif

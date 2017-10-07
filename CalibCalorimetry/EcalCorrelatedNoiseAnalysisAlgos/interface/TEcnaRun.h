@@ -669,7 +669,7 @@ class TEcnaRun: public TObject {
                            // concerning initialisations
   void PrintAllComments(); // Set flags to authorize printing of all the comments
 
-ClassDef(TEcnaRun,1) // Calculation of correlated noises from data
+ClassDefOverride(TEcnaRun,1) // Calculation of correlated noises from data
 };  
 
 #endif    //  CL_TEcnaRun_H
