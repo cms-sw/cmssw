@@ -10,7 +10,7 @@
 #include <tuple>
 #include <fstream>
 #include <unistd.h>
-#include <limits.h>
+#include <climits>
 //
 #include <boost/regex.hpp>
 
@@ -21,7 +21,7 @@ namespace cond {
     inline std::string demangledName( const std::type_info& typeInfo ){
       int status = 0;
       std::string ret("");
-      char* realname = abi::__cxa_demangle( typeInfo.name(), 0, 0, &status);
+      char* realname = abi::__cxa_demangle( typeInfo.name(), nullptr, nullptr, &status);
       if( status == 0 && realname ){
 	ret  = realname;
 	free(realname);

@@ -255,7 +255,7 @@ namespace cond {
     }
 
     bool IOVProxy::isEmpty() const {
-      return m_data.get() ? ( m_data->sinceGroups.size()==0 && m_data->iovSequence.size()==0 ) : true; 
+      return m_data.get() ? ( m_data->sinceGroups.empty() && m_data->iovSequence.empty() ) : true; 
     }
     
     void IOVProxy::checkTransaction( const std::string& ctx ) const {
@@ -312,7 +312,7 @@ namespace cond {
     
     // function to search in the vector the target time
     template <typename T> typename std::vector<T>::const_iterator search( const cond::Time_t& val, const std::vector<T>& container ){
-      if( !container.size() ) return container.end();
+      if( container.empty() ) return container.end();
       auto p = std::upper_bound( container.begin(), container.end(), val, IOVComp() );
       return (p!= container.begin()) ? p-1 : container.end();
     }
