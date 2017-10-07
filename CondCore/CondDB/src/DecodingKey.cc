@@ -4,7 +4,7 @@
 #include "CondCore/CondDB/interface/Cipher.h"
 //
 #include <sstream>
-#include <string.h>
+#include <cstring>
 #include <fstream>
 #include <vector>
 #include <pwd.h>
@@ -75,7 +75,7 @@ namespace cond {
 std::string cond::auth::KeyGenerator::make( size_t keySize ){
   ::srand( m_iteration+2 );
   int rseed = ::rand();
-  int seed = ::time( NULL)%10 + rseed;
+  int seed = ::time( nullptr)%10 + rseed;
   ::srand( seed );
   std::string ret("");
   for( size_t i=0;i<keySize; i++ ){
@@ -88,7 +88,7 @@ std::string cond::auth::KeyGenerator::make( size_t keySize ){
 std::string cond::auth::KeyGenerator::makeWithRandomSize( size_t maxSize ){
   ::srand( m_iteration+2 );
   int rseed = ::rand();
-  int seed = ::time( NULL)%10 + rseed;
+  int seed = ::time( nullptr)%10 + rseed;
   ::srand( seed );
   size_t sz = rand()%maxSize;
   return make( sz );

@@ -23,7 +23,7 @@ void ConfigurationDatabaseImplXMLFile::connect(const std::string& accessor) noex
   if (i!=std::string::npos) theFile.erase(0,i+2); // remove up to the ://
   gzFile f=gzopen(theFile.c_str(),"rb");
 
-  if (f==0) {
+  if (f==nullptr) {
     XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Unable to open file "+theFile);
   }
   int c;
@@ -65,7 +65,7 @@ std::string ConfigurationDatabaseImplXMLFile::createKey(const std::map<std::stri
       retval+=":"+params.find("SLB")->second+":" +
 	params.find("SLBCHAN")->second;
   } else if (params.find("BOARD")!=params.end()) { // firmware!
-    int ver=strtol(params.find("VERSION")->second.c_str(),0,0);
+    int ver=strtol(params.find("VERSION")->second.c_str(),nullptr,0);
     retval=params.find("BOARD")->second+":"+
       ::toolbox::toString("%x",ver);
   } else if (params.find("ZS_TYPE")!=params.end()) { // ZS thresholds
@@ -161,7 +161,7 @@ void ConfigurationDatabaseImplXMLFile::getFirmwareMCS(const std::string& board, 
   
   std::map<std::string, std::string> params;
   std::string encoding;
-  m_parser.parse(data.c_str(),params,mcsLines,encoding);
+  m_parser.parse(data,params,mcsLines,encoding);
 
 }
 
@@ -187,7 +187,7 @@ void ConfigurationDatabaseImplXMLFile::getLUTs(const std::string& tag, int crate
 	std::map<std::string, std::string> params;
 	std::vector<std::string> values;
 	std::string encoding;
-	m_parser.parse(data.c_str(),params,values,encoding);
+	m_parser.parse(data,params,values,encoding);
 	
 	hcal::ConfigurationDatabase::LUTId id(crate,slot,(hcal::ConfigurationDatabase::FPGASelection)tb,fiber,fiberChan,(hcal::ConfigurationDatabase::LUTType)lut_type);
 	hcal::ConfigurationDatabase::LUT& lut=LUTs[id];
@@ -199,7 +199,7 @@ void ConfigurationDatabaseImplXMLFile::getLUTs(const std::string& tag, int crate
 	
 	// convert the data
 	for (unsigned int j=0; j<values.size(); j++) 
-	  lut.push_back(strtol(values[j].c_str(),0,strtol_base));
+	  lut.push_back(strtol(values[j].c_str(),nullptr,strtol_base));
       }
   for (int tb=0; tb<=1; tb++) 
     for (int slb=1; slb<=6; slb++) 
@@ -217,7 +217,7 @@ void ConfigurationDatabaseImplXMLFile::getLUTs(const std::string& tag, int crate
 	std::map<std::string, std::string> params;
 	std::vector<std::string> values;
 	std::string encoding;
-	m_parser.parse(data.c_str(),params,values,encoding);
+	m_parser.parse(data,params,values,encoding);
 	
 	hcal::ConfigurationDatabase::LUTId id(crate,slot,(hcal::ConfigurationDatabase::FPGASelection)tb,slb,slbChan,(hcal::ConfigurationDatabase::LUTType)lut_type);
 	hcal::ConfigurationDatabase::LUT& lut=LUTs[id];
@@ -229,7 +229,7 @@ void ConfigurationDatabaseImplXMLFile::getLUTs(const std::string& tag, int crate
 	
 	// convert the data
 	for (unsigned int j=0; j<values.size(); j++) 
-	  lut.push_back(strtol(values[j].c_str(),0,strtol_base));
+	  lut.push_back(strtol(values[j].c_str(),nullptr,strtol_base));
       }
 }
 
@@ -247,7 +247,7 @@ void ConfigurationDatabaseImplXMLFile::getZSThresholds(const std::string& tag, i
     std::map<std::string, std::string> params;
     std::vector<std::string> values;
     std::string encoding;
-    m_parser.parse(data.c_str(),params,values,encoding);
+    m_parser.parse(data,params,values,encoding);
     
     if (values.size()!=24) {
       XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Must have 24 items in ZS list.  Saw %d for %s",values.size(),key.c_str()));
@@ -260,7 +260,7 @@ void ConfigurationDatabaseImplXMLFile::getZSThresholds(const std::string& tag, i
 	if (encoding=="hex") strtol_base=16;
 	else if (encoding=="dec") strtol_base=10;
       
-	thresholds[id]=strtol(values[(fiber-1)*3+fc].c_str(),0,strtol_base);
+	thresholds[id]=strtol(values[(fiber-1)*3+fc].c_str(),nullptr,strtol_base);
       }
   }
 }
@@ -279,7 +279,7 @@ void ConfigurationDatabaseImplXMLFile::getPatterns(const std::string& tag, int c
       std::map<std::string, std::string> params;
       std::vector<std::string> values;
       std::string encoding;
-      m_parser.parse(data.c_str(),params,values,encoding);
+      m_parser.parse(data,params,values,encoding);
       
       hcal::ConfigurationDatabase::PatternId id(crate,slot,(hcal::ConfigurationDatabase::FPGASelection)tb,fiber);
       hcal::ConfigurationDatabase::HTRPattern& lut=patterns[id];
@@ -291,7 +291,7 @@ void ConfigurationDatabaseImplXMLFile::getPatterns(const std::string& tag, int c
       
     // convert the data
     for (unsigned int j=0; j<values.size(); j++) 
-      lut.push_back(strtol(values[j].c_str(),0,strtol_base));
+      lut.push_back(strtol(values[j].c_str(),nullptr,strtol_base));
     }
 }
 

@@ -1,7 +1,7 @@
 #include <fstream>
 #include <sstream>
 #include <sys/time.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -79,13 +79,13 @@ HcalLutManager::HcalLutManager(const HcalDbService* _conditions,
 
 void HcalLutManager::init( void )
 {    
-  lut_xml = 0;
-  lut_checksums_xml = 0;
-  db = 0;
-  lmap = 0;
-  emap = 0;
-  cq   = 0;
-  conditions = 0; 
+  lut_xml = nullptr;
+  lut_checksums_xml = nullptr;
+  db = nullptr;
+  lmap = nullptr;
+  emap = nullptr;
+  cq   = nullptr;
+  conditions = nullptr; 
   status_word_to_mask = 0x0000;
 }
 
@@ -321,7 +321,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLutXmlFromAsciiMast
       if (_set.lut[lut_index].size() == 128) _cfg.lut_type = 1;
       else _cfg.lut_type = 2;
       _cfg.creationtag = _tag;
-      _cfg.creationstamp = get_time_stamp( time(0) );
+      _cfg.creationstamp = get_time_stamp( time(nullptr) );
       _cfg.targetfirmware = "1.0.0";
       _cfg.formatrevision = "1"; //???
       // "original" definition of GENERALIZEDINDEX from Mike Weinberger
@@ -414,7 +414,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXml
 	_cfg.fiberchan = row->fiberchan;
 	_cfg.lut_type = 1;
 	_cfg.creationtag = _tag;
-	_cfg.creationstamp = get_time_stamp( time(0) );
+	_cfg.creationstamp = get_time_stamp( time(nullptr) );
 	_cfg.targetfirmware = "1.0.0";
 	_cfg.formatrevision = "1"; //???
 	// "original" definition of GENERALIZEDINDEX from Mike Weinberger
@@ -516,7 +516,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXml
 	_cfg.fiberchan = aFiberChan;
 	_cfg.lut_type = 1;
 	_cfg.creationtag = _tag;
-	_cfg.creationstamp = get_time_stamp( time(0) );
+	_cfg.creationstamp = get_time_stamp( time(nullptr) );
 	_cfg.targetfirmware = "1.0.0";
 	_cfg.formatrevision = "1"; //???
 	// "original" definition of GENERALIZEDINDEX from Mike Weinberger
@@ -603,7 +603,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
       if (_set.lut[lut_index].size() == 128) _cfg.lut_type = 1;
       else _cfg.lut_type = 2;
       _cfg.creationtag = _tag;
-      _cfg.creationstamp = get_time_stamp( time(0) );
+      _cfg.creationstamp = get_time_stamp( time(nullptr) );
       _cfg.targetfirmware = "1.0.0";
       _cfg.formatrevision = "1"; //???
       // "original" definition of GENERALIZEDINDEX from Mike Weinberger
@@ -674,7 +674,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXml
     _cfg.fiberchan = row->second.fi_ch;
     _cfg.lut_type = 1;
     _cfg.creationtag = _tag;
-    _cfg.creationstamp = get_time_stamp( time(0) );
+    _cfg.creationstamp = get_time_stamp( time(nullptr) );
     _cfg.targetfirmware = "1.0.0";
     _cfg.formatrevision = "1"; //???
     // "original" definition of GENERALIZEDINDEX from Mike Weinberger
@@ -819,7 +819,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXml
       _cfg.fiberchan = row->fiberchan;
       _cfg.lut_type = 1;
       _cfg.creationtag = _tag;
-      _cfg.creationstamp = get_time_stamp( time(0) );
+      _cfg.creationstamp = get_time_stamp( time(nullptr) );
       _cfg.targetfirmware = "1.0.0";
       _cfg.formatrevision = "1"; //???
       // "original" definition of GENERALIZEDINDEX from Mike Weinberger
@@ -911,7 +911,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
 	_cfg.fiberchan = row->fiberchan;
 	_cfg.lut_type = 2;
 	_cfg.creationtag = _tag;
-	_cfg.creationstamp = get_time_stamp( time(0) );
+	_cfg.creationstamp = get_time_stamp( time(nullptr) );
 	_cfg.targetfirmware = "1.0.0";
 	_cfg.formatrevision = "1"; //???
 	_cfg.generalizedindex =_cfg.iphi*10000+ (row->ieta>0)*100+abs(row->ieta); //is this used for anything?
@@ -991,7 +991,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
       _cfg.fiberchan = row->fiberchan;
       _cfg.lut_type = 2;
       _cfg.creationtag = _tag;
-      _cfg.creationstamp = get_time_stamp( time(0) );
+      _cfg.creationstamp = get_time_stamp( time(nullptr) );
       _cfg.targetfirmware = "1.0.0";
       _cfg.formatrevision = "1"; //???
       // "original" definition of GENERALIZEDINDEX from Mike Weinberger
@@ -1034,7 +1034,7 @@ int HcalLutManager::writeLutXmlFiles( std::map<int, boost::shared_ptr<LutXml> > 
     else{
       output_file_name << _tag << ".xml";
     }
-    cr->second->write( output_file_name.str().c_str() );
+    cr->second->write( output_file_name.str() );
   }
   return 0;
 }
@@ -1047,13 +1047,13 @@ int HcalLutManager::createLinLutXmlFiles( std::string _tag, std::string _lin_fil
     lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
   }
   
-  if ( _lin_file.size() != 0 ){
+  if ( !_lin_file.empty() ){
     addLutMap( xml, getLinearizationLutXmlFromAsciiMasterEmap( _lin_file, _tag, -1, split_by_crate ) );
   }
   writeLutXmlFiles( xml, _tag, split_by_crate );
 
   std::string checksums_file = _tag + "_checksums.xml";
-  lut_checksums_xml -> write( checksums_file . c_str() );
+  lut_checksums_xml -> write( checksums_file );
 
   return 0;
 }
@@ -1066,11 +1066,11 @@ int HcalLutManager::createAllLutXmlFiles( std::string _tag, std::string _lin_fil
     lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
   }
   
-  if ( _lin_file.size() != 0 ){
+  if ( !_lin_file.empty() ){
     //addLutMap( xml, getLutXmlFromAsciiMaster( _lin_file, _tag, -1, split_by_crate ) );
     addLutMap( xml, getLinearizationLutXmlFromAsciiMasterEmap( _lin_file, _tag, -1, split_by_crate ) );
   }
-  if ( _comp_file.size() != 0 ){
+  if ( !_comp_file.empty() ){
     //std::cout << "DEBUG1!!!!" << std::endl;
     addLutMap( xml, getCompressionLutXmlFromAsciiMaster( _comp_file, _tag, -1, split_by_crate ) );
     //std::cout << "DEBUG2!!!!" << std::endl;
@@ -1078,7 +1078,7 @@ int HcalLutManager::createAllLutXmlFiles( std::string _tag, std::string _lin_fil
   writeLutXmlFiles( xml, _tag, split_by_crate );
 
   std::string checksums_file = _tag + "_checksums.xml";
-  lut_checksums_xml -> write( checksums_file . c_str() );
+  lut_checksums_xml -> write( checksums_file );
 
   return 0;
 }
@@ -1096,7 +1096,7 @@ int HcalLutManager::createCompLutXmlFilesFromCoder( std::string _tag, bool split
   writeLutXmlFiles( xml, _tag, split_by_crate );
 
   std::string checksums_file = _tag + "_checksums.xml";
-  lut_checksums_xml -> write( checksums_file . c_str() );
+  lut_checksums_xml -> write( checksums_file );
 
   return 0;
 }
@@ -1116,7 +1116,7 @@ int HcalLutManager::createAllLutXmlFilesFromCoder( const HcalTPGCoder & _coder, 
   writeLutXmlFiles( xml, _tag, split_by_crate );
 
   std::string checksums_file = _tag + "_checksums.xml";
-  lut_checksums_xml -> write( checksums_file . c_str() );
+  lut_checksums_xml -> write( checksums_file );
 
   return 0;
 }
@@ -1131,7 +1131,7 @@ int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii( std::string _ta
     lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
   }
   
-  if ( _lin_file.size() != 0 ){
+  if ( !_lin_file.empty() ){
     const std::map<int, boost::shared_ptr<LutXml> > _lin_lut_ascii_xml = getLinearizationLutXmlFromAsciiMasterEmap( _lin_file, _tag, -1, split_by_crate );
     addLutMap( xml, _lin_lut_ascii_xml );
   }
@@ -1144,7 +1144,7 @@ int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii( std::string _ta
   writeLutXmlFiles( xml, _tag, split_by_crate );
   
   std::string checksums_file = _tag + "_checksums.xml";
-  lut_checksums_xml -> write( checksums_file . c_str() );
+  lut_checksums_xml -> write( checksums_file );
   
   return 0;
 }
@@ -1157,7 +1157,7 @@ int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii( std::string _ta
     lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
   }
   
-  if ( _lin_file.size() != 0 ){
+  if ( !_lin_file.empty() ){
     const std::map<int, boost::shared_ptr<LutXml> > _lin_lut_ascii_xml = getLinearizationLutXmlFromAsciiMasterEmap( _lin_file, _tag, -1, split_by_crate );
     addLutMap( xml, _lin_lut_ascii_xml );
   }
@@ -1170,7 +1170,7 @@ int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii( std::string _ta
   writeLutXmlFiles( xml, _tag, split_by_crate );
   
   std::string checksums_file = _tag + "_checksums.xml";
-  lut_checksums_xml -> write( checksums_file . c_str() );
+  lut_checksums_xml -> write( checksums_file );
   
   return 0;
 }
@@ -1185,14 +1185,14 @@ int HcalLutManager::createAllLutXmlFilesLinAsciiCompCoder( std::string _tag, std
     lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
   }
   
-  if ( _lin_file.size() != 0 ){
+  if ( !_lin_file.empty() ){
     addLutMap( xml, getLutXmlFromAsciiMaster( _lin_file, _tag, -1, split_by_crate ) );
   }
   addLutMap( xml, getCompressionLutXmlFromCoder( _tag, split_by_crate ) );
   writeLutXmlFiles( xml, _tag, split_by_crate );
 
   std::string checksums_file = _tag + "_checksums.xml";
-  lut_checksums_xml -> write( checksums_file . c_str() );
+  lut_checksums_xml -> write( checksums_file );
 
   return 0;
 }
@@ -1245,25 +1245,25 @@ int HcalLutManager::test_xml_access( std::string _tag, std::string _filename )
 
   edm::LogInfo("HcalLutManager") << "Testing direct parsing of the LUT XML";
   struct timeval _t;
-  gettimeofday( &_t, NULL );
+  gettimeofday( &_t, nullptr );
   double _time =(double)(_t . tv_sec) + (double)(_t . tv_usec)/1000000.0;
   test_direct_xml_parsing(_filename);
-  gettimeofday( &_t, NULL );
+  gettimeofday( &_t, nullptr );
   edm::LogInfo("HcalLutManager") << "parsing took that much time: " << (double)(_t . tv_sec) + (double)(_t . tv_usec)/1000000.0 - _time;
 
 
-  gettimeofday( &_t, NULL );
+  gettimeofday( &_t, nullptr );
   _time =(double)(_t . tv_sec) + (double)(_t . tv_usec)/1000000.0;
   edm::LogInfo("HcalLutManager") << "before loop over random LUTs: " << _time;
   int _raw_id;
 
   // loop over random LUTs
   for (int _iter=0; _iter<100; _iter++){
-    gettimeofday( &_t, NULL );
+    gettimeofday( &_t, nullptr );
     //std::cout << "before getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << std::endl;
 
     // select valid random emap channel
-    while(1){
+    while(true){
       int _key = (rand() % map_size);
       //_key = 3356;
       if( (_map[_key].subdet.find("HB")!=string::npos ||
@@ -1285,7 +1285,7 @@ int HcalLutManager::test_xml_access( std::string _tag, std::string _filename )
     }
     _lut = getLutFromXml( _tag, _raw_id, hcal::ConfigurationDatabase::LinearizerLUT );
     
-    gettimeofday( &_t, NULL );
+    gettimeofday( &_t, nullptr );
   }
   double d_time = _t.tv_sec+_t.tv_usec/1000000.0 - _time;
   edm::LogInfo("HcalLutManager") << "after the loop over random LUTs: " << _time+d_time << std::endl
@@ -1301,7 +1301,7 @@ int HcalLutManager::test_xml_access( std::string _tag, std::string _filename )
   db -> disconnect();
   
   delete db;
-  db = 0;
+  db = nullptr;
   
   return 0;
 }
@@ -1449,7 +1449,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::get_brickSet_from_orac
     //SELECT
     edm::LogInfo("HcalLutManager") << "Executing the query...";
     Statement* stmt = _connection -> createStatement();
-    ResultSet *rs = stmt->executeQuery(query.c_str());
+    ResultSet *rs = stmt->executeQuery(query);
     edm::LogInfo("HcalLutManager") << "Executing the query... done";
     
     edm::LogInfo("HcalLutManager") << "Processing the query results...";
@@ -1531,7 +1531,7 @@ int HcalLutManager::create_lut_loader( std::string file_list, std::string _prefi
   //_____ fix due to the new convention: version/subversion combo must be unique for every payload
   //
   char _buf[128];
-  time_t _offset = time(NULL);
+  time_t _offset = time(nullptr);
   sprintf( _buf, "%d", (uint32_t)_offset );
   conf.version.append(".");
   conf.version.append(_buf);
@@ -1634,7 +1634,7 @@ int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii_ZDC( std::string
     lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
   }
   
-  if ( _lin_file.size() != 0 ){
+  if ( !_lin_file.empty() ){
     const std::map<int, boost::shared_ptr<LutXml> > _lin_lut_ascii_xml = getLinearizationLutXmlFromAsciiMasterEmap( _lin_file, _tag, -1, split_by_crate );
     addLutMap( xml, _lin_lut_ascii_xml );
   }
@@ -1655,7 +1655,7 @@ int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii_ZDC( std::string
   writeLutXmlFiles( xml, _tag, split_by_crate );
   
   std::string checksums_file = _tag + "_checksums.xml";
-  lut_checksums_xml -> write( checksums_file . c_str() );
+  lut_checksums_xml -> write( checksums_file );
   
   return 0;
 }
@@ -1701,7 +1701,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getZdcLutXml( std::str
       _cfg.fiberchan = row->fiberchan;
       _cfg.lut_type = 1;
       _cfg.creationtag = _tag;
-      _cfg.creationstamp = get_time_stamp( time(0) );
+      _cfg.creationstamp = get_time_stamp( time(nullptr) );
       _cfg.targetfirmware = "1.0.0";
       _cfg.formatrevision = "1"; //???
       _cfg.generalizedindex = 0;
@@ -1712,7 +1712,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getZdcLutXml( std::str
 					       row->zdc_zside,
 					       row->zdc_channel);
       edm::LogInfo("HcalLutManager") << "***DEBUG: ZDC lut size: " << coder_lut.size();
-      if (coder_lut.size()!=0){
+      if (!coder_lut.empty()){
 	for (std::vector<int>::const_iterator _i=coder_lut.begin(); _i!=coder_lut.end();_i++){
 	  unsigned int _temp = (unsigned int)(*_i);
 	  //if (_temp!=0) std::cout << "DEBUG non-zero LUT!!!!!!!!!!!!!!!" << (*_i) << "     " << _temp << std::endl;

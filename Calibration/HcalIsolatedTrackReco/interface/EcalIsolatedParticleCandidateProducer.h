@@ -19,7 +19,7 @@
 class EcalIsolatedParticleCandidateProducer : public edm::global::EDProducer<> {
 public:
   explicit EcalIsolatedParticleCandidateProducer(const edm::ParameterSet&);
-  ~EcalIsolatedParticleCandidateProducer();
+  ~EcalIsolatedParticleCandidateProducer() override;
 
 private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;

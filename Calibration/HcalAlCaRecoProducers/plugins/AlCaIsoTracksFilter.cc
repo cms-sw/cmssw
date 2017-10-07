@@ -68,20 +68,20 @@ namespace AlCaIsoTracks {
 class AlCaIsoTracksFilter : public edm::stream::EDFilter<edm::GlobalCache<AlCaIsoTracks::Counters> > {
 public:
   explicit AlCaIsoTracksFilter(edm::ParameterSet const&, const AlCaIsoTracks::Counters* count);
-  ~AlCaIsoTracksFilter();
+  ~AlCaIsoTracksFilter() override;
     
   static std::unique_ptr<AlCaIsoTracks::Counters> initializeGlobalCache(edm::ParameterSet const& iConfig) {
     return std::make_unique<AlCaIsoTracks::Counters>();
   }
 
-  virtual bool filter(edm::Event&, edm::EventSetup const&) override;
-  virtual void endStream() override;
+  bool filter(edm::Event&, edm::EventSetup const&) override;
+  void endStream() override;
   static  void globalEndJob(const AlCaIsoTracks::Counters* counters);
   static  void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 private:
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
   
   // ----------member data ---------------------------
   HLTConfigProvider             hltConfig_;
@@ -214,7 +214,7 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
 
   //Step1: Find if the event passes one of the chosen triggers
   bool triggerSatisfied(false);
-  if (trigNames_.size() == 0) {
+  if (trigNames_.empty()) {
     triggerSatisfied = true;
   } else {
     trigger::TriggerEvent triggerEvent;
@@ -236,7 +236,7 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
 	for (unsigned int iHLT=0; iHLT<triggerResults->size(); iHLT++) {
 	  int hlt    = triggerResults->accept(iHLT);
 	  for (unsigned int i=0; i<trigNames_.size(); ++i) {
-	    if (triggerNames_[iHLT].find(trigNames_[i].c_str())!=std::string::npos) {
+	    if (triggerNames_[iHLT].find(trigNames_[i])!=std::string::npos) {
 	      if (hlt > 0) triggerSatisfied = true;
 	      LogDebug("HcalIsoTrack") << triggerNames_[iHLT] 
 				       << " has got HLT flag " << hlt 
@@ -277,7 +277,7 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
     edm::Handle<reco::BeamSpot> beamSpotH;
     iEvent.getByToken(tok_bs_, beamSpotH);
     math::XYZPoint leadPV(0,0,0);
-    if (recVtxs->size()>0 && !((*recVtxs)[0].isFake())) {
+    if (!recVtxs->empty() && !((*recVtxs)[0].isFake())) {
       leadPV = math::XYZPoint((*recVtxs)[0].x(),(*recVtxs)[0].y(),
 			      (*recVtxs)[0].z());
     } else if (beamSpotH.isValid()) {

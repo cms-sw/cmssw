@@ -59,9 +59,9 @@ namespace cms{
   class Analyzer_minbias : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
   public:
     explicit Analyzer_minbias(const edm::ParameterSet&);
-    ~Analyzer_minbias();
+    ~Analyzer_minbias() override;
 
-    virtual void beginJob() override;
+    void beginJob() override;
     void analyze(edm::Event const&, edm::EventSetup const&) override;
     void beginRun(edm::Run const&, edm::EventSetup const&) override;
     void endRun(edm::Run const&, edm::EventSetup const&) override;
