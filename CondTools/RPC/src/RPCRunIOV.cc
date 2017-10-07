@@ -49,7 +49,7 @@ RPCRunIOV::getImon() {
   
   std::cout << std::endl << "=============================================" << std::endl << std::endl;
 
-  if (mycond.size() == 0) {
+  if (mycond.empty()) {
     min_I = 0;
     max_I = 0;
     return mycond;
@@ -90,7 +90,7 @@ RPCRunIOV::getVmon() {
   
   std::cout << std::endl << "=============================================" << std::endl << std::endl;
 
-  if (mycond.size() == 0) {
+  if (mycond.empty()) {
     min_I = 0;
     max_I = 0;
     return mycond;
@@ -131,7 +131,7 @@ RPCRunIOV::getTemp() {
 
   std::cout << std::endl << "=============================================" << std::endl << std::endl;
   
-  if (mycond.size() == 0) {
+  if (mycond.empty()) {
     min_I = 0;
     max_I = 0;
     return mycond;

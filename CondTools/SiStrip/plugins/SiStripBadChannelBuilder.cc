@@ -26,7 +26,7 @@ void SiStripBadChannelBuilder::algoAnalyze(const edm::Event & event, const edm::
 
   SiStripDetInfoFileReader reader(fp_.fullPath());
   
-  const std::vector<uint32_t> DetIds = reader.getAllDetIds();
+  const std::vector<uint32_t>& DetIds = reader.getAllDetIds();
   
   for(Parameters::iterator iBadComponent = BadComponentList_.begin(); iBadComponent != BadComponentList_.end(); ++iBadComponent ) {
     

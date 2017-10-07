@@ -16,11 +16,11 @@ public:
 
   explicit SiStripDetVOffFakeBuilder( const edm::ParameterSet& iConfig);
 
-  ~SiStripDetVOffFakeBuilder();
+  ~SiStripDetVOffFakeBuilder() override;
 
   virtual void initialize( const edm::EventSetup& );
 
-  virtual void analyze(const edm::Event& , const edm::EventSetup& );
+  void analyze(const edm::Event& , const edm::EventSetup& ) override;
 
 private:
   bool printdebug_;

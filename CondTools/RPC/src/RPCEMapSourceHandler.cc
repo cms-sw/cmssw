@@ -202,10 +202,10 @@ void popcon::RPCEMapSourceHandler::readEMap1()
           int slength = theName.length();
           thisLB.theLinkBoardNumInLink=atoi((theName.substr(slength-1,1)).c_str());
           int wheel=atoi((theName.substr(6,1)).c_str());
-          std::string char1=(theName.substr(4,1)).c_str();
-          std::string char2=(theName.substr(slength-7,1)).c_str();
+          std::string char1=theName.substr(4,1);
+          std::string char2=theName.substr(slength-7,1);
           int num3=atoi((theName.substr(slength-6,1)).c_str());
-          std::string char4=(theName.substr(slength-5,1)).c_str();
+          std::string char4=theName.substr(slength-5,1);
           bool itsS1to9=(theName.substr(slength-11,1)=="S");
           int n1=10;
           int n2=1;
@@ -375,7 +375,7 @@ void popcon::RPCEMapSourceHandler::readEMap1()
 }
 
 int popcon::RPCEMapSourceHandler::Compare2EMaps(const Ref& _map1, RPCEMap* map2) {
-  Ref map1 = _map1;
+  const Ref& map1 = _map1;
   RPCReadOutMapping const* oldmap1 = map1->convert();
   RPCReadOutMapping const* oldmap2 = map2->convert();
   std::vector<const DccSpec *> dccs1 = oldmap1->dccList();

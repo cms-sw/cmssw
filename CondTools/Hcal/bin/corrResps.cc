@@ -1,4 +1,4 @@
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -18,7 +18,7 @@ class corrResps : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 
 public:
   explicit corrResps(const edm::ParameterSet&);
-  ~corrResps();
+  ~corrResps() override;
 
 private:
   void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
