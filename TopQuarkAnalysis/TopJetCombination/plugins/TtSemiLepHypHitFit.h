@@ -10,18 +10,18 @@ class TtSemiLepHypHitFit : public TtSemiLepHypothesis  {
  public:
 
   explicit TtSemiLepHypHitFit(const edm::ParameterSet&);
-  ~TtSemiLepHypHitFit();
+  ~TtSemiLepHypHitFit() override;
 
  private:
 
   /// build the event hypothesis key
-  virtual void buildKey() { key_= TtSemiLeptonicEvent::kHitFit; };
+  void buildKey() override { key_= TtSemiLeptonicEvent::kHitFit; };
   /// build event hypothesis from the reco objects of a semi-leptonic event
-  virtual void buildHypo(edm::Event&,
+  void buildHypo(edm::Event&,
 			 const edm::Handle<edm::View<reco::RecoCandidate> >&,
 			 const edm::Handle<std::vector<pat::MET> >&,
 			 const edm::Handle<std::vector<pat::Jet> >&,
-			 std::vector<int>&, const unsigned int iComb);
+			 std::vector<int>&, const unsigned int iComb) override;
 
   edm::EDGetTokenT<std::vector<int> > statusToken_;
   edm::EDGetTokenT<std::vector<pat::Particle> > partonsHadPToken_;
