@@ -5,7 +5,7 @@
 #include "TCanvas.h"
 
 #include <iostream>
-#include <math.h>
+#include <cmath>
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -129,7 +129,7 @@ EffPurFromHistos::EffPurFromHistos(const FlavourHistograms<double>& dDiscriminat
 
   // loop over flavours
   for ( int iFlav = 0; iFlav < dimHistos; iFlav++ ) {
-    if (discrCfHistos[iFlav] == 0) continue;
+    if (discrCfHistos[iFlav] == nullptr) continue;
     discrNoCutHistos[iFlav]->SetXTitle( "Discriminant" );
     discrNoCutHistos[iFlav]->GetXaxis()->SetTitleOffset( 0.75 );
 
@@ -452,16 +452,16 @@ void EffPurFromHistos::compute(DQMStore::IBooker & ibook)
 {
   if (!mcPlots_) {
 
-    EffFlavVsXEff_d = 0;
-    EffFlavVsXEff_u = 0; 
-    EffFlavVsXEff_s = 0; 
-    EffFlavVsXEff_c = 0; 
-    EffFlavVsXEff_b = 0; 
-    EffFlavVsXEff_g = 0; 
-    EffFlavVsXEff_ni = 0; 
-    EffFlavVsXEff_dus = 0; 
-    EffFlavVsXEff_dusg = 0; 
-    EffFlavVsXEff_pu = 0; 
+    EffFlavVsXEff_d = nullptr;
+    EffFlavVsXEff_u = nullptr; 
+    EffFlavVsXEff_s = nullptr; 
+    EffFlavVsXEff_c = nullptr; 
+    EffFlavVsXEff_b = nullptr; 
+    EffFlavVsXEff_g = nullptr; 
+    EffFlavVsXEff_ni = nullptr; 
+    EffFlavVsXEff_dus = nullptr; 
+    EffFlavVsXEff_dusg = nullptr; 
+    EffFlavVsXEff_pu = nullptr; 
     return; 
  
   }
@@ -494,11 +494,11 @@ void EffPurFromHistos::compute(DQMStore::IBooker & ibook)
     EffFlavVsXEff_dus  =(prov.book1D( hX + "DUS"  + hE, hX + "DUS"  + hE, nBinOutput, startOutput, endOutput )) ;
     EffFlavVsXEff_dus->setEfficiencyFlag();
   } else {
-    EffFlavVsXEff_d = 0;
-    EffFlavVsXEff_u = 0;
-    EffFlavVsXEff_s = 0;
-    EffFlavVsXEff_g = 0;
-    EffFlavVsXEff_dus = 0;
+    EffFlavVsXEff_d = nullptr;
+    EffFlavVsXEff_u = nullptr;
+    EffFlavVsXEff_s = nullptr;
+    EffFlavVsXEff_g = nullptr;
+    EffFlavVsXEff_dus = nullptr;
   }
   EffFlavVsXEff_c    =(prov.book1D( hX + "C"    + hE, hX + "C"    + hE, nBinOutput, startOutput, endOutput )) ;
   EffFlavVsXEff_c->setEfficiencyFlag();

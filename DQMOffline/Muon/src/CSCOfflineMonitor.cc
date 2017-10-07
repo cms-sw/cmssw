@@ -992,7 +992,7 @@ void CSCOfflineMonitor::doSegments(edm::Handle<CSCSegmentCollection> cscSegments
 	bool modified = false;
 	std::vector<float>::iterator anodeMaxHit;
 	do {
-	  if (anodeTimes.size()==0) continue;
+	  if (anodeTimes.empty()) continue;
 	  timeAnode=0;
 	  anodeMaxDiff=0;
 	  modified=false;
@@ -1420,14 +1420,14 @@ void CSCOfflineMonitor::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
   chamberTypes["ME4/1"] = 8.5;
   chamberTypes["ME4/2"] = 9.5;
 
-  if(theSeg.size()){
+  if(!theSeg.empty()){
 	std::map <int , GlobalPoint> extrapolatedPoint;
 	std::map <int , GlobalPoint>::iterator it;
 	const CSCGeometry::ChamberContainer& ChamberContainer = cscGeom->chambers();
 	// Pick which chamber with which segment to test
 	for(unsigned int nCh=0;nCh<ChamberContainer.size();nCh++){
 	  const CSCChamber *cscchamber = ChamberContainer[nCh];
-	  pair <CSCDetId, CSCSegment> * thisSegment = 0;
+	  pair <CSCDetId, CSCSegment> * thisSegment = nullptr;
 	  for(uint iSeg =0;iSeg<theSeg.size();++iSeg ){
 		if(cscchamber->id().endcap() == theSeg[iSeg]->first.endcap()){ 
 		  if(1==cscchamber->id().station() || 3==cscchamber->id().station() ){
@@ -1614,13 +1614,13 @@ void CSCOfflineMonitor::doBXMonitor(edm::Handle<CSCALCTDigiCollection> alcts, ed
 	unsigned long length =  fedData.size();
 
 	if (length>=32){ ///if fed has data then unpack it
-	  CSCDCCExaminer* examiner = NULL;
+	  CSCDCCExaminer* examiner = nullptr;
 	  std::stringstream examiner_out, examiner_err;
 	  goodEvent = true;
 	  examiner = new CSCDCCExaminer();
-	  if( examinerMask&0x40000 ) examiner->crcCFEB(1);
-	  if( examinerMask&0x8000  ) examiner->crcTMB (1);
-	  if( examinerMask&0x0400  ) examiner->crcALCT(1);
+	  if( examinerMask&0x40000 ) examiner->crcCFEB(true);
+	  if( examinerMask&0x8000  ) examiner->crcTMB (true);
+	  if( examinerMask&0x0400  ) examiner->crcALCT(true);
 	  examiner->setMask(examinerMask);
 	  const short unsigned int *data = (short unsigned int *)fedData.data();
 
@@ -1715,7 +1715,7 @@ void CSCOfflineMonitor::doBXMonitor(edm::Handle<CSCALCTDigiCollection> alcts, ed
  		if (goodTMB && goodALCT) { 
 		  const CSCTMBHeader *tmbHead = cscData[iCSC].tmbHeader();
 		  std::vector<CSCCLCTDigi> clcts = cscData[iCSC].tmbHeader()->CLCTDigis(layer.rawId());
-		  if (clcts.size()==0 || !(clcts[0].isValid()))
+		  if (clcts.empty() || !(clcts[0].isValid()))
 		continue;
 		  // Check if the CLCT was in ME11a (ring 4)
 		  if(layer.station()==1 && layer.ring() ==1 && clcts[0].getKeyStrip()>128){
@@ -1745,7 +1745,7 @@ void CSCOfflineMonitor::doBXMonitor(edm::Handle<CSCALCTDigiCollection> alcts, ed
 	  }// end loop CSCData
 	}// end loop DDU
 	  }// end if good event
-	  if (examiner!=NULL) delete examiner;
+	  if (examiner!=nullptr) delete examiner;
 	}// end if non-zero fed data
   }// end DCC loop for NON-REFERENCE
 
@@ -1902,7 +1902,7 @@ int CSCOfflineMonitor::chamberSerial( CSCDetId id ) {
 }
 
 void CSCOfflineMonitor::applyCSClabels( MonitorElement* me, LabelType t, AxisType a ) {
-  if (me != NULL)
+  if (me != nullptr)
   {
 	me->setAxisTitle("Chamber #");
 	if (t == EXTENDED)

@@ -198,7 +198,7 @@ void MuonRecoOneHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 #endif
 
   if (!_trig_SingleMu && !_trig_DoubleMu) return;
-  if (LeadingMuon.size() == 0)            return;
+  if (LeadingMuon.empty())            return;
   //  if (_MuonEventFlag->on() && !(_MuonEventFlag->accept(iEvent,iSetup))) return;
 
   // Check if Muon is Global

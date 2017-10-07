@@ -398,7 +398,7 @@ namespace HLTOfflineDQMTopDiLepton {
         // ELECMU channel
         if( elecmu ){
           fill("decayChannel_", 0.5);
-          if( isoElecs.size()>0 && isoMuons.size()>0 ) {
+          if( !isoElecs.empty() && !isoMuons.empty() ) {
             double mass = (isoElecs[0]->p4()+isoMuons[0]->p4()).mass();
             if( (lowerEdge_==-1. && upperEdge_==-1.) || (lowerEdge_<mass && mass<upperEdge_) ){
               // fill plots for trigger monitoring
@@ -415,7 +415,7 @@ namespace HLTOfflineDQMTopDiLepton {
                 fill("elecMuLogger_", 2.5, elecMuLogged_+0.5, eventID); 
                 fill("elecMuLogger_", 3.5, elecMuLogged_+0.5, isoMuons[0]->pt()); 
                 fill("elecMuLogger_", 4.5, elecMuLogged_+0.5, isoElecs[0]->pt()); 
-                if(leadingJets.size()>0) fill("elecMuLogger_", 5.5, elecMuLogged_+0.5, leadingJets[0].pt()); 
+                if(!leadingJets.empty()) fill("elecMuLogger_", 5.5, elecMuLogged_+0.5, leadingJets[0].pt()); 
                 if(leadingJets.size()>1) fill("elecMuLogger_", 6.5, elecMuLogged_+0.5, leadingJets[1].pt()); 
                 fill("elecMuLogger_", 7.5, elecMuLogged_+0.5, caloMET.et()); 
                 ++elecMuLogged_; 
@@ -446,7 +446,7 @@ namespace HLTOfflineDQMTopDiLepton {
                 fill("diMuonLogger_", 2.5, diMuonLogged_+0.5, eventID); 
                 fill("diMuonLogger_", 3.5, diMuonLogged_+0.5, isoMuons[0]->pt()); 
                 fill("diMuonLogger_", 4.5, diMuonLogged_+0.5, isoMuons[1]->pt()); 
-                if(leadingJets.size()>0) fill("diMuonLogger_", 5.5, diMuonLogged_+0.5, leadingJets[0].pt()); 
+                if(!leadingJets.empty()) fill("diMuonLogger_", 5.5, diMuonLogged_+0.5, leadingJets[0].pt()); 
                 if(leadingJets.size()>1) fill("diMuonLogger_", 6.5, diMuonLogged_+0.5, leadingJets[1].pt()); 
                 fill("diMuonLogger_", 7.5, diMuonLogged_+0.5, caloMET.et()); 
                 ++diMuonLogged_; 
@@ -477,7 +477,7 @@ namespace HLTOfflineDQMTopDiLepton {
                 fill("diElecLogger_", 2.5, diElecLogged_+0.5, eventID); 
                 fill("diElecLogger_", 3.5, diElecLogged_+0.5, isoElecs[0]->pt()); 
                 fill("diElecLogger_", 4.5, diElecLogged_+0.5, isoElecs[1]->pt()); 
-                if(leadingJets.size()>0) fill("diElecLogger_", 5.5, diElecLogged_+0.5, leadingJets[0].pt()); 
+                if(!leadingJets.empty()) fill("diElecLogger_", 5.5, diElecLogged_+0.5, leadingJets[0].pt()); 
                 if(leadingJets.size()>1) fill("diElecLogger_", 6.5, diElecLogged_+0.5, leadingJets[1].pt()); 
                 fill("diElecLogger_", 7.5, diElecLogged_+0.5, caloMET.et()); 
                 ++diElecLogged_; 
@@ -523,7 +523,7 @@ namespace HLTOfflineDQMTopDiLepton {
         // loop over trigger paths 
 	for(unsigned int i=0; i<triggerNames.triggerNames().size(); ++i){
           // consider only path from triggerPaths
-          string name = triggerNames.triggerNames()[i].c_str();
+          string name = triggerNames.triggerNames()[i];
           bool isInteresting = false;
           for (auto const & triggerPath : triggerPaths) {
             if (TString(name.c_str()).Contains(TString(triggerPath), TString::kIgnoreCase)) isInteresting = true; 
@@ -584,7 +584,7 @@ namespace HLTOfflineDQMTopDiLepton {
           unsigned int l2IndMatched = 500;
           // access to hlt dielecs
           electronIds_.clear(); electronRefs_.clear();
-          if (kElec > 0 && kMuon < 1 && isoElecs.size()>0) {
+          if (kElec > 0 && kMuon < 1 && !isoElecs.empty()) {
             const string& moduleLabelElec(moduleLabels[kElec]);
             const string  moduleTypeElec(hltConfig.moduleType(moduleLabelElec));
 
@@ -632,7 +632,7 @@ namespace HLTOfflineDQMTopDiLepton {
           muonIds_.clear(); muonRefs_.clear();
           l1DeltaRMin = 500.; l2DeltaRMin = 500.; double l3DeltaRMin = 500.;
           l1IndMatched = 500; l2IndMatched = 500; double l3IndMatched = 500;
-          if (kMuon > 0 && kElec < 1 && isoMuons.size()>0) {
+          if (kMuon > 0 && kElec < 1 && !isoMuons.empty()) {
             const string& moduleLabelMuon(moduleLabels[kMuon]);
             const string  moduleTypeMuon(hltConfig.moduleType(moduleLabelMuon));
 
@@ -718,7 +718,7 @@ namespace HLTOfflineDQMTopDiLepton {
           muonIds_.clear(); muonRefs_.clear();
           l1DeltaRMin = 500.; l2DeltaRMin = 500.; 
           l1IndMatched = 500; l2IndMatched = 500; 
-          if (kElec > 0 && kMuon > 0 && isoElecs.size()>0) {
+          if (kElec > 0 && kMuon > 0 && !isoElecs.empty()) {
             const string& moduleLabelElec(moduleLabels[kElec]);
             const string  moduleTypeElec(hltConfig.moduleType(moduleLabelElec));
 
@@ -750,7 +750,7 @@ namespace HLTOfflineDQMTopDiLepton {
               fill("leptResolution_", fabs(isoElecs[l1IndMatched]->pt()-electronRefs_[0]->pt())/isoElecs[l1IndMatched]->pt() );   
             }
           }
-          if (kElec > 0 && kMuon > 0 && isoMuons.size()>0) {
+          if (kElec > 0 && kMuon > 0 && !isoMuons.empty()) {
             const string& moduleLabelMuon(moduleLabels[kMuon]);
             const string  moduleTypeMuon(hltConfig.moduleType(moduleLabelMuon));
 
@@ -767,7 +767,7 @@ namespace HLTOfflineDQMTopDiLepton {
 			}
 						
             const unsigned int nMuons(muonIds_.size());
-            if (isoMuons.size()<1) continue;
+            if (isoMuons.empty()) continue;
             double deltar = 600.;
             for (unsigned int indm = 0; indm < isoMuons.size(); indm++) {
               if (nMuons > 0) deltar = deltaR(*muonRefs_[0],*isoMuons[indm]); 

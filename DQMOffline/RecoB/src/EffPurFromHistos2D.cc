@@ -5,7 +5,7 @@
 #include "TCanvas.h"
 
 #include <iostream>
-#include <math.h>
+#include <cmath>
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -130,7 +130,7 @@ EffPurFromHistos2D::EffPurFromHistos2D(const FlavourHistograms2D<double, double>
 
   // loop over flavours
   for (int iFlav = 0; iFlav < dimHistos; iFlav++) {
-    if (discrCfHistos[iFlav] == 0) continue;
+    if (discrCfHistos[iFlav] == nullptr) continue;
     discrNoCutHistos[iFlav]->SetXTitle("Discriminant A");
     discrNoCutHistos[iFlav]->GetXaxis()->SetTitleOffset(0.75);
     discrNoCutHistos[iFlav]->SetYTitle("Discriminant B");
@@ -353,7 +353,7 @@ void EffPurFromHistos2D::check() {
 void EffPurFromHistos2D::compute(DQMStore::IBooker & ibook, vector<double> fixedEff)
 {
 
-  if (!mcPlots_ || fixedEff.size()<1) {
+  if (!mcPlots_ || fixedEff.empty()) {
     return; 
   }
 
