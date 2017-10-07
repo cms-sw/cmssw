@@ -82,7 +82,7 @@ AlcaBeamMonitor::AlcaBeamMonitor( const ParameterSet& ps ) :
   for(vector<string>::iterator itV=varNamesV_.begin(); itV!=varNamesV_.end(); itV++){
     for(multimap<string,string>::iterator itM=histoByCategoryNames_.begin(); itM!=histoByCategoryNames_.end(); itM++){
       if(itM->first=="run"){
-        histosMap_[*itV][itM->first][itM->second] = 0;
+        histosMap_[*itV][itM->first][itM->second] = nullptr;
       }
       else{
         positionsMap_[*itV][itM->first][itM->second] = 3*numberOfValuesToSave_;//value, error, ok 
@@ -103,11 +103,11 @@ AlcaBeamMonitor::AlcaBeamMonitor( const ParameterSet& ps ) :
 
 
 AlcaBeamMonitor::~AlcaBeamMonitor() {
-  if(theBeamFitter_ != 0){
+  if(theBeamFitter_ != nullptr){
     delete theBeamFitter_;
   }
   
-  if(thePVFitter_ != 0){
+  if(thePVFitter_ != nullptr){
     delete thePVFitter_;
   }
 }
@@ -154,7 +154,7 @@ void AlcaBeamMonitor::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const
 	}
 	else if(itMM->first == "PrimaryVertex fit-DataBase" || itMM->first == "PrimaryVertex fit-BeamFit" || itMM->first == "PrimaryVertex fit-Scalers"
 	     || itMM->first == "PrimaryVertex-DataBase" || itMM->first == "PrimaryVertex-BeamFit" || itMM->first == "PrimaryVertex-Scalers"){
-          itMM->second = 0;
+          itMM->second = nullptr;
 	}
 	else{
 	  //assert(0);
@@ -175,7 +175,7 @@ void AlcaBeamMonitor::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const
       else{
         //assert(0);
       }
-      if(itMM->second != 0){
+      if(itMM->second != nullptr){
       	if(itMM->first == "Coordinate"){				
       	  itMM->second->setAxisTitle(itM->first + "_{0} (cm)",1);  
       	}
@@ -326,7 +326,7 @@ void AlcaBeamMonitor::endLuminosityBlock(const LuminosityBlock& iLumi, const Eve
   //    "PV,BF..."      Value,Error
   map<std::string,pair<double,double> >   resultsMap;
   vector<pair<double,double> >  vertexResults;
-  MonitorElement* histo=0;
+  MonitorElement* histo=nullptr;
   int position = 0;
   for(vector<string>::iterator itV=varNamesV_.begin(); itV!=varNamesV_.end(); itV++){
     resultsMap.clear();
@@ -359,7 +359,7 @@ void AlcaBeamMonitor::endLuminosityBlock(const LuminosityBlock& iLumi, const Eve
     }
     vertexResults.clear();
     for(vector<VertexCollection>::iterator itPV = vertices_.begin(); itPV != vertices_.end(); itPV++){
-      if(itPV->size() != 0){
+      if(!itPV->empty()){
     	for(VertexCollection::const_iterator pv = itPV->begin(); pv != itPV->end(); pv++) {
     	  if (pv->isFake() || pv->tracksSize()<10)  continue;
     	  if(*itV == "x"){										      
@@ -399,7 +399,7 @@ void AlcaBeamMonitor::endLuminosityBlock(const LuminosityBlock& iLumi, const Eve
   histoByCategoryNames_.insert( pair<string,string>("validation", "Lumibased PrimaryVertex-Scalers"));
 */
     for(multimap<string,string>::iterator itM=histoByCategoryNames_.begin(); itM!=histoByCategoryNames_.end(); itM++){
-      if(itM->first == "run" && (histo = histosMap_[*itV][itM->first][itM->second]) == 0){
+      if(itM->first == "run" && (histo = histosMap_[*itV][itM->first][itM->second]) == nullptr){
         continue;
       }
       else if(itM->first != "run"){
@@ -496,7 +496,7 @@ void AlcaBeamMonitor::endLuminosityBlock(const LuminosityBlock& iLumi, const Eve
         }
       }
       else if(itM->second == "Lumibased PrimaryVertex-DataBase"){
-        if(resultsMap.find("DB") != resultsMap.end() && vertexResults.size() != 0){
+        if(resultsMap.find("DB") != resultsMap.end() && !vertexResults.empty()){
 	  for(vector<pair<double,double> >::iterator itPV=vertexResults.begin(); itPV!=vertexResults.end(); itPV++){
             theValuesContainer_->Fill(position  ,(*itPV).first-resultsMap["DB"].first);//Value
           }
@@ -516,7 +516,7 @@ void AlcaBeamMonitor::endLuminosityBlock(const LuminosityBlock& iLumi, const Eve
         }
       }
       else if(itM->second == "Lumibased PrimaryVertex-Scalers"){
-        if(resultsMap.find("SC") != resultsMap.end() && vertexResults.size() != 0){
+        if(resultsMap.find("SC") != resultsMap.end() && !vertexResults.empty()){
           for(vector<pair<double,double> >::iterator itPV=vertexResults.begin(); itPV!=vertexResults.end(); itPV++){
             theValuesContainer_->Fill(position  ,(*itPV).first-resultsMap["SC"].first);//Value
           }

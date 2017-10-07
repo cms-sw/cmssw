@@ -56,14 +56,14 @@ const T & get(const edm::EventSetup & setup) {
 class TriggerBxMonitor : public DQMEDAnalyzer {
 public:
   explicit TriggerBxMonitor(edm::ParameterSet const &);
-  ~TriggerBxMonitor();
+  ~TriggerBxMonitor() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  virtual void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  virtual void analyze(edm::Event const &, edm::EventSetup const &) override;
+  void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(edm::Event const &, edm::EventSetup const &) override;
 
   // number of bunch crossings
   static const unsigned int s_bx_range = 3564;

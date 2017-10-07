@@ -58,8 +58,8 @@ bool SiPixelLayoutParser::getAllLayouts(map<string, vector< string > >& layouts)
       string meName = qtxml::_toString(meElement->getAttribute (qtxml::_toDOMS ("name"))); 
       me_names.push_back(meName);    
     }
-    if (me_names.size() > 0) layouts[layoutName] = me_names;
+    if (!me_names.empty()) layouts[layoutName] = me_names;
   }
-  if ( layouts.size() > 0) return true;
+  if ( !layouts.empty()) return true;
   else return false; 
 }

@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <math.h>
+#include <cmath>
 
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -28,14 +28,14 @@ ESTrendTask::ESTrendTask(const ParameterSet& ps) {
 
   for (int i=0; i<2; ++i)
     for (int j=0; j<2; ++j) {
-      hESRecHitTrend_[i][j] = 0;
-      hESRecHitTrendHr_[i][j] = 0;
+      hESRecHitTrend_[i][j] = nullptr;
+      hESRecHitTrendHr_[i][j] = nullptr;
     }
 
-  hESSLinkErrTrend_ = 0;
-  hESFiberErrTrend_ = 0;
-  hESSLinkErrTrendHr_ = 0;
-  hESFiberErrTrendHr_ = 0;
+  hESSLinkErrTrend_ = nullptr;
+  hESFiberErrTrend_ = nullptr;
+  hESSLinkErrTrendHr_ = nullptr;
+  hESFiberErrTrendHr_ = nullptr;
 
   start_time_ = 0;
   current_time_ = 0;

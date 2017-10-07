@@ -10,11 +10,11 @@ class NoiseHistograms : public virtual CommissioningHistograms {
  public:
   
   NoiseHistograms( const edm::ParameterSet& pset, DQMStore* );
-  virtual ~NoiseHistograms();
+  ~NoiseHistograms() override;
   
-  void histoAnalysis( bool debug );
+  void histoAnalysis( bool debug ) override;
 
-  void printAnalyses(); // override
+  void printAnalyses() override; // override
 
 };
 

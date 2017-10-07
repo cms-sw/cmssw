@@ -43,7 +43,7 @@ const std::string& CommonAnalyzer::getPrefix() const {return _prefix;}
 
 TObject* CommonAnalyzer::getObject(const char* name) const {
 
-  TObject* obj = 0;
+  TObject* obj = nullptr;
 
   std::string fullpath = _module + "/" + _path;
   if(_file) {
@@ -97,11 +97,11 @@ const std::vector<unsigned int> CommonAnalyzer::getList(const char* what) const 
     if(ok && gDirectory) {
       TList* keys = gDirectory->GetListOfKeys();
       TListIter it(keys);
-      TKey* key=0;
+      TKey* key=nullptr;
       while((key=(TKey*)it.Next())) {
 	std::cout << key->GetName() << std::endl;
 	TClass cl(key->GetClassName());
-	if (cl.InheritsFrom("TDirectory") && strstr(key->GetName(),searchstring) != 0 ) {
+	if (cl.InheritsFrom("TDirectory") && strstr(key->GetName(),searchstring) != nullptr ) {
 	  unsigned int run;
 	  sscanf(key->GetName(),decodestring,&run);
 	  runlist.push_back(run);
@@ -119,9 +119,9 @@ TH1F* CommonAnalyzer::getBinomialRatio(const CommonAnalyzer& denom, const char* 
   
   TH1F* den = (TH1F*)denom.getObject(name);
   TH1F* num = (TH1F*)getObject(name);
-  TH1F* ratio =0;
+  TH1F* ratio =nullptr;
   
-  if(den!=0 && num!=0) {
+  if(den!=nullptr && num!=nullptr) {
     
     TH1F* denreb=den;
     TH1F* numreb=num;
@@ -131,7 +131,7 @@ TH1F* CommonAnalyzer::getBinomialRatio(const CommonAnalyzer& denom, const char* 
     }
     
     ratio = new TH1F(*numreb);
-    ratio->SetDirectory(0);
+    ratio->SetDirectory(nullptr);
     ratio->Reset();
     ratio->Sumw2();
     ratio->Divide(numreb,denreb,1,1,"B");

@@ -131,7 +131,7 @@ LogMessageMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   edm::ELseverityLevel el("-e");
   
   // Find the total number of errors in iEvent
-  if(errors->size()==0){
+  if(errors->empty()){
     if ( doPUmonitoring_ ) {
       for(size_t i = 0; i < modulesMap.size(); i++) {
 	ModulesErrorsVsBXlumi[i] -> Fill(BXlumi,0.);

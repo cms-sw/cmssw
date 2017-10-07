@@ -73,47 +73,47 @@ EwkDQM::EwkDQM(const ParameterSet& parameters) {
   // just to initialize
   isValidHltConfig_ = false;
 
-  h_vertex_number = 0;
-  h_vertex_chi2 = 0;
-  h_vertex_numTrks = 0;
-  h_vertex_sumTrks = 0;
-  h_vertex_d0 = 0;
+  h_vertex_number = nullptr;
+  h_vertex_chi2 = nullptr;
+  h_vertex_numTrks = nullptr;
+  h_vertex_sumTrks = nullptr;
+  h_vertex_d0 = nullptr;
 
-  h_jet_count = 0;
-  h_jet_et = 0;
-  h_jet_pt = 0;
-  h_jet_eta = 0;
-  h_jet_phi = 0;
-  h_jet2_et = 0;
+  h_jet_count = nullptr;
+  h_jet_et = nullptr;
+  h_jet_pt = nullptr;
+  h_jet_eta = nullptr;
+  h_jet_phi = nullptr;
+  h_jet2_et = nullptr;
   // h_jet2_pt = 0;
-  h_jet2_eta = 0;
-  h_jet2_phi = 0;
+  h_jet2_eta = nullptr;
+  h_jet2_phi = nullptr;
 
-  h_e1_et = 0;
-  h_e2_et = 0;
-  h_e1_eta = 0;
-  h_e2_eta = 0;
-  h_e1_phi = 0;
-  h_e2_phi = 0;
+  h_e1_et = nullptr;
+  h_e2_et = nullptr;
+  h_e1_eta = nullptr;
+  h_e2_eta = nullptr;
+  h_e1_phi = nullptr;
+  h_e2_phi = nullptr;
 
-  h_m1_pt = 0;
-  h_m2_pt = 0;
-  h_m1_eta = 0;
-  h_m2_eta = 0;
-  h_m1_phi = 0;
-  h_m2_phi = 0;
+  h_m1_pt = nullptr;
+  h_m2_pt = nullptr;
+  h_m1_eta = nullptr;
+  h_m2_eta = nullptr;
+  h_m1_phi = nullptr;
+  h_m2_phi = nullptr;
 
   // h_t1_et = 0;
   // h_t1_eta = 0;
   // h_t1_phi = 0;
 
-  h_met = 0;
-  h_met_phi = 0;
+  h_met = nullptr;
+  h_met_phi = nullptr;
 
-  h_e_invWMass = 0;
-  h_m_invWMass = 0;
-  h_mumu_invMass = 0;
-  h_ee_invMass = 0;
+  h_e_invWMass = nullptr;
+  h_m_invWMass = nullptr;
+  h_mumu_invMass = nullptr;
+  h_ee_invMass = nullptr;
 
 }
 
@@ -250,7 +250,7 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   bool passed_electron_HLT = false;
   bool passed_muon_HLT = false;
   for (unsigned int i = 0; i < HLTresults->size(); i++) {
-    const std::string trigName = trigNames.triggerName(i);
+    const std::string& trigName = trigNames.triggerName(i);
     // check if triggerName matches electronPath
     for (unsigned int index = 0;
          index < theElecTriggerPathToPass_.size() && !passed_electron_HLT;

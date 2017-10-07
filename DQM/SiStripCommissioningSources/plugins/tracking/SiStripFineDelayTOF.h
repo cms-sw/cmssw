@@ -15,8 +15,8 @@ class SiStripFineDelayTOF
 
  private:
   
-  SiStripFineDelayTOF();
-  virtual ~SiStripFineDelayTOF();
+  SiStripFineDelayTOF() = delete;
+  virtual ~SiStripFineDelayTOF() = delete;
   static double timeOfFlightCosmic(double* hit, double* phit);
   static double timeOfFlightCosmicB(double* trackParameters, double* hit, double* phit, bool onDisk);
   static double timeOfFlightBeam(double* hit, double* phit);

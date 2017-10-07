@@ -53,7 +53,7 @@ CalibrationHistosUsingDb::CalibrationHistosUsingDb( const edm::ParameterSet & ps
 			   << static_cast<uint16_t>(desc->getIsha()) << " " << static_cast<uint16_t>(desc->getVfs());
   }
   // Load the histograms with the results
-  std::string pwd = bei->pwd();
+  const std::string& pwd = bei->pwd();
   std::string ishaPath = getBasePath(pwd);
   ishaPath += "/ControlView/isha";
   LogTrace(mlDqmClient_) << "Looking for " << ishaPath;

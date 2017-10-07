@@ -41,7 +41,7 @@ public:
   DTDCSByLumiTask(const edm::ParameterSet& ps);
 
   /// Destructor
-  virtual ~DTDCSByLumiTask();
+  ~DTDCSByLumiTask() override;
 
 protected:
 

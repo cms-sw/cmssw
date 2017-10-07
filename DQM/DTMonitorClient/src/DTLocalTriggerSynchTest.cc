@@ -48,7 +48,7 @@ DTLocalTriggerSynchTest::DTLocalTriggerSynchTest(const edm::ParameterSet& ps) {
   baseFolderTM = "DT/90-LocalTriggerSynch/";
   baseFolderDDU = "DT/90-LocalTriggerSynch/";
 
-  bookingdone = 0;
+  bookingdone = false;
 
 }
 
@@ -107,7 +107,7 @@ void DTLocalTriggerSynchTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker,
     wPhaseMap = (*wPhaseHandle);
   }
 
-  bookingdone = 1; 
+  bookingdone = true; 
 
 }
   

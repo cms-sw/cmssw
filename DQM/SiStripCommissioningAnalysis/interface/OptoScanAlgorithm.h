@@ -21,7 +21,7 @@ class OptoScanAlgorithm : public CommissioningAlgorithm {
   
   OptoScanAlgorithm( const edm::ParameterSet & pset, OptoScanAnalysis* const );
   
-  virtual ~OptoScanAlgorithm() {;}
+  ~OptoScanAlgorithm() override {;}
 
   /** Histogram pointer and title. */
   Histo histo( const uint16_t& gain, 
@@ -32,10 +32,10 @@ class OptoScanAlgorithm : public CommissioningAlgorithm {
   OptoScanAlgorithm() {;}
   
   /** Extracts and organises histograms. */
-  void extract( const std::vector<TH1*>& );
+  void extract( const std::vector<TH1*>& ) override;
 
   /** Performs histogram anaysis. */
-  void analyse();
+  void analyse() override;
 
  private:
   

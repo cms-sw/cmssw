@@ -18,7 +18,7 @@ class L1TScalersSCAL : public DQMEDAnalyzer {
   enum { N_LUMISECTION_TIME = 93 };
   
   L1TScalersSCAL(const edm::ParameterSet& ps);
-  virtual ~L1TScalersSCAL();
+  ~L1TScalersSCAL() override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &,
                       edm::EventSetup const &) override;
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;

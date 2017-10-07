@@ -109,7 +109,7 @@ void TrackingUtility::getMEStatusColor(int status, int& icol, std::string& tag) 
 //
 int TrackingUtility::getMEStatus(MonitorElement* me) {
   int status = 0; 
-  if (me->getQReports().size() == 0) {
+  if (me->getQReports().empty()) {
     status = 0;
   } else if (me->hasError()) {
     status = dqm::qstatus::ERROR;
@@ -145,7 +145,7 @@ void TrackingUtility::getModuleFolderList(DQMStore::IBooker & ibooker, DQMStore:
 //
 int TrackingUtility::getMEStatus(MonitorElement* me, int& bad_channels) {
   int status = 0; 
-  if (me->getQReports().size() == 0) {
+  if (me->getQReports().empty()) {
     status       = 0;
     bad_channels = -1;
   } else {

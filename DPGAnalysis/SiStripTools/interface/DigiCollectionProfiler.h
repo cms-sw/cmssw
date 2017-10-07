@@ -72,9 +72,9 @@ void DigiCollectionProfiler<edm::DetSetVector<SiStripDigi> >::fill(edm::Handle<e
     for(unsigned int isel=0;isel< m_selections.size(); ++isel) {
       
       if(m_selections[isel].isSelected(mod->detId())) {
-	TH1F* tobefilled1d=0;
-	TProfile* tobefilledprof=0;
-	TH2F* tobefilled2d=0;
+	TH1F* tobefilled1d=nullptr;
+	TProfile* tobefilledprof=nullptr;
+	TH2F* tobefilled2d=nullptr;
 	
 	if(m_want1dHisto) tobefilled1d = hist[isel];
 	if(m_wantProfile) tobefilledprof = hprof[isel];
@@ -103,9 +103,9 @@ void DigiCollectionProfiler<edm::DetSetVector<SiStripRawDigi> >::fill(edm::Handl
     for(unsigned int isel=0;isel< m_selections.size(); ++isel) {
       
       if(m_selections[isel].isSelected(mod->detId())) {
-	TH1F* tobefilled1d=0;
-	TProfile* tobefilledprof=0;
-	TH2F* tobefilled2d=0;
+	TH1F* tobefilled1d=nullptr;
+	TProfile* tobefilledprof=nullptr;
+	TH2F* tobefilled2d=nullptr;
 	
 	if(m_want1dHisto) tobefilled1d = hist[isel];
 	if(m_wantProfile) tobefilledprof = hprof[isel];
@@ -135,9 +135,9 @@ void DigiCollectionProfiler<edmNew::DetSetVector<SiStripCluster> >::fill(edm::Ha
     for(unsigned int isel=0;isel< m_selections.size(); ++isel) {
       
       if(m_selections[isel].isSelected(mod->detId())) {
-	TH1F* tobefilled1d=0;
-	TProfile* tobefilledprof=0;
-	TH2F* tobefilled2d=0;
+	TH1F* tobefilled1d=nullptr;
+	TProfile* tobefilledprof=nullptr;
+	TH2F* tobefilled2d=nullptr;
 	
 	if(m_want1dHisto) tobefilled1d = hist[isel];
 	if(m_wantProfile) tobefilledprof = hprof[isel];
