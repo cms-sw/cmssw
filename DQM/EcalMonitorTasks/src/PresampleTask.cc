@@ -13,7 +13,7 @@ namespace ecaldqm
     doPulseMaxCheck_(true),
     pulseMaxPosition_(0),
     nSamples_(0),
-    mePedestalByLS(0)
+    mePedestalByLS(nullptr)
   {
   }
 

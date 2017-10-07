@@ -47,17 +47,17 @@ class DTCalibValidation: public DQMEDAnalyzer{
   DTCalibValidation(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~DTCalibValidation();
+  ~DTCalibValidation() override;
 
   /// BeginRun
-  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) ;
+  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override ;
 
   // Operations
-  void analyze(const edm::Event& event, const edm::EventSetup& setup);
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
 
 
  protected:
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 
  private:

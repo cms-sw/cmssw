@@ -14,7 +14,7 @@ EcalFEDMonitorTemp<SUBDET>::EcalFEDMonitorTemp(edm::ParameterSet const& _ps) :
   eeGainSwitchErrorsToken_(),
   towerIdErrorsToken_(consumes<EcalElectronicsIdCollection>(_ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection1"))),
   blockSizeErrorsToken_(consumes<EcalElectronicsIdCollection>(_ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection2"))),
-  MEs_(nMEs, 0)
+  MEs_(nMEs, nullptr)
 {
   if(_ps.existsAs<edm::InputTag>("EBDetIdCollection1"))
     ebGainErrorsToken_ = consumes<EBDetIdCollection>(_ps.getParameter<edm::InputTag>("EBDetIdCollection1"));

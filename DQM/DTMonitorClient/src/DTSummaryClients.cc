@@ -29,7 +29,7 @@ DTSummaryClients::DTSummaryClients(const ParameterSet& ps) : nevents(0) {
 
   LogVerbatim("DTDQM|DTMonitorClient|DTSummaryClients") << "[DTSummaryClients]: Constructor";
 
-  bookingdone = 0;
+  bookingdone = false;
 
 }
 
@@ -74,7 +74,7 @@ void DTSummaryClients::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
   }
 
 }
-  bookingdone = 1; 
+  bookingdone = true; 
 
 
   LogVerbatim("DTDQM|DTMonitorClient|DTSummaryClients")
@@ -92,7 +92,7 @@ void DTSummaryClients::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
   // Check if DT data in each ROS have been read out and set the SummaryContents and the ErrorSummary
   // accordignly
   MonitorElement * dataIntegritySummary = igetter.get("DT/00-DataIntegrity/DataIntegritySummary");
-  if(dataIntegritySummary != 0) {
+  if(dataIntegritySummary != nullptr) {
   int nDisabledFED = 0;
   for(int wheel = 1; wheel != 6; ++wheel) { // loop over the wheels
     int nDisablesROS = 0;
@@ -128,7 +128,7 @@ void DTSummaryClients::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
     stringstream str;
     str << "DT/01-Digi/OccupancySummary_W" << wheel;
     MonitorElement * wheelOccupancySummary =  igetter.get(str.str());
-    if(wheelOccupancySummary != 0) {
+    if(wheelOccupancySummary != nullptr) {
       int nFailingChambers = 0;
       for(int sector=1; sector<=12; sector++){ // loop over sectors
 	for(int station = 1; station != 5; ++station) { // loop over stations

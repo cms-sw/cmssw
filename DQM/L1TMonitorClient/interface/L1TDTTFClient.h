@@ -26,7 +26,7 @@ public:
   L1TDTTFClient(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~L1TDTTFClient();
+  ~L1TDTTFClient() override;
  
 protected:
 

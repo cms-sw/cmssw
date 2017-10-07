@@ -199,7 +199,7 @@ DTCalibValidation::findBestRecHit(const DTLayer* layer,
                                 const vector<type>& recHits,
                                 const float segmDist) {
   float res = 99999;
-  const type* theBestRecHit = 0;
+  const type* theBestRecHit = nullptr;
   // Loop over RecHits within the cell
   for(typename vector<type>::const_iterator recHit = recHits.begin();
       recHit != recHits.end();
@@ -366,7 +366,7 @@ void DTCalibValidation::compute(const DTGeometry *dtGeom,
       if(recHitsPerWire.find(wireId) == recHitsPerWire.end()) {
         LogTrace("DTCalibValidation") << "   No RecHit found at Step: " << step << " in cell: " << wireId;
       } else {
-	vector<type> recHits = recHitsPerWire.at(wireId);
+	const vector<type>& recHits = recHitsPerWire.at(wireId);
 	LogTrace("DTCalibValidation") << "   " << recHits.size() << " RecHits, Step " << step << " in channel: " << wireId;
 
 	// Get the layer

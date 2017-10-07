@@ -73,7 +73,7 @@
 //
 // constructors and destructor
 //
-SiStripFineDelayHit::SiStripFineDelayHit(const edm::ParameterSet& iConfig):event_(0)
+SiStripFineDelayHit::SiStripFineDelayHit(const edm::ParameterSet& iConfig):event_(nullptr)
 {
    //register your products
    produces<edm::DetSetVector<SiStripRawDigi> >("FineDelaySelection");
@@ -246,7 +246,7 @@ bool SiStripFineDelayHit::rechit(reco::Track* tk,uint32_t det_id)
 // do not understand what is going on here: each hit has a cluster: by definition will be the closest!
 std::pair<const SiStripCluster*,double> SiStripFineDelayHit::closestCluster(const TrackerGeometry& tracker,const reco::Track* tk,const uint32_t& det_id ,const edmNew::DetSetVector<SiStripCluster>& clusters, const edm::DetSetVector<SiStripDigi>& hits)
 {
-  std::pair<const SiStripCluster*,double> result(NULL,0.);
+  std::pair<const SiStripCluster*,double> result(nullptr,0.);
   double hitStrip = -1;
   int nstrips = -1;
   // localize the crossing point of the track on the module
@@ -376,12 +376,12 @@ SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    const reco::TrackCollection *tracks=trackCollection.product();
    edm::ESHandle<TrackerGeometry> tracker;
    iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
-   if (tracks->size()) {
+   if (!tracks->empty()) {
      anglefinder_->init(iEvent,iSetup);
      LogDebug("produce") << "Found " << tracks->size() << " tracks.";
      // look at the hits if one needs them
      edm::Handle< edm::DetSetVector<SiStripDigi> > hits;
-     const edm::DetSetVector<SiStripDigi>* hitSet = NULL;
+     const edm::DetSetVector<SiStripDigi>* hitSet = nullptr;
      if(homeMadeClusters_) {
        //       iEvent.getByLabel(digiLabel_,hits);
        iEvent.getByToken(digiToken_,hits);

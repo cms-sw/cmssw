@@ -24,7 +24,7 @@ class SiPixelPhase1TrackEfficiency : public SiPixelPhase1Base {
 
   public:
   explicit SiPixelPhase1TrackEfficiency(const edm::ParameterSet& conf);
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   private:
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > clustersToken_;

@@ -19,13 +19,13 @@ namespace hcaldqm
 	{
 		public:
 			DQHarvester(edm::ParameterSet const&);
-			virtual ~DQHarvester() {}
+			~DQHarvester() override {}
 
-			virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-			virtual void dqmEndLuminosityBlock(
+			void beginRun(edm::Run const&, edm::EventSetup const&) override;
+			void dqmEndLuminosityBlock(
 				DQMStore::IBooker&, DQMStore::IGetter&, 
-				edm::LuminosityBlock const&, edm::EventSetup const&);
-			virtual void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&);
+				edm::LuminosityBlock const&, edm::EventSetup const&) override;
+			void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
 
 		protected:
 			//	empa

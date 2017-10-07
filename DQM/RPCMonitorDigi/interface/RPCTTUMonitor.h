@@ -48,7 +48,7 @@
 class RPCTTUMonitor : public DQMEDAnalyzer {
 public:
   explicit  RPCTTUMonitor(const edm::ParameterSet&);
-  ~ RPCTTUMonitor();
+  ~ RPCTTUMonitor() override;
   
   int  discriminateGMT( const edm::Event& iEvent, const edm::EventSetup& iSetup );
   
@@ -56,7 +56,7 @@ public:
   
 protected:
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   
 

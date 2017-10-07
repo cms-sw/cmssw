@@ -46,17 +46,17 @@ using namespace edm;
 struct deleter {
   void operator()(TH3F *&h) {
     delete h;
-    h = 0;
+    h = nullptr;
   }
 };
 
 QcdUeDQM::QcdUeDQM(const ParameterSet &parameters)
     : hltResName_(parameters.getUntrackedParameter<string>("hltTrgResults")),
       verbose_(parameters.getUntrackedParameter<int>("verbose", 3)),
-      tgeo_(0),
-      repSumMap_(0),
-      repSummary_(0),
-      h2TrigCorr_(0),
+      tgeo_(nullptr),
+      repSumMap_(nullptr),
+      repSummary_(nullptr),
+      h2TrigCorr_(nullptr),
       ptMin_(parameters.getParameter<double>("ptMin")),
       minRapidity_(parameters.getParameter<double>("minRapidity")),
       maxRapidity_(parameters.getParameter<double>("maxRapidity")),
@@ -150,14 +150,14 @@ void QcdUeDQM::dqmBeginRun(const Run &run, const EventSetup &iSetup) {
     const string &n1(hltTrgNames_.at(i));
     // unsigned int hlt_prescale = hltConfig.prescaleValue(iSetup, n1);
     // cout<<"trigger=="<<n1<<"presc=="<<hlt_prescale<<endl;
-    bool found = 0;
+    bool found = false;
     for (size_t j = 0; j < hltConfig.size(); ++j) {
       const string &n2(hltConfig.triggerName(j));
       if (n2 == n1) {
         hltTrgBits_.push_back(j);
         hltTrgUsedNames_.push_back(n1);
         hltTrgDeci_.push_back(false);
-        found = 1;
+        found = true;
         break;
       }
     }
@@ -173,7 +173,7 @@ void QcdUeDQM::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &,
   // Book histograms if needed.
   iBooker.setCurrentFolder("Physics/QcdUe");
 
-  if (1) {
+  if (true) {
     const int Nx = hltTrgUsedNames_.size();
     const double x1 = -0.5;
     const double x2 = Nx - 0.5;
@@ -184,7 +184,7 @@ void QcdUeDQM::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &,
       h2TrigCorr_->setBinLabel(i, hltTrgUsedNames_.at(i - 1), 2);
     }
     TH1 *h = h2TrigCorr_->getTH1();
-    if (h) h->SetStats(0);
+    if (h) h->SetStats(false);
   }
   book1D(iBooker, hNevts_, "hNevts", "number of events", 2, 0, 2);
   book1D(iBooker, hNtrackerLayer_, "hNtrackerLayer",
@@ -252,7 +252,7 @@ void QcdUeDQM::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &,
   book1D(iBooker, hBeamSpot_x_, "hBeamSpot_x", "x position of beamspot; x[cm]",
          50, -10, 10);
 
-  if (1) {
+  if (true) {
     const int Nx = 25;
     const double x1 = 0.0;
     const double x2 = 50.0;
@@ -263,7 +263,7 @@ void QcdUeDQM::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &,
            "pT spectrum of leading track jet;pT(GeV/c)", Nx, x1, x2);
   }
 
-  if (1) {
+  if (true) {
     const int Nx = 24;
     const double x1 = -4.;
     const double x2 = 4.;
@@ -274,7 +274,7 @@ void QcdUeDQM::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &,
            "#phi spectrum of leading track jet;#phi", Nx, x1, x2);
   }
 
-  if (1) {
+  if (true) {
     const int Nx = 24;
     const double x1 = -4.;
     const double x2 = 4.;
@@ -285,7 +285,7 @@ void QcdUeDQM::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &,
            "#eta spectrum of leading track jet;#eta", Nx, x1, x2);
   }
 
-  if (1) {
+  if (true) {
     const int Nx = 75;
     const double x1 = 0.0;
     const double x2 = 75.0;
@@ -295,17 +295,17 @@ void QcdUeDQM::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &,
                 "hdNdEtadPhi_pTMax_Toward500",
                 "Average number of tracks (pT > 500 MeV) in toward region vs "
                 "leading track pT;pT(GeV/c);dN/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
+                Nx, x1, x2, y1, y2, false, false);
     bookProfile(iBooker, hdNdEtadPhi_pTMax_Transverse500_,
                 "hdNdEtadPhi_pTMax_Transverse500",
                 "Average number of tracks (pT > 500 MeV) in transverse region "
                 "vs leading track pT;pT(GeV/c);dN/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
+                Nx, x1, x2, y1, y2, false, false);
     bookProfile(iBooker, hdNdEtadPhi_pTMax_Away500_,
                 "hdNdEtadPhi_pTMax_Away500",
                 "Average number of tracks (pT > 500 MeV) in away region vs "
                 "leading track pT;pT(GeV/c);dN/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
+                Nx, x1, x2, y1, y2, false, false);
     bookProfile(iBooker, hdNdEtadPhi_trackJet_Toward500_,
                 "hdNdEtadPhi_trackJet_Toward500",
                 "Average number of tracks (pT > 500 MeV) in toward region vs "
@@ -315,59 +315,59 @@ void QcdUeDQM::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &,
                 "hdNdEtadPhi_trackJet_Transverse500",
                 "Average number of tracks (pT > 500 MeV) in transverse region "
                 "vs leading track jet pT;pT(GeV/c);dN/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
+                Nx, x1, x2, y1, y2, false, false);
     bookProfile(iBooker, hdNdEtadPhi_trackJet_Away500_,
                 "hdNdEtadPhi_trackJet_Away500",
                 "Average number of tracks (pT > 500 MeV) in away region vs "
                 "leading track jet pT;pT(GeV/c);dN/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
+                Nx, x1, x2, y1, y2, false, false);
 
     bookProfile(iBooker, hpTSumdEtadPhi_pTMax_Toward500_,
                 "hpTSumdEtadPhi_pTMax_Toward500",
                 "Average number of tracks (pT > 500 MeV) in toward region vs "
                 "leading track pT;pT(GeV/c);dpTSum/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
+                Nx, x1, x2, y1, y2, false, false);
     bookProfile(iBooker, hpTSumdEtadPhi_pTMax_Transverse500_,
                 "hpTSumdEtadPhi_pTMax_Transverse500",
                 "Average number of tracks (pT > 500 MeV) in transverse region "
                 "vs leading track pT;pT(GeV/c);dpTSum/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
+                Nx, x1, x2, y1, y2, false, false);
     bookProfile(iBooker, hpTSumdEtadPhi_pTMax_Away500_,
                 "hpTSumdEtadPhi_pTMax_Away500",
                 "Average number of tracks (pT > 500 MeV) in away region vs "
                 "leading track pT;pT(GeV/c);dpTSum/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
+                Nx, x1, x2, y1, y2, false, false);
     bookProfile(iBooker, hpTSumdEtadPhi_trackJet_Toward500_,
                 "hpTSumdEtadPhi_trackJet_Toward500",
                 "Average number of tracks (pT > 500 MeV) in toward region vs "
                 "leading track jet pT;pT(GeV/c);dpTSum/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
+                Nx, x1, x2, y1, y2, false, false);
     bookProfile(iBooker, hpTSumdEtadPhi_trackJet_Transverse500_,
                 "hpTSumdEtadPhi_trackJet_Transverse500",
                 "Average number of tracks (pT > 500 MeV) in transverse region "
                 "vs leading track jet pT;pT(GeV/c);dpTSum/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
+                Nx, x1, x2, y1, y2, false, false);
     bookProfile(iBooker, hpTSumdEtadPhi_trackJet_Away500_,
                 "hpTSumdEtadPhi_trackJet_Away500",
                 "Average number of tracks (pT > 500 MeV) in away region vs "
                 "leading track jet pT;pT(GeV/c);dpTSum/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
+                Nx, x1, x2, y1, y2, false, false);
 
     bookProfile(iBooker, hdNdEtadPhi_pTMax_Toward900_,
                 "hdNdEtadPhi_pTMax_Toward900",
                 "Average number of tracks (pT > 900 MeV) in toward region vs "
                 "leading track pT;pT(GeV/c);dN/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
+                Nx, x1, x2, y1, y2, false, false);
     bookProfile(iBooker, hdNdEtadPhi_pTMax_Transverse900_,
                 "hdNdEtadPhi_pTMax_Transverse900",
                 "Average number of tracks (pT > 900 MeV) in transverse region "
                 "vs leading track pT;pT(GeV/c);dN/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
+                Nx, x1, x2, y1, y2, false, false);
     bookProfile(iBooker, hdNdEtadPhi_pTMax_Away900_,
                 "hdNdEtadPhi_pTMax_Away900",
                 "Average number of tracks (pT > 900 MeV) in away region vs "
                 "leading track pT;pT(GeV/c);dN/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
+                Nx, x1, x2, y1, y2, false, false);
     bookProfile(iBooker, hdNdEtadPhi_trackJet_Toward900_,
                 "hdNdEtadPhi_trackJet_Toward900",
                 "Average number of tracks (pT > 900 MeV) in toward region vs "
@@ -377,46 +377,46 @@ void QcdUeDQM::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &,
                 "hdNdEtadPhi_trackJet_Transverse900",
                 "Average number of tracks (pT > 900 MeV) in transverse region "
                 "vs leading track jet pT;pT(GeV/c);dN/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
+                Nx, x1, x2, y1, y2, false, false);
     bookProfile(iBooker, hdNdEtadPhi_trackJet_Away900_,
                 "hdNdEtadPhi_trackJet_Away900",
                 "Average number of tracks (pT > 900 MeV) in away region vs "
                 "leading track jet pT;pT(GeV/c);dN/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
+                Nx, x1, x2, y1, y2, false, false);
 
     bookProfile(iBooker, hpTSumdEtadPhi_pTMax_Toward900_,
                 "hpTSumdEtadPhi_pTMax_Toward900",
                 "Average number of tracks (pT > 900 MeV) in toward region vs "
                 "leading track pT;pT(GeV/c);dpTSum/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
+                Nx, x1, x2, y1, y2, false, false);
     bookProfile(iBooker, hpTSumdEtadPhi_pTMax_Transverse900_,
                 "hpTSumdEtadPhi_pTMax_Transverse900",
                 "Average number of tracks (pT > 900 MeV) in transverse region "
                 "vs leading track pT;pT(GeV/c);dpTSum/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
+                Nx, x1, x2, y1, y2, false, false);
     bookProfile(iBooker, hpTSumdEtadPhi_pTMax_Away900_,
                 "hpTSumdEtadPhi_pTMax_Away900",
                 "Average number of tracks (pT > 900 MeV) in away region vs "
                 "leading track pT;pT(GeV/c);dpTSum/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
+                Nx, x1, x2, y1, y2, false, false);
     bookProfile(iBooker, hpTSumdEtadPhi_trackJet_Toward900_,
                 "hpTSumdEtadPhi_trackJet_Toward900",
                 "Average number of tracks (pT > 900 MeV) in toward region vs "
                 "leading track jet pT;pT(GeV/c);dpTSum/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
+                Nx, x1, x2, y1, y2, false, false);
     bookProfile(iBooker, hpTSumdEtadPhi_trackJet_Transverse900_,
                 "hpTSumdEtadPhi_trackJet_Transverse900",
                 "Average number of tracks (pT > 900 MeV) in transverse region "
                 "vs leading track jet pT;pT(GeV/c);dpTSum/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
+                Nx, x1, x2, y1, y2, false, false);
     bookProfile(iBooker, hpTSumdEtadPhi_trackJet_Away900_,
                 "hpTSumdEtadPhi_trackJet_Away900",
                 "Average number of tracks (pT > 900 MeV) in away region vs "
                 "leading track jet pT;pT(GeV/c);dpTSum/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
+                Nx, x1, x2, y1, y2, false, false);
   }
 
-  if (1) {
+  if (true) {
     const int Nx = 20;
     const double x1 = 0.0;
     const double x2 = 20.0;
@@ -425,7 +425,7 @@ void QcdUeDQM::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &,
            "Charged jet multiplicity;multiplicities", Nx, x1, x2);
   }
 
-  if (1) {
+  if (true) {
     const int Nx = 60;
     const double x1 = -180.0;
     const double x2 = 180.0;
@@ -490,7 +490,7 @@ void QcdUeDQM::analyze(const Event &iEvent, const EventSetup &iSetup) {
     fillChargedJetSpectra(trkJets);
     //    fillCaloJetSpectra(calJets);
     fillUE_with_MaxpTtrack(selected_);
-    if (trkJets->size() > 0) fillUE_with_ChargedJets(selected_, trkJets);
+    if (!trkJets->empty()) fillUE_with_ChargedJets(selected_, trkJets);
     // if(calJets->size()>0)fillUE_with_CaloJets(selected_,calJets);
   }
 }
@@ -617,7 +617,7 @@ bool QcdUeDQM::trackSelection(const reco::Track &trk, const reco::BeamSpot *bs,
                               const reco::Vertex &vtx, int sizevtx) {
   bool goodTrk = false;
 
-  if (sizevtx != 1) return 0;  // selection events with only a vertex
+  if (sizevtx != 1) return false;  // selection events with only a vertex
 
   // Fill basic information of all the tracks
   fill1D(hNtrackerLayer_, trk.hitPattern().trackerLayersWithMeasurement());
@@ -677,7 +677,7 @@ bool QcdUeDQM::trackSelection(const reco::Track &trk, const reco::BeamSpot *bs,
 
   // quality cut
   bool quality_ok = true;
-  if (quality_.size() != 0) {
+  if (!quality_.empty()) {
     quality_ok = false;
     for (unsigned int i = 0; i < quality_.size(); ++i) {
       if (trk.quality(quality_[i])) {
@@ -688,7 +688,7 @@ bool QcdUeDQM::trackSelection(const reco::Track &trk, const reco::BeamSpot *bs,
   }
   //-----
   bool algo_ok = true;
-  if (algorithm_.size() != 0) {
+  if (!algorithm_.empty()) {
     if (std::find(algorithm_.begin(), algorithm_.end(), trk.algo()) ==
         algorithm_.end())
       algo_ok = false;
@@ -753,7 +753,7 @@ bool QcdUeDQM::fillVtxPlots(const reco::BeamSpot *bs,
 //--------------------------------------------------------------------------------------------------
 void QcdUeDQM::fillpTMaxRelated(const std::vector<const reco::Track *> &track) {
   fill1D(hNgoodTrk_, track.size());
-  if (track.size() > 0) {
+  if (!track.empty()) {
     fill1D(hLeadingTrack_pTSpectrum_, track[0]->pt());
     fill1D(hLeadingTrack_phiSpectrum_, track[0]->phi());
     fill1D(hLeadingTrack_etaSpectrum_, track[0]->eta());
@@ -826,7 +826,7 @@ void QcdUeDQM::fillUE_with_MaxpTtrack(
   double pTSum900_TransReg = 0;
   double pTSum900_AwayReg = 0;
   double pTSum900_TowardReg = 0;
-  if (track.size() > 0) {
+  if (!track.empty()) {
     if (track[0]->pt() > 1.) {
       for (size_t i = 1; i < track.size(); i++) {
         double dphi =

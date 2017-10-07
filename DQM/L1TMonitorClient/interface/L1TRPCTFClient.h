@@ -27,7 +27,7 @@ public:
   L1TRPCTFClient(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~L1TRPCTFClient();
+  ~L1TRPCTFClient() override;
  
 protected:
 

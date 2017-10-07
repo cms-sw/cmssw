@@ -75,7 +75,7 @@ void SiStripBaseCondObjDQM::analysis(const edm::EventSetup & eSetup_){
       sprintf(sRun,"_Run_%d",eSetup_.iovSyncValue().eventID().run());
       filename.insert(filename.find("."),sRun);
       
-      saveTkMap(filename.c_str(), minValue, maxValue);
+      saveTkMap(filename, minValue, maxValue);
     }
   }
 }
@@ -216,8 +216,8 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
     std::sort(ModulesToBeExcluded_.begin(),ModulesToBeExcluded_.end());
     std::sort(ModulesToBeIncluded_.begin(),ModulesToBeIncluded_.end());
     
-    if (modulesToBeExcluded.size()==0  && modulesToBeIncluded.size()==0 &&
-	ModulesToBeExcluded_.size()==0 && ModulesToBeIncluded_.size()==0 )
+    if (modulesToBeExcluded.empty()  && modulesToBeIncluded.empty() &&
+	ModulesToBeExcluded_.empty() && ModulesToBeIncluded_.empty() )
       edm::LogWarning("SiStripBaseCondObjDQM") 
 	<< "[SiStripBaseCondObjDQM::selectModules] PLEASE CHECK : no modules to be exclude/included in your cfg"
 	<< std::endl; 
@@ -229,7 +229,7 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
     edm::LogInfo("SiStripBaseCondObjDQM") << "[SiStripBaseCondObjDQM::selectModules] modulesToBeExcluded: " << modulesToBeExcluded.size() << std::endl;
     
     // apply modules selection
-    if( modulesToBeIncluded.size()>0 ){
+    if( !modulesToBeIncluded.empty() ){
       std::vector<uint32_t> tmp;
       // The intersection of two sets is formed only by the elements that are present in both sets
       set_intersection( detIds_.begin(), detIds_.end(),  
@@ -239,7 +239,7 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
     }
     
     std::sort(detIds_.begin(),detIds_.end());
-    if(modulesToBeExcluded.size()>0) {
+    if(!modulesToBeExcluded.empty()) {
       for( std::vector<uint32_t>::const_iterator mod = modulesToBeExcluded.begin(); 
 	   mod != modulesToBeExcluded.end(); mod++){
 	
@@ -305,26 +305,26 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
     for(unsigned int i=1; i<5 ; i++){
       tmp.clear();
       substructure_.getTIBDetectors(detIds_, tmp, i,0,0,0);
-      if(tmp.size() !=0) { layerDetIds.push_back(*(tmp.begin()));}
+      if(!tmp.empty()) { layerDetIds.push_back(*(tmp.begin()));}
     }
     for(unsigned int i=1; i<7 ; i++){
       tmp.clear();
       substructure_.getTOBDetectors(detIds_, tmp, i,0,0);
-      if(tmp.size() !=0) { layerDetIds.push_back(*(tmp.begin()));}
+      if(!tmp.empty()) { layerDetIds.push_back(*(tmp.begin()));}
     }
     for(unsigned int i=1; i<4 ; i++){
       tmp.clear();
       substructure_.getTIDDetectors(detIds_, tmp, 1,i,0,0);
-      if(tmp.size() !=0) { layerDetIds.push_back(*(tmp.begin()));}
+      if(!tmp.empty()) { layerDetIds.push_back(*(tmp.begin()));}
       substructure_.getTIDDetectors(detIds_, tmp, 2,i,0,0);
-      if(tmp.size() !=0) { layerDetIds.push_back(*(tmp.begin()));}
+      if(!tmp.empty()) { layerDetIds.push_back(*(tmp.begin()));}
     }  
     for(unsigned int i=1; i<10 ; i++){
       tmp.clear();
       substructure_.getTECDetectors(detIds_, tmp, 1,i,0,0,0,0);
-      if(tmp.size() !=0) { layerDetIds.push_back(*(tmp.begin()));}
+      if(!tmp.empty()) { layerDetIds.push_back(*(tmp.begin()));}
       substructure_.getTECDetectors(detIds_, tmp, 2,i,0,0,0,0);
-      if(tmp.size() !=0) { layerDetIds.push_back(*(tmp.begin()));}
+      if(!tmp.empty()) { layerDetIds.push_back(*(tmp.begin()));}
     }
     
     detIds_.clear();
@@ -1186,7 +1186,7 @@ std::vector<uint32_t> SiStripBaseCondObjDQM::GetSameLayerDetId(const std::vector
 
 //==========================
 void SiStripBaseCondObjDQM::bookTkMap(const std::string& TkMapname){
-  tkMap= new TrackerMap(TkMapname.c_str());
+  tkMap= new TrackerMap(TkMapname);
 }
 
 //==========================
@@ -1197,7 +1197,7 @@ void SiStripBaseCondObjDQM::fillTkMap(const uint32_t& detid, const float& value)
 //==========================
 void SiStripBaseCondObjDQM::saveTkMap(const std::string& TkMapname, double minValue, double maxValue){
 
-  if(tkMapScaler.size()!=0){
+  if(!tkMapScaler.empty()){
     //check that saturation is below x%  below minValue and above minValue, and in case re-arrange.
     float th=hPSet_.getParameter<double>("saturatedFraction");
 
@@ -1235,7 +1235,7 @@ void SiStripBaseCondObjDQM::saveTkMap(const std::string& TkMapname, double minVa
     }
   }
   
-  tkMap->save(false, minValue, maxValue, TkMapname.c_str(),4500,2400);
+  tkMap->save(false, minValue, maxValue, TkMapname,4500,2400);
   tkMap->setPalette(1); tkMap->showPalette(true);
   
 }

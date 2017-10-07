@@ -24,7 +24,7 @@ L1TDEMON::L1TDEMON(const edm::ParameterSet& iConfig) {
     if (iConfig.getUntrackedParameter<bool> ("disableROOToutput", true))
         histFile_ = "";
 
-    if (histFile_.size() != 0) {
+    if (!histFile_.empty()) {
         edm::LogInfo("OutputRootFile")
                 << "L1TEmulator Monitoring histograms will be saved to "
                 << histFile_.c_str() << std::endl;

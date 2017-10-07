@@ -39,7 +39,7 @@
 #include <map>
 #include <string>
 #include <sys/time.h>
-#include <time.h>
+#include <ctime>
 #include <vector>
 
 const unsigned int PixelLumiDQM::lastBunchCrossing;
@@ -70,7 +70,7 @@ PixelLumiDQM::PixelLumiDQM(const edm::ParameterSet& iConfig):
     << "PixelLumiDQM storing pixel cluster quality check histograms? "
     << fIncludePixelQualCheckHistos;
 
-  if (!fDeadModules.size()) {
+  if (fDeadModules.empty()) {
     edm::LogInfo("Configuration")
       << "No pixel modules specified to be ignored";
   } else {
@@ -204,7 +204,7 @@ PixelLumiDQM::analyze(const edm::Event& iEvent,
     edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
     iEvent.getByToken(fPixelClusterLabel, pixelClusters);
    
-    bool filterDeadModules = (fDeadModules.size() > 0);
+    bool filterDeadModules = (!fDeadModules.empty());
     std::vector<uint32_t>::const_iterator deadModulesBegin = fDeadModules.begin();
     std::vector<uint32_t>::const_iterator deadModulesEnd = fDeadModules.end();
     
@@ -251,11 +251,11 @@ PixelLumiDQM::analyze(const edm::Event& iEvent,
                 if (layer<kNumLayers) {
                   std::string histName;
                   histName="clusPosBarrel"+std::to_string(layer);
-                  fHistContainerThisRun[histName.c_str()]->Fill(clustGP.z(), clustGP.phi());
+                  fHistContainerThisRun[histName]->Fill(clustGP.z(), clustGP.phi());
                   histName="clusChargeBarrel"+std::to_string(layer);
-                  fHistContainerThisRun[histName.c_str()]->Fill(iEvent.bunchCrossing(), charge);
+                  fHistContainerThisRun[histName]->Fill(iEvent.bunchCrossing(), charge);
                   histName="clusSizeBarrel"+std::to_string(layer);
-                  fHistContainerThisRun[histName.c_str()]->Fill(iEvent.bunchCrossing(), size);
+                  fHistContainerThisRun[histName]->Fill(iEvent.bunchCrossing(), size);
                 } else {
                   edm::LogWarning("pixelLumi")<<"higher layer number, "<<layer<<", than layers";
                 }
@@ -270,11 +270,11 @@ PixelLumiDQM::analyze(const edm::Event& iEvent,
                 if (disk<kNumDisks) {
                   std::string histName;
                   histName="clusPosEndCap"+std::to_string(disk);
-                  fHistContainerThisRun[histName.c_str()]->Fill(clustGP.x(), clustGP.y());
+                  fHistContainerThisRun[histName]->Fill(clustGP.x(), clustGP.y());
                   histName="clusChargeEndCap"+std::to_string(disk);
-                  fHistContainerThisRun[histName.c_str()]->Fill(iEvent.bunchCrossing(), charge);
+                  fHistContainerThisRun[histName]->Fill(iEvent.bunchCrossing(), charge);
                   histName="clusSizeEndCap"+std::to_string(disk);
-                  fHistContainerThisRun[histName.c_str()]->Fill(iEvent.bunchCrossing(), size);
+                  fHistContainerThisRun[histName]->Fill(iEvent.bunchCrossing(), size);
                 } else {
                   edm::LogWarning("pixelLumi")<<"higher disk number, "<<disk<<", than disks,"<<kNumDisks<<std::endl;
                 }
@@ -611,7 +611,7 @@ PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
   logFile_.open(fLogFileName_.c_str(),std::ios_base::trunc);    
 
   timeval tv;
-  gettimeofday(&tv,0);
+  gettimeofday(&tv,nullptr);
   tm *ts = gmtime(&tv.tv_sec);
   char datestring[256];
   strftime(datestring, sizeof(datestring),"%Y.%m.%d %T GMT %s",ts);

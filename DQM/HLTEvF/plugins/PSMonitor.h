@@ -46,7 +46,7 @@ class PSMonitor : public DQMEDAnalyzer
 {
 public:
   PSMonitor( const edm::ParameterSet& );
-  ~PSMonitor() = default;
+  ~PSMonitor() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   static void fillHistoPSetDescription(edm::ParameterSetDescription & pset, int value);
 
