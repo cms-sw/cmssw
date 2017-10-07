@@ -48,14 +48,14 @@
 class L1ABCDebugger : public edm::EDAnalyzer {
  public:
     explicit L1ABCDebugger(const edm::ParameterSet&);
-    ~L1ABCDebugger();
+    ~L1ABCDebugger() override;
 
 
 private:
-  virtual void beginJob() override ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endJob() override ;
 
       // ----------member data ---------------------------
 

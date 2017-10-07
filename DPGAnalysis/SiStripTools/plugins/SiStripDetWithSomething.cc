@@ -48,12 +48,12 @@ template <class T>
 class SiStripDetWithSomething : public edm::EDFilter {
    public:
       explicit SiStripDetWithSomething(const edm::ParameterSet&);
-      ~SiStripDetWithSomething();
+      ~SiStripDetWithSomething() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       // ----------member data ---------------------------
 
