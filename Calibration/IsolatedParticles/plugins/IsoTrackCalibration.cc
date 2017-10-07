@@ -75,15 +75,15 @@ class IsoTrackCalibration : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm:
 
 public:
   explicit IsoTrackCalibration(const edm::ParameterSet&);
-  ~IsoTrackCalibration();
+  ~IsoTrackCalibration() override;
  
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
-  virtual void beginJob() override;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void beginJob() override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
@@ -259,7 +259,7 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
   t_nVtx = recVtxs->size();
   h_nVtx->Fill(t_nVtx);
 
-  if (recVtxs->size()>0 && !((*recVtxs)[0].isFake())) {
+  if (!recVtxs->empty() && !((*recVtxs)[0].isFake())) {
     leadPV = math::XYZPoint( (*recVtxs)[0].x(),(*recVtxs)[0].y(), (*recVtxs)[0].z() );
   } else if (beamSpotH.isValid()) {
     leadPV = beamSpotH->position();
@@ -305,7 +305,7 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
 	  int hlt    = triggerResults->accept(iHLT);
 	  if (hlt > 0) {
 	    for (unsigned int i=0; i<trigNames_.size(); ++i) {
-	      if (triggerNames_[iHLT].find(trigNames_[i].c_str())!=std::string::npos) {
+	      if (triggerNames_[iHLT].find(trigNames_[i])!=std::string::npos) {
 		triggerOK = true;
 #ifdef DebugLog
 		if (verbosity_%10 > 0)
