@@ -52,8 +52,8 @@ class PFTauSecondaryVertexProducer : public edm::global::EDProducer<> {
   enum Alg{useInputPV=0, usePVwithMaxSumPt, useTauPV};
 
   explicit PFTauSecondaryVertexProducer(const edm::ParameterSet& iConfig);
-  ~PFTauSecondaryVertexProducer();
-  virtual void produce(edm::StreamID, edm::Event&,const edm::EventSetup&) const override;
+  ~PFTauSecondaryVertexProducer() override;
+  void produce(edm::StreamID, edm::Event&,const edm::EventSetup&) const override;
  private:
   const edm::InputTag PFTauTag_;
   const edm::EDGetTokenT<std::vector<reco::PFTau> > PFTauToken_;

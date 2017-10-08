@@ -79,7 +79,7 @@ VertexFromTrackProducer::produce(edm::StreamID iStreamId, edm::Event& iEvent, co
     // get the Vertex
     edm::Handle<edm::View<reco::Vertex> > recoVertexHandle;
     iEvent.getByToken(vertexLabel,recoVertexHandle);
-    if ((recoVertexHandle.isValid()) && (recoVertexHandle->size()>0)){
+    if ((recoVertexHandle.isValid()) && (!recoVertexHandle->empty())){
       reco::Vertex vertex = recoVertexHandle->at(0);
       vertexPoint = vertex.position();
       vertexAvailable = true;
@@ -89,12 +89,12 @@ VertexFromTrackProducer::produce(edm::StreamID iStreamId, edm::Event& iEvent, co
     }
   }
 
-  const reco::Track* track = 0;
+  const reco::Track* track = nullptr;
   if(fIsRecoCandidate)
   {
     edm::Handle<edm::View<reco::RecoCandidate> > candidateHandle;
     iEvent.getByToken(candidateToken, candidateHandle);
-    if ((candidateHandle.isValid())&&(candidateHandle->size()>0)){
+    if ((candidateHandle.isValid())&&(!candidateHandle->empty())){
       double maxpt=0.;
       unsigned i_maxpt=0;
       for (unsigned i = 0; i < candidateHandle->size(); ++i) {
@@ -113,7 +113,7 @@ VertexFromTrackProducer::produce(edm::StreamID iStreamId, edm::Event& iEvent, co
     iEvent.getByToken(triggerFilterElectronsSrc, triggerfilter);
     std::vector<reco::ElectronRef> recocandidates;
     triggerfilter->getObjects(trigger::TriggerElectron,recocandidates);
-    if ((recocandidates.size()>0)){
+    if ((!recocandidates.empty())){
       double maxpt=0.;
       unsigned i_maxpt=0;
       for (unsigned i = 0; i < recocandidates.size(); ++i) {
@@ -132,7 +132,7 @@ VertexFromTrackProducer::produce(edm::StreamID iStreamId, edm::Event& iEvent, co
     iEvent.getByToken(triggerFilterMuonsSrc, triggerfilter);
     std::vector<reco::RecoChargedCandidateRef> recocandidates;
     triggerfilter->getObjects(trigger::TriggerMuon,recocandidates);
-    if ((recocandidates.size()>0)){
+    if ((!recocandidates.empty())){
       double maxpt=0.;
       unsigned i_maxpt=0;
       for (unsigned i = 0; i < recocandidates.size(); ++i) {
@@ -149,7 +149,7 @@ VertexFromTrackProducer::produce(edm::StreamID iStreamId, edm::Event& iEvent, co
   else {
     edm::Handle<edm::View<reco::Track> > trackHandle;
     iEvent.getByToken(trackToken, trackHandle);
-    if ((trackHandle.isValid())&&(trackHandle->size()>0)){
+    if ((trackHandle.isValid())&&(!trackHandle->empty())){
       double maxpt=0.;
       unsigned i_maxpt=0;
       for (unsigned i = 0; i < trackHandle->size(); ++i) {
