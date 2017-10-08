@@ -84,7 +84,7 @@ class TFWLiteSelector : public TFWLiteSelectorBasic
       
       // ---------- member data --------------------------------
       edm::propagate_const<std::shared_ptr<TWorker>> worker_;
-      ClassDef(TFWLiteSelector,2)
+      ClassDefOverride(TFWLiteSelector,2)
 };
 
 #endif
