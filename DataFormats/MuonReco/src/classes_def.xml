@@ -1,5 +1,6 @@
 <lcgdict>
-  <class name="reco::Muon" ClassVersion="18">
+  <class name="reco::Muon" ClassVersion="19">
+   <version ClassVersion="19" checksum="3201675353"/>
    <version ClassVersion="18" checksum="2257088106"/>
    <version ClassVersion="17" checksum="2296096670"/>
    <version ClassVersion="16" checksum="1808419014"/>

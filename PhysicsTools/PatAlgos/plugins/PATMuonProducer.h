@@ -32,7 +32,7 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-
+#include "PhysicsTools/PatAlgos/interface/MuonMvaEstimator.h"
 
 namespace pat {
   /// foward declarations
@@ -46,9 +46,9 @@ namespace pat {
     /// default constructir
     explicit PATMuonProducer(const edm::ParameterSet & iConfig);
     /// default destructur
-    ~PATMuonProducer();
+    ~PATMuonProducer() override;
     /// everything that needs to be done during the event loop
-    virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+    void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
     /// description of config file parameters
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
@@ -68,7 +68,8 @@ namespace pat {
     /// for the embedding of isoDeposits or userIsolation values
     template<typename T> void readIsolationLabels( const edm::ParameterSet & iConfig, const char* psetName, IsolationLabels& labels, std::vector<edm::EDGetTokenT<edm::ValueMap<T> > > & tokens);
 
-      void setMuonMiniIso(pat::Muon& aMuon, const pat::PackedCandidateCollection *pc);
+    void setMuonMiniIso(pat::Muon& aMuon, const pat::PackedCandidateCollection *pc);
+    double getRelMiniIsoPUCorrected(const pat::Muon& muon, float rho);
 
     // embed various impact parameters with errors
     // embed high level selection
@@ -79,7 +80,8 @@ namespace pat {
 			 bool primaryVertexIsValid,
 			 reco::BeamSpot & beamspot,
 			 bool beamspotIsValid );
-
+    double relMiniIsoPUCorrected( const pat::Muon& aMuon,
+				  double rho);
 
   private:
     /// input source
@@ -89,6 +91,7 @@ namespace pat {
     edm::EDGetTokenT<pat::PackedCandidateCollection > pcToken_;
     bool computeMiniIso_;
     std::vector<double> miniIsoParams_;
+    double relMiniIsoPUCorrected_;
 
     /// embed the track from best muon measurement (global pflow)
     bool embedBestTrack_;
@@ -160,6 +163,17 @@ namespace pat {
     edm::EDGetTokenT<edm::ValueMap<float> > PUPPINoLeptonsIsolation_charged_hadrons_;
     edm::EDGetTokenT<edm::ValueMap<float> > PUPPINoLeptonsIsolation_neutral_hadrons_;
     edm::EDGetTokenT<edm::ValueMap<float> > PUPPINoLeptonsIsolation_photons_;
+    /// standard muon selectors
+    bool computeMuonMVA_;
+    bool recomputeBasicSelectors_;
+    double mvaDrMax_;
+    bool mvaUseJec_;
+    edm::EDGetTokenT<reco::JetTagCollection> mvaBTagCollectionTag_;
+    edm::EDGetTokenT<reco::JetCorrector> mvaL1Corrector_;
+    edm::EDGetTokenT<reco::JetCorrector> mvaL1L2L3ResCorrector_;
+    edm::EDGetTokenT<double> rho_;
+    pat::MuonMvaEstimator mvaEstimator_;
+    std::string mvaTrainingFile_;
     
     /// --- tools ---
     /// comparator for pt ordering
