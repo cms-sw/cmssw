@@ -13,7 +13,8 @@ class HGCalShowerShape{
     ~HGCalShowerShape(){}
 
     int firstLayer(const l1t::HGCalMulticluster& c3d) const;
-    int showerLength(const l1t::HGCalMulticluster& c3d) const;//in number of layers
+    int lastLayer(const l1t::HGCalMulticluster& c3d) const;
+    int showerLength(const l1t::HGCalMulticluster& c3d) const {return lastLayer(c3d)-firstLayer(c3d)+1; }//in number of layers
   
     float eMax(const l1t::HGCalMulticluster& c3d) const;  
   
@@ -32,6 +33,11 @@ class HGCalShowerShape{
     float sigmaEtaEta(const std::vector<float>& energy, const std::vector<float>& eta) const;
     float sigmaPhiPhi(const std::vector<float>& energy, const std::vector<float>& phi) const;   
     float sigmaZZ(const std::vector<float>& energy, const std::vector<float>& z) const;
+
+    static const int kLayersEE_=28;
+    static const int kLayersFH_=12;
+    static const int kLayersBH_=12;
+    int HGC_layer(const uint32_t subdet, const uint32_t layer) const;
 
 
 };
