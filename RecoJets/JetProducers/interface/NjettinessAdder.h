@@ -45,9 +45,9 @@ class NjettinessAdder : public edm::stream::EDProducer<> {
 
     explicit NjettinessAdder(const edm::ParameterSet& iConfig);
     
-    virtual ~NjettinessAdder() {}
+    ~NjettinessAdder() override {}
     
-    void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) ;
+    void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override ;
     float getTau(unsigned num, const edm::Ptr<reco::Jet> & object) const;
     
  private:	

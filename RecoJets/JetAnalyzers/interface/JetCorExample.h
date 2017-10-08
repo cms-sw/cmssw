@@ -19,9 +19,9 @@ class JetCorExample : public edm::EDAnalyzer
      private:
        typedef std::vector<Jet> JetCollection;
        void FillHist1D(const TString& histName, const Double_t& x);
-       void beginJob();
-       void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
-       void endJob();
+       void beginJob() override;
+       void analyze(edm::Event const& e, edm::EventSetup const& iSetup) override;
+       void endJob() override;
        std::map<TString, TH1*> m_HistNames1D;  
        TFile* m_file;
        /////// Configurable parameters /////////////////////////////////////

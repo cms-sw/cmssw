@@ -138,14 +138,14 @@ double HEPTopTaggerV2_fixed_R::nsub(fastjet::PseudoJet jet, int order, fastjet::
   return nsub.result(jet);
 }
 
-HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R() : _do_qjets(0),
+HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R() : _do_qjets(false),
 					       _mass_drop_threshold(0.8), _max_subjet_mass(30.),
 					       _mode(Mode(0)), _mtmass(172.3), _mwmass(80.4), _mtmin(150.), _mtmax(200.), _rmin(0.85*80.4/172.3), _rmax(1.15*80.4/172.3),
 					       _m23cut(0.35), _m13cutmin(0.2), _m13cutmax(1.3), _minpt_tag(200.),
 					       _nfilt(5), _Rfilt(0.3), _jet_algorithm_filter(fastjet::cambridge_algorithm), _minpt_subjet(0.),
 					       _jet_algorithm_recluster(fastjet::cambridge_algorithm),
 					       _zcut(0.1), _rcut_factor(0.5),
-					       _q_zcut(0.1), _q_dcut_fctr(0.5), _q_exp_min(0.), _q_exp_max(0.), _q_rigidity(0.1), _q_truncation_fctr(0.0), _rnEngine(0),
+					       _q_zcut(0.1), _q_dcut_fctr(0.5), _q_exp_min(0.), _q_exp_max(0.), _q_rigidity(0.1), _q_truncation_fctr(0.0), _rnEngine(nullptr),
 					       //_qjet_plugin(_q_zcut, _q_dcut_fctr, _q_exp_min, _q_exp_max, _q_rigidity, _q_truncation_fctr),
                                                _debug(false),_first_time(true)  
 {
@@ -164,7 +164,7 @@ HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R() : _do_qjets(0),
   
 }
 						
-HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R(const fastjet::PseudoJet jet) : _do_qjets(0),
+HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R(const fastjet::PseudoJet jet) : _do_qjets(false),
 									   _jet(jet), _initial_jet(jet),
 									   _mass_drop_threshold(0.8), _max_subjet_mass(30.),
 									   _mode(Mode(0)), _mtmass(172.3), _mwmass(80.4),  _mtmin(150.), _mtmax(200.), _rmin(0.85*80.4/172.3), _rmax(1.15*80.4/172.3),
@@ -173,12 +173,12 @@ HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R(const fastjet::PseudoJet jet) : _
 									   _jet_algorithm_recluster(fastjet::cambridge_algorithm),
 									   _zcut(0.1), _rcut_factor(0.5),
 									   _q_zcut(0.1), _q_dcut_fctr(0.5), _q_exp_min(0.), _q_exp_max(0.), _q_rigidity(0.1), _q_truncation_fctr(0.0),
-									   _fat(jet), _rnEngine(0),
+									   _fat(jet), _rnEngine(nullptr),
                                                                            _debug(false),_first_time(true)  									  
 {}
 
 HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R(const fastjet::PseudoJet jet, 
-					   double mtmass, double mwmass) : _do_qjets(0),
+					   double mtmass, double mwmass) : _do_qjets(false),
 									   _jet(jet), _initial_jet(jet),
 									   _mass_drop_threshold(0.8), _max_subjet_mass(30.),
 									   _mode(Mode(0)), _mtmass(mtmass), _mwmass(mwmass), _rmin(0.85*80.4/172.3), _rmax(1.15*80.4/172.3),
@@ -187,7 +187,7 @@ HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R(const fastjet::PseudoJet jet,
 									   _jet_algorithm_recluster(fastjet::cambridge_algorithm),
 									   _zcut(0.1), _rcut_factor(0.5),
 									   _q_zcut(0.1), _q_dcut_fctr(0.5), _q_exp_min(0.), _q_exp_max(0.), _q_rigidity(0.1), _q_truncation_fctr(0.0),
-									   _fat(jet), _rnEngine(0),
+									   _fat(jet), _rnEngine(nullptr),
                                                                            _debug(false),_first_time(true)  
 {}
 
@@ -434,7 +434,7 @@ void HEPTopTaggerV2::UnclusterFatjets(const vector<fastjet::PseudoJet> & big_fat
   }
 }
 
-HEPTopTaggerV2::HEPTopTaggerV2() : _do_optimalR(0), _do_qjets(0),
+HEPTopTaggerV2::HEPTopTaggerV2() : _do_optimalR(false), _do_qjets(false),
 			       _mass_drop_threshold(0.8), _max_subjet_mass(30.),
 			       _mode(Mode(0)), _mtmass(172.3), _mwmass(80.4), _mtmin(150.), _mtmax(200.), _rmin(0.85*80.4/172.3), _rmax(1.15*80.4/172.3),
 			       _m23cut(0.35), _m13cutmin(0.2), _m13cutmax(1.3), _minpt_tag(200.),
@@ -445,12 +445,12 @@ HEPTopTaggerV2::HEPTopTaggerV2() : _do_optimalR(0), _do_qjets(0),
 			       _R_filt_optimalR_calc(0.2), _N_filt_optimalR_calc(10), _r_min_exp_function(&R_opt_calc_funct),
                                _optimalR_mmin(150.), _optimalR_mmax(200.), _optimalR_fw(0.175), _R_opt_diff(0.3), _R_opt_reject_min(false),
 			       _R_filt_optimalR_pass(0.2), _N_filt_optimalR_pass(5), _R_filt_optimalR_fail(0.3), _N_filt_optimalR_fail(3),
-  _q_zcut(0.1), _q_dcut_fctr(0.5), _q_exp_min(0.), _q_exp_max(0.), _q_rigidity(0.1), _q_truncation_fctr(0.0), _rnEngine(0),
+  _q_zcut(0.1), _q_dcut_fctr(0.5), _q_exp_min(0.), _q_exp_max(0.), _q_rigidity(0.1), _q_truncation_fctr(0.0), _rnEngine(nullptr),
 			       _debug(false)
 {}
 
 HEPTopTaggerV2::HEPTopTaggerV2(const fastjet::PseudoJet & jet 
-			   ) : _do_optimalR(0), _do_qjets(0),
+			   ) : _do_optimalR(false), _do_qjets(false),
 			       _jet(jet), _initial_jet(jet),
 			       _mass_drop_threshold(0.8), _max_subjet_mass(30.),
 			       _mode(Mode(0)), _mtmass(172.3), _mwmass(80.4), _mtmin(150.), _mtmax(200.), _rmin(0.85*80.4/172.3), _rmax(1.15*80.4/172.3),
@@ -463,13 +463,13 @@ HEPTopTaggerV2::HEPTopTaggerV2(const fastjet::PseudoJet & jet
 			       _optimalR_mmin(150.), _optimalR_mmax(200.), _optimalR_fw(0.175), _R_opt_diff(0.3), _R_opt_reject_min(false),
 			       _R_filt_optimalR_pass(0.2), _N_filt_optimalR_pass(5), _R_filt_optimalR_fail(0.3), _N_filt_optimalR_fail(3),
 			       _q_zcut(0.1), _q_dcut_fctr(0.5), _q_exp_min(0.), _q_exp_max(0.), _q_rigidity(0.1), _q_truncation_fctr(0.0),
-			       _fat(jet),_rnEngine(0),
+			       _fat(jet),_rnEngine(nullptr),
 			       _debug(false)
 {}
 
 HEPTopTaggerV2::HEPTopTaggerV2(const fastjet::PseudoJet & jet, 
 			   double mtmass, double mwmass
-			   ) : _do_optimalR(0), _do_qjets(0),
+			   ) : _do_optimalR(false), _do_qjets(false),
 			       _jet(jet), _initial_jet(jet),
 			       _mass_drop_threshold(0.8), _max_subjet_mass(30.),
 			       _mode(Mode(0)), _mtmass(mtmass), _mwmass(mwmass), _mtmin(150.), _mtmax(200.), _rmin(0.85*80.4/172.3), _rmax(1.15*80.4/172.3),
@@ -482,7 +482,7 @@ HEPTopTaggerV2::HEPTopTaggerV2(const fastjet::PseudoJet & jet,
 			       _optimalR_mmin(150.), _optimalR_mmax(200.), _optimalR_fw(0.175), _R_opt_diff(0.3), _R_opt_reject_min(false),
 			       _R_filt_optimalR_pass(0.2), _N_filt_optimalR_pass(5), _R_filt_optimalR_fail(0.3), _N_filt_optimalR_fail(3),
 			       _q_zcut(0.1), _q_dcut_fctr(0.5), _q_exp_min(0.), _q_exp_max(0.), _q_rigidity(0.1), _q_truncation_fctr(0.0),
-			       _fat(jet), _rnEngine(0),
+			       _fat(jet), _rnEngine(nullptr),
 			       _debug(false)
 {}
 
