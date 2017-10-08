@@ -31,7 +31,7 @@ public:
 
   GsfVertexTrackCompatibilityEstimator(){}
 
-  virtual ~GsfVertexTrackCompatibilityEstimator(){}
+  ~GsfVertexTrackCompatibilityEstimator() override{}
 
   /**
    * Track-to-vertex compatibility. 
@@ -41,17 +41,17 @@ public:
    * \return The chi**2.
    */
 
-  virtual BDpair estimate(const CachingVertex<5> & vrt, const RefCountedVertexTrack track,
-			  unsigned int hint=UINT_MAX) const;
+  BDpair estimate(const CachingVertex<5> & vrt, const RefCountedVertexTrack track,
+			  unsigned int hint=UINT_MAX) const override;
 
-  virtual BDpair estimate(const CachingVertex<5> & v, 
+  BDpair estimate(const CachingVertex<5> & v, 
 			  const RefCountedLinearizedTrackState track,
-			  unsigned int hint=UINT_MAX) const;
+			  unsigned int hint=UINT_MAX) const override;
 
-  virtual BDpair estimate(const reco::Vertex & vertex, 
-			 const reco::TransientTrack & track) const;
+  BDpair estimate(const reco::Vertex & vertex, 
+			 const reco::TransientTrack & track) const override;
 
-  virtual GsfVertexTrackCompatibilityEstimator * clone() const
+  GsfVertexTrackCompatibilityEstimator * clone() const override
   {
     return new GsfVertexTrackCompatibilityEstimator(* this);
   }

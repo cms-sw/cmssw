@@ -61,7 +61,7 @@ bool  ParticleKinematicLinearizedTrackState::operator ==(LinearizedTrackState<6>
 {
  const  ParticleKinematicLinearizedTrackState* otherP = 
   	dynamic_cast<const  ParticleKinematicLinearizedTrackState*>(&other);
-   if (otherP == 0) {
+   if (otherP == nullptr) {
    throw VertexException(" ParticleKinematicLinearizedTrackState:: don't know how to compare myself to non-kinematic track state");
   }
   return (*(otherP->particle()) == *part);}

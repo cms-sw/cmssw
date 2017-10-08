@@ -13,7 +13,7 @@ void NuclearVertexBuilder::build( const reco::TrackRef& primTrack, std::vector<r
      std::sort(secTracks.begin(),secTracks.end(),cmpTracks());
      checkEnergy(primTrack, secTracks);
 
-     if( secTracks.size() != 0) {
+     if( !secTracks.empty()) {
          if( FillVertexWithAdaptVtxFitter(primTrack, secTracks) ) return;
          else if( FillVertexWithCrossingPoint(primTrack, secTracks) ) return;
          else FillVertexWithLastPrimHit( primTrack, secTracks);
@@ -123,7 +123,7 @@ ClosestApproachInRPhi* NuclearVertexBuilder::closestApproach( const reco::TrackR
             bool status = theApproach->calculate(primTraj,secTraj);
             if( status ) { return theApproach; }
             else { 
-                   return NULL;
+                   return nullptr;
             }
 }
 
