@@ -104,7 +104,7 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
   // create new collection of corrected super clusters
   auto superclusters_p = std::make_unique<reco::SuperClusterCollection>();
   
-  CaloSubdetectorTopology * topology_p=0;
+  CaloSubdetectorTopology * topology_p=nullptr;
   if (geometry)
     topology_p  = new EcalPreshowerTopology(geoHandle);
   

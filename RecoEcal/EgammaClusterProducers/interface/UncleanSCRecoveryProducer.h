@@ -21,7 +21,7 @@ class UncleanSCRecoveryProducer : public edm::global::EDProducer<>
 
       UncleanSCRecoveryProducer(const edm::ParameterSet& ps);
 
-      virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+      void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
       
   private:
       // the clean collection      
