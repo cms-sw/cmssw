@@ -4,6 +4,7 @@
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include <iostream>
 #include <sstream>
@@ -23,83 +24,68 @@ int HGCalShowerShape::HGC_layer(const uint32_t subdet, const uint32_t layer)    
 
 }
 
+//Compute energy-weighted mean of any variable X in the cluster
 
+float HGCalShowerShape::meanX(const std::vector<pair<float,float> >& energy_X_tc) const {
 
+  float Etot = 0;
+  float X_sum = 0;
 
+  for(const auto& energy_X : energy_X_tc){
 
-float HGCalShowerShape::sigmaEtaEta(const std::vector<float>& energy, const std::vector<float>& eta) const {
+    X_sum += energy_X.first*energy_X.second;
+    Etot += energy_X.first;
 
-  int ntc=energy.size();
-  //compute weighted eta mean
-  float eta_sum=0;
-  float w_sum=0; //here weight is energy
-  for(int i=0;i<ntc;i++){
-    eta_sum+=energy.at(i)*eta.at(i);
-    w_sum+=energy.at(i);
   }
-  float eta_mean=0;
-  if (w_sum!=0) eta_mean=eta_sum/w_sum;
-  //compute weighted eta RMS
-  float deltaeta2_sum=0;
-  for(int i=0;i<ntc;i++) deltaeta2_sum+=energy.at(i)*pow((eta.at(i)-eta_mean),2);
-  float eta_RMS=0;
-  if (w_sum!=0) eta_RMS=deltaeta2_sum/w_sum;
-  float See=sqrt(eta_RMS);
-  return See;
-    
+
+  float X_mean = 0;
+  if(Etot>0) X_mean = X_sum/Etot;
+  return X_mean;
+
+}
+
+//Compute energy-weighted RMS of any variable X in the cluster
+
+float HGCalShowerShape::sigmaXX(const std::vector<pair<float,float> >& energy_X_tc, const float X_cluster) const {
+
+  float Etot = 0;
+  float deltaX2_sum = 0;
+
+  for(const auto& energy_X : energy_X_tc){
+
+    deltaX2_sum += energy_X.first * pow(energy_X.second - X_cluster,2);
+    Etot += energy_X.first;
+
+  }
+
+  float X_MSE = 0;
+  if (Etot>0) X_MSE=deltaX2_sum/Etot;
+  float X_RMS=sqrt(X_MSE);
+  return X_RMS;
+
 }
 
 
-float HGCalShowerShape::sigmaPhiPhi(const std::vector<float>& energy, const std::vector<float>& phi) const {
+//Compute energy-weighted RMS of any variable X in the cluster
+//Extra care neeeded because of deltaPhi
 
-  int ntc=energy.size();
-  //compute weighted phi mean
-  float phi_sum=0;
-  float w_sum=0; //here weight is energy
-  for(int i=0;i<ntc;i++){
-    if(phi.at(i)>0) phi_sum+=energy.at(i)*phi.at(i);
-    else phi_sum+=energy.at(i)*(phi.at(i)+2*TMath::Pi());
-    w_sum+=energy.at(i);
+float HGCalShowerShape::sigmaPhiPhi(const std::vector<pair<float,float> >& energy_phi_tc, const float phi_cluster) const {
+
+  float Etot = 0;
+  float deltaphi2_sum = 0;
+
+  for(const auto& energy_phi : energy_phi_tc){
+
+    deltaphi2_sum += energy_phi.first * pow(deltaPhi(energy_phi.second,phi_cluster),2);
+    Etot += energy_phi.first;
+
   }
-  float phi_mean=0;
-  if (w_sum!=0) phi_mean=phi_sum/w_sum;
-  if(phi_mean>TMath::Pi()) phi_mean-=2*TMath::Pi();
-  //compute weighted eta RMS
-  float deltaphi2_sum=0;
-  for(int i=0;i<ntc;i++){
-    float deltaPhi=std::abs(phi.at(i)-phi_mean);
-    if (deltaPhi>TMath::Pi()) deltaPhi=2*TMath::Pi()-deltaPhi;
-    deltaphi2_sum+=energy.at(i)*pow(deltaPhi,2);
-  }        
-  float phi_RMS=0;
-  if (w_sum!=0) phi_RMS=deltaphi2_sum/w_sum;
-  float Spp=sqrt(phi_RMS);
+
+  float phi_MSE = 0;
+  if (Etot>0) phi_MSE=deltaphi2_sum/Etot;
+  float Spp=sqrt(phi_MSE);
   return Spp;
-  
-}
 
-
-
-float HGCalShowerShape::sigmaZZ(const std::vector<float>& energy, const std::vector<float>& z) const {
-
-  int ntc=energy.size();
-  //compute weighted eta mean
-  float z_sum=0;
-  float w_sum=0; //here weight is energy
-  for(int i=0;i<ntc;i++){
-    z_sum+=energy.at(i)*z.at(i);
-    w_sum+=energy.at(i);
-  }
-  float z_mean=0;
-  if (w_sum!=0) z_mean=z_sum/w_sum;
-  //compute weighted eta RMS
-  float deltaz2_sum=0;
-  for(int i=0;i<ntc;i++) deltaz2_sum+=energy.at(i)*pow((z.at(i)-z_mean),2);
-  float z_RMS=0;
-  if (w_sum!=0) z_RMS=deltaz2_sum/w_sum;
-  float Szz=sqrt(z_RMS);
-  return Szz;
-    
 }
 
 
@@ -148,8 +134,7 @@ float HGCalShowerShape::sigmaEtaEtaTot(const l1t::HGCalMulticluster& c3d) const 
 
   const edm::PtrVector<l1t::HGCalCluster>& clustersPtrs = c3d.constituents();
   
-  std::vector<float> tc_energy ; 
-  std::vector<float> tc_eta ;
+  std::vector<std::pair<float,float> > tc_energy_eta ; 
   
   for(const auto& clu : clustersPtrs){
     
@@ -157,17 +142,13 @@ float HGCalShowerShape::sigmaEtaEtaTot(const l1t::HGCalMulticluster& c3d) const 
     
     for(const auto& tc : triggerCells){
       
-      tc_energy.emplace_back(tc->energy());
-      tc_eta.emplace_back(tc->eta());
+      tc_energy_eta.emplace_back( std::make_pair(tc->energy(),tc->eta()) );
       
     }
     
   }
   
-  float SeeTot = sigmaEtaEta(tc_energy,tc_eta);
-  
-  tc_energy.clear();
-  tc_eta.clear();
+  float SeeTot = sigmaXX(tc_energy_eta,c3d.eta());
   
   return SeeTot;
   
@@ -180,8 +161,7 @@ float HGCalShowerShape::sigmaPhiPhiTot(const l1t::HGCalMulticluster& c3d) const 
 
   const edm::PtrVector<l1t::HGCalCluster>& clustersPtrs = c3d.constituents();
   
-  std::vector<float> tc_energy ; 
-  std::vector<float> tc_phi ;
+  std::vector<std::pair<float,float> > tc_energy_phi ; 
   
   for(const auto& clu : clustersPtrs){
     
@@ -189,16 +169,13 @@ float HGCalShowerShape::sigmaPhiPhiTot(const l1t::HGCalMulticluster& c3d) const 
     
     for(const auto& tc : triggerCells){
       
-      tc_energy.emplace_back(tc->energy());
-      tc_phi.emplace_back(tc->phi());
+      tc_energy_phi.emplace_back( std::make_pair(tc->energy(),tc->phi()) );
 
     }
+
   }
   
-  float SppTot = sigmaPhiPhi(tc_energy,tc_phi);
-  
-  tc_energy.clear();
-  tc_phi.clear();
+  float SppTot = sigmaPhiPhi(tc_energy_phi,c3d.phi());
   
   return SppTot;
   
@@ -208,8 +185,8 @@ float HGCalShowerShape::sigmaPhiPhiTot(const l1t::HGCalMulticluster& c3d) const 
 
 float HGCalShowerShape::sigmaEtaEtaMax(const l1t::HGCalMulticluster& c3d) const {
 
-  std::unordered_map<int, vector<float> > tc_layer_energy;
-  std::unordered_map<int, vector<float> > tc_layer_eta;
+  std::unordered_map<int, std::vector<std::pair<float,float> > > tc_layer_energy_eta;
+  std::unordered_map<int, LorentzVector> layer_LV;
 
   const edm::PtrVector<l1t::HGCalCluster>& clustersPtrs = c3d.constituents();
 
@@ -217,28 +194,26 @@ float HGCalShowerShape::sigmaEtaEtaMax(const l1t::HGCalMulticluster& c3d) const 
     
     int layer = HGC_layer(clu->subdetId(),clu->layer());    
     
-    const edm::PtrVector<l1t::HGCalTriggerCell>& triggerCells = clu->constituents();
+    layer_LV[layer] += clu->p4();
 
-    auto layer_energy_itr = tc_layer_energy.emplace(layer, 0).first;
-    auto layer_eta_itr = tc_layer_eta.emplace(layer, 0).first;
+    const edm::PtrVector<l1t::HGCalTriggerCell>& triggerCells = clu->constituents();
 
     for(const auto& tc : triggerCells){
 
-      layer_energy_itr->second.emplace_back(tc->energy());
-      layer_eta_itr->second.emplace_back(tc->eta());
+      tc_layer_energy_eta[layer].emplace_back( std::make_pair(tc->energy(),tc->eta()) );
 
     }
 
   }
 
+
   float SigmaEtaEtaMax=0;
 
-  for(auto& tc_iter : tc_layer_energy){
+  for(auto& tc_iter : tc_layer_energy_eta){
     
-    const std::vector<float>& energy_layer = tc_iter.second;
-    const std::vector<float>& eta_layer= tc_layer_eta[tc_iter.first];
-
-    float SigmaEtaEtaLayer = sigmaEtaEta(energy_layer,eta_layer); 
+    const std::vector<std::pair<float, float> >& energy_eta_layer = tc_iter.second;
+    const LorentzVector& LV_layer = layer_LV[tc_iter.first];
+    float SigmaEtaEtaLayer = sigmaXX(energy_eta_layer,LV_layer.eta()); //RMS wrt layer eta, not wrt c3d eta  
     if(SigmaEtaEtaLayer > SigmaEtaEtaMax) SigmaEtaEtaMax = SigmaEtaEtaLayer;
 
   }
@@ -252,11 +227,10 @@ float HGCalShowerShape::sigmaEtaEtaMax(const l1t::HGCalMulticluster& c3d) const 
 
 
 
-
 float HGCalShowerShape::sigmaPhiPhiMax(const l1t::HGCalMulticluster& c3d) const {
 
-  std::unordered_map<int, vector<float> > tc_layer_energy;
-  std::unordered_map<int, vector<float> > tc_layer_phi;
+  std::unordered_map<int, std::vector<std::pair<float,float> > > tc_layer_energy_phi;
+  std::unordered_map<int, LorentzVector> layer_LV;
 
   const edm::PtrVector<l1t::HGCalCluster>& clustersPtrs = c3d.constituents();
 
@@ -264,36 +238,36 @@ float HGCalShowerShape::sigmaPhiPhiMax(const l1t::HGCalMulticluster& c3d) const 
     
     int layer = HGC_layer(clu->subdetId(),clu->layer());    
     
+    layer_LV[layer] += clu->p4();
+
     const edm::PtrVector<l1t::HGCalTriggerCell>& triggerCells = clu->constituents();
-    
-    auto layer_energy_itr = tc_layer_energy.emplace(layer, 0).first;
-    auto layer_phi_itr = tc_layer_phi.emplace(layer, 0).first;
-    
+
     for(const auto& tc : triggerCells){
-      
-      layer_energy_itr->second.emplace_back(tc->energy());
-      layer_phi_itr->second.emplace_back(tc->phi());
-      
+
+      tc_layer_energy_phi[layer].emplace_back( std::make_pair(tc->energy(),tc->phi()) );
+
     }
-    
+
   }
+
 
   float SigmaPhiPhiMax=0;
 
-  for(auto& tc_iter : tc_layer_energy){
+  for(auto& tc_iter : tc_layer_energy_phi){
     
-    const std::vector<float>& energy_layer = tc_iter.second;
-    const std::vector<float>& phi_layer= tc_layer_phi[tc_iter.first];
-    
-    float SigmaPhiPhiLayer = sigmaPhiPhi(energy_layer,phi_layer); 
+    const std::vector<std::pair<float, float> >& energy_phi_layer = tc_iter.second;
+    const LorentzVector& LV_layer = layer_LV[tc_iter.first];
+    float SigmaPhiPhiLayer = sigmaXX(energy_phi_layer,LV_layer.phi()); //RMS wrt layer phi, not wrt c3d phi
     if(SigmaPhiPhiLayer > SigmaPhiPhiMax) SigmaPhiPhiMax = SigmaPhiPhiLayer;
 
   }
+
 
   return SigmaPhiPhiMax;
 
 
 }
+
 
 
 
@@ -326,35 +300,32 @@ float HGCalShowerShape::eMax(const l1t::HGCalMulticluster& c3d) const {
 
 
 
-
 float HGCalShowerShape::sigmaZZ(const l1t::HGCalMulticluster& c3d) const {
 
-  std::vector<float> tc_energy ; 
-  std::vector<float> tc_z ;
-  
   const edm::PtrVector<l1t::HGCalCluster>& clustersPtrs = c3d.constituents();
+  
+  std::vector<std::pair<float,float> > tc_energy_z ; 
   
   for(const auto& clu : clustersPtrs){
     
     const edm::PtrVector<l1t::HGCalTriggerCell>& triggerCells = clu->constituents();
     
     for(const auto& tc : triggerCells){
-      
-      tc_energy.emplace_back(tc->energy());
-      tc_z.emplace_back(tc->position().z());
-      
+           
+      tc_energy_z.emplace_back( std::make_pair(tc->energy(),tc->position().z()) );
+
     }
-    
+
   }
-  
-  float Szz = sigmaZZ(tc_energy,tc_z);
-  
-  tc_energy.clear();
-  tc_z.clear();
+
+  float z_mean = meanX(tc_energy_z);
+  float Szz = sigmaXX(tc_energy_z,z_mean);
   
   return Szz;
-
+  
 }
+
+
 
 
 
@@ -362,20 +333,15 @@ float HGCalShowerShape::sigmaEtaEtaTot(const l1t::HGCalCluster& c2d) const {
 
   const edm::PtrVector<l1t::HGCalTriggerCell>& cellsPtrs = c2d.constituents();
   
-  std::vector<float> tc_energy ; 
-  std::vector<float> tc_eta ;
+  std::vector<std::pair<float,float> > tc_energy_eta ; 
   
   for(const auto& cell : cellsPtrs){
     
-    tc_energy.emplace_back(cell->energy());
-    tc_eta.emplace_back(cell->eta());
+    tc_energy_eta.emplace_back( std::make_pair(cell->energy(),cell->eta()) ); 
     
   }
   
-  float See = sigmaEtaEta(tc_energy,tc_eta);
-  
-  tc_energy.clear();
-  tc_eta.clear();
+  float See = sigmaXX(tc_energy_eta,c2d.eta());
   
   return See;
   
@@ -387,23 +353,16 @@ float HGCalShowerShape::sigmaPhiPhiTot(const l1t::HGCalCluster& c2d) const {
 
   const edm::PtrVector<l1t::HGCalTriggerCell>& cellsPtrs = c2d.constituents();
   
-  std::vector<float> tc_energy ; 
-  std::vector<float> tc_phi ;
+  std::vector<std::pair<float,float> > tc_energy_phi ; 
   
   for(const auto& cell : cellsPtrs){
     
-    tc_energy.emplace_back(cell->energy());
-    tc_phi.emplace_back(cell->phi());
+    tc_energy_phi.emplace_back( std::make_pair(cell->energy(),cell->phi()) ); 
     
   }
   
-  float Spp = sigmaPhiPhi(tc_energy,tc_phi);
-  
-  tc_energy.clear();
-  tc_phi.clear();
+  float Spp = sigmaXX(tc_energy_phi,c2d.phi());
   
   return Spp;
   
-}  
-
-
+}      
