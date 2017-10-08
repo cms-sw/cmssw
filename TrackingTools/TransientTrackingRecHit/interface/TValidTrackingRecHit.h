@@ -21,13 +21,13 @@ public:
     TrackingRecHit(std::forward<Args>(args)...) {}
 
   // to be moved in children
-  TrackingRecHit * cloneHit() const { return hit()->clone();}
+  TrackingRecHit * cloneHit() const override { return hit()->clone();}
 
   // Extension of the TrackingRecHit interface
-  virtual const Surface * surface() const final {return &(det()->surface());}
+  const Surface * surface() const final {return &(det()->surface());}
 
 
-  virtual GlobalPoint globalPosition() const final {
+  GlobalPoint globalPosition() const final {
       return surface()->toGlobal(localPosition());
   }
   
@@ -56,7 +56,7 @@ public:
   /// improved hit, false if it returns an identical copy.
   /// In order to avoid redundent copies one should call canImproveWithTrack() before 
   /// calling clone( const TrajectoryStateOnSurface&).
-  virtual bool canImproveWithTrack() const {return false;}
+  bool canImproveWithTrack() const override {return false;}
 
  
 /// cluster probability, overloaded by pixel rechits.
@@ -66,7 +66,7 @@ private:
  
   // hide the clone method for ReferenceCounted. Warning: this method is still 
   // accessible via the bas class TrackingRecHit interface!
-  virtual TValidTrackingRecHit * clone() const = 0;
+  TValidTrackingRecHit * clone() const override = 0;
 
 };
 
