@@ -58,7 +58,7 @@ BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup)
   reco::BeamSpot aSpot;
 
   bool fallBackToDB=false;
-  if (handleScaler->size()!=0){
+  if (!handleScaler->empty()){
     // get one element
     spotOnline = * ( handleScaler->begin() );
     

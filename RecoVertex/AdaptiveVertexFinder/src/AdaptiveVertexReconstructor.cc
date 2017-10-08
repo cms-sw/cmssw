@@ -51,7 +51,7 @@ TransientVertex AdaptiveVertexReconstructor::cleanUp ( const TransientVertex & o
       }
       origtrkiter++;
     }
-    if ( newrfs.size() ) ret.refittedTracks ( newrfs ); // copy refitted tracks
+    if ( !newrfs.empty() ) ret.refittedTracks ( newrfs ); // copy refitted tracks
   }
 
   if ( ret.refittedTracks().size() > ret.originalTracks().size() )
@@ -86,7 +86,7 @@ void AdaptiveVertexReconstructor::erase (
 
 AdaptiveVertexReconstructor::AdaptiveVertexReconstructor(
     float primcut, float seccut, float min_weight, bool smoothing ) :
-  thePrimaryFitter ( 0 ), theSecondaryFitter ( 0 ),
+  thePrimaryFitter ( nullptr ), theSecondaryFitter ( nullptr ),
        theMinWeight( min_weight ), theWeightThreshold ( 0.001 )
 {
   setupFitters ( primcut, 256., 0.25, seccut, 256., 0.25, smoothing );
@@ -132,7 +132,7 @@ void AdaptiveVertexReconstructor::setupFitters ( float primcut,
 }
 
 AdaptiveVertexReconstructor::AdaptiveVertexReconstructor( const edm::ParameterSet & m )
-  : thePrimaryFitter(0), theSecondaryFitter(0), theMinWeight(0.5), theWeightThreshold ( 0.001 )
+  : thePrimaryFitter(nullptr), theSecondaryFitter(nullptr), theMinWeight(0.5), theWeightThreshold ( 0.001 )
 {
   float primcut = 2.0;
   float seccut = 6.0;
@@ -207,7 +207,7 @@ vector<TransientVertex> AdaptiveVertexReconstructor::vertices (
            */
       ctr++;
       const AdaptiveVertexFitter * fitter = theSecondaryFitter;
-      if ( ret.size() == 0 )
+      if ( ret.empty() )
       {
         fitter = thePrimaryFitter;
       };
@@ -217,12 +217,12 @@ vector<TransientVertex> AdaptiveVertexReconstructor::vertices (
       copy(remainingtrks.begin(), remainingtrks.end(), back_inserter(fittrks));
 
       TransientVertex tmpvtx;
-      if ( (ret.size() == 0) && has_primaries )
+      if ( (ret.empty()) && has_primaries )
       {
         // add the primaries to the fitted tracks.
         copy ( primaries.begin(), primaries.end(), back_inserter(fittrks) );
       }
-      if ( (ret.size() == 0) && usespot )
+      if ( (ret.empty()) && usespot )
       {
         tmpvtx=fitter->vertex ( fittrks, s );
       } else {
