@@ -1,12 +1,12 @@
 #include "DTSpyHelper.h"
-#include <errno.h>
+#include <cerrno>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <string.h>
+#include <cstring>
 
 #ifdef __wasAPPLE__
 typedef int socklen_t;
@@ -186,7 +186,7 @@ DTCtcp::WaitData(int timeout)
     tv.tv_sec = timeout;
     tv.tv_usec = 0;
  
-     int retva = select (1,&rfds,0,&rfds,&tv);
+     int retva = select (1,&rfds,nullptr,&rfds,&tv);
      if (retva)
          if (FD_ISSET(0,&rfds)) return 1;
          else return -1;

@@ -23,7 +23,7 @@
 #include <iosfwd>
 #include <iostream>
 #include <algorithm>
-#include <stdio.h>
+#include <cstdio>
 
    
 using namespace std;
@@ -136,7 +136,7 @@ int DTSpyReader::fillRawData(Event& e,
 
 void DTSpyReader::produce(Event&e, EventSetup const&es){
    edm::Handle<FEDRawDataCollection> rawdata;
-   FEDRawDataCollection *fedcoll = 0;
+   FEDRawDataCollection *fedcoll = nullptr;
    fillRawData(e,fedcoll);
    std::unique_ptr<FEDRawDataCollection> bare_product(fedcoll);
    e.put(std::move(bare_product));
