@@ -40,10 +40,8 @@ caloStage2Params.egShapeIdLUTFile           = cms.FileInPath("L1Trigger/L1TCalor
 
 caloStage2Params.egPUSType                  = cms.string("None")
 caloStage2Params.egIsolationType            = cms.string("compressed")
-#caloStage2Params.egIsoLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/IsoIdentification_adapt_extrap_v16.07.29.txt")
 caloStage2Params.egIsoLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/EG_Iso_LUT_04_04_2017.txt")
 caloStage2Params.egIsoLUTFile2               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/IsoIdentification_adapt_extrap_FW_v16.08.08.txt")
-#caloStage2Params.egIsoLUTFile2              = cms.FileInPath("L1Trigger/L1TCalorimeter/data/EG_Iso_LUT_04_04_2017.txt")
 caloStage2Params.egIsoAreaNrTowersEta       = cms.uint32(2)
 caloStage2Params.egIsoAreaNrTowersPhi       = cms.uint32(4)
 caloStage2Params.egIsoVetoNrTowersPhi       = cms.uint32(2)
