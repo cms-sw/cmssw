@@ -34,7 +34,7 @@ using namespace reco;
 
 NuclearTrackCorrector::NuclearTrackCorrector(const edm::ParameterSet& iConfig) :
 conf_(iConfig),
-theInitialState(0)
+theInitialState(nullptr)
 {
      str_Input_Trajectory           = iConfig.getParameter<std::string>     ("InputTrajectory");
      str_Input_NuclearInteraction   = iConfig.getParameter<std::string>     ("InputNuclearInteraction");
@@ -93,15 +93,15 @@ NuclearTrackCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   // Load Inputs
   // --------------------------------------------------------------------------------------------------
   edm::Handle< TrajectoryCollection > temp_m_TrajectoryCollection;
-  iEvent.getByLabel( str_Input_Trajectory.c_str(), temp_m_TrajectoryCollection );
+  iEvent.getByLabel( str_Input_Trajectory, temp_m_TrajectoryCollection );
   const TrajectoryCollection m_TrajectoryCollection = *(temp_m_TrajectoryCollection.product());
 
   edm::Handle< NuclearInteractionCollection > temp_m_NuclearInteractionCollection;
-  iEvent.getByLabel( str_Input_NuclearInteraction.c_str(), temp_m_NuclearInteractionCollection );
+  iEvent.getByLabel( str_Input_NuclearInteraction, temp_m_NuclearInteractionCollection );
   const NuclearInteractionCollection m_NuclearInteractionCollection = *(temp_m_NuclearInteractionCollection.product());
 
   edm::Handle< TrajTrackAssociationCollection > h_TrajToTrackCollection;
-  iEvent.getByLabel( str_Input_Trajectory.c_str(), h_TrajToTrackCollection );
+  iEvent.getByLabel( str_Input_Trajectory, h_TrajToTrackCollection );
   m_TrajToTrackCollection = h_TrajToTrackCollection.product();
 
 

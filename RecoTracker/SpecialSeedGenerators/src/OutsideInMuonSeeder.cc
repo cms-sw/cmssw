@@ -40,9 +40,9 @@
 class OutsideInMuonSeeder final : public edm::stream::EDProducer<> {
     public:
       explicit OutsideInMuonSeeder(const edm::ParameterSet & iConfig);
-      virtual ~OutsideInMuonSeeder() { }
+      ~OutsideInMuonSeeder() override { }
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+      void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
     private:
       /// Labels for input collections
@@ -280,7 +280,7 @@ OutsideInMuonSeeder::doDebug(const reco::Track &tk) const {
     for (unsigned int i = 0; i < tk.recHitsSize(); ++i) {
         const TrackingRecHit *hit = &*tk.recHit(i);
         const GeomDet *det = geometry_->idToDet(hit->geographicalId());
-        if (det == 0) continue;
+        if (det == nullptr) continue;
         if (i != 0) tsos = pmuon_cloned->propagate(tsos, det->surface());
         if (!tsos.isValid()) continue;
         LogDebug("OutsideInMuonSeeder") << "  state " << i << " at x = " << tsos.globalPosition() << ", p = " << tsos.globalMomentum() << std::endl;

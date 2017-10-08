@@ -21,22 +21,22 @@ class TBLayer: public BarrelDetLayer {
     theOuterComps(outer.begin(),outer.end()), me(ime){}
 
 
-  ~TBLayer() __attribute__ ((cold));
+  ~TBLayer() override __attribute__ ((cold));
 
   // GeometricSearchDet interface
   
-  virtual const std::vector<const GeomDet*>& basicComponents() const final {return theBasicComps;}
+  const std::vector<const GeomDet*>& basicComponents() const final {return theBasicComps;}
 
-  virtual const std::vector<const GeometricSearchDet*>& components() const final  __attribute__ ((cold)) {return theComps;}
+  const std::vector<const GeometricSearchDet*>& components() const final  __attribute__ ((cold)) {return theComps;}
   
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
 			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const __attribute__ ((hot));
+			       std::vector<DetGroup> & result) const override __attribute__ ((hot));
 
 
   // DetLayer interface
-  virtual SubDetector subDetector() const final {return GeomDetEnumerators::subDetGeom[me];}
+  SubDetector subDetector() const final {return GeomDetEnumerators::subDetGeom[me];}
 
 
 protected:

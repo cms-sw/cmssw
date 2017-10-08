@@ -31,7 +31,7 @@ class TBPLayer : public TBLayer {
     TBLayer(inner,outer, GeomDetEnumerators::P2OTB){construct();}
 
   
-  ~TBPLayer()  __attribute__ ((cold));
+  ~TBPLayer()  override __attribute__ ((cold));
 
   
   BoundCylinder* cylinder( const std::vector<const GeometricSearchDet*>& rods) const __attribute__ ((cold));
@@ -44,13 +44,13 @@ class TBPLayer : public TBLayer {
   void construct()  __attribute__ ((cold));
 
 
-  std::tuple<bool,int,int>  computeIndexes(GlobalPoint gInnerPoint, GlobalPoint gOuterPoint) const  __attribute__ ((hot));
+  std::tuple<bool,int,int>  computeIndexes(GlobalPoint gInnerPoint, GlobalPoint gOuterPoint) const  override __attribute__ ((hot));
   
 
 
   float computeWindowSize( const GeomDet* det, 
 			   const TrajectoryStateOnSurface& tsos, 
-			   const MeasurementEstimator& est) const __attribute__ ((hot));
+			   const MeasurementEstimator& est) const override __attribute__ ((hot));
   
   static float calculatePhiWindow( float Xmax, const GeomDet& det,
 			     const TrajectoryStateOnSurface& state) __attribute__ ((hot));
@@ -62,7 +62,7 @@ class TBPLayer : public TBLayer {
 			const SubLayerCrossing& crossing,
 			float window, 
 			std::vector<DetGroup>& result,
-			bool checkClosest) const __attribute__ ((hot));
+			bool checkClosest) const override __attribute__ ((hot));
 
 
   BinFinderType    theInnerBinFinder;
