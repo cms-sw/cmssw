@@ -151,9 +151,9 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
         (cond1Categ == CondMuon && (cond0Categ == CondCalo || cond0Categ == CondEnergySum) ) )
 	convertCaloScales = true;
 
-    const MuonTemplate* corrMuon = 0;
-    const CaloTemplate* corrCalo = 0;
-    const EnergySumTemplate* corrEnergySum = 0;
+    const MuonTemplate* corrMuon = nullptr;
+    const CaloTemplate* corrCalo = nullptr;
+    const EnergySumTemplate* corrEnergySum = nullptr;
 
     // FIXME copying is slow...
     CombinationsInCond cond0Comb;
@@ -336,9 +336,9 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
     (combinationsInCond()).clear();
 
     // pointers to objects
-    const BXVector<const l1t::Muon*>*        candMuVec    = 0;
-    const BXVector<const l1t::L1Candidate*>* candCaloVec  = 0;
-    const BXVector<const l1t::EtSum*>*       candEtSumVec = 0;
+    const BXVector<const l1t::Muon*>*        candMuVec    = nullptr;
+    const BXVector<const l1t::L1Candidate*>* candCaloVec  = nullptr;
+    const BXVector<const l1t::EtSum*>*       candEtSumVec = nullptr;
 
     bool etSumCond = false;
 
@@ -406,7 +406,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
         // ... but add protection to not crash
         int obj0Index = -1;
 
-        if ((*it0Comb).size() > 0) {
+        if (!(*it0Comb).empty()) {
             obj0Index = (*it0Comb)[0];
         } else {
             LogTrace("L1TGlobal")
@@ -693,7 +693,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
             // ... but add protection to not crash
             int obj1Index = -1;
 
-            if ((*it1Comb).size() > 0) {
+            if (!(*it1Comb).empty()) {
                 obj1Index = (*it1Comb)[0];
             } else {
                 LogTrace("L1TGlobal")
@@ -1131,11 +1131,11 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 	       double tbptSqPhy = et0Phy*et0Phy + et1Phy*et1Phy + 2*et0Phy*et1Phy*(cosPhi1Phy*cosPhi2Phy + sinPhi1Phy*sinPhi2Phy);
 	       // get values from LUT's
 
-	       std::string lutName0 = lutObj0;
+	       const std::string& lutName0 = lutObj0;
 	       unsigned int precCosLUT0 = m_gtScales->getPrec_Cos(lutName0);
 	       unsigned int precSinLUT0 = m_gtScales->getPrec_Sin(lutName0);
 
-	       std::string lutName1 = lutObj1;
+	       const std::string& lutName1 = lutObj1;
 	       unsigned int precCosLUT1 = m_gtScales->getPrec_Cos(lutName1);
 	       unsigned int precSinLUT1 = m_gtScales->getPrec_Sin(lutName1);
 
@@ -1340,11 +1340,11 @@ const l1t::L1Candidate* l1t::CorrCondition::getCandidate(const int bx, const int
             return (m_uGtB->getCandL1Tau())->at(bx,indexCand);
             break;
         default:
-            return 0;
+            return nullptr;
             break;
     }
 
-    return 0;
+    return nullptr;
 }
 
 /**

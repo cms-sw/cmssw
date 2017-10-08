@@ -1,7 +1,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/Cordic.h"
 
-#include <stdint.h>
-#include <math.h>
+#include <cstdint>
+#include <cmath>
 #include <vector>
 #include <iostream>
 #include <iomanip> 

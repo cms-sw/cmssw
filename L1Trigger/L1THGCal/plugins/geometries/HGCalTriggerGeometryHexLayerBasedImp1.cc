@@ -16,27 +16,27 @@ class HGCalTriggerGeometryHexLayerBasedImp1 : public HGCalTriggerGeometryBase
     public:
         HGCalTriggerGeometryHexLayerBasedImp1(const edm::ParameterSet& conf);
 
-        virtual void initialize(const edm::ESHandle<CaloGeometry>& ) override final;
-        virtual void reset() override final;
+        void initialize(const edm::ESHandle<CaloGeometry>& ) final;
+        void reset() final;
 
-        virtual unsigned getTriggerCellFromCell( const unsigned ) const override final;
-        virtual unsigned getModuleFromCell( const unsigned ) const override final;
-        virtual unsigned getModuleFromTriggerCell( const unsigned ) const override final;
+        unsigned getTriggerCellFromCell( const unsigned ) const final;
+        unsigned getModuleFromCell( const unsigned ) const final;
+        unsigned getModuleFromTriggerCell( const unsigned ) const final;
 
-        virtual geom_set getCellsFromTriggerCell( const unsigned ) const override final;
-        virtual geom_set getCellsFromModule( const unsigned ) const override final;
-        virtual geom_set getTriggerCellsFromModule( const unsigned ) const override final;
+        geom_set getCellsFromTriggerCell( const unsigned ) const final;
+        geom_set getCellsFromModule( const unsigned ) const final;
+        geom_set getTriggerCellsFromModule( const unsigned ) const final;
 
-        virtual geom_ordered_set getOrderedCellsFromModule( const unsigned ) const override final;
-        virtual geom_ordered_set getOrderedTriggerCellsFromModule( const unsigned ) const override final;
+        geom_ordered_set getOrderedCellsFromModule( const unsigned ) const final;
+        geom_ordered_set getOrderedTriggerCellsFromModule( const unsigned ) const final;
 
-        virtual geom_set getNeighborsFromTriggerCell( const unsigned ) const override final;
+        geom_set getNeighborsFromTriggerCell( const unsigned ) const final;
 
-        virtual GlobalPoint getTriggerCellPosition(const unsigned ) const override final;
-        virtual GlobalPoint getModulePosition(const unsigned ) const override final;
+        GlobalPoint getTriggerCellPosition(const unsigned ) const final;
+        GlobalPoint getModulePosition(const unsigned ) const final;
 
-        virtual bool validTriggerCell( const unsigned ) const override final;
-        virtual bool disconnectedModule(const unsigned) const override final;
+        bool validTriggerCell( const unsigned ) const final;
+        bool disconnectedModule(const unsigned) const final;
 
     private:
         edm::FileInPath l1tCellsMapping_;
@@ -549,7 +549,7 @@ fillNeighborMaps(const edm::FileInPath& file,  std::unordered_map<int, std::set<
         std::vector<std::string> key_tokens {
             std::sregex_token_iterator(line.begin(), line.end(), key_regex), {}
         };
-        if(key_tokens.size()<1)
+        if(key_tokens.empty())
         {
             throw cms::Exception("BadGeometry")
                 << "Syntax error in the L1TCellNeighborsMapping:\n"

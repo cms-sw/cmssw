@@ -9,11 +9,11 @@ class HGCalTriggerNtupleGen : public HGCalTriggerNtupleBase
     public:
         HGCalTriggerNtupleGen(const edm::ParameterSet& );
 
-        virtual void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) override final;
-        virtual void fill(const edm::Event&, const edm::EventSetup& ) override final;
+        void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
+        void fill(const edm::Event&, const edm::EventSetup& ) final;
 
     private:
-        virtual void clear() override final;
+        void clear() final;
 
         edm::EDGetToken gen_token_;
         int gen_n_;

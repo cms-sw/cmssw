@@ -85,7 +85,7 @@ XMLConfigWriter::XMLConfigWriter(const OMTFConfiguration* aOMTFConfig){
 //////////////////////////////////////////////////
 void XMLConfigWriter::initialiseXMLDocument(const std::string & docName){
 
-  theDoc = domImpl->createDocument(0,_toDOMS(docName.c_str()), 0);
+  theDoc = domImpl->createDocument(nullptr,_toDOMS(docName), nullptr);
   theTopElement = theDoc->getDocumentElement();
   
   unsigned int version = myOMTFConfig->patternsVersion();
@@ -132,8 +132,8 @@ xercesc::DOMElement * XMLConfigWriter::writeEventHeader(unsigned int eventId,
 
   unsigned int eventBx = eventId*2;
 
-  xercesc::DOMElement *aEvent = 0;
-  xercesc::DOMElement *aBx = 0;
+  xercesc::DOMElement *aEvent = nullptr;
+  xercesc::DOMElement *aBx = nullptr;
   std::ostringstream stringStr;
 
   aEvent = theDoc->createElement(_toDOMS("Event"));
@@ -350,7 +350,7 @@ void XMLConfigWriter::writeResultsData(xercesc::DOMElement *aTopElement,
 void XMLConfigWriter::writeGPData(const GoldenPattern & aGP){
 
   std::ostringstream stringStr;
-  xercesc::DOMElement *aLayer=0, *aRefLayer=0, *aPdf=0;
+  xercesc::DOMElement *aLayer=nullptr, *aRefLayer=nullptr, *aPdf=nullptr;
 
   xercesc::DOMElement* aGPElement = theDoc->createElement(_toDOMS("GP"));
   stringStr.str("");
@@ -419,7 +419,7 @@ void XMLConfigWriter::writeGPData(const GoldenPattern & aGP1,
 				  const GoldenPattern & aGP4){
 
   std::ostringstream stringStr;
-  xercesc::DOMElement *aLayer=0, *aRefLayer=0, *aPdf=0;
+  xercesc::DOMElement *aLayer=nullptr, *aRefLayer=nullptr, *aPdf=nullptr;
 
   xercesc::DOMElement* aGPElement = theDoc->createElement(_toDOMS("GP"));
   stringStr.str("");

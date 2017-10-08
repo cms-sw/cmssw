@@ -38,12 +38,12 @@
   class L1TPhysicalEtAdder : public edm::global::EDProducer<> {
   public:
     explicit L1TPhysicalEtAdder(const edm::ParameterSet& ps);
-    ~L1TPhysicalEtAdder();
+    ~L1TPhysicalEtAdder() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
-      virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+      void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
       // ----------member data ---------------------------
 

@@ -109,8 +109,8 @@ void L1MuDTERS::reset() {
   for ( int id  = 0; id < 2; id++ ) {
     m_quality[id] = 0; 
     m_address[id] = 15;                                            
-    m_start[id]   = 0;
-    m_target[id]  = 0;  
+    m_start[id]   = nullptr;
+    m_target[id]  = nullptr;  
   }
 
 }

@@ -41,9 +41,9 @@ class L1TGlobalProducer : public edm::stream::EDProducer<>
 public:
 
     explicit L1TGlobalProducer(const edm::ParameterSet&);
-    ~L1TGlobalProducer();
+    ~L1TGlobalProducer() override;
 
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 

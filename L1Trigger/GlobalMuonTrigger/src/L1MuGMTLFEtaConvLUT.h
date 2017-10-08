@@ -52,7 +52,7 @@ class L1MuGMTLFEtaConvLUT : public L1MuGMTLUT {
   } ;
 
   /// destructor
-  virtual ~L1MuGMTLFEtaConvLUT() {};
+  ~L1MuGMTLFEtaConvLUT() override {};
 
   /// specific lookup function for eta_gmt
   unsigned SpecificLookup_eta_gmt (int idx, unsigned eta_regional) const {
@@ -72,7 +72,7 @@ class L1MuGMTLFEtaConvLUT : public L1MuGMTLUT {
 
   /// access to lookup function with packed input and output
 
-  virtual unsigned LookupFunctionPacked (int idx, unsigned address) const {
+  unsigned LookupFunctionPacked (int idx, unsigned address) const override {
     std::vector<unsigned> addr = u2vec(address, m_Inputs);
     return TheLookupFunction(idx ,addr[0]);
 

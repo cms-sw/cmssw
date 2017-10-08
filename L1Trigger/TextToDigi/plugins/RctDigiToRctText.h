@@ -33,11 +33,11 @@ class RctDigiToRctText : public edm::EDAnalyzer {
 
  public:
   explicit RctDigiToRctText(const edm::ParameterSet&);
-  ~RctDigiToRctText();
+  ~RctDigiToRctText() override;
   
   
  private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   
   /// label for RCT digis
   edm::InputTag m_rctInputLabel;

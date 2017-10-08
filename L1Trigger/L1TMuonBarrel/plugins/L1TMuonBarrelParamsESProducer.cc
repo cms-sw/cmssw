@@ -39,7 +39,7 @@ typedef std::map<short, short, std::less<short> > LUT;
 class L1TMuonBarrelParamsESProducer : public edm::ESProducer {
    public:
       L1TMuonBarrelParamsESProducer(const edm::ParameterSet&);
-      ~L1TMuonBarrelParamsESProducer();
+      ~L1TMuonBarrelParamsESProducer() override;
       int load_pt(std::vector<LUT>& , std::vector<int>&, unsigned short int, std::string);
       int load_phi(std::vector<LUT>& , unsigned short int, unsigned short int, std::string);
       int load_ext(std::vector<L1TMuonBarrelParams::LUTParams::extLUT>&, unsigned short int, unsigned short int );

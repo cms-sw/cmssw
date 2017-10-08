@@ -22,9 +22,9 @@ namespace l1t {
   class Stage2Layer2DemuxEGAlgoFirmwareImp1 : public Stage2Layer2DemuxEGAlgo {
   public:
     Stage2Layer2DemuxEGAlgoFirmwareImp1(CaloParamsHelper* params); //const CaloMainProcessorParams & dbPars);
-    virtual ~Stage2Layer2DemuxEGAlgoFirmwareImp1();
-    virtual void processEvent(const std::vector<EGamma> & inputEgammas,
-			      std::vector<EGamma> & outputEgammas);
+    ~Stage2Layer2DemuxEGAlgoFirmwareImp1() override;
+    void processEvent(const std::vector<EGamma> & inputEgammas,
+			      std::vector<EGamma> & outputEgammas) override;
 
   private:
 

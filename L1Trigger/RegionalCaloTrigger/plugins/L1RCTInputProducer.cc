@@ -51,8 +51,8 @@ L1RCTInputProducer::L1RCTInputProducer(const edm::ParameterSet& conf) :
 
 L1RCTInputProducer::~L1RCTInputProducer()
 {
-  if(rct != 0) delete rct;
-  if(rctLookupTables != 0) delete rctLookupTables;
+  if(rct != nullptr) delete rct;
+  if(rctLookupTables != nullptr) delete rctLookupTables;
 }
 
 
@@ -141,7 +141,7 @@ void L1RCTInputProducer::produce(edm::Event& event, const edm::EventSetup& event
 	  rctHoEFGVetoBit->push_back(hOeFGVetoBit);
 	  rctJetMETET->push_back(jetMETETCode);
 	  rctTowerActivityBit->push_back(activityBit);
-	  rctTowerMIPBit->push_back(0); // FIXME: MIP bit is not yet defined
+	  rctTowerMIPBit->push_back(false); // FIXME: MIP bit is not yet defined
 	}
       }
     }
@@ -162,7 +162,7 @@ void L1RCTInputProducer::produce(edm::Event& event, const edm::EventSetup& event
 	rctHFCrate->push_back(crate);
 	rctHFRegion->push_back(hfRegion);
 	rctHFET->push_back(hfETCode);
-	rctHFFG->push_back(0); // FIXME: HF FG is not yet defined
+	rctHFFG->push_back(false); // FIXME: HF FG is not yet defined
       }
     }
   }

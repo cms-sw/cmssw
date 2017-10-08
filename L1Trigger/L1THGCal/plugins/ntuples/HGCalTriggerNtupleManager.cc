@@ -15,9 +15,9 @@ class HGCalTriggerNtupleManager : public edm::EDAnalyzer
 
     public:
         explicit HGCalTriggerNtupleManager(const edm::ParameterSet& conf);
-        ~HGCalTriggerNtupleManager(){};
-        virtual void beginRun(const edm::Run&, const edm::EventSetup&) {};
-        virtual void analyze(const edm::Event&, const edm::EventSetup&);
+        ~HGCalTriggerNtupleManager() override{};
+        void beginRun(const edm::Run&, const edm::EventSetup&) override {};
+        void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     private:
         edm::Service<TFileService> file_service_;
@@ -33,7 +33,7 @@ HGCalTriggerNtupleManager::
 HGCalTriggerNtupleManager(const edm::ParameterSet& conf) 
 {
     tree_ = file_service_->make<TTree>("HGCalTriggerNtuple","HGCalTriggerNtuple");    
-    const std::vector<edm::ParameterSet> ntuple_cfgs = conf.getParameterSetVector("Ntuples");
+    const std::vector<edm::ParameterSet>& ntuple_cfgs = conf.getParameterSetVector("Ntuples");
     for(const auto& ntuple_cfg : ntuple_cfgs) 
     {
         const std::string& ntuple_name = ntuple_cfg.getParameter<std::string>("NtupleName");

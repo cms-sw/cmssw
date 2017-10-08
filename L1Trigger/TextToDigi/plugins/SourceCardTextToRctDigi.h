@@ -43,10 +43,10 @@
 class SourceCardTextToRctDigi : public edm::EDProducer {
  public:
   explicit SourceCardTextToRctDigi(const edm::ParameterSet&);
-  ~SourceCardTextToRctDigi();
+  ~SourceCardTextToRctDigi() override;
   
  private:
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   /// Create empty digi collection
   void putEmptyDigi(edm::Event&);

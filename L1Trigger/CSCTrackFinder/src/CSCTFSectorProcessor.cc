@@ -7,7 +7,7 @@
 #include "CondFormats/L1TObjects/interface/L1MuCSCTFConfiguration.h"
 #include "CondFormats/DataRecord/interface/L1MuCSCTFConfigurationRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include <stdlib.h>
+#include <cstdlib>
 #include <sstream>
 #include <strings.h>
 
@@ -135,7 +135,7 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
     ptLUT_ = new CSCTFPtLUT(ptLUTset, scales, ptScale);
     LogDebug("CSCTFSectorProcessor") << "Using stand-alone PT LUT for endcap="<<m_endcap<<", sector="<<m_sector;
   } else {
-    ptLUT_=0;
+    ptLUT_=nullptr;
     LogDebug("CSCTFSectorProcessor") << "Looking for PT LUT in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
   }
 
@@ -704,14 +704,14 @@ CSCTFSectorProcessor::~CSCTFSectorProcessor()
   for(int i = 0; i < 5; ++i)
     {
       if(srLUTs_[FPGAs[i]]) delete srLUTs_[FPGAs[i]]; // delete the pointer
-      srLUTs_[FPGAs[i]] = NULL; // point it at a safe place
+      srLUTs_[FPGAs[i]] = nullptr; // point it at a safe place
     }
 
   delete core_;
-  core_ = NULL;
+  core_ = nullptr;
 
   if(ptLUT_) delete ptLUT_;
-  ptLUT_ = NULL;
+  ptLUT_ = nullptr;
 }
 
 //returns 0 for no tracks, 1 tracks found, and -1 for "exception" (what used to throw an exception)
@@ -953,7 +953,7 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
   //   if there were no tracks from the core in this endcap/sector/bx
   CSCTriggerContainer<csc::L1Track> tracksFromSingles;
   for(int bx=0; bx<7; bx++)
-    if( myStubContainer[bx].get().size() ){ // VP in this bx
+    if( !myStubContainer[bx].get().empty() ){ // VP in this bx
       bool coreTrackExists = false;
       // tracks are not ordered to be accessible by bx => loop them all
       std::vector<csc::L1Track> tracks = l1_tracks.get();
@@ -1032,10 +1032,10 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
       }
     }
   std::vector<csc::L1Track> single_tracks = tracksFromSingles.get();
-  if( single_tracks.size() ) l1_tracks.push_many(single_tracks);
+  if( !single_tracks.empty() ) l1_tracks.push_many(single_tracks);
   // End of add-on for singles
 
-  return (l1_tracks.get().size() > 0);
+  return (!l1_tracks.get().empty());
 }
 
 // according to the firmware versions print some more information

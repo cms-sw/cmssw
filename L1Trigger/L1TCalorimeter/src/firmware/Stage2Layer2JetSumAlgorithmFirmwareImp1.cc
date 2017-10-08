@@ -37,7 +37,7 @@ void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vecto
     int hx(0), hy(0), ht(0);
     int hxHF(0), hyHF(0), htHF(0);
 
-    bool satMht(0), satMhtHF(0), satHt(0), satHtHF(0);
+    bool satMht(false), satMhtHF(false), satHt(false), satHtHF(false);
   
     // loop over rings    
     for (unsigned absieta=1; absieta<=(unsigned int)CaloTools::mpEta(CaloTools::kHFEnd); absieta++) {

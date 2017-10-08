@@ -29,15 +29,15 @@ namespace l1t {
   class L1TStage2CaloAnalyzer : public edm::EDAnalyzer {
   public:
     explicit L1TStage2CaloAnalyzer(const edm::ParameterSet&);
-    ~L1TStage2CaloAnalyzer();
+    ~L1TStage2CaloAnalyzer() override;
   
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
   
   private:
-    virtual void beginJob() override;
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-    virtual void endJob() override;
+    void beginJob() override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void endJob() override;
   
     //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
     //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
@@ -474,7 +474,7 @@ namespace l1t {
 
     }
 
-    if (thejets_poseta.size()) {
+    if (!thejets_poseta.empty()) {
       for (unsigned int i=0; i<thejets_poseta.size()-1; i++) {
         for (unsigned int j=i+1; j<thejets_poseta.size(); j++) {
           hsortMP_->Fill(thejets_poseta.at(i).hwPt()-thejets_poseta.at(j).hwPt());
@@ -482,7 +482,7 @@ namespace l1t {
       }
     }
 
-    if (thejets_negeta.size()) {
+    if (!thejets_negeta.empty()) {
       for (unsigned int i=0; i<thejets_negeta.size()-1; i++) {
         for (unsigned int j=i+1; j<thejets_negeta.size(); j++) {
           hsortMP_->Fill(thejets_negeta.at(i).hwPt()-thejets_negeta.at(j).hwPt());
@@ -615,7 +615,7 @@ namespace l1t {
 
     }
 
-    if (thejets.size()) {
+    if (!thejets.empty()) {
       for (unsigned int i=0; i<thejets.size()-1; i++) {
         for (unsigned int j=i+1; j<thejets.size(); j++) {
           hsort_->Fill(thejets.at(i).hwPt()-thejets.at(j).hwPt());

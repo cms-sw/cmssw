@@ -234,7 +234,7 @@ DTTSPhi::addTracoT(int step, const DTTracoTrigData* tracotrig, int ifs) {
 void
 DTTSPhi::runTSPhi() {
 
-  DTTSCand* secondPrevBx = 0;    // new DTTSCand;
+  DTTSCand* secondPrevBx = nullptr;    // new DTTSCand;
 
   bool existSecondPrevBx = false;
   int itsmd = 1;  // initialize it to 1, default value if not in back up mode
@@ -408,7 +408,7 @@ DTTSPhi::runTSPhi() {
   }   // end loop on step  
   // debugging...
   if(config()->debug()){
-    if(_cache.size()>0){
+    if(!_cache.empty()){
       std::cout << "====================================================" << std::endl;
       std::cout << "                  Phi segments                     " << std::endl;
       std::vector<DTChambPhSegm>::const_iterator p;
@@ -461,13 +461,13 @@ DTTSPhi::getDTTSS(int step, unsigned n) const {
   if(step<DTConfigTSPhi::NSTEPF||step>DTConfigTSPhi::NSTEPL){
     std::cout << "DTTSPhi::getDTTSS: step out of range: " << step;
     std::cout << " empty pointer returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
   if(n<1 || n>_tss[step-DTConfigTSPhi::NSTEPF].size()){
     std::cout << "DTTSPhi::getDTTSS: requested DTTSS not present: " << n;
     std::cout << " (at step " << step << ")";
     std::cout << " empty pointer returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
   
   std::vector<DTTSS*>::const_iterator p = _tss[step-DTConfigTSPhi::NSTEPF].begin()+n-1;
@@ -482,13 +482,13 @@ DTTSPhi::getDTTSM(int step, unsigned n) const {
   if(step<DTConfigTSPhi::NSTEPF||step>DTConfigTSPhi::NSTEPL){
     std::cout << "DTTSPhi::getDTTSM: step out of range: " << step;
     std::cout << " empty pointer returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
   if(n<1 || n>_tsm[step-DTConfigTSPhi::NSTEPF].size()){
     std::cout << "DTTSPhi::getDTTSM: requested DTTSM not present: " << n;
     std::cout << " (at step " << step << ")";
     std::cout << " empty pointer returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
   std::vector<DTTSM*>::const_iterator p_tsm = _tsm[step-DTConfigTSPhi::NSTEPF].begin()+n-1;
   return *p_tsm;
@@ -513,7 +513,7 @@ DTTSPhi::segment(int step, unsigned n) {
     if(p->step()==step&&((n==1&&p->isFirst())||(n==2&&!p->isFirst())))
       return  &(*p);// p;
   }
-  return 0;
+  return nullptr;
 }
 
 LocalPoint 

@@ -38,11 +38,11 @@ class GctTimingAnalyzer : public edm::EDAnalyzer {
  public:
 
   explicit GctTimingAnalyzer(const edm::ParameterSet&);
-  ~GctTimingAnalyzer();
+  ~GctTimingAnalyzer() override;
 
  private:
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   std::string m_outputFileName; // Output file
   std::ofstream m_outputFile;

@@ -63,7 +63,7 @@ CSCTFanalyzer::CSCTFanalyzer(edm::ParameterSet const& pset):edm::EDAnalyzer(){
 	tree->Branch("emode2",&emode2,"emode2/I");
 	tree->Branch("emode3",&emode3,"emode3/I");
 
-	ts=0;
+	ts=nullptr;
 }
 
 void CSCTFanalyzer::endJob(void){

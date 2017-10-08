@@ -58,7 +58,7 @@ class DTTSPhi : public DTTSPhiManager, public DTGeomSupplier {
   DTTSPhi(DTTrigGeom*, DTTracoCard*);
 
   /// Destructor 
-  ~DTTSPhi();
+  ~DTTSPhi() override;
 
   /// Return the configuration class
   inline const DTConfigTSPhi* config() const {return _config; }
@@ -73,13 +73,13 @@ class DTTSPhi : public DTTSPhiManager, public DTGeomSupplier {
   const DTChambPhSegm* segment(int step, unsigned n);
   
   /// Local position in chamber of a trigger-data object
-  LocalPoint localPosition(const DTTrigData*) const;
+  LocalPoint localPosition(const DTTrigData*) const override;
   
   /// Local direction in chamber of a trigger-data object
-  LocalVector localDirection(const DTTrigData*) const;
+  LocalVector localDirection(const DTTrigData*) const override;
   
   /// Load TRACO triggers and run TSPhi algorithm
-  virtual void reconstruct() { loadTSPhi(); runTSPhi(); }
+  void reconstruct() override { loadTSPhi(); runTSPhi(); }
 
  private:
   

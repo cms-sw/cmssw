@@ -24,10 +24,10 @@ namespace l1t {
   class Stage2Layer2TauAlgorithmFirmwareImp1 : public Stage2Layer2TauAlgorithm {
   public:
     Stage2Layer2TauAlgorithmFirmwareImp1(CaloParamsHelper* params); //const CaloMainProcessorParams & dbPars);
-    virtual ~Stage2Layer2TauAlgorithmFirmwareImp1();
-    virtual void processEvent(const std::vector<CaloCluster> & clusters,
+    ~Stage2Layer2TauAlgorithmFirmwareImp1() override;
+    void processEvent(const std::vector<CaloCluster> & clusters,
                   const std::vector<CaloTower>& towers,
-                  std::vector<Tau> & taus);
+                  std::vector<Tau> & taus) override;
   private:
     void merging(const std::vector<l1t::CaloCluster>& clusters,  const std::vector<l1t::CaloTower>& towers, std::vector<l1t::Tau>& taus);
     void dosorting(std::vector<l1t::Tau>& taus);

@@ -23,7 +23,7 @@ public:
   
   RBCLogicUnit( const char * );
   
-  virtual ~RBCLogicUnit( ); ///< Destructor
+  ~RBCLogicUnit( ) override; ///< Destructor
   
   bool initialise();
   

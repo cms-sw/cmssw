@@ -498,9 +498,9 @@ void L1GtDataEmulAnalyzer::compareFDL(const edm::Event& iEvent,
     m_myCoutStream.clear();
 
     // get  technical trigger bits
-    const TechnicalTriggerWord gtTechnicalTriggerWordData =
+    const TechnicalTriggerWord& gtTechnicalTriggerWordData =
             fdlBlockData.gtTechnicalTriggerWord();
-    const TechnicalTriggerWord gtTechnicalTriggerWordEmul =
+    const TechnicalTriggerWord& gtTechnicalTriggerWordEmul =
             fdlBlockEmul.gtTechnicalTriggerWord();
 
     int nTechBits = gtTechnicalTriggerWordData.size();
@@ -631,8 +631,8 @@ void L1GtDataEmulAnalyzer::compareFDL(const edm::Event& iEvent,
     m_myCoutStream.clear();
 
     // get algorithms bits (decision word)
-    const DecisionWord gtDecisionWordData = fdlBlockData.gtDecisionWord();
-    const DecisionWord gtDecisionWordEmul = fdlBlockEmul.gtDecisionWord();
+    const DecisionWord& gtDecisionWordData = fdlBlockData.gtDecisionWord();
+    const DecisionWord& gtDecisionWordEmul = fdlBlockEmul.gtDecisionWord();
 
     int nAlgoBits = gtDecisionWordData.size();
 
@@ -752,9 +752,9 @@ void L1GtDataEmulAnalyzer::compareFDL(const edm::Event& iEvent,
     }
 
     // get  extended algorithms bits (extended decision word)
-    const DecisionWordExtended gtDecisionWordExtendedData =
+    const DecisionWordExtended& gtDecisionWordExtendedData =
             fdlBlockData.gtDecisionWordExtended();
-    const DecisionWordExtended gtDecisionWordExtendedEmul =
+    const DecisionWordExtended& gtDecisionWordExtendedEmul =
             fdlBlockEmul.gtDecisionWordExtended();
 
     if (gtDecisionWordExtendedData == gtDecisionWordExtendedEmul) {

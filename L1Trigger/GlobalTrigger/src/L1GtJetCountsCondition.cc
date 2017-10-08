@@ -127,7 +127,7 @@ const bool L1GtJetCountsCondition::evaluateCondition() const {
     const L1GctJetCounts* jetCounts = m_gtPSB->getCandL1JetCounts();
 
     // protection against missing jet counts collection
-    if (jetCounts == 0) {
+    if (jetCounts == nullptr) {
         return false;
     }
 

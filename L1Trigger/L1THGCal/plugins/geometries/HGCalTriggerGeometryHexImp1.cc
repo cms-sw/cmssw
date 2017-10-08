@@ -14,7 +14,7 @@ class HGCalTriggerGeometryHexImp1 : public HGCalTriggerGeometryGenericMapping
     public:
         HGCalTriggerGeometryHexImp1(const edm::ParameterSet& conf);
 
-        virtual void initialize(const edm::ESHandle<CaloGeometry>& ) override final;
+        void initialize(const edm::ESHandle<CaloGeometry>& ) final;
 
     private:
         edm::FileInPath l1tCellsMapping_;

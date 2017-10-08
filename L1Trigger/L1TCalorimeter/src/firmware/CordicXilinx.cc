@@ -28,7 +28,7 @@
 #include <iostream>
 #include <iomanip> 
 #include <cassert>
-#include <math.h>
+#include <cmath>
 #include <cmath>
 
 CordicXilinx::CordicXilinx(int inputBits, int outputBits, bool debug) :

@@ -29,7 +29,7 @@ L1GctGlobalHfSumAlgos::L1GctGlobalHfSumAlgos(const std::vector<L1GctWheelJetFpga
       }
     }
   
-  if(m_plusWheelJetFpga == 0)
+  if(m_plusWheelJetFpga == nullptr)
     {
       m_setupOk = false;
       if (m_verbose) {
@@ -38,7 +38,7 @@ L1GctGlobalHfSumAlgos::L1GctGlobalHfSumAlgos(const std::vector<L1GctWheelJetFpga
 	  << "Plus Wheel Jet Fpga pointer has not been set!\n";
       }
     }
-  if(m_minusWheelJetFpga == 0)
+  if(m_minusWheelJetFpga == nullptr)
     {
       m_setupOk = false;
       if (m_verbose) {
@@ -241,7 +241,7 @@ const L1GctHfBitCountsLut* L1GctGlobalHfSumAlgos::getBCLut(const L1GctHfEtSumsLu
   if (bclut != m_bitCountLuts.end()) {
     return (bclut->second);
   } else {
-   return 0;
+   return nullptr;
   }
 }
 
@@ -251,7 +251,7 @@ const L1GctHfEtSumsLut* L1GctGlobalHfSumAlgos::getESLut(const L1GctHfEtSumsLut::
   if (eslut != m_etSumLuts.end()) {
     return (eslut->second);
   } else {
-    return 0;
+    return nullptr;
   }
 }
 
@@ -260,7 +260,7 @@ std::vector<double> L1GctGlobalHfSumAlgos::getThresholds(const L1GctHfEtSumsLut:
 {
   std::vector<double> result;
   const L1GctHfEtSumsLut* ESLut = getESLut(type);
-  if (ESLut != 0) { result = ESLut->lutFunction()->getThresholds(); }
+  if (ESLut != nullptr) { result = ESLut->lutFunction()->getThresholds(); }
   return result;
 } 
 

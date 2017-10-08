@@ -128,28 +128,28 @@ namespace HGCalTriggerBackend{
             }
 
             // setProduces
-            virtual void setProduces(edm::stream::EDProducer<>& prod) const override final
+            void setProduces(edm::stream::EDProducer<>& prod) const final
             {
                 prod.produces<l1t::HGCalClusterBxCollection>(name());
             }
 
             // putInEvent
-            virtual void putInEvent(edm::Event& evt) override final
+            void putInEvent(edm::Event& evt) final
             {
                 evt.put(std::move(cluster_product_),name());
             }
 
             //reset
-            virtual void reset() override final 
+            void reset() final 
             {
                 cluster_product_.reset( new l1t::HGCalClusterBxCollection );
             }
 
             // run, actual algorithm
-            virtual void run( const l1t::HGCFETriggerDigiCollection & coll,
+            void run( const l1t::HGCFETriggerDigiCollection & coll,
                            const edm::EventSetup& es,
                            edm::Event&evt
-                    )
+                    ) override
             {
                 //0.5. Get Digis, construct a map, detid -> energy
                 
