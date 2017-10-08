@@ -1,5 +1,5 @@
 // Class for input trigger primitives to EMTF - AWB 04.01.16
-// Based on L1Trigger/L1TMuon/interface/deprecate/MuonTriggerPrimitive.h
+// Based on L1Trigger/L1TMuon/interface/MuonTriggerPrimitive.h
 // In particular, see struct CSCData
 
 #ifndef DataFormats_L1TMuon_EMTFHit_h
