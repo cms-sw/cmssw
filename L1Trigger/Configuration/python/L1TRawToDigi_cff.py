@@ -9,6 +9,15 @@
 import FWCore.ParameterSet.Config as cms
 import sys
 
+from CondTools.RPC.RPCLinkMap_CondDB_cff import RPCLinkMapSource
+# Need this ESSource for payloads: RPCCPPFLinkMap_v1, RPCDCCLinkMap_v1, RPCLBLinkMap_v1, RPCOMTFLinkMap_v1, RPCTwinMuxLinkMap_v1
+# to run RPCTwinMuxRawToDigi without crash, and to run OMTF unpacker correctly
+# Currently also included in the L1Trigger/L1TTwinMux/python/fakeTwinMuxParams_cff.py
+# Once 
+
+
+
+
 def unpack_legacy():
     global L1TRawToDigi_Legacy
     global csctfDigis, dttfDigis, gctDigis, gtDigis, gtEvmDigis
@@ -56,7 +65,8 @@ def unpack_stage1():
 
 def unpack_stage2():
     global L1TRawToDigi_Stage2
-    global twinMuxStage2Digis, bmtfDigis, emtfStage2Digis, caloLayer1Digis, caloStage2Digis, gmtStage2Digis, gtStage2Digis,L1TRawToDigi_Stage2    
+    global RPCTwinMuxRawToDigi, twinMuxStage2Digis, bmtfDigis, emtfStage2Digis, caloLayer1Digis, caloStage2Digis, gmtStage2Digis, gtStage2Digis,L1TRawToDigi_Stage2    
+    from EventFilter.RPCRawToDigi.RPCTwinMuxRawToDigi_cfi import RPCTwinMuxRawToDigi
     from EventFilter.L1TRawToDigi.bmtfDigis_cfi import bmtfDigis 
     from EventFilter.L1TRawToDigi.emtfStage2Digis_cfi import emtfStage2Digis
     from EventFilter.L1TRawToDigi.caloLayer1Digis_cfi import caloLayer1Digis
@@ -64,7 +74,7 @@ def unpack_stage2():
     from EventFilter.L1TRawToDigi.gmtStage2Digis_cfi import gmtStage2Digis
     from EventFilter.L1TRawToDigi.gtStage2Digis_cfi import gtStage2Digis
     from EventFilter.L1TXRawToDigi.twinMuxStage2Digis_cfi import twinMuxStage2Digis
-    L1TRawToDigi_Stage2 = cms.Sequence(twinMuxStage2Digis * bmtfDigis + emtfStage2Digis + caloLayer1Digis + caloStage2Digis + gmtStage2Digis + gtStage2Digis)
+    L1TRawToDigi_Stage2 = cms.Sequence(RPCTwinMuxRawToDigi * twinMuxStage2Digis * bmtfDigis + emtfStage2Digis + caloLayer1Digis + caloStage2Digis + gmtStage2Digis + gtStage2Digis)
     
 #
 # Legacy Trigger:
