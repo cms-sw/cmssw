@@ -29,7 +29,7 @@ class SUSY_HLT_InclusiveHT: public DQMEDAnalyzer{
 
   public:
   SUSY_HLT_InclusiveHT(const edm::ParameterSet& ps);
-  virtual ~SUSY_HLT_InclusiveHT();
+  ~SUSY_HLT_InclusiveHT() override;
 
   protected:
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;

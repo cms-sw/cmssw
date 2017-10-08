@@ -58,8 +58,8 @@ HLTMuonPlotter::HLTMuonPlotter(const ParameterSet & pset,
   genMuonCut_ = pset.getParameter<string>("genMuonCut");
   recMuonCut_ = pset.getParameter<string>("recMuonCut");
 
-  genMuonSelector_ = 0;
-  recMuonSelector_ = 0;
+  genMuonSelector_ = nullptr;
+  recMuonSelector_ = nullptr;
 
   //set tokens
   hltTriggerSummaryRAW_ = tokens.get<0>();
@@ -239,11 +239,11 @@ HLTMuonPlotter::analyze(const Event & iEvent, const EventSetup & iSetup)
             matchesInEtaRange.push_back(j);
         }
         else if (level == 1) {
-          if (matches[j].candL1 == 0)
+          if (matches[j].candL1 == nullptr)
             hasMatch[j] = false;
         }
         else if (level >= 2) {
-          if (matches[j].candHlt[hltStep] == 0)
+          if (matches[j].candHlt[hltStep] == nullptr)
             hasMatch[j] = false;
           else if (!hasMatch[j]) {
             LogTrace("HLTMuonVal") << "Match found for HLT step " << hltStep
@@ -266,7 +266,7 @@ HLTMuonPlotter::analyze(const Event & iEvent, const EventSetup & iSetup)
         float eta = matches[j].candBase->eta();
         float phi = matches[j].candBase->phi();
         if (hasMatch[j]) { 
-          if (matchesInEtaRange.size() >= 1 && j == matchesInEtaRange[0])
+          if (!matchesInEtaRange.empty() && j == matchesInEtaRange[0])
             elements_[pre + "MaxPt1" + post]->Fill(pt);
           if (matchesInEtaRange.size() >= 2 && j == matchesInEtaRange[1])
             elements_[pre + "MaxPt2" + post]->Fill(pt);
@@ -360,7 +360,7 @@ HLTMuonPlotter::findMatches(
       matches[i].candL1 = & * candsL1[bestMatch];
     indicesL1.erase(bestMatch);
 
-    matches[i].candHlt.assign(candsHlt.size(), 0);
+    matches[i].candHlt.assign(candsHlt.size(), nullptr);
     for (size_t j = 0; j < candsHlt.size(); j++) {
       size_t level = (candsHlt.size() == 4) ? (j < 2) ? 2 : 3 :
                      (candsHlt.size() == 2) ? (j < 1) ? 2 : 3 :
