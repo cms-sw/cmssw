@@ -14,7 +14,7 @@ KFStrip1DUpdator::update(const TSOS& aTsos, const TrackingRecHit& aHit) const {
   
   AlgebraicMatrix15 H(myTrafo.projectionMatrix());
   double V = myTrafo.hitError();
-  AlgebraicSymMatrix55 C(myTrafo.trajectoryError());
+  const AlgebraicSymMatrix55& C(myTrafo.trajectoryError());
   double pC = myTrafo.projectedTrajectoryError();
 
   double R = 1./(V + pC);

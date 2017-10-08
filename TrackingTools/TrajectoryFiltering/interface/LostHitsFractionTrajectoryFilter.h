@@ -16,13 +16,13 @@ public:
     theConstantValue       = pset.getParameter<double>("constantValueForLostHitsFractionFilter");
   }
 
-  virtual bool qualityFilter( const Trajectory& traj) const { return TrajectoryFilter::qualityFilterIfNotContributing; }
-  virtual bool qualityFilter( const TempTrajectory& traj) const { return TrajectoryFilter::qualityFilterIfNotContributing; }
+  bool qualityFilter( const Trajectory& traj) const override { return TrajectoryFilter::qualityFilterIfNotContributing; }
+  bool qualityFilter( const TempTrajectory& traj) const override { return TrajectoryFilter::qualityFilterIfNotContributing; }
 
-  virtual bool toBeContinued( TempTrajectory& traj) const { return TBC<TempTrajectory>(traj);}
-  virtual bool toBeContinued( Trajectory& traj) const{ return TBC<Trajectory>(traj);}
+  bool toBeContinued( TempTrajectory& traj) const override { return TBC<TempTrajectory>(traj);}
+  bool toBeContinued( Trajectory& traj) const override{ return TBC<Trajectory>(traj);}
 
-  virtual std::string name() const{return "LostHitsFractionTrajectoryFilter";}
+  std::string name() const override{return "LostHitsFractionTrajectoryFilter";}
 
   inline edm::ParameterSetDescription getFilledConfigurationDescription() {
     edm::ParameterSetDescription desc;

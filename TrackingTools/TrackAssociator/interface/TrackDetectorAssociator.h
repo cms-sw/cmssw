@@ -78,7 +78,7 @@ class TrackDetectorAssociator {
 					   const edm::EventSetup& iSetup,
 					   const AssociatorParameters& parameters,
 					   const FreeTrajectoryState* innerState,
-					   const FreeTrajectoryState* outerState=0);
+					   const FreeTrajectoryState* outerState=nullptr);
    /// associate using reco::Track
    TrackDetMatchInfo            associate( const edm::Event&,
 					   const edm::EventSetup&,
