@@ -9,7 +9,7 @@
 import FWCore.ParameterSet.Config as cms
 import sys
 
-from CondTools.RPC.RPCLinkMap_CondDB_cff import RPCLinkMapSource
+from L1Trigger.L1TTwinMux.RPCLinkMap_CondDB_cff import RPCLinkMapSource
 # Need this ESSource for payloads: RPCCPPFLinkMap_v1, RPCDCCLinkMap_v1, RPCLBLinkMap_v1, RPCOMTFLinkMap_v1, RPCTwinMuxLinkMap_v1
 # to run RPCTwinMuxRawToDigi without crash, and to run OMTF unpacker correctly
 # Currently also included in the L1Trigger/L1TTwinMux/python/fakeTwinMuxParams_cff.py
