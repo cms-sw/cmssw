@@ -38,6 +38,9 @@
 #include "FWCore/Utilities/interface/transform.h"
 
 #include "PhysicsTools/PatUtils/interface/MiniIsolation.h"
+#include "PhysicsTools/PatAlgos/interface/MuonMvaEstimator.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 
 #include <vector>
 #include <memory>
@@ -47,7 +50,13 @@ using namespace pat;
 using namespace std;
 
 
-PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) : useUserData_(iConfig.exists("userData")),
+PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) : 
+  relMiniIsoPUCorrected_(0),
+  useUserData_(iConfig.exists("userData")),
+  computeMuonMVA_(false),
+  recomputeBasicSelectors_(false),
+  mvaDrMax_(0),
+  mvaUseJec_(false),
   isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation") : edm::ParameterSet(), consumesCollector(), false)
 {
   // input source
@@ -122,12 +131,34 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) : useUserDat
 
   //for mini-isolation calculation
   computeMiniIso_ = iConfig.getParameter<bool>("computeMiniIso");
+
   miniIsoParams_ = iConfig.getParameter<std::vector<double> >("miniIsoParams");
   if(computeMiniIso_ && miniIsoParams_.size() != 9){
       throw cms::Exception("ParameterError") << "miniIsoParams must have exactly 9 elements.\n";
   }
   if(computeMiniIso_)
       pcToken_ = consumes<pat::PackedCandidateCollection >(iConfig.getParameter<edm::InputTag>("pfCandsForMiniIso"));
+
+  // standard selectors
+  recomputeBasicSelectors_ = iConfig.getParameter<bool>("recomputeBasicSelectors");
+  computeMuonMVA_ = iConfig.getParameter<bool>("computeMuonMVA");
+  mvaTrainingFile_ = iConfig.getParameter<std::string>("mvaTrainingFile");
+  if (computeMuonMVA_ and not computeMiniIso_) 
+    throw cms::Exception("ConfigurationError") << "MiniIso is needed for Muon MVA calculation.\n";
+
+  if (computeMuonMVA_) {
+    // pfCombinedInclusiveSecondaryVertexV2BJetTags
+    mvaBTagCollectionTag_  = consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("mvaJetTag"));
+    mvaL1Corrector_        = consumes<reco::JetCorrector>(iConfig.getParameter<edm::InputTag>("mvaL1Corrector"));
+    mvaL1L2L3ResCorrector_ = consumes<reco::JetCorrector>(iConfig.getParameter<edm::InputTag>("mvaL1L2L3ResCorrector"));
+    rho_                   = consumes<double>(iConfig.getParameter<edm::InputTag>("rho"));
+    mvaUseJec_ = iConfig.getParameter<bool>("mvaUseJec");
+    mvaDrMax_  = iConfig.getParameter<double>("mvaDrMax");
+
+    // xml training file
+    edm::FileInPath fip(mvaTrainingFile_);
+    mvaEstimator_.initialize(fip.fullPath(),mvaDrMax_);
+  }
 
   // produces vector of muons
   produces<std::vector<Muon> >();
@@ -189,6 +220,16 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     iEvent.getByToken(PUPPINoLeptonsIsolation_charged_hadrons_, PUPPINoLeptonsIsolation_charged_hadrons);
     iEvent.getByToken(PUPPINoLeptonsIsolation_neutral_hadrons_, PUPPINoLeptonsIsolation_neutral_hadrons);
     iEvent.getByToken(PUPPINoLeptonsIsolation_photons_, PUPPINoLeptonsIsolation_photons);  
+  }
+
+  // inputs for muon mva
+  edm::Handle<reco::JetTagCollection> mvaBTagCollectionTag;
+  edm::Handle<reco::JetCorrector> mvaL1Corrector;
+  edm::Handle<reco::JetCorrector> mvaL1L2L3ResCorrector;
+  if (computeMuonMVA_) {
+    iEvent.getByToken(mvaBTagCollectionTag_,mvaBTagCollectionTag);
+    iEvent.getByToken(mvaL1Corrector_,mvaL1Corrector);
+    iEvent.getByToken(mvaL1L2L3ResCorrector_,mvaL1L2L3ResCorrector);
   }
   
   // prepare the MC genMatchTokens_
@@ -435,7 +476,64 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   // sort muons in pt
   std::sort(patMuons->begin(), patMuons->end(), pTComparator_);
 
-  // put genEvt object in Event
+  // Store standard muon selection decisions and jet related 
+  // quantaties.
+  // Need a separate loop over muons to have all inputs properly
+  // computed and stored in the object.
+  edm::Handle<double> rho;
+  if (computeMuonMVA_) iEvent.getByToken(rho_,rho);
+  const reco::Vertex* pv(nullptr);
+  if (primaryVertexIsValid) pv = &primaryVertex;
+  for(auto& muon: *patMuons){
+    if (recomputeBasicSelectors_){
+      muon.setSelectors(0);
+      bool isRun2016BCDEF = (272728 <= iEvent.run() && iEvent.run() <= 278808);
+      muon::setCutBasedSelectorFlags(muon, pv, isRun2016BCDEF);
+    }
+    if (computeMiniIso_){
+      // MiniIsolation working points
+      double iso = getRelMiniIsoPUCorrected(muon,*rho);
+      muon.setSelector(reco::Muon::MiniIsoLoose,     iso<0.40);
+      muon.setSelector(reco::Muon::MiniIsoMedium,    iso<0.20);
+      muon.setSelector(reco::Muon::MiniIsoTight,     iso<0.10);
+      muon.setSelector(reco::Muon::MiniIsoVeryTight, iso<0.05);
+    }
+    if (computeMuonMVA_ && primaryVertexIsValid){
+      if (mvaUseJec_)
+	mvaEstimator_.computeMva(muon,
+				 primaryVertex,
+				 *(mvaBTagCollectionTag.product()),
+				 &*mvaL1Corrector,
+				 &*mvaL1L2L3ResCorrector);
+      else
+	mvaEstimator_.computeMva(muon,
+				 primaryVertex,
+				 *(mvaBTagCollectionTag.product()));
+      
+      muon.setMvaValue(mvaEstimator_.mva());
+      muon.setJetPtRatio(mvaEstimator_.jetPtRatio());
+      muon.setJetPtRel(mvaEstimator_.jetPtRel());
+      
+      // MVA working points
+      // https://twiki.cern.ch/twiki/bin/viewauth/CMS/LeptonMVA
+      double dB2D  = fabs(muon.dB(pat::Muon::BS2D));
+      double dB3D  = fabs(muon.dB(pat::Muon::PV3D));
+      double edB3D = fabs(muon.edB(pat::Muon::PV3D));
+      double sip3D = edB3D>0?dB3D/edB3D:0.0; 
+      double dz = fabs(muon.muonBestTrack()->dz(primaryVertex.position()));
+
+      // muon preselection
+      if (muon.pt()>5 and muon.isLooseMuon() and
+	  muon.passed(reco::Muon::MiniIsoLoose) and 
+	  sip3D<8.0 and dB2D<0.05 and dz<0.1){
+	muon.setSelector(reco::Muon::MvaLoose,  muon.mvaValue()>-0.60);
+	muon.setSelector(reco::Muon::MvaMedium, muon.mvaValue()>-0.20);
+	muon.setSelector(reco::Muon::MvaTight,  muon.mvaValue()> 0.15);
+      }
+    }
+  }
+
+  // put products in Event
   std::unique_ptr<std::vector<Muon> > ptr(patMuons);
   iEvent.put(std::move(ptr));
 
@@ -526,6 +624,15 @@ void PATMuonProducer::setMuonMiniIso(Muon& aMuon, const PackedCandidateCollectio
                                                      miniIsoParams_[3], miniIsoParams_[4], miniIsoParams_[5],
                                                      miniIsoParams_[6], miniIsoParams_[7], miniIsoParams_[8]);
   aMuon.setMiniPFIsolation(miniiso);
+}
+
+double PATMuonProducer::getRelMiniIsoPUCorrected(const pat::Muon& muon, float rho)
+{
+  float mindr(miniIsoParams_[0]);
+  float maxdr(miniIsoParams_[1]);
+  float kt_scale(miniIsoParams_[2]);
+  float drcut = pat::miniIsoDr(muon.p4(),mindr,maxdr,kt_scale);
+  return pat::muonRelMiniIsoPUCorrected(muon.miniPFIsolation(), muon.p4(), drcut, rho);
 }
 
 // ParameterSet description for module
