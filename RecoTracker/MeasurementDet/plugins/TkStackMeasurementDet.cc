@@ -16,7 +16,7 @@ void TkStackMeasurementDet::init(const MeasurementDet* lowerDet,
   theInnerDet = dynamic_cast<const TkPhase2OTMeasurementDet *>(lowerDet);
   theOuterDet = dynamic_cast<const TkPhase2OTMeasurementDet *>(upperDet);
 
-  if ((theInnerDet == 0) || (theOuterDet == 0)) {
+  if ((theInnerDet == nullptr) || (theOuterDet == nullptr)) {
     throw MeasurementDetException("TkStackMeasurementDet ERROR: Trying to glue a det which is not a TkPhase2OTMeasurementDet");
   }
 }

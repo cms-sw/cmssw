@@ -75,7 +75,7 @@ std::vector< GetTrackTrajInfo::Result > GetTrackTrajInfo::analyze(const edm::Eve
       LogDebug("GTTI")<<"    hit in subdet="<<subDet<<" layer="<<layer;
 
       // Get corresponding DetLayer object (based on code in GeometricSearchTracker::idToLayer(...)
-      const DetLayer* detLayer = 0;
+      const DetLayer* detLayer = nullptr;
       if (subDet == StripSubdetector::TIB) {
         detLayer = tracker->tibLayers()[layer - 1];
       } else if (subDet == StripSubdetector::TOB) {
@@ -105,7 +105,7 @@ std::vector< GetTrackTrajInfo::Result > GetTrackTrajInfo::analyze(const edm::Eve
 	propagator.setPropagationDirection(along);
 	std::vector< GeometricSearchDet::DetWithState > detWithState = detLayer->compatibleDets(initTSOS, propagator, estimator);
 	// Check that at least one sensor was compatible with the track trajectory.
-	if(detWithState.size() > 0) {
+	if(!detWithState.empty()) {
 	  // Store track trajectory at this sensor.
 	  result.valid    = true;
 	  result.accurate = true;

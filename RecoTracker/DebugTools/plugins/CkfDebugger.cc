@@ -229,7 +229,7 @@ bool CkfDebugger::analyseCompatibleMeasurements(const Trajectory& traj,
   //const PSimHit* correctHit = nextCorrectHit(traj, trajId);
   //if ( correctHit == 0) return true; // no more simhits on this track
   std::vector<const PSimHit*> correctHits = nextCorrectHits(traj, trajId);
-  if ( correctHits.size() == 0) return true; // no more simhits on this track
+  if ( correctHits.empty()) return true; // no more simhits on this track
 
   for (std::vector<const PSimHit*>::iterator corHit=correctHits.begin();corHit!=correctHits.end();corHit++){
     for (std::vector<TM>::const_iterator i=meas.begin(); i!=meas.end(); i++) {
@@ -258,7 +258,7 @@ bool CkfDebugger::analyseCompatibleMeasurements(const Trajectory& traj,
 				      << " subdet " << i->recHit()->det()->geographicalId().subdetId() 
 				      << " Chi2 " << i->estimate() ;
     }
-    else if (i->recHit()->det() == 0) {
+    else if (i->recHit()->det() == nullptr) {
       edm::LogVerbatim("CkfDebugger") << "Invalid RecHit returned with zero Det pointer" ;
     }
     else if (i->recHit()->det() == det(correctHit)) {
@@ -273,7 +273,7 @@ bool CkfDebugger::analyseCompatibleMeasurements(const Trajectory& traj,
   //Look if the correct RecHit exists
   std::pair<CTTRHp, double> correctRecHit = 
     analyseRecHitExistance( *correctHit, traj.lastMeasurement().updatedState());
-  if (correctRecHit.first==0 ) {
+  if (correctRecHit.first==nullptr ) {
     //the hit does not exist or is uncorrectly matched
     if ( fabs(correctRecHit.second-0)<0.01 ) {dump[1]++;}//other
     if ( fabs(correctRecHit.second+1)<0.01 ) {dump[8]++;}//propagation
@@ -472,7 +472,7 @@ bool CkfDebugger::correctTrajectory( const Trajectory& traj,unsigned int& trajId
   Trajectory::RecHitContainer hits = traj.recHits();
 
   std::vector<SimHitIdpr> currentTrackId = hitAssociator->associateHitId(*hits.front()->hit());
-  if (currentTrackId.size() == 0) return false;
+  if (currentTrackId.empty()) return false;
 
   for (Trajectory::RecHitContainer::const_iterator rh=hits.begin(); rh!=hits.end(); ++rh) {
 
@@ -517,7 +517,7 @@ int CkfDebugger::assocTrackId(CTTRHp rechit) const
   }
 
   std::vector<SimHitIdpr> ids = hitAssociator->associateHitId(*rechit->hit());
-  if (ids.size()!=0) {
+  if (!ids.empty()) {
     return ids[0].first;//FIXME if size>1!!
   }
   else {
@@ -556,7 +556,7 @@ vector<const PSimHit*> CkfDebugger::nextCorrectHits( const Trajectory& traj, uns
   }
 
   //choose the simHit from the same track that has the highest tof
-  const PSimHit * lastPSH = 0;
+  const PSimHit * lastPSH = nullptr;
   if (!pSimHitVec.empty()) {
     float maxTOF = 0;
     for (std::vector<PSimHit>::const_iterator ch=pSimHitVec.begin(); ch!=pSimHitVec.end(); ++ch) {
@@ -567,7 +567,7 @@ vector<const PSimHit*> CkfDebugger::nextCorrectHits( const Trajectory& traj, uns
     }
   }
   else return result;//return empty vector: no more hits on the sim track
-  if (lastPSH == 0) return result; //return empty vector: no more good hits on the sim track
+  if (lastPSH == nullptr) return result; //return empty vector: no more good hits on the sim track
   edm::LogVerbatim("CkfDebugger") << "CkfDebugger: corresponding SimHit is at gpos " << position(&*lastPSH) ;
 
   //take the simHits on the simTrack that are in the nextLayer (could be > 1 if overlap or matched)
@@ -634,7 +634,7 @@ bool CkfDebugger::associated(CTTRHp rechit, const PSimHit& pSimHit) const
 bool CkfDebugger::correctMeas( const TM& tm, const PSimHit* correctHit) const
 {
   LogTrace("CkfDebugger") << "now in correctMeas" ;
-  CTTRHp recHit = tm.recHit();
+  const CTTRHp& recHit = tm.recHit();
   if (recHit->isValid()) LogTrace("CkfDebugger") << "hit at position:" << recHit->globalPosition() ;
   TransientTrackingRecHit::RecHitContainer comp = recHit->transientHits();
   if (comp.empty()) {
@@ -886,7 +886,7 @@ pair<CTTRHp, double> CkfDebugger::analyseRecHitExistance( const PSimHit& sh, con
   }
   other++;
 #endif
-  return std::pair<CTTRHp, double>((CTTRHp)(0),0);//other
+  return std::pair<CTTRHp, double>((CTTRHp)(nullptr),0);//other
 }
 
 const PSimHit* CkfDebugger::pSimHit(unsigned int tkId, DetId detId)
@@ -898,7 +898,7 @@ const PSimHit* CkfDebugger::pSimHit(unsigned int tkId, DetId detId)
       return (*shi);
     }
   }
-  return 0;
+  return nullptr;
 }
 
 int CkfDebugger::analyseRecHitNotFound(const Trajectory& traj, CTTRHp correctRecHit)
@@ -915,7 +915,7 @@ int CkfDebugger::analyseRecHitNotFound(const Trajectory& traj, CTTRHp correctRec
   }
 
   TkLayerLess lless;//FIXME - was lless(traj.direction())
-  const DetLayer* detLayer = 0;
+  const DetLayer* detLayer = nullptr;
   bool navLayerAfter = false;
   bool test = false;
   for (std::vector<const DetLayer*>::iterator il = nl.begin(); il != nl.end(); il++) {
@@ -992,7 +992,7 @@ double CkfDebugger::testSeed(CTTRHp recHit1, CTTRHp recHit2, TSOS state){
   const std::vector<PSimHit>& pSimHitVec1 = hitAssociator->associateHit(*recHit1->hit());
   const std::vector<PSimHit>& pSimHitVec2 = hitAssociator->associateHit(*recHit2->hit());
   
-  if ( pSimHitVec1.size()==0 || pSimHitVec2.size()==0 || hasDelta(&(*pSimHitVec1.begin())) || hasDelta(&(*pSimHitVec2.begin())) ) {
+  if ( pSimHitVec1.empty() || pSimHitVec2.empty() || hasDelta(&(*pSimHitVec1.begin())) || hasDelta(&(*pSimHitVec2.begin())) ) {
     edm::LogVerbatim("CkfDebugger") << "Seed has delta or problems" ;
     return -1;
   }
@@ -1004,7 +1004,7 @@ double CkfDebugger::testSeed(CTTRHp recHit1, CTTRHp recHit2, TSOS state){
   //   double stlp4 = state.localParameters().vector()[3];
   //   double stlp5 = state.localParameters().vector()[4];
 
-  if (pSimHitVec2.size()!=0) {
+  if (!pSimHitVec2.empty()) {
     const PSimHit& simHit = *pSimHitVec2.begin();
     
     double shlp1 = -1/simHit.momentumAtEntry().mag();

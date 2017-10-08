@@ -41,7 +41,7 @@ Phase2OTBarrelLayer* Phase2OTBarrelLayerBuilder::build(const GeometricDet* aPhas
 
   double meanR = 0;
   for (unsigned int index=0; index!=theGeometricDetRods.size(); index++)   meanR+=theGeometricDetRods[index]->positionBounds().perp();
-  if (theGeometricDetRods.size()!=0)
+  if (!theGeometricDetRods.empty())
     meanR/=(double) theGeometricDetRods.size();
   
   for(unsigned int index=0; index!=theGeometricDetRods.size(); index++){    

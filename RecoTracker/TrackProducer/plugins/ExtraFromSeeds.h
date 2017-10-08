@@ -45,12 +45,12 @@
 class ExtraFromSeeds : public edm::global::EDProducer<> {
    public:
       explicit ExtraFromSeeds(const edm::ParameterSet&);
-      ~ExtraFromSeeds();
+      ~ExtraFromSeeds() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+      void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   edm::EDGetTokenT<reco::TrackCollection> tracks_;
   typedef std::vector<unsigned int> ExtremeLight;
