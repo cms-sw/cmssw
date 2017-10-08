@@ -35,8 +35,8 @@ using namespace std;
 class PFRecoTauTagInfoProducer : public edm::global::EDProducer<> {
  public:
   explicit PFRecoTauTagInfoProducer(const edm::ParameterSet& iConfig);
-  ~PFRecoTauTagInfoProducer();
-  virtual void produce(edm::StreamID, edm::Event&,const edm::EventSetup&) const override;
+  ~PFRecoTauTagInfoProducer() override;
+  void produce(edm::StreamID, edm::Event&,const edm::EventSetup&) const override;
  private:
   std::unique_ptr<const PFRecoTauTagInfoAlgorithm> PFRecoTauTagInfoAlgo_;
   edm::InputTag PFCandidateProducer_;
@@ -86,7 +86,7 @@ void PFRecoTauTagInfoProducer::produce(edm::StreamID, edm::Event& iEvent, const 
   math::XYZPoint V(0,0,-1000.);
 
   Vertex thePV;
-  if(vertCollection.size() > 0) thePV =*(vertCollection.begin());
+  if(!vertCollection.empty()) thePV =*(vertCollection.begin());
 else{
     Vertex::Error SimPVError;
     SimPVError(0,0)=15.*15.;

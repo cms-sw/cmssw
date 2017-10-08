@@ -33,10 +33,10 @@ class HiggsToZZ4LeptonsSkimEff : public edm::EDAnalyzer {
   explicit HiggsToZZ4LeptonsSkimEff(const edm::ParameterSet&);
 
   // Destructor
-  ~HiggsToZZ4LeptonsSkimEff();
+  ~HiggsToZZ4LeptonsSkimEff() override;
 
   /// Get event properties to send to builder to fill seed collection
-  virtual void analyze(const edm::Event&, const edm::EventSetup& );
+  void analyze(const edm::Event&, const edm::EventSetup& ) override;
 
 
  private:

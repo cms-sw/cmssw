@@ -5,7 +5,7 @@
 // Modifications: 
 ///////////////////////////////////////////////////////////////////////////////
 #include "RecoRomanPot/RecoFP420/interface/TrackProducerFP420.h"
-#include <stdio.h>
+#include <cstdio>
 #include <gsl/gsl_fit.h>
 #include<vector>
 #include <iostream>

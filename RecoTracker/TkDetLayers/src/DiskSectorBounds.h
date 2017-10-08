@@ -21,17 +21,17 @@ public:
      theOffset = theRmin +  0.5f*(theRmax-theRmin);
    }
    
-   virtual float length()    const { return theRmax-theRmin*std::cos(thePhiExtH);}
-   virtual float width()     const { return 2.f*theRmax*std::sin(thePhiExtH);}
-   virtual float thickness() const { return theZmax-theZmin;}
+   float length()    const override { return theRmax-theRmin*std::cos(thePhiExtH);}
+   float width()     const override { return 2.f*theRmax*std::sin(thePhiExtH);}
+   float thickness() const override { return theZmax-theZmin;}
  
    
    
-   virtual bool inside( const Local3DPoint& p) const;
+   bool inside( const Local3DPoint& p) const override;
      
-   virtual bool inside( const Local3DPoint& p, const LocalError& err, float scale) const;
+   bool inside( const Local3DPoint& p, const LocalError& err, float scale) const override;
  
-   virtual Bounds* clone() const { 
+   Bounds* clone() const override { 
      return new DiskSectorBounds(*this);
    }
  

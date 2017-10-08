@@ -33,25 +33,25 @@ public:
   void setEmpty(Phase2OTMeasurementDetSet & data) { data.setEmpty(index());  }
   bool isEmpty(const Phase2OTMeasurementDetSet & data) const {return data.empty(index());}
 
-  virtual ~TkPhase2OTMeasurementDet() { }
+  ~TkPhase2OTMeasurementDet() override { }
 
-  virtual RecHitContainer recHits( const TrajectoryStateOnSurface&, const MeasurementTrackerEvent & dat ) const override;
-  virtual bool recHits( const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator&, const MeasurementTrackerEvent & data,
+  RecHitContainer recHits( const TrajectoryStateOnSurface&, const MeasurementTrackerEvent & dat ) const override;
+  bool recHits( const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator&, const MeasurementTrackerEvent & data,
 			RecHitContainer & result, std::vector<float> &) const override;
  
 
 
  // simple hits
-  virtual bool recHits(SimpleHitContainer & result,  
+  bool recHits(SimpleHitContainer & result,  
 		       const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator&, const MeasurementTrackerEvent & data) const override {
     assert("not implemented for Pixel yet"==nullptr);
   }
 
  
 
-  virtual bool measurements( const TrajectoryStateOnSurface& stateOnThisDet,
+  bool measurements( const TrajectoryStateOnSurface& stateOnThisDet,
 			    const MeasurementEstimator& est, const MeasurementTrackerEvent & dat,
-			    TempMeasurements & result) const;
+			    TempMeasurements & result) const override;
 
 
   const PixelGeomDetUnit& specificGeomDet() const {return static_cast<PixelGeomDetUnit const &>(fastGeomDet());}
@@ -66,9 +66,9 @@ public:
              This per-event flag is cleared by any call to 'update' or 'setEmpty'  */
   void setActiveThisEvent(Phase2OTMeasurementDetSet & data, bool active) const { data.setActiveThisEvent(index(), active); }
   /** \brief Is this module active in reconstruction? It must be both 'setActiveThisEvent' and 'setActive'. */
-  bool isActive(const MeasurementTrackerEvent & data) const { return data.phase2OTData().isActive(index()); }
+  bool isActive(const MeasurementTrackerEvent & data) const override { return data.phase2OTData().isActive(index()); }
 
-  bool hasBadComponents( const TrajectoryStateOnSurface &tsos, const MeasurementTrackerEvent & dat ) const ; 
+  bool hasBadComponents( const TrajectoryStateOnSurface &tsos, const MeasurementTrackerEvent & dat ) const override ; 
 
   //FIXME:just temporary solution for phase2!
   /** \brief Sets the list of bad ROCs, identified by the positions of their centers in the local coordinate frame*/

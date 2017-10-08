@@ -70,7 +70,7 @@ const TrajectorySeed * SeedForPhotonConversionFromQuadruplets::trajectorySeed(
 
 
 	bool rejectAllQuads=QuadCutPSet.getParameter<bool>("rejectAllQuads");
-	if(rejectAllQuads) return 0;
+	if(rejectAllQuads) return nullptr;
 
 	bool applyDeltaPhiCuts=QuadCutPSet.getParameter<bool>("apply_DeltaPhiCuts");
     bool ClusterShapeFiltering=QuadCutPSet.getParameter<bool>("apply_ClusterShapeFilter");
@@ -88,8 +88,8 @@ const TrajectorySeed * SeedForPhotonConversionFromQuadruplets::trajectorySeed(
 
   pss = &ss;
 
-  if ( phits.size() < 2) return 0;
-  if ( mhits.size() < 2) return 0;
+  if ( phits.size() < 2) return nullptr;
+  if ( mhits.size() < 2) return nullptr;
 
   //PUT HERE THE QUADRUPLET ALGORITHM, AND IN CASE USE THE METHODS ALREADY DEVELOPED, ADAPTING THEM
 
@@ -117,7 +117,7 @@ const TrajectorySeed * SeedForPhotonConversionFromQuadruplets::trajectorySeed(
   vHit[3]=mtth2->globalPosition();
 
   //Photon source vertex primary vertex
-  GlobalPoint vgPhotVertex=region.origin();
+  const GlobalPoint& vgPhotVertex=region.origin();
   math::XYZVector vPhotVertex(vgPhotVertex.x(), vgPhotVertex.y(), vgPhotVertex.z());
 
   math::XYZVector h1(vHit[0].x(),vHit[0].y(),vHit[0].z());
@@ -198,7 +198,7 @@ than CleaningmaxRadialDistance cm, the combination is rejected.
   double maxIPrho2=IPrho+CleaningmaxRadialDistance; maxIPrho2*=maxIPrho2;
 
   if( IPrho<BeamPipeRadiusCut || P1rho2>maxIPrho2 || M1rho2>maxIPrho2){
-	  return 0;
+	  return nullptr;
   }
 
   if(applyDeltaPhiCuts) {
@@ -320,7 +320,7 @@ std::cout << "d" << d << std::endl;
     double DeltaPhiManualM1P1=DeltaPhiManual(M1,P1);
 
 if(DeltaPhiManualM1P1>DeltaPhiMaxM1P1+tol_DeltaPhiMaxM1P1 || DeltaPhiManualM1P1<0-tol_DeltaPhiMaxM1P1){
-	return 0;
+	return nullptr;
 }
 
   }//if rMax > rLayerM1
@@ -385,13 +385,13 @@ if(DeltaPhiManualM1P1>DeltaPhiMaxM1P1+tol_DeltaPhiMaxM1P1 || DeltaPhiManualM1P1<
 		    double DeltaPhiManualM2M1=DeltaPhiManual(M2,M1);
 
 		  if(DeltaPhiManualM2M1>DeltaPhiMaxM2+tol_DeltaPhiMaxM2 || DeltaPhiManualM2M1<0-tol_DeltaPhiMaxM2){
-			  return 0;
+			  return nullptr;
 		  }
 
 		  //Using the lazy solution for P2: DeltaPhiMaxP2=DeltaPhiMaxM2
 		  double DeltaPhiManualP1P2=DeltaPhiManual(P1,P2);
 		  if(DeltaPhiManualP1P2>DeltaPhiMaxM2+tol_DeltaPhiMaxM2 || DeltaPhiManualP1P2<0-tol_DeltaPhiMaxM2){
-		  	return 0;
+		  	return nullptr;
 		  }
 
 	  }
@@ -418,7 +418,7 @@ if(DeltaPhiManualM1P1>DeltaPhiMaxM1P1+tol_DeltaPhiMaxM1P1 || DeltaPhiManualM1P1<
   //double rPlus, rMinus;
   int nite = quad.ConversionCandidate(candVtx, candPtPlus, candPtMinus);
 
-  if ( ! (nite && abs(nite) < 25 && nite != -1000 && nite != -2000) ) return 0;
+  if ( ! (nite && abs(nite) < 25 && nite != -1000 && nite != -2000) ) return nullptr;
 
 //  math::XYZVector plusCenter = quad.GetPlusCenter(rPlus);
 //  math::XYZVector minusCenter = quad.GetMinusCenter(rMinus);
@@ -434,17 +434,17 @@ if(DeltaPhiManualM1P1>DeltaPhiMaxM1P1+tol_DeltaPhiMaxM1P1 || DeltaPhiManualM1P1<
 
     //
     // Cut on leg's transverse momenta
-    if ( candPtPlus < minLegPt ) return 0;
-    if ( candPtMinus < minLegPt ) return 0;
+    if ( candPtPlus < minLegPt ) return nullptr;
+    if ( candPtMinus < minLegPt ) return nullptr;
     //
-    if ( candPtPlus > maxLegPt ) return 0;
-    if ( candPtMinus > maxLegPt ) return 0;
+    if ( candPtPlus > maxLegPt ) return nullptr;
+    if ( candPtMinus > maxLegPt ) return nullptr;
     //
     // Cut on radial distance between estimated conversion vertex and inner hits
     double cr = std::sqrt(candVtx.Perp2());
     double maxr2 = (maxRadialDistance + cr); maxr2*=maxr2;
-    if (h2.Perp2() > maxr2) return 0;
-    if (h3.Perp2() > maxr2) return 0;
+    if (h2.Perp2() > maxr2) return nullptr;
+    if (h3.Perp2() > maxr2) return nullptr;
 
 
 // At this point implement cleaning cuts after building the seed
@@ -476,8 +476,8 @@ if(DeltaPhiManualM1P1>DeltaPhiMaxM1P1+tol_DeltaPhiMaxM1P1 || DeltaPhiManualM1P1<
 		  FastHelix mhelix(mtth2->globalPosition(), mtth1->globalPosition(), vertexPos, nomField,&*bfield, vertexPos);
 		  mkine = mhelix.stateAtVertex();
 
-		  if(theComparitor&&!theComparitor->compatible(phits, pkine, phelix)) { return 0; }
-		  if(theComparitor&&!theComparitor->compatible(mhits, mkine, mhelix)) { return 0; }
+		  if(theComparitor&&!theComparitor->compatible(phits, pkine, phelix)) { return nullptr; }
+		  if(theComparitor&&!theComparitor->compatible(mhits, mkine, mhelix)) { return nullptr; }
     }
 
 
@@ -505,7 +505,7 @@ if(DeltaPhiManualM1P1>DeltaPhiMaxM1P1+tol_DeltaPhiMaxM1P1 || DeltaPhiManualM1P1<
     thisQuad.ptPlus = candPtPlus;
     thisQuad.ptMinus = candPtMinus;
     thisQuad.cot = quadPhotCotTheta;
-        if ( similarQuadExist(thisQuad, quadV) && applyArbitration ) return 0;
+        if ( similarQuadExist(thisQuad, quadV) && applyArbitration ) return nullptr;
 
     // not able to get the mag field... doing the dirty way
     //
@@ -593,7 +593,7 @@ if(DeltaPhiManualM1P1>DeltaPhiMaxM1P1+tol_DeltaPhiMaxM1P1 || DeltaPhiManualM1P1<
         buildSeed(seedCollection,mhits,ftsMinus,es,false,region);
 	}
 
-    return 0;
+    return nullptr;
 
 }
 
@@ -711,7 +711,7 @@ const TrajectorySeed * SeedForPhotonConversionFromQuadruplets::buildSeed(
   TrajectoryStateOnSurface updatedState;
   edm::OwnVector<TrackingRecHit> seedHits;
 
-  const TrackingRecHit* hit = 0;
+  const TrackingRecHit* hit = nullptr;
   for ( unsigned int iHit = 0; iHit < hits.size() && iHit<2; iHit++) {
     hit = hits[iHit];
     TrajectoryStateOnSurface state = (iHit==0) ?
@@ -781,7 +781,7 @@ bool SeedForPhotonConversionFromQuadruplets::buildSeedBool(
   TrajectoryStateOnSurface updatedState;
   edm::OwnVector<TrackingRecHit> seedHits;
 
-  const TrackingRecHit* hit = 0;
+  const TrackingRecHit* hit = nullptr;
   for ( unsigned int iHit = 0; iHit < hits.size() && iHit<2; iHit++) {
     hit = hits[iHit]->hit();
     TrajectoryStateOnSurface state = (iHit==0) ?

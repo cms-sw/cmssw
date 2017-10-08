@@ -10,11 +10,11 @@ class ClusterCheckerEDProducer: public edm::stream::EDProducer<> {
 public:
 
   ClusterCheckerEDProducer(const edm::ParameterSet& iConfig);
-  ~ClusterCheckerEDProducer() = default;
+  ~ClusterCheckerEDProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
   ClusterChecker theClusterCheck;

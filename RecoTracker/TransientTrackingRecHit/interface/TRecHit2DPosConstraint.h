@@ -9,9 +9,9 @@
 class TRecHit2DPosConstraint final : public TransientTrackingRecHit {
 public:
 
-  virtual ~TRecHit2DPosConstraint() {}
+  ~TRecHit2DPosConstraint() override {}
 
-  virtual AlgebraicVector parameters() const {
+  AlgebraicVector parameters() const override {
     AlgebraicVector result(2);
     LocalPoint lp = localPosition();
     result[0] = lp.x();
@@ -19,7 +19,7 @@ public:
     return result;
   }
   
-  virtual AlgebraicSymMatrix parametersError() const {
+  AlgebraicSymMatrix parametersError() const override {
     AlgebraicSymMatrix m(2);
     LocalError le( localPositionError());
     m[0][0] = le.xx();
@@ -28,43 +28,43 @@ public:
     return m;
   }
 
-  virtual AlgebraicMatrix projectionMatrix() const {
+  AlgebraicMatrix projectionMatrix() const override {
     AlgebraicMatrix theProjectionMatrix;
     theProjectionMatrix = AlgebraicMatrix( 2, 5, 0);
     theProjectionMatrix[0][3] = 1;
     theProjectionMatrix[1][4] = 1;
     return theProjectionMatrix;
   }
-  virtual int dimension() const {return 2;}
+  int dimension() const override {return 2;}
 
-  virtual LocalPoint localPosition() const {return pos_;}
-  virtual LocalError localPositionError() const {return err_;}
+  LocalPoint localPosition() const override {return pos_;}
+  LocalError localPositionError() const override {return err_;}
 
-  virtual const TrackingRecHit * hit() const {return 0;}//fixme return invalid
-  virtual TrackingRecHit * cloneHit() const { return 0;}
+  const TrackingRecHit * hit() const override {return nullptr;}//fixme return invalid
+  TrackingRecHit * cloneHit() const override { return nullptr;}
   
-  virtual std::vector<const TrackingRecHit*> recHits() const { return std::vector<const TrackingRecHit*>(); }
-  virtual std::vector<TrackingRecHit*> recHits() { return std::vector<TrackingRecHit*>(); }
-  virtual bool sharesInput( const TrackingRecHit*, SharedInputType) const { return false;}
+  std::vector<const TrackingRecHit*> recHits() const override { return std::vector<const TrackingRecHit*>(); }
+  std::vector<TrackingRecHit*> recHits() override { return std::vector<TrackingRecHit*>(); }
+  bool sharesInput( const TrackingRecHit*, SharedInputType) const override { return false;}
 
-  virtual bool canImproveWithTrack() const {return false;}
+  bool canImproveWithTrack() const override {return false;}
 
   virtual RecHitPointer clone (const TrajectoryStateOnSurface& ts) const {return RecHitPointer(clone());}
 
-  virtual const GeomDetUnit* detUnit() const {return 0;}
+  const GeomDetUnit* detUnit() const override {return nullptr;}
 
   static RecHitPointer build( const LocalPoint& pos, const LocalError& err,
 			      const Surface* surface) {
     return RecHitPointer( new TRecHit2DPosConstraint( pos, err, surface));
   }
 
-  virtual const Surface * surface() const {return &(*surface_);}
+  const Surface * surface() const override {return &(*surface_);}
 
-  virtual GlobalPoint globalPosition() const { return  surface()->toGlobal(localPosition());}
-  virtual GlobalError globalPositionError() const { return ErrorFrameTransformer().transform( localPositionError(), *surface() );}
-  virtual float errorGlobalR() const { return std::sqrt(globalPositionError().rerr(globalPosition()));}
-  virtual float errorGlobalZ() const { return std::sqrt(globalPositionError().czz()); }
-  virtual float errorGlobalRPhi() const { return globalPosition().perp()*sqrt(globalPositionError().phierr(globalPosition())); }
+  GlobalPoint globalPosition() const override { return  surface()->toGlobal(localPosition());}
+  GlobalError globalPositionError() const override { return ErrorFrameTransformer().transform( localPositionError(), *surface() );}
+  float errorGlobalR() const override { return std::sqrt(globalPositionError().rerr(globalPosition()));}
+  float errorGlobalZ() const override { return std::sqrt(globalPositionError().czz()); }
+  float errorGlobalRPhi() const override { return globalPosition().perp()*sqrt(globalPositionError().phierr(globalPosition())); }
 
 
 private:
@@ -80,7 +80,7 @@ private:
   TRecHit2DPosConstraint( const TRecHit2DPosConstraint& other ):
     pos_( other.localPosition() ),err_( other.localPositionError() ), surface_((other.surface())) {}
 
-  virtual TRecHit2DPosConstraint * clone() const {
+  TRecHit2DPosConstraint * clone() const override {
     return new TRecHit2DPosConstraint(*this);
   }
 

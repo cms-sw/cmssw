@@ -218,7 +218,7 @@ void SUSY_HLT_Muon_Hadronic::analyze(edm::Event const& e, edm::EventSetup const&
       caloHT += i_calojet->pt();
     }
     //Need to apply the MET offline cut to be in the MET plateau
-    if((hasFiredAuxiliaryForMuonLeg || !e.isRealData()) && offlineMuons.size()>0 && pfMETCollection->begin()->et() > METOffline_ && pfHT > HTOffline_) {
+    if((hasFiredAuxiliaryForMuonLeg || !e.isRealData()) && !offlineMuons.empty() && pfMETCollection->begin()->et() > METOffline_ && pfHT > HTOffline_) {
       if(hasFired && indexOfMatchedMuon >= 0) {
         h_MuTurnOn_num-> Fill(offlineMuons.at(indexOfMatchedMuon).pt);
         h_MuTurnOn_den-> Fill(offlineMuons.at(indexOfMatchedMuon).pt);

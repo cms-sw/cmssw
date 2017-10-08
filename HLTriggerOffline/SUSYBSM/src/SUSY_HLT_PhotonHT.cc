@@ -93,7 +93,7 @@ void SUSY_HLT_PhotonHT::analyze(edm::Event const& e, edm::EventSetup const& eSet
   size_t filterIndexPhoton = triggerSummary->filterIndex( triggerFilterPhoton_ );
   if( filterIndexPhoton < triggerSummary->sizeFilters() ) {
       const trigger::Keys& keys = triggerSummary->filterKeys( filterIndexPhoton );
-      if( keys.size() ) {
+      if( !keys.empty() ) {
           // take the leading photon
           float pt = triggerObjects[ keys[0] ].pt();
           h_photonPt->Fill( pt );
@@ -104,7 +104,7 @@ void SUSY_HLT_PhotonHT::analyze(edm::Event const& e, edm::EventSetup const& eSet
   size_t filterIndexHt = triggerSummary->filterIndex( triggerFilterHt_ );
   if( filterIndexHt < triggerSummary->sizeFilters() ) {
       const trigger::Keys& keys = triggerSummary->filterKeys( filterIndexHt );
-      if( keys.size() ) {
+      if( !keys.empty() ) {
           float ht = triggerObjects[ keys[0] ].pt();
           h_ht->Fill( ht );
       }
@@ -119,15 +119,15 @@ void SUSY_HLT_PhotonHT::analyze(edm::Event const& e, edm::EventSetup const& eSet
   }
 
   if(hasFiredAuxiliaryForHadronicLeg || !e.isRealData()) {
-   float recoPhotonPt = photonCollection->size() ? photonCollection->begin()->et() : 0;
-   float recoHt = pfMETCollection->size() ? pfMETCollection->begin()->et() : 0;
+   float recoPhotonPt = !photonCollection->empty() ? photonCollection->begin()->et() : 0;
+   float recoHt = !pfMETCollection->empty() ? pfMETCollection->begin()->et() : 0;
 
     if(hasFired){
-      if( photonCollection->size() && recoHt >= htThrOffline_ ) h_photonTurnOn_num -> Fill( recoPhotonPt );
-      if( pfMETCollection->size() && recoPhotonPt >= ptThrOffline_ ) h_htTurnOn_num -> Fill( recoHt );
+      if( !photonCollection->empty() && recoHt >= htThrOffline_ ) h_photonTurnOn_num -> Fill( recoPhotonPt );
+      if( !pfMETCollection->empty() && recoPhotonPt >= ptThrOffline_ ) h_htTurnOn_num -> Fill( recoHt );
     }
-    if( photonCollection->size() && recoHt >= htThrOffline_ ) h_photonTurnOn_den -> Fill( recoPhotonPt );
-    if( pfMETCollection->size() && recoPhotonPt >= ptThrOffline_ ) h_htTurnOn_den -> Fill( recoPhotonPt );
+    if( !photonCollection->empty() && recoHt >= htThrOffline_ ) h_photonTurnOn_den -> Fill( recoPhotonPt );
+    if( !pfMETCollection->empty() && recoPhotonPt >= ptThrOffline_ ) h_htTurnOn_den -> Fill( recoPhotonPt );
   }
 
 }

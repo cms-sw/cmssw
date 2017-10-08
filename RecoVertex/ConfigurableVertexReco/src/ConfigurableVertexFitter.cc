@@ -21,7 +21,7 @@ namespace {
 }
 
 ConfigurableVertexFitter::ConfigurableVertexFitter ( 
-    const edm::ParameterSet & p ) : theFitter ( 0 )
+    const edm::ParameterSet & p ) : theFitter ( nullptr )
 {
   string fitter=p.getParameter<string>("fitter");
   theFitter = VertexFitterManager::Instance().get ( fitter ).release();

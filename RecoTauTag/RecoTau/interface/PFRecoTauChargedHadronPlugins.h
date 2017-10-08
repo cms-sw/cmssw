@@ -43,11 +43,11 @@ class PFRecoTauChargedHadronBuilderPlugin : public RecoTauEventHolderPlugin
   explicit PFRecoTauChargedHadronBuilderPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC)
     : RecoTauEventHolderPlugin(pset) 
   {}
-  virtual ~PFRecoTauChargedHadronBuilderPlugin() {}
+  ~PFRecoTauChargedHadronBuilderPlugin() override {}
   /// Build a collection of chargedHadrons from objects in the input jet
   virtual return_type operator()(const PFJet&) const = 0;
   /// Hook called at the beginning of the event.
-  virtual void beginEvent() {}
+  void beginEvent() override {}
 };
 
 class PFRecoTauChargedHadronQualityPlugin : public RecoTauNamedPlugin 
@@ -56,7 +56,7 @@ class PFRecoTauChargedHadronQualityPlugin : public RecoTauNamedPlugin
   explicit PFRecoTauChargedHadronQualityPlugin(const edm::ParameterSet& pset)
     : RecoTauNamedPlugin(pset) 
   {}
-  virtual ~PFRecoTauChargedHadronQualityPlugin() {}
+  ~PFRecoTauChargedHadronQualityPlugin() override {}
   /// Return a number indicating the quality of this chargedHadron
   virtual double operator()(const PFRecoTauChargedHadron&) const = 0;
 };

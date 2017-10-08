@@ -17,12 +17,12 @@ public:
   HitRCheck(const HitRZConstraint & rz, Margin margin = Margin(0,0)) 
     :  HitRZCompatibility(me), theRZ(rz), theTolerance(margin) { } 
 
-  virtual bool operator() (const float & r, const float & z) const
+  bool operator() (const float & r, const float & z) const override
     { return range(z).inside(r); }
 
-  inline Range range(const float & z) const;
+  inline Range range(const float & z) const override;
 
-  virtual HitRCheck * clone() const { return new HitRCheck(*this); }
+  HitRCheck * clone() const override { return new HitRCheck(*this); }
 
   void setTolerance(const Margin & tolerance) { theTolerance = tolerance; }
 
