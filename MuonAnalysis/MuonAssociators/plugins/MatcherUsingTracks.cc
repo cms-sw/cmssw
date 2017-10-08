@@ -31,9 +31,9 @@ namespace pat {
   class MatcherUsingTracks : public edm::EDProducer {
     public:
       explicit MatcherUsingTracks(const edm::ParameterSet & iConfig);
-      virtual ~MatcherUsingTracks() { }
+      ~MatcherUsingTracks() override { }
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
     private:
       /// Labels for input collections

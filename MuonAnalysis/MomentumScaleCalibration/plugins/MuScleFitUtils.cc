@@ -106,25 +106,25 @@ std::vector<int> MuScleFitUtils::doCrossSectionFit;
 std::vector<int> MuScleFitUtils::doBackgroundFit;
 
 int MuScleFitUtils::minuitLoop_ = 0;
-TH1D* MuScleFitUtils::likelihoodInLoop_ = 0;
-TH1D* MuScleFitUtils::signalProb_ = 0;
-TH1D* MuScleFitUtils::backgroundProb_ = 0;
+TH1D* MuScleFitUtils::likelihoodInLoop_ = nullptr;
+TH1D* MuScleFitUtils::signalProb_ = nullptr;
+TH1D* MuScleFitUtils::backgroundProb_ = nullptr;
 
 bool MuScleFitUtils::duringMinos_ = false;
 
 const int MuScleFitUtils::totalResNum = 6;
 
 int MuScleFitUtils::SmearType = 0;
-smearFunctionBase * MuScleFitUtils::smearFunction = 0;
+smearFunctionBase * MuScleFitUtils::smearFunction = nullptr;
 int MuScleFitUtils::BiasType  = 0;
 // No error, we take functions from the same group for bias and scale.
-scaleFunctionBase<std::vector<double> > * MuScleFitUtils::biasFunction = 0;
+scaleFunctionBase<std::vector<double> > * MuScleFitUtils::biasFunction = nullptr;
 int MuScleFitUtils::ResolFitType = 0;
-resolutionFunctionBase<double *> * MuScleFitUtils::resolutionFunction = 0;
-resolutionFunctionBase<std::vector<double> > * MuScleFitUtils::resolutionFunctionForVec = 0;
+resolutionFunctionBase<double *> * MuScleFitUtils::resolutionFunction = nullptr;
+resolutionFunctionBase<std::vector<double> > * MuScleFitUtils::resolutionFunctionForVec = nullptr;
 int MuScleFitUtils::ScaleFitType = 0;
-scaleFunctionBase<double*> * MuScleFitUtils::scaleFunction = 0;
-scaleFunctionBase<std::vector<double> > * MuScleFitUtils::scaleFunctionForVec = 0;
+scaleFunctionBase<double*> * MuScleFitUtils::scaleFunction = nullptr;
+scaleFunctionBase<std::vector<double> > * MuScleFitUtils::scaleFunctionForVec = nullptr;
 int MuScleFitUtils::BgrFitType   = 0;
 
 CrossSectionHandler * MuScleFitUtils::crossSectionHandler;
@@ -254,7 +254,7 @@ bool MuScleFitUtils::debugMassResol_;
 MuScleFitUtils::massResolComponentsStruct MuScleFitUtils::massResolComponents;
 
 bool MuScleFitUtils::normalizeLikelihoodByEventNumber_ = true;
-TMinuit * MuScleFitUtils::rminPtr_ = 0;
+TMinuit * MuScleFitUtils::rminPtr_ = nullptr;
 double MuScleFitUtils::oldNormalization_ = 0.;
 unsigned int MuScleFitUtils::normalizationChanged_ = 0;
 
@@ -1060,7 +1060,7 @@ double MuScleFitUtils::massProb( const double & mass, const double & resEta, con
     P += PStot[i];
   }
 
-  if( MuScleFitUtils::signalProb_ != 0 && MuScleFitUtils::backgroundProb_ != 0 ) {
+  if( MuScleFitUtils::signalProb_ != nullptr && MuScleFitUtils::backgroundProb_ != nullptr ) {
     double PStotTemp = 0.;
     for( int i=0; i<6; ++i ) {
       PStotTemp += PS[i]*relativeCrossSections[i];
@@ -1520,9 +1520,9 @@ void MuScleFitUtils::minimizeLikelihood()
       delete tempLikelihoodInLoop;
       delete tempSignalProb;
       delete tempBackgroundProb;
-      likelihoodInLoop_ = 0;
-      signalProb_ = 0;
-      backgroundProb_ = 0;
+      likelihoodInLoop_ = nullptr;
+      signalProb_ = nullptr;
+      backgroundProb_ = nullptr;
 // #endif
 
 
@@ -1839,7 +1839,7 @@ extern "C" void likelihood( int& npar, double* grad, double& fval, double* xval,
 
     if( MuScleFitUtils::normalizeLikelihoodByEventNumber_ ) {
       // && !(MuScleFitUtils::duringMinos_) ) {
-      if( MuScleFitUtils::rminPtr_ == 0 ) {
+      if( MuScleFitUtils::rminPtr_ == nullptr ) {
         std::cout << "ERROR: rminPtr_ = " << MuScleFitUtils::rminPtr_ << ", code will crash" << std::endl;
       }
       double normalizationArg[] = {1/double(evtsinlik)};
@@ -1877,7 +1877,7 @@ extern "C" void likelihood( int& npar, double* grad, double& fval, double* xval,
 //  #ifdef DEBUG
 
 //  if( MuScleFitUtils::minuitLoop_ < 10000 ) {
-  if( MuScleFitUtils::likelihoodInLoop_ != 0 ) {
+  if( MuScleFitUtils::likelihoodInLoop_ != nullptr ) {
     ++MuScleFitUtils::minuitLoop_;
     MuScleFitUtils::likelihoodInLoop_->SetBinContent(MuScleFitUtils::minuitLoop_, fval);
   }
@@ -2198,7 +2198,7 @@ std::pair<lorentzVector, lorentzVector> MuScleFitUtils::findSimMuFromRes( const 
       //If tracks from IP than find mother
       if ((*simTrack).genpartIndex()>0) {
 	HepMC::GenParticle* gp = evtMC->GetEvent()->barcode_to_particle ((*simTrack).genpartIndex());
-        if( gp != 0 ) {
+        if( gp != nullptr ) {
 
           for (HepMC::GenVertex::particle_iterator mother = gp->production_vertex()->particles_begin(HepMC::ancestors);
                mother!=gp->production_vertex()->particles_end(HepMC::ancestors); ++mother) {
