@@ -49,7 +49,7 @@ class HFPreReconstructor : public edm::stream::EDProducer<>
 {
 public:
     explicit HFPreReconstructor(const edm::ParameterSet&);
-    ~HFPreReconstructor();
+    ~HFPreReconstructor() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -57,8 +57,8 @@ private:
     typedef std::pair<HcalDetId,int> PmtAnodeId;
     typedef std::pair<PmtAnodeId,const HFQIE10Info*> QIE10InfoWithId;
 
-    virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void beginRun(const edm::Run&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     // Module configuration parameters
     edm::InputTag inputLabel_;
@@ -271,7 +271,7 @@ HFPreReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
                 // everything works as expected, this assertion can be removed.
                 assert(nFound <= 2);
 
-                const HFQIE10Info* first = 0;
+                const HFQIE10Info* first = nullptr;
                 const HFQIE10Info* second = sortedQIE10Infos_[i-1].second;
 
                 if (nFound >= 2)
@@ -281,7 +281,7 @@ HFPreReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
                     // Only one QIE10 readout found for this PMT.
                     // Arrange for depth 1 and 2 to be "first".
                     first = second;
-                    second = 0;
+                    second = nullptr;
                 }
 
                 out->push_back(HFPreRecHit(sortedQIE10Infos_[i-nFound].first.first,
