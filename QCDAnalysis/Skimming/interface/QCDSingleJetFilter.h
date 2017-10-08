@@ -33,10 +33,10 @@ class QCDSingleJetFilter : public edm::EDFilter {
   QCDSingleJetFilter(const edm::ParameterSet&);
 
   // Destructor
-  virtual ~QCDSingleJetFilter();
+  ~QCDSingleJetFilter() override;
 
   /// Get event properties to send to builder to fill seed collection
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
 
 
