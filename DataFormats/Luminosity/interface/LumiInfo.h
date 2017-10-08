@@ -43,7 +43,7 @@ public:
   {
     instLumiByBX_.assign(instLumiByBX.begin(), instLumiByBX.end());
     instLumiStatErrByBX_.assign(LumiConstants::numBX, 0.0);
-    totalInstLuminosity_=instLuminosityBXSum();
+    setTotalInstToBXSum() ;
     totalInstLumiStatErr_=0;
   }
 
@@ -79,6 +79,8 @@ public:
 
   // Instantaneous luminosity (in Hz/ub)
   float instLuminosityBXSum() const;
+  
+  void setTotalInstToBXSum() ;
 
   // Integrated (delivered) luminosity (in ub^-1)
   float integLuminosity() const;
@@ -111,7 +113,7 @@ public:
 
   void setDeadFraction(float deadtimeFraction) { deadtimeFraction_ = deadtimeFraction; }
   //set the total raw luminosity
-  void setTotalLumi(float totalLumi){ totalInstLuminosity_=totalLumi;}
+  void setTotalInstLumi(float totalLumi){ totalInstLuminosity_=totalLumi;}
   //set the statistical error
   void setTotalStatError(float statError){ totalInstLumiStatErr_=statError;}
 
