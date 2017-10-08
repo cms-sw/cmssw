@@ -30,13 +30,13 @@ class OAEParametrizedMagneticField : public MagneticField {
   explicit OAEParametrizedMagneticField(const edm::ParameterSet& parameters);
 
   /// Destructor
-  virtual ~OAEParametrizedMagneticField();
+  ~OAEParametrizedMagneticField() override;
   
-  GlobalVector inTesla (const GlobalPoint& gp) const;
+  GlobalVector inTesla (const GlobalPoint& gp) const override;
 
-  GlobalVector inTeslaUnchecked (const GlobalPoint& gp) const;
+  GlobalVector inTeslaUnchecked (const GlobalPoint& gp) const override;
 
-  bool isDefined(const GlobalPoint& gp) const;
+  bool isDefined(const GlobalPoint& gp) const override;
 
  private:
   magfieldparam::TkBfield  theParam;
