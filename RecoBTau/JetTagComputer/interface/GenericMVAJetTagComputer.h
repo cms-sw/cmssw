@@ -16,11 +16,11 @@ class JetTagComputerRecord;
 class GenericMVAJetTagComputer : public JetTagComputer {
     public:
 	GenericMVAJetTagComputer(const edm::ParameterSet &parameters);
-	virtual ~GenericMVAJetTagComputer();
+	~GenericMVAJetTagComputer() override;
 
-	virtual void initialize(const JetTagComputerRecord &);
+	void initialize(const JetTagComputerRecord &) override;
 
-	virtual float discriminator(const TagInfoHelper &info) const;
+	float discriminator(const TagInfoHelper &info) const override;
 
 	virtual reco::TaggingVariableList
 	taggingVariables(const reco::BaseTagInfo &tagInfo) const;
