@@ -22,7 +22,7 @@ class EcalRecHitsMerger : public edm::EDProducer {
 
 public:
 	EcalRecHitsMerger(const edm::ParameterSet& pset);
-	virtual ~EcalRecHitsMerger();
+	~EcalRecHitsMerger() override;
 	void produce(edm::Event & e, const edm::EventSetup& c) override;
 	void beginJob(void) override;
 	void endJob(void) override;

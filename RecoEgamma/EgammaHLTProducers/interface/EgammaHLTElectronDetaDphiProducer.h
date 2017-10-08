@@ -37,7 +37,7 @@ namespace edm {
 class EgammaHLTElectronDetaDphiProducer : public edm::stream::EDProducer<> {
 public:
   explicit EgammaHLTElectronDetaDphiProducer(const edm::ParameterSet&);
-  ~EgammaHLTElectronDetaDphiProducer();
+  ~EgammaHLTElectronDetaDphiProducer() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);

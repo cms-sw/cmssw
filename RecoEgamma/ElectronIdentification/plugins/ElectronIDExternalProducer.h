@@ -24,7 +24,7 @@ class ElectronIDExternalProducer : public edm::stream::EDProducer<> {
         produces<edm::ValueMap<float> >();
    }
 
-   virtual ~ElectronIDExternalProducer() {}
+   ~ElectronIDExternalProducer() override {}
 
    void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override ;
 

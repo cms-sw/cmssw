@@ -101,7 +101,7 @@ EleIsoDetIdCollectionProducer::produce (edm::Event& iEvent, const edm::EventSetu
     iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
     const EcalSeverityLevelAlgo* sevLevel = sevlv.product();
 
-    CaloDualConeSelector<EcalRecHit> *doubleConeSel_ = 0;
+    CaloDualConeSelector<EcalRecHit> *doubleConeSel_ = nullptr;
     if(recHitsLabel_.instance() == "EcalRecHitsEB")
         doubleConeSel_= new CaloDualConeSelector<EcalRecHit>(innerRadius_,outerRadius_, &*pG, DetId::Ecal, EcalBarrel);
     else if(recHitsLabel_.instance() == "EcalRecHitsEE")

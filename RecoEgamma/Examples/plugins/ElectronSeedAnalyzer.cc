@@ -222,7 +222,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
     LogDebug("") <<"\nSeed nr "<<is<<": ";
     range r=(*MyS).recHits();
      LogDebug("")<<" Number of RecHits= "<<(*MyS).nHits();
-    const GeomDet *det1=0;const GeomDet *det2=0;
+    const GeomDet *det1=nullptr;const GeomDet *det2=nullptr;
 
     TrajectorySeed::const_iterator it=r.first;
     DetId id1 = (*it).geographicalId();
@@ -240,7 +240,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
     //std::cout <<" Second hit global  "<<det2->toGlobal((*it).localPosition()) << std::endl;
 
     // state on last det
-    const GeomDet *det=0;
+    const GeomDet *det=nullptr;
     for (TrackingRecHitCollection::const_iterator rhits=r.first; rhits!=r.second; rhits++) det = pDD->idToDet(((*rhits)).geographicalId());
     TrajectoryStateOnSurface t=  trajectoryStateTransform::transientState((*MyS).startingState(), &(det->surface()), &(*theMagField));
 
@@ -391,7 +391,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
   //CC to be changed according to supercluster input
   e.getByLabel("correctedHybridSuperClusters", clusters);
   histnbclus_->Fill(clusters.product()->size());
-  if (clusters.product()->size()>0) histnrseeds_->Fill(elSeeds.product()->size());
+  if (!clusters.product()->empty()) histnrseeds_->Fill(elSeeds.product()->size());
   // get MC information
 
   edm::Handle<edm::HepMCProduct> HepMCEvt;
@@ -401,7 +401,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
   e.getByLabel("generatorSmeared", "", HepMCEvt);
 
   const HepMC::GenEvent* MCEvt = HepMCEvt->GetEvent();
-  HepMC::GenParticle* genPc=0;
+  HepMC::GenParticle* genPc=nullptr;
   HepMC::FourVector pAssSim;
   int ip=0;
   for (HepMC::GenEvent::particle_const_iterator partIter = MCEvt->particles_begin();
@@ -421,15 +421,15 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
       if (id == 11 || id == -11) {
 
       // single primary electrons or electrons from Zs or Ws
-      HepMC::GenParticle* mother = 0;
+      HepMC::GenParticle* mother = nullptr;
       if ( (*partIter)->production_vertex() )  {
        if ( (*partIter)->production_vertex()->particles_begin(HepMC::parents) !=
            (*partIter)->production_vertex()->particles_end(HepMC::parents))
             mother = *((*partIter)->production_vertex()->particles_begin(HepMC::parents));
       }
-      if ( ((mother == 0) || ((mother != 0) && (mother->pdg_id() == 23))
-	                  || ((mother != 0) && (mother->pdg_id() == 32))
-	                  || ((mother != 0) && (std::abs(mother->pdg_id()) == 24)))) {
+      if ( ((mother == nullptr) || ((mother != nullptr) && (mother->pdg_id() == 23))
+	                  || ((mother != nullptr) && (mother->pdg_id() == 32))
+	                  || ((mother != nullptr) && (std::abs(mother->pdg_id()) == 24)))) {
       genPc=(*partIter);
       pAssSim = genPc->momentum();
 
@@ -453,7 +453,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
       for( ElectronSeedCollection::const_iterator gsfIter= (*elSeeds).begin(); gsfIter != (*elSeeds).end(); ++gsfIter) {
 
         range r=gsfIter->recHits();
-        const GeomDet *det=0;
+        const GeomDet *det=nullptr;
         for (TrackingRecHitCollection::const_iterator rhits=r.first; rhits!=r.second; rhits++) det = pDD->idToDet(((*rhits)).geographicalId());
          TrajectoryStateOnSurface t= trajectoryStateTransform::transientState(gsfIter->startingState(), &(det->surface()), &(*theMagField));
 
@@ -501,7 +501,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
       for( ElectronSeedCollection::const_iterator gsfIter= (*elSeeds).begin(); gsfIter != (*elSeeds).end(); ++gsfIter) {
 
         range r=gsfIter->recHits();
-        const GeomDet *det=0;
+        const GeomDet *det=nullptr;
         for (TrackingRecHitCollection::const_iterator rhits=r.first; rhits!=r.second; rhits++) det = pDD->idToDet(((*rhits)).geographicalId());
          TrajectoryStateOnSurface t= trajectoryStateTransform::transientState(gsfIter->startingState(), &(det->surface()), &(*theMagField));
 
@@ -544,7 +544,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
       for( ElectronSeedCollection::const_iterator gsfIter= (*elSeeds).begin(); gsfIter != (*elSeeds).end(); ++gsfIter) {
 
         range r=gsfIter->recHits();
-        const GeomDet *det=0;
+        const GeomDet *det=nullptr;
         for (TrackingRecHitCollection::const_iterator rhits=r.first; rhits!=r.second; rhits++) det = pDD->idToDet(((*rhits)).geographicalId());
          TrajectoryStateOnSurface t= trajectoryStateTransform::transientState(gsfIter->startingState(), &(det->surface()), &(*theMagField));
 

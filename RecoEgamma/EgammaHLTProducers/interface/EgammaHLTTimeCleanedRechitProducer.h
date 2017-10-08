@@ -15,9 +15,9 @@ class EgammaHLTTimeCleanedRechitProducer : public edm::EDProducer {
  public:
   
   EgammaHLTTimeCleanedRechitProducer(const edm::ParameterSet& ps);
-  ~EgammaHLTTimeCleanedRechitProducer();
+  ~EgammaHLTTimeCleanedRechitProducer() override;
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
