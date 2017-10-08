@@ -20,14 +20,14 @@ class BeamProfileVtxGenerator : public BaseEvtVtxGenerator
 {
 public:
   BeamProfileVtxGenerator(const edm::ParameterSet & p);
-  virtual ~BeamProfileVtxGenerator();
+  ~BeamProfileVtxGenerator() override;
 
   /// return a new event vertex
   //virtual CLHEP::Hep3Vector * newVertex();
-  virtual HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override;
+  HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override;
 
-  virtual TMatrixD const* GetInvLorentzBoost() const override {
-	  return 0;
+  TMatrixD const* GetInvLorentzBoost() const override {
+	  return nullptr;
   }
 
     
@@ -54,9 +54,9 @@ public:
   
 private:
   /** Copy constructor */
-  BeamProfileVtxGenerator(const BeamProfileVtxGenerator &p);
+  BeamProfileVtxGenerator(const BeamProfileVtxGenerator &p) = delete;
   /** Copy assignment operator */
-  BeamProfileVtxGenerator& operator = (const BeamProfileVtxGenerator& rhs);
+  BeamProfileVtxGenerator& operator = (const BeamProfileVtxGenerator& rhs) = delete;
 private:
   double      fSigmaX, fSigmaY;
   double      fMeanX,  fMeanY, fMeanZ;
