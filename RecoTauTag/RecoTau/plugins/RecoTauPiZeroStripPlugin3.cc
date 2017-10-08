@@ -57,11 +57,11 @@ class RecoTauPiZeroStripPlugin3 : public RecoTauPiZeroBuilderPlugin
 {
  public:
   explicit RecoTauPiZeroStripPlugin3(const edm::ParameterSet&, edm::ConsumesCollector &&iC);
-  virtual ~RecoTauPiZeroStripPlugin3();
+  ~RecoTauPiZeroStripPlugin3() override;
   // Return type is auto_ptr<PiZeroVector>
   return_type operator()(const reco::PFJet&) const override;
   // Hook to update PV information
-  virtual void beginEvent() override;
+  void beginEvent() override;
   
  private:
   typedef std::vector<reco::PFCandidatePtr> PFCandPtrs;
@@ -141,9 +141,9 @@ RecoTauPiZeroStripPlugin3::RecoTauPiZeroStripPlugin3(const edm::ParameterSet& ps
   qcuts_.reset(new RecoTauQualityCuts(qcuts_pset));
 
   inputPdgIds_ = pset.getParameter<std::vector<int> >("stripCandidatesParticleIds");
-  edm::ParameterSet stripSize_eta_pset = pset.getParameterSet("stripEtaAssociationDistance");
+  const edm::ParameterSet& stripSize_eta_pset = pset.getParameterSet("stripEtaAssociationDistance");
   etaAssociationDistance_ = makeFunction("etaAssociationDistance", stripSize_eta_pset);
-  edm::ParameterSet stripSize_phi_pset = pset.getParameterSet("stripPhiAssociationDistance");
+  const edm::ParameterSet& stripSize_phi_pset = pset.getParameterSet("stripPhiAssociationDistance");
   phiAssociationDistance_ = makeFunction("phiAssociationDistance", stripSize_phi_pset);
 
   updateStripAfterEachDaughter_ = pset.getParameter<bool>("updateStripAfterEachDaughter");

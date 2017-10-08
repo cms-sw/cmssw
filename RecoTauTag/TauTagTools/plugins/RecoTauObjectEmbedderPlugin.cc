@@ -58,9 +58,9 @@ class RecoTauObjectEmbedder : public RecoTauModifierPlugin {
   explicit RecoTauObjectEmbedder(const edm::ParameterSet &pset, edm::ConsumesCollector &&iC)
     :RecoTauModifierPlugin(pset,std::move(iC)),
         jetMatchSrc_(pset.getParameter<edm::InputTag>("jetTruthMatch")) {}
-    virtual ~RecoTauObjectEmbedder() {}
-    virtual void operator()(PFTau&) const override;
-    virtual void beginEvent() override;
+    ~RecoTauObjectEmbedder() override {}
+    void operator()(PFTau&) const override;
+    void beginEvent() override;
   private:
     edm::InputTag jetMatchSrc_;
     edm::Handle<edm::Association<T> > jetMatch_;
