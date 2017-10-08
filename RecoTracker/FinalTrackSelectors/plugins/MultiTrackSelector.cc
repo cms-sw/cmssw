@@ -91,7 +91,7 @@ MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
     qualityToSet_.push_back( TrackBase::undefQuality );
     // parameters for vertex selection
     vtxNumber_.push_back( useVertices_ ? trkSelectors[i].getParameter<int32_t>("vtxNumber") : 0 );
-    vertexCut_.push_back( useVertices_ ? trkSelectors[i].getParameter<std::string>("vertexCut") : 0);
+    vertexCut_.push_back( useVertices_ ? trkSelectors[i].getParameter<std::string>("vertexCut") : nullptr);
     //  parameters for adapted optimal cuts on chi2 and primary vertex compatibility
     res_par_.push_back(trkSelectors[i].getParameter< std::vector<double> >("res_par") );
     chi2n_par_.push_back( trkSelectors[i].getParameter<double>("chi2n_par") );
@@ -641,7 +641,7 @@ MultiTrackSelector::Point MultiTrackSelector::getBestVertex(TrackBaseRef track,V
   bool weightMatch = false;
   for(auto const & vertex : vertices){
     float w = vertex.trackWeight(track);
-    Point v_pos = vertex.position();
+    const Point& v_pos = vertex.position();
     if(w > bestWeight){
       p = v_pos;
       bestWeight = w;

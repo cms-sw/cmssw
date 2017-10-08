@@ -23,15 +23,15 @@ public:
   explicit HitPairGenerator(unsigned int size=4000);
   HitPairGenerator(HitPairGenerator const & other) : localRA(other.localRA.mean()){}
 
-  virtual ~HitPairGenerator() { }
+  ~HitPairGenerator() override { }
 
-  virtual const OrderedHitPairs & run(
-    const TrackingRegion& region, const edm::Event & ev, const edm::EventSetup& es);
+  const OrderedHitPairs & run(
+    const TrackingRegion& region, const edm::Event & ev, const edm::EventSetup& es) override;
 
   virtual void hitPairs( const TrackingRegion& reg, OrderedHitPairs & prs, 
       const edm::Event & ev,  const edm::EventSetup& es) = 0;
 
-  virtual void clear() final;
+  void clear() final;
 
 private:
   OrderedHitPairs thePairs;

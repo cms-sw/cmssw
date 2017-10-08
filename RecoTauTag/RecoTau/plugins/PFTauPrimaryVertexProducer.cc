@@ -61,7 +61,7 @@ class PFTauPrimaryVertexProducer final : public edm::stream::EDProducer<> {
   enum Alg{useInputPV=0, useFontPV};
 
   struct DiscCutPair{
-    DiscCutPair():discr_(0),cutFormula_(0){}
+    DiscCutPair():discr_(nullptr),cutFormula_(nullptr){}
     ~DiscCutPair(){delete cutFormula_;}
     const reco::PFTauDiscriminator* discr_;
     edm::EDGetTokenT<reco::PFTauDiscriminator> inputToken_;
@@ -71,8 +71,8 @@ class PFTauPrimaryVertexProducer final : public edm::stream::EDProducer<> {
   typedef std::vector<DiscCutPair*> DiscCutPairVec;
 
   explicit PFTauPrimaryVertexProducer(const edm::ParameterSet& iConfig);
-  ~PFTauPrimaryVertexProducer();
-  virtual void produce(edm::Event&,const edm::EventSetup&);
+  ~PFTauPrimaryVertexProducer() override;
+  void produce(edm::Event&,const edm::EventSetup&) override;
 
  private:
   edm::InputTag PFTauTag_;

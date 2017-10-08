@@ -11,7 +11,7 @@
 //#include "Conv4HitsReco2.h"
 //#include "FWCore/MessegeLogger/interface/MessegeLogger.h"
 #include "Conv4HitsReco2.h"
-#include <time.h>
+#include <ctime>
 
 Conv4HitsReco2::Conv4HitsReco2(math::XYZVector &vPhotVertex, math::XYZVector &h1, math::XYZVector &h2, math::XYZVector &h3, math::XYZVector &h4)
 {

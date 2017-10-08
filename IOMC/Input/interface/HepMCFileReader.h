@@ -76,7 +76,7 @@ class HepMCFileReader {
 
 bool HepMCFileReader::isInitialized() const
 {
-  return input_ != 0;
+  return input_ != nullptr;
 }
 
 #endif

@@ -17,7 +17,7 @@ class RecoTauIndexDiscriminatorProducer final : public PFTauDiscriminationProduc
   public:
       explicit RecoTauIndexDiscriminatorProducer(const edm::ParameterSet& cfg)
         :PFTauDiscriminationProducerBase(cfg) {}
-      ~RecoTauIndexDiscriminatorProducer(){}
+      ~RecoTauIndexDiscriminatorProducer() override{}
       double discriminate(const reco::PFTauRef& thePFTauRef) const override;
       void beginEvent(const edm::Event& evt, const edm::EventSetup& evtSetup) override {};
 };

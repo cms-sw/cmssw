@@ -60,7 +60,7 @@ void L2TauJetsMerger::produce(edm::StreamID iSId, edm::Event& iEvent, const edm:
  std::sort(myTmpJets.begin(),myTmpJets.end(),sorter);
  
  //Remove Collinear Jets by prefering the highest ones!
- while(myTmpJets.size()>0) {
+ while(!myTmpJets.empty()) {
    tauL2jets->push_back(myTmpJets[0]);
    CaloJetCollection tmp;
    for(unsigned int i=1 ;i<myTmpJets.size();++i) {

@@ -7,7 +7,7 @@
   StreamerOutputFile::StreamerOutputFile(const std::string& name):
   streamerfile_(new OutputFile(name))
   {
-    streamerfile_->set_do_adler(1);
+    streamerfile_->set_do_adler(true);
   }
 
   uint64 StreamerOutputFile::write(const EventMsgBuilder& ineview)

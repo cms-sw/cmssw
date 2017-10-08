@@ -59,11 +59,11 @@ class PrimaryVertexProducerAlgorithm : public VertexReconstructor {
 public:
 
   explicit PrimaryVertexProducerAlgorithm(const edm::ParameterSet&);
-  ~PrimaryVertexProducerAlgorithm();
+  ~PrimaryVertexProducerAlgorithm() override;
   
   // obsolete method
-  virtual std::vector<TransientVertex> 
-  vertices(const std::vector<reco::TransientTrack> & tracks) const;
+  std::vector<TransientVertex> 
+  vertices(const std::vector<reco::TransientTrack> & tracks) const override;
 
   virtual std::vector<TransientVertex> 
   vertices(const std::vector<reco::TransientTrack> & tracks, 
@@ -72,7 +72,7 @@ public:
 	   ) const;
   /** Clone method
    */ 
-  virtual PrimaryVertexProducerAlgorithm * clone() const {
+  PrimaryVertexProducerAlgorithm * clone() const override {
     return new PrimaryVertexProducerAlgorithm(*this);
   }
   

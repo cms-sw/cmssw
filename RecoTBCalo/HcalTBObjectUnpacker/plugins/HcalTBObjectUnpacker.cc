@@ -60,11 +60,11 @@ using namespace std;
 
     if (tdcFed_ >= 0 || qadcFed_ >=0 ) {
       calibLines_.clear();
-      if(calibFile_.size()>0){
+      if(!calibFile_.empty()){
 	
 	parseCalib();
 	//  printf("I got %d lines!\n",calibLines_.size());
-	if(calibLines_.size()==0)
+	if(calibLines_.empty())
 	  throw cms::Exception("Incomplete configuration") << 
 	    "HcalTBObjectUnpacker: TDC/QADC/WC configuration file not found or is empty: "<<calibFile_<<endl;
       }
@@ -152,7 +152,7 @@ using namespace std;
 
 void HcalTBObjectUnpacker::parseCalib(){
   
-  if(calibFile_.size()==0){
+  if(calibFile_.empty()){
     printf("HcalTBObjectUnpacker cowardly refuses to parse a NULL file...\n"); 
     return;
   }
@@ -187,7 +187,7 @@ void HcalTBObjectUnpacker::parseCalib(){
       }
     }  
     
-    if(lineVect.size()>0) calibLines_.push_back(lineVect);    
+    if(!lineVect.empty()) calibLines_.push_back(lineVect);    
   }
 
   infile.close();

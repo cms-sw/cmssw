@@ -41,10 +41,10 @@
 class ConversionSeedFilter : public edm::stream::EDProducer<> {
 public:
   explicit ConversionSeedFilter(const edm::ParameterSet&);
-  ~ConversionSeedFilter();
+  ~ConversionSeedFilter() override;
   
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   bool isCompatible(double *vars1, double* vars2);
   void getKine(const TrajectoryStateOnSurface& tsos, double *vars);
   void SearchAmongSeeds(const TrajectorySeedCollection* pInPos,const TrajectorySeedCollection* pInNeg, TrajectorySeedCollection& selectedColl, std::vector<bool>& idxPosColl1, std::vector<bool>& idxPosColl2);

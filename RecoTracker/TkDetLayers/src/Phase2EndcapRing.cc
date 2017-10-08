@@ -252,7 +252,7 @@ void Phase2EndcapRing::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 				     vector<DetGroup>& brotherresult,
 				     bool checkClosest) const
 {
-  GlobalPoint gCrossingPos = crossing.position();
+  const GlobalPoint& gCrossingPos = crossing.position();
 
   const vector<const GeomDet*>& sLayer( subLayer( crossing.subLayerIndex()));
   // It assumes that what is ok for the front modules in the pt modules is ok also for the back module

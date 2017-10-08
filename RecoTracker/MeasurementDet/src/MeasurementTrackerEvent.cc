@@ -4,9 +4,9 @@
 MeasurementTrackerEvent::~MeasurementTrackerEvent() {
     if (theOwner) {
         //std::cout << "Deleting owned MT @" << this << " (strip data @ " << theStripData << ")" << std::endl;
-        delete theStripData; theStripData = 0; // also sets to zero since sometimes the FWK seems
-        delete thePixelData; thePixelData = 0; // to double-delete the same object (!!!)
-        delete thePhase2OTData; thePhase2OTData = 0; // to double-delete the same object (!!!)
+        delete theStripData; theStripData = nullptr; // also sets to zero since sometimes the FWK seems
+        delete thePixelData; thePixelData = nullptr; // to double-delete the same object (!!!)
+        delete thePhase2OTData; thePhase2OTData = nullptr; // to double-delete the same object (!!!)
     }
 }
 
