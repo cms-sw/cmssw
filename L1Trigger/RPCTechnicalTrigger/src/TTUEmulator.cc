@@ -140,7 +140,7 @@ bool TTUEmulator::initialise()
   
   if ( !status ) { 
     if( m_debug ) std::cout << "TTUEmulator> Problem initialising the Configuration \n"; 
-    return 0; };
+    return false; };
   
   return status;
   

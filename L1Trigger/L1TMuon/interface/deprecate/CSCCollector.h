@@ -17,10 +17,10 @@ namespace L1TMuon {
   class CSCCollector: public SubsystemCollector {
   public:
     CSCCollector(const edm::ParameterSet&);
-    ~CSCCollector() {}
+    ~CSCCollector() override {}
 
-    virtual void extractPrimitives(const edm::Event&, const edm::EventSetup&, 
-				   std::vector<TriggerPrimitive>&) const;
+    void extractPrimitives(const edm::Event&, const edm::EventSetup&, 
+				   std::vector<TriggerPrimitive>&) const override;
   private:    
   };
 }

@@ -15,11 +15,11 @@ namespace l1t {
   class Stage1Layer2SingleTrackHI : public Stage1Layer2TauAlgorithm {
   public:
     Stage1Layer2SingleTrackHI(CaloParamsHelper* params);
-    virtual ~Stage1Layer2SingleTrackHI();
-    virtual void processEvent(const std::vector<l1t::CaloEmCand> & clusters,
+    ~Stage1Layer2SingleTrackHI() override;
+    void processEvent(const std::vector<l1t::CaloEmCand> & clusters,
                               const std::vector<l1t::CaloRegion> & regions,
 			      std::vector<l1t::Tau> * isoTaus,
-                              std::vector<l1t::Tau> * taus);
+                              std::vector<l1t::Tau> * taus) override;
 
   private:
     CaloParamsHelper* const params_;
@@ -29,11 +29,11 @@ namespace l1t {
   class Stage1Layer2TauAlgorithmImpPP : public Stage1Layer2TauAlgorithm {
   public:
     Stage1Layer2TauAlgorithmImpPP(CaloParamsHelper* params);
-    virtual ~Stage1Layer2TauAlgorithmImpPP();
-    virtual void processEvent(const std::vector<l1t::CaloEmCand> & EMCands,
+    ~Stage1Layer2TauAlgorithmImpPP() override;
+    void processEvent(const std::vector<l1t::CaloEmCand> & EMCands,
                               const std::vector<l1t::CaloRegion> & regions,
 			      std::vector<l1t::Tau> * isoTaus,
-                              std::vector<l1t::Tau> * taus);
+                              std::vector<l1t::Tau> * taus) override;
 
   private:
 
@@ -54,11 +54,11 @@ namespace l1t {
   class Stage1Layer2TauAlgorithmImpHW : public Stage1Layer2TauAlgorithm {
   public:
     Stage1Layer2TauAlgorithmImpHW(CaloParamsHelper* params);
-    virtual ~Stage1Layer2TauAlgorithmImpHW();
-    virtual void processEvent(const std::vector<l1t::CaloEmCand> & EMCands,
+    ~Stage1Layer2TauAlgorithmImpHW() override;
+    void processEvent(const std::vector<l1t::CaloEmCand> & EMCands,
                               const std::vector<l1t::CaloRegion> & regions,
 			      std::vector<l1t::Tau> * isoTaus,
-                              std::vector<l1t::Tau> * taus);
+                              std::vector<l1t::Tau> * taus) override;
 
   private:
 

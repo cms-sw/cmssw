@@ -43,14 +43,14 @@ class L1Comparator : public edm::EDProducer {
 public:
 
   explicit L1Comparator(const edm::ParameterSet&);
-  ~L1Comparator();
+  ~L1Comparator() override;
   
 private:
 
-  virtual void beginJob(void) override;
-  virtual void beginRun(edm::Run const&, const edm::EventSetup&) override final;
-   virtual void produce (edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void beginJob(void) override;
+  void beginRun(edm::Run const&, const edm::EventSetup&) final;
+   void produce (edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   template <class T> 
     void process( T const*, T const*, const int, const int);

@@ -2,7 +2,7 @@
 #define Cordic_H
 
 #include <vector>
-#include <stdint.h>
+#include <cstdint>
 
 class Cordic
 {

@@ -55,13 +55,13 @@ Implementation:
 class L1GenTreeProducer : public edm::EDAnalyzer {
 public:
   explicit L1GenTreeProducer(const edm::ParameterSet&);
-  ~L1GenTreeProducer();
+  ~L1GenTreeProducer() override;
   
   
 private:
-  virtual void beginJob(void) ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();  
+  void beginJob(void) override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;  
 
 private:
 

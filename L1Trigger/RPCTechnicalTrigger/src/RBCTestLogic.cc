@@ -43,8 +43,8 @@ void RBCTestLogic::process( const RBCInput & _input, std::bitset<2> & _decision)
   
   //...Layer information:
   for(int k=0; k < 6; ++k) {
-    m_testlayer[0].set(k,1);
-    m_testlayer[1].set(k,0);
+    m_testlayer[0].set(k,true);
+    m_testlayer[1].set(k,false);
   }
   
   

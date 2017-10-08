@@ -52,7 +52,7 @@ class L1MuGMTMIAUPhiPro2LUT : public L1MuGMTLUT {
   } ;
 
   /// destructor
-  virtual ~L1MuGMTMIAUPhiPro2LUT() {};
+  ~L1MuGMTMIAUPhiPro2LUT() override {};
 
   /// specific lookup function for phi_sel
   unsigned SpecificLookup_phi_sel (int idx, unsigned cphi_start, unsigned cphi_fine, unsigned cphi_ofs, unsigned charge) const {
@@ -78,7 +78,7 @@ class L1MuGMTMIAUPhiPro2LUT : public L1MuGMTLUT {
 
   /// access to lookup function with packed input and output
 
-  virtual unsigned LookupFunctionPacked (int idx, unsigned address) const {
+  unsigned LookupFunctionPacked (int idx, unsigned address) const override {
     std::vector<unsigned> addr = u2vec(address, m_Inputs);
     return TheLookupFunction(idx ,addr[0] ,addr[1] ,addr[2] ,addr[3]);
 

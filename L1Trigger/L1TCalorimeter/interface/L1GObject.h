@@ -87,7 +87,7 @@ public:
 
   // Destructor
 
-  virtual ~L1GObject() {}
+  ~L1GObject() override {}
 
   // Access functions
 

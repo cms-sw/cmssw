@@ -37,7 +37,7 @@ void L1Analysis::L1AnalysisCaloTP::SetHCAL( const HcalTrigPrimDigiCollection& hc
 
     unsigned short compEt = hcalTPs[i].SOI_compressedEt();
     double et = 0.;
-    if (hcalScale_!=0) et = hcalScale_->et( compEt, absIeta, sign );
+    if (hcalScale_!=nullptr) et = hcalScale_->et( compEt, absIeta, sign );
 
     unsigned short fineGrain = (unsigned short) hcalTPs[i].SOI_fineGrain();
 
@@ -68,7 +68,7 @@ void L1Analysis::L1AnalysisCaloTP::SetECAL( const EcalTrigPrimDigiCollection& ec
     
     unsigned short compEt = ecalTPs[i].compressedEt();
     double et = 0.;
-    if (ecalScale_!=0) et = ecalScale_->et( compEt, absIeta, sign );
+    if (ecalScale_!=nullptr) et = ecalScale_->et( compEt, absIeta, sign );
     
     unsigned short fineGrain = (unsigned short) ecalTPs[i].fineGrain();  // 0 or 1
     

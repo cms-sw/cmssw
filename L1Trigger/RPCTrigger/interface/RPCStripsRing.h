@@ -44,7 +44,7 @@ class RPCStripsRing : public std::map<float, TStrip >
       
       struct TOtherConnStruct {
          
-         TOtherConnStruct() : m_logplane(0), m_logplaneSize(0), m_it(0) {};
+         TOtherConnStruct() : m_logplane(0), m_logplaneSize(0), m_it(nullptr) {};
          short m_logplane;
          short m_logplaneSize;
          TIdToRindMap::iterator m_it;

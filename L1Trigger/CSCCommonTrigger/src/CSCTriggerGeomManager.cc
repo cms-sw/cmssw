@@ -32,7 +32,7 @@ CSCTriggerGeomManager::chamber(unsigned endcap, unsigned station,
 			       unsigned sector, unsigned subsector, 
 			       unsigned tcscid) const
 {
-  CSCChamber* result = NULL;
+  CSCChamber* result = nullptr;
   
   int ring = 0;
   int chamber = 0;

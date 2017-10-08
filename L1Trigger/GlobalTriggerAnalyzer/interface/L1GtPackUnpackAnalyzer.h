@@ -38,11 +38,11 @@ class L1GtPackUnpackAnalyzer : public edm::EDAnalyzer
 
 public:
     explicit L1GtPackUnpackAnalyzer(const edm::ParameterSet&);
-    ~L1GtPackUnpackAnalyzer();
+    ~L1GtPackUnpackAnalyzer() override;
 
 private:
 
-    virtual void beginJob();
+    void beginJob() override;
 
     /// GT comparison
     virtual void analyzeGT(const edm::Event&, const edm::EventSetup&);
@@ -51,10 +51,10 @@ private:
     virtual void analyzeGMT(const edm::Event&, const edm::EventSetup&);
     
     /// analyze each event
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     /// end of job
-    virtual void endJob();
+    void endJob() override;
 
 private:
 

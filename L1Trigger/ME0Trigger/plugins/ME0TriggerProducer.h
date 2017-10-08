@@ -24,10 +24,10 @@ class ME0TriggerProducer : public edm::global::EDProducer<>
 {
  public:
   explicit ME0TriggerProducer(const edm::ParameterSet&);
-  ~ME0TriggerProducer();
+  ~ME0TriggerProducer() override;
 
   //virtual void beginRun(const edm::EventSetup& setup);
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
  private:
   edm::InputTag me0PadDigiClusterProducer_;

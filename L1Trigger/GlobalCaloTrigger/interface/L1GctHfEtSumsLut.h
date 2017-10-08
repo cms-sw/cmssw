@@ -45,7 +45,7 @@ public:
   /// Copy constructor
   L1GctHfEtSumsLut(const L1GctHfEtSumsLut& lut);
   /// Destructor
-  virtual ~L1GctHfEtSumsLut();
+  ~L1GctHfEtSumsLut() override;
   
   /// Overload = operator
   L1GctHfEtSumsLut operator= (const L1GctHfEtSumsLut& lut);
@@ -54,7 +54,7 @@ public:
   friend std::ostream& operator << (std::ostream& os, const L1GctHfEtSumsLut& lut);
 
   /// Set the function
-  void setFunction(const L1CaloEtScale* const fn) { if (fn != 0) { m_lutFunction = fn; m_setupOk = true; } }
+  void setFunction(const L1CaloEtScale* const fn) { if (fn != nullptr) { m_lutFunction = fn; m_setupOk = true; } }
 
   /// Return the type of Lut
   L1GctHfEtSumsLut::hfLutType lutType() const { return m_lutType; }
@@ -69,7 +69,7 @@ public:
 protected:
   
 
-  virtual uint16_t value (const uint16_t lutAddress) const;
+  uint16_t value (const uint16_t lutAddress) const override;
 
 private:
 

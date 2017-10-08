@@ -47,7 +47,7 @@ public:
     ExternalTemplate(const ExternalTemplate&);
 
     // destructor
-    virtual ~ExternalTemplate();
+    ~ExternalTemplate() override;
 
     // assign operator
     ExternalTemplate& operator=(const ExternalTemplate&);
@@ -69,7 +69,7 @@ public:
     inline void setExternalChannel(unsigned int extCh) { m_extChannel = extCh; }
 
     /// print the condition
-    virtual void print(std::ostream& myCout) const;
+    void print(std::ostream& myCout) const override;
 
     /// output stream operator
     friend std::ostream& operator<<(std::ostream&, const ExternalTemplate&);

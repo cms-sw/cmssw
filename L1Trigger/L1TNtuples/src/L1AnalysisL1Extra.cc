@@ -145,7 +145,7 @@ void L1Analysis::L1AnalysisL1Extra::SetHFring(const edm::Handle<l1extra::L1HFRin
   
     for(unsigned int i=0; i<4; ++i)  
     {
-      if (hfRings->size()==0) continue;
+      if (hfRings->empty()) continue;
 
       l1extra_.hfEtSum[i] = (hfRings->begin()->hfEtSum((l1extra::L1HFRings::HFRingLabels) i));
       l1extra_.hfBitCnt[i] = (hfRings->begin()->hfBitCount((l1extra::L1HFRings::HFRingLabels) i));

@@ -22,10 +22,10 @@ namespace L1TMuon {
   class DTCollector: public SubsystemCollector {
   public:
     DTCollector(const edm::ParameterSet&);
-    ~DTCollector() {}
+    ~DTCollector() override {}
 
-    virtual void extractPrimitives(const edm::Event&, const edm::EventSetup&, 
-				   std::vector<TriggerPrimitive>&) const;
+    void extractPrimitives(const edm::Event&, const edm::EventSetup&, 
+				   std::vector<TriggerPrimitive>&) const override;
   private:
     TriggerPrimitive processDigis(const L1MuDTChambPhDigi&,
 				  const int &segment_number) const;

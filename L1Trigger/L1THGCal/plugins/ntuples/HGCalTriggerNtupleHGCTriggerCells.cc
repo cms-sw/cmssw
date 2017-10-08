@@ -12,12 +12,12 @@ class HGCalTriggerNtupleHGCTriggerCells : public HGCalTriggerNtupleBase
 
   public:
     HGCalTriggerNtupleHGCTriggerCells(const edm::ParameterSet& conf);
-    ~HGCalTriggerNtupleHGCTriggerCells(){};
-    virtual void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) override final;
-    virtual void fill(const edm::Event& e, const edm::EventSetup& es) override final;
+    ~HGCalTriggerNtupleHGCTriggerCells() override{};
+    void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
+    void fill(const edm::Event& e, const edm::EventSetup& es) final;
 
   private:
-    virtual void clear() override final;
+    void clear() final;
 
 
     edm::EDGetToken trigger_cells_token_;

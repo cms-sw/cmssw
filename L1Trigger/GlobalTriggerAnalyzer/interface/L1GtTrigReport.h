@@ -51,17 +51,17 @@ public:
     explicit L1GtTrigReport(const edm::ParameterSet&);
 
     /// destructor
-    virtual ~L1GtTrigReport();
+    ~L1GtTrigReport() override;
 
 private:
 
-    virtual void beginJob();
+    void beginJob() override;
 
     /// analyze each event
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     /// end of job
-    virtual void endJob();
+    void endJob() override;
 
 private:
 

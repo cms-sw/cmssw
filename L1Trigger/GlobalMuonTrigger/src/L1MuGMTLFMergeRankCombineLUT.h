@@ -51,7 +51,7 @@ class L1MuGMTLFMergeRankCombineLUT : public L1MuGMTLUT {
   } ;
 
   /// destructor
-  virtual ~L1MuGMTLFMergeRankCombineLUT() {};
+  ~L1MuGMTLFMergeRankCombineLUT() override {};
 
   /// specific lookup function for merge_rank
   unsigned SpecificLookup_merge_rank (int idx, unsigned rank_etaq, unsigned rank_ptq, unsigned rank_etaphi) const {
@@ -75,7 +75,7 @@ class L1MuGMTLFMergeRankCombineLUT : public L1MuGMTLUT {
 
   /// access to lookup function with packed input and output
 
-  virtual unsigned LookupFunctionPacked (int idx, unsigned address) const {
+  unsigned LookupFunctionPacked (int idx, unsigned address) const override {
     std::vector<unsigned> addr = u2vec(address, m_Inputs);
     return TheLookupFunction(idx ,addr[0] ,addr[1] ,addr[2]);
 

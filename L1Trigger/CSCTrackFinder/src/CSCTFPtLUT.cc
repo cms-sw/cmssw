@@ -13,7 +13,7 @@
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <fstream>
 
-ptdat* CSCTFPtLUT::pt_lut = NULL;
+ptdat* CSCTFPtLUT::pt_lut = nullptr;
 bool CSCTFPtLUT::lut_read_in = false;
 // L1MuTriggerScales CSCTFPtLUT::trigger_scale;
 // L1MuTriggerPtScale CSCTFPtLUT::trigger_ptscale;

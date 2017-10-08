@@ -6,7 +6,7 @@ public:
     HGCalTriggerGeometryGenericMapping(conf) {
   }
 
-  virtual void initialize(const edm::ESHandle<CaloGeometry>& ) override final {}
+  void initialize(const edm::ESHandle<CaloGeometry>& ) final {}
 };
 
 DEFINE_EDM_PLUGIN(HGCalTriggerGeometryFactory, 

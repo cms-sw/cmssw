@@ -36,7 +36,7 @@ class RPCConeBuilder : public edm::ESProducer {
    public:
       
       RPCConeBuilder(const edm::ParameterSet&);
-      ~RPCConeBuilder() {};
+      ~RPCConeBuilder() override {};
 
       typedef std::shared_ptr<L1RPCConeBuilder> ReturnType;
       
