@@ -36,7 +36,7 @@ class HIMuonTrackingRegionProducer : public TrackingRegionProducer {
   }  
   
 
-  virtual ~HIMuonTrackingRegionProducer(){}
+  ~HIMuonTrackingRegionProducer() override{}
   
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -55,7 +55,7 @@ class HIMuonTrackingRegionProducer : public TrackingRegionProducer {
     descriptions.add("HiTrackingRegionEDProducer", desc);
   }
 
-  virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& ev, const edm::EventSetup& es) const override {
+  std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& ev, const edm::EventSetup& es) const override {
     
     // initialize output vector of tracking regions
     std::vector<std::unique_ptr<TrackingRegion> > result;
