@@ -28,13 +28,13 @@
 class JetCorrectorDemo : public edm::EDAnalyzer {
 public:
   explicit JetCorrectorDemo(const edm::ParameterSet&);
-  ~JetCorrectorDemo();
+  ~JetCorrectorDemo() override;
   typedef reco::Particle::LorentzVector LorentzVector;
 
 private:
-  virtual void beginJob() override ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   edm::EDGetTokenT<reco::JetCorrector> mJetCorrector;
   std::string mPayloadName,mUncertaintyTag,mUncertaintyFile;
@@ -81,7 +81,7 @@ void JetCorrectorDemo::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 {
   edm::Handle<reco::JetCorrector> corrector;
   iEvent.getByToken(mJetCorrector, corrector);
-  JetCorrectionUncertainty *jecUnc(0);
+  JetCorrectionUncertainty *jecUnc(nullptr);
   if (mUncertaintyTag != "")
     {
       if (mUseCondDB)

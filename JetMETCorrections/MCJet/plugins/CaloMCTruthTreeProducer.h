@@ -14,10 +14,10 @@ class CaloMCTruthTreeProducer : public edm::EDAnalyzer
 {
   public:
     explicit CaloMCTruthTreeProducer(edm::ParameterSet const& cfg);
-    virtual void beginJob();
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
-    virtual void endJob();
-    ~CaloMCTruthTreeProducer();
+    void beginJob() override;
+    void analyze(edm::Event const& e, edm::EventSetup const& iSetup) override;
+    void endJob() override;
+    ~CaloMCTruthTreeProducer() override;
 
   private:
     std::string histogramFile_;

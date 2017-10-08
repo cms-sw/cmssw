@@ -30,9 +30,9 @@ namespace cms{
 
    JetVertexAssociation (const edm::ParameterSet& ps);
 
-   ~JetVertexAssociation () {}
+   ~JetVertexAssociation () override {}
 
-   void produce(edm::Event& e, const edm::EventSetup& c);
+   void produce(edm::Event& e, const edm::EventSetup& c) override;
 
   private:
     typedef std::vector<double> ResultCollection1;

@@ -58,7 +58,7 @@ public:
     findingRecord<JetCorrectionsRecord>();
   }
 
-  ~JetCorrectionESSource() {}
+  ~JetCorrectionESSource() override {}
 
   std::shared_ptr<JetCorrector> produce(JetCorrectionsRecord const& iRecord) 
   {
@@ -77,7 +77,7 @@ public:
     return std::make_shared<Corrector>(*tmpJetCorPar, mParameterSet);
   }
 
-  void setIntervalFor(edm::eventsetup::EventSetupRecordKey const&, edm::IOVSyncValue const&, edm::ValidityInterval& fIOV)
+  void setIntervalFor(edm::eventsetup::EventSetupRecordKey const&, edm::IOVSyncValue const&, edm::ValidityInterval& fIOV) override
   {
     fIOV = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime()); // anytime
   }

@@ -30,11 +30,11 @@ class SysShiftMETcorrInputProducer : public edm::stream::EDProducer<>
  public:
 
   explicit SysShiftMETcorrInputProducer(const edm::ParameterSet&);
-  ~SysShiftMETcorrInputProducer();
+  ~SysShiftMETcorrInputProducer() override;
     
  private:
 
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   std::string moduleLabel_;
 

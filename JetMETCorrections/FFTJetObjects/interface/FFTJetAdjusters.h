@@ -6,11 +6,11 @@
 template<class MyJet, class Adjustable>
 struct FFTSimpleScalingAdjuster : public AbsFFTJetAdjuster<MyJet, Adjustable>
 {
-    inline virtual ~FFTSimpleScalingAdjuster() {}
+    inline ~FFTSimpleScalingAdjuster() override {}
 
-    virtual void adjust(const MyJet& /* jet */, const Adjustable& in,
+    void adjust(const MyJet& /* jet */, const Adjustable& in,
                         const double* factors, const unsigned lenFactors,
-                        Adjustable* out) const
+                        Adjustable* out) const override
     {
         if (lenFactors != 1U)
             throw cms::Exception("FFTJetBadConfig")
@@ -26,11 +26,11 @@ struct FFTSimpleScalingAdjuster : public AbsFFTJetAdjuster<MyJet, Adjustable>
 template<class MyJet, class Adjustable>
 struct FFTUncertaintyAdjuster : public AbsFFTJetAdjuster<MyJet, Adjustable>
 {
-    inline virtual ~FFTUncertaintyAdjuster() {}
+    inline ~FFTUncertaintyAdjuster() override {}
 
-    virtual void adjust(const MyJet& /* jet */, const Adjustable& in,
+    void adjust(const MyJet& /* jet */, const Adjustable& in,
                         const double* factors, const unsigned lenFactors,
-                        Adjustable* out) const
+                        Adjustable* out) const override
     {
         if (lenFactors != 1U)
             throw cms::Exception("FFTJetBadConfig")
@@ -48,11 +48,11 @@ template<class MyJet, class Adjustable>
 struct FFTScalingAdjusterWithUncertainty : 
     public AbsFFTJetAdjuster<MyJet, Adjustable>
 {
-    inline virtual ~FFTScalingAdjusterWithUncertainty() {}
+    inline ~FFTScalingAdjusterWithUncertainty() override {}
 
-    virtual void adjust(const MyJet& /* jet */, const Adjustable& in,
+    void adjust(const MyJet& /* jet */, const Adjustable& in,
                         const double* factors, const unsigned lenFactors,
-                        Adjustable* out) const
+                        Adjustable* out) const override
     {
         if (lenFactors != 2U)
             throw cms::Exception("FFTJetBadConfig")

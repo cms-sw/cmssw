@@ -18,10 +18,10 @@
 class  QGLikelihoodSystematicsDBWriter : public edm::EDAnalyzer{
  public:
   QGLikelihoodSystematicsDBWriter(const edm::ParameterSet&);
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override {}
-  virtual void endJob() override {}
-  ~QGLikelihoodSystematicsDBWriter() {}
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override {}
+  void endJob() override {}
+  ~QGLikelihoodSystematicsDBWriter() override {}
 
  private:
   std::string fileName;
