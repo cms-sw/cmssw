@@ -48,15 +48,22 @@ TestLumiInfo::testFill() {
   lumBX.push_back(3.0f);
 
   lumiInfo.setInstLumi(lumBX);
+  lumiInfo.setTotalInstLumi(8.0f);
 
   CPPUNIT_ASSERT(std::abs(lumiInfo.getInstLumiBX(0) - 1.0f) < tol);
   CPPUNIT_ASSERT(std::abs(lumiInfo.getInstLumiBX(1) - 2.0f) < tol);
   CPPUNIT_ASSERT(std::abs(lumiInfo.getInstLumiBX(2) - 3.0f) < tol);
 
+  CPPUNIT_ASSERT(std::abs(lumiInfo.getTotalInstLumi() - 8.0f) < tol);
   CPPUNIT_ASSERT(std::abs(lumiInfo.instLuminosityBXSum() - 6.0f) < tol);
-  CPPUNIT_ASSERT(std::abs(lumiInfo.integLuminosity() - 6.0f*lumiInfo.lumiSectionLength()) < tol);
-  CPPUNIT_ASSERT(std::abs(lumiInfo.recordedLuminosity() - 3.0f*lumiInfo.lumiSectionLength()) < tol);
-  
+  CPPUNIT_ASSERT(std::abs(lumiInfo.integLuminosity() - 8.0f*lumiInfo.lumiSectionLength()) < tol);
+  CPPUNIT_ASSERT(std::abs(lumiInfo.recordedLuminosity() - 4.0f*lumiInfo.lumiSectionLength()) < tol);
+
+ 
+  lumiInfo.setTotalInstToBXSum();
+  CPPUNIT_ASSERT(std::abs(lumiInfo.getTotalInstLumi() - 6.0f) < tol);
+
+
   CPPUNIT_ASSERT(lumiInfo.isProductEqual(lumiInfo));
 
   LumiInfo lumiInfo2;

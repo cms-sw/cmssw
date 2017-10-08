@@ -18,6 +18,10 @@ float LumiInfo::integLuminosity() const {
   return getTotalInstLumi()*lumiSectionLength();
 }
 
+void LumiInfo::setTotalInstToBXSum() {
+  setTotalInstLumi(instLuminosityBXSum());
+}
+
 float LumiInfo::recordedLuminosity() const {
   return integLuminosity()*(1-deadtimeFraction_);
 }
