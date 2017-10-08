@@ -67,7 +67,7 @@ float HGCalShowerShape::sigmaXX(const std::vector<pair<float,float> >& energy_X_
 
 
 //Compute energy-weighted RMS of any variable X in the cluster
-//Extra care neeeded because of deltaPhi
+//Extra care needed because of deltaPhi
 
 float HGCalShowerShape::sigmaPhiPhi(const std::vector<pair<float,float> >& energy_phi_tc, const float phi_cluster) const {
 
