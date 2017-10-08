@@ -177,7 +177,7 @@ public:
   class MatchingCutsV1 : public MatchingCuts {
   public:
     explicit MatchingCutsV1(const edm::ParameterSet& pset);
-    bool operator()(const SCHitMatch& scHitMatch)const;
+    bool operator()(const SCHitMatch& scHitMatch)const override;
   private:
     float getDRZCutValue(const float scEt, const float scEta)const;
   private:
@@ -191,7 +191,7 @@ public:
   class MatchingCutsV2 : public MatchingCuts {
   public:
     explicit MatchingCutsV2(const edm::ParameterSet& pset);
-    bool operator()(const SCHitMatch& scHitMatch)const;
+    bool operator()(const SCHitMatch& scHitMatch)const override;
   private:
     size_t getBinNr(float eta)const;
     float getCutValue(float et, float highEt, float highEtThres, float lowEtGrad)const{

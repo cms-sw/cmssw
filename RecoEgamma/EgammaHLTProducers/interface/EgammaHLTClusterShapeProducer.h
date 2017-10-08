@@ -31,7 +31,7 @@ namespace edm {
 class EgammaHLTClusterShapeProducer : public edm::global::EDProducer<> {
 public:
   explicit EgammaHLTClusterShapeProducer(const edm::ParameterSet&);
-  ~EgammaHLTClusterShapeProducer();
+  ~EgammaHLTClusterShapeProducer() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;

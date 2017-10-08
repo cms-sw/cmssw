@@ -64,7 +64,7 @@ std::vector<ConversionInfo> ConversionFinder::getConversionInfos(const reco::Gsf
   //get the references to the gsf and ctf tracks that are made
   //by the electron
   const reco::TrackRef    el_ctftrack	= gsfElectron.ctfTrack();
-  const reco::GsfTrackRef el_gsftrack	= gsfElectron.gsfTrack();
+  const reco::GsfTrackRef& el_gsftrack	= gsfElectron.gsfTrack();
 
   //protect against the wrong collection being passed to the function
   if(el_ctftrack.isNonnull() && el_ctftrack.id() != ctftracks_h.id())
@@ -329,7 +329,7 @@ ConversionInfo ConversionFinder::findBestConversionMatch(const std::vector<Conve
  {
   using namespace std;
 
-  if(v_convCandidates.size() == 0)
+  if(v_convCandidates.empty())
     return   ConversionInfo(-9999.,-9999.,-9999.,
 			    math::XYZPoint(-9999.,-9999.,-9999),
 			    reco::TrackRef(), reco::GsfTrackRef(),
@@ -393,16 +393,16 @@ ConversionInfo ConversionFinder::findBestConversionMatch(const std::vector<Conve
 
   //give preference to conversion partners found in the CTF collection
   //using the electron's CTF track
-  if(v_0.size() > 0)
+  if(!v_0.empty())
     return arbitrateConversionPartnersbyR(v_0);
 
-  if(v_1.size() > 0)
+  if(!v_1.empty())
     return arbitrateConversionPartnersbyR(v_1);
 
-  if(v_2.size() > 0)
+  if(!v_2.empty())
     return arbitrateConversionPartnersbyR(v_2);
 
-  if(v_3.size() > 0)
+  if(!v_3.empty())
     return arbitrateConversionPartnersbyR(v_3);
 
 
