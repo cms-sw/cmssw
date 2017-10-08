@@ -35,6 +35,9 @@ else
     cmsRun ${CMSSW_BASE}/src/CondTools/L1TriggerExt/test/L1ConfigWriteSinglePayloadExt_cfg.py objectKey="OMTF_ALGO_EMPTY" objectType=L1TMuonOverlapParams recordName=L1TMuonOverlapParamsO2ORcd useO2OTags=1 outputDBConnect=sqlite:l1configBlank.db outputDBAuth=${DBAuth}
     initcode=$?
     if [ $initcode -ne 0 ] ; then echo "Failed to write OMTF_ALGO_EMPTY constant payload in sqlite file" ; exit 1 ; fi
+    cmsRun ${CMSSW_BASE}/src/CondTools/L1TriggerExt/test/L1ConfigWriteSinglePayloadExt_cfg.py objectKey="1541" objectType=L1TMuonEndCapForest recordName=L1TMuonEndCapForestO2ORcd useO2OTags=1 outputDBConnect=sqlite:l1configBlank.db
+    initcode=$?
+    if [ $initcode -ne 0 ] ; then echo "Failed to write EMTF pT LUT #1541 in sqlite file" ; exit 1 ; fi
 
     cp l1configBlank.db l1config.db
 fi
@@ -71,7 +74,7 @@ ugtrscode=$?
 cmsRun ${CMSSW_BASE}/src/L1TriggerConfig/Utilities/test/dumpL1TMuonOverlapParams.py topKey="$1:$2" DBAuth=${DBAuth}
 omtfcode=$?
 
-cmsRun ${CMSSW_BASE}/src/L1TriggerConfig/Utilities/test/dumpL1TMuonEndcapParams.py topKey="$1:$2" DBAuth=${DBAuth}
+cmsRun ${CMSSW_BASE}/src/L1TriggerConfig/Utilities/test/dumpL1TMuonEndCapParams.py topKey="$1:$2" DBAuth=${DBAuth}
 emtfcode=$?
 
 # check if any of the processes above failed
