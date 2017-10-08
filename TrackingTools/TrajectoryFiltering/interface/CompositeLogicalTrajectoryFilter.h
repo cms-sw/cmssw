@@ -32,7 +32,7 @@ public:
     }
   }
   
-  ~CompositeLogicalTrajectoryFilter() {}
+  ~CompositeLogicalTrajectoryFilter() override {}
 
   void setEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup) override {
     for(auto& item: filters) {
@@ -40,13 +40,13 @@ public:
     }
   }
 
-  virtual bool qualityFilter( const Trajectory& traj) const override { return QF<Trajectory>(traj);}
-  virtual bool qualityFilter( const TempTrajectory& traj) const override { return QF<TempTrajectory>(traj);}
+  bool qualityFilter( const Trajectory& traj) const override { return QF<Trajectory>(traj);}
+  bool qualityFilter( const TempTrajectory& traj) const override { return QF<TempTrajectory>(traj);}
  
-  virtual bool toBeContinued( Trajectory& traj) const override { return TBC<Trajectory>(traj);}
-  virtual bool toBeContinued( TempTrajectory& traj) const override { return TBC<TempTrajectory>(traj);}
+  bool toBeContinued( Trajectory& traj) const override { return TBC<Trajectory>(traj);}
+  bool toBeContinued( TempTrajectory& traj) const override { return TBC<TempTrajectory>(traj);}
   
-  virtual std::string name() const override {return "CompositeLogicalTrajectoryFilter";}
+  std::string name() const override {return "CompositeLogicalTrajectoryFilter";}
 
 protected:
   template <class T> bool TBC( T& traj)const{

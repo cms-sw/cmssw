@@ -10,7 +10,7 @@
 class  AnalyticalPropagatorESProducer: public edm::ESProducer{
  public:
   AnalyticalPropagatorESProducer(const edm::ParameterSet & p);
-  virtual ~AnalyticalPropagatorESProducer(); 
+  ~AnalyticalPropagatorESProducer() override; 
   std::shared_ptr<Propagator> produce(const TrackingComponentsRecord &);
  private:
   std::shared_ptr<Propagator> _propagator;

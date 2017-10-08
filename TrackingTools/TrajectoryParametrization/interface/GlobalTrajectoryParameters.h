@@ -16,7 +16,7 @@ class GlobalTrajectoryParameters {
 public:
 // construct
   GlobalTrajectoryParameters() :
-    theField(0), 
+    theField(nullptr), 
     theX(), theP(), 
     theCharge(0)
   {}  // we must initialize cache to non-NAN to avoid FPE
