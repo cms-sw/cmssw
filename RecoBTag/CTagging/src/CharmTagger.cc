@@ -67,7 +67,7 @@ void CharmTagger::initialize(const JetTagComputerRecord & record)
   }
   else {
     mvaID_->initialize(
-			"Color:Silent:Error", mva_name_.c_str(),
+			"Color:Silent:Error", mva_name_,
 			weight_file_.fullPath(), variable_names, 
 			spectators, use_GBRForest_, use_adaBoost_
 			);

@@ -108,7 +108,7 @@ namespace IPProducerHelpers {
 				      if( explicitJTA )
 				      {
 					  for(size_t j=0;j<it->numberOfDaughters();++j) {
-						  if( it->daughterPtr(j)->bestTrack()!=0 && it->daughterPtr(j)->charge() !=0 ){
+						  if( it->daughterPtr(j)->bestTrack()!=nullptr && it->daughterPtr(j)->charge() !=0 ){
 							  m_map[i].push_back(it->daughterPtr(j));
 						  }
 					  }
@@ -116,7 +116,7 @@ namespace IPProducerHelpers {
 				      else
 				      {
 					  for(size_t j=0;j<cands->size();++j) {
-						  if( (*cands)[j].bestTrack()!=0 && (*cands)[j].charge() !=0 && (*cands)[j].pt() > 0 && Geom::deltaR2((*cands)[j],(*jets)[i]) < maxDeltaR2  ){
+						  if( (*cands)[j].bestTrack()!=nullptr && (*cands)[j].charge() !=0 && (*cands)[j].pt() > 0 && Geom::deltaR2((*cands)[j],(*jets)[i]) < maxDeltaR2  ){
 							  m_map[i].push_back(cands->ptrAt(j));
 						  }
 					  }
@@ -138,10 +138,10 @@ class IPProducer : public edm::stream::EDProducer<> {
       
 
       explicit IPProducer(const edm::ParameterSet&);
-      ~IPProducer();
+      ~IPProducer() override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
    private:
     void  checkEventSetup(const edm::EventSetup & iSetup);
 
@@ -256,7 +256,7 @@ IPProducer<Container,Base,Helper>::produce(edm::Event& iEvent, const edm::EventS
    reco::Vertex dummy;
    const reco::Vertex *pv = &dummy;
    edm::Ref<reco::VertexCollection> pvRef;
-   if (primaryVertex->size() != 0) {
+   if (!primaryVertex->empty()) {
      pv = &*primaryVertex->begin();
      // we always use the first vertex (at the moment)
      pvRef = edm::Ref<reco::VertexCollection>(primaryVertex, 0);
