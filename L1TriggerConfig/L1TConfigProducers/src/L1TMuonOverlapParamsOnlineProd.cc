@@ -10,10 +10,10 @@
 class L1TMuonOverlapParamsOnlineProd : public L1ConfigOnlineProdBaseExt<L1TMuonOverlapParamsO2ORcd,L1TMuonOverlapParams> {
 private:
 public:
-    virtual std::shared_ptr<L1TMuonOverlapParams> newObject(const std::string& objectKey, const L1TMuonOverlapParamsO2ORcd& record) override ;
+    std::shared_ptr<L1TMuonOverlapParams> newObject(const std::string& objectKey, const L1TMuonOverlapParamsO2ORcd& record) override ;
 
     L1TMuonOverlapParamsOnlineProd(const edm::ParameterSet&);
-    ~L1TMuonOverlapParamsOnlineProd(void){}
+    ~L1TMuonOverlapParamsOnlineProd(void) override{}
 };
 
 L1TMuonOverlapParamsOnlineProd::L1TMuonOverlapParamsOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TMuonOverlapParamsO2ORcd,L1TMuonOverlapParams>(iConfig) {}

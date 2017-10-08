@@ -19,7 +19,7 @@ private:
     std::string hash(void *buf, size_t len) const ;
 
 public:
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     explicit L1TGlobalPrescalesVetosViewer(const edm::ParameterSet& pset) : edm::EDAnalyzer(){
        prescale_table_verbosity = pset.getUntrackedParameter<int32_t>("prescale_table_verbosity", 0);
@@ -27,11 +27,11 @@ public:
        veto_verbosity           = pset.getUntrackedParameter<int32_t>("veto_verbosity",           0);
     }
 
-    virtual ~L1TGlobalPrescalesVetosViewer(void){}
+    ~L1TGlobalPrescalesVetosViewer(void) override{}
 };
 
 #include <openssl/sha.h>
-#include <math.h>
+#include <cmath>
 #include <iostream>
 using namespace std;
 
@@ -116,7 +116,7 @@ void L1TGlobalPrescalesVetosViewer::analyze(const edm::Event& iEvent, const edm:
             for(size_t i=0; i<it->second.size(); i++)
                 masks[ i ] = it->second[i];
             cout << "  bxmask_map_[" << it->first << "][" << it->second.size() << "] = ";
-            if( it->second.size() )
+            if( !it->second.empty() )
                 cout << hash( masks, sizeof(int)*it->second.size() ) << endl;
             else cout << 0 << endl;
         }
@@ -144,7 +144,7 @@ void L1TGlobalPrescalesVetosViewer::analyze(const edm::Event& iEvent, const edm:
     }
     cout << "  veto_[" << (ptr->veto_).size() << "]              = ";
     if( veto_verbosity == 0 ){
-        if( (ptr->veto_).size() ){
+        if( !(ptr->veto_).empty() ){
             cout << hash( veto_, sizeof(int)*(ptr->veto_).size() );
             if( veto_allZeros ) cout << " (all zeros)" << endl;
             else cout << endl;
@@ -155,14 +155,14 @@ void L1TGlobalPrescalesVetosViewer::analyze(const edm::Event& iEvent, const edm:
     int exp_ints_[ (ptr->exp_ints_).size() ];
     for(size_t i=0; i<(ptr->exp_ints_).size(); i++) exp_ints_[i] = (ptr->exp_ints_)[i];
     cout << "  exp_ints_[" << (ptr->exp_ints_).size() << "]            = ";
-    if( (ptr->exp_ints_).size() )
+    if( !(ptr->exp_ints_).empty() )
         cout << hash( exp_ints_, sizeof(int)*(ptr->exp_ints_).size() ) << endl;
     else cout << 0 << endl;
 
     int exp_doubles_[ (ptr->exp_doubles_).size() ];
     for(size_t i=0; i<(ptr->exp_doubles_).size(); i++) exp_ints_[i] = (ptr->exp_doubles_)[i];
     cout << "  exp_doubles_[" << (ptr->exp_doubles_).size() << "]         = ";
-    if( (ptr->exp_doubles_).size() )
+    if( !(ptr->exp_doubles_).empty() )
         cout << hash( exp_doubles_, sizeof(int)*(ptr->exp_doubles_).size() ) << endl;
     else cout << 0 << endl;
 }

@@ -49,7 +49,7 @@ class DTConfigTSTheta : public DTConfig {
   DTConfigTSTheta();
 
   //! Destructor
-  ~DTConfigTSTheta();
+  ~DTConfigTSTheta() override;
 
   //! Return the debug flag
   inline bool debug() const { return m_debug; }

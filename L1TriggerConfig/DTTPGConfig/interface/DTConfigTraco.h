@@ -58,7 +58,7 @@ class DTConfigTraco : public DTConfig {
   DTConfigTraco(int debug, unsigned short int * buffer);
 
   //! Destructor 
-  ~DTConfigTraco();
+  ~DTConfigTraco() override;
 
   //! Set default parameters
   void setDefaults(const edm::ParameterSet& ps);

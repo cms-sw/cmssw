@@ -29,7 +29,7 @@ public:
 	void readLUT(std::string path, unsigned short* lut, unsigned long length);
 
 	CSCTFConfigProducer(const edm::ParameterSet& pset);
-	~CSCTFConfigProducer(void){}
+	~CSCTFConfigProducer(void) override{}
 };
 
 #endif

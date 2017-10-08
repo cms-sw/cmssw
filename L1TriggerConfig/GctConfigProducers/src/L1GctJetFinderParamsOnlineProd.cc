@@ -6,9 +6,9 @@ class L1GctJetFinderParamsOnlineProd : public L1ConfigOnlineProdBase< L1GctJetFi
    public:
       L1GctJetFinderParamsOnlineProd(const edm::ParameterSet& iConfig)
          : L1ConfigOnlineProdBase< L1GctJetFinderParamsRcd, L1GctJetFinderParams >( iConfig ) {}
-      ~L1GctJetFinderParamsOnlineProd() {}
+      ~L1GctJetFinderParamsOnlineProd() override {}
 
-      virtual std::shared_ptr< L1GctJetFinderParams > newObject( const std::string& objectKey ) override ;
+      std::shared_ptr< L1GctJetFinderParams > newObject( const std::string& objectKey ) override ;
    private:
 };
 

@@ -34,9 +34,9 @@ class L1EmEtScaleOnlineProd :
   public L1ConfigOnlineProdBase< L1EmEtScaleRcd, L1CaloEtScale > {
    public:
       L1EmEtScaleOnlineProd(const edm::ParameterSet&);
-      ~L1EmEtScaleOnlineProd();
+      ~L1EmEtScaleOnlineProd() override;
 
-  virtual std::shared_ptr< L1CaloEtScale > newObject(
+  std::shared_ptr< L1CaloEtScale > newObject(
     const std::string& objectKey ) override ;
 
 

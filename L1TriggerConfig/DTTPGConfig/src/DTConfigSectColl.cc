@@ -30,9 +30,9 @@
 //----------------
 DTConfigSectColl::DTConfigSectColl() { 
 
-  m_debug = 0;
+  m_debug = false;
   for (int i=1; i<4; i++)
-    setSCCarryFlag(0,i);
+    setSCCarryFlag(false,i);
   for (int i=1; i<5; i++)
     setCoarseSync(0,i);
 
