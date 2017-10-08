@@ -59,7 +59,7 @@ public:
     L1GtTriggerMenuXmlParser();
 
     /// destructor
-    virtual ~L1GtTriggerMenuXmlParser();
+    ~L1GtTriggerMenuXmlParser() override;
 
 public:
 
@@ -343,7 +343,7 @@ private:
     XERCES_CPP_NAMESPACE::DOMNode* findXMLChild(
             XERCES_CPP_NAMESPACE::DOMNode* startChild,
             const std::string& tagName, bool beginOnly = false,
-            std::string* rest = 0);
+            std::string* rest = nullptr);
 
     /// get a named attribute for an xml node as string
     std::string getXMLAttribute(const XERCES_CPP_NAMESPACE::DOMNode* node,

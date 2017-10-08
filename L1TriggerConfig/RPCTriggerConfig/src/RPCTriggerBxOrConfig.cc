@@ -38,7 +38,7 @@
 class RPCTriggerBxOrConfig : public edm::ESProducer {
    public:
       RPCTriggerBxOrConfig(const edm::ParameterSet&);
-      ~RPCTriggerBxOrConfig();
+      ~RPCTriggerBxOrConfig() override;
 
       typedef std::unique_ptr<L1RPCBxOrConfig> ReturnType;
 

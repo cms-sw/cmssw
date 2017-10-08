@@ -19,12 +19,12 @@ class L1TMuonGlobalParamsWriter : public edm::EDAnalyzer {
 private:
     bool isO2Opayload;
 public:
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     explicit L1TMuonGlobalParamsWriter(const edm::ParameterSet &pset) : edm::EDAnalyzer(){
        isO2Opayload = pset.getUntrackedParameter<bool>("isO2Opayload",  false);
     }
-    virtual ~L1TMuonGlobalParamsWriter(void){}
+    ~L1TMuonGlobalParamsWriter(void) override{}
 };
 
 void L1TMuonGlobalParamsWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){

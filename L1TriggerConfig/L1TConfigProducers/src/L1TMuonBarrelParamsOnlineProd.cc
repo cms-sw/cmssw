@@ -16,10 +16,10 @@ using namespace XERCES_CPP_NAMESPACE;
 class L1TMuonBarrelParamsOnlineProd : public L1ConfigOnlineProdBaseExt<L1TMuonBarrelParamsO2ORcd,L1TMuonBarrelParams> {
 private:
 public:
-    virtual std::shared_ptr<L1TMuonBarrelParams> newObject(const std::string& objectKey, const L1TMuonBarrelParamsO2ORcd& record) override ;
+    std::shared_ptr<L1TMuonBarrelParams> newObject(const std::string& objectKey, const L1TMuonBarrelParamsO2ORcd& record) override ;
 
     L1TMuonBarrelParamsOnlineProd(const edm::ParameterSet&);
-    ~L1TMuonBarrelParamsOnlineProd(void){}
+    ~L1TMuonBarrelParamsOnlineProd(void) override{}
 };
 
 L1TMuonBarrelParamsOnlineProd::L1TMuonBarrelParamsOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TMuonBarrelParamsO2ORcd,L1TMuonBarrelParams>(iConfig) {}

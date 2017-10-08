@@ -26,9 +26,9 @@ class DTPhiLutTester : public edm::EDAnalyzer {
 
   DTPhiLutTester(const edm::ParameterSet& ps);
 
-  ~DTPhiLutTester();
+  ~DTPhiLutTester() override;
   
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
  private:
 

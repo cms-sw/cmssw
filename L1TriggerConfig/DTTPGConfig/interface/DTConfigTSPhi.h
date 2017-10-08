@@ -57,7 +57,7 @@ class DTConfigTSPhi : public DTConfig {
   DTConfigTSPhi(bool debug, unsigned short int tss_buffer[7][31], int ntss, unsigned short int tsm_buffer[9]);
 
   //! Destructor
-  ~DTConfigTSPhi();
+  ~DTConfigTSPhi() override;
 
   //! Return the debug flag
   inline bool debug() const { return m_debug; }

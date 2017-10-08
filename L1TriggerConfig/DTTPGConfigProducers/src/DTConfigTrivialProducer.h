@@ -45,7 +45,7 @@ public:
   DTConfigTrivialProducer(const edm::ParameterSet&);
 
   //! destructor
-  ~DTConfigTrivialProducer();
+  ~DTConfigTrivialProducer() override;
 
   //! ES produce method
   std::unique_ptr<DTConfigManager> produce(const DTConfigManagerRcd&);

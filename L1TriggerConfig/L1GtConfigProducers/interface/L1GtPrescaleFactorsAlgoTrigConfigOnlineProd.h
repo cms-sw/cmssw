@@ -39,10 +39,10 @@ public:
     L1GtPrescaleFactorsAlgoTrigConfigOnlineProd(const edm::ParameterSet&);
 
     /// destructor
-    ~L1GtPrescaleFactorsAlgoTrigConfigOnlineProd();
+    ~L1GtPrescaleFactorsAlgoTrigConfigOnlineProd() override;
 
     /// public methods
-    virtual std::shared_ptr<L1GtPrescaleFactors> newObject(const std::string& objectKey);
+    std::shared_ptr<L1GtPrescaleFactors> newObject(const std::string& objectKey) override;
 
 private:
 

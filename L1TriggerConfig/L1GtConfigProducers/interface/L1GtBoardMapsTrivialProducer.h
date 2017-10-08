@@ -40,7 +40,7 @@ public:
     L1GtBoardMapsTrivialProducer(const edm::ParameterSet&);
 
     /// destructor
-    ~L1GtBoardMapsTrivialProducer();
+    ~L1GtBoardMapsTrivialProducer() override;
 
 
     /// public methods
