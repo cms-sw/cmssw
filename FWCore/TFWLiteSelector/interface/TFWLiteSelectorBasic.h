@@ -100,7 +100,7 @@ class TFWLiteSelectorBasic : public TSelector
       edm::propagate_const<std::shared_ptr<edm::root::TFWLiteSelectorMembers>> m_;
       bool everythingOK_;
   
-  ClassDef(TFWLiteSelectorBasic,2)
+  ClassDefOverride(TFWLiteSelectorBasic,2)
 };
 
 
