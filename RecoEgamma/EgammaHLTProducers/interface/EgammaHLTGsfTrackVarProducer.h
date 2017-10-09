@@ -51,7 +51,7 @@ class EgammaHLTGsfTrackVarProducer : public edm::stream::EDProducer<> {
     const MultiTrajectoryStateTransform * mtsTransform_; //we own it
     
   public:
-  TrackExtrapolator():cacheIDTDGeom_(0),cacheIDMagField_(0),mtsTransform_(0){}
+  TrackExtrapolator():cacheIDTDGeom_(0),cacheIDMagField_(0),mtsTransform_(nullptr){}
     TrackExtrapolator(const TrackExtrapolator& rhs);
     ~TrackExtrapolator(){delete mtsTransform_;}
     TrackExtrapolator* operator=(const TrackExtrapolator& rhs);
@@ -68,7 +68,7 @@ class EgammaHLTGsfTrackVarProducer : public edm::stream::EDProducer<> {
   
  public:
   explicit EgammaHLTGsfTrackVarProducer(const edm::ParameterSet&);
-  ~EgammaHLTGsfTrackVarProducer();
+  ~EgammaHLTGsfTrackVarProducer() override;
   void produce(edm::Event&, const edm::EventSetup&) override; 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

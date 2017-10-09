@@ -48,7 +48,7 @@ EgammaRecHitIsolation::EgammaRecHitIsolation (double extRadius,
     sevLevel_(sl),
     useNumCrystals_(false),
     vetoClustered_(false),
-    ecalBarHits_(0),
+    ecalBarHits_(nullptr),
     //chStatus_(0),
     severitiesexcl_(0),
     //severityRecHitThreshold_(0),
@@ -145,7 +145,7 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
 	  
 	  
 	  //std::cout << "detid " << ((EcalRecHit*)(&*j))->detid() << std::endl;
-	  int severityFlag = ecalBarHits_ == 0 ? -1 : sevLevel_->severityLevel(((const EcalRecHit*)(&*j))->detid(), *ecalBarHits_);
+	  int severityFlag = ecalBarHits_ == nullptr ? -1 : sevLevel_->severityLevel(((const EcalRecHit*)(&*j))->detid(), *ecalBarHits_);
 	  std::vector<int>::const_iterator sit = std::find(severitiesexcl_.begin(), 
 							   severitiesexcl_.end(), 
 							   severityFlag);
@@ -189,7 +189,7 @@ double EgammaRecHitIsolation::getSum_(const reco::SuperCluster* sc, bool returnE
   if (! caloHits_.empty()){
     //Take the SC position
  
-    math::XYZPoint theCaloPosition = sc->position();
+    const math::XYZPoint& theCaloPosition = sc->position();
     GlobalPoint pclu (theCaloPosition.x () ,
 		      theCaloPosition.y () ,
 		      theCaloPosition.z () );

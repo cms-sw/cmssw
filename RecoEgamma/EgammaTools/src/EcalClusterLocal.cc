@@ -35,7 +35,7 @@ void EcalClusterLocal::localCoordsEB( const reco::CaloCluster &bclus, const Calo
   
   const CaloSubdetectorGeometry* geom=caloGeometry.getSubdetectorGeometry(DetId::Ecal,EcalBarrel);//EcalBarrel = 1
   
-  const math::XYZPoint position_ = bclus.position(); 
+  const math::XYZPoint& position_ = bclus.position(); 
   double Theta = -position_.theta()+0.5*TMath::Pi();
   double Eta = position_.eta();
   double Phi = TVector2::Phi_mpi_pi(position_.phi());
@@ -109,7 +109,7 @@ void EcalClusterLocal::localCoordsEE( const reco::CaloCluster &bclus, const Calo
   
   const CaloSubdetectorGeometry* geom=caloGeometry.getSubdetectorGeometry(DetId::Ecal,EcalEndcap);//EcalBarrel = 1
   
-  const math::XYZPoint position_ = bclus.position(); 
+  const math::XYZPoint& position_ = bclus.position(); 
   //double Theta = -position_.theta()+0.5*TMath::Pi();
   double Eta = position_.eta();
   double Phi = TVector2::Phi_mpi_pi(position_.phi());
