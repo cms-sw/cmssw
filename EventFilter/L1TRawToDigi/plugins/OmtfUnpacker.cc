@@ -50,7 +50,7 @@ public:
 
   OmtfUnpacker(const edm::ParameterSet& pset);
 
-  ~OmtfUnpacker() {}
+  ~OmtfUnpacker() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -258,7 +258,7 @@ void OmtfUnpacker::produce(edm::Event& event, const edm::EventSetup& setup)
     // get AMC13 payload (-> AMC's data)
     //
     amc13::Packet packetAmc13;
-    if (!packetAmc13.parse( header, header+1, nWords-2, fedHeader.lvl1ID(), fedHeader.bxID(), 1, 0)) {
+    if (!packetAmc13.parse( header, header+1, nWords-2, fedHeader.lvl1ID(), fedHeader.bxID(), true, false)) {
       edm::LogError("OMTF") << "Could not extract AMC13 Packet.";
       return;
     } 

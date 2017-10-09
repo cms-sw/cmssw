@@ -14,7 +14,7 @@ namespace omtf {
 class RpcPacker {
 
 public:
-  RpcPacker() : thePactCabling(0) {}
+  RpcPacker() : thePactCabling(nullptr) {}
 
   void init(const edm::EventSetup & es);
   void init(const edm::EventSetup & es, const std::string & connectionFile);
