@@ -12,7 +12,7 @@ namespace pat {
     MHT () {}
     MHT (const Candidate::LorentzVector& p4, double ht, double signif) :
       CompositeRefBaseCandidate(0,p4), ht_(ht), significance_(signif) {}
-    virtual ~MHT () {}
+    ~MHT () override {}
     
     double mht() const {return pt();}
     // ????double phi() const {return phi();}

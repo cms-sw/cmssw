@@ -25,15 +25,15 @@ namespace fwlite {
     class EventHistoryGetter : public HistoryGetterBase{
         public:
             EventHistoryGetter(const Event*);
-            virtual ~EventHistoryGetter();
+            ~EventHistoryGetter() override;
 
             // ---------- const member functions ---------------------
-            const edm::ProcessHistory& history() const;
+            const edm::ProcessHistory& history() const override;
 
         private:
-            EventHistoryGetter(const EventHistoryGetter&); // stop default
+            EventHistoryGetter(const EventHistoryGetter&) = delete; // stop default
 
-            const EventHistoryGetter& operator=(const EventHistoryGetter&); // stop default
+            const EventHistoryGetter& operator=(const EventHistoryGetter&) = delete; // stop default
 
             // ---------- member data --------------------------------
             const fwlite::Event* event_;

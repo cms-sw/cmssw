@@ -115,7 +115,7 @@ namespace edm {
     RefCore const& refCore() const {return ptr_.isNonnull() ? ptr_.refCore() : backPtr_.refCore() ;}
     // ---------- member functions ---------------------------
     
-    void const* product() const {return 0;}
+    void const* product() const {return nullptr;}
     
     Ptr<value_type> const& ptr() const { return ptr_;}
     Ptr<value_type> const& backPtr() const { return backPtr_;}

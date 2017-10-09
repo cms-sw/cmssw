@@ -10,7 +10,7 @@ private:
   static const int  EW_TYPE = 0xE800;
 public:
   EmptyWord() : DataRecord(EW_TYPE) {}
-  virtual ~EmptyWord(){}
+  ~EmptyWord() override{}
   std::string print()  const { return " EMPTY "; }
   static bool matchType(const DataRecord & record) { return record.data()==EW_TYPE; }
 };

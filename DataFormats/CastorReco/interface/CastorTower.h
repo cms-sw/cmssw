@@ -39,7 +39,7 @@ namespace reco {
 		const double depth, const double fhot, const CastorRecHitRefs& usedRecHits);
 
     /// destructor
-    virtual ~CastorTower();
+    ~CastorTower() override;
 
     /// tower centroid position
     ROOT::Math::XYZPoint position() const { return position_; }

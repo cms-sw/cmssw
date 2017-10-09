@@ -25,10 +25,10 @@ namespace reco {
 		       const VertexRef& vertexRef);
 
     /// destructor
-    virtual ~PileUpPFCandidate();
+    ~PileUpPFCandidate() override;
 
     /// return a clone
-    virtual PileUpPFCandidate * clone() const;
+    PileUpPFCandidate * clone() const override;
     
     /// return reference to the associated vertex
     const VertexRef&  vertexRef() const {return vertexRef_;}
