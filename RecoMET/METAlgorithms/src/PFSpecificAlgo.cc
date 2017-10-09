@@ -14,7 +14,7 @@
 //____________________________________________________________________________||
 SpecificPFMETData PFSpecificAlgo::run(const edm::View<reco::Candidate>& pfCands)
 {
-  if(!pfCands.size()) return SpecificPFMETData();
+  if(pfCands.empty()) return SpecificPFMETData();
 
   double NeutralEMEt = 0.0;
   double NeutralHadEt = 0.0;

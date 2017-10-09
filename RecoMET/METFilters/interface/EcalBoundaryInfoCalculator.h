@@ -128,7 +128,7 @@ public:
             edm::LogWarning("EcalBoundaryInfoCalculator") << "ERROR - RecHit belongs to wrong sub detector";
         }
 
-        if (stati.size() > 0)
+        if (!stati.empty())
             return true;
         return false;
 
