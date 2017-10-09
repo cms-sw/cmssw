@@ -24,12 +24,12 @@ class PreshowerHitMaker : public CaloHitMaker
 		    const LandauFluctuationGenerator* aGenerator,
 	            const RandomEngineAndDistribution* engine);
 
-  ~PreshowerHitMaker() {;} 
+  ~PreshowerHitMaker() override {;} 
   
-  inline void setSpotEnergy(double e) { spotEnergy=e;} 
-  bool addHit(double r, double phi, unsigned layer=0);
+  inline void setSpotEnergy(double e) override { spotEnergy=e;} 
+  bool addHit(double r, double phi, unsigned layer=0) override;
 
-  const std::map<CaloHitID,float>& getHits() { return hitMap_ ;} ;
+  const std::map<CaloHitID,float>& getHits() override { return hitMap_ ;} ;
  // for tuning
   inline void setMipEnergy(double e1, double e2) { mip1_=e1 ; mip2_=e2;} 
   
