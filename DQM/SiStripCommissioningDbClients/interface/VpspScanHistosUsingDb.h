@@ -23,6 +23,7 @@ class VpspScanHistosUsingDb : public CommissioningHistosUsingDb, public VpspScan
   
   void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis );
   
+  bool allowSelectiveUpload_;    
 };
 
 #endif // DQM_SiStripCommissioningClients_VpspScanHistosUsingDb_H

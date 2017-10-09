@@ -25,6 +25,7 @@ class OptoScanHistosUsingDb : public CommissioningHistosUsingDb, public OptoScan
 
   // parameters
   bool skipGainUpdate_;
+  bool allowSelectiveUpload_;    
 
 };
 
