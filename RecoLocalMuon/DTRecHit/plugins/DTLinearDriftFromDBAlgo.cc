@@ -25,8 +25,8 @@ using namespace edm;
 
 DTLinearDriftFromDBAlgo::DTLinearDriftFromDBAlgo(const ParameterSet& config) :
   DTRecHitBaseAlgo(config),
-  mTimeMap(0),
-  field(0),
+  mTimeMap(nullptr),
+  field(nullptr),
   nominalB(-1),
   minTime(config.getParameter<double>("minTime")),
   maxTime(config.getParameter<double>("maxTime")),

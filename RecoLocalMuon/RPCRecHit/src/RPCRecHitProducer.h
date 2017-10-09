@@ -23,13 +23,13 @@ public:
   RPCRecHitProducer(const edm::ParameterSet& config);
 
   /// Destructor
-  virtual ~RPCRecHitProducer() {};
+  ~RPCRecHitProducer() override {};
 
   // Method that access the EventSetup for each run
-  virtual void beginRun(const edm::Run&, const edm::EventSetup& ) override;
+  void beginRun(const edm::Run&, const edm::EventSetup& ) override;
 
   /// The method which produces the rechits
-  virtual void produce(edm::Event& event, const edm::EventSetup& setup) override;
+  void produce(edm::Event& event, const edm::EventSetup& setup) override;
 
 private:
   // The label to be used to retrieve RPC digis from the event

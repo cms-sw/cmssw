@@ -16,17 +16,17 @@ class ME0RecHitStandardAlgo : public ME0RecHitBaseAlgo {
   ME0RecHitStandardAlgo(const edm::ParameterSet& config);
 
   /// Destructor
-  virtual ~ME0RecHitStandardAlgo();
+  ~ME0RecHitStandardAlgo() override;
 
   // Operations
 
   /// Pass the Event Setup to the algo at each event
-  virtual void setES(const edm::EventSetup& setup);
+  void setES(const edm::EventSetup& setup) override;
 
 
-  virtual bool compute(const ME0DigiPreReco& digi,
+  bool compute(const ME0DigiPreReco& digi,
                        LocalPoint& point,
-                       LocalError& error) const;
+                       LocalError& error) const override;
 
 
 };
