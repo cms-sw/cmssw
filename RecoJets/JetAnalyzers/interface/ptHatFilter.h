@@ -9,10 +9,10 @@ class ptHatFilter : public edm::EDFilter
    {
      public:
        ptHatFilter(const edm::ParameterSet&);
-       virtual ~ptHatFilter();
-       virtual void beginJob();
-       virtual bool filter(edm::Event& e, edm::EventSetup const& iSetup);
-       virtual void endJob();       
+       ~ptHatFilter() override;
+       void beginJob() override;
+       bool filter(edm::Event& e, edm::EventSetup const& iSetup) override;
+       void endJob() override;       
      private:
        double ptHatLowerCut;
        double ptHatUpperCut;

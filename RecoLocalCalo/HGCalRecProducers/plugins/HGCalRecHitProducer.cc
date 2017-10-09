@@ -29,8 +29,8 @@ class HGCalRecHitProducer : public edm::stream::EDProducer<> {
   
  public:
   explicit HGCalRecHitProducer(const edm::ParameterSet& ps);
-  ~HGCalRecHitProducer();
-  virtual void produce(edm::Event& evt, const edm::EventSetup& es);
+  ~HGCalRecHitProducer() override;
+  void produce(edm::Event& evt, const edm::EventSetup& es) override;
   
  private:
   
@@ -70,9 +70,9 @@ HGCalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   Handle< HGChefUncalibratedRecHitCollection > pHGChefUncalibRecHits;
   Handle< HGChebUncalibratedRecHitCollection > pHGChebUncalibRecHits;
   
-  const HGCeeUncalibratedRecHitCollection*  eeUncalibRecHits = 0;
-  const HGChefUncalibratedRecHitCollection*  hefUncalibRecHits = 0; 
-  const HGChebUncalibratedRecHitCollection*  hebUncalibRecHits = 0; 
+  const HGCeeUncalibratedRecHitCollection*  eeUncalibRecHits = nullptr;
+  const HGChefUncalibratedRecHitCollection*  hefUncalibRecHits = nullptr; 
+  const HGChebUncalibratedRecHitCollection*  hebUncalibRecHits = nullptr; 
 
   // get the HGC uncalib rechit collection
   evt.getByToken( eeUncalibRecHitCollection_, pHGCeeUncalibRecHits);

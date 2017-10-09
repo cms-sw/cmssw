@@ -21,7 +21,7 @@ class EcalClusterCrackCorrectionBaseClass : public EcalClusterFunctionBaseClass 
         public:
                 EcalClusterCrackCorrectionBaseClass();
                 EcalClusterCrackCorrectionBaseClass( const edm::ParameterSet & ) {};
-                virtual ~EcalClusterCrackCorrectionBaseClass();
+                ~EcalClusterCrackCorrectionBaseClass() override;
 
                 // get/set explicit methods for parameters
                 const EcalClusterCrackCorrParameters * getParameters() const { return params_; }
@@ -29,12 +29,12 @@ class EcalClusterCrackCorrectionBaseClass : public EcalClusterFunctionBaseClass 
                 void checkInit() const;
                 
                 // compute the correction
-                virtual float getValue( const reco::BasicCluster &, const EcalRecHitCollection & ) const = 0;
-                virtual float getValue( const reco::SuperCluster &, const int mode ) const = 0;
+                float getValue( const reco::BasicCluster &, const EcalRecHitCollection & ) const override = 0;
+                float getValue( const reco::SuperCluster &, const int mode ) const override = 0;
 		
-		virtual float getValue( const reco::CaloCluster &) const{return 0;};
+		float getValue( const reco::CaloCluster &) const override{return 0;};
                 // set parameters
-                virtual void init( const edm::EventSetup& es );
+                void init( const edm::EventSetup& es ) override;
 
         protected:
                 edm::ESHandle<EcalClusterCrackCorrParameters> esParams_;

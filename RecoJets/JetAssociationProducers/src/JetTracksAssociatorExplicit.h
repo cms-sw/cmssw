@@ -19,9 +19,9 @@
 class JetTracksAssociatorExplicit : public edm::stream::EDProducer<> {
    public:
       JetTracksAssociatorExplicit(const edm::ParameterSet&);
-      virtual ~JetTracksAssociatorExplicit();
+      ~JetTracksAssociatorExplicit() override;
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
    private:
      edm::EDGetTokenT<edm::View <reco::Jet>> mJets;

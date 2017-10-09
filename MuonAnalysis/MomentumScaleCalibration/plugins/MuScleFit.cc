@@ -192,21 +192,21 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase
 
   // Destructor
   // ----------
-  virtual ~MuScleFit();
+  ~MuScleFit() override;
 
   // Operations
   // ----------
   void beginOfJobInConstructor();
   // void beginOfJob( const edm::EventSetup& eventSetup );
   // virtual void beginOfJob();
-  virtual void endOfJob() override;
+  void endOfJob() override;
 
-  virtual void startingNewLoop( unsigned int iLoop ) override;
+  void startingNewLoop( unsigned int iLoop ) override;
 
-  virtual edm::EDLooper::Status endOfLoop( const edm::EventSetup& eventSetup, unsigned int iLoop ) override;
+  edm::EDLooper::Status endOfLoop( const edm::EventSetup& eventSetup, unsigned int iLoop ) override;
   virtual void endOfFastLoop( const unsigned int iLoop );
 
-  virtual edm::EDLooper::Status duringLoop( const edm::Event & event, const edm::EventSetup& eventSetup ) override;
+  edm::EDLooper::Status duringLoop( const edm::Event & event, const edm::EventSetup& eventSetup ) override;
   /**
    * This method performs all needed operations on the muon pair. It reads the muons from SavedPair and uses the iev
    * counter to keep track of the event number. The iev is incremented internally and reset to 0 in startingNewLoop.
@@ -616,7 +616,7 @@ MuScleFit::~MuScleFit () {
 	    std::cout<<"  muon2 = "<<it->mu2<<std::endl;
 	  }
 	}
-        rootTreeHandler.writeTree(outputRootTreeFileName_, &(muonPairs_), theMuonType_, 0, saveAllToTree_);
+        rootTreeHandler.writeTree(outputRootTreeFileName_, &(muonPairs_), theMuonType_, nullptr, saveAllToTree_);
       }
       else {
         // rootTreeHandler.writeTree(outputRootTreeFileName_, &(MuScleFitUtils::SavedPair), theMuonType_, &(MuScleFitUtils::genPair), saveAllToTree_ );
@@ -796,10 +796,10 @@ edm::EDLooper::Status MuScleFit::duringLoop( const edm::Event & event, const edm
     hltConfig.init(event.getRun(), eventSetup, triggerResultsProcess_, changed);
 
 
-    const edm::TriggerNames triggerNames = event.triggerNames(*triggerResults);
+    const edm::TriggerNames& triggerNames = event.triggerNames(*triggerResults);
 
     for (unsigned i=0; i<triggerNames.size(); i++) {
-      std::string hltName = triggerNames.triggerName(i);
+      const std::string& hltName = triggerNames.triggerName(i);
 
       // match the path in the pset with the true name of the trigger
       for ( unsigned int ipath=0; ipath<triggerPath_.size(); ipath++ ) {
@@ -1430,7 +1430,7 @@ void MuScleFit::checkParameters() {
       (MuScleFitUtils::SmearType==4 && MuScleFitUtils::parSmear.size()!=6) ||
       (MuScleFitUtils::SmearType==5 && MuScleFitUtils::parSmear.size()!=7) ||
       (MuScleFitUtils::SmearType==6 && MuScleFitUtils::parSmear.size()!=16) ||
-      (MuScleFitUtils::SmearType==7 && MuScleFitUtils::parSmear.size()!=0) ||
+      (MuScleFitUtils::SmearType==7 && !MuScleFitUtils::parSmear.empty()) ||
       MuScleFitUtils::SmearType<0 || MuScleFitUtils::SmearType>7) {
     std::cout << "[MuScleFit-Constructor]: Wrong smear type or number of parameters: aborting!" << std::endl;
     abort();

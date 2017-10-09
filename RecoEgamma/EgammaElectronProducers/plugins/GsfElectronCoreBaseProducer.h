@@ -35,7 +35,7 @@ class GsfElectronCoreBaseProducer : public edm::stream::EDProducer<>
     static void fillDescription( edm::ParameterSetDescription & ) ;
 
     explicit GsfElectronCoreBaseProducer( const edm::ParameterSet & conf ) ;
-    virtual ~GsfElectronCoreBaseProducer() ;
+    ~GsfElectronCoreBaseProducer() override ;
 
 
   protected:

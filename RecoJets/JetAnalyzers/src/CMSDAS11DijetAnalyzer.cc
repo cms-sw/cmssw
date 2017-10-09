@@ -98,7 +98,7 @@ void CMSDAS11DijetAnalyzer::analyze( const edm::Event& iEvent, const edm::EventS
   }
   
   // require in the event that there is at least one reconstructed vertex
-  if(vertices_h->size()<=0) return;
+  if(vertices_h->empty()) return;
 
   // pick the first (i.e. highest sum pt) verte
   const reco::Vertex* theVertex=&(vertices_h->front());

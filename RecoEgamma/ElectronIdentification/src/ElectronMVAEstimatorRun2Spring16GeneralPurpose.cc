@@ -132,7 +132,7 @@ int ElectronMVAEstimatorRun2Spring16GeneralPurpose::findCategory( const edm::Ptr
   // Try to cast the particle into a reco particle.
   // This should work for both reco and pat.
   const edm::Ptr<reco::GsfElectron> eleRecoPtr = ( edm::Ptr<reco::GsfElectron> )particle;
-  if( eleRecoPtr.get() == NULL )
+  if( eleRecoPtr.get() == nullptr )
     throw cms::Exception("MVA failure: ")
       << " given particle is expected to be reco::GsfElectron or pat::Electron," << std::endl
       << " but appears to be neither" << std::endl;
@@ -264,7 +264,7 @@ fillMVAVariables(const edm::Ptr<reco::Candidate>& particle,
   // Try to cast the particle into a reco particle.
   // This should work for both reco and pat.
   const edm::Ptr<reco::GsfElectron> eleRecoPtr = ( edm::Ptr<reco::GsfElectron> )particle;
-  if( eleRecoPtr.get() == NULL )
+  if( eleRecoPtr.get() == nullptr )
     throw cms::Exception("MVA failure: ")
       << " given particle is expected to be reco::GsfElectron or pat::Electron," << std::endl
       << " but appears to be neither" << std::endl;
@@ -302,7 +302,7 @@ fillMVAVariables(const reco::GsfElectron* eleRecoPtr,
   const pat::Electron * elePatPtr = dynamic_cast<const pat::Electron *>(eleRecoPtr);
   // Check if this is really a pat::Electron, and if yes, get the track ref from this new
   // pointer instead
-  if( elePatPtr != NULL )
+  if( elePatPtr != nullptr )
     myTrackRef = elePatPtr->closestCtfTrackRef();
   validKF = (myTrackRef.isAvailable() && (myTrackRef.isNonnull()) );  
 

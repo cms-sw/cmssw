@@ -17,11 +17,11 @@ template<class C> class EcalUncalibRecHitMaxSampleAlgo : public EcalUncalibRecHi
   
  public:
   
-  virtual ~EcalUncalibRecHitMaxSampleAlgo<C>() { };
-  virtual EcalUncalibratedRecHit makeRecHit(const C& dataFrame, const double* pedestals,
+  ~EcalUncalibRecHitMaxSampleAlgo<C>() override { };
+  EcalUncalibratedRecHit makeRecHit(const C& dataFrame, const double* pedestals,
 					    const double* gainRatios,
 					    const EcalWeightSet::EcalWeightMatrix** weights,
-                                            const EcalWeightSet::EcalChi2WeightMatrix** chi2Matrix);
+                                            const EcalWeightSet::EcalChi2WeightMatrix** chi2Matrix) override;
 
  private:
   int16_t  amplitude_,  pedestal_, jitter_, sampleAdc_, gainId_;

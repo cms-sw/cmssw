@@ -24,10 +24,10 @@ class EcalRecHitWorkerSimple : public EcalRecHitWorkerBaseClass {
         public:
                 EcalRecHitWorkerSimple(const edm::ParameterSet&, edm::ConsumesCollector& c);
 				EcalRecHitWorkerSimple(const edm::ParameterSet&);
-                virtual ~EcalRecHitWorkerSimple();                       
+                ~EcalRecHitWorkerSimple() override;                       
         
-                void set(const edm::EventSetup& es);
-                bool run(const edm::Event& evt, const EcalUncalibratedRecHit& uncalibRH, EcalRecHitCollection & result);
+                void set(const edm::EventSetup& es) override;
+                bool run(const edm::Event& evt, const EcalUncalibratedRecHit& uncalibRH, EcalRecHitCollection & result) override;
 
 
 

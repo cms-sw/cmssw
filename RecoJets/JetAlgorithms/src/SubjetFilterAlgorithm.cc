@@ -68,8 +68,8 @@ SubjetFilterAlgorithm::SubjetFilterAlgorithm(const std::string& moduleLabel,
   , nevents_(0)
   , ntotal_(0)
   , nfound_(0)
-  , fjJetDef_(0)
-  , fjAreaDef_(0)
+  , fjJetDef_(nullptr)
+  , fjAreaDef_(nullptr)
 {
   // FASTJET JET DEFINITION
   if (jetAlgorithm=="CambridgeAachen"||jetAlgorithm_=="ca")
@@ -95,8 +95,8 @@ SubjetFilterAlgorithm::SubjetFilterAlgorithm(const std::string& moduleLabel,
 //______________________________________________________________________________
 SubjetFilterAlgorithm::~SubjetFilterAlgorithm()
 {
-  if (0!=fjJetDef_)  delete fjJetDef_;
-  if (0!=fjAreaDef_) delete fjAreaDef_;
+  if (nullptr!=fjJetDef_)  delete fjJetDef_;
+  if (nullptr!=fjAreaDef_) delete fjAreaDef_;
 }
   
 
@@ -205,7 +205,7 @@ void SubjetFilterAlgorithm::run(const std::vector<fastjet::PseudoJet>& fjInputs,
 	  double subJetArea=(doAreaFastjet_) ?
 	    ((fastjet::ClusterSequenceArea*)cs)->area(fjSubJets[iSub]) : 0.0;
 	  
-	  if (iSub<2||constituents.size()>0)
+	  if (iSub<2||!constituents.empty())
 	    subJets.push_back(CompoundPseudoSubJet(fjSubJets[iSub],
 						   subJetArea,
 						   constituents));

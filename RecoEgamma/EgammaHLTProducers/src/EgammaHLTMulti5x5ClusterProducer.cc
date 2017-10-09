@@ -260,7 +260,7 @@ const EcalRecHitCollection * EgammaHLTMulti5x5ClusterProducer::getCollection(edm
     {
       std::cout << "could not get a handle on the EcalRecHitCollection!" << std::endl;
       edm::LogError("EgammaHLTMulti5x5ClusterProducerError") << "Error! can't get the product ";
-      return 0;
+      return nullptr;
     } 
   return rhcHandle.product();
 }
