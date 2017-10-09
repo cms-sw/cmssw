@@ -16,8 +16,8 @@ void IOPrinter::run(edm::Handle<L1MuDTChambPhContainer> inphiDigis, L1MuDTChambP
 
     cout<<"======================================================"<<endl;
     int bx=0, wheel=0, sector=0, station=1;
-  L1MuDTChambPhDigi const* dtts1=0;
-  L1MuDTChambPhDigi const* dtts2=0;
+  L1MuDTChambPhDigi const* dtts1=nullptr;
+  L1MuDTChambPhDigi const* dtts2=nullptr;
 
   ///Align track segments that are coming in bx-1.
   cout<<"DT Inputs/RPCDT Inputs"<<endl;
@@ -28,7 +28,7 @@ void IOPrinter::run(edm::Handle<L1MuDTChambPhContainer> inphiDigis, L1MuDTChambP
       for (sector=0;sector<12; sector++ ){
         for (station=1; station<=4; station++){
 
-          dtts1=0; dtts2=0;
+          dtts1=nullptr; dtts2=nullptr;
           dtts1 = inphiDigis->chPhiSegm1(wheel,station,sector,bx);
           dtts2 = inphiDigis->chPhiSegm2(wheel,station,sector,bx - 1 );
           if(dtts1 && dtts1->code()!=7) {
@@ -66,8 +66,8 @@ void IOPrinter::run(edm::Handle<L1MuDTChambPhContainer> inphiDigis, L1MuDTChambP
 
   cout<<"TwinMux Output"<<endl;
   cout<<"bx\twheel\tsector\tstation\tphi\tphib\tcode\tts2tag\tbxcnt\trpcbit"<<endl;
-  dtts1=0;
-  dtts2=0;
+  dtts1=nullptr;
+  dtts2=nullptr;
 
 
   for(bx=-2; bx<=2; bx++){
@@ -75,7 +75,7 @@ void IOPrinter::run(edm::Handle<L1MuDTChambPhContainer> inphiDigis, L1MuDTChambP
       for (sector=0;sector<12; sector++ ){
         for (station=1; station<=4; station++){
 
-          dtts1=0; dtts2=0;
+          dtts1=nullptr; dtts2=nullptr;
 
           dtts1 = outphiDigis.chPhiSegm1(wheel,station,sector,bx);
           dtts2 = outphiDigis.chPhiSegm2(wheel,station,sector,bx - 1 );
@@ -101,9 +101,9 @@ void IOPrinter::run(L1MuDTChambPhContainer* inphiDigis,L1MuDTChambPhContainer ou
 
   cout<<"======================================================"<<endl;
   int bx=0, wheel=0, sector=0, station=1;
-  L1MuDTChambPhDigi const* dtts1=0;
-  L1MuDTChambPhDigi const* dtts2=0;
-  L1MuTMChambPhContainer * inphiDigis_tm=0;
+  L1MuDTChambPhDigi const* dtts1=nullptr;
+  L1MuDTChambPhDigi const* dtts2=nullptr;
+  L1MuTMChambPhContainer * inphiDigis_tm=nullptr;
   const std::vector<L1MuDTChambPhDigi> * vInCon=inphiDigis->getContainer();
   inphiDigis_tm->setContainer(*vInCon);
 
@@ -118,7 +118,7 @@ void IOPrinter::run(L1MuDTChambPhContainer* inphiDigis,L1MuDTChambPhContainer ou
         for (station=1; station<=4; station++){
           int nhits = DTRPCBxCorrection::noRPCHits(*inphiDigis, bx, wheel, sector, station);
           for(int hit=0; hit<nhits; hit++){
-            dtts1=0;
+            dtts1=nullptr;
             dtts1 = inphiDigis_tm->chPhiSegm(wheel,station,sector,bx,hit);
             if(dtts1) {
               cout<<dtts1->bxNum()<<"\t"<<dtts1->whNum()<<"\t"<<dtts1->scNum()<<"\t"<<dtts1->stNum()<<"\t"<<dtts1->phi()<<"\t"<<dtts1->phiB()<<"\t"<<dtts1->code()<<"\t"<<dtts1->Ts2Tag()<<"\t"<<dtts1->BxCnt()<<"\t0"<<endl;
@@ -151,8 +151,8 @@ void IOPrinter::run(L1MuDTChambPhContainer* inphiDigis,L1MuDTChambPhContainer ou
 
   cout<<"TwinMux Output"<<endl;
   cout<<"bx\twheel\tsector\tstation\tphi\tphib\tcode\tts2tag\tbxcnt\trpcbit"<<endl;
-  dtts1=0;
-  dtts2=0;
+  dtts1=nullptr;
+  dtts2=nullptr;
 
 
   for(bx=-2; bx<=2; bx++){
@@ -160,7 +160,7 @@ void IOPrinter::run(L1MuDTChambPhContainer* inphiDigis,L1MuDTChambPhContainer ou
       for (sector=0;sector<12; sector++ ){
         for (station=1; station<=4; station++){
 
-          dtts1=0; dtts2=0;
+          dtts1=nullptr; dtts2=nullptr;
 
           dtts1 = outphiDigis.chPhiSegm1(wheel,station,sector,bx);
           dtts2 = outphiDigis.chPhiSegm2(wheel,station,sector,bx - 1 );

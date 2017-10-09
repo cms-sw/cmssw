@@ -41,9 +41,9 @@ void DTRPCBxCorrection::run( const edm::EventSetup& c) {
 
 void DTRPCBxCorrection::BxCorrection(int track_seg){
 
-  L1MuDTChambPhDigi * dtts=0;
-  L1MuDTChambPhDigi * dttsnew=0;
-  L1MuDTChambPhDigi * rpcts1=0;
+  L1MuDTChambPhDigi * dtts=nullptr;
+  L1MuDTChambPhDigi * dttsnew=nullptr;
+  L1MuDTChambPhDigi * rpcts1=nullptr;
   
   auto m_phiDTDigis_tm=std::make_shared<L1MuTMChambPhContainer>();
   //std::shared_ptr<L1MuTMChambPhContainer> m_phiDTDigis_tm (new L1MuTMChambPhContainer);
@@ -67,11 +67,11 @@ void DTRPCBxCorrection::BxCorrection(int track_seg){
        bool dups[7] = {false, false, false, false,false, false, false};
        bool secondTs[7] = {false, false, false, false,false, false, false};
        L1MuTMChambPhContainer shiftedPhiDTDigis;
-       L1MuDTChambPhDigi *dtts_sh2nd = 0;
+       L1MuDTChambPhDigi *dtts_sh2nd = nullptr;
        for(bx=3; bx>=-3; bx--){
          vector<int> delta_m, delta_p, delta_0;
          for(int rpcbx=bx-1; rpcbx<=bx+1; rpcbx++){
-           dtts=0; rpcts1=0; dttsnew = 0;
+           dtts=nullptr; rpcts1=nullptr; dttsnew = nullptr;
            dtts = m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx ,track_seg);
 
            if(!dtts ) continue;
@@ -100,18 +100,18 @@ void DTRPCBxCorrection::BxCorrection(int track_seg){
     ///Concatanate all vectors in one
     vector<int> delta = concat_delta(delta_0, delta_p, delta_m);
     ///Shift primitives if vector>0
-    if(delta.size() != 0){
-       L1MuDTChambPhDigi *dtts_sh = 0;
+    if(!delta.empty()){
+       L1MuDTChambPhDigi *dtts_sh = nullptr;
        std::vector<L1MuDTChambPhDigi> l1ttma_outsh;
        //Find the pair the min dphi(rpc,dt)
        unsigned int min_index = std::distance(delta.begin(), std::min_element(delta.begin(), delta.end())) + 0;
        int init_bx = 0, final_bx = 0;
 
-       if ( ((delta_0.size() <= min_index) && ( min_index < (delta_0.size() + delta_p.size()) ) && delta_p.size()!=0 ) ) {
+       if ( ((delta_0.size() <= min_index) && ( min_index < (delta_0.size() + delta_p.size()) ) && !delta_p.empty() ) ) {
            init_bx = ibx_dtp;
            final_bx = fbx_dtp;
            }
-       else if ( (delta_0.size() + delta_p.size()) <= min_index  && delta_m.size()!=0  ) {
+       else if ( (delta_0.size() + delta_p.size()) <= min_index  && !delta_m.empty()  ) {
            init_bx = ibx_dtm;
            final_bx = fbx_dtm;
           }
@@ -147,7 +147,7 @@ void DTRPCBxCorrection::BxCorrection(int track_seg){
  }//end of bx
 
        for(int bx=-3; bx<=3; bx++){
-         L1MuDTChambPhDigi * dtts=0;
+         L1MuDTChambPhDigi * dtts=nullptr;
          if(secondTs[bx+3] ) 
            if(dtts_sh2nd) {m_l1ttma_out.push_back(*dtts_sh2nd); }
          dtts = shiftedPhiDTDigis.chPhiSegm(wheel,station,sector,bx,track_seg);

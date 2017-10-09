@@ -95,9 +95,9 @@ edm::Handle<L1MuDTChambThContainer> thetaDigis, edm::Handle<RPCDigiCollection> r
 
   ///Add RPC primitives in case that there are no DT primitives.
   std::vector<L1MuDTChambPhDigi> l1ttma_out;
-  L1MuDTChambPhDigi const* dtts1=0;
-  L1MuDTChambPhDigi const* dtts2=0;
-  L1MuDTChambPhDigi const* rpcts1=0;
+  L1MuDTChambPhDigi const* dtts1=nullptr;
+  L1MuDTChambPhDigi const* dtts2=nullptr;
+  L1MuDTChambPhDigi const* rpcts1=nullptr;
 
   int bx=0, wheel=0, sector=0, station=1;
 
@@ -106,7 +106,7 @@ edm::Handle<L1MuDTChambThContainer> thetaDigis, edm::Handle<RPCDigiCollection> r
       for (sector=0;sector<12; sector++ ){
         for (station=1; station<=4; station++){
 
-           dtts1=0; dtts2=0; rpcts1=0;
+           dtts1=nullptr; dtts2=nullptr; rpcts1=nullptr;
 
            dtts1 = phiDigiscp.chPhiSegm1(wheel,station,sector,bx);
            dtts2 = phiDigiscp.chPhiSegm2(wheel,station,sector,bx);

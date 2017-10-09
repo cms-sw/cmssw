@@ -28,7 +28,7 @@ typedef std::map<short, short, std::less<short> > LUT;
 class L1TTwinMuxParamsESProducer : public edm::ESProducer {
    public:
       L1TTwinMuxParamsESProducer(const edm::ParameterSet&);
-      ~L1TTwinMuxParamsESProducer();
+      ~L1TTwinMuxParamsESProducer() override;
 
       typedef std::shared_ptr<L1TTwinMuxParams> ReturnType;
 

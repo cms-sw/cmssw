@@ -28,8 +28,8 @@ void AlignTrackSegments::run( const edm::EventSetup& c) {
 
   std::vector<L1MuDTChambPhDigi> l1ttma_out;
 
- L1MuDTChambPhDigi const* ts1=0;
- L1MuDTChambPhDigi const* ts2=0;
+ L1MuDTChambPhDigi const* ts1=nullptr;
+ L1MuDTChambPhDigi const* ts2=nullptr;
 //  std::auto_ptr<const L1MuDTChambPhDigi> ts1(new L1MuDTChambPhDigi);
  // std::unique_ptr<L1MuDTChambPhDigi> ts2(new L1MuDTChambPhDigi);
 
@@ -40,7 +40,7 @@ void AlignTrackSegments::run( const edm::EventSetup& c) {
    for (wheel=-3;wheel<=3; wheel++ ){
     for (sector=0;sector<12; sector++ ){
      for (station=1; station<=4; station++){
-        ts1=0; ts2=0;
+        ts1=nullptr; ts2=nullptr;
         ///chPhiSegm1 reads the first ts from bx
         ts1=m_phiDigis.chPhiSegm1(wheel,station,sector,bx);
         ///chPhiSegm2 reads the second ts from bx-1

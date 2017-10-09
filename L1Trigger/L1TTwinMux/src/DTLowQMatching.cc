@@ -39,8 +39,8 @@ void DTLowQMatching::run( const edm::EventSetup& c) {
 
 void DTLowQMatching::Matching(int track_seg){
 
-  L1MuDTChambPhDigi * dtts=0;
-  L1MuDTChambPhDigi * rpcts1=0;
+  L1MuDTChambPhDigi * dtts=nullptr;
+  L1MuDTChambPhDigi * rpcts1=nullptr;
   auto m_phiRPCDigis_tm=std::make_shared<L1MuTMChambPhContainer>();
   const std::vector<L1MuDTChambPhDigi> *phiChambVector;
   phiChambVector=m_phiRPCDigis.getContainer(); 
@@ -60,7 +60,7 @@ void DTLowQMatching::Matching(int track_seg){
          vector<int> delta_m, delta_p, delta_0;
          int matched = 0;
          for(int rpcbx=bx-1; rpcbx<=bx+1; rpcbx++){
-            dtts=0; rpcts1=0; 
+            dtts=nullptr; rpcts1=nullptr; 
             dtts = m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx ,track_seg);
             if(!dtts || dtts->code()>=2) continue;
             int nhits = 0;    
