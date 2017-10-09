@@ -30,6 +30,10 @@ class HGCalShowerShape{
     float sigmaPhiPhiTot(const l1t::HGCalCluster& c2d) const;       
     float sigmaPhiPhiMax(const l1t::HGCalMulticluster& c3d) const;   
 
+    float sigmaRRTot(const l1t::HGCalMulticluster& c3d) const;
+    float sigmaRRTot(const l1t::HGCalCluster& c2d) const;       
+    float sigmaRRMax(const l1t::HGCalMulticluster& c3d) const;  
+
     private: 
     
     float meanX(const std::vector<pair<float,float> >& energy_X_tc) const;
