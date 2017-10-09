@@ -11,7 +11,7 @@ namespace l1t {
       class BMTFPackerOutput : public Packer 
       {
          public:
-            virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
+            Blocks pack(const edm::Event&, const PackerTokens*) override;
          private:
             std::map<unsigned int, std::vector<uint32_t> > payloadMap_;
             
