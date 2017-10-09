@@ -67,7 +67,7 @@ FWSimpleProxyHelper::FWSimpleProxyHelper(const std::type_info& iType) :
 void
 FWSimpleProxyHelper::itemChanged(const FWEventItem* iItem)
 {
-   if(nullptr!=iItem) {
+   if(0!=iItem) {
       edm::TypeWithDict baseType(*m_itemType);
       edm::TypeWithDict mostDerivedType(*(iItem->modelType()->GetTypeInfo()));
       // The - sign is there because this is the address of a derived object minus the address of the base object.

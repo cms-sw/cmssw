@@ -82,15 +82,15 @@ namespace cms
 
     HTTTopJetProducer(const edm::ParameterSet& ps);
 
-    ~HTTTopJetProducer() override {}
+    virtual ~HTTTopJetProducer() {}
 
-    void produce( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
+    virtual void produce( edm::Event& iEvent, const edm::EventSetup& iSetup );
 
-    void runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
+    virtual void runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup );
 
-    void addHTTTopJetTagInfoCollection( edm::Event& iEvent, 
+    virtual void addHTTTopJetTagInfoCollection( edm::Event& iEvent, 
 						const edm::EventSetup& iSetup,
-						edm::OrphanHandle<reco::BasicJetCollection> & oh) override;
+						edm::OrphanHandle<reco::BasicJetCollection> & oh);
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

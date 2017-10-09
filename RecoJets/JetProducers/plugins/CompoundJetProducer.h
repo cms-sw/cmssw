@@ -44,7 +44,7 @@ namespace cms
 
     CompoundJetProducer(const edm::ParameterSet& ps);
 
-    ~CompoundJetProducer() override {}
+    virtual ~CompoundJetProducer() {}
     
   protected:
     std::vector<CompoundPseudoJet> fjCompoundJets_; /// compound fastjet::PseudoJets
@@ -53,11 +53,11 @@ namespace cms
 
     // overridden inputTowers method. Resets fjCompoundJets_ and 
     // calls VirtualJetProducer::inputTowers
-    void inputTowers() override;
+    virtual void inputTowers();
 
     /// Overridden output method. For the compound jet producer, this will
     /// call the "writeCompoundJets" function template. 
-    void output( edm::Event & iEvent, edm::EventSetup const& iSetup ) override;
+    virtual void output( edm::Event & iEvent, edm::EventSetup const& iSetup );
     template< typename T >
     void writeCompoundJets( edm::Event & iEvent, edm::EventSetup const& iSetup);
 

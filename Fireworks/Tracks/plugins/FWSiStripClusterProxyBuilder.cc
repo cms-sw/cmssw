@@ -18,26 +18,26 @@ class FWSiStripClusterProxyBuilder : public FWProxyBuilderBase
 {
 public:
     FWSiStripClusterProxyBuilder( void );
-    ~FWSiStripClusterProxyBuilder( void ) override;
+    virtual ~FWSiStripClusterProxyBuilder( void );
 
    REGISTER_PROXYBUILDER_METHODS();
 
     //    virtual void cleanLocal();
-   void itemBeingDestroyed(const FWEventItem*) override;
+   virtual void itemBeingDestroyed(const FWEventItem*) override;
 
 protected:
    using FWProxyBuilderBase::build;
-   void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
-   void localModelChanges( const FWModelId& iId, TEveElement* iCompound,
+   virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
+   virtual void localModelChanges( const FWModelId& iId, TEveElement* iCompound,
 				   FWViewType::EType viewType, const FWViewContext* vc ) override;
 private:
-   FWSiStripClusterProxyBuilder( const FWSiStripClusterProxyBuilder& ) = delete;
-   const FWSiStripClusterProxyBuilder& operator=( const FWSiStripClusterProxyBuilder& ) = delete;
+   FWSiStripClusterProxyBuilder( const FWSiStripClusterProxyBuilder& );
+   const FWSiStripClusterProxyBuilder& operator=( const FWSiStripClusterProxyBuilder& );
 
    TEveElementList* m_shapeList;            
 };
 
-FWSiStripClusterProxyBuilder::FWSiStripClusterProxyBuilder() : m_shapeList(nullptr)
+FWSiStripClusterProxyBuilder::FWSiStripClusterProxyBuilder() : m_shapeList(0)
 {
 
     m_shapeList = new TEveElementList("shapePool"); 
@@ -59,9 +59,9 @@ FWSiStripClusterProxyBuilder::itemBeingDestroyed(const FWEventItem* iItem)
 void
 FWSiStripClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* )
 {
-   const edmNew::DetSetVector<SiStripCluster>* clusters = nullptr;
+   const edmNew::DetSetVector<SiStripCluster>* clusters = 0;
    iItem->get( clusters );
-   if( nullptr == clusters ) return;
+   if( 0 == clusters ) return;
    int cntEl = 0;
 
    for (TEveElement::List_i ei = product->BeginChildren(); ei != product->EndChildren(); ++ei) {
@@ -100,8 +100,8 @@ FWSiStripClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementList* 
 
       for( edmNew::DetSet<SiStripCluster>::const_iterator ic = set->begin (), icEnd = set->end (); ic != icEnd; ++ic ) 
       {
-          TEveCompound* itemHolder = nullptr;
-          TEveLine* line = nullptr;
+          TEveCompound* itemHolder = 0;
+          TEveLine* line = 0;
 
           if (cntEl < product->NumChildren())
           {

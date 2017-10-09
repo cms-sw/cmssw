@@ -44,11 +44,11 @@
 class EcalPedestalHistory : public edm::EDAnalyzer {
  public:
   explicit EcalPedestalHistory( const edm::ParameterSet& );
-  ~EcalPedestalHistory() override;
-  void analyze( const edm::Event&, const edm::EventSetup& ) override;
-  void beginRun(edm::Run const &, edm::EventSetup const &) override;
-  void beginJob() override;
-  void endJob() override;
+  ~EcalPedestalHistory();
+  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  virtual void beginRun(edm::Run const &, edm::EventSetup const &);
+  virtual void beginJob();
+  virtual void endJob();
   EcalCondDBInterface* econn;
 
   enum { kChannels = 75848, kEBChannels = 61200, kEEChannels = 14648};

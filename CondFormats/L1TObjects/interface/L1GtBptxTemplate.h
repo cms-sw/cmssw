@@ -54,7 +54,7 @@ public:
     L1GtBptxTemplate(const L1GtBptxTemplate&);
 
     // destructor
-    ~L1GtBptxTemplate() override;
+    virtual ~L1GtBptxTemplate();
 
     // assign operator
     L1GtBptxTemplate& operator=(const L1GtBptxTemplate&);
@@ -62,7 +62,7 @@ public:
 public:
 
     /// print the condition
-    void print(std::ostream& myCout) const override;
+    virtual void print(std::ostream& myCout) const;
 
     /// output stream operator
     friend std::ostream& operator<<(std::ostream&, const L1GtBptxTemplate&);

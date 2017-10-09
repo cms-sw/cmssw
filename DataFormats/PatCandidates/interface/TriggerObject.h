@@ -76,7 +76,7 @@ namespace pat {
       TriggerObject( const reco::Particle::PolarLorentzVector & vec, int id = 0 );
 
       /// Destructor
-      ~TriggerObject() override {};
+      virtual ~TriggerObject() {};
 
       /// Methods
 
@@ -112,19 +112,19 @@ namespace pat {
       /// Getters specific to the 'l1extra' particle type for
       /// - EM
       const l1extra::L1EmParticleRef origL1EmRef() const;
-      const L1GctEmCand * origL1GctEmCand() const { return origL1EmRef().isNonnull() ? origL1EmRef()->gctEmCand() : nullptr; };
+      const L1GctEmCand * origL1GctEmCand() const { return origL1EmRef().isNonnull() ? origL1EmRef()->gctEmCand() : 0; };
       /// - EtMiss
       const l1extra::L1EtMissParticleRef origL1EtMissRef() const;
-      const L1GctEtMiss  * origL1GctEtMiss()  const { return origL1EtMissRef().isNonnull() ? origL1EtMissRef()->gctEtMiss()  : nullptr; };
-      const L1GctEtTotal * origL1GctEtTotal() const { return origL1EtMissRef().isNonnull() ? origL1EtMissRef()->gctEtTotal() : nullptr; };
-      const L1GctHtMiss  * origL1GctHtMiss()  const { return origL1EtMissRef().isNonnull() ? origL1EtMissRef()->gctHtMiss()  : nullptr; };
-      const L1GctEtHad   * origL1GctEtHad()   const { return origL1EtMissRef().isNonnull() ? origL1EtMissRef()->gctEtHad()   : nullptr; };
+      const L1GctEtMiss  * origL1GctEtMiss()  const { return origL1EtMissRef().isNonnull() ? origL1EtMissRef()->gctEtMiss()  : 0; };
+      const L1GctEtTotal * origL1GctEtTotal() const { return origL1EtMissRef().isNonnull() ? origL1EtMissRef()->gctEtTotal() : 0; };
+      const L1GctHtMiss  * origL1GctHtMiss()  const { return origL1EtMissRef().isNonnull() ? origL1EtMissRef()->gctHtMiss()  : 0; };
+      const L1GctEtHad   * origL1GctEtHad()   const { return origL1EtMissRef().isNonnull() ? origL1EtMissRef()->gctEtHad()   : 0; };
       /// - Jet
       const l1extra::L1JetParticleRef origL1JetRef() const;
-      const L1GctJetCand * origL1GctJetCand() const { return origL1JetRef().isNonnull() ? origL1JetRef()->gctJetCand() : nullptr; };
+      const L1GctJetCand * origL1GctJetCand() const { return origL1JetRef().isNonnull() ? origL1JetRef()->gctJetCand() : 0; };
       /// - Muon
       const l1extra::L1MuonParticleRef origL1MuonRef() const;
-      const L1MuGMTExtendedCand * origL1GmtMuonCand() const { return origL1MuonRef().isNonnull() ? &( origL1MuonRef()->gmtMuonCand() ) : nullptr; };
+      const L1MuGMTExtendedCand * origL1GmtMuonCand() const { return origL1MuonRef().isNonnull() ? &( origL1MuonRef()->gmtMuonCand() ) : 0; };
 
       /// Special methods for the cut string parser
       /// - argument types usable in the cut string parser

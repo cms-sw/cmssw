@@ -48,15 +48,15 @@ namespace DOFs {
 class AlignPCLThresholdsWriter : public edm::one::EDAnalyzer<>  {
    public:
       explicit AlignPCLThresholdsWriter(const edm::ParameterSet&);
-      ~AlignPCLThresholdsWriter() override;
+      ~AlignPCLThresholdsWriter();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
    private:
-      void beginJob() override;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override;
+      virtual void beginJob() override;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override;
       DOFs::dof mapOntoEnum(std::string coord);
 
       // ----------member data ---------------------------

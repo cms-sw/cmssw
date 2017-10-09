@@ -13,7 +13,7 @@
 class  GsfTrajectoryFitterESProducer: public edm::ESProducer{
  public:
   GsfTrajectoryFitterESProducer(const edm::ParameterSet & p);
-  ~GsfTrajectoryFitterESProducer() override; 
+  virtual ~GsfTrajectoryFitterESProducer(); 
   std::shared_ptr<TrajectoryFitter> produce(const TrajectoryFitterRecord &);
  private:
   edm::ParameterSet pset_;

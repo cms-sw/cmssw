@@ -108,7 +108,7 @@ void GsfElectronFull5x5Filler::calculateShowerShape_full5x5( const reco::SuperCl
   DetId seedXtalId = seedCluster.hitsAndFractions()[0].first ;
   int detector = seedXtalId.subdetId() ;
   
-  const EcalRecHitCollection * recHits = nullptr ;
+  const EcalRecHitCollection * recHits = 0 ;
   if (detector==EcalBarrel)
    {
     recHits = _ebRecHits.product() ;

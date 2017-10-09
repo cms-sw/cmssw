@@ -106,7 +106,7 @@ class TriggerSelector {
      * elements to parse them.
      */
     TreeElement(std::string const& inputString, Strings const& tr,
-                TreeElement* parentElement = nullptr);
+                TreeElement* parentElement = NULL);
     ~TreeElement();
 
     /*

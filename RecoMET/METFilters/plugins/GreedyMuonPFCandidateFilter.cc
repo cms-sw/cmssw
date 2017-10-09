@@ -25,12 +25,12 @@
 class GreedyMuonPFCandidateFilter : public edm::EDFilter {
 public:
   explicit GreedyMuonPFCandidateFilter(const edm::ParameterSet&);
-  ~GreedyMuonPFCandidateFilter() override;
+  ~GreedyMuonPFCandidateFilter();
 
 private:
-  void beginJob() override ;
-  bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+  virtual void beginJob() override ;
+  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override ;
 
   const edm::EDGetTokenT<reco::PFCandidateCollection>  tokenPFCandidates_;
       // ----------member data ---------------------------

@@ -13,10 +13,10 @@ class FixedGridRhoProducerFastjet : public edm::stream::EDProducer<> {
 
  public:
   explicit FixedGridRhoProducerFastjet(const edm::ParameterSet& iConfig);
-  ~FixedGridRhoProducerFastjet() override;
+  virtual ~FixedGridRhoProducerFastjet();
 
  private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&);
 
   edm::InputTag pfCandidatesTag_;
   fastjet::GridMedianBackgroundEstimator bge_;

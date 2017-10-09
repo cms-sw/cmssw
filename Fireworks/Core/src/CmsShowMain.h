@@ -60,12 +60,12 @@ class CmsShowMain : public CmsShowMainBase
 {
 public:
    CmsShowMain(int argc, char *argv[]);
-   ~CmsShowMain() override;
+   virtual ~CmsShowMain();
    void resetInitialization();
    void openData();
    void appendData();
    void openDataViaURL();
-   void quit() override;
+   virtual void quit();
    void doExit();
 
    //  void writeConfigurationFile(const std::string& iFileName) const;
@@ -82,7 +82,7 @@ public:
    void fileChangedSlot(const TFile *file);
 
 protected:
-   void eventChangedImp() override;
+   virtual void eventChangedImp();
 
 private:
    CmsShowMain(const CmsShowMain&); // stop default
@@ -94,10 +94,10 @@ private:
    void connectSocket();
    void setLoadedAnyInputFileAfterStartup();
 
-   void autoLoadNewEvent() override;
-   void checkPosition() override;
-   void stopPlaying() override;
-    void checkKeyBindingsOnPLayEventsStateChanged() override;
+   virtual void autoLoadNewEvent();
+   virtual void checkPosition();
+   virtual void stopPlaying();
+    virtual void checkKeyBindingsOnPLayEventsStateChanged();
 
    void reachedEnd();
    void reachedBeginning();

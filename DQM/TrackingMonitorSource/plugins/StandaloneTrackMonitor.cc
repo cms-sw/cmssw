@@ -127,7 +127,7 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker &iBook, edm::Run c
   edm::ParameterSet TrackPtHistoPar = parameters_.getParameter<edm::ParameterSet>("trackPtH");
 
   std::string currentFolder = moduleName_ + "/" + folderName_ ;
-  iBook.setCurrentFolder(currentFolder);
+  iBook.setCurrentFolder(currentFolder.c_str());
 
   // The following are common with the official tool
   if (haveAllHistograms_) {

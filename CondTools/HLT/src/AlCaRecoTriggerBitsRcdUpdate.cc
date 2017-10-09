@@ -32,9 +32,9 @@
 class  AlCaRecoTriggerBitsRcdUpdate : public edm::EDAnalyzer {
 public:
   explicit  AlCaRecoTriggerBitsRcdUpdate(const edm::ParameterSet& cfg);
-  ~AlCaRecoTriggerBitsRcdUpdate() override {}
+  ~AlCaRecoTriggerBitsRcdUpdate() {}
   
-  void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
+  virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
   
 private:
   typedef std::map<std::string, std::string> TriggerMap;

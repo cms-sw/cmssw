@@ -13,15 +13,15 @@ class ESDataCertificationTask: public edm::EDAnalyzer{
  public:
 
   ESDataCertificationTask(const edm::ParameterSet& ps);
-  ~ESDataCertificationTask() override;
+  virtual ~ESDataCertificationTask();
 
  protected:
 
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-  void beginJob(void) override;
-  void endJob(void) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup) override;
-  void endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup) override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void beginJob(void);
+  void endJob(void);
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup);
+  void endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup);
   void reset(void);
   void cleanup(void);
   

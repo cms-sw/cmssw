@@ -1,6 +1,6 @@
 /** \class CastorText2DetIdConverter
 */
-#include <cstdlib>
+#include <stdlib.h>
 #include <iostream>
 #include <iomanip>
 #include <cstdio>

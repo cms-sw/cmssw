@@ -50,11 +50,11 @@ class DumpSimGeometry : public edm::EDAnalyzer
 {
 public:
   explicit DumpSimGeometry(const edm::ParameterSet&);
-  ~DumpSimGeometry() override;
+  ~DumpSimGeometry();
 
 private:
 
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
    std::string m_tag;
    std::string m_outputFileName;

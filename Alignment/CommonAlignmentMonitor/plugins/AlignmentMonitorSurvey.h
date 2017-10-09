@@ -25,11 +25,11 @@ class AlignmentMonitorSurvey:
 
   AlignmentMonitorSurvey(const edm::ParameterSet&);
 	
-  void book() override;
+  virtual void book();
 
-  void event(const edm::Event&,
+  virtual void event(const edm::Event&,
 		     const edm::EventSetup&,
-		     const ConstTrajTrackPairCollection&) override {}
+		     const ConstTrajTrackPairCollection&) {}
 
   private:
   std::vector<std::string> levelNames_;

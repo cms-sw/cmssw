@@ -20,7 +20,7 @@ public:
   explicit MFGrid3D( const GloballyPositioned<float>& vol) : MFGrid(vol) {}
 
 
-  Dimensions dimensions(void) const override {
+  virtual Dimensions dimensions(void) const {
     Dimensions tmp;
     tmp.w = grid_.grida().nodes();
     tmp.h = grid_.gridb().nodes();
@@ -29,17 +29,17 @@ public:
   }
     
   /// Position of node in local frame
-  LocalPoint  nodePosition( int i, int j, int k) const override {
+  virtual LocalPoint  nodePosition( int i, int j, int k) const {
     return fromGridFrame( grid_.grida().node(i), grid_.gridb().node(j), grid_.gridc().node(k));
   }
 
   /// Field value at node
-  LocalVector nodeValue( int i, int j, int k) const override {
+  virtual LocalVector nodeValue( int i, int j, int k) const {
     /// must check range here: FIX ME !!!!
     return MFGrid::LocalVector(grid_( i, j, k));
   }
 
-  Indexes index( const LocalPoint& p) const override {
+  virtual Indexes index( const LocalPoint& p) const {
     Indexes result;
     double a, b, c;
     toGridFrame( p, a, b, c);
@@ -49,7 +49,7 @@ public:
     return result;
   }
 
-  LocalVector valueInTesla( const LocalPoint& p) const override;
+  virtual LocalVector valueInTesla( const LocalPoint& p) const;
 
   /// Interpolated field value at given point; does not check for exceptions
   virtual LocalVector uncheckedValueInTesla( const LocalPoint& p) const = 0;

@@ -39,7 +39,7 @@ using namespace reco;
             /// constructor 
             explicit AnalyticalTrackSelector( const edm::ParameterSet & cfg ) ;
             /// destructor
-            ~AnalyticalTrackSelector() override ;
+            virtual ~AnalyticalTrackSelector() ;
 
         private:
             typedef math::XYZPoint Point;

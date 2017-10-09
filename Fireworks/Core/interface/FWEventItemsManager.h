@@ -46,13 +46,13 @@ class FWEventItemsManager : public FWConfigurable
 public:
    //does not take ownership of the object to which it points but does keep reference
    FWEventItemsManager(FWModelChangeManager*);
-   ~FWEventItemsManager() override;
+   virtual ~FWEventItemsManager();
 
    typedef std::vector<FWEventItem*>::const_iterator const_iterator;
 
    //configuration management interface
-   void addTo(FWConfiguration&) const override;
-   void setFrom(const FWConfiguration&) override;
+   void addTo(FWConfiguration&) const;
+   void setFrom(const FWConfiguration&);
 
    // ---------- const member functions ---------------------
    ///NOTE: iterator is allowed to return a null object for items that have been removed
@@ -64,8 +64,7 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   FWEventItem* add(const FWPhysicsObjectDesc& iItem, const FWConfiguration* pbConf=nullptr,
-                    bool doSetEvent=true);
+   const FWEventItem* add(const FWPhysicsObjectDesc& iItem,  const FWConfiguration* pbConf = 0);
    void clearItems();
 
    void newEvent(const edm::EventBase* iEvent);
@@ -73,15 +72,13 @@ public:
    void setContext(fireworks::Context*);
 
    sigc::signal<void, FWEventItem*> newItem_;
-   sigc::signal<void, const FWEventItem*> removingItem_;
-   sigc::signal<void>               goingToClearItems_;
-
+   sigc::signal<void> goingToClearItems_;
 private:
 
    void removeItem(const FWEventItem*);
-   FWEventItemsManager(const FWEventItemsManager&) = delete;    // stop default
+   FWEventItemsManager(const FWEventItemsManager&);    // stop default
 
-   const FWEventItemsManager& operator=(const FWEventItemsManager&) = delete;    // stop default
+   const FWEventItemsManager& operator=(const FWEventItemsManager&);    // stop default
 
    // ---------- member data --------------------------------
    std::vector<FWEventItem*> m_items;

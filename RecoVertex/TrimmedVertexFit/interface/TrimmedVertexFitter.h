@@ -19,32 +19,32 @@ public:
   TrimmedVertexFitter();
   TrimmedVertexFitter(const edm::ParameterSet & pSet);
 
-  ~TrimmedVertexFitter() override{}
+  virtual ~TrimmedVertexFitter(){}
 
-  CachingVertex<5> vertex(const std::vector<reco::TransientTrack> & tracks) const override;
+  virtual CachingVertex<5> vertex(const std::vector<reco::TransientTrack> & tracks) const;
 
-  CachingVertex<5> vertex(const std::vector<RefCountedVertexTrack> & tracks) const override;
+  virtual CachingVertex<5> vertex(const std::vector<RefCountedVertexTrack> & tracks) const;
   
-  CachingVertex<5> vertex(const std::vector<RefCountedVertexTrack> & tracks,
-      const reco::BeamSpot & spot ) const override;
+  virtual CachingVertex<5> vertex(const std::vector<RefCountedVertexTrack> & tracks,
+      const reco::BeamSpot & spot ) const;
 
-  CachingVertex<5> vertex(const std::vector<reco::TransientTrack> & tracks,
-  			const GlobalPoint& linPoint) const override;
+  virtual CachingVertex<5> vertex(const std::vector<reco::TransientTrack> & tracks,
+  			const GlobalPoint& linPoint) const;
 
-  CachingVertex<5> vertex(const std::vector<reco::TransientTrack> & tracks,
+  virtual CachingVertex<5> vertex(const std::vector<reco::TransientTrack> & tracks,
   			const GlobalPoint& priorPos,
-			const GlobalError& priorError) const override;
+			const GlobalError& priorError) const;
 
-  CachingVertex<5> vertex(const std::vector<RefCountedVertexTrack> & tracks,
+  virtual CachingVertex<5> vertex(const std::vector<RefCountedVertexTrack> & tracks,
 	 		const GlobalPoint& priorPos,
-			const GlobalError& priorError) const override;
+			const GlobalError& priorError) const;
 
-  CachingVertex<5> vertex(const std::vector<reco::TransientTrack> & tracks,
-		const reco::BeamSpot& beamSpot) const override;
+  virtual CachingVertex<5> vertex(const std::vector<reco::TransientTrack> & tracks,
+		const reco::BeamSpot& beamSpot) const;
 
 
    // Clone method
-  TrimmedVertexFitter * clone() const override;
+  TrimmedVertexFitter * clone() const;
 
 
   void setPtCut ( float cut );

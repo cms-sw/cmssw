@@ -38,15 +38,15 @@ namespace pos{
 
     void generateConfiguration(PixelFECConfigInterface* pixelFEC,
 			       PixelNameTranslation* trans,
-			       const PixelMaskBase& pixelMask) const override;
+			       const PixelMaskBase& pixelMask) const;
 
-    void writeBinary(std::string filename) const override;
+    void writeBinary(std::string filename) const;
 
-    void         writeASCII(std::string filename)                                                           const override  ;
-    void         writeXML(      pos::PixelConfigKey key, int version, std::string path)                     const override {;}
-    void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const override {;}
-    void writeXML(                                                              std::ofstream *out) const override {;}
-    void writeXMLTrailer(                                                       std::ofstream *out) const override {;}
+    void         writeASCII(std::string filename)                                                           const  ;
+    void         writeXML(      pos::PixelConfigKey key, int version, std::string path)                     const {;}
+    virtual void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const {;}
+    virtual void writeXML(                                                              std::ofstream *out) const {;}
+    virtual void writeXMLTrailer(                                                       std::ofstream *out) const {;}
 
 
   private:

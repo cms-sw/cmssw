@@ -60,12 +60,12 @@
 class EcalDeadCellBoundaryEnergyFilter: public edm::global::EDFilter<> {
    public:
       explicit EcalDeadCellBoundaryEnergyFilter(const edm::ParameterSet&);
-      ~EcalDeadCellBoundaryEnergyFilter() override;
+      ~EcalDeadCellBoundaryEnergyFilter();
 
    private:
-      void beginJob() override;
-      bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-      void endJob() override;
+      virtual void beginJob() override;
+      virtual bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+      virtual void endJob() override;
 
       // ----------member data ---------------------------
       const int kMAX;
@@ -225,7 +225,7 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::StreamID, edm::Event& iEvent,
          }
 
          // RecHit is at EB boundary and should be processed
-         if (!detIdAlreadyChecked && deadNeighbourStati.empty() && ebBoundaryCalc.checkRecHitHasInvalidNeighbour(
+         if (!detIdAlreadyChecked && deadNeighbourStati.size() == 0 && ebBoundaryCalc.checkRecHitHasInvalidNeighbour(
                *hit, ecalStatus)) {
 
             BoundaryInformation gapinfo = ebBoundaryCalc.gapRecHits(
@@ -249,8 +249,8 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::StreamID, edm::Event& iEvent,
          }
 
          // RecHit is member of boundary and should be processed
-         if (!detIdAlreadyChecked && (passChannelLimitation || (limitDeadCellToChannelStatusEB_.empty()
-               && !deadNeighbourStati.empty()))) {
+         if (!detIdAlreadyChecked && (passChannelLimitation || (limitDeadCellToChannelStatusEB_.size() == 0
+               && deadNeighbourStati.size() > 0))) {
 
             BoundaryInformation boundinfo = ebBoundaryCalc.boundaryRecHits(
                   (const edm::Handle<EcalRecHitCollection>&) EBRecHits, (const EcalRecHit *) &(*hit), theCaloTopology,
@@ -319,7 +319,7 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::StreamID, edm::Event& iEvent,
          const CaloCellGeometry* cellGeom = subGeom->getGeometry(currDetId);
          double eta = cellGeom->getPosition().eta();
 
-         if (!detIdAlreadyChecked && deadNeighbourStati.empty() && eeBoundaryCalc.checkRecHitHasInvalidNeighbour(
+         if (!detIdAlreadyChecked && deadNeighbourStati.size() == 0 && eeBoundaryCalc.checkRecHitHasInvalidNeighbour(
                *hit, ecalStatus) && std::abs(eta) < 1.6) {
 
             BoundaryInformation gapinfo = eeBoundaryCalc.gapRecHits(
@@ -343,8 +343,8 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::StreamID, edm::Event& iEvent,
          }
 
          // RecHit is member of boundary and should be processed
-         if (!detIdAlreadyChecked && (passChannelLimitation || (limitDeadCellToChannelStatusEE_.empty()
-               && !deadNeighbourStati.empty()))) {
+         if (!detIdAlreadyChecked && (passChannelLimitation || (limitDeadCellToChannelStatusEE_.size() == 0
+               && deadNeighbourStati.size() > 0))) {
 
             BoundaryInformation boundinfo = eeBoundaryCalc.boundaryRecHits(
                   (const edm::Handle<EcalRecHitCollection>&) EERecHits, (const EcalRecHit *) &(*hit), theCaloTopology,

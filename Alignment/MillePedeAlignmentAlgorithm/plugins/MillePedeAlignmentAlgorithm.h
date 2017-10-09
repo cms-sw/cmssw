@@ -57,36 +57,36 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   MillePedeAlignmentAlgorithm(const edm::ParameterSet &cfg);
 
   /// Destructor
-  ~MillePedeAlignmentAlgorithm() override;
+  virtual ~MillePedeAlignmentAlgorithm();
 
   /// Called at beginning of job
-  void initialize(const edm::EventSetup &setup,
+  virtual void initialize(const edm::EventSetup &setup,
                           AlignableTracker *tracker, AlignableMuon *muon, AlignableExtras *extras,
                           AlignmentParameterStore *store) override;
 
   /// Returns whether MP supports calibrations
-  bool supportsCalibrations() override;
+  virtual bool supportsCalibrations() override;
   /// Pass integrated calibrations to Millepede (they are not owned by Millepede!)
-  bool addCalibrations(const std::vector<IntegratedCalibrationBase*> &iCals) override;
+  virtual bool addCalibrations(const std::vector<IntegratedCalibrationBase*> &iCals) override;
 
   virtual bool storeThresholds(const int & nRecords,const AlignPCLThresholds::threshold_map & thresholdMap);
 
   /// Called at end of job
-  void terminate(const edm::EventSetup& iSetup) override;
+  virtual void terminate(const edm::EventSetup& iSetup) override;
   /// Called at end of job
-  void terminate() override;
+  virtual void terminate() override;
 
   /// Returns whether MP should process events in the current configuration
-  bool processesEvents() override;
+  virtual bool processesEvents() override;
 
   /// Returns whether MP produced results to be stored
-  bool storeAlignments() override;
+  virtual bool storeAlignments() override;
 
   /// Run the algorithm on trajectories and tracks
-  void run(const edm::EventSetup &setup, const EventInfo &eventInfo) override;
+  virtual void run(const edm::EventSetup &setup, const EventInfo &eventInfo) override;
 
   /// called at begin of run
-  void beginRun(const edm::Run& run,
+  virtual void beginRun(const edm::Run& run,
                         const edm::EventSetup& setup,
                         bool changed) override;
 
@@ -97,13 +97,13 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
                       const edm::EventSetup&); //override;
 
   // This one will be called since it matches the interface of the base class
-  void endRun(const EndRunInfo &runInfo, const edm::EventSetup &setup) override;
+  virtual void endRun(const EndRunInfo &runInfo, const edm::EventSetup &setup) override;
 
   /// called at begin of luminosity block (resets Mille binary in mille mode)
-  void beginLuminosityBlock(const edm::EventSetup&) override;
+  virtual void beginLuminosityBlock(const edm::EventSetup&) override;
 
   /// called at end of luminosity block
-  void endLuminosityBlock(const edm::EventSetup&) override;
+  virtual void endLuminosityBlock(const edm::EventSetup&) override;
 
 
 /*   virtual void beginLuminosityBlock(const edm::EventSetup &setup) {} */
@@ -111,7 +111,7 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 
   /// Called in order to pass parameters to alignables for a specific run
   /// range in case the algorithm supports run range dependent alignment.
-  bool setParametersForRunRange(const RunRange &runrange) override;
+  virtual bool setParametersForRunRange(const RunRange &runrange) override;
 
  private:
   enum MeasurementDirection {kLocalX = 0, kLocalY};

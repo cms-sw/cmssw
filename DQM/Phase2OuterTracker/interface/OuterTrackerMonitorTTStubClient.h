@@ -19,11 +19,11 @@ class OuterTrackerMonitorTTStubClient : public edm::EDAnalyzer {
 
 public:
   explicit OuterTrackerMonitorTTStubClient(const edm::ParameterSet&);
-  ~OuterTrackerMonitorTTStubClient() override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  ~OuterTrackerMonitorTTStubClient();
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
   //virtual void beginJob() ;
-  void endJob() override ;
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void endJob() ;
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   
 };
 #endif

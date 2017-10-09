@@ -25,35 +25,35 @@ public:
     EmulatedME0Segment(const LocalPoint& origin, const LocalVector& direction, const AlgebraicSymMatrix& errors, const double chi2);
   
     /// Destructor
-    ~EmulatedME0Segment() override;
+    virtual ~EmulatedME0Segment();
 
     //--- Base class interface
-    EmulatedME0Segment* clone() const override { return new EmulatedME0Segment(*this); }
+    EmulatedME0Segment* clone() const { return new EmulatedME0Segment(*this); }
 
-    LocalPoint localPosition() const override { return theOrigin; }
-    LocalError localPositionError() const override ;
+    virtual LocalPoint localPosition() const { return theOrigin; }
+    LocalError localPositionError() const ;
 	
-    LocalVector localDirection() const override { return theLocalDirection; }
-    LocalError localDirectionError() const override ;
+    LocalVector localDirection() const { return theLocalDirection; }
+    LocalError localDirectionError() const ;
 
     /// Parameters of the segment, for the track fit in the order (dx/dz, dy/dz, x, y )
-    AlgebraicVector parameters() const override;
+    AlgebraicVector parameters() const;
 
     /// Covariance matrix of parameters()
-    AlgebraicSymMatrix parametersError() const override { return theCovMatrix; }
+    virtual AlgebraicSymMatrix parametersError() const { return theCovMatrix; }
 
     /// The projection matrix relates the trajectory state parameters to the segment parameters(). 
-    AlgebraicMatrix projectionMatrix() const override;
+    AlgebraicMatrix projectionMatrix() const;
 
-    std::vector<const TrackingRecHit*> recHits() const override {return std::vector<const TrackingRecHit*> (); }
+    virtual std::vector<const TrackingRecHit*> recHits() const {return std::vector<const TrackingRecHit*> (); }
 
-    std::vector<TrackingRecHit*> recHits() override {return std::vector<TrackingRecHit*>();}
+    virtual std::vector<TrackingRecHit*> recHits() {return std::vector<TrackingRecHit*>();}
 
-    double chi2() const override { return theChi2; }
+    virtual double chi2() const { return theChi2; }
 
-    int dimension() const override { return 4; }
+    virtual int dimension() const { return 4; }
 
-    int degreesOfFreedom() const override { return -1;}	 //Maybe  change later?
+    virtual int degreesOfFreedom() const { return -1;}	 //Maybe  change later?
 
     //--- Extension of the interface
         

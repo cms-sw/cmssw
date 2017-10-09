@@ -14,11 +14,11 @@
 class DBWriter : public edm::EDAnalyzer {
 public:
   explicit DBWriter(const edm::ParameterSet&);
-  ~DBWriter() override;
+  ~DBWriter();
   
 private:
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override {};
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob() {};
 
   std::auto_ptr<BaseFunction> corrector_;
 };

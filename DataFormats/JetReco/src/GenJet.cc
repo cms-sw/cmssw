@@ -52,7 +52,7 @@ const GenParticle* GenJet::getGenConstituent (unsigned fIndex) const {
     const Candidate* constituent = &*daugh; // deref
     return genParticle (constituent);
   }
-  return nullptr;
+  return 0;
 }
 
 std::vector <const GenParticle*> GenJet::getGenConstituents () const {

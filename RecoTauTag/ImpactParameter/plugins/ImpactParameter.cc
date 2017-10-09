@@ -31,10 +31,10 @@
 class ImpactParameter : public edm::EDProducer {
 public:
   explicit ImpactParameter(const edm::ParameterSet&);
-  ~ImpactParameter() override;
+  ~ImpactParameter();
 
 
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&);
 private:
   ImpactParameterAlgorithm* algo;
   edm::InputTag jetTrackSrc;

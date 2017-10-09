@@ -31,7 +31,7 @@ class CmsShowTaskExecutor : public CmsShowTaskExecutorBase {
 
 public:
    CmsShowTaskExecutor();
-   ~CmsShowTaskExecutor() override;
+   virtual ~CmsShowTaskExecutor();
 
    typedef boost::function0<void> TaskFunctor;
    // ---------- const member functions ---------------------
@@ -41,15 +41,15 @@ public:
    // ---------- member functions ---------------------------
    void addTask(const TaskFunctor& iTask);
 
-   void startDoingTasks() override;
+   void startDoingTasks();
 protected:
-   void doNextTaskImp() override;
-   bool moreTasksAvailable() override;
+   virtual void doNextTaskImp();
+   virtual bool moreTasksAvailable();
 
 private:
-   CmsShowTaskExecutor(const CmsShowTaskExecutor&) = delete; // stop default
+   CmsShowTaskExecutor(const CmsShowTaskExecutor&); // stop default
 
-   const CmsShowTaskExecutor& operator=(const CmsShowTaskExecutor&) = delete; // stop default
+   const CmsShowTaskExecutor& operator=(const CmsShowTaskExecutor&); // stop default
 
    // ---------- member data --------------------------------
    std::deque<TaskFunctor> m_tasks;

@@ -295,7 +295,7 @@ CompositeTECPetal::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 				    vector<DetGroup>& result,
 				    bool checkClosest) const
 {
-  const GlobalPoint& gCrossingPos = crossing.position();
+  GlobalPoint gCrossingPos = crossing.position();
 
   
   int closestIndex = crossing.closestDetIndex(); 

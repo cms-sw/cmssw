@@ -57,8 +57,8 @@ ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>& the
   
   
   
-  const reco::GsfTrackRef& refGsf =  gsfpfrectk.gsfTrackRef();
-  const reco::PFRecTrackRef& pfTrackRef = gsfpfrectk.kfPFRecTrackRef();
+  reco::GsfTrackRef refGsf =  gsfpfrectk.gsfTrackRef();
+  reco::PFRecTrackRef pfTrackRef = gsfpfrectk.kfPFRecTrackRef();
   vector<PFBrem> primPFBrem = gsfpfrectk.PFRecBrem();
  
   
@@ -324,7 +324,7 @@ ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>& the
 	Vertex dummy;
 	const Vertex *pv = &dummy;
 	edm::Ref<VertexCollection> pvRef;
-	if (!primaryVertex->empty()) {
+	if (primaryVertex->size() != 0) {
 	  pv = &*primaryVertex->begin();
 	  // we always use the first vertex (at the moment)
 	  pvRef = edm::Ref<VertexCollection>(primaryVertex, 0);

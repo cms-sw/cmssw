@@ -27,29 +27,29 @@ public:
   
 
   /** apothem (full, not half)*/
-  float length() const override    { return 2 * hapothem;}
+  virtual float length() const    { return 2 * hapothem;}
 
   /** largest width (full, not half)*/
-  float width()  const override    { return 2 * std::max( hbotedge, htopedge);}
+  virtual float width()  const    { return 2 * std::max( hbotedge, htopedge);}
 
   /** thickness (full, not half)*/
-  float thickness() const override { return 2 * hthickness;}
+  virtual float thickness() const { return 2 * hthickness;}
 
   /** Width at half length. Useful for e.g. pitch definition.
    */
-  float widthAtHalfLength() const override {return hbotedge+htopedge;}
+  virtual float widthAtHalfLength() const {return hbotedge+htopedge;}
 
   virtual int yAxisOrientation() const;
 
   using Bounds::inside;
 
-  bool inside( const Local2DPoint& p) const override;
+  virtual bool inside( const Local2DPoint& p) const;
 
-  bool inside( const Local3DPoint& p) const override;
+  virtual bool inside( const Local3DPoint& p) const;
 
-  bool inside( const Local3DPoint& p, const LocalError& err, float scale) const override;
+  virtual bool inside( const Local3DPoint& p, const LocalError& err, float scale) const;
 
-  bool inside( const Local2DPoint& p, const LocalError& err, float scale) const override;
+  virtual bool inside( const Local2DPoint& p, const LocalError& err, float scale) const;
 
   /** returns the 4 parameters needed for construction, in the order
    * ( half bottom edge, half top edge, half thickness, half apothem).
@@ -57,7 +57,7 @@ public:
    */
     virtual const std::array<const float, 4> parameters() const;
 
-  Bounds* clone() const override;
+  virtual Bounds* clone() const;
 
 private:
   // persistent part

@@ -39,13 +39,13 @@ class TH2F;
 class TopDiLeptonDQM : public DQMEDAnalyzer {
  public:
   explicit TopDiLeptonDQM(const edm::ParameterSet&);
-  ~TopDiLeptonDQM() override;
+  ~TopDiLeptonDQM();
 
  protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&,
                       edm::EventSetup const&) override;
  private:
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   std::string moduleName_;
   std::string outputFile_;

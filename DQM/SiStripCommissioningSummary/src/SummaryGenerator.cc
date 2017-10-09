@@ -5,7 +5,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <sstream>
-#include <cmath>
+#include <math.h>
 #include "TH2F.h"
 #include "TProfile.h"
 
@@ -28,12 +28,12 @@ SummaryGenerator::SummaryGenerator( std::string name ) :
 // 
 SummaryGenerator* SummaryGenerator::instance( const sistrip::View& view ) {
 
-  SummaryGenerator* generator = nullptr;
+  SummaryGenerator* generator = 0;
   if ( view == sistrip::CONTROL_VIEW ) {
     generator = new SummaryGeneratorControlView();
   } else if ( view == sistrip::READOUT_VIEW ) {
     generator = new SummaryGeneratorReadoutView();
-  } else { generator = nullptr; }
+  } else { generator = 0; }
   
   if ( generator ) {
     LogTrace(mlSummaryPlots_) 
@@ -82,9 +82,9 @@ std::string SummaryGenerator::name( const sistrip::RunType& run_type,
 */
 TH1* SummaryGenerator::histogram( const sistrip::Presentation& pres,
 				  const uint32_t& xbins ) {
-  if ( !xbins ) { return nullptr; }
+  if ( !xbins ) { return 0; }
 
-  TH1* summary = nullptr;
+  TH1* summary = 0;
   if ( pres == sistrip::HISTO_1D ) { 
     summary = new TH1F( "", "", 1024, 0., static_cast<float>(1024) ); 
   } else if ( pres == sistrip::HISTO_2D_SUM ) { 
@@ -93,7 +93,7 @@ TH1* SummaryGenerator::histogram( const sistrip::Presentation& pres,
     summary = new TH2F( "", "", 100*xbins, 0., static_cast<float>(100*xbins), 1025, 0., 1025. ); 
   } else if ( pres == sistrip::PROFILE_1D ) { 
     summary = new TProfile( "", "", xbins, 0., static_cast<float>(xbins), 0., 1025. ); 
-  } else { summary = nullptr; }
+  } else { summary = 0; }
   
   if ( summary ) {
     LogTrace(mlSummaryPlots_) 

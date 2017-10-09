@@ -47,8 +47,8 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   dataOOTCorrectionCategory_("Data"),
   mcOOTCorrectionName_(""),
   mcOOTCorrectionCategory_("MC"),
-  setPileupCorrection_(nullptr),
-  paramTS(nullptr),
+  setPileupCorrection_(0),
+  paramTS(0),
   puCorrMethod_(conf.getParameter<int>("puCorrMethod")),
   cntprtCorrMethod_(0),
   first_(true)
@@ -74,18 +74,18 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   if (conf.existsAs<bool>("setNegativeFlags"))
       setNegativeFlags_ = conf.getParameter<bool>("setNegativeFlags");
 
-  hbheFlagSetter_             = nullptr;
-  hbheHSCPFlagSetter_         = nullptr;
-  hbhePulseShapeFlagSetter_   = nullptr;
-  hbheNegativeFlagSetter_     = nullptr;
-  hbheTimingShapedFlagSetter_ = nullptr;
-  hfdigibit_                  = nullptr;
+  hbheFlagSetter_             = 0;
+  hbheHSCPFlagSetter_         = 0;
+  hbhePulseShapeFlagSetter_   = 0;
+  hbheNegativeFlagSetter_     = 0;
+  hbheTimingShapedFlagSetter_ = 0;
+  hfdigibit_                  = 0;
 
-  hfS9S1_                     = nullptr;
-  hfS8S1_                     = nullptr;
-  hfPET_                      = nullptr;
-  saturationFlagSetter_       = nullptr;
-  HFTimingTrustFlagSetter_    = nullptr;
+  hfS9S1_                     = 0;
+  hfS8S1_                     = 0;
+  hfPET_                      = 0;
+  saturationFlagSetter_       = 0;
+  HFTimingTrustFlagSetter_    = 0;
   digiTimeFromDB_             = false; // only need for HF
   
   if (setSaturationFlags_)
@@ -97,7 +97,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   if (!strcasecmp(subd.c_str(),"HBHE")) {
     subdet_=HcalBarrel;
 
-    setPileupCorrection_            = nullptr;
+    setPileupCorrection_            = 0;
     if(puCorrMethod_ == 1) setPileupCorrection_            = &HcalSimpleRecAlgo::setHBHEPileupCorrection;    
 
     bool timingShapedCutsFlags = conf.getParameter<bool>("setTimingShapedCutsFlags");
@@ -172,12 +172,12 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   } else if (!strcasecmp(subd.c_str(),"HO")) {
     subdet_=HcalOuter;
     // setPileupCorrection_ = &HcalSimpleRecAlgo::setHOPileupCorrection;
-    setPileupCorrection_ = nullptr;
+    setPileupCorrection_ = 0;
     produces<HORecHitCollection>();
   } else if (!strcasecmp(subd.c_str(),"HF")) {
     subdet_=HcalForward;
     // setPileupCorrection_ = &HcalSimpleRecAlgo::setHFPileupCorrection;
-    setPileupCorrection_ = nullptr;
+    setPileupCorrection_ = 0;
     digiTimeFromDB_=conf.getParameter<bool>("digiTimeFromDB");
 
     if (setTimingTrustFlags_) {
@@ -251,7 +251,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   if (conf.existsAs<std::string>("mcOOTCorrectionCategory"))
       mcOOTCorrectionCategory_ = conf.getParameter<std::string>("mcOOTCorrectionCategory");
   if (dataOOTCorrectionName_.empty() && mcOOTCorrectionName_.empty())
-      setPileupCorrection_ = nullptr;
+      setPileupCorrection_ = 0;
 
   reco_.setpuCorrMethod(puCorrMethod_);
   if(puCorrMethod_ == 2) { 
@@ -360,7 +360,7 @@ void HcalHitReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & es
 void HcalHitReconstructor::endRun(edm::Run const&r, edm::EventSetup const & es){
   if (tsFromDB_==true)
     {
-      delete paramTS; paramTS=nullptr;
+      delete paramTS; paramTS=0;
     }
   if (digiTimeFromDB_==true)
     {
@@ -562,7 +562,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	if (fTS>0)
 	  (rec->back()).setFlagField((i->sample(fTS-1).adc()), HcalCaloFlagLabels::PresampleADC,7);
 
-	if (hbheTimingShapedFlagSetter_!=nullptr)
+	if (hbheTimingShapedFlagSetter_!=0)
 	  hbheTimingShapedFlagSetter_->SetTimingShapedFlags(rec->back());
 	if (setNoiseFlags_)
 	  hbheFlagSetter_->SetFlagsFromDigi(rec->back(), *i, coder, calibrations);
@@ -739,7 +739,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	HcalCoderDb coder (*channelCoder, *shape);
 
 	// Set HFDigiTime flag values from digiTimeFromDB_
-	if (digiTimeFromDB_==true && hfdigibit_!=nullptr)
+	if (digiTimeFromDB_==true && hfdigibit_!=0)
 	  {
 	    const HcalFlagHFDigiTimeParam* hfDTparam = HFDigiTimeParams->getValues(detcell.rawId());
 	    hfdigibit_->resetParamsFromDB(hfDTparam->HFdigiflagFirstSample(),

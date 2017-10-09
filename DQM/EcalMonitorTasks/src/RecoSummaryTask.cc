@@ -16,8 +16,8 @@ namespace ecaldqm
     DQWorkerTask(),
     rechitThresholdEB_(0.),
     rechitThresholdEE_(0.),
-    ebHits_(nullptr),
-    eeHits_(nullptr)
+    ebHits_(0),
+    eeHits_(0)
   {
   }
 
@@ -53,8 +53,8 @@ namespace ecaldqm
   void
   RecoSummaryTask::endEvent(edm::Event const&, edm::EventSetup const&)
   {
-    ebHits_ = nullptr;
-    eeHits_ = nullptr;
+    ebHits_ = 0;
+    eeHits_ = 0;
   }
 
   void 
@@ -65,7 +65,7 @@ namespace ecaldqm
     MESet& meEnergyMax(MEs_.at("EnergyMax"));
     MESet& meChi2(MEs_.at("Chi2"));
     MESet& meTime(MEs_.at("Time"));
-    MESet* meSwissCross(isBarrel ? &MEs_.at("SwissCross") : nullptr);
+    MESet* meSwissCross(isBarrel ? &MEs_.at("SwissCross") : 0);
     MESet& meRecoFlag(MEs_.at("RecoFlagAll"));
 
     double maxE[2] = {-1. -1};

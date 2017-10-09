@@ -74,22 +74,22 @@ class CastorMonitorModule : public DQMEDAnalyzer{
 public:
   
   CastorMonitorModule(const edm::ParameterSet& ps);
-  ~CastorMonitorModule() override;
+  ~CastorMonitorModule();
   
 protected:
   
-  void analyze(const edm::Event& iEvent, const edm::EventSetup& eventSetup) override;
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& eventSetup);
   
-  void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void dqmBeginRun(const edm::Run &, const edm::EventSetup &);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
 
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                            const edm::EventSetup& eventSetup) override ;
+                            const edm::EventSetup& eventSetup) ;
 
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                          const edm::EventSetup& eventSetup) override;
+                          const edm::EventSetup& eventSetup);
   
-  void endRun(const edm::Run& run, const edm::EventSetup& eventSetup) override;
+  void endRun(const edm::Run& run, const edm::EventSetup& eventSetup);
 
 private:
 

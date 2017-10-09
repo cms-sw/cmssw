@@ -11,13 +11,13 @@ public:
   explicit MaxConsecLostHitsTrajectoryFilter( const edm::ParameterSet & pset, edm::ConsumesCollector& iC):
     theMaxConsecLostHits( pset.getParameter<int>("maxConsecLostHits")) {}
 
-  bool qualityFilter( const Trajectory& traj) const override { return TrajectoryFilter::qualityFilterIfNotContributing; }
-  bool qualityFilter( const TempTrajectory& traj) const override { return TrajectoryFilter::qualityFilterIfNotContributing; }
+  virtual bool qualityFilter( const Trajectory& traj) const { return TrajectoryFilter::qualityFilterIfNotContributing; }
+  virtual bool qualityFilter( const TempTrajectory& traj) const { return TrajectoryFilter::qualityFilterIfNotContributing; }
 
-  bool toBeContinued( TempTrajectory& traj) const override { return TBC<TempTrajectory>(traj);}
-  bool toBeContinued( Trajectory& traj) const override { return TBC<Trajectory>(traj);}
+  virtual bool toBeContinued( TempTrajectory& traj) const { return TBC<TempTrajectory>(traj);}
+  virtual bool toBeContinued( Trajectory& traj) const { return TBC<Trajectory>(traj);}
 
-  std::string name() const override {return "MaxConsecLostHitsTrajectoryFilter";}
+  virtual std::string name() const {return "MaxConsecLostHitsTrajectoryFilter";}
 
 protected:
 

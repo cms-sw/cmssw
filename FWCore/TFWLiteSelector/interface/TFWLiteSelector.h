@@ -59,7 +59,7 @@ class TFWLiteSelector : public TFWLiteSelectorBasic
 
    public:
       TFWLiteSelector() : worker_() {}
-      ~TFWLiteSelector() override {}
+      virtual ~TFWLiteSelector() {}
 
       // ---------- const member functions ---------------------
 
@@ -72,19 +72,19 @@ class TFWLiteSelector : public TFWLiteSelectorBasic
 
       const TFWLiteSelector& operator=(const TFWLiteSelector&); // stop default
 
-      void preProcessing(const TList*in, TList& out) override {
+      virtual void preProcessing(const TList*in, TList& out) {
         worker_ = std::make_shared<TWorker>(in,out);
       }
-      void process(const edm::Event& iEvent) override {
+      virtual void process(const edm::Event& iEvent) {
         worker_->process(iEvent);
       }
-      void postProcessing(TList& out) override {
+      virtual void postProcessing(TList& out) {
         worker_->postProcess(out);
       }
       
       // ---------- member data --------------------------------
       edm::propagate_const<std::shared_ptr<TWorker>> worker_;
-      ClassDefOverride(TFWLiteSelector,2)
+      ClassDef(TFWLiteSelector,2)
 };
 
 #endif

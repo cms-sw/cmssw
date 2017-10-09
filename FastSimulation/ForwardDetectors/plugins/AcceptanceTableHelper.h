@@ -29,7 +29,7 @@ class AcceptanceTableHelper
 public:
 
   /// Default constructor
-  AcceptanceTableHelper() : h_log10t_log10Xi_Phi(nullptr),h_t_log10Xi_Phi(nullptr) {;}
+  AcceptanceTableHelper() : h_log10t_log10Xi_Phi(NULL),h_t_log10Xi_Phi(NULL) {;}
   
   /// Delete acceptance histograms
   ~AcceptanceTableHelper() { 

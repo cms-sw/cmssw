@@ -105,7 +105,7 @@ public:
       GlobalVector momentum(0,0,0);//At the PCA
       GlobalPoint vertex(0,0,0);//At the PCA
       double radius(9999);
-      bool found(false);
+      bool found(0);
 
       int ii=0;
       DetId::Detector det;
@@ -160,7 +160,7 @@ public:
 	<<"\n"<<"FINAL State at InnerMost Hit:        Radius = "<< finalGP.perp() << ", z = "<< finalGP.z() 
 	<<", pt = "<< finalGV.perp() << ", pz = "<< finalGV.z();
 
-      if(!found) return false;
+      if(!found) return 0;
       else
 	{
 	  FreeTrajectoryState ftsAtProduction(finalGP,finalGV,TrackCharge(tpr->charge()),theMF.product());
@@ -169,7 +169,7 @@ public:
 	  if(!tsAtClosestApproach.isValid()){
 	    edm::LogVerbatim("CosmicTrackingParticleSelector")
 	      <<"*** WARNING in CosmicTrackingParticleSelector: tsAtClosestApproach is not valid." <<"\n";
-	    return false;
+	    return 0;
 	  }
 	  else
 	    {

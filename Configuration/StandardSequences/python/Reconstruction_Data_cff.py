@@ -24,7 +24,5 @@ HcalRemoveAddSevLevel.AddFlag(hcalRecAlgos,"HBHENegativeNoise",12)
 
 CSCHaloData.ExpectedBX = cms.int32(3)
 
-from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFCHSL1FastL2L3ResidualCorrectorChain, ak4PFCHSL1FastL2L3ResidualCorrectorTask
-
-from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFCHSResidualCorrector, ak4PFCHSL1FastL2L3ResidualCorrector
+from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFCHSResidualCorrector, ak4PFCHSL1FastL2L3ResidualCorrector, ak4PFCHSL1FastL2L3ResidualCorrectorChain
 jetCorrectorsForReco.replace(ak4PFCHSL1FastL2L3CorrectorChain, ak4PFCHSL1FastL2L3ResidualCorrectorChain)

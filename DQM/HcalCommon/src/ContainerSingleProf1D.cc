@@ -4,8 +4,8 @@ namespace hcaldqm
 {
 	ContainerSingleProf1D::ContainerSingleProf1D()
 	{
-		_qx = nullptr;
-		_qy = nullptr;
+		_qx = NULL;
+		_qy = NULL;
 	}
 
 	ContainerSingleProf1D::ContainerSingleProf1D(std::string const& folder,

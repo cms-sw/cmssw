@@ -7,9 +7,9 @@ class ApvTimingSummaryFactory : public SummaryPlotFactory<CommissioningAnalysis*
   
  protected:
   
-  void extract( Iterator ) override;
+  void extract( Iterator );
   
-  void format() override;
+  void format();
   
 };
 

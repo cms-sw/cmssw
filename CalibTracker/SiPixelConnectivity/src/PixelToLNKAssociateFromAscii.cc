@@ -29,7 +29,7 @@ const PixelToLNKAssociateFromAscii::CablingRocId * PixelToLNKAssociateFromAscii:
       return &(im->second);  
     }
   }
-  return nullptr;
+  return 0;
 }
 
 // This is where the reading and interpretation of the ascci cabling input file is

@@ -19,24 +19,24 @@ class AlignableDataIORoot : public AlignmentIORootBase, public AlignableDataIO
   AlignableDataIORoot(PosType p); 
 
   /// open IO 
-  int open(const char* filename, int iteration, bool writemode) override
+  int open(const char* filename, int iteration, bool writemode)
   { newopen=true; return openRoot(filename,iteration,writemode); }
 
   /// close IO 
-  int close(void) override{ return closeRoot(); }
+  int close(void){ return closeRoot(); }
 
   /// write absolute positions 
-  int writeAbsRaw(const AlignableAbsData &ad) override;
+  int writeAbsRaw(const AlignableAbsData &ad);
   /// read absolute positions 
-  AlignableAbsData readAbsRaw(Alignable* ali,int& ierr) override;
+  AlignableAbsData readAbsRaw(Alignable* ali,int& ierr);
   /// write relative positions 
-  int writeRelRaw(const AlignableRelData &ad) override;
+  int writeRelRaw(const AlignableRelData &ad);
   /// read relative positions 
-  AlignableRelData readRelRaw(Alignable* ali,int& ierr) override;
+  AlignableRelData readRelRaw(Alignable* ali,int& ierr);
 
   int findEntry(align::ID, align::StructureType);
-  void createBranches(void) override;
-  void setBranchAddresses(void) override;
+  void createBranches(void);
+  void setBranchAddresses(void);
 
   // data members
 

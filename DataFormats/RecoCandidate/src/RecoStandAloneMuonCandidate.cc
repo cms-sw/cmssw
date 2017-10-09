@@ -14,7 +14,7 @@ TrackRef RecoStandAloneMuonCandidate::standAloneMuon() const {
 
 bool RecoStandAloneMuonCandidate::overlap( const Candidate & c ) const {
   const RecoCandidate * o = dynamic_cast<const RecoCandidate *>( & c );
-  return (o != nullptr && 
+  return (o != 0 && 
 	  (checkOverlap(standAloneMuon(), o->track()) || 
 	   checkOverlap(standAloneMuon(), o->standAloneMuon()) ||
 	   checkOverlap(standAloneMuon(), o->combinedMuon()))

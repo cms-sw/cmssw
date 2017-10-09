@@ -42,9 +42,9 @@ public:
     ecalET(0),
     hcalET(0),
     hcalFB(0),
-    ecalLUT(nullptr),
-    hcalLUT(nullptr),
-    hfLUT(nullptr),
+    ecalLUT(0),
+    hcalLUT(0),
+    hfLUT(0),
     towerData(0),
     fwVersion(fwv)
   {}
@@ -135,15 +135,15 @@ private:
 
   // No default constructor is needed
 
-  UCTTower() = delete;
+  UCTTower();
 
   // No copy constructor is needed
 
-  UCTTower(const UCTTower&) = delete;
+  UCTTower(const UCTTower&);
 
   // No equality operator is needed
 
-  const UCTTower& operator=(const UCTTower&) = delete;
+  const UCTTower& operator=(const UCTTower&);
 
   // Tower location definition
 

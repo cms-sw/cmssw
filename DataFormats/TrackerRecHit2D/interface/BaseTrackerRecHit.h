@@ -37,7 +37,7 @@ public:
   // fake TTRH interface
   BaseTrackerRecHit const * hit() const final { return this;}  
 
-  ~BaseTrackerRecHit() override {}
+  virtual ~BaseTrackerRecHit() {}
 
   // no position (as in persistent)
  BaseTrackerRecHit(DetId id, trackerHitRTTI::RTTI rt) :  TrackingRecHit(id,(unsigned int)(rt)),qualWord_(0) {}
@@ -73,9 +73,9 @@ public:
 
   bool hasPositionAndError() const  final; 
 
-  LocalPoint localPosition() const  final { check(); return pos_;}
+  virtual LocalPoint localPosition() const  final { check(); return pos_;}
 
-  LocalError localPositionError() const  final { check(); return err_;}
+  virtual LocalError localPositionError() const  final { check(); return err_;}
 
  
   const LocalPoint & localPositionFast()      const { check(); return pos_; }
@@ -84,8 +84,8 @@ public:
 
 
   // to be specialized for 1D and 2D
-  void getKfComponents( KfComponentsHolder & holder ) const override =0;
-  int dimension() const override =0; 
+  virtual void getKfComponents( KfComponentsHolder & holder ) const=0;
+  virtual int dimension() const=0; 
 
   void getKfComponents1D( KfComponentsHolder & holder ) const;
   void getKfComponents2D( KfComponentsHolder & holder ) const;
@@ -93,10 +93,10 @@ public:
 
   // global coordinates
   // Extension of the TrackingRecHit interface
-  const Surface * surface() const final {return &(det()->surface());}
+  virtual const Surface * surface() const final {return &(det()->surface());}
 
 
-  GlobalPoint globalPosition() const final {
+  virtual GlobalPoint globalPosition() const final {
       return surface()->toGlobal(localPosition());
   }
   
@@ -126,9 +126,9 @@ public:
 public:
 
   // obsolete (for what tracker is concerned...) interface
-  AlgebraicVector parameters() const override;
-  AlgebraicSymMatrix parametersError() const override;
-  AlgebraicMatrix projectionMatrix() const override;
+  virtual AlgebraicVector parameters() const;
+  virtual AlgebraicSymMatrix parametersError() const;
+  virtual AlgebraicMatrix projectionMatrix() const;
 
 private:
 

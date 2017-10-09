@@ -37,7 +37,7 @@ namespace edm {
 class EgammaHLTHcalIsolationDoubleConeProducers : public edm::EDProducer {
 public:
   explicit EgammaHLTHcalIsolationDoubleConeProducers(const edm::ParameterSet&);
-  ~EgammaHLTHcalIsolationDoubleConeProducers() override;
+  ~EgammaHLTHcalIsolationDoubleConeProducers();
   void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

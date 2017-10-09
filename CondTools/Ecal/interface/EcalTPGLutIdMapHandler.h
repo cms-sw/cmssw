@@ -6,7 +6,7 @@
 #include <string>
 #include <map>
 #include <iostream>
-#include <ctime>
+#include <time.h>
 
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
@@ -51,11 +51,11 @@ namespace popcon
 
 		public:
                         EcalTPGLutIdMapHandler(edm::ParameterSet const & );
-			~EcalTPGLutIdMapHandler() override; 
+			~EcalTPGLutIdMapHandler(); 
 			
-			void getNewObjects() override;
+			void getNewObjects();
 			
-			std::string id() const override { return m_name;}
+			std::string id() const { return m_name;}
 			
 			void readFromFile(const char* inputFile) ;
 			void writeFile(const char* inputFile);

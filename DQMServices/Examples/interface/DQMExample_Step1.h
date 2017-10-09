@@ -50,7 +50,7 @@ class DQMExample_Step1: public DQMEDAnalyzer{
 public:
 
   DQMExample_Step1(const edm::ParameterSet& ps);
-  ~DQMExample_Step1() override;
+  virtual ~DQMExample_Step1();
   
 protected:
 

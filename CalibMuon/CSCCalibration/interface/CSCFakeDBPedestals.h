@@ -20,7 +20,7 @@
 class CSCFakeDBPedestals: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
    public:
       CSCFakeDBPedestals(const edm::ParameterSet&);
-      ~CSCFakeDBPedestals() override;
+      ~CSCFakeDBPedestals();
       
        inline static CSCDBPedestals * prefillDBPedestals();
 
@@ -30,7 +30,7 @@ class CSCFakeDBPedestals: public edm::ESProducer, public edm::EventSetupRecordIn
 
    private:
       // ----------member data ---------------------------
-    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
+    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
 
       Pointer cndbPedestals ;   
 };

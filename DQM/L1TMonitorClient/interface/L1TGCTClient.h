@@ -24,11 +24,11 @@ class L1TGCTClient: public DQMEDHarvester {
   L1TGCTClient(const edm::ParameterSet& ps);
   
   /// Destructor
-  ~L1TGCTClient() override;
+  virtual ~L1TGCTClient();
  
  protected:
-  void dqmEndJob(DQMStore::IBooker &ibooker,DQMStore::IGetter &igetter) override;
-  void dqmEndLuminosityBlock(DQMStore::IBooker &ibooker,DQMStore::IGetter &igetter,const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) override;
+  virtual void dqmEndJob(DQMStore::IBooker &ibooker,DQMStore::IGetter &igetter) override;
+  virtual void dqmEndLuminosityBlock(DQMStore::IBooker &ibooker,DQMStore::IGetter &igetter,const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) override;
 
  private:
 

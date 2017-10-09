@@ -24,19 +24,19 @@ class BarrelDetLayer : public DetLayer {
  public:
 
   BarrelDetLayer(bool doHaveGroup) : DetLayer(doHaveGroup,true),
-    theCylinder(nullptr){}
+    theCylinder(0){}
   
-  ~BarrelDetLayer() override;
+  virtual ~BarrelDetLayer();
 
   /// GeometricSearchDet interface
-  const BoundSurface&  surface() const  final { return *theCylinder;}
+  virtual const BoundSurface&  surface() const  final { return *theCylinder;}
 
-  std::pair<bool, TrajectoryStateOnSurface>
+  virtual std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
 	      const MeasurementEstimator&) const final;
 
   /// DetLayer interface
-  Location location() const final {return GeomDetEnumerators::barrel;}
+  virtual Location location() const final {return GeomDetEnumerators::barrel;}
 
 
   /// Extension of the interface

@@ -69,13 +69,13 @@ namespace pat {
         UserHolder() : obj_() {}
         UserHolder(const T &data) : obj_(data) {}
         /// Clone
-        UserHolder<T> * clone() const override { return new UserHolder<T>(*this); }
+        virtual UserHolder<T> * clone() const override { return new UserHolder<T>(*this); }
         /// Concrete type of stored data
-        const std::type_info & typeId()   const override { return typeid(T); }
+        virtual const std::type_info & typeId()   const override { return typeid(T); }
         /// Human readable name of the concrete type of stored data
-        const std::string    & typeName() const override { return typeName_(); }
+        virtual const std::string    & typeName() const override { return typeName_(); }
     protected:
-        const void *           data_()  const override { return &obj_; }
+        virtual const void *           data_()  const override { return &obj_; }
     private: 
         T obj_;
         static const std::string & typeName_() ;

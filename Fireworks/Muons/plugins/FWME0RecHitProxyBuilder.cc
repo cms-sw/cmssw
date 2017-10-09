@@ -12,9 +12,9 @@ class FWME0RecHitProxyBuilder : public FWSimpleProxyBuilderTemplate<ME0RecHit>
 {
 public:
    FWME0RecHitProxyBuilder() {}
-   ~FWME0RecHitProxyBuilder() override {}
+   virtual ~FWME0RecHitProxyBuilder() {}
   
-   bool haveSingleProduct() const override 
+   virtual bool haveSingleProduct() const 
     { 
       return false; 
     }
@@ -22,14 +22,14 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-  FWME0RecHitProxyBuilder(const FWME0RecHitProxyBuilder&) = delete;
-  const FWME0RecHitProxyBuilder& operator=(const FWME0RecHitProxyBuilder&) = delete; 
+  FWME0RecHitProxyBuilder(const FWME0RecHitProxyBuilder&);
+  const FWME0RecHitProxyBuilder& operator=(const FWME0RecHitProxyBuilder&); 
  
-  void buildViewType(const ME0RecHit& iData, 
+  virtual void buildViewType(const ME0RecHit& iData, 
                              unsigned int iIndex, 
                              TEveElement& oItemHolder, 
                              FWViewType::EType type, 
-                             const FWViewContext*) override;
+                             const FWViewContext*);
 };
 
 

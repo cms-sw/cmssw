@@ -26,9 +26,9 @@
 namespace popcon{
   class RPCObPVSSmapData : public popcon::PopConSourceHandler<RPCObPVSSmap>{
   public:
-    void getNewObjects() override;
-    std::string id() const override { return m_name;}
-    ~RPCObPVSSmapData() override; 
+    void getNewObjects();
+    std::string id() const { return m_name;}
+    ~RPCObPVSSmapData(); 
     RPCObPVSSmapData(const edm::ParameterSet& pset); 
 
     RPCObPVSSmap* IDMapdata;

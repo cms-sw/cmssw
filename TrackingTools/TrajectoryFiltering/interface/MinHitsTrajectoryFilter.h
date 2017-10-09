@@ -20,13 +20,13 @@ public:
     , theSeedPairPenalty( pset.getParameter<int>("seedPairPenalty")     )
  {}
     
-  bool qualityFilter( const Trajectory& traj) const override { return QF<Trajectory>(traj);}
-  bool qualityFilter( const TempTrajectory& traj) const override { return QF<TempTrajectory>(traj);}
+  virtual bool qualityFilter( const Trajectory& traj) const { return QF<Trajectory>(traj);}
+  virtual bool qualityFilter( const TempTrajectory& traj) const { return QF<TempTrajectory>(traj);}
 
-  bool toBeContinued( TempTrajectory&) const override { return TrajectoryFilter::toBeContinuedIfNotContributing ;}
-  bool toBeContinued( Trajectory&) const override { return TrajectoryFilter::toBeContinuedIfNotContributing ;}
+  virtual bool toBeContinued( TempTrajectory&) const { return TrajectoryFilter::toBeContinuedIfNotContributing ;}
+  virtual bool toBeContinued( Trajectory&) const { return TrajectoryFilter::toBeContinuedIfNotContributing ;}
 
-  std::string name() const override {return "MinHitsTrajectoryFilter";}
+  virtual std::string name() const {return "MinHitsTrajectoryFilter";}
 
   inline edm::ParameterSetDescription getFilledConfigurationDescription() {
     edm::ParameterSetDescription desc;

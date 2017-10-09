@@ -34,9 +34,9 @@ class AlignableDTBarrel : public AlignableComposite
 
   AlignableDTBarrel( const std::vector<AlignableDTWheel*>& dtWheels );
 
-  ~AlignableDTBarrel() override;
+  ~AlignableDTBarrel();
   
-  std::vector<Alignable*> components() const override 
+  virtual std::vector<Alignable*> components() const 
   {
 
         std::vector<Alignable*> result;
@@ -58,14 +58,14 @@ class AlignableDTBarrel : public AlignableComposite
   friend std::ostream& operator << ( std::ostream&, const AlignableDTBarrel& );
 
   /// Recursive printout of the muon Barrel structure
-  void dump( void ) const override;
+  void dump( void ) const;
 
 
   // Get alignments sorted by DetId
-  Alignments* alignments() const override;
+  Alignments* alignments() const;
 
   // Get alignment errors sorted by DetId
-  AlignmentErrorsExtended* alignmentErrors() const override;
+  AlignmentErrorsExtended* alignmentErrors() const;
 
 
 

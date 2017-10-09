@@ -19,13 +19,13 @@ class SiStripCablingTrackerMap : public edm::EDAnalyzer
  public:
   
   SiStripCablingTrackerMap(const edm::ParameterSet& conf);
-  ~SiStripCablingTrackerMap() override;
+  ~SiStripCablingTrackerMap();
   
-  void beginRun(const edm::Run& run,  const edm::EventSetup& es ) override;
+  void beginRun(const edm::Run& run,  const edm::EventSetup& es );
   
-  void endJob() override;
+  void endJob();
   
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c);
   
  private:
   

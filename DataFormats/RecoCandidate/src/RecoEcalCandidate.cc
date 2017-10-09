@@ -14,7 +14,7 @@ SuperClusterRef RecoEcalCandidate::superCluster() const {
 
 bool RecoEcalCandidate::overlap( const Candidate & c ) const {
   const RecoCandidate * o = dynamic_cast<const RecoCandidate *>( & c );
-  return ( o != nullptr && 
+  return ( o != 0 && 
 	   checkOverlap( superCluster(), o->superCluster() ) 
 	   );
 }

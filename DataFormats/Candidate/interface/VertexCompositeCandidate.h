@@ -32,27 +32,27 @@ namespace reco {
     explicit VertexCompositeCandidate(const CompositeCandidate & p) :
       CompositeCandidate(p), chi2_(0), ndof_(0) { }
     /// destructor
-    ~VertexCompositeCandidate() override;
+    virtual ~VertexCompositeCandidate();
     /// returns a clone of the candidate
-    VertexCompositeCandidate * clone() const override;
+    virtual VertexCompositeCandidate * clone() const;
     /// chi-squares
-    double vertexChi2() const override { return chi2_; }
+    virtual double vertexChi2() const { return chi2_; }
     /** Number of degrees of freedom
      *  Meant to be Double32_t for soft-assignment fitters: 
      *  tracks may contribute to the vertex with fractional weights.
      *  The ndof is then = to the sum of the track weights.
      *  see e.g. CMS NOTE-2006/032, CMS NOTE-2004/002
      */
-    double vertexNdof() const override { return ndof_; }
+    virtual double vertexNdof() const { return ndof_; }
     /// chi-squared divided by n.d.o.f.
-    double vertexNormalizedChi2() const override { return chi2_ / ndof_; }
+    virtual double vertexNormalizedChi2() const { return chi2_ / ndof_; }
     /// (i, j)-th element of error matrix, i, j = 0, ... 2
-    double vertexCovariance(int i, int j) const override { 
+    virtual double vertexCovariance(int i, int j) const { 
       return covariance_[idx(i, j)]; 
     }
     using reco::LeafCandidate::vertexCovariance; // avoid hiding the
     /// fill SMatrix
-    void fillVertexCovariance(CovarianceMatrix & v) const override;
+    virtual void fillVertexCovariance(CovarianceMatrix & v) const;
     /// set chi2 and ndof
     void setChi2AndNdof(double chi2, double ndof) {
       chi2_ = chi2; ndof_ = ndof;

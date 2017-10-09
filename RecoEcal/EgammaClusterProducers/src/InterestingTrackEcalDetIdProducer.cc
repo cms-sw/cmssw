@@ -49,10 +49,10 @@
 class InterestingTrackEcalDetIdProducer : public edm::stream::EDProducer<> {
    public:
       explicit InterestingTrackEcalDetIdProducer(const edm::ParameterSet&);
-      ~InterestingTrackEcalDetIdProducer() override;
+      ~InterestingTrackEcalDetIdProducer();
 
    private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       void beginRun(edm::Run const&, const edm::EventSetup&) override;
 
       

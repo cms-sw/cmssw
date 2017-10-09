@@ -43,9 +43,9 @@ class HcalAutoPedestalValidator: public edm::EDAnalyzer
  public:
   HcalAutoPedestalValidator(edm::ParameterSet const& ps);
 
-  ~HcalAutoPedestalValidator() override;
+  ~HcalAutoPedestalValidator();
 
-  void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
+  void analyze(const edm::Event& ev, const edm::EventSetup& es);
 
  private:
   std::string outfile;

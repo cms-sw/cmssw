@@ -44,15 +44,15 @@
 class SiStripGainsPCLHarvester : public  DQMEDHarvester {
    public:
       explicit SiStripGainsPCLHarvester(const edm::ParameterSet& ps);
-      void beginRun(edm::Run const& run, edm::EventSetup const & isetup) override;
-      void endRun(edm::Run const& run, edm::EventSetup const & isetup) override;
+      virtual void beginRun(edm::Run const& run, edm::EventSetup const & isetup);
+      virtual void endRun(edm::Run const& run, edm::EventSetup const & isetup);
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
 
       virtual void checkBookAPVColls(const edm::EventSetup& setup);
       virtual void checkAndRetrieveTopology(const edm::EventSetup& setup);
-      void dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_) override;
+      virtual void dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_);
 
       void gainQualityMonitor(DQMStore::IBooker& ibooker_, const MonitorElement* Charge_Vs_Index) const;
 

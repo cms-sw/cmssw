@@ -87,8 +87,8 @@ class FactorizedJetCorrectorCalculator
        
   private:
   //---- Member Functions ----  
-    FactorizedJetCorrectorCalculator(const FactorizedJetCorrectorCalculator&) = delete;
-    FactorizedJetCorrectorCalculator& operator= (const FactorizedJetCorrectorCalculator&) = delete;
+    FactorizedJetCorrectorCalculator(const FactorizedJetCorrectorCalculator&);
+    FactorizedJetCorrectorCalculator& operator= (const FactorizedJetCorrectorCalculator&);
     float getLepPt(const VariableValues&)    const;
     float getRelLepPt(const VariableValues&) const;
     float getPtRel(const VariableValues&)    const;

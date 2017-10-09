@@ -27,7 +27,7 @@ class  BeamHaloPropagatorESProducer: public edm::ESProducer{
   BeamHaloPropagatorESProducer(const edm::ParameterSet &);
   
   /// Destructor
-  ~BeamHaloPropagatorESProducer() override; 
+  virtual ~BeamHaloPropagatorESProducer(); 
   
   // Operations
   std::shared_ptr<Propagator> produce(const TrackingComponentsRecord &);

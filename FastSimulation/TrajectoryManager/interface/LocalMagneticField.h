@@ -19,9 +19,9 @@ class LocalMagneticField : public MagneticField {
   ///Construct passing the Z field component in Tesla
   LocalMagneticField(double value);
 
-  ~LocalMagneticField() override {}
+  virtual ~LocalMagneticField() {}
 
-  GlobalVector inTesla (const GlobalPoint& gp) const override;
+  GlobalVector inTesla (const GlobalPoint& gp) const;
 
  private:
   GlobalVector theField;

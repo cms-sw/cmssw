@@ -29,11 +29,11 @@ class TreeSplitter : public edm::EDAnalyzer
 {
 public:
   explicit TreeSplitter(const edm::ParameterSet&);
-  ~TreeSplitter() override;
+  ~TreeSplitter();
 
 private:
-  void analyze(const edm::Event&, const edm::EventSetup&) override {};
-  void endJob() override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) {};
+  virtual void endJob();
 
   TString treeFileName_;
   TString outputFileName_;

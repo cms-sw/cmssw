@@ -38,7 +38,7 @@ namespace reco {
     Jet (const LorentzVector& fP4, const Point& fVertex);
     Jet (const LorentzVector& fP4, const Point& fVertex, const Constituents& fConstituents);
     /// Destructor
-    ~Jet () override {}
+    virtual ~Jet () {}
 
     /// eta-phi statistics, ET weighted
     EtaPhiMoments etaPhiStatistics () const;
@@ -114,7 +114,7 @@ namespace reco {
     ///  number of passes taken by algorithm
     virtual int nPasses () const {return mPassNumber;}
 
-    bool isJet() const override;
+    bool isJet() const;
     
   private:
     float mJetArea;

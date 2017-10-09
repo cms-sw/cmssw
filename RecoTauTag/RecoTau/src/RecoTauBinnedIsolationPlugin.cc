@@ -58,7 +58,7 @@ std::vector<double> RecoTauDiscriminationBinnedIsolation::operator()(
   std::map<int, std::vector<double> >::const_iterator binningIter =
     binning_.find(nVertices_);
 
-  const std::vector<double>* bins = nullptr;
+  const std::vector<double>* bins = NULL;
   if (binningIter != binning_.end()) {
     bins = &(binningIter->second);
   } else {

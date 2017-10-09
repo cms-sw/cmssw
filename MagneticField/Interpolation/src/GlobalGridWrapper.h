@@ -24,19 +24,19 @@ public:
   GlobalGridWrapper(  const GloballyPositioned<float>& vol,
 		      const std::string& fileName);
 
-  LocalVector valueInTesla( const LocalPoint& p) const override;
+  virtual LocalVector valueInTesla( const LocalPoint& p) const;
 
-  void dump() const override;
+  void dump() const;
 
-  void toGridFrame( const LocalPoint& p, double& a, double& b, double& c) const override;
+  virtual void toGridFrame( const LocalPoint& p, double& a, double& b, double& c) const;
 
-  LocalPoint fromGridFrame( double a, double b, double c) const override;
+  virtual LocalPoint fromGridFrame( double a, double b, double c) const;
 
-  Dimensions dimensions() const override;
+  virtual Dimensions dimensions() const;
 
-  LocalPoint  nodePosition( int i, int j, int k) const override;
+  virtual LocalPoint  nodePosition( int i, int j, int k) const;
 
-  LocalVector nodeValue( int i, int j, int k) const override;
+  virtual LocalVector nodeValue( int i, int j, int k) const;
 
 private:
 

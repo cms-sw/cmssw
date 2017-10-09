@@ -113,7 +113,7 @@ FWSummaryManager::itemDestroyed(const FWEventItem* iItem)
    m_pack->HideFrame(m_collectionWidgets[iItem->id()]);
    m_pack->RemoveFrame(m_collectionWidgets[iItem->id()]);
    delete m_collectionWidgets[iItem->id()];
-   m_collectionWidgets[iItem->id()]=nullptr;
+   m_collectionWidgets[iItem->id()]=0;
    m_pack->Layout();
    gClient->NeedRedraw(m_pack);
 }
@@ -131,11 +131,11 @@ FWSummaryManager::removeAllItems()
        itEnd = m_collectionWidgets.end();
        it != itEnd;
        ++it) {
-      if(nullptr!=*it) {
+      if(0!=*it) {
          m_pack->HideFrame(*it);
          m_pack->RemoveFrame(*it);
          delete *it;
-         *it=nullptr;
+         *it=0;
       }
    }
    m_collectionWidgets.clear();
@@ -173,7 +173,7 @@ FWSummaryManager::colorsChanged()
           itEnd = m_collectionWidgets.end();
        it != itEnd;
        ++it) {
-      if(nullptr!=*it) {
+      if(0!=*it) {
          (*it)->setBackgroundToWhite(backgroundIsWhite);
       }
    }
@@ -204,7 +204,7 @@ FWSummaryManager::requestForController(FWEventItem* iItem)
 void 
 FWSummaryManager::requestForSelectedModelContextMenu(Int_t iGlobalX, Int_t iGlobalY)
 {
-   m_guiManager->showSelectedModelContextMenu(iGlobalX,iGlobalY,nullptr);
+   m_guiManager->showSelectedModelContextMenu(iGlobalX,iGlobalY,0);
 }
 
 //

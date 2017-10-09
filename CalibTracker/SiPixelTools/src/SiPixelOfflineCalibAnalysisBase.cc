@@ -29,7 +29,7 @@
 #include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
 #include "TList.h"
 
-TF1* SiPixelOfflineCalibAnalysisBase::fitFunction_ = nullptr;
+TF1* SiPixelOfflineCalibAnalysisBase::fitFunction_ = NULL;
 std::vector<short>  SiPixelOfflineCalibAnalysisBase::vCalValues_(0);
 // constructors and destructor
 //
@@ -76,7 +76,7 @@ SiPixelOfflineCalibAnalysisBase::analyze(const edm::Event& iEvent, const edm::Ev
      return;
    
    uint32_t runnumber=iEvent.id().run();
-   if(runnumbers_.empty())
+   if(runnumbers_.size()==0)
      runnumbers_.push_back(runnumber);
    else{
      bool foundnumber=false;

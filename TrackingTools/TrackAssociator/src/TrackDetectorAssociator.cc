@@ -104,8 +104,8 @@ using namespace reco;
 
 TrackDetectorAssociator::TrackDetectorAssociator() 
 {
-   ivProp_ = nullptr;
-   defProp_ = nullptr;
+   ivProp_ = 0;
+   defProp_ = 0;
    useDefaultPropagator_ = false;
 }
 
@@ -280,10 +280,10 @@ void TrackDetectorAssociator::fillEcal( const edm::Event& iEvent,
    
    if(coreTrajectory.empty()) {
       LogTrace("TrackAssociator") << "ECAL track trajectory is empty; moving on\n";
-      info.isGoodEcal = false;
+      info.isGoodEcal = 0;
       return;
    }
-   info.isGoodEcal = true;
+   info.isGoodEcal = 1;
 
    // Find ECAL crystals
    edm::Handle<EBRecHitCollection> EBRecHits;
@@ -350,10 +350,10 @@ void TrackDetectorAssociator::fillCaloTowers( const edm::Event& iEvent,
    
    if(trajectory.empty()) {
       LogTrace("TrackAssociator") << "HCAL trajectory is empty; moving on\n";
-      info.isGoodCalo = false;
+      info.isGoodCalo = 0;
       return;
    }
-   info.isGoodCalo = true;
+   info.isGoodCalo = 1;
    
    // find crossed CaloTowers
    edm::Handle<CaloTowerCollection> caloTowers;
@@ -441,10 +441,10 @@ void TrackDetectorAssociator::fillHcal( const edm::Event& iEvent,
    
    if(coreTrajectory.empty()) {
       LogTrace("TrackAssociator") << "HCAL trajectory is empty; moving on\n";
-      info.isGoodHcal = false;
+      info.isGoodHcal = 0;
       return;
    }
-   info.isGoodHcal = true;
+   info.isGoodHcal = 1;
    
    // find crossed Hcals
    edm::Handle<HBHERecHitCollection> collection;
@@ -459,7 +459,7 @@ void TrackDetectorAssociator::fillHcal( const edm::Event& iEvent,
       idsInRegion = hcalDetIdAssociator_->getDetIdsCloseToAPoint(coreTrajectory[0], mapRange);
    } else idsInRegion = hcalDetIdAssociator_->getDetIdsCloseToAPoint(coreTrajectory[0], parameters.dRHcalPreselection);
    
-   LogTrace("TrackAssociator") << "HCAL hits in the region: " << idsInRegion.size() << "\n" << DetIdInfo::info(idsInRegion,nullptr);
+   LogTrace("TrackAssociator") << "HCAL hits in the region: " << idsInRegion.size() << "\n" << DetIdInfo::info(idsInRegion,0);
 
    auto idsInAConeBegin = idsInRegion.begin();
    auto idsInAConeEnd = idsInRegion.end();
@@ -470,10 +470,10 @@ void TrackDetectorAssociator::fillHcal( const edm::Event& iEvent,
      idsInAConeEnd = idsInAConeTmp.end();
    }
    LogTrace("TrackAssociator") << "HCAL hits in the cone: " << std::distance(idsInAConeBegin, idsInAConeEnd) << "\n" 
-			       << DetIdInfo::info(std::set<DetId>(idsInAConeBegin, idsInAConeEnd), nullptr);
+			       << DetIdInfo::info(std::set<DetId>(idsInAConeBegin, idsInAConeEnd), 0);
    info.crossedHcalIds = hcalDetIdAssociator_->getCrossedDetIds(idsInRegion, coreTrajectory);
    const std::vector<DetId>& crossedIds = info.crossedHcalIds;
-   LogTrace("TrackAssociator") << "HCAL hits crossed: " << crossedIds.size() << "\n" << DetIdInfo::info(crossedIds,nullptr);
+   LogTrace("TrackAssociator") << "HCAL hits crossed: " << crossedIds.size() << "\n" << DetIdInfo::info(crossedIds,0);
    
    // add Hcal
    for(std::vector<DetId>::const_iterator itr=crossedIds.begin(); itr!=crossedIds.end();itr++)
@@ -506,10 +506,10 @@ void TrackDetectorAssociator::fillHO( const edm::Event& iEvent,
 
    if(coreTrajectory.empty()) {
       LogTrace("TrackAssociator") << "HO trajectory is empty; moving on\n";
-      info.isGoodHO = false;
+      info.isGoodHO = 0;
       return;
    }
-   info.isGoodHO = true;
+   info.isGoodHO = 1;
    
    // find crossed HOs
    edm::Handle<HORecHitCollection> collection;
@@ -673,7 +673,7 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
       TrajectoryStateOnSurface stateOnSurface = cachedTrajectory_.propagate( &geomDet->surface() );
       if (! stateOnSurface.isValid()) {
          LogTrace("TrackAssociator") << "Failed to propagate the track; moving on\n\t"<<
-	   "Element is not crosssed: " << DetIdInfo::info(*detId,nullptr) << "\n";
+	   "Element is not crosssed: " << DetIdInfo::info(*detId,0) << "\n";
          continue;
       }
       LocalPoint localPoint = geomDet->surface().toLocal(stateOnSurface.freeState()->position());
@@ -725,7 +725,7 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
       }
       if ( (distanceX < parameters.muonMaxDistanceX && distanceY < parameters.muonMaxDistanceY) ||
 	   (sigmaX < parameters.muonMaxDistanceSigmaX && sigmaY < parameters.muonMaxDistanceSigmaY) ) {
-	LogTrace("TrackAssociator") << "found a match: " << DetIdInfo::info(*detId,nullptr) << "\n";
+	LogTrace("TrackAssociator") << "found a match: " << DetIdInfo::info(*detId,0) << "\n";
          TAMuonChamberMatch match;
          match.tState = stateOnSurface;
          match.localDistanceX = distanceX;
@@ -734,7 +734,7 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
          matches.push_back(match);
       } else {
 	LogTrace("TrackAssociator") << "chamber is too far: " << 
-	  DetIdInfo::info(*detId,nullptr) << "\n\tdistanceX: " << distanceX << "\t distanceY: " << distanceY <<
+	  DetIdInfo::info(*detId,0) << "\n\tdistanceX: " << distanceX << "\t distanceY: " << distanceY <<
 	  "\t sigmaX: " << sigmaX << "\t sigmaY: " << sigmaY << "\n";
       }	
    }

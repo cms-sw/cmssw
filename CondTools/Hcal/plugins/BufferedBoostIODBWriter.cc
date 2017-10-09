@@ -23,14 +23,14 @@ class BufferedBoostIODBWriter : public edm::EDAnalyzer
 {
 public:
     explicit BufferedBoostIODBWriter(const edm::ParameterSet&);
-    ~BufferedBoostIODBWriter() override {}
+    virtual ~BufferedBoostIODBWriter() {}
 
 private:
-    BufferedBoostIODBWriter() = delete;
-    BufferedBoostIODBWriter(const BufferedBoostIODBWriter&) = delete;
-    BufferedBoostIODBWriter& operator=(const BufferedBoostIODBWriter&) = delete;
+    BufferedBoostIODBWriter();
+    BufferedBoostIODBWriter(const BufferedBoostIODBWriter&);
+    BufferedBoostIODBWriter& operator=(const BufferedBoostIODBWriter&);
 
-    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     std::string inputFile;
     std::string record;

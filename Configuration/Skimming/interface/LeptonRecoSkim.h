@@ -59,12 +59,12 @@
 class LeptonRecoSkim : public edm::EDFilter {
  public:
   explicit LeptonRecoSkim(const edm::ParameterSet&);
-  ~LeptonRecoSkim() override;
+  ~LeptonRecoSkim();
   
  private:
-  void beginJob() override ;
-  bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+  virtual void beginJob() ;
+  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
   
   void handleObjects(const edm::Event&, const edm::EventSetup& iSetup);
 

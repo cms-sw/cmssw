@@ -13,7 +13,7 @@ class AlignmentIORootBase
 
   protected:
   /// constructor
-  AlignmentIORootBase() : tree(nullptr), myFile(nullptr) {}
+  AlignmentIORootBase() : tree(0), myFile(0) {}
   /// destructor 
   virtual ~AlignmentIORootBase();
 

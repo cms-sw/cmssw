@@ -24,7 +24,7 @@ class TrackProbabilityTagInfo : public JTATagInfo
 
   TrackProbabilityTagInfo() {}
   
-  ~TrackProbabilityTagInfo() override {}
+  virtual ~TrackProbabilityTagInfo() {}
 
 int factorial(int n) const
 {
@@ -124,7 +124,7 @@ int factorial(int n) const
     return *tracks()[trackIndex(n,ipType)];
   }
  
-  TrackProbabilityTagInfo* clone() const override { return new TrackProbabilityTagInfo( * this ); }
+  virtual TrackProbabilityTagInfo* clone() const { return new TrackProbabilityTagInfo( * this ); }
   
   private:
    std::vector<double> m_probability2d;     //

@@ -27,7 +27,7 @@ public:
   AdaptiveGsfVertexFitter(const edm::ParameterSet& pSet,
 	const LinearizationPointFinder & linP = DefaultLinearizationPointFinder());
 
-  ~AdaptiveGsfVertexFitter() override;
+  virtual ~AdaptiveGsfVertexFitter();
 
   /**
    * Copy constructor
@@ -35,7 +35,7 @@ public:
 
   AdaptiveGsfVertexFitter(const AdaptiveGsfVertexFitter & original);
 
-  AdaptiveGsfVertexFitter * clone() const override {
+  AdaptiveGsfVertexFitter * clone() const {
     return new AdaptiveGsfVertexFitter(* this);
   }
 
@@ -43,16 +43,16 @@ public:
 
   /** Fit vertex out of a set of RecTracks
    */
-  inline CachingVertex<5> 
-    vertex(const std::vector<reco::TransientTrack>  & tracks) const override
+  virtual inline CachingVertex<5> 
+    vertex(const std::vector<reco::TransientTrack>  & tracks) const
   {
     return theFitter->vertex(tracks);
   }
 
   /** Fit vertex out of a set of VertexTracks
    */
-  inline CachingVertex<5> 
-  vertex(const std::vector<RefCountedVertexTrack> & tracks) const override
+  virtual inline CachingVertex<5> 
+  vertex(const std::vector<RefCountedVertexTrack> & tracks) const
   {
     return theFitter->vertex(tracks);
   }
@@ -60,9 +60,9 @@ public:
   /** Fit vertex out of a set of RecTracks. 
    *  Uses the specified linearization point.
    */
-  inline CachingVertex<5> 
+  virtual inline CachingVertex<5> 
     vertex(const std::vector<reco::TransientTrack>  & tracks, 
-	   const GlobalPoint& linPoint) const override
+	   const GlobalPoint& linPoint) const
   {
     return theFitter->vertex(tracks, linPoint);
   }
@@ -71,8 +71,8 @@ public:
    *  The specified BeamSpot will be used as priot, but NOT for the linearization.
    * The specified LinearizationPointFinder will be used to find the linearization point.
    */
-  inline CachingVertex<5> 
-  vertex(const std::vector<reco::TransientTrack> & tracks, const reco::BeamSpot& beamSpot) const override
+  virtual inline CachingVertex<5> 
+  vertex(const std::vector<reco::TransientTrack> & tracks, const reco::BeamSpot& beamSpot) const
   {
     return theFitter->vertex(tracks, beamSpot);
   }
@@ -83,17 +83,17 @@ public:
    *  estimate of the vertex position. The error is used for the 
    *  weight of the prior estimate.
    */
-  inline CachingVertex<5> 
+  virtual inline CachingVertex<5> 
   vertex(const std::vector<reco::TransientTrack> & tracks, 
 	 const GlobalPoint& priorPos,
-  	 const GlobalError& priorError) const override
+  	 const GlobalError& priorError) const
   {
     return theFitter->vertex(tracks, priorPos, priorError);
   }
 
-  inline CachingVertex<5> 
+  virtual inline CachingVertex<5> 
   vertex(const std::vector<RefCountedVertexTrack> & tracks,
-      const reco::BeamSpot & spot ) const override
+      const reco::BeamSpot & spot ) const
   {
     return theFitter->vertex(tracks, spot );
   }
@@ -102,10 +102,10 @@ public:
    *  Uses the specified point and error as the prior estimate of the vertex.
    *  This position is not used to relinearize the tracks.
    */
-  inline CachingVertex<5> 
+  virtual inline CachingVertex<5> 
   vertex(const std::vector<RefCountedVertexTrack> & tracks, 
 	 const GlobalPoint& priorPos,
-	 const GlobalError& priorError) const override
+	 const GlobalError& priorError) const
   {
     return theFitter->vertex(tracks, priorPos, priorError);
   }

@@ -35,15 +35,15 @@ class FWPFPatJet3DProxyBuilder : public FWSimpleProxyBuilderTemplate<T>
    public:
    // ---------------- Constructor(s)/Destructor ----------------------
       FWPFPatJet3DProxyBuilder();
-      ~FWPFPatJet3DProxyBuilder() override;
+      virtual ~FWPFPatJet3DProxyBuilder();
 
    private:
-      FWPFPatJet3DProxyBuilder(const FWPFPatJet3DProxyBuilder&) = delete; // Stop default
-      const FWPFPatJet3DProxyBuilder& operator=(const FWPFPatJet3DProxyBuilder&) = delete; // Stop default
+      FWPFPatJet3DProxyBuilder(const FWPFPatJet3DProxyBuilder&); // Stop default
+      const FWPFPatJet3DProxyBuilder& operator=(const FWPFPatJet3DProxyBuilder&); // Stop default
 
    // --------------------- Member Functions --------------------------
       using FWSimpleProxyBuilderTemplate<T>::build;
-      void build(const T&, unsigned int, TEveElement&, const FWViewContext*) override;
+      void build(const T&, unsigned int, TEveElement&, const FWViewContext*);
 };
 #endif
 //=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_

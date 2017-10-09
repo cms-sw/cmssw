@@ -50,15 +50,15 @@ class ErrorsPropagationAnalyzer : public edm::EDAnalyzer
 {
 public:
   explicit ErrorsPropagationAnalyzer(const edm::ParameterSet&);
-  ~ErrorsPropagationAnalyzer() override;
+  ~ErrorsPropagationAnalyzer();
 
 private:
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
   void fillHistograms();
   void drawHistograms(const TProfile* histo, const TProfile* histoPlusErr,
 		      const TProfile* histoMinusErr, const TString& type, const TString& yLabel);
   void fillValueError();
-  void endJob() override {};
+  virtual void endJob() {};
   /// Modified method to take into account the error
   double massResolution( const lorentzVector& mu1,
 			 const lorentzVector& mu2,

@@ -58,7 +58,7 @@ FWFromSliceSelector::clear()
 void
 FWFromSliceSelector::reset()
 {
-   m_item = nullptr;
+   m_item = 0;
 }
 
 //

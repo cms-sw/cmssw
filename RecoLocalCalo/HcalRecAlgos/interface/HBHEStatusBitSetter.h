@@ -26,8 +26,8 @@ public:
   void SetFlagsFromRecHits(HBHERecHitCollection& rec);
 
 private:
-  HBHEStatusBitSetter(const HBHEStatusBitSetter&) = delete;
-  HBHEStatusBitSetter& operator=(const HBHEStatusBitSetter&) = delete;
+  HBHEStatusBitSetter(const HBHEStatusBitSetter&);
+  HBHEStatusBitSetter& operator=(const HBHEStatusBitSetter&);
   
   double hitEnergyMinimum_;
   int hitMultiplicityThreshold_;

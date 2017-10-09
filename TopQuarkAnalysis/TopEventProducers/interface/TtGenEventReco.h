@@ -8,8 +8,8 @@ class TtGenEventReco : public edm::EDProducer {
  public:
 
   explicit TtGenEventReco(const edm::ParameterSet&);
-  ~TtGenEventReco() override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  ~TtGenEventReco();
+  virtual void produce(edm::Event&, const edm::EventSetup&);
 
  private:
 

@@ -20,7 +20,7 @@ class CaloRecoTauDiscriminationByTauPolarization : public CaloTauDiscriminationP
           booleanOutput = iConfig.getParameter<bool>("BooleanOutput");
         }
 
-    ~CaloRecoTauDiscriminationByTauPolarization() override{}
+    ~CaloRecoTauDiscriminationByTauPolarization(){}
     double discriminate(const CaloTauRef&) const override;
 
   private:

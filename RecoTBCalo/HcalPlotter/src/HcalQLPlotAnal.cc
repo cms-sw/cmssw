@@ -41,12 +41,12 @@
 class HcalQLPlotAnal : public edm::EDAnalyzer {
    public:
       explicit HcalQLPlotAnal(const edm::ParameterSet&);
-      ~HcalQLPlotAnal() override;
+      ~HcalQLPlotAnal();
 
 
    private:
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
 
       // ----------member data ---------------------------
   edm::InputTag hcalDigiLabel_;

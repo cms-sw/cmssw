@@ -39,7 +39,7 @@ class SUSY_HLT_alphaT: public DQMEDAnalyzer{
 
   public:
   SUSY_HLT_alphaT(const edm::ParameterSet& ps);
-  ~SUSY_HLT_alphaT() override;
+  virtual ~SUSY_HLT_alphaT();
 
   protected:
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;

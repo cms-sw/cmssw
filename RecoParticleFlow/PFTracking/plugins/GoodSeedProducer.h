@@ -79,8 +79,8 @@ class GoodSeedProducer final : public edm::stream::EDProducer<edm::GlobalCache<g
   }
 
    private:
-      void beginRun(const edm::Run & run,const edm::EventSetup&) override;
-      void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void beginRun(const edm::Run & run,const edm::EventSetup&) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
  
       ///Find the bin in pt and eta
       int getBin(float,float);

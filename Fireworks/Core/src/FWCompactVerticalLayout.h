@@ -29,11 +29,11 @@ class FWCompactVerticalLayout : public TGVerticalLayout {
 
 public:
    FWCompactVerticalLayout( TGCompositeFrame* iMain);
-   ~FWCompactVerticalLayout() override;
+   virtual ~FWCompactVerticalLayout();
    
    // ---------- const member functions ---------------------
-   void Layout() override;
-   TGDimension GetDefaultSize() const override;
+   virtual void Layout();
+   virtual TGDimension GetDefaultSize() const;
    
    // ---------- static member functions --------------------
    

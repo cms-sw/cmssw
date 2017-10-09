@@ -30,7 +30,7 @@ public:
   DTOfflineSummaryClients(const edm::ParameterSet& ps);
   
   /// Destructor
-  ~DTOfflineSummaryClients() override;
+  virtual ~DTOfflineSummaryClients();
 
   /// BeginRun
   void beginRun (const edm::Run& r, const edm::EventSetup& c) override;

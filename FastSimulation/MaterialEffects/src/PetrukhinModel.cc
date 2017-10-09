@@ -10,7 +10,7 @@
 #include <fstream>
 #include "TF1.h"
 #include "FastSimulation/MaterialEffects/interface/PetrukhinModel.h"
-#include <cmath>
+#include <math.h>
 using namespace std;
 
 //=====================================================================

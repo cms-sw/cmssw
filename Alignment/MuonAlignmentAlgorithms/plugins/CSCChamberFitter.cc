@@ -13,7 +13,7 @@ const double infinity = 0.1;  // this is huge because all alignments are angles 
 CSCChamberFitter::CSCChamberFitter(const edm::ParameterSet &iConfig, std::vector<CSCPairResidualsConstraint*> &residualsConstraints) {
   m_name = iConfig.getParameter<std::string>("name");
   m_alignables = iConfig.getParameter<std::vector<std::string> >("alignables");
-  if (m_alignables.empty()) {
+  if (m_alignables.size() == 0) {
     throw cms::Exception("BadConfig") << "Fitter " << m_name << " has no alignables!" << std::endl;
   }
 
@@ -296,7 +296,7 @@ bool CSCChamberFitter::fit(std::vector<CSCAlignmentCorrections*> &corrections) c
     }
   }
   TMatrixDEigen tmatrixdeigen(tmatrix); 
-  const TMatrixD& basis = tmatrixdeigen.GetEigenVectors();
+  TMatrixD basis = tmatrixdeigen.GetEigenVectors();
   TMatrixD invbasis = tmatrixdeigen.GetEigenVectors();
   invbasis.Invert();
   TMatrixD diagonalized = invbasis * (tmatrix * basis);
@@ -332,7 +332,7 @@ void CSCChamberFitter::radiusCorrection(AlignableNavigator *alignableNavigator, 
    double num_total = 0.;
    for (std::vector<CSCPairConstraint*>::const_iterator constraint = m_constraints.begin();  constraint != m_constraints.end();  ++constraint) {
       CSCPairResidualsConstraint *residualsConstraint = dynamic_cast<CSCPairResidualsConstraint*>(*constraint);
-      if (residualsConstraint != nullptr) {
+      if (residualsConstraint != NULL) {
 
 	 if (residualsConstraint->valid()) {
 	    sum_phipos_residuals += residualsConstraint->value();
@@ -351,11 +351,11 @@ void CSCChamberFitter::radiusCorrection(AlignableNavigator *alignableNavigator, 
 
    for (std::vector<CSCPairConstraint*>::const_iterator constraint = m_constraints.begin();  constraint != m_constraints.end();  ++constraint) {
       CSCPairResidualsConstraint *residualsConstraint = dynamic_cast<CSCPairResidualsConstraint*>(*constraint);
-      if (residualsConstraint != nullptr) {
+      if (residualsConstraint != NULL) {
 
 	 const DetId id(residualsConstraint->id_i());
 	 Alignable *alignable = alignableNavigator->alignableFromDetId(id).alignable();
-	 Alignable *also = nullptr;
+	 Alignable *also = NULL;
 	 if (combineME11  &&  residualsConstraint->id_i().station() == 1  &&  residualsConstraint->id_i().ring() == 1) {
 	    CSCDetId alsoid(residualsConstraint->id_i().endcap(), 1, 4, residualsConstraint->id_i().chamber(), 0);
 	    const DetId alsoid2(alsoid);
@@ -372,7 +372,7 @@ void CSCChamberFitter::radiusCorrection(AlignableNavigator *alignableNavigator, 
 	 alignable->setAlignmentParameters(parnew);
 	 alignmentParameterStore->applyParameters(alignable);
 	 alignable->alignmentParameters()->setValid(true);
-	 if (also != nullptr) {
+	 if (also != NULL) {
 	    AlignmentParameters *parnew2 = also->alignmentParameters()->cloneFromSelected(params, cov);
 	    also->setAlignmentParameters(parnew2);
 	    alignmentParameterStore->applyParameters(also);

@@ -18,24 +18,24 @@ class ESDaqInfoTask: public edm::EDAnalyzer{
       ESDaqInfoTask(const edm::ParameterSet& ps);
 
       /// Destructor
-      ~ESDaqInfoTask() override;
+      virtual ~ESDaqInfoTask();
 
    protected:
 
       /// Analyze
-      void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+      void analyze(const edm::Event& e, const edm::EventSetup& c);
 
       /// BeginJob
-      void beginJob(void) override;
+      void beginJob(void);
 
       /// EndJob
-      void endJob(void) override;
+      void endJob(void);
 
       /// BeginLuminosityBlock
-      void beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup) override;
+      void beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup);
 
       /// EndLuminosityBlock
-      void endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup) override;
+      void endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup);
 
       /// Reset
       void reset(void);

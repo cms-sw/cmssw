@@ -40,16 +40,16 @@ class CondDBESSource : public edm::eventsetup::DataProxyProvider,
   
 
   explicit CondDBESSource( const edm::ParameterSet& );
-  ~CondDBESSource() override;
+  ~CondDBESSource();
   
  protected:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+  virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
 			      const edm::IOVSyncValue& , 
-			      edm::ValidityInterval&) override ;
+			      edm::ValidityInterval&) ;
 
-  void registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey, KeyedProxies& aProxyList) override ;
+  virtual void registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey, KeyedProxies& aProxyList) ;
 
-  void newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordType, const edm::ValidityInterval& iInterval) override ;
+  virtual void newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordType, const edm::ValidityInterval& iInterval) ;
 
  private:
 

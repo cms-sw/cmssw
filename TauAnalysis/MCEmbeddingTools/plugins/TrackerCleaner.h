@@ -41,10 +41,10 @@ class TrackerCleaner : public edm::stream::EDProducer<>
 {
  public:
   explicit TrackerCleaner(const edm::ParameterSet&);
-  ~TrackerCleaner() override;
+  ~TrackerCleaner();
 
  private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
   const edm::EDGetTokenT<edm::View<pat::Muon> > mu_input_;
   typedef edmNew::DetSetVector<T> TrackClusterCollection;

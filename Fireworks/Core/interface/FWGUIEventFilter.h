@@ -31,8 +31,8 @@ class FWGUIEventFilter: public TGMainFrame
 {
 public:
    FWGUIEventFilter(CmsShowNavigator*);
-   ~FWGUIEventFilter() override;
-   void CloseWindow() override;
+   virtual ~FWGUIEventFilter();
+   virtual void CloseWindow();
    
    void show(std::list<FWEventSelector*>* sels, int filterMode, int state);
    void reset();    
@@ -55,7 +55,7 @@ public:
    void addTo(FWConfiguration&) const;
    void setFrom(const FWConfiguration&);
    */
-   Bool_t HandleKey(Event_t *event) override;
+   Bool_t HandleKey(Event_t *event);
    ClassDef(FWGUIEventFilter, 0);
    
 private:   

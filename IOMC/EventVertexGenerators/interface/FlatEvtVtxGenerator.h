@@ -17,14 +17,14 @@ class FlatEvtVtxGenerator : public BaseEvtVtxGenerator
 {
 public:
   FlatEvtVtxGenerator(const edm::ParameterSet & p);
-  ~FlatEvtVtxGenerator() override;
+  virtual ~FlatEvtVtxGenerator();
 
   /// return a new event vertex
   //virtual CLHEP::Hep3Vector* newVertex();
-  HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override ;
+  virtual HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override ;
 
-  const TMatrixD* GetInvLorentzBoost() const override {
-	  return nullptr;
+  virtual const TMatrixD* GetInvLorentzBoost() const override {
+	  return 0;
   }
 
     
@@ -44,9 +44,9 @@ public:
   
 private:
   /** Copy constructor */
-  FlatEvtVtxGenerator(const FlatEvtVtxGenerator &p) = delete;
+  FlatEvtVtxGenerator(const FlatEvtVtxGenerator &p);
   /** Copy assignment operator */
-  FlatEvtVtxGenerator&  operator = (const FlatEvtVtxGenerator & rhs ) = delete;
+  FlatEvtVtxGenerator&  operator = (const FlatEvtVtxGenerator & rhs );
 private:
   double fMinX, fMinY, fMinZ;
   double fMaxX, fMaxY, fMaxZ;

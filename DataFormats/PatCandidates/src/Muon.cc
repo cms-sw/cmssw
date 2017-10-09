@@ -29,10 +29,7 @@ Muon::Muon() :
     normChi2_(0.0),
     cachedNumberOfValidHits_(false),
     numberOfValidHits_(0),
-    pfEcalEnergy_(0),
-    jetPtRatio_(0),
-    jetPtRel_(0),
-    mvaValue_(0)
+    pfEcalEnergy_(0)
 {
   initImpactParameters();
 }
@@ -56,10 +53,7 @@ Muon::Muon(const reco::Muon & aMuon) :
     normChi2_(0.0),
     cachedNumberOfValidHits_(false),
     numberOfValidHits_(0),
-    pfEcalEnergy_(0),
-    jetPtRatio_(0),
-    jetPtRel_(0),
-    mvaValue_(0)
+    pfEcalEnergy_(0)
 {
   initImpactParameters();
 }
@@ -81,12 +75,9 @@ Muon::Muon(const edm::RefToBase<reco::Muon> & aMuonRef) :
     pfCandidateRef_(),
     cachedNormChi2_(false),
     normChi2_(0.0),
-    cachedNumberOfValidHits_(false),
+    cachedNumberOfValidHits_(0),
     numberOfValidHits_(0),
-    pfEcalEnergy_(0),
-    jetPtRatio_(0),
-    jetPtRel_(0),
-    mvaValue_(0)
+    pfEcalEnergy_(0)
 {
   initImpactParameters();
 }
@@ -108,12 +99,9 @@ Muon::Muon(const edm::Ptr<reco::Muon> & aMuonRef) :
     pfCandidateRef_(),
     cachedNormChi2_(false),
     normChi2_(0.0),
-    cachedNumberOfValidHits_(false),
+    cachedNumberOfValidHits_(0),
     numberOfValidHits_(0),
-    pfEcalEnergy_(0),
-    jetPtRatio_(0),
-    jetPtRel_(0),
-    mvaValue_(0)
+    pfEcalEnergy_(0)
 {
   initImpactParameters();
 }

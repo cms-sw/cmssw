@@ -22,19 +22,19 @@ class HcalHitMaker : public CaloHitMaker
   typedef ROOT::Math::Transform3DPJ Transform3D;
 
   HcalHitMaker(EcalHitMaker &, unsigned );
-  ~HcalHitMaker() override {;}
+  ~HcalHitMaker() {;}
   
   /// Set the spot energy
-  inline void setSpotEnergy(double e) override { spotEnergy=e;} 
+  inline void setSpotEnergy(double e) { spotEnergy=e;} 
   
   /// add the hit in the HCAL in local coordinates
-  bool addHit(double r,double phi,unsigned layer=0) override;
+  bool addHit(double r,double phi,unsigned layer=0);
   
   /// add the hit in the HCAL in global coordinates
   bool addHit(const XYZPoint & point ,unsigned layer=0);
 
   // get the hits
-  const std::map<CaloHitID,float>& getHits() override { return hitMap_ ;} ;
+  const std::map<CaloHitID,float>& getHits() { return hitMap_ ;} ;
 
   /// set the depth in X0 or Lambda0 units depending on showerType
   bool setDepth(double,bool inCm=false); 

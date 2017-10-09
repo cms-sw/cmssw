@@ -18,9 +18,9 @@ public:
   // Construct from a std::vector of Det*.
   ForwardDetRingOneZ( const std::vector<const GeomDet*>& dets);
 
-  ~ForwardDetRingOneZ() override;
+  virtual ~ForwardDetRingOneZ();
   
-  const std::vector<const GeomDet*>& basicComponents() const override {return theDets;}
+  virtual const std::vector<const GeomDet*>& basicComponents() const {return theDets;}
 
 protected:
 

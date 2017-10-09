@@ -18,11 +18,11 @@ class HcalGainWidths: public HcalCondObjectContainer<HcalGainWidth>
 {
  public:
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalGainWidths():HcalCondObjectContainer<HcalGainWidth>(nullptr) {}
+  HcalGainWidths():HcalCondObjectContainer<HcalGainWidth>(0) {}
 #endif
   HcalGainWidths(const HcalTopology* topo):HcalCondObjectContainer<HcalGainWidth>(topo) {}
 
-  std::string myname() const override {return (std::string)"HcalGainWidths";}
+  std::string myname() const {return (std::string)"HcalGainWidths";}
 
  private:
 

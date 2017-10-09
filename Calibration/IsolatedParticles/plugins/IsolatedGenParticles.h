@@ -89,12 +89,12 @@ class IsolatedGenParticles : public edm::EDAnalyzer {
 
 public:
   explicit IsolatedGenParticles(const edm::ParameterSet&);
-  ~IsolatedGenParticles() override;
+  ~IsolatedGenParticles();
 
 private:
-  void beginJob() override ;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+  virtual void beginJob() ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
 
   double DeltaPhi(double v1, double v2);
   double DeltaR(double eta1, double phi1, double eta2, double phi2);

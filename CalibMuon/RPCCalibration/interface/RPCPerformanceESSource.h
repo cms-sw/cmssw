@@ -21,15 +21,15 @@ class RPCPerformanceESSource : public edm::ESProducer, public edm::EventSetupRec
  public:
 
   RPCPerformanceESSource( const edm::ParameterSet& );
-  ~RPCPerformanceESSource() override {;}
+  virtual ~RPCPerformanceESSource() {;}
   
   std::unique_ptr<RPCStripNoises> produce( const RPCStripNoisesRcd& );
   
   // protected:
 
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
+  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
 			       const edm::IOVSyncValue&,
-			       edm::ValidityInterval& ) override;
+			       edm::ValidityInterval& );
   
   // private:
   

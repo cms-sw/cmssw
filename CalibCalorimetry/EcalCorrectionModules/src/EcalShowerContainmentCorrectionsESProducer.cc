@@ -32,7 +32,7 @@ class EcalShowerContainmentCorrectionsESProducer : public edm::ESProducer {
 
    public:
       EcalShowerContainmentCorrectionsESProducer(const edm::ParameterSet&);
-     ~EcalShowerContainmentCorrectionsESProducer() override;
+     ~EcalShowerContainmentCorrectionsESProducer();
 
       typedef std::unique_ptr<EcalShowerContainmentCorrections> ReturnType;
 

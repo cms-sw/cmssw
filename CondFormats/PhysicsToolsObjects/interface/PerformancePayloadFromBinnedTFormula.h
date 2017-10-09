@@ -26,20 +26,20 @@ class PerformancePayloadFromBinnedTFormula : public PerformancePayload {
     initialize();    
   }
 
-  void initialize() override;
+  void initialize();
 
   PerformancePayloadFromBinnedTFormula(){}
-  ~PerformancePayloadFromBinnedTFormula() override{
+  virtual ~PerformancePayloadFromBinnedTFormula(){
     compiledFormulas_.clear();
   }
 
-  float getResult(PerformanceResult::ResultType,const BinningPointByMap&) const override ; // gets from the full payload
+  float getResult(PerformanceResult::ResultType,const BinningPointByMap&) const ; // gets from the full payload
   
   virtual bool isParametrizedInVariable(const BinningVariables::BinningVariablesType p)  const {
     return (limitPos(p) != PerformancePayloadFromBinnedTFormula::InvalidPos);
   }
   
-  bool isInPayload(PerformanceResult::ResultType,const BinningPointByMap&) const override ;
+  virtual bool isInPayload(PerformanceResult::ResultType,const BinningPointByMap&) const ;
   
   const std::vector<PhysicsTFormulaPayload> & formulaPayloads() const {return pls;}
   

@@ -44,19 +44,19 @@ public:
   DTOccupancyTest(const edm::ParameterSet& ps);
   
   /// Destructor
-  ~DTOccupancyTest() override;
+  virtual ~DTOccupancyTest();
 
 protected:
 
   /// BeginRun
-  void beginRun(edm::Run const& run, edm::EventSetup const& context) override ;
+  void beginRun(edm::Run const& run, edm::EventSetup const& context) ;
 
   /// Endjob
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
   
   /// DQM Client Diagnostic
 
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &) override;
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &);
 
 private:
 

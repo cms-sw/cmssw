@@ -18,8 +18,8 @@ class EcalCompactTrigPrimProducer: public edm::stream::EDProducer<> {
 
 public:
   EcalCompactTrigPrimProducer(const edm::ParameterSet& ps);
-  ~EcalCompactTrigPrimProducer() override{}
-  void produce(edm::Event& evt, const edm::EventSetup& es) override;
+  virtual ~EcalCompactTrigPrimProducer(){}
+  virtual void produce(edm::Event& evt, const edm::EventSetup& es);
 
 private:
 

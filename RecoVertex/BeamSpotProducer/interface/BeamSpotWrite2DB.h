@@ -31,12 +31,12 @@ ________________________________________________________________**/
 class BeamSpotWrite2DB : public edm::EDAnalyzer {
  public:
   explicit BeamSpotWrite2DB(const edm::ParameterSet&);
-  ~BeamSpotWrite2DB() override;
+  ~BeamSpotWrite2DB();
 
  private:
-  void beginJob() override ;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+  virtual void beginJob() ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
 
   
   std::ifstream fasciiFile;

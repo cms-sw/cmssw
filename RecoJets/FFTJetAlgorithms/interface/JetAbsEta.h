@@ -9,14 +9,14 @@ namespace fftjetcms {
     template<class Jet>
     struct PeakAbsEta : public fftjet::Functor1<double,Jet>
     {
-        inline double operator()(const Jet& j) const override
+        inline double operator()(const Jet& j) const
             {return fabs(j.eta());}
     };
 
     template<class Jet>
     struct JetAbsEta : public fftjet::Functor1<double,Jet>
     {
-        inline double operator()(const Jet& j) const override
+        inline double operator()(const Jet& j) const
             {return fabs(j.vec().Eta());}
     };
 }

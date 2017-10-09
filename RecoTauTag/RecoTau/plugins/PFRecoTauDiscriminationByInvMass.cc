@@ -38,7 +38,7 @@ class PFRecoTauDiscriminationByInvMass: public PFTauDiscriminationProducerBase {
         }
       }
     }
-    ~PFRecoTauDiscriminationByInvMass() override{}
+    ~PFRecoTauDiscriminationByInvMass(){}
     double discriminate(const reco::PFTauRef&) const override;
 
   private:

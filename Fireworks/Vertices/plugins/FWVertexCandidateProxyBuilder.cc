@@ -41,9 +41,9 @@ class FWVertexCandidateProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::
 {
 public:
    FWVertexCandidateProxyBuilder() {}
-   ~FWVertexCandidateProxyBuilder() override {}
+   virtual ~FWVertexCandidateProxyBuilder() {}
    
-   void setItem(const FWEventItem* iItem) override
+   virtual void setItem(const FWEventItem* iItem) override
    {
       FWProxyBuilderBase::setItem(iItem);
       if (iItem)
@@ -59,13 +59,13 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
    
 private:
-   FWVertexCandidateProxyBuilder(const FWVertexCandidateProxyBuilder&) = delete; // stop default
-   const FWVertexCandidateProxyBuilder& operator=(const FWVertexCandidateProxyBuilder&) = delete; // stop default
+   FWVertexCandidateProxyBuilder(const FWVertexCandidateProxyBuilder&); // stop default
+   const FWVertexCandidateProxyBuilder& operator=(const FWVertexCandidateProxyBuilder&); // stop default
 
    using FWSimpleProxyBuilderTemplate<reco::VertexCompositePtrCandidate> ::build;
-   void build(const reco::VertexCompositePtrCandidate& iData, unsigned int iIndex,TEveElement& oItemHolder, const FWViewContext*) override;
+   virtual void build(const reco::VertexCompositePtrCandidate& iData, unsigned int iIndex,TEveElement& oItemHolder, const FWViewContext*) override;
 
-   void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
+   virtual void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
                                   FWViewType::EType viewType, const FWViewContext* vc) override;
 
 };

@@ -26,7 +26,7 @@ class HODetIdAssociator: public CaloDetIdAssociator{
 
    HODetIdAssociator(const edm::ParameterSet& pSet):CaloDetIdAssociator(pSet){};
 
-   const char* name() const override { return "HO"; }
+   virtual const char* name() const override { return "HO"; }
 
  protected:
 

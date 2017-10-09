@@ -71,7 +71,7 @@ bool HcalDcsValues::exists(HcalDcsDetId const& fid) {
 }
 
 HcalDcsValues::DcsSet HcalDcsValues::getValues(HcalDcsDetId const& fid) {
-  DcsSet * valList = nullptr;
+  DcsSet * valList = 0;
   switch(fid.subdet()) {
   case HcalDcsBarrel : 
     valList = &mHBValues; 
@@ -94,7 +94,7 @@ HcalDcsValues::DcsSet HcalDcsValues::getValues(HcalDcsDetId const& fid) {
     valList = &mHFValues; 
     if (!mHFsorted) mHFsorted = sortList(mHFValues);
     break;
-  default : valList = nullptr;
+  default : valList = 0;
   }
 
   if (valList) {
@@ -207,7 +207,7 @@ bool HcalDcsValues::subDetOk(DcsSet const& valList, int LS) const {
     }
     ++val;
   }
-  return (badIds.empty());
+  return (badIds.size()==0);
 }
 
 bool HcalDcsValues::sortList(DcsSet& valList) const {

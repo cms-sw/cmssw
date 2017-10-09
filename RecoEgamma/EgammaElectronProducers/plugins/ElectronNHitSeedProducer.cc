@@ -44,9 +44,9 @@ public:
   
   
   explicit ElectronNHitSeedProducer( const edm::ParameterSet & ) ;
-  ~ElectronNHitSeedProducer() override =default;  
+  virtual ~ElectronNHitSeedProducer()=default;  
   
-  void produce( edm::Event &, const edm::EventSetup & ) final;
+  virtual void produce( edm::Event &, const edm::EventSetup & ) override final;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

@@ -33,7 +33,7 @@ class SUSY_HLT_DoubleMuon_Hadronic: public DQMEDAnalyzer{
     
 public:
     SUSY_HLT_DoubleMuon_Hadronic(const edm::ParameterSet& ps);
-    ~SUSY_HLT_DoubleMuon_Hadronic() override;
+    virtual ~SUSY_HLT_DoubleMuon_Hadronic();
     
 protected:
     void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;

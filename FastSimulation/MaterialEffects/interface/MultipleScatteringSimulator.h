@@ -31,12 +31,12 @@ class MultipleScatteringSimulator : public MaterialEffectsSimulator
   MultipleScatteringSimulator(double A, double Z, double density, double radLen);
 
   /// Default Destructor
-  ~MultipleScatteringSimulator() override {} ;
+  ~MultipleScatteringSimulator() {} ;
 
  private:
 
   /// The real dE/dx generation and particle update
-  void compute(ParticlePropagator &Particle, RandomEngineAndDistribution const*) override;
+  void compute(ParticlePropagator &Particle, RandomEngineAndDistribution const*);
 
  private: 
   

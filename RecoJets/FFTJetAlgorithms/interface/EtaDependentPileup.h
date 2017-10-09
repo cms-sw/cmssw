@@ -20,13 +20,13 @@ namespace fftjetcms {
         EtaDependentPileup(const fftjet::LinearInterpolator2d& i,
                            double inputRhoFactor, double outputRhoFactor);
 
-        inline ~EtaDependentPileup() override {}
+        inline virtual ~EtaDependentPileup() {}
 
-        double operator()(
+        virtual double operator()(
             double eta, double phi,
-            const reco::FFTJetPileupSummary& summary) const override;
+            const reco::FFTJetPileupSummary& summary) const;
 
-        inline bool isPhiDependent() const override {return false;}
+        inline virtual bool isPhiDependent() const {return false;}
 
     private:
         fftjet::LinearInterpolator2d interp_;

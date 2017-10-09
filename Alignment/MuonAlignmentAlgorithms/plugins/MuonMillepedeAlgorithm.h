@@ -26,21 +26,21 @@ class MuonMillepedeAlgorithm : public AlignmentAlgorithmBase
   MuonMillepedeAlgorithm(const edm::ParameterSet& cfg);
 
   /// Destructor
-  ~MuonMillepedeAlgorithm() override {};
+  ~MuonMillepedeAlgorithm() {};
 
   /// Call at beginning of job
   void initialize( const edm::EventSetup& setup, 
                    AlignableTracker* tracker, AlignableMuon* muon,
 		   AlignableExtras* extras,
-                   AlignmentParameterStore* store) override;
+                   AlignmentParameterStore* store);
 
   /// Call at end of job
-  void terminate(const edm::EventSetup& setup) override;
+  void terminate(const edm::EventSetup& setup);
 
 
 
   /// Run the algorithm
-  void run(const edm::EventSetup& setup, const EventInfo &eventInfo) override;
+  void run(const edm::EventSetup& setup, const EventInfo &eventInfo);
 
   void updateInfo(const AlgebraicMatrix&, const AlgebraicMatrix&, const AlgebraicMatrix&, std::string);
  

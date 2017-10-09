@@ -13,7 +13,7 @@
 //
 
 // system include files
-#include <cassert>
+#include <assert.h>
 #include "TClass.h"
 
 // user include files
@@ -24,7 +24,7 @@
 FWItemRandomAccessorBase::FWItemRandomAccessorBase(const TClass *type, const std::type_info &modelTypeName)
 :m_type(type),
  m_modelType(TClass::GetClass(modelTypeName)),
- m_data(nullptr)
+ m_data(0)
 {
 }
 
@@ -55,20 +55,20 @@ FWItemRandomAccessorBase::~FWItemRandomAccessorBase()
 void
 FWItemRandomAccessorBase::setData(const edm::ObjectWithDict& product)
 {
-   if (product.address() == nullptr)
+   if (product.address() == 0)
    {
       reset();
       return;
    }
    
    m_data = product.address();
-   assert(nullptr!=m_data);
+   assert(0!=m_data);
 }
 
 void
 FWItemRandomAccessorBase::reset()
 {
-   m_data = nullptr;
+   m_data = 0;
 }
 
 //

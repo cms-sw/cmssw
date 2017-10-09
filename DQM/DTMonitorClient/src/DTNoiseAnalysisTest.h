@@ -42,21 +42,21 @@ public:
   DTNoiseAnalysisTest(const edm::ParameterSet& ps);
   
   /// Destructor
-  ~DTNoiseAnalysisTest() override;
+  virtual ~DTNoiseAnalysisTest();
 
 protected:
 
   /// BeginRun
-  void beginRun(edm::Run const& run, edm::EventSetup const& context) override ;
+  void beginRun(edm::Run const& run, edm::EventSetup const& context) ;
 
   /// book the summary histograms
 
   void bookHistos(DQMStore::IBooker &);
 
   /// DQM Client Diagnostic
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &) override;
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &);
 
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
 
 private:
 

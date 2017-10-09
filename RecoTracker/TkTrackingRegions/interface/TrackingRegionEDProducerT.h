@@ -21,13 +21,13 @@ public:
     produces<ProductType>();
   }
 
-  ~TrackingRegionEDProducerT() override = default;
+  ~TrackingRegionEDProducerT() = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     T_TrackingRegionProducer::fillDescriptions(descriptions);
   }
 
-  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
+  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
     auto regions = regionProducer_.regions(iEvent, iSetup);
     auto ret = std::make_unique<ProductType>();
     ret->reserve(regions.size());

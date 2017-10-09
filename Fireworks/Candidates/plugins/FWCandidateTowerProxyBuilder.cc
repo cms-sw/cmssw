@@ -1,7 +1,7 @@
 #include "Fireworks/Candidates/plugins/FWCandidateTowerProxyBuilder.h"
 
 // system includes
-#include <cmath>
+#include <math.h>
 
 // user includes
 #include "TEveCaloData.h"

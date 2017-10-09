@@ -66,7 +66,7 @@ LaserAlignment::LaserAlignment( edm::ParameterSet const& theConf ) :
 	    << "\n=============================================================" << std::endl;
 
   // tell about masked modules
-  if( !theMaskTecModules.empty() ) {
+  if( theMaskTecModules.size() ) {
     std::cout << " ===============================================================================================\n" << std::flush;
     std::cout << " The following " << theMaskTecModules.size() << " TEC modules have been masked out and will not be considered by the TEC algorithm:\n " << std::flush;
     for( std::vector<unsigned int>::iterator moduleIt = theMaskTecModules.begin(); moduleIt != theMaskTecModules.end(); ++moduleIt ) {
@@ -75,7 +75,7 @@ LaserAlignment::LaserAlignment( edm::ParameterSet const& theConf ) :
     std::cout << std::endl << std::flush;
     std::cout << " ===============================================================================================\n\n" << std::flush;
   }
-  if( !theMaskAtModules.empty() ) {
+  if( theMaskAtModules.size() ) {
     std::cout << " ===============================================================================================\n" << std::flush;
     std::cout << " The following " << theMaskAtModules.size() << " AT modules have been masked out and will not be considered by the AT algorithm:\n " << std::flush;
     for( std::vector<unsigned int>::iterator moduleIt = theMaskAtModules.begin(); moduleIt != theMaskAtModules.end(); ++moduleIt ) {
@@ -673,7 +673,7 @@ void LaserAlignment::endRunProduce( edm::Run& theRun, const edm::EventSetup& the
 
   // this basically sets all the endcap modules to be masked 
   // to their nominal positions (since endcapParameters is overall zero)
-  if( !theMaskTecModules.empty() ) {
+  if( theMaskTecModules.size() ) {
     ApplyEndcapMaskingCorrections( measuredCoordinates, nominalCoordinates, endcapParameters );
   }
 
@@ -686,7 +686,7 @@ void LaserAlignment::endRunProduce( edm::Run& theRun, const edm::EventSetup& the
   //
 
   // do this only if there are modules to be masked..
-  if( !theMaskTecModules.empty() ) {
+  if( theMaskTecModules.size() ) {
     
     const unsigned int nIterations = 30;
     for( unsigned int iteration = 0; iteration < nIterations; ++iteration ) {
@@ -723,7 +723,7 @@ void LaserAlignment::endRunProduce( edm::Run& theRun, const edm::EventSetup& the
 
   // this basically sets all the modules to be masked 
   // to their nominal positions (since alignmentTubeParameters is overall zero)
-  if( !theMaskAtModules.empty() ) {
+  if( theMaskAtModules.size() ) {
     ApplyATMaskingCorrections( measuredCoordinates, nominalCoordinates, alignmentTubeParameters );
   }
 
@@ -744,7 +744,7 @@ void LaserAlignment::endRunProduce( edm::Run& theRun, const edm::EventSetup& the
   //
 
   // do this only if there are modules to be masked..
-  if( !theMaskAtModules.empty() ) {
+  if( theMaskAtModules.size() ) {
     
     const unsigned int nIterations = 30;
     for( unsigned int iteration = 0; iteration < nIterations; ++iteration ) {

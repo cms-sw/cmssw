@@ -42,13 +42,13 @@ class DTStatusFlagHandler: public popcon::PopConSourceHandler<DTStatusFlag> {
 
   /** Destructor
    */
-  ~DTStatusFlagHandler() override;
+  virtual ~DTStatusFlagHandler();
 
   /** Operations
    */
   /// 
-  void getNewObjects() override;
-  std::string id() const override;
+  void getNewObjects();
+  std::string id() const;
 
  private:
 

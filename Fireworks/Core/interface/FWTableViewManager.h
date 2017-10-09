@@ -56,23 +56,23 @@ public:
    typedef std::map<std::string, TableEntries> TableSpecs;
 
    FWTableViewManager(FWGUIManager*);
-   ~FWTableViewManager() override;
+   virtual ~FWTableViewManager();
 
    // ---------- const member functions ---------------------
-   FWTypeToRepresentations supportedTypesAndRepresentations() const override;
+   virtual FWTypeToRepresentations supportedTypesAndRepresentations() const;
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   void            newItem(const FWEventItem*) override;
+   virtual void            newItem(const FWEventItem*);
    void                    destroyItem(const FWEventItem *item);
    void                    removeAllItems(void);
    FWViewBase *            buildView(TEveWindowSlot *iParent, const std::string& type);
    const Items &           items() const { return m_items; }
    TableSpecs::iterator    tableFormats(const edm::TypeWithDict &key);
    TableSpecs::iterator    tableFormats(const TClass &key);
-   void                    addTo(FWConfiguration&) const override;
+   void                    addTo(FWConfiguration&) const;
    void                    addToImpl(FWConfiguration&) const;
-   void                    setFrom(const FWConfiguration&) override;
+   void                    setFrom(const FWConfiguration&);
 
    void                    notifyViews();
 
@@ -83,9 +83,9 @@ protected:
    FWTableViewManager();
 
    /** Called when models have changed and so the display must be updated. */
-   void modelChangesComing() override;
-   void modelChangesDone() override;
-   void colorsChanged() override;
+   virtual void modelChangesComing();
+   virtual void modelChangesDone();
+   virtual void colorsChanged();
    void dataChanged ();
 
    typedef std::vector<std::shared_ptr<FWTableView> >    Views;

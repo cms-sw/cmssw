@@ -34,33 +34,33 @@ public:
 
 
   /// Destructor
-  ~DTRecHit1DPair() override;
+  virtual ~DTRecHit1DPair();
 
   // Operations
 
-  DTRecHit1DPair * clone() const override;
+  virtual DTRecHit1DPair * clone() const;
 
 
   /// Return the 3-dimensional local position.
   /// The average theLeftHit/theRightHit hits position, namely the wire position
   /// is returned. 
-  LocalPoint localPosition() const override;
+  virtual LocalPoint localPosition() const;
 
 
   /// Return the 3-dimensional error on the local position. 
   /// The error is defiened as half
   /// the distance between theLeftHit and theRightHit pos
-  LocalError localPositionError() const override;
+  virtual LocalError localPositionError() const;
 
 
   /// Access to component RecHits.
   /// Return the two recHits (L/R)
-  std::vector<const TrackingRecHit*> recHits() const override;
+  virtual std::vector<const TrackingRecHit*> recHits() const;
 
 
   /// Non-const access to component RecHits.
   /// Return the two recHits (L/R)
-  std::vector<TrackingRecHit*> recHits() override;
+  virtual std::vector<TrackingRecHit*> recHits();
 
 
   /// Return the detId of the Det (a DTLayer).

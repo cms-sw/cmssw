@@ -42,12 +42,12 @@
 class MonoPhotonSkimmer : public edm::EDFilter {
    public:
       explicit MonoPhotonSkimmer(const edm::ParameterSet&);
-      ~MonoPhotonSkimmer() override;
+      ~MonoPhotonSkimmer();
 
    private:
-      void beginJob() override ;
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+      virtual void beginJob() override ;
+      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
 
       // ----------member data ---------------------------
       edm::EDGetTokenT<reco::PhotonCollection> _phoToken;

@@ -45,7 +45,7 @@ public:
                  const MeasurementEstimator::OpaquePayload  & opay) const override;
 
 
-  Chi2ChargeMeasurementEstimator* clone() const override {
+  virtual Chi2ChargeMeasurementEstimator* clone() const override {
     return new Chi2ChargeMeasurementEstimator(*this);
   }
 private:
@@ -108,7 +108,7 @@ class  Chi2ChargeMeasurementEstimatorESProducer: public edm::ESProducer{
  public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   Chi2ChargeMeasurementEstimatorESProducer(const edm::ParameterSet & p);
-  ~Chi2ChargeMeasurementEstimatorESProducer() override; 
+  virtual ~Chi2ChargeMeasurementEstimatorESProducer(); 
   std::shared_ptr<Chi2MeasurementEstimatorBase> produce(const TrackingComponentsRecord &);
 
  private:

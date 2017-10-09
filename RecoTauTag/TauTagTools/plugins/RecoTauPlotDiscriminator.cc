@@ -34,7 +34,7 @@
 class RecoTauPlotDiscriminator : public edm::EDAnalyzer {
   public:
     RecoTauPlotDiscriminator(const edm::ParameterSet& pset);
-    ~RecoTauPlotDiscriminator() override {}
+    virtual ~RecoTauPlotDiscriminator() {}
     void analyze(const edm::Event &evt, const edm::EventSetup &es) override;
   private:
     edm::InputTag src_;

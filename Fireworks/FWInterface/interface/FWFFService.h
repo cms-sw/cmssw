@@ -35,7 +35,7 @@ class FWFFService : public CmsShowMainBase
 {
 public:
    FWFFService(const edm::ParameterSet&, edm::ActivityRegistry&);
-   ~FWFFService() override;
+   virtual ~FWFFService();
 
    // ---------- const member functions ---------------------
 
@@ -55,14 +55,14 @@ public:
    TEveMagField* getMagField();
    void          setupFieldForPropagator(TEveTrackPropagator* prop);
 
-   void checkPosition() override;
-   void stopPlaying() override {}
-   void autoLoadNewEvent() override {}
+   virtual void checkPosition();
+   virtual void stopPlaying() {}
+   virtual void autoLoadNewEvent() {}
 
-   void quit() override;
+   void quit();
 private:
-   FWFFService(const FWFFService&) = delete;                  // stop default
-   const FWFFService& operator=(const FWFFService&) = delete; // stop default
+   FWFFService(const FWFFService&);                  // stop default
+   const FWFFService& operator=(const FWFFService&); // stop default
 
    // ---------- member data --------------------------------
    

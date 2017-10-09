@@ -23,10 +23,10 @@ public:
     Chi2MeasurementEstimatorBase(aMaxChi2),
     theEstimator(aMaxChi2) {}
 
-  std::pair<bool,double> estimate(const TrajectoryStateOnSurface&,
-					  const TrackingRecHit&) const override;
+  virtual std::pair<bool,double> estimate(const TrajectoryStateOnSurface&,
+					  const TrackingRecHit&) const;
 
-  GsfChi2MeasurementEstimator* clone() const override {
+  virtual GsfChi2MeasurementEstimator* clone() const {
     return new GsfChi2MeasurementEstimator(*this);
   }
 

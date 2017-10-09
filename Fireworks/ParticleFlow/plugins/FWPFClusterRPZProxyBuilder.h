@@ -27,17 +27,17 @@ class FWPFClusterRPZProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::PFC
    public:
    // ---------------- Constructor(s)/Destructor ----------------------
       FWPFClusterRPZProxyBuilder();
-      ~FWPFClusterRPZProxyBuilder() override;
+      virtual ~FWPFClusterRPZProxyBuilder();
 
    // --------------------- Member Functions --------------------------
       using FWSimpleProxyBuilderTemplate<reco::PFCluster>::build;
-      void build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc ) override;
+      virtual void build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc );
       using FWSimpleProxyBuilderTemplate<reco::PFCluster>::scaleProduct;
-      void scaleProduct( TEveElementList *parent, FWViewType::EType, const FWViewContext *vc ) override;
+      virtual void scaleProduct( TEveElementList *parent, FWViewType::EType, const FWViewContext *vc );
       using FWSimpleProxyBuilderTemplate<reco::PFCluster>::havePerViewProduct;
-      bool havePerViewProduct( FWViewType::EType ) const override { return true; }
+      virtual bool havePerViewProduct( FWViewType::EType ) const { return true; }
       using FWSimpleProxyBuilderTemplate<reco::PFCluster>::cleanLocal;
-      void cleanLocal() override { m_clusters.clear(); }
+      virtual void cleanLocal() { m_clusters.clear(); }
 
       REGISTER_PROXYBUILDER_METHODS();
 
@@ -51,8 +51,8 @@ class FWPFClusterRPZProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::PFC
                                 const FWViewContext *vc, float radius );
 
    private:
-      FWPFClusterRPZProxyBuilder( const FWPFClusterRPZProxyBuilder& ) = delete;                    // Disable default
-      const FWPFClusterRPZProxyBuilder& operator=( const FWPFClusterRPZProxyBuilder& ) = delete;   // Disable default
+      FWPFClusterRPZProxyBuilder( const FWPFClusterRPZProxyBuilder& );                    // Disable default
+      const FWPFClusterRPZProxyBuilder& operator=( const FWPFClusterRPZProxyBuilder& );   // Disable default
 };
 //=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_
 
@@ -66,17 +66,17 @@ class FWPFEcalClusterRPZProxyBuilder : public FWPFClusterRPZProxyBuilder
    public:
    // ---------------- Constructor(s)/Destructor ----------------------
       FWPFEcalClusterRPZProxyBuilder(){}
-      ~FWPFEcalClusterRPZProxyBuilder() override{}
+      virtual ~FWPFEcalClusterRPZProxyBuilder(){}
 
    // --------------------- Member Functions --------------------------
       using FWSimpleProxyBuilderTemplate<reco::PFCluster>::build;
-      void build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc ) override;
+      virtual void build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc );
 
       REGISTER_PROXYBUILDER_METHODS();
 
    private:
-      FWPFEcalClusterRPZProxyBuilder( const FWPFEcalClusterRPZProxyBuilder& ) = delete;
-      const FWPFEcalClusterRPZProxyBuilder& operator=( const FWPFEcalClusterRPZProxyBuilder& ) = delete;
+      FWPFEcalClusterRPZProxyBuilder( const FWPFEcalClusterRPZProxyBuilder& );
+      const FWPFEcalClusterRPZProxyBuilder& operator=( const FWPFEcalClusterRPZProxyBuilder& );
 };
 //=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_
 
@@ -90,17 +90,17 @@ class FWPFHcalClusterRPZProxyBuilder : public FWPFClusterRPZProxyBuilder
    public:
    // ---------------- Constructor(s)/Destructor ----------------------
       FWPFHcalClusterRPZProxyBuilder(){}
-      ~FWPFHcalClusterRPZProxyBuilder() override{}
+      virtual ~FWPFHcalClusterRPZProxyBuilder(){}
 
    // --------------------- Member Functions --------------------------
       using FWSimpleProxyBuilderTemplate<reco::PFCluster>::build;
-      void build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc ) override;
+      virtual void build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc );
 
       REGISTER_PROXYBUILDER_METHODS();
 
    private:
-      FWPFHcalClusterRPZProxyBuilder( const FWPFHcalClusterRPZProxyBuilder& ) = delete;
-      const FWPFHcalClusterRPZProxyBuilder& operator=( const FWPFHcalClusterRPZProxyBuilder& ) = delete;
+      FWPFHcalClusterRPZProxyBuilder( const FWPFHcalClusterRPZProxyBuilder& );
+      const FWPFHcalClusterRPZProxyBuilder& operator=( const FWPFHcalClusterRPZProxyBuilder& );
 };
 #endif
 //=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_

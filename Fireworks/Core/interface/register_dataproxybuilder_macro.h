@@ -19,7 +19,7 @@
 //
 
 // system include files
-#include <cstdlib> 
+#include <stdlib.h> 
 #include "boost/lexical_cast.hpp"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 

@@ -56,22 +56,22 @@ public:
 			       const std::vector<bool> &selection);
 
   /// Destructor 
-  ~BowedSurfaceAlignmentParameters() override {};
-  void apply() override;
-  int type() const override;
+  virtual ~BowedSurfaceAlignmentParameters() {};
+  virtual void apply();
+  virtual int type() const;
 
   /// Clone all parameters (for update of parameters)
-  BowedSurfaceAlignmentParameters* clone(const AlgebraicVector &parameters, 
-						 const AlgebraicSymMatrix &covMatrix) const override;
+  virtual BowedSurfaceAlignmentParameters* clone(const AlgebraicVector &parameters, 
+						 const AlgebraicSymMatrix &covMatrix) const;
  
   /// Clone selected parameters (for update of parameters)
-  BowedSurfaceAlignmentParameters*
+  virtual BowedSurfaceAlignmentParameters*
     cloneFromSelected(const AlgebraicVector &parameters,
-		      const AlgebraicSymMatrix &covMatrix) const override;
+		      const AlgebraicSymMatrix &covMatrix) const;
   
   /// Get all derivatives 
-  AlgebraicMatrix derivatives(const TrajectoryStateOnSurface &tsos,
-				      const AlignableDetOrUnitPtr &aliDet) const override;
+  virtual AlgebraicMatrix derivatives(const TrajectoryStateOnSurface &tsos,
+				      const AlignableDetOrUnitPtr &aliDet) const;
 
   /// Get translation parameters in double precision
   align::LocalVector translation() const;

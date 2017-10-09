@@ -26,15 +26,15 @@ class FWCSCWireDigiProxyBuilder : public FWProxyBuilderBase
 {
 public:
   FWCSCWireDigiProxyBuilder() {}
-  ~FWCSCWireDigiProxyBuilder() override {}
+  virtual ~FWCSCWireDigiProxyBuilder() {}
 
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
   using FWProxyBuilderBase::build;
-  void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
-  FWCSCWireDigiProxyBuilder(const FWCSCWireDigiProxyBuilder&) = delete;    
-  const FWCSCWireDigiProxyBuilder& operator=(const FWCSCWireDigiProxyBuilder&) = delete;
+  virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
+  FWCSCWireDigiProxyBuilder(const FWCSCWireDigiProxyBuilder&);    
+  const FWCSCWireDigiProxyBuilder& operator=(const FWCSCWireDigiProxyBuilder&);
 
   // NOTE: these parameters are not available via a public interface
   // from the geometry or topology so must be hard-coded.
@@ -103,7 +103,7 @@ FWCSCWireDigiProxyBuilder::getAverageWireSpacing(const int station, const int ri
 void
 FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
-  const CSCWireDigiCollection* digis = nullptr;
+  const CSCWireDigiCollection* digis = 0;
  
   iItem->get(digis);
 

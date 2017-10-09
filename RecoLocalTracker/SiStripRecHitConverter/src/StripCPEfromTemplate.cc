@@ -128,7 +128,7 @@ StripCPEfromTemplate::localParameters( const SiStripCluster& cluster,
       
       const StripGeomDetUnit* stripdet = (const StripGeomDetUnit*)(&det);
  
-      if ( (id  > -9999999) && !(stripdet == nullptr) )
+      if ( (id  > -9999999) && !(stripdet == 0) )
 	{
 	  // Variables needed by template reco
 	  float cotalpha = -9999999.9; 

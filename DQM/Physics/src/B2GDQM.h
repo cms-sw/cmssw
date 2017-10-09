@@ -81,10 +81,10 @@ class B2GDQM : public DQMEDAnalyzer {
 
  public:
   B2GDQM(const edm::ParameterSet& ps);
-  ~B2GDQM() override;
+  virtual ~B2GDQM();
 
  protected:
-  void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
+  virtual void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
 
   virtual void analyzeJets(edm::Event const& e, edm::EventSetup const& eSetup);
   virtual void analyzeSemiMu(edm::Event const& e,
@@ -94,7 +94,7 @@ class B2GDQM : public DQMEDAnalyzer {
                              edm::EventSetup const& eSetup);
 
  private:
-  void bookHistograms(DQMStore::IBooker& bei, edm::Run const&,
+  virtual void bookHistograms(DQMStore::IBooker& bei, edm::Run const&,
                               edm::EventSetup const&) override;
   int nLumiSecs_;
   int nEvents_, irun, ievt;

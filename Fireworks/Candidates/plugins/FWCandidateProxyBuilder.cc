@@ -27,9 +27,9 @@ class FWCandidateProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Candid
       
 public:
    FWCandidateProxyBuilder() {}
-   ~FWCandidateProxyBuilder() override {}
+   virtual ~FWCandidateProxyBuilder() {}
 
-   void setItem(const FWEventItem* iItem) override
+   virtual void setItem(const FWEventItem* iItem) override
    {
       FWProxyBuilderBase::setItem(iItem);
       if (iItem)
@@ -41,8 +41,8 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWCandidateProxyBuilder(const FWCandidateProxyBuilder&) = delete; // stop default
-   const FWCandidateProxyBuilder& operator=(const FWCandidateProxyBuilder&) = delete; // stop default
+   FWCandidateProxyBuilder(const FWCandidateProxyBuilder&); // stop default
+   const FWCandidateProxyBuilder& operator=(const FWCandidateProxyBuilder&); // stop default
 
    using FWSimpleProxyBuilderTemplate<reco::Candidate>::build;
    void build(const reco::Candidate& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;

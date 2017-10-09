@@ -32,35 +32,35 @@ class ME0Segment final : public RecSegment {
 	     const LocalVector& direction, const AlgebraicSymMatrix& errors, float chi2, float time, float timeErr, float deltaPhi);
   
   /// Destructor
-  ~ME0Segment() override;
+  virtual ~ME0Segment();
 
   //--- Base class interface
-  ME0Segment* clone() const override { return new ME0Segment(*this); }
+  ME0Segment* clone() const { return new ME0Segment(*this); }
 
-  LocalPoint localPosition() const override { return theOrigin; }
-  LocalError localPositionError() const override ;
+  LocalPoint localPosition() const { return theOrigin; }
+  LocalError localPositionError() const ;
 	
-  LocalVector localDirection() const override { return theLocalDirection; }
-  LocalError localDirectionError() const override ;
+  LocalVector localDirection() const { return theLocalDirection; }
+  LocalError localDirectionError() const ;
 
   /// Parameters of the segment, for the track fit in the order (dx/dz, dy/dz, x, y )
-  AlgebraicVector parameters() const override;
+  AlgebraicVector parameters() const;
 
   /// Covariance matrix of parameters()
-  AlgebraicSymMatrix parametersError() const override { return theCovMatrix; }
+  AlgebraicSymMatrix parametersError() const { return theCovMatrix; }
 
   /// The projection matrix relates the trajectory state parameters to the segment parameters().
-  AlgebraicMatrix projectionMatrix() const override;
+  virtual AlgebraicMatrix projectionMatrix() const;
 
-  std::vector<const TrackingRecHit*> recHits() const override;
+  virtual std::vector<const TrackingRecHit*> recHits() const;
 
-  std::vector<TrackingRecHit*> recHits() override;
+  virtual std::vector<TrackingRecHit*> recHits();
 
-  double chi2() const override { return theChi2; };
+  double chi2() const { return theChi2; };
 
-  int dimension() const override { return 4; }
+  virtual int dimension() const { return 4; }
 
-  int degreesOfFreedom() const override { return 2*nRecHits() - 4;}	 
+  virtual int degreesOfFreedom() const { return 2*nRecHits() - 4;}	 
 
   //--- Extension of the interface
         

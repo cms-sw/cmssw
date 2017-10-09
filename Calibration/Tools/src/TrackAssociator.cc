@@ -49,10 +49,10 @@ using namespace reco;
 
 HTrackAssociator::HTrackAssociator() 
 {
-   ivProp_ = nullptr;
-   defProp_ = nullptr;
+   ivProp_ = 0;
+   defProp_ = 0;
    debug_ = 0;
-   caloTowerMap_ = nullptr;
+   caloTowerMap_ = 0;
    useDefaultPropagator_ = false;
 }
 
@@ -144,7 +144,7 @@ HTrackDetMatchInfo HTrackAssociator::associate( const edm::Event& iEvent,
    
    init( iSetup );
    
-   const FreeTrajectoryState& currentPosition(trackOrigin);
+   FreeTrajectoryState currentPosition(trackOrigin);
 
    if (parameters.useEcal) fillEcal( iEvent, iSetup, info, currentPosition,parameters.idREcal, parameters.dREcal);
    if (parameters.useHcal) fillHcal( iEvent, iSetup, info, currentPosition,parameters.idRHcal,parameters.dRHcal);
@@ -239,11 +239,11 @@ void HTrackAssociator::fillEcal( const edm::Event& iEvent,
 
    if(ecalTrajectory.empty()) {
       LogTrace("HTrackAssociator::fillEcal") << "Failed to propagate a track to ECAL; moving on\n";
-      info.isGoodEcal = false;
+      info.isGoodEcal = 0;
       return;
    }
    
-   info.isGoodEcal = true;
+   info.isGoodEcal = 1;
 
    info.trkGlobPosAtEcal = getPoint(ecalTrajectory[0]);
 
@@ -321,22 +321,22 @@ void HTrackAssociator::fillCaloTowers( const edm::Event& iEvent,
 
    if(hcalTrajectory.empty()) {
       LogTrace("HTrackAssociator::fillEcal") << "Failed to propagate a track to ECAL; moving on\n";
-      info.isGoodCalo = false;
-      info.isGoodEcal = false;
+      info.isGoodCalo = 0;
+      info.isGoodEcal = 0;
       std::cout<<" HTrackAssociator::fillCaloTowers::Failed to propagate a track to ECAL "<<std::endl;
       return;
    }
    
-   info.isGoodCalo = true;
-   info.isGoodEcal = true;
+   info.isGoodCalo = 1;
+   info.isGoodEcal = 1;
    info.trkGlobPosAtEcal = getPoint(hcalTrajectory[0]);
    
    if(hcalTrajectory.size()<4) {
       LogTrace("HTrackAssociator::fillEcal") << "Failed to propagate a track to HCAL; moving on\n";
-      info.isGoodHcal = false;
+      info.isGoodHcal = 0;
    }
    
-   info.isGoodHcal = true;
+   info.isGoodHcal = 1;
    
    info.trkGlobPosAtHcal = getPoint(hcalTrajectory[4]);
 
@@ -445,12 +445,12 @@ void HTrackAssociator::fillHcal( const edm::Event& iEvent,
 
   if(hcalTrajectory.empty()) {
     LogTrace("HTrackAssociator::fillHcal") << "Failed to propagate a track to HCAL; moving on\n";
-    info.isGoodHcal = false;
+    info.isGoodHcal = 0;
 //    std::cout<<" HTrackAssociator::fillHcal::Failed to propagate a track to HCAL "<<std::endl;
     return;
   }
 
-  info.isGoodHcal = true;
+  info.isGoodHcal = 1;
 
   info.trkGlobPosAtHcal = getPoint(hcalTrajectory[0]);
 
@@ -527,12 +527,12 @@ void HTrackAssociator::fillHcalTowers( const edm::Event& iEvent,
 
    if(hcalTrajectory.empty()) {
       LogTrace("HTrackAssociator::fillEcal") << "Failed to propagate a track to HCAL; moving on\n";
-      info.isGoodCalo = false;
+      info.isGoodCalo = 0;
       std::cout<<" HTrackAssociator::fillCaloTowers::Failed to propagate a track to HCAL "<<std::endl;
       return;
    }
    
-   info.isGoodCalo = true;
+   info.isGoodCalo = 1;
 
    info.trkGlobPosAtHcal = getPoint(hcalTrajectory[0]);
    

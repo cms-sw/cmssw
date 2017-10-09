@@ -26,9 +26,9 @@
 class SiStripBadModuleConfigurableFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   SiStripBadModuleConfigurableFakeESSource(const edm::ParameterSet&);
-  ~SiStripBadModuleConfigurableFakeESSource() override;
+  ~SiStripBadModuleConfigurableFakeESSource();
 
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity ) override;
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity );
 
   typedef std::shared_ptr<SiStripBadStrip> ReturnType;
   ReturnType produce(const SiStripBadModuleRcd&);

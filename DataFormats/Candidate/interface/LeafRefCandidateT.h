@@ -40,7 +40,7 @@ namespace reco {
       LeafCandidate(c->charge(),PolarLorentzVector(c->pt(), c->eta(), c->phi(), m ),c->vertex()),
       ref_(c.refCore(), c.key()){}
     /// destructor
-    ~LeafRefCandidateT() override {}
+    virtual ~LeafRefCandidateT() {}
 
 protected:
     // get the ref (better be the correct ref!)
@@ -49,25 +49,25 @@ protected:
 
 public:
     /// number of daughters
-    size_t numberOfDaughters() const final  { return 0; }
+    virtual size_t numberOfDaughters() const final  { return 0; }
     /// return daughter at a given position (throws an exception)
-    const Candidate * daughter( size_type ) const final  { return nullptr; }
+    virtual const Candidate * daughter( size_type ) const final  { return 0; }
     /// number of mothers
-    size_t numberOfMothers() const final  { return 0; }
+    virtual size_t numberOfMothers() const final  { return 0; }
     /// return mother at a given position (throws an exception)
-    const Candidate * mother( size_type ) const final  { return nullptr; }
+    virtual const Candidate * mother( size_type ) const final  { return 0; }
     /// return daughter at a given position (throws an exception)
-    Candidate * daughter( size_type ) final  { return nullptr; }
+    virtual Candidate * daughter( size_type ) final  { return 0; }
     /// return daughter with a specified role name
-    Candidate * daughter(const std::string& s ) final  { return nullptr; }
+    virtual Candidate * daughter(const std::string& s ) final  { return 0; }
     /// return daughter with a specified role name                                        
-    const Candidate * daughter(const std::string& s ) const final  { return nullptr; }
+    virtual const Candidate * daughter(const std::string& s ) const final  { return 0; }
     /// return the number of source Candidates                                            
     /// ( the candidates used to construct this Candidate)                                
-    size_t numberOfSourceCandidatePtrs() const final  { return 0;}
+    virtual size_t numberOfSourceCandidatePtrs() const final  { return 0;}
     /// return a Ptr to one of the source Candidates                                      
     /// ( the candidates used to construct this Candidate)                                
-    CandidatePtr sourceCandidatePtr( size_type i ) const final  {
+    virtual CandidatePtr sourceCandidatePtr( size_type i ) const final  {
       static const CandidatePtr dummyPtr;
       return dummyPtr;
     }
@@ -75,18 +75,18 @@ public:
 
                      
     /// This only happens if the concrete Candidate type is ShallowCloneCandidate                                      
-    bool hasMasterClone() const final  { return false; }
+    virtual bool hasMasterClone() const final  { return false; }
     /// returns ptr to master clone, if existing.                                                                      
     /// Throws an exception unless the concrete Candidate type is ShallowCloneCandidate                                
-    const CandidateBaseRef & masterClone() const final  { 
+    virtual const CandidateBaseRef & masterClone() const final  { 
       static const CandidateBaseRef dummyRef; return dummyRef; 
     }
     /// returns true if this candidate has a ptr to a master clone.                                                    
     /// This only happens if the concrete Candidate type is ShallowClonePtrCandidate                                   
-    bool hasMasterClonePtr() const final  { return false; }
+    virtual bool hasMasterClonePtr() const final  { return false; }
     /// returns ptr to master clone, if existing.                                                                      
     /// Throws an exception unless the concrete Candidate type is ShallowClonePtrCandidate                             
-    const CandidatePtr & masterClonePtr() const final  { 
+    virtual const CandidatePtr & masterClonePtr() const final  { 
       static const CandidatePtr dummyPtr; return dummyPtr; 
     }
 
@@ -126,22 +126,22 @@ public:
     }
 
 
-    bool isElectron() const final  { return false; }
-    bool isMuon() const final  { return false; }
-    bool isStandAloneMuon() const final  { return false; }
-    bool isGlobalMuon() const final  { return false; }
-    bool isTrackerMuon() const final  { return false; }
-    bool isCaloMuon() const final  { return false; }
-    bool isPhoton() const final  { return false; }
-    bool isConvertedPhoton() const final  { return false; }
-    bool isJet() const final  { return false; }
+    virtual bool isElectron() const final  { return false; }
+    virtual bool isMuon() const final  { return false; }
+    virtual bool isStandAloneMuon() const final  { return false; }
+    virtual bool isGlobalMuon() const final  { return false; }
+    virtual bool isTrackerMuon() const final  { return false; }
+    virtual bool isCaloMuon() const final  { return false; }
+    virtual bool isPhoton() const final  { return false; }
+    virtual bool isConvertedPhoton() const final  { return false; }
+    virtual bool isJet() const final  { return false; }
 
     CMS_CLASS_VERSION(13)
 
   protected:
  
     /// check overlap with another Candidate                                              
-    bool overlap( const Candidate & ) const override;
+    virtual bool overlap( const Candidate & ) const;
     virtual bool overlap( const LeafRefCandidateT & ) const;
     template<typename, typename, typename> friend struct component;
     friend class ::OverlapChecker;

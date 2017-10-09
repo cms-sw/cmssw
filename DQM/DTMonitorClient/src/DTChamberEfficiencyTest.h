@@ -49,7 +49,7 @@ public:
   DTChamberEfficiencyTest(const edm::ParameterSet& ps);
   
   /// Destructor
-  ~DTChamberEfficiencyTest() override;
+  virtual ~DTChamberEfficiencyTest();
 
 protected:
 

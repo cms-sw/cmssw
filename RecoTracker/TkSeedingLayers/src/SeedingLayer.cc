@@ -32,7 +32,7 @@ public:
   const TkTransientTrackingRecHitBuilder * hitBuilder() const { return theTTRHBuilder; }
 
 private:
-  SeedingLayerImpl(const SeedingLayerImpl &) = delete;
+  SeedingLayerImpl(const SeedingLayerImpl &);
 
 private:
   std::string theName;

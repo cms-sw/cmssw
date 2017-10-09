@@ -25,13 +25,13 @@ class FWRecoGeometryESProducer : public edm::ESProducer
 {
 public:
   FWRecoGeometryESProducer( const edm::ParameterSet& );
-  ~FWRecoGeometryESProducer( void ) override;
+  virtual ~FWRecoGeometryESProducer( void );
   
   std::shared_ptr<FWRecoGeometry> produce( const FWRecoGeometryRecord& );
 
 private:
-  FWRecoGeometryESProducer( const FWRecoGeometryESProducer& ) = delete;
-  const FWRecoGeometryESProducer& operator=( const FWRecoGeometryESProducer& ) = delete;
+  FWRecoGeometryESProducer( const FWRecoGeometryESProducer& );
+  const FWRecoGeometryESProducer& operator=( const FWRecoGeometryESProducer& );
   
   void addCSCGeometry( void );
   void addDTGeometry( void );

@@ -30,7 +30,7 @@ class ShallowDigisProducer : public edm::EDProducer {
   std::vector<edm::InputTag> inputTags;
   edm::ESHandle<SiStripNoises> noiseHandle;
 
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&);
   template<class T> bool findInput(edm::Handle<T>&, const edm::Event&);
   template<class T> void recordDigis(const T &, products&);
   void insert(products&, edm::Event&);  

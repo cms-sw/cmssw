@@ -34,7 +34,7 @@ class FWGUISubviewArea : public TGHorizontalFrame
 {
 public:
    FWGUISubviewArea(TEveCompositeFrame* ef, TGCompositeFrame* parent, Int_t height);
-   ~FWGUISubviewArea() override;
+   virtual ~FWGUISubviewArea();
 
    // ---------- const member functions ---------------------
 

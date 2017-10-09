@@ -69,7 +69,7 @@ class Qjets{
 class QjetsBaseExtras : public fastjet::ClusterSequence::Extras {
 public:
  QjetsBaseExtras():_wij(-1.) {}
-  ~QjetsBaseExtras() override {}
+  virtual ~QjetsBaseExtras() {}
   virtual double weight() const {return _wij;}
   friend class Qjets;
 

@@ -9,8 +9,8 @@
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TFParams.h>
 
 #include <iostream>
-#include <cmath>
-#include <ctime>
+#include <math.h>
+#include <time.h>
 #include <cassert>
 
 #include <TFile.h>
@@ -39,7 +39,7 @@ TShapeAnalysis::~TShapeAnalysis()
 
 void TShapeAnalysis::init(double alpha0, double beta0, double width0, double chi20)
 {
-  tABinit=nullptr;
+  tABinit=NULL;
   nchsel=fNchsel;
   for(int cris=0;cris<fNchsel;cris++){
 
@@ -549,7 +549,7 @@ void TShapeAnalysis::printshapeData(int gRunNumber)
      int nev;
      sprintf(filename,"runABW%d.pedestal",gRunNumber); 
      fd = fopen(filename, "w");                                
-     if(fd == nullptr) printf("Error while opening file : %s\n",filename);
+     if(fd == NULL) printf("Error while opening file : %s\n",filename);
 
      for(int i=0; i<nchsel;i++) {
         if(index[i] >= 0) {

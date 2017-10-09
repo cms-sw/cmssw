@@ -51,7 +51,7 @@ class ViewerParameterGUI : public TGCompositeFrame,
 {
 public:
    ViewerParameterGUI(const TGFrame*);
-   ~ViewerParameterGUI() override{}
+   virtual ~ViewerParameterGUI(){}
 
    ViewerParameterGUI& requestTab(const char*);
    ViewerParameterGUI& addParam(const FWParameterBase*);
@@ -75,8 +75,8 @@ private:
 class CmsShowViewPopup : public TGTransientFrame
 {
 public:
-   CmsShowViewPopup(const TGWindow* p = nullptr, UInt_t w = 200, UInt_t h = 200, FWColorManager* cm=nullptr, FWViewBase* wb=nullptr, TEveWindow* ew = nullptr);
-   ~CmsShowViewPopup() override;
+   CmsShowViewPopup(const TGWindow* p = 0, UInt_t w = 200, UInt_t h = 200, FWColorManager* cm=0, FWViewBase* wb=0, TEveWindow* ew = 0);
+   virtual ~CmsShowViewPopup();
 
    // ---------- const member functions ---------------------
 
@@ -84,9 +84,9 @@ public:
 
    // ---------- member functions ---------------------------
 
-   void CloseWindow() override;
-   void MapWindow() override;
-   void UnmapWindow() override;
+   virtual void CloseWindow();
+   virtual void MapWindow();
+   virtual void UnmapWindow();
 
    bool mapped() { return m_mapped; }
 

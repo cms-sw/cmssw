@@ -27,9 +27,9 @@ class TtHadEvtSolutionMaker : public edm::EDProducer {
  public:
 
   explicit TtHadEvtSolutionMaker(const edm::ParameterSet & iConfig);
-  ~TtHadEvtSolutionMaker() override;
+  ~TtHadEvtSolutionMaker();
 
-  void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+  virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
 
  private:
   // configurables

@@ -3,7 +3,7 @@
 #include <memory>
 
 FWJobMetadataManager::FWJobMetadataManager(void)
-   : m_typeAndReps(nullptr)
+   : m_typeAndReps(0)
 {}
 
 FWJobMetadataManager::~FWJobMetadataManager()

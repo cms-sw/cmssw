@@ -35,8 +35,8 @@ namespace edm {
     typedef unsigned long key_type;
     typedef key_type size_type;
 
-    explicit PtrVectorBase(ProductID const& productID, void const* prodPtr = nullptr,
-                           EDProductGetter const* prodGetter = nullptr)
+    explicit PtrVectorBase(ProductID const& productID, void const* prodPtr = 0,
+                           EDProductGetter const* prodGetter = 0)
     :
       core_(productID, prodPtr, prodGetter, false), indicies_(), cachedItems_(nullptr) {}
     
@@ -93,7 +93,7 @@ namespace edm {
     bool isTransient() const {return core_.isTransient();}
 
     void const* product() const {
-      return nullptr;
+      return 0;
     }
 
   protected:
@@ -158,7 +158,7 @@ namespace edm {
     //returns false if the cache is not yet set
     bool checkCachedItems() const;
     
-    PtrVectorBase& operator=(const PtrVectorBase&) = delete;
+    PtrVectorBase& operator=(const PtrVectorBase&);
 
     //Used when we need an iterator but cache is not yet set
     static const std::vector<void const*>& emptyCache();

@@ -41,10 +41,10 @@
 class HBHENoiseFilterResultProducer : public edm::stream::EDProducer<> {
    public:
       explicit HBHENoiseFilterResultProducer(const edm::ParameterSet&);
-      ~HBHENoiseFilterResultProducer() override;
+      ~HBHENoiseFilterResultProducer();
 
    private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
 

@@ -21,24 +21,24 @@ public:
     theDimType = ED_angle;
     //-    std::cout << "entryangle " << type << std::endl;
   };
-  ~EntryAngle() override{};
+  ~EntryAngle(){};
 
  //----- Return value and sigma dimension factors
-  ALIdouble ValueDimensionFactor() const override{
+  virtual ALIdouble ValueDimensionFactor() const{
     return ALIUtils::AngleValueDimensionFactor();
   }
-  ALIdouble SigmaDimensionFactor() const override{
+  virtual ALIdouble SigmaDimensionFactor() const{
     return ALIUtils::AngleSigmaDimensionFactor();
   }
-  ALIdouble OutputValueDimensionFactor() const override{
+  virtual ALIdouble OutputValueDimensionFactor() const{
     return ALIUtils::OutputAngleValueDimensionFactor();
   }
-  ALIdouble OutputSigmaDimensionFactor() const override{
+  virtual ALIdouble OutputSigmaDimensionFactor() const{
     return ALIUtils::OutputAngleSigmaDimensionFactor();
   }
   
   //----- Return starting displacement for derivative
-  ALIdouble startingDisplacement() override {
+  virtual ALIdouble startingDisplacement() {
      return _startingDisplacement;
   }
 

@@ -30,7 +30,7 @@ FWHLTValidator::fillOptions(const char* iBegin, const char* iEnd,
 
    if (m_triggerNames.empty()){
      edm::Handle<edm::TriggerResults> hTriggerResults;
-     edm::TriggerNames const* triggerNames(nullptr);
+     edm::TriggerNames const* triggerNames(0);
      try
      {
        edm::InputTag tag("TriggerResults", "", m_process.c_str());

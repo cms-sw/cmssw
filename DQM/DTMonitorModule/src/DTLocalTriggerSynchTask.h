@@ -58,7 +58,7 @@ class DTLocalTriggerSynchTask: public DQMEDAnalyzer{
   DTLocalTriggerSynchTask(const edm::ParameterSet& ps );
 
   /// Destructor
-  ~DTLocalTriggerSynchTask() override;
+  virtual ~DTLocalTriggerSynchTask();
 
  protected:
 

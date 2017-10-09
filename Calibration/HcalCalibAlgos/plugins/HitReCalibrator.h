@@ -40,11 +40,11 @@ namespace cms
 class HitReCalibrator : public edm::EDProducer {
    public:
       explicit HitReCalibrator(const edm::ParameterSet&);
-      ~HitReCalibrator() override;
+      ~HitReCalibrator();
 
-      void beginJob() override;
+      virtual void beginJob();
 
-      void produce(edm::Event &, const edm::EventSetup&) override;
+      virtual void produce(edm::Event &, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
 

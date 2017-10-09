@@ -8,7 +8,7 @@ using namespace std;
 //_____________________________________________________________________
 L1TOMDSHelper::L1TOMDSHelper(){
   
-  m_omdsReader = nullptr;
+  m_omdsReader = 0;
 
 }
 

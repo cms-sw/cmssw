@@ -46,7 +46,7 @@ public:
   TracksToTrajectories(const edm::ParameterSet&, const Count*);
 
   /// Destructor
-  ~TracksToTrajectories() override;
+  virtual ~TracksToTrajectories();
 
   static std::unique_ptr<Count> initializeGlobalCache(edm::ParameterSet const&) {
     return std::make_unique<Count>();
@@ -56,7 +56,7 @@ public:
   static void globalEndJob(Count const* iCount);
 
   /// Convert a reco::TrackCollection into std::vector<Trajectory>
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
 

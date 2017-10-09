@@ -107,12 +107,12 @@ public:
                 const FWViewManagerManager* iVMMgr,
                 FWNavigatorBase* navigator);
 
-   ~FWGUIManager() override;
+   virtual ~FWGUIManager();
    void     evePreTerminate();
    
    //configuration management interface
-   void addTo(FWConfiguration&) const override;
-   void setFrom(const FWConfiguration&) override;
+   void addTo(FWConfiguration&) const;
+   void setFrom(const FWConfiguration&);
    void setWindowInfoFrom(const FWConfiguration& iFrom, TGMainFrame* iFrame);
    void initEmpty();
 
@@ -152,8 +152,7 @@ public:
    
    // ---------- static member functions --------------------
    static FWGUIManager* getGUIManager();
-   fireworks::Context*  getContext() { return m_context; }
-   static TGFrame* makeGUIsubview(TEveCompositeFrame* cp, TGCompositeFrame* parent, Int_t height);
+   static  TGFrame* makeGUIsubview(TEveCompositeFrame* cp, TGCompositeFrame* parent, Int_t height);
    
    // ---------- member functions ---------------------------
    //have to use the portable syntax else the reflex code will not build
@@ -161,7 +160,7 @@ public:
                             ViewBuildFunctor& iBuilder);
    
    
-   ViewMap_i createView(const std::string& iName, TEveWindowSlot* slot = nullptr);
+   ViewMap_i createView(const std::string& iName, TEveWindowSlot* slot = 0);
    void newViewSlot(const std::string& iName);
    
    void connectSubviewAreaSignals(FWGUISubviewArea*);
@@ -219,8 +218,8 @@ public:
    sigc::signal<void, Float_t> changedDelayBetweenEvents_;
    
 private:
-   FWGUIManager(const FWGUIManager&) = delete;    // stop default
-   const FWGUIManager& operator=(const FWGUIManager&) = delete;    // stop default
+   FWGUIManager(const FWGUIManager&);    // stop default
+   const FWGUIManager& operator=(const FWGUIManager&);    // stop default
       
    TEveWindow* getSwapCandidate();
    

@@ -9,11 +9,11 @@ namespace edm {
   
   public:
     GaussRandomPThetaGunProducer(const ParameterSet &);
-    ~GaussRandomPThetaGunProducer() override;
+    virtual ~GaussRandomPThetaGunProducer();
 
   private:
    
-    void produce(Event &e, const EventSetup& es) override;
+    virtual void produce(Event &e, const EventSetup& es) override;
     
   protected :
   

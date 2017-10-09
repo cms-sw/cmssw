@@ -37,7 +37,7 @@ namespace edm {
 class EgammaHLTElectronTrackIsolationProducers : public edm::global::EDProducer<> {
 public:
   explicit EgammaHLTElectronTrackIsolationProducers(const edm::ParameterSet&);
-  ~EgammaHLTElectronTrackIsolationProducers() override;
+  ~EgammaHLTElectronTrackIsolationProducers();
   void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

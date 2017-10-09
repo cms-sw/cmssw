@@ -34,24 +34,24 @@ class FWDoubleParameterSetter : public FWParameterSetterBase
 
 public:
    FWDoubleParameterSetter();
-   ~FWDoubleParameterSetter() override;
+   virtual ~FWDoubleParameterSetter();
 
    // ---------- const member functions ---------------------
 
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   void attach(FWParameterBase*) override ;
-   TGFrame* build(TGFrame* iParent, bool labelBack=true) override ;
+   virtual void attach(FWParameterBase*) ;
+   virtual TGFrame* build(TGFrame* iParent, bool labelBack=true) ;
 
-   void setEnabled(bool) override;
+   virtual void setEnabled(bool);
 
    void doUpdate(Long_t);
    
 private:
-   FWDoubleParameterSetter(const FWDoubleParameterSetter&) = delete;    // stop default
+   FWDoubleParameterSetter(const FWDoubleParameterSetter&);    // stop default
 
-   const FWDoubleParameterSetter& operator=(const FWDoubleParameterSetter&) = delete;    // stop default
+   const FWDoubleParameterSetter& operator=(const FWDoubleParameterSetter&);    // stop default
 
    // ---------- member data --------------------------------
    FWDoubleParameter* m_param;

@@ -17,14 +17,14 @@ class EntryLengthAffCentre : public EntryLength
 {
 public:
   EntryLengthAffCentre( const ALIstring& type );
-  ~EntryLengthAffCentre() override{};
+  ~EntryLengthAffCentre(){};
 
   virtual void FillName( const ALIstring& name );
-  void displace( ALIdouble disp ) override;
-  void displaceOriginal( ALIdouble disp ) override;
-  void displaceOriginalOriginal( ALIdouble disp ) override;
-  ALIdouble valueInGlobalReferenceFrame() const override;
-  ALIdouble valueDisplaced() const override;
+  virtual void displace( ALIdouble disp );
+  virtual void displaceOriginal( ALIdouble disp );
+  virtual void displaceOriginalOriginal( ALIdouble disp );
+  virtual ALIdouble valueInGlobalReferenceFrame() const;
+  virtual ALIdouble valueDisplaced() const;
 
 };
 

@@ -15,15 +15,15 @@ class ConfigurableVertexReconstructor : public VertexReconstructor
   public:
     ConfigurableVertexReconstructor ( const edm::ParameterSet & );
     ConfigurableVertexReconstructor ( const ConfigurableVertexReconstructor & o );
-    ~ConfigurableVertexReconstructor() override;
+    ~ConfigurableVertexReconstructor();
 
-    std::vector < TransientVertex > vertices ( const std::vector < reco::TransientTrack > & ) const override;
+    std::vector < TransientVertex > vertices ( const std::vector < reco::TransientTrack > & ) const;
     std::vector < TransientVertex > vertices ( const std::vector < reco::TransientTrack > &,
-        const reco::BeamSpot & ) const override;
+        const reco::BeamSpot & ) const;
     std::vector < TransientVertex > vertices ( const std::vector < reco::TransientTrack > &,
-        const std::vector < reco::TransientTrack > &, const reco::BeamSpot & ) const override;
+        const std::vector < reco::TransientTrack > &, const reco::BeamSpot & ) const;
 
-    ConfigurableVertexReconstructor * clone () const override;
+    ConfigurableVertexReconstructor * clone () const;
 
   private:
     AbstractConfReconstructor * theRector;

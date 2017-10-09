@@ -26,7 +26,7 @@ public:
   DTDCSSummary(const edm::ParameterSet& pset);
 
   /// Destructor
-  ~DTDCSSummary() override;
+  virtual ~DTDCSSummary();
 
   // Operations
 

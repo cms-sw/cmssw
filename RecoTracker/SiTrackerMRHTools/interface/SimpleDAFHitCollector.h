@@ -26,7 +26,7 @@ class SimpleDAFHitCollector :public MultiRecHitCollector {
 }
 			
 
-	~SimpleDAFHitCollector() override{}
+	virtual ~SimpleDAFHitCollector(){}
 	
 	//given a trajectory it returns a collection
         //of SiTrackerMultiRecHits and InvalidTransientRecHits.
@@ -35,7 +35,7 @@ class SimpleDAFHitCollector :public MultiRecHitCollector {
         //If measurements are found a SiTrackerMultiRecHit is built.
 	//All the components will lay on the same detector  
 	
-	std::vector<TrajectoryMeasurement> recHits(const Trajectory&, const MeasurementTrackerEvent *theMTE) const override;
+	virtual std::vector<TrajectoryMeasurement> recHits(const Trajectory&, const MeasurementTrackerEvent *theMTE) const override;
 
 	const SiTrackerMultiRecHitUpdator* getUpdator() const {return theUpdator;}
 	const MeasurementEstimator* getEstimator() const {return theEstimator;}

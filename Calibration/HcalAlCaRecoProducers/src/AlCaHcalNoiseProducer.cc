@@ -115,7 +115,7 @@ AlCaHcalNoiseProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	 }
 	 
        }
-       if(!JetContainer.empty()) {
+       if(JetContainer.size() > 0) {
 	 nAnomalousEvents++;
 	 isAnomalous_BasedOnEnergyFraction = true;
        }

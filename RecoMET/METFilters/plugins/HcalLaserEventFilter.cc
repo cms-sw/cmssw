@@ -50,12 +50,12 @@ It also allows users to remove events in which the number of HBHE rechits exceed
 class HcalLaserEventFilter : public edm::global::EDFilter<> {
    public:
       explicit HcalLaserEventFilter(const edm::ParameterSet&);
-      ~HcalLaserEventFilter() override;
+      ~HcalLaserEventFilter();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+      virtual bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   std::vector<int>  GetCMSSWVersion(std::string const&) const;
   bool IsGreaterThanMinCMSSWVersion(std::vector<int> const&) const;

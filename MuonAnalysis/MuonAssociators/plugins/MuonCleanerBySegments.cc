@@ -40,9 +40,9 @@ namespace modules {
   class MuonCleanerBySegmentsT : public edm::EDProducer {
     public:
       explicit MuonCleanerBySegmentsT(const edm::ParameterSet & iConfig);
-      ~MuonCleanerBySegmentsT() override { }
+      virtual ~MuonCleanerBySegmentsT() { }
 
-      void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
       bool isSameMuon(const T &mu1, const T &mu2) const {
         return (& mu1 == & mu2)  ||

@@ -20,9 +20,9 @@
 class EvtPlaneFilter : public edm::stream::EDFilter<> {
 public:
 	explicit EvtPlaneFilter(const edm::ParameterSet&);
-	~EvtPlaneFilter() override;
+	~EvtPlaneFilter();
 private:
-	bool filter(edm::Event&, const edm::EventSetup&) override;
+	virtual bool filter(edm::Event&, const edm::EventSetup&) override;
 
 	const double vnlow_;
 	const double vnhigh_;

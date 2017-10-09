@@ -28,7 +28,7 @@ namespace reco { namespace tau {
 class RecoTauPiZeroCombinatoricPlugin : public RecoTauPiZeroBuilderPlugin {
   public:
   explicit RecoTauPiZeroCombinatoricPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC);
-    ~RecoTauPiZeroCombinatoricPlugin() override {}
+    ~RecoTauPiZeroCombinatoricPlugin() {}
     // Return type is auto_ptr<PiZeroVector>
     return_type operator()(const reco::PFJet& jet) const override;
 

@@ -12,9 +12,9 @@ public:
   typedef T                                   Scalar;
   typedef RKSmallVector<T,N>                  Vector;
 
-  ~RKCylindricalDistance() override {}
+  virtual ~RKCylindricalDistance() {}
 
-  Scalar operator()( const Vector& a, const Vector& b, const Scalar& rho) const override {
+  virtual Scalar operator()( const Vector& a, const Vector& b, const Scalar& rho) const {
       CylindricalState astate(rho,a,1.);
       CylindricalState bstate(rho,b,1.);
       return (astate.position()-bstate.position()).mag() +

@@ -45,11 +45,11 @@ class SimplePi0DiscAnalyzer : public edm::EDAnalyzer
 
      explicit SimplePi0DiscAnalyzer(const edm::ParameterSet& conf);
  
-     ~SimplePi0DiscAnalyzer() override;
+     virtual ~SimplePi0DiscAnalyzer();
 
-     void beginJob() override;
-     void endJob() override;
-     void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+     virtual void beginJob();
+     virtual void endJob();
+     virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
 
  private:
 

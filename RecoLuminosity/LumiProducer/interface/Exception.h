@@ -8,8 +8,8 @@ namespace lumi{
     Exception( const std::string& message,
 	       const std::string& methodname,
 	       const std::string& moduleName);
-    ~Exception() throw() override{}
-    char const* what() const throw() override{
+    virtual ~Exception() throw(){}
+    virtual char const* what() const throw(){
       return m_message.c_str();
     }
   private:
@@ -20,7 +20,7 @@ namespace lumi{
   public:
     nonCollisionException(const std::string& methodname,
 			 const std::string& moduleName);
-    ~nonCollisionException() throw() override{}
+    virtual ~nonCollisionException() throw(){}
   };
 
   class invalidDataException : public lumi::Exception{
@@ -28,7 +28,7 @@ namespace lumi{
     invalidDataException(const std::string& message,
 			 const std::string& methodname,
 			 const std::string& moduleName);
-    ~invalidDataException() throw() override{}
+    virtual ~invalidDataException() throw(){}
   };
 
   class noStableBeamException : public lumi::Exception{
@@ -36,7 +36,7 @@ namespace lumi{
     noStableBeamException(const std::string& message,
 			 const std::string& methodname,
 			 const std::string& moduleName);
-    ~noStableBeamException() throw() override{}
+    virtual ~noStableBeamException() throw(){}
   };
   
   class duplicateRunInDataTagException : public lumi::Exception{
@@ -44,7 +44,7 @@ namespace lumi{
     duplicateRunInDataTagException(const std::string& message,
 				       const std::string& methodname,
 				       const std::string& moduleName);
-    ~duplicateRunInDataTagException() throw() override{}
+    virtual ~duplicateRunInDataTagException() throw(){}
   };
 }//ns lumi
 #endif

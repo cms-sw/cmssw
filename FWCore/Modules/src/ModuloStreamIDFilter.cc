@@ -9,10 +9,10 @@ namespace edm {
   class ModuloStreamIDFilter : public global::EDFilter<> {
   public:
     explicit ModuloStreamIDFilter(ParameterSet const&);
-    ~ModuloStreamIDFilter() override;
+    virtual ~ModuloStreamIDFilter();
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
-    bool filter(StreamID, Event& e, EventSetup const& c) const final;
+    virtual bool filter(StreamID, Event& e, EventSetup const& c) const override final;
 
   private:
     const unsigned int n_; // accept one in n

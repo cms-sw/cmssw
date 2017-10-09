@@ -20,7 +20,7 @@
 class SubdetFEDSelector : public edm::EDProducer {
 public:
   SubdetFEDSelector(const edm::ParameterSet&);
-  ~SubdetFEDSelector() override;
+  ~SubdetFEDSelector();
 
   bool getEcal_;
   bool getHcal_;
@@ -32,9 +32,9 @@ public:
   edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
 
 private:
-  void beginJob() override ;
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+  virtual void beginJob() ;
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
 
       // ----------member data ---------------------------
 };

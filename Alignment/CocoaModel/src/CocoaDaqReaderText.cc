@@ -35,7 +35,7 @@ bool CocoaDaqReaderText::ReadNextEvent()
   //if( retfil == 0 ) {
   if( theFilein.getWordsInLine(wordlist) == 0 ) {
     if(ALIUtils::debug>=4 ) std::cout << "@@@@ No more measurements left" << std::endl;
-    return false; 
+    return 0; 
   }
 
   ////--- Transform to time_t format and save it 
@@ -126,9 +126,9 @@ bool CocoaDaqReaderText::ReadNextEvent()
   //-  std::cout << " returning readmeasff" << std::endl;
 
   if( theFilein.eof() ) {
-    return false;
+    return 0;
   } else {
-    return true;
+    return 1;
   }
 }
 

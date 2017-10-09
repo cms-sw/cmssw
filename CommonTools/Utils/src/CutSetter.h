@@ -21,7 +21,7 @@ namespace reco {
 	cut_(cut), selStack_(selStack) { }
       
       void operator()(const char*, const char*) const {
-	assert(nullptr == cut_.get());
+	assert(0 == cut_.get());
 	assert(!selStack_.empty());
 	cut_ = selStack_.back();
 	selStack_.pop_back();

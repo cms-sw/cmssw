@@ -16,12 +16,12 @@ class SiStripBadStripFromASCIIFile:public ConditionDBWriter<SiStripBadStrip> {
 
   explicit SiStripBadStripFromASCIIFile( const edm::ParameterSet& iConfig);
 
-  ~SiStripBadStripFromASCIIFile() override{};
+  ~SiStripBadStripFromASCIIFile(){};
 
 
 
  private:
-  SiStripBadStrip * getNewObject() override;
+  virtual SiStripBadStrip * getNewObject();
   edm::FileInPath fp_;
   bool printdebug_;
 };

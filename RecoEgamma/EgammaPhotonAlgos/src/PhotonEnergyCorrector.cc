@@ -25,32 +25,32 @@ PhotonEnergyCorrector::PhotonEnergyCorrector( const edm::ParameterSet& config, e
 
 
   // function to extract f(eta) correction
-  scEnergyFunction_ = nullptr ;
+  scEnergyFunction_ = 0 ;
   std::string superClusterFunctionName = config.getParameter<std::string>("superClusterEnergyCorrFunction") ;
   scEnergyFunction_.reset(EcalClusterFunctionFactory::get()->create(superClusterFunctionName,config));
 
 
   // function to extract corrections to cracks
-  scCrackEnergyFunction_ = nullptr ;
+  scCrackEnergyFunction_ = 0 ;
   std::string superClusterCrackFunctionName = config.getParameter<std::string>("superClusterCrackEnergyCorrFunction") ;
   scCrackEnergyFunction_.reset(EcalClusterFunctionFactory::get()->create(superClusterCrackFunctionName,config));
 
 
   // function to extract the error on the sc ecal correction
-  scEnergyErrorFunction_ = nullptr ;
+  scEnergyErrorFunction_ = 0 ;
   std::string superClusterErrorFunctionName = config.getParameter<std::string>("superClusterEnergyErrorFunction") ;
   scEnergyErrorFunction_.reset(EcalClusterFunctionFactory::get()->create(superClusterErrorFunctionName,config));
 
 
   // function  to extract the error on the photon ecal correction
-  photonEcalEnergyCorrFunction_=nullptr;
+  photonEcalEnergyCorrFunction_=0;
   std::string photonEnergyFunctionName = config.getParameter<std::string>("photonEcalEnergyCorrFunction") ;
   photonEcalEnergyCorrFunction_.reset(EcalClusterFunctionFactory::get()->create(photonEnergyFunctionName, config));
   //ingredient for photon uncertainty
   photonUncertaintyCalculator_.reset(new EnergyUncertaintyPhotonSpecific(config));
  
   if( config.existsAs<edm::ParameterSet>("regressionConfig") ) {
-    const edm::ParameterSet& regr_conf = 
+    const edm::ParameterSet regr_conf = 
       config.getParameterSet("regressionConfig");
     const std::string& mname = regr_conf.getParameter<std::string>("modifierName");
     ModifyObjectValueBase* regr = ModifyObjectValueFactory::get()->create(mname,regr_conf);

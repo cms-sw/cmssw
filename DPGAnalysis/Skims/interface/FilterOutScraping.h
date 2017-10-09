@@ -34,10 +34,10 @@
 class FilterOutScraping : public edm::EDFilter {
 public:
   explicit FilterOutScraping( const edm::ParameterSet & );
-  ~FilterOutScraping() override;
+  ~FilterOutScraping();
   
 private:
-  bool filter ( edm::Event &, const edm::EventSetup&) override;
+  virtual bool filter ( edm::Event &, const edm::EventSetup&) override;
   
   bool applyfilter;
   bool debugOn;

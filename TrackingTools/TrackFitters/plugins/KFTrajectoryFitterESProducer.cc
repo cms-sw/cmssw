@@ -24,7 +24,7 @@ namespace {
   class  KFTrajectoryFitterESProducer: public edm::ESProducer{
   public:
     KFTrajectoryFitterESProducer(const edm::ParameterSet & p);
-    ~KFTrajectoryFitterESProducer() override; 
+    ~KFTrajectoryFitterESProducer(); 
     std::shared_ptr<TrajectoryFitter> produce(const TrajectoryFitterRecord &);
     
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

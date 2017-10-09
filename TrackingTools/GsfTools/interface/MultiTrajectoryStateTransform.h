@@ -25,10 +25,10 @@ public:
 
   /** Default constructor (deprecated) -> ES components have to be passed explicitely */
   MultiTrajectoryStateTransform () :
-  geometry_(nullptr), field_(nullptr), extrapolator_(nullptr) {}
+  geometry_(0), field_(0), extrapolator_(0) {}
   /** Constructor from geometry and magnetic field */
   MultiTrajectoryStateTransform (const TrackingGeometry* geom, const MagneticField* field) :
-  geometry_(geom), field_(field), extrapolator_(nullptr) {}
+  geometry_(geom), field_(field), extrapolator_(0) {}
   /** Destructor */
   ~MultiTrajectoryStateTransform ();
 

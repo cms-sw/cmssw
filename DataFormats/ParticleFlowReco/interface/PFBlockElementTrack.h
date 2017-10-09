@@ -21,18 +21,18 @@ namespace reco {
 
     PFBlockElementTrack(const PFRecTrackRef& ref);
 
-    PFBlockElement* clone() const override { return new PFBlockElementTrack(*this); }
+    PFBlockElement* clone() const { return new PFBlockElementTrack(*this); }
     
     void Dump(std::ostream& out = std::cout, 
-              const char* tab = " " ) const override;
+              const char* tab = " " ) const;
 
     /// \return tracktype
-    bool trackType(TrackType trType) const override { 
+    virtual bool trackType(TrackType trType) const { 
       return (trackType_>>trType) & 1; 
     }
 
     /// \set the trackType
-    void setTrackType(TrackType trType, bool value) override {
+    virtual void setTrackType(TrackType trType, bool value) {
       if(value)  trackType_ = trackType_ | (1<<trType);
       else trackType_ = trackType_ ^ (1<<trType);
     }
@@ -51,30 +51,30 @@ namespace reco {
     
     /// \return reference to the corresponding PFRecTrack
     /// please do not use this function after the block production stage!
-    const PFRecTrackRef& trackRefPF() const override { return trackRefPF_; }
+    const PFRecTrackRef& trackRefPF() const { return trackRefPF_; }
     
     /// \return reference to the corresponding Track
-    const reco::TrackRef& trackRef() const override { return trackRef_; }
+    const reco::TrackRef& trackRef() const { return trackRef_; }
 
     /// check if the track is secondary
-    bool isSecondary() const override { 
+    bool isSecondary() const { 
       return 
 	trackType(T_FROM_DISP) || 
 	trackType(T_FROM_GAMMACONV) || 
 	trackType(T_FROM_V0); 
     }
 
-    bool isPrimary() const override{
+    bool isPrimary() const{
       return trackType(T_TO_DISP); 
     }
 
-    bool isLinkedToDisplacedVertex() const override{
+    bool isLinkedToDisplacedVertex() const{
       return isSecondary() || isPrimary();
     }
 
     /// \return the displaced vertex associated
     const PFDisplacedTrackerVertexRef& 
-      displacedVertexRef(TrackType trType) const override {
+      displacedVertexRef(TrackType trType) const {
       if (trType == T_TO_DISP)
 	return displacedVertexDaughterRef_;
       else if (trType == T_FROM_DISP)
@@ -83,7 +83,7 @@ namespace reco {
     }
 
     /// \set the ref to the displaced vertex interaction
-    void setDisplacedVertexRef(const PFDisplacedTrackerVertexRef& niref, TrackType trType) override { 
+    void setDisplacedVertexRef(const PFDisplacedTrackerVertexRef& niref, TrackType trType) { 
 
       if (trType == T_TO_DISP) {
 	displacedVertexDaughterRef_ = niref; setTrackType(trType,true);}
@@ -92,26 +92,26 @@ namespace reco {
     } 
     
     /// \return reference to the corresponding Muon
-    const reco::MuonRef& muonRef() const override { return muonRef_; }
+    const reco::MuonRef& muonRef() const { return muonRef_; }
 
     /// \set reference to the Muon
-    void setMuonRef(const MuonRef& muref) override { 
+    void setMuonRef(const MuonRef& muref) { 
       muonRef_=muref; setTrackType(MUON,true); 
     }
 
     /// \return ref to original recoConversion
-    const ConversionRefVector& convRefs() const override {return convRefs_;} 
+    const ConversionRefVector& convRefs() const {return convRefs_;} 
 
     /// \set the ref to  gamma conversion
-    void setConversionRef(const ConversionRef& convRef, TrackType trType) override { 
+    void setConversionRef(const ConversionRef& convRef, TrackType trType) { 
       convRefs_.push_back(convRef); setTrackType(trType,true); 
     } 
 
     /// \return ref to original V0
-    const VertexCompositeCandidateRef& V0Ref() const override {return v0Ref_;} 
+    const VertexCompositeCandidateRef& V0Ref() const {return v0Ref_;} 
 
     /// \set the ref to  V0
-    void setV0Ref(const VertexCompositeCandidateRef& V0Ref, TrackType trType) override { 
+    void setV0Ref(const VertexCompositeCandidateRef& V0Ref, TrackType trType) { 
       v0Ref_ = V0Ref; setTrackType(trType,true); 
     } 
 

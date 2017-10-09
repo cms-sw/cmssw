@@ -1,8 +1,8 @@
 #include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerAlgo.h"
 
 KDTreeLinkerAlgo::KDTreeLinkerAlgo()
-  : root_ (nullptr),
-    nodePool_(nullptr),
+  : root_ (0),
+    nodePool_(0),
     nodePoolSize_(-1),
     nodePoolPos_(-1)
 {
@@ -17,7 +17,7 @@ void
 KDTreeLinkerAlgo::build(std::vector<KDTreeNodeInfo>	&eltList, 
 			const KDTreeBox			&region)
 {
-  if (!eltList.empty()) {
+  if (eltList.size()) {
     nodePoolSize_ = eltList.size() * 2 - 1;
     nodePool_ = new KDTreeNode[nodePoolSize_];
 
@@ -156,13 +156,13 @@ KDTreeLinkerAlgo::recSearch(const KDTreeNode		*current,
 			    std::vector<KDTreeNodeInfo>	&recHits)
 {
   // By construction, current can't be null
-  assert(current != nullptr);
+  assert(current != 0);
 
   // By Construction, a node can't have just 1 son.
-  assert (!(((current->left == nullptr) && (current->right != nullptr)) ||
-	    ((current->left != nullptr) && (current->right == nullptr))));
+  assert (!(((current->left == 0) && (current->right != 0)) ||
+	    ((current->left != 0) && (current->right == 0))));
     
-  if ((current->left == nullptr) && (current->right == nullptr)) {//leaf case
+  if ((current->left == 0) && (current->right == 0)) {//leaf case
   
     // If point inside the rectangle/area
     if ((current->rh.dim1 >= trackBox.dim1min) && (current->rh.dim1 <= trackBox.dim1max) &&
@@ -210,9 +210,9 @@ KDTreeLinkerAlgo::addSubtree(const KDTreeNode		*current,
 		   std::vector<KDTreeNodeInfo>	&recHits)
 {
   // By construction, current can't be null
-  assert(current != nullptr);
+  assert(current != 0);
 
-  if ((current->left == nullptr) && (current->right == nullptr)) // leaf
+  if ((current->left == 0) && (current->right == 0)) // leaf
     recHits.push_back(current->rh);
   else { // node
     addSubtree(current->left, recHits);
@@ -225,8 +225,8 @@ void
 KDTreeLinkerAlgo::clearTree()
 {
   delete[] nodePool_;
-  nodePool_ = nullptr;
-  root_ = nullptr;
+  nodePool_ = 0;
+  root_ = 0;
   nodePoolSize_ = -1;
   nodePoolPos_ = -1;
 }

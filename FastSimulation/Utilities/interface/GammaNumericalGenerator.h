@@ -26,7 +26,7 @@ class GammaNumericalGenerator : public BaseNumericalRandomGenerator
   }
 
   /// Default destructor
-  ~GammaNumericalGenerator() override {}
+  virtual ~GammaNumericalGenerator() {}
 
   /// Random generator 
   double gamma(RandomEngineAndDistribution const* random) const { return generate(random); }
@@ -36,7 +36,7 @@ class GammaNumericalGenerator : public BaseNumericalRandomGenerator
   double gamma_lin(RandomEngineAndDistribution const* random) const {return generateLin(random);}
 
   /// The probability density function implementation
-  double function(double x) override { return ersatzt(x); }
+  virtual double function(double x) { return ersatzt(x); }
 
   inline bool isValid() const {return valid;}
 

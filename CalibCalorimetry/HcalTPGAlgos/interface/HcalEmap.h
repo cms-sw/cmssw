@@ -24,7 +24,7 @@
 
 // system include files
 #include<vector>
-#include <cstring>
+#include <string.h>
 #include <fstream>
 #include <boost/shared_ptr.hpp>
 

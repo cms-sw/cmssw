@@ -55,7 +55,7 @@ public:
 
 
     /// destructor
-    ~L1GtfeExtWord() override;
+    virtual ~L1GtfeExtWord();
 
     /// equal operator
     bool operator==(const L1GtfeExtWord&) const;
@@ -135,14 +135,14 @@ public:
     void resize(int bstSizeBytes);
 
     /// reset the content of a L1GtfeExtWord
-    void reset() override;
+    void reset();
 
     /// pretty print the content of a L1GtfeExtWord
-    void print(std::ostream& myCout) const override;
+    virtual void print(std::ostream& myCout) const;
 
     /// unpack GTFE
     /// gtfePtr pointer to the beginning of the GTFE block in the raw data
-    void unpack(const unsigned char* gtfePtr) override;
+    virtual void unpack(const unsigned char* gtfePtr);
 
 private:
 

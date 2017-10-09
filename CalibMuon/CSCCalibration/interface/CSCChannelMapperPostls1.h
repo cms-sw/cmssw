@@ -30,23 +30,23 @@ class CSCChannelMapperPostls1 : public CSCChannelMapperBase {
  public:
 
   CSCChannelMapperPostls1() {}
-  ~CSCChannelMapperPostls1() override {}
+  ~CSCChannelMapperPostls1() {}
 
-  std::string name() const override {return "CSCChannelMapperPostls1";}
+  virtual std::string name() const {return "CSCChannelMapperPostls1";}
 
   /// Return raw strip channel number for input geometrical channel number
-  int rawStripChannel( const CSCDetId& id, int igeom ) const override;
+  int rawStripChannel( const CSCDetId& id, int igeom ) const;
 
   /// Return geometrical strip channel number for input raw channel number
-  int geomStripChannel( const CSCDetId& id, int iraw ) const override ;
+  int geomStripChannel( const CSCDetId& id, int iraw ) const ;
 
   /// Offline conversion of a strip (geometric labelling) back to channel
   /// (Postls1: 1-1 correspondence strip to channel)
-  int channelFromStrip( const CSCDetId& id, int strip ) const override;
+  int channelFromStrip( const CSCDetId& id, int strip ) const;
 
   /// Construct raw CSCDetId matching supplied offline CSCDetid
   /// (Postls1: leave ME1a detid alone)
-  CSCDetId rawCSCDetId( const CSCDetId& id ) const override;
+  CSCDetId rawCSCDetId( const CSCDetId& id ) const;
 
 };
 

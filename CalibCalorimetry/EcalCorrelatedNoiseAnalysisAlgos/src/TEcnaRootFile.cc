@@ -11,7 +11,7 @@
 //  Documentation: see TEcnaRootFile.h
 //--------------------------------------
 
-TEcnaRootFile *gCnaRootFile = nullptr;
+TEcnaRootFile *gCnaRootFile = 0;
 
 ClassImp(TEcnaRootFile)
 //___________________________________________________________________________
@@ -77,7 +77,7 @@ TEcnaRootFile::~TEcnaRootFile() {
 
   //std::cout << "[Info Management] CLASS: TEcnaRootFile.      DESTROY OBJECT: this = " << this << std::endl;
 
-  if( fCnaIndivResult != nullptr ){delete fCnaIndivResult;}
+  if( fCnaIndivResult != 0 ){delete fCnaIndivResult;}
 }
 
 void TEcnaRootFile::Init()
@@ -88,12 +88,12 @@ void TEcnaRootFile::Init()
   fRootFileName   = sEmpty.Data();
   fRootFileStatus = sEmpty.Data();
 
-  fRootFile               = nullptr;
+  fRootFile               = 0;
   fCounterBytesCnaResults = 0;
   fNbEntries              = 0;
-  fCnaResultsTree         = nullptr;
-  fCnaResultsBranch       = nullptr;
-  fCnaIndivResult         = nullptr;
+  fCnaResultsTree         = 0;
+  fCnaResultsBranch       = 0;
+  fCnaIndivResult         = 0;
 }
 
 void TEcnaRootFile::ReStart(const Text_t *name)
@@ -116,14 +116,14 @@ void TEcnaRootFile::ReStart(const Text_t *name, const TString& status)
 
 void TEcnaRootFile::CloseFile() {
 //Close the CNA root file for reading
-  if( fRootFile != nullptr )
+  if( fRootFile != 0 )
     {
       fRootFile->Close();
-      delete fRootFile; fRootFile = nullptr;
+      delete fRootFile; fRootFile = 0;
     }
   fCounterBytesCnaResults = 0;
-  fCnaResultsTree         = nullptr;
-  fCnaResultsBranch       = nullptr;
+  fCnaResultsTree         = 0;
+  fCnaResultsBranch       = 0;
 }
 
 Bool_t TEcnaRootFile::OpenR(const Text_t *name) {
@@ -132,13 +132,13 @@ Bool_t TEcnaRootFile::OpenR(const Text_t *name) {
   TString sEmpty = "";
   if( name != sEmpty ){fRootFileName = name;}
 
-  if( fRootFile == nullptr ){fRootFile = new TFile(fRootFileName.Data(),"READ");}
+  if( fRootFile == 0 ){fRootFile = new TFile(fRootFileName.Data(),"READ");}
 
   ok = fRootFile->IsOpen();
   if (ok) {
     fCnaResultsTree = (TTree *)fRootFile->Get("CNAResults");
     if (fCnaResultsTree) {
-      if( fCnaIndivResult == nullptr ){fCnaIndivResult = new TEcnaResultType();}
+      if( fCnaIndivResult == 0 ){fCnaIndivResult = new TEcnaResultType();}
       fCnaResultsBranch = fCnaResultsTree->GetBranch("Results");
       fCnaResultsBranch->SetAddress(&fCnaIndivResult);
       fNbEntries = (Int_t)fCnaResultsTree->GetEntries();
@@ -154,7 +154,7 @@ Bool_t TEcnaRootFile::OpenW(const Text_t *name) {
   TString sEmpty = "";
   if( name != sEmpty ){fRootFileName = name;}
 
-  if( fRootFile == nullptr ){fRootFile = new TFile(fRootFileName.Data(),"RECREATE");}
+  if( fRootFile == 0 ){fRootFile = new TFile(fRootFileName.Data(),"RECREATE");}
   if (fRootFile) {
     fCnaResultsTree = new TTree("CNAResults","CNAResults");
     fCnaIndivResult = new TEcnaResultType();

@@ -57,10 +57,10 @@ public:
   explicit SiStripLorentzAngleCalibration(const edm::ParameterSet &cfg);
   
   /// Destructor
-  ~SiStripLorentzAngleCalibration() override;
+  virtual ~SiStripLorentzAngleCalibration();
 
   /// How many parameters does this calibration define?
-  unsigned int numParameters() const override;
+  virtual unsigned int numParameters() const override;
 
   // /// Return all derivatives,
   // /// default implementation uses other derivatives(..) method,
@@ -72,7 +72,7 @@ public:
 
   /// Return non-zero derivatives for x- and y-measurements with their indices by reference.
   /// Return value is their number.
-  unsigned int derivatives(std::vector<ValuesIndexPair> &outDerivInds,
+  virtual unsigned int derivatives(std::vector<ValuesIndexPair> &outDerivInds,
 				   const TransientTrackingRecHit &hit,
 				   const TrajectoryStateOnSurface &tsos,
 				   const edm::EventSetup &setup,
@@ -80,29 +80,29 @@ public:
 
   /// Setting the determined parameter identified by index,
   /// returns false if out-of-bounds, true otherwise.
-  bool setParameter(unsigned int index, double value) override;
+  virtual bool setParameter(unsigned int index, double value) override;
 
   /// Setting the determined parameter uncertainty identified by index,
   /// returns false if out-of-bounds, true otherwise.
-  bool setParameterError(unsigned int index, double error) override;
+  virtual bool setParameterError(unsigned int index, double error) override;
 
   /// Return current value of parameter identified by index.
   /// Returns 0. if index out-of-bounds.
-  double getParameter(unsigned int index) const override;
+  virtual double getParameter(unsigned int index) const override;
 
   /// Return current value of parameter identified by index.
   /// Returns 0. if index out-of-bounds or if errors undetermined.
-  double getParameterError(unsigned int index) const override;
+  virtual double getParameterError(unsigned int index) const override;
 
   // /// Call at beginning of job:
-  void beginOfJob(AlignableTracker *tracker,
+  virtual void beginOfJob(AlignableTracker *tracker,
   			  AlignableMuon *muon,
   			  AlignableExtras *extras) override;
   
 
   /// Called at end of a the job of the AlignmentProducer.
   /// Write out determined parameters.
-  void endOfJob() override;
+  virtual void endOfJob() override;
 
 private:
   /// If called the first time, fill 'siStripLorentzAngleInput_',
@@ -152,8 +152,8 @@ SiStripLorentzAngleCalibration::SiStripLorentzAngleCalibration(const edm::Parame
     recordNameDBwrite_(cfg.getParameter<std::string>("recordNameDBwrite")),
     outFileName_(cfg.getParameter<std::string>("treeFile")),
     mergeFileNames_(cfg.getParameter<std::vector<std::string> >("mergeTreeFiles")),
-    siStripLorentzAngleInput_(nullptr),
-    moduleGroupSelector_(nullptr),
+    siStripLorentzAngleInput_(0),
+    moduleGroupSelector_(0),
     moduleGroupSelCfg_(cfg.getParameter<edm::ParameterSet>("LorentzAngleModuleGroups"))
 {
 
@@ -298,7 +298,7 @@ void SiStripLorentzAngleCalibration::beginOfJob(AlignableTracker *aliTracker,
                             << "\n N(merge files) = " << mergeFileNames_.size()
                             << "\n number of IOVs = " << moduleGroupSelector_->numIovs();
 
-  if (!mergeFileNames_.empty()) {
+  if (mergeFileNames_.size()) {
     edm::LogInfo("Alignment") << "@SUB=SiStripLorentzAngleCalibration"
                               << "First file to merge: " << mergeFileNames_[0];
   }
@@ -365,7 +365,7 @@ void SiStripLorentzAngleCalibration::endOfJob()
     if (saveToDB_) { // If requested, write out to DB 
       edm::Service<cond::service::PoolDBOutputService> dbService;
       if (dbService.isAvailable()) {
-	dbService->writeOne(output, firstRunOfIOV, recordNameDBwrite_);
+	dbService->writeOne(output, firstRunOfIOV, recordNameDBwrite_.c_str());
 	// no 'delete output;': writeOne(..) took over ownership
       } else {
 	delete output;
@@ -525,17 +525,17 @@ SiStripLorentzAngleCalibration::createFromTree(const char *fileName, const char 
 {
   // Check for file existence on your own to work around
   // https://hypernews.cern.ch/HyperNews/CMS/get/swDevelopment/2715.html:
-  TFile* file = nullptr;
+  TFile* file = 0;
   FILE* testFile = fopen(fileName,"r");
   if (testFile) {
     fclose(testFile);
     file = TFile::Open(fileName, "READ");
   } // else not existing, see error below
 
-  TTree *tree = nullptr;
+  TTree *tree = 0;
   if (file) file->GetObject(treeName, tree);
 
-  SiStripLorentzAngle *result = nullptr;
+  SiStripLorentzAngle *result = 0;
   if (tree) {
     unsigned int id = 0;
     float value = 0.;

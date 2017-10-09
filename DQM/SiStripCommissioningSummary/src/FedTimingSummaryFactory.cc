@@ -15,7 +15,7 @@ SummaryHistogramFactory<FedTimingAnalysis>::SummaryHistogramFactory() :
   view_(sistrip::UNKNOWN_VIEW),
   level_(sistrip::root_),
   gran_(sistrip::UNKNOWN_GRAN),
-  generator_(nullptr) 
+  generator_(0) 
 {;} 
 
 
@@ -41,7 +41,7 @@ void SummaryHistogramFactory<FedTimingAnalysis>::init( const sistrip::Monitorabl
   gran_ = gran;
 
   // Retrieve utility class used to generate summary histograms
-  if ( generator_ ) { delete generator_; generator_ = nullptr; }
+  if ( generator_ ) { delete generator_; generator_ = 0; }
   generator_ = SummaryGenerator::instance( view );
   
 }

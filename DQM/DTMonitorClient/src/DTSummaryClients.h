@@ -41,7 +41,7 @@ public:
   DTSummaryClients(const edm::ParameterSet& ps);
   
   /// Destructor
-  ~DTSummaryClients() override;
+  virtual ~DTSummaryClients();
 
 protected:
 

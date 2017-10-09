@@ -43,7 +43,7 @@
 #include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneFlatten.h"
 #include "TList.h"
 #include "TString.h"
-#include <ctime>
+#include <time.h>
 #include <cstdlib>
 
 #include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneList.h"
@@ -63,10 +63,10 @@ using std::vector;
 class HiEvtPlaneFlatProducer : public edm::stream::EDProducer<> {
 public:
   explicit HiEvtPlaneFlatProducer(const edm::ParameterSet&);
-  ~HiEvtPlaneFlatProducer() override;
+  ~HiEvtPlaneFlatProducer();
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
 
@@ -266,7 +266,7 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   auto evtplaneOutput = std::make_unique<EvtPlaneCollection>();
   EvtPlane * ep[NumEPNames];
   for(int i = 0; i<NumEPNames; i++) {
-    ep[i]=nullptr;
+    ep[i]=0;
   }
   int indx = 0;
   for (EvtPlaneCollection::const_iterator rp = evtPlanes_->begin();rp !=evtPlanes_->end(); rp++) {
@@ -291,7 +291,7 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     }
   
   for(int i = 0; i< NumEPNames; i++) {
-    if(ep[i]!=nullptr) evtplaneOutput->push_back(*ep[i]);
+    if(ep[i]!=0) evtplaneOutput->push_back(*ep[i]);
     
   }
   iEvent.put(std::move(evtplaneOutput));

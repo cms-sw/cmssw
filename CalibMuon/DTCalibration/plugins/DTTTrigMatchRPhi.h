@@ -26,10 +26,10 @@ public:
   DTTTrigMatchRPhi(const edm::ParameterSet&);
 
   // Destructor
-  ~DTTTrigMatchRPhi() override;
+  virtual ~DTTTrigMatchRPhi();
 
-  void setES(const edm::EventSetup& setup) override;
-  DTTTrigData correction(const DTSuperLayerId&) override;
+  virtual void setES(const edm::EventSetup& setup);
+  virtual DTTTrigData correction(const DTSuperLayerId&);
 
 private:
   const DTTtrig *tTrigMap_;

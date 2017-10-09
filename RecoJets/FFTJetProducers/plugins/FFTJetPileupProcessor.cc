@@ -54,7 +54,7 @@ class FFTJetPileupProcessor : public FFTJetInterface
 {
 public:
     explicit FFTJetPileupProcessor(const edm::ParameterSet&);
-    ~FFTJetPileupProcessor() override;
+    ~FFTJetPileupProcessor();
 
 protected:
     // methods
@@ -63,9 +63,9 @@ protected:
     void endJob() override ;
 
 private:
-    FFTJetPileupProcessor() = delete;
-    FFTJetPileupProcessor(const FFTJetPileupProcessor&) = delete;
-    FFTJetPileupProcessor& operator=(const FFTJetPileupProcessor&) = delete;
+    FFTJetPileupProcessor();
+    FFTJetPileupProcessor(const FFTJetPileupProcessor&);
+    FFTJetPileupProcessor& operator=(const FFTJetPileupProcessor&);
 
     void buildKernelConvolver(const edm::ParameterSet&);
     void mixExtraGrid();
@@ -314,7 +314,7 @@ void FFTJetPileupProcessor::mixExtraGrid()
                 << externalGridFiles[currentFileNum] << std::endl;
     }
 
-    const fftjet::Grid2d<float>* g = nullptr;
+    const fftjet::Grid2d<float>* g = 0;
     const unsigned maxFail = 100U;
     unsigned nEnergyRejected = 0;
 
@@ -323,7 +323,7 @@ void FFTJetPileupProcessor::mixExtraGrid()
         g = fftjet::Grid2d<float>::read(gridStream);
 
         // If we can't read the grid, we need to switch to another file
-        for (unsigned ntries=0; ntries<nFiles && g == nullptr; ++ntries)
+        for (unsigned ntries=0; ntries<nFiles && g == 0; ++ntries)
         {
             gridStream.close();
             currentFileNum = (currentFileNum + 1U) % nFiles;
@@ -341,7 +341,7 @@ void FFTJetPileupProcessor::mixExtraGrid()
             if (g->sum() > externalGridMaxEnergy)
             {
                 delete g;
-                g = nullptr;
+                g = 0;
                 if (++nEnergyRejected >= maxFail)
                     throw cms::Exception("FFTJetBadConfig")
                         << "ERROR in FFTJetPileupProcessor::mixExtraGrid():"

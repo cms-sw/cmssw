@@ -35,9 +35,9 @@ FWHFTowerSliceSelector::doSelect(const TEveCaloData::CellId_t& iCell)
 {
    if (!m_item) return;
 
-   const HFRecHitCollection* hits=nullptr;
+   const HFRecHitCollection* hits=0;
    m_item->get(hits);
-   assert(nullptr!=hits);
+   assert(0!=hits);
 
    int index = 0;
    FWChangeSentry sentry(*(m_item->changeManager()));
@@ -58,9 +58,9 @@ FWHFTowerSliceSelector::doUnselect(const TEveCaloData::CellId_t& iCell)
 {
    if (!m_item) return;
 
-   const HFRecHitCollection* hits=nullptr;
+   const HFRecHitCollection* hits=0;
    m_item->get(hits);
-   assert(nullptr!=hits);
+   assert(0!=hits);
 
    int index = 0;
    FWChangeSentry sentry(*(m_item->changeManager()));
@@ -81,7 +81,7 @@ FWHFTowerSliceSelector::findBinFromId( HcalDetId& detId, int tower) const
 {    
    TEveCaloData::vCellId_t cellIds;
    const float* corners = m_item->getGeom()->getCorners( detId.rawId());
-   if( corners == nullptr )
+   if( corners == 0 )
    {
      fwLog( fwlog::kInfo ) << "FWHFTowerSliceSelector cannot get geometry for DetId: "<< detId.rawId() << ". Ignored.\n";
      return false;

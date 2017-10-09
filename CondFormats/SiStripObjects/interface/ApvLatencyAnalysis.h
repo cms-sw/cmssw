@@ -20,15 +20,15 @@ class ApvLatencyAnalysis : public CommissioningAnalysis {
 
   ApvLatencyAnalysis();
 
-  ~ApvLatencyAnalysis() override {;}
+  virtual ~ApvLatencyAnalysis() {;}
 
   friend class ApvLatencyAlgorithm;
 
   inline const uint16_t& latency() const;
 
-  void print( std::stringstream&, uint32_t not_used = 0 ) override;
+  void print( std::stringstream&, uint32_t not_used = 0 );
   
-  void reset() override;
+  void reset();
   
  private:
 

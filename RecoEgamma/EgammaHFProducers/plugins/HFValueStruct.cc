@@ -1,7 +1,7 @@
   
 #include "HFValueStruct.h"
-#include <cstdio>
-#include <cstdlib>
+#include <stdio.h>
+#include <stdlib.h>
 //version -1 will take information from DB (NOT DONE YET)
 //version 0 has energy corrections on, everything else off
 //version 1 has energy correction, and pile up slope and interceept on

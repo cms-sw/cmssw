@@ -60,54 +60,54 @@ class DTRecSegment2D : public RecSegment{
 		 std::vector<DTRecHit1D> &hits1D);
 
   /// Destructor
-  ~DTRecSegment2D() override;
+  virtual ~DTRecSegment2D();
 
   /* Operations */ 
 
-  DTRecSegment2D* clone() const override { return new DTRecSegment2D(*this);}
+  virtual DTRecSegment2D* clone() const { return new DTRecSegment2D(*this);}
 
 
   /// the vector of parameters (dx/dz,x)
-  AlgebraicVector parameters() const override {
+  virtual AlgebraicVector parameters() const {
     return param( localPosition(), localDirection());
   }
 
   // The parameter error matrix 
-  AlgebraicSymMatrix parametersError() const override;
+  virtual AlgebraicSymMatrix parametersError() const;
 
   /** return the projection matrix, which must project a parameter vector,
    * whose components are (q/p, dx/dz, dy/dz, x, y), into the vector returned
    * by parameters() */
-  AlgebraicMatrix projectionMatrix() const override {
+  virtual AlgebraicMatrix projectionMatrix() const {
     return theProjectionMatrix;
   }
     
   /// return 2. The dimension of the matrix
-  int dimension() const override { return 2;}
+  virtual int dimension() const { return 2;}
     
   /// local position in SL frame
-  LocalPoint localPosition() const override {return thePosition; }
+  virtual LocalPoint localPosition() const {return thePosition; }
   
   /// local position error in SL frame
-  LocalError localPositionError() const override ;
+  virtual LocalError localPositionError() const ;
   
   /// the local direction in SL frame
-  LocalVector localDirection() const override { return theDirection; }
+  virtual LocalVector localDirection() const { return theDirection; }
 
   /// the local direction error (xx,xy,yy) in SL frame: only xx is not 0.
-  LocalError localDirectionError() const override;
+  virtual LocalError localDirectionError() const;
 
   /// the chi2 of the fit
-  double chi2() const override { return theChi2; }
+  virtual double chi2() const { return theChi2; }
     
   /// return the DOF of the segment 
-  int degreesOfFreedom() const override ;
+  virtual int degreesOfFreedom() const ;
 
   // Access to component RecHits (if any)
-  std::vector<const TrackingRecHit*> recHits() const override ;
+  virtual std::vector<const TrackingRecHit*> recHits() const ;
 
   // Non-const access to component RecHits (if any)
-  std::vector<TrackingRecHit*> recHits() override ;
+  virtual std::vector<TrackingRecHit*> recHits() ;
 
   /// Access to specific components
   std::vector<DTRecHit1D> specificRecHits() const ;

@@ -28,7 +28,7 @@ Trajectory KFSplittingFitter::fitOne(const Trajectory& aTraj, fitType type) cons
 
   if(aTraj.empty()) return Trajectory();
   
-  const TM& firstTM = aTraj.firstMeasurement();
+  TM firstTM = aTraj.firstMeasurement();
   TSOS firstTsos = 
     TrajectoryStateWithArbitraryError()(firstTM.predictedState());
   

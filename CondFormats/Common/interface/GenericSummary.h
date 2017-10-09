@@ -13,16 +13,16 @@ namespace cond {
   public:
     
     GenericSummary();
-    ~GenericSummary() override;
+    virtual ~GenericSummary();
     
     //
     explicit GenericSummary(std::string const & s);
     
     // short message (just content to be used in a table)
-    void shortMessage(std::ostream & os) const override;
+    virtual void shortMessage(std::ostream & os) const;
     
     // long message (to be used in pop-up, single views)
-    void longMessage(std::ostream & os) const override;
+    virtual void longMessage(std::ostream & os) const;
     
     
   private:

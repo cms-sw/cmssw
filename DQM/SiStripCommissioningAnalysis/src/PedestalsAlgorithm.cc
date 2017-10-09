@@ -15,8 +15,8 @@ using namespace sistrip;
 // 
 PedestalsAlgorithm::PedestalsAlgorithm( const edm::ParameterSet & pset, PedestalsAnalysis* const anal ) 
   : CommissioningAlgorithm(anal),
-    hPeds_(nullptr,""),
-    hNoise_(nullptr,""),
+    hPeds_(0,""),
+    hNoise_(0,""),
     deadStripMax_(pset.getParameter<double>("DeadStripMax")),
     noisyStripMin_(pset.getParameter<double>("NoisyStripMin"))
 {

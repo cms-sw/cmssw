@@ -39,10 +39,10 @@ class ConversionTrackCandidateProducer : public edm::stream::EDProducer<> {
  public:
 
   ConversionTrackCandidateProducer (const edm::ParameterSet& ps);
-  ~ConversionTrackCandidateProducer() override;
+  ~ConversionTrackCandidateProducer();
   
-  void beginRun (edm::Run const&, edm::EventSetup const & es) final;
-  void produce(edm::Event& evt, const edm::EventSetup& es) override;
+  virtual void beginRun (edm::Run const&, edm::EventSetup const & es) override final;
+  virtual void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
  private:
 

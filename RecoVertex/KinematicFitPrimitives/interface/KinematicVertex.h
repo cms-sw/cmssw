@@ -51,7 +51,7 @@ public:
  KinematicVertex(const CachingVertex<6>& vertex);
 
 
- ~KinematicVertex() override;
+ virtual ~KinematicVertex();
 
 /**
  * Comparison by contents operator

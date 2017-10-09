@@ -23,36 +23,36 @@ public:
   enum Mode { FastMode=0, SlowMode=1 };
 
   TwoTrackMinimumDistance( const Mode m=FastMode ) { theModus=m; status_ = false;};
-  ~TwoTrackMinimumDistance() override{}
+  ~TwoTrackMinimumDistance(){}
 
-  bool calculate(const TrajectoryStateOnSurface & sta, 
-	 const TrajectoryStateOnSurface & stb) override;
+  virtual bool calculate(const TrajectoryStateOnSurface & sta, 
+	 const TrajectoryStateOnSurface & stb);
 
-  bool calculate(const FreeTrajectoryState & sta,
-	const FreeTrajectoryState & stb) override;
+  virtual bool calculate(const FreeTrajectoryState & sta,
+	const FreeTrajectoryState & stb);
 
   virtual bool calculate(const GlobalTrajectoryParameters & sta,
 	const GlobalTrajectoryParameters & stb);
 
-  bool status() const override {return status_;}
+  virtual bool status() const {return status_;}
 
   /**
    * Returns the two PCA on the trajectories.
    */
 
-  std::pair<GlobalPoint, GlobalPoint> points() const override;
+  virtual std::pair<GlobalPoint, GlobalPoint> points() const;
 
   /** arithmetic mean of the two points of closest approach */
-  GlobalPoint crossingPoint() const override;
+  virtual GlobalPoint crossingPoint() const;
 
   /** distance between the two points of closest approach in 3D */
-  float distance() const override;
+  virtual float distance() const;
 
 
   /**
    *  Clone method
    */
-  TwoTrackMinimumDistance * clone() const override {
+  virtual TwoTrackMinimumDistance * clone() const {
     return new TwoTrackMinimumDistance(* this);
   }
 

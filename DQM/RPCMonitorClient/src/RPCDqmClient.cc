@@ -143,7 +143,7 @@ void  RPCDqmClient::getMonitorElements( DQMStore::IGetter & igetter){
   
   //dbe_->setCurrentFolder(prefixDir_);
   RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
-  MonitorElement * myMe = nullptr;
+  MonitorElement * myMe = NULL;
   std::string rollName= "";
   
   //loop on all geometry and get all histos

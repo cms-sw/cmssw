@@ -22,9 +22,9 @@
 #include "CondFormats/DTObjects/interface/DTTtrig.h"
 #include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 
-#include <cstdio>
+#include <stdio.h>
 #include <sstream>
-#include <cmath>
+#include <math.h>
 #include "TFile.h"
 
 using namespace edm;

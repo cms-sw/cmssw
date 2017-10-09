@@ -41,6 +41,6 @@ TH2F * RPCRawDataCountsHistoMaker::emptyReadoutErrorMapHisto(int fedId, int type
   result->GetYaxis()->SetNdivisions(505);
   result->SetXTitle("rmb");
   result->SetYTitle("link");
-  result->SetStats(false);
+  result->SetStats(0);
   return result;
 }

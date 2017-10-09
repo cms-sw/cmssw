@@ -11,7 +11,7 @@
 
 #include <iostream>
 #include <iomanip>
-#include <cmath>
+#include <math.h>
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
 

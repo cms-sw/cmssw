@@ -12,7 +12,7 @@ namespace edm {
     explicit ModuloEventIDFilter(ParameterSet const&);
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
-    bool filter(StreamID, Event& e, EventSetup const& c) const final;
+    virtual bool filter(StreamID, Event& e, EventSetup const& c) const override final;
 
   private:
     const unsigned int n_; // accept one in n

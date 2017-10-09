@@ -5,7 +5,7 @@
 #include <vector>
 #include <map>
 #include <memory>
-#include <cstdint>
+#include <stdint.h>
 
 class HcalPatternXMLParserImpl;
 

@@ -10,11 +10,11 @@ public:
     _barrelCutOff(c.getParameter<double>("barrelCutOff")){    
   }
   
-  result_type operator()(const reco::GsfElectronPtr&) const final;
+  result_type operator()(const reco::GsfElectronPtr&) const override final;
 
-  double value(const reco::CandidatePtr& cand) const final;
+  double value(const reco::CandidatePtr& cand) const override final;
 
-  CandidateType candidateType() const final { 
+  CandidateType candidateType() const override final { 
     return ELECTRON; 
   }
 

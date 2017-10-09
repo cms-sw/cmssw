@@ -44,13 +44,13 @@ class DTLVStatusHandler: public popcon::PopConSourceHandler<DTLVStatus> {
 
   /** Destructor
    */
-  ~DTLVStatusHandler() override;
+  virtual ~DTLVStatusHandler();
 
   /** Operations
    */
   /// 
-  void getNewObjects() override;
-  std::string id() const override;
+  void getNewObjects();
+  std::string id() const;
 
  private:
 

@@ -46,10 +46,10 @@ class JetIDProducer : public edm::stream::EDProducer<> {
    public:
 
       explicit JetIDProducer(const edm::ParameterSet&);
-      ~JetIDProducer() override;
+      ~JetIDProducer();
 
    private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       
       // ----------member data ---------------------------
       edm::InputTag                 src_;         // input jet source

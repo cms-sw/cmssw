@@ -53,12 +53,12 @@
   public:
     //--- Constructor, virtual destructor (just in case)
     explicit SiPixelClusterProducer(const edm::ParameterSet& conf);
-    ~SiPixelClusterProducer() override;
+    virtual ~SiPixelClusterProducer();
 
     void setupClusterizer(const edm::ParameterSet& conf);
 
     //--- The top-level event method.
-    void produce(edm::Event& e, const edm::EventSetup& c) override;
+    virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
 
     //--- Execute the algorithm(s).
     template<typename T>

@@ -29,13 +29,13 @@ public:
 
   CombinedMultiHitGenerator( const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
-  ~CombinedMultiHitGenerator() override;
+  virtual ~CombinedMultiHitGenerator();
 
   /// from base class
-  void hitSets( const TrackingRegion& reg, OrderedMultiHits & result,
+  virtual void hitSets( const TrackingRegion& reg, OrderedMultiHits & result,
       const edm::Event & ev,  const edm::EventSetup& es) override;
 
-  void clear() override {
+  virtual void clear() override {
     MultiHitGenerator::clear();
     theGenerator->clear();
   }

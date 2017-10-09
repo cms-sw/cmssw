@@ -45,7 +45,7 @@ namespace edm {
 class EgammaHLTEcalIsolationProducersRegional : public edm::EDProducer {
 public:
   explicit EgammaHLTEcalIsolationProducersRegional(const edm::ParameterSet&);
-  ~EgammaHLTEcalIsolationProducersRegional() override;
+  ~EgammaHLTEcalIsolationProducersRegional();
   void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

@@ -49,7 +49,7 @@ void ZdcSimpleReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & 
 }
 
 void ZdcSimpleReconstructor::endRun(edm::Run const&r, edm::EventSetup const & es){
-  delete myobject; myobject = nullptr;
+  delete myobject; myobject = 0;
 }
 void ZdcSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {
@@ -64,9 +64,9 @@ void ZdcSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& event
     edm::Handle<ZDCDigiCollection> digi;
     e.getByToken(tok_input_hcal,digi);
      
-     if(digi->empty()) {
+     if(digi->size() == 0) {
        e.getByToken(tok_input_castor,digi);
-       if(digi->empty()) 
+       if(digi->size() == 0) 
        	 edm::LogInfo("ZdcHitReconstructor") << "No ZDC info found in either castorDigis or hcalDigis." << std::endl;
      }
     

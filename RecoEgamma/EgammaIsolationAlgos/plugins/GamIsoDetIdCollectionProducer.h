@@ -40,10 +40,10 @@ class GamIsoDetIdCollectionProducer : public edm::stream::EDProducer<> {
    public:
       //! ctor
       explicit GamIsoDetIdCollectionProducer(const edm::ParameterSet&);
-      ~GamIsoDetIdCollectionProducer() override;
+      ~GamIsoDetIdCollectionProducer();
       void beginJob ();
       //! producer
-      void produce(edm::Event &, const edm::EventSetup&) override;
+      virtual void produce(edm::Event &, const edm::EventSetup&);
 
    private:
       // ----------member data ---------------------------

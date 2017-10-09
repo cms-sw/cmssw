@@ -19,16 +19,16 @@ class AlcaBeamSpotHarvester : public edm::EDAnalyzer {
   AlcaBeamSpotHarvester(const edm::ParameterSet&);
 
   /// Destructor
-  ~AlcaBeamSpotHarvester() override;
+  virtual ~AlcaBeamSpotHarvester();
   
   // Operations
-  void beginJob            (void) override;
-  void endJob              (void) override;  
-  void analyze             (const edm::Event&          , const edm::EventSetup&) override;
-  void beginRun            (const edm::Run&            , const edm::EventSetup&) override;
-  void endRun              (const edm::Run&            , const edm::EventSetup&) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  void endLuminosityBlock  (const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  virtual void beginJob            (void);
+  virtual void endJob              (void);  
+  virtual void analyze             (const edm::Event&          , const edm::EventSetup&);
+  virtual void beginRun            (const edm::Run&            , const edm::EventSetup&);
+  virtual void endRun              (const edm::Run&            , const edm::EventSetup&);
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+  virtual void endLuminosityBlock  (const edm::LuminosityBlock&, const edm::EventSetup&);
 
  protected:
 

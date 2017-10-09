@@ -247,7 +247,7 @@ struct Hexel {
                 clusterIndex(-1),
                 sigmaNoise(0.),
                 thickness(0.),
-                tools(nullptr)
+                tools(0)
         {
         }
         bool operator > (const Hexel& rhs) const {

@@ -9,10 +9,10 @@ template <typename S>
 class TopDecayChannelFilter : public edm::EDFilter {
  public:
   TopDecayChannelFilter(const edm::ParameterSet&);
-  ~TopDecayChannelFilter() override;
+  ~TopDecayChannelFilter();
 
  private:
-  bool filter(edm::Event&, const edm::EventSetup&) override;
+  virtual bool filter(edm::Event&, const edm::EventSetup&);
   edm::InputTag src_;
   edm::EDGetTokenT<TtGenEvent> genEvt_;
   edm::EDGetTokenT<reco::GenParticleCollection> parts_;
@@ -27,7 +27,7 @@ TopDecayChannelFilter<S>::TopDecayChannelFilter(const edm::ParameterSet& cfg):
   genEvt_( mayConsume<TtGenEvent>( src_ ) ),
   parts_( mayConsume<reco::GenParticleCollection>( src_ ) ),
   sel_( cfg ),
-  checkedSrcType_(false), useTtGenEvent_(false)
+  checkedSrcType_(0), useTtGenEvent_(0)
 { }
 
 template<typename S>

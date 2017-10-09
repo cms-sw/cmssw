@@ -34,37 +34,37 @@ namespace reco {
 			   Charge q, const PolarLorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) : 
       LeafCandidate( q, p4, vtx ), masterClone_( masterClone ) { }
     /// destructor
-    ~ShallowCloneCandidate() override;
+    virtual ~ShallowCloneCandidate();
     /// returns a clone of the Candidate object
-    ShallowCloneCandidate * clone() const override;
+    virtual ShallowCloneCandidate * clone() const;
     /// number of daughters
-    size_t numberOfDaughters() const override;
+    virtual size_t numberOfDaughters() const;
     /// number of daughters
-    size_t numberOfMothers() const override;
+    virtual size_t numberOfMothers() const;
     /// return daughter at a given position (throws an exception)
-    const Candidate * daughter( size_type i ) const override;
+    virtual const Candidate * daughter( size_type i ) const;
     /// return daughter at a given position (throws an exception)
-    const Candidate * mother( size_type i ) const override;
+    virtual const Candidate * mother( size_type i ) const;
     /// return daughter at a given position (throws an exception)
-    Candidate * daughter( size_type i ) override;
+    virtual Candidate * daughter( size_type i );
     using reco::LeafCandidate::daughter; // avoid hiding the base
     /// has master clone
-    bool hasMasterClone() const override;
+    virtual bool hasMasterClone() const;
     /// returns reference to master clone
-    const CandidateBaseRef & masterClone() const override;
+    virtual const CandidateBaseRef & masterClone() const;
 
-    bool isElectron() const override;
-    bool isMuon() const override;
-    bool isGlobalMuon() const override;
-    bool isStandAloneMuon() const override;
-    bool isTrackerMuon() const override;
-    bool isCaloMuon() const override;
-    bool isPhoton() const override;
-    bool isConvertedPhoton() const override;
-    bool isJet() const override;
+    virtual bool isElectron() const;
+    virtual bool isMuon() const;
+    virtual bool isGlobalMuon() const;
+    virtual bool isStandAloneMuon() const;
+    virtual bool isTrackerMuon() const;
+    virtual bool isCaloMuon() const;
+    virtual bool isPhoton() const;
+    virtual bool isConvertedPhoton() const;
+    virtual bool isJet() const;
   private:
     /// check overlap with another Candidate
-    bool overlap( const Candidate & c ) const override { return masterClone_->overlap( c ); }
+    virtual bool overlap( const Candidate & c ) const { return masterClone_->overlap( c ); }
     /// CandidateBaseReference to master clone
     CandidateBaseRef masterClone_;
   };

@@ -41,7 +41,7 @@ public:
     thePropagator(aPropagator),
     theMeasurementTracker(tracker),
     thePixelLayersValid(false),
-    theFirstPixelBarrelLayer(nullptr),
+    theFirstPixelBarrelLayer(0),
     theFirstNegPixelFwdLayer(0),
     theFirstPosPixelFwdLayer(0) { }
 

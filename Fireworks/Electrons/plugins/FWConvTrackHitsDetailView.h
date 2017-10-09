@@ -23,7 +23,7 @@ class FWConvTrackHitsDetailView: public FWDetailViewGL<reco::Conversion>,
 {
 public:
    FWConvTrackHitsDetailView();
-   ~FWConvTrackHitsDetailView() override;
+   virtual ~FWConvTrackHitsDetailView();
 
    void pickCameraCenter();
    void rnrLabels();   
@@ -37,13 +37,13 @@ public:
 
       
 private:
-   FWConvTrackHitsDetailView(const FWConvTrackHitsDetailView&) = delete; // stop default
-   const FWConvTrackHitsDetailView& operator=(const FWConvTrackHitsDetailView&) = delete; // stop default
+   FWConvTrackHitsDetailView(const FWConvTrackHitsDetailView&); // stop default
+   const FWConvTrackHitsDetailView& operator=(const FWConvTrackHitsDetailView&); // stop default
    
    using FWDetailViewGL<reco::Conversion>::build;
-   void build (const FWModelId &id, const reco::Conversion*) override;
+   void build (const FWModelId &id, const reco::Conversion*);
    using FWDetailViewGL<reco::Conversion>::setTextInfo;
-   void setTextInfo (const FWModelId &id, const reco::Conversion*) override;
+   void setTextInfo (const FWModelId &id, const reco::Conversion*);
  
    
    void

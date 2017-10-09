@@ -33,8 +33,8 @@
 using namespace std;
 using namespace edm;
 
-SiPixelErrorEstimation::SiPixelErrorEstimation(const edm::ParameterSet& ps):tfile_(nullptr), ttree_all_hits_(nullptr), 
-									    ttree_track_hits_(nullptr), ttree_track_hits_strip_(nullptr),
+SiPixelErrorEstimation::SiPixelErrorEstimation(const edm::ParameterSet& ps):tfile_(0), ttree_all_hits_(0), 
+									    ttree_track_hits_(0), ttree_track_hits_strip_(0),
 									    trackerHitAssociatorConfig_(consumesCollector())
 {
   //Read config file
@@ -515,12 +515,12 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 
 	  const TransientTrackingRecHit::ConstRecHitPointer trans_trk_rec_hit_point = itTraj->recHit();
 	 
-	  if ( trans_trk_rec_hit_point == nullptr )
+	  if ( trans_trk_rec_hit_point == NULL )
 	    continue;
 
 	  const TrackingRecHit *trk_rec_hit = (*trans_trk_rec_hit_point).hit();
 
-	  if ( trk_rec_hit == nullptr )
+	  if ( trk_rec_hit == NULL )
 	    continue;
 
 	  DetId detid = (trk_rec_hit)->geographicalId();
@@ -586,7 +586,7 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  //const StripGeomDetUnit* strip_geom_det_unit = dynamic_cast<const StripGeomDetUnit*> ( tracker->idToDet( detid ) );
 	  const StripGeomDetUnit* strip_geom_det_unit = (const StripGeomDetUnit*)tracker->idToDetUnit( detid );
 	  
-	  if ( strip_geom_det_unit != nullptr )
+	  if ( strip_geom_det_unit != NULL )
 	    {
 	      LocalVector lbfield 
 		= (strip_geom_det_unit->surface()).toLocal( (*magneticField).inTesla( strip_geom_det_unit->surface().position() ) ); 
@@ -1366,7 +1366,7 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
       const reco::TrackCollection *tracks = trackCollection.product();
       reco::TrackCollection::const_iterator tciter;
       
-      if ( !tracks->empty() )
+      if ( tracks->size() > 0 )
 	{
 	  // Loop on tracks
 	  for ( tciter=tracks->begin(); tciter!=tracks->end(); ++tciter)

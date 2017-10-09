@@ -25,12 +25,12 @@
 class L1TPUM : public DQMEDAnalyzer {
   public:
     L1TPUM(const edm::ParameterSet& ps);
-    ~L1TPUM() override;
+    virtual ~L1TPUM();
   
   protected:
     void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-    void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
-    void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+    virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
+    virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
     void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   
   private:

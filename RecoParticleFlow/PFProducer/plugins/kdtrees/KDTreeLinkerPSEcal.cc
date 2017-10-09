@@ -26,7 +26,7 @@ KDTreeLinkerPSEcal::~KDTreeLinkerPSEcal()
 void
 KDTreeLinkerPSEcal::insertTargetElt(reco::PFBlockElement	*psCluster)
 {
-  const reco::PFClusterRef& clusterref = psCluster->clusterRef();
+  reco::PFClusterRef clusterref = psCluster->clusterRef();
 
   // This test is more or less done in PFBlockAlgo.h. In others cases, it should be switch on.
   //   if (!((clusterref->layer() == PFLayer::PS1) || 
@@ -40,7 +40,7 @@ KDTreeLinkerPSEcal::insertTargetElt(reco::PFBlockElement	*psCluster)
 void
 KDTreeLinkerPSEcal::insertFieldClusterElt(reco::PFBlockElement	*ecalCluster)
 {
-  const reco::PFClusterRef& clusterref = ecalCluster->clusterRef();
+  reco::PFClusterRef clusterref = ecalCluster->clusterRef();
 
   if (clusterref->layer() != PFLayer::ECAL_ENDCAP)
     return;

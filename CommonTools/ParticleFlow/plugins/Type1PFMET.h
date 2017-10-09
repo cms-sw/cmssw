@@ -12,7 +12,7 @@
 
 // system include files
 #include <memory>
-#include <cstring>
+#include <string.h>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -33,8 +33,8 @@ class Type1PFMET : public edm::EDProducer
  public:
   explicit Type1PFMET( const edm::ParameterSet& );
   explicit Type1PFMET();
-  ~Type1PFMET() override;
-  void produce( edm::Event&, const edm::EventSetup& ) override;
+  virtual ~Type1PFMET();
+  virtual void produce( edm::Event&, const edm::EventSetup& );
  private:
   edm::EDGetTokenT<reco::METCollection> tokenUncorMet;
   edm::EDGetTokenT<reco::PFJetCollection> tokenUncorJets;

@@ -46,7 +46,7 @@ class FFTJetVertexAdder : public edm::EDProducer
 {
 public:
     explicit FFTJetVertexAdder(const edm::ParameterSet&);
-    ~FFTJetVertexAdder() override;
+    ~FFTJetVertexAdder();
 
 protected:
     // methods
@@ -55,9 +55,9 @@ protected:
     void endJob() override;
 
 private:
-    FFTJetVertexAdder() = delete;
-    FFTJetVertexAdder(const FFTJetVertexAdder&) = delete;
-    FFTJetVertexAdder& operator=(const FFTJetVertexAdder&) = delete;
+    FFTJetVertexAdder();
+    FFTJetVertexAdder(const FFTJetVertexAdder&);
+    FFTJetVertexAdder& operator=(const FFTJetVertexAdder&);
 
     const edm::InputTag beamSpotLabel;
     const edm::InputTag existingVerticesLabel;

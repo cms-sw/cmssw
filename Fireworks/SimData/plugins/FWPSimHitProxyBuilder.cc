@@ -19,17 +19,17 @@ class FWPSimHitProxyBuilder : public FWSimpleProxyBuilderTemplate<PSimHit>
 {
 public:
    FWPSimHitProxyBuilder( void ) {} 
-   ~FWPSimHitProxyBuilder( void ) override {}
+   virtual ~FWPSimHitProxyBuilder( void ) {}
 
-   bool haveSingleProduct() const override { return false; }
+   virtual bool haveSingleProduct() const override { return false; }
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
    // Disable default copy constructor
-   FWPSimHitProxyBuilder( const FWPSimHitProxyBuilder& ) = delete;
+   FWPSimHitProxyBuilder( const FWPSimHitProxyBuilder& );
    // Disable default assignment operator
-   const FWPSimHitProxyBuilder& operator=( const FWPSimHitProxyBuilder& ) = delete;
+   const FWPSimHitProxyBuilder& operator=( const FWPSimHitProxyBuilder& );
 
    using FWSimpleProxyBuilderTemplate<PSimHit>::buildViewType;
    void buildViewType( const PSimHit& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type, const FWViewContext* ) override;

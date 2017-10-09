@@ -23,20 +23,20 @@ public:
   //---------- Constructors / Destructor
   OptOSensor2D(){ };
   OptOSensor2D(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data) : 
-  OpticalObject( parent, type, name, copy_data), fdevi_from_file(false){ };
-  ~OptOSensor2D() override{ };
+  OpticalObject( parent, type, name, copy_data), fdevi_from_file(0){ };
+  ~OptOSensor2D(){ };
 
   //---------- defaultBehaviour: make measurement 
-  void defaultBehaviour( LightRay& lightray, Measurement& meas ) override;
+  virtual void defaultBehaviour( LightRay& lightray, Measurement& meas );
   //---------- Make measurement 
-  void makeMeasurement( LightRay& lightray, Measurement& meas ) override;
+  virtual void makeMeasurement( LightRay& lightray, Measurement& meas );
   //---------- Fast simulation of the light ray traversing
-  void fastTraversesLightRay( LightRay& lightray ) override;
+  virtual void fastTraversesLightRay( LightRay& lightray );
   //---------- Detailed simulation of the light ray traversing
-  void detailedTraversesLightRay( LightRay& lightray ) override;
+  virtual void detailedTraversesLightRay( LightRay& lightray );
 
   // Create and fill an extra entry, checking if it has to be read from file
-  void fillExtraEntry( std::vector<ALIstring>& wordlist ) override;
+  virtual void fillExtraEntry( std::vector<ALIstring>& wordlist );
 
   // Get intersection in local coordinates
   ALIdouble* convertPointToLocalCoordinates( const CLHEP::Hep3Vector& point);
@@ -45,7 +45,7 @@ public:
   virtual void fillVRML();
   virtual void fillIguana();
 #endif
-  void constructSolidShape() override;
+  void constructSolidShape();
 
  private:
   // Deviation values read from file

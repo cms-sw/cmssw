@@ -10,11 +10,11 @@ class PedestalsHistograms : public virtual CommissioningHistograms {
  public:
   
   PedestalsHistograms( const edm::ParameterSet& pset, DQMStore* );
-  ~PedestalsHistograms() override;
+  virtual ~PedestalsHistograms();
   
-  void histoAnalysis( bool debug ) override;
+  void histoAnalysis( bool debug );
 
-  void printAnalyses() override; // override
+  void printAnalyses(); // override
 
 };
 

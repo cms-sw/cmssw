@@ -6,7 +6,7 @@
 #include <string>
 #include <map>
 #include <iostream>
-#include <ctime>
+#include <time.h>
 
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
@@ -44,10 +44,10 @@ namespace popcon {
     {
     public:
       EcalSRPHandler(edm::ParameterSet const & );
-      ~EcalSRPHandler() override; 
+      ~EcalSRPHandler(); 
 
-      void getNewObjects() override;
-      std::string id() const override { return m_name;}
+      void getNewObjects();
+      std::string id() const { return m_name;}
       EcalCondDBInterface* econn;
       void importDccConfigFile(EcalSRSettings& sr, const std::string& filename, bool debug = false);
       void PrintPayload(EcalSRSettings& sr, std::ofstream& fout);

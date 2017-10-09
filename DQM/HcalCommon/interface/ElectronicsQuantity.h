@@ -343,21 +343,21 @@ namespace hcaldqm
 					bool isLog=false) : 
 					Quantity(name_eid.at(type), isLog), _type(type)
 				{}
-				~ElectronicsQuantity() override {}
-				ElectronicsQuantity* makeCopy() override
+				virtual ~ElectronicsQuantity() {}
+				virtual ElectronicsQuantity* makeCopy()
 				{return new ElectronicsQuantity(_type, _isLog);}
 
-				int getValue(HcalElectronicsId const& eid) override
+				virtual int getValue(HcalElectronicsId const& eid)
 				{return getValue_functions_eid.at(_type)(eid);}
-				uint32_t getBin(HcalElectronicsId const& eid) override
+				virtual uint32_t getBin(HcalElectronicsId const& eid)
 				{return getBin_functions_eid.at(_type)(eid);}
 
-				QuantityType type() override {return fElectronicsQuantity;}
-				int nbins() override {return nbins_eid.at(_type);}
-				double min() override {return min_eid.at(_type);}
-				double max() override {return max_eid.at(_type);}
-				bool isCoordinate() override {return true;}
-				std::vector<std::string> getLabels() override
+				virtual QuantityType type() {return fElectronicsQuantity;}
+				virtual int nbins() {return nbins_eid.at(_type);}
+				virtual double min() {return min_eid.at(_type);}
+				virtual double max() {return max_eid.at(_type);}
+				virtual bool isCoordinate() {return true;}
+				virtual std::vector<std::string> getLabels()
 				{return getLabels_functions_eid.at(_type)();}
 
 			protected:
@@ -372,23 +372,23 @@ namespace hcaldqm
 				FEDQuantity(std::vector<int> const& vFEDs) :
 					ElectronicsQuantity(fFED, false)
 				{this->setup(vFEDs);}
-				~FEDQuantity() override {}
+				virtual ~FEDQuantity() {}
 
 				virtual void setup(std::vector<int> const& vFEDs);
-				int getValue(HcalElectronicsId const&) override;
-				uint32_t getBin(HcalElectronicsId const&) override;
+				virtual int getValue(HcalElectronicsId const&);
+				virtual uint32_t getBin(HcalElectronicsId const&);
 
-				int nbins() override {return _feds.size();}
-				double min() override {return 0;}
-				double max() override {return _feds.size();}
-				std::vector<std::string> getLabels() override;
+				virtual int nbins() {return _feds.size();}
+				virtual double min() {return 0;}
+				virtual double max() {return _feds.size();}
+				virtual std::vector<std::string> getLabels();
 
 			protected:
 				typedef boost::unordered_map<int, uint32_t> FEDMap;
 				FEDMap _feds;
 
 			public:
-				FEDQuantity* makeCopy() override
+				virtual FEDQuantity* makeCopy()
 				{
 					std::vector<int> vfeds;
 					BOOST_FOREACH(FEDMap::value_type &p, _feds)
@@ -413,26 +413,26 @@ namespace hcaldqm
 			CrateQuantity(std::vector<int> crates, CrateHashMap crateHashes) : ElectronicsQuantity(fCrate, false) {
 				this->setup(crates, crateHashes);
 			}
-			~CrateQuantity() override {}
+			virtual ~CrateQuantity() {}
 
 			virtual void setup(HcalElectronicsMap const * emap);
 			virtual void setup(std::vector<int> crates, CrateHashMap crateHashes);
-			int getValue(HcalElectronicsId const&) override;
-			uint32_t getBin(HcalElectronicsId const&) override;
+			virtual int getValue(HcalElectronicsId const&);
+			virtual uint32_t getBin(HcalElectronicsId const&);
 
-			int nbins() override {
+			virtual int nbins() {
 				return _crates.size();
 			}
-			double min() override {return 0;}
-			double max() override {return _crates.size();}
-			std::vector<std::string> getLabels() override;
+			virtual double min() {return 0;}
+			virtual double max() {return _crates.size();}
+			virtual std::vector<std::string> getLabels();
 
 		protected:
 			std::vector<int> _crates;
 			CrateHashMap _crateHashes;
 
 			public:
-				CrateQuantity* makeCopy() override
+				virtual CrateQuantity* makeCopy()
 				{
 					// Make copies of the crate info
 					std::vector<int> tmpCrates;

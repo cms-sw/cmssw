@@ -18,7 +18,7 @@ class RPCDqmClient:public  DQMEDHarvester {
  RPCDqmClient(const edm::ParameterSet& ps);
   
   /// Destructor
-  ~RPCDqmClient() override;
+  virtual ~RPCDqmClient();
 
  protected:
 

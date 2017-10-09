@@ -19,75 +19,75 @@ public:
   AlignableDetUnit(const GeomDetUnit *geomDetUnit);
   
   /// Destructor
-  ~AlignableDetUnit() override;
+  virtual ~AlignableDetUnit();
 
   /// Updater from GeomDetUnit
   /// The given GeomDetUnit id has to match the current id.
   void update(const GeomDetUnit* geomDetUnit);
 
   /// No components here => exception!
-  void addComponent( Alignable* ) override;
+  virtual void addComponent( Alignable* );
 
   /// Returns a null vector (no components here)
-  Alignables components() const override { return Alignables(); }
+  virtual Alignables components() const { return Alignables(); }
 
   /// Do nothing (no components here, so no subcomponents either...)
-  void recursiveComponents(Alignables &result) const override {}
+  virtual void recursiveComponents(Alignables &result) const {}
 
   /// Move with respect to the global reference frame
-  void move( const GlobalVector& displacement ) override;
+  virtual void move( const GlobalVector& displacement );
 
   /// Rotation with respect to the global reference frame
-  void rotateInGlobalFrame( const RotationType& rotation ) override;
+  virtual void rotateInGlobalFrame( const RotationType& rotation );
 
   /// Set the AlignmentPositionError (no components => second argument ignored)
-  void setAlignmentPositionError(const AlignmentPositionError &ape, bool /*propDown*/) override;
+  virtual void setAlignmentPositionError(const AlignmentPositionError &ape, bool /*propDown*/);
 
   /// Add (or set if it does not exist yet) the AlignmentPositionError
   /// (no components => second argument without effect)
-  void addAlignmentPositionError(const AlignmentPositionError& ape, bool /*propDown*/) override;
+  virtual void addAlignmentPositionError(const AlignmentPositionError& ape, bool /*propDown*/);
 
   /// Add (or set if it does not exist yet) the AlignmentPositionError
   /// resulting from a rotation in the global reference frame
   /// (no components => second argument without effect)
-  void addAlignmentPositionErrorFromRotation(const RotationType& rot, bool /*propDown*/) override;
+  virtual void addAlignmentPositionErrorFromRotation(const RotationType& rot, bool /*propDown*/);
 
   /// Add (or set if it does not exist yet) the AlignmentPositionError
   /// resulting from a rotation in the local reference frame
   /// (no components => second argument without effect)
-  void addAlignmentPositionErrorFromLocalRotation(const RotationType& rot, bool /*propDown*/) override;
+  virtual void addAlignmentPositionErrorFromLocalRotation(const RotationType& rot, bool /*propDown*/);
 
   /// Set surface deformation parameters (2nd argument without effect)
-  void setSurfaceDeformation(const SurfaceDeformation *deformation, bool) override;
+  virtual void setSurfaceDeformation(const SurfaceDeformation *deformation, bool);
   /// Add surface deformation parameters to the existing ones (2nd argument without effect)
-  void addSurfaceDeformation(const SurfaceDeformation *deformation, bool) override;
+  virtual void addSurfaceDeformation(const SurfaceDeformation *deformation, bool);
 
   /// Return the alignable type identifier
-  StructureType alignableObjectId () const override { return align::AlignableDetUnit; }
+  virtual StructureType alignableObjectId () const { return align::AlignableDetUnit; }
 
   /// Printout information about GeomDet
-  void dump() const override;
+  virtual void dump() const;
 
   /// Return vector of alignment data
-  Alignments* alignments() const override;
+  virtual Alignments* alignments() const;
 
   /// Return vector of alignment errors
-  AlignmentErrorsExtended* alignmentErrors() const override;
+  virtual AlignmentErrorsExtended* alignmentErrors() const;
 
   /// Return surface deformations
-  int surfaceDeformationIdPairs(std::vector<std::pair<int,SurfaceDeformation*> > &) const override;
+  virtual int surfaceDeformationIdPairs(std::vector<std::pair<int,SurfaceDeformation*> > &) const;
  
   /// cache the current position, rotation and other parameters (e.g. surface deformations)
-  void cacheTransformation() override;
+  virtual void cacheTransformation();
 
   /// cache for the given run the current position, rotation and other parameters (e.g. surface deformations)
-  void cacheTransformation(const align::RunNumber&) override;
+  virtual void cacheTransformation(const align::RunNumber&);
 
   /// restore the previously cached transformation
-  void restoreCachedTransformation() override;
+  virtual void restoreCachedTransformation();
 
   /// restore for the given run the previously cached transformation
-  void restoreCachedTransformation(const align::RunNumber&) override;
+  virtual void restoreCachedTransformation(const align::RunNumber&);
 
   /// alignment position error - for checking only, otherwise use alignmentErrors() above!  
   const AlignmentPositionError* alignmentPositionError() const { return theAlignmentPositionError;}

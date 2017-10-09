@@ -35,8 +35,8 @@ public:
   RPCFw( const std::string& connectionString,
          const std::string& userName,
          const std::string& password);
-  ~RPCFw() override;
-  void run() override;
+  virtual ~RPCFw();
+  void run();
 
   coral::TimeStamp UTtoT(long long utime);
   unsigned long long TtoUT(const coral::TimeStamp& time);

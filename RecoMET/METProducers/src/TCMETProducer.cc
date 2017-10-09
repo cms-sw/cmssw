@@ -13,7 +13,7 @@
 
 #include "DataFormats/METReco/interface/METFwd.h"
 
-#include <cstring>
+#include <string.h>
 
 //____________________________________________________________________________||
 namespace cms

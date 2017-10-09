@@ -21,16 +21,16 @@ class FWElectronLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Gsf
 {
 public:
   FWElectronLegoProxyBuilder() {}
-  ~FWElectronLegoProxyBuilder() override {}
+  virtual ~FWElectronLegoProxyBuilder() {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWElectronLegoProxyBuilder(const FWElectronLegoProxyBuilder&) = delete;
-   const FWElectronLegoProxyBuilder& operator=(const FWElectronLegoProxyBuilder&) = delete;
+   FWElectronLegoProxyBuilder(const FWElectronLegoProxyBuilder&);
+   const FWElectronLegoProxyBuilder& operator=(const FWElectronLegoProxyBuilder&);
 
    using FWSimpleProxyBuilderTemplate<reco::GsfElectron>  ::build;
-   void build(const reco::GsfElectron& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;
+   virtual void build(const reco::GsfElectron& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;
 };
 
 void FWElectronLegoProxyBuilder::build(const reco::GsfElectron& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) 
@@ -38,7 +38,7 @@ void FWElectronLegoProxyBuilder::build(const reco::GsfElectron& iData, unsigned 
    TEveStraightLineSet *marker = new TEveStraightLineSet("marker");
    setupAddElement(marker, &oItemHolder);
  
-   TEveTrack* track(nullptr);
+   TEveTrack* track(0);
    
    if( iData.gsfTrack().isAvailable() )
      track = fireworks::prepareTrack(*iData.gsfTrack(), context().getTrackPropagator());     

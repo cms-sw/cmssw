@@ -20,9 +20,9 @@ class SiStripSummaryBuilder : public edm::EDAnalyzer {
 
   explicit SiStripSummaryBuilder( const edm::ParameterSet& iConfig);
 
-  ~SiStripSummaryBuilder() override{};
+  ~SiStripSummaryBuilder(){};
 
-  void analyze(const edm::Event& , const edm::EventSetup& ) override;
+  virtual void analyze(const edm::Event& , const edm::EventSetup& );
 
  private:
   edm::FileInPath fp_;

@@ -25,7 +25,7 @@
 //-------------------
 // Initializations --
 //-------------------
-DTHVAbstractCheck* DTHVAbstractCheck::instance = nullptr;
+DTHVAbstractCheck* DTHVAbstractCheck::instance = 0;
 
 //----------------
 // Constructors --

@@ -60,7 +60,7 @@ const L1GtTechnicalTrigger* L1GtTechnicalTriggerRecord::getTechnicalTrigger(
             << "\n  Returning zero pointer for getTechnicalTrigger\n\n"
             << std::endl;
 
-    return nullptr;
+    return 0;
 
 }
 
@@ -88,7 +88,7 @@ const L1GtTechnicalTrigger* L1GtTechnicalTriggerRecord::getTechnicalTrigger(
             << "\n  Returning zero pointer for getTechnicalTrigger\n\n"
             << std::endl;
 
-    return nullptr;
+    return 0;
 
 }
 

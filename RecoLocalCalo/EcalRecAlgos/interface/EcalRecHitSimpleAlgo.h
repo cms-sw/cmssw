@@ -20,20 +20,20 @@ class EcalRecHitSimpleAlgo : public EcalRecHitAbsAlgo {
     adcToGeVConstantIsSet_ = false;
   }
 
-  void setADCToGeVConstant(const float& value) override {
+  virtual void setADCToGeVConstant(const float& value) {
     adcToGeVConstant_ = value;
     adcToGeVConstantIsSet_ = true;
   }
 
 
   // destructor
-  ~EcalRecHitSimpleAlgo() override { };
+  virtual ~EcalRecHitSimpleAlgo() { };
 
   /// Compute parameters
-  EcalRecHit makeRecHit(const EcalUncalibratedRecHit& uncalibRH,
+  virtual EcalRecHit makeRecHit(const EcalUncalibratedRecHit& uncalibRH,
                                 const float& intercalibConstant,
                                 const float& timeIntercalib = 0,
-                                const uint32_t& flags = 0) const override {
+                                const uint32_t& flags = 0) const {
 
     if(!adcToGeVConstantIsSet_) {
       std::cout << "EcalRecHitSimpleAlgo::makeRecHit: adcToGeVConstant_ not set before calling this method!" << 

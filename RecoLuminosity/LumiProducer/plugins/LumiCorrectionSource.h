@@ -27,11 +27,11 @@ class LumiCorrectionSource: public edm::ESProducer , public edm::EventSetupRecor
   LumiCorrectionSource(const edm::ParameterSet&);
   typedef std::shared_ptr<LumiCorrectionParam> ReturnParamType;
   ReturnParamType produceLumiCorrectionParam(const LumiCorrectionParamRcd&);
-  ~LumiCorrectionSource() override;
+  ~LumiCorrectionSource();
  protected:
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
+  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
                                const edm::IOVSyncValue&,
-			       edm::ValidityInterval& ) override;
+			       edm::ValidityInterval& );
  private:
   std::string translateFrontierConnect(const std::string& connectStr);
   void reloadAuth();

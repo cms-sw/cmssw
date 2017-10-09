@@ -45,12 +45,12 @@ class CtfSpecialSeedGenerator : public edm::stream::EDProducer<>
 
   CtfSpecialSeedGenerator(const edm::ParameterSet& conf);
 
-  ~CtfSpecialSeedGenerator() override;//{};
+  virtual ~CtfSpecialSeedGenerator();//{};
 
-  void beginRun(edm::Run const&, edm::EventSetup const&) override;	
-  void endRun(edm::Run const&, edm::EventSetup const&) override;	
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;	
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;	
 
-  void produce(edm::Event& e, const edm::EventSetup& c) override;
+  virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
 
  private:
   

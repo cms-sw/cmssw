@@ -787,7 +787,7 @@ namespace edm {
     if(iter2 == iEnd2) return;
     if(back1 < iter2.runOrLumiIndexes()) return;
 
-    RunOrLumiIndexes const* previousIndexes = nullptr;
+    RunOrLumiIndexes const* previousIndexes = 0;
 
     // Loop through the both IndexIntoFile objects and look for matching lumis
     while(iter1 != iEnd1 && iter2 != iEnd2) {
@@ -862,7 +862,7 @@ namespace edm {
 
   bool IndexIntoFile::containsDuplicateEvents() const {
 
-    RunOrLumiIndexes const* previousIndexes = nullptr;
+    RunOrLumiIndexes const* previousIndexes = 0;
 
     for(SortedRunOrLumiItr iter = beginRunOrLumi(),
                             iEnd = endRunOrLumi();

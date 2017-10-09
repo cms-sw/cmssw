@@ -31,9 +31,9 @@
 class TriggerObjectFilterByCollection : public edm::EDProducer {
     public:
         explicit TriggerObjectFilterByCollection(const edm::ParameterSet & iConfig);
-        ~TriggerObjectFilterByCollection() override { }
+        virtual ~TriggerObjectFilterByCollection() { }
 
-        void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+        virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
 
     private:
         edm::EDGetTokenT<std::vector<pat::TriggerObjectStandAlone>> src_;

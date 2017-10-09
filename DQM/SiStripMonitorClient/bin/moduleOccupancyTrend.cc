@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
 
   std::ifstream inmodules(modulelist);
 
-  while(true){
+  while(1){
     
     inmodules >> detid;
     if (!inmodules.good()) break;
@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
     THStack *hs = new THStack("hs","");
 
 
-    while(true){
+    while(1){
 
       filesin >> filename;
       if (!filesin.good()) break;      
@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
 	return 0;
       }
 
-      histo->SetDirectory(nullptr);
+      histo->SetDirectory(0);
       histo->SetStats(kFALSE);
 
       if (hn.find("Summary")==std::string::npos) histo->Scale(1/EvtNum);

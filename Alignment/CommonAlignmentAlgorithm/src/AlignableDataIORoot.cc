@@ -79,7 +79,7 @@ int AlignableDataIORoot::findEntry(align::ID id, align::StructureType comp)
 // ----------------------------------------------------------------------------
 int AlignableDataIORoot::writeAbsRaw(const AlignableAbsData &ad)
 {
-  const align::GlobalPoint& pos = ad.pos();
+  align::GlobalPoint pos = ad.pos();
   align::RotationType rot = ad.rot();
   Id = ad.id();
   ObjId = ad.objId();
@@ -101,7 +101,7 @@ int AlignableDataIORoot::writeAbsRaw(const AlignableAbsData &ad)
 // ----------------------------------------------------------------------------
 int AlignableDataIORoot::writeRelRaw(const AlignableRelData &ad)
 {
-  const align::GlobalVector& pos = ad.pos();
+  align::GlobalVector pos = ad.pos();
   align::RotationType rot = ad.rot();
   Id = ad.id();
   ObjId = ad.objId();

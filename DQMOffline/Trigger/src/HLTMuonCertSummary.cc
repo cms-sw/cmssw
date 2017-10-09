@@ -194,7 +194,7 @@ HLTMuonCertSummary::dqmEndJob(DQMStore::IBooker & iBooker, DQMStore::IGetter & i
   
   for(auto & it : histoNameVector){
 
-    const string& HistoName = it;
+    string HistoName = it;
     if(verbose_) LogInfo ("HLTMuonVal")  << ">>> " << HistoName;        
     
 

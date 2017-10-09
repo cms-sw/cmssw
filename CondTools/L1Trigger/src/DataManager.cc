@@ -11,7 +11,7 @@ namespace l1t
 {
 
   DataManager::DataManager()
-    : session( nullptr ){}
+    : session( 0 ){}
 
   DataManager::DataManager (const std::string & connectString,
 			    const std::string & authenticationPath,

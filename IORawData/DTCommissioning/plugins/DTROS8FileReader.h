@@ -24,14 +24,14 @@ class DTROS8FileReader : public edm::EDProducer {
   DTROS8FileReader(const edm::ParameterSet& pset);
 
   /// Destructor
-  ~DTROS8FileReader() override;
+  virtual ~DTROS8FileReader();
 
   /// Generate and fill FED raw data for a full event
   virtual int fillRawData(edm::Event& e,
 //			  edm::Timestamp& tstamp, 
 			  FEDRawDataCollection*& data);
 
-  void produce(edm::Event&, edm::EventSetup const&) override;
+  virtual void produce(edm::Event&, edm::EventSetup const&);
 
   virtual bool checkEndOfFile();
 

@@ -23,7 +23,7 @@ class EEDataFrame : public EcalDataFrame
   EEDataFrame(edm::DataFrame const & base) : Base(base) {}
   EEDataFrame(EcalDataFrame const & base) : Base(base) {}
     
-  ~EEDataFrame() override {}
+  virtual ~EEDataFrame() {}
 
   key_type id() const { return Base::id(); }
 

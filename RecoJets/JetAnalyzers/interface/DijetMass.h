@@ -28,9 +28,9 @@ public:
 private:
   typedef std::vector<Jet> JetCollection;
   //Framwework stuff
-  void beginJob( ) override;
-  void analyze( const edm::Event& , const edm::EventSetup& ) override;
-  void endJob() override;
+  void beginJob( );
+  void analyze( const edm::Event& , const edm::EventSetup& );
+  void endJob();
 
   // Parameters passed via the config file
   double PtHistMax;      // Maximum edge of Pt histograms

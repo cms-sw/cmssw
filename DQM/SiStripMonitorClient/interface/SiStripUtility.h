@@ -12,7 +12,7 @@
 #include <fstream>
 #include <string>
 #include <map>
-#include <cstdint>
+#include <stdint.h>
 
 class MonitorElement;
 class DQMStore;

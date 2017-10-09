@@ -26,33 +26,33 @@ public:
 
   AlignmentExtendedCorrelationsStore( const edm::ParameterSet& config );
 
-  ~AlignmentExtendedCorrelationsStore( void ) override {}
+  virtual ~AlignmentExtendedCorrelationsStore( void ) {}
 
   /// Write correlations directly to the covariance matrix starting at the
   /// given position. Indices are assumed to start from 0.
-  void correlations( Alignable* ap1, Alignable* ap2,
+  virtual void correlations( Alignable* ap1, Alignable* ap2,
 			     AlgebraicSymMatrix& cov, int row, int col ) const override;
 
   /// Get correlations directly from the given position of the covariance
   /// matrix and store them. Indices are assumed to start from 0.
-  void setCorrelations( Alignable* ap1, Alignable* ap2,
+  virtual void setCorrelations( Alignable* ap1, Alignable* ap2,
 				const AlgebraicSymMatrix& cov, int row, int col ) override;
 
   /// Set correlations without checking whether the maximum
   /// number of updates has already been reached.
-  void setCorrelations( Alignable* ap1, Alignable* ap2,	AlgebraicMatrix& mat ) override;
+  virtual void setCorrelations( Alignable* ap1, Alignable* ap2,	AlgebraicMatrix& mat ) override;
 
   /// Get correlations.
   virtual void getCorrelations( Alignable* ap1, Alignable* ap2,	AlgebraicMatrix& mat ) const;
 
   /// Check whether correlations are stored for a given pair of alignables.
-  bool correlationsAvailable( Alignable* ap1, Alignable* ap2 ) const override;
+  virtual bool correlationsAvailable( Alignable* ap1, Alignable* ap2 ) const override;
 
   /// Reset correlations.
-  void resetCorrelations( void ) override;
+  virtual void resetCorrelations( void ) override;
 
   /// Get number of stored correlations.
-  unsigned int size( void ) const override;
+  virtual unsigned int size( void ) const override;
 
 private:
 

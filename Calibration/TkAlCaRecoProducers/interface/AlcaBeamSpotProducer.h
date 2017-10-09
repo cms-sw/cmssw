@@ -27,13 +27,13 @@ class AlcaBeamSpotProducer : public edm::one::EDProducer<edm::EndLuminosityBlock
                                                          edm::one::WatchLuminosityBlocks> {
  public:
   explicit AlcaBeamSpotProducer(const edm::ParameterSet&);
-  ~AlcaBeamSpotProducer() override;
+  ~AlcaBeamSpotProducer();
 
  private:
-  void beginLuminosityBlock     (edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) final;
-  void endLuminosityBlock       (edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) final;
-  void endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) final;
-  void produce                  (edm::Event& iEvent, const edm::EventSetup& iSetup) final;
+  virtual void beginLuminosityBlock     (edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) override final;
+  virtual void endLuminosityBlock       (edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) override final;
+  virtual void endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) override final;
+  virtual void produce                  (edm::Event& iEvent, const edm::EventSetup& iSetup) override final;
   
   int ftotalevents;
   int fitNLumi_;

@@ -34,11 +34,11 @@ void TBPLayer::construct() {
   theInnerCylinder = cylinder( theInnerComps);
   theOuterCylinder = cylinder( theOuterComps);
 
-  if (!theInnerComps.empty())
+  if (theInnerComps.size())
     theInnerBinFinder = BinFinderType(theInnerComps.front()->position().phi(),
 				      theInnerComps.size());
 
-  if (!theOuterComps.empty())
+  if (theOuterComps.size())
     theOuterBinFinder = BinFinderType(theOuterComps.front()->position().phi(),
 				      theOuterComps.size());
   
@@ -132,7 +132,7 @@ void TBPLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 				bool checkClosest) const {
   using barrelUtil::overlap;
   
-  const GlobalPoint& gCrossingPos = crossing.position();
+  GlobalPoint gCrossingPos = crossing.position();
   auto gphi = gCrossingPos.barePhi();  
   
   const vector<const GeometricSearchDet*>& sLayer( subLayer( crossing.subLayerIndex()));

@@ -40,8 +40,8 @@
 //
 FWEventItemsManager::FWEventItemsManager(FWModelChangeManager* iManager) :
    m_changeManager(iManager),
-   m_context(nullptr),
-   m_event(nullptr),
+   m_context(0),
+   m_event(0),
    m_accessorFactory(new FWItemAccessorFactory())
 {
 }
@@ -80,10 +80,8 @@ FWEventItemsManager::~FWEventItemsManager()
 //
 // member functions
 //
-FWEventItem*
-FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem,
-                         const FWConfiguration* pbc,
-                         bool doSetEvent)
+const FWEventItem*
+FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem, const FWConfiguration* pbc)
 {
    FWPhysicsObjectDesc temp(iItem);
    
@@ -98,8 +96,7 @@ FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem,
                                      temp, pbc));
    newItem_(m_items.back());
    m_items.back()->goingToBeDestroyed_.connect(boost::bind(&FWEventItemsManager::removeItem,this,_1));
-   if (doSetEvent && m_event)
-   {
+   if(m_event) {
       FWChangeSentry sentry(*m_changeManager);
       m_items.back()->setEvent(m_event);
    }
@@ -136,7 +133,7 @@ FWEventItemsManager::clearItems(void)
       if (item) {
          item->destroy();
       }
-      m_items[i]=nullptr;
+      m_items[i]=0;
    }
    goingToClearItems_();
 
@@ -160,7 +157,7 @@ void
 FWEventItemsManager::addTo(FWConfiguration& iTo) const
 {
    FWColorManager* cm = m_context->colorManager();
-   assert(nullptr!=cm);
+   assert(0!=cm);
    for(std::vector<FWEventItem*>::const_iterator it = m_items.begin();
        it != m_items.end();
        ++it)
@@ -206,16 +203,14 @@ FWEventItemsManager::addTo(FWConfiguration& iTo) const
 void
 FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
 {
+ 
    FWColorManager* cm = m_context->colorManager();
-   assert(nullptr!=cm);
+   assert(0!=cm);
 
    clearItems();
    const FWConfiguration::KeyValues* keyValues =  iFrom.keyValues();
 
-   if (keyValues == nullptr) return;
-
-   std::vector<FWEventItem*> newItems;
-   newItems.reserve(keyValues->size());
+   if (keyValues == 0) return;
 
    for (FWConfiguration::KeyValues::const_iterator it = keyValues->begin();
         it != keyValues->end();
@@ -224,7 +219,7 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
       const std::string& name = it->first;
       const FWConfiguration& conf = it->second;
       const FWConfiguration::KeyValues* keyValues =  conf.keyValues();
-      assert(nullptr!=keyValues);
+      assert(0!=keyValues);
       const std::string& type = (*keyValues)[0].second.value();
       const std::string& moduleLabel = (*keyValues)[1].second.value();
       const std::string& productInstanceLabel = (*keyValues)[2].second.value();
@@ -256,23 +251,23 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
       // Read transparency from file. We don't care about checking errors
       // because strtol returns 0 in that case.
       if (conf.version() > 3)
-         transparency = strtol((*keyValues)[9].second.value().c_str(), nullptr, 10);
+         transparency = strtol((*keyValues)[9].second.value().c_str(), 0, 10);
 
       FWDisplayProperties dp(colorIndex, isVisible, transparency);
 
-      unsigned int layer = strtol((*keyValues)[7].second.value().c_str(), nullptr, 10);
+      unsigned int layer = strtol((*keyValues)[7].second.value().c_str(), 0, 10);
 
       //For older configs assume name is the same as purpose
       std::string purpose(name);
       if (conf.version() > 1)
          purpose = (*keyValues)[8].second.value();
 
-      FWConfiguration* proxyConfig = (FWConfiguration*) conf.valueForKey("PBConfig") ? new FWConfiguration(*conf.valueForKey("PBConfig")) : nullptr;
+      FWConfiguration* proxyConfig = (FWConfiguration*) conf.valueForKey("PBConfig") ? new FWConfiguration(*conf.valueForKey("PBConfig")) : 0;
 
       // beckward compatibilty for obsolete proxy builders
       if (conf.version() < 6)
       {
-         assert(proxyConfig == nullptr);
+         assert(proxyConfig == 0);
          if (purpose == "VerticesWithTracks")
          {
             purpose = "Vertices";
@@ -292,14 +287,7 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
                                filterExpression,
                                layer);
       
-      newItems.push_back( add(desc, proxyConfig, false) );
-   }
-
-   if (m_event)
-   {
-      FWChangeSentry sentry(*m_changeManager);
-      for (auto ip : newItems)
-         ip->setEvent(m_event);
+      add(desc, proxyConfig );
    }
 }
 
@@ -317,8 +305,7 @@ void
 FWEventItemsManager::removeItem(const FWEventItem* iItem)
 {
    assert(iItem->id() < m_items.size());
-   removingItem_(iItem);
-   m_items[iItem->id()] = nullptr;
+   m_items[iItem->id()] = 0;
 }
 
 void
@@ -352,7 +339,7 @@ FWEventItemsManager::find(const std::string& iName) const
       if (item && item->name() == iName)
          return item;
    }
-   return nullptr;
+   return 0;
 }
 
 //

@@ -39,18 +39,18 @@ class RecoTauPiZeroBuilderPlugin : public RecoTauEventHolderPlugin {
     typedef std::auto_ptr<PiZeroVector> return_type;
     explicit RecoTauPiZeroBuilderPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC):
         RecoTauEventHolderPlugin(pset) {}
-    ~RecoTauPiZeroBuilderPlugin() override {}
+    virtual ~RecoTauPiZeroBuilderPlugin() {}
     /// Build a collection of piZeros from objects in the input jet
     virtual return_type operator()(const PFJet&) const = 0;
     /// Hook called at the beginning of the event.
-    void beginEvent() override {};
+    virtual void beginEvent() {};
 };
 
 class RecoTauPiZeroQualityPlugin : public RecoTauNamedPlugin {
   public:
     explicit RecoTauPiZeroQualityPlugin(const edm::ParameterSet& pset):
         RecoTauNamedPlugin(pset) {}
-    ~RecoTauPiZeroQualityPlugin() override {}
+    virtual ~RecoTauPiZeroQualityPlugin() {}
     /// Return a number indicating the quality of this PiZero
     virtual double operator()(const RecoTauPiZero&) const = 0;
 };

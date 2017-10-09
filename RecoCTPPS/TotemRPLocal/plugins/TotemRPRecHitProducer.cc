@@ -29,9 +29,9 @@ class TotemRPRecHitProducer : public edm::stream::EDProducer<>
   
     explicit TotemRPRecHitProducer(const edm::ParameterSet& conf);
   
-    ~TotemRPRecHitProducer() override {}
+    virtual ~TotemRPRecHitProducer() {}
   
-    void produce(edm::Event& e, const edm::EventSetup& c) override;
+    virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
     static void fillDescriptions( edm::ConfigurationDescriptions& );
   
   private:

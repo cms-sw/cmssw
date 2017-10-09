@@ -55,10 +55,10 @@
 class AlignmentMuonHIPTrajectorySelector : public edm::EDProducer {
    public:
       explicit AlignmentMuonHIPTrajectorySelector(const edm::ParameterSet&);
-      ~AlignmentMuonHIPTrajectorySelector() override;
+      ~AlignmentMuonHIPTrajectorySelector();
 
    private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       
       // ---------- member data --------------------------------
       edm::InputTag m_input;
@@ -91,7 +91,7 @@ AlignmentMuonHIPTrajectorySelector::AlignmentMuonHIPTrajectorySelector(const edm
    , m_minTrackerDOF(iConfig.getParameter<int>("minTrackerDOF"))
    , m_maxMuonResidual(iConfig.getParameter<double>("maxMuonResidual"))
    , m_hists(iConfig.getParameter<bool>("hists"))
-   , m_pt(nullptr), m_tracker_forwardredchi2(nullptr), m_tracker_dof(nullptr)
+   , m_pt(NULL), m_tracker_forwardredchi2(NULL), m_tracker_dof(NULL)
 {
    produces<TrajTrackAssociationCollection>();
 

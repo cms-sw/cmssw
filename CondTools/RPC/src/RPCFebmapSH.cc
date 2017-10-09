@@ -62,7 +62,7 @@ void popcon::RpcDataFebmap::getNewObjects() {
     }
   std::cout << " >> Final object size: " << Febdata->ObFebMap_rpc.size() << std::endl;
 
-   if (!Febdata->ObFebMap_rpc.empty()) {
+   if (Febdata->ObFebMap_rpc.size() > 0) {
      niov = snc;
    } else {
      niov = snc;

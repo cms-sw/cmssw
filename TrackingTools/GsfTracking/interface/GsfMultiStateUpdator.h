@@ -20,9 +20,9 @@ public:
   GsfMultiStateUpdator() {}
 
   TrajectoryStateOnSurface update(const TrajectoryStateOnSurface&,
-                                  const TrackingRecHit&) const override;
+                                  const TrackingRecHit&) const;
 
-  GsfMultiStateUpdator * clone() const override {
+  virtual GsfMultiStateUpdator * clone() const {
     return new GsfMultiStateUpdator(*this);
   }
 };

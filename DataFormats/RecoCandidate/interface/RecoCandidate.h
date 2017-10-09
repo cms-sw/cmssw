@@ -27,11 +27,11 @@ namespace reco {
 		   int pdgId = 0, int status = 0 ) : 
       LeafCandidate( q, p4, vtx, pdgId, status ) { }
     /// destructor
-    ~RecoCandidate() override;
+    virtual ~RecoCandidate();
     /// check overlap with another candidate
-    bool overlap( const Candidate & ) const override = 0;
+    virtual bool overlap( const Candidate & ) const = 0;
     /// returns a clone of the Candidate object                                           
-    RecoCandidate * clone() const override ;
+    virtual RecoCandidate * clone() const ;
 
     /// reference to a Track
     virtual reco::TrackRef track() const;
@@ -50,7 +50,7 @@ namespace reco {
     /// reference to a CaloTower
     virtual CaloTowerRef caloTower() const;
     /// best track pointer
-    const Track * bestTrack() const override;
+    virtual const Track * bestTrack() const;
     /// best track RefToBase
     virtual TrackBaseRef bestTrackRef() const;
     /// track type
@@ -58,9 +58,9 @@ namespace reco {
     ///track type
     virtual TrackType bestTrackType() const;
     /// uncertainty on dz 
-    float dzError() const override; 
+    virtual float dzError() const; 
     /// uncertainty on dxy
-    float dxyError() const override; 
+    virtual float dxyError() const; 
 
 
   protected:

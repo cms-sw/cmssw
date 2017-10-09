@@ -20,13 +20,13 @@ class SiStripCommissioningOfflineDbClient : public SiStripCommissioningOfflineCl
   
   SiStripCommissioningOfflineDbClient( const edm::ParameterSet& );
 
-  ~SiStripCommissioningOfflineDbClient() override;
+  virtual ~SiStripCommissioningOfflineDbClient();
   
  protected:
   
-  void createHistos( const edm::ParameterSet&, const edm::EventSetup& ) override;
+  void createHistos( const edm::ParameterSet&, const edm::EventSetup& );
   
-  void uploadToConfigDb() override;
+  void uploadToConfigDb();
   
  private:
   

@@ -17,14 +17,14 @@ class FTLSimpleUncalibRecHitAlgo : public FTLUncalibratedRecHitAlgoBase {
   }
 
   /// Destructor
-  ~FTLSimpleUncalibRecHitAlgo() override { }
+  virtual ~FTLSimpleUncalibRecHitAlgo() { }
 
   /// get event and eventsetup information
-  void getEvent(const edm::Event&) final {}
-  void getEventSetup(const edm::EventSetup&) final {}
+  virtual void getEvent(const edm::Event&) override final {}
+  virtual void getEventSetup(const edm::EventSetup&) override final {}
 
   /// make the rec hit
-  FTLUncalibratedRecHit makeRecHit(const FTLDataFrame& dataFrame ) const final;
+  virtual FTLUncalibratedRecHit makeRecHit(const FTLDataFrame& dataFrame ) const override final;
 
  private:  
   double adcLSB_, toaLSBToNS_, timeError_;

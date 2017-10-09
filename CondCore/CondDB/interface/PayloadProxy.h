@@ -78,10 +78,10 @@ namespace cond {
     class PayloadProxy : public BasePayloadProxy {
     public:
       
-      explicit PayloadProxy( const char * source=nullptr ) :
+      explicit PayloadProxy( const char * source=0 ) :
 	BasePayloadProxy() {}
       
-      ~PayloadProxy() override{}
+      virtual ~PayloadProxy(){}
       
       // dereference 
       const DataT & operator()() const {
@@ -91,7 +91,7 @@ namespace cond {
 	return (*m_data); 
       }
 
-      void make() override{
+      virtual void make(){
 	if( isValid() ){
 	  if( m_currentIov.payloadId == m_currentPayloadId ) return;
 	  m_session.transaction().start(true);
@@ -105,7 +105,7 @@ namespace cond {
         m_currentPayloadId.clear();
       }
       
-      void invalidateCache() override {
+      virtual void invalidateCache() {
 	m_data.reset();
 	m_currentPayloadId.clear();
 	m_currentIov.clear();
@@ -113,7 +113,7 @@ namespace cond {
       }
 
     protected:
-      void loadPayload() override {
+      virtual void loadPayload() {
 	if( m_currentIov.payloadId.empty() ){
 	  throwException( "Can't load payload: no valid IOV found.","PayloadProxy::loadPayload" );
 	}

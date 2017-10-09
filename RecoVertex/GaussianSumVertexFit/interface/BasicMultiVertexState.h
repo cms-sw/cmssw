@@ -21,7 +21,7 @@ public:
 
   /** Access methods
    */
-  BasicMultiVertexState* clone() const override
+  virtual BasicMultiVertexState* clone() const
   {
     return new BasicMultiVertexState(*this);
   }
@@ -29,72 +29,72 @@ public:
   /**
    * Mean position of the mixture (position of the collapsed state)
    */
-  GlobalPoint position() const override;
+  GlobalPoint position() const;
 
   /**
    * Mean time of the mixture (time of the collapsed state)
    */
-  double time() const override;
+  double time() const;
 
   /**
    * Mean covariance matrix of the mixture
    * (covariance matrix of the collapsed state)
    */
-  GlobalError error() const override;
+  GlobalError error() const;
 
   /**
    * Mean covariance matrix of the mixture
    * (covariance matrix of the collapsed state)
    */
-  double timeError() const override;
+  double timeError() const;
 
   /**
    * Mean covariance matrix of the mixture
    * (covariance matrix of the collapsed state)
    */
-  GlobalError error4D() const override;
+  GlobalError error4D() const;
 
   /**
    * Mean weight matrix (inverse of covariance) of the mixture
    * ( weight matrix of the collapsed state)
    */
-  GlobalWeight weight() const override;
+  GlobalWeight weight() const;
 
   /**
    * Mean weight matrix (inverse of covariance) of the mixture
    * ( weight matrix of the collapsed state)
    */
-  GlobalWeight weight4D() const override;
+  GlobalWeight weight4D() const;
 
   /**
    * Mean (weight*position) matrix of the mixture
    */
-  AlgebraicVector3 weightTimesPosition() const override;
+  AlgebraicVector3 weightTimesPosition() const;
 
   /**
    * Mean (weight*position) matrix of the mixture
    */
-  AlgebraicVector4 weightTimesPosition4D() const override;
+  AlgebraicVector4 weightTimesPosition4D() const;
 
   /**
    * The weight of this state. It will be the sum of the weights of the
    * individual components in the mixture.
    */
-  double weightInMixture() const override;
+  double weightInMixture() const;
 
   /**
    * Vector of individual components in the mixture.
    */
-  std::vector<VertexState> components() const override {
+  virtual std::vector<VertexState> components() const {
     return theComponents;
   }
 
   /**
    * The validity of the vertex
    */
-  bool isValid() const override {return valid;}
+  bool isValid() const {return valid;}
 
-  bool is4D() const override { checkCombinedState(); return theCombinedState.is4D(); }
+  bool is4D() const { checkCombinedState(); return theCombinedState.is4D(); }
 
 private:
 

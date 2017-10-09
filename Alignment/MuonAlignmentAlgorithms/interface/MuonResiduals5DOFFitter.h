@@ -52,28 +52,28 @@ public:
   };
 
   MuonResiduals5DOFFitter(int residualsModel, int minHits, int useResiduals, bool weightAlignment=true): MuonResidualsFitter(residualsModel, minHits, useResiduals, weightAlignment) {}
-  ~MuonResiduals5DOFFitter() override{}
+  virtual ~MuonResiduals5DOFFitter(){}
 
-  int type() const override { return MuonResidualsFitter::k5DOF; }
+  int type() const { return MuonResidualsFitter::k5DOF; }
 
-  int npar() override {
+  int npar() {
     if (residualsModel() == kPureGaussian || residualsModel() == kPureGaussian2D || residualsModel() == kGaussPowerTails) return kNPar - 2;
     else if (residualsModel() == kPowerLawTails) return kNPar;
     else if (residualsModel() == kROOTVoigt) return kNPar;
     else assert(false);
   }
-  int ndata() override { return kNData; }
+  int ndata() { return kNData; }
 
-  double sumofweights() override;
-  bool fit(Alignable *ali) override;
-  double plot(std::string name, TFileDirectory *dir, Alignable *ali) override;
+  double sumofweights();
+  bool fit(Alignable *ali);
+  double plot(std::string name, TFileDirectory *dir, Alignable *ali);
 
-  void correctBField() override;
+  void correctBField();
 
   TTree * readNtuple(std::string fname, unsigned int wheel, unsigned int station, unsigned int sector, unsigned int preselected = 1);
 
 protected:
-  void inform(TMinuit *tMinuit) override;
+  void inform(TMinuit *tMinuit);
 };
 
 #endif // Alignment_MuonAlignmentAlgorithms_MuonResiduals5DOFFitter_H

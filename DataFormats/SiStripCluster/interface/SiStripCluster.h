@@ -15,23 +15,28 @@ public:
   static const uint16_t stripIndexMask = 0x7FFF;  // The first strip index is in the low 15 bits of firstStrip_
   static const uint16_t mergedValueMask = 0x8000;  // The merged state is given by the high bit of firstStrip_
 
-
   /** Construct from a range of digis that form a cluster and from 
    *  a DetID. The range is assumed to be non-empty.
    */
   
-  SiStripCluster() {}
+  SiStripCluster() : error_x( -99999.9 ) {}
 
   explicit SiStripCluster(const SiStripDigiRange& range);
 
   template<typename Iter>
   SiStripCluster(const uint16_t& firstStrip, 
 		 Iter begin, Iter end ):
-	 amplitudes_(begin,end), firstStrip_(firstStrip) {}
+	 amplitudes_(begin,end), firstStrip_(firstStrip), 
+  // ggiurgiu@fnal.gov, 01/05/12
+  // Initialize the split cluster errors to un-physical values.
+  // The CPE will check these errors and if they are not un-physical,
+  // it will recognize the clusters as split and assign these (increased)
+  // errors to the corresponding rechit.
+  error_x(-99999.9){}
 
   template<typename Iter>
   SiStripCluster(const uint16_t& firstStrip, Iter begin, Iter end, bool merged):
-	 amplitudes_(begin,end), firstStrip_(firstStrip) {
+	 amplitudes_(begin,end), firstStrip_(firstStrip), error_x(-99999.9) {
 	   if (merged) firstStrip_ |= mergedValueMask;  // if this is a candidate merged cluster
 	 }
 
@@ -77,7 +82,7 @@ private:
 
   std::vector<uint8_t>   amplitudes_;
 
-  uint16_t                firstStrip_ = 0;
+  uint16_t                firstStrip_;
 
   // ggiurgiu@fnal.gov, 01/05/12
   // Add cluster errors to be used by rechits from split clusters. 
@@ -87,13 +92,7 @@ private:
   // appropriate errors for split clusters.
   // To avoid increase of data size on disk,these new data members are set as transient in: 
   // DataFormats/SiStripCluster/src/classes_def.xml
-  float error_x = -99999.9;
-
-  // ggiurgiu@fnal.gov, 01/05/12
-  // Initialize the split cluster errors to un-physical values.
-  // The CPE will check these errors and if they are not un-physical,
-  // it will recognize the clusters as split and assign these (increased)
-  // errors to the corresponding rechit.
+  float error_x;
   
 };
 

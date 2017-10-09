@@ -5,7 +5,7 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
 HoECalculator::HoECalculator () :
-               theCaloGeom_(nullptr)
+               theCaloGeom_(0)
 {
 } 
 HoECalculator::HoECalculator (const edm::ESHandle<CaloGeometry>  &caloGeom) :

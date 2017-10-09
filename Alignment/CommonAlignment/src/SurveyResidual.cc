@@ -11,7 +11,7 @@ using namespace align;
 SurveyResidual::SurveyResidual(const Alignable& ali,
 			       StructureType type,
 			       bool bias):
-  theMother(nullptr),
+  theMother(0),
   theSurface( ali.surface() ),
   theSelector( ali.alignmentParameters()->selector() )
 {
@@ -40,7 +40,7 @@ SurveyResidual::SurveyResidual(const Alignable& ali,
 
   findSisters(theMother, bias);
 
-  if (theSisters.empty())
+  if (theSisters.size() == 0)
   {
     throw cms::Exception("ConfigError")
       << "You are finding an unbiased residual of an alignable "

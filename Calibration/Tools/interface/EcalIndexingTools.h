@@ -25,7 +25,7 @@ class EcalIndexingTools
   ~EcalIndexingTools() {};
 
   static EcalIndexingTools* getInstance () {
-    if (instance_ == nullptr ){
+    if (instance_ == 0 ){
       instance_ = new EcalIndexingTools();
 
       std::cout<< "[EcalIndexingTools* getInstance ()] new EcalIndexingTools created "<< std::endl;

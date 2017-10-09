@@ -24,19 +24,19 @@ public:
 	    const MeasurementDet* stereoDet,
 	    const TrackerTopology* tTopo);
 
-  RecHitContainer recHits( const TrajectoryStateOnSurface&, const MeasurementTrackerEvent & data) const override;
+  virtual RecHitContainer recHits( const TrajectoryStateOnSurface&, const MeasurementTrackerEvent & data) const;
 
  // simple hits
-  bool recHits(SimpleHitContainer & result,  
-		       const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator&, const MeasurementTrackerEvent & data) const override;
+  virtual bool recHits(SimpleHitContainer & result,  
+		       const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator&, const MeasurementTrackerEvent & data) const;
 
   
 
  const GluedGeomDet& specificGeomDet() const {return static_cast<GluedGeomDet const&>(fastGeomDet());}
 
- bool measurements( const TrajectoryStateOnSurface& stateOnThisDet,
+ virtual bool measurements( const TrajectoryStateOnSurface& stateOnThisDet,
 			     const MeasurementEstimator& est, const MeasurementTrackerEvent & data,
-			    TempMeasurements & result) const override;
+			    TempMeasurements & result) const;
 
   const TkStripMeasurementDet* monoDet() const{ return theMonoDet;} 
   const TkStripMeasurementDet* stereoDet() const{ return theStereoDet;} 
@@ -45,10 +45,10 @@ public:
 
 
   /// return TRUE if both mono and stereo components are active
-  bool isActive(const MeasurementTrackerEvent & data) const override {return monoDet()->isActive(data) && stereoDet()->isActive(data); }
+  bool isActive(const MeasurementTrackerEvent & data) const {return monoDet()->isActive(data) && stereoDet()->isActive(data); }
  	  	 
   /// return TRUE if at least one of the mono and stereo components has badChannels
-  bool hasBadComponents( const TrajectoryStateOnSurface &tsos, const MeasurementTrackerEvent & data ) const override {
+  bool hasBadComponents( const TrajectoryStateOnSurface &tsos, const MeasurementTrackerEvent & data ) const {
     return (monoDet()->hasBadComponents(tsos,data) || stereoDet()->hasBadComponents(tsos,data));}
 
 private:
@@ -85,7 +85,7 @@ private:
     static bool filter() { return false;}   /// always fast as no estimator available here! 
     size_t size() const { return target_.size();}
 
-    static const MeasurementEstimator  & estimator() { static const MeasurementEstimator * dummy=nullptr; return *dummy;}
+    static const MeasurementEstimator  & estimator() { static const MeasurementEstimator * dummy=0; return *dummy;}
 
   private: 
     const GeomDet              * geomDet_;

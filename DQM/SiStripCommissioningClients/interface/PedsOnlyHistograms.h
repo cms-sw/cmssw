@@ -10,11 +10,11 @@ class PedsOnlyHistograms : public virtual CommissioningHistograms {
  public:
   
   PedsOnlyHistograms( const edm::ParameterSet& pset, DQMStore* );
-  ~PedsOnlyHistograms() override;
+  virtual ~PedsOnlyHistograms();
   
-  void histoAnalysis( bool debug ) override;
+  void histoAnalysis( bool debug );
 
-  void printAnalyses() override; // override
+  void printAnalyses(); // override
 
 };
 

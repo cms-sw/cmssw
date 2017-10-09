@@ -21,7 +21,7 @@ class CombinedKinematicConstraint : public MultiTrackKinematicConstraint{
 	
 public:
 	CombinedKinematicConstraint(const std::vector<MultiTrackKinematicConstraint* > &constraintVector):constraints(constraintVector){
-		if(constraints.empty()) throw VertexException("CombinedKinematicConstraint::<1 constraints passed.");
+		if(constraints.size()<1) throw VertexException("CombinedKinematicConstraint::<1 constraints passed.");
 	}
 	
 	/**
@@ -29,28 +29,28 @@ public:
 	 * equations at the point where the input
 	 * particles are defined.
 	 */
-	AlgebraicVector  value(const std::vector<KinematicState> &states, const GlobalPoint& point) const override;
+	virtual AlgebraicVector  value(const std::vector<KinematicState> &states, const GlobalPoint& point) const;
 	
 	/**
 	 * Returns a matrix of derivatives of the combined
 	 * constraint equations w.r.t. 
 	 * particle parameters
 	 */
-	AlgebraicMatrix parametersDerivative(const std::vector<KinematicState> &states, const GlobalPoint& point) const override;
+	virtual AlgebraicMatrix parametersDerivative(const std::vector<KinematicState> &states, const GlobalPoint& point) const;
 	
 	/**
 	 * Returns a matrix of derivatives of
 	 * constraint equations w.r.t. 
 	 * vertex position
 	 */
-	AlgebraicMatrix positionDerivative(const std::vector<KinematicState> &states, const GlobalPoint& point) const override;
+	virtual AlgebraicMatrix positionDerivative(const std::vector<KinematicState> &states, const GlobalPoint& point) const;
 	
 	/**
 	 * Number of equations per track used for the combined fit
 	 */
-	int numberOfEquations() const override;
+	virtual int numberOfEquations() const;
 	
-	CombinedKinematicConstraint * clone()const override
+	virtual CombinedKinematicConstraint * clone()const
 	{
 		return new CombinedKinematicConstraint(*this);
 	}

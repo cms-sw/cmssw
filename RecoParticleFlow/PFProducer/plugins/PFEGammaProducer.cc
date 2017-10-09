@@ -377,7 +377,7 @@ PFEGammaProducer::produce(edm::Event& iEvent,
     
     pfeg_->RunPFEG(globalCache(),blockref,active);
 
-    if( !pfeg_->getCandidates().empty() ) {
+    if( pfeg_->getCandidates().size() ) {
       LOGDRESSED("PFEGammaProducer")
       << "Block with " << elements.size() 
       << " elements produced " 

@@ -30,14 +30,14 @@ class FWGeometryTableViewManager : public FWViewManagerBase
 {
 public:
    FWGeometryTableViewManager(FWGUIManager*, std::string fileName);
-   ~FWGeometryTableViewManager() override;
+   virtual ~FWGeometryTableViewManager();
 
    // dummy functions of FWViewManagerBase
-   FWTypeToRepresentations supportedTypesAndRepresentations() const override { return FWTypeToRepresentations();}
-   void newItem(const FWEventItem*) override {}  
+   virtual FWTypeToRepresentations supportedTypesAndRepresentations() const { return FWTypeToRepresentations();}
+   virtual void newItem(const FWEventItem*) {}  
 
    FWViewBase *buildView (TEveWindowSlot *iParent, const std::string& type);
-   void colorsChanged() override;
+   virtual void colorsChanged();
 
    TList*  getListOfVolumes() const;
    TGeoNode* getTopTGeoNode();
@@ -47,8 +47,8 @@ public:
 
 protected:
    // dummy functions of FWViewManagerBase
-   void modelChangesComing() override {}
-   void modelChangesDone() override {}
+   virtual void modelChangesComing() {}
+   virtual void modelChangesDone() {}
 
    std::vector<std::shared_ptr<FWGeometryTableViewBase> > m_views;
 

@@ -25,8 +25,8 @@
 class CaloTowersCreator : public  edm::stream::EDProducer<> {
 public:
   explicit CaloTowersCreator(const edm::ParameterSet& ps);
-  ~CaloTowersCreator() override { }
-  void produce(edm::Event& e, const edm::EventSetup& c) override;
+  virtual ~CaloTowersCreator() { }
+  virtual void produce(edm::Event& e, const edm::EventSetup& c);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   double EBEScale, EEEScale, HBEScale, HESEScale;
   double HEDEScale, HOEScale, HF1EScale, HF2EScale;

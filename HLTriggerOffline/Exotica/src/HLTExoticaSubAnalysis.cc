@@ -42,21 +42,21 @@ HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::ParameterSet & pset,
     _parametersDxy(pset.getParameter<std::vector<double> >("parametersDxy")),
     _drop_pt2(false),
     _drop_pt3(false),
-    _recMuonSelector(nullptr),
-    _recMuonTrkSelector(nullptr),
-    _recTrackSelector(nullptr),
-    _recElecSelector(nullptr),
-    _recMETSelector(nullptr),
-    _recPFMETSelector(nullptr),
-    _recPFMHTSelector(nullptr),
-    _genMETSelector(nullptr),
-    _recCaloMETSelector(nullptr),
-    _recCaloMHTSelector(nullptr),
-    _l1METSelector(nullptr),
-    _recPFTauSelector(nullptr),
-    _recPhotonSelector(nullptr),
-    _recPFJetSelector(nullptr),
-    _recCaloJetSelector(nullptr)
+    _recMuonSelector(0),
+    _recMuonTrkSelector(0),
+    _recTrackSelector(0),
+    _recElecSelector(0),
+    _recMETSelector(0),
+    _recPFMETSelector(0),
+    _recPFMHTSelector(0),
+    _genMETSelector(0),
+    _recCaloMETSelector(0),
+    _recCaloMHTSelector(0),
+    _l1METSelector(0),
+    _recPFTauSelector(0),
+    _recPhotonSelector(0),
+    _recPFJetSelector(0),
+    _recCaloJetSelector(0)
 {
 
     LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::constructor()";
@@ -154,38 +154,38 @@ HLTExoticaSubAnalysis::~HLTExoticaSubAnalysis()
     for (std::map<unsigned int, StringCutObjectSelector<reco::GenParticle>* >::iterator it = _genSelectorMap.begin();
          it != _genSelectorMap.end(); ++it) {
         delete it->second;
-        it->second = nullptr;
+        it->second = 0;
     }
     delete _recMuonSelector;
-    _recMuonSelector = nullptr;
+    _recMuonSelector = 0;
     delete _recMuonTrkSelector;
-    _recMuonTrkSelector = nullptr;
+    _recMuonTrkSelector = 0;
     delete _recTrackSelector;
-    _recTrackSelector = nullptr;
+    _recTrackSelector = 0;
     delete _recElecSelector;
-    _recElecSelector = nullptr;
+    _recElecSelector = 0;
     delete _recPhotonSelector;
-    _recPhotonSelector = nullptr;
+    _recPhotonSelector = 0;
     delete _recMETSelector;
-    _recMETSelector = nullptr;
+    _recMETSelector = 0;
     delete _recPFMETSelector;
-    _recPFMETSelector = nullptr;
+    _recPFMETSelector = 0;
     delete _recPFMHTSelector;
-    _recPFMHTSelector = nullptr;
+    _recPFMHTSelector = 0;
     delete _genMETSelector;
-    _genMETSelector = nullptr;
+    _genMETSelector = 0;
     delete _recCaloMETSelector;
-    _recCaloMETSelector = nullptr;
+    _recCaloMETSelector = 0;
     delete _recCaloMHTSelector;
-    _recCaloMHTSelector = nullptr;
+    _recCaloMHTSelector = 0;
     delete _l1METSelector;
-    _l1METSelector = nullptr;
+    _l1METSelector = 0;
     delete _recPFTauSelector;
-    _recPFTauSelector = nullptr;
+    _recPFTauSelector = 0;
     delete _recPFJetSelector;
-    _recPFJetSelector = nullptr;
+    _recPFJetSelector = 0;
     delete _recCaloJetSelector;
-    _recCaloJetSelector = nullptr;
+    _recCaloJetSelector = 0;
 }
 
 
@@ -480,7 +480,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
     // 	      comparator);
 
     // -- Trigger Results
-    const edm::TriggerNames& trigNames = iEvent.triggerNames(*(cols->triggerResults));
+    const edm::TriggerNames trigNames = iEvent.triggerNames(*(cols->triggerResults));
 
     // counting HLT passed events for debugging
     for (std::vector<HLTExoticaPlotter>::iterator an = _plotters.begin(); an != _plotters.end(); ++an) {
@@ -778,70 +778,70 @@ void HLTExoticaSubAnalysis::getNamesOfObjects(const edm::ParameterSet & anpset)
 
     if (anpset.exists("recMuonLabel")) {
         _recLabels[EVTColContainer::MUON] = anpset.getParameter<edm::InputTag>("recMuonLabel");
-        _genSelectorMap[EVTColContainer::MUON] = nullptr ;
+        _genSelectorMap[EVTColContainer::MUON] = 0 ;
     }
     if (anpset.exists("recMuonTrkLabel")) {
         _recLabels[EVTColContainer::MUTRK] = anpset.getParameter<edm::InputTag>("recMuonTrkLabel");
-        _genSelectorMap[EVTColContainer::MUTRK] = nullptr ;
+        _genSelectorMap[EVTColContainer::MUTRK] = 0 ;
     }
     if (anpset.exists("recTrackLabel")) {
         _recLabels[EVTColContainer::TRACK] = anpset.getParameter<edm::InputTag>("recTrackLabel");
-        _genSelectorMap[EVTColContainer::TRACK] = nullptr ;
+        _genSelectorMap[EVTColContainer::TRACK] = 0 ;
     }
     if (anpset.exists("recElecLabel")) {
         _recLabels[EVTColContainer::ELEC] = anpset.getParameter<edm::InputTag>("recElecLabel");
-        _genSelectorMap[EVTColContainer::ELEC] = nullptr ;
+        _genSelectorMap[EVTColContainer::ELEC] = 0 ;
     }
     if (anpset.exists("recPhotonLabel")) {
         _recLabels[EVTColContainer::PHOTON] = anpset.getParameter<edm::InputTag>("recPhotonLabel");
-        _genSelectorMap[EVTColContainer::PHOTON] = nullptr ;
+        _genSelectorMap[EVTColContainer::PHOTON] = 0 ;
     }
     if (anpset.exists("recMETLabel")) {
         _recLabels[EVTColContainer::MET] = anpset.getParameter<edm::InputTag>("recMETLabel");
-        _genSelectorMap[EVTColContainer::MET] = nullptr ;
+        _genSelectorMap[EVTColContainer::MET] = 0 ;
     }
     if (anpset.exists("recPFMETLabel")) {
         _recLabels[EVTColContainer::PFMET] = anpset.getParameter<edm::InputTag>("recPFMETLabel");
-        _genSelectorMap[EVTColContainer::PFMET] = nullptr ;
+        _genSelectorMap[EVTColContainer::PFMET] = 0 ;
     }
     if (anpset.exists("recPFMHTLabel")) {
         _recLabels[EVTColContainer::PFMHT] = anpset.getParameter<edm::InputTag>("recPFMHTLabel");
-        _genSelectorMap[EVTColContainer::PFMHT] = nullptr ;
+        _genSelectorMap[EVTColContainer::PFMHT] = 0 ;
     }
     if (anpset.exists("genMETLabel")) {
         _recLabels[EVTColContainer::GENMET] = anpset.getParameter<edm::InputTag>("genMETLabel");
-        _genSelectorMap[EVTColContainer::GENMET] = nullptr ;
+        _genSelectorMap[EVTColContainer::GENMET] = 0 ;
     }
     if (anpset.exists("recCaloMETLabel")) {
         _recLabels[EVTColContainer::CALOMET] = anpset.getParameter<edm::InputTag>("recCaloMETLabel");
-        _genSelectorMap[EVTColContainer::CALOMET] = nullptr ;
+        _genSelectorMap[EVTColContainer::CALOMET] = 0 ;
     }
     if (anpset.exists("recCaloMHTLabel")) {
         _recLabels[EVTColContainer::CALOMHT] = anpset.getParameter<edm::InputTag>("recCaloMHTLabel");
-        _genSelectorMap[EVTColContainer::CALOMHT] = nullptr ;
+        _genSelectorMap[EVTColContainer::CALOMHT] = 0 ;
     }
     if (anpset.exists("hltMETLabel")) {
         _recLabels[EVTColContainer::CALOMET] = anpset.getParameter<edm::InputTag>("hltMETLabel");
-        _genSelectorMap[EVTColContainer::CALOMET] = nullptr ;
+        _genSelectorMap[EVTColContainer::CALOMET] = 0 ;
     }
     if (anpset.exists("l1METLabel")) {
         _recLabels[EVTColContainer::L1MET] = anpset.getParameter<edm::InputTag>("l1METLabel");
-        _genSelectorMap[EVTColContainer::L1MET] = nullptr ;
+        _genSelectorMap[EVTColContainer::L1MET] = 0 ;
     }
     if (anpset.exists("recPFTauLabel")) {
         _recLabels[EVTColContainer::PFTAU] = anpset.getParameter<edm::InputTag>("recPFTauLabel");
-        _genSelectorMap[EVTColContainer::PFTAU] = nullptr ;
+        _genSelectorMap[EVTColContainer::PFTAU] = 0 ;
     }
     if (anpset.exists("recPFJetLabel")) {
         _recLabels[EVTColContainer::PFJET] = anpset.getParameter<edm::InputTag>("recPFJetLabel");
-        _genSelectorMap[EVTColContainer::PFJET] = nullptr ;
+        _genSelectorMap[EVTColContainer::PFJET] = 0 ;
     }
     if (anpset.exists("recCaloJetLabel")) {
         _recLabels[EVTColContainer::CALOJET] = anpset.getParameter<edm::InputTag>("recCaloJetLabel");
-        _genSelectorMap[EVTColContainer::CALOJET] = nullptr ;
+        _genSelectorMap[EVTColContainer::CALOJET] = 0 ;
     }
 
-    if (_recLabels.empty()) {
+    if (_recLabels.size() < 1) {
         edm::LogError("ExoticaValidation") << "HLTExoticaSubAnalysis::getNamesOfObjects, "
                                            << "Not included any object (recMuonLabel, recElecLabel, ...)  "
                                            << "in the analysis " << _analysisname;
@@ -1078,7 +1078,7 @@ void HLTExoticaSubAnalysis::bookHist(DQMStore::IBooker & iBooker,
     std::string sourceUpper = source;
     sourceUpper[0] = std::toupper(sourceUpper[0]);
     std::string name = source + objType + variable ;
-    TH1F * h = nullptr;
+    TH1F * h = 0;
     
     if (variable.find("SumEt") != std::string::npos) {
       std::string title = "Sum ET of " + sourceUpper + " " + objType;
@@ -1150,35 +1150,35 @@ void HLTExoticaSubAnalysis::initSelector(const unsigned int & objtype)
 
     LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::initSelector()";
 
-    if (objtype == EVTColContainer::MUON && _recMuonSelector == nullptr) {
+    if (objtype == EVTColContainer::MUON && _recMuonSelector == 0) {
         _recMuonSelector = new StringCutObjectSelector<reco::Muon>(_recCut[objtype]);
-    } else if (objtype == EVTColContainer::MUTRK && _recMuonTrkSelector == nullptr) {
+    } else if (objtype == EVTColContainer::MUTRK && _recMuonTrkSelector == 0) {
         _recMuonTrkSelector = new StringCutObjectSelector<reco::Track>(_recCut[objtype]);
-    } else if (objtype == EVTColContainer::TRACK && _recTrackSelector == nullptr) {
+    } else if (objtype == EVTColContainer::TRACK && _recTrackSelector == 0) {
         _recTrackSelector = new StringCutObjectSelector<reco::Track>(_recCut[objtype]);
-    } else if (objtype == EVTColContainer::ELEC && _recElecSelector == nullptr) {
+    } else if (objtype == EVTColContainer::ELEC && _recElecSelector == 0) {
         _recElecSelector = new StringCutObjectSelector<reco::GsfElectron>(_recCut[objtype]);
-    } else if (objtype == EVTColContainer::PHOTON && _recPhotonSelector == nullptr) {
+    } else if (objtype == EVTColContainer::PHOTON && _recPhotonSelector == 0) {
         _recPhotonSelector = new StringCutObjectSelector<reco::Photon>(_recCut[objtype]);
-    } else if (objtype == EVTColContainer::MET && _recMETSelector == nullptr) {
+    } else if (objtype == EVTColContainer::MET && _recMETSelector == 0) {
         _recMETSelector = new StringCutObjectSelector<reco::MET>(_recCut[objtype]);
-    } else if (objtype == EVTColContainer::PFMET && _recPFMETSelector == nullptr) {
+    } else if (objtype == EVTColContainer::PFMET && _recPFMETSelector == 0) {
         _recPFMETSelector = new StringCutObjectSelector<reco::PFMET>(_recCut[objtype]);
-    } else if (objtype == EVTColContainer::PFMHT && _recPFMHTSelector == nullptr) {
+    } else if (objtype == EVTColContainer::PFMHT && _recPFMHTSelector == 0) {
         _recPFMHTSelector = new StringCutObjectSelector<reco::PFMET>(_recCut[objtype]);
-    } else if (objtype == EVTColContainer::GENMET && _genMETSelector == nullptr) {
+    } else if (objtype == EVTColContainer::GENMET && _genMETSelector == 0) {
         _genMETSelector = new StringCutObjectSelector<reco::GenMET>(_recCut[objtype]);
-    } else if (objtype == EVTColContainer::CALOMET && _recCaloMETSelector == nullptr) {
+    } else if (objtype == EVTColContainer::CALOMET && _recCaloMETSelector == 0) {
         _recCaloMETSelector = new StringCutObjectSelector<reco::CaloMET>(_recCut[objtype]);
-    } else if (objtype == EVTColContainer::CALOMHT && _recCaloMHTSelector == nullptr) {
+    } else if (objtype == EVTColContainer::CALOMHT && _recCaloMHTSelector == 0) {
         _recCaloMHTSelector = new StringCutObjectSelector<reco::CaloMET>(_recCut[objtype]);
-    } else if (objtype == EVTColContainer::L1MET && _l1METSelector == nullptr) {
+    } else if (objtype == EVTColContainer::L1MET && _l1METSelector == 0) {
         _l1METSelector = new StringCutObjectSelector<l1extra::L1EtMissParticle>(_recCut[objtype]);
-    } else if (objtype == EVTColContainer::PFTAU && _recPFTauSelector == nullptr) {
+    } else if (objtype == EVTColContainer::PFTAU && _recPFTauSelector == 0) {
         _recPFTauSelector = new StringCutObjectSelector<reco::PFTau>(_recCut[objtype]);
-    } else if (objtype == EVTColContainer::PFJET && _recPFJetSelector == nullptr) {
+    } else if (objtype == EVTColContainer::PFJET && _recPFJetSelector == 0) {
         _recPFJetSelector = new StringCutObjectSelector<reco::PFJet>(_recCut[objtype]);
-    } else if (objtype == EVTColContainer::CALOJET && _recCaloJetSelector == nullptr) {
+    } else if (objtype == EVTColContainer::CALOJET && _recCaloJetSelector == 0) {
         _recCaloJetSelector = new StringCutObjectSelector<reco::CaloJet>(_recCut[objtype]);
     }
     /* else

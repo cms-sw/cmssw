@@ -5,14 +5,14 @@ class PhoFull5x5SigmaIEtaIEtaValueMapCut : public CutApplicatorWithEventContentB
 public:
   PhoFull5x5SigmaIEtaIEtaValueMapCut(const edm::ParameterSet& c);
   
-  result_type operator()(const reco::PhotonPtr&) const final;
+  result_type operator()(const reco::PhotonPtr&) const override final;
 
-  void setConsumes(edm::ConsumesCollector&) final;
-  void getEventContent(const edm::EventBase&) final;
+  void setConsumes(edm::ConsumesCollector&) override final;
+  void getEventContent(const edm::EventBase&) override final;
 
-  double value(const reco::CandidatePtr& cand) const final;
+  double value(const reco::CandidatePtr& cand) const override final;
 
-  CandidateType candidateType() const final { 
+  CandidateType candidateType() const override final { 
     return PHOTON; 
   }
 

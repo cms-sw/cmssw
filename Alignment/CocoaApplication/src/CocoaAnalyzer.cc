@@ -177,8 +177,8 @@ void CocoaAnalyzer::ReadXMLFile( const edm::EventSetup& evts )
     DDTranslation transl = (fv.translation());
     DDRotationMatrix rot = (fv.rotation());
     DDExpandedNode parent = fv.geoHistory()[ fv.geoHistory().size()-2 ];
-    const DDTranslation& parentTransl = parent.absTranslation();
-    const DDRotationMatrix& parentRot = parent.absRotation();
+    DDTranslation parentTransl = parent.absTranslation();
+    DDRotationMatrix parentRot = parent.absRotation();
     transl = parentRot.Inverse()*(transl - parentTransl );
     rot = parentRot.Inverse()*rot;
     rot = rot.Inverse(); //DDL uses opposite convention than COCOA
@@ -474,7 +474,7 @@ void CocoaAnalyzer::CorrectOptAlignments( std::vector<OpticalAlignInfo>& oaListC
     OpticalAlignInfo oaInfoDB = *it;
     OpticalAlignInfo* oaInfoXML = FindOpticalAlignInfoXML( oaInfoDB );
     std::cerr << "error " << (*it).name_ << std::endl;
-    if( oaInfoXML == nullptr ) {
+    if( oaInfoXML == 0 ) {
       if(ALIUtils::debug >= 2) {
 	std::cerr << "@@@@@ WARNING CocoaAnalyzer::CorrectOptAlignments:  OpticalAlignInfo read from DB is not present in XML "<< *it << std::endl;
       }
@@ -523,7 +523,7 @@ void CocoaAnalyzer::CorrectOptAlignments( std::vector<OpticalAlignInfo>& oaListC
 //------------------------------------------------------------------------
 OpticalAlignInfo* CocoaAnalyzer::FindOpticalAlignInfoXML( const OpticalAlignInfo& oaInfo )
 {
-  OpticalAlignInfo* oaInfoXML = nullptr;
+  OpticalAlignInfo* oaInfoXML = 0;
   std::vector<OpticalAlignInfo>::iterator it;
   for( it=oaList_.opticalAlignments_.begin();it!=oaList_.opticalAlignments_.end(); ++it ){
     std::string oaName = oaInfo.name_.substr( 1, oaInfo.name_.size()-2 );

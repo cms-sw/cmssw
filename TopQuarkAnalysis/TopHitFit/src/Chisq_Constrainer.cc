@@ -629,7 +629,7 @@ double Chisq_Constrainer::fit (Constraint_Calculator& constraint_calculator,
         return -995.0;
     }
 
-  } while (true);
+  } while (1);
 
   // (15) Ok, we have a successful fit!
 

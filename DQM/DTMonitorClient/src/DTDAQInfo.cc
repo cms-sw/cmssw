@@ -38,7 +38,7 @@ using namespace edm;
 
 DTDAQInfo::DTDAQInfo(const ParameterSet& pset) {
 
-  bookingdone = false;
+  bookingdone = 0;
 
 }
 
@@ -80,7 +80,7 @@ DTDAQInfo::~DTDAQInfo() {}
   // create a record key for RunInfoRcd
   eventsetup::EventSetupRecordKey recordKey(eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
 
-  if(setup.find(recordKey) != nullptr) { 
+  if(setup.find(recordKey) != 0) { 
 
     //FR not sure that the lines below are still useful, we have just booked the histo!
     // reset to 0
@@ -135,12 +135,12 @@ DTDAQInfo::~DTDAQInfo() {}
   }
 
   }
-  bookingdone = true; 
+  bookingdone = 1; 
 
   // create a record key for RunInfoRcd
   eventsetup::EventSetupRecordKey recordKey(eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
 
-  if(setup.find(recordKey) != nullptr) { 
+  if(setup.find(recordKey) != 0) { 
     // reset to 0
     totalDAQFraction->Fill(0.);
     daqFractions[-2]->Fill(0.);

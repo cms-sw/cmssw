@@ -21,7 +21,7 @@
 #include "TClonesArray.h"
 //#include "TMath.h"
 
-NtupleManager* NtupleManager::instance = nullptr;
+NtupleManager* NtupleManager::instance = 0;
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@  Gets the only instance of Model

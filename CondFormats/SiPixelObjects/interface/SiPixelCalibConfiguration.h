@@ -13,7 +13,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <cstdint>
+#include <stdint.h>
 #include "CalibFormats/SiPixelObjects/interface/PixelCalibConfiguration.h"
 
 class SiPixelCalibConfiguration

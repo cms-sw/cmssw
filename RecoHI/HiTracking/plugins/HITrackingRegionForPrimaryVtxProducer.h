@@ -55,7 +55,7 @@ class HITrackingRegionForPrimaryVtxProducer : public TrackingRegionProducer {
     vertexCollToken     = iC.consumes<reco::VertexCollection>(vertexCollName);
   }   
   
-  ~HITrackingRegionForPrimaryVtxProducer() override{}
+  virtual ~HITrackingRegionForPrimaryVtxProducer(){}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -101,7 +101,7 @@ class HITrackingRegionForPrimaryVtxProducer : public TrackingRegionProducer {
       
     }
   
-  std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& ev, const edm::EventSetup& es) const override {
+  virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& ev, const edm::EventSetup& es) const {
     
     int estMult = estimateMultiplicity(ev, es);
     

@@ -42,7 +42,7 @@
 //-------------------
 // Initializations --
 //-------------------
-cond::persistency::KeyList* DTUserKeyedConfigHandler::keyList = nullptr;
+cond::persistency::KeyList* DTUserKeyedConfigHandler::keyList = 0;
 
 //----------------
 // Constructors --
@@ -205,7 +205,7 @@ void DTUserKeyedConfigHandler::getNewObjects() {
                                                      keyMap.find( cfg );
     std::map<int,std::map<int,int>*>::const_iterator keyIend =
                                                      keyMap.end();
-    std::map<int,int>* mapPtr = nullptr;
+    std::map<int,int>* mapPtr = 0;
     // check for new full configuration
     if ( keyIter != keyIend ) mapPtr = keyIter->second;
     else                      keyMap.insert(
@@ -241,7 +241,7 @@ void DTUserKeyedConfigHandler::getNewObjects() {
     std::map<int,std::vector<int>*>::const_iterator brkIend =
                                                     brkMap.end();
     // check for new ccb config key
-    std::vector<int>* brkPtr = nullptr;
+    std::vector<int>* brkPtr = 0;
     if ( brkIter != brkIend ) brkPtr = brkIter->second;
     else                      brkMap.insert(
                               std::pair<int,std::vector<int>*>( key,
@@ -268,9 +268,9 @@ void DTUserKeyedConfigHandler::getNewObjects() {
                                                      keyMap.find( cfg );
     std::map<int,std::map<int,int>*>::const_iterator keyIend =
                                                      keyMap.end();
-    std::map<int,int>* mapPtr = nullptr;
+    std::map<int,int>* mapPtr = 0;
     if ( keyIter != keyIend ) mapPtr = keyIter->second;
-    if ( mapPtr == nullptr ) continue;
+    if ( mapPtr == 0 ) continue;
     std::map<int,int>::const_iterator ccbIter = mapPtr->begin();
     std::map<int,int>::const_iterator ccbIend = mapPtr->end();
     while ( ccbIter != ccbIend ) {
@@ -290,7 +290,7 @@ void DTUserKeyedConfigHandler::getNewObjects() {
                                                       brkMap.end();
       if ( brkIter == brkIend ) continue;
       std::vector<int>* brkPtr = brkIter->second;
-      if ( brkPtr == nullptr ) continue;
+      if ( brkPtr == 0 ) continue;
       // brick id lists in payload
       std::vector<int> bkList;
       bkList.reserve( 20 );
@@ -345,7 +345,7 @@ void DTUserKeyedConfigHandler::chkConfigList(
   brickConfigQuery->addToOutputList( "BRKID" );
   brickConfigQuery->addToOutputList( "BRKNAME" );
   coral::ICursor& brickConfigCursor = brickConfigQuery->execute();
-  DTKeyedConfig* brickData = nullptr;
+  DTKeyedConfig* brickData = 0;
   std::vector<int> missingList;
   std::vector<unsigned long long> checkedKeys;
   while( brickConfigCursor.next() ) {

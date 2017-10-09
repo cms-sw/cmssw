@@ -46,7 +46,7 @@ void SummaryGeneratorControlView::fill( const std::string& top_level_dir,
   
   // Path and std::string for "present working directory" as defined by device key
   SiStripFecKey path( device_key );
-  const std::string& pwd = path.path();
+  std::string pwd = path.path();
 
 //   LogTrace(mlTest_)
 //     << "TEST " 

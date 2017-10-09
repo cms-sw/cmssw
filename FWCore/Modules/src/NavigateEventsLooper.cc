@@ -30,15 +30,15 @@ namespace edm {
 
   public:
     NavigateEventsLooper(ParameterSet const& pset);
-    ~NavigateEventsLooper() override;
+    virtual ~NavigateEventsLooper();
 
-    void startingNewLoop(unsigned int iIteration) override;
-    Status duringLoop(Event const& ev, EventSetup const& es, ProcessingController& pc) override;
-    Status endOfLoop(EventSetup const& es, unsigned int iCounter) override;
+    virtual void startingNewLoop(unsigned int iIteration) override;
+    virtual Status duringLoop(Event const& ev, EventSetup const& es, ProcessingController& pc) override;
+    virtual Status endOfLoop(EventSetup const& es, unsigned int iCounter) override;
 
   private:
-    NavigateEventsLooper(NavigateEventsLooper const&) = delete; // stop default
-    NavigateEventsLooper const& operator=(NavigateEventsLooper const&) = delete; // stop default
+    NavigateEventsLooper(NavigateEventsLooper const&); // stop default
+    NavigateEventsLooper const& operator=(NavigateEventsLooper const&); // stop default
 
     int maxLoops_;
     int countLoops_;

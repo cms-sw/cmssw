@@ -33,7 +33,7 @@ class FWRPZViewGeometry : public FWViewGeometryList
 {
 public:
    FWRPZViewGeometry(const fireworks::Context& context);
-   ~FWRPZViewGeometry() override;
+   virtual ~FWRPZViewGeometry();
 
    // ---------- const member functions ---------------------
 

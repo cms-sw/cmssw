@@ -52,12 +52,12 @@ typedef std::vector<PFCandQualityPair > PFCandQualityPairVector;
 class PFCand_NoPU_WithAM : public edm::EDProducer {
    public:
       explicit PFCand_NoPU_WithAM(const edm::ParameterSet&);
-      ~PFCand_NoPU_WithAM() override;
+      ~PFCand_NoPU_WithAM();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&);
 
       // ----------member data ---------------------------
 

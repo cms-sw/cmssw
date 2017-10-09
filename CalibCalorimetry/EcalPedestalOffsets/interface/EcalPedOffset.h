@@ -34,16 +34,16 @@ class EcalPedOffset: public edm::EDAnalyzer
     EcalPedOffset(const edm::ParameterSet& ps);
     
     //! Destructor
-    ~EcalPedOffset() override;
+    virtual ~EcalPedOffset();
    
     ///! Analyze
-    void analyze(edm::Event const& event, edm::EventSetup const& eventSetup) override;
+    void analyze(edm::Event const& event, edm::EventSetup const& eventSetup);
     
     //! BeginRun
-    void beginRun(edm::Run const &, edm::EventSetup const& eventSetup) override;
+    void beginRun(edm::Run const &, edm::EventSetup const& eventSetup);
     
     //! EndJob
-    void endJob(void) override;
+    void endJob(void);
     
     //! write the results into xml format
     void writeXMLFiles(std::string fileName);

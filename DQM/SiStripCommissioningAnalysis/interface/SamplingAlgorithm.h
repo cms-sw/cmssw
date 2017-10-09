@@ -21,7 +21,7 @@ class SamplingAlgorithm : public CommissioningAlgorithm {
   
   SamplingAlgorithm( const edm::ParameterSet & pset, SamplingAnalysis* const, uint32_t latencyCode = 0 );
   
-  ~SamplingAlgorithm() override {;}
+  virtual ~SamplingAlgorithm() {;}
   
   inline const Histo& histo() const;
   
@@ -29,9 +29,9 @@ class SamplingAlgorithm : public CommissioningAlgorithm {
   
   SamplingAlgorithm() {;}
 
-  void extract( const std::vector<TH1*>& ) override;
+  virtual void extract( const std::vector<TH1*>& );
   
-  void analyse() override;
+  void analyse();
   
   void pruneProfile( TProfile* profile ) const;
   

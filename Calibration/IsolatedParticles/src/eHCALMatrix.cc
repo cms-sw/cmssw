@@ -148,7 +148,7 @@ namespace spr{
       if (debug)
 	std::cout << "energyHCALCell:: Cell " << hcid << " E " << energy << " from " << hit.size() << " threshold " << eThr << std::endl;
 #endif
-      if (energy>eThr && !hit.empty()) {
+      if (energy>eThr && hit.size() > 0) {
         energyCell.push_back(std::pair<double,int>(energy,i+1));
       }
     }

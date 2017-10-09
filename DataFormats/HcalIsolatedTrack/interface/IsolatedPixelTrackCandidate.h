@@ -97,13 +97,13 @@ namespace reco {
     IsolatedPixelTrackCandidate(const IsolatedPixelTrackCandidate&);
 
     /// destructor
-    ~IsolatedPixelTrackCandidate() override;
+    virtual ~IsolatedPixelTrackCandidate();
 
     /// returns a clone of the candidate
-    IsolatedPixelTrackCandidate * clone() const override;
+    virtual IsolatedPixelTrackCandidate * clone() const;
 
     /// refrence to a Track
-    reco::TrackRef track() const override;
+    virtual reco::TrackRef track() const;
     void setTrack( const reco::TrackRef & tr ) { track_ = tr; }
 
     /// highest Pt of other pixel tracks in the cone around the candidate
@@ -152,7 +152,7 @@ namespace reco {
 
   private:
     /// check overlap with another candidate
-    bool overlap( const Candidate & ) const override;
+    virtual bool overlap( const Candidate & ) const;
     /// reference to a Track
     reco::TrackRef track_;
     /// reference to a L1 tau jet

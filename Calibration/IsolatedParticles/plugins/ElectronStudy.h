@@ -35,9 +35,9 @@ class ElectronStudy: public edm::EDAnalyzer {
 public:
 
   ElectronStudy(const edm::ParameterSet& ps);
-  ~ElectronStudy() override {}
+  ~ElectronStudy() {}
 
-  void analyze  (const edm::Event& e, const edm::EventSetup& c) override;
+  void analyze  (const edm::Event& e, const edm::EventSetup& c);
 
 private:
 

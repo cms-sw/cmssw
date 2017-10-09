@@ -11,9 +11,9 @@ namespace popcon {
   class DQMSummarySourceHandler : public popcon::PopConSourceHandler<DQMSummary> {
    public:
     DQMSummarySourceHandler(const edm::ParameterSet & pset);
-    ~DQMSummarySourceHandler() override;
-    void getNewObjects() override;
-    std::string id() const override;
+    ~DQMSummarySourceHandler();
+    void getNewObjects();
+    std::string id() const;
    private:
     std::string m_name;
     //cond::Time_t m_since;

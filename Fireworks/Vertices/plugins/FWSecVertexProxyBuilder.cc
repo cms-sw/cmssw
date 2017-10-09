@@ -22,13 +22,13 @@ class FWSecVertexProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Second
    
 public:
    FWSecVertexProxyBuilder(){}
-   ~FWSecVertexProxyBuilder() override{}
+   virtual ~FWSecVertexProxyBuilder(){}
   
    REGISTER_PROXYBUILDER_METHODS();
  
 private:
-   FWSecVertexProxyBuilder(const FWSecVertexProxyBuilder&) = delete; // stop default
-   const FWSecVertexProxyBuilder& operator=(const FWSecVertexProxyBuilder&) = delete; // stop default
+   FWSecVertexProxyBuilder(const FWSecVertexProxyBuilder&); // stop default
+   const FWSecVertexProxyBuilder& operator=(const FWSecVertexProxyBuilder&); // stop default
    
    // ---------- member data --------------------------------
    using FWSimpleProxyBuilderTemplate<reco::SecondaryVertexTagInfo>::build;

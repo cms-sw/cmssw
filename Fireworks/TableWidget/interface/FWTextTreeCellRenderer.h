@@ -25,7 +25,7 @@ public:
                           Justify iJustify = kJustifyLeft)
       : FWTextTableCellRenderer(iContext, iHighlightContext, iJustify),
         m_indentation(0),
-        m_editor(nullptr),
+        m_editor(0),
         m_showEditor(false),
         m_isParent(false),
         m_isOpen(false),
@@ -77,14 +77,14 @@ public:
    void setIsOpen(bool value) {m_isOpen = value; }
    void setBlackIcon(bool value) { m_blackIcon = value; }
 
-   UInt_t width() const override
+   virtual UInt_t width() const
    {
       int w = FWTextTableCellRenderer::width() + 15 + m_indentation;
       if (m_isParent)   w += iconWidth();
       return w;
    }
 
-   void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight) override
+   virtual void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight)
    {      
       if (m_showEditor && m_editor)
       {

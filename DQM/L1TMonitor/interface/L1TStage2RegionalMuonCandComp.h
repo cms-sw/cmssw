@@ -19,7 +19,7 @@ class L1TStage2RegionalMuonCandComp : public DQMEDAnalyzer {
  public:
 
   L1TStage2RegionalMuonCandComp(const edm::ParameterSet& ps);
-  ~L1TStage2RegionalMuonCandComp() override;
+  virtual ~L1TStage2RegionalMuonCandComp();
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  protected:

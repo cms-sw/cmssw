@@ -29,7 +29,7 @@ class RecoTauBuilderCombinatoricPlugin : public RecoTauBuilderPlugin
 {
  public:
   explicit RecoTauBuilderCombinatoricPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector && iC);
-  ~RecoTauBuilderCombinatoricPlugin() override {}
+  virtual ~RecoTauBuilderCombinatoricPlugin() {}
 
   return_type operator()(
       const reco::PFJetRef&, 

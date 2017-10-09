@@ -61,11 +61,11 @@ PluginManager::PluginManager(const PluginManager::Config& iConfig) :
   searchPath_( iConfig.searchPath() )
 {
     using std::placeholders::_1;
-    const boost::filesystem::path& kCacheFile(standard::cachefileName());
+    const boost::filesystem::path kCacheFile(standard::cachefileName());
     // This is the filename of a file which contains plugins which exist in the
     // base release and which should exists in the local area, otherwise they
     // were removed and we want to catch their usage.
-    const boost::filesystem::path& kPoisonedCacheFile(standard::poisonedCachefileName());
+    const boost::filesystem::path kPoisonedCacheFile(standard::poisonedCachefileName());
     //NOTE: This may not be needed :/
     PluginFactoryManager* pfm = PluginFactoryManager::get();
     pfm->newFactory_.connect(std::bind(std::mem_fn(&PluginManager::newFactory),this,_1));
@@ -287,7 +287,7 @@ PluginManager::tryToLoad(const std::string& iCategory,
   const boost::filesystem::path& p = loadableFor_(iCategory,iPlugin, ioThrowIfFailElseSucceedStatus);
   
   if( not ioThrowIfFailElseSucceedStatus ) {
-    return nullptr;
+    return 0;
   }
   
 
@@ -325,7 +325,7 @@ PluginManager*
 PluginManager::get()
 {
   PluginManager* manager = singleton();
-  if(nullptr==manager) {
+  if(0==manager) {
     throw cms::Exception("PluginManagerNotConfigured")<<"PluginManager::get() was called before PluginManager::configure.";
   }
   return manager;
@@ -335,11 +335,11 @@ PluginManager&
 PluginManager::configure(const Config& iConfig )
 {
   PluginManager*& s = singleton();
-  if( nullptr != s ){
+  if( 0 != s ){
     throw cms::Exception("PluginManagerReconfigured");
   }
   
-  const Config& realConfig = iConfig;
+  Config realConfig = iConfig;
   if (realConfig.searchPath().empty() ) {
     throw cms::Exception("PluginManagerEmptySearchPath");
   }
@@ -366,14 +366,14 @@ PluginManager::loadingLibraryNamed_()
 
 PluginManager*& PluginManager::singleton()
 {
-  [[cms::thread_safe]] static PluginManager* s_singleton=nullptr;
+  [[cms::thread_safe]] static PluginManager* s_singleton=0;
   return s_singleton;
 }
 
 bool
 PluginManager::isAvailable()
 {
-  return nullptr != singleton();
+  return 0 != singleton();
 }
 
 }

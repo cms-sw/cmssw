@@ -14,10 +14,10 @@
 class ElectronSeedMerger : public edm::stream::EDProducer<> {
    public:
       explicit ElectronSeedMerger(const edm::ParameterSet&);
-      ~ElectronSeedMerger() override;
+      ~ElectronSeedMerger();
   
    private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
  
 
       edm::ParameterSet conf_;

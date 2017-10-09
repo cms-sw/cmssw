@@ -11,11 +11,11 @@ public:
   typedef std::vector<Trajectory*> TrajectoryPointerContainer;
 
   TrajectoryCleanerBySharedSeeds(const edm::ParameterSet & iConfig){};
-  ~TrajectoryCleanerBySharedSeeds() override{};
+  virtual ~TrajectoryCleanerBySharedSeeds(){};
 
   using TrajectoryCleaner::clean;
-  void clean(TrajectoryPointerContainer&) const override; 
-  void clean                  (std::vector<Trajectory> & trajs) const override; 
+  virtual void clean(TrajectoryPointerContainer&) const; 
+  void clean                  (std::vector<Trajectory> & trajs) const; 
 
 private:
   bool sameSeed(const TrajectorySeed & s1, const TrajectorySeed & s2) const;

@@ -55,7 +55,7 @@ LumiDetails::lumiVersion() const {
 
 bool
 LumiDetails::isValid() const {
-  return !m_allValues.empty();
+  return m_allValues.size()!=0;
 }
 
 void

@@ -32,15 +32,15 @@ class MillePedeFileExtractor :
   public edm::one::EDAnalyzer<edm::one::WatchLuminosityBlocks> {
  public:
   explicit MillePedeFileExtractor(const edm::ParameterSet&);
-  ~MillePedeFileExtractor() override;
+  ~MillePedeFileExtractor();
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
-  void beginLuminosityBlock(const edm::LuminosityBlock&,
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock&,
                                     const edm::EventSetup&) override {}
-  void endLuminosityBlock(const edm::LuminosityBlock&,
+  virtual void endLuminosityBlock(const edm::LuminosityBlock&,
                                   const edm::EventSetup&) override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override {}
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override {}
 
   bool enoughBinaries() {
     return (nBinaries_ >= maxNumberOfBinaries_) && hasBinaryNumberLimit(); }

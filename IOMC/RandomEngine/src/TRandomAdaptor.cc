@@ -9,7 +9,7 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <cstdint>
+#include <stdint.h>
 #include <string>
 
 namespace edm {

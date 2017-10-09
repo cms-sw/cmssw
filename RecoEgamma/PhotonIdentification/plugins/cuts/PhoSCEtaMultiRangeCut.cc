@@ -15,11 +15,11 @@ public:
     }
   }
   
-  result_type operator()(const reco::PhotonPtr&) const final;
+  result_type operator()(const reco::PhotonPtr&) const override final;
 
-  double value(const reco::CandidatePtr& cand) const final;
+  double value(const reco::CandidatePtr& cand) const override final;
 
-  CandidateType candidateType() const final { 
+  CandidateType candidateType() const override final { 
     return PHOTON; 
   }
 

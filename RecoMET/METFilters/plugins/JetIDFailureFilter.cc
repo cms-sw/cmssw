@@ -13,11 +13,11 @@ class JetIDFailureFilter : public edm::EDFilter {
   public:
 
     explicit JetIDFailureFilter(const edm::ParameterSet & iConfig);
-    ~JetIDFailureFilter() override;
+    ~JetIDFailureFilter();
 
   private:
 
-    bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+    virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
     edm::EDGetTokenT<edm::View<pat::Jet> > theJetToken_;
     const double minJetPt_, maxJetEta_, maxNeutHadF_, maxNeutEmF_;

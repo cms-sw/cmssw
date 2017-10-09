@@ -14,10 +14,10 @@ class FallbackLinearizationPointFinder : public LinearizationPointFinder
 {
 public:
   FallbackLinearizationPointFinder ( const ModeFinder3d & m = HsmModeFinder3d() );
-  GlobalPoint getLinearizationPoint(const std::vector<reco::TransientTrack> & ) const override;
-  GlobalPoint getLinearizationPoint(const std::vector<FreeTrajectoryState> & ) const override;
+  virtual GlobalPoint getLinearizationPoint(const std::vector<reco::TransientTrack> & ) const;
+  virtual GlobalPoint getLinearizationPoint(const std::vector<FreeTrajectoryState> & ) const;
 
-  FallbackLinearizationPointFinder * clone() const override
+  virtual FallbackLinearizationPointFinder * clone() const
   {
     return new FallbackLinearizationPointFinder ( * this );
   };

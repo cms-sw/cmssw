@@ -47,11 +47,11 @@ public:
   MuonMillepedeTrackRefitter(const edm::ParameterSet& pset);
 
   /// Destructor
-  ~MuonMillepedeTrackRefitter() override;
+  virtual ~MuonMillepedeTrackRefitter();
 
   // Operations
 
-  void produce(edm::Event & event, const edm::EventSetup& eventSetup) override;
+  virtual void produce(edm::Event & event, const edm::EventSetup& eventSetup);
 
 protected:
 

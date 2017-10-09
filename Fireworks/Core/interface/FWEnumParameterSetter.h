@@ -33,7 +33,7 @@ class FWEnumParameterSetter : public FWParameterSetterBase
 
 public:
    FWEnumParameterSetter();
-   ~FWEnumParameterSetter() override;
+   virtual ~FWEnumParameterSetter();
 
    // ---------- const member functions ---------------------
 
@@ -41,19 +41,19 @@ public:
 
    // ---------- member functions ---------------------------
 
-   TGFrame* build(TGFrame* iParent, bool labelBack = true) override;
+   virtual TGFrame* build(TGFrame* iParent, bool labelBack = true);
 
-   void setEnabled(bool) override;
+   virtual void setEnabled(bool);
 
    void doUpdate(Int_t id);
 
   TGComboBox* getWidget() { return m_widget; }
 
 private:
-   FWEnumParameterSetter(const FWEnumParameterSetter&) = delete;                  // stop default
-   const FWEnumParameterSetter& operator=(const FWEnumParameterSetter&) = delete; // stop default
+   FWEnumParameterSetter(const FWEnumParameterSetter&);                  // stop default
+   const FWEnumParameterSetter& operator=(const FWEnumParameterSetter&); // stop default
 
-   void attach(FWParameterBase*) override;
+   virtual void attach(FWParameterBase*);
 
    // ---------- member data --------------------------------
 

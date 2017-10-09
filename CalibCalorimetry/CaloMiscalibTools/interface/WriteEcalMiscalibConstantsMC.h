@@ -25,13 +25,13 @@
 class WriteEcalMiscalibConstantsMC : public edm::EDAnalyzer {
  public:
   explicit WriteEcalMiscalibConstantsMC(const edm::ParameterSet&);
-  ~WriteEcalMiscalibConstantsMC() override;
+  ~WriteEcalMiscalibConstantsMC();
   
   
  private:
-      void beginJob() override ;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+      virtual void beginJob() ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void endJob() ;
       
       // ----------member data ---------------------------
       std::string newTagRequest_;

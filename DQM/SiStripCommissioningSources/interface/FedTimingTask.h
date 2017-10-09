@@ -11,14 +11,14 @@ class FedTimingTask : public CommissioningTask {
  public:
   
   FedTimingTask( DQMStore*, const FedChannelConnection& );
-  ~FedTimingTask() override;
+  virtual ~FedTimingTask();
   
  private:
 
-  void book() override;
-  void fill( const SiStripEventSummary&,
-		     const edm::DetSet<SiStripRawDigi>& ) override;
-  void update() override;
+  virtual void book();
+  virtual void fill( const SiStripEventSummary&,
+		     const edm::DetSet<SiStripRawDigi>& );
+  virtual void update();
   
   HistoSet timing_;
 

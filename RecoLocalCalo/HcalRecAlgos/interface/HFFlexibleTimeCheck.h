@@ -9,22 +9,22 @@ class HFFlexibleTimeCheck : public HFSimpleTimeCheck
 public:
     using HFSimpleTimeCheck::HFSimpleTimeCheck;
 
-    inline ~HFFlexibleTimeCheck() override {}
+    inline virtual ~HFFlexibleTimeCheck() {}
 
     // Unlike HFSimpleTimeCheck, this algorithm is configurable
-    inline bool isConfigurable() const override {return true;}
-    inline bool configure(const AbsHcalAlgoData* config) override
+    inline virtual bool isConfigurable() const override {return true;}
+    inline virtual bool configure(const AbsHcalAlgoData* config) override
     {
         algoConf_ = dynamic_cast<const HFPhase1PMTParams*>(config);
         return algoConf_;
     }
 
-    HFRecHit reconstruct(const HFPreRecHit& prehit,
+    virtual HFRecHit reconstruct(const HFPreRecHit& prehit,
                                  const HcalCalibrations& calibs,
                                  const bool flaggedBadInDB[2],
                                  bool expectSingleAnodePMT) override;
 protected:
-    unsigned determineAnodeStatus(unsigned anodeNumber,
+    virtual unsigned determineAnodeStatus(unsigned anodeNumber,
                                           const HFQIE10Info& anode,
                                           bool* isTimingReliable) const override;
 private:

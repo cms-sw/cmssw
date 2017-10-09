@@ -22,7 +22,7 @@ class PedsFullNoiseAnalysis : public CommissioningAnalysis {
 
     PedsFullNoiseAnalysis();
 
-    ~PedsFullNoiseAnalysis() override {;}
+    virtual ~PedsFullNoiseAnalysis() {;}
 
     friend class PedestalsAlgorithm;
     friend class PedsFullNoiseAlgorithm;
@@ -30,7 +30,7 @@ class PedsFullNoiseAnalysis : public CommissioningAnalysis {
     // ---------- public interface ----------
 
   	/** Identifies if analysis is valid or not. */
-  	bool isValid() const override;
+  	bool isValid() const;
   
   	// Pedestal, noise and raw noise (128-strip vector per APV)
 	inline const VVFloat& peds() const;
@@ -72,13 +72,13 @@ class PedsFullNoiseAnalysis : public CommissioningAnalysis {
     // ---------- misc ----------
 
     /** Prints analysis results. */
-    void print( std::stringstream&, uint32_t apv_number = 0 ) override;
+    void print( std::stringstream&, uint32_t apv_number = 0 );
 
     /** Overrides base method. */
-    void summary( std::stringstream& ) const override;
+    void summary( std::stringstream& ) const;
 
     /** Resets analysis member data. */
-    void reset() override;
+    void reset();
 
     // ---------- private member data ----------
 

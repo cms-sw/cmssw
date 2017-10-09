@@ -56,13 +56,13 @@
 class EcalLaserAnalyzerYousi : public edm::EDAnalyzer {
    public:
       explicit EcalLaserAnalyzerYousi(const edm::ParameterSet&);
-      ~EcalLaserAnalyzerYousi() override;
+      ~EcalLaserAnalyzerYousi();
 
 
    private:
-      void beginJob() override;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override;
+      virtual void beginJob() override;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override;
 
       // ----------member data ---------------------------
   // Declare histograms and ROOT trees, etc.

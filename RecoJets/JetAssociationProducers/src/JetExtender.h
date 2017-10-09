@@ -19,9 +19,9 @@
 class JetExtender : public edm::stream::EDProducer<> {
    public:
       JetExtender(const edm::ParameterSet&);
-      ~JetExtender() override;
+      virtual ~JetExtender();
 
-      void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&);
 
    private:
      edm::EDGetTokenT<edm::View <reco::Jet>> token_mJets;

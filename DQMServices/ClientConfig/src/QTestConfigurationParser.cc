@@ -31,7 +31,7 @@ QTestConfigurationParser::QTestConfigurationParser(){
 
 QTestConfigurationParser::~QTestConfigurationParser(){
 	delete qtestParamNames;
-	qtestParamNames = nullptr;
+	qtestParamNames = 0;
 }
 
 bool QTestConfigurationParser::parseQTestsConfiguration(){
@@ -198,7 +198,7 @@ bool QTestConfigurationParser::monitorElementTestsMap(){
 		}
 	
 	
-		if(!qualityTestList.empty()) mapMonitorElementTests[linkName]=qualityTestList;
+		if(qualityTestList.size()) mapMonitorElementTests[linkName]=qualityTestList;
 	}///Loop on linkTagsNum
 
 	

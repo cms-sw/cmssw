@@ -51,7 +51,7 @@ class MuonRecoOneHLT : public DQMEDAnalyzer {
   MuonRecoOneHLT(const edm::ParameterSet&); 
   
   /// Destructor
-  ~MuonRecoOneHLT() override;
+  ~MuonRecoOneHLT();
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;

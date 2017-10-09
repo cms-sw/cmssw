@@ -45,12 +45,12 @@ public:
    FWFramedTextTableCellRenderer(const TGGC* iTextContext=&(getDefaultGC()), 
                            const TGGC* iFillContext=&(getFillGC()),
                            Justify iJustify=kJustifyLeft);
-   ~FWFramedTextTableCellRenderer() override;
+   virtual ~FWFramedTextTableCellRenderer();
    
    // ---------- const member functions ---------------------
    const TGGC* graphicsContext() const { return m_context;}
-   UInt_t width() const override;
-   UInt_t height() const override;
+   virtual UInt_t width() const;
+   virtual UInt_t height() const;
    
    const TGFont* font() const;
    // ---------- static member functions --------------------
@@ -60,13 +60,13 @@ public:
    void setGraphicsContext(const TGGC* iContext) { m_context = iContext;}
    void setJustify(Justify);
    
-   void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight) override;
+   virtual void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight);
    
    
 private:
-   FWFramedTextTableCellRenderer(const FWFramedTextTableCellRenderer&) = delete; // stop default
+   FWFramedTextTableCellRenderer(const FWFramedTextTableCellRenderer&); // stop default
    
-   const FWFramedTextTableCellRenderer& operator=(const FWFramedTextTableCellRenderer&) = delete; // stop default
+   const FWFramedTextTableCellRenderer& operator=(const FWFramedTextTableCellRenderer&); // stop default
    
    // ---------- member data --------------------------------
    const TGGC* m_context;

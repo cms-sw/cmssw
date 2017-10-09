@@ -45,13 +45,13 @@
 class ConfigurableAPVCyclePhaseProducer : public edm::EDProducer {
    public:
       explicit ConfigurableAPVCyclePhaseProducer(const edm::ParameterSet&);
-      ~ConfigurableAPVCyclePhaseProducer() override;
+      ~ConfigurableAPVCyclePhaseProducer();
 
 private:
-  void beginJob() override ;
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+  virtual void beginJob() override ;
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override ;
   
       // ----------member data ---------------------------
 

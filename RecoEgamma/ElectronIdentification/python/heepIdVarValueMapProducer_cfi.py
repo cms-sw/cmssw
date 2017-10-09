@@ -1,26 +1,43 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoEgamma.EgammaIsolationAlgos.electronTrackIsolations_cfi import trkIsol03CfgV2
-
 heepIDVarValueMaps = cms.EDProducer("ElectronHEEPIDValueMapProducer",
                                     beamSpot=cms.InputTag("offlineBeamSpot"),
                                     ebRecHitsAOD=cms.InputTag("reducedEcalRecHitsEB"),
                                     eeRecHitsAOD=cms.InputTag("reducedEcalRecHitsEB"),
                                     candsAOD=cms.VInputTag("packedCandsForTkIso",
-                                                           "lostTracksForTkIso",
-                                                           "lostTracksForTkIso:eleTracks"),
-                                    #because GsfTracks of electrons are in "packedPFCandidates" 
-                                    #end KF tracks of electrons are in lostTracks:eleTracks, need to
-                                    #tell producer to veto electrons in the first collection
-                                    candVetosAOD=cms.vstring("ELES","NONE","NONELES"),
+                                                           "lostTracksForTkIso"),
                                     elesAOD=cms.InputTag("gedGsfElectrons"),
                                     ebRecHitsMiniAOD=cms.InputTag("reducedEgamma","reducedEBRecHits"),
                                     eeRecHitsMiniAOD=cms.InputTag("reducedEgamma","reducedEERecHits"),
                                     candsMiniAOD=cms.VInputTag("packedPFCandidates",
-                                                               "lostTracks",
-                                                               "lostTracks:eleTracks"),
-                                    candVetosMiniAOD=cms.vstring("ELES","NONE","NONELES"),
+                                                               "lostTracks"),
                                     elesMiniAOD=cms.InputTag("slimmedElectrons"),
                                     dataFormat=cms.int32(0),#0 = auto detection, 1 = AOD, 2 = miniAOD
-                                    trkIsoConfig= trkIsol03CfgV2
+
+                                    trkIsoConfig= cms.PSet(
+                                       barrelCuts=cms.PSet(
+                                          minPt=cms.double(1.0),
+                                          maxDR=cms.double(0.3),
+                                          minDR=cms.double(0.0),
+                                          minDEta=cms.double(0.005),
+                                          maxDZ=cms.double(0.1),
+                                          maxDPtPt=cms.double(0.1),
+                                          minHits=cms.int32(8),
+                                          minPixelHits=cms.int32(1),
+                                          allowedQualities=cms.vstring(),
+                                          algosToReject=cms.vstring()
+                                          ),
+                                       endcapCuts=cms.PSet(
+                                          minPt=cms.double(1.0),
+                                          maxDR=cms.double(0.3),
+                                          minDR=cms.double(0.0),
+                                          minDEta=cms.double(0.005),
+                                          maxDZ=cms.double(0.5),
+                                          maxDPtPt=cms.double(0.1),
+                                          minHits=cms.int32(8),
+                                          minPixelHits=cms.int32(1),
+                                          allowedQualities=cms.vstring(),
+                                          algosToReject=cms.vstring()
+                                          )
+                                       )
                                     )

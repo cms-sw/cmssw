@@ -5,7 +5,7 @@
 //
 
 #include <iostream>
-#include <cstring>
+#include <string.h>
 
 #ifdef HAVE_XDAQ
 #include <toolbox/string.h>
@@ -30,14 +30,14 @@ using namespace hcal;
 
 HCALConfigDB::HCALConfigDB( void )
 {    
-  database = nullptr;
-  database2 = nullptr;
+  database = 0;
+  database2 = 0;
 }
 
 HCALConfigDB::HCALConfigDB( std::string _accessor )
 {    
-  database = nullptr;
-  database2 = nullptr;
+  database = 0;
+  database2 = 0;
   accessor = _accessor;
 }
 
@@ -99,8 +99,8 @@ void HCALConfigDB::connect( std::string _accessor1, std::string _accessor2 )
 
 void HCALConfigDB::disconnect( void )
 {
-  if ( database != nullptr ) database -> disconnect();
-  if ( database2 != nullptr ) database2 -> disconnect();
+  if ( database != NULL ) database -> disconnect();
+  if ( database2 != NULL ) database2 -> disconnect();
 }
 
 
@@ -178,7 +178,7 @@ std::vector<unsigned int> HCALConfigDB::getOnlineLUT( std::string tag, uint32_t 
     query += toolbox::toString(" WHERE SIDE=%d AND ETA=%d AND PHI=%d AND DEPTH=%d AND SUBDETECTOR='%s'", side, etaAbs, phi, depth, subdetector . c_str() );
     
     //SELECT
-    ResultSet *rs = stmt->executeQuery(query);
+    ResultSet *rs = stmt->executeQuery(query.c_str());
 
     _condition_data_set_id = 0.0;
 
@@ -244,7 +244,7 @@ std::vector<unsigned int> HCALConfigDB::getOnlineLUTFromXML( std::string tag, ui
       query += toolbox::toString(" WHERE SIDE=%d AND ETA=%d AND PHI=%d AND DEPTH=%d AND SUBDETECTOR='%s'", side, etaAbs, phi, depth, subdetector . c_str() );
       
       //SELECT
-      ResultSet *rs = stmt->executeQuery(query);
+      ResultSet *rs = stmt->executeQuery(query.c_str());
       
       _condition_data_set_id = 0.0;
       

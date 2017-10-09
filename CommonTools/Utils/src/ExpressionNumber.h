@@ -15,7 +15,7 @@
 namespace reco {
   namespace parser {
     struct ExpressionNumber : public ExpressionBase {
-      double value( const edm::ObjectWithDict& ) const override { return value_; }
+      virtual double value( const edm::ObjectWithDict& ) const { return value_; }
       ExpressionNumber( double value ) : value_( value ) { }
     private:
       double value_;

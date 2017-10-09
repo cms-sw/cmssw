@@ -17,25 +17,25 @@ public:
   /// Construct from  half width (extension in local X),
   /// half length (Y) and half thickness (Z)
   RectangularPlaneBounds( float w, float h, float t);
-  ~RectangularPlaneBounds() override;
+  ~RectangularPlaneBounds();
 
   /// Lenght along local Y
-  float length()    const override { return 2*halfLength;}
+  virtual float length()    const { return 2*halfLength;}
   /// Width along local X
-  float width()     const override { return 2*halfWidth;}
+  virtual float width()     const { return 2*halfWidth;}
   /// Thickness of the volume in local Z 
-  float thickness() const override { return 2*halfThickness;}
+  virtual float thickness() const { return 2*halfThickness;}
 
   // basic bounds function
   using Bounds::inside;
 
-  bool inside( const Local2DPoint& p) const override {
+  virtual bool inside( const Local2DPoint& p) const {
     return
      (std::abs(p.x()) < halfWidth) &
      (std::abs(p.y()) < halfLength);
   }
 
-  bool inside( const Local3DPoint& p) const override {
+  virtual bool inside( const Local3DPoint& p) const {
     return
      (std::abs(p.x()) < halfWidth) &
      (std::abs(p.y()) < halfLength) &
@@ -44,22 +44,22 @@ public:
 
 
 
-  bool inside(const Local2DPoint& p, float tollerance) const override {
+  virtual bool inside(const Local2DPoint& p, float tollerance) const {
     return (std::abs(p.x()) < (halfWidth  + tollerance) ) &
            (std::abs(p.y()) < (halfLength + tollerance) );
   }
 
 
-  bool inside( const Local3DPoint& p, const LocalError& err,
-		       float scale=1.f) const override;
+  virtual bool inside( const Local3DPoint& p, const LocalError& err,
+		       float scale=1.f) const;
 
-  bool inside( const Local2DPoint& p, const LocalError& err, float scale=1.f) const override;
+  virtual bool inside( const Local2DPoint& p, const LocalError& err, float scale=1.f) const;
 
   // compatible of being inside or outside...
  std::pair<bool,bool> inout( const Local3DPoint& p, const LocalError& err, float scale=1.f) const;
 
 
-  Bounds* clone() const override;
+  virtual Bounds* clone() const;
 
 private:
   float halfWidth;

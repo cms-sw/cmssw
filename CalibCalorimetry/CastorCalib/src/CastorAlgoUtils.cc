@@ -1,5 +1,5 @@
 #include "CalibCalorimetry/CastorCalib/interface/CastorAlgoUtils.h"
-#include <cmath>
+#include <math.h>
 
 namespace reco {
   namespace castor {

@@ -11,14 +11,14 @@ class ParameterSet;
 class JsonWritingTimeoutPoolOutputModule : public edm::TimeoutPoolOutputModule {
  public:
   explicit JsonWritingTimeoutPoolOutputModule(edm::ParameterSet const& ps);
-  ~JsonWritingTimeoutPoolOutputModule() override{};
+  virtual ~JsonWritingTimeoutPoolOutputModule(){};
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
  protected:
-  std::pair<std::string, std::string> physicalAndLogicalNameForNewFile()
+  virtual std::pair<std::string, std::string> physicalAndLogicalNameForNewFile()
       override;
-  void doExtrasAfterCloseFile() override;
+  virtual void doExtrasAfterCloseFile() override;
 
  protected:
   uint32_t sequence_;

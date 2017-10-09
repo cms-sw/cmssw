@@ -60,7 +60,7 @@ IsTBH4Type::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
 
    Handle<EcalTBEventHeader> pEventHeader ;
-   const EcalTBEventHeader* evtHeader=nullptr ;
+   const EcalTBEventHeader* evtHeader=0 ;
    iEvent.getByLabel ( eventHeaderProducer_ , pEventHeader ) ;
    if (!pEventHeader.isValid()) {
      edm::LogError("IsTBH4Type") << "Event Header collection not found" ;

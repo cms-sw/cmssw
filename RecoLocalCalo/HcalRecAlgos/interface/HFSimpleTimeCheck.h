@@ -59,11 +59,11 @@ public:
                       float minChargeForUndershoot, float minChargeForOvershoot,
                       bool rejectAllFailures = true);
 
-    inline ~HFSimpleTimeCheck() override {}
+    inline virtual ~HFSimpleTimeCheck() {}
 
-    inline bool isConfigurable() const override {return false;}
+    inline virtual bool isConfigurable() const override {return false;}
 
-    HFRecHit reconstruct(const HFPreRecHit& prehit,
+    virtual HFRecHit reconstruct(const HFPreRecHit& prehit,
                                  const HcalCalibrations& calibs,
                                  const bool flaggedBadInDB[2],
                                  bool expectSingleAnodePMT) override;

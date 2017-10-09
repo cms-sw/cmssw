@@ -56,7 +56,7 @@ void JetTracksAssociationXtrpCalo::associateInputTracksToJet( reco::TrackRefVect
 							      double dR ) 
 {
   reco::CaloJet const * pCaloJet = dynamic_cast<reco::CaloJet const *>(&fJet);
-  if ( pCaloJet == nullptr ) {
+  if ( pCaloJet == 0 ) {
     throw cms::Exception("InvalidInput") << "Expecting calo jets only in JetTracksAssociationXtrpCalo";
   }
   // Loop over CaloTowers
@@ -71,7 +71,7 @@ void JetTracksAssociationXtrpCalo::associateInputTracksToJet( reco::TrackRefVect
 	  xtrpEnd = fExtrapolations.end(), ixtrp = xtrpBegin;
 	ixtrp != xtrpEnd; ++ixtrp ) {
 	
-    if ( ixtrp->positions().empty() ) continue;
+    if ( ixtrp->positions().size()==0 ) continue;
     reco::TrackBase::Point const & point = ixtrp->positions().at(0);
     
     

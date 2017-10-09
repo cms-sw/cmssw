@@ -24,23 +24,23 @@ namespace reco {
 			   const math::XYZTLorentzVector& Pin, 
 			   const math::XYZTLorentzVector& Pout);
 
-    PFBlockElement* clone() const override { return new PFBlockElementGsfTrack(*this); }
+    PFBlockElement* clone() const { return new PFBlockElementGsfTrack(*this); }
     
     void Dump(std::ostream& out = std::cout, 
-              const char* tab = " " ) const override;
+              const char* tab = " " ) const;
 
     /// \return tracktype
-    bool trackType(TrackType trType) const override { 
+    virtual bool trackType(TrackType trType) const { 
       return (trackType_>>trType) & 1; 
     }
       
     /// \set the trackType
-    void setTrackType(TrackType trType, bool value) override {
+    virtual void setTrackType(TrackType trType, bool value) {
       if(value)  trackType_ = trackType_ | (1<<trType);
       else trackType_ = trackType_ ^ (1<<trType);
     }
     
-    bool isSecondary() const override { 
+    bool isSecondary() const { 
       return trackType(T_FROM_GAMMACONV); 
     }
 

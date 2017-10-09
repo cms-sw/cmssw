@@ -29,13 +29,13 @@
 class L1O2OTestAnalyzerExt : public edm::EDAnalyzer {
    public:
       explicit L1O2OTestAnalyzerExt(const edm::ParameterSet&);
-      ~L1O2OTestAnalyzerExt() override;
+      ~L1O2OTestAnalyzerExt();
 
 
    private:
-      void beginJob() override ;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+      virtual void beginJob() override ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
 
       // ----------member data ---------------------------
   bool m_printL1TriggerKeyExt ;

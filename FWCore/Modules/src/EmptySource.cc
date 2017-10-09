@@ -8,11 +8,11 @@ namespace edm {
   class EmptySource : public ProducerSourceBase {
   public:
     explicit EmptySource(ParameterSet const&, InputSourceDescription const&);
-    ~EmptySource() override;
+    ~EmptySource();
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
   private:
-    bool setRunAndEventInfo(EventID& id, TimeValue_t& time, edm::EventAuxiliary::ExperimentType&) override;
-    void produce(Event &) override;
+    virtual bool setRunAndEventInfo(EventID& id, TimeValue_t& time, edm::EventAuxiliary::ExperimentType&) override;
+    virtual void produce(Event &) override;
   };
 
   EmptySource::EmptySource(ParameterSet const& pset,

@@ -39,14 +39,14 @@ public:
 // class constructor
 L1TStage2OMTF(const edm::ParameterSet & ps);
 // class destructor
-~L1TStage2OMTF() override;
+virtual ~L1TStage2OMTF();
 
 // member functions
 protected:
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override ;
 
 // data members
 private:  

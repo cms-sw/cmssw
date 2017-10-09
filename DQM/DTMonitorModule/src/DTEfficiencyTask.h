@@ -41,7 +41,7 @@ public:
   DTEfficiencyTask(const edm::ParameterSet& pset);
 
   /// Destructor
-  ~DTEfficiencyTask() override;
+  virtual ~DTEfficiencyTask();
 
   /// To reset the MEs
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context)  override;

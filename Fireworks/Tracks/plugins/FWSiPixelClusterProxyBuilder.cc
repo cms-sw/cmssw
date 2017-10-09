@@ -25,24 +25,24 @@ class FWSiPixelClusterProxyBuilder : public FWProxyBuilderBase
 {
 public:
   FWSiPixelClusterProxyBuilder( void ) {}
-  ~FWSiPixelClusterProxyBuilder( void ) override {}
+  virtual ~FWSiPixelClusterProxyBuilder( void ) {}
 
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
   // Disable default copy constructor
-  FWSiPixelClusterProxyBuilder( const FWSiPixelClusterProxyBuilder& ) = delete;
+  FWSiPixelClusterProxyBuilder( const FWSiPixelClusterProxyBuilder& );
   // Disable default assignment operator
-  const FWSiPixelClusterProxyBuilder& operator=( const FWSiPixelClusterProxyBuilder& ) = delete;
+  const FWSiPixelClusterProxyBuilder& operator=( const FWSiPixelClusterProxyBuilder& );
 
   using FWProxyBuilderBase::build;
-  void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;
+  virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;
 };
 
 void
 FWSiPixelClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementList* product , const FWViewContext* )
 {
-   const SiPixelClusterCollectionNew* pixels = nullptr;
+   const SiPixelClusterCollectionNew* pixels = 0;
   
    iItem->get( pixels );
   

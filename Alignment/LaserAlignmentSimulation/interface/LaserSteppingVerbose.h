@@ -16,10 +16,10 @@ public:
 	/// constructor
   LaserSteppingVerbose();
   /// destructor
-  ~LaserSteppingVerbose() override;
+  ~LaserSteppingVerbose();
 	/// step information 
-  void StepInfo() override;
+  void StepInfo();
 	/// tracking information
-  void TrackingStarted() override;
+  void TrackingStarted();
 };
 #endif

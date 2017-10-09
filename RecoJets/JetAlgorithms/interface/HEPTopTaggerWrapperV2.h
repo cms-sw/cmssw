@@ -79,17 +79,17 @@ public:
     minM13Cut_(minM13Cut),
     maxM13Cut_(maxM13Cut),
     optRrejectMin_(optRrejectMin),
-    engine_(nullptr)
+    engine_(0)
   {}
 
   /// returns a textual description of the tagger
-  std::string description() const override;
+  virtual std::string description() const;
 
   /// runs the tagger on the given jet and
   /// returns the tagged PseudoJet if successful, or a PseudoJet==0 otherwise
   /// (standard access is through operator()).
   ///  \param jet   the PseudoJet to tag
-  PseudoJet result(const PseudoJet & jet) const override;
+  virtual PseudoJet result(const PseudoJet & jet) const;
 
   void set_rng(CLHEP::HepRandomEngine* engine){ engine_ = engine;}
 
@@ -140,7 +140,7 @@ class HEPTopTaggerV2Structure : public CompositeJetStructure, public TopTaggerBa
  public:
    /// ctor with pieces initialisation
    HEPTopTaggerV2Structure(const std::vector<PseudoJet>& pieces_in,
-                  const JetDefinition::Recombiner *recombiner = nullptr) : CompositeJetStructure(pieces_in, recombiner),
+                  const JetDefinition::Recombiner *recombiner = 0) : CompositeJetStructure(pieces_in, recombiner),
     _fj_mass(0.0),
     _fj_pt(0.0),
     _fj_eta(0.0),
@@ -164,14 +164,14 @@ class HEPTopTaggerV2Structure : public CompositeJetStructure, public TopTaggerBa
     rW_(){}
   
    // Return W subjet
-   inline PseudoJet const & W() const override{ 
+   inline PseudoJet const & W() const{ 
      rW_ = join(_pieces[0], _pieces[1], *W_rec);
      return rW_;
    }
      
    // Return leading subjet in W
    inline PseudoJet  W1() const{
-     assert(!W().pieces().empty());
+     assert(W().pieces().size()>0);
      return W().pieces()[0];
    }
        
@@ -185,7 +185,7 @@ class HEPTopTaggerV2Structure : public CompositeJetStructure, public TopTaggerBa
    /// returns the non-W subjet
    /// It will have 1 or 2 pieces depending on whether the tagger has
    /// found 3 or 4 pieces
-   inline const PseudoJet & non_W() const override{ 
+   inline const PseudoJet & non_W() const{ 
      return _pieces[2];
    }
  

@@ -68,14 +68,14 @@ namespace edm {
         throw edm::Exception(edm::errors::LogicError,
           "ConfigurationDescriptions::add, when adding a ParameterSetDescription for a source the label must be \"source\"\n");
       }
-      if (!descriptions_.empty() ||
+      if (descriptions_.size() != 0U ||
           defaultDescDefined_ == true) {
         throw edm::Exception(edm::errors::LogicError,
           "ConfigurationDescriptions::add, for a source only 1 ParameterSetDescription may be added\n");
       }
     }
     else if (0==strcmp(baseType_.c_str(),kService)) {
-      if (!descriptions_.empty() ||
+      if (descriptions_.size() != 0U ||
           defaultDescDefined_ == true) {
         throw edm::Exception(edm::errors::LogicError,
           "ConfigurationDescriptions::add, for a service only 1 ParameterSetDescription may be added\n");
@@ -97,7 +97,7 @@ namespace edm {
   ConfigurationDescriptions::addDefault(ParameterSetDescription const& psetDescription) {
 
     if (0==strcmp(baseType_.c_str(),kSource) || 0==strcmp(baseType_.c_str(),kService)) {
-      if (!descriptions_.empty() ||
+      if (descriptions_.size() != 0U ||
           defaultDescDefined_ == true) {
         throw edm::Exception(edm::errors::LogicError,
           "ConfigurationDescriptions::addDefault, for a source or service only 1 ParameterSetDescription may be added\n");
@@ -114,7 +114,7 @@ namespace edm {
     if (defaultDescDefined_) {
       return &defaultDesc_;
     }
-    return nullptr;
+    return 0;
   }
   
   ConfigurationDescriptions::iterator 
@@ -128,14 +128,14 @@ namespace edm {
   ConfigurationDescriptions::validate(ParameterSet & pset,
                                       std::string const& moduleLabel) const {
     
-    ParameterSetDescription const* psetDesc = nullptr;
+    ParameterSetDescription const* psetDesc = 0;
     for_all(descriptions_, std::bind(&matchLabel,
                                        std::placeholders::_1,
                                        std::cref(moduleLabel),
                                        std::ref(psetDesc)));
 
     // If there is a matching label
-    if (psetDesc != nullptr) {
+    if (psetDesc != 0) {
       psetDesc->validate(pset);
     }
     // Is there an explicit description to be used for a non standard label
@@ -143,7 +143,7 @@ namespace edm {
       defaultDesc_.validate(pset);
     }
     // Otherwise use the first one.
-    else if (!descriptions_.empty()) {
+    else if (descriptions_.size() > 0U) {
       descriptions_[0].second.validate(pset);
     }
     // It is possible for no descriptions to be defined and no validation occurs

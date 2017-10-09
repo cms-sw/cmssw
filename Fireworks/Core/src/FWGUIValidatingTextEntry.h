@@ -35,9 +35,9 @@ class TGListBox;
 class FWGUIValidatingTextEntry : public TGTextEntry {
 
 public:
-   FWGUIValidatingTextEntry(const TGWindow *parent = nullptr, const char *text = nullptr, Int_t id = -1);
+   FWGUIValidatingTextEntry(const TGWindow *parent = 0, const char *text = 0, Int_t id = -1);
 
-   ~FWGUIValidatingTextEntry() override;
+   virtual ~FWGUIValidatingTextEntry();
 
    // ---------- const member functions ---------------------
 
@@ -51,7 +51,7 @@ public:
    TGListBox* getListBox() const { return m_list; }
    void setMaxListBoxHeight(UInt_t x) { m_listHeight = x; }
 
-   Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2) override;
+   virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2);
 
    void keyPressedInPopup(TGFrame*, UInt_t keysym, UInt_t mask);
  

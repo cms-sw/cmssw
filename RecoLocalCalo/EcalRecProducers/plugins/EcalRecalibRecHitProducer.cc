@@ -56,8 +56,8 @@ void EcalRecalibRecHitProducer::produce(edm::StreamID sid, edm::Event& evt, cons
         Handle< EBRecHitCollection > pEBRecHits;
         Handle< EERecHitCollection > pEERecHits;
 
-        const EBRecHitCollection*  EBRecHits = nullptr;
-        const EERecHitCollection*  EERecHits = nullptr; 
+        const EBRecHitCollection*  EBRecHits = 0;
+        const EERecHitCollection*  EERecHits = 0; 
 
 	if (not EBRecHitCollection_.label().empty()) {
 	  evt.getByToken( EBRecHitToken_, pEBRecHits);
@@ -75,7 +75,7 @@ void EcalRecalibRecHitProducer::produce(edm::StreamID sid, edm::Event& evt, cons
         // now fetch all conditions we need to make rechits
         // ADC to GeV constant
         edm::ESHandle<EcalADCToGeVConstant> pAgc;
-        const EcalADCToGeVConstant *agc = nullptr;
+        const EcalADCToGeVConstant *agc = 0;
         float agc_eb = 1.;
         float agc_ee = 1.;
         if (doEnergyScale_) {
@@ -87,7 +87,7 @@ void EcalRecalibRecHitProducer::produce(edm::StreamID sid, edm::Event& evt, cons
         }
         // Intercalib constants
         edm::ESHandle<EcalIntercalibConstants> pIcal;
-        const EcalIntercalibConstants *ical = nullptr;
+        const EcalIntercalibConstants *ical = 0;
         if (doIntercalib_) {
                 es.get<EcalIntercalibConstantsRcd>().get(pIcal);
                 ical = pIcal.product();

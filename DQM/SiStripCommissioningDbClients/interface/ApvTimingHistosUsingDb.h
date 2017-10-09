@@ -13,9 +13,9 @@ class ApvTimingHistosUsingDb : public CommissioningHistosUsingDb, public ApvTimi
                           DQMStore*,
                           SiStripConfigDb* const );
 
-  ~ApvTimingHistosUsingDb() override;
+  virtual ~ApvTimingHistosUsingDb();
   
-  void uploadConfigurations() override;
+  virtual void uploadConfigurations();
 
  private:
 
@@ -23,7 +23,7 @@ class ApvTimingHistosUsingDb : public CommissioningHistosUsingDb, public ApvTimi
   
   void update( SiStripConfigDb::FedDescriptionsRange );
   
-  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis ) override; 
+  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis ); 
   
   // switch for uploading the pll thresholds
   bool skipFecUpdate_;

@@ -17,7 +17,7 @@ namespace reco {
   namespace parser {
     template<typename Op>
     struct ExpressionQuaterOperator : public ExpressionBase {
-      double value(const edm::ObjectWithDict& o) const override { 
+      virtual double value(const edm::ObjectWithDict& o) const { 
 	return op_(args_[0]->value(o), args_[1]->value(o), args_[2]->value(o), args_[3]->value(o));
       }
       ExpressionQuaterOperator(ExpressionStack & expStack) { 

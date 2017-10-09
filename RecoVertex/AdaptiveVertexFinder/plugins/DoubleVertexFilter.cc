@@ -17,7 +17,7 @@ class DoubleVertexFilter : public edm::global::EDProducer<> {
     public:
 	DoubleVertexFilter(const edm::ParameterSet &params);
 
-	void produce(edm::StreamID, edm::Event &event, const edm::EventSetup &es) const override;
+	virtual void produce(edm::StreamID, edm::Event &event, const edm::EventSetup &es) const override;
 
     private:
 	bool trackFilter(const reco::TrackRef &track) const;

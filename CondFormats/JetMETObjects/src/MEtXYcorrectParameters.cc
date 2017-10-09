@@ -7,7 +7,7 @@
 #include <iomanip>
 #include <fstream>
 #include <sstream>
-#include <cstdlib>
+#include <stdlib.h>
 #include <algorithm>
 #include <cmath>
 #include <iterator>

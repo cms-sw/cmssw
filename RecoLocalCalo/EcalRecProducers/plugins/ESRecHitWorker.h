@@ -29,10 +29,10 @@ class ESRecHitWorker : public ESRecHitWorkerBaseClass {
  public:
 
   ESRecHitWorker(const edm::ParameterSet& ps);
-  ~ESRecHitWorker() override;
+  ~ESRecHitWorker();
   
-  void set(const edm::EventSetup& es) override;
-  bool run(const ESDigiCollection::const_iterator & digi, ESRecHitCollection & result) override;
+  void set(const edm::EventSetup& es);
+  bool run(const ESDigiCollection::const_iterator & digi, ESRecHitCollection & result);
 
  private:
 

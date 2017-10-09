@@ -80,4 +80,3 @@ Tracking/TrackParameters/LSanalysis/NumberOfTracks_lumiFlag_GenTk
 EcalPreshower/ESIntegrityTask/ES
 Hcal/LSbyLS_Hcal/LSvalues/ProblemsThisLS
 AlcaBeamMonitor/Service/hHistoLumiValues
-DQM/TimerService

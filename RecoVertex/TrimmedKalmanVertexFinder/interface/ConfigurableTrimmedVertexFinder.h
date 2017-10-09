@@ -49,14 +49,14 @@ public:
 				  const VertexUpdator<5> * vu, 
 				  const VertexTrackCompatibilityEstimator<5> * ve);
 
-  ~ConfigurableTrimmedVertexFinder() override {}
+  virtual ~ConfigurableTrimmedVertexFinder() {}
 
-  std::vector<TransientVertex> 
-    vertices(const std::vector<reco::TransientTrack> & tracks) const override;
+  virtual std::vector<TransientVertex> 
+    vertices(const std::vector<reco::TransientTrack> & tracks) const;
   
-  std::vector<TransientVertex> 
+  virtual std::vector<TransientVertex> 
     vertices(const std::vector<reco::TransientTrack> & tracks,
-        const reco::BeamSpot & spot ) const override;
+        const reco::BeamSpot & spot ) const;
 
   std::vector<TransientVertex> 
     vertices( const std::vector<reco::TransientTrack> & tracks,
@@ -90,7 +90,7 @@ public:
 
   /** Clone method
    */
-  ConfigurableTrimmedVertexFinder * clone() const override {
+  virtual ConfigurableTrimmedVertexFinder * clone() const {
     return new ConfigurableTrimmedVertexFinder(*this);
   }
 

@@ -36,14 +36,14 @@ namespace cms
     
     explicit ClusterizerFP420(const edm::ParameterSet& conf);
     
-    ~ClusterizerFP420() override;
+    virtual ~ClusterizerFP420();
     
-    void beginJob() override;
+    virtual void beginJob();
     
     //  virtual void produce(DigiCollectionFP420*, ClusterCollectionFP420 &);
     // virtual void produce(DigiCollectionFP420 &, ClusterCollectionFP420 &);
     
-    void produce(edm::Event& e, const edm::EventSetup& c) override;
+    virtual void produce(edm::Event& e, const edm::EventSetup& c);
     
   private:
     typedef std::vector<std::string> vstring;

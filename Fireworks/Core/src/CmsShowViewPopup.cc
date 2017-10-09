@@ -44,13 +44,13 @@
 CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWColorManager* iCMgr, FWViewBase* vb, TEveWindow* ew) :
    TGTransientFrame(gClient->GetDefaultRoot(),p, w, h),
    m_mapped(kFALSE),
-   m_viewLabel(nullptr),
-   m_paramGUI(nullptr),
-   m_saveImageButton(nullptr),
-   m_changeBackground(nullptr),
+   m_viewLabel(0),
+   m_paramGUI(0),
+   m_saveImageButton(0),
+   m_changeBackground(0),
    m_colorManager(iCMgr),
-   m_viewBase(nullptr),
-   m_eveWindow(nullptr)
+   m_viewBase(0),
+   m_eveWindow(0)
 {
    m_colorManager->colorsHaveChanged_.connect(boost::bind(&CmsShowViewPopup::backgroundColorWasChanged,this));
 
@@ -126,7 +126,7 @@ CmsShowViewPopup::reset(FWViewBase* vb, TEveWindow* ew)
    }
    else
    {
-      fMain = nullptr;
+      fMain = 0;
       m_viewLabel->SetText("No view selected");
       m_saveImageButton->SetEnabled(kFALSE);
    }
@@ -193,7 +193,7 @@ CmsShowViewPopup::backgroundColorWasChanged()
 
 ViewerParameterGUI::ViewerParameterGUI(const TGFrame* p):
    TGCompositeFrame(p),
-   m_tab(nullptr),
+   m_tab(0),
    m_selectedTabName("Style")
 {
    SetCleanup(kDeepCleanup);
@@ -220,7 +220,7 @@ ViewerParameterGUI::reset()
       f->UnmapWindow();
       RemoveFrame(f);
       f->DeleteWindow();
-      m_tab = nullptr;
+      m_tab = 0;
    }
 }
 

@@ -184,7 +184,7 @@ void Exercises3::calibrateCalibratables(TChain& sourceTree,
 		CalibratorPtr c = sm->findCalibrator(pd->getEta(), pd->getPhi(),
 				pd->getTruthEnergy());
 		//std::cout << *pd << "\n";
-		if (c == nullptr) {
+		if (c == 0) {
 			std::cout << "Couldn't find calibrator for particle?!\n";
 			std::cout << "\t"<< *pd << "\n";
 

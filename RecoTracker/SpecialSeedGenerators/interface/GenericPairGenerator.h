@@ -16,11 +16,11 @@ class SeedingLayerSetsHits;
 class GenericPairGenerator : public OrderedHitsGenerator {
 	public:
 	GenericPairGenerator(const edm::ParameterSet& conf, edm::ConsumesCollector& iC);
-	~GenericPairGenerator() override{};
-	const OrderedSeedingHits& run(const TrackingRegion& region, 
+	virtual ~GenericPairGenerator(){};
+	virtual const OrderedSeedingHits& run(const TrackingRegion& region, 
 					      const edm::Event & ev, 
-					      const edm::EventSetup& es) override;
-        void clear() override { hitPairs.clear();}
+					      const edm::EventSetup& es);
+        void clear() { hitPairs.clear();}
 	private:
 	edm::EDGetTokenT<SeedingLayerSetsHits> theSeedingLayerToken;
 	OrderedHitPairs hitPairs;

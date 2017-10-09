@@ -24,34 +24,34 @@ class RecHit1D : public TrackingRecHit {
   RecHit1D(TrackingRecHit::id_type id=0) : TrackingRecHit(id) {}
 
   /// Destructor
-  ~RecHit1D() override {}
+  virtual ~RecHit1D() {}
 
 
   /// Return just the x
-  AlgebraicVector parameters() const override;
+  virtual AlgebraicVector parameters() const;
 
 
   /// Return just "(sigma_x)^2"
-  AlgebraicSymMatrix parametersError() const override;
+  virtual AlgebraicSymMatrix parametersError() const;
 
 
   ///Return the projection matrix
-  AlgebraicMatrix projectionMatrix() const override {
+  virtual AlgebraicMatrix projectionMatrix() const {
     return theProjectionMatrix;
   }
 
   /// Return the RecHit dimension
-  int dimension() const override {
+  virtual int dimension() const {
     return 1;
   }
 
 
   /// Local position
-  LocalPoint localPosition() const override = 0;
+  virtual LocalPoint localPosition() const = 0;
 
 
   /// Error on the local position
-  LocalError localPositionError() const override = 0;
+  virtual LocalError localPositionError() const = 0;
 
 
  private:

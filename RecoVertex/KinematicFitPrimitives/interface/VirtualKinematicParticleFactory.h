@@ -32,7 +32,7 @@ public:
  */
   RefCountedKinematicParticle particle(const KinematicState& kineState, float& chiSquared,
                  float& degreesOfFr, ReferenceCountingPointer<KinematicParticle> previousParticle,
-				           KinematicConstraint * lastConstraint = nullptr)const;
+				           KinematicConstraint * lastConstraint = 0)const;
 private:
   
  KinematicStatePropagator * propagator;

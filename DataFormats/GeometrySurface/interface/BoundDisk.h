@@ -42,7 +42,7 @@ public:
   }
 
 
-  ~Disk() override {}
+  virtual ~Disk() {}
 
 
   // -- DEPRECATED CONSTRUCTORS

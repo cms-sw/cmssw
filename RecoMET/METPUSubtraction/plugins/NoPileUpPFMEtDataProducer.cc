@@ -107,7 +107,7 @@ namespace
 	  }
 	}
       }
-      if ( !idxs.empty() ) {
+      if ( idxs.size() ) {
 	for ( std::vector<int>::const_iterator idx = idxs.begin();
 	      idx != idxs.end(); ++idx ) {
 	  if ( (*idx) >= (int)flags.size() ) flags.resize(2*flags.size());

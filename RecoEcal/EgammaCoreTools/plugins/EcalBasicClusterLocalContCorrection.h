@@ -18,8 +18,8 @@ class EcalBasicClusterLocalContCorrection : public EcalClusterLocalContCorrectio
   // compute the correction
   //virtual float getValue( const reco::BasicCluster &, const EcalRecHitCollection & ) const;
   //virtual float getValue( const reco::BasicCluster & basicCluster) const;
-  float getValue( const reco::BasicCluster &, const EcalRecHitCollection & ) const override;
-  float getValue( const reco::SuperCluster &, const int mode ) const override;
+  virtual float getValue( const reco::BasicCluster &, const EcalRecHitCollection & ) const;
+  virtual float getValue( const reco::SuperCluster &, const int mode ) const;
  private:	
   int getEcalModule(DetId id) const;
     

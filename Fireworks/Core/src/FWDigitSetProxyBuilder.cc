@@ -29,14 +29,14 @@ class FWSecondarySelectableSelector : public FWFromEveSelectorBase
 {
 public:
    FWSecondarySelectableSelector(const TEveSecondarySelectable::SelectionSet_t& s, const FWEventItem* i): m_selected(s), m_item(i) {}
-   ~FWSecondarySelectableSelector() override {}
+   ~FWSecondarySelectableSelector() {}
 
-   void doSelect() override
+   virtual void doSelect() override
    {
       syncSelection();
    }
 
-   void doUnselect() override
+   virtual void doUnselect() override
    { 
       syncSelection(); 
    }
@@ -70,7 +70,7 @@ private:
 //==============================================================================
 
 FWDigitSetProxyBuilder::FWDigitSetProxyBuilder():
-   m_boxSet(nullptr)
+   m_boxSet(0)
 {
 }
 
@@ -94,8 +94,8 @@ TEveBoxSet* FWDigitSetProxyBuilder::addBoxSetToProduct(TEveElementList* product)
    m_boxSet->Reset(TEveBoxSet::kBT_FreeBox, true, 256);
    FWSecondarySelectableSelector* sel = new FWSecondarySelectableSelector(m_boxSet->RefSelectedSet(), item());
    m_boxSet->SetUserData(sel);
-   m_boxSet->SetPickable(true);
-   m_boxSet->SetAlwaysSecSelect(true);
+   m_boxSet->SetPickable(1);
+   m_boxSet->SetAlwaysSecSelect(1);
 
    product->AddElement(m_boxSet);
 

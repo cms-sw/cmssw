@@ -10,11 +10,11 @@ class HcalStripHaloFilter : public edm::global::EDFilter<> {
   public:
 
     explicit HcalStripHaloFilter(const edm::ParameterSet & iConfig);
-    ~HcalStripHaloFilter() override {}
+    ~HcalStripHaloFilter() {}
 
   private:
 
-    bool filter(edm::StreamID iID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
+    virtual bool filter(edm::StreamID iID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
 
     const bool taggingMode_;
     const int maxWeightedStripLength_;

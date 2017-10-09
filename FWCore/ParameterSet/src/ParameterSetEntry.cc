@@ -10,7 +10,7 @@ namespace edm {
 
   ParameterSetEntry::ParameterSetEntry()
   : isTracked_(false),
-    thePSet_(nullptr),
+    thePSet_(0),
     theID_()
   {
   }

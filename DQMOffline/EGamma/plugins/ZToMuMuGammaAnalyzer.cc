@@ -539,7 +539,7 @@ void ZToMuMuGammaAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
 
       h1_mumuInvMass_[0] -> Fill (mumuMass);      
 
-      if (   photonHandle->empty() ) continue;
+      if (   photonHandle->size() < 1 ) continue;
 
       reco::Muon nearMuon;
       reco::Muon farMuon;

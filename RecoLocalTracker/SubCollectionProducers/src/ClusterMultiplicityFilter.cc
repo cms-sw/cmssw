@@ -37,7 +37,7 @@ bool ClusterMultiplicityFilter::filter(edm::StreamID iID, edm::Event& iEvent, ed
 
   bool result = true;
 
-  const edmNew::DetSetVector<SiStripCluster> *clusters = nullptr;
+  const edmNew::DetSetVector<SiStripCluster> *clusters = 0;
   edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusterHandle;
   iEvent.getByToken(clusters_,clusterHandle);
   if( !clusterHandle.isValid() ) {

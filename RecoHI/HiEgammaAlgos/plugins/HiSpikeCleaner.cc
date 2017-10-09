@@ -49,11 +49,11 @@
 class HiSpikeCleaner : public edm::stream::EDProducer<> {
 public:
   explicit HiSpikeCleaner(const edm::ParameterSet&);
-  ~HiSpikeCleaner() override;
+  ~HiSpikeCleaner();
   
 private:
 
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   
   // ----------member data ---------------------------
   

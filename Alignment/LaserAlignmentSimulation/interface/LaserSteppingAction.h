@@ -19,9 +19,9 @@ class LaserSteppingAction : public G4UserSteppingAction
 	/// constructor
   LaserSteppingAction(edm::ParameterSet const& theConf);
 	/// destructor
-  ~LaserSteppingAction() override;
+  virtual ~LaserSteppingAction();
 	/// stepping action: set energydeposit when a photon is absorbed in a Si module
-  void UserSteppingAction(const G4Step* myStep) override;
+  virtual void UserSteppingAction(const G4Step* myStep);
 
  private: 
   int theDebugLevel;

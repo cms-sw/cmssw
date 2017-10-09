@@ -49,9 +49,9 @@ Description: SiStrip-driven electron seed finding algorithm.
 
 SiStripElectronSeedGenerator::SiStripElectronSeedGenerator(const edm::ParameterSet &pset, const SiStripElectronSeedGenerator::Tokens& tokens)
  : beamSpotTag_(tokens.token_bs),
-   theUpdator(nullptr),thePropagator(nullptr),theMeasurementTracker(nullptr),
+   theUpdator(0),thePropagator(0),theMeasurementTracker(0),
    theMeasurementTrackerEventTag(tokens.token_mte),
-   theSetup(nullptr), theMatcher_(nullptr),
+   theSetup(0), theMatcher_(0),
    cacheIDMagField_(0),cacheIDCkfComp_(0),cacheIDTrkGeom_(0),
    tibOriginZCut_(pset.getParameter<double>("tibOriginZCut")),
    tidOriginZCut_(pset.getParameter<double>("tidOriginZCut")),

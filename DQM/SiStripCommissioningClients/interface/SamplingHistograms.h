@@ -12,11 +12,11 @@ class SamplingHistograms : virtual public CommissioningHistograms {
  public:
   
   SamplingHistograms( const edm::ParameterSet& pset, DQMStore*, const sistrip::RunType& task = sistrip::APV_LATENCY );
-  ~SamplingHistograms() override;
+  virtual ~SamplingHistograms();
   
-  void histoAnalysis( bool debug ) override;
+  void histoAnalysis( bool debug );
 
-  void configure( const edm::ParameterSet&, const edm::EventSetup& ) override;
+  virtual void configure( const edm::ParameterSet&, const edm::EventSetup& );
 
  private:
   

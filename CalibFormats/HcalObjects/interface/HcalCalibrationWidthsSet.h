@@ -7,7 +7,7 @@
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include <vector>
 #include <unordered_map>
-#include <cstdint>
+#include <stdint.h>
 
 /** \class HcalCalibrationWidthsSet
   *  

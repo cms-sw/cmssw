@@ -116,7 +116,7 @@ namespace edm {
     if(hasCache()) {
       return;
     }
-    if(indicies_.empty()) {
+    if(indicies_.size() == 0) {
       return;
     }
     //NOTE: Another thread could be getting the data

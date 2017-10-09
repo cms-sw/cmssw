@@ -10,11 +10,11 @@ class PedsFullNoiseHistograms : public virtual CommissioningHistograms {
   public:
 
     PedsFullNoiseHistograms( const edm::ParameterSet& pset, DQMStore* );
-    ~PedsFullNoiseHistograms() override;
+    virtual ~PedsFullNoiseHistograms();
  
-    void histoAnalysis( bool debug ) override;
+    void histoAnalysis( bool debug );
 
-    void printAnalyses() override; // override
+    void printAnalyses(); // override
 
 };
 

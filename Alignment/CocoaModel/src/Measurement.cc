@@ -35,7 +35,7 @@ ALIstring Measurement::theMeasurementsFileName = "";
 ALIstring Measurement::theCurrentDate = "99/99/99";
 ALIstring Measurement::theCurrentTime = "99:99";
 
-ALIbool Measurement::only1 = false;
+ALIbool Measurement::only1 = 0;
 ALIstring Measurement::only1Date = "";
 ALIstring Measurement::only1Time = "";
 
@@ -232,11 +232,11 @@ void Measurement::fillData( ALIuint coor, const std::vector<ALIstring>& wordlist
 
   //----- Set value (translate it if a PARAMETER is used)
   ALIdouble val = 0.;
-  theValueIsSimulated[coor] = false;
+  theValueIsSimulated[coor] = 0;
   if( !ALIUtils::IsNumber(wordlist[1]) ) {
     if ( parmgr->getParameterValue( wordlist[1], val ) == 0 ) {
       if( wordlist[1] == ALIstring("simulated_value") ) {
-        theValueIsSimulated[coor] = true;
+        theValueIsSimulated[coor] = 1;
       } else {
         //      ALIFileIn::getInstance( Model::SDFName() ).ErrorInLine();
         std::cerr << "!!! parameter for value not found: " << wordlist[1].c_str() << std::endl;
@@ -293,7 +293,7 @@ void Measurement::fillData( ALIuint coor, OpticalAlignParam* oaParam)
   //---------- set data members
   //----- Set value (translate it if a PARAMETER is used)
   ALIdouble val = 0.;
-  theValueIsSimulated[coor] = false;
+  theValueIsSimulated[coor] = 0;
   val = oaParam->value();
   val *= valueDimensionFactor();
   theValue[coor] = val;
@@ -357,7 +357,7 @@ void Measurement::buildOptOList()
     }
     OpticalObject* OptOitem = Model::getOptOByName( referenceOptO );
     if ( ALIUtils::debug >= 3 ) std::cout << "Measurement::buildOptOList: OptO in Measurement: " << OptOitem->name() << std::endl;
-    if ( OptOitem != (OpticalObject*)nullptr ) {
+    if ( OptOitem != (OpticalObject*)0 ) {
       _OptOList.push_back( OptOitem);
     } else {
       std::cerr << "!!! Error in Measurement: can't find Optical Object " <<
@@ -412,7 +412,7 @@ void Measurement::addAffectingEntriesFromOptO( const OpticalObject* optoP )
       if(ALIUtils::debug >= 4)  std::cout << "Entry that may affect Measurement: " << (*vecite)->name() << std::endl;
     }
   }
-  if(optoP->parent() != nullptr) {
+  if(optoP->parent() != 0) {
     addAffectingEntriesFromOptO( optoP->parent() );
   }
 }
@@ -453,7 +453,7 @@ void Measurement::printStartCalculateSimulatedValue( const Measurement* meas)
 void Measurement::calculateOriginalSimulatedValue()
 {
   //----------  Calculate the simulated value of the Measurement
-  calculateSimulatedValue( true );
+  calculateSimulatedValue( 1 );
 
 #ifdef COCOA_VIS
   if( ALIUtils::getFirstTime() ) {
@@ -529,7 +529,7 @@ std::vector<ALIdouble> Measurement::DerivativeRespectEntry( Entry* entry )
     entry->displace( displacement );
 
     if ( ALIUtils::debug >= 5) std::cout << "Get simulated value for displacement " << displacement << std::endl;
-    calculateSimulatedValue( false );
+    calculateSimulatedValue( 0 );
 
     //---------- Get sum of derivatives
     sumderiv = 0;
@@ -699,7 +699,7 @@ void Measurement::setName()
 {
   // name already set by passing one argument with sensor type
   if( theName != "" ) return;
-  if( _OptONameList.empty()) {
+  if( _OptONameList.size() == 0) {
     std::cerr << " !!! Error in your code, you cannot ask for the name of the Measurement before the OptONameList is build " << std::endl;
     exit(9);
   }

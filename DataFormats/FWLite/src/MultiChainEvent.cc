@@ -31,24 +31,24 @@ namespace fwlite {
 public:
       MultiProductGetter(MultiChainEvent const* iEvent) : event_(iEvent) {}
 
-      edm::WrapperBase const*
+      virtual edm::WrapperBase const*
       getIt(edm::ProductID const& iID) const override {
         return event_->getByProductID(iID);
       }
 
-      edm::WrapperBase const*
+      virtual edm::WrapperBase const*
       getThinnedProduct(edm::ProductID const& pid, unsigned int& key) const override {
         return event_->getThinnedProduct(pid, key);
       }
 
-      void getThinnedProducts(edm::ProductID const& pid,
+      virtual void getThinnedProducts(edm::ProductID const& pid,
                                       std::vector<edm::WrapperBase const*>& foundContainers,
                                       std::vector<unsigned int>& keys) const override {
         event_->getThinnedProducts(pid, foundContainers, keys);
       }
 
 private:
-      unsigned int transitionIndex_() const override {
+      virtual unsigned int transitionIndex_() const override {
         return 0U;
       }
 

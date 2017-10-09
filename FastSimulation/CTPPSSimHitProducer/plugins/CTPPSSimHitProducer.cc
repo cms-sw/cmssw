@@ -58,13 +58,13 @@ Implementation:
 class CTPPSSimHitProducer : public edm::stream::EDProducer<> {
     public:
         explicit CTPPSSimHitProducer(const edm::ParameterSet&);
-        ~CTPPSSimHitProducer() override;
+        ~CTPPSSimHitProducer();
         typedef CLHEP::HepLorentzVector LorentzVector;
 
     private:
-        void beginStream(edm::StreamID) override;
-        void produce(edm::Event&, const edm::EventSetup&) override;
-        void endStream() override;
+        virtual void beginStream(edm::StreamID) override;
+        virtual void produce(edm::Event&, const edm::EventSetup&) override;
+        virtual void endStream() override;
 
         edm::EDGetTokenT< edm::HepMCProduct > mcEventToken; // label of MC event
         edm::Handle< edm::HepMCProduct > EvtHandle ;
@@ -130,7 +130,7 @@ CTPPSSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             if(pid!=2212) continue;
 
             HepMC::GenVertex* pv = (*i)->production_vertex();
-            const HepMC::FourVector& vertex = pv->position();
+            HepMC::FourVector vertex = pv->position();
             const HepMC::FourVector p((*i)->momentum());
             protonCTPPS.push_back(math::XYZTLorentzVector(p.x(),p.y(),p.z(),p.t()));
 

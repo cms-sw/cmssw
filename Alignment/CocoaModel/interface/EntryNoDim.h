@@ -20,18 +20,18 @@ public:
     theDimType = ED_nodim;
     //std::cout << "entryNoDim" << std::endl;
 };
-  ~EntryNoDim() override{};
+  ~EntryNoDim(){};
 
  // Access DATA MEMBERS
   //----------- Return value and sigma dimension factors (1. as object of this class have no dimension)
-  ALIdouble ValueDimensionFactor() const override{
+  virtual ALIdouble ValueDimensionFactor() const{
     return 1.0;
   }
-  ALIdouble SigmaDimensionFactor() const override{
+  virtual ALIdouble SigmaDimensionFactor() const{
     return 1.0;
   }
   //----- Return starting displacement for derivative
-  ALIdouble startingDisplacement() override {
+  virtual ALIdouble startingDisplacement() {
      return 0.1;
   }
 };

@@ -24,7 +24,7 @@ namespace reco {
     CastorJet(const double energycal, const CastorClusterRef& usedCluster);
 
     /// destructor
-    ~CastorJet() override;
+    virtual ~CastorJet();
 
     /// Jet energy
     double energy() const { return (*usedCluster_).energy(); }

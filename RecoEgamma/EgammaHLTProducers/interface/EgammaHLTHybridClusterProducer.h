@@ -22,7 +22,7 @@ namespace edm {
 class EgammaHLTHybridClusterProducer : public edm::EDProducer  {
  public:
   EgammaHLTHybridClusterProducer(const edm::ParameterSet& ps);
-  ~EgammaHLTHybridClusterProducer() override;
+  ~EgammaHLTHybridClusterProducer();
   void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

@@ -62,7 +62,7 @@ void CaloTowersAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm::Run co
   if(hcalselector_ == "HE") isub = 2;
   if(hcalselector_ == "HF") isub = 3;
 
-  if ( !outputFile_.empty() ) {
+  if ( outputFile_.size() != 0 ) {
     edm::LogInfo("OutputInfo") << " Hcal RecHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
     edm::LogInfo("OutputInfo") << " Hcal RecHit Task histograms will NOT be saved";

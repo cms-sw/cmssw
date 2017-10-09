@@ -2,7 +2,7 @@
 #define FastSingleTrackerRecHit_H
 
 #include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHit.h"
-#include <cstdint>
+#include "stdint.h"
 
 class FastSingleTrackerRecHit : public FastTrackerRecHit {
 
@@ -21,7 +21,7 @@ class FastSingleTrackerRecHit : public FastTrackerRecHit {
     
     public:
 
-    FastSingleTrackerRecHit * clone() const override  {FastSingleTrackerRecHit * p =  new FastSingleTrackerRecHit( * this); p->load(); return p;}
+    virtual FastSingleTrackerRecHit * clone() const override  {FastSingleTrackerRecHit * p =  new FastSingleTrackerRecHit( * this); p->load(); return p;}
 
     size_t                       nIds()                    const override { return 1;}
     int32_t                      id(size_t i =0)           const override { return i == 0 ? id_ : -1;}

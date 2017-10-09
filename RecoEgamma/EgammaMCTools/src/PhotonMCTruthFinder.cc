@@ -47,7 +47,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(const std::vector<SimTrack>
   fill(theSimTracks,  theSimVertices);
 
   //  std::cout << " After fill " << theSimTracks.size() << " " << theSimVertices.size() << std::endl;
-  if (    !theSimTracks.empty() ) {
+  if (    theSimTracks.size() != 0 ) {
   
   int iPV=-1;   
   int partType1=0;
@@ -355,7 +355,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(const std::vector<SimTrack>
        }
 
 
-       if ( !electronsFromConversions.empty() ) {
+       if ( electronsFromConversions.size() > 0 ) {
        // if ( trkFromConversion.size() > 0 ) {
          isAconversion=1;
 	 //std::cout  << " CONVERTED photon " <<   "\n";    

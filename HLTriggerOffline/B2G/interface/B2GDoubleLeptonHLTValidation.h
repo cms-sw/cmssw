@@ -48,13 +48,13 @@
 class B2GDoubleLeptonHLTValidation : public DQMEDAnalyzer {
    public:
       explicit B2GDoubleLeptonHLTValidation(const edm::ParameterSet&);
-      ~B2GDoubleLeptonHLTValidation() override;
+      ~B2GDoubleLeptonHLTValidation();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
    private:
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
       void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
       /// deduce monitorPath from label, the label is expected
       /// to be of type 'selectionPath:monitorPath'

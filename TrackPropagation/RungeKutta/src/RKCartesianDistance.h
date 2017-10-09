@@ -16,9 +16,9 @@ public:
   typedef double                                 Scalar;
   typedef RKSmallVector<double,6>                Vector;
 
-  ~RKCartesianDistance() override {}
+  virtual ~RKCartesianDistance() {}
 
-  Scalar operator()( const Vector& rka, const Vector& rkb, const Scalar& s) const override {
+  virtual Scalar operator()( const Vector& rka, const Vector& rkb, const Scalar& s) const {
     CartesianStateAdaptor a(rka), b(rkb);
 
     return (a.position()-b.position()).mag() + 

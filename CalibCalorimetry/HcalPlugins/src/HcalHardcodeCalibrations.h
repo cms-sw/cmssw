@@ -53,15 +53,15 @@ class HcalHardcodeCalibrations : public edm::ESProducer, public edm::EventSetupR
 
 public:
   HcalHardcodeCalibrations (const edm::ParameterSet& );
-  ~HcalHardcodeCalibrations () override;
+  ~HcalHardcodeCalibrations ();
 
   void produce () {};
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
 protected:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+  virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
 			      const edm::IOVSyncValue& , 
-			      edm::ValidityInterval&) override ;
+			      edm::ValidityInterval&) ;
 
   std::unique_ptr<HcalPedestals> producePedestals (const HcalPedestalsRcd& rcd);
   std::unique_ptr<HcalPedestalWidths> producePedestalWidths (const HcalPedestalWidthsRcd& rcd);

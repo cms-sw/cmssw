@@ -1,5 +1,5 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/PulseChiSqSNNLS.h"
-#include <cmath>
+#include <math.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 

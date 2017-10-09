@@ -22,7 +22,7 @@ BeamHaloAnalyzer::BeamHaloAnalyzer( const edm::ParameterSet& iConfig)
   OutputFileName = iConfig.getParameter<std::string>("OutputFile"); 
   TextFileName   = iConfig.getParameter<std::string>("TextFile");
 
-  if(!TextFileName.empty())
+  if(TextFileName.size())
     out = new std::ofstream(TextFileName.c_str() );
 
 
@@ -302,7 +302,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 {
   EventID TheEvent = iEvent.id();
   int BXN = iEvent.bunchCrossing() ;
-  bool Dump = !TextFileName.empty();
+  bool Dump = TextFileName.size();
   edm::EventNumber_t TheEventNumber = TheEvent.event();
   edm::LuminosityBlockNumber_t Lumi = iEvent.luminosityBlock();
   edm::RunNumber_t Run  = iEvent.run();
@@ -467,8 +467,8 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
   
   // Are there segments on the plus/minus side?  
-  if( !vCSCSegments_Plus.empty() ) CSCSegmentPlus = true;
-  if( !vCSCSegments_Minus.empty() ) CSCSegmentMinus = true;
+  if( vCSCSegments_Plus.size() ) CSCSegmentPlus = true;
+  if( vCSCSegments_Minus.size() ) CSCSegmentMinus = true;
 
   //Get CSC RecHits
   Handle<CSCRecHit2DCollection> TheCSCRecHits;

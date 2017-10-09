@@ -55,17 +55,17 @@ class FastTSGFromPropagation : public TrackerSeedGenerator {
   FastTSGFromPropagation(const edm::ParameterSet& par, const MuonServiceProxy*,edm::ConsumesCollector& iC);
     
   /// destructor
-  ~FastTSGFromPropagation() override;
+  virtual ~FastTSGFromPropagation();
 
   /// generate seed(s) for a track
   void  trackerSeeds(const TrackCand&, const TrackingRegion&, 
-		     const TrackerTopology *tTopo, std::vector<TrajectorySeed>&) override;
+		     const TrackerTopology *tTopo, std::vector<TrajectorySeed>&);
     
   /// initialize
-  void init(const MuonServiceProxy*) override;
+  void init(const MuonServiceProxy*);
 
   /// set an event
-  void setEvent(const edm::Event&) override;
+  void setEvent(const edm::Event&);
 
 private:
   /// A mere copy (without memory leak) of an existing tracking method
@@ -124,7 +124,7 @@ private:
 
   struct isInvalid {
     bool operator()(const TrajectoryMeasurement& measurement) {
-      return ( ((measurement).recHit() == nullptr) || !((measurement).recHit()->isValid()) || !((measurement).updatedState().isValid()) ); 
+      return ( ((measurement).recHit() == 0) || !((measurement).recHit()->isValid()) || !((measurement).updatedState().isValid()) ); 
     }
   };
 

@@ -22,7 +22,7 @@ template< typename TObject , typename TRecord>
 class SiStripTemplateEmptyFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
  public:
   SiStripTemplateEmptyFakeESSource(const edm::ParameterSet&);
-  ~SiStripTemplateEmptyFakeESSource() override{};
+  ~SiStripTemplateEmptyFakeESSource(){};
   
   
   std::unique_ptr<TObject> produce(const TRecord&);
@@ -31,10 +31,10 @@ private:
   
   void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
 		       const edm::IOVSyncValue& iov,
-		       edm::ValidityInterval& iValidity) override;
+		       edm::ValidityInterval& iValidity);
   
-  SiStripTemplateEmptyFakeESSource( const SiStripTemplateEmptyFakeESSource& ) = delete;
-  const SiStripTemplateEmptyFakeESSource& operator=( const SiStripTemplateEmptyFakeESSource& ) = delete;
+  SiStripTemplateEmptyFakeESSource( const SiStripTemplateEmptyFakeESSource& );
+  const SiStripTemplateEmptyFakeESSource& operator=( const SiStripTemplateEmptyFakeESSource& );
 };
 
 template< typename TObject , typename TRecord>

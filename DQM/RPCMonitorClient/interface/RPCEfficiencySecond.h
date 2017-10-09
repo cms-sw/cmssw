@@ -19,7 +19,7 @@
 class RPCEfficiencySecond :public DQMEDHarvester{
    public:
       explicit RPCEfficiencySecond(const edm::ParameterSet&);
-      ~RPCEfficiencySecond() override;
+      ~RPCEfficiencySecond();
       int rollY(std::string shortname,const std::vector<std::string>& rollNames);
   
  protected:

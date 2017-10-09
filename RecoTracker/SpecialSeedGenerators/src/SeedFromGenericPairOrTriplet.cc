@@ -86,16 +86,16 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromTriplet(const SeedingHitSe
 			<< middle.x() << ", " 
                         << middle.y() << ", " 
                         << middle.z() << ")";
-		if (!qualityFilter(hits)) return nullptr;
+		if (!qualityFilter(hits)) return 0;
 		bool sdir = (seedDir == outsideIn);
                 SeedingHitSet newSet(sdir ? hits[1] : hits[0], sdir ? hits[2] : hits[1]); 
 		TrajectorySeed* seed = seedFromPair(newSet, dir, seedDir, charge);
 		return seed;
 						
 	}
-	GlobalPoint* firstPoint  = nullptr;
-	GlobalPoint* secondPoint = nullptr;
-	GlobalPoint* thirdPoint  = nullptr;
+	GlobalPoint* firstPoint  = 0;
+	GlobalPoint* secondPoint = 0;
+	GlobalPoint* thirdPoint  = 0;
 	int momentumSign         = 1;
 	//const TrackingRecHit* firstHit  = 0;
 	//const TrackingRecHit* secondHit = 0;
@@ -139,7 +139,7 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromTriplet(const SeedingHitSe
                                                                        originalPar.charge(),
                                                                        &originalPar.magneticField());*/
         //FreeTrajectoryState* startingState = new FreeTrajectoryState(newPar, initialError(trHits[0]));//trHits[1]));
-	if (!qualityFilter(momentumSign*originalStartingState.momentum())) return nullptr;
+	if (!qualityFilter(momentumSign*originalStartingState.momentum())) return 0;
 	//TrajectorySeed* seed = buildSeed(startingState, trHits, dir);
 	TrajectorySeed* seed = buildSeed(momentumSign*originalStartingState.momentum(),originalStartingState.charge(), trHits, dir);
 	return seed;	
@@ -164,8 +164,8 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromPair(const SeedingHitSet& 
                         << inner.perp()
                         << ", " << inner.phi()
                         << "," << inner.theta() <<")";
-	GlobalPoint* firstPoint  = nullptr;
-        GlobalPoint* secondPoint = nullptr;
+	GlobalPoint* firstPoint  = 0;
+        GlobalPoint* secondPoint = 0;
         int momentumSign         = 1;
         //const TrackingRecHit* firstHit  = 0;
         //const TrackingRecHit* secondHit = 0;
@@ -250,12 +250,12 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::buildSeed(const GlobalVector& mome
 	const TrajectoryStateOnSurface propTSOS = propagator->propagate(startingState,*(transHit2->surface()));
 	if (!propTSOS.isValid()){
 		LogDebug("SeedFromGenericPairOrTriplet") << "first propagation failed";
-		return nullptr;
+		return 0;
 	}
 	TrajectoryStateOnSurface seedTSOS = updator.update(propTSOS, *transHit2);
 	if (!seedTSOS.isValid()){
 		LogDebug("SeedFromGenericPairOrTriplet") << "first update failed";
-                return nullptr;
+                return 0;
 	}	
 	LogDebug("SeedFromGenericPairOrTriplet") << "starting TSOS " << seedTSOS ;
 	seedTSOS.rescaleError(theErrorRescaling);

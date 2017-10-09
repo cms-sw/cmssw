@@ -193,7 +193,7 @@ namespace IPTools
     Line::PositionType pos(state.globalPosition());
     Line::DirectionType dir((state.globalMomentum()).unit());
     Line trackLine(pos,dir);
-    const GlobalPoint&  tmp=point; 
+    GlobalPoint  tmp=point; 
     return  trackLine.distance(tmp);
   }
 

@@ -7,7 +7,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
-#include <cinttypes>
+#include <inttypes.h>
 #include "boost/ptr_container/ptr_list.hpp"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -19,7 +19,7 @@
 #include "DataFormats/Provenance/interface/RunID.h"
 
 #include <sys/time.h>
-#include <ctime>
+#include <time.h>
 #include <map>
 
 /**
@@ -119,15 +119,15 @@ private:
   //ctors/dtors
 public:
   LaserSorter(const edm::ParameterSet&);
-  ~LaserSorter() override;
+  ~LaserSorter();
 
 
   //methods
 public:
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
-  void beginJob() override;
-  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob();
+  virtual void beginJob();
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
 
 private:
   int dcc2Lme(int dccNum, int dccSide);
@@ -149,7 +149,7 @@ private:
    * -2 is returned.
    */
   int getDetailedTriggerType(const edm::Handle<FEDRawDataCollection>& rawdata,
-                             double* proba = nullptr);
+                             double* proba = 0);
 
   /** Closes output stream 2 lumi block older than the input 'lumiBlock' ID.
    * @param lumiBlock ID of the reference luminosity block.
@@ -245,8 +245,8 @@ private:
    * @nTowerBlocks if not null, filled with number of tower blocks
    * @return true if event is empty, false otherwise
    */
-  bool isDccEventEmpty(const FEDRawData& data, size_t* dccLen = nullptr,
-		       int* nTowerBlocks = nullptr) const;
+  bool isDccEventEmpty(const FEDRawData& data, size_t* dccLen = 0,
+		       int* nTowerBlocks = 0) const;
   
   /** Computes the list of FEDs which data must be written out.
    * @param data CMS raw event

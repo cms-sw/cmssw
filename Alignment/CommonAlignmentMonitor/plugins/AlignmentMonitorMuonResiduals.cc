@@ -34,7 +34,7 @@
 class AlignmentMonitorMuonResiduals: public AlignmentMonitorBase {
    public:
       AlignmentMonitorMuonResiduals(const edm::ParameterSet& cfg);
-      ~AlignmentMonitorMuonResiduals() override {};
+      ~AlignmentMonitorMuonResiduals() {};
 
       void book() override;
       void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks) override;

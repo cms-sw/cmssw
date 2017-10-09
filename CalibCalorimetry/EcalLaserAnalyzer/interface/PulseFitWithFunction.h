@@ -30,7 +30,7 @@ class PulseFitWithFunction: public TObject
   PulseFitWithFunction() ;
 
   // Destructor: Does nothing
-  ~PulseFitWithFunction() override ;
+  virtual ~PulseFitWithFunction() ;
 
   // Initialize 
   virtual void init(int,int,int,int,double,double) ;
@@ -79,7 +79,7 @@ class PulseFitWithFunction: public TObject
   
   
 
-  ClassDefOverride(PulseFitWithFunction,0)     //!< The processed part of the class is persistant
+  ClassDef(PulseFitWithFunction,0)     //!< The processed part of the class is persistant
 } ;
 
 #endif

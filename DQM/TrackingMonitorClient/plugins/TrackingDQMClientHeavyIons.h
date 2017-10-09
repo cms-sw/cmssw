@@ -17,7 +17,7 @@ class TrackingDQMClientHeavyIons : public DQMEDHarvester
 {
  public:
   TrackingDQMClientHeavyIons(const edm::ParameterSet& pset);
-  ~TrackingDQMClientHeavyIons() override {};
+  ~TrackingDQMClientHeavyIons() {};
 
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 

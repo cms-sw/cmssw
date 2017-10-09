@@ -28,9 +28,9 @@ namespace edm {
   class RandomFilter : public edm::EDFilter {
   public:
     explicit RandomFilter(edm::ParameterSet const& ps);
-    ~RandomFilter() override;
+    virtual ~RandomFilter();
 
-    bool filter(edm::Event& e, edm::EventSetup const& c) override;
+    virtual bool filter(edm::Event& e, edm::EventSetup const& c) override;
 
   private:
 

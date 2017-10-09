@@ -48,7 +48,7 @@ public:
 L1TGMT(const edm::ParameterSet& ps);
 
 // Destructor
-~L1TGMT() override;
+virtual ~L1TGMT();
 
 protected:
 // Analyze
@@ -56,9 +56,9 @@ protected:
 
 // BeginJob
 
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
+  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
 
 private:
   // ----------member data ---------------------------

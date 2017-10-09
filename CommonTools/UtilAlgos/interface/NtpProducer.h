@@ -23,11 +23,11 @@ public:
   /// constructor from parameter set
   NtpProducer( const edm::ParameterSet& );
   /// destructor
-  ~NtpProducer() override;
+  ~NtpProducer();
 
 protected:
   /// process an event
-  void produce( edm::Event&, const edm::EventSetup&) override;
+  virtual void produce( edm::Event&, const edm::EventSetup&) override;
 
 private:
   /// label of the collection to be read in

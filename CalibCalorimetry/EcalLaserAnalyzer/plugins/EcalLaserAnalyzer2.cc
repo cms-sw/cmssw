@@ -155,7 +155,7 @@ pnID(-1), moduleID(-1), flag(0), channelIteratorEE(0), ShapeCor(0)
 
   // PN linearity corrector
 
-  pnCorrector = new TPNCor(pncorfile_);
+  pnCorrector = new TPNCor(pncorfile_.c_str());
 
 
   // Objects dealing with pulses
@@ -278,7 +278,7 @@ void EcalLaserAnalyzer2:: analyze( const edm::Event & e, const  edm::EventSetup&
 
   // retrieving DCC header
   edm::Handle<EcalRawDataCollection> pDCCHeader;
-  const  EcalRawDataCollection* DCCHeader=nullptr;
+  const  EcalRawDataCollection* DCCHeader=0;
   try {
     e.getByLabel(eventHeaderProducer_,eventHeaderCollection_, pDCCHeader);
     DCCHeader=pDCCHeader.product();
@@ -288,9 +288,9 @@ void EcalLaserAnalyzer2:: analyze( const edm::Event & e, const  edm::EventSetup&
 
   //retrieving crystal data from Event
   edm::Handle<EBDigiCollection>  pEBDigi;
-  const  EBDigiCollection* EBDigi=nullptr;
+  const  EBDigiCollection* EBDigi=0;
   edm::Handle<EEDigiCollection>  pEEDigi;
-  const  EEDigiCollection* EEDigi=nullptr;
+  const  EEDigiCollection* EEDigi=0;
 
   if (_ecalPart == "EB") {
     try {
@@ -315,7 +315,7 @@ void EcalLaserAnalyzer2:: analyze( const edm::Event & e, const  edm::EventSetup&
   // retrieving crystal PN diodes from Event
 
   edm::Handle<EcalPnDiodeDigiCollection>  pPNDigi;
-  const  EcalPnDiodeDigiCollection* PNDigi=nullptr;
+  const  EcalPnDiodeDigiCollection* PNDigi=0;
   try {
     e.getByLabel(digiProducer_,digiPNCollection_, pPNDigi);
     PNDigi=pPNDigi.product(); 
@@ -325,7 +325,7 @@ void EcalLaserAnalyzer2:: analyze( const edm::Event & e, const  edm::EventSetup&
 
   // retrieving electronics mapping
   edm::ESHandle< EcalElectronicsMapping > ecalmapping;
-  const EcalElectronicsMapping* TheMapping=nullptr; 
+  const EcalElectronicsMapping* TheMapping=0; 
   try{
     c.get< EcalMappingRcd >().get(ecalmapping);
     TheMapping = ecalmapping.product();
@@ -1303,7 +1303,7 @@ bool EcalLaserAnalyzer2::getShapes() {
   int doesMatFileExist=0;
   int doesMatShapeExist=0;
   FILE *test2;   
-  TProfile *laserShape=nullptr;
+  TProfile *laserShape=0;
   test2 = fopen(matfile.c_str(),"r");
   if (test2) doesMatFileExist=1; 
   
@@ -1332,7 +1332,7 @@ bool EcalLaserAnalyzer2::getShapes() {
   if (test) doesElecFileExist=1; 
   
   TFile *ElecShapesFile;
-  TH1D* elecShape=nullptr ;
+  TH1D* elecShape=0 ;
 
   if (doesElecFileExist==1){
     ElecShapesFile = new TFile(elecfile_.c_str());

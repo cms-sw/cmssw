@@ -12,9 +12,9 @@ namespace ecaldqm
 
   class MESetProjection : public MESetEcal {
   public :
-    MESetProjection(std::string const&, binning::ObjectType, binning::BinningType, MonitorElement::Kind, binning::AxisSpecs const* = nullptr);
+    MESetProjection(std::string const&, binning::ObjectType, binning::BinningType, MonitorElement::Kind, binning::AxisSpecs const* = 0);
     MESetProjection(MESetProjection const&);
-    ~MESetProjection() override;
+    ~MESetProjection();
 
     MESet* clone(std::string const& = "") const override;
 

@@ -23,21 +23,21 @@ public:
   OptOOpticalSquare(){ };
   OptOOpticalSquare(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data) : 
   OpticalObject( parent, type, name, copy_data){ };
-  ~OptOOpticalSquare() override{ };
+  ~OptOOpticalSquare(){ };
 
   //---------- Fast simulation of deviation of the light ray (reflection, shift, ...)
-  void fastDeviatesLightRay( LightRay& lightray ) override;
+  virtual void fastDeviatesLightRay( LightRay& lightray );
   //---------- Detailed simulation of the light ray traversing
-  void fastTraversesLightRay( LightRay& lightray ) override;
+  virtual void fastTraversesLightRay( LightRay& lightray );
   //---------- Detailed simulation of deviation of the light ray (reflection, shift, ...)
-  void detailedDeviatesLightRay( LightRay& lightray ) override;
+  virtual void detailedDeviatesLightRay( LightRay& lightray );
   //---------- Fast simulation of the light ray traversing
-  void detailedTraversesLightRay( LightRay& lightray ) override;
+  virtual void detailedTraversesLightRay( LightRay& lightray );
 
 #ifdef COCOA_VIS
   virtual void fillIguana();
 #endif
-  void constructSolidShape() override;
+  void constructSolidShape();
 
  private:
   //---------- Calculate the centre points and normal std::vector of each of the four pentaprism faces the light ray may touch

@@ -36,12 +36,12 @@
 class RecHitEnergyFilter : public edm::EDFilter {
    public:
       explicit RecHitEnergyFilter(const edm::ParameterSet&);
-      ~RecHitEnergyFilter() override;
+      ~RecHitEnergyFilter();
 
    private:
-      void beginJob() override ;
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+      virtual void beginJob() override ;
+      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
 
       // RecHit input tags
       edm::InputTag ebRecHitsTag_;

@@ -45,9 +45,9 @@ EcalUncalibRecHitWorkerMaxSample::run( const edm::Event & evt,
         DetId detid(itdg->id());
 
         if ( detid.subdetId() == EcalBarrel ) {
-                result.push_back( ebAlgo_.makeRecHit(*itdg, nullptr, nullptr, nullptr, nullptr ) );
+                result.push_back( ebAlgo_.makeRecHit(*itdg, 0, 0, 0, 0 ) );
         } else {
-                result.push_back( eeAlgo_.makeRecHit(*itdg, nullptr, nullptr, nullptr, nullptr ) );
+                result.push_back( eeAlgo_.makeRecHit(*itdg, 0, 0, 0, 0 ) );
         }
 
         return true;

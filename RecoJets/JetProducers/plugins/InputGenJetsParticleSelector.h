@@ -32,10 +32,10 @@ class InputGenJetsParticleSelector : public edm::global::EDProducer<> {
   typedef std::vector<const reco::Candidate*> ParticleVector;
       
   InputGenJetsParticleSelector(const edm::ParameterSet & ); 
-  ~InputGenJetsParticleSelector() override; 
+  ~InputGenJetsParticleSelector(); 
   // select object from a collection and 
   // possibly event content
-  void produce (edm::StreamID, edm::Event &evt, const edm::EventSetup &evtSetup) const override;
+  virtual void produce (edm::StreamID, edm::Event &evt, const edm::EventSetup &evtSetup) const override;
       
   bool getPartonicFinalState() const { return partonicFinalState; }
   bool getExcludeResonances() const { return excludeResonances; }

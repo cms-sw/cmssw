@@ -13,27 +13,27 @@ public:
   
   RecHit2DLocalPos(DetId id) : TrackingRecHit(id) {}
   RecHit2DLocalPos(TrackingRecHit::id_type id=0) : TrackingRecHit(id) {}
-  ~RecHit2DLocalPos() override {}
+  virtual ~RecHit2DLocalPos() {}
   
-  RecHit2DLocalPos * clone() const override = 0;
+  virtual RecHit2DLocalPos * clone() const = 0;
   
-  AlgebraicVector parameters() const override;
+  virtual AlgebraicVector parameters() const;
 
-  AlgebraicSymMatrix parametersError() const override;
+  virtual AlgebraicSymMatrix parametersError() const;
 
-  AlgebraicMatrix projectionMatrix() const override {
+  virtual AlgebraicMatrix projectionMatrix() const {
     return theProjectionMatrix;
   }
 
-  int dimension() const override { return 2;}
+  virtual int dimension() const { return 2;}
 
-  LocalPoint localPosition() const override = 0;
+  virtual LocalPoint localPosition() const = 0;
 
-  LocalError localPositionError() const override = 0;
+  virtual LocalError localPositionError() const = 0;
 
-  std::vector<const TrackingRecHit*> recHits() const override;
+  virtual std::vector<const TrackingRecHit*> recHits() const;
 
-  std::vector<TrackingRecHit*> recHits() override;
+  virtual std::vector<TrackingRecHit*> recHits();
 
 private:
 

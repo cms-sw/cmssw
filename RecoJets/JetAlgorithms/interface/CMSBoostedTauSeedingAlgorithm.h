@@ -57,12 +57,12 @@ namespace contrib{
     CMSBoostedTauSeedingAlgorithm(double ptMin, double muMin, double muMax, double yMin, double yMax, double dRMin, double dRMax, int maxDepth, int verbosity = 0);
 
     // destructor
-    ~CMSBoostedTauSeedingAlgorithm() override{}
+    virtual ~CMSBoostedTauSeedingAlgorithm(){}
 
     // standard usage
-    std::string description() const override;
+    virtual std::string description() const;
 
-    PseudoJet result(const PseudoJet & jet) const override;
+    virtual PseudoJet result(const PseudoJet & jet) const;
 
     // the type of the associated structure
     typedef CMSBoostedTauSeedingAlgorithmStructure StructureType;
@@ -98,7 +98,7 @@ namespace contrib{
     /// ctor with initialisation
     ///  \param pieces  the pieces of the created jet
     ///  \param rec     the recombiner from the underlying cluster sequence
-    CMSBoostedTauSeedingAlgorithmStructure(const PseudoJet& result_jet, const JetDefinition::Recombiner* rec = nullptr) 
+    CMSBoostedTauSeedingAlgorithmStructure(const PseudoJet& result_jet, const JetDefinition::Recombiner* rec = 0) 
       : CompositeJetStructure(result_jet.pieces(), rec), 
         _mu(0.0), _y(0.0), _dR(0.0), _pt(0.0) 
     {}

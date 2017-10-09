@@ -11,9 +11,9 @@ public:
   GSUtilities (const unsigned nComp, const float* weights,
 	       const float* parameters, const float* errors) :
     theNComp(nComp),
-    theWeights(nullptr),
-    theParameters(nullptr),
-    theErrors(nullptr)
+    theWeights(0),
+    theParameters(0),
+    theErrors(0)
   {
     if ( theNComp ) {
       theWeights = new float[theNComp];

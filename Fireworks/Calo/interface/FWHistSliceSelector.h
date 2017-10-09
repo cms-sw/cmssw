@@ -8,10 +8,10 @@ class FWHistSliceSelector : public FWFromSliceSelector
 {
 public:
    FWHistSliceSelector(TH2F* h, const FWEventItem* item);
-    ~FWHistSliceSelector() override;
+   virtual  ~FWHistSliceSelector();
 
-   void doSelect(const TEveCaloData::CellId_t&) override;
-   void doUnselect(const TEveCaloData::CellId_t&) override;
+   virtual void doSelect(const TEveCaloData::CellId_t&);
+   virtual void doUnselect(const TEveCaloData::CellId_t&);
 
    virtual bool aggregatePhiCells() const { return true; }
 

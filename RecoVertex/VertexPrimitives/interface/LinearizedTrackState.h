@@ -50,7 +50,7 @@ public:
 
   typedef ReferenceCountingPointer<RefittedTrackState<N> > RefCountedRefittedTrackState;
 
-  ~LinearizedTrackState() override{}
+  virtual ~LinearizedTrackState(){}
 
   /**
    * Returns a new linearized state with respect to a new linearization point.

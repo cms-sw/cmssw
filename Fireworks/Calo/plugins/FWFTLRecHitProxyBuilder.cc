@@ -5,13 +5,13 @@ class FWFTLRecHitProxyBuilder : public FWCaloRecHitDigitSetProxyBuilder
 {
 public:
    FWFTLRecHitProxyBuilder( void ) { invertBox(true); }
-   ~FWFTLRecHitProxyBuilder( void ) override {}
+   virtual ~FWFTLRecHitProxyBuilder( void ) {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWFTLRecHitProxyBuilder( const FWFTLRecHitProxyBuilder& ) = delete;
-   const FWFTLRecHitProxyBuilder& operator=( const FWFTLRecHitProxyBuilder& ) = delete;
+   FWFTLRecHitProxyBuilder( const FWFTLRecHitProxyBuilder& );
+   const FWFTLRecHitProxyBuilder& operator=( const FWFTLRecHitProxyBuilder& );
 };
 
 REGISTER_FWPROXYBUILDER( FWFTLRecHitProxyBuilder, FTLRecHitCollection, "FTL RecHit", FWViewType::kISpyBit );

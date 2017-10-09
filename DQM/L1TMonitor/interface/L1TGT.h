@@ -55,18 +55,18 @@ public:
     L1TGT(const edm::ParameterSet& ps);
 
     // destructor
-    ~L1TGT() override;
+    virtual ~L1TGT();
 
 protected:
 
     //virtual void beginJob();
-    void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-    void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-    void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
-    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+    virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+    virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
+    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     /// end section
-    void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+    virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
 
 
 private:

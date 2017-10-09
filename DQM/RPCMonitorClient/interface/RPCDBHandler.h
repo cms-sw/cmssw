@@ -27,9 +27,9 @@ class RPCDBHandler : public popcon::PopConSourceHandler<RPCDQMObject>
 {
       
 public:
-  void getNewObjects() override;
-  std::string id() const override { return m_name; }
-  ~RPCDBHandler() override; 
+  void getNewObjects();
+  std::string id() const { return m_name; }
+  ~RPCDBHandler(); 
   RPCDBHandler(const edm::ParameterSet& pset);
      
   void initObject(RPCDQMObject*);

@@ -23,11 +23,11 @@ public:
 				    double rho, 
 				    PropagationDirection propDir=alongMomentum);
 
-  std::pair<bool,double> pathLength( const Plane&) override;
+  virtual std::pair<bool,double> pathLength( const Plane&);
 
-  PositionType position( double s) const override;
+  virtual PositionType position( double s) const;
 
-  DirectionType direction( double s) const override;
+  virtual DirectionType direction( double s) const;
 
 private:
 

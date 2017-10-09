@@ -117,13 +117,13 @@ class IsolatedTracksHcalScale : public edm::EDAnalyzer {
   
 public:
   explicit IsolatedTracksHcalScale(const edm::ParameterSet&);
-  ~IsolatedTracksHcalScale() override;
+  ~IsolatedTracksHcalScale();
   
 private:
   //void   beginJob(const edm::EventSetup&) ;
-  void   beginJob() override ;
-  void   analyze(const edm::Event&, const edm::EventSetup&) override;
-  void   endJob() override ;
+  void   beginJob() ;
+  void   analyze(const edm::Event&, const edm::EventSetup&);
+  void   endJob() ;
 
   void   clearTreeVectors();  
   

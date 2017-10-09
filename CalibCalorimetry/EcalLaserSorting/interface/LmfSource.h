@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <string>
-#include <cinttypes>
+#include <inttypes.h>
 #include <fstream>
 
 #include "FWCore/Sources/interface/ProducerSourceBase.h"
@@ -22,18 +22,18 @@ private:
 public:
   LmfSource(const edm::ParameterSet& pset,
 	       const edm::InputSourceDescription& isd);
-  ~LmfSource() override{}
+  virtual ~LmfSource(){}
   
 private:
   /** Called by the framework after setRunAndEventInfo()
    */
-  void produce(edm::Event &e) override;
+  virtual void produce(edm::Event &e);
 
   /** Callback funtion to set run and event information
    * (lumi block, run number, event number, timestamp)
    * Called by the framework before produce()
    */
-  bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time, edm::EventAuxiliary::ExperimentType& eType) override;
+  virtual bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time, edm::EventAuxiliary::ExperimentType& eType);
 
   bool openFile(int iFile);
   

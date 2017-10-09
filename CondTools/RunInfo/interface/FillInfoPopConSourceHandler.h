@@ -10,9 +10,9 @@
 class FillInfoPopConSourceHandler : public popcon::PopConSourceHandler<FillInfo>{
  public:
   FillInfoPopConSourceHandler( const edm::ParameterSet& pset ); 
-  ~FillInfoPopConSourceHandler() override;
-  void getNewObjects() override;
-  std::string id() const override;
+  ~FillInfoPopConSourceHandler();
+  void getNewObjects();
+  std::string id() const;
   
  private:
   bool m_debug;

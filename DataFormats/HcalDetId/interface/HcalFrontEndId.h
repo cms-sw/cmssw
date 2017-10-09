@@ -2,7 +2,7 @@
 #define HcalFrontEndId_h
 
 #include <string>
-#include <cstdint>
+#include <stdint.h>
 #include <iosfwd>
 
 class HcalFrontEndId {

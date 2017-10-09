@@ -96,7 +96,7 @@ class TemplatedSecondaryVertexTagInfo : public BaseTagInfo {
 	typedef typename IPTI::input_container input_container;
 
 	TemplatedSecondaryVertexTagInfo() {}
-	~TemplatedSecondaryVertexTagInfo() override {}
+	virtual ~TemplatedSecondaryVertexTagInfo() {}
 
 	TemplatedSecondaryVertexTagInfo(
 	                const std::vector<IndexedTrackData> &trackData,
@@ -105,14 +105,14 @@ class TemplatedSecondaryVertexTagInfo : public BaseTagInfo {
 			 const edm::Ref<std::vector<IPTI> >&);
 
         /// clone
-        TemplatedSecondaryVertexTagInfo * clone(void) const override {
+        virtual TemplatedSecondaryVertexTagInfo * clone(void) const {
             return new TemplatedSecondaryVertexTagInfo(*this);
         }
   
 	const edm::Ref<std::vector<IPTI> > &trackIPTagInfoRef() const
 	{ return m_trackIPTagInfoRef; }
 
-	edm::RefToBase<Jet> jet(void) const override
+	virtual edm::RefToBase<Jet> jet(void) const
 	{ return m_trackIPTagInfoRef->jet(); }
 
 //	virtual input_container ipTracks(void) const
@@ -155,7 +155,7 @@ class TemplatedSecondaryVertexTagInfo : public BaseTagInfo {
         }
 	const GlobalVector &flightDirection(unsigned int index) const
 	{ return m_svData[index].direction; }
-	TaggingVariableList taggingVariables() const override;
+	virtual TaggingVariableList taggingVariables() const;
 	
 	// Used by ROOT storage
 	CMS_CLASS_VERSION(11)

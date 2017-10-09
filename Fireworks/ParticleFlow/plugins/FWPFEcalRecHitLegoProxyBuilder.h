@@ -13,7 +13,7 @@
 //
 
 // System include files
-#include <cmath>
+#include <math.h>
 #include "TEveCompound.h"
 
 // User include files
@@ -38,16 +38,16 @@ class FWPFEcalRecHitLegoProxyBuilder : public FWProxyBuilderTemplate<EcalRecHit>
    public:
    // ---------------- Constructor(s)/Destructor ----------------------
       FWPFEcalRecHitLegoProxyBuilder() : m_maxEnergy(0), m_maxEt(0), m_maxEnergyLog(0), m_maxEtLog(0) {}
-      ~FWPFEcalRecHitLegoProxyBuilder() override{}
+      virtual ~FWPFEcalRecHitLegoProxyBuilder(){}
 
       static std::string typeOfBuilder() { return "simple#"; }
 
    // --------------------- Member Functions --------------------------
-      void build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext* ) override;
+      virtual void build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext* );
 
-      void scaleProduct( TEveElementList *parent, FWViewType::EType, const FWViewContext *vc ) override;
-      bool havePerViewProduct( FWViewType::EType ) const override { return true; }
-      void cleanLocal() override;
+      virtual void scaleProduct( TEveElementList *parent, FWViewType::EType, const FWViewContext *vc );
+      virtual bool havePerViewProduct( FWViewType::EType ) const { return true; }
+      virtual void cleanLocal();
 
       // Needed by FWPFLegoRecHit
       TEveVector  calculateCentre( const std::vector<TEveVector> & corners ) const;
@@ -59,14 +59,14 @@ class FWPFEcalRecHitLegoProxyBuilder : public FWProxyBuilderTemplate<EcalRecHit>
    protected:
 
    // --------------------- Member Functions --------------------------
-      void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
-                                     FWViewType::EType viewType, const FWViewContext* vc) override;
+      virtual void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
+                                     FWViewType::EType viewType, const FWViewContext* vc);
 
    private:
       // Disable default copy constructor
-      FWPFEcalRecHitLegoProxyBuilder( const FWPFEcalRecHitLegoProxyBuilder& ) = delete;
+      FWPFEcalRecHitLegoProxyBuilder( const FWPFEcalRecHitLegoProxyBuilder& );
       // Disable default assignment operator
-      const FWPFEcalRecHitLegoProxyBuilder& operator=( const FWPFEcalRecHitLegoProxyBuilder& ) = delete;
+      const FWPFEcalRecHitLegoProxyBuilder& operator=( const FWPFEcalRecHitLegoProxyBuilder& );
 
    // ----------------------- Data Members ----------------------------
       float m_maxEnergy;

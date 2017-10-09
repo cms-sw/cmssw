@@ -38,12 +38,12 @@
 class SiPixelCalibDigiFilter : public edm::EDFilter {
    public:
       explicit SiPixelCalibDigiFilter(const edm::ParameterSet&);
-      ~SiPixelCalibDigiFilter() override;
+      ~SiPixelCalibDigiFilter();
 
    private:
-      void beginJob() override;
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+      virtual void beginJob();
+      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual void endJob() ;
       
       // ----------member data ---------------------------
       edm::EDGetTokenT<edm::DetSetVector<SiPixelCalibDigi>> tPixelCalibDigi;

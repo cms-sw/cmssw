@@ -15,8 +15,8 @@ using namespace sistrip;
 // 
 PedsOnlyAlgorithm::PedsOnlyAlgorithm( const edm::ParameterSet & pset, PedsOnlyAnalysis* const anal ) 
   : CommissioningAlgorithm(anal),
-    hPeds_(nullptr,""),
-    hNoise_(nullptr,"")
+    hPeds_(0,""),
+    hNoise_(0,"")
 {}
 
 // ----------------------------------------------------------------------------

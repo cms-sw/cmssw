@@ -60,7 +60,7 @@ class PhotonMVAEstimatorRun2Phys14NonTrig : public AnyMVAEstimatorRun2Base {
   
   // Constructor and destructor
   PhotonMVAEstimatorRun2Phys14NonTrig(const edm::ParameterSet& conf);
-  ~PhotonMVAEstimatorRun2Phys14NonTrig() override;
+  ~PhotonMVAEstimatorRun2Phys14NonTrig();
 
   // Calculation of the MVA value
   float mvaValue(const edm::Ptr<reco::Candidate>& particle, const edm::Event&) const override;
@@ -68,10 +68,10 @@ class PhotonMVAEstimatorRun2Phys14NonTrig : public AnyMVAEstimatorRun2Base {
   // Utility functions
   std::unique_ptr<const GBRForest> createSingleReader(const int iCategory, const edm::FileInPath &weightFile) ;
 
-  int getNCategories() const final {return nCategories;};
+  virtual int getNCategories() const override final {return nCategories;};
   bool isEndcapCategory( int category ) const;
-  const std::string& getName() const final { return _name; }
-  const std::string& getTag() const final { return _tag; }
+  virtual const std::string& getName() const override final { return _name; }
+  virtual const std::string& getTag() const override final { return _tag; }
   
   // Functions that should work on both pat and reco electrons
   // (use the fact that pat::Electron inherits from reco::GsfElectron)

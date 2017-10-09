@@ -16,19 +16,19 @@ class FWME0DigiProxyBuilder : public FWProxyBuilderBase
 {
 public:
   FWME0DigiProxyBuilder() {}
-  ~FWME0DigiProxyBuilder() override {}
+  virtual ~FWME0DigiProxyBuilder() {}
 
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
-  void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
-  FWME0DigiProxyBuilder(const FWME0DigiProxyBuilder&) = delete;    
-  const FWME0DigiProxyBuilder& operator=(const FWME0DigiProxyBuilder&) = delete;
+  virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
+  FWME0DigiProxyBuilder(const FWME0DigiProxyBuilder&);    
+  const FWME0DigiProxyBuilder& operator=(const FWME0DigiProxyBuilder&);
 };
 
 void FWME0DigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
-  const ME0DigiPreRecoCollection* digis = nullptr;
+  const ME0DigiPreRecoCollection* digis = 0;
  
   iItem->get(digis);
 

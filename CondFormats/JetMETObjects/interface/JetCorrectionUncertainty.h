@@ -29,8 +29,8 @@ class JetCorrectionUncertainty
     float getUncertainty(bool fDirection);
 
  private:
-  JetCorrectionUncertainty(const JetCorrectionUncertainty&) = delete;
-  JetCorrectionUncertainty& operator= (const JetCorrectionUncertainty&) = delete;
+  JetCorrectionUncertainty(const JetCorrectionUncertainty&);
+  JetCorrectionUncertainty& operator= (const JetCorrectionUncertainty&);
   std::vector<float> fillVector(const std::vector<std::string>& fNames);
   float getPtRel();
   //---- Member Data ---------

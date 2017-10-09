@@ -27,12 +27,12 @@ public:
 		   std::vector<DTRecHit1D> &hits1D);
 
   /// Destructor
-  ~DTSLRecSegment2D() override{};
+  virtual ~DTSLRecSegment2D(){};
 
   // Operations
 
   /// The clone method needed by the clone policy
-  DTSLRecSegment2D* clone() const override;
+  virtual DTSLRecSegment2D* clone() const;
   
   /// The id of the superlayer on which reside the segment
   DTSuperLayerId superLayerId() const;

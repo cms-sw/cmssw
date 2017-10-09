@@ -105,7 +105,7 @@ void graphicsDebug ( const std::vector < PointAndDistance > & input )
 
 CrossingPtBasedLinearizationPointFinder::CrossingPtBasedLinearizationPointFinder(
     const ModeFinder3d & algo, const signed int n_pairs ) :
-        useMatrix ( false ) , theNPairs ( n_pairs ), theMatrix ( nullptr ),
+        useMatrix ( false ) , theNPairs ( n_pairs ), theMatrix ( 0 ),
         theAlgo ( algo.clone() )
 {}
 
@@ -175,7 +175,7 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::useAllTracks(
 	 } // If sth goes wrong, we just dont add. Who cares?
         }
     }
-    if (vgp.empty() )
+    if (! vgp.size() )
     {
         return FallbackLinearizationPointFinder().getLinearizationPoint ( tracks );
     }
@@ -200,7 +200,7 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::useFullMatrix(
             vgp.push_back ( v );
         }
     }
-    if (vgp.empty() )
+    if (! vgp.size() )
     {
         return FallbackLinearizationPointFinder().getLinearizationPoint ( tracks );
     }
@@ -331,7 +331,7 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::getLinearizationPoint(
                 }
             }
         }
-        if (vgp.empty() )
+        if (! vgp.size() )
         {
             // no crossing points? Fallback to a crossingpoint-less lin pt finder!
             return FallbackLinearizationPointFinder().getLinearizationPoint ( tracks );

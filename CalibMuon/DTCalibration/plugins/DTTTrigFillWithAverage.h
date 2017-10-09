@@ -26,10 +26,10 @@ public:
   DTTTrigFillWithAverage(const edm::ParameterSet&);
 
   // Destructor
-  ~DTTTrigFillWithAverage() override;
+  virtual ~DTTTrigFillWithAverage();
 
-  void setES(const edm::EventSetup& setup) override;
-  DTTTrigData correction(const DTSuperLayerId&) override;
+  virtual void setES(const edm::EventSetup& setup);
+  virtual DTTTrigData correction(const DTSuperLayerId&);
 
 private:
   void getAverage();

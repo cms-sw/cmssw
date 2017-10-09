@@ -22,9 +22,9 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <cstdio>
+#include <stdio.h>
 #include <sstream>
-#include <cmath>
+#include <math.h>
 
 
 using namespace edm;
@@ -42,7 +42,7 @@ DTChamberEfficiencyTest::DTChamberEfficiencyTest(const edm::ParameterSet& ps){
 
   nevents = 0;
 
-  bookingdone = false;
+  bookingdone = 0;
 
 }
 
@@ -75,7 +75,7 @@ DTChamberEfficiencyTest::~DTChamberEfficiencyTest(){
 
   }
 
-  bookingdone = true; 
+  bookingdone = 1; 
   
   edm::LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") <<"[DTChamberEfficiencyTest]: End of LS transition, performing the DQM client operation";
 

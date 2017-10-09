@@ -36,7 +36,7 @@ namespace reco {
     /// constructor from values
     explicit CompositeCandidate( const Candidate & p, const std::string& name, role_collection const & roles );
     /// destructor
-    ~CompositeCandidate() override;
+    virtual ~CompositeCandidate();
     /// get the name of the candidate
     std::string name() const { return name_;}
     /// set the name of the candidate
@@ -46,16 +46,16 @@ namespace reco {
     /// set the roles    
     void                    setRoles( const role_collection & roles ) { roles_.clear(); roles_ = roles; }
     /// returns a clone of the candidate
-    CompositeCandidate * clone() const override;
+    virtual CompositeCandidate * clone() const;
     /// number of daughters
-    size_type numberOfDaughters() const override;
+    virtual size_type numberOfDaughters() const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1 (read only mode)
-    const Candidate * daughter( size_type ) const override;
+    virtual const Candidate * daughter( size_type ) const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
-    Candidate * daughter( size_type ) override;
+    virtual Candidate * daughter( size_type );
     // Get candidate based on role
-    Candidate *       daughter(const std::string& s ) override;
-    const Candidate * daughter(const std::string& s ) const override;
+    virtual Candidate *       daughter(const std::string& s );
+    virtual const Candidate * daughter(const std::string& s ) const;
     /// add a clone of the passed candidate as daughter 
     void addDaughter( const Candidate &, const std::string& s="" );
     /// add a clone of the passed candidate as daughter 
@@ -67,15 +67,15 @@ namespace reco {
     // Apply the roles to the objects
     void applyRoles();
     /// number of mothers (zero or one in most of but not all the cases)
-    size_type numberOfMothers() const override;
+    virtual size_type numberOfMothers() const;
     /// return pointer to mother
-    const Candidate * mother( size_type i = 0 ) const override;
+    virtual const Candidate * mother( size_type i = 0 ) const;
 
   private:
     /// collection of daughters
     daughters dau;
     /// check overlap with another daughter
-    bool overlap( const Candidate & ) const override;
+    virtual bool overlap( const Candidate & ) const;
     /// candidate name
     std::string name_;
     /// candidate roles

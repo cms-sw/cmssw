@@ -120,7 +120,7 @@ RPCCompDetId::type() const{
 std::string
 RPCCompDetId::dbname() const{
   std::string a=_dbname;
-  if (a.empty()){
+  if (a.size() == 0){
     if(this->type() == 0){
       a=this->gasDBname();
     }

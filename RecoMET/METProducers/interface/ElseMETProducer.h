@@ -35,8 +35,8 @@ namespace cms
     {
     public:
       explicit ElseMETProducer(const edm::ParameterSet&);
-      ~ElseMETProducer() override { }
-      void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual ~ElseMETProducer() { }
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
     private:
 

@@ -5,7 +5,7 @@
 
 #include <iostream>
 #include <string>
-#include <ctime>
+#include <time.h>
 
 class RooGKCounter {
   

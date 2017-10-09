@@ -10,9 +10,9 @@
 #include <TSystem.h>
 
 #include <algorithm>
-#include <cstdio>
+#include <stdio.h>
 #include <sstream>
-#include <cmath>
+#include <math.h>
 
 #include <boost/algorithm/string/join.hpp>
 
@@ -27,7 +27,7 @@ static inline double stampToReal(const timeval &time)
 DQMEventInfo::DQMEventInfo(const edm::ParameterSet& ps){
 
   struct timeval now;
-  gettimeofday(&now, nullptr);
+  gettimeofday(&now, 0);
 
   parameters_ = ps;
   pEvent_ = 0;
@@ -87,7 +87,7 @@ void DQMEventInfo::bookHistograms(DQMStore::IBooker & ibooker,
   hostname[64] = 0;
   hostName_= ibooker.bookString("hostName",hostname);
   processName_= ibooker.bookString("processName",subsystemname_);
-  char* pwd = getcwd(nullptr, 0);
+  char* pwd = getcwd(NULL, 0);
   workingDir_= ibooker.bookString("workingDir",pwd);
   free(pwd);
   cmsswVer_= ibooker.bookString("CMSSW_Version",edm::getReleaseVersion());
@@ -143,7 +143,7 @@ void DQMEventInfo::analyze(const edm::Event& e, const edm::EventSetup& c){
   processEvents_->Fill(pEvent_);
 
   struct timeval now;
-  gettimeofday(&now, nullptr);
+  gettimeofday(&now, 0);
   lastUpdateTime_ = currentTime_;
   currentTime_ = stampToReal(now);
 

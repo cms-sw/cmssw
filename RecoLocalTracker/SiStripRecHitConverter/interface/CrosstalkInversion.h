@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <cmath>
-#include <cstdint>
+#include <stdint.h>
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/ErrorPropogationTypes.h"
 
 class SiStripCluster;

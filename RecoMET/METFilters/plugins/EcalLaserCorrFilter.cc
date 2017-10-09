@@ -33,11 +33,11 @@ class EcalLaserCorrFilter : public edm::global::EDFilter<> {
   public:
 
     explicit EcalLaserCorrFilter(const edm::ParameterSet & iConfig);
-    ~EcalLaserCorrFilter() override {}
+    ~EcalLaserCorrFilter() {}
 
   private:
 
-    bool filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
+    virtual bool filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
 
     const edm::EDGetTokenT<EcalRecHitCollection> ebRHSrcToken_;
     const edm::EDGetTokenT<EcalRecHitCollection> eeRHSrcToken_;

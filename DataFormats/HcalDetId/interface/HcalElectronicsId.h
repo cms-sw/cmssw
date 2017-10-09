@@ -3,7 +3,7 @@
 
 #include <string>
 #include <ostream>
-#include <cstdint>
+#include <stdint.h>
 
 /** \brief Readout chain identification for Hcal
 

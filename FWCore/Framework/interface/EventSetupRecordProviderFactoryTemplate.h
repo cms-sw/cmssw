@@ -44,7 +44,7 @@ class EventSetupRecordProviderFactoryTemplate : public EventSetupRecordProviderF
       //virtual ~EventSetupRecordProviderFactoryTemplate();
 
       // ---------- const member functions ---------------------
-      std::unique_ptr<EventSetupRecordProvider> makeRecordProvider() const override {
+      virtual std::unique_ptr<EventSetupRecordProvider> makeRecordProvider() const {
          return std::unique_ptr<EventSetupRecordProvider>(
                      new EventSetupRecordProviderTemplate<T>());
       }
@@ -54,9 +54,9 @@ class EventSetupRecordProviderFactoryTemplate : public EventSetupRecordProviderF
       // ---------- member functions ---------------------------
 
    private:
-      EventSetupRecordProviderFactoryTemplate(const EventSetupRecordProviderFactoryTemplate&) = delete; // stop default
+      EventSetupRecordProviderFactoryTemplate(const EventSetupRecordProviderFactoryTemplate&); // stop default
 
-      const EventSetupRecordProviderFactoryTemplate& operator=(const EventSetupRecordProviderFactoryTemplate&) = delete; // stop default
+      const EventSetupRecordProviderFactoryTemplate& operator=(const EventSetupRecordProviderFactoryTemplate&); // stop default
 
       // ---------- member data --------------------------------
 

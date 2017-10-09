@@ -28,16 +28,16 @@
 class FWItemRandomAccessorBase : public FWItemAccessorBase
 {
 public:
-   ~FWItemRandomAccessorBase() override;
+   virtual ~FWItemRandomAccessorBase();
 
-   const void*    data() const override;
-   const TClass*  type() const override;
-   const TClass*  modelType() const override;
+   const void*    data() const;
+   const TClass*  type() const;
+   const TClass*  modelType() const;
 
-   bool           isCollection() const override;
+   bool           isCollection() const;
 
-   void           setData(const edm::ObjectWithDict&) override;
-   void   reset() override;
+   void           setData(const edm::ObjectWithDict&);
+   virtual void   reset();
 
 protected:
    void *getDataPtr() const;   
@@ -47,9 +47,9 @@ protected:
    mutable void* m_data;
 
 private:
-   FWItemRandomAccessorBase(const FWItemRandomAccessorBase&) = delete; // stop default
+   FWItemRandomAccessorBase(const FWItemRandomAccessorBase&); // stop default
 
-   const FWItemRandomAccessorBase& operator=(const FWItemRandomAccessorBase&) = delete; // stop default
+   const FWItemRandomAccessorBase& operator=(const FWItemRandomAccessorBase&); // stop default
 };
 
 /** A generic helper class which can be used to create
@@ -82,14 +82,14 @@ public:
    REGISTER_FWITEMACCESSOR_METHODS();
 
    // ---------- const member functions ---------------------
-   const void*    modelData(int iIndex) const override
+   const void*    modelData(int iIndex) const
       {
          if (!getDataPtr())
-            return nullptr;
+            return 0;
          return &(reinterpret_cast<container_type *>(getDataPtr())->operator[](iIndex));
       }
 
-   unsigned int   size() const override
+   unsigned int   size() const
       {
          if (!getDataPtr())
             return 0;
@@ -118,10 +118,10 @@ public:
 
    REGISTER_FWITEMACCESSOR_METHODS();
 
-   const void*    modelData(int iIndex) const override
+   const void*    modelData(int iIndex) const
       {
          if (!getDataPtr())
-            return nullptr;
+            return 0;
          const container_type *c = reinterpret_cast<const container_type*>(getDataPtr());
          size_t collectionOffset = 0;
          for (typename container_type::const_iterator ci = c->begin(), ce = c->end(); ci != ce; ++ci)
@@ -132,10 +132,10 @@ public:
             collectionOffset += ci->size();
          }
 
-         return nullptr;
+         return 0;
       }
 
-   unsigned int   size() const override
+   unsigned int   size() const
       {
          if (!getDataPtr())
             return 0;
@@ -165,18 +165,18 @@ public:
 
    REGISTER_FWITEMACCESSOR_METHODS();
 
-   const void*    modelData(int iIndex) const override
+   const void*    modelData(int iIndex) const
       {
          if (!getDataPtr())
-            return nullptr;
+            return 0;
          const container_type *c = reinterpret_cast<const container_type*>(getDataPtr());
          if (iIndex < 0)
-            return nullptr;
+            return 0;
 
          return &(c->data().operator[](iIndex));
       }
 
-   unsigned int   size() const override
+   unsigned int   size() const
       {
          if (!getDataPtr())
             return 0;
@@ -199,10 +199,10 @@ public:
 
   REGISTER_FWITEMACCESSOR_METHODS();
 
-   const void*    modelData(int iIndex) const override
+   const void*    modelData(int iIndex) const
       {
          if (!getDataPtr())
-            return nullptr;
+            return 0;
          const container_type *c = reinterpret_cast<const container_type*>(getDataPtr());
          size_t collectionOffset = 0;
          for (typename container_type::const_iterator ci = c->begin(), ce = c->end(); ci != ce; ++ci)
@@ -213,10 +213,10 @@ public:
             collectionOffset += ci->size();
          }
 
-         return nullptr;
+         return 0;
       }
 
-   unsigned int   size() const override
+   unsigned int   size() const
       {
          if (!getDataPtr())
             return 0;
@@ -243,10 +243,10 @@ public:
 
   REGISTER_FWITEMACCESSOR_METHODS();
 
-   const void*    modelData(int iIndex) const override
+   const void*    modelData(int iIndex) const
       {
          if (!getDataPtr())
-            return nullptr;
+            return 0;
          const container_type *c = reinterpret_cast<const container_type*>(getDataPtr());
          size_t collectionOffset = 0;
 
@@ -262,10 +262,10 @@ public:
             collectionOffset += std::distance(vt.second.first, vt.second.second);
          }
 
-         return nullptr;
+         return 0;
       }
 
-   unsigned int   size() const override
+   unsigned int   size() const
       {
          if (!getDataPtr())
             return 0;

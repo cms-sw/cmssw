@@ -24,7 +24,7 @@
 #include "RecoMET/METAlgorithms/interface/CaloSpecificAlgo.h"
 #include "RecoMET/METAlgorithms/interface/SignCaloSpecificAlgo.h"
 
-#include <cstring>
+#include <string.h>
 
 //____________________________________________________________________________||
 namespace cms
@@ -34,7 +34,7 @@ namespace cms
   CaloMETProducer::CaloMETProducer(const edm::ParameterSet& iConfig)
     : inputToken_(consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("src")))
     , calculateSignificance_(iConfig.getParameter<bool>("calculateSignificance"))
-    , resolutions_(nullptr)
+    , resolutions_(0)
     , globalThreshold_(iConfig.getParameter<double>("globalThreshold"))
   {
     noHF_ = iConfig.getParameter<bool>("noHF");

@@ -37,12 +37,12 @@ class TFile;
 class PhotonIDSimpleAnalyzer : public edm::EDAnalyzer {
    public:
       explicit PhotonIDSimpleAnalyzer( const edm::ParameterSet& );
-      ~PhotonIDSimpleAnalyzer() override;
+      ~PhotonIDSimpleAnalyzer();
 
 
-      void analyze( const edm::Event&, const edm::EventSetup& ) override;
-      void beginJob() override;
-      void endJob() override;
+      virtual void analyze( const edm::Event&, const edm::EventSetup& );
+      virtual void beginJob();
+      virtual void endJob();
  private:
 
       std::string outputFile_;   // output file

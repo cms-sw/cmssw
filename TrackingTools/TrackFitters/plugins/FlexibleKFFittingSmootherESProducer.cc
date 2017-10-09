@@ -17,7 +17,7 @@ namespace {
 
   class FlexibleKFFittingSmoother final : public TrajectoryFitter {
   public:
-        ~FlexibleKFFittingSmoother() override{}
+        ~FlexibleKFFittingSmoother(){}
 
   private:
     /// constructor with predefined fitter and smoother and propagator
@@ -74,7 +74,7 @@ namespace {
       setWhatProduced(this,myname);
     }
     
-    ~FlexibleKFFittingSmootherESProducer() override {}
+    ~FlexibleKFFittingSmootherESProducer() {}
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;

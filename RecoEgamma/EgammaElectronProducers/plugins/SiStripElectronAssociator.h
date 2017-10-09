@@ -42,10 +42,10 @@
 class SiStripElectronAssociator : public edm::stream::EDProducer<> {
  public:
   explicit SiStripElectronAssociator(const edm::ParameterSet&);
-  ~SiStripElectronAssociator() override;
+  ~SiStripElectronAssociator();
   
   
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&);
  private:
   // ----------member data ---------------------------
   edm::EDGetTokenT<reco::SiStripElectronCollection> siStripElectronCollection_;

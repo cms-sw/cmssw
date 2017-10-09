@@ -50,7 +50,7 @@ public:
 
   AdaptiveVertexFitter( const AdaptiveVertexFitter & original );
 
-  ~AdaptiveVertexFitter() override;
+  virtual ~AdaptiveVertexFitter();
 
  /**
   * Method returning the fitted vertex, from a container of reco::TransientTracks.
@@ -58,7 +58,7 @@ public:
   * No prior vertex position will be used in the vertex fit.
   * \return The fitted vertex
   */
-  CachingVertex<5> vertex( const std::vector<reco::TransientTrack> & ) const override;
+  virtual CachingVertex<5> vertex( const std::vector<reco::TransientTrack> & ) const;
 
  /**
   * Method returning the fitted vertex, from a container of VertexTracks.
@@ -68,46 +68,46 @@ public:
   * No prior vertex position will be used in the vertex fit.
   * \return The fitted vertex
   */
-  CachingVertex<5> vertex(const std::vector<RefCountedVertexTrack> & ) const override;
+  virtual CachingVertex<5> vertex(const std::vector<RefCountedVertexTrack> & ) const;
 
   /**
    *  Same as above, only now also with BeamSpot constraint.
    */
-  CachingVertex<5> vertex(const std::vector<RefCountedVertexTrack> &,
-     const reco::BeamSpot & spot ) const override;
+  virtual CachingVertex<5> vertex(const std::vector<RefCountedVertexTrack> &,
+     const reco::BeamSpot & spot ) const;
 
   /** Fit vertex out of a std::vector of reco::TransientTracks. Uses the specified
    * linearization point.
    */
-  CachingVertex<5> vertex( const std::vector<reco::TransientTrack> &,
-                                const GlobalPoint& linPoint ) const override;
+  virtual CachingVertex<5> vertex( const std::vector<reco::TransientTrack> &,
+                                const GlobalPoint& linPoint ) const;
 
   /** Fit vertex out of a set of reco::TransientTracks.
    *   Uses the position as both the linearization point AND as prior
    *   estimate of the vertex position. The error is used for the
    *   weight of the prior estimate.
    */
-  CachingVertex<5> vertex( const std::vector<reco::TransientTrack> &,
+  virtual CachingVertex<5> vertex( const std::vector<reco::TransientTrack> &,
                                 const GlobalPoint & priorPos,
-                                const GlobalError & priorError ) const override;
+                                const GlobalError & priorError ) const;
 
   /** Fit vertex out of a set of TransientTracks. 
    *  The specified BeamSpot will be used as priot, but NOT for the linearization.
    * The specified LinearizationPointFinder will be used to find the linearization point.
    */
-  CachingVertex<5> vertex(const std::vector<reco::TransientTrack> & tracks,
-		const reco::BeamSpot& beamSpot) const override;
+  virtual CachingVertex<5> vertex(const std::vector<reco::TransientTrack> & tracks,
+		const reco::BeamSpot& beamSpot) const;
 
 
   /**  Fit vertex out of a set of VertexTracks
    *   Uses the position and error for the prior estimate of the vertex.
    *   This position is not used to relinearize the tracks.
    */
-  CachingVertex<5> vertex( const std::vector<RefCountedVertexTrack> &,
+  virtual CachingVertex<5> vertex( const std::vector<RefCountedVertexTrack> &,
                                 const GlobalPoint & priorPos,
-                                const GlobalError & priorError ) const override;
+                                const GlobalError & priorError ) const;
 
-  AdaptiveVertexFitter * clone() const override;
+  AdaptiveVertexFitter * clone() const;
 
   /**
    *  Set the weight threshold

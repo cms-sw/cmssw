@@ -9,10 +9,10 @@ public:
 
   PTDRElectronID(){};
 
-  ~PTDRElectronID() override{};
+  virtual ~PTDRElectronID(){};
 
-  void setup(const edm::ParameterSet& conf) override;
-  double result(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&) override;
+  void setup(const edm::ParameterSet& conf);
+  double result(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&);
 
  private:
 

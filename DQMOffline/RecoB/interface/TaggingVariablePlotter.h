@@ -20,16 +20,16 @@ class TaggingVariablePlotter: public BaseTagInfoPlotter {
               unsigned int mc, bool willFinalize, DQMStore::IBooker & ibook,
               const std::string &category = std::string());
 
-  ~TaggingVariablePlotter () override;
+  ~TaggingVariablePlotter ();
 
-  void analyzeTag(const reco::BaseTagInfo * baseTagInfo, double jec, int jetFlavour, float w=1) override;
+  void analyzeTag(const reco::BaseTagInfo * baseTagInfo, double jec, int jetFlavour, float w=1);
   void analyzeTag(const reco::TaggingVariableList & variables, int jetFlavour, float w=1);
 
-  void finalize(DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_) override {}
+  virtual void finalize(DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_) {}
 
-  void epsPlot(const std::string & name) override {}
+  void epsPlot(const std::string & name) {}
 
-  void psPlot(const std::string & name) override {}
+  void psPlot(const std::string & name) {}
 
  private:
 

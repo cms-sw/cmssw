@@ -19,10 +19,10 @@
 class CastorFastClusterProducer : public edm::stream::EDProducer <>{
    public:
       explicit CastorFastClusterProducer(const edm::ParameterSet&);
-      ~CastorFastClusterProducer() override;
+      ~CastorFastClusterProducer();
 
    private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       double make_noise();
       
       // ----------member data ---------------------------

@@ -41,8 +41,8 @@ public:
    // ---------- static member functions --------------------
    
    // ---------- member functions ---------------------------
-   void doSelect() override;
-   void doUnselect() override;
+   void doSelect();
+   void doUnselect();
 
 private:
    //FWModelIdFromEveSelector(const FWModelIdFromEveSelector&); // stop default

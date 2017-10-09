@@ -59,18 +59,18 @@ public:
    PixelCPETemplateReco(edm::ParameterSet const& conf, const MagneticField *, const TrackerGeometry&, const TrackerTopology&,
                         const SiPixelLorentzAngle *, const SiPixelTemplateDBObject *);
    
-   ~PixelCPETemplateReco() override;
+   ~PixelCPETemplateReco();
    
 private:
-   ClusterParam * createClusterParam(const SiPixelCluster & cl) const override;
+   ClusterParam * createClusterParam(const SiPixelCluster & cl) const;
    
    // We only need to implement measurementPosition, since localPosition() from
    // PixelCPEBase will call it and do the transformation
    // Gavril : put it back
-   LocalPoint localPosition (DetParam const & theDetParam, ClusterParam & theClusterParam) const override;
+   LocalPoint localPosition (DetParam const & theDetParam, ClusterParam & theClusterParam) const;
    
    // However, we do need to implement localError().
-   LocalError localError   (DetParam const & theDetParam, ClusterParam & theClusterParam) const override;
+   LocalError localError   (DetParam const & theDetParam, ClusterParam & theClusterParam) const;
    
    // Template storage
    std::vector< SiPixelTemplateStore > thePixelTemp_;

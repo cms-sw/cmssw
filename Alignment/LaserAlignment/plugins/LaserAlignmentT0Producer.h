@@ -35,12 +35,12 @@
 class LaserAlignmentT0Producer : public edm::EDProducer {
 public:
   explicit LaserAlignmentT0Producer( const edm::ParameterSet& );
-  ~LaserAlignmentT0Producer() override;
+  ~LaserAlignmentT0Producer();
   
 private:
-  void beginJob() override ;
-  void produce( edm::Event&, const edm::EventSetup& ) override;
-  void endJob() override;
+  virtual void beginJob() ;
+  virtual void produce( edm::Event&, const edm::EventSetup& );
+  virtual void endJob();
   void FillDetIds( void );
 
   // container for cfg data

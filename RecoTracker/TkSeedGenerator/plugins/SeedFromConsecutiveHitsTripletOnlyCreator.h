@@ -14,12 +14,12 @@ public:
   }
   static const char *fillDescriptionsLabel() { return "ConsecutiveHitsTripletOnly"; }
 
-  ~SeedFromConsecutiveHitsTripletOnlyCreator() override{}
+  virtual ~SeedFromConsecutiveHitsTripletOnlyCreator(){}
 
 private:
 
-  bool initialKinematic(GlobalTrajectoryParameters & kine,
-				const SeedingHitSet & hits) const override;
+  virtual bool initialKinematic(GlobalTrajectoryParameters & kine,
+				const SeedingHitSet & hits) const;
  
 
 };

@@ -12,7 +12,7 @@
 using namespace std;
 using namespace edm;
 LightPFTrackProducer::LightPFTrackProducer(const ParameterSet& iConfig):
-  pfTransformer_(nullptr)
+  pfTransformer_(0)
 {
   produces<reco::PFRecTrackCollection>();
 

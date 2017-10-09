@@ -71,11 +71,11 @@ namespace reco {
     SiStripElectron( Charge q, const P4 & p4, const Point & vtx = Point( 0, 0, 0 ) ) : 
       RecoCandidate( q, p4, vtx, -11 * q ) { }
     /// destructor
-    ~SiStripElectron() override;
+    virtual ~SiStripElectron();
     /// returns a clone of the candidate
-    SiStripElectron * clone() const override;
+    virtual SiStripElectron * clone() const;
     /// reference to a SuperCluster
-    reco::SuperClusterRef superCluster() const override;
+    virtual reco::SuperClusterRef superCluster() const;
     
     /// reference to the rphiRecHits identified as belonging to an electron
     const std::vector<SiStripRecHit2D>& rphiRecHits() const { return rphiRecHits_; }
@@ -103,10 +103,10 @@ namespace reco {
     /// returns number of endcap zphi hits in phi band
     unsigned int numberOfEndcapZphiHits() const { return numberOfEndcapZphiHits_; }
 
-    bool isElectron() const override;
+    bool isElectron() const;
   private:
     /// check overlap with another candidate
-    bool overlap( const Candidate & ) const override;
+    virtual bool overlap( const Candidate & ) const;
     /// reference to a SuperCluster
     reco::SuperClusterRef superCluster_;
     std::vector<SiStripRecHit2D> rphiRecHits_;

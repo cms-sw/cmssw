@@ -12,7 +12,7 @@ namespace {
 class  MRHChi2MeasurementEstimatorESProducer: public edm::ESProducer{
  public:
   MRHChi2MeasurementEstimatorESProducer(const edm::ParameterSet & p);
-  ~MRHChi2MeasurementEstimatorESProducer() override;
+  virtual ~MRHChi2MeasurementEstimatorESProducer();
   std::shared_ptr<Chi2MeasurementEstimatorBase> produce(const TrackingComponentsRecord&);
  private:
   std::shared_ptr<Chi2MeasurementEstimatorBase> _estimator;

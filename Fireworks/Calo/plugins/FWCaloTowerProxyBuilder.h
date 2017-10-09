@@ -36,18 +36,18 @@ class FWCaloTowerProxyBuilderBase : public FWCaloDataHistProxyBuilder
 {
 public:
    FWCaloTowerProxyBuilderBase();
-   ~FWCaloTowerProxyBuilderBase() override;
+   virtual ~FWCaloTowerProxyBuilderBase();
 
    virtual double getEt(const CaloTower&) const = 0;
    
 protected:
-   void fillCaloData() override;
-   FWHistSliceSelector* instantiateSliceSelector() override;
-   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
+   virtual void fillCaloData();
+   virtual FWHistSliceSelector* instantiateSliceSelector();
+   virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
 
 private:
-   FWCaloTowerProxyBuilderBase(const FWCaloTowerProxyBuilderBase&) = delete; // stop default
-   const FWCaloTowerProxyBuilderBase& operator=(const FWCaloTowerProxyBuilderBase&) = delete; // stop default
+   FWCaloTowerProxyBuilderBase(const FWCaloTowerProxyBuilderBase&); // stop default
+   const FWCaloTowerProxyBuilderBase& operator=(const FWCaloTowerProxyBuilderBase&); // stop default
 
    const CaloTowerCollection* m_towers;
 };
@@ -60,19 +60,19 @@ class FWECalCaloTowerProxyBuilder : public FWCaloTowerProxyBuilderBase {
 public:
    FWECalCaloTowerProxyBuilder() {
    }
-   ~FWECalCaloTowerProxyBuilder() override {
+   virtual ~FWECalCaloTowerProxyBuilder() {
    }
 
    // ---------- const member functions ---------------------
 
-   double getEt(const CaloTower& iTower) const override {
+   virtual double getEt(const CaloTower& iTower) const {
       return iTower.emEt();
    }
 
    REGISTER_PROXYBUILDER_METHODS();
 private:
-   FWECalCaloTowerProxyBuilder(const FWECalCaloTowerProxyBuilder&) = delete; // stop default
-   const FWECalCaloTowerProxyBuilder& operator=(const FWECalCaloTowerProxyBuilder&) = delete; // stop default
+   FWECalCaloTowerProxyBuilder(const FWECalCaloTowerProxyBuilder&); // stop default
+   const FWECalCaloTowerProxyBuilder& operator=(const FWECalCaloTowerProxyBuilder&); // stop default
 };
 
 
@@ -84,20 +84,20 @@ class FWHCalCaloTowerProxyBuilder : public FWCaloTowerProxyBuilderBase {
 public:
    FWHCalCaloTowerProxyBuilder() {
    }
-   ~FWHCalCaloTowerProxyBuilder() override{
+   virtual ~FWHCalCaloTowerProxyBuilder(){
    }
 
    // ---------- const member functions ---------------------
 
-   double getEt(const CaloTower& iTower) const override {
+   virtual double getEt(const CaloTower& iTower) const {
       return iTower.hadEt();
    }
 
    REGISTER_PROXYBUILDER_METHODS();
 private:
-   FWHCalCaloTowerProxyBuilder(const FWHCalCaloTowerProxyBuilder&) = delete; // stop default
+   FWHCalCaloTowerProxyBuilder(const FWHCalCaloTowerProxyBuilder&); // stop default
 
-   const FWHCalCaloTowerProxyBuilder& operator=(const FWHCalCaloTowerProxyBuilder&) = delete; // stop default
+   const FWHCalCaloTowerProxyBuilder& operator=(const FWHCalCaloTowerProxyBuilder&); // stop default
 };
 
 //
@@ -108,20 +108,20 @@ class FWHOCaloTowerProxyBuilder : public FWCaloTowerProxyBuilderBase {
 public:
    FWHOCaloTowerProxyBuilder() {
    }
-   ~FWHOCaloTowerProxyBuilder() override{
+   virtual ~FWHOCaloTowerProxyBuilder(){
    }
    
    // ---------- const member functions ---------------------
    
-   double getEt(const CaloTower& iTower) const override {
+   virtual double getEt(const CaloTower& iTower) const {
       return iTower.outerEt();
    }
    
    REGISTER_PROXYBUILDER_METHODS();
    
 private:
-   FWHOCaloTowerProxyBuilder(const FWHOCaloTowerProxyBuilder&) = delete; // stop default   
-   const FWHOCaloTowerProxyBuilder& operator=(const FWHOCaloTowerProxyBuilder&) = delete; // stop default
+   FWHOCaloTowerProxyBuilder(const FWHOCaloTowerProxyBuilder&); // stop default   
+   const FWHOCaloTowerProxyBuilder& operator=(const FWHOCaloTowerProxyBuilder&); // stop default
 };
 
 #endif

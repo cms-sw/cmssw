@@ -26,13 +26,13 @@
 
 #include <sstream>
 #include <iostream>
-#include <cmath>
+#include <math.h>
 
 
 using namespace edm;
 using namespace std;
 
-DTLocalTriggerLutTask::DTLocalTriggerLutTask(const edm::ParameterSet& ps) : trigGeomUtils(nullptr) {
+DTLocalTriggerLutTask::DTLocalTriggerLutTask(const edm::ParameterSet& ps) : trigGeomUtils(0) {
 
   LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerLutTask") << "[DTLocalTriggerLutTask]: Constructor"<<endl;
 
@@ -197,7 +197,7 @@ void DTLocalTriggerLutTask::analyze(const edm::Event& e, const edm::EventSetup& 
     DTRecSegment4DCollection::const_iterator trackIt  = rangeInCh.first;
     DTRecSegment4DCollection::const_iterator trackEnd = rangeInCh.second;
 
-    const DTRecSegment4D* tmpBest = nullptr;
+    const DTRecSegment4D* tmpBest = 0;
     int tmpdof = 0;
     int dof = 0;
 

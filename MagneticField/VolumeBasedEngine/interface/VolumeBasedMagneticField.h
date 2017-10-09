@@ -28,23 +28,23 @@ class VolumeBasedMagneticField : public MagneticField {
 			    const std::vector<MagVolume6Faces*>& theBVolumes,
 			    const std::vector<MagVolume6Faces*>& theEVolumes,
 			    float rMax, float zMax,
-			    const MagneticField* param=nullptr,
+			    const MagneticField* param=0,
 			    bool isParamFieldOwned=false);
-  ~VolumeBasedMagneticField() override;
+  virtual ~VolumeBasedMagneticField();
 
   /// Copy constructor implement a shallow copy (ie no ownership of actual engines)
   VolumeBasedMagneticField(const VolumeBasedMagneticField& vbf);
 
   /// Returns a shallow copy.
-  MagneticField* clone() const override;
+  virtual MagneticField* clone() const;
 
-  GlobalVector inTesla ( const GlobalPoint& g) const override;
+  GlobalVector inTesla ( const GlobalPoint& g) const;
 
-  GlobalVector inTeslaUnchecked ( const GlobalPoint& g) const override;
+  GlobalVector inTeslaUnchecked ( const GlobalPoint& g) const;
 
   const MagVolume * findVolume(const GlobalPoint & gp) const;
 
-  bool isDefined(const GlobalPoint& gp) const override;
+  bool isDefined(const GlobalPoint& gp) const;
 
   bool isZSymmetric() const;
 

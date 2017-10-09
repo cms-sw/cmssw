@@ -21,14 +21,14 @@ public:
   GapClusterizerInZ(const edm::ParameterSet& conf);
 
   std::vector< std::vector<reco::TransientTrack> >
-    clusterize(const std::vector<reco::TransientTrack> & tracks)const override;
+    clusterize(const std::vector<reco::TransientTrack> & tracks)const;
 
   float zSeparation() const;
 
   std::vector< TransientVertex >
     vertices(const std::vector<reco::TransientTrack> & tracks)const;
 
-  ~GapClusterizerInZ() override{};
+  ~GapClusterizerInZ(){};
   
 private:
   float zSep;

@@ -25,7 +25,7 @@
 #include <sstream>
 #include <iomanip>
 #include <vector>
-#include <cmath>
+#include <math.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/L1TObjects/interface/L1MuPacking.h"
 
@@ -149,30 +149,30 @@ class L1MuBinnedScale : public L1MuScale {
   };
 
   /// destructor
-  ~L1MuBinnedScale() override {
+  virtual ~L1MuBinnedScale() {
 //    delete m_packing;
   };
 
  
   /// get the center of bin represented by packed
-  float getCenter(unsigned packed) const override {
+  virtual float getCenter(unsigned packed) const {
     int idx = get_idx(packed);
     return (m_Scale[idx] + m_Scale[idx+1] )/ 2.;    
   };
 
   /// get the low edge of bin represented by packed
-  float getLowEdge(unsigned packed) const override{
+  virtual float getLowEdge(unsigned packed) const{
     return m_Scale[get_idx(packed)];
   };
 
   /// get the upper edge of bin represented by packed
-  float getHighEdge(unsigned packed) const override{
+  virtual float getHighEdge(unsigned packed) const{
     return m_Scale[get_idx(packed)+1];
   };
   
   /// pack a value
 
-  unsigned getPacked(float value) const override {
+  virtual unsigned getPacked(float value) const {
     if (value < m_Scale[0] || value > m_Scale[m_NBins]) 
       edm::LogWarning("ScaleRangeViolation") << "L1MuBinnedScale::getPacked: value out of scale range: " << value << std::endl;
     int idx = 0;
@@ -189,18 +189,18 @@ class L1MuBinnedScale : public L1MuScale {
   };
 
   /// get the upper edge of the last bin
-  float getScaleMax() const override { return m_Scale[m_NBins]; }
+  virtual float getScaleMax() const { return m_Scale[m_NBins]; }
 
   /// get the lower edge of the first bin
-  float getScaleMin() const override { return m_Scale[0]; }
+  virtual float getScaleMin() const { return m_Scale[0]; }
 
   /// get number of bins
-  unsigned getNBins() const override { return m_NBins; }
+  virtual unsigned getNBins() const { return m_NBins; }
 
   /// get value of the underlying vector for bin i
-  float getValue(unsigned i) const override { return m_Scale[i]; }
+  virtual float getValue(unsigned i) const { return m_Scale[i]; }
 
-  std::string print() const override {
+  virtual std::string print() const {
     std::ostringstream str;
 
     str << " ind |   low edge |     center |  high edge" << std::endl;
@@ -295,12 +295,12 @@ class L1MuSymmetricBinnedScale : public L1MuScale {
   };
 
   /// destructor
-  ~L1MuSymmetricBinnedScale() override {
+  virtual ~L1MuSymmetricBinnedScale() {
 //    delete m_packing;
   };
 
   /// get the center of bin represented by packed
-  float getCenter(unsigned packed) const override {
+  virtual float getCenter(unsigned packed) const {
     int absidx = abs ( m_packing.idxFromPacked( packed ) );
     if (absidx>=m_NBins) absidx=m_NBins-1;
     float center = (m_Scale[absidx] + m_Scale[absidx+1] )/ 2.;    
@@ -309,7 +309,7 @@ class L1MuSymmetricBinnedScale : public L1MuScale {
   };
 
   /// get the low edge of bin represented by packed
-  float getLowEdge(unsigned packed) const override{ // === edge towards 0 
+  virtual float getLowEdge(unsigned packed) const{ // === edge towards 0 
     int absidx = abs ( m_packing.idxFromPacked( packed ) );
     if (absidx>=m_NBins) absidx=m_NBins-1;
     float low = m_Scale[absidx];    
@@ -318,13 +318,13 @@ class L1MuSymmetricBinnedScale : public L1MuScale {
   };
 
   /// get the upper edge of bin represented by packed
-  float getHighEdge(unsigned packed) const override{
+  virtual float getHighEdge(unsigned packed) const{
     edm::LogWarning("NotImplemented") << "L1MuSymmetricBinnedScale::getHighEdge not implemented" << std::endl;
     return 0;
   };
 
   /// pack a value
-  unsigned getPacked(float value) const override {
+  virtual unsigned getPacked(float value) const {
     float absval = fabs ( value );
     if (absval < m_Scale[0] || absval > m_Scale[m_NBins]) edm::LogWarning("ScaleRangeViolation") 
                  << "L1MuSymmetricBinnedScale::getPacked: value out of scale range!!! abs(val) = " 
@@ -336,18 +336,18 @@ class L1MuSymmetricBinnedScale : public L1MuScale {
     return m_packing.packedFromIdx(idx, (value>=0) ? 0 : 1);
   };
   /// get the upper edge of the last bin (posivie half)
-  float getScaleMax() const override { return m_Scale[m_NBins]; }
+  virtual float getScaleMax() const { return m_Scale[m_NBins]; }
 
   /// get the lower edge of the first bin (positive half)
-  float getScaleMin() const override { return m_Scale[0]; }
+  virtual float getScaleMin() const { return m_Scale[0]; }
 
   /// get number of bins
-  unsigned getNBins() const override { return m_NBins; }
+  virtual unsigned getNBins() const { return m_NBins; }
 
   /// get value of the underlying vector for bin i
-  float getValue(unsigned i) const override { return m_Scale[i]; }
+  virtual float getValue(unsigned i) const { return m_Scale[i]; }
 
-  std::string print() const override {
+  virtual std::string print() const {
     std::ostringstream str;
     
     str << " ind |   low edge |     center" << std::endl;

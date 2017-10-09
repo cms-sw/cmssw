@@ -37,7 +37,7 @@ class SiPixelFakeLorentzAngleESSource : public edm::ESProducer, public edm::Even
 
  public:
   SiPixelFakeLorentzAngleESSource(const edm::ParameterSet &);
-  ~SiPixelFakeLorentzAngleESSource() override;
+  ~SiPixelFakeLorentzAngleESSource();
   
   //      typedef edm::ESProducts<> ReturnType;
   
@@ -45,9 +45,9 @@ class SiPixelFakeLorentzAngleESSource : public edm::ESProducer, public edm::Even
   
  protected:
   
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
+  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
 			       const edm::IOVSyncValue&,
-			       edm::ValidityInterval& ) override;
+			       edm::ValidityInterval& );
   
   
  private:

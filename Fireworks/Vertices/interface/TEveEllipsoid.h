@@ -30,10 +30,10 @@ protected:
 
 public:
    TEveEllipsoid(const Text_t* n="TEveEllipsoid", const Text_t* t="");
-   ~TEveEllipsoid() override {}
+   virtual ~TEveEllipsoid() {}
 
-   void    ComputeBBox() override;
-   TClass* ProjectedClass(const TEveProjection* p) const override;
+   virtual void    ComputeBBox();
+   virtual TClass* ProjectedClass(const TEveProjection* p) const;
 
    TEveVector& RefPos() { return fPos ;}
    TEveVector& RefExtent3D() { return fExtent3D ;} // cached member for bbox and 3D rendering
@@ -58,20 +58,20 @@ private:
    TEveEllipsoidProjected& operator=(const TEveEllipsoidProjected&); // Not implemented
    
 protected:
-   void SetDepthLocal(Float_t d) override;
+   virtual void SetDepthLocal(Float_t d);
 
 public:
    TEveEllipsoidProjected(const char* n="TEveEllipsoidProjected", const char* t="");
-   ~TEveEllipsoidProjected() override;
+   virtual ~TEveEllipsoidProjected();
 
    // For TAttBBox:
-   void ComputeBBox() override;
+   virtual void ComputeBBox();
    
    // Projected:
-   void SetProjection(TEveProjectionManager* mng, TEveProjectable* model) override;
-   void UpdateProjection() override;
+   virtual void SetProjection(TEveProjectionManager* mng, TEveProjectable* model);
+   virtual void UpdateProjection();
 
-   TEveElement* GetProjectedAsElement() override { return this; }
+   virtual TEveElement* GetProjectedAsElement() { return this; }
 
    ClassDef(TEveEllipsoidProjected, 0); // Projection of TEveEllipsoid.
 };

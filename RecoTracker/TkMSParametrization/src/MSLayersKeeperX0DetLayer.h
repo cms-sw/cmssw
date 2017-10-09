@@ -7,11 +7,11 @@
 class dso_hidden MSLayersKeeperX0DetLayer final : public MSLayersKeeper {
 public:
   MSLayersKeeperX0DetLayer() : isInitialised(false) { }
-  ~MSLayersKeeperX0DetLayer() override { }
-  void init(const edm::EventSetup &iSetup) override;
-  MSLayer layer(const DetLayer* layer) const override
+  virtual ~MSLayersKeeperX0DetLayer() { }
+  virtual void init(const edm::EventSetup &iSetup);
+  virtual MSLayer layer(const DetLayer* layer) const
     {return *theLayersData.findLayer(MSLayer(layer)); }
-  const MSLayersAtAngle & layers(float cotTheta) const override
+  virtual const MSLayersAtAngle & layers(float cotTheta) const
     {return theLayersData;}
 
 private:

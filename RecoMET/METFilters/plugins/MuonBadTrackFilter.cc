@@ -28,10 +28,10 @@
 class MuonBadTrackFilter : public edm::global::EDFilter<> {
 public:
   explicit MuonBadTrackFilter(const edm::ParameterSet&);
-  ~MuonBadTrackFilter() override;
+  ~MuonBadTrackFilter();
 
 private:
-  bool filter(edm::StreamID iID, edm::Event&, const edm::EventSetup&) const override;
+  virtual bool filter(edm::StreamID iID, edm::Event&, const edm::EventSetup&) const override;
   virtual std::string trackInfo(const reco::TrackRef& trackRef) const;
   virtual void printMuonProperties(const reco::MuonRef& muonRef) const;
 

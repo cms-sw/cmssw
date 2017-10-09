@@ -65,7 +65,7 @@ vector<float> EndcapPiZeroDiscriminatorAlgo::findPreshVector(ESDetId strip,  Rec
   vector<float> vout_stripE;
 
   // skip if rechits_map contains no hits
-  if ( rechits_map->empty() ) {
+  if ( rechits_map->size() == 0 ) {
           edm::LogWarning("EndcapPiZeroDiscriminatorAlgo") << "RecHitsMap has size 0.";
           return vout_stripE;
   }

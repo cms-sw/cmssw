@@ -47,11 +47,11 @@ namespace reco
    public:
 
     PFMETProducerMVA(const edm::ParameterSet&); 
-    ~PFMETProducerMVA() override;
+    ~PFMETProducerMVA();
 
    private:
   
-    void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&);
 
     // auxiliary functions
     std::vector<reco::PUSubMETCandInfo> computeLeptonInfo(const std::vector<edm::EDGetTokenT<reco::CandidateView > >& srcLeptons_,

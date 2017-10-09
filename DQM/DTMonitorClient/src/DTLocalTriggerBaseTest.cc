@@ -302,7 +302,7 @@ pair<float,float> DTLocalTriggerBaseTest::phiRange(const DTChamberId& id){
   int wheel   = id.wheel();
   
   const DTLayer  *layer = muonGeom->layer(DTLayerId(id,1,1));
-  const DTTopology& topo = layer->specificTopology();
+  DTTopology topo = layer->specificTopology();
   min = topo.wirePosition(topo.firstChannel());
   max = topo.wirePosition(topo.lastChannel());
 

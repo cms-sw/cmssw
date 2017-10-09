@@ -15,12 +15,12 @@
 
 CastorDbService::CastorDbService (const edm::ParameterSet& cfg)
   : 
-  mPedestals (nullptr),
-  mPedestalWidths (nullptr),
-  mGains (nullptr),
-  mGainWidths (nullptr),
-  mQIEData(nullptr),
-  mElectronicsMap(nullptr)
+  mPedestals (0),
+  mPedestalWidths (0),
+  mGains (0),
+  mGainWidths (0),
+  mQIEData(0),
+  mElectronicsMap(0)
  {}
 
 bool CastorDbService::makeCastorCalibration (const HcalGenericDetId& fId, CastorCalibrations* fObject, bool pedestalInADC) const {
@@ -136,42 +136,42 @@ const CastorPedestal* CastorDbService::getPedestal (const HcalGenericDetId& fId)
   if (mPedestals) {
     return mPedestals->getValues (fId);
   }
-  return nullptr;
+  return 0;
 }
 
   const CastorPedestalWidth* CastorDbService::getPedestalWidth (const HcalGenericDetId& fId) const {
   if (mPedestalWidths) {
     return mPedestalWidths->getValues (fId);
   }
-  return nullptr;
+  return 0;
 }
 
 const CastorGain* CastorDbService::getGain (const HcalGenericDetId& fId) const {
   if (mGains) {
     return mGains->getValues(fId);
   }
-  return nullptr;
+  return 0;
 }
 
   const CastorGainWidth* CastorDbService::getGainWidth (const HcalGenericDetId& fId) const {
   if (mGainWidths) {
     return mGainWidths->getValues (fId);
   }
-  return nullptr;
+  return 0;
 }
 
 const CastorQIECoder* CastorDbService::getCastorCoder (const HcalGenericDetId& fId) const {
   if (mQIEData) {
     return mQIEData->getCoder (fId);
   }
-  return nullptr;
+  return 0;
 }
 
 const CastorQIEShape* CastorDbService::getCastorShape () const {
   if (mQIEData) {
     return &mQIEData->getShape ();
   }
-  return nullptr;
+  return 0;
 }
 
 const CastorElectronicsMap* CastorDbService::getCastorMapping () const {

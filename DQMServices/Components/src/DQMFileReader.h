@@ -23,13 +23,13 @@
 class DQMFileReader : public edm::EDAnalyzer {
 public:
   explicit DQMFileReader(const edm::ParameterSet&);
-  ~DQMFileReader() override;
+  ~DQMFileReader();
   
 
 private:
-  void beginJob() override ;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+  virtual void beginJob() ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
   
   DQMStore *dbe_;  
   edm::ParameterSet pset_;

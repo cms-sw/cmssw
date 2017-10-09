@@ -50,12 +50,12 @@ class HLXMonitor : public DQMEDAnalyzer {
   typedef HCAL_HLX::LUMI_SECTION LUMI_SECTION;
   typedef HCAL_HLX::TCPReceiver TCPReceiver;
   explicit HLXMonitor(const edm::ParameterSet&);
-  ~HLXMonitor() override;
+  ~HLXMonitor();
 
  private:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&,
                       edm::EventSetup const&) override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   void connectHLXTCP();
 
@@ -71,7 +71,7 @@ class HLXMonitor : public DQMEDAnalyzer {
 
   void EndRun();
 
-  double getUTCtime(timeval* a, timeval* b = nullptr);
+  double getUTCtime(timeval* a, timeval* b = NULL);
 
   // ----------member data ---------------------------
   TCPReceiver HLXTCP;

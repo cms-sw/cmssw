@@ -10,13 +10,13 @@ class FastFedCablingHistograms : public virtual CommissioningHistograms {
  public:
   
   FastFedCablingHistograms( const edm::ParameterSet& pset, DQMStore* );
-  ~FastFedCablingHistograms() override;
+  virtual ~FastFedCablingHistograms();
   
-  void histoAnalysis( bool debug ) override;
+  void histoAnalysis( bool debug );
 
-  void printAnalyses() override; // override
+  void printAnalyses(); // override
 
-  void printSummary() override; // override
+  void printSummary(); // override
 
 };
 

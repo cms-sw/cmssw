@@ -15,7 +15,7 @@
 
 FWGLEventHandler::FWGLEventHandler(TGWindow *w, TObject *obj, TEveCaloLego* l):
    TEveLegoEventHandler(w, obj, l),
-   m_viewer(nullptr)
+   m_viewer(0)
 {}
 
 //______________________________________________________________________________

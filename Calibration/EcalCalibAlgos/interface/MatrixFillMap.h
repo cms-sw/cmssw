@@ -17,13 +17,13 @@ class MatrixFillMap : public VFillMap
 			EcalIntercalibConstantMap *,
 			EcalIntercalibConstantMap *);
 	//! dtor
-	~MatrixFillMap () override;
+	~MatrixFillMap ();
         void fillMap (const std::vector<std::pair<DetId,float> > &, 
 			const DetId,
 			const EcalRecHitCollection *, 
 			const EcalRecHitCollection *,
 			std::map<int,double> & xtlMap,
-			double & ) override ;
+			double & ) ;
 	private:
 	//! takes care of the Barrel
         void fillEBMap (EBDetId , 

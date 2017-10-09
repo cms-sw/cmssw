@@ -29,11 +29,11 @@ class LaserPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 	/// constructor
   LaserPrimaryGeneratorAction(edm::ParameterSet const& theConf);
 	/// destructor
-  ~LaserPrimaryGeneratorAction() override;
+  ~LaserPrimaryGeneratorAction();
 
  public:
 	/// call the corresponding GeneratePrimaries routines for both TEC's and the Barrel
-  void GeneratePrimaries(G4Event* myEvent) override;
+  void GeneratePrimaries(G4Event* myEvent);
 	/// set Id of the optical photons
   void setGeneratorId(G4PrimaryParticle * aParticle, int ID) const;
 

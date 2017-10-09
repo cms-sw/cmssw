@@ -8,11 +8,11 @@
 class OrderedHitPairs : public std::vector<OrderedHitPair>, public OrderedSeedingHits {
 public:
 
-  ~OrderedHitPairs() override{}
+  virtual ~OrderedHitPairs(){}
 
-  unsigned int size() const override { return std::vector<OrderedHitPair>::size(); }
+  virtual unsigned int size() const { return std::vector<OrderedHitPair>::size(); }
 
-  const OrderedHitPair& operator[](unsigned int i) const override { 
+  virtual const OrderedHitPair& operator[](unsigned int i) const { 
     return std::vector<OrderedHitPair>::operator[](i); 
   }
 

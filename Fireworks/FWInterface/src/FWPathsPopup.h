@@ -41,7 +41,7 @@ public:
    void updateFilterString(const char *str);
    void windowIsClosing();
 
-   Bool_t HandleKey(Event_t* event) override;
+   virtual Bool_t HandleKey(Event_t* event);
 
 private:
    const edm::ScheduleInfo  *m_info;

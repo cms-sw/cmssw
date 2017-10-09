@@ -28,10 +28,10 @@
 class AlignmentStats: public edm::EDAnalyzer{
  public:
   AlignmentStats(const edm::ParameterSet &iConfig);
-  ~AlignmentStats() override;
-  void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
-  void beginJob( ) override;
-  void endJob() override;
+  ~AlignmentStats();
+  virtual void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup);
+  void beginJob( );
+  void endJob();
 
  private:
 

@@ -22,7 +22,7 @@ class ElectronDqmHarvesterBase : public DQMEDHarvester
   protected:
 
     explicit ElectronDqmHarvesterBase( const edm::ParameterSet & conf ) ;
-    ~ElectronDqmHarvesterBase() override ;
+    virtual ~ElectronDqmHarvesterBase() ;
 
     // specific implementation of EDAnalyzer
     void beginJob() override ; // prepare DQM, open input field if declared, and call book() below

@@ -31,10 +31,10 @@
 #include "DQM/DTMonitorModule/interface/DTTimeEvolutionHisto.h"
 
 #include <iostream>
-#include <cstdio>
+#include <stdio.h>
 #include <string>
 #include <sstream>
-#include <cmath>
+#include <math.h>
 
 
 using namespace edm;
@@ -61,7 +61,7 @@ DTSegmentAnalysisTest::DTSegmentAnalysisTest(const ParameterSet& ps){
 
   nevents = 0;
 
-  bookingdone = false;
+  bookingdone = 0;
 
 }
 
@@ -85,7 +85,7 @@ void DTSegmentAnalysisTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, D
   // book the histos
 
   if (!bookingdone) bookHistos(ibooker);  
-  bookingdone = true; 
+  bookingdone = 1; 
 
   // counts number of lumiSegs 
   nLumiSegs = lumiSeg.id().luminosityBlock();
@@ -115,12 +115,12 @@ void DTSegmentAnalysisTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGe
 
   if(normalizeHistoPlots) {
     LogTrace ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << " Performing time-histo normalization" << endl;
-    MonitorElement* hNevtPerLS = nullptr;
+    MonitorElement* hNevtPerLS = 0;
 
     if(hltDQMMode) hNevtPerLS = igetter.get(topHistoFolder + "/NevtPerLS");
     else  hNevtPerLS = igetter.get("DT/EventInfo/NevtPerLS");
 
-    if(hNevtPerLS != nullptr) {
+    if(hNevtPerLS != 0) {
       for(int wheel = -2; wheel != 3; ++wheel) { // loop over wheels
 	for(int sector = 1; sector <= 12; ++sector) { // loop over sectors
 	  stringstream wheelstr; wheelstr << wheel;	

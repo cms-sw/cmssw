@@ -14,15 +14,15 @@ class FWME0SegmentProxyBuilder : public FWSimpleProxyBuilderTemplate<ME0Segment>
 {
 public:
   FWME0SegmentProxyBuilder( void ) {}
-  ~FWME0SegmentProxyBuilder( void ) override {}
+  virtual ~FWME0SegmentProxyBuilder( void ) {}
   
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
-  FWME0SegmentProxyBuilder( const FWME0SegmentProxyBuilder& ) = delete;   
-  const FWME0SegmentProxyBuilder& operator=( const FWME0SegmentProxyBuilder& ) = delete;
+  FWME0SegmentProxyBuilder( const FWME0SegmentProxyBuilder& );   
+  const FWME0SegmentProxyBuilder& operator=( const FWME0SegmentProxyBuilder& );
 
-  void build( const ME0Segment& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
+  void build( const ME0Segment& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
 };
 
 void

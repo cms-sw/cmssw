@@ -6,13 +6,13 @@
 class MeasurementDetWithData {
 public:
   MeasurementDetWithData() :
-    det_(nullptr), data_(nullptr) {}
+    det_(0), data_(0) {}
   
   MeasurementDetWithData(const MeasurementDet &det, const MeasurementTrackerEvent &data) :
     det_(&det), data_(&data) {}
   
-  bool isValid() const { return det_ != nullptr; }
-  bool isNull() const { return det_ == nullptr; }
+  bool isValid() const { return det_ != 0; }
+  bool isNull() const { return det_ == 0; }
   
   const MeasurementDet & mdet() const { return *det_; }
 

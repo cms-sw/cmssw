@@ -19,15 +19,15 @@ class SiStripFedCablingESProducer : public edm::ESProducer {
  public:
   
   SiStripFedCablingESProducer( const edm::ParameterSet& );
-  ~SiStripFedCablingESProducer() override;
+  virtual ~SiStripFedCablingESProducer();
   
   /** Calls pure virtual make() method, to force concrete implementation. */
   virtual std::unique_ptr<SiStripFedCabling> produce( const SiStripFedCablingRcd& );
   
  private:
   
-  SiStripFedCablingESProducer( const SiStripFedCablingESProducer& ) = delete;
-  const SiStripFedCablingESProducer& operator=( const SiStripFedCablingESProducer& ) = delete;
+  SiStripFedCablingESProducer( const SiStripFedCablingESProducer& );
+  const SiStripFedCablingESProducer& operator=( const SiStripFedCablingESProducer& );
   
   virtual SiStripFedCabling* make( const SiStripFedCablingRcd& ) = 0; 
   

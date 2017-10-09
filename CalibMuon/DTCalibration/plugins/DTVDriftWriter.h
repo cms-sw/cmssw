@@ -24,12 +24,12 @@ namespace dtCalibration {
 class DTVDriftWriter : public edm::EDAnalyzer {
 public:
   DTVDriftWriter(const edm::ParameterSet& pset);
-  ~DTVDriftWriter() override;
+  virtual ~DTVDriftWriter();
 
   // Operations
-  void beginRun(const edm::Run& run, const edm::EventSetup& setup) override;
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override {}
-  void endJob() override;
+  virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup);
+  virtual void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) {}
+  virtual void endJob();
  
 private:
   std::string granularity_; // enforced by SL

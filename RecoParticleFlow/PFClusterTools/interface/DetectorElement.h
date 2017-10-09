@@ -74,7 +74,7 @@ private:
 	virtual double getCalibCore(double eta, double phi) const;
 	virtual void setCalibCore(double calib) noexcept(false);
 	
-	DetectorElement(const DetectorElement& de) = delete;
+	DetectorElement(const DetectorElement& de);
 	DetectorElementType myType;
 	double myCalib;
 

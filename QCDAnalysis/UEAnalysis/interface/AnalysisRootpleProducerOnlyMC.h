@@ -34,11 +34,11 @@ class AnalysisRootpleProducerOnlyMC : public edm::EDAnalyzer
 public:
 
   explicit AnalysisRootpleProducerOnlyMC( const edm::ParameterSet& ) ;
-  ~AnalysisRootpleProducerOnlyMC() override {}
+  virtual ~AnalysisRootpleProducerOnlyMC() {}
 
-  void analyze( const edm::Event&, const edm::EventSetup& ) override ;
-  void beginJob() override ;
-  void endJob() override ;
+  virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
+  virtual void beginJob() ;
+  virtual void endJob() ;
 
   void fillEventInfo(int);
   void fillMCParticles(float, float, float, float);

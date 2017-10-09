@@ -21,14 +21,14 @@ public:
   VolumeMultipleScatteringEstimator ( float mass ) :
     VolumeMaterialEffectsEstimator(mass) {}
   
-  ~VolumeMultipleScatteringEstimator () override {}
+  virtual ~VolumeMultipleScatteringEstimator () {}
 
   /// Creates an estimate
-  VolumeMaterialEffectsEstimate estimate (const TrajectoryStateOnSurface refTSOS,
+  virtual VolumeMaterialEffectsEstimate estimate (const TrajectoryStateOnSurface refTSOS,
 						  double pathLength,
-						  const VolumeMediumProperties& medium) const override;
+						  const VolumeMediumProperties& medium) const;
 
-  VolumeMultipleScatteringEstimator* clone()  const override;
+  virtual VolumeMultipleScatteringEstimator* clone()  const;
 };
 
 #endif

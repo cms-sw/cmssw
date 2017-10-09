@@ -220,7 +220,7 @@ RectangularEtaPhiTrackingRegion::estimator(const ForwardDetLayer* layer,const ed
   // r prediction, skip if not intersection
   HitRCheck rPrediction(rzConstraint());
   Range hitRWindow = rPrediction.range(zLayer).intersection(detRWindow);
-  if (hitRWindow.empty()) return nullptr;
+  if (hitRWindow.empty()) return 0;
 
   // phi prediction
   OuterHitPhiPrediction phiPrediction = phiWindow(iSetup);

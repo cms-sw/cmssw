@@ -90,8 +90,8 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
         Handle< EBUncalibratedRecHitCollection > pEBUncalibRecHits;
         Handle< EEUncalibratedRecHitCollection > pEEUncalibRecHits;
 
-        const EBUncalibratedRecHitCollection*  ebUncalibRecHits = nullptr;
-        const EEUncalibratedRecHitCollection*  eeUncalibRecHits = nullptr; 
+        const EBUncalibratedRecHitCollection*  ebUncalibRecHits = 0;
+        const EEUncalibratedRecHitCollection*  eeUncalibRecHits = 0; 
 
         // get the barrel uncalib rechit collection
        
@@ -141,7 +141,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
         if ( recoverEBIsolatedChannels_ || recoverEBFE_ || killDeadChannels_ )
         {
                 edm::Handle< std::set<EBDetId> > pEBDetId;
-                const std::set<EBDetId> * detIds = nullptr;
+                const std::set<EBDetId> * detIds = 0;
 		evt.getByToken( ebDetIdToBeRecoveredToken_, pEBDetId);
 		detIds = pEBDetId.product();
                        
@@ -178,7 +178,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
         if ( recoverEEIsolatedChannels_ || recoverEEVFE_ || killDeadChannels_ )
         {
                 edm::Handle< std::set<EEDetId> > pEEDetId;
-                const std::set<EEDetId> * detIds = nullptr;
+                const std::set<EEDetId> * detIds = 0;
                
 		evt.getByToken( eeDetIdToBeRecoveredToken_, pEEDetId);
 		detIds = pEEDetId.product();
@@ -214,7 +214,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
         if ( recoverEBFE_ || killDeadChannels_ )
         {
                 edm::Handle< std::set<EcalTrigTowerDetId> > pEBFEId;
-                const std::set<EcalTrigTowerDetId> * ttIds = nullptr;
+                const std::set<EcalTrigTowerDetId> * ttIds = 0;
                
 		evt.getByToken( ebFEToBeRecoveredToken_, pEBFEId);
 		ttIds = pEBFEId.product();
@@ -234,7 +234,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
         if ( recoverEEFE_ || killDeadChannels_ )
         {
                 edm::Handle< std::set<EcalScDetId> > pEEFEId;
-                const std::set<EcalScDetId> * scIds = nullptr;
+                const std::set<EcalScDetId> * scIds = 0;
             
 		evt.getByToken( eeFEToBeRecoveredToken_, pEEFEId);
 		scIds = pEEFEId.product();

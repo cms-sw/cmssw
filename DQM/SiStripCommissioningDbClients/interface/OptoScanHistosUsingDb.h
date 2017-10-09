@@ -13,15 +13,15 @@ class OptoScanHistosUsingDb : public CommissioningHistosUsingDb, public OptoScan
                          DQMStore*,
                          SiStripConfigDb* const );
 
-  ~OptoScanHistosUsingDb() override;
+  virtual ~OptoScanHistosUsingDb();
 
-  void uploadConfigurations() override;
+  virtual void uploadConfigurations();
   
  private:
   
   void update( SiStripConfigDb::DeviceDescriptionsRange );
   
-  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis ) override; 
+  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis ); 
 
   // parameters
   bool skipGainUpdate_;

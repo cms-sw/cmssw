@@ -17,14 +17,14 @@ public:
   explicit LightPFTrackProducer(const edm::ParameterSet&);
   
   ///Destructor
-  ~LightPFTrackProducer() override;
+  ~LightPFTrackProducer();
   
 private:
-  void beginRun(const edm::Run&,const edm::EventSetup&) override ;
-  void endRun(const edm::Run&,const edm::EventSetup&) override;
+  virtual void beginRun(const edm::Run&,const edm::EventSetup&) override ;
+  virtual void endRun(const edm::Run&,const edm::EventSetup&) override;
   
   ///Produce the PFRecTrack collection
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   
   ///PFTrackTransformer
   PFTrackTransformer *pfTransformer_; 

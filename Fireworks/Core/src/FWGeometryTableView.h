@@ -34,9 +34,9 @@ public:
 
 public:
    FWGeometryTableView(TEveWindowSlot* iParent, FWColorManager* colMng);
-   ~FWGeometryTableView() override;
-   void populateController(ViewerParameterGUI&) const override;
-    FWGeometryTableManagerBase*  getTableManager() override;
+   virtual ~FWGeometryTableView();
+   virtual void populateController(ViewerParameterGUI&) const;
+   virtual  FWGeometryTableManagerBase*  getTableManager();
 
    void filterListCallback();
    void filterTextEntryCallback();
@@ -52,8 +52,8 @@ public:
 
    bool drawTopNode() const { return ! m_disableTopNode.value(); }
    void autoExpandCallback();
-   void setPath(int, std::string&) override;   
-   void setFrom(const FWConfiguration&) override;
+   virtual void setPath(int, std::string&);   
+   virtual void setFrom(const FWConfiguration&);
 
   // void chosenItem(int);
    void updateVisibilityTopNode();

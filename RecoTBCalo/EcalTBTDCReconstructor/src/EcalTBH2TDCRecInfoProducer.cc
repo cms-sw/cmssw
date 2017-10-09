@@ -47,7 +47,7 @@ void EcalTBH2TDCRecInfoProducer::produce(edm::Event& e, const edm::EventSetup& e
   int runNumber = e.id().run();
   // Get input
   edm::Handle<HcalTBTiming> ecalRawTDC;  
-  const HcalTBTiming* ecalTDCRawInfo = nullptr;
+  const HcalTBTiming* ecalTDCRawInfo = 0;
   
   //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
   e.getByLabel( rawInfoProducer_, ecalRawTDC);
@@ -65,7 +65,7 @@ void EcalTBH2TDCRecInfoProducer::produce(edm::Event& e, const edm::EventSetup& e
   
   // Get input
   edm::Handle<HcalTBTriggerData> triggerData;  
-  const HcalTBTriggerData* h2TriggerData = nullptr;
+  const HcalTBTriggerData* h2TriggerData = 0;
   //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
   e.getByLabel(triggerDataProducer_, triggerData);
   if (triggerData.isValid()) {

@@ -14,7 +14,7 @@
     { }
     explicit  EcalTrivialObjectAnalyzer(int i) 
     { }
-    ~ EcalTrivialObjectAnalyzer() override { }
-    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+    virtual ~ EcalTrivialObjectAnalyzer() { }
+    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
   private:
   };

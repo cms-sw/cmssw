@@ -22,10 +22,10 @@ class CDFEventInfo;
 class HcalTBSource : public edm::ProducerSourceFromFiles {
 public:
 explicit HcalTBSource(const edm::ParameterSet & pset, edm::InputSourceDescription const& desc);
-~HcalTBSource() override;
+virtual ~HcalTBSource();
 private:
-  bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time, edm::EventAuxiliary::ExperimentType&) override;
-  void produce(edm::Event & e) override;
+  virtual bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time, edm::EventAuxiliary::ExperimentType&);
+  virtual void produce(edm::Event & e);
   void unpackSetup(const std::vector<std::string>& params);
   void openFile(const std::string& filename);
   TTree* m_tree;

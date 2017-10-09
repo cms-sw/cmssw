@@ -14,9 +14,9 @@
 //__________________________________________________________________________________________________
 AlignableDetUnit::AlignableDetUnit(const GeomDetUnit *geomDetUnit) : // rely on non-NULL pointer!
   Alignable(geomDetUnit->geographicalId().rawId(), geomDetUnit->surface()),
-  theAlignmentPositionError(nullptr),
-  theSurfaceDeformation(nullptr),
-  theCachedSurfaceDeformation(nullptr)
+  theAlignmentPositionError(0),
+  theSurfaceDeformation(0),
+  theCachedSurfaceDeformation(0)
 {
   if (geomDetUnit->alignmentPositionError()) { // take over APE from geometry
     // 2nd argument w/o effect:
@@ -126,7 +126,7 @@ void AlignableDetUnit::addAlignmentPositionErrorFromRotation(const RotationType&
 								     .5 * surface().length(),
 								     0.) );
 
-  const LocalVector::BasicVectorType& lpvgf = localPositionVector.basicVector();
+  LocalVector::BasicVectorType lpvgf = localPositionVector.basicVector();
   GlobalVector gv( rot.multiplyInverse(lpvgf) - lpvgf );
 
   AlignmentPositionError  ape( gv.x(),gv.y(),gv.z() );
@@ -153,7 +153,7 @@ void AlignableDetUnit::setSurfaceDeformation(const SurfaceDeformation *deformati
   if (deformation) {
     theSurfaceDeformation = deformation->clone();
   } else {
-    theSurfaceDeformation = nullptr;
+    theSurfaceDeformation = 0;
   }
 }
 
@@ -171,7 +171,7 @@ void AlignableDetUnit::addSurfaceDeformation(const SurfaceDeformation *deformati
 			       << " to type " << theSurfaceDeformation->type()
 			       << ", so erase deformation information.";
     delete theSurfaceDeformation;
-    theSurfaceDeformation = nullptr;
+    theSurfaceDeformation = 0;
   }
 }
 
@@ -261,7 +261,7 @@ void AlignableDetUnit::cacheTransformation()
 
   if (theCachedSurfaceDeformation) {
     delete theCachedSurfaceDeformation;
-    theCachedSurfaceDeformation = nullptr;
+    theCachedSurfaceDeformation = 0;
   }
 
   if (theSurfaceDeformation)
@@ -278,7 +278,7 @@ void AlignableDetUnit::cacheTransformation(const align::RunNumber& run)
   auto existingCache = surfaceDeformationsCache_.find(run);
   if (existingCache != surfaceDeformationsCache_.end()) {
     delete existingCache->second;
-    existingCache->second = nullptr;
+    existingCache->second = 0;
   }
 
   if (theSurfaceDeformation) {
@@ -295,7 +295,7 @@ void AlignableDetUnit::restoreCachedTransformation()
 
   if (theSurfaceDeformation) {
     delete theSurfaceDeformation;
-    theSurfaceDeformation = nullptr;
+    theSurfaceDeformation = 0;
   }
 
   if (theCachedSurfaceDeformation) {
@@ -318,7 +318,7 @@ void AlignableDetUnit::restoreCachedTransformation(const align::RunNumber& run)
 
     if (theSurfaceDeformation) {
       delete theSurfaceDeformation;
-      theSurfaceDeformation = nullptr;
+      theSurfaceDeformation = 0;
     }
 
     if (surfaceDeformationsCache_[run]) {

@@ -23,13 +23,13 @@ class ElectronIDValueMapProducer : public edm::stream::EDProducer<> {
   public:
   
   explicit ElectronIDValueMapProducer(const edm::ParameterSet&);
-  ~ElectronIDValueMapProducer() override;
+  ~ElectronIDValueMapProducer();
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
   private:
   
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
   void writeValueMap(edm::Event &iEvent,
 		     const edm::Handle<edm::View<reco::GsfElectron> > & handle,

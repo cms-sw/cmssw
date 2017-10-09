@@ -18,11 +18,11 @@ namespace edm
 
   public:
     ExpoRandomPGunProducer(const ParameterSet & pset);
-    ~ExpoRandomPGunProducer() override;
+    virtual ~ExpoRandomPGunProducer();
 
   private:
 
-    void produce(Event & e, const EventSetup& es) override;
+    virtual void produce(Event & e, const EventSetup& es);
 
   protected :
 

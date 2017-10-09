@@ -35,15 +35,15 @@ public:
   DTTTrigCalibration(const edm::ParameterSet& pset);
 
   /// Destructor
-  ~DTTTrigCalibration() override;
+  virtual ~DTTTrigCalibration();
 
   // Operations
 
   /// Fill the time boxes
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
+  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
   /// Fit the time box rising edge and write the resulting ttrig to the DB
-  void endJob() override;
+  void endJob();
 
 
 protected:

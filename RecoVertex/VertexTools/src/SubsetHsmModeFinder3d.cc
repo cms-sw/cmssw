@@ -20,7 +20,7 @@ namespace {
 GlobalPoint SubsetHsmModeFinder3d::operator() ( const std::vector< PointAndDistance> & values )
     const 
 {
-  if ( values.empty() )
+  if ( values.size() == 0 )
   {
     throw VertexException ("SubsetHsmModeFinder3d: no value given.");
   };

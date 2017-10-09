@@ -22,24 +22,24 @@ namespace hcaldqm
 			ContainerSingleProf2D(std::string const& folder, 
 				Quantity*, Quantity*,
 				Quantity *qz = new ValueQuantity(quantity::fN));
-			~ContainerSingleProf2D() override {}
+			virtual ~ContainerSingleProf2D() {}
 
-			void initialize(std::string const& folder, 
+			virtual void initialize(std::string const& folder, 
 				Quantity*, Quantity*,
 				Quantity *qz = new ValueQuantity(quantity::fN),
-				int debug=0) override;
+				int debug=0);
 
-			void initialize(std::string const& folder, 
+			virtual void initialize(std::string const& folder, 
 				std::string const&,
 				Quantity*, Quantity*,
 				Quantity *qz = new ValueQuantity(quantity::fN),
-				int debug=0) override;
+				int debug=0);
 
 			//	booking
-			void book(DQMStore::IBooker&,
-				std::string subsystem="Hcal", std::string aux="") override;
-			void book(DQMStore*,
-				std::string subsystem="Hcal", std::string aux="") override;
+			virtual void book(DQMStore::IBooker&,
+				std::string subsystem="Hcal", std::string aux="");
+			virtual void book(DQMStore*,
+				std::string subsystem="Hcal", std::string aux="");
 	};
 }
 

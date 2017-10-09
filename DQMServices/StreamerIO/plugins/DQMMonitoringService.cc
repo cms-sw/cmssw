@@ -74,7 +74,7 @@ void DQMMonitoringService::outputLumiUpdate() {
     plumi.put("nmillis", lumi_millis);
     plumi.put("rate", rate);
 
-    std::time_t hkey = std::time(nullptr);
+    std::time_t hkey = std::time(NULL);
     doc.add_child(str(boost::format("extra.lumi_stats.%d") % hkey), plumi);
   }
 
@@ -110,7 +110,7 @@ void DQMMonitoringService::outputUpdate(ptree& doc) {
 
   try {
     last_update_time_ = std::chrono::high_resolution_clock::now();
-    doc.put("update_timestamp", std::time(nullptr));
+    doc.put("update_timestamp", std::time(NULL));
 
     write_json(mstream_, doc, false);
     mstream_.flush();

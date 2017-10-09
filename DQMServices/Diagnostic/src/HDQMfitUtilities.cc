@@ -175,7 +175,7 @@ namespace HDQMUtil{
 }
 
 //-----------------------------------------------------------------------------------------------
-HDQMfitUtilities::HDQMfitUtilities():langausFit(nullptr),gausFit(nullptr){
+HDQMfitUtilities::HDQMfitUtilities():langausFit(0),gausFit(0){
   init();
 }
 
@@ -196,8 +196,8 @@ void HDQMfitUtilities::init(){
 
 //-----------------------------------------------------------------------------------------------
 HDQMfitUtilities::~HDQMfitUtilities(){
-  if ( langausFit!=nullptr ) delete langausFit;
-  if ( gausFit!=nullptr ) delete gausFit;
+  if ( langausFit!=0 ) delete langausFit;
+  if ( gausFit!=0 ) delete gausFit;
 }
 
   

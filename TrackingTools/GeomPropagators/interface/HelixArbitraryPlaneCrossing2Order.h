@@ -31,21 +31,21 @@ public:
     thePropDir(propDir) {}
 
   // destructor
-  ~HelixArbitraryPlaneCrossing2Order() override {}
+  virtual ~HelixArbitraryPlaneCrossing2Order() {}
 
   /** Propagation status (true if valid) and (signed) path length 
    *  along the helix from the starting point to the plane. The 
    *  starting point is given in the constructor.
    */
-  std::pair<bool,double> pathLength(const Plane&) override;
+  virtual std::pair<bool,double> pathLength(const Plane&);
 
   /** Position at pathlength s from the starting point.
    */
-  PositionType position(double s) const override;
+  virtual PositionType position(double s) const;
 
   /** Direction at pathlength s from the starting point.
    */
-  DirectionType direction(double s) const override;
+  virtual DirectionType direction(double s) const;
   //
   // double precision vectors
   //

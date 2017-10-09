@@ -31,7 +31,7 @@ class MillePedeVariablesIORoot : public AlignmentIORootBase, public AlignmentUse
 {
   public:
   MillePedeVariablesIORoot();
-  ~MillePedeVariablesIORoot() override {}
+  virtual ~MillePedeVariablesIORoot() {}
 
   /** write user variables */
   void writeMillePedeVariables(const std::vector<Alignable*> &alivec, const char *filename,
@@ -44,23 +44,23 @@ class MillePedeVariablesIORoot : public AlignmentIORootBase, public AlignmentUse
  protected:
 
   /** write MillePedeVariables attached to AlignmentParameters of one Alignable */
-  int writeOne(Alignable *ali) override; // inherited from AlignmentUserVariablesIO
+  virtual int writeOne(Alignable *ali); // inherited from AlignmentUserVariablesIO
 
   /** read MillePedeVariables belonging to one Alignable */
-  AlignmentUserVariables* readOne(Alignable *ali, int &ierr) override;
+  virtual AlignmentUserVariables* readOne(Alignable *ali, int &ierr);
   // previous inherited from AlignmentUserVariablesIO
 
   /** open IO */  // inherited from AlignmentUserVariablesIO
-  int open(const char *filename, int iteration, bool writemode) override 
+  virtual int open(const char *filename, int iteration, bool writemode) 
     { return this->openRoot(filename, iteration, writemode);}
 
   /** close IO */
-  int close() override {return this->closeRoot();} // inherited from AlignmentUserVariablesIO
+  virtual int close() {return this->closeRoot();} // inherited from AlignmentUserVariablesIO
 
   /// create root branches 
-  void createBranches() override;      // inherited from AlignmentIORootBase
+  virtual void createBranches();      // inherited from AlignmentIORootBase
   /// set root branche addresses 
-  void setBranchAddresses() override;  // inherited from AlignmentIORootBase
+  virtual void setBranchAddresses();  // inherited from AlignmentIORootBase
 
  private:
   // variables for ROOT tree

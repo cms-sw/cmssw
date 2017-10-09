@@ -43,7 +43,7 @@ void prefillMap(const HcalTopology & topology){
 }
 
 
-void addCell(const DetId &cell, float scaling_factor) override
+virtual void addCell(const DetId &cell, float scaling_factor)
 {
   //mapHcal_.setValue(cell.rawId(),scaling_factor);
   mapHcal_[cell.rawId()]=scaling_factor;

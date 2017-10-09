@@ -26,11 +26,11 @@ namespace edm {
   class MCFileSource : public ProducerSourceFromFiles {
   public:
     MCFileSource(const ParameterSet& pset, const InputSourceDescription& desc);
-    ~MCFileSource() override;
+    virtual ~MCFileSource();
 
   private:
-    bool setRunAndEventInfo(EventID&, TimeValue_t& time, EventAuxiliary::ExperimentType& eType) override;
-    void produce(Event &e) override;
+    virtual bool setRunAndEventInfo(EventID&, TimeValue_t& time, EventAuxiliary::ExperimentType& eType);
+    virtual void produce(Event &e);
     void clear();
     
     edm::propagate_const<HepMCFileReader*> reader_;

@@ -11,7 +11,7 @@ class ESSummaryClient : public ESClient {
       ESSummaryClient(const edm::ParameterSet& ps);
 
       /// Destructor
-      ~ESSummaryClient() override;
+      virtual ~ESSummaryClient();
 
       /// Analyze
       void endLumiAnalyze(DQMStore::IGetter&) override;

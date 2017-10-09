@@ -7,11 +7,11 @@ class FWPFCandidateTowerSliceSelector : public FWHistSliceSelector
 {
 public:
    FWPFCandidateTowerSliceSelector(TH2F* h, const FWEventItem* i);
-   ~FWPFCandidateTowerSliceSelector() override;
- bool aggregatePhiCells() const override { return false; }
+   virtual ~FWPFCandidateTowerSliceSelector();
+ virtual bool aggregatePhiCells() const { return false; }
 
  protected:
-   void getItemEntryEtaPhi(int itemIdx, float& eta, float& phi) const override;
+   virtual void getItemEntryEtaPhi(int itemIdx, float& eta, float& phi) const;
 };
 
 #endif

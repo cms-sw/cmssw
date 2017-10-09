@@ -32,7 +32,7 @@ namespace reco
 	       const LorentzVector& fP4, const Point& fVertex ) 
 	: MET( sumet_, corr_, fP4, fVertex ), calo_data( calo_data_ ) {}
       /* Default destructor*/
-      ~CaloMET() override {}
+      virtual ~CaloMET() {}
       
       /* Returns the maximum energy deposited in ECAL towers */
       double maxEtInEmTowers() const {return calo_data.MaxEtInEmTowers;};
@@ -79,7 +79,7 @@ namespace reco
       SpecificCaloMETData getSpecific() const {return calo_data;}
       
     private:
-      bool overlap( const Candidate & ) const override;
+      virtual bool overlap( const Candidate & ) const;
       // Data members
       //Variables specific to to the CaloMET class
       SpecificCaloMETData calo_data;

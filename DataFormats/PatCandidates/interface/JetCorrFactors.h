@@ -30,7 +30,7 @@
 
 #include <vector>
 #include <string>
-#include <cmath>
+#include <math.h>
 
 namespace pat {
 

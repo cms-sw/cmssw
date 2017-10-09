@@ -14,7 +14,7 @@
 #include <vector>
 #include <iostream>
 #include <map>
-#include <cmath>
+#include <math.h>
 
 template<class IDdet>
 class MinL3AlgoUniv

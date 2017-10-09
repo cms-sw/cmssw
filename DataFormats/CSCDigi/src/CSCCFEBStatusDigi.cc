@@ -99,7 +99,7 @@ void CSCCFEBStatusDigi::print() const {
   
   std::ostringstream ost;
   ost << " SCAFullCond: ";
-  if(!getSCAFullCond().empty()){
+  if(getSCAFullCond().size()!=0){
     for (size_t i = 0; i<4; ++i ){ ost << " " <<(getSCAFullCond())[i]; }
   }
   else {

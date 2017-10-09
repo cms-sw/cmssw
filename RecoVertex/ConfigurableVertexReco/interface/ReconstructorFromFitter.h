@@ -14,14 +14,14 @@ class ReconstructorFromFitter : public AbstractConfReconstructor
   public:
   explicit ReconstructorFromFitter ( std::unique_ptr<AbstractConfFitter>&&  );
     ReconstructorFromFitter ( const ReconstructorFromFitter & o );
-    ~ReconstructorFromFitter() override;
-    void configure(const edm::ParameterSet&) override;
-    edm::ParameterSet defaults() const override;
-    std::vector < TransientVertex > vertices ( const std::vector < reco::TransientTrack > & ) const override;
+    ~ReconstructorFromFitter();
+    void configure(const edm::ParameterSet&);
+    edm::ParameterSet defaults() const;
+    std::vector < TransientVertex > vertices ( const std::vector < reco::TransientTrack > & ) const;
     std::vector < TransientVertex > vertices ( const std::vector < reco::TransientTrack > &,
-        const reco::BeamSpot & ) const override;
+        const reco::BeamSpot & ) const;
 
-    ReconstructorFromFitter * clone () const override;
+    ReconstructorFromFitter * clone () const;
 
   private:
     const AbstractConfFitter * theFitter;

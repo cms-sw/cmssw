@@ -24,10 +24,10 @@ public:
     theStripEstimator(aMaxChi2,nSigma) {}
 
   /// implementation of MeasurementEstimator::estimate
-  std::pair<bool, double> estimate(const TrajectoryStateOnSurface& aTsos,
-				      const TrackingRecHit& aHit) const override;
+  virtual std::pair<bool, double> estimate(const TrajectoryStateOnSurface& aTsos,
+				      const TrackingRecHit& aHit) const;
 
-  Chi2Switching1DEstimator* clone() const override 
+  virtual Chi2Switching1DEstimator* clone() const 
   {
     return new Chi2Switching1DEstimator(*this);
   }

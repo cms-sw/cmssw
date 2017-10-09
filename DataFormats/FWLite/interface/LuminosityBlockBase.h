@@ -33,7 +33,7 @@ namespace fwlite
       public:
          LuminosityBlockBase();
 
-         ~LuminosityBlockBase() override;
+         virtual ~LuminosityBlockBase();
 
          virtual bool getByLabel(
                                   std::type_info const&,
@@ -55,7 +55,7 @@ namespace fwlite
 
       private:
 
-         edm::BasicHandle getByLabelImpl(std::type_info const&, std::type_info const&, const edm::InputTag&) const override;
+         virtual edm::BasicHandle getByLabelImpl(std::type_info const&, std::type_info const&, const edm::InputTag&) const;
    };
 } // fwlite namespace
 

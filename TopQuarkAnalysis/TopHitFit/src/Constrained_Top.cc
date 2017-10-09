@@ -41,7 +41,7 @@
 #include "TopQuarkAnalysis/TopHitFit/interface/Defaults.h"
 #include <ostream>
 #include <cassert>
-#include <cstdio>
+#include <stdio.h>
 
 
 using std::ostream;

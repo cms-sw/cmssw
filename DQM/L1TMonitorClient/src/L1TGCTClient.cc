@@ -92,44 +92,44 @@ void L1TGCTClient::processHistograms(DQMStore::IGetter &igetter) {
     }
 
     Input = igetter.get(InputDir + "IsoEmOccEtaPhi");
-    if (Input!=nullptr){
+    if (Input!=NULL){
       makeXProjection(Input->getTH2F(),l1GctIsoEmOccEta_);
       makeYProjection(Input->getTH2F(),l1GctIsoEmOccPhi_);
     }
 
     Input = igetter.get(InputDir + "NonIsoEmOccEtaPhi");
-    if (Input!=nullptr){
+    if (Input!=NULL){
       makeXProjection(Input->getTH2F(),l1GctNonIsoEmOccEta_);
       makeYProjection(Input->getTH2F(),l1GctNonIsoEmOccPhi_);
     }
 
     Input = igetter.get(InputDir + "AllJetsOccEtaPhi");
-    if (Input!=nullptr){
+    if (Input!=NULL){
       makeXProjection(Input->getTH2F(),l1GctAllJetsOccEta_);
       makeYProjection(Input->getTH2F(),l1GctAllJetsOccPhi_);
     }
 
     Input = igetter.get(InputDir + "CenJetsOccEtaPhi");
-    if (Input!=nullptr){
+    if (Input!=NULL){
       makeXProjection(Input->getTH2F(),l1GctCenJetsOccEta_);
       makeYProjection(Input->getTH2F(),l1GctCenJetsOccPhi_);
     }
 
     Input = igetter.get(InputDir + "ForJetsOccEtaPhi");
-    if (Input!=nullptr){
+    if (Input!=NULL){
       makeXProjection(Input->getTH2F(),l1GctForJetsOccEta_);
       makeYProjection(Input->getTH2F(),l1GctForJetsOccPhi_);
     }
 
     Input = igetter.get(InputDir + "TauJetsOccEtaPhi");
-    if (Input!=nullptr){
+    if (Input!=NULL){
       makeXProjection(Input->getTH2F(),l1GctTauJetsOccEta_);
       makeYProjection(Input->getTH2F(),l1GctTauJetsOccPhi_);
     }
 
     if (m_stage1_layer2_ == true){
       Input = igetter.get(InputDir + "IsoTauJetsOccEtaPhi");
-      if (Input!=nullptr){
+      if (Input!=NULL){
         makeXProjection(Input->getTH2F(),l1GctIsoTauJetsOccEta_);
         makeYProjection(Input->getTH2F(),l1GctIsoTauJetsOccPhi_);
       }      

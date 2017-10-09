@@ -111,7 +111,7 @@ AlignmentParameters* AlignmentParametersIORoot::readOne( Alignable* ali, int& ie
   }
 
   ierr=-1;
-  return(nullptr);
+  return(0);
 }
 
 

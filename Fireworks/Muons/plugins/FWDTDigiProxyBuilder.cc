@@ -54,26 +54,26 @@ class FWDTDigiProxyBuilder : public FWProxyBuilderBase
 {
 public:
   FWDTDigiProxyBuilder( void ) {}
-  ~FWDTDigiProxyBuilder( void ) override {}
+  virtual ~FWDTDigiProxyBuilder( void ) {}
 
-  bool haveSingleProduct( void ) const override { return false; }
+  virtual bool haveSingleProduct( void ) const override { return false; }
 	   
   REGISTER_PROXYBUILDER_METHODS();
 	
 private:
   // Disable default copy constructor
-  FWDTDigiProxyBuilder( const FWDTDigiProxyBuilder& ) = delete;
+  FWDTDigiProxyBuilder( const FWDTDigiProxyBuilder& );
   // Disable default assignment operator
-  const FWDTDigiProxyBuilder& operator=( const FWDTDigiProxyBuilder& ) = delete;
+  const FWDTDigiProxyBuilder& operator=( const FWDTDigiProxyBuilder& );
 	
   using FWProxyBuilderBase::buildViewType;
-  void buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType, const FWViewContext* ) override;
+  virtual void buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType, const FWViewContext* ) override;
 };
 
 void
 FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType type, const FWViewContext* )
 {
-   const DTDigiCollection* digis = nullptr;
+   const DTDigiCollection* digis = 0;
    iItem->get( digis );
 	
    if( ! digis )

@@ -4,7 +4,7 @@ namespace ecaldqm
 {
   MESetMulti::MESetMulti(MESet const& _seed, ReplCandidates const& _replCandidates) :
     MESet(_seed),
-    current_(nullptr),
+    current_(0),
     sets_(),
     replCandidates_(_replCandidates)
   {
@@ -48,11 +48,11 @@ namespace ecaldqm
 
   MESetMulti::MESetMulti(MESetMulti const& _orig) :
     MESet(_orig),
-    current_(nullptr),
-    sets_(_orig.sets_.size(), nullptr),
+    current_(0),
+    sets_(_orig.sets_.size(), 0),
     replCandidates_(_orig.replCandidates_)
   {
-    if(sets_.empty()) return;
+    if(sets_.size() == 0) return;
 
     for(unsigned iS(0); iS < sets_.size(); ++iS){
       if(!_orig.sets_[iS]) continue;
@@ -73,11 +73,11 @@ namespace ecaldqm
     for(unsigned iS(0); iS < sets_.size(); ++iS)
       delete sets_[iS];
     sets_.clear();
-    current_ = nullptr;
+    current_ = 0;
 
     MESetMulti const* pRhs(dynamic_cast<MESetMulti const*>(&_rhs));
     if(pRhs){
-      sets_.assign(pRhs->sets_.size(), nullptr);
+      sets_.assign(pRhs->sets_.size(), 0);
 
       for(unsigned iS(0); iS < pRhs->sets_.size(); ++iS){
         sets_[iS] = pRhs->sets_[iS]->clone();

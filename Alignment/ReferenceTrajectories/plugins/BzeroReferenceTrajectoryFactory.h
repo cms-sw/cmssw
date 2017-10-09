@@ -15,19 +15,19 @@ class BzeroReferenceTrajectoryFactory : public TrajectoryFactoryBase
 {
 public:
   BzeroReferenceTrajectoryFactory(const edm::ParameterSet &config);
-  ~BzeroReferenceTrajectoryFactory() override;
+  virtual ~BzeroReferenceTrajectoryFactory();
 
   /// Produce the reference trajectories.
-  const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
+  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
 							   const ConstTrajTrackPairCollection &tracks,
-							   const reco::BeamSpot &beamSpot) const override;
+							   const reco::BeamSpot &beamSpot) const;
 
-  const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
+  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
 							   const ConstTrajTrackPairCollection &tracks,
 							   const ExternalPredictionCollection &external,
-							   const reco::BeamSpot &beamSpot) const override;
+							   const reco::BeamSpot &beamSpot) const;
 
-  BzeroReferenceTrajectoryFactory* clone() const override { return new BzeroReferenceTrajectoryFactory( *this ); }
+  virtual BzeroReferenceTrajectoryFactory* clone() const { return new BzeroReferenceTrajectoryFactory( *this ); }
 
 private:
 

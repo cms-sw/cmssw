@@ -241,7 +241,7 @@ void FWOverlapTableManager::addOverlapEntry(TGeoOverlap* ovl, int ovlIdx,  Int_t
             m_entries[cnt].setBit(kVisNodeSelf);
             m_mapNodeOverlaps.insert(std::pair<int, int>(cnt, ovlIdx));
             int nno; n->GetOverlaps(nno); 
-            nno |= BIT(1); n->SetOverlaps(nullptr, nno); 
+            nno |= BIT(1); n->SetOverlaps(0, nno); 
          quid->m_nodes.push_back(cnt);
          }
       }
@@ -258,7 +258,7 @@ void FWOverlapTableManager::addOverlapEntry(TGeoOverlap* ovl, int ovlIdx,  Int_t
          m_mapNodeOverlaps.insert(std::pair<int, int>(cnt, ovlIdx));        
          int nno; n->GetOverlaps(nno); 
          nno |= (ovl->IsOverlap()  ? BIT(1) : BIT(2)); 
-         n->SetOverlaps(nullptr, nno);
+         n->SetOverlaps(0, nno);
 
          quid->m_nodes.push_back(cnt); 
         

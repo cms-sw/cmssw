@@ -44,10 +44,10 @@ class TFile;
 class EcalSkim : public edm::EDFilter {
 public:
   explicit EcalSkim( const edm::ParameterSet & );
-  ~EcalSkim() override;
+  ~EcalSkim();
   
 private:
-  bool filter ( edm::Event &, const edm::EventSetup&) override;
+  virtual bool filter ( edm::Event &, const edm::EventSetup&) override;
   
   edm::InputTag BarrelClusterCollection;
   edm::InputTag EndcapClusterCollection;

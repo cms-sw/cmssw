@@ -24,12 +24,12 @@ using namespace edm;
 class HSCPHLTFilter : public edm::EDFilter {
    public:
       explicit HSCPHLTFilter(const edm::ParameterSet&);
-      ~HSCPHLTFilter() override;
+      ~HSCPHLTFilter();
 
    private:
-      void beginJob() override ;
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+      virtual void beginJob() override ;
+      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
       bool isDuplicate(unsigned int Run, unsigned int Event);
 
       bool IncreasedTreshold(const trigger::TriggerEvent& trEv, const edm::InputTag& InputPath, double NewThreshold, double etaCut, int NObjectAboveThreshold, bool averageThreshold);

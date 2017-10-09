@@ -2,7 +2,7 @@
 #define RecoEcal_EgammaClusterProducers_Multi5x5ClusterProducer_h_
 
 #include <memory>
-#include <ctime>
+#include <time.h>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -28,9 +28,9 @@ class Multi5x5ClusterProducer : public edm::stream::EDProducer<>
 
       Multi5x5ClusterProducer(const edm::ParameterSet& ps);
 
-      ~Multi5x5ClusterProducer() override;
+      ~Multi5x5ClusterProducer();
 
-      void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&);
 
    private:
 

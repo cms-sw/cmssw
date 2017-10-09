@@ -34,11 +34,11 @@ class TtSemiLepHypothesis : public edm::EDProducer {
   /// default constructor
   explicit TtSemiLepHypothesis(const edm::ParameterSet&);
   /// default destructor
-  ~TtSemiLepHypothesis() override;
+  ~TtSemiLepHypothesis();
 
  protected:
   /// produce the event hypothesis as CompositeCandidate and Key
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&);
   /// reset candidate pointers before hypo build process
   void resetCandidates();
   /// helper function to construct the proper correction level string for corresponding quarkType,

@@ -20,7 +20,7 @@
 
 #include "RecoMET/METAlgorithms/interface/GenSpecificAlgo.h"
 
-#include <cstring>
+#include <string.h>
 
 //____________________________________________________________________________||
 namespace cms

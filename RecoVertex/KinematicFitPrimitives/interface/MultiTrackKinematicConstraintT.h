@@ -56,7 +56,7 @@ public:
   typedef ROOT::Math::SMatrix<double, DIM,3> positionDerivativeType;
 
 
-  ~MultiTrackKinematicConstraintT() override {}
+  virtual ~MultiTrackKinematicConstraintT() {}
 
 
   /**

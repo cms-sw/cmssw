@@ -216,7 +216,7 @@ namespace gs {
             return records_[id - firstId_];
         else
         {
-            CatalogEntry* ptr = nullptr;
+            CatalogEntry* ptr = 0;
             return CPP11_shared_ptr<const CatalogEntry>(ptr);
         }
     }

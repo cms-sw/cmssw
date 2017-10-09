@@ -44,7 +44,7 @@ void TrajectoryCleanerBySharedSeeds::clean(TrajectoryPointerContainer&) const
 void TrajectoryCleanerBySharedSeeds::clean
   (std::vector<Trajectory> & trajs) const
 {
-  if(trajs.empty()) return;
+  if(trajs.size() == 0) return;
 
   // Best track
   unsigned int best = 0;

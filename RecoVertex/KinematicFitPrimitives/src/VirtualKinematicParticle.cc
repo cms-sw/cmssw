@@ -8,7 +8,7 @@ VirtualKinematicParticle::VirtualKinematicParticle
 	 KinematicStatePropagator * pr)
 {
   theField = kineState.magneticField();
- if(previousParticle.get() == nullptr)
+ if(previousParticle.get() == 0)
  {
   initState = kineState;
  }else{initState = previousParticle->initialState();}
@@ -17,13 +17,13 @@ VirtualKinematicParticle::VirtualKinematicParticle
  chi2 = chiSquared;
  ndf = degreesOfFr;
  lConstraint = lastConstraint;
- if(pr != nullptr)
+ if(pr != 0)
  {
   propagator = pr->clone();
  }else{
   propagator = new TrackKinematicStatePropagator();
  }
- tree = nullptr;
+ tree = 0;
 }
 
 VirtualKinematicParticle::~VirtualKinematicParticle()
@@ -36,7 +36,7 @@ bool VirtualKinematicParticle::operator==(const KinematicParticle& other)const
 //first looking if this is an object of the same type
  const  KinematicParticle * lp = &other;
  const VirtualKinematicParticle * lPart = dynamic_cast<const VirtualKinematicParticle * >(lp);
- if(lPart != nullptr && initialState() == lPart->initialState()) dc = true;
+ if(lPart != 0 && initialState() == lPart->initialState()) dc = true;
  return dc;
 }
 

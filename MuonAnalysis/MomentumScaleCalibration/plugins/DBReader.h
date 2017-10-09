@@ -25,11 +25,11 @@ class DBReader : public edm::EDAnalyzer
 {
  public:
   explicit DBReader( const edm::ParameterSet& );
-  ~DBReader() override;
+  ~DBReader();
 
   void initialize( const edm::EventSetup& iSetup );
 
-  void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  void analyze( const edm::Event&, const edm::EventSetup& );
 
  private:
 

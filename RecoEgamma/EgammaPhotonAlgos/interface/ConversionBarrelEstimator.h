@@ -28,11 +28,11 @@ public:
 }
 
   // zero value indicates incompatible ts - hit pair
-  std::pair<bool,double> estimate( const TrajectoryStateOnSurface& ts, 
-                               const TrackingRecHit& hit	) const override;
-  bool  estimate( const TrajectoryStateOnSurface& ts, 
-				       const Plane& plane) const override;
-  ConversionBarrelEstimator* clone() const override {
+  virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface& ts, 
+                               const TrackingRecHit& hit	) const;
+  virtual bool  estimate( const TrajectoryStateOnSurface& ts, 
+				       const Plane& plane) const;
+  virtual ConversionBarrelEstimator* clone() const {
     return new ConversionBarrelEstimator(*this);
   } 
 
@@ -40,7 +40,7 @@ public:
 
 
 
-  Local2DVector maximalLocalDisplacement( const TrajectoryStateOnSurface& ts, const Plane& plane) const override;
+  virtual Local2DVector maximalLocalDisplacement( const TrajectoryStateOnSurface& ts, const Plane& plane) const;
 
 
   double nSigmaCut() const {return theNSigma;}

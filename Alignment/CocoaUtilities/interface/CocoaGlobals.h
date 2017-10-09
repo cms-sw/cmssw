@@ -3,8 +3,8 @@
 
 //#include <ospace/std/string>
 #include <string>
-#include <cfloat>
-#include <cmath>
+#include <float.h>
+#include <math.h>
 
 typedef std::string ALIstring;
 

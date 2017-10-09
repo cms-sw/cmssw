@@ -26,9 +26,9 @@
 #include "Fireworks/Core/interface/fwLog.h"
 
 FWHGTowerProxyBuilderBase::FWHGTowerProxyBuilderBase():
-   m_hits(nullptr),
+   m_hits(0),
    // m_depth(depth),
-   m_vecData(nullptr)
+   m_vecData(0)
 {}
 
 FWHGTowerProxyBuilderBase::~FWHGTowerProxyBuilderBase()
@@ -55,13 +55,13 @@ FWHGTowerProxyBuilderBase::assertCaloDataSlice()
                                                    item()->defaultDisplayProperties().transparency());
     
       // add new selector
-      FWFromTEveCaloDataSelector* sel = nullptr;
+      FWFromTEveCaloDataSelector* sel = 0;
       if (m_caloData->GetUserData())
       {
          FWFromEveSelectorBase* base = reinterpret_cast<FWFromEveSelectorBase*>(m_caloData->GetUserData());
-         assert(nullptr!=base);
+         assert(0!=base);
          sel = dynamic_cast<FWFromTEveCaloDataSelector*> (base);
-         assert(nullptr!=sel);
+         assert(0!=sel);
       }
       else
       {
@@ -81,7 +81,7 @@ void
 FWHGTowerProxyBuilderBase::build(const FWEventItem* iItem,
                                  TEveElementList* el, const FWViewContext* ctx)
 {
-   m_hits=nullptr;
+   m_hits=0;
    if (iItem)
    {
       iItem->get(m_hits);
@@ -93,7 +93,7 @@ void
 FWHGTowerProxyBuilderBase::itemBeingDestroyed(const FWEventItem* iItem)
 {
   
-   if(nullptr!=m_hits) {
+   if(0!=m_hits) {
 
       //reset values for this slice
       std::vector<float>& sliceVals = m_vecData->GetSliceVals(m_sliceIndex);

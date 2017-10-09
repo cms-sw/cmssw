@@ -10,10 +10,10 @@ class FixedGridRhoProducer : public edm::stream::EDProducer<> {
 
  public:
   explicit FixedGridRhoProducer(const edm::ParameterSet& iConfig);
-  ~FixedGridRhoProducer() override;
+  virtual ~FixedGridRhoProducer();
 
  private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&);
 
   edm::InputTag pfCandidatesTag_;
   FixedGridEnergyDensity::EtaRegion myEtaRegion;

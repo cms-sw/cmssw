@@ -179,7 +179,7 @@ void PFClient::createProjectionPlots(DQMStore::IBooker& ibooker, DQMStore::IGett
   MonitorElement* me = igetter.get(folder+"/"+name);
   if (!me) return;
 
-  MonitorElement* projection = nullptr;
+  MonitorElement* projection = 0;
 
   if ( (me->kind() == MonitorElement::DQM_KIND_TH2F) ||
        (me->kind() == MonitorElement::DQM_KIND_TH2S) ||

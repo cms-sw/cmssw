@@ -38,7 +38,7 @@ class FWViewEnergyScale : public FWConfigurableParameterizable
 public:
    enum EScaleMode { kFixedScale, kAutoScale, kCombinedScale, kNone };
    FWViewEnergyScale(std::string name, int version);
-   ~FWViewEnergyScale() override;
+   virtual ~FWViewEnergyScale();
 
    void updateScaleFactors(float iMaxVal);
 
@@ -54,7 +54,7 @@ public:
    // added for debug
    const std::string& name() const { return m_name; } 
 
-   void setFrom(const FWConfiguration&) override;
+   virtual void setFrom(const FWConfiguration&);
    void SetFromCmsShowCommonConfig(long mode, float convert, float maxH, bool et);
 
 protected:
@@ -64,8 +64,8 @@ protected:
    FWBoolParameter    m_plotEt;
    
 private:
-   FWViewEnergyScale(const FWViewEnergyScale&) = delete; // stop default
-   const FWViewEnergyScale& operator=(const FWViewEnergyScale&) = delete; // stop default
+   FWViewEnergyScale(const FWViewEnergyScale&); // stop default
+   const FWViewEnergyScale& operator=(const FWViewEnergyScale&); // stop default
 
    float calculateScaleFactor(float iMaxVal, bool isLego) const;
 

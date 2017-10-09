@@ -18,9 +18,9 @@ public:
   myFastSimVal( const edm::ParameterSet & );
 
 private:
-  void beginJob( ) override;
-  void analyze( const edm::Event& , const edm::EventSetup& ) override;
-  void endJob() override;
+  void beginJob( );
+  void analyze( const edm::Event& , const edm::EventSetup& );
+  void endJob();
   std::string CaloJetAlgorithm1, CaloJetAlgorithm2, CaloJetAlgorithm3, 
     CaloJetAlgorithm4;
   std::string GenJetAlgorithm1,  GenJetAlgorithm2,  GenJetAlgorithm3, 

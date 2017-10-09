@@ -240,7 +240,7 @@ namespace edm {
       }
       default:  {
         // We should never get here.
-        assert ("Invalid type code" == nullptr);
+        assert ("Invalid type code" == 0);
         //throw EntryError(std::string("invalid type code ") + type);
         break;
       }
@@ -976,7 +976,7 @@ namespace edm {
            os <<  start<< *i;
            start = between;
          }
-         if (!whole.empty()) {
+         if (whole.size()) {
            os << std::endl;
          }
          os << "}";

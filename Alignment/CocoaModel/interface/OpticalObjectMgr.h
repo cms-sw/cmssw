@@ -32,9 +32,9 @@ class OpticalObjectMgr
     theOptODict[opto->longName()] = opto;
   }
   // find an OpticalObject by long name (its name + name of its ancestors)
-  OpticalObject* findOptO( const ALIstring& longName, bool exists = false ) const;  
+  OpticalObject* findOptO( const ALIstring& longName, bool exists = 0 ) const;  
   // find a list of OpticalObject's by name 
-  std::vector<OpticalObject*> findOptOs( const ALIstring& name, bool exists = false ) const;  
+  std::vector<OpticalObject*> findOptOs( const ALIstring& name, bool exists = 0 ) const;  
 
   void dumpOptOs( std::ostream& out= std::cout ) const;
 

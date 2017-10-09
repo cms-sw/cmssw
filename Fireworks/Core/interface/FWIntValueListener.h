@@ -8,16 +8,16 @@ class FWIntValueListener : public FWIntValueListenerBase {
 public:
    FWIntValueListener() : FWIntValueListenerBase() {
    }
-   ~FWIntValueListener() override {
+   virtual ~FWIntValueListener() {
    }
 
    // ---------- member, functions -------------------------
-   void setValueImp(Int_t entry) override;
+   virtual void setValueImp(Int_t entry);
    sigc::signal<void,Int_t> valueChanged_;
 
 private:
-   FWIntValueListener(const FWIntValueListener&) = delete; // stop default
-   const FWIntValueListener& operator=(const FWIntValueListener&) = delete; // stop default
+   FWIntValueListener(const FWIntValueListener&); // stop default
+   const FWIntValueListener& operator=(const FWIntValueListener&); // stop default
 };
 
 #endif

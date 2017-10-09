@@ -120,7 +120,7 @@ namespace edm {
 
     std::vector<std::string> parameterNames  = pset.getParameterNamesForType<ParameterSet>(isTracked());
 
-    if(criteria() == RequireAtLeastOne) return !parameterNames.empty();
+    if(criteria() == RequireAtLeastOne) return parameterNames.size() >= 1U;
     return parameterNames.size() == 1U;
   }
 
@@ -239,7 +239,7 @@ namespace edm {
 
     std::vector<std::string> parameterNames  = pset.getParameterNamesForType<std::vector<ParameterSet> >(isTracked());
 
-    if(criteria() == RequireAtLeastOne) return !parameterNames.empty();
+    if(criteria() == RequireAtLeastOne) return parameterNames.size() >= 1U;
     return parameterNames.size() == 1U;
   }
 }

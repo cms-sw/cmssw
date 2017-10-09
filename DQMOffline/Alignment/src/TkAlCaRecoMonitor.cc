@@ -60,7 +60,7 @@ void TkAlCaRecoMonitor::bookHistograms(DQMStore::IBooker &iBooker, edm::Run cons
     invariantMass_ = iBooker.book1D(histname+AlgoName, histname+AlgoName, MassBin, MassMin, MassMax);
     invariantMass_->setAxisTitle("invariant Mass / GeV");
   }else{
-    invariantMass_ = nullptr;
+    invariantMass_ = 0;
   }
 
   unsigned int TrackPtPositiveBin = conf_.getParameter<unsigned int>("TrackPtBin");
@@ -122,8 +122,8 @@ void TkAlCaRecoMonitor::bookHistograms(DQMStore::IBooker &iBooker, edm::Run cons
     minJetDeltaR_ = iBooker.book1D(histname+AlgoName, histname+AlgoName, MinJetDeltaRBin, MinJetDeltaRMin, MinJetDeltaRMax);
     minJetDeltaR_->setAxisTitle("minimal Jet #DeltaR / rad");
   }else{
-    jetPt_ = nullptr;
-    minJetDeltaR_ = nullptr;
+    jetPt_ = NULL;
+    minJetDeltaR_ = NULL;
   }
 
   unsigned int    MinTrackDeltaRBin = conf_.getParameter<unsigned int>("MinTrackDeltaRBin");

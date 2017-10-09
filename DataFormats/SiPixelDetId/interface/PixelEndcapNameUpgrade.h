@@ -30,10 +30,10 @@ public:
   /// ctor from name string
   PixelEndcapNameUpgrade(std::string name);
 
-  ~PixelEndcapNameUpgrade() override { }
+  virtual ~PixelEndcapNameUpgrade() { }
 
   /// from base class
-  std::string name() const override;
+  virtual std::string name() const;
 
   HalfCylinder halfCylinder() const { return thePart; } 
 
@@ -50,13 +50,13 @@ public:
   int plaquetteName() const { return thePlaquette; }
 
   /// module Type
-   PixelModuleName::ModuleType  moduleType() const override;
+   virtual PixelModuleName::ModuleType  moduleType() const;
 
   /// return DetId
   PXFDetId getDetId(); 
 
   /// check equality of modules from datamemebers
-  bool operator== (const PixelModuleName &) const override;
+  virtual bool operator== (const PixelModuleName &) const;
 
 
 private:

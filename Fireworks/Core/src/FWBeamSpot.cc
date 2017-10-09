@@ -17,13 +17,13 @@ void FWBeamSpot::checkBeamSpot(const edm::EventBase* event)
       }
       else
       {
-         m_beamspot = nullptr;
+         m_beamspot = 0;
       }
    }
    catch (cms::Exception& iException)
    {
       fwLog(fwlog::kWarning) <<"Can't get beam spot info. Setting coordintes to (0, 0, 0).\n";
-      m_beamspot = nullptr;
+      m_beamspot = 0;
    }
 }
 

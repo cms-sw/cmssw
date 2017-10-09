@@ -29,27 +29,27 @@ MomentumKinematicConstraint(const AlgebraicVector& momentum,
  * Vector of values and  matrix of derivatives
  * calculated at given expansion 7xNumberOfStates point
  */ 
-std::pair<AlgebraicVector,AlgebraicVector> value(const AlgebraicVector& exPoint) const override;
+virtual std::pair<AlgebraicVector,AlgebraicVector> value(const AlgebraicVector& exPoint) const;
 
-std::pair<AlgebraicMatrix, AlgebraicVector> derivative(const AlgebraicVector& exPoint) const override;
+virtual std::pair<AlgebraicMatrix, AlgebraicVector> derivative(const AlgebraicVector& exPoint) const;
 
 /**
  * Vector of values and  matrix of derivatives calculated using current
  * state parameters as expansion point
  */
-std::pair<AlgebraicMatrix, AlgebraicVector> derivative(const std::vector<RefCountedKinematicParticle> &par) const override;
+virtual std::pair<AlgebraicMatrix, AlgebraicVector> derivative(const std::vector<RefCountedKinematicParticle> &par) const;
 
-std::pair<AlgebraicVector, AlgebraicVector> value(const std::vector<RefCountedKinematicParticle> &par) const override;
+virtual std::pair<AlgebraicVector, AlgebraicVector> value(const std::vector<RefCountedKinematicParticle> &par) const;
 
-AlgebraicVector deviations(int nStates) const override;
+virtual AlgebraicVector deviations(int nStates) const;
 
 /**
  * Returns number of constraint equations used  for fitting.
  * Method is relevant for proper NDF calculations.
  */ 
-int numberOfEquations() const override;
+virtual int numberOfEquations() const;
 
-MomentumKinematicConstraint * clone() const override
+virtual MomentumKinematicConstraint * clone() const
   {return new MomentumKinematicConstraint(*this);}
 
 private:

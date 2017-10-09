@@ -30,7 +30,7 @@ class MuonAlignmentInputDB: public MuonAlignmentInputMethod {
    public:
       MuonAlignmentInputDB();
       MuonAlignmentInputDB(std::string dtLabel, std::string cscLabel, bool getAPEs);
-      ~MuonAlignmentInputDB() override;
+      virtual ~MuonAlignmentInputDB();
 
       // ---------- const member functions ---------------------
 
@@ -38,7 +38,7 @@ class MuonAlignmentInputDB: public MuonAlignmentInputMethod {
 
       // ---------- member functions ---------------------------
 
-      AlignableMuon *newAlignableMuon(const edm::EventSetup &iSetup) const override;
+      virtual AlignableMuon *newAlignableMuon(const edm::EventSetup &iSetup) const;
 
    private:
       MuonAlignmentInputDB(const MuonAlignmentInputDB&); // stop default

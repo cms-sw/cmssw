@@ -27,18 +27,18 @@ class FWPhotonProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Photon>
 public:
    FWPhotonProxyBuilder( void ) {}
 
-   ~FWPhotonProxyBuilder( void ) override {}
+   virtual ~FWPhotonProxyBuilder( void ) {}
   
-   bool haveSingleProduct( void ) const override { return false; }
+   virtual bool haveSingleProduct( void ) const override { return false; }
   
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWPhotonProxyBuilder( const FWPhotonProxyBuilder& ) = delete;
-   const FWPhotonProxyBuilder& operator=( const FWPhotonProxyBuilder& ) = delete;
+   FWPhotonProxyBuilder( const FWPhotonProxyBuilder& );
+   const FWPhotonProxyBuilder& operator=( const FWPhotonProxyBuilder& );
   
    using FWSimpleProxyBuilderTemplate<reco::Photon> ::buildViewType;
-   void buildViewType( const reco::Photon& photon, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*) override;
+   virtual void buildViewType( const reco::Photon& photon, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*) override;
 };
 
 void
@@ -67,14 +67,14 @@ FWPhotonProxyBuilder::buildViewType( const reco::Photon& photon, unsigned int iI
       TEveBoxSet* boxset = new TEveBoxSet();
       boxset->Reset(TEveBoxSet::kBT_FreeBox, true, 64);
       boxset->UseSingleColor();
-      boxset->SetPickable(true);
+      boxset->SetPickable(1);
 
       for( std::vector<std::pair<DetId, float> >::iterator id = detIds.begin(), ide = detIds.end();
            id != ide; ++id )      
       {
          const float* corners = geom->getCorners( id->first.rawId() );
       
-         if( corners == nullptr )
+         if( corners == 0 )
          {
             fwLog( fwlog::kWarning )
                << "No corners available for supercluster constituent" << std::endl;

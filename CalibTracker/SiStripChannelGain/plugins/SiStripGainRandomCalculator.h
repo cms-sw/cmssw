@@ -28,13 +28,13 @@ class SiStripGainRandomCalculator : public ConditionDBWriter<SiStripApvGain> {
 public:
 
   explicit SiStripGainRandomCalculator(const edm::ParameterSet&);
-  ~SiStripGainRandomCalculator() override;
+  ~SiStripGainRandomCalculator();
 
 private:
 
-  void algoAnalyze(const edm::Event &, const edm::EventSetup &) override;
+  void algoAnalyze(const edm::Event &, const edm::EventSetup &);
 
-  SiStripApvGain * getNewObject() override;
+  SiStripApvGain * getNewObject();
 
 private:
 

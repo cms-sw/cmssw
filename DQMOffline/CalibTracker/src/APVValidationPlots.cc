@@ -41,13 +41,13 @@
 class APVValidationPlots : public edm::EDAnalyzer {
    public:
       explicit APVValidationPlots(const edm::ParameterSet&);
-      ~APVValidationPlots() override;
+      ~APVValidationPlots();
 
 
    private:
-      void beginJob() override ;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+      virtual void beginJob() override ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
 
   std::ostringstream oss;
 
@@ -279,7 +279,7 @@ APVValidationPlots::endJob() {
     }
 
   dqmStore->cd();
-  dqmStore->save(outfilename,"ChannelStatusPlots");
+  dqmStore->save(outfilename.c_str(),"ChannelStatusPlots");
 
 }
 

@@ -16,10 +16,10 @@ public:
   /**
    * Computes the constrained track parameters
    */
-  typename CachingVertex<N>::RefCountedVertexTrack
+  virtual typename CachingVertex<N>::RefCountedVertexTrack
 	update(const CachingVertex<N> & v, 
-	typename CachingVertex<N>::RefCountedVertexTrack t) const override;
-  DummyVertexTrackUpdator * clone() const override;
+	typename CachingVertex<N>::RefCountedVertexTrack t) const;
+  virtual DummyVertexTrackUpdator * clone() const;
 
 };
 

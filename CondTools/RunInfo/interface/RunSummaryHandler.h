@@ -9,9 +9,9 @@
 
 class RunSummaryHandler : public popcon::PopConSourceHandler<RunSummary>{
  public:
-  void getNewObjects() override;
-  std::string id() const override { return m_name;}
-  ~RunSummaryHandler() override;
+  void getNewObjects();
+  std::string id() const { return m_name;}
+  ~RunSummaryHandler();
   RunSummaryHandler(const edm::ParameterSet& pset); 
  private:
   std::string m_name;

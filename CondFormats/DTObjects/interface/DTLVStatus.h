@@ -152,8 +152,8 @@ class DTLVStatus {
 
  private:
 
-  DTLVStatus(DTLVStatus const&) = delete;
-  DTLVStatus& operator=(DTLVStatus const&) = delete;
+  DTLVStatus(DTLVStatus const&);
+  DTLVStatus& operator=(DTLVStatus const&);
 
   std::string dataVersion;
 

@@ -21,7 +21,7 @@ using namespace std;
 
 class MonitorElement;
 
-PFTauElecRejectionBenchmark::PFTauElecRejectionBenchmark() : file_(nullptr) {}
+PFTauElecRejectionBenchmark::PFTauElecRejectionBenchmark() : file_(0) {}
 
 PFTauElecRejectionBenchmark::~PFTauElecRejectionBenchmark() {
   if(file_) file_->Close();
@@ -29,9 +29,9 @@ PFTauElecRejectionBenchmark::~PFTauElecRejectionBenchmark() {
 
 void PFTauElecRejectionBenchmark::write() {
    // Store the DAQ Histograms 
-  if (!outputFile_.empty()) {
+  if (outputFile_.size() != 0) {
     if (db_)
-          db_->save(outputFile_);
+          db_->save(outputFile_.c_str());
     // use bare Root if no DQM (FWLite applications)
     else if (file_) {
        file_->Write(outputFile_.c_str());
@@ -65,7 +65,7 @@ void PFTauElecRejectionBenchmark::setup(
   sGenMatchObjectLabel_ = sGenMatchObjectLabel;
   applyEcalCrackCut_= applyEcalCrackCut;
 
-  file_ = nullptr;
+  file_ = NULL;
   db_ = db_store;
 
   // print parameters
@@ -86,7 +86,7 @@ void PFTauElecRejectionBenchmark::setup(
   string path = "PFTask/Benchmarks/"+ benchmarkLabel_ + "/";
   path += "Gen";
   if (db_) {
-    db_->setCurrentFolder(path);
+    db_->setCurrentFolder(path.c_str());
   }
   else {
     file_ = new TFile(outputFile_.c_str(), "recreate");

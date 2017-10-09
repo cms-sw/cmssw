@@ -33,7 +33,7 @@ class MuonMiniAOD : public DQMEDAnalyzer {
   MuonMiniAOD(const edm::ParameterSet&);
   
   /// Destructor
-  ~MuonMiniAOD() override;
+  virtual ~MuonMiniAOD();
 
   /// Inizialize parameters for histo binning
   void analyze(const edm::Event&, const edm::EventSetup&) override;

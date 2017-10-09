@@ -20,7 +20,7 @@
 class CSCBadWiresConditions: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
  public:
   CSCBadWiresConditions(const edm::ParameterSet&);
-  ~CSCBadWiresConditions() override;
+  ~CSCBadWiresConditions();
   
 
   inline static CSCBadWires *  prefillBadWires();
@@ -31,7 +31,7 @@ class CSCBadWiresConditions: public edm::ESProducer, public edm::EventSetupRecor
   
  private:
   // ----------member data ---------------------------
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
   CSCBadWires *cndbBadWires ;
 
 };

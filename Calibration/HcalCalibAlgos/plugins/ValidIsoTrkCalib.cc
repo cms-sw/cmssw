@@ -67,7 +67,7 @@ using namespace reco;
 class ValidIsoTrkCalib : public edm::EDAnalyzer {
 public:
   explicit ValidIsoTrkCalib(const edm::ParameterSet&);
-  ~ValidIsoTrkCalib() override;
+  ~ValidIsoTrkCalib();
 
   //  double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoint rechitPoint);
 

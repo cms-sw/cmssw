@@ -14,7 +14,7 @@
 class L1TriggerKeyListDummyProdExt : public edm::ESProducer {
    public:
       L1TriggerKeyListDummyProdExt(const edm::ParameterSet&);
-      ~L1TriggerKeyListDummyProdExt() override;
+      ~L1TriggerKeyListDummyProdExt();
 
       typedef std::shared_ptr<L1TriggerKeyListExt> ReturnType;
 

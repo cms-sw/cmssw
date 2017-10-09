@@ -19,16 +19,16 @@
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 
 #include <iostream>
-#include <cstdio>
+#include <stdio.h>
 #include <sys/time.h>
 
 class SiStripNoisesReader : public edm::EDAnalyzer {
 
  public:
   explicit SiStripNoisesReader( const edm::ParameterSet& );
-  ~SiStripNoisesReader() override;
+  ~SiStripNoisesReader();
   
-  void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  void analyze( const edm::Event&, const edm::EventSetup& );
 
  private:
   uint32_t printdebug_;

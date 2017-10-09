@@ -24,7 +24,7 @@ namespace reco {
     CastorEgamma(const double energycal, const CastorClusterRef& usedCluster);
 
     /// destructor
-    ~CastorEgamma() override;
+    virtual ~CastorEgamma();
 
     /// Egamma energy
     double energy() const { return (*usedCluster_).energy(); }

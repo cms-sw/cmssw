@@ -60,7 +60,7 @@ public:
          matches(false),
          childMatches(false),
 
-       editable(false) , pset(nullptr){}
+       editable(false) , pset(0){}
 
       std::string label;
       std::string value;
@@ -85,26 +85,26 @@ public:
    };
 
    FWPSetTableManager();
-   ~FWPSetTableManager() override;
+   virtual ~FWPSetTableManager();
 
 
-   int unsortedRowNumber(int unsorted) const override ;
-   int numberOfRows() const override;
-   int numberOfColumns() const override;
-   std::vector<std::string> getTitles() const override;
+   virtual int unsortedRowNumber(int unsorted) const ;
+   virtual int numberOfRows() const;
+   virtual int numberOfColumns() const;
+   virtual std::vector<std::string> getTitles() const;
    virtual const std::string title() const;
-   FWTableCellRendererBase* cellRenderer(int iSortedRowNumber, int iCol) const override;
+   virtual FWTableCellRendererBase* cellRenderer(int iSortedRowNumber, int iCol) const;
 
    int selectedRow() const;
    int selectedColumn() const;
    virtual bool rowIsSelected(int row) const;
 
-   void implSort(int, bool) override;
-   bool cellDataIsSortable() const override { return false ; }
+   virtual void implSort(int, bool);
+   virtual bool cellDataIsSortable() const { return false ; }
 
    virtual void updateFilter(const char *filter);
 
-   std::vector<unsigned int> maxWidthForColumns() const override;
+   virtual std::vector<unsigned int> maxWidthForColumns() const;
 
    std::vector<PSetData> &data()  { return m_entries; }
    std::vector<int> &rowToIndex() { return m_row_to_index; }
@@ -165,8 +165,8 @@ private:
       bool        passed;
    };
 
-   FWPSetTableManager(const FWPSetTableManager&) = delete; // stop default
-   const FWPSetTableManager& operator=(const FWPSetTableManager&) = delete; // stop default
+   FWPSetTableManager(const FWPSetTableManager&); // stop default
+   const FWPSetTableManager& operator=(const FWPSetTableManager&); // stop default
 
    void recalculateVisibility();
 

@@ -27,12 +27,12 @@ class EcalUncalibRecHitWorkerRatio : public EcalUncalibRecHitWorkerRunOneDigiBas
         public:
                 EcalUncalibRecHitWorkerRatio(const edm::ParameterSet&, edm::ConsumesCollector& c);
 		EcalUncalibRecHitWorkerRatio() {};
-                ~EcalUncalibRecHitWorkerRatio() override {};
+                virtual ~EcalUncalibRecHitWorkerRatio() {};
 
-                void set(const edm::EventSetup& es) override;
-                bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result) override;
+                void set(const edm::EventSetup& es);
+                bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result);
 		
-		edm::ParameterSetDescription getAlgoDescription() override;
+		edm::ParameterSetDescription getAlgoDescription();
 
         protected:
 

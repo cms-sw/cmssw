@@ -25,9 +25,9 @@
 class CastorQIEDataHandler : public popcon::PopConSourceHandler<CastorQIEData>
 {
  public:
-  void getNewObjects() override;
-  std::string id() const override { return m_name;}
-  ~CastorQIEDataHandler() override;
+  void getNewObjects();
+  std::string id() const { return m_name;}
+  ~CastorQIEDataHandler();
   CastorQIEDataHandler(edm::ParameterSet const &);
 
   void initObject(CastorQIEData*);

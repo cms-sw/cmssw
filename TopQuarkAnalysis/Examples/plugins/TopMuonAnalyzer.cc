@@ -38,7 +38,7 @@ TopMuonAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
 
   // produce printout if desired
 
-  if( muons->empty() || !verbose_ )
+  if( muons->size()<1 || !verbose_ )
     return;
 
   unsigned i=0;

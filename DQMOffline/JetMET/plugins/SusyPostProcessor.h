@@ -23,13 +23,13 @@ class SusyPostProcessor : public DQMEDHarvester
 {
  public:
   explicit SusyPostProcessor( const edm::ParameterSet& pSet ) ;
-  ~SusyPostProcessor() override;
+  ~SusyPostProcessor();
                                    
 
  private:
 
   edm::ParameterSet iConfig;
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override ;
+  virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) ;
   void QuantilePlots(MonitorElement* &, double, DQMStore::IBooker &);
 
   static const char* messageLoggerCatregory;

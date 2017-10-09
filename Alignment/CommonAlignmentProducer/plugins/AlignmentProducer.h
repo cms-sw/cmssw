@@ -23,7 +23,7 @@ public:
   AlignmentProducer(const edm::ParameterSet&);
 
   /// Destructor
-  ~AlignmentProducer() override = default;
+  ~AlignmentProducer() = default;
 
   /// Produce the tracker geometry
   virtual std::shared_ptr<TrackerGeometry> produceTracker(const TrackerDigiGeometryRecord&);
@@ -35,43 +35,43 @@ public:
   virtual std::shared_ptr<CSCGeometry> produceCSC(const MuonGeometryRecord&);
 
   /// Called at beginning of job
-  void beginOfJob(const edm::EventSetup&) override;
+  virtual void beginOfJob(const edm::EventSetup&) override;
 
   /// Called at end of job
-  void endOfJob() override;
+  virtual void endOfJob() override;
 
   /// Called at beginning of loop
-  void startingNewLoop(unsigned int iLoop) override;
+  virtual void startingNewLoop(unsigned int iLoop) override;
 
   /// Called at end of loop
-  Status endOfLoop(const edm::EventSetup&, unsigned int iLoop) override;
+  virtual Status endOfLoop(const edm::EventSetup&, unsigned int iLoop) override;
 
   /// Called at run start and calling algorithms beginRun
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
   /// Called at run end - currently reading TkFittedLasBeam if an InpuTag is given for that
-  void endRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
 
   /// Called at lumi block start, calling algorithm's beginLuminosityBlock
-  void beginLuminosityBlock(const edm::LuminosityBlock&,
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock&,
                                     const edm::EventSetup&) override;
 
   /// Called at lumi block end, calling algorithm's endLuminosityBlock
-  void endLuminosityBlock(const edm::LuminosityBlock&,
+  virtual void endLuminosityBlock(const edm::LuminosityBlock&,
                                   const edm::EventSetup&) override;
 
   /// Called at each event
-  Status duringLoop(const edm::Event&, const edm::EventSetup&) override;
+  virtual Status duringLoop(const edm::Event&, const edm::EventSetup&) override;
 
 private:
-  bool getTrajTrackAssociationCollection(const edm::Event&,
+  virtual bool getTrajTrackAssociationCollection(const edm::Event&,
                                                  edm::Handle<TrajTrackAssociationCollection>&) override;
-  bool getBeamSpot(const edm::Event&, edm::Handle<reco::BeamSpot>&) override;
-  bool getTkFittedLasBeamCollection(const edm::Run&,
+  virtual bool getBeamSpot(const edm::Event&, edm::Handle<reco::BeamSpot>&) override;
+  virtual bool getTkFittedLasBeamCollection(const edm::Run&,
                                             edm::Handle<TkFittedLasBeamCollection>&) override;
-  bool getTsosVectorCollection(const edm::Run&,
+  virtual bool getTsosVectorCollection(const edm::Run&,
                                        edm::Handle<TsosVectorCollection>&) override;
-  bool getAliClusterValueMap(const edm::Event&,
+  virtual bool getAliClusterValueMap(const edm::Event&,
                                      edm::Handle<AliClusterValueMap>&) override;
 
   const unsigned int maxLoops_;     /// Number of loops to loop

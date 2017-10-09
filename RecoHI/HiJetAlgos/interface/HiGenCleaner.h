@@ -42,10 +42,10 @@ class HiGenCleaner : public edm::EDProducer {
 public:
   typedef std::vector<T2> T2Collection;
       explicit HiGenCleaner(const edm::ParameterSet&);
-      ~HiGenCleaner() override;
+      ~HiGenCleaner();
 
    private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       // ----------member data ---------------------------
 
    edm::EDGetTokenT<edm::View<T2> > jetSrc_;

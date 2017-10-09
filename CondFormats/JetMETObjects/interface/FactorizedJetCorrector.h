@@ -46,8 +46,8 @@ class FactorizedJetCorrector
        
   private:
   //---- Member Functions ----  
-    FactorizedJetCorrector(const FactorizedJetCorrector&) = delete;
-    FactorizedJetCorrector& operator= (const FactorizedJetCorrector&) = delete;
+    FactorizedJetCorrector(const FactorizedJetCorrector&);
+    FactorizedJetCorrector& operator= (const FactorizedJetCorrector&);
     //---- Member Data ---------
     FactorizedJetCorrectorCalculator::VariableValues mValues;
     FactorizedJetCorrectorCalculator mCalc;

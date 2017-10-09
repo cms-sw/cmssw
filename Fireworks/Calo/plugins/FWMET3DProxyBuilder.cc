@@ -44,7 +44,7 @@ public:
       Arrow(Float_t x, Float_t y, Float_t z,
             Float_t xo, Float_t yo, Float_t zo=0) : 
          TEveArrow(x, y, z, xo, yo, zo),
-         m_et(0), m_energy(0), m_vc(nullptr) {}
+         m_et(0), m_energy(0), m_vc(0) {}
 
       void setScale(FWViewEnergyScale* caloScale)
       {
@@ -59,13 +59,13 @@ public:
    };
 
    FWMET3DProxyBuilder();
-   ~FWMET3DProxyBuilder() override;
+   virtual ~FWMET3DProxyBuilder();
 
    // ---------- const member functions ---------------------
 
-   bool havePerViewProduct(FWViewType::EType) const override { return true; } // used energy scaling
-   void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc) override;
-   void cleanLocal() override { m_arrows.clear(); }
+   virtual bool havePerViewProduct(FWViewType::EType) const { return true; } // used energy scaling
+   virtual void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc);
+   virtual void cleanLocal() { m_arrows.clear(); }
 
    // ---------- static member functions --------------------
 
@@ -74,11 +74,11 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWMET3DProxyBuilder(const FWMET3DProxyBuilder&) = delete; // stop default
-   const FWMET3DProxyBuilder& operator=(const FWMET3DProxyBuilder&) = delete; // stop default
+   FWMET3DProxyBuilder(const FWMET3DProxyBuilder&); // stop default
+   const FWMET3DProxyBuilder& operator=(const FWMET3DProxyBuilder&); // stop default
    
    using FWSimpleProxyBuilderTemplate<reco::MET>::build;
-   void build(const reco::MET&, unsigned int, TEveElement&, const FWViewContext*) override;
+   void build(const reco::MET&, unsigned int, TEveElement&, const FWViewContext*);
 
    // ---------- member data --------------------------------
    std::vector<Arrow*> m_arrows;

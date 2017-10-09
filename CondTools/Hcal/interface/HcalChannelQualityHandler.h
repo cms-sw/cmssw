@@ -25,9 +25,9 @@
 class HcalChannelQualityHandler : public popcon::PopConSourceHandler<HcalChannelQuality>
 {
  public:
-  void getNewObjects() override;
-  std::string id() const override { return m_name;}
-  ~HcalChannelQualityHandler() override;
+  void getNewObjects();
+  std::string id() const { return m_name;}
+  ~HcalChannelQualityHandler();
   HcalChannelQualityHandler(edm::ParameterSet const &);
 
   void initObject(HcalChannelQuality*);

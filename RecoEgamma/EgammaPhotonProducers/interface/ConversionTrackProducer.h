@@ -51,9 +51,9 @@ namespace reco {
 
     explicit ConversionTrackProducer(const edm::ParameterSet& conf);
 
-    ~ConversionTrackProducer() override;
+    virtual ~ConversionTrackProducer();
 
-    void produce(edm::Event& e, const edm::EventSetup& c) override;
+    virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
   private:
 

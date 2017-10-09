@@ -7,9 +7,9 @@
 #include "Getline.h"
 #include <iostream>
 #include <fstream>
-#include <cstring>
+#include <string.h>
 #include <memory>
-#include <csignal>
+#include <signal.h>
 
 #include "Fireworks/Core/src/CmsShowMain.h"
 #include "Fireworks/Core/interface/fwPaths.h"
@@ -27,13 +27,13 @@ namespace {
       SilentMLscribe() {}
             
       // ---------- member functions ---------------------------
-      
+      virtual
       void  runCommand(edm::MessageLoggerQ::OpCode  opcode, void * operand) override;
       
    private:
-      SilentMLscribe(const SilentMLscribe&) = delete; // stop default
+      SilentMLscribe(const SilentMLscribe&); // stop default
       
-      const SilentMLscribe& operator=(const SilentMLscribe&) = delete; // stop default
+      const SilentMLscribe& operator=(const SilentMLscribe&); // stop default
       
       // ---------- member data --------------------------------
       
@@ -80,7 +80,7 @@ void signal_handler_wrapper(int sid, siginfo_t* sinfo, void* sctx)
 
    gSystem->Exec(gdbCommand.Data());
    gSystem->Exit(sid);   
-   Getlinem(kCleanUp, nullptr);
+   Getlinem(kCleanUp, 0);
 #endif
 }
 }
@@ -106,10 +106,10 @@ void run_app(TApplication &app, int argc, char **argv)
    sac.sa_sigaction = signal_handler_wrapper;
    sigemptyset(&sac.sa_mask);
    sac.sa_flags = SA_SIGINFO;
-   sigaction(SIGILL,  &sac, nullptr);
-   sigaction(SIGSEGV, &sac, nullptr);
-   sigaction(SIGBUS,  &sac, nullptr);
-   sigaction(SIGFPE,  &sac, nullptr);
+   sigaction(SIGILL,  &sac, 0);
+   sigaction(SIGSEGV, &sac, 0);
+   sigaction(SIGBUS,  &sac, 0);
+   sigaction(SIGFPE,  &sac, 0);
 
    app.Run();
    pMain.reset();

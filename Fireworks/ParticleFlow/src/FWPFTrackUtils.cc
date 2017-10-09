@@ -1,6 +1,6 @@
 #include "Fireworks/ParticleFlow/interface/FWPFTrackUtils.h"
 
-FWPFTrackSingleton *FWPFTrackSingleton::pInstance = nullptr;
+FWPFTrackSingleton *FWPFTrackSingleton::pInstance = NULL;
 bool FWPFTrackSingleton::instanceFlag = false;
 
 //______________________________________________________________________________

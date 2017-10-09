@@ -19,7 +19,7 @@ class SiStripZeroSuppression : public edm::stream::EDProducer<>
  public:
   
   explicit SiStripZeroSuppression(const edm::ParameterSet&);  
-  void produce(edm::Event& , const edm::EventSetup& ) override;
+  virtual void produce(edm::Event& , const edm::EventSetup& );
   
  private:
 

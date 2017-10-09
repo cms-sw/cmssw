@@ -23,9 +23,9 @@ class PFRecoTauDecayModeIndexProducer final : public PFTauDiscriminationProducer
       explicit PFRecoTauDecayModeIndexProducer(const edm::ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig) {   
          PFTauDecayModeProducer_     = iConfig.getParameter<edm::InputTag>("PFTauDecayModeProducer");
       }
-      ~PFRecoTauDecayModeIndexProducer() override{} 
-      double discriminate(const PFTauRef& thePFTauRef) const override ;
-      void beginEvent(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
+      ~PFRecoTauDecayModeIndexProducer(){} 
+      double discriminate(const PFTauRef& thePFTauRef) const ;
+      void beginEvent(const edm::Event& evt, const edm::EventSetup& evtSetup);
    private:
       edm::InputTag PFTauDecayModeProducer_;
       edm::Handle<PFTauDecayModeAssociation> decayModes_; // holds the PFTauDecayModes for the current event

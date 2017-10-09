@@ -27,7 +27,7 @@ class  SmartPropagatorESProducer: public edm::ESProducer{
   SmartPropagatorESProducer(const edm::ParameterSet &);
   
   /// Destructor
-  ~SmartPropagatorESProducer() override; 
+  virtual ~SmartPropagatorESProducer(); 
   
   // Operations
   std::shared_ptr<Propagator> produce(const TrackingComponentsRecord &);

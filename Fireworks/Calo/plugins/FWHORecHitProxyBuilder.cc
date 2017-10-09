@@ -6,13 +6,13 @@ class FWHORecHitProxyBuilder : public FWCaloRecHitDigitSetProxyBuilder
 {
 public:
    FWHORecHitProxyBuilder( void ) { invertBox(true); }
-   ~FWHORecHitProxyBuilder( void ) override {}
+   virtual ~FWHORecHitProxyBuilder( void ) {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWHORecHitProxyBuilder( const FWHORecHitProxyBuilder& ) = delete;
-   const FWHORecHitProxyBuilder& operator=( const FWHORecHitProxyBuilder& ) = delete;
+   FWHORecHitProxyBuilder( const FWHORecHitProxyBuilder& );
+   const FWHORecHitProxyBuilder& operator=( const FWHORecHitProxyBuilder& );
 };
 
 REGISTER_FWPROXYBUILDER( FWHORecHitProxyBuilder, HORecHitCollection, "HO RecHit", FWViewType::kISpyBit );

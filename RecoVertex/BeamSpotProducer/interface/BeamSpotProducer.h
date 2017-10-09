@@ -27,10 +27,10 @@ class BeamSpotProducer: public edm::stream::EDProducer<> {
 	/// constructor
 	explicit BeamSpotProducer(const edm::ParameterSet& iConf);
 	/// destructor
-	~BeamSpotProducer() override;
+	~BeamSpotProducer();
 	
 	/// produce a beam spot class
-	void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+	virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
   private:
 	

@@ -57,10 +57,10 @@ typedef std::map<uint32_t, sCurveHistogramHolder> detIDHistogramMap;
 class SiPixelSCurveCalibrationAnalysis : public SiPixelOfflineCalibAnalysisBase {
    public:
       explicit SiPixelSCurveCalibrationAnalysis(const edm::ParameterSet& iConfig):SiPixelOfflineCalibAnalysisBase(iConfig){doSetup(iConfig);};
-      ~SiPixelSCurveCalibrationAnalysis() override;
+      ~SiPixelSCurveCalibrationAnalysis();
       void doSetup(const edm::ParameterSet&);
 
-      bool doFits(uint32_t detid, std::vector<SiPixelCalibDigi>::const_iterator ipix) override;
+      virtual bool doFits(uint32_t detid, std::vector<SiPixelCalibDigi>::const_iterator ipix);
 
       static std::vector<float> efficiencies_;
       static std::vector<float> effErrors_;
@@ -105,11 +105,11 @@ class SiPixelSCurveCalibrationAnalysis : public SiPixelOfflineCalibAnalysisBase 
       //holds histogrms entered
       detIDHistogramMap histograms_;
 
-      void calibrationSetup(const edm::EventSetup& iSetup) override;
-      bool checkCorrectCalibrationType() override;
-      void newDetID(uint32_t detid) override;
+      virtual void calibrationSetup(const edm::EventSetup& iSetup);
+      virtual bool checkCorrectCalibrationType();
+      virtual void newDetID(uint32_t detid);
       void makeThresholdSummary(void);
-      void calibrationEnd() override ;
+      virtual void calibrationEnd() ;
       
       // ----------member data ---------------------------
 };

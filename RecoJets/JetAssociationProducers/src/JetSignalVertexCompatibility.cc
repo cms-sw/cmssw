@@ -67,7 +67,7 @@ void JetSignalVertexCompatibility::produce(edm::Event &event,
 		(*result)[iter->first] = compatibility[0];
 	}
 
-	algo.resetEvent(nullptr);
+	algo.resetEvent(0);
 
 	event.put(std::move(result));
 }

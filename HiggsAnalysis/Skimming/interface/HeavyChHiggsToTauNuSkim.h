@@ -27,15 +27,15 @@
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
-#include <cmath>
+#include <math.h>
 
 class HeavyChHiggsToTauNuSkim : public edm::EDFilter {
 
     public:
         explicit HeavyChHiggsToTauNuSkim(const edm::ParameterSet&);
-        ~HeavyChHiggsToTauNuSkim() override;
+        ~HeavyChHiggsToTauNuSkim();
 
-  	bool filter(edm::Event&, const edm::EventSetup& ) override;
+  	virtual bool filter(edm::Event&, const edm::EventSetup& );
 
    private:
 	double deltaPhi(double phi1, double phi2){

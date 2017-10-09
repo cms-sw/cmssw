@@ -26,9 +26,9 @@ class CosmicSeedGenerator : public edm::stream::EDProducer<>
 
   explicit CosmicSeedGenerator(const edm::ParameterSet& conf);
 
-  ~CosmicSeedGenerator() override;
+  virtual ~CosmicSeedGenerator();
 
-  void produce(edm::Event& e, const edm::EventSetup& c) override;
+  virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
 
  private:
   SeedGeneratorForCosmics  cosmic_seed;

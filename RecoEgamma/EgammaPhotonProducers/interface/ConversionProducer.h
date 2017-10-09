@@ -66,14 +66,14 @@ class ConversionVertexFinder;
 class ConversionProducer : public edm::stream::EDProducer<> {
     public:
       explicit ConversionProducer(const edm::ParameterSet&);
-      ~ConversionProducer() override;
+      ~ConversionProducer();
 
 
 
 
    private:
 
-      void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&);
 
       void buildSuperAndBasicClusterGeoMap(const edm::Event&,  
 					   std::multimap<double, reco::CaloClusterPtr>& basicClusterPtrs,

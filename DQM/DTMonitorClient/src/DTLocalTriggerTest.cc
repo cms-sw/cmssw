@@ -41,7 +41,7 @@ DTLocalTriggerTest::DTLocalTriggerTest(const edm::ParameterSet& ps){
   baseFolderDDU = "DT/04-LocalTrigger-DDU/";
   nMinEvts  = ps.getUntrackedParameter<int>("nEventsCert", 5000);
 
-  bookingdone = false;
+  bookingdone = 0;
 
 }
 
@@ -135,7 +135,7 @@ void DTLocalTriggerTest::Bookings(DQMStore::IBooker & ibooker, DQMStore::IGetter
     }	
   }
 
-  bookingdone = true; 
+  bookingdone = 1; 
 }
 
 

@@ -38,18 +38,18 @@ public:
       const SeedingLayerSetsHits::SeedingLayer& layer) const override;
 
  
-  HitRZCompatibility * checkRZ(const DetLayer* layer,  
+  virtual HitRZCompatibility * checkRZ(const DetLayer* layer,  
 				       const Hit &  outerHit,
 				       const edm::EventSetup& iSetup,
-				       const DetLayer* outerlayer=nullptr,
+				       const DetLayer* outerlayer=0,
 				       float lr=0, float gz=0, float dr=0, float dz=0) const  override;
 
-  GlobalTrackingRegion* clone() const override { 
+  virtual GlobalTrackingRegion* clone() const override { 
     return new GlobalTrackingRegion(*this);
   }
 
-  std::string name() const override { return "GlobalTrackingRegion"; }
-  std::string print() const override;
+  virtual std::string name() const override { return "GlobalTrackingRegion"; }
+  virtual std::string print() const override;
 
 private:
   bool  thePrecise=false;

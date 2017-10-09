@@ -39,7 +39,7 @@ public:
       signed int n_pairs = 250, float weight_exp = -2., float fraction = .5,
       float cut=10, int no_weight_above = 10 );
 
-  FsmwLinearizationPointFinder * clone() const override;
+  virtual FsmwLinearizationPointFinder * clone() const;
 };
 
 #endif

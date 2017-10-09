@@ -18,17 +18,17 @@ class VertexGhostTrackState : public BasicGhostTrackState {
 	                      const CovarianceMatrix &cov) :
 		position_(pos), covariance_(cov) {}
 
-	GlobalPoint globalPosition() const override { return position_; }
-	GlobalError cartesianError() const override { return covariance_; }
-	CovarianceMatrix cartesianCovariance() const override { return covariance_; }
+	GlobalPoint globalPosition() const { return position_; }
+	GlobalError cartesianError() const { return covariance_; }
+	CovarianceMatrix cartesianCovariance() const { return covariance_; }
 
 	Vertex vertexStateOnGhostTrack(const GhostTrackPrediction &pred,
-	                               bool withMeasurementError) const override;
+	                               bool withMeasurementError) const;
 	Vertex vertexStateOnMeasurement(const GhostTrackPrediction &pred,
-	                                bool withGhostTrackError) const override;
+	                                bool withGhostTrackError) const;
 
     private:
-	BasicGhostTrackState *clone() const override
+	BasicGhostTrackState *clone() const
 	{ return new VertexGhostTrackState(*this); }
 
 	GlobalPoint		position_;

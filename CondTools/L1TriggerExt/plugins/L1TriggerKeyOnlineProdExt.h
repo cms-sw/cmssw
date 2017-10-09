@@ -15,7 +15,7 @@
 class L1TriggerKeyOnlineProdExt : public edm::ESProducer {
    public:
       L1TriggerKeyOnlineProdExt(const edm::ParameterSet&);
-      ~L1TriggerKeyOnlineProdExt() override;
+      ~L1TriggerKeyOnlineProdExt();
 
       typedef std::shared_ptr<L1TriggerKeyExt> ReturnType;
 

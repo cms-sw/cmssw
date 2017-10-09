@@ -41,8 +41,8 @@ class HiEgammaSCCorrectionMaker : public edm::stream::EDProducer<> {
 	
    public:
      explicit HiEgammaSCCorrectionMaker(const edm::ParameterSet&);
-     ~HiEgammaSCCorrectionMaker() override;
-     void produce(edm::Event&, const edm::EventSetup&) override;
+     ~HiEgammaSCCorrectionMaker();
+     virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
    private:
 

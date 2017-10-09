@@ -10,7 +10,7 @@
 #include <iostream>
 
 DTSurvey::DTSurvey(const std::string& Wheel, const std::string& Chambers, int n)
-  : chambers(nullptr) {
+  : chambers(0) {
   
   nameOfWheelInfoFile = Wheel;
   nameOfChamberInfoFile = Chambers;

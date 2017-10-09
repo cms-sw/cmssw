@@ -13,7 +13,7 @@ namespace edm {
   TimeoutPoolOutputModule::TimeoutPoolOutputModule(ParameterSet const& ps):
       edm::one::OutputModuleBase::OutputModuleBase(ps),
       PoolOutputModule(ps), 
-      m_lastEvent(time(nullptr)),
+      m_lastEvent(time(NULL)),
       eventsWrittenInCurrentFile(0),
       m_timeout(-1) // we want the first event right away
   {  }
@@ -26,7 +26,7 @@ namespace edm {
   }
 
   bool TimeoutPoolOutputModule::shouldWeCloseFile() const {
-    time_t now(time(nullptr));
+    time_t now(time(NULL));
     if ( PoolOutputModule::shouldWeCloseFile() ) {
       edm::LogVerbatim("TimeoutPoolOutputModule")  <<" Closing file "<< currentFileName()<< " with "<< eventsWrittenInCurrentFile  <<" events.";
       eventsWrittenInCurrentFile = 0;

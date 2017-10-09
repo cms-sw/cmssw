@@ -28,16 +28,16 @@
 class FWTrackingParticleProxyBuilderFullFramework : public FWSimpleProxyBuilderTemplate<TrackingParticle>
 {
 public:
-   FWTrackingParticleProxyBuilderFullFramework( void ):m_assocList(nullptr) {} 
-   ~FWTrackingParticleProxyBuilderFullFramework( void ) override {}
+   FWTrackingParticleProxyBuilderFullFramework( void ):m_assocList(0) {} 
+   virtual ~FWTrackingParticleProxyBuilderFullFramework( void ) {}
 
    // virtual void setItem(const FWEventItem* iItem) override;
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWTrackingParticleProxyBuilderFullFramework( const FWTrackingParticleProxyBuilderFullFramework& ) = delete;
-   const FWTrackingParticleProxyBuilderFullFramework& operator=( const FWTrackingParticleProxyBuilderFullFramework& ) = delete;
+   FWTrackingParticleProxyBuilderFullFramework( const FWTrackingParticleProxyBuilderFullFramework& );
+   const FWTrackingParticleProxyBuilderFullFramework& operator=( const FWTrackingParticleProxyBuilderFullFramework& );
    void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
   
    void build( const TrackingParticle& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
@@ -86,7 +86,7 @@ void FWTrackingParticleProxyBuilderFullFramework::build(const FWEventItem* iItem
       context().getTrackPropagator()->SetRnrReferences(true);
       */
    }
-   FWSimpleProxyBuilder::build(iItem, product, nullptr);
+   FWSimpleProxyBuilder::build(iItem, product, 0);
 }
 //______________________________________________________________________________
 void

@@ -68,7 +68,7 @@ class FWPatJetLegoProxyBuilder : public FWPFPatJetLegoProxyBuilder<pat::Jet>
 {
    public:
       FWPatJetLegoProxyBuilder(){}
-      ~FWPatJetLegoProxyBuilder() override{}
+      virtual ~FWPatJetLegoProxyBuilder(){}
 
       REGISTER_PROXYBUILDER_METHODS();
 };
@@ -78,7 +78,7 @@ class FWPFJetLegoProxyBuilder : public FWPFPatJetLegoProxyBuilder<reco::PFJet>
 {
    public:
       FWPFJetLegoProxyBuilder(){}
-      ~FWPFJetLegoProxyBuilder() override{}
+      virtual ~FWPFJetLegoProxyBuilder(){}
 
       REGISTER_PROXYBUILDER_METHODS();
 };

@@ -18,18 +18,18 @@ class NoCQTask : public hcaldqm::DQTask
 {
 	public:
 		NoCQTask(edm::ParameterSet const&);
-		~NoCQTask() override {}
+		virtual ~NoCQTask() {}
 
-		void bookHistograms(DQMStore::IBooker&,
-			edm::Run const&, edm::EventSetup const&) override;
-		void beginLuminosityBlock(edm::LuminosityBlock const&,
-			edm::EventSetup const&) override;
-		void endLuminosityBlock(edm::LuminosityBlock const&,
-			edm::EventSetup const&) override;
+		virtual void bookHistograms(DQMStore::IBooker&,
+			edm::Run const&, edm::EventSetup const&);
+		virtual void beginLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&);
+		virtual void endLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&);
 
 	protected:
-		void _process(edm::Event const&, edm::EventSetup const&) override;
-		void _resetMonitors(hcaldqm::UpdateFreq) override;
+		virtual void _process(edm::Event const&, edm::EventSetup const&);
+		virtual void _resetMonitors(hcaldqm::UpdateFreq);
 
 		edm::InputTag _tagHBHE;
 		edm::InputTag _tagHO;

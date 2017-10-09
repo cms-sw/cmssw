@@ -115,7 +115,7 @@ void popcon::EcalIntercalibHandler::getNewObjects()
 	  
 	  econn->fetchDataSet(&dataset, &rp);
 	  
-	  if (dataset.empty()) {
+	  if (!dataset.size()) {
 	    throw(std::runtime_error("Zero rows read back"));
 	  } else {
 	    std::cout<< "retrieved magnet current"<<std::endl;  

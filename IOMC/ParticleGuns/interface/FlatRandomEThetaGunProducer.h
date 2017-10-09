@@ -9,11 +9,11 @@ namespace edm {
   
   public:
     FlatRandomEThetaGunProducer(const ParameterSet &);
-    ~FlatRandomEThetaGunProducer() override;
+    virtual ~FlatRandomEThetaGunProducer();
 
   private:
    
-    void produce(Event &e, const EventSetup& es) override;
+    virtual void produce(Event &e, const EventSetup& es) override;
     
   protected :
   

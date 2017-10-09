@@ -1,7 +1,7 @@
 #ifndef DATAFORMATS_HCALDIGI_HCALTTPDIGI_H
 #define DATAFORMATS_HCALDIGI_HCALTTPDIGI_H 1
 
-#include <cstdint>
+#include <stdint.h>
 #include <vector>
 #include <ostream>
 

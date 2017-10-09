@@ -29,8 +29,8 @@ private:
   std::vector<std::string> fstypes_;
 
   // undefined, no semantics
-  LocalFileSystem(LocalFileSystem &) = delete;
-  void operator=(LocalFileSystem &) = delete;
+  LocalFileSystem(LocalFileSystem &);
+  void operator=(LocalFileSystem &);
 };
 
 #endif // STORAGE_FACTORY_LOCAL_FILE_SYSTEM_H

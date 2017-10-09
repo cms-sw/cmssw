@@ -36,35 +36,35 @@ public:
   DQMClientExample(const edm::ParameterSet& ps);
   
   ////---- destructor
-  ~DQMClientExample() override;
+  virtual ~DQMClientExample();
 
 protected:
 
   ////---- beginJob
-  void beginJob() override;
+  void beginJob();
 
   ////---- beginRun
-  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
   ////---- analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override ;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) ;
 
   ////---- performClient
   void performClient();
 
   ////---- beginLuminosityBlock
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                            const edm::EventSetup& context) override ;
+                            const edm::EventSetup& context) ;
 
   ////--- endLuminosityBlock 
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                         const edm::EventSetup& c) override;
+                         const edm::EventSetup& c);
 
   ////---- endRun
-  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void endRun(const edm::Run& r, const edm::EventSetup& c);
 
   ////---- endJob
-  void endJob() override;
+  void endJob();
 
 private:
   ////---- initialize

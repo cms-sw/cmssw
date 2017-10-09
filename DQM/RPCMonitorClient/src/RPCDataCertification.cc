@@ -51,7 +51,7 @@ void RPCDataCertification::checkFED(edm::EventSetup const& setup){
     
   double defaultValue = 1.;
   
-  if(nullptr != setup.find( recordKey ) ) {
+  if(0 != setup.find( recordKey ) ) {
       defaultValue = -1;
       //get fed summary information
       edm::ESHandle<RunInfo> sumFED;
