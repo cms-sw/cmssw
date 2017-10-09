@@ -53,7 +53,7 @@ l1t::Muon::Muon( const LorentzVector& p4,
     etaAtVtx_(etaAtVtx),
     phiAtVtx_(phiAtVtx)
 {
-  
+
 }
 
 l1t::Muon::Muon( const PolarLorentzVector& p4,
@@ -90,10 +90,11 @@ l1t::Muon::Muon( const PolarLorentzVector& p4,
     etaAtVtx_(etaAtVtx),
     phiAtVtx_(phiAtVtx)
 {
-  
+
 }
 
-l1t::Muon::Muon( const l1t::Muon& muon)
+l1t::Muon::Muon( const l1t::Muon& muon) :
+  l1t::L1Candidate(muon)
 {
   hwCharge_ = muon.hwCharge();
   hwChargeValid_ = muon.hwChargeValid();
@@ -110,7 +111,7 @@ l1t::Muon::Muon( const l1t::Muon& muon)
   debug_ = muon.debug();
 }
 
-l1t::Muon::~Muon() 
+l1t::Muon::~Muon()
 {
 
 }
