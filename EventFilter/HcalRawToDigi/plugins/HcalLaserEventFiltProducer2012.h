@@ -10,13 +10,13 @@ class HcalLaserEventFiltProducer2012 : public edm::EDProducer {
 
  public:
   explicit HcalLaserEventFiltProducer2012(const edm::ParameterSet& iConfig);
-  virtual ~HcalLaserEventFiltProducer2012(){
+  ~HcalLaserEventFiltProducer2012() override{
     delete hcalLaserEventFilter2012;
 } 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
-  virtual void endJob() override;
+  void endJob() override;
   HcalLaserEventFilter2012 *hcalLaserEventFilter2012;
 };
 

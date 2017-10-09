@@ -8,7 +8,7 @@ namespace l1t {
       class JetPacker : public Packer {
          public:
 	    JetPacker(int b1, int b2) : b1_(b1), b2_(b2) {}
-            virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
+            Blocks pack(const edm::Event&, const PackerTokens*) override;
 	    int b1_, b2_;
       };
 

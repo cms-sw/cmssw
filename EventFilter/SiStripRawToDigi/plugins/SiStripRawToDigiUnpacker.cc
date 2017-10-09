@@ -863,7 +863,7 @@ namespace sistrip {
   void RawToDigiUnpacker::triggerFed( const FEDRawDataCollection& buffers, SiStripEventSummary& summary, const uint32_t& event ) {
   
     // Pointer to data (recast as 32-bit words) and number of 32-bit words
-    uint32_t* data_u32 = 0;
+    uint32_t* data_u32 = nullptr;
     uint32_t  size_u32 = 0;
   
     // Search mode
@@ -925,7 +925,7 @@ namespace sistrip {
       
     } else { 
       triggerFedId_ = 0; 
-      data_u32 = 0;
+      data_u32 = nullptr;
       size_u32 = 0;
     }
   
@@ -1129,7 +1129,7 @@ namespace sistrip {
     uint32_t daq2 = sistrip::invalid32_;
 
     if (fed.headerType() == sistrip::HEADER_TYPE_FULL_DEBUG) {
-      const sistrip::FEDFullDebugHeader* header = 0;
+      const sistrip::FEDFullDebugHeader* header = nullptr;
       header = dynamic_cast<const sistrip::FEDFullDebugHeader*>(fed.feHeader());
       daq1 = static_cast<uint32_t>( header->daqRegister() ); 
       daq2 = static_cast<uint32_t>( header->daqRegister2() ); 
@@ -1163,7 +1163,7 @@ namespace sistrip {
        << " Buffer contains " << buffer.size()
        << " bytes (NB: payload is byte-swapped)" << std::endl;
 
-    if ( 0 ) { 
+    if ( false ) { 
       uint32_t* buffer_u32 = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( buffer.data() ) );
       unsigned int empty = 0;
 

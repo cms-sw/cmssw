@@ -10,7 +10,7 @@
 
 #include "EventFilter/CTPPSRawToDigi/interface/VFATFrame.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <cstring>
 
 //----------------------------------------------------------------------------------------------------
@@ -101,16 +101,16 @@ VFATFrame::word VFATFrame::calculateCRC(VFATFrame::word crc_in, VFATFrame::word 
 {
   word v = 0x0001;
   word mask = 0x0001;    
-  bool d=0;
+  bool d=false;
   word crc_temp = crc_in;
   unsigned char datalen = 16;
 
   for (int i = 0; i < datalen; i++)
   {
     if (dato & v)
-      d = 1;
+      d = true;
     else
-      d = 0;
+      d = false;
       
     if ((crc_temp & mask)^d)
       crc_temp = crc_temp>>1 ^ 0x8408;

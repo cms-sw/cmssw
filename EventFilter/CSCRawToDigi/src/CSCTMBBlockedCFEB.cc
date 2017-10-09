@@ -137,7 +137,7 @@ void CSCTMBBlockedCFEB::print() const
         {
           anyLayer=*layerIt;
           std::cout << " Layer: " << LayerCnt;
-          if (anyLayer.size() !=0)
+          if (!anyLayer.empty())
             {
               for (int i=0; i<(int)anyLayer.size(); i++)
                 {

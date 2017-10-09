@@ -20,7 +20,7 @@ std::unique_ptr<FEDRawDataCollection> RawDataFEDSelector::select(const Handle<FE
   auto selectedRawData = std::make_unique<FEDRawDataCollection>();
 
   // if vector of FED indexes is defined, loop over it
-  if (fedList.size()) {
+  if (!fedList.empty()) {
     vector<int>::const_iterator it = fedList.begin();
     vector<int>::const_iterator itEnd = fedList.end();
     for (;it != itEnd; ++it) {  

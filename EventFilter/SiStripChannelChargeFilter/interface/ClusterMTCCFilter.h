@@ -22,8 +22,8 @@ namespace cms
  class ClusterMTCCFilter : public edm::EDFilter {
   public:
     ClusterMTCCFilter(const edm::ParameterSet& ps);
-    virtual ~ClusterMTCCFilter() {}
-    virtual bool filter(edm::Event & e, edm::EventSetup const& c);
+    ~ClusterMTCCFilter() override {}
+    bool filter(edm::Event & e, edm::EventSetup const& c) override;
 
   private:
    std::string clusterProducer;

@@ -57,7 +57,7 @@ namespace l1t {
          prod.produces<RegionalMuonCandBxCollection>("EMTF");
          prod.produces<MuonBxCollection>("Muon");
          for (int i=1; i<6; ++i) {
-            prod.produces<MuonBxCollection>(("MuonCopy"+std::to_string(i)).c_str());
+            prod.produces<MuonBxCollection>("MuonCopy"+std::to_string(i));
          }
          prod.produces<MuonBxCollection>("imdMuonsBMTF");
          prod.produces<MuonBxCollection>("imdMuonsEMTFNeg");
