@@ -152,8 +152,8 @@ void MakeAngleLUT::generateLUTs() {
   // ___________________________________________________________________________
   // CSC
 
-  for (CSCGeometry::DetUnitContainer::const_iterator it = geocsc.detUnits().begin(); it != geocsc.detUnits().end(); ++it) {
-    const CSCLayer* layer = dynamic_cast<const CSCLayer*>(*it);  // like GeomDetUnit
+  for (const auto & it : geocsc.detUnits() ) {
+    const CSCLayer* layer = dynamic_cast<const CSCLayer*>(it);  // like GeomDetUnit
     assert(layer != nullptr);
     const CSCChamber* chamber = layer->chamber();  // like GeomDet
     assert(chamber != nullptr);
@@ -208,8 +208,8 @@ void MakeAngleLUT::generateLUTs() {
   // ___________________________________________________________________________
   // RPC
 
-  for (RPCGeometry::DetUnitContainer::const_iterator it = georpc.detUnits().begin(); it != georpc.detUnits().end(); ++it) {
-    const RPCRoll* roll = dynamic_cast<const RPCRoll*>(*it);  // like GeomDetUnit
+  for (const auto & it : georpc.detUnits() ) {
+    const RPCRoll* roll = dynamic_cast<const RPCRoll*>(it);  // like GeomDetUnit
     assert(roll != nullptr);
     //const RPCChamber* chamber = roll->chamber();  // like GeomDet
     //assert(chamber != nullptr);
@@ -261,8 +261,8 @@ void MakeAngleLUT::generateLUTs() {
   // ___________________________________________________________________________
   // GEM
 
-  for (GEMGeometry::DetUnitContainer::const_iterator it = geogem.detUnits().begin(); it != geogem.detUnits().end(); ++it) {
-    const GEMEtaPartition* roll = dynamic_cast<const GEMEtaPartition*>(*it);  // like GeomDetUnit
+  for (const auto & it : geogem.detUnits() ) {
+    const GEMEtaPartition* roll = dynamic_cast<const GEMEtaPartition*>(it);  // like GeomDetUnit
     assert(roll != nullptr);
     //const GEMChamber* chamber = roll->chamber();  // like GeomDet
     //assert(chamber != nullptr);
