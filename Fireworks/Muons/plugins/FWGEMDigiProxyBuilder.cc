@@ -30,21 +30,21 @@ class FWGEMDigiProxyBuilder : public FWProxyBuilderBase
 {
 public:
   FWGEMDigiProxyBuilder() {}
-  virtual ~FWGEMDigiProxyBuilder() {}
+  ~FWGEMDigiProxyBuilder() override {}
 
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
   using FWProxyBuilderBase::build;
-  virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
-  FWGEMDigiProxyBuilder(const FWGEMDigiProxyBuilder&);    
-  const FWGEMDigiProxyBuilder& operator=(const FWGEMDigiProxyBuilder&);
+  void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
+  FWGEMDigiProxyBuilder(const FWGEMDigiProxyBuilder&) = delete;    
+  const FWGEMDigiProxyBuilder& operator=(const FWGEMDigiProxyBuilder&) = delete;
 };
 
 void
 FWGEMDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
-  const GEMDigiCollection* digis = 0;
+  const GEMDigiCollection* digis = nullptr;
  
   iItem->get(digis);
 
@@ -118,20 +118,20 @@ class FWGEMPadDigiProxyBuilder : public FWProxyBuilderBase
 {
 public:
   FWGEMPadDigiProxyBuilder() {}
-  virtual ~FWGEMPadDigiProxyBuilder() {}
+  ~FWGEMPadDigiProxyBuilder() override {}
 
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
-  virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
-  FWGEMPadDigiProxyBuilder(const FWGEMPadDigiProxyBuilder&);    
-  const FWGEMPadDigiProxyBuilder& operator=(const FWGEMPadDigiProxyBuilder&);
+  void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
+  FWGEMPadDigiProxyBuilder(const FWGEMPadDigiProxyBuilder&) = delete;    
+  const FWGEMPadDigiProxyBuilder& operator=(const FWGEMPadDigiProxyBuilder&) = delete;
 };
 
 void
 FWGEMPadDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
-  const GEMPadDigiCollection* digis = 0;
+  const GEMPadDigiCollection* digis = nullptr;
  
   iItem->get(digis);
 

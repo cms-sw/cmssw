@@ -11,7 +11,7 @@
 //
 
 // system include files
-#include <stdlib.h>
+#include <cstdlib>
 #include <algorithm>
 #include <memory>
 #include <iostream>
@@ -208,14 +208,14 @@ FWTableView::FWTableView (TEveWindowSlot* iParent, FWTableViewManager *manager)
        m_iColl(-1),
        m_manager(manager),
        m_tableManager(new FWTableViewTableManager(this)),
-       m_tableWidget(0),
+       m_tableWidget(nullptr),
        m_showColumnUI(false),
        m_validator(new FWExpressionValidator),
        m_currentColumn(-1),
        m_useColumnsFromConfig(false)
 
 {
-     m_eveWindow = iParent->MakeFrame(0);
+     m_eveWindow = iParent->MakeFrame(nullptr);
      TGCompositeFrame *frame = m_eveWindow->GetGUICompositeFrame();
 //      TGHorizontalFrame *buttons = new TGHorizontalFrame(frame);
 //      frame->AddFrame(buttons, new TGLayoutHints(kLHintsTop | kLHintsExpandX));
@@ -381,7 +381,7 @@ FWTableView::setFrom(const FWConfiguration& iFrom)
 	  m_manager->setFrom(iFrom);
      try {
 	  const FWConfiguration *main = iFrom.valueForKey(kTableView);
-	  assert(main != 0);
+	  assert(main != nullptr);
 	  // use the columns from the config, not the default columns for
 	  // the collection type
 //  	  m_useColumnsFromConfig = true;
@@ -409,7 +409,7 @@ FWTableView::setFrom(const FWConfiguration& iFrom)
 	  }
 	  const FWConfiguration *sortColumn = main->valueForKey(kSortColumn);
 	  const FWConfiguration *descendingSort = main->valueForKey(kDescendingSort);
-	  if (sortColumn != 0 && descendingSort != 0) {
+	  if (sortColumn != nullptr && descendingSort != nullptr) {
 	       unsigned int sort = sortColumn->version();
 	       bool descending = descendingSort->version();
 	       if (sort < (( unsigned int) m_tableManager->numberOfColumns()))
@@ -522,9 +522,9 @@ void
 FWTableView::toggleShowHide () 
 {
      m_showColumnUI = not m_showColumnUI;
-     const TGPicture* picture = 0;
-     const TGPicture* down = 0;
-     const TGPicture* disabled = 0;
+     const TGPicture* picture = nullptr;
+     const TGPicture* down = nullptr;
+     const TGPicture* disabled = nullptr;
      const bool bgIsBlack = m_manager->colorManager().background() == kBlack;
      if (m_showColumnUI) {
 	  picture = arrow_down(bgIsBlack);
@@ -556,7 +556,7 @@ void FWTableView::updateItems(void)
       if (item) 
          m_collection->AddEntry(item->name().c_str(), i);
 
-      if (m_iColl == index && 0 == item) 
+      if (m_iColl == index && nullptr == item) 
       {
          //the collection we were showing is now gone
          m_iColl = -1;
@@ -579,7 +579,7 @@ void FWTableView::updateEvaluators ()
 const FWEventItem *FWTableView::item () const
 {
      if (m_iColl == -1)
-	  return 0;
+	  return nullptr;
      return m_manager->items()[m_iColl];
 }
 
@@ -608,12 +608,12 @@ FWTableView::selectCollection(Int_t i_coll)
 {
 //      printf("selected collection %d, ", i_coll);
      const FWEventItem *item = m_manager->items()[i_coll];
-     assert(0!=item);
+     assert(nullptr!=item);
 //      printf("%s\n", item->modelType()->GetName());
      m_iColl = i_coll;
 //      m_validator = new FWExpressionValidator;
 //      m_column_expr_field->setValidator(m_validator);
-     if (m_validator != 0) {
+     if (m_validator != nullptr) {
 // 	  std::cout << "setting validator to " << item->modelType()->GetName() << std::endl;
 	  m_validator->setType(edm::TypeWithDict(*(item->modelType()->GetTypeInfo())));
      } else {
@@ -670,10 +670,10 @@ void FWTableView::addColumn ()
      std::string name = m_column_name_field->GetText();
      std::string expr = m_column_expr_field->GetText();
      // convert the precision to a long int
-     char *endptr = 0;
+     char *endptr = nullptr;
      int prec = (int) strtol(m_column_prec_field->GetText(), &endptr, 0);
      if (name == "" || expr == "" || 
-	 m_column_prec_field->GetText() == 0 || *endptr != 0) {
+	 m_column_prec_field->GetText() == nullptr || *endptr != 0) {
         fwLog(fwlog::kInfo) << "bad input\n";
 	  fflush(stdout);
 	  return;
@@ -714,10 +714,10 @@ void FWTableView::modifyColumn ()
      std::string name = m_column_name_field->GetText();
      std::string expr = m_column_expr_field->GetText();
      // convert the precision to a long int
-     char *endptr = 0;
+     char *endptr = nullptr;
      int prec = (int) strtol(m_column_prec_field->GetText(), &endptr, 0);
      if (name == "" || expr == "" || 
-	 m_column_prec_field->GetText() == 0 || *endptr != 0) {
+	 m_column_prec_field->GetText() == nullptr || *endptr != 0) {
         fwLog(fwlog::kInfo) << "bad input\n";
 	  fflush(stdout);
 	  return;

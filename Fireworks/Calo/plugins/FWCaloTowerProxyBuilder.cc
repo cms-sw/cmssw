@@ -11,7 +11,7 @@
 //
 
 // system includes
-#include <math.h>
+#include <cmath>
 
 // user includes
 #include "TEveCaloData.h"
@@ -35,7 +35,7 @@
 //
 FWCaloTowerProxyBuilderBase::FWCaloTowerProxyBuilderBase():
    FWCaloDataHistProxyBuilder(),
-   m_towers(0)
+   m_towers(nullptr)
 {
 }
 
@@ -48,7 +48,7 @@ void
 FWCaloTowerProxyBuilderBase::build(const FWEventItem* iItem,
                                    TEveElementList* el, const FWViewContext* ctx)
 {
-   m_towers=0;
+   m_towers=nullptr;
    if (iItem)
    {
       iItem->get(m_towers);

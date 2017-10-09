@@ -45,12 +45,12 @@
 //
 FW3DViewGeometry::FW3DViewGeometry(const fireworks::Context& context):
    FWViewGeometryList(context, false),
-   m_muonBarrelElements(0), m_muonBarrelFullElements(0),
-   m_muonEndcapElements(0), m_muonEndcapFullElements(0),
-   m_pixelBarrelElements(0),
-   m_pixelEndcapElements(0),
-   m_trackerBarrelElements(0),
-   m_trackerEndcapElements(0)
+   m_muonBarrelElements(nullptr), m_muonBarrelFullElements(nullptr),
+   m_muonEndcapElements(nullptr), m_muonEndcapFullElements(nullptr),
+   m_pixelBarrelElements(nullptr),
+   m_pixelEndcapElements(nullptr),
+   m_trackerBarrelElements(nullptr),
+   m_trackerEndcapElements(nullptr)
 {  
 
    SetElementName("3D Geometry");
@@ -163,7 +163,7 @@ FW3DViewGeometry::showMuonEndcap( bool showMuonEndcap )
 
       for( Int_t iEndcap = 1; iEndcap <= 2; ++iEndcap ) // 1=forward (+Z), 2=backward(-Z)
       { 
-         TEveElementList* cEndcap = 0;
+         TEveElementList* cEndcap = nullptr;
          if( iEndcap == 1 )
             cEndcap = new TEveElementList( "CSC Forward" );
          else
@@ -204,7 +204,7 @@ FW3DViewGeometry::showMuonEndcap( bool showMuonEndcap )
       }
       // hardcoded gem and me0; need to find better way for different gem geometries
       for( Int_t iRegion = GEMDetId::minRegionId; iRegion <= GEMDetId::maxRegionId; iRegion= iRegion+2){
-	TEveElementList* teEndcap = 0;
+	TEveElementList* teEndcap = nullptr;
 	if( iRegion == 1 )
 	  teEndcap = new TEveElementList( "GEM Forward" );
 	else
@@ -247,7 +247,7 @@ FW3DViewGeometry::showMuonEndcap( bool showMuonEndcap )
       // adding me0
       if (m_geom->versionInfo().haveExtraDet("ME0") ){
 	for( Int_t iRegion = ME0DetId::minRegionId; iRegion <= ME0DetId::maxRegionId; iRegion= iRegion+2 ){
-	  TEveElementList* teEndcap = 0;
+	  TEveElementList* teEndcap = nullptr;
 	  if( iRegion == 1 )
 	    teEndcap = new TEveElementList( "ME0 Forward" );
 	  else

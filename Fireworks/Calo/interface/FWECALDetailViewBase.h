@@ -13,7 +13,7 @@ template <typename T>
 class FWECALDetailViewBase : public FWDetailViewGL<T> {
   public:
    FWECALDetailViewBase ();//: m_data(0), m_builder(0), m_legend(0) {}
-   virtual ~FWECALDetailViewBase();// { delete m_data; }
+   ~FWECALDetailViewBase() override;// { delete m_data; }
   
   
 protected:
@@ -23,10 +23,10 @@ protected:
 
 private:
    using FWDetailView<T>::build;
-   void build(const FWModelId &id, const T*);
+   void build(const FWModelId &id, const T*) override;
 
    using FWDetailViewGL<T>::setTextInfo;
-   void setTextInfo(const FWModelId &id, const T*);
+   void setTextInfo(const FWModelId &id, const T*) override;
 
 };
 

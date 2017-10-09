@@ -24,8 +24,8 @@
 // constructors and destructor
 //
 FWPhotonDetailView::FWPhotonDetailView():
-m_data(0),
-m_builder(0)
+m_data(nullptr),
+m_builder(nullptr)
 {
 }
 
@@ -66,7 +66,7 @@ void FWPhotonDetailView::build (const FWModelId &id, const reco::Photon* iPhoton
    overlay->SetShowPlane(kFALSE);
    overlay->SetShowPerspective(kFALSE);
    overlay->SetCaloLego(lego);
-   overlay->SetShowScales(1); // temporary
+   overlay->SetShowScales(true); // temporary
    viewerGL()->AddOverlayElement(overlay);
 
    // set event handler and flip camera to top view at beginning

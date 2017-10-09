@@ -154,7 +154,7 @@ void FWPartialConfigLoadGUI::Load()
 //---------------------------------------------------------------------
 
 FWPartialConfigSaveGUI::FWPartialConfigSaveGUI( const char* path_out, const char* path_in, FWConfigurationManager* iCfg):
-   FWPartialConfigGUI(0, iCfg), m_outFileName(path_out), m_currFileName(path_in)
+   FWPartialConfigGUI(nullptr, iCfg), m_outFileName(path_out), m_currFileName(path_in)
 {  
    TGHorizontalFrame* hf = new TGHorizontalFrame(this);
    AddFrame(hf, new TGLayoutHints( kLHintsRight| kLHintsBottom, 1, 1, 2, 4));

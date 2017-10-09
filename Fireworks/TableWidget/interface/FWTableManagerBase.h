@@ -46,7 +46,7 @@ class FWTableManagerBase : public TQObject
 
    public:
       FWTableManagerBase();
-      virtual ~FWTableManagerBase();
+      ~FWTableManagerBase() override;
 
       // ---------- const member functions ---------------------
       ///Number of rows in the table
