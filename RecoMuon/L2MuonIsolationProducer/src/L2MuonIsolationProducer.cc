@@ -35,8 +35,8 @@ using namespace muonisolation;
 /// constructor with config
 L2MuonIsolationProducer::L2MuonIsolationProducer(const ParameterSet& par) :
   theSACollectionLabel(par.getParameter<edm::InputTag>("StandAloneCollectionLabel")),
-  theExtractor(0),
-  theDepositIsolator(0)
+  theExtractor(nullptr),
+  theDepositIsolator(nullptr)
 {
   LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")<<" L2MuonIsolationProducer constructor called";
 

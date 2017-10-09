@@ -32,14 +32,14 @@ class StandAloneMuonTrajectoryBuilder : public MuonTrajectoryBuilder{
   StandAloneMuonTrajectoryBuilder(const edm::ParameterSet&, const MuonServiceProxy*,edm::ConsumesCollector& iC);
 
   /// Destructor
-  virtual ~StandAloneMuonTrajectoryBuilder();
+  ~StandAloneMuonTrajectoryBuilder() override;
 
   // Returns a vector of the reconstructed trajectories compatible with
   // the given seed.
-  TrajectoryContainer trajectories(const TrajectorySeed&);
+  TrajectoryContainer trajectories(const TrajectorySeed&) override;
 
   /// dummy implementation, unused in this class
-  virtual CandidateContainer trajectories(const TrackCand&) {return CandidateContainer();}
+  CandidateContainer trajectories(const TrackCand&) override {return CandidateContainer();}
 
   /// pre-filter
   StandAloneMuonFilter* filter() const {return theFilter;}
@@ -51,7 +51,7 @@ class StandAloneMuonTrajectoryBuilder : public MuonTrajectoryBuilder{
   StandAloneMuonRefitter* refitter() const {return theRefitter;}
 
   /// Pass the Event to the algo at each event
-  virtual void setEvent(const edm::Event& event);
+  void setEvent(const edm::Event& event) override;
   
  protected:
 

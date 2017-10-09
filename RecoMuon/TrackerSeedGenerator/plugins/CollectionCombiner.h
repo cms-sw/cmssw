@@ -29,10 +29,10 @@ template <typename Collection>
 class CollectionCombiner : public edm::global::EDProducer<>{
 public:
   explicit CollectionCombiner(const edm::ParameterSet&);
-  ~CollectionCombiner();
+  ~CollectionCombiner() override;
   
 private:
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   
   // ----------member data ---------------------------
   std::vector<edm::InputTag> labels;
