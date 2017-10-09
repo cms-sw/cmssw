@@ -48,8 +48,8 @@ public:
 
 private:
 	
-	Exercises3(const Exercises3&);
-	void operator=(const Exercises3&);
+	Exercises3(const Exercises3&) = delete;
+	void operator=(const Exercises3&) = delete;
 //	double lowE_, highE_, lowEta_, highEta_, lowPhi_, highPhi_;
 //	unsigned divE_, divEta_, divPhi_;
 	bool withOffset_;
