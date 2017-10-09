@@ -36,11 +36,11 @@ namespace {
   class TrackClusterRemoverPhase2 final : public edm::global::EDProducer<> {
   public:
     TrackClusterRemoverPhase2(const edm::ParameterSet& iConfig) ;
-    ~TrackClusterRemoverPhase2(){}
+    ~TrackClusterRemoverPhase2() override{}
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   private:
     
-    virtual void produce(edm::StreamID, edm::Event& evt, const edm::EventSetup&) const override;
+    void produce(edm::StreamID, edm::Event& evt, const edm::EventSetup&) const override;
  
     using PixelMaskContainer    = edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster>>;
     using Phase2OTMaskContainer = edm::ContainerMask<edmNew::DetSetVector<Phase2TrackerCluster1D>>;

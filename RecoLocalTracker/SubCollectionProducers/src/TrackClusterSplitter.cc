@@ -66,7 +66,7 @@ class TrackClusterSplitter : public edm::stream::EDProducer<>
 
 public:
   TrackClusterSplitter(const edm::ParameterSet& iConfig) ;
-  ~TrackClusterSplitter() ;
+  ~TrackClusterSplitter() override ;
   void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override ;
   
 private:
@@ -435,7 +435,7 @@ TrackClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                 }  
 
 	      const TrackingRecHit *hit = *it_hit;
-	      if ( hit == 0 || !hit->isValid() )
+	      if ( hit == nullptr || !hit->isValid() )
 		continue;
 	      
 	      int subdet = hit->geographicalId().subdetId();
@@ -470,7 +470,7 @@ TrackClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  for (; it_hit != ed_hit; ++it_hit) 
 	    {
 	      const TrackingRecHit *hit = *it_hit;
-	      if ( hit == 0 || !hit->isValid() ) 
+	      if ( hit == nullptr || !hit->isValid() ) 
 		continue;
 	      
 	      int subdet = hit->geographicalId().subdetId();
@@ -480,7 +480,7 @@ TrackClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      
 	      const GeomDet *det = geometry_->idToDet( hit->geographicalId() );
 	      
-	      if ( det == 0 ) 
+	      if ( det == nullptr ) 
 		{
 		  edm::LogError("MissingDetId") << "DetIDs " << (int)(hit->geographicalId()) << " is not in geometry.\n";
 		  continue;
@@ -561,7 +561,7 @@ TrackClusterSplitter::splitClusters(const std::map<uint32_t, boost::sub_range<st
     {
       const GeomDet* det = geometry_->idToDet( DetId(p.first) );
       
-      if ( det == 0 ) 
+      if ( det == nullptr ) 
       	{ 
       	  edm::LogError("MissingDetId") << "DetIDs " << p.first << " is not in geometry.\n";
 	  continue;
@@ -749,7 +749,7 @@ void TrackClusterSplitter::splitCluster<SiStripCluster> (const SiStripClusterWit
 		  for (size_t j=0; j<trackAmp[i].size(); ++j ) 
 		    clusterAmp += (float)(trackAmp[i])[j];
 		  
-		  if ( clusterAmp > 0.0 && firstStrip[i] != 9999 && trackAmp[i].size() > 0  ) 
+		  if ( clusterAmp > 0.0 && firstStrip[i] != 9999 && !trackAmp[i].empty()  ) 
 		    { 
 		      // gavril :  I think this should work
 		      output.push_back( newCluster[i] );

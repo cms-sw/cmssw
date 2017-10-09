@@ -14,7 +14,7 @@ class StripCPEfromTemplate : public StripCPE
   
 
   StripClusterParameterEstimator::LocalValues 
-    localParameters( const SiStripCluster&, const GeomDetUnit&, const LocalTrajectoryParameters&) const;
+    localParameters( const SiStripCluster&, const GeomDetUnit&, const LocalTrajectoryParameters&) const override;
 
   StripCPEfromTemplate( edm::ParameterSet & conf, 
 			  const MagneticField& mag, 

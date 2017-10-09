@@ -10,7 +10,7 @@
 class  PixelCPEGenericESProducer: public edm::ESProducer{
  public:
   PixelCPEGenericESProducer(const edm::ParameterSet & p);
-  virtual ~PixelCPEGenericESProducer(); 
+  ~PixelCPEGenericESProducer() override; 
   std::shared_ptr<PixelClusterParameterEstimator> produce(const TkPixelCPERecord &);
  private:
   std::shared_ptr<PixelClusterParameterEstimator> cpe_;
