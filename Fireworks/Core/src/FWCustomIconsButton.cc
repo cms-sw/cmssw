@@ -12,7 +12,7 @@
 
 // system include files
 #include <algorithm>
-#include <assert.h>
+#include <cassert>
 #include "TGPicture.h"
 
 // user include files
@@ -43,9 +43,9 @@ FWCustomIconsButton::FWCustomIconsButton(const TGWindow* iParent,
    m_belowMouseIcon(iBelowMouseIcon),
    m_inside(false)
 {
-   assert(0!=iUpIcon);
-   assert(0!=iDownIcon);
-   assert(0!=iDisabledIcon);
+   assert(nullptr!=iUpIcon);
+   assert(nullptr!=iDownIcon);
+   assert(nullptr!=iDisabledIcon);
    gVirtualX->ShapeCombineMask(GetId(), 0, 0, iUpIcon->GetMask());
    SetBackgroundPixmap(iUpIcon->GetPicture());
    Resize(iUpIcon->GetWidth(),iUpIcon->GetHeight());

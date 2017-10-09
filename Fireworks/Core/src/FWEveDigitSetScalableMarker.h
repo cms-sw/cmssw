@@ -10,7 +10,7 @@ class FWEveDigitSetScalableMarker : public TEveQuadSet, public TAttMarker
 {
 public:
    FWEveDigitSetScalableMarker() {}
-   virtual ~FWEveDigitSetScalableMarker() {}
+   ~FWEveDigitSetScalableMarker() override {}
    
    ClassDef( FWEveDigitSetScalableMarker, 0);
 };
@@ -20,9 +20,9 @@ class FWEveDigitSetScalableMarkerGL : public TEveQuadSetGL
 {
 public:
    FWEveDigitSetScalableMarkerGL() {}
-   virtual ~FWEveDigitSetScalableMarkerGL() {}
+   ~FWEveDigitSetScalableMarkerGL() override {}
    
-   void DirectDraw(TGLRnrCtx & rnrCtx) const;
+   void DirectDraw(TGLRnrCtx & rnrCtx) const override;
    
    ClassDef(FWEveDigitSetScalableMarkerGL, 0);
 };

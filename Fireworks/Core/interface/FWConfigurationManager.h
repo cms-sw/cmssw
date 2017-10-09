@@ -53,9 +53,9 @@ public:
    bool getIgnore() const { return m_ignore; }
 
 private:
-   FWConfigurationManager(const FWConfigurationManager&);    // stop default
+   FWConfigurationManager(const FWConfigurationManager&) = delete;    // stop default
 
-   const FWConfigurationManager& operator=(const FWConfigurationManager&);    // stop default
+   const FWConfigurationManager& operator=(const FWConfigurationManager&) = delete;    // stop default
    void readFromOldFile(const std::string&) const;
 
    // ---------- member data --------------------------------

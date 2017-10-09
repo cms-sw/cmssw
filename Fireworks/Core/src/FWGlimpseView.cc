@@ -48,7 +48,7 @@
 //
 FWGlimpseView::FWGlimpseView(TEveWindowSlot* iParent, FWViewType::EType typeId) :
    FWEveView(iParent, typeId),
-   m_cylinder(0),
+   m_cylinder(nullptr),
    m_showAxes(this, "Show Axes", true ),
    m_showCylinder(this, "Show Cylinder", true)
 {
@@ -146,9 +146,9 @@ void
 FWGlimpseView::showAxes( )
 {
    if ( m_showAxes.value() )
-      viewerGL()->SetGuideState(TGLUtil::kAxesOrigin, kTRUE, kFALSE, 0);
+      viewerGL()->SetGuideState(TGLUtil::kAxesOrigin, kTRUE, kFALSE, nullptr);
    else
-      viewerGL()->SetGuideState(TGLUtil::kAxesNone, kTRUE, kFALSE, 0);
+      viewerGL()->SetGuideState(TGLUtil::kAxesNone, kTRUE, kFALSE, nullptr);
 }
 
 

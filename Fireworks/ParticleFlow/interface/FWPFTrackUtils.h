@@ -80,8 +80,8 @@ class FWPFTrackUtils
       TEvePointSet         *getCollisionMarkers( const TEveTrack* );
 
    private:
-      FWPFTrackUtils( const FWPFTrackUtils& );                    // Stop default copy constructor
-      const FWPFTrackUtils& operator=( const FWPFTrackUtils& );   // Stop default assignment operator
+      FWPFTrackUtils( const FWPFTrackUtils& ) = delete;                    // Stop default copy constructor
+      const FWPFTrackUtils& operator=( const FWPFTrackUtils& ) = delete;   // Stop default assignment operator
 
       TEveTrack            *getTrack( const reco::Track& );
 

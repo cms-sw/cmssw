@@ -21,7 +21,7 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 
 FWDetailViewBase::FWDetailViewBase(const std::type_info& iInfo) :
-   m_item(0),
+   m_item(nullptr),
    m_helper(iInfo)
 {
 }

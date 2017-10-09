@@ -15,16 +15,16 @@ class FWL1MuonParticleLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<l1e
 {
 public:
    FWL1MuonParticleLegoProxyBuilder( void ) {}
-   virtual ~FWL1MuonParticleLegoProxyBuilder( void ) {}
+   ~FWL1MuonParticleLegoProxyBuilder( void ) override {}
    
    REGISTER_PROXYBUILDER_METHODS();
    
 private:
-   FWL1MuonParticleLegoProxyBuilder( const FWL1MuonParticleLegoProxyBuilder& );    // stop default
-   const FWL1MuonParticleLegoProxyBuilder& operator=( const FWL1MuonParticleLegoProxyBuilder& );    // stop default
+   FWL1MuonParticleLegoProxyBuilder( const FWL1MuonParticleLegoProxyBuilder& ) = delete;    // stop default
+   const FWL1MuonParticleLegoProxyBuilder& operator=( const FWL1MuonParticleLegoProxyBuilder& ) = delete;    // stop default
    
    using FWSimpleProxyBuilderTemplate<l1extra::L1MuonParticle>::build;
-   virtual void build( const l1extra::L1MuonParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext* );
+   void build( const l1extra::L1MuonParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext* ) override;
 };
 
 void
