@@ -61,7 +61,7 @@ using namespace magneticfield;
 MagGeoBuilderFromDDD::MagGeoBuilderFromDDD(string tableSet_,int geometryVersion_, bool debug_) :
   tableSet (tableSet_),
   geometryVersion(geometryVersion_),
-  theGridFiles(0)
+  theGridFiles(nullptr)
 {  
   debug = debug_;
   if (debug) cout << "Constructing a MagGeoBuilderFromDDD" <<endl;
@@ -196,7 +196,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
 
     volumeHandle* v = new volumeHandle(fv, expand);
 
-    if (theGridFiles!=0) {
+    if (theGridFiles!=nullptr) {
       int key = (v->volumeno)*100+v->copyno;
       TableFileMap::const_iterator itable = theGridFiles->find(key);
       if (itable == theGridFiles->end()) {
@@ -463,7 +463,7 @@ void MagGeoBuilderFromDDD::buildMagVolumes(const handles & volumes, map<string, 
   // Build all MagVolumes setting the MagProviderInterpol
   for (handles::const_iterator vol=volumes.begin(); vol!=volumes.end();
        ++vol){
-    const MagProviderInterpol* mp = 0;
+    const MagProviderInterpol* mp = nullptr;
     if (interpolators.find((*vol)->magFile)!=interpolators.end()) {
       mp = interpolators[(*vol)->magFile];
     } else {
@@ -584,7 +584,7 @@ void MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle * vol, map<strin
 				 interpolators[vol->magFile]);
 
       const MFGrid* grid = dynamic_cast<const MFGrid*>(interpolators[vol->magFile]);
-      if (grid!=0) {
+      if (grid!=nullptr) {
 	
 	Dimensions sizes = grid->dimensions();
 	cout << "Grid has 3 dimensions " 
