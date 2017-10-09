@@ -20,9 +20,9 @@ class FamosProducer : public edm::stream::EDProducer <>
  public:
 
   explicit FamosProducer(edm::ParameterSet const & p);
-  virtual ~FamosProducer();
-  virtual void beginRun(edm::Run const& run, const edm::EventSetup & es) override;
-  virtual void produce(edm::Event & e, const edm::EventSetup & c) override;
+  ~FamosProducer() override;
+  void beginRun(edm::Run const& run, const edm::EventSetup & es) override;
+  void produce(edm::Event & e, const edm::EventSetup & c) override;
 
  private:
 

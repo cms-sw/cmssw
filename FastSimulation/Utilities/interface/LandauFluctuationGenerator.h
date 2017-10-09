@@ -28,13 +28,13 @@ class LandauFluctuationGenerator : public BaseNumericalRandomGenerator
   }
 
   /// Default destructor
-  virtual ~LandauFluctuationGenerator() {}
+  ~LandauFluctuationGenerator() override {}
 
   /// Random generator of the dE/dX spread (Landau function)  
   double landau(RandomEngineAndDistribution const* random) const { return generate(random); }
   
   /// The probability density function implementation
-  virtual double function(double x) { return ersatzt(x); }
+  double function(double x) override { return ersatzt(x); }
 
  private:
 
