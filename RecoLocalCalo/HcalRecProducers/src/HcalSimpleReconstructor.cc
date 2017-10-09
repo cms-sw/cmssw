@@ -22,8 +22,8 @@ HcalSimpleReconstructor::HcalSimpleReconstructor(edm::ParameterSet const& conf):
   firstSample_(conf.getParameter<int>("firstSample")),
   samplesToAdd_(conf.getParameter<int>("samplesToAdd")),
   tsFromDB_(conf.getParameter<bool>("tsFromDB")),
-  paramTS(0),
-  theTopology(0)
+  paramTS(nullptr),
+  theTopology(nullptr)
 {
   // Intitialize "method 3"
   reco_.setMeth3Params(
@@ -93,7 +93,7 @@ void HcalSimpleReconstructor::beginRun(edm::Run const&r, edm::EventSetup const &
 void HcalSimpleReconstructor::endRun(edm::Run const&r, edm::EventSetup const & es){
   if(tsFromDB_ && paramTS) {
     delete paramTS;
-    paramTS = 0;
+    paramTS = nullptr;
     reco_.endRun();
   }
 }

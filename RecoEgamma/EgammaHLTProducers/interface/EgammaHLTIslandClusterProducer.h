@@ -2,7 +2,7 @@
 #define RecoEcal_EgammaClusterProducers_EgammaHLTIslandClusterProducer_h_
 
 #include <memory>
-#include <time.h>
+#include <ctime>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -24,7 +24,7 @@ namespace edm {
 class EgammaHLTIslandClusterProducer : public edm::EDProducer {
  public:
   EgammaHLTIslandClusterProducer(const edm::ParameterSet& ps);
-  ~EgammaHLTIslandClusterProducer();
+  ~EgammaHLTIslandClusterProducer() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

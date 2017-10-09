@@ -42,12 +42,12 @@ class HBHEPlan1Combiner : public edm::stream::EDProducer<>
 {
 public:
     explicit HBHEPlan1Combiner(const edm::ParameterSet&);
-    ~HBHEPlan1Combiner();
+    ~HBHEPlan1Combiner() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     // ----------member data ---------------------------
 

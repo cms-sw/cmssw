@@ -27,15 +27,15 @@ namespace cms
 
     CSJetProducer(const edm::ParameterSet& ps);
 
-    virtual ~CSJetProducer() {}
+    ~CSJetProducer() override {}
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     static void fillDescriptionsFromCSJetProducer(edm::ParameterSetDescription& desc);
 
-    virtual void produce( edm::Event & iEvent, const edm::EventSetup & iSetup ) override;
+    void produce( edm::Event & iEvent, const edm::EventSetup & iSetup ) override;
     
   protected:
 
-    virtual void runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup );
+    void runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
 
     double csRParam_;           /// for constituent subtraction : R parameter
     double csAlpha_;            /// for HI constituent subtraction : alpha (power of pt in metric)

@@ -132,7 +132,7 @@ JetTagProducer::produce(Event& iEvent, const EventSetup& iSetup)
   // take first tagInfo
   Handle< View<BaseTagInfo> > &tagInfoHandle = tagInfoHandles[0];
   std::unique_ptr<JetTagCollection> jetTagCollection;
-  if (tagInfoHandle.product()->size() > 0) {
+  if (!tagInfoHandle.product()->empty()) {
     RefToBase<Jet> jj = tagInfoHandle->begin()->jet();
     jetTagCollection = std::make_unique<JetTagCollection>(edm::makeRefToBaseProdFrom(jj, iEvent));
   } else

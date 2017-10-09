@@ -12,7 +12,7 @@
 #include <fstream>
 #include <vector>
 #include <iomanip>
-#include <math.h>
+#include <cmath>
 
 using namespace std;
 using namespace jpt;
@@ -403,7 +403,7 @@ void JetPlusTrackCorrector::matchTracks( const JetTracks& jet_tracks,
    vertex_=reco::Particle::Point(0,0,0);
    edm::Handle<reco::VertexCollection> pvCollection;
    event.getByToken(input_pvCollection_token_, pvCollection);
-   if ( pvCollection.isValid() && pvCollection->size()>0 ) vertex_=pvCollection->begin()->position();
+   if ( pvCollection.isValid() && !pvCollection->empty() ) vertex_=pvCollection->begin()->position();
 
   // Get RECO muons
   edm::Handle<RecoMuons> reco_muons;
@@ -1213,7 +1213,7 @@ void JetPlusTrackCorrector::excludeJta( const reco::Jet& fJet,
   //std::cout<<" NEW2" << std::endl;
 
   tracksthis = reco::JetTracksAssociation::getValue(jtV0,fJet);
-  if(Excl.size() == 0) return;
+  if(Excl.empty()) return;
   if(jetSplitMerge_<0) return;
 
   TrackRefs tracks = tracksthis;
@@ -1255,7 +1255,7 @@ double NewResponse = fJet.energy();
 //         <<" pt= "<<fJet.pt()<<" eta="<<fJet.eta()<<" phi="<<fJet.phi() <<" ja="<<ja
 //        <<" trBgOutOfVertex="<<trBgOutOfVertex.size()<< " trBgOutOfCalo="<<trBgOutOfCalo.size()<<std::endl;
 
-if( trBgOutOfVertex.size() == 0 ) return mScale;
+if( trBgOutOfVertex.empty() ) return mScale;
    double EnergyOfBackgroundCharged         = 0.;
    double ResponseOfBackgroundCharged       = 0.;
 
@@ -1408,7 +1408,7 @@ Map::Map( std::string input, bool verbose )
   string line;
   uint32_t ieta_old = 0; 
   while ( std::getline( in, line ) ) {
-    if ( !line.size() || line[0]=='#' ) { continue; }
+    if ( line.empty() || line[0]=='#' ) { continue; }
     std::istringstream ss(line);
     Element temp;
     ss >> temp.ieta_ >> temp.ipt_ >> temp.eta_ >> temp.pt_ >> temp.val_;

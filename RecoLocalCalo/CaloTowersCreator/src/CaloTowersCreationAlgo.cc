@@ -67,9 +67,9 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo()
    theHOEScale(50.),
    theHF1EScale(50.),
    theHF2EScale(50.),
-   theHcalTopology(0),
-   theGeometry(0),
-   theTowerConstituentsMap(0),
+   theHcalTopology(nullptr),
+   theGeometry(nullptr),
+   theTowerConstituentsMap(nullptr),
    theHcalAcceptSeverityLevel(0),
    theRecoveredHcalHitsAreUsed(false),
    theRecoveredEcalHitsAreUsed(false),
@@ -168,9 +168,9 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
     theHOEScale(50.),
     theHF1EScale(50.),
     theHF2EScale(50.),
-    theHcalTopology(0),
-    theGeometry(0),
-    theTowerConstituentsMap(0),
+    theHcalTopology(nullptr),
+    theGeometry(nullptr),
+    theTowerConstituentsMap(nullptr),
     theHcalAcceptSeverityLevel(0),
     theRecoveredHcalHitsAreUsed(false),
     theRecoveredEcalHitsAreUsed(false),
@@ -276,9 +276,9 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
     theHOEScale(50.),
     theHF1EScale(50.),
     theHF2EScale(50.),
-    theHcalTopology(0),
-    theGeometry(0),
-    theTowerConstituentsMap(0),
+    theHcalTopology(nullptr),
+    theGeometry(nullptr),
+    theTowerConstituentsMap(nullptr),
     theHcalAcceptSeverityLevel(0),
     theRecoveredHcalHitsAreUsed(false),
     theRecoveredEcalHitsAreUsed(false),
@@ -1399,7 +1399,7 @@ GlobalPoint CaloTowersCreationAlgo::emCrystalShwrPos(DetId detId, float fracDept
    if (fracDepth<=0) return point;
    if (fracDepth>1) fracDepth=1;
 
-     GlobalPoint backPoint = cellGeometry->getBackPoint();
+     const GlobalPoint& backPoint = cellGeometry->getBackPoint();
      point += fracDepth * (backPoint-point);
 
    return point;
@@ -1547,7 +1547,7 @@ GlobalPoint CaloTowersCreationAlgo::hadShwPosFromCells(DetId frontCellId, DetId 
     const CaloCellGeometry* backCellGeometry  = theGeometry->getGeometry(DetId(hid2));
 
     GlobalPoint point     = frontCellGeometry->getPosition();
-    GlobalPoint backPoint = backCellGeometry->getBackPoint();
+    const GlobalPoint& backPoint = backCellGeometry->getBackPoint();
 
     point += fracDepth * (backPoint - point);
 

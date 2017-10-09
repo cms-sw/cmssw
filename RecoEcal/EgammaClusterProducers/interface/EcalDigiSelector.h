@@ -24,7 +24,7 @@ class EcalDigiSelector : public edm::stream::EDProducer<>
   
   EcalDigiSelector(const edm::ParameterSet& ps);
    
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
 
  private:

@@ -36,14 +36,14 @@ namespace {
   class UETableProducer : public edm::one::EDAnalyzer<> {
   public:
     explicit UETableProducer(const edm::ParameterSet&);
-    ~UETableProducer();
+    ~UETableProducer() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     
   private:
-    virtual void beginJob() override {}
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-    virtual void endJob() override;
+    void beginJob() override {}
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void endJob() override;
 
     // ----------member data ---------------------------
 
@@ -124,7 +124,7 @@ UETableProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 UETableProducer::endJob() {
-  std::string qpDataName = calibrationFile_.c_str();
+  std::string qpDataName = calibrationFile_;
   std::ifstream textTable_(qpDataName.c_str());
 
   std::vector<float> ue_vec;
@@ -163,7 +163,7 @@ UETableProducer::endJob() {
   std::string line;
 
   while( std::getline( textTable_, line)){
-    if(!line.size() || line[0]=='#') {
+    if(line.empty() || line[0]=='#') {
       std::cout<<" continue "<<std::endl;
       continue;
     }
