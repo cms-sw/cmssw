@@ -993,7 +993,6 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
       // Apply loose preselection with the track
       // just to save cpu time, for this hard-coded
       if(ideta < 0.5 && fabs(idphi) < 1.0) {
-	bool foundILink = false;
 	double dist = iGsfPFRecTrack.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() ?
 	  LinkByRecHit::testTrackAndClusterByRecHit(iGsfPFRecTrack , clust ) : -1.;
 	if(dist > 0.) {
