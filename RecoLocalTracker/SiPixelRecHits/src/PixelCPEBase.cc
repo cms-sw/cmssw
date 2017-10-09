@@ -460,7 +460,7 @@ PixelCPEBase::driftDirection(DetParam & theDetParam, LocalVector Bfield ) const 
    // Use LA from DB or from config
    float langle = 0.;
    if( !useLAOffsetFromConfig_ ) {  // get it from DB
-      if(lorentzAngle_ != NULL) {  // a real LA object
+      if(lorentzAngle_ != nullptr) {  // a real LA object
          langle = lorentzAngle_->getLorentzAngle(theDetParam.theDet->geographicalId().rawId());
          //cout<<" la "<<langle<<" "<< theDetParam.theDet->geographicalId().rawId() <<endl;
       } else { // no LA, unused
@@ -480,7 +480,7 @@ PixelCPEBase::driftDirection(DetParam & theDetParam, LocalVector Bfield ) const 
    // Compute the charge width, generic only
    if(theFlag_==0) {
       
-      if(useLAWidthFromDB_ && (lorentzAngleWidth_ != NULL) ) {
+      if(useLAWidthFromDB_ && (lorentzAngleWidth_ != nullptr) ) {
          // take it from a seperate, special LA DB object (forWidth)
          
          auto langleWidth = lorentzAngleWidth_->getLorentzAngle(theDetParam.theDet->geographicalId().rawId());
