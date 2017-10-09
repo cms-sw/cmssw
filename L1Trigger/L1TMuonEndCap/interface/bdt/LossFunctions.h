@@ -30,6 +30,7 @@ class LossFunction
         virtual double fit(std::vector<Event*>& v) = 0;
         virtual std::string name() = 0;
         virtual int id() = 0;
+	virtual ~LossFunction() = default;
 };
 
 // ========================================================
@@ -40,7 +41,7 @@ class LeastSquares : public LossFunction
 {
     public:
         LeastSquares(){}
-        ~LeastSquares(){}
+        virtual ~LeastSquares(){}
 
         double target(Event* e) override
         {
@@ -74,7 +75,7 @@ class AbsoluteDeviation : public LossFunction
 {
     public:
         AbsoluteDeviation(){}
-        ~AbsoluteDeviation(){}
+        virtual ~AbsoluteDeviation(){}
 
         double target(Event* e) override
         {
@@ -130,7 +131,7 @@ class Huber : public LossFunction
 {
     public:
         Huber(){}
-        ~Huber(){}
+        virtual ~Huber(){}
  
         double quantile;
         double residual_median;
@@ -194,7 +195,7 @@ class PercentErrorSquared : public LossFunction
 {
     public:
         PercentErrorSquared(){}
-        ~PercentErrorSquared(){}
+        virtual ~PercentErrorSquared(){}
 
         double target(Event* e) override
         {   
