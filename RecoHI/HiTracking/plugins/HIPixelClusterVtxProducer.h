@@ -14,7 +14,7 @@ class HIPixelClusterVtxProducer : public edm::stream::EDProducer<>
 {
 public:
   explicit HIPixelClusterVtxProducer(const edm::ParameterSet& ps);
-  ~HIPixelClusterVtxProducer();
+  ~HIPixelClusterVtxProducer() override;
  
 private:
   struct VertexHit
@@ -24,7 +24,7 @@ private:
     float w;
   };
 
-  virtual void produce(edm::Event& ev, const edm::EventSetup& es) override;
+  void produce(edm::Event& ev, const edm::EventSetup& es) override;
   int getContainedHits(const std::vector<VertexHit> &hits, double z0, double &chi);
 
   std::string srcPixelsString_; //pixel rec hits
