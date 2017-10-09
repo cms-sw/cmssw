@@ -89,7 +89,7 @@ HLTTauRefCombiner::match(const LorentzVector& lv,const LorentzVectorCollection& 
 {
  bool matched=false;
 
- if(!lvcol.empty())
+ if(lvcol.size()>0)
   for(LorentzVectorCollection::const_iterator it = lvcol.begin();it!=lvcol.end();++it)
    {
      	  double delta = ROOT::Math::VectorUtil::DeltaR(lv,*it);

@@ -50,12 +50,12 @@
 class TestHits : public edm::EDAnalyzer {
 public:
   explicit TestHits(const edm::ParameterSet&);
-  ~TestHits() override;
+  ~TestHits();
 
 private:
-  void beginRun(edm::Run const& run, const edm::EventSetup&) override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
+  virtual void beginRun(edm::Run const& run, const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override;
 
   std::pair<LocalPoint,LocalVector> projectHit(const PSimHit&, const StripGeomDetUnit*, const BoundPlane&);
 

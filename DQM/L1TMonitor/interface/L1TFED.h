@@ -46,7 +46,7 @@ public:
 L1TFED(const edm::ParameterSet& ps);
 
 // Destructor
-~L1TFED() override;
+virtual ~L1TFED();
 
 protected:
 // Analyze

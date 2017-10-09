@@ -19,13 +19,13 @@ class TrackerTopology;
 class CosmicLayerPairs : public SeedLayerPairs{
 public:
   CosmicLayerPairs(std::string geometry):_geometry(geometry){};//:isFirstCall(true){};
-  ~CosmicLayerPairs() override;
+  ~CosmicLayerPairs();
   //  explicit PixelSeedLayerPairs(const edm::EventSetup& iSetup);
 
 
 
   //  virtual vector<LayerPair> operator()() const;
-  std::vector<SeedLayerPairs::LayerPair> operator()() override ;
+  std::vector<SeedLayerPairs::LayerPair> operator()() ;
   void init(const SiStripRecHit2DCollection &collstereo,
              const SiStripRecHit2DCollection &collrphi,
              const SiStripMatchedRecHit2DCollection &collmatched,

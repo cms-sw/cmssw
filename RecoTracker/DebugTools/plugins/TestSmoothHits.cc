@@ -233,14 +233,14 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       std::vector<Trajectory> smoothed = smooth->trajectories(*it);
       result.insert(result.end(), smoothed.begin(), smoothed.end());
     }
-    if (result.empty()) continue;
+    if (result.size()==0) continue;
     std::vector<TrajectoryMeasurement> vtm = result[0].measurements();
 
     TSOS lastState = theTSOS;
     for (std::vector<TrajectoryMeasurement>::iterator tm=vtm.begin(); tm!=vtm.end();tm++){
 
       TransientTrackingRecHit::ConstRecHitPointer rhit = tm->recHit();
-      if ((rhit)->isValid()==0&&rhit->det()!=nullptr) continue;
+      if ((rhit)->isValid()==0&&rhit->det()!=0) continue;
       LogTrace("TestSmoothHits") << "new hit" ;
 
       int subdetId = rhit->det()->geographicalId().subdetId();
@@ -252,7 +252,7 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       LocalPoint rhitLPv = rhit->localPosition();
 
       std::vector<PSimHit> assSimHits = hitAssociator.associateHit(*(rhit->hit()));
-      if (assSimHits.empty()) continue;
+      if (assSimHits.size()==0) continue;
       PSimHit shit;
       for(std::vector<PSimHit>::const_iterator m=assSimHits.begin(); m<assSimHits.end(); m++){
 	if ((m->localPosition()-rhitLPv).mag()<delta) {
@@ -439,12 +439,12 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         auto m = dynamic_cast<const SiStripMatchedRecHit2D*>((rhit)->hit())->monoHit();
 	CTTRHp tMonoHit = 
 	  theBuilder->build(&m);
-	if (tMonoHit==nullptr) continue;
+	if (tMonoHit==0) continue;
 	vector<PSimHit> assMonoSimHits = hitAssociator.associateHit(*tMonoHit->hit());
-	if (assMonoSimHits.empty()) continue;
+	if (assMonoSimHits.size()==0) continue;
 	const PSimHit sMonoHit = *(assSimHits.begin());
 	const Surface * monoSurf = &( tMonoHit->det()->surface() );
-	if (monoSurf==nullptr) continue;
+	if (monoSurf==0) continue;
 	TSOS monoState = thePropagator->propagate(lastState,*monoSurf);
 	if (monoState.isValid()==0) continue;
 
@@ -534,12 +534,12 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         auto s = dynamic_cast<const SiStripMatchedRecHit2D*>((rhit)->hit())->stereoHit();
 	CTTRHp tStereoHit = 
 	  theBuilder->build(&s);
-	if (tStereoHit==nullptr) continue;
+	if (tStereoHit==0) continue;
 	vector<PSimHit> assStereoSimHits = hitAssociator.associateHit(*tStereoHit->hit());
-	if (assStereoSimHits.empty()) continue;
+	if (assStereoSimHits.size()==0) continue;
 	const PSimHit sStereoHit = *(assSimHits.begin());
 	const Surface * stereoSurf = &( tStereoHit->det()->surface() );
-	if (stereoSurf==nullptr) continue;
+	if (stereoSurf==0) continue;
 	TSOS stereoState = thePropagator->propagate(lastState,*stereoSurf);
 	if (stereoState.isValid()==0) continue;
 

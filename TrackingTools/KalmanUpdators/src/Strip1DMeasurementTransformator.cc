@@ -8,7 +8,7 @@ Strip1DMeasurementTransformator::Strip1DMeasurementTransformator(const TSOS& tso
 							 const   TrackingRecHit& hit) : 
   theRecHit(hit),
   theState(tsos),
-  theTopology(nullptr) {
+  theTopology(0) {
 
   init();
 }

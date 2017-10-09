@@ -33,9 +33,9 @@ class AlignableDTWheel : public AlignableComposite
 
   AlignableDTWheel( const std::vector<AlignableDTStation*>& dtStations );
 
-  ~AlignableDTWheel() override;
+  ~AlignableDTWheel();
   
-  std::vector<Alignable*> components() const override 
+  virtual std::vector<Alignable*> components() const 
   {
 
         std::vector<Alignable*> result;
@@ -57,7 +57,7 @@ class AlignableDTWheel : public AlignableComposite
   friend std::ostream& operator << ( std::ostream&, const AlignableDTWheel& );
 
   /// Recursive printout of the muon DT wheel structure
-  void dump( void ) const override;
+  void dump( void ) const;
 
 
 private:

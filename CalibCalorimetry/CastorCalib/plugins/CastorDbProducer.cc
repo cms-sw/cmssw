@@ -37,7 +37,7 @@ CastorDbProducer::CastorDbProducer( const edm::ParameterSet& fConfig)
   : ESProducer(),
     mService (new CastorDbService (fConfig)),
     mDumpRequest (),
-    mDumpStream(nullptr)
+    mDumpStream(0)
 {
   //the following line is needed to tell the framework what
   // data is being produced

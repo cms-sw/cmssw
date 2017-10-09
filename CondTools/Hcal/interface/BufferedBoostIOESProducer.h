@@ -39,7 +39,7 @@ public:
     inline BufferedBoostIOESProducer(const edm::ParameterSet&)
         {setWhatProduced(this);}
 
-    inline ~BufferedBoostIOESProducer() override {}
+    inline virtual ~BufferedBoostIOESProducer() {}
 
     ReturnType produce(const MyRecord&);
 };

@@ -24,7 +24,7 @@ class TtGenEvent: public TopGenEvent {
   /// default constructor from decaySubset and initSubset
   TtGenEvent(reco::GenParticleRefProd& decaySubset, reco::GenParticleRefProd& initSubset);
   /// default destructor
-  ~TtGenEvent() override {};
+  virtual ~TtGenEvent() {};
 
   /// check if the event can be classified as ttbar
   bool isTtBar() const {return (top() && topBar());}
@@ -84,7 +84,7 @@ class TtGenEvent: public TopGenEvent {
   const reco::GenParticle* neutrinoBar(bool excludeTauLeptons=false) const;
 
   /// return combined 4-vector of top and topBar
-  const math::XYZTLorentzVector* topPair() const { return isTtBar() ? &topPair_ : nullptr; };
+  const math::XYZTLorentzVector* topPair() const { return isTtBar() ? &topPair_ : 0; };
 
  protected:
 

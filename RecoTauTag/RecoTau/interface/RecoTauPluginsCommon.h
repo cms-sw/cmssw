@@ -41,7 +41,7 @@ class RecoTauEventHolderPlugin : public RecoTauNamedPlugin {
     * as internal data members */
    public:
       explicit RecoTauEventHolderPlugin(const edm::ParameterSet& pset);
-      ~RecoTauEventHolderPlugin() override {}
+      virtual ~RecoTauEventHolderPlugin() {}
       // Get the internal cached copy of the event
       const edm::Event* evt() const;
       edm::Event* evt();

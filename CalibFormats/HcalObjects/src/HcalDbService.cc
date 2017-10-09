@@ -14,20 +14,20 @@
 #include <cmath>
 
 HcalDbService::HcalDbService (const edm::ParameterSet& cfg): 
-  mPedestals (nullptr), mPedestalWidths (nullptr),
-  mGains (nullptr), mGainWidths (nullptr),  
-  mQIEData(nullptr),
-  mQIETypes(nullptr),
-  mElectronicsMap(nullptr), mFrontEndMap(nullptr),
-  mRespCorrs(nullptr),
-  mL1TriggerObjects(nullptr),
-  mTimeCorrs(nullptr),
-  mLUTCorrs(nullptr),
-  mPFCorrs(nullptr),
-  mLutMetadata(nullptr),
-  mSiPMParameters(nullptr), mSiPMCharacteristics(nullptr),
-  mTPChannelParameters(nullptr), mTPParameters(nullptr),
-  mMCParams(nullptr),
+  mPedestals (0), mPedestalWidths (0),
+  mGains (0), mGainWidths (0),  
+  mQIEData(0),
+  mQIETypes(0),
+  mElectronicsMap(0), mFrontEndMap(0),
+  mRespCorrs(0),
+  mL1TriggerObjects(0),
+  mTimeCorrs(0),
+  mLUTCorrs(0),
+  mPFCorrs(0),
+  mLutMetadata(0),
+  mSiPMParameters(0), mSiPMCharacteristics(0),
+  mTPChannelParameters(0), mTPParameters(0),
+  mMCParams(0),
   mCalibSet(nullptr), mCalibWidthSet(nullptr)
  {}
 
@@ -43,7 +43,7 @@ const HcalTopology* HcalDbService::getTopologyUsed() const {
   if (mQIETypes && mQIETypes->topo())   return mQIETypes->topo();
   if (mL1TriggerObjects && mL1TriggerObjects->topo()) return mL1TriggerObjects->topo();
   if (mLutMetadata && mLutMetadata->topo()) return mLutMetadata->topo();
-  return nullptr;
+  return 0;
 }
 
 
@@ -203,49 +203,49 @@ const HcalQIEType* HcalDbService::getHcalQIEType (const HcalGenericDetId& fId) c
   if (mQIETypes) {
     return mQIETypes->getValues (fId);
   }
-  return nullptr;
+  return 0;
 }
 
 const HcalRespCorr* HcalDbService::getHcalRespCorr (const HcalGenericDetId& fId) const {
   if (mRespCorrs) {
     return mRespCorrs->getValues (fId);
   }
-  return nullptr;
+  return 0;
 }
 
 const HcalPedestal* HcalDbService::getPedestal (const HcalGenericDetId& fId) const {
   if (mPedestals) {
     return mPedestals->getValues (fId);
   }
-  return nullptr;
+  return 0;
 }
 
   const HcalPedestalWidth* HcalDbService::getPedestalWidth (const HcalGenericDetId& fId) const {
   if (mPedestalWidths) {
     return mPedestalWidths->getValues (fId);
   }
-  return nullptr;
+  return 0;
 }
 
 const HcalGain* HcalDbService::getGain (const HcalGenericDetId& fId) const {
   if (mGains) {
     return mGains->getValues(fId);
   }
-  return nullptr;
+  return 0;
 }
 
   const HcalGainWidth* HcalDbService::getGainWidth (const HcalGenericDetId& fId) const {
   if (mGainWidths) {
     return mGainWidths->getValues (fId);
   }
-  return nullptr;
+  return 0;
 }
 
 const HcalQIECoder* HcalDbService::getHcalCoder (const HcalGenericDetId& fId) const {
   if (mQIEData) {
     return mQIEData->getCoder (fId);
   }
-  return nullptr;
+  return 0;
 }
 
 const HcalQIEShape* HcalDbService::getHcalShape (const HcalGenericDetId& fId) const {
@@ -256,7 +256,7 @@ const HcalQIEShape* HcalDbService::getHcalShape (const HcalGenericDetId& fId) co
     if(qieType>0) qieType = 1;
     return &mQIEData->getShape(qieType);
   }
-  return nullptr;
+  return 0;
 }
 
 const HcalQIEShape* HcalDbService::getHcalShape (const HcalQIECoder *coder) const {
@@ -291,21 +291,21 @@ const HcalTimeCorr* HcalDbService::getHcalTimeCorr (const HcalGenericDetId& fId)
   if (mTimeCorrs) {
     return mTimeCorrs->getValues (fId);
   }
-  return nullptr;
+  return 0;
 }
 
 const HcalLUTCorr* HcalDbService::getHcalLUTCorr (const HcalGenericDetId& fId) const {
   if (mLUTCorrs) {
     return mLUTCorrs->getValues (fId);
   }
-  return nullptr;
+  return 0;
 }
 
 const HcalPFCorr* HcalDbService::getHcalPFCorr (const HcalGenericDetId& fId) const {
   if (mPFCorrs) {
     return mPFCorrs->getValues (fId);
   }
-  return nullptr;
+  return 0;
 }
 
 const HcalLutMetadata* HcalDbService::getHcalLutMetadata () const {
@@ -316,7 +316,7 @@ const HcalSiPMParameter* HcalDbService::getHcalSiPMParameter (const HcalGenericD
   if (mSiPMParameters) {
     return mSiPMParameters->getValues (fId);
   }
-  return nullptr;
+  return 0;
 }
 
 const HcalSiPMCharacteristics* HcalDbService::getHcalSiPMCharacteristics () const {
@@ -327,14 +327,14 @@ const HcalTPChannelParameter* HcalDbService::getHcalTPChannelParameter (const Hc
   if (mTPChannelParameters) {
     return mTPChannelParameters->getValues (fId);
   }
-  return nullptr;
+  return 0;
 }
 
 const HcalMCParam* HcalDbService::getHcalMCParam (const HcalGenericDetId& fId) const {
   if (mMCParams) {
     return mMCParams->getValues (fId);
   }
-  return nullptr;
+  return 0;
 }
 
 const HcalTPParameters* HcalDbService::getHcalTPParameters () const {

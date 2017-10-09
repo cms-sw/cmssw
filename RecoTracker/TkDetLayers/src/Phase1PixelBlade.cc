@@ -213,7 +213,7 @@ void Phase1PixelBlade::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 				  vector<DetGroup>& result,
 				  bool checkClosest) const
 {
-  const GlobalPoint& gCrossingPos = crossing.position();
+  GlobalPoint gCrossingPos = crossing.position();
   const vector<const GeomDet*>& sBlade( subBlade( crossing.subLayerIndex()));
 
   int closestIndex = crossing.closestDetIndex();
@@ -333,7 +333,7 @@ Phase1PixelBlade::computeRadiusRanges(const std::vector<const GeomDet*> &current
   GlobalVector zAxis;
 
   GlobalVector planeXAxis    = tmpplane.toGlobal(LocalVector(1, 0, 0));
-  const GlobalPoint&  planePosition = tmpplane.position();
+  GlobalPoint  planePosition = tmpplane.position();
 
   if (planePosition.x() * planeXAxis.x()
      + planePosition.y() * planeXAxis.y() > 0.){

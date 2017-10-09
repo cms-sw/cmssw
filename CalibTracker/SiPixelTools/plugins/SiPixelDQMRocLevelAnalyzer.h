@@ -46,13 +46,13 @@
 class SiPixelDQMRocLevelAnalyzer : public edm::EDAnalyzer {
    public:
       explicit SiPixelDQMRocLevelAnalyzer(const edm::ParameterSet&);
-      ~SiPixelDQMRocLevelAnalyzer() override;
+      ~SiPixelDQMRocLevelAnalyzer();
 
 
    private:
-      void beginJob() override;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+      virtual void beginJob();
+      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void endJob() ;
 
       //
       void RocSummary(std::string tagname);

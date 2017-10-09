@@ -25,9 +25,9 @@
 class HcalValidationCorrsHandler : public popcon::PopConSourceHandler<HcalValidationCorrs>
 {
  public:
-  void getNewObjects() override;
-  std::string id() const override { return m_name;}
-  ~HcalValidationCorrsHandler() override;
+  void getNewObjects();
+  std::string id() const { return m_name;}
+  ~HcalValidationCorrsHandler();
   HcalValidationCorrsHandler(edm::ParameterSet const &);
 
   void initObject(HcalValidationCorrs*);

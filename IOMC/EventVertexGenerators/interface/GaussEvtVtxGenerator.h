@@ -17,14 +17,14 @@ class GaussEvtVtxGenerator : public BaseEvtVtxGenerator
 {
 public:
   GaussEvtVtxGenerator(const edm::ParameterSet & p);
-  ~GaussEvtVtxGenerator() override;
+  virtual ~GaussEvtVtxGenerator();
 
   /// return a new event vertex
   //virtual CLHEP::Hep3Vector* newVertex();
-  HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override;
+  virtual HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override;
 
-  TMatrixD const* GetInvLorentzBoost() const override {
-	  return nullptr;
+  virtual TMatrixD const* GetInvLorentzBoost() const override {
+	  return 0;
   }
 
    
@@ -44,9 +44,9 @@ public:
   
 private:
   /** Copy constructor */
-  GaussEvtVtxGenerator(const GaussEvtVtxGenerator &p) = delete;
+  GaussEvtVtxGenerator(const GaussEvtVtxGenerator &p);
   /** Copy assignment operator */
-  GaussEvtVtxGenerator&  operator = (const GaussEvtVtxGenerator & rhs ) = delete;
+  GaussEvtVtxGenerator&  operator = (const GaussEvtVtxGenerator & rhs );
 private:
   double fSigmaX, fSigmaY, fSigmaZ;
   double fMeanX,  fMeanY,  fMeanZ;

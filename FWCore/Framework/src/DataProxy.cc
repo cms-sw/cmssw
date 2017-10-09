@@ -74,7 +74,7 @@ DataProxy::~DataProxy()
 void DataProxy::clearCacheIsValid() {
    cacheIsValid_.store(false, std::memory_order_release);
    nonTransientAccessRequested_.store(false, std::memory_order_release);
-   cache_ = nullptr;
+   cache_ = 0;
 }
       
 void 
@@ -117,7 +117,7 @@ DataProxy::get(const EventSetupRecord& iRecord, const DataKey& iKey, bool iTrans
       nonTransientAccessRequested_.store(true, std::memory_order_release);
    }
 
-   if(nullptr == cache_) {
+   if(0 == cache_) {
       throwMakeException(iRecord, iKey);
    }
    return cache_;

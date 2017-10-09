@@ -63,15 +63,15 @@
 class DuplicateRecHits : public edm::EDAnalyzer {
 public:
   explicit DuplicateRecHits(const edm::ParameterSet&);
-  ~DuplicateRecHits() override;
+  ~DuplicateRecHits();
   
   
 private:
-  void beginJob() override ;
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  void endRun(const edm::Run&, const edm::EventSetup&) override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+  virtual void beginJob() ;
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
+  virtual void endRun(const edm::Run&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
   
       // ----------member data ---------------------------
 

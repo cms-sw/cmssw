@@ -8,7 +8,7 @@ $Revision: 1.9 $
 Adapted for CASTOR by L. Mundim
 */
 
-#include <cmath>
+#include <math.h>
 #include <iostream>
 
 #include "CondFormats/CastorObjects/interface/CastorPedestalWidth.h"

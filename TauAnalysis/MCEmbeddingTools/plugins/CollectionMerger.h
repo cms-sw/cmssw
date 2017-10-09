@@ -44,10 +44,10 @@ class CollectionMerger : public  edm::stream::EDProducer<>
 {
  public:
   explicit CollectionMerger(const edm::ParameterSet&);
-  ~CollectionMerger() override;
+  ~CollectionMerger();
 
  private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
   typedef T1 MergeCollection;
   typedef T2 BaseHit;

@@ -35,7 +35,7 @@ std::string VarProcessor::getInstanceName() const
 {
 	static const char prefix[] = "PhysicsTools::Calibration::";
         edm::TypeID typeID(typeid(*this));
-	const std::string& type(typeID.className());
+	std::string type(typeID.className());
 	if (type.size() <= sizeof prefix - 1 ||
 	    type.substr(0, sizeof prefix - 1) != prefix)
 		throw cms::Exception("MVAComputerCalibration")

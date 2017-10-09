@@ -6,13 +6,13 @@
 #include <vector>
 #include <iostream>
 #include <string>
-#include <csignal>
+#include <signal.h>
 #include <map>
 #include <string>
 #include <iomanip>
 #include <set>
 #include <sstream>
-#include <cstdint>
+#include <stdint.h>
 
 namespace cscdqm {
 

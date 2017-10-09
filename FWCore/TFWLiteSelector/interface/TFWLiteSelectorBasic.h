@@ -44,7 +44,7 @@ class TFWLiteSelectorBasic : public TSelector
 
    public:
       TFWLiteSelectorBasic();
-      ~TFWLiteSelectorBasic() override;
+      virtual ~TFWLiteSelectorBasic();
 
       // ---------- const member functions ---------------------
 
@@ -86,21 +86,21 @@ class TFWLiteSelectorBasic : public TSelector
 
       const TFWLiteSelectorBasic& operator=(const TFWLiteSelectorBasic&); // stop default
 
-      void        Begin(TTree *) override ;
-      void        SlaveBegin(TTree *) override;
-      void        Init(TTree*) override;
-      Bool_t      Notify() override ;
-      Bool_t      Process(Long64_t /*entry*/) override ;
-      void        SlaveTerminate() override;
-      void        Terminate() override;
-      Int_t Version() const override { return 1; }
+      virtual void        Begin(TTree *) ;
+      virtual void        SlaveBegin(TTree *);
+      virtual void        Init(TTree*);
+      virtual Bool_t      Notify() ;
+      virtual Bool_t      Process(Long64_t /*entry*/) ;
+      virtual void        SlaveTerminate();
+      virtual void        Terminate();
+      virtual Int_t Version() const { return 1; }
       
       void setupNewFile(TFile&);
       // ---------- member data --------------------------------
       edm::propagate_const<std::shared_ptr<edm::root::TFWLiteSelectorMembers>> m_;
       bool everythingOK_;
   
-  ClassDefOverride(TFWLiteSelectorBasic,2)
+  ClassDef(TFWLiteSelectorBasic,2)
 };
 
 

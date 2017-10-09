@@ -72,9 +72,9 @@ namespace cond {
       std::map< std::string, coral::AuthenticationCredentials* > m_data;
 
     private:
-      DataSourceEntry() = delete;
-      DataSourceEntry( const DataSourceEntry& ) = delete;
-      DataSourceEntry& operator=( const DataSourceEntry& ) = delete;
+      DataSourceEntry();
+      DataSourceEntry( const DataSourceEntry& );
+      DataSourceEntry& operator=( const DataSourceEntry& );
     };
 
     /**
@@ -91,14 +91,14 @@ namespace cond {
       explicit XMLAuthenticationService( const std::string& name );   
 
       /// Standard Destructor
-      ~XMLAuthenticationService() override;
+      virtual ~XMLAuthenticationService();
 
     public:
       /**
        * Returns a reference to the credentials object for a given connection string.
        * If the connection string is not known to the service an UnknownConnectionException is thrown.
        */
-      const coral::IAuthenticationCredentials& credentials( const std::string& connectionString ) const override;
+      const coral::IAuthenticationCredentials& credentials( const std::string& connectionString ) const;
 
       /**
        * Returns a reference to the credentials object for a given connection string.
@@ -106,7 +106,7 @@ namespace cond {
        * If the role is not known to the service an UnknownRoleException is thrown.
        */
       const coral::IAuthenticationCredentials& credentials( const std::string& connectionString,
-                                                            const std::string& role ) const override;
+                                                            const std::string& role ) const;
 
     public:
       /// Sets the input file name 

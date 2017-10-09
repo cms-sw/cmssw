@@ -48,7 +48,7 @@ namespace edm {
       typedef EDProducerAdaptorBase ModuleType;
 
       EDProducerBase();
-      ~EDProducerBase() override;
+      virtual ~EDProducerBase();
       
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
       static void prevalidate(ConfigurationDescriptions& descriptions);

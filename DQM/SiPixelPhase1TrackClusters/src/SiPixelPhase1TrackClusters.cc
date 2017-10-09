@@ -37,7 +37,6 @@ enum {  // copy paste from cfy: the only safe way to doit....
   SiPixelPhase1TrackClustersOnTrackNClusters,
   SiPixelPhase1TrackClustersOnTrackPositionB,
   SiPixelPhase1TrackClustersOnTrackPositionF,
-  SiPixelPhase1DigisHitmapOnTrack,
 
   SiPixelPhase1TrackClustersNTracks,
   SiPixelPhase1TrackClustersNTracksInVolume,
@@ -60,7 +59,6 @@ enum {  // copy paste from cfy: the only safe way to doit....
   SiPixelPhase1TrackClustersOnTrackSizeXYOuter,
   SiPixelPhase1TrackClustersOnTrackSizeXYInner,
   SiPixelPhase1TrackClustersOnTrackSizeXYF,
-  SiPixelPhase1ClustersChargeVsSizeOnTrack,
 
   SiPixelPhase1TrackClustersEnumSize
 };
@@ -211,19 +209,12 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
        histo[SiPixelPhase1TrackClustersOnTrackShape].fill(shape?1:0,id, &iEvent);
       }
 
-      for (int i =0; i<cluster.size(); i++){
-          SiPixelCluster::Pixel const & vecipxl = cluster.pixel(i);
-          histo[SiPixelPhase1DigisHitmapOnTrack].fill(id, &iEvent, vecipxl.y, vecipxl.x);
-      }
-
       histo[SiPixelPhase1TrackClustersOnTrackNClusters].fill(id, &iEvent);
       histo[SiPixelPhase1TrackClustersOnTrackCharge].fill(charge, id, &iEvent);
       histo[SiPixelPhase1TrackClustersOnTrackSize].fill(cluster.size(), id, &iEvent);
 
       histo[SiPixelPhase1TrackClustersOnTrackPositionB].fill(clustgp.z(),   clustgp.phi(),   id, &iEvent);
       histo[SiPixelPhase1TrackClustersOnTrackPositionF].fill(clustgp.x(),   clustgp.y(),     id, &iEvent);
-
-      histo[SiPixelPhase1ClustersChargeVsSizeOnTrack].fill(cluster.size(), charge, id, &iEvent);
 
       if(tkTpl.pxbLadder(id)%2==1) {
         histo[SiPixelPhase1ClustersSizeVsEtaOnTrackOuter].fill(etatk, cluster.sizeY(), id, &iEvent);

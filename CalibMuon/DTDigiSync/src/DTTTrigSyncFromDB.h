@@ -57,28 +57,28 @@ public:
   DTTTrigSyncFromDB(const edm::ParameterSet& config);
 
   /// Destructor
-  ~DTTTrigSyncFromDB() override;
+  virtual ~DTTTrigSyncFromDB();
 
   // Operations
 
   /// Pass the Event Setup to the algo at each event
-  void setES(const edm::EventSetup& setup) override;
+  virtual void setES(const edm::EventSetup& setup);
 
 
   /// Time (ns) to be subtracted to the digi time,
   /// Parameters are the layer and the wireId to which the
   /// digi is referred and the estimation of
   /// the 3D hit position (globPos)
-  double offset(const DTLayer* layer,
+  virtual double offset(const DTLayer* layer,
 			const DTWireId& wireId,
 			const GlobalPoint& globPos,
 			double& tTrig,
 			double& wirePropCorr,
-			double& tofCorr) override;
+			double& tofCorr);
 
   /// Time (ns) to be subtracted to the digi time.
   /// It does not take into account TOF and signal propagation along the wire
-  double offset(const DTWireId& wireId) override;
+  double offset(const DTWireId& wireId);
 
 
   /// Time (ns) to be subtracted to the digi time for emulation purposes
@@ -86,9 +86,9 @@ public:
   /// It also returns the different contributions separately:
   ///     - tTrig is the offset (t_trig)
   ///     - t0cell is the t0 from pulses
-  double emulatorOffset(const DTWireId& wireId,
+  virtual double emulatorOffset(const DTWireId& wireId,
 				double &tTrig,
-				double &t0cell) override;
+				double &t0cell);
 
 
  private:

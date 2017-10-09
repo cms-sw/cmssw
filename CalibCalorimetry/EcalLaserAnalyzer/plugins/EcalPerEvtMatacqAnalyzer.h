@@ -17,12 +17,12 @@ class EcalPerEvtMatacqAnalyzer: public edm::EDAnalyzer{
  public:
   
   explicit EcalPerEvtMatacqAnalyzer(const edm::ParameterSet& iConfig);  
-  ~EcalPerEvtMatacqAnalyzer() override;
+  ~EcalPerEvtMatacqAnalyzer();
   
   
-  void analyze( const edm::Event & e, const  edm::EventSetup& c) override;
-  void beginJob() override;
-  void endJob() override;
+  virtual void analyze( const edm::Event & e, const  edm::EventSetup& c);
+  virtual void beginJob();
+  virtual void endJob();
   
   
  private:

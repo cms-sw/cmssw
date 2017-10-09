@@ -105,7 +105,7 @@ DataProxyProvider::setAppendToDataLabel(const edm::ParameterSet& iToAppend)
 {
   std::string oldValue( appendToDataLabel_);
   //this can only be changed once and the default value is the empty string
-  assert(oldValue.empty());
+  assert(0 == oldValue.size());
   
   const std::string kParamName("appendToDataLabel");
   if(iToAppend.exists(kParamName) ) {    
@@ -147,7 +147,7 @@ DataProxyProvider::keyedProxies(const EventSetupRecordKey& iRecordKey) const
       const_cast<DataProxyProvider*>(this)->registerProxies(iRecordKey,
                                                             proxies);
 
-      bool mustChangeLabels = (!appendToDataLabel_.empty());
+      bool mustChangeLabels = (0 != appendToDataLabel_.size());
       for(KeyedProxies::iterator itProxy = proxies.begin(), itProxyEnd = proxies.end();
           itProxy != itProxyEnd;
           ++itProxy) {

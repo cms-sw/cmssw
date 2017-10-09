@@ -21,13 +21,13 @@ public:
   MeasurementDiffEntry( const ALIint measdim, ALIstring& type, ALIstring& name )
     : Measurement( measdim, type, name ){};
   MeasurementDiffEntry(){ };   
-  ~MeasurementDiffEntry() override{ };
+  ~MeasurementDiffEntry(){ };
 
   // separate OptO names and Entry names 
-  void buildOptONamesList( const std::vector<ALIstring>& wl ) override;
+  virtual void buildOptONamesList( const std::vector<ALIstring>& wl );
     
   // Get simulated value (called every time a parameter is displaced)
-  void calculateSimulatedValue( ALIbool firstTime ) override;
+  virtual void calculateSimulatedValue( ALIbool firstTime );
 
  private:
   ALIstring theEntryNameFirst;

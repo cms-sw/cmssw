@@ -126,7 +126,7 @@ namespace edm {
          {
             std::pair<const char*,const std::type_info*> p = typelookup::findType(iTypeName);
             
-            if(nullptr == p.second) {
+            if(0 == p.second) {
                return HCTypeTag();
             }
             //need to take name from the 'findType' since that address is guaranteed to be long lived

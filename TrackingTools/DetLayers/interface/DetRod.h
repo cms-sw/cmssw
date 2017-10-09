@@ -15,10 +15,10 @@ class DetRod : public GeometricSearchDet {
 
   using GeometricSearchDet::GeometricSearchDet;
 
-  ~DetRod() override;
+  virtual ~DetRod();
   
  
-  const BoundSurface& surface() const final {return *thePlane;}
+  virtual const BoundSurface& surface() const final {return *thePlane;}
 
 
   //--- Extension of the interface

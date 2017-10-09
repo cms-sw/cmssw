@@ -15,10 +15,10 @@
 class ParticleDecayProducer : public edm::EDProducer {
  public:
   explicit ParticleDecayProducer(const edm::ParameterSet&);
-  ~ParticleDecayProducer() override;
+  ~ParticleDecayProducer();
 
  private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   edm::EDGetTokenT<reco::CandidateCollection> genCandidatesToken_;
   int motherPdgId_;
   std::vector<int> daughtersPdgId_;

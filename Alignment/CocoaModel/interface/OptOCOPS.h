@@ -24,15 +24,15 @@ public:
   //---------- Constructors / Destructor
   OptOCOPS(){ };
   OptOCOPS(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data) : 
-  OpticalObject( parent, type, name, copy_data), fdevi_from_file(false){ };
-  ~OptOCOPS() override{ };
+  OpticalObject( parent, type, name, copy_data), fdevi_from_file(0){ };
+  ~OptOCOPS(){ };
 
   //---------- defaultBehaviour: make measurement 
-  void defaultBehaviour( LightRay& lightray, Measurement& meas ) override;
+  virtual void defaultBehaviour( LightRay& lightray, Measurement& meas );
   //---------- Make measurement 
-  void makeMeasurement( LightRay& lightray, Measurement& meas ) override;
+  virtual void makeMeasurement( LightRay& lightray, Measurement& meas );
   //---------- Fast simulation of the light ray traversing
-  void fastTraversesLightRay( LightRay& lightray ) override;
+  virtual void fastTraversesLightRay( LightRay& lightray );
 
   // Get intersection in local coordinates
   ALIdouble* convertPointToLocalCoordinates( const CLHEP::Hep3Vector& point);
@@ -41,7 +41,7 @@ public:
   virtual void fillVRML();
   virtual void fillIguana();
 #endif
-  void constructSolidShape() override;
+  void constructSolidShape();
 
  private:
   ALIdouble getMeasFromInters( ALILine& line_xhair, ALILine& ccd, CLHEP::Hep3Vector& cops_line );

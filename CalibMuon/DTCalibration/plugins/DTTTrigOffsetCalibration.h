@@ -29,11 +29,11 @@ public:
   // Constructor
   DTTTrigOffsetCalibration(const edm::ParameterSet& pset);
   // Destructor
-  ~DTTTrigOffsetCalibration() override;
+  virtual ~DTTTrigOffsetCalibration();
 
-  void beginRun(const edm::Run& run, const edm::EventSetup& setup) override;
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
-  void endJob() override;
+  void beginRun(const edm::Run& run, const edm::EventSetup& setup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
+  void endJob();
   
 private:
   typedef std::map<DTChamberId, std::vector<TH1F*> > ChamberHistosMap;

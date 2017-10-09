@@ -25,9 +25,9 @@
 class HcalZSThresholdsHandler : public popcon::PopConSourceHandler<HcalZSThresholds>
 {
  public:
-  void getNewObjects() override;
-  std::string id() const override { return m_name;}
-  ~HcalZSThresholdsHandler() override;
+  void getNewObjects();
+  std::string id() const { return m_name;}
+  ~HcalZSThresholdsHandler();
   HcalZSThresholdsHandler(edm::ParameterSet const &);
 
   void initObject(HcalZSThresholds*);

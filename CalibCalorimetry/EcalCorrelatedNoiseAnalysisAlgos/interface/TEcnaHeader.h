@@ -13,7 +13,7 @@
 #include "TString.h"
 #include "TNamed.h"
 #include "Riostream.h"
-#include <ctime>
+#include <time.h>
 #include <TMath.h>
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaObject.h"
@@ -96,7 +96,7 @@ public:
   TEcnaHeader();
   TEcnaHeader(TEcnaObject*, const Text_t*, const Text_t*);
   //TEcnaHeader(const Text_t*, const Text_t*);
-  ~TEcnaHeader() override;
+  ~TEcnaHeader();
 
 //  void HeaderParameters(Text_t*, Text_t*, const TString&,      const Int_t&, 
 // 			  const Int_t&,     const Int_t&, const Int_t&, const Int_t&,
@@ -111,6 +111,6 @@ public:
 
   using TNamed::Print;
   void Print();
-  ClassDefOverride(TEcnaHeader,1)  //Header of CNA ROOT file
+  ClassDef(TEcnaHeader,1)  //Header of CNA ROOT file
 };
 #endif

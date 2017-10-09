@@ -14,11 +14,11 @@ namespace{
                 constexpr static size_t bufsz = 4096;
         public:
                 fbuf(FILE *f);
-                ~fbuf() override;
+                ~fbuf();
         protected:
-                std::streambuf *setbuf(char_type *s, std::streamsize n) override;
-                int sync() override;
-                int_type underflow() override;
+                virtual std::streambuf *setbuf(char_type *s, std::streamsize n);
+                virtual int sync();
+                virtual int_type underflow();
         };
 
         class cfstream final : public std::istream{

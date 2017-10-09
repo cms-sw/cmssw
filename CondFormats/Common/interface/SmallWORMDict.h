@@ -30,7 +30,7 @@ namespace cond {
     ~SmallWORMDict();
     
     struct Frame {
-      Frame(): b(nullptr){}
+      Frame(): b(0){}
       Frame(char const * ib,
 	    unsigned int il,
 	    unsigned int iind) :
@@ -42,7 +42,7 @@ namespace cond {
 
     struct IterHelp {
       typedef Frame result_type;
-      IterHelp() : v(nullptr){}
+      IterHelp() : v(0){}
       IterHelp(SmallWORMDict const & iv) : v(&iv){}
       
       result_type const & operator()(int i) const {

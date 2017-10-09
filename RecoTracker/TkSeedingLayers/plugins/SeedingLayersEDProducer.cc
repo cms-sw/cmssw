@@ -13,7 +13,7 @@
 class dso_hidden SeedingLayersEDProducer: public edm::stream::EDProducer<> {
 public:
   SeedingLayersEDProducer(const edm::ParameterSet& iConfig);
-  ~SeedingLayersEDProducer() override;
+  ~SeedingLayersEDProducer();
 
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 

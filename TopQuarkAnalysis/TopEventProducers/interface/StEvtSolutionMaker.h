@@ -17,9 +17,9 @@ class StEvtSolutionMaker : public edm::EDProducer {
  public:
 
   explicit StEvtSolutionMaker(const edm::ParameterSet&);
-  ~StEvtSolutionMaker() override;
+  ~StEvtSolutionMaker();
 
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&);
 
  private:
 

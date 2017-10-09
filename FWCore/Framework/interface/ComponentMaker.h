@@ -63,10 +63,10 @@ namespace edm {
    typedef typename T::base_type base_type;
 
       // ---------- const member functions ---------------------
-   std::shared_ptr<base_type> addTo(EventSetupsController& esController,
+   virtual std::shared_ptr<base_type> addTo(EventSetupsController& esController,
                                               EventSetupProvider& iProvider,
                                               ParameterSet const& iConfiguration,
-                                              bool replaceExisting) const override;
+                                              bool replaceExisting) const;
    
       // ---------- static member functions --------------------
 

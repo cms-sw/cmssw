@@ -32,7 +32,7 @@ namespace {
 }
 
 TwoTrackMinimumDistanceHelixHelix::TwoTrackMinimumDistanceHelixHelix():
-theH(nullptr), theG(nullptr), pointsUpdated(false), themaxjump(20),thesingjacI(1./0.1), themaxiter(4)
+theH(0), theG(0), pointsUpdated(false), themaxjump(20),thesingjacI(1./0.1), themaxiter(4)
 { }
 
 TwoTrackMinimumDistanceHelixHelix::~TwoTrackMinimumDistanceHelixHelix() {}

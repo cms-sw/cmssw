@@ -24,12 +24,12 @@ class TMem: public TObject
   TMem(int);
 
   // Destructor: Does nothing
-  ~TMem() override;
+  virtual ~TMem();
 
   bool isMemRelevant(int);
   int Mem(int, int);
 
-  ClassDefOverride(TMem,0)
+  ClassDef(TMem,0)
 };
 
 #endif

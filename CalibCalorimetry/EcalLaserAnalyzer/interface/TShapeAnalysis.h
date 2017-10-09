@@ -45,7 +45,7 @@ class TShapeAnalysis: public TObject
   TShapeAnalysis(TTree *tAB, double, double, double, double);
 
   // Destructor: Does nothing
-  ~TShapeAnalysis() override;
+  virtual ~TShapeAnalysis();
 
   void set_const(int,int,int,int,int,double,double);
   void set_presample(int);
@@ -75,7 +75,7 @@ class TShapeAnalysis: public TObject
   std::vector<double> getVals(int);
   std::vector<double> getInitVals(int);
 
-  ClassDefOverride(TShapeAnalysis,0)
+  ClassDef(TShapeAnalysis,0)
 };
 
 #endif

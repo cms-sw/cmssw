@@ -38,8 +38,8 @@ void MuonAlignment::init()
    theDTSurveyErrorRecordName = "DTSurveyErrorExtendedRcd";
    theCSCSurveyRecordName = "CSCSurveyRcd";
    theCSCSurveyErrorRecordName = "CSCSurveyErrorExtendedRcd";
-   theAlignableMuon = nullptr;
-   theAlignableNavigator = nullptr;
+   theAlignableMuon = NULL;
+   theAlignableNavigator = NULL;
 }
 
 MuonAlignment::MuonAlignment( const edm::EventSetup& iSetup )
@@ -182,7 +182,7 @@ void MuonAlignment::fillGapsInSurvey(double shiftErr, double angleErr) {
    for (std::map<std::pair<align::StructureType, align::ID>, Alignable*>::const_iterator iter = alignableStructureMap.begin();
 	iter != alignableStructureMap.end();
 	++iter) {
-      if (iter->second->survey() == nullptr) {
+      if (iter->second->survey() == NULL) {
 	 align::ErrorMatrix matrix6x6 = ROOT::Math::SMatrixIdentity();
 	 matrix6x6(0,0) = shiftErr;
 	 matrix6x6(1,1) = shiftErr;
@@ -198,10 +198,10 @@ void MuonAlignment::fillGapsInSurvey(double shiftErr, double angleErr) {
 //____________________________________________________________________________________
 //
 void MuonAlignment::recursiveCopySurveyToAlignment(Alignable *alignable) {
-   if (alignable->survey() != nullptr) {
+   if (alignable->survey() != NULL) {
       const SurveyDet *survey = alignable->survey();
 
-      const align::PositionType& pos = survey->position();
+      align::PositionType pos = survey->position();
       align::RotationType rot = survey->rotation();
 
       align::PositionType oldpos = alignable->globalPosition();

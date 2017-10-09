@@ -20,9 +20,9 @@ class SiStripApvGainReader : public edm::EDAnalyzer {
 
  public:
   explicit SiStripApvGainReader( const edm::ParameterSet& );
-  ~SiStripApvGainReader() override;
+  ~SiStripApvGainReader();
   
-  void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  void analyze( const edm::Event&, const edm::EventSetup& );
 
  private:
   bool printdebug_;

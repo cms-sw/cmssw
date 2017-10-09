@@ -59,7 +59,7 @@ public:
     L1GtCorrelationTemplate( const L1GtCorrelationTemplate& );
 
     /// destructor
-    ~L1GtCorrelationTemplate() override;
+    virtual ~L1GtCorrelationTemplate();
 
     /// assign operator
     L1GtCorrelationTemplate& operator= (const L1GtCorrelationTemplate&);
@@ -115,7 +115,7 @@ public:
 
 
     /// print the condition
-    void print(std::ostream& myCout) const override;
+    virtual void print(std::ostream& myCout) const;
 
     /// output stream operator
     friend std::ostream& operator<<(std::ostream&, const L1GtCorrelationTemplate&);

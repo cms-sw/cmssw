@@ -49,19 +49,19 @@
 class FourVectorHLT : public edm::EDAnalyzer {
    public:
       explicit FourVectorHLT(const edm::ParameterSet&);
-      ~FourVectorHLT() override;
+      ~FourVectorHLT();
 
 
    private:
-      void beginJob() override ;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+      virtual void beginJob() ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void endJob() ;
 
       // BeginRun
-      void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
+      void beginRun(const edm::Run& run, const edm::EventSetup& c);
 
       // EndRun
-      void endRun(const edm::Run& run, const edm::EventSetup& c) override;
+      void endRun(const edm::Run& run, const edm::EventSetup& c);
 
 
       // ----------member data --------------------------- 
@@ -114,7 +114,7 @@ class FourVectorHLT : public edm::EDAnalyzer {
 	PathInfo(std::string pathName, size_t type, float ptmin, 
 		 float ptmax):
 	  pathName_(pathName), objectType_(type),
-	  et_(nullptr), eta_(nullptr), phi_(nullptr), etavsphi_(nullptr),
+	  et_(0), eta_(0), phi_(0), etavsphi_(0),
 	  ptmin_(ptmin), ptmax_(ptmax)
 	  {
 	  };

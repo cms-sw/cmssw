@@ -15,9 +15,9 @@
 #include "FWCore/Framework/interface/Run.h"
 
 #include <iostream>
-#include <cstdio>
+#include <stdio.h>
 #include <string>
-#include <cmath>
+#include <math.h>
 #include "TF1.h"
 #include "TH1F.h"
 

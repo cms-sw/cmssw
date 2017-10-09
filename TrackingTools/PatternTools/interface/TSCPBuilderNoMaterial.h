@@ -18,13 +18,13 @@ class TSCPBuilderNoMaterial final :
 {
 public: 
 
-  ~TSCPBuilderNoMaterial() override{}
+  virtual ~TSCPBuilderNoMaterial(){}
 
-  TrajectoryStateClosestToPoint operator() 
-    (const FTS& originalFTS, const GlobalPoint& referencePoint) const override;
+  virtual TrajectoryStateClosestToPoint operator() 
+    (const FTS& originalFTS, const GlobalPoint& referencePoint) const;
 
-  TrajectoryStateClosestToPoint operator() 
-    (const TSOS& originalTSOS, const GlobalPoint& referencePoint) const override;
+  virtual TrajectoryStateClosestToPoint operator() 
+    (const TSOS& originalTSOS, const GlobalPoint& referencePoint) const;
 
 private:
 

@@ -48,12 +48,12 @@
 #include "base64.h"
 
 /* Get malloc. */
-#include <cstdlib>
+#include <stdlib.h>
 
 /* Get UCHAR_MAX. */
-#include <climits>
+#include <limits.h>
 
-#include <cstring>
+#include <string.h>
 
 /* C89 compliant way to cast 'char' to 'unsigned char'. */
 static inline unsigned char
@@ -132,7 +132,7 @@ base64_encode_alloc (const char *in, size_t inlen, char **out)
    */
   if (inlen > outlen)
     {
-      *out = nullptr;
+      *out = NULL;
       return 0;
     }
 
@@ -328,7 +328,7 @@ get_4 (struct base64_decode_context *ctx,
   if (ctx->i == 0)
     {
       char const *t = *in;
-      if (4 <= in_end - *in && memchr (t, '\n', 4) == nullptr)
+      if (4 <= in_end - *in && memchr (t, '\n', 4) == NULL)
         {
           /* This is the common case: no newline.  */
           *in += 4;
@@ -462,7 +462,7 @@ base64_decode_ctx (struct base64_decode_context *ctx,
                    char *out, size_t *outlen)
 {
   size_t outleft = *outlen;
-  bool ignore_newlines = ctx != nullptr;
+  bool ignore_newlines = ctx != NULL;
   bool flush_ctx = false;
   unsigned int ctx_i = 0;
 
@@ -566,7 +566,7 @@ base64_decode_alloc_ctx (struct base64_decode_context *ctx,
   if (!base64_decode_ctx (ctx, in, inlen, *out, &needlen))
     {
       free (*out);
-      *out = nullptr;
+      *out = NULL;
       return false;
     }
 

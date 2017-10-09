@@ -11,10 +11,10 @@
 
 #include <iostream>
 #include <iomanip>
-#include <cstdio>
+#include <stdio.h>
 #include <string>
 #include <sstream>
-#include <cmath>
+#include <math.h>
 
 //
 // -------------------------------------- Constructor --------------------------------------------
@@ -130,8 +130,8 @@ void DQMExample_Step1::analyze(edm::Event const& e, edm::EventSetup const& eSetu
 
   float nEle=0;
   int posEle=0, negEle=0;
-  const reco::GsfElectron* ele1 = nullptr;
-  const reco::GsfElectron* ele2 = nullptr;
+  const reco::GsfElectron* ele1 = NULL;
+  const reco::GsfElectron* ele2 = NULL;
   for (reco::GsfElectronCollection::const_iterator recoElectron=electronCollection->begin(); recoElectron!=electronCollection->end(); ++recoElectron)
     {
       //decreasing pT
@@ -166,8 +166,8 @@ void DQMExample_Step1::analyze(edm::Event const& e, edm::EventSetup const& eSetu
     }
 
   int   nJet = 0;
-  const reco::CaloJet* jet1 = nullptr;
-  const reco::CaloJet* jet2 = nullptr;
+  const reco::CaloJet* jet1 = NULL;
+  const reco::CaloJet* jet2 = NULL;
   
   for (reco::CaloJetCollection::const_iterator i_calojet = caloJetCollection->begin(); i_calojet != caloJetCollection->end(); ++i_calojet) 
     {
@@ -225,7 +225,7 @@ void DQMExample_Step1::analyze(edm::Event const& e, edm::EventSetup const& eSetu
     }
 
 
-  reco::Particle* ele1_HLT = nullptr;
+  reco::Particle* ele1_HLT = NULL;
   int nEle_HLT = 0;
 
   size_t filterIndex = triggerEvent->filterIndex( triggerFilter_ );
@@ -244,7 +244,7 @@ void DQMExample_Step1::analyze(edm::Event const& e, edm::EventSetup const& eSetu
 	  ++nEle_HLT;
 	}
       
-      if( !triggeredEle.empty() ) 
+      if( triggeredEle.size() >= 1 ) 
 	ele1_HLT = &(triggeredEle.at(0));
     }
 

@@ -19,8 +19,8 @@
 class DiJetVarProducer : public edm::EDProducer {
  public: 
   explicit DiJetVarProducer(const edm::ParameterSet&);
-  ~DiJetVarProducer() override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  ~DiJetVarProducer();
+  virtual void produce(edm::Event&, const edm::EventSetup&);
 
  private:
 

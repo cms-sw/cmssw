@@ -35,22 +35,22 @@ BPhysicsOniaDQM::BPhysicsOniaDQM(const ParameterSet &parameters) {
   lumiSummaryToken_ = consumes<LumiSummary, edm::InLumi>(
       parameters.getParameter<InputTag>("lumiSummary"));
 
-  global_background = nullptr;
-  diMuonMass_global = nullptr;
-  tracker_background = nullptr;
-  diMuonMass_tracker = nullptr;
-  standalone_background = nullptr;
-  diMuonMass_standalone = nullptr;
+  global_background = NULL;
+  diMuonMass_global = NULL;
+  tracker_background = NULL;
+  diMuonMass_tracker = NULL;
+  standalone_background = NULL;
+  diMuonMass_standalone = NULL;
 
-  glbSigCut = nullptr;
-  glbSigNoCut = nullptr;
-  glbBkgNoCut = nullptr;
-  staSigCut = nullptr;
-  staSigNoCut = nullptr;
-  staBkgNoCut = nullptr;
-  trkSigCut = nullptr;
-  trkSigNoCut = nullptr;
-  trkBkgNoCut = nullptr;
+  glbSigCut = NULL;
+  glbSigNoCut = NULL;
+  glbBkgNoCut = NULL;
+  staSigCut = NULL;
+  staSigNoCut = NULL;
+  staBkgNoCut = NULL;
+  trkSigCut = NULL;
+  trkSigNoCut = NULL;
+  trkBkgNoCut = NULL;
 
   metname = "oniaAnalyzer";
 }
@@ -135,22 +135,22 @@ void BPhysicsOniaDQM::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
             // if opposite charges, fill glbSig, else fill glbBkg
             if (((*recoMu1).charge() * (*recoMu2).charge()) < 0) {
-              if (diMuonMass_global != nullptr) {  // BPhysicsOniaDQM original one
+              if (diMuonMass_global != NULL) {  // BPhysicsOniaDQM original one
                 diMuonMass_global->Fill(massJPsi);
               }
 
-              if (glbSigNoCut != nullptr) {
+              if (glbSigNoCut != NULL) {
                 glbSigNoCut->Fill(massJPsi);
                 if (selGlobalMuon(*recoMu1) && selGlobalMuon(*recoMu2)) {
-                  if (glbSigCut != nullptr) glbSigCut->Fill(massJPsi);
+                  if (glbSigCut != NULL) glbSigCut->Fill(massJPsi);
                 }
               }
             } else {
-              if (global_background != nullptr) {  // BPhysicsOniaDQM original one
+              if (global_background != NULL) {  // BPhysicsOniaDQM original one
                 global_background->Fill(massJPsi);
               }
 
-              if (glbBkgNoCut != nullptr) {
+              if (glbBkgNoCut != NULL) {
                 glbBkgNoCut->Fill(massJPsi);
               }
             }
@@ -167,19 +167,19 @@ void BPhysicsOniaDQM::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
             // if opposite charges, fill staSig, else fill staBkg
             if (((*recoMu1).charge() * (*recoMu2).charge()) < 0) {
-              if (diMuonMass_standalone != nullptr) {
+              if (diMuonMass_standalone != NULL) {
                 diMuonMass_standalone->Fill(massJPsi);
               }
 
-              if (staSigNoCut != nullptr) {
+              if (staSigNoCut != NULL) {
                 staSigNoCut->Fill(massJPsi);
               }
             } else {
-              if (standalone_background != nullptr) {
+              if (standalone_background != NULL) {
                 standalone_background->Fill(massJPsi);
               }
 
-              if (staBkgNoCut != nullptr) {
+              if (staBkgNoCut != NULL) {
                 staBkgNoCut->Fill(massJPsi);
               }
             }
@@ -194,22 +194,22 @@ void BPhysicsOniaDQM::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
             // if opposite charges, fill trkSig, else fill trkBkg
             if (((*recoMu1).charge() * (*recoMu2).charge()) < 0) {
-              if (diMuonMass_tracker != nullptr) {
+              if (diMuonMass_tracker != NULL) {
                 diMuonMass_tracker->Fill(massJPsi);
               }
 
-              if (trkSigNoCut != nullptr) {
+              if (trkSigNoCut != NULL) {
                 trkSigNoCut->Fill(massJPsi);
                 if (selTrackerMuon(*recoMu1) && selTrackerMuon(*recoMu2)) {
-                  if (trkSigCut != nullptr) trkSigCut->Fill(massJPsi);
+                  if (trkSigCut != NULL) trkSigCut->Fill(massJPsi);
                 }
               }
             } else {
-              if (tracker_background != nullptr) {
+              if (tracker_background != NULL) {
                 tracker_background->Fill(massJPsi);
               }
 
-              if (trkBkgNoCut != nullptr) {
+              if (trkBkgNoCut != NULL) {
                 trkBkgNoCut->Fill(massJPsi);
               }
             }

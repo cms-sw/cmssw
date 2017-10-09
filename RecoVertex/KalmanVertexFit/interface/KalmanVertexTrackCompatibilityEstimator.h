@@ -34,7 +34,7 @@ public:
 
   KalmanVertexTrackCompatibilityEstimator(){}
 
-  ~KalmanVertexTrackCompatibilityEstimator() override{}
+  virtual ~KalmanVertexTrackCompatibilityEstimator(){}
 
   /**
    * Track-to-vertex compatibility. 
@@ -44,17 +44,17 @@ public:
    * \return The chi**2.
    */
 
-  BDpair estimate(const CachingVertex<N> & vrt, const RefCountedVertexTrack track,
-			  unsigned int hint=UINT_MAX) const override;
+  virtual BDpair estimate(const CachingVertex<N> & vrt, const RefCountedVertexTrack track,
+			  unsigned int hint=UINT_MAX) const;
 
-  BDpair estimate(const CachingVertex<N> & v, 
+  virtual BDpair estimate(const CachingVertex<N> & v, 
 			  const RefCountedLinearizedTrackState track,
-			  unsigned int hint=UINT_MAX) const override;
+			  unsigned int hint=UINT_MAX) const;
 
-  BDpair estimate(const reco::Vertex & vertex, 
-			 const reco::TransientTrack & track) const override;
+  virtual BDpair estimate(const reco::Vertex & vertex, 
+			 const reco::TransientTrack & track) const;
 
-  KalmanVertexTrackCompatibilityEstimator<N> * clone() const override
+  virtual KalmanVertexTrackCompatibilityEstimator<N> * clone() const
   {
     return new KalmanVertexTrackCompatibilityEstimator(* this);
   }

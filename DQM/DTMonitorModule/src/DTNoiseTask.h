@@ -44,7 +44,7 @@ public:
   DTNoiseTask(const edm::ParameterSet& ps);
 
   /// Destructor
-  ~DTNoiseTask() override;
+  virtual ~DTNoiseTask();
 
   // Operations
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;

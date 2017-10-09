@@ -222,7 +222,7 @@ const bool Dispatcher::getHisto(const HistoDef& histoD, MonitorObject*& me) {
   }
 
   /** If not found after booking - mark it as not existent */
-  cache.put(histoD, nullptr);
+  cache.put(histoD, NULL);
 
   return false;
 }

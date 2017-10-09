@@ -43,7 +43,7 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-#include <cmath>
+#include <math.h>
 #include <iostream>
 #include <map>
 #include <iomanip>
@@ -76,9 +76,9 @@ class CastorPedestalsAnalysis : public edm::EDAnalyzer
    //Constructor
    CastorPedestalsAnalysis(const edm::ParameterSet& ps);
    //Destructor
-   ~CastorPedestalsAnalysis() override;
+   virtual ~CastorPedestalsAnalysis();
    //Analysis
-   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
+   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
    private:
    //Container for data, 1 per channel

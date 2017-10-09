@@ -25,11 +25,11 @@ class ElectronTagProbeAnalyzer : public ElectronDqmAnalyzerBase
   public:
 
     explicit ElectronTagProbeAnalyzer(const edm::ParameterSet& conf);
-    ~ElectronTagProbeAnalyzer() override;
+    virtual ~ElectronTagProbeAnalyzer();
 
 //    virtual void book() ;
-    void bookHistograms( DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override ;
-    void analyze( const edm::Event & e, const edm::EventSetup & c) override ;
+    virtual void bookHistograms( DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) ;
+    virtual void analyze( const edm::Event & e, const edm::EventSetup & c) ;
 
   private:
 

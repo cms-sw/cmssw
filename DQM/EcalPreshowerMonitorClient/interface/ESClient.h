@@ -41,17 +41,17 @@ ESClient::getHisto(MonitorElement* _me, bool _clone/* = false*/, T* _current/* =
 {
   if(!_me){
     if(_clone) return _current;
-    else return nullptr;
+    else return 0;
   }
 
   TObject* obj(_me->getRootObject());
 
-  if(!obj) return nullptr;
+  if(!obj) return 0;
 
   if(_clone){
     delete _current;
     _current = dynamic_cast<T*>(obj->Clone(("ME " + _me->getName()).c_str()));
-    if(_current) _current->SetDirectory(nullptr);
+    if(_current) _current->SetDirectory(0);
     return _current;
   }
   else

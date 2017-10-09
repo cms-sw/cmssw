@@ -244,7 +244,7 @@ void ErrorObj::set( const ELseverityLevel & sev, const ELstring & id )  {
 
   clear();
 
-  myTimestamp = time( nullptr );
+  myTimestamp = time( 0 );
   mySerial = ++ ourSerial;
 
   setID( id );

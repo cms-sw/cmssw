@@ -37,7 +37,7 @@ namespace cond { namespace service {
 DTHVCheckByAbsoluteValues::DTHVCheckByAbsoluteValues(
                            const edm::ParameterSet & iConfig, 
                            edm::ActivityRegistry & iAR ) {
-  if ( instance == nullptr ) {
+  if ( instance == 0 ) {
     std::cout << "create DTHVCheckByAbsoluteValues" << std::endl;
     minHV = new float[4];
     maxHV = new float[4];

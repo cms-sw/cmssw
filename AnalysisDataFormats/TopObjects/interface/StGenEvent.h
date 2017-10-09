@@ -22,7 +22,7 @@ class StGenEvent: public TopGenEvent {
   /// default constructor
   StGenEvent(reco::GenParticleRefProd&, reco::GenParticleRefProd&);
   /// default destructor
-  ~StGenEvent() override;
+  virtual ~StGenEvent();
 
   /// return single lepton if available; 0 else
   const reco::GenParticle* singleLepton() const;

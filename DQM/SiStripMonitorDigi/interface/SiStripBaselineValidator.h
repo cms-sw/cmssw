@@ -21,7 +21,7 @@
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 
 #include <iostream>
-#include <cstdlib>
+#include <stdlib.h>
 
 
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
@@ -33,9 +33,9 @@ class SiStripBaselineValidator : public DQMEDAnalyzer
 {
  public:
   explicit SiStripBaselineValidator(const edm::ParameterSet&);
-  ~SiStripBaselineValidator() override;
+  virtual ~SiStripBaselineValidator();
 
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   private:

@@ -48,9 +48,9 @@ class TtJetPartonMatch : public edm::EDProducer {
   /// default conructor
   explicit TtJetPartonMatch(const edm::ParameterSet&);
   /// default destructor
-  ~TtJetPartonMatch() override;
+  ~TtJetPartonMatch();
   /// write jet parton match objects into the event
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&);
 
  private:
 

@@ -122,21 +122,21 @@ DTCCBConfig::configKeyMap() const {
   std::vector< std::pair<DTCCBId,int>* >::iterator t_iend = tempList.end();
   while ( t_iter != t_iend ) {
     std::pair<DTCCBId,int>* ptr = *t_iter++;
-    if ( ptr == nullptr ) continue;
+    if ( ptr == 0 ) continue;
     DTCCBId& ccbId = ptr->first;
     std::vector<int> cfgKeys;
     cfgKeys.push_back( ptr->second );
     std::vector< std::pair<DTCCBId,int>* >::iterator n_iter( t_iter );
     while( n_iter != t_iend ) {
       std::pair<DTCCBId,int>*& pck = *n_iter++;
-      if ( pck == nullptr ) continue; 
+      if ( pck == 0 ) continue; 
       DTCCBId& chkId = pck->first;
       if ( ( chkId.  wheelId == ccbId.  wheelId ) && 
            ( chkId.stationId == ccbId.stationId ) && 
            ( chkId. sectorId == ccbId. sectorId ) ) {
         cfgKeys.push_back( pck->second );
         delete pck;
-        pck = nullptr;
+        pck = 0;
       }
     }
     keyList.push_back( std::pair< DTCCBId,std::vector<int> >( ccbId,

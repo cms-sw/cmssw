@@ -6,7 +6,7 @@
 #include "CoralKernel/Context.h"
 
 RPCDBCom::RPCDBCom():
-  m_connection( nullptr )
+  m_connection( 0 )
 {
   coral::Context& context = coral::Context::instance();
   context.loadComponent( "CORAL/RelationalPlugins/oracle" );

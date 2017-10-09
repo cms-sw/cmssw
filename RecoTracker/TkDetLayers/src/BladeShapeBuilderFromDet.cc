@@ -97,7 +97,7 @@ namespace {
     GlobalVector zAxis;
     
     GlobalVector planeXAxis    = plane.toGlobal( LocalVector( 1, 0, 0));
-    const GlobalPoint&  planePosition = plane.position();
+    GlobalPoint  planePosition = plane.position();
     
     if(planePosition.x()*planeXAxis.x()+planePosition.y()*planeXAxis.y() > 0.){
       yAxis = planeXAxis;

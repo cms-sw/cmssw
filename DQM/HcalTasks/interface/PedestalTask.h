@@ -22,22 +22,22 @@ class PedestalTask : public hcaldqm::DQTask
 {
 	public:
 		PedestalTask(edm::ParameterSet const&);
-		~PedestalTask() override
+		virtual ~PedestalTask()
 		{}
 
-		void bookHistograms(DQMStore::IBooker&,
-			edm::Run const&, edm::EventSetup const&) override;
-		void beginLuminosityBlock(edm::LuminosityBlock const&,
-			edm::EventSetup const&) override;
-		void endLuminosityBlock(edm::LuminosityBlock const&,
-			edm::EventSetup const&) override;
-		void endRun(edm::Run const&, edm::EventSetup const&) override;
+		virtual void bookHistograms(DQMStore::IBooker&,
+			edm::Run const&, edm::EventSetup const&);
+		virtual void beginLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&);
+		virtual void endLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&);
+		virtual void endRun(edm::Run const&, edm::EventSetup const&);
 
 	protected:
 		//	funcs
-		void _process(edm::Event const&, edm::EventSetup const&) override;
-		void _resetMonitors(hcaldqm::UpdateFreq) override;
-		bool _isApplicable(edm::Event const&) override;
+		virtual void _process(edm::Event const&, edm::EventSetup const&);
+		virtual void _resetMonitors(hcaldqm::UpdateFreq);
+		virtual bool _isApplicable(edm::Event const&);
 		virtual void _dump();
 
 		//	tags and tokens

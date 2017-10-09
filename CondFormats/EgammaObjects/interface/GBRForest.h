@@ -20,8 +20,8 @@
 
 #include <vector>
 #include "GBRTree.h"
-#include <cmath>
-#include <cstdio>
+#include <math.h>
+#include <stdio.h>
 
   namespace TMVA {
     class MethodBDT;

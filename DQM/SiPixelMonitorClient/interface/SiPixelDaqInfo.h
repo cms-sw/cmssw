@@ -27,12 +27,12 @@
 class SiPixelDaqInfo : public DQMEDHarvester {
 public:
   explicit SiPixelDaqInfo(const edm::ParameterSet&);
-  ~SiPixelDaqInfo() override;
+  ~SiPixelDaqInfo();
   
 
 private:
-  void dqmEndLuminosityBlock(DQMStore::IBooker&, DQMStore::IGetter&, const edm::LuminosityBlock& , const  edm::EventSetup&) override;
-  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override ;
+  virtual void dqmEndLuminosityBlock(DQMStore::IBooker&, DQMStore::IGetter&, const edm::LuminosityBlock& , const  edm::EventSetup&);
+  virtual void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) ;
   
   MonitorElement*  Fraction_;
   MonitorElement*  FractionBarrel_;

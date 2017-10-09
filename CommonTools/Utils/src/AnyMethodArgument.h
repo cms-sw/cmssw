@@ -7,7 +7,7 @@
 
 #include <algorithm>
 #include <string>
-#include <cstdint>
+#include <stdint.h>
 
 #include <boost/variant.hpp>
 #include <boost/type_traits/is_same.hpp>

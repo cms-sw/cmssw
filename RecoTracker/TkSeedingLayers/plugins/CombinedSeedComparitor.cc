@@ -8,12 +8,12 @@
 class CombinedSeedComparitor : public SeedComparitor {
     public:
         CombinedSeedComparitor(const edm::ParameterSet &cfg, edm::ConsumesCollector& iC) ;
-        ~CombinedSeedComparitor() override ; 
-        void init(const edm::Event& ev, const edm::EventSetup& es) override ;
-        bool compatible(const SeedingHitSet  &hits) const override ;
-        bool compatible(const TrajectoryStateOnSurface &,  
+        virtual ~CombinedSeedComparitor() ; 
+        virtual void init(const edm::Event& ev, const edm::EventSetup& es) override ;
+        virtual bool compatible(const SeedingHitSet  &hits) const override ;
+        virtual bool compatible(const TrajectoryStateOnSurface &,  
                 SeedingHitSet::ConstRecHitPointer hit) const override ;
-        bool compatible(const SeedingHitSet  &hits, 
+        virtual bool compatible(const SeedingHitSet  &hits, 
                 const GlobalTrajectoryParameters &helixStateAtVertex,
                 const FastHelix                  &helix) const override ;
 

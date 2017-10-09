@@ -64,13 +64,13 @@
 class EcalDisplaysByEvent : public edm::EDAnalyzer {
    public:
       explicit EcalDisplaysByEvent(const edm::ParameterSet&);
-      ~EcalDisplaysByEvent() override;
+      ~EcalDisplaysByEvent();
 
 
    private:
-      void beginRun(edm::Run const &, edm::EventSetup const &) override ;
-      void analyze(edm::Event const &, edm::EventSetup const &) override;
-      void endJob() override ;
+      virtual void beginRun(edm::Run const &, edm::EventSetup const &) ;
+      virtual void analyze(edm::Event const &, edm::EventSetup const &);
+      virtual void endJob() ;
       std::string intToString(int num);
       std::string floatToString(float num);
       void initHists(int);

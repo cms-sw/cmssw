@@ -47,9 +47,9 @@
 class VertexFromTrackProducer : public edm::global::EDProducer<> {
 public:
   explicit VertexFromTrackProducer(const edm::ParameterSet&);
-  ~VertexFromTrackProducer() override;
+  ~VertexFromTrackProducer();
   
-  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

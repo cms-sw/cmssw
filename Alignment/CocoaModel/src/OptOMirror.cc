@@ -36,7 +36,7 @@ void OptOMirror::detailedDeviatesLightRay( LightRay& lightray )
   if (ALIUtils::debug >= 3) ALIUtils::dump3v( centreGlob(), " centre Global ");
 
   //---------- Get forward plate and intersect lightray with it
-  ALIPlane plate = getPlate(true, false);
+  ALIPlane plate = getPlate(1, 0);
   lightray.intersect( plate );
   CLHEP::Hep3Vector inters = lightray.point( );
 
@@ -116,7 +116,7 @@ void OptOMirror::fastDeviatesLightRay( LightRay& lightray )
   if (ALIUtils::debug >= 2) std::cout << "LR: FAST REFLECTION IN MIRROR " << name() << std::endl;
 
   //---------- Get forward plate
-  ALIPlane plate = getPlate(true, false);
+  ALIPlane plate = getPlate(1, 0);
 
   //---------- Reflect in plate (including intersection with it)
   lightray.reflect( plate );
@@ -140,7 +140,7 @@ void OptOMirror::detailedTraversesLightRay( LightRay& lightray )
   if (ALIUtils::debug >= 2) std::cout << "LR: DETAILED TRAVERSE IN MIRROR " << name() << std::endl;
 
   //---------- Get forward plate
-  ALIPlane plate = getPlate(true, true);
+  ALIPlane plate = getPlate(1, 1);
   //---------- If width is 0, just keep the same point 
   ALIdouble width = findExtraEntryValue("width");
   if( width == 0 ) {
@@ -157,7 +157,7 @@ void OptOMirror::detailedTraversesLightRay( LightRay& lightray )
   }
 
   //---------- Get backward plate
-  plate = getPlate(false, true);
+  plate = getPlate(0, 1);
   //---------- Refract while exiting mirror
   lightray.refract( plate, refra_ind2, refra_ind1 );
   if (ALIUtils::debug >= 2) {
@@ -173,7 +173,7 @@ void OptOMirror::fastTraversesLightRay( LightRay& lightray )
   if (ALIUtils::debug >= 2) std::cout << "LR: TRAVERSE MIRROR  " << name() << std::endl;
   
   //---------- Get backward plate
-  ALIPlane plate = getPlate(false, false);
+  ALIPlane plate = getPlate(0, 0);
   lightray.intersect( plate );
   if (ALIUtils::debug >= 2) {
     lightray.dumpData("Intersected with plate"); 

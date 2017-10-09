@@ -40,7 +40,7 @@ DTLocalTriggerTPTest::DTLocalTriggerTPTest(const edm::ParameterSet& ps){
   baseFolderTM = "DT/11-LocalTriggerTP-TM/";
   baseFolderDDU = "DT/12-LocalTriggerTP-DDU/";
   
-  bookingdone = false;
+  bookingdone = 0;
 
 }
 
@@ -73,7 +73,7 @@ void DTLocalTriggerTPTest::Bookings(DQMStore::IBooker & ibooker, DQMStore::IGett
   }
 
 
-  bookingdone = true; 
+  bookingdone = 1; 
 
 }
 

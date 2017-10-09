@@ -32,13 +32,13 @@ public:
   DTnoiseDBValidation(const edm::ParameterSet& pset);
 
     /// Destructor
-  ~DTnoiseDBValidation() override;
+  virtual ~DTnoiseDBValidation();
 
   /// Operations
-  void beginRun(const edm::Run& run, const edm::EventSetup& setup) override;
-  void endRun(edm::Run const&, edm::EventSetup const&) override;
-  void endJob() override;
-  void analyze(const edm::Event& event, const edm::EventSetup& setup) override {}
+  void beginRun(const edm::Run& run, const edm::EventSetup& setup);
+  void endRun(edm::Run const&, edm::EventSetup const&);
+  void endJob();
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) {}
  
 protected:
 

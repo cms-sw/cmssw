@@ -3,7 +3,7 @@
 
 #ifndef HAVE_XDAQ
 #include <string>  // std::string
-#include <cstdarg>  // va_list, va_start
+#include <stdarg.h>  // va_list, va_start
 #include <ostream>  // std::ostream
 
 /* Replace log4cplus::Logger */

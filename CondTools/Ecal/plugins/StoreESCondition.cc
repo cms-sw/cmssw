@@ -10,7 +10,7 @@
 #include <iostream>
 #include <string>
 #include <cstring>
-#include <ctime>
+#include <time.h>
 #include <unistd.h> 
 
 using std::string;

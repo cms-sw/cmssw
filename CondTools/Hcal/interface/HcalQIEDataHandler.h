@@ -25,9 +25,9 @@
 class HcalQIEDataHandler : public popcon::PopConSourceHandler<HcalQIEData>
 {
  public:
-  void getNewObjects() override;
-  std::string id() const override { return m_name;}
-  ~HcalQIEDataHandler() override;
+  void getNewObjects();
+  std::string id() const { return m_name;}
+  ~HcalQIEDataHandler();
   HcalQIEDataHandler(edm::ParameterSet const &);
 
   void initObject(HcalQIEData*);

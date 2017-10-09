@@ -23,29 +23,29 @@ public:
 
     // FIXME: restore covariant return type when gcc version upgraded
     //virtual const Plane& surface() const {return *theSurfaceP;} 
-    const Surface& surface() const override {return *theSurfaceP;} 
+    virtual const Surface& surface() const {return *theSurfaceP;} 
 
-    const NavVolume* nextVolume( const NavSurface::LocalPoint& point, 
-					 SurfaceOrientation::Side side) const override{
+    virtual const NavVolume* nextVolume( const NavSurface::LocalPoint& point, 
+					 SurfaceOrientation::Side side) const{
 	return theImpl.nextVolume( point,side);
 
     }
 
-    TrajectoryStateOnSurface 
-    propagate( const Propagator& prop, const TrajectoryStateOnSurface& startingState) const override;
+    virtual TrajectoryStateOnSurface 
+    propagate( const Propagator& prop, const TrajectoryStateOnSurface& startingState) const;
 
-    NavSurface::TSOSwithPath 
-    propagateWithPath( const Propagator& prop, const TrajectoryStateOnSurface& startingState) const override;
+    virtual NavSurface::TSOSwithPath 
+    propagateWithPath( const Propagator& prop, const TrajectoryStateOnSurface& startingState) const;
 
-    const Bounds* bounds( const NavVolume* vol) override { return theImpl.bounds(vol);}
+    virtual const Bounds* bounds( const NavVolume* vol) { return theImpl.bounds(vol);}
 
-    void addVolume( const NavVolume* vol, const Bounds* bounds, 
-			    SurfaceOrientation::Side side) override {
+    virtual void addVolume( const NavVolume* vol, const Bounds* bounds, 
+			    SurfaceOrientation::Side side) {
 	theImpl.addVolume( vol, bounds, side);
     }
 
-    std::pair<bool,double> 
-    distanceAlongLine( const NavSurface::GlobalPoint& pos, const NavSurface::GlobalVector& dir) const override;
+    virtual std::pair<bool,double> 
+    distanceAlongLine( const NavSurface::GlobalPoint& pos, const NavSurface::GlobalVector& dir) const;
 
 private:
 

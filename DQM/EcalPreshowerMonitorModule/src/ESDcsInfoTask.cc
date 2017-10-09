@@ -29,8 +29,8 @@ ESDcsInfoTask::ESDcsInfoTask(const ParameterSet& ps) {
 
    dcsStatustoken_ = consumes<DcsStatusCollection>(ps.getParameter<InputTag>("DcsStatusLabel"));
 
-   meESDcsFraction_ = nullptr;
-   meESDcsActiveMap_ = nullptr;
+   meESDcsFraction_ = 0;
+   meESDcsActiveMap_ = 0;
 
 }
 

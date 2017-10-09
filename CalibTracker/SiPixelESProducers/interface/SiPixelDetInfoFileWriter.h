@@ -28,13 +28,13 @@ class SiPixelDetInfoFileWriter : public edm::EDAnalyzer {
 public:
 
   explicit SiPixelDetInfoFileWriter(const edm::ParameterSet&);
-  ~SiPixelDetInfoFileWriter() override;
+  ~SiPixelDetInfoFileWriter();
 
 private:
 
-  void beginJob() override;
-  void beginRun(const edm::Run &, const edm::EventSetup &) override;
-  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void beginJob();
+  void beginRun(const edm::Run &, const edm::EventSetup &);
+  void analyze(const edm::Event &, const edm::EventSetup &);
 
 private:
 

@@ -29,7 +29,7 @@ class PFRecoTauDiscriminationAgainstElectronMVA6 : public PFTauDiscriminationPro
  public:
   explicit PFRecoTauDiscriminationAgainstElectronMVA6(const edm::ParameterSet& cfg)
     : PFTauDiscriminationProducerBase(cfg),
-      mva_(nullptr),
+      mva_(0),
       category_output_()
   {
     mva_ = new AntiElectronIDMVA6(cfg);
@@ -45,13 +45,13 @@ class PFRecoTauDiscriminationAgainstElectronMVA6 : public PFTauDiscriminationPro
     produces<PFTauDiscriminator>("category");
   }
 
-  void beginEvent(const edm::Event&, const edm::EventSetup&) override;
+  void beginEvent(const edm::Event&, const edm::EventSetup&);
 
-  double discriminate(const PFTauRef&) const override;
+  double discriminate(const PFTauRef&) const;
 
-  void endEvent(edm::Event&) override;
+  void endEvent(edm::Event&);
 
-  ~PFRecoTauDiscriminationAgainstElectronMVA6() override
+  ~PFRecoTauDiscriminationAgainstElectronMVA6()
   {
     delete mva_;
   }
@@ -111,7 +111,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
   float leadChargedPFCandPt = -99.;
   for ( std::vector<reco::PFCandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
 	pfCandidate != signalPFCands.end(); ++pfCandidate ) {
-    const reco::Track* track = nullptr;
+    const reco::Track* track = 0;
     if ( (*pfCandidate)->trackRef().isNonnull() ) track = (*pfCandidate)->trackRef().get();
     else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->innerTrack().isNonnull()  ) track = (*pfCandidate)->muonRef()->innerTrack().get();
     else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->globalTrack().isNonnull() ) track = (*pfCandidate)->muonRef()->globalTrack().get();

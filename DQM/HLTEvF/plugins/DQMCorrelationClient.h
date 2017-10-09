@@ -39,7 +39,7 @@ class DQMCorrelationClient: public DQMEDHarvester{
  public:
 
   DQMCorrelationClient(const edm::ParameterSet& ps);
-  ~DQMCorrelationClient() override = default;
+  virtual ~DQMCorrelationClient() = default;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   static void fillMePSetDescription(edm::ParameterSetDescription & pset);
   static void fillOutputMePSetDescription(edm::ParameterSetDescription & pset);

@@ -14,7 +14,7 @@
 class ESPedestalClient : public ESClient{
    public:
    ESPedestalClient(const edm::ParameterSet&);
-   ~ESPedestalClient() override;
+   ~ESPedestalClient();
    void endJobAnalyze(DQMStore::IGetter&) override;
 
    private:

@@ -23,15 +23,15 @@ class FcnBeamSpotFitPV : public ROOT::Minuit2::FCNBase {
 public: 
   // constructor from vertex data
   FcnBeamSpotFitPV(const std::vector<BeamSpotFitPVData>& data);
-  ~FcnBeamSpotFitPV() override {} 
+  ~FcnBeamSpotFitPV() {} 
   // additional vertex selection using limits in x, y, z
   void setLimits (float xmin, float xmax,
 		  float ymin, float ymax,
 		  float zmin, float zmax);
   // deltaFcn for definition of the uncertainty
-  double Up() const override {return errorDef_;} 
+  double Up() const {return errorDef_;} 
   // -2lnL value based on vector of parameters
-  double operator() (const std::vector<double>&) const override; 
+  double operator() (const std::vector<double>&) const; 
   // vertex count used for the fit (after selection)
   unsigned int nrOfVerticesUsed () const;
 private: 

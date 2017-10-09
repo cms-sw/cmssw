@@ -25,11 +25,11 @@ public:
    * the vector connecting the vertices and the reference vector:
    * if the scalar product is greater than zero, the sign is +1, else -1
    */
-  Measurement1D signedDistance(const reco::Vertex &primVtx , 
+  virtual Measurement1D signedDistance(const reco::Vertex &primVtx , 
 				 const reco::Vertex &secVtx,
-				 const GlobalVector & momentum) const override;
+				 const GlobalVector & momentum) const;
 
-  VertexDistance3D * clone() const override
+  virtual VertexDistance3D * clone() const
   {
     return new VertexDistance3D(*this);
   }
@@ -39,15 +39,15 @@ public:
 private:
 
   AlgebraicSymMatrix33 theNullMatrix;
-  Measurement1D distance(const GlobalPoint & vtx1Position, 
+  virtual Measurement1D distance(const GlobalPoint & vtx1Position, 
 				 const GlobalError & vtx1PositionError, 
 				 const GlobalPoint & vtx2Position, 
-				 const GlobalError & vtx2PositionError) const override;
+				 const GlobalError & vtx2PositionError) const;
 
-  float compatibility(const GlobalPoint & vtx1Position, 
+  virtual float compatibility(const GlobalPoint & vtx1Position, 
 			      const GlobalError & vtx1PositionError, 
 			      const GlobalPoint & vtx2Position, 
-			      const GlobalError & vtx2PositionError) const override;
+			      const GlobalError & vtx2PositionError) const;
 };
 
 

@@ -3,7 +3,7 @@
 KinematicTree::KinematicTree()
 {
  empt = true;
- treeWalker = nullptr;
+ treeWalker = 0;
 }
 
  KinematicTree::~KinematicTree()

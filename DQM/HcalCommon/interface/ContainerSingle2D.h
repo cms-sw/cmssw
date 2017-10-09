@@ -31,7 +31,7 @@ namespace hcaldqm
 				Quantity *qz = new ValueQuantity(quantity::fN),
 				int debug=0);
 			ContainerSingle2D(ContainerSingle2D const&);
-			~ContainerSingle2D() override;
+			virtual ~ContainerSingle2D();
 
 			virtual void initialize(std::string const& folder, 
 				Quantity*, Quantity*,

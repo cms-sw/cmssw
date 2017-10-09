@@ -19,15 +19,15 @@ class SiStripHashedDetIdESProducer : public edm::ESProducer {
  public:
 
   SiStripHashedDetIdESProducer( const edm::ParameterSet& );
-  ~SiStripHashedDetIdESProducer() override;
+  virtual ~SiStripHashedDetIdESProducer();
 
   /** Calls pure virtual make() method, to force concrete implementation. */
   virtual std::unique_ptr<SiStripHashedDetId> produce( const SiStripHashedDetIdRcd& );
   
  private:
   
-  SiStripHashedDetIdESProducer( const SiStripHashedDetIdESProducer& ) = delete;
-  const SiStripHashedDetIdESProducer& operator=( const SiStripHashedDetIdESProducer& ) = delete;
+  SiStripHashedDetIdESProducer( const SiStripHashedDetIdESProducer& );
+  const SiStripHashedDetIdESProducer& operator=( const SiStripHashedDetIdESProducer& );
   
   virtual SiStripHashedDetId* make( const SiStripHashedDetIdRcd& ) = 0; 
   

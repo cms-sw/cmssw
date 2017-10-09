@@ -55,13 +55,13 @@
 class EcalURecHitHists : public edm::EDAnalyzer {
    public:
       explicit EcalURecHitHists(const edm::ParameterSet&);
-      ~EcalURecHitHists() override;
+      ~EcalURecHitHists();
 
 
    private:
-      void beginRun(edm::Run const &, edm::EventSetup const &) override ;
-      void analyze(edm::Event const &, edm::EventSetup const &) override;
-      void endJob() override ;
+      virtual void beginRun(edm::Run const &, edm::EventSetup const &) ;
+      virtual void analyze(edm::Event const &, edm::EventSetup const &);
+      virtual void endJob() ;
       std::string intToString(int num);
       void initHists(int);
 

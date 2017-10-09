@@ -9,10 +9,10 @@
 
 
 #include <iostream>
-#include <cstring>
+#include <string.h>
 #include <iomanip>
 #include<fstream>
-#include <cmath>
+#include <math.h>
 
 
 JetMETDQMPostProcessor::JetMETDQMPostProcessor(const edm::ParameterSet& pset)
@@ -106,13 +106,13 @@ JetMETDQMPostProcessor::dividehistos(DQMStore::IBooker & ibooker, DQMStore::IGet
   //std::cout << denomName << std::endl;
   TH1F* denom = getHistogram(ibooker, igetter, ibooker.pwd()+"/"+denomName);
 
-  if (num == nullptr)
+  if (num == NULL)
     edm::LogWarning("JetMETDQMPostProcessor") << "numerator histogram " << ibooker.pwd()+"/"+numName << " does not exist";
-  if (denom == nullptr)
+  if (denom == NULL)
     edm::LogWarning("JetMETDQMPostProcessor") << "denominator histogram " << ibooker.pwd()+"/"+denomName << " does not exist";
 
   // Check if histograms actually exist
-  if(!num || !denom) return nullptr;
+  if(!num || !denom) return 0;
 
   MonitorElement* meOut = ibooker.bookProfile(outName, titel, num->GetXaxis()->GetNbins(), num->GetXaxis()->GetXmin(), num->GetXaxis()->GetXmax(),0.,1.2);
   meOut->setEfficiencyFlag();
@@ -144,10 +144,10 @@ JetMETDQMPostProcessor::getHistogram(DQMStore::IBooker & ibooker, DQMStore::IGet
 {
   ibooker.pwd();
   MonitorElement *monElement = igetter.get(histoPath);
-  if (monElement != nullptr)
+  if (monElement != NULL)
     return monElement->getTH1F();
   else
-    return nullptr;
+    return NULL;
 }
 
 //----------------------------------------------------------------------

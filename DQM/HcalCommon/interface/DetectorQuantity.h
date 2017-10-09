@@ -82,21 +82,21 @@ namespace hcaldqm
 				DetectorQuantity(DetectorQuantityType type, bool isLog=false) :
 					Quantity(name_did[type], isLog), _type(type)
 				{}
-				~DetectorQuantity() override {}
-				DetectorQuantity* makeCopy() override
+				virtual ~DetectorQuantity() {}
+				virtual DetectorQuantity* makeCopy()
 				{return new DetectorQuantity(_type, _isLog);}
 
-				int getValue(HcalDetId const& did) override 
+				virtual int getValue(HcalDetId const& did) 
 				{return getValue_functions_did[_type](did);}
-				uint32_t getBin(HcalDetId const& did) override
+				virtual uint32_t getBin(HcalDetId const& did)
 				{return getBin_functions_did[_type](did);}
 
-				QuantityType type() override {return fDetectorQuantity;}
-				int nbins() override {return nbins_did[_type];}
-				double min() override {return min_did[_type];}
-				double max() override {return max_did[_type];}
-				bool isCoordinate() override {return true;}
-				std::vector<std::string> getLabels() override
+				virtual QuantityType type() {return fDetectorQuantity;}
+				virtual int nbins() {return nbins_did[_type];}
+				virtual double min() {return min_did[_type];}
+				virtual double max() {return max_did[_type];}
+				virtual bool isCoordinate() {return true;}
+				virtual std::vector<std::string> getLabels()
 				{return getLabels_functions_did[_type]();}
 
 			protected:

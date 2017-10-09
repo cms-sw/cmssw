@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include <numeric>
-#include <cmath>
+#include <math.h>
 #include <TMath.h>
 #include <iostream>
 #include "TStyle.h"

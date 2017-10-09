@@ -9,20 +9,20 @@ class TtFullLepHypGenMatch : public TtFullLepHypothesis  {
  public:
 
   explicit TtFullLepHypGenMatch(const edm::ParameterSet&);
-  ~TtFullLepHypGenMatch() override;
+  ~TtFullLepHypGenMatch();
 
  private:
 
   /// build the event hypothesis key
-  void buildKey() override { key_= TtFullLeptonicEvent::kGenMatch; };
+  virtual void buildKey() { key_= TtFullLeptonicEvent::kGenMatch; };
   /// build event hypothesis from the reco objects of a semi-leptonic event
-  void buildHypo(edm::Event& evt,
+  virtual void buildHypo(edm::Event& evt,
 			 const edm::Handle<std::vector<pat::Electron > >& elecs,
 			 const edm::Handle<std::vector<pat::Muon> >& mus,
 			 const edm::Handle<std::vector<pat::Jet> >& jets,
 			 const edm::Handle<std::vector<pat::MET> >& mets,
 			 std::vector<int>& match,
-			 const unsigned int iComb) override;
+			 const unsigned int iComb);
 
   template <typename O>
   int findMatchingLepton(const reco::GenParticle*,

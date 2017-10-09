@@ -20,9 +20,9 @@
 #include "TMath.h"
 
 HcalPulseShapes::HcalPulseShapes() 
-: theMCParams(nullptr),
-  theTopology(nullptr),
-  theRecoParams(nullptr),
+: theMCParams(0),
+  theTopology(0),
+  theRecoParams(0),
   theShapes()
 {
 /*
@@ -131,9 +131,9 @@ void HcalPulseShapes::endRun()
   if (theTopology) delete theTopology;
 
 
-  theMCParams = nullptr;
-  theRecoParams = nullptr;
-  theTopology = nullptr;
+  theMCParams = 0;
+  theRecoParams = 0;
+  theTopology = 0;
 }
 
 

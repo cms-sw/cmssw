@@ -12,7 +12,7 @@ class MiscalibReaderFromXMLEcalEndcap : public MiscalibReaderFromXML
  public:
   MiscalibReaderFromXMLEcalEndcap(CaloMiscalibMapEcal & map):MiscalibReaderFromXML(map){};
 
-  DetId parseCellEntry(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attribute) override;
+  virtual DetId parseCellEntry(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attribute);
 
   EEDetId getCellFromAttributes(int ix, int iy, int iz);
 

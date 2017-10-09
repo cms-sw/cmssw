@@ -30,15 +30,15 @@ public:
   DTTTrigWriter(const edm::ParameterSet& pset);
 
   /// Destructor
-  ~DTTTrigWriter() override;
+  virtual ~DTTTrigWriter();
 
   // Operations
 
   /// Compute the ttrig by fiting the TB rising edge
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
+  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
   /// Write ttrig in the DB
-  void endJob() override;
+  void endJob();
 
  
 protected:

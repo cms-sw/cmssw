@@ -61,7 +61,7 @@ public:
   ELstatistics( int spaceLimit );
   ELstatistics( int spaceLimit, std::ostream & osp );
   ELstatistics( const ELstatistics & orig );
-  ~ELstatistics() override;
+  virtual ~ELstatistics();
 
   // -----  Methods invoked by the ELadministrator:
   //
@@ -71,7 +71,7 @@ public:
 		//-| of copying a destination onto the list:  ofstream
 		//-| ownership is passed to the new copy.
 
-  bool log( const edm::ErrorObj & msg ) override;
+  virtual bool log( const edm::ErrorObj & msg ) override;
 
   // output( const ELstring & item, const ELseverityLevel & sev )
   // from base class
@@ -85,12 +85,12 @@ public:
   void summary( unsigned long overfullWaitCount );
   void noTerminationSummary();
   void summaryForJobReport (std::map<std::string, double> & sm);
-  void wipe() override;
+  virtual void wipe() override;
 
 protected:
   void clearSummary();
 
-  void zero() override;
+  virtual void zero() override;
 
 
   std::map<ELextendedID,StatsCount> statisticsMap() const;

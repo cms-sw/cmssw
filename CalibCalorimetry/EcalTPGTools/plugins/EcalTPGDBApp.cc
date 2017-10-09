@@ -1,7 +1,7 @@
 #include "CalibCalorimetry/EcalTPGTools/plugins/EcalTPGDBApp.h"
 
 #include <vector>
-#include <ctime>
+#include <time.h>
 
 using namespace std;
 using namespace oracle::occi;

@@ -50,10 +50,10 @@ class  StoreEcalCondition : public edm::EDAnalyzer {
   int convertFromConstructionSMToSlot(int ,int );
 
   explicit  StoreEcalCondition(const edm::ParameterSet& iConfig );
-  ~StoreEcalCondition() override;
+  ~StoreEcalCondition();
 
-  void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup) override;
-  void endJob() override;
+  virtual void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup);
+  virtual void endJob();
 
  private:
 

@@ -41,7 +41,7 @@ namespace hcaldqm
 				hashfunctions::HashType, 
 				Quantity*,
 				Quantity *qy =  new ValueQuantity(quantity::fN));
-			~Container1D() override;
+			virtual ~Container1D();
 
 			//	Initialize Container
 			//	@folder - folder name where to save. Should already include the

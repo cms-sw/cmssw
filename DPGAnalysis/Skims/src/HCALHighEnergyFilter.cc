@@ -49,12 +49,12 @@ using namespace edm;
 class HCALHighEnergyFilter : public edm::EDFilter {
    public:
       explicit HCALHighEnergyFilter(const edm::ParameterSet&);
-      ~HCALHighEnergyFilter() override;
+      ~HCALHighEnergyFilter();
 
    private:
-      void beginJob() override ;
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+      virtual void beginJob() override ;
+      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
   //  bool jetGood(L1JetParticleCollection::const_iterator &);
   bool jetGood(reco::CaloJetCollection::const_iterator &);
       // ----------member data ---------------------------

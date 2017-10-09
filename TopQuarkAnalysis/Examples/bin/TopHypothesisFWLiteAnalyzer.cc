@@ -51,9 +51,9 @@ int main(int argc, char* argv[])
   std::cout << "open file: " << argv[1] << std::endl;
   // -------------------------------------------------
   TFile* inFile = TFile::Open(argv[1]);
-  TTree* events_= nullptr;
+  TTree* events_= 0;
   if( inFile ) inFile->GetObject("Events", events_); 
-  if( events_==nullptr ){
+  if( events_==0 ){
     // -------------------------------------------------  
     std::cerr << "ERROR: Unable to retrieve TTree Events!"           << std::endl
 	      << "Either wrong file name or the tree doesn't exist." << std::endl;
@@ -65,15 +65,15 @@ int main(int argc, char* argv[])
   char decayName[50];
   sprintf(decayName, "recoGenParticles_decaySubset__%s.obj", argv[2]);
   TBranch* decay_   = events_->GetBranch( decayName ); // referred to from within TtGenEvent class
-  assert( decay_ != nullptr ); 
+  assert( decay_ != 0 ); 
   char genEvtName[50];
   sprintf(genEvtName, "TtGenEvent_genEvt__%s.obj", argv[2]);
   TBranch* genEvt_  = events_->GetBranch( genEvtName ); // referred to from within TtSemiLeptonicEvent class
-  assert( genEvt_ != nullptr ); 
+  assert( genEvt_ != 0 ); 
   char semiLepEvtName[50];
   sprintf(semiLepEvtName, "TtSemiLeptonicEvent_ttSemiLepEvent__%s.obj", argv[2]);
   TBranch* semiLepEvt_ = events_->GetBranch( semiLepEvtName ); 
-  assert( semiLepEvt_ != nullptr );
+  assert( semiLepEvt_ != 0 );
   
   // loop over events and fill histograms  
   int nevt = events_->GetEntries();

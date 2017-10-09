@@ -23,7 +23,7 @@ public:
   RPCDcsInfo(const edm::ParameterSet& ps);
   
   /// Destructor
-  ~RPCDcsInfo() override;
+  virtual ~RPCDcsInfo();
 
 protected:
 

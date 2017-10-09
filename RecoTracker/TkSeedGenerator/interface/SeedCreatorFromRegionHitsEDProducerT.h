@@ -21,11 +21,11 @@ class SeedCreatorFromRegionHitsEDProducerT: public edm::stream::EDProducer<> {
 public:
 
   SeedCreatorFromRegionHitsEDProducerT(const edm::ParameterSet& iConfig);
-  ~SeedCreatorFromRegionHitsEDProducerT() override = default;
+  ~SeedCreatorFromRegionHitsEDProducerT() = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
   edm::EDGetTokenT<RegionsSeedingHitSets> seedingHitSetsToken_;

@@ -44,19 +44,19 @@ namespace edm {
   class EventSetupCacheIdentifierChecker : public edm::EDAnalyzer {
    public:
     explicit EventSetupCacheIdentifierChecker(const edm::ParameterSet&);
-    ~EventSetupCacheIdentifierChecker() override;
+    ~EventSetupCacheIdentifierChecker();
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
    private:
     //virtual void beginJob() ;
-    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
     //virtual void endJob() ;
 
-    void beginRun(edm::Run const&, edm::EventSetup const&) override;
+    virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
     //virtual void endRun(edm::Run const&, edm::EventSetup const&);
-    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+    virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
     //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
     void check(edm::EventSetup const&);
@@ -150,7 +150,7 @@ EventSetupCacheIdentifierChecker::beginLuminosityBlock(edm::LuminosityBlock cons
 void
 EventSetupCacheIdentifierChecker::check(edm::EventSetup const& iSetup)
 {
-  if(m_recordKeysToExpectedCacheIdentifiers.empty()) {
+  if(0==m_recordKeysToExpectedCacheIdentifiers.size()) {
     initialize();
   }
   using namespace edm::eventsetup;
@@ -160,13 +160,13 @@ EventSetupCacheIdentifierChecker::check(edm::EventSetup const& iSetup)
       it != itEnd;
       ++it) {
     EventSetupRecord const* pRecord = iSetup.find(it->first);
-    if(nullptr == pRecord) {
+    if(0 == pRecord) {
       edm::LogWarning("RecordNotInIOV") <<"The EventSetup Record '"<<it->first.name()<<"' is not available for this IOV.";
     }
     if(it->second.size() <= m_index) {
       throw cms::Exception("TooFewCacheIDs")<<"The vector of cacheIdentifiers for the record "<<it->first.name()<<" is too short";
     }
-    if(nullptr != pRecord && pRecord->cacheIdentifier() != it->second[m_index]) {
+    if(0 != pRecord && pRecord->cacheIdentifier() != it->second[m_index]) {
       throw cms::Exception("IncorrectCacheID")<<"The Record "<<it->first.name()<<" was supposed to have cacheIdentifier: "<<it->second[m_index]<<" but instead has "<<pRecord->cacheIdentifier();
     }
   }

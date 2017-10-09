@@ -43,21 +43,21 @@ class TrackingCertificationInfo: public DQMEDHarvester
   TrackingCertificationInfo(const edm::ParameterSet& ps);
   
   /// Destructor
-  ~TrackingCertificationInfo() override;
+  virtual ~TrackingCertificationInfo();
 
  private:
 
   /// BeginJob
-  void beginJob() override;
+  void beginJob();
 
   /// Begin Run
-  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
+  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
   /// End Of Luminosity
-  void dqmEndLuminosityBlock(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_,edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) override;
+  void dqmEndLuminosityBlock(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_,edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup);
   
   /// EndJob
-  void dqmEndJob(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_) override;
+  void dqmEndJob(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_);
 
 private:
 

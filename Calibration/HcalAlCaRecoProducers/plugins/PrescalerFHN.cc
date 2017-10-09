@@ -46,12 +46,12 @@ using namespace edm;
 class PrescalerFHN : public edm::EDFilter {
    public:
       explicit PrescalerFHN(const edm::ParameterSet&);
-      ~PrescalerFHN() override;
+      ~PrescalerFHN();
 
    private:
-      void beginJob() override ;
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+      virtual void beginJob() override ;
+      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
       // ----------member data ---------------------------
 
   void init(const edm::TriggerResults &,

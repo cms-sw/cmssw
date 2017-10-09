@@ -21,7 +21,7 @@
 // system include files
 #include <vector>
 #include <string>
-#include <ctime>
+#include <time.h>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/util/XMLString.hpp>
 #include "FWCore/Concurrency/interface/Xerces.h"
@@ -172,7 +172,7 @@ class XMLProcessor
  private:
   XMLProcessor();
 
-  XMLProcessor(const XMLProcessor&) = delete; // stop default
+  XMLProcessor(const XMLProcessor&); // stop default
   
   //const XMLProcessor& operator=(const XMLProcessor&); // stop default
   

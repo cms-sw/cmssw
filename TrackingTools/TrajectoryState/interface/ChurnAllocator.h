@@ -27,7 +27,7 @@ public:
     typedef churn_allocator<_Tp1> other;
   };
 
-  pointer allocate(size_type n, const void *hint=nullptr)
+  pointer allocate(size_type n, const void *hint=0)
   {
     Cache & c = cache();
     if (!c.gard) 

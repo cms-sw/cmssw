@@ -32,9 +32,9 @@
 
 class ShallowTree : public edm::EDAnalyzer {
 private:    
-  void beginJob() override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override{}
+  virtual void beginJob();
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob(){}
 
 	template <class T> 
 	void eat(edm::BranchDescription const* desc) {
@@ -56,7 +56,7 @@ private:
     T* object_ptr_;
   public:
     TypedBranchConnector(edm::BranchDescription const*, std::string, TTree*);
-    void connect(const edm::Event&) override;
+    void connect(const edm::Event&);
   };
 
   edm::Service<TFileService> fs_;

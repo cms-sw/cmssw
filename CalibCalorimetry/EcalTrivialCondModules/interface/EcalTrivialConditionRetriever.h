@@ -121,7 +121,7 @@ class EcalTrivialConditionRetriever : public edm::ESProducer,
 
 public:
   EcalTrivialConditionRetriever(const edm::ParameterSet&  pset);
-  ~EcalTrivialConditionRetriever() override;
+  virtual ~EcalTrivialConditionRetriever();
 
   // ---------- member functions ---------------------------
   virtual std::unique_ptr<EcalPedestals> produceEcalPedestals( const EcalPedestalsRcd& );
@@ -182,12 +182,12 @@ public:
 
 protected:
   //overriding from ContextRecordIntervalFinder
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
+  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
                                const edm::IOVSyncValue& ,
-                               edm::ValidityInterval& ) override ;
+                               edm::ValidityInterval& ) ;
 private:
-  EcalTrivialConditionRetriever( const EcalTrivialConditionRetriever& ) = delete; // stop default
-  const  EcalTrivialConditionRetriever& operator=( const EcalTrivialConditionRetriever& ) = delete; // stop default
+  EcalTrivialConditionRetriever( const EcalTrivialConditionRetriever& ); // stop default
+  const  EcalTrivialConditionRetriever& operator=( const EcalTrivialConditionRetriever& ); // stop default
 
   void getWeightsFromConfiguration(const edm::ParameterSet& ps);
 

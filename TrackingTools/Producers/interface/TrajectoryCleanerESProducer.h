@@ -32,7 +32,7 @@
 class TrajectoryCleanerESProducer : public edm::ESProducer {
    public:
       TrajectoryCleanerESProducer(const edm::ParameterSet&);
-      ~TrajectoryCleanerESProducer() override;
+      ~TrajectoryCleanerESProducer();
 
   typedef std::shared_ptr<TrajectoryCleaner> ReturnType;
 

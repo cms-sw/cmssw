@@ -9,9 +9,9 @@ class MSLayersKeeperX0Averaged;
 class dso_hidden MSLayersKeeperX0AtEta final : public MSLayersKeeper {
 public:
   MSLayersKeeperX0AtEta() : isInitialised(false) { }
-  ~MSLayersKeeperX0AtEta() override { }
-  void init(const edm::EventSetup &iSetup) override;
-  const MSLayersAtAngle & layers(float cotTheta) const override;
+  ~MSLayersKeeperX0AtEta() { }
+  void init(const edm::EventSetup &iSetup);
+  const MSLayersAtAngle & layers(float cotTheta) const;
 
 private:
   float eta(int idxBin) const;

@@ -18,11 +18,11 @@ class HcalLUTCorrs: public HcalCondObjectContainer<HcalLUTCorr>
 {
  public:
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalLUTCorrs():HcalCondObjectContainer<HcalLUTCorr>(nullptr) {}
+  HcalLUTCorrs():HcalCondObjectContainer<HcalLUTCorr>(0) {}
 #endif
   HcalLUTCorrs(const HcalTopology* topo):HcalCondObjectContainer<HcalLUTCorr>(topo) {}
 
-  std::string myname() const override {return (std::string)"HcalLUTCorrs";}
+  std::string myname() const {return (std::string)"HcalLUTCorrs";}
 
  private:
 

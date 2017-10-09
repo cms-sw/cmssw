@@ -23,10 +23,10 @@ public:
   /// constructor with user-supplied propagator
   TSCBLBuilderWithPropagator(const Propagator& u);
 
-  ~TSCBLBuilderWithPropagator() override{};
+  virtual ~TSCBLBuilderWithPropagator(){};
 
-  TrajectoryStateClosestToBeamLine operator()
-    (const FTS& originalFTS, const reco::BeamSpot & beamSpot) const override;
+  virtual TrajectoryStateClosestToBeamLine operator()
+    (const FTS& originalFTS, const reco::BeamSpot & beamSpot) const;
 
 private:
   DeepCopyPointerByClone<Propagator> thePropagator;

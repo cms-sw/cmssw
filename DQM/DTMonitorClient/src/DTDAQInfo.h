@@ -28,14 +28,14 @@ public:
   DTDAQInfo(const edm::ParameterSet& pset);
 
   /// Destructor
-  ~DTDAQInfo() override;
+  virtual ~DTDAQInfo();
 
   // Operations
 
 protected:
   void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, 
-                                                      edm::EventSetup const &) override;
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
+                                                      edm::EventSetup const &);
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
 
 private:
 

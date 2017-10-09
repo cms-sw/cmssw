@@ -22,9 +22,9 @@
 class HcalTPParametersHandler : public popcon::PopConSourceHandler<HcalTPParameters> {
 
 public:
-  void getNewObjects() override;
-  std::string id() const override {return m_name;}
-  ~HcalTPParametersHandler() override;
+  void getNewObjects();
+  std::string id() const {return m_name;}
+  ~HcalTPParametersHandler();
   HcalTPParametersHandler(edm::ParameterSet const &);
 
   void initObject(HcalTPParameters*);

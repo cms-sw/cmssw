@@ -27,7 +27,7 @@ FourVectorHLT::FourVectorHLT(const edm::ParameterSet& iConfig)
   
   dirname_="HLT/FourVectorHLT" ;
   
-  if (dbe_ != nullptr ) {
+  if (dbe_ != 0 ) {
     LogDebug("Status") << "Setting current directory to " << dirname_;
     dbe_->setCurrentFolder(dirname_);
   }
@@ -52,7 +52,7 @@ FourVectorHLT::FourVectorHLT(const edm::ParameterSet& iConfig)
     float ptMax = filterconf->getUntrackedParameter<double>("ptMax");
     hltPaths_.push_back(PathInfo(me, objectType, ptMin, ptMax));
   }
-  if ( !hltPaths_.empty() && plotAll_) {
+  if ( hltPaths_.size() && plotAll_) {
     // these two ought to be mutually exclusive....
     LogWarning("Configuration") << "Using both plotAll and a list. "
       "list will be ignored." ;
@@ -119,7 +119,7 @@ FourVectorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       PathInfoCollection::iterator pic =  hltPaths_.find(name);
       if ( pic == hltPaths_.end() ) {
 	// doesn't exist - add it
-	MonitorElement *et(nullptr), *eta(nullptr), *phi(nullptr), *etavsphi(nullptr);
+	MonitorElement *et(0), *eta(0), *phi(0), *etavsphi(0);
 	
 	std::string histoname(name+"_et");
 	LogDebug("Status") << "new histo with name "<<  histoname ;
@@ -191,7 +191,7 @@ void
 FourVectorHLT::beginJob()
 {
   nev_ = 0;
-  DQMStore *dbe = nullptr;
+  DQMStore *dbe = 0;
   dbe = Service<DQMStore>().operator->();
   
   if (dbe) {
@@ -206,7 +206,7 @@ FourVectorHLT::beginJob()
     if ( ! plotAll_ ) {
       for(PathInfoCollection::iterator v = hltPaths_.begin();
 	  v!= hltPaths_.end(); ++v ) {
-	MonitorElement *et, *eta, *phi, *etavsphi=nullptr;
+	MonitorElement *et, *eta, *phi, *etavsphi=0;
 	std::string histoname(v->getName()+"_et");
 	std::string title(v->getName()+" E_t");
 	et =  dbe->book1D(histoname.c_str(),

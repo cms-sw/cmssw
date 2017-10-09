@@ -19,7 +19,7 @@
 //
 template<class T> 
 T* ExtractTObject<T>::extract( MonitorElement* me ) {
-    return me ? dynamic_cast<T*>(me->getRootObject()) : nullptr;
+    return me ? dynamic_cast<T*>(me->getRootObject()) : 0;
 }
 // -----------------------------------------------------------------------------
 //

@@ -25,9 +25,9 @@
 class HcalLUTCorrsHandler : public popcon::PopConSourceHandler<HcalLUTCorrs>
 {
  public:
-  void getNewObjects() override;
-  std::string id() const override { return m_name;}
-  ~HcalLUTCorrsHandler() override;
+  void getNewObjects();
+  std::string id() const { return m_name;}
+  ~HcalLUTCorrsHandler();
   HcalLUTCorrsHandler(edm::ParameterSet const &);
 
   void initObject(HcalLUTCorrs*);

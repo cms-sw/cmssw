@@ -6,12 +6,12 @@ ClassImp(TStorageFactorySystem)
 
 TStorageFactorySystem::TStorageFactorySystem(const char *, Bool_t)
   : TSystem("-StorageFactory", "Storage Factory System"),
-    fDirp(nullptr)
+    fDirp(0)
 { SetName("StorageFactory"); }
 
 TStorageFactorySystem::TStorageFactorySystem(void)
   : TSystem("-StorageFactory", "Storage Factory System"),
-    fDirp(nullptr)
+    fDirp(0)
 { SetName("StorageFactory"); }
 
 TStorageFactorySystem::~TStorageFactorySystem(void)
@@ -31,7 +31,7 @@ void *
 TStorageFactorySystem::OpenDirectory(const char */*name*/)
 {
   Error("OpenDirectory", "Unsupported");
-  return nullptr;
+  return 0;
 }
 
 void
@@ -44,7 +44,7 @@ const char *
 TStorageFactorySystem::GetDirEntry(void */*dirp*/)
 {
   Error("GetDirEntry", "Unsupported");
-  return nullptr;
+  return 0;
 }
 
 Bool_t

@@ -20,7 +20,7 @@ class EcalTBHodoscopePlaneRawHits {
     {
       rawChannelHits_.reserve(channels);
       for (unsigned int i=0;i<channels;i++)
-	rawChannelHits_[i]=false;
+	rawChannelHits_[i]=0;
     }
   
   /// Get Methods

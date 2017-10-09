@@ -1,6 +1,6 @@
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBTriggerData.h"
 #include <cstdio>
-#include <cstdint>
+#include <stdint.h>
 
 using namespace std;
 

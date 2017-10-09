@@ -64,11 +64,11 @@ public:
     cuts2_ = new AntiElectronIDCut2();
   }
 
-  void beginEvent(const edm::Event&, const edm::EventSetup&) override;
+  void beginEvent(const edm::Event&, const edm::EventSetup&);
 
-  double discriminate(const PFTauRef&) const override;
+  double discriminate(const PFTauRef&) const;
   
-  ~PFRecoTauDiscriminationAgainstElectron2() override
+  ~PFRecoTauDiscriminationAgainstElectron2()
   {  }
 
 private:

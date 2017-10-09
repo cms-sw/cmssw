@@ -4,7 +4,7 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-#include <cstdint>
+#include <stdint.h>
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 class HcalDcsValue {

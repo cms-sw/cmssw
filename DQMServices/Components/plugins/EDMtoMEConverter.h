@@ -34,7 +34,7 @@
 
 // helper files
 #include <iostream>
-#include <cstdlib>
+#include <stdlib.h>
 #include <string>
 #include <memory>
 #include <vector>
@@ -53,15 +53,15 @@ class EDMtoMEConverter : public edm::EDAnalyzer
  public:
 
   explicit EDMtoMEConverter(const edm::ParameterSet&);
-  ~EDMtoMEConverter() override;
-  void beginJob() override;
-  void endJob() override;  
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  void endRun(const edm::Run&, const edm::EventSetup&) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  void respondToOpenInputFile(const edm::FileBlock&) override;
+  virtual ~EDMtoMEConverter();
+  virtual void beginJob();
+  virtual void endJob();  
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
+  virtual void endRun(const edm::Run&, const edm::EventSetup&);
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+  virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+  virtual void respondToOpenInputFile(const edm::FileBlock&);
 
   template <class T>
   void getData(T& iGetFrom);

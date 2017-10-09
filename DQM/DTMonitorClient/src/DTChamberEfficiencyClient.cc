@@ -17,9 +17,9 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 
-#include <cstdio>
+#include <stdio.h>
 #include <sstream>
-#include <cmath>
+#include <math.h>
 
 using namespace edm;
 using namespace std;
@@ -130,7 +130,7 @@ void DTChamberEfficiencyClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore:
   for(int wheel=-2; wheel<=2; wheel++) { // loop over wheels
     // retrieve the chamber efficiency summary
     MonitorElement * segmentWheelSummary = summaryHistos[wheel+2][0];
-    if(segmentWheelSummary != nullptr) {
+    if(segmentWheelSummary != 0) {
 
       for(int sector=1; sector<=12; sector++) { // loop over sectors
         float nFailingChambers = 0.;

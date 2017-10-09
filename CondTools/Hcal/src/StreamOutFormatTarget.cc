@@ -19,7 +19,7 @@
  */
 
 #include "CondTools/Hcal/interface/StreamOutFormatTarget.h"
-#include <cstdio>
+#include <stdio.h>
 
 XERCES_CPP_NAMESPACE_BEGIN
 

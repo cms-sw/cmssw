@@ -24,7 +24,7 @@ namespace reco { namespace tau {
 class RecoTauElectronRejectionPlugin : public RecoTauModifierPlugin {
   public:
   explicit RecoTauElectronRejectionPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector && iC);
-    ~RecoTauElectronRejectionPlugin() override {}
+    virtual ~RecoTauElectronRejectionPlugin() {}
     void operator()(PFTau&) const override;
   private:
     double ElecPreIDLeadTkMatch_maxDR_;

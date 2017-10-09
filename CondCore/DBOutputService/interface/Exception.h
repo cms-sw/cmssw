@@ -7,7 +7,7 @@ namespace cond{
   public:
     UnregisteredRecordException( const std::string& recordName ) : Exception( std::string("PoolDBOutputService: unregistered record "+recordName) ){
     }
-    ~UnregisteredRecordException() throw() override{
+    virtual ~UnregisteredRecordException() throw(){
     }
   };
 }

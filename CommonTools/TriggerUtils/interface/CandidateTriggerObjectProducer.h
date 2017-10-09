@@ -24,13 +24,13 @@ class CandidateTriggerObjectProducer : public edm::EDProducer {
 
  public:
   explicit CandidateTriggerObjectProducer(const edm::ParameterSet&);
-  ~CandidateTriggerObjectProducer() override;
+  ~CandidateTriggerObjectProducer();
 
  private:
-  void beginRun(const edm::Run& iRun, edm::EventSetup const& iSetup) override;
-  void beginJob() override {} ;
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override {} ;
+  virtual void beginRun(const edm::Run& iRun, edm::EventSetup const& iSetup) override;
+  virtual void beginJob() override {} ;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override {} ;
 
   /// module config parameters
   edm::InputTag triggerResultsTag_;

@@ -29,7 +29,7 @@ class DQMGenericClient : public DQMEDHarvester
 {
  public:
   DQMGenericClient(const edm::ParameterSet& pset);
-  ~DQMGenericClient() override {};
+  ~DQMGenericClient() {};
 
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 

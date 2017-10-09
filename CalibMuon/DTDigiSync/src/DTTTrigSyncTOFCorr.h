@@ -53,12 +53,12 @@ public:
   DTTTrigSyncTOFCorr(const edm::ParameterSet& config);
 
   /// Destructor
-  ~DTTTrigSyncTOFCorr() override;
+  virtual ~DTTTrigSyncTOFCorr();
 
   // Operations
 
   /// Pass the Event Setup to the algo at each event
-  void setES(const edm::EventSetup& setup) override {}
+  virtual void setES(const edm::EventSetup& setup) {}
 
 
   /// Time (ns) to be subtracted to the digi time,
@@ -69,23 +69,23 @@ public:
   ///     - tTrig is the offset (t_trig)
   ///     - wirePropCorr is the delay for signal propagation along the wire
   ///     - tofCorr is the correction due to the particle TOF 
-  double offset(const DTLayer* layer,
+  virtual double offset(const DTLayer* layer,
 			const DTWireId& wireId,
 			const GlobalPoint& globPos,
 			double& tTrig,
 			double& wirePropCorr,
-			double& tofCorr) override;
+			double& tofCorr);
 
-  double offset(const DTWireId& wireId) override;
+  virtual double offset(const DTWireId& wireId);
 
   /// Time (ns) to be subtracted to the digi time for emulation purposes
   /// It does not take into account TOF and signal propagation along the wire
   /// It also returns the different contributions separately:
   ///     - tTrig is the offset (t_trig)
   ///     - t0cell is the t0 from pulses (always 0 in this case)
-  double emulatorOffset(const DTWireId& wireId,
+  virtual double emulatorOffset(const DTWireId& wireId,
 				double &tTrig,
-				double &t0cell) override;
+				double &t0cell);
 
  private:
   // The fixed t_trig to be subtracted to digi time (ns)

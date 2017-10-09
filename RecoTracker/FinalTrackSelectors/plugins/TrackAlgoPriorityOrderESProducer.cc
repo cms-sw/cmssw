@@ -9,7 +9,7 @@
 class TrackAlgoPriorityOrderESProducer: public edm::ESProducer {
 public:
   TrackAlgoPriorityOrderESProducer(const edm::ParameterSet& iConfig);
-  ~TrackAlgoPriorityOrderESProducer() override = default;
+  ~TrackAlgoPriorityOrderESProducer() = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

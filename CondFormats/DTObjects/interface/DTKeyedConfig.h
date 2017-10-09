@@ -45,7 +45,7 @@ class DTKeyedConfig: public cond::BaseKeyed {
 
   /** Destructor
    */
-  ~DTKeyedConfig() override;
+  virtual ~DTKeyedConfig();
 
   /** Operations
    */

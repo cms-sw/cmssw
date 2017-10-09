@@ -17,23 +17,23 @@ class Phase2EndcapRing final : public GeometricSearchDet {
 		 std::vector<const GeomDet*>& outerDets,
 		 const std::vector<const GeomDet*>& innerDetBrothers = std::vector<const GeomDet*>(),
 		 const std::vector<const GeomDet*>& outerDetBrothers = std::vector<const GeomDet*>());
-  ~Phase2EndcapRing() override;
+  ~Phase2EndcapRing();
   
   // GeometricSearchDet interface
-  const BoundSurface& surface() const override {return *theDisk;}
+  virtual const BoundSurface& surface() const {return *theDisk;}
   
-  const std::vector<const GeomDet*>& basicComponents() const override {return theDets;}
+  virtual const std::vector<const GeomDet*>& basicComponents() const {return theDets;}
   
-  const std::vector<const GeometricSearchDet*>& components() const override __attribute__ ((cold));
+  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold));
 
-  std::pair<bool, TrajectoryStateOnSurface>
+  virtual std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface&, const Propagator&, 
-		       const MeasurementEstimator&) const override;
+		       const MeasurementEstimator&) const;
 
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
 			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const override __attribute__ ((hot));
+			       std::vector<DetGroup> & result) const __attribute__ ((hot));
   
  
   //Extension of interface

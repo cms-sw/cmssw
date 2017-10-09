@@ -67,7 +67,7 @@ class RecoTauBuilderPlugin : public RecoTauEventHolderPlugin
     pfCand_token = iC.consumes<PFCandidateCollection>(pfCandSrc_);
   };
 
-  ~RecoTauBuilderPlugin() override {}
+  virtual ~RecoTauBuilderPlugin() {}
 
   /// Construct one or more PFTaus from the a PFJet and its asscociated
   /// reconstructed PiZeros and regional extras i.e. objects in a 0.8 cone
@@ -88,7 +88,7 @@ class RecoTauBuilderPlugin : public RecoTauEventHolderPlugin
 
   // Hook called by base class at the beginning of each event. Used to update
   // handle to PFCandidates
-  void beginEvent() override;
+  virtual void beginEvent();
     
  private:
   edm::InputTag pfCandSrc_;
@@ -105,10 +105,10 @@ class RecoTauModifierPlugin : public RecoTauEventHolderPlugin
   explicit RecoTauModifierPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector&& iC)
     : RecoTauEventHolderPlugin(pset)
   {}
-  ~RecoTauModifierPlugin() override {}
+  virtual ~RecoTauModifierPlugin() {}
   // Modify an existing PFTau (i.e. add electron rejection, etc)
   virtual void operator()(PFTau&) const = 0;
-  void beginEvent() override {}
+  virtual void beginEvent() {}
   virtual void endEvent() {}
 };
 
@@ -119,10 +119,10 @@ class RecoTauCleanerPlugin : public RecoTauEventHolderPlugin
   explicit RecoTauCleanerPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector && iC )
     : RecoTauEventHolderPlugin(pset)
   {}
-  ~RecoTauCleanerPlugin() override {}
+  virtual ~RecoTauCleanerPlugin() {}
   // Modify an existing PFTau (i.e. add electron rejection, etc)
   virtual double operator()(const PFTauRef&) const = 0;
-  void beginEvent() override {}
+  virtual void beginEvent() {}
 };
 } } // end namespace reco::tau
 

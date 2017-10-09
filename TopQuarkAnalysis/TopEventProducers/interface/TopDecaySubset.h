@@ -40,9 +40,9 @@ class TopDecaySubset : public edm::EDProducer {
   /// default constructor
   explicit TopDecaySubset(const edm::ParameterSet& cfg);
   /// default destructor
-  ~TopDecaySubset() override;
+  ~TopDecaySubset();
   /// write output into the event
-  void produce(edm::Event& event, const edm::EventSetup& setup) override;
+  virtual void produce(edm::Event& event, const edm::EventSetup& setup);
 
  private:
   /// find top quarks in list of input particles

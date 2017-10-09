@@ -59,8 +59,8 @@ class PFTauTransverseImpactParameters : public edm::stream::EDProducer<> {
   enum Alg{useInputPV=0, useFont};
   enum CMSSWPerigee{aCurv=0,aTheta,aPhi,aTip,aLip};
   explicit PFTauTransverseImpactParameters(const edm::ParameterSet& iConfig);
-  ~PFTauTransverseImpactParameters() override;
-  void produce(edm::Event&,const edm::EventSetup&) override;
+  ~PFTauTransverseImpactParameters();
+  virtual void produce(edm::Event&,const edm::EventSetup&);
  private:
   edm::EDGetTokenT<std::vector<reco::PFTau> > PFTauToken_;
   edm::EDGetTokenT<edm::AssociationVector<PFTauRefProd, std::vector<reco::VertexRef> > > PFTauPVAToken_;
@@ -138,7 +138,7 @@ void PFTauTransverseImpactParameters::produce(edm::Event& iEvent,const edm::Even
 	  }
 	}
       }
-      if(!SV.empty()){
+      if(SV.size()>0){
 	reco::Vertex::CovarianceMatrix cov;
 	reco::Vertex::Point v(SV.at(0)->x()-PV->x(),SV.at(0)->y()-PV->y(),SV.at(0)->z()-PV->z());
 	for(int i=0;i<reco::Vertex::dimension;i++){

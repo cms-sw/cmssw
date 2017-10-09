@@ -23,13 +23,13 @@ class TtSemiLepJetCombMVAComputer : public edm::EDProducer {
  public:
 
   explicit TtSemiLepJetCombMVAComputer(const edm::ParameterSet&);
-  ~TtSemiLepJetCombMVAComputer() override;
+  ~TtSemiLepJetCombMVAComputer();
 
  private:
 
-  void beginJob() override;
-  void produce(edm::Event& evt, const edm::EventSetup& setup) override;
-  void endJob() override;
+  virtual void beginJob();
+  virtual void produce(edm::Event& evt, const edm::EventSetup& setup);
+  virtual void endJob();
 
   edm::EDGetTokenT< edm::View<reco::RecoCandidate>> lepsToken_;
   edm::EDGetTokenT< std::vector<pat::Jet> > jetsToken_;

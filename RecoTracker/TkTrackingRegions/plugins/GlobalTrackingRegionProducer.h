@@ -25,7 +25,7 @@ public:
     theOrigin = GlobalPoint(xPos,yPos,zPos);
   }   
 
-  ~GlobalTrackingRegionProducer() override{}
+  virtual ~GlobalTrackingRegionProducer(){}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -46,7 +46,7 @@ public:
     descriptions.add("globalTrackingRegion", descRegion);
   }
 
-  std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event&, const edm::EventSetup&) const override {
+  virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event&, const edm::EventSetup&) const override {
     std::vector<std::unique_ptr<TrackingRegion> > result;
     result.push_back( 
         std::make_unique<GlobalTrackingRegion>( thePtMin, theOrigin, theOriginRadius, theOriginHalfLength, thePrecise) );

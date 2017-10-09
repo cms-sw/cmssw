@@ -23,17 +23,17 @@ class AlignmentParametersIORoot : public AlignmentIORootBase, public AlignmentPa
   AlignmentParametersIORoot(); 
 
   /// Write AlignmentParameters of one Alignable 
-  int writeOne(Alignable* ali) override;
+  int writeOne(Alignable* ali);
 
   /// Read AlignmentParameters of one Alignable 
-  AlignmentParameters* readOne(Alignable* ali, int& ierr) override;
+  AlignmentParameters* readOne(Alignable* ali, int& ierr);
 
   /// Open IO 
-  int open(const char* filename, int iteration, bool writemode) override
+  int open(const char* filename, int iteration, bool writemode)
     {return openRoot(filename,iteration,writemode);};
 
   /// Close IO 
-  int close(void) override;
+  int close(void);
 
   // helper functions
 
@@ -42,10 +42,10 @@ class AlignmentParametersIORoot : public AlignmentIORootBase, public AlignmentPa
   int findEntry(align::ID, align::StructureType);
 
   /// Create all branches and give names
-  void createBranches(void) override;
+  void createBranches(void);
 
   /// Set branch adresses
-  void setBranchAddresses(void) override;
+  void setBranchAddresses(void);
 
   // Alignment parameter tree 
   int theCovRang, theCovarRang, theHieraLevel, theParamType;

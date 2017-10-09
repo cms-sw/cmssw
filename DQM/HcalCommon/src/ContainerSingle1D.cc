@@ -6,8 +6,8 @@ namespace hcaldqm
 	using namespace quantity;
 	ContainerSingle1D::ContainerSingle1D()
 	{
-		_qx = nullptr;
-		_qy = nullptr;
+		_qx = NULL;
+		_qy = NULL;
 	}
 
 	ContainerSingle1D::ContainerSingle1D(ContainerSingle1D const& c):
@@ -36,12 +36,12 @@ namespace hcaldqm
 
 	ContainerSingle1D::~ContainerSingle1D()
 	{
-		if (_qx!=nullptr)
+		if (_qx!=NULL)
 			delete _qx;
-		if (_qy!=nullptr)
+		if (_qy!=NULL)
 			delete _qy;
-		_qx = nullptr;
-		_qy = nullptr;
+		_qx = NULL;
+		_qy = NULL;
 	}
 
 	/* virtual */ void ContainerSingle1D::initialize(std::string const& folder,

@@ -61,13 +61,13 @@
 class EcalMipGraphs : public edm::EDAnalyzer {
    public:
       explicit EcalMipGraphs(const edm::ParameterSet&);
-      ~EcalMipGraphs() override;
+      ~EcalMipGraphs();
 
 
    private:
-      void beginRun(edm::Run const &, edm::EventSetup const &) override ;
-      void analyze(edm::Event const &, edm::EventSetup const &) override;
-      void endJob() override ;
+      virtual void beginRun(edm::Run const &, edm::EventSetup const &) ;
+      virtual void analyze(edm::Event const &, edm::EventSetup const &);
+      virtual void endJob() ;
       std::string intToString(int num);
       std::string floatToString(float num);
       void writeGraphs();

@@ -19,13 +19,13 @@ public:
   GsfMultipleScatteringUpdator(float mass) :
     GsfMaterialEffectsUpdator(mass,2) {}
   
-  GsfMultipleScatteringUpdator* clone() const override
+  virtual GsfMultipleScatteringUpdator* clone() const
   {
     return new GsfMultipleScatteringUpdator(*this);
   }
   
   /// Computation: generates vectors of weights, means and standard deviations
-  void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect[]) const override;
+  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect[]) const;
 
   virtual size_t size() const { return 2;}
   

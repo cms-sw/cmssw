@@ -59,7 +59,7 @@ namespace fwlite {
             public:
                 ProductGetter(Event* iEvent) : event_(iEvent) {}
 
-                
+                virtual
                 edm::WrapperBase const*
                 getIt(edm::ProductID const& iID) const override {
                     return event_->getByProductID(iID);
@@ -72,7 +72,7 @@ namespace fwlite {
                 // in a thinned container and key is modified to be the index into
                 // that thinned container. If the desired element is not found, then
                 // nullptr is returned.
-                edm::WrapperBase const* getThinnedProduct(edm::ProductID const& pid,
+                virtual edm::WrapperBase const* getThinnedProduct(edm::ProductID const& pid,
                                                                   unsigned int& key) const override {
                   return event_->getThinnedProduct(pid, key);
                 }
@@ -89,14 +89,14 @@ namespace fwlite {
                 // is modified to be the key into the container where the element
                 // was found. The WrapperBase pointers might or might not all point
                 // to the same thinned container.
-                void getThinnedProducts(edm::ProductID const& pid,
+                virtual void getThinnedProducts(edm::ProductID const& pid,
                                                 std::vector<edm::WrapperBase const*>& foundContainers,
                                                 std::vector<unsigned int>& keys) const override {
                   event_->getThinnedProducts(pid, foundContainers, keys);
                 }
 
             private:
-                
+                virtual
                 unsigned int
                 transitionIndex_() const override {
                     return 0U;
@@ -108,7 +108,7 @@ namespace fwlite {
 //
 // constructors and destructor
 //
-  Event::Event(TFile* iFile, bool useCache,std::function<void (TBranch const&)> baFunc):
+  Event::Event(TFile* iFile):
   file_(iFile),
 //  eventTree_(nullptr),
   eventHistoryTree_(nullptr),
@@ -122,7 +122,7 @@ namespace fwlite {
               std::make_shared<EventHistoryGetter>(this),
               std::shared_ptr<BranchMapReader>(&branchMap_,NoDelete()),
               std::make_shared<internal::ProductGetter>(this),
-              useCache, baFunc) {
+              true) {
     if(nullptr == iFile) {
       throw cms::Exception("NoFile") << "The TFile pointer passed to the constructor was null";
     }
@@ -450,7 +450,7 @@ Event::fillParameterSetRegistry() const {
 
   edm::FileFormatVersion fileFormatVersion;
   edm::FileFormatVersion *fftPtr = &fileFormatVersion;
-  if(meta->FindBranch(edm::poolNames::fileFormatVersionBranchName().c_str()) != nullptr) {
+  if(meta->FindBranch(edm::poolNames::fileFormatVersionBranchName().c_str()) != 0) {
     TBranch *fft = meta->GetBranch(edm::poolNames::fileFormatVersionBranchName().c_str());
     fft->SetAddress(&fftPtr);
     fft->GetEntry(0);
@@ -459,7 +459,7 @@ Event::fillParameterSetRegistry() const {
   typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> PsetMap;
   PsetMap psetMap;
   TTree* psetTree(nullptr);
-  if (meta->FindBranch(edm::poolNames::parameterSetMapBranchName().c_str()) != nullptr) {
+  if (meta->FindBranch(edm::poolNames::parameterSetMapBranchName().c_str()) != 0) {
     PsetMap *psetMapPtr = &psetMap;
     TBranch* b = meta->GetBranch(edm::poolNames::parameterSetMapBranchName().c_str());
     b->SetAddress(&psetMapPtr);

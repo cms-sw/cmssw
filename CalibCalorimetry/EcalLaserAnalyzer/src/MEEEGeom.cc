@@ -1,6 +1,6 @@
-#include <cassert>
+#include <assert.h>
 #include <iostream>
-#include <cstdlib>
+#include <stdlib.h>
 #include <string>
 using namespace std;
 
@@ -462,7 +462,7 @@ MEEEGeom::getGraphBoundary(  int type, int num, int iz, int xside )
   std::list< std::pair< float, float > > l;
   getBoundary( l, type, num, iz, xside );
   int n = l.size();
-  if( n==0 ) return nullptr;
+  if( n==0 ) return 0;
   
   // GHM : changed to comply to CMSSW compilator options
   float ix[1000];

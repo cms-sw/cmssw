@@ -30,16 +30,16 @@ class BetafuncEvtVtxGenerator : public BaseEvtVtxGenerator
 {
 public:
   BetafuncEvtVtxGenerator(const edm::ParameterSet & p);
-  ~BetafuncEvtVtxGenerator() override;
+  virtual ~BetafuncEvtVtxGenerator();
 
-  void beginRun(const edm::Run & , const edm::EventSetup&) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  virtual void beginRun(const edm::Run & , const edm::EventSetup&) override;
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   /// return a new event vertex
   //virtual CLHEP::Hep3Vector * newVertex();
-  HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override ;
+  virtual HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override ;
 
-  TMatrixD const* GetInvLorentzBoost() const override;
+  virtual TMatrixD const* GetInvLorentzBoost() const override;
 
     
   /// set resolution in Z in cm
@@ -62,9 +62,9 @@ public:
     
 private:
   /** Copy constructor */
-  BetafuncEvtVtxGenerator(const BetafuncEvtVtxGenerator &p) = delete;
+  BetafuncEvtVtxGenerator(const BetafuncEvtVtxGenerator &p);
   /** Copy assignment operator */
-  BetafuncEvtVtxGenerator&  operator = (const BetafuncEvtVtxGenerator & rhs ) = delete;
+  BetafuncEvtVtxGenerator&  operator = (const BetafuncEvtVtxGenerator & rhs );
 
   void setBoost(double alpha, double phi);
 private:

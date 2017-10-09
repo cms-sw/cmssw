@@ -48,13 +48,13 @@ class DTHVStatusHandler: public popcon::PopConSourceHandler<DTHVStatus> {
 
   /** Destructor
    */
-  ~DTHVStatusHandler() override;
+  virtual ~DTHVStatusHandler();
 
   /** Operations
    */
   /// 
-  void getNewObjects() override;
-  std::string id() const override;
+  void getNewObjects();
+  std::string id() const;
 
  private:
 

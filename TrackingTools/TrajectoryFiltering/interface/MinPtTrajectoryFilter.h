@@ -29,21 +29,21 @@ public:
     theMinHits(pset.getParameter<int>("minHitsMinPt")){thePtMin2*=thePtMin2;}
     
 
-  bool qualityFilter( const Trajectory& traj)const override { return test(traj.lastMeasurement(),traj.foundHits()); }
-  bool qualityFilter( const TempTrajectory& traj) const override { return test(traj.lastMeasurement(),traj.foundHits()); }
+  virtual bool qualityFilter( const Trajectory& traj)const { return test(traj.lastMeasurement(),traj.foundHits()); }
+  virtual bool qualityFilter( const TempTrajectory& traj) const { return test(traj.lastMeasurement(),traj.foundHits()); }
     
-  bool toBeContinued( Trajectory& traj) const override {
+  virtual bool toBeContinued( Trajectory& traj) const {
     bool ret = test(traj.lastMeasurement(),traj.foundHits());
     if (!ret) traj.setStopReason(StopReason::MIN_PT);
     return  ret;
   }
-  bool toBeContinued( TempTrajectory& traj) const override {
+  virtual bool toBeContinued( TempTrajectory& traj) const {
     bool ret = test(traj.lastMeasurement(),traj.foundHits());
     if (!ret) traj.setStopReason(StopReason::MIN_PT);
     return ret;
   }
   
-  std::string name() const override {return "MinPtTrajectoryFilter";}
+  virtual std::string name() const {return "MinPtTrajectoryFilter";}
 
  protected:
 

@@ -6,7 +6,7 @@
 #include <string>
 #include <map>
 #include <iostream>
-#include <ctime>
+#include <time.h>
 
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
@@ -37,9 +37,9 @@ class EcalMappingElectronicsHandler : public popcon::PopConSourceHandler<EcalMap
 {
  public:
   EcalMappingElectronicsHandler(edm::ParameterSet const & );
-  ~EcalMappingElectronicsHandler() override; 
-  void getNewObjects() override;
-  std::string id() const override { return m_name;}
+  virtual ~EcalMappingElectronicsHandler(); 
+  virtual void getNewObjects();
+  virtual std::string id() const { return m_name;}
   
  private:
 

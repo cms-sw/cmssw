@@ -264,7 +264,7 @@ CompositeAlignmentParameters::alignableFromAlignableDet(const AlignableDetOrUnit
   AlignableDetToAlignableMap::const_iterator iali =
     theAlignableDetToAlignableMap.find(adet);
   if ( iali!=theAlignableDetToAlignableMap.end() ) return (*iali).second;
-  else return nullptr;
+  else return 0;
 
 }
 

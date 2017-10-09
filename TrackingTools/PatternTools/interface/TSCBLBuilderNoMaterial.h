@@ -14,10 +14,10 @@ class TSCBLBuilderNoMaterial : public TrajectoryStateClosestToBeamLineBuilder
 {
 public: 
 
-  TrajectoryStateClosestToBeamLine operator()
-    (const FTS& originalFTS, const reco::BeamSpot & beamSpot) const override;
+  virtual TrajectoryStateClosestToBeamLine operator()
+    (const FTS& originalFTS, const reco::BeamSpot & beamSpot) const;
 
-  ~TSCBLBuilderNoMaterial() override {};
+  virtual ~TSCBLBuilderNoMaterial() {};
 
 };
 #endif

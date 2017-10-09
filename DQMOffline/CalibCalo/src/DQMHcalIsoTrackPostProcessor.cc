@@ -10,10 +10,10 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include <iostream>
-#include <cstring>
+#include <string.h>
 #include <iomanip>
 #include<fstream>
-#include <cmath>
+#include <math.h>
 
 #define DebugLog
 
@@ -21,10 +21,10 @@ class DQMHcalIsoTrackPostProcessor : public DQMEDHarvester {
 
 public:
   DQMHcalIsoTrackPostProcessor(const edm::ParameterSet& pset);
-  ~DQMHcalIsoTrackPostProcessor() override {};
+  ~DQMHcalIsoTrackPostProcessor() {};
 
 //  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override {};
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
+  virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
 
 private:
 

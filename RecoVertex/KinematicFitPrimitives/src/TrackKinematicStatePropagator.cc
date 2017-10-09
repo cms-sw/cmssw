@@ -81,7 +81,7 @@ TrackKinematicStatePropagator::propagateToTheTransversePCACharged
   //making a free trajectory state and looking 
   //for helix barrel plane crossing  
   FreeTrajectoryState const & fState = state.freeTrajectoryState();		
-  const GlobalPoint& iP = referencePoint;					  
+  GlobalPoint iP = referencePoint;					  
   std::pair<HelixBarrelPlaneCrossingByCircle, BoundPlane::BoundPlanePointer> cros = planeCrossing(fState,iP);	   
   
   HelixBarrelPlaneCrossingByCircle planeCrossing = cros.first; 

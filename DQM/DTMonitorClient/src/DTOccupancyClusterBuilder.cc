@@ -120,11 +120,11 @@ bool DTOccupancyClusterBuilder::buildNewCluster() {
     // remove already used pair
     thePoints.erase(initialPair.first);
     thePoints.erase(initialPair.second);
-    if(!thePoints.empty()) {
+    if(thePoints.size() != 0) {
       computeDistancesToCluster(clusterCandidate);
       while(clusterCandidate.addPoint(theDistancesFromTheCluster.begin()->second)) {
 	thePoints.erase(theDistancesFromTheCluster.begin()->second);
-	if(thePoints.empty()) break;
+	if(thePoints.size() ==0) break;
 	computeDistancesToCluster(clusterCandidate);
       }
     }

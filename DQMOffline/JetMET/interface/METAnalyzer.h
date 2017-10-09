@@ -97,7 +97,7 @@ class METAnalyzer : public DQMEDAnalyzer{
   METAnalyzer(const edm::ParameterSet&);
 
   /// Destructor
-  ~METAnalyzer() override;
+  virtual ~METAnalyzer();
 
 /// Inizialize parameters for histo binning
 //  void beginJob(void);

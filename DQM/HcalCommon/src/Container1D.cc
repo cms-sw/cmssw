@@ -7,7 +7,7 @@ namespace hcaldqm
 	using namespace constants;
 
 	Container1D::Container1D():
-		_qx(nullptr), _qy(nullptr)
+		_qx(NULL), _qy(NULL)
 	{}
 
 	Container1D::Container1D(std::string const& folder,
@@ -21,12 +21,12 @@ namespace hcaldqm
 
 	Container1D::~Container1D()
 	{
-		if (_qx!=nullptr)
+		if (_qx!=NULL)
 			delete _qx;
-		if (_qy!=nullptr)
+		if (_qy!=NULL)
 			delete _qy;
-		_qx = nullptr;
-		_qy = nullptr;
+		_qx = NULL;
+		_qy = NULL;
 	}
 
 	/* virtual */ /*void Container1D::release()

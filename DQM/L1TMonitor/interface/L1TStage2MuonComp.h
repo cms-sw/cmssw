@@ -19,7 +19,7 @@ class L1TStage2MuonComp : public DQMEDAnalyzer {
  public:
 
   L1TStage2MuonComp(const edm::ParameterSet& ps);
-  ~L1TStage2MuonComp() override;
+  virtual ~L1TStage2MuonComp();
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  protected:

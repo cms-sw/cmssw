@@ -34,7 +34,7 @@ class HcalDbRecord;
 class HcalDbProducer : public edm::ESProducer {
  public:
   HcalDbProducer( const edm::ParameterSet& );
-  ~HcalDbProducer() override;
+  ~HcalDbProducer();
   
   std::shared_ptr<HcalDbService> produce( const HcalDbRecord& );
 

@@ -4,7 +4,7 @@
  * $Id: EcalSampleMask.cc,v 1.1 2012/05/10 08:22:09 argiro Exp $
  **/
 
-#include <cassert>
+#include <assert.h>
 #include "CondFormats/EcalObjects/interface/EcalSampleMask.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
 

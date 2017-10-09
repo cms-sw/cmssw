@@ -23,17 +23,17 @@ public:
   OptOTiltmeter(){ };
   OptOTiltmeter(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data) : 
   OpticalObject( parent, type, name, copy_data){ };
-  ~OptOTiltmeter() override{ };
+  ~OptOTiltmeter(){ };
 
   //---------- defaultBehaviour: make measurement 
-  void defaultBehaviour( LightRay& lightray, Measurement& meas ) override;
+  virtual void defaultBehaviour( LightRay& lightray, Measurement& meas );
   //---------- Make measurement 
-  void makeMeasurement( LightRay& lightray, Measurement& meas ) override;
+  virtual void makeMeasurement( LightRay& lightray, Measurement& meas );
 #ifdef COCOA_VIS
   virtual void fillVRML();
   virtual void fillIguana();
 #endif
-  void constructSolidShape() override;
+  void constructSolidShape();
 
 };
 

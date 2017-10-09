@@ -29,13 +29,13 @@ class MillePedeFileConverter
     : public edm::one::EDProducer<edm::EndLuminosityBlockProducer> {
  public:
   explicit MillePedeFileConverter(const edm::ParameterSet&);
-  ~MillePedeFileConverter() override;
+  ~MillePedeFileConverter();
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
-  void produce(edm::Event&, const edm::EventSetup&) override {}
-  void endLuminosityBlockProduce(edm::LuminosityBlock&,
-                                         const edm::EventSetup&) final;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override {}
+  virtual void endLuminosityBlockProduce(edm::LuminosityBlock&,
+                                         const edm::EventSetup&) override final;
 
   const std::string inputDir_;
   const std::string inputFileName_;

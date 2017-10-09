@@ -40,9 +40,9 @@ class HcalQIEDataCheck: public edm::EDAnalyzer
  public:
   HcalQIEDataCheck(edm::ParameterSet const& ps);
 
-  ~HcalQIEDataCheck() override;
+  ~HcalQIEDataCheck();
 
-  void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
+  void analyze(const edm::Event& ev, const edm::EventSetup& es);
 
  private:
   std::string outfile;

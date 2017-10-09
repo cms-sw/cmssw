@@ -38,7 +38,7 @@ void BeamFitter::updateBTime() {
 
 
 BeamFitter::BeamFitter(const edm::ParameterSet& iConfig,
-                       edm::ConsumesCollector &&iColl): fPVTree_(nullptr)
+                       edm::ConsumesCollector &&iColl): fPVTree_(0)
 {
 
   debug_             = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("Debug");
@@ -247,7 +247,7 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 
   //------ Beam Spot in current event
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  const reco::BeamSpot *refBS =  nullptr;
+  const reco::BeamSpot *refBS =  0;
   if ( iEvent.getByToken(beamSpotToken_, recoBeamSpotHandle) )
       refBS = recoBeamSpotHandle.product();
   //-------
@@ -302,7 +302,7 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
     falgo = true;
 
     if (! isMuon_ ) {
-      if (!quality_.empty()) {
+      if (quality_.size()!=0) {
           fquality = false;
           for (unsigned int i = 0; i<quality_.size();++i) {
               if(debug_) edm::LogInfo("BeamFitter") << "quality_[" << i << "] = " << track->qualityName(quality_[i]) << std::endl;
@@ -316,7 +316,7 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 
       // Track algorithm
 
-      if (!algorithm_.empty()) {
+      if (algorithm_.size()!=0) {
 	if (std::find(algorithm_.begin(),algorithm_.end(),track->algo())==algorithm_.end())
 	  falgo = false;
       }
@@ -742,7 +742,7 @@ void BeamFitter::write2DB(){
 }
 
 void BeamFitter::runAllFitter() {
-  if(!fBSvector.empty()){
+  if(fBSvector.size()!=0){
     BSFitter *myalgo = new BSFitter( fBSvector );
     fbeamspot = myalgo->Fit_d0phi();
 

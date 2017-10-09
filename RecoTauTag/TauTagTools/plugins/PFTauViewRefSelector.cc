@@ -32,7 +32,7 @@
 class PFTauViewRefSelector : public edm::EDFilter {
   public:
     explicit PFTauViewRefSelector(const edm::ParameterSet &pset);
-    ~PFTauViewRefSelector() override {}
+    ~PFTauViewRefSelector() {}
     bool filter(edm::Event& evt, const edm::EventSetup& es) override;
   private:
     edm::InputTag src_;

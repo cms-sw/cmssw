@@ -38,17 +38,17 @@ namespace reco {
     
     GsfTransientTrack& operator=(const GsfTransientTrack & tt);
 
-    void setES(const edm::EventSetup& ) override;
+    void setES(const edm::EventSetup& );
 
-    void setTrackingGeometry(const edm::ESHandle<GlobalTrackingGeometry>& ) override;
+    void setTrackingGeometry(const edm::ESHandle<GlobalTrackingGeometry>& );
 
-    void setBeamSpot(const reco::BeamSpot& beamSpot) override;
+    void setBeamSpot(const reco::BeamSpot& beamSpot);
 
-    FreeTrajectoryState initialFreeState() const override {return initialFTS;}
+    FreeTrajectoryState initialFreeState() const {return initialFTS;}
 
-    TrajectoryStateOnSurface outermostMeasurementState() const override;
+    TrajectoryStateOnSurface outermostMeasurementState() const;
 
-    TrajectoryStateOnSurface innermostMeasurementState() const override;
+    TrajectoryStateOnSurface innermostMeasurementState() const;
 
    /**
     * The TrajectoryStateClosestToPoint at any point.
@@ -56,46 +56,46 @@ namespace reco {
     * The TSCP will be built out of the collapsed mult-component TSOS.
     */
     TrajectoryStateClosestToPoint 
-      trajectoryStateClosestToPoint( const GlobalPoint & point ) const override;
+      trajectoryStateClosestToPoint( const GlobalPoint & point ) const;
 
    /**
     * The TSOS at any point. The inner-most multi-state state will be used for 
     * the propagation. The TSOS will therefore have multiple components.
     */
-    TrajectoryStateOnSurface stateOnSurface(const GlobalPoint & point) const override;
+    TrajectoryStateOnSurface stateOnSurface(const GlobalPoint & point) const;
 
    /**
     * The TrajectoryStateClosestToPoint at the initial state, made from the 
     * stored singl-component state.
     */
-    TrajectoryStateClosestToPoint impactPointTSCP() const override;
+    TrajectoryStateClosestToPoint impactPointTSCP() const;
 
    /**
     * The TSOS at the initial state, made from the stored singl-component state.
     */
 
-    TrajectoryStateOnSurface impactPointState() const override;
+    TrajectoryStateOnSurface impactPointState() const;
 
-    bool impactPointStateAvailable() const override {return  initialTSOSAvailable;}
+    bool impactPointStateAvailable() const {return  initialTSOSAvailable;}
 
   /**
    * access to original persistent track
    */
     GsfTrackRef persistentTrackRef() const { return tkr_; }
 
-    TrackBaseRef trackBaseRef() const override {return TrackBaseRef(tkr_);}
+    TrackBaseRef trackBaseRef() const {return TrackBaseRef(tkr_);}
 
-    TrackCharge charge() const override {return GsfTrack::charge();}
+    TrackCharge charge() const {return GsfTrack::charge();}
 
-    const MagneticField* field() const override {return theField;}
+    const MagneticField* field() const {return theField;}
 
-    const Track & track() const override {return *this;}
+    const Track & track() const {return *this;}
 
-    TrajectoryStateClosestToBeamLine stateAtBeamLine() const override;
+    TrajectoryStateClosestToBeamLine stateAtBeamLine() const;
 
-    double timeExt() const override { return ( hasTime ? timeExt_ : std::numeric_limits<double>::quiet_NaN() ); }
+    double timeExt() const { return ( hasTime ? timeExt_ : std::numeric_limits<double>::quiet_NaN() ); }
 
-    double dtErrorExt() const override { return ( hasTime ? dtErrorExt_ : std::numeric_limits<double>::quiet_NaN() ); }
+    double dtErrorExt() const { return ( hasTime ? dtErrorExt_ : std::numeric_limits<double>::quiet_NaN() ); }
 
   private:
 

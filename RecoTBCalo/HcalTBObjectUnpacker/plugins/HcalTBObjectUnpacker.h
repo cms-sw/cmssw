@@ -34,8 +34,8 @@
   {
   public:
     explicit HcalTBObjectUnpacker(const edm::ParameterSet& ps);
-    ~HcalTBObjectUnpacker() override;
-    void produce(edm::Event& e, const edm::EventSetup& c) override;
+    virtual ~HcalTBObjectUnpacker();
+    virtual void produce(edm::Event& e, const edm::EventSetup& c);
   private:
     int triggerFed_;
     int sdFed_;

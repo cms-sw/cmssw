@@ -19,7 +19,7 @@ class L1TStage2EMTF : public DQMEDAnalyzer {
  public:
 
   L1TStage2EMTF(const edm::ParameterSet& ps);
-  ~L1TStage2EMTF() override;
+  virtual ~L1TStage2EMTF();
 
  protected:
 

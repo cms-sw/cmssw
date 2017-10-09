@@ -23,13 +23,13 @@ namespace edm {
   public:
     // We do not take ownership of passed stream.
     explicit AsciiOutputModule(ParameterSet const& pset);
-    ~AsciiOutputModule() override;
+    virtual ~AsciiOutputModule();
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
-    void write(EventForOutput const& e) override;
-    void writeLuminosityBlock(LuminosityBlockForOutput const&) override {}
-    void writeRun(RunForOutput const&) override {}
+    virtual void write(EventForOutput const& e) override;
+    virtual void writeLuminosityBlock(LuminosityBlockForOutput const&) override {}
+    virtual void writeRun(RunForOutput const&) override {}
     int prescale_;
     int verbosity_;
     int counter_;

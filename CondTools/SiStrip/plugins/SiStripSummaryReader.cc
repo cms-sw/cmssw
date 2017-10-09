@@ -6,7 +6,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-#include <cstdio>
+#include <stdio.h>
 #include <sys/time.h>
 
 SiStripSummaryReader::SiStripSummaryReader( const edm::ParameterSet& iConfig ):

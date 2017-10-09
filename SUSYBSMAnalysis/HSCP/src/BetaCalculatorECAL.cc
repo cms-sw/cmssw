@@ -148,7 +148,7 @@ void BetaCalculatorECAL::addInfoToCandidate(HSCParticle& candidate, edm::Handle<
      trackExitMapIt++;
    }
 
-   if(!crossedRecHits.empty())
+   if(crossedRecHits.size() > 0)
    {
      setCalo = true;
      sort(crossedRecHits.begin(),crossedRecHits.end(),EcalRecHitLess());
@@ -186,7 +186,7 @@ void BetaCalculatorECAL::addInfoToCandidate(HSCParticle& candidate, edm::Handle<
      }
    }
 
-   if(!info.crossedHcalRecHits.empty())
+   if(info.crossedHcalRecHits.size() > 0)
    {
      // HCAL (not ECAL) info
      result.hcalCrossedEnergy = info.crossedEnergy(TrackDetMatchInfo::HcalRecHits);

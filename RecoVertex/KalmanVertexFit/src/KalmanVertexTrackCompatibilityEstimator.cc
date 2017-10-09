@@ -15,7 +15,7 @@ KalmanVertexTrackCompatibilityEstimator<N>::estimate(const CachingVertex<N> & ve
 
   const std::vector<RefCountedVertexTrack> &tracks = vertex.tracksRef();
 
-  if ( tracks.empty())
+  if ( tracks.size()==0)
    return estimateNFittedTrack(vertex,tr);
 
   if (hint<tracks.size() ) {

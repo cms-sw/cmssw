@@ -17,11 +17,11 @@ namespace edm
   
   public:
     MultiParticleInConeGunProducer(const ParameterSet &);
-    ~MultiParticleInConeGunProducer() override;
+    virtual ~MultiParticleInConeGunProducer();
 
   private:
    
-    void produce(Event & e, const EventSetup& es) override;
+    virtual void produce(Event & e, const EventSetup& es) override;
     
   protected :
   

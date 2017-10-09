@@ -28,7 +28,7 @@
 class AlignmentMonitorTemplate: public AlignmentMonitorBase {
    public:
       AlignmentMonitorTemplate(const edm::ParameterSet& cfg): AlignmentMonitorBase(cfg, "AlignmentMonitorTemplate") { };
-      ~AlignmentMonitorTemplate() override {};
+      ~AlignmentMonitorTemplate() {};
 
       void book() override;
       void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks) override;

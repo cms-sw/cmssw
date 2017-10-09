@@ -16,7 +16,7 @@ void AlignmentMonitorSurvey::book()
   align::StructureType level;
 
   // fill 'theLevels' only once (and only if necessary)
-  if (theLevels.empty() && !levelNames_.empty()) {
+  if (theLevels.size() == 0 && levelNames_.size() != 0) {
     auto alignableObjectId =
       AlignableObjectId::commonObjectIdProvider(pTracker(), pMuon());
     for (const auto& levelName: levelNames_) {

@@ -21,19 +21,19 @@ class ReferenceTrajectoryFactory : public TrajectoryFactoryBase
 {
 public:
   ReferenceTrajectoryFactory(const edm::ParameterSet &config);
-  ~ReferenceTrajectoryFactory() override;
+  virtual ~ReferenceTrajectoryFactory();
 
   /// Produce the reference trajectories.
-  const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
+  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
 							   const ConstTrajTrackPairCollection &tracks,
 							   const reco::BeamSpot &beamSpot) const override;
 
-  const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
+  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
 							   const ConstTrajTrackPairCollection &tracks,
 							   const ExternalPredictionCollection &external,
 							   const reco::BeamSpot &beamSpot) const override;
 
-  ReferenceTrajectoryFactory* clone() const override { return new ReferenceTrajectoryFactory(*this); }
+  virtual ReferenceTrajectoryFactory* clone() const override { return new ReferenceTrajectoryFactory(*this); }
 
 protected:
   ReferenceTrajectoryFactory(const ReferenceTrajectoryFactory &other);
@@ -52,7 +52,7 @@ ReferenceTrajectoryFactory::ReferenceTrajectoryFactory( const edm::ParameterSet 
   TrajectoryFactoryBase( config ),
   theMass(config.getParameter<double>("ParticleMass")),
   theUseBzeroIfFieldOff(config.getParameter<bool>("UseBzeroIfFieldOff")),
-  theBzeroFactory(nullptr)
+  theBzeroFactory(0)
 {
   edm::LogInfo("Alignment") << "@SUB=ReferenceTrajectoryFactory"
                             << "mass: " << theMass
@@ -64,7 +64,7 @@ ReferenceTrajectoryFactory::ReferenceTrajectoryFactory(const ReferenceTrajectory
   TrajectoryFactoryBase(other),
   theMass(other.theMass),
   theUseBzeroIfFieldOff(other.theUseBzeroIfFieldOff),
-  theBzeroFactory(nullptr) // copy data members, but no double pointing to same Bzero factory...
+  theBzeroFactory(0) // copy data members, but no double pointing to same Bzero factory...
 {
 }
  

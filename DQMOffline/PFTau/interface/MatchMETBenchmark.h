@@ -13,7 +13,7 @@ class MatchMETBenchmark : public Benchmark {
  public:
 
   MatchMETBenchmark(Mode mode) : Benchmark(mode) {}
-  ~MatchMETBenchmark() override;
+  virtual ~MatchMETBenchmark();
 
   /// book histograms
   void setup(DQMStore::IBooker& b);

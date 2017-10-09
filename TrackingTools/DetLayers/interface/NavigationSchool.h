@@ -19,7 +19,7 @@
 class NavigationSchool {
 public:
 
-  NavigationSchool() : theAllDetLayersInSystem(nullptr){
+  NavigationSchool() : theAllDetLayersInSystem(0){
 //    std::cout << "NVSH: C "<< this << std::endl;
   }
 

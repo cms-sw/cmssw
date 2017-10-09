@@ -20,13 +20,13 @@ class PedsOnlyTask : public CommissioningTask
 {
   public:
     PedsOnlyTask( DQMStore *, const FedChannelConnection &);
-    ~PedsOnlyTask() override;
+    virtual ~PedsOnlyTask();
 
   private:
-    void book() override;
-    void fill( const SiStripEventSummary &,
-                       const edm::DetSet<SiStripRawDigi> &) override;
-    void update() override;
+    virtual void book();
+    virtual void fill( const SiStripEventSummary &,
+                       const edm::DetSet<SiStripRawDigi> &);
+    virtual void update();
 
     std::vector<HistoSet> peds_;
 

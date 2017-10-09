@@ -47,7 +47,7 @@ class HcalTextCalibrations : public edm::ESProducer,
 {
 public:
   HcalTextCalibrations (const edm::ParameterSet& );
-  ~HcalTextCalibrations () override;
+  virtual ~HcalTextCalibrations ();
 
   void produce () {};
 
@@ -68,7 +68,7 @@ public:
   class CheckGetObjectTopo : public CheckGetObject<T> {
     public:
       CheckGetObjectTopo(const HcalTopology* topo) : CheckGetObject<T>(topo), topo_(topo) {}
-      ~CheckGetObjectTopo() override = default;
+      virtual ~CheckGetObjectTopo() = default;
     protected:
       std::unique_ptr<T> makeResult() override { return std::make_unique<T>(topo_); }
     private:
@@ -84,9 +84,9 @@ public:
   };
   
 protected:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+  virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
 			      const edm::IOVSyncValue& , 
-			      edm::ValidityInterval&) override ;
+			      edm::ValidityInterval&) ;
 
   std::unique_ptr<HcalPedestals> producePedestals (const HcalPedestalsRcd& rcd);
   std::unique_ptr<HcalPedestalWidths> producePedestalWidths (const HcalPedestalWidthsRcd& rcd);

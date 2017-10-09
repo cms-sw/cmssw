@@ -31,24 +31,24 @@ public:
   TrackingAnalyser(const edm::ParameterSet& ps);
   
   /// Destructor
-  ~TrackingAnalyser() override;
+  virtual ~TrackingAnalyser();
 
 private:
 
   /// BeginJob
-  void beginJob() override;
+  void beginJob();
 
   /// BeginRun
-  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
+  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
   /// Begin Luminosity Block
   void dqmBeginLuminosityBlock(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_,edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) ;
 
   /// End Luminosity Block  
-  void dqmEndLuminosityBlock(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_,edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override;
+  void dqmEndLuminosityBlock(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_,edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup);
 
   /// Endjob
-  void dqmEndJob(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_) override;
+  void dqmEndJob(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_);
 
 
 

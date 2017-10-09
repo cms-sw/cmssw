@@ -48,7 +48,7 @@ public:
   DTSegmentAnalysisTask(const edm::ParameterSet& pset);
 
   /// Destructor
-  ~DTSegmentAnalysisTask() override;
+  virtual ~DTSegmentAnalysisTask();
 
   /// BeginRun
   void dqmBeginRun(const edm::Run& , const edm::EventSetup&) override;

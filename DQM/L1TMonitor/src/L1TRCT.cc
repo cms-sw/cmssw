@@ -50,7 +50,7 @@ L1TRCT::L1TRCT(const ParameterSet & ps) :
 
   outputFile_ =
       ps.getUntrackedParameter < std::string > ("outputFile", "");
-  if (!outputFile_.empty()) {
+  if (outputFile_.size() != 0) {
     std::
 	cout << "L1T Monitoring histograms will be saved to " <<
 	outputFile_.c_str() << std::endl;

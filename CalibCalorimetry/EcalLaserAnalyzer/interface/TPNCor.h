@@ -17,7 +17,7 @@ class TPNCor: public TObject
   TPNCor(std::string filename);
   
   // Destructor: Does nothing
-  ~TPNCor() override;
+  virtual ~TPNCor();
   
   enum VarGain  { iGain0, iGain1, iSizeGain }; 
   enum VarParPN  { iPar0, iPar1, iPar2, iSizePar }; 
@@ -28,7 +28,7 @@ class TPNCor: public TObject
   double corParams[iSizeGain][iSizePar];
   int isFileOK;
   
-  ClassDefOverride(TPNCor,0)
+  ClassDef(TPNCor,0)
     
 
 

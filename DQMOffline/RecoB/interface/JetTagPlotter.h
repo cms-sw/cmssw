@@ -19,7 +19,7 @@ class JetTagPlotter: public BaseBTagPlotter {
          const edm::ParameterSet& pSet, unsigned int mc, 
          bool willFinalize, DQMStore::IBooker & ibook, bool doCTagPlots = false, bool doDifferentialPlots=false, double discrCut=-999.);
 
-  ~JetTagPlotter() override ;
+  virtual ~JetTagPlotter() ;
 
   void analyzeTag(); //added to fill the jet multiplicity on data 
   void analyzeTag(float w); //added to fill the jet multiplicity on mc 
@@ -29,13 +29,13 @@ class JetTagPlotter: public BaseBTagPlotter {
   void analyzeTag(const reco::Jet & jet, double jec, float discriminator, int jetFlavour, float w=1);
 
   // final computation, plotting, printing .......
-  void finalize (DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_) override;
+  void finalize (DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_);
 
   // get "2d" histograms for misid. vs. b-eff
   EffPurFromHistos& getEffPurFromHistos() { return *effPurFromHistos_; }
 
-  void epsPlot(const std::string & name) override;
-  void psPlot(const std::string & name) override;
+  void epsPlot(const std::string & name);
+  void psPlot(const std::string & name);
 
   int nBinEffPur() const { return nBinEffPur_; }
   double startEffPur() const { return startEffPur_; }

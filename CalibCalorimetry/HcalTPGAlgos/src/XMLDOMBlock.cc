@@ -13,7 +13,7 @@
 // system include files
 #include <iostream>
 #include <string>
-#include<ctime>
+#include<time.h>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/sax/HandlerBase.hpp>
 #include <xercesc/dom/DOM.hpp>
@@ -181,12 +181,12 @@ int XMLDOMBlock::init( std::string _root )
   DOMImplementation* impl =  DOMImplementation::getImplementation();
   
   document = impl->createDocument(
-				  nullptr,                      // root element namespace URI.
+				  0,                      // root element namespace URI.
 				  //XMLString::transcode("ROOT"), // root element name
 				  XMLProcessor::_toXMLCh(_root), // root element name
-				  nullptr);                     // document type object (DTD).
+				  0);                     // document type object (DTD).
 
-  the_string = nullptr;
+  the_string = 0;
 
   //
   //_____ following removed as a xalan-c component_____________________
@@ -356,7 +356,7 @@ const char * XMLDOMBlock::getTagValue( const std::string & tagName, int _item, D
 
 const char * XMLDOMBlock::getTagValue( const std::string & tagName, int _item, DOMElement * _document )
 {
-  if (!_document) return nullptr;
+  if (!_document) return 0;
   const char * _result = XMLString::transcode( _document -> getElementsByTagName( XMLProcessor::_toXMLCh( tagName ) ) -> item( _item ) -> getFirstChild()-> getNodeValue() );
   return _result;
 }
@@ -371,7 +371,7 @@ DOMNode * XMLDOMBlock::setTagValue( const std::string & tagName, const std::stri
 
 DOMNode * XMLDOMBlock::setTagValue(DOMElement * _elem, const std::string & tagName, const std::string & tagValue, int _item )
 {
-  if (!_elem) return nullptr;
+  if (!_elem) return 0;
   DOMNode * the_tag = _elem -> getElementsByTagName( XMLProcessor::_toXMLCh( tagName ) ) -> item( _item );
   if (the_tag){
     the_tag -> getFirstChild() -> setNodeValue( XMLProcessor::_toXMLCh( tagValue ) );
@@ -389,7 +389,7 @@ DOMNode * XMLDOMBlock::setTagValue( const std::string & tagName, const int & tag
 
 DOMNode * XMLDOMBlock::setTagValue( DOMElement * _elem, const std::string & tagName, const int & tagValue, int _item )
 {
-  if (!_elem) return nullptr;
+  if (!_elem) return 0;
   DOMNode * the_tag = _elem -> getElementsByTagName( XMLProcessor::_toXMLCh( tagName ) ) -> item( _item );
   if(the_tag){
     the_tag -> getFirstChild() -> setNodeValue( XMLProcessor::_toXMLCh( tagValue ) );
@@ -415,7 +415,7 @@ DOMNode * XMLDOMBlock::setTagAttribute( const std::string & tagName, const std::
 
 DOMNode * XMLDOMBlock::setTagAttribute( DOMElement * _elem, const std::string & tagName, const std::string & attrName, const std::string & attrValue, int _item )
 {
-  if (!_elem) return nullptr;
+  if (!_elem) return 0;
   DOMNode * the_tag = _elem ->  getElementsByTagName( XMLProcessor::_toXMLCh( tagName ) ) -> item( _item );
   if (the_tag){
     DOMElement * _tag = (DOMElement *)the_tag;
@@ -434,7 +434,7 @@ DOMNode * XMLDOMBlock::setTagAttribute( const std::string & tagName, const std::
 
 DOMNode * XMLDOMBlock::setTagAttribute( DOMElement * _elem, const std::string & tagName, const std::string & attrName, const int & attrValue, int _item )
 {
-  if (!_elem) return nullptr;
+  if (!_elem) return 0;
   DOMNode * the_tag = _elem -> getElementsByTagName( XMLProcessor::_toXMLCh( tagName ) ) -> item( _item );
   if (the_tag){
     DOMElement * _tag = (DOMElement *)the_tag;

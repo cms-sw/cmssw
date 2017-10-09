@@ -15,10 +15,10 @@ class BTagCalibrationDbCreator : public edm::EDAnalyzer
 {
 public:
   BTagCalibrationDbCreator(const edm::ParameterSet&);
-  void beginJob() override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override {}
-  void endJob() override {}
-  ~BTagCalibrationDbCreator() override {}
+  virtual void beginJob() override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override {}
+  virtual void endJob() override {}
+  ~BTagCalibrationDbCreator() {}
 
 private:
   std::string csvFile_;

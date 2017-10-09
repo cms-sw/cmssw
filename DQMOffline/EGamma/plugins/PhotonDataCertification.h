@@ -48,7 +48,7 @@ class PhotonDataCertification : public DQMEDHarvester {
 
 public:
   explicit PhotonDataCertification(const edm::ParameterSet& pset);
-  ~PhotonDataCertification() override;
+  ~PhotonDataCertification();
 
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
 

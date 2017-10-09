@@ -17,7 +17,7 @@ class ESFEDIntegrityTask : public DQMEDAnalyzer {
  public:
   
   ESFEDIntegrityTask(const edm::ParameterSet& ps);
-  ~ESFEDIntegrityTask() override {}
+  virtual ~ESFEDIntegrityTask() {}
   
  protected:
 

@@ -17,13 +17,13 @@ class TopMuonAnalyzer : public edm::EDAnalyzer {
  public:
 
   explicit TopMuonAnalyzer(const edm::ParameterSet&);
-  ~TopMuonAnalyzer() override;
+  ~TopMuonAnalyzer();
 
  private:
 
-  void beginJob() override ;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+  virtual void beginJob() ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
 
   edm::EDGetTokenT<std::vector<pat::Muon> > inputToken_;
   bool verbose_;

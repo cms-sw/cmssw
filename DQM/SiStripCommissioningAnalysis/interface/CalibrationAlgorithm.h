@@ -21,7 +21,7 @@ class CalibrationAlgorithm : public CommissioningAlgorithm {
   
   CalibrationAlgorithm( const edm::ParameterSet & pset, CalibrationAnalysis* const );
   
-  ~CalibrationAlgorithm() override {;}
+  virtual ~CalibrationAlgorithm() {;}
   
   inline const Histo& histo( int i ) const { return histo_[i]; }
   
@@ -29,9 +29,9 @@ class CalibrationAlgorithm : public CommissioningAlgorithm {
 
   CalibrationAlgorithm() {;}
   
-  void extract( const std::vector<TH1*>& ) override;
+  virtual void extract( const std::vector<TH1*>& );
 
-  void analyse() override;
+  void analyse();
 
   void correctDistribution( TH1* ) const;
 

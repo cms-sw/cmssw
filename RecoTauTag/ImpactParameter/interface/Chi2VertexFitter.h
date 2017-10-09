@@ -19,9 +19,9 @@ class  Chi2VertexFitter : public TrackHelixVertexFitter {
     : TrackHelixVertexFitter(particles,vguess),
       nsigma_(nsigma)
   {};
-  ~Chi2VertexFitter() override{};
+  virtual ~Chi2VertexFitter(){};
 
-  bool fit() override;
+  virtual bool fit();
 
  private:   
   double nsigma_;

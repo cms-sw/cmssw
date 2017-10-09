@@ -98,9 +98,9 @@ namespace pat {
       /// constructure from ref to pat::Jet
       Jet(const edm::Ptr<pat::Jet> & aJetRef);
       /// destructor
-      ~Jet() override;
+      virtual ~Jet();
       /// required reimplementation of the Candidate's clone method
-      Jet * clone() const override { return new Jet(*this); }
+      virtual Jet * clone() const { return new Jet(*this); }
 
       /// ---- methods for MC matching ----
 
@@ -183,7 +183,7 @@ namespace pat {
       /// get list of tag info labels
       std::vector<std::string> const & tagInfoLabels() const { return tagInfoLabels_; }
       /// check to see if the given tag info is nonzero
-      bool hasTagInfo( const std::string label) const { return tagInfo(label) != nullptr; }
+      bool hasTagInfo( const std::string label) const { return tagInfo(label) != 0; }
       /// get a tagInfo with the given name, or NULL if none is found.
       /// You should omit the 'TagInfos' part from the label
       const reco::BaseTagInfo            * tagInfo(const std::string &label) const;
@@ -263,8 +263,6 @@ namespace pat {
 	if (specificJPT_.empty()) throw cms::Exception("Type Mismatch") << "This PAT jet was not made from a JPTJet.\n";
 	return specificJPT_[0];
       }
-      /// check to see if the PFSpecific object is stored
-      bool hasPFSpecific() const { return !specificPF_.empty(); }
       /// retrieve the pf specific part of the jet
       const PFSpecific& pfSpecific() const {
 	if (specificPF_.empty()) throw cms::Exception("Type Mismatch") << "This PAT jet was not made from a PFJet.\n";
@@ -437,7 +435,7 @@ namespace pat {
       ///    If using refactorized PAT, return that. (constituents size > 0)
       ///    Else check the old version of PAT (embedded constituents size > 0)
       ///    Else return the reco Jet number of constituents
-      const reco::Candidate * daughter(size_t i) const override;
+      virtual const reco::Candidate * daughter(size_t i) const;
 
       using reco::LeafCandidate::daughter; // avoid hiding the base implementation
 
@@ -445,7 +443,7 @@ namespace pat {
       ///    If using refactorized PAT, return that. (constituents size > 0)
       ///    Else check the old version of PAT (embedded constituents size > 0)
       ///    Else return the reco Jet number of constituents
-      size_t numberOfDaughters() const override;
+      virtual size_t numberOfDaughters() const;
 
       /// accessing Jet ID information
       reco::JetID const & jetID () const { return jetID_;}

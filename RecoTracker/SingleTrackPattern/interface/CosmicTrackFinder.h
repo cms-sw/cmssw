@@ -72,9 +72,9 @@ namespace cms
 
     explicit CosmicTrackFinder(const edm::ParameterSet& conf);
 
-    ~CosmicTrackFinder() override;
+    virtual ~CosmicTrackFinder();
 
-    void produce(edm::Event& e, const edm::EventSetup& c) override;
+    virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
   private:
     CosmicTrajectoryBuilder cosmicTrajectoryBuilder_;

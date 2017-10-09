@@ -16,7 +16,7 @@
 TkStripMeasurementDet::TkStripMeasurementDet( const GeomDet* gdet, StMeasurementConditionSet & conditions ) : 
   MeasurementDet (gdet), index_(-1), theDetConditions(&conditions)
   {
-    if (dynamic_cast<const StripGeomDetUnit*>(gdet) == nullptr) {
+    if (dynamic_cast<const StripGeomDetUnit*>(gdet) == 0) {
       throw MeasurementDetException( "TkStripMeasurementDet constructed with a GeomDet which is not a StripGeomDetUnit");
     }
   }
@@ -216,7 +216,7 @@ TkStripMeasurementDet::simpleRecHits( const TrajectoryStateOnSurface& ts, const 
 
     const detset & detSet = data.stripData().detSet(index());
     unInitDynArray(AClusters::value_type,detSet.size(),clusters);
-    assert(clusters.empty());
+    assert(clusters.size()==0);
     for (auto const & ci : detSet) {
       if (isMasked(ci)) continue;
       if (accept(detSet.makeKeyOf(&ci), data.stripClustersToSkip()))

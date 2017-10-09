@@ -65,7 +65,7 @@ class DTChamberEfficiency : public DQMEDAnalyzer
   DTChamberEfficiency(const edm::ParameterSet& pset) ;
 
   //Destructor
-  ~DTChamberEfficiency() override ;
+  ~DTChamberEfficiency() ;
 
   //Operations
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;

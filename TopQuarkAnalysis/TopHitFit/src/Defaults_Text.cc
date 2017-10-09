@@ -218,7 +218,7 @@ void Defaults_Textrep::read_file (string file)
 //
 {
   // Just return if we weren't given a file.
-  if (file.empty())
+  if (file.size() == 0)
     return;
 
   ifstream f (file.c_str());
@@ -253,7 +253,7 @@ void Defaults_Textrep::process_args (int argc, char** argv)
 
       // Found one. 
       string l;
-      if (strchr (argv[i], '=') != nullptr)
+      if (strchr (argv[i], '=') != 0)
         // It was of the form `--NAME=VALUE'.  Change to `NAME=VALUE'.
         l = argv[i] + 2;
       else if (argv[i][2] == 'n' && argv[i][3] == 'o') {
@@ -311,7 +311,7 @@ void Defaults_Textrep::doline (string l)
 {
   // Strip spaces from the line and ignore it if it's blank.
   l = strip (l);
-  if (l.empty())
+  if (l.size() == 0)
     return;
 
   // It must contain a `=' character.

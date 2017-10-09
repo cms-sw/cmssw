@@ -19,7 +19,7 @@
 class  MultiRecHitCollectorESProducer: public edm::ESProducer{
  public:
   MultiRecHitCollectorESProducer(const edm::ParameterSet& iConfig);
-  ~MultiRecHitCollectorESProducer() override; 
+  virtual ~MultiRecHitCollectorESProducer(); 
   std::shared_ptr<MultiRecHitCollector> produce(const MultiRecHitRecord &);
 
   // Set parameter set

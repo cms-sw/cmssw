@@ -73,7 +73,7 @@ CastorCondObjectContainer<Item>::initContainer()
 template<class Item> const Item*
 CastorCondObjectContainer<Item>::getValues(DetId fId, bool throwOnFail) const
 {
-  const Item* cell = nullptr;
+  const Item* cell = NULL;
   HcalCastorDetId myId(fId);
 
   if (fId.det()==DetId::Calo && fId.subdetId()==HcalCastorDetId::SubdetectorId) {
@@ -89,7 +89,7 @@ CastorCondObjectContainer<Item>::getValues(DetId fId, bool throwOnFail) const
       throw cms::Exception ("Conditions not found") 
 	<< "Unavailable Conditions of type " << myname() << " for cell " << myId;
     } else {
-      cell=nullptr;
+      cell=0;
     }
   }
   return cell;

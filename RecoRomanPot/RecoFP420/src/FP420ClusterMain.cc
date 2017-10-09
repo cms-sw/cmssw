@@ -108,7 +108,7 @@ FP420ClusterMain::FP420ClusterMain(const edm::ParameterSet& conf, int dn, int sn
 }
 
 FP420ClusterMain::~FP420ClusterMain() {
-  if ( threeThreshold_ != nullptr ) {
+  if ( threeThreshold_ != 0 ) {
     delete threeThreshold_;
   }
 }
@@ -194,7 +194,7 @@ void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420> &input, ClusterColle
 	    for ( ;sort_begin != sort_end; ++sort_begin ) {
 	      dcollector.push_back(*sort_begin);
 	    } // for
-	    if (!dcollector.empty()) {
+	    if (dcollector.size()>0) {
 	      
 	      DigiCollectionFP420::ContainerIterator digiRangeIteratorBegin = digiRange.first;
 	      DigiCollectionFP420::ContainerIterator digiRangeIteratorEnd   = digiRange.second;
@@ -264,7 +264,7 @@ void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420> &input, ClusterColle
 		  
 		}// if (UseNoiseBadElectrodeFlagFromDB
 		
-		if (!collector.empty()){
+		if (collector.size()>0){
 		  ClusterCollectionFP420::Range inputRange;
 		  inputRange.first = collector.begin();
 		  inputRange.second = collector.end();

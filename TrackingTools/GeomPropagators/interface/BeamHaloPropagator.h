@@ -39,10 +39,10 @@ class BeamHaloPropagator final : public Propagator {
     BeamHaloPropagator( const BeamHaloPropagator& );
 
     /** virtual destructor */
-    ~BeamHaloPropagator() override ;
+    virtual ~BeamHaloPropagator() ;
 
     ///Virtual constructor (using copy c'tor)
-    BeamHaloPropagator* clone() const override {
+    virtual BeamHaloPropagator* clone() const override {
       return new BeamHaloPropagator(getEndCapTkPropagator(),getCrossTkPropagator(),magneticField(),propagationDirection());
     }
 
@@ -77,7 +77,7 @@ class BeamHaloPropagator final : public Propagator {
     ///return the propagator used to cross the tracker
     const Propagator* getCrossTkPropagator() const ;
     ///return the magneticField
-    const MagneticField* magneticField() const override {return theField;}
+    virtual const MagneticField* magneticField() const override {return theField;}
 
   private:
     void directionCheck(PropagationDirection dir);

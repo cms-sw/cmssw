@@ -21,9 +21,9 @@ class BTagPerformanceAnalyzerOnData : public DQMEDAnalyzer {
    public:
       explicit BTagPerformanceAnalyzerOnData(const edm::ParameterSet& pSet);
 
-      ~BTagPerformanceAnalyzerOnData() override;
+      ~BTagPerformanceAnalyzerOnData();
 
-      void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+      virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 
    private:

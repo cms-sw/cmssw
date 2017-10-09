@@ -44,10 +44,10 @@ class FilterScrapingPixelProbability : public edm::EDFilter
 {
 public:
   explicit FilterScrapingPixelProbability( const edm::ParameterSet & );
-  ~FilterScrapingPixelProbability() override;
+  ~FilterScrapingPixelProbability();
   
 private:
-  bool filter ( edm::Event &, const edm::EventSetup&) override;
+  virtual bool filter ( edm::Event &, const edm::EventSetup&) override;
   
   bool apply_filter;
   bool select_collision;

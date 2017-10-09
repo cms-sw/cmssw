@@ -9,7 +9,7 @@ namespace gs {
         : ItemDescriptor(),
           id_(0),
           len_(0),
-          location_(ItemLocation(std::streampos(0), nullptr))
+          location_(ItemLocation(std::streampos(0), 0))
     {
     }
 
@@ -91,7 +91,7 @@ namespace gs {
         if (hasOffset)
             read_pod(in, &offset);
 
-        CatalogEntry* rec = nullptr;
+        CatalogEntry* rec = 0;
         if (!in.fail())
         {
             CPP11_auto_ptr<ItemLocation> loc(ItemLocation::read(locId, in));

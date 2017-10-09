@@ -47,10 +47,10 @@ public:
     typedef RecordType record_type;
 
     explicit BoostIODBReader(const edm::ParameterSet&);
-    inline ~BoostIODBReader() override {}
+    inline virtual ~BoostIODBReader() {}
 
 private:
-    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     std::string outputFile_;
 };

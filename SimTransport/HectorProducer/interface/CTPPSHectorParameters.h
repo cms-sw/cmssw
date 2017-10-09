@@ -1,6 +1,6 @@
 #ifndef CTPPSHectorParameters_H
 #define CTPPSHectorParameters_H
-#include <cmath>
+#include <math.h>
 
 const double   ProtonMass = 0.93827;
 const double   ProtonMassSQ = pow(ProtonMass,2);

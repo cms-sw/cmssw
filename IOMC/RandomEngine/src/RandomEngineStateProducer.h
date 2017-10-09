@@ -28,10 +28,10 @@ namespace edm {
 class RandomEngineStateProducer : public edm::global::EDProducer<edm::BeginLuminosityBlockProducer> {
   public:
     explicit RandomEngineStateProducer(edm::ParameterSet const& pset);
-    ~RandomEngineStateProducer() override;
+    ~RandomEngineStateProducer();
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
-    void globalBeginLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) const override;
-    void produce(edm::StreamID iID, edm::Event& ev, edm::EventSetup const& es) const override;
+    virtual void globalBeginLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) const override;
+    virtual void produce(edm::StreamID iID, edm::Event& ev, edm::EventSetup const& es) const override;
 };

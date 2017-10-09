@@ -152,7 +152,7 @@ void EcalMatacqAnalyzer:: analyze( const edm::Event & e, const  edm::EventSetup&
 
   // retrieving MATACQ :
   edm::Handle<EcalMatacqDigiCollection> pmatacqDigi;
-  const EcalMatacqDigiCollection* matacqDigi=nullptr;
+  const EcalMatacqDigiCollection* matacqDigi=0;
   try {
     e.getByLabel(digiProducer_,digiCollection_, pmatacqDigi); 
     matacqDigi=pmatacqDigi.product();
@@ -167,7 +167,7 @@ void EcalMatacqAnalyzer:: analyze( const edm::Event & e, const  edm::EventSetup&
   // retrieving DCC header
 
   edm::Handle<EcalRawDataCollection> pDCCHeader;
-  const  EcalRawDataCollection* DCCHeader=nullptr;
+  const  EcalRawDataCollection* DCCHeader=0;
   try {
     e.getByLabel(eventHeaderProducer_,eventHeaderCollection_, pDCCHeader);
     DCCHeader=pDCCHeader.product();

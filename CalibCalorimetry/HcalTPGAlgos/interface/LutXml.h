@@ -22,7 +22,7 @@
 #include <map>
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLDOMBlock.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-#include <cstdint>
+#include <stdint.h>
 
 class LutXml : public XMLDOMBlock
 {
@@ -45,10 +45,10 @@ class LutXml : public XMLDOMBlock
   LutXml();
   LutXml( XERCES_CPP_NAMESPACE::InputSource & _source );
   LutXml( std::string filename );
-  ~LutXml() override;
+  virtual ~LutXml();
   
   void init( void );
-  void addLut( Config & _config, XMLDOMBlock * checksums_xml = nullptr );
+  void addLut( Config & _config, XMLDOMBlock * checksums_xml = 0 );
   std::string & getCurrentBrick( void );
   
   std::vector<unsigned int> * getLutFast( uint32_t det_id );

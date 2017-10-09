@@ -25,7 +25,7 @@
 class TSCBLBuilderWithPropagatorESProducer : public edm::ESProducer {
    public:
       TSCBLBuilderWithPropagatorESProducer(const edm::ParameterSet&);
-      ~TSCBLBuilderWithPropagatorESProducer() override;
+      ~TSCBLBuilderWithPropagatorESProducer();
 
       typedef std::shared_ptr<TrajectoryStateClosestToBeamLineBuilder> ReturnType;
 

@@ -27,10 +27,10 @@ public:
   explicit MuonScenarioBuilder( Alignable* alignable );
 
   /// Destructor
-  ~MuonScenarioBuilder() override {};
+  ~MuonScenarioBuilder() {};
 
   /// Apply misalignment scenario to the Muon
-  void applyScenario( const edm::ParameterSet& scenario ) override;
+  void applyScenario( const edm::ParameterSet& scenario );
 
   /// This special method allows to move a DTsector by a same amount
   void moveDTSectors( const edm::ParameterSet& scenario );

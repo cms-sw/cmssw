@@ -20,11 +20,11 @@ namespace { class ImplBase; }
 class HitPairEDProducer: public edm::stream::EDProducer<> {
 public:
   HitPairEDProducer(const edm::ParameterSet& iConfig);
-  ~HitPairEDProducer() override = default;
+  ~HitPairEDProducer() = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
   edm::EDGetTokenT<SeedingLayerSetsHits> seedingLayerToken_;
@@ -105,7 +105,7 @@ namespace {
   template <typename T_SeedingHitSets, typename T_IntermediateHitDoublets>
   struct Impl: public ImplBase {
     Impl(const edm::ParameterSet& iConfig): ImplBase(iConfig) {}
-    ~Impl() override = default;
+    ~Impl() = default;
 
     void produces(edm::ProducerBase& producer) const override {
       T_SeedingHitSets::produces(producer);

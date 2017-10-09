@@ -85,7 +85,7 @@ void SiStripLAProfileBooker::beginRun(const edm::Run &,const edm::EventSetup& c)
   tracker=&(*estracker); 
 
   std::vector<uint32_t> activeDets;
-  edm::ESHandle<SiStripDetCabling> tkmechstruct=nullptr;
+  edm::ESHandle<SiStripDetCabling> tkmechstruct=0;
   if (conf_.getParameter<bool>("UseStripCablingDB")){ 
     c.get<SiStripDetCablingRcd>().get(tkmechstruct);
     activeDets.clear();
@@ -202,7 +202,7 @@ void SiStripLAProfileBooker::beginRun(const edm::Run &,const edm::EventSetup& c)
       float thickness=stripdet->specificSurface().bounds().thickness();
       
       folder_organizer.setDetectorFolder(Iditer->rawId(), tTopo);
-      hid = hidmanager.createHistoId(TkTag.label(),"det",Iditer->rawId());
+      hid = hidmanager.createHistoId(TkTag.label().c_str(),"det",Iditer->rawId());
       MonitorElement * profile=dbe_->bookProfile(hid,hid,module_bin,ModuleRangeMin,ModuleRangeMax,20,0,5,"");
       detparameters *param=new detparameters;
       histos[Iditer->rawId()] = profile;
@@ -221,10 +221,10 @@ void SiStripLAProfileBooker::beginRun(const edm::Run &,const edm::EventSetup& c)
       std::string name;
       unsigned int layerid;
       getlayer(subid,tTopo,name,layerid);
-      name+=TkTag.label();
+      name+=TkTag.label().c_str();
       if(summaryhisto.find(layerid)==(summaryhisto.end())){
 	folder_organizer.setSiStripFolder();
-	MonitorElement * summaryprofile=nullptr;
+	MonitorElement * summaryprofile=0;
 	if (subid.subdetId()==int (StripSubdetector::TIB)||subid.subdetId()==int (StripSubdetector::TID))
 	  summaryprofile=dbe_->bookProfile(name,name,SUM_bin,TIBRangeMin,TIBRangeMax,20,0,5,"");
 	else if (subid.subdetId()==int (StripSubdetector::TOB)||subid.subdetId()==int (StripSubdetector::TEC))

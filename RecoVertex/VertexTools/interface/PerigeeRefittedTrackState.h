@@ -26,27 +26,27 @@ public:
   			    const double aWeight = 1.) :
     theState(tscp), momentumAtVertex(aMomentumAtVertex), theWeight(aWeight) {}
 
- ~PerigeeRefittedTrackState() override{}
+ virtual ~PerigeeRefittedTrackState(){}
 
   /**
    * Transformation into a FreeTrajectoryState
    */
 
-  FreeTrajectoryState freeTrajectoryState() const override
+  virtual FreeTrajectoryState freeTrajectoryState() const
     {return theState.theState();}
 
   /**
    * Transformation into a TSOS at a given surface
    */
-  TrajectoryStateOnSurface trajectoryStateOnSurface(
-  		const Surface & surface) const override;
+  virtual TrajectoryStateOnSurface trajectoryStateOnSurface(
+  		const Surface & surface) const;
 
   /**
    * Transformation into a TSOS at a given surface, with a given propagator
    */
 
-  TrajectoryStateOnSurface trajectoryStateOnSurface(
-		const Surface & surface, const Propagator & propagator) const override;
+  virtual TrajectoryStateOnSurface trajectoryStateOnSurface(
+		const Surface & surface, const Propagator & propagator) const;
 
   /**
    * Vector containing the refitted track parameters. <br>
@@ -54,21 +54,21 @@ public:
    *  (signed) transverse , longitudinal impact parameter)
    */
 
-  AlgebraicVector5 parameters() const override
+  virtual AlgebraicVector5 parameters() const
     {return theState.perigeeParameters().vector();}
 
   /**
    * The covariance matrix
    */
 
-  AlgebraicSymMatrix55  covariance() const override
+  virtual AlgebraicSymMatrix55  covariance() const
     {return theState.perigeeError().covarianceMatrix();}
 
   /**
    * Position at which the momentum is defined.
    */
 
-  GlobalPoint position() const override
+  virtual GlobalPoint position() const
     {return theState.referencePoint();}
 
   /**
@@ -76,23 +76,23 @@ public:
    * These are (signed transverse curvature, theta, phi)
    */
 
-  AlgebraicVector3 momentumVector() const override;
+  virtual AlgebraicVector3 momentumVector() const;
 
   /**
    *   The weight of this component in a mixture
    */
-  double weight() const override {return theWeight;}
+  virtual double weight() const {return theWeight;}
 
   /**
    * Returns a new refitted state of the same type, but with another weight.
    * The current state is unchanged.
    */
-  ReferenceCountingPointer<RefittedTrackState<5> > stateWithNewWeight
-  	(const double newWeight) const override;
+  virtual ReferenceCountingPointer<RefittedTrackState<5> > stateWithNewWeight
+  	(const double newWeight) const;
 
-  std::vector<ReferenceCountingPointer<RefittedTrackState<5> > > components() const override;
+  virtual std::vector<ReferenceCountingPointer<RefittedTrackState<5> > > components() const;
 
-  reco::TransientTrack transientTrack() const override;
+  virtual reco::TransientTrack transientTrack() const;
 
 private:
 

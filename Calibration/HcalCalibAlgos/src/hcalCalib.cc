@@ -190,7 +190,7 @@ Bool_t hcalCalib::Process(Long64_t entry) {
   }
 
 
-  if (selectCells.empty()) {
+  if (selectCells.size()==0) {
     cout << "NO CELLS ABOVE THRESHOLD FOUND FOR TARGET!!!" << endl;
   }
 
@@ -635,7 +635,7 @@ Bool_t hcalCalib::ReadPhiSymCor() {
 
   while (getline(phiSymFile, line)) {
 
-    if(line.empty() || line[0]=='#') continue;
+    if(!line.size() || line[0]=='#') continue;
 
     std::istringstream linestream(line);
     linestream >> iEta >> iPhi >> depth >> sdName >> value >> hex >> detId;

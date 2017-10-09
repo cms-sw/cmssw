@@ -24,27 +24,27 @@ namespace hcaldqm
 				HashMapper() {}
 				HashMapper(HashType htype) : Mapper(), _htype(htype) 
 				{}
-				~HashMapper() override {}
+				virtual ~HashMapper() {}
 
 				//	initialize
 				virtual void initialize(HashType htype) {_htype = htype;}
 
 				//	get hash
 				using Mapper::getHash;
-				uint32_t getHash(HcalDetId const& did) const override
+				virtual uint32_t getHash(HcalDetId const& did) const
 				{return hash_did[_htype](did);}
-				uint32_t getHash(HcalElectronicsId const& eid) const override
+				virtual uint32_t getHash(HcalElectronicsId const& eid) const
 				{return hash_eid[_htype-nHashType_did-1](eid);}
-				uint32_t getHash(HcalTrigTowerDetId const& tid) const override
+				virtual uint32_t getHash(HcalTrigTowerDetId const& tid) const
 				{return hash_tid[_htype-nHashType_eid-1](tid);}
 
 				//	get name of the hashed element
 				using Mapper::getName;
-				std::string getName(HcalDetId const &did) const override
+				virtual std::string getName(HcalDetId const &did) const
 				{return hashfunctions::name_did[_htype](did);}
-				std::string getName(HcalElectronicsId const& eid) const override
+				virtual std::string getName(HcalElectronicsId const& eid) const
 				{return hashfunctions::name_eid[_htype-nHashType_did-1](eid);}
-				std::string getName(HcalTrigTowerDetId const& tid) const override
+				virtual std::string getName(HcalTrigTowerDetId const& tid) const
 				{return hashfunctions::name_tid[_htype-nHashType_eid-1](tid);}
 
 				//	get the Hash Type Name

@@ -28,7 +28,7 @@
 #include <cassert>
 #include <fstream>
 #include <string>
-#include <csignal>
+#include <signal.h>
 
 using std::cerr;
 
@@ -120,7 +120,7 @@ namespace edm {
           break;
         }
         case MessageLoggerQ::SUMMARIZE: {
-          assert( operand == nullptr );
+          assert( operand == 0 );
           try {
             triggerStatisticsSummaries();
           }
@@ -151,7 +151,7 @@ namespace edm {
           break;
         }
         case MessageLoggerQ::SHUT_UP:  {
-          assert( operand == nullptr );
+          assert( operand == 0 );
           active = false;
           break;
         }
@@ -390,7 +390,7 @@ namespace edm {
         if (timespan == NO_VALUE_SET) timespan = dest_default_timespan;
         // change log 7
         
-        const std::string& category = msgID;
+        std::string category = msgID;
         if ( limit     == NO_VALUE_SET )  {				// change log 24
           limit = messageLoggerDefaults->limit(filename,category);
         }
@@ -648,7 +648,7 @@ namespace edm {
           )
       {
         String statname = *it;
-        const String& psetname = statname;
+        String psetname = statname;
         
         // check that this destination is not just a placeholder // change log 20
         PSet  stat_pset = getAparameter<PSet>(*job_pset_p, psetname, empty_PSet);

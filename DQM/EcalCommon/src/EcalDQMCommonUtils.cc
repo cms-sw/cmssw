@@ -461,10 +461,10 @@ namespace ecaldqm
   */
 
   std::mutex mapMutex;
-  EcalElectronicsMapping const* electronicsMap(nullptr);
-  EcalTrigTowerConstituentsMap const* trigtowerMap(nullptr);
-  CaloGeometry const* geometry(nullptr);
-  CaloTopology const* topology(nullptr);
+  EcalElectronicsMapping const* electronicsMap(0);
+  EcalTrigTowerConstituentsMap const* trigtowerMap(0);
+  CaloGeometry const* geometry(0);
+  CaloTopology const* topology(0);
 
   bool
   checkElectronicsMap(bool _throw/* = true*/)

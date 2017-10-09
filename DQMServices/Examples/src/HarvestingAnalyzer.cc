@@ -27,7 +27,7 @@ void HarvestingAnalyzer::beginJob()
 void HarvestingAnalyzer::endJob()
 {
 
-  dbe = nullptr;
+  dbe = 0;
   dbe = edm::Service<DQMStore>().operator->();
 
   if (dbe) {

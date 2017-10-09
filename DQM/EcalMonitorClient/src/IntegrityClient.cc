@@ -61,7 +61,7 @@ namespace ecaldqm
 
       DetId id( chSItr->getId() );
 
-      EcalChannelStatusMap::const_iterator chIt(nullptr);
+      EcalChannelStatusMap::const_iterator chIt(0);
 
       // Set appropriate channel map (EB or EE)
       if( id.subdetId() == EcalBarrel ){

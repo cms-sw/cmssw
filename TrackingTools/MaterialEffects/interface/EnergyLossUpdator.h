@@ -20,7 +20,7 @@ class MediumProperties;
 class EnergyLossUpdator final : public MaterialEffectsUpdator 
 {
  public:
-  EnergyLossUpdator* clone() const override {
+  virtual EnergyLossUpdator* clone() const {
     return new EnergyLossUpdator(*this);
   }
 
@@ -29,8 +29,8 @@ public:
     MaterialEffectsUpdator(mass) {}
 
   // here comes the actual computation of the values
-  void compute (const TrajectoryStateOnSurface&, 
-			const PropagationDirection, Effect & effect) const override;
+  virtual void compute (const TrajectoryStateOnSurface&, 
+			const PropagationDirection, Effect & effect) const;
 
 private:
   // Internal routine for ionization acc. to Bethe-Bloch

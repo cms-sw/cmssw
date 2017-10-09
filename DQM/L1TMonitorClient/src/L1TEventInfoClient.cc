@@ -14,13 +14,13 @@
 #include "DQM/L1TMonitorClient/interface/L1TEventInfoClient.h"
 
 // system include files
-#include <cstdio>
+#include <stdio.h>
 #include <sstream>
 #include <fstream>
 #include <iostream>
 #include <iomanip>
 
-#include <cmath>
+#include <math.h>
 #include <memory>
 
 #include <vector>
@@ -519,6 +519,7 @@ void L1TEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore::IGe
 
             if (qHist) {
                 const std::vector<QReport*> qtVec = qHist->getQReports();
+                const std::string hName = qHist->getName();
 
                 if (m_verbose) {
 
@@ -638,6 +639,10 @@ void L1TEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore::IGe
 
             if (qHist) {
                 const std::vector<QReport*> qtVec = qHist->getQReports();
+<<<<<<< HEAD
+=======
+                const std::string hName = qHist->getName();
+>>>>>>> pr94x-l1-noHackConditions-fromPR20451
 
                 if (m_verbose) {
 

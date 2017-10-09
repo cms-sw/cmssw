@@ -40,7 +40,7 @@ class SUSY_HLT_Muon_Hadronic: public DQMEDAnalyzer{
 
   public:
   SUSY_HLT_Muon_Hadronic(const edm::ParameterSet& ps);
-  ~SUSY_HLT_Muon_Hadronic() override;
+  virtual ~SUSY_HLT_Muon_Hadronic();
 
   protected:
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;

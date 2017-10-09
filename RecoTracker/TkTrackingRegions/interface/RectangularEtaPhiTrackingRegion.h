@@ -157,23 +157,23 @@ public:
   /// is precise error calculation switched on 
   bool  isPrecise() const { return thePrecise; }
 
-  TrackingRegion::Hits hits(
+  virtual TrackingRegion::Hits hits(
       const edm::EventSetup& es,
       const SeedingLayerSetsHits::SeedingLayer& layer) const override;
 
-  HitRZCompatibility * checkRZ(const DetLayer* layer,  
+  virtual HitRZCompatibility * checkRZ(const DetLayer* layer,  
 				       const Hit &  outerHit,
 				       const edm::EventSetup&iSetup,
 				       const DetLayer* outerlayer=nullptr,
 				       float lr=0, float gz=0, float dr=0, float dz=0) const override
   { return checkRZOld(layer,outerHit,iSetup, outerlayer); }
 
-  RectangularEtaPhiTrackingRegion* clone() const override { 
+  virtual RectangularEtaPhiTrackingRegion* clone() const override { 
     return new RectangularEtaPhiTrackingRegion(*this);
   }
 
-  std::string name() const override { return "RectangularEtaPhiTrackingRegion"; }
-  std::string print() const override;
+  virtual std::string name() const override { return "RectangularEtaPhiTrackingRegion"; }
+  virtual std::string print() const override;
 
 private:
   HitRZCompatibility* checkRZOld(

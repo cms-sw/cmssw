@@ -24,7 +24,7 @@ class SiStripConfigParser : public DQMParserBase {
   SiStripConfigParser();
   
   // Destructor
-  ~SiStripConfigParser() override;
+  ~SiStripConfigParser();
 
   // get List of MEs for TrackerMap
   bool getMENamesForSummary(std::map<std::string, std::string>& me_names);

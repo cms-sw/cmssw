@@ -51,7 +51,7 @@ namespace pos{
 		  std::string creator,
 		  std::string date);
 
-    ~PixelTrimBase() override;
+    virtual ~PixelTrimBase();
     
     void setOverride(PixelTrimOverrideBase* trimOverride);
 
@@ -63,26 +63,26 @@ namespace pos{
 				       const PixelMaskBase& pixelMask) const =0;
     virtual void writeBinary(     std::string filename) const =0;
 
-    void writeASCII(      std::string filename)  const override =0;
-    void writeXML(        pos::PixelConfigKey key, 
+    virtual void writeASCII(      std::string filename)  const =0;
+    virtual void writeXML(        pos::PixelConfigKey key, 
                                   int version, 
 				  std::string path
-				) const override {;}
-    void writeXMLHeader(  pos::PixelConfigKey key, 
+				) const {;}
+    virtual void writeXMLHeader(  pos::PixelConfigKey key, 
 				  int version, 
 				  std::string path, 
 				  std::ofstream *out,
-				  std::ofstream *out1 = nullptr,
-				  std::ofstream *out2 = nullptr
-				) const override {;}
-    void writeXML(	  std::ofstream *out,			    	   			    
-			  	  std::ofstream *out1 = nullptr ,
-			  	  std::ofstream *out2 = nullptr 
-				) const override {;}
-    void writeXMLTrailer( std::ofstream *out, 
-				  std::ofstream *out1 = nullptr,
-				  std::ofstream *out2 = nullptr
-				) const override {;}
+				  std::ofstream *out1 = NULL,
+				  std::ofstream *out2 = NULL
+				) const {;}
+    virtual void writeXML(	  std::ofstream *out,			    	   			    
+			  	  std::ofstream *out1 = NULL ,
+			  	  std::ofstream *out2 = NULL 
+				) const {;}
+    virtual void writeXMLTrailer( std::ofstream *out, 
+				  std::ofstream *out1 = NULL,
+				  std::ofstream *out2 = NULL
+				) const {;}
 
     virtual PixelROCTrimBits getTrimBits(int ROCId) const =0;
 

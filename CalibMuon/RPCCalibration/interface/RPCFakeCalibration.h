@@ -24,13 +24,13 @@ class RPCFakeCalibration : public RPCPerformanceESSource {
  public:
 
   RPCFakeCalibration( const edm::ParameterSet& );
-  ~RPCFakeCalibration() override {;}
+  virtual ~RPCFakeCalibration() {;}
   
      
 private:
   
 
-  RPCStripNoises* makeNoise() override;
+  RPCStripNoises* makeNoise();
 
   RPCClusterSize* makeCls();
 

@@ -358,7 +358,7 @@ void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::extractBadAPVSandStr
 
   if (WriteDQMHistograms_==true){
     dqmStore->cd();
-    dqmStore->save(DQMOutfileName_);
+    dqmStore->save(DQMOutfileName_.c_str());
   }
 
   LogTrace("SiStripBadAPV") << ss.str() << std::endl;

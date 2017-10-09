@@ -25,9 +25,9 @@
 class SiStripPedestalsFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   SiStripPedestalsFakeESSource(const edm::ParameterSet&);
-  ~SiStripPedestalsFakeESSource() override;
+  ~SiStripPedestalsFakeESSource();
 
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity ) override;
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity );
 
   typedef std::shared_ptr<SiStripPedestals> ReturnType;
   ReturnType produce(const SiStripPedestalsRcd&);

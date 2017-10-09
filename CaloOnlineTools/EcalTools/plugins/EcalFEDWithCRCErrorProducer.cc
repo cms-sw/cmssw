@@ -46,10 +46,10 @@ class EcalFEDWithCRCErrorProducer : public edm::EDProducer
 {
 public:
   explicit EcalFEDWithCRCErrorProducer(const edm::ParameterSet&);
-  ~EcalFEDWithCRCErrorProducer() override;
+  ~EcalFEDWithCRCErrorProducer();
   
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   
   // ----------member data ---------------------------
   

@@ -7,7 +7,7 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include <iostream>
-#include <cstdio>
+#include <stdio.h>
 #include <sys/time.h>
 
 #include <boost/lexical_cast.hpp>

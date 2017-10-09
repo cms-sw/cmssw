@@ -45,7 +45,7 @@ class CSCDcsInfo : public DQMEDHarvester {
   public:
 
     explicit CSCDcsInfo(const edm::ParameterSet&);
-    ~CSCDcsInfo() override { }
+    ~CSCDcsInfo() { }
 
   protected:
     void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;

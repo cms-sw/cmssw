@@ -28,13 +28,13 @@ class SiStripDetInfoFileWriter : public edm::EDAnalyzer {
 public:
 
   explicit SiStripDetInfoFileWriter(const edm::ParameterSet&);
-  ~SiStripDetInfoFileWriter() override;
+  ~SiStripDetInfoFileWriter();
 
 private:
 
-  void beginRun(const edm::Run& , const edm::EventSetup& iSetup) override;
+  void beginRun(const edm::Run& , const edm::EventSetup& iSetup);
 
-  void analyze(const edm::Event &, const edm::EventSetup &) override{};
+  void analyze(const edm::Event &, const edm::EventSetup &){};
 
 private:
 

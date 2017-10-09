@@ -31,10 +31,10 @@ public:
   DTTTrigResidualCorrection(const edm::ParameterSet&);
 
   // Destructor
-  ~DTTTrigResidualCorrection() override;
+  virtual ~DTTTrigResidualCorrection();
 
-  void setES(const edm::EventSetup& setup) override;
-  DTTTrigData correction(const DTSuperLayerId&) override;
+  virtual void setES(const edm::EventSetup& setup);
+  virtual DTTTrigData correction(const DTSuperLayerId&);
 
 private:
   const TH1F* getHisto(const DTSuperLayerId&);

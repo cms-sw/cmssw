@@ -90,7 +90,7 @@ void CSCOfflineClient::dqmEndJob(DQMStore::IBooker& ib, DQMStore::IGetter& igett
 {
   ibooker = &ib;
   dispatcher->book();
-  if (!maskedHW.empty())
+  if (maskedHW.size() != 0)
      dispatcher->maskHWElements(maskedHW);
 
 
@@ -137,11 +137,11 @@ void CSCOfflineClient::dqmEndJob(DQMStore::IBooker& ib, DQMStore::IGetter& igett
  */
 cscdqm::MonitorObject* CSCOfflineClient::bookMonitorObject(const cscdqm::HistoBookRequest& req) {
 
-  cscdqm::MonitorObject *me = nullptr;
+  cscdqm::MonitorObject *me = NULL;
   std::string name = req.hdef->getName();
 
   std::string path = req.folder;
-  if (!req.hdef->getPath().empty()) {
+  if (req.hdef->getPath().size() > 0) {
     path = path + req.hdef->getPath() + "/";
   }
   

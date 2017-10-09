@@ -35,7 +35,7 @@ class L1TOccupancyClient: public DQMEDHarvester {
     L1TOccupancyClient(const edm::ParameterSet& ps);
   
     /// Destructor
-    ~L1TOccupancyClient() override;
+    virtual ~L1TOccupancyClient();
  
   protected:
     

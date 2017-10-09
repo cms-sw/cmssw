@@ -59,13 +59,13 @@ namespace {
       StandAloneScribe() {}
             
       // ---------- member functions ---------------------------
-      
+      virtual
       void  runCommand(edm::MessageLoggerQ::OpCode  opcode, void * operand) override;
       
    private:
-      StandAloneScribe(const StandAloneScribe&) = delete; // stop default
+      StandAloneScribe(const StandAloneScribe&); // stop default
       
-      const StandAloneScribe& operator=(const StandAloneScribe&) = delete; // stop default
+      const StandAloneScribe& operator=(const StandAloneScribe&); // stop default
       
       // ---------- member data --------------------------------
       
@@ -175,13 +175,13 @@ void
 void
   MessageLoggerQ::MLqEND()
 {
-  simpleCommand (END_THREAD, (void *)nullptr); 
+  simpleCommand (END_THREAD, (void *)0); 
 }  // MessageLoggerQ::END()
 
 void
   MessageLoggerQ::MLqSHT()
 {
-  simpleCommand (SHUT_UP, (void *)nullptr); 
+  simpleCommand (SHUT_UP, (void *)0); 
 }  // MessageLoggerQ::SHT()
 
 void
@@ -200,7 +200,7 @@ void
 void
   MessageLoggerQ::MLqSUM( )
 {
-  simpleCommand (SUMMARIZE, nullptr); 
+  simpleCommand (SUMMARIZE, 0); 
 }  // MessageLoggerQ::SUM()
 
 void
@@ -217,7 +217,7 @@ void
   // place to convey exception information.  FLS does not need this, nor does
   // it need the parameter set, but we are reusing ConfigurationHandshake 
   // rather than reinventing the mechanism.
-  handshakedCommand(FLUSH_LOG_Q, nullptr, "FLS" );
+  handshakedCommand(FLUSH_LOG_Q, 0, "FLS" );
 }  // MessageLoggerQ::FLS()
 
 void

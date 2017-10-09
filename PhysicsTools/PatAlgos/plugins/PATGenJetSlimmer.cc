@@ -25,17 +25,15 @@ namespace pat {
   class PATGenJetSlimmer : public edm::stream::EDProducer<> {
   public:
     explicit PATGenJetSlimmer(const edm::ParameterSet & iConfig);
-    ~PATGenJetSlimmer() override { }
+    virtual ~PATGenJetSlimmer() { }
     
-    void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
     
   private:
     const edm::EDGetTokenT<edm::View<reco::GenJet> > src_;
     const edm::EDGetTokenT<edm::Association<std::vector<pat::PackedGenParticle> > > gp2pgp_;
     
     const StringCutObjectSelector<reco::GenJet> cut_;
-    const StringCutObjectSelector<reco::GenJet> cutLoose_;
-    const unsigned nLoose_;
     
     /// reset daughters to an empty vector
     const bool clearDaughters_;
@@ -50,8 +48,6 @@ pat::PATGenJetSlimmer::PATGenJetSlimmer(const edm::ParameterSet & iConfig) :
     src_(consumes<edm::View<reco::GenJet> >(iConfig.getParameter<edm::InputTag>("src"))),
     gp2pgp_(consumes<edm::Association<std::vector<pat::PackedGenParticle> > >(iConfig.getParameter<edm::InputTag>("packedGenParticles"))),
     cut_(iConfig.getParameter<std::string>("cut")),
-    cutLoose_(iConfig.getParameter<std::string>("cutLoose")),
-    nLoose_(iConfig.getParameter<unsigned>("nLoose")),
     clearDaughters_(iConfig.getParameter<bool>("clearDaughters")),
     dropSpecific_(iConfig.getParameter<bool>("dropSpecific"))
 {
@@ -78,17 +74,8 @@ pat::PATGenJetSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
     auto mapping = std::make_unique<std::vector<int> >();
     mapping->reserve(src->size());
 
-    unsigned nl = 0; // number of loose jets
     for (View<reco::GenJet>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
-
-	bool selectedLoose = false;
-	if ( nLoose_ > 0 && nl < nLoose_ && cutLoose_(*it) ) {
-	  selectedLoose = true;
-	  ++nl;
-	}
-
-	bool pass = cut_(*it) || selectedLoose;
-        if (!pass ) {
+        if (!cut_(*it)) {
             mapping->push_back(-1);
             continue;
         }

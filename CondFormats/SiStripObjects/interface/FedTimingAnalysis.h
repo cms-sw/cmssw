@@ -21,7 +21,7 @@ class FedTimingAnalysis : public CommissioningAnalysis {
 
   FedTimingAnalysis();
 
-  ~FedTimingAnalysis() override {;}
+  virtual ~FedTimingAnalysis() {;}
 
   friend class FedTimingAlgorithm;
   
@@ -41,9 +41,9 @@ class FedTimingAnalysis : public CommissioningAnalysis {
   
   void max( const float& ); 
   
-  void print( std::stringstream&, uint32_t not_used = 0 ) override;
+  void print( std::stringstream&, uint32_t not_used = 0 );
   
-  void reset() override;
+  void reset();
   
  private:
   

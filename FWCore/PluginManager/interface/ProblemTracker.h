@@ -23,7 +23,7 @@ namespace edm
   private:
     ProblemTracker();
     ~ProblemTracker();
-    ProblemTracker(const ProblemTracker&) = delete;
+    ProblemTracker(const ProblemTracker&);
   };
 
   class AssertHandler
@@ -32,7 +32,7 @@ namespace edm
     AssertHandler();
     ~AssertHandler();
   private:
-    AssertHandler(const AssertHandler&) = delete;
+    AssertHandler(const AssertHandler&);
     ProblemTracker const* pt_;
   };
 

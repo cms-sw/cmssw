@@ -46,12 +46,12 @@
 class EcalPulseShapeGrapher : public edm::EDAnalyzer {
    public:
       explicit EcalPulseShapeGrapher(const edm::ParameterSet&);
-      ~EcalPulseShapeGrapher() override;
+      ~EcalPulseShapeGrapher();
 
 
    private:
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void endJob() ;
 
       std::string intToString(int);
 

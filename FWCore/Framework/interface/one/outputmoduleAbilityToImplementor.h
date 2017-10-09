@@ -39,11 +39,11 @@ namespace edm {
         RunWatcher(edm::ParameterSet const&iPSet): OutputModuleBase(iPSet){}
         RunWatcher(RunWatcher const&) = delete;
         RunWatcher& operator=(RunWatcher const&) = delete;
-        ~RunWatcher() noexcept(false) override {};
+        ~RunWatcher() noexcept(false) {};
         
       private:
-        void doBeginRun_(RunForOutput const& r) final;
-        void doEndRun_(RunForOutput const& r) final;
+        virtual void doBeginRun_(RunForOutput const& r) override final;
+        virtual void doEndRun_(RunForOutput const& r) override final;
         
         virtual void beginRun(edm::RunForOutput const&) = 0;
         virtual void endRun(edm::RunForOutput const&) = 0;
@@ -54,11 +54,11 @@ namespace edm {
         LuminosityBlockWatcher(edm::ParameterSet const&iPSet): OutputModuleBase(iPSet) {}
         LuminosityBlockWatcher(LuminosityBlockWatcher const&) = delete;
         LuminosityBlockWatcher& operator=(LuminosityBlockWatcher const&) = delete;
-        ~LuminosityBlockWatcher() noexcept(false) override {};
+        ~LuminosityBlockWatcher() noexcept(false) {};
         
       private:
-        void doBeginLuminosityBlock_(LuminosityBlockForOutput const& lb) final;
-        void doEndLuminosityBlock_(LuminosityBlockForOutput const& lb) final;
+        virtual void doBeginLuminosityBlock_(LuminosityBlockForOutput const& lb) override final;
+        virtual void doEndLuminosityBlock_(LuminosityBlockForOutput const& lb) override final;
         
         virtual void beginLuminosityBlock(edm::LuminosityBlockForOutput const&) = 0;
         virtual void endLuminosityBlock(edm::LuminosityBlockForOutput const&) = 0;
@@ -69,11 +69,11 @@ namespace edm {
         InputFileWatcher(edm::ParameterSet const&iPSet): OutputModuleBase(iPSet) {}
         InputFileWatcher(InputFileWatcher const&) = delete;
         InputFileWatcher& operator=(InputFileWatcher const&) = delete;
-        ~InputFileWatcher() noexcept(false) override {};
+        ~InputFileWatcher() noexcept(false) {};
         
       private:
-        void doRespondToOpenInputFile_(FileBlock const&) final;
-        void doRespondToCloseInputFile_(FileBlock const&) final;
+        void doRespondToOpenInputFile_(FileBlock const&) override final;
+        void doRespondToCloseInputFile_(FileBlock const&) override final;
         
         virtual void respondToOpenInputFile(FileBlock const&) = 0;
         virtual void respondToCloseInputFile(FileBlock const&) = 0;

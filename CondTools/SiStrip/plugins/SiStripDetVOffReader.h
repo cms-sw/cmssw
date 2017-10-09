@@ -27,9 +27,9 @@ class SiStripDetVOffReader : public edm::EDAnalyzer {
 
 public:
   explicit SiStripDetVOffReader( const edm::ParameterSet& );
-  ~SiStripDetVOffReader() override;
+  ~SiStripDetVOffReader();
     
-  void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  void analyze( const edm::Event&, const edm::EventSetup& );
   
 private:
   bool printdebug_;

@@ -18,22 +18,22 @@ public:
   KalmanTrimmedVertexFinder();
   KalmanTrimmedVertexFinder(
     const KalmanTrimmedVertexFinder & other);
-  ~KalmanTrimmedVertexFinder() override;
+  virtual ~KalmanTrimmedVertexFinder();
 
   /** Clone method
    */
-  KalmanTrimmedVertexFinder * clone() const override {
+  virtual KalmanTrimmedVertexFinder * clone() const {
     return new KalmanTrimmedVertexFinder(*this);
   }
 
-  inline std::vector<TransientVertex> 
-    vertices(const std::vector<reco::TransientTrack> & tracks) const override { 
+  virtual inline std::vector<TransientVertex> 
+    vertices(const std::vector<reco::TransientTrack> & tracks) const { 
     return theFinder->vertices(tracks); 
   }
   
-  inline std::vector<TransientVertex> 
+  virtual inline std::vector<TransientVertex> 
     vertices(const std::vector<reco::TransientTrack> & tracks,
-        const reco::BeamSpot & s ) const override { 
+        const reco::BeamSpot & s ) const { 
     return theFinder->vertices(tracks,s); 
   }
 

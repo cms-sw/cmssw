@@ -32,7 +32,7 @@ public:
 			   const VertexSmoothedChiSquaredEstimator<N> & vse, 
 			   const TrackToTrackCovCalculator<N> & covCalc);
 
-  ~SequentialVertexSmoother() override;
+  virtual ~SequentialVertexSmoother();
 
   /**
    *  Special copy constructor cloning the private data
@@ -49,7 +49,7 @@ public:
    *	last update.
    *  \return the final vertex estimate, with all the supplementary information
    */
-  CachingVertex<N> smooth(const CachingVertex<N> & vertex) const override;
+  virtual CachingVertex<N> smooth(const CachingVertex<N> & vertex) const;
 
   /**
    *  Access methods
@@ -64,7 +64,7 @@ public:
   /**
    * Clone method 
    */
-  SequentialVertexSmoother<N> * clone() const override 
+  virtual SequentialVertexSmoother<N> * clone() const 
   {
     return new SequentialVertexSmoother(* this);
   }

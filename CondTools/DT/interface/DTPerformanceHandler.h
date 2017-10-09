@@ -42,13 +42,13 @@ class DTPerformanceHandler: public popcon::PopConSourceHandler<DTPerformance> {
 
   /** Destructor
    */
-  ~DTPerformanceHandler() override;
+  virtual ~DTPerformanceHandler();
 
   /** Operations
    */
   /// 
-  void getNewObjects() override;
-  std::string id() const override;
+  void getNewObjects();
+  std::string id() const;
 
  private:
 

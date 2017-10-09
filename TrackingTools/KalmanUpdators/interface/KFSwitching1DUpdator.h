@@ -22,17 +22,17 @@ private:
   
 public:
 
-  KFSwitching1DUpdator(const edm::ParameterSet * pset=nullptr) : theDoEndCap(false) {
+  KFSwitching1DUpdator(const edm::ParameterSet * pset=0) : theDoEndCap(false) {
     if (pset){
       theDoEndCap=pset->getParameter<bool>("doEndCap");
     }
   }
-  ~KFSwitching1DUpdator() override {}
+  ~KFSwitching1DUpdator() {}
 
   /// update with a hit
-  TSOS update(const TSOS& aTsos, const TrackingRecHit& aHit) const override;
+  virtual TSOS update(const TSOS& aTsos, const TrackingRecHit& aHit) const;
 
-  KFSwitching1DUpdator * clone() const override 
+  virtual KFSwitching1DUpdator * clone() const 
   {
     return new KFSwitching1DUpdator(*this);
   }

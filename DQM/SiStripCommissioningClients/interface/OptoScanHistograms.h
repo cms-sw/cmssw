@@ -10,11 +10,11 @@ class OptoScanHistograms : public virtual CommissioningHistograms {
  public:
 
   OptoScanHistograms( const edm::ParameterSet& pset, DQMStore* );
-  ~OptoScanHistograms() override;
+  virtual ~OptoScanHistograms();
   
-  void histoAnalysis( bool debug ) override;
+  void histoAnalysis( bool debug );
 
-  void printAnalyses() override; // override
+  void printAnalyses(); // override
 
 };
 

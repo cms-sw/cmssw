@@ -250,12 +250,12 @@ private:
             return instance;
         }
 
-        ~OpenHandler() override;
+        ~OpenHandler();
 
         /**
          * Handle the file-open response
          */
-        void HandleResponseWithHosts(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response, XrdCl::HostList *hostList) override;
+        virtual void HandleResponseWithHosts(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response, XrdCl::HostList *hostList) override;
 
         /**
          * Future-based version of the handler

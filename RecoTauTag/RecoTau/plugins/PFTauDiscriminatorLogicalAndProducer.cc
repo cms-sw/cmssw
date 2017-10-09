@@ -19,7 +19,7 @@ using namespace reco;
 class PFTauDiscriminatorLogicalAndProducer : public PFTauDiscriminationProducerBase {
    public:
       explicit PFTauDiscriminatorLogicalAndProducer(const edm::ParameterSet&);
-      ~PFTauDiscriminatorLogicalAndProducer() override{};
+      ~PFTauDiscriminatorLogicalAndProducer(){};
       double discriminate(const PFTauRef& pfTau) const override;
    private:
       double passResult_;

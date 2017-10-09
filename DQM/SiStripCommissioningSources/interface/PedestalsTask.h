@@ -12,14 +12,14 @@ class PedestalsTask : public CommissioningTask {
  public:
   
   PedestalsTask( DQMStore*, const FedChannelConnection& );
-  ~PedestalsTask() override;
+  virtual ~PedestalsTask();
   
  private:
   
-  void book() override;
-  void fill( const SiStripEventSummary&,
-		     const edm::DetSet<SiStripRawDigi>& ) override;
-  void update() override;
+  virtual void book();
+  virtual void fill( const SiStripEventSummary&,
+		     const edm::DetSet<SiStripRawDigi>& );
+  virtual void update();
   
   std::vector<HistoSet> peds_;
   std::vector<HistoSet> cm_;

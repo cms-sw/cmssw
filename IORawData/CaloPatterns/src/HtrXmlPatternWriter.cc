@@ -10,7 +10,7 @@ static const char* tabbing(int level) {
 
 HtrXmlPatternWriter::HtrXmlPatternWriter() {
   // set the timestamp!
-  time_t now1=time(nullptr);
+  time_t now1=time(0);
   struct tm* now=localtime(&now1);
 
   char buffer[1024];

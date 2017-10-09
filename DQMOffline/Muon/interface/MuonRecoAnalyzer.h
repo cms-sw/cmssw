@@ -33,7 +33,7 @@ class MuonRecoAnalyzer : public DQMEDAnalyzer {
   MuonRecoAnalyzer(const edm::ParameterSet&);
   
   /// Destructor
-  ~MuonRecoAnalyzer() override;
+  virtual ~MuonRecoAnalyzer();
 
   /// Inizialize parameters for histo binning
   void analyze(const edm::Event&, const edm::EventSetup&) override;

@@ -30,12 +30,12 @@ public:
 /**
  * Access to Kinematic perigee parameters
  */
- AlgebraicVector6 parameters() const override;
+ AlgebraicVector6 parameters() const;
   
 /**
  * Kinmatic perigee covariance
  */  
- AlgebraicSymMatrix66 covariance() const override ;
+ AlgebraicSymMatrix66 covariance() const ;
 
 /**
  * Access to Kinematic parameters
@@ -50,9 +50,9 @@ public:
 /**
  * FTS out of kinematic parameters
  */
- FreeTrajectoryState freeTrajectoryState() const override;
+ FreeTrajectoryState freeTrajectoryState() const;
  
- GlobalPoint position() const override;
+ GlobalPoint position() const;
 
 /**
  * Kinematic momentum vector
@@ -62,21 +62,21 @@ public:
 /**
  * Perigee momentum vector
  */
- AlgebraicVector4 momentumVector() const override;
+ AlgebraicVector4 momentumVector() const;
 
- TrajectoryStateOnSurface trajectoryStateOnSurface(const Surface & surface) const override;
+ TrajectoryStateOnSurface trajectoryStateOnSurface(const Surface & surface) const;
 
  TrajectoryStateOnSurface trajectoryStateOnSurface(const Surface & surface, 
-                                                   const Propagator & propagator) const override;
+                                                   const Propagator & propagator) const;
 						   
- double weight() const override;
+ virtual double weight() const;
 
- ReferenceCountingPointer<RefittedTrackState<6> > stateWithNewWeight
-  	(const double newWeight) const override;
+ virtual ReferenceCountingPointer<RefittedTrackState<6> > stateWithNewWeight
+  	(const double newWeight) const;
 
- std::vector< ReferenceCountingPointer<RefittedTrackState<6> > > components() const override;						   
+ virtual std::vector< ReferenceCountingPointer<RefittedTrackState<6> > > components() const;						   
 
- reco::TransientTrack transientTrack() const override;
+ virtual reco::TransientTrack transientTrack() const;
 
 
 private:

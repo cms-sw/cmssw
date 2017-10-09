@@ -785,14 +785,14 @@ char * ReadPGInfo::getId(int wheel, int station, int sector) {
     if(wheel == position[counter][0] && sector == position[counter][1] && station == position[counter][2])
       return chambers[counter];
   }
-  return nullptr;
+  return NULL;
 }
 
 
 TMatrixD ReadPGInfo::giveR(int wheel, int station, int sector) {
   TMatrixD *empty = new TMatrixD(0,0);
   char *id = getId(wheel, station, sector);
-  if(id == nullptr) return *empty;
+  if(id == NULL) return *empty;
   TDirectoryFile *myDir = (TDirectoryFile *)rootFile->Get(id);
   TDirectoryFile *myR = (TDirectoryFile *)myDir->Get("R");
   TMatrixD *R = (TMatrixD *)myR->Get("matrix");
@@ -824,11 +824,11 @@ TMatrixD ReadPGInfo::giveQCCal(int wheel, int station, int sector) {
 TMatrixD ReadPGInfo::giveQC(int wheel, int station, int sector) {
   TMatrixD *empty = new TMatrixD(0,0);
   char *id = getId(wheel, station, sector);
-  if(id == nullptr) return *empty;
+  if(id == NULL) return *empty;
   TDirectoryFile *myDir = (TDirectoryFile *)rootFile->Get(id);
   TDirectoryFile *myQC = (TDirectoryFile *)myDir->Get("QCW");
   TMatrixD *QC;
-  if(myQC == nullptr) {
+  if(myQC == NULL) {
     QC = new TMatrixD(0,0);
   } else {
     QC = (TMatrixD *)myQC->Get("matrix");
@@ -840,7 +840,7 @@ TMatrixD ReadPGInfo::giveQC(int wheel, int station, int sector) {
 TMatrixD ReadPGInfo::giveSurvey(int wheel, int station, int sector) {
   TMatrixD *empty = new TMatrixD(0,0);
   char *id = getId(wheel, station, sector);
-  if(id == nullptr) return *empty;
+  if(id == NULL) return *empty;
   TDirectoryFile *myDir = (TDirectoryFile *)rootFile->Get(id);
   TDirectoryFile *mySur = (TDirectoryFile *)myDir->Get("Survey");
   TMatrixD *Survey = (TMatrixD *)mySur->Get("matrix_layer");

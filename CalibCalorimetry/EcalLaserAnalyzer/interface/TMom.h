@@ -45,7 +45,7 @@ class TMom: public TObject
   TMom(const std::vector<double>&,const std::vector<double>&);
 
   // Destructor: Does nothing
-  ~TMom() override;
+  virtual ~TMom();
 
   void setCut(double, double);
   void setCut(const std::vector<double>&,const std::vector<double>&);
@@ -61,7 +61,7 @@ class TMom: public TObject
   double getMax();
   std::vector<double> getPeak();
 
-  ClassDefOverride(TMom,0)
+  ClassDef(TMom,0)
 };
 
 #endif

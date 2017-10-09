@@ -44,7 +44,7 @@ class KinematicTree : public ReferenceCounted
  KinematicTree();
 
  
- ~KinematicTree() override;
+ virtual ~KinematicTree();
  
 /**
  * Access methods

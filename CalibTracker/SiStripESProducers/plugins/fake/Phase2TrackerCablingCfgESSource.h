@@ -13,13 +13,13 @@ class Phase2TrackerCablingCfgESSource : public Phase2TrackerCablingESProducer, p
  public:
   
   explicit Phase2TrackerCablingCfgESSource( const edm::ParameterSet& );
-  ~Phase2TrackerCablingCfgESSource() override;
+  ~Phase2TrackerCablingCfgESSource();
   
  protected:
   
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey& key,
+  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey& key,
 			       const edm::IOVSyncValue& iov_sync,
-			       edm::ValidityInterval& iov_validity ) override {
+			       edm::ValidityInterval& iov_validity ) {
     edm::ValidityInterval infinity( iov_sync.beginOfTime(), iov_sync.endOfTime() );
     iov_validity = infinity;
   }
@@ -27,7 +27,7 @@ class Phase2TrackerCablingCfgESSource : public Phase2TrackerCablingESProducer, p
  private:
   
   // Builds cabling map based on the ParameterSet
-  Phase2TrackerCabling* make( const Phase2TrackerCablingRcd& ) override; 
+  virtual Phase2TrackerCabling* make( const Phase2TrackerCablingRcd& ); 
 
   // The configuration used to generated the cabling record
   edm::ParameterSet pset_;

@@ -23,10 +23,10 @@ public:
 
 public:
     RPCLBLinkMapHandler(edm::ParameterSet const & config);
-    ~RPCLBLinkMapHandler() override;
+    ~RPCLBLinkMapHandler();
 
-    void getNewObjects() override;
-    std::string id() const override;
+    void getNewObjects();
+    std::string id() const;
 
 protected:
     std::string id_;

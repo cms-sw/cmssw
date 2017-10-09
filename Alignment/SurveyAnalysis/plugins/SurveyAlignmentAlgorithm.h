@@ -28,22 +28,22 @@ class SurveyAlignmentAlgorithm : public AlignmentAlgorithmBase
 			   );
 
   /// call at start of job
-  void initialize(
+  virtual void initialize(
 			  const edm::EventSetup&,
 			  AlignableTracker*,
 			  AlignableMuon*,
 			  AlignableExtras*,
 			  AlignmentParameterStore*
-			  ) override;
+			  );
 
   /// call at end of job
-  void terminate(const edm::EventSetup& iSetup) override {}
+  virtual void terminate(const edm::EventSetup& iSetup) {}
 
   /// run for every event
-  void run(
+  virtual void run(
 		   const edm::EventSetup&,
 		   const AlignmentAlgorithmBase::EventInfo &
-		   ) override {}
+		   ) {}
 
 
   private:

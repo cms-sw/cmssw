@@ -3,10 +3,10 @@
 #include "CalibCalorimetry/EcalLaserSorting/interface/WatcherStreamFileReader.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include <cerrno>
-#include <climits>
-#include <cstdlib>
-#include <cstdio>
+#include <errno.h>
+#include <limits.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <cstring>
 #include <unistd.h>
 #include <sys/types.h>
@@ -109,7 +109,7 @@ end:
 
 static std::string now(){
   struct timeval t;
-  gettimeofday(&t, nullptr);
+  gettimeofday(&t, 0);
  
   char buf[256];
   strftime(buf, sizeof(buf), "%F %R %S s", localtime(&t.tv_sec));
@@ -173,9 +173,9 @@ WatcherStreamFileReader::WatcherStreamFileReader(edm::ParameterSet const& pset):
     //    fileListCmdBuf << "/bin/ls " << inputDir_ << " | egrep '(";
     fileListCmdBuf << "/bin/find " << inputDir_ << " -maxdepth 2 -print | egrep '(";
     //TODO: validate patternDir (see ;, &&, ||) and escape special character
-    if(filePatterns_.empty()) throw cms::Exception("WacherSource", "filePatterns parameter is empty");
+    if(filePatterns_.size()==0) throw cms::Exception("WacherSource", "filePatterns parameter is empty");
     char curDir[PATH_MAX>0?PATH_MAX:4096];
-    if(getcwd(curDir, sizeof(curDir))==nullptr){
+    if(getcwd(curDir, sizeof(curDir))==0){
       throw cms::Exception("WatcherSource")
 	<< "Failed to retreived working directory path: "
 	<< strerror(errno);
@@ -212,7 +212,7 @@ const InitMsgView* WatcherStreamFileReader::getHeader(){
   edm::StreamerInputFile* inputFile = getInputFile();
 
   //TODO: shall better send an exception...
-  if(inputFile==nullptr){
+  if(inputFile==0){
     throw cms::Exception("WatcherSource") << "No input file found.";
   }
   
@@ -227,21 +227,21 @@ const InitMsgView* WatcherStreamFileReader::getHeader(){
 }
   
 const EventMsgView* WatcherStreamFileReader::getNextEvent(){
-  if(end_){ closeFile(); return nullptr;}
+  if(end_){ closeFile(); return 0;}
   
   edm::StreamerInputFile* inputFile;
 
   //go to next input file, till no new event is found
-  while((inputFile=getInputFile())!=nullptr
+  while((inputFile=getInputFile())!=0
 	&& inputFile->next()==0){
     closeFile();
   }
 
-  return inputFile==nullptr?nullptr:inputFile->currentRecord();
+  return inputFile==0?0:inputFile->currentRecord();
 }
 
 edm::StreamerInputFile* WatcherStreamFileReader::getInputFile(){
-  char* lineptr = nullptr;
+  char* lineptr = 0;
   size_t n = 0;
 
   struct stat buf;
@@ -254,17 +254,17 @@ edm::StreamerInputFile* WatcherStreamFileReader::getInputFile(){
   static bool firstWait = true;
   timeval waitStart;
   //if no cached input file, look for new files until one is found:
-  if(!end_ && streamerInputFile_.get()==nullptr){
+  if(!end_ && streamerInputFile_.get()==0){
     fileName_.assign("");
     
     //check if we have file in the queue, if not look for new files:
-    while(filesInQueue_.empty()){
+    while(filesInQueue_.size()==0){
       if(stat(tokenFile_.c_str(), &buf)!=0){ 
 	end_ = true; 
 	break;
       }
       FILE* s = popen(fileListCmd_.c_str(), "r");
-      if(s==nullptr){
+      if(s==0){
 	throw cms::Exception("WatcherSource")
 	  << "Failed to retrieve list of input file: " << strerror(errno);
       }
@@ -276,7 +276,7 @@ edm::StreamerInputFile* WatcherStreamFileReader::getInputFile(){
 	  lineptr[len-1] = 0;
 	  string fileName;
 	  if(lineptr[0] != '/'){
-	    if(!inputDir_.empty() && inputDir_[0] != '/'){//relative path
+	    if(inputDir_.size()>0 && inputDir_[0] != '/'){//relative path
 	      fileName.assign(curDir_);
 	      fileName.append("/");
 	      fileName.append(inputDir_);
@@ -294,16 +294,16 @@ edm::StreamerInputFile* WatcherStreamFileReader::getInputFile(){
       }
       while(!feof(s)) fgetc(s);
       pclose(s);
-      if(filesInQueue_.empty()){
+      if(filesInQueue_.size()==0){
 	if(!waiting){
 	  cout << "[WatcherSource " << now() << "]" 
 	       << " No file found. Waiting for new file...\n";
 	  cout << flush;
 	  waiting = true;
-	  gettimeofday(&waitStart, nullptr);
+	  gettimeofday(&waitStart, 0);
 	} else if(!firstWait){
 	  timeval t;
-	  gettimeofday(&t, nullptr);
+	  gettimeofday(&t, 0);
 	  float dt = (t.tv_sec-waitStart.tv_sec) * 1.
 	    + (t.tv_usec-waitStart.tv_usec) * 1.e-6;
 	  if((timeOut_ >= 0) && (dt > timeOut_)){
@@ -319,9 +319,9 @@ edm::StreamerInputFile* WatcherStreamFileReader::getInputFile(){
       sleep(1);
     } //end of file queue update
     firstWait = false;
-    free(lineptr); lineptr=nullptr;
+    free(lineptr); lineptr=0;
     
-    while(streamerInputFile_.get()==nullptr && !filesInQueue_.empty()){
+    while(streamerInputFile_.get()==0 && !filesInQueue_.empty()){
 
       fileName_ = filesInQueue_.front();
       filesInQueue_.pop_front();
@@ -330,7 +330,7 @@ edm::StreamerInputFile* WatcherStreamFileReader::getInputFile(){
 	struct stat buf;
 	off_t size = -1;
 	//check that file transfer is finished, by monitoring its size:
-	time_t t = time(nullptr);
+	time_t t = time(0);
 	for(;;){
 	  fstat(fd, &buf);
 	  if(verbosity_) cout << "file size: " << buf.st_size << ", prev size: "  << size << "\n";
@@ -408,7 +408,7 @@ edm::StreamerInputFile* WatcherStreamFileReader::getInputFile(){
 }
 
 void WatcherStreamFileReader::closeFile(){
-  if(streamerInputFile_.get()==nullptr) return;
+  if(streamerInputFile_.get()==0) return;
   //delete the streamer input file:
   streamerInputFile_.reset();
   stringstream cmd;

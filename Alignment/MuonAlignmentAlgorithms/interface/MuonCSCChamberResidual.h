@@ -19,10 +19,10 @@ public:
 
   // for CSC, the residual is chamber local x, projected by the strip measurement direction
   // for CSC, the resslope is dresx/dz, or tan(phi_y)
-  void addResidual(edm::ESHandle<Propagator> prop, const TrajectoryStateOnSurface *tsos, const TrackingRecHit *hit,double, double) override;
+  virtual void addResidual(edm::ESHandle<Propagator> prop, const TrajectoryStateOnSurface *tsos, const TrackingRecHit *hit,double, double);
 
   // dummy method
-  void setSegmentResidual(const reco::MuonChamberMatch *, const reco::MuonSegmentMatch *) override {}
+  virtual void setSegmentResidual(const reco::MuonChamberMatch *, const reco::MuonSegmentMatch *) {}
 };
 
 #endif // Alignment_MuonAlignmentAlgorithms_MuonCSCChamberResidual_H

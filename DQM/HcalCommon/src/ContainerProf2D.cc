@@ -9,9 +9,9 @@ namespace hcaldqm
 
 	ContainerProf2D::ContainerProf2D()
 	{
-		_qx = nullptr;
-		_qy = nullptr;
-		_qz = nullptr;
+		_qx = NULL;
+		_qy = NULL;
+		_qz = NULL;
 	}
 
 	ContainerProf2D::ContainerProf2D(std::string const& folder,

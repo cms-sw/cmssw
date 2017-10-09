@@ -50,11 +50,11 @@ template <class T>
 class ByMultiplicityEventFilter : public edm::stream::EDFilter<> {
    public:
       explicit ByMultiplicityEventFilter(const edm::ParameterSet&);
-      ~ByMultiplicityEventFilter() override;
+      ~ByMultiplicityEventFilter();
 
 
    private:
-      bool filter(edm::Event&, const edm::EventSetup&) override;
+      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
 

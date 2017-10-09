@@ -95,7 +95,7 @@ namespace {
     bool  m_allowFirstHitShare;
     bool  m_enableMerging;
     
-    void produce(edm::StreamID, edm::Event& evt, const edm::EventSetup&) const override;
+    virtual void produce(edm::StreamID, edm::Event& evt, const edm::EventSetup&) const override;
     
 
     bool areDuplicate(IHitV const& rh1, IHitV const& rh2) const;

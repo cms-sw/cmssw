@@ -50,7 +50,7 @@
 class MuonIdDQM : public DQMEDAnalyzer {
    public:
       explicit MuonIdDQM(const edm::ParameterSet&);
-      ~MuonIdDQM() override;
+      ~MuonIdDQM();
 
       /* Operations */
       void analyze(const edm::Event&, const edm::EventSetup&) override;

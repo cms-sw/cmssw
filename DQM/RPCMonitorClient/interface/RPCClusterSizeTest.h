@@ -12,11 +12,11 @@ class RPCClusterSizeTest:public RPCClient{
   RPCClusterSizeTest(const edm::ParameterSet& ps);
 
   /// Destructor
-  ~RPCClusterSizeTest() override;
- void clientOperation() override;
- void getMonitorElements(std::vector<MonitorElement *> &, std::vector<RPCDetId> &, std::string &) override;
- void beginJob(std::string & ) override;
- void myBooker(DQMStore::IBooker & ) override;
+  virtual ~RPCClusterSizeTest();
+ void clientOperation();
+ void getMonitorElements(std::vector<MonitorElement *> &, std::vector<RPCDetId> &, std::string &);
+ void beginJob(std::string & );
+ void myBooker(DQMStore::IBooker & );
 
 
  private:

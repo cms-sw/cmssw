@@ -42,7 +42,7 @@ namespace edm {
 
 
       EDAnalyzerBase();
-      ~EDAnalyzerBase() override;
+      virtual ~EDAnalyzerBase();
       
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
       static void prevalidate(ConfigurationDescriptions& descriptions);

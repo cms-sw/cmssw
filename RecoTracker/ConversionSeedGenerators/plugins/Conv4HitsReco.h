@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <iomanip>
-#include <cmath>
+#include <math.h>
 
 #include <TVector3.h>
 

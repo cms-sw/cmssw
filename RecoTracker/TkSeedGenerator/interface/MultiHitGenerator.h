@@ -24,9 +24,9 @@ public:
   MultiHitGenerator( MultiHitGenerator const & other) : localRA(other.localRA.mean()){}
 
 
-  ~MultiHitGenerator() override { }
+  virtual ~MultiHitGenerator() { }
 
-  const OrderedMultiHits & run(
+  virtual const OrderedMultiHits & run(
     const TrackingRegion& region, const edm::Event & ev, const edm::EventSetup& es) final;
 
   // temporary interface, for bckwd compatibility
@@ -36,7 +36,7 @@ public:
   virtual void hitSets( const TrackingRegion& reg, OrderedMultiHits & prs,
       const edm::Event & ev,  const edm::EventSetup& es) = 0;
 
-  void clear() override;
+  virtual void clear();
 
 private:
   OrderedMultiHits theHitSets;

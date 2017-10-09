@@ -33,7 +33,7 @@ class PhysicsObjectsMonitor : public DQMEDAnalyzer {
   /// Constructor
   PhysicsObjectsMonitor(const edm::ParameterSet &pset);
   /// Destructor
-  ~PhysicsObjectsMonitor() override;
+  virtual ~PhysicsObjectsMonitor();
   // Operations
   void bookHistograms(DQMStore::IBooker &, edm::Run const &,
                       edm::EventSetup const &) override;

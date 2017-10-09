@@ -25,9 +25,9 @@
 class SiStripThresholdFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   SiStripThresholdFakeESSource(const edm::ParameterSet&);
-  ~SiStripThresholdFakeESSource() override;
+  ~SiStripThresholdFakeESSource();
 
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity ) override;
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity );
 
   typedef std::shared_ptr<SiStripThreshold> ReturnType;
   ReturnType produce(const SiStripThresholdRcd&);

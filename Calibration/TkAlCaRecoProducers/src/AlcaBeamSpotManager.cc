@@ -9,8 +9,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include <vector>
-#include <cmath>
-#include <climits>
+#include <math.h>
+#include <limits.h>
 
 using namespace edm;
 using namespace reco;

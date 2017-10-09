@@ -17,7 +17,7 @@
 class L1Scalers : public DQMEDAnalyzer {
  public:
   L1Scalers(const edm::ParameterSet &ps);
-  ~L1Scalers() override{};
+  virtual ~L1Scalers(){};
   void bookHistograms(DQMStore::IBooker &, edm::Run const &,
                       edm::EventSetup const &) override;
   void analyze(const edm::Event &e, const edm::EventSetup &c) override;

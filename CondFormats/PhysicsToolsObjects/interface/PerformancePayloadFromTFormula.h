@@ -28,7 +28,7 @@ class PerformancePayloadFromTFormula : public PerformancePayload {
 
   PerformancePayloadFromTFormula(){}
 
-  void initialize() override; 
+  void initialize(); 
 
  PerformancePayloadFromTFormula(const PerformancePayloadFromTFormula& b) :
     pl(b.pl), 
@@ -36,19 +36,19 @@ class PerformancePayloadFromTFormula : public PerformancePayload {
     variables_(b.variables_), 
     compiledFormulas_(b.compiledFormulas_) {}
 
-  ~PerformancePayloadFromTFormula() override{    
+  virtual ~PerformancePayloadFromTFormula(){    
     compiledFormulas_.clear();
   }
 
 
 
-  float getResult(PerformanceResult::ResultType,const BinningPointByMap&) const override ; // gets from the full payload
+  float getResult(PerformanceResult::ResultType,const BinningPointByMap&) const ; // gets from the full payload
   
   virtual bool isParametrizedInVariable(const BinningVariables::BinningVariablesType p)  const {
     return (limitPos(p) != PerformancePayloadFromTFormula::InvalidPos);
   }
   
-  bool isInPayload(PerformanceResult::ResultType,const BinningPointByMap&) const override ;
+  virtual bool isInPayload(PerformanceResult::ResultType,const BinningPointByMap&) const ;
   
   const PhysicsTFormulaPayload & formulaPayload() const {return pl;}
   

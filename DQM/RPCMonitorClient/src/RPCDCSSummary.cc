@@ -53,7 +53,7 @@ void  RPCDCSSummary::checkDCSbit( edm::EventSetup const& setup ){
 
  defaultValue_ = 1.; 
  
- if(nullptr != setup.find( recordKey ) ) {
+ if(0 != setup.find( recordKey ) ) {
    defaultValue_ = -1.;
    //get fed summary information
    edm::ESHandle<RunInfo> sumFED;

@@ -36,7 +36,7 @@ class MuonSeedsAnalyzer : public  DQMEDAnalyzer {
   MuonSeedsAnalyzer(const edm::ParameterSet&);
   
   /// Destructor
-  ~MuonSeedsAnalyzer() override;
+  virtual ~MuonSeedsAnalyzer();
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;

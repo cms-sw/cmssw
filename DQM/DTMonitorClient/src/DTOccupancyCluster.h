@@ -12,7 +12,7 @@
 
 #include <vector>
 #include <string>
-#include <cmath>
+#include <math.h>
 #include <set>
 
 class TH2F;

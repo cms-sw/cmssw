@@ -31,7 +31,7 @@ class EcalGlobalShowerContainmentCorrectionsVsEtaESProducer : public edm::ESProd
 
    public:
       EcalGlobalShowerContainmentCorrectionsVsEtaESProducer(const edm::ParameterSet&);
-     ~EcalGlobalShowerContainmentCorrectionsVsEtaESProducer() override;
+     ~EcalGlobalShowerContainmentCorrectionsVsEtaESProducer();
 
       typedef std::unique_ptr<EcalGlobalShowerContainmentCorrectionsVsEta> ReturnType;
 

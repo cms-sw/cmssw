@@ -46,25 +46,25 @@ public:
 				const std::vector<bool>& selection );
 
   /// Destructor 
-  ~RigidBodyAlignmentParameters() override {};
-  void apply() override;
-  int type() const override;
+  virtual ~RigidBodyAlignmentParameters() {};
+  virtual void apply();
+  virtual int type() const;
 
   /// Clone all parameters (for update of parameters)
-  RigidBodyAlignmentParameters* clone( const AlgebraicVector& parameters, 
-					       const AlgebraicSymMatrix& covMatrix ) const override;
+  virtual RigidBodyAlignmentParameters* clone( const AlgebraicVector& parameters, 
+					       const AlgebraicSymMatrix& covMatrix ) const;
  
   /// Clone selected parameters (for update of parameters)
-  RigidBodyAlignmentParameters*
-    cloneFromSelected(const AlgebraicVector& parameters, const AlgebraicSymMatrix& covMatrix) const override;
+  virtual RigidBodyAlignmentParameters*
+    cloneFromSelected(const AlgebraicVector& parameters, const AlgebraicSymMatrix& covMatrix) const;
   
   /// Get all derivatives 
-  AlgebraicMatrix derivatives( const TrajectoryStateOnSurface& tsos,
-				       const AlignableDetOrUnitPtr & ) const override;
+  virtual AlgebraicMatrix derivatives( const TrajectoryStateOnSurface& tsos,
+				       const AlignableDetOrUnitPtr & ) const;
 
   /// Get selected derivatives
-  AlgebraicMatrix selectedDerivatives( const TrajectoryStateOnSurface& tsos, 
-					       const AlignableDetOrUnitPtr & ) const override;
+  virtual AlgebraicMatrix selectedDerivatives( const TrajectoryStateOnSurface& tsos, 
+					       const AlignableDetOrUnitPtr & ) const;
 
   /// Get translation parameters
   AlgebraicVector translation(void) const;

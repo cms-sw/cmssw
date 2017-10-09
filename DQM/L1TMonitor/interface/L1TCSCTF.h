@@ -63,14 +63,14 @@ class L1TCSCTF : public thread_unsafe::DQMEDAnalyzer {
   L1TCSCTF(const edm::ParameterSet& ps);
 
   // Destructor
-  ~L1TCSCTF() override;
+  virtual ~L1TCSCTF();
 
  protected:
   // Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   //virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
-  void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
+  virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
 
  private:
   // ----------member data ---------------------------

@@ -13,15 +13,15 @@ class VpspScanHistosUsingDb : public CommissioningHistosUsingDb, public VpspScan
                          DQMStore*,
                          SiStripConfigDb* const );
 
-  ~VpspScanHistosUsingDb() override;
+  virtual ~VpspScanHistosUsingDb();
 
-  void uploadConfigurations() override;
+  virtual void uploadConfigurations();
   
  private:
 
   void update( SiStripConfigDb::DeviceDescriptionsRange );
   
-  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis ) override;
+  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis );
   
 };
 

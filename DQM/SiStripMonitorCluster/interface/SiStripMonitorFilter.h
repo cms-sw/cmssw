@@ -25,9 +25,9 @@ class DQMStore;
 class SiStripMonitorFilter : public DQMEDAnalyzer {
    public:
       explicit SiStripMonitorFilter(const edm::ParameterSet&);
-      ~SiStripMonitorFilter() override{};
+      ~SiStripMonitorFilter(){};
 
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
       void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
    private:

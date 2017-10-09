@@ -50,7 +50,7 @@ DTNoiseAnalysisTest::DTNoiseAnalysisTest(const edm::ParameterSet& ps){
 
   nevents = 0;
 
-  bookingdone = false;
+  bookingdone = 0;
 
 }
 
@@ -77,7 +77,7 @@ void DTNoiseAnalysisTest::beginRun(Run const& run, EventSetup const& context) {
     // book the histos
   bookHistos(ibooker);
   }
-  bookingdone = true; 
+  bookingdone = 1; 
 
 
   LogVerbatim ("DTDQM|DTMonitorClient|DTNoiseAnalysisTest")
@@ -174,7 +174,7 @@ void DTNoiseAnalysisTest::beginRun(Run const& run, EventSetup const& context) {
       // Get the histo produced by DTDigiTask
 
       MonitorElement * histoNoiseSynch = igetter.get(getSynchNoiseMEName(wheel));
-      if(histoNoiseSynch != nullptr) {
+      if(histoNoiseSynch != 0) {
         for(int sect = 1; sect != 13; ++sect) { // loop over sectors
           TH2F * histo = histoNoiseSynch->getTH2F();
           float maxSectRate = 0;

@@ -31,7 +31,7 @@ namespace edm
   
   public:
     BaseFlatGunProducer(const ParameterSet &);
-    ~BaseFlatGunProducer() override;
+    virtual ~BaseFlatGunProducer();
     void beginRun(const edm::Run & r, const edm::EventSetup&) override;
     void endRun(edm::Run const& r, const edm::EventSetup&) override;
     void endRunProduce(edm::Run& r, const edm::EventSetup&) override;

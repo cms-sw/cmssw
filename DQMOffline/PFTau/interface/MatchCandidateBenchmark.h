@@ -16,7 +16,7 @@ class MatchCandidateBenchmark : public Benchmark {
 
   MatchCandidateBenchmark(Mode mode);
 
-  ~MatchCandidateBenchmark() override;
+  virtual ~MatchCandidateBenchmark();
 
   /// book histograms
   void setup(DQMStore::IBooker& b);

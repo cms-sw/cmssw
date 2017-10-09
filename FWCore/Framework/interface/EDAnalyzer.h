@@ -31,7 +31,7 @@ namespace edm {
     typedef EDAnalyzer ModuleType;
 
     EDAnalyzer();
-    ~EDAnalyzer() override;
+    virtual ~EDAnalyzer();
     
     std::string workerType() const {return "WorkerT<EDAnalyzer>";}
 

@@ -76,7 +76,7 @@ public:
    FWEventItem(fireworks::Context* iContext,
                unsigned int iItemId,
                std::shared_ptr<FWItemAccessorBase> iAccessor,
-               const FWPhysicsObjectDesc& iDesc,  const FWConfiguration* pbConf = nullptr);
+               const FWPhysicsObjectDesc& iDesc,  const FWConfiguration* pbConf = 0);
    virtual ~FWEventItem();
 
    // ---------- const member functions ---------------------
@@ -141,13 +141,14 @@ public:
    }
 
    bool hasEvent() const {
-      return nullptr != m_event;
+      return 0 != m_event;
    }
 
    // hackery methods
    const edm::EventBase *getEvent () const {
       return m_event;
    }
+
 
    ///returns true if failed to get data for this event
    bool hasError() const;

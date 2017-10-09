@@ -85,7 +85,7 @@ class TEcnaObject : public TObject {
   //..... Methods
 
            TEcnaObject();
-   ~TEcnaObject() override;
+  virtual  ~TEcnaObject();
 
   void Init();
 
@@ -94,7 +94,7 @@ class TEcnaObject : public TObject {
   void    NumberCreateObjectMessage(const TString&, const Long_t&, const Int_t&);
   void    NumberReuseObjectMessage(const TString&, const Long_t&, const Int_t&);
   
-ClassDefOverride(TEcnaObject,1)// Parameter management for CNA (Correlated Noises Analysis)
+ClassDef(TEcnaObject,1)// Parameter management for CNA (Correlated Noises Analysis)
 
 };
 

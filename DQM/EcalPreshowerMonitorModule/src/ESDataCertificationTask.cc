@@ -33,8 +33,8 @@ ESDataCertificationTask::ESDataCertificationTask(const ParameterSet& ps) {
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
-  meESDataCertificationSummary_ = nullptr;
-  meESDataCertificationSummaryMap_ = nullptr;
+  meESDataCertificationSummary_ = 0;
+  meESDataCertificationSummaryMap_ = 0;
 
 }
 

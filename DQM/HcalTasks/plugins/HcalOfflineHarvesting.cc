@@ -5,7 +5,7 @@ using namespace hcaldqm::constants;
 using namespace hcaldqm::filter;
 
 HcalOfflineHarvesting::HcalOfflineHarvesting(edm::ParameterSet const& ps) :
-	DQHarvester(ps), _reportSummaryMap(nullptr)
+	DQHarvester(ps), _reportSummaryMap(NULL)
 {
 	_summaryList.push_back(fTP);
 	_summaryList.push_back(fDigi);
@@ -51,7 +51,7 @@ HcalOfflineHarvesting::HcalOfflineHarvesting(edm::ParameterSet const& ps) :
 	edm::EventSetup const& es)
 {	
 	for (auto& it_sum : _summaryList) {
-		if (ig.get(_subsystem + "/" + _sumnames[it_sum] + "/EventsTotal") != nullptr) {
+		if (ig.get(_subsystem + "/" + _sumnames[it_sum] + "/EventsTotal") != NULL) {
 			_summarks[it_sum] = true;
 		}
 	}

@@ -264,7 +264,7 @@ void TECLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 				vector<DetGroup>& result,
 				bool checkClosest) const
 {
-  const GlobalPoint& gCrossingPos = crossing.position();
+  GlobalPoint gCrossingPos = crossing.position();
   auto gphi = gCrossingPos.barePhi();  
 
   const auto & sLayer( subLayer( crossing.subLayerIndex()));

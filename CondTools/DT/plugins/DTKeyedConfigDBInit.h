@@ -42,14 +42,14 @@ class DTKeyedConfigDBInit: public edm::EDAnalyzer {
 
   /** Destructor
    */
-  ~DTKeyedConfigDBInit() override;
+  virtual ~DTKeyedConfigDBInit();
 
   /** Operations
    */
   /// 
-  void beginJob() override;
-  void analyze( const edm::Event& e, const edm::EventSetup& c ) override;
-  void endJob() override;
+  virtual void beginJob();
+  virtual void analyze( const edm::Event& e, const edm::EventSetup& c );
+  virtual void endJob();
 
  private:
 

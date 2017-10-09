@@ -25,12 +25,12 @@ class StringCutObjectEvtFilter : public edm::EDFilter {
   /// default constructor
   explicit StringCutObjectEvtFilter(const edm::ParameterSet&);
   /// default destructor
-  ~StringCutObjectEvtFilter() override{};
+  ~StringCutObjectEvtFilter(){};
 
  private:
 
   /// filter function
-  bool filter(edm::Event&, const edm::EventSetup&) override;
+  virtual bool filter(edm::Event&, const edm::EventSetup&);
 
  private:
 

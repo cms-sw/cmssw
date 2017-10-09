@@ -3,7 +3,7 @@
 
 #include <sstream>
 #include <iostream>
-#include <cstdlib>
+#include <stdlib.h>
 #include <cassert>
 #include <algorithm>
 

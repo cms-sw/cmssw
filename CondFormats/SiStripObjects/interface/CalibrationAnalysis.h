@@ -24,7 +24,7 @@ class CalibrationAnalysis : public CommissioningAnalysis {
   CalibrationAnalysis( const bool& deconv, 
 		       int calchan );
   
-  ~CalibrationAnalysis() override {;}
+  virtual ~CalibrationAnalysis() {;}
   
   friend class CalibrationAlgorithm;
 
@@ -72,9 +72,9 @@ class CalibrationAnalysis : public CommissioningAnalysis {
   inline bool deconvMode() const { return deconv_; }
   inline int calchan() const { return calchan_; }
 
-  void print( std::stringstream&, uint32_t not_used = 0 ) override;
+  void print( std::stringstream&, uint32_t not_used = 0 );
   
-  void reset() override;
+  void reset();
   
  private:
   

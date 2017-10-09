@@ -45,14 +45,14 @@
 class HcalNoiseRates : public DQMEDAnalyzer {
  public:
   explicit HcalNoiseRates(const edm::ParameterSet&);
-  ~HcalNoiseRates() override;
+  ~HcalNoiseRates();
   
   
  private:
   virtual void beginJob();
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob();
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   std::string outputFile_;
 

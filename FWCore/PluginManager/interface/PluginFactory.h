@@ -47,7 +47,7 @@ class PluginFactory<R*(Args...)> : public PluginFactoryBase
         PMaker(const std::string& iName) {
           PluginFactory<R*(Args...)>::get()->registerPMaker(this,iName);
         }
-        R* create(Args... args) const override {
+        virtual R* create(Args... args) const {
           return new TPlug(std::forward<Args>(args)...);
         }
       };

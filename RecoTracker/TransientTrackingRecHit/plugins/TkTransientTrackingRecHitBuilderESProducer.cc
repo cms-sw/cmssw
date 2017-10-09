@@ -46,21 +46,21 @@ TkTransientTrackingRecHitBuilderESProducer::produce(const TransientRecHitRecord 
   const SiStripRecHitMatcher           * mp ;
     
   if (sname == "Fake") {
-    sp = nullptr;
+    sp = 0;
   }else{
     iRecord.getRecord<TkStripCPERecord>().get( sname, se );     
     sp = se.product();
   }
   
   if (pname == "Fake") {
-    pp = nullptr;
+    pp = 0;
   }else{
     iRecord.getRecord<TkPixelCPERecord>().get( pname, pe );     
     pp = pe.product();
   }
   
   if (mname == "Fake") {
-    mp = nullptr;
+    mp = 0;
   }else{
     iRecord.getRecord<TkStripCPERecord>().get( mname, me );     
     mp = me.product();

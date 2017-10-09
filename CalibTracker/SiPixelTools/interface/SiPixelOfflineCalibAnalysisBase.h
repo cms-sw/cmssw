@@ -67,7 +67,7 @@
 class SiPixelOfflineCalibAnalysisBase : public edm::EDAnalyzer {
 public:
   explicit SiPixelOfflineCalibAnalysisBase(const edm::ParameterSet&); 
-  ~SiPixelOfflineCalibAnalysisBase() override;
+  ~SiPixelOfflineCalibAnalysisBase();
   
   //no argument constructor only used to throw exception in the case of derived 
   //class constructor not calling SiPixelOfflineCalibAnalysisBase(const edm::ParameterSet&)
@@ -130,9 +130,9 @@ private:
   
   //the beginJob is used to load the calib database.  It then calls the pure
   //virtual calibrationSetup() function.  Derived classes should put beginJob functionality there.
-  void beginRun(const edm::Run &, const edm::EventSetup &) override;
+  virtual void beginRun(const edm::Run &, const edm::EventSetup &);
   void beginRun(const edm::EventSetup& iSetup);
-  void beginJob() override;
+  void beginJob();
   
   //calibrationSetup will be used by derived classes
   virtual void calibrationSetup(const edm::EventSetup& iSetup);
@@ -143,10 +143,10 @@ private:
   //called when new DetID discovered
   virtual void newDetID(uint32_t detid);
   
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&);
   // the endJob method is used to save things like histograms etc.
   // for additional actions derived classes should use the calibrationEnd() method for endJob functionality.
-  void endJob() override ;
+  void endJob() ;
   // calibrationEnd() will be used by derived classes
   virtual void calibrationEnd() ;
  

@@ -20,10 +20,10 @@ public:
   
   // for DT13, the residual is chamber local x
   // for DT13, the resslope is dresx/dz, or tan(phi_y)
-  void addResidual(edm::ESHandle<Propagator> prop, const TrajectoryStateOnSurface *tsos, const TrackingRecHit *hit,double, double) override;
+  virtual void addResidual(edm::ESHandle<Propagator> prop, const TrajectoryStateOnSurface *tsos, const TrackingRecHit *hit,double, double);
 
   // dummy method
-  void setSegmentResidual(const reco::MuonChamberMatch *, const reco::MuonSegmentMatch *) override {}
+  virtual void setSegmentResidual(const reco::MuonChamberMatch *, const reco::MuonSegmentMatch *) {}
 };
 
 #endif // Alignment_MuonAlignmentAlgorithms_MuonDT13ChamberResidual_H

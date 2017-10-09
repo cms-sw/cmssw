@@ -20,7 +20,7 @@
 #define CSCDQM_Summary_H
 
 #include <TH2.h>
-#include <cmath>
+#include <math.h>
 #include <vector>
 #include <bitset>
 #include <iostream>

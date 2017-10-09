@@ -5,7 +5,7 @@
 
 
 DTMuonLocalAlignment::DTMuonLocalAlignment() :
-  tali(nullptr), f(nullptr)
+  tali(0), f(0)
 {}
 DTMuonLocalAlignment::~DTMuonLocalAlignment(){}
 

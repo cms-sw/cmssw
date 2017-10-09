@@ -24,7 +24,7 @@ class TemplatedVertexMerger : public edm::stream::EDProducer<> {
 	typedef std::vector<VTX> Product;
 	TemplatedVertexMerger(const edm::ParameterSet &params);
 
-	void produce(edm::Event &event, const edm::EventSetup &es) override;
+	virtual void produce(edm::Event &event, const edm::EventSetup &es) override;
 
     private:
 	bool trackFilter(const reco::TrackRef &track) const;

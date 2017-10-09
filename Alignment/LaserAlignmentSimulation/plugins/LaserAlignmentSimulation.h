@@ -52,23 +52,23 @@ class LaserAlignmentSimulation : public Observer<const BeginOfRun *>,
 	/// constructor
   explicit LaserAlignmentSimulation(edm::ParameterSet const & theConf);
 	/// destructor
-  ~LaserAlignmentSimulation() override;
+  virtual ~LaserAlignmentSimulation();
   
 /*  private: */
 	/// observer for BeginOfRun
-  void update(const BeginOfRun * myRun) override;
+  void update(const BeginOfRun * myRun);
 	/// observer for BeginOfEvent
-  void update(const BeginOfEvent * myEvent) override;
+  void update(const BeginOfEvent * myEvent);
 	/// observer for G4Step
-  void update(const G4Step * myStep) override;
+  void update(const G4Step * myStep);
 	/// observer for EndOfEvent
-  void update(const EndOfEvent * myEvent) override;
+  void update(const EndOfEvent * myEvent);
 	/// observer for EndOfRun
-  void update(const EndOfRun * myRun) override;
+  void update(const EndOfRun * myRun);
 	/// observer for BeginOfTrack
-  void update(const BeginOfTrack * myTrack) override;
+  void update(const BeginOfTrack * myTrack);
 	/// observer for EndOfTrack
-  void update(const EndOfTrack * myTrack) override;
+  void update(const EndOfTrack * myTrack);
   
  private:
   int theDebugLevel;

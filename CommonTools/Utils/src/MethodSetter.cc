@@ -32,7 +32,7 @@ operator()(const char* begin, const char* end) const
   std::vector<AnyMethodArgument> args;
   if (parenthesis != string::npos) {
     name.erase(parenthesis, name.size());
-    if (intStack_.empty()) {
+    if (intStack_.size() == 0) {
       throw Exception(begin)
           << "expected method argument, but non given.";
     }

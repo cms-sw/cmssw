@@ -25,12 +25,12 @@ ________________________________________________________________**/
 class BeamSpotFromDB : public edm::EDAnalyzer {
  public:
   explicit BeamSpotFromDB(const edm::ParameterSet&);
-  ~BeamSpotFromDB() override;
+  ~BeamSpotFromDB();
 
  private:
-  void beginJob() override ;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+  virtual void beginJob() ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
 
 
 };

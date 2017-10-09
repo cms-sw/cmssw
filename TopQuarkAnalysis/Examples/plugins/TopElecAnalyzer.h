@@ -17,13 +17,13 @@ class TopElecAnalyzer : public edm::EDAnalyzer {
  public:
 
   explicit TopElecAnalyzer(const edm::ParameterSet&);
-  ~TopElecAnalyzer() override;
+  ~TopElecAnalyzer();
 
  private:
 
-  void beginJob() override ;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+  virtual void beginJob() ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
 
   edm::EDGetTokenT<std::vector<pat::Electron> > inputToken_;
   bool verbose_;

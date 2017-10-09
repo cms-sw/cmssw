@@ -57,12 +57,12 @@ GhostTrackState::GhostTrackState(const VertexState &state) :
 
 bool GhostTrackState::isTrack() const
 {
-	return dynamic_cast<const TrackGhostTrackState*>(&data()) != nullptr;
+	return dynamic_cast<const TrackGhostTrackState*>(&data()) != 0;
 }
 
 bool GhostTrackState::isVertex() const
 {
-	return dynamic_cast<const VertexGhostTrackState*>(&data()) != nullptr;
+	return dynamic_cast<const VertexGhostTrackState*>(&data()) != 0;
 }
 
 static const TrackGhostTrackState *getTrack(const BasicGhostTrackState *basic)

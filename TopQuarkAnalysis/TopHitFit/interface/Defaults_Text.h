@@ -149,7 +149,7 @@ public:
   /**
     @brief Destructor.
   */
-  ~Defaults_Text () override;
+  ~Defaults_Text ();
 
   // Test to see if parameter NAME exists.
   /**
@@ -159,7 +159,7 @@ public:
      <b>true</b> if the parameter exists.<br>
      <b>false</b> if the parameter does not exist.<br>
    */
-  bool exists (std::string name) const override;
+  virtual bool exists (std::string name) const;
 
   // Get the value of NAME as an integer.
   /**
@@ -168,7 +168,7 @@ public:
      @par Return:
      The value of the parameter an integer (C/C++ int).
    */
-  int get_int (std::string name) const override;
+  virtual int get_int (std::string name) const;
 
   // Get the value of NAME as a boolean.
   /**
@@ -177,7 +177,7 @@ public:
      @par Return:
      The value of the parameter a C/C++ bool.
    */
-  bool get_bool (std::string name) const override;
+  virtual bool get_bool (std::string name) const;
 
   // Get the value of NAME as a float.
   /**
@@ -187,7 +187,7 @@ public:
      @par Return:
      The value of the parameter as a floating-point number (C/C++ double).
   */
-  double get_float (std::string name) const override;
+  virtual double get_float (std::string name) const;
 
   // Get the value of NAME as a string.
   /**
@@ -196,7 +196,7 @@ public:
      @par Return:
      The value of the parameter as a string.
    */
-  std::string get_string (std::string name) const override;
+  virtual std::string get_string (std::string name) const;
 
   // Dump out all parameters.
   /**

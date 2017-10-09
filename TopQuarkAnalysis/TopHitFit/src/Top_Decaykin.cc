@@ -220,7 +220,7 @@ bool Top_Decaykin::solve_nu (const Lepjets_Event& ev,
 {
   bool discrim_flag = true;
 
-  const Fourvec& vnu  = ev.met();
+  Fourvec vnu  = ev.met();
   Fourvec vlep = leptons (ev);
 
   double x = vlep.x()*vnu.x() + vlep.y()*vnu.y() + wmass*wmass/2;
@@ -273,7 +273,7 @@ bool Top_Decaykin::solve_nu (const Lepjets_Event& ev,
 {
   bool discrim_flag = true;
 
-  const Fourvec& vnu  = ev.met();
+  Fourvec vnu  = ev.met();
   Fourvec vlep = leptons (ev);
 
   double x = vlep.x()*vnu.x() + vlep.y()*vnu.y() + wmass*wmass/2;

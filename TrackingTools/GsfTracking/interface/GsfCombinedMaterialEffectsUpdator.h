@@ -10,7 +10,7 @@
 class GsfCombinedMaterialEffectsUpdator final : public GsfMaterialEffectsUpdator
 {  
  public:
-  GsfCombinedMaterialEffectsUpdator* clone() const override
+  virtual GsfCombinedMaterialEffectsUpdator* clone() const
   {
     return new GsfCombinedMaterialEffectsUpdator(*this);
   }
@@ -21,7 +21,7 @@ public:
 				     GsfMaterialEffectsUpdator& elUpdator);
 
   // here comes the actual computation of the values
-  void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect[]) const override;
+  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect[]) const;
 
  
  private:

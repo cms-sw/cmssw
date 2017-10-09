@@ -25,9 +25,9 @@
 class CastorPedestalWidthsHandler : public popcon::PopConSourceHandler<CastorPedestalWidths>
 {
  public:
-  void getNewObjects() override;
-  std::string id() const override { return m_name;}
-  ~CastorPedestalWidthsHandler() override;
+  void getNewObjects();
+  std::string id() const { return m_name;}
+  ~CastorPedestalWidthsHandler();
   CastorPedestalWidthsHandler(edm::ParameterSet const &);
 
   void initObject(CastorPedestalWidths*);

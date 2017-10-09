@@ -23,12 +23,12 @@ class UMNioTask : public hcaldqm::DQTask
 {
 	public:
 		UMNioTask(edm::ParameterSet const&);
-		~UMNioTask() override
+		virtual ~UMNioTask()
 		{}
 
-		void bookHistograms(DQMStore::IBooker&,
-			edm::Run const&, edm::EventSetup const&) override;
-		void endRun(edm::Run const& r, edm::EventSetup const&) override
+		virtual void bookHistograms(DQMStore::IBooker&,
+			edm::Run const&, edm::EventSetup const&);
+		virtual void endRun(edm::Run const& r, edm::EventSetup const&)
 		{
 			if (_ptype==hcaldqm::fLocal)
 			{
@@ -36,12 +36,12 @@ class UMNioTask : public hcaldqm::DQTask
 					return;
 			}
 		}
-		void endLuminosityBlock(edm::LuminosityBlock const&,
-			edm::EventSetup const&) override;
+		virtual void endLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&);
 
 	protected:
 		//	funcs
-		void _process(edm::Event const&, edm::EventSetup const&) override;
+		virtual void _process(edm::Event const&, edm::EventSetup const&);
 
 		std::vector<uint32_t> _eventtypes;
 

@@ -104,7 +104,7 @@ namespace {
      *  momentum = total momentum of all tracks
      *
      */
-    if ( trks.empty() ) return GlobalTrajectoryParameters();
+    if ( trks.size() == 0 ) return GlobalTrajectoryParameters();
 
     GlobalVector mom = computeJetDirection ( trks );
     GlobalPoint pos = computeJetOrigin ( trks );

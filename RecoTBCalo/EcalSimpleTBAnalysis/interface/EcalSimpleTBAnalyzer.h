@@ -42,12 +42,12 @@
 class EcalSimpleTBAnalyzer : public edm::EDAnalyzer {
    public:
       explicit EcalSimpleTBAnalyzer( const edm::ParameterSet& );
-      ~EcalSimpleTBAnalyzer() override;
+      ~EcalSimpleTBAnalyzer();
 
 
-      void analyze( const edm::Event&, const edm::EventSetup& ) override;
-      void beginJob() override;
-      void endJob() override;
+      virtual void analyze( const edm::Event&, const edm::EventSetup& );
+      virtual void beginJob();
+      virtual void endJob();
  private:
 
       

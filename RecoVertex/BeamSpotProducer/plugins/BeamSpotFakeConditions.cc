@@ -26,7 +26,7 @@ class BeamSpotFakeConditions : public edm::ESProducer, public edm::EventSetupRec
 public:
 	typedef std::shared_ptr<BeamSpotObjects> ReturnType;
 	BeamSpotFakeConditions(const edm::ParameterSet &params);
-	~BeamSpotFakeConditions() override;
+	virtual ~BeamSpotFakeConditions();
 	ReturnType produce(const BeamSpotObjectsRcd &record);
 private:
 	void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,const edm::IOVSyncValue &syncValue,edm::ValidityInterval &oValidity) override;

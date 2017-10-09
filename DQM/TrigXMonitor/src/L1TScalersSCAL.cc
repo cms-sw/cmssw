@@ -302,7 +302,7 @@ void L1TScalersSCAL::analyze(const edm::Event& iEvent,
     LogInfo("Status") << "getByToken failed";
   } else {  // we have the data
     Level1TriggerScalersCollection::const_iterator it = triggerScalers->begin();
-    if (!triggerScalers->empty()) {
+    if (triggerScalers->size()) {
       unsigned int lumisection = it->lumiSegmentNr();
       struct timespec thetime = it->collectionTime();
       long currenttime;
@@ -434,7 +434,7 @@ void L1TScalersSCAL::analyze(const edm::Event& iEvent,
     }        // triggerScalers->size()
 
     LumiScalersCollection::const_iterator it3 = lumiScalers->begin();
-    if (!lumiScalers->empty()) {
+    if (lumiScalers->size()) {
       unsigned int lumisection = it3->sectionNumber();
       if (lumisection) {
         instLumi->setBinContent(lumisection + 1, it3->instantLumi());

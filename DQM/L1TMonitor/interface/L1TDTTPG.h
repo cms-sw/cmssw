@@ -45,16 +45,16 @@ class L1TDTTPG : public DQMEDAnalyzer {
   L1TDTTPG(const edm::ParameterSet& ps);
 
   // Destructor
-  ~L1TDTTPG() override;
+  virtual ~L1TDTTPG();
 
  protected:
   // Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   
   // BeginRun
-  void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
-  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
+  virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
 
  private:

@@ -28,13 +28,13 @@ class TauJetSelectorForHLTTrackSeeding : public edm::global::EDProducer<> {
 
 public:
   explicit TauJetSelectorForHLTTrackSeeding(const edm::ParameterSet&);
-  ~TauJetSelectorForHLTTrackSeeding() override;
+  ~TauJetSelectorForHLTTrackSeeding();
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginJob()  override;
-  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-  void endJob()  override;
+  virtual void beginJob()  override;
+  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  virtual void endJob()  override;
       
   // ----------member data ---------------------------
 

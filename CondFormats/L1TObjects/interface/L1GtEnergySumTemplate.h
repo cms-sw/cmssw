@@ -51,7 +51,7 @@ public:
     L1GtEnergySumTemplate(const L1GtEnergySumTemplate&);
 
     // destructor
-    ~L1GtEnergySumTemplate() override;
+    virtual ~L1GtEnergySumTemplate();
 
     // assign operator
     L1GtEnergySumTemplate& operator=(const L1GtEnergySumTemplate&);
@@ -70,7 +70,7 @@ public:
       unsigned long long phiRange1Word;
 
       // make sure all objects (esp. the bool) are properly initialised to avoid problems with serialisation:
-      ObjectParameter() : etThreshold(0), energyOverflow(false), phiRange0Word(0), phiRange1Word(0) { /*nop*/;};
+      ObjectParameter() : etThreshold(0), energyOverflow(0), phiRange0Word(0), phiRange1Word(0) { /*nop*/;};
 
     COND_SERIALIZABLE;
 };
@@ -85,7 +85,7 @@ public:
     void setConditionParameter(const std::vector<ObjectParameter>&);
 
     /// print the condition
-    void print(std::ostream& myCout) const override;
+    virtual void print(std::ostream& myCout) const;
 
     /// output stream operator
     friend std::ostream& operator<<(std::ostream&, const L1GtEnergySumTemplate&);

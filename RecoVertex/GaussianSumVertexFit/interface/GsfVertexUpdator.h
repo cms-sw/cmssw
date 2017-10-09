@@ -18,14 +18,14 @@ public:
   typedef CachingVertex<5>::RefCountedVertexTrack RefCountedVertexTrack;
   typedef VertexTrack<5>::RefCountedLinearizedTrackState RefCountedLinearizedTrackState;
 
-  GsfVertexUpdator(bool limit = false, const GsfVertexMerger * merger = nullptr);
+  GsfVertexUpdator(bool limit = false, const GsfVertexMerger * merger = 0);
 /**
  *  Method to add a track to an existing CachingVertex
  *  An invalid vertex is returned in case of problems during the update.
  */
 
    CachingVertex<5> add(const CachingVertex<5> & oldVertex,
-        const RefCountedVertexTrack track) const override;
+        const RefCountedVertexTrack track) const;
 
 /**
  *  Method removing already used VertexTrack from existing CachingVertex
@@ -33,13 +33,13 @@ public:
  */
 
    CachingVertex<5> remove(const CachingVertex<5> & oldVertex,
-        const RefCountedVertexTrack track) const override;
+        const RefCountedVertexTrack track) const;
 
 /**
  * Clone method
  */
 
-   VertexUpdator<5> * clone() const override
+   VertexUpdator<5> * clone() const
    {
     return new GsfVertexUpdator(* this);
    }

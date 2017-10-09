@@ -19,7 +19,7 @@ class PedestalsAlgorithm : public CommissioningAlgorithm {
 
   PedestalsAlgorithm( const edm::ParameterSet & pset, PedestalsAnalysis* const );
 
-  ~PedestalsAlgorithm() override {;}
+  virtual ~PedestalsAlgorithm() {;}
 
   inline const Histo& hPeds() const;
 
@@ -30,10 +30,10 @@ class PedestalsAlgorithm : public CommissioningAlgorithm {
   PedestalsAlgorithm() {;}
 
   /** Extracts and organises histograms. */
-  void extract( const std::vector<TH1*>& ) override;
+  void extract( const std::vector<TH1*>& );
 
   /** Performs histogram anaysis. */
-  void analyse() override;
+  void analyse();
 
  private:
 

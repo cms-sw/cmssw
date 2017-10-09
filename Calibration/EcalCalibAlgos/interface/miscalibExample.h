@@ -36,11 +36,11 @@
 class miscalibExample : public edm::EDAnalyzer {
    public:
       explicit miscalibExample(const edm::ParameterSet&);
-      ~miscalibExample() override;
+      ~miscalibExample();
 
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void beginJob() override;
-      void endJob() override;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void beginJob();
+      virtual void endJob();
    private:
 
 

@@ -17,10 +17,10 @@ public:
 
   using Chi2MeasurementEstimatorBase::Chi2MeasurementEstimatorBase;
 
-  std::pair<bool,double> estimate(const TrajectoryStateOnSurface&,
-				     const TrackingRecHit&) const override;
+  virtual std::pair<bool,double> estimate(const TrajectoryStateOnSurface&,
+				     const TrackingRecHit&) const;
 
-  Chi2MeasurementEstimator* clone() const override {
+  virtual Chi2MeasurementEstimator* clone() const {
     return new Chi2MeasurementEstimator(*this);
   }
 

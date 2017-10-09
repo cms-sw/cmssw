@@ -1,5 +1,5 @@
 #include "CalibCalorimetry/CastorCalib/interface/CastorTimeSlew.h"
-#include <cmath>
+#include <math.h>
 
 // NOTE check these numbers 
 static const double tzero[3]= {23.960177, 13.307784, 9.109694};

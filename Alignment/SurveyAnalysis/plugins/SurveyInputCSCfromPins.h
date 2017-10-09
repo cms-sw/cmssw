@@ -20,7 +20,7 @@ public:
   SurveyInputCSCfromPins(const edm::ParameterSet&);
 	
   /// Read ideal tracker geometry from DB
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
 private:
 

@@ -29,7 +29,7 @@ bool EventProcessor::processExaminer(const CSCDCCExaminer& binChecker, const CSC
 {
 
   bool eventAccepted = true;
-  MonitorObject* mo = nullptr;
+  MonitorObject* mo = 0;
 
   uint32_t binErrorStatus = digi.getDDUSummaryErrors();
 
@@ -193,7 +193,7 @@ bool EventProcessor::processExaminer(const CSCDCCExaminer& binChecker, const CSC
           }
 
 
-        MonitorObject *mof = nullptr, *mo1 = nullptr, *mo2 = nullptr;
+        MonitorObject *mof = 0, *mo1 = 0, *mo2 = 0;
         if (getCSCHisto(h::CSC_ACTUAL_DMB_CFEB_DAV_RATE, crateID, dmbSlot, mo)
             && getCSCHisto(h::CSC_ACTUAL_DMB_CFEB_DAV_FREQUENCY, crateID, dmbSlot, mof))
           {

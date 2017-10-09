@@ -25,7 +25,7 @@ namespace cscdqm {
    */
   void EventProcessor::updateEfficiencyHistos() {
 
-    MonitorObject *me = nullptr, *me1 = nullptr;
+    MonitorObject *me = 0, *me1 = 0;
 
     if (config->getNEvents() > 0) {
 
@@ -246,7 +246,7 @@ namespace cscdqm {
 
   void EventProcessor::writeShifterHistograms() {
 
-    MonitorObject *me = nullptr;
+    MonitorObject *me = 0;
 
     //const int COLOR_WHITE   = 0;
     const int COLOR_GREEN   = 1;
@@ -381,7 +381,7 @@ namespace cscdqm {
       summary.SetValue(adr, WAS_ON);
     }
 
-    MonitorObject *me = nullptr;
+    MonitorObject *me = 0;
     if (getEMUHisto(h::EMU_CSC_STANDBY, me)){
       LockType lock(me->mutex);
       TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());

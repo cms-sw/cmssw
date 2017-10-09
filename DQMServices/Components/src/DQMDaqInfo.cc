@@ -13,7 +13,7 @@ void DQMDaqInfo::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, con
   
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
   
-  if( nullptr != iSetup.find( recordKey ) ) {
+  if( 0 != iSetup.find( recordKey ) ) {
     
     edm::ESHandle<RunInfo> sumFED;
     iSetup.get<RunInfoRcd>().get(sumFED);    
@@ -61,7 +61,7 @@ void DQMDaqInfo::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, cons
 void 
 DQMDaqInfo::beginJob()
 {
-  dbe_ = nullptr;
+  dbe_ = 0;
   dbe_ = edm::Service<DQMStore>().operator->();
   
   std::string commonFolder = "/EventInfo/DAQContents";  
@@ -70,48 +70,48 @@ DQMDaqInfo::beginJob()
   
   subsystFolder="Pixel";  
   curentFolder= subsystFolder+commonFolder;
-  dbe_->setCurrentFolder(curentFolder);
+  dbe_->setCurrentFolder(curentFolder.c_str());
   DaqFraction[Pixel]   = dbe_->bookFloat("PixelDaqFraction");
   
 
   subsystFolder="SiStrip";  
   curentFolder=subsystFolder+commonFolder;
-  dbe_->setCurrentFolder(curentFolder);
+  dbe_->setCurrentFolder(curentFolder.c_str());
   DaqFraction[SiStrip]    = dbe_->bookFloat("SiStripDaqFraction");
   
   subsystFolder="RPC";  
   curentFolder=subsystFolder+commonFolder;
-  dbe_->setCurrentFolder(curentFolder);
+  dbe_->setCurrentFolder(curentFolder.c_str());
   DaqFraction[RPC]        = dbe_->bookFloat("RPCDaqFraction");
   
   subsystFolder="CSC";  
   curentFolder=subsystFolder+commonFolder;
-  dbe_->setCurrentFolder(curentFolder);
+  dbe_->setCurrentFolder(curentFolder.c_str());
   DaqFraction[CSC]       = dbe_->bookFloat("CSCDaqFraction");
 
   subsystFolder="DT";  
   curentFolder=subsystFolder+commonFolder;
-  dbe_->setCurrentFolder(curentFolder);
+  dbe_->setCurrentFolder(curentFolder.c_str());
   DaqFraction[DT]         = dbe_->bookFloat("DTDaqFraction");
 
   subsystFolder="Hcal";  
   curentFolder=subsystFolder+commonFolder;
-  dbe_->setCurrentFolder(curentFolder);
+  dbe_->setCurrentFolder(curentFolder.c_str());
   DaqFraction[Hcal]       = dbe_->bookFloat("HcalDaqFraction");
 
   subsystFolder="EcalBarrel";  
   curentFolder=subsystFolder+commonFolder;
-  dbe_->setCurrentFolder(curentFolder);
+  dbe_->setCurrentFolder(curentFolder.c_str());
   DaqFraction[EcalBarrel]       = dbe_->bookFloat("EcalBarrDaqFraction");
 
   subsystFolder="EcalEndcap";  
   curentFolder=subsystFolder+commonFolder;
-  dbe_->setCurrentFolder(curentFolder);
+  dbe_->setCurrentFolder(curentFolder.c_str());
   DaqFraction[EcalEndcap]       = dbe_->bookFloat("EcalEndDaqFraction");
 
   subsystFolder="L1T";  
   curentFolder=subsystFolder+commonFolder;
-  dbe_->setCurrentFolder(curentFolder);
+  dbe_->setCurrentFolder(curentFolder.c_str());
   DaqFraction[L1T]       = dbe_->bookFloat("L1TDaqFraction");
 
 

@@ -24,14 +24,14 @@ HcalTBWriter::HcalTBWriter(const edm::ParameterSet & pset) :
     blockToName_[num]=name;
   }
 
-  file_=nullptr;
-  tree_=nullptr;
-  eventInfo_=nullptr;
+  file_=0;
+  tree_=0;
+  eventInfo_=0;
 }
 
 void HcalTBWriter::endJob() {
   char buffer[1024];
-  if (file_!=nullptr) {
+  if (file_!=0) {
     file_->Write();
 
     ri_.setInfo("DAQSofwareRelease","UNKNOWN -- HcalTBWriter");
@@ -40,10 +40,10 @@ void HcalTBWriter::endJob() {
     ri_.store(file_);
 
     file_->Close();
-    file_=nullptr;
-    tree_=nullptr;
+    file_=0;
+    tree_=0;
     chunkMap_.clear();
-    eventInfo_=nullptr;
+    eventInfo_=0;
   }
 }
 
@@ -51,7 +51,7 @@ void HcalTBWriter::analyze(const edm::Event& e, const edm::EventSetup& es) {
   edm::Handle<FEDRawDataCollection> raw;
   e.getByToken(tok_raw_, raw);
 
-  if (file_==nullptr) {
+  if (file_==0) {
     char fname[4096];
     snprintf(fname,4096, namePattern_.c_str(),e.id().run());
     edm::LogInfo("HCAL") << "Opening " << fname << " for writing HCAL-format file.";

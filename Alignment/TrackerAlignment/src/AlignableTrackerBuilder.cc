@@ -224,7 +224,7 @@ void AlignableTrackerBuilder
 
   // 2D- or 'pure' 1D-module
   if (!detId.glued()) {
-    if (!geomDet->components().empty()) {
+    if (geomDet->components().size()) {
       // 2D-module, convert it to GluedGeomDet
       const GluedGeomDet* gluedGeomDet = dynamic_cast<const GluedGeomDet*>(geomDet);
       if (!gluedGeomDet) {

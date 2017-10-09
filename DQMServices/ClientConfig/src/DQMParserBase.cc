@@ -14,12 +14,12 @@
 using namespace xercesc;
 
 DQMParserBase::DQMParserBase(){
-	parser=nullptr; 
+	parser=0; 
 }
 
 DQMParserBase::~DQMParserBase(){
 	delete parser;
-	parser=nullptr; 
+	parser=0; 
 }
 
 

@@ -17,7 +17,7 @@
 
 #include <vector>
 #include <map>
-#include <cinttypes>
+#include <inttypes.h>
 
 // Forward declarations:
 class EcalElectronicsMapping;
@@ -37,7 +37,7 @@ public:
   
   /**Destructor
    */
-  ~EcalDccWeightBuilder() override{};
+  virtual ~EcalDccWeightBuilder(){};
 
   //method(s)
 public:
@@ -46,7 +46,7 @@ public:
    * @param event CMSSW event
    * @param es event setup
    */
-  void analyze(const edm::Event& event, const edm::EventSetup& es) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& es);
 
 private:
 

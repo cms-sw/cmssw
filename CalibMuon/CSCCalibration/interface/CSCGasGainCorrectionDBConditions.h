@@ -21,7 +21,7 @@
 class CSCGasGainCorrectionDBConditions: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
  public:
   CSCGasGainCorrectionDBConditions(const edm::ParameterSet&);
-  ~CSCGasGainCorrectionDBConditions() override;
+  ~CSCGasGainCorrectionDBConditions();
   
   inline static CSCDBGasGainCorrection * prefillDBGasGainCorrection(bool isForMC, std::string dataCorrFileName);
 
@@ -31,7 +31,7 @@ class CSCGasGainCorrectionDBConditions: public edm::ESProducer, public edm::Even
   
  private:
   // ----------member data ---------------------------
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
   CSCDBGasGainCorrection *cndbGasGainCorr ;
 
   //Flag for determining if this is for setting MC or data corrections

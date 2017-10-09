@@ -14,10 +14,10 @@ void DummyOOTPileupCorrection::apply(
     bool* readjustTiming) const
 {
     // Check the arguments
-    if (inputCharge == nullptr || correctedCharge == nullptr ||
+    if (inputCharge == 0 || correctedCharge == 0 ||
         lenCorrectedCharge < lenInputCharge ||
-        pulseShapeCorrApplied == nullptr || leakCorrApplied == nullptr ||
-        readjustTiming == nullptr)
+        pulseShapeCorrApplied == 0 || leakCorrApplied == 0 ||
+        readjustTiming == 0)
         throw cms::Exception(
             "Invalid arguments in DummyOOTPileupCorrection::apply");
 

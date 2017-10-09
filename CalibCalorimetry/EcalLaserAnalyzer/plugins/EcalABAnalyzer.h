@@ -37,12 +37,12 @@ class EcalABAnalyzer: public edm::EDAnalyzer{
  public:
   
   explicit EcalABAnalyzer(const edm::ParameterSet& iConfig);  
-  ~EcalABAnalyzer() override;
+  ~EcalABAnalyzer();
   
   
-  void analyze( const edm::Event & e, const  edm::EventSetup& c) override;
-  void beginJob() override;
-  void endJob() override;
+  virtual void analyze( const edm::Event & e, const  edm::EventSetup& c);
+  virtual void beginJob();
+  virtual void endJob();
   
   
   enum VarCol   { iBlue, iRed, nColor }; 

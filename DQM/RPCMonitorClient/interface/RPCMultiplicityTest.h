@@ -13,12 +13,12 @@ public:
   RPCMultiplicityTest(const edm::ParameterSet& ps);
   
   /// Destructor
-  ~RPCMultiplicityTest() override;
+  virtual ~RPCMultiplicityTest();
 
- void clientOperation() override;
- void getMonitorElements(std::vector<MonitorElement *> &, std::vector<RPCDetId> &, std::string &) override;
- void beginJob(std::string & ) override;
- void myBooker(DQMStore::IBooker & ) override;
+ void clientOperation();
+ void getMonitorElements(std::vector<MonitorElement *> &, std::vector<RPCDetId> &, std::string &);
+ void beginJob(std::string & );
+ void myBooker(DQMStore::IBooker & );
 
  protected:
   void fillGlobalME(RPCDetId & detId, MonitorElement * myMe);

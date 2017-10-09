@@ -1,7 +1,7 @@
 #include "DQMServices/Core/src/DQMError.h"
-#include <cstdarg>
-#include <cstdio>
-#include <cstdlib>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #if WITHOUT_CMS_FRAMEWORK
 static const char FAILED[] = "(out of memory while formatting error message)";
@@ -11,7 +11,7 @@ void
 raiseDQMError(const char *context, const char *fmt, ...)
 {
   va_list args;
-  char *message = nullptr;
+  char *message = 0;
 
   va_start(args, fmt);
   vasprintf(&message, fmt, args);

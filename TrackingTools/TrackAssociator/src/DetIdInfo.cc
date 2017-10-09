@@ -62,7 +62,7 @@ std::string DetIdInfo::info(const DetId& id, const TrackerTopology *tTopo) {
              }
            break;
        }
-       if ( tTopo!=nullptr)
+       if ( tTopo!=0)
 	 oss<< tTopo->layer(id);
        break;
 

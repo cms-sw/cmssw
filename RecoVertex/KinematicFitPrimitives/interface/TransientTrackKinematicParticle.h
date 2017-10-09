@@ -28,9 +28,9 @@ public:
  TransientTrackKinematicParticle(const KinematicState& kineState,float& chiSquared,
                        float& degreesOfFr,KinematicConstraint * lastConstraint,
                    ReferenceCountingPointer<KinematicParticle> previousParticle,
-		   KinematicStatePropagator * pr,const reco::TransientTrack * initialTrack = nullptr);
+		   KinematicStatePropagator * pr,const reco::TransientTrack * initialTrack = 0);
 		   	
- ~TransientTrackKinematicParticle() override;
+ virtual ~TransientTrackKinematicParticle();
  					   
 /**
  * Comparison by contents operator
@@ -39,17 +39,17 @@ public:
  * compares the initial KinematicStates
  * Retunes true if they match.
  */ 
-  bool operator==(const KinematicParticle& other)const override;
+  bool operator==(const KinematicParticle& other)const;
 
-  bool operator==(const ReferenceCountingPointer<KinematicParticle>& other) const override;
+  bool operator==(const ReferenceCountingPointer<KinematicParticle>& other) const;
 
-  bool operator!=(const KinematicParticle& other)const override;
+  bool operator!=(const KinematicParticle& other)const;
   
 /**
  * Access to KinematicState of particle
  * at given point
  */ 
- KinematicState stateAtPoint(const GlobalPoint& point)const override;
+ KinematicState stateAtPoint(const GlobalPoint& point)const;
  
 /**
  * Access to initial TransientTrack (if any)
@@ -62,13 +62,13 @@ public:
  * RCP<TransientTrackKinematicParticle> is  returned.
  */ 
  ReferenceCountingPointer<KinematicParticle> refittedParticle(const KinematicState& state,
-                            float chi2, float ndf, KinematicConstraint * cons = nullptr)const override;
+                            float chi2, float ndf, KinematicConstraint * cons = 0)const;
 			    
 /**
  * Method returning LinearizedTrackState of the particle needed for
  * Kalman flter vertex fit. This implementation uses the ParticleLinearizedTrackStateFactory class.
  */					    
- RefCountedLinearizedTrackState particleLinearizedTrackState(const GlobalPoint& point)const override; 
+ RefCountedLinearizedTrackState particleLinearizedTrackState(const GlobalPoint& point)const; 
 
 
 private: 

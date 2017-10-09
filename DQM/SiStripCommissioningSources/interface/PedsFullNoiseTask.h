@@ -22,14 +22,14 @@ class PedsFullNoiseTask : public CommissioningTask {
   public:
 
     PedsFullNoiseTask(DQMStore * dqm, const FedChannelConnection & conn, const edm::ParameterSet & pset);
-    ~PedsFullNoiseTask() override;
+    virtual ~PedsFullNoiseTask();
 
   private:
 
-    void book() override;
-    void fill( const SiStripEventSummary &,
-                       const edm::DetSet<SiStripRawDigi> &) override;
-    void update() override;
+    virtual void book();
+    virtual void fill( const SiStripEventSummary &,
+                       const edm::DetSet<SiStripRawDigi> &);
+    virtual void update();
 
     // analysis histograms and related variables
     HistoSet pedhist_, noiseprof_;

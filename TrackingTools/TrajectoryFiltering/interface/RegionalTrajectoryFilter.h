@@ -16,14 +16,14 @@ public:
   explicit RegionalTrajectoryFilter (const edm::ParameterSet &  pset, edm::ConsumesCollector& iC);
   explicit RegionalTrajectoryFilter( const TrackingRegion& region);
 
-  bool qualityFilter(const TempTrajectory& traj) const override;
-  bool qualityFilter(const Trajectory& traj) const override;
+  virtual bool qualityFilter(const TempTrajectory& traj) const;
+  virtual bool qualityFilter(const Trajectory& traj) const;
     
-  bool toBeContinued (TempTrajectory& traj) const override;
-  bool toBeContinued(Trajectory& traj) const override;
+  virtual bool toBeContinued (TempTrajectory& traj) const;
+  virtual bool toBeContinued(Trajectory& traj) const;
   
   /// name method imposed by TrajectoryFilter
-    std::string name () const override;
+    std::string name () const;
   
  protected:
   const MinPtTrajectoryFilter thePtFilter;

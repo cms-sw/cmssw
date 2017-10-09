@@ -53,7 +53,7 @@ public:
     L1GtCastorTemplate(const L1GtCastorTemplate&);
 
     // destructor
-    ~L1GtCastorTemplate() override;
+    virtual ~L1GtCastorTemplate();
 
     // assign operator
     L1GtCastorTemplate& operator=(const L1GtCastorTemplate&);
@@ -61,7 +61,7 @@ public:
 public:
 
     /// print the condition
-    void print(std::ostream& myCout) const override;
+    virtual void print(std::ostream& myCout) const;
 
     /// output stream operator
     friend std::ostream& operator<<(std::ostream&, const L1GtCastorTemplate&);

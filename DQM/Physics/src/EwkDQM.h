@@ -33,7 +33,7 @@ class EwkDQM : public DQMEDAnalyzer {
   EwkDQM(const edm::ParameterSet&);
 
   /// Destructor
-  ~EwkDQM() override;
+  virtual ~EwkDQM();
 
   ///
   //Book histograms

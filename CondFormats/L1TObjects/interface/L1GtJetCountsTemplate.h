@@ -51,7 +51,7 @@ public:
     L1GtJetCountsTemplate( const L1GtJetCountsTemplate& );
 
     // destructor
-    ~L1GtJetCountsTemplate() override;
+    virtual ~L1GtJetCountsTemplate();
 
     // assign operator
     L1GtJetCountsTemplate& operator= (const L1GtJetCountsTemplate&);
@@ -61,7 +61,7 @@ public:
     /// typedef for a single object template
     struct ObjectParameter
     {
-      ObjectParameter() : countOverflow(false) {}
+      ObjectParameter() : countOverflow(0) {}
         unsigned int countIndex;
         unsigned int countThreshold;
 
@@ -84,7 +84,7 @@ public:
 
 
     /// print the condition
-    void print(std::ostream& myCout) const override;
+    virtual void print(std::ostream& myCout) const;
 
     /// output stream operator
     friend std::ostream& operator<<(std::ostream&, const L1GtJetCountsTemplate&);

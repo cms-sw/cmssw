@@ -14,7 +14,7 @@ public:
   RPCEfficiencyPerRingLayer(const edm::ParameterSet& iConfig);
   
   /// Destructor
-  ~RPCEfficiencyPerRingLayer() override;
+  virtual ~RPCEfficiencyPerRingLayer();
 
   
  protected:

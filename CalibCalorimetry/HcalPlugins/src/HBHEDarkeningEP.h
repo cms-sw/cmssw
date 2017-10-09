@@ -19,7 +19,7 @@ namespace edm {
 class HBHEDarkeningEP : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 	public:
 		HBHEDarkeningEP(const edm::ParameterSet&);
-		~HBHEDarkeningEP() override;
+		~HBHEDarkeningEP();
 
 		typedef std::shared_ptr<HBHEDarkening> ReturnType;
 

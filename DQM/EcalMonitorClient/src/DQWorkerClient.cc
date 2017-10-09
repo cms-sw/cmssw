@@ -20,7 +20,7 @@ namespace ecaldqm
     sources_(),
     qualitySummaries_(),
     hasLumiPlots_(false),
-    statusManager_(nullptr)
+    statusManager_(0)
   {
   }
 
@@ -185,7 +185,7 @@ namespace ecaldqm
         cryIds = scConstituents(EcalScDetId(towerId));
       }
 
-      if(cryIds.empty()) return;
+      if(cryIds.size() == 0) return;
 
       float mean(0.);
       float nValid(0.);

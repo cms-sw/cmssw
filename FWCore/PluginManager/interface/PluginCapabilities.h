@@ -33,11 +33,11 @@ class PluginCapabilities : public PluginFactoryBase
 {
    friend class DummyFriend;
    public:
-      ~PluginCapabilities() override;
+      virtual ~PluginCapabilities();
 
       // ---------- const member functions ---------------------
-      std::vector<PluginInfo> available() const override;
-      const std::string& category() const override; 
+      virtual std::vector<PluginInfo> available() const;
+      virtual const std::string& category() const; 
       
       // ---------- static member functions --------------------
       static PluginCapabilities* get();
@@ -53,9 +53,9 @@ class PluginCapabilities : public PluginFactoryBase
 
    private:
       PluginCapabilities();
-      PluginCapabilities(const PluginCapabilities&) = delete; // stop default
+      PluginCapabilities(const PluginCapabilities&); // stop default
 
-      const PluginCapabilities& operator=(const PluginCapabilities&) = delete; // stop default
+      const PluginCapabilities& operator=(const PluginCapabilities&); // stop default
 
       // ---------- member data --------------------------------
       std::map<std::string, boost::filesystem::path> classToLoadable_;

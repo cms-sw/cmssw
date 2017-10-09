@@ -396,7 +396,7 @@ void DQMSourcePi0::analyze(const Event& iEvent,
   
   // fill EB pi0 histos 
   if(isMonEBpi0_ ){
-    if (rhEBpi0.isValid() && (!rhEBpi0->empty())){
+    if (rhEBpi0.isValid() && (rhEBpi0->size() > 0)){
 
 
       const EcalRecHitCollection *hitCollection_p = rhEBpi0.product();
@@ -693,7 +693,7 @@ void DQMSourcePi0::analyze(const Event& iEvent,
 
   // fill EB eta histos 
   if(isMonEBeta_ ){
-    if (rhEBeta.isValid() && (!rhEBeta->empty())){
+    if (rhEBeta.isValid() && (rhEBeta->size() > 0)){
 
 
       const EcalRecHitCollection *hitCollection_p = rhEBeta.product();
@@ -998,7 +998,7 @@ void DQMSourcePi0::analyze(const Event& iEvent,
 
       // fill pi0 EE histos
       if(isMonEEpi0_){
-	if (rhEEpi0.isValid() && (!rhEEpi0->empty())){
+	if (rhEEpi0.isValid() && (rhEEpi0->size() > 0)){
 
 	  const EcalRecHitCollection *hitCollection_ee = rhEEpi0.product();
 	  float etot =0;
@@ -1253,7 +1253,7 @@ void DQMSourcePi0::analyze(const Event& iEvent,
 
       // fill pi0 EE histos
       if(isMonEEeta_){
-	if (rhEEeta.isValid() && (!rhEEeta->empty())){
+	if (rhEEeta.isValid() && (rhEEeta->size() > 0)){
 
 	  const EcalRecHitCollection *hitCollection_ee = rhEEeta.product();
 	  float etot =0;

@@ -24,7 +24,7 @@
 HLTHiggsValidator::HLTHiggsValidator(const edm::ParameterSet& pset) :
         _pset(pset),
     _analysisnames(pset.getParameter<std::vector<std::string> >("analysis")),
-    _collections(nullptr)
+    _collections(0)
 {
     _collections = new EVTColContainer;
 
@@ -39,10 +39,10 @@ HLTHiggsValidator::HLTHiggsValidator(const edm::ParameterSet& pset) :
 
 HLTHiggsValidator::~HLTHiggsValidator()
 {
-    if( _collections != nullptr )
+    if( _collections != 0 )
     {
         delete _collections;
-        _collections = nullptr;
+        _collections = 0;
     }
 }
 

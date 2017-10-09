@@ -33,10 +33,10 @@
 class BeamSplash : public edm::EDFilter {
 public:
   explicit BeamSplash( const edm::ParameterSet & );
-  ~BeamSplash() override;
+  ~BeamSplash();
   
 private:
-  bool filter ( edm::Event &, const edm::EventSetup&) override;
+  virtual bool filter ( edm::Event &, const edm::EventSetup&) override;
   
   edm::InputTag EBRecHitCollection_;
   edm::InputTag EERecHitCollection_;

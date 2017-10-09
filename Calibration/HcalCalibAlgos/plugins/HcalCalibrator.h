@@ -25,15 +25,15 @@
 class HcalCalibrator : public edm::EDAnalyzer {
 public:
   explicit HcalCalibrator(const edm::ParameterSet&);
-  ~HcalCalibrator() override;
+  ~HcalCalibrator();
 
   // Added for running the CaloTower creation algorithm
 
 
 private:
-  void beginJob() override ;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+  virtual void beginJob() ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
 
 
   std::string mOutputFile;

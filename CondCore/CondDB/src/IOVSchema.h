@@ -25,21 +25,21 @@ namespace cond {
       class Table : public ITagTable {
       public:
 	explicit Table( coral::ISchema& schema );
-	~Table() override{}
-	bool exists() override;
-	void create() override;
-	bool select( const std::string& name ) override;
+	virtual ~Table(){}
+	bool exists();
+	void create();
+	bool select( const std::string& name );
 	bool select( const std::string& name, cond::TimeType& timeType, std::string& objectType, cond::SynchronizationType& synchronizationType,
-		     cond::Time_t& endOfValidity, std::string& description, cond::Time_t& lastValidatedTime ) override;
+		     cond::Time_t& endOfValidity, std::string& description, cond::Time_t& lastValidatedTime );
 	bool getMetadata( const std::string& name, std::string& description, 
-			  boost::posix_time::ptime& insertionTime, boost::posix_time::ptime& modificationTime ) override;
+			  boost::posix_time::ptime& insertionTime, boost::posix_time::ptime& modificationTime );
 	void insert( const std::string& name, cond::TimeType timeType, const std::string& objectType, 
 		     cond::SynchronizationType synchronizationType, cond::Time_t endOfValidity, const std::string& description, 
-		     cond::Time_t lastValidatedTime, const boost::posix_time::ptime& insertionTime ) override;
+		     cond::Time_t lastValidatedTime, const boost::posix_time::ptime& insertionTime );
 	void update( const std::string& name, cond::SynchronizationType synchronizationType, cond::Time_t& endOfValidity, const std::string& description, 
-		     cond::Time_t lastValidatedTime, const boost::posix_time::ptime& updateTime ) override;
-	void updateValidity( const std::string& name, cond::Time_t lastValidatedTime, const boost::posix_time::ptime& updateTime ) override;
-	void setValidationMode() override{}
+		     cond::Time_t lastValidatedTime, const boost::posix_time::ptime& updateTime );
+	void updateValidity( const std::string& name, cond::Time_t lastValidatedTime, const boost::posix_time::ptime& updateTime );
+	void setValidationMode(){}
       private:
 	coral::ISchema& m_schema;
       };
@@ -59,18 +59,18 @@ namespace cond {
       class Table : public IPayloadTable {
       public:
 	explicit Table( coral::ISchema& schema );
-	~Table() override{}
-	bool exists() override;
-	void create() override;
+	virtual ~Table(){}
+	bool exists();
+	void create();
 	bool select( const cond::Hash& payloadHash);
 	bool select( const cond::Hash& payloadHash, std::string& objectType, 
-		     cond::Binary& payloadData, cond::Binary& streamerInfoData) override;
-	bool getType( const cond::Hash& payloadHash, std::string& objectType ) override;
+		     cond::Binary& payloadData, cond::Binary& streamerInfoData);
+	bool getType( const cond::Hash& payloadHash, std::string& objectType );
 	bool insert( const cond::Hash& payloadHash, const std::string& objectType, 
 		     const cond::Binary& payloadData, const cond::Binary& streamerInfoData, 
 		     const boost::posix_time::ptime& insertionTime);
 	cond::Hash insertIfNew( const std::string& objectType, const cond::Binary& payloadData, 
-				const cond::Binary& streamerInfoData, const boost::posix_time::ptime& insertionTime ) override;
+				const cond::Binary& streamerInfoData, const boost::posix_time::ptime& insertionTime );
       private:
 	coral::ISchema& m_schema;
       };
@@ -126,21 +126,21 @@ namespace cond {
       class Table : public IIOVTable {
       public:
 	explicit Table( coral::ISchema& schema );
-	~Table() override{}
-	bool exists() override;
-	void create() override;
+	virtual ~Table(){}
+	bool exists();
+	void create();
 	size_t getGroups( const std::string& tag, const boost::posix_time::ptime& snapshotTime, 
-			  std::vector<cond::Time_t>& groups ) override;
+			  std::vector<cond::Time_t>& groups );
 	size_t select( const std::string& tag, cond::Time_t lowerGroup, cond::Time_t upperGroup, 
 		       const boost::posix_time::ptime& snapshotTime, 
-		       std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs) override;
-	bool getLastIov( const std::string& tag, const boost::posix_time::ptime& snapshotTime, cond::Time_t& since, cond::Hash& hash ) override;
-        bool getSize( const std::string& tag, const boost::posix_time::ptime& snapshotTime, size_t& size ) override;
+		       std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs);
+	bool getLastIov( const std::string& tag, const boost::posix_time::ptime& snapshotTime, cond::Time_t& since, cond::Hash& hash );
+        bool getSize( const std::string& tag, const boost::posix_time::ptime& snapshotTime, size_t& size );
 	bool getRange( const std::string& tag, cond::Time_t begin, cond::Time_t end, 
-		       const boost::posix_time::ptime& snapshotTime, std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override;
-	void insertOne( const std::string& tag, cond::Time_t since, cond::Hash payloadHash, const boost::posix_time::ptime& insertTime) override;
-	void insertMany( const std::string& tag, const std::vector<std::tuple<cond::Time_t,cond::Hash,boost::posix_time::ptime> >& iovs ) override;
-	void erase( const std::string& tag ) override;
+		       const boost::posix_time::ptime& snapshotTime, std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs );
+	void insertOne( const std::string& tag, cond::Time_t since, cond::Hash payloadHash, const boost::posix_time::ptime& insertTime);
+	void insertMany( const std::string& tag, const std::vector<std::tuple<cond::Time_t,cond::Hash,boost::posix_time::ptime> >& iovs );
+	void erase( const std::string& tag );
       private:
 	coral::ISchema& m_schema;
       };
@@ -159,11 +159,11 @@ namespace cond {
       class Table : public ITagLogTable {
       public:
 	explicit Table( coral::ISchema& schema );
-	~Table() override{}
-	bool exists() override;
-        void create() override;
+	virtual ~Table(){}
+	bool exists();
+        void create();
         void insert( const std::string& tag, const boost::posix_time::ptime& eventTime, const std::string& userName, const std::string& hostName, 
-		     const std::string& command, const std::string& action, const std::string& userText ) override;
+		     const std::string& command, const std::string& action, const std::string& userText );
       private:
 	coral::ISchema& m_schema;
       };
@@ -172,13 +172,13 @@ namespace cond {
     class IOVSchema : public IIOVSchema {
     public: 
       explicit IOVSchema( coral::ISchema& schema );
-      ~IOVSchema() override{}
-      bool exists() override;
-      bool create() override;
-      ITagTable& tagTable() override;
-      IIOVTable& iovTable() override;
-      ITagLogTable& tagLogTable() override;
-      IPayloadTable& payloadTable() override;
+      virtual ~IOVSchema(){}
+      bool exists();
+      bool create();
+      ITagTable& tagTable();
+      IIOVTable& iovTable();
+      ITagLogTable& tagLogTable();
+      IPayloadTable& payloadTable();
     private:
       TAG::Table m_tagTable;
       IOV::Table m_iovTable;

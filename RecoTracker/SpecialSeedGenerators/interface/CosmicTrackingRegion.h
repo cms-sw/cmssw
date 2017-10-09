@@ -26,7 +26,7 @@ class CosmicTrackingRegion : public TrackingRegionBase {
 public:
 
 
-  ~CosmicTrackingRegion() override { }
+  virtual ~CosmicTrackingRegion() { }
 
   /** constructor (symmetric eta and phi margins). <BR>
    * dir        - the direction around which region is constructed <BR>
@@ -92,12 +92,12 @@ public:
 	const edm::EventSetup& es,
 	const SeedingLayerSetsHits::SeedingLayer& layer) const override;
   
-  HitRZCompatibility* checkRZ(
+  virtual HitRZCompatibility* checkRZ(
       const DetLayer* layer,
       const Hit & outerHit,
       const edm::EventSetup& iSetup, 
-      const DetLayer* outerlayer=nullptr,
-      float lr=0, float gz=0, float dr=0, float dz=0) const override {return nullptr; }
+      const DetLayer* outerlayer=0,
+      float lr=0, float gz=0, float dr=0, float dz=0) const override {return 0; }
    
    CosmicTrackingRegion * clone() const override {     return new CosmicTrackingRegion(*this);  }
    

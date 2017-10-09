@@ -28,18 +28,18 @@ public:
   DTTPDeadWriter(const edm::ParameterSet& pset);
 
   /// Destructor
-  ~DTTPDeadWriter() override;
+  virtual ~DTTPDeadWriter();
 
   // Operations
 
   ///Read t0 map from event
-  void beginRun(const edm::Run&, const edm::EventSetup& setup) override;
+  virtual void beginRun(const edm::Run&, const edm::EventSetup& setup);
 
   /// Compute the ttrig by fiting the TB rising edge
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
+  virtual void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
   /// Write ttrig in the DB
-  void endJob() override;
+  virtual void endJob();
 
  
 protected:

@@ -19,7 +19,7 @@ class CaloRecoTauDiscriminationByIsolation final : public CaloTauDiscriminationP
     applyDiscriminationByECALIsolation_    = iConfig.getParameter<bool>("ApplyDiscriminationByECALIsolation");
     EcalIsolAnnulus_maximumSumEtCut_       = iConfig.getParameter<double>("ECALisolAnnulus_maximumSumEtCut");   
   }
-  ~CaloRecoTauDiscriminationByIsolation() override{} 
+  ~CaloRecoTauDiscriminationByIsolation(){} 
   double discriminate(const CaloTauRef&) const override;
  private:  
   bool applyDiscriminationByTrackerIsolation_;

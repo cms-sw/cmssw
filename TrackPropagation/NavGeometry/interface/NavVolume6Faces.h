@@ -21,28 +21,28 @@ public:
     explicit NavVolume6Faces( const MagVolume& magvol, const bool isIron=false);
 
     /// Give a sorted list of possible surfaces to propagate to
-    Container nextSurface( const NavVolume::LocalPoint& pos, 
+    virtual Container nextSurface( const NavVolume::LocalPoint& pos, 
 				   const NavVolume::LocalVector& mom,
-				   double charge, PropagationDirection propDir=alongMomentum) const override;
+				   double charge, PropagationDirection propDir=alongMomentum) const;
 
     /// Same, giving lowest priority to the surface we are on now (=NotThisSurface)
-    Container nextSurface( const NavVolume::LocalPoint& pos, 
+    virtual Container nextSurface( const NavVolume::LocalPoint& pos, 
 				   const NavVolume::LocalVector& mom,
 				   double charge, PropagationDirection propDir,
-				   ConstReferenceCountingPointer<Surface> NotThisSurfaceP) const override;
+				   ConstReferenceCountingPointer<Surface> NotThisSurfaceP) const;
 
     /// Cross this volume and point at the next
-    VolumeCrossReturnType crossToNextVolume( const TrajectoryStateOnSurface& currentState,
-						     const Propagator& prop) const override;
+    virtual VolumeCrossReturnType crossToNextVolume( const TrajectoryStateOnSurface& currentState,
+						     const Propagator& prop) const;
 
     /// Access to volume faces
-    const std::vector<VolumeSide>& faces() const override { return theFaces; }
+    virtual const std::vector<VolumeSide>& faces() const { return theFaces; }
 
     /// Access to Iron/Air information:
-    bool isIron() const override { return isThisIron; }
+    bool isIron() const { return isThisIron; }
 
     using MagVolume::inside;
-    bool inside( const GlobalPoint& gp, double tolerance) const override; 
+    bool inside( const GlobalPoint& gp, double tolerance) const; 
 
 private:
 

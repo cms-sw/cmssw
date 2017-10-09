@@ -27,7 +27,7 @@ bool SiStripConfigWriter::init(std::string main) {
   if( theDomWriter == nullptr ) return false;
   if( theDomWriter->getDomConfig()->canSetParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true ))
     theDomWriter->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
-  theDoc = domImpl->createDocument( nullptr, qtxml::_toDOMS(main), nullptr );
+  theDoc = domImpl->createDocument( 0, qtxml::_toDOMS(main), 0 );
   if( theDoc == nullptr ) return false;
   theTopElement = theDoc->getDocumentElement();
   theOutput = domImpl->createLSOutput();

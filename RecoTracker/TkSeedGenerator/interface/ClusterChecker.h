@@ -32,7 +32,7 @@ class ClusterChecker {
   size_t tooManyClusters(const edm::Event & e) const ;
 
  private: 
-  ClusterChecker() = delete; // This is only needed for StringCutObjectSelector
+  ClusterChecker(); // This is only needed for StringCutObjectSelector
   bool doACheck_;
   edm::InputTag clusterCollectionInputTag_;
   edm::InputTag pixelClusterCollectionInputTag_;

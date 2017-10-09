@@ -43,14 +43,14 @@ public:
     MuonAlignmentAnalyzer(const edm::ParameterSet& pset);
 
     /// Destructor
-    ~MuonAlignmentAnalyzer() override;
+    virtual ~MuonAlignmentAnalyzer();
 
     // Operations
 
-    void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
+    void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
-    void beginJob() override ;
-    void endJob() override ;
+    virtual void beginJob() ;
+    virtual void endJob() ;
 protected:
 
 private:

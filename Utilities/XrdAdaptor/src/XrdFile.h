@@ -21,7 +21,7 @@ public:
   XrdFile (IOFD fd);
   XrdFile (const char *name, int flags = IOFlags::OpenRead, int perms = 0666);
   XrdFile (const std::string &name, int flags = IOFlags::OpenRead, int perms = 0666);
-  ~XrdFile (void) override;
+  ~XrdFile (void);
 
   virtual void	create (const char *name,
     			bool exclusive = false,
@@ -41,18 +41,18 @@ public:
   using Storage::write;
   using Storage::position;
 
-  bool		prefetch (const IOPosBuffer *what, IOSize n) override;
-  IOSize	read (void *into, IOSize n) override;
-  IOSize	read (void *into, IOSize n, IOOffset pos) override;
-  IOSize	readv (IOBuffer *into, IOSize n) override;
-  IOSize	readv (IOPosBuffer *into, IOSize n) override;
-  IOSize	write (const void *from, IOSize n) override;
-  IOSize	write (const void *from, IOSize n, IOOffset pos) override;
+  virtual bool		prefetch (const IOPosBuffer *what, IOSize n);
+  virtual IOSize	read (void *into, IOSize n);
+  virtual IOSize	read (void *into, IOSize n, IOOffset pos);
+  virtual IOSize	readv (IOBuffer *into, IOSize n);
+  virtual IOSize	readv (IOPosBuffer *into, IOSize n);
+  virtual IOSize	write (const void *from, IOSize n);
+  virtual IOSize	write (const void *from, IOSize n, IOOffset pos);
 
-  IOOffset	position (IOOffset offset, Relative whence = SET) override;
-  void		resize (IOOffset size) override;
+  virtual IOOffset	position (IOOffset offset, Relative whence = SET);
+  virtual void		resize (IOOffset size);
 
-  void		close (void) override;
+  virtual void		close (void);
   virtual void		abort (void);
 
 private:

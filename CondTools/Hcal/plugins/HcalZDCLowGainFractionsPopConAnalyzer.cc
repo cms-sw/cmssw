@@ -15,14 +15,14 @@ public:
     m_source(pset.getParameter<edm::ParameterSet>("Source")) {}
 
 private:
-  void endJob() override 
+  virtual void endJob() override 
   {
     m_source.initObject(myDBObject);
     write();
     delete myDBObject;
   }
 
-  void analyze(const edm::Event& ev, const edm::EventSetup& esetup) override
+  virtual void analyze(const edm::Event& ev, const edm::EventSetup& esetup) override
   {
     //Using ES to get the data:
 

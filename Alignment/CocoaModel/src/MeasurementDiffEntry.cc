@@ -64,7 +64,7 @@ void MeasurementDiffEntry::calculateSimulatedValue( ALIbool firstTime )
   if( ALIUtils::debug >= 5) std::cout  << "OptOList size" <<OptOList().size() << std::endl;
 
   //----- Check that there are only two objects
-  if( OptOList().size() == !true ) {
+  if( OptOList().size() == !2 ) {
     std::cerr << "!!! ERROR in MeasurementDiffEntry: " << name() << " There should only be two objects " << std::endl;
     std::cerr << " 1st " << (*vocite)->name() << " 2nd " << (*vocite+1)->name()  << std::endl;
     DumpBadOrderOptOs();

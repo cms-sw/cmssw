@@ -35,11 +35,11 @@ class GeneratorTau : public reco::GenParticle {
 
       //default constructor
       GeneratorTau(const reco::GenParticle& input):GenParticle(input){
-        theLeadTrack_ = nullptr;
+        theLeadTrack_ = NULL;
       };
       GeneratorTau();
 
-      ~GeneratorTau() override{};
+      ~GeneratorTau(){};
 
       std::vector<const reco::Candidate*>         getGenChargedPions() const;
       std::vector<const reco::Candidate*>         getGenGammas() const;

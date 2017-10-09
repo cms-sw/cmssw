@@ -7,9 +7,9 @@
 class SimpleEventFilter : public edm::EDFilter {
  public:
  SimpleEventFilter( const edm::ParameterSet & );
- ~SimpleEventFilter() override;
+ ~SimpleEventFilter();
   private:
-  bool filter( edm::Event &, edm::EventSetup const& ) override;
+  bool filter( edm::Event &, edm::EventSetup const& );
   int nEvent_;
   int nInterval_;
   bool verbose_;

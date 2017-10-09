@@ -22,7 +22,7 @@ Implementation:
 #include "SiPixelGainCalibrationAnalysis.h"
 #include <sstream>
 #include <vector>
-#include <cmath>
+#include <math.h>
 #include "TGraphErrors.h"
 #include "TMath.h"
 
@@ -240,14 +240,14 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
   
   // calculate plateau value from last 4 entries
   double plateauval=0;
-  bool noPlateau=false;
+  bool noPlateau=0;
   if(nallpoints>=4){
     for(int ii=nallpoints-1; ii>nallpoints-5; --ii) plateauval+=yvalsall[ii];
     plateauval/=4;
     for(int ii=nallpoints-1; ii>nallpoints-5; --ii){
       if(fabs(yvalsall[ii]-plateauval)>5){
         plateauval=255;
-	noPlateau=true;
+	noPlateau=1;
         continue;
       }
     }
@@ -432,7 +432,7 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
 
     if(!savePixelHists_)
     return true;
-  if(detidfinder==listofdetids_.end() && !listofdetids_.empty())
+  if(detidfinder==listofdetids_.end() && listofdetids_.size()!=0)
     return true;
   if(makehistopersistent){
     std::ostringstream pixelinfo;

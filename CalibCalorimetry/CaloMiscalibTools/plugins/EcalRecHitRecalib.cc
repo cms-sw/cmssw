@@ -45,8 +45,8 @@ EcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle<EBRecHitCollection> barrelRecHitsHandle;
   Handle<EERecHitCollection> endcapRecHitsHandle;
 
-  const EBRecHitCollection*  EBRecHits = nullptr;
-  const EERecHitCollection*  EERecHits = nullptr; 
+  const EBRecHitCollection*  EBRecHits = 0;
+  const EERecHitCollection*  EERecHits = 0; 
  
   iEvent.getByLabel(ecalHitsProducer_,barrelHits_,barrelRecHitsHandle);
   if (!barrelRecHitsHandle.isValid()) {

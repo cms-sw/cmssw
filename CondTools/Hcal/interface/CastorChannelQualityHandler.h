@@ -25,9 +25,9 @@
 class CastorChannelQualityHandler : public popcon::PopConSourceHandler<CastorChannelQuality>
 {
  public:
-  void getNewObjects() override;
-  std::string id() const override { return m_name;}
-  ~CastorChannelQualityHandler() override;
+  void getNewObjects();
+  std::string id() const { return m_name;}
+  ~CastorChannelQualityHandler();
   CastorChannelQualityHandler(edm::ParameterSet const &);
 
   void initObject(CastorChannelQuality*);

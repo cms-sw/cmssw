@@ -74,7 +74,7 @@ namespace cond {
     
     inline Time_t now() {
       ::timeval stv;
-      ::gettimeofday(&stv,nullptr);
+      ::gettimeofday(&stv,0);
       return  from_timeval(stv);
     }
     

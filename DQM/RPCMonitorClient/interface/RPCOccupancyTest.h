@@ -14,12 +14,12 @@ class RPCOccupancyTest:public RPCClient {
 public:
 
   RPCOccupancyTest(const edm::ParameterSet& ps);
-  ~RPCOccupancyTest() override;
+  virtual ~RPCOccupancyTest();
 
- void clientOperation() override;
- void getMonitorElements(std::vector<MonitorElement *> &, std::vector<RPCDetId> &, std::string &) override;
- void beginJob(std::string & ) override;
- void myBooker(DQMStore::IBooker & ) override;
+ void clientOperation();
+ void getMonitorElements(std::vector<MonitorElement *> &, std::vector<RPCDetId> &, std::string &);
+ void beginJob(std::string & );
+ void myBooker(DQMStore::IBooker & );
 
 
  protected:

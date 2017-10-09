@@ -47,27 +47,27 @@ class SiStripDcsInfo: public edm::EDAnalyzer {
   SiStripDcsInfo(const edm::ParameterSet& ps);
   
   /// Destructor
-  ~SiStripDcsInfo() override;
+  virtual ~SiStripDcsInfo();
 
  private:
 
   /// BeginJob
-  void beginJob() override;
+  void beginJob();
 
   /// Begin Run
-  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
+  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
   /// Begin Luminosity Block
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override ;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) ;
 
   /// End Of Luminosity
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) override;
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup);
 
   /// EndRun
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
   /// Analyze
-  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void analyze(edm::Event const&, edm::EventSetup const&);
 
 
 

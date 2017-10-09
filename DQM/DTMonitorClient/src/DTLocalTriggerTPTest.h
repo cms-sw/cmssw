@@ -26,16 +26,16 @@ public:
   DTLocalTriggerTPTest(const edm::ParameterSet& ps);
   
   /// Destructor
-  ~DTLocalTriggerTPTest() override;
+  virtual ~DTLocalTriggerTPTest();
 
 protected:
 
   /// BeginRun
-  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
   /// Run client analysis
 
-  void runClientDiagnostic(DQMStore::IBooker &, DQMStore::IGetter &) override;
+  void runClientDiagnostic(DQMStore::IBooker &, DQMStore::IGetter &);
   void Bookings(DQMStore::IBooker &, DQMStore::IGetter &);
 
  private:

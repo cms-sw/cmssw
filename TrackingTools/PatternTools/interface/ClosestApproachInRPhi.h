@@ -28,20 +28,20 @@ class ClosestApproachInRPhi final : public ClosestApproachOnHelices {
 public:
 
   ClosestApproachInRPhi() {status_ = false;}
-  ~ClosestApproachInRPhi() override{}
+  ~ClosestApproachInRPhi(){}
 
-  bool calculate(const TrajectoryStateOnSurface & sta, 
-			 const TrajectoryStateOnSurface & stb) override;
+  virtual bool calculate(const TrajectoryStateOnSurface & sta, 
+			 const TrajectoryStateOnSurface & stb);
 
-  bool calculate(const FreeTrajectoryState & sta,
-			 const FreeTrajectoryState & stb) override;
+  virtual bool calculate(const FreeTrajectoryState & sta,
+			 const FreeTrajectoryState & stb);
 
-  bool status() const override {return status_;}
+  virtual bool status() const {return status_;}
 
   /**
    * Returns the two PCA on the trajectories.
    */
-  std::pair<GlobalPoint, GlobalPoint> points() const override;
+  virtual std::pair<GlobalPoint, GlobalPoint> points() const;
 
   /** Returns not only the points, but the full GlobalTrajectoryParemeters 
    *  at the points of closest approach */
@@ -49,15 +49,15 @@ public:
   trajectoryParameters () const;
 
   /** arithmetic mean of the two points of closest approach */
-  GlobalPoint crossingPoint() const override;
+  virtual GlobalPoint crossingPoint() const;
 
   /** distance between the two points of closest approach in 3D */
-  float distance() const override;
+  virtual float distance() const;
 
   /**
    *  Clone method
    */
-  ClosestApproachInRPhi * clone() const override {
+  virtual ClosestApproachInRPhi * clone() const {
     return new ClosestApproachInRPhi(* this);
   }
 

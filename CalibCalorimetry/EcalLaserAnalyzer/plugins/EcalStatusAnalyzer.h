@@ -13,11 +13,11 @@ class EcalStatusAnalyzer: public edm::EDAnalyzer{
  public:
   
   explicit EcalStatusAnalyzer(const edm::ParameterSet& iConfig);  
-  ~EcalStatusAnalyzer() override;
+  ~EcalStatusAnalyzer();
     
-  void analyze( const edm::Event & e, const  edm::EventSetup& c) override;
-  void beginJob() override;
-  void endJob() override;
+  virtual void analyze( const edm::Event & e, const  edm::EventSetup& c);
+  virtual void beginJob();
+  virtual void endJob();
 
   enum EcalLaserColorType{
     iBLUE  = 0,

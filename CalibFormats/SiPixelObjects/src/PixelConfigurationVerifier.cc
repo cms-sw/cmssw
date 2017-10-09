@@ -7,7 +7,7 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelChannel.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelROCStatus.h"
 #include <set>
-#include <cassert>
+#include <assert.h>
 
 using namespace pos;
 using namespace std;

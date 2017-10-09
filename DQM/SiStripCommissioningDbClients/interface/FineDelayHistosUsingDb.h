@@ -19,12 +19,12 @@ class FineDelayHistosUsingDb : public CommissioningHistosUsingDb, public Samplin
                           DQMStore*,
                           SiStripConfigDb* const );
 
-  ~FineDelayHistosUsingDb() override;
+  virtual ~FineDelayHistosUsingDb();
 
-  void configure( const edm::ParameterSet&, 
-                          const edm::EventSetup& ) override;
+  virtual void configure( const edm::ParameterSet&, 
+                          const edm::EventSetup& );
 
-  void uploadConfigurations() override;
+  virtual void uploadConfigurations();
 
  private:
   
@@ -32,7 +32,7 @@ class FineDelayHistosUsingDb : public CommissioningHistosUsingDb, public Samplin
 
   void update( SiStripConfigDb::FedDescriptionsRange );
 
-  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis ) override; 
+  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis ); 
 
   void computeDelays();
 

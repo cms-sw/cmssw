@@ -11,12 +11,12 @@ public:
   SeedFromConsecutiveHitsStraightLineCreator( const edm::ParameterSet & cfg):
     SeedFromConsecutiveHitsCreator(cfg) { }
 
-  ~SeedFromConsecutiveHitsStraightLineCreator() override{}
+  virtual ~SeedFromConsecutiveHitsStraightLineCreator(){}
 
 private:
 
-  bool initialKinematic(GlobalTrajectoryParameters & kine,
-				const SeedingHitSet & hits) const override;
+  virtual bool initialKinematic(GlobalTrajectoryParameters & kine,
+				const SeedingHitSet & hits) const;
 
 
 };

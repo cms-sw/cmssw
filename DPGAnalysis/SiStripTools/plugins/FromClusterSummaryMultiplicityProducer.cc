@@ -42,12 +42,12 @@ class FromClusterSummaryMultiplicityProducer : public edm::EDProducer {
 
 public:
   explicit FromClusterSummaryMultiplicityProducer(const edm::ParameterSet&);
-  ~FromClusterSummaryMultiplicityProducer() override;
+  ~FromClusterSummaryMultiplicityProducer();
 
 private:
-  void beginJob() override ;
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+  virtual void beginJob() override ;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override ;
 
       // ----------member data ---------------------------
 

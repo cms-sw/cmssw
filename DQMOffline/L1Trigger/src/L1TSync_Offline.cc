@@ -204,7 +204,7 @@ L1TSync_Offline::L1TSync_Offline(const ParameterSet & pset) :
 
   m_outputFile = pset.getUntrackedParameter < std::string > ("outputFile","");
 
-  if (!m_outputFile.empty()) {
+  if (m_outputFile.size() != 0) {
     std::cout << "L1T Monitoring histograms will be saved to " <<	m_outputFile.c_str() << std::endl;
   }
 

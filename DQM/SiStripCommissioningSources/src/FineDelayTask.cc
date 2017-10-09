@@ -13,7 +13,7 @@
 // -----------------------------------------------------------------------------
 //
 CommissioningTask::HistoSet FineDelayTask::timing_;
-MonitorElement* FineDelayTask::mode_ = nullptr;
+MonitorElement* FineDelayTask::mode_ = NULL;
 
 // -----------------------------------------------------------------------------
 //

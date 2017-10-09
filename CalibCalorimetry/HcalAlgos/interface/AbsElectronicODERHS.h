@@ -23,7 +23,7 @@ public:
     inline explicit AbsElectronicODERHS(const HcalInterpolatedPulse& pulse)
         : inputPulse_(pulse) {}
 
-    inline ~AbsElectronicODERHS() override {}
+    inline virtual ~AbsElectronicODERHS() {}
 
     inline const HcalInterpolatedPulse& inputPulse() const {return inputPulse_;}
 

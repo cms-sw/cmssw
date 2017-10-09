@@ -20,13 +20,13 @@ class TtFullHadSignalSelMVAComputer : public edm::EDProducer {
  public:
 
   explicit TtFullHadSignalSelMVAComputer(const edm::ParameterSet&);
-  ~TtFullHadSignalSelMVAComputer() override;
+  ~TtFullHadSignalSelMVAComputer();
 
  private:
 
-  void beginJob() override;
-  void produce(edm::Event& evt, const edm::EventSetup& setup) override;
-  void endJob() override;
+  virtual void beginJob();
+  virtual void produce(edm::Event& evt, const edm::EventSetup& setup);
+  virtual void endJob();
 
   edm::EDGetTokenT< std::vector<pat::Jet> > jetsToken_;
 

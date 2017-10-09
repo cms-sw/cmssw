@@ -33,25 +33,25 @@ public:
     /** @name constructors and destructor */
     //@{
     StreamOutFormatTarget(std::ostream& fStream) ;
-    ~StreamOutFormatTarget() override;
+    ~StreamOutFormatTarget();
     //@}
 
     // -----------------------------------------------------------------------
     //  Implementations of the format target interface
     // -----------------------------------------------------------------------
-    void writeChars(const XMLByte* const toWrite,
+    virtual void writeChars(const XMLByte* const toWrite,
 			    const XMLSize_t count,
 			    XMLFormatter* const  formatter) override;
 
-    void flush() override;
+    virtual void flush() override;
 
 private:
     std::ostream* mStream;
     // -----------------------------------------------------------------------
     //  Unimplemented methods.
     // -----------------------------------------------------------------------
-    StreamOutFormatTarget(const StreamOutFormatTarget&) = delete;
-    StreamOutFormatTarget& operator=(const StreamOutFormatTarget&) = delete;
+    StreamOutFormatTarget(const StreamOutFormatTarget&);
+    StreamOutFormatTarget& operator=(const StreamOutFormatTarget&);
 };
 
 XERCES_CPP_NAMESPACE_END

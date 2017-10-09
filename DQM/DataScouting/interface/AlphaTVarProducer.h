@@ -16,8 +16,8 @@
 class AlphaTVarProducer : public edm::EDProducer {
  public: 
   explicit AlphaTVarProducer(const edm::ParameterSet&);
-  ~AlphaTVarProducer() override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  ~AlphaTVarProducer();
+  virtual void produce(edm::Event&, const edm::EventSetup&);
 
  private:
   double CalcAlphaT(const std::vector<TLorentzVector>&);

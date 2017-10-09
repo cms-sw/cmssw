@@ -13,7 +13,7 @@
 #include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
 #include <cstdlib>
 
-GlobalOptionMgr* GlobalOptionMgr::theInstance = nullptr;
+GlobalOptionMgr* GlobalOptionMgr::theInstance = 0;
 
 GlobalOptionMgr* GlobalOptionMgr::getInstance()
 {
@@ -145,7 +145,7 @@ ALIint GlobalOptionMgr::getGlobalOptionValue( const ALIstring& sstr, ALIdouble& 
 void GlobalOptionMgr::setGlobalOption( const ALIstring gopt, const ALIdouble val, ALIFileIn& filein )
 {
 
-  if( !setGlobalOption( gopt, val, false ) ){
+  if( !setGlobalOption( gopt, val, 0 ) ){
     filein.ErrorInLine();
     std::cerr << "!!! global option not found: " << gopt << std::endl;
     if ( ALIUtils::debug >= 3 ) {
@@ -175,14 +175,14 @@ bool GlobalOptionMgr::setGlobalOption( const ALIstring gopt, const ALIdouble val
       ALIUtils::setDebugVerbosity( ALIint(val) );
     }
     
-    return true;
+    return 1;
     //----- if global option does not exist: error
   } else {
     if( bExit ) {
       std::cerr << "!!! global option not found: " << gopt << std::endl;
       exit(2);
     }
-    return false;
+    return 0;
   }
   
 }

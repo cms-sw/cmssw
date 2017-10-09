@@ -41,7 +41,7 @@ namespace pos{
 		  std::string creator,
 		  std::string date);
 
-    ~PixelMaskBase() override;
+    virtual ~PixelMaskBase();
 
     void setOverride(PixelMaskOverrideBase*);
 
@@ -52,22 +52,22 @@ namespace pos{
 
     virtual void writeBinary(std::string filename) const =0;
 
-    void writeASCII(std::string filename) const override =0;
-    void writeXML(      pos::PixelConfigKey key, int version, std::string path)                     const override {;}
-    void writeXMLHeader(pos::PixelConfigKey key, 
+    virtual void writeASCII(std::string filename) const =0;
+    virtual void writeXML(      pos::PixelConfigKey key, int version, std::string path)                     const {;}
+    virtual void writeXMLHeader(pos::PixelConfigKey key, 
 				int version, 
 				std::string path, 
 				std::ofstream *out,
-				std::ofstream *out1 = nullptr,
-				std::ofstream *out2 = nullptr
-				) const override {;}
-    void writeXML( std::ofstream *out,                                                              
-			   std::ofstream *out1 = nullptr ,
-			   std::ofstream *out2 = nullptr ) const override {;}
-    void writeXMLTrailer( std::ofstream *out, 
-				  std::ofstream *out1 = nullptr,
-				  std::ofstream *out2 =nullptr
-				  ) const override {;}
+				std::ofstream *out1 = NULL,
+				std::ofstream *out2 = NULL
+				) const {;}
+    virtual void writeXML( std::ofstream *out,                                                              
+			   std::ofstream *out1 = NULL ,
+			   std::ofstream *out2 = NULL ) const {;}
+    virtual void writeXMLTrailer( std::ofstream *out, 
+				  std::ofstream *out1 = NULL,
+				  std::ofstream *out2 =NULL
+				  ) const {;}
 
     friend std::ostream& operator<<(std::ostream& s, const PixelMaskBase& mask);
     

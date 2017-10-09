@@ -16,7 +16,7 @@ namespace cond {
   class UtilitiesError : public Exception {
     public:
     UtilitiesError(const std::string& message );
-    ~UtilitiesError() throw() override;    
+    virtual ~UtilitiesError() throw();    
   };
 
   class Utilities {

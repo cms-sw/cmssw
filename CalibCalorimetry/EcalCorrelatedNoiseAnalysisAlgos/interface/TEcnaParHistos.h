@@ -83,7 +83,7 @@ class TEcnaParHistos : public TObject {
            TEcnaParHistos();
            TEcnaParHistos(TEcnaObject*, const TString&);
            TEcnaParHistos(const TString&, const TEcnaParEcal*, const TEcnaNumbering*);
-   ~TEcnaParHistos() override;
+  virtual  ~TEcnaParHistos();
 
   void     Init();
   void     SetEcalSubDetector(const TString&);
@@ -189,7 +189,7 @@ class TEcnaParHistos : public TObject {
   TString GetCodeAllXtalsInStinPlot();
   Int_t   GetCodePlotAllXtalsInStin();
 
-ClassDefOverride(TEcnaParHistos,1)// Parameter management for CNA (Correlated Noises Analysis)
+ClassDef(TEcnaParHistos,1)// Parameter management for CNA (Correlated Noises Analysis)
 
 };
 

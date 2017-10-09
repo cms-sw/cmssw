@@ -144,7 +144,7 @@ invoke(const edm::ObjectWithDict& o, edm::ObjectWithDict& retstore) const
   void* addr = ret.address();
   //std::cout << "Stored result of " <<  methodName() << " (type " <<
   //  returnTypeName() << ") at " << addr << std::endl;
-  if (addr == nullptr) {
+  if (addr == 0) {
     throw edm::Exception(edm::errors::InvalidReference)
         << "method \"" << methodName() << "\" called with " << args_.size()
         << " arguments returned a null pointer ";
@@ -223,7 +223,7 @@ invokeLast(const edm::ObjectWithDict& o,
            std::vector<edm::ObjectWithDict>& v) const
 {
   pair<edm::ObjectWithDict, bool> ret(o, false);
-  const SingleInvoker* i = nullptr;
+  const SingleInvoker* i = 0;
   do {
     edm::TypeWithDict type = ret.first.typeOf();
     if (type.isClass()) {

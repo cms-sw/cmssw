@@ -96,7 +96,7 @@ int DTKeyedConfigCache::get( const DTKeyedConfigListRcd& keyRecord,
   // fixing. One thing at a time. (This was already in the
   // the code I copied to make this file)
   cond::persistency::KeyList* keyList = const_cast<cond::persistency::KeyList*>( &kl );
-  if ( keyList == nullptr ) return 999;
+  if ( keyList == 0 ) return 999;
 
   std::vector<unsigned long long> checkedKeys;
   std::shared_ptr<DTKeyedConfig> kBrick;
@@ -142,9 +142,9 @@ int DTKeyedConfigCache::get( const DTKeyedConfigListRcd& keyRecord,
 void DTKeyedConfigCache::getData( const DTKeyedConfigListRcd& keyRecord,
                                      int cfgId,
                                      std::vector<std::string>& list ) {
-  const DTKeyedConfig* obj = nullptr;
+  const DTKeyedConfig* obj = 0;
   get( keyRecord, cfgId, obj );
-  if ( obj == nullptr ) return; 
+  if ( obj == 0 ) return; 
   DTKeyedConfig::data_iterator d_iter = obj->dataBegin();
   DTKeyedConfig::data_iterator d_iend = obj->dataEnd();
   while ( d_iter != d_iend ) list.push_back( *d_iter++ );

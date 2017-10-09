@@ -39,12 +39,12 @@ public:
   KalmanVertexFitter(const KalmanVertexFitter & other ) :
     theSequentialFitter ( other.theSequentialFitter->clone() ) {}
 
-  ~KalmanVertexFitter() override
+  virtual ~KalmanVertexFitter()
   {
     delete theSequentialFitter;
   }
 
-  KalmanVertexFitter * clone() const override
+  KalmanVertexFitter * clone() const
   {
     return new KalmanVertexFitter(* this);
   }
@@ -55,23 +55,23 @@ public:
 
   /** Fit vertex out of a set of RecTracks
    */
-  inline CachingVertex<5> 
-    vertex(const std::vector<reco::TransientTrack>  & tracks) const override
+  virtual inline CachingVertex<5> 
+    vertex(const std::vector<reco::TransientTrack>  & tracks) const
   {
     return theSequentialFitter->vertex(tracks);
   }
 
   /** Fit vertex out of a set of VertexTracks
    */
-  inline CachingVertex<5> 
-  vertex(const std::vector<RefCountedVertexTrack> & tracks) const override
+  virtual inline CachingVertex<5> 
+  vertex(const std::vector<RefCountedVertexTrack> & tracks) const
   {
     return theSequentialFitter->vertex(tracks);
   }
   
-  inline CachingVertex<5> 
+  virtual inline CachingVertex<5> 
   vertex(const std::vector<RefCountedVertexTrack> & tracks,
-      const reco::BeamSpot & spot ) const override
+      const reco::BeamSpot & spot ) const
   {
     return theSequentialFitter->vertex(tracks, spot );
   }
@@ -80,9 +80,9 @@ public:
   /** Fit vertex out of a set of RecTracks. 
    *  Uses the specified linearization point.
    */
-  inline CachingVertex<5> 
+  virtual inline CachingVertex<5> 
     vertex(const std::vector<reco::TransientTrack>  & tracks, 
-	   const GlobalPoint& linPoint) const override
+	   const GlobalPoint& linPoint) const
   {
     return theSequentialFitter->vertex(tracks, linPoint);
   }
@@ -92,10 +92,10 @@ public:
    *  estimate of the vertex position. The error is used for the 
    *  weight of the prior estimate.
    */
-  inline CachingVertex<5> 
+  virtual inline CachingVertex<5> 
   vertex(const std::vector<reco::TransientTrack> & tracks, 
 	 const GlobalPoint& priorPos,
-  	 const GlobalError& priorError) const override
+  	 const GlobalError& priorError) const
   {
     return theSequentialFitter->vertex(tracks, priorPos, priorError);
   }
@@ -104,8 +104,8 @@ public:
    *  The specified BeamSpot will be used as priot, but NOT for the linearization.
    * The specified LinearizationPointFinder will be used to find the linearization point.
    */
-  inline CachingVertex<5> 
-  vertex(const std::vector<reco::TransientTrack> & tracks, const reco::BeamSpot& beamSpot) const override
+  virtual inline CachingVertex<5> 
+  vertex(const std::vector<reco::TransientTrack> & tracks, const reco::BeamSpot& beamSpot) const
   {
     return theSequentialFitter->vertex(tracks, beamSpot);
   }
@@ -116,10 +116,10 @@ public:
    *  Uses the specified point and error as the prior estimate of the vertex.
    *  This position is not used to relinearize the tracks.
    */
-  inline CachingVertex<5> 
+  virtual inline CachingVertex<5> 
   vertex(const std::vector<RefCountedVertexTrack> & tracks, 
 	 const GlobalPoint& priorPos,
-	 const GlobalError& priorError) const override
+	 const GlobalError& priorError) const
   {
     return theSequentialFitter->vertex(tracks, priorPos, priorError);
   }

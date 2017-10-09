@@ -29,13 +29,13 @@ class BeamSpotGeomDet : public GeomDet {
     setDetId(AlignableBeamSpot::detId());
   }
 
-  ~BeamSpotGeomDet() override { }
+  virtual ~BeamSpotGeomDet() { }
 
-  SubDetector subDetector() const override {
+  virtual SubDetector subDetector() const {
     return GeomDetEnumerators::invalidDet;
   }
 
-  std::vector< const GeomDet*> components() const override {
+  virtual std::vector< const GeomDet*> components() const {
     return std::vector< const GeomDet*>();
   }
 };

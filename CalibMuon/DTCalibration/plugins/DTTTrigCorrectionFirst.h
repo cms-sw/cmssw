@@ -23,15 +23,15 @@ public:
   DTTTrigCorrectionFirst(const edm::ParameterSet& pset);
 
   /// Destructor
-  ~DTTTrigCorrectionFirst() override;
+  virtual ~DTTTrigCorrectionFirst();
 
   // Operations
 
-  void beginJob() override {}
-  void beginRun( const edm::Run& run, const edm::EventSetup& setup ) override;
-  void analyze(const edm::Event& event, const edm::EventSetup& setup) override{}
+  virtual void beginJob() {}
+  virtual void beginRun( const edm::Run& run, const edm::EventSetup& setup );
+  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup){}
 
-  void endJob() override;
+  virtual void endJob();
 
 protected:
 

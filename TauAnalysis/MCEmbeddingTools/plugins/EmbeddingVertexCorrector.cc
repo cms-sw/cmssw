@@ -60,13 +60,13 @@ namespace HepMC {
 class EmbeddingVertexCorrector : public edm::stream::EDProducer<> {
    public:
       explicit EmbeddingVertexCorrector(const edm::ParameterSet&);
-      ~EmbeddingVertexCorrector() override;
+      ~EmbeddingVertexCorrector();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      void beginRun(const edm::Run & , const edm::EventSetup& iEventSetup) override;
-      void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void beginRun(const edm::Run & , const edm::EventSetup& iEventSetup) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
       edm::InputTag sourceLabel;

@@ -23,7 +23,7 @@ class L1TStage2CaloLayer2 : public DQMEDAnalyzer {
   
   L1TStage2CaloLayer2(const edm::ParameterSet & ps);
 
-  ~L1TStage2CaloLayer2() override;
+  virtual ~L1TStage2CaloLayer2();
 
  protected:
 

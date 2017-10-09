@@ -16,25 +16,25 @@ class DQMMessageLoggerClient : public edm::EDAnalyzer {
   // Constructor
   DQMMessageLoggerClient(const edm::ParameterSet&);
   // Destructor
-  ~DQMMessageLoggerClient() override;
+  virtual ~DQMMessageLoggerClient();
   
  protected:
   
-  void beginJob() override;
+  void beginJob();
   //void beginRun(const edm::Run&, const edm::EventSetup&);
 
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&);
   
   
   // Get the analysis
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&);
+  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
 
-  void endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup&) override;
+  void endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup&);
   
   // Save the histos
-  void endRun(const edm::Run&, const edm::EventSetup&) override;
-  void endJob() override;
+  void endRun(const edm::Run&, const edm::EventSetup&);
+  void endJob();
 
  private:
 

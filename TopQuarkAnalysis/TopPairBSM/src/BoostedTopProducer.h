@@ -83,12 +83,12 @@
 class BoostedTopProducer : public edm::EDProducer {
    public:
       explicit BoostedTopProducer(const edm::ParameterSet&);
-      ~BoostedTopProducer() override;
+      ~BoostedTopProducer();
 
    private:
       virtual void beginJob(const edm::EventSetup&) ;
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void endJob() ;
 
       // ----------member data ---------------------------
 

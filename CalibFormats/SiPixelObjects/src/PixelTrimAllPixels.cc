@@ -14,7 +14,7 @@
 #include <sstream>
 #include <iostream>
 #include <ios>
-#include <cassert>
+#include <assert.h>
 #include <stdexcept>
 #include "CalibFormats/SiPixelObjects/interface/PixelTrimAllPixels.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelTimeFormatter.h"
@@ -211,7 +211,7 @@ PixelROCTrimBits* PixelTrimAllPixels::getTrimBits(PixelROCName name){
     if (trimbits_[i].name()==name) return &(trimbits_[i]);
   }
 
-  return nullptr;
+  return 0;
 
 }
 

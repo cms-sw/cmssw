@@ -60,9 +60,8 @@ class MassSearchReplaceAnyInputTagVisitor(object):
     def enter(self,visitee):
         label = ''
         if (not self._skipLabelTest):
-            if hasattr(visitee,"hasLabel_") and visitee.hasLabel_():
-		label = visitee.label_()
-            else: label = '<Module not in a Process>'
+            try:    label = visitee.label_()
+            except AttributeError: label = '<Module not in a Process>'
         else:
             label = '<Module label not tested>'
         self.doIt(visitee, label)

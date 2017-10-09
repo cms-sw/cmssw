@@ -9,9 +9,9 @@
 class HcalLutGenerator : public edm::EDAnalyzer {
 public:
   explicit HcalLutGenerator(const edm::ParameterSet&);
-  ~HcalLutGenerator() override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
+  ~HcalLutGenerator();
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void endJob();
 
 private:
   std::string _tag;

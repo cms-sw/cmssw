@@ -15,7 +15,7 @@ CommissioningAlgorithm::CommissioningAlgorithm( CommissioningAnalysis* const ana
 // ----------------------------------------------------------------------------
 // 
 CommissioningAlgorithm::CommissioningAlgorithm()
-  : anal_(nullptr)
+  : anal_(0)
 {;}
 
 // ----------------------------------------------------------------------------
