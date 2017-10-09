@@ -40,9 +40,7 @@ HLTInclusiveVBFClient::HLTInclusiveVBFClient( const edm::ParameterSet& iConfig )
 }
 
 
-HLTInclusiveVBFClient::~HLTInclusiveVBFClient() {
-
-}
+HLTInclusiveVBFClient::~HLTInclusiveVBFClient() = default;
 
 
 void HLTInclusiveVBFClient::beginJob() {

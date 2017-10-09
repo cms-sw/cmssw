@@ -29,7 +29,7 @@
 class HLTTauDQMOfflineSource : public DQMEDAnalyzer {
 public:
     HLTTauDQMOfflineSource( const edm::ParameterSet& );
-    ~HLTTauDQMOfflineSource();
+    ~HLTTauDQMOfflineSource() override;
 
 protected:
     void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;

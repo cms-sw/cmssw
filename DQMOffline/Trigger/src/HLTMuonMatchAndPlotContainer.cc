@@ -2,6 +2,8 @@
  *
  */
 
+#include <utility>
+
 #include "DQMOffline/Trigger/interface/HLTMuonMatchAndPlotContainer.h"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -45,7 +47,7 @@ void HLTMuonMatchAndPlotContainer::addPlotter(const edm::ParameterSet &pset , st
 					      std::string label, bool islastfilter)
 {
 
-  plotters_.push_back(HLTMuonMatchAndPlot(pset,path,label,islastfilter));
+  plotters_.emplace_back(pset,std::move(path),std::move(label),islastfilter);
 
 }
 
@@ -55,8 +57,8 @@ void HLTMuonMatchAndPlotContainer::beginRun(DQMStore::IBooker & iBooker,
 					    const edm::EventSetup & iSetup)
 {
 
-  vector<HLTMuonMatchAndPlot>::iterator iter = plotters_.begin();
-  vector<HLTMuonMatchAndPlot>::iterator end  = plotters_.end();
+  auto iter = plotters_.begin();
+  auto end  = plotters_.end();
 
   for (; iter != end; ++iter) 
     {
@@ -70,8 +72,8 @@ void HLTMuonMatchAndPlotContainer::endRun(const edm::Run & iRun,
 					  const edm::EventSetup & iSetup)
 {
 
-  vector<HLTMuonMatchAndPlot>::iterator iter = plotters_.begin();
-  vector<HLTMuonMatchAndPlot>::iterator end  = plotters_.end();
+  auto iter = plotters_.begin();
+  auto end  = plotters_.end();
 
   for (; iter != end; ++iter) 
     {
@@ -97,6 +99,7 @@ void HLTMuonMatchAndPlotContainer::analyze(const edm::Event & iEvent,
 
   Handle<TriggerResults> triggerResults;
   iEvent.getByToken(trigResultsToken_, triggerResults);
+  const edm::TriggerNames& trigNames = iEvent.triggerNames(*triggerResults);
 
   if(!triggerResults.isValid()) 
   {
@@ -132,12 +135,12 @@ void HLTMuonMatchAndPlotContainer::analyze(const edm::Event & iEvent,
   }
   
 
-  vector<HLTMuonMatchAndPlot>::iterator iter = plotters_.begin();
-  vector<HLTMuonMatchAndPlot>::iterator end  = plotters_.end();
+  auto iter = plotters_.begin();
+  auto end  = plotters_.end();
 
   for (; iter != end; ++iter) 
     {
-      iter->analyze(allMuons, beamSpot, vertices, triggerSummary, triggerResults);
+      iter->analyze(allMuons, beamSpot, vertices, triggerSummary, triggerResults, trigNames);
     }
   
 }
