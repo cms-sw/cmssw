@@ -377,7 +377,7 @@ void PixelClusterShapeExtractor::analyzeRecTracks
         const SiPixelRecHit* pixelRecHit =
           dynamic_cast<const SiPixelRecHit *>(recHit);
 
-        if(pixelRecHit != 0)
+        if(pixelRecHit != nullptr)
           processRec(*pixelRecHit, theClusterShape, ldir, *clusterShapeCache, hrpc);
       }
     }

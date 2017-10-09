@@ -13,12 +13,12 @@
 class ValidHitPairFilterProducer: public edm::global::EDProducer<> {
 public:
   explicit ValidHitPairFilterProducer(const edm::ParameterSet& iConfig);
-  ~ValidHitPairFilterProducer();
+  ~ValidHitPairFilterProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
+  void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 };
 
 ValidHitPairFilterProducer::ValidHitPairFilterProducer(const edm::ParameterSet& iConfig) {

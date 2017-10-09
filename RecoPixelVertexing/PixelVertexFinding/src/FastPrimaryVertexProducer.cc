@@ -76,7 +76,7 @@ class FastPrimaryVertexProducer : public edm::global::EDProducer<> {
       explicit FastPrimaryVertexProducer(const edm::ParameterSet&);
 
    private:
-      virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+      void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
       edm::EDGetTokenT<SiPixelClusterCollectionNew> m_clusters;
       edm::EDGetTokenT<edm::View<reco::Jet> > m_jets;
       edm::EDGetTokenT<reco::BeamSpot> m_beamSpot;
@@ -124,7 +124,7 @@ FastPrimaryVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm:
     if(it->pt() > 40 && fabs(it->eta()) < 1.6)
     {
       const CaloJet * ca = dynamic_cast<const CaloJet *>( &(*it));
-      if(ca ==0) abort();
+      if(ca ==nullptr) abort();
       selectedJets.push_back(*ca);
 //    std::cout << "Jet eta,phi,pt: "<< it->eta() << "," << it->phi() << "," << it->pt()   << std::endl;
     }
@@ -221,7 +221,7 @@ FastPrimaryVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm:
 
 
   float res=0;
-  if(zProjections.size() > 0)
+  if(!zProjections.empty())
   {
      res=*(left+(right-left)/2);
 //     std::cout << "RES " << res << std::endl;
