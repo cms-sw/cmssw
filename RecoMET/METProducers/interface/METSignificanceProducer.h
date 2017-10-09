@@ -48,8 +48,8 @@ namespace cms
     {
     public:
       explicit METSignificanceProducer(const edm::ParameterSet&);
-      virtual ~METSignificanceProducer();
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      ~METSignificanceProducer() override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
     private:
 

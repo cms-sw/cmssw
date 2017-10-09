@@ -38,13 +38,13 @@ class EEBadScFilter : public edm::global::EDFilter<> {
   public:
 
     explicit EEBadScFilter(const edm::ParameterSet & iConfig);
-    ~EEBadScFilter() {}
+    ~EEBadScFilter() override {}
 
   private:
 
   // main filter function
 
-  virtual bool filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
+  bool filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
 
   // function to calculate 5x5 energy and check rechit flags
 

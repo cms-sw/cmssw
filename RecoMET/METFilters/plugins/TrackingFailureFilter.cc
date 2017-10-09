@@ -15,11 +15,11 @@ class TrackingFailureFilter : public edm::global::EDFilter<> {
   public:
 
     explicit TrackingFailureFilter(const edm::ParameterSet & iConfig);
-    ~TrackingFailureFilter() {}
+    ~TrackingFailureFilter() override {}
 
   private:
 
-    virtual bool filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
+    bool filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
 
     edm::EDGetTokenT<edm::View<reco::Jet> > jetSrcToken_;
     edm::EDGetTokenT<std::vector<reco::Track> > trackSrcToken_;
@@ -60,7 +60,7 @@ bool TrackingFailureFilter::filter(edm::StreamID, edm::Event & iEvent, const edm
     ht += j->pt();
   }
   double sumpt = 0;
-  if (vtxs->size() > 0) {
+  if (!vtxs->empty()) {
 //    const reco::Vertex * vtx = &((*vtxs)[0]);
     for (std::vector<reco::Track>::const_iterator tr = tracks->begin(); tr != tracks->end(); ++tr) {
       bool associateToPV = false;

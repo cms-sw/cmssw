@@ -96,11 +96,11 @@ namespace reco
     
   public:
     explicit EcalHaloDataProducer(const edm::ParameterSet&);
-    ~EcalHaloDataProducer();
+    ~EcalHaloDataProducer() override;
     
   private:
     
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
     
     //RecHit Level
     edm::InputTag IT_EBRecHit;
