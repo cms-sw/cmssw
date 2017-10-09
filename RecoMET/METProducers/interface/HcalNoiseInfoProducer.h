@@ -48,7 +48,7 @@ namespace reco {
   class HcalNoiseInfoProducer : public edm::stream::EDProducer<> {
   public:
     explicit HcalNoiseInfoProducer(const edm::ParameterSet&);
-    ~HcalNoiseInfoProducer();
+    ~HcalNoiseInfoProducer() override;
     
   private:
     
@@ -58,7 +58,7 @@ namespace reco {
     // picks which rbxs are interesting, storing them to the EDM.
     //
     
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
     
     //
     // more internal methods

@@ -27,10 +27,10 @@
 class BadParticleFilter : public edm::global::EDFilter<> {
 public:
   explicit BadParticleFilter(const edm::ParameterSet&);
-  ~BadParticleFilter();
+  ~BadParticleFilter() override;
 
 private:
-  virtual bool filter(edm::StreamID iID, edm::Event&, const edm::EventSetup&) const override;
+  bool filter(edm::StreamID iID, edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
 

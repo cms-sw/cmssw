@@ -24,7 +24,7 @@
 
 #include "RecoMET/METAlgorithms/interface/METAlgo.h"
 
-#include <string.h>
+#include <cstring>
 
 //____________________________________________________________________________||
 namespace cms

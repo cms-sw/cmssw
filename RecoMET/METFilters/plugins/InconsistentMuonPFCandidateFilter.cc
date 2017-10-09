@@ -27,12 +27,12 @@
 class InconsistentMuonPFCandidateFilter : public edm::EDFilter {
 public:
   explicit InconsistentMuonPFCandidateFilter(const edm::ParameterSet&);
-  ~InconsistentMuonPFCandidateFilter();
+  ~InconsistentMuonPFCandidateFilter() override;
 
 private:
-  virtual void beginJob() override ;
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
       // ----------member data ---------------------------
 
