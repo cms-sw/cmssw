@@ -183,6 +183,38 @@ float HGCalShowerShape::sigmaPhiPhiTot(const l1t::HGCalMulticluster& c3d) const 
 
 
 
+
+
+float HGCalShowerShape::sigmaRRTot(const l1t::HGCalMulticluster& c3d) const {
+
+  const edm::PtrVector<l1t::HGCalCluster>& clustersPtrs = c3d.constituents();
+  
+  std::vector<std::pair<float,float> > tc_energy_r ; 
+  
+  for(const auto& clu : clustersPtrs){
+    
+    const edm::PtrVector<l1t::HGCalTriggerCell>& triggerCells = clu->constituents();
+    
+    for(const auto& tc : triggerCells){
+           
+      float r = std::sqrt( pow(tc->position().x(),2) + pow(tc->position().y(),2) )/std::abs(tc->position().z());
+      tc_energy_r.emplace_back( std::make_pair(tc->energy(),r) );
+
+    }
+
+  }
+
+  float r_mean = meanX(tc_energy_r);
+  float Szz = sigmaXX(tc_energy_r,r_mean);
+  
+  return Szz;
+  
+}
+
+
+
+
+
 float HGCalShowerShape::sigmaEtaEtaMax(const l1t::HGCalMulticluster& c3d) const {
 
   std::unordered_map<int, std::vector<std::pair<float,float> > > tc_layer_energy_eta;
@@ -269,6 +301,46 @@ float HGCalShowerShape::sigmaPhiPhiMax(const l1t::HGCalMulticluster& c3d) const 
 }
 
 
+
+
+float HGCalShowerShape::sigmaRRMax(const l1t::HGCalMulticluster& c3d) const {
+
+  std::unordered_map<int, std::vector<std::pair<float,float> > > tc_layer_energy_r;
+
+  const edm::PtrVector<l1t::HGCalCluster>& clustersPtrs = c3d.constituents();
+
+  for(const auto& clu : clustersPtrs){
+    
+    int layer = HGC_layer(clu->subdetId(),clu->layer());        
+
+    const edm::PtrVector<l1t::HGCalTriggerCell>& triggerCells = clu->constituents();
+
+    for(const auto& tc : triggerCells){
+
+      float r = std::sqrt( pow(tc->position().x(),2) + pow(tc->position().y(),2) )/std::abs(tc->position().z());
+      tc_layer_energy_r[layer].emplace_back( std::make_pair(tc->energy(),r) );
+
+    }
+
+  }
+
+
+  float SigmaRRMax=0;
+
+  for(auto& tc_iter : tc_layer_energy_r){
+    
+    const std::vector<std::pair<float, float> >& energy_r_layer = tc_iter.second;
+    float r_mean_layer = meanX(energy_r_layer);
+    float SigmaRRLayer = sigmaXX(energy_r_layer,r_mean_layer);
+    if(SigmaRRLayer > SigmaRRMax) SigmaRRMax = SigmaRRLayer;
+
+  }
+
+
+  return SigmaRRMax;
+
+
+}
 
 
 float HGCalShowerShape::eMax(const l1t::HGCalMulticluster& c3d) const {
@@ -366,3 +438,26 @@ float HGCalShowerShape::sigmaPhiPhiTot(const l1t::HGCalCluster& c2d) const {
   return Spp;
   
 }      
+
+
+
+
+float HGCalShowerShape::sigmaRRTot(const l1t::HGCalCluster& c2d) const {
+
+  const edm::PtrVector<l1t::HGCalTriggerCell>& cellsPtrs = c2d.constituents();
+  
+  std::vector<std::pair<float,float> > tc_energy_r ; 
+  
+  for(const auto& cell : cellsPtrs){
+    
+    float r = std::sqrt( pow(cell->position().x(),2) + pow(cell->position().y(),2) )/std::abs(cell->position().z());    
+    tc_energy_r.emplace_back( std::make_pair(cell->energy(),r) ); 
+    
+  }
+  
+  float r_mean = meanX(tc_energy_r);
+  float Srr = sigmaXX(tc_energy_r,r_mean);
+  
+  return Srr;
+  
+}       
