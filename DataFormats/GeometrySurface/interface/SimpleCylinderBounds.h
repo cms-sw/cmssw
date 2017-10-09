@@ -23,22 +23,22 @@ public:
   SimpleCylinderBounds( float rmin, float rmax, float zmin, float zmax);
 
   /// Lenght of the cylinder
-  virtual float length()    const { return theZmax - theZmin;}
+  float length()    const override { return theZmax - theZmin;}
   /// Outer diameter of the cylinder
-  virtual float width()     const { return 2*theRmax;}
+  float width()     const override { return 2*theRmax;}
   /// Thikness of the "pipe", i.e. difference between outer and inner radius
-  virtual float thickness() const { return theRmax-theRmin;}
+  float thickness() const override { return theRmax-theRmin;}
 
   using Bounds::inside;
-  virtual bool inside( const Local3DPoint& p) const;
+  bool inside( const Local3DPoint& p) const override;
 
     
-  virtual bool inside( const Local3DPoint& p, const LocalError& err,float scale) const;
+  bool inside( const Local3DPoint& p, const LocalError& err,float scale) const override;
 
   virtual bool inside( const Local2DPoint& p, const LocalError& err) const;
  
 
-  virtual Bounds* clone() const;
+  Bounds* clone() const override;
 
 private:
   float theRmin;

@@ -27,7 +27,7 @@ namespace l1t
                     int qual=0, 
                     uint32_t detid=0);
 
-            ~HGCalTriggerCell();
+            ~HGCalTriggerCell() override;
 
             void setDetId(uint32_t detid) {detid_ = HGCalDetId(detid);}
             void setPosition(const GlobalPoint& position) {position_ = position;}

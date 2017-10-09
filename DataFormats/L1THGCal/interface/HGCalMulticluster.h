@@ -21,7 +21,7 @@ namespace l1t {
 
       HGCalMulticluster( const edm::Ptr<l1t::HGCalCluster> &tc );
       
-      ~HGCalMulticluster();
+      ~HGCalMulticluster() override;
 
 
   };

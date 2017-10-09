@@ -22,9 +22,9 @@ namespace reco {
     PFBlockElementBrem(const GsfPFRecTrackRef& gsfref, const double DeltaP, const double SigmaDeltaP, const unsigned int indTrajPoint);
 
       
-    PFBlockElement* clone() const { return new PFBlockElementBrem(*this); }
+    PFBlockElement* clone() const override { return new PFBlockElementBrem(*this); }
     void Dump(std::ostream& out = std::cout, 
-              const char* tab = " " ) const;
+              const char* tab = " " ) const override;
     
 
     const GsfPFRecTrackRef& GsftrackRefPF() const {
