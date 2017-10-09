@@ -48,13 +48,13 @@
 class TestPythiaDecays : public edm::stream::EDAnalyzer <> {
 public:
   explicit TestPythiaDecays(const edm::ParameterSet&);
-  ~TestPythiaDecays();
+  ~TestPythiaDecays() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
   
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   
   //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
@@ -319,7 +319,7 @@ TestPythiaDecays::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
        h_originVertexRho[pid]->Fill(originVertex.position().Rho());
        h_originVertexZ[pid]->Fill(std::fabs(originVertex.position().Z()));
      }
-     if(childMap[j].size() > 0){
+     if(!childMap[j].empty()){
        const SimTrack & child = simtracks->at(childMap[j][0]);
        const SimVertex & decayVertex = simvertices->at(child.vertIndex());
        h_decayVertexRho[pid]->Fill(decayVertex.position().Rho());
@@ -335,7 +335,7 @@ TestPythiaDecays::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
      const SimTrack & parent = simtracks->at(parentIndex);
      int pid = abs(parent.type());
      std::vector<size_t> & childIndices = it->second;
-     if(childIndices.size() == 0)
+     if(childIndices.empty())
        continue;
 
      if(std::find(pids.begin(),pids.end(),pid)==pids.end())
