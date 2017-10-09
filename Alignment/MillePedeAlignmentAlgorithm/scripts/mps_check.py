@@ -21,7 +21,10 @@ lib.read_db()
 
 # create a list of eos ls entries containing files on eos binary store
 command = ["ls", "-l", os.path.join(lib.mssDir, "binaries")]
-eoslsoutput = subprocess.check_output(command, stderr=subprocess.STDOUT).split('\n')
+try:
+    eoslsoutput = subprocess.check_output(command, stderr=subprocess.STDOUT).split('\n')
+except subprocess.CalledProcessError:
+    eoslsoutput = ""
 
 # loop over FETCH jobs
 for i in xrange(len(lib.JOBID)):
