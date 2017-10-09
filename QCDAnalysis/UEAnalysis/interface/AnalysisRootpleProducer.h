@@ -44,12 +44,12 @@ public:
 
   //
   explicit AnalysisRootpleProducer( const edm::ParameterSet& ) ;
-  virtual ~AnalysisRootpleProducer() {} // no need to delete ROOT stuff
+  ~AnalysisRootpleProducer() override {} // no need to delete ROOT stuff
   // as it'll be deleted upon closing TFile
 
-  virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
-  virtual void beginJob() ;
-  virtual void endJob() ;
+  void analyze( const edm::Event&, const edm::EventSetup& ) override ;
+  void beginJob() override ;
+  void endJob() override ;
 
   void fillEventInfo(int);
   void fillMCParticles(float, float, float, float);
