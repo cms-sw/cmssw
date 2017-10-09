@@ -86,7 +86,7 @@ public:
   };
 
   explicit EgammaHLTFilteredSuperClusterProducer(const edm::ParameterSet& pset);
-  ~EgammaHLTFilteredSuperClusterProducer()=default;
+  ~EgammaHLTFilteredSuperClusterProducer() override =default;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    void produce(edm::Event&, const edm::EventSetup&) override;    

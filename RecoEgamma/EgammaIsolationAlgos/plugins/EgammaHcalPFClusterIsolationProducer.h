@@ -24,10 +24,10 @@ class EgammaHcalPFClusterIsolationProducer : public edm::stream::EDProducer<> {
   typedef std::vector<T1> T1Collection;
   typedef edm::Ref<T1Collection> T1Ref;
   explicit EgammaHcalPFClusterIsolationProducer(const edm::ParameterSet&);
-  ~EgammaHcalPFClusterIsolationProducer();
+  ~EgammaHcalPFClusterIsolationProducer() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
  
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
  private:
 
   const edm::EDGetTokenT<T1Collection> emObjectProducer_;

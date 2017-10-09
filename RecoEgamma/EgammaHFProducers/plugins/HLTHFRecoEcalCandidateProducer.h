@@ -24,7 +24,7 @@
 class HLTHFRecoEcalCandidateProducer : public edm::EDProducer {
  public:
   explicit HLTHFRecoEcalCandidateProducer(edm::ParameterSet const& conf);
-  virtual void produce(edm::Event& e, edm::EventSetup const& iSetup);
+  void produce(edm::Event& e, edm::EventSetup const& iSetup) override;
  private:
   edm::InputTag hfclusters_,vertices_;
   int HFDBversion_;

@@ -9,11 +9,11 @@ public:
     minE1x5OverE5x5_(params,"minE1x5OverE5x5"),
     minE2x5OverE5x5_(params,"minE2x5OverE5x5"){}
   
-  result_type operator()(const reco::GsfElectronPtr&) const override final;
+  result_type operator()(const reco::GsfElectronPtr&) const final;
 
-  double value(const reco::CandidatePtr& cand) const override final;
+  double value(const reco::CandidatePtr& cand) const final;
   
-  CandidateType candidateType() const override final { 
+  CandidateType candidateType() const final { 
     return ELECTRON; 
   }
 
