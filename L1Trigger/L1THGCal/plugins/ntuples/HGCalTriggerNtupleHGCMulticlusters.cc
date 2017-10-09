@@ -33,6 +33,8 @@ class HGCalTriggerNtupleHGCMulticlusters : public HGCalTriggerNtupleBase
     std::vector<float> cl3d_spptot_;
     std::vector<float> cl3d_sppmax_;
     std::vector<float> cl3d_szz_;
+    std::vector<float> cl3d_srrtot_;
+    std::vector<float> cl3d_srrmax_;
     std::vector<float> cl3d_emaxe_;
     std::vector<std::vector<unsigned>> cl3d_clusters_;   
 };
@@ -66,6 +68,8 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
   tree.Branch("cl3d_spptot", &cl3d_spptot_);
   tree.Branch("cl3d_sppmax", &cl3d_sppmax_);
   tree.Branch("cl3d_szz", &cl3d_szz_);
+  tree.Branch("cl3d_srrtot", &cl3d_srrtot_);
+  tree.Branch("cl3d_srrmax", &cl3d_srrmax_);
   tree.Branch("cl3d_emaxe", &cl3d_emaxe_);  
   tree.Branch("cl3d_clusters", &cl3d_clusters_);
 
@@ -102,6 +106,8 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     cl3d_spptot_.emplace_back(cl3d_itr->sigmaPhiPhiTot());
     cl3d_sppmax_.emplace_back(cl3d_itr->sigmaPhiPhiMax());
     cl3d_szz_.emplace_back(cl3d_itr->sigmaZZ());
+    cl3d_srrtot_.emplace_back(cl3d_itr->sigmaRRTot());
+    cl3d_srrmax_.emplace_back(cl3d_itr->sigmaRRMax());
     cl3d_emaxe_.emplace_back(cl3d_itr->eMax()/cl3d_itr->energy());
 
     // Retrieve indices of trigger cells inside cluster
@@ -130,6 +136,8 @@ clear()
   cl3d_spptot_.clear();
   cl3d_sppmax_.clear();
   cl3d_szz_.clear();
+  cl3d_srrtot_.clear();
+  cl3d_srrmax_.clear();
   cl3d_emaxe_.clear();
   cl3d_clusters_.clear();
   

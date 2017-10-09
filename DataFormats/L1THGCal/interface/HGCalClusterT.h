@@ -152,6 +152,8 @@ namespace l1t
       float sigmaEtaEtaTot() const { return sigmaEtaEtaTot_; }
       float sigmaPhiPhiTot() const { return sigmaPhiPhiTot_; }
       float sigmaZZ() const { return sigmaZZ_; }
+      float sigmaRRTot() const { return sigmaRRTot_; }
+      float sigmaRRMax() const { return sigmaRRMax_; }
 
       void set_showerLength(int showerLength) { showerLength_ = showerLength;}
       void set_firstLayer(int firstLayer) { firstLayer_ = firstLayer;}
@@ -160,6 +162,8 @@ namespace l1t
       void set_sigmaEtaEtaTot(float sigmaEtaEtaTot) { sigmaEtaEtaTot_ = sigmaEtaEtaTot;}
       void set_sigmaPhiPhiMax(float sigmaPhiPhiMax) { sigmaPhiPhiMax_ = sigmaPhiPhiMax;}
       void set_sigmaPhiPhiTot(float sigmaPhiPhiTot) { sigmaPhiPhiTot_ = sigmaPhiPhiTot;}
+      void set_sigmaRRMax(float sigmaRRMax) { sigmaRRMax_ = sigmaRRMax;}
+      void set_sigmaRRTot(float sigmaRRTot) { sigmaRRTot_ = sigmaRRTot;}
       void set_sigmaZZ(float sigmaZZ) { sigmaZZ_ = sigmaZZ;}
       
       /* operators */
@@ -186,8 +190,10 @@ namespace l1t
       float eMax_;
       float sigmaEtaEtaMax_;
       float sigmaPhiPhiMax_;
+      float sigmaRRMax_;
       float sigmaEtaEtaTot_;
       float sigmaPhiPhiTot_;
+      float sigmaRRTot_;
       float sigmaZZ_;
 
       ClusterShapes shapes_;
