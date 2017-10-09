@@ -105,7 +105,7 @@ void DTRecSegment4DProducer::produce(Event& event, const EventSetup& setup){
            ostream_iterator<DTRecSegment4D>(cout, "\n"));
     }
 
-    if (segments4D.size() > 0 )
+    if (!segments4D.empty() )
       // convert the OwnVector into a Collection
       segments4DCollection->put(chId, segments4D.begin(),segments4D.end());
   }

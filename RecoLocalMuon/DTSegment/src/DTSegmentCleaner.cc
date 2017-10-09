@@ -57,7 +57,7 @@ vector<DTSegmentCand*> DTSegmentCleaner::solveConflict(const std::vector<DTSegme
 
       DTSegmentCand::AssPointCont confHits=(*cand)->conflictingHitPairs(*(*cand2));
       
-      if (confHits.size()) {
+      if (!confHits.empty()) {
 	///treatment of LR ambiguity cases: 1 chooses the best chi2
 	///                                 2 chooses the smaller angle
 	///                                 3 keeps both candidates
@@ -66,7 +66,7 @@ vector<DTSegmentCand*> DTSegmentCleaner::solveConflict(const std::vector<DTSegme
 
 	  if(segmCleanerMode == 2) { // mode 2: choose on the basis of the angle
 
-	    DTSegmentCand* badCand = 0;
+	    DTSegmentCand* badCand = nullptr;
 	    if((*cand)->superLayer()->id().superlayer() != 2) { // we are in the phi view
 
 	      LocalVector dir1 = (*cand)->direction();
