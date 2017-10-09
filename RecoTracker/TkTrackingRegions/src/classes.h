@@ -1,5 +1,5 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionsSeedingLayerSetsHits.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionsSeedingLayerSets.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
@@ -9,6 +9,6 @@ namespace RecoTracker_TkTrackingRegions {
     edm::OwnVector<TrackingRegion> ovtr;
     edm::Wrapper<edm::OwnVector<TrackingRegion> > wovtr;
 
-    edm::Wrapper<TrackingRegionsSeedingLayerSetsHits> wtrslsh;
+    edm::Wrapper<TrackingRegionsSeedingLayerSets> wtrsls;
   };
 }

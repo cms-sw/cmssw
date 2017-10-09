@@ -18,34 +18,8 @@ class PixelInactiveAreaFinder {
 public:
   using Area = AreaSeededTrackingRegionsBuilder::Area;
   using SeedingLayerId = SeedingLayerSetsBuilder::SeedingLayerId;
+  using LayerSetIndex = SeedingLayerSetsHits::LayerSetIndex;
 
-  class AreaLayers {
-  public:
-    const std::vector<Area>& areas() const { return areas_; }
-    const std::vector<SeedingLayerId> layers() const { return layers_; }
-
-  private:
-    std::vector<Area> areas_;            // inactive areas related to these two layers
-    std::vector<SeedingLayerId> layers_; // inner and outer active layer, so size always 2; is vector only because of client interface
-  };
-
-  PixelInactiveAreaFinder(const edm::ParameterSet& iConfig, const std::vector<SeedingLayerId>& seedingLayers,
-                          const SeedingLayerSetsLooper& seedingLayerSetsLooper);
-  ~PixelInactiveAreaFinder() = default;
-
-  static void fillDescriptions(edm::ParameterSetDescription& desc);
-
-  std::vector<AreaLayers> inactiveAreas(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-
-private:
-  // Configuration
-  const bool debug_;
-  const bool createPlottingFiles_;
-
-  std::vector<SeedingLayerId> layers_;
-  std::vector<std::pair<unsigned short, unsigned short> > layerSetIndices_;
-
-  // Output types
   struct DetGroupSpan {
     int subdetId;
     std::pair<float,float> phiSpan;
@@ -61,8 +35,49 @@ private:
       layer(0),disk(0)
     {}
   };
-  // Output type aliases
   using DetGroupSpanContainer = std::vector<DetGroupSpan>;
+
+  class InactiveAreas {
+  public:
+    InactiveAreas(const std::vector<SeedingLayerId> *layers,
+                  std::vector<DetGroupSpanContainer>&& spans,
+                  const std::vector<std::pair<unsigned short, unsigned short> > *layerPairs,
+                  const std::vector<std::vector<LayerSetIndex> > *layerSetIndexInactiveToActive):
+      layers_(layers),
+      spans_(std::move(spans)),
+      layerPairIndices_(layerPairs),
+      layerSetIndexInactiveToActive_(layerSetIndexInactiveToActive)
+    {}
+
+    std::vector<std::pair<std::vector<Area>, std::vector<LayerSetIndex> > > areasAndLayerSets(const GlobalPoint& point, float zwidth) const;
+    std::vector<std::pair<std::vector<DetGroupSpan>, std::vector<LayerSetIndex> > > spansAndLayerSets(const GlobalPoint& point, float zwidth) const;
+
+  private:
+    const std::vector<SeedingLayerId> *layers_;   // pointer to PixelInactiveAreaFinder::layers_
+    std::vector<DetGroupSpanContainer> spans_;    // inactive areas for each layer, indexing corresponds to layers_
+    const std::vector<std::pair<unsigned short, unsigned short> > *layerPairIndices_; // indices to the layer pair within the input SeedingLayerSetsHits
+    const std::vector<std::vector<LayerSetIndex> > *layerSetIndexInactiveToActive_; // mapping from index in "inactive" seeding layers to "active" seeding layers
+  };
+
+
+  PixelInactiveAreaFinder(const edm::ParameterSet& iConfig, const std::vector<SeedingLayerId>& seedingLayers,
+                          const SeedingLayerSetsLooper& seedingLayerSetsLooper);
+  ~PixelInactiveAreaFinder() = default;
+
+  static void fillDescriptions(edm::ParameterSetDescription& desc);
+
+  InactiveAreas inactiveAreas(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+
+private:
+  // Configuration
+  const bool debug_;
+  const bool createPlottingFiles_;
+
+  std::vector<SeedingLayerId> layers_;
+  std::vector<std::pair<unsigned short, unsigned short> > layerSetIndices_; // indices within layers_
+  std::vector<std::vector<LayerSetIndex> > layerSetIndexInactiveToActive_; // mapping from index in layers_ to constructor seedingLayers+seedingLayerSetsLooper
+
+  // Output type aliases
   using DetGroupSpanContainerPair = std::pair<DetGroupSpanContainer,DetGroupSpanContainer>;
   using OverlapSpans = std::vector<DetGroupSpan>;
   using OverlapSpansContainer = std::vector<OverlapSpans>;
@@ -96,12 +111,10 @@ private:
   void getBadPixelDets();
   // Printing functions
   void detInfo(const det_t & det, Stream & ss);
-  void detGroupSpanInfo(const DetGroupSpan & cspan, Stream & ss);
   void printPixelDets();
   void printBadPixelDets();
   void printBadDetGroups();
   void printBadDetGroupSpans();
-  void printOverlapSpans();
   void createPlottingFiles();
   // Functions for finding bad detGroups
   static bool phiRangesOverlap(const float x1,const float x2, const float y1,const float y2);
@@ -121,13 +134,6 @@ private:
   void getRSpan(const DetGroup & detGroup, DetGroupSpan & cspan);
   void getSpan(const DetGroup & detGroup, DetGroupSpan & cspan);
   DetGroupSpanContainerPair detGroupSpans();
-  // Functions for findind overlapping functions
-  static float zAxisIntersection(const float zrPointA[2], const float zrPoint[2]);
-  bool getZAxisOverlapRangeBarrel(const DetGroupSpan & cspanA, const DetGroupSpan & cspanB,std::pair<float,float> & range);
-  bool getZAxisOverlapRangeEndcap(const DetGroupSpan & cspanA, const DetGroupSpan & cspanB,std::pair<float,float> & range);
-  bool getZAxisOverlapRangeBarrelEndcap(const DetGroupSpan & cspanA, const DetGroupSpan & cspanB,std::pair<float,float> & range);
-  void compareDetGroupSpansBarrel();
-  OverlapSpansContainer overlappingSpans(float zAxisThreshold = std::numeric_limits<float>::infinity());
 };
 
 #endif

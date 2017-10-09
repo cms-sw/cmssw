@@ -13,7 +13,8 @@
 
 class AreaSeededTrackingRegionsBuilder {
 public:
-  using Origins = std::vector< std::pair< GlobalPoint, float > >; // (origin, half-length in z)
+  using Origin = std::pair<GlobalPoint, float>; // (origin, half-length in z)
+  using Origins = std::vector<Origin>;
 
   class Area {
   public:
@@ -48,6 +49,7 @@ public:
     void setMeasurementTracker(const MeasurementTrackerEvent *mte) { m_measurementTracker = mte; }
 
     std::vector<std::unique_ptr<TrackingRegion> > regions(const Origins& origins, const std::vector<Area>& areas) const;
+    std::unique_ptr<TrackingRegion> region(const Origin& origin, const std::vector<Area>& areas) const;
 
   private:
     const AreaSeededTrackingRegionsBuilder *m_conf = nullptr;
