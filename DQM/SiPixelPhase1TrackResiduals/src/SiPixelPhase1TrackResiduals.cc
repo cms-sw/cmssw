@@ -22,9 +22,8 @@ SiPixelPhase1TrackResiduals::SiPixelPhase1TrackResiduals(const edm::ParameterSet
   SiPixelPhase1Base(iConfig),
   validator(iConfig, consumesCollector())
 {
-  offlinePrimaryVerticesToken_ = consumes<reco::VertexCollection>(std::string("offlinePrimaryVertices"));
-
   applyVertexCut_=iConfig.getUntrackedParameter<bool>("VertexCut",true);
+  offlinePrimaryVerticesToken_= consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"));
 }
 
 void SiPixelPhase1TrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -34,10 +33,12 @@ void SiPixelPhase1TrackResiduals::analyze(const edm::Event& iEvent, const edm::E
   assert(tracker.isValid());
 
   edm::Handle<reco::VertexCollection> vertices;
-  iEvent.getByToken(offlinePrimaryVerticesToken_, vertices);
 
-  if (applyVertexCut_ && (!vertices.isValid() || vertices->size() == 0)) return;
-  
+  if(applyVertexCut_) {
+    iEvent.getByToken(offlinePrimaryVerticesToken_, vertices);
+    if (!vertices.isValid() || vertices->empty()) return;
+  }
+   
   std::vector<TrackerValidationVariables::AVTrackStruct> vtracks;
 
   validator.fillTrackQuantities(iEvent, iSetup, 
@@ -52,20 +53,6 @@ void SiPixelPhase1TrackResiduals::analyze(const edm::Event& iEvent, const edm::E
       auto id = DetId(it.rawDetId);
       auto isPixel = id.subdetId() == 1 || id.subdetId() == 2;
       if (!isPixel) continue; 
-
-      //TO BE UPDATED WITH VINCENZO STUFF
-      /*
-      const PixelGeomDetUnit* geomdetunit = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(id) );
-      const PixelTopology& topol = geomdetunit->specificTopology();
-
-      float lpx=it.localX;
-      float lpy=it.localY;
-      LocalPoint lp(lpx,lpy);
-      
-      MeasurementPoint mp = topol.measurementPosition(lp);
-      int row = (int) mp.x();
-      int col = (int) mp.y();
-      */
       
       histo[RESIDUAL_X].fill(it.resXprime, id, &iEvent);
       histo[RESIDUAL_Y].fill(it.resYprime, id, &iEvent);
