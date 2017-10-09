@@ -6,13 +6,14 @@
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "DataFormats/Common/interface/OwnVector.h"
-#include "AreaSeededTrackingRegionsBuilder.h"
 
 #include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSetsBuilder.h"
 
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionsSeedingLayerSetsHits.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionsSeedingLayerSets.h"
 
+#include "VertexBeamspotOrigins.h"
+#include "AreaSeededTrackingRegionsBuilder.h"
 #include "PixelInactiveAreaFinder.h"
 
 #include <vector>
@@ -21,8 +22,6 @@
 
 class PixelInactiveAreaTrackingRegionsSeedingLayersProducer: public edm::stream::EDProducer<> {
 public:
-  using ProductType = TrackingRegionsSeedingLayerSetsHits;
-
   PixelInactiveAreaTrackingRegionsSeedingLayersProducer(const edm::ParameterSet& iConfig);
   ~PixelInactiveAreaTrackingRegionsSeedingLayersProducer() override = default;
 
@@ -32,22 +31,26 @@ public:
 
 private:
   SeedingLayerSetsBuilder seedingLayerSetsBuilder_;
+  VertexBeamspotOrigins origins_;
   PixelInactiveAreaFinder inactiveAreaFinder_;
   AreaSeededTrackingRegionsBuilder trackingRegionsBuilder_;
 };
 
 PixelInactiveAreaTrackingRegionsSeedingLayersProducer::PixelInactiveAreaTrackingRegionsSeedingLayersProducer(const edm::ParameterSet& iConfig):
   seedingLayerSetsBuilder_(iConfig, consumesCollector()),
+  origins_(iConfig.getParameter<edm::ParameterSet>("RegionPSet"), consumesCollector()),
   inactiveAreaFinder_(iConfig, seedingLayerSetsBuilder_.layers(), seedingLayerSetsBuilder_.seedingLayerSetsLooper()),
   trackingRegionsBuilder_(iConfig.getParameter<edm::ParameterSet>("RegionPSet"), consumesCollector())
 {
-  produces<ProductType>();
+  produces<SeedingLayerSetsHits>();
+  produces<TrackingRegionsSeedingLayerSets>();
 }
 
 void PixelInactiveAreaTrackingRegionsSeedingLayersProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
   edm::ParameterSetDescription descRegion;
+  VertexBeamspotOrigins::fillDescriptions(descRegion);
   AreaSeededTrackingRegionsBuilder::fillDescriptions(descRegion);
   desc.add<edm::ParameterSetDescription>("RegionPSet", descRegion);
 
@@ -58,20 +61,24 @@ void PixelInactiveAreaTrackingRegionsSeedingLayersProducer::fillDescriptions(edm
 }
 
 void PixelInactiveAreaTrackingRegionsSeedingLayersProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  auto ret = std::make_unique<ProductType>();
+  auto orphanHandle = iEvent.put(seedingLayerSetsBuilder_.hits(iEvent, iSetup));
+  const SeedingLayerSetsHits *seedingLayers = orphanHandle.product();
 
-  auto builder = trackingRegionsBuilder_.beginEvent(iEvent, iSetup);
+  auto regions = std::make_unique<TrackingRegionsSeedingLayerSets>(seedingLayers);
 
-  const auto& areas = inactiveAreaFinder_.inactiveAreas(iEvent, iSetup);
-  ret->reserve(areas.size());
-  for(const auto& inactiveArea: areas) {
-    ret->emplace_back(builder.regions(inactiveArea.areas()), SeedingLayerSetsHits());
-#ifdef NOT_IMPLEMENTED_YET
-                      seedingLayerSetsBuilder_.hits(inactiveAreas.layers(), iEvent, iSetup));
-#endif
+  const auto origins = origins_.origins(iEvent);
+  const auto builder = trackingRegionsBuilder_.beginEvent(iEvent);
+
+  const auto allAreas = inactiveAreaFinder_.inactiveAreas(iEvent, iSetup);
+  for(const auto& origin: origins) {
+    auto areasLayerSets = allAreas.areasAndLayerSets(origin.first, origin.second); // point, half length in z
+    for(auto& areasLayerSet: areasLayerSets) {
+      auto region = builder.region(origin, areasLayerSet.first);
+      regions->emplace_back(std::move(region), std::move(areasLayerSet.second));
+    }
   }
 
-  iEvent.put(std::move(ret));
+  iEvent.put(std::move(regions));
 }
 
 DEFINE_FWK_MODULE(PixelInactiveAreaTrackingRegionsSeedingLayersProducer);

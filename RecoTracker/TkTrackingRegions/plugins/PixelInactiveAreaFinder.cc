@@ -34,6 +34,7 @@ std::ostream& operator<<(std::ostream& os, SeedingLayerSetsBuilder::SeedingLayer
 namespace {
   using LayerPair = std::pair<SeedingLayerSetsBuilder::SeedingLayerId, SeedingLayerSetsBuilder::SeedingLayerId>;
   using ActiveLayerSetToInactiveSetsMap = std::map<LayerPair, edm::VecArray<LayerPair, 5> >;
+  using Stream = std::stringstream;
 
   ActiveLayerSetToInactiveSetsMap createActiveToInactiveMap() {
     ActiveLayerSetToInactiveSetsMap map;
@@ -87,7 +88,307 @@ namespace {
     return map;
   }
 
+
+
+  void detGroupSpanInfo(const PixelInactiveAreaFinder::DetGroupSpan & cspan, Stream & ss){
+    using std::showpos;
+    using std::noshowpos;
+    using std::fixed;
+    using std::setprecision;
+    using std::setw;
+    using std::setfill;
+    using std::left;
+    using std::right;
+    std::string deli = "; ";
+    ss  << "subdetid:[" << cspan.subdetId << "]" << deli;
+    if(cspan.subdetId == PixelSubdetector::PixelBarrel) {
+      ss << "layer:[" << cspan.layer << "]" << deli;
+    }
+    else {
+      ss << "disk:[" << cspan.disk << "]" << deli;
+    }
+    ss
+      //<< setfill(' ') << setw(36) << " "
+      << setprecision(16)
+      << showpos
+      << "phi:<" << right << setw(12) << cspan.phiSpan.first << "," << left << setw(12) << cspan.phiSpan.second << ">" << deli
+      << "z:<" << right << setw(7) << cspan.zSpan.first << "," << left << setw(7) << cspan.zSpan.second << ">" << deli << noshowpos
+      << "r:<" << right << setw(10) << cspan.rSpan.first << "," << left << setw(10) << cspan.rSpan.second << ">" << deli
+      ;
+  }
+  void printOverlapSpans(const PixelInactiveAreaFinder::InactiveAreas& areasLayers) {
+    auto spansLayerSets = areasLayers.spansAndLayerSets(GlobalPoint(0,0,0), std::numeric_limits<float>::infinity());
+
+    Stream ss;
+    for(auto const &spansLayers: spansLayerSets) {
+      ss << "Overlapping detGroups:\n";
+      for(auto const cspan : spansLayers.first) {
+        detGroupSpanInfo(cspan,ss);
+        ss << std::endl;
+      }
+    }
+    edm::LogPrint("") << ss.str();
+  }
+  // Functions for findind overlapping functions
+  float zAxisIntersection(const float zrPointA[2], const float zrPointB[2]){
+    return (zrPointB[0]-zrPointA[0])/(zrPointB[1]-zrPointA[1])*(-zrPointA[1])+zrPointA[0];
+  }
+  bool getZAxisOverlapRangeBarrel(const PixelInactiveAreaFinder::DetGroupSpan & cspanA, const PixelInactiveAreaFinder::DetGroupSpan & cspanB, std::pair<float,float> & range){
+    PixelInactiveAreaFinder::DetGroupSpan cspanUpper;
+    PixelInactiveAreaFinder::DetGroupSpan cspanLower;
+    if(cspanA.rSpan.second < cspanB.rSpan.first){
+      cspanLower = cspanA;
+      cspanUpper = cspanB;
+    }else if(cspanA.rSpan.first > cspanB.rSpan.second){
+      cspanUpper = cspanA;
+      cspanLower = cspanB;
+    }else{
+      return false;
+    }
+    float lower = 0;
+    float upper = 0;
+    if(cspanUpper.zSpan.second < cspanLower.zSpan.first){
+      // lower intersectionpoint, point = {z,r} in cylindrical coordinates
+      const float pointUpperDetGroupL[2] = {cspanUpper.zSpan.second, cspanUpper.rSpan.second};
+      const float pointLowerDetGroupL[2] = {cspanLower.zSpan.first,  cspanLower.rSpan.first};
+      lower = zAxisIntersection(pointUpperDetGroupL,pointLowerDetGroupL);
+      // upper intersectionpoint
+      const float pointUpperDetGroupU[2] = {cspanUpper.zSpan.first, cspanUpper.rSpan.first};
+      const float pointLowerDetGroupU[2] = {cspanLower.zSpan.second,  cspanLower.rSpan.second};
+      upper = zAxisIntersection(pointUpperDetGroupU,pointLowerDetGroupU);
+    }else if (cspanUpper.zSpan.first <= cspanLower.zSpan.second && cspanLower.zSpan.first <= cspanUpper.zSpan.second){
+      // lower intersectionpoint, point = {z,r} in cylindrical coordinates
+      const float pointUpperDetGroupL[2] = {cspanUpper.zSpan.second, cspanUpper.rSpan.first};
+      const float pointLowerDetGroupL[2] = {cspanLower.zSpan.first,  cspanLower.rSpan.second};
+      lower = zAxisIntersection(pointUpperDetGroupL,pointLowerDetGroupL);
+      // upper intersectionpoint
+      const float pointUpperDetGroupU[2] = {cspanUpper.zSpan.first, cspanUpper.rSpan.first};
+      const float pointLowerDetGroupU[2] = {cspanLower.zSpan.second,  cspanLower.rSpan.second};
+      upper = zAxisIntersection(pointUpperDetGroupU,pointLowerDetGroupU);
+    }else if (cspanUpper.zSpan.first > cspanLower.zSpan.second){
+      // lower intersectionpoint, point = {z,r} in cylindrical coordinates
+      const float pointUpperDetGroupL[2] = {cspanUpper.zSpan.second, cspanUpper.rSpan.first};
+      const float pointLowerDetGroupL[2] = {cspanLower.zSpan.first,  cspanLower.rSpan.second};
+      lower = zAxisIntersection(pointUpperDetGroupL,pointLowerDetGroupL);
+      // upper intersectionpoint
+      const float pointUpperDetGroupU[2] = {cspanUpper.zSpan.first, cspanUpper.rSpan.second};
+      const float pointLowerDetGroupU[2] = {cspanLower.zSpan.second,  cspanLower.rSpan.first};
+      upper = zAxisIntersection(pointUpperDetGroupU,pointLowerDetGroupU);
+    }else{
+      //something wrong
+      return false;
+    }
+    range = std::pair<float,float>(lower,upper);
+    return true;
+  }
+  bool getZAxisOverlapRangeEndcap(const PixelInactiveAreaFinder::DetGroupSpan & cspanA, const PixelInactiveAreaFinder::DetGroupSpan & cspanB, std::pair<float,float> & range){
+    // While on left hand side of pixel detector
+    PixelInactiveAreaFinder::DetGroupSpan cspanNearer;
+    PixelInactiveAreaFinder::DetGroupSpan cspanFurther;
+    float lower = 0;
+    float upper = 0;
+    if(cspanA.zSpan.first < 0 && cspanB.zSpan.first < 0){
+      if(cspanA.zSpan.second < cspanB.zSpan.first){
+        cspanFurther = cspanA;
+        cspanNearer = cspanB;
+      }else if (cspanB.zSpan.second < cspanA.zSpan.first){
+        cspanFurther = cspanB;
+        cspanNearer = cspanA;
+      }else {
+        //edm::LogPrint("") << "No overlap, same disk propably. Spans:";
+        //Stream ss;
+        //detGroupSpanInfo(cspanA,ss);ss<<std::endl;detGroupSpanInfo(cspanB,ss);ss<<std::endl;
+        //edm::LogPrint("") << ss.str();ss.str(std::string());
+        //edm::LogPrint("") << "**";
+        return false;
+      }
+      if(cspanFurther.rSpan.second > cspanNearer.rSpan.first){
+        const float pointA[2] = {cspanFurther.zSpan.second, cspanFurther.rSpan.second};
+        const float pointB[2] = {cspanNearer.zSpan.first, cspanNearer.rSpan.first};
+        lower = zAxisIntersection(pointA,pointB);
+        if(cspanFurther.rSpan.first > cspanNearer.rSpan.second){
+          const float pointC[2] = {cspanFurther.zSpan.first, cspanFurther.rSpan.first};
+          const float pointD[2] = {cspanNearer.zSpan.second, cspanFurther.rSpan.second};
+          upper = zAxisIntersection(pointC,pointD);
+        }else{
+          upper = std::numeric_limits<float>::infinity();
+        }
+      }else{
+        //edm::LogPrint("") << "No overlap, further detGroup is lower. Spans:";
+        //Stream ss;
+        //detGroupSpanInfo(cspanA,ss);ss<<std::endl;detGroupSpanInfo(cspanB,ss);ss<<std::endl;
+        //edm::LogPrint("") << ss.str();ss.str(std::string());
+        //edm::LogPrint("") << "**";
+        return false;
+      }
+    }else if(cspanA.zSpan.first > 0 && cspanB.zSpan.first > 0){
+      if(cspanA.zSpan.first > cspanB.zSpan.second ){
+        cspanFurther = cspanA;
+        cspanNearer = cspanB;
+      }else if(cspanB.zSpan.first > cspanA.zSpan.second){
+        cspanFurther = cspanB;
+        cspanNearer = cspanA;
+      }else{
+        //edm::LogPrint("") << "No overlap, same disk propably. Spans:";
+        //Stream ss;
+        //detGroupSpanInfo(cspanA,ss);ss<<std::endl;detGroupSpanInfo(cspanB,ss);ss<<std::endl;
+        //edm::LogPrint("") << ss.str();ss.str(std::string());
+        //edm::LogPrint("") << "**";
+        return false;
+      }
+      if(cspanFurther.rSpan.second > cspanNearer.rSpan.first){
+        const float pointA[2] = {cspanFurther.zSpan.first, cspanFurther.rSpan.second};
+        const float pointB[2] = {cspanNearer.zSpan.second, cspanNearer.rSpan.first};
+        upper = zAxisIntersection(pointA,pointB);
+        if(cspanFurther.rSpan.first > cspanNearer.rSpan.second){
+          const float pointC[2] = {cspanFurther.zSpan.second, cspanFurther.rSpan.first};
+          const float pointD[2] = {cspanNearer.zSpan.first, cspanFurther.rSpan.second};
+          lower = zAxisIntersection(pointC,pointD);
+        }else{
+          lower = -std::numeric_limits<float>::infinity();
+        }
+      }else{
+        //edm::LogPrint("") << "No overlap, further detGroup lower. Spans:";
+        //Stream ss;
+        //detGroupSpanInfo(cspanA,ss);ss<<std::endl;detGroupSpanInfo(cspanB,ss);ss<<std::endl;
+        //edm::LogPrint("") << ss.str();ss.str(std::string());
+        //edm::LogPrint("") << "**";
+        return false;
+      }
+    }else{
+      //edm::LogPrint("") << "No overlap, different sides of z axis. Spans:";
+      //Stream ss;
+      //detGroupSpanInfo(cspanA,ss);ss<<std::endl;detGroupSpanInfo(cspanB,ss);ss<<std::endl;
+      //edm::LogPrint("") << ss.str();ss.str(std::string());
+      //edm::LogPrint("") << "**";
+      return false;
+    }
+    range = std::pair<float,float>(lower,upper);
+    return true;
+  }
+
+  bool getZAxisOverlapRangeBarrelEndcap(const PixelInactiveAreaFinder::DetGroupSpan & cspanBar, const PixelInactiveAreaFinder::DetGroupSpan & cspanEnd, std::pair<float,float> & range){
+    float lower = 0;
+    float upper = 0;
+    if(cspanEnd.rSpan.second > cspanBar.rSpan.first){
+      if(cspanEnd.zSpan.second < cspanBar.zSpan.first){
+        // if we are on the left hand side of pixel detector
+        const float pointA[2] = {cspanEnd.zSpan.second, cspanEnd.rSpan.second};
+        const float pointB[2] = {cspanBar.zSpan.first, cspanBar.rSpan.first};
+        lower = zAxisIntersection(pointA,pointB);
+        if(cspanEnd.rSpan.first > cspanBar.rSpan.second){
+          // if does not overlap, then there is also upper limit
+          const float pointC[2] = {cspanEnd.zSpan.first, cspanEnd.rSpan.first};
+          const float pointD[2] = {cspanBar.zSpan.second, cspanBar.rSpan.second};
+          upper = zAxisIntersection(pointC,pointD);
+        }else{
+          upper = std::numeric_limits<float>::infinity();
+        }
+      }else if (cspanEnd.zSpan.first > cspanBar.zSpan.second){
+        // if we are on the right hand side of pixel detector
+        const float pointA[2] = {cspanEnd.zSpan.first, cspanEnd.rSpan.second};
+        const float pointB[2] = {cspanBar.zSpan.second, cspanBar.rSpan.first};
+        upper = zAxisIntersection(pointA,pointB);
+        if(cspanEnd.rSpan.first > cspanBar.rSpan.second){
+          const float pointC[2] = {cspanEnd.zSpan.second,cspanEnd.rSpan.first};
+          const float pointD[2] = {cspanBar.zSpan.first, cspanBar.rSpan.second};
+          lower = zAxisIntersection(pointC,pointD);
+        }else{
+          lower = - std::numeric_limits<float>::infinity();
+        }
+      }else {
+        return false;
+      }
+    }else{
+      return false;
+    } 
+    range =  std::pair<float,float>(lower,upper);
+    return true;
+  }
 }
+
+std::vector<std::pair<std::vector<PixelInactiveAreaFinder::Area>, std::vector<PixelInactiveAreaFinder::LayerSetIndex> > >
+PixelInactiveAreaFinder::InactiveAreas::areasAndLayerSets(const GlobalPoint& point, float zwidth) const {
+  auto spansLayerSets = spansAndLayerSets(point, zwidth);
+
+  // TODO: try to remove this conversion...
+  std::vector<std::pair<std::vector<Area>, std::vector<LayerSetIndex> > > ret;
+  for(auto& item: spansLayerSets) {
+    auto& innerSpan = item.first[0];
+    auto& outerSpan = item.first[1];
+    std::vector<Area> areas;
+    areas.emplace_back(innerSpan.rSpan.first,
+                       innerSpan.phiSpan.first, innerSpan.phiSpan.second,
+                       innerSpan.zSpan.first, innerSpan.zSpan.second);
+    areas.emplace_back(outerSpan.rSpan.first,
+                       outerSpan.phiSpan.first, outerSpan.phiSpan.second,
+                       outerSpan.zSpan.first, outerSpan.zSpan.second);
+    ret.emplace_back(std::move(areas), std::move(item.second));
+  }
+
+  return ret;
+}
+
+std::vector<std::pair<std::vector<PixelInactiveAreaFinder::DetGroupSpan>, std::vector<PixelInactiveAreaFinder::LayerSetIndex> > >
+PixelInactiveAreaFinder::InactiveAreas::spansAndLayerSets(const GlobalPoint& point, float zwidth) const {
+  // TODO: in the future use 2D-r for the origin for the phi overlap check
+  const float zmin = point.z()-zwidth;
+  const float zmax = point.z()+zwidth;
+
+  std::vector<std::pair<std::vector<DetGroupSpan>, std::vector<LayerSetIndex> > > ret;
+
+  LogTrace("PixelInactiveAreaFinder") << "Origin at " << point.x() << "," << point.y() << "," << point.z() << " z half width " << zwidth;
+
+  for(LayerSetIndex i=0, end=layerPairIndices_->size(); i<end; ++i) {
+    const auto& layerIdxPair = (*layerPairIndices_)[i];
+    const auto& innerSpans = spans_[layerIdxPair.first];
+    const auto& outerSpans = spans_[layerIdxPair.second];
+
+    for(const auto& innerSpan: innerSpans) {
+      for(const auto& outerSpan: outerSpans) {
+
+        if(phiRangesOverlap(innerSpan.phiSpan, outerSpan.phiSpan)) {
+          std::pair<float,float> range(0,0);
+
+          bool zOverlap = false;
+          const auto innerDet = std::get<0>((*layers_)[layerIdxPair.first]);
+          const auto outerDet = std::get<0>((*layers_)[layerIdxPair.second]);
+          if(innerDet == GeomDetEnumerators::PixelBarrel) {
+            if(outerDet == GeomDetEnumerators::PixelBarrel)
+              zOverlap = getZAxisOverlapRangeBarrel(innerSpan, outerSpan, range);
+            else
+              zOverlap = getZAxisOverlapRangeBarrelEndcap(innerSpan, outerSpan, range);
+          }
+          else {
+            if(outerDet == GeomDetEnumerators::PixelEndcap)
+              zOverlap = getZAxisOverlapRangeEndcap(innerSpan, outerSpan, range);
+            else
+              throw cms::Exception("LogicError") << "Forward->barrel transition is not supported";
+          }
+
+          if(zOverlap && zmin <= range.second && range.first <= zmax) {
+#ifdef EDM_ML_DEBUG
+            Stream ss;
+            for(auto ind: (*layerSetIndexInactiveToActive_)[i]) {
+              ss << ind << ",";
+            }
+            ss << "\n  ";
+            detGroupSpanInfo(innerSpan, ss);
+            ss << "\n  ";
+            detGroupSpanInfo(outerSpan, ss);
+            LogTrace("PixelInactiveAreaFinder") << " adding areas for active layer sets " << ss.str();
+#endif
+            ret.emplace_back(std::vector<DetGroupSpan>{{innerSpan, outerSpan}}, (*layerSetIndexInactiveToActive_)[i]);
+          }
+        }
+      }
+    }
+  }
+
+  return ret;
+}
+
+
 
 PixelInactiveAreaFinder::PixelInactiveAreaFinder(const edm::ParameterSet& iConfig, const std::vector<SeedingLayerSetsBuilder::SeedingLayerId>& seedingLayers,
                                                  const SeedingLayerSetsLooper& seedingLayerSetsLooper):
@@ -115,6 +416,7 @@ PixelInactiveAreaFinder::PixelInactiveAreaFinder(const edm::ParameterSet& iConfi
 
   // convert input layer pairs (that are for active layers) to layer
   // pairs to look for inactive areas
+  LayerSetIndex i=0;
   for(const auto& layerSet: seedingLayerSetsLooper.makeRange(seedingLayers)) {
     assert(layerSet.size() == 2);
     auto found = activeToInactiveMap.find(std::make_pair(layerSet[0], layerSet[1]));
@@ -130,10 +432,16 @@ PixelInactiveAreaFinder::PixelInactiveAreaFinder(const edm::ParameterSet& iConfi
       auto found = std::find(layerSetIndices_.cbegin(), layerSetIndices_.cend(), std::make_pair(innerInd, outerInd));
       if(found == layerSetIndices_.end()) {
         layerSetIndices_.emplace_back(innerInd, outerInd);
+        layerSetIndexInactiveToActive_.push_back(std::vector<LayerSetIndex>{{i}});
+      }
+      else {
+        layerSetIndexInactiveToActive_.at(std::distance(layerSetIndices_.cbegin(), found)).push_back(i); // TODO: move to operator[] once finished
       }
 
       LogTrace("PixelInactiveAreaFinder") << " inactive layer set " << inactiveLayerSet.first << "+" << inactiveLayerSet.second;
     }
+
+    ++i;
   }
   
 
@@ -151,10 +459,8 @@ void PixelInactiveAreaFinder::fillDescriptions(edm::ParameterSetDescription& des
 }
 
 
-std::vector<PixelInactiveAreaFinder::AreaLayers>
+PixelInactiveAreaFinder::InactiveAreas
 PixelInactiveAreaFinder::inactiveAreas(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  std::vector<PixelInactiveAreaFinder::AreaLayers> ret;
-
   // Set data to handles
   {
     edm::ESHandle<SiPixelQuality> pixelQuality;
@@ -179,12 +485,37 @@ PixelInactiveAreaFinder::inactiveAreas(const edm::Event& iEvent, const edm::Even
     createPlottingFiles();
   }
 
-  // Comparing
-  if(debug_) {
-    this->printOverlapSpans();
-  }
+  // find detGroupSpans ie phi,r,z limits for detector detGroups that are not working
+  // returns pair where first is barrel spans and second endcap spans
+  DetGroupSpanContainerPair cspans = detGroupSpans();
 
-  // add conversion to output
+  // map spans to a vector with consisntent indexing with layers_ and layerSetIndices_
+  // TODO: try to move the inner logic towards this direction as well
+  std::vector<DetGroupSpanContainer> spans(layers_.size());
+
+  auto doWork = [&](const DetGroupSpanContainer& container) {
+    for(const auto& span: container) {
+      const auto subdet = span.subdetId == PixelSubdetector::PixelBarrel ? GeomDetEnumerators::PixelBarrel : GeomDetEnumerators::PixelEndcap;
+      const auto side = (subdet == GeomDetEnumerators::PixelBarrel ? TrackerDetSide::Barrel :
+                         (span.zSpan.first < 0 ? TrackerDetSide::NegEndcap : TrackerDetSide::PosEndcap));
+      const auto layer = subdet == GeomDetEnumerators::PixelBarrel ? span.layer : span.disk;
+      auto found = std::find(layers_.begin(), layers_.end(), SeedingLayerId(subdet, side, layer));
+      if(found != layers_.end()) { // it is possible that this layer is ignored by the configuration
+        spans[std::distance(layers_.begin(), found)].push_back(span);
+      }
+    }
+  };
+  doWork(cspans.first);
+  doWork(cspans.second);
+
+  auto ret = InactiveAreas(&layers_,
+                           std::move(spans),
+                           &layerSetIndices_,
+                           &layerSetIndexInactiveToActive_);
+
+  if(debug_) {
+    printOverlapSpans(ret);
+  }
 
   return ret;
 }
@@ -269,32 +600,6 @@ void PixelInactiveAreaFinder::detInfo(const det_t & det, Stream & ss){
     << "r:["   << right << setw(10) << rA   << "," << left << setw(10) << rB   << "]" << deli;
 
 }
-void PixelInactiveAreaFinder::detGroupSpanInfo(const DetGroupSpan & cspan, Stream & ss){
-  using std::showpos;
-  using std::noshowpos;
-  using std::fixed;
-  using std::setprecision;
-  using std::setw;
-  using std::setfill;
-  using std::left;
-  using std::right;
-  std::string deli = "; ";
-  ss  << "subdetid:[" << cspan.subdetId << "]" << deli;
-  if(cspan.subdetId == PixelSubdetector::PixelBarrel) {
-    ss << "layer:[" << cspan.layer << "]" << deli;
-  }
-  else {
-    ss << "disk:[" << cspan.disk << "]" << deli;
-  }
-  ss
-    //<< setfill(' ') << setw(36) << " "
-      << setprecision(16)
-      << showpos
-      << "phi:<" << right << setw(12) << cspan.phiSpan.first << "," << left << setw(12) << cspan.phiSpan.second << ">" << deli
-      << "z:<" << right << setw(7) << cspan.zSpan.first << "," << left << setw(7) << cspan.zSpan.second << ">" << deli << noshowpos
-      << "r:<" << right << setw(10) << cspan.rSpan.first << "," << left << setw(10) << cspan.rSpan.second << ">" << deli
-    ; 
-}
 void PixelInactiveAreaFinder::printPixelDets(){
   edm::LogPrint("") << "Barrel detectors:";
   Stream ss;
@@ -361,18 +666,6 @@ void PixelInactiveAreaFinder::printBadDetGroupSpans(){
   }
   for(auto const & cspan : cspans.second){
     detGroupSpanInfo(cspan,ss);ss<<std::endl;
-  }
-  edm::LogPrint("") << ss.str();
-}
-void PixelInactiveAreaFinder::printOverlapSpans(){
-  OverlapSpansContainer ospans = this->overlappingSpans();
-  Stream ss;
-  for(auto const & spans : ospans){
-    ss << "Overlapping detGroups:\n";
-    for(auto const cspan : spans){
-      detGroupSpanInfo(cspan,ss);
-      ss << std::endl;
-    }
   }
   edm::LogPrint("") << ss.str();
 }
@@ -774,241 +1067,4 @@ PixelInactiveAreaFinder::DetGroupSpanContainerPair PixelInactiveAreaFinder::detG
     cspansEndcap.push_back(cspan);
   }
   return DetGroupSpanContainerPair(cspansBarrel,cspansEndcap);
-}
-// Functions for findind overlapping functions
-float PixelInactiveAreaFinder::zAxisIntersection(const float zrPointA[2], const float zrPointB[2]){
-  return (zrPointB[0]-zrPointA[0])/(zrPointB[1]-zrPointA[1])*(-zrPointA[1])+zrPointA[0];
-}
-bool PixelInactiveAreaFinder::getZAxisOverlapRangeBarrel(const DetGroupSpan & cspanA, const DetGroupSpan & cspanB, std::pair<float,float> & range){
-  DetGroupSpan cspanUpper;
-  DetGroupSpan cspanLower;
-  if(cspanA.rSpan.second < cspanB.rSpan.first){
-    cspanLower = cspanA;
-    cspanUpper = cspanB;
-  }else if(cspanA.rSpan.first > cspanB.rSpan.second){
-    cspanUpper = cspanA;
-    cspanLower = cspanB;
-  }else{
-    return false;
-  }
-  float lower = 0;
-  float upper = 0;
-  if(cspanUpper.zSpan.second < cspanLower.zSpan.first){
-    // lower intersectionpoint, point = {z,r} in cylindrical coordinates
-    const float pointUpperDetGroupL[2] = {cspanUpper.zSpan.second, cspanUpper.rSpan.second};
-    const float pointLowerDetGroupL[2] = {cspanLower.zSpan.first,  cspanLower.rSpan.first};
-    lower = zAxisIntersection(pointUpperDetGroupL,pointLowerDetGroupL);
-    // upper intersectionpoint
-    const float pointUpperDetGroupU[2] = {cspanUpper.zSpan.first, cspanUpper.rSpan.first};
-    const float pointLowerDetGroupU[2] = {cspanLower.zSpan.second,  cspanLower.rSpan.second};
-    upper = zAxisIntersection(pointUpperDetGroupU,pointLowerDetGroupU);
-  }else if (cspanUpper.zSpan.first <= cspanLower.zSpan.second && cspanLower.zSpan.first <= cspanUpper.zSpan.second){
-    // lower intersectionpoint, point = {z,r} in cylindrical coordinates
-    const float pointUpperDetGroupL[2] = {cspanUpper.zSpan.second, cspanUpper.rSpan.first};
-    const float pointLowerDetGroupL[2] = {cspanLower.zSpan.first,  cspanLower.rSpan.second};
-    lower = zAxisIntersection(pointUpperDetGroupL,pointLowerDetGroupL);
-    // upper intersectionpoint
-    const float pointUpperDetGroupU[2] = {cspanUpper.zSpan.first, cspanUpper.rSpan.first};
-    const float pointLowerDetGroupU[2] = {cspanLower.zSpan.second,  cspanLower.rSpan.second};
-    upper = zAxisIntersection(pointUpperDetGroupU,pointLowerDetGroupU);
-  }else if (cspanUpper.zSpan.first > cspanLower.zSpan.second){
-    // lower intersectionpoint, point = {z,r} in cylindrical coordinates
-    const float pointUpperDetGroupL[2] = {cspanUpper.zSpan.second, cspanUpper.rSpan.first};
-    const float pointLowerDetGroupL[2] = {cspanLower.zSpan.first,  cspanLower.rSpan.second};
-    lower = zAxisIntersection(pointUpperDetGroupL,pointLowerDetGroupL);
-    // upper intersectionpoint
-    const float pointUpperDetGroupU[2] = {cspanUpper.zSpan.first, cspanUpper.rSpan.second};
-    const float pointLowerDetGroupU[2] = {cspanLower.zSpan.second,  cspanLower.rSpan.first};
-    upper = zAxisIntersection(pointUpperDetGroupU,pointLowerDetGroupU);
-  }else{
-    //something wrong
-    return false;
-  }
-  range = std::pair<float,float>(lower,upper);
-  return true;
-}
-bool PixelInactiveAreaFinder::getZAxisOverlapRangeEndcap(const DetGroupSpan & cspanA, const DetGroupSpan & cspanB, std::pair<float,float> & range){
-  // While on left hand side of pixel detector
-  DetGroupSpan cspanNearer;
-  DetGroupSpan cspanFurther;
-  float lower = 0;
-  float upper = 0;
-  if(cspanA.zSpan.first < 0 && cspanB.zSpan.first < 0){
-    if(cspanA.zSpan.second < cspanB.zSpan.first){
-      cspanFurther = cspanA;
-      cspanNearer = cspanB;
-    }else if (cspanB.zSpan.second < cspanA.zSpan.first){
-      cspanFurther = cspanB;
-      cspanNearer = cspanA;
-    }else {
-      //edm::LogPrint("") << "No overlap, same disk propably. Spans:";
-      //Stream ss;
-      //detGroupSpanInfo(cspanA,ss);ss<<std::endl;detGroupSpanInfo(cspanB,ss);ss<<std::endl;
-      //edm::LogPrint("") << ss.str();ss.str(std::string());
-      //edm::LogPrint("") << "**";
-      return false;
-    }
-    if(cspanFurther.rSpan.second > cspanNearer.rSpan.first){
-      const float pointA[2] = {cspanFurther.zSpan.second, cspanFurther.rSpan.second};
-      const float pointB[2] = {cspanNearer.zSpan.first, cspanNearer.rSpan.first};
-      lower = zAxisIntersection(pointA,pointB);
-      if(cspanFurther.rSpan.first > cspanNearer.rSpan.second){
-        const float pointC[2] = {cspanFurther.zSpan.first, cspanFurther.rSpan.first};
-        const float pointD[2] = {cspanNearer.zSpan.second, cspanFurther.rSpan.second};
-        upper = zAxisIntersection(pointC,pointD);
-      }else{
-        upper = std::numeric_limits<float>::infinity();
-      }
-    }else{
-      //edm::LogPrint("") << "No overlap, further detGroup is lower. Spans:";
-      //Stream ss;
-      //detGroupSpanInfo(cspanA,ss);ss<<std::endl;detGroupSpanInfo(cspanB,ss);ss<<std::endl;
-      //edm::LogPrint("") << ss.str();ss.str(std::string());
-      //edm::LogPrint("") << "**";
-      return false;
-    }
-  }else if(cspanA.zSpan.first > 0 && cspanB.zSpan.first > 0){
-    if(cspanA.zSpan.first > cspanB.zSpan.second ){
-      cspanFurther = cspanA;
-      cspanNearer = cspanB;
-    }else if(cspanB.zSpan.first > cspanA.zSpan.second){
-      cspanFurther = cspanB;
-      cspanNearer = cspanA;
-    }else{
-      //edm::LogPrint("") << "No overlap, same disk propably. Spans:";
-      //Stream ss;
-      //detGroupSpanInfo(cspanA,ss);ss<<std::endl;detGroupSpanInfo(cspanB,ss);ss<<std::endl;
-      //edm::LogPrint("") << ss.str();ss.str(std::string());
-      //edm::LogPrint("") << "**";
-      return false;
-    }
-    if(cspanFurther.rSpan.second > cspanNearer.rSpan.first){
-      const float pointA[2] = {cspanFurther.zSpan.first, cspanFurther.rSpan.second};
-      const float pointB[2] = {cspanNearer.zSpan.second, cspanNearer.rSpan.first};
-      upper = zAxisIntersection(pointA,pointB);
-      if(cspanFurther.rSpan.first > cspanNearer.rSpan.second){
-        const float pointC[2] = {cspanFurther.zSpan.second, cspanFurther.rSpan.first};
-        const float pointD[2] = {cspanNearer.zSpan.first, cspanFurther.rSpan.second};
-        lower = zAxisIntersection(pointC,pointD);
-      }else{
-        lower = -std::numeric_limits<float>::infinity();
-      }
-    }else{
-      //edm::LogPrint("") << "No overlap, further detGroup lower. Spans:";
-      //Stream ss;
-      //detGroupSpanInfo(cspanA,ss);ss<<std::endl;detGroupSpanInfo(cspanB,ss);ss<<std::endl;
-      //edm::LogPrint("") << ss.str();ss.str(std::string());
-      //edm::LogPrint("") << "**";
-      return false;
-    }
-  }else{       
-    //edm::LogPrint("") << "No overlap, different sides of z axis. Spans:";
-    //Stream ss;
-    //detGroupSpanInfo(cspanA,ss);ss<<std::endl;detGroupSpanInfo(cspanB,ss);ss<<std::endl;
-    //edm::LogPrint("") << ss.str();ss.str(std::string());
-    //edm::LogPrint("") << "**";
-    return false;
-  }
-  range = std::pair<float,float>(lower,upper);
-  return true;
-}
-
-bool PixelInactiveAreaFinder::getZAxisOverlapRangeBarrelEndcap(const DetGroupSpan & cspanBar, const DetGroupSpan & cspanEnd, std::pair<float,float> & range){
-  float lower = 0;
-  float upper = 0;
-  if(cspanEnd.rSpan.second > cspanBar.rSpan.first){
-    if(cspanEnd.zSpan.second < cspanBar.zSpan.first){
-      // if we are on the left hand side of pixel detector
-      const float pointA[2] = {cspanEnd.zSpan.second, cspanEnd.rSpan.second};
-      const float pointB[2] = {cspanBar.zSpan.first, cspanBar.rSpan.first};
-      lower = zAxisIntersection(pointA,pointB);
-      if(cspanEnd.rSpan.first > cspanBar.rSpan.second){
-        // if does not overlap, then there is also upper limit
-        const float pointC[2] = {cspanEnd.zSpan.first, cspanEnd.rSpan.first};
-        const float pointD[2] = {cspanBar.zSpan.second, cspanBar.rSpan.second};
-        upper = zAxisIntersection(pointC,pointD);
-      }else{
-        upper = std::numeric_limits<float>::infinity();
-      }
-    }else if (cspanEnd.zSpan.first > cspanBar.zSpan.second){
-      // if we are on the right hand side of pixel detector
-      const float pointA[2] = {cspanEnd.zSpan.first, cspanEnd.rSpan.second};
-      const float pointB[2] = {cspanBar.zSpan.second, cspanBar.rSpan.first};
-      upper = zAxisIntersection(pointA,pointB);
-      if(cspanEnd.rSpan.first > cspanBar.rSpan.second){
-        const float pointC[2] = {cspanEnd.zSpan.second,cspanEnd.rSpan.first};
-        const float pointD[2] = {cspanBar.zSpan.first, cspanBar.rSpan.second};
-        lower = zAxisIntersection(pointC,pointD);
-      }else{
-        lower = - std::numeric_limits<float>::infinity();
-      }
-    }else {
-      return false;
-    }
-  }else{
-    return false;
-  } 
-  range =  std::pair<float,float>(lower,upper);
-  return true;
-}
-PixelInactiveAreaFinder::OverlapSpansContainer PixelInactiveAreaFinder::overlappingSpans(float zAxisThreshold){    
-  OverlapSpansContainer overlapSpansContainer;
-  // find detGroupSpans ie phi,r,z limits for detector detGroups that are not working
-  // returns pair where first is barrel spans and second endcap spans
-  DetGroupSpanContainerPair cspans = detGroupSpans();
-
-  // map spans to a vector with consisntent indexing with layers_ and layerSetIndices_
-  // TODO: try to move the inner logic towards this direction as well
-  std::vector<DetGroupSpanContainer> spans(layers_.size());
-
-  auto doWork = [&](const DetGroupSpanContainer& container) {
-    for(const auto& span: container) {
-      const auto subdet = span.subdetId == PixelSubdetector::PixelBarrel ? GeomDetEnumerators::PixelBarrel : GeomDetEnumerators::PixelEndcap;
-      const auto side = (subdet == GeomDetEnumerators::PixelBarrel ? TrackerDetSide::Barrel :
-                         (span.zSpan.first < 0 ? TrackerDetSide::NegEndcap : TrackerDetSide::PosEndcap));
-      const auto layer = subdet == GeomDetEnumerators::PixelBarrel ? span.layer : span.disk;
-      auto found = std::find(layers_.begin(), layers_.end(), SeedingLayerId(subdet, side, layer));
-      if(found != layers_.end()) { // it is possible that this layer is ignored by the configuration
-        spans[std::distance(layers_.begin(), found)].push_back(span);
-      }
-    }
-  };
-  doWork(cspans.first);
-  doWork(cspans.second);
-
-  for(const auto& layerIdxPair: layerSetIndices_) {
-    const auto& innerSpans = spans[layerIdxPair.first];
-    const auto& outerSpans = spans[layerIdxPair.second];
-
-    for(const auto& innerSpan: innerSpans) {
-      for(const auto& outerSpan: outerSpans) {
-
-        if(phiRangesOverlap(innerSpan.phiSpan, outerSpan.phiSpan)) {
-          std::pair<float,float> range(0,0);
-
-          bool zOverlap = false;
-          const auto innerDet = std::get<0>(layers_[layerIdxPair.first]);
-          const auto outerDet = std::get<0>(layers_[layerIdxPair.first]);
-          if(innerDet == GeomDetEnumerators::PixelBarrel) {
-            if(outerDet == GeomDetEnumerators::PixelBarrel)
-              zOverlap = getZAxisOverlapRangeBarrel(innerSpan, outerSpan, range);
-            else
-              zOverlap = getZAxisOverlapRangeBarrelEndcap(innerSpan, outerSpan, range);
-          }
-          else {
-            if(outerDet == GeomDetEnumerators::PixelEndcap)
-              zOverlap = getZAxisOverlapRangeEndcap(innerSpan, outerSpan, range);
-            else
-              throw cms::Exception("LogicError") << "Forward->barrel transition is not supported";
-          }
-
-          if(zOverlap && -zAxisThreshold <= range.second && range.first <= zAxisThreshold) {
-            overlapSpansContainer.push_back(OverlapSpans({{innerSpan, outerSpan}}));
-          }
-        }
-      }
-    }
-  }
-
-  return overlapSpansContainer;
 }
