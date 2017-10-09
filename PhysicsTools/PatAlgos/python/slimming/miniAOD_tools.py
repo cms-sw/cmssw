@@ -374,7 +374,7 @@ def miniAOD_customizeMC(process):
     #Boosted taus 
     process.tauMatchBoosted.matched = "prunedGenParticles"
     process.tauGenJetsBoosted.GenParticles = "prunedGenParticles"
-    process.patJetPartons.particles = "prunedGenParticles"
+    process.patJetPartons.particles = "genParticles"
     process.patJetPartonMatch.matched = "prunedGenParticles"
     process.patJetPartonMatch.mcStatus = [ 3, 23 ]
     process.patJetGenJetMatch.matched = "slimmedGenJets"
