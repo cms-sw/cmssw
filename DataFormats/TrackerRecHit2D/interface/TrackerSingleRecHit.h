@@ -39,12 +39,12 @@ public:
 		      CluRef const&  clus) : Base(p,e,idet, rt), cluster_(clus){}
 
   // a single hit is on a detunit
-  const GeomDetUnit* detUnit() const {
+  const GeomDetUnit* detUnit() const override {
     return static_cast<const GeomDetUnit*>(det());
   }
 
   // used by trackMerger (to be improved)
-  virtual OmniClusterRef const & firstClusterRef() const  final { return cluster_;}
+  OmniClusterRef const & firstClusterRef() const  final { return cluster_;}
 
   OmniClusterRef const & omniClusterRef() const { return cluster_;}
   OmniClusterRef const & omniCluster() const { return cluster_;}
@@ -81,7 +81,7 @@ public:
   void setClusterStripRef(ClusterStripRef const & ref) {  cluster_ = OmniClusterRef(ref); }
   void setClusterPhase2Ref(ClusterPhase2Ref const & ref) { cluster_ = OmniClusterRef(ref); }
 
-  virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const  final;
+  bool sharesInput( const TrackingRecHit* other, SharedInputType what) const  final;
 
 
   bool sharesInput(TrackerSingleRecHit const & other) const {
@@ -92,8 +92,8 @@ public:
     return oh == cluster_;
   }
 
-  virtual std::vector<const TrackingRecHit*> recHits() const;
-  virtual std::vector<TrackingRecHit*> recHits();
+  std::vector<const TrackingRecHit*> recHits() const override;
+  std::vector<TrackingRecHit*> recHits() override;
 
 private:
  

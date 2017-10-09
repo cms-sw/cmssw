@@ -22,24 +22,24 @@ namespace edm {
       IndirectVectorHolder( const IndirectVectorHolder & other);
       IndirectVectorHolder(std::shared_ptr<RefVectorHolderBase> p);
       IndirectVectorHolder(RefVectorHolderBase * p);
-      virtual ~IndirectVectorHolder();
+      ~IndirectVectorHolder() override;
       IndirectVectorHolder& operator= (IndirectVectorHolder const& rhs);
       void swap(IndirectVectorHolder& other);
-      virtual BaseVectorHolder<T>* clone() const override;
-      virtual BaseVectorHolder<T>* cloneEmpty() const override;
-      virtual ProductID id() const override;
-      virtual EDProductGetter const* productGetter() const override;
-      virtual bool empty() const override;
-      virtual size_type size() const override;
-      virtual void clear() override;
-      virtual base_ref_type const at(size_type idx) const override;
-      virtual std::unique_ptr<reftobase::RefVectorHolderBase> vectorHolder() const override {
+      BaseVectorHolder<T>* clone() const override;
+      BaseVectorHolder<T>* cloneEmpty() const override;
+      ProductID id() const override;
+      EDProductGetter const* productGetter() const override;
+      bool empty() const override;
+      size_type size() const override;
+      void clear() override;
+      base_ref_type const at(size_type idx) const override;
+      std::unique_ptr<reftobase::RefVectorHolderBase> vectorHolder() const override {
 	return std::unique_ptr<reftobase::RefVectorHolderBase>( helper_->clone() );
       }
-      virtual void push_back( const BaseHolder<T> * r ) override {
+      void push_back( const BaseHolder<T> * r ) override {
 	typedef IndirectHolder<T> holder_type;
 	const holder_type * h = dynamic_cast<const holder_type *>( r );
-	if( h == 0 )
+	if( h == nullptr )
 	  Exception::throwThis( errors::InvalidReference,
 	    "In IndirectHolder<T> trying to push_back wrong reference type");
 	helper_->push_back( h->helper_ );
@@ -47,7 +47,7 @@ namespace edm {
 
       /// Checks if product collection is in memory or available
       /// in the Event. No type checking is done.
-      virtual bool isAvailable() const override { return helper_->isAvailable(); }
+      bool isAvailable() const override { return helper_->isAvailable(); }
 
       //Used by ROOT storage
       CMS_CLASS_VERSION(10)
@@ -61,27 +61,27 @@ namespace edm {
 	typedef ptrdiff_t difference_type;
 	const_iterator_imp_specific() { }
 	explicit const_iterator_imp_specific( const typename RefVectorHolderBase::const_iterator & it ) : i ( it ) { }
-	~const_iterator_imp_specific() { }
-	const_iterator_imp_specific * clone() const { return new const_iterator_imp_specific( i ); }
-	void increase() { ++i; }
-	void decrease() { --i; }
-	void increase( difference_type d ) { i += d; }
-	void decrease( difference_type d ) { i -= d; }
-	bool equal_to( const const_iterator_imp * o ) const { return i == dc( o ); }
-	bool less_than( const const_iterator_imp * o ) const { return i < dc( o ); }
-	void assign( const const_iterator_imp * o ) { i = dc( o ); }
-	base_ref_type deref() const {
+	~const_iterator_imp_specific() override { }
+	const_iterator_imp_specific * clone() const override { return new const_iterator_imp_specific( i ); }
+	void increase() override { ++i; }
+	void decrease() override { --i; }
+	void increase( difference_type d ) override { i += d; }
+	void decrease( difference_type d ) override { i -= d; }
+	bool equal_to( const const_iterator_imp * o ) const override { return i == dc( o ); }
+	bool less_than( const const_iterator_imp * o ) const override { return i < dc( o ); }
+	void assign( const const_iterator_imp * o ) override { i = dc( o ); }
+	base_ref_type deref() const override {
 	  return base_ref_type( * i );
 	}
-	difference_type difference( const const_iterator_imp * o ) const { return i - dc( o ); }
+	difference_type difference( const const_iterator_imp * o ) const override { return i - dc( o ); }
       private:
 	const typename RefVectorHolderBase::const_iterator & dc( const const_iterator_imp * o ) const {
-	  if ( o == 0 ) {
+	  if ( o == nullptr ) {
 	    Exception::throwThis( edm::errors::InvalidReference,
 	      "In IndirectVectorHolder trying to dereference a null pointer");
 	  }
 	  const const_iterator_imp_specific * oo = dynamic_cast<const const_iterator_imp_specific *>( o );
-	  if ( oo == 0 ) {
+	  if ( oo == nullptr ) {
 	    Exception::throwThis( errors::InvalidReference,
 	      "In IndirectVectorHolder trying to cast iterator to wrong type ");
 	  }

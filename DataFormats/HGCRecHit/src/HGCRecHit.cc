@@ -3,7 +3,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include <cassert>
-#include <math.h>
+#include <cmath>
 
 HGCRecHit::HGCRecHit() : CaloRecHit(), flagBits_(0) {
 }

@@ -85,7 +85,7 @@ class JPTJet : public Jet {
   /** backward compatible, vertex=(0,0,0) */
   JPTJet(const LorentzVector& fP4, const Specific& fSpecific, const Jet::Constituents& fConstituents);
   
-  virtual ~JPTJet() {};
+  ~JPTJet() override {};
 
 
   /// chargedHadronEnergy 
@@ -133,16 +133,16 @@ class JPTJet : public Jet {
   const Specific& getSpecific () const {return mspecific;}
   
   /// Polymorphic clone
-  virtual JPTJet* clone () const;
+  JPTJet* clone () const override;
   
   /// Print object in details
   virtual void printJet () const;
   
-  virtual std::string print () const;
+  std::string print () const override;
   
  private:
   /// Polymorphic overlap
-  virtual bool overlap( const Candidate & ) const;
+  bool overlap( const Candidate & ) const override;
   
   //Variables specific to to the JPTJet class
  

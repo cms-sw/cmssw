@@ -58,7 +58,7 @@ namespace l1t {
 	   int qual=0);
 
 
-    ~EtSum();
+    ~EtSum() override;
 
     void setType(EtSumType type);
 

@@ -33,7 +33,7 @@ GlobalAlgBlk::GlobalAlgBlk(int orbitNr, int bxNr, int bxInEvent):
 {
 
     //Clear out the header data
-    m_finalOR=0;
+    m_finalOR=false;
     m_preScColumn=0;
 
     // Reserve/Clear out the decision words
@@ -57,9 +57,9 @@ GlobalAlgBlk::GlobalAlgBlk( )
     m_orbitNr=0;
     m_bxNr=0;
     m_bxInEvent=0;
-    m_finalOR=0;
-    m_finalORPreVeto = 0;
-    m_finalORVeto = 0;    
+    m_finalOR=false;
+    m_finalORPreVeto = false;
+    m_finalORVeto = false;    
     m_preScColumn=0;
 
     // Reserve/Clear out the decision words
@@ -147,9 +147,9 @@ void GlobalAlgBlk::reset()
     m_orbitNr=0;
     m_bxNr=0;
     m_bxInEvent=0;
-    m_finalOR=0;
-    m_finalORPreVeto = 0;
-    m_finalORVeto = 0;
+    m_finalOR=false;
+    m_finalORPreVeto = false;
+    m_finalORVeto = false;
     m_preScColumn=0;
 
     // Clear out the decision words

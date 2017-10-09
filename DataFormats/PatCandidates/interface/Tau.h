@@ -71,18 +71,18 @@ namespace pat {
       /// constructor from a Ptr to a reco tau
       Tau(const edm::Ptr<reco::BaseTau> & aTauRef);
       /// destructor
-      virtual ~Tau();
+      ~Tau() override;
 
       /// required reimplementation of the Candidate's clone method
-      virtual Tau * clone() const { return new Tau(*this); }
+      Tau * clone() const override { return new Tau(*this); }
 
       // ---- methods for content embedding ----
       /// override the reco::BaseTau::isolationTracks method, to access the internal storage of the isolation tracks
-      const reco::TrackRefVector & isolationTracks() const;
+      const reco::TrackRefVector & isolationTracks() const override;
       /// override the reco::BaseTau::leadTrack method, to access the internal storage of the leading track
-      reco::TrackRef leadTrack() const;
+      reco::TrackRef leadTrack() const override;
       /// override the reco::BaseTau::signalTracks method, to access the internal storage of the signal tracks
-      const reco::TrackRefVector & signalTracks() const;	
+      const reco::TrackRefVector & signalTracks() const override;	
       /// method to store the isolation tracks internally
       void embedIsolationTracks();
       /// method to store the leading track internally
@@ -302,9 +302,9 @@ namespace pat {
 
       /// ----- Top Projection business ------- 
       /// get the number of non-null PFCandidates
-      size_t numberOfSourceCandidatePtrs() const ;
+      size_t numberOfSourceCandidatePtrs() const override ;
       /// get the source candidate pointer with index i
-      reco::CandidatePtr sourceCandidatePtr( size_type i ) const;
+      reco::CandidatePtr sourceCandidatePtr( size_type i ) const override;
 
 
       /// ---- Tau lifetime information ----

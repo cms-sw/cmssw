@@ -26,7 +26,7 @@ public:
   // specialize given recort to this type
   RecordBX(const DataRecord & rec) : DataRecord(rec) {}
 
-  virtual ~RecordBX() {}
+  ~RecordBX() override {}
   int bx() const { return ((theData>>BX_SHIFT)&BX_MASK); } 
   std::string print()  const;
   static bool matchType(const DataRecord & record);
