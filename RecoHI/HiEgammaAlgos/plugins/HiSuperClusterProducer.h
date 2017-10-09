@@ -24,9 +24,9 @@ class HiSuperClusterProducer : public edm::stream::EDProducer<>
 
       HiSuperClusterProducer(const edm::ParameterSet& ps);
 
-      ~HiSuperClusterProducer();
+      ~HiSuperClusterProducer() override;
 
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob();
 
    private:
