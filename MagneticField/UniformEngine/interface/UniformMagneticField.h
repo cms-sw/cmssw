@@ -23,7 +23,7 @@ class UniformMagneticField final : public MagneticField {
   void set(float value) { set(GlobalVector(0.f,0.f,value)); }
 
 
-  virtual ~UniformMagneticField() {}
+  ~UniformMagneticField() override {}
 
   GlobalVector inTesla (const GlobalPoint&) const override {return theField;}
 
