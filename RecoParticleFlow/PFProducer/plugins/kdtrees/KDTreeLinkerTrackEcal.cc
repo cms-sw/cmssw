@@ -31,7 +31,7 @@ KDTreeLinkerTrackEcal::insertTargetElt(reco::PFBlockElement	*track)
 void
 KDTreeLinkerTrackEcal::insertFieldClusterElt(reco::PFBlockElement	*ecalCluster)
 {
-  reco::PFClusterRef clusterref = ecalCluster->clusterRef();
+  const reco::PFClusterRef& clusterref = ecalCluster->clusterRef();
 
   // This test is more or less done in PFBlockAlgo.h. In others cases, it should be switch on.
   //   if (!((clusterref->layer() == PFLayer::ECAL_ENDCAP) ||

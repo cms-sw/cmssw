@@ -182,13 +182,13 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron & electron
   for (PFCandidate::ElementsInBlocks::const_iterator itrk = extraTracks.begin(); 
        itrk<extraTracks.end(); ++itrk) {
     const PFBlock& block = *(itrk->first);
-    PFBlock::LinkData linkData =  block.linkData();
+    const PFBlock::LinkData& linkData =  block.linkData();
     const PFBlockElement& pfele = block.elements()[itrk->second];
 
     if(debugSafeForJetMET) 
       cout << " My track element number " <<  itrk->second << endl;
     if(pfele.type()==reco::PFBlockElement::TRACK) {
-      reco::TrackRef trackref = pfele.trackRef();
+      const reco::TrackRef& trackref = pfele.trackRef();
 
       bool goodTrack = PFTrackAlgoTools::isGoodForEGM(trackref->algo());
       // iter0, iter1, iter2, iter3 = Algo < 3
@@ -215,7 +215,7 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron & electron
 				  hcalKfElems,
 				  reco::PFBlockElement::HCAL,
 				  reco::PFBlock::LINKTEST_ALL );
-	if(hcalKfElems.size() > 0) {
+	if(!hcalKfElems.empty()) {
 	  itrackHcalLinked++;
 	}
 	if(debugSafeForJetMET) 
@@ -321,7 +321,7 @@ bool PFEGammaFilters::isPhotonSafeForJetMET(const reco::Photon & photon, const r
     if(pfele.type()==reco::PFBlockElement::TRACK) {
 
      
-      reco::TrackRef trackref = pfele.trackRef();
+      const reco::TrackRef& trackref = pfele.trackRef();
       
       if(debugSafeForJetMET)
 	cout << "PFEGammaFilters::isPhotonSafeForJetMET photon track:pt " << trackref->pt() << " SingleLegSize " << pfcandextra->singleLegConvTrackRefMva().size() << endl;

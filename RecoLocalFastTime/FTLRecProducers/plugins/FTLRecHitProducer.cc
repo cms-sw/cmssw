@@ -15,8 +15,8 @@ class FTLRecHitProducer : public edm::stream::EDProducer<> {
   
  public:
   explicit FTLRecHitProducer(const edm::ParameterSet& ps);
-  ~FTLRecHitProducer();
-  virtual void produce(edm::Event& evt, const edm::EventSetup& es) override;
+  ~FTLRecHitProducer() override;
+  void produce(edm::Event& evt, const edm::EventSetup& es) override;
   
  private:
   

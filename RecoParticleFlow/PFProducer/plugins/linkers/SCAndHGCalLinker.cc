@@ -29,8 +29,8 @@ double SCAndHGCalLinker::testLink
   ( const reco::PFBlockElement* elem1,
     const reco::PFBlockElement* elem2) const { 
   double dist = -1.0;  
-  const reco::PFBlockElementCluster* ecalelem(NULL);    
-  const reco::PFBlockElementSuperCluster* scelem(NULL); 
+  const reco::PFBlockElementCluster* ecalelem(nullptr);    
+  const reco::PFBlockElementSuperCluster* scelem(nullptr); 
   if( elem1->type() > elem2->type() ) {
     ecalelem = static_cast<const reco::PFBlockElementCluster*>(elem1);
     scelem = static_cast<const reco::PFBlockElementSuperCluster*>(elem2);
