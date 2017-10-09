@@ -391,12 +391,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 			  }
 			  if(pfTrk==nullptr) { //protection against empty pointers for the miniAOD case
 			    //To handle the electron case
-			    if(lPF!=nullptr) {
-			      pfTrk=(lPF->trackRef().get()==nullptr)?lPF->gsfTrackRef().get():lPF->trackRef().get();
-			      internalId_.d0_ = std::abs(pfTrk->dxy(vtx->position()));
-			      internalId_.dZ_ = std::abs(pfTrk->dz(vtx->position()));
-			    }
-			    if(lPack!=nullptr) {
+			    if(isPacked) {
 			      if (lPack->hasTrackDetails()) {
 			        const reco::Track& impactTrack = lPack->pseudoTrack();
 			        internalId_.d0_ = std::abs(impactTrack.dxy(vtx->position()));
@@ -405,6 +400,11 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 			        internalId_.d0_ = -1000.;
 			        internalId_.dZ_ = -1000.;
 			      }
+			    }
+			    else if(lPF!=nullptr) {
+			      pfTrk=(lPF->trackRef().get()==nullptr)?lPF->gsfTrackRef().get():lPF->trackRef().get();
+			      internalId_.d0_ = std::abs(pfTrk->dxy(vtx->position()));
+			      internalId_.dZ_ = std::abs(pfTrk->dz(vtx->position()));
 			    }
 			  }
 			  else {
