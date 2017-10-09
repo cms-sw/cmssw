@@ -13,7 +13,7 @@
 #include <numeric>
  
 namespace {
-    std::string replaceStringsToColumGets(const std::string & expr, const FlatTable & table) {
+    std::string replaceStringsToColumGets(const std::string & expr, const nanoaod::FlatTable & table) {
         std::regex token("\\w+");
         std::sregex_iterator tbegin(expr.begin(), expr.end(), token), tend;
         if (tbegin == tend) return expr;
@@ -35,6 +35,8 @@ namespace {
 
 class NanoAODDQM : public DQMEDAnalyzer {
     public:
+        typedef nanoaod::FlatTable FlatTable;
+
         NanoAODDQM(const edm::ParameterSet&);
         virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 

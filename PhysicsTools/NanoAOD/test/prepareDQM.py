@@ -115,7 +115,7 @@ for head in sorted(branchgroups.iterkeys()):
         if t_noat not in existing: allplots.append( (t_noat,autoPlot1D(t_noat,t,branch)) )
     # update titles
     for k,v in allplots: 
-        if title[k] and v.kind.value() != "none": v.title = title[k]
+        if k in title and title[k] and v.kind.value() != "none": v.title = title[k]
     allplots.sort()
     pyout.write("        %s = cms.PSet(\n" % head)
     seldump = pset.sels.dumpPython().replace("\n","\n            ") if len(pset.sels.parameterNames_()) else "cms.PSet()"
