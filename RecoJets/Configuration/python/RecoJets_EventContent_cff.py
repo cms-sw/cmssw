@@ -139,8 +139,9 @@ RecoGenJetsAOD = cms.PSet(
 
 from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
 from Configuration.Eras.Modifier_peripheralPbPb_cff import peripheralPbPb
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 #products from regular pp which does not fit the normal AOD
-for e in [pA_2016, peripheralPbPb]:
+for e in [pA_2016, peripheralPbPb, pp_on_XeXe_2017]:
     e.toModify( RecoJetsAOD.outputCommands, 
                 func=lambda outputCommands: outputCommands.extend(['keep *_towerMaker_*_*'])
                 )
