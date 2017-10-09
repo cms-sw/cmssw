@@ -122,6 +122,18 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
     process.siPixelDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
+
+    #replace the effect of era in local reco
+    process.siPixelDigis.UsePhase1=True
+    process.siPixelClusters.VCaltoElectronGain      = cms.int32(47)   # L2-4: 47 +- 4.7 
+    process.siPixelClusters.VCaltoElectronGain_L1   = cms.int32(50)   # L1:   49.6 +- 2.6 
+    process.siPixelClusters.VCaltoElectronOffset    = cms.int32(-60)  # L2-4: -60 +- 130 
+    process.siPixelClusters.VCaltoElectronOffset_L1 = cms.int32(-670) # L1:   -670 +- 220 
+    process.siPixelClusters.ChannelThreshold        = cms.int32(10) 
+    process.siPixelClusters.SeedThreshold           = cms.int32(1000) 
+    process.siPixelClusters.ClusterThreshold        = cms.int32(4000) 
+    process.siPixelClusters.ClusterThreshold_L1     = cms.int32(2000) 
+
     
 # Phase1 DQM
 process.load("DQM.SiPixelPhase1Config.SiPixelPhase1OnlineDQM_cff")
