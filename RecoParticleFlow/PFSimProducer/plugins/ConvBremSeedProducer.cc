@@ -50,8 +50,8 @@ using namespace reco;
 
 ConvBremSeedProducer::ConvBremSeedProducer(const ParameterSet& iConfig):
   conf_(iConfig),
-  fieldMap_(0),
-  layerMap_(56, static_cast<const DetLayer*>(0)),
+  fieldMap_(nullptr),
+  layerMap_(56, static_cast<const DetLayer*>(nullptr)),
   negLayerOffset_(27)
 {
   produces<ConvBremSeedCollection>();
@@ -187,13 +187,13 @@ ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
        AnalyticalPropagator alongProp(&mf, anyDirection);
        InsideBoundsMeasurementEstimator est;
        const DetLayer* tkLayer = detLayer(*cyliter,PP.Z());
-       if (&(*tkLayer)==0) continue;
+       if (&(*tkLayer)==nullptr) continue;
        TrajectoryStateOnSurface trajState = makeTrajectoryState( tkLayer, PP, &mf);
 	    
        std::vector<DetWithState> compat 
 	 = tkLayer->compatibleDets( trajState, alongProp, est);
        vector <long int> temp;
-       if (compat.size()==0) continue;
+       if (compat.empty()) continue;
 
        for (std::vector<DetWithState>::const_iterator i=compat.begin(); i!=compat.end(); i++) {
 	      
@@ -479,7 +479,7 @@ ConvBremSeedProducer::initializeLayerMap()
 			    << " pos " << i->surface().position();
     if (!i->sensitive()) continue;
 
-    if (cyl != 0) {
+    if (cyl != nullptr) {
 
       LogDebug("FastTracker") << " cylinder radius " << cyl->radius();
       bool found = false;

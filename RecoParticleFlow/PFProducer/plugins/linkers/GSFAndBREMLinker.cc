@@ -27,8 +27,8 @@ double GSFAndBREMLinker::testLink
   ( const reco::PFBlockElement* elem1,
     const reco::PFBlockElement* elem2) const {   
   double dist = -1.0;
-  const reco::PFBlockElementGsfTrack * gsfelem(NULL);
-  const reco::PFBlockElementBrem * bremelem(NULL);
+  const reco::PFBlockElementGsfTrack * gsfelem(nullptr);
+  const reco::PFBlockElementBrem * bremelem(nullptr);
   if( elem1->type() < elem2->type() ) {
     gsfelem = static_cast<const reco::PFBlockElementGsfTrack *>(elem1);
     bremelem = static_cast<const reco::PFBlockElementBrem *>(elem2);
