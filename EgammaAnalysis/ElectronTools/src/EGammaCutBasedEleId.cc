@@ -111,7 +111,7 @@ unsigned int EgammaCutBasedEleId::TestWP(WorkingPoint workingPoint,
     // impact parameter variables
     float d0vtx         = 0.0;
     float dzvtx         = 0.0;
-    if (vtxs->size() > 0) {
+    if (!vtxs->empty()) {
         reco::VertexRef vtx(vtxs, 0);    
         d0vtx = ele.gsfTrack()->dxy(vtx->position());
         dzvtx = ele.gsfTrack()->dz(vtx->position());

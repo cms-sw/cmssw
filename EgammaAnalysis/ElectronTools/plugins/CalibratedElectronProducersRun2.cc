@@ -23,8 +23,8 @@ class CalibratedElectronProducerRun2T: public edm::stream::EDProducer<>
 {
     public:
         explicit CalibratedElectronProducerRun2T( const edm::ParameterSet & ) ;
-        virtual ~CalibratedElectronProducerRun2T();
-        virtual void produce( edm::Event &, const edm::EventSetup & ) override ;
+        ~CalibratedElectronProducerRun2T() override;
+        void produce( edm::Event &, const edm::EventSetup & ) override ;
 
     private:
         edm::EDGetTokenT<edm::View<T> > theElectronToken;
