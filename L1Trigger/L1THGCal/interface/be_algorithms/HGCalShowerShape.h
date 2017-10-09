@@ -3,10 +3,12 @@
 #include <vector>
 #include <cmath>
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
 
 class HGCalShowerShape{
 
     public:
+    typedef math::XYZTLorentzVector LorentzVector;
         
     HGCalShowerShape(){}
 
@@ -28,11 +30,15 @@ class HGCalShowerShape{
     float sigmaPhiPhiTot(const l1t::HGCalCluster& c2d) const;       
     float sigmaPhiPhiMax(const l1t::HGCalMulticluster& c3d) const;   
 
+    float sigmaRRTot(const l1t::HGCalMulticluster& c3d) const;
+    float sigmaRRTot(const l1t::HGCalCluster& c2d) const;       
+    float sigmaRRMax(const l1t::HGCalMulticluster& c3d) const;  
+
     private: 
     
-    float sigmaEtaEta(const std::vector<float>& energy, const std::vector<float>& eta) const;
-    float sigmaPhiPhi(const std::vector<float>& energy, const std::vector<float>& phi) const;   
-    float sigmaZZ(const std::vector<float>& energy, const std::vector<float>& z) const;
+    float meanX(const std::vector<pair<float,float> >& energy_X_tc) const;
+    float sigmaXX(const std::vector<pair<float,float> >& energy_X_tc, const float X_cluster) const;
+    float sigmaPhiPhi(const std::vector<pair<float,float> >& energy_phi_tc, const float phi_cluster) const;
 
     static const int kLayersEE_=28;
     static const int kLayersFH_=12;
