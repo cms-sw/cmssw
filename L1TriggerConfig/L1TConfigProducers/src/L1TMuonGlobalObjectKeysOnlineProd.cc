@@ -6,10 +6,10 @@ class L1TMuonGlobalObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBaseExt {
 private:
 
 public:
-    virtual void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
+    void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
 
     L1TMuonGlobalObjectKeysOnlineProd(const edm::ParameterSet&);
-    ~L1TMuonGlobalObjectKeysOnlineProd(void){}
+    ~L1TMuonGlobalObjectKeysOnlineProd(void) override{}
 };
 
 L1TMuonGlobalObjectKeysOnlineProd::L1TMuonGlobalObjectKeysOnlineProd(const edm::ParameterSet& iConfig)

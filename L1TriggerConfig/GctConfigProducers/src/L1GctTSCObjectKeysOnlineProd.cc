@@ -5,9 +5,9 @@ class L1GctTSCObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
    public:
       L1GctTSCObjectKeysOnlineProd(const edm::ParameterSet& iConfig)
          : L1ObjectKeysOnlineProdBase( iConfig ) {}
-      ~L1GctTSCObjectKeysOnlineProd() {}
+      ~L1GctTSCObjectKeysOnlineProd() override {}
 
-      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
+      void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
    private:
 };
 

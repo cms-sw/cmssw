@@ -6,10 +6,10 @@ class L1TMuonOverlapObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBaseExt 
 private:
 
 public:
-    virtual void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
+    void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
 
     L1TMuonOverlapObjectKeysOnlineProd(const edm::ParameterSet&);
-    ~L1TMuonOverlapObjectKeysOnlineProd(void){}
+    ~L1TMuonOverlapObjectKeysOnlineProd(void) override{}
 };
 
 L1TMuonOverlapObjectKeysOnlineProd::L1TMuonOverlapObjectKeysOnlineProd(const edm::ParameterSet& iConfig)

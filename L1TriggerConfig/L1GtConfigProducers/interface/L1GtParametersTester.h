@@ -41,9 +41,9 @@ public:
     explicit L1GtParametersTester(const edm::ParameterSet&);
 
     // destructor
-    virtual ~L1GtParametersTester();
+    ~L1GtParametersTester() override;
 
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 };
 

@@ -29,9 +29,9 @@ class L1MuTriggerScaleKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
         }        
       }
 
-      ~L1MuTriggerScaleKeysOnlineProd() {}
+      ~L1MuTriggerScaleKeysOnlineProd() override {}
 
-      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
+      void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
 
    private:    
     std::vector<std::string> m_objectTypes;
