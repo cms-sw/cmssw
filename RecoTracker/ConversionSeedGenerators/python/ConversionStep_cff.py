@@ -298,6 +298,14 @@ photonConvTrajSeedFromSingleLeg.primaryVerticesTag = cms.InputTag('firstStepPrim
 from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
 trackingLowPU.toModify(photonConvTrajSeedFromSingleLeg, primaryVerticesTag   = "pixelVertices")
 
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+pp_on_XeXe_2017.toModify(photonConvTrajSeedFromSingleLeg,
+                         RegionFactoryPSet = dict(RegionPSet = dict(ptMin = 999999.0,
+                                                                    originRadius = 0,
+                                                                    originHalfLength = 0
+                                                                    ))
+                         )
+
 # TRACKER DATA CONTROL
 
 # QUALITY CUTS DURING TRACK BUILDING
