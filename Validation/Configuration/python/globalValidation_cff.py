@@ -110,7 +110,7 @@ if fastSim.isChosen():
     # besides: is this cross frame doing something, or is it a relic from the past?
     globalValidation.remove(ecalDigisValidationSequence)
     globalValidation.remove(ecalRecHitsValidationSequence)
-    
+
 #lite tracking validator to be used in the Validation matrix
 #lite validation
 globalValidationLiteTracking = cms.Sequence(globalValidation)
