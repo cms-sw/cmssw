@@ -32,6 +32,17 @@ trackingPhase2PU140.toReplaceWith(detachedQuadStepTrackingRegions, _globalTracki
     nSigmaZ = 5.0
 )))
 
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
+pp_on_XeXe_2017.toReplaceWith(detachedQuadStepTrackingRegions, 
+                              _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
+            fixedError = 3.75,
+            ptMin = 0.8,
+            originRadius = 1.5
+            )
+                                                                      )
+)
+
 # seeding
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
 detachedQuadStepHitDoublets = _hitPairEDProducer.clone(
@@ -122,6 +133,7 @@ trackingPhase2PU140.toModify(detachedQuadStepTrajectoryFilter,
     filters = detachedQuadStepTrajectoryFilter.filters.value()+[cms.PSet(refToPSet_ = cms.string('ClusterShapeTrajectoryFilter'))]
 )
 
+pp_on_XeXe_2017.toModify(detachedQuadStepTrajectoryFilterBase, minPt=0.9)
 
 import RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi
 detachedQuadStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi.Chi2ChargeMeasurementEstimator.clone(

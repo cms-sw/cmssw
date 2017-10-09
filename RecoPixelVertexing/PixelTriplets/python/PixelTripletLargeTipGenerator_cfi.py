@@ -12,4 +12,6 @@ PixelTripletLargeTipGenerator = cms.PSet(
     extraHitRZtolerance = cms.double(0.037)
 )
 from Configuration.Eras.Modifier_peripheralPbPb_cff import peripheralPbPb
-peripheralPbPb.toModify(PixelTripletLargeTipGenerator, maxElement = 1000000)
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+for e in [peripheralPbPb, pp_on_XeXe_2017]:
+    e.toModify(PixelTripletLargeTipGenerator, maxElement = 1000000)
