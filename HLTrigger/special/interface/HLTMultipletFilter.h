@@ -17,8 +17,8 @@ class HLTMultipletFilter : public HLTFilter {
 
 public:
   explicit HLTMultipletFilter(const edm::ParameterSet&);
-  ~HLTMultipletFilter();
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  ~HLTMultipletFilter() override;
+  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:

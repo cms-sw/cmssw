@@ -75,9 +75,9 @@ class HLTRegionalEcalResonanceFilter : public edm::stream::EDFilter<>
 {
    public:
       explicit HLTRegionalEcalResonanceFilter(const edm::ParameterSet&);
-      ~HLTRegionalEcalResonanceFilter();
+      ~HLTRegionalEcalResonanceFilter() override;
 
-      virtual bool filter(edm::Event &, const edm::EventSetup&);
+      bool filter(edm::Event &, const edm::EventSetup&) override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
    private:
       // ----------member data ---------------------------

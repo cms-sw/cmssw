@@ -24,9 +24,9 @@ class HLTDiJetAveEtaFilter : public HLTFilter {
 
    public:
       explicit HLTDiJetAveEtaFilter(const edm::ParameterSet&);
-      ~HLTDiJetAveEtaFilter();
+      ~HLTDiJetAveEtaFilter() override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
    private:
       edm::EDGetTokenT<std::vector<T>> m_theJetToken;

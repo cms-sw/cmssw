@@ -23,8 +23,8 @@
 class HLTTriMuonIsolation : public edm::global::EDProducer<> {
     public:
         explicit HLTTriMuonIsolation(const edm::ParameterSet& iConfig);
-        ~HLTTriMuonIsolation();
-        virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+        ~HLTTriMuonIsolation() override;
+        void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
         static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
     private:
