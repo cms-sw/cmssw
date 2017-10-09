@@ -1,4 +1,5 @@
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/HelixTrajectory.h"
+#include "FastSimulation/SimplifiedGeometryPropagator/interface/StraightTrajectory.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/BarrelSimplifiedGeometry.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/ForwardSimplifiedGeometry.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/Particle.h"
@@ -141,11 +142,12 @@ double fastsim::HelixTrajectory::nextCrossingTimeC(const BarrelSimplifiedGeometr
     }
 
     // Check if propagation successful (numerical reasons): both solutions (phi1, phi2) have to be on the layer (same radius)
-    // Can happen due to numerical instabilities of geometrical function
+    // Can happen due to numerical instabilities of geometrical function (if momentum is almost parallel to x/y axis)
+    // Get crossingTimeC from StraightTrajectory as good approximation
     if(std::abs(layer.getRadius() - getRadParticle(phi1)) > 1.0e-2 
         || std::abs(layer.getRadius() - getRadParticle(phi2)) > 1.0e-2)
     {
-        throw cms::Exception("FastSimulation") << "HelixTrajectory: full propagation failed.";
+        return ((StraightTrajectory*) this)->nextCrossingTimeC(layer, onLayer);
     }
 
     // if the particle is already on the layer, we need to make sure the 2nd solution is picked.
