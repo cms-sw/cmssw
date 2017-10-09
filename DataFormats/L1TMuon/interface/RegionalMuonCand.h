@@ -49,6 +49,13 @@ class RegionalMuonCand {
         }
       };
 
+    RegionalMuonCand(int pt, int phi, int eta, int sign, int signvalid, int quality, int processor, tftype trackFinder, std::map<int, int> trackAddress) :
+      m_hwPt(pt), m_hwPhi(phi), m_hwEta(eta), m_hwHF(false), m_hwSign(sign), m_hwSignValid(signvalid), m_hwQuality(quality), m_trackAddress(trackAddress),
+      m_dataword(0)
+      {
+        setTFIdentifiers(processor, trackFinder);
+      };
+
     virtual ~RegionalMuonCand() {};
 
     /// Set compressed pT as transmitted by hardware LSB = 0.5 (9 bits)
