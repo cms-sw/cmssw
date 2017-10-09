@@ -39,6 +39,32 @@ namespace l1t {
       return ((id_ & CTP7_mask) << CTP7_shift);
    }
 
+   BxBlocks
+   Block::getBxBlocks(unsigned int payloadWordsPerBx, bool bxHeader) const
+   {
+      BxBlocks bxBlocks;
+
+      // For MP7 format
+      unsigned int wordsPerBx = payloadWordsPerBx;
+      if (bxHeader) {
+         ++wordsPerBx;
+      }
+      // Calculate how many BxBlock objects can be made with the available payload
+      unsigned int nBxBlocks = payload_.size() / wordsPerBx;
+      for (size_t bxCtr = 0; bxCtr < nBxBlocks; ++bxCtr) {
+         size_t startIdx = bxCtr * wordsPerBx;
+         auto startBxBlock = payload_.cbegin()+startIdx;
+         // Pick the words from the block payload that correspond to the BX and add a BxBlock to the BxBlocks
+         if (bxHeader) {
+            bxBlocks.emplace_back(startBxBlock, startBxBlock+wordsPerBx);
+         } else {
+            bxBlocks.emplace_back(bxCtr, nBxBlocks, startBxBlock, startBxBlock+wordsPerBx);
+         }
+      }
+
+      return bxBlocks;
+   }
+
    std::unique_ptr<Block>
    Payload::getBlock()
    {
@@ -147,7 +173,7 @@ namespace l1t {
   MTF7Payload::getBlock()
   {
     if (end_ - data_ < 2)
-      return std::auto_ptr<Block>(0);
+      return std::auto_ptr<Block>(nullptr);
     
     const uint16_t * data16 = reinterpret_cast<const uint16_t*>(data_);
     const uint16_t * end16 = reinterpret_cast<const uint16_t*>(end_);
@@ -170,7 +196,7 @@ namespace l1t {
     
     if (not valid(pattern)) {
       edm::LogWarning("L1T") << "MTF7 block with unrecognized id 0x" << std::hex << pattern;
-      return std::auto_ptr<Block>(0);
+      return std::auto_ptr<Block>(nullptr);
     }
     
     data_ += (i + 1) * 2;
