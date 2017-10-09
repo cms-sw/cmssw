@@ -32,9 +32,9 @@
 class HGCalClusterProducer : public edm::stream::EDProducer<> {
  public:
   HGCalClusterProducer(const edm::ParameterSet&);
-  ~HGCalClusterProducer() { }
+  ~HGCalClusterProducer() override { }
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
 
