@@ -38,13 +38,13 @@ class NanoAODDQM : public DQMEDAnalyzer {
         typedef nanoaod::FlatTable FlatTable;
 
         NanoAODDQM(const edm::ParameterSet&);
-        virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+        void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     protected:
         //Book histograms
         void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-        virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override {}
-        virtual void endRun(const edm::Run&, const edm::EventSetup&) override {}
+        void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override {}
+        void endRun(const edm::Run&, const edm::EventSetup&) override {}
 
     private:
         class Plot {
