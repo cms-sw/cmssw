@@ -90,7 +90,7 @@ namespace cms
     reader_->AddVariable( "dAxis1t", &dAxis1t );
     reader_->AddVariable( "dAxis2t", &dAxis2t );
 
-    reco::details::loadTMVAWeights(reader_, tmvaMethod_.c_str(), tmvaWeights_.c_str());
+    reco::details::loadTMVAWeights(reader_, tmvaMethod_, tmvaWeights_);
 
     //std::cout<<" Method booked "<<std::endl;
 
@@ -104,7 +104,7 @@ namespace cms
     readerF_->AddVariable( "dAxis1c", &dAxis1c );
     readerF_->AddVariable( "dAxis2c", &dAxis2c );
 
-    reco::details::loadTMVAWeights(readerF_, tmvaMethod_.c_str(), tmvaWeightsF_.c_str());
+    reco::details::loadTMVAWeights(readerF_, tmvaMethod_, tmvaWeightsF_);
 
    // std::cout<<" Method booked F "<<std::endl;
   }

@@ -157,8 +157,8 @@ void reco::helper::JetIDHelper::calculate( const edm::Event& event, const reco::
     max_RBX_energy = *it_max_RBX_energy;
   }
   if( jet.energy() > 0 ) {
-    if( HPD_energies.size() > 0 ) approximatefHPD_ = max_HPD_energy / jet.energy();
-    if( RBX_energies.size() > 0 ) approximatefRBX_ = max_HPD_energy / jet.energy();
+    if( !HPD_energies.empty() ) approximatefHPD_ = max_HPD_energy / jet.energy();
+    if( !RBX_energies.empty() ) approximatefRBX_ = max_HPD_energy / jet.energy();
   }
 
   // -----------------------
@@ -176,9 +176,9 @@ void reco::helper::JetIDHelper::calculate( const edm::Event& event, const reco::
 
     // energy fractions
     if( jet.energy() > 0 ) {
-      if( HPD_energies.size() > 0 ) fHPD_ = max_HPD_energy / jet.energy();
-      if( RBX_energies.size() > 0 ) fRBX_ = max_RBX_energy / jet.energy();
-      if( subdet_energies.size() > 0 ) fSubDetector1_ = subdet_energies.at( 0 ) / jet.energy();
+      if( !HPD_energies.empty() ) fHPD_ = max_HPD_energy / jet.energy();
+      if( !RBX_energies.empty() ) fRBX_ = max_RBX_energy / jet.energy();
+      if( !subdet_energies.empty() ) fSubDetector1_ = subdet_energies.at( 0 ) / jet.energy();
       if( subdet_energies.size() > 1 ) fSubDetector2_ = subdet_energies.at( 1 ) / jet.energy();
       if( subdet_energies.size() > 2 ) fSubDetector3_ = subdet_energies.at( 2 ) / jet.energy();
       if( subdet_energies.size() > 3 ) fSubDetector4_ = subdet_energies.at( 3 ) / jet.energy();
