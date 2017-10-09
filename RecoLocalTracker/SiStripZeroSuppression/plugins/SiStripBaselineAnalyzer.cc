@@ -76,13 +76,13 @@
 class SiStripBaselineAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
    public:
       explicit SiStripBaselineAnalyzer(const edm::ParameterSet&);
-      ~SiStripBaselineAnalyzer();
+      ~SiStripBaselineAnalyzer() override;
 
 
    private:
-      virtual void beginJob() override ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       
 	  std::auto_ptr<SiStripPedestalsSubtractor>   subtractorPed_;
           edm::ESHandle<SiStripPedestals> pedestalsHandle;
@@ -264,7 +264,7 @@ SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& es)
 
 	  
       edm::DetSet<SiStripRawDigi>::const_iterator itRaw = itRawDigis->begin(); 
-      bool restAPV[6] = {0,0,0,0,0,0};
+      bool restAPV[6] = {false,false,false,false,false,false};
       int strip =0, totADC=0;
       int minAPVRes = 7, maxAPVRes = -1;
       for(;itRaw != itRawDigis->end(); ++itRaw, ++strip){
