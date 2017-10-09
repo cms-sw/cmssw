@@ -73,7 +73,7 @@ void RpcUnpacker::unpack(int triggerBX, unsigned int fed, unsigned int amc, cons
                  <<" partData: "<<recordCD.partitionData()
                  << std::endl << std::endl;
 
-    if (records.complete()) formater.recordUnpack( records, prod, 0,0);
+    if (records.complete()) formater.recordUnpack( records, prod, nullptr,nullptr);
   }
 }
 }

@@ -48,7 +48,7 @@ public:
 
   OmtfPacker(const edm::ParameterSet& pset);
 
-  ~OmtfPacker() {}
+  ~OmtfPacker() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
