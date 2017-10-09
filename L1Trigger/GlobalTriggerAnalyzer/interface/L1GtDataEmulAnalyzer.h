@@ -50,11 +50,11 @@ class L1GtDataEmulAnalyzer : public edm::EDAnalyzer
 
 public:
     explicit L1GtDataEmulAnalyzer(const edm::ParameterSet&);
-    ~L1GtDataEmulAnalyzer();
+    ~L1GtDataEmulAnalyzer() override;
 
 private:
 
-    virtual void beginJob();
+    void beginJob() override;
 
     /// compare the GTFE board
     virtual void compareGTFE(const edm::Event&, const edm::EventSetup&,
@@ -83,13 +83,13 @@ private:
     virtual void compareGt_Gct(const edm::Event&, const edm::EventSetup&);
 
     /// analyze each event
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     /// book all histograms for the module
     void bookHistograms();
 
     /// end of job
-    virtual void endJob();
+    void endJob() override;
 
 private:
 

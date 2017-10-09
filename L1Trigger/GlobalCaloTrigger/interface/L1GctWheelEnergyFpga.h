@@ -46,16 +46,16 @@ public:
         /// Constructor, needs the Leaf cards to be set up first. id should be 0 or 1.
 	L1GctWheelEnergyFpga(int id, const std::vector<L1GctJetLeafCard*>& leafCards);
 	/// Destructor
-	~L1GctWheelEnergyFpga();
+	~L1GctWheelEnergyFpga() override;
 
         /// Overload << operator
         friend std::ostream& operator << (std::ostream& os, const L1GctWheelEnergyFpga& fpga);
 
 	/// get input data from sources; this is the standard way to provide input
-	virtual void fetchInput();
+	void fetchInput() override;
 
 	/// process the data, fill output buffers
-	virtual void process();
+	void process() override;
 
 	/// set input data; not used in normal operation
 	void setInputEnergy(unsigned i, int ex, int ey, unsigned et, unsigned ht);
@@ -90,11 +90,11 @@ public:
  protected:
 
 	/// Separate reset methods for the processor itself and any data stored in pipelines
-	virtual void resetProcessor();
-	virtual void resetPipelines();
+	void resetProcessor() override;
+	void resetPipelines() override;
 
 	/// Initialise inputs with null objects for the correct bunch crossing if required
-	virtual void setupObjects() {}
+	void setupObjects() override {}
 
  private:
 

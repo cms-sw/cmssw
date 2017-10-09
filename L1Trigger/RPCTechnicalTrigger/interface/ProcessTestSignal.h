@@ -8,7 +8,7 @@
 #include "L1Trigger/RPCTechnicalTrigger/interface/RPCData.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/ProcessInputSignal.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <ios>
@@ -32,9 +32,9 @@ public:
   
   ProcessTestSignal( const char * );
   
-  virtual ~ProcessTestSignal( ); ///< Destructor
+  ~ProcessTestSignal( ) override; ///< Destructor
   
-  int  next();
+  int  next() override;
   
   void rewind();
   
@@ -42,7 +42,7 @@ public:
   
   void reset();
   
-  RPCInputSignal * retrievedata() {
+  RPCInputSignal * retrievedata() override {
     return  m_lbin;
   };
   

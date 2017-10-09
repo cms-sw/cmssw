@@ -55,7 +55,7 @@ using namespace std;
 L1MuDTTrackFinder::L1MuDTTrackFinder(const edm::ParameterSet & ps,edm::ConsumesCollector && iC) {
 
   // set configuration parameters
-  if ( m_config == 0 ) m_config = new L1MuDTTFConfig(ps);
+  if ( m_config == nullptr ) m_config = new L1MuDTTFConfig(ps);
 
   if ( m_config->Debug(1) ) cout << endl;
   if ( m_config->Debug(1) ) cout << "**** entering L1MuDTTrackFinder ****" << endl;
@@ -64,7 +64,7 @@ L1MuDTTrackFinder::L1MuDTTrackFinder(const edm::ParameterSet & ps,edm::ConsumesC
   m_spmap = new L1MuDTSecProcMap();
   m_epvec.reserve(12);
   m_wsvec.reserve(12);
-  m_ms = 0;
+  m_ms = nullptr;
 
   _cache.reserve(4*17);
   _cache0.reserve(144*17);
@@ -98,7 +98,7 @@ L1MuDTTrackFinder::~L1MuDTTrackFinder() {
   delete m_ms;
 
   if ( m_config ) delete m_config;
-  m_config = 0;
+  m_config = nullptr;
 
 }
 
@@ -155,7 +155,7 @@ void L1MuDTTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
 
   edm::Handle<L1MuDTChambPhContainer> dttrig;
   e.getByToken(m_DTDigiToken,dttrig);
-  if ( dttrig->getContainer()->size() == 0 ) return;
+  if ( dttrig->getContainer()->empty() ) return;
 
   if ( m_config->Debug(2) ) cout << endl;
   if ( m_config->Debug(2) ) cout << "**** L1MuDTTrackFinder processing ****" << endl;
@@ -323,4 +323,4 @@ int L1MuDTTrackFinder::numberOfTracks(int bx) {
 
 // static data members
 
-L1MuDTTFConfig* L1MuDTTrackFinder::m_config = 0;
+L1MuDTTFConfig* L1MuDTTrackFinder::m_config = nullptr;

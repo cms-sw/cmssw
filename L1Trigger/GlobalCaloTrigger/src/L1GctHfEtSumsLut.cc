@@ -11,19 +11,19 @@ L1GctHfEtSumsLut::L1GctHfEtSumsLut(const L1GctHfEtSumsLut::hfLutType& type, cons
   m_lutFunction(scale),
   m_lutType(type)
 {
-  if (scale != 0) m_setupOk = true;
+  if (scale != nullptr) m_setupOk = true;
 }
 
 L1GctHfEtSumsLut::L1GctHfEtSumsLut(const L1GctHfEtSumsLut::hfLutType& type) :
   L1GctLut<NAddress,NData>(),
-  m_lutFunction(0),
+  m_lutFunction(nullptr),
   m_lutType(type)
 {
 }
 
 L1GctHfEtSumsLut::L1GctHfEtSumsLut() :
   L1GctLut<NAddress,NData>(),
-  m_lutFunction(0),
+  m_lutFunction(nullptr),
   m_lutType()
 {
 }
@@ -63,7 +63,7 @@ std::vector<unsigned> L1GctHfEtSumsLut::getThresholdsGct() const
 
 L1GctHfEtSumsLut L1GctHfEtSumsLut::operator= (const L1GctHfEtSumsLut& lut)
 {
-  L1GctHfEtSumsLut temp(lut);
+  const L1GctHfEtSumsLut& temp(lut);
   return temp;
 }
 

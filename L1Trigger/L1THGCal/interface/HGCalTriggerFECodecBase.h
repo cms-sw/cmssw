@@ -75,7 +75,7 @@ namespace HGCalTriggerFE {
     
     // mark these as final since at this level we know 
     // the implementation of the codec
-    virtual void encode(l1t::HGCFETriggerDigi& digi) override final {
+    void encode(l1t::HGCFETriggerDigi& digi) final {
       if( !dataIsSet_ ) {
         edm::LogWarning("HGCalTriggerFECodec|NoDataPayload")
           << "No data payload was set for HGCTriggerFECodec: "
@@ -83,7 +83,7 @@ namespace HGCalTriggerFE {
       }
       digi.encode(static_cast<const Impl&>(*this),data_);      
     }
-    virtual void decode(const l1t::HGCFETriggerDigi& digi) override final {
+    void decode(const l1t::HGCFETriggerDigi& digi) final {
       if( dataIsSet_ ) {
         edm::LogWarning("HGCalTriggerFECodec|OverwritePayload")
           << "Data payload was already set for HGCTriggerFECodec: "
@@ -93,9 +93,9 @@ namespace HGCalTriggerFE {
       dataIsSet_ = true;
     }  
     
-    virtual void setDataPayload(const HGCEEDigiCollection& ee, 
+    void setDataPayload(const HGCEEDigiCollection& ee, 
                                 const HGCHEDigiCollection& fh,
-                                const HGCBHDigiCollection& bh ) override final {
+                                const HGCBHDigiCollection& bh ) final {
       if( dataIsSet_ ) {
         edm::LogWarning("HGCalTriggerFECodec|OverwritePayload")
           << "Data payload was already set for HGCTriggerFECodec: "
@@ -109,7 +109,7 @@ namespace HGCalTriggerFE {
       dataIsSet_ = true;
     }
 
-    virtual void setDataPayload(const l1t::HGCFETriggerDigi& digi) override final {
+    void setDataPayload(const l1t::HGCFETriggerDigi& digi) final {
       if( dataIsSet_ ) {
         edm::LogWarning("HGCalTriggerFECodec|OverwritePayload")
           << "Data payload was already set for HGCTriggerFECodec: "
@@ -123,16 +123,16 @@ namespace HGCalTriggerFE {
       dataIsSet_ = true;
     }
 
-    virtual void unSetDataPayload() override final {
+    void unSetDataPayload() final {
       data_.reset();
       dataIsSet_ = false;
     }
-    std::vector<bool> getDataPayload() const override final { 
+    std::vector<bool> getDataPayload() const final { 
       return this->encode(data_); 
     }
         
-    virtual void print(const l1t::HGCFETriggerDigi& digi,
-                       std::ostream& out = std::cout) const override final {
+    void print(const l1t::HGCFETriggerDigi& digi,
+                       std::ostream& out = std::cout) const final {
       digi.print(static_cast<const Impl&>(*this),out);
     }
 

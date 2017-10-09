@@ -37,7 +37,7 @@ Stage1Layer2MainProcessorFirmwareImp1::Stage1Layer2MainProcessorFirmwareImp1(con
     m_jetAlgo = new Stage1Layer2JetAlgorithmImpPP(m_db); //fwv =2 => PP algo
     m_tauAlgo = new Stage1Layer2TauAlgorithmImpPP(m_db);
     m_hfRingAlgo = new Stage1Layer2DiTauAlgorithm(m_db);
-    m_hfBitAlgo = NULL;
+    m_hfBitAlgo = nullptr;
   }
   else if ( m_fwv == 3 )
   { // hw testing algorithms

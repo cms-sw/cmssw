@@ -28,7 +28,7 @@ namespace l1t {
 class L1TCaloStage1LutWriter : public edm::EDAnalyzer {
 public:
   explicit L1TCaloStage1LutWriter(const edm::ParameterSet&);
-  ~L1TCaloStage1LutWriter();
+  ~L1TCaloStage1LutWriter() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -36,9 +36,9 @@ public:
   bool openOutputFile(const std::string& fileName, std::ofstream& file);
 
 private:
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   CaloParamsHelper* m_params;
   std::string m_conditionsLabel;

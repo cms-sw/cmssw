@@ -4,8 +4,8 @@
 #include <memory>
 #include <map>
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <iostream>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -56,12 +56,12 @@ typedef edm::ParameterSet PSet;
 class L1TMuonEndCapTrackProducer : public edm::EDProducer {
 public:
   L1TMuonEndCapTrackProducer(const PSet&);
-  ~L1TMuonEndCapTrackProducer() {}
+  ~L1TMuonEndCapTrackProducer() override {}
 	
  //void analyze(const edm::Event&, const edm::EventSetup&); 
- void produce(edm::Event&, const edm::EventSetup&); 
-  void beginJob();
-  void endJob();
+ void produce(edm::Event&, const edm::EventSetup&) override; 
+  void beginJob() override;
+  void endJob() override;
   
   ///////////////////////////////////////
   //// For Emulator with timing /////////

@@ -29,7 +29,7 @@ public:
     StableParametersTrivialProducer(const edm::ParameterSet&);
 
     /// destructor
-    ~StableParametersTrivialProducer();
+    ~StableParametersTrivialProducer() override;
 
     /// public methods
 

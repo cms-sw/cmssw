@@ -84,7 +84,7 @@ void OMTFinput::mergeData(const OMTFinput *aInput){
   for(unsigned int iLayer=0;iLayer<myOmtfConfig->nLayers();++iLayer){
     const OMTFinput::vector1D & aPhiVec = aInput->getLayerData(iLayer,false);
     const OMTFinput::vector1D & aEtaVec = aInput->getLayerData(iLayer,true);
-    if(!aPhiVec.size()) continue;
+    if(aPhiVec.empty()) continue;
 
     OMTFinput::vector1D layerData = getLayerData(iLayer, false);
     for(unsigned int iInput=0;iInput<14;++iInput){      

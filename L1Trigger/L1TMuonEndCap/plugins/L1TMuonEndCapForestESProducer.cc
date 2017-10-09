@@ -23,7 +23,7 @@ using namespace std;
 class L1TMuonEndCapForestESProducer : public edm::ESProducer {
 public:
   L1TMuonEndCapForestESProducer(const edm::ParameterSet&);
-  ~L1TMuonEndCapForestESProducer();
+  ~L1TMuonEndCapForestESProducer() override;
   
   typedef std::shared_ptr<L1TMuonEndCapForest> ReturnType;
 

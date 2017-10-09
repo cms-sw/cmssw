@@ -14,7 +14,7 @@ class L1RCTLookupTables {
 
   // constructor
 
-  L1RCTLookupTables() : rctParameters_(0), channelMask_(0), ecalScale_(0), hcalScale_(0), etScale_(0) {}
+  L1RCTLookupTables() : rctParameters_(nullptr), channelMask_(nullptr), ecalScale_(nullptr), hcalScale_(nullptr), etScale_(nullptr) {}
   
   // this needs to be refreshed every event -- constructor inits to zero
   // to indicate that it cannot be used -- if this set function is

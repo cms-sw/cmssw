@@ -24,13 +24,13 @@ public:
   /// Standard constructor
   TTUTwoORLogic( ); 
 
-  virtual ~TTUTwoORLogic( ); ///< Destructor
+  ~TTUTwoORLogic( ) override; ///< Destructor
 
   //... from TTULogic interface:
   
-  bool process( const TTUInput & );
+  bool process( const TTUInput & ) override;
   
-  void setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & );
+  void setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & ) override;
   
   //...
 

@@ -106,7 +106,7 @@ UserCode/L1Trigger/src/L1MuonRecoTreeProducer.cc
 class L1MuonRecoTreeProducer : public edm::EDAnalyzer {
 public:
   explicit L1MuonRecoTreeProducer(const edm::ParameterSet&);
-  ~L1MuonRecoTreeProducer();
+  ~L1MuonRecoTreeProducer() override;
   TrajectoryStateOnSurface  cylExtrapTrkSam  (reco::TrackRef track, double rho);
   TrajectoryStateOnSurface  surfExtrapTrkSam (reco::TrackRef track, double z);
   void empty_global();
@@ -118,11 +118,11 @@ public:
     edm::Handle<trigger::TriggerEvent>  &triggerEvent, const reco::Muon &mu);
 
 private:
-  virtual void beginJob(void) ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
-  virtual void beginRun(const edm::Run &, const edm::EventSetup &);
-  virtual void endRun(const edm::Run &, const edm::EventSetup &);
+  void beginJob(void) override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+  void beginRun(const edm::Run &, const edm::EventSetup &) override;
+  void endRun(const edm::Run &, const edm::EventSetup &) override;
 
 
 public:
@@ -537,7 +537,7 @@ L1MuonRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     if (imu->isTrackerMuon()) type=type+4;
     if (imu->isCaloMuon()) type=type+8;
 
-    bool isTIGHT = (vertex->size() > 0                                                &&
+    bool isTIGHT = (!vertex->empty()                                                &&
 		    imu->isGlobalMuon() && imu->globalTrack()->normalizedChi2() < 10. &&
 		    imu->globalTrack()->hitPattern().numberOfValidMuonHits() > 0      &&
 		    imu->numberOfMatchedStations() > 1                                && 
@@ -668,7 +668,7 @@ L1MuonRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 	  const CSCSegment* cscSegment =dynamic_cast<const CSCSegment*>(&**hit);
           //std::cout << "cscSegment = " << cscSegment << std::endl;
-	  if (cscSegment == NULL) continue;
+	  if (cscSegment == nullptr) continue;
           // const CSCRecHit2D* CSChit =(CSCRecHit2D*)(&**hit);
 
 	  // std::cout << " after CSCRecHit2D, CSChit = "  << CSChit << std::endl; 

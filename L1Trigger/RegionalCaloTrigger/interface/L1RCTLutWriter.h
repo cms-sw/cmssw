@@ -48,12 +48,12 @@ class L1RCTParameters;
 class L1RCTLutWriter : public edm::EDAnalyzer {
 public:
   explicit L1RCTLutWriter(const edm::ParameterSet&);
-  ~L1RCTLutWriter();
+  ~L1RCTLutWriter() override;
   
   
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
   void writeRcLutFile(unsigned short card);
   void writeEicLutFile(unsigned short card);
   void writeJscLutFile();
