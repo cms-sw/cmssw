@@ -51,8 +51,8 @@ public:
   MuTriggerAnalyzer(const edm::ParameterSet& pset );
 
 private:
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
-  virtual void endJob() override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  void endJob() override;
   bool IsMuMatchedToHLTMu ( const reco::Muon & , std::vector<reco::Particle>& ,double ,double );
 
   edm::EDGetTokenT<TriggerResults> trigToken_;
@@ -181,7 +181,7 @@ void MuTriggerAnalyzer::analyze (const Event & ev, const EventSetup &) {
 	else {
 	  name = fullname;
 	}
-	if ( toc.size() != 0 ) {
+	if ( !toc.empty() ) {
 	  const trigger::Keys & k = handleTriggerEvent->filterKeys(ia);
 	  for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
 	    if (name == L3FilterName_  ) {
@@ -220,7 +220,7 @@ void MuTriggerAnalyzer::analyze (const Event & ev, const EventSetup &) {
 
            for(unsigned int i =0 ; i < nHighPtGlbMu ; i++) {
 	    reco::Muon muon1 = highPtGlbMuons[i];
-	    math::XYZTLorentzVector mu1(muon1.p4());
+	    const math::XYZTLorentzVector& mu1(muon1.p4());
 	    //      double pt1= muon1.pt();
 
 	    /* bool singleTrigFlag1 =*/ IsMuMatchedToHLTMu ( muon1,  HLTMuMatched ,maxDeltaR_, maxDPtRel_ );
