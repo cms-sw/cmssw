@@ -20,7 +20,7 @@ using namespace edm;
 
 
 PFConversionProducer::PFConversionProducer(const ParameterSet& iConfig):
-  pfTransformer_(0)
+  pfTransformer_(nullptr)
 {
   produces<reco::PFRecTrackCollection>();
   produces<reco::PFConversionCollection>();

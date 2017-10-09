@@ -61,9 +61,9 @@ class PFPhotonTranslator : public edm::stream::EDProducer<>
 {
  public:
   explicit PFPhotonTranslator(const edm::ParameterSet&);
-  ~PFPhotonTranslator();
+  ~PFPhotonTranslator() override;
   
-  virtual void produce(edm::Event &, const edm::EventSetup&) override;
+  void produce(edm::Event &, const edm::EventSetup&) override;
 
   typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsolationValueMaps;
 

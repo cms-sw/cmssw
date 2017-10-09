@@ -50,7 +50,7 @@ PFDisplacedVertexHelper::isTrackSelected(const reco::Track& trk,
 
   bool isGoodTrack = false;
     
-  bool isHighPurity = trk.quality( trk.qualityByName(tracksSelector_.quality().data()) );
+  bool isHighPurity = trk.quality( trk.qualityByName(tracksSelector_.quality()) );
         
   double nChi2  = trk.normalizedChi2(); 
   double pt = trk.pt();

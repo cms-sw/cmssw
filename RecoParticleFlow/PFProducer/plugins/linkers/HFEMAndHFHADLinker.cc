@@ -25,7 +25,7 @@ DEFINE_EDM_PLUGIN(BlockElementLinkerFactory,
 double HFEMAndHFHADLinker::testLink
   ( const reco::PFBlockElement* elem1,
     const reco::PFBlockElement* elem2) const {  
-  const reco::PFBlockElementCluster *hfemelem(NULL), *hfhadelem(NULL);
+  const reco::PFBlockElementCluster *hfemelem(nullptr), *hfhadelem(nullptr);
   if( elem1->type() < elem2->type() ) {
     hfemelem = static_cast<const reco::PFBlockElementCluster*>(elem1);
     hfhadelem = static_cast<const reco::PFBlockElementCluster*>(elem2);
