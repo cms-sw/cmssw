@@ -6,7 +6,7 @@
 #include <string>
 #include <map>
 #include <iostream>
-#include <ctime>
+#include <time.h>
 
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
@@ -54,13 +54,13 @@ namespace popcon
 
 		public:
                         EcalTPGSlidingWindowHandler(edm::ParameterSet const & );
-			~EcalTPGSlidingWindowHandler() override;
+			~EcalTPGSlidingWindowHandler();
 			
 			std::map<std::string, int> makeStripIdEB();
 			std::map<std::string, int> makeStripIdEE();
-			void getNewObjects() override;
+			void getNewObjects();
 			
-			std::string id() const override { return m_name;}
+			std::string id() const { return m_name;}
 			
 			void readFromFile(const char* inputFile) ;
 			void writeFile(const char* inputFile);

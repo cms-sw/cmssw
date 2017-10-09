@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <iomanip>
-#include <cmath>
+#include <math.h>
 
 #include "FWCore/Utilities/interface/Exception.h"
 

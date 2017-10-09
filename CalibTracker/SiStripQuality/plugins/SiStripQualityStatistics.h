@@ -25,10 +25,10 @@ class SiStripQualityStatistics : public edm::EDAnalyzer {
 
  public:
   explicit SiStripQualityStatistics( const edm::ParameterSet& );
-  ~SiStripQualityStatistics() override{};
+  ~SiStripQualityStatistics(){};
   
-  void analyze( const edm::Event&, const edm::EventSetup& ) override;
-  void endJob() override;
+  void analyze( const edm::Event&, const edm::EventSetup& );
+  void endJob();
  
  private:
 

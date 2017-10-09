@@ -42,7 +42,7 @@ void EcalTBHodoscopeRecInfoProducer::produce(edm::Event& e, const edm::EventSetu
 {
   // Get input
    edm::Handle<EcalTBHodoscopeRawInfo> ecalRawHodoscope;  
-   const EcalTBHodoscopeRawInfo* ecalHodoRawInfo = nullptr;
+   const EcalTBHodoscopeRawInfo* ecalHodoRawInfo = 0;
    //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
    e.getByLabel( rawInfoProducer_, ecalRawHodoscope);
    if (ecalRawHodoscope.isValid()) {

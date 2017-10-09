@@ -38,10 +38,10 @@ class CaloCleaner : public  edm::stream::EDProducer<>
 {
  public:
   explicit CaloCleaner(const edm::ParameterSet&);
-  ~CaloCleaner() override;
+  ~CaloCleaner();
 
  private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
   typedef edm::SortedCollection<T> RecHitCollection;
 
@@ -99,7 +99,7 @@ void CaloCleaner<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for (edm::View<pat::Muon>::const_iterator iMuon = muons.begin(); iMuon != muons.end(); ++iMuon) {
     // get the basic informaiton like fill reco mouon does 
     //     RecoMuon/MuonIdentification/plugins/MuonIdProducer.cc
-    const reco::Track* track = nullptr;
+    const reco::Track* track = 0;
     if      ( iMuon->track().isNonnull() ) track = iMuon->track().get();
     else if ( iMuon->standAloneMuon().isNonnull() ) track = iMuon->standAloneMuon().get();
     else throw cms::Exception("FatalError") << "Failed to fill muon id information for a muon with undefined references to tracks";

@@ -35,10 +35,10 @@ class HiggsToZZ4LeptonsSkim : public edm::EDFilter {
   explicit HiggsToZZ4LeptonsSkim(const edm::ParameterSet&);
 
   // Destructor
-  ~HiggsToZZ4LeptonsSkim() override;
+  ~HiggsToZZ4LeptonsSkim();
 
   /// Get event properties to send to builder to fill seed collection
-  bool filter(edm::Event&, const edm::EventSetup& ) override;
+  virtual bool filter(edm::Event&, const edm::EventSetup& );
 
 
  private:

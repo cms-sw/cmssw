@@ -13,12 +13,12 @@ public:
   // Use the first constructor, as the second one will soon
   // be obsolete.
   TT6ApvMask( int ctype, float ncut, float dcut, float tcut);
-  ~TT6ApvMask() override;  
+  virtual ~TT6ApvMask();  
 
-  void setMask(const MaskType& in) override {theMask_ = in;}
-  MaskType mask() override {return theMask_;}
+  void setMask(const MaskType& in) {theMask_ = in;}
+  MaskType mask() {return theMask_;}
   
-  void calculateMask(const ApvAnalysis::PedestalType&) override;
+  void calculateMask(const ApvAnalysis::PedestalType&);
 
 protected:
   bool defineNoisy(float avrg, float rms,float noise);

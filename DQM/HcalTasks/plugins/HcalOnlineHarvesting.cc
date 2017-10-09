@@ -4,7 +4,7 @@ using namespace hcaldqm;
 using namespace hcaldqm::constants;
 
 HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps) :
-	DQHarvester(ps), _nBad(0), _nTotal(0), _reportSummaryMap(nullptr)
+	DQHarvester(ps), _nBad(0), _nTotal(0), _reportSummaryMap(NULL)
 {
 
 	//	NOTE: I will leave Run Summary Generators in place 
@@ -49,15 +49,15 @@ HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps) :
 	edm::EventSetup const&)
 {
 	//	DETERMINE WHICH MODULES ARE PRESENT IN DATA
-	if (ig.get(_subsystem+"/"+_vnames[fRaw]+"/EventsTotal")!=nullptr)
+	if (ig.get(_subsystem+"/"+_vnames[fRaw]+"/EventsTotal")!=NULL)
 		_vmarks[fRaw]=true;
-	if (ig.get(_subsystem+"/"+_vnames[fDigi]+"/EventsTotal")!=nullptr)
+	if (ig.get(_subsystem+"/"+_vnames[fDigi]+"/EventsTotal")!=NULL)
 		_vmarks[fDigi]=true;
-	if (ig.get(_subsystem+"/"+_vnames[fTP]+"/EventsTotal")!=nullptr)
+	if (ig.get(_subsystem+"/"+_vnames[fTP]+"/EventsTotal")!=NULL)
 		_vmarks[fTP]=true;
-	if (ig.get(_subsystem+"/"+_vnames[fReco]+"/EventsTotal")!=nullptr)
+	if (ig.get(_subsystem+"/"+_vnames[fReco]+"/EventsTotal")!=NULL)
 		_vmarks[fReco]=true;
-	if (ig.get(_subsystem+"/"+_vnames[fPedestal]+"/EventsTotal")!=nullptr)
+	if (ig.get(_subsystem+"/"+_vnames[fPedestal]+"/EventsTotal")!=NULL)
 		_vmarks[fPedestal]=true;
 
 	//	CREATE SUMMARY REPORT MAP FED vs LS and LOAD MODULE'S SUMMARIES

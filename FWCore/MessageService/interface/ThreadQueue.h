@@ -48,9 +48,9 @@ class ThreadQueue
 
  
    private:
-      ThreadQueue(const ThreadQueue&) = delete; // stop default
+      ThreadQueue(const ThreadQueue&); // stop default
 
-      const ThreadQueue& operator=(const ThreadQueue&) = delete; // stop default
+      const ThreadQueue& operator=(const ThreadQueue&); // stop default
 
       // ---------- member data --------------------------------
 

@@ -66,12 +66,12 @@
 class OverlapProblemTSOSAnalyzer : public edm::EDAnalyzer {
 public:
   explicit OverlapProblemTSOSAnalyzer(const edm::ParameterSet&);
-  ~OverlapProblemTSOSAnalyzer() override;
+  ~OverlapProblemTSOSAnalyzer();
   
 private:
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  void endRun(const edm::Run&, const edm::EventSetup&) override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   
       // ----------member data ---------------------------
 

@@ -64,7 +64,7 @@ bool JetMETDQMDCSFilter::filter(const edm::Event & evt, const edm::EventSetup & 
   edm::Handle<DcsStatusCollection> dcsStatus;
   evt.getByToken(scalarsToken, dcsStatus);
 
-  if (dcsStatus.isValid() && !dcsStatus->empty()) {
+  if (dcsStatus.isValid() && dcsStatus->size() != 0) {
 
   if (detectorTypes_.find("pixel") !=std::string::npos) {
       if ((*dcsStatus)[0].ready(DcsStatus::BPIX) && 

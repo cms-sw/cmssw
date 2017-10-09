@@ -17,7 +17,7 @@
 #include <fstream>
 #include <map>
 #include <iostream>
-#include <cassert>
+#include <assert.h>
 #include <stdexcept>
 
 using namespace pos;
@@ -213,7 +213,7 @@ PixelROCMaskBits* PixelMaskAllPixels::getMaskBits(PixelROCName name) {
     if (maskbits_[i].name()==name) return &(maskbits_[i]);
   }
 
-  return nullptr;
+  return 0;
 
 }
 

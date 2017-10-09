@@ -179,14 +179,14 @@ void EcalABAnalyzer::beginJob() {
   
   FILE *test;
   test = fopen(nameabinitfile.str().c_str(),"r"); 
-  if(test == nullptr) {
+  if(test == NULL) {
     doesABTreeExist=false;
     _fitab=true;
   };
   delete test;
 
   
-  TFile *fAB=nullptr; TTree *ABInit=nullptr;
+  TFile *fAB=0; TTree *ABInit=0;
   if(doesABTreeExist){
     fAB=new TFile(nameabinitfile.str().c_str());
   }
@@ -233,7 +233,7 @@ void EcalABAnalyzer:: analyze( const edm::Event & e, const  edm::EventSetup& c){
   
   // retrieving DCC header
   edm::Handle<EcalRawDataCollection> pDCCHeader;
-  const  EcalRawDataCollection* DCCHeader=nullptr;
+  const  EcalRawDataCollection* DCCHeader=0;
   try {
     e.getByLabel(eventHeaderProducer_,eventHeaderCollection_, pDCCHeader);
     DCCHeader=pDCCHeader.product();
@@ -243,9 +243,9 @@ void EcalABAnalyzer:: analyze( const edm::Event & e, const  edm::EventSetup& c){
   
   //retrieving crystal data from Event
   edm::Handle<EBDigiCollection>  pEBDigi;
-  const  EBDigiCollection* EBDigi=nullptr;
+  const  EBDigiCollection* EBDigi=0;
   edm::Handle<EEDigiCollection>  pEEDigi;
-  const  EEDigiCollection* EEDigi=nullptr;
+  const  EEDigiCollection* EEDigi=0;
   if (_ecalPart == "EB") {
     try {
       e.getByLabel(digiProducer_,digiCollection_, pEBDigi); 
@@ -267,7 +267,7 @@ void EcalABAnalyzer:: analyze( const edm::Event & e, const  edm::EventSetup& c){
 
   // retrieving electronics mapping
   edm::ESHandle< EcalElectronicsMapping > ecalmapping;
-  const EcalElectronicsMapping* TheMapping=nullptr; 
+  const EcalElectronicsMapping* TheMapping=0; 
   try{
     c.get< EcalMappingRcd >().get(ecalmapping);
     TheMapping = ecalmapping.product();
@@ -545,7 +545,7 @@ void EcalABAnalyzer::endJob() {
   if(_fitab){
     std::cout <<  "\n\t+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+" << std::endl;
     std::cout <<   "\t+=+     Analyzing data: getting (alpha, beta)     +=+" << std::endl;
-    TFile *fAB=nullptr; TTree *ABInit=nullptr;
+    TFile *fAB=0; TTree *ABInit=0;
     if(doesABTreeExist){
       fAB=new TFile(alphainitfile.c_str());
     }

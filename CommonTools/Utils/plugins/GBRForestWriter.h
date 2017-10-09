@@ -22,10 +22,10 @@ class GBRForestWriter : public edm::EDAnalyzer
 {
  public:
   GBRForestWriter(const edm::ParameterSet&);
-  ~GBRForestWriter() override;
+  ~GBRForestWriter();
   
  private:
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
   std::string moduleLabel_;
 

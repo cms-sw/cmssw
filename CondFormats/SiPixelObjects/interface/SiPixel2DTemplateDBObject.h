@@ -5,7 +5,7 @@
 
 #include <vector>
 #include <map>
-#include <cstdint>
+#include <stdint.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // ******************************************************************************************

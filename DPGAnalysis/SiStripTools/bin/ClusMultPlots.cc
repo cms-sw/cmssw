@@ -331,9 +331,9 @@ void ClusMultVtxCorrPlots(const char* fullname, const char* mod, const char* lab
   if(histvtx) {
     histvtx->Draw("colz");
     //    TProfile* histvtxprof = histvtx->ProfileY("prof",1,-1,"");
-    TProfile* histvtxprof = nullptr;
+    TProfile* histvtxprof = 0;
     histvtxprof = (TProfile*)ca.getObject(profname);
-    if(histvtxprof==nullptr) {
+    if(histvtxprof==0) {
       std::cout << "TProfile " << profname << " missing!" << std::endl;
       histvtxprof = histvtx->ProfileX("prof",1,-1,"");
     }
@@ -400,9 +400,9 @@ void ClusMultLumiCorrPlots(const char* fullname, const char* mod, const char* la
   if(histlumi) {
     histlumi->Draw("colz");
     //    TProfile* histlumiprof = histlumi->ProfileY("prof",1,-1,"");
-    TProfile* histlumiprof = nullptr;
+    TProfile* histlumiprof = 0;
     histlumiprof = (TProfile*)ca.getObject(profname);
-    if(histlumiprof==nullptr) {
+    if(histlumiprof==0) {
       std::cout << "TProfile " << profname << " missing!" << std::endl;
       histlumiprof = histlumi->ProfileX("prof",1,-1,"");
     }

@@ -15,13 +15,13 @@ class LagrangeChildUpdator:public ChildUpdator
 public:
 
  LagrangeChildUpdator(){}
- ~LagrangeChildUpdator() override{}
+ ~LagrangeChildUpdator(){}
  
- RefCountedKinematicTree  update(RefCountedKinematicTree tree) const override;
+ RefCountedKinematicTree  update(RefCountedKinematicTree tree) const;
  
- std::vector<RefCountedKinematicTree>  update(const std::vector<RefCountedKinematicTree> & trees) const override;
+ std::vector<RefCountedKinematicTree>  update(const std::vector<RefCountedKinematicTree> & trees) const;
  
- LagrangeChildUpdator * clone() const override
+ LagrangeChildUpdator * clone() const
  {return new LagrangeChildUpdator(*this);}
  
 private:

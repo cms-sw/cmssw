@@ -25,14 +25,14 @@ class CastorHardcodeCalibrations : public edm::ESProducer,
 {
 public:
   CastorHardcodeCalibrations (const edm::ParameterSet& );
-  ~CastorHardcodeCalibrations () override;
+  ~CastorHardcodeCalibrations ();
 
   void produce () {};
   
 protected:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+  virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
 			      const edm::IOVSyncValue& , 
-			      edm::ValidityInterval&) override ;
+			      edm::ValidityInterval&) ;
 
   std::unique_ptr<CastorPedestals> producePedestals (const CastorPedestalsRcd& rcd);
   std::unique_ptr<CastorPedestalWidths> producePedestalWidths (const CastorPedestalWidthsRcd& rcd);

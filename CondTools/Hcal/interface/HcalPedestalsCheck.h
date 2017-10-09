@@ -45,9 +45,9 @@ class HcalPedestalsCheck: public edm::EDAnalyzer
  public:
   HcalPedestalsCheck(edm::ParameterSet const& ps);
 
-  ~HcalPedestalsCheck() override;
+  ~HcalPedestalsCheck();
 
-  void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
+  void analyze(const edm::Event& ev, const edm::EventSetup& es);
 
  private:
   std::string outfile;

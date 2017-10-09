@@ -20,13 +20,13 @@ PropagationDirectionChooser::operator() (const FreeTrajectoryState& fts,
   const Surface* sur = (const Surface*)&surface;
   const Cylinder* bc = dynamic_cast<const Cylinder*>(sur);
   const Plane* bp = dynamic_cast<const Plane*>(sur);
-  if (bc != nullptr) {
+  if (bc != 0) {
     //
     // cylinder
     //
     return (*this)(fts, *bc);
   }
-  else if (bp != nullptr) {
+  else if (bp != 0) {
     //
     // plane
     //

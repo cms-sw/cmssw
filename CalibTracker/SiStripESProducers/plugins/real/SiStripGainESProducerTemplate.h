@@ -25,7 +25,7 @@ template<typename TDependentRecord, typename TInputRecord>
 class SiStripGainESProducerTemplate : public edm::ESProducer {
  public:
   SiStripGainESProducerTemplate(const edm::ParameterSet&);
-  ~SiStripGainESProducerTemplate() override{};
+  ~SiStripGainESProducerTemplate(){};
   
   std::unique_ptr<SiStripGain> produce(const TDependentRecord&);
 

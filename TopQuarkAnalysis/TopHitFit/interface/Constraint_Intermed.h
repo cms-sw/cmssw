@@ -182,7 +182,7 @@ public:
   /**
      Destructor.
    */
-  ~Constraint_Intermed_Constant () override {};
+  virtual ~Constraint_Intermed_Constant () {};
 
   // Copy constructor.
   /**
@@ -205,7 +205,7 @@ public:
      <b>false</b> if this instance doesn't reference both labels.
 
    */
-  bool has_labels (int ilabel, int jlabel) const override;
+  virtual bool has_labels (int ilabel, int jlabel) const;
 
   // Evaluate this half of the mass constraint, using the data in EV.
   // Return m^2/2.
@@ -217,7 +217,7 @@ public:
      @par Return:
      \f$\frac{m^{2}}{2}\f$.
    */
-  double sum_mass_terms (const Fourvec_Event& ev) const override;
+  virtual double sum_mass_terms (const Fourvec_Event& ev) const;
 
   // Print out this object.
   /**
@@ -225,13 +225,13 @@ public:
 
      @param s The output stream to which the instance is printed.
    */
-  void print (std::ostream& s) const override;
+  virtual void print (std::ostream& s) const;
 
   // Copy this object.
   /**
      Clone function to copy the instance.
    */
-  std::unique_ptr<Constraint_Intermed> clone () const override;
+  virtual std::unique_ptr<Constraint_Intermed> clone () const;
 
 private:
   // Store c^2 / 2.
@@ -273,7 +273,7 @@ public:
   /**
      Destructor.
    */
-  ~Constraint_Intermed_Labels () override {};
+  virtual ~Constraint_Intermed_Labels () {};
 
   // Return true if this guy references both labels ILABEL and JLABEL.
   /**
@@ -289,7 +289,7 @@ public:
      <b>false</b> if this instance doesn't reference both labels.
 
    */
-  bool has_labels (int ilabel, int jlabel) const override;
+  virtual bool has_labels (int ilabel, int jlabel) const;
 
   // Evaluate this half of the mass constraint, using the data in EV.
   // Return m^2/2.
@@ -301,7 +301,7 @@ public:
      @par Return:
      \f$\frac{m^{2}}{2}\f$.
    */
-  double sum_mass_terms (const Fourvec_Event& ev) const override;
+  virtual double sum_mass_terms (const Fourvec_Event& ev) const;
 
   // Print out this object.
   /**
@@ -309,13 +309,13 @@ public:
 
      @param s The output stream to which the instance is printed.
    */
-  void print (std::ostream& s) const override;
+  virtual void print (std::ostream& s) const;
 
   // Copy this object.
   /**
      Clone function to copy the instance.
    */
-  std::unique_ptr<Constraint_Intermed> clone () const override;
+  virtual std::unique_ptr<Constraint_Intermed> clone () const;
 
 private:
   // Test to see if LABEL is used by this constraint half.

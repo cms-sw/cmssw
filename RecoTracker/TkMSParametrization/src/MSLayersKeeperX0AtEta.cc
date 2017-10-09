@@ -81,7 +81,7 @@ void MSLayersKeeperX0AtEta::init(const edm::EventSetup &iSetup)
       vector<MSLayer>::iterator it;
       for (it = candidates.begin(); it != candidates.end(); it++) {
         if (layersAtAngle.findLayer(*it)) continue;
-        const MSLayer * found = nullptr;
+        const MSLayer * found = 0;
         int bin = idxbin;
         while(!found) {
           bin--; if (bin < 0) break; 

@@ -11,7 +11,7 @@
 //
 
 // system include files
-#include <cstdio>
+#include <stdio.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>

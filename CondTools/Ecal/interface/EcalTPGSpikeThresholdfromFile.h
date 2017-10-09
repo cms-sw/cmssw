@@ -6,7 +6,7 @@
 #include <string>
 #include <map>
 #include <iostream>
-#include <ctime>
+#include <time.h>
 
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
@@ -44,11 +44,11 @@ namespace popcon {
   class EcalTPGSpikeThresholdfromFile : public popcon::PopConSourceHandler<EcalTPGSpike> {
 
   public:
-    void getNewObjects() override;
-    ~EcalTPGSpikeThresholdfromFile() override;
+    void getNewObjects();
+    ~EcalTPGSpikeThresholdfromFile();
     EcalTPGSpikeThresholdfromFile(edm::ParameterSet const & ); 
     
-    std::string id() const override { return m_name;}
+    std::string id() const { return m_name;}
 
   private:
     std::string m_name;

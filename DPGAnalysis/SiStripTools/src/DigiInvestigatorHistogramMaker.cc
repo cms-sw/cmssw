@@ -91,7 +91,7 @@ void DigiInvestigatorHistogramMaker::book(const std::string dirname) {
     char name[200];
     char title[500];
 
-    _subdirs[i] = new TFileDirectory(subev.mkdir(slab));
+    _subdirs[i] = new TFileDirectory(subev.mkdir(slab.c_str()));
 
     if(_subdirs[i]) {
       sprintf(name,"n%sdigi",slab.c_str());

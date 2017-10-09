@@ -9,7 +9,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <cassert>
+#include <assert.h>
 
 namespace pos{
 /*! \class PixelConfigKey PixelConfigKey.h "interface/PixelConfigKey.h"

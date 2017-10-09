@@ -42,10 +42,10 @@
 
 #include <iostream>
 #include <iomanip>
-#include <cstdio>
+#include <stdio.h>
 #include <string>
 #include <sstream>
-#include <cmath>
+#include <math.h>
 
 
 /** 
@@ -102,7 +102,7 @@ void TrackingOfflineDQM::beginRun(edm::Run const& run, edm::EventSetup const& eS
   int nFEDs = 0;
   int nPixelFEDs = 0;
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-  if( eSetup.find( recordKey ) != nullptr) {
+  if( eSetup.find( recordKey ) != 0) {
 
     edm::ESHandle<RunInfo> sumFED;
     eSetup.get<RunInfoRcd>().get(sumFED);    

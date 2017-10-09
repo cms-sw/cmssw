@@ -5,8 +5,8 @@
 
 // system include files
 #include <memory>
-#include <cstdio>
-#include <cmath>
+#include <stdio.h>
+#include <math.h>
 #include <sstream>
 
 // user include files
@@ -28,10 +28,10 @@
 class DataCertificationJetMET : public DQMEDHarvester {
    public:
       explicit DataCertificationJetMET(const edm::ParameterSet&);
-      ~DataCertificationJetMET() override;
+      ~DataCertificationJetMET();
 
    private:
-      void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override ;
+      virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) ;
 
       MonitorElement*  reportSummary;
       MonitorElement*  CertificationSummary;

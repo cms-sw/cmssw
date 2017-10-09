@@ -52,7 +52,7 @@ public:
   TEcnaRootFile(const Text_t*);
   TEcnaRootFile(const Text_t*, const TString&);
 
-  ~TEcnaRootFile() override;
+  ~TEcnaRootFile();
 
   void   ReStart(const Text_t*);
   void   ReStart(const Text_t*, const TString&);
@@ -62,7 +62,7 @@ public:
   Bool_t ReadElement(Int_t);
   Bool_t ReadElement(CnaResultTyp,Int_t);
   Int_t  ReadElementNextEntryNumber(CnaResultTyp,Int_t);
-  ClassDefOverride(TEcnaRootFile,1)  //Root file of CNA
+  ClassDef(TEcnaRootFile,1)  //Root file of CNA
 };
 
 R__EXTERN TEcnaRootFile *gCnaRootFile;

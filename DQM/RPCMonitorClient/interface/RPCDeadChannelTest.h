@@ -16,12 +16,12 @@ public:
   RPCDeadChannelTest(const edm::ParameterSet& ps);
   
   /// Destructor
-  ~RPCDeadChannelTest() override;
+  virtual ~RPCDeadChannelTest();
 
- void clientOperation() override;
- void getMonitorElements(std::vector<MonitorElement *> &, std::vector<RPCDetId> &, std::string &) override;
- void beginJob(std::string & ) override;
- void myBooker(DQMStore::IBooker &) override;
+ void clientOperation();
+ void getMonitorElements(std::vector<MonitorElement *> &, std::vector<RPCDetId> &, std::string &);
+ void beginJob(std::string & );
+ void myBooker(DQMStore::IBooker &);
    
  private:
   int prescaleFactor_;

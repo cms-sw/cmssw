@@ -13,15 +13,15 @@ class PedsOnlyHistosUsingDb : public CommissioningHistosUsingDb, public PedsOnly
                          DQMStore*,
                          SiStripConfigDb* const );
   
-  ~PedsOnlyHistosUsingDb() override;
+  virtual ~PedsOnlyHistosUsingDb();
  
-  void uploadConfigurations() override;
+  virtual void uploadConfigurations();
   
  private:
 
   void update( SiStripConfigDb::FedDescriptionsRange );
 
-  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis ) override;
+  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis );
 
 };
 

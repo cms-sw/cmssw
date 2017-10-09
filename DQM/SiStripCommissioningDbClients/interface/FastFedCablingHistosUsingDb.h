@@ -13,11 +13,11 @@ class FastFedCablingHistosUsingDb : public CommissioningHistosUsingDb, public Fa
                                DQMStore*,
                                SiStripConfigDb* const );
 
-  ~FastFedCablingHistosUsingDb() override;
+  virtual ~FastFedCablingHistosUsingDb();
  
-  void addDcuDetIds() override; // override
+  virtual void addDcuDetIds(); // override
   
-  void uploadConfigurations() override;
+  virtual void uploadConfigurations();
   
  private:
   
@@ -28,7 +28,7 @@ class FastFedCablingHistosUsingDb : public CommissioningHistosUsingDb, public Fa
   
   void update( SiStripConfigDb::FedDescriptionsRange );
   
-  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis ) override; 
+  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis ); 
   
   void connections( SiStripConfigDb::DeviceDescriptionsRange, 
                     SiStripConfigDb::DcuDetIdsRange );

@@ -18,14 +18,14 @@ public:
 
   explicit DTCalibMuonSelection(const edm::ParameterSet&);
 
-  ~DTCalibMuonSelection() override;
+  ~DTCalibMuonSelection();
   
 private:
-  void beginJob() override ;
+  virtual void beginJob() ;
 
-  bool filter(edm::Event&, const edm::EventSetup&) override;
+  virtual bool filter(edm::Event&, const edm::EventSetup&);
 
-  void endJob() override ;
+  virtual void endJob() ;
   
   edm::EDGetTokenT<reco::MuonCollection> muonList;
 

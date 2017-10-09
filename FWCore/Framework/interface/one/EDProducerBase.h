@@ -54,7 +54,7 @@ namespace edm {
 
       
       EDProducerBase();
-      ~EDProducerBase() override;
+      virtual ~EDProducerBase();
       
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
       static void prevalidate(ConfigurationDescriptions& descriptions);

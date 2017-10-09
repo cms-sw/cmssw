@@ -88,7 +88,7 @@ class JetAnalyzer : public DQMEDAnalyzer {
   JetAnalyzer(const edm::ParameterSet&);
   
   /// Destructor
-  ~JetAnalyzer() override;
+  virtual ~JetAnalyzer();
   
 /// Inizialize parameters for histo binning
 //  void beginJob(void);

@@ -15,13 +15,13 @@ namespace cms {
       produces<SeedStopInfo>();
     }
 
-    void beginRun (edm::Run const & run, edm::EventSetup const & es) override {
+    virtual void beginRun (edm::Run const & run, edm::EventSetup const & es) override {
       beginRunBase(run,es); 
       initDebugger(es);
     }
 
-    void produce(edm::Event& e, const edm::EventSetup& es) override {produceBase(e,es);}
-    void endJob() override {delete dbg; }
+    virtual void produce(edm::Event& e, const edm::EventSetup& es) override {produceBase(e,es);}
+    virtual void endJob() override {delete dbg; }
 
   private:
     virtual TrajectorySeedCollection::const_iterator 

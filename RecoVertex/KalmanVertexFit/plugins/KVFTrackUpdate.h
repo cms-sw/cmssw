@@ -20,12 +20,12 @@
 class KVFTrackUpdate : public edm::EDAnalyzer {
 public:
   explicit KVFTrackUpdate(const edm::ParameterSet&);
-  ~KVFTrackUpdate() override;
+  ~KVFTrackUpdate();
   
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-  void beginJob() override;
-  void endJob() override;
+  virtual void beginJob();
+  virtual void endJob();
 
 private:
 

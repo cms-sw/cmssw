@@ -36,13 +36,13 @@ public:
   DTVDriftCalibration(const edm::ParameterSet& pset);
 
   /// Destructor
-  ~DTVDriftCalibration() override;
+  virtual ~DTVDriftCalibration();
 
   // Operations
 
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
+  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
-  void endJob() override;
+  void endJob();
   
 protected:
 

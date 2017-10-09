@@ -238,7 +238,7 @@ EcalSimple2007H4TBAnalyzer::analyze( edm::Event const & iEvent, edm::EventSetup 
 
 
    Handle<EEDigiCollection> pdigis;
-   const EEDigiCollection* digis=nullptr;
+   const EEDigiCollection* digis=0;
    //std::cout << "EcalSimple2007H4TBAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
    iEvent.getByLabel( digiProducer_, digiCollection_,pdigis);
    if ( pdigis.isValid() ) {
@@ -250,7 +250,7 @@ EcalSimple2007H4TBAnalyzer::analyze( edm::Event const & iEvent, edm::EventSetup 
 
    // fetch the digis and compute signal amplitude
    Handle<EEUncalibratedRecHitCollection> phits;
-   const EEUncalibratedRecHitCollection* hits=nullptr;
+   const EEUncalibratedRecHitCollection* hits=0;
    //std::cout << "EcalSimple2007H4TBAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
    iEvent.getByLabel( hitProducer_, hitCollection_,phits);
    if (phits.isValid()) {
@@ -261,7 +261,7 @@ EcalSimple2007H4TBAnalyzer::analyze( edm::Event const & iEvent, edm::EventSetup 
    }
 
    Handle<EcalTBHodoscopeRecInfo> pHodo;
-   const EcalTBHodoscopeRecInfo* recHodo=nullptr;
+   const EcalTBHodoscopeRecInfo* recHodo=0;
    //std::cout << "EcalSimple2007H4TBAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
    iEvent.getByLabel( hodoRecInfoProducer_, hodoRecInfoCollection_, pHodo);
    if ( pHodo.isValid() ) {
@@ -271,7 +271,7 @@ EcalSimple2007H4TBAnalyzer::analyze( edm::Event const & iEvent, edm::EventSetup 
    }
 
    Handle<EcalTBTDCRecInfo> pTDC;
-   const EcalTBTDCRecInfo* recTDC=nullptr;
+   const EcalTBTDCRecInfo* recTDC=0;
    //std::cout << "EcalSimple2007H4TBAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
    iEvent.getByLabel( tdcRecInfoProducer_, tdcRecInfoCollection_, pTDC);
    if ( pTDC.isValid() ) {
@@ -281,7 +281,7 @@ EcalSimple2007H4TBAnalyzer::analyze( edm::Event const & iEvent, edm::EventSetup 
    }
 
    Handle<EcalTBEventHeader> pEventHeader;
-   const EcalTBEventHeader* evtHeader=nullptr;
+   const EcalTBEventHeader* evtHeader=0;
    //std::cout << "EcalSimple2007H4TBAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
    iEvent.getByLabel( eventHeaderProducer_ , pEventHeader );
    if ( pEventHeader.isValid() ) {
@@ -315,7 +315,7 @@ EcalSimple2007H4TBAnalyzer::analyze( edm::Event const & iEvent, edm::EventSetup 
        return;
      }
 
-   if (hits->empty())
+   if (hits->size() == 0)
      {
        //       std::cout << "5" << std::endl;
        return;

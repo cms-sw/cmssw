@@ -11,15 +11,15 @@ class RawDataConverter : public edm::EDAnalyzer {
   
  public:
   explicit RawDataConverter(const edm::ParameterSet&);
-  ~RawDataConverter() override;
+  ~RawDataConverter();
   
   
  private:
   enum DigiType {ZeroSuppressed, VirginRaw, ProcessedRaw, Unknown};
-  void beginJob() override ;
-  void beginRun(edm::Run const &, edm::EventSetup const &) override ;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+  virtual void beginJob() ;
+  virtual void beginRun(edm::Run const &, edm::EventSetup const &) ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
 
   void fillDetectorId( void );
   void ClearData( void );

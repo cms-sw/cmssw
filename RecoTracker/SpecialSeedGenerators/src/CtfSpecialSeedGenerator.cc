@@ -25,8 +25,8 @@ CtfSpecialSeedGenerator::CtfSpecialSeedGenerator(const edm::ParameterSet& conf):
   	useScintillatorsConstraint = conf_.getParameter<bool>("UseScintillatorsConstraint");
   	edm::LogVerbatim("CtfSpecialSeedGenerator") << "Constructing CtfSpecialSeedGenerator";
   	produces<TrajectorySeedCollection>();
-	theSeedBuilder =nullptr; 
-	theRegionProducer =nullptr;
+	theSeedBuilder =0; 
+	theRegionProducer =0;
 
 	edm::ParameterSet regfactoryPSet = conf_.getParameter<edm::ParameterSet>("RegionFactoryPSet");
   	std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
@@ -42,11 +42,11 @@ CtfSpecialSeedGenerator::CtfSpecialSeedGenerator(const edm::ParameterSet& conf):
 }
 
 CtfSpecialSeedGenerator::~CtfSpecialSeedGenerator(){
-    if (theRegionProducer) { delete theRegionProducer; theRegionProducer = nullptr; }
+    if (theRegionProducer) { delete theRegionProducer; theRegionProducer = 0; }
 }
 
 void CtfSpecialSeedGenerator::endRun(edm::Run const&, edm::EventSetup const&){
-    if (theSeedBuilder)    { delete theSeedBuilder;    theSeedBuilder = nullptr; }
+    if (theSeedBuilder)    { delete theSeedBuilder;    theSeedBuilder = 0; }
 }
 
 void CtfSpecialSeedGenerator::beginRun(edm::Run const&, const edm::EventSetup& iSetup){

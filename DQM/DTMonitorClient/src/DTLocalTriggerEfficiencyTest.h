@@ -27,7 +27,7 @@ public:
   DTLocalTriggerEfficiencyTest(const edm::ParameterSet& ps);
   
   /// Destructor
-  ~DTLocalTriggerEfficiencyTest() override;
+  virtual ~DTLocalTriggerEfficiencyTest();
 
 protected:
 
@@ -41,12 +41,12 @@ protected:
   void makeEfficiencyME2D(TH2F* numerator, TH2F* denominator, MonitorElement* result);
 
   /// BeginRun
-  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
 
   /// DQM Client Diagnostic
 
-  void runClientDiagnostic(DQMStore::IBooker &, DQMStore::IGetter &) override;
+  void runClientDiagnostic(DQMStore::IBooker &, DQMStore::IGetter &);
   void Bookings(DQMStore::IBooker &, DQMStore::IGetter &);
 
   const int wheelArrayShift = 3;

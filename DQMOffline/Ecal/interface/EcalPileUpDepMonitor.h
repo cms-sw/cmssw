@@ -31,7 +31,7 @@ class EcalPileUpDepMonitor: public DQMEDAnalyzer{
   EcalPileUpDepMonitor(const edm::ParameterSet& ps);
 
   /// Destructor
-  ~EcalPileUpDepMonitor() override;
+  virtual ~EcalPileUpDepMonitor();
 
  protected:
 

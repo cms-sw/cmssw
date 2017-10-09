@@ -168,9 +168,9 @@ EcalDisplaysByEvent::analyze(edm::Event const & iEvent, edm::EventSetup const & 
   
   bool hasEBdigis = false;
   bool hasEEdigis = false;
-  if(!EBdigisHandle->empty())
+  if(EBdigisHandle->size() > 0)
     hasEBdigis = true;
-  if(!EEdigisHandle->empty())
+  if(EEdigisHandle->size() > 0)
     hasEEdigis = true;
 
   // Produce the digi graphs
@@ -578,7 +578,7 @@ void EcalDisplaysByEvent::makeHistos(Handle<EcalRecHitCollection> hits)
     }
     // Fill FED-by-FED timing histos (all events)
     TH1F* timingHist = FEDsAndTimingHists_[FEDid];
-    if(timingHist==nullptr)
+    if(timingHist==0)
     {
       initHists(FEDid);
       timingHist = FEDsAndTimingHists_[FEDid];

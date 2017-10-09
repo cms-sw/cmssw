@@ -11,11 +11,11 @@ class HcalFlagHFDigiTimeParams: public HcalCondObjectContainer<HcalFlagHFDigiTim
 {
  public:
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalFlagHFDigiTimeParams():HcalCondObjectContainer<HcalFlagHFDigiTimeParam>(nullptr) {}
+  HcalFlagHFDigiTimeParams():HcalCondObjectContainer<HcalFlagHFDigiTimeParam>(0) {}
 #endif
   HcalFlagHFDigiTimeParams(const HcalTopology* ht):HcalCondObjectContainer<HcalFlagHFDigiTimeParam>(ht) {}
 
-  std::string myname() const override {return (std::string)"HcalFlagHFDigiTimeParams";}
+  std::string myname() const {return (std::string)"HcalFlagHFDigiTimeParams";}
 
  private:
 

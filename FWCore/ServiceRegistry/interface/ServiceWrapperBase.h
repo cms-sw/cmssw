@@ -40,9 +40,9 @@ public:
          // ---------- member functions ---------------------------
          
 private:
-         ServiceWrapperBase(const ServiceWrapperBase&) = delete; // stop default
+         ServiceWrapperBase(const ServiceWrapperBase&); // stop default
          
-         const ServiceWrapperBase& operator=(const ServiceWrapperBase&) = delete; // stop default
+         const ServiceWrapperBase& operator=(const ServiceWrapperBase&); // stop default
          
          // ---------- member data --------------------------------
          

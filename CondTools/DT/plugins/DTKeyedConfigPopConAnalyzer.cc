@@ -16,8 +16,8 @@ class DTKeyedConfigPopConAnalyzer: public popcon::PopConAnalyzer<DTKeyedConfigHa
     copyData( pset.getParameter<edm::ParameterSet>("Source").
                       getUntrackedParameter<bool> ( "copyData", true ) ) 
  {}
-  ~DTKeyedConfigPopConAnalyzer() override{}
-  void analyze(const edm::Event& e, const edm::EventSetup& s) override{
+  virtual ~DTKeyedConfigPopConAnalyzer(){}
+  virtual void analyze(const edm::Event& e, const edm::EventSetup& s) override{
 
     if ( !copyData ) return;
 

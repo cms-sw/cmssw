@@ -75,7 +75,7 @@ void BTagCalibrationReader::BTagCalibrationReaderImpl::load(
                                              BTagEntry::JetFlavor jf,
                                              std::string measurementType)
 {
-  if (!tmpData_[jf].empty()) {
+  if (tmpData_[jf].size()) {
     throw cms::Exception("BTagCalibrationReader")
           << "Data for this jet-flavor is already loaded: "
           << jf;

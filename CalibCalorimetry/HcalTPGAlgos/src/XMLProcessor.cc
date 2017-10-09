@@ -39,7 +39,7 @@ XERCES_CPP_NAMESPACE_USE
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLDOMBlock.h"
 
-XMLProcessor * XMLProcessor::instance = nullptr;
+XMLProcessor * XMLProcessor::instance = NULL;
 
 XMLProcessor::XMLProcessor()
 {
@@ -74,7 +74,7 @@ XMLProcessor::DBConfig::_DBConfig()
 {
   version = "test:2";
   subversion = "1";
-  create_timestamp = time( nullptr );
+  create_timestamp = time( NULL );
   created_by_user = getpwuid( getuid() ) -> pw_name;
 }
 
@@ -245,8 +245,8 @@ XMLCh * XMLProcessor::serializeDOM(DOMNode* node, std::string target)
   dc->setParameter(XMLUni::fgDOMWRTDiscardDefaultContent, true);
   dc->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
   
-  XMLFormatTarget * myFormTarget = nullptr;
-  XMLCh * _string = nullptr;
+  XMLFormatTarget * myFormTarget = 0;
+  XMLCh * _string = 0;
   if ( target == "stdout" || target == "string" )
     {
       myFormTarget = new StdOutFormatTarget();
@@ -275,18 +275,18 @@ XMLCh * XMLProcessor::serializeDOM(DOMNode* node, std::string target)
     std::cout << "Exception message is: \n"
 	 << message << "\n";
     XMLString::release(&message);
-    return nullptr;
+    return 0;
   }
   catch (const DOMException& toCatch) {
     char* message = XMLString::transcode(toCatch.msg);
     std::cout << "Exception message is: \n"
 	 << message << "\n";
     XMLString::release(&message);
-    return nullptr;
+    return NULL;
   }
   catch (...) {
     std::cout << "Unexpected Exception \n" ;
-    return nullptr;
+    return NULL;
   }
     
   theSerializer->release();

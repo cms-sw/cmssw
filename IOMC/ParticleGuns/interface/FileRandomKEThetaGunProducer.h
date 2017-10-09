@@ -10,11 +10,11 @@ namespace edm {
   
   public:
     FileRandomKEThetaGunProducer(const ParameterSet &);
-    ~FileRandomKEThetaGunProducer() override;
+    virtual ~FileRandomKEThetaGunProducer();
 
   private:
    
-    void produce(Event &e, const EventSetup& es) override;
+    virtual void produce(Event &e, const EventSetup& es) override;
     
   protected :
   

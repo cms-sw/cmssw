@@ -27,8 +27,8 @@ public:
  * equations at the point where the input
  * particles are defined.
  */
-AlgebraicVector  value(const std::vector<KinematicState> &states,
-                        const GlobalPoint& point) const override;
+virtual AlgebraicVector  value(const std::vector<KinematicState> &states,
+                        const GlobalPoint& point) const;
 
 
 /**
@@ -36,23 +36,23 @@ AlgebraicVector  value(const std::vector<KinematicState> &states,
  * constraint equations w.r.t. 
  * particle parameters
  */
-AlgebraicMatrix parametersDerivative(const std::vector<KinematicState> &states,
-                                      const GlobalPoint& point) const override;
+virtual AlgebraicMatrix parametersDerivative(const std::vector<KinematicState> &states,
+                                      const GlobalPoint& point) const;
 
 /**
  * Returns a matrix of derivatives of
  * constraint equations w.r.t. 
  * vertex position
  */
-AlgebraicMatrix positionDerivative(const std::vector<KinematicState> &states,
-                                    const GlobalPoint& point) const override;
+virtual AlgebraicMatrix positionDerivative(const std::vector<KinematicState> &states,
+                                    const GlobalPoint& point) const;
 
 /**
  * Number of equations per track used for the fit
  */
-int numberOfEquations() const override {return size;}
+virtual int numberOfEquations() const {return size;}
  
-ColinearityKinematicConstraint * clone()const override
+virtual ColinearityKinematicConstraint * clone()const
   {return new ColinearityKinematicConstraint(*this);}
 
 private:

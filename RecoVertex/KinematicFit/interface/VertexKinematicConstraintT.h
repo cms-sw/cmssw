@@ -30,19 +30,19 @@ public:
 
 VertexKinematicConstraintT();
  
-~VertexKinematicConstraintT() override;
+virtual ~VertexKinematicConstraintT();
 
   // initialize the constraint so it can precompute common qualtities to the three next call
-  void init(const std::vector<KinematicState>& states,
-		    const GlobalPoint& point,  const GlobalVector& mf) override;
+  virtual void init(const std::vector<KinematicState>& states,
+		    const GlobalPoint& point,  const GlobalVector& mf);
 
 
 /**
  * Number of equations per track used for the fit
  */
-int numberOfEquations() const override;
+virtual int numberOfEquations() const;
  
-VertexKinematicConstraintT * clone()const override
+virtual VertexKinematicConstraintT * clone()const
 {return new VertexKinematicConstraintT(*this);}
 
 
@@ -52,21 +52,21 @@ private:
  * equations at the point where the input
  * particles are defined.
  */
- void fillValue() const override;
+ virtual void fillValue() const;
 
 /**
  * fills a matrix of derivatives of
  * constraint equations w.r.t. 
  * particle parameters
  */
- void fillParametersDerivative() const override;
+ virtual void fillParametersDerivative() const;
 
 /**
  * fills a matrix of derivatives of
  * constraint equations w.r.t. 
  * vertex position
  */
- void fillPositionDerivative() const override;
+ virtual void fillPositionDerivative() const;
 
 
 private:

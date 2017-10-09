@@ -45,14 +45,14 @@ public:
   CrossingPtBasedLinearizationPointFinder(
       const CrossingPtBasedLinearizationPointFinder & );
 
-  ~CrossingPtBasedLinearizationPointFinder() override;
+  ~CrossingPtBasedLinearizationPointFinder();
 
 /** Method giving back the Initial Linearization Point.
  */
-  GlobalPoint getLinearizationPoint(const std::vector<reco::TransientTrack> & ) const override;
-  GlobalPoint getLinearizationPoint(const std::vector<FreeTrajectoryState> & ) const override;
+  virtual GlobalPoint getLinearizationPoint(const std::vector<reco::TransientTrack> & ) const;
+  virtual GlobalPoint getLinearizationPoint(const std::vector<FreeTrajectoryState> & ) const;
 
-  CrossingPtBasedLinearizationPointFinder * clone() const override {
+  virtual CrossingPtBasedLinearizationPointFinder * clone() const {
     return new CrossingPtBasedLinearizationPointFinder ( * this );
   };
 protected:

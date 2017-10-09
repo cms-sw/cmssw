@@ -155,8 +155,8 @@ class DTReadOutMapping {
 
  private:
 
-  DTReadOutMapping(DTReadOutMapping const&) = delete;
-  DTReadOutMapping& operator=(DTReadOutMapping const&) = delete;
+  DTReadOutMapping(DTReadOutMapping const&);
+  DTReadOutMapping& operator=(DTReadOutMapping const&);
 
   edm::AtomicPtrCache<DTReadOutMappingCache> const& atomicCache() const { return atomicCache_; }
   edm::AtomicPtrCache<DTReadOutMappingCache> & atomicCache() { return atomicCache_; }

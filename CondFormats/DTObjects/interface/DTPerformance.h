@@ -208,8 +208,8 @@ class DTPerformance {
 
  private:
 
-  DTPerformance(DTPerformance const&) = delete;
-  DTPerformance& operator=(DTPerformance const&) = delete;
+  DTPerformance(DTPerformance const&);
+  DTPerformance& operator=(DTPerformance const&);
 
   std::string dataVersion;
   float nsPerCount;

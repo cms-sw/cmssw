@@ -13,7 +13,7 @@ class METBenchmark : public Benchmark {
  public:
 
   METBenchmark(Mode mode) : Benchmark(mode) {}
-  ~METBenchmark() override;
+  virtual ~METBenchmark();
 
   /// book histograms
   void setup(DQMStore::IBooker& b);

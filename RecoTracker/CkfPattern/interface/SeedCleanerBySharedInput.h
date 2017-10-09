@@ -8,18 +8,18 @@
 class SeedCleanerBySharedInput : public RedundantSeedCleaner  {
   public:
    /** In this implementation, it does nothing */
-   void add(const Trajectory *traj) override { }
+   virtual void add(const Trajectory *traj) { }
 
    /** \brief Provides the cleaner a pointer to the vector where trajectories are stored, in case it does not want to keep a local collection of trajectories */
-   void init(const std::vector<Trajectory> *vect) override { trajectories = vect; }
+   virtual void init(const std::vector<Trajectory> *vect) { trajectories = vect; }
 
-   void done() override { trajectories = nullptr; };
+   virtual void done() { trajectories = 0; };
    
    /** \brief Returns true if the seed is not overlapping with another trajectory */
-   bool good(const TrajectorySeed *seed) override ;
+   virtual bool good(const TrajectorySeed *seed) ;
 
    
-   SeedCleanerBySharedInput() : RedundantSeedCleaner(), trajectories(nullptr) {}
+   SeedCleanerBySharedInput() : RedundantSeedCleaner(), trajectories(0) {}
   private:
    const std::vector<Trajectory> *trajectories; 
    

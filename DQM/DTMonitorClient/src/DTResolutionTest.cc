@@ -32,10 +32,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
-#include <cstdio>
+#include <stdio.h>
 #include <string>
 #include <sstream>
-#include <cmath>
+#include <math.h>
 #include "TF1.h"
 
 
@@ -58,7 +58,7 @@ DTResolutionTest::DTResolutionTest(const edm::ParameterSet& ps){
 
   nevents = 0;
 
-  bookingdone = false;
+  bookingdone = 0;
 
 }
 
@@ -97,7 +97,7 @@ DTResolutionTest::~DTResolutionTest(){
   }
 
   }
-  bookingdone = true; 
+  bookingdone = 1; 
 
 
   edm::LogVerbatim ("resolution") <<"[DTResolutionTest]: End of LS transition, performing the DQM client operation";

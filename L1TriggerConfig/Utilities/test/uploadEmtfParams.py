@@ -14,7 +14,7 @@ process.load("L1Trigger.L1TMuonEndCap.fakeEmtfParams_cff")
 process.getter = cms.EDAnalyzer("EventSetupRecordDataGetter",
    toGet = cms.VPSet(
        cms.PSet(
-           record = cms.string('L1TMuonEndCapParamsRcd'),
+           record = cms.string('L1TMuonEndcapParamsRcd'),
            data   = cms.vstring('L1TMuonEndCapParams')
        )
    ),
@@ -29,7 +29,7 @@ outputDB = cms.Service("PoolDBOutputService",
                        CondDB,
                        toPut   = cms.VPSet(
                            cms.PSet(
-                               record = cms.string('L1TMuonEndCapParamsRcd'),
+                               record = cms.string('L1TMuonEndcapParamsRcd'),
                                tag = cms.string('L1TMuonEndCapParamsPrototype_Stage2v0_hlt')
                            )
                        )

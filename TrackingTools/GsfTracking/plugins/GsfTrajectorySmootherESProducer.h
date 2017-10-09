@@ -13,7 +13,7 @@
 class  GsfTrajectorySmootherESProducer: public edm::ESProducer{
  public:
   GsfTrajectorySmootherESProducer(const edm::ParameterSet & p);
-  ~GsfTrajectorySmootherESProducer() override; 
+  virtual ~GsfTrajectorySmootherESProducer(); 
   std::shared_ptr<TrajectorySmoother> produce(const TrajectoryFitterRecord &);
  private:
   edm::ParameterSet pset_;

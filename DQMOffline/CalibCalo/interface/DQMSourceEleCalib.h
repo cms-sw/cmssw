@@ -32,7 +32,7 @@ class DQMSourceEleCalib : public DQMEDAnalyzer {
 public:
 
   DQMSourceEleCalib( const edm::ParameterSet& );
-  ~DQMSourceEleCalib() override;
+  ~DQMSourceEleCalib();
 
 protected:
    

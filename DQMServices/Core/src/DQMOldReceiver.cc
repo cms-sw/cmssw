@@ -2,11 +2,11 @@
 #include "DQMServices/Core/src/DQMError.h"
 
 DQMOldReceiver::DQMOldReceiver(const std::string &, int, const std::string &, int, bool)
-  : store_ (nullptr)
+  : store_ (0)
 {}
 
 DQMOldReceiver::DQMOldReceiver(void)
-  : store_ (nullptr)
+  : store_ (0)
 {}
 
 DQMOldReceiver::~DQMOldReceiver(void)

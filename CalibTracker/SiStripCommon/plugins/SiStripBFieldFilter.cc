@@ -14,7 +14,7 @@
 class SiStripBFieldFilter : public edm::EDFilter {
   public:
   SiStripBFieldFilter( const edm::ParameterSet & );
-  ~SiStripBFieldFilter() override;
+  ~SiStripBFieldFilter();
 
   private:
   double MagFieldCurrentTh_;   /*!<  Threshold for the Magnet current. */

@@ -10,7 +10,7 @@
 class  SteppingHelixPropagatorESProducer: public edm::ESProducer{
  public:
   SteppingHelixPropagatorESProducer(const edm::ParameterSet & p);
-  ~SteppingHelixPropagatorESProducer() override; 
+  virtual ~SteppingHelixPropagatorESProducer(); 
   std::shared_ptr<Propagator> produce(const TrackingComponentsRecord &);
  private:
   std::shared_ptr<Propagator> _propagator;

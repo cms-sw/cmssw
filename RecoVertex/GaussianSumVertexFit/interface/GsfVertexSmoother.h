@@ -32,7 +32,7 @@ public:
 
   GsfVertexSmoother(bool limit, const GsfVertexMerger * merger);
 
-  ~GsfVertexSmoother() override {}
+  virtual ~GsfVertexSmoother() {}
 
   /**
    *  Methode which will refit the tracks with the vertex constraint
@@ -41,7 +41,7 @@ public:
    *	last update.
    *  \return the final vertex estimate, with all the supplementary information
    */
-  CachingVertex<5> smooth(const CachingVertex<5> & vertex) const override;
+  virtual CachingVertex<5> smooth(const CachingVertex<5> & vertex) const;
 
   /**
    *  Access methods
@@ -53,7 +53,7 @@ public:
   /**
    * Clone method 
    */
-  VertexSmoother<5> * clone() const override 
+  virtual VertexSmoother<5> * clone() const 
   {
     return new GsfVertexSmoother(* this);
   }

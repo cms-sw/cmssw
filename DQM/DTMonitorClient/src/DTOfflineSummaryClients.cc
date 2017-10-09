@@ -31,7 +31,7 @@ DTOfflineSummaryClients::DTOfflineSummaryClients(const ParameterSet& ps) : neven
 
   LogVerbatim("DTDQM|DTMonitorClient|DTOfflineSummaryClients") << "[DTOfflineSummaryClients]: Constructor";
  
-  bookingdone = false;
+  bookingdone = 0;
 
 }
 
@@ -92,7 +92,7 @@ void DTOfflineSummaryClients::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::I
     stringstream str;
     str << "DT/05-ChamberEff/EfficiencyMap_All_W" << wheel;
     MonitorElement * segmentWheelSummary =  igetter.get(str.str());
-    if(segmentWheelSummary != nullptr) {
+    if(segmentWheelSummary != 0) {
 
       float nFailingChambers = 0.;
 

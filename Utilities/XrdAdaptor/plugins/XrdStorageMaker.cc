@@ -18,8 +18,8 @@
 class MakerResponseHandler : public XrdCl::ResponseHandler
 {
 public:
-    void HandleResponse( XrdCl::XRootDStatus *status,
-                                 XrdCl::AnyObject    *response ) override
+    virtual void HandleResponse( XrdCl::XRootDStatus *status,
+                                 XrdCl::AnyObject    *response )
     {
         // Note: Prepare call has a response object.
         delete response;
@@ -53,7 +53,7 @@ public:
 
   /** Open a storage object for the given URL (protocol + path), using the
       @a mode bits.  No temporary files are downloaded.  */
-  std::unique_ptr<Storage> open (const std::string &proto,
+  virtual std::unique_ptr<Storage> open (const std::string &proto,
 			 const std::string &path,
 			 int mode,
        const AuxSettings& aux) const override
@@ -76,7 +76,7 @@ public:
     return f->wrapNonLocalFile(std::move(file), proto, std::string(), mode);
   }
 
-  void stagein (const std::string &proto, const std::string &path,
+  virtual void stagein (const std::string &proto, const std::string &path,
                         const AuxSettings& aux) const override
   {
     setDebugLevel(aux.debugLevel);
@@ -94,10 +94,10 @@ public:
     }
   }
 
-  bool check (const std::string &proto,
+  virtual bool check (const std::string &proto,
 		      const std::string &path,
           const AuxSettings& aux,
-		      IOOffset *size = nullptr) const override
+		      IOOffset *size = 0) const override
   {
     setDebugLevel(aux.debugLevel);
     setTimeout(aux.timeout);

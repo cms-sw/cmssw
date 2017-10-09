@@ -20,7 +20,7 @@
 class SiStripDelayESProducer : public edm::ESProducer {
  public:
   SiStripDelayESProducer(const edm::ParameterSet&);
-  ~SiStripDelayESProducer() override{};
+  ~SiStripDelayESProducer(){};
   
   std::shared_ptr<SiStripDelay> produce(const SiStripDelayRcd&);
    

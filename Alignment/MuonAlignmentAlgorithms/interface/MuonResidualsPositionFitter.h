@@ -31,22 +31,22 @@ public:
 
   MuonResidualsPositionFitter(int residualsModel, int minHits, int useResiduals, bool weightAlignment=true): MuonResidualsFitter(residualsModel, minHits, useResiduals, weightAlignment) {}
 
-  int type() const override { return MuonResidualsFitter::kPositionFitter; }
+  int type() const { return MuonResidualsFitter::kPositionFitter; }
 
-  int npar() override {
+  int npar() {
     if (residualsModel() == kPureGaussian || residualsModel() == kGaussPowerTails) return kNPar - 1;
     else if (residualsModel() == kPowerLawTails) return kNPar;
     else if (residualsModel() == kROOTVoigt) return kNPar;
     else assert(false);
   }
-  int ndata() override { return kNData; }
+  int ndata() { return kNData; }
 
-  bool fit(Alignable *ali) override;
-  double sumofweights() override { return numResiduals(); }
-  double plot(std::string name, TFileDirectory *dir, Alignable *ali) override;
+  bool fit(Alignable *ali);
+  double sumofweights() { return numResiduals(); }
+  double plot(std::string name, TFileDirectory *dir, Alignable *ali);
 
 protected:
-  void inform(TMinuit *tMinuit) override;
+  void inform(TMinuit *tMinuit);
 };
 
 #endif // Alignment_MuonAlignmentAlgorithms_MuonResidualsPositionFitter_H

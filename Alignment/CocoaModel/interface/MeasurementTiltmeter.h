@@ -21,16 +21,16 @@ public:
   MeasurementTiltmeter( const ALIint measdim, ALIstring& type, ALIstring& name ) : Measurement( measdim, type, name ), theFactor(1.), theFactorSigma(0.), theConstantTerm(0.), theConstantTermSigma(0.), thePedestal(0.), thePedestalSigma(0.)
 { };
   MeasurementTiltmeter(){ };   
-  ~MeasurementTiltmeter() override{ };
+  ~MeasurementTiltmeter(){ };
     
   // Get simulated value (called every time a parameter is displaced)
-  void calculateSimulatedValue( ALIbool firstTime ) override;
+  virtual void calculateSimulatedValue( ALIbool firstTime );
 
   //---------- Convert from V to rad
-  void setConversionFactor( const std::vector<ALIstring>& wordlist ) override;
+  virtual void setConversionFactor( const std::vector<ALIstring>& wordlist );
 
   //---------- Add any correction between the measurement data and the default format in COCOA
-  void correctValueAndSigma() override;
+  virtual void correctValueAndSigma();
 
  private:
   ALIdouble theFactor;

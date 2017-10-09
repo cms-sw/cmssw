@@ -22,10 +22,10 @@ public:
   SimpleNavigationSchool(const GeometricSearchTracker* tracker,
 			 const MagneticField* field) : 
                          TkNavigationSchool(tracker,field) {init();}
-  ~SimpleNavigationSchool() override{cleanMemory();}
+  ~SimpleNavigationSchool(){cleanMemory();}
 
   // from base class
-  StateType navigableLayers() override;
+  virtual StateType navigableLayers() override;
 
 protected:
 

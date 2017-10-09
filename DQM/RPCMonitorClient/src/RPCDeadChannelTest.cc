@@ -49,7 +49,7 @@ void RPCDeadChannelTest::clientOperation(){
   edm::LogVerbatim ("rpcdeadchanneltest") <<"[RPCDeadChannelTest]:Client Operation";
 
 
-  MonitorElement * DEAD = nullptr;
+  MonitorElement * DEAD = NULL;
  
   //Loop on chambers
     for (unsigned int  i = 0 ; i<myOccupancyMe_.size();i++){

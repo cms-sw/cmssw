@@ -30,15 +30,15 @@
 class TkVoltageMapCreator : public edm::EDAnalyzer {
  public:
     explicit TkVoltageMapCreator(const edm::ParameterSet&);
-    ~TkVoltageMapCreator() override;
+    ~TkVoltageMapCreator();
 
 
    private:
-      void beginJob() override ;
-      void beginRun(const edm::Run&, const edm::EventSetup&) override ;
-      void endRun(const edm::Run&, const edm::EventSetup&) override ;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+      virtual void beginJob() override ;
+      virtual void beginRun(const edm::Run&, const edm::EventSetup&) override ;
+      virtual void endRun(const edm::Run&, const edm::EventSetup&) override ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
 
       // ----------member data ---------------------------
 

@@ -8,7 +8,7 @@
 
 
 TestBase::TestBase():
-  m_connection( nullptr ) {
+  m_connection( 0 ) {
   coral::Context& context = coral::Context::instance();
   context.loadComponent( "CORAL/RelationalPlugins/oracle" );
   coral::IHandle<coral::IRelationalDomain> domain = context.query<coral::IRelationalDomain>( "CORAL/RelationalPlugins/oracle" );    

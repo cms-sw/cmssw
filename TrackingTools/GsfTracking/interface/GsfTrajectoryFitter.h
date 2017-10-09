@@ -32,9 +32,9 @@ public:
 		      const TrajectoryStateUpdator& aUpdator,
 		      const MeasurementEstimator& aEstimator,
 		      const MultiTrajectoryStateMerger& aMerger,
-		      const DetLayerGeometry* detLayerGeometry=nullptr);
+		      const DetLayerGeometry* detLayerGeometry=0);
 
-  ~GsfTrajectoryFitter() override;
+  virtual ~GsfTrajectoryFitter();
 
   Trajectory fitOne(const Trajectory& t, fitType type) const override;
   Trajectory fitOne(const TrajectorySeed& aSeed,
@@ -51,7 +51,7 @@ public:
   const MeasurementEstimator* estimator() const {return theEstimator;}
   const MultiTrajectoryStateMerger* merger() const {return theMerger;}
 
-  std::unique_ptr<TrajectoryFitter> clone() const override
+  virtual std::unique_ptr<TrajectoryFitter> clone() const override
   {
     return std::unique_ptr<TrajectoryFitter>(
         new GsfTrajectoryFitter(*thePropagator,
@@ -61,7 +61,7 @@ public:
                                 theGeometry));
   }
 
-  void setHitCloner(TkCloner const * hc) override {
+  virtual void setHitCloner(TkCloner const * hc) override {
      theHitCloner = hc;
   }
 

@@ -37,11 +37,11 @@ class TtFullLepHypothesis : public edm::EDProducer {
   /// default constructor
   explicit TtFullLepHypothesis(const edm::ParameterSet&);
   /// default destructor
-  ~TtFullLepHypothesis() override;
+  ~TtFullLepHypothesis();
 
  protected:
   /// produce the event hypothesis as CompositeCandidate and Key
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&);
   /// reset candidate pointers before hypo build process
   void resetCandidates();
   /// use one object in a collection to set a ShallowClonePtrCandidate

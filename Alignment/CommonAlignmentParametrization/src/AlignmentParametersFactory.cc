@@ -121,6 +121,6 @@ namespace AlignmentParametersFactory {
       break;
     }
    
-    return nullptr; // unreached (all ParametersType appear in switch), to please the compiler
+    return 0; // unreached (all ParametersType appear in switch), to please the compiler
   }
 }

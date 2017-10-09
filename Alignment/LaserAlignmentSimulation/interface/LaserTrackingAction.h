@@ -19,12 +19,12 @@ class LaserTrackingAction : public G4UserTrackingAction
 	/// constructor
   LaserTrackingAction(edm::ParameterSet const& theConf);
 	/// destructor
-  ~LaserTrackingAction() override;
+  virtual ~LaserTrackingAction();
 
 	/// pre tracking action
-  void PreUserTrackingAction(const G4Track * theTrack) override;
+  virtual void PreUserTrackingAction(const G4Track * theTrack);
 	/// post tracking action
-  void PostUserTrackingAction(const G4Track * theTrack) override;
+  virtual void PostUserTrackingAction(const G4Track * theTrack);
 
  protected:
 };

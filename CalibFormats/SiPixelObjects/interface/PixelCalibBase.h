@@ -32,15 +32,15 @@ namespace pos{
 				  int version, 
 				  std::string path, 
 				  std::ofstream *out,
-				  std::ofstream *out1 = nullptr,
-				  std::ofstream *out2 = nullptr
+				  std::ofstream *out1 = NULL,
+				  std::ofstream *out2 = NULL
 				  ) const {;}
     virtual void writeXML( 	  std::ofstream *out,			     	   			    
-			   	  std::ofstream *out1 = nullptr ,
-			   	  std::ofstream *out2 = nullptr ) const {;}
+			   	  std::ofstream *out1 = NULL ,
+			   	  std::ofstream *out2 = NULL ) const {;}
     virtual void writeXMLTrailer( std::ofstream *out, 
-				  std::ofstream *out1 = nullptr,
-				  std::ofstream *out2 = nullptr
+				  std::ofstream *out1 = NULL,
+				  std::ofstream *out2 = NULL
 				  ) const {;}
 
   protected:

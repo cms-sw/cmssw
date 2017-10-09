@@ -24,12 +24,12 @@ class ESTimingTask : public DQMEDAnalyzer {
  public:
   
   ESTimingTask(const edm::ParameterSet& ps);
-  ~ESTimingTask() override;
+  virtual ~ESTimingTask();
   
  private:
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   void set(const edm::EventSetup& es);
 
   // ----------member data ---------------------------

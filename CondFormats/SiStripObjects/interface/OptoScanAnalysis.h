@@ -22,14 +22,14 @@ class OptoScanAnalysis : public CommissioningAnalysis {
 
   OptoScanAnalysis();
 
-  ~OptoScanAnalysis() override {;}
+  virtual ~OptoScanAnalysis() {;}
 
   friend class OptoScanAlgorithm;
 
   // ---------- public interface ----------
 
   /** Identifies if analysis is valid or not. */
-  bool isValid() const override;
+  bool isValid() const;
   
   /** Optimum LLD gain setting */
   inline const uint16_t& gain() const;
@@ -61,13 +61,13 @@ class OptoScanAnalysis : public CommissioningAnalysis {
   // ---------- misc ----------
 
   /** Prints analysis results. */
-  void print( std::stringstream&, uint32_t gain_setting = sistrip::invalid_ ) override;
+  void print( std::stringstream&, uint32_t gain_setting = sistrip::invalid_ );
   
   /** Overrides base method. */
-  void summary( std::stringstream& ) const override;
+  void summary( std::stringstream& ) const;
 
   /** Resets analysis member data. */
-  void reset() override;
+  void reset();
 
   // ---------- public static data ----------
   

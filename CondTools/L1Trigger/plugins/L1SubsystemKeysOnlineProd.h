@@ -37,7 +37,7 @@
 class L1SubsystemKeysOnlineProd : public edm::ESProducer {
    public:
       L1SubsystemKeysOnlineProd(const edm::ParameterSet&);
-      ~L1SubsystemKeysOnlineProd() override;
+      ~L1SubsystemKeysOnlineProd();
 
       typedef std::shared_ptr<L1TriggerKey> ReturnType;
 

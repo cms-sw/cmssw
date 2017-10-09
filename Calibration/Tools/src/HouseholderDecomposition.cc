@@ -40,7 +40,7 @@ std::vector<float> HouseholderDecomposition::runRegional(const std::vector<std::
   std::vector<float> totalSolution(Nchannels,1.);
   std::vector<float> iterSolution(Nchannels,1.);
   std::vector<std::vector<float> > myEventMatrix(eventMatrix);
-  const std::vector<float>& myEnergyVector(energyVector);
+  std::vector<float> myEnergyVector(energyVector);
 
   // loop over nIter
   for (int iter=1;iter<=nIter;iter++) 

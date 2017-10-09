@@ -85,7 +85,7 @@ TH1* HcalQLPlotHistoMgr::GetAHistogram(const HcalCalibDetId& id,
   }
 
   std::string chanstring = id.cboxChannelString();
-  if (chanstring.empty()) {
+  if (!chanstring.size()) {
     chanstring = "Unknown";
     edm::LogInfo("HcalQLPlotHistoMgr::GetAHistogram") << "Unknown calibration channel " << id.cboxChannel();
   }
@@ -109,15 +109,15 @@ TH1* HcalQLPlotHistoMgr::GetAHistogramImpl(const char *name,
   case(LASER): td=laserHistDir; break;
   case(BEAM): td=beamHistDir; break;
   case(UNKNOWN): td=otherHistDir; break;
-  default: td=nullptr; break;
+  default: td=0; break;
   }
 
-  if (td==nullptr) {
+  if (td==0) {
     printf("Unknown %d !\n", et);
-    return nullptr;
+    return 0;
   }
 
-  TH1* retval=nullptr;
+  TH1* retval=0;
 
   retval=(TH1*)td->Get(name);
   int bins=0; double lo=0, hi=0;
@@ -125,7 +125,7 @@ TH1* HcalQLPlotHistoMgr::GetAHistogramImpl(const char *name,
   // If the histogram doesn't exist and we are authorized,
   // create it!
   //
-  if (retval==nullptr) {
+  if (retval==0) {
     td->cd();
     switch (ht) {
     case(ENERGY): {

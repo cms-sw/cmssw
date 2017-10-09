@@ -172,7 +172,7 @@ void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedConnectionsV& conn
 
   }  
 
-  if (false) {
+  if (0) {
     SiStripConfigDb::FedConnectionsV::iterator ifed = conns.begin();
     for ( ; ifed != conns.end(); ifed++ ) { (*ifed)->display(); }
   }

@@ -13,13 +13,13 @@ class GhostTrackState;
 class SequentialGhostTrackFitter : public GhostTrackFitter::FitterImpl {
     public:
 	SequentialGhostTrackFitter();
-	~SequentialGhostTrackFitter() override {}
+	~SequentialGhostTrackFitter() {}
 
 	GhostTrackPrediction fit(
 			const GhostTrackFitter::PredictionUpdater &updater,
 			const GhostTrackPrediction &prior,
 			std::vector<GhostTrackState> &states,
-			double &ndof, double &chi2) override;
+			double &ndof, double &chi2);
 
     protected:
 	virtual bool stable(const GhostTrackPrediction &before,
@@ -31,7 +31,7 @@ class SequentialGhostTrackFitter : public GhostTrackFitter::FitterImpl {
 			std::vector<GhostTrackState> &states) {}
 
     private:
-	FitterImpl *clone() const override
+	virtual FitterImpl *clone() const
 	{ return new SequentialGhostTrackFitter(*this); }
 
 	unsigned int	maxIteration;

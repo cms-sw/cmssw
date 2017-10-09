@@ -16,7 +16,7 @@ CosmicHitPairGeneratorFromLayerPair::CosmicHitPairGeneratorFromLayerPair(const L
 							     const LayerWithHits* outer, 
 									 //							     LayerCacheType* layerCache, 
 							     const edm::EventSetup& iSetup)
-  : TTRHbuilder(nullptr),trackerGeometry(nullptr),
+  : TTRHbuilder(0),trackerGeometry(0),
     //theLayerCache(*layerCache), 
     theOuterLayer(outer), theInnerLayer(inner)
 {

@@ -42,13 +42,13 @@ class DTReadOutMappingHandler: public popcon::PopConSourceHandler<DTReadOutMappi
 
   /** Destructor
    */
-  ~DTReadOutMappingHandler() override;
+  virtual ~DTReadOutMappingHandler();
 
   /** Operations
    */
   /// 
-  void getNewObjects() override;
-  std::string id() const override;
+  void getNewObjects();
+  std::string id() const;
 
  private:
 

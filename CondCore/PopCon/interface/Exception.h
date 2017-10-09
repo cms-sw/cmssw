@@ -7,7 +7,7 @@ namespace popcon {
   class Exception : public cms::Exception{
   public:
     explicit Exception( const std::string& message ):cms::Exception("PopCon",message){}
-    ~Exception() throw() override{}
+    ~Exception() throw(){}
   };
 }
 #endif

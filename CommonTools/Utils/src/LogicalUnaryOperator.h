@@ -20,7 +20,7 @@ namespace reco {
       LogicalUnaryOperator(SelectorStack & selStack) {
 	rhs_ = selStack.back(); selStack.pop_back();
       }
-      bool operator()(const edm::ObjectWithDict& o) const override {
+      virtual bool operator()(const edm::ObjectWithDict& o) const {
 	return op_((*rhs_)(o));
       }
       private:

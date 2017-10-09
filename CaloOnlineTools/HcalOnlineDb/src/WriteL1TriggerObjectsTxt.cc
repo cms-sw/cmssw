@@ -40,13 +40,13 @@
 class WriteL1TriggerObjectsTxt : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
    public:
       explicit WriteL1TriggerObjectsTxt(const edm::ParameterSet&);
-      ~WriteL1TriggerObjectsTxt() override;
+      ~WriteL1TriggerObjectsTxt();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
    private:
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
       std::string tagName_;
 };

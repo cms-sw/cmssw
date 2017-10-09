@@ -27,9 +27,9 @@ public:
 
   TwoBodyDecayTrajectory( void );
 
-  ~TwoBodyDecayTrajectory( void ) override {}
+  ~TwoBodyDecayTrajectory( void ) {}
 
-  TwoBodyDecayTrajectory* clone( void ) const override
+  virtual TwoBodyDecayTrajectory* clone( void ) const
     { return new TwoBodyDecayTrajectory( *this ); }
 
   /**Number of RecHits belonging to the first and second track.

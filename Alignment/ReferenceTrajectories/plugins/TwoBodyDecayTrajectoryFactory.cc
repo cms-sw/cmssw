@@ -36,19 +36,19 @@ public:
   typedef TwoBodyDecayTrajectory::ConstRecHitCollection ConstRecHitCollection;
 
   TwoBodyDecayTrajectoryFactory(const edm::ParameterSet &config);
-  ~TwoBodyDecayTrajectoryFactory() override;
+  ~TwoBodyDecayTrajectoryFactory();
 
   /// Produce the trajectories.
-  const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
+  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
 							   const ConstTrajTrackPairCollection &tracks,
 							   const reco::BeamSpot &beamSpot) const override;
 
-  const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
+  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
 							   const ConstTrajTrackPairCollection &tracks,
 							   const ExternalPredictionCollection &external,
 							   const reco::BeamSpot &beamSpot) const override;
 
-  TwoBodyDecayTrajectoryFactory* clone() const override { return new TwoBodyDecayTrajectoryFactory(*this); }
+  virtual TwoBodyDecayTrajectoryFactory* clone() const override { return new TwoBodyDecayTrajectoryFactory(*this); }
 
 protected:
   const ReferenceTrajectoryCollection constructTrajectories(const ConstTrajTrackPairCollection &tracks,

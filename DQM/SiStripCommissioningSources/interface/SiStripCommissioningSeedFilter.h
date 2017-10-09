@@ -29,11 +29,11 @@ class SiStripCommissioningSeedFilter : public edm::EDFilter {
    public:
 
       explicit SiStripCommissioningSeedFilter(const edm::ParameterSet&);
-      ~SiStripCommissioningSeedFilter() override {}
+      ~SiStripCommissioningSeedFilter() {}
 
    private:
 
-      bool filter(edm::Event&, const edm::EventSetup&) override;
+      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       
       // ----------member data ---------------------------
       //      edm::InputTag inputModuleLabel_;

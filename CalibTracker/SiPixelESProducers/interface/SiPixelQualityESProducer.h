@@ -40,16 +40,16 @@ class SiPixelQualityESProducer : public edm::ESProducer, public edm::EventSetupR
 
  public:
   SiPixelQualityESProducer(const edm::ParameterSet & iConfig);
-  ~SiPixelQualityESProducer() override;
+  ~SiPixelQualityESProducer();
   
   
   /* virtual*/ std::unique_ptr<SiPixelQuality> produce(const SiPixelQualityRcd & iRecord) ;
   
 protected:
   
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
+  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
 			       const edm::IOVSyncValue&,
-			       edm::ValidityInterval& ) override;
+			       edm::ValidityInterval& );
   
   
  private:

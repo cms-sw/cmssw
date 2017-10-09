@@ -49,10 +49,10 @@ public:
   typedef std::vector< reco::PFCandidate >   PFOutputCollection;
 
   explicit SoftKillerProducer(const edm::ParameterSet&);
-  ~SoftKillerProducer() override;
+  ~SoftKillerProducer();
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
   edm::EDGetTokenT< reco::CandidateView > tokenPFCandidates_;
 

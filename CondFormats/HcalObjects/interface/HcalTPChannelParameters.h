@@ -10,11 +10,11 @@ class HcalTPChannelParameters: public HcalCondObjectContainer<HcalTPChannelParam
 public:
   //constructor definition: has to contain 
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalTPChannelParameters():HcalCondObjectContainer<HcalTPChannelParameter>(nullptr) {}
+  HcalTPChannelParameters():HcalCondObjectContainer<HcalTPChannelParameter>(0) {}
 #endif
   HcalTPChannelParameters(const HcalTopology* topo):HcalCondObjectContainer<HcalTPChannelParameter>(topo) {}
 
-  std::string myname() const override {return (std::string)"HcalTPChannelParameters";}
+  std::string myname() const {return (std::string)"HcalTPChannelParameters";}
 
   COND_SERIALIZABLE;
 };

@@ -10,9 +10,9 @@ namespace edm {
   
   public:
     FlatRandomMultiParticlePGunProducer(const ParameterSet & pset);
-    ~FlatRandomMultiParticlePGunProducer() override;
+    virtual ~FlatRandomMultiParticlePGunProducer();
     
-    void produce(Event &e, const EventSetup& es) override;
+    virtual void produce(Event &e, const EventSetup& es) override;
 
   private:
     

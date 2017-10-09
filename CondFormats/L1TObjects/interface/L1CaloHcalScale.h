@@ -23,7 +23,7 @@
 
 #include <vector>
 #include <ostream>
-#include <cstdint>
+#include <stdint.h>
 
 class L1CaloHcalScale {
 

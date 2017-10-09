@@ -49,7 +49,7 @@ public:
     L1GtMuonTemplate( const L1GtMuonTemplate& );
 
     // destructor
-    ~L1GtMuonTemplate() override;
+    virtual ~L1GtMuonTemplate();
 
     // assign operator
     L1GtMuonTemplate& operator= (const L1GtMuonTemplate&);
@@ -106,7 +106,7 @@ public:
 
 
     /// print the condition
-    void print(std::ostream& myCout) const override;
+    virtual void print(std::ostream& myCout) const;
 
     /// output stream operator
     friend std::ostream& operator<<(std::ostream&, const L1GtMuonTemplate&);

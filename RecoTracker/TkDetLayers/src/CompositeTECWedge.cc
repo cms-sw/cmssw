@@ -228,7 +228,7 @@ void CompositeTECWedge::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 					 vector<DetGroup>& result,
 					 bool checkClosest) const
 {
-  const GlobalPoint& gCrossingPos = crossing.position();
+  GlobalPoint gCrossingPos = crossing.position();
 
   const vector<const GeomDet*>& sWedge( subWedge( crossing.subLayerIndex()));
  

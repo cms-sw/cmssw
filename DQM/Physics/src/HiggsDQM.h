@@ -45,7 +45,7 @@ class HiggsDQM : public DQMEDAnalyzer {
 
  public:
   HiggsDQM(const edm::ParameterSet& ps);
-  ~HiggsDQM() override;
+  virtual ~HiggsDQM();
 
  protected:
   //Book histograms

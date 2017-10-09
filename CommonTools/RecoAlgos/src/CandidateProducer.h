@@ -76,7 +76,7 @@ public:
     produces<CColl>();
   }
   /// destructor
-  ~CandidateProducer() override { }
+  ~CandidateProducer() { }
 
 private:
   /// begin job (first run)
@@ -93,7 +93,7 @@ private:
     Init::init(selector_, evt, es);
     ::helper::MasterCollection<TColl> master(src, evt);
     std::unique_ptr<CColl> cands(new CColl);
-    if(!src->empty()) {
+    if(src->size()!= 0) {
       size_t size = src->size();
       cands->reserve(size);
       for(size_t idx = 0; idx != size; ++ idx) {

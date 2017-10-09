@@ -55,7 +55,7 @@ public:
   enum CorrectionFlag { NoCorrection=0, MeanCorrection=1, FullCorrection=2 };
 
 public:
-  GsfBetheHeitlerUpdator* clone() const override
+  virtual GsfBetheHeitlerUpdator* clone() const
   {
     return new GsfBetheHeitlerUpdator(*this);
   }
@@ -68,7 +68,7 @@ private:
   struct GSContainer {float *first, *second, *third;};
 
   /// Computation: generates vectors of weights, means and standard deviations
-  void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect[]) const override;
+  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect[]) const;
 
 private:
 

@@ -73,7 +73,7 @@ namespace reco {
       BinaryOperatorEvaluatorBase(iPrec) {}
 
       // ---------- const member functions ---------------------
-      double evaluate(double const* iVariables, double const* iParameters) const final {
+      virtual double evaluate(double const* iVariables, double const* iParameters) const override final {
         return m_operator(lhs()->evaluate(iVariables,iParameters),rhs()->evaluate(iVariables,iParameters));
       }
 

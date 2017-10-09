@@ -29,17 +29,17 @@ namespace hcaldqm
 
 			//	constructor
 			DQTask(edm::ParameterSet const&);
-			~DQTask() override{}
+			virtual ~DQTask(){}
 
 			//	base inheritance to override from DQMEDAnalyzer
-			void analyze(edm::Event const&, edm::EventSetup const&) override;
-			void bookHistograms(DQMStore::IBooker &, edm::Run const&,
-				edm::EventSetup const&) override;
-			void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
-			void beginLuminosityBlock(edm::LuminosityBlock const&,
-				edm::EventSetup const&) override;
-			void endLuminosityBlock(edm::LuminosityBlock const&,
-				edm::EventSetup const&) override;
+			virtual void analyze(edm::Event const&, edm::EventSetup const&);
+			virtual void bookHistograms(DQMStore::IBooker &, edm::Run const&,
+				edm::EventSetup const&);
+			virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&);
+			virtual void beginLuminosityBlock(edm::LuminosityBlock const&,
+				edm::EventSetup const&);
+			virtual void endLuminosityBlock(edm::LuminosityBlock const&,
+				edm::EventSetup const&);
 
 		protected:
 			// protected funcs

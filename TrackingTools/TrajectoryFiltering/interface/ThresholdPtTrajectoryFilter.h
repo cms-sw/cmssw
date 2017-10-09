@@ -26,13 +26,13 @@ public:
     theMinHits(pset.getParameter<int>("minHitsThresholdPt"))
       {}
 
-  bool qualityFilter( const Trajectory& traj) const override { return !test(traj.lastMeasurement(),traj.foundHits());}
-  bool qualityFilter( const TempTrajectory& traj) const override { return !test(traj.lastMeasurement(),traj.foundHits());}
+  virtual bool qualityFilter( const Trajectory& traj) const { return !test(traj.lastMeasurement(),traj.foundHits());}
+  virtual bool qualityFilter( const TempTrajectory& traj) const { return !test(traj.lastMeasurement(),traj.foundHits());}
    
-  bool toBeContinued( Trajectory& traj) const override { return test(traj.lastMeasurement(),traj.foundHits()); }
-  bool toBeContinued( TempTrajectory& traj) const override { return test(traj.lastMeasurement(),traj.foundHits()); }
+  virtual bool toBeContinued( Trajectory& traj) const { return test(traj.lastMeasurement(),traj.foundHits()); }
+  virtual bool toBeContinued( TempTrajectory& traj) const { return test(traj.lastMeasurement(),traj.foundHits()); }
   
-  std::string name() const override {return "ThresholdPtTrajectoryFilter";}
+  virtual std::string name() const {return "ThresholdPtTrajectoryFilter";}
 
  protected:
 

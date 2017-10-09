@@ -26,7 +26,7 @@
 class SiPixelCertification: public DQMEDHarvester{
 public:
   explicit SiPixelCertification(const edm::ParameterSet&);
-  ~SiPixelCertification() override;
+  ~SiPixelCertification();
   
 
 private:

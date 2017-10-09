@@ -37,7 +37,7 @@ class SiPixelFakeQualityESSource : public edm::ESProducer, public edm::EventSetu
 
  public:
   SiPixelFakeQualityESSource(const edm::ParameterSet &);
-  ~SiPixelFakeQualityESSource() override;
+  ~SiPixelFakeQualityESSource();
   
   //      typedef edm::ESProducts<> ReturnType;
   
@@ -45,9 +45,9 @@ class SiPixelFakeQualityESSource : public edm::ESProducer, public edm::EventSetu
   
  protected:
   
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
+  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
 			       const edm::IOVSyncValue&,
-			       edm::ValidityInterval& ) override;
+			       edm::ValidityInterval& );
   
   
  private:

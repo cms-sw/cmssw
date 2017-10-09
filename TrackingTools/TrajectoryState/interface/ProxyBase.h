@@ -20,7 +20,7 @@ template <class T, class Cloner >
 class ProxyBase {
 protected:
 
-  ProxyBase()  noexcept : theData(nullptr) {}
+  ProxyBase()  noexcept : theData(0) {}
 
   explicit ProxyBase( T* p)  noexcept : theData(p) {if (theData) theData->addReference();}
 
@@ -50,14 +50,14 @@ protected:
 
   ProxyBase(ProxyBase&& other)  noexcept {
     theData = other.theData;
-    other.theData=nullptr;
+    other.theData=0;
   }
   
   ProxyBase& operator=(ProxyBase&& other)  noexcept {
     if  likely( theData != other.theData) { 
       destroy();
       theData = other.theData;
-      other.theData=nullptr;
+      other.theData=0;
     }
     return *this;
   }
@@ -76,10 +76,10 @@ protected:
 
   T& sharedData() { check(); return *theData;}
 
-  bool isValid() const { return theData != nullptr;}
+  bool isValid() const { return theData != 0;}
 
   void check() const {
-    if  unlikely(theData == nullptr)
+    if  unlikely(theData == 0)
       throw TrajectoryStateException("Error: uninitialized ProxyBase used");
   }
 

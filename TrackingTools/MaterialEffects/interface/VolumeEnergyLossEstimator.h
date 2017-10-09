@@ -20,14 +20,14 @@ public:
   VolumeEnergyLossEstimator ( float mass ) :
     VolumeMaterialEffectsEstimator(mass) {}
   
-  ~VolumeEnergyLossEstimator () override {}
+  virtual ~VolumeEnergyLossEstimator () {}
 
   /// Creates an estimate
-  VolumeMaterialEffectsEstimate estimate (const TrajectoryStateOnSurface refTSOS,
+  virtual VolumeMaterialEffectsEstimate estimate (const TrajectoryStateOnSurface refTSOS,
 						  double pathLength,
-						  const VolumeMediumProperties& medium) const override;
+						  const VolumeMediumProperties& medium) const;
 
-  VolumeEnergyLossEstimator* clone()  const override;
+  virtual VolumeEnergyLossEstimator* clone()  const;
 
 private:
   void computeBetheBloch (const LocalVector& localP, double pathLength,

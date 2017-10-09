@@ -93,10 +93,10 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
-#include <cstdio>
+#include <stdio.h>
 #include <string>
 #include <sstream>
-#include <cmath>
+#include <math.h>
 #include <vector>
 #include <map>
 
@@ -105,11 +105,11 @@ class ExoticaDQM: public DQMEDAnalyzer {
 public:
 
   ExoticaDQM(const edm::ParameterSet& ps);
-  ~ExoticaDQM() override;
+  virtual ~ExoticaDQM();
 
 protected:
 
-  void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
+  virtual void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
 
   //Resonances
   virtual void analyzeDiJets(edm::Event const& e);

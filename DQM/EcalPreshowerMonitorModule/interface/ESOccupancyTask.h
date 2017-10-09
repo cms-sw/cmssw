@@ -16,12 +16,12 @@ class ESOccupancyTask : public DQMEDAnalyzer {
  public:
   
   ESOccupancyTask(const edm::ParameterSet& ps);
-  ~ESOccupancyTask() override {}
+  virtual ~ESOccupancyTask() {}
   
  private:
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   
   // ----------member data ---------------------------
   edm::EDGetTokenT<ESRecHitCollection> rechittoken_;

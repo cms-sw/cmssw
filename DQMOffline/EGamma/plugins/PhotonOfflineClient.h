@@ -68,7 +68,7 @@ class PhotonOfflineClient : public  DQMEDHarvester
    
   //
   explicit PhotonOfflineClient( const edm::ParameterSet& pset ) ;
-  ~PhotonOfflineClient() override;
+  virtual ~PhotonOfflineClient();
                                    
       
   //  virtual void analyze(const edm::Event&, const edm::EventSetup&  ) ;

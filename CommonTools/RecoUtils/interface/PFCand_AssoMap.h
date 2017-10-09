@@ -37,12 +37,12 @@
 class PFCand_AssoMap : public edm::stream::EDProducer<>, public PFCand_AssoMapAlgos {
    public:
       explicit PFCand_AssoMap(const edm::ParameterSet&);
-      ~PFCand_AssoMap() override;
+      ~PFCand_AssoMap();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&);
 
       // ----------member data ---------------------------
 

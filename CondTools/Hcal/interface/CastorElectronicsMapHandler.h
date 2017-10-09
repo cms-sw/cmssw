@@ -26,9 +26,9 @@
 class CastorElectronicsMapHandler : public popcon::PopConSourceHandler<CastorElectronicsMap>
 {
  public:
-  void getNewObjects() override;
-  std::string id() const override { return m_name;}
-  ~CastorElectronicsMapHandler() override;
+  void getNewObjects();
+  std::string id() const { return m_name;}
+  ~CastorElectronicsMapHandler();
   CastorElectronicsMapHandler(edm::ParameterSet const &);
 
   void initObject(CastorElectronicsMap*);

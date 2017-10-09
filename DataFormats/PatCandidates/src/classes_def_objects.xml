@@ -60,8 +60,7 @@
   </ioread>
 
 
-  <class name="pat::Muon"  ClassVersion="23">
-   <version ClassVersion="23" checksum="3471390119"/>
+  <class name="pat::Muon"  ClassVersion="22">
    <version ClassVersion="22" checksum="1816533594"/>
    <version ClassVersion="21" checksum="1539691612"/>
    <version ClassVersion="20" checksum="357097717"/>
@@ -418,10 +417,6 @@
   <class name="edm::Wrapper<edm::FwdPtr<pat::PackedCandidate> >" />
   <class name="edm::Wrapper<std::vector<edm::FwdPtr<pat::PackedCandidate> > >" />
 
-  <class name="edm::FwdPtr<pat::PackedGenParticle>" />
-  <class name="std::vector<edm::FwdPtr<pat::PackedGenParticle> >" />
-  <class name="edm::Wrapper<edm::FwdPtr<pat::PackedGenParticle> >" />
-  <class name="edm::Wrapper<std::vector<edm::FwdPtr<pat::PackedGenParticle> > >" />
 
   <!-- PAT Object Collections -->
   <class name="std::vector<pat::Electron>" />

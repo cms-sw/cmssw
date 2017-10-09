@@ -23,27 +23,27 @@ class TrackGhostTrackState : public BasicGhostTrackState {
 	const TransientTrack &track() const { return track_; }
 	const TrajectoryStateOnSurface &tsos() const { return tsos_; }
 
-	bool isValid() const override { return tsos_.isValid(); }
+	bool isValid() const { return tsos_.isValid(); }
 
-	GlobalPoint globalPosition() const override
+	GlobalPoint globalPosition() const
 	{ return tsos_.globalPosition(); }
-	GlobalError cartesianError() const override
+	GlobalError cartesianError() const
 	{ return tsos_.cartesianError().position(); }
-	CovarianceMatrix cartesianCovariance() const override
+	CovarianceMatrix cartesianCovariance() const
 	{ return tsos_.cartesianError().matrix().Sub<CovarianceMatrix>(0, 0); }
 
-	void reset() override { tsos_ = TrajectoryStateOnSurface(); }
+	void reset() { tsos_ = TrajectoryStateOnSurface(); }
 	bool linearize(const GhostTrackPrediction &pred,
-	               bool initial, double lambda) override;
-	bool linearize(const GhostTrackPrediction &pred, double lambda) override;
+	               bool initial, double lambda);
+	bool linearize(const GhostTrackPrediction &pred, double lambda);
 
 	Vertex vertexStateOnGhostTrack(const GhostTrackPrediction &pred,
-	                               bool withMeasurementError) const override;
+	                               bool withMeasurementError) const;
 	Vertex vertexStateOnMeasurement(const GhostTrackPrediction &pred,
-	                                bool withGhostTrackError) const override;
+	                                bool withGhostTrackError) const;
 
     private:
-	BasicGhostTrackState *clone() const override
+	BasicGhostTrackState *clone() const
 	{ return new TrackGhostTrackState(*this); }
 
 	TrajectoryStateOnSurface	tsos_;

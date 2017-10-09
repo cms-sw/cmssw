@@ -15,7 +15,7 @@ class RPCDaqInfo : public DQMEDHarvester{
  
 public:
   explicit RPCDaqInfo(const edm::ParameterSet&);
-  ~RPCDaqInfo() override;
+  ~RPCDaqInfo();
 
 protected:
   void beginJob() override;

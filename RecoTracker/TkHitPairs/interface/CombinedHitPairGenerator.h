@@ -26,11 +26,11 @@ public:
 
 public:
   CombinedHitPairGenerator(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC);
-  ~CombinedHitPairGenerator() override;
+  virtual ~CombinedHitPairGenerator();
 
   /// form base class
-  void hitPairs( const TrackingRegion& reg, 
-      OrderedHitPairs & result, const edm::Event& ev, const edm::EventSetup& es) override;
+  virtual void hitPairs( const TrackingRegion& reg, 
+      OrderedHitPairs & result, const edm::Event& ev, const edm::EventSetup& es);
 
 private:
   CombinedHitPairGenerator(const CombinedHitPairGenerator & cb); 

@@ -23,15 +23,15 @@ public:
   OptOScreen(){ };
   OptOScreen(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data) : 
   OpticalObject( parent, type, name, copy_data){ };
-  ~OptOScreen() override{ };
+  ~OptOScreen(){ };
 
   //---------- defaultBehaviour: do nothing
-  void defaultBehaviour( LightRay& lightray, Measurement& meas ) override;
+  virtual void defaultBehaviour( LightRay& lightray, Measurement& meas );
 #ifdef COCOA_VIS
   virtual void fillVRML();
   virtual void fillIguana();
 #endif
-  void constructSolidShape() override;
+  void constructSolidShape();
 
 };
 

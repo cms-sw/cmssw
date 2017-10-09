@@ -7,7 +7,7 @@ $Date: 2008/11/07 16:06:24 $
 $Revision: 1.8 $
 */
 
-#include <cmath>
+#include <math.h>
 #include <iostream>
 
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidth.h"

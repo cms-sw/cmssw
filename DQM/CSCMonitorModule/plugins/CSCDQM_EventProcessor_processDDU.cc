@@ -56,7 +56,7 @@ void EventProcessor::processDDU(const CSCDDUEventData& dduData, const CSCDCCExam
     }
 
 
-  MonitorObject* mo = nullptr;
+  MonitorObject* mo = 0;
 
   if (getEMUHisto(h::EMU_ALL_DDUS_IN_READOUT, mo))
     {

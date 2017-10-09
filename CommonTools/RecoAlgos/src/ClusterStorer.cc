@@ -149,11 +149,11 @@ namespace helper {
   rekey(const ClusterRefType &newRef) const
   {
     TrackingRecHit & genericHit = (*hits_)[index_]; 
-    RecHitType *hit = nullptr;
+    RecHitType *hit = 0;
     if (genericHit.geographicalId().rawId() == detid_) { // a hit on this det, so it's simple
       hit = dynamic_cast<RecHitType *>(&genericHit); //static_cast<RecHitType *>(&genericHit);
     }
-    assert (hit != nullptr);
+    assert (hit != 0);
     assert (hit->cluster() == ref_); // otherwise something went wrong
     hit->setClusterRef(newRef);
   }
@@ -170,7 +170,7 @@ namespace helper {
     TrackingRecHit &genericHit = (*hits_)[index_];
     const std::type_info &hit_type = typeid(genericHit);
 
-    OmniClusterRef * cluRef=nullptr;
+    OmniClusterRef * cluRef=0;
     if (typeid(SiStripRecHit1D) == hit_type) {
       cluRef = &static_cast<SiStripRecHit1D&>(genericHit).omniCluster();
      } else if (typeid(SiStripRecHit2D) == hit_type) {
@@ -182,7 +182,7 @@ namespace helper {
       cluRef = &static_cast<ProjectedSiStripRecHit2D&>(genericHit).originalHit().omniCluster();
     }
   
-    assert(cluRef != nullptr); // to catch missing RecHit types
+    assert(cluRef != 0); // to catch missing RecHit types
     assert(cluRef->key() == ref_.key()); // otherwise something went wrong
     (*cluRef) = OmniClusterRef(newRef);
   }

@@ -47,7 +47,7 @@
 #include <set>
 #include <algorithm>
 #include <functional>
-#include <cmath>
+#include <math.h>
 
 class PFRecoTauChargedHadronProducer : public edm::stream::EDProducer<> 
 {
@@ -56,8 +56,8 @@ public:
   typedef reco::tau::PFRecoTauChargedHadronQualityPlugin Ranker;
 
   explicit PFRecoTauChargedHadronProducer(const edm::ParameterSet& cfg);
-  ~PFRecoTauChargedHadronProducer() override {}
-  void produce(edm::Event& evt, const edm::EventSetup& es) override;
+  ~PFRecoTauChargedHadronProducer() {}
+  void produce(edm::Event& evt, const edm::EventSetup& es);
   template <typename T>
   void print(const T& chargedHadrons);
 
@@ -157,7 +157,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
   std::unique_ptr<reco::PFJetChargedHadronAssociation> pfJetChargedHadronAssociations;
 
 
-  if ( !pfJets.empty() ) {
+  if ( pfJets.size() ) {
     edm::Handle<reco::PFJetCollection> pfJetCollectionHandle;
     evt.get(pfJets.id(), pfJetCollectionHandle);
     pfJetChargedHadronAssociations = std::make_unique<reco::PFJetChargedHadronAssociation>(reco::PFJetRefProd(pfJetCollectionHandle));
@@ -202,7 +202,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
     std::list<etaPhiPair> tracksInCleanCollection;
     std::set<reco::PFCandidatePtr> neutralPFCandsInCleanCollection;
 
-    while ( !uncleanedChargedHadrons.empty() ) {
+    while ( uncleanedChargedHadrons.size() >= 1 ) {
       
       // get next best ChargedHadron candidate
       std::auto_ptr<reco::PFRecoTauChargedHadron> nextChargedHadron(uncleanedChargedHadrons.pop_front().release());
@@ -214,7 +214,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
       // discard candidates which fail final output selection
       if ( !(*outputSelector_)(*nextChargedHadron) ) continue;
 
-      const reco::Track* track = nullptr;
+      const reco::Track* track = 0;
       if ( nextChargedHadron->getChargedPFCandidate().isNonnull() ) {
 	const reco::PFCandidatePtr& chargedPFCand = nextChargedHadron->getChargedPFCandidate();
 	if ( chargedPFCand->trackRef().isNonnull() ) track = chargedPFCand->trackRef().get();

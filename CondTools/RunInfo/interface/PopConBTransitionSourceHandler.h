@@ -27,9 +27,9 @@ namespace popcon {
       m_connection.configure();
   }
 
-    ~PopConBTransitionSourceHandler() override {}
+    virtual ~PopConBTransitionSourceHandler() {}
 
-    std::string id() const final { return std::string( "PopConBTransitionSourceHandler" ); }
+    virtual std::string id() const override final { return std::string( "PopConBTransitionSourceHandler" ); }
 
     bool checkBOn() {
       //the output boolean is set to true as default
@@ -107,7 +107,7 @@ namespace popcon {
       trans.close();     
     }
 
-    void getNewObjects() final {
+    virtual void getNewObjects() override final {
       //check whats already inside of database
        edm::LogInfo( "PopConBTransitionSourceHandler" ) << "[" << "PopConBTransitionSourceHandler::" << __func__ << "]: "
                                                         << "Destination Tag Info: name " << this->tagInfo().name

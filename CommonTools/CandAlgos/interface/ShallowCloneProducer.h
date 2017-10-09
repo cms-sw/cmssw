@@ -25,11 +25,11 @@ public:
   /// constructor from parameter set
   explicit ShallowCloneProducer( const edm::ParameterSet& );
   /// destructor
-  ~ShallowCloneProducer() override;
+  ~ShallowCloneProducer();
 
 private:
   /// process an event
-  void produce( edm::Event&, const edm::EventSetup& ) override;
+  virtual void produce( edm::Event&, const edm::EventSetup& );
   /// labels of the collection to be converted
   edm::EDGetTokenT<C> srcToken_;
 };

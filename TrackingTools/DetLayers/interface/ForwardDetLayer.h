@@ -25,17 +25,17 @@ public:
 
   ForwardDetLayer(bool doHaveGroups): DetLayer(doHaveGroups,false) {}
 
-  ~ForwardDetLayer() override;
+  virtual ~ForwardDetLayer();
 
   // GeometricSearchDet interface
-  const BoundSurface&  surface() const final { return *theDisk;}
+  virtual const BoundSurface&  surface() const final { return *theDisk;}
 
-  std::pair<bool, TrajectoryStateOnSurface>
+  virtual std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface&, const Propagator&, 
-	      const MeasurementEstimator&) const override;
+	      const MeasurementEstimator&) const;
 
   // DetLayer interface
-  Location location() const  final {return GeomDetEnumerators::endcap;}
+  virtual Location location() const  final {return GeomDetEnumerators::endcap;}
 
   // Extension of the interface
   virtual const BoundDisk& specificSurface() const  final { return *theDisk;}

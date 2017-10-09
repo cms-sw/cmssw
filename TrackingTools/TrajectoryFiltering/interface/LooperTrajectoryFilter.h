@@ -21,13 +21,13 @@ public:
 
   }
 
-  bool qualityFilter( const Trajectory& traj) const override { return QF<Trajectory>(traj); }
-  bool qualityFilter( const TempTrajectory& traj) const override { return QF<TempTrajectory>(traj);  }
+  virtual bool qualityFilter( const Trajectory& traj) const { return QF<Trajectory>(traj); }
+  virtual bool qualityFilter( const TempTrajectory& traj) const { return QF<TempTrajectory>(traj);  }
 
-  bool toBeContinued( TempTrajectory& traj) const override { return TBC<TempTrajectory>(traj);}
-  bool toBeContinued( Trajectory& traj) const override{ return TBC<Trajectory>(traj);}
+  virtual bool toBeContinued( TempTrajectory& traj) const { return TBC<TempTrajectory>(traj);}
+  virtual bool toBeContinued( Trajectory& traj) const{ return TBC<Trajectory>(traj);}
 
-  std::string name() const override{return "LooperTrajectoryFilter";}
+  virtual std::string name() const{return "LooperTrajectoryFilter";}
 
   inline edm::ParameterSetDescription getFilledConfigurationDescription() {
     edm::ParameterSetDescription desc;

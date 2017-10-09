@@ -19,7 +19,7 @@ class FastFedCablingAlgorithm : public CommissioningAlgorithm {
 
   FastFedCablingAlgorithm( const edm::ParameterSet & pset, FastFedCablingAnalysis* const );
   
-  ~FastFedCablingAlgorithm() override {;}
+  virtual ~FastFedCablingAlgorithm() {;}
   
   /** Container of histogram pointer and title. */
   inline const Histo& histo() const;
@@ -30,10 +30,10 @@ class FastFedCablingAlgorithm : public CommissioningAlgorithm {
   FastFedCablingAlgorithm() {;}
   
   /** Extracts and organises histograms. */
-  void extract( const std::vector<TH1*>& ) override;
+  void extract( const std::vector<TH1*>& );
 
   /** Performs histogram anaysis. */
-  void analyse() override;
+  void analyse();
 
  private:
   

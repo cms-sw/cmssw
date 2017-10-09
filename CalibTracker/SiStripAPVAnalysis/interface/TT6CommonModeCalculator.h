@@ -14,16 +14,16 @@ public:
   TT6CommonModeCalculator(TkNoiseCalculator* noise_calc,
                           TkApvMask* mask_calc, float sig_cut);
 
-  ~TT6CommonModeCalculator() override;
+  virtual ~TT6CommonModeCalculator();
 
-  ApvAnalysis::PedestalType doIt(const ApvAnalysis::PedestalType&) override; 
+  ApvAnalysis::PedestalType doIt(const ApvAnalysis::PedestalType&); 
   
-  void setCM(TkCommonMode* in) override {theTkCommonMode = in;}
-  void setCM(const std::vector<float>& in) override {theTkCommonMode->setCommonMode(in);}
-  TkCommonMode* commonMode() override {return theTkCommonMode;}
+  void setCM(TkCommonMode* in) {theTkCommonMode = in;}
+  void setCM(const std::vector<float>& in) {theTkCommonMode->setCommonMode(in);}
+  TkCommonMode* commonMode() {return theTkCommonMode;}
 
-  void newEvent() override;
-  float getCMSlope() override { return slope;}
+  void newEvent();
+  float getCMSlope() { return slope;}
   
 protected:
   

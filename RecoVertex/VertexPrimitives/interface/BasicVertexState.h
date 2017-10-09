@@ -35,7 +35,7 @@ private:
 
 public:
 
-  ~BasicVertexState() override {}
+  virtual ~BasicVertexState() {}
 
   virtual BasicVertexState* clone() const = 0;
 

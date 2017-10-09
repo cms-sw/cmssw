@@ -32,12 +32,12 @@ class MuonAlignmentPreFilter : public edm::EDFilter
 {
 public:
   explicit MuonAlignmentPreFilter(const edm::ParameterSet&);
-  ~MuonAlignmentPreFilter() override {}
+  ~MuonAlignmentPreFilter() {}
 
 private:
-  void beginJob() override {}
-  bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override {}
+  virtual void beginJob() override {}
+  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override {}
 
   // ----------member data ---------------------------
 

@@ -27,17 +27,17 @@ public:
   DTTriggerLutTest(const edm::ParameterSet& ps);
   
   /// Destructor
-  ~DTTriggerLutTest() override;
+  virtual ~DTTriggerLutTest();
 
 protected:
 
   /// BeginRun
-  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void beginRun(const edm::Run& r, const edm::EventSetup& c);
   void Bookings(DQMStore::IBooker &, DQMStore::IGetter &);
 
 
   /// Run client analysis
-  void runClientDiagnostic(DQMStore::IBooker &, DQMStore::IGetter &) override;
+  void runClientDiagnostic(DQMStore::IBooker &, DQMStore::IGetter &);
 
   const int wheelArrayShift = 3;
 

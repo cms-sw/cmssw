@@ -18,7 +18,7 @@ using namespace edm;
 
 
 MuonTiming::MuonTiming(const edm::ParameterSet& pSet) {
-  const edm::ParameterSet& parameters = pSet;
+  edm::ParameterSet parameters = pSet;
 
   // Input booleans
   

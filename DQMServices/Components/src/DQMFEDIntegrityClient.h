@@ -26,20 +26,20 @@
 class DQMFEDIntegrityClient : public edm::EDAnalyzer {
 public:
   DQMFEDIntegrityClient( const edm::ParameterSet& );
-  ~DQMFEDIntegrityClient() override;
+  ~DQMFEDIntegrityClient();
 
 protected:
 
-  void beginJob() override;
-  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void beginJob();
+  void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
   /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override ;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) ;
 
-  void endLuminosityBlock(const edm::LuminosityBlock& l, const  edm::EventSetup& c) override;
+  void endLuminosityBlock(const edm::LuminosityBlock& l, const  edm::EventSetup& c);
 
-  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
-  void endJob() override;
+  void endRun(const edm::Run& r, const edm::EventSetup& c);
+  void endJob();
 
 private:
 

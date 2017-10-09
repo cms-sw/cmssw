@@ -1,6 +1,6 @@
 #include "DQM/SiStripCommissioningSources/interface/Averages.h"
 #include <iostream>
-#include <cmath>
+#include <math.h>
 #include <algorithm>
 
 using namespace std;

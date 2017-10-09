@@ -29,18 +29,18 @@ public:
 
   void initializeRocs();
 
-  ~SiPixelFedCablingMap() override {}
+  virtual ~SiPixelFedCablingMap() {}
 
 #ifdef NO_DICT
   std::unique_ptr<SiPixelFedCablingTree> cablingTree() const; 
 #endif
 
-  std::string version() const override { return theVersion; }
+  virtual std::string version() const override { return theVersion; }
 
-  const sipixelobjects::PixelROC* findItem(
+  virtual const sipixelobjects::PixelROC* findItem(
       const sipixelobjects::CablingPathToDetUnit & path) const override;
 
-  std::vector<sipixelobjects::CablingPathToDetUnit> pathToDetUnit(uint32_t rawDetId) const override;
+  virtual std::vector<sipixelobjects::CablingPathToDetUnit> pathToDetUnit(uint32_t rawDetId) const override;
 
   std::unordered_map<uint32_t, unsigned int> det2fedMap() const override;
   std::map< uint32_t,std::vector<sipixelobjects::CablingPathToDetUnit> > det2PathMap() const override;

@@ -34,7 +34,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
-#include <ctime>
+#include <time.h>
 
 #include <TF1.h>
 #include <TH2F.h>

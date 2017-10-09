@@ -18,7 +18,6 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
 			    bool useCalib = true,
 			    bool useECALLUT = true,
 			    bool useHCALLUT = true,
-                            bool useHFLUT = true,
-                            int fwVersion = 0);
+                            bool useHFLUT = true);
 
 #endif

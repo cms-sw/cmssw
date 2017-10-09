@@ -19,10 +19,10 @@ class RPCAMCLinkMapHandler
 {
 public:
     RPCAMCLinkMapHandler(edm::ParameterSet const & config);
-    ~RPCAMCLinkMapHandler() override;
+    ~RPCAMCLinkMapHandler();
 
-    void getNewObjects() override;
-    std::string id() const override;
+    void getNewObjects();
+    std::string id() const;
 
 protected:
     std::string id_;

@@ -70,13 +70,13 @@
 class EcalCosmicsHists : public edm::EDAnalyzer {
    public:
       explicit EcalCosmicsHists(const edm::ParameterSet&);
-      ~EcalCosmicsHists() override;
+      ~EcalCosmicsHists();
 
 
    private:
-      void beginRun(edm::Run const &, edm::EventSetup const &) override ;
-      void analyze(edm::Event const &, edm::EventSetup const &) override;
-      void endJob() override ;
+      virtual void beginRun(edm::Run const &, edm::EventSetup const &) ;
+      virtual void analyze(edm::Event const &, edm::EventSetup const &);
+      virtual void endJob() ;
       std::string intToString(int num);
       void initHists(int);
       std::vector<bool> determineTriggers(const edm::Event&, const edm::EventSetup& eventSetup);

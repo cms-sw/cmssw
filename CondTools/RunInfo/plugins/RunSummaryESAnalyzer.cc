@@ -30,12 +30,12 @@ namespace edmtest
     }
     explicit  RunSummaryESAnalyzer(int i) 
     { std::cout<<"RunSummaryESAnalyzer "<<i<<std::endl; }
-    ~RunSummaryESAnalyzer() override {  
+    virtual ~RunSummaryESAnalyzer() {  
       std::cout<<"~RunSummaryESAnalyzer "<<std::endl;
     }
     // virtual void beginJob();
     // virtual void beginRun(const edm::Run&, const edm::EventSetup& context);
-    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+    virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   private:
   };
    

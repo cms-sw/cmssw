@@ -34,16 +34,16 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   typedef std::vector<VecOfTasks> VecOfVecOfTasks;
   
   SiStripCommissioningSource( const edm::ParameterSet& );
-  ~SiStripCommissioningSource() override;
+  ~SiStripCommissioningSource();
   
-  void beginRun( edm::Run const &, const edm::EventSetup & ) override;
-  void analyze( const edm::Event &, const edm::EventSetup & ) override;
-  void endJob() override;
+  void beginRun( edm::Run const &, const edm::EventSetup & );
+  void analyze( const edm::Event &, const edm::EventSetup & );
+  void endJob();
   
  private: // ---------- Private methods ----------
 
   /** Private default constructor. */
-  SiStripCommissioningSource() = delete;
+  SiStripCommissioningSource();
   
   /** */
   DQMStore* const dqm( std::string method = "" ) const;

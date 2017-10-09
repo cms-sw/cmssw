@@ -41,22 +41,22 @@ namespace edm {
 
       // ---------- static member functions --------------------
 
-      std::set<eventsetup::EventSetupRecordKey> modifyingRecords() const override;
+      virtual std::set<eventsetup::EventSetupRecordKey> modifyingRecords() const;
       // ---------- member functions ---------------------------
 
    protected:
       void setIntervalFor(const eventsetup::EventSetupRecordKey& iKey,
                           const IOVSyncValue& iTime, 
-                          ValidityInterval& oInterval) override;
+                          ValidityInterval& oInterval);
         
       //use this to 'snoop' on what records are being used by the Producer
-      void registerFactoryWithKey(const eventsetup::EventSetupRecordKey& iRecord ,
+      virtual void registerFactoryWithKey(const eventsetup::EventSetupRecordKey& iRecord ,
                                           std::unique_ptr<eventsetup::ProxyFactoryBase> iFactory,
-                                          const std::string& iLabel= std::string() ) override;
+                                          const std::string& iLabel= std::string() );
 private:
-      ESProducerLooper(const ESProducerLooper&) = delete; // stop default
+      ESProducerLooper(const ESProducerLooper&); // stop default
 
-      const ESProducerLooper& operator=(const ESProducerLooper&) = delete; // stop default
+      const ESProducerLooper& operator=(const ESProducerLooper&); // stop default
 
       // ---------- member data --------------------------------
 

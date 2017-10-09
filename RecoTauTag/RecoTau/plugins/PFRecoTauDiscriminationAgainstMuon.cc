@@ -32,7 +32,7 @@ class PFRecoTauDiscriminationAgainstMuon : public PFTauDiscriminationProducerBas
     checkNumMatches_ = iConfig.exists("checkNumMatches") ? iConfig.getParameter<bool>("checkNumMatches") : false;
   }
 
-  ~PFRecoTauDiscriminationAgainstMuon() override {} 
+  ~PFRecoTauDiscriminationAgainstMuon() {} 
 
   double discriminate(const PFTauRef& pfTau) const override;
 

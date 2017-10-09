@@ -34,7 +34,7 @@
 class MuonAlignmentInputXML: public MuonAlignmentInputMethod {
    public:
       MuonAlignmentInputXML(const std::string& fileName);
-      ~MuonAlignmentInputXML() override;
+      virtual ~MuonAlignmentInputXML();
 
       // ---------- const member functions ---------------------
 
@@ -42,12 +42,12 @@ class MuonAlignmentInputXML: public MuonAlignmentInputMethod {
 
       // ---------- member functions ---------------------------
 
-      AlignableMuon *newAlignableMuon(const edm::EventSetup &iSetup) const override;
+      virtual AlignableMuon *newAlignableMuon(const edm::EventSetup &iSetup) const;
 
    private:
-      MuonAlignmentInputXML(const MuonAlignmentInputXML&) = delete; // stop default
+      MuonAlignmentInputXML(const MuonAlignmentInputXML&); // stop default
 
-      const MuonAlignmentInputXML& operator=(const MuonAlignmentInputXML&) = delete; // stop default
+      const MuonAlignmentInputXML& operator=(const MuonAlignmentInputXML&); // stop default
 
       void recursiveGetId(std::map<unsigned int, Alignable*> &alignableNavigator, const align::Alignables &alignables) const;
 

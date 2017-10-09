@@ -13,22 +13,22 @@ class FedCablingHistograms : virtual public CommissioningHistograms {
  public:
   
   FedCablingHistograms( const edm::ParameterSet& pset, DQMStore* );
-  ~FedCablingHistograms() override;
+  virtual ~FedCablingHistograms();
   
   typedef SummaryPlotFactory<FedCablingAnalysis*> Factory;
   typedef std::map<uint32_t,FedCablingAnalysis*> Analyses;
 
   /** */
-  void histoAnalysis( bool debug ) override;
+  void histoAnalysis( bool debug );
 
   /** */
-  void printAnalyses() override;
+  void printAnalyses();
   
   /** */
   void createSummaryHisto( const sistrip::Monitorable&,
 			   const sistrip::Presentation&,
 			   const std::string& top_level_dir,
-			   const sistrip::Granularity& ) override;
+			   const sistrip::Granularity& );
   
  protected: 
   

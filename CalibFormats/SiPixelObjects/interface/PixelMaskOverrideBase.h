@@ -28,7 +28,7 @@ namespace pos{
 			  std::string creator,
 			  std::string date);
 
-    ~PixelMaskOverrideBase() override;
+    virtual ~PixelMaskOverrideBase();
 
     virtual PixelROCMaskBits getMaskBits(int ROCId)=0;
 

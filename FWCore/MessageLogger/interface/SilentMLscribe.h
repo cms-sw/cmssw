@@ -30,17 +30,17 @@ namespace edm {
          
       public:
          SilentMLscribe();
-         ~SilentMLscribe() override;
+         virtual ~SilentMLscribe();
          
          
          // ---------- member functions ---------------------------
-         
-         void  runCommand(MessageLoggerQ::OpCode  opcode, void * operand) override;
+         virtual
+         void  runCommand(MessageLoggerQ::OpCode  opcode, void * operand);
          
       private:
-         SilentMLscribe(const SilentMLscribe&) = delete; // stop default
+         SilentMLscribe(const SilentMLscribe&); // stop default
          
-         const SilentMLscribe& operator=(const SilentMLscribe&) = delete; // stop default
+         const SilentMLscribe& operator=(const SilentMLscribe&); // stop default
          
          // ---------- member data --------------------------------
          

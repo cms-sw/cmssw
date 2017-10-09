@@ -27,7 +27,7 @@ public:
 			  PropagationDirection aDir = alongMomentum) : 
     Propagator(aDir), theField(field) {}
 
-  ~StraightLinePropagator() override {}
+  ~StraightLinePropagator() {}
 
   using Propagator::propagate;
   using Propagator::propagateWithPath;
@@ -39,12 +39,12 @@ public:
   std::pair<TSOS,double> propagateWithPath(const FreeTrajectoryState& fts, 
 				      const Cylinder& surface) const  override;
 
-  StraightLinePropagator * clone() const  override{
+  virtual StraightLinePropagator * clone() const  override{
     return new StraightLinePropagator(*this);
   }
 
  
-  const MagneticField* magneticField() const  override {return theField;}
+  virtual const MagneticField* magneticField() const  override {return theField;}
 
 private:
 

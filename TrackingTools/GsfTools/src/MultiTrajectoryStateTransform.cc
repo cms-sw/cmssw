@@ -128,7 +128,7 @@ MultiTrajectoryStateTransform::checkExtrapolator () const
 {
   if ( extrapolator_ )  return true;
 
-  if ( field_==nullptr ) {
+  if ( field_==0 ) {
     edm::LogError("MultiTrajectoryStateTransform") << "Missing magnetic field";
     return false;
   }

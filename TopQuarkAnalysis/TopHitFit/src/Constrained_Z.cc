@@ -40,7 +40,7 @@
 #include "TopQuarkAnalysis/TopHitFit/interface/Defaults.h"
 #include <ostream>
 #include <cassert>
-#include <cstdio>
+#include <stdio.h>
 
 
 namespace hitfit {

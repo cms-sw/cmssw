@@ -21,7 +21,7 @@ public:
   class PuppiUserInfo : public fastjet::PseudoJet::UserInfoBase {
    public : 
      PuppiUserInfo( int puppi_register = -1) : puppi_register_(puppi_register) {}
-     ~PuppiUserInfo() override{}
+     virtual ~PuppiUserInfo(){}
   
      void set_puppi_register(int i) { puppi_register_ = i; }
   

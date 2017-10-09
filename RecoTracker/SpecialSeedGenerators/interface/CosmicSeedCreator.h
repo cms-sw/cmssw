@@ -17,17 +17,17 @@ class CosmicSeedCreator final : public SeedCreator {
       maxseeds_ = extra.getParameter<int>("maxseeds");
     }
 
-  ~CosmicSeedCreator() override{}
+  virtual ~CosmicSeedCreator(){}
 
   // initialize the "event dependent state"
-  void init(const TrackingRegion & region,
+  virtual void init(const TrackingRegion & region,
 		    const edm::EventSetup& es,
-		    const SeedComparitor *filter) override;
+		    const SeedComparitor *filter);
 
   // make job 
   // fill seedCollection with the "TrajectorySeed"
-  void makeSeed(TrajectorySeedCollection & seedCollection,
-			const SeedingHitSet & hits) override;
+  virtual void makeSeed(TrajectorySeedCollection & seedCollection,
+			const SeedingHitSet & hits);
 
   
 private:

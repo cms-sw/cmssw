@@ -39,7 +39,7 @@
 // made some variables constant, removed obviously dead code and comments
 
 TrackerSystematicMisalignments::TrackerSystematicMisalignments(const edm::ParameterSet& cfg)
-  : theAlignableTracker(nullptr)
+  : theAlignableTracker(0)
 {
 	// use existing geometry
 	m_fromDBGeom = cfg.getUntrackedParameter< bool > ("fromDBGeom");

@@ -23,21 +23,21 @@ public:
   OptOPlateSplitter(){ };
   OptOPlateSplitter(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data) : 
   OpticalObject( parent, type, name, copy_data){ };
-  ~OptOPlateSplitter() override{ };
+  ~OptOPlateSplitter(){ };
 
   //---------- Detailed simulation of deviation of the light ray (reflection, shift, ...)
-  void detailedDeviatesLightRay( LightRay& lightray ) override;
+  virtual void detailedDeviatesLightRay( LightRay& lightray );
   //---------- Detailed simulation of the light ray traversing
-  void detailedTraversesLightRay( LightRay& lightray ) override;
+  virtual void detailedTraversesLightRay( LightRay& lightray );
   //---------- Fast simulation of deviation of the light ray (reflection, shift, ...)
-  void fastDeviatesLightRay( LightRay& lightray ) override;
+  virtual void fastDeviatesLightRay( LightRay& lightray );
   //---------- Fast simulation of the light ray traversing
-  void fastTraversesLightRay( LightRay& lightray ) override;
+  virtual void fastTraversesLightRay( LightRay& lightray );
 
 #ifdef COCOA_VIS
   virtual void fillIguana();
 #endif
-  void constructSolidShape() override;
+  void constructSolidShape();
 
 };
 

@@ -263,7 +263,7 @@ void HLTHiggsPlotter::bookHist(const std::string & source,
     std::string sourceUpper = source; 
     sourceUpper[0] = std::toupper(sourceUpper[0]);
     std::string name = source + objType + variable + "_" + _hltPath;
-    TH1F * h = nullptr;
+    TH1F * h = 0;
 
     if (variable.find("MaxPt") != std::string::npos) 
     {

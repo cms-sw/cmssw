@@ -14,11 +14,11 @@ class SiStripGainFromAsciiFile : public ConditionDBWriter<SiStripApvGain> {
 public:
 
   explicit SiStripGainFromAsciiFile(const edm::ParameterSet&);
-  ~SiStripGainFromAsciiFile() override;
+  ~SiStripGainFromAsciiFile();
 
 private:
 
-  SiStripApvGain * getNewObject() override;
+  SiStripApvGain * getNewObject();
 
 private:
 

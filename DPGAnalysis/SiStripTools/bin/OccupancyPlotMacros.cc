@@ -16,7 +16,7 @@
 #include "TROOT.h"
 #include <cstring>
 #include <iostream>
-#include <cmath>
+#include <math.h>
 #include <algorithm>
 #include "TROOT.h"
 #include "DPGAnalysis/SiStripTools/interface/CommonAnalyzer.h"
@@ -146,35 +146,35 @@ void PlotOccupancyMapGeneric(TFile* ff, const char* module, const float min, con
       }
 
       TH1D* haveoccu = aveoccu->ProjectionX("haveoccu");
-      haveoccu->SetDirectory(nullptr);
+      haveoccu->SetDirectory(0);
       haveoccu->Divide(nchannels);
 
       TH1D* havemult = avemult->ProjectionX("havemult");
-      havemult->SetDirectory(nullptr);
+      havemult->SetDirectory(0);
       havemult->Divide(nchannels);
 
       TH1D* havewidth = (TH1D*)haveoccu->Clone("havewidth");
-      havewidth->SetDirectory(nullptr);
+      havewidth->SetDirectory(0);
       havewidth->SetTitle("Average Cluster Size");
       havewidth->Divide(havemult);
 
 
       new TCanvas("occupancy","occupancy",1200,500);
       gPad->SetLogy(1);
-      haveoccu->SetStats(false);
+      haveoccu->SetStats(0);
       haveoccu->SetLineColor(kRed);
       haveoccu->SetMarkerColor(kRed);
       haveoccu->DrawCopy();
       
       new TCanvas("multiplicity","multiplicity",1200,500);
       gPad->SetLogy(1);
-      havemult->SetStats(false);
+      havemult->SetStats(0);
       havemult->SetLineColor(kRed);
       havemult->SetMarkerColor(kRed);
       havemult->DrawCopy();
       
       new TCanvas("width","width",1200,500);
-      havewidth->SetStats(false);
+      havewidth->SetStats(0);
       havewidth->SetLineColor(kRed);
       havewidth->SetMarkerColor(kRed);
       havewidth->DrawCopy();
@@ -365,10 +365,10 @@ void PlotOnTrackOccupancyGeneric(TFile* ff, const char* module, const char* ontr
   
   gROOT->SetStyle("Plain");
 
-  TProfile* avemult=nullptr;
-  TProfile* aveontrkmult=nullptr;
-  TProfile* averadius =nullptr;
-  TProfile* avez =nullptr;
+  TProfile* avemult=0;
+  TProfile* aveontrkmult=0;
+  TProfile* averadius =0;
+  TProfile* avez =0;
 
   if(ff->cd(module)) {
     avemult= (TProfile*)gDirectory->Get("avemult");
@@ -383,13 +383,13 @@ void PlotOnTrackOccupancyGeneric(TFile* ff, const char* module, const char* ontr
 
     TH1D* havemult = avemult->ProjectionX("havemult");
     TH1D* haveontrkmult = aveontrkmult->ProjectionX("haveontrkmult");
-      havemult->SetDirectory(nullptr);
-      haveontrkmult->SetDirectory(nullptr);
+      havemult->SetDirectory(0);
+      haveontrkmult->SetDirectory(0);
       haveontrkmult->Divide(havemult);
 
       new TCanvas("ontrkmult","ontrkmult",1200,500);
       gPad->SetLogy(1);
-      haveontrkmult->SetStats(false);
+      haveontrkmult->SetStats(0);
       haveontrkmult->SetLineColor(kRed);
       haveontrkmult->SetMarkerColor(kRed);
       haveontrkmult->SetMarkerSize(.5);
@@ -575,7 +575,7 @@ TCanvas* drawMap(const char* cname, const TH1* hval, const TProfile* averadius, 
     
   }
 
-  TGaxis *mpaxis=nullptr;
+  TGaxis *mpaxis=0;
   if(scale(1)!=1) {
     mpaxis = new TGaxis(330,0,330,140,mmin,mmax,510,"SLG+");
   }
@@ -701,8 +701,8 @@ TH1D* TrendPlotSingleBin(TFile* ff, const char* module, const char* hname, const
       caoccu.setPath(runpath);
       
       
-      TProfile* occu=nullptr;
-      if(occu==nullptr) occu = (TProfile*)caoccu.getObject(hname);
+      TProfile* occu=0;
+      if(occu==0) occu = (TProfile*)caoccu.getObject(hname);
       if(occu) {
 
 	const int ibin=occu->FindBin(bin);

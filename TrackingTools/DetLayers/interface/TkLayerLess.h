@@ -16,7 +16,7 @@ class TkLayerLess
   : public std::binary_function< const DetLayer*,const DetLayer*,bool> {
 public:
 
-    TkLayerLess( NavigationDirection dir = insideOut, const DetLayer * fromLayer = nullptr) :
+    TkLayerLess( NavigationDirection dir = insideOut, const DetLayer * fromLayer = 0) :
     theDir(dir) {
     if (fromLayer){
       theOriginLayer = true;

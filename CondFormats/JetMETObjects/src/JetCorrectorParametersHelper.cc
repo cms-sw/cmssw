@@ -6,7 +6,7 @@
 //
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParametersHelper.h"
 #include <sstream>
-#include <cstdlib>
+#include <stdlib.h>
 #include <algorithm>
 #include <cmath>
 #include <iterator>

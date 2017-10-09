@@ -25,27 +25,27 @@
 
 class HCaloDetIdAssociator: public HDetIdAssociator{
  public:
-   HCaloDetIdAssociator():HDetIdAssociator(72, 70 ,0.087),geometry_(nullptr){};
+   HCaloDetIdAssociator():HDetIdAssociator(72, 70 ,0.087),geometry_(0){};
    HCaloDetIdAssociator(const int nPhi, const int nEta, const double etaBinSize)
-     :HDetIdAssociator(nPhi, nEta, etaBinSize),geometry_(nullptr){};
+     :HDetIdAssociator(nPhi, nEta, etaBinSize),geometry_(0){};
    
    virtual void setGeometry(const CaloGeometry* ptr){ geometry_ = ptr; };
    
  protected:
-   void check_setup() override
+   virtual void check_setup()
      {
 	HDetIdAssociator::check_setup();
-	if (geometry_==nullptr) throw cms::Exception("CaloGeometry is not set");
+	if (geometry_==0) throw cms::Exception("CaloGeometry is not set");
      };
    
-   GlobalPoint getPosition(const DetId& id) override{
+   virtual GlobalPoint getPosition(const DetId& id){
       GlobalPoint point = (id.det() == DetId::Hcal) ? 
 	((HcalGeometry*)(geometry_->getSubdetectorGeometry(id)))->getPosition(id) : 
 	geometry_->getPosition(id);
       return point;
    };
    
-   std::set<DetId> getASetOfValidDetIds() override{
+   virtual std::set<DetId> getASetOfValidDetIds(){
       std::set<DetId> setOfValidIds;
       const std::vector<DetId>& vectOfValidIds = geometry_->getValidDetIds(DetId::Calo, 1);
       for(std::vector<DetId>::const_iterator it = vectOfValidIds.begin(); it != vectOfValidIds.end(); ++it)
@@ -54,7 +54,7 @@ class HCaloDetIdAssociator: public HDetIdAssociator{
       return setOfValidIds;
    };
    
-   std::vector<GlobalPoint> getDetIdPoints(const DetId& id) override{
+   virtual std::vector<GlobalPoint> getDetIdPoints(const DetId& id){
       std::vector<GlobalPoint> points;
       if(! geometry_->getSubdetectorGeometry(id)){
 	 LogDebug("CaloDetIdAssociator") << "Cannot find sub-detector geometry for " << id.rawId() <<"\n";
@@ -71,7 +71,7 @@ class HCaloDetIdAssociator: public HDetIdAssociator{
       return  points;
    };
 
-   bool insideElement(const GlobalPoint& point, const DetId& id) override{
+   virtual bool insideElement(const GlobalPoint& point, const DetId& id){
       return  geometry_->getSubdetectorGeometry(id)->getGeometry(id)->inside(point);
    };
 

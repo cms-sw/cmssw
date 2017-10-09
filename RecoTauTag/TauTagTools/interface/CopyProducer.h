@@ -30,9 +30,9 @@ class CopyProducer : public edm::EDProducer {
           produces<Collection>();
         }
     /// destructor
-    ~CopyProducer() override{};
+    ~CopyProducer(){};
     /// process an event
-    void produce(edm::Event& evt, const edm::EventSetup& es) override {
+    virtual void produce(edm::Event& evt, const edm::EventSetup& es) {
       // Output collection
       auto coll = std::make_unique<Collection>();
       typedef edm::View<typename Collection::value_type> CView;

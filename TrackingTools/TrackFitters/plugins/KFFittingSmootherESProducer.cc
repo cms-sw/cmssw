@@ -35,7 +35,7 @@ namespace {
     }
     
     
-    ~KFFittingSmootherESProducer() override {}
+    ~KFFittingSmootherESProducer() {}
     
     std::shared_ptr<TrajectoryFitter> 
     produce(const TrajectoryFitterRecord & iRecord){ 

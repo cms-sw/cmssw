@@ -13,13 +13,13 @@ class HypothesisAnalyzer : public edm::EDAnalyzer {
  public:
 
   explicit HypothesisAnalyzer(const edm::ParameterSet&);
-  ~HypothesisAnalyzer() override{};
+  ~HypothesisAnalyzer(){};
 
  private:
 
-  void beginJob() override ;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
+  virtual void beginJob() ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob();
 
   const edm::EDGetTokenT<TtSemiLeptonicEvent> semiLepEvtToken_;
   const std::string hypoClassKey_;

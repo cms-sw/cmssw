@@ -14,9 +14,9 @@
 class ElectronSqPtTkIsolationProducer : public edm::EDProducer {
  public:
   explicit ElectronSqPtTkIsolationProducer(const edm::ParameterSet&);
-  ~ElectronSqPtTkIsolationProducer() override;
+  ~ElectronSqPtTkIsolationProducer();
   
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&);
 
  private:
   edm::InputTag electronProducer_;

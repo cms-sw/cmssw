@@ -61,13 +61,13 @@
 class CSCOverlapsAlignmentAlgorithm : public AlignmentAlgorithmBase {
 public:
   CSCOverlapsAlignmentAlgorithm(const edm::ParameterSet& iConfig);
-  ~CSCOverlapsAlignmentAlgorithm() override;
+  ~CSCOverlapsAlignmentAlgorithm();
   
   void initialize(const edm::EventSetup& iSetup, AlignableTracker* alignableTracker, AlignableMuon* alignableMuon,
-		  AlignableExtras* alignableExtras, AlignmentParameterStore* alignmentParameterStore) override;
-  void run(const edm::EventSetup& iSetup, const EventInfo &eventInfo) override;
+		  AlignableExtras* alignableExtras, AlignmentParameterStore* alignmentParameterStore);
+  void run(const edm::EventSetup& iSetup, const EventInfo &eventInfo);
 
-  void terminate(const edm::EventSetup& iSetup) override;
+  void terminate(const edm::EventSetup& iSetup);
 
   // having to make read-only accessors for all of these would be ridiculous, so they're public
   TH1F *m_hitsPerChamber;

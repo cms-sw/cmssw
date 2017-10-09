@@ -26,9 +26,9 @@
 namespace popcon{
   class RpcDataS : public popcon::PopConSourceHandler<RPCObStatus>{
   public:
-    void getNewObjects() override;
-    std::string id() const override { return m_name;}
-    ~RpcDataS() override; 
+    void getNewObjects();
+    std::string id() const { return m_name;}
+    ~RpcDataS(); 
     RpcDataS(const edm::ParameterSet& pset); 
 
     RPCObStatus* Sdata;

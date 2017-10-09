@@ -28,12 +28,12 @@ class LaserAlignmentProducer : public edm::one::EDProducer<> {
 	/// constructor
   explicit LaserAlignmentProducer(const edm::ParameterSet&);
 	/// destructor
-  ~LaserAlignmentProducer() override;
+  ~LaserAlignmentProducer();
 
   
  private:
 	/// produce the HepMCProduct
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&);
   
   // the event format itself
   HepMC::GenEvent* theEvent;

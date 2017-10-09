@@ -22,9 +22,9 @@
 class HcalFrontEndMapHandler : public popcon::PopConSourceHandler<HcalFrontEndMap>
 {
  public:
-  void getNewObjects() override;
-  std::string id() const override { return m_name;}
-  ~HcalFrontEndMapHandler() override;
+  void getNewObjects();
+  std::string id() const { return m_name;}
+  ~HcalFrontEndMapHandler();
   HcalFrontEndMapHandler(edm::ParameterSet const &);
 
   void initObject(HcalFrontEndMap*);

@@ -10,7 +10,7 @@
  */
 class GsfMaterialEffectsAdapter  final : public GsfMaterialEffectsUpdator 
 {
-  GsfMaterialEffectsAdapter* clone() const override
+  virtual GsfMaterialEffectsAdapter* clone() const
   {
     return new GsfMaterialEffectsAdapter(*this);
   }
@@ -22,11 +22,11 @@ public:
     GsfMaterialEffectsUpdator(aMEUpdator.mass(),1),
     theMEUpdator(aMEUpdator.clone()) {}
 
-  ~GsfMaterialEffectsAdapter() override {}
+  ~GsfMaterialEffectsAdapter() {}
 
   
   // here comes the actual computation of the values
-  void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect[]) const override;
+  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect[]) const;
 
 
 private:  

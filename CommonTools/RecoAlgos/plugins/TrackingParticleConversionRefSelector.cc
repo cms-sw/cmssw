@@ -15,7 +15,7 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
+  virtual void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
 private:
   edm::EDGetTokenT<TrackingParticleCollection> tpToken_;

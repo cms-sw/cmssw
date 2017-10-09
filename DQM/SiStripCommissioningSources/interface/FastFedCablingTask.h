@@ -10,14 +10,14 @@ class FastFedCablingTask : public CommissioningTask {
  public:
   
   FastFedCablingTask( DQMStore*, const FedChannelConnection& );
-  ~FastFedCablingTask() override;
+  virtual ~FastFedCablingTask();
   
  private:
   
-  void book() override;
-  void fill( const SiStripEventSummary&,
-		     const edm::DetSet<SiStripRawDigi>& ) override;
-  void update() override;
+  virtual void book();
+  virtual void fill( const SiStripEventSummary&,
+		     const edm::DetSet<SiStripRawDigi>& );
+  virtual void update();
   
   HistoSet histo_;
   

@@ -35,9 +35,9 @@ class dso_hidden TrackListMerger : public edm::stream::EDProducer<>
 
     explicit TrackListMerger(const edm::ParameterSet& conf);
 
-    ~TrackListMerger() override;
+    virtual ~TrackListMerger();
 
-    void produce(edm::Event& e, const edm::EventSetup& c) override;
+    virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
 
   private:
 
@@ -329,7 +329,7 @@ TrackListMerger::~TrackListMerger() { }
     std::vector<const reco::TrackCollection *> trackColls;
     std::vector<edm::Handle<reco::TrackCollection> > trackHandles(trackProducers_.size());
     for ( unsigned int i=0; i<trackProducers_.size(); i++) {
-      trackColls.push_back(nullptr);
+      trackColls.push_back(0);
       //edm::Handle<reco::TrackCollection> trackColl;
       e.getByToken(trackProducers_[i].tk, trackHandles[i]);
       if (trackHandles[i].isValid()) {
@@ -381,7 +381,7 @@ TrackListMerger::~TrackListMerger() { }
 	e.getByToken(trackProducers_[j].tsel, trackSelColl);
       }
 
-      if ( !tC1->empty() ){
+      if ( 0<tC1->size() ){
 	unsigned int iC=0;
 	for (reco::TrackCollection::const_iterator track=tC1->begin(); track!=tC1->end(); track++){
 	  i++;

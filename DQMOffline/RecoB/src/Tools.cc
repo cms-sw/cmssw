@@ -3,7 +3,7 @@
 #include "TROOT.h"
 #include "TSystem.h"
 #include "TStyle.h"
-#include <cmath>
+#include <math.h>
 
 using namespace std;
 using namespace RecoBTag;

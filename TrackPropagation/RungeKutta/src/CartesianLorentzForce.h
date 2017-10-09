@@ -17,7 +17,7 @@ public:
     CartesianLorentzForce( const RKLocalFieldProvider& field, float ch) : 
 	theField(field), theCharge(ch) {}
 
-    Vector operator()( Scalar z, const Vector& state) const override;
+    virtual Vector operator()( Scalar z, const Vector& state) const;
 
 private:
 

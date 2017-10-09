@@ -27,10 +27,10 @@ class CreateSurveyRcds:
 				 const edm::ParameterSet&
 				 );
 		
-		void analyze(
+		virtual void analyze(
 				     const edm::Event&, 
 				     const edm::EventSetup&
-				     ) override;
+				     );
 		
 	private:
 		

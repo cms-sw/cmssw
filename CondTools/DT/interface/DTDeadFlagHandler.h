@@ -42,13 +42,13 @@ class DTDeadFlagHandler: public popcon::PopConSourceHandler<DTDeadFlag> {
 
   /** Destructor
    */
-  ~DTDeadFlagHandler() override;
+  virtual ~DTDeadFlagHandler();
 
   /** Operations
    */
   /// 
-  void getNewObjects() override;
-  std::string id() const override;
+  void getNewObjects();
+  std::string id() const;
 
  private:
 

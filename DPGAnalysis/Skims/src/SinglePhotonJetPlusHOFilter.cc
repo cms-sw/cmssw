@@ -53,13 +53,13 @@ using namespace reco;
 class SinglePhotonJetPlusHOFilter : public edm::EDFilter {
    public:
       explicit SinglePhotonJetPlusHOFilter(const edm::ParameterSet&);
-      ~SinglePhotonJetPlusHOFilter() override;
+      ~SinglePhotonJetPlusHOFilter();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
 
-      bool filter(edm::Event&, const edm::EventSetup&) override;
+      virtual bool filter(edm::Event&, const edm::EventSetup&);
 
       // ----------member data ---------------------------
   int Nevt;
@@ -166,7 +166,7 @@ SinglePhotonJetPlusHOFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
   edm::Handle<PFClusterCollection> hoht;
   iEvent.getByToken(tok_hoht_,hoht);
   if (hoht.isValid()) {
-    if (!(*hoht).empty()) {
+    if ((*hoht).size()>0) {
       for (unsigned ijet = 0; ijet< jetdirection.size(); ijet++) {
 	
 	bool matched=false;

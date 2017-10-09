@@ -28,11 +28,11 @@ class DQMHcalIsolatedBunchAlCaReco : public DQMEDAnalyzer {
 public:
 
   DQMHcalIsolatedBunchAlCaReco( const edm::ParameterSet& );
-  ~DQMHcalIsolatedBunchAlCaReco() override;
+  ~DQMHcalIsolatedBunchAlCaReco();
 
 protected:
    
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event& e, const edm::EventSetup& c) override ;
 
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 

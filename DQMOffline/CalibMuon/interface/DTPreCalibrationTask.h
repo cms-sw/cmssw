@@ -35,10 +35,10 @@ public:
   DTPreCalibrationTask(const edm::ParameterSet& ps);
   
   /// Destructor
-  ~DTPreCalibrationTask() override;
+  virtual ~DTPreCalibrationTask();
 
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void analyze( const edm::Event&, const edm::EventSetup&) override;
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  virtual void analyze( const edm::Event&, const edm::EventSetup&) override;
 
   /// Book histos
   void bookTimeBoxes(DQMStore::IBooker &, int wheel, int sector);

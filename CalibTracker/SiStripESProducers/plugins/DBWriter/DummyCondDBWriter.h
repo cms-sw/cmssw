@@ -22,10 +22,10 @@ class DummyCondDBWriter : public edm::EDAnalyzer {
 public:
 
   explicit DummyCondDBWriter(const edm::ParameterSet& iConfig);
-  ~DummyCondDBWriter() override;
-  void analyze(const edm::Event& e, const edm::EventSetup&es) override{};
+  ~DummyCondDBWriter();
+  void analyze(const edm::Event& e, const edm::EventSetup&es){};
 
-  void endRun(const edm::Run & run, const edm::EventSetup & es) override;
+  void endRun(const edm::Run & run, const edm::EventSetup & es);
 
  private:
   edm::ParameterSet iConfig_;

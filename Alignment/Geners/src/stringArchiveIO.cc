@@ -14,7 +14,7 @@ static bool suffix_matches(const char* filename, const char* suffix)
 {
     static const char default_suffix[] = ".gssaz";
     assert(filename);
-    if (suffix == nullptr)
+    if (suffix == 0)
         suffix = default_suffix;
     const std::size_t lenSuffix = strlen(suffix);
     const std::size_t len = strlen(filename);

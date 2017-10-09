@@ -40,7 +40,7 @@ class SUSY_HLT_ElecFakes: public DQMEDAnalyzer{
 
   public:
   SUSY_HLT_ElecFakes(const edm::ParameterSet& ps);
-  ~SUSY_HLT_ElecFakes() override;
+  virtual ~SUSY_HLT_ElecFakes();
 
   protected:
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;

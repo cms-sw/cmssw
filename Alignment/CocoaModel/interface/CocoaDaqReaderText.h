@@ -12,10 +12,10 @@ class CocoaDaqReaderText : public CocoaDaqReader
 {
  public:
   CocoaDaqReaderText(const std::string& fileName );
-  ~CocoaDaqReaderText() override;
+  virtual ~CocoaDaqReaderText();
 
-  bool ReadNextEvent() override;
-  void BuildMeasurementsFromOptAlign( std::vector<OpticalAlignMeasurementInfo>& measList ) override;
+  virtual bool ReadNextEvent();
+  virtual void BuildMeasurementsFromOptAlign( std::vector<OpticalAlignMeasurementInfo>& measList );
 
  public:
   int GetNEvents() const { return nev; }

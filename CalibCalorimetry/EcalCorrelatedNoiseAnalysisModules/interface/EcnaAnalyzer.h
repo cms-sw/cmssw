@@ -27,11 +27,11 @@
 #include <iomanip>
 #include <string>
 #include <vector>
-#include <ctime>
+#include <time.h>
 #include "Riostream.h"
 
 #include <sys/time.h>
-#include <csignal>
+#include <signal.h>
 
 // ROOT include files
 #include "TObject.h"
@@ -136,9 +136,9 @@ class EcnaAnalyzer : public edm::EDAnalyzer {
   enum { kChannels = 1700, kGains = 3, kFirstGainId = 1 };
   
   explicit EcnaAnalyzer(const edm::ParameterSet&);
-  ~EcnaAnalyzer() override;  
+  ~EcnaAnalyzer();  
   
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
   TString runtype(const Int_t&);
   Int_t   gainvalue(const Int_t&);
   void    CheckMsg(const Int_t&, const Int_t&);

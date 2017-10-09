@@ -36,7 +36,7 @@ class SiPixelFakeGainForHLTESSource : public edm::ESProducer, public edm::EventS
 
  public:
   SiPixelFakeGainForHLTESSource(const edm::ParameterSet &);
-  ~SiPixelFakeGainForHLTESSource() override;
+  ~SiPixelFakeGainForHLTESSource();
   
   //      typedef edm::ESProducts<> ReturnType;
   
@@ -44,9 +44,9 @@ class SiPixelFakeGainForHLTESSource : public edm::ESProducer, public edm::EventS
   
  protected:
   
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
+  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
 			       const edm::IOVSyncValue&,
-			       edm::ValidityInterval& ) override;
+			       edm::ValidityInterval& );
   
   
  private:

@@ -36,9 +36,9 @@
 class IsTBH4Type : public edm::EDFilter {
    public:
       explicit IsTBH4Type(const edm::ParameterSet&);
-      ~IsTBH4Type() override;
+      ~IsTBH4Type();
 
-      bool filter(edm::Event&, const edm::EventSetup&) override;
+      virtual bool filter(edm::Event&, const edm::EventSetup&);
 
    private:
 

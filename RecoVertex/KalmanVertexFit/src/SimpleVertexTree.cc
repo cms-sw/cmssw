@@ -139,13 +139,13 @@ void SimpleVertexTree::fill(const TransientVertex & recv, const TrackingVertex *
 
 void SimpleVertexTree::fill(const TransientVertex & recv, const float &time) 
 {
-  result->fill(recv, nullptr, nullptr, time);
+  result->fill(recv, 0, 0, time);
   fill();
 }
 
 void SimpleVertexTree::fill(const TrackingVertex * simv) 
 {
-  result->fill(TransientVertex(), simv, nullptr);
+  result->fill(TransientVertex(), simv, 0);
   fill();
 }
 

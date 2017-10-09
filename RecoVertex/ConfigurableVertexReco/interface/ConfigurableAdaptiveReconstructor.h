@@ -11,20 +11,20 @@ class ConfigurableAdaptiveReconstructor : public AbstractConfReconstructor
 {
   public:
     ConfigurableAdaptiveReconstructor ();
-    void configure ( const edm::ParameterSet & ) override;
+    void configure ( const edm::ParameterSet & );
     ConfigurableAdaptiveReconstructor ( const ConfigurableAdaptiveReconstructor & o );
-    ~ConfigurableAdaptiveReconstructor() override;
-    ConfigurableAdaptiveReconstructor * clone () const override;
+    ~ConfigurableAdaptiveReconstructor();
+    ConfigurableAdaptiveReconstructor * clone () const;
     std::vector < TransientVertex > vertices ( 
-        const std::vector < reco::TransientTrack > & t ) const override;
+        const std::vector < reco::TransientTrack > & t ) const;
     std::vector < TransientVertex > vertices ( 
         const std::vector < reco::TransientTrack > & t,
-        const reco::BeamSpot & ) const override;
+        const reco::BeamSpot & ) const;
     std::vector < TransientVertex > vertices ( 
         const std::vector < reco::TransientTrack > & prims,
         const std::vector < reco::TransientTrack > & secs,
-        const reco::BeamSpot & ) const override;
-    edm::ParameterSet defaults() const override;
+        const reco::BeamSpot & ) const;
+    edm::ParameterSet defaults() const;
   private:
     const VertexReconstructor * theRector;
 };

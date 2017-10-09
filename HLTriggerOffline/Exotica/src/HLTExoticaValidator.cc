@@ -22,7 +22,7 @@
 HLTExoticaValidator::HLTExoticaValidator(const edm::ParameterSet& pset) :
     _pset(pset),
     _analysisnames(pset.getParameter<std::vector<std::string> >("analysis")),
-    _collections(nullptr)
+    _collections(0)
 {
 
     LogDebug("ExoticaValidation") << "In HLTExoticaValidator::constructor()";
@@ -42,9 +42,9 @@ HLTExoticaValidator::HLTExoticaValidator(const edm::ParameterSet& pset) :
 
 HLTExoticaValidator::~HLTExoticaValidator()
 {
-    if (_collections != nullptr) {
+    if (_collections != 0) {
         delete _collections;
-        _collections = nullptr;
+        _collections = 0;
     }
 }
 

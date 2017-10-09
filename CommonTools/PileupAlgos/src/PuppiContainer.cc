@@ -5,7 +5,7 @@
 #include "Math/ProbFunc.h"
 #include "TMath.h"
 #include <iostream>
-#include <cmath>
+#include <math.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 

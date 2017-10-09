@@ -227,8 +227,8 @@ ValidationMisalignedTracker::~ValidationMisalignedTracker()
   
   // Closing the file deletes the tree.
   file_->Close();
-  tree_eff=nullptr;
-  tree_fake=nullptr;
+  tree_eff=0;
+  tree_fake=0;
 }
 
 
@@ -472,7 +472,7 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
 	    if(simRecColl.find(tp) != simRecColl.end()){
 	      
 	      rt = simRecColl[tp];
-	      if (!rt.empty()) {
+	      if (rt.size()!=0) {
 		
 		edm::RefToBase<reco::Track> t = rt.begin()->first;
 		ats++;
@@ -727,7 +727,7 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
 	  //Compute fake rate vs eta
 	  if(recSimColl.find(track) != recSimColl.end()){
 	    tp = recSimColl[track];
-	    if (!tp.empty()) {
+	    if (tp.size()!=0) {
 	      edm::LogVerbatim("TrackValidator") << "reco::Track #" << rT << " with pt=" << track->pt() 
 						 << " associated with quality:" << tp.begin()->second <<"\n";
 	      

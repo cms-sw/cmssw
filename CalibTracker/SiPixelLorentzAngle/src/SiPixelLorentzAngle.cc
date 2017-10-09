@@ -186,7 +186,7 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
   // get the association map between tracks and trajectories
   edm::Handle<TrajTrackAssociationCollection> trajTrackCollectionHandle;
   e.getByToken(t_trajTrack,trajTrackCollectionHandle);
-  if(!trajTrackCollectionHandle->empty()){
+  if(trajTrackCollectionHandle->size() >0){
     trackEventsCounter_++;
     for(TrajTrackAssociationCollection::const_iterator it = trajTrackCollectionHandle->begin(); it!=trajTrackCollectionHandle->end();++it){
       const Track&      track = *it->val;

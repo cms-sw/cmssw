@@ -22,11 +22,11 @@ class TtSemiLepHitFitProducer : public edm::EDProducer {
  public:
 
   explicit TtSemiLepHitFitProducer(const edm::ParameterSet&);
-  ~TtSemiLepHitFitProducer() override;
+  ~TtSemiLepHitFitProducer();
 
  private:
   // produce
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&);
 
   edm::EDGetTokenT<std::vector<pat::Jet> > jetsToken_;
   edm::EDGetTokenT<LeptonCollection> lepsToken_;

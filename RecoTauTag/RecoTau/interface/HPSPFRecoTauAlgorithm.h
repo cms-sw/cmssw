@@ -29,10 +29,10 @@ class HPSPFRecoTauAlgorithm : public PFRecoTauAlgorithmBase
   //  The input is a ParameterSet of the algorithm configuration
   HPSPFRecoTauAlgorithm();
   HPSPFRecoTauAlgorithm(const edm::ParameterSet&);
-  ~HPSPFRecoTauAlgorithm() override;
+  ~HPSPFRecoTauAlgorithm();
 
   //Basic Method that creates the taus 
-  reco::PFTau buildPFTau(const reco::PFTauTagInfoRef&,const reco::Vertex&) override; 
+  reco::PFTau buildPFTau(const reco::PFTauTagInfoRef&,const reco::Vertex&); 
 
  private:   
   //*Private Members *//

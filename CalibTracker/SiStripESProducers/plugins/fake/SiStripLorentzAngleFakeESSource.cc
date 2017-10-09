@@ -34,9 +34,9 @@
 class SiStripLorentzAngleFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   SiStripLorentzAngleFakeESSource(const edm::ParameterSet&);
-  ~SiStripLorentzAngleFakeESSource() override;
+  ~SiStripLorentzAngleFakeESSource();
 
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity ) override;
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity );
 
   typedef std::shared_ptr<SiStripLorentzAngle> ReturnType;
   ReturnType produce(const SiStripLorentzAngleRcd&);

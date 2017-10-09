@@ -158,8 +158,8 @@ public:
 				      { if(ap.valid()) ap << f; return *this; }     
 private:
   MessageSender ap; 
-  LogWarning( LogWarning const& ) = delete;				// Change log 9
-  LogWarning& operator=( LogWarning const& ) = delete;
+  LogWarning( LogWarning const& );				// Change log 9
+  LogWarning& operator=( LogWarning const& );
    
 };  // LogWarning
 
@@ -183,8 +183,8 @@ public:
 
 private:
   MessageSender ap; 
-  LogError( LogError const& ) = delete;					// Change log 9
-  LogError& operator=( LogError const& ) = delete;
+  LogError( LogError const& );					// Change log 9
+  LogError& operator=( LogError const& );
 
 };  // LogError
 
@@ -208,8 +208,8 @@ public:
 
 private:
   MessageSender ap; 
-  LogSystem( LogSystem const& ) = delete;				// Change log 9
-  LogSystem& operator=( LogSystem const& ) = delete;
+  LogSystem( LogSystem const& );				// Change log 9
+  LogSystem& operator=( LogSystem const& );
 
 };  // LogSystem
 
@@ -233,8 +233,8 @@ public:
 
 private:
   MessageSender ap; 
-  LogInfo( LogInfo const& ) = delete;					// Change log 9
-  LogInfo& operator=( LogInfo const& ) = delete;
+  LogInfo( LogInfo const& );					// Change log 9
+  LogInfo& operator=( LogInfo const& );
   
 };  // LogInfo
 
@@ -260,8 +260,8 @@ public:
 
 private:
   MessageSender ap; 
-  LogVerbatim( LogVerbatim const& ) = delete;				// Change log 9
-  LogVerbatim& operator=( LogVerbatim const& ) = delete;
+  LogVerbatim( LogVerbatim const& );				// Change log 9
+  LogVerbatim& operator=( LogVerbatim const& );
   
 };  // LogVerbatim
 
@@ -287,8 +287,8 @@ public:
 
 private:
   MessageSender ap; 
-  LogPrint( LogPrint const& ) = delete;					// Change log 9
-  LogPrint& operator=( LogPrint const& ) = delete;
+  LogPrint( LogPrint const& );					// Change log 9
+  LogPrint& operator=( LogPrint const& );
   
 };  // LogPrint
 
@@ -314,8 +314,8 @@ public:
 
 private:
   MessageSender ap; 
-  LogProblem( LogProblem const& ) = delete;				// Change log 9
-  LogProblem& operator=( LogProblem const& ) = delete;
+  LogProblem( LogProblem const& );				// Change log 9
+  LogProblem& operator=( LogProblem const& );
 
 };  // LogProblem
 
@@ -340,8 +340,8 @@ public:
 
 private:
   MessageSender ap; 
-  LogImportant( LogImportant const& ) = delete;				// Change log 9
-  LogImportant& operator=( LogImportant const& ) = delete;
+  LogImportant( LogImportant const& );				// Change log 9
+  LogImportant& operator=( LogImportant const& );
 
 };  // LogImportant
 
@@ -366,8 +366,8 @@ public:
 
 private:
   MessageSender ap; 
-  LogAbsolute( LogAbsolute const& ) = delete;				// Change log 9
-  LogAbsolute& operator=( LogAbsolute const& ) = delete;
+  LogAbsolute( LogAbsolute const& );				// Change log 9
+  LogAbsolute& operator=( LogAbsolute const& );
 
 };  // LogAbsolute
 
@@ -458,8 +458,8 @@ public:
 				      { if(ap.valid()) ap << f; return *this; }     
 private:
   MessageSender ap; 
-  LogWarningThatSuppressesLikeLogInfo( LogWarningThatSuppressesLikeLogInfo const& ) = delete;				// Change log 9
-  LogWarningThatSuppressesLikeLogInfo& operator=( LogWarningThatSuppressesLikeLogInfo const& ) = delete;
+  LogWarningThatSuppressesLikeLogInfo( LogWarningThatSuppressesLikeLogInfo const& );				// Change log 9
+  LogWarningThatSuppressesLikeLogInfo& operator=( LogWarningThatSuppressesLikeLogInfo const& );
    
 };  // LogWarningThatSuppressesLikeLogInfo
 } // end namespace edmmltest

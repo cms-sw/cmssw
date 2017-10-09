@@ -265,15 +265,6 @@ namespace pat {
       float pfEcalEnergy() const { return pfEcalEnergy_; }
       void setPfEcalEnergy(float pfEcalEnergy) { pfEcalEnergy_ = pfEcalEnergy; }
 
-      /// near-by jet information
-      float jetPtRatio() const { return jetPtRatio_; }
-      float jetPtRel()   const { return jetPtRel_; }
-      void  setJetPtRatio(float jetPtRatio){ jetPtRatio_ = jetPtRatio; }
-      void  setJetPtRel(float jetPtRel){ jetPtRel_ = jetPtRel; }
-
-      /// Muon MVA
-      float mvaValue() const { return mvaValue_; }
-      void  setMvaValue(float mva){ mvaValue_ = mva; }
     protected:
 
       // ---- for content embedding ----
@@ -341,13 +332,6 @@ namespace pat {
       float puppiNoLeptonsPhotonIso_;
 
       float pfEcalEnergy_;
-
-      /// near-by jet information
-      float jetPtRatio_;
-      float jetPtRel_;
-
-      /// Muon MVA
-      float mvaValue_;
   };
 
 

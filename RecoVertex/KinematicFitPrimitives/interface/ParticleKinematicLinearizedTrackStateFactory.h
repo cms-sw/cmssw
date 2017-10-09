@@ -22,14 +22,14 @@ public:
  RefCountedLinearizedTrackState linearizedTrackState(const GlobalPoint & linP,
                                      RefCountedKinematicParticle & prt) const;  
 
-  RefCountedLinearizedTrackState
-    linearizedTrackState(const GlobalPoint & linP, const reco::TransientTrack & track) const override;
+  virtual RefCountedLinearizedTrackState
+    linearizedTrackState(const GlobalPoint & linP, const reco::TransientTrack & track) const;
 
-  RefCountedLinearizedTrackState
+  virtual RefCountedLinearizedTrackState
     linearizedTrackState(const GlobalPoint & linP, const reco::TransientTrack & track,
-    	const TrajectoryStateOnSurface& tsos) const override;
+    	const TrajectoryStateOnSurface& tsos) const;
 
-  const ParticleKinematicLinearizedTrackStateFactory * clone() const override;
+  virtual const ParticleKinematicLinearizedTrackStateFactory * clone() const;
 
 };
 #endif

@@ -26,9 +26,9 @@
 namespace popcon{
   class RpcDataI : public popcon::PopConSourceHandler<RPCObImon>{
   public:
-    void getNewObjects() override;
-    std::string id() const override { return m_name;}
-    ~RpcDataI() override; 
+    void getNewObjects();
+    std::string id() const { return m_name;}
+    ~RpcDataI(); 
     RpcDataI(const edm::ParameterSet& pset); 
 
     RPCObImon* Idata;

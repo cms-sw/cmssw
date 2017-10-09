@@ -141,7 +141,7 @@ ZeeCalibration::ZeeCalibration(const edm::ParameterSet& iConfig)
   hlTriggerResults_ = iConfig.getParameter<edm::InputTag> ("HLTriggerResults");
 
   theParameterSet=iConfig;
-  EcalIndexingTools* myIndexTool=nullptr;
+  EcalIndexingTools* myIndexTool=0;
 
   
   myIndexTool = EcalIndexingTools::getInstance();
@@ -682,7 +682,7 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
     loopFlag_ = 0;
 
     //Read miscalibration map if requested
-    CaloMiscalibMapEcal* miscalibMap=nullptr;
+    CaloMiscalibMapEcal* miscalibMap=0;
     if (!barrelfile_.empty() || !barrelfile_.empty())
       {
 	miscalibMap=new CaloMiscalibMapEcal();
@@ -862,7 +862,7 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
       //DUMP GENERATED Z MASS - BEGIN
       Handle< HepMCProduct > hepProd ;
       //   iEvent.getByLabel( "source", hepProd ) ;
-      iEvent.getByLabel( mcProducer_, hepProd ) ;
+      iEvent.getByLabel( mcProducer_.c_str(), hepProd ) ;
                                                                                                                              
       const HepMC::GenEvent * myGenEvent = hepProd->GetEvent();
       
@@ -998,7 +998,7 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
     return kContinue;
   }
   
-  if (hits->empty() && ehits->empty()){
+  if (hits->size() == 0 && ehits->size() == 0){
     std::cout << "hits->size() == 0" << std::endl;   
     return kContinue;
   }  
@@ -1008,7 +1008,7 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
     return kContinue;
   }
   
-  if (electronCollection->empty()){
+  if (electronCollection->size() == 0){
     std::cout << "electronCollection->size() == 0" << std::endl;
     return kContinue;
   }
@@ -1105,7 +1105,7 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
   //
   h1_ZCandMult_->Fill(zeeCandidates.size());
   
-  if(zeeCandidates.empty() || myBestZ==-1 )
+  if(zeeCandidates.size()==0 || myBestZ==-1 )
     return kContinue;
       
   if (loopFlag_ == 0)
@@ -2032,7 +2032,7 @@ void ZeeCalibration::fillMCmap(const std::vector<const reco::GsfElectron*>* elec
   for (unsigned int i=0;i<mcEle.size();i++)
     {
       float minDR=0.1;
-      const reco::GsfElectron* myMatchEle=nullptr;
+      const reco::GsfElectron* myMatchEle=0;
       for (unsigned int j=0;j<electronCollection->size();j++)
         {
           float dr=EvalDR(mcEle[i]->momentum().pseudoRapidity(),(*(*electronCollection)[j]).eta(),mcEle[i]->momentum().phi(),(*(*electronCollection)[j]).phi());
@@ -2092,7 +2092,7 @@ void ZeeCalibration::fillEleInfo( std::vector<HepMC::GenParticle*>& mcEle, std::
 	  h1_elePhiResol_->Fill( myEle->phi() - mcEle[i]->momentum().phi() );
 
           const reco::SuperCluster* mySC=&(*(myEle->superCluster()));
-	  if (/*fabs(mySC->position().eta()) < 2.4*/true)
+	  if (/*fabs(mySC->position().eta()) < 2.4*/1)
 	    {
 	      //      if(myEle->classification()>=100)std::cout<<"mySC->preshowerEnergy()"<<mySC->preshowerEnergy()<<std::endl;
 
@@ -2179,7 +2179,7 @@ std::pair<DetId, double> ZeeCalibration::getHottestDetId(const std::vector<std::
   
 
   double maxEnergy = -9999.;
-  const EcalRecHit* hottestRecHit=nullptr;
+  const EcalRecHit* hottestRecHit=0;
   
   std::pair<DetId, double> myPair (DetId(0), -9999.);
 

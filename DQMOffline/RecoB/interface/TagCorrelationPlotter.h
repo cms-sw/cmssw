@@ -14,12 +14,12 @@ class TagCorrelationPlotter: public BaseBTagPlotter {
     TagCorrelationPlotter(const std::string& tagName1, const std::string& tagName2, const EtaPtBin& etaPtBin,
 	                  const edm::ParameterSet& pSet, unsigned int mc, bool doCTagPlots, bool finalize, DQMStore::IBooker & ibook);
 
-    ~TagCorrelationPlotter() override;
+    virtual ~TagCorrelationPlotter();
 
-    void finalize(DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_) override;
+    void finalize(DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_);
 
-    void epsPlot(const std::string & name) override;
-    void psPlot(const std::string& name) override {}
+    void epsPlot(const std::string & name);
+    void psPlot(const std::string& name) {}
 
     void analyzeTags(const reco::JetTag& jetTag1, const reco::JetTag& jetTag2, int jetFlavour, float w=1);
     void analyzeTags(float discr1, float discr2, int jetFlavour, float w=1);

@@ -199,10 +199,10 @@ bool EcalDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string contain
   }
   
   if (m_cacheIDs[container] == cacheID) {
-    return false;
+    return 0;
   } else {
     m_cacheIDs[container] = cacheID;
-    return true;
+    return 1;
   }
 
 }

@@ -14,8 +14,8 @@ namespace edmtest {
    public:
     explicit DQMSummaryEventSetupAnalyzer(const edm::ParameterSet & pset);
     explicit DQMSummaryEventSetupAnalyzer(int i);
-    ~DQMSummaryEventSetupAnalyzer() override;
-    void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+    virtual ~DQMSummaryEventSetupAnalyzer();
+    virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
   };
   
   DQMSummaryEventSetupAnalyzer::DQMSummaryEventSetupAnalyzer(const edm::ParameterSet & pset) {

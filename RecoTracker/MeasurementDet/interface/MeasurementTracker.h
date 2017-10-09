@@ -30,14 +30,14 @@ public:
 
 
 
-  ~MeasurementTracker() override;
+  virtual ~MeasurementTracker();
 
   const TrackingGeometry* geomTracker() const { return theTrackerGeom;}
 
   const GeometricSearchTracker* geometricSearchTracker() const {return theGeometricSearchTracker;}
 
   /// MeasurementDetSystem interface
-  MeasurementDetWithData idToDet(const DetId& id, const MeasurementTrackerEvent &data) const override = 0;
+  virtual MeasurementDetWithData idToDet(const DetId& id, const MeasurementTrackerEvent &data) const = 0;
 
   /// Provide templates to be filled in
   virtual const StMeasurementConditionSet & stripDetConditions() const = 0;

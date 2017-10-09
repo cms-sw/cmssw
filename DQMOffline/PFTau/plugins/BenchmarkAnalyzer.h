@@ -19,7 +19,7 @@ public:
   explicit BenchmarkAnalyzer(const edm::ParameterSet&);
 
   /// Destructor
-  ~BenchmarkAnalyzer() override {}
+  virtual ~BenchmarkAnalyzer() {}
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 

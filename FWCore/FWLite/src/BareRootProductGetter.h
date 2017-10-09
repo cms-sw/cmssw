@@ -44,10 +44,10 @@ class BareRootProductGetter : public edm::EDProductGetter {
 
    public:
       BareRootProductGetter();
-      ~BareRootProductGetter() override;
+      virtual ~BareRootProductGetter();
 
       // ---------- const member functions ---------------------
-      edm::WrapperBase const* getIt(edm::ProductID const&) const override;
+      virtual edm::WrapperBase const* getIt(edm::ProductID const&) const override;
 
      // getThinnedProduct assumes getIt was already called and failed to find
      // the product. The input key is the index of the desired element in the
@@ -56,7 +56,7 @@ class BareRootProductGetter : public edm::EDProductGetter {
      // in a thinned container and key is modified to be the index into
      // that thinned container. If the desired element is not found, then
      // nullptr is returned.
-      edm::WrapperBase const* getThinnedProduct(edm::ProductID const&,
+      virtual edm::WrapperBase const* getThinnedProduct(edm::ProductID const&,
                                                         unsigned int& key) const override;
 
      // getThinnedProducts assumes getIt was already called and failed to find
@@ -70,7 +70,7 @@ class BareRootProductGetter : public edm::EDProductGetter {
      // is modified to be the key into the container where the element
      // was found. The WrapperBase pointers might or might not all point
      // to the same thinned container.
-      void getThinnedProducts(edm::ProductID const&,
+      virtual void getThinnedProducts(edm::ProductID const&,
                                       std::vector<edm::WrapperBase const*>& foundContainers,
                                       std::vector<unsigned int>& keys) const override;
 
@@ -79,7 +79,7 @@ class BareRootProductGetter : public edm::EDProductGetter {
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      unsigned int transitionIndex_() const override {
+      virtual unsigned int transitionIndex_() const override {
         return 0u;
       }
 
@@ -99,9 +99,9 @@ class BareRootProductGetter : public edm::EDProductGetter {
         edm::propagate_const<TClass*> class_;
       };
 
-      BareRootProductGetter(BareRootProductGetter const&) = delete; // stop default
+      BareRootProductGetter(BareRootProductGetter const&); // stop default
 
-      BareRootProductGetter const& operator=(BareRootProductGetter const&) = delete; // stop default
+      BareRootProductGetter const& operator=(BareRootProductGetter const&); // stop default
 
       Buffer* createNewBuffer(edm::BranchID const&) const;
       edm::ThinnedAssociation const* getThinnedAssociation(edm::BranchID const& branchID, Long_t eventEntry) const;

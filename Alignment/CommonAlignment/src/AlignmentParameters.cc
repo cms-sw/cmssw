@@ -8,8 +8,8 @@
 
 //__________________________________________________________________________________________________
 AlignmentParameters::AlignmentParameters() :
-  theAlignable( nullptr),
-  theUserVariables( nullptr),
+  theAlignable( 0),
+  theUserVariables( 0),
   bValid(true)
 {}
 
@@ -19,7 +19,7 @@ AlignmentParameters::AlignmentParameters(Alignable* object, const AlgebraicVecto
 					 const AlgebraicSymMatrix& cov) :
   theAlignable(object),
   theData( DataContainer( new AlignmentParametersData(par,cov) ) ),
-  theUserVariables(nullptr),
+  theUserVariables(0),
   bValid(true)
 {
   // is the data consistent?
@@ -33,7 +33,7 @@ AlignmentParameters::AlignmentParameters(Alignable* object, const AlgebraicVecto
                                          const std::vector<bool>& sel) :
   theAlignable(object),
   theData( DataContainer( new AlignmentParametersData(par,cov,sel) ) ),
-  theUserVariables(nullptr),
+  theUserVariables(0),
   bValid(true)
 {
   // is the data consistent?
@@ -46,7 +46,7 @@ AlignmentParameters::AlignmentParameters(Alignable* object,
 					 const AlignmentParametersData::DataContainer& data ) :
   theAlignable(object),
   theData(data),
-  theUserVariables(nullptr),
+  theUserVariables(0),
   bValid(true)
 {
   // is the data consistent?

@@ -25,11 +25,11 @@ class TtFullHadKinFitProducer : public edm::EDProducer {
   /// default constructor
   explicit TtFullHadKinFitProducer(const edm::ParameterSet& cfg);
   /// default destructor
-  ~TtFullHadKinFitProducer() override;
+  ~TtFullHadKinFitProducer();
 
  private:
   /// produce fitted object collections and meta data describing fit quality
-  void produce(edm::Event& event, const edm::EventSetup& setup) override;
+  virtual void produce(edm::Event& event, const edm::EventSetup& setup);
 
  private:
   /// input tag for jets

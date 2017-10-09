@@ -103,14 +103,14 @@ class L1TSync_Offline : public DQMEDAnalyzer {
     // Constructor
     L1TSync_Offline(const edm::ParameterSet& ps);   
     // Destructor
-    ~L1TSync_Offline() override;                     
+    virtual ~L1TSync_Offline();                     
     
   protected:
 
   void analyze (const edm::Event& e, const edm::EventSetup& c) override;  // Analyze
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
+  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
 // no lumi block //    virtual void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
 
 

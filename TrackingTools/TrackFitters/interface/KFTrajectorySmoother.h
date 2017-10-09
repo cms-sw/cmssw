@@ -73,9 +73,9 @@ public:
       theOppositePropagator = p;
     }
 
-  ~KFTrajectorySmoother() override;
+  virtual ~KFTrajectorySmoother();
 
-  Trajectory trajectory(const Trajectory& aTraj) const override;
+  virtual Trajectory trajectory(const Trajectory& aTraj) const override;
 
   const Propagator* alongPropagator() const { return theAlongPropagator;}
   const Propagator* oppositePropagator() const {return theOppositePropagator;}
@@ -83,12 +83,12 @@ public:
   const TrajectoryStateUpdator* updator() const {return theUpdator;}
   const MeasurementEstimator* estimator() const {return theEstimator;}
 
-  KFTrajectorySmoother* clone() const override{
+  virtual KFTrajectorySmoother* clone() const override{
     return new KFTrajectorySmoother(theAlongPropagator,theUpdator,theEstimator,theErrorRescaling,minHits_,theGeometry,theHitCloner);
   }
 
  // FIXME a prototype:  final inplementaiton may differ
-  void setHitCloner(TkCloner const * hc) override {  theHitCloner =	hc;}
+  virtual void setHitCloner(TkCloner const * hc) override {  theHitCloner =	hc;}
 
 
 private:

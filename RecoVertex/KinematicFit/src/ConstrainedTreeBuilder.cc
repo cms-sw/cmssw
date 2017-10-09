@@ -116,7 +116,7 @@ RefCountedKinematicTree ConstrainedTreeBuilder::buildTree(const std::vector<RefC
  //newborn kinematic particle
   float chi2 = vertex->chiSquared();
   float ndf = vertex->degreesOfFreedom();
-  KinematicParticle * zp = nullptr;
+  KinematicParticle * zp = 0;
   RefCountedKinematicParticle virtualParticle = pFactory->particle(nState,chi2,ndf,zp);
 
   return buildTree(virtualParticle, vertex, rParticles);
@@ -137,7 +137,7 @@ RefCountedKinematicTree ConstrainedTreeBuilder::buildTree(const RefCountedKinema
 //adding final state
  for(std::vector<RefCountedKinematicParticle>::const_iterator il = particles.begin(); il != particles.end(); il++)
  {
-  if((*il)->previousParticle()->correspondingTree() != nullptr)
+  if((*il)->previousParticle()->correspondingTree() != 0)
   {
    KinematicTree * tree = (*il)->previousParticle()->correspondingTree();
    tree->movePointerToTheTop();

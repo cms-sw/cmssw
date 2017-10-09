@@ -15,7 +15,7 @@ class FitParam : public TObject {
 
  public:   
   FitParam();
-  ~FitParam() override {}
+  ~FitParam() {}
   double InitialValue;
   double FittedValue;
   double InitialSigma; 
@@ -31,7 +31,7 @@ class OptObject : public TObject {
 
  public:   
   OptObject();
-  ~OptObject() override {}
+  ~OptObject() {}
   double CentreGlobal[3];
   double AnglesGlobal[3];
   double CentreLocal[3];
@@ -40,77 +40,77 @@ class OptObject : public TObject {
   TString Type;
   int  Parent;
 
-  ClassDefOverride(OptObject,1)
+  ClassDef(OptObject,1)
 };
   
 class Sensor2DMeas : public TObject {
 
  public:   
   Sensor2DMeas();
-  ~Sensor2DMeas() override {}
+  ~Sensor2DMeas() {}
   double Position[2];
   double PosError[2]; 
   double SimulatedPosition[2];
   TString Name;
   int OptObjectIndex;
 
-  ClassDefOverride(Sensor2DMeas,1)
+  ClassDef(Sensor2DMeas,1)
 };
    
 class DistancemeterMeas : public TObject {
 
  public:   
   DistancemeterMeas();
-  ~DistancemeterMeas() override {}
+  ~DistancemeterMeas() {}
   double Distance;
   double DisError; 
   double SimulatedDistance;
   TString Name;
   int OptObjectIndex;
 
-  ClassDefOverride(DistancemeterMeas,1)
+  ClassDef(DistancemeterMeas,1)
 };
   
 class Distancemeter1DimMeas : public TObject {
 
  public:   
   Distancemeter1DimMeas();
-  ~Distancemeter1DimMeas() override {}
+  ~Distancemeter1DimMeas() {}
   double Distance;
   double DisError; 
   double SimulatedDistance;
   TString Name;
   int OptObjectIndex;
 
-  ClassDefOverride(Distancemeter1DimMeas,1)
+  ClassDef(Distancemeter1DimMeas,1)
 };
   
 class TiltmeterMeas : public TObject {
 
  public:   
   TiltmeterMeas();
-  ~TiltmeterMeas() override {}
+  ~TiltmeterMeas() {}
   double Angle;
   double AngError;
   double SimulatedAngle;
   TString Name;
   int OptObjectIndex;
 
-  ClassDefOverride(TiltmeterMeas,1)
+  ClassDef(TiltmeterMeas,1)
 }; 
   
 class CopsMeas : public TObject {
 
  public:   
   CopsMeas();
-  ~CopsMeas() override {}
+  ~CopsMeas() {}
   double Position[4];
   double PosError[4]; 
   double SimulatedPosition[4];
   TString Name;
   int OptObjectIndex;
 
-  ClassDefOverride(CopsMeas,1)
+  ClassDef(CopsMeas,1)
 };
 
 #endif

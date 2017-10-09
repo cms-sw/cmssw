@@ -48,12 +48,12 @@
 class MuonSegmentProducer : public edm::EDProducer {
 public:
   explicit MuonSegmentProducer(const edm::ParameterSet&);
-  ~MuonSegmentProducer() override;
+  ~MuonSegmentProducer();
 
 private:
-  void beginJob() override ;
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+  virtual void beginJob() ;
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
 
   edm::EDGetTokenT< CSCSegmentCollection > m_cscSegmentToken;
   edm::EDGetTokenT< DTRecSegment4DCollection > m_dtSegmentToken;

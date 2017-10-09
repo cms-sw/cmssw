@@ -15,14 +15,14 @@ class SummaryGeneratorReadoutView : public SummaryGenerator {
 
   SummaryGeneratorReadoutView();
 
-  ~SummaryGeneratorReadoutView() override {;}
+  virtual ~SummaryGeneratorReadoutView() {;}
 
   /** */
   void fill( const std::string& directory_level,
 	     const sistrip::Granularity&,
 	     const uint32_t& key, 
 	     const float& value, 
-	     const float& error ) override;
+	     const float& error );
   
 };
 

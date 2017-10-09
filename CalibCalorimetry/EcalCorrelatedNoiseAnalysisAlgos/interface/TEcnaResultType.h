@@ -46,12 +46,12 @@ public:
   TEcnaResultType();
   TEcnaResultType(TEcnaObject*);
 
-  ~TEcnaResultType() override;
+  ~TEcnaResultType();
   void SetSizeMat(Int_t, Int_t);
   void SetSizeHis(Int_t, Int_t);
 
   CnaResultTyp GetTypOfEntry(Int_t);
 
-  ClassDefOverride(TEcnaResultType,1) //One leaf of the CNA root file
+  ClassDef(TEcnaResultType,1) //One leaf of the CNA root file
 };
 #endif

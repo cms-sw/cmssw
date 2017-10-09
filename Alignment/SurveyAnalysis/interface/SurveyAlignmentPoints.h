@@ -29,9 +29,9 @@ class SurveyAlignmentPoints:
   protected:
 
   /// Find the alignment parameters for all sensors.
-  void findAlignPars(
+  virtual void findAlignPars(
 			     bool bias = false // true for biased residuals
-			     ) override;
+			     );
 };
 
 #endif

@@ -24,11 +24,11 @@ public:
   /// constructor from parameter set
   HistoAnalyzer( const edm::ParameterSet& );
   /// destructor
-  ~HistoAnalyzer() override;
+  ~HistoAnalyzer();
 
 protected:
   /// process an event
-  void analyze( const edm::Event&, const edm::EventSetup&) override;
+  virtual void analyze( const edm::Event&, const edm::EventSetup&) override;
 
 private:
   /// label of the collection to be read in

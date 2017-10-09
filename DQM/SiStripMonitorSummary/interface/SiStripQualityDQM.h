@@ -33,21 +33,21 @@ class SiStripQualityDQM : public SiStripBaseCondObjDQM{
                       edm::ParameterSet const& hPSet,
                       edm::ParameterSet const& fPSet);
   
-  ~SiStripQualityDQM() override;
+  virtual ~SiStripQualityDQM();
   
-  void getActiveDetIds(const edm::EventSetup & eSetup) override;
+  void getActiveDetIds(const edm::EventSetup & eSetup);
 
-  void fillModMEs(const std::vector<uint32_t> & selectedDetIds, const edm::EventSetup& es) override;
-  void fillMEsForDet(const ModMEs& selModME_,uint32_t selDetId_, const TrackerTopology* tTopo) override;
+  void fillModMEs(const std::vector<uint32_t> & selectedDetIds, const edm::EventSetup& es);
+  void fillMEsForDet(const ModMEs& selModME_,uint32_t selDetId_, const TrackerTopology* tTopo);
   
-  void fillSummaryMEs(const std::vector<uint32_t> & selectedDetIds, const edm::EventSetup& es) override;
-  void fillMEsForLayer( /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_, const TrackerTopology* tTopo) override;
+  void fillSummaryMEs(const std::vector<uint32_t> & selectedDetIds, const edm::EventSetup& es);
+  void fillMEsForLayer( /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_, const TrackerTopology* tTopo);
   void fillGrandSummaryMEs(const edm::EventSetup& eSetup);
  	       
   
-  unsigned long long getCache(const edm::EventSetup & eSetup) override{ return eSetup.get<SiStripQualityRcd>().cacheIdentifier();}
+  unsigned long long getCache(const edm::EventSetup & eSetup){ return eSetup.get<SiStripQualityRcd>().cacheIdentifier();}
   
-  void getConditionObject(const edm::EventSetup & eSetup) override{
+  void getConditionObject(const edm::EventSetup & eSetup){
     eSetup.get<SiStripQualityRcd>().get(qualityLabel_,qualityHandle_);
     cacheID_memory = cacheID_current;
   }

@@ -91,9 +91,9 @@ namespace edm {
       void setLastOperationSucceeded(bool value);
 
    private:
-      ProcessingController(const ProcessingController&) = delete; // stop default
+      ProcessingController(const ProcessingController&); // stop default
       
-      const ProcessingController& operator=(const ProcessingController&) = delete; // stop default
+      const ProcessingController& operator=(const ProcessingController&); // stop default
       
       // ---------- member data --------------------------------
       ForwardState forwardState_;

@@ -33,11 +33,11 @@ public:
   /// constructor from parameter set
   explicit Merger( const edm::ParameterSet& );
   /// destructor
-  ~Merger() override;
+  ~Merger();
 
 private:
   /// process an event
-  void produce( edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  virtual void produce( edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   /// vector of strings
   typedef std::vector<edm::EDGetTokenT<InputCollection> > vtoken;
   /// labels of the collections to be merged

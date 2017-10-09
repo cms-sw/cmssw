@@ -25,10 +25,10 @@ class AlignableSiStripDet: public AlignableDet {
   /// Constructor
   AlignableSiStripDet(const GluedGeomDet *geomDet);
   /// reduntantly make destructor virtual
-  ~AlignableSiStripDet() override;
+  virtual ~AlignableSiStripDet();
 
   /// first consistify with component detunits, then call method from AlignableDet
-  Alignments* alignments() const override;
+  virtual Alignments* alignments() const;
 
  private:
   /// make alignments consistent with daughters

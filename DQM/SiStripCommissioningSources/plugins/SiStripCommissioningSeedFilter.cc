@@ -47,7 +47,7 @@ SiStripCommissioningSeedFilter::filter(edm::Event& iEvent, const edm::EventSetup
    
    edm::Handle<TrajectorySeedCollection> seedcoll;
    iEvent.getByToken(seedcollToken_,seedcoll);
-   bool result = !(*seedcoll).empty();
+   bool result = (*seedcoll).size()>0;
    return result;
 }
 

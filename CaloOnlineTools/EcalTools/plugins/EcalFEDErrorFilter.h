@@ -45,10 +45,10 @@ Implementation:
 class EcalFEDErrorFilter : public HLTFilter {
 public:
   explicit EcalFEDErrorFilter(const edm::ParameterSet&);
-  ~EcalFEDErrorFilter() override;
+  ~EcalFEDErrorFilter();
 
 private:
-  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
   // ----------member data ---------------------------
 

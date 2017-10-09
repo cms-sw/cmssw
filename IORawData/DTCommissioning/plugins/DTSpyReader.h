@@ -27,14 +27,14 @@ class DTSpyReader : public edm::EDProducer {
   DTSpyReader(const edm::ParameterSet& pset);
 
   /// Destructor
-  ~DTSpyReader() override;
+  virtual ~DTSpyReader();
 
   /// Generate and fill FED raw data for a full event
   virtual int fillRawData(edm::Event& e,
 //			  edm::Timestamp& tstamp, 
 			  FEDRawDataCollection*& data);
 
-  void produce(edm::Event&, edm::EventSetup const&) override;
+  virtual void produce(edm::Event&, edm::EventSetup const&);
 
   /// check for a 64 bits word to be a DDU header
   bool isHeader(uint64_t word, bool dataTag);

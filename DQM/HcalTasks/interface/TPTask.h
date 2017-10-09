@@ -23,18 +23,18 @@ class TPTask : public hcaldqm::DQTask
 {
 	public:
 		TPTask(edm::ParameterSet const&);
-		~TPTask() override {}
+		virtual ~TPTask() {}
 
-		void bookHistograms(DQMStore::IBooker&,
-			edm::Run const&, edm::EventSetup const&) override;
-		void endLuminosityBlock(edm::LuminosityBlock const&,
-			edm::EventSetup const&) override;
-		void beginLuminosityBlock(edm::LuminosityBlock const&,
-			edm::EventSetup const&) override;
+		virtual void bookHistograms(DQMStore::IBooker&,
+			edm::Run const&, edm::EventSetup const&);
+		virtual void endLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&);
+		virtual void beginLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&);
 
 	protected:
-		void _process(edm::Event const&, edm::EventSetup const&) override;
-		void _resetMonitors(hcaldqm::UpdateFreq) override;
+		virtual void _process(edm::Event const&, edm::EventSetup const&);
+		virtual void _resetMonitors(hcaldqm::UpdateFreq);
 
 		edm::InputTag		_tagData;
 		edm::InputTag		_tagEmul;

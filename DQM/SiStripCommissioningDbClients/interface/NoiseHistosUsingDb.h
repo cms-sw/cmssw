@@ -13,15 +13,15 @@ class NoiseHistosUsingDb : public CommissioningHistosUsingDb, public NoiseHistog
                       DQMStore*,
                       SiStripConfigDb* const );
   
-  ~NoiseHistosUsingDb() override;
+  virtual ~NoiseHistosUsingDb();
  
-  void uploadConfigurations() override;
+  virtual void uploadConfigurations();
   
  private:
 
   void update( SiStripConfigDb::FedDescriptionsRange );
 
-  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis ) override;
+  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis );
 
 };
 

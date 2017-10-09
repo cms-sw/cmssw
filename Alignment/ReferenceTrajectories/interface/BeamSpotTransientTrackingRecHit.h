@@ -40,27 +40,27 @@ class BeamSpotTransientTrackingRecHit final : public TValidTrackingRecHit {
 		             0.0, std::pow(beamSpot.sigmaZ(), 2));
   }
     
-  ~BeamSpotTransientTrackingRecHit() override {}
+  virtual ~BeamSpotTransientTrackingRecHit() {}
 
-  LocalPoint localPosition() const override { return localPosition_; }
-  LocalError localPositionError() const override { return localError_; }
+  virtual LocalPoint localPosition() const { return localPosition_; }
+  virtual LocalError localPositionError() const { return localError_; }
 
-  AlgebraicVector parameters() const override;
-  AlgebraicSymMatrix parametersError() const override;
-  int dimension() const override { return 1; }
+  virtual AlgebraicVector parameters() const;
+  virtual AlgebraicSymMatrix parametersError() const;
+  virtual int dimension() const { return 1; }
 
-  const TrackingRecHit * hit() const override { return nullptr; }
-  TrackingRecHit * cloneHit() const override { return nullptr;}
+  virtual const TrackingRecHit * hit() const { return nullptr; }
+  virtual TrackingRecHit * cloneHit() const { return nullptr;}
 
 
-  std::vector<const TrackingRecHit*> recHits() const override {
+  virtual std::vector<const TrackingRecHit*> recHits() const {
     return std::vector<const TrackingRecHit*>();
   }
-  std::vector<TrackingRecHit*> recHits() override {
+  virtual std::vector<TrackingRecHit*> recHits() {
     return std::vector<TrackingRecHit*>();
   }
 
-  AlgebraicMatrix projectionMatrix() const override {
+  virtual AlgebraicMatrix projectionMatrix() const {
     return theProjectionMatrix;
   }
 
@@ -78,7 +78,7 @@ class BeamSpotTransientTrackingRecHit final : public TValidTrackingRecHit {
 
   // hide the clone method for ReferenceCounted. Warning: this method is still 
   // accessible via the bas class TrackingRecHit interface!
-   BeamSpotTransientTrackingRecHit * clone() const override {
+   virtual BeamSpotTransientTrackingRecHit * clone() const {
      return new BeamSpotTransientTrackingRecHit(*this);
    }
    

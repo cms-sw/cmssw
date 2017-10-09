@@ -8,7 +8,7 @@
 class DetStatus : public edm::EDFilter {
  public:
  DetStatus( const edm::ParameterSet & );
- ~DetStatus() override;
+ ~DetStatus();
   private:
   bool filter(edm::Event&, edm::EventSetup const&) override;
 

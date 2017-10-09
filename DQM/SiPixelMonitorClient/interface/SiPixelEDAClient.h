@@ -31,7 +31,7 @@ class SiPixelEDAClient: public DQMEDHarvester{
 public:
 
   SiPixelEDAClient(const edm::ParameterSet& ps);
-  ~SiPixelEDAClient() override;
+  virtual ~SiPixelEDAClient();
 
 protected:
 

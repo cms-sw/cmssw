@@ -5,7 +5,7 @@
  */
 #include "RecoTauTag/ImpactParameter/interface/TrackTools.h"
 #include "RecoTauTag/ImpactParameter/interface/TrackHelixVertexFitter.h"
-#include <cmath>
+#include "math.h"
 #include <iostream>
 
 using namespace tauImpactParameter;

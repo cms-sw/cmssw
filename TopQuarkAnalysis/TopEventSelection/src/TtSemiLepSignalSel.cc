@@ -24,7 +24,7 @@ TtSemiLepSignalSel::TtSemiLepSignalSel(const std::vector<pat::Jet>& topJets, con
   var_lepeta = lepton.Eta();
 
   math::XYZTLorentzVector Met = MET.begin()->p4();
-  const math::XYZTLorentzVector& Lep = lepton;
+  math::XYZTLorentzVector Lep = lepton;
   double Etjet[4];
   double Jetjet[6];
   double dijetmass;

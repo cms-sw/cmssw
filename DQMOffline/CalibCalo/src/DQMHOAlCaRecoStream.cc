@@ -112,7 +112,7 @@ DQMHOAlCaRecoStream::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   
   if (isCosMu) { 
     hMuonMultipl->Fill((*HOCalib).size(),1.);
-    if (!(*HOCalib).empty() ) {
+    if ((*HOCalib).size() >0 ) {
       for (HOCalibVariableCollection::const_iterator hoC=(*HOCalib).begin(); hoC!=(*HOCalib).end(); hoC++){
 // OK!!!!	
 	float okt = 2.;

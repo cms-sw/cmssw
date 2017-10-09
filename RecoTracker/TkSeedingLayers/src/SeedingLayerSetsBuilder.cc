@@ -199,7 +199,7 @@ SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg, 
 //    str << std::endl;
 //  }
 //  std::cout << str.str() << std::endl;
-  if(layerNamesInSets.empty())
+  if(layerNamesInSets.size() == 0)
     theNumberOfLayersInSet = 0;
   else
     theNumberOfLayersInSet = layerNamesInSets[0].size();

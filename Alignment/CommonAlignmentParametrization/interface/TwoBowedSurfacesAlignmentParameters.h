@@ -81,22 +81,22 @@ class TwoBowedSurfacesAlignmentParameters : public AlignmentParameters
 			       const std::vector<bool> &selection);
 
   /// Destructor 
-  ~TwoBowedSurfacesAlignmentParameters() override {};
-  void apply() override;
-  int type() const override;
+  virtual ~TwoBowedSurfacesAlignmentParameters() {};
+  virtual void apply();
+  virtual int type() const;
 
   /// Clone all parameters (for update of parameters)
-  TwoBowedSurfacesAlignmentParameters* clone(const AlgebraicVector &parameters, 
-						     const AlgebraicSymMatrix &covMatrix) const override;
+  virtual TwoBowedSurfacesAlignmentParameters* clone(const AlgebraicVector &parameters, 
+						     const AlgebraicSymMatrix &covMatrix) const;
  
   /// Clone selected parameters (for update of parameters)
-  TwoBowedSurfacesAlignmentParameters*
+  virtual TwoBowedSurfacesAlignmentParameters*
     cloneFromSelected(const AlgebraicVector &parameters,
-		      const AlgebraicSymMatrix &covMatrix) const override;
+		      const AlgebraicSymMatrix &covMatrix) const;
   
   /// Get all derivatives 
-  AlgebraicMatrix derivatives(const TrajectoryStateOnSurface &tsos,
-				      const AlignableDetOrUnitPtr &aliDet) const override;
+  virtual AlgebraicMatrix derivatives(const TrajectoryStateOnSurface &tsos,
+				      const AlignableDetOrUnitPtr &aliDet) const;
 
   /// print parameters to screen 
   virtual void print() const;

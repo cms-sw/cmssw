@@ -21,13 +21,13 @@ class SiStripBadChannelBuilder : public ConditionDBWriter<SiStripBadStrip> {
 public:
 
   explicit SiStripBadChannelBuilder(const edm::ParameterSet&);
-  ~SiStripBadChannelBuilder() override;
+  ~SiStripBadChannelBuilder();
 
-  void algoAnalyze(const edm::Event & event, const edm::EventSetup& iSetup) override;
+  void algoAnalyze(const edm::Event & event, const edm::EventSetup& iSetup);
 
 private:
 
-  SiStripBadStrip* getNewObject() override{return obj;}
+  SiStripBadStrip* getNewObject(){return obj;}
 
 private:
   edm::FileInPath fp_;

@@ -6,7 +6,7 @@
 class HttpStorageMaker : public StorageMaker
 {
 public:
-  std::unique_ptr<Storage> open (const std::string &proto,
+  virtual std::unique_ptr<Storage> open (const std::string &proto,
 			 const std::string &path,
 			 int mode,
        const AuxSettings&) const override
@@ -17,7 +17,7 @@ public:
     std::string    newurl ((proto == "web" ? "http" : proto) + ":" + path);
     const char     *curlopts [] = {
       "curl", "-L", "-f", "-o", temp.c_str(), "-q", "-s", "--url",
-      newurl.c_str (), nullptr
+      newurl.c_str (), 0
     };
 
     return RemoteFile::get (localfd, temp, (char **) curlopts, mode);

@@ -40,7 +40,7 @@ namespace edm {
   public:
     LuminosityBlockForOutput(LuminosityBlockPrincipal const& lbp, ModuleDescription const& md,
                     ModuleCallingContext const*);
-    ~LuminosityBlockForOutput() override;
+    ~LuminosityBlockForOutput();
 
     LuminosityBlockAuxiliary const& luminosityBlockAuxiliary() const {return aux_;}
     LuminosityBlockID const& id() const {return aux_.id();}

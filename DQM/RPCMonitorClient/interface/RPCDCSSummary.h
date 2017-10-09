@@ -13,7 +13,7 @@ public:
   RPCDCSSummary(const edm::ParameterSet&);
 
   /// Destructor
-  ~RPCDCSSummary() override;
+  virtual ~RPCDCSSummary();
 
   // Operations
 

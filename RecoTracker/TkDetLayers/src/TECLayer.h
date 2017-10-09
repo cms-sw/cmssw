@@ -17,21 +17,21 @@ class TECLayer : public ForwardDetLayer  {
  public:
   TECLayer(std::vector<const TECPetal*>& innerPetals,
 	   std::vector<const TECPetal*>& outerPetals) __attribute__ ((cold));
-  ~TECLayer() override __attribute__ ((cold));
+  ~TECLayer() __attribute__ ((cold));
   
   // GeometricSearchDet interface
   
-  const std::vector<const GeomDet*>& basicComponents() const override {return theBasicComps;}
+  virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
 
-  const std::vector<const GeometricSearchDet*>& components() const override __attribute__ ((cold)) {return theComps;}
+  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold)) {return theComps;}
   
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
 			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const override __attribute__ ((hot));
+			       std::vector<DetGroup> & result) const __attribute__ ((hot));
  
   // DetLayer interface
-  SubDetector subDetector() const override {return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::TEC];}
+  virtual SubDetector subDetector() const {return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::TEC];}
   
 
   

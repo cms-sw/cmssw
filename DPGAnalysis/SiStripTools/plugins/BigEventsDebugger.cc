@@ -57,11 +57,11 @@ template <class T>
 class BigEventsDebugger : public edm::EDAnalyzer {
    public:
       explicit BigEventsDebugger(const edm::ParameterSet&);
-      ~BigEventsDebugger() override;
+      ~BigEventsDebugger();
 
 
    private:
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
 

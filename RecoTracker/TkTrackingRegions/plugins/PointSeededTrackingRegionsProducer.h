@@ -104,7 +104,7 @@ public:
     }
   }
   
-  ~PointSeededTrackingRegionsProducer() override {}
+  virtual ~PointSeededTrackingRegionsProducer() {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -148,7 +148,7 @@ public:
 
     
 
-  std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& e, const edm::EventSetup& es) const override
+  virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& e, const edm::EventSetup& es) const override
   {
     std::vector<std::unique_ptr<TrackingRegion> > result;
 

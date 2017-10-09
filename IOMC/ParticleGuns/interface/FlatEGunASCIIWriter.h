@@ -41,11 +41,11 @@ namespace edm
      //
      explicit FlatEGunASCIIWriter( const edm::ParameterSet& ) ;
      
-     ~FlatEGunASCIIWriter() override ;
+     virtual ~FlatEGunASCIIWriter() ;
      
-     void analyze(  const edm::Event&, const edm::EventSetup&) override;
-	 void beginJob() override ;
-	 void beginRun(const edm::Run&, const EventSetup&) override;
+     virtual void analyze(  const edm::Event&, const edm::EventSetup&) override;
+	 virtual void beginJob() override ;
+	 virtual void beginRun(const edm::Run&, const EventSetup&) override;
      
    private:
      

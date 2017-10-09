@@ -45,7 +45,7 @@
             /// constructor
             explicit TrackMultiSelector( const edm::ParameterSet & cfg ) ;
             /// destructor
-            ~TrackMultiSelector() override ;
+            virtual ~TrackMultiSelector() ;
 
         private:
             typedef math::XYZPoint Point;
@@ -314,7 +314,7 @@ inline bool  TrackMultiSelector::testVtx ( const reco::Track &tk, const reco::Be
     using std::abs;
     double d0Err =abs(tk.d0Error()), dzErr = abs(tk.dzError());  // not fully sure they're > 0!
     if (points.empty()) {
-        const Point& spot = beamSpot.position();
+        Point spot = beamSpot.position();
         double dz = abs(tk.dz(spot)), d0 = abs(tk.dxy(spot));
         return ( dz < beamspotDZsigmas_*beamSpot.sigmaZ() ) && ( d0 < beamspotD0_ );
     }

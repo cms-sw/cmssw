@@ -22,13 +22,13 @@ public:
   typedef ReferenceCountingPointer<LinearizedTrackState<5> > RefCountedLinearizedTrackState;
 
   RefCountedLinearizedTrackState
-    linearizedTrackState(const GlobalPoint & linP, const reco::TransientTrack & track) const override;
+    linearizedTrackState(const GlobalPoint & linP, const reco::TransientTrack & track) const;
 
   RefCountedLinearizedTrackState
     linearizedTrackState(const GlobalPoint & linP, const reco::TransientTrack & track,
-    	const TrajectoryStateOnSurface& tsos) const override;
+    	const TrajectoryStateOnSurface& tsos) const;
 
-  const MultiPerigeeLTSFactory * clone() const override;
+  const MultiPerigeeLTSFactory * clone() const;
 
 };
 

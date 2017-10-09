@@ -7,7 +7,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <cstdio>
+#include <stdio.h>
 #include <string>
 #include <cstring>
 

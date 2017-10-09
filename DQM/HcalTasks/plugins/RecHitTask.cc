@@ -1,5 +1,5 @@
 #include "DQM/HcalTasks/interface/RecHitTask.h"
-#include <cmath>
+#include <math.h>
 
 using namespace hcaldqm;
 using namespace hcaldqm::constants;

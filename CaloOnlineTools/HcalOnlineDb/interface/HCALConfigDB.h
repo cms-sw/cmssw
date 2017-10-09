@@ -6,7 +6,7 @@
 #define HCALConfigDB_h
 
 #include <iostream>
-#include <cstring>
+#include <string.h>
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseImpl.hh"
 
 

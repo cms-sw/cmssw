@@ -38,18 +38,18 @@ public:
   QualityTester(const edm::ParameterSet& ps);
   
   /// Destructor
-  ~QualityTester() override;
+  virtual ~QualityTester();
 
 protected:
 
   /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override ;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) ;
 
   /// perform the actual quality tests
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c) override;
-  void beginRun(const edm::Run&, const edm::EventSetup&) override ;
-  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
-  void endJob() override;
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
+  void beginRun(const edm::Run&, const edm::EventSetup&) ;
+  void endRun(const edm::Run& r, const edm::EventSetup& c);
+  void endJob();
 
 private:
 

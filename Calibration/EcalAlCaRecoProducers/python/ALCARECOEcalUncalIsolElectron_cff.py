@@ -26,7 +26,7 @@ from RecoLocalCalo.Configuration.ecalLocalRecoSequence_cff import *
 from RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi import *
 ecalUncalibRecHitSequence53X = cms.Sequence(ecalGlobalUncalibRecHit * ecalDetIdToBeRecovered)
 
-uncalibRecHitSeq = cms.Sequence(ecalUncalibRecHitSequence, cms.Task(ecalDigis, ecalPreshowerDigis))
+uncalibRecHitSeq = cms.Sequence( (ecalDigis + ecalPreshowerDigis) * ecalUncalibRecHitSequence)
 
 ALCARECOEcalUncalElectronECALSeq = cms.Sequence( uncalibRecHitSeq )
 

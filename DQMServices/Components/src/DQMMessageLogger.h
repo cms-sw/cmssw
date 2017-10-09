@@ -23,10 +23,10 @@ class DQMMessageLogger : public DQMEDAnalyzer {
   DQMMessageLogger(const edm::ParameterSet&);
   
   /// Destructor
-  ~DQMMessageLogger() override;
+  virtual ~DQMMessageLogger();
   
   /// Get the analysis
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&);
 
  protected:
 

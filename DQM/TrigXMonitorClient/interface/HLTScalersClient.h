@@ -136,30 +136,30 @@ public:
   HLTScalersClient(const edm::ParameterSet& ps);
   
   /// Destructor
-  ~HLTScalersClient() override {
+  virtual ~HLTScalersClient() {
     if ( debug_ ) {
       textfile_.close();
     }
   };
   
   /// BeginJob
-  void beginJob(void) override;
+  void beginJob(void);
 
   
   /// BeginRun
-  void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
+  void beginRun(const edm::Run& run, const edm::EventSetup& c);
 
   /// EndRun
-  void endRun(const edm::Run& run, const edm::EventSetup& c) override;
+  void endRun(const edm::Run& run, const edm::EventSetup& c);
 
   
   /// End LumiBlock
   /// DQM Client Diagnostic should be performed here
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                          const edm::EventSetup& c) override;
+                          const edm::EventSetup& c);
 
   // unused
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override ;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) ;
 
 
 private:

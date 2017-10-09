@@ -41,12 +41,12 @@
 class PF_PU_AssoMap : public edm::stream::EDProducer<>, public PF_PU_AssoMapAlgos {
    public:
       explicit PF_PU_AssoMap(const edm::ParameterSet&);
-      ~PF_PU_AssoMap() override;
+      ~PF_PU_AssoMap();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&);
 
       // ----------member data ---------------------------
 

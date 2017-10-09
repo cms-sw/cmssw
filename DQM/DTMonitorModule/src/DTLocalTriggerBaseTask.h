@@ -52,7 +52,7 @@ class DTLocalTriggerBaseTask: public DQMEDAnalyzer{
   DTLocalTriggerBaseTask(const edm::ParameterSet& ps );
 
   /// Destructor
-  ~DTLocalTriggerBaseTask() override;
+  virtual ~DTLocalTriggerBaseTask();
 
  protected:
 

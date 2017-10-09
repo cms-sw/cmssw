@@ -58,7 +58,7 @@ void EcalTBTDCRecInfoProducer::produce(edm::Event& e, const edm::EventSetup& es)
 {
   // Get input
    edm::Handle<EcalTBTDCRawInfo> ecalRawTDC;  
-   const EcalTBTDCRawInfo* ecalTDCRawInfo = nullptr;
+   const EcalTBTDCRawInfo* ecalTDCRawInfo = 0;
 
    //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
    e.getByLabel( rawInfoProducer_, ecalRawTDC);
@@ -79,7 +79,7 @@ void EcalTBTDCRecInfoProducer::produce(edm::Event& e, const edm::EventSetup& es)
      }
    // Get input
    edm::Handle<EcalTBEventHeader> tbEventHeader;  
-   const EcalTBEventHeader* ecalEventHeader = nullptr;
+   const EcalTBEventHeader* ecalEventHeader = 0;
    //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
    e.getByLabel( eventHeaderProducer_, tbEventHeader);
    if (tbEventHeader.isValid()) {

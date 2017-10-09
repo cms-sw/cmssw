@@ -83,7 +83,7 @@ int AlignmentIORootBase::openRoot(const char* filename, int iteration, bool writ
     // set trees
     edm::LogInfo("AlignmentIORootBase") <<" Tree: " <<treeName(iter,treename);
     tree = (TTree*)myFile->Get(treeName(iter,treename));
-    if (tree==nullptr) {
+    if (tree==NULL) {
       edm::LogError("AlignmentIORootBase") <<"Tree does not exist in file!";
       return -1;
     }
@@ -103,8 +103,8 @@ int AlignmentIORootBase::closeRoot(void)
   }
 
   delete myFile;
-  myFile = nullptr;
-  tree = nullptr; // deleted with file
+  myFile = 0;
+  tree = 0; // deleted with file
 
   return 0;
 }
@@ -117,14 +117,14 @@ int AlignmentIORootBase::testFile(const char* filename, const TString &tname)
 {
   FILE* testFILE;
   testFILE = fopen(filename,"r");
-  if (testFILE == nullptr) {
+  if (testFILE == NULL) {
     return -1;
   } else {
     fclose(testFILE);
     int ihighest=-2;
     TFile *aFile = TFile::Open(filename,"read");
     for (int iter=0; iter<itermax; iter++) {
-      if ((nullptr != (TTree*)aFile->Get(treeName(iter,tname))) 
+      if ((0 != (TTree*)aFile->Get(treeName(iter,tname))) 
 	  && (iter>ihighest)) ihighest=iter; 
     }
     delete aFile;

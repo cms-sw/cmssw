@@ -14,7 +14,7 @@
 #include <fstream>
 #include <iostream>
 #include <ios>
-#include <cassert>
+#include <assert.h>
 #include <stdexcept>
 #include <map>
 #include <sstream>
@@ -387,7 +387,7 @@ PixelROCDACSettings* PixelDACSettings::getDACSettings(PixelROCName name){
     if (dacsettings_[i].getROCName()==name) return &(dacsettings_[i]);
   }
 
-  return nullptr;
+  return 0;
 
 }
  

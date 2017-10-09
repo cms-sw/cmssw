@@ -34,7 +34,7 @@ ALIbool ALIRmDataFromFile::setAngleX( const ALIdouble val )
 {
   theAngleX = val;
   theDataFilled += "X";
-  return true;
+  return 1;
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -42,7 +42,7 @@ ALIbool ALIRmDataFromFile::setAngleY( const ALIdouble val )
 {
   theAngleY = val;
   theDataFilled += "Y";
-  return true;
+  return 1;
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -50,7 +50,7 @@ ALIbool ALIRmDataFromFile::setAngleZ( const ALIdouble val )
 {
   theAngleZ = val;
   theDataFilled += "Z";
-  return true;
+  return 1;
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

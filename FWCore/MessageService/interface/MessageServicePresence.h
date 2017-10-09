@@ -19,7 +19,7 @@ class MessageServicePresence : public Presence
 public:
   // ---  birth/death:
   MessageServicePresence();
-  ~MessageServicePresence() override;
+  ~MessageServicePresence();
 
 private:
   // --- no copying:

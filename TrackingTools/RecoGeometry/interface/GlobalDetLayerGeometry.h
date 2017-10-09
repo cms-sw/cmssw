@@ -22,7 +22,7 @@ class GlobalDetLayerGeometry: public DetLayerGeometry {
 			const MuonDetLayerGeometry* muon):
   tracker_(tracker),muon_(muon){};
 	
-	~GlobalDetLayerGeometry() override {}
+	virtual ~GlobalDetLayerGeometry() {}
   
   /*
   const std::vector<DetLayer*>& allLayers() const =0;
@@ -33,7 +33,7 @@ class GlobalDetLayerGeometry: public DetLayerGeometry {
 
 
   /// Give the DetId of a module, returns the pointer to the corresponding DetLayer
-  const DetLayer* idToLayer(const DetId& detId) const override;
+  virtual const DetLayer* idToLayer(const DetId& detId) const;
  
  private:
   const GeometricSearchTracker* tracker_;

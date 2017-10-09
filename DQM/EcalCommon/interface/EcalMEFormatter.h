@@ -9,7 +9,7 @@
 class EcalMEFormatter : public DQMEDHarvester, public ecaldqm::DQWorker {
  public:
   EcalMEFormatter(edm::ParameterSet const&);
-  ~EcalMEFormatter() override {};
+  ~EcalMEFormatter() {};
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 

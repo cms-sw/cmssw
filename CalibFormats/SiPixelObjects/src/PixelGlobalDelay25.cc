@@ -10,8 +10,8 @@
 #include <sstream>
 #include <fstream>
 #include <map>
-#include <cassert>
-#include <cmath>
+#include <assert.h>
+#include <math.h>
 #include <stdexcept>
 
 

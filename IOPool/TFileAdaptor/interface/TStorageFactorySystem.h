@@ -18,18 +18,18 @@ public:
 
   TStorageFactorySystem(const char *, Bool_t); // For compatibility with TXNetFile, we don't actually use the arguments
   TStorageFactorySystem(void);
-  ~TStorageFactorySystem(void) override;
+  ~TStorageFactorySystem(void);
 
-  Int_t		MakeDirectory(const char *name) override;
-  void *	OpenDirectory(const char *name) override;
-  void		FreeDirectory(void *dirp) override;
-  const char *	GetDirEntry(void *dirp) override;
+  virtual Int_t		MakeDirectory(const char *name);
+  virtual void *	OpenDirectory(const char *name);
+  virtual void		FreeDirectory(void *dirp);
+  virtual const char *	GetDirEntry(void *dirp);
 
-  Int_t		GetPathInfo(const char *path, FileStat_t &info) override;
+  virtual Int_t		GetPathInfo(const char *path, FileStat_t &info);
 
-  Bool_t	AccessPathName(const char *path, EAccessMode mode) override;
+  virtual Bool_t	AccessPathName(const char *path, EAccessMode mode);
 
-  int           Unlink(const char *name) override;
+  virtual int           Unlink(const char *name);
 
 };
 

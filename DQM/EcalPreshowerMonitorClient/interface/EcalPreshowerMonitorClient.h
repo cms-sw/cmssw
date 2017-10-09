@@ -10,7 +10,7 @@ class EcalPreshowerMonitorClient : public DQMEDHarvester {
  public:
 
   EcalPreshowerMonitorClient(const edm::ParameterSet&);
-  ~EcalPreshowerMonitorClient() override;
+  ~EcalPreshowerMonitorClient();
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 

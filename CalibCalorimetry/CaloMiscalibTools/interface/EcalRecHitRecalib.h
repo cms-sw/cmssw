@@ -38,10 +38,10 @@
 class EcalRecHitRecalib : public edm::EDProducer {
    public:
       explicit EcalRecHitRecalib(const edm::ParameterSet&);
-      ~EcalRecHitRecalib() override;
+      ~EcalRecHitRecalib();
 
 
-      void produce(edm::Event &, const edm::EventSetup&) override;
+      virtual void produce(edm::Event &, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
 

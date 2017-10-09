@@ -32,7 +32,7 @@ public:
   DTDataIntegrityTest(const edm::ParameterSet& ps);
 
  /// Destructor
- ~DTDataIntegrityTest() override;
+ ~DTDataIntegrityTest();
 
 protected:
 

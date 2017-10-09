@@ -17,11 +17,11 @@ public:
                               DetId chamberId, AlignableDetOrUnitPtr chamberAlignable);
 
   // dummy method
-  void addResidual(edm::ESHandle<Propagator> prop, const TrajectoryStateOnSurface *tsos, const TrackingRecHit *hit, double, double) override = 0;
+  virtual void addResidual(edm::ESHandle<Propagator> prop, const TrajectoryStateOnSurface *tsos, const TrackingRecHit *hit, double, double) = 0;
 
   // for DT2, the residual is chamber local y
   // for DT2, the resslope is dresy/dz, or tan(phi_x)
-  void setSegmentResidual(const reco::MuonChamberMatch *, const reco::MuonSegmentMatch *) override;
+  virtual void setSegmentResidual(const reco::MuonChamberMatch *, const reco::MuonSegmentMatch *);
 };
 
 #endif // Alignment_MuonAlignmentAlgorithms_MuonTrackDT2ChamberResidual_H

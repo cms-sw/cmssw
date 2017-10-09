@@ -11,14 +11,14 @@ namespace hcaldqm
 		public:
 			DigiRunSummary(std::string const&, std::string const&,
 				edm::ParameterSet const&);
-			~DigiRunSummary() override {}
+			virtual ~DigiRunSummary() {}
 
-			void beginRun(edm::Run const&, edm::EventSetup const&) override;
-			void endLuminosityBlock(DQMStore::IBooker&,
+			virtual void beginRun(edm::Run const&, edm::EventSetup const&);
+			virtual void endLuminosityBlock(DQMStore::IBooker&,
 				DQMStore::IGetter&, edm::LuminosityBlock const&,
-				edm::EventSetup const&) override;
-			std::vector<flag::Flag> endJob(
-				DQMStore::IBooker&, DQMStore::IGetter&) override;
+				edm::EventSetup const&);
+			virtual std::vector<flag::Flag> endJob(
+				DQMStore::IBooker&, DQMStore::IGetter&);
 
 		protected:
 			std::vector<LSSummary> _vflagsLS;

@@ -37,7 +37,7 @@ public:
 
   /*------------------------*/
 private:
-  CombinedHitQuadrupletGeneratorForPhotonConversion(const CombinedHitQuadrupletGeneratorForPhotonConversion & cb) = delete; 
+  CombinedHitQuadrupletGeneratorForPhotonConversion(const CombinedHitQuadrupletGeneratorForPhotonConversion & cb); 
 
   edm::EDGetTokenT<SeedingLayerSetsHits> theSeedingLayerToken;
   const unsigned int theMaxElement;

@@ -64,7 +64,7 @@ namespace ecaldqm {
     }
 
     if(minutely_){
-      time_t localTime(time(nullptr));
+      time_t localTime(time(0));
       struct tm timeBuffer;
       gmtime_r(&localTime, &timeBuffer); // gmtime() is not thread safe
       unsigned utcTime(mktime(&timeBuffer));

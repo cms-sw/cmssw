@@ -37,7 +37,7 @@ public:
   DTResolutionAnalysisTask(const edm::ParameterSet& pset);
 
   /// Destructor
-  ~DTResolutionAnalysisTask() override;
+  virtual ~DTResolutionAnalysisTask();
 
   /// BookHistograms
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;

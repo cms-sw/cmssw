@@ -84,7 +84,7 @@ class JetAnalyzer_HeavyIons_matching : public DQMEDAnalyzer {
  public:
 
   explicit JetAnalyzer_HeavyIons_matching (const edm::ParameterSet&);
-  ~JetAnalyzer_HeavyIons_matching() override;
+  virtual ~JetAnalyzer_HeavyIons_matching();
   
   void analyze(const edm::Event&, const edm::EventSetup&) override; 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;

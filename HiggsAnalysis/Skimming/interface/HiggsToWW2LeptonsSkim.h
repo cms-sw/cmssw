@@ -29,10 +29,10 @@
 class HiggsToWW2LeptonsSkim : public edm::EDFilter {
     public:
        explicit HiggsToWW2LeptonsSkim(const edm::ParameterSet&);
-       ~HiggsToWW2LeptonsSkim() override;
-       void endJob() override ;
+       ~HiggsToWW2LeptonsSkim();
+       virtual void endJob() ;
 
-       bool filter(edm::Event&, const edm::EventSetup&) override;
+       virtual bool filter(edm::Event&, const edm::EventSetup&);
 
    private:
       double singleTrackPtMin_;

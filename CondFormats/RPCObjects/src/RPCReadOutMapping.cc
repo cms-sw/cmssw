@@ -22,7 +22,7 @@ const DccSpec * RPCReadOutMapping::dcc( int dccId) const
 {
   IMAP im = theFeds.find(dccId);
   const DccSpec & ddc = (*im).second;
-  return (im != theFeds.end()) ?  &ddc : nullptr;
+  return (im != theFeds.end()) ?  &ddc : 0;
 }
 
 void RPCReadOutMapping::add(const DccSpec & dcc)
@@ -125,7 +125,7 @@ const LinkBoardSpec*
       }
     }
   }
-  return nullptr;
+  return 0;
 }
 
 RPCReadOutMapping::StripInDetUnit 

@@ -27,23 +27,23 @@ namespace pos{
   
     PixelDelay25Calib(std::string);
     PixelDelay25Calib(std::vector<std::vector<std::string> > &);
-    ~PixelDelay25Calib() override;
+    ~PixelDelay25Calib();
 
-    void writeASCII(std::string dir="") const override;
+    virtual void writeASCII(std::string dir="") const override;
     void 	 writeXML(        pos::PixelConfigKey key, int version, std::string path) const override {;}
-    void writeXMLHeader(  pos::PixelConfigKey key, 
+    virtual void writeXMLHeader(  pos::PixelConfigKey key, 
 				  int version, 
 				  std::string path, 
 				  std::ofstream *out,
-				  std::ofstream *out1 = nullptr,
-				  std::ofstream *out2 = nullptr
+				  std::ofstream *out1 = NULL,
+				  std::ofstream *out2 = NULL
 				  ) const override;
-    void writeXML( 	  std::ofstream *out,			     	   			    
-			   	  std::ofstream *out1 = nullptr ,
-			   	  std::ofstream *out2 = nullptr ) const override;
-    void writeXMLTrailer( std::ofstream *out, 
-				  std::ofstream *out1 = nullptr,
-				  std::ofstream *out2 = nullptr
+    virtual void writeXML( 	  std::ofstream *out,			     	   			    
+			   	  std::ofstream *out1 = NULL ,
+			   	  std::ofstream *out2 = NULL ) const override;
+    virtual void writeXMLTrailer( std::ofstream *out, 
+				  std::ofstream *out1 = NULL,
+				  std::ofstream *out2 = NULL
 				  ) const override;
 
     std::set<std::string>& portcardList() {return portcardNames_;}

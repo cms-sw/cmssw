@@ -31,7 +31,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
 

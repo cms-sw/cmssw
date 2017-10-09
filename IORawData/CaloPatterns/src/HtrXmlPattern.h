@@ -21,11 +21,11 @@
 class HtrXmlPattern : public edm::EDAnalyzer {
 public:
   explicit HtrXmlPattern(const edm::ParameterSet&);
-  ~HtrXmlPattern() override;
+  ~HtrXmlPattern();
 
 private:
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
   virtual void do_hand_fill(const HcalElectronicsMap*);
   HtrXmlPatternTool *m_tool;
   HtrXmlPatternToolParameters *m_toolparameters;

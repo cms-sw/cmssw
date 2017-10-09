@@ -16,7 +16,7 @@ class TECWedge : public GeometricSearchDet {
   TECWedge() : GeometricSearchDet(true){}
 
     // GeometricSearchDet interface
-  const BoundSurface& surface() const  final {return *theDiskSector;}
+  virtual const BoundSurface& surface() const  final {return *theDiskSector;}
 
   
   //Extension of the interface

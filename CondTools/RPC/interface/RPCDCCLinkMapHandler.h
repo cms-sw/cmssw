@@ -19,10 +19,10 @@ class RPCDCCLinkMapHandler
 {
 public:
     RPCDCCLinkMapHandler(edm::ParameterSet const & config);
-    ~RPCDCCLinkMapHandler() override;
+    ~RPCDCCLinkMapHandler();
 
-    void getNewObjects() override;
-    std::string id() const override;
+    void getNewObjects();
+    std::string id() const;
 
 protected:
     std::string id_;

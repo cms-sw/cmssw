@@ -24,9 +24,9 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <cstdio>
+#include <stdio.h>
 #include <sstream>
-#include <cmath>
+#include <math.h>
 
 
 using namespace edm;

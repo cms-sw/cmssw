@@ -16,9 +16,9 @@ namespace gs {
                                        const unsigned dataFileBufferSize,
                                        const unsigned catalogFileBufferSize)
         : BinaryArchiveBase(basename, mode),
-          filebuf_(nullptr),
-          readbuf_(nullptr),
-          catabuf_(nullptr),
+          filebuf_(0),
+          readbuf_(0),
+          catabuf_(0),
           annotation_(ann ? std::string(ann) : std::string("")),
           catalogFileName_(AbsArchive::name() + ".gsbmf"), // binary metafile
           writeFileURI_("/ / / / / / /\\ \\ \\ \\"),
@@ -104,7 +104,7 @@ namespace gs {
         }
         catch (std::exception& e)
         {
-            setCatalog(nullptr);
+            setCatalog(0);
             releaseBuffers();
             errorStream() << e.what();
         }
@@ -115,12 +115,12 @@ namespace gs {
         if (writeStream_.is_open()) writeStream_.close();
         if (separateReadStream_.is_open()) separateReadStream_.close();
         if (catStream_.is_open()) catStream_.close();
-        catStream_.rdbuf()->pubsetbuf(nullptr, 0);
-        writeStream_.rdbuf()->pubsetbuf(nullptr, 0);
-        separateReadStream_.rdbuf()->pubsetbuf(nullptr, 0);
-        delete [] catabuf_; catabuf_ = nullptr;
-        delete [] readbuf_; readbuf_ = nullptr;
-        delete [] filebuf_; filebuf_ = nullptr;
+        catStream_.rdbuf()->pubsetbuf(0, 0);
+        writeStream_.rdbuf()->pubsetbuf(0, 0);
+        separateReadStream_.rdbuf()->pubsetbuf(0, 0);
+        delete [] catabuf_; catabuf_ = 0;
+        delete [] readbuf_; readbuf_ = 0;
+        delete [] filebuf_; filebuf_ = 0;
     }
 
     MultiFileArchive::~MultiFileArchive()
@@ -135,7 +135,7 @@ namespace gs {
         {
             if (!annotationsMerged_)
             {
-                if (!annotation_.empty())
+                if (annotation_.size())
                     catalogAnnotations_.push_back(annotation_);
                 annotationsMerged_ = true;
             }
@@ -218,7 +218,7 @@ namespace gs {
 
             if (openmode() & std::ios_base::out)
             {
-                if (dynamic_cast<WriteOnlyCatalog*>(catalog()) == nullptr)
+                if (dynamic_cast<WriteOnlyCatalog*>(catalog()) == 0)
                     writeCatalog();
                 catStream_.flush();
             }

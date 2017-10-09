@@ -49,7 +49,7 @@ private:
 public:
   AliDaqPosition2D() : fX(0), fY(0), fX_error(0), fY_error(0),
                  fID(""), fTimeStamp(0) { }
-  ~AliDaqPosition2D() override { }
+  virtual ~AliDaqPosition2D() { }
   Float_t  GetX()         const { return fX; }
   Float_t  GetY()         const { return fY; }
   Float_t  GetXerror()    const { return fX_error; }
@@ -58,7 +58,7 @@ public:
   Int_t    GetTimeStamp() const { return fTimeStamp; }
   void     DumpIt(const TString& Name);
 
-  ClassDefOverride(AliDaqPosition2D,1)  
+  ClassDef(AliDaqPosition2D,1)  
 };
 
 //-----------------------------------------------------------------------------
@@ -83,7 +83,7 @@ public:
                    fDCOPS_up_error(0),   fDCOPS_down_error(0),
                    fDCOPS_left_error(0), fDCOPS_right_error(0),
                    fID(""),              fTimeStamp(0) { }
-  ~AliDaqPositionCOPS() override { }
+  virtual ~AliDaqPositionCOPS() { }
   Float_t  GetUp()    const { return fDCOPS_up; }
   Float_t  GetDown()  const { return fDCOPS_down; }
   Float_t  GetLeft()  const { return fDCOPS_left; }
@@ -96,7 +96,7 @@ public:
   Int_t    GetTimeStamp()  const { return fTimeStamp; }
   void     DumpIt(const TString& Name);
 
-  ClassDefOverride(AliDaqPositionCOPS,1)  
+  ClassDef(AliDaqPositionCOPS,1)  
 };
 
 //-----------------------------------------------------------------------------
@@ -111,14 +111,14 @@ private:
 
 public:
   AliDaqTilt() : fTilt(0), fTilt_error(0), fID(""), fTimeStamp(0) { }
-  ~AliDaqTilt() override { }
+  virtual ~AliDaqTilt() { }
   Float_t  GetTilt()      const { return fTilt; }
   Float_t  GetTiltError() const { return fTilt_error; }
   TString  GetID() { return fID; }
   Int_t    GetTimeStamp() const { return fTimeStamp; }
   void     DumpIt(const TString& Name);
 
-  ClassDefOverride(AliDaqTilt,1)
+  ClassDef(AliDaqTilt,1)
 };
 
 //-----------------------------------------------------------------------------
@@ -133,7 +133,7 @@ private:
 public:
   AliDaqDistance() : fDistance(0), fDistance_error(0), 
                fID(""), fTimeStamp(0) { }
-  ~AliDaqDistance() override { }
+  virtual ~AliDaqDistance() { }
   Float_t  GetDistance()      const { return fDistance; }
   Float_t  GetDistanceError() const { return fDistance_error; }
   TString  GetID() { return fID; }
@@ -156,14 +156,14 @@ private:
 public:
   AliDaqTemperature() : fTemperature(0), fTemperature_error(0),
                   fID(""), fTimeStamp(0) { }
-  ~AliDaqTemperature() override { }
+  virtual ~AliDaqTemperature() { }
   Float_t  GetTemperature()      const { return fTemperature; }
   Float_t  GetTemperatureError() const { return fTemperature_error; }
   TString  GetID()  { return fID; }
   Int_t    GetTimeStamp() const { return fTimeStamp; }
   void     DumpIt(const TString& Name);
 
-  ClassDefOverride(AliDaqTemperature,1)
+  ClassDef(AliDaqTemperature,1)
 };
 
 //-----------------------------------------------------------------------------
@@ -197,11 +197,11 @@ public:
 
 public:
   CocoaDaqRootEvent();
-  ~CocoaDaqRootEvent() override { };
+  virtual ~CocoaDaqRootEvent() { };
   void     SetHeader(int run, int evt) {Header->SetRunEvt(run,evt); }
   void     DumpIt();
 
-  ClassDefOverride(CocoaDaqRootEvent,1)
+  ClassDef(CocoaDaqRootEvent,1)  
 
  };
 

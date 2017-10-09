@@ -30,12 +30,12 @@ namespace cms
     explicit ReconstructerFP420(const edm::ParameterSet& conf);
     //ReconstructerFP420();
     
-    ~ReconstructerFP420() override;
+    virtual ~ReconstructerFP420();
     
-    void beginJob() override;
+    virtual void beginJob();
     
     //  virtual void produce(ClusterCollectionFP420 &, RecoCollectionFP420 &);
-    void produce(edm::Event& e, const edm::EventSetup& c) override;
+    virtual void produce(edm::Event& e, const edm::EventSetup& c);
     
   private:
     typedef std::vector<std::string> vstring;

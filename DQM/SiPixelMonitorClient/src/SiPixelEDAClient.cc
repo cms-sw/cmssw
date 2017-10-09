@@ -38,10 +38,10 @@
 
 #include <iostream>
 #include <iomanip>
-#include <cstdio>
+#include <stdio.h>
 #include <string>
 #include <sstream>
-#include <cmath>
+#include <math.h>
 
 #define BUF_SIZE 256
 
@@ -108,15 +108,15 @@ SiPixelEDAClient::~SiPixelEDAClient(){
 
   if (sipixelInformationExtractor_) {
      delete sipixelInformationExtractor_;
-     sipixelInformationExtractor_ = nullptr;
+     sipixelInformationExtractor_ = 0;
   }
   if (sipixelActionExecutor_) {
      delete sipixelActionExecutor_;
-     sipixelActionExecutor_ = nullptr;
+     sipixelActionExecutor_ = 0;
   }
   if (sipixelDataQuality_) {
      delete sipixelDataQuality_;
-     sipixelDataQuality_ = nullptr;
+     sipixelDataQuality_ = 0;
   }
 
 //  cout<<"...leaving SiPixelEDAClient::~SiPixelEDAClient. "<<endl;

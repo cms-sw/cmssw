@@ -7,9 +7,9 @@ class PedsFullNoiseSummaryFactory : public SummaryPlotFactory<CommissioningAnaly
   
  protected:
   
-  void extract( Iterator ) override;
+  void extract( Iterator );
   
-  void format() override;
+  void format();
   
 };
 

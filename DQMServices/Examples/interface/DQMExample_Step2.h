@@ -16,7 +16,7 @@ class DQMExample_Step2: public DQMEDHarvester{
 public:
 
   DQMExample_Step2(const edm::ParameterSet& ps);
-  ~DQMExample_Step2() override;
+  virtual ~DQMExample_Step2();
   
 protected:
 

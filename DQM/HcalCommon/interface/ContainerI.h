@@ -15,10 +15,10 @@ namespace hcaldqm
 			ContainerI(std::string const& folder, std::string const& name):
 				Container(folder, name)
 			{}
-			~ContainerI() override {}
+			virtual ~ContainerI() {}
 			
-			void initialize(std::string const& folder, 
-				std::string const& name, int debug=0) override
+			virtual void initialize(std::string const& folder, 
+				std::string const& name, int debug=0)
 			{
 				_folder = folder;
 				_qname = name;

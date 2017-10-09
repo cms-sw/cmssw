@@ -1,7 +1,7 @@
 #include <TMap.h>
 #include <TObjString.h>
 #include "IORawData/HcalTBInputService/src/CDFRunInfo.h"
-#include <cstdlib>
+#include <stdlib.h>
 
 const char* CDFRunInfo::RootVariableName = "CDFRunInfo";
 
@@ -14,19 +14,19 @@ CDFRunInfo::CDFRunInfo(TFile* file) {
 
 const char* CDFRunInfo::get(const char* key) const {
   std::map<std::string,std::string>::const_iterator i=m_mapData.find(key);
-  if (i==m_mapData.end()) return nullptr;
+  if (i==m_mapData.end()) return NULL;
   return i->second.c_str();
 }
 
 int CDFRunInfo::getInt(const char* key) const {
   const char* k=get(key);
-  if (k==nullptr) return 0;
+  if (k==NULL) return 0;
   return atoi(k);
 }
 
 double CDFRunInfo::getDouble(const char* key) const {
   const char* k=get(key);
-  if (k==nullptr) return 0;
+  if (k==NULL) return 0;
   return atof(k);
 }
 
@@ -49,13 +49,13 @@ void CDFRunInfo::setInfo(const char* key, const char* value) {
 
 bool CDFRunInfo::load(TFile* f) {
   m_mapData.clear();
-  if (f==nullptr) return false;
+  if (f==NULL) return false;
   TMap* pMap=(TMap*)f->Get(RootVariableName);
-  if (pMap==nullptr) return false;
+  if (pMap==NULL) return false;
   TIterator* i=pMap->MakeIterator();
   TObject* o;
 
-  while ((o=i->Next())!=nullptr) {
+  while ((o=i->Next())!=NULL) {
     std::string a(o->GetName());
     std::string b(pMap->GetValue(o)->GetName());
     m_mapData.insert(std::pair<std::string,std::string>(a,b));

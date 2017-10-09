@@ -164,7 +164,7 @@ void RPCChamberQuality::fillMonitorElements(DQMStore::IGetter& igetter) {
       meName<<summaryDir_<<"/RPCChamberQuality_"<<RPCChamberQuality::regions_[r]; 
       summary[r] = igetter.get(meName.str());
       
-      if( summary[r] != nullptr ) summary[r]->Reset();
+      if( summary[r] != 0 ) summary[r]->Reset();
     }
     
     //Barrel
@@ -187,7 +187,7 @@ void RPCChamberQuality::fillMonitorElements(DQMStore::IGetter& igetter) {
       else this->performeClientOperation(meName.str(), 1 , summary[2],igetter);
     }//loop on Disks
       
-    MonitorElement * RpcOverview = nullptr;
+    MonitorElement * RpcOverview = NULL;
     meName.str("");
     meName<<summaryDir_<<"/RPC_System_Quality_Overview"; 
     RpcOverview = igetter.get(meName.str());
@@ -195,7 +195,7 @@ void RPCChamberQuality::fillMonitorElements(DQMStore::IGetter& igetter) {
 
     if(RpcOverview) {//Fill Overview ME
       for(int r = 0 ; r< 3; r++) {
-	if (summary[r] == nullptr ) continue;
+	if (summary[r] == 0 ) continue;
 	double entries = summary[r]->getEntries();
 	if(entries == 0) continue;
 	for (int x = 1; x <= 7; x++) {
@@ -214,16 +214,16 @@ void RPCChamberQuality::fillMonitorElements(DQMStore::IGetter& igetter) {
 void RPCChamberQuality::performeClientOperation(std::string MESufix, int region, MonitorElement * quality,  DQMStore::IGetter& igetter){
 
 
-  MonitorElement * RCQ=nullptr;  
-  MonitorElement * RCQD=nullptr; 
+  MonitorElement * RCQ=NULL;  
+  MonitorElement * RCQD=NULL; 
   
-  MonitorElement * DEAD=nullptr;  
-  MonitorElement * CLS=nullptr;
-  MonitorElement * MULT=nullptr;
-  MonitorElement * NoisySt=nullptr;
-  MonitorElement * Chip=nullptr;
-  MonitorElement * HV=nullptr;
-  MonitorElement * LV=nullptr;
+  MonitorElement * DEAD=NULL;  
+  MonitorElement * CLS=NULL;
+  MonitorElement * MULT=NULL;
+  MonitorElement * NoisySt=NULL;
+  MonitorElement * Chip=NULL;
+  MonitorElement * HV=NULL;
+  MonitorElement * LV=NULL;
   std::stringstream meName; 
 
   meName.str("");

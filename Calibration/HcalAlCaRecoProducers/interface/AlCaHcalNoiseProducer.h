@@ -44,10 +44,10 @@
 class AlCaHcalNoiseProducer : public edm::EDProducer {
    public:
       explicit AlCaHcalNoiseProducer(const edm::ParameterSet&);
-      ~AlCaHcalNoiseProducer() override;
+      ~AlCaHcalNoiseProducer();
 
 
-      void produce(edm::Event &, const edm::EventSetup&) override;
+      virtual void produce(edm::Event &, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
 

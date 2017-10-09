@@ -25,9 +25,9 @@
 class HcalGainWidthsHandler : public popcon::PopConSourceHandler<HcalGainWidths>
 {
  public:
-  void getNewObjects() override;
-  std::string id() const override { return m_name;}
-  ~HcalGainWidthsHandler() override;
+  void getNewObjects();
+  std::string id() const { return m_name;}
+  ~HcalGainWidthsHandler();
   HcalGainWidthsHandler(edm::ParameterSet const &);
 
   void initObject(HcalGainWidths*);

@@ -50,7 +50,7 @@ class DTRunConditionVar : public DQMEDAnalyzer
     DTRunConditionVar(const edm::ParameterSet& pset) ;
 
     //Destructor
-    ~DTRunConditionVar() override ;
+    ~DTRunConditionVar() ;
 
     //BookHistograms
     void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;

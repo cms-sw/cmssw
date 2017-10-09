@@ -41,7 +41,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 //
 #include <string>
-#include <cstdlib>
+#include <stdlib.h>
 
 using namespace std;
 using namespace edm;

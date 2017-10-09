@@ -26,13 +26,13 @@ class LaserOpticalPhysicsList : public G4VPhysicsConstructor
 	/// constructor
   LaserOpticalPhysicsList(const G4String& name="optical");
 	/// destructor
-   ~LaserOpticalPhysicsList() override;
+  virtual  ~LaserOpticalPhysicsList();
 
  public:
 	/// construct Optical Photons
-  void ConstructParticle() override;
+  virtual void ConstructParticle();
 	/// construct Optical Processes
-  void ConstructProcess() override;
+  virtual void ConstructProcess();
 
  protected:
   G4bool wasActivated;

@@ -9,7 +9,7 @@
 class DetectorStateFilter : public edm::stream::EDFilter<> {
  public:
  DetectorStateFilter( const edm::ParameterSet & );
- ~DetectorStateFilter() override;
+ ~DetectorStateFilter();
   private:
   bool filter( edm::Event &, edm::EventSetup const& ) override;
 

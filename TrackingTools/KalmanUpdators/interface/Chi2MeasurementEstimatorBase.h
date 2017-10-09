@@ -29,13 +29,13 @@ public:
     theMaxChi2(maxChi2), theNSigma(nSigma), theMaxDisplacement(maxDisp)  {}
 
 
-  std::pair<bool, double> estimate(const TrajectoryStateOnSurface& ts,
-					   const TrackingRecHit &) const override = 0;
+  virtual std::pair<bool, double> estimate(const TrajectoryStateOnSurface& ts,
+					   const TrackingRecHit &) const = 0;
 
-  bool estimate( const TrajectoryStateOnSurface& ts, 
+  virtual bool estimate( const TrajectoryStateOnSurface& ts, 
 			 const Plane& plane) const final;
 
-  Local2DVector 
+  virtual Local2DVector 
   maximalLocalDisplacement( const TrajectoryStateOnSurface& ts,
 			    const Plane& plane) const final;
 

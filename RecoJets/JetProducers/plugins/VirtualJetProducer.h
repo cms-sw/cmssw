@@ -15,7 +15,6 @@
 #include "DataFormats/JetReco/interface/BasicJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
-#include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
 
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
 
@@ -80,7 +79,7 @@ protected:
   //
 public:
   explicit VirtualJetProducer(const edm::ParameterSet& iConfig);
-  ~VirtualJetProducer() override;
+  virtual ~VirtualJetProducer();
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   static void fillDescriptionsFromVirtualJetProducer(edm::ParameterSetDescription& desc);
   
@@ -96,7 +95,7 @@ public:
   // member functions
   //
 public:
-  void  produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  virtual void  produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   std::string   jetType() const { return jetType_; }
   
 protected:
@@ -229,9 +228,7 @@ private:
   edm::EDGetTokenT<reco::CandidateView> input_candidateview_token_;
   edm::EDGetTokenT<std::vector<edm::FwdPtr<reco::PFCandidate> > > input_candidatefwdptr_token_;
   edm::EDGetTokenT<std::vector<edm::FwdPtr<pat::PackedCandidate> > > input_packedcandidatefwdptr_token_;
-  edm::EDGetTokenT<std::vector<edm::FwdPtr<reco::GenParticle> > > input_gencandidatefwdptr_token_;
-  edm::EDGetTokenT<std::vector<edm::FwdPtr<pat::PackedGenParticle> > > input_packedgencandidatefwdptr_token_;
-  
+
  protected:
   edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;
   

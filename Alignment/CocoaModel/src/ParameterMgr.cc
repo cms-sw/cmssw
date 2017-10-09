@@ -13,7 +13,7 @@
 //----------------------------------------------------------------------------
 
 
-ParameterMgr* ParameterMgr::theInstance = nullptr;
+ParameterMgr* ParameterMgr::theInstance = 0;
 
 //----------------------------------------------------------------------------
 ParameterMgr* ParameterMgr::getInstance()

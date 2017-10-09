@@ -21,7 +21,7 @@
 //
 LaserAlignmentProducer::LaserAlignmentProducer(const edm::ParameterSet&) :
   EDProducer(),
-  theEvent(nullptr)
+  theEvent(0)
 {
   //register your products
   produces<edm::HepMCProduct>("unsmeared");

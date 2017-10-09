@@ -48,15 +48,15 @@
 class BeamSpotRcdReader : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
    public:
       explicit BeamSpotRcdReader(const edm::ParameterSet&);
-      ~BeamSpotRcdReader() override;
+      ~BeamSpotRcdReader();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
    private:
-      void beginJob() override;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override;
+      virtual void beginJob() override;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override;
 
       struct theBSfromDB
       {
@@ -92,12 +92,12 @@ class BeamSpotRcdReader : public edm::one::EDAnalyzer<edm::one::SharedResources>
 // constructors and destructor
 //
 BeamSpotRcdReader::BeamSpotRcdReader(const edm::ParameterSet& iConfig) :
-  bstree_(nullptr)
+  bstree_(0)
 {
   //now do what ever initialization is needed
   usesResource("TFileService");
   std::string fileName(iConfig.getUntrackedParameter<std::string>("rawFileName"));
-  if (!fileName.empty()) {
+  if (fileName.size()) {
     output_.reset(new std::ofstream(fileName.c_str()));
     if (!output_->good()) {
       edm::LogError("IOproblem") << "Could not open output file " << fileName << ".";

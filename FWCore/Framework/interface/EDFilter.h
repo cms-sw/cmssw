@@ -42,7 +42,7 @@ namespace edm {
     typedef EDFilter ModuleType;
     
     EDFilter();
-    ~EDFilter() override;
+    virtual ~EDFilter();
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
     static void prevalidate(ConfigurationDescriptions& );

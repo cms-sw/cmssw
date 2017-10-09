@@ -9,7 +9,7 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelDelay25Calib.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelTimeFormatter.h"
 #include <iostream>
-#include <cassert>
+#include <assert.h>
 #include <map>
 #include <sstream>
 

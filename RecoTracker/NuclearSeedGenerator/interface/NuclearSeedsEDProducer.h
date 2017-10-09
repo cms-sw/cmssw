@@ -50,11 +50,11 @@ class NuclearSeedsEDProducer : public edm::stream::EDProducer<> {
 
    public:
       explicit NuclearSeedsEDProducer(const edm::ParameterSet&);
-      ~NuclearSeedsEDProducer() override;
+      ~NuclearSeedsEDProducer();
 
    private:
-      void beginRun(edm::Run const& run, const edm::EventSetup&) override;
-      void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void beginRun(edm::Run const& run, const edm::EventSetup&) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
       edm::ParameterSet conf_;

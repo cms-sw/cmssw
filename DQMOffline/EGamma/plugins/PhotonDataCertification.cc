@@ -80,11 +80,11 @@ float PhotonDataCertification::invMassZtest(string path, TString name,
 
   float ZMass = 91.2;
   float ZWidth = 2.5;
-  MonitorElement *TestElem = nullptr;
+  MonitorElement *TestElem = 0;
   TestElem = igetter.get(path);
-  if (TestElem == nullptr) return 0;
+  if (TestElem == 0) return 0;
   TH1F *TestHist = TestElem->getTH1F();
-  if (TestHist == nullptr) return 0;
+  if (TestHist == 0) return 0;
   RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING) ;
   RooRealVar mass("mass","Mass_{2#gamma}", 0, 200,"GeV");
   RooRealVar mRes("M_{Z}", "Z Mass", ZMass, 70, 110);

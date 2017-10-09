@@ -16,7 +16,7 @@ class EcalCondHandler:
     xmlFileSource_(ps.getUntrackedParameter<std::string>("xmlFile")),
     since_(ps.getUntrackedParameter<long long>("since")){}
 
-  void getNewObjects() override{
+  virtual void getNewObjects(){
 
     EcalCondHeader   header;
     Payload * payload = new Payload;
@@ -25,7 +25,7 @@ class EcalCondHandler:
 		          	    std::make_pair(payload,since_));
   }
 
-  std::string id() const override {return std::string("dummy");}
+  virtual std::string id() const {return std::string("dummy");}
 
  private:
   

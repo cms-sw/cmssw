@@ -18,10 +18,10 @@ public:
   explicit Chi2Strip1DEstimator(double maxChi2, double nSigma = 3.) : 
     Chi2MeasurementEstimatorBase( maxChi2, nSigma) {}
 
-  std::pair<bool,double> estimate(const TrajectoryStateOnSurface&,
-				     const TrackingRecHit&) const override;
+  virtual std::pair<bool,double> estimate(const TrajectoryStateOnSurface&,
+				     const TrackingRecHit&) const;
 
-  Chi2Strip1DEstimator* clone() const override {
+  virtual Chi2Strip1DEstimator* clone() const {
     return new Chi2Strip1DEstimator(*this);
   }
 

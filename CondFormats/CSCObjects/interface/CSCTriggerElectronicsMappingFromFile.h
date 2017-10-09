@@ -18,10 +18,10 @@ class CSCTriggerElectronicsMappingFromFile : public CSCTriggerElectronicsMapping
    CSCTriggerElectronicsMappingFromFile() {}
 
   /// Destructor
-   ~CSCTriggerElectronicsMappingFromFile() override;
+   virtual ~CSCTriggerElectronicsMappingFromFile();
 
   /// Fill mapping store
-   void fill( void ) override;
+   virtual void fill( void );
 
  private: 
    std::string filename_;

@@ -19,7 +19,7 @@
 
 // #include "CLHEP/Vector/LorentzVector.h"
 // #include "CLHEP/Random/RandFlat.h"
-#include <cmath>
+#include <math.h>
 
 using namespace std;
 
@@ -53,7 +53,7 @@ FP420RecoMain::FP420RecoMain(const edm::ParameterSet& conf):conf_(conf)  {
 }
 
 FP420RecoMain::~FP420RecoMain() {
-  if ( finderParameters_ != nullptr ) {
+  if ( finderParameters_ != 0 ) {
     delete finderParameters_;
   }
 }
@@ -161,7 +161,7 @@ void FP420RecoMain::run(edm::Handle<TrackCollectionFP420> &input, RecoCollection
     if (verbosity > 1) {
       std::cout << "FP420RecoMain: track rcollector.size=" << rcollector.size() << std::endl;
     }
-    if (!rcollector.empty()){
+    if (rcollector.size()>0){
       RecoCollectionFP420::Range rinputRange;
       rinputRange.first = rcollector.begin();
       rinputRange.second = rcollector.end();

@@ -9,7 +9,7 @@
 #include <fstream>
 #include <sstream>
 #include <map>
-#include <cassert>
+#include <assert.h>
 #include <stdexcept>
 
 using namespace pos;

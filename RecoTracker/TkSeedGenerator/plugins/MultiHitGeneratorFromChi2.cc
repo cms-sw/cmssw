@@ -93,8 +93,8 @@ MultiHitGeneratorFromChi2::MultiHitGeneratorFromChi2(const edm::ParameterSet& cf
     useSimpleMF_ = true;
     mfName_ = cfg.getParameter<std::string>("SimpleMagneticField");
   }
-  filter = nullptr;
-  bfield = nullptr;
+  filter = 0;
+  bfield = 0;
   nomField = -1.;
 }
 
@@ -198,7 +198,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region, OrderedMul
                                         cacheHits& refittedHitStorage) {
   int size = thirdLayers.size();
   const RecHitsSortedInPhi * thirdHitMap[size];
-  vector<const DetLayer *> thirdLayerDetLayer(size,nullptr);
+  vector<const DetLayer *> thirdLayerDetLayer(size,0);
   for (int il=0; il<size; ++il) 
     {
       thirdHitMap[il] = &layerCache(thirdLayers[il], region, es);
@@ -665,7 +665,7 @@ void MultiHitGeneratorFromChi2::refit2Hits(HitOwnPtr & hit1,
 					   const TrackingRegion& region, float nomField, bool isDebug) {
 
   //these need to be sorted in R
-  const GlobalPoint& gp0 = region.origin();
+  GlobalPoint gp0 = region.origin();
   GlobalPoint gp1 = hit1->globalPosition();
   GlobalPoint gp2 = hit2->globalPosition();
 

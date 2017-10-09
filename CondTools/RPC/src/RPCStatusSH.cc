@@ -60,7 +60,7 @@ void popcon::RpcDataS::getNewObjects() {
      }
    std::cout << " >> Final object size: " << Sdata->ObStatus_rpc.size() << std::endl;
    
-   if (!Sdata->ObStatus_rpc.empty()) {
+   if (Sdata->ObStatus_rpc.size() > 0) {
      niov = snc;
    } else {
      niov = snc;

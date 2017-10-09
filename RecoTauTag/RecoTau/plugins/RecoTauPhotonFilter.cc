@@ -20,7 +20,7 @@ namespace reco { namespace tau {
 class RecoTauPhotonFilter : public RecoTauModifierPlugin {
   public:
   explicit RecoTauPhotonFilter(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC);
-    ~RecoTauPhotonFilter() override {}
+    virtual ~RecoTauPhotonFilter() {}
     void operator()(PFTau&) const override;
   private:
     bool filter(const RecoTauPiZero* piZero,

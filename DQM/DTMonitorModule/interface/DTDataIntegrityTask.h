@@ -43,7 +43,7 @@ public:
 
   DTDataIntegrityTask( const edm::ParameterSet& ps);
 
-  ~DTDataIntegrityTask() override;
+  virtual ~DTDataIntegrityTask();
 
   void TimeHistos(DQMStore::IBooker &, std::string histoType);
 

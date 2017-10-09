@@ -36,23 +36,23 @@ public:
   HIPAlignmentAlgorithm(const edm::ParameterSet& cfg);
 
   /// Destructor
-  ~HIPAlignmentAlgorithm() override{};
+  ~HIPAlignmentAlgorithm(){};
 
   /// Call at beginning of job
   void initialize(
     const edm::EventSetup& setup,
     AlignableTracker* tracker, AlignableMuon* muon, AlignableExtras* extras,
     AlignmentParameterStore* store
-    ) override;
+    );
 
   /// Call at end of job
-  void terminate(const edm::EventSetup& setup) override;
+  void terminate(const edm::EventSetup& setup);
 
   /// Called at start of new loop
-  void startNewLoop(void) override;
+  void startNewLoop(void);
 
   /// Run the algorithm
-  void run(const edm::EventSetup& setup, const EventInfo& eventInfo) override;
+  void run(const edm::EventSetup& setup, const EventInfo& eventInfo);
 
 private:
   bool processHit1D(

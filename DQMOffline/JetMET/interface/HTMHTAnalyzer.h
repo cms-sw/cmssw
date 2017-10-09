@@ -35,7 +35,7 @@ class HTMHTAnalyzer : public DQMEDAnalyzer {
   HTMHTAnalyzer(const edm::ParameterSet&);
   
   /// Destructor
-  ~HTMHTAnalyzer() override;
+  virtual ~HTMHTAnalyzer();
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   /// Get the analysis

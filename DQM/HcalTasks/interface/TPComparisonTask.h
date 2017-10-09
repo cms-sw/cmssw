@@ -21,18 +21,18 @@ class TPComparisonTask : public hcaldqm::DQTask
 {
 	public: 
 		TPComparisonTask(edm::ParameterSet const&);
-		~TPComparisonTask() override
+		virtual ~TPComparisonTask()
 		{}
 
-		void bookHistograms(DQMStore::IBooker&,
-			edm::Run const&, edm::EventSetup const&) override;
-		void endLuminosityBlock(edm::LuminosityBlock const&,
-			edm::EventSetup const&) override;
+		virtual void bookHistograms(DQMStore::IBooker&,
+			edm::Run const&, edm::EventSetup const&);
+		virtual void endLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&);
 
 	protected:
 		//	funcs
-		void _process(edm::Event const&, edm::EventSetup const&) override;
-		void _resetMonitors(hcaldqm::UpdateFreq) override;
+		virtual void _process(edm::Event const&, edm::EventSetup const&);
+		virtual void _resetMonitors(hcaldqm::UpdateFreq);
 
 		//	Tags and corresponding Tokens
 		edm::InputTag	_tag1;

@@ -23,20 +23,20 @@ public:
     for(unsigned int ii=0; ii<4; ii++) theXlaserLine[ii] = -1; 
   };
   MeasurementCOPS(){ };   
-  ~MeasurementCOPS() override{ };
+  ~MeasurementCOPS(){ };
     
   // Get simulated value (called every time a parameter is displaced)
-  void calculateSimulatedValue( ALIbool firstTime ) override;
+  virtual void calculateSimulatedValue( ALIbool firstTime );
 
   //---------- Add any correction between the measurement data and the default format in COCOA
-  void correctValueAndSigma() override;
+  virtual void correctValueAndSigma();
 
   //---------- Convert from V to rad
-  void setConversionFactor( const std::vector<ALIstring>& wordlist ) override;
-  int xlaserLine( unsigned int ii) override {
+  virtual void setConversionFactor( const std::vector<ALIstring>& wordlist );
+  virtual int xlaserLine( unsigned int ii) {
     return theXlaserLine[ii];
   }
-  void setXlaserLine( unsigned int ii, int val) override {
+  virtual void setXlaserLine( unsigned int ii, int val) {
     theXlaserLine[ii] = val;};
 
  private:

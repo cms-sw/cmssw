@@ -49,7 +49,7 @@ public:
     L1GtHfBitCountsTemplate( const L1GtHfBitCountsTemplate& );
 
     // destructor
-    ~L1GtHfBitCountsTemplate() override;
+    virtual ~L1GtHfBitCountsTemplate();
 
     // assign operator
     L1GtHfBitCountsTemplate& operator= (const L1GtHfBitCountsTemplate&);
@@ -80,7 +80,7 @@ public:
 
 
     /// print the condition
-    void print(std::ostream& myCout) const override;
+    virtual void print(std::ostream& myCout) const;
 
     /// output stream operator
     friend std::ostream& operator<<(std::ostream&, const L1GtHfBitCountsTemplate&);

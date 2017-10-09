@@ -10,11 +10,11 @@ class VpspScanHistograms : public virtual CommissioningHistograms {
  public:
   
   VpspScanHistograms( const edm::ParameterSet& pset, DQMStore* );
-  ~VpspScanHistograms() override;
+  virtual ~VpspScanHistograms();
   
-  void histoAnalysis( bool debug ) override;
+  void histoAnalysis( bool debug );
 
-  void printAnalyses() override; // override
+  void printAnalyses(); // override
 
 };
 

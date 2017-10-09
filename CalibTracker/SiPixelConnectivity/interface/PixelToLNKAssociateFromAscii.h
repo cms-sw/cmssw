@@ -25,10 +25,10 @@ public:
 
   PixelToLNKAssociateFromAscii(const std::string & fileName, const bool phase1=false);
 
-  const CablingRocId * operator()(const DetectorRocId& roc) const override;
+  virtual const CablingRocId * operator()(const DetectorRocId& roc) const;
 
   /// version
-  std::string version() const override;
+  virtual std::string version() const;
 
 private:
   typedef TRange<int> Range; 

@@ -12,9 +12,9 @@ public:
   typedef T                                   Scalar;
   typedef RKSmallVector<T,N>                  Vector;
 
-  ~RKCurvilinearDistance() override {}
+  virtual ~RKCurvilinearDistance() {}
 
-  Scalar operator()( const Vector& a, const Vector& b, const Scalar& s) const override {
+  virtual Scalar operator()( const Vector& a, const Vector& b, const Scalar& s) const {
       Basic3DVector<Scalar> amom = momentum(a);
       Basic3DVector<Scalar> bmom = momentum(b);
 

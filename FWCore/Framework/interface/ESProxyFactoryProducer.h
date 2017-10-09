@@ -81,7 +81,7 @@ class ESProxyFactoryProducer : public eventsetup::DataProxyProvider
 
    public:
       ESProxyFactoryProducer();
-      ~ESProxyFactoryProducer() noexcept(false) override;
+      virtual ~ESProxyFactoryProducer() noexcept(false);
 
       // ---------- const member functions ---------------------
 
@@ -89,13 +89,13 @@ class ESProxyFactoryProducer : public eventsetup::DataProxyProvider
 
       // ---------- member functions ---------------------------
       ///overrides DataProxyProvider method
-      void newInterval(const eventsetup::EventSetupRecordKey& iRecordType,
-                                const ValidityInterval& iInterval) override ;
+      virtual void newInterval(const eventsetup::EventSetupRecordKey& iRecordType,
+                                const ValidityInterval& iInterval) ;
 
    protected:
       ///override DataProxyProvider method
-      void registerProxies(const eventsetup::EventSetupRecordKey& iRecord ,
-                                    KeyedProxies& aProxyList) override ;
+      virtual void registerProxies(const eventsetup::EventSetupRecordKey& iRecord ,
+                                    KeyedProxies& aProxyList) ;
 
       /** \param iFactory unique_ptr holding a new instance of a Factory
          \param iLabel extra string label used to get data (optional)
@@ -118,9 +118,9 @@ class ESProxyFactoryProducer : public eventsetup::DataProxyProvider
                                           const std::string& iLabel= std::string() );
 
    private:
-      ESProxyFactoryProducer(const ESProxyFactoryProducer&) = delete; // stop default
+      ESProxyFactoryProducer(const ESProxyFactoryProducer&); // stop default
 
-      const ESProxyFactoryProducer& operator=(const ESProxyFactoryProducer&) = delete; // stop default
+      const ESProxyFactoryProducer& operator=(const ESProxyFactoryProducer&); // stop default
 
       
       // ---------- member data --------------------------------

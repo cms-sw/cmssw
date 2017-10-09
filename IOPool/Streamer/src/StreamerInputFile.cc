@@ -72,9 +72,9 @@ namespace edm {
     logFileAction("  Initiating request to open file ");
 
     IOOffset size = -1;
-    if(StorageFactory::get()->check(name, &size)) {
+    if(StorageFactory::get()->check(name.c_str(), &size)) {
       try {
-        storage_ =StorageFactory::get()->open(name,
+        storage_ =StorageFactory::get()->open(name.c_str(),
                                                    IOFlags::OpenRead);
       }
       catch(cms::Exception& e) {

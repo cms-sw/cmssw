@@ -10,9 +10,9 @@
 */
 class CastorNominalCoder : public CastorCoder {
 public:
-  void adc2fC(const CastorDataFrame& df, CaloSamples& lf) const override;
+  virtual void adc2fC(const CastorDataFrame& df, CaloSamples& lf) const;
 
-  void fC2adc(const CaloSamples& clf, CastorDataFrame& df, int fCapIdOffset) const override; 
+  virtual void fC2adc(const CaloSamples& clf, CastorDataFrame& df, int fCapIdOffset) const; 
 };
 
 #endif

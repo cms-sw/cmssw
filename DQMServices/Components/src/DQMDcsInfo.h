@@ -30,7 +30,7 @@ public:
   DQMDcsInfo(const edm::ParameterSet& ps);
 
   /// Destructor
-  ~DQMDcsInfo() override;
+  virtual ~DQMDcsInfo();
 
 protected:
 

@@ -1,6 +1,6 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelFEDTestDAC.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelTimeFormatter.h"
-#include <cstring>
+#include <string.h>
 #include <cassert>
 #include <map>
 #include <sstream>

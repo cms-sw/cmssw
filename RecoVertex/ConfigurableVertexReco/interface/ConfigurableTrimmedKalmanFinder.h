@@ -11,20 +11,20 @@ class ConfigurableTrimmedKalmanFinder : public AbstractConfReconstructor
 {
   public:
     ConfigurableTrimmedKalmanFinder ();
-    void configure ( const edm::ParameterSet & ) override;
+    void configure ( const edm::ParameterSet & );
     ConfigurableTrimmedKalmanFinder ( const ConfigurableTrimmedKalmanFinder & o );
-    ~ConfigurableTrimmedKalmanFinder() override;
-    ConfigurableTrimmedKalmanFinder * clone () const override;
+    ~ConfigurableTrimmedKalmanFinder();
+    ConfigurableTrimmedKalmanFinder * clone () const;
     std::vector < TransientVertex > vertices ( 
-        const std::vector < reco::TransientTrack > & t ) const override;
+        const std::vector < reco::TransientTrack > & t ) const;
     std::vector < TransientVertex > vertices ( 
         const std::vector < reco::TransientTrack > & t,
-        const reco::BeamSpot & s ) const override;
+        const reco::BeamSpot & s ) const;
     std::vector < TransientVertex > vertices ( 
         const std::vector < reco::TransientTrack > & prims,
         const std::vector < reco::TransientTrack > & secs,
-        const reco::BeamSpot & s ) const override;
-    edm::ParameterSet defaults() const override;
+        const reco::BeamSpot & s ) const;
+    edm::ParameterSet defaults() const;
   private:
     const VertexReconstructor * theRector;
 };

@@ -17,9 +17,9 @@ class PFCandidateStripMerger : public PFCandidateMergerBase
  public:
   PFCandidateStripMerger();
   PFCandidateStripMerger(const edm::ParameterSet&);
-  ~PFCandidateStripMerger() override;
+  ~PFCandidateStripMerger();
 
-  std::vector<std::vector<reco::PFCandidatePtr>> mergeCandidates(const std::vector<reco::PFCandidatePtr>&) override;
+  std::vector<std::vector<reco::PFCandidatePtr>> mergeCandidates(const std::vector<reco::PFCandidatePtr>&);
 
  private:
 

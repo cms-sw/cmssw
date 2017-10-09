@@ -11,7 +11,7 @@
 class PixelToFEDAssociateFromAsciiESProducer : public edm::ESProducer {
 public:
   PixelToFEDAssociateFromAsciiESProducer(const edm::ParameterSet & p);
-  ~PixelToFEDAssociateFromAsciiESProducer() override;
+  virtual ~PixelToFEDAssociateFromAsciiESProducer();
   std::shared_ptr<PixelToFEDAssociate> produce(const TrackerDigiGeometryRecord&);
 private:
   std::shared_ptr<PixelToFEDAssociate> theAssociator;

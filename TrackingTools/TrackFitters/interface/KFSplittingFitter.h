@@ -34,7 +34,7 @@ public:
 		    const MeasurementEstimator* aEstimator) :
     fitter(aPropagator, aUpdator, aEstimator) {}
 
-    std::unique_ptr<TrajectoryFitter> clone() const override {
+    virtual std::unique_ptr<TrajectoryFitter> clone() const override {
       return std::unique_ptr<TrajectoryFitter>(
           new KFSplittingFitter(fitter.propagator(),
                                 fitter.updator(),
@@ -51,7 +51,7 @@ public:
 		    const TSOS& firstPredTsos,
 		    fitType type) const override;
 
-  void setHitCloner(TkCloner const * hc)  override{
+  virtual void setHitCloner(TkCloner const * hc)  override{
         fitter.setHitCloner(hc);
   }
 

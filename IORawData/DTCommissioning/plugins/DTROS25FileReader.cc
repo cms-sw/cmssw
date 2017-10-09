@@ -113,14 +113,14 @@ int DTROS25FileReader::fillRawData(Event& e,
 
     if ( i == 1 ){
       cout<<"[DTROS25FileReader]: ERROR! failed to get the trailer"<<endl;
-      delete data; data=nullptr;
+      delete data; data=0;
       return false;
     }    
     else {
       cout<<"[DTROS25FileReader]:"
 	  <<" ERROR! ROS data exceeding estimated event dimension. Event size = "
 	  <<eventData.size()<<endl;
-      delete data; data=nullptr;
+      delete data; data=0;
       return false;
     }
     
@@ -130,7 +130,7 @@ int DTROS25FileReader::fillRawData(Event& e,
 
 void DTROS25FileReader::produce(Event&e, EventSetup const&es){
    edm::Handle<FEDRawDataCollection> rawdata;
-   FEDRawDataCollection *fedcoll = nullptr;
+   FEDRawDataCollection *fedcoll = 0;
    fillRawData(e,fedcoll);
    std::unique_ptr<FEDRawDataCollection> bare_product(fedcoll);
    e.put(std::move(bare_product));

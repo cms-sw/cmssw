@@ -20,9 +20,9 @@ class SiStripPedestalsBuilder : public edm::EDAnalyzer {
 
   explicit SiStripPedestalsBuilder( const edm::ParameterSet& iConfig);
 
-  ~SiStripPedestalsBuilder() override{};
+  ~SiStripPedestalsBuilder(){};
 
-  void analyze(const edm::Event& , const edm::EventSetup& ) override;
+  virtual void analyze(const edm::Event& , const edm::EventSetup& );
 
  private:
   edm::FileInPath fp_;

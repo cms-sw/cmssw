@@ -22,11 +22,11 @@ public:
 
   KFStrip1DUpdator() {}
 
-  ~KFStrip1DUpdator() override {}
+  ~KFStrip1DUpdator() {}
 
-  TSOS update(const TSOS& aTsos, const TrackingRecHit& aHit) const override;
+  virtual TSOS update(const TSOS& aTsos, const TrackingRecHit& aHit) const;
 
-  KFStrip1DUpdator * clone() const override 
+  virtual KFStrip1DUpdator * clone() const 
   {
     return new KFStrip1DUpdator(*this);
   }

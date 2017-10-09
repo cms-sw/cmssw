@@ -102,9 +102,9 @@ void DQMCorrelationClient::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGet
 
   //get available histograms
   hname = meXpset_.folder + "/" + meXpset_.name;
-  MonitorElement* meX = igetter_.get( hname );
+  MonitorElement* meX = igetter_.get( hname.c_str() );
   hname = meYpset_.folder + "/" + meYpset_.name;
-  MonitorElement* meY = igetter_.get( hname );
+  MonitorElement* meY = igetter_.get( hname.c_str() );
 
   if (!meX || !meY) {
     edm::LogError("DQMCorrelationClient") <<  "MEs not found! " 
@@ -124,7 +124,7 @@ void DQMCorrelationClient::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGet
 
   // create and cd into new folder
   std::string currentFolder = mepset_.folder;
-  ibooker_.setCurrentFolder(currentFolder);
+  ibooker_.setCurrentFolder(currentFolder.c_str());
 
   //book new histogram
   hname = mepset_.name;

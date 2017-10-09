@@ -50,14 +50,14 @@
 class CaloMiscalibTools : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
    public:
       CaloMiscalibTools(const edm::ParameterSet&);
-      ~CaloMiscalibTools() override;
+      ~CaloMiscalibTools();
 
       typedef const  EcalIntercalibConstants * ReturnType;
 
       ReturnType produce(const EcalIntercalibConstantsRcd&);
    private:
       // ----------member data ---------------------------
-    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
+    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
     
     CaloMiscalibMapEcal map_;
     std::string barrelfile_; 

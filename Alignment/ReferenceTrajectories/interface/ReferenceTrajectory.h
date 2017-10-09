@@ -70,9 +70,9 @@ public:
                       const reco::BeamSpot& beamSpot,
                       const ReferenceTrajectoryBase::Config& config);
 
-  ~ReferenceTrajectory() override {}
+  virtual ~ReferenceTrajectory() {}
 
-  ReferenceTrajectory* clone() const override { return new ReferenceTrajectory(*this); }
+  virtual ReferenceTrajectory* clone() const { return new ReferenceTrajectory(*this); }
 
 protected:
 

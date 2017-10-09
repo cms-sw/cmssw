@@ -28,7 +28,7 @@ public:
   SMSLinearizationPointFinder( const RecTracksDistanceMatrix * m,
       signed int n_pairs = -1, const SMS & sms = SMS() );
 
-  SMSLinearizationPointFinder * clone() const override;
+  virtual SMSLinearizationPointFinder * clone() const;
 };
 
 #endif

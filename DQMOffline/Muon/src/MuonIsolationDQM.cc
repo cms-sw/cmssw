@@ -678,10 +678,10 @@ void MuonIsolationDQM::bookHistograms(DQMStore::IBooker & ibooker,
 				      edm::EventSetup const & /* iSetup */){
   
   ibooker.cd();
-  ibooker.setCurrentFolder(dirName);
+  ibooker.setCurrentFolder(dirName.c_str());
 
   ibooker.cd();
-  ibooker.setCurrentFolder(dirName);
+  ibooker.setCurrentFolder(dirName.c_str());
 
   //---initialize number of muons histogram---
   h_nMuons = ibooker.book1D("nMuons", title_sam + "Number of Muons", 20, 0., 20.);

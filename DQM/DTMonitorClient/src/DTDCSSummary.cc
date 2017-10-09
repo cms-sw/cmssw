@@ -27,7 +27,7 @@ using namespace edm;
 
 DTDCSSummary::DTDCSSummary(const ParameterSet& pset) {
 
-  bookingdone = false;
+  bookingdone = 0;
 
 }
 
@@ -50,7 +50,7 @@ void DTDCSSummary::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::
     dcsFractions[wheel]->Fill(-1);
   }
   
-  bookingdone = true; 
+  bookingdone = 1; 
 }
 
 void DTDCSSummary::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {}

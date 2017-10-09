@@ -21,7 +21,7 @@
 // This class's header 
 #include "Alignment/CommonAlignmentParametrization/interface/TwoBowedSurfacesAlignmentParameters.h"
 
-#include <cmath>
+#include <math.h>
 #include <iostream>
 //_________________________________________________________________________________________________
 TwoBowedSurfacesAlignmentParameters::TwoBowedSurfacesAlignmentParameters(Alignable *ali) :

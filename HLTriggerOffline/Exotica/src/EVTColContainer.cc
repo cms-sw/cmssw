@@ -87,23 +87,23 @@ struct EVTColContainer {
     EVTColContainer():
         nOfCollections(6),
         nInitialized(0),
-        genParticles(nullptr),
-        muons(nullptr),
-        tracks(nullptr),
-        electrons(nullptr),
-        photons(nullptr),
-        METs(nullptr),
-        pfMETs(nullptr),
-        pfMHTs(nullptr),
-        genMETs(nullptr),
-        caloMETs(nullptr),
-        caloMHTs(nullptr),
-        l1METs(nullptr),
-        pfTaus(nullptr),
-        pfJets(nullptr),
-        caloJets(nullptr),
-        triggerResults(nullptr),
-        bs(nullptr)
+        genParticles(0),
+        muons(0),
+        tracks(0),
+        electrons(0),
+        photons(0),
+        METs(0),
+        pfMETs(0),
+        pfMHTs(0),
+        genMETs(0),
+        caloMETs(0),
+        caloMHTs(0),
+        l1METs(0),
+        pfTaus(0),
+        pfJets(0),
+        caloJets(0),
+        triggerResults(0),
+        bs(0)
     {
     }
     ///
@@ -121,23 +121,23 @@ struct EVTColContainer {
     void reset()
     {
         nInitialized = 0;
-        genParticles = nullptr;
-        muons = nullptr;
-        tracks = nullptr;
-        electrons = nullptr;
-        photons = nullptr;
-        METs = nullptr;
-        pfMETs = nullptr;
-        pfMHTs = nullptr;
-        genMETs = nullptr;
-        caloMETs = nullptr;
-        caloMHTs = nullptr;
-        l1METs = nullptr;
-        pfTaus = nullptr;
-        pfJets = nullptr;
-        caloJets = nullptr;
-        triggerResults = nullptr;
-        bs = nullptr;
+        genParticles = 0;
+        muons = 0;
+        tracks = 0;
+        electrons = 0;
+        photons = 0;
+        METs = 0;
+        pfMETs = 0;
+        pfMHTs = 0;
+        genMETs = 0;
+        caloMETs = 0;
+        caloMHTs = 0;
+        l1METs = 0;
+        pfTaus = 0;
+        pfJets = 0;
+        caloJets = 0;
+        triggerResults = 0;
+        bs = 0;
     }
 
     /// Setter: multiple overloaded function
@@ -216,35 +216,35 @@ struct EVTColContainer {
     const unsigned int getSize(const unsigned int & objtype) const
     {
         unsigned int size = 0;
-        if (objtype == EVTColContainer::MUON && muons != nullptr) {
+        if (objtype == EVTColContainer::MUON && muons != 0) {
             size = muons->size();
-        } else if (objtype == EVTColContainer::MUTRK && tracks != nullptr) {
+        } else if (objtype == EVTColContainer::MUTRK && tracks != 0) {
             size = tracks->size();
-        } else if (objtype == EVTColContainer::TRACK && tracks != nullptr) {
+        } else if (objtype == EVTColContainer::TRACK && tracks != 0) {
             size = tracks->size();
-        } else if (objtype == EVTColContainer::ELEC && electrons != nullptr) {
+        } else if (objtype == EVTColContainer::ELEC && electrons != 0) {
             size = electrons->size();
-        } else if (objtype == EVTColContainer::PHOTON && photons != nullptr) {
+        } else if (objtype == EVTColContainer::PHOTON && photons != 0) {
             size = photons->size();
-        } else if (objtype == EVTColContainer::MET && METs != nullptr) {
+        } else if (objtype == EVTColContainer::MET && METs != 0) {
             size = METs->size();
-        } else if (objtype == EVTColContainer::PFMET && pfMETs != nullptr) {
+        } else if (objtype == EVTColContainer::PFMET && pfMETs != 0) {
             size = pfMETs->size();
-        } else if (objtype == EVTColContainer::PFMHT && pfMHTs != nullptr) {
+        } else if (objtype == EVTColContainer::PFMHT && pfMHTs != 0) {
             size = pfMHTs->size();
-        } else if (objtype == EVTColContainer::GENMET && genMETs != nullptr) {
+        } else if (objtype == EVTColContainer::GENMET && genMETs != 0) {
             size = genMETs->size();
-        } else if (objtype == EVTColContainer::CALOMET && caloMETs != nullptr) {
+        } else if (objtype == EVTColContainer::CALOMET && caloMETs != 0) {
             size = caloMETs->size();
-        } else if (objtype == EVTColContainer::CALOMHT && caloMHTs != nullptr) {
+        } else if (objtype == EVTColContainer::CALOMHT && caloMHTs != 0) {
             size = caloMHTs->size();
-        } else if (objtype == EVTColContainer::L1MET && l1METs != nullptr) {
+        } else if (objtype == EVTColContainer::L1MET && l1METs != 0) {
             size = l1METs->size();
-        } else if (objtype == EVTColContainer::PFTAU && pfTaus != nullptr) {
+        } else if (objtype == EVTColContainer::PFTAU && pfTaus != 0) {
             size = pfTaus->size();
-        } else if (objtype == EVTColContainer::PFJET && pfJets != nullptr) {
+        } else if (objtype == EVTColContainer::PFJET && pfJets != 0) {
             size = pfJets->size();
-        } else if (objtype == EVTColContainer::CALOJET && caloJets != nullptr) {
+        } else if (objtype == EVTColContainer::CALOJET && caloJets != 0) {
             size = caloJets->size();
         }
 

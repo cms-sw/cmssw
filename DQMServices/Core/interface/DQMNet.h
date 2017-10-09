@@ -8,8 +8,8 @@
 # include "classlib/utils/Error.h"
 # include "classlib/utils/Time.h"
 # include <pthread.h>
-# include <cstdint>
-# include <csignal>
+# include <stdint.h>
+# include <signal.h>
 # include <iostream>
 # include <vector>
 # include <string>
@@ -300,7 +300,7 @@ protected:
 
   // bool			reconstructObject(Object &o);
   // bool			reinstateObject(DQMStore *store, Object &o);
-  virtual Object *	findObject(Peer *p, const std::string &name, Peer **owner = nullptr) = 0;
+  virtual Object *	findObject(Peer *p, const std::string &name, Peer **owner = 0) = 0;
   virtual Object *	makeObject(Peer *p, const std::string &name) = 0;
   virtual void		markObjectsDead(Peer *p) = 0;
   virtual void		purgeDeadObjects(Peer *p) = 0;
@@ -322,7 +322,7 @@ private:
   void			losePeer(const char *reason,
 				 Peer *peer,
 				 lat::IOSelectEvent *event,
-				 lat::Error *err = nullptr);
+				 lat::Error *err = 0);
   void			requestObjectData(Peer *p, const char *name, size_t len);
   void			releaseFromWait(WaitList::iterator i, Object *o);
   void			releaseWaiters(const std::string &name, Object *o);
@@ -352,8 +352,8 @@ private:
   bool			flush_;
 
   // copying is not available
-  DQMNet(const DQMNet &) = delete;
-  DQMNet &operator=(const DQMNet &) = delete;
+  DQMNet(const DQMNet &);
+  DQMNet &operator=(const DQMNet &);
 };
 
 template <class ObjType>
@@ -376,12 +376,12 @@ public:
     : DQMNet(appname)
     {}
   
-  ~DQMImplNet(void) override
+  ~DQMImplNet(void)
     {}
 
 protected:
-  Object *
-  findObject(Peer *p, const std::string &name, Peer **owner = nullptr) override
+  virtual Object *
+  findObject(Peer *p, const std::string &name, Peer **owner = 0)
     {
       size_t slash = name.rfind('/');
       size_t dirpos = (slash == std::string::npos ? 0 : slash);
@@ -395,13 +395,13 @@ protected:
       typename ObjectMap::iterator pos;
       typename PeerMap::iterator i, e;
       if (owner)
-	*owner = nullptr;
+	*owner = 0;
       if (p)
       {
 	ImplPeer *ip = static_cast<ImplPeer *>(p);
 	pos = ip->objs.find(proto);
 	if (pos == ip->objs.end())
-	  return nullptr;
+	  return 0;
 	else
 	{
 	  if (owner) *owner = ip;
@@ -419,12 +419,12 @@ protected:
 	    return const_cast<ObjType *>(&*pos);
 	  }
 	}
-	return nullptr;
+	return 0;
       }
     }
 
-  Object *
-  makeObject(Peer *p, const std::string &name) override
+  virtual Object *
+  makeObject(Peer *p, const std::string &name)
     {
       ImplPeer *ip = static_cast<ImplPeer *>(p);
       size_t slash = name.rfind('/');
@@ -448,8 +448,8 @@ protected:
   // DQM_PROP_DEAD flag, then call purgeDeadObjects() at the end
   // to remove the dead ones.  This also turns off object request
   // for objects we've lost interest in.
-  void
-  markObjectsDead(Peer *p) override
+  virtual void
+  markObjectsDead(Peer *p)
     {
       uint64_t minreq
 	= (lat::Time::current()
@@ -465,8 +465,8 @@ protected:
     }
 
   // Mark remaining zombie objects as dead.  See markObjectsDead().
-  void
-  purgeDeadObjects(Peer *p) override
+  virtual void
+  purgeDeadObjects(Peer *p)
     {
       ImplPeer *ip = static_cast<ImplPeer *>(p);
       typename ObjectMap::iterator i, e;
@@ -479,20 +479,20 @@ protected:
       }
     }
 
-  Peer *
-  getPeer(lat::Socket *s) override
+  virtual Peer *
+  getPeer(lat::Socket *s)
     {
       typename PeerMap::iterator pos = peers_.find(s);
       typename PeerMap::iterator end = peers_.end();
-      return pos == end ? nullptr : &pos->second;
+      return pos == end ? 0 : &pos->second;
     }
 
-  Peer *
-  createPeer(lat::Socket *s) override
+  virtual Peer *
+  createPeer(lat::Socket *s)
     {
       ImplPeer *ip = &peers_[s];
-      ip->socket = nullptr;
-      ip->sendq = nullptr;
+      ip->socket = 0;
+      ip->sendq = 0;
       ip->sendpos = 0;
       ip->mask = 0;
       ip->source = false;
@@ -500,12 +500,12 @@ protected:
       ip->updated = false;
       ip->updates = 0;
       ip->waiting = 0;
-      ip->automatic = nullptr;
+      ip->automatic = 0;
       return ip;
     }
 
-  void
-  removePeer(Peer *p, lat::Socket *s) override
+  virtual void
+  removePeer(Peer *p, lat::Socket *s)
     {
       ImplPeer *ip = static_cast<ImplPeer *>(p);
       bool needflush = ! ip->objs.empty();
@@ -523,8 +523,8 @@ protected:
     }
 
   /// Send all objects to a peer and optionally mark sent objects old.
-  void
-  sendObjectListToPeer(Bucket *msg, bool all, bool clear) override
+  virtual void
+  sendObjectListToPeer(Bucket *msg, bool all, bool clear)
     {
       typename PeerMap::iterator pi, pe;
       typename ObjectMap::iterator oi, oe;
@@ -562,8 +562,8 @@ protected:
       copydata(msg, &words[0], sizeof(words));
     }
 
-  void
-  sendObjectListToPeers(bool all) override
+  virtual void
+  sendObjectListToPeers(bool all)
     {
       typename PeerMap::iterator i, e;
       typename ObjectMap::iterator oi, oe;
@@ -578,7 +578,7 @@ protected:
 	    << "DEBUG: notifying " << p.peeraddr << std::endl;
 
 	Bucket msg;
-        msg.next = nullptr;
+        msg.next = 0;
 	sendObjectListToPeer(&msg, !p.updated || all, true);
 
 	if (! msg.data.empty())
@@ -588,15 +588,15 @@ protected:
 	    prev = &(*prev)->next;
 
 	  *prev = new Bucket;
-	  (*prev)->next = nullptr;
+	  (*prev)->next = 0;
 	  (*prev)->data.swap(msg.data);
 	}
 	p.updated = true;
       }
     }
 
-  void
-  updatePeerMasks(void) override
+  virtual void
+  updatePeerMasks(void)
     {
       typename PeerMap::iterator i, e;
       for (i = peers_.begin(), e = peers_.end(); i != e; )

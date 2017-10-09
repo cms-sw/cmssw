@@ -22,12 +22,12 @@ class LaserTask : public hcaldqm::DQTask
 {
 	public:
 		LaserTask(edm::ParameterSet const&);
-		~LaserTask() override
+		virtual ~LaserTask()
 		{}
 
-		void bookHistograms(DQMStore::IBooker&,
-			edm::Run const&, edm::EventSetup const&) override;
-		void endRun(edm::Run const& r, edm::EventSetup const&) override
+		virtual void bookHistograms(DQMStore::IBooker&,
+			edm::Run const&, edm::EventSetup const&);
+		virtual void endRun(edm::Run const& r, edm::EventSetup const&)
 		{
 			if (_ptype==hcaldqm::fLocal)
 			{
@@ -37,14 +37,14 @@ class LaserTask : public hcaldqm::DQTask
 					this->_dump();
 			}
 		}
-		void endLuminosityBlock(edm::LuminosityBlock const&,
-			edm::EventSetup const&) override;
+		virtual void endLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&);
 
 	protected:
 		//	funcs
-		void _process(edm::Event const&, edm::EventSetup const&) override;
-		void _resetMonitors(hcaldqm::UpdateFreq) override;
-		bool _isApplicable(edm::Event const&) override;
+		virtual void _process(edm::Event const&, edm::EventSetup const&);
+		virtual void _resetMonitors(hcaldqm::UpdateFreq);
+		virtual bool _isApplicable(edm::Event const&);
 		virtual void _dump();
 
 		//	tags and tokens

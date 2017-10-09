@@ -6,7 +6,7 @@ KinematicParticleFactoryFromTransientTrack::KinematicParticleFactoryFromTransien
 
 KinematicParticleFactoryFromTransientTrack::KinematicParticleFactoryFromTransientTrack(KinematicStatePropagator * pr)
 {
- if(pr != nullptr)
+ if(pr != 0)
  {
   propagator = pr->clone();
  }else{
@@ -23,8 +23,8 @@ RefCountedKinematicParticle KinematicParticleFactoryFromTransientTrack::particle
 // cout<<"calling the state builder"<<endl;
  KinematicState initState = builder(initialTrack,massGuess, m_sigma);
  const reco::TransientTrack * track = &initialTrack;
- KinematicConstraint * lastConstraint = nullptr;
- ReferenceCountingPointer<KinematicParticle> previousParticle = nullptr;
+ KinematicConstraint * lastConstraint = 0;
+ ReferenceCountingPointer<KinematicParticle> previousParticle = 0;
  return ReferenceCountingPointer<KinematicParticle>(new TransientTrackKinematicParticle(initState,
                       chiSquared,degreesOfFr, lastConstraint, previousParticle, propagator, track));
 }
@@ -39,8 +39,8 @@ RefCountedKinematicParticle KinematicParticleFactoryFromTransientTrack::particle
 // cout<<"calling the state builder"<<endl;
  KinematicState initState = builder(freestate,massGuess, m_sigma);
  const reco::TransientTrack * track = &initialTrack;
- KinematicConstraint * lastConstraint = nullptr;
- ReferenceCountingPointer<KinematicParticle> previousParticle = nullptr;
+ KinematicConstraint * lastConstraint = 0;
+ ReferenceCountingPointer<KinematicParticle> previousParticle = 0;
  return ReferenceCountingPointer<KinematicParticle>(new TransientTrackKinematicParticle(initState,
                       chiSquared,degreesOfFr, lastConstraint, previousParticle, propagator, track));
 }
@@ -55,8 +55,8 @@ RefCountedKinematicParticle KinematicParticleFactoryFromTransientTrack::particle
 //  FreeTrajectoryState st(initialTrack.impactPointTSCP().theState());
  KinematicState initState = builder(initialTrack.impactPointTSCP().theState(), massGuess, m_sigma, expPoint); 
  const reco::TransientTrack * track = &initialTrack;
- KinematicConstraint * lastConstraint = nullptr;
- ReferenceCountingPointer<KinematicParticle> previousParticle = nullptr;
+ KinematicConstraint * lastConstraint = 0;
+ ReferenceCountingPointer<KinematicParticle> previousParticle = 0;
  return ReferenceCountingPointer<KinematicParticle>(new TransientTrackKinematicParticle(initState,
                                 chiSquared,degreesOfFr, lastConstraint, previousParticle, propagator, track));
 }
@@ -73,7 +73,7 @@ RefCountedKinematicParticle KinematicParticleFactoryFromTransientTrack::particle
 // FIXME
 //  if(previousParticle.isValid()){
    TransientTrackKinematicParticle * pr = dynamic_cast<TransientTrackKinematicParticle * >(prp);
-   if(pr == nullptr){
+   if(pr == 0){
     throw VertexException("KinematicParticleFactoryFromTransientTrack::Previous particle passed is not TransientTrack based!");
    }else{track  = pr->initialTransientTrack();}
 //  }else{track = 0;}

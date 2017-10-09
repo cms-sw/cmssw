@@ -119,13 +119,13 @@ class IsolatedTracksNxN : public edm::EDAnalyzer {
 
 public:
   explicit IsolatedTracksNxN(const edm::ParameterSet&);
-  ~IsolatedTracksNxN() override;
+  ~IsolatedTracksNxN();
   
 private:
   //void   beginJob(const edm::EventSetup&) ;
-  void   beginJob() override ;
-  void   analyze(const edm::Event&, const edm::EventSetup&) override;
-  void   endJob() override ;
+  void   beginJob() ;
+  void   analyze(const edm::Event&, const edm::EventSetup&);
+  void   endJob() ;
 
   void   printTrack(const reco::Track* pTrack);
 

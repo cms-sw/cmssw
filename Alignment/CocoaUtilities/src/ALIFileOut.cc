@@ -7,7 +7,7 @@
 
 #include "Alignment/CocoaUtilities/interface/ALIFileOut.h"
 
-#include <cstdlib>
+#include <stdlib.h>
 #include <strstream>
 
 std::vector<ALIFileOut*> ALIFileOut::theInstances;

@@ -22,12 +22,12 @@ class LEDTask : public hcaldqm::DQTask
 {
 	public:
 		LEDTask(edm::ParameterSet const&);
-		~LEDTask() override
+		virtual ~LEDTask()
 		{}
 
-		void bookHistograms(DQMStore::IBooker&,
-			edm::Run const&, edm::EventSetup const&) override;
-		void endRun(edm::Run const& r, edm::EventSetup const&) override
+		virtual void bookHistograms(DQMStore::IBooker&,
+			edm::Run const&, edm::EventSetup const&);
+		virtual void endRun(edm::Run const& r, edm::EventSetup const&)
 		{
 			if (_ptype==hcaldqm::fLocal)
 				if (r.runAuxiliary().run()==1)
@@ -37,9 +37,9 @@ class LEDTask : public hcaldqm::DQTask
 
 	protected:
 		//	funcs
-		void _process(edm::Event const&, edm::EventSetup const&) override;
-		void _resetMonitors(hcaldqm::UpdateFreq) override;
-		bool _isApplicable(edm::Event const&) override;
+		virtual void _process(edm::Event const&, edm::EventSetup const&);
+		virtual void _resetMonitors(hcaldqm::UpdateFreq);
+		virtual bool _isApplicable(edm::Event const&);
 		virtual void _dump();
 
 		//	tags and tokens

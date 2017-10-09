@@ -31,7 +31,7 @@ public:
   TrackerAlignableIndexer& operator=(const TrackerAlignableIndexer&) = default;
   TrackerAlignableIndexer(TrackerAlignableIndexer&&) = default;
   TrackerAlignableIndexer& operator=(TrackerAlignableIndexer&&) = default;
-  ~TrackerAlignableIndexer() override = default;
+  virtual ~TrackerAlignableIndexer() = default;
 
 private:
   const align::TrackerNameSpace tns_;

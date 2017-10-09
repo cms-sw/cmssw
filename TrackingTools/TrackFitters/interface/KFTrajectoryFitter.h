@@ -35,7 +35,7 @@ public:
 		     const TrajectoryStateUpdator& aUpdator,
 		     const MeasurementEstimator& aEstimator,
 		     int minHits = 3,
-		     const DetLayerGeometry* detLayerGeometry=nullptr, 
+		     const DetLayerGeometry* detLayerGeometry=0, 
                      TkCloner const * hc=nullptr) :
     thePropagator(aPropagator.clone()),
     theUpdator(aUpdator.clone()),
@@ -54,7 +54,7 @@ public:
 		     const TrajectoryStateUpdator* aUpdator,
 		     const MeasurementEstimator* aEstimator,
 		     int minHits = 3,
-		     const DetLayerGeometry* detLayerGeometry=nullptr,
+		     const DetLayerGeometry* detLayerGeometry=0,
                      TkCloner const * hc=nullptr) :
     thePropagator(aPropagator),
     theUpdator(aUpdator),
@@ -66,7 +66,7 @@ public:
       if(!theGeometry) theGeometry = &dummyGeometry;
     }
 
-  ~KFTrajectoryFitter() override{
+  ~KFTrajectoryFitter(){
     if (owner) {
       delete thePropagator;
       delete theUpdator;
@@ -86,7 +86,7 @@ public:
   const TrajectoryStateUpdator* updator() const {return theUpdator;}
   const MeasurementEstimator* estimator() const {return theEstimator;}
 
-  std::unique_ptr<TrajectoryFitter> clone() const override
+  virtual std::unique_ptr<TrajectoryFitter> clone() const override
   {
     return owner ?
         std::unique_ptr<TrajectoryFitter>(new KFTrajectoryFitter(*thePropagator,
@@ -101,11 +101,11 @@ public:
   }
 
  // FIXME a prototype:	final inplementaiton may differ 
-  void setHitCloner(TkCloner const * hc) override {  theHitCloner = hc;}
+  virtual void setHitCloner(TkCloner const * hc) override {  theHitCloner = hc;}
 
 
 private:
-  KFTrajectoryFitter(KFTrajectoryFitter const&) = delete;
+  KFTrajectoryFitter(KFTrajectoryFitter const&);
 
 
   static const DetLayerGeometry dummyGeometry;

@@ -16,7 +16,7 @@ public:
         : descr_(itemDescription), scale_(scale) {}
 
     // Destructor
-    inline ~DummyOOTPileupCorrection() override {}
+    inline virtual ~DummyOOTPileupCorrection() {}
 
     // Inspectors
     inline const std::string& description() const {return descr_;}
@@ -29,14 +29,14 @@ public:
                unsigned firstTimeSlice, unsigned nTimeSlices,
                double* correctedCharge, unsigned lenCorrectedCharge,
                bool* pulseShapeCorrApplied, bool* leakCorrApplied,
-               bool* readjustTiming) const override;
+               bool* readjustTiming) const;
 
     // Are we using charge or energy?
-    inline bool inputIsEnergy() const override {return false;}
+    inline bool inputIsEnergy() const {return false;}
 
 protected:
     // Comparison function must be implemented
-    bool isEqual(const AbsOOTPileupCorrection& otherBase) const override;
+    bool isEqual(const AbsOOTPileupCorrection& otherBase) const;
 
 public:
     // Default constructor needed for serialization.

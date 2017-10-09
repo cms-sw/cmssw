@@ -19,16 +19,16 @@
 #include "CondFormats/DataRecord/interface/SiStripThresholdRcd.h"
 
 #include <iostream>
-#include <cstdio>
+#include <stdio.h>
 #include <sys/time.h>
 
 class SiStripThresholdReader : public edm::EDAnalyzer {
 
  public:
   explicit SiStripThresholdReader( const edm::ParameterSet& );
-  ~SiStripThresholdReader() override;
+  ~SiStripThresholdReader();
   
-  void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  void analyze( const edm::Event&, const edm::EventSetup& );
 
  private:
   uint32_t printdebug_;

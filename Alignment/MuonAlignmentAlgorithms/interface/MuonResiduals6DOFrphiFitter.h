@@ -56,29 +56,29 @@ public:
     MuonResidualsFitter(residualsModel, minHits, useResiduals, weightAlignment)  {}
 #endif
 
-  ~MuonResiduals6DOFrphiFitter() override {}
+  virtual ~MuonResiduals6DOFrphiFitter() {}
 
-  int type() const override { return MuonResidualsFitter::k6DOFrphi; }
+  int type() const { return MuonResidualsFitter::k6DOFrphi; }
 
-  int npar() override
+  int npar()
   {
     if (residualsModel() == kPureGaussian || residualsModel() == kPureGaussian2D || residualsModel() == kGaussPowerTails) return kNPar - 2;
     else if (residualsModel() == kPowerLawTails) return kNPar;
     else if (residualsModel() == kROOTVoigt) return kNPar;
     else assert(false);
   }
-  int ndata() override { return kNData; }
+  int ndata() { return kNData; }
 
-  double sumofweights() override;
-  bool fit(Alignable *ali) override;
-  double plot(std::string name, TFileDirectory *dir, Alignable *ali) override;
+  double sumofweights();
+  bool fit(Alignable *ali);
+  double plot(std::string name, TFileDirectory *dir, Alignable *ali);
 
-  void correctBField() override;
+  void correctBField();
 
   TTree * readNtuple(std::string fname, unsigned int endcap, unsigned int station, unsigned int ring, unsigned int chamber, unsigned int preselected = 1);
 
 protected:
-  void inform(TMinuit *tMinuit) override;
+  void inform(TMinuit *tMinuit);
 
 private:
   //const CSCGeometry *m_cscGeometry;

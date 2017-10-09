@@ -36,7 +36,7 @@ class DiMuonHistograms : public DQMEDAnalyzer {
   DiMuonHistograms(const edm::ParameterSet& pset);
   
   /* Destructor */ 
-  ~DiMuonHistograms() override ;
+  virtual ~DiMuonHistograms() ;
   
   /* Operations */ 
   void analyze(const edm::Event&, const edm::EventSetup&) override;

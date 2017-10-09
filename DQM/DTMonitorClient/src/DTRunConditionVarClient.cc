@@ -25,9 +25,9 @@
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
 
-#include <cstdio>
+#include <stdio.h>
 #include <sstream>
-#include <cmath>
+#include <math.h>
 
 using namespace edm;
 using namespace std;
@@ -56,7 +56,7 @@ DTRunConditionVarClient::DTRunConditionVarClient(const ParameterSet& pSet)
 
   nevents = 0;
 
-  bookingdone = false;
+  bookingdone = 0;
 
 }
 

@@ -70,20 +70,20 @@ class DQMPFCandidateAnalyzer : public DQMEDAnalyzer {
   DQMPFCandidateAnalyzer(const edm::ParameterSet&);
   
   /// Destructor
-  ~DQMPFCandidateAnalyzer() override;
+  virtual ~DQMPFCandidateAnalyzer();
   
 /// Inizialize parameters for histo binning
 //  void beginJob(void);
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   /// Get the analysis
- void analyze(const edm::Event&, const edm::EventSetup&) override;
+ void analyze(const edm::Event&, const edm::EventSetup&);
 
 
   /// Initialize run-based parameters
-  void dqmBeginRun(const edm::Run&,  const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run&,  const edm::EventSetup&);
 
   /// Finish up a run
-  void endRun(const edm::Run&,  const edm::EventSetup&) override;
+  void endRun(const edm::Run&,  const edm::EventSetup&);
 
 
  private:

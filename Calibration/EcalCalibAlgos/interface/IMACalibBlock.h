@@ -25,19 +25,19 @@ class IMACalibBlock : public VEcalCalibBlock
     //! ctor
     IMACalibBlock (const int) ;
     //! dtor
-    ~IMACalibBlock () override ;
+    ~IMACalibBlock () ;
     
     //! insert an entry
     void Fill (std::map<int,double>::const_iterator,
                std::map<int,double>::const_iterator,
                double pTk,
                double pSubtract,
-               double sigma = 1.) override ;
+               double sigma = 1.) ;
 
     //! reset the chi2 matrices
-    void reset () override ;
+    void reset () ;
     //! solve the chi2 linear system
-    int solve (int usingBlockSolver, double min, double max) override ;
+    int solve (int usingBlockSolver, double min, double max) ;
   private :
     
     //! give the size of a chi2 matrix

@@ -5,7 +5,7 @@
 # include <sys/stat.h>
 # include <fcntl.h>
 # include <utime.h>
-# include <climits>
+# include <limits.h>
 # include <cerrno>
 # include <cstdlib>
 

@@ -19,47 +19,47 @@ class TT6NTPedestalCalculator: public TkPedestalCalculator
 {
   public:
     TT6NTPedestalCalculator();
-    ~TT6NTPedestalCalculator() override {}
+    virtual ~TT6NTPedestalCalculator() {}
 
     /*
      * @brief
      *   Celar all Pedestals
      */
-    inline void resetPedestals() override { pedestals_.empty(); }
+    inline virtual void resetPedestals() { pedestals_.empty(); }
 
     /*
      * @brief
      *   Set Pedestals
      */
-    inline void setPedestals( ApvAnalysis::PedestalType &rInput) override 
+    inline virtual void setPedestals( ApvAnalysis::PedestalType &rInput) 
       { pedestals_ = rInput; }
 
     /*
      * @brief
      *   Update Pedestals with set of Raw Signals: plug
      */
-    inline void updatePedestal( ApvAnalysis::RawSignalType &rInput) override {}
+    inline virtual void updatePedestal( ApvAnalysis::RawSignalType &rInput) {}
 
     /*
      * @brief
      *   Retrieve Pedestals
      */
-    inline ApvAnalysis::PedestalType pedestal() const override { return pedestals_; }
+    inline virtual ApvAnalysis::PedestalType pedestal() const { return pedestals_; }
 
     /*
      * @brief
      *   Retrieve Raw Noise
      */
-    inline ApvAnalysis::PedestalType rawNoise() const override { return rawNoise_; }
+    inline virtual ApvAnalysis::PedestalType rawNoise() const { return rawNoise_; }
 
-    inline void setNoise( ApvAnalysis::PedestalType &rInput) override
+    inline virtual void setNoise( ApvAnalysis::PedestalType &rInput)
       { rawNoise_ = rInput; }
 
     /*
      * @brief
      *   Request status flag update: plug
      */
-    inline void updateStatus() override {}
+    inline virtual void updateStatus() {}
 
   private:
     ApvAnalysis::PedestalType pedestals_;

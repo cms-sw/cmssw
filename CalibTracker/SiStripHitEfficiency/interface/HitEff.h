@@ -50,13 +50,13 @@ class HitEff : public edm::EDAnalyzer {
   double checkConsistency(const StripClusterParameterEstimator::LocalValues& parameters, double xx, double xerr);
   bool isDoubleSided(unsigned int iidd, const TrackerTopology* tTopo) const;
   bool check2DPartner(unsigned int iidd, const std::vector<TrajectoryMeasurement>& traj);
-  ~HitEff() override;
+  virtual ~HitEff();
   unsigned int checkLayer(unsigned int iidd, const TrackerTopology* tTopo);
 
  private:
-  void beginJob() override;
-  void endJob() override; 
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  virtual void beginJob();
+  virtual void endJob(); 
+  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
 
         // ----------member data ---------------------------
 

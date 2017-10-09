@@ -18,7 +18,7 @@ class L1TStage2uGMTMuon : public DQMEDAnalyzer {
  public:
 
   L1TStage2uGMTMuon(const edm::ParameterSet& ps);
-  ~L1TStage2uGMTMuon() override;
+  virtual ~L1TStage2uGMTMuon();
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  protected:

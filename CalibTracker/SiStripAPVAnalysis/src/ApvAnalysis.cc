@@ -9,10 +9,10 @@ using namespace std;
 ApvAnalysis::ApvAnalysis(int nEvForUpdate)
 {
 
-  theTkCommonModeCalculator =nullptr;
-  theTkPedestalCalculator =nullptr;
-  theTkNoiseCalculator =nullptr;
-  theTkApvMask =nullptr;
+  theTkCommonModeCalculator =0;
+  theTkPedestalCalculator =0;
+  theTkNoiseCalculator =0;
+  theTkApvMask =0;
   nEventsForNoiseCalibration_ =0;
   eventsRequiredToUpdate_ = nEvForUpdate;
 
@@ -32,7 +32,7 @@ void ApvAnalysis::updateCalibration(edm::DetSet<SiStripRawDigi>& in) {
   if(theTkPedestalCalculator->status()->isUpdating()){
     nEventsForNoiseCalibration_++; 
 
-    if(theTkNoiseCalculator->noise().empty()) {
+    if(theTkNoiseCalculator->noise().size() == 0) {
       noise = theTkPedestalCalculator->rawNoise();
       theTkNoiseCalculator->setStripNoise(noise);
       theTkApvMask->calculateMask(noise);
@@ -48,7 +48,7 @@ void ApvAnalysis::updateCalibration(edm::DetSet<SiStripRawDigi>& in) {
       i++;
     }
     PedestalType tmp2 = theTkCommonModeCalculator->doIt(tmp);
-    if(!tmp2.empty()) {
+    if(tmp2.size() > 0) {
       theTkNoiseCalculator->updateNoise(tmp2);
     }   
     if(nEventsForNoiseCalibration_%eventsRequiredToUpdate_ == 1 && nEventsForNoiseCalibration_ >1)

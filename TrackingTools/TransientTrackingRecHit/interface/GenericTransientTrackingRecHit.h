@@ -8,29 +8,29 @@ class GenericTransientTrackingRecHit: public TValidTrackingRecHit{
 public:
   typedef TrackingRecHit::Type Type;
 
-  ~GenericTransientTrackingRecHit() override {delete trackingRecHit_;}
+  virtual ~GenericTransientTrackingRecHit() {delete trackingRecHit_;}
 
-  AlgebraicVector parameters() const override {return trackingRecHit_->parameters();}
-  AlgebraicSymMatrix parametersError() const override {return trackingRecHit_->parametersError();}
-  AlgebraicMatrix projectionMatrix() const override {return trackingRecHit_->projectionMatrix();}
-  int dimension() const override {return trackingRecHit_->dimension();}
+  virtual AlgebraicVector parameters() const override {return trackingRecHit_->parameters();}
+  virtual AlgebraicSymMatrix parametersError() const override {return trackingRecHit_->parametersError();}
+  virtual AlgebraicMatrix projectionMatrix() const override {return trackingRecHit_->projectionMatrix();}
+  virtual int dimension() const override {return trackingRecHit_->dimension();}
 
   // virtual void getKfComponents( KfComponentsHolder & holder ) const  override { trackingRecHit_->getKfComponents(holder); }
   // NO, because someone might specialize parametersError, projectionMatrix or parameters in the transient rechit
   // and in fact this happens for alignment
 
-  LocalPoint localPosition() const  override {return trackingRecHit_->localPosition();}
-  LocalError localPositionError() const  override {return trackingRecHit_->localPositionError();}
+  virtual LocalPoint localPosition() const  override {return trackingRecHit_->localPosition();}
+  virtual LocalError localPositionError() const  override {return trackingRecHit_->localPositionError();}
 
-  bool canImproveWithTrack() const override {return false;}
+  virtual bool canImproveWithTrack() const override {return false;}
 
-  const TrackingRecHit * hit() const override {return trackingRecHit_;}
+  virtual const TrackingRecHit * hit() const override {return trackingRecHit_;}
   TrackingRecHit * cloneHit() const override { return hit()->clone();}
 
-  std::vector<const TrackingRecHit*> recHits() const override {
+  virtual std::vector<const TrackingRecHit*> recHits() const override {
     return ((const TrackingRecHit *)(trackingRecHit_))->recHits();
   }
-  std::vector<TrackingRecHit*> recHits() override {
+  virtual std::vector<TrackingRecHit*> recHits() override {
     return trackingRecHit_->recHits();
   }
 
@@ -67,7 +67,7 @@ protected:
 
   // hide the clone method for ReferenceCounted. Warning: this method is still 
   // accessible via the bas class TrackingRecHit interface!
-   GenericTransientTrackingRecHit * clone() const override {
+   virtual GenericTransientTrackingRecHit * clone() const override {
      return new GenericTransientTrackingRecHit(*this);
    }
 

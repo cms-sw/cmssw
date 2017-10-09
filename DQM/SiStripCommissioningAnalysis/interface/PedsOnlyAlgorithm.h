@@ -19,7 +19,7 @@ class PedsOnlyAlgorithm : public CommissioningAlgorithm {
 
   PedsOnlyAlgorithm( const edm::ParameterSet & pset, PedsOnlyAnalysis* const );
 
-  ~PedsOnlyAlgorithm() override {;}
+  virtual ~PedsOnlyAlgorithm() {;}
 
   inline const Histo& hPeds() const;
 
@@ -30,10 +30,10 @@ class PedsOnlyAlgorithm : public CommissioningAlgorithm {
   PedsOnlyAlgorithm() {;}
 
   /** Extracts and organises histograms. */
-  void extract( const std::vector<TH1*>& ) override;
+  void extract( const std::vector<TH1*>& );
 
   /** Performs histogram anaysis. */
-  void analyse() override;
+  void analyse();
   
  private:
 

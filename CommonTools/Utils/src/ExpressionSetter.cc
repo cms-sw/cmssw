@@ -7,7 +7,7 @@
 using namespace reco::parser;
 
 void ExpressionSetter::operator()( const char *begin, const char * ) const {
-  if ( exprStack_.empty() ) 
+  if ( exprStack_.size() == 0 ) 
     throw Exception( begin )
       << "Grammar error: When trying parse an expression, expression stack is empty! Please contact a developer.";
   expr_ = exprStack_.back();

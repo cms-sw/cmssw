@@ -6,8 +6,8 @@
 #include "TObject.h"
 #include "TSystem.h"
 #include "Riostream.h"
-#include <cmath>
-#include <ctime>
+#include <math.h>
+#include <time.h>
 
 #include "TVectorD.h"
 #include "TMatrixD.h"
@@ -152,7 +152,7 @@ class TEcnaWrite : public TObject {
   TEcnaWrite(const TString&, const TEcnaParPaths*, const TEcnaParCout*,
 	     const TEcnaParEcal*, const TEcnaNumbering*);
 
-   ~TEcnaWrite() override;
+  virtual  ~TEcnaWrite();
   
   void     Init();
   void     SetEcalSubDetector(const TString&);
@@ -193,7 +193,7 @@ class TEcnaWrite : public TObject {
   void RegisterFileParameters(const TString&, const Int_t&, const Int_t&, const Int_t&,
 			      const Int_t&,  const Int_t&, const Int_t&);
   
-  ClassDefOverride(TEcnaWrite,1)// Writing in file (.ascii, .root) methods for CNA (Correlated Noises Analysis)
+  ClassDef(TEcnaWrite,1)// Writing in file (.ascii, .root) methods for CNA (Correlated Noises Analysis)
     };
     
 #endif   //    ZTR_TEcnaParameter

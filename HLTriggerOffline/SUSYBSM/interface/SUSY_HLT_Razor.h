@@ -40,7 +40,7 @@ class SUSY_HLT_Razor: public DQMEDAnalyzer{
   SUSY_HLT_Razor(const edm::ParameterSet& ps);
   static double CalcMR(TLorentzVector ja,TLorentzVector jb);
   static double CalcR(double MR, TLorentzVector ja,TLorentzVector jb, edm::Handle<edm::View<reco::MET> > met, const std::vector<math::XYZTLorentzVector>& muons);
-  ~SUSY_HLT_Razor() override;
+  virtual ~SUSY_HLT_Razor();
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   protected:

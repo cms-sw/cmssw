@@ -10,7 +10,7 @@
 class  dso_hidden MeasurementTrackerESProducer: public edm::ESProducer{
  public:
   MeasurementTrackerESProducer(const edm::ParameterSet & p);
-  ~MeasurementTrackerESProducer() override; 
+  virtual ~MeasurementTrackerESProducer(); 
   std::shared_ptr<MeasurementTracker> produce(const CkfComponentsRecord &);
  private:
   std::shared_ptr<MeasurementTracker> _measurementTracker;
