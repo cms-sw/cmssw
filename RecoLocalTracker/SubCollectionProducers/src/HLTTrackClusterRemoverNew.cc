@@ -39,7 +39,7 @@
 class HLTTrackClusterRemoverNew final : public edm::stream::EDProducer<> {
     public:
         HLTTrackClusterRemoverNew(const edm::ParameterSet& iConfig) ;
-        ~HLTTrackClusterRemoverNew() ;
+        ~HLTTrackClusterRemoverNew() override ;
         void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override ;
     private:
         struct ParamBlock {
@@ -240,7 +240,7 @@ HLTTrackClusterRemoverNew::cleanup(const edmNew::DetSetVector<T> &oldClusters, c
     }
     //    double fraction = countNew  / (double) countOld;
     //    std::cout<<"fraction: "<<fraction<<std::endl;
-    if (oldRefs != 0) mergeOld(refs, *oldRefs);
+    if (oldRefs != nullptr) mergeOld(refs, *oldRefs);
     return output;
 }
 
