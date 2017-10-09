@@ -21,8 +21,8 @@ class ValidHitPairFilter : public PixelTrackFilterBase
 {
 public:
   ValidHitPairFilter(const edm::EventSetup& es);
-  virtual ~ValidHitPairFilter();
-  virtual bool operator()(const reco::Track * track,
+  ~ValidHitPairFilter() override;
+  bool operator()(const reco::Track * track,
                           const std::vector<const TrackingRecHit *>& recHits) const override;
 
 private:
