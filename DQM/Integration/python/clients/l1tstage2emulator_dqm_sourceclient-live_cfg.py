@@ -84,7 +84,7 @@ process.l1tEmulatorMonitorPath = cms.Path(
 process.load("L1Trigger.L1TGlobal.GlobalParameters_cff")
 
 # 2017 EMTF emulator uses payloads and forests from DB, but not yet in GT
-process.load("L1Trigger.L1TMuonEndCap.fakeEmtfParams_2017_data_cff")
+process.load("L1Trigger.L1TMuonEndCap.fakeEmtfParams_2017_MC_cff")
 
 # To get CaloTPGTranscoder
 process.load('SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff')
