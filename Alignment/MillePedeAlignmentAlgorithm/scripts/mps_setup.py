@@ -79,18 +79,32 @@ if not os.access(args.input_file_list, os.R_OK):
 # ignore 'append' flag if mps database is not yet created
 if not os.access("mps.db", os.R_OK): args.append = False
 
-if lib.get_class("mille") not in ("lxplus", "cmscaf1nh", "cmscaf1nd",
-                                  "cmscaf1nw", "cmscafspec1nh", "cmscafspec1nd",
-                                  "cmscafspec1nw", "8nm", "1nh", "8nh", "1nd",
-                                  "2nd", "1nw", "2nw", "cmsexpress"):
-    print "Bad job class for mille in class", ":".join(args.job_class)
+allowed_mille_classes = ("lxplus", "cmscaf1nh", "cmscaf1nd", "cmscaf1nw",
+                         "cmscafspec1nh", "cmscafspec1nd", "cmscafspec1nw",
+                         "8nm", "1nh", "8nh", "1nd", "2nd", "1nw", "2nw",
+                         "cmsexpress")
+if lib.get_class("mille") not in allowed_mille_classes:
+    print "Bad job class for mille in class", args.job_class
+    print "Allowed classes:"
+    for mille_class in allowed_mille_classes:
+        print " -", mille_class
     sys.exit(1)
 
-if lib.get_class("pede") not in ("lxplus", "cmscaf1nh", "cmscaf1nd",
-                                 "cmscaf1nw", "cmscafspec1nh", "cmscafspec1nd",
-                                 "cmscafspec1nw", "8nm", "1nh", "8nh", "1nd",
-                                 "2nd", "1nw", "2nw"):
-    print "Bad job class for pede in class", ":".join(args.job_class)
+allowed_pede_classes = ("lxplus", "cmscaf1nh", "cmscaf1nd", "cmscaf1nw",
+                        "cmscafspec1nh", "cmscafspec1nd", "cmscafspec1nw",
+                        "8nm", "1nh", "8nh", "1nd", "2nd", "1nw", "2nw",
+                        "htcondor_bigmem_espresso",
+                        "htcondor_bigmem_microcentury",
+                        "htcondor_bigmem_longlunch",
+                        "htcondor_bigmem_workday",
+                        "htcondor_bigmem_tomorrow",
+                        "htcondor_bigmem_testmatch",
+                        "htcondor_bigmem_nextweek")
+if lib.get_class("pede") not in allowed_pede_classes:
+    print "Bad job class for pede in class", args.job_class
+    print "Allowed classes:"
+    for pede_class in allowed_pede_classes:
+        print " -", pede_class
     sys.exit(1)
 
 if args.setup_merge:
@@ -200,7 +214,7 @@ for j in xrange(1, args.n_jobs + 1):
     i = j+nJobExist
     jobdir = "job{0:03d}".format(i)
     lib.JOBDIR.append(jobdir)
-    lib.JOBID.append(0)
+    lib.JOBID.append("")
     lib.JOBSTATUS.append("SETUP")
     lib.JOBNTRY.append(0)
     lib.JOBRUNTIME.append(0)
@@ -240,7 +254,7 @@ for j in xrange(1, args.n_jobs + 1):
 # create the merge job entry. This is always done. Whether it is used depends on the "merge" option.
 jobdir = "jobm";
 lib.JOBDIR.append(jobdir)
-lib.JOBID.append(0)
+lib.JOBID.append("")
 lib.JOBSTATUS.append("SETUP")
 lib.JOBNTRY.append(0)
 lib.JOBRUNTIME.append(0)

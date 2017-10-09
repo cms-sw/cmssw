@@ -23,11 +23,11 @@ for i in xrange(len(lib.JOBID)):
     if lib.JOBSTATUS[i] in ("DONE", "FETCH", "DISABLEDFETCH"):
         # move the LSF output to /jobData/
         theJobDir = 'jobData/'+lib.JOBDIR[i]
-        theBatchDirectory = 'LSFJOB\_%d' % lib.JOBID[i]
+        theBatchDirectory = r"LSFJOB_"+ lib.JOBID[i]
 
-        command = 'mv  %s/* %s/' % (theBatchDirectory, theJobDir)
+        command = 'mv  %s/* %s/ > /dev/null 2>&1' % (theBatchDirectory, theJobDir)
         os.system(command)
-        command = 'rmdir '+theBatchDirectory
+        command = 'rm -rf '+theBatchDirectory
         os.system(command)
 
         # update the status
