@@ -8,7 +8,7 @@
 
 
 TSGSmart::TSGSmart(const edm::ParameterSet &pset,edm::ConsumesCollector& iC)
-  : theConfig(pset), thePairGenerator(0), theTripletGenerator(0), theMixedGenerator(0)
+  : theConfig(pset), thePairGenerator(nullptr), theTripletGenerator(nullptr), theMixedGenerator(nullptr)
 {
 
   theEtaBound = theConfig.getParameter<double>("EtaBound");
@@ -25,7 +25,7 @@ TSGSmart::TSGSmart(const edm::ParameterSet &pset,edm::ConsumesCollector& iC)
     OrderedHitsGeneratorFactory::get()->create( pairhitsfactoryName, pairhitsfactoryPSet, iC);
 
 
-  thePairGenerator = new SeedGeneratorFromRegionHits( pairhitsGenerator, 0, 
+  thePairGenerator = new SeedGeneratorFromRegionHits( pairhitsGenerator, nullptr, 
 						 SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
 						 );
 
@@ -35,7 +35,7 @@ TSGSmart::TSGSmart(const edm::ParameterSet &pset,edm::ConsumesCollector& iC)
   std::string triplethitsfactoryName = triplethitsfactoryPSet.getParameter<std::string>("ComponentName");
   OrderedHitsGenerator*  triplethitsGenerator =
     OrderedHitsGeneratorFactory::get()->create( triplethitsfactoryName, triplethitsfactoryPSet, iC);
-  theTripletGenerator = new SeedGeneratorFromRegionHits( triplethitsGenerator, 0, 
+  theTripletGenerator = new SeedGeneratorFromRegionHits( triplethitsGenerator, nullptr, 
 						 SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
 						 );
 
@@ -45,7 +45,7 @@ TSGSmart::TSGSmart(const edm::ParameterSet &pset,edm::ConsumesCollector& iC)
   std::string mixedhitsfactoryName = mixedhitsfactoryPSet.getParameter<std::string>("ComponentName");
   OrderedHitsGenerator*  mixedhitsGenerator =
     OrderedHitsGeneratorFactory::get()->create( mixedhitsfactoryName, mixedhitsfactoryPSet, iC);
-  theMixedGenerator = new SeedGeneratorFromRegionHits( mixedhitsGenerator, 0, 
+  theMixedGenerator = new SeedGeneratorFromRegionHits( mixedhitsGenerator, nullptr, 
 						 SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
 						 );
   
@@ -66,6 +66,6 @@ void TSGSmart::run(TrajectorySeedCollection &seeds,
     theMixedGenerator->run(seeds, region, ev, es);
   } else {
     theTripletGenerator->run(seeds, region, ev, es);
-    if(seeds.size() < 1) thePairGenerator->run(seeds, region, ev, es);
+    if(seeds.empty()) thePairGenerator->run(seeds, region, ev, es);
   }
 }

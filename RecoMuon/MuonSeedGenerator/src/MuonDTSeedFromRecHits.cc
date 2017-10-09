@@ -82,8 +82,8 @@ MuonDTSeedFromRecHits::bestBarrelHit(const MuonRecHitContainer & barrelHits) con
   int alt_npt = 0;
   int best_npt = 0;
   int cur_npt = 0;
-  MuonRecHitPointer best = 0;
-  MuonRecHitPointer alter=0;
+  MuonRecHitPointer best = nullptr;
+  MuonRecHitPointer alter=nullptr;
 
   for (MuonRecHitContainer::const_iterator iter=barrelHits.begin();
        iter!=barrelHits.end(); iter++ ) {

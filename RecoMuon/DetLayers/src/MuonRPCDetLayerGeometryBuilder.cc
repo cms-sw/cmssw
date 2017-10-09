@@ -144,13 +144,13 @@ MuonRPCDetLayerGeometryBuilder::buildLayer(int endcap,const std::vector<int>& ri
 	  }
 	}
       }
-      if (frontDets.size()!=0) {
+      if (!frontDets.empty()) {
 	precomputed_value_sort(frontDets.begin(), frontDets.end(), geomsort::DetPhi());
 	frontRings.push_back(new MuDetRing(frontDets));
 	LogTrace(metname) << "New front ring with " << frontDets.size()
 			  << " chambers at z="<< frontRings.back()->position().z();
       }
-      if (backDets.size()!=0) {
+      if (!backDets.empty()) {
         precomputed_value_sort(backDets.begin(), backDets.end(), geomsort::DetPhi());
         backRings.push_back(new MuDetRing(backDets));
         LogTrace(metname) << "New back ring with " << backDets.size()
@@ -159,7 +159,7 @@ MuonRPCDetLayerGeometryBuilder::buildLayer(int endcap,const std::vector<int>& ri
     }
   }
 
-   MuRingForwardDoubleLayer * result = 0;
+   MuRingForwardDoubleLayer * result = nullptr;
 
   if(!backRings.empty() || !frontRings.empty())
   {
@@ -269,7 +269,7 @@ void MuonRPCDetLayerGeometryBuilder::makeBarrelLayers(vector<const GeomDet *> & 
       vector<const GeomDet*> layerDets(layerStart, separ);
       makeBarrelRods(layerDets, rods);
 
-      if (rods.size()!=0) {
+      if (!rods.empty()) {
         result.push_back(new MuRodBarrelLayer(rods));
         LogTrace(metname) << "    New MuRodBarrelLayer with " << rods.size()
                           << " rods, at R " << result.back()->specificSurface().radius();

@@ -451,7 +451,7 @@ StandAloneMuonTrajectoryBuilder::propagateTheSeedTSOS(TrajectoryStateOnSurface& 
   
   DetLayerWithState result = DetLayerWithState(initialLayer,initialState);
 
-  if(detLayers.size()){
+  if(!detLayers.empty()){
 
     LogTrace(metname) << "Compatible layers:"<<endl;
     for( vector<const DetLayer*>::const_iterator layer = detLayers.begin(); 

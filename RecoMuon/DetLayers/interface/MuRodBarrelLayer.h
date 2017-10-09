@@ -20,27 +20,27 @@ public:
   /// Constructor, takes ownership of pointers
   MuRodBarrelLayer(std::vector<const DetRod*>& rods);
 
-  virtual ~MuRodBarrelLayer();
+  ~MuRodBarrelLayer() override;
 
   // GeometricSearchDet interface
 
-  virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
+  const std::vector<const GeomDet*>& basicComponents() const override {return theBasicComps;}
 
-  virtual const std::vector<const GeometricSearchDet*>& components() const;  
+  const std::vector<const GeometricSearchDet*>& components() const override;  
 
-  virtual std::vector<DetWithState> 
+  std::vector<DetWithState> 
   compatibleDets( const TrajectoryStateOnSurface& startingState,
 		  const Propagator& prop, 
-		  const MeasurementEstimator& est) const;
+		  const MeasurementEstimator& est) const override;
   
-  virtual std::vector<DetGroup> 
+  std::vector<DetGroup> 
   groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
 			 const Propagator& prop,
-			 const MeasurementEstimator& est) const;
+			 const MeasurementEstimator& est) const override;
 
 
   // DetLayer interface
-  virtual SubDetector subDetector() const;
+  SubDetector subDetector() const override;
 
   // Extension of the interface
 

@@ -40,16 +40,16 @@ namespace muonisolation {
     CaloExtractorByAssociator(const edm::ParameterSet& par, edm::ConsumesCollector && iC);
 
     //! destructor
-    virtual ~CaloExtractorByAssociator();
+    ~CaloExtractorByAssociator() override;
 
     //! allows to set extra vetoes (in addition to the muon) -- no-op at this point
-    virtual void fillVetos (const edm::Event & ev, const edm::EventSetup & evSetup, const reco::TrackCollection & tracks);
+    void fillVetos (const edm::Event & ev, const edm::EventSetup & evSetup, const reco::TrackCollection & tracks) override;
     //! no-op: by design of this extractor the deposits are pulled out all at a time
-    virtual reco::IsoDeposit
-      deposit(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const;
+    reco::IsoDeposit
+      deposit(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const override;
     //! return deposits for 3 calorimeter subdetectors (ecal, hcal, ho) -- in this order
-    virtual std::vector<reco::IsoDeposit>
-      deposits(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const;
+    std::vector<reco::IsoDeposit>
+      deposits(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const override;
 
   private:
 

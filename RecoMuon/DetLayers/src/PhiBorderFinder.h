@@ -59,7 +59,7 @@ public:
 
       ConstReferenceCountingPointer<BoundPlane> plane = 
 	dynamic_cast<const BoundPlane*>(&theDets[i]->surface());
-      if (plane==0) {
+      if (plane==nullptr) {
 	//FIXME
 	throw cms::Exception("UnexpectedState") << ("PhiBorderFinder: det surface is not a BoundPlane");
       }

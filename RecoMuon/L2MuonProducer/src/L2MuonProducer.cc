@@ -64,7 +64,7 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
   // the services
   theService = new MuonServiceProxy(serviceParameters);
 
-  MuonTrajectoryBuilder * trajectoryBuilder = 0;
+  MuonTrajectoryBuilder * trajectoryBuilder = nullptr;
   // instantiate the concrete trajectory builder in the Track Finder
 
   edm::ConsumesCollector  iC = consumesCollector();

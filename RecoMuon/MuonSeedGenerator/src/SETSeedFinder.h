@@ -15,9 +15,9 @@ public:
   typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 
   explicit SETSeedFinder(const edm::ParameterSet & pset);
-  virtual ~SETSeedFinder() {delete thePtExtractor;}
+  ~SETSeedFinder() override {delete thePtExtractor;}
   /// ignore - uses MuonServiceProxy
-  virtual void setBField(const MagneticField * field) {}
+  void setBField(const MagneticField * field) override {}
 
   /** The container sent in is expected to be a cluster, which isn't the same as
       a pattern.  A cluster can have more than one hit on a layer.  Internally,
@@ -26,8 +26,8 @@ public:
       really separate the steps.
   */
 
-  virtual void seeds(const MuonRecHitContainer & cluster,
-                     std::vector<TrajectorySeed> & result);
+  void seeds(const MuonRecHitContainer & cluster,
+                     std::vector<TrajectorySeed> & result) override;
 
   void setServiceProxy(MuonServiceProxy * service) {theService = service;}
 
