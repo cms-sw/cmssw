@@ -28,3 +28,6 @@ for tracks in selectedTracks :
     label = 'TrackerCollisionSelectedTrackMonMB' + str(tracks)
     locals()[label].doEffFromHitPatternVsBX = False
 
+from PhysicsTools.NanoAOD.nanoDQM_cff import nanoDQMMC
+DQMOfflineNanoAOD.replace(nanoDQM, nanoDQMMC)
+#PostDQMOfflineNanoAOD.replace(nanoDQM, nanoDQMMC)

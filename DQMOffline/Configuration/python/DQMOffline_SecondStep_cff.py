@@ -140,3 +140,5 @@ DQMHarvestEGamma = cms.Sequence( egammaPostProcessing )
 DQMHarvestBTag = cms.Sequence( bTagCollectorSequenceDATA )
 
 DQMHarvestMiniAOD = cms.Sequence( dataCertificationJetMETSequence * muonQualityTests_miniAOD)
+DQMHarvestNanoAOD = cms.Sequence( )
+
