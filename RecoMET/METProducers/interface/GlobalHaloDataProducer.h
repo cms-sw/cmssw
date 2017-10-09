@@ -183,11 +183,11 @@ namespace reco
     
   public:
     explicit GlobalHaloDataProducer(const edm::ParameterSet&);
-    ~GlobalHaloDataProducer();
+    ~GlobalHaloDataProducer() override;
     
   private:
     
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
     
     GlobalHaloAlgo GlobalAlgo;
 

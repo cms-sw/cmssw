@@ -72,11 +72,11 @@ using namespace std;
 class EcalDeadCellTriggerPrimitiveFilter : public edm::stream::EDFilter<> {
 public:
   explicit EcalDeadCellTriggerPrimitiveFilter(const edm::ParameterSet&);
-  ~EcalDeadCellTriggerPrimitiveFilter();
+  ~EcalDeadCellTriggerPrimitiveFilter() override;
 
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
   virtual void envSet(const edm::EventSetup&);
 
   // ----------member data ---------------------------
@@ -196,8 +196,8 @@ void EcalDeadCellTriggerPrimitiveFilter::loadEventInfoForFilter(const edm::Event
   const unsigned int nProvenance = provenances.size();
   for (unsigned int ip = 0; ip < nProvenance; ip++) {
     const edm::StableProvenance& provenance = *( provenances[ip] );
-    if( provenance.moduleLabel().data() ==  tpDigiCollection_.label() ){ hastpDigiCollection_ = 1; }
-    if( provenance.moduleLabel().data() == ebReducedRecHitCollection_.label() || provenance.moduleLabel().data() == eeReducedRecHitCollection_.label() ){
+    if( provenance.moduleLabel() ==  tpDigiCollection_.label() ){ hastpDigiCollection_ = 1; }
+    if( provenance.moduleLabel() == ebReducedRecHitCollection_.label() || provenance.moduleLabel() == eeReducedRecHitCollection_.label() ){
        hasReducedRecHits_++;
     }
     if( hastpDigiCollection_ && hasReducedRecHits_>=2 ){ break; }
@@ -551,7 +551,7 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtTPstatus(const double &tpValCut, c
         EcalTrigTowerDetId ttDetId = ttItor->second;
         int ttzside = ttDetId.zside();
 
-        const EcalTrigPrimDigiCollection * tpDigis = 0;
+        const EcalTrigPrimDigiCollection * tpDigis = nullptr;
         tpDigis = pTPDigis.product();
         EcalTrigPrimDigiCollection::const_iterator tp = tpDigis->find( ttDetId );
         if( tp != tpDigis->end() ){
