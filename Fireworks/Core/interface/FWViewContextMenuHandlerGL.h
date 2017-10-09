@@ -12,14 +12,14 @@ public:
    enum GLViewerAction { kAnnotate, kCameraCenter, kResetCameraCenter, kOrigin, kNone };
 
    FWViewContextMenuHandlerGL(FWEveView* v);
-   ~FWViewContextMenuHandlerGL() override {}
-   void select(int iEntryIndex, const FWModelId &id, int iX, int iY) override;
+   virtual ~FWViewContextMenuHandlerGL() {}
+   virtual void select(int iEntryIndex, const FWModelId &id, int iX, int iY);
 
 private:
-   FWViewContextMenuHandlerGL(const FWViewContextMenuHandlerGL&) = delete; // stop default   
-   const FWViewContextMenuHandlerGL& operator=(const FWViewContextMenuHandlerGL&) = delete; // stop default
+   FWViewContextMenuHandlerGL(const FWViewContextMenuHandlerGL&); // stop default   
+   const FWViewContextMenuHandlerGL& operator=(const FWViewContextMenuHandlerGL&); // stop default
 
-   void init(FWViewContextMenuHandlerBase::MenuEntryAdder&, const FWModelId &id) override;
+   virtual void init(FWViewContextMenuHandlerBase::MenuEntryAdder&, const FWModelId &id);
 
    FWEveView   *m_view;
 };

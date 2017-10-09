@@ -35,7 +35,7 @@ void ParticleFlowForChargedMETProducer::produce(Event& iEvent, const EventSetup&
 
   // the output collection
   auto chargedPFCandidates = std::make_unique<PFCandidateCollection>();
-  if (!pvCollection->empty()) {
+  if (pvCollection->size()>0) {
     for( unsigned i=0; i<pfCandidates->size(); i++ ) {
       const PFCandidate& pfCand = (*pfCandidates)[i];
       PFCandidatePtr pfCandPtr(pfCandidates, i);

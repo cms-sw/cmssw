@@ -26,8 +26,8 @@ class FWPSetCellEditor : public TGTextEntry
 {
 public:
    FWPSetCellEditor(const TGWindow* w, const  char* txt) : TGTextEntry(w, txt) {};
-   ~FWPSetCellEditor() override {};
-   bool HandleKey(Event_t*event) override;
+   virtual ~FWPSetCellEditor() {};
+   virtual bool HandleKey(Event_t*event);
    bool apply(FWPSetTableManager::PSetData &data, FWPSetTableManager::PSetData &parent );
 };
 

@@ -19,13 +19,13 @@ public:
       m_list(list),
       m_svTagInfoRef(svTagInfoRef) { }
 
-  ~BoostedDoubleSVTagInfo(void) override { }
+  virtual ~BoostedDoubleSVTagInfo(void) { }
 
-  BoostedDoubleSVTagInfo* clone(void) const override { return new BoostedDoubleSVTagInfo(*this); }
+  virtual BoostedDoubleSVTagInfo* clone(void) const { return new BoostedDoubleSVTagInfo(*this); }
 
-  edm::RefToBase<Jet> jet(void) const override { return m_svTagInfoRef->jet(); }
+  virtual edm::RefToBase<Jet> jet(void) const { return m_svTagInfoRef->jet(); }
 
-  TaggingVariableList taggingVariables(void) const override { return m_list; }
+  virtual TaggingVariableList taggingVariables(void) const { return m_list; }
 
 protected:
   TaggingVariableList                                 m_list;

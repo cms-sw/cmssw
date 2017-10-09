@@ -51,7 +51,7 @@ const CombinationsInCond* GlobalObjectMap::getCombinationsInCond(
         << "\n  does not exists in the operand token vector."
         << "\n  Returning zero pointer for getCombinationsInCond\n\n" << std::endl;
 
-    return nullptr;
+    return 0;
 
 }
 
@@ -72,7 +72,7 @@ const CombinationsInCond* GlobalObjectMap::getCombinationsInCond(const int condN
         << "\n  does not exists in the operand token vector."
         << "\n  Returning zero pointer for getCombinationsInCond\n\n" << std::endl;
 
-    return nullptr;
+    return 0;
 
 }
 // return the result for the condition condNameVal
@@ -164,7 +164,7 @@ void GlobalObjectMap::print(std::ostream& myCout) const
 
         myCout << "    ";
 
-        if ((*itVVV).empty()) {
+        if ((*itVVV).size() == 0) {
             myCout << "(none)";
         } else {
 

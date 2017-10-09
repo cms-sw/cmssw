@@ -62,13 +62,13 @@ public:
    };
    
    FWGeoTopNode(const char* n = "FWGeoTopNode", const char* t = "FWGeoTopNode"){}
-   ~FWGeoTopNode() override{}
+   virtual ~FWGeoTopNode(){}
 
-   void Paint(Option_t* option="") override;
+   virtual void Paint(Option_t* option="");
    FWGeoTopNodeGLScene    *m_scene;
    
-   virtual FWGeometryTableManagerBase* tableManager() { return nullptr; }
-   virtual FWGeometryTableViewBase* browser() { return nullptr; }
+   virtual FWGeometryTableManagerBase* tableManager() { return 0; }
+   virtual FWGeometryTableViewBase* browser() { return 0; }
    
    std::set<TGLPhysicalShape*> fHted;
    std::set<TGLPhysicalShape*> fSted;
@@ -80,8 +80,8 @@ public:
    void printSelected();
    virtual void popupMenu(int x, int y, TGLViewer*) {}
 
-   void UnSelected() override;
-   void UnHighlighted() override;
+   virtual void UnSelected();
+   virtual void UnHighlighted();
    
    static TGLVector3 s_pickedCamera3DCenter;
    static TGLViewer* s_pickedViewer;
@@ -104,7 +104,7 @@ protected:
 
 
    void paintShape(Int_t idx,  const TGeoHMatrix& nm, bool volumeColor, bool parentNode);
-   void ComputeBBox() override;
+   virtual void ComputeBBox();
 private:   
    FWGeoTopNode(const FWGeoTopNode&); // stop default
    const FWGeoTopNode& operator=(const FWGeoTopNode&); // stop default

@@ -26,7 +26,7 @@ class EBDataFrame : public EcalDataFrame
    */
   float spikeEstimator() const;
     
-  ~EBDataFrame() override {}
+  virtual ~EBDataFrame() {}
 
   key_type id() const { return Base::id(); }
 

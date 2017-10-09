@@ -28,7 +28,7 @@ public:
   
   SiPixelRecHit(){}
   
-  ~SiPixelRecHit() override{}
+  ~SiPixelRecHit(){}
 
   SiPixelRecHit( const LocalPoint& pos , const LocalError& err, 
 		 SiPixelRecHitQuality::QualWordType qual,
@@ -37,12 +37,12 @@ public:
     TrackerSingleRecHit(pos,err,idet, clus){
     qualWord_=qual; }
 
-  bool isPixel() const override { return true;}
+  virtual bool isPixel() const override { return true;}
 
   
-  SiPixelRecHit * clone() const override {return new SiPixelRecHit( * this); }
+  virtual SiPixelRecHit * clone() const override {return new SiPixelRecHit( * this); }
 #ifndef __GCCXML__
-  RecHitPointer cloneSH() const override { return std::make_shared<SiPixelRecHit>(*this);}
+  virtual RecHitPointer cloneSH() const override { return std::make_shared<SiPixelRecHit>(*this);}
 #endif
 
   
@@ -50,18 +50,18 @@ public:
 
   void setClusterRef(ClusterRef const & ref)  {setClusterPixelRef(ref);}
 
-  int dimension() const override {return 2;}
-  void getKfComponents( KfComponentsHolder & holder ) const override { getKfComponents2D(holder); }
+  virtual int dimension() const override {return 2;}
+  virtual void getKfComponents( KfComponentsHolder & holder ) const override { getKfComponents2D(holder); }
   
   
-  bool canImproveWithTrack() const override {return true;}
+  virtual bool canImproveWithTrack() const override {return true;}
 private:
   // double dispatch
-  SiPixelRecHit * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
+  virtual SiPixelRecHit * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
     return cloner(*this,tsos).release();
   }
 #ifndef __GCCXML__
-   RecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
+  virtual  RecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
     return cloner.makeShared(*this,tsos);
   }
 #endif  

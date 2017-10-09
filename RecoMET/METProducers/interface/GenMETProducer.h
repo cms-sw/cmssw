@@ -37,8 +37,8 @@ namespace cms
     {
     public:
       explicit GenMETProducer(const edm::ParameterSet&);
-      ~GenMETProducer() override { }
-      void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual ~GenMETProducer() { }
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
     private:
 

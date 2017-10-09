@@ -85,7 +85,7 @@ void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es)
   evt.getByToken(srcVertices_, vertices); 
   // take vertex with highest sum(trackPt) as the vertex of the "hard scatter" interaction
   // (= first entry in vertex collection)
-  const reco::Vertex* hardScatterVertex = ( !vertices->empty() ) ?
+  const reco::Vertex* hardScatterVertex = ( vertices->size() >= 1 ) ?
     &(vertices->front()) : nullptr;
   
   // get leptons
@@ -312,7 +312,7 @@ double PFMETProducerMVA::chargedEnFrac(const reco::Candidate *iCand,
   }
   if(iCand->isPhoton()  )   {return chargedFracInCone(iCand, pfCandidates,hardScatterVertex);}
   double lPtTot = 0; double lPtCharged = 0;
-  const reco::PFTau *lPFTau = nullptr; 
+  const reco::PFTau *lPFTau = 0; 
   lPFTau = dynamic_cast<const reco::PFTau*>(iCand);
   if(lPFTau != nullptr) { 
     for (UInt_t i0 = 0; i0 < lPFTau->signalPFCands().size(); i0++) { 

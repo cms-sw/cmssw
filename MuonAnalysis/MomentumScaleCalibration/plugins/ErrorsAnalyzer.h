@@ -49,14 +49,14 @@ class ErrorsAnalyzer : public edm::EDAnalyzer
 {
 public:
   explicit ErrorsAnalyzer(const edm::ParameterSet&);
-  ~ErrorsAnalyzer() override;
+  ~ErrorsAnalyzer();
 
 private:
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
   void fillHistograms();
   void drawHistograms(const TProfile * histo, const TProfile * histoPlusErr, const TProfile * histoMinusErr, const TString & type);
   void fillValueError();
-  void endJob() override {};
+  virtual void endJob() {};
 
   TString treeFileName_;
   int resolFitType_;

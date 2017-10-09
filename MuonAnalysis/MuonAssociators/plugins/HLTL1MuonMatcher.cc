@@ -34,17 +34,17 @@ namespace pat {
   class HLTL1MuonMatcher : public edm::EDProducer {
     public:
       explicit HLTL1MuonMatcher(const edm::ParameterSet & iConfig);
-      ~HLTL1MuonMatcher() override { }
+      virtual ~HLTL1MuonMatcher() { }
 
-      void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
-      void beginRun(const edm::Run & iRun, const edm::EventSetup& iSetup) override;
+      virtual void beginRun(const edm::Run & iRun, const edm::EventSetup& iSetup) override;
 
 
       /// select L1s with patName_ and filterLabel_ (public, so it can be used by L1MuonMatcherAlgo)
       bool operator()(const pat::TriggerObjectStandAlone &l1) const {
           if (resolveAmbiguities_ && (std::find(lockedItems_.begin(), lockedItems_.end(), &l1) != lockedItems_.end())) return false;
-          return selector_(false,l1);
+          return selector_(0,l1);
       }
     private:
       typedef pat::TriggerObjectStandAlone           PATPrimitive;

@@ -20,9 +20,9 @@
 class EgammaPhotonTkIsolationProducer : public edm::EDProducer {
  public:
   explicit EgammaPhotonTkIsolationProducer(const edm::ParameterSet&);
-  ~EgammaPhotonTkIsolationProducer() override;
+  ~EgammaPhotonTkIsolationProducer();
   
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&);
 
  private:
   edm::InputTag photonProducer_;

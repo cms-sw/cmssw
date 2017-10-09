@@ -21,29 +21,29 @@ namespace edm {
       explicit Holder(REF const& iRef);
       Holder& operator= (Holder const& rhs);
       void swap(Holder& other);
-      ~Holder() override;
-      BaseHolder<T>* clone() const override;
+      virtual ~Holder();
+      virtual BaseHolder<T>* clone() const override;
 
-      T const* getPtr() const override;
-      ProductID id() const override;
-      size_t key() const override;
-      bool isEqualTo(BaseHolder<T> const& rhs) const override;
+      virtual T const* getPtr() const override;
+      virtual ProductID id() const override;
+      virtual size_t key() const override;
+      virtual bool isEqualTo(BaseHolder<T> const& rhs) const override;
       REF const& getRef() const;
 
-      bool fillRefIfMyTypeMatches(RefHolderBase& fillme,
+      virtual bool fillRefIfMyTypeMatches(RefHolderBase& fillme,
 					  std::string& msg) const override;
 
-      std::unique_ptr<RefHolderBase> holder() const override {
+      virtual std::unique_ptr<RefHolderBase> holder() const override {
 	return std::unique_ptr<RefHolderBase>( new RefHolder<REF>( ref_ ) );
       }
-      std::unique_ptr<BaseVectorHolder<T> > makeVectorHolder() const override;
-      EDProductGetter const* productGetter() const override;
+      virtual std::unique_ptr<BaseVectorHolder<T> > makeVectorHolder() const override;
+      virtual EDProductGetter const* productGetter() const override;
 
       /// Checks if product collection is in memory or available
       /// in the Event. No type checking is done.
-      bool isAvailable() const override { return ref_.isAvailable(); }
+      virtual bool isAvailable() const override { return ref_.isAvailable(); }
 
-      bool isTransient() const override { return ref_.isTransient(); }
+      virtual bool isTransient() const override { return ref_.isTransient(); }
 
       //Used by ROOT storage
       CMS_CLASS_VERSION(10)
@@ -152,7 +152,7 @@ namespace edm {
 					  std::string& msg) const
     {
       RefHolder<REF>* h = dynamic_cast<RefHolder<REF>*>(&fillme);
-      bool conversion_worked = (h != nullptr);
+      bool conversion_worked = (h != 0);
 
       if (conversion_worked)
  	h->setRef(ref_);

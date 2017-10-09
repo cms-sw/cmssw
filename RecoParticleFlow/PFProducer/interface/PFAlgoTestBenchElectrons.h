@@ -23,16 +23,16 @@ class PFAlgoTestBenchElectrons : public PFAlgo {
   PFAlgoTestBenchElectrons() {}
 
   /// destructor
-  ~PFAlgoTestBenchElectrons() override {}
+  virtual ~PFAlgoTestBenchElectrons() {}
   
 
  protected:
 
   /// process one block. can be reimplemented in more sophisticated 
   /// algorithms
-  void processBlock( const reco::PFBlockRef& blockref,
+  virtual void processBlock( const reco::PFBlockRef& blockref,
                              std::list<reco::PFBlockRef>& hcalBlockRefs, 
-			     std::list<reco::PFBlockRef>& ecalBlockRefs ) override;
+			     std::list<reco::PFBlockRef>& ecalBlockRefs );
   
 
  private:

@@ -11,15 +11,15 @@ CompositeRefCandidate * CompositeRefCandidate::clone() const {
 }
 
 const Candidate * CompositeRefCandidate::daughter( size_type i ) const { 
-  return ( i < numberOfDaughters() ) ? & * dau[ i ] : nullptr; // i >= 0, since i is unsigned
+  return ( i < numberOfDaughters() ) ? & * dau[ i ] : 0; // i >= 0, since i is unsigned
 }
 
 const Candidate * CompositeRefCandidate::mother( size_type i ) const { 
-  return ( i < numberOfMothers() ) ? & * mom[ i ] : nullptr; // i >= 0, since i is unsigned
+  return ( i < numberOfMothers() ) ? & * mom[ i ] : 0; // i >= 0, since i is unsigned
 }
 
 Candidate * CompositeRefCandidate::daughter( size_type i ) { 
-  return nullptr;
+  return 0;
 }
 
 size_t CompositeRefCandidate::numberOfDaughters() const { 

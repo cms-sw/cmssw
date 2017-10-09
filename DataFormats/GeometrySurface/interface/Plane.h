@@ -34,7 +34,7 @@ public:
     return PlanePointer(new Plane(std::forward<Args>(args)...));
   }
  
-  ~Plane() override{}
+  ~Plane(){}
 
 // extension of Surface interface for planes
 
@@ -64,22 +64,22 @@ public:
 
 // implementation of Surface interface    
 
-  SurfaceOrientation::Side side( const LocalPoint& p, Scalar toler) const final {
+  virtual SurfaceOrientation::Side side( const LocalPoint& p, Scalar toler) const final {
     return (std::abs(p.z())<toler) ? SurfaceOrientation::onSurface : 
 	(p.z()>0 ? SurfaceOrientation::positiveSide : SurfaceOrientation::negativeSide);
   }
 
-  SurfaceOrientation::Side side( const GlobalPoint& p, Scalar toler) const final {
+  virtual SurfaceOrientation::Side side( const GlobalPoint& p, Scalar toler) const final {
     Scalar lz = localZ(p);
     return (std::abs(lz)<toler ? SurfaceOrientation::onSurface : 
 	    (lz>0 ? SurfaceOrientation::positiveSide : SurfaceOrientation::negativeSide));
   }
 
   /// tangent plane to surface from global point
-  ConstReferenceCountingPointer<TangentPlane> tangentPlane (const GlobalPoint&) const final;
+  virtual ConstReferenceCountingPointer<TangentPlane> tangentPlane (const GlobalPoint&) const final;
 
   /// tangent plane to surface from local point
-  ConstReferenceCountingPointer<TangentPlane> tangentPlane (const LocalPoint&) const final;
+  virtual ConstReferenceCountingPointer<TangentPlane> tangentPlane (const LocalPoint&) const final;
 
 private:
   void setPosPrec() {

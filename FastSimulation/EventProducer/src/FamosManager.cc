@@ -45,7 +45,7 @@ using namespace HepMC;
 
 FamosManager::FamosManager(edm::ParameterSet const & p)
     : iEvent(0),
-      myCalorimetry(nullptr),
+      myCalorimetry(0),
       m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
       m_Tracking(p.getParameter<bool>("SimulateTracking")),
       m_Calorimetry(p.getParameter<bool>("SimulateCalorimetry")),
@@ -120,7 +120,7 @@ FamosManager::setupGeometryAndField(edm::Run const& run, const edm::EventSetup &
   } else { 
     myTrajectoryManager->initializeRecoGeometry(&(*theGeomSearchTracker),
 						&(*theTrackerInteractionGeometry),
-						nullptr);
+						0);
     bField000 = 4.0;
   }
   // The following should be on LogInfo

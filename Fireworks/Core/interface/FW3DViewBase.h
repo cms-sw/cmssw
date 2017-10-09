@@ -43,24 +43,24 @@ class FW3DViewBase : public FWEveView
 {
 public:
    FW3DViewBase(TEveWindowSlot*, FWViewType::EType, unsigned int version = 8);
-   ~FW3DViewBase() override;
+   virtual ~FW3DViewBase();
 
    // ---------- const member functions ---------------------
 
-   void addTo(FWConfiguration&) const override;
-   void populateController(ViewerParameterGUI&) const override;
+   virtual void addTo(FWConfiguration&) const;
+   virtual void populateController(ViewerParameterGUI&) const;
 
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   void setContext(const fireworks::Context&) override;
-   void setFrom(const FWConfiguration&) override;
+   virtual void setContext(const fireworks::Context&);
+   virtual void setFrom(const FWConfiguration&);
 
    // To be fixed.
    void updateGlobalSceneScaleParameters();
 
    FW3DViewDistanceMeasureTool* getDMT() { return m_DMT;}
-   bool requestGLHandlerPick() const override;
+   virtual bool requestGLHandlerPick() const;
    void setCurrentDMTVertex(double x, double y, double z);
 
    void showEcalBarrel(bool);

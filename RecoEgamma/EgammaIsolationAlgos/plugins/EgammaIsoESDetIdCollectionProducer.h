@@ -43,9 +43,9 @@ class EgammaIsoESDetIdCollectionProducer : public edm::stream::EDProducer<> {
 public:
   //! ctor
   explicit EgammaIsoESDetIdCollectionProducer(const edm::ParameterSet&);
-  void beginRun (edm::Run const&, const edm::EventSetup&) final;
+  virtual void beginRun (edm::Run const&, const edm::EventSetup&) override final;
   //! producer
-  void produce(edm::Event &, const edm::EventSetup&) override;
+  virtual void produce(edm::Event &, const edm::EventSetup&) override;
 
 private:
   void addDetIds(const reco::SuperCluster& superClus,reco::PFClusterCollection clusters,const reco::PFCluster::EEtoPSAssociation& eeClusToESMap,std::vector<DetId>& detIdsToStore);

@@ -47,8 +47,8 @@ void PFDisplacedVertexSeed::mergeWith(const PFDisplacedVertexSeed& displacedVert
 
   
   double weight = displacedVertex.totalWeight();
-  const set<TrackBaseRef, Compare>& newElements= displacedVertex.elements();
-  const GlobalPoint& dcaPoint = displacedVertex.seedPoint();
+  set<TrackBaseRef, Compare> newElements= displacedVertex.elements();
+  GlobalPoint dcaPoint = displacedVertex.seedPoint();
 
   Basic3DVector<double>vertexSeedVector(seedPoint_);
   Basic3DVector<double>dcaVector(dcaPoint);

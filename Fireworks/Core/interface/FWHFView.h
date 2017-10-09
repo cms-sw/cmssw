@@ -29,9 +29,9 @@ class FWHFView : public FWLegoViewBase
 {
 public:
    FWHFView(TEveWindowSlot*, FWViewType::EType);
-   ~FWHFView() override;
+   virtual ~FWHFView();
 
-   void setContext(const fireworks::Context&) override;
+   virtual void setContext(const fireworks::Context&);
    // ---------- const member functions ---------------------
 
    // ---------- static member functions --------------------
@@ -39,9 +39,9 @@ public:
    // ---------- member functions ---------------------------
 
 private:
-   FWHFView(const FWHFView&) = delete; // stop default
+   FWHFView(const FWHFView&); // stop default
 
-   const FWHFView& operator=(const FWHFView&) = delete; // stop default
+   const FWHFView& operator=(const FWHFView&); // stop default
 
    // ---------- member data --------------------------------
 };

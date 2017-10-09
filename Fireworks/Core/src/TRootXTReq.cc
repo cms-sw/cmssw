@@ -40,15 +40,15 @@
 
 TRootXTReq::lpXTReq_t  TRootXTReq::sQueue;
 pthread_t              TRootXTReq::sRootThread = 0;
-TMutex                *TRootXTReq::sQueueMutex = nullptr;
-TSignalHandler        *TRootXTReq::sSigHandler = nullptr;
+TMutex                *TRootXTReq::sQueueMutex = 0;
+TSignalHandler        *TRootXTReq::sSigHandler = 0;
 bool                   TRootXTReq::sSheduled   = false;
 
 
 //==============================================================================
 
 TRootXTReq::TRootXTReq(const char* n) :
-   m_return_condition(nullptr),
+   m_return_condition(0),
    mName(n)
 {}
 
@@ -81,7 +81,7 @@ void TRootXTReq::ShootRequest()
    if (m_return_condition)
    {
       delete m_return_condition;
-      m_return_condition = nullptr;
+      m_return_condition = 0;
    }
 
    post_request();
@@ -116,7 +116,7 @@ private:
    {
    public:
       XTReqTimer() : TTimer() {}
-      ~XTReqTimer() override {}
+      virtual ~XTReqTimer() {}
 
       void FireAway()
       {
@@ -124,7 +124,7 @@ private:
          gSystem->AddTimer(this);
       }
 
-      Bool_t Notify() override
+      virtual Bool_t Notify() override
       {
          gSystem->RemoveTimer(this);
          TRootXTReq::ProcessQueue();
@@ -136,9 +136,9 @@ private:
 
 public:
    RootSig2XTReqHandler() : TSignalHandler(kSigUser1), mTimer() { Add(); }
-   ~RootSig2XTReqHandler() override {}
+   virtual ~RootSig2XTReqHandler() {}
 
-   Bool_t Notify() override
+   virtual Bool_t Notify() override
    {
       printf("Usr1 Woof Woof in Root thread! Starting Timer.\n");
       mTimer.FireAway();
@@ -170,8 +170,8 @@ void TRootXTReq::Shutdown()
    // Should lock and drain queue ... or sth.
 
    sRootThread = 0;
-   delete sSigHandler; sSigHandler = nullptr;
-   delete sQueueMutex; sQueueMutex = nullptr;
+   delete sSigHandler; sSigHandler = 0;
+   delete sQueueMutex; sQueueMutex = 0;
 }
 
 void TRootXTReq::ProcessQueue()
@@ -180,7 +180,7 @@ void TRootXTReq::ProcessQueue()
 
    while (true)
    {
-      TRootXTReq *req = nullptr;
+      TRootXTReq *req = 0;
       {
          TLockGuard _lck(sQueueMutex);
 

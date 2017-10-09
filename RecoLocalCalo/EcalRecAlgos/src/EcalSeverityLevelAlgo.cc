@@ -24,7 +24,7 @@ EcalSeverityLevelAlgo::EcalSeverityLevelAlgo(const edm::ParameterSet& p){
   
   
   timeThresh_    = p.getParameter< double> ("timeThresh");
-  chStatus_ =nullptr;	    
+  chStatus_ =0;	    
 
   const edm::ParameterSet & ps=p.getParameter< edm::ParameterSet >("flagMask");
   std::vector<std::string> severities = ps.getParameterNames();

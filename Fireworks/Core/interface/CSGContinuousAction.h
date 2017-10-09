@@ -44,7 +44,7 @@ public:
                                 const TGPicture* disabledPic,
                                 const TGPicture* upRunningPic,
                                 const TGPicture* downRunningPic,
-                                TGLayoutHints* l = nullptr,
+                                TGLayoutHints* l = 0,
                                 Int_t id = -1,
                                 GContext_t norm = TGButton::GetDefaultGC() (),
                                 UInt_t option = 0);
@@ -54,15 +54,15 @@ public:
    sigc::signal<void> stopped_;
 
    //override
-   void globalEnable() override;
-   void globalDisable() override;
+   virtual void globalEnable();
+   virtual void globalDisable();
 
    void switchMode();
 
 private:
-   CSGContinuousAction(const CSGContinuousAction&) = delete; // stop default
+   CSGContinuousAction(const CSGContinuousAction&); // stop default
 
-   const CSGContinuousAction& operator=(const CSGContinuousAction&) = delete; // stop default
+   const CSGContinuousAction& operator=(const CSGContinuousAction&); // stop default
 
    // ---------- member data --------------------------------
    std::string m_imageFileName;

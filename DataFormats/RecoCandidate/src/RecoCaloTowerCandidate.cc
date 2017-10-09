@@ -14,7 +14,7 @@ CaloTowerRef RecoCaloTowerCandidate::caloTower() const {
 
 bool RecoCaloTowerCandidate::overlap( const Candidate & c ) const {
   const RecoCandidate * o = dynamic_cast<const RecoCandidate *>( & c );
-  return ( o != nullptr &&  
+  return ( o != 0 &&  
 	   checkOverlap( caloTower(), o->caloTower() ) 
 	   );
 }

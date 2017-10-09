@@ -37,50 +37,50 @@ class DTRecSegment4D : public RecSegment {
   DTRecSegment4D(const DTSLRecSegment2D& zedSeg, const LocalPoint& posZInCh, const LocalVector& dirZInCh);
 
   /// Destructor
-  ~DTRecSegment4D() override ;
+  ~DTRecSegment4D() ;
 
   //--- Base class interface
 
-  DTRecSegment4D* clone() const override { return new DTRecSegment4D(*this);}
+  virtual DTRecSegment4D* clone() const { return new DTRecSegment4D(*this);}
 
   /// Parameters of the segment, for the track fit. 
   /// For a 4D segment: (dx/dy,dy/dz,x,y)
   /// For a 2D, phi-only segment: (dx/dz,x)
   /// For a 2D, Z-only segment: (dy/dz,y)
-  AlgebraicVector parameters() const override ;
+  AlgebraicVector parameters() const ;
 
   /// Covariance matrix fo parameters()
-  AlgebraicSymMatrix parametersError() const override ;
+  AlgebraicSymMatrix parametersError() const ;
 
   /// The projection matrix relates the trajectory state parameters to the segment parameters().
-  AlgebraicMatrix projectionMatrix() const override;
+  virtual AlgebraicMatrix projectionMatrix() const;
 
   /// Local position in Chamber frame
-  LocalPoint localPosition() const override { return thePosition;}
+  virtual LocalPoint localPosition() const { return thePosition;}
 
   /// Local position error in Chamber frame
-  LocalError localPositionError() const override ;
+  virtual LocalError localPositionError() const ;
 
   /// Local direction in Chamber frame
-  LocalVector localDirection() const override { return theDirection; }
+  virtual LocalVector localDirection() const { return theDirection; }
 
   /// Local direction error in the Chamber frame
-  LocalError localDirectionError() const override ;
+  virtual LocalError localDirectionError() const ;
 
   // Chi2 of the segment fit
-  double chi2() const override ;
+  virtual double chi2() const ;
   
   // Degrees of freedom of the segment fit
-  int degreesOfFreedom() const override ;
+  virtual int degreesOfFreedom() const ;
 
   // Dimension (in parameter space)
-  int dimension() const override { return theDimension; }
+  virtual int dimension() const { return theDimension; }
 
   // Access to component RecHits (if any)
-  std::vector<const TrackingRecHit*> recHits() const override ;
+  virtual std::vector<const TrackingRecHit*> recHits() const ;
 
   // Non-const access to component RecHits (if any)
-  std::vector<TrackingRecHit*> recHits() override ;
+  virtual std::vector<TrackingRecHit*> recHits() ;
 
 
   //--- Extension of the interface
@@ -94,12 +94,12 @@ class DTRecSegment4D : public RecSegment {
   
   /// The superPhi segment: 0 if no phi projection available
   const DTChamberRecSegment2D *phiSegment() const {
-    return hasPhi()? &thePhiSeg: nullptr;
+    return hasPhi()? &thePhiSeg: 0;
   }
     
   /// The Z segment: 0 if not zed projection available
   const DTSLRecSegment2D *zSegment() const {
-    return hasZed()? &theZedSeg : nullptr;
+    return hasZed()? &theZedSeg : 0;
   }
     
   /// Set position

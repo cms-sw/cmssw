@@ -26,7 +26,7 @@
 #include <map>
 #include <vector>
 #include<iostream>
-#include <cstring>
+#include <string.h>
 // user include files
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -68,11 +68,11 @@ class ClusterSummary;
 class ClusterSummaryProducer : public edm::stream::EDProducer<> {
    public:
       explicit ClusterSummaryProducer(const edm::ParameterSet&);
-      ~ClusterSummaryProducer() override{};
+      ~ClusterSummaryProducer(){};
 
    private:
-      void beginStream(edm::StreamID) override;
-      void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void beginStream(edm::StreamID) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       
 
       typedef std::pair<DetIdSelector,ClusterSummary::CMSTracker> ModuleSelection;

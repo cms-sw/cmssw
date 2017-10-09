@@ -33,7 +33,7 @@ class GsfElectronBaseProducer : public edm::stream::EDProducer< edm::GlobalCache
     static void fillDescription( edm::ParameterSetDescription & ) ;
 
     explicit GsfElectronBaseProducer( const edm::ParameterSet &, const gsfAlgoHelpers::HeavyObjectCache* ) ;
-    ~GsfElectronBaseProducer() override ;
+    virtual ~GsfElectronBaseProducer() ;
 
     static std::unique_ptr<gsfAlgoHelpers::HeavyObjectCache> 
     initializeGlobalCache( const edm::ParameterSet& conf ) {
@@ -50,7 +50,7 @@ class GsfElectronBaseProducer : public edm::stream::EDProducer< edm::GlobalCache
     void beginEvent( edm::Event &, const edm::EventSetup & ) ;
     void fillEvent( edm::Event & ) ;
     void endEvent() ;
-    reco::GsfElectron * newElectron() { return nullptr ; }
+    reco::GsfElectron * newElectron() { return 0 ; }
     const edm::OrphanHandle<reco::GsfElectronCollection> & orphanHandle() const { return orphanHandle_;}
 
     // configurables

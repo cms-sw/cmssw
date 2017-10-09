@@ -27,10 +27,10 @@
 class ChargedHadronTrackResolutionFilter : public edm::global::EDFilter<> {
 public:
   explicit ChargedHadronTrackResolutionFilter(const edm::ParameterSet&);
-  ~ChargedHadronTrackResolutionFilter() override;
+  ~ChargedHadronTrackResolutionFilter();
 
 private:
-  bool filter(edm::StreamID iID, edm::Event&, const edm::EventSetup&) const override;
+  virtual bool filter(edm::StreamID iID, edm::Event&, const edm::EventSetup&) const override;
 
       // ----------member data ---------------------------
 

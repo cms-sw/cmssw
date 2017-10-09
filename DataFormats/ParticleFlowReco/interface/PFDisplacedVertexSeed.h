@@ -58,7 +58,7 @@ namespace reco {
     void mergeWith(const PFDisplacedVertexSeed& displacedVertex);
 
     /// Check if it is a new Seed
-    bool isEmpty() const {return (elements_.empty());}
+    bool isEmpty() const {return (elements_.size() == 0);}
 
     /// \return set of references to tracks 
     const std::set < TrackBaseRef, Compare >& elements() const 

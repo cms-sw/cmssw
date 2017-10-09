@@ -14,7 +14,7 @@ private:
   void *		GetDirPt(void) const { return fDirp; }
 
 public:
-  ClassDefOverride(TStorageFactorySystem, 0); // ROOT System operating on CMS Storage.
+  ClassDef(TStorageFactorySystem, 0); // ROOT System operating on CMS Storage.
 
   TStorageFactorySystem(const char *, Bool_t); // For compatibility with TXNetFile, we don't actually use the arguments
   TStorageFactorySystem(void);

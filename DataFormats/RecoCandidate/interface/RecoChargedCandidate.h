@@ -25,17 +25,17 @@ namespace reco {
 			  int pdgId = 0, int status = 0 ) :
       RecoCandidate( q, p4, vtx, pdgId, status ) { }
     /// destructor
-    ~RecoChargedCandidate() override;
+    virtual ~RecoChargedCandidate();
     /// returns a clone of the candidate
-    RecoChargedCandidate * clone() const override;
+    virtual RecoChargedCandidate * clone() const;
     /// set reference to track
     void setTrack( const reco::TrackRef & r ) { track_ = r; }
     /// reference to a track
-    reco::TrackRef track() const override;
+    virtual reco::TrackRef track() const;
 
   private:
     /// check overlap with another candidate
-    bool overlap( const Candidate & ) const override;
+    virtual bool overlap( const Candidate & ) const;
     /// reference to a track
     reco::TrackRef track_;
   };

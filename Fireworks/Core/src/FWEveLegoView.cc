@@ -34,7 +34,7 @@
 //
 FWEveLegoView::FWEveLegoView(TEveWindowSlot* slot, FWViewType::EType typeId):
   FWLegoViewBase(slot, typeId),
-  m_boundaries(nullptr)
+  m_boundaries(0)
 {
 }
 

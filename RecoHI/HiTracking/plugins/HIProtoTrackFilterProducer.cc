@@ -25,12 +25,12 @@
 class HIProtoTrackFilterProducer: public edm::global::EDProducer<> {
 public:
   explicit HIProtoTrackFilterProducer(const edm::ParameterSet& iConfig);
-  ~HIProtoTrackFilterProducer() override;
+  ~HIProtoTrackFilterProducer();
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
+  virtual void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
   edm::EDGetTokenT<reco::BeamSpot> theBeamSpotToken;
   edm::EDGetTokenT<SiPixelRecHitCollection> theSiPixelRecHitsToken;

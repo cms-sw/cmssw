@@ -11,18 +11,18 @@ protected:
 
 public:
    FWGeoTopNodeGL();
-   ~FWGeoTopNodeGL() override {}
+   virtual ~FWGeoTopNodeGL() {}
 
-   void   SetBBox() override;
+   virtual void   SetBBox();
 
-   Bool_t SetModel(TObject* obj, const Option_t* opt=nullptr) override;
-   void   DirectDraw(TGLRnrCtx& rnrCtx) const override;
+   virtual Bool_t SetModel(TObject* obj, const Option_t* opt=0);
+   virtual void   DirectDraw(TGLRnrCtx& rnrCtx) const;
 
    // virtual void   DrawHighlight(TGLRnrCtx& rnrCtx, const TGLPhysicalShape* pshp, Int_t lvl=-1) const;
 
-   Bool_t SupportsSecondarySelect() const override { return kTRUE; }
-   Bool_t AlwaysSecondarySelect()   const override { return kTRUE; }
-   void   ProcessSelection(TGLRnrCtx& rnrCtx, TGLSelectRecord& rec) override;
+   virtual Bool_t SupportsSecondarySelect() const { return kTRUE; }
+   virtual Bool_t AlwaysSecondarySelect()   const { return kTRUE; }
+   virtual void   ProcessSelection(TGLRnrCtx& rnrCtx, TGLSelectRecord& rec);
 
    ClassDef(FWGeoTopNodeGL, 0); // GL renderer class for FWGeoTopNodeGL.
 

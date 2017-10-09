@@ -29,7 +29,7 @@ class PairProductionSimulator : public MaterialEffectsSimulator
   PairProductionSimulator(double photonEnergyCut);
 
   /// Default Destructor
-  ~PairProductionSimulator() override {}
+  ~PairProductionSimulator() {}
 
  private:
 
@@ -37,7 +37,7 @@ class PairProductionSimulator : public MaterialEffectsSimulator
   double photonEnergy;
 
   /// Generate an e+e- pair according to the probability that it happens
-  void compute(ParticlePropagator& Particle, RandomEngineAndDistribution const*) override;
+  void compute(ParticlePropagator& Particle, RandomEngineAndDistribution const*);
 
   /// A universal angular distribution - still from GEANT.
   double gbteth(double ener,double partm,double efrac, RandomEngineAndDistribution const*);

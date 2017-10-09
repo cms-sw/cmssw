@@ -70,7 +70,7 @@ FWModelFilter::~FWModelFilter()
 void
 FWModelFilter::setExpression(const std::string& iExpression)
 {
-   if(m_type != edm::TypeWithDict() && !iExpression.empty()) {
+   if(m_type != edm::TypeWithDict() && iExpression.size()) {
       using namespace fireworks::expression;
 
       //Backwards compatibility with old format

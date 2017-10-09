@@ -5,7 +5,7 @@
 #include "DBReader.h"
 
 #include <iostream>
-#include <cstdio>
+#include <stdio.h>
 #include <sys/time.h>
 #include <string>
 

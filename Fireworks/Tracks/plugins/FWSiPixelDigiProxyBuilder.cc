@@ -24,23 +24,23 @@ class FWSiPixelDigiProxyBuilder : public FWProxyBuilderBase
 {
 public:
   FWSiPixelDigiProxyBuilder( void ) {}
-  ~FWSiPixelDigiProxyBuilder( void ) override {}
+  virtual ~FWSiPixelDigiProxyBuilder( void ) {}
 
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
   // Disable default copy constructor
-  FWSiPixelDigiProxyBuilder( const FWSiPixelDigiProxyBuilder& ) = delete;    
+  FWSiPixelDigiProxyBuilder( const FWSiPixelDigiProxyBuilder& );    
   // Disable default assignment operator
-  const FWSiPixelDigiProxyBuilder& operator=( const FWSiPixelDigiProxyBuilder& ) = delete;
+  const FWSiPixelDigiProxyBuilder& operator=( const FWSiPixelDigiProxyBuilder& );
 
   using FWProxyBuilderBase::build;
-  void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;
+  virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;
 };
 
 void FWSiPixelDigiProxyBuilder::build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* )
 {
-  const edm::DetSetVector<PixelDigi>* digis = nullptr;
+  const edm::DetSetVector<PixelDigi>* digis = 0;
   iItem->get( digis );
 
   if( ! digis )

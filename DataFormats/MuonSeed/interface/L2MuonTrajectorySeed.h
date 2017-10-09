@@ -34,7 +34,7 @@ public:
 		       l1t::MuonRef l1Ref);
 
   /// Destructor
-  ~L2MuonTrajectorySeed() override{};
+  virtual ~L2MuonTrajectorySeed(){};
 
   // Operations
 

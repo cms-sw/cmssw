@@ -51,7 +51,7 @@ class FFTJetEFlowSmoother : public FFTJetInterface
 {
 public:
     explicit FFTJetEFlowSmoother(const edm::ParameterSet&);
-    ~FFTJetEFlowSmoother() override;
+    ~FFTJetEFlowSmoother();
 
 protected:
     // methods
@@ -60,9 +60,9 @@ protected:
     void endJob() override ;
 
 private:
-    FFTJetEFlowSmoother() = delete;
-    FFTJetEFlowSmoother(const FFTJetEFlowSmoother&) = delete;
-    FFTJetEFlowSmoother& operator=(const FFTJetEFlowSmoother&) = delete;
+    FFTJetEFlowSmoother();
+    FFTJetEFlowSmoother(const FFTJetEFlowSmoother&);
+    FFTJetEFlowSmoother& operator=(const FFTJetEFlowSmoother&);
 
     void buildKernelConvolver(const edm::ParameterSet&);
 
@@ -231,7 +231,7 @@ void FFTJetEFlowSmoother::produce(
                  nEta, g.etaMin(), g.etaMax(),
                  nPhi, bin0edge, bin0edge+2.0*M_PI);
     TH3F* h = pTable.get();
-    h->SetDirectory(nullptr);
+    h->SetDirectory(0);
     h->GetXaxis()->SetTitle("Scale");
     h->GetYaxis()->SetTitle("Eta");
     h->GetZaxis()->SetTitle("Phi");

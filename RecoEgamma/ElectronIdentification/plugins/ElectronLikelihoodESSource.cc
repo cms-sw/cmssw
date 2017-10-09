@@ -66,7 +66,7 @@ const ElectronLikelihoodCalibration*
 ElectronLikelihoodESSource::readPdfFromDB( const ElectronLikelihoodRcd & iRecord ) {
 
   // setup the PDF's from DB
-  const ElectronLikelihoodCalibration *calibration = nullptr;
+  const ElectronLikelihoodCalibration *calibration = 0;
   edm::ESHandle<ElectronLikelihoodCalibration> calibHandle;
   iRecord.getRecord<ElectronLikelihoodPdfsRcd>().get(calibHandle);
   calibration = calibHandle.product();

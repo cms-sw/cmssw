@@ -161,7 +161,7 @@ FWColorPopup::FWColorPopup(const TGWindow *p, Color_t color) :
    AddInput(kStructureNotifyMask); // to notify the client for structure (i.e. unmap) changes
 
    fSelectedColor = color;
-   fLabel = nullptr;
+   fLabel = 0;
    fNumColors = 0;
 
    fFirstRow  = new FWColorRow(this);
@@ -334,7 +334,7 @@ FWColorSelect::FWColorSelect(const TGWindow *p, const char* label, Color_t index
    TGColorSelect(p, TColor::Number2Pixel(index), id),
    fLabel(label),
    fSelectedColor(index),
-   fFireworksPopup(nullptr),
+   fFireworksPopup(0),
    fColorManager(iManager)
 {
    std::vector<Color_t> colors;

@@ -17,7 +17,7 @@
 
 // system include files
 #include <iomanip>
-#include <cstdint>
+#include <stdint.h>
 
 // user include files
 #include "FWCore/Utilities/interface/EDMException.h"

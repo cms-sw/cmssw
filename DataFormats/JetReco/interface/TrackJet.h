@@ -35,9 +35,9 @@ namespace reco {
       /// Constructor from RecoChargedRefCandidate constituents
       TrackJet(const LorentzVector & fP4, const Point & fVertex, const Jet::Constituents & fConstituents);
       /// Destructor
-      ~TrackJet() override {}
+      virtual ~TrackJet() {}
       /// Polymorphic clone
-      TrackJet * clone () const override;
+      virtual TrackJet * clone () const;
 
       /// Number of track daughters
       size_t numberOfTracks() const { return numberOfDaughters(); }
@@ -56,12 +56,12 @@ namespace reco {
       bool fromHardVertex() const { return (this->primaryVertex().index() == 0); }
 
       /// Print object
-      std::string print () const override;
+      virtual std::string print () const;
 
     private:
 
       /// Polymorphic overlap
-      bool overlap(const Candidate & dummy) const override;
+      virtual bool overlap(const Candidate & dummy) const;
 
     private:
 

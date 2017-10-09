@@ -24,21 +24,21 @@ class FWSiStripDigiProxyBuilder : public FWProxyBuilderBase
 {
 public:
   FWSiStripDigiProxyBuilder( void ) {}
-  ~FWSiStripDigiProxyBuilder( void ) override {}
+  virtual ~FWSiStripDigiProxyBuilder( void ) {}
 
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
   using FWProxyBuilderBase::build;
-  void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;
-  FWSiStripDigiProxyBuilder( const FWSiStripDigiProxyBuilder& ) = delete;    
-  const FWSiStripDigiProxyBuilder& operator=( const FWSiStripDigiProxyBuilder& ) = delete;
+  virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;
+  FWSiStripDigiProxyBuilder( const FWSiStripDigiProxyBuilder& );    
+  const FWSiStripDigiProxyBuilder& operator=( const FWSiStripDigiProxyBuilder& );
 };
 
 void
 FWSiStripDigiProxyBuilder::build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* )
 {
-  const edm::DetSetVector<SiStripDigi>* digis = nullptr;
+  const edm::DetSetVector<SiStripDigi>* digis = 0;
 
   iItem->get( digis );
 

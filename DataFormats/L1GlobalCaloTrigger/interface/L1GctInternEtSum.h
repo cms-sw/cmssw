@@ -3,7 +3,7 @@
 
 #include <ostream>
 #include <string>
-#include <cstdint>
+#include <stdint.h>
 
 /// \class L1GctInternEtSum
 /// \brief L1 GCT internal energy sum

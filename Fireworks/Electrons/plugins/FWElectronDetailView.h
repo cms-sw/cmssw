@@ -31,17 +31,17 @@ class FWElectronDetailView : public FWDetailViewGL<reco::GsfElectron>
 {
 public:
    FWElectronDetailView();
-   ~FWElectronDetailView() override;
+   virtual ~FWElectronDetailView();
 
 private:
-   FWElectronDetailView(const FWElectronDetailView&) = delete; // stop default
-   const FWElectronDetailView& operator=(const FWElectronDetailView&) = delete; // stop default
+   FWElectronDetailView(const FWElectronDetailView&); // stop default
+   const FWElectronDetailView& operator=(const FWElectronDetailView&); // stop default
 
    using FWDetailViewGL<reco::GsfElectron>::build;
-   void build (const FWModelId &id, const reco::GsfElectron*) override;
+   virtual void build (const FWModelId &id, const reco::GsfElectron*);
 
    using FWDetailViewGL<reco::GsfElectron>::setTextInfo;
-   void setTextInfo(const FWModelId &id, const reco::GsfElectron*) override;
+   virtual void setTextInfo(const FWModelId &id, const reco::GsfElectron*);
 
    double deltaEtaSuperClusterTrackAtVtx (const reco::GsfElectron &);
    double deltaPhiSuperClusterTrackAtVtx (const reco::GsfElectron &);

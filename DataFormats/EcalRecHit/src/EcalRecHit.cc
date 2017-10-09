@@ -4,7 +4,7 @@
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cassert>
-#include <cmath>
+#include <math.h>
 
 
 std::ostream& operator<<(std::ostream& s, const EcalRecHit& hit) {

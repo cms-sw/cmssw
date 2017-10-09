@@ -31,11 +31,11 @@ class FSimEvent;
 class TauHadronDecayFilter : public edm::EDFilter {
  public:
   explicit TauHadronDecayFilter(const edm::ParameterSet&);
-  ~TauHadronDecayFilter() override;
+  ~TauHadronDecayFilter();
 
  private:
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  bool filter(edm::Event&, const edm::EventSetup&) override;
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
   
   // ----------member data ---------------------------
   edm::ParameterSet  particleFilter_;

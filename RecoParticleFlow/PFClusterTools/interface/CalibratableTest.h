@@ -57,7 +57,7 @@
 class CalibratableTest : public edm::one::EDAnalyzer<> {
 public:
 	explicit CalibratableTest(const edm::ParameterSet&);
-	~CalibratableTest() override;
+	~CalibratableTest();
 
 	/*
 	 * Returns the collection in the event matching the Handle.
@@ -69,9 +69,9 @@ private:
 	/* 
 	 * The usual EDAnalyzer methods
 	 */
-	void beginJob() override;
-	void analyze(const edm::Event&, const edm::EventSetup&) override;
-	void endJob() override;
+	virtual void beginJob() override;
+	virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+	virtual void endJob() override;
 
 	/*
 	 * Called for each particle in the event to fill the tree and

@@ -45,9 +45,9 @@ class EgammaIsoHcalDetIdCollectionProducer : public edm::stream::EDProducer<> {
 public:
   //! ctor
   explicit EgammaIsoHcalDetIdCollectionProducer(const edm::ParameterSet&);
-  void beginRun (edm::Run const&, const edm::EventSetup&) final;
+  virtual void beginRun (edm::Run const&, const edm::EventSetup&) override final;
   //! producer
-  void produce(edm::Event &, const edm::EventSetup&) override;
+  virtual void produce(edm::Event &, const edm::EventSetup&) override;
 
 private:
   void addDetIds(const reco::SuperCluster& superClus,const HBHERecHitCollection& recHits,std::vector<DetId>& detIdsToStore);

@@ -8,22 +8,22 @@ class FWPRCaloTowerProxyBuilder : public FWDigitSetProxyBuilder
 {
 public:
    FWPRCaloTowerProxyBuilder( void ) {} 
-   ~FWPRCaloTowerProxyBuilder( void ) override {}
+   virtual ~FWPRCaloTowerProxyBuilder( void ) {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWPRCaloTowerProxyBuilder( const FWPRCaloTowerProxyBuilder& ) = delete; 			// stop default
-   const FWPRCaloTowerProxyBuilder& operator=( const FWPRCaloTowerProxyBuilder& ) = delete; 	// stop default
+   FWPRCaloTowerProxyBuilder( const FWPRCaloTowerProxyBuilder& ); 			// stop default
+   const FWPRCaloTowerProxyBuilder& operator=( const FWPRCaloTowerProxyBuilder& ); 	// stop default
 
    using FWDigitSetProxyBuilder::build;
-   void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;	
+   virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* );	
 };
 
 
 void FWPRCaloTowerProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
-   const CaloTowerCollection* collection = nullptr;
+   const CaloTowerCollection* collection = 0;
    iItem->get( collection );
    if (! collection)
       return;
@@ -34,7 +34,7 @@ void FWPRCaloTowerProxyBuilder::build(const FWEventItem* iItem, TEveElementList*
    for (std::vector<CaloTower>::const_iterator it = collection->begin() ; it != collection->end(); ++it)
    {  
       const float* corners = item()->getGeom()->getCorners((*it).id().rawId());
-      if (corners == nullptr) 
+      if (corners == 0) 
          continue;
 
       std::vector<float> scaledCorners(24);

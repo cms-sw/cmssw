@@ -9,11 +9,11 @@ class GlobalSuperTightHalo2016Filter : public edm::global::EDFilter<> {
   public:
 
     explicit GlobalSuperTightHalo2016Filter(const edm::ParameterSet & iConfig);
-    ~GlobalSuperTightHalo2016Filter() override {}
+    ~GlobalSuperTightHalo2016Filter() {}
 
   private:
 
-  bool filter(edm::StreamID iID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
+  virtual bool filter(edm::StreamID iID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
 
     const bool taggingMode_;
     edm::EDGetTokenT<reco::BeamHaloSummary> beamHaloSummaryToken_;

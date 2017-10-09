@@ -23,11 +23,11 @@ namespace reco {
     ME0Muon();
     //ME0Muon( const TrackRef & t, const ME0Segment & s) { innerTrack_ = t; me0Segment_ = s;}
     ME0Muon( const TrackRef & t, const ME0Segment & s, const int v, const double c) { innerTrack_ = t; me0Segment_ = s; me0segid_=v; trackCharge_ = c;}
-    ~ME0Muon() override{}     
+    virtual ~ME0Muon(){}     
     
     /// reference to Track reconstructed in the tracker only
     TrackRef innerTrack() const { return innerTrack_; }
-    TrackRef track() const override { return innerTrack(); }
+    virtual TrackRef track() const { return innerTrack(); }
     /// set reference to Track
     void setInnerTrack( const TrackRef & t ) { innerTrack_ = t; }
     void setTrack( const TrackRef & t ) { setInnerTrack(t); }
@@ -60,7 +60,7 @@ namespace reco {
      
   private:
     /// check overlap with another candidate
-    bool overlap( const Candidate & ) const override;
+    virtual bool overlap( const Candidate & ) const;
 
     /// reference to Track reconstructed in the tracker only
     TrackRef innerTrack_;

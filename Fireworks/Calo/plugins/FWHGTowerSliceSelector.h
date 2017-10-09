@@ -34,10 +34,10 @@ public:
    FWHGTowerSliceSelector(const FWEventItem* i, TEveCaloDataVec* data) : 
       FWFromSliceSelector(i), m_vecData(data) {}
 
-   ~FWHGTowerSliceSelector() override {}
+   virtual ~FWHGTowerSliceSelector() {}
 
-   void doSelect(const TEveCaloData::CellId_t&) override;
-   void doUnselect(const TEveCaloData::CellId_t&) override;
+   virtual void doSelect(const TEveCaloData::CellId_t&);
+   virtual void doUnselect(const TEveCaloData::CellId_t&);
    
 private:
    bool findBinFromId(HGCalDetId& id, int tower) const;

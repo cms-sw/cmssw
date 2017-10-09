@@ -34,7 +34,7 @@ public:
    typedef T value_type;
 
    FWGenericParameter() :
-      FWParameterBase(nullptr, "invalid")
+      FWParameterBase(0, "invalid")
    {}
 
    FWGenericParameter(FWParameterizable* iParent,
@@ -62,7 +62,7 @@ public:
 
    T value() const { return m_value; }
 
-   void addTo(FWConfiguration& iTo) const override 
+   virtual void addTo(FWConfiguration& iTo) const 
    {
       std::ostringstream s;
       s<<m_value;
@@ -73,7 +73,7 @@ public:
 
    // ---------- member functions ---------------------------
 
-   void setFrom(const FWConfiguration&iFrom) override
+   virtual void setFrom(const FWConfiguration&iFrom)
    {
       if (const FWConfiguration* config = iFrom.valueForKey(name()))
       {
@@ -92,8 +92,8 @@ public:
    sigc::signal<void,T> changed_;
 
 private:
-   FWGenericParameter(const FWGenericParameter&) = delete;                  // stop default
-   const FWGenericParameter& operator=(const FWGenericParameter&) = delete; // stop default
+   FWGenericParameter(const FWGenericParameter&);                  // stop default
+   const FWGenericParameter& operator=(const FWGenericParameter&); // stop default
 
    // ---------- member data --------------------------------
 

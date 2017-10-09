@@ -17,9 +17,9 @@ private:
 
 public:
    FWTSelectorToEventList(TTree* tree, TEventList* evl, const char* sel);
-   ~FWTSelectorToEventList() override;
+   virtual ~FWTSelectorToEventList();
 
-   Bool_t   Process(Long64_t entry) override;
+   virtual Bool_t   Process(Long64_t entry);
 
    virtual Long64_t ProcessTree(Long64_t nentries   = 1000000000,
                                 Long64_t firstentry = 0);

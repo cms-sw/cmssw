@@ -92,7 +92,7 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 
      for (std::vector<const DetLayer*>::const_iterator inl = nls.begin();
          inl != nls.end(); inl++, ndesLayer++ ) {
-         if ( (*inl == nullptr) ) break;
+         if ( (*inl == 0) ) break;
 //         if ( (inl != nls.end()-1 ) && ( (*inl)->subDetector() == GeomDetEnumerators::TEC ) && ( (*(inl+1))->subDetector() == GeomDetEnumerators::TOB ) ) continue; 
          alltm = findMeasurements_new(*inl, staState);
          if ( (!alltm.empty()) ) {
@@ -123,7 +123,7 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 	   FreeTrajectoryState simtrack_trackerstate;
 	   for( unsigned icomb = 0;icomb < recHitCombinations->size();++icomb){
 	       const auto & recHitCombination = (*recHitCombinations)[icomb];
-	       if(recHitCombination.empty())
+	       if(recHitCombination.size() ==0)
 	         continue;
 	       int32_t simTrackId = recHitCombination.back()->simTrackId(0);
 	       const SimTrack & simtrack = (*simTracks)[simTrackId];
@@ -187,7 +187,7 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 
 	   for( unsigned icomb = 0;icomb < recHitCombinations->size();++icomb){
 	       const auto & recHitCombination = (*recHitCombinations)[icomb];
-	       if(recHitCombination.empty())
+	       if(recHitCombination.size() ==0)
 	         continue;
 	       int32_t simTrackId = recHitCombination.back()->simTrackId(0);
 	       const SimTrack & simtrack = (*simTracks)[simTrackId];
@@ -265,7 +265,7 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
      for (std::vector<const DetLayer*>::const_iterator inl = nls.begin();
          inl != nls.end(); inl++ ) {
 
-         if ( !result.empty() || *inl == nullptr ) {
+         if ( !result.empty() || *inl == 0 ) {
             break;
          }
          std::vector<DetLayer::DetWithState> compatDets = (*inl)->compatibleDets(staState, *propagator(), *estimator());

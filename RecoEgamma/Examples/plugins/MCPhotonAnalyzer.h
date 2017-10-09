@@ -26,12 +26,12 @@ class MCPhotonAnalyzer : public edm::EDAnalyzer
    
       //
       explicit MCPhotonAnalyzer( const edm::ParameterSet& ) ;
-      ~MCPhotonAnalyzer() override;
+      virtual ~MCPhotonAnalyzer();
                                    
       
-      void analyze( const edm::Event&, const edm::EventSetup& ) override ;
-      void beginJob() override ;
-      void endJob() override ;
+      virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
+      virtual void beginJob() ;
+      virtual void endJob() ;
 
    private:
  

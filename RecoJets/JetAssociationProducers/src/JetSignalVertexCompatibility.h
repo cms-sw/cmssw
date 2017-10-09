@@ -13,9 +13,9 @@
 class JetSignalVertexCompatibility : public edm::EDProducer {
     public:
 	JetSignalVertexCompatibility(const edm::ParameterSet &params);
-	~JetSignalVertexCompatibility() override;
+	~JetSignalVertexCompatibility();
 
-	void produce(edm::Event &event, const edm::EventSetup &es) override;
+	virtual void produce(edm::Event &event, const edm::EventSetup &es);
 
     private:
 	reco::JetSignalVertexCompatibilityAlgo	algo;

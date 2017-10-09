@@ -34,9 +34,9 @@ class FWInvMassDialog : public TGMainFrame
 
 public:
    FWInvMassDialog(FWSelectionManager* sm);
-   ~FWInvMassDialog() override;
+   virtual ~FWInvMassDialog();
 
-   void CloseWindow() override;
+   virtual void CloseWindow();
 
    // ---------- const member functions ---------------------
 

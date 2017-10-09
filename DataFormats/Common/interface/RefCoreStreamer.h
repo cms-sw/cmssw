@@ -12,9 +12,9 @@ namespace edm {
   public:
     explicit RefCoreStreamer() : cl_("edm::RefCore"){}
 
-    void operator() (TBuffer &R__b, void *objp) override;
+    void operator() (TBuffer &R__b, void *objp);
 
-    TClassStreamer* Generate() const override;
+    TClassStreamer* Generate() const;
     
   private:
     TClassRef cl_;
@@ -24,9 +24,9 @@ namespace edm {
   public:
     explicit RefCoreWithIndexStreamer() : cl_("edm::RefCoreWithIndex"){}
     
-    void operator() (TBuffer &R__b, void *objp) override;
+    void operator() (TBuffer &R__b, void *objp);
 
-    TClassStreamer* Generate() const override;
+    TClassStreamer* Generate() const;
   private:
     TClassRef cl_;
   };

@@ -34,8 +34,8 @@ namespace fwlite {
   class FWLiteEventFinder : public edm::IndexIntoFile::EventFinder {
   public:
     explicit FWLiteEventFinder(TBranch* auxBranch) : auxBranch_(auxBranch) {}
-    ~FWLiteEventFinder() override {}
-    
+    virtual ~FWLiteEventFinder() {}
+    virtual
     edm::EventNumber_t getEventNumberOfEntry(edm::IndexIntoFile::EntryNumber_t entry) const override {
       void* saveAddress = auxBranch_->GetAddress();
       edm::EventAuxiliary eventAux;
@@ -112,7 +112,7 @@ namespace fwlite {
         throw cms::Exception("NoMetaTree") << "The TFile does not contain a TTree named "
           << edm::poolNames::metaDataTreeName();
       }
-      if (meta->FindBranch(edm::poolNames::indexIntoFileBranchName().c_str()) != nullptr) {
+      if (meta->FindBranch(edm::poolNames::indexIntoFileBranchName().c_str()) != 0) {
         edm::IndexIntoFile* indexPtr = &indexIntoFile_;
         TBranch* b = meta->GetBranch(edm::poolNames::indexIntoFileBranchName().c_str());
         b->SetAddress(&indexPtr);
@@ -128,7 +128,7 @@ namespace fwlite {
         indexIntoFile_.setNumberOfEvents(auxBranch->GetEntries());
         indexIntoFile_.setEventFinder(std::shared_ptr<edm::IndexIntoFile::EventFinder>(std::make_shared<FWLiteEventFinder>(auxBranch)));
 
-      } else if (meta->FindBranch(edm::poolNames::fileIndexBranchName().c_str()) != nullptr) {
+      } else if (meta->FindBranch(edm::poolNames::fileIndexBranchName().c_str()) != 0) {
         edm::FileIndex* findexPtr = &fileIndex_;
         TBranch* b = meta->GetBranch(edm::poolNames::fileIndexBranchName().c_str());
         b->SetAddress(&findexPtr);

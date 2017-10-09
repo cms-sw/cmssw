@@ -1,5 +1,5 @@
 #include "FastSimulation/CTPPSFastGeometry/interface/CTPPSToFDetector.h"
-#include <cmath>
+#include <math.h>
 
 
 CTPPSToFDetector::CTPPSToFDetector(int ncellx,int ncelly, std::vector<double>& cellw,double cellh,double pitchx,double pitchy,double pos, int res):

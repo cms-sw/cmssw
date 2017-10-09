@@ -60,7 +60,7 @@ namespace
    public:
 
       CmsEveMagField() : TEveMagField(), fField(-3.8), fFieldMag(3.8) {}
-      ~CmsEveMagField() override {}
+      virtual ~CmsEveMagField() {}
 
       // set current
       void SetFieldByCurrent(Float_t avg_current)
@@ -70,12 +70,12 @@ namespace
       }
 
       // get field values
-      Float_t GetMaxFieldMag() const override
+      virtual Float_t GetMaxFieldMag() const override
       {
          return fFieldMag;
       }
 
-      TEveVector GetField(Float_t x, Float_t y, Float_t z) const override
+      virtual TEveVector GetField(Float_t x, Float_t y, Float_t z) const override
       {
          static const Float_t barrelFac = 1.2 / 3.8;
          static const Float_t endcapFac = 2.0 / 3.8;
@@ -123,10 +123,10 @@ namespace
 //==============================================================================
 
 EveService::EveService(const edm::ParameterSet&, edm::ActivityRegistry& ar) :
-   m_EveManager(nullptr), m_Rint(nullptr),
-   m_MagField(nullptr),
+   m_EveManager(0), m_Rint(0),
+   m_MagField(0),
    m_AllowStep(true), m_ShowEvent(true),
-   m_ContinueButton(nullptr), m_StepButton(nullptr), m_StepLabel(nullptr)
+   m_ContinueButton(0), m_StepButton(0), m_StepLabel(0)
 {
    printf("EveService::EveService CTOR\n");
 

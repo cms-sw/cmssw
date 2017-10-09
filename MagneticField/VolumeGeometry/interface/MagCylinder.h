@@ -20,11 +20,11 @@ public:
 	       DDSolidShape shape, const std::vector<VolumeSide>& faces,
 	       const MagneticFieldProvider<float> * mfp);
 
-  bool inside( const GlobalPoint& gp, double tolerance=0.) const override;
-  bool inside( const LocalPoint& lp, double tolerance=0.) const override;
+  virtual bool inside( const GlobalPoint& gp, double tolerance=0.) const;
+  virtual bool inside( const LocalPoint& lp, double tolerance=0.) const;
 
   /// Access to volume faces
-  const std::vector<VolumeSide>& faces() const override {return theFaces;}
+  virtual const std::vector<VolumeSide>& faces() const {return theFaces;}
 
   //-- FIXME
   std::string name;

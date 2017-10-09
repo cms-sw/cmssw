@@ -87,8 +87,8 @@ class PixelTemplateSmearerBase:
 			              const edm::ParameterSet& config,
 			              edm::ConsumesCollector& consumesCollector );
 
-        ~PixelTemplateSmearerBase() override;
-        TrackingRecHitProductPtr process(TrackingRecHitProductPtr product) const override;
+        virtual ~PixelTemplateSmearerBase();
+        virtual TrackingRecHitProductPtr process(TrackingRecHitProductPtr product) const;
 
         //--- Process all unmerged hits. Calls smearHit() for each.
         TrackingRecHitProductPtr processUnmergedHits( 

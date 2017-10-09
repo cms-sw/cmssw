@@ -25,9 +25,9 @@ class GEDPhotonCoreProducer : public edm::stream::EDProducer<> {
  public:
 
   GEDPhotonCoreProducer (const edm::ParameterSet& ps);
-  ~GEDPhotonCoreProducer() override;
+  ~GEDPhotonCoreProducer();
 
-  void produce(edm::Event& evt, const edm::EventSetup& es) override;
+  virtual void produce(edm::Event& evt, const edm::EventSetup& es);
 
  private:
 

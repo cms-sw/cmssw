@@ -44,10 +44,10 @@ class HistogramGenerator : public BaseNumericalRandomGenerator
   }
 
   /// Default destructor
-  ~HistogramGenerator() override {}
+  virtual ~HistogramGenerator() {}
 
   /// The probability density function implementation
-  double function(double x) override { return ersatzt(x); }
+  virtual double function(double x) { return ersatzt(x); }
 
  private:
   /// Pointer to the histogram

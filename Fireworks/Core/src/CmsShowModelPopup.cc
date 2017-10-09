@@ -58,7 +58,7 @@ CmsShowModelPopup::CmsShowModelPopup(FWDetailViewManager* iManager,
    TGTransientFrame(gClient->GetDefaultRoot(),p,w,h),
    m_detailViewManager(iManager),
    m_colorManager(iColorMgr),
-   m_dialogBuilder(nullptr)
+   m_dialogBuilder(0)
 {
    m_changes = iSelMgr->selectionChanged_.connect(boost::bind(&CmsShowModelPopup::fillModelPopup, this, _1));
 
@@ -179,7 +179,7 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr)
    {
       m_modelLabel->SetText(item->modelName(id->index()).c_str());
       std::vector<std::string> viewChoices = m_detailViewManager->detailViewsFor(*id);
-      m_openDetailedViewButtons.front()->SetEnabled(!viewChoices.empty());
+      m_openDetailedViewButtons.front()->SetEnabled(viewChoices.size()>0);
       //be sure we show just the right number of buttons
       if(viewChoices.size() > m_openDetailedViewButtons.size()) 
       {

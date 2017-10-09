@@ -14,7 +14,7 @@
 #include "FWCore/Utilities/interface/typedefs.h"
 
 #include <string>
-#include <cstdint>
+#include <stdint.h>
 
 class SiPixelRawDataError {
   public:

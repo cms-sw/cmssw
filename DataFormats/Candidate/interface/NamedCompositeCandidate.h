@@ -40,9 +40,9 @@ namespace reco {
 			     const Candidate & p );
  
     /// destructor
-    ~NamedCompositeCandidate() override;
+    virtual ~NamedCompositeCandidate();
     /// returns a clone of the candidate
-    NamedCompositeCandidate * clone() const override;
+    virtual NamedCompositeCandidate * clone() const;
     // get name
     std::string             name() const { return name_; }
     // set name
@@ -52,11 +52,11 @@ namespace reco {
     // set roles
     void                    setRoles( const NamedCompositeCandidate::role_collection & roles ) { roles_.clear(); roles_ = roles; }
     // Get candidate based on role
-    Candidate *       daughter(const std::string& s ) override;
-    const Candidate * daughter(const std::string& s ) const override;
+    virtual Candidate *       daughter(const std::string& s );
+    virtual const Candidate * daughter(const std::string& s ) const;
     // Get candidate based on index
-    Candidate *       daughter( size_type i ) override { return CompositeCandidate::daughter(i); }
-    const Candidate * daughter( size_type i ) const override  { return CompositeCandidate::daughter(i); }
+    virtual Candidate *       daughter( size_type i ) { return CompositeCandidate::daughter(i); }
+    virtual const Candidate * daughter( size_type i ) const  { return CompositeCandidate::daughter(i); }
     // Add daughters
     void                    addDaughter( const Candidate &, const std::string&s );
     void                    addDaughter( std::unique_ptr<Candidate>, const std::string& s );

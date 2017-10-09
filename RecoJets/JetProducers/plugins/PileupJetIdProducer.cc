@@ -116,10 +116,10 @@ PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		PileupJetIdAlgo * ialgo = algoi->second.get();
 		
 		const Jet & jet = jets.at(i);
-		const pat::Jet * patjet = nullptr;
+		const pat::Jet * patjet = 0;
 		if(ispat) {
 		    patjet=dynamic_cast<const pat::Jet *>(&jet);
-		    ispat = patjet != nullptr;
+		    ispat = patjet != 0;
 		}
 		
 		// Get jet energy correction
@@ -146,7 +146,7 @@ PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		}
 		// If it was requested AND the input is an uncorrected jet apply the JEC
 		bool applyJec = applyJec_ && ( ispat || !inputIsCorrected_ );
-		reco::Jet * corrJet = nullptr;
+		reco::Jet * corrJet = 0;
 		
 		if( applyJec ) {
 			float scale = jec;

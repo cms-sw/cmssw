@@ -1,9 +1,9 @@
 #include "DataFormats/L1Trigger/interface/L1DataEmulRecord.h"
 
-L1DataEmulRecord::L1DataEmulRecord() : deAgree(false), deGlt() {
+L1DataEmulRecord::L1DataEmulRecord() : deAgree(0), deGlt() {
   for(int i=0; i<DEnsys; i++) {
-    deMatch[i] = false;
-    deSysCompared[i] = false;
+    deMatch[i] = 0;
+    deSysCompared[i] = 0;
     for(int j=0; j<2; j++) 
       deNCand[i][j] =  0;
   }

@@ -25,12 +25,12 @@
 class CentralityFilter : public edm::EDFilter {
    public:
       explicit CentralityFilter(const edm::ParameterSet&);
-      ~CentralityFilter() override;
+      ~CentralityFilter();
 
    private:
-      void beginJob() override ;
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+      virtual void beginJob() ;
+      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual void endJob() ;
       
       // ----------member data ---------------------------
 

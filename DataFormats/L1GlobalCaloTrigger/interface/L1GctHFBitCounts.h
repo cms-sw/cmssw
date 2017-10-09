@@ -3,7 +3,7 @@
 
 #include <ostream>
 #include <string>
-#include <cstdint>
+#include <stdint.h>
 
 /// \class L1GctHFBitCounts
 /// \brief L1 GCT HF ring Et sums

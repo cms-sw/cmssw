@@ -15,9 +15,9 @@ public:
   SimpleJetDump( const edm::ParameterSet & );
 
 private:
-  void beginJob() override;
-  void analyze( const edm::Event& , const edm::EventSetup& ) override;
-  void endJob() override;
+  void beginJob();
+  void analyze( const edm::Event& , const edm::EventSetup& );
+  void endJob();
   std::string CaloJetAlg, GenJetAlg;
   //Internal parameters
   int evtCount;

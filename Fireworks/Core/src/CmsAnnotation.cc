@@ -18,7 +18,7 @@ CmsAnnotation::CmsAnnotation(TGLViewerBase *parent, Float_t posx, Float_t posy) 
    fPosX(posx), fPosY(posy),
    fMouseX(0),  fMouseY(0),
    fDrag(kNone),
-   fParent(nullptr),
+   fParent(0),
    fSize(0.2),
    fSizeDrag(0.0),
    fActive(false),

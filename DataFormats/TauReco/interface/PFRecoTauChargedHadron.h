@@ -44,7 +44,7 @@ class PFRecoTauChargedHadron : public CompositePtrCandidate
 			 PFRecoTauChargedHadronAlgorithm algo = kUndefined);
 
   /// destructor
-  ~PFRecoTauChargedHadron() override;
+  ~PFRecoTauChargedHadron();
 
   /// reference to "charged" PFCandidate (either charged PFCandidate or PFNeutralHadron)
   const PFCandidatePtr& getChargedPFCandidate() const;

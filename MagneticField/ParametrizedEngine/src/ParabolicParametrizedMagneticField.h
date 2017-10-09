@@ -23,17 +23,17 @@ class ParabolicParametrizedMagneticField : public MagneticField {
   explicit ParabolicParametrizedMagneticField(const std::vector<double>& parameters);
 
   /// Destructor
-  ~ParabolicParametrizedMagneticField() override;
+  virtual ~ParabolicParametrizedMagneticField();
   
-  GlobalVector inTesla (const GlobalPoint& gp) const override;
+  GlobalVector inTesla (const GlobalPoint& gp) const;
 
-  GlobalVector inTeslaUnchecked (const GlobalPoint& gp) const override;
+  GlobalVector inTeslaUnchecked (const GlobalPoint& gp) const;
 
   inline float B0Z(const float a) const;
 
   inline float Kr(const float R2) const;
 
-  inline bool isDefined(const GlobalPoint& gp) const override;
+  inline bool isDefined(const GlobalPoint& gp) const;
 
  private:
   float c1;

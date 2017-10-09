@@ -31,19 +31,19 @@ namespace reco {
     /// constructor from a particle
     explicit CompositeRefBaseCandidate( const Candidate & c ) : LeafCandidate( c ) { }
     /// destructor
-    ~CompositeRefBaseCandidate() override;
+    virtual ~CompositeRefBaseCandidate();
     /// returns a clone of the candidate
-    CompositeRefBaseCandidate * clone() const override;
+    virtual CompositeRefBaseCandidate * clone() const;
     /// number of daughters
-    size_t numberOfDaughters() const override;
+    virtual size_t numberOfDaughters() const;
     /// number of mothers
-    size_t numberOfMothers() const override;
+    virtual size_t numberOfMothers() const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1 (read only mode)
-    const Candidate * daughter( size_type ) const override;
+    virtual const Candidate * daughter( size_type ) const;
     /// return mother at a given position, i = 0, ... numberOfMothers() - 1 (read only mode)
-    const Candidate * mother( size_type ) const override;
+    virtual const Candidate * mother( size_type ) const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
-    Candidate * daughter( size_type ) override;
+    virtual Candidate * daughter( size_type );
     using reco::LeafCandidate::daughter; // avoid hiding the base
     /// add a daughter via a reference
     void addDaughter( const CandidateBaseRef & );    
@@ -56,7 +56,7 @@ namespace reco {
     /// collection of references to daughters
     daughters dau;
     /// check overlap with another candidate
-    bool overlap( const Candidate & ) const override;
+    virtual bool overlap( const Candidate & ) const;
   };
 
   inline void CompositeRefBaseCandidate::addDaughter( const CandidateBaseRef & cand ) { 

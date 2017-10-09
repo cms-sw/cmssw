@@ -27,23 +27,23 @@ class FWPFCandidatesLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco:
 {
    public:
       FWPFCandidatesLegoProxyBuilder();
-      ~FWPFCandidatesLegoProxyBuilder() override;
+      virtual ~FWPFCandidatesLegoProxyBuilder();
 
    // --------------------- Member Functions --------------------------
-      bool havePerViewProduct(FWViewType::EType) const override { return true; }
-      void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc) override;
-      void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
-                                     FWViewType::EType viewType, const FWViewContext* vc) override;
+      virtual bool havePerViewProduct(FWViewType::EType) const { return true; }
+      virtual void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc);
+      virtual void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
+                                     FWViewType::EType viewType, const FWViewContext* vc);
 
       REGISTER_PROXYBUILDER_METHODS();
 
    private:
-      FWPFCandidatesLegoProxyBuilder(const FWPFCandidatesLegoProxyBuilder&) = delete; // stop default
-      const FWPFCandidatesLegoProxyBuilder& operator=(const FWPFCandidatesLegoProxyBuilder&) = delete; // stop default
+      FWPFCandidatesLegoProxyBuilder(const FWPFCandidatesLegoProxyBuilder&); // stop default
+      const FWPFCandidatesLegoProxyBuilder& operator=(const FWPFCandidatesLegoProxyBuilder&); // stop default
       
    // --------------------- Member Functions --------------------------
       using FWSimpleProxyBuilderTemplate<reco::PFCandidate> ::build;
-      void build(const reco::PFCandidate&, unsigned int, TEveElement&, const FWViewContext*) override;
+      void build(const reco::PFCandidate&, unsigned int, TEveElement&, const FWViewContext*);
 };
 //=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_
 

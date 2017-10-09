@@ -164,7 +164,7 @@ void PFTau::setisolationPiZeroCandidates(std::vector<RecoTauPiZero> cands) {
 
 // Tau Charged Hadron information
 PFRecoTauChargedHadronRef PFTau::leadTauChargedHadronCandidate() const {
-  if ( !signalTauChargedHadronCandidatesRefs_.empty() ) {
+  if ( signalTauChargedHadronCandidatesRefs_.size() > 0 ) {
     return signalTauChargedHadronCandidatesRefs_[0];
   } else {
     return PFRecoTauChargedHadronRef();
@@ -270,7 +270,7 @@ CandidatePtr PFTau::sourceCandidatePtr( size_type i ) const {
 
 bool PFTau::overlap(const Candidate& theCand) const {
     const RecoCandidate* theRecoCand = dynamic_cast<const RecoCandidate *>(&theCand);
-    return (theRecoCand!=nullptr && (checkOverlap(track(), theRecoCand->track())));
+    return (theRecoCand!=0 && (checkOverlap(track(), theRecoCand->track())));
 }
 
 void PFTau::dump(std::ostream& out) const {

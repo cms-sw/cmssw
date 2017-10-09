@@ -46,12 +46,12 @@ public:
 				 double elimit, double eth);
 
   /// Default Destructor
-  ~NuclearInteractionFTFSimulator() override;
+  ~NuclearInteractionFTFSimulator();
 
 private:
 
   /// Generate a nuclear interaction according to the probability that it happens
-  void compute(ParticlePropagator& Particle, RandomEngineAndDistribution const*) override;
+  void compute(ParticlePropagator& Particle, RandomEngineAndDistribution const*);
 
   void saveDaughter(ParticlePropagator& Particle, const G4LorentzVector& lv, int pdgid);
 

@@ -25,9 +25,9 @@ class RecHitFilter : public edm::global::EDProducer<> {
 
       RecHitFilter(const edm::ParameterSet& ps);
 
-      ~RecHitFilter() override;
+      ~RecHitFilter();
 
-      void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+      virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const;
 
    private:
 

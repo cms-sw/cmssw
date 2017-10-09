@@ -90,7 +90,7 @@ class CaloJet : public Jet {
 	  const Jet::Constituents& fConstituents);
 
   
-  ~CaloJet() override {};
+  virtual ~CaloJet() {};
   
   /** Returns the maximum energy deposited in ECAL towers*/
   float maxEInEmTowers() const {return m_specific.mMaxEInEmTowers;}
@@ -149,16 +149,16 @@ class CaloJet : public Jet {
   const Specific& getSpecific () const {return m_specific;}
 
   /// Polymorphic clone
-  CaloJet* clone () const override;
+  virtual CaloJet* clone () const;
 
   /// Print object
-  std::string print () const override;
+  virtual std::string print () const;
 
   /// CaloTowers indexes
   std::vector<CaloTowerDetId> getTowerIndices() const;
  private:
   /// Polymorphic overlap
-  bool overlap( const Candidate & ) const override;
+  virtual bool overlap( const Candidate & ) const;
   
   //Variables specific to to the CaloJet class
   Specific m_specific;

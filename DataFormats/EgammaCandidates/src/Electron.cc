@@ -22,7 +22,7 @@ SuperClusterRef Electron::superCluster() const {
 
 bool Electron::overlap( const Candidate & c ) const {
   const RecoCandidate * o = dynamic_cast<const RecoCandidate *>( & c );
-  return ( o != nullptr && 
+  return ( o != 0 && 
 	   ( checkOverlap( track(), o->track() ) ||
 	     checkOverlap( superCluster(), o->superCluster() ) ) 
 	   );

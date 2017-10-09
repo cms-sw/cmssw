@@ -37,9 +37,9 @@
 class EcalBarrelClusterFastTimer : public edm::global::EDProducer<> {
 public:    
   EcalBarrelClusterFastTimer(const edm::ParameterSet&);
-  ~EcalBarrelClusterFastTimer() override { }
+  ~EcalBarrelClusterFastTimer() { }
   
-  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   
 private:
   // inputs

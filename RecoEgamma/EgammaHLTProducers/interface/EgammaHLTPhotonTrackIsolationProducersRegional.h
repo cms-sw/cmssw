@@ -39,10 +39,10 @@ namespace edm {
 class EgammaHLTPhotonTrackIsolationProducersRegional : public edm::global::EDProducer<> {
    public:
       explicit EgammaHLTPhotonTrackIsolationProducersRegional(const edm::ParameterSet&);
-      ~EgammaHLTPhotonTrackIsolationProducersRegional() override;
+      ~EgammaHLTPhotonTrackIsolationProducersRegional();
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
+  virtual void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
   
 private:
       // ----------member data ---------------------------

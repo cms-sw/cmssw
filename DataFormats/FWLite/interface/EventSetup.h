@@ -98,9 +98,9 @@ namespace fwlite
    
 
    private:
-      EventSetup(const EventSetup&) = delete; // stop default
+      EventSetup(const EventSetup&); // stop default
 
-      const EventSetup& operator=(const EventSetup&) = delete; // stop default
+      const EventSetup& operator=(const EventSetup&); // stop default
 
       // ---------- member data --------------------------------
       edm::EventID m_syncedEvent;

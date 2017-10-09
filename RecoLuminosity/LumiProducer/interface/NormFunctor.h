@@ -14,8 +14,8 @@ namespace lumi{
     std::map< std::string , float > m_coeffmap;
     std::map< unsigned int, float > m_afterglowmap;
   private:
-    NormFunctor(const NormFunctor&) = delete;
-    const NormFunctor& operator=(const NormFunctor&) = delete;
+    NormFunctor(const NormFunctor&);
+    const NormFunctor& operator=(const NormFunctor&);
   };
 }//ns lumi
 #endif

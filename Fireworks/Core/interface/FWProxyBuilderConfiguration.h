@@ -44,7 +44,7 @@ class FWProxyBuilderConfiguration : public FWConfigurableParameterizable,
 {
 public:
    FWProxyBuilderConfiguration(const FWConfiguration* c, const FWEventItem* item);
-   ~FWProxyBuilderConfiguration() override;
+   virtual ~FWProxyBuilderConfiguration();
 
 
    template <class T> FWGenericParameter<T>* assertParam(const std::string& name, T def);
@@ -52,8 +52,8 @@ public:
    template <class T> T value(const std::string& name);
 
 
-   void setFrom(const FWConfiguration& iFrom) override;
-   void addTo(FWConfiguration& iTo) const override;
+   virtual void setFrom(const FWConfiguration& iFrom);
+   virtual void addTo(FWConfiguration& iTo) const;
 
    void populateFrame(TGCompositeFrame* frame);
 

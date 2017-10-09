@@ -13,7 +13,7 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 PFV0Producer::PFV0Producer(const ParameterSet& iConfig):
-  pfTransformer_(nullptr)
+  pfTransformer_(0)
 {
 
   produces<reco::PFV0Collection>();

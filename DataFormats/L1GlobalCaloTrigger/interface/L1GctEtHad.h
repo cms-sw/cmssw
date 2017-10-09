@@ -2,7 +2,7 @@
 #define L1GCTETHAD_H
 
 #include <ostream>
-#include <cstdint>
+#include <stdint.h>
 
 /*! \file L1GctEtHad.h
  * \Header file for the GCT energy sum output

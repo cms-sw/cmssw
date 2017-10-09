@@ -32,11 +32,11 @@ linkPrefilter( const reco::PFBlockElement* elem1,
   case reco::PFBlockElement::PS1:
   case reco::PFBlockElement::PS2:
     result = ( elem1->isMultilinksValide() && 
-	       !elem1->getMultilinks().empty() );    
+	       elem1->getMultilinks().size() > 0 );    
     break;
   case reco::PFBlockElement::ECAL:
     result = ( elem2->isMultilinksValide() && 
-	       !elem2->getMultilinks().empty() );
+	       elem2->getMultilinks().size() > 0 );
     break;
   default:
     break;
@@ -47,7 +47,7 @@ linkPrefilter( const reco::PFBlockElement* elem1,
 double PreshowerAndECALLinker::
 testLink( const reco::PFBlockElement* elem1,
 	  const reco::PFBlockElement* elem2) const {  
-  const reco::PFBlockElementCluster *pselem(nullptr), *ecalelem(nullptr);
+  const reco::PFBlockElementCluster *pselem(NULL), *ecalelem(NULL);
   double dist(-1.0);
   if( elem1->type() < elem2->type() ) {
     pselem = static_cast<const reco::PFBlockElementCluster*>(elem1);

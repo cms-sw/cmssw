@@ -19,7 +19,7 @@ class FWTracksRecHitsProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Tr
 {
 public:
    FWTracksRecHitsProxyBuilder( void ) {}
-   ~FWTracksRecHitsProxyBuilder( void ) override {}
+   virtual ~FWTracksRecHitsProxyBuilder( void ) {}
   
    REGISTER_PROXYBUILDER_METHODS();
   
@@ -29,8 +29,8 @@ private:
    using FWSimpleProxyBuilderTemplate<reco::Track>::build;
    void build( const reco::Track& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 
-   FWTracksRecHitsProxyBuilder( const FWTracksRecHitsProxyBuilder& ) = delete;    // stop default
-   const FWTracksRecHitsProxyBuilder& operator=( const FWTracksRecHitsProxyBuilder& ) = delete;    // stop default
+   FWTracksRecHitsProxyBuilder( const FWTracksRecHitsProxyBuilder& );    // stop default
+   const FWTracksRecHitsProxyBuilder& operator=( const FWTracksRecHitsProxyBuilder& );    // stop default
 };
 
 void

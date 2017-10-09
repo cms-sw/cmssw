@@ -18,9 +18,9 @@ class SiStripElectronSeedProducer : public edm::EDProducer
 
   explicit SiStripElectronSeedProducer(const edm::ParameterSet& conf);
 
-  ~SiStripElectronSeedProducer() override;
+  virtual ~SiStripElectronSeedProducer();
 
-  void produce(edm::Event& e, const edm::EventSetup& c) override;
+  virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
  private:
   edm::EDGetTokenT<reco::SuperClusterCollection> superClusters_[2];

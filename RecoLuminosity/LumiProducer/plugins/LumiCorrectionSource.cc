@@ -218,7 +218,7 @@ LumiCorrectionSource::produceLumiCorrectionParam(const LumiCorrectionParamRcd&)
     return std::make_shared<LumiCorrectionParam>();
   }
   m_paramresult=m_paramcache[currentrun];
-  if(m_paramresult.get()==nullptr){
+  if(m_paramresult.get()==0){
     return std::make_shared<LumiCorrectionParam>();
   }
   return m_paramresult;

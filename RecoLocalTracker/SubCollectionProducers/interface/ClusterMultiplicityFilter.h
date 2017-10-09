@@ -14,10 +14,10 @@
 class ClusterMultiplicityFilter : public edm::global::EDFilter<> {
    public:
       explicit ClusterMultiplicityFilter(const edm::ParameterSet&);
-      ~ClusterMultiplicityFilter() override;
+      ~ClusterMultiplicityFilter();
 
    private:
-      bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
+      virtual bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
       const unsigned int maxNumberOfClusters_;
       const edm::InputTag clusterCollectionTag_;

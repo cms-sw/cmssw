@@ -19,7 +19,7 @@ namespace {
   const typename T::value_type* getHit (const T& fCollection, DetId fId) {
     typename T::const_iterator hit = fCollection.find (fId);
     if (hit != fCollection.end()) return &*hit;
-    return nullptr;
+    return NULL;
   }
 
   std::vector <const PCaloHit*> getSimHits (const PCaloHitContainer& fCollection, DetId fId) {
@@ -35,17 +35,17 @@ namespace {
 
 JetMatchingTools::JetMatchingTools (const edm::Event& fEvent, edm::ConsumesCollector&& iC )
   : mEvent (&fEvent),
-    mEBRecHitCollection (nullptr),
-    mEERecHitCollection (nullptr),
-    mHBHERecHitCollection (nullptr),
-    mHORecHitCollection (nullptr),
-    mHFRecHitCollection (nullptr),
-    mEBSimHitCollection (nullptr),
-    mEESimHitCollection (nullptr),
-    mHcalSimHitCollection (nullptr),
-    mSimTrackCollection (nullptr),
-    mSimVertexCollection (nullptr),
-    mGenParticleCollection (nullptr)
+    mEBRecHitCollection (0),
+    mEERecHitCollection (0),
+    mHBHERecHitCollection (0),
+    mHORecHitCollection (0),
+    mHFRecHitCollection (0),
+    mEBSimHitCollection (0),
+    mEESimHitCollection (0),
+    mHcalSimHitCollection (0),
+    mSimTrackCollection (0),
+    mSimVertexCollection (0),
+    mGenParticleCollection (0)
 {
 
   input_ebrechits_token_ =	 iC.mayConsume<EBRecHitCollection>(edm::InputTag ("ecalRecHit:EcalRecHitsEB")); 
@@ -169,7 +169,7 @@ std::vector<JetMatchingTools::JetConstituent> JetMatchingTools::getConstituentHi
     DetId id = fTower.constituent (i);
 
     if (id.det () == DetId::Ecal) {
-      const EcalRecHit *hit = nullptr;
+      const EcalRecHit *hit = NULL;
 
       if ((EcalSubdetector) id.subdetId () == EcalBarrel) {
         hit = getHit (*getEBRecHitCollection (), id);
@@ -178,11 +178,11 @@ std::vector<JetMatchingTools::JetConstituent> JetMatchingTools::getConstituentHi
         hit = getHit (*getEERecHitCollection (), id);
       }
 
-      assert(hit != nullptr);
+      assert(hit != NULL);
       if (hit) result.push_back(JetConstituent(*hit));
       else std::cerr << "Can not find rechit for id " << id.rawId () << std::endl;
     } else if (id.det () == DetId::Hcal) {
-      const CaloRecHit* hit = nullptr;
+      const CaloRecHit* hit = NULL;
 
       if ((HcalSubdetector) id.subdetId () == HcalBarrel || (HcalSubdetector) id.subdetId () == HcalEndcap) {
         hit = getHit (*getHBHERecHitCollection (), id);
@@ -236,7 +236,7 @@ const SimTrack* JetMatchingTools::getTrack (unsigned fSimTrackId) {
   for (unsigned i = 0; i < getSimTrackCollection ()->size (); ++i) {
     if ((*getSimTrackCollection ())[i].trackId() == fSimTrackId) return &(*getSimTrackCollection ())[i];
   }
-  return nullptr;
+  return 0;
 }
   /// Generator ID
 int JetMatchingTools::generatorId (unsigned fSimTrackId) {
@@ -261,7 +261,7 @@ int JetMatchingTools::generatorId (unsigned fSimTrackId) {
 const reco::GenParticle* JetMatchingTools::getGenParticle (int fGeneratorId) {
   if (fGeneratorId > int (getGenParticlesCollection ()->size())) {
     std::cerr << "JetMatchingTools::getGenParticle-> requested index " << fGeneratorId << " is grater then container size " << getGenParticlesCollection ()->size() << std::endl;
-    return nullptr;
+    return 0;
   }
   return reco::GenJet::genParticle ( &(*getGenParticlesCollection ())[fGeneratorId-1]); // knowhow: index is shifted by 1
 }

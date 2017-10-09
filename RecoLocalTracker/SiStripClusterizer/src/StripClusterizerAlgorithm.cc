@@ -57,7 +57,7 @@ initialize(const edm::EventSetup& es) {
     indices.resize(detIds.size());
     COUT << "good detIds " << detIds.size() << std::endl;
 
-    if (detIds.empty()) return;
+    if (0==detIds.size()) return;
 
     {
       connections.clear();

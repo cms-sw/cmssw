@@ -13,9 +13,9 @@ public:
   MagVolume::LocalPoint lower() const  throw() {return lower_;} 
   MagVolume::LocalPoint upper() const  throw() {return upper_;} 
 
-  ~MagVolumeOutsideValidity() throw() override {}
+  virtual ~MagVolumeOutsideValidity() throw() {}
 
-  const char* what() const throw() override { 
+  virtual const char* what() const throw() { 
     return m_message.c_str();
   }
 

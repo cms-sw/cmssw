@@ -35,26 +35,26 @@ class FWOverlapTableView : public FWGeometryTableViewBase
 public:
 
    FWOverlapTableView(TEveWindowSlot* iParent, FWColorManager* colMng);
-   ~FWOverlapTableView() override;
+   virtual ~FWOverlapTableView();
 
-    FWGeometryTableManagerBase*  getTableManager() override; 
+   virtual  FWGeometryTableManagerBase*  getTableManager(); 
    
 
    void precisionCallback(Long_t);
    void recalculate();
 
-   void setFrom(const FWConfiguration&) override;
-   void populateController(ViewerParameterGUI&) const override;
+   virtual void setFrom(const FWConfiguration&);
+   virtual void populateController(ViewerParameterGUI&) const;
 
-   void cdTop() override;
-   void cdUp() override;
+   virtual void cdTop();
+   virtual void cdUp();
 
    void drawPoints();
    void pointSize();
 
    bool listAllNodes() const;
    void setListAllNodes();
-   void chosenItem(int x) override;
+   virtual void chosenItem(int x);
 
 protected:
    virtual TEveElement* getEveGeoElement() const;
@@ -75,7 +75,7 @@ public:
    TGNumberEntry*  m_numEntry;
 
    bool            m_runChecker;
-   void    refreshTable3D() override;
+   virtual void    refreshTable3D();
 
   
 #ifndef __CINT__

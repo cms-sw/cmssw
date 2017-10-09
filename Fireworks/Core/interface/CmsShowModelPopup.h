@@ -55,11 +55,11 @@ public:
    friend class CmsShowModelPopupDetailViewButtonAdapter;
    
    CmsShowModelPopup(FWDetailViewManager*, FWSelectionManager*, 
-                     const FWColorManager*, const TGWindow* p = nullptr, 
+                     const FWColorManager*, const TGWindow* p = 0, 
                      UInt_t w = 1, UInt_t h = 1);
-   ~CmsShowModelPopup() override;
+   virtual ~CmsShowModelPopup();
 
-   void CloseWindow() override { UnmapWindow(); }
+   virtual void CloseWindow() { UnmapWindow(); }
    // ---------- const member functions ---------------------
 
    // ---------- static member functions --------------------

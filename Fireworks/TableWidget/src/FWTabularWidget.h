@@ -36,8 +36,8 @@ public:
    static const int kTextBuffer;
    static const int kSeperatorWidth;
 
-   FWTabularWidget(FWTableManagerBase* iManager,const TGWindow* p=nullptr, GContext_t context = getDefaultGC()());
-   ~FWTabularWidget() override;
+   FWTabularWidget(FWTableManagerBase* iManager,const TGWindow* p=0, GContext_t context = getDefaultGC()());
+   virtual ~FWTabularWidget();
 
    // ---------- const member functions ---------------------
    const std::vector<unsigned int>& widthOfTextInColumns() const { return m_widthOfTextInColumns;}
@@ -48,13 +48,13 @@ public:
 
    // ---------- member functions ---------------------------
    void setWidthOfTextInColumns(const std::vector<unsigned int>& );
-   void DoRedraw() override;
-   TGDimension GetDefaultSize() const override;
+   void DoRedraw();
+   TGDimension GetDefaultSize() const;
 
    void setVerticalOffset(UInt_t);
    void setHorizontalOffset(UInt_t);
 
-   Bool_t HandleButton(Event_t *event) override;
+   virtual Bool_t HandleButton(Event_t *event);
 
    void buttonPressed(Int_t row, Int_t column, Event_t* event, Int_t relX, Int_t relY); //*SIGNAL*
    void buttonReleased(Int_t row, Int_t column, Event_t* event, Int_t relX, Int_t relY); //*SIGNAL*

@@ -26,7 +26,7 @@ class PUFilter : public edm::global::EDProducer <> {
    private:
       const edm::EDGetTokenT<edm::View<reco::PFJet> > jetsToken_;
       const edm::EDGetTokenT<edm::ValueMap<int> > jetPuIdToken_;
-      void produce(edm::StreamID , edm::Event& , const edm::EventSetup & ) const override;
+      virtual void produce(edm::StreamID , edm::Event& , const edm::EventSetup & ) const override;
      };
 
 

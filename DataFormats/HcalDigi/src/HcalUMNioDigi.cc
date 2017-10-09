@@ -38,7 +38,7 @@ uint16_t HcalUMNioDigi::spillCounter() const {
   return (payload_[11])&0x7FFF;
 }
 bool HcalUMNioDigi::isSpill() const {
-  if (invalid()) return false;
+  if (invalid()) return 0;
   return (payload_[11]&0x8000);
 }
 

@@ -25,17 +25,17 @@ namespace reco {
 		       int pdgId = 0, int status = 0 ) :
       RecoCandidate( q, p4, vtx, pdgId, status ) { }
     /// destructor
-    ~RecoEcalCandidate() override;
+    virtual ~RecoEcalCandidate();
     /// returns a clone of the candidate
-    RecoEcalCandidate * clone() const override;
+    virtual RecoEcalCandidate * clone() const;
     /// set reference to superCluster
     void setSuperCluster( const reco::SuperClusterRef & r ) { superCluster_ = r; }
     /// reference to a superCluster
-    reco::SuperClusterRef superCluster() const override;
+    virtual reco::SuperClusterRef superCluster() const;
 
   private:
     /// check overlap with another candidate
-    bool overlap( const Candidate & ) const override;
+    virtual bool overlap( const Candidate & ) const;
     /// reference to a superCluster
     reco::SuperClusterRef superCluster_;
   };

@@ -31,7 +31,7 @@ class EcalListOfFEDSProducer : public edm::EDProducer {
   
  public:
   EcalListOfFEDSProducer(const edm::ParameterSet& pset);
-  ~EcalListOfFEDSProducer() override;
+  virtual ~EcalListOfFEDSProducer();
   void produce(edm::Event & e, const edm::EventSetup& c) override;
   void beginJob(void) override;
   void endJob(void) override;

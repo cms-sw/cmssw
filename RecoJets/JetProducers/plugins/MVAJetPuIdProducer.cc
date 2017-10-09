@@ -28,7 +28,7 @@ public:
    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-   void produce(edm::Event&, const edm::EventSetup&) override;
+   virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
 
    void initJetEnergyCorrector(const edm::EventSetup &iSetup, bool isData);
@@ -66,7 +66,7 @@ MVAJetPuIdProducer::MVAJetPuIdProducer(const edm::ParameterSet& iConfig)
      if(residualsFromTxt_) residualsTxt_ = iConfig.getParameter<edm::FileInPath>("residualsTxt");
      std::vector<edm::ParameterSet> algos = iConfig.getParameter<std::vector<edm::ParameterSet> >("algos");
      
-     jecCor_ = nullptr;
+     jecCor_ = 0;
  
      if( ! runMvas_ ) assert( algos.size() == 1 );
      
@@ -145,7 +145,7 @@ MVAJetPuIdProducer::MVAJetPuIdProducer(const edm::ParameterSet& iConfig)
          }
          
          bool applyJec = applyJec_ || !inputIsCorrected_;
-         reco::Jet * corrJet = nullptr;
+         reco::Jet * corrJet = 0;
          if( applyJec ) {
              float scale = jec;
                          corrJet = dynamic_cast<reco::Jet *>( jet.clone() );

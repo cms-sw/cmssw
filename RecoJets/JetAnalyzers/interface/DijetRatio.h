@@ -131,13 +131,13 @@ template<class Jet>
 class DijetRatio : public edm::EDAnalyzer {
 public:
   explicit DijetRatio(const edm::ParameterSet&);
-  ~DijetRatio() override;
+  ~DijetRatio();
 
 
   typedef std::vector<Jet> JetCollection;
-  void beginJob() override ;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+  virtual void beginJob() ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
 
 
   // ----------member data ---------------------------

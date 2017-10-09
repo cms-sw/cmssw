@@ -112,7 +112,7 @@ CandidateWrapper Calibratable::computeMean(
 		const std::vector<CandidateWrapper>& wrappers) {
 	CandidateWrapper cw;
 
-	if (wrappers.empty())
+	if (wrappers.size() == 0)
 		return cw;
 	for (std::vector<CandidateWrapper>::const_iterator it = wrappers.begin(); it
 			!= wrappers.end(); ++it) {
@@ -138,7 +138,7 @@ CandidateWrapper Calibratable::computeMean(
 CalibratableElement Calibratable::computeMean(const std::vector<
 		CalibratableElement>& diets) {
 	CalibratableElement dmean;
-	if (diets.empty())
+	if (diets.size() == 0)
 		return dmean;
 	for (std::vector<CalibratableElement>::const_iterator cit = diets.begin(); cit
 			!= diets.end(); ++cit) {

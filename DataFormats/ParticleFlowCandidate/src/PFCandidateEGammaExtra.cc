@@ -78,7 +78,7 @@ void PFCandidateEGammaExtra::setEarlyBrem(float val) {
 
 void PFCandidateEGammaExtra::setHadEnergy(float val) {
   hadEnergy_ = val;
-  if(!clusterEnergies_.empty())
+  if(clusterEnergies_.size()>0)
     setVariable(MVA_HOverHE,hadEnergy_/(hadEnergy_+clusterEnergies_[0]));
 }
 

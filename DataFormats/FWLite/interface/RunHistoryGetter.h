@@ -25,15 +25,15 @@ namespace fwlite {
     class RunHistoryGetter : public HistoryGetterBase{
         public:
             RunHistoryGetter(const Run*);
-            ~RunHistoryGetter() override;
+            virtual ~RunHistoryGetter();
 
             // ---------- const member functions ---------------------
-            const edm::ProcessHistory& history() const override;
+            const edm::ProcessHistory& history() const;
 
         private:
-            RunHistoryGetter(const RunHistoryGetter&) = delete; // stop default
+            RunHistoryGetter(const RunHistoryGetter&); // stop default
 
-            const RunHistoryGetter& operator=(const RunHistoryGetter&) = delete; // stop default
+            const RunHistoryGetter& operator=(const RunHistoryGetter&); // stop default
 
             // ---------- member data --------------------------------
             const fwlite::Run* run_;

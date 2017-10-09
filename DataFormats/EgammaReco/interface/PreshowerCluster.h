@@ -21,7 +21,7 @@ namespace reco {
     /// default constructor
     PreshowerCluster() : CaloCluster(0., Point(0.,0.,0.)) { };
 
-    ~PreshowerCluster() override;
+    virtual ~PreshowerCluster();
 
     /// Constructor from EcalRecHits
     PreshowerCluster(const double E, const Point& pos, 

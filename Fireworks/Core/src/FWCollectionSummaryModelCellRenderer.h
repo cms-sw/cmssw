@@ -32,7 +32,7 @@ class FWCollectionSummaryModelCellRenderer : public FWTextTableCellRenderer
 {
 public:
    FWCollectionSummaryModelCellRenderer(const TGGC* iContext, const TGGC* iSelectContext);
-   ~FWCollectionSummaryModelCellRenderer() override;
+   virtual ~FWCollectionSummaryModelCellRenderer();
    
    enum ClickHit {
       kMiss,
@@ -40,21 +40,21 @@ public:
       kHitColor
    };
    // ---------- const member functions ---------------------
-   UInt_t width() const override;
+   virtual UInt_t width() const;
    
    // ---------- static member functions --------------------
    
    // ---------- member functions ---------------------------
-   void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight) override;
+   virtual void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight);
    
    void setData(const FWEventItem* iItem, int iIndex);
    
    ClickHit clickHit(int iX, int iY) const;
    
 private:
-   FWCollectionSummaryModelCellRenderer(const FWCollectionSummaryModelCellRenderer&) = delete; // stop default
+   FWCollectionSummaryModelCellRenderer(const FWCollectionSummaryModelCellRenderer&); // stop default
    
-   const FWCollectionSummaryModelCellRenderer& operator=(const FWCollectionSummaryModelCellRenderer&) = delete; // stop default
+   const FWCollectionSummaryModelCellRenderer& operator=(const FWCollectionSummaryModelCellRenderer&); // stop default
    
    // ---------- member data --------------------------------
    FWColorBoxIcon* m_colorBox;

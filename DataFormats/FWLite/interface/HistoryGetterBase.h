@@ -30,9 +30,9 @@ namespace fwlite {
             virtual const edm::ProcessHistory& history() const = 0;
 
         private:
-            HistoryGetterBase(const HistoryGetterBase&) = delete; // stop default
+            HistoryGetterBase(const HistoryGetterBase&); // stop default
 
-            const HistoryGetterBase& operator=(const HistoryGetterBase&) = delete; // stop default
+            const HistoryGetterBase& operator=(const HistoryGetterBase&); // stop default
 
             // ---------- member data --------------------------------
     };

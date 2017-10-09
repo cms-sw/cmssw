@@ -318,7 +318,7 @@ void SiStripAPVRestorer::BaselineFollowerRestore(const uint16_t& APVn, const uin
     
   //============================= Find Flat Regions & Interpolating the baseline & subtracting the baseline  =================	
   
-  if(!SmoothedMaps_.empty()){
+  if(SmoothedMaps_.size()){
     std::map<uint16_t, DigiMap >::iterator itSmootedMap = SmoothedMaps_.find(APVn);	
     this->BaselineFollower(itSmootedMap->second, baseline, median);
   } else {

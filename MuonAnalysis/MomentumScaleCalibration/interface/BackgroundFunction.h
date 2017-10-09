@@ -49,7 +49,7 @@ public:
   }
 
   ~BackgroundFunction() {
-    if( parArray_ != nullptr ) {
+    if( parArray_ != 0 ) {
       for( unsigned int i=0; i<functionId_.size(); ++i ) {
         delete[] parArray_[i];
         delete backgroundFunction_[i];
@@ -62,7 +62,7 @@ public:
   backgroundFunctionBase * function( const unsigned int i )
   {
     if( backgroundFunctionVec_.size() > i ) return backgroundFunction_[i];
-    else return nullptr;
+    else return 0;
   }
 
 protected:

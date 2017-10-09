@@ -40,8 +40,8 @@ public:
 
 private:
 
-	CalibCompare(const CalibCompare&) = delete;
-	void operator=(const CalibCompare&) = delete;
+	CalibCompare(const CalibCompare&);
+	void operator=(const CalibCompare&);
 //	double lowE_, highE_, lowEta_, highEta_, lowPhi_, highPhi_;
 //	unsigned divE_, divEta_, divPhi_;
 	bool withOffset_;

@@ -133,11 +133,11 @@ class CSCHaloDataProducer : public edm::stream::EDProducer<> {
     
   public:
     explicit CSCHaloDataProducer(const edm::ParameterSet&);
-    ~CSCHaloDataProducer() override;
+    ~CSCHaloDataProducer();
     
   private:
     
-    void produce(edm::Event&, const edm::EventSetup&) override;
+    virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
     //CSCHaloAlgo
     CSCHaloAlgo CSCAlgo;

@@ -9,11 +9,11 @@ class CSCTightHaloFilter : public edm::global::EDFilter<> {
   public:
 
     explicit CSCTightHaloFilter(const edm::ParameterSet & iConfig);
-    ~CSCTightHaloFilter() override {}
+    ~CSCTightHaloFilter() {}
 
   private:
 
-  bool filter(edm::StreamID iID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
+  virtual bool filter(edm::StreamID iID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
 
     const bool taggingMode_;
     edm::EDGetTokenT<reco::BeamHaloSummary> beamHaloSummaryToken_;

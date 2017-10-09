@@ -12,9 +12,9 @@ class ElectronIDAnalyzer : public edm::EDAnalyzer
  public:
 
   explicit ElectronIDAnalyzer(const edm::ParameterSet& conf);
-  ~ElectronIDAnalyzer() override{};
+  virtual ~ElectronIDAnalyzer(){};
 
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
 
  private:
 

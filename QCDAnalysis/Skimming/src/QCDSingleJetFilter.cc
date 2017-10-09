@@ -31,7 +31,7 @@
 #include <algorithm>
 #include <iostream>
 #include <vector>
-#include <cmath>
+#include <math.h>
 
 using namespace std;
 using namespace edm;

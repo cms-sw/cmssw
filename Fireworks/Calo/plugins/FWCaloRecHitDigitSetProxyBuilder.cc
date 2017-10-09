@@ -127,7 +127,7 @@ FWCaloRecHitDigitSetProxyBuilder::scaleProduct(TEveElementList* parent, FWViewTy
    {
       const CaloRecHit* hit = (const CaloRecHit*)item()->modelData(index);
       const float* corners = item()->getGeom()->getCorners(hit->detid());
-      if (corners == nullptr)  continue;
+      if (corners == 0)  continue;
 
       FWDigitSetProxyBuilder::BFreeBox_t* b = (FWDigitSetProxyBuilder::BFreeBox_t*)boxSet->GetPlex()->Atom(index);
 

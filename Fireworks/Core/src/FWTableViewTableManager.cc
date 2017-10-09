@@ -1,5 +1,5 @@
 
-#include <cmath>
+#include <math.h>
 #include <sstream>
 #include <cassert>
 
@@ -17,11 +17,11 @@
 
 FWTableViewTableManager::FWTableViewTableManager (const FWTableView *view)
      : m_view(view),
-       m_graphicsContext(nullptr),
-       m_renderer(nullptr),
-       m_rowContext(nullptr),
-       m_rowRenderer(nullptr),
-       m_tableFormats(nullptr),
+       m_graphicsContext(0),
+       m_renderer(0),
+       m_rowContext(0),
+       m_rowRenderer(0),
+       m_tableFormats(0),
        m_caughtExceptionInCellRender(false)
 {
      GCValues_t gc = *(m_view->m_tableWidget->GetWhiteGC().GetAttributes());
@@ -50,7 +50,7 @@ FWTableViewTableManager::~FWTableViewTableManager ()
 
 int FWTableViewTableManager::numberOfRows() const
 {
-     if (m_view->item() != nullptr)
+     if (m_view->item() != 0)
 	  return m_view->item()->size();
      else return 0;
 }
@@ -82,9 +82,9 @@ int FWTableViewTableManager::unsortedRowNumber(int iSortedRowNumber) const
 FWTableCellRendererBase *FWTableViewTableManager::cellRenderer(int iSortedRowNumber, int iCol) const
 {
      const int realRowNumber = unsortedRowNumber(iSortedRowNumber);
-     if (m_view->item() != nullptr &&
+     if (m_view->item() != 0 &&
          m_view->item()->size() &&
-	 m_view->item()->modelData(realRowNumber) != nullptr &&
+	 m_view->item()->modelData(realRowNumber) != 0 &&
 	 iCol < (int)m_evaluators.size()) {
 	  double ret;
 	  try {
@@ -208,7 +208,7 @@ void FWTableViewTableManager::implSort(int iCol, bool iSortOrder)
    static const bool sort_down = true;
    if (iCol >= (int)m_evaluators.size())
       return;
-   if (nullptr!=m_view->item()) {
+   if (0!=m_view->item()) {
       //      printf("sorting %s\n", iSortOrder == sort_down ? "down" : "up");
       if (iSortOrder == sort_down) {
          std::multimap<std::pair<bool, double>, int, itemOrderGt> s;
@@ -224,7 +224,7 @@ void FWTableViewTableManager::implSort(int iCol, bool iSortOrder)
 void
 FWTableViewTableManager::dataChanged() 
 {
-   if (nullptr!=m_view->item()) {
+   if (0!=m_view->item()) {
       std::vector<int> visible;
       visible.reserve(m_view->item()->size());
       std::vector<int> invisible;
@@ -255,7 +255,7 @@ void FWTableViewTableManager::updateEvaluators ()
 	  return;
      }
      const FWEventItem *item = m_view->m_manager->items()[m_view->m_iColl];
-     if(nullptr==item) { return;}
+     if(0==item) { return;}
      std::vector<FWExpressionEvaluator> &ev = m_evaluators;
      ev.clear();
      for (std::vector<FWTableViewManager::TableEntry>::const_iterator 
@@ -279,9 +279,9 @@ bool FWTableViewTableManager::hasRowHeaders() const
 FWTableCellRendererBase* FWTableViewTableManager::rowHeader(int iSortedRowNumber) const
 {
    const int realRowNumber = unsortedRowNumber(iSortedRowNumber);
-   if (m_view->item() != nullptr &&
+   if (m_view->item() != 0 &&
        m_view->item()->size() &&
-       m_view->item()->modelData(realRowNumber) != nullptr) {
+       m_view->item()->modelData(realRowNumber) != 0) {
       if (m_view->item()->modelInfo(realRowNumber).displayProperties().isVisible()) {
          if (m_view->m_manager->colorManager().background() == kBlack) {
             m_graphicsContext->
@@ -300,7 +300,7 @@ FWTableCellRendererBase* FWTableViewTableManager::rowHeader(int iSortedRowNumber
       
       std::ostringstream s;
       s<<realRowNumber;
-      m_rowRenderer->setData(s.str());
+      m_rowRenderer->setData(s.str().c_str());
    } else {
       m_rowRenderer->setData("");
    }

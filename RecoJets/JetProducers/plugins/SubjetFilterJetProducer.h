@@ -29,18 +29,18 @@ class SubjetFilterJetProducer : public VirtualJetProducer
   //
 public:
   SubjetFilterJetProducer(const edm::ParameterSet& ps);
-  ~SubjetFilterJetProducer() override;
+  virtual ~SubjetFilterJetProducer();
   
   
   //
   // member functions
   //
 public:
-  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
   void endJob();
-  void runAlgorithm(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
-  void inputTowers() override;
-  void output(edm::Event& iEvent,const edm::EventSetup& iSetup) override;
+  void runAlgorithm(edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void inputTowers();
+  void output(edm::Event& iEvent,const edm::EventSetup& iSetup);
   template<class T>
   void writeCompoundJets(edm::Event& iEvent,const edm::EventSetup& iSetup);
   

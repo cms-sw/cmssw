@@ -84,15 +84,15 @@ public:
                    const TrackerGeometry&, const TrackerTopology&, const SiPixelLorentzAngle *,
                    const SiPixelGenErrorDBObject *, const SiPixelLorentzAngle *);
    
-   ~PixelCPEGeneric() override {;}
+   ~PixelCPEGeneric() {;}
    
    
    
 private:
-   ClusterParam * createClusterParam(const SiPixelCluster & cl) const override;
+   ClusterParam * createClusterParam(const SiPixelCluster & cl) const;
    
-   LocalPoint localPosition (DetParam const & theDetParam, ClusterParam & theClusterParam) const override;
-   LocalError localError   (DetParam const & theDetParam, ClusterParam & theClusterParam) const override;
+   LocalPoint localPosition (DetParam const & theDetParam, ClusterParam & theClusterParam) const;
+   LocalError localError   (DetParam const & theDetParam, ClusterParam & theClusterParam) const;
    
    //--------------------------------------------------------------------
    //  Methods.

@@ -219,7 +219,7 @@ void FWGeometryTableManager::updateFilter(int iType)
    int numMatched = 0;
    for (Volumes_i i = m_volumes.begin(); i != m_volumes.end(); ++i)
    {
-      const char* res = nullptr;
+      const char* res = 0;
       
       if (iType == FWGeometryTableView::kFilterMaterialName)
       {
@@ -238,9 +238,9 @@ void FWGeometryTableManager::updateFilter(int iType)
          res = strcasestr( i->first->GetShape()->ClassName() , filterExp.c_str());
       }
       
-      i->second.m_matches = (res != nullptr);
+      i->second.m_matches = (res != 0);
       i->second.m_childMatches = false;
-      if (res != nullptr) numMatched++;
+      if (res != 0) numMatched++;
    }
 
    printf("update filter [%d] volumes matched\n", numMatched);
@@ -276,7 +276,7 @@ void FWGeometryTableManager::loadGeometry(TGeoNode* iGeoTopNode, TObjArray* iVol
    m_volumes.swap(pipi);
    TIter next( iVolumes);
    TGeoVolume* v;
-   while ((v = (TGeoVolume*) next()) != nullptr)
+   while ((v = (TGeoVolume*) next()) != 0)
       m_volumes.insert(std::make_pair(v, Match()));
 
    if (!m_filterOff)

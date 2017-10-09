@@ -23,10 +23,10 @@
 class PileupJPTJetIdProducer : public edm::EDProducer {
 public:
 	explicit PileupJPTJetIdProducer(const edm::ParameterSet&);
-	~PileupJPTJetIdProducer() override;
+	~PileupJPTJetIdProducer();
 
 private:
-	void produce(edm::Event&, const edm::EventSetup&) override;
+	virtual void produce(edm::Event&, const edm::EventSetup&);
       
 	edm::InputTag jets_;
         edm::EDGetTokenT<edm::View<reco::JPTJet> > input_token_;

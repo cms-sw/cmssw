@@ -63,12 +63,12 @@
 class TestCorrection : public edm::EDAnalyzer, MuScleFitBase {
 public:
   explicit TestCorrection(const edm::ParameterSet&);
-  ~TestCorrection() override;
+  ~TestCorrection();
 
 private:
   virtual void initialize(const edm::EventSetup&);
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override {};
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override {};
   template<typename T>
   std::vector<MuScleFitMuon> fillMuonCollection( const std::vector<T>& tracks )
   {

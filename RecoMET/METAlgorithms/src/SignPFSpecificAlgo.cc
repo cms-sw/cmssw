@@ -15,7 +15,7 @@
 
 //____________________________________________________________________________||
 metsig::SignPFSpecificAlgo::SignPFSpecificAlgo()
-: resolutions_(nullptr), algo_()
+: resolutions_(0), algo_()
 {
   clusteredParticlePtrs_.clear();
 }

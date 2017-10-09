@@ -11,7 +11,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <cmath>
+#include <math.h>
 
 using namespace edm;
 

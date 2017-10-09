@@ -44,16 +44,16 @@ class BarrelMeasurementEstimator : public MeasurementEstimator
      { theZMin=zmin ; theZMax=zmax ; }
 
     // zero value indicates incompatible ts - hit pair
-    std::pair<bool,double> estimate( const TrajectoryStateOnSurface & ts, const TrackingRecHit & hit ) const override ;
+    virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface & ts, const TrackingRecHit & hit ) const ;
     virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface & ts, const GlobalPoint & gp ) const ;
     virtual std::pair<bool,double> estimate( const GlobalPoint & vprim, const TrajectoryStateOnSurface & ts, const GlobalPoint & gp ) const ;
-    bool estimate( const TrajectoryStateOnSurface & ts, const BoundPlane & plane) const override ;
+    virtual bool estimate( const TrajectoryStateOnSurface & ts, const BoundPlane & plane) const ;
 
-    BarrelMeasurementEstimator* clone() const override
+    virtual BarrelMeasurementEstimator* clone() const
      { return new BarrelMeasurementEstimator(*this) ; }
 
     MeasurementEstimator::Local2DVector
-    maximalLocalDisplacement( const TrajectoryStateOnSurface & ts, const BoundPlane & plane) const override ;
+    maximalLocalDisplacement( const TrajectoryStateOnSurface & ts, const BoundPlane & plane) const ;
 
   private:
 

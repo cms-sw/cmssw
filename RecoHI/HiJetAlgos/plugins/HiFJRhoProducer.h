@@ -26,14 +26,14 @@
 class HiFJRhoProducer : public edm::stream::EDProducer<> {
    public:
       explicit HiFJRhoProducer(const edm::ParameterSet&);
-      ~HiFJRhoProducer() override;
+      ~HiFJRhoProducer();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      void beginStream(edm::StreamID) override;
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      void endStream() override;
+      virtual void beginStream(edm::StreamID) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void endStream() override;
 
       double calcMedian(std::vector<double> &v);
       double calcMd(const reco::Jet *jet);

@@ -19,9 +19,9 @@ void
 FWPFCandidateTowerSliceSelector::getItemEntryEtaPhi(int itemIdx, float& eta, float& phi) const
 {
    
-   const reco::PFCandidateCollection* towers=nullptr;
+   const reco::PFCandidateCollection* towers=0;
    m_item->get(towers);
-   assert(nullptr!=towers);
+   assert(0!=towers);
    reco::PFCandidateCollection::const_iterator tower = towers->begin();
    std::advance(tower, itemIdx);
 

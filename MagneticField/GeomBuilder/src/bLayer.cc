@@ -20,7 +20,7 @@ MagGeoBuilderFromDDD::bLayer::bLayer(handles::const_iterator begin,
 					handles::const_iterator end) :
   size(end-begin),
   theVolumes(begin,end),
-  mlayer(nullptr) 
+  mlayer(0) 
 {
   // Sort in phi
   precomputed_value_sort(theVolumes.begin(), theVolumes.end(), ExtractPhi());
@@ -136,10 +136,10 @@ double MagGeoBuilderFromDDD::bLayer::minR() const {
 // }
 
 MagBLayer * MagGeoBuilderFromDDD::bLayer::buildMagBLayer() const {
-  if (mlayer==nullptr) {
+  if (mlayer==0) {
 
     // If we have only one volume, do not build any MagBSector.
-    if (sectors.empty()) {
+    if (sectors.size()==0) {
       if (MagGeoBuilderFromDDD::debug && size!=0) {
 	std::cout << "ERROR: bLayer::buildMagBLayer, 0 sectors but "
 	     << size << " volumes" << std::endl;

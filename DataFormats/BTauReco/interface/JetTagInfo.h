@@ -15,11 +15,11 @@ public:
 
   JetTagInfo(const edm::RefToBase<Jet> & jetRef) : m_jet(jetRef) { }
 
-  ~JetTagInfo(void) override { }
+  virtual ~JetTagInfo(void) { }
   
-  JetTagInfo* clone(void) const override { return new JetTagInfo(*this); }
+  virtual JetTagInfo* clone(void) const { return new JetTagInfo(*this); }
 
-  edm::RefToBase<Jet> jet(void) const override { return m_jet; }
+  virtual edm::RefToBase<Jet> jet(void) const { return m_jet; }
   
   template <typename T>
   void setJetRef(const edm::Ref<T> & jetRef) { m_jet = edm::RefToBase<Jet>( jetRef ); } 

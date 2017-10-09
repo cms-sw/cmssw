@@ -48,16 +48,16 @@ class FFTJetImageRecorder : public edm::EDAnalyzer
 {
 public:
     explicit FFTJetImageRecorder(const edm::ParameterSet&);
-    ~FFTJetImageRecorder() override;
+    ~FFTJetImageRecorder();
 
 private:
-    FFTJetImageRecorder() = delete;
-    FFTJetImageRecorder(const FFTJetImageRecorder&) = delete;
-    FFTJetImageRecorder& operator=(const FFTJetImageRecorder&) = delete;
+    FFTJetImageRecorder();
+    FFTJetImageRecorder(const FFTJetImageRecorder&);
+    FFTJetImageRecorder& operator=(const FFTJetImageRecorder&);
 
-    void beginJob() override ;
-    void analyze(const edm::Event&, const edm::EventSetup&) override;
-    void endJob() override ;
+    virtual void beginJob() override ;
+    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    virtual void endJob() override ;
 
     edm::InputTag histoLabel;
     unsigned long counter;

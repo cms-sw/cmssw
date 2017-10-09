@@ -92,11 +92,11 @@ template<class C> class EcalUncalibRecHitFixedAlphaBetaAlgo : public EcalUncalib
    dyn_pedestal = true;
   };
 
-  ~EcalUncalibRecHitFixedAlphaBetaAlgo<C>() override { };
-  EcalUncalibratedRecHit makeRecHit(const C& dataFrame, const double* pedestals,
+  virtual ~EcalUncalibRecHitFixedAlphaBetaAlgo<C>() { };
+  virtual EcalUncalibratedRecHit makeRecHit(const C& dataFrame, const double* pedestals,
 					    const double* gainRatios,
 					    const EcalWeightSet::EcalWeightMatrix** weights, 
-					    const EcalWeightSet::EcalChi2WeightMatrix** chi2Matrix) override; 
+					    const EcalWeightSet::EcalChi2WeightMatrix** chi2Matrix); 
   void SetAlphaBeta( double alpha, double beta);
   void SetMinAmpl(double ampl);
   void SetDynamicPedestal(bool dyn_pede);
@@ -121,7 +121,7 @@ template<class C> EcalUncalibratedRecHit  EcalUncalibRecHitFixedAlphaBetaAlgo<C>
   double maxsample(-1);   // ADC value of maximal ped-subtracted sample
   int imax(-1);           // sample number of maximal ped-subtracted sample
   bool external_pede = false;
-  bool isSaturated = false;   // flag reporting whether gain0 has been found
+  bool isSaturated = 0;   // flag reporting whether gain0 has been found
 
   // Get time samples checking for Gain Switch and pedestals
   if(pedestals){
@@ -138,7 +138,7 @@ template<class C> EcalUncalibratedRecHit  EcalUncalibRecHitFixedAlphaBetaAlgo<C>
 	if ( GainId == 0 )
 	  { 
 	    GainId = 3;
-	    isSaturated = true;
+	    isSaturated = 1;
 	  }
 
 	if (GainId != gainId0) iGainSwitch = 1;
@@ -163,7 +163,7 @@ template<class C> EcalUncalibratedRecHit  EcalUncalibRecHitFixedAlphaBetaAlgo<C>
       if ( GainId == 0 ) 
 	{
 	  GainId = 3;
-	  isSaturated = true;
+	  isSaturated = 1;
 	}
 
       frame[iSample] = double(dataFrame.sample(iSample).adc())-pedestal ;

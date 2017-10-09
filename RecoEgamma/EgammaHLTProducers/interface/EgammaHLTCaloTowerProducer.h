@@ -25,9 +25,9 @@ class EgammaHLTCaloTowerProducer : public edm::global::EDProducer<> {
  public:
 
   EgammaHLTCaloTowerProducer( const edm::ParameterSet & );
-  ~EgammaHLTCaloTowerProducer() override {};
+  ~EgammaHLTCaloTowerProducer() {};
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  void produce(edm::StreamID, edm::Event &, edm::EventSetup const &) const final;
+  void produce(edm::StreamID, edm::Event &, edm::EventSetup const &) const override final;
 
   const edm::EDGetTokenT<CaloTowerCollection> towers_;
   const double cone_;

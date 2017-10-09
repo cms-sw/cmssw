@@ -17,15 +17,15 @@ class FWTrackingVertexProxyBuilder : public FWSimpleProxyBuilderTemplate<Trackin
 {
 public:
    FWTrackingVertexProxyBuilder( void ) {} 
-   ~FWTrackingVertexProxyBuilder( void ) override {}
+   virtual ~FWTrackingVertexProxyBuilder( void ) {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
    // Disable default copy constructor
-   FWTrackingVertexProxyBuilder( const FWTrackingVertexProxyBuilder& ) = delete;
+   FWTrackingVertexProxyBuilder( const FWTrackingVertexProxyBuilder& );
    // Disable default assignment operator
-   const FWTrackingVertexProxyBuilder& operator=( const FWTrackingVertexProxyBuilder& ) = delete;
+   const FWTrackingVertexProxyBuilder& operator=( const FWTrackingVertexProxyBuilder& );
 
    using FWSimpleProxyBuilderTemplate<TrackingVertex>::build;
    void build( const TrackingVertex& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;

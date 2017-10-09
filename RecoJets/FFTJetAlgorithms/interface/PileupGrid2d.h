@@ -23,17 +23,17 @@ namespace fftjetcms {
                                      const double rhoFactor)
 	    : grid_(g), rhoFactor_(rhoFactor) {}
 
-        inline ~PileupGrid2d() override {}
+        inline virtual ~PileupGrid2d() {}
 
-        inline double operator()(
+        inline virtual double operator()(
             const double eta, const double phi,
-            const reco::FFTJetPileupSummary& summary) const override
+            const reco::FFTJetPileupSummary& summary) const
 	{
 	    return rhoFactor_ * summary.pileupRho() *
                    grid_.coordValue(eta, phi);
 	}
 
-        inline bool isPhiDependent() const override {return true;}
+        inline virtual bool isPhiDependent() const {return true;}
 
     private:
 	fftjet::Grid2d<Real> grid_;

@@ -45,12 +45,12 @@ class DTChamberRecSegment2D : public DTRecSegment2D {
 			std::vector<DTRecHit1D> &hits1D);
   
   /// Destructor
-  ~DTChamberRecSegment2D() override{};
+  virtual ~DTChamberRecSegment2D(){};
 
   /* Operations */ 
 
   /// The clone method needed by the clone policy
-  DTChamberRecSegment2D* clone() const override;
+  virtual DTChamberRecSegment2D* clone() const;
   
   /// The id of the chamber on which reside the segment
   DTChamberId chamberId() const;

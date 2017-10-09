@@ -18,7 +18,7 @@ class TEveElementIter
    std::vector<TEveElement*> elements;
    std::vector<TEveElement*>::iterator iter;
 public:
-   TEveElementIter( TEveElement*, const char* regular_expression = nullptr );
+   TEveElementIter( TEveElement*, const char* regular_expression = 0 );
    TEveElement* next();
    TEveElement* current();
    TEveElement* reset();

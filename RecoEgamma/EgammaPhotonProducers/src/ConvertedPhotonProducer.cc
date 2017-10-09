@@ -45,9 +45,9 @@
 
 ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config) : 
   conf_(config), 
-  theTrackPairFinder_(nullptr), 
-  theVertexFinder_(nullptr), 
-  theLikelihoodCalc_(nullptr)
+  theTrackPairFinder_(0), 
+  theVertexFinder_(0), 
+  theLikelihoodCalc_(0)
 {
 
 
@@ -372,7 +372,7 @@ void ConvertedPhotonProducer::buildCollections ( edm::EventSetup const & es,
     const reco::Particle::LorentzVector  p4(momentum.x(), momentum.y(), momentum.z(), aClus->energy() );
     
     int nFound=0;    
-    if ( !allPairs.empty() ) {
+    if ( allPairs.size() ) {
 
       nFound=0;
 
@@ -586,7 +586,7 @@ void ConvertedPhotonProducer::cleanCollections(const edm::Handle<edm::View<reco:
 					      reco::ConversionCollection & outputConversionCollection) {
 
 
-  reco::Conversion* newCandidate=nullptr;
+  reco::Conversion* newCandidate=0;
   for(unsigned int lSC=0; lSC < scHandle->size(); lSC++) {
     
     // get pointer to SC

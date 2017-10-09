@@ -39,8 +39,8 @@ class EMShower
            GammaFunctionGenerator* gamma,
 	   EMECALShowerParametrization* const myParam,
 	   std::vector<const RawParticle*>* const myPart,
-	   EcalHitMaker  * const myGrid=nullptr,
-	   PreshowerHitMaker * const myPreshower=nullptr,
+	   EcalHitMaker  * const myGrid=NULL,
+	   PreshowerHitMaker * const myPreshower=NULL,
 	   bool bFixedLength = false);
 
   virtual ~EMShower(){;}

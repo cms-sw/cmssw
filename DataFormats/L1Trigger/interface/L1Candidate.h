@@ -34,7 +34,7 @@ namespace l1t {
 		 int qual=0,
 		 int iso=0);
 
-    ~L1Candidate() override;
+    ~L1Candidate();
 
     // methods to set integer values
     // in general, these should not be needed

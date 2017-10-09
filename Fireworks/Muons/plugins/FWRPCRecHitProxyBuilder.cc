@@ -22,9 +22,9 @@ class FWRPCRecHitProxyBuilder : public FWSimpleProxyBuilderTemplate<RPCRecHit>
 {
 public:
    FWRPCRecHitProxyBuilder() {}
-   ~FWRPCRecHitProxyBuilder() override {}
+   virtual ~FWRPCRecHitProxyBuilder() {}
   
-   bool haveSingleProduct() const override 
+   virtual bool haveSingleProduct() const override 
     { 
       return false; 
     }
@@ -32,11 +32,11 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-  FWRPCRecHitProxyBuilder(const FWRPCRecHitProxyBuilder&) = delete;
-  const FWRPCRecHitProxyBuilder& operator=(const FWRPCRecHitProxyBuilder&) = delete; 
+  FWRPCRecHitProxyBuilder(const FWRPCRecHitProxyBuilder&);
+  const FWRPCRecHitProxyBuilder& operator=(const FWRPCRecHitProxyBuilder&); 
  
   using FWSimpleProxyBuilderTemplate<RPCRecHit>::buildViewType;
-  void buildViewType(const RPCRecHit& iData, 
+  virtual void buildViewType(const RPCRecHit& iData, 
                              unsigned int iIndex, 
                              TEveElement& oItemHolder, 
                              FWViewType::EType type, 

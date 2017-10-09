@@ -31,19 +31,19 @@ class CmsShowTaskTimer : public TTimer
 
 public:
    CmsShowTaskTimer(CmsShowTaskExecutorBase* taskExec, Long_t milliSec = 0, Bool_t mode = kTRUE);
-   ~CmsShowTaskTimer() override;
+   virtual ~CmsShowTaskTimer();
 
    // ---------- const member functions ---------------------
 
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   Bool_t Notify() override;
+   virtual Bool_t Notify();
 
 private:
-   CmsShowTaskTimer(const CmsShowTaskTimer&) = delete;    // stop default
+   CmsShowTaskTimer(const CmsShowTaskTimer&);    // stop default
 
-   const CmsShowTaskTimer& operator=(const CmsShowTaskTimer&) = delete;    // stop default
+   const CmsShowTaskTimer& operator=(const CmsShowTaskTimer&);    // stop default
 
    // ---------- member data --------------------------------
    CmsShowTaskExecutorBase* m_taskExec;

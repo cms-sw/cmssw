@@ -54,15 +54,15 @@ public:
       TEveElement* m_el;
    public:
       FWViewCombo(const TGWindow *p, FWGeometryTableViewBase* t): 
-         TGTextButton(p, "Select Views", -1, TGButton::GetDefaultGC()(), TGTextButton::GetDefaultFontStruct(), kRaisedFrame | kDoubleBorder  ), m_tableView(t), m_el(nullptr) {}
-      ~FWViewCombo() override {}
+         TGTextButton(p, "Select Views", -1, TGButton::GetDefaultGC()(), TGTextButton::GetDefaultFontStruct(), kRaisedFrame | kDoubleBorder  ), m_tableView(t), m_el(0) {}
+      virtual ~FWViewCombo() {}
       void setElement(TEveElement* x) {m_el = x;}
-      Bool_t  HandleButton(Event_t* event) override;
+      virtual Bool_t  HandleButton(Event_t* event);
    };
 
 
    FWGeometryTableViewBase(TEveWindowSlot*, FWViewType::EType, FWColorManager*);
-   ~FWGeometryTableViewBase() override;
+   virtual ~FWGeometryTableViewBase();
   
    virtual  void cellClicked(Int_t iRow, Int_t iColumn, 
                              Int_t iButton, Int_t iKeyMod, 
@@ -73,12 +73,12 @@ public:
    void selectView(int);
  
    bool getEnableHighlight() { return m_enableHighlight.value(); } 
-   virtual  FWGeometryTableManagerBase*  getTableManager() { return nullptr; }
+   virtual  FWGeometryTableManagerBase*  getTableManager() { return 0; }
 
    // ---------- const member functions --------------------- 
 
-   void addTo(FWConfiguration&) const override;
-   void saveImageTo( const std::string& iName ) const override {}
+   virtual void addTo(FWConfiguration&) const;
+   virtual void saveImageTo( const std::string& iName ) const {}
    void nodeColorChangeRequested(Color_t);
 
    void setBackgroundColor();
@@ -149,7 +149,7 @@ protected:
    
    void setTopNodePathFromConfig(const FWConfiguration& iFrom);
 
-   void populateController(ViewerParameterGUI&) const override;
+   virtual void populateController(ViewerParameterGUI&) const;
 
 private:
    int m_tableRowIndexForColorPopup;

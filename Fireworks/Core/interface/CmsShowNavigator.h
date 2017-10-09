@@ -78,23 +78,23 @@ private:
 
 public:
    CmsShowNavigator(const CmsShowMain &);
-   ~CmsShowNavigator() override;
+   virtual ~CmsShowNavigator();
 
    //configuration management interface
-   void addTo(FWConfiguration&) const override;
-   void setFrom(const FWConfiguration&) override;
+   virtual void addTo(FWConfiguration&) const;
+   virtual void setFrom(const FWConfiguration&);
 
    Int_t realEntry(Int_t rawEntry);
    bool  openFile(const std::string& fileName);
    bool  appendFile(const std::string& fileName, bool checkFileQueueSize, bool live);
 
-   void nextEvent() override;
-   void previousEvent() override;
-   bool nextSelectedEvent() override;
-   bool previousSelectedEvent() override;
-   void firstEvent() override;
-   void lastEvent() override;
-   void goToRunEvent(edm::RunNumber_t, edm::LuminosityBlockNumber_t, edm::EventNumber_t) override;
+   virtual void nextEvent();
+   virtual void previousEvent();
+   virtual bool nextSelectedEvent();
+   virtual bool previousSelectedEvent();
+   virtual void firstEvent();
+   virtual void lastEvent();
+   virtual void goToRunEvent(edm::RunNumber_t, edm::LuminosityBlockNumber_t, edm::EventNumber_t);
    void goTo(FileQueue_i fi, int event);
 
    void eventFilterEnableCallback(Bool_t);
@@ -105,8 +105,8 @@ public:
       m_maxNumberOfFilesToChain = i;
    }
    
-   bool isLastEvent() override;
-   bool isFirstEvent() override;
+   virtual bool isLastEvent();
+   virtual bool isFirstEvent();
 
    void showEventFilterGUI(const TGWindow* p);
    void applyFiltersFromGUI();
@@ -114,12 +114,12 @@ public:
    void withdrawFilter();
    void resumeFilter();
    
-   const edm::EventBase* getCurrentEvent() const override;
+   virtual const edm::EventBase* getCurrentEvent() const;
 
    const char* frameTitle();
    const char* filterStatusMessage();
-   int  getNSelectedEvents() override;
-   int  getNTotalEvents() override;
+   int  getNSelectedEvents();
+   int  getNTotalEvents();
    bool canEditFiltersExternally();
    bool filesNeedUpdate() const { return m_filesNeedUpdate; }
    int  getFilterState() { return m_filterState; }

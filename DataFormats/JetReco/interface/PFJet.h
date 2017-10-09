@@ -92,7 +92,7 @@ class PFJet : public Jet {
 	  const Jet::Constituents& fConstituents);
 
   
-  ~PFJet() override {};
+  virtual ~PFJet() {};
 
   /// chargedHadronEnergy 
   float chargedHadronEnergy () const {return m_specific.mChargedHadronEnergy;}
@@ -177,15 +177,15 @@ class PFJet : public Jet {
   const Specific& getSpecific () const {return m_specific;}
 
   /// Polymorphic clone
-  PFJet* clone () const override;
+  virtual PFJet* clone () const;
 
   /// Print object in details
-  std::string print () const override;
+  virtual std::string print () const;
 
 
  private:
   /// Polymorphic overlap
-  bool overlap( const Candidate & ) const override;
+  virtual bool overlap( const Candidate & ) const;
   
   //Variables specific to to the PFJet class
   Specific m_specific;

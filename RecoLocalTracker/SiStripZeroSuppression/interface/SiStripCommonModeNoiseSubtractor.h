@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include <vector>
 #include <algorithm>
-#include <cstdint>
+#include <stdint.h>
 
 class SiStripCommonModeNoiseSubtractor {
 

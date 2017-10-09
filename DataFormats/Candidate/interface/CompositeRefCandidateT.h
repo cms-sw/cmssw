@@ -35,20 +35,20 @@ namespace reco {
     /// constructor from a particle
     explicit CompositeRefCandidateT( const LeafCandidate& c ) : LeafCandidate( c ) { }
     /// destructor
-    ~CompositeRefCandidateT() override;
+    virtual ~CompositeRefCandidateT();
     /// returns a clone of the candidate
-    CompositeRefCandidateT<D> * clone() const override;
+    virtual CompositeRefCandidateT<D> * clone() const;
     /// number of daughters
-    size_t numberOfDaughters() const override;
+    virtual size_t numberOfDaughters() const;
     /// number of mothers
-    size_t numberOfMothers() const override;
+    virtual size_t numberOfMothers() const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1 (read only mode)
-    const Candidate * daughter(size_type) const override;
+    virtual const Candidate * daughter(size_type) const;
     using ::reco::LeafCandidate::daughter; // avoid hiding the base
     /// return mother at a given position, i = 0, ... numberOfMothers() - 1 (read only mode)
-    const Candidate * mother(size_type = 0) const override;
+    virtual const Candidate * mother(size_type = 0) const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
-    Candidate * daughter(size_type) override;
+    virtual Candidate * daughter(size_type);
     /// add a daughter via a reference
     void addDaughter( const typename daughters::value_type & );    
     /// add a daughter via a reference
@@ -78,7 +78,7 @@ namespace reco {
     /// collection of references to mothers
     daughters mom;
     /// check overlap with another candidate
-    bool overlap( const Candidate & ) const override;
+    virtual bool overlap( const Candidate & ) const;
   };
 
   template<typename D>
@@ -102,17 +102,17 @@ namespace reco {
   
   template<typename D>
   const Candidate * CompositeRefCandidateT<D>::daughter( size_type i ) const { 
-    return ( i < numberOfDaughters() ) ? & * dau[ i ] : nullptr;
+    return ( i < numberOfDaughters() ) ? & * dau[ i ] : 0;
   }
   
   template<typename D>
   const Candidate * CompositeRefCandidateT<D>::mother( size_type i ) const { 
-    return ( i < numberOfMothers() ) ? & * mom[ i ] : nullptr;
+    return ( i < numberOfMothers() ) ? & * mom[ i ] : 0;
   }
   
   template<typename D>
   Candidate * CompositeRefCandidateT<D>::daughter( size_type i ) { 
-    return nullptr;
+    return 0;
   }
   
   template<typename D>

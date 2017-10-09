@@ -34,9 +34,9 @@ FWCaloTowerSliceSelector::~FWCaloTowerSliceSelector()
 void
 FWCaloTowerSliceSelector::getItemEntryEtaPhi(int itemIdx, float& eta, float& phi) const
 {
-    const CaloTowerCollection* towers=nullptr;
+    const CaloTowerCollection* towers=0;
     m_item->get(towers);
-    assert(nullptr!=towers);
+    assert(0!=towers);
     CaloTowerCollection::const_iterator tower = towers->begin();
     std::advance(tower, itemIdx);
 

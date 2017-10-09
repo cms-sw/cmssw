@@ -33,27 +33,27 @@ public:
    FWItemTVirtualCollectionProxyAccessor(const TClass* iType,
                                          std::shared_ptr<TVirtualCollectionProxy> iProxy,
                                          size_t iOffset=0);
-   ~FWItemTVirtualCollectionProxyAccessor() override;
+   virtual ~FWItemTVirtualCollectionProxyAccessor();
 
    // ---------- const member functions ---------------------
-   const void* modelData(int iIndex) const override ;
-   const void* data() const override;
-   unsigned int size() const override;
-   const TClass* modelType() const override;
-   const TClass* type() const override;
+   virtual const void* modelData(int iIndex) const ;
+   virtual const void* data() const;
+   virtual unsigned int size() const;
+   const TClass* modelType() const;
+   const TClass* type() const;
 
-   bool isCollection() const override;
+   bool isCollection() const;
 
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   void setData(const edm::ObjectWithDict& ) override;
-   void reset() override;
+   void setData(const edm::ObjectWithDict& );
+   void reset();
 
 private:
-   FWItemTVirtualCollectionProxyAccessor(const FWItemTVirtualCollectionProxyAccessor&) = delete; // stop default
+   FWItemTVirtualCollectionProxyAccessor(const FWItemTVirtualCollectionProxyAccessor&); // stop default
 
-   const FWItemTVirtualCollectionProxyAccessor& operator=(const FWItemTVirtualCollectionProxyAccessor&) = delete; // stop default
+   const FWItemTVirtualCollectionProxyAccessor& operator=(const FWItemTVirtualCollectionProxyAccessor&); // stop default
 
    // ---------- member data --------------------------------
    const TClass* m_type;

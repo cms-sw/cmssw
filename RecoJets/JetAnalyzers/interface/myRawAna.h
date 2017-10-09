@@ -24,9 +24,9 @@ public:
   myRawAna( const edm::ParameterSet & );
 
 private:
-  void beginJob(  ) override;
-  void analyze ( const edm::Event& , const edm::EventSetup& ) override;
-  void endJob() override;
+  void beginJob(  );
+  void analyze ( const edm::Event& , const edm::EventSetup& );
+  void endJob();
 
   TH2F *fedSize;
   TH1F *totFedSize;

@@ -44,41 +44,41 @@ class DTSLRecCluster : public RecHit1D {
                    const std::vector<DTRecHit1DPair>& pair) ;
 
     /* Destructor */ 
-    ~DTSLRecCluster() override {}
+    virtual ~DTSLRecCluster() {}
 
     /* Operations */ 
     /// The clone method needed by the clone policy
-    DTSLRecCluster* clone() const override { return new DTSLRecCluster(*this); }
+    virtual DTSLRecCluster* clone() const { return new DTSLRecCluster(*this); }
 
     /// The id of the superlayer on which reside the segment
     DTSuperLayerId superLayerId() const { return theSlid; }
 
     /// the vector of parameters (dx/dz,x)
-    AlgebraicVector parameters() const override {
+    virtual AlgebraicVector parameters() const {
       return param( localPosition());
     }
 
     // The parameter error matrix 
-    AlgebraicSymMatrix parametersError() const override {
+    virtual AlgebraicSymMatrix parametersError() const {
       return parError( localPositionError());
     }
 
     /** return the projection matrix, which must project a parameter vector,
      * whose components are (q/p, dx/dz, dy/dz, x, y), into the vector returned
      * by parameters() */
-    AlgebraicMatrix projectionMatrix() const override {
+    virtual AlgebraicMatrix projectionMatrix() const {
       return theProjectionMatrix;
     }
 
     /// return 2. The dimension of the matrix
-    int dimension() const override { return 2;}
-    LocalPoint localPosition() const override { return thePos; }
-    LocalError localPositionError() const override { return thePosError; }
+    virtual int dimension() const { return 2;}
+    virtual LocalPoint localPosition() const { return thePos; }
+    virtual LocalError localPositionError() const { return thePosError; }
 
     /// return the hits
-    std::vector<const TrackingRecHit*> recHits() const override ;
+    virtual std::vector<const TrackingRecHit*> recHits() const ;
 
-    std::vector<TrackingRecHit*> recHits() override ;
+    virtual std::vector<TrackingRecHit*> recHits() ;
 
     /// Access to specific components
     std::vector<DTRecHit1DPair> specificRecHits() const { return thePairs; }

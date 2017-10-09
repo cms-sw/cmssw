@@ -38,9 +38,9 @@ public:
    float m_offsetZ;
    float m_textPad;
    FWEveText(const char* txt=""):TEveText(txt), m_offsetZ(0), m_textPad(5) {}
-   ~FWEveText() override {}
+   virtual ~FWEveText() {}
 
-   TClass* ProjectedClass(const TEveProjection* p) const override  ;
+   virtual TClass* ProjectedClass(const TEveProjection* p) const  ;
    ClassDef(FWEveText, 0); // Class for visualisation of text with FTGL font.
 };
 
@@ -57,10 +57,10 @@ private:
 
 public:
    FWEveTextProjected() {}
-   ~FWEveTextProjected() override {}
+   virtual ~FWEveTextProjected() {}
 
-   void UpdateProjection() override;
-   TEveElement* GetProjectedAsElement() override { return this; }
+   virtual void UpdateProjection();
+   virtual TEveElement* GetProjectedAsElement() { return this; }
 
    ClassDef(FWEveTextProjected, 0); // Projected replica of a FWEveText.
 };
@@ -71,9 +71,9 @@ class FWEveTextGL : public TEveTextGL
 {
 public:
    FWEveTextGL(){}
-   ~FWEveTextGL() override {}
+   virtual ~FWEveTextGL() {}
 
-   void DirectDraw(TGLRnrCtx & rnrCtx) const override;
+   virtual void DirectDraw(TGLRnrCtx & rnrCtx) const;
 
    ClassDef(FWEveTextGL, 0); // GL renderer class for TEveText.
 };

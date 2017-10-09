@@ -24,18 +24,18 @@ class FWSimTrackProxyBuilder : public FWProxyBuilderBase
 {
 public:
    FWSimTrackProxyBuilder( void ) {} 
-   ~FWSimTrackProxyBuilder( void ) override {}
+   virtual ~FWSimTrackProxyBuilder( void ) {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
    // Disable default copy constructor
-   FWSimTrackProxyBuilder( const FWSimTrackProxyBuilder& ) = delete;
+   FWSimTrackProxyBuilder( const FWSimTrackProxyBuilder& );
    // Disable default assignment operator
-   const FWSimTrackProxyBuilder& operator=( const FWSimTrackProxyBuilder& ) = delete;
+   const FWSimTrackProxyBuilder& operator=( const FWSimTrackProxyBuilder& );
 
    using FWProxyBuilderBase::build;
-   void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;
+   virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;
 
    void addParticlesToPdgDataBase( void );
 };
@@ -199,10 +199,10 @@ FWSimTrackProxyBuilder::addParticlesToPdgDataBase( void )
 void
 FWSimTrackProxyBuilder::build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* )
 {
-   const edm::SimTrackContainer* collection = nullptr;
+   const edm::SimTrackContainer* collection = 0;
    iItem->get( collection );
 
-   if( nullptr == collection )
+   if( 0 == collection )
    {
       return;
    }

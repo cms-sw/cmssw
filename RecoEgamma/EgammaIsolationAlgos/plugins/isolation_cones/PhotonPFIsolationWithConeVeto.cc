@@ -59,10 +59,10 @@ public:
   void setConsumes(edm::ConsumesCollector) override {}
 
   bool isInIsolationCone(const reco::CandidatePtr& photon,
-			 const reco::CandidatePtr& pfCandidate) const final;
+			 const reco::CandidatePtr& pfCandidate) const override final;
   
   //! Destructor
-  ~PhotonPFIsolationWithConeVeto() override{};
+  virtual ~PhotonPFIsolationWithConeVeto(){};
   
 private:    
   const float _vetoConeSize2EB, _vetoConeSize2EE;  

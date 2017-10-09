@@ -65,11 +65,11 @@
 class ResolutionAnalyzer : public edm::EDAnalyzer {
 public:
   explicit ResolutionAnalyzer(const edm::ParameterSet&);
-  ~ResolutionAnalyzer() override;
+  ~ResolutionAnalyzer();
 
 private:
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override {};
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob() {};
 
   template<typename T>
   std::vector<reco::LeafCandidate> fillMuonCollection (const std::vector<T>& tracks) {

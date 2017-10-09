@@ -35,7 +35,7 @@ class FWHGTowerProxyBuilderBase : public FWCaloDataProxyBuilderBase
 {
 public:
    FWHGTowerProxyBuilderBase();
-   ~FWHGTowerProxyBuilderBase() override;
+   virtual ~FWHGTowerProxyBuilderBase();
   
    // ---------- const member functions ---------------------
   
@@ -45,20 +45,20 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 protected:
-   void setCaloData(const fireworks::Context&) override;
-   void fillCaloData() override;
-   bool assertCaloDataSlice() override;
+   virtual void setCaloData(const fireworks::Context&);
+   virtual void fillCaloData();
+   virtual bool assertCaloDataSlice();
   
-   void itemBeingDestroyed(const FWEventItem*) override;
+   virtual void itemBeingDestroyed(const FWEventItem*);
 
 private:
   
-   FWHGTowerProxyBuilderBase(const FWHGTowerProxyBuilderBase&) = delete; // stop default
+   FWHGTowerProxyBuilderBase(const FWHGTowerProxyBuilderBase&); // stop default
   
-   const FWHGTowerProxyBuilderBase& operator=(const FWHGTowerProxyBuilderBase&) = delete; // stop default
+   const FWHGTowerProxyBuilderBase& operator=(const FWHGTowerProxyBuilderBase&); // stop default
   
-   void build(const FWEventItem* iItem,
-                      TEveElementList* product, const FWViewContext*) override;
+   virtual void build(const FWEventItem* iItem,
+                      TEveElementList* product, const FWViewContext*);
   
    int fillTowerForDetId(unsigned int rawid, float);
    // ---------- member data --------------------------------

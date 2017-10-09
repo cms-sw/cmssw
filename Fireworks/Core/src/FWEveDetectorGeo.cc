@@ -11,7 +11,7 @@
 //==============================================================================
 //==============================================================================
 FWEveDetectorGeo::FWEveDetectorGeo(FWGeometryTableView* v):
-   m_browser(v), m_maxLevel(0), m_filterOff(false)
+   m_browser(v), m_maxLevel(0), m_filterOff(0)
 {
 } 
 
@@ -49,7 +49,7 @@ void FWEveDetectorGeo::Paint(Option_t* opt)
       m_browser->getTableManager()->getNodeMatrix(*sit, mtx);
    }
 
-   bool drawsChildren = false;
+   bool drawsChildren = 0;
    
    if ( ((FWGeometryTableManager*)tableManager())->getVisibilityChld(*sit))
       drawsChildren = paintChildNodesRecurse( sit, topIdx, mtx);
@@ -73,7 +73,7 @@ bool FWEveDetectorGeo::paintChildNodesRecurse (FWGeometryTableManagerBase::Entri
    pIt++;
    int pcnt = cnt+1;
    
-   bool drawsChildNodes = false;
+   bool drawsChildNodes = 0;
 
    FWGeometryTableManagerBase::Entries_i it;
    for (int n = 0; n != nD; ++n)

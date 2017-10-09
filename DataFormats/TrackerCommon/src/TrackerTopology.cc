@@ -180,7 +180,7 @@ bool TrackerTopology::isStereo(const DetId &id) const {
       return tecStereo(id)!=0;
 
     throw cms::Exception("Invalid DetId") << "Unsupported DetId in TrackerTopology::isStereo";
-    return false;
+    return 0;
 }
 
 bool TrackerTopology::isRPhi(const DetId &id) const {
@@ -200,7 +200,7 @@ bool TrackerTopology::isRPhi(const DetId &id) const {
       return tecRPhi(id)!=0;
 
     throw cms::Exception("Invalid DetId") << "Unsupported DetId in TrackerTopology::isRPhi";
-    return false;
+    return 0;
 }
 bool TrackerTopology::isLower(const DetId &id) const {
 
@@ -219,7 +219,7 @@ bool TrackerTopology::isLower(const DetId &id) const {
       return tecLower(id)!=0;
 
     throw cms::Exception("Invalid DetId") << "Unsupported DetId in TrackerTopology::isLower";
-    return false;
+    return 0;
 
 }
 
@@ -240,7 +240,7 @@ bool TrackerTopology::isUpper(const DetId &id) const {
       return tecUpper(id)!=0;
 
     throw cms::Exception("Invalid DetId") << "Unsupported DetId in TrackerTopology::isUpper";
-    return false;
+    return 0;
 }
 
 DetId TrackerTopology::partnerDetId(const DetId &id) const {

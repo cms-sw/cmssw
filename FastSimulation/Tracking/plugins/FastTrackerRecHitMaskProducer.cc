@@ -26,9 +26,9 @@ class FastTrackerRecHitMaskProducer : public edm::stream::EDProducer <>
 
     explicit FastTrackerRecHitMaskProducer(const edm::ParameterSet&);
 
-    ~FastTrackerRecHitMaskProducer() override {}
+    virtual ~FastTrackerRecHitMaskProducer() {}
 
-    void produce(edm::Event&, const edm::EventSetup&) override;
+    virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
 
     private:

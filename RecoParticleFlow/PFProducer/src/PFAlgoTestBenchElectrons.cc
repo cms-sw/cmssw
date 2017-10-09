@@ -18,7 +18,7 @@ void PFAlgoTestBenchElectrons::processBlock(const reco::PFBlockRef& blockref,
  
 
   const reco::PFBlock& block = *blockref;
-  const PFBlock::LinkData& linkData =  block.linkData();
+  PFBlock::LinkData linkData =  block.linkData();
   const edm::OwnVector< reco::PFBlockElement >&  elements = block.elements();
 
   std::vector<bool> active(elements.size(), true );

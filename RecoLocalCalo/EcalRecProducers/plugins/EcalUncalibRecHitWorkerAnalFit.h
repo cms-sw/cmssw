@@ -29,12 +29,12 @@ class EcalUncalibRecHitWorkerAnalFit : public EcalUncalibRecHitWorkerRunOneDigiB
         public:
                 EcalUncalibRecHitWorkerAnalFit(const edm::ParameterSet& ps,edm::ConsumesCollector& c);
                 EcalUncalibRecHitWorkerAnalFit() {};
-                ~EcalUncalibRecHitWorkerAnalFit() override {};
+                ~EcalUncalibRecHitWorkerAnalFit() {};
 
-                void set(const edm::EventSetup& es) override;
-                bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result) override;
+                void set(const edm::EventSetup& es);
+                bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result);
 		
-		edm::ParameterSetDescription getAlgoDescription() override;
+		edm::ParameterSetDescription getAlgoDescription();
 
         private:
                 EcalUncalibRecHitRecAnalFitAlgo<EBDataFrame> algoEB_;

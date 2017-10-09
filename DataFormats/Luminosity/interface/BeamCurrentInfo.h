@@ -26,7 +26,7 @@
 #include <vector>
 #include <iosfwd>
 #include <string>
-#include <cstdint>
+#include <stdint.h>
 #include "DataFormats/Luminosity/interface/LumiConstants.h"
 
 class BeamCurrentInfo {

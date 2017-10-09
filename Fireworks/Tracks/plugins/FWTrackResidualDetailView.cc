@@ -56,7 +56,7 @@ FWTrackResidualDetailView::prepareData(const FWModelId &id, const reco::Track* t
    auto const & residuals = track->residuals();
 
    const FWGeometry *geom = id.item()->getGeom();
-   assert(geom != nullptr);
+   assert(geom != 0);
 
    const HitPattern &hitpat = track->hitPattern();
    m_nhits = hitpat.numberOfHits(reco::HitPattern::TRACK_HITS);
@@ -124,7 +124,7 @@ FWTrackResidualDetailView::build (const FWModelId &id, const reco::Track* track)
    padX->cd();
    padX->SetFrameLineWidth(0);
    padX->Modified();
-   h_res->SetDirectory(nullptr);
+   h_res->SetDirectory(0);
    h_res->SetStats(kFALSE);
    h_res->SetTitle("");
    h_res->SetXTitle("residual");
@@ -236,7 +236,7 @@ FWTrackResidualDetailView::getSignedResidual (const FWGeometry *geom, unsigned i
    double local2[3] = { resX, 0, 0 };
    double global1[3], global2[3];
    const TGeoMatrix *m = geom->getMatrix(id);
-   assert(m != nullptr);
+   assert(m != 0);
    m->LocalToMaster(local1, global1);
    m->LocalToMaster(local2, global2);
    TVector3 g1 = global1;
@@ -320,7 +320,7 @@ FWTrackResidualDetailView::setTextInfo(const FWModelId &/*id*/, const reco::Trac
    y -=  yStep;
    latex->DrawLatex(x0, y, "Y hit");
    pos[1] = y; pos[3] = pos[1] + boxH;
-   drawCanvasBox(pos, m_resYCol, m_resYFill, false);
+   drawCanvasBox(pos, m_resYCol, m_resYFill, 0);
 
    y -= yStep;
    latex->DrawLatex(x0, y, "stereo hit");

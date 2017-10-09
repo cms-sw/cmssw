@@ -45,7 +45,7 @@ public:
   
     explicit TrackCandidateProducer(const edm::ParameterSet& conf);
   
-    void produce(edm::Event& e, const edm::EventSetup& es) override;
+    virtual void produce(edm::Event& e, const edm::EventSetup& es) override;
   
 private:
 
@@ -163,8 +163,8 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	    }
 
 	    // prepare to skip seed hits
-	    const FastTrackerRecHit * lastHitToSkip = nullptr;
-	    if(!selectedRecHits.empty())
+	    const FastTrackerRecHit * lastHitToSkip = 0;
+	    if(selectedRecHits.size() > 0)
 	    {
 		lastHitToSkip = selectedRecHits.back();
 	    }
@@ -185,7 +185,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 		{
 		    if(lastHitToSkip->sameId(selectedRecHit))
 		    {
-			lastHitToSkip=nullptr;
+			lastHitToSkip=0;
 		    }
 		    continue;
 		}
@@ -201,7 +201,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 		//  always accept the first hit
 		//  also accept a hit if it is not on the layer of the previous hit
 		if( !  rejectOverlaps
-		    || selectedRecHits.empty()
+		    || selectedRecHits.size() == 0
 		    || ( TrackingLayer::createFromDetId(selectedRecHits.back()->geographicalId(),*trackerTopology.product())
 			 != TrackingLayer::createFromDetId(selectedRecHit->geographicalId(),*trackerTopology.product())))
 		{

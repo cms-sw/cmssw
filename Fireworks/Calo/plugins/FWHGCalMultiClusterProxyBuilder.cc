@@ -9,16 +9,16 @@ class FWHGCalMultiClusterProxyBuilder : public FWSimpleProxyBuilderTemplate<reco
 {
 public:
    FWHGCalMultiClusterProxyBuilder( void ) {}
-   ~FWHGCalMultiClusterProxyBuilder( void ) override {}
+   virtual ~FWHGCalMultiClusterProxyBuilder( void ) {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWHGCalMultiClusterProxyBuilder( const FWHGCalMultiClusterProxyBuilder& ) = delete; 			// stop default
-   const FWHGCalMultiClusterProxyBuilder& operator=( const FWHGCalMultiClusterProxyBuilder& ) = delete; 	// stop default
+   FWHGCalMultiClusterProxyBuilder( const FWHGCalMultiClusterProxyBuilder& ); 			// stop default
+   const FWHGCalMultiClusterProxyBuilder& operator=( const FWHGCalMultiClusterProxyBuilder& ); 	// stop default
 
    using FWSimpleProxyBuilderTemplate<reco::HGCalMultiCluster>::build;
-   void build( const reco::HGCalMultiCluster& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
+   void build( const reco::HGCalMultiCluster& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
 };
 
 void
@@ -29,7 +29,7 @@ FWHGCalMultiClusterProxyBuilder::build( const reco::HGCalMultiCluster& iData, un
   TEveBoxSet* boxset = new TEveBoxSet();
   boxset->Reset(TEveBoxSet::kBT_FreeBox, true, 64);
   boxset->UseSingleColor();
-  boxset->SetPickable(true);
+  boxset->SetPickable(1);
   for (const auto & c : clusters)
     {
       std::vector<std::pair<DetId, float> > clusterDetIds = c->hitsAndFractions();
@@ -39,7 +39,7 @@ FWHGCalMultiClusterProxyBuilder::build( const reco::HGCalMultiCluster& iData, un
 	   it != itEnd; ++it )
 	{
 	  const float* corners = item()->getGeom()->getCorners( (*it).first );
-	  if( corners == nullptr ) {
+	  if( corners == 0 ) {
 	    continue;
 	  }
 	  std::vector<float> pnts(24);

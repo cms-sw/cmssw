@@ -31,9 +31,9 @@ class TotemRPClusterProducer : public edm::stream::EDProducer<>
   
     explicit TotemRPClusterProducer(const edm::ParameterSet& conf);
   
-    ~TotemRPClusterProducer() override {}
+    virtual ~TotemRPClusterProducer() {}
   
-    void produce(edm::Event& e, const edm::EventSetup& c) override;
+    virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
     static void fillDescriptions( edm::ConfigurationDescriptions& );
   
   private:
@@ -78,7 +78,7 @@ void TotemRPClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
   DetSetVector<TotemRPCluster> output;
   
   // run clusterisation
-  if (!input->empty())
+  if (input->size())
     run(*input, output);
 
   // save output to event

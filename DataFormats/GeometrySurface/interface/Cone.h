@@ -60,13 +60,13 @@ public:
 
   // -- Implementation of Surface interface    
 
-  Side side( const LocalPoint& p, Scalar tolerance) const override {return side( toGlobal(p), tolerance);}
-  Side side( const GlobalPoint& p, Scalar tolerance) const override;
+  virtual Side side( const LocalPoint& p, Scalar tolerance) const {return side( toGlobal(p), tolerance);}
+  virtual Side side( const GlobalPoint& p, Scalar tolerance) const;
 
   // Tangent plane to surface from global point
-  ConstReferenceCountingPointer<TangentPlane> tangentPlane (const GlobalPoint&) const override;
+  virtual ConstReferenceCountingPointer<TangentPlane> tangentPlane (const GlobalPoint&) const;
   // Tangent plane to surface from local point
-  ConstReferenceCountingPointer<TangentPlane> tangentPlane (const LocalPoint&) const override;
+  virtual ConstReferenceCountingPointer<TangentPlane> tangentPlane (const LocalPoint&) const;
 
 
 private:

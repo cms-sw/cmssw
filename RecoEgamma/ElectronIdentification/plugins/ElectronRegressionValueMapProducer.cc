@@ -64,13 +64,13 @@ class ElectronRegressionValueMapProducer : public edm::stream::EDProducer<> {
   public:
   
   explicit ElectronRegressionValueMapProducer(const edm::ParameterSet&);
-  ~ElectronRegressionValueMapProducer() override;
+  ~ElectronRegressionValueMapProducer();
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
   private:
   
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
   template<typename T>
   void writeValueMap(edm::Event &iEvent,

@@ -217,7 +217,7 @@ bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
   double s_1=0;
   int de, dp, phiWrap;
   double l_1e=0;
-  const GlobalPoint& sp=geom.getPosition(seedid);
+  GlobalPoint sp=geom.getPosition(seedid);
   std::vector<double> coreCanid;
   std::vector<double>::const_iterator ci;
   HFRecHitCollection::const_iterator i,is,il;
@@ -310,7 +310,7 @@ bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
 	  }
 	  
 	  // position calculation
-	  const GlobalPoint& p=geom.getPosition(idl);
+	  GlobalPoint p=geom.getPosition(idl);
           
 	  double d_p = p.phi()-sp.phi();
 	  while (d_p < -M_PI)

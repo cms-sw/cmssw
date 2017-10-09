@@ -22,19 +22,19 @@ class ECALBarrelProperties : public ECALProperties
 
   ECALBarrelProperties(const edm::ParameterSet& fastDet);
 
-  ~ECALBarrelProperties() override { }
+  virtual ~ECALBarrelProperties() { }
 
   /// Thickness (in cm): 23.0 for Standard ECAL
-  double thickness(double eta) const override { return thickness_; }
+  double thickness(double eta) const { return thickness_; }
 
   ///Photostatistics (photons/GeV) in the homegeneous material: 50E3  for Standard ECAL
-  inline double photoStatistics() const override { return photoStatistics_; }
+  inline double photoStatistics() const { return photoStatistics_; }
 
   ///Light Collection efficiency [Default : 3.0%]
-  inline double lightCollectionEfficiency() const override { return lightColl_; }
+  inline double lightCollectionEfficiency() const { return lightColl_; }
 
   ///Light Collection uniformity 0.003 for Standard ECAL
-  inline double lightCollectionUniformity() const override {return lightCollUnif_;}
+  inline double lightCollectionUniformity() const {return lightCollUnif_;}
 
 };
 

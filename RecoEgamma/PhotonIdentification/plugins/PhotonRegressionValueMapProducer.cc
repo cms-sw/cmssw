@@ -62,13 +62,13 @@ class PhotonRegressionValueMapProducer : public edm::stream::EDProducer<> {
   public:
   
   explicit PhotonRegressionValueMapProducer(const edm::ParameterSet&);
-  ~PhotonRegressionValueMapProducer() override;
+  ~PhotonRegressionValueMapProducer();
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
   
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
   template<typename T>
   void writeValueMap(edm::Event &iEvent,
@@ -174,7 +174,7 @@ void PhotonRegressionValueMapProducer::produce(edm::Event& iEvent, const edm::Ev
                                                         ebrh, eerh, esrh );
   }
   
-  if( !isAOD && !src->empty() ) {
+  if( !isAOD && src->size() ) {
     edm::Ptr<pat::Photon> test(src->ptrAt(0));
     if( test.isNull() || !test.isAvailable() ) {
       throw cms::Exception("InvalidConfiguration")

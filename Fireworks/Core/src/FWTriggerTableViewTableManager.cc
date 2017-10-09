@@ -8,8 +8,8 @@
 
 FWTriggerTableViewTableManager::FWTriggerTableViewTableManager (const FWTriggerTableView *view)
    : m_view(view),
-     m_graphicsContext(nullptr),
-     m_renderer(nullptr)
+     m_graphicsContext(0),
+     m_renderer(0)
 {
    GCValues_t gc = *(m_view->m_tableWidget->GetWhiteGC().GetAttributes());
    m_graphicsContext = gClient->GetResourcePool()->GetGCPool()->GetGC(&gc,kTRUE);

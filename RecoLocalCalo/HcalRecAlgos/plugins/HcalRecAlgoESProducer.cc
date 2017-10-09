@@ -41,7 +41,7 @@ class HcalRecAlgoESProducer : public edm::ESProducer {
    public:
       HcalRecAlgoESProducer(const edm::ParameterSet&);
 
-      ~HcalRecAlgoESProducer() override;
+      ~HcalRecAlgoESProducer();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

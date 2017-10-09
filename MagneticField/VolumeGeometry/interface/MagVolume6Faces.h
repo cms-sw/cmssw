@@ -33,10 +33,10 @@ public:
 		   double sf=1.);
 
   using MagVolume::inside;
-  bool inside( const GlobalPoint& gp, double tolerance=0.) const override;
+  virtual bool inside( const GlobalPoint& gp, double tolerance=0.) const;
 
   /// Access to volume faces
-  const std::vector<VolumeSide>& faces() const override {return theFaces;}
+  virtual const std::vector<VolumeSide>& faces() const {return theFaces;}
 
   //--> These are used for debugging purposes only
   short volumeNo;

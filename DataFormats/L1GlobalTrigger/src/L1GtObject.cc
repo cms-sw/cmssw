@@ -42,7 +42,7 @@ L1GtObject l1GtObjectStringToEnum(const std::string& label) {
             {"BPTX", BPTX},
             {"GtExternal", GtExternal},
             {"ObjNull", ObjNull},
-            {nullptr, (L1GtObject) - 1}
+            {0, (L1GtObject) - 1}
     };
 
     L1GtObject value = (L1GtObject) - 1;

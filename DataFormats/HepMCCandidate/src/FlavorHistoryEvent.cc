@@ -77,7 +77,7 @@ void FlavorHistoryEvent::cache()
   //      2c. Flavor excitation
   //      2d. Gluon splitting
   //  3. delta R (if applicable)
-  if ( !classification.empty() ) { 
+  if ( classification.size() > 0 ) { 
 
 
     std::sort( classification.begin(), classification.end() );

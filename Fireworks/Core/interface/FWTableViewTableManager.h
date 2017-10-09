@@ -33,20 +33,20 @@ class FWTableViewTableManager : public FWTableManagerBase {
      friend class FWTableView;
 public:
      FWTableViewTableManager(const FWTableView *);
-     ~FWTableViewTableManager() override;
+     virtual ~FWTableViewTableManager();
 
      // ---------- const member functions ---------------------
      ///Number of rows in the table
-      int numberOfRows() const override;
+     virtual  int numberOfRows() const;
      ///Number of columns in the table
-      int numberOfColumns() const override;
+     virtual  int numberOfColumns() const;
      
      ///returns the title names for each column
-     std::vector<std::string> getTitles() const override;
+     virtual std::vector<std::string> getTitles() const;
      
      ///when passed the index to the sorted order of the rows it
      ///returns the original row number from the underlying data
-     int unsortedRowNumber(int iSortedRowNumber) const override;
+     virtual int unsortedRowNumber(int iSortedRowNumber) const;
      
      /** Returns the particular renderer used to handle the requested
 	 cell.  Arguments: iSortedRowNumber: the row number from the
@@ -55,7 +55,7 @@ public:
 	 and not held onto since the same Renderer can be used for
 	 subsequent calls
      */
-     FWTableCellRendererBase* cellRenderer(int iSortedRowNumber, int iCol) const override;
+     virtual FWTableCellRendererBase* cellRenderer(int iSortedRowNumber, int iCol) const;
      
      ///require all cells to be the same height
      // virtual unsigned int cellHeight() const;
@@ -64,9 +64,9 @@ public:
      // virtual std::vector<unsigned int> maxWidthForColumns() const;
 
      ///Returns 'true' if this table has row headers. Defaults return value is false.
-     bool hasRowHeaders() const override ;
+     virtual bool hasRowHeaders() const ;
      ///Returns the renderer for the row header for the sorted row number iSortedRowNumber
-     FWTableCellRendererBase* rowHeader(int iSortedRowNumber) const override ;
+     virtual FWTableCellRendererBase* rowHeader(int iSortedRowNumber) const ;
 
      ///Called if mouse button pressed in Row Header, defaults is to do nothing
      //virtual void buttonPressedInRowHeader(Int_t row, Event_t* event, Int_t relX, Int_t relY);
@@ -93,7 +93,7 @@ public:
 protected:
      ///Called by 'sort' method to actually handle the sorting of the
      ///rows. Arguments are the same as 'sort'
-     void implSort(int iCol, bool iSortOrder) override;
+     virtual void implSort(int iCol, bool iSortOrder);
      std::vector<int> m_sortedToUnsortedIndices;
 
      const FWTableView *m_view;
@@ -114,8 +114,8 @@ protected:
      mutable bool m_caughtExceptionInCellRender;
 
 private:
-     FWTableViewTableManager(const FWTableViewTableManager&) = delete; // stop default     
-     const FWTableViewTableManager& operator=(const FWTableViewTableManager&) = delete; // stop default
+     FWTableViewTableManager(const FWTableViewTableManager&); // stop default     
+     const FWTableViewTableManager& operator=(const FWTableViewTableManager&); // stop default
 };
 
 

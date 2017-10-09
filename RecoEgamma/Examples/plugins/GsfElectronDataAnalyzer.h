@@ -39,11 +39,11 @@ class GsfElectronDataAnalyzer : public edm::EDAnalyzer
 
   explicit GsfElectronDataAnalyzer(const edm::ParameterSet& conf);
 
-  ~GsfElectronDataAnalyzer() override;
+  virtual ~GsfElectronDataAnalyzer();
 
-  void beginJob() override;
-  void endJob() override;
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  virtual void beginJob();
+  virtual void endJob();
+  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
 
  private:
 

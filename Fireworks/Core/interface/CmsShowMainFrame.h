@@ -60,20 +60,20 @@ class CmsShowMainFrame : public TGMainFrame
 {
    friend class FWGUIManager;
 public:
-   CmsShowMainFrame(const TGWindow *p = nullptr,UInt_t w = 1,UInt_t h = 1,FWGUIManager *m = nullptr);
-   ~CmsShowMainFrame() override;
+   CmsShowMainFrame(const TGWindow *p = 0,UInt_t w = 1,UInt_t h = 1,FWGUIManager *m = 0);
+   virtual ~CmsShowMainFrame();
 
    // ---------- const member functions ---------------------
 
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   void CloseWindow() override;
+   virtual void CloseWindow();
 
    void loadEvent(const edm::EventBase& event);
    void enableNavigatorControls();
    void quit();
-   void enableActions(bool enable = true) override;
+   virtual void enableActions(bool enable = true);
    void enablePrevious(bool enable = true);
    void enableNext(bool enable = true);
    void enableComplexNavigation(bool enable = true);
@@ -82,8 +82,8 @@ public:
    void updateStatusBar(const char* status);
    void clearStatusBar();
    void setPlayDelayGUI(Float_t val, Bool_t sliderChanged);
-   void HandleMenu(Int_t id) override;
-   Bool_t HandleKey(Event_t *event) override;
+   virtual void HandleMenu(Int_t id);
+   Bool_t HandleKey(Event_t *event);
    CSGContinuousAction* playEventsAction() const {
       return m_playEvents;
    }

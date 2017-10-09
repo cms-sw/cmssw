@@ -30,11 +30,11 @@
 //
 FWFromTEveCaloDataSelector::FWFromTEveCaloDataSelector(TEveCaloData* iData):
 m_data(iData),
-m_changeManager(nullptr)
+m_changeManager(0)
 {                       
    // reserve 3 , first slice is background
    m_sliceSelectors.reserve(3);
-   m_sliceSelectors.push_back(new FWFromSliceSelector(nullptr));
+   m_sliceSelectors.push_back(new FWFromSliceSelector(0));
 }
 
 // FWFromTEveCaloDataSelector::FWFromTEveCaloDataSelector(const FWFromTEveCaloDataSelector& rhs)
@@ -104,7 +104,7 @@ FWFromTEveCaloDataSelector::addSliceSelector(int iSlice, FWFromSliceSelector* iS
 {
    assert(iSlice>0 && (iSlice <= static_cast<int>(m_sliceSelectors.size())));
 
-   if(nullptr==m_changeManager) {
+   if(0==m_changeManager) {
       m_changeManager = iSelector->changeManager();
    }
 

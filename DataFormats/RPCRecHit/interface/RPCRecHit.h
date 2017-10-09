@@ -46,32 +46,32 @@ class RPCRecHit : public RecHit2DLocalPos {
 	    const LocalError& err);
   
   /// Destructor
-  ~RPCRecHit() override;
+  virtual ~RPCRecHit();
 
 
   /// Return the 3-dimensional local position
-  LocalPoint localPosition() const override {
+  virtual LocalPoint localPosition() const {
     return theLocalPosition;
   }
 
 
   /// Return the 3-dimensional error on the local position
-  LocalError localPositionError() const override {
+  virtual LocalError localPositionError() const {
     return theLocalError;
   }
 
 
-  RPCRecHit* clone() const override;
+  virtual RPCRecHit* clone() const;
 
   
   /// Access to component RecHits.
   /// No components rechits: it returns a null vector
-  std::vector<const TrackingRecHit*> recHits() const override;
+  virtual std::vector<const TrackingRecHit*> recHits() const;
 
 
   /// Non-const access to component RecHits.
   /// No components rechits: it returns a null vector
-  std::vector<TrackingRecHit*> recHits() override;
+  virtual std::vector<TrackingRecHit*> recHits();
 
 
   /// Set local position 

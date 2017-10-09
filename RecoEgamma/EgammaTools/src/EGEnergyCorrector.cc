@@ -14,13 +14,13 @@ using namespace reco;
 
 //--------------------------------------------------------------------------------------------------
 EGEnergyCorrector::EGEnergyCorrector() :
-fReadereb(nullptr),
-fReaderebvariance(nullptr),
-fReaderee(nullptr),
-fReadereevariance(nullptr),
+fReadereb(0),
+fReaderebvariance(0),
+fReaderee(0),
+fReadereevariance(0),
 fIsInitialized(kFALSE),
 fOwnsForests(kFALSE),
-fVals(nullptr)
+fVals(0)
 {
   // Constructor.
 }

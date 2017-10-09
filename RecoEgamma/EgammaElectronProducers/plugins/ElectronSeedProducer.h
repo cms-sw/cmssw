@@ -46,11 +46,11 @@ class ElectronSeedProducer : public edm::stream::EDProducer<>
     //static void fillDescriptions( edm::ConfigurationDescriptions & ) ;
 
     explicit ElectronSeedProducer( const edm::ParameterSet & ) ;
-    void beginRun( edm::Run const&, edm::EventSetup const & ) final;
-    void endRun( edm::Run const&, edm::EventSetup const & ) final;
-    ~ElectronSeedProducer() override ;
+    virtual void beginRun( edm::Run const&, edm::EventSetup const & ) override final;
+    virtual void endRun( edm::Run const&, edm::EventSetup const & ) override final;
+    virtual ~ElectronSeedProducer() ;
 
-    void produce( edm::Event &, const edm::EventSetup & ) final;
+    virtual void produce( edm::Event &, const edm::EventSetup & ) override final;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   private:

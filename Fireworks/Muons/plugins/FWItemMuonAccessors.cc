@@ -11,7 +11,7 @@
 //
 
 // system include files
-#include <cassert>
+#include <assert.h>
 
 #include "TClass.h"
 

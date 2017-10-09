@@ -29,8 +29,8 @@ namespace cms
   public:
     explicit MuonMET( const edm::ParameterSet& );
     explicit MuonMET();
-    ~MuonMET() override { }
-    void produce( edm::Event&, const edm::EventSetup& ) override;
+    virtual ~MuonMET() { }
+    virtual void produce( edm::Event&, const edm::EventSetup& );
 
   private:
     MuonMETAlgo alg_;

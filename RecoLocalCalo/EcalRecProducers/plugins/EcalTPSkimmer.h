@@ -23,8 +23,8 @@ class EcalTPSkimmer : public edm::stream::EDProducer<> {
 
         public:
                 explicit EcalTPSkimmer(const edm::ParameterSet& ps);
-                ~EcalTPSkimmer() override;
-                void produce(edm::Event& evt, const edm::EventSetup& es) override;
+                ~EcalTPSkimmer();
+                virtual void produce(edm::Event& evt, const edm::EventSetup& es);
 
         private:
 

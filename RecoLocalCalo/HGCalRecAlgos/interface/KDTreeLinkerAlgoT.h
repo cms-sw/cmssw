@@ -86,7 +86,7 @@ void
 KDTreeLinkerAlgo<DATA,DIM>::build(std::vector<KDTreeNodeInfoT<DATA,DIM> >  &eltList, 
 				  const KDTreeBoxT<DIM>  		  &region)
 {
-  if (!eltList.empty()) {
+  if (eltList.size()) {
     initialEltList = &eltList;
     
     size_t size = initialEltList->size();
@@ -96,7 +96,7 @@ KDTreeLinkerAlgo<DATA,DIM>::build(std::vector<KDTreeNodeInfoT<DATA,DIM> >  &eltL
     // Here we build the KDTree
     root_ = recBuild(0, size, 0, region);
     
-    initialEltList = nullptr;
+    initialEltList = 0;
   }
 }
  
@@ -152,7 +152,7 @@ KDTreeLinkerAlgo<DATA,DIM>::search(const KDTreeBoxT<DIM>		  &trackBox,
   if (root_) {
     closestNeighbour = &recHits;
     recSearch(root_, trackBox);
-    closestNeighbour = nullptr;
+    closestNeighbour = 0;
   }
 }
 
@@ -171,7 +171,7 @@ KDTreeLinkerAlgo<DATA,DIM>::recSearch(const KDTreeNodeT<DATA,DIM> *current,
 	    ((current->left != 0) && (current->right == 0))));
   */
     
-  if ((current->left == nullptr) && (current->right == nullptr)) {//leaf case
+  if ((current->left == 0) && (current->right == 0)) {//leaf case
   
     // If point inside the rectangle/area
     bool isInside = true;
@@ -224,7 +224,7 @@ KDTreeLinkerAlgo<DATA,DIM>::addSubtree(const KDTreeNodeT<DATA,DIM>	*current)
   // By construction, current can't be null
   // assert(current != 0);
 
-  if ((current->left == nullptr) && (current->right == nullptr)) // leaf
+  if ((current->left == 0) && (current->right == 0)) // leaf
     closestNeighbour->push_back(current->info);
   else { // node
     addSubtree(current->left);
@@ -237,8 +237,8 @@ KDTreeLinkerAlgo<DATA,DIM>::addSubtree(const KDTreeNodeT<DATA,DIM>	*current)
 
 template <typename DATA, unsigned DIM>
 KDTreeLinkerAlgo<DATA,DIM>::KDTreeLinkerAlgo()
-  : root_ (nullptr),
-    nodePool_(nullptr),
+  : root_ (0),
+    nodePool_(0),
     nodePoolSize_(-1),
     nodePoolPos_(-1)
 {
@@ -256,8 +256,8 @@ void
 KDTreeLinkerAlgo<DATA,DIM>::clearTree()
 {
   delete[] nodePool_;
-  nodePool_ = nullptr;
-  root_ = nullptr;
+  nodePool_ = 0;
+  root_ = 0;
   nodePoolSize_ = -1;
   nodePoolPos_ = -1;
 }

@@ -22,9 +22,9 @@ class CleanAndMergeProducer : public edm::stream::EDProducer<>
 
       CleanAndMergeProducer(const edm::ParameterSet& ps);
 
-      ~CleanAndMergeProducer() override;
+      ~CleanAndMergeProducer();
 
-      void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&);
       
   private:
       

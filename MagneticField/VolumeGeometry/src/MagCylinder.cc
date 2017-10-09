@@ -26,7 +26,7 @@ MagCylinder::MagCylinder( const PositionType& pos,
     }
     else if (i->globalFace() == SurfaceOrientation::outer || i->globalFace() == SurfaceOrientation::inner) {
       const Cylinder* cyl = dynamic_cast<const Cylinder*>(&(i->surface()));
-      if (cyl == nullptr) {
+      if (cyl == 0) {
 	throw MagGeometryError("MagCylinder inner/outer surface is not a cylinder");
       }
       if (i->globalFace() == SurfaceOrientation::outer) theOuterR = cyl->radius();

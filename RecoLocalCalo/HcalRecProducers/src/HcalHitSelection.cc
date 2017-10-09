@@ -50,10 +50,10 @@
 class HcalHitSelection : public edm::stream::EDProducer<> {
    public:
       explicit HcalHitSelection(const edm::ParameterSet&);
-      ~HcalHitSelection() override;
+      ~HcalHitSelection();
 
    private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
   
   edm::InputTag hbheTag,hoTag,hfTag;
   edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;

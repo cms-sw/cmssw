@@ -53,7 +53,7 @@ class TrackingRecHitStripGSPlugin:
             }
         }
 
-        TrackingRecHitProductPtr process(TrackingRecHitProductPtr product) const override
+        virtual TrackingRecHitProductPtr process(TrackingRecHitProductPtr product) const
         {
             for (const std::pair<unsigned int,const PSimHit*>& simHitIdPair: product->getSimHitIdPairs())
             {

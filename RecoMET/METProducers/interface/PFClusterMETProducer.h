@@ -36,8 +36,8 @@ namespace cms
     {
     public:
       explicit PFClusterMETProducer(const edm::ParameterSet&);
-      ~PFClusterMETProducer() override { }
-      void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual ~PFClusterMETProducer() { }
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
     private:
 

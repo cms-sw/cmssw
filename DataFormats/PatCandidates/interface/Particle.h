@@ -38,10 +38,10 @@ namespace pat {
       /// constructor from a LeafCandidate
       Particle(const reco::LeafCandidate & aParticle);
       /// destructor
-      ~Particle() override;
+      virtual ~Particle();
 
       /// required reimplementation of the Candidate's clone method
-      Particle * clone() const override { return new Particle(*this); }
+      virtual Particle * clone() const { return new Particle(*this); }
 
   };
 

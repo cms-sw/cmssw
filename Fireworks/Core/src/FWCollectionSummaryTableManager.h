@@ -36,30 +36,30 @@ class FWCollectionSummaryTableManager : public FWTableManagerBase {
    
 public:
    FWCollectionSummaryTableManager(FWEventItem* iCollection, const TGGC* iContext, const TGGC* iHighlightContext, FWCollectionSummaryWidget*);
-   ~FWCollectionSummaryTableManager() override;
+   virtual ~FWCollectionSummaryTableManager();
    
    // ---------- const member functions ---------------------
-    int numberOfRows() const override ;
-    int numberOfColumns() const override ;
-   std::vector<std::string> getTitles() const override;
-   int unsortedRowNumber(int iSortedRowNumber) const override;
+   virtual  int numberOfRows() const ;
+   virtual  int numberOfColumns() const ;
+   virtual std::vector<std::string> getTitles() const;
+   virtual int unsortedRowNumber(int iSortedRowNumber) const;
 
-   FWTableCellRendererBase* cellRenderer(int iSortedRowNumber, int iCol) const override;
+   virtual FWTableCellRendererBase* cellRenderer(int iSortedRowNumber, int iCol) const;
 
-   bool hasRowHeaders() const override ;
-   FWTableCellRendererBase* rowHeader(int iSortedRowNumber) const override ;
+   virtual bool hasRowHeaders() const ;
+   virtual FWTableCellRendererBase* rowHeader(int iSortedRowNumber) const ;
    
    // ---------- static member functions --------------------
    
    // ---------- member functions ---------------------------
-   void buttonReleasedInRowHeader(Int_t row, Event_t* event, Int_t relX, Int_t relY) override;
+   virtual void buttonReleasedInRowHeader(Int_t row, Event_t* event, Int_t relX, Int_t relY);
 
 protected:
-   void implSort(int iCol, bool iSortOrder) override;
+   virtual void implSort(int iCol, bool iSortOrder);
 private:
-   FWCollectionSummaryTableManager(const FWCollectionSummaryTableManager&) = delete; // stop default
+   FWCollectionSummaryTableManager(const FWCollectionSummaryTableManager&); // stop default
    
-   const FWCollectionSummaryTableManager& operator=(const FWCollectionSummaryTableManager&) = delete; // stop default
+   const FWCollectionSummaryTableManager& operator=(const FWCollectionSummaryTableManager&); // stop default
    
    void dataChanged();
    // ---------- member data --------------------------------

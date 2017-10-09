@@ -47,10 +47,10 @@ namespace fftjetcms {
         // Constructor which builds a function returning the given constant
         explicit LinInterpolatedTable1D(double c);
 
-        inline ~LinInterpolatedTable1D() override {}
+        inline virtual ~LinInterpolatedTable1D() {}
 
         // Main calculations are performed inside the following operator
-        double operator()(const double& x) const override;
+        virtual double operator()(const double& x) const;
 
         // Comparisons (useful for testing)
         bool operator==(const LinInterpolatedTable1D& r) const;

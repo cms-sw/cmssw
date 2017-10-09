@@ -25,14 +25,14 @@
 class HiFJGridEmptyAreaCalculator : public edm::stream::EDProducer<> {
    public:
       explicit HiFJGridEmptyAreaCalculator(const edm::ParameterSet&);
-      ~HiFJGridEmptyAreaCalculator() override;
+      ~HiFJGridEmptyAreaCalculator();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      void beginStream(edm::StreamID) override;
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      void endStream() override;
+      virtual void beginStream(edm::StreamID) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void endStream() override;
       
   /// @name setting a new event
   //\{

@@ -40,10 +40,10 @@ namespace pat {
       /// constructor from a composite candidate
       CompositeCandidate(const reco::CompositeCandidate & aCompositeCandidate);
       /// destructor
-      ~CompositeCandidate() override;
+      virtual ~CompositeCandidate();
 
       /// required reimplementation of the Candidate's clone method
-      CompositeCandidate * clone() const override { return new CompositeCandidate(*this); }
+      virtual CompositeCandidate * clone() const { return new CompositeCandidate(*this); }
 
   };
 

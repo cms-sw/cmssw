@@ -217,7 +217,7 @@ EgammaHLTGsfTrackVarProducer::TrackExtrapolator::TrackExtrapolator(const EgammaH
  
 {
   if(rhs.mtsTransform_) mtsTransform_ = new MultiTrajectoryStateTransform(*rhs.mtsTransform_);
-  else mtsTransform_ =nullptr;
+  else mtsTransform_ =0;
     
 }  
 
@@ -232,7 +232,7 @@ EgammaHLTGsfTrackVarProducer::TrackExtrapolator* EgammaHLTGsfTrackVarProducer::T
     
     delete mtsTransform_;
     if(rhs.mtsTransform_) mtsTransform_ = new MultiTrajectoryStateTransform(*rhs.mtsTransform_);
-    else mtsTransform_ =nullptr;
+    else mtsTransform_ =0;
   }
   return this;
 }

@@ -28,7 +28,7 @@ class HGCalUncalibRecHitWorkerWeights : public HGCalUncalibRecHitWorkerBaseClass
   
  public:
   HGCalUncalibRecHitWorkerWeights(const edm::ParameterSet&);
-  ~HGCalUncalibRecHitWorkerWeights() override {};
+  virtual ~HGCalUncalibRecHitWorkerWeights() {};
   
   void set(const edm::EventSetup& es) override;
   bool run1(const edm::Event& evt, const HGCEEDigiCollection::const_iterator & digi, HGCeeUncalibratedRecHitCollection & result) override;

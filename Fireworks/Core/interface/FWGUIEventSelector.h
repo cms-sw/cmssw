@@ -15,7 +15,7 @@ class FWGUIValidatingTextEntry;
 class FWGUIEventSelector : public TGHorizontalFrame {
 public:
    FWGUIEventSelector(TGCompositeFrame* p, FWEventSelector* sel, std::vector<std::string>& triggerProcessList);
-   ~FWGUIEventSelector() override;
+   virtual ~FWGUIEventSelector();
 
    void deleteCallback();
    void enableCallback(bool);

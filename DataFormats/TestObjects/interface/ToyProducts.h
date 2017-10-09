@@ -111,9 +111,9 @@ namespace edmtest {
 
   struct SimpleDerived : public Simple {
     SimpleDerived() : Simple(), dummy(0.0) {}
-    ~SimpleDerived() override;
+    virtual ~SimpleDerived();
     double dummy;
-    SimpleDerived* clone() const override;
+    virtual SimpleDerived* clone() const;
   };
 
   struct Sortable {

@@ -51,7 +51,7 @@ namespace metsig {
     double eval(const resolutionType & type, const resolutionFunc & func, const double & et, const double & phi, const double & eta) const; // for example getvalue(caloHF,ET,et,phi,eta,p);
     metsig::SigInputObj evalPF(const reco::PFCandidate* candidate) const;
     metsig::SigInputObj evalPFJet(const reco::PFJet *jet) const;
-    bool isFilled() const {return !functionmap_.empty();}
+    bool isFilled() const {return functionmap_.size()>0;}
     
   private:
     double getfunc(const resolutionType & type,const resolutionFunc & func,  std::vector<double> & x) const;

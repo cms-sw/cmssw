@@ -32,7 +32,7 @@
 FWParameterBase::FWParameterBase(FWParameterizable* iParent,const std::string& iName) :
    m_name(iName)
 {
-   if (nullptr != iParent)
+   if (0 != iParent)
    {
       iParent->add(this);
    }

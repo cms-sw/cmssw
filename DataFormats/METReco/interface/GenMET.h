@@ -27,7 +27,7 @@ namespace reco
 	       const LorentzVector& fP4, const Point& fVertex ) 
 	: MET( sumet_, fP4, fVertex ), gen_data( gen_data_ ) {}
       /* Default destructor*/
-      ~GenMET() override {}
+      virtual ~GenMET() {}
 
       //Get Neutral EM Et Fraction
       double NeutralEMEtFraction() const { return gen_data.NeutralEMEtFraction ; }
@@ -80,7 +80,7 @@ namespace reco
 
       // block accessors
     private:
-      bool overlap( const Candidate & ) const override;
+      virtual bool overlap( const Candidate & ) const;
       // Data members
       //Variables specific to to the GenMET class
       SpecificGenMETData gen_data;

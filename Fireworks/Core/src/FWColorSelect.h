@@ -19,11 +19,11 @@ protected:
    Color_t         fColor;
 
 public:
-   FWColorFrame(const TGWindow *p=nullptr, Color_t ci=0);
-   ~FWColorFrame() override {}
+   FWColorFrame(const TGWindow *p=0, Color_t ci=0);
+   virtual ~FWColorFrame() {}
 
-   Bool_t HandleButton(Event_t *event) override;
-   void   DrawBorder() override {}
+   virtual Bool_t HandleButton(Event_t *event);
+   virtual void   DrawBorder() {}
 
    void    SetColor(Color_t);
    Color_t GetColor() const { return fColor; }
@@ -46,11 +46,11 @@ protected:
    Int_t     fSelectedIndex;
    std::vector<FWColorFrame *>  fCc;
 
-   void DoRedraw() override;
+   virtual void DoRedraw();
 
 public:
-   FWColorRow(const TGWindow *p=nullptr);
-   ~FWColorRow() override;
+   FWColorRow(const TGWindow *p=0);
+   virtual ~FWColorRow();
 
    virtual void AddColor(Color_t color);
 
@@ -87,13 +87,13 @@ protected:
    static Bool_t fgFreePalette;
 
 public:
-   FWColorPopup(const TGWindow *p=nullptr, Color_t color=0);
-   ~FWColorPopup() override;
+   FWColorPopup(const TGWindow *p=0, Color_t color=0);
+   virtual ~FWColorPopup();
 
-   Bool_t HandleButton(Event_t *event) override;
+   virtual Bool_t HandleButton(Event_t *event);
 
    void InitContent(const char *name, const std::vector<Color_t>& colors, bool backgroundIsBlack=true);
-   void SetName(const char* iName) override;
+   void SetName(const char* iName);
    void SetColors(const std::vector<Color_t>& colors, bool backgroundIsBlack=true);
    void ResetColors(const std::vector<Color_t>& colors, bool backgroundIsBlack=true);
    void SetSelection(Color_t);
@@ -125,9 +125,9 @@ private:
 public:
    FWColorSelect(const TGWindow *p, const char *label, Color_t colorIndex,
                  const FWColorManager*, Int_t id);
-   ~FWColorSelect() override;
+   ~FWColorSelect();
 
-   Bool_t HandleButton(Event_t *event) override;
+   virtual Bool_t HandleButton(Event_t *event);
 
    void SetColorByIndex(Color_t iColor);
    void SetColorByIndex(Color_t iColor, Bool_t iSendSignal);

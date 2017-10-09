@@ -17,9 +17,9 @@
 class PFConcretePFCandidateProducer : public edm::stream::EDProducer<> {
  public:
   explicit PFConcretePFCandidateProducer(const edm::ParameterSet&);
-  ~PFConcretePFCandidateProducer() override;
+  ~PFConcretePFCandidateProducer();
   
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&);
 
  private:
 

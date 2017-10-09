@@ -13,15 +13,15 @@ public:
   JTATagInfo(void) : m_jetTracksAssociation() { }
   JTATagInfo(const JetTracksAssociationRef & jtaRef) : m_jetTracksAssociation(jtaRef) { }
 
-  ~JTATagInfo(void) override { }
+  virtual ~JTATagInfo(void) { }
   
-  JTATagInfo* clone(void) const override { return new JTATagInfo(*this); }
+  virtual JTATagInfo* clone(void) const { return new JTATagInfo(*this); }
 
-  edm::RefToBase<Jet>     jet(void)    const override { return m_jetTracksAssociation->first ; }
-  TrackRefVector          tracks(void) const override { return m_jetTracksAssociation->second; }
+  virtual edm::RefToBase<Jet>     jet(void)    const { return m_jetTracksAssociation->first ; }
+  virtual TrackRefVector          tracks(void) const { return m_jetTracksAssociation->second; }
   const JetTracksAssociationRef & jtaRef(void) const { return m_jetTracksAssociation; }
 
-  bool hasTracks(void) const override { return true; }
+  virtual bool hasTracks(void) const { return true; }
   
   void setJTARef(const JetTracksAssociationRef & jtaRef) { m_jetTracksAssociation = jtaRef; } 
   

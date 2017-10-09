@@ -89,7 +89,7 @@ class HLTRecHitInAllL1RegionsProducer : public edm::stream::EDProducer<> {
  public:
 
   HLTRecHitInAllL1RegionsProducer(const edm::ParameterSet& ps);
-  ~HLTRecHitInAllL1RegionsProducer() override{}
+  ~HLTRecHitInAllL1RegionsProducer(){}
 
   void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);

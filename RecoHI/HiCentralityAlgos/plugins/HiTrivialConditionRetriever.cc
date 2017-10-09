@@ -36,9 +36,9 @@ public:
 
 protected:
   //overriding from ContextRecordIntervalFinder
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
+  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
                                const edm::IOVSyncValue& ,
-                               edm::ValidityInterval& ) override ;
+                               edm::ValidityInterval& ) ;
   
    private:
   virtual std::unique_ptr<CentralityTable> produceTable( const HeavyIonRcd& );
@@ -82,7 +82,7 @@ HiTrivialConditionRetriever::produceTable( const HeavyIonRcd& ){
 
   int i = 0;
   while ( getline( in, line ) ) {
-    if ( line.empty() || line[0]=='#' ) { continue; }
+    if ( !line.size() || line[0]=='#' ) { continue; }
     CentralityTable::CBin thisBin;
     CT->m_table.push_back(thisBin);
     istringstream ss(line);

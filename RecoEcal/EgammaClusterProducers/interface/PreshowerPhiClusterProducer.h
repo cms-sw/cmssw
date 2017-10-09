@@ -28,9 +28,9 @@ class PreshowerPhiClusterProducer : public edm::stream::EDProducer<> {
 
   explicit PreshowerPhiClusterProducer (const edm::ParameterSet& ps);
 
-  ~PreshowerPhiClusterProducer() override;
+  ~PreshowerPhiClusterProducer();
 
-  void produce( edm::Event& evt, const edm::EventSetup& es) override;
+  virtual void produce( edm::Event& evt, const edm::EventSetup& es);
   void set(const edm::EventSetup& es);
 
  private:

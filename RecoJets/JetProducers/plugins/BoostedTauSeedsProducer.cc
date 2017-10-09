@@ -46,8 +46,8 @@ class BoostedTauSeedsProducer : public edm::stream::EDProducer<>
 {
  public:
   explicit BoostedTauSeedsProducer(const edm::ParameterSet&);
-  ~BoostedTauSeedsProducer() override {}
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  ~BoostedTauSeedsProducer() {}
+  virtual void produce(edm::Event&, const edm::EventSetup&);
 
  private:
   typedef edm::AssociationMap<edm::OneToMany<std::vector<reco::PFJet>, std::vector<reco::PFCandidate>, unsigned int> > JetToPFCandidateAssociation;

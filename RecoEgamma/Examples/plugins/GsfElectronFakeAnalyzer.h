@@ -40,11 +40,11 @@ class GsfElectronFakeAnalyzer : public edm::EDAnalyzer
 
   explicit GsfElectronFakeAnalyzer(const edm::ParameterSet& conf);
 
-  ~GsfElectronFakeAnalyzer() override;
+  virtual ~GsfElectronFakeAnalyzer();
 
-  void beginJob() override;
-  void endJob() override;
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  virtual void beginJob();
+  virtual void endJob();
+  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
 
  private:
 

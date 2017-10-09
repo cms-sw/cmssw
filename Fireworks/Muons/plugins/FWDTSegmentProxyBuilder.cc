@@ -29,15 +29,15 @@ class FWDTSegmentProxyBuilder : public FWSimpleProxyBuilderTemplate<DTRecSegment
 {
 public:
    FWDTSegmentProxyBuilder( void ) {}
-   ~FWDTSegmentProxyBuilder( void ) override {}
+   virtual ~FWDTSegmentProxyBuilder( void ) {}
 
-  bool haveSingleProduct() const override { return false; }
+  virtual bool haveSingleProduct() const override { return false; }
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWDTSegmentProxyBuilder( const FWDTSegmentProxyBuilder& ) = delete;
-   const FWDTSegmentProxyBuilder& operator=( const FWDTSegmentProxyBuilder& ) = delete;
+   FWDTSegmentProxyBuilder( const FWDTSegmentProxyBuilder& );
+   const FWDTSegmentProxyBuilder& operator=( const FWDTSegmentProxyBuilder& );
 
    using FWSimpleProxyBuilderTemplate<DTRecSegment4D>::buildViewType;
    void buildViewType( const DTRecSegment4D& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type, const FWViewContext* ) override;

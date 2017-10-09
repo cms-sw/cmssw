@@ -33,12 +33,12 @@ public:
   /// ctor from name string
   PixelBarrelName(std::string name, bool phase=false);
 
-  ~PixelBarrelName() override { }
+  virtual ~PixelBarrelName() { }
 
   inline int convertLadderNumber(int oldLadder);
 
   /// from base class
-  std::string name() const override;
+  virtual std::string name() const;
 
   Shell shell() const { return thePart; }
 
@@ -58,14 +58,14 @@ public:
   bool isHalfModule() const;
   
   /// module Type
-  PixelModuleName::ModuleType  moduleType() const override;
+  virtual PixelModuleName::ModuleType  moduleType() const;
 
   /// return the DetId
   PXBDetId getDetId();
   DetId getDetId(const TrackerTopology* tt);
 
   /// check equality of modules from datamemebers
-  bool operator== (const PixelModuleName &) const override;
+  virtual bool operator== (const PixelModuleName &) const;
 
 private:
   Shell thePart;

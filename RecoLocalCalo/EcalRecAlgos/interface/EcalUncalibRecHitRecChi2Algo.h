@@ -81,14 +81,14 @@ EcalUncalibRecHitRecChi2Algo<C>::EcalUncalibRecHitRecChi2Algo(
 
     int gainId0 = 1;
     int iGainSwitch = 0;
-    bool isSaturated = false;
+    bool isSaturated = 0;
     for(int iSample = 0; iSample < C::MAXSAMPLES; iSample++) // if gain switch use later the pedestal RMS, otherwise we use the pedestal from the DB
     {
       int gainId = dataFrame.sample(iSample).gainId();
       if(gainId == 0)
       {
 	gainId = 3; // if saturated, treat it as G1
-	isSaturated = true;
+	isSaturated = 1;
       }
       if(gainId != gainId0)iGainSwitch = 1;
 

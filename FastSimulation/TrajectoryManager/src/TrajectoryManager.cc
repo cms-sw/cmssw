@@ -48,16 +48,16 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
 				     const edm::ParameterSet& simHits,
 				     const edm::ParameterSet& decays) :
   mySimEvent(aSimEvent), 
-  _theGeometry(nullptr),
-  _theFieldMap(nullptr),
-  theMaterialEffects(nullptr), 
-  myDecayEngine(nullptr), 
-  theGeomTracker(nullptr),
-  theGeomSearchTracker(nullptr),
-  theLayerMap(56, static_cast<const DetLayer*>(nullptr)), // reserve space for layers here
+  _theGeometry(0),
+  _theFieldMap(0),
+  theMaterialEffects(0), 
+  myDecayEngine(0), 
+  theGeomTracker(0),
+  theGeomSearchTracker(0),
+  theLayerMap(56, static_cast<const DetLayer*>(0)), // reserve space for layers here
   theNegLayerOffset(27),
   //  myHistos(0),
-  use_hardcoded(true)
+  use_hardcoded(1)
 
 {  
   //std::cout << "TrajectoryManager.cc 1 use_hardcoded = " << use_hardcoded << std::endl;
@@ -472,7 +472,7 @@ TrajectoryManager::updateWithDaughters(ParticlePropagator& PP, int fsimi, Random
 
     // Before-propagation and after-propagation momentum and vertex position
     XYZTLorentzVector momentumBefore = mySimEvent->track(fsimi).momentum();
-    const XYZTLorentzVector& momentumAfter = PP.momentum();
+    XYZTLorentzVector momentumAfter = PP.momentum();
     double magBefore = std::sqrt(momentumBefore.Vect().mag2());
     double magAfter = std::sqrt(momentumAfter.Vect().mag2());
     // Rotation to be applied
@@ -495,7 +495,7 @@ TrajectoryManager::updateWithDaughters(ParticlePropagator& PP, int fsimi, Random
     const DaughterParticleList& daughters =  myDecayEngine->particleDaughters(PP, &random->theEngine());
 
     // Update the FSimEvent with an end vertex and with the daughters
-    if ( !daughters.empty() ) { 
+    if ( daughters.size() ) { 
       double distMin = 1E99;
       int theClosestChargedDaughterId = -1;
       DaughterParticleIterator daughter = daughters.begin();
@@ -860,7 +860,7 @@ TrajectoryManager::initializeLayerMap()
 			     << " pos " << i->surface().position();
     if (!i->sensitive()) continue;
 
-    if (cyl != nullptr) {
+    if (cyl != 0) {
       LogDebug("FastTracking") << " cylinder radius " << cyl->radius();
       bool found = false;
       for (auto
@@ -908,7 +908,7 @@ TrajectoryManager::initializeLayerMap()
   for (auto nl=negForwardLayers.begin();
        nl != negForwardLayers.end(); ++nl) {
     for (int i=0; i<=theNegLayerOffset; i++) {
-      if (theLayerMap[i] == nullptr) continue;
+      if (theLayerMap[i] == 0) continue;
       if ( fabs( (**nl).surface().position().z() +theLayerMap[i]-> surface().position().z()) < zTolerance) {
 	theLayerMap[i+theNegLayerOffset] = *nl;
 	break;

@@ -12,7 +12,7 @@
 #include "TH2F.h"
 
 
-FWCaloDataHistProxyBuilder::FWCaloDataHistProxyBuilder(): m_hist(nullptr), m_sliceSelector(nullptr)
+FWCaloDataHistProxyBuilder::FWCaloDataHistProxyBuilder(): m_hist(0), m_sliceSelector(0)
 {
 }
 FWCaloDataHistProxyBuilder::~FWCaloDataHistProxyBuilder()
@@ -48,7 +48,7 @@ void
 FWCaloDataHistProxyBuilder::itemBeingDestroyed(const FWEventItem* iItem)
 {
   
-   if(nullptr!=m_hist) {
+   if(0!=m_hist) {
       m_hist->Reset();
    }
    FWCaloDataProxyBuilderBase::itemBeingDestroyed(iItem);
@@ -57,7 +57,7 @@ FWCaloDataHistProxyBuilder::itemBeingDestroyed(const FWEventItem* iItem)
 bool
 FWCaloDataHistProxyBuilder::assertCaloDataSlice()
 {
-   if (m_hist == nullptr)
+   if (m_hist == 0)
    {
       // add new slice
       Bool_t status = TH1::AddDirectoryStatus();
@@ -77,13 +77,13 @@ FWCaloDataHistProxyBuilder::assertCaloDataSlice()
                                                    item()->defaultDisplayProperties().transparency());
 
       // add new selector
-      FWFromTEveCaloDataSelector* sel = nullptr;
+      FWFromTEveCaloDataSelector* sel = 0;
       if (m_caloData->GetUserData())
       {
          FWFromEveSelectorBase* base = reinterpret_cast<FWFromEveSelectorBase*>(m_caloData->GetUserData());
-         assert(nullptr!=base);
+         assert(0!=base);
          sel = dynamic_cast<FWFromTEveCaloDataSelector*> (base);
-         assert(nullptr!=sel);
+         assert(0!=sel);
       }
       else
       {

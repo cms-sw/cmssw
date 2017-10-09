@@ -42,7 +42,7 @@ std::ostream& logger() {
 }
 
 void setLogger(std::ostream* iNewLogger) {
-   if (nullptr==iNewLogger) {
+   if (0==iNewLogger) {
       s_logger=&std::cout;
    } else {
      s_logger=iNewLogger;

@@ -33,18 +33,18 @@ namespace reco {
     /// constructor from a Candidate
     explicit CompositePtrCandidate( const Candidate & p ) : LeafCandidate( p ) { }
     /// destructor
-    ~CompositePtrCandidate() override;
+    virtual ~CompositePtrCandidate();
     /// returns a clone of the candidate
-    CompositePtrCandidate * clone() const override;
+    virtual CompositePtrCandidate * clone() const;
     /// number of daughters
-    size_t numberOfDaughters() const override;
+    virtual size_t numberOfDaughters() const;
     /// number of mothers
-    size_t numberOfMothers() const override;
+    virtual size_t numberOfMothers() const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1 (read only mode)
-    const Candidate * daughter( size_type ) const override;
+    virtual const Candidate * daughter( size_type ) const;
     using reco::LeafCandidate::daughter; // avoid hiding the base
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
-    Candidate * daughter( size_type ) override;
+    virtual Candidate * daughter( size_type );
     /// add a daughter via a reference
     void addDaughter( const CandidatePtr & );    
     /// clear daughter references
@@ -54,23 +54,23 @@ namespace reco {
     /// references to daughtes
     const daughters & daughterPtrVector() const { return dau; }
     /// return pointer to mother
-    const Candidate * mother( size_t i = 0 ) const override;
+    virtual const Candidate * mother( size_t i = 0 ) const;
     /// number of source candidates 
     /// ( the candidates used to construct this Candidate). 
     /// for CompositeRefBaseCandidates, the source candidates 
     /// are the daughters. 
-    size_type numberOfSourceCandidatePtrs() const override ;
+    virtual size_type numberOfSourceCandidatePtrs() const ;
     /// return a RefToBase to one of the source Candidates 
     /// ( the candidates used to construct this Candidate). 
     /// for CompositeRefBaseCandidates, the source candidates 
     /// are the daughters. 
-    CandidatePtr sourceCandidatePtr( size_type i ) const override;
+    virtual CandidatePtr sourceCandidatePtr( size_type i ) const;
 
   private:
     /// collection of references to daughters
     daughters dau;
     /// check overlap with another candidate
-    bool overlap( const Candidate & ) const override;
+    virtual bool overlap( const Candidate & ) const;
   };
 
   inline void CompositePtrCandidate::addDaughter( const CandidatePtr & cand ) { 

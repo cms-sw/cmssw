@@ -69,7 +69,7 @@ EgammaHLTRegionalPixelSeedGeneratorProducers::EgammaHLTRegionalPixelSeedGenerato
   edm::ParameterSet creatorPSet;
   creatorPSet.addParameter<std::string>("propagator","PropagatorWithMaterial");
 
-  combinatorialSeedGenerator.reset(new SeedGeneratorFromRegionHits( hitsGenerator, nullptr,
+  combinatorialSeedGenerator.reset(new SeedGeneratorFromRegionHits( hitsGenerator, 0,
                                                                     SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
                                                                     ));
   // setup orderedhits setup (in order to tell seed generator to use pairs/triplets, which layers)

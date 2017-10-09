@@ -66,14 +66,14 @@ PixelCPEGenericESProducer::produce(const TkPixelCPERecord & iRecord){
 
   // add the new la width object
   ESHandle<SiPixelLorentzAngle> lorentzAngleWidth;
-  const SiPixelLorentzAngle * lorentzAngleWidthProduct = nullptr;
+  const SiPixelLorentzAngle * lorentzAngleWidthProduct = 0;
   if(useLAWidthFromDB_) { // use the width LA
     iRecord.getRecord<SiPixelLorentzAngleRcd>().get("forWidth",lorentzAngleWidth );
     lorentzAngleWidthProduct = lorentzAngleWidth.product();
-  } else { lorentzAngleWidthProduct = nullptr;} // do not use it
+  } else { lorentzAngleWidthProduct = NULL;} // do not use it
   //std::cout<<" la width "<<lorentzAngleWidthProduct<<std::endl; //dk
 
-  const SiPixelGenErrorDBObject * genErrorDBObjectProduct = nullptr;
+  const SiPixelGenErrorDBObject * genErrorDBObjectProduct = 0;
 
   // Errors take only from new GenError
   ESHandle<SiPixelGenErrorDBObject> genErrorDBObject;

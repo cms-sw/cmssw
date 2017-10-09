@@ -62,10 +62,10 @@
 //
 CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager* selMgr, FWColorManager* colorMgr) :
    TGTransientFrame(gClient->GetDefaultRoot(), p, w, h),
-   m_item(nullptr),
+   m_item(0),
    m_validator(new FWExpressionValidator),
    m_colorManager(colorMgr),
-   m_settersFrame(nullptr)
+   m_settersFrame(0)
 {
    m_selectionManager = selMgr;
    SetCleanup(kDeepCleanup);
@@ -74,7 +74,7 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
 
    TGVerticalFrame* vf = new TGVerticalFrame(this);
    AddFrame(vf, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY, 0, 0, 0, 0));
-   FWDialogBuilder builder(vf, nullptr, true);
+   FWDialogBuilder builder(vf, 0, true);
 
    builder.indent(0).expand(true, false)
       .addLabel(" ", 14, 2, &m_objectLabel)
@@ -103,7 +103,7 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
       .beginTab("Filter")
       .indent(3)
       .addLabel("Expression", 8)
-      .addValidatingTextEntry(nullptr, &m_filterExpressionEntry).floatLeft()
+      .addValidatingTextEntry(0, &m_filterExpressionEntry).floatLeft()
       .addTextButton("Filter", &m_filterButton).expand(false)
       .addTextView("", &m_filterError)
       .vSpacer()
@@ -111,7 +111,7 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
       .beginTab("Select")
       .indent(3)
       .addLabel("Expression", 8)
-      .addValidatingTextEntry(nullptr, &m_selectExpressionEntry)
+      .addValidatingTextEntry(0, &m_selectExpressionEntry)
       .addTextButton("Select", &m_selectButton).floatLeft().expand(false)
       .addTextButton("Select all", &m_selectAllButton).expand(false).floatLeft()
       .addTextButton("Unselect all", &m_deselectAllButton).expand(false)
@@ -239,7 +239,7 @@ void CmsShowEDI::clearPBFrame()
 
 void
 CmsShowEDI::fillEDIFrame() {
-   FWEventItem* iItem =nullptr;
+   FWEventItem* iItem =0;
    bool multipleCollections = false;
    if(!m_selectionManager->selectedItems().empty()) {
       if(m_selectionManager->selectedItems().size()==1) {
@@ -249,10 +249,10 @@ CmsShowEDI::fillEDIFrame() {
       }
    }
    //m_item can be zero because we had 0 or many collections selected
-   if (nullptr == m_item || iItem != m_item) {
+   if (0 == m_item || iItem != m_item) {
       disconnectAll();
       m_item = iItem;
-      if(nullptr != m_item) {
+      if(0 != m_item) {
          const FWDisplayProperties &p = iItem->defaultDisplayProperties();
          m_objectLabel->SetText(iItem->name().c_str());
          m_colorSelectWidget->SetColorByIndex(p.color(),kFALSE);
@@ -317,9 +317,9 @@ CmsShowEDI::removeItem() {
                 &chosen);
    if(kMBApply == chosen) {
       m_item->destroy();
-      m_item = nullptr;
+      m_item = 0;
       //make sure the ROOT global editor does not try to use this
-      gEve->EditElement(nullptr);
+      gEve->EditElement(0);
       gEve->Redraw3D();
    }
 }
@@ -368,21 +368,21 @@ void
 CmsShowEDI::disconnectAll() {
    m_objectLabel->SetText("No Collection Selected");
    clearPBFrame();
-   if(nullptr != m_item) {
+   if(0 != m_item) {
       m_displayChangedConn.disconnect();
       m_modelChangedConn.disconnect();
       m_destroyedConn.disconnect();
-      m_item = nullptr;
+      m_item = 0;
       m_colorSelectWidget->SetColorByIndex(0,kFALSE);
       m_opacitySlider->SetPosition(100);
       m_isVisibleButton->SetDisabledAndSelected(kTRUE);
-      m_filterExpressionEntry->SetText(nullptr);
-      m_selectExpressionEntry->SetText(nullptr);
-      m_nameEntry->SetText(nullptr);
-      m_typeEntry->SetText(nullptr);
-      m_moduleEntry->SetText(nullptr);
-      m_instanceEntry->SetText(nullptr);
-      m_processEntry->SetText(nullptr);
+      m_filterExpressionEntry->SetText(0);
+      m_selectExpressionEntry->SetText(0);
+      m_nameEntry->SetText(0);
+      m_typeEntry->SetText(0);
+      m_moduleEntry->SetText(0);
+      m_instanceEntry->SetText(0);
+      m_processEntry->SetText(0);
       //  else m_isVisibleButton->SetState(kButtonDown, kFALSE);
       m_colorSelectWidget->SetEnabled(kFALSE);
       m_opacitySlider->SetEnabled(kFALSE);
@@ -444,7 +444,7 @@ CmsShowEDI::changeItemOpacity(Int_t opacity) {
 void
 CmsShowEDI::runFilter() {
    const std::string filter(m_filterExpressionEntry->GetText());
-   if (m_item != nullptr) {
+   if (m_item != 0) {
       try {
          m_filterError->Clear();
          m_item->setFilterExpression(filter);
@@ -462,7 +462,7 @@ void
 CmsShowEDI::runSelection() {
    FWModelExpressionSelector selector;
    const std::string selection(m_selectExpressionEntry->GetText());
-   if (m_item != nullptr)
+   if (m_item != 0)
    {
       try
       {

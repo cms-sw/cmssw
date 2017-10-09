@@ -25,15 +25,15 @@ class FastTrackerRecHitCombiner : public edm::stream::EDProducer<> {
     public:
 
     explicit FastTrackerRecHitCombiner(const edm::ParameterSet&);
-    ~FastTrackerRecHitCombiner() override{;}
+    ~FastTrackerRecHitCombiner(){;}
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
     private:
 
-    void beginStream(edm::StreamID) override{;}
-    void produce(edm::Event&, const edm::EventSetup&) override;
-    void endStream() override{;}
+    virtual void beginStream(edm::StreamID) override{;}
+    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    virtual void endStream() override{;}
 
     // ----------member data ---------------------------
     edm::EDGetTokenT<edm::PSimHitContainer> simHitsToken; 

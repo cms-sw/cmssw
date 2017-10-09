@@ -21,21 +21,21 @@ class FWStringParameterSetter : public FWParameterSetterBase
 
 public:
    FWStringParameterSetter();
-   ~FWStringParameterSetter() override;
+   virtual ~FWStringParameterSetter();
 
    // ---------- const member functions ---------------------
 
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   void attach(FWParameterBase*) override ;
-   TGFrame* build(TGFrame* iParent, bool labelBack = true) override ;
+   virtual void attach(FWParameterBase*) ;
+   virtual TGFrame* build(TGFrame* iParent, bool labelBack = true) ;
    void doUpdate();
 
 private:
-   FWStringParameterSetter(const FWStringParameterSetter&) = delete;    // stop default
+   FWStringParameterSetter(const FWStringParameterSetter&);    // stop default
 
-   const FWStringParameterSetter& operator=(const FWStringParameterSetter&) = delete;    // stop default
+   const FWStringParameterSetter& operator=(const FWStringParameterSetter&);    // stop default
 
    // ---------- member data --------------------------------
    FWStringParameter* m_param;

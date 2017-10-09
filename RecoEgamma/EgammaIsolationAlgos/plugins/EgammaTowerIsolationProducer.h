@@ -34,10 +34,10 @@
 class EgammaTowerIsolationProducer : public edm::stream::EDProducer<> {
    public:
       explicit EgammaTowerIsolationProducer(const edm::ParameterSet&);
-      ~EgammaTowerIsolationProducer() override;
+      ~EgammaTowerIsolationProducer();
 
 
-      void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
 

@@ -25,8 +25,8 @@ namespace magneticfield {
 
   private:
     // forbid copy ctor and assignment op.
-    UniformMagneticFieldESProducer(const UniformMagneticFieldESProducer&) = delete;
-    const UniformMagneticFieldESProducer& operator=(const UniformMagneticFieldESProducer&) = delete;
+    UniformMagneticFieldESProducer(const UniformMagneticFieldESProducer&);
+    const UniformMagneticFieldESProducer& operator=(const UniformMagneticFieldESProducer&);
 
     float value;
   };

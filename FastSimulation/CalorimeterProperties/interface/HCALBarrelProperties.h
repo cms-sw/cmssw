@@ -25,11 +25,11 @@ class HCALBarrelProperties : public HCALProperties
 
   HCALBarrelProperties(const edm::ParameterSet& fastDet):HCALProperties(fastDet) {; } 
 
-  ~HCALBarrelProperties() override { }
+  virtual ~HCALBarrelProperties() { }
 
   double getHcalDepth(double);
 
-  double thickness(const double eta) const override { 
+  double thickness(const double eta) const { 
     return HCALProperties::getHcalDepth(eta) * interactionLength();
   }
 

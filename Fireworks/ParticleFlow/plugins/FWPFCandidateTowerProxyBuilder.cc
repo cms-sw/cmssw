@@ -11,7 +11,7 @@
 //
 
 // system includes
-#include <cmath>
+#include <math.h>
 
 // user includes
 #include "TEveCaloData.h"
@@ -34,7 +34,7 @@
 // constructors , dectructors
 //
 FWPFCandidateTowerProxyBuilder::FWPFCandidateTowerProxyBuilder():
-m_towers(nullptr)
+m_towers(0)
 {
 }
 
@@ -51,7 +51,7 @@ FWPFCandidateTowerProxyBuilder::~FWPFCandidateTowerProxyBuilder()
 void
 FWPFCandidateTowerProxyBuilder::build(const FWEventItem* iItem, TEveElementList* el, const FWViewContext* ctx)
 {
-   m_towers=nullptr;
+   m_towers=0;
    if (iItem)
    {
       iItem->get(m_towers);

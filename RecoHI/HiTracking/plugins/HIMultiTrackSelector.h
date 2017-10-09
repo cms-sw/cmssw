@@ -56,10 +56,10 @@ enum MVAVARIABLES {chi2perdofperlayer = 0,
 	    explicit HIMultiTrackSelector();
             explicit HIMultiTrackSelector( const edm::ParameterSet & cfg ) ;
             /// destructor
-            ~HIMultiTrackSelector() override ;
+            virtual ~HIMultiTrackSelector() ;
 
         protected:
-            void beginStream(edm::StreamID) final;
+            void beginStream(edm::StreamID) override final;
  
             // void streamBeginRun(edm::StreamID, edm::Run const&, edm::EventSetup const&) const final {
             //  init();
@@ -69,7 +69,7 @@ enum MVAVARIABLES {chi2perdofperlayer = 0,
 
             typedef math::XYZPoint Point;
             /// process one event
-            void produce(edm::Event& evt, const edm::EventSetup& es ) final {
+            void produce(edm::Event& evt, const edm::EventSetup& es ) override final {
                run(evt,es);
             }
             virtual void run( edm::Event& evt, const edm::EventSetup& es ) const;

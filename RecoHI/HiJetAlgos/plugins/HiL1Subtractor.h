@@ -50,13 +50,13 @@ class HiL1Subtractor : public edm::EDProducer {
  public:
 
   explicit HiL1Subtractor(const edm::ParameterSet&);
-  ~HiL1Subtractor() override;
+  ~HiL1Subtractor();
 
 
  private:
-  void beginJob() override ;
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+  virtual void beginJob() ;
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
 
 
   // ----------member data ---------------------------

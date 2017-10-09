@@ -639,10 +639,7 @@ void L1TEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore::IGe
 
             if (qHist) {
                 const std::vector<QReport*> qtVec = qHist->getQReports();
-<<<<<<< HEAD
-=======
                 const std::string hName = qHist->getName();
->>>>>>> pr94x-l1-noHackConditions-fromPR20451
 
                 if (m_verbose) {
 

@@ -107,7 +107,7 @@ void ProtonTaggerFilter::beginJob()
   std::cout << "Opening " << fullPath << std::endl;
   TFile f(fullPath.c_str());
 
-  if (f.Get("description") != nullptr)
+  if (f.Get("description") != NULL)
       std::cout << "Description found: " << f.Get("description")->GetTitle() << std::endl;
   
   std::cout << "Reading acceptance tables @#@#%@$%@$#%@%" << std::endl;
@@ -151,7 +151,7 @@ bool ProtonTaggerFilter::filter(edm::Event & iEvent, const edm::EventSetup & es)
   // ... get pileup event
 
   edm::Handle<edm::HepMCProduct> pileUpSource;
-  const HepMC::GenEvent* pileUpEvent = nullptr;
+  const HepMC::GenEvent* pileUpEvent = 0;
   bool isPileUp = true;
   
   bool isProduct = iEvent.getByLabel("famosPileUp", "PileUpEvents", pileUpSource);

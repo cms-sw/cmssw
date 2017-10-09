@@ -39,12 +39,12 @@ class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerRunOneDigiBa
                 EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&, edm::ConsumesCollector& c);
 		EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&);
 		EcalUncalibRecHitWorkerGlobal() {};
-                ~EcalUncalibRecHitWorkerGlobal() override {};
+                virtual ~EcalUncalibRecHitWorkerGlobal() {};
 
-                void set(const edm::EventSetup& es) override;
-                bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result) override;
+                void set(const edm::EventSetup& es);
+                bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result);
 
-		edm::ParameterSetDescription getAlgoDescription() override;
+		edm::ParameterSetDescription getAlgoDescription();
         protected:
 
                 double pedVec[3];

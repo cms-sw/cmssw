@@ -26,7 +26,7 @@ public:
     Base(pos,rot), MagneticField(), theShape(shape), theProvider(mfp), 
     theProviderOwned(false), theScalingFactor(sf), isIronFlag(false) {}
 
-  ~MagVolume() override;
+  virtual ~MagVolume();
 
   DDSolidShape shapeType() const {return theShape;}
 
@@ -43,7 +43,7 @@ public:
   /// Access to volume faces
   virtual const std::vector<VolumeSide>& faces() const = 0;
 
-  ::GlobalVector inTesla ( const ::GlobalPoint& gp) const override {
+  virtual ::GlobalVector inTesla ( const ::GlobalPoint& gp) const {
     return fieldInTesla( gp);
   }
 

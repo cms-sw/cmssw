@@ -15,9 +15,9 @@ class PFToolsException : public std::exception {
 public:
 	PFToolsException(const std::string& aErrorDescription="");
 	
-	~PFToolsException() noexcept override;
+	virtual ~PFToolsException() noexcept;
 	
-	const char* what() const noexcept override;
+	virtual const char* what() const noexcept;
 	
 protected:
 	std::string myDescription;

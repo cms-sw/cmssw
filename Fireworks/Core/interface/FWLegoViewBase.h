@@ -40,18 +40,18 @@ class FWLegoViewBase : public FWEveView
 {
 public:
    FWLegoViewBase(TEveWindowSlot*, FWViewType::EType);
-   ~FWLegoViewBase() override;
+   virtual ~FWLegoViewBase();
 
-   void setFrom(const FWConfiguration&) override;
+   virtual void setFrom(const FWConfiguration&);
 
-   void setContext(const fireworks::Context&) override;
+   virtual void setContext(const fireworks::Context&);
 
    // ---------- const member functions ---------------------
 
-   void addTo(FWConfiguration&) const override;
-   void populateController(ViewerParameterGUI&) const override;
+   virtual void addTo(FWConfiguration&) const;
+   virtual void populateController(ViewerParameterGUI&) const;
 
-   TEveCaloViz* getEveCalo() const override;
+   virtual TEveCaloViz* getEveCalo() const;
 
    // ---------- member functions ---------------------------
 

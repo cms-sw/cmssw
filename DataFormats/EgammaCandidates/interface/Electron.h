@@ -21,16 +21,16 @@ namespace reco {
     Electron( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) :
       RecoCandidate( q, p4, vtx, -11 * q ) { }
     /// destructor
-    ~Electron() override;
+    virtual ~Electron();
     /// returns a clone of the candidate
-    Electron * clone() const override;
+    virtual Electron * clone() const;
     /// reference to a Track
     using reco::RecoCandidate::track ; // avoid hiding the base
-    reco::TrackRef track() const override;
+    virtual reco::TrackRef track() const;
     /// reference to a SuperCluster
-    reco::SuperClusterRef superCluster() const override;
+    virtual reco::SuperClusterRef superCluster() const;
     /// reference to a GsfTrack
-    reco::GsfTrackRef gsfTrack() const override;
+    virtual reco::GsfTrackRef gsfTrack() const;
     /// set refrence to Photon component
     void setSuperCluster( const reco::SuperClusterRef & r ) { superCluster_ = r; }
     /// set refrence to Track component
@@ -38,10 +38,10 @@ namespace reco {
     /// set reference to GsfTrack component
     void setGsfTrack( const reco::GsfTrackRef & r ) { gsfTrack_ = r; }
 
-    bool isElectron() const override;
+    bool isElectron() const;
   private:
     /// check overlap with another candidate
-    bool overlap( const Candidate & ) const override;
+    virtual bool overlap( const Candidate & ) const;
     /// reference to a SuperCluster
     reco::SuperClusterRef superCluster_;
     /// reference to a Track

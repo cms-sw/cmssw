@@ -51,8 +51,8 @@
 //
 FWLegoViewBase::FWLegoViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId) :
    FWEveView(iParent, typeId),
-   m_lego(nullptr),
-   m_overlay(nullptr),
+   m_lego(0),
+   m_overlay(0),
    m_autoRebin(this,"Auto rebin on zoom-out",false),
    m_pixelsPerBin(this, "Pixels per bin", 10., 1., 20.),
    m_projectionMode(this, "Projection", 0l, 0l, 2l),
@@ -154,7 +154,7 @@ FWLegoViewBase::setContext(const fireworks::Context& ctx)
    m_overlay->SetCaloLego(m_lego);
    m_overlay->SetShowPlane(kFALSE);
    m_overlay->SetScalePosition(0.8, 0.6);
-   m_overlay->SetShowScales(true); //temporary
+   m_overlay->SetShowScales(1); //temporary
    viewerGL()->AddOverlayElement(m_overlay);
 }
    
@@ -191,7 +191,7 @@ FWLegoViewBase::setFrom(const FWConfiguration& iFrom)
    if (iFrom.version() < 5)
    {
       const FWConfiguration* value = iFrom.valueForKey( "Cell2DMode" );
-      if ( value !=  nullptr )
+      if ( value !=  0 )
       {
          int mode;
          std::istringstream s(value->value());
@@ -234,7 +234,7 @@ FWLegoViewBase::setFrom(const FWConfiguration& iFrom)
    {
       bool topView = true;
       std::string stateName("topView"); stateName += typeName();
-      assert( nullptr != iFrom.valueForKey(stateName));
+      assert( 0 != iFrom.valueForKey(stateName));
       std::istringstream s(iFrom.valueForKey(stateName)->value());
       s >> topView;
 

@@ -109,7 +109,7 @@ process(const ClusterCollection& input, std::vector<DetDigiCollection>& output_b
       }
     }
     
-    if (!detDigis.empty()) 
+    if (detDigis.size()) 
       output_base.push_back(detDigis); 
   }
 }

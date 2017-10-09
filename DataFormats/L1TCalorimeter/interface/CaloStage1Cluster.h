@@ -17,7 +17,7 @@ namespace l1t {
 		       int qual=0
 		       );
     
-    ~CaloStage1Cluster() override;
+    ~CaloStage1Cluster();
 
   private:
     //

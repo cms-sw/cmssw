@@ -6,7 +6,7 @@
 
 PFGeometry::PFGeometry()
 {
-  if (innerRadius_.empty()) {
+  if (!innerRadius_.size()) {
     // All distances are in cm
     // BeamPipe
     innerRadius_.push_back(2.5);

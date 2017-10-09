@@ -43,12 +43,12 @@ public:
    class QuadId : public TNamed
    {
    public:
-      QuadId():m_ovl(nullptr), m_parentIdx(-1){}
+      QuadId():m_ovl(0), m_parentIdx(-1){}
       QuadId(TGeoOverlap* ovl, int idx){ m_ovl = ovl; m_parentIdx = idx; }
 
-      ~QuadId() override{}
-      const char* GetName() const override { return m_ovl->GetTitle(); }
-      const char* GetTitle() const override { return m_ovl->GetTitle(); }
+      virtual ~QuadId(){}
+      virtual const char* GetName() const { return m_ovl->GetTitle(); }
+      virtual const char* GetTitle() const { return m_ovl->GetTitle(); }
 
       TGeoOverlap* m_ovl;
       int m_parentIdx;
@@ -56,28 +56,28 @@ public:
    };
 
    FWOverlapTableManager(FWOverlapTableView*);
-   ~FWOverlapTableManager() override;
+   virtual ~FWOverlapTableManager();
 
-  void recalculateVisibility() override;
+  virtual void recalculateVisibility();
   virtual void recalculateVisibilityNodeRec(int);
   void importOverlaps(std::string path, double precision);
-   int numberOfColumns() const override {return 6;}
+   virtual int numberOfColumns() const {return 6;}
 
-   std::vector<std::string> getTitles() const override;
+   virtual std::vector<std::string> getTitles() const;
  
-  FWTableCellRendererBase* cellRenderer(int iSortedRowNumber, int iCol) const override;
+  FWTableCellRendererBase* cellRenderer(int iSortedRowNumber, int iCol) const;
   
   void getOverlapTitles(int,TString&) const;
   void printOverlaps(int) const;
 
-   void setDaughtersSelfVisibility(int i, bool v) override;
+   void setDaughtersSelfVisibility(int i, bool v);
 protected:
-   bool nodeIsParent(const NodeInfo&) const override;
+   virtual bool nodeIsParent(const NodeInfo&) const;
    //   virtual  const char* cellName(const NodeInfo& data) const;
 
 private:
-   FWOverlapTableManager(const FWOverlapTableManager&) = delete; // stop default
-   const FWOverlapTableManager& operator=(const FWOverlapTableManager&) = delete; // stop default
+   FWOverlapTableManager(const FWOverlapTableManager&); // stop default
+   const FWOverlapTableManager& operator=(const FWOverlapTableManager&); // stop default
 
    void addOverlapEntry(TGeoOverlap*, int, int , TGeoHMatrix*);
    FWOverlapTableView* m_browser;

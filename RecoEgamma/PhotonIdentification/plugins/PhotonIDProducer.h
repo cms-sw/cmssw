@@ -18,9 +18,9 @@ class PhotonIDProducer : public edm::stream::EDProducer<>
  public:
 
   explicit PhotonIDProducer(const edm::ParameterSet& conf);
-  ~PhotonIDProducer() override;
+  virtual ~PhotonIDProducer();
 
-  void produce(edm::Event& e, const edm::EventSetup& c) override;
+  virtual void produce(edm::Event& e, const edm::EventSetup& c);
    
  private:
 

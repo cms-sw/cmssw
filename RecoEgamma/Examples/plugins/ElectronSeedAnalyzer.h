@@ -36,10 +36,10 @@ class ElectronSeedAnalyzer : public edm::EDAnalyzer
  public:
 
   explicit ElectronSeedAnalyzer( const edm::ParameterSet & conf );
-  ~ElectronSeedAnalyzer() override;
-  void analyze( const edm::Event &, const edm::EventSetup &) override;
-  void beginJob() override;
-  void endJob() override;
+  virtual ~ElectronSeedAnalyzer();
+  virtual void analyze( const edm::Event &, const edm::EventSetup &);
+  virtual void beginJob();
+  virtual void endJob();
 
  private:
 

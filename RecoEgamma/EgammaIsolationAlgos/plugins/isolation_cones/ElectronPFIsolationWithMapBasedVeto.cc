@@ -78,14 +78,14 @@ public:
   ElectronPFIsolationWithMapBasedVeto& operator=(const ElectronPFIsolationWithMapBasedVeto&) =delete;
 
   bool isInIsolationCone(const reco::CandidatePtr& photon,
-			 const reco::CandidatePtr& other) const final;
+			 const reco::CandidatePtr& other) const override final;
   
    
   // this object is needed for reco case
  edm::Handle< edm::ValueMap<std::vector<reco::PFCandidateRef > > > particleBasedIsolationMap;			 
  edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef > > > particleBasedIsolationToken_;
  
- void getEventInfo(const edm::Event& iEvent) override
+ virtual void getEventInfo(const edm::Event& iEvent) override
   {
       iEvent.getByToken(particleBasedIsolationToken_, particleBasedIsolationMap); 
   };			 
@@ -98,7 +98,7 @@ public:
   }
 
   //! Destructor
-  ~ElectronPFIsolationWithMapBasedVeto() override{};
+  virtual ~ElectronPFIsolationWithMapBasedVeto(){};
   
   
 private:    

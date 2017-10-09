@@ -32,19 +32,19 @@ class FWColumnLabelCellRenderer : public FWTextTableCellRenderer
 
    public:
       FWColumnLabelCellRenderer(const TGGC* iContext=&(getDefaultGC()), bool isSortable = true);
-      ~FWColumnLabelCellRenderer() override;
+      virtual ~FWColumnLabelCellRenderer();
 
       // ---------- const member functions ---------------------
       fireworks::table::SortOrder sortOrder() const;
 
-      UInt_t width() const override;
+      virtual UInt_t width() const;
 
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
       void setSortOrder(fireworks::table::SortOrder);
 
-      void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight) override;
+      virtual void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight);
 
    private:
       //FWColumnLabelCellRenderer(const FWColumnLabelCellRenderer&); // stop default

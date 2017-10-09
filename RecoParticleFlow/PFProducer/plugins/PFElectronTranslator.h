@@ -24,9 +24,9 @@ class PFElectronTranslator : public edm::stream::EDProducer<>
 {
  public:
   explicit PFElectronTranslator(const edm::ParameterSet&);
-  ~PFElectronTranslator() override;
+  ~PFElectronTranslator();
   
-  void produce(edm::Event &, const edm::EventSetup&) override;
+  virtual void produce(edm::Event &, const edm::EventSetup&) override;
 
   typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsolationValueMaps;
 

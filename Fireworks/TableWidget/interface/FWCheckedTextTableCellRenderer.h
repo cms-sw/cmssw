@@ -31,21 +31,21 @@ class FWCheckedTextTableCellRenderer : public FWTextTableCellRenderer, public TQ
 
    public:
       FWCheckedTextTableCellRenderer(const TGGC* iContext=&(getDefaultGC()));
-      ~FWCheckedTextTableCellRenderer() override;
+      virtual ~FWCheckedTextTableCellRenderer();
 
       // ---------- const member functions ---------------------
       bool isChecked() const;
 
-      UInt_t width() const override;
+      virtual UInt_t width() const;
 
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
       void setChecked( bool);
 
-      void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight) override;
+      virtual void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight);
 
-      void buttonEvent(Event_t* iClickEvent, int iRelClickX, int iRelClickY) override;
+      virtual void buttonEvent(Event_t* iClickEvent, int iRelClickX, int iRelClickY);
 
       void checkBoxClicked(); //*SIGNAL*
 

@@ -12,7 +12,7 @@
 
 // system include files
 
-#include <cmath>
+#include <math.h>
 
 // user includes
 #include "TEveCaloData.h"
@@ -42,7 +42,7 @@
 // constructors and destructor
 //
 FWCaloDataProxyBuilderBase::FWCaloDataProxyBuilderBase() :
-   m_caloData(nullptr),
+   m_caloData(0),
    m_sliceIndex(-1)
 {
 }

@@ -47,9 +47,9 @@ public:
    // ---------- member functions ---------------------------
 
 private:
-   FWValidatorBase(const FWValidatorBase&) = delete; // stop default
+   FWValidatorBase(const FWValidatorBase&); // stop default
 
-   const FWValidatorBase& operator=(const FWValidatorBase&) = delete; // stop default
+   const FWValidatorBase& operator=(const FWValidatorBase&); // stop default
 
    // ---------- member data --------------------------------
 

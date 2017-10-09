@@ -87,7 +87,7 @@ HBHETimingShapedFlagSetter::timingStatus(const HBHERecHit& hbhe)
 
   // need at least two values to make comparison, and must
   // always have energy, time pair; otherwise, assume "in time" and don't set bits
-  if (tfilterEnvelope_.empty())
+  if (tfilterEnvelope_.size()==0)
     return 0;
 
   double twinmin, twinmax;  // min, max 'good' time; values outside this range have flag set

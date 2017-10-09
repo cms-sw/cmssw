@@ -12,13 +12,13 @@ class FWCaloDataHistProxyBuilder : public FWCaloDataProxyBuilderBase
 {
 public:
    FWCaloDataHistProxyBuilder();
-   ~FWCaloDataHistProxyBuilder() override;
+   virtual ~FWCaloDataHistProxyBuilder();
 
 protected:
-   bool assertCaloDataSlice() override;
+   virtual bool assertCaloDataSlice();
    virtual FWHistSliceSelector*  instantiateSliceSelector() = 0;
-   void itemBeingDestroyed(const FWEventItem*) override;
-   void setCaloData(const fireworks::Context&) override;
+   virtual void itemBeingDestroyed(const FWEventItem*);
+   virtual void setCaloData(const fireworks::Context&);
    void addEntryToTEveCaloData(float eta, float phi, float Et, bool isSelected);
 
    TH2F* m_hist;

@@ -93,13 +93,13 @@ class FFTJetCorrectionProducer : public edm::EDProducer
 {
 public:
     explicit FFTJetCorrectionProducer(const edm::ParameterSet&);
-    ~FFTJetCorrectionProducer() override;
+    ~FFTJetCorrectionProducer();
 
 private:
 
-    void beginJob() override ;
-    void produce(edm::Event&, const edm::EventSetup&) override;
-    void endJob() override ;
+    virtual void beginJob() override ;
+    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    virtual void endJob() override ;
 
     template <typename Jet>
     void makeProduces(const std::string& alias, const std::string& tag);

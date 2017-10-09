@@ -35,7 +35,7 @@ EMShower::EMShower(const RandomEngineAndDistribution* engine,
   //  myHistos = Histos::instance();
   //  myGammaGenerator = GammaFunctionGenerator::instance();
   stepsCalculated=false;
-  hasPreshower = myPresh!=nullptr;
+  hasPreshower = myPresh!=NULL;
   theECAL = myParam->ecalProperties();
   theHCAL = myParam->hcalProperties();
   theLayer1 = myParam->layer1Properties();
@@ -314,7 +314,7 @@ EMShower::compute() {
     bool gap = detector==5;
 
     // Temporary. Will be removed 
-    if ( theHCAL==nullptr) hcal=false;
+    if ( theHCAL==NULL) hcal=false;
 
     // Keep only ECAL for now
     if ( vfcal ) continue;
@@ -703,7 +703,7 @@ void EMShower::setIntervals(unsigned icomp,  RadialInterval& rad)
 
 void EMShower::setPreshower(PreshowerHitMaker * const myPresh)
 {
-  if(myPresh!=nullptr)
+  if(myPresh!=NULL)
     {
       thePreshower = myPresh;
       hasPreshower=true;

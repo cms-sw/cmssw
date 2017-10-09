@@ -49,12 +49,12 @@ std::unique_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const
 			       debug);
 
   // Set scaling factors
-  if (!conf.keys.empty()) {
+  if (conf.keys.size() != 0) {
     builder.setScaling(conf.keys, conf.values);
   }
   
   // Set specification for the grid tables to be used.
-  if (!conf.gridFiles.empty()) {
+  if (conf.gridFiles.size()!=0) {
     builder.setGridFiles(conf.gridFiles);
   }
   

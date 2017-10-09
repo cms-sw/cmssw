@@ -94,7 +94,7 @@ class SeedingNode
        
         inline const SeedingNode<DATA>* firstChild() const
         {
-            if (!_children.empty())
+            if (_children.size()>0)
             {
                 return _allNodes[_children[0]];
             }
@@ -176,7 +176,7 @@ class SeedingTree
                 _singleSet.insert(dataList[i]);
             }
 
-            if (dataList.empty())
+            if (dataList.size()==0)
             {
                 return false;
             }

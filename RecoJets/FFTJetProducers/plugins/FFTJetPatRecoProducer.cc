@@ -64,7 +64,7 @@ class FFTJetPatRecoProducer : public FFTJetInterface
 {
 public:
     explicit FFTJetPatRecoProducer(const edm::ParameterSet&);
-    ~FFTJetPatRecoProducer() override;
+    ~FFTJetPatRecoProducer();
 
 protected:
     // Useful local typedefs
@@ -136,9 +136,9 @@ protected:
     const bool sparsify;
 
 private:
-    FFTJetPatRecoProducer() = delete;
-    FFTJetPatRecoProducer(const FFTJetPatRecoProducer&) = delete;
-    FFTJetPatRecoProducer& operator=(const FFTJetPatRecoProducer&) = delete;
+    FFTJetPatRecoProducer();
+    FFTJetPatRecoProducer(const FFTJetPatRecoProducer&);
+    FFTJetPatRecoProducer& operator=(const FFTJetPatRecoProducer&);
 
     // Members needed for storing grids externally
     std::ofstream externalGridStream;
@@ -151,13 +151,13 @@ private:
 //
 FFTJetPatRecoProducer::FFTJetPatRecoProducer(const edm::ParameterSet& ps)
     : FFTJetInterface(ps),
-      clusteringTree(nullptr),
+      clusteringTree(0),
       completeEventDataCutoff(ps.getParameter<double>("completeEventDataCutoff")),
       makeClusteringTree(ps.getParameter<bool>("makeClusteringTree")),
       verifyDataConversion(ps.getUntrackedParameter<bool>("verifyDataConversion",false)),
       storeDiscretizationGrid(ps.getParameter<bool>("storeDiscretizationGrid")),
       sparsify(ps.getParameter<bool>("sparsify")),
-      extGrid(nullptr)
+      extGrid(0)
 {
     // register your products
     if (makeClusteringTree)
@@ -172,7 +172,7 @@ FFTJetPatRecoProducer::FFTJetPatRecoProducer(const edm::ParameterSet& ps)
 
     // Check if we want to write the grids into an external file
     const std::string externalGridFile(ps.getParameter<std::string>("externalGridFile"));
-    storeGridsExternally = !externalGridFile.empty();
+    storeGridsExternally = externalGridFile.size() > 0;
     if (storeGridsExternally)
     {
         externalGridStream.open(externalGridFile.c_str(), std::ios_base::out | 

@@ -104,12 +104,12 @@ namespace reco {
     PFCandidate( const PFCandidate&);
 
     /// destructor
-    ~PFCandidate() override;
+    virtual ~PFCandidate();
 
     PFCandidate& operator=(PFCandidate const&);
 
     /// return a clone
-    PFCandidate * clone() const override;
+    virtual PFCandidate * clone() const;
 
 
     /*    /// set source ref */
@@ -124,11 +124,11 @@ namespace reco {
     using reco::Candidate::setSourceCandidatePtr;
     void setSourceCandidatePtr(const PFCandidatePtr& ptr) { sourcePtr_ = ptr; }
 
-    size_t numberOfSourceCandidatePtrs() const override { 
+    size_t numberOfSourceCandidatePtrs() const { 
       return 1;
     }
     
-    CandidatePtr sourceCandidatePtr( size_type i ) const override {
+    CandidatePtr sourceCandidatePtr( size_type i ) const {
       return sourcePtr_;
     }
 
@@ -158,7 +158,7 @@ namespace reco {
 
     /// return a pointer to the best track, if available.
     /// otherwise, return a null pointer
-    const reco::Track * bestTrack() const override {
+    virtual const reco::Track * bestTrack() const {
       if ( (abs(pdgId()) == 11 || pdgId() == 22) && gsfTrackRef().isNonnull() && gsfTrackRef().isAvailable() )
         return &(*gsfTrackRef());
       else if ( trackRef().isNonnull() && trackRef().isAvailable() )
@@ -167,9 +167,9 @@ namespace reco {
         return nullptr;
     }
     /// uncertainty on dz 
-    float dzError() const override { const Track * tr=bestTrack(); if(tr!=nullptr) return tr->dzError(); else return 0; }
+    virtual float dzError() const { const Track * tr=bestTrack(); if(tr!=nullptr) return tr->dzError(); else return 0; }
     /// uncertainty on dxy
-    float dxyError() const override { const Track * tr=bestTrack(); if(tr!=nullptr) return tr->dxyError(); else return 0; }
+    virtual float dxyError() const { const Track * tr=bestTrack(); if(tr!=nullptr) return tr->dxyError(); else return 0; }
 
     /// set gsftrack reference 
     void setGsfTrackRef(const reco::GsfTrackRef& ref);   
@@ -405,14 +405,14 @@ namespace reco {
     // and modify the vertex() method accordingly.
     void setVertexSource( PFVertexType vt) { vertexType_=vt; if (vertexType_!=kCandVertex) LeafCandidate::setVertex(Point(0.,0.,0.));}
 
-    void setVertex( const math::XYZPoint& p) override {
+    virtual void setVertex( const math::XYZPoint& p) {
       LeafCandidate::setVertex(p); vertexType_ = kCandVertex;
     }
 
-    const Point & vertex() const override;
-    double vx() const override {return vertex().x();}
-    double vy() const override {return vertex().y();}
-    double vz() const override {return vertex().z();}
+    virtual const Point & vertex() const;
+    virtual double vx() const {return vertex().x();}
+    virtual double vy() const {return vertex().y();}
+    virtual double vz() const {return vertex().z();}
 
     /// do we have a valid time information
     bool isTimeValid() const { return timeError_ >= 0.f; }
@@ -425,7 +425,7 @@ namespace reco {
 
   private:
     /// Polymorphic overlap
-    bool overlap( const Candidate & ) const override;
+    virtual bool overlap( const Candidate & ) const;
 
     void setFlag(unsigned shift, unsigned flag, bool value);
 

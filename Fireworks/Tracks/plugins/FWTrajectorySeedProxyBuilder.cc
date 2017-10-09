@@ -33,14 +33,14 @@ class FWTrajectorySeedProxyBuilder : public FWSimpleProxyBuilderTemplate<Traject
 
 public:
    FWTrajectorySeedProxyBuilder();
-   ~FWTrajectorySeedProxyBuilder() override;
+   virtual ~FWTrajectorySeedProxyBuilder();
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWTrajectorySeedProxyBuilder(const FWTrajectorySeedProxyBuilder&) = delete; // stop default
+   FWTrajectorySeedProxyBuilder(const FWTrajectorySeedProxyBuilder&); // stop default
 
-   const FWTrajectorySeedProxyBuilder& operator=(const FWTrajectorySeedProxyBuilder&) = delete; // stop default
+   const FWTrajectorySeedProxyBuilder& operator=(const FWTrajectorySeedProxyBuilder&); // stop default
 
    using FWSimpleProxyBuilderTemplate<TrajectorySeed>::build;
    void build(const TrajectorySeed& iData, unsigned int iIndex,TEveElement& oItemHolder, const FWViewContext*) override;

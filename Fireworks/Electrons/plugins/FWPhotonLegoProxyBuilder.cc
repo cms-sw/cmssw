@@ -15,16 +15,16 @@ class FWPhotonLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Photo
 {
 public:
   FWPhotonLegoProxyBuilder() {}
-  ~FWPhotonLegoProxyBuilder() override {}
+  virtual ~FWPhotonLegoProxyBuilder() {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWPhotonLegoProxyBuilder(const FWPhotonLegoProxyBuilder&) = delete;
-   const FWPhotonLegoProxyBuilder& operator=(const FWPhotonLegoProxyBuilder&) = delete;
+   FWPhotonLegoProxyBuilder(const FWPhotonLegoProxyBuilder&);
+   const FWPhotonLegoProxyBuilder& operator=(const FWPhotonLegoProxyBuilder&);
 
    using FWSimpleProxyBuilderTemplate<reco::Photon>  ::build;
-   void build(const reco::Photon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;
+   virtual void build(const reco::Photon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;
 };
 
 void FWPhotonLegoProxyBuilder::build(const reco::Photon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) 

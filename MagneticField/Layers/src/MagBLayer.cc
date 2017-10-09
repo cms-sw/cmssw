@@ -20,9 +20,9 @@ using namespace std;
 
 MagBLayer::MagBLayer(vector<MagBSector*>& sectors, double rMin) :
   theSectors(sectors),
-  theSingleVolume(nullptr),
+  theSingleVolume(0),
   theRMin(rMin),
-  theBinFinder(nullptr)
+  theBinFinder(0)
 {
   // TOFIX
 //   if (verbose.debugOut) cout << "Building MagBLayer with " << theSectors.size()
@@ -34,9 +34,9 @@ MagBLayer::MagBLayer(vector<MagBSector*>& sectors, double rMin) :
 
 /// Constructor for a trivial layer consisting of one single volume.
 MagBLayer::MagBLayer(MagVolume* aVolume, double rMin) :
-  theSingleVolume(nullptr),
+  theSingleVolume(0),
   theRMin(rMin),
-  theBinFinder(nullptr) 
+  theBinFinder(0) 
 {
   // TOFIX
 //   if (verbose.debugOut) cout << "Building MagBLayer with " << 0
@@ -58,7 +58,7 @@ MagBLayer::~MagBLayer() {
 
 
 const MagVolume* MagBLayer::findVolume(const GlobalPoint & gp, double tolerance) const {
-  const MagVolume * result = nullptr;
+  const MagVolume * result = 0;
 
   //In case the layer is composed of a single volume...
   if (theSingleVolume) {
@@ -85,9 +85,9 @@ const MagVolume* MagBLayer::findVolume(const GlobalPoint & gp, double tolerance)
   result = theSectors[bin]->findVolume(gp, tolerance);
     // TOFIX
   if (verbose::debugOut) cout << "***In guessed bsector"
-			     << (result==nullptr? " failed " : " OK ") <<endl;
+			     << (result==0? " failed " : " OK ") <<endl;
 
-  if (result==nullptr) { // If fails, can be in previous bin.
+  if (result==0) { // If fails, can be in previous bin.
     // TOFIX
     if (verbose::debugOut) cout << "   Trying sector at phi "
 			       << theSectors[theBinFinder->binIndex(bin-1)]->minPhi()
@@ -96,7 +96,7 @@ const MagVolume* MagBLayer::findVolume(const GlobalPoint & gp, double tolerance)
     result = theSectors[theBinFinder->binIndex(bin-1)]->findVolume(gp, tolerance);
     // TOFIX
     if (verbose::debugOut) cout << "***In previous bsector"
-			       << (result==nullptr? " failed " : " OK ") <<endl;
+			       << (result==0? " failed " : " OK ") <<endl;
 
   }
   return result;

@@ -58,15 +58,15 @@ namespace fwlite {
          // at least as long as Run
          Run(TFile* iFile);
          Run(std::shared_ptr<BranchMapReader> branchMap);
-         ~Run() override;
+         virtual ~Run();
 
-         const Run& operator++() override;
+         const Run& operator++();
 
          /// Go to event by Run & Run number
          bool to (edm::RunNumber_t run);
 
          // Go to the very first Event.
-         const Run& toBegin() override;
+         const Run& toBegin();
 
          // ---------- const member functions ---------------------
          virtual std::string const getBranchNameFor(std::type_info const&,
@@ -76,16 +76,16 @@ namespace fwlite {
 
          // This function should only be called by fwlite::Handle<>
          using fwlite::RunBase::getByLabel;
-         bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const override;
+         virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const;
          //void getByBranchName(std::type_info const&, char const*, void*&) const;
 
          bool isValid() const;
          operator bool () const;
-         bool atEnd() const override;
+         virtual bool atEnd() const;
 
          Long64_t size() const;
 
-         edm::RunAuxiliary const& runAuxiliary() const override;
+         virtual edm::RunAuxiliary const& runAuxiliary() const;
 
          std::vector<edm::BranchDescription> const& getBranchDescriptions() const {
             return branchMap_->getBranchDescriptions();
@@ -104,9 +104,9 @@ namespace fwlite {
          friend class internal::ProductGetter;
          friend class RunHistoryGetter;
 
-         Run(const Run&) = delete; // stop default
+         Run(const Run&); // stop default
 
-         const Run& operator=(const Run&) = delete; // stop default
+         const Run& operator=(const Run&); // stop default
 
          const edm::ProcessHistory& history() const;
          void updateAux(Long_t runIndex) const;

@@ -92,7 +92,7 @@ FWSimpleProxyBuilder::build(const FWEventItem* iItem,
    TEveElement::List_i pIdx = product->BeginChildren();
    for (int index = 0; index < static_cast<int>(size); ++index)
    {
-      TEveElement* itemHolder = nullptr;
+      TEveElement* itemHolder = 0;
       if (index <  product->NumChildren())
       {
          itemHolder = *pIdx;
@@ -120,7 +120,7 @@ FWSimpleProxyBuilder::buildViewType(const FWEventItem* iItem,
    TEveElement::List_i pIdx = product->BeginChildren();
    for (int index = 0; index < static_cast<int>(size); ++index)
    {
-      TEveElement* itemHolder = nullptr;
+      TEveElement* itemHolder = 0;
       if (index < product->NumChildren())
       {
          itemHolder = *pIdx;

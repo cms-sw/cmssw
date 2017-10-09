@@ -19,15 +19,15 @@ class FWMuonDetailView : public FWDetailViewGL<reco::Muon> {
 
 public:
    FWMuonDetailView();
-   ~FWMuonDetailView() override;
+   virtual ~FWMuonDetailView();
 
 
 private:
-   FWMuonDetailView(const FWMuonDetailView&) = delete; // stop default
-   const FWMuonDetailView& operator=(const FWMuonDetailView&) = delete; // stop default
+   FWMuonDetailView(const FWMuonDetailView&); // stop default
+   const FWMuonDetailView& operator=(const FWMuonDetailView&); // stop default
 
-   void build (const FWModelId &id, const reco::Muon*) override;
-   void setTextInfo(const FWModelId&, const reco::Muon*) override;
+   virtual void build (const FWModelId &id, const reco::Muon*);
+   virtual void setTextInfo(const FWModelId&, const reco::Muon*);
 
    void addSceneInfo(const reco::Muon *i, TEveElementList* tList);
 
