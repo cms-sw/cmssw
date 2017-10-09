@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("PIXELDQMLIVE", eras.Run2_2017)
+process = cms.Process("PIXELDQMLIVE", eras.Run2_2017_pp_on_XeXe)
 
 live=True  #set to false for lxplus offline testing
 offlineTesting=not live
@@ -22,7 +22,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 #----------------------------
 # Event Source
-#-----------------------------
+#----------------------------- 
 # for live online DQM in P5
 
 if (live):
@@ -48,12 +48,12 @@ process.dqmEnv.subSystemFolder = TAG
 process.dqmSaver.tag = TAG
 
 process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_pp.root'
-if (process.runType.getRunType() == process.runType.hi_run):
-    process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_hi.root'
-
-if (process.runType.getRunType() == process.runType.cosmic_run):
-    process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_cosmic.root'
-
+#if (process.runType.getRunType() == process.runType.hi_run):
+#    process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_hi.root'
+#
+#if (process.runType.getRunType() == process.runType.cosmic_run):
+#    process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_cosmic.root'
+#
 #-----------------------------
 # Magnetic Field
 #-----------------------------
@@ -91,18 +91,17 @@ process.load("RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi
 process.load("RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_RealData_cfi")
 
 process.siPixelDigis.IncludeErrors = True
-
-process.siPixelDigis.InputLabel   = cms.InputTag("rawDataCollector")
-process.siStripDigis.InputLabel   = cms.InputTag("rawDataCollector")
+process.siPixelDigis.InputLabel   = cms.InputTag("rawDataRepacker")
+process.siStripDigis.InputLabel   = cms.InputTag("rawDataRepacker")
 
 #--------------------------------
 # Heavy Ion Configuration Changes
 #--------------------------------
 
-if (process.runType.getRunType() == process.runType.hi_run):    
-    process.load('Configuration.StandardSequences.ReconstructionHeavyIons_cff')
-    process.load('Configuration.StandardSequences.RawToDigi_Repacked_cff')
-    process.siPixelDigis.InputLabel   = cms.InputTag("rawDataRepacker")
+#if (process.runType.getRunType() == process.runType.hi_run):    
+#    process.load('Configuration.StandardSequences.ReconstructionHeavyIons_cff')
+#    process.load('Configuration.StandardSequences.RawToDigi_Repacked_cff')
+#    process.siPixelDigis.InputLabel   = cms.InputTag("rawDataRepacker")
 
 
 # Phase1 DQM
@@ -128,7 +127,7 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 )
 
 process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
-process.hltHighLevel.HLTPaths = cms.vstring( 'HLT_ZeroBias_*' , 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*', 'HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*', 'HLT*SingleMu*')
+process.hltHighLevel.HLTPaths = cms.vstring( 'HLT_ZeroBias_*' , 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*', 'HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*', 'HLT*SingleMu*', 'HLT_HICentralityVeto*','HLT_HIMinBias*')
 process.hltHighLevel.andOr = cms.bool(True)
 process.hltHighLevel.throw =  cms.bool(False)
 
@@ -138,12 +137,12 @@ process.hltHighLevel.throw =  cms.bool(False)
 
 process.DQMmodules = cms.Sequence(process.dqmEnv*process.dqmSaver)
 
-if (process.runType.getRunType() == process.runType.hi_run):
-    process.SiPixelClusterSource.src = cms.InputTag("siPixelClustersPreSplitting")
-    process.Reco = cms.Sequence(process.siPixelDigis*process.pixeltrackerlocalreco)
-
-else:
-    process.Reco = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.siStripZeroSuppression*process.siStripClusters*process.siPixelClusters)
+#if (process.runType.getRunType() == process.runType.hi_run):
+#    process.SiPixelClusterSource.src = cms.InputTag("siPixelClustersPreSplitting")
+#    process.Reco = cms.Sequence(process.siPixelDigis*process.pixeltrackerlocalreco)
+#
+#else:
+process.Reco = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.siStripZeroSuppression*process.siStripClusters*process.siPixelClusters)
 
 process.p = cms.Path(
   process.hltHighLevel #trigger selection
