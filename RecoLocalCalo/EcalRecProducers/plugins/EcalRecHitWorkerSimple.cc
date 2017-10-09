@@ -83,7 +83,7 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
     EcalChannelStatusCode::Code  dbstatus = chit->getStatusCode();
     
     // check for channels to be excluded from reconstruction
-    if ( v_chstatus_.size() > 0) {
+    if ( !v_chstatus_.empty()) {
         
         std::vector<int>::const_iterator res = 
 		    std::find( v_chstatus_.begin(), v_chstatus_.end(), dbstatus );

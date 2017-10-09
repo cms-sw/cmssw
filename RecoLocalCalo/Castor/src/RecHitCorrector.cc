@@ -47,12 +47,12 @@
 class RecHitCorrector : public edm::EDProducer {
    public:
       explicit RecHitCorrector(const edm::ParameterSet&);
-      ~RecHitCorrector();
+      ~RecHitCorrector() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       
       // ----------member data ---------------------------
       edm::EDGetTokenT<CastorRecHitCollection> tok_input_;

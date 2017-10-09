@@ -25,12 +25,12 @@ class EcalUncalibRecHitWorkerFixedAlphaBetaFit : public EcalUncalibRecHitWorkerR
         public:
                 EcalUncalibRecHitWorkerFixedAlphaBetaFit(const edm::ParameterSet& ps, edm::ConsumesCollector& ); 
 		EcalUncalibRecHitWorkerFixedAlphaBetaFit() {};
-                virtual ~EcalUncalibRecHitWorkerFixedAlphaBetaFit() {};
+                ~EcalUncalibRecHitWorkerFixedAlphaBetaFit() override {};
 
-                void set(const edm::EventSetup& es);
-                bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result);
+                void set(const edm::EventSetup& es) override;
+                bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result) override;
 		
-		edm::ParameterSetDescription getAlgoDescription();
+		edm::ParameterSetDescription getAlgoDescription() override;
         private:
 
                 double AmplThrEB_;

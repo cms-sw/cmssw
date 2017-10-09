@@ -13,7 +13,7 @@ namespace HcalRecAlgosPrivate {
         template<typename C> static Two test(...);
 
     public:
-        enum {value = sizeof(IsClassType<T>::template test<T>(0)) == 1};
+        enum {value = sizeof(IsClassType<T>::template test<T>(nullptr)) == 1};
     };
 
     template <typename T>
@@ -27,7 +27,7 @@ namespace HcalRecAlgosPrivate {
         template<typename C> static Two test(...);
 
     public:
-        enum {value = sizeof(HasRawEnergySetterHelper<T>::template test<T>(0)) == 1};
+        enum {value = sizeof(HasRawEnergySetterHelper<T>::template test<T>(nullptr)) == 1};
     };
 
     template<typename T, bool is_class_type=IsClassType<T>::value>
@@ -103,7 +103,7 @@ namespace HcalRecAlgosPrivate {
         template<typename C> static Two test(...);
 
     public:
-        enum {value = sizeof(HasAuxEnergySetterHelper<T>::template test<T>(0)) == 1};
+        enum {value = sizeof(HasAuxEnergySetterHelper<T>::template test<T>(nullptr)) == 1};
     };
 
     template<typename T, bool is_class_type=IsClassType<T>::value>
