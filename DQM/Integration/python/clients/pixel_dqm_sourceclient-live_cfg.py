@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #from Configuration.StandardSequences.Eras import eras
-
-process = cms.Process("PIXELDQMLIVE")
+#process = cms.Process("PIXELDQMLIVE", eras.Run2_2017)
 
 live=True  #set to false for lxplus offline testing
 offlineTesting=not live
@@ -114,7 +113,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataRepacker")
     process.gctDigis.inputLabel = cms.InputTag("rawDataRepacker")
     process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataRepacker")
-    process.gtEvmDigis.EvmGtInputTag = cms.InputTag("rawDataRepacker")
+    #process.gtEvmDigis.EvmGtInputTag = cms.InputTag("rawDataRepacker")
     process.hcalDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.muonCSCDigis.InputObjects = cms.InputTag("rawDataRepacker")
     process.muonDTDigis.inputLabel = cms.InputTag("rawDataRepacker")
@@ -125,14 +124,14 @@ if (process.runType.getRunType() == process.runType.hi_run):
 
     #replace the effect of era in local reco
     process.siPixelDigis.UsePhase1=True
-    process.siPixelClusters.VCaltoElectronGain      = cms.int32(47)   # L2-4: 47 +- 4.7 
-    process.siPixelClusters.VCaltoElectronGain_L1   = cms.int32(50)   # L1:   49.6 +- 2.6 
-    process.siPixelClusters.VCaltoElectronOffset    = cms.int32(-60)  # L2-4: -60 +- 130 
-    process.siPixelClusters.VCaltoElectronOffset_L1 = cms.int32(-670) # L1:   -670 +- 220 
-    process.siPixelClusters.ChannelThreshold        = cms.int32(10) 
-    process.siPixelClusters.SeedThreshold           = cms.int32(1000) 
-    process.siPixelClusters.ClusterThreshold        = cms.int32(4000) 
-    process.siPixelClusters.ClusterThreshold_L1     = cms.int32(2000) 
+    process.siPixelClustersPreSplitting.VCaltoElectronGain      = cms.int32(47)   # L2-4: 47 +- 4.7 
+    process.siPixelClustersPreSplitting.VCaltoElectronGain_L1   = cms.int32(50)   # L1:   49.6 +- 2.6 
+    process.siPixelClustersPreSplitting.VCaltoElectronOffset    = cms.int32(-60)  # L2-4: -60 +- 130 
+    process.siPixelClustersPreSplitting.VCaltoElectronOffset_L1 = cms.int32(-670) # L1:   -670 +- 220 
+    process.siPixelClustersPreSplitting.ChannelThreshold        = cms.int32(10) 
+    process.siPixelClustersPreSplitting.SeedThreshold           = cms.int32(1000) 
+    process.siPixelClustersPreSplitting.ClusterThreshold        = cms.int32(4000) 
+    process.siPixelClustersPreSplitting.ClusterThreshold_L1     = cms.int32(2000) 
 
     
 # Phase1 DQM
@@ -175,7 +174,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.load("RecoLocalTracker.Configuration.RecoLocalTrackerHeavyIons_cff")
     process.SiPixelPhase1ClustersAnalyzer.pixelSrc = cms.InputTag("siPixelClustersPreSplitting")
 #    process.Reco = cms.Sequence(process.siPixelDigis*process.pixeltrackerlocalreco)
-    process.Reco =cms.Sequence(process.siPixelDigis*process.siStripDigis*process.siStripVRDigis*process.trackerlocalreco*process.pixeltrackerlocalreco) 
+    process.Reco =cms.Sequence(process.siPixelDigis*process.siStripDigis*process.siStripVRDigis*process.trackerlocalreco) 
 else:
     process.Reco = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.siStripZeroSuppression*process.siStripClusters*process.siPixelClusters)
 
