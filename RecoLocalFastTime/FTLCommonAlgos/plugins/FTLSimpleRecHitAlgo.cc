@@ -10,14 +10,14 @@ class FTLSimpleRecHitAlgo : public FTLRecHitAlgoBase {
     calibration_( conf.getParameter<double>("calibrationConstant") ) { }
 
   /// Destructor
-  virtual ~FTLSimpleRecHitAlgo() { }
+  ~FTLSimpleRecHitAlgo() override { }
 
   /// get event and eventsetup information
-  virtual void getEvent(const edm::Event&) override final {}
-  virtual void getEventSetup(const edm::EventSetup&) override final {}
+  void getEvent(const edm::Event&) final {}
+  void getEventSetup(const edm::EventSetup&) final {}
 
   /// make the rec hit
-  virtual FTLRecHit makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags ) const override final;
+  FTLRecHit makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags ) const final;
 
  private:  
   double thresholdToKeep_, calibration_;
