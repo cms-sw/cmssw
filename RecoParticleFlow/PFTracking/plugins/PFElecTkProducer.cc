@@ -199,7 +199,7 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	bool isEcalDriven = true;
 	bool isTrackerDriven = true;
 	
-	if (&(*trackRef->seedRef())==0) {
+	if (&(*trackRef->seedRef())==nullptr) {
 	  isEcalDriven = false;
 	  isTrackerDriven = false;
 	}
@@ -269,7 +269,7 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
   
   
   unsigned int count_primary = 0;
-  if(selGsfPFRecTracks.size() > 0) {
+  if(!selGsfPFRecTracks.empty()) {
     for(unsigned int ipfgsf=0; ipfgsf<selGsfPFRecTracks.size();ipfgsf++) {
       
       vector<unsigned int> secondaries(0);
@@ -305,7 +305,7 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	// A MODIFICATION HERE IMPLIES A MODIFICATION IN PFBLOCKALGO.CC/H
 	unsigned int primGsfIndex = selGsfPFRecTracks[ipfgsf].trackId();
 	vector<reco::GsfPFRecTrack> trueGsfPFRecTracks;
-	if(secondaries.size() > 0) {
+	if(!secondaries.empty()) {
 	  // loop on secondaries gsf tracks (from converted brems)
 	  for(unsigned int isecpfgsf=0; isecpfgsf<secondaries.size();isecpfgsf++) {
 	    
@@ -401,7 +401,7 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
 			    bool otherColl){
 
 
-  if (&(*gsftk.seedRef())==0) return -1;
+  if (&(*gsftk.seedRef())==nullptr) return -1;
   auto const &  ElSeedFromRef=static_cast<ElectronSeed const&>( *(gsftk.extra()->seedRef()) );
   //CASE 1 ELECTRONSEED DOES NOT HAVE A REF TO THE CKFTRACK
   if (ElSeedFromRef.ctfTrack().isNull()){
@@ -482,7 +482,7 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
 // -- method to apply gsf electron selection to EcalDriven seeds
 bool 
 PFElecTkProducer::applySelection(const reco::GsfTrack& gsftk) {
-  if (&(*gsftk.seedRef())==0) return false;
+  if (&(*gsftk.seedRef())==nullptr) return false;
   auto const& ElSeedFromRef=static_cast<ElectronSeed const&>( *(gsftk.extra()->seedRef()) );
 
   bool passCut = false;
@@ -515,7 +515,7 @@ PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>  & GsfPFVec
 
   const reco::GsfTrackRef& nGsfTrack = GsfPFVec[ngsf].gsfTrackRef();
   
-  if (&(*nGsfTrack->seedRef())==0) return false;    
+  if (&(*nGsfTrack->seedRef())==nullptr) return false;    
   auto const& nElSeedFromRef=static_cast<ElectronSeed const&>( *(nGsfTrack->extra()->seedRef()) );
   
   /* // now gotten from cache below
@@ -571,7 +571,7 @@ PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>  & GsfPFVec
         */
         float iPin = gsfInnerMomentumCache_[iGsfTrack.key()];
 
-	if (&(*iGsfTrack->seedRef())==0) continue;   
+	if (&(*iGsfTrack->seedRef())==nullptr) continue;   
 	auto const& iElSeedFromRef=static_cast<ElectronSeed const&>( *(iGsfTrack->extra()->seedRef()) );
 
 	float SCEnergy = -1.;
@@ -932,7 +932,7 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
 	}  
       } // END if angle preselection
     } // PFClusters Loop
-    if(vecPFClusters.size() > 0 ) {
+    if(!vecPFClusters.empty() ) {
       for(unsigned int pf = 0; pf < vecPFClusters.size(); pf++) {
 	bool isCommon = ClusterClusterMapping::overlap(vecPFClusters[pf],*scRef);
 	if(isCommon) {
@@ -1016,7 +1016,7 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
     }
 
 
-    if(nPFCluster.size() > 0 && iPFCluster.size() > 0) {
+    if(!nPFCluster.empty() && !iPFCluster.empty()) {
       for(unsigned int npf = 0; npf < nPFCluster.size(); npf++) {
 	for(unsigned int ipf = 0; ipf < iPFCluster.size(); ipf++) {
 	  bool isCommon = ClusterClusterMapping::overlap(nPFCluster[npf],iPFCluster[ipf]);
