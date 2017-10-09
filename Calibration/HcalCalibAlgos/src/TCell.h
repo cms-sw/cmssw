@@ -30,7 +30,7 @@ public:
     void SetId(UInt_t i) { _id=i; }
     
     
-    ClassDef(TCell, 1);
+    ClassDefOverride(TCell, 1);
 };
 
 #endif	/* _TCELL_H */

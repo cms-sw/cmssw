@@ -67,7 +67,7 @@ namespace
    public:
 
       CmsEveMagField() : TEveMagField(), fField(-3.8), fFieldMag(3.8) {}
-      virtual ~CmsEveMagField() {}
+      ~CmsEveMagField() override {}
 
       // set current
       void SetFieldByCurrent(Float_t avg_current)
@@ -77,12 +77,12 @@ namespace
       }
 
       // get field values
-      virtual Float_t GetMaxFieldMag() const override
+      Float_t GetMaxFieldMag() const override
       {
          return fFieldMag;
       }
 
-      virtual TEveVector GetField(Float_t x, Float_t y, Float_t z) const override
+      TEveVector GetField(Float_t x, Float_t y, Float_t z) const override
       {
          static const Float_t barrelFac = 1.2 / 3.8;
          static const Float_t endcapFac = 2.0 / 3.8;
@@ -142,7 +142,7 @@ FWFFLooper::FWFFLooper(edm::ParameterSet const&ps)
      m_AllowStep(true),
      m_ShowEvent(true),
      m_firstTime(true),
-     m_pathsGUI(0),
+     m_pathsGUI(nullptr),
      m_geomWatcher(this, &FWFFLooper::remakeGeometry)
 {
    setup(m_navigator.get(), m_context.get(), m_metadataManager.get());
@@ -326,7 +326,7 @@ FWFFLooper::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
    //        this is not possible at the moment.
    if (m_firstTime == true)
    {
-      if (m_context->getGeom() == 0)
+      if (m_context->getGeom() == nullptr)
       {
 	 try
 	 {
@@ -370,7 +370,7 @@ FWFFLooper::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
          printf("Could not extract run-conditions get-result=%d, is-valid=%d\n", res, runCond.isValid());
 
          const edm::eventsetup::EventSetupRecord* rec = iSetup.find( edm::eventsetup::EventSetupRecordKey::makeKey<RunInfoRcd>());
-         if( 0 != rec )
+         if( nullptr != rec )
          {
             edm::ESHandle<RunInfo> sum;
             iSetup.get<RunInfoRcd>().get(sum);

@@ -45,10 +45,10 @@ void (FWConvTrackHitsDetailView::*foo)();
 }
 
 FWConvTrackHitsDetailView::FWConvTrackHitsDetailView ():
-  m_modules(0),
-  m_moduleLabels(0),
-  m_hits(0),
-  m_legend(0),
+  m_modules(nullptr),
+  m_moduleLabels(nullptr),
+  m_hits(nullptr),
+  m_legend(nullptr),
   m_orthographic(false)
 {
 }
@@ -175,7 +175,7 @@ FWConvTrackHitsDetailView::build (const FWModelId &id, const reco::Conversion* c
    for( TEveElement::List_i i = m_modules->BeginChildren(), end = m_modules->EndChildren(); i != end; ++i )
    {
       TEveGeoShape* gs = dynamic_cast<TEveGeoShape*>(*i);
-      if (gs == 0 && (*i != 0)) {
+      if (gs == nullptr && (*i != nullptr)) {
          std::cerr << "Got a " << typeid(**i).name() << ", expecting TEveGeoShape. ignoring (it must be the clusters)." << std::endl;
          continue;
       }
@@ -271,7 +271,7 @@ FWConvTrackHitsDetailView::build (const FWModelId &id, const reco::Conversion* c
 
    
    TEveVectorD c  = ( trk1->GetVertex() + trk0->GetVertex()) *0.5;
-   if (1)
+   if (true)
    { 
       setCameraInit(viewerGL(),TGLViewer::kCameraPerspXOZ, fwd, up, c); //default
       setCameraInit(viewerGL(),TGLViewer::kCameraPerspYOZ, up,  lft,c);
@@ -553,7 +553,7 @@ FWConvTrackHitsDetailView::addModules( const reco::Track& track,
 	 if( iItem->getGeom())
 	 {
 	    TEveGeoShape* shape = iItem->getGeom()->getEveShape( detid );
-	    if( 0 != shape )
+	    if( nullptr != shape )
 	    {
 	       shape->SetMainTransparency( 65 );
 	       shape->SetPickable( kTRUE );

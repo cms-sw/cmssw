@@ -39,7 +39,7 @@ class FWTEveViewer : public TEveViewer
 
 public:
    FWTEveViewer(const char* n="FWTEveViewer", const char* t="");
-   virtual ~FWTEveViewer();
+   ~FWTEveViewer() override;
 
    // ---------- const member functions ---------------------
 
@@ -57,9 +57,9 @@ public:
    std::future<int> CaptureAndSaveImage(const TString& file, int height=-1);
 
 private:
-   FWTEveViewer(const FWTEveViewer&); // stop default
+   FWTEveViewer(const FWTEveViewer&) = delete; // stop default
 
-   const FWTEveViewer& operator=(const FWTEveViewer&); // stop default
+   const FWTEveViewer& operator=(const FWTEveViewer&) = delete; // stop default
 
    void spawn_image_thread();
 
@@ -72,7 +72,7 @@ private:
    TString                 m_name;
    int                     m_ww, m_hh;
    bool                    m_thr_exit = false;
-   std::thread            *m_thr = 0;
+   std::thread            *m_thr = nullptr;
    std::promise<int>       m_prom;
    std::mutex              m_moo;
    std::condition_variable m_cnd;

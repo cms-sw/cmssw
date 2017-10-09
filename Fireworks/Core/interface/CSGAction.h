@@ -60,14 +60,14 @@ public:
    void setName(const std::string& name);
    void setMenuLabel(const std::string& label);
    void setToolTip(const std::string& tip);
-   void createTextButton(TGCompositeFrame* p, TGLayoutHints* l = 0, Int_t id = -1, GContext_t norm = TGButton::GetDefaultGC() (), FontStruct_t font = TGTextButton::GetDefaultFontStruct(), UInt_t option = kRaisedFrame|kDoubleBorder);
-   void createCheckButton(TGCompositeFrame* p, TGLayoutHints* l = 0, Bool_t state = true, Int_t id = -1, GContext_t norm = TGButton::GetDefaultGC() (), FontStruct_t font = TGTextButton::GetDefaultFontStruct());
-   void createPictureButton(TGCompositeFrame* p, const TGPicture* pic, TGLayoutHints* l = 0, Int_t id = -1, GContext_t norm = TGButton::GetDefaultGC() (), UInt_t option = kRaisedFrame|kDoubleBorder);
+   void createTextButton(TGCompositeFrame* p, TGLayoutHints* l = nullptr, Int_t id = -1, GContext_t norm = TGButton::GetDefaultGC() (), FontStruct_t font = TGTextButton::GetDefaultFontStruct(), UInt_t option = kRaisedFrame|kDoubleBorder);
+   void createCheckButton(TGCompositeFrame* p, TGLayoutHints* l = nullptr, Bool_t state = true, Int_t id = -1, GContext_t norm = TGButton::GetDefaultGC() (), FontStruct_t font = TGTextButton::GetDefaultFontStruct());
+   void createPictureButton(TGCompositeFrame* p, const TGPicture* pic, TGLayoutHints* l = nullptr, Int_t id = -1, GContext_t norm = TGButton::GetDefaultGC() (), UInt_t option = kRaisedFrame|kDoubleBorder);
    FWCustomIconsButton* createCustomIconsButton(TGCompositeFrame* p,
                                                 const TGPicture* upPic,
                                                 const TGPicture* downPic,
                                                 const TGPicture* disabledPic,
-                                                TGLayoutHints* l = 0,
+                                                TGLayoutHints* l = nullptr,
                                                 Int_t id = -1,
                                                 GContext_t norm = TGButton::GetDefaultGC() (),
                                                 UInt_t option = 0);
@@ -88,9 +88,9 @@ public:
    sigc::signal<void> activated;
 
 private:
-   CSGAction(const CSGAction&); // stop default
+   CSGAction(const CSGAction&) = delete; // stop default
 
-   const CSGAction& operator=(const CSGAction&); // stop default
+   const CSGAction& operator=(const CSGAction&) = delete; // stop default
 
    void enableImp();
    void disableImp();
