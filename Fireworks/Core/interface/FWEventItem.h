@@ -149,7 +149,6 @@ public:
       return m_event;
    }
 
-
    ///returns true if failed to get data for this event
    bool hasError() const;
    ///returns error string if there was a problem this event
