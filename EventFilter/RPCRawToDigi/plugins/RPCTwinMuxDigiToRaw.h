@@ -25,7 +25,7 @@ class RPCTwinMuxDigiToRaw
 {
 public:
     RPCTwinMuxDigiToRaw(edm::ParameterSet const & config);
-    ~RPCTwinMuxDigiToRaw();
+    ~RPCTwinMuxDigiToRaw() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions & descs);
 

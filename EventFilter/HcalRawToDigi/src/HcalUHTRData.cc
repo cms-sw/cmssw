@@ -1,5 +1,5 @@
 #include "EventFilter/HcalRawToDigi/interface/HcalUHTRData.h"
-#include <string.h>
+#include <cstring>
 
 static const int HEADER_LENGTH_16BIT=2*sizeof(uint64_t)/sizeof(uint16_t);
 
@@ -104,13 +104,13 @@ HcalUHTRData::const_iterator HcalUHTRData::end() const {
   return HcalUHTRData::const_iterator(m_raw16+(m_rawLength64-1)*sizeof(uint64_t)/sizeof(uint16_t),m_raw16+(m_rawLength64-1)*sizeof(uint64_t)/sizeof(uint16_t));
 }
 
-HcalUHTRData::HcalUHTRData() : m_formatVersion(-2), m_rawLength64(0), m_raw64(0), m_raw16(0), m_ownData(0) { }
+HcalUHTRData::HcalUHTRData() : m_formatVersion(-2), m_rawLength64(0), m_raw64(nullptr), m_raw16(nullptr), m_ownData(nullptr) { }
 
-HcalUHTRData::HcalUHTRData(const uint64_t* data, int length) : m_rawLength64(length),m_raw64(data),m_raw16((const uint16_t*)(data)),m_ownData(0) {
+HcalUHTRData::HcalUHTRData(const uint64_t* data, int length) : m_rawLength64(length),m_raw64(data),m_raw16((const uint16_t*)(data)),m_ownData(nullptr) {
   m_formatVersion=(m_raw16[6]>>12)&0xF;
 }
 
-HcalUHTRData::HcalUHTRData(const HcalUHTRData& hd) : m_formatVersion(hd.m_formatVersion), m_rawLength64(hd.m_rawLength64), m_raw64(hd.m_raw64), m_raw16(hd.m_raw16), m_ownData(0) { }
+HcalUHTRData::HcalUHTRData(const HcalUHTRData& hd) : m_formatVersion(hd.m_formatVersion), m_rawLength64(hd.m_rawLength64), m_raw64(hd.m_raw64), m_raw16(hd.m_raw16), m_ownData(nullptr) { }
 
 HcalUHTRData::HcalUHTRData(int version_to_create) : m_formatVersion(version_to_create) {
 
@@ -126,7 +126,7 @@ HcalUHTRData::HcalUHTRData(int version_to_create) : m_formatVersion(version_to_c
 }
 
 HcalUHTRData& HcalUHTRData::operator=(const HcalUHTRData& hd) {
-  if (m_ownData==0) {
+  if (m_ownData==nullptr) {
     m_formatVersion=hd.m_formatVersion;
     m_rawLength64=hd.m_rawLength64;
     m_raw64=hd.m_raw64;

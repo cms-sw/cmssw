@@ -7,7 +7,7 @@ namespace l1t {
    namespace stage2 {
       class GlobalExtBlkPacker : public Packer {
          public:
-            virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
+            Blocks pack(const edm::Event&, const PackerTokens*) override;
       };
    }
 }

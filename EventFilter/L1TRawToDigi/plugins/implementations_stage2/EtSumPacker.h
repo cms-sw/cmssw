@@ -8,7 +8,7 @@ namespace l1t {
       class EtSumPacker : public Packer {
          public:
 	    EtSumPacker(int b1) : b1_(b1) {}
-            virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
+            Blocks pack(const edm::Event&, const PackerTokens*) override;
             int b1_;
       };
       class GTEtSumPacker : public EtSumPacker {

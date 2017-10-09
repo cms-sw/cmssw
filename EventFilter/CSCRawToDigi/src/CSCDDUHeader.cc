@@ -1,5 +1,5 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUHeader.h"
-#include <string.h> // for bzero
+#include <cstring> // for bzero
 #include <iostream>
 
 CSCDDUHeader::CSCDDUHeader() 
