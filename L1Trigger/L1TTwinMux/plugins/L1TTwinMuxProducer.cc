@@ -32,8 +32,8 @@ class  L1TTwinMuxProducer: public edm::stream::EDProducer<>
 {
 public:
   L1TTwinMuxProducer(const edm::ParameterSet & pset);
-  ~L1TTwinMuxProducer() {}
-  void produce(edm::Event & e, const edm::EventSetup& c);
+  ~L1TTwinMuxProducer() override {}
+  void produce(edm::Event & e, const edm::EventSetup& c) override;
 private:
   //L1TTwinMuxAlgorithm *  m_l1tma;
 //  std::unique_ptr<L1TTwinMuxAlgorithm> m_l1tma(new L1TTwinMuxAlgorithm());
