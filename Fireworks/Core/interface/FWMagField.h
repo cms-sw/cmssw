@@ -20,11 +20,11 @@ public:
    enum ESource { kNone, kEvent, kUser };
 
    FWMagField();
-   virtual ~FWMagField();
+   ~FWMagField() override;
 
    // get field values
-   virtual TEveVector GetField(Float_t x, Float_t y, Float_t z) const;
-   virtual Float_t    GetMaxFieldMag() const;
+   TEveVector GetField(Float_t x, Float_t y, Float_t z) const override;
+   Float_t    GetMaxFieldMag() const override;
 
    // auto/user behaviour
    void   setUserField(float b) { m_userField = b; }
@@ -47,8 +47,8 @@ public:
    void   setFFFieldMag(float);
 
 private:
-   FWMagField(const FWMagField&); // stop default
-   const FWMagField& operator=(const FWMagField&); // stop default
+   FWMagField(const FWMagField&) = delete; // stop default
+   const FWMagField& operator=(const FWMagField&) = delete; // stop default
 
    ESource   m_source;
    float     m_userField;

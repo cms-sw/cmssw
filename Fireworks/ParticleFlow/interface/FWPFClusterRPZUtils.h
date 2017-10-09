@@ -53,8 +53,8 @@ class FWPFClusterRPZUtils
                                                             float caloTransAngle, float e, float et, float r, float z );
 
    private:
-      FWPFClusterRPZUtils( const FWPFClusterRPZUtils& );                   // Disable default copy constructor
-      const FWPFClusterRPZUtils& operator=( const FWPFClusterRPZUtils& );  // Disable default assignment operator
+      FWPFClusterRPZUtils( const FWPFClusterRPZUtils& ) = delete;                   // Disable default copy constructor
+      const FWPFClusterRPZUtils& operator=( const FWPFClusterRPZUtils& ) = delete;  // Disable default assignment operator
 };
 #endif
 //=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_

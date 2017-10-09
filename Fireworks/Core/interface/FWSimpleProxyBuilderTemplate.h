@@ -46,17 +46,17 @@ protected:
    const T& modelData(int index) { return *reinterpret_cast<const T*>(m_helper.offsetObject(item()->modelData(index))); }
 
    using FWSimpleProxyBuilder::build;
-   virtual void build(const void*iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* context)
+   void build(const void*iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* context) override
    {
-      if(0!=iData) {
+      if(nullptr!=iData) {
          build(*reinterpret_cast<const T*> (iData), iIndex, oItemHolder, context);
       }
    }
 
    using FWSimpleProxyBuilder::buildViewType;
-   virtual void buildViewType(const void*iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType viewType, const FWViewContext* context)
+   void buildViewType(const void*iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType viewType, const FWViewContext* context) override
    {
-      if(0!=iData) {
+      if(nullptr!=iData) {
          buildViewType(*reinterpret_cast<const T*> (iData), iIndex, oItemHolder, viewType, context);
       }
    }
@@ -73,9 +73,9 @@ protected:
       throw std::runtime_error("virtual buildViewType(const T&, unsigned int, TEveElement&, FWViewType::EType, const FWViewContext*) not implemented by inherited class");
    };
 private:
-   FWSimpleProxyBuilderTemplate(const FWSimpleProxyBuilderTemplate&); // stop default
+   FWSimpleProxyBuilderTemplate(const FWSimpleProxyBuilderTemplate&) = delete; // stop default
 
-   const FWSimpleProxyBuilderTemplate& operator=(const FWSimpleProxyBuilderTemplate&); // stop default
+   const FWSimpleProxyBuilderTemplate& operator=(const FWSimpleProxyBuilderTemplate&) = delete; // stop default
 
 
 

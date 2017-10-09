@@ -45,7 +45,7 @@ public:
       TNamed* cmsswVersion;
       TObjArray* extraDetectors;
 
-      VersionInfo() : productionTag(0), cmsswVersion(0), extraDetectors(0) {}
+      VersionInfo() : productionTag(nullptr), cmsswVersion(nullptr), extraDetectors(nullptr) {}
       bool haveExtraDet(const char*)const;
    };
 

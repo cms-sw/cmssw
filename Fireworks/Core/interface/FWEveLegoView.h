@@ -26,10 +26,10 @@ class FWEveLegoView: public FWLegoViewBase
 {
 public:
    FWEveLegoView(TEveWindowSlot*, FWViewType::EType);
-   virtual ~FWEveLegoView();
+   ~FWEveLegoView() override;
 
-   virtual void setContext(const fireworks::Context&);
-   virtual void setBackgroundColor(Color_t);
+   void setContext(const fireworks::Context&) override;
+   void setBackgroundColor(Color_t) override;
 
    // ---------- const member functions ---------------------
 
@@ -38,9 +38,9 @@ public:
    // ---------- member functions ---------------------------
 
 private:
-   FWEveLegoView(const FWEveLegoView&); // stop default
+   FWEveLegoView(const FWEveLegoView&) = delete; // stop default
 
-   const FWEveLegoView& operator=(const FWEveLegoView&); // stop default
+   const FWEveLegoView& operator=(const FWEveLegoView&) = delete; // stop default
 
    // ---------- member data --------------------------------
    TEveStraightLineSet* m_boundaries;

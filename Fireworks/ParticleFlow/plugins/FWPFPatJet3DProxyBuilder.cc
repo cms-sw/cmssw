@@ -45,7 +45,7 @@ about them */
 class FWPFJet3DProxyBuilder : public FWPFPatJet3DProxyBuilder<reco::PFJet> {
 public:
    FWPFJet3DProxyBuilder(){}
-   virtual ~FWPFJet3DProxyBuilder(){}
+   ~FWPFJet3DProxyBuilder() override{}
 
    REGISTER_PROXYBUILDER_METHODS();
 };
@@ -54,7 +54,7 @@ public:
 class FWPatJet3DProxyBuilder : public FWPFPatJet3DProxyBuilder<pat::Jet> {
 public:
    FWPatJet3DProxyBuilder(){}
-   virtual ~FWPatJet3DProxyBuilder(){}
+   ~FWPatJet3DProxyBuilder() override{}
 
    REGISTER_PROXYBUILDER_METHODS();   // Register methods ready for macro
 };

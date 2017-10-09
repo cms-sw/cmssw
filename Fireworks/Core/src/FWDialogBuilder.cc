@@ -19,12 +19,12 @@
 
 FWLayoutBuilder::FWLayoutBuilder(TGCompositeFrame *window, bool expandY)
    : m_window(window),
-     m_currentFrame(0),
+     m_currentFrame(nullptr),
      m_floatLeft(false),
      m_topSpacing(0),
      m_leftSpacing(0),
-     m_currentHints(0),
-     m_currentFrameHints(0)
+     m_currentHints(nullptr),
+     m_currentFrameHints(nullptr)
 {
    TGVerticalFrame *mainFrame = new TGVerticalFrame(window);
    TGLayoutHints *hints = new TGLayoutHints(expandY ? kLHintsExpandX|kLHintsExpandY : kLHintsExpandX, 
@@ -53,7 +53,7 @@ FWLayoutBuilder::indent(int left /*= 2*/, int right /* = -1*/)
    TGVerticalFrame *parent = m_framesStack.back();
    TGLayoutHints *hints = new TGLayoutHints(kLHintsExpandX|kLHintsExpandY, 
                                             left, right, 0, 0);
-   m_currentHints = 0;
+   m_currentHints = nullptr;
    m_framesStack.push_back(new TGVerticalFrame(parent));
    parent->AddFrame(m_framesStack.back(), hints);
    return newRow().expand(true, false);
@@ -242,7 +242,7 @@ FWDialogBuilder::FWDialogBuilder(TGCompositeFrame *window,
                                  FWDialogBuilder *parent /*= 0*/, bool expandY)
    : FWLayoutBuilder(window, expandY),
      m_parent(parent),
-     m_tabs(0)
+     m_tabs(nullptr)
 {}
 
 FWDialogBuilder &
@@ -482,7 +482,7 @@ FWDialogBuilder::untabs(void)
 {
    // No untabs() without tabs().
    assert(m_tabs);
-   m_tabs = 0;
+   m_tabs = nullptr;
    return *this;
 }
 
