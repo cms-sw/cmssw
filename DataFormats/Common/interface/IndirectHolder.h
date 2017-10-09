@@ -33,25 +33,25 @@ namespace edm {
       IndirectHolder(IndirectHolder const& other);
       IndirectHolder& operator= (IndirectHolder const& rhs);
       void swap(IndirectHolder& other);
-      virtual ~IndirectHolder();
+      ~IndirectHolder() override;
       
-      virtual BaseHolder<T>* clone() const override;
-      virtual T const* getPtr() const override;
-      virtual ProductID id() const override;
-      virtual size_t key() const override;
-      virtual bool isEqualTo(BaseHolder<T> const& rhs) const override;
+      BaseHolder<T>* clone() const override;
+      T const* getPtr() const override;
+      ProductID id() const override;
+      size_t key() const override;
+      bool isEqualTo(BaseHolder<T> const& rhs) const override;
 
-      virtual bool fillRefIfMyTypeMatches(RefHolderBase& fillme,
+      bool fillRefIfMyTypeMatches(RefHolderBase& fillme,
 					  std::string& msg) const override;
-      virtual std::unique_ptr<RefHolderBase> holder() const override;
-      virtual std::unique_ptr<BaseVectorHolder<T> > makeVectorHolder() const override;
-      virtual EDProductGetter const* productGetter() const override;
+      std::unique_ptr<RefHolderBase> holder() const override;
+      std::unique_ptr<BaseVectorHolder<T> > makeVectorHolder() const override;
+      EDProductGetter const* productGetter() const override;
 
       /// Checks if product collection is in memory or available
       /// in the Event. No type checking is done.
-      virtual bool isAvailable() const override { return helper_->isAvailable(); }
+      bool isAvailable() const override { return helper_->isAvailable(); }
 
-      virtual bool isTransient() const override { return helper_->isTransient(); }
+      bool isTransient() const override { return helper_->isTransient(); }
 
       //Used by ROOT storage
       CMS_CLASS_VERSION(10)

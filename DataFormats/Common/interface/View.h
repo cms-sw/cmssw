@@ -103,7 +103,7 @@ namespace edm {
          FillViewHelperVector const& helpers,
          EDProductGetter const* getter);
 
-    virtual ~View();
+    ~View() override;
 
     void swap(View& other);
 
@@ -182,7 +182,7 @@ namespace edm {
       void const* p = pointers[i];
       auto const& h = helpers[i];
       items_.push_back(static_cast<pointer>(p));
-      if(0!=p) {
+      if(nullptr!=p) {
          vPtrs_.push_back(Ptr<T>(h.first, static_cast<T const*>(p), h.second));
       } else if(getter != nullptr) {
          vPtrs_.push_back(Ptr<T>(h.first, h.second, getter));

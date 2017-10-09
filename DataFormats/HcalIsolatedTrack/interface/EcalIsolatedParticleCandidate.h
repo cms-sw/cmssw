@@ -29,9 +29,9 @@ namespace reco {
       ,enIn_(enIn), enOut_(enOut), nhitIn_(nhitIn), nhitOut_(nhitOut) {} 
 
     /// destructor
-    virtual ~EcalIsolatedParticleCandidate();
+    ~EcalIsolatedParticleCandidate() override;
     /// returns a clone of the candidate
-    virtual EcalIsolatedParticleCandidate * clone() const;
+    EcalIsolatedParticleCandidate * clone() const override;
     
     /// reference to a tau jet
     virtual l1extra::L1JetParticleRef l1TauJet() const;

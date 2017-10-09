@@ -36,7 +36,7 @@ namespace l1t {
 	    int qual=0,
 	    int iso=0);
 
-    ~EGamma();
+    ~EGamma() override;
 
     void setTowerIEta(short int ieta);  // ieta of seed tower
     void setTowerIPhi(short int iphi);  // iphi of seed tower

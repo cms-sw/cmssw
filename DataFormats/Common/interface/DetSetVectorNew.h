@@ -310,7 +310,7 @@ namespace edmNew {
       }
       ~TSFastFiller() {
         bool expected=false;
-        while (!m_v.m_filling.compare_exchange_weak(expected,true))  { expected=false; nanosleep(0,0);}
+        while (!m_v.m_filling.compare_exchange_weak(expected,true))  { expected=false; nanosleep(nullptr,nullptr);}
         int offset = m_v.m_data.size();
         if (m_v.onDemand() && full()) {
           m_v.m_filling = false;
@@ -385,7 +385,7 @@ namespace edmNew {
 #ifdef DSVN_USE_ATOMIC
       {
         bool expected=false;
-        while (!iContainer.m_filling.compare_exchange_weak(expected,true,std::memory_order_acq_rel))  { expected=false; nanosleep(0,0);}
+        while (!iContainer.m_filling.compare_exchange_weak(expected,true,std::memory_order_acq_rel))  { expected=false; nanosleep(nullptr,nullptr);}
         typename self::result_type item =  &(iContainer.m_data[iIndex]);
         assert(iContainer.m_filling==true);
         iContainer.m_filling = false;
@@ -673,7 +673,7 @@ namespace edmNew {
 			     typename Container::Item const & item, bool update) {
     // if an item is being updated we wait
     if (update) icont.update(item);
-    while(item.initializing()) nanosleep(0,0);
+    while(item.initializing()) nanosleep(nullptr,nullptr);
     m_data=&icont.data();
     m_id=item.id; 
     m_offset = item.offset; 
