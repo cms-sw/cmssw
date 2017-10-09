@@ -334,7 +334,6 @@ void BeamSpotProblemMonitor::FillPlots(const LuminosityBlock& lumiSeg,int &lastl
     		          /* S.Dutta : Commenting out these variables are not used and giving error with "-Werror=unused-variable" option
     	                   float qtresult = BeamSpotQReport->getQTresult();
                            int qtstatus   = BeamSpotQReport->getStatus() ; // get QT status value (see table below) */
-               	           const std::string& qtmessage = BeamSpotQReport->getMessage() ; // get the whole QT result message
                       }
 
 
