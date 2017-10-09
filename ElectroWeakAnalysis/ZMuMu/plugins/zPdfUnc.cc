@@ -8,8 +8,8 @@ class zPdfUnc : public edm::EDAnalyzer {
 public:
   zPdfUnc(const edm::ParameterSet& pset);
 private:
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
-  virtual void endJob() override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  void endJob() override;
   edm::EDGetTokenT<reco::GenParticleCollection> genToken_;
   edm::EDGetTokenT<std::vector<double> > pdfweightsToken_;
   unsigned int pdfmember_ , nbinsMass_, nbinsPt_, nbinsAng_ ;

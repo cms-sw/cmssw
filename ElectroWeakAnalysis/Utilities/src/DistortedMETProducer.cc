@@ -13,12 +13,12 @@
 class DistortedMETProducer : public edm::EDProducer {
    public:
       explicit DistortedMETProducer(const edm::ParameterSet&);
-      ~DistortedMETProducer();
+      ~DistortedMETProducer() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       edm::EDGetTokenT<edm::View<reco::MET> > metToken_;
       double metScaleShift_; // relative shift (0. => no shift)
