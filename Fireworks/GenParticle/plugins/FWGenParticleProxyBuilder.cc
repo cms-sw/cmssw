@@ -29,15 +29,15 @@ class FWGenParticleProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::GenP
 
 public:
    FWGenParticleProxyBuilder() {}
-   virtual ~FWGenParticleProxyBuilder() {}
+   ~FWGenParticleProxyBuilder() override {}
 
    // ---------- member functions ---------------------------
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWGenParticleProxyBuilder(const FWGenParticleProxyBuilder&); // stop default
+   FWGenParticleProxyBuilder(const FWGenParticleProxyBuilder&) = delete; // stop default
 
-   const FWGenParticleProxyBuilder& operator=(const FWGenParticleProxyBuilder&); // stop default
+   const FWGenParticleProxyBuilder& operator=(const FWGenParticleProxyBuilder&) = delete; // stop default
    
    using FWSimpleProxyBuilderTemplate<reco::GenParticle>::build;
    void build(const reco::GenParticle& iData, unsigned int iIndex,TEveElement& oItemHolder, const FWViewContext*) override;

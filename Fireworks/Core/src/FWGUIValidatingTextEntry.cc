@@ -35,9 +35,9 @@
 //
 FWGUIValidatingTextEntry::FWGUIValidatingTextEntry(const TGWindow *parent, const char *text, Int_t id ) :
    TGTextEntry(parent,text,id),
-   m_popup(0),
-   m_list(0),
-   m_validator(0),
+   m_popup(nullptr),
+   m_list(nullptr),
+   m_validator(nullptr),
    m_listHeight(100)
 {
    m_popup = new TGComboBoxPopup(fClient->GetDefaultRoot(), 100, 100, kVerticalFrame);
@@ -146,7 +146,7 @@ public:
          TTimer(100),
          m_window(iWindow) {
       }
-      virtual Bool_t Notify() override {
+      Bool_t Notify() override {
          TurnOff();
          m_window->RequestFocus();
          return kTRUE;
@@ -160,7 +160,7 @@ private:
 void
 FWGUIValidatingTextEntry::showOptions() {
 
-   if(0!=m_validator) {
+   if(nullptr!=m_validator) {
       const char* text = GetText();
       std::string subText(text,text+GetCursorPosition());
       //std::cout <<subText<<std::endl;

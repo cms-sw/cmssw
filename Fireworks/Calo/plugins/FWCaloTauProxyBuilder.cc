@@ -34,25 +34,25 @@ class FWCaloTauProxyBuilder : public FWTauProxyBuilderBase
 {
 public:
    FWCaloTauProxyBuilder() {}
-   virtual ~FWCaloTauProxyBuilder() {}
+   ~FWCaloTauProxyBuilder() override {}
   
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWCaloTauProxyBuilder(const FWCaloTauProxyBuilder&);    // stop default
-   const FWCaloTauProxyBuilder& operator=(const FWCaloTauProxyBuilder&);    // stop default
+   FWCaloTauProxyBuilder(const FWCaloTauProxyBuilder&) = delete;    // stop default
+   const FWCaloTauProxyBuilder& operator=(const FWCaloTauProxyBuilder&) = delete;    // stop default
 
    using FWTauProxyBuilderBase::buildViewType;
-   virtual void buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType viewType , const FWViewContext* vc);
+   void buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType viewType , const FWViewContext* vc) override;
 
 };
 
 void
 FWCaloTauProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType viewType , const FWViewContext* vc)
 {
-   reco::CaloTauCollection const * caloTaus = 0;
+   reco::CaloTauCollection const * caloTaus = nullptr;
    iItem->get( caloTaus );
-   if( caloTaus == 0 ) return;
+   if( caloTaus == nullptr ) return;
 
       
    Int_t idx = 0;
@@ -98,7 +98,7 @@ FWCaloTauProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList*
          catch (std::exception&  e)
          { 
             fwLog(fwlog::kInfo) << "FWPFTauProxyBuilder missing PFTauTagInfo. Skip drawing of jets.\n";
-            buildBaseTau(*it, 0, comp, viewType, vc);
+            buildBaseTau(*it, nullptr, comp, viewType, vc);
          }
       }
       setupAddElement( comp, product );

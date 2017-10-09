@@ -11,7 +11,7 @@
 
 FWLiteJobMetadataManager::FWLiteJobMetadataManager(void)
    : FWJobMetadataManager(),
-     m_event(0)
+     m_event(nullptr)
 {}
 
 bool

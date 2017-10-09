@@ -36,23 +36,23 @@ class FWElectronProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::GsfElec
 
 public:
    FWElectronProxyBuilder() ;
-   virtual ~FWElectronProxyBuilder();
+   ~FWElectronProxyBuilder() override;
 
    using FWProxyBuilderBase::haveSingleProduct;
-   virtual bool haveSingleProduct() const override { return false; }
+   bool haveSingleProduct() const override { return false; }
    using FWProxyBuilderBase::cleanLocal;
-   virtual void cleanLocal() override;
+   void cleanLocal() override;
    using FWSimpleProxyBuilderTemplate<reco::GsfElectron>::buildViewType;
-   virtual void buildViewType(const reco::GsfElectron& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*) override;
+   void buildViewType(const reco::GsfElectron& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*) override;
 
    using FWSimpleProxyBuilderTemplate<reco::GsfElectron>::setItem;
-   virtual void setItem(const FWEventItem* iItem) override;
+   void setItem(const FWEventItem* iItem) override;
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWElectronProxyBuilder( const FWElectronProxyBuilder& ); // stop default
-   const FWElectronProxyBuilder& operator=( const FWElectronProxyBuilder& ); // stop default
+   FWElectronProxyBuilder( const FWElectronProxyBuilder& ) = delete; // stop default
+   const FWElectronProxyBuilder& operator=( const FWElectronProxyBuilder& ) = delete; // stop default
   
  
    TEveElementList* requestCommon();
@@ -62,7 +62,7 @@ private:
 
 
 FWElectronProxyBuilder::FWElectronProxyBuilder():
-   m_common(0)
+   m_common(nullptr)
 {
    m_common = new TEveElementList( "common electron scene" );
    m_common->IncDenyDestroy();
@@ -95,7 +95,7 @@ FWElectronProxyBuilder::requestCommon()
       {
          const reco::GsfElectron& electron = modelData(i);
 
-         TEveTrack* track(0);
+         TEveTrack* track(nullptr);
          if( electron.gsfTrack().isAvailable() )
             track = fireworks::prepareTrack( *electron.gsfTrack(),
                                              context().getTrackPropagator());
@@ -150,17 +150,17 @@ REGISTER_FWPROXYBUILDER( FWElectronProxyBuilder, reco::GsfElectron, "Electrons",
 class FWElectronGlimpseProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::GsfElectron> {
 public:
    FWElectronGlimpseProxyBuilder() {}
-   virtual ~FWElectronGlimpseProxyBuilder() {}
+   ~FWElectronGlimpseProxyBuilder() override {}
    using FWSimpleProxyBuilderTemplate<reco::GsfElectron>::build;
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWElectronGlimpseProxyBuilder(const FWElectronGlimpseProxyBuilder&); // stop default
+   FWElectronGlimpseProxyBuilder(const FWElectronGlimpseProxyBuilder&) = delete; // stop default
 
-   const FWElectronGlimpseProxyBuilder& operator=(const FWElectronGlimpseProxyBuilder&); // stop default
+   const FWElectronGlimpseProxyBuilder& operator=(const FWElectronGlimpseProxyBuilder&) = delete; // stop default
 
-   virtual void build(const reco::GsfElectron& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;
+   void build(const reco::GsfElectron& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;
 };
 
 void

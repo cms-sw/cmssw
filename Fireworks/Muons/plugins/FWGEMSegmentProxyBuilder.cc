@@ -13,22 +13,22 @@ class FWGEMSegmentProxyBuilder : public FWSimpleProxyBuilderTemplate<GEMSegment>
 {
 public:
   FWGEMSegmentProxyBuilder() {}
-  virtual ~FWGEMSegmentProxyBuilder() {}
+  ~FWGEMSegmentProxyBuilder() override {}
   
-  virtual bool haveSingleProduct() const { return false; }
+  bool haveSingleProduct() const override { return false; }
 
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
-  FWGEMSegmentProxyBuilder(const FWGEMSegmentProxyBuilder&);
-  const FWGEMSegmentProxyBuilder& operator=(const FWGEMSegmentProxyBuilder&); 
+  FWGEMSegmentProxyBuilder(const FWGEMSegmentProxyBuilder&) = delete;
+  const FWGEMSegmentProxyBuilder& operator=(const FWGEMSegmentProxyBuilder&) = delete; 
  
   using FWSimpleProxyBuilderTemplate<GEMSegment>::buildViewType;
-  virtual void buildViewType(const GEMSegment& iData, 
+  void buildViewType(const GEMSegment& iData, 
                              unsigned int iIndex, 
                              TEveElement& oItemHolder, 
                              FWViewType::EType type, 
-                             const FWViewContext*);
+                             const FWViewContext*) override;
 };
 
 

@@ -54,8 +54,8 @@ protected:
 private:
    virtual void attach(FWParameterBase*) = 0;
 
-   FWParameterSetterBase(const FWParameterSetterBase&);                  // stop default
-   const FWParameterSetterBase& operator=(const FWParameterSetterBase&); // stop default
+   FWParameterSetterBase(const FWParameterSetterBase&) = delete;                  // stop default
+   const FWParameterSetterBase& operator=(const FWParameterSetterBase&) = delete; // stop default
 
    // ---------- member data --------------------------------
 
