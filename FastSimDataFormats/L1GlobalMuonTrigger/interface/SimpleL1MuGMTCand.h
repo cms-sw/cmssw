@@ -49,7 +49,7 @@ class SimpleL1MuGMTCand : public L1MuGMTExtendedCand {
 		      float pTValue);    
 
     /// destructor
-    virtual ~SimpleL1MuGMTCand();
+    ~SimpleL1MuGMTCand() override;
 
     /// reset muon candidate
     void reset();
