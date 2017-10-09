@@ -258,7 +258,7 @@ void HLTrigReport::reset(bool changed /* = false */) {
         for (; i<datasetNames_.size(); i++) if (datasetNames_[i] == streamContents_[s][ds]) 
           break;
         // report only datasets that have at least one path otherwise crash
-        if (i < datasetNames_.size() and hlIndex_[i].size() > 0) {
+        if (i < datasetNames_.size() and !hlIndex_[i].empty()) {
           dsIndex_[s].push_back(i);
           dsAccTotS_[s].push_back(0);
         }

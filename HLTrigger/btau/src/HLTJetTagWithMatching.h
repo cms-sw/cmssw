@@ -31,10 +31,10 @@ class HLTJetTagWithMatching : public HLTFilter {
 
   public:
     explicit HLTJetTagWithMatching(const edm::ParameterSet & config);
-    ~HLTJetTagWithMatching();
+    ~HLTJetTagWithMatching() override;
     static float findCSV(const  typename std::vector<T>::const_iterator & jet, const reco::JetTagCollection & jetTags, float minDr=0.1);
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    virtual bool hltFilter(edm::Event & event, const edm::EventSetup & setup, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+    bool hltFilter(edm::Event & event, const edm::EventSetup & setup, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
 private:
   edm::InputTag                     m_Jets;      // module label of input JetCollection

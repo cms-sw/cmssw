@@ -39,7 +39,7 @@ class TriggerResultsFilterFromDB : public edm::stream::EDFilter<>
 {
 public:
   explicit TriggerResultsFilterFromDB(const edm::ParameterSet &);
-  ~TriggerResultsFilterFromDB();
+  ~TriggerResultsFilterFromDB() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   bool filter(edm::Event &, const edm::EventSetup &) override;
 

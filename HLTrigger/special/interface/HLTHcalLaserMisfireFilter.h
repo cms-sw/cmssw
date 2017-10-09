@@ -34,12 +34,12 @@ namespace edm {
 class HLTHcalLaserMisfireFilter : public edm::global::EDFilter<> {
 public:
   explicit HLTHcalLaserMisfireFilter(const edm::ParameterSet&);
-  ~HLTHcalLaserMisfireFilter();
+  ~HLTHcalLaserMisfireFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
 private:
-  virtual bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-  virtual void endJob(void) override {}
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void endJob(void) override {}
  
   // ----------member data ---------------------------
   edm::InputTag                         inputHBHE_, inputHF_;

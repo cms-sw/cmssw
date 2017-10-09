@@ -96,7 +96,7 @@ bool HLTHcalNoiseFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
 	 }
 	
        }
-       if(JetContainer.size() > 0) {
+       if(!JetContainer.empty()) {
 	 isAnomalous_BasedOnEnergyFraction = true;
        }
      }

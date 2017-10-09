@@ -29,8 +29,8 @@ class HLTPixlMBFilt : public HLTFilter {
 
    public:
       explicit HLTPixlMBFilt(const edm::ParameterSet&);
-      ~HLTPixlMBFilt();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      ~HLTPixlMBFilt() override;
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:

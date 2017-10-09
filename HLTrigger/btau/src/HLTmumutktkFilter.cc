@@ -152,7 +152,7 @@ bool HLTmumutktkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
                           0.);
                           
     // get vertex position and error to calculate the decay length significance
-    reco::Vertex::Point vpoint=displacedVertex.position();
+    const reco::Vertex::Point& vpoint=displacedVertex.position();
     reco::Vertex::Error verr = displacedVertex.error();
     GlobalPoint secondaryVertex (vpoint.x(), vpoint.y(), vpoint.z());
     GlobalError err(verr.At(0,0), verr.At(1,0), verr.At(1,1), verr.At(2,0), verr.At(2,1), verr.At(2,2) );

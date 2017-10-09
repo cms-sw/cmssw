@@ -17,7 +17,7 @@
 
 
 // system include files
-#include <stdint.h>
+#include <cstdint>
 #include <map>
 
 // user include files

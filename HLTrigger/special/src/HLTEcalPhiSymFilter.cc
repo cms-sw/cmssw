@@ -144,7 +144,7 @@ HLTEcalPhiSymFilter::filter(edm::StreamID, edm::Event & event, const edm::EventS
     }
   }
 
-  if ((!phiSymEBDigiCollection->size() ) && (!phiSymEEDigiCollection->size())) 
+  if ((phiSymEBDigiCollection->empty() ) && (phiSymEEDigiCollection->empty())) 
     return false;
 
   //Put selected information in the event

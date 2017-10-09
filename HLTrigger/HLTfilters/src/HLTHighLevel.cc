@@ -51,7 +51,7 @@ HLTHighLevel::HLTHighLevel(const edm::ParameterSet& iConfig) :
   // names and slot numbers are computed during the event loop, 
   // as they need to access the TriggerNames object via the TriggerResults
 
-  if (eventSetupPathsKey_.size()) {
+  if (!eventSetupPathsKey_.empty()) {
     // If paths come from eventsetup, we must watch for IOV changes.
     if (!HLTPatterns_.empty()) {
       // We do not want double trigger path setting, so throw!
@@ -105,7 +105,7 @@ void HLTHighLevel::init(const edm::TriggerResults & result,
   HLTPathsByIndex_.clear();
 
   // Overwrite paths from EventSetup via AlCaRecoTriggerBitsRcd if configured:
-  if (eventSetupPathsKey_.size()) {
+  if (!eventSetupPathsKey_.empty()) {
     HLTPatterns_ = this->pathsFromSetup(eventSetupPathsKey_, event, iSetup);
   }
 

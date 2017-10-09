@@ -153,7 +153,7 @@ bool HLTHcalMETNoiseCleaner::filter(edm::Event& iEvent, const edm::EventSetup& i
   edm::Handle<CaloMETCollection> met_h;
   iEvent.getByToken(m_theCaloMetToken,met_h);
   
-  if(not met_h.isValid() or met_h->size()==0 or met_h->front().pt()<0){ //No Valid MET, don't do anything and accept the event
+  if(not met_h.isValid() or met_h->empty() or met_h->front().pt()<0){ //No Valid MET, don't do anything and accept the event
     return true;  // we shouldn't get here, but lets not crash
   }
   
@@ -186,7 +186,7 @@ bool HLTHcalMETNoiseCleaner::filter(edm::Event& iEvent, const edm::EventSetup& i
     data.insert(d);
   }
   //if 0 RBXs are in the list, just accept
-  if(data.size()<1){
+  if(data.empty()){
     CleanedMET->push_back(inCaloMet);
     iEvent.put(std::move(CleanedMET));
     return true;

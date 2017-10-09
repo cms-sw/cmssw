@@ -40,10 +40,10 @@ class HLTHighLevel : public edm::EDFilter {
   public:
 
     explicit HLTHighLevel(const edm::ParameterSet&);
-    ~HLTHighLevel();
+    ~HLTHighLevel() override;
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
-    virtual bool filter(edm::Event&, const edm::EventSetup&);
+    bool filter(edm::Event&, const edm::EventSetup&) override;
 
     /// get HLTPaths with key 'key' from EventSetup (AlCaRecoTriggerBitsRcd)
     std::vector<std::string> pathsFromSetup(const std::string &key,
