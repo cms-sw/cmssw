@@ -100,7 +100,7 @@ TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRecord)
 
    TGeoManager *geo_mgr = new TGeoManager("cmsGeo","CMS Detector");
    // NOTE: the default constructor does not create the identity matrix
-   if (gGeoIdentity == 0)
+   if (gGeoIdentity == nullptr)
    {
       gGeoIdentity = new TGeoIdentity("Identity");
    }
@@ -119,7 +119,7 @@ TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRecord)
    TGeoVolume *top = createVolume(info.first.name().fullname(),
 				  info.first.solid(),
                                   info.first.material());
-   if (top == 0) {
+   if (top == nullptr) {
       return std::shared_ptr<TGeoManager>();
    }
 
@@ -144,11 +144,11 @@ TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRecord)
 		   << DDSolidShapesName::name(info.first.solid().shape())<<std::endl;
       }
 
-      bool childAlreadyExists = (0 != nameToVolume_[info.first.name().fullname()]);
+      bool childAlreadyExists = (nullptr != nameToVolume_[info.first.name().fullname()]);
       TGeoVolume *child = createVolume(info.first.name().fullname(),
 				       info.first.solid(),
 				       info.first.material());
-      if (0!=child && info.second != 0)
+      if (nullptr!=child && info.second != nullptr)
       {
 	 parentStack.back()->AddNode(child,
 				     info.second->copyno(),
@@ -158,13 +158,13 @@ TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRecord)
       }
       else
       {
-	if ( info.second == 0 ) {
+	if ( info.second == nullptr ) {
 	  break;
  	}
       }
-      if (0 == child || childAlreadyExists || m_level == int(parentStack.size()))
+      if (nullptr == child || childAlreadyExists || m_level == int(parentStack.size()))
       {
-	 if (0!=child)
+	 if (nullptr!=child)
          {
 	    child->SetLineColor(kRed);
 	 }
@@ -230,7 +230,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
    if( !defined.second ) throw cms::Exception("TGeoMgrFromDdd::createShape * solid " + defined.first->name() + " is not defined *" );
    
    TGeoShape* rSolid= nameToShape_[iName];
-   if (rSolid == 0)
+   if (rSolid == nullptr)
    {
       const std::vector<double>& params = iSolid.parameters();
       switch(iSolid.shape())
@@ -436,7 +436,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	    {
  	      TGeoSubtraction* sub = new TGeoSubtraction( trap.release(),
  							  tubs.release(),
- 							  0,
+ 							  nullptr,
  							  createPlacement( s_rot,
  									   DDTranslation( 0.,
  											  0.,
@@ -450,7 +450,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	      
 	      TGeoSubtraction* sub = new TGeoSubtraction( tubs.release(),
 							  box.release(),
-							  0,
+							  nullptr,
 							  createPlacement( s_rot,
 									   DDTranslation( 0.,
 											  0.,
@@ -460,7 +460,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 						
 	      TGeoUnion* boolS = new TGeoUnion( trap.release(),
 						tubicCap.release(),
-						0,
+						nullptr,
 						createPlacement( s_rot,
 								 DDTranslation( 0.,
 										0.,
@@ -494,10 +494,10 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 						       boolSolid.solidA()) );
 	    std::auto_ptr<TGeoShape> right( createShape(boolSolid.solidB().name().fullname(),
 							boolSolid.solidB()));
-	    if( 0 != left.get() &&
-		0 != right.get() ) {
+	    if( nullptr != left.get() &&
+		nullptr != right.get() ) {
 	       TGeoSubtraction* sub = new TGeoSubtraction(left.release(),right.release(),
-							  0,
+							  nullptr,
 							  createPlacement(
                                                                           *(boolSolid.rotation().matrix()),
                                                                           boolSolid.translation()));
@@ -579,7 +579,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 
 	    TGeoSubtraction* sub = new TGeoSubtraction( tubs.release(),
 							box.release(),
-							0, new TGeoCombiTrans( trans, rot ));
+							nullptr, new TGeoCombiTrans( trans, rot ));
 
 	    rSolid = new TGeoCompositeShape( iName.c_str(),
 	    				     sub );
@@ -598,10 +598,10 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 							boolSolid.solidB()));
 	    //DEBUGGING
 	    //break;
-	    if( 0 != left.get() &&
-		0 != right.get() ) {
+	    if( nullptr != left.get() &&
+		nullptr != right.get() ) {
 	       TGeoUnion* boolS = new TGeoUnion(left.release(),right.release(),
-						0,
+						nullptr,
 						createPlacement(
                                                                 *(boolSolid.rotation().matrix()),
                                                                 boolSolid.translation()));
@@ -621,11 +621,11 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 						       boolSolid.solidA()) );
 	    std::auto_ptr<TGeoShape> right( createShape(boolSolid.solidB().name().fullname(),
 							boolSolid.solidB()));
-	    if( 0 != left.get() &&
-		0 != right.get() ) {
+	    if( nullptr != left.get() &&
+		nullptr != right.get() ) {
 	       TGeoIntersection* boolS = new TGeoIntersection(left.release(),
 							      right.release(),
-							      0,
+							      nullptr,
 							      createPlacement(
                                                                               *(boolSolid.rotation().matrix()),
                                                                               boolSolid.translation()));
@@ -651,7 +651,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
       }
       nameToShape_[iName]=rSolid;
    }
-   if (rSolid == 0)
+   if (rSolid == nullptr)
    {
       std::cerr <<"COULD NOT MAKE "<<iName<<" of a shape "<<iSolid<<std::endl;
    }
@@ -667,13 +667,13 @@ TGeoMgrFromDdd::createVolume(const std::string& iName,
 		       const DDMaterial& iMaterial)
 {
    TGeoVolume* v=nameToVolume_[iName];
-   if (v == 0)
+   if (v == nullptr)
    {
       TGeoShape* solid     = createShape(iSolid.name().fullname(),
                                          iSolid);
       std::string mat_name = iMaterial.name().fullname();
       TGeoMedium *geo_med  = nameToMedium_[mat_name];
-      if (geo_med == 0)
+      if (geo_med == nullptr)
       {
          TGeoMaterial *geo_mat = createMaterial(iMaterial);
          geo_med = new TGeoMedium(mat_name.c_str(), 0, geo_mat);
@@ -696,7 +696,7 @@ TGeoMgrFromDdd::createMaterial(const DDMaterial& iMaterial)
    std::string   mat_name = iMaterial.name().fullname();
    TGeoMaterial *mat      = nameToMaterial_[mat_name];
 
-   if (mat == 0)
+   if (mat == nullptr)
    {
       if (iMaterial.noOfConstituents() > 0)
       {

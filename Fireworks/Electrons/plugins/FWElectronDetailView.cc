@@ -36,9 +36,9 @@
 // constructors and destructor
 //
 FWElectronDetailView::FWElectronDetailView() :
-   m_data(0),
-   m_builder(0),
-   m_legend(0)
+   m_data(nullptr),
+   m_builder(nullptr),
+   m_legend(nullptr)
 {
 }
 
@@ -83,27 +83,27 @@ FWElectronDetailView::build( const FWModelId &id, const reco::GsfElectron* iElec
    m_data = lego->GetData();
    m_eveScene->AddElement( lego );
 
-   m_legend = new TLegend(0.01, 0.01, 0.99, 0.99, 0, "NDC");
+   m_legend = new TLegend(0.01, 0.01, 0.99, 0.99, nullptr, "NDC");
    m_legend->SetTextSize(0.075);
    m_legend->SetBorderSize(0);
    m_legend->SetMargin(0.15);
    m_legend->SetEntrySeparation(0.05);
 
    // add Electron specific details
-   if( 0 &&  iElectron->superCluster().isAvailable() ) {
+   if( false &&  iElectron->superCluster().isAvailable() ) {
       addTrackPointsInCaloData( iElectron, lego );
       drawCrossHair( iElectron, lego, m_eveScene );
       addSceneInfo( iElectron, m_eveScene );
    }
    
    // draw axis at the window corners
-   if (1)
+   if (true)
    {
    TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();
    overlay->SetShowPlane( kFALSE );
    overlay->SetShowPerspective( kFALSE );
    overlay->SetCaloLego( lego );
-   overlay->SetShowScales( 1 ); // temporary
+   overlay->SetShowScales( true ); // temporary
    viewerGL()->AddOverlayElement( overlay );
    }
    // set event handler and flip camera to top view at beginning
@@ -188,7 +188,7 @@ FWElectronDetailView::setTextInfo( const FWModelId& id, const reco::GsfElectron 
 
    m_legend->SetY2(y);
    m_legend->Draw();
-   m_legend = 0; // Deleted together with TPad.
+   m_legend = nullptr; // Deleted together with TPad.
 }
 
 void

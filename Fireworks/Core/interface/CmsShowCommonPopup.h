@@ -26,12 +26,12 @@ class CmsShowCommonPopup : public TGTransientFrame,
                            public FWParameterSetterEditorBase
 {
 public:
-   CmsShowCommonPopup( CmsShowCommon*, const TGWindow* p = 0, UInt_t w = 1, UInt_t h = 1);
-   virtual ~CmsShowCommonPopup();
+   CmsShowCommonPopup( CmsShowCommon*, const TGWindow* p = nullptr, UInt_t w = 1, UInt_t h = 1);
+   ~CmsShowCommonPopup() override;
 
    // ---------- member functions ---------------------------
 
-   virtual void CloseWindow() { UnmapWindow(); }
+   void CloseWindow() override { UnmapWindow(); }
 
    void switchBackground();
    void permuteColors();

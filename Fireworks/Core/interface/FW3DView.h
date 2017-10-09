@@ -30,10 +30,10 @@ class FW3DView: public FW3DViewBase
 {
 public:
    FW3DView(TEveWindowSlot*, FWViewType::EType);
-   virtual ~FW3DView();
+   ~FW3DView() override;
 
-   virtual void setContext(const fireworks::Context&);
-   virtual TEveCaloViz* getEveCalo() const;
+   void setContext(const fireworks::Context&) override;
+   TEveCaloViz* getEveCalo() const override;
    
    
    // ---------- const member functions ---------------------
@@ -44,9 +44,9 @@ public:
    // ---------- member functions ---------------------------
 
 private:
-   FW3DView(const FW3DView&); // stop default
+   FW3DView(const FW3DView&) = delete; // stop default
 
-   const FW3DView& operator=(const FW3DView&); // stop default
+   const FW3DView& operator=(const FW3DView&) = delete; // stop default
    
    // ---------- member data --------------------------------
    TEveCalo3D*        m_calo;

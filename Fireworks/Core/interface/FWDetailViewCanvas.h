@@ -10,9 +10,9 @@ class TEveWindowSlot;
 template <typename T> class FWDetailViewCanvas : public FWDetailView<T> {
 public:
   FWDetailViewCanvas ();
-  virtual ~FWDetailViewCanvas();
+  ~FWDetailViewCanvas() override;
   
-  virtual void init(TEveWindowSlot*);
+  void init(TEveWindowSlot*) override;
   
 protected:
   TCanvas*          m_infoCanvas;
