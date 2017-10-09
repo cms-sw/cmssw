@@ -40,6 +40,73 @@ def forward_proxy(rundir):
     shutil.copyfile(local_proxy, os.path.join(rundir,".user_proxy"))
 
 
+def write_HTCondor_submit_file(path, script, config, lib):
+    """Writes 'job.submit' file in `path`.
+
+    Arguments:
+    - `path`: job directory
+    - `script`: script to be executed
+    - `config`: cfg file
+    - `lib`: MPS lib object
+    """
+
+    resources = lib.get_class("pede").split("_")[1:] # strip off 'htcondor'
+    job_flavour = resources[-1]
+
+    job_submit_template="""
+universe              = vanilla
+executable            = {script:s}
+output                = {jobm:s}/STDOUT
+error                 = {jobm:s}/STDOUT
+log                   = {jobm:s}/HTCJOB
+notification          = Always
+transfer_output_files = ""
+request_memory        = {pedeMem:d}M
+
+# adapted to space used on eos for binaries:
+request_disk          = {disk:d}
+
+# adapted to threads parameter in pede options and number of available cores
+request_cpus          = {cpus:d}
+
++JobFlavour           = "{flavour:s}"
+"""
+    if "bigmem" in resources:
+        job_submit_template += """\
++BigMemJob            = True
++AccountingGroup      = "group_u_CMS.e_cms_caf_bigmem"
+"""
+    job_submit_template += "\nqueue\n"
+
+    print "Determine number of pede threads..."
+    cms_process = mps_tools.get_process_object(os.path.join(Path, mergeCfg))
+    pede_options = cms_process.AlignmentProducer.algoConfig.pedeSteerer.options.value()
+    n_threads = 1
+    for option in pede_options:
+        if "threads" in option:
+            n_threads = option.replace("threads", "").strip()
+            n_threads = max(map(lambda x: int(x), n_threads.split()))
+            break
+    if n_threads > 8: n_threads = 8 # HTCondor machines have (currently) 16
+                                    # cores, i.e. we ensure here that 2 of such
+                                    # jobs would fit core-wise on one machine
+
+    print "Determine required disk space on remote host..."
+    disk_usage = int(subprocess.check_output(["du", "-s", lib.mssDir]).split()[0])
+    disk_usage *= 1.1 # reserve 10% additional space
+
+    job_submit_file = os.path.join(Path, "job.submit")
+    with open(job_submit_file, "w") as f:
+        f.write(job_submit_template.format(script = os.path.abspath(script),
+                                           jobm = os.path.abspath(path),
+                                           pedeMem = lib.pedeMem,
+                                           disk = int(disk_usage),
+                                           cpus = n_threads,
+                                           flavour = job_flavour))
+
+    return job_submit_file
+
+
 
 
 parser = argparse.ArgumentParser(
@@ -78,6 +145,8 @@ theJobName = 'mpalign'
 if lib.addFiles != '':
     theJobName = lib.addFiles
 
+fire_htcondor = False
+
 # fire the 'normal' parallel Jobs (Mille Jobs)
 if not args.fireMerge:
     #set the resources string coming from mps.db
@@ -91,6 +160,8 @@ if not args.fireMerge:
     elif 'cmscaf' in resources:
         # g_cmscaf for ordinary caf queue, keeping 'cmscafspec' free for pede jobs:
         resources = '-q'+resources+' -m g_cmscaf'
+    elif "htcondor" in resources:
+        fire_htcondor = True
     else:
         resources = '-q '+resources
 
@@ -120,7 +191,7 @@ if not args.fireMerge:
                 if match:
                     # need standard format for job number
                     lib.JOBSTATUS[i] = 'SUBTD'
-                    lib.JOBID[i] = int(match.group(1))
+                    lib.JOBID[i] = match.group(1)
                 else:
                     print 'Submission of %03d seems to have failed: %s' % (lib.JOBNUMBER[i],result),
                 nSub +=1
@@ -132,11 +203,14 @@ else:
     resources = lib.get_class('pede')
     if 'cmscafspec' in resources:
         resources = '-q cmscafalcamille'
+    elif "htcondor" in resources:
+        fire_htcondor = True
     else:
         resources = '-q '+resources
 
-    # Allocate memory for pede job FIXME check documentation for bsub!!!!!
-    resources = resources+' -R \"rusage[mem="%s"]\"' % str(lib.pedeMem) # FIXME the dots? -> see .pl
+    if not fire_htcondor:
+        # Allocate memory for pede job FIXME check documentation for bsub!!!!!
+        resources = resources+' -R \"rusage[mem="%s"]\"' % str(lib.pedeMem) # FIXME the dots? -> see .pl
 
     # check whether all other jobs are OK
     mergeOK = True
@@ -159,9 +233,9 @@ else:
             print 'Merge job',jobNumFrom1,'not submitted since Mille jobs error/unfinished (Use -m -f to force).'
         else:
             # some paths for clarity
-            Path = '%s/%s' % (theJobData,lib.JOBDIR[i])
-            backupScriptPath  = Path+'/theScript.sh.bak'
-            scriptPath        = Path+'/theScript.sh'
+            Path = os.path.join(theJobData,lib.JOBDIR[i])
+            backupScriptPath  = os.path.join(Path, "theScript.sh.bak")
+            scriptPath        = os.path.join(Path, "theScript.sh")
 
             # force option invoked:
             if args.forceMerge:
@@ -175,9 +249,12 @@ else:
                 mergeCfg = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
                 mergeCfg = mergeCfg.strip()
 
+                if fire_htcondor:
+                    job_submit_file = write_HTCondor_submit_file(Path, scriptPath, mergeCfg, lib)
+
                 # make a backup copy of the cfg
-                backupCfgPath  = Path+'/%s.bak' % mergeCfg
-                cfgPath        = Path+'/%s'     % mergeCfg
+                backupCfgPath  = os.path.join(Path, mergeCfg+".bak")
+                cfgPath        = os.path.join(Path, mergeCfg)
                 if not os.path.isfile(backupCfgPath):
                     os.system('cp -p '+cfgPath+' '+backupCfgPath)
 
@@ -214,6 +291,9 @@ else:
                 mergeCfg = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
                 mergeCfg = mergeCfg.replace('\n','')
 
+                if fire_htcondor:
+                    job_submit_file = write_HTCondor_submit_file(Path, scriptPath, mergeCfg, lib)
+
                 # restore the backup copy of the cfg
                 backupCfgPath  = Path+'/%s.bak' % mergeCfg
                 cfgPath        = Path+'/%s'     % mergeCfg
@@ -225,19 +305,34 @@ else:
             # submit merge job
             nMerge = i-lib.nJobs  # 'index' of this merge job
             curJobName = 'm'+str(nMerge)+'_'+theJobName
-            if args.forwardProxy: forward_proxy(os.path.dirname(scriptPath))
-            submission = 'bsub -J %s %s %s' % (curJobName,resources,scriptPath)
-            result = subprocess.check_output(submission, stderr=subprocess.STDOUT, shell=True)
+            if args.forwardProxy: forward_proxy(Path)
+            if fire_htcondor:
+                submission = ["condor_submit",
+                              "-batch-name", curJobName,
+                              job_submit_file]
+            else:
+                submission = ["bsub", "-J", curJobName, resources, scriptPath]
+            for _ in xrange(5):
+                try:
+                    result = subprocess.check_output(submission, stderr=subprocess.STDOUT)
+                    break
+                except subprocess.CalledProcessError as e:
+                    result = e.output
+
             print '     '+result,
             result = result.strip()
 
             # check if merge job was submitted and updating jobdatabase
-            match = re.search('Job <(\d+)> is submitted', result)
+            if fire_htcondor:
+                match = re.search(r"1 job\(s\) submitted to cluster (\d+)\.", result)
+            else:
+                match = re.search('Job <(\d+)> is submitted', result)
             if match:
-                # need standard format for job number
                 lib.JOBSTATUS[i] = 'SUBTD'
-                lib.JOBID[i] = int(match.group(1))
-                print 'jobid is',lib.JOBID[i]
+                lib.JOBID[i] = match.group(1)
+                # need standard format for job number
+                if fire_htcondor: lib.JOBID[i] += ".0"
+                print "jobid is", lib.JOBID[i]
             else:
                 print 'Submission of merge job seems to have failed:',result,
 
