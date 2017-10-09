@@ -50,15 +50,15 @@ class TrackingRecHitProducer:
     public:
         TrackingRecHitProducer(const edm::ParameterSet& config);
 
-        virtual void beginRun(edm::Run const&, const edm::EventSetup& eventSetup);
+        void beginRun(edm::Run const&, const edm::EventSetup& eventSetup) override;
 
-        virtual void beginStream(edm::StreamID id);
+        void beginStream(edm::StreamID id) override;
 
-        virtual void produce(edm::Event& event, const edm::EventSetup& eventSetup);
+        void produce(edm::Event& event, const edm::EventSetup& eventSetup) override;
 
-        virtual void endStream();
+        void endStream() override;
 
-        virtual ~TrackingRecHitProducer();
+        ~TrackingRecHitProducer() override;
 };
 
 

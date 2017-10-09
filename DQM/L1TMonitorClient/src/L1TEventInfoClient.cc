@@ -519,7 +519,6 @@ void L1TEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore::IGe
 
             if (qHist) {
                 const std::vector<QReport*> qtVec = qHist->getQReports();
-                const std::string& hName = qHist->getName();
 
                 if (m_verbose) {
 
@@ -639,7 +638,6 @@ void L1TEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore::IGe
 
             if (qHist) {
                 const std::vector<QReport*> qtVec = qHist->getQReports();
-                const std::string& hName = qHist->getName();
 
                 if (m_verbose) {
 
