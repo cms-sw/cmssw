@@ -22,11 +22,11 @@
 class JetTagProducer : public edm::stream::EDProducer<> {
     public:
 	explicit JetTagProducer(const edm::ParameterSet&);
-	~JetTagProducer();
+	~JetTagProducer() override;
 	static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
     private:
-	virtual void produce(edm::Event&, const edm::EventSetup&);
+	void produce(edm::Event&, const edm::EventSetup&) override;
 
 	std::string				m_jetTagComputer;
 	std::vector<edm::EDGetTokenT<edm::View<reco::BaseTagInfo> > > token_tagInfos;
