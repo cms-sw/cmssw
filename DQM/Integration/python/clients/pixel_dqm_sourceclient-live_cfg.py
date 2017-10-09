@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
+#from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("PIXELDQMLIVE", eras.Run2_2017)
+process = cms.Process("PIXELDQMLIVE")
 
 live=True  #set to false for lxplus offline testing
 offlineTesting=not live
@@ -85,7 +85,12 @@ elif(offlineTesting):
 #-----------------------
 
 # Real data raw to digi
-process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
+if (process.runType.getRunType() == process.runType.pp_run): 
+    process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
+
+if (process.runType.getRunType() == process.runType.hi_run): 
+    process.load("Configuration.StandardSequences.RawToDigi_Repacked_cff")
+
 process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
 process.load("RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi")
 process.load("RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_RealData_cfi")
@@ -102,9 +107,22 @@ process.siStripDigis.InputLabel   = cms.InputTag("rawDataCollector")
 if (process.runType.getRunType() == process.runType.hi_run):    
     process.load('Configuration.StandardSequences.ReconstructionHeavyIons_cff')
     process.load('Configuration.StandardSequences.RawToDigi_Repacked_cff')
-    process.siPixelDigis.InputLabel   = cms.InputTag("rawDataRepacker")
-
-
+    process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.csctfDigis.producer = cms.InputTag("rawDataRepacker")
+    process.dttfDigis.DTTF_FED_Source = cms.InputTag("rawDataRepacker")
+    process.ecalDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataRepacker")
+    process.gctDigis.inputLabel = cms.InputTag("rawDataRepacker")
+    process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataRepacker")
+    process.gtEvmDigis.EvmGtInputTag = cms.InputTag("rawDataRepacker")
+    process.hcalDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.muonCSCDigis.InputObjects = cms.InputTag("rawDataRepacker")
+    process.muonDTDigis.inputLabel = cms.InputTag("rawDataRepacker")
+    process.muonRPCDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
+    process.siPixelDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
+    
 # Phase1 DQM
 process.load("DQM.SiPixelPhase1Config.SiPixelPhase1OnlineDQM_cff")
 
@@ -121,6 +139,9 @@ process.AdaptorConfig = cms.Service("AdaptorConfig")
 # Filters
 #--------------------------
 
+process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
+process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
+
 # HLT Filter
 # 0=random, 1=physics, 2=calibration, 3=technical
 process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
@@ -128,7 +149,7 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 )
 
 process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
-process.hltHighLevel.HLTPaths = cms.vstring( 'HLT_ZeroBias_*' , 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*', 'HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*', 'HLT*SingleMu*')
+process.hltHighLevel.HLTPaths = cms.vstring( 'HLT_ZeroBias_*' , 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*', 'HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*', 'HLT*SingleMu*','HLT_HICentralityVeto*')
 process.hltHighLevel.andOr = cms.bool(True)
 process.hltHighLevel.throw =  cms.bool(False)
 
@@ -139,15 +160,16 @@ process.hltHighLevel.throw =  cms.bool(False)
 process.DQMmodules = cms.Sequence(process.dqmEnv*process.dqmSaver)
 
 if (process.runType.getRunType() == process.runType.hi_run):
-    process.SiPixelClusterSource.src = cms.InputTag("siPixelClustersPreSplitting")
-    process.Reco = cms.Sequence(process.siPixelDigis*process.pixeltrackerlocalreco)
-
+    process.load("RecoLocalTracker.Configuration.RecoLocalTrackerHeavyIons_cff")
+    process.SiPixelPhase1ClustersAnalyzer.pixelSrc = cms.InputTag("siPixelClustersPreSplitting")
+#    process.Reco = cms.Sequence(process.siPixelDigis*process.pixeltrackerlocalreco)
+    process.Reco =cms.Sequence(process.siPixelDigis*process.siStripDigis*process.siStripVRDigis*process.trackerlocalreco*process.pixeltrackerlocalreco) 
 else:
     process.Reco = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.siStripZeroSuppression*process.siStripClusters*process.siPixelClusters)
 
 process.p = cms.Path(
-  process.hltHighLevel #trigger selection
- *process.Reco
+  #process.hltHighLevel #trigger selection
+ process.Reco
  *process.DQMmodules
  *process.siPixelPhase1OnlineDQM_source
  *process.siPixelPhase1OnlineDQM_harvesting
@@ -157,6 +179,7 @@ process.p = cms.Path(
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
 
+#print process.dumpPython()
 #--------------------------------------------------
 # Heavy Ion Specific Fed Raw Data Collection Label
 #--------------------------------------------------
