@@ -43,21 +43,21 @@ namespace edm {
       explicit BMixingModule(const edm::ParameterSet& ps, MixingCache::Config const* globalConf);
 
       /**Default destructor*/
-      virtual ~BMixingModule();
+      ~BMixingModule() override;
 
       /**Cumulates the pileup events onto this event*/
-      virtual void produce(edm::Event& e1, const edm::EventSetup& c) override;
+      void produce(edm::Event& e1, const edm::EventSetup& c) override;
 
       virtual void initializeEvent(const edm::Event& event, const edm::EventSetup& setup) {}
 
       // edm::Event is non-const because digitizers put their products into the Event.
       virtual void finalizeEvent(edm::Event& event, const edm::EventSetup& setup) {}
 
-      virtual void beginRun(const edm::Run& r, const edm::EventSetup& setup) override;
-      virtual void beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& setup) override;
+      void beginRun(const edm::Run& r, const edm::EventSetup& setup) override;
+      void beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& setup) override;
 
-      virtual void endRun(const edm::Run& r, const edm::EventSetup& setup) override;
-      virtual void endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& setup) override;
+      void endRun(const edm::Run& r, const edm::EventSetup& setup) override;
+      void endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& setup) override;
 
       static std::unique_ptr<MixingCache::Config> initializeGlobalCache(edm::ParameterSet const&);
       static void globalEndJob(MixingCache::Config*) {}
@@ -84,8 +84,8 @@ namespace edm {
   protected:
       void setupPileUpEvent(const edm::EventSetup& setup);
       void dropUnwantedBranches(std::vector<std::string> const& wantedBranches);
-      virtual void beginStream(edm::StreamID) override;
-      virtual void endStream() override;
+      void beginStream(edm::StreamID) override;
+      void endStream() override;
       //      std::string type_;
       int bunchSpace_;
       int vertexOffset_;
