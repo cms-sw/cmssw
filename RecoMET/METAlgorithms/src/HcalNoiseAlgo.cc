@@ -89,7 +89,7 @@ CommonHcalNoiseRBXData::CommonHcalNoiseRBXData(const reco::HcalNoiseRBX& rbx, do
     double eme=it1->caloTowerEmE();
     double hade=it1->recHitEnergy(minRecHitE);
     double emf=(eme+hade)==0 ? 999 : eme/(eme+hade);
-    if(HPDEMF_ > emf) emf = HPDEMF_;
+    if(HPDEMF_ > emf) HPDEMF_ = emf;
   }
   double eme=rbx.caloTowerEmE();
   RBXEMF_ = (eme+energy_)==0 ? 999 : eme/(eme+energy_);
@@ -371,7 +371,7 @@ bool CommonHcalNoiseRBXData::CheckPassFilter(double Charge, double Discriminant,
    //    is greater or smaller than the cut value
    //
 
-   if(Cuts.size() == 0)   // safety check that there are some cuts defined
+   if(Cuts.empty())   // safety check that there are some cuts defined
       return true;
 
    if(Charge <= Cuts[0].first)   // too small to cut on
