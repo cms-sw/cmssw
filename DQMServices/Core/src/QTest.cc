@@ -81,6 +81,16 @@ float Comp2RefEqualH::runTest(const MonitorElement*me)
     ref_ = me->getRefTH1D(); //access Ref hiso 
     if (nbins != nbinsref) return -1;
   } 
+  //-- TPROFILE
+  else if (me->kind()==MonitorElement::DQM_KIND_TPROFILE)
+  { 
+    nbins = me->getTProfile()->GetXaxis()->GetNbins(); 
+    nbinsref = me->getRefTProfile()->GetXaxis()->GetNbins();
+    h  = me->getTProfile(); // access Test histo
+    ref_ = me->getRefTProfile(); //access Ref hiso 
+    if (nbins != nbinsref) return -1;
+  } 
+
   //-- TH2
   else if (me->kind()==MonitorElement::DQM_KIND_TH2F)
   { 
