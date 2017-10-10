@@ -22,9 +22,9 @@ class HLTHPDFilter : public edm::stream::EDFilter<> {
 
    public:
       explicit HLTHPDFilter(const edm::ParameterSet&);
-      ~HLTHPDFilter();
+      ~HLTHPDFilter() override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::Event&, const edm::EventSetup&) override;
 
    private:
       edm::EDGetTokenT<HBHERecHitCollection> m_theRecHitCollectionToken;

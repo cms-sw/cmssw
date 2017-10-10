@@ -49,9 +49,9 @@ public:
     }
   }   
 
-  virtual ~L3MumuTrackingRegion(){}
+  ~L3MumuTrackingRegion() override{}
 
-  virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& ev,
+  std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& ev,
       const edm::EventSetup& es) const override {
 
     std::vector<std::unique_ptr<TrackingRegion> > result;
@@ -72,7 +72,7 @@ public:
       ev.getByToken(theVertexToken,vertices);
       const reco::VertexCollection vertCollection = *(vertices.product());
       reco::VertexCollection::const_iterator ci = vertCollection.begin();
-      if (vertCollection.size()>0) {
+      if (!vertCollection.empty()) {
 	originz = ci->z();
       } else {
 	originz = theOriginZPos;

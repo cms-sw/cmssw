@@ -24,9 +24,9 @@ class HLTHcalTowerNoiseCleanerWithrechit : public edm::stream::EDProducer<> {
   
  public:
   explicit HLTHcalTowerNoiseCleanerWithrechit(const edm::ParameterSet&);
-  ~HLTHcalTowerNoiseCleanerWithrechit();
+  ~HLTHcalTowerNoiseCleanerWithrechit() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
   edm::EDGetTokenT<reco::HcalNoiseRBXCollection> m_theHcalNoiseToken;

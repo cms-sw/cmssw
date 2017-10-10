@@ -14,9 +14,9 @@ namespace edm {
 class HLTMuonTrkFilter : public HLTFilter {
  public:
   HLTMuonTrkFilter(const edm::ParameterSet&);
-  virtual ~HLTMuonTrkFilter(){}
+  ~HLTMuonTrkFilter() override{}
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
  private:
   // WARNING: two input collection represent should be aligned and represent

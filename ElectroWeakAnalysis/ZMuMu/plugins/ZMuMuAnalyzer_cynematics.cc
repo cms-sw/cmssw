@@ -50,9 +50,9 @@ class ZMuMuAnalyzer_cynematics : public edm::EDAnalyzer {
 public:
   ZMuMuAnalyzer_cynematics(const edm::ParameterSet& pset);
 private:
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
   bool isContained(const Candidate &, const Candidate &);
-  virtual void endJob() override;
+  void endJob() override;
 
   OverlapChecker overlap_;
   EDGetTokenT<CandidateCollection> zMuMuToken_;
