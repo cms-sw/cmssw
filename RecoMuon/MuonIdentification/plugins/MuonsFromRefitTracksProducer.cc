@@ -66,10 +66,10 @@ reco::Muon::MuonTrackTypePair tevOptimizedTMR(const reco::Muon& muon, const reco
 class MuonsFromRefitTracksProducer : public edm::stream::EDProducer<> {
 public:
   explicit MuonsFromRefitTracksProducer(const edm::ParameterSet&);
-  ~MuonsFromRefitTracksProducer() {}
+  ~MuonsFromRefitTracksProducer() override {}
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   // Store the track-to-track map(s) used when using TeV refit tracks.
   bool storeMatchMaps(const edm::Event& event);

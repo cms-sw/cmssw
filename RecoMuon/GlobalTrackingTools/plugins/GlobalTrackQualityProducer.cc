@@ -25,7 +25,7 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 GlobalTrackQualityProducer::GlobalTrackQualityProducer(const edm::ParameterSet& iConfig):
-  inputCollection_(iConfig.getParameter<edm::InputTag>("InputCollection")),inputLinksCollection_(iConfig.getParameter<edm::InputTag>("InputLinksCollection")),theService(0),theGlbRefitter(0),theGlbMatcher(0)
+  inputCollection_(iConfig.getParameter<edm::InputTag>("InputCollection")),inputLinksCollection_(iConfig.getParameter<edm::InputTag>("InputLinksCollection")),theService(nullptr),theGlbRefitter(nullptr),theGlbMatcher(nullptr)
 {
   // service parameters
   edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
@@ -97,7 +97,7 @@ GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     double relative_muon_chi2 = 0.0;
     double relative_tracker_chi2 = 0.0;
     double glbTrackProbability = 0.0;
-    if(refitted.size()>0) {
+    if(!refitted.empty()) {
       thisKink = kink(refitted.front()) ;      
       std::pair<double,double> chi = newChi2(refitted.front());
       relative_muon_chi2 = chi.second; //normalized inside to /sum(muHits.dimension)
@@ -127,8 +127,8 @@ GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	    }
 	  if (links->globalTrack() == glbRef) {
 	    staTrack = !links->standAloneTrack().isNull() ? links->standAloneTrack() : reco::TrackRef();
-	    TrackCand staCand = TrackCand((Trajectory*)(0),links->standAloneTrack());
-	    TrackCand tkCand = TrackCand((Trajectory*)(0),links->trackerTrack());
+	    TrackCand staCand = TrackCand((Trajectory*)nullptr,links->standAloneTrack());
+	    TrackCand tkCand = TrackCand((Trajectory*)nullptr,links->trackerTrack());
 	    chi2 = theGlbMatcher->match(staCand,tkCand,0,0);
 	    d    = theGlbMatcher->match(staCand,tkCand,1,0);
 	    Rpos = theGlbMatcher->match(staCand,tkCand,2,0);
@@ -264,7 +264,7 @@ std::pair<double,double> GlobalTrackQualityProducer::newChi2(Trajectory& muon) c
     const TrajectoryStateOnSurface& uptsos = (*m).updatedState();
     // FIXME FIXME CLONE!!!
     // TrackingRecHit::RecHitPointer preciseHit = hit->clone(uptsos);
-    auto preciseHit = hit;
+    const auto& preciseHit = hit;
     double estimate = 0.0;
     if (preciseHit->isValid() && uptsos.isValid()) {
       estimate = theEstimator->estimate(uptsos, *preciseHit ).second;
