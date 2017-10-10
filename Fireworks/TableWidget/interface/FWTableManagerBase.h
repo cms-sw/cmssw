@@ -99,7 +99,7 @@ class FWTableManagerBase : public TQObject
       ///Classes which inherit from FWTableManagerBase must call this when how the data is shown (e.g. color) changes
       void visualPropertiesChanged(); //*SIGNAL*
       
-      ClassDef(FWTableManagerBase,0);
+      ClassDefOverride(FWTableManagerBase,0);
 
       /// The current sort order for the table.
       bool sortOrder(void) { return m_sortOrder; }

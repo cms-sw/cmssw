@@ -56,7 +56,7 @@ public:
    void setFrom(const FWConfiguration&);
    */
    Bool_t HandleKey(Event_t *event) override;
-   ClassDef(FWGUIEventFilter, 0);
+   ClassDefOverride(FWGUIEventFilter, 0);
    
 private:   
    static const int s_entryHeight = 21;
