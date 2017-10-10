@@ -341,22 +341,25 @@ trackingPhase2PU140.toModify(pixelPairStepSelector,
 
 
 # Final sequence
-PixelPairStep = cms.Sequence(pixelPairStepClusters*
-                         pixelPairStepSeedLayers*
-                         pixelPairStepTrackingRegions*
-                         pixelPairStepHitDoublets*
-                         pixelPairStepSeeds*
-                         pixelPairStepTrackCandidates*
-                         pixelPairStepTracks*
+PixelPairStepTask = cms.Task(pixelPairStepClusters,
+                         pixelPairStepSeedLayers,
+                         pixelPairStepTrackingRegions,
+                         pixelPairStepHitDoublets,
+                         pixelPairStepSeeds,
+                         pixelPairStepTrackCandidates,
+                         pixelPairStepTracks,
                          pixelPairStep)
-_PixelPairStep_LowPU_Phase2PU140 = PixelPairStep.copy()
-_PixelPairStep_LowPU_Phase2PU140.replace(pixelPairStep, pixelPairStepSelector)
-trackingLowPU.toReplaceWith(PixelPairStep, _PixelPairStep_LowPU_Phase2PU140)
-trackingPhase2PU140.toReplaceWith(PixelPairStep, _PixelPairStep_LowPU_Phase2PU140)
-_PixelPairStep_Phase1 = PixelPairStep.copy()
-_PixelPairStep_Phase1.replace(pixelPairStepSeeds,
-                              pixelPairStepSeedsA *
-                              pixelPairStepSeedLayersB*pixelPairStepTrackingRegionsB*pixelPairStepHitDoubletsB*pixelPairStepSeedsB*
-                              pixelPairStepSeeds)
-trackingPhase1.toReplaceWith(PixelPairStep, _PixelPairStep_Phase1)
-trackingPhase1QuadProp.toReplaceWith(PixelPairStep, _PixelPairStep_Phase1)
+PixelPairStep = cms.Sequence(PixelPairStepTask)
+
+_PixelPairStepTask_LowPU_Phase2PU140 = PixelPairStepTask.copy()
+_PixelPairStepTask_LowPU_Phase2PU140.replace(pixelPairStep, pixelPairStepSelector)
+trackingLowPU.toReplaceWith(PixelPairStepTask, _PixelPairStepTask_LowPU_Phase2PU140)
+trackingPhase2PU140.toReplaceWith(PixelPairStepTask, _PixelPairStepTask_LowPU_Phase2PU140)
+
+_PixelPairStepTask_Phase1 = PixelPairStepTask.copy()
+_PixelPairStepTask_Phase1.replace(pixelPairStepSeeds,cms.Task(
+                              pixelPairStepSeedsA ,
+                              pixelPairStepSeedLayersB,pixelPairStepTrackingRegionsB,pixelPairStepHitDoubletsB,pixelPairStepSeedsB,
+                              pixelPairStepSeeds))
+trackingPhase1.toReplaceWith(PixelPairStepTask, _PixelPairStepTask_Phase1)
+trackingPhase1QuadProp.toReplaceWith(PixelPairStepTask, _PixelPairStepTask_Phase1)

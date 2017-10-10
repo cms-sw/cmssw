@@ -381,22 +381,22 @@ trackingLowPU.toReplaceWith(tobTecStep, RecoTracker.FinalTrackSelectors.multiTra
 
 
 
-TobTecStep = cms.Sequence(tobTecStepClusters*
-                          tobTecStepSeedLayersTripl*
-                          tobTecStepTrackingRegionsTripl*
-                          tobTecStepHitDoubletsTripl*
-                          tobTecStepHitTripletsTripl*
-                          tobTecStepSeedsTripl*
-                          tobTecStepSeedLayersPair*
-                          tobTecStepTrackingRegionsPair*
-                          tobTecStepHitDoubletsPair*
-                          tobTecStepSeedsPair*
-                          tobTecStepSeeds*
-                          tobTecStepTrackCandidates*
-                          tobTecStepTracks*
-                          tobTecStepClassifier1*tobTecStepClassifier2*
+TobTecStepTask = cms.Task(tobTecStepClusters,
+                          tobTecStepSeedLayersTripl,
+                          tobTecStepTrackingRegionsTripl,
+                          tobTecStepHitDoubletsTripl,
+                          tobTecStepHitTripletsTripl,
+                          tobTecStepSeedsTripl,
+                          tobTecStepSeedLayersPair,
+                          tobTecStepTrackingRegionsPair,
+                          tobTecStepHitDoubletsPair,
+                          tobTecStepSeedsPair,
+                          tobTecStepSeeds,
+                          tobTecStepTrackCandidates,
+                          tobTecStepTracks,
+                          tobTecStepClassifier1,tobTecStepClassifier2,
                           tobTecStep)
-
+TobTecStep = cms.Sequence(TobTecStepTask)
 
 
 ### Following are specific for LowPU, they're collected here to
@@ -427,13 +427,15 @@ tobTecStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     )
 )
 
-trackingLowPU.toReplaceWith(TobTecStep, cms.Sequence(
-    tobTecStepClusters*
-    tobTecStepSeedLayers*
-    tobTecStepTrackingRegionsPair*
-    tobTecStepHitDoubletsPair*
-    tobTecStepSeeds*
-    tobTecStepTrackCandidates*
-    tobTecStepTracks*
+trackingLowPU.toReplaceWith(TobTecStepTask, 
+    cms.Task(
+    tobTecStepClusters,
+    tobTecStepSeedLayers,
+    tobTecStepTrackingRegionsPair,
+    tobTecStepHitDoubletsPair,
+    tobTecStepSeeds,
+    tobTecStepTrackCandidates,
+    tobTecStepTracks,
     tobTecStep
-))
+    )
+)

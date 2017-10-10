@@ -245,18 +245,21 @@ lowPtQuadStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.m
 
 
 # Final sequence
-LowPtQuadStep = cms.Sequence(lowPtQuadStepClusters*
-                             lowPtQuadStepSeedLayers*
-                             lowPtQuadStepTrackingRegions*
-                             lowPtQuadStepHitDoublets*
-                             lowPtQuadStepHitQuadruplets*
-                             lowPtQuadStepSeeds*
-                             lowPtQuadStepTrackCandidates*
-                             lowPtQuadStepTracks*
+LowPtQuadStepTask = cms.Task(lowPtQuadStepClusters,
+                             lowPtQuadStepSeedLayers,
+                             lowPtQuadStepTrackingRegions,
+                             lowPtQuadStepHitDoublets,
+                             lowPtQuadStepHitQuadruplets,
+                             lowPtQuadStepSeeds,
+                             lowPtQuadStepTrackCandidates,
+                             lowPtQuadStepTracks,
                              lowPtQuadStep)
-_LowPtQuadStep_Phase1Prop = LowPtQuadStep.copy()
-_LowPtQuadStep_Phase1Prop.replace(lowPtQuadStepHitDoublets, lowPtQuadStepHitDoublets+lowPtQuadStepHitTriplets)
-trackingPhase1QuadProp.toReplaceWith(LowPtQuadStep, _LowPtQuadStep_Phase1Prop)
-_LowPtQuadStep_Phase2PU140 = LowPtQuadStep.copy()
-_LowPtQuadStep_Phase2PU140.replace(lowPtQuadStep, lowPtQuadStepSelector)
-trackingPhase2PU140.toReplaceWith(LowPtQuadStep, _LowPtQuadStep_Phase2PU140)
+LowPtQuadStep = cms.Sequence(LowPtQuadStepTask)
+
+_LowPtQuadStepTask_Phase1Prop = LowPtQuadStepTask.copy()
+_LowPtQuadStepTask_Phase1Prop.replace(lowPtQuadStepHitDoublets, cms.Task(lowPtQuadStepHitDoublets,lowPtQuadStepHitTriplets))
+trackingPhase1QuadProp.toReplaceWith(LowPtQuadStepTask, _LowPtQuadStepTask_Phase1Prop)
+
+_LowPtQuadStepTask_Phase2PU140 = LowPtQuadStepTask.copy()
+_LowPtQuadStepTask_Phase2PU140.replace(lowPtQuadStep, lowPtQuadStepSelector)
+trackingPhase2PU140.toReplaceWith(LowPtQuadStepTask, _LowPtQuadStepTask_Phase2PU140)

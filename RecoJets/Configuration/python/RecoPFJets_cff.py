@@ -28,20 +28,21 @@ fixedGridRhoFastjetCentralNeutral = fixedGridRhoFastjetAll.clone(
     maxRapidity = 2.5
     )
 
-recoPFJets   =cms.Sequence(fixedGridRhoAll+
-                           fixedGridRhoFastjetAll+
-                           fixedGridRhoFastjetCentral+
-                           fixedGridRhoFastjetCentralChargedPileUp+
-                           fixedGridRhoFastjetCentralNeutral+
-                           ak4PFJets+
-                           pfNoPileUpJMESequence+
-                           ak4PFJetsCHS+
-                           ak8PFJetsCHS+
-                           ak8PFJetsCHSConstituents+
-                           ak8PFJetsCHSSoftDrop+
-                           ak8PFJetsCHSSoftDropMass+
-                           cmsTopTagPFJetsCHS
+recoPFJetsTask   =cms.Task(fixedGridRhoAll,
+                           fixedGridRhoFastjetAll,
+                           fixedGridRhoFastjetCentral,
+                           fixedGridRhoFastjetCentralChargedPileUp,
+                           fixedGridRhoFastjetCentralNeutral,
+                           ak4PFJets,
+                           ak4PFJetsCHS,
+                           ak8PFJetsCHS,
+                           ak8PFJetsCHSConstituents,
+                           ak8PFJetsCHSSoftDrop,
+                           ak8PFJetsCHSSoftDropMass,
+                           cmsTopTagPFJetsCHS,
+                           pfNoPileUpJMETask
     )
+recoPFJets   = cms.Sequence(recoPFJetsTask)
 
 recoAllPFJets=cms.Sequence(fixedGridRhoAll+
                            fixedGridRhoFastjetAll+

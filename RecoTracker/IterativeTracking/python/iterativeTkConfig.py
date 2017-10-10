@@ -140,6 +140,12 @@ def createEarlySequence(eraName, postfix, modDict):
         seq += modDict[it]
     return seq
 
+def createEarlyTask(eraName, postfix, modDict):
+    task = cms.Task()
+    for it in globals()["_iterations"+postfix]:
+        task.add(modDict[it+'Task'])
+    return task
+
 def iterationAlgos(postfix, includeSequenceName=False):
     muonVariable = "_iterations_muonSeeded"+postfix
     iterations = globals()["_iterations"+postfix] + globals().get(muonVariable, _iterations_muonSeeded)

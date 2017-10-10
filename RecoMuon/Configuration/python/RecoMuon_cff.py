@@ -27,7 +27,8 @@ muonsFromCosmics.fillGlobalTrackQuality = False
 muonsFromCosmics.fillGlobalTrackRefits = False
 
 #add regional cosmic tracks here
-muoncosmicreco2legsSTA = cms.Sequence(CosmicMuonSeed*cosmicMuons)
+muoncosmicreco2legsSTATask = cms.Task(CosmicMuonSeed,cosmicMuons)
+muoncosmicreco2legsSTA = cms.Sequence(muoncosmicreco2legsSTATask)
 muoncosmicreco2legsHighLevel = cms.Sequence(muonsFromCosmics)
 
 # 1 Leg type
@@ -50,7 +51,8 @@ muonsFromCosmics1Leg.TimingFillerParameters.CSCTimingParameters.PruneCut = 9999
 muonsFromCosmics1Leg.fillIsolation = False
 muonsFromCosmics1Leg.fillGlobalTrackQuality = False
 muonsFromCosmics1Leg.fillGlobalTrackRefits = False
-muoncosmicreco1legSTA = cms.Sequence(CosmicMuonSeed*cosmicMuons1Leg)
+muoncosmicreco1legSTATask = cms.Task(CosmicMuonSeed,cosmicMuons1Leg)
+muoncosmicreco1legSTA = cms.Sequence(muoncosmicreco1legSTATask)
 muoncosmicreco1legHighLevel = cms.Sequence(muonsFromCosmics1Leg)
 
 muoncosmicreco = cms.Sequence(muoncosmicreco2legsSTA+muoncosmicreco1legSTA)

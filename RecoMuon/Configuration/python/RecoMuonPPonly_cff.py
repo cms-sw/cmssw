@@ -48,7 +48,8 @@ from RecoMuon.MuonIsolationProducers.muIsolation_cff import *
 # ---------------------------------------------------- #
 
 # Muon Tracking sequence
-standalonemuontracking = cms.Sequence(standAloneMuonSeeds*standAloneMuons*refittedStandAloneMuons*displacedMuonSeeds*displacedStandAloneMuons)
+standalonemuontrackingTask = cms.Task(standAloneMuons,refittedStandAloneMuons,displacedMuonSeeds,displacedStandAloneMuons,standAloneMuonSeedsTask)
+standalonemuontracking = cms.Sequence(standalonemuontrackingTask)
 displacedGlobalMuonTracking = cms.Sequence(iterDisplcedTracking*displacedGlobalMuons)
 globalmuontracking = cms.Sequence(globalMuons*tevMuons*displacedGlobalMuonTracking)
 muontracking = cms.Sequence(standalonemuontracking*globalmuontracking)

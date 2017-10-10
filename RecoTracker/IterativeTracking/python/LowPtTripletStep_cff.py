@@ -310,16 +310,19 @@ trackingPhase2PU140.toModify(lowPtTripletStepSelector,
 
 
 # Final sequence
-LowPtTripletStep = cms.Sequence(lowPtTripletStepClusters*
-                                lowPtTripletStepSeedLayers*
-                                lowPtTripletStepTrackingRegions*
-                                lowPtTripletStepHitDoublets*
-                                lowPtTripletStepHitTriplets*
-                                lowPtTripletStepSeeds*
-                                lowPtTripletStepTrackCandidates*
-                                lowPtTripletStepTracks*
+LowPtTripletStepTask = cms.Task(lowPtTripletStepClusters,
+                                lowPtTripletStepSeedLayers,
+                                lowPtTripletStepTrackingRegions,
+                                lowPtTripletStepHitDoublets,
+                                lowPtTripletStepHitTriplets,
+                                lowPtTripletStepSeeds,
+                                lowPtTripletStepTrackCandidates,
+                                lowPtTripletStepTracks,
                                 lowPtTripletStep)
-_LowPtTripletStep_LowPU_Phase2PU140 = LowPtTripletStep.copy()
-_LowPtTripletStep_LowPU_Phase2PU140.replace(lowPtTripletStep, lowPtTripletStepSelector)
-trackingLowPU.toReplaceWith(LowPtTripletStep, _LowPtTripletStep_LowPU_Phase2PU140)
-trackingPhase2PU140.toReplaceWith(LowPtTripletStep, _LowPtTripletStep_LowPU_Phase2PU140)
+LowPtTripletStep = cms.Sequence(LowPtTripletStepTask)
+
+_LowPtTripletStepTask_LowPU_Phase2PU140 = LowPtTripletStepTask.copy()
+_LowPtTripletStepTask_LowPU_Phase2PU140.replace(lowPtTripletStep, lowPtTripletStepSelector)
+trackingLowPU.toReplaceWith(LowPtTripletStepTask, _LowPtTripletStepTask_LowPU_Phase2PU140)
+
+trackingPhase2PU140.toReplaceWith(LowPtTripletStepTask, _LowPtTripletStepTask_LowPU_Phase2PU140)

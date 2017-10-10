@@ -4,14 +4,15 @@ from RecoParticleFlow.PFTracking.trackerDrivenElectronSeeds_cff import *
 from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeeds_cfi import *
 from RecoParticleFlow.PFTracking.mergedElectronSeeds_cfi import *
 
-electronSeeds = cms.Sequence(trackerDrivenElectronSeeds*ecalDrivenElectronSeeds*electronMergedSeeds) 
-_electronSeedsFromMultiCl = electronSeeds.copy()
-_electronSeedsFromMultiCl += cms.Sequence(ecalDrivenElectronSeedsFromMultiCl*electronMergedSeedsFromMultiCl)
+electronSeedsTask = cms.Task(trackerDrivenElectronSeeds,ecalDrivenElectronSeeds,electronMergedSeeds) 
+electronSeeds = cms.Sequence(electronSeedsTask)
+_electronSeedsTaskFromMultiCl = electronSeedsTask.copy()
+_electronSeedsTaskFromMultiCl.add(ecalDrivenElectronSeedsFromMultiCl,electronMergedSeedsFromMultiCl)
+_electronSeedsFromMultiCl = cms.Sequence(_electronSeedsTaskFromMultiCl)
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith(
-  electronSeeds, _electronSeedsFromMultiCl
-)
+  electronSeeds, _electronSeedsFromMultiCl )
 
 
 from TrackingTools.GsfTracking.CkfElectronCandidateMaker_cff import *

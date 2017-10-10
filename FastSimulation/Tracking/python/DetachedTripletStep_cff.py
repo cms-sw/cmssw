@@ -39,11 +39,12 @@ detachedTripletStepClassifier2.vertices = "firstStepPrimaryVerticesBeforeMixing"
 detachedTripletStep = _standard.detachedTripletStep.clone()
 
 # Final sequence 
-DetachedTripletStep = cms.Sequence(detachedTripletStepMasks
-                                   +detachedTripletStepTrackingRegions
-                                   +detachedTripletStepSeeds
-                                   +detachedTripletStepTrackCandidates
-                                   +detachedTripletStepTracks
-                                   +detachedTripletStepClassifier1*detachedTripletStepClassifier2
-                                   +detachedTripletStep
+DetachedTripletStepTask = cms.Task(detachedTripletStepMasks
+                                   ,detachedTripletStepTrackingRegions
+                                   ,detachedTripletStepSeeds
+                                   ,detachedTripletStepTrackCandidates
+                                   ,detachedTripletStepTracks
+                                   ,detachedTripletStepClassifier1,detachedTripletStepClassifier2
+                                   ,detachedTripletStep
                                    )
+DetachedTripletStep = cms.Sequence(DetachedTripletStepTask)
