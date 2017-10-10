@@ -25,12 +25,12 @@
 class PixelClusterShapeSeedComparitor : public SeedComparitor {
     public:
         PixelClusterShapeSeedComparitor(const edm::ParameterSet &cfg, edm::ConsumesCollector& iC) ;
-        virtual ~PixelClusterShapeSeedComparitor() ; 
-        virtual void init(const edm::Event& ev, const edm::EventSetup& es) override ;
-        virtual bool compatible(const SeedingHitSet  &hits) const override { return true; }
-        virtual bool compatible(const TrajectoryStateOnSurface &,
+        ~PixelClusterShapeSeedComparitor() override ; 
+        void init(const edm::Event& ev, const edm::EventSetup& es) override ;
+        bool compatible(const SeedingHitSet  &hits) const override { return true; }
+        bool compatible(const TrajectoryStateOnSurface &,
                 SeedingHitSet::ConstRecHitPointer hit) const override ;
-        virtual bool compatible(const SeedingHitSet  &hits, 
+        bool compatible(const SeedingHitSet  &hits, 
                 const GlobalTrajectoryParameters &helixStateAtVertex,
                 const FastHelix                  &helix) const override ;
 
@@ -126,7 +126,7 @@ PixelClusterShapeSeedComparitor::compatibleHit(const TrackingRecHit &hit, const 
     if (hit.geographicalId().subdetId() <= 2) {
         if (!filterPixelHits_) return true;    
         const SiPixelRecHit *pixhit = dynamic_cast<const SiPixelRecHit *>(&hit);
-        if (pixhit == 0) throw cms::Exception("LogicError", "Found a valid hit on the pixel detector which is not a SiPixelRecHit\n");
+        if (pixhit == nullptr) throw cms::Exception("LogicError", "Found a valid hit on the pixel detector which is not a SiPixelRecHit\n");
         //printf("Cheching hi hit on detid %10d, local direction is x = %9.6f, y = %9.6f, z = %9.6f\n", hit.geographicalId().rawId(), direction.x(), direction.y(), direction.z());
         return filterHandle_->isCompatible(*pixhit, direction, *pixelClusterShapeCache_);
     } else {
@@ -134,16 +134,16 @@ PixelClusterShapeSeedComparitor::compatibleHit(const TrackingRecHit &hit, const 
         const std::type_info &tid = typeid(*&hit);
         if (tid == typeid(SiStripMatchedRecHit2D)) {
             const SiStripMatchedRecHit2D* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D *>(&hit);
-            assert(matchedHit != 0);
+            assert(matchedHit != nullptr);
             return (filterHandle_->isCompatible(DetId(matchedHit->monoId()), matchedHit->monoCluster(), direction) &&
                     filterHandle_->isCompatible(DetId(matchedHit->stereoId()), matchedHit->stereoCluster(), direction));
         } else if (tid == typeid(SiStripRecHit2D)) {
             const SiStripRecHit2D* recHit = dynamic_cast<const SiStripRecHit2D *>(&hit);
-            assert(recHit != 0);
+            assert(recHit != nullptr);
             return filterHandle_->isCompatible(*recHit, direction);
         } else if (tid == typeid(ProjectedSiStripRecHit2D)) {
             const ProjectedSiStripRecHit2D* precHit = dynamic_cast<const ProjectedSiStripRecHit2D *>(&hit);
-            assert(precHit != 0);
+            assert(precHit != nullptr);
             return filterHandle_->isCompatible(precHit->originalHit(), direction);
         } else {
             //printf("Questo e' un %s, che ci fo?\n", tid.name());

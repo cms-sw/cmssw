@@ -106,7 +106,7 @@ int RPCRecordFormatter::recordUnpack(
      if(counter) counter->addReadoutError(currentFED, ReadoutError(eleIndex,ReadoutError::EOD));
   }
 
-  if(readoutMapping == 0) return error.type();
+  if(readoutMapping == nullptr) return error.type();
   const LinkBoardSpec* linkBoard = readoutMapping->location(eleIndex);
   if (!linkBoard) {
     if (debug) LogDebug("")<<" ** PROBLEM ** Invalid Linkboard location, skip CD event, " 
@@ -121,7 +121,7 @@ int RPCRecordFormatter::recordUnpack(
 
 
   std::vector<int> packStrips = event.recordCD().packedStrips();
-  if (packStrips.size() ==0) {
+  if (packStrips.empty()) {
     error = ReadoutError(eleIndex,ReadoutError::EmptyPackedStrips);
     if(counter) counter->addReadoutError(currentFED, error);
     return error.type();

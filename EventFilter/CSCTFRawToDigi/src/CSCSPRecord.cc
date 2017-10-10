@@ -1,4 +1,4 @@
-#include <string.h>      // memcpy, bzero
+#include <cstring>      // memcpy, bzero
 #include "EventFilter/CSCTFRawToDigi/src/CSCSPRecord.h"
 #include "EventFilter/CSCTFRawToDigi/src/CSCSPHeader.h"
 

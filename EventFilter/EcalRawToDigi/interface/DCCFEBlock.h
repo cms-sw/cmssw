@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <memory>
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 #include <vector>
 #include <map>
@@ -25,19 +25,19 @@ class DCCFEBlock : public DCCDataBlockPrototype {
 
     DCCFEBlock(DCCDataUnpacker * u,EcalElectronicsMapper * m, DCCEventBlock * e, bool unpack, bool forceToKeepFRdata);
     
-    virtual ~DCCFEBlock(){ delete [] xtalGains_;}
+    ~DCCFEBlock() override{ delete [] xtalGains_;}
 
     void zsFlag(bool zs){ zs_ = zs;}
 
     void enableFeIdChecks(){checkFeId_= true;}
 	 
-    virtual void updateCollectors();
+    void updateCollectors() override;
     
-    void display(std::ostream & o); 
+    void display(std::ostream & o) override; 
     using DCCDataBlockPrototype::unpack; 
     int unpack(const uint64_t** data, unsigned int * dwToEnd, bool zs, unsigned int expectedTowerID);
 
-    unsigned int getLength(){return blockLength_; }
+    unsigned int getLength() override{return blockLength_; }
     			
   protected :
 	 

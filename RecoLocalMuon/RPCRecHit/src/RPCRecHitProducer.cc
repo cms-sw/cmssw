@@ -140,7 +140,7 @@ void RPCRecHitProducer::produce(Event& event, const EventSetup& setup) {
 
     // Get the GeomDet from the setup
     const RPCRoll* roll = rpcGeom->roll(rpcId);
-    if (roll == 0){
+    if (roll == nullptr){
       edm::LogError("BadDigiInput")<<"Failed to find RPCRoll for ID "<<rpcId;
       continue;
     }
@@ -168,7 +168,7 @@ void RPCRecHitProducer::produce(Event& event, const EventSetup& setup) {
     // Call the reconstruction algorithm    
     OwnVector<RPCRecHit> recHits = theAlgo->reconstruct(*roll, rpcId, range, mask);
     
-    if(recHits.size() > 0) //FIXME: is it really needed?
+    if(!recHits.empty()) //FIXME: is it really needed?
       recHitCollection->put(rpcId, recHits.begin(), recHits.end());
   }
 

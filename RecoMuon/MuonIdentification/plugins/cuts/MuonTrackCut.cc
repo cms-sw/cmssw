@@ -7,9 +7,9 @@ class MuonTrackCut : public CutApplicatorBase
 public:
   MuonTrackCut(const edm::ParameterSet& c);
 
-  result_type operator()(const reco::MuonPtr&) const override final;
-  CandidateType candidateType() const override final { return MUON; }
-  double value(const reco::CandidatePtr&) const override final;
+  result_type operator()(const reco::MuonPtr&) const final;
+  CandidateType candidateType() const final { return MUON; }
+  double value(const reco::CandidatePtr&) const final;
 
 private:
   // inner track selection cuts

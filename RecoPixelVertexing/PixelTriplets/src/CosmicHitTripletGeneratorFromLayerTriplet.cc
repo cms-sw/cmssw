@@ -18,7 +18,7 @@ CosmicHitTripletGeneratorFromLayerTriplet::CosmicHitTripletGeneratorFromLayerTri
  const LayerWithHits* middle, 
  const LayerWithHits* outer,
  const edm::EventSetup& iSetup)
-  : TTRHbuilder(0),trackerGeometry(0),
+  : TTRHbuilder(nullptr),trackerGeometry(nullptr),
     //theLayerCache(*layerCache), 
     theOuterLayer(outer),theMiddleLayer(middle), theInnerLayer(inner)
 {

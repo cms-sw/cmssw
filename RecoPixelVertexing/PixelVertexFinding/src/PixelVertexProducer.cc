@@ -131,7 +131,7 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       edm::LogWarning("PixelVertexProducer") << "No beamspot found. Using returning vertexes with (0,0,Z) ";
     } 
   
-  if(!vertexes->size() && bsHandle.isValid()){
+  if(vertexes->empty() && bsHandle.isValid()){
     
     const reco::BeamSpot & bs = *bsHandle;
       
@@ -161,7 +161,7 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       }
   }
       
-  else if(!vertexes->size() && !bsHandle.isValid())
+  else if(vertexes->empty() && !bsHandle.isValid())
     {
       edm::LogWarning("PixelVertexProducer") << "No beamspot and no vertex found. No vertex returned.";
     }

@@ -27,7 +27,7 @@ class DCCTBEventBlock : public DCCTBBlockPrototype {
 			uint32_t wordEventOffset = 0 
 		);
 		
-		~DCCTBEventBlock();
+		~DCCTBEventBlock() override;
 		
 		void dataCheck(); 
 		

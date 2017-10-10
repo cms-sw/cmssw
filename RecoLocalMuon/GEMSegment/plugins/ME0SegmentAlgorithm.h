@@ -32,12 +32,12 @@ public:
   /// Constructor
   explicit ME0SegmentAlgorithm(const edm::ParameterSet& ps);
   /// Destructor
-  virtual ~ME0SegmentAlgorithm();
+  ~ME0SegmentAlgorithm() override;
 
   /**
    * Build segments for all desired groups of hits
    */
-  std::vector<ME0Segment> run(const ME0Chamber * chamber, const HitAndPositionContainer& rechits);
+  std::vector<ME0Segment> run(const ME0Chamber * chamber, const HitAndPositionContainer& rechits) override;
 
 private:
   /// Utility functions 

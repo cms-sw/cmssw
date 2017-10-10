@@ -141,7 +141,7 @@ bool SETFilter::buildTrajectoryMeasurements(SeedCandidate * finalMuon, Trajector
 
   //---- Check if (only last?) TSOS is valid and build a trajectory (for the backward filter) 
 
-  if(finalMuon->trajectoryMeasurementsInTheSet.size() &&
+  if(!finalMuon->trajectoryMeasurementsInTheSet.empty() &&
      finalMuon->trajectoryMeasurementsInTheSet.back().forwardPredictedState().isValid()){
     // loop over all measurements in the set
     for(unsigned int iMeas =0; iMeas<finalMuon->trajectoryMeasurementsInTheSet.size();++iMeas){

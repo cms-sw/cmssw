@@ -11,7 +11,7 @@ public:
   enum CaloType {EBEE=0, HBHE, HF};
 
   UCTCTP7RawData(const uint32_t *d) : myDataPtr(d) {
-    if(myDataPtr != 0) {
+    if(myDataPtr != nullptr) {
       if(sof() != 0xA110CA7E) {
 	LogError("UCTCTP7RawData") << "Failed to see 0xA110CA7E at start - but continuing" << std::endl;
       }
@@ -338,8 +338,8 @@ private:
 
   // No copy constructor and equality operator are needed
   
-  UCTCTP7RawData(const UCTCTP7RawData&);
-  const UCTCTP7RawData& operator=(const UCTCTP7RawData& i);
+  UCTCTP7RawData(const UCTCTP7RawData&) = delete;
+  const UCTCTP7RawData& operator=(const UCTCTP7RawData& i) = delete;
   
   // RawData data
   

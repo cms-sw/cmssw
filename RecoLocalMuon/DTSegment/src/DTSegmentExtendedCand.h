@@ -37,7 +37,7 @@ class DTSegmentExtendedCand  : public DTSegmentCand {
                                                   }
 
 /* Destructor */ 
-    virtual ~DTSegmentExtendedCand() {}
+    ~DTSegmentExtendedCand() override {}
 
 /* Operations */ 
     void addClus(const DTSegmentExtendedCand::DTSLRecClusterForFit& clus) {
@@ -52,9 +52,9 @@ class DTSegmentExtendedCand  : public DTSegmentCand {
 
     bool isCompatible(const DTSegmentExtendedCand::DTSLRecClusterForFit& clus) ;
 
-    virtual unsigned int nHits() const ;
+    unsigned int nHits() const override ;
 
-    virtual bool good() const ;
+    bool good() const override ;
 
     struct DTSLRecClusterForFit {
       public: 

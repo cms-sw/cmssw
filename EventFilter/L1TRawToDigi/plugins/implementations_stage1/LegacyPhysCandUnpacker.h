@@ -8,32 +8,32 @@ namespace l1t {
       namespace legacy {
          class IsoEGammaUnpacker : public Unpacker {
             public:
-               virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
+               bool unpack(const Block& block, UnpackerCollections *coll) override;
          };
 
          class NonIsoEGammaUnpacker : public Unpacker {
             public:
-               virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
+               bool unpack(const Block& block, UnpackerCollections *coll) override;
          };
 
          class CentralJetUnpacker : public Unpacker {
             public:
-               virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
+               bool unpack(const Block& block, UnpackerCollections *coll) override;
          };
 
          class ForwardJetUnpacker : public Unpacker {
             public:
-               virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
+               bool unpack(const Block& block, UnpackerCollections *coll) override;
          };
 
          class TauUnpacker : public Unpacker {
             public:
-               virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
+               bool unpack(const Block& block, UnpackerCollections *coll) override;
          };
 
          class IsoTauUnpacker : public Unpacker {
             public:
-               virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
+               bool unpack(const Block& block, UnpackerCollections *coll) override;
          };
       }
    }

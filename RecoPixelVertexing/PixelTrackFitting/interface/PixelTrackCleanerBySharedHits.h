@@ -19,7 +19,7 @@ class PixelTrackCleanerBySharedHits final : public PixelTrackCleaner {
 public:
   PixelTrackCleanerBySharedHits(bool useQuadrupletAlgo);
 
- ~PixelTrackCleanerBySharedHits();
+ ~PixelTrackCleanerBySharedHits() override;
 
   using TrackWithTTRHs = pixeltrackfitting::TrackWithTTRHs;
   using TracksWithTTRHs = pixeltrackfitting::TracksWithTTRHs;

@@ -19,7 +19,7 @@ namespace l1t {
                inputMuonsTh_ (new L1MuDTChambThContainer)
             {};
 
-            virtual ~BMTFCollections();
+            ~BMTFCollections() override;
 
 						inline RegionalMuonCandBxCollection* getBMTFMuons() {return outputMuons_.get();};
 						inline L1MuDTChambPhContainer* getInMuonsPh() { return inputMuonsPh_.get(); };

@@ -5,7 +5,7 @@ HitQuadrupletGenerator::HitQuadrupletGenerator(unsigned int nSize): localRA(nSiz
 const OrderedHitSeeds & HitQuadrupletGenerator::run(
     const TrackingRegion& region, const edm::Event & ev, const edm::EventSetup& es)
 {
-  assert(theQuadruplets.size()==0);assert(theQuadruplets.capacity()==0);
+  assert(theQuadruplets.empty());assert(theQuadruplets.capacity()==0);
   theQuadruplets.reserve(localRA.upper());
   hitQuadruplets(region, theQuadruplets, ev, es);
   localRA.update(theQuadruplets.size());

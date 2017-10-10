@@ -70,10 +70,10 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
   
    explicit MuonIdProducer(const edm::ParameterSet&);
    
-   virtual ~MuonIdProducer();
+   ~MuonIdProducer() override;
    
-   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-   virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+   void produce(edm::Event&, const edm::EventSetup&) override;
+   void beginRun(const edm::Run&, const edm::EventSetup&) override;
    
    static double sectorPhi( const DetId& id );
 
