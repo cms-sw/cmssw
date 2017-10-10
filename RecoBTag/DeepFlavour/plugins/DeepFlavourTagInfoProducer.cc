@@ -19,11 +19,11 @@
 #include "DataFormats/DeepFormats/interface/DeepFlavourTagInfo.h"
 #include "DataFormats/DeepFormats/interface/DeepFlavourFeatures.h"
 
-#include "RecoBTag/DeepFlavour/interface/jet_features_converter.h"
-#include "RecoBTag/DeepFlavour/interface/btag_features_converter.h"
-#include "RecoBTag/DeepFlavour/interface/sv_features_converter.h"
-#include "RecoBTag/DeepFlavour/interface/n_pf_features_converter.h"
-#include "RecoBTag/DeepFlavour/interface/c_pf_features_converter.h"
+#include "RecoBTag/DeepFlavour/interface/JetConverter.h"
+#include "RecoBTag/DeepFlavour/interface/BTagConverter.h"
+#include "RecoBTag/DeepFlavour/interface/SVConverter.h"
+#include "RecoBTag/DeepFlavour/interface/NeutralCandidateConverter.h"
+#include "RecoBTag/DeepFlavour/interface/ChargedCandidateConverter.h"
 
 #include "RecoBTag/DeepFlavour/interface/TrackInfoBuilder.h"
 #include "RecoBTag/DeepFlavour/interface/sorting_modules.h"
@@ -162,14 +162,14 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     } // will be default values otherwise
 
     // fill basic jet features
-    btagbtvdeep::jet_features_converter(jet, features.jet_features);
+    btagbtvdeep::JetConverter::JetToFeatures(jet, features.jet_features);
 
     // fill number of pv
     features.npv = vtxs->size();
 
     // fill features from ShallowTagInfo
     const auto & tag_info_vars = tag_info.taggingVariables();
-    btag_features_converter(tag_info_vars, features.tag_info_features);
+    btagbtvdeep::BTagConverter::BTagToFeatures(tag_info_vars, features.tag_info_features);
 
     // copy which will be sorted
     auto svs_sorted = *svs;     
@@ -184,7 +184,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
         features.sv_features.emplace_back();
         // in C++17 could just get from emplace_back output
         auto & sv_features = features.sv_features.back();
-        btagbtvdeep::sv_features_converter(sv, pv, jet, sv_features);
+        btagbtvdeep::SVConverter::SVToFeatures(sv, pv, jet, sv_features);
       }
     }
 
@@ -260,8 +260,8 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
       auto & c_pf_features = features.c_pf_features.at(entry);
       // fill feature structure 
       if (packed_cand) {
-        btagbtvdeep::c_pf_packed_features_converter(packed_cand, jet, trackinfo, 
-                                             drminpfcandsv, c_pf_features);
+        btagbtvdeep::ChargedCandidateConverter::PackedCandidateToFeatures(packed_cand, jet, trackinfo, 
+                                                                          drminpfcandsv, c_pf_features);
       } else if (reco_cand) {
         if (pf_jet) { 
         // need some edm::Ptr or edm::Ref
@@ -281,7 +281,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
         auto PV = reco::VertexRef(vtxs, pvi);
         const reco::VertexRef & PV_orig = (*pvas)[reco_ptr];
         if(PV_orig.isNonnull()) PV = reco::VertexRef(vtxs, PV_orig.key());
-        btagbtvdeep::c_pf_reco_features_converter(reco_cand, jet, trackinfo, 
+        btagbtvdeep::ChargedCandidateConverter::RecoCandidateToFeatures(reco_cand, jet, trackinfo, 
                                            drminpfcandsv, puppiw,
                                            pv_ass_quality, PV_orig, c_pf_features);
         }
@@ -293,17 +293,17 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
       auto & n_pf_features = features.n_pf_features.at(entry);
       // fill feature structure 
       if (packed_cand) {
-        btagbtvdeep::n_pf_packed_features_converter(packed_cand, jet, drminpfcandsv, 
-                                            n_pf_features);
+        btagbtvdeep::NeutralCandidateConverter::PackedCandidateToFeatures(packed_cand, jet, drminpfcandsv, 
+                                                                          n_pf_features);
       } else if (reco_cand) {
         if (pf_jet) { 
         // need some edm::Ptr or edm::Ref
         auto reco_ptr = pf_jet->getPFConstituent(i);
         // get PUPPI weight from value map
         float puppiw = (*puppi_value_map)[reco_ptr];
-        btagbtvdeep::n_pf_reco_features_converter(reco_cand, jet,
-                                           drminpfcandsv, puppiw,
-                                           n_pf_features);
+        btagbtvdeep::NeutralCandidateConverter::RecoCandidateToFeatures(reco_cand, jet,
+                                                                        drminpfcandsv, puppiw,
+                                                                        n_pf_features);
         }
       }
     }
