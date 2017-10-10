@@ -104,13 +104,13 @@ public:
 
     explicit ZeeCandidateFilter(const edm::ParameterSet&);
 
-    ~ZeeCandidateFilter();
+    ~ZeeCandidateFilter() override;
 
 private:
 
-    virtual Bool_t filter(edm::Event&, const edm::EventSetup&) override;
+    Bool_t filter(edm::Event&, const edm::EventSetup&) override;
 
-    virtual void endJob() override ;
+    void endJob() override ;
 
     Bool_t isInFiducial(Double_t eta);
 
@@ -759,7 +759,7 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
     Double_t ele_tip_pv1 = -999999.;
     Double_t ele_tip_pv2 = -999999.;
 
-    if ( Vtx.size() >=1 ) {
+    if ( !Vtx.empty() ) {
         pv_x = Vtx[0].position().x();
         pv_y = Vtx[0].position().y();
         pv_z = Vtx[0].position().z();
