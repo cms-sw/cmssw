@@ -13,7 +13,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include <assert.h>
+#include <cassert>
 #include <sys/types.h>
 #include <unistd.h>
 #include <boost/filesystem/fstream.hpp>

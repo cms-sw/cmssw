@@ -7,7 +7,7 @@ namespace l1t {
   namespace stage1 {
     class MissHtPacker : public Packer {
       public:
-        virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
+        Blocks pack(const edm::Event&, const PackerTokens*) override;
     };
   }
 }

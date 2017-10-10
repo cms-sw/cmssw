@@ -58,14 +58,14 @@ EcalDCCTB07UnpackingModule::EcalDCCTB07UnpackingModule(const edm::ParameterSet& 
   std::vector<int> positionIDs = pset.getUntrackedParameter<std::vector<int> >("positionIDs", std::vector<int>());
 
   // check if vectors are filled
-  if ( ics.size() == 0 || towerIDs.size() == 0 || stripIDs.size() == 0 || channelIDs.size() == 0 ){
+  if ( ics.empty() || towerIDs.empty() || stripIDs.empty() || channelIDs.empty() ){
     edm::LogError("EcalDCCTB07UnpackingModule") << "Some of the mapping info is missing! Check config files! " <<
       " Size of IC vector is " << ics.size() <<
       " Size of Tower ID vector is " << towerIDs.size() <<
       " Size of Strip ID vector is " << stripIDs.size() <<
       " Size of Channel ID vector is " << channelIDs.size();
   }
-  if ( statusIDs.size() == 0 || ccuIDs.size() == 0 || positionIDs.size() == 0 ) {
+  if ( statusIDs.empty() || ccuIDs.empty() || positionIDs.empty() ) {
     edm::LogError("EcalDCCTB07UnpackingModule") << "Some of the mapping info is missing! Check config files! " <<
       " Size of status ID vector is " << statusIDs.size() <<
       " Size of ccu ID vector is " << ccuIDs.size() <<

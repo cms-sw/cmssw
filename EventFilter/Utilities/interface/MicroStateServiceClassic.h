@@ -24,11 +24,11 @@ namespace evf{
     {
     public:
       MicroStateServiceClassic(const edm::ParameterSet&,edm::ActivityRegistry&);
-      ~MicroStateServiceClassic();
+      ~MicroStateServiceClassic() override;
       
-      std::string getMicroState1();
+      std::string getMicroState1() override;
       
-      std::string const &getMicroState2();
+      std::string const &getMicroState2() override;
 
       void postBeginJob();     
 
@@ -43,7 +43,7 @@ namespace evf{
       void preModule(const edm::ModuleDescription&);
       void postModule(const edm::ModuleDescription&);
 
-      void setMicroState(MicroStateService::Microstate m);
+      void setMicroState(MicroStateService::Microstate m) override;
       
     private:
 

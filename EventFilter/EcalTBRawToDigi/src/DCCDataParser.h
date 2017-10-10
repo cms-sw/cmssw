@@ -13,7 +13,7 @@
 #include <vector>
 #include <map>
 
-#include <stdio.h>                     //C
+#include <cstdio>                     //C
 
 #include "ECALParserException.h"      //DATA DECODER
 #include "DCCEventBlock.h"

@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <memory>
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 #include <vector>
 #include <map>
@@ -27,12 +27,12 @@ class DCCTowerBlock : public DCCFEBlock {
 
     DCCTowerBlock(DCCDataUnpacker * u,EcalElectronicsMapper * m, DCCEventBlock * e, bool unpack, bool forceToKeepFRdata );
     
-    void updateCollectors();
+    void updateCollectors() override;
 	 
   protected:
 	 
-    int unpackXtalData(unsigned int stripID, unsigned int xtalID);
-    void fillEcalElectronicsError( std::unique_ptr<EcalElectronicsIdCollection> * );
+    int unpackXtalData(unsigned int stripID, unsigned int xtalID) override;
+    void fillEcalElectronicsError( std::unique_ptr<EcalElectronicsIdCollection> * ) override;
 
     std::unique_ptr<EBDigiCollection>     * digis_;
     

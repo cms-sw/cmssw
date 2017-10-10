@@ -14,7 +14,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "CondFormats/SiStripObjects/interface/Phase2TrackerCabling.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
-#include <stdint.h>
+#include <cstdint>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -27,11 +27,11 @@ namespace Phase2Tracker {
     /// constructor
     Phase2TrackerDigiProducer( const edm::ParameterSet& pset );
     /// default constructor
-    ~Phase2TrackerDigiProducer();
-    virtual void beginJob() override;
-    virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
-    virtual void endJob() override;
+    ~Phase2TrackerDigiProducer() override;
+    void beginJob() override;
+    void beginRun(edm::Run const&, edm::EventSetup const&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
+    void endJob() override;
 
   private:
     unsigned int runNumber_;

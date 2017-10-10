@@ -50,8 +50,8 @@ private:
 
   // No copy constructor and equality operator are needed
   
-  UCTAMCRawData(const UCTAMCRawData&);
-  const UCTAMCRawData& operator=(const UCTAMCRawData& i);
+  UCTAMCRawData(const UCTAMCRawData&) = delete;
+  const UCTAMCRawData& operator=(const UCTAMCRawData& i) = delete;
   
   // RawData data
   
