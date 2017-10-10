@@ -16,6 +16,7 @@ import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.tools as mps_tools
 import os
 import sys
+import glob
 import shutil
 import cPickle
 import subprocess
@@ -92,7 +93,17 @@ request_cpus          = {cpus:d}
                                     # jobs would fit core-wise on one machine
 
     print "Determine required disk space on remote host..."
-    disk_usage = int(subprocess.check_output(["du", "-s", lib.mssDir]).split()[0])
+    # determine usage by each file instead of whole directory as this is what
+    # matters for the specified disk usage:
+    spco = subprocess.check_output # to make code below more less verbose
+    opj = os.path.join             # dito
+    cmd = ["du", "--apparent-size"]
+    disk_usage = [int(item.split()[0])
+                  for directory in ("binaries", "monitors", "tree_files")
+                  for item
+                  in spco(cmd+
+                          glob.glob(opj(lib.mssDir, directory, "*"))).splitlines()]
+    disk_usage = sum(disk_usage)
     disk_usage *= 1.1 # reserve 10% additional space
 
     job_submit_file = os.path.join(Path, "job.submit")
