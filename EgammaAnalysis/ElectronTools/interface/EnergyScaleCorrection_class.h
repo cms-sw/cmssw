@@ -21,7 +21,7 @@
 #include <iostream>
 #include <fstream>
 #include <map>
-#include <math.h>
+#include <cmath>
 #include <TChain.h>
 #include <TRandom3.h>
 #include <string>
