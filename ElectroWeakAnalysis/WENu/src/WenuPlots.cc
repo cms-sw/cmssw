@@ -277,7 +277,7 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   edm::Handle< std::vector<reco::Vertex> > pVtxBS;
   iEvent.getByToken(PrimaryVerticesCollectionBSToken_, pVtxBS);
   const std::vector<reco::Vertex> VtxBS = *(pVtxBS.product());
-  if (Vtx.size() > 0) {
+  if (!Vtx.empty()) {
     pv_x = Float_t(Vtx[0].position().x());
     pv_y = Float_t(Vtx[0].position().y());
     pv_z = Float_t(Vtx[0].position().z());
@@ -288,7 +288,7 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
     pv_z = -999999.;
     ele_tip_pv = -999999.;
   }
-  if (VtxBS.size() > 0) {
+  if (!VtxBS.empty()) {
     pvbs_x = Float_t(VtxBS[0].position().x());
     pvbs_y = Float_t(VtxBS[0].position().y());
     pvbs_z = Float_t(VtxBS[0].position().z());
@@ -530,10 +530,10 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
       ele2nd_scPixCharge = (Int_t) mySecondElec->chargeInfo().scPixCharge;
       ele2nd_eop         = (Float_t) mySecondElec->eSuperClusterOverP();
       ele2nd_tip_bs      = (Float_t) -mySecondElec->dB();
-      if (Vtx.size() > 0) {
+      if (!Vtx.empty()) {
 	ele2nd_tip_pv      =   mySecondElec->gsfTrack()->dxy(Vtx[0].position());
       }
-      if (VtxBS.size() > 0) {
+      if (!VtxBS.empty()) {
 	ele2nd_tip_pvbs      =   mySecondElec->gsfTrack()->dxy(VtxBS[0].position());
       }
       ele2nd_hltmatched_dr = mySecondElec->userFloat("HLTMatchingDR");

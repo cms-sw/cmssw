@@ -12,7 +12,7 @@
 class ZToMuMuSelector : public edm::EDFilter {
 public:
   ZToMuMuSelector (const edm::ParameterSet &);
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 private:
   edm::EDGetTokenT<reco::TrackCollection> muonToken_;
   edm::EDGetTokenT<edm::ValueMap<bool> > isoToken_;

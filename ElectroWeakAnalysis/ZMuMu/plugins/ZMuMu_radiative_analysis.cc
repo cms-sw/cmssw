@@ -53,8 +53,8 @@ class ZMuMu_Radiative_analyzer : public edm::EDAnalyzer {
 public:
   ZMuMu_Radiative_analyzer(const edm::ParameterSet& pset);
 private:
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
-  virtual void endJob() override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  void endJob() override;
 
   EDGetTokenT<CandidateView> zMuMuToken_;
   EDGetTokenT<GenParticleMatch> zMuMuMatchMapToken_;
@@ -145,7 +145,7 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
   event.getByToken(zMuSaToken_, zMuSa);
   cout << "**********  New Event  ***********"<<endl;
   // ZMuMu
-  if (zMuMu->size() > 0 ) {
+  if (!zMuMu->empty() ) {
     event.getByToken(zMuMuMatchMapToken_, zMuMuMatchMap);
      for(unsigned int i = 0; i < zMuMu->size(); ++i) { //loop on candidates
 
@@ -195,9 +195,9 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
 	    mu0.triggerObjectMatchesByPath( "HLT_Mu9" );
 	  const pat::TriggerObjectStandAloneCollection mu1HLTMatches =
 	    mu1.triggerObjectMatchesByPath( "HLT_Mu9" );
-	  if( mu0HLTMatches.size()>0 )
+	  if( !mu0HLTMatches.empty() )
 	    trig0found = true;
-	  if( mu1HLTMatches.size()>0 )
+	  if( !mu1HLTMatches.empty() )
 	    trig1found = true;
 
 	  //MonteCarlo Study
@@ -302,7 +302,7 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
   }// end if ZMuMu size > 0
 
   // ZMuSa
-  if (zMuSa->size() > 0 ) {
+  if (!zMuSa->empty() ) {
     event.getByToken(zMuSaMatchMapToken_, zMuSaMatchMap);
      for(unsigned int i = 0; i < zMuSa->size(); ++i) { //loop on candidates
 
@@ -310,8 +310,8 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
       CandidateBaseRef zMuSaCandRef = zMuSa->refAt(i);
       const Candidate *  lep0 =zMuSaCand.daughter(0);
       const Candidate *  lep1 =zMuSaCand.daughter(1);
-      CandidateBaseRef dau0 = lep0->masterClone();
-      CandidateBaseRef dau1 = lep1->masterClone();
+      const CandidateBaseRef& dau0 = lep0->masterClone();
+      const CandidateBaseRef& dau1 = lep1->masterClone();
       const pat::Muon& mu0 = dynamic_cast<const pat::Muon&>(*dau0);//cast in patMuon
       const pat::Muon& mu1 = dynamic_cast<const pat::Muon&>(*dau1);
 
@@ -351,9 +351,9 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
 	    mu1.triggerObjectMatchesByPath( "HLT_Mu9" );
 	  trig0found = false;
 	  trig1found = false;
-	  if( mu0HLTMatches.size()>0 )
+	  if( !mu0HLTMatches.empty() )
 	    trig0found = true;
-	  if( mu1HLTMatches.size()>0 )
+	  if( !mu1HLTMatches.empty() )
 	    trig1found = true;
 
 	  //MonteCarlo Study
@@ -432,7 +432,7 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
   }// end if ZMuSa size > 0
 
   //ZMuTk
-  if (zMuTk->size() > 0 ) {
+  if (!zMuTk->empty() ) {
     event.getByToken(zMuTkMatchMapToken_, zMuTkMatchMap);
     for(unsigned int i = 0; i < zMuTk->size(); ++i) { //loop on candidates
       const Candidate & zMuTkCand = (*zMuTk)[i]; //the candidate

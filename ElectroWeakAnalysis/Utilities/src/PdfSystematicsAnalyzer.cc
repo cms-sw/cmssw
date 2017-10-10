@@ -6,10 +6,10 @@
 class PdfSystematicsAnalyzer: public edm::EDFilter {
 public:
       PdfSystematicsAnalyzer(const edm::ParameterSet& pset);
-      virtual ~PdfSystematicsAnalyzer();
-      virtual bool filter(edm::Event &, const edm::EventSetup&) override;
-      virtual void beginJob() override ;
-      virtual void endJob() override ;
+      ~PdfSystematicsAnalyzer() override;
+      bool filter(edm::Event &, const edm::EventSetup&) override;
+      void beginJob() override ;
+      void endJob() override ;
 private:
       std::string selectorPath_;
       std::vector<edm::InputTag> pdfWeightTags_;
