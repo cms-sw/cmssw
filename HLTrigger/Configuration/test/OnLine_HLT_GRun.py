@@ -1,13 +1,13 @@
 # hltGetConfiguration --full --offline --data /dev/CMSSW_9_2_0/GRun --type GRun --unprescale --process HLTGRun --globaltag auto:run2_hlt_GRun --input file:RelVal_Raw_GRun_DATA.root
 
-# /dev/CMSSW_9_2_0/GRun/V135 (CMSSW_9_2_10)
+# /dev/CMSSW_9_2_0/GRun/V137 (CMSSW_9_2_10)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_2_0/GRun/V135')
+  tableName = cms.string('/dev/CMSSW_9_2_0/GRun/V137')
 )
 
 process.transferSystem = cms.PSet( 
@@ -34012,7 +34012,7 @@ process.hltPrePFHT800PFMET85PFMHT85IDTight = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltL1sAllETMHadSeeds = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleJet60er2p7_ETM60 OR L1_DoubleJet60er2p7_ETM80 OR L1_ETMHF100 OR L1_ETMHF100_HTT60er OR L1_ETMHF100 OR L1_ETMHF110 OR L1_ETMHF110_HTT60er OR L1_ETMHF120 OR L1_ETMHF120_HTT60er OR L1_ETMHF150 OR L1_ETMHF80 OR L1_ETMHF80_HTT60er OR L1_ETMHF90 OR L1_ETMHF90_HTT60er OR L1_ETMHF100 OR L1_ETMHF100_Jet60_OR_DiJet30woTT28 OR L1_ETMHF100_Jet60_OR_DoubleJet30 OR L1_ETMHF100_Jet90_OR_DoubleJet45_OR_TripleJet30 OR L1_ETMHF105_Jet60_OR_DoubleJet30 OR L1_ETMHF110 OR L1_ETMHF110_Jet60_OR_DiJet30woTT28 OR L1_ETMHF110_Jet60_OR_DoubleJet30 OR L1_ETMHF110_Jet90_OR_DoubleJet45_OR_TripleJet30 OR L1_ETMHF115_Jet60_OR_DoubleJet30 OR L1_ETMHF120 OR L1_ETMHF120_Jet60_OR_DiJet30woTT28 OR L1_ETMHF120_Jet60_OR_DoubleJet30 OR L1_ETMHF150 OR L1_ETMHF70 OR L1_ETMHF70_Jet60_OR_DiJet30woTT28 OR L1_ETMHF70_Jet60_OR_DoubleJet30 OR L1_ETMHF70_Jet90_OR_DoubleJet45_OR_TripleJet30 OR L1_ETMHF75_Jet60_OR_DoubleJet30 OR L1_ETMHF80 OR L1_ETMHF80_Jet60_OR_DiJet30woTT28 OR L1_ETMHF80_Jet60_OR_DoubleJet30 OR L1_ETMHF80_Jet90_OR_DoubleJet45_OR_TripleJet30 OR L1_ETMHF85_Jet60_OR_DoubleJet30 OR L1_ETMHF90 OR L1_ETMHF90_Jet60_OR_DiJet30woTT28 OR L1_ETMHF90_Jet60_OR_DoubleJet30 OR L1_ETMHF90_Jet90_OR_DoubleJet45_OR_TripleJet30 OR L1_ETMHF95_Jet60_OR_DoubleJet30" ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleJet60er2p7_ETM60 OR L1_DoubleJet60er2p7_ETM80 OR L1_ETMHF100 OR L1_ETMHF100_HTT60er OR L1_ETMHF100 OR L1_ETMHF110 OR L1_ETMHF110_HTT60er OR L1_ETMHF120 OR L1_ETMHF120_HTT60er OR L1_ETMHF150 OR L1_ETMHF80 OR L1_ETMHF80_HTT60er OR L1_ETMHF90 OR L1_ETMHF90_HTT60er OR L1_ETMHF100 OR L1_ETMHF110 OR L1_ETMHF120 OR L1_ETMHF150 OR L1_ETMHF70 OR L1_ETMHF80 OR L1_ETMHF90" ),
     L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
