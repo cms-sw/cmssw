@@ -62,6 +62,8 @@ namespace gem {
       flsData = flsData | (0x0000ffffffffffff & word >> 16);
       fcrc = word;
     }
+    // make write_word function
+    
     
     uint8_t   b1010      (){ return fb1010;      }
     uint16_t  BC         (){ return fBC;         }
