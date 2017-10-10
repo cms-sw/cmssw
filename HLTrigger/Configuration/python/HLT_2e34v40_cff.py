@@ -1,13 +1,13 @@
 # hltGetConfiguration --cff --offline --data /frozen/2017/2e34/v4.0/HLT --type 2e34v40
 
-# /frozen/2017/2e34/v4.0/HLT/V1 (CMSSW_9_2_10)
+# /frozen/2017/2e34/v4.0/HLT/V2 (CMSSW_9_2_10)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/frozen/2017/2e34/v4.0/HLT/V1')
+  tableName = cms.string('/frozen/2017/2e34/v4.0/HLT/V2')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -33713,7 +33713,7 @@ fragment.hltPrePFHT800PFMET85PFMHT85IDTight = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 fragment.hltL1sAllETMHadSeeds = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleJet60er2p7_ETM60 OR L1_DoubleJet60er2p7_ETM80 OR L1_ETM100 OR L1_ETM100_Jet60_dPhi_Min0p4 OR L1_ETM105 OR L1_ETM110 OR L1_ETM115 OR L1_ETM120 OR L1_ETM150 OR L1_ETM60 OR L1_ETM70 OR L1_ETM75 OR L1_ETM75_Jet60_dPhi_Min0p4 OR L1_ETM80 OR L1_ETM85 OR L1_ETM90 OR L1_ETM95 OR L1_ETMHF100 OR L1_ETMHF100_Jet60_OR_DiJet30woTT28 OR L1_ETMHF100_Jet60_OR_DoubleJet30 OR L1_ETMHF100_Jet90_OR_DoubleJet45_OR_TripleJet30 OR L1_ETMHF110 OR L1_ETMHF110_Jet60_OR_DiJet30woTT28 OR L1_ETMHF110_Jet90_OR_DoubleJet45_OR_TripleJet30 OR L1_ETMHF120 OR L1_ETMHF120_Jet60_OR_DiJet30woTT28 OR L1_ETMHF150 OR L1_ETMHF70 OR L1_ETMHF70_Jet90_OR_DoubleJet45_OR_TripleJet30 OR L1_ETMHF80 OR L1_ETMHF80_Jet90_OR_DoubleJet45_OR_TripleJet30 OR L1_ETMHF90 OR L1_ETMHF90_Jet90_OR_DoubleJet45_OR_TripleJet30" ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleJet60er2p7_ETM60 OR L1_DoubleJet60er2p7_ETM80 OR L1_ETMHF100 OR L1_ETMHF100_HTT60er OR L1_ETMHF100 OR L1_ETMHF110 OR L1_ETMHF110_HTT60er OR L1_ETMHF120 OR L1_ETMHF120_HTT60er OR L1_ETMHF150 OR L1_ETMHF80 OR L1_ETMHF80_HTT60er OR L1_ETMHF90 OR L1_ETMHF90_HTT60er OR L1_ETMHF100 OR L1_ETMHF100_Jet60_OR_DiJet30woTT28 OR L1_ETMHF100_Jet60_OR_DoubleJet30 OR L1_ETMHF100_Jet90_OR_DoubleJet45_OR_TripleJet30 OR L1_ETMHF105_Jet60_OR_DoubleJet30 OR L1_ETMHF110 OR L1_ETMHF110_Jet60_OR_DiJet30woTT28 OR L1_ETMHF110_Jet60_OR_DoubleJet30 OR L1_ETMHF110_Jet90_OR_DoubleJet45_OR_TripleJet30 OR L1_ETMHF115_Jet60_OR_DoubleJet30 OR L1_ETMHF120 OR L1_ETMHF120_Jet60_OR_DiJet30woTT28 OR L1_ETMHF120_Jet60_OR_DoubleJet30 OR L1_ETMHF150 OR L1_ETMHF70 OR L1_ETMHF70_Jet60_OR_DiJet30woTT28 OR L1_ETMHF70_Jet60_OR_DoubleJet30 OR L1_ETMHF70_Jet90_OR_DoubleJet45_OR_TripleJet30 OR L1_ETMHF75_Jet60_OR_DoubleJet30 OR L1_ETMHF80 OR L1_ETMHF80_Jet60_OR_DiJet30woTT28 OR L1_ETMHF80_Jet60_OR_DoubleJet30 OR L1_ETMHF80_Jet90_OR_DoubleJet45_OR_TripleJet30 OR L1_ETMHF85_Jet60_OR_DoubleJet30 OR L1_ETMHF90 OR L1_ETMHF90_Jet60_OR_DiJet30woTT28 OR L1_ETMHF90_Jet60_OR_DoubleJet30 OR L1_ETMHF90_Jet90_OR_DoubleJet45_OR_TripleJet30 OR L1_ETMHF95_Jet60_OR_DoubleJet30" ),
     L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -35676,7 +35676,7 @@ fragment.hltPFMETTypeOne200 = cms.EDFilter( "HLT1PFMET",
     MinPt = cms.double( 200.0 )
 )
 fragment.hltL1sETM80ToETM150 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_ETM80 OR L1_ETM85 OR L1_ETM90 OR L1_ETM95 OR L1_ETM100 OR L1_ETM105 OR L1_ETM110 OR L1_ETM115 OR L1_ETM120 OR L1_ETM150" ),
+    L1SeedsLogicalExpression = cms.string( "L1_ETMHF80 OR L1_ETMHF80_HTT60er OR L1_ETMHF90 OR L1_ETMHF90_HTT60er OR L1_ETMHF100 OR L1_ETMHF100_HTT60er OR L1_ETMHF110 OR L1_ETMHF110_HTT60er OR L1_ETMHF120 OR L1_ETMHF120_HTT60er OR L1_ETMHF150" ),
     L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -65776,7 +65776,7 @@ fragment.hltFullTrackHighMult155 = cms.EDFilter( "HLTSingleVertexPixelTrackFilte
     MinSep = cms.double( 0.15 )
 )
 fragment.hltL1sEG40To45IorJet170To200IorHTT300To500IorETM70ToETM150 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG40 OR L1_SingleEG42  OR L1_SingleEG45  OR L1_SingleEG50 OR L1_SingleJet170 OR L1_SingleJet180 OR L1_SingleJet200 OR L1_HTT300er OR L1_HTT320er OR L1_HTT340er OR L1_HTT380er OR  L1_HTT400er OR L1_HTT450er OR L1_HTT500er OR L1_ETM70 OR L1_ETM80 OR L1_ETM90 OR L1_ETM95 OR L1_ETM105 OR L1_ETM110 OR L1_ETM115 OR L1_ETM120 OR L1_ETM150" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG40 OR L1_SingleEG42  OR L1_SingleEG45  OR L1_SingleEG50 OR L1_SingleJet170 OR L1_SingleJet180 OR L1_SingleJet200 OR L1_HTT300er OR L1_HTT320er OR L1_HTT340er OR L1_HTT380er OR  L1_HTT400er OR L1_HTT450er OR L1_HTT500er OR L1_ETMHF70 OR L1_ETMHF80 OR L1_ETMHF80_HTT60er OR L1_ETMHF90 OR L1_ETMHF90_HTT60er OR L1_ETMHF110 OR L1_ETMHF110_HTT60er OR L1_ETMHF120 OR L1_ETMHF120_HTT60er OR L1_ETMHF150" ),
     L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
@@ -76973,7 +76973,7 @@ fragment.hltBTagPFCSVp4Single = cms.EDFilter( "HLTPFJetTag",
     MinTag = cms.double( 0.4 ),
     MaxTag = cms.double( 999999.0 )
 )
-fragment.hltPreDiphoton3018PVrealANDrealANDR9IdANDIsoCaloIdANDHER9IdPixelVetoMass55 = cms.EDFilter( "HLTPrescaler",
+fragment.hltPreDiphoton3018PVrealANDR9IdANDIsoCaloIdANDHER9IdPixelVetoMass55 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
@@ -77259,7 +77259,7 @@ fragment.hltDiEG18PVrealANDR9Idb85e90ANDIso60CaloId15b35eANDHE10R9Id50b80eMass55
     minMass = cms.double( 55.0 ),
     secondLegLastFilter = cms.InputTag( "hltDiEG18PVrealANDNewPixelMatchPMS2Filter" )
 )
-fragment.hltPreDiphoton3018PVrealANDrealANDR9IdANDIsoCaloIdANDHER9IdNoPixelVetoMass55 = cms.EDFilter( "HLTPrescaler",
+fragment.hltPreDiphoton3018PVrealANDR9IdANDIsoCaloIdANDHER9IdNoPixelVetoMass55 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
@@ -78460,8 +78460,8 @@ fragment.HLT_QuadPFJet105_88_76_15_v1 = cms.Path( fragment.HLTBeginSequence + fr
 fragment.HLT_QuadPFJet111_90_80_15_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sTripleJet1058576VBFIorHTTIorDoubleJetCIorSingleJet + fragment.hltPreQuadPFJet111908015 + fragment.HLTAK4CaloJetsSequence + fragment.hltQuadJet15 + fragment.hltTripleJet50 + fragment.hltDoubleJet65 + fragment.hltSingleJet80 + fragment.HLTFastPrimaryVertexSequence + fragment.HLTAK4PFJetsSequence + fragment.hltPFQuadJetLooseID15 + fragment.hltPFTripleJetLooseID80 + fragment.hltPFDoubleJetLooseID90 + fragment.hltPFSingleJetLooseID111 + fragment.HLTEndSequence )
 fragment.HLT_AK8PFJet330_PFAK8BTagCSV_p17_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleJet170IorSingleJet180IorSingleJet200 + fragment.hltPreAK8PFJet330PFAK8BTagCSVp17 + fragment.HLTAK8CaloJetsSequence + fragment.hltAK8SingleCaloJet300 + fragment.HLTAK8PFJetsSequence + fragment.hltAK8PFJetsCorrectedMatchedToCaloJets300 + fragment.hltSinglePFJet330AK8 + fragment.HLTBtagCSVSequencePFAK8 + fragment.hltBTagPFCSVp3Single + fragment.HLTEndSequence )
 fragment.HLT_AK8PFJet330_PFAK8BTagCSV_p1_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleJet170IorSingleJet180IorSingleJet200 + fragment.hltPreAK8PFJet330PFAK8BTagCSVp1 + fragment.HLTAK8CaloJetsSequence + fragment.hltAK8SingleCaloJet300 + fragment.HLTAK8PFJetsSequence + fragment.hltAK8PFJetsCorrectedMatchedToCaloJets300 + fragment.hltSinglePFJet330AK8 + fragment.HLTBtagCSVSequencePFAK8 + fragment.hltBTagPFCSVp4Single + fragment.HLTEndSequence )
-fragment.HLT_Diphoton30_18_PVrealAND_R9Id_AND_IsoCaloId_AND_HE_R9Id_PixelVeto_Mass55_v8 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleAndDoubleEGor + fragment.hltPreDiphoton3018PVrealANDrealANDR9IdANDIsoCaloIdANDHER9IdPixelVetoMass55 + fragment.HLTDiphoton3018PVrealANDR9Idb85e90ANDIso60CaloId15b35eANDHE10R9Id50b80eMass55NewPixelMatchSequence + fragment.HLTEndSequence )
-fragment.HLT_Diphoton30_18_PVrealAND_R9Id_AND_IsoCaloId_AND_HE_R9Id_NoPixelVeto_Mass55_v8 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleAndDoubleEGor + fragment.hltPreDiphoton3018PVrealANDrealANDR9IdANDIsoCaloIdANDHER9IdNoPixelVetoMass55 + fragment.HLTDiphoton3018PVrealANDR9Idb85e90ANDIso60CaloId15b35eANDHE10R9Id50b80eMass55NoPixelVetoSequence + fragment.HLTEndSequence )
+fragment.HLT_Diphoton30_18_PVrealAND_R9Id_AND_IsoCaloId_AND_HE_R9Id_PixelVeto_Mass55_v8 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleAndDoubleEGor + fragment.hltPreDiphoton3018PVrealANDR9IdANDIsoCaloIdANDHER9IdPixelVetoMass55 + fragment.HLTDiphoton3018PVrealANDR9Idb85e90ANDIso60CaloId15b35eANDHE10R9Id50b80eMass55NewPixelMatchSequence + fragment.HLTEndSequence )
+fragment.HLT_Diphoton30_18_PVrealAND_R9Id_AND_IsoCaloId_AND_HE_R9Id_NoPixelVeto_Mass55_v8 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleAndDoubleEGor + fragment.hltPreDiphoton3018PVrealANDR9IdANDIsoCaloIdANDHER9IdNoPixelVetoMass55 + fragment.HLTDiphoton3018PVrealANDR9Idb85e90ANDIso60CaloId15b35eANDHE10R9Id50b80eMass55NoPixelVetoSequence + fragment.HLTEndSequence )
 fragment.HLTriggerFinalPath = cms.Path( fragment.hltGtStage2Digis + fragment.hltScalersRawToDigi + fragment.hltFEDSelector + fragment.hltTriggerSummaryAOD + fragment.hltTriggerSummaryRAW + fragment.hltBoolFalse )
 fragment.HLTAnalyzerEndpath = cms.EndPath( fragment.hltGtStage2Digis + fragment.hltPreHLTAnalyzerEndpath + fragment.hltL1TGlobalSummary + fragment.hltTrigReport )
 
