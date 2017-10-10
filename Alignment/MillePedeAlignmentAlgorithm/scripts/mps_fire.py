@@ -125,12 +125,17 @@ parser = argparse.ArgumentParser(
 )
 parser.add_argument("maxJobs", type=int, nargs='?', default=1,
                     help="number of Mille jobs to be submitted (default: %(default)d)")
+parser.add_argument("-j", "--job-id", dest = "job_id", nargs = "*",
+                    help = ("job IDs to be submitted; "
+                            "use either 'job<ID>' or directly '<ID>'"))
 parser.add_argument("-a", "--all", dest="allMille", default=False,
                     action="store_true",
-                    help="submit all setup Mille jobs; maxJobs is ignored")
+                    help = ("submit all setup Mille jobs; "
+                            "maxJobs and --job-id are ignored"))
 parser.add_argument("-m", "--merge", dest="fireMerge", default=False,
                     action="store_true",
-                    help="submit all setup Pede jobs; maxJobs is ignored")
+                    help = ("submit all setup Pede jobs; "
+                            "maxJobs is ignored, but --job-id is respected"))
 parser.add_argument("-f", "--force-merge", dest="forceMerge", default=False,
                     action="store_true",
                     help=("force the submission of the Pede job in case some "+
@@ -147,6 +152,34 @@ lib.read_db()
 if args.allMille:
     # submit all Mille jobs and ignore 'maxJobs' supplied by user
     args.maxJobs = lib.nJobs
+    args.job_id = None
+
+if args.job_id is None:
+    job_mask = lib.JOBDIR
+else:
+    job_mask = []
+    for job_id in args.job_id:
+        invalid_id = False
+        if job_id.startswith("job"): job_mask.append(job_id)
+        elif job_id.startswith("m"): job_mask.append("job"+job_id)
+        else:
+            try:
+                job_mask.append(lib.JOBDIR[int(job_id)-1])
+            except ValueError:
+                invalid_id = True
+            except IndexError:
+                print "ID provided to '-j/--job-id' is out of range:", job_id
+                sys.exit(1)
+
+        if invalid_id or job_mask[-1] not in lib.JOBDIR:
+            print "ID provided to '-j/--job-id' is invalid:", job_id
+            print "'-j/--job-id' requires the IDs to exist and to be of either",
+            print "of the following formats:"
+            print " - job042"
+            print " - 042"
+            print " - jobm1"
+            print " - m1"
+            sys.exit(1)
 
 # build the absolute job directory path (needed by mps_script)
 theJobData = os.path.join(os.getcwd(), "jobData")
@@ -178,6 +211,7 @@ if not args.fireMerge:
 
     nSub = 0 # number of submitted Jobs
     for i in xrange(lib.nJobs):
+        if lib.JOBDIR[i] not in job_mask: continue
         if lib.JOBSTATUS[i] == 'SETUP':
             if nSub < args.maxJobs:
                 if args.forwardProxy:
@@ -235,6 +269,9 @@ else:
     i = lib.nJobs
     while i<len(lib.JOBDIR):
         jobNumFrom1 = i+1
+        if lib.JOBDIR[i] not in job_mask:
+            i += 1
+            continue
 
         # check if current job in SETUP mode or if forced
         if lib.JOBSTATUS[i] != 'SETUP':
