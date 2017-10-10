@@ -36,11 +36,11 @@ bool LumiInfo::isProductEqual(LumiInfo const& next) const {
 	  instLumiByBX_ == next.instLumiByBX_);
 }
 
-void LumiInfo::setInstLumi(std::vector<float>& instLumiByBX) {
+void LumiInfo::setInstLumiAllBX(std::vector<float>& instLumiByBX) {
   instLumiByBX_.assign(instLumiByBX.begin(), instLumiByBX.end());
 }
 
-void LumiInfo::setErrLumiBX(std::vector<float>& errLumiByBX){
+void LumiInfo::setErrorLumiAllBX(std::vector<float>& errLumiByBX){
   instLumiStatErrByBX_.assign(errLumiByBX.begin(),errLumiByBX.end());
 }
 
@@ -49,7 +49,7 @@ std::ostream& operator<<(std::ostream& s, const LumiInfo& lumiInfo) {
   s << "  getTotalInstLumi = " << lumiInfo.getTotalInstLumi() << "\n";
   s << "  integLuminosity = " << lumiInfo.integLuminosity() << "\n";
   s << "  recordedLuminosity = " << lumiInfo.recordedLuminosity() << "\n";
-  s << "  deadtimeFraction = " << lumiInfo.deadFraction() << "\n";
+  s << "  deadtimeFraction = " << lumiInfo.getDeadFraction() << "\n";
   s << "  instLumiByBX = ";
   const std::vector<float>& lumiBX = lumiInfo.getInstLumiAllBX();
   for (unsigned int i=0; i<10 && i<lumiBX.size(); ++i) {

@@ -34,8 +34,8 @@ TestLumiInfo::testConstructor() {
   LumiInfo lumiInfo;
   
   lumiInfo.setDeadFraction(0.4);
-  CPPUNIT_ASSERT(std::abs(lumiInfo.deadFraction() - 0.4) < tol);
-  CPPUNIT_ASSERT(std::abs(lumiInfo.liveFraction() - 0.6) < tol);
+  CPPUNIT_ASSERT(std::abs(lumiInfo.getDeadFraction() - 0.4) < tol);
+  CPPUNIT_ASSERT(std::abs(lumiInfo.getLiveFraction() - 0.6) < tol);
 }
 
 void
@@ -47,7 +47,7 @@ TestLumiInfo::testFill() {
   lumBX.push_back(2.0f);
   lumBX.push_back(3.0f);
 
-  lumiInfo.setInstLumi(lumBX);
+  lumiInfo.setInstLumiAllBX(lumBX);
   lumiInfo.setTotalInstLumi(8.0f);
 
   CPPUNIT_ASSERT(std::abs(lumiInfo.getInstLumiBX(0) - 1.0f) < tol);
