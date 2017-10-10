@@ -1645,6 +1645,8 @@ class ConfigBuilder(object):
     def prepare_RECO(self, sequence = "reconstruction"):
         ''' Enrich the schedule with reconstruction '''
         self.loadDefaultOrSpecifiedCFF(sequence,self.RECODefaultCFF)
+        if not self._options.isData:
+		self.executeAndRemember("process.muonshighlevelreco += process.muonSimClassificationByHitsSequence")
 	self.scheduleSequence(sequence.split('.')[-1],'reconstruction_step')
         return
 
