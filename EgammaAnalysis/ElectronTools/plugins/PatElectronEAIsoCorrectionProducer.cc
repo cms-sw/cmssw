@@ -11,8 +11,8 @@ class PatElectronEAIsoCorrectionProducer : public edm::EDProducer
 {
   public:
     explicit PatElectronEAIsoCorrectionProducer( const edm::ParameterSet& iConfig );
-    virtual ~PatElectronEAIsoCorrectionProducer() {};
-    virtual void produce( edm::Event& iEvent, const edm::EventSetup& iSetup );
+    ~PatElectronEAIsoCorrectionProducer() override {};
+    void produce( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
 
   private:
     edm::EDGetTokenT< pat::ElectronCollection > patElectronsToken_;

@@ -30,9 +30,9 @@
 class ElectronRegressionEnergyProducer : public edm::EDFilter {
 public:
   explicit ElectronRegressionEnergyProducer(const edm::ParameterSet&);
-  ~ElectronRegressionEnergyProducer();
+  ~ElectronRegressionEnergyProducer() override;
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
   bool printDebug_;
@@ -89,7 +89,7 @@ ElectronRegressionEnergyProducer::ElectronRegressionEnergyProducer(const edm::Pa
   else if (energyRegressionType_ == 4) type = ElectronEnergyRegressionEvaluate::kWithTrkVarV2;
 
   //load weights and initialize
-  regressionEvaluator->initialize(regressionInputFile_.c_str(),type);
+  regressionEvaluator->initialize(regressionInputFile_,type);
 
   geomInitialized_ = false;
 
@@ -173,7 +173,7 @@ bool ElectronRegressionEnergyProducer::filter(edm::Event& iEvent, const edm::Eve
   for ( reco::GsfElectronCollection::const_iterator egIter = egCandidates.begin();
         egIter != egCandidates.end(); ++egIter) {
 
-    const EcalRecHitCollection * recHits=0;
+    const EcalRecHitCollection * recHits=nullptr;
     if(egIter->isEB())
         recHits = pEBRecHits.product();
     else
