@@ -24,8 +24,8 @@
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
 
-#include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/JetReco/interface/JetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -87,9 +87,10 @@ private:
 
   std::string folderName_;
   std::string histoSuffix_;
+  std::string quantity_;
 
   edm::EDGetTokenT<reco::PFMETCollection>       metToken_;
-  edm::EDGetTokenT<reco::PFJetCollection>       jetToken_;
+  edm::EDGetTokenT< reco::JetView >  jetToken_;
   edm::EDGetTokenT<reco::GsfElectronCollection> eleToken_;
   edm::EDGetTokenT<reco::MuonCollection>        muoToken_;
   edm::EDGetTokenT<reco::VertexCollection>       vtxToken_;
@@ -98,7 +99,7 @@ private:
   MEHTbinning           ht_binning_;
   MEHTbinning           ls_binning_;
 
-  HTME htME_variableBinning_;
+  HTME qME_variableBinning_;
   HTME htVsLS_;
   HTME deltaphimetj1ME_;
   HTME deltaphij1j2ME_;
@@ -107,10 +108,10 @@ private:
   std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
 
   StringCutObjectSelector<reco::MET,true>         metSelection_;
-  StringCutObjectSelector<reco::PFJet,true   >    jetSelection_;
+  StringCutObjectSelector<reco::Jet,true   >    jetSelection_;
   StringCutObjectSelector<reco::GsfElectron,true> eleSelection_;
   StringCutObjectSelector<reco::Muon,true>        muoSelection_;
-  StringCutObjectSelector<reco::PFJet,true   >    jetSelection_HT_;
+  StringCutObjectSelector<reco::Jet,true   >    jetSelection_HT_;
   unsigned njets_;
   unsigned nelectrons_;
   unsigned nmuons_;
