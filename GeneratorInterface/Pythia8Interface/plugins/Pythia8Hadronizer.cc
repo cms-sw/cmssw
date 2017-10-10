@@ -96,7 +96,7 @@ class Pythia8Hadronizer : public Py8InterfaceBase {
     
   private:
 
-    Vincia::VinciaPlugin* vincia;
+    std::auto_ptr<Vincia::VinciaPlugin> fvincia;
 
     void doSetRandomEngine(CLHEP::HepRandomEngine* v) override { p8SetRandomEngine(v); }
     virtual std::vector<std::string> const& doSharedResources() const override { return p8SharedResources; }
@@ -311,7 +311,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   
   if( params.exists( "VinciaPlugin" ) ) {
     fMasterGen.reset(new Pythia);
-    vincia = new Vincia::VinciaPlugin(fMasterGen.get());
+    fvincia.reset(new Vincia::VinciaPlugin(fMasterGen.get()));
   }
 
 }
@@ -439,8 +439,8 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
   }
 
   edm::LogInfo("Pythia8Interface") << "Initializing MasterGen";
-  if( vincia ) {
-    vincia->init(); status = true;
+  if( fvincia.get() ) {
+    fvincia->init(); status = true;
   } else {
     status = fMasterGen->init();
   }
