@@ -1,25 +1,15 @@
-<bin name="testTFTensor" file="testRunner.cpp,testTensor.cc">
-    <use name="tensorflow-c" />
-    <use name="cppunit" />
-
-    <use name="PhysicsTools/TensorFlow" />
-    <use name="FWCore/Utilities" />
-</bin>
-
-<bin name="testTFGraph" file="testRunner.cpp,testGraph.cc">
-    <use name="tensorflow-c" />
+<bin name="testTFHelloWorld" file="testRunner.cpp,testHelloWorld.cc">
+    <use name="tensorflow-cc" />
     <use name="boost_filesystem" />
     <use name="cppunit" />
 
-    <use name="PhysicsTools/TensorFlow" />
     <use name="FWCore/Utilities" />
 </bin>
 
-<bin name="testTFSession" file="testRunner.cpp,testSession.cc">
-    <use name="tensorflow-c" />
+<bin name="testTFLoading" file="testRunner.cpp,testLoading.cc">
     <use name="boost_filesystem" />
     <use name="cppunit" />
 
-    <use name="PhysicsTools/TensorFlow" />
     <use name="FWCore/Utilities" />
+    <use name="PhysicsTools/TensorFlow" />
 </bin>
