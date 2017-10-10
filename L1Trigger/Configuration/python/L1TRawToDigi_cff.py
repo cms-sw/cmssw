@@ -9,10 +9,6 @@
 import FWCore.ParameterSet.Config as cms
 import sys
 
-from L1Trigger.L1TTwinMux.RPCLinkMap_CondDB_cff import RPCLinkMapSource
-# Need this ESSource for payloads: RPCCPPFLinkMap_v1, RPCDCCLinkMap_v1, RPCLBLinkMap_v1, RPCOMTFLinkMap_v1, RPCTwinMuxLinkMap_v1
-# to run RPCTwinMuxRawToDigi unpacker needed for TwinMux emulation, and to correctly run OMTF unpacker. 
-
 
 def unpack_legacy():
     global L1TRawToDigi_Legacy
