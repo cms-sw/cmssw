@@ -11,8 +11,8 @@
  */
 //
 //--------------------------------------------------
-#ifndef DTuROSDigi_DTuROSControlData_h
-#define DTuROSDigi_DTuROSControlData_h
+#ifndef DTDigi_DTuROSControlData_h
+#define DTDigi_DTuROSControlData_h
 
 #include <vector>
 
