@@ -49,11 +49,15 @@ trackingEffFromHitPattern = DQMEDHarvester("DQMGenericClient",
         "Tracking/TrackParameters/generalTracks/HitEffFromHitPattern*",
         "Tracking/TrackParameters/highPurityTracks/pt_1/HitEffFromHitPattern*",
         "Tracking/TrackParameters/highPurityTracks/dzPV0p1/HitEffFromHitPattern*",
+        "Tracking/TrackParameters/highPurityTracks/pt_1/HIP_OOT_noINpu/HitEffFromHitPattern*",
+        "Tracking/TrackParameters/highPurityTracks/pt_1/HIP_noOOT_INpu/HitEffFromHitPattern*",
+        "Tracking/TrackParameters/highPurityTracks/pt_1/noHIP_noOOT_INpu/HitEffFromHitPattern*",
+        "Muons/Tracking/innerTrack/HitEffFromHitPattern*",
                                            ),
                                            efficiency = cms.vstring(
         _layers("PU", "GoodNumVertices", "") +
         _layers("BX", "BX", "VsBX") +
-        _layers("LUMI", "LUMI", "VsLumi")
+        _layers("LUMI", "LUMI", "VsLUMI")
         ),
                                            resolution = cms.vstring(),
                                            verbose = cms.untracked.uint32(5),

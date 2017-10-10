@@ -1,6 +1,40 @@
-import FWCore.ParameterSet.Config as cms
 import os
+import FWCore.ParameterSet.Config as cms
+from FWCore.ParameterSet.VarParsing import VarParsing
 from Configuration.StandardSequences.Eras import eras
+
+
+def get_root_files(path):
+    files = os.listdir(path)
+    root_files = [f for f in files if f.endswith(".root")]
+    full_paths = [os.path.join(path, f) for f in root_files]
+    urls = ['file://{0}'.format(f) for f in full_paths]
+    return urls
+
+
+options = VarParsing('analysis')
+options.register(
+    'sample',
+    'TTJet',
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.string,
+)
+
+options.setDefault('maxEvents', 2000)
+options.setDefault(
+    'outputFile', 'L1TOffline_L1TStage2CaloLayer2_job1_RAW2DIGI_RECO_DQM.root')
+
+options.parseArguments()
+
+inputFiles = {
+    'TTJet': get_root_files('/data/TTJet/reco'),
+    'DoubleEG': get_root_files('/data/DoubleEG'),
+}
+
+inputFilesRAW = {
+    'TTJet': get_root_files('/data/TTJet/raw'),
+}
+
 
 process = cms.Process('L1TStage2EmulatorDQM', eras.Run2_2016)
 
@@ -20,37 +54,20 @@ process.load(
 process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.cerr.FwkReport.reportEvery = int(options.maxEvents / 10)
 
 process.maxEvents = cms.untracked.PSet(
-    #input=cms.untracked.int32(50)
+    input=cms.untracked.int32(options.maxEvents)
 )
 
 # Input source
-
-# das_client.py --limit 0 --query "file dataset=/RelValTTbarLepton_13/CMSSW_8_1_0_pre12-81X_mcRun2_asymptotic_v8-v1/GEN-SIM-RECO" > fileList.global
-# download first file
-# export $xrdfile=`head -1 fileList.global`
-# xrdcp root://xrootd-cms.infn.it/$f TEST.root
-# echo "file://$PWD/TEST.root" > fileList.local
-# or use fileList.global
-with open('fileList.local') as f:
-    fileList = f.readlines()
-# das_client.py --limit 0 --query "file dataset=/RelValTTbarLepton_13/CMSSW_8_1_0_pre12-81X_mcRun2_asymptotic_v8-v1/GEN-SIM-DIGI-RAW-HLTDEBUG" > fileListRAW.global
-# export xrdfile=`head -1 fileListRAW.global`
-# xrdcp root://xrootd-cms.infn.it/$xrdfile TEST_RAW.root
-# echo "file://$PWD/TEST_RAW.root" > fileListRAW.local
-# or use fileListRAW.global
-with open('fileListRAW.local') as f:
-    fileListRAW = f.readlines()
 process.source = cms.Source(
     "PoolSource",
-#     fileNames=cms.untracked.vstring(fileList[0]),
-#     secondaryFileNames=cms.untracked.vstring(fileListRAW),
-    fileNames=cms.untracked.vstring(
-        '/store/data/Run2016H/SingleMuon/RAW-RECO/MuTau-PromptReco-v2/000/282/092/00001/B89AA967-FB8A-E611-9A09-FA163E845EAD.root'),
-        #'file:///vagrant/workspace/DQMOffline/src/doubleEG/009E5CBE-AE87-E611-9122-0025905A60C6.root'),
+    fileNames=cms.untracked.vstring(inputFiles[options.sample]),
 )
+if options.sample == 'TTJet':
+    process.source.secondaryFileNames = cms.untracked.vstring(inputFilesRAW[
+                                                              'TTJet'])
 
 process.options = cms.untracked.PSet(
 
@@ -59,16 +76,17 @@ process.options = cms.untracked.PSet(
 # Output definition
 process.DQMoutput = cms.OutputModule(
     "DQMRootOutputModule",
-    fileName=cms.untracked.string(
-        "L1TOffline_L1TStage2CaloLayer2_job1_RAW2DIGI_RECO_DQM.root")
+    fileName=cms.untracked.string(options.outputFile)
 )
 
 # Additional output definition
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+if options.sample == 'TTJet':
+    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+else:
+    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
@@ -78,7 +96,7 @@ process.load('DQMOffline.L1Trigger.L1TEGammaOffline_cfi')
 process.load('DQMOffline.L1Trigger.L1TTauOffline_cfi')
 
 if os.environ.get('DEBUG', False):
-    process.MessageLogger.cout.threshold=cms.untracked.string('DEBUG')
+    process.MessageLogger.cout.threshold = cms.untracked.string('DEBUG')
     process.MessageLogger.debugModules = cms.untracked.vstring(
         '*',
     )
@@ -105,6 +123,8 @@ from L1Trigger.Configuration.customiseReEmul import L1TReEmulFromRAW
 
 # call to customisation function L1TReEmulFromRAW imported from
 # L1Trigger.Configuration.customiseReEmul
-process = L1TReEmulFromRAW(process)
+# complains about
+# AttributeError: 'Process' object has no attribute 'simRctDigis'
+# process = L1TReEmulFromRAW(process)
 process.schedule.append(process.dqmoffline_step)
 process.schedule.append(process.DQMoutput_step)

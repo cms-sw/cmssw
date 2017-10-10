@@ -67,6 +67,9 @@ if fastSim.isChosen():
     hltassociation.remove(hltMultiTrackValidationGsfTracks)
     hltassociation.remove(hltMultiTrackValidationMuonTracks)
 
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+pp_on_XeXe_2017.toReplaceWith(hltvalidation, hltvalidation.copyAndExclude([HiggsValidationSequence]))
+
 hltvalidation_preprod = cms.Sequence(
   HLTTauVal
   +heavyFlavorValidationSequence

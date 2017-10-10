@@ -1,12 +1,21 @@
 import FWCore.ParameterSet.Config as cms
 
-electronEfficiencyThresholds = [36, 68, 128, 176]
+electronEfficiencyThresholds = [34, 36, 38, 40, 42]
 
 electronEfficiencyBins = []
-electronEfficiencyBins.extend(list(xrange(0, 120, 10)))
-electronEfficiencyBins.extend(list(xrange(120, 180, 20)))
-electronEfficiencyBins.extend(list(xrange(180, 300, 40)))
-electronEfficiencyBins.extend(list(xrange(300, 400, 100)))
+electronEfficiencyBins.extend(list(xrange(2, 42, 2)))
+electronEfficiencyBins.extend(list(xrange(42, 45, 3)))
+electronEfficiencyBins.extend(list(xrange(45, 50, 5)))
+electronEfficiencyBins.extend(list(xrange(50, 70, 10)))
+electronEfficiencyBins.extend(list(xrange(70, 101, 30)))
+
+# additional efficiency vs eta, phi and # vertices plots will
+# be created for the following probe electron pT thresholds
+deepInspectionElectronThresholds = [48, 50]
+
+# offset for 2D efficiency plots, uses
+# electronEfficiencyBins + probeToL1Offset (GeV)
+probeToL1Offset = 10
 
 # just copy for now
 photonEfficiencyThresholds = electronEfficiencyThresholds
@@ -28,14 +37,15 @@ l1tEGammaOfflineDQM = cms.EDAnalyzer(
     TriggerFilter=cms.InputTag('hltEle27WP80TrackIsoFilter', '', 'HLT'),
     TriggerPath=cms.string('HLT_Ele27_WP80_v13'),
 
-
     stage2CaloLayer2EGammaSource=cms.InputTag("caloStage2Digis", "EGamma"),
 
     histFolder=cms.string('L1T/L1TEGamma'),
 
     electronEfficiencyThresholds=cms.vdouble(electronEfficiencyThresholds),
     electronEfficiencyBins=cms.vdouble(electronEfficiencyBins),
-    
+    probeToL1Offset=cms.double(probeToL1Offset),
+    deepInspectionElectronThresholds=cms.vdouble([48, 50]),
+
     photonEfficiencyThresholds=cms.vdouble(photonEfficiencyThresholds),
     photonEfficiencyBins=cms.vdouble(photonEfficiencyBins),
 )
