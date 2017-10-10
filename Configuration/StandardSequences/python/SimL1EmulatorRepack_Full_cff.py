@@ -6,12 +6,6 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
 
-# -------------------------------------------
-# Need this source for RPCTwinMux unpacker
-# till not available by GlobalTag
-# -------------------------------------------
-from CondTools.RPC.RPCLinkMap_CondDB_cff import RPCLinkMapSource
-
 if not (stage2L1Trigger.isChosen()):
     print "L1T WARN:  L1REPACK:Full (intended for 2016 data) only supports Stage 2 eras for now."
     print "L1T WARN:  Use a legacy version of L1REPACK for now."
