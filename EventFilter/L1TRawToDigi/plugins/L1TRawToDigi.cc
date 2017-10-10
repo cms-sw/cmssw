@@ -45,17 +45,17 @@ namespace l1t {
    class L1TRawToDigi : public edm::stream::EDProducer<> {
       public:
          explicit L1TRawToDigi(const edm::ParameterSet&);
-         ~L1TRawToDigi();
+         ~L1TRawToDigi() override;
 
          static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
       private:
-         virtual void produce(edm::Event&, const edm::EventSetup&) override;
+         void produce(edm::Event&, const edm::EventSetup&) override;
 
-         virtual void beginRun(edm::Run const&, edm::EventSetup const&) override {};
-         virtual void endRun(edm::Run const&, edm::EventSetup const&) override {};
-         virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {};
-         virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {};
+         void beginRun(edm::Run const&, edm::EventSetup const&) override {};
+         void endRun(edm::Run const&, edm::EventSetup const&) override {};
+         void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {};
+         void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {};
 
          // ----------member data ---------------------------
          edm::EDGetTokenT<FEDRawDataCollection> fedData_;

@@ -8,50 +8,50 @@ struct CSCTMBHeader2006 : public CSCVTMBHeaderFormat {
   enum {NWORDS=27};
   CSCTMBHeader2006();
   explicit CSCTMBHeader2006(const unsigned short * buf);
-  virtual void setEventInformation(const CSCDMBHeader & dmbHeader);
+  void setEventInformation(const CSCDMBHeader & dmbHeader) override;
 
-  virtual uint16_t BXNCount() const {return bits.bxnCount;}
-  virtual uint16_t ALCTMatchTime() const {return bits.alctMatchTime;}
-  virtual uint16_t CLCTOnly() const {return bits.clctOnly;}
-  virtual uint16_t ALCTOnly() const {return bits.alctOnly;}
-  virtual uint16_t TMBMatch() const {return bits.tmbMatch;}
-  virtual uint16_t Bxn0Diff() const {return bits.bxn0Diff;}
-  virtual uint16_t Bxn1Diff() const {return bits.bxn1Diff;}
-  virtual uint16_t L1ANumber() const {return bits.l1aNumber;}
-  virtual uint16_t NTBins() const {return bits.nTBins;}
-  virtual uint16_t NCFEBs() const {return bits.nCFEBs;}
-  virtual void setNCFEBs(uint16_t ncfebs) {bits.nCFEBs = ncfebs & 0x1F;}
-  virtual uint16_t firmwareRevision() const {return bits.firmRevCode;}
-  virtual uint16_t syncError() const {return bits.syncError;}
-  virtual uint16_t syncErrorCLCT() const {return (bits.clct0_sync_err | bits.clct1_sync_err);}
-  virtual uint16_t syncErrorMPC0() const {return bits.MPC_Muon0_SyncErr_;}
-  virtual uint16_t syncErrorMPC1() const {return bits.MPC_Muon1_SyncErr_;}
+  uint16_t BXNCount() const override {return bits.bxnCount;}
+  uint16_t ALCTMatchTime() const override {return bits.alctMatchTime;}
+  uint16_t CLCTOnly() const override {return bits.clctOnly;}
+  uint16_t ALCTOnly() const override {return bits.alctOnly;}
+  uint16_t TMBMatch() const override {return bits.tmbMatch;}
+  uint16_t Bxn0Diff() const override {return bits.bxn0Diff;}
+  uint16_t Bxn1Diff() const override {return bits.bxn1Diff;}
+  uint16_t L1ANumber() const override {return bits.l1aNumber;}
+  uint16_t NTBins() const override {return bits.nTBins;}
+  uint16_t NCFEBs() const override {return bits.nCFEBs;}
+  void setNCFEBs(uint16_t ncfebs) override {bits.nCFEBs = ncfebs & 0x1F;}
+  uint16_t firmwareRevision() const override {return bits.firmRevCode;}
+  uint16_t syncError() const override {return bits.syncError;}
+  uint16_t syncErrorCLCT() const override {return (bits.clct0_sync_err | bits.clct1_sync_err);}
+  uint16_t syncErrorMPC0() const override {return bits.MPC_Muon0_SyncErr_;}
+  uint16_t syncErrorMPC1() const override {return bits.MPC_Muon1_SyncErr_;}
 
   ///returns CLCT digis
-  virtual std::vector<CSCCLCTDigi> CLCTDigis(uint32_t idlayer);
+  std::vector<CSCCLCTDigi> CLCTDigis(uint32_t idlayer) override;
   ///returns CorrelatedLCT digis
-  virtual std::vector<CSCCorrelatedLCTDigi> CorrelatedLCTDigis(uint32_t idlayer) const;
+  std::vector<CSCCorrelatedLCTDigi> CorrelatedLCTDigis(uint32_t idlayer) const override;
  
   /// in 16-bit words.  Add olne because we include beginning(b0c) and
   /// end (e0c) flags
-  unsigned short int sizeInWords() const {return NWORDS;}
+  unsigned short int sizeInWords() const override {return NWORDS;}
 
-  virtual unsigned short int NHeaderFrames() const {return bits.nHeaderFrames;}
+  unsigned short int NHeaderFrames() const override {return bits.nHeaderFrames;}
   /// returns the first data word
-  virtual unsigned short * data() {return (unsigned short *)(&bits);}
-  virtual bool check() const {return bits.e0bline==0x6e0b && NHeaderFrames()+1 == NWORDS;}
+  unsigned short * data() override {return (unsigned short *)(&bits);}
+  bool check() const override {return bits.e0bline==0x6e0b && NHeaderFrames()+1 == NWORDS;}
 
   /// for data packing
-  virtual void addCLCT0(const CSCCLCTDigi & digi);
-  virtual void addCLCT1(const CSCCLCTDigi & digi);
-  virtual void addALCT0(const CSCALCTDigi & digi);
-  virtual void addALCT1(const CSCALCTDigi & digi);
-  virtual void addCorrelatedLCT0(const CSCCorrelatedLCTDigi & digi);
-  virtual void addCorrelatedLCT1(const CSCCorrelatedLCTDigi & digi);
+  void addCLCT0(const CSCCLCTDigi & digi) override;
+  void addCLCT1(const CSCCLCTDigi & digi) override;
+  void addALCT0(const CSCALCTDigi & digi) override;
+  void addALCT1(const CSCALCTDigi & digi) override;
+  void addCorrelatedLCT0(const CSCCorrelatedLCTDigi & digi) override;
+  void addCorrelatedLCT1(const CSCCorrelatedLCTDigi & digi) override;
 
   void swapCLCTs(CSCCLCTDigi& digi1, CSCCLCTDigi& digi2);
 
-  virtual void print(std::ostream & os) const;
+  void print(std::ostream & os) const override;
     struct {
       unsigned b0cline:16;
       unsigned nTBins:5, dumpCFEBs:7, fifoMode:3, reserved_1:1;

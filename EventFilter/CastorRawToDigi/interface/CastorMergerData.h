@@ -15,7 +15,7 @@ class CastorMergerData {
  public:
   
   CastorMergerData();
-  ~CastorMergerData() { if (m_ownData!=0) delete [] m_ownData; }
+  ~CastorMergerData() { if (m_ownData!=nullptr) delete [] m_ownData; }
   CastorMergerData(int version_to_create);
   CastorMergerData(const unsigned short* data, int length);
   CastorMergerData(const CastorMergerData&);

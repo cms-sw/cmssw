@@ -91,7 +91,7 @@ void CSCCFEBData::add(const CSCStripDigi & digi, int layer)
       unsigned value = scaCounts[itime] & 0xFFF; // 12-bit
       // assume it's good, since we're working with simulation
       const CSCCFEBTimeSlice * slice = timeSlice(itime);
-      assert(slice != 0);
+      assert(slice != nullptr);
       slice->timeSample(layer, channel,fDCFEB)->adcCounts = value;
       /// =VB= Set CRC value for simulated data
       ((CSCCFEBTimeSlice *)slice)->setCRC();
@@ -106,7 +106,7 @@ const CSCCFEBTimeSlice * CSCCFEBData::timeSlice(unsigned i) const
   // give a NULL pointer if this is a bad slice
   if(!start.second) 
     {
-      result = 0;
+      result = nullptr;
     } 
   else 
     {
@@ -324,7 +324,7 @@ bool CSCCFEBData::check() const
   for(unsigned i = 0; i < theNumberOfSamples; ++i) 
     {
       const CSCCFEBTimeSlice * slice = timeSlice(i);
-      if(slice==0 || !timeSlice(i)->check()) result = false;
+      if(slice==nullptr || !timeSlice(i)->check()) result = false;
     }
   return result;
 }

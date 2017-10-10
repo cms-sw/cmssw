@@ -25,13 +25,13 @@ public:
    *  \param unpackSharedRegions - this is a commissioning option to unpack the shared RCT calo regions. */
   explicit GctFormatTranslateV35(bool hltMode = false, bool unpackSharedRegions = false);
   
-  virtual ~GctFormatTranslateV35(); ///< Destructor.
+  ~GctFormatTranslateV35() override; ///< Destructor.
 
   /// Generate a block header from four 8-bit values.
-  virtual GctBlockHeader generateBlockHeader(const unsigned char * data) const override;
+  GctBlockHeader generateBlockHeader(const unsigned char * data) const override;
   
   /// Get digis from the block - will return true if it succeeds, false otherwise.
-  virtual bool convertBlock(const unsigned char * d, const GctBlockHeader& hdr) override;
+  bool convertBlock(const unsigned char * d, const GctBlockHeader& hdr) override;
 
 
   /* ------------------------------ */
@@ -46,20 +46,20 @@ protected:
   /* PROTECTED METHODS */
 
   /* Static data member access methods */
-  virtual const BlockLengthMap& blockLengthMap() const override final { return m_blockLength; } ///< get the static block ID to block-length map.
+  const BlockLengthMap& blockLengthMap() const final { return m_blockLength; } ///< get the static block ID to block-length map.
   
-  virtual const BlockNameMap& blockNameMap() const override final { return m_blockName; }  ///< get the static block ID to blockname map.
+  const BlockNameMap& blockNameMap() const final { return m_blockName; }  ///< get the static block ID to blockname map.
   
-  virtual const BlkToRctCrateMap& rctEmCrateMap() const override final { return m_rctEmCrate; }  ///< get static the block ID to RCT crate map for electrons.
+  const BlkToRctCrateMap& rctEmCrateMap() const final { return m_rctEmCrate; }  ///< get static the block ID to RCT crate map for electrons.
  
-  virtual const BlkToRctCrateMap& rctJetCrateMap() const override final { return m_rctJetCrate; }  ///< get the static block ID to RCT crate map for jets
+  const BlkToRctCrateMap& rctJetCrateMap() const final { return m_rctJetCrate; }  ///< get the static block ID to RCT crate map for jets
 
-  virtual const BlockIdToEmCandIsoBoundMap& internEmIsoBounds() const override final { return m_internEmIsoBounds; }  ///< get the static intern EM cand isolated boundary map.
+  const BlockIdToEmCandIsoBoundMap& internEmIsoBounds() const final { return m_internEmIsoBounds; }  ///< get the static intern EM cand isolated boundary map.
 
 
   /* Other general methods */
   /// Returns a raw 32-bit header word generated from the blockId, number of time samples, bunch-crossing and event IDs.
-  virtual uint32_t generateRawHeader(const uint32_t blockId,
+  uint32_t generateRawHeader(const uint32_t blockId,
                                      const uint32_t nSamples,
                                      const uint32_t bxId,
                                      const uint32_t eventId) const override;
