@@ -12,13 +12,8 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "EventFilter/GEMRawToDigi/interface/GEMAMC13EventFormat.h"
-
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
-#include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
-#include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
-#include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
 
 namespace edm {
    class ConfigurationDescriptions;
@@ -30,7 +25,7 @@ class GEMRawToDigiModule : public edm::EDProducer {
   GEMRawToDigiModule(const edm::ParameterSet & pset);
 
   /// Destructor
-  virtual ~GEMRawToDigiModule();
+  virtual ~GEMRawToDigiModule(){}
 
   // Operations
   virtual void produce( edm::Event&, const edm::EventSetup& );
@@ -40,9 +35,7 @@ class GEMRawToDigiModule : public edm::EDProducer {
 
  private:
 
-  edm::EDGetTokenT<FEDRawDataCollection> fed_token;
-  AMC13Event * m_AMC13Event;
-  
+  edm::EDGetTokenT<FEDRawDataCollection> fed_token;  
 };
 #endif
 
