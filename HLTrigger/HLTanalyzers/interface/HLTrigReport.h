@@ -39,22 +39,22 @@ class HLTrigReport : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::W
 
    public:
       explicit HLTrigReport(const edm::ParameterSet&);
-      ~HLTrigReport();
+      ~HLTrigReport() override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
       static
       ReportEvery decode(const std::string & value);
 
-      virtual void beginJob() override;
-      virtual void endJob() override;
+      void beginJob() override;
+      void endJob() override;
 
-      virtual void beginRun(edm::Run const &, edm::EventSetup const&) override;
-      virtual void endRun(edm::Run const &, edm::EventSetup const&) override;
+      void beginRun(edm::Run const &, edm::EventSetup const&) override;
+      void endRun(edm::Run const &, edm::EventSetup const&) override;
 
-      virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-      virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+      void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+      void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
 
       void reset(bool changed = false);     // reset all counters
 

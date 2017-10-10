@@ -24,8 +24,8 @@ class HLTElectronOneOEMinusOneOPFilterRegional : public HLTFilter {
 
    public:
       explicit HLTElectronOneOEMinusOneOPFilterRegional(const edm::ParameterSet&);
-      ~HLTElectronOneOEMinusOneOPFilterRegional();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      ~HLTElectronOneOEMinusOneOPFilterRegional() override;
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
