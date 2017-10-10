@@ -41,7 +41,7 @@ public:
    ~FWEveText() override {}
 
    TClass* ProjectedClass(const TEveProjection* p) const override  ;
-   ClassDef(FWEveText, 0); // Class for visualisation of text with FTGL font.
+   ClassDefOverride(FWEveText, 0); // Class for visualisation of text with FTGL font.
 };
 
 //==============================================================================
@@ -62,7 +62,7 @@ public:
    void UpdateProjection() override;
    TEveElement* GetProjectedAsElement() override { return this; }
 
-   ClassDef(FWEveTextProjected, 0); // Projected replica of a FWEveText.
+   ClassDefOverride(FWEveTextProjected, 0); // Projected replica of a FWEveText.
 };
 
 //______________________________________________________________________________
@@ -75,7 +75,7 @@ public:
 
    void DirectDraw(TGLRnrCtx & rnrCtx) const override;
 
-   ClassDef(FWEveTextGL, 0); // GL renderer class for TEveText.
+   ClassDefOverride(FWEveTextGL, 0); // GL renderer class for TEveText.
 };
 
 

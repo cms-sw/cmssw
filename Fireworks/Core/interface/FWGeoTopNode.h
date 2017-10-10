@@ -113,7 +113,7 @@ private:
 #endif
 
    
-   ClassDef(FWGeoTopNode, 0);
+   ClassDefOverride(FWGeoTopNode, 0);
 };
 
 
