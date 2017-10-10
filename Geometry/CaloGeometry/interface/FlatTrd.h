@@ -43,8 +43,8 @@ public:
 
   ~FlatTrd() override ;
   
-  const GlobalPoint& getPosition() const override { return m_global; }
-  GlobalPoint getPosition( const Pt3D& local ) const;
+  virtual const GlobalPoint& getPosition() const override { return m_global; }
+  virtual GlobalPoint getPosition( const Pt3D& local ) const;
   virtual float etaPos() const { return m_global.eta(); }
   virtual float phiPos() const { return m_global.phi(); }
   Pt3D getLocal( const GlobalPoint& global ) const;

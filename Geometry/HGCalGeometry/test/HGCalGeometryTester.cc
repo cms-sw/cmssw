@@ -90,12 +90,15 @@ void HGCalGeometryTester::doTest(const HGCalGeometry& geom,
 	  if (geom.topology().valid(id1)) {
 	    const CaloCellGeometry* icell1 = geom.getGeometry(id1);
 	    GlobalPoint global1 = geom.getPosition(id1);
+	    GlobalPoint global2 = icell1->getPosition(id1);
 	    DetId       idc1    = geom.getClosestCell(global1);
 	    std::cout << "DetId (" << subdet << ":" << zside << ":" << layer
 		      << ":" << sector << ":0:" << cell << ") Geom " << icell1
-		      << " position (" << global1.x() << ", " << global1.y()
-		      << ", " << global1.z() << ") ids " << std::hex 
-		      << id1.rawId() << ":" << idc1.rawId() << std::dec;
+		      << " position (" << global1.x() << ":" << global2.x()
+		      << ", " << global1.y() << ":" << global2.y() << ", " 
+		      << global1.z() << ":" << global2.z() << ") ids " 
+		      << std::hex << id1.rawId() << ":" << idc1.rawId() 
+		      << std::dec;
 	    if (squareCell) {
 	      if (subdet == HGCEE)
 		std::cout << ":" << HGCEEDetId(id1) << ":" << HGCEEDetId(idc1);
@@ -106,23 +109,37 @@ void HGCalGeometryTester::doTest(const HGCalGeometry& geom,
 	    }
 	    std::cout << " parameter[11] = " << icell1->param()[10] << ":"
 		      << icell1->param()[11] << std::endl;
-	    if (id1.rawId() != idc1.rawId()) std::cout <<"***** ERROR *****\n";
+	    if (id1.rawId() != idc1.rawId()) {
+	      std::cout <<"***** ERROR *****\n";
+	    } else if ((std::abs(global1.x()-global2.x()) > 0.001) ||
+		       (std::abs(global1.y()-global2.y()) > 0.001) ||
+		       (std::abs(global1.z()-global2.z()) > 0.001)) {
+	      std::cout <<"***** ERROR *****\n";
+	    }
 	    if (squareCell) {
 	      DetId id2= ((subdet == HGCEE) ? 
 			  (DetId)(HGCEEDetId(subdet,zside,layer,sector,1,cell)) :
 			  (DetId)(HGCHEDetId(subdet,zside,layer,sector,1,cell)));
 	      
 	      const CaloCellGeometry* icell2 = geom.getGeometry(id2);
-	      GlobalPoint global2 = geom.getPosition(id2);
-	      DetId       idc2    = geom.getClosestCell(global2);
+	      GlobalPoint global1 = geom.getPosition(id2);
+	      GlobalPoint global2 = icell2->getPosition(id2);
+	      DetId       idc2    = geom.getClosestCell(global1);
 	      std::cout << "DetId (" << subdet << ":" << zside << ":" << layer
-			<< ":" << sector << ":1:" << cell << ") Geom " << icell2
-			<< " position (" << global2.x() << ", " << global2.y()
-			<< ", " << global2.z() << ") ids " << std::hex 
-			<< id2.rawId() << ":" << idc2.rawId() << std::dec 
-			<< " parameter[11] = " << icell2->param()[10] << ":"
-			<< icell2->param()[11] << std::endl;
-	      if (id2.rawId() != idc2.rawId()) std::cout << "***** ERROR *****\n";
+			<< ":" << sector << ":1:" << cell << ") Geom " <<icell2
+			<< " position (" << global1.x() << ":" << global2.x()
+			<< ", " << global1.y() << ":" << global2.y() << ", "
+			<< global1.z() << ":" << global2.z() << ") ids " 
+			<< std::hex << id2.rawId() << ":" << idc2.rawId() 
+			<< std::dec << " parameter[11] = "<<icell2->param()[10]
+			<< ":" << icell2->param()[11] << std::endl;
+	      if (id2.rawId() != idc2.rawId()) {
+		std::cout << "***** ERROR *****\n";
+	      } else if ((std::abs(global1.x()-global2.x()) > 0.001) ||
+			 (std::abs(global1.y()-global2.y()) > 0.001) ||
+			 (std::abs(global1.z()-global2.z()) > 0.001)) {
+		std::cout <<"***** ERROR *****\n";
+	      }
 	    }
 	  }
 	}

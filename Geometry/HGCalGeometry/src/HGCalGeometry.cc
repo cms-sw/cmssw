@@ -72,7 +72,7 @@ void HGCalGeometry::newCell( const GlobalPoint& f1 ,
   }
   const uint32_t cellIndex (topology().detId2denseGeomId(detId));
 
-  m_cellVec.at( cellIndex ) = FlatTrd( cornersMgr(), f1, f2, f3, parm ) ;
+  m_cellVec.at( cellIndex ) = HGCellGeometry(&m_topology, cornersMgr(), f1, f2, f3, parm ) ;
   m_validGeomIds.at( cellIndex ) = geomId ;
 
 #ifdef EDM_ML_DEBUG
@@ -154,7 +154,7 @@ GlobalPoint HGCalGeometry::getPosition(const DetId& id) const {
       xy = topology().dddConstants().locateCellHex(id_.iCell,id_.iSec,true);
     }
     const HepGeom::Point3D<float> lcoord(xy.first,xy.second,0);
-    glob = m_cellVec[cellIndex].getPosition(lcoord);
+    glob = ((FlatTrd)(m_cellVec[cellIndex])).getPosition(lcoord);
 #ifdef EDM_ML_DEBUG
     std::cout << "getPosition:: index " << cellIndex << " Local " << lcoord.x()
 	      << ":" << lcoord.y() << " ID " << id_.iCell << ":" << id_.iLay 
@@ -183,7 +183,7 @@ HGCalGeometry::CornersVec HGCalGeometry::getCorners(const DetId& id) const {
     static const int signz[] = {-1,-1,-1,-1,1,1,1,1};
     for (unsigned int i = 0; i != 8; ++i) {
       const HepGeom::Point3D<float> lcoord(xy.first+signx[i]*dx,xy.second+signy[i]*dx,signz[i]*dz);
-      co[i] = m_cellVec[cellIndex].getPosition(lcoord);
+      co[i] = ((FlatTrd)(m_cellVec[cellIndex])).getPosition(lcoord);
     }
   }
   return co;
@@ -287,7 +287,7 @@ unsigned int HGCalGeometry::getClosestCellIndex (const GlobalPoint& r) const {
     while (dphi >   M_PI) dphi -= 2*M_PI;
     while (dphi <= -M_PI) dphi += 2*M_PI;
     if (fabs(dphi) < dphi10) {
-      float dz = fabs(zp - m_cellVec[k].getPosition().z());
+      float dz = fabs(zp - ((FlatTrd)(m_cellVec[k])).getPosition().z());
       if (dz < (dzmin+0.001)) {
 	dzmin     = dz;
 	if (fabs(dphi) < (dphimin+0.01)) {
@@ -303,9 +303,9 @@ unsigned int HGCalGeometry::getClosestCellIndex (const GlobalPoint& r) const {
   std::cout << "getClosestCellIndex::Input " << zp << ":" << phip << " Index "
 	    << cellIndex;
   if (cellIndex < m_cellVec.size()) 
-    std::cout << " Cell z " << m_cellVec[cellIndex].getPosition().z() << ":"
-	      << dzmin << " phi " << m_cellVec[cellIndex].phiPos() << ":"
-	      << dphimin;
+    std::cout << " Cell z " << ((FlatTrd)(m_cellVec[cellIndex])).getPosition().z() 
+	      << ":" << dzmin << " phi " << ((FlatTrd)(m_cellVec[cellIndex])).phiPos() 
+	      << ":" << dphimin;
   std::cout << std::endl;
 
 #endif
