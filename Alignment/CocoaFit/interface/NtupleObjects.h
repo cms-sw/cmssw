@@ -24,7 +24,7 @@ class FitParam : public TObject {
   TString Quality;
   int OptObjectIndex;
 
-  ClassDef(FitParam,1)
+  ClassDefOverride(FitParam,1)
 };
   
 class OptObject : public TObject {
