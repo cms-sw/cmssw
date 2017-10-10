@@ -8,7 +8,7 @@ class MuonOverlapSeedFromRecHits : public MuonSeedFromRecHits
 public:
 
   MuonOverlapSeedFromRecHits();
-  virtual ~MuonOverlapSeedFromRecHits() {}
+  ~MuonOverlapSeedFromRecHits() override {}
 
   std::vector<TrajectorySeed> seeds() const;
 
