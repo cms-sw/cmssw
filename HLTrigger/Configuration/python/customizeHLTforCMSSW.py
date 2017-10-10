@@ -42,6 +42,27 @@ def customiseFor19989(process):
         process.GlobalParameters = GlobalParameters
     return process
 
+# new parameter for HCAL method 2 reconstruction
+def customiseFor20422(process):
+    from RecoLocalCalo.HcalRecProducers.HBHEMethod2Parameters_cfi import m2Parameters
+    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
+        producer.algorithm.applyDCConstraint = m2Parameters.applyDCConstraint
+    for producer in producers_by_type(process, "HcalHitReconstructor"):
+        producer.applyDCConstraint = m2Parameters.applyDCConstraint
+    return process
+
+# Refactor track MVA classifiers
+def customiseFor20429(process):
+    for producer in producers_by_type(process, "TrackMVAClassifierDetached", "TrackMVAClassifierPrompt"):
+        producer.mva.GBRForestLabel = producer.GBRForestLabel
+        producer.mva.GBRForestFileName = producer.GBRForestFileName
+        del producer.GBRForestLabel
+        del producer.GBRForestFileName
+    for producer in producers_by_type(process, "TrackCutClassifier"):
+        del producer.GBRForestLabel
+        del producer.GBRForestFileName
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -51,5 +72,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     process = customiseFor19029(process)
     process = customiseFor20269(process)
     process = customiseFor19989(process)
+    process = customiseFor20422(process)
+    process = customiseFor20429(process)
 
     return process

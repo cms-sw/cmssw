@@ -28,7 +28,7 @@ class ChargedHadronPFTrackIsolationProducer : public edm::global::EDProducer<>
 public:
 
   explicit ChargedHadronPFTrackIsolationProducer(const edm::ParameterSet& cfg);
-  ~ChargedHadronPFTrackIsolationProducer() {}
+  ~ChargedHadronPFTrackIsolationProducer() override {}
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 

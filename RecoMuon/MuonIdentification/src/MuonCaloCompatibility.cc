@@ -58,37 +58,37 @@ void MuonCaloCompatibility::configure(const edm::ParameterSet& iConfig)
    muon_had_etaEpl.reset((TH2D*) muon_templates.Get("had_etaEpl"));
 
    // Release from the opened file
-   pion_em_etaEmi->SetDirectory(0);
-   pion_had_etaEmi->SetDirectory(0);
+   pion_em_etaEmi->SetDirectory(nullptr);
+   pion_had_etaEmi->SetDirectory(nullptr);
 
-   pion_em_etaTmi->SetDirectory(0);
-   pion_had_etaTmi->SetDirectory(0);
+   pion_em_etaTmi->SetDirectory(nullptr);
+   pion_had_etaTmi->SetDirectory(nullptr);
 
-   pion_em_etaB->SetDirectory(0);
-   pion_had_etaB->SetDirectory(0);
-   pion_ho_etaB->SetDirectory(0);
+   pion_em_etaB->SetDirectory(nullptr);
+   pion_had_etaB->SetDirectory(nullptr);
+   pion_ho_etaB->SetDirectory(nullptr);
 
-   pion_em_etaTpl->SetDirectory(0);
-   pion_had_etaTpl->SetDirectory(0);
+   pion_em_etaTpl->SetDirectory(nullptr);
+   pion_had_etaTpl->SetDirectory(nullptr);
 
-   pion_em_etaEpl->SetDirectory(0);
-   pion_had_etaEpl->SetDirectory(0);
+   pion_em_etaEpl->SetDirectory(nullptr);
+   pion_had_etaEpl->SetDirectory(nullptr);
 
-   muon_em_etaEmi->SetDirectory(0);
-   muon_had_etaEmi->SetDirectory(0);
+   muon_em_etaEmi->SetDirectory(nullptr);
+   muon_had_etaEmi->SetDirectory(nullptr);
 
-   muon_em_etaTmi->SetDirectory(0);
-   muon_had_etaTmi->SetDirectory(0);
+   muon_em_etaTmi->SetDirectory(nullptr);
+   muon_had_etaTmi->SetDirectory(nullptr);
 
-   muon_em_etaB->SetDirectory(0);
-   muon_had_etaB->SetDirectory(0);
-   muon_ho_etaB->SetDirectory(0);
+   muon_em_etaB->SetDirectory(nullptr);
+   muon_had_etaB->SetDirectory(nullptr);
+   muon_ho_etaB->SetDirectory(nullptr);
 
-   muon_em_etaTpl->SetDirectory(0);
-   muon_had_etaTpl->SetDirectory(0);
+   muon_em_etaTpl->SetDirectory(nullptr);
+   muon_had_etaTpl->SetDirectory(nullptr);
 
-   muon_em_etaEpl->SetDirectory(0);
-   muon_had_etaEpl->SetDirectory(0);
+   muon_em_etaEpl->SetDirectory(nullptr);
+   muon_had_etaEpl->SetDirectory(nullptr);
 
    // change names
    const std::string prefixPion = "MuonCaloCompatibility_pion_";
@@ -177,20 +177,20 @@ double MuonCaloCompatibility::evaluate( const reco::Muon& amuon ) {
 
   muon_compatibility = -1.;
 
-  pion_template_em   = NULL;
-  muon_template_em   = NULL;
+  pion_template_em   = nullptr;
+  muon_template_em   = nullptr;
 
-  pion_template_had  = NULL;
-  muon_template_had  = NULL;
+  pion_template_had  = nullptr;
+  muon_template_had  = nullptr;
 
-  pion_template_ho   = NULL;
-  muon_template_ho   = NULL;
+  pion_template_ho   = nullptr;
+  muon_template_ho   = nullptr;
 
   // 071002: Get either tracker track, or SAmuon track.
   // CaloCompatibility templates may have to be specialized for 
   // the use with SAmuons, currently just using the ones produced
   // using tracker tracks. 
-  const reco::Track* track = 0;
+  const reco::Track* track = nullptr;
   if ( ! amuon.track().isNull() ) {
     track = amuon.track().get();
   }

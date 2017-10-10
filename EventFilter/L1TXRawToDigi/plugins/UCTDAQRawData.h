@@ -1,7 +1,7 @@
 #ifndef UCTDAQRawData_hh
 #define UCTDAQRawData_hh
 
-#include <stdint.h>
+#include <cstdint>
 #include <iostream>
 #include <iomanip>
 
@@ -13,7 +13,7 @@ class UCTDAQRawData {
 public:
 
   UCTDAQRawData(const uint64_t *d) : myDataPtr(d) {
-    if(d != 0) {
+    if(d != nullptr) {
       if((d[0] & 0x5000000000000000) != 0x5000000000000000) {
 	LogError("UCTDAQRawData") << "CDF Header does not seem to be correct" 
 		  << std::showbase << std::internal 
@@ -143,7 +143,7 @@ public:
       return (uint32_t *) &myDataPtr[skip];
     }
     LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch payload location for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
-    return 0x0;
+    return nullptr;
   }
 
   const uint64_t *amc13TrailerPtr() {
@@ -277,8 +277,8 @@ private:
 
   // No copy constructor and equality operator are needed
   
-  UCTDAQRawData(const UCTDAQRawData&);
-  const UCTDAQRawData& operator=(const UCTDAQRawData& i);
+  UCTDAQRawData(const UCTDAQRawData&) = delete;
+  const UCTDAQRawData& operator=(const UCTDAQRawData& i) = delete;
   
   // RawData data
   

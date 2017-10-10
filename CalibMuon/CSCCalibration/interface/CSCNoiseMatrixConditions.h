@@ -19,7 +19,7 @@
 class CSCNoiseMatrixConditions: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
  public:
   CSCNoiseMatrixConditions(const edm::ParameterSet&);
-  ~CSCNoiseMatrixConditions();
+  ~CSCNoiseMatrixConditions() override;
   
   static CSCNoiseMatrix * prefillNoiseMatrix();
   
@@ -30,7 +30,7 @@ class CSCNoiseMatrixConditions: public edm::ESProducer, public edm::EventSetupRe
   
  private:
   // ----------member data ---------------------------
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
   CSCNoiseMatrix *cnMatrix ;
 
 };

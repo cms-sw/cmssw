@@ -94,6 +94,9 @@ jetCoreRegionalStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.Trajecto
     minPt = 0.1
 )
 
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+pp_on_XeXe_2017.toModify(jetCoreRegionalStepTrajectoryFilter, minPt=5.0)
+
 import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
 jetCoreRegionalStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
     ComponentName = cms.string('jetCoreRegionalStepChi2Est'),
@@ -172,12 +175,12 @@ jetCoreRegionalStep.vertices = 'firstStepGoodPrimaryVertices'
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
 trackingPhase1.toReplaceWith(jetCoreRegionalStep, TrackMVAClassifierPrompt.clone(
      src = 'jetCoreRegionalStepTracks',
-     GBRForestLabel = 'MVASelectorJetCoreRegionalStep_Phase1',
+     mva = dict(GBRForestLabel = 'MVASelectorJetCoreRegionalStep_Phase1'),
      qualityCuts = [-0.2,0.0,0.4],
 ))
 trackingPhase1QuadProp.toReplaceWith(jetCoreRegionalStep, TrackMVAClassifierPrompt.clone(
      src = 'jetCoreRegionalStepTracks',
-     GBRForestLabel = 'MVASelectorJetCoreRegionalStep_Phase1',
+     mva = dict(GBRForestLabel = 'MVASelectorJetCoreRegionalStep_Phase1'),
      qualityCuts = [-0.2,0.0,0.4],
 ))
 

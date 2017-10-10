@@ -33,7 +33,7 @@ class MuonTiming : public DQMEDAnalyzer {
   MuonTiming(const edm::ParameterSet&);
   
   /// Destructor
-  virtual ~MuonTiming();
+  ~MuonTiming() override;
 
   /// Inizialize parameters for histo binning
   void analyze(const edm::Event&, const edm::EventSetup&) override;

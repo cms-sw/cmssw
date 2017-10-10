@@ -292,7 +292,7 @@ namespace edm {
     // able to bind to an lvalue.
     // This should be called only for lvalues.
     data_.push_back(d);
-    d = 0;
+    d = nullptr;
   }
 
   template<typename T, typename P>

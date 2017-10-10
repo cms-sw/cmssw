@@ -18,7 +18,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <errno.h>
+#include <cerrno>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -65,7 +65,7 @@ const int LaserSorter::indexOffset32_ = 1;
 
 static std::string now(){
   struct timeval t;
-  gettimeofday(&t, 0);
+  gettimeofday(&t, nullptr);
  
   char buf[256];
   strftime(buf, sizeof(buf), "%F %R %S s", localtime(&t.tv_sec));
@@ -102,7 +102,7 @@ LaserSorter::LaserSorter(const edm::ParameterSet& pset)
     orbitZeroTime_(nullTime)
 {
 
-  gettimeofday(&timer_, 0);
+  gettimeofday(&timer_, nullptr);
   logFile_.open("eventSelect.log", ios::app | ios::out); 
   
   const unsigned nEcalFeds= 54;
@@ -118,7 +118,7 @@ LaserSorter::LaserSorter(const edm::ParameterSet& pset)
 
   fedRawDataCollectionToken_ = consumes<FEDRawDataCollection>(fedRawDataCollectionTag_);
   
-  if(outputListFile_.size()!=0){
+  if(!outputListFile_.empty()){
     outputList_.open(outputListFile_.c_str(), ios::app);
     if(outputList_.bad()){
       throw cms::Exception("FileOpen")
@@ -128,7 +128,7 @@ LaserSorter::LaserSorter(const edm::ParameterSet& pset)
     doOutputList_ = true;
   }
   
-  if(timeLogFile_.size()>0){
+  if(!timeLogFile_.empty()){
     timeLog_.open(timeLogFile_.c_str());
     if(timeLog_.fail()){
       cout << "[LaserSorter " << now() << "] "
@@ -181,7 +181,7 @@ void
 LaserSorter::analyze(const edm::Event& event, const edm::EventSetup& es){
   if(timing_){
     timeval t;
-    gettimeofday(&t, 0);
+    gettimeofday(&t, nullptr);
     timeLog_ << t.tv_sec << "."
              << setfill('0') << setw(3) << (t.tv_usec+500)/1000 << setfill(' ')
              << "\t"
@@ -260,7 +260,7 @@ LaserSorter::analyze(const edm::Event& event, const edm::EventSetup& es){
                           << ") found in trigger type is out of range.";
       ++stats_.nInvalidDccWeak;
       vector<int> ids = getFullyReadoutDccs(*rawdata);
-      if(ids.size()==0){
+      if(ids.empty()){
         if(verbosity_ && iNoFullReadoutDccError_ < maxFullReadoutDccError_){
           cout << " No fully read-out DCC found\n";
           ++iNoFullReadoutDccError_;
@@ -332,7 +332,7 @@ LaserSorter::analyze(const edm::Event& event, const edm::EventSetup& es){
     } else{
       OutStreamRecord* out = getStream(triggeredFedId, lumiBlock_);
 
-      if(out!=0){
+      if(out!=nullptr){
         assignedLB = out->startingLumiBlock();
         if(out->excludedOrbit().find(orbit_)
            ==out->excludedOrbit().end()){
@@ -364,7 +364,7 @@ LaserSorter::analyze(const edm::Event& event, const edm::EventSetup& es){
     
     if(timing_){
       timeval t;
-      gettimeofday(&t, 0);
+      gettimeofday(&t, nullptr);
       timeLog_ << (t.tv_usec - timer_.tv_usec)*1. 
         + (t.tv_sec - timer_.tv_sec)*1.e6 << "\n";
       timer_ = t;
@@ -399,7 +399,7 @@ int LaserSorter::dcc2Lme(int dcc, int side){
       lmes.push_back(82);
     }
   }
-  return lmes.size()==0?-1:lmes[min(lmes.size(), (size_t)side)];
+  return lmes.empty()?-1:lmes[min(lmes.size(), (size_t)side)];
 }
 
 int LaserSorter::getOrbitFromDcc(const edm::Handle<FEDRawDataCollection>& rawdata) const{
@@ -524,7 +524,7 @@ LaserSorter::getStream(int fedId,
                       << "File not yet opened. Opening it.\n";
 
   OutStreamList::iterator streamRecord = createOutStream(fedId, lumiBlock);
-  return streamRecord!=outStreamList_.end()?&(*streamRecord):0;
+  return streamRecord!=outStreamList_.end()?&(*streamRecord):nullptr;
 }
 
 bool LaserSorter::writeEvent(OutStreamRecord& outRcd, const edm::Event& event,
@@ -928,7 +928,7 @@ LaserSorter::closeOutStream(LaserSorter::OutStreamList::iterator
 
   if(doOutputList_){
     char buf[256];
-    time_t t = time(0);
+    time_t t = time(nullptr);
     strftime(buf, sizeof(buf), "%F %R:%S", localtime(&t));
 
     ifstream f(".watcherfile");
@@ -1027,7 +1027,7 @@ LaserSorter::getFullyReadoutDccs(const FEDRawDataCollection& data) const{
   vector<int> result;
   for(int fed = ecalDccFedIdMin_; fed <= ecalDccFedIdMax_; ++fed){
     const FEDRawData& fedData = data.FEDData(fed);
-    isDccEventEmpty(fedData, 0, &nTowers);
+    isDccEventEmpty(fedData, nullptr, &nTowers);
     if(nTowers>=68) result.push_back(fed);
   }
   return result;

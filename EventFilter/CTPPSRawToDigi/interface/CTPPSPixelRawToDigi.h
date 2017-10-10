@@ -26,10 +26,10 @@ public:
 
   explicit CTPPSPixelRawToDigi( const edm::ParameterSet& );
 
-  virtual ~CTPPSPixelRawToDigi();
+  ~CTPPSPixelRawToDigi() override;
 
   /// get data, convert to digis attach againe to Event
-  virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+  void produce( edm::Event&, const edm::EventSetup& ) override;
 
 private:
 

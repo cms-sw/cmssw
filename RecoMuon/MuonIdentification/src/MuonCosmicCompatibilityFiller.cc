@@ -49,7 +49,7 @@ MuonCosmicCompatibilityFiller::MuonCosmicCompatibilityFiller(const edm::Paramete
   inputTrackCollections_(iConfig.getParameter<std::vector<edm::InputTag> >("InputTrackCollections")),
   inputCosmicMuonCollection_(iConfig.getParameter<edm::InputTag>("InputCosmicMuonCollection")),
   inputVertexCollection_(iConfig.getParameter<edm::InputTag>("InputVertexCollection")),
-  service_(0)
+  service_(nullptr)
 {
   // service parameters
   edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");

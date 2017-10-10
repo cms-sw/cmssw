@@ -53,12 +53,12 @@ typedef std::map<uint32_t, std::vector<float> > CMMap;
 class SiStripMeanCMExtractor : public edm::one::EDProducer<> {
    public:
       explicit SiStripMeanCMExtractor( const edm::ParameterSet&);
-      ~SiStripMeanCMExtractor();
+      ~SiStripMeanCMExtractor() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       
 	  void init(const edm::EventSetup&);
 	  

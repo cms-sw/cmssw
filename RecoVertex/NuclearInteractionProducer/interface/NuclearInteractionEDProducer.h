@@ -52,10 +52,10 @@ public:
       typedef edm::RefVector<TrajectorySeedCollection> TrajectorySeedRefVector;
 
       explicit NuclearInteractionEDProducer(const edm::ParameterSet&);
-      ~NuclearInteractionEDProducer();
+      ~NuclearInteractionEDProducer() override;
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
       static bool isInside( const reco::TrackRef& track, const TrajectorySeedRefVector& seeds);
       void findAdditionalSecondaryTracks( reco::NuclearInteraction& nucl,

@@ -56,7 +56,7 @@ PFCandidateStripMerger::mergeCandidates(const vector<PFCandidatePtr>& candidates
 
 
   //Repeat while there are still unclusterized gammas
-  while(cands.size()>0) {
+  while(!cands.empty()) {
 
     //save the non associated candidates to a different collection
     vector<PFCandidatePtr> notAssociated;

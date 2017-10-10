@@ -194,7 +194,7 @@ void CaloDetIdAssociator::setGeometry(const DetIdAssociatorRecord& iRecord)
 void CaloDetIdAssociator::check_setup() const
 {
   DetIdAssociator::check_setup();
-  if (geometry_==0) throw cms::Exception("CaloGeometry is not set");
+  if (geometry_==nullptr) throw cms::Exception("CaloGeometry is not set");
 }
    
 GlobalPoint CaloDetIdAssociator::getPosition(const DetId& id) const {

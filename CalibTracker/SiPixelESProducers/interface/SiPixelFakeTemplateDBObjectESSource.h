@@ -13,7 +13,7 @@ class SiPixelFakeTemplateDBObjectESSource : public edm::ESProducer, public edm::
 
  public:
   SiPixelFakeTemplateDBObjectESSource(const edm::ParameterSet &);
-  ~SiPixelFakeTemplateDBObjectESSource();
+  ~SiPixelFakeTemplateDBObjectESSource() override;
   
   typedef std::vector<std::string> vstring;
   
@@ -21,9 +21,9 @@ class SiPixelFakeTemplateDBObjectESSource : public edm::ESProducer, public edm::
   
  protected:
   
-  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
 			       const edm::IOVSyncValue&,
-			       edm::ValidityInterval& );
+			       edm::ValidityInterval& ) override;
   
  private:
   

@@ -21,7 +21,7 @@
 #include <memory>
 #include <map>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 #include <tuple>
 #include <utility>
 #include <vector>
@@ -79,7 +79,7 @@
 class TrackerOfflineValidation : public edm::EDAnalyzer {
 public:
   explicit TrackerOfflineValidation(const edm::ParameterSet&);
-  ~TrackerOfflineValidation();
+  ~TrackerOfflineValidation() override;
   
   enum HistogramType { XResidual, NormXResidual, 
 			YResidual, /*NormYResidual, */
@@ -142,9 +142,9 @@ private:
   struct DirectoryWrapper{
     DirectoryWrapper(const DirectoryWrapper& upDir,const std::string& newDir,
 		     const std::string& basedir,bool useDqmMode)
-      : tfd(0),
+      : tfd(nullptr),
 	dqmMode(useDqmMode),
-	theDbe(0) {
+	theDbe(nullptr) {
       if (newDir.length()!=0){
         if(upDir.directoryString.length()!=0)directoryString=upDir.directoryString+"/"+newDir;
 	else directoryString = newDir;
@@ -163,9 +163,9 @@ private:
     }
     
     DirectoryWrapper(const std::string& newDir,const std::string& basedir,bool useDqmMode)
-      : tfd(0),
+      : tfd(nullptr),
 	dqmMode(useDqmMode),
-	theDbe(0) {
+	theDbe(nullptr) {
       if (!dqmMode){
 	edm::Service<TFileService> fs;
 	if (newDir.length()==0){
@@ -201,8 +201,8 @@ private:
   // 
   // ------------- private member function -------------
   // 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
   
   virtual void checkBookHists(const edm::EventSetup& setup);
 
@@ -339,7 +339,7 @@ template <> TH1* TrackerOfflineValidation::DirectoryWrapper::make<TProfile>(cons
     theDbe->setCurrentFolder(directoryString);
     //DQM profile requires y-bins for construction... using TProfile creator by hand...
     TProfile *tmpProfile=new TProfile(name,title,nBinX,xBins);
-    tmpProfile->SetDirectory(0);
+    tmpProfile->SetDirectory(nullptr);
     return theDbe->bookProfile(name,tmpProfile)->getTH1();
   }
   else{return tfd->make<TProfile>(name,title,nBinX,xBins);}
@@ -350,7 +350,7 @@ template <> TH1* TrackerOfflineValidation::DirectoryWrapper::make<TProfile>(cons
     theDbe->setCurrentFolder(directoryString);
     //DQM profile requires y-bins for construction... using TProfile creator by hand...
     TProfile *tmpProfile=new TProfile(name,title,nBinX,minBinX,maxBinX);
-    tmpProfile->SetDirectory(0);
+    tmpProfile->SetDirectory(nullptr);
     return theDbe->bookProfile(name,tmpProfile)->getTH1();
   }
   else{return tfd->make<TProfile>(name,title,nBinX,minBinX,maxBinX);}
@@ -377,7 +377,7 @@ template <> TH1* TrackerOfflineValidation::DirectoryWrapper::make<TH2F>(const ch
 // constructors and destructor
 //
 TrackerOfflineValidation::TrackerOfflineValidation(const edm::ParameterSet& iConfig)
-  : parSet_(iConfig), bareTkGeomPtr_(0), lCoorHistOn_(parSet_.getParameter<bool>("localCoorHistosOn")),
+  : parSet_(iConfig), bareTkGeomPtr_(nullptr), lCoorHistOn_(parSet_.getParameter<bool>("localCoorHistosOn")),
     moduleLevelHistsTransient_(parSet_.getParameter<bool>("moduleLevelHistsTransient")),
     moduleLevelProfiles_(parSet_.getParameter<bool>("moduleLevelProfiles")),
     stripYResiduals_(parSet_.getParameter<bool>("stripYResiduals")), 
@@ -1269,7 +1269,7 @@ TrackerOfflineValidation::endJob()
   this->fillTree(*tree, *treeMemPtr, mTobResiduals_);
   this->fillTree(*tree, *treeMemPtr, mTecResiduals_);
 
-  delete treeMemPtr; treeMemPtr = 0;
+  delete treeMemPtr; treeMemPtr = nullptr;
 }
 
 
@@ -1573,7 +1573,7 @@ TrackerOfflineValidation::setUpTreeMembers(const std::map<int, TrackerOfflineVal
     DetId detId_ = it->first;
     treeMem.moduleId = detId_;
     treeMem.subDetId = detId_.subdetId();
-    treeMem.isDoubleSide =0;
+    treeMem.isDoubleSide =false;
 
     if(treeMem.subDetId == PixelSubdetector::PixelBarrel){
       unsigned int whichHalfBarrel(1), rawId(detId_.rawId());  //DetId does not know about halfBarrels is PXB ...
@@ -1852,8 +1852,8 @@ TrackerOfflineValidation::getMedian(const TH1* histo) const
   }
   median = TMath::Median(nbins, x, y);
   
-  delete[] x; x = 0;
-  delete [] y; y = 0;  
+  delete[] x; x = nullptr;
+  delete [] y; y = nullptr;  
 
   return median;
 

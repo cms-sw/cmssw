@@ -33,10 +33,10 @@ public:
        theDisk = dynamic_cast<BoundDisk*>(theSurface);
        theDiskInnerRadius = theDisk->innerRadius();
        theDiskOuterRadius = theDisk->outerRadius();
-       theCylinder = 0;
+       theCylinder = nullptr;
      } else {
        theCylinder = dynamic_cast<BoundCylinder*>(theSurface);
-       theDisk = 0;
+       theDisk = nullptr;
        theDiskInnerRadius = 0.;
        theDiskOuterRadius = 0.;
      }
@@ -60,7 +60,7 @@ public:
      theDisk = dynamic_cast<BoundDisk*>(theSurface);
      theDiskInnerRadius = theDisk->innerRadius();
      theDiskOuterRadius = theDisk->outerRadius();
-     theCylinder = 0;
+     theCylinder = nullptr;
    }
 
   /// Is the layer sensitive ?

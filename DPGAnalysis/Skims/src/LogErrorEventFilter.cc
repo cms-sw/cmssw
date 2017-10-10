@@ -35,15 +35,15 @@ class LogErrorEventFilter : public edm::one::EDFilter<edm::one::WatchRuns,
                                                       edm::EndLuminosityBlockProducer> {
     public:
         explicit LogErrorEventFilter(const edm::ParameterSet & iConfig);
-        virtual ~LogErrorEventFilter() { }
+        ~LogErrorEventFilter() override { }
 
-        virtual bool filter(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
-        virtual void beginLuminosityBlock(const edm::LuminosityBlock &lumi, const edm::EventSetup &iSetup) override;
-        virtual void endLuminosityBlock(const edm::LuminosityBlock &lumi, const edm::EventSetup &iSetup) override;
-        virtual void endLuminosityBlockProduce(edm::LuminosityBlock &lumi, const edm::EventSetup &iSetup) override;
-        virtual void beginRun(const edm::Run &run, const edm::EventSetup &iSetup) override;
-        virtual void endRun(const edm::Run &run, const edm::EventSetup &iSetup) override;
-        virtual void endJob() override;
+        bool filter(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+        void beginLuminosityBlock(const edm::LuminosityBlock &lumi, const edm::EventSetup &iSetup) override;
+        void endLuminosityBlock(const edm::LuminosityBlock &lumi, const edm::EventSetup &iSetup) override;
+        void endLuminosityBlockProduce(edm::LuminosityBlock &lumi, const edm::EventSetup &iSetup) override;
+        void beginRun(const edm::Run &run, const edm::EventSetup &iSetup) override;
+        void endRun(const edm::Run &run, const edm::EventSetup &iSetup) override;
+        void endJob() override;
 
     private:
         typedef edm::ErrorSummaryEntry              Error;

@@ -25,14 +25,14 @@
 class DQMDcsInfoClient : public edm::EDAnalyzer {
 public:
   DQMDcsInfoClient( const edm::ParameterSet& ps);
-  ~DQMDcsInfoClient();
+  ~DQMDcsInfoClient() override;
 
 protected:
 
-  void beginRun(const edm::Run& r, const edm::EventSetup& c);
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
-  void endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c);
-  void endRun(const edm::Run& r, const edm::EventSetup& c);
+  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) override;
+  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
 
 private:
 

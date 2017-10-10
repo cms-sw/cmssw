@@ -12,12 +12,12 @@
 
 //#define castornumschemedebug
 
-CastorNumberingScheme::CastorNumberingScheme(): lvCASTFar(0),lvCASTNear(0),
-                                                lvCAST(0),lvCAES(0),lvCEDS(0),
-						lvCAHS(0),lvCHDS(0),lvCAER(0),
-						lvCEDR(0),lvCAHR(0),lvCHDR(0),
-						lvC3EF(0),lvC3HF(0),lvC4EF(0),
-						lvC4HF(0) {
+CastorNumberingScheme::CastorNumberingScheme(): lvCASTFar(nullptr),lvCASTNear(nullptr),
+                                                lvCAST(nullptr),lvCAES(nullptr),lvCEDS(nullptr),
+						lvCAHS(nullptr),lvCHDS(nullptr),lvCAER(nullptr),
+						lvCEDR(nullptr),lvCAHR(nullptr),lvCHDR(nullptr),
+						lvC3EF(nullptr),lvC3HF(nullptr),lvC4EF(nullptr),
+						lvC4HF(nullptr) {
   edm::LogInfo("ForwardSim") << "Creating CastorNumberingScheme";
   const G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();
   std::vector<lvp>::const_iterator lvcite;

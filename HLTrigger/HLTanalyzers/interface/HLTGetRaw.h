@@ -30,8 +30,8 @@ class HLTGetRaw : public edm::global::EDAnalyzer<> {
 
  public:
   explicit HLTGetRaw(const edm::ParameterSet&);
-  ~HLTGetRaw();
-  virtual void analyze(edm::StreamID, edm::Event const& , edm::EventSetup const&) const override final;
+  ~HLTGetRaw() override;
+  void analyze(edm::StreamID, edm::Event const& , edm::EventSetup const&) const final;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:

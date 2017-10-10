@@ -288,7 +288,7 @@ void QcdHighPtDQM::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
   // fetch first 3 jet EMF
 
-  if (jets.size() >= 1) {
+  if (!jets.empty()) {
     MEcontainer_["leading_jet_EMF"]->Fill(jets[0].emEnergyFraction());
     if (jets.size() >= 2) {
       MEcontainer_["second_jet_EMF"]->Fill(jets[1].emEnergyFraction());

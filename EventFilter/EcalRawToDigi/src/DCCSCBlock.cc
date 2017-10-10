@@ -1,7 +1,7 @@
 #include "EventFilter/EcalRawToDigi/interface/DCCSCBlock.h"
 #include "EventFilter/EcalRawToDigi/interface/DCCEventBlock.h"
 #include "EventFilter/EcalRawToDigi/interface/DCCDataUnpacker.h"
-#include <stdio.h>
+#include <cstdio>
 #include "EventFilter/EcalRawToDigi/interface/EcalElectronicsMapper.h"
 
 

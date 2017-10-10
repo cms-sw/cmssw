@@ -43,28 +43,28 @@ public:
 	      edm::ParameterSet const &, const SimTrackManager* );
 
 
-  virtual ~FastTimerSD();
+  ~FastTimerSD() override;
   
-  virtual bool     ProcessHits(G4Step *,G4TouchableHistory *);
-  virtual uint32_t setDetUnitId(G4Step*);
+  bool     ProcessHits(G4Step *,G4TouchableHistory *) override;
+  uint32_t setDetUnitId(G4Step*) override;
 
-  virtual void     Initialize(G4HCofThisEvent * HCE);
-  virtual void     EndOfEvent(G4HCofThisEvent * eventHC);
-  virtual void     clear();
-  virtual void     DrawAll();
-  virtual void     PrintAll();
+  void     Initialize(G4HCofThisEvent * HCE) override;
+  void     EndOfEvent(G4HCofThisEvent * eventHC) override;
+  void     clear() override;
+  void     DrawAll() override;
+  void     PrintAll() override;
 
   virtual double   getEnergyDeposit(G4Step* step);
-  void             fillHits(edm::PSimHitContainer&, std::string use);
+  void             fillHits(edm::PSimHitContainer&, std::string use) override;
   
-  std::vector<std::string> getNames();
+  std::vector<std::string> getNames() override;
   
 private:
-  virtual void     update(const BeginOfJob *);
-  virtual void     update(const BeginOfRun *);
-  virtual void     update(const BeginOfEvent *);
-  virtual void     update(const ::EndOfEvent *);
-  virtual void     clearHits();
+  void     update(const BeginOfJob *) override;
+  void     update(const BeginOfRun *) override;
+  void     update(const BeginOfEvent *) override;
+  void     update(const ::EndOfEvent *) override;
+  void     clearHits() override;
 
 private:
   

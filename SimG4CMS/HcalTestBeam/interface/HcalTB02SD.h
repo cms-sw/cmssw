@@ -31,9 +31,9 @@ class HcalTB02SD : public CaloSD {
 public:
   HcalTB02SD(G4String, const DDCompactView &, const SensitiveDetectorCatalog &,
 	     edm::ParameterSet const &, const SimTrackManager*);
-  virtual ~HcalTB02SD();
-  virtual double getEnergyDeposit(G4Step*);
-  virtual uint32_t setDetUnitId(G4Step* step);
+  ~HcalTB02SD() override;
+  double getEnergyDeposit(G4Step*) override;
+  uint32_t setDetUnitId(G4Step* step) override;
   void setNumberingScheme(HcalTB02NumberingScheme* scheme);
 
 private:    

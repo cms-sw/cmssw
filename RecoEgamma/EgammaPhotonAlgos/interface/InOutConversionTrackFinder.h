@@ -32,8 +32,8 @@ class InOutConversionTrackFinder : public ConversionTrackFinder {
   InOutConversionTrackFinder( const edm::ParameterSet& config, const BaseCkfTrajectoryBuilder *trajectoryBuilder );
 
  
- virtual ~InOutConversionTrackFinder();
- virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection& seeds, TrackCandidateCollection &candidate ) const ;
+ ~InOutConversionTrackFinder() override;
+ std::vector<Trajectory> tracks(const TrajectorySeedCollection& seeds, TrackCandidateCollection &candidate ) const override ;
 
  
  private:

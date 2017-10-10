@@ -50,10 +50,10 @@
 class SimHitTrackerAnalyzer : public edm::EDAnalyzer {
    public:
       explicit SimHitTrackerAnalyzer( const edm::ParameterSet& );
-      ~SimHitTrackerAnalyzer();
+      ~SimHitTrackerAnalyzer() override;
 
 
-      virtual void analyze( const edm::Event&, const edm::EventSetup& );
+      void analyze( const edm::Event&, const edm::EventSetup& ) override;
    private:
       // ----------member data ---------------------------
   std::string HepMCLabel;

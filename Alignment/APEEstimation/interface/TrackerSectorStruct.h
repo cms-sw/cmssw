@@ -42,11 +42,11 @@ class TrackerSectorStruct{
   
   
   struct CorrelationHists{
-    CorrelationHists():Variable(0),
-                       NorResXVsVar(0), ProbXVsVar(0),
-	               SigmaXHitVsVar(0), SigmaXTrkVsVar(0), SigmaXVsVar(0),
-		       PNorResXVsVar(0), PProbXVsVar(0),
-		       PSigmaXHitVsVar(0), PSigmaXTrkVsVar(0), PSigmaXVsVar(0){};
+    CorrelationHists():Variable(nullptr),
+                       NorResXVsVar(nullptr), ProbXVsVar(nullptr),
+	               SigmaXHitVsVar(nullptr), SigmaXTrkVsVar(nullptr), SigmaXVsVar(nullptr),
+		       PNorResXVsVar(nullptr), PProbXVsVar(nullptr),
+		       PSigmaXHitVsVar(nullptr), PSigmaXTrkVsVar(nullptr), PSigmaXVsVar(nullptr){};
     
     inline void fillCorrHists(const TString, const TrackStruct::HitParameterStruct& hitParameterStruct, double variable);
     inline void fillCorrHistsX(const TrackStruct::HitParameterStruct& hitParameterStruct, double variable);
@@ -126,26 +126,26 @@ class TrackerSectorStruct{
 
 
 
-TrackerSectorStruct::TrackerSectorStruct(): directory_(0),
+TrackerSectorStruct::TrackerSectorStruct(): directory_(nullptr),
                          norResXMax_(999.), sigmaXHitMax_(999.), sigmaXMax_(999.),
-			 name("default"), Name(0),
-			 ResX(0), NorResX(0), XHit(0), XTrk(0),
-			 SigmaX2(0), ProbX(0),
-			 WidthVsPhiSensX(0), WidthVsWidthProjected(0), WidthDiffVsMaxStrip(0), WidthDiffVsSigmaXHit(0),
-			 PhiSensXVsBarycentreX(0),
-			 PWidthVsPhiSensX(0), PWidthVsWidthProjected(0), PWidthDiffVsMaxStrip(0), PWidthDiffVsSigmaXHit(0),
-			 PPhiSensXVsBarycentreX(0),
-			 ResY(0), NorResY(0), YHit(0), YTrk(0),
-			 SigmaY2(0), ProbY(0),
-			 PhiSensYVsBarycentreY(0),
-			 PPhiSensYVsBarycentreY(0),
-			 RawId(0),
-			 EntriesX(0),
-			 MeanX(0), RmsX(0), FitMeanX1(0), ResidualWidthX1(0), CorrectionX1(0),
-			 FitMeanX2(0), ResidualWidthX2(0), CorrectionX2(0),
-			 EntriesY(0),
-			 MeanY(0), RmsY(0), FitMeanY1(0), ResidualWidthY1(0), CorrectionY1(0),
-			 FitMeanY2(0), ResidualWidthY2(0), CorrectionY2(0),
+			 name("default"), Name(nullptr),
+			 ResX(nullptr), NorResX(nullptr), XHit(nullptr), XTrk(nullptr),
+			 SigmaX2(nullptr), ProbX(nullptr),
+			 WidthVsPhiSensX(nullptr), WidthVsWidthProjected(nullptr), WidthDiffVsMaxStrip(nullptr), WidthDiffVsSigmaXHit(nullptr),
+			 PhiSensXVsBarycentreX(nullptr),
+			 PWidthVsPhiSensX(nullptr), PWidthVsWidthProjected(nullptr), PWidthDiffVsMaxStrip(nullptr), PWidthDiffVsSigmaXHit(nullptr),
+			 PPhiSensXVsBarycentreX(nullptr),
+			 ResY(nullptr), NorResY(nullptr), YHit(nullptr), YTrk(nullptr),
+			 SigmaY2(nullptr), ProbY(nullptr),
+			 PhiSensYVsBarycentreY(nullptr),
+			 PPhiSensYVsBarycentreY(nullptr),
+			 RawId(nullptr),
+			 EntriesX(nullptr),
+			 MeanX(nullptr), RmsX(nullptr), FitMeanX1(nullptr), ResidualWidthX1(nullptr), CorrectionX1(nullptr),
+			 FitMeanX2(nullptr), ResidualWidthX2(nullptr), CorrectionX2(nullptr),
+			 EntriesY(nullptr),
+			 MeanY(nullptr), RmsY(nullptr), FitMeanY1(nullptr), ResidualWidthY1(nullptr), CorrectionY1(nullptr),
+			 FitMeanY2(nullptr), ResidualWidthY2(nullptr), CorrectionY2(nullptr),
 			 isPixel(false){}
 
 
@@ -185,7 +185,7 @@ TrackerSectorStruct::bookCorrHists(TString xY,TString varName,TString varTitle,T
     suffix = "_y";
   }
   
-  std::string o(options);
+  const std::string& o(options);
   CorrelationHists correlationHists;
   
   if(!(o.find("n") != std::string::npos || o.find("p") != std::string::npos || o.find("h") != std::string::npos || 
@@ -244,7 +244,7 @@ TrackerSectorStruct::bookCorrHists(TString xY,TString varName,TString labelX,TSt
     xy = "y";
   }
   
-  std::string o(options);
+  const std::string& o(options);
   CorrelationHists correlationHists;
   
   if(!(o.find("n") != std::string::npos || o.find("p") != std::string::npos || o.find("h") != std::string::npos || 

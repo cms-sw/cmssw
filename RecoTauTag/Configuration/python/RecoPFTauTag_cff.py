@@ -23,6 +23,9 @@ recoTauAK4PFJets08Region = RecoTauJetRegionProducer.clone(
     src = PFRecoTauPFJetInputs.inputJetCollection
 )
 
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+pp_on_XeXe_2017.toModify(recoTauAK4PFJets08Region, minJetPt = 999999.0)
+
 # Reconstruct the pi zeros in our pre-selected jets.
 from RecoTauTag.RecoTau.RecoTauPiZeroProducer_cfi import ak4PFJetsLegacyHPSPiZeros
 ak4PFJetsLegacyHPSPiZeros = ak4PFJetsLegacyHPSPiZeros.clone()
@@ -44,6 +47,8 @@ combinatoricRecoTaus = combinatoricRecoTaus.clone()
 combinatoricRecoTaus.modifiers = cms.VPSet(combinatoricModifierConfigs)
 combinatoricRecoTaus.jetRegionSrc = cms.InputTag("recoTauAK4PFJets08Region")
 combinatoricRecoTaus.jetSrc = PFRecoTauPFJetInputs.inputJetCollection
+
+pp_on_XeXe_2017.toModify(combinatoricRecoTaus, minJetPt = recoTauAK4PFJets08Region.minJetPt)
 
 #--------------------------------------------------------------------------------
 # CV: set mass of tau candidates reconstructed in 1Prong0pi0 decay mode to charged pion mass
@@ -87,23 +92,32 @@ recoTauPileUpVertices = cms.EDFilter("RecoTauPileUpVertexSelector",
     filter = cms.bool(False),
 )
 
-recoTauCommonSequence = cms.Sequence(
-    ak4PFJetTracksAssociatorAtVertex *
-    recoTauAK4PFJets08Region *
-    recoTauPileUpVertices *
+recoTauCommonTask = cms.Task(
+    ak4PFJetTracksAssociatorAtVertex,
+    recoTauAK4PFJets08Region,
+    recoTauPileUpVertices,
     pfRecoTauTagInfoProducer
+)
+recoTauCommonSequence = cms.Sequence(
+    recoTauCommonTask
 )
 
 # Produce only classic HPS taus
+recoTauClassicHPSTask = cms.Task(
+    ak4PFJetsLegacyHPSPiZeros,
+    ak4PFJetsRecoTauChargedHadrons,
+    combinatoricRecoTaus,
+    produceAndDiscriminateHPSPFTausTask
+)
 recoTauClassicHPSSequence = cms.Sequence(
-    ak4PFJetsLegacyHPSPiZeros *
-    ak4PFJetsRecoTauChargedHadrons *
-    combinatoricRecoTaus *
-    produceAndDiscriminateHPSPFTaus
+    recoTauClassicHPSTask
 )
 
+PFTauTask = cms.Task(
+    recoTauCommonTask,
+    recoTauClassicHPSTask
+)
 PFTau = cms.Sequence(
-    recoTauCommonSequence *
-    recoTauClassicHPSSequence
+    PFTauTask
 )
 

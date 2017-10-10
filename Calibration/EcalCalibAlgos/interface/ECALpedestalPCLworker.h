@@ -26,7 +26,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-
+#include "DataFormats/TCDS/interface/BSTRecord.h"
+#include "DataFormats/TCDS/interface/TCDSRecord.h"
 //
 // class declaration
 //
@@ -41,14 +42,14 @@ public:
 
 private:
     virtual void beginJob() ;
-    virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);   
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) ;
+    void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;   
+    void analyze(const edm::Event&, const edm::EventSetup&) override ;
     virtual void endJob() ;
 
-    edm::InputTag digiTagEB_;
-    edm::InputTag digiTagEE_;
+
     edm::EDGetTokenT<EBDigiCollection> digiTokenEB_; 
     edm::EDGetTokenT<EEDigiCollection> digiTokenEE_; 
+    edm::EDGetTokenT<TCDSRecord>       tcdsToken_; 
 
     std::vector<MonitorElement *> meEB_;
     std::vector<MonitorElement *> meEE_;
@@ -65,6 +66,7 @@ private:
     int nBins_ ;                // number of bins per histogram
     std::string dqmDir_;         // DQM directory where histograms are stored
     
+    bool requireStableBeam_;
 
     // compare ADC values  
     static bool adc_compare(uint16_t a, uint16_t b) { return ( a&0xFFF )  < (b&0xFFF);}

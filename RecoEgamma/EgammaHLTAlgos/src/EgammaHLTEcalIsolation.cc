@@ -32,7 +32,7 @@ float EgammaHLTEcalIsolation::isolPtSum(const reco::RecoCandidate* recocandidate
   // match the photon hybrid supercluster with those with Algo==0 (island)
   float delta1=1000.;
   float deltacur=1000.;
-  const reco::SuperCluster *matchedsupercluster=0;
+  const reco::SuperCluster *matchedsupercluster=nullptr;
   bool MATCHEDSC = false;
 
 
@@ -63,7 +63,7 @@ float EgammaHLTEcalIsolation::isolPtSum(const reco::RecoCandidate* recocandidate
     }
   }
 
-  const reco::BasicCluster *cluster= 0;
+  const reco::BasicCluster *cluster= nullptr;
 
   //loop over basic clusters
   for(std::vector<const reco::BasicCluster*>::const_iterator cItr = bclusters.begin(); cItr != bclusters.end(); ++cItr){

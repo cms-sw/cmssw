@@ -66,9 +66,9 @@ class EventSetupRecordIntervalFinder
       void findingRecordWithKey(const eventsetup::EventSetupRecordKey&);
       
 private:
-      EventSetupRecordIntervalFinder(const EventSetupRecordIntervalFinder&); // stop default
+      EventSetupRecordIntervalFinder(const EventSetupRecordIntervalFinder&) = delete; // stop default
 
-      const EventSetupRecordIntervalFinder& operator=(const EventSetupRecordIntervalFinder&); // stop default
+      const EventSetupRecordIntervalFinder& operator=(const EventSetupRecordIntervalFinder&) = delete; // stop default
 
       /** override this method if you need to delay setting what records you will be using until after all modules are loaded*/
       virtual void delaySettingRecords();

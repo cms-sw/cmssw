@@ -704,3 +704,21 @@ tracksValidationLite = cms.Sequence(
     tracksValidationTruth +
     trackValidatorLite
 )
+
+## customization for timing
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toModify( generalTracksFromPV, 
+                              vertexTag = cms.InputTag('offlinePrimaryVertices4D'),
+                              timesTag  = cms.InputTag('trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModel'), 
+                              timeResosTag = cms.InputTag('trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModelResolution'), 
+                              nSigmaDtVertex = cms.double(3) )
+phase2_timing_layer.toModify( trackValidatorStandalone,
+                              label_vertex = cms.untracked.InputTag('offlinePrimaryVertices4D') )
+phase2_timing_layer.toModify( trackValidatorFromPVStandalone,
+                              label_vertex = cms.untracked.InputTag('offlinePrimaryVertices4D') )
+phase2_timing_layer.toModify( trackValidatorFromPVAllTPStandalone,
+                              label_vertex = cms.untracked.InputTag('offlinePrimaryVertices4D') )
+phase2_timing_layer.toModify( trackValidatorConversionStandalone,
+                              label_vertex = cms.untracked.InputTag('offlinePrimaryVertices4D') )
+phase2_timing_layer.toModify( trackValidatorGsfTracks,
+                              label_vertex = cms.untracked.InputTag('offlinePrimaryVertices4D') )

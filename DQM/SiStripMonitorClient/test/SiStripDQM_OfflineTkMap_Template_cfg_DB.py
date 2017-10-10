@@ -113,22 +113,26 @@ process.siStripOfflineAnalyser = cms.EDAnalyzer("SiStripOfflineDQM",
        TkMapOptions             = cms.untracked.VPSet(
     cms.PSet(mapName=cms.untracked.string('QTestAlarm'),fedMap=cms.untracked.bool(True),useSSQuality=cms.untracked.bool(True),ssqLabel=cms.untracked.string(""),psuMap=cms.untracked.bool(True),loadLVCabling=cms.untracked.bool(True),mapMax=cms.untracked.double(1.),RunNumber=cms.untracked.uint32(options.runNumber)),
     cms.PSet(mapName=cms.untracked.string('FractionOfBadChannels'),mapMax=cms.untracked.double(-1.),logScale=cms.untracked.bool(True),RunNumber=cms.untracked.uint32(options.runNumber)),
-    cms.PSet(mapName=cms.untracked.string('NumberOfCluster'),TopModules=cms.untracked.bool(True),numberTopModules=cms.untracked.uint32(20),RunNumber=cms.untracked.uint32(options.runNumber)),
-    cms.PSet(mapName=cms.untracked.string('NumberOfDigi'),TopModules=cms.untracked.bool(True),RunNumber=cms.untracked.uint32(options.runNumber)),
-    cms.PSet(mapName=cms.untracked.string('NumberOfOfffTrackCluster'),TopModules=cms.untracked.bool(True),RunNumber=cms.untracked.uint32(options.runNumber)),
-    cms.PSet(mapName=cms.untracked.string('NumberOfOfffTrackCluster'),mapSuffix=cms.untracked.string("_autoscale"),mapMax=cms.untracked.double(-1.),RunNumber=cms.untracked.uint32(options.runNumber)),
-    cms.PSet(mapName=cms.untracked.string('NumberOfOnTrackCluster'),mapMax=cms.untracked.double(-1.),RunNumber=cms.untracked.uint32(options.runNumber)),
-    cms.PSet(mapName=cms.untracked.string('StoNCorrOnTrack'),TopModules=cms.untracked.bool(True),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(35.)), #to be tuned properly
-    cms.PSet(mapName=cms.untracked.string('NApvShots'),mapMax=cms.untracked.double(-1.),logScale=cms.untracked.bool(True),RunNumber=cms.untracked.uint32(options.runNumber)),
+    cms.PSet(mapName=cms.untracked.string('NumberOfCluster'),TopModules=cms.untracked.bool(True),numberTopModules=cms.untracked.uint32(20),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(8.)),
+    cms.PSet(mapName=cms.untracked.string('NumberOfDigi'),TopModules=cms.untracked.bool(True),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(30.)),
+    cms.PSet(mapName=cms.untracked.string('NumberOfOfffTrackCluster'),TopModules=cms.untracked.bool(True),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(-1)),
+    cms.PSet(mapName=cms.untracked.string('NumberOfOfffTrackCluster'),TopModules=cms.untracked.bool(True),mapSuffix=cms.untracked.string("_autoscale"),mapMax=cms.untracked.double(-1.),RunNumber=cms.untracked.uint32(options.runNumber)),
+    cms.PSet(mapName=cms.untracked.string('NumberOfOnTrackCluster'),TopModules=cms.untracked.bool(True),mapMax=cms.untracked.double(-1.),RunNumber=cms.untracked.uint32(options.runNumber)),
+    cms.PSet(mapName=cms.untracked.string('StoNCorrOnTrack'),TopModules=cms.untracked.bool(True),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(40.), mapMin=cms.untracked.double(10.)), #to be tuned properly
+    cms.PSet(mapName=cms.untracked.string('NApvShots'),TopModules=cms.untracked.bool(True),mapMax=cms.untracked.double(-1.),logScale=cms.untracked.bool(True),RunNumber=cms.untracked.uint32(options.runNumber)),
     cms.PSet(mapName=cms.untracked.string('NApvShots'),mapMax=cms.untracked.double(-1.),logScale=cms.untracked.bool(True),psuMap=cms.untracked.bool(True),loadLVCabling=cms.untracked.bool(True),TopModules=cms.untracked.bool(True),RunNumber=cms.untracked.uint32(options.runNumber)),
 #    cms.PSet(mapName=cms.untracked.string('MedianChargeApvShots'),mapMax=cms.untracked.double(-1.)),
 #    cms.PSet(mapName=cms.untracked.string('ClusterCharge'),mapMax=cms.untracked.double(-1.)),
 #    cms.PSet(mapName=cms.untracked.string('ChargePerCMfromOrigin')),
-    cms.PSet(mapName=cms.untracked.string('ChargePerCMfromTrack'),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(-1.)),
-    cms.PSet(mapName=cms.untracked.string('NumberMissingHits'),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(-1.)),
-    cms.PSet(mapName=cms.untracked.string('NumberValidHits'),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(-1.)),
-    cms.PSet(mapName=cms.untracked.string('NumberInactiveHits'),RunNumber=cms.untracked.uint32(options.runNumber)),
-    cms.PSet(mapName=cms.untracked.string('ResidualsMean'),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(-1.),TopModules=cms.untracked.bool(True))
+    cms.PSet(mapName=cms.untracked.string('ChargePerCMfromTrack'),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(6000.),TopModules=cms.untracked.bool(True),mapMin=cms.untracked.double(2000.)),
+    cms.PSet(mapName=cms.untracked.string('NumberMissingHits'),RunNumber=cms.untracked.uint32(options.runNumber),TopModules=cms.untracked.bool(True)),
+    cms.PSet(mapName=cms.untracked.string('NumberValidHits'),RunNumber=cms.untracked.uint32(options.runNumber),TopModules=cms.untracked.bool(True)),
+    cms.PSet(mapName=cms.untracked.string('NumberInactiveHits'),RunNumber=cms.untracked.uint32(options.runNumber),TopModules=cms.untracked.bool(True)),
+    cms.PSet(mapName=cms.untracked.string('ResidualsMean'),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(.01),TopModules=cms.untracked.bool(True)),######range has been set in SiStripMonitorClient/src/SiStripTrackerMapCreator.cc file##
+#    cms.PSet(mapName=cms.untracked.string('ClusterWidthOnTrack'),TopModules=cms.untracked.bool(True),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(5.5),mapMin=cms.untracked.double(2.5)),
+#    cms.PSet(mapName=cms.untracked.string('ClusterWidthOffTrack'),TopModules=cms.untracked.bool(True),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(5.5),mapMin=cms.untracked.double(2.5)),
+#    cms.PSet(mapName=cms.untracked.string('NoiseOnTrack'),TopModules=cms.untracked.bool(True),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(7.),mapMin=cms.untracked.double(3.)),
+#    cms.PSet(mapName=cms.untracked.string('NoiseOffTrack'),mapMax=cms.untracked.double(7.),RunNumber=cms.untracked.uint32(options.runNumber),mapMin=cms.untracked.double(3.))
     )
 )
 

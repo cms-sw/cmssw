@@ -49,11 +49,11 @@
  class SiPixelHLTSource : public DQMEDAnalyzer {
     public:
        explicit SiPixelHLTSource(const edm::ParameterSet& conf);
-       ~SiPixelHLTSource();
+       ~SiPixelHLTSource() override;
 
-       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-       virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-       virtual void dqmBeginRun(const edm::Run&, edm::EventSetup const&) override;
+       void analyze(const edm::Event&, const edm::EventSetup&) override;
+       void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+       void dqmBeginRun(const edm::Run&, edm::EventSetup const&) override;
        virtual void bookMEs(DQMStore::IBooker &);
 
 

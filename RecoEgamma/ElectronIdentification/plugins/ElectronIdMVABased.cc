@@ -57,7 +57,7 @@ namespace gsfidhelper {
 class ElectronIdMVABased : public edm::stream::EDFilter< edm::GlobalCache<gsfidhelper::HeavyObjectCache> > {
 public:
   explicit ElectronIdMVABased(const edm::ParameterSet&, const gsfidhelper::HeavyObjectCache*);
-  ~ElectronIdMVABased();
+  ~ElectronIdMVABased() override;
   
   
   static std::unique_ptr<gsfidhelper::HeavyObjectCache> 
@@ -69,7 +69,7 @@ public:
   }
   
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
   
   
   // ----------member data ---------------------------

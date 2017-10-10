@@ -18,8 +18,8 @@ public:
 	      const HepPDT::ParticleDataTable * table_,
 	      sim::ChordFinderSetter *chordFinderSetter_,
 	      const edm::ParameterSet & p);
-  virtual ~PhysicsList();
-  virtual void SetCuts();
+  ~PhysicsList() override;
+  void SetCuts() override;
 
 };
 

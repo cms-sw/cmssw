@@ -2,7 +2,7 @@
 #ifndef HcalUHTRData_H
 #define HcalUHTRData_H
 
-#include <stdint.h>
+#include <cstdint>
 
 /**  \class HcalUHTRData
  *
@@ -21,7 +21,7 @@ class HcalUHTRData {
   static const int CHANNELS_PER_FIBER_MAX      = 8;
   
   HcalUHTRData();
-  ~HcalUHTRData() { if (m_ownData!=0) delete [] m_ownData; }
+  ~HcalUHTRData() { if (m_ownData!=nullptr) delete [] m_ownData; }
   HcalUHTRData(int version_to_create);
   HcalUHTRData(const uint64_t* data, int length_words);
   HcalUHTRData(const HcalUHTRData&);
@@ -39,7 +39,7 @@ class HcalUHTRData {
   
   class const_iterator {
   public:
-    const_iterator(const uint16_t* ptr, const uint16_t* limit=0);
+    const_iterator(const uint16_t* ptr, const uint16_t* limit=nullptr);
     
     bool isHeader() const { return ((*m_ptr)&0x8000)!=0; }
     int flavor() const { return ((*m_ptr)>>12)&0x7; }

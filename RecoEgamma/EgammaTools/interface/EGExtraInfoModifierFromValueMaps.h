@@ -79,12 +79,12 @@ public:
 
   EGExtraInfoModifierFromValueMaps(const edm::ParameterSet& conf);
   
-  void setEvent(const edm::Event&) override final;
-  void setEventContent(const edm::EventSetup&) override final;
-  void setConsumes(edm::ConsumesCollector&) override final;
+  void setEvent(const edm::Event&) final;
+  void setEventContent(const edm::EventSetup&) final;
+  void setConsumes(edm::ConsumesCollector&) final;
   
-  void modifyObject(pat::Electron&) const override final;
-  void modifyObject(pat::Photon&) const override final;
+  void modifyObject(pat::Electron&) const final;
+  void modifyObject(pat::Photon&) const final;
 
  
 private:

@@ -119,7 +119,7 @@ void SiPixelUtility::getStatusColor(double status, int& rval, int&gval, int& bva
 //
 int SiPixelUtility::getStatus(MonitorElement* me) {
   int status = 0; 
-  if (me->getQReports().size() == 0) {
+  if (me->getQReports().empty()) {
     status = 0;
   } else if (me->hasError()) {
     status = dqm::qstatus::ERROR;

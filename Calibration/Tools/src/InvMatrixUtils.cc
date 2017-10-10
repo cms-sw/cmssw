@@ -28,7 +28,7 @@ void setStyle ()
   gStyle->SetTitleBorderSize (0) ;
   gStyle->SetTitleX (0.08) ;
   gStyle->SetTitleY (0.97) ;
-  gStyle->SetPalette (1,0) ;
+  gStyle->SetPalette (1,nullptr) ;
   gStyle->SetStatColor (0) ;
   gStyle->SetFrameFillStyle (0) ;
   gStyle->SetFrameFillColor (0) ;
@@ -650,7 +650,7 @@ TH1D * smartProfile (TH2F * strip, double width)
   for (int bin=binmin ; bin<=binmax ; bin += ngroup) 
     {
       TH1D *hpy = strip->ProjectionY ("_temp",bin,bin+ngroup-1,"e") ;
-      if (hpy == 0) continue ;
+      if (hpy == nullptr) continue ;
       int nentries = Int_t (hpy->GetEntries ()) ;
       if (nentries == 0 || nentries < cut) {delete hpy ; continue ;} 
  
@@ -698,7 +698,7 @@ TH1D * smartGausProfile (TH2F * strip, double width)
   for (int bin=binmin ; bin<=binmax ; bin += ngroup) 
     {
       TH1D *hpy = strip->ProjectionY ("_temp",bin,bin+ngroup-1,"e") ;
-      if (hpy == 0) continue ;
+      if (hpy == nullptr) continue ;
       int nentries = Int_t (hpy->GetEntries ()) ;
       if (nentries == 0 || nentries < cut) {delete hpy ; continue ;} 
  

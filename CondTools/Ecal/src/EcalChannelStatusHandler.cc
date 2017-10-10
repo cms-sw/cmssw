@@ -269,7 +269,7 @@ void popcon::EcalChannelStatusHandler::pedOnlineMasking() {
   std::map<EcalLogicID, RunCrystalErrorsDat> theMask;
   EcalErrorMask::fetchDataSet(&theMask);
   
-  if ( theMask.size()!=0 ) {
+  if ( !theMask.empty() ) {
 
     std::map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
     for (m=theMask.begin(); m!=theMask.end(); m++) {
@@ -313,7 +313,7 @@ void popcon::EcalChannelStatusHandler::pedMasking() {
   std::map<EcalLogicID, RunCrystalErrorsDat> theMask;
   EcalErrorMask::fetchDataSet(&theMask);
   
-  if ( theMask.size()!=0 ) {
+  if ( !theMask.empty() ) {
 
     std::map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
     for (m=theMask.begin(); m!=theMask.end(); m++) {
@@ -351,7 +351,7 @@ void popcon::EcalChannelStatusHandler::laserMasking() {
   std::map<EcalLogicID, RunCrystalErrorsDat> theMask;
   EcalErrorMask::fetchDataSet(&theMask);
   
-  if ( theMask.size()!=0 ) {
+  if ( !theMask.empty() ) {
 
     std::map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
     for (m=theMask.begin(); m!=theMask.end(); m++) {
@@ -385,7 +385,7 @@ void popcon::EcalChannelStatusHandler::physicsMasking() {
   std::map<EcalLogicID, RunCrystalErrorsDat> theMask;
   EcalErrorMask::fetchDataSet(&theMask);
   
-  if ( theMask.size()!=0 ) {
+  if ( !theMask.empty() ) {
 
     std::map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
     for (m=theMask.begin(); m!=theMask.end(); m++) {
@@ -1794,7 +1794,7 @@ void popcon::EcalChannelStatusHandler::getNewObjects() {
 	  std::cout << "OMDS record for consistency, run " << iDqmRun << " is made of " << wrongGain_mon.size() << " entries" << std::endl;
 
 	  // check if enough data and perform analysis
-	  if (dataset_mon.size()>0) { 
+	  if (!dataset_mon.empty()) { 
 	    pedAnalysis( dataset_mon, wrongGain_mon );
 	  } else {
 	    std::cout << "Not enought data for pedestal analysis" << std::endl;
@@ -1814,7 +1814,7 @@ void popcon::EcalChannelStatusHandler::getNewObjects() {
 	  std::cout << "OMDS record for run " << iDqmRun << " is made of " << dataset_mon.size() << " records" << std::endl;	      
 	  
 	  // check if enough data and select good light modules / perform analysis
-	  if (dataset_mon.size()>0) { 
+	  if (!dataset_mon.empty()) { 
 	    nBadLaserModules( dataset_mon );
 	    laserAnalysis( dataset_mon );
 	  } else {
@@ -1852,19 +1852,19 @@ void popcon::EcalChannelStatusHandler::getNewObjects() {
 
 
 	  // check if enough data in all the categories and do the analysis
-	  if (pedonline_mon.size()<=0) { 
+	  if (pedonline_mon.empty()) { 
 	    std::cout << "Not enought data for pedestal online analysis" << std::endl; 
 	    ss   << "Not enought data for pedestal online analysis" << std::endl; 
 	  }
-	  if (occupancy_mon.size()<=0) { 
+	  if (occupancy_mon.empty()) { 
 	    std::cout << "Not enought data for occupancy analysis" << std::endl;       
 	    ss   << "Not enought data for occupancy analysis" << std::endl; 
 	  }
-	  if (laser_mon.size()<=0) { 
+	  if (laser_mon.empty()) { 
 	    std::cout << "Not enought data for laser analysis" << std::endl;
 	    ss   << "Not enought data for laser analysis" << std::endl;
 	  }
-	  if ( pedonline_mon.size()>0 || occupancy_mon.size()>0 || wrongGain_mon.size()>0 || laser_mon.size()>0 ) {
+	  if ( !pedonline_mon.empty() || !occupancy_mon.empty() || !wrongGain_mon.empty() || !laser_mon.empty() ) {
 	    nBadLaserModules( laser_mon );
 	    cosmicsAnalysis( pedonline_mon, wrongGain_mon, laser_mon, occupancy_mon );
 	  }

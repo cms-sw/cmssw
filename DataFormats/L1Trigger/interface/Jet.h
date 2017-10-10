@@ -28,7 +28,7 @@ namespace l1t {
        int phi=0,
        int qual=0);
 
-  ~Jet();
+  ~Jet() override;
 
                   
   void setTowerIEta(short int ieta);  // ieta of seed tower                   

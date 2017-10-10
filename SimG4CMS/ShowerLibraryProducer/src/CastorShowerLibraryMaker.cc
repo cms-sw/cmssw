@@ -32,7 +32,7 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#include <stdlib.h>
+#include <cstdlib>
 
 CastorShowerLibraryMaker::CastorShowerLibraryMaker(const edm::ParameterSet &p) : 
                              NPGParticle(0),DoHadSL(false),DoEmSL(false),DeActivatePhysicsProcess(false),
@@ -434,7 +434,7 @@ void CastorShowerLibraryMaker::update(const EndOfEvent * evt) {
   if (verbosity) 
      std::cout << "CastorShowerLibraryMaker: End of Event: " << eventIndex << std::endl;
 // Get the pointer to the primary particle
-  if (thePrims.size() == 0) {
+  if (thePrims.empty()) {
      edm::LogInfo("CastorShowerLibraryMaker") << "No valid primary particle found. Skipping event" << std::endl;
      return;
   }
@@ -609,8 +609,8 @@ void CastorShowerLibraryMaker::update(const EndOfRun * run)
     theTree->Fill();
     nEvtInTree++;
     if (nEvtInTree==1) {
-       theTree->SetBranchStatus("emShowerLibInfo.",0);
-       theTree->SetBranchStatus("hadShowerLibInfo.",0);
+       theTree->SetBranchStatus("emShowerLibInfo.",false);
+       theTree->SetBranchStatus("hadShowerLibInfo.",false);
     }
   }
 // check if run is nullptr and exit
@@ -742,7 +742,7 @@ void CastorShowerLibraryMaker::GetKinematics(int thePrim,double& px, double& py,
 void CastorShowerLibraryMaker::GetKinematics(G4PrimaryParticle* thePrim,double& px, double& py, double& pz, double& pInit, double& eta, double& phi)
 {
     px=py=pz=phi=eta=0.0;
-    if (thePrim==0) return;
+    if (thePrim==nullptr) return;
     px = thePrim->GetMomentum().x()/GeV;
     py = thePrim->GetMomentum().y()/GeV;
     pz = thePrim->GetMomentum().z()/GeV;
@@ -761,7 +761,7 @@ std::vector<G4PrimaryParticle*> CastorShowerLibraryMaker::GetPrimary(const G4Eve
   // Find Primary info:
   int trackID = 0;
   std::vector<G4PrimaryParticle*> thePrims;
-  G4PrimaryParticle* thePrim = 0;
+  G4PrimaryParticle* thePrim = nullptr;
   G4int nvertex = evt->GetNumberOfPrimaryVertex();
   edm::LogInfo("CastorShowerLibraryMaker")  << "Event has " << nvertex << " vertex";   
   if (nvertex!=1) {
@@ -771,7 +771,7 @@ std::vector<G4PrimaryParticle*> CastorShowerLibraryMaker::GetPrimary(const G4Eve
 
   for (int i = 0 ; i<nvertex; i++) {
     G4PrimaryVertex* avertex = evt->GetPrimaryVertex(i);
-    if (avertex == 0) {
+    if (avertex == nullptr) {
        edm::LogInfo("CastorShowerLibraryMaker")
           << "CastorShowerLibraryMaker::GetPrimary ERROR: pointer to vertex = 0";
        continue;

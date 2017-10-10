@@ -213,7 +213,7 @@ namespace edm {
     }
 
     if (wp && wp->HasKey("splitLevel")) {
-      setSplitLevel(strtol(wp->GetPropertyAsString("splitLevel"), 0, 0));
+      setSplitLevel(strtol(wp->GetPropertyAsString("splitLevel"), nullptr, 0));
       if (splitLevel() < 0) {
         throw cms::Exception("IllegalSplitLevel") << "' An illegal ROOT split level of " <<
           splitLevel() << " is specified for class " << wrappedName() << ".'\n";
@@ -221,7 +221,7 @@ namespace edm {
       setSplitLevel(splitLevel() + 1); //Compensate for wrapper
     }
     if (wp && wp->HasKey("basketSize")) {
-      setBasketSize(strtol(wp->GetPropertyAsString("basketSize"), 0, 0));
+      setBasketSize(strtol(wp->GetPropertyAsString("basketSize"), nullptr, 0));
       if (basketSize() <= 0) {
         throw cms::Exception("IllegalBasketSize") << "' An illegal ROOT basket size of " <<
           basketSize() << " is specified for class " << wrappedName() << "'.\n";

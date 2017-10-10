@@ -17,14 +17,14 @@ namespace ecaldqm
 
     MESetMulti(MESet const&, ReplCandidates const&);
     MESetMulti(MESetMulti const&);
-    ~MESetMulti();
+    ~MESetMulti() override;
 
     MESet& operator=(MESet const&) override;
 
     MESet* clone(std::string const& = "") const override;
 
     void book(DQMStore::IBooker&) override;
-    bool retrieve(DQMStore::IGetter&, std::string* = 0) const override;
+    bool retrieve(DQMStore::IGetter&, std::string* = nullptr) const override;
     void clear() const override;
 
     void fill(DetId const& _id, double _xyw = 1., double _yw = 1., double _w = 1.) override { current_->fill(_id, _xyw, _yw, _w); }

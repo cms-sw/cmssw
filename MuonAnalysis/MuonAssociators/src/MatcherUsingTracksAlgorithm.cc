@@ -235,7 +235,7 @@ reco::TrackRef
 MatcherUsingTracksAlgorithm::getTrack(const reco::Candidate &reco, WhichTrack whichTrack) const {
     reco::TrackRef tk;
     const reco::RecoCandidate *rc = dynamic_cast<const reco::RecoCandidate *>(&reco);
-    if (rc == 0) throw cms::Exception("Invalid Data") << "Input object is not a RecoCandidate.\n";
+    if (rc == nullptr) throw cms::Exception("Invalid Data") << "Input object is not a RecoCandidate.\n";
     switch (whichTrack) {
         case TrackerTk: tk = rc->track();          break; 
         case MuonTk   : tk = rc->standAloneMuon(); break;

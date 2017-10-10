@@ -24,7 +24,7 @@ public:
   public:
     HitWithPhi( const Hit & hit) : theHit(hit), thePhi(hit->globalPosition().barePhi()) {}
     HitWithPhi( const Hit & hit,float phi) : theHit(hit), thePhi(phi) {}
-    HitWithPhi( float phi) : theHit(0), thePhi(phi) {}
+    HitWithPhi( float phi) : theHit(nullptr), thePhi(phi) {}
     float phi() const {return thePhi;}
     Hit const & hit() const { return theHit;}
   private:

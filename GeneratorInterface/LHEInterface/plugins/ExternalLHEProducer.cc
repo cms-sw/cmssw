@@ -66,16 +66,16 @@ class ExternalLHEProducer : public edm::one::EDProducer<edm::BeginRunProducer,
                                                         edm::EndRunProducer> {
 public:
   explicit ExternalLHEProducer(const edm::ParameterSet& iConfig);
-  virtual ~ExternalLHEProducer() override;
+  ~ExternalLHEProducer() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 private:
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void beginRunProduce(edm::Run& run, edm::EventSetup const& es) override;
-  virtual void endRunProduce(edm::Run&, edm::EventSetup const&) override;
-  virtual void preallocThreads(unsigned int) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginRunProduce(edm::Run& run, edm::EventSetup const& es) override;
+  void endRunProduce(edm::Run&, edm::EventSetup const&) override;
+  void preallocThreads(unsigned int) override;
 
   int closeDescriptors(int preserve);
   void executeScript();
@@ -125,7 +125,7 @@ private:
 // constructors and destructor
 //
 ExternalLHEProducer::ExternalLHEProducer(const edm::ParameterSet& iConfig) :
-  scriptName_((iConfig.getParameter<edm::FileInPath>("scriptName")).fullPath().c_str()),
+  scriptName_((iConfig.getParameter<edm::FileInPath>("scriptName")).fullPath()),
   outputFile_(iConfig.getParameter<std::string>("outputFile")),
   args_(iConfig.getParameter<std::vector<std::string> >("args")),
   npars_(iConfig.getParameter<uint32_t>("numberOfParameters")),
@@ -137,7 +137,7 @@ ExternalLHEProducer::ExternalLHEProducer(const edm::ParameterSet& iConfig) :
 
   produces<LHEEventProduct>();
   produces<LHERunInfoProduct, edm::Transition::BeginRun>();
-  //produces<LHERunInfoProduct, edm::Transition::EndRun>();
+  produces<LHERunInfoProduct, edm::Transition::EndRun>();
 }
 
 
@@ -334,7 +334,7 @@ ExternalLHEProducer::closeDescriptors(int preserve)
   maxfd = preserve;
   if ((dir = opendir("/proc/self/fd"))) {
     errno = 0;
-    while ((dp = readdir (dir)) != NULL) {
+    while ((dp = readdir (dir)) != nullptr) {
       if ((strcmp(dp->d_name, ".") == 0)  || (strcmp(dp->d_name, "..") == 0)) {
         continue;
       }
@@ -391,7 +391,7 @@ ExternalLHEProducer::executeScript()
   for (unsigned int i=1; i<argc; i++) {
     argv[i] = strdup(args_[i-1].c_str());
   }
-  argv[argc] = NULL;
+  argv[argc] = nullptr;
 
   pid_t pid = fork();
   if (pid == 0) {

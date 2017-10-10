@@ -12,7 +12,7 @@ CustomUIsession::~CustomUIsession()
 {
   
   G4UImanager *UI = G4UImanager::GetUIpointer();
-  UI->SetCoutDestination(NULL);
+  UI->SetCoutDestination(nullptr);
 
 }
 

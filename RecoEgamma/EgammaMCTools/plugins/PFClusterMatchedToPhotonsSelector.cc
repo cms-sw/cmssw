@@ -49,7 +49,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
   
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   edm::EDGetTokenT<reco::GenParticleCollection> genParticleToken_; // genParticles
   edm::EDGetTokenT<reco::PFClusterCollection> particleFlowClusterECALToken_;

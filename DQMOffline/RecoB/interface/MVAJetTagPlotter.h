@@ -21,18 +21,18 @@ class MVAJetTagPlotter: public BaseTagInfoPlotter {
 		    const edm::ParameterSet& pSet, const std::string& folderName, 
 		    unsigned int mc, bool willFinalize, DQMStore::IBooker & ibook);
 
-  ~MVAJetTagPlotter ();
+  ~MVAJetTagPlotter () override;
 
-  virtual void analyzeTag (const std::vector<const reco::BaseTagInfo *> & baseTagInfos, double jec, int jetFlavour, float w=1);
+  void analyzeTag (const std::vector<const reco::BaseTagInfo *> & baseTagInfos, double jec, int jetFlavour, float w=1) override;
 
-  virtual void finalize (DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_);
+  void finalize (DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_) override;
 
-  void epsPlot(const std::string & name);
+  void epsPlot(const std::string & name) override;
 
-  void psPlot(const std::string & name);
+  void psPlot(const std::string & name) override;
 
-  virtual void setEventSetup (const edm::EventSetup & setup);
-  virtual std::vector<std::string> tagInfoRequirements () const;
+  void setEventSetup (const edm::EventSetup & setup) override;
+  std::vector<std::string> tagInfoRequirements () const override;
 
  private:
 

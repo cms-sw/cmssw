@@ -1,6 +1,6 @@
 #include "CondCore/CondDB/interface/Cipher.h"
 #include "CondCore/CondDB/interface/Exception.h"
-#include <string.h>
+#include <cstring>
 // blowfish encryption
 #include "blowfish.h"
 // GNU base 64 encoding
@@ -29,7 +29,7 @@ size_t cond::auth::Cipher::bf_process_alloc( const unsigned char* input,
   unsigned int output_size=0;
 
   if( !input_size ) {
-    output = 0;
+    output = nullptr;
     return 0;
   }
 
@@ -70,7 +70,7 @@ size_t cond::auth::Cipher::bf_process_alloc( const unsigned char* input,
     
 size_t cond::auth::Cipher::encrypt( const std::string& input, unsigned char*& output ){
   if( input.empty() ) {
-    output = 0;
+    output = nullptr;
     return 0;
   }
   return bf_process_alloc( reinterpret_cast<const unsigned char*>(input.c_str()), input.size(), output, false );;
@@ -78,7 +78,7 @@ size_t cond::auth::Cipher::encrypt( const std::string& input, unsigned char*& ou
 
 std::string cond::auth::Cipher::decrypt( const unsigned char* input, size_t inputSize ){
   if( !inputSize ) return ""; 
-  unsigned char* out = 0;
+  unsigned char* out = nullptr;
   size_t outSize = bf_process_alloc( input, inputSize, out, true );
   size_t i = 0;
   for( i=0;i<outSize; i++ ) {
@@ -104,9 +104,9 @@ std::string cond::auth::Cipher::decrypt( const unsigned char* input, size_t inpu
 
 std::string cond::auth::Cipher::b64encrypt( const std::string& input ){
   if( input.empty() ) return "";
-  unsigned char* out = 0;
+  unsigned char* out = nullptr;
   size_t outSize = bf_process_alloc( reinterpret_cast<const unsigned char*>(input.c_str()), input.size(), out, false );
-  char* b64out = 0;
+  char* b64out = nullptr;
   size_t b64size = base64_encode_alloc( reinterpret_cast<const char*>(out), outSize, &b64out );
   std::string ret( b64out, b64size );
   free (out);
@@ -116,7 +116,7 @@ std::string cond::auth::Cipher::b64encrypt( const std::string& input ){
 
 std::string cond::auth::Cipher::b64decrypt( const std::string& b64in ){
   if( b64in.empty() ) return "";
-  char* input = 0;
+  char* input = nullptr;
   size_t inputSize = 0;
   if( !base64_decode_alloc( b64in.c_str(), b64in.size(), &input, &inputSize ) ){
     throwException("Input provided is not a valid base64 string.","Cipher::b64decrypt");

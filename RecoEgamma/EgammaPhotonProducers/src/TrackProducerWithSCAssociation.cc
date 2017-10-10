@@ -106,7 +106,7 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
     validTrackCandidateSCAssociationInput_=false;
   }
   reco::TrackCandidateCaloClusterPtrAssociation scTrkCandAssCollection = *(trkCandidateSCAssocHandle.product());
-  if ( scTrkCandAssCollection.size() ==0 )  validTrackCandidateSCAssociationInput_=false;
+  if ( scTrkCandAssCollection.empty() )  validTrackCandidateSCAssociationInput_=false;
 
 
   std::vector<int> tccLocations;

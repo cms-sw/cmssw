@@ -34,35 +34,35 @@ public:
 	       const LocalVector& direction, const AlgebraicSymMatrix& errors, double chi2, double time, double timeErr);
   
     /// Destructor
-    virtual ~GEMSegment();
+    ~GEMSegment() override;
 
     //--- Base class interface
-    GEMSegment* clone() const { return new GEMSegment(*this); }
+    GEMSegment* clone() const override { return new GEMSegment(*this); }
 
-    LocalPoint localPosition() const { return theOrigin; }
-    LocalError localPositionError() const ;
+    LocalPoint localPosition() const override { return theOrigin; }
+    LocalError localPositionError() const override ;
 	
-    LocalVector localDirection() const { return theLocalDirection; }
-    LocalError localDirectionError() const ;
+    LocalVector localDirection() const override { return theLocalDirection; }
+    LocalError localDirectionError() const override ;
 
     /// Parameters of the segment, for the track fit in the order (dx/dz, dy/dz, x, y )
-    AlgebraicVector parameters() const;
+    AlgebraicVector parameters() const override;
 
     /// Covariance matrix of parameters()
-    AlgebraicSymMatrix parametersError() const { return theCovMatrix; }
+    AlgebraicSymMatrix parametersError() const override { return theCovMatrix; }
 
     /// The projection matrix relates the trajectory state parameters to the segment parameters().
-    virtual AlgebraicMatrix projectionMatrix() const;
+    AlgebraicMatrix projectionMatrix() const override;
 
-    virtual std::vector<const TrackingRecHit*> recHits() const;
+    std::vector<const TrackingRecHit*> recHits() const override;
 
-    virtual std::vector<TrackingRecHit*> recHits();
+    std::vector<TrackingRecHit*> recHits() override;
 
-    double chi2() const { return theChi2; };
+    double chi2() const override { return theChi2; };
 
-    virtual int dimension() const { return 4; }
+    int dimension() const override { return 4; }
 
-    virtual int degreesOfFreedom() const { return 2*nRecHits() - 4;}	 
+    int degreesOfFreedom() const override { return 2*nRecHits() - 4;}	 
 
     //--- Extension of the interface
         

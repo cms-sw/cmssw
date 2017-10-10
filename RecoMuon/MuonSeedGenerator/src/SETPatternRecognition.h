@@ -15,10 +15,10 @@ class SETPatternRecognition: public MuonSeedVPatternRecognition
 {
 public:
   explicit SETPatternRecognition(const edm::ParameterSet & pset, edm::ConsumesCollector& iC);
-  virtual ~SETPatternRecognition() {}
+  ~SETPatternRecognition() override {}
   /** Output is a cluster, with possibly more than one hit per layer */
-  virtual void produce(const edm::Event& event, const edm::EventSetup& eSetup,
-                       std::vector<MuonRecHitContainer> & result);
+  void produce(const edm::Event& event, const edm::EventSetup& eSetup,
+                       std::vector<MuonRecHitContainer> & result) override;
 
   void setServiceProxy(MuonServiceProxy * service) {theService = service;}
   // don't use "bad" segments

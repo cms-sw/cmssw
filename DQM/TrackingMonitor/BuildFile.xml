@@ -17,4 +17,5 @@
 <use   name="DataFormats/SiPixelDetId"/>
 <use   name="Geometry/RPCGeometry"/>
 <use   name="RecoMuon/GlobalTrackingTools"/>
+<use   name="RecoVertex/AdaptiveVertexFit"/>
 <flags EDM_PLUGIN="1"/>

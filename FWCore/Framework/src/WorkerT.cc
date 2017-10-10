@@ -457,29 +457,31 @@ namespace edm{
   }
 
   namespace {
+    using ModuleToResolverIndicies = std::unordered_multimap<std::string,
+    std::tuple<edm::TypeID const*, const char*, edm::ProductResolverIndex>>;
     void resolvePutIndiciesImpl(void*,
                                 BranchType iBranchType,
-                                std::unordered_multimap<std::string, edm::ProductResolverIndex> const& iIndicies,
+                                ModuleToResolverIndicies const& iIndicies,
                                 std::string const& iModuleLabel) {
       //Do nothing
     }
 
     void resolvePutIndiciesImpl(ProducerBase* iProd,
                                 BranchType iBranchType,
-                                std::unordered_multimap<std::string, edm::ProductResolverIndex> const& iIndicies,
+                                ModuleToResolverIndicies const& iIndicies,
                                 std::string const& iModuleLabel) {
       iProd->resolvePutIndicies(iBranchType, iIndicies, iModuleLabel);
     }
 
     void resolvePutIndiciesImpl(edm::stream::EDProducerAdaptorBase* iProd,
                                 BranchType iBranchType,
-                                std::unordered_multimap<std::string, edm::ProductResolverIndex> const& iIndicies,
+                                ModuleToResolverIndicies const& iIndicies,
                                 std::string const& iModuleLabel) {
       iProd->resolvePutIndicies(iBranchType, iIndicies, iModuleLabel);
     }
     void resolvePutIndiciesImpl(edm::stream::EDFilterAdaptorBase* iProd,
                                 BranchType iBranchType,
-                                std::unordered_multimap<std::string, edm::ProductResolverIndex> const& iIndicies,
+                                ModuleToResolverIndicies const& iIndicies,
                                 std::string const& iModuleLabel) {
       iProd->resolvePutIndicies(iBranchType, iIndicies, iModuleLabel);
     }
@@ -506,7 +508,8 @@ namespace edm{
 
   template<typename T>
   void WorkerT<T>::resolvePutIndicies(BranchType iBranchType,
-                                      std::unordered_multimap<std::string, edm::ProductResolverIndex> const& iIndicies) {
+                                      std::unordered_multimap<std::string,
+                                      std::tuple<TypeID const*, const char*, edm::ProductResolverIndex>> const& iIndicies) {
     resolvePutIndiciesImpl(&module(), iBranchType,iIndicies, description().moduleLabel());
   }
 

@@ -21,13 +21,13 @@ class TMarkov: public TObject
   TMarkov();
 
   // Destructor: Does nothing
-  virtual ~TMarkov();
+  ~TMarkov() override;
 
   void peakFinder(int *);
   double getPeakValue(int i) const { return peak[i]; }
   int getBinMax() const { return imax; }
 
-  ClassDef(TMarkov,0)
+  ClassDefOverride(TMarkov,0)
 };
 
 #endif

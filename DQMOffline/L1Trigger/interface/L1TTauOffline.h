@@ -82,17 +82,17 @@ class L1TTauOffline: public DQMEDAnalyzer {
 public:
 
   L1TTauOffline(const edm::ParameterSet& ps);
-  virtual ~L1TTauOffline();
+  ~L1TTauOffline() override;
 
 protected:
 
   void dqmBeginRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
   /* void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override; */
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup);
-  void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup);
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
+  void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
   const reco::Vertex getPrimaryVertex( edm::Handle<reco::VertexCollection> const& vertex, edm::Handle<reco::BeamSpot> const& beamSpot );
   bool matchHlt(edm::Handle<trigger::TriggerEvent> const& triggerEvent, const reco::Muon * muon);

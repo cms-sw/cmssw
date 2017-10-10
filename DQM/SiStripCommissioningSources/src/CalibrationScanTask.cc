@@ -12,7 +12,7 @@
 #include <sys/unistd.h>
 #include <sys/socket.h>
 #include <netdb.h>
-#include <stdio.h>
+#include <cstdio>
 #include <fstream>
 
 // -----------------------------------------------------------------------------
@@ -188,7 +188,7 @@ void CalibrationScanTask::checkAndSave(const uint16_t& isha, const uint16_t& vfs
     // Retrieve SCRATCH directory
     std::string scratch = "SCRATCH"; //@@ remove trailing slash!!!
     std::string dir = "";
-    if ( getenv(scratch.c_str()) != NULL ) {
+    if ( getenv(scratch.c_str()) != nullptr ) {
       dir = getenv(scratch.c_str());
     }
   

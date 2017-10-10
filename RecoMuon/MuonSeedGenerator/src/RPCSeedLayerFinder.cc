@@ -53,7 +53,7 @@ void RPCSeedLayerFinder::unsetInput() {
     isInputset = false;
 }
 
-void RPCSeedLayerFinder::setOutput(RPCSeedrecHitFinder* Ref = NULL, RPCCosmicSeedrecHitFinder* CosmicRef = NULL) {
+void RPCSeedLayerFinder::setOutput(RPCSeedrecHitFinder* Ref = nullptr, RPCCosmicSeedrecHitFinder* CosmicRef = nullptr) {
 
     RPCrecHitFinderRef = Ref;
     RPCCosmicrecHitFinderRef = CosmicRef;
@@ -73,13 +73,13 @@ void RPCSeedLayerFinder::fill() {
 
     // Now fill the Layers
     if(isCosmic == true) {
-        if(RPCCosmicrecHitFinderRef != NULL)
+        if(RPCCosmicrecHitFinderRef != nullptr)
             fillCosmicLayers();
         else
             cout << "RPCCosmicrecHitFinderRef not set" << endl;
     }
     else {
-        if(RPCrecHitFinderRef != NULL)
+        if(RPCrecHitFinderRef != nullptr)
             fillLayers();
         else
             cout << "RPCrecHitFinderRef not set" << endl;
@@ -131,7 +131,7 @@ void RPCSeedLayerFinder::fillLayers() {
                 }
             }
         }
-        if(EnoughforBarrel && (LayersinRPC.size() != 0)) {
+        if(EnoughforBarrel && (!LayersinRPC.empty())) {
             // Initiate and call recHit Finder
             RPCrecHitFinderRef->setLayers(LayersinRPC);
             RPCrecHitFinderRef->fillrecHits();
@@ -155,7 +155,7 @@ void RPCSeedLayerFinder::fillLayers() {
                 }
             }
         }
-        if(EnoughforEndcap && (LayersinRPC.size() != 0)) {
+        if(EnoughforEndcap && (!LayersinRPC.empty())) {
             // Initiate and call recHit Finder
             RPCrecHitFinderRef->setLayers(LayersinRPC);
             RPCrecHitFinderRef->fillrecHits();
@@ -176,7 +176,7 @@ void RPCSeedLayerFinder::fillLayers() {
                 }
             }
         }
-        if(EnoughforEndcap && (LayersinRPC.size() != 0)) {
+        if(EnoughforEndcap && (!LayersinRPC.empty())) {
             // Initiate and call recHit Finder
             RPCrecHitFinderRef->setLayers(LayersinRPC);
             RPCrecHitFinderRef->fillrecHits();
@@ -203,7 +203,7 @@ void RPCSeedLayerFinder::fillCosmicLayers() {
                 if(recHitsinLayers[i] != 0)
                     LayersinRPC.push_back(i);
         }
-        if(LayersinRPC.size() != 0) {
+        if(!LayersinRPC.empty()) {
             // Initiate and call recHit Finder
             RPCCosmicrecHitFinderRef->setLayers(LayersinRPC);
             RPCCosmicrecHitFinderRef->fillrecHits();
@@ -220,7 +220,7 @@ void RPCSeedLayerFinder::fillCosmicLayers() {
                 if(recHitsinLayers[i] != 0)
                     LayersinRPC.push_back(i);
         }
-        if(LayersinRPC.size() != 0) {
+        if(!LayersinRPC.empty()) {
             // Initiate and call recHit Finder
             RPCCosmicrecHitFinderRef->setLayers(LayersinRPC);
             RPCCosmicrecHitFinderRef->fillrecHits();
@@ -235,7 +235,7 @@ void RPCSeedLayerFinder::fillCosmicLayers() {
                 if(recHitsinLayers[i] != 0)
                     LayersinRPC.push_back(i);
         }
-        if(LayersinRPC.size() != 0) {
+        if(!LayersinRPC.empty()) {
             // Initiate and call recHit Finder
             RPCCosmicrecHitFinderRef->setLayers(LayersinRPC);
             RPCCosmicrecHitFinderRef->fillrecHits();
@@ -260,7 +260,7 @@ void RPCSeedLayerFinder::fillCosmicLayers() {
                     LayersinRPC.push_back(i);
         }
 
-        if(LayersinRPC.size() != 0) {
+        if(!LayersinRPC.empty()) {
             // Initiate and call recHit Finder
             RPCCosmicrecHitFinderRef->setLayers(LayersinRPC);
             RPCCosmicrecHitFinderRef->fillrecHits();
@@ -314,7 +314,7 @@ void RPCSeedLayerFinder::SpecialLayers(int last, unsigned int NumberofLayers, in
             cout << "NumberofLayers larger than max layers in endcap" << endl;
             return;
         }
-        if(last < (BarrelLayerNumber+EachEndcapLayerNumber-1) || (last == (BarrelLayerNumber+EachEndcapLayerNumber-1) && LayersinRPC.size() != 0)) {
+        if(last < (BarrelLayerNumber+EachEndcapLayerNumber-1) || (last == (BarrelLayerNumber+EachEndcapLayerNumber-1) && !LayersinRPC.empty())) {
             // For -Z case
             for(unsigned int i =  (last+1); i <= (BarrelLayerNumber+EachEndcapLayerNumber-NumberofLayers+LayersinRPC.size()); i++) {
                 if(recHitsinLayers[i] != 0) {

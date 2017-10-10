@@ -31,9 +31,9 @@ class PiZeroDiscriminatorProducer : public edm::EDProducer {
 
   explicit PiZeroDiscriminatorProducer (const edm::ParameterSet& ps);
 
-  ~PiZeroDiscriminatorProducer();
+  ~PiZeroDiscriminatorProducer() override;
 
-  virtual void produce( edm::Event& evt, const edm::EventSetup& es);
+  void produce( edm::Event& evt, const edm::EventSetup& es) override;
 
  private:
 

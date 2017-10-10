@@ -23,7 +23,7 @@ namespace reco {
     /// Initiator
     GenericJet (const LorentzVector& fP4, const Point& fVertex, const std::vector<CandidateBaseRef>& fConstituents);
     /// Destructor
-    virtual ~GenericJet () {}
+    ~GenericJet () override {}
 
     /// # of constituents
     virtual int nConstituents () const;

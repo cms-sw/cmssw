@@ -38,10 +38,10 @@ public:
   DTResolutionAnalysisTest(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~DTResolutionAnalysisTest();
+  ~DTResolutionAnalysisTest() override;
 
   /// BeginRun
-  void beginRun(const edm::Run& r, const edm::EventSetup& c);
+  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
 
   void bookHistos(DQMStore::IBooker &);
   void bookHistos(DQMStore::IBooker &,int wh);
@@ -51,7 +51,7 @@ public:
   std::string getMEName(const DTSuperLayerId & slID);
 
 protected:
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
 private:
   void resetMEs();

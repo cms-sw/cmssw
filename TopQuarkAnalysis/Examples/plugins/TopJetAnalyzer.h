@@ -17,13 +17,13 @@ class TopJetAnalyzer : public edm::EDAnalyzer {
  public:
 
   explicit TopJetAnalyzer(const edm::ParameterSet&);
-  ~TopJetAnalyzer();
+  ~TopJetAnalyzer() override;
 
  private:
 
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   edm::EDGetTokenT<std::vector<pat::Jet> > inputToken_;
   bool verbose_;

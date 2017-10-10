@@ -332,14 +332,24 @@ void StallMonitor::preModuleEvent(StreamContext const& sc, ModuleCallingContext 
   auto const preModEvent = now();
   auto const sid = stream_id(sc);
   auto const mid = module_id(mcc);
+  auto start = stallStart_[std::make_pair(sid,mid)];
+  auto startT = start.time_since_epoch();
   if (validFile_) {
-    auto msg = assembleMessage<step::preModuleEvent>(sid, mid, duration_cast<milliseconds>(preModEvent-beginTime_).count());
+    auto t = duration_cast<milliseconds>(preModEvent-beginTime_).count();
+    if(startT == milliseconds::duration::zero()) {
+      //prefetching did not happen
+      auto msg = assembleMessage<step::postModuleEventPrefetching>(sid, mid, t);
+      file_.write(std::move(msg));
+    }
+    auto msg = assembleMessage<step::preModuleEvent>(sid, mid, t);
     file_.write(std::move(msg));
   }
 
-  auto const preFetch_to_preModEvent = duration_cast<milliseconds>(preModEvent-stallStart_[std::make_pair(sid,mid)]);
-  if (preFetch_to_preModEvent < stallThreshold_) return;
-  moduleStats_[mid].update(preFetch_to_preModEvent);
+  if( milliseconds::duration::zero() != startT) {
+    auto const preFetch_to_preModEvent = duration_cast<milliseconds>(preModEvent-start);
+    if (preFetch_to_preModEvent < stallThreshold_) return;
+    moduleStats_[mid].update(preFetch_to_preModEvent);
+  }
 }
 
 void StallMonitor::preEventReadFromSource(StreamContext const& sc, ModuleCallingContext const& mcc)

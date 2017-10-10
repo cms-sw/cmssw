@@ -42,13 +42,13 @@ class DTRangeT0Handler: public popcon::PopConSourceHandler<DTRangeT0> {
 
   /** Destructor
    */
-  virtual ~DTRangeT0Handler();
+  ~DTRangeT0Handler() override;
 
   /** Operations
    */
   /// 
-  void getNewObjects();
-  std::string id() const;
+  void getNewObjects() override;
+  std::string id() const override;
 
  private:
 

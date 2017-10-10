@@ -74,7 +74,7 @@ void PixelVertexProducerMedian::produce
 
   auto vertices = std::make_unique<reco::VertexCollection>();
 
-  if(tracks.size() > 0)
+  if(!tracks.empty())
   {
   // Sort along vertex z position
   std::sort(tracks.begin(), tracks.end(), ComparePairs());

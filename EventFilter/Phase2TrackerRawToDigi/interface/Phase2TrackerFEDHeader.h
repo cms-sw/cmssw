@@ -3,7 +3,7 @@
 
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDDAQHeader.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDDAQTrailer.h"
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 
 namespace Phase2Tracker {

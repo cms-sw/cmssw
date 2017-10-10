@@ -35,8 +35,8 @@ TH1D* AverageRunBadChannels(TFile& ff, const char* module, const char* histo, co
       camult.setPath(runpath);
       
       
-      TProfile* multvstime=0;
-      if(multvstime==0) multvstime = (TProfile*)camult.getObject(histo);
+      TProfile* multvstime=nullptr;
+      if(multvstime==nullptr) multvstime = (TProfile*)camult.getObject(histo);
       if(multvstime) {
 	// compute mean exlucing the last filled bins
 

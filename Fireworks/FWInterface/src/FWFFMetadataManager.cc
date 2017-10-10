@@ -8,7 +8,7 @@
 
 #include "TClass.h"
 FWFFMetadataManager::FWFFMetadataManager():
-   m_event(0)
+   m_event(nullptr)
 {
 }
 

@@ -50,12 +50,12 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
   killInCaloEfH = false;
 
   // Russian Roulette
-  regionEcal = 0;
-  regionHcal = 0;
-  regionMuonIron = 0;
-  regionPreShower= 0;
-  regionCastor = 0;
-  regionWorld = 0;
+  regionEcal = nullptr;
+  regionHcal = nullptr;
+  regionMuonIron = nullptr;
+  regionPreShower= nullptr;
+  regionCastor = nullptr;
+  regionWorld = nullptr;
 
   gRusRoEnerLim = p.getParameter<double>("RusRoGammaEnergyLimit")*MeV;
   nRusRoEnerLim = p.getParameter<double>("RusRoNeutronEnergyLimit")*MeV;

@@ -24,7 +24,7 @@ using namespace edm::service;
 
 IgProfService::IgProfService(ParameterSet const& ps, 
                              ActivityRegistry&iRegistry)
-  : dump_(0),
+  : dump_(nullptr),
     mineventrecord_(1),
     prescale_(1),
     nrecord_(0),
@@ -44,7 +44,7 @@ IgProfService::IgProfService(ParameterSet const& ps,
     // since the suggested decision seems to be that the syntax should
     // actually be "Conditionally-Supported Behavior" in some 
     // future C++ standard I simply silence the warning.
-    if (void *sym = dlsym(0, "igprof_dump_now")) {
+    if (void *sym = dlsym(nullptr, "igprof_dump_now")) {
       dump_ = __extension__ (void(*)(const char *)) sym;
     } else
       edm::LogWarning("IgProfModule")

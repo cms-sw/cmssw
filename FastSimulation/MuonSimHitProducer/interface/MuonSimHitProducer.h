@@ -59,7 +59,7 @@ class MuonSimHitProducer : public edm::stream::EDProducer <> {
    public:
 
       explicit MuonSimHitProducer(const edm::ParameterSet&);
-      ~MuonSimHitProducer();
+      ~MuonSimHitProducer() override;
 
    private:
 
@@ -75,8 +75,8 @@ class MuonSimHitProducer : public edm::stream::EDProducer <> {
 
       MaterialEffects* theMaterialEffects;
   
-      virtual void beginRun(edm::Run const& run, const edm::EventSetup & es) override;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void beginRun(edm::Run const& run, const edm::EventSetup & es) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
       void readParameters(const edm::ParameterSet&, 
 			  const edm::ParameterSet&,
 			  const edm::ParameterSet& );

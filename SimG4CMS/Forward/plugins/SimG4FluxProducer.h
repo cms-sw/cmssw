@@ -30,18 +30,18 @@ class SimG4FluxProducer : public SimProducer,
   
 public:
   SimG4FluxProducer(const edm::ParameterSet &p);
-  virtual ~SimG4FluxProducer();
+  ~SimG4FluxProducer() override;
 
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  SimG4FluxProducer(const SimG4FluxProducer&); // stop default
-  const SimG4FluxProducer& operator=(const SimG4FluxProducer&);
+  SimG4FluxProducer(const SimG4FluxProducer&) = delete; // stop default
+  const SimG4FluxProducer& operator=(const SimG4FluxProducer&) = delete;
 
   // observer classes
-  void update(const BeginOfRun * run);
-  void update(const BeginOfEvent * evt);
-  void update(const G4Step * step);
+  void update(const BeginOfRun * run) override;
+  void update(const BeginOfEvent * evt) override;
+  void update(const G4Step * step) override;
   
   void endOfEvent(ParticleFlux& pflx, unsigned int k);
   G4VPhysicalVolume * getTopPV();

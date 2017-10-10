@@ -48,29 +48,18 @@ public:
 };
 
 namespace ts {
-  constexpr const char kEta[] = "eta";
-  using Eta = edm::soa::Column<kEta,float>;
+  struct Eta : public edm::soa::Column<float,Eta> {
+    static constexpr const char * const kLabel = "eta";
+  };
 
-  constexpr const char kPhi[] = "phi";
-  using Phi = edm::soa::Column<kPhi,float>;
+  SOA_DECLARE_COLUMN(Phi, float, "phi");
+  SOA_DECLARE_COLUMN(Energy, float, "energy");
+  SOA_DECLARE_COLUMN(ID, int, "id");
+  SOA_DECLARE_COLUMN(Label, std::string, "label");
 
-  constexpr const char kEnergy[] = "energy";
-  using Energy = edm::soa::Column<kEnergy,double>;
-
-  constexpr const char kID[] = "id";
-  using ID = edm::soa::Column<kID,int>;
-
-  constexpr const char kLabel[] = "label";
-  using Label = edm::soa::Column<kLabel,std::string>;
-  
-  constexpr const char kPx[] = "p_x";
-  using Px = edm::soa::Column<kPx, double>;
-  
-  constexpr const char kPy[] = "p_z";
-  using Py = edm::soa::Column<kPy, double>;
-  
-  constexpr const char kPz[] = "p_z";
-  using Pz = edm::soa::Column<kPz, double>;
+  SOA_DECLARE_COLUMN(Px,double,"p_x");
+  SOA_DECLARE_COLUMN(Py,double,"p_y");
+  SOA_DECLARE_COLUMN(Pz,double,"p_z");
   
   using ParticleTable = edm::soa::Table<Px, Py, Pz, Energy>;
   
@@ -81,8 +70,6 @@ namespace ts {
   
   /* Creat a table that is a sub table of an existing one */
   using MyOtherJetTable = edm::soa::RemoveColumn_t<MyJetTable, Phi>;
-
-
 }
 
 ///registration of the test so that the runner can find it

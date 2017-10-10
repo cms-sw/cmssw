@@ -25,25 +25,25 @@ class SimpleVFATFrameCollection : public VFATFrameCollection
 
     MapType data;
 
-    virtual value_type BeginIterator() const;
-    virtual value_type NextIterator(const value_type&) const;
-    virtual bool IsEndIterator(const value_type&) const;
+    value_type BeginIterator() const override;
+    value_type NextIterator(const value_type&) const override;
+    bool IsEndIterator(const value_type&) const override;
 
   public:
     SimpleVFATFrameCollection();
-    ~SimpleVFATFrameCollection();
+    ~SimpleVFATFrameCollection() override;
 
-    const VFATFrame* GetFrameByID(unsigned int ID) const;
-    const VFATFrame* GetFrameByIndex(TotemFramePosition index) const;
+    const VFATFrame* GetFrameByID(unsigned int ID) const override;
+    const VFATFrame* GetFrameByIndex(TotemFramePosition index) const override;
 
-    virtual unsigned int Size() const
+    unsigned int Size() const override
     {
       return data.size();
     }
 
-    virtual bool Empty() const
+    bool Empty() const override
     {
-      return (data.size() == 0);
+      return (data.empty());
     }
 
     void Insert(const TotemFramePosition &index, const VFATFrame &frame)

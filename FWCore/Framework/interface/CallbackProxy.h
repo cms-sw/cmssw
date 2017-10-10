@@ -48,7 +48,7 @@ namespace edm {
             //  hold onto a temporary copy of the result of the callback since the callback is allowed
             //  to return multiple items where only one item is needed by this Proxy
             iCallback->holdOntoPointer(&data_) ; }
-         virtual ~CallbackProxy() {
+         ~CallbackProxy() override {
             DataT* dummy(nullptr);
             callback_->holdOntoPointer(dummy) ;
          }
@@ -57,20 +57,20 @@ namespace edm {
          // ---------- static member functions --------------------
          
          // ---------- member functions ---------------------------
-         const void* getImpl(const EventSetupRecord& iRecord, const DataKey&) {
+         const void* getImpl(const EventSetupRecord& iRecord, const DataKey&) override {
             assert(iRecord.key() == RecordT::keyForClass());
             (*callback_)(static_cast<const record_type&>(iRecord));
             return &(*data_);
          }
          
-         void invalidateCache() {
+         void invalidateCache() override {
             data_ = DataT();
             callback_->newRecordComing();
          }
       private:
-         CallbackProxy(const CallbackProxy&); // stop default
+         CallbackProxy(const CallbackProxy&) = delete; // stop default
          
-         const CallbackProxy& operator=(const CallbackProxy&); // stop default
+         const CallbackProxy& operator=(const CallbackProxy&) = delete; // stop default
          
          // ---------- member data --------------------------------
          DataT data_;

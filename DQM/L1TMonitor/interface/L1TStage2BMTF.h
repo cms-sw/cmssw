@@ -58,7 +58,7 @@ public:
 // class constructor
 L1TStage2BMTF(const edm::ParameterSet & ps);
 // class destructor
-virtual ~L1TStage2BMTF();
+~L1TStage2BMTF() override;
 
 // member functions
 protected:

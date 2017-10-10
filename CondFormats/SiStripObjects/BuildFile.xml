@@ -1,5 +1,6 @@
 <use   name="CondFormats/Common"/>
 <use   name="CondFormats/Serialization"/>
+<use   name="DataFormats/TrackerCommon"/>
 <use   name="DataFormats/SiStripCommon"/>
 <use   name="DataFormats/SiStripDetId"/>
 <use   name="DataFormats/FEDRawData"/>

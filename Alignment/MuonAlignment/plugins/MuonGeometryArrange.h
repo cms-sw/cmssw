@@ -49,12 +49,12 @@ public:
 		);
 	
   /// Read from DB and print survey info.
-	virtual void beginJob();
+	void beginJob() override;
 
-	virtual void analyze(
+	void analyze(
 		const edm::Event&,
 		const edm::EventSetup&
-		);
+		) override;
 //        virtual void endJob(void);
 	
 private:

@@ -8,9 +8,9 @@
 #include <iomanip>
 #include <string>
 #include <vector>
-#include <time.h>
-#include <math.h>
-#include <stdio.h>
+#include <ctime>
+#include <cmath>
+#include <cstdio>
 #include "Riostream.h"
 
 // ROOT include files
@@ -530,7 +530,7 @@ class TEcnaRun: public TObject {
 
   //................. destructor
   
-  virtual ~TEcnaRun();
+  ~TEcnaRun() override;
   
   //...................................................... methods that will (should) be private
 
@@ -669,7 +669,7 @@ class TEcnaRun: public TObject {
                            // concerning initialisations
   void PrintAllComments(); // Set flags to authorize printing of all the comments
 
-ClassDef(TEcnaRun,1) // Calculation of correlated noises from data
+ClassDefOverride(TEcnaRun,1) // Calculation of correlated noises from data
 };  
 
 #endif    //  CL_TEcnaRun_H

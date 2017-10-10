@@ -6,7 +6,7 @@
 #include <string>
 #include <map>
 #include <iostream>
-#include <time.h>
+#include <ctime>
 
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
@@ -54,16 +54,16 @@ namespace popcon {
 
   public:
     EcalPedestalsHandler(edm::ParameterSet const & );
-    ~EcalPedestalsHandler(); 
+    ~EcalPedestalsHandler() override; 
     bool checkPedestal(EcalPedestals::Item* item);
-    void getNewObjects();
+    void getNewObjects() override;
     void getNewObjectsP5();
     void getNewObjectsH2();
     void readPedestalFile();
     void readPedestalTree();
     void readPedestalTimestamp();
     void readPedestal2017();
-    std::string id() const { return m_name;}
+    std::string id() const override { return m_name;}
     EcalCondDBInterface* econn;
 
   private:

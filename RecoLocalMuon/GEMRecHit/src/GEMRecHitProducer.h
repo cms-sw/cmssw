@@ -11,7 +11,7 @@
 #include <memory>
 #include <fstream>
 #include <iostream>
-#include <stdint.h>
+#include <cstdint>
 #include <cstdlib>
 #include <bitset>
 #include <map>
@@ -44,13 +44,13 @@ public:
   GEMRecHitProducer(const edm::ParameterSet& config);
 
   /// Destructor
-  virtual ~GEMRecHitProducer();
+  ~GEMRecHitProducer() override;
 
   // Method that access the EventSetup for each run
-  virtual void beginRun(const edm::Run&, const edm::EventSetup& ) override;
+  void beginRun(const edm::Run&, const edm::EventSetup& ) override;
 
   /// The method which produces the rechits
-  virtual void produce(edm::Event& event, const edm::EventSetup& setup) override;
+  void produce(edm::Event& event, const edm::EventSetup& setup) override;
 
 private:
 

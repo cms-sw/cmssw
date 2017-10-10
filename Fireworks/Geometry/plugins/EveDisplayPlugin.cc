@@ -49,11 +49,11 @@ class EveDisplayPlugin : public fireworks::geometry::DisplayPlugin {
 
    public:
       explicit EveDisplayPlugin();
-      ~EveDisplayPlugin();
+      ~EveDisplayPlugin() override;
 
 
    private:
-      virtual void run(const edm::EventSetup&) override;
+      void run(const edm::EventSetup&) override;
 
 };
 

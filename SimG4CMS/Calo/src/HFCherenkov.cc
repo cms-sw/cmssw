@@ -108,7 +108,7 @@ int HFCherenkov::computeNPE(G4Step * aStep, G4ParticleDefinition* pDef,
     return 0;
   } else if (nbOfPhotons > 0) {
     G4StepPoint * preStepPoint = aStep->GetPreStepPoint();
-    G4TouchableHandle theTouchable = preStepPoint->GetTouchableHandle();
+    const G4TouchableHandle& theTouchable = preStepPoint->GetTouchableHandle();
     G4ThreeVector localprepos = theTouchable->GetHistory()->
       GetTopTransform().TransformPoint(aStep->GetPreStepPoint()->GetPosition());
     G4ThreeVector localpostpos = theTouchable->GetHistory()->

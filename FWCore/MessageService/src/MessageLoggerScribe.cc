@@ -202,7 +202,7 @@
 #include <cassert>
 #include <fstream>
 #include <string>
-#include <signal.h>
+#include <csignal>
 
 using std::cerr;
 
@@ -217,7 +217,7 @@ MessageLoggerScribe::MessageLoggerScribe(std::shared_ptr<ThreadQueue> queue)
 , job_pset_p( )
 , clean_slate_configuration( true )
 , active( true )
-, singleThread (queue.get() == 0)				// changeLog 36
+, singleThread (queue.get() == nullptr)				// changeLog 36
 , done (false)							// changeLog 32
 , purge_mode (false)						// changeLog 32
 , count (false)							// changeLog 32
@@ -262,7 +262,7 @@ void
       break;
     }
     case MessageLoggerQ::END_THREAD:  {
-      assert( operand == 0 );
+      assert( operand == nullptr );
       done = true;
       MessageDrop::instance()->messageLoggerScribeIsRunning = 
 	      (unsigned char) -1; 				// ChangeLog 30
@@ -331,7 +331,7 @@ void
       }
     }
     case MessageLoggerQ::SUMMARIZE: {
-      assert( operand == 0 );
+      assert( operand == nullptr );
       try {
 	triggerStatisticsSummaries();
       }
@@ -362,7 +362,7 @@ void
       break;
     }
     case MessageLoggerQ::SHUT_UP:  {
-      assert( operand == 0 );
+      assert( operand == nullptr );
       active = false;
       break;
     }
@@ -603,7 +603,7 @@ void
     if (timespan == NO_VALUE_SET) timespan = dest_default_timespan;
        								// change log 7 
 
-    std::string category = msgID;
+    const std::string& category = msgID;
     if ( limit     == NO_VALUE_SET )  {				// change log 24
        limit = messageLoggerDefaults->limit(filename,category);
     }  
@@ -863,7 +863,7 @@ void
      )
   {
     String statname = *it;
-    String psetname = statname;
+    const String& psetname = statname;
 
     // check that this destination is not just a placeholder // change log 20
     PSet  stat_pset = getAparameter<PSet>(*job_pset_p, psetname, empty_PSet);

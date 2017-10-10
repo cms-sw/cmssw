@@ -3,7 +3,7 @@
 
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
-#include <math.h>
+#include <cmath>
 
 namespace fireworks
 {

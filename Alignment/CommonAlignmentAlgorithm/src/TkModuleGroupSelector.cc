@@ -97,7 +97,7 @@ bool TkModuleGroupSelector::createGroup(
     this->fillDetIdMap((*it)->id(), firstId_.size()-1);
     modules_selected = true;
   }
-  if(refrun > 0 && range.size() > 0) { //FIXME: last condition not really needed?
+  if(refrun > 0 && !range.empty()) { //FIXME: last condition not really needed?
     Id += range.size() - 1;
     nparameters_ += range.size() - 1;
   } else {

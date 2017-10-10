@@ -87,7 +87,7 @@ void GflashG4Watcher::update(const EndOfEvent* g4Event){ }
 
 void GflashG4Watcher::update(const G4Step* aStep){
 
-  if(aStep == NULL) return;
+  if(aStep == nullptr) return;
 
   double hitEnergy = aStep->GetTotalEnergyDeposit();
 

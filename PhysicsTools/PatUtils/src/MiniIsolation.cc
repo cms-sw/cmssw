@@ -11,6 +11,12 @@ namespace pat{
 // Excludes PFCands inside of "deadcone" radius.
 // For nh, ph, pu, only include particles with pT > ptthresh
 // Some documentation can be found here: https://hypernews.cern.ch/HyperNews/CMS/get/susy/1991.html
+
+float miniIsoDr(const math::XYZTLorentzVector &p4, float mindr, float maxdr,
+		 float kt_scale){
+  return std::max(mindr, std::min(maxdr, float(kt_scale/p4.pt())));
+}
+
 PFIsolation getMiniPFIsolation(const pat::PackedCandidateCollection *pfcands,
                                  const math::XYZTLorentzVector &p4, float mindr, float maxdr,
                                  float kt_scale, float ptthresh, float deadcone_ch,
@@ -19,7 +25,7 @@ PFIsolation getMiniPFIsolation(const pat::PackedCandidateCollection *pfcands,
 {
     
     float chiso=0, nhiso=0, phiso=0, puiso=0;
-    float drcut = std::max(mindr, std::min(maxdr, float(kt_scale/p4.pt())));
+    float drcut = miniIsoDr(p4,mindr,maxdr,kt_scale);
     for(auto const & pc : *pfcands){
         float dr = deltaR(p4, pc.p4());
         if(dr>drcut)
@@ -48,5 +54,23 @@ PFIsolation getMiniPFIsolation(const pat::PackedCandidateCollection *pfcands,
     return pat::PFIsolation(chiso, nhiso, phiso, puiso);
 
 }
+
+  float muonRelMiniIsoPUCorrected(const PFIsolation& iso,
+				  const math::XYZTLorentzVector& p4,
+				  float dr,
+				  float rho)
+  {
+    double absEta = fabs(p4.eta());
+    double ea = 0;
+    //Spring15 version
+    if      (absEta<0.800) ea = 0.0735;
+    else if (absEta<1.300) ea = 0.0619;
+    else if (absEta<2.000) ea = 0.0465;
+    else if (absEta<2.200) ea = 0.0433;
+    else if (absEta<2.500) ea = 0.0577;
+    double correction = rho * ea * (dr/0.3) * (dr/0.3);
+    double correctedIso = iso.chargedHadronIso() + std::max(0.0, iso.neutralHadronIso()+iso.photonIso() - correction);
+    return correctedIso/p4.pt();
+  }
 
 }

@@ -49,9 +49,8 @@ PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf)
   // provide the vectorized version of the clusterizer, if supported by the build
    else if(clusteringAlgorithm == "DA_vect") {
     theTrackClusterizer = new DAClusterizerInZ_vect(conf.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<edm::ParameterSet>("TkDAClusParameters"));
-  }
-  else if( clusteringAlgorithm=="DA2D" ) {
-    theTrackClusterizer = new DAClusterizerInZT(conf.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<edm::ParameterSet>("TkDAClusParameters"));
+  } else if( clusteringAlgorithm=="DA2D_vect" ) {
+    theTrackClusterizer = new DAClusterizerInZT_vect(conf.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<edm::ParameterSet>("TkDAClusParameters"));
     f4D = true;
   }
 
@@ -201,9 +200,10 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         for( const auto& tk : *iclus ) {
           const double time = tk.timeExt();
           const double inverr = 1.0/tk.dtErrorExt();
-          meantime += time*inverr;
-          expv_x2  += time*time*inverr;
-          normw    += inverr;
+          const double w = inverr*inverr;
+          meantime += time*w;
+          expv_x2  += time*time*w;
+          normw    += w;
         }
         meantime = meantime/normw;
         expv_x2 = expv_x2/normw;

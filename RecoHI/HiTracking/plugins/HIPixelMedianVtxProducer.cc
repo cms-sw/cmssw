@@ -62,7 +62,7 @@ void HIPixelMedianVtxProducer::produce
   auto vertices = std::make_unique<reco::VertexCollection>();
 
   // No tracks -> return empty collection
-  if(tracks.size() == 0) {
+  if(tracks.empty()) {
       ev.put(std::move(vertices));
       return;
   }

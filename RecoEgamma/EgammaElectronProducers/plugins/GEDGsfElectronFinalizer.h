@@ -19,9 +19,9 @@ class GEDGsfElectronFinalizer : public edm::stream::EDProducer<>
 {
  public:
   explicit GEDGsfElectronFinalizer (const edm::ParameterSet &);
-  ~GEDGsfElectronFinalizer(); 
+  ~GEDGsfElectronFinalizer() override; 
   
-  virtual void produce(edm::Event &, const edm::EventSetup&);
+  void produce(edm::Event &, const edm::EventSetup&) override;
 
  private:
   edm::EDGetTokenT<reco::GsfElectronCollection> previousGsfElectrons_;

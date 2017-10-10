@@ -21,7 +21,6 @@
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "DQM/SiStripMonitorHardware/interface/SiStripSpyUtilities.h"
-#include "boost/bind.hpp"
 #include <algorithm>
 #include <limits>
 #include <memory>
@@ -82,7 +81,9 @@ namespace sistrip {
   {
     size_t fileNameHash = 0U;
     //add spy events to the map until there are none left
-    source_->loopOverEvents(*eventPrincipal_,fileNameHash,std::numeric_limits<size_t>::max(),boost::bind(&SpyEventMatcher::addNextEventToMap,this,_1));
+    source_->loopOverEvents(*eventPrincipal_,fileNameHash,std::numeric_limits<size_t>::max(),
+                            [this](auto const& iE, auto const&){ this->addNextEventToMap(iE); },
+                            nullptr,nullptr,false);
     //debug
     std::ostringstream ss;
     ss << "Events with possible matches (eventID,apvAddress): ";
@@ -149,7 +150,7 @@ namespace sistrip {
     std::map<EventKey,SpyEventList>::const_iterator iMatch = eventMatches_.find(eventKey);
     if (iMatch == eventMatches_.end()) {
       LogDebug(mlLabel_) << "No match found for event " << eventId << " with APV address " << uint16_t(apvAddress);
-      return NULL;
+      return nullptr;
     }
     else {
       std::ostringstream ss;
@@ -227,8 +228,8 @@ namespace sistrip {
     size_t fileNameHash = 0U;
     FEDRawDataCollection outputRawData;
     MatchingOutput mo(outputRawData);
-    source_->loopSpecified(*eventPrincipal_,fileNameHash,matchingEvents->begin(),matchingEvents->end(),boost::bind(&SpyEventMatcher::getCollections,this,_1,
-                                                       eventId,apvAddress,boost::cref(cabling),boost::ref(mo)));
+    source_->loopSpecified(*eventPrincipal_,fileNameHash,matchingEvents->begin(),matchingEvents->end(),
+                           [&](auto const& iE, auto const&){ this->getCollections(iE,eventId,apvAddress,cabling,mo); });
     collectionsToCreate = SpyDataCollections(mo.outputRawData_,mo.outputTotalEventCounters_,mo.outputL1ACounters_,mo.outputAPVAddresses_,
                                    mo.outputScopeDigisVector_.get(),mo.outputPayloadDigisVector_.get(),
                                    mo.outputReorderedDigisVector_.get(),mo.outputVirginRawDigisVector_.get());
@@ -388,10 +389,10 @@ namespace sistrip {
       totalEventCounters(new std::vector<uint32_t>),
       l1aCounters(new std::vector<uint32_t>),
       apvAddresses(new std::vector<uint32_t>),
-      scopeDigis(theScopeDigisVector ? new edm::DetSetVector<SiStripRawDigi>(*theScopeDigisVector) : NULL),
-      payloadDigis(thePayloadDigisVector ? new edm::DetSetVector<SiStripRawDigi>(*thePayloadDigisVector) : NULL),
-      reorderedDigis(theReorderedDigisVector ? new edm::DetSetVector<SiStripRawDigi>(*theReorderedDigisVector) : NULL),
-      virginRawDigis(theVirginRawDigisVector ? new edm::DetSetVector<SiStripRawDigi>(*theVirginRawDigisVector) : NULL)
+      scopeDigis(theScopeDigisVector ? new edm::DetSetVector<SiStripRawDigi>(*theScopeDigisVector) : nullptr),
+      payloadDigis(thePayloadDigisVector ? new edm::DetSetVector<SiStripRawDigi>(*thePayloadDigisVector) : nullptr),
+      reorderedDigis(theReorderedDigisVector ? new edm::DetSetVector<SiStripRawDigi>(*theReorderedDigisVector) : nullptr),
+      virginRawDigis(theVirginRawDigisVector ? new edm::DetSetVector<SiStripRawDigi>(*theVirginRawDigisVector) : nullptr)
   {
     rawData->swap(theRawData);
     totalEventCounters->swap(theTotalEventCounters);
@@ -412,7 +413,7 @@ namespace sistrip {
   
   SpyEventMatcher::CountersWrapper::CountersWrapper(const Counters* theCounters)
     : pConst(theCounters),
-      p(NULL),
+      p(nullptr),
       deleteP(false)
   {
   }

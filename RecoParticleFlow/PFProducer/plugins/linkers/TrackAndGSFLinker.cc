@@ -30,8 +30,8 @@ double TrackAndGSFLinker::testLink
   constexpr reco::PFBlockElement::TrackType T_FROM_GAMMACONV =
     reco::PFBlockElement::T_FROM_GAMMACONV;
   double dist = -1.0;
-  const reco::PFBlockElementGsfTrack * gsfelem(NULL);
-  const reco::PFBlockElementTrack * tkelem(NULL);
+  const reco::PFBlockElementGsfTrack * gsfelem(nullptr);
+  const reco::PFBlockElementTrack * tkelem(nullptr);
   if( elem1->type() < elem2->type() ) {
     tkelem = static_cast<const reco::PFBlockElementTrack *>(elem1);
     gsfelem = static_cast<const reco::PFBlockElementGsfTrack *>(elem2);

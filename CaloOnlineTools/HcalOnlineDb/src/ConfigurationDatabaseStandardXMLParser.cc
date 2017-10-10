@@ -7,7 +7,7 @@
 #include <iostream>
 using namespace std;
 
-ConfigurationDatabaseStandardXMLParser::ConfigurationDatabaseStandardXMLParser() : m_parser(0) {
+ConfigurationDatabaseStandardXMLParser::ConfigurationDatabaseStandardXMLParser() : m_parser(nullptr) {
 }
 #include <xercesc/framework/MemBufInputSource.hpp>
 XERCES_CPP_NAMESPACE_USE
@@ -51,7 +51,7 @@ XERCES_CPP_NAMESPACE_USE
       xc_header[2]=XMLString::transcode("Pattern");
       m_items.clear();
     }
-    virtual ~ConfigurationDBHandler() {
+    ~ConfigurationDBHandler() override {
       XMLString::release(&xc_Parameter);
       XMLString::release(&xc_Data);
       XMLString::release(&xc_name);
@@ -61,13 +61,13 @@ XERCES_CPP_NAMESPACE_USE
       for (int i=0; i<ITEMELEMENTNAMES; i++) 
 	XMLString::release(&xc_header[i]);
     }
-    virtual void startElement (const XMLCh *const uri, const XMLCh *const localname, const XMLCh *const qname, const Attributes &attrs) override;
-    virtual void endElement (const XMLCh *const uri, const XMLCh *const localname, const XMLCh *const qname) override;
-    virtual void characters (const XMLCh *const chars, const XMLSize_t length) override;
-    virtual void ignorableWhitespace (const XMLCh *const chars, const XMLSize_t length) override;
+    void startElement (const XMLCh *const uri, const XMLCh *const localname, const XMLCh *const qname, const Attributes &attrs) override;
+    void endElement (const XMLCh *const uri, const XMLCh *const localname, const XMLCh *const qname) override;
+    void characters (const XMLCh *const chars, const XMLSize_t length) override;
+    void ignorableWhitespace (const XMLCh *const chars, const XMLSize_t length) override;
   private:
     inline bool cvt2String(const XMLCh* val, std::string& ou) {
-      if (val==0) return false;
+      if (val==nullptr) return false;
       char* tool=XMLString::transcode(val);
       ou=tool;
       XMLString::release(&tool);
@@ -178,7 +178,7 @@ void ConfigurationDatabaseStandardXMLParser::parse(const std::string& xmlDocumen
   ConfigurationDBHandler handler(theItems);
     
   try {
-    if (m_parser==0) {
+    if (m_parser==nullptr) {
       m_parser=xercesc::XMLReaderFactory::createXMLReader();
     }
     
@@ -188,7 +188,7 @@ void ConfigurationDatabaseStandardXMLParser::parse(const std::string& xmlDocumen
   } catch (std::exception& ex) {
     XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,ex.what());
   }
-  if (theItems.size()==0) {
+  if (theItems.empty()) {
     XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"No data found");
   } else if (theItems.size()>1) {
     XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Multiple items found");
@@ -206,7 +206,7 @@ void ConfigurationDatabaseStandardXMLParser::parseMultiple(const std::string& xm
   ConfigurationDBHandler handler(items);
     
   try {
-    if (m_parser==0) {
+    if (m_parser==nullptr) {
       m_parser=xercesc::XMLReaderFactory::createXMLReader();
     }
     
@@ -226,6 +226,6 @@ std::vector<unsigned int> ConfigurationDatabaseStandardXMLParser::Item::convert(
       
   // convert the data
   for (unsigned int j=0; j<items.size(); j++) 
-    values.push_back(strtol(items[j].c_str(),0,strtol_base));
+    values.push_back(strtol(items[j].c_str(),nullptr,strtol_base));
   return values;
 }

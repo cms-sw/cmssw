@@ -56,17 +56,17 @@ namespace egammaisolation {
 	    }
          }
 
-         virtual ~EgammaTowerExtractor() ;
+         ~EgammaTowerExtractor() override ;
 
-         virtual void fillVetos(const edm::Event & ev, const edm::EventSetup & evSetup,
-                                 const reco::TrackCollection & tracks) { }
-         virtual reco::IsoDeposit deposit(const edm::Event & ev, const edm::EventSetup & evSetup,
-                                             const reco::Track & track) const {
+         void fillVetos(const edm::Event & ev, const edm::EventSetup & evSetup,
+                                 const reco::TrackCollection & tracks) override { }
+         reco::IsoDeposit deposit(const edm::Event & ev, const edm::EventSetup & evSetup,
+                                             const reco::Track & track) const override {
             throw cms::Exception("Configuration Error") <<
                      "This extractor " << (typeid(this).name()) << " is not made for tracks";
          }
-         virtual reco::IsoDeposit deposit(const edm::Event & ev, const edm::EventSetup & evSetup,
-                                              const reco::Candidate & c) const ;
+         reco::IsoDeposit deposit(const edm::Event & ev, const edm::EventSetup & evSetup,
+                                              const reco::Candidate & c) const override ;
 
       private:
          double extRadius2_ ;

@@ -535,7 +535,7 @@ void PFSimParticleProducer::getSimIDs( const TrackHandle& trackh,
       
       reco::PFRecTrackRef ref( trackh,i );
       const reco::PFRecTrack& PFT   = *ref;
-      const reco::TrackRef trackref = PFT.trackRef();
+      const reco::TrackRef& trackref = PFT.trackRef();
 
 //       double Pt  = trackref->pt(); 
 //       double DPt = trackref->ptError();

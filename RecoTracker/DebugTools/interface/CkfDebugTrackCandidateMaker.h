@@ -5,21 +5,23 @@
 #include "RecoTracker/CkfPattern/interface/CkfTrackCandidateMakerBase.h"
 #include "RecoTracker/DebugTools/interface/CkfDebugTrajectoryBuilder.h"
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "DataFormats/TrackReco/interface/SeedStopInfo.h"
 
 namespace cms {
   class CkfDebugTrackCandidateMaker : public edm::EDProducer, public CkfTrackCandidateMakerBase {
   public:
     CkfDebugTrackCandidateMaker(const edm::ParameterSet& conf) : CkfTrackCandidateMakerBase(conf, consumesCollector()) {
       produces<TrackCandidateCollection>();
+      produces<SeedStopInfo>();
     }
 
-    virtual void beginRun (edm::Run const & run, edm::EventSetup const & es) override {
+    void beginRun (edm::Run const & run, edm::EventSetup const & es) override {
       beginRunBase(run,es); 
       initDebugger(es);
     }
 
-    virtual void produce(edm::Event& e, const edm::EventSetup& es) override {produceBase(e,es);}
-    virtual void endJob() override {delete dbg; }
+    void produce(edm::Event& e, const edm::EventSetup& es) override {produceBase(e,es);}
+    void endJob() override {delete dbg; }
 
   private:
     virtual TrajectorySeedCollection::const_iterator 

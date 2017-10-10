@@ -34,12 +34,12 @@ class MatchedProbeMaker : public edm::EDProducer
 
       explicit MatchedProbeMaker(const edm::ParameterSet& iConfig);
 
-      ~MatchedProbeMaker();
+      ~MatchedProbeMaker() override;
       
    private:
-      virtual void beginJob() override;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
+      void beginJob() override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override;
       
       // ----------member data ---------------------------
       edm::InputTag m_candidateSource;
@@ -115,7 +115,6 @@ void MatchedProbeMaker<T>::produce(edm::Event& iEvent, const edm::EventSetup& iS
       for (unsigned j=0; j<Refs->size(); j++) {
 	//const edm::Ref< collection > RefRef = (*Refs)[j];
 	RefToBase<Candidate> RefRef(Refs, j);
-	reco::CandidateBaseRef refBaseRef( RefRef );
 	
 	if(overlap(*CandRef,*RefRef)) {
 	   ppass = true; 

@@ -21,7 +21,8 @@
 #include "TGaxis.h"
 #include "TLatex.h"
 #include "TArrow.h"
-
+#include "TLegend.h"
+#include "TH1F.h"
 
 /**********************************************************
 Allocate all the modules in a map of TmModule
@@ -51,10 +52,10 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabli
   ncrates=0;
   firstcrate=0;
   enableFedProcessing=tkmapPset.getUntrackedParameter<bool>("loadFedCabling",false);
-  if(tkFed==0 && enableFedProcessing){enableFedProcessing=false;std::cout << "ERROR:fed trackermap requested but no valid fedCabling is available!!!"<<std::endl;}
+  if(tkFed==nullptr && enableFedProcessing){enableFedProcessing=false;std::cout << "ERROR:fed trackermap requested but no valid fedCabling is available!!!"<<std::endl;}
   nfeccrates=0;
   enableFecProcessing=tkmapPset.getUntrackedParameter<bool>("loadFecCabling",false);
-  if(tkFed==0 && enableFecProcessing){enableFecProcessing=false;std::cout << "ERROR:fec trackermap requested but no valid fedCabling is available!!!"<<std::endl;} 
+  if(tkFed==nullptr && enableFecProcessing){enableFecProcessing=false;std::cout << "ERROR:fec trackermap requested but no valid fedCabling is available!!!"<<std::endl;} 
  // std::cout << "loadFecCabling " << enableFecProcessing << std::endl;
   npsuracks=0;
   enableLVProcessing=tkmapPset.getUntrackedParameter<bool>("loadLVCabling",false);
@@ -87,7 +88,7 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabli
       TmModule *imod = imoduleMap[iconn->detId()];
       int key = iconn->fedId()*1000+iconn->fedCh();
       TmApvPair* apvpair = apvMap[key];
-      if(apvpair!=0)std::cout << "Fed "<< iconn->fedId() << " channel " << iconn->fedCh() << " seem to be already loaded!"<<std::endl;
+      if(apvpair!=nullptr)std::cout << "Fed "<< iconn->fedId() << " channel " << iconn->fedCh() << " seem to be already loaded!"<<std::endl;
       else
 	{
 	  num_conn++;
@@ -117,7 +118,7 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabli
     std::map<int , TmModule *>::iterator i_mod;
     for( i_mod=imoduleMap.begin();i_mod !=imoduleMap.end(); i_mod++){
       TmModule *  mod= i_mod->second;
-      if(mod!=0) {
+      if(mod!=nullptr) {
 	std::ostringstream outs,outs1;
        outs << " connected to ";
        outs1 << "(";
@@ -128,7 +129,7 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabli
        for (pos = apvModuleMap.lower_bound(idmod);
          pos != apvModuleMap.upper_bound(idmod); ++pos) {
        TmApvPair* apvpair = pos->second;
-       if(apvpair!=0){
+       if(apvpair!=nullptr){
        outs << apvpair->mpos << " " <<apvpair->getFedId() << "/"<<apvpair->getFedCh()<<" ";
        outs1 << apvpair->idex+apvpair->crate*1000000<<",";
       nchan++;
@@ -156,7 +157,7 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabli
      getline(Ccufile,dummys);
      int key =crate*10000000+slot*100000+ring*1000+addr;
      TmCcu * ccu = ccuMap[key];
-     if(ccu==0){
+     if(ccu==nullptr){
        ccu = new TmCcu(crate,slot,ring,addr);
        ccu->mpos=pos,
          ccuMap[key]=ccu;
@@ -177,9 +178,9 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabli
              TmModule *imod1 = imoduleMap[imod->detId()];
              layer=imod1->layer;
              fecModuleMap.insert(std::make_pair(ccu,imod1));
-             if(imod1!=0)imod1->CcuId=key;//imod1->ccuId=key+Crate*1000000
+             if(imod1!=nullptr)imod1->CcuId=key;//imod1->ccuId=key+Crate*1000000
            }
-           if(ccu==0)std::cout <<key<< " This ccu seems to have not been stored! " << std::endl; else{ ccu->nmod=nmod;ccu->layer=layer;}
+           if(ccu==nullptr)std::cout <<key<< " This ccu seems to have not been stored! " << std::endl; else{ ccu->nmod=nmod;ccu->layer=layer;}
            //std::cout <<nfec<<" "<< nccu << " " << nmod << std::endl;
 
          }
@@ -194,7 +195,7 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabli
    for( i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
      TmCcu *  ccu= i_ccu->second;
      nccu++;
-     if(ccu!=0){
+     if(ccu!=nullptr){
        std::ostringstream outs;
        std::ostringstream outs1;
        outs << "CCU "<<ccu->idex <<" connected to fec,ring " << ccu->getCcuSlot() <<","<<ccu->getCcuRing()<< " in crate " <<ccu->getCcuCrate()<<" at position "<< ccu->mpos << " with  " << ccu->nmod << " modules: ";
@@ -222,7 +223,7 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabli
  //load Psu cabling info 
  if(enableLVProcessing || enableHVProcessing){
 
-   SiStripDetCabling* detCabling = 0;
+   SiStripDetCabling* detCabling = nullptr;
    if(enableFedProcessing) detCabling = new SiStripDetCabling( *tkFed,topology );
 
 
@@ -275,7 +276,7 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabli
    while(!LVfile.eof()) {
       LVfile >> modId1  >> dcuId >> psIdinfo >> psinfo;
       
-      if(detCabling && detCabling->getConnections(modId1).size()==0) continue;
+      if(detCabling && detCabling->getConnections(modId1).empty()) continue;
 
       //      int length=psinfo.length();
       std::string dcsinfo = psinfo.substr(39,1);
@@ -296,14 +297,14 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabli
       
       TmPsu *psu = psuMap[key];
       TmModule *imod = imoduleMap[modId1];
-      if(psu==0){
+      if(psu==nullptr){
         psu = new TmPsu(dcs,branch,rack,crate,board);
         psuMap[key]=psu;
         psu->psId=psIdinfo;
       }
    
       psuModuleMap.insert(std::make_pair(psu,imod));
-      if(imod!=0){imod->PsuId=psIdinfo;imod->psuIdex=psu->idex;imod->HVchannel=channel;}
+      if(imod!=nullptr){imod->PsuId=psIdinfo;imod->psuIdex=psu->idex;imod->HVchannel=channel;}
        
    }
       
@@ -318,7 +319,7 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabli
      TmPsu *  psu= ipsu->second;
      npsu++;
     
-    if(psu!=0){
+    if(psu!=nullptr){
 	
       std::ostringstream outs;
       std::ostringstream outs1;
@@ -494,7 +495,7 @@ for (int layer=1; layer < 44; layer++){
       for (int module=1;module<200;module++) {
         int key=layer*100000+ring*1000+module;
         TmModule * mod = smoduleMap[key];
-        if(mod !=0 ) delete mod;
+        if(mod !=nullptr ) delete mod;
       }
     }
   }
@@ -680,7 +681,7 @@ std::pair<float,float> TrackerMap::getAutomaticRange(){
       for (int module=1;module<200;module++) {
         int key=layer*100000+ring*1000+module;
         TmModule * mod = smoduleMap[key];
-        if(mod !=0 && !mod->notInUse()  && mod->count>0){
+        if(mod !=nullptr && !mod->notInUse()  && mod->count>0){
           if (minval > mod->value)minval=mod->value;
           if (maxval < mod->value)maxval=mod->value;
         }
@@ -702,7 +703,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
   if(saveGeoTrackerMap){ 
   std::string filetype=s,outputfilename=s;
   std::vector<TPolyLine*> vp;
-  TGaxis *axis = 0 ;
+  TGaxis *axis = nullptr ;
   size_t found=filetype.find_last_of(".");
   filetype=filetype.substr(found+1);
   found=outputfilename.find_last_of(".");
@@ -720,7 +721,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
 	for (int module=1;module<200;module++) {
 	  int key=layer*100000+ring*1000+module;
 	  TmModule * mod = smoduleMap[key];
-	  if(mod !=0 && !mod->notInUse()){
+	  if(mod !=nullptr && !mod->notInUse()){
 	    mod->value = mod->value / mod->count;
 	  }
 	}
@@ -737,7 +738,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
 	for (int module=1;module<200;module++) {
 	  int key=layer*100000+ring*1000+module;
 	  TmModule * mod = smoduleMap[key];
-	  if(mod !=0 && !mod->notInUse()  && mod->count>0){
+	  if(mod !=nullptr && !mod->notInUse()  && mod->count>0){
 	    rangefound=true;
 	    if (minvalue > mod->value)minvalue=mod->value;
 	    if (maxvalue < mod->value)maxvalue=mod->value;
@@ -763,7 +764,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
       for (int module=1;module<200;module++) {
         int key=layer*100000+ring*1000+module;
         TmModule * mod = smoduleMap[key];
-	if(mod !=0 && !mod->notInUse()){
+	if(mod !=nullptr && !mod->notInUse()){
           drawModule(mod,key,layer,print_total,savefile);
         }
       }
@@ -910,6 +911,12 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     ary.Draw();
     arz.Draw();
     arphi.Draw();
+    TLegend *MyL = buildLegend();
+    
+    if (((title.find("QTestAlarm")!=std::string::npos) || (maxvalue == minvalue))){
+
+      MyL->Draw();
+    }
     MyC->Update();
     if(filetype=="png"){
       
@@ -931,6 +938,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     system(command1);
     MyC->Clear();
     delete MyC;
+    delete MyL;
     if (printflag)delete axis;
     for(std::vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
       delete (*pos1);}
@@ -1304,7 +1312,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
  if(enableFecProcessing){
   std::string filetype=s,outputfilename=s;
   std::vector<TPolyLine*> vp;
-  TGaxis *axis = 0 ;
+  TGaxis *axis = nullptr ;
   size_t found=filetype.find_last_of(".");
   filetype=filetype.substr(found+1);
   found=outputfilename.find_last_of(".");
@@ -1324,7 +1332,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
   
   for( i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
     TmCcu *  ccu= i_ccu->second;
-    if(ccu!=0) {
+    if(ccu!=nullptr) {
         if(ccu->count > 0 || ccu->red!=-1) { useCcuValue=true; break;}
       }
     }
@@ -1333,7 +1341,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
   if(!useCcuValue)//store mean of connected modules value{
     for(  i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
     TmCcu *  ccu= i_ccu->second;
-      if(ccu!=0) {
+      if(ccu!=nullptr) {
             ret = fecModuleMap.equal_range(ccu);
         for (it = ret.first; it != ret.second; ++it)
           {
@@ -1348,7 +1356,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
   if(title.find("QTestAlarm")!=std::string::npos){
       for(  i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
           TmCcu *  ccu= i_ccu->second;
-          if(ccu!=0) {
+          if(ccu!=nullptr) {
 	    ret = fecModuleMap.equal_range(ccu);
 	    ccu->red=0;ccu->green=255;ccu->blue=0;
 	    for (it = ret.first; it != ret.second; ++it) {
@@ -1365,7 +1373,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
   if(!print_total){
     for(  i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
     TmCcu *  ccu= i_ccu->second;
-      if(ccu!=0) {
+      if(ccu!=nullptr) {
           if(useCcuValue) ccu->value = ccu->value / ccu->count;
 
         }
@@ -1378,7 +1386,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
     maxvalue=-9999999.;
     for( i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
        TmCcu *  ccu= i_ccu->second;
-       if(ccu!=0 && ccu->count>0) {
+       if(ccu!=nullptr && ccu->count>0) {
               if (minvalue > ccu->value)minvalue=ccu->value;
               if (maxvalue < ccu->value)maxvalue=ccu->value;
         }
@@ -1420,7 +1428,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
  
     for ( i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
       TmCcu *  ccu= i_ccu->second;
-      if(ccu!=0){
+      if(ccu!=nullptr){
         if(ccu->getCcuCrate() == crate){
               
 	      drawCcu(crate,ccu->getCcuSlot()-2,print_total,ccu,savefile,useCcuValue);
@@ -1447,7 +1455,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
 //Restore ccu value
     for( i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
        TmCcu *  ccu= i_ccu->second;
-       if(ccu!=0) {
+       if(ccu!=nullptr) {
           ccu->value = ccu->value * ccu->count;
     }
 }
@@ -1564,7 +1572,7 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
  if(enableHVProcessing){
   std::string filetype=s,outputfilename=s;
   std::vector<TPolyLine*> vp;
-  TGaxis *axis = 0 ;
+  TGaxis *axis = nullptr ;
   size_t found=filetype.find_last_of(".");
   filetype=filetype.substr(found+1);
   found=outputfilename.find_last_of(".");
@@ -1589,7 +1597,7 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
   
   for( ipsu=psuMap.begin();ipsu!=psuMap.end(); ipsu++){
     TmPsu*  psu= ipsu->second;
-    if(psu!=0) {
+    if(psu!=nullptr) {
       if(psu->countHV2 > 0 || psu->redHV2!=-1 || psu->countHV3 > 0 || psu->redHV3!=-1) { usePsuValue=true; break;}
       }
     }
@@ -1598,7 +1606,7 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
     
     for(  ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
        TmPsu *  psu= ipsu->second;
-       if(psu!=0) {
+       if(psu!=nullptr) {
        ret = psuModuleMap.equal_range(psu);
          int nconn1=0;int nconn2=0;
          for(it = ret.first; it != ret.second; ++it){
@@ -1616,7 +1624,7 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
    if(title.find("QTestAlarm")!=std::string::npos){
       for(  ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
           TmPsu *  psu= ipsu->second;
-          if(psu!=0) {
+          if(psu!=nullptr) {
 	    ret = psuModuleMap.equal_range(psu);
 	    psu->redHV2=0;psu->greenHV2=255;psu->blueHV2=0;
 	    psu->redHV3=0;psu->greenHV3=255;psu->blueHV3=0;
@@ -1639,7 +1647,7 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
   if(!print_total){
     for(  ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
     TmPsu *  psu= ipsu->second;
-      if(psu!=0) {
+      if(psu!=nullptr) {
 	  if(usePsuValue){ 
 	    psu->valueHV2 = psu->valueHV2 / psu->countHV2;
             psu->valueHV3 = psu->valueHV3 / psu->countHV3;
@@ -1655,7 +1663,7 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
     
     for( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
        TmPsu *  psu= ipsu->second;
-       if(psu!=0 && psu->countHV2>0 && psu->countHV3 >0) {
+       if(psu!=nullptr && psu->countHV2>0 && psu->countHV3 >0) {
 
 	      if (minvalue > psu->valueHV2 || minvalue > psu->valueHV3)minvalue=std::min(psu->valueHV2,psu->valueHV3);
 	      if (maxvalue < psu->valueHV2 || maxvalue < psu->valueHV3)maxvalue=std::max(psu->valueHV2,psu->valueHV3);
@@ -1726,7 +1734,7 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
     if(!print_total && !usePsuValue){
      for( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
        TmPsu *psu = ipsu->second;
-       if(psu!=0) {
+       if(psu!=nullptr) {
 	  psu->valueHV2 = psu->valueHV2 * psu->countHV2;
           psu->valueHV3 = psu->valueHV3 * psu->countHV3;
 	  }
@@ -1850,7 +1858,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
   bool rangefound=true;
   std::string filetype=s,outputfilename=s;
   std::vector<TPolyLine*> vp;
-  TGaxis *axis = 0 ;
+  TGaxis *axis = nullptr ;
   
   size_t found=filetype.find_last_of(".");
   filetype=filetype.substr(found+1);
@@ -1877,7 +1885,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
   
   for( ipsu=psuMap.begin();ipsu!=psuMap.end(); ipsu++){
     TmPsu*  psu= ipsu->second;
-    if(psu!=0) {
+    if(psu!=nullptr) {
       if(psu->count > 0 || psu->red!=-1) { usePsuValue=true; break;}
       }
     }
@@ -1885,7 +1893,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
   if(!usePsuValue){//store mean of connected modules value{
     for(  ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
       TmPsu *  psu= ipsu->second;
-      if(psu!=0) {
+      if(psu!=nullptr) {
 	ret = psuModuleMap.equal_range(psu);
 	int nconn=0;
 	for(it = ret.first; it != ret.second; ++it){
@@ -1901,7 +1909,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
   if(title.find("QTestAlarm")!=std::string::npos){
     for(  ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
       TmPsu *  psu= ipsu->second;
-      if(psu!=0) {
+      if(psu!=nullptr) {
 	ret = psuModuleMap.equal_range(psu);
 	//	psu->red=255;psu->green=255;psu->blue=255;
 	psu->red=-1;
@@ -1921,7 +1929,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
   if(!print_total){
     for(  ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
     TmPsu *  psu= ipsu->second;
-      if(psu!=0) {
+      if(psu!=nullptr) {
 	  if(usePsuValue) psu->value = psu->value / psu->count;
 
 	}
@@ -1935,7 +1943,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
     rangefound=false;
     for( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
        TmPsu *  psu= ipsu->second;
-       if(psu!=0 && psu->count>0) {
+       if(psu!=nullptr && psu->count>0) {
 	 rangefound = true;
 	      if (minvalue > psu->value)minvalue=psu->value;
 	      if (maxvalue < psu->value)maxvalue=psu->value;
@@ -2007,7 +2015,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
     if(!print_total && !usePsuValue){
      for( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
        TmPsu *psu = ipsu->second;
-       if(psu!=0) {
+       if(psu!=nullptr) {
 	  psu->value = psu->value * psu->count;
           }
        }
@@ -2130,7 +2138,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
    bool rangefound = true; 
   std::string filetype=s,outputfilename=s;
   std::vector<TPolyLine*> vp;
-  TGaxis *axis = 0 ;
+  TGaxis *axis = nullptr ;
   
   size_t found=filetype.find_last_of(".");
   filetype=filetype.substr(found+1);
@@ -2149,9 +2157,9 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
   bool useApvPairValue=false;
   for( i_apv=apvMap.begin();i_apv !=apvMap.end(); i_apv++){
     TmApvPair *  apvPair= i_apv->second;
-    if(apvPair!=0) {
+    if(apvPair!=nullptr) {
       TmModule * apv_mod = apvPair->mod;
-      if(apv_mod !=0 && !apv_mod->notInUse()){
+      if(apv_mod !=nullptr && !apv_mod->notInUse()){
         if(apvPair->count > 0 || apvPair->red!=-1) { useApvPairValue=true; break;}
       }
     }
@@ -2159,9 +2167,9 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
   if(!print_total){
     for( i_apv=apvMap.begin();i_apv !=apvMap.end(); i_apv++){
       TmApvPair *  apvPair= i_apv->second;
-      if(apvPair!=0) {
+      if(apvPair!=nullptr) {
 	TmModule * apv_mod = apvPair->mod;
-	if(apv_mod !=0 && !apv_mod->notInUse() ){
+	if(apv_mod !=nullptr && !apv_mod->notInUse() ){
 	  if(useApvPairValue) apvPair->value = apvPair->value / apvPair->count;
 	  else if(apvPair->mpos==0 && apv_mod->count>0)apv_mod->value = apv_mod->value / apv_mod->count; 
 	}
@@ -2175,9 +2183,9 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
     rangefound=false;
     for(i_apv=apvMap.begin();i_apv !=apvMap.end(); i_apv++){
 	TmApvPair *  apvPair= i_apv->second;
-	if(apvPair!=0 ) {
+	if(apvPair!=nullptr ) {
 	  TmModule * apv_mod = apvPair->mod;
-	  if( apv_mod !=0 && !apv_mod->notInUse() ){
+	  if( apv_mod !=nullptr && !apv_mod->notInUse() ){
 	    if(useApvPairValue){
 	      rangefound=true;
 	      if (minvalue > apvPair->value)minvalue=apvPair->value;
@@ -2248,9 +2256,9 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
 	for (int nconn=0;nconn<96;nconn++){
 	  int key = fedId*1000+nconn; 
 	  TmApvPair *  apvPair= apvMap[key];
-	  if(apvPair !=0){
+	  if(apvPair !=nullptr){
 	    TmModule * apv_mod = apvPair->mod;
-	    if(apv_mod !=0 && !apv_mod->notInUse()){
+	    if(apv_mod !=nullptr && !apv_mod->notInUse()){
 	      drawApvPair(crate,numfed_incrate,print_total,apvPair,savefile,useApvPairValue);
 	    }
 	  } 
@@ -2276,9 +2284,9 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
 //Restore module value
     for( i_apv=apvMap.begin();i_apv !=apvMap.end(); i_apv++){
       TmApvPair *  apvPair= i_apv->second;
-      if(apvPair!=0) {
+      if(apvPair!=nullptr) {
 	TmModule * apv_mod = apvPair->mod;
-	if(apv_mod !=0 && apvPair->mpos==0 && !apv_mod->notInUse()){
+	if(apv_mod !=nullptr && apvPair->mpos==0 && !apv_mod->notInUse()){
 	  apv_mod->value = apv_mod->value * apv_mod->count;
 	}
       }
@@ -2453,7 +2461,7 @@ void TrackerMap::print(bool print_total, float minval, float maxval, std::string
       for (int module=1;module<200;module++) {
         int key=layer*100000+ring*1000+module;
         TmModule * mod = smoduleMap[key];
-        if(mod !=0 && !mod->notInUse()){
+        if(mod !=nullptr && !mod->notInUse()){
           mod->value = mod->value / mod->count;
         }
       }
@@ -2468,7 +2476,7 @@ void TrackerMap::print(bool print_total, float minval, float maxval, std::string
       for (int module=1;module<200;module++) {
         int key=layer*100000+ring*1000+module;
         TmModule * mod = smoduleMap[key];
-        if(mod !=0 && !mod->notInUse()){
+        if(mod !=nullptr && !mod->notInUse()){
           if (minvalue > mod->value)minvalue=mod->value;
           if (maxvalue < mod->value)maxvalue=mod->value;
         }
@@ -2483,7 +2491,7 @@ void TrackerMap::print(bool print_total, float minval, float maxval, std::string
       for (int module=1;module<200;module++) {
         int key=layer*100000+ring*1000+module;
         TmModule * mod = smoduleMap[key];
-	if(mod !=0 && !mod->notInUse()){
+	if(mod !=nullptr && !mod->notInUse()){
           drawModule(mod,key,layer,print_total,svgfile);
         }
       }
@@ -2541,7 +2549,7 @@ void TrackerMap::fillc_fed_channel(int fedId,int fedCh, int red, int green, int 
   int key = fedId*1000+fedCh;
   TmApvPair* apvpair = apvMap[key];
   
-  if(apvpair!=0){
+  if(apvpair!=nullptr){
     apvpair->red=red; apvpair->green=green; apvpair->blue=blue;
     return;
   }
@@ -2554,7 +2562,7 @@ void TrackerMap::fill_fed_channel(int idmod, float qty  )
   for (pos = apvModuleMap.lower_bound(idmod);
          pos != apvModuleMap.upper_bound(idmod); ++pos) {
   TmApvPair* apvpair = pos->second;
-  if(apvpair!=0){
+  if(apvpair!=nullptr){
     apvpair->value=apvpair->value+qty;
     apvpair->count++;
   }
@@ -2568,7 +2576,7 @@ void TrackerMap::fill_current_val_fed_channel(int fedId, int fedCh, float curren
   int key = fedId*1000+fedCh;
   TmApvPair* apvpair = apvMap[key];
   
-  if(apvpair!=0)  {apvpair->value=current_val; apvpair->count=1; apvpair->red=-1;}
+  if(apvpair!=nullptr)  {apvpair->value=current_val; apvpair->count=1; apvpair->red=-1;}
   else 
     std::cout << "*** error in FedTrackerMap fill_current_val method ***";
 }
@@ -2580,7 +2588,7 @@ void TrackerMap::fillc_fec_channel(int crate,int slot, int ring, int addr, int r
 
  TmCcu *ccu = ccuMap[key];
  
- if(ccu!=0){
+ if(ccu!=nullptr){
     ccu->red=red; ccu->green=green; ccu->blue=blue;
     return;
   }
@@ -2591,7 +2599,7 @@ void TrackerMap::fill_fec_channel(int crate,int slot, int ring, int addr, float 
 {
  int key =crate*10000000+slot*100000+ring*1000+addr;
  TmCcu *ccu = ccuMap[key];
-  if(ccu!=0){
+  if(ccu!=nullptr){
     ccu->count++; ccu->value=ccu->value+qty;
     return;
  
@@ -2609,7 +2617,7 @@ void TrackerMap::fillc_lv_channel(int rack,int crate, int board, int red, int gr
  
  TmPsu *psu = psuMap[key];
   
-  if(psu!=0){
+  if(psu!=nullptr){
     psu->red=red; psu->green=green; psu->blue=blue;
     return;
   }
@@ -2620,7 +2628,7 @@ void TrackerMap::fill_lv_channel(int rack,int crate, int board, float qty  )
 {
  int key = rack*1000+crate*100+board;
  TmPsu *psu = psuMap[key];
-  if(psu!=0){
+  if(psu!=nullptr){
     psu->count++; psu->value=psu->value+qty;
     return;
  
@@ -2636,7 +2644,7 @@ void TrackerMap::fillc_hv_channel2(int rack,int crate, int board, int red, int g
  
  TmPsu *psu = psuMap[key];
   
-  if(psu!=0){
+  if(psu!=nullptr){
     psu->redHV2=red; psu->greenHV2=green; psu->blueHV2=blue;
     return;
   }
@@ -2649,7 +2657,7 @@ void TrackerMap::fillc_hv_channel3(int rack,int crate, int board, int red, int g
  
  TmPsu *psu = psuMap[key];
   
-  if(psu!=0){
+  if(psu!=nullptr){
     psu->redHV3=red; psu->greenHV3=green; psu->blueHV3=blue;
     return;
   }
@@ -2661,7 +2669,7 @@ void TrackerMap::fill_hv_channel2(int rack,int crate, int board, float qty  )
 {
  int key = rack*1000+crate*100+board;
  TmPsu *psu = psuMap[key];
-  if(psu!=0){
+  if(psu!=nullptr){
     psu->countHV2++; psu->valueHV2=psu->valueHV2+qty;
     return;
  
@@ -2673,7 +2681,7 @@ void TrackerMap::fill_hv_channel3(int rack,int crate, int board, float qty  )
 {
  int key = rack*1000+crate*100+board;
  TmPsu *psu = psuMap[key];
-  if(psu!=0){
+  if(psu!=nullptr){
     psu->countHV3++; psu->valueHV3=psu->valueHV3+qty;
     return;
  
@@ -2690,7 +2698,7 @@ int TrackerMap::module(int fedId, int fedCh)
 {
   int key = fedId*1000+fedCh;
   TmApvPair* apvpair = apvMap[key];
-  if(apvpair!=0){
+  if(apvpair!=nullptr){
     return(apvpair->mod->idex);
   }
   return(0);
@@ -2700,7 +2708,7 @@ void TrackerMap::fill_fed_channel(int fedId, int fedCh, float qty )
 {
   int key = fedId*1000+fedCh;
   TmApvPair* apvpair = apvMap[key];
-  if(apvpair!=0){
+  if(apvpair!=nullptr){
     apvpair->value=apvpair->value+qty;
     apvpair->count++;
     return;
@@ -2712,7 +2720,7 @@ void TrackerMap::fill_fed_channel(int fedId, int fedCh, float qty )
 void TrackerMap::fillc(int idmod, int red, int green, int blue  ){
 
   TmModule * mod = imoduleMap[idmod];
-  if(mod!=0){
+  if(mod!=nullptr){
      mod->red=red; mod->green=green; mod->blue=blue;
      return;
   }
@@ -2723,7 +2731,7 @@ void TrackerMap::fillc(int layer, int ring, int nmod, int red, int green, int bl
   int key = layer*10000+ring*1000+nmod;
   TmModule * mod = smoduleMap[key];
 
-  if(mod!=0){
+  if(mod!=nullptr){
      mod->red=red; mod->green=green; mod->blue=blue;
     return;
   }
@@ -2751,21 +2759,21 @@ void TrackerMap::fill_all_blank(){
 void TrackerMap::fill_current_val(int idmod, float current_val ){
 
   TmModule * mod = imoduleMap[idmod];
-  if(mod!=0)  {mod->value=current_val; mod->count=1;  mod->red=-1;}
+  if(mod!=nullptr)  {mod->value=current_val; mod->count=1;  mod->red=-1;}
   else std::cout << "**error in fill_current_val method ***module "<<idmod<<std::endl;
 }
 
 void TrackerMap::fill(int idmod, float qty ){
 
   TmModule * mod = imoduleMap[idmod];
-  if(mod!=0){
+  if(mod!=nullptr){
     mod->value=mod->value+qty;
     mod->count++;
     return;
   }else{
    TmModule * mod1 = imoduleMap[idmod+1];
    TmModule * mod2 = imoduleMap[idmod+2];
-   if(mod1!=0 && mod2!=0){
+   if(mod1!=nullptr && mod2!=nullptr){
     mod1->value=mod1->value+qty;
     mod1->count++;
     mod2->value=mod2->value+qty;
@@ -2779,7 +2787,7 @@ void TrackerMap::fill(int layer, int ring, int nmod,  float qty){
 
   int key = layer*100000+ring*1000+nmod;
   TmModule * mod = smoduleMap[key];
-  if(mod!=0){
+  if(mod!=nullptr){
      mod->value=mod->value+qty;
      mod->count++;
   }
@@ -2789,7 +2797,7 @@ void TrackerMap::fill(int layer, int ring, int nmod,  float qty){
 void TrackerMap::setText(int idmod, std::string s){
 
   TmModule * mod = imoduleMap[idmod];
-  if(mod!=0){
+  if(mod!=nullptr){
      mod->text=s;
   }
   else std::cout << "**************************error in IdModuleMap **************";
@@ -2800,7 +2808,7 @@ void TrackerMap::setText(int layer, int ring, int nmod, std::string s){
 
   int key = layer*100000+ring*1000+nmod;
   TmModule * mod = smoduleMap[key];
-  if(mod!=0){
+  if(mod!=nullptr){
      mod->text=s;
   }
   else std::cout << "**************************error in SvgModuleMap **************";
@@ -2829,7 +2837,7 @@ void TrackerMap::build(){
     
     imoduleMap[idex]=mod;
 
-    if(mod==0) std::cout << "error in module "<<key <<std::endl;
+    if(mod==nullptr) std::cout << "error in module "<<key <<std::endl;
     else
       {
           mod->posx = posx;
@@ -2978,7 +2986,7 @@ for (int layer=1; layer < 44; layer++){
       for (int module=1;module<200;module++) {
         int key=layer*100000+ring*1000+module;
         TmModule * mod = smoduleMap[key];
-	if(mod !=0 && !mod->notInUse()){
+	if(mod !=nullptr && !mod->notInUse()){
             int idmod=mod->idex;
             int nchan=0;
             *txtfile  << "<a name="<<idmod<<"><pre>"<<std::endl;
@@ -2986,7 +2994,7 @@ for (int layer=1; layer < 44; layer++){
              for (pos = apvModuleMap.lower_bound(idmod);
                 pos != apvModuleMap.upper_bound(idmod); ++pos) {
                TmApvPair* apvpair = pos->second;
-               if(apvpair!=0){
+               if(apvpair!=nullptr){
                    nchan++;
                    *txtfile  <<  apvpair->text << std::endl;
                     }
@@ -3018,7 +3026,7 @@ save_as_fedtrackermap(true,gminvalue,gmaxvalue,outs2.str(),3000,1600);
 	for (int nconn=0;nconn<96;nconn++){
 	  int key = fedId*1000+nconn; 
 	  TmApvPair *  apvPair= apvMap[key];
-	  if(apvPair !=0){
+	  if(apvPair !=nullptr){
             int idmod=apvPair->idex;
             *txtfile  << "<a name="<<idmod<<"><pre>"<<std::endl;
             *txtfile  <<  apvPair->text << std::endl;
@@ -3051,7 +3059,7 @@ save_as_fectrackermap(true,gminvalue,gmaxvalue,outs2.str(),3000,1600);
     *txtfile << "<html><head></head> <body>" << std::endl;
     for( i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
      TmCcu *  ccu= i_ccu->second;
-      if(ccu!=0&&ccu->getCcuCrate() == crate){
+      if(ccu!=nullptr&&ccu->getCcuCrate() == crate){
             int idmod=ccu->idex;
             *txtfile  << "<a name="<<idmod<<"><pre>"<<std::endl;
             *txtfile  <<  ccu->text << std::endl;
@@ -3094,7 +3102,7 @@ save_as_psutrackermap(true,gminvalue,gmaxvalue,outs4.str(),3000,1600);
     *txtfile << "<html><head></head> <body>" << std::endl;
      for ( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
       TmPsu *  psu= ipsu->second;
-      if(psu!=0 && psu->getPsuRack() == rack){
+      if(psu!=nullptr && psu->getPsuRack() == rack){
 	*txtfile  << "<a name="<<psu->idex<<"><pre>"<<std::endl;      
         *txtfile  <<  psu->text << std::endl;
 	std::ostringstream outs;
@@ -3139,7 +3147,7 @@ save_as_HVtrackermap(true,gminvalue,gmaxvalue,outs6.str(),3000,1600);
     *txtfile << "<html><head></head> <body>" << std::endl;
      for ( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
       TmPsu *  psu= ipsu->second;
-      if(psu!=0 && psu->getPsuRack() == rack){
+      if(psu!=nullptr && psu->getPsuRack() == rack){
 	*txtfile  << "<a name="<<psu->idex<<"><pre>"<<std::endl;      
         *txtfile  <<  psu->textHV2 << std::endl;
 	std::ostringstream outsHV2;
@@ -3294,7 +3302,7 @@ for (int layer=1; layer < 44; layer++){
       for (int module=1;module<200;module++) {
         int key=layer*100000+ring*1000+module;
         TmModule * mod = smoduleMap[key];
-	if(mod !=0 && !mod->notInUse()){
+	if(mod !=nullptr && !mod->notInUse()){
             int idmod=mod->idex;
             int nchan=0;
             *txtfile  << "<a name="<<idmod<<"><pre>"<<std::endl;
@@ -3302,7 +3310,7 @@ for (int layer=1; layer < 44; layer++){
              for (pos = apvModuleMap.lower_bound(idmod);
                 pos != apvModuleMap.upper_bound(idmod); ++pos) {
                TmApvPair* apvpair = pos->second;
-               if(apvpair!=0){
+               if(apvpair!=nullptr){
                    nchan++;
                    *txtfile  <<  apvpair->text << std::endl;
                     }
@@ -3338,7 +3346,7 @@ save_as_fedtrackermap(true,0.,0.,outs2.str(),3000,1600);
 	for (int nconn=0;nconn<96;nconn++){
 	  int key = fedId*1000+nconn; 
 	  TmApvPair *  apvPair= apvMap[key];
-	  if(apvPair !=0){
+	  if(apvPair !=nullptr){
             int idmod=apvPair->idex;
             *txtfile  << "<a name="<<idmod<<"><pre>"<<std::endl;
             *txtfile  <<  apvPair->text << std::endl;
@@ -3374,7 +3382,7 @@ save_as_fectrackermap(true,0.,0.,outs2.str(),3000,1600);
     *txtfile << "<html><head></head> <body>" << std::endl;
     for( i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
      TmCcu *  ccu= i_ccu->second;
-      if(ccu!=0&&ccu->getCcuCrate() == crate){
+      if(ccu!=nullptr&&ccu->getCcuCrate() == crate){
             int idmod=ccu->idex;
             *txtfile  << "<a name="<<idmod<<"><pre>"<<std::endl;
             *txtfile  <<  ccu->text << std::endl;
@@ -3419,7 +3427,7 @@ save_as_psutrackermap(true,0.,0.,outs4.str(),3000,1600);
     *txtfile << "<html><head></head> <body>" << std::endl;
      for ( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
       TmPsu *  psu= ipsu->second;
-      if(psu!=0 && psu->getPsuRack() == rack){
+      if(psu!=nullptr && psu->getPsuRack() == rack){
 	*txtfile  << "<a name="<<psu->idex<<"><pre>"<<std::endl;      
         *txtfile  <<  psu->text << std::endl;
 	std::ostringstream outs;
@@ -3466,7 +3474,7 @@ save_as_HVtrackermap(true,0.,0.,outs6.str(),3000,1600);
     *txtfile << "<html><head></head> <body>" << std::endl;
      for ( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
       TmPsu *  psu= ipsu->second;
-      if(psu!=0 && psu->getPsuRack() == rack){
+      if(psu!=nullptr && psu->getPsuRack() == rack){
 	*txtfile  << "<a name="<<psu->idex<<"><pre>"<<std::endl;      
         *txtfile  <<  psu->textHV2 << std::endl;
 	std::ostringstream outsHV2;
@@ -3534,7 +3542,7 @@ if(!print_total){
 	for (int module=1;module<200;module++) {
 	  int key=layer*100000+ring*1000+module;
 	  TmModule * mod = smoduleMap[key];
-	  if(mod !=0 && !mod->notInUse()){
+	  if(mod !=nullptr && !mod->notInUse()){
 	    mod->value = mod->value / mod->count;
 	  }
 	}
@@ -3549,7 +3557,7 @@ if(!print_total){
 	for (int module=1;module<200;module++) {
 	  int key=layer*100000+ring*1000+module;
 	  TmModule * mod = smoduleMap[key];
-	  if(mod !=0 && !mod->notInUse()){
+	  if(mod !=nullptr && !mod->notInUse()){
 	    if (minvalue > mod->value)minvalue=mod->value;
 	    if (maxvalue < mod->value)maxvalue=mod->value;
 	  }
@@ -3582,7 +3590,7 @@ for (int layer=1; layer < 44; layer++){
       for (int module=1;module<200;module++) {
         int key=layer*100000+ring*1000+module;
         TmModule * mod = smoduleMap[key];
-	if(mod !=0 && !mod->notInUse()){
+	if(mod !=nullptr && !mod->notInUse()){
           drawModule(mod,key,layer,print_total,xmlfile);
         }
       }
@@ -3610,4 +3618,39 @@ for (int layer=1; layer < 44; layer++){
     xmlfile->close();delete xmlfile;
   }
 saveAsSingleLayer=false;
+}
+
+TLegend* TrackerMap::buildLegend() {
+  if ( legInfos_.empty() ) {
+    legInfos_.reserve(8);
+
+    legInfos_.push_back(new TPolyLine(0));
+    legInfos_.back()->SetFillColor(kGreen);
+    legInfos_.push_back(new TPolyLine(0));
+    legInfos_.back()->SetFillColor(kBlue-9);
+    legInfos_.push_back(new TPolyLine(0));
+    legInfos_.back()->SetFillColor(kRed+2);
+    legInfos_.push_back(new TPolyLine(0));
+    legInfos_.back()->SetFillColor(kPink-9);
+    legInfos_.push_back(new TPolyLine(0));
+    legInfos_.back()->SetFillColor(kOrange+2);
+    legInfos_.push_back(new TPolyLine(0));
+    legInfos_.back()->SetFillColor(kYellow);
+    legInfos_.push_back(new TPolyLine(0));
+    legInfos_.back()->SetFillColor(kRed+1);
+    legInfos_.push_back(new TPolyLine(0));
+    legInfos_.back()->SetFillColor(kViolet-5);
+    legKeys_ = { "Good Modules","Excluded FED","FED errors", "# Clusters", 
+		 "# Digis", "PCL bad", "# Clusters & Digis", "DCS Error"};
+  }
+  
+  TLegend* myL=new TLegend(0.56,0.87,0.95,0.99);
+  myL->SetNColumns(2);
+  myL->SetBorderSize(0);
+  myL->SetFillColor(38);
+  for ( unsigned int i=0; i< legInfos_.size(); i++ ) {
+    myL->AddEntry((TObject*)legInfos_[i],legKeys_[i].c_str(),"f");
+  }
+  //  myL->Draw();
+  return myL;
 }

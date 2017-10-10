@@ -184,7 +184,7 @@ L1ParticleMap::L1ParticleMap(
    const L1IndexComboVector& indexCombos )
    : triggerType_( triggerType ),
      triggerDecision_( triggerDecision ),
-     indexCombosState_{static_cast<char>(indexCombos.size()>0? kSet:IndexComboStates::kUnset)},
+     indexCombosState_{static_cast<char>(!indexCombos.empty()? kSet:IndexComboStates::kUnset)},
      objectTypes_( objectTypes ),
      emParticles_( emParticles ),
      jetParticles_( jetParticles ),
@@ -371,7 +371,7 @@ L1ParticleMap::candidateInCombo( int aIndexInCombo,
    }
    else
    {
-      return 0 ;
+      return nullptr ;
    }
 }
 
@@ -388,7 +388,7 @@ L1ParticleMap::emParticleInCombo( int aIndexInCombo,
    }
    else
    {
-      return 0 ;
+      return nullptr ;
    }
 }
 
@@ -405,7 +405,7 @@ L1ParticleMap::jetParticleInCombo( int aIndexInCombo,
    }
    else
    {
-      return 0 ;
+      return nullptr ;
    }
 }
 
@@ -422,7 +422,7 @@ L1ParticleMap::muonParticleInCombo( int aIndexInCombo,
    }
    else
    {
-      return 0 ;
+      return nullptr ;
    }
 }
 
@@ -438,7 +438,7 @@ L1ParticleMap::etMissParticleInCombo( int aIndexInCombo,
    }
    else
    {
-      return 0 ;
+      return nullptr ;
    }
 }
 

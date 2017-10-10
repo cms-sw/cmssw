@@ -221,18 +221,18 @@ public:
 			signed int depth,
 			const CaloTowerCollection* towers );
   
-  double getTowerEtSum (const reco::Candidate* cand, const std::vector<CaloTowerDetId> * detIdToExclude=0 ) const{
+  double getTowerEtSum (const reco::Candidate* cand, const std::vector<CaloTowerDetId> * detIdToExclude=nullptr ) const{
     reco::SuperCluster const & sc =  *cand->get<reco::SuperClusterRef>().get();
     return getSum(true,sc,detIdToExclude);
   }
-  double  getTowerESum (const reco::Candidate* cand, const std::vector<CaloTowerDetId> * detIdToExclude=0) const{
+  double  getTowerESum (const reco::Candidate* cand, const std::vector<CaloTowerDetId> * detIdToExclude=nullptr) const{
     reco::SuperCluster const & sc =  *cand->get<reco::SuperClusterRef>().get();
     return getSum(false,sc,detIdToExclude);
   }
-  double getTowerEtSum (reco::SuperCluster const * sc, const std::vector<CaloTowerDetId> * detIdToExclude=0 ) const{
+  double getTowerEtSum (reco::SuperCluster const * sc, const std::vector<CaloTowerDetId> * detIdToExclude=nullptr ) const{
     return getSum(true,*sc,detIdToExclude);
   }
-  double  getTowerESum (reco::SuperCluster const * sc, const std::vector<CaloTowerDetId> * detIdToExclude=0) const{
+  double  getTowerESum (reco::SuperCluster const * sc, const std::vector<CaloTowerDetId> * detIdToExclude=nullptr) const{
     return getSum(false,*sc,detIdToExclude);
   }
   private:

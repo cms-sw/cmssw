@@ -39,7 +39,7 @@ public:
     postProcessor_.init(* this);
    }
   /// destructor
-  virtual ~ObjectSelectorProducer() { }
+  ~ObjectSelectorProducer() override { }
 
 private:
   /// process one event

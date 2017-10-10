@@ -11,7 +11,7 @@ class SiStripRecHitConverter : public edm::stream::EDProducer<>
  public:
   
   explicit SiStripRecHitConverter(const edm::ParameterSet&);
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
  private:
   

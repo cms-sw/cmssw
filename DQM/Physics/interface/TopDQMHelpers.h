@@ -304,7 +304,7 @@ class SelectionStep {
 template <typename Object>
 SelectionStep<Object>::SelectionStep(const edm::ParameterSet& cfg,
                                      edm::ConsumesCollector&& iC)
-    : select_(cfg.getParameter<std::string>("select")), jetIDSelect_(0) {
+    : select_(cfg.getParameter<std::string>("select")), jetIDSelect_(nullptr) {
 
   src_ =
       iC.consumes<edm::View<Object> >(cfg.getParameter<edm::InputTag>("src"));
@@ -492,7 +492,7 @@ bool SelectionStep<Object>::select(const edm::Event& event,
   }
 
   // load jet corrector if configured such
-  const JetCorrector* corrector = 0;
+  const JetCorrector* corrector = nullptr;
   if (!jetCorrector_.empty()) {
     // check whether a jet correcto is in the event setup or not
     if (setup.find(edm::eventsetup::EventSetupRecordKey::makeKey<

@@ -211,7 +211,7 @@ AlignmentProducerBase::processEvent(const edm::Event& event,
 
     // Run the alignment algorithm with its input
     const AliClusterValueMap* clusterValueMapPtr{nullptr};
-    if (clusterValueMapTag_.encode().size()) {
+    if (!clusterValueMapTag_.encode().empty()) {
       edm::Handle<AliClusterValueMap> clusterValueMap;
       getAliClusterValueMap(event, clusterValueMap);
       clusterValueMapPtr = &(*clusterValueMap);
@@ -271,7 +271,7 @@ AlignmentProducerBase::beginRunImpl(const edm::Run& run, const edm::EventSetup& 
 void
 AlignmentProducerBase::endRunImpl(const edm::Run& run, const edm::EventSetup& setup)
 {
-  if (tkLasBeamTag_.encode().size()) {
+  if (!tkLasBeamTag_.encode().empty()) {
     edm::Handle<TkFittedLasBeamCollection> lasBeams;
     edm::Handle<TsosVectorCollection> tsoses;
     getTkFittedLasBeamCollection(run, lasBeams);
@@ -282,7 +282,7 @@ AlignmentProducerBase::endRunImpl(const edm::Run& run, const edm::EventSetup& se
     edm::LogInfo("Alignment")
       << "@SUB=AlignmentProducerBase::endRunImpl"
       << "No Tk LAS beams to forward to algorithm.";
-    alignmentAlgo_->endRun(EndRunInfo(run.id(), 0, 0), setup);
+    alignmentAlgo_->endRun(EndRunInfo(run.id(), nullptr, nullptr), setup);
   }
 
 }
@@ -710,7 +710,7 @@ AlignmentProducerBase::simpleMisalignment(const align::Alignables &alivec,
 
     std::vector<bool> commSel(0);
     if (selection != "-1") {
-      AlignmentParameterSelector aSelector(0,0); // no alignable needed here...
+      AlignmentParameterSelector aSelector(nullptr,nullptr); // no alignable needed here...
       const std::vector<char> cSel(aSelector.convertParamSel(selection));
       if (cSel.size() < RigidBodyAlignmentParameters::N_PARAM) {
         throw cms::Exception("BadConfig")

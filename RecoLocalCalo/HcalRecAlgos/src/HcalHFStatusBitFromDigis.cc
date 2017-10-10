@@ -2,7 +2,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <algorithm> // for "max"
-#include <math.h>
+#include <cmath>
 #include <iostream>
 
 HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis()
@@ -111,7 +111,7 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
     {
       // Calculate allowed minimum value of (TS4/TS3+4+5+6):
       double cutoff=0; // no arguments specified; no cutoff applied
-      if (coef_.size()>0)
+      if (!coef_.empty())
 	cutoff=coef_[0];
       // default cutoff takes the form:
       // cutoff = coef_[0] - exp(coef_[1]+coef_[2]*E+coef_[3]*E^2+...)

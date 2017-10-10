@@ -16,7 +16,7 @@ public:
     setWhatProduced(this);
   }
 
-  ~CSCObjectMapESProducer() {
+  ~CSCObjectMapESProducer() override {
   }
 
   std::shared_ptr<CSCObjectMap> produce(MuonGeometryRecord const& record) {

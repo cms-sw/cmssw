@@ -47,13 +47,13 @@ class MuonErrorMatrixAdjuster : public edm::EDProducer {
   /// constructor
   explicit MuonErrorMatrixAdjuster(const edm::ParameterSet&);
   /// destructor
-  ~MuonErrorMatrixAdjuster();
+  ~MuonErrorMatrixAdjuster() override;
   
  private:
   /// framework method
-  virtual void beginJob() ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override ;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
   
   /// return a corrected error matrix 
   reco::TrackBase::CovarianceMatrix fix_cov_matrix(const reco::TrackBase::CovarianceMatrix& error_matrix, const GlobalVector& momentum);

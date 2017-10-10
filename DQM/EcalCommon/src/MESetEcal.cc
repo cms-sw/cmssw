@@ -11,9 +11,9 @@ namespace ecaldqm
   MESetEcal::MESetEcal(std::string const& _fullPath, binning::ObjectType _otype, binning::BinningType _btype, MonitorElement::Kind _kind, unsigned _logicalDimensions, binning::AxisSpecs const* _xaxis/* = 0*/, binning::AxisSpecs const* _yaxis/* = 0*/, binning::AxisSpecs const* _zaxis/* = 0*/) :
     MESet(_fullPath, _otype, _btype, _kind),
     logicalDimensions_(_logicalDimensions),
-    xaxis_(_xaxis ? new binning::AxisSpecs(*_xaxis) : 0),
-    yaxis_(_yaxis ? new binning::AxisSpecs(*_yaxis) : 0),
-    zaxis_(_zaxis ? new binning::AxisSpecs(*_zaxis) : 0)
+    xaxis_(_xaxis ? new binning::AxisSpecs(*_xaxis) : nullptr),
+    yaxis_(_yaxis ? new binning::AxisSpecs(*_yaxis) : nullptr),
+    zaxis_(_zaxis ? new binning::AxisSpecs(*_zaxis) : nullptr)
   {
     if(btype_ == binning::kUser && ((logicalDimensions_ > 0 && !xaxis_) || (logicalDimensions_ > 1 && !yaxis_)))
       throw_("Need axis specifications");
@@ -22,9 +22,9 @@ namespace ecaldqm
   MESetEcal::MESetEcal(MESetEcal const& _orig) :
     MESet(_orig),
     logicalDimensions_(_orig.logicalDimensions_),
-    xaxis_(_orig.xaxis_ ? new binning::AxisSpecs(*_orig.xaxis_) : 0),
-    yaxis_(_orig.yaxis_ ? new binning::AxisSpecs(*_orig.yaxis_) : 0),
-    zaxis_(_orig.zaxis_ ? new binning::AxisSpecs(*_orig.zaxis_) : 0)
+    xaxis_(_orig.xaxis_ ? new binning::AxisSpecs(*_orig.xaxis_) : nullptr),
+    yaxis_(_orig.yaxis_ ? new binning::AxisSpecs(*_orig.yaxis_) : nullptr),
+    zaxis_(_orig.zaxis_ ? new binning::AxisSpecs(*_orig.zaxis_) : nullptr)
   {
   }
 
@@ -41,9 +41,9 @@ namespace ecaldqm
     delete xaxis_;
     delete yaxis_;
     delete zaxis_;
-    xaxis_ = 0;
-    yaxis_ = 0;
-    zaxis_ = 0;
+    xaxis_ = nullptr;
+    yaxis_ = nullptr;
+    zaxis_ = nullptr;
 
     MESetEcal const* pRhs(dynamic_cast<MESetEcal const*>(&_rhs));
     if(pRhs){
@@ -136,7 +136,7 @@ namespace ecaldqm
       _ibooker.cd();
       _ibooker.setCurrentFolder(path.substr(0, slashPos));
 
-      MonitorElement* me(0);
+      MonitorElement* me(nullptr);
 
       switch(kind_) {
       case MonitorElement::DQM_KIND_REAL :
@@ -241,7 +241,7 @@ namespace ecaldqm
     clear();
 
     std::vector<std::string> mePaths(generatePaths());
-    if(mePaths.size() == 0){
+    if(mePaths.empty()){
       if(_failedPath) _failedPath->clear();
       return false;
     }

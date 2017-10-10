@@ -40,8 +40,8 @@ class HLTGenericFilter : public HLTFilter {
     
 public:
     explicit HLTGenericFilter(const edm::ParameterSet&);
-    ~HLTGenericFilter();
-    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+    ~HLTGenericFilter() override;
+    bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
     
 private:

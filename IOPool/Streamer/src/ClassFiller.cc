@@ -22,7 +22,7 @@ namespace edm {
   void doBuildRealData(std::string const& name) {
     FDEBUG(3) << "doing BuildRealData for " << name << "\n";
     TClass* ttest = TClass::GetClass(name.c_str());
-    if (ttest != 0) {
+    if (ttest != nullptr) {
       ttest->BuildRealData();
     } else {
       throw edm::Exception(errors::Configuration)
@@ -52,7 +52,7 @@ namespace edm {
     TClass* getRootClass(std::string const& name) {
       TClass* tc = TClass::GetClass(name.c_str());    
       
-      if(tc == 0) {
+      if(tc == nullptr) {
 	throw edm::Exception(errors::Configuration,"getRootClass")
 	  << "could not find TClass for " << name
 	  << "\n";

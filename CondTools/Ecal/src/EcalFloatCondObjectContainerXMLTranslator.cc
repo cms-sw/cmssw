@@ -18,12 +18,14 @@ using namespace XERCES_CPP_NAMESPACE;
 using namespace xuti;
 using namespace std;
 
+const int kEBChannels = 61200, kEEChannels = 14648;
 
 int  
 EcalFloatCondObjectContainerXMLTranslator::readXML(const string& filename,
 					      EcalCondHeader&          header,
 					      EcalFloatCondObjectContainer& record){
-
+  std::cout << "EcalFloatCondObjectContainerXMLTranslatorr::readXML filename " << filename << std::endl;
+  /*    old method for DBv1
   cms::concurrency::xercesInitialize();
 
   XercesDOMParser* parser = new XercesDOMParser;
@@ -75,6 +77,64 @@ EcalFloatCondObjectContainerXMLTranslator::readXML(const string& filename,
 
   delete parser;
   cms::concurrency::xercesTerminate();
+  */
+  // new method for DBv2
+  std::string dummyLine, bid;
+  std::ifstream fxml;
+  fxml.open(filename);
+  if(!fxml.is_open()) {
+    std::cout << "ERROR : cannot open file " << filename << std::endl;
+    exit (1);
+  }
+  // header
+  for( int i=0; i< 6; i++) {
+    getline(fxml, dummyLine);   // skip first lines
+    //	std::cout << dummyLine << std::endl;
+  }
+  fxml >> bid;
+  //  std::cout << bid << std::endl;
+  std::string stt = bid.substr(7,5);
+  std::istringstream iEB(stt);
+  int nEB;
+  iEB >> nEB;
+  if(nEB != kEBChannels) {
+    std::cout << " strange number of EB channels " << nEB << std::endl;
+    exit(-1);
+  }
+  fxml >> bid;   // <item_version>0</item_version>
+  for (int iChannel = 0; iChannel < kEBChannels; iChannel++) {
+    EBDetId myEBDetId = EBDetId::unhashIndex(iChannel);
+    fxml >> bid;
+    std::size_t found = bid.find("</");
+    stt = bid.substr(6, found - 6);
+    float val = std::stof(stt);
+    record[myEBDetId] = val;
+  }
+  for( int i=0; i< 5; i++) {
+    getline(fxml, dummyLine);   // skip first lines
+    //	std::cout << dummyLine << std::endl;
+  }
+  fxml >> bid;
+  //    cout << bid << endl;
+  stt = bid.substr(7,5);
+  std::istringstream iEE(stt);
+  int nEE;
+  iEE >> nEE;
+  if(nEE != kEEChannels) {
+    std::cout << " strange number of EE channels " << nEE << std::endl;
+    exit(-1);
+  }
+  fxml >> bid;   // <item_version>0</item_version>
+  // now endcaps
+  for (int iChannel = 0; iChannel < kEEChannels; iChannel++) {
+    EEDetId myEEDetId = EEDetId::unhashIndex(iChannel);
+    fxml >> bid;
+    std::size_t found = bid.find("</");
+    stt = bid.substr(6, found - 6);
+    float val = std::stof(stt);
+    record[myEEDetId] = val;
+  }
+
   return 0;
     
 }
@@ -86,7 +146,7 @@ EcalFloatCondObjectContainerXMLTranslator::barrelfromXML(const string& filename)
   EcalCondHeader header;  
   EcalFloatCondObjectContainer record;
   readXML(filename,header,record);
-  
+
   return record.barrelItems();
  
 }
@@ -164,8 +224,8 @@ EcalFloatCondObjectContainerXMLTranslator::dumpXML(
   if( writer->getDomConfig()->canSetParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true ))
     writer->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
   
-  DOMDocumentType* doctype = impl->createDocumentType( cms::xerces::uStr("XML").ptr(), 0, 0 );
-  DOMDocument* doc = impl->createDocument( 0, cms::xerces::uStr(EcalFloatCondObjectContainer_tag.c_str()).ptr(), doctype );
+  DOMDocumentType* doctype = impl->createDocumentType( cms::xerces::uStr("XML").ptr(), nullptr, nullptr );
+  DOMDocument* doc = impl->createDocument( nullptr, cms::xerces::uStr(EcalFloatCondObjectContainer_tag.c_str()).ptr(), doctype );
   DOMElement* root = doc->getDocumentElement();
 
   xuti::writeHeader(root, header);

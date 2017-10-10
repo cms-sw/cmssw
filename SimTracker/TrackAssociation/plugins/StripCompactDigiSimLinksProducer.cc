@@ -26,9 +26,9 @@
 class StripCompactDigiSimLinksProducer : public edm::one::EDProducer<> {
     public:
         StripCompactDigiSimLinksProducer(const edm::ParameterSet &iConfig) ;
-        virtual ~StripCompactDigiSimLinksProducer();
+        ~StripCompactDigiSimLinksProducer() override;
 
-        virtual void produce(edm::Event&, const edm::EventSetup&) override;
+        void produce(edm::Event&, const edm::EventSetup&) override;
 
     private:
         edm::InputTag src_;

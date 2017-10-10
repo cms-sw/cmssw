@@ -135,7 +135,7 @@ public:
    //--------------------------------------------------------------------------
    
    inline ReturnType getParameters(const SiPixelCluster & cl,
-                                   const GeomDetUnit    & det ) const
+                                   const GeomDetUnit    & det ) const override
    {
 #ifdef EDM_ML_DEBUG
       nRecHitsTotal_++ ;
@@ -163,7 +163,7 @@ public:
    //--------------------------------------------------------------------------
    inline ReturnType getParameters(const SiPixelCluster & cl,
                                    const GeomDetUnit    & det,
-                                   const LocalTrajectoryParameters & ltp ) const
+                                   const LocalTrajectoryParameters & ltp ) const override
    {
 #ifdef EDM_ML_DEBUG
       nRecHitsTotal_++ ;

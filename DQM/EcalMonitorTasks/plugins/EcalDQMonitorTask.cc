@@ -44,7 +44,7 @@ EcalDQMonitorTask::EcalDQMonitorTask(edm::ParameterSet const& _ps) :
 
                       task->addDependencies(dependencies);
                       for(unsigned iCol(0); iCol < ecaldqm::nCollections; ++iCol){
-                        if(task->analyze(0, ecaldqm::Collections(iCol))) // "dry run" mode
+                        if(task->analyze(nullptr, ecaldqm::Collections(iCol))) // "dry run" mode
                           hasTaskToRun.set(iCol);
                       }
 
@@ -72,7 +72,7 @@ EcalDQMonitorTask::EcalDQMonitorTask(edm::ParameterSet const& _ps) :
 
   edm::ParameterSet const& commonParams(_ps.getUntrackedParameterSet("commonParameters"));
   if(commonParams.getUntrackedParameter<bool>("onlineMode"))
-    lastResetTime_ = time(0);
+    lastResetTime_ = time(nullptr);
 }
 
 /*static*/
@@ -115,7 +115,7 @@ EcalDQMonitorTask::dqmBeginRun(edm::Run const& _run, edm::EventSetup const& _es)
 
   processedEvents_ = 0;
 
-  if(lastResetTime_ != 0) lastResetTime_ = time(0);
+  if(lastResetTime_ != 0) lastResetTime_ = time(nullptr);
 }
 
 void
@@ -144,13 +144,13 @@ EcalDQMonitorTask::endLuminosityBlock(edm::LuminosityBlock const& _lumi, edm::Ev
 {
   ecaldqmEndLuminosityBlock(_lumi, _es);
   
-  if(lastResetTime_ != 0 && (time(0) - lastResetTime_) / 3600. > resetInterval_){
+  if(lastResetTime_ != 0 && (time(nullptr) - lastResetTime_) / 3600. > resetInterval_){
     if(verbosity_ > 0) edm::LogInfo("EcalDQM") << moduleName_ << ": Soft-resetting the histograms";
     executeOnWorkers_([](ecaldqm::DQWorker* worker){
                         static_cast<ecaldqm::DQWorkerTask*>(worker)->softReset();
                       }, "softReset");
 
-    lastResetTime_ = time(0);
+    lastResetTime_ = time(nullptr);
   }
 }
 
@@ -159,7 +159,7 @@ EcalDQMonitorTask::analyze(edm::Event const& _evt, edm::EventSetup const& _es)
 {
   if(verbosity_ > 2) edm::LogInfo("EcalDQM") << moduleName_ << "::analyze: Run " << _evt.id().run() << " Lumisection " << _evt.id().luminosityBlock() << " Event " << _evt.id().event() << ": processed " << processedEvents_;
 
-  if(schedule_.size() == 0) return;
+  if(schedule_.empty()) return;
 
   std::set<ecaldqm::DQWorker*> enabledTasks;
 
@@ -201,7 +201,7 @@ EcalDQMonitorTask::analyze(edm::Event const& _evt, edm::EventSetup const& _es)
   // start event processing
   executeOnWorkers_([&_evt, &_es, &enabledTasks](ecaldqm::DQWorker* worker){
                       if(enabledTasks.find(worker) != enabledTasks.end()){
-                        if(worker->onlineMode()) worker->setTime(time(0));
+                        if(worker->onlineMode()) worker->setTime(time(nullptr));
                         worker->setEventNumber(_evt.id().event());
                         static_cast<ecaldqm::DQWorkerTask*>(worker)->beginEvent(_evt, _es);
                       }

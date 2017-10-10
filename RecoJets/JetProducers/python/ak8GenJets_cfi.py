@@ -16,3 +16,8 @@ ak8GenJetsSoftDrop = ak8GenJets.clone(
     jetCollInstanceName=cms.string("SubJets"),
     jetPtMin = 100.0
     )
+
+ak8GenJetsConstituents = cms.EDProducer("GenJetConstituentSelector",
+                                          src = cms.InputTag("ak8GenJets"),
+                                          cut = cms.string("pt > 100.0")
+                                         )

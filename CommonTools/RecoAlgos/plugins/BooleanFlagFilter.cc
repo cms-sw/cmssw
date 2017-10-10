@@ -36,11 +36,11 @@
 class BooleanFlagFilter : public edm::global::EDFilter<> {
    public:
       explicit BooleanFlagFilter(const edm::ParameterSet&);
-      ~BooleanFlagFilter();
+      ~BooleanFlagFilter() override;
 
    private:
       //virtual void beginJob() override;
-      virtual bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+      bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
       //virtual void endJob() override;
       
       //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;

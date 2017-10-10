@@ -7,7 +7,7 @@
 
 // STL Headers
 
-#include <math.h>
+#include <cmath>
 #include <iomanip>
 #include <TSystem.h>
 
@@ -754,7 +754,7 @@ void HLXMonitor::SetupEventInfo(DQMStore::IBooker& iBooker) {
 
   pEvent_ = 0;
   evtRateCount_ = 0;
-  gettimeofday(&currentTime_, NULL);
+  gettimeofday(&currentTime_, nullptr);
   lastAvgTime_ = currentTime_;
   evtRateWindow_ = 0.5;
 
@@ -854,7 +854,7 @@ void HLXMonitor::analyze(const edm::Event& iEvent,
       currentRunEnded_ = false;
       // std::cout << "Run number is: " << runNumber_ << std::endl;
       timeval startruntime;
-      gettimeofday(&startruntime, NULL);
+      gettimeofday(&startruntime, nullptr);
       runStartTimeStamp_->Fill(getUTCtime(&startruntime));
     }
 
@@ -1452,7 +1452,7 @@ void HLXMonitor::FillEventInfo(const LUMI_SECTION& section,
   processEvents_->Fill(pEvent_);
 
   lastUpdateTime_ = currentTime_;
-  gettimeofday(&currentTime_, NULL);
+  gettimeofday(&currentTime_, nullptr);
   processTimeStamp_->Fill(getUTCtime(&currentTime_));
   processLatency_->Fill(getUTCtime(&lastUpdateTime_, &currentTime_));
 
@@ -1587,7 +1587,7 @@ void HLXMonitor::ResetAll() {
 
 double HLXMonitor::getUTCtime(timeval* a, timeval* b) {
   double deltaT = (*a).tv_sec * 1000.0 + (*a).tv_usec / 1000.0;
-  if (b != NULL) deltaT = (*b).tv_sec * 1000.0 + (*b).tv_usec / 1000.0 - deltaT;
+  if (b != nullptr) deltaT = (*b).tv_sec * 1000.0 + (*b).tv_usec / 1000.0 - deltaT;
   return deltaT / 1000.0;
 }
 

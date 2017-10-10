@@ -28,9 +28,9 @@ namespace edm {
 class HLTPFJetIDProducer : public edm::stream::EDProducer<> {
   public:
     explicit HLTPFJetIDProducer(const edm::ParameterSet & iConfig);
-    ~HLTPFJetIDProducer();
+    ~HLTPFJetIDProducer() override;
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+    void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
   private:
     double minPt_;

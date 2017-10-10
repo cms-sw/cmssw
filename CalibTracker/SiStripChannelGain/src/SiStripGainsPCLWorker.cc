@@ -47,15 +47,15 @@ SiStripGainsPCLWorker::SiStripGainsPCLWorker(const edm::ParameterSet& iConfig) :
   dqm_tag_.push_back( "IsoMuon0T" );     // statistic collection from Isolated Muon @ 0 T
   dqm_tag_.push_back( "Harvest" );       // statistic collection: Harvest
   
-  Charge_Vs_Index.insert( Charge_Vs_Index.begin(), dqm_tag_.size(), 0);
-  Charge_Vs_PathlengthTIB.insert( Charge_Vs_PathlengthTIB.begin(), dqm_tag_.size(), 0);
-  Charge_Vs_PathlengthTOB.insert( Charge_Vs_PathlengthTOB.begin(), dqm_tag_.size(), 0);
-  Charge_Vs_PathlengthTIDP.insert( Charge_Vs_PathlengthTIDP.begin(), dqm_tag_.size(), 0);
-  Charge_Vs_PathlengthTIDM.insert( Charge_Vs_PathlengthTIDM.begin(), dqm_tag_.size(), 0);
-  Charge_Vs_PathlengthTECP1.insert( Charge_Vs_PathlengthTECP1.begin(), dqm_tag_.size(), 0);
-  Charge_Vs_PathlengthTECP2.insert( Charge_Vs_PathlengthTECP2.begin(), dqm_tag_.size(), 0);
-  Charge_Vs_PathlengthTECM1.insert( Charge_Vs_PathlengthTECM1.begin(), dqm_tag_.size(), 0);
-  Charge_Vs_PathlengthTECM2.insert( Charge_Vs_PathlengthTECM2.begin(), dqm_tag_.size(), 0);
+  Charge_Vs_Index.insert( Charge_Vs_Index.begin(), dqm_tag_.size(), nullptr);
+  Charge_Vs_PathlengthTIB.insert( Charge_Vs_PathlengthTIB.begin(), dqm_tag_.size(), nullptr);
+  Charge_Vs_PathlengthTOB.insert( Charge_Vs_PathlengthTOB.begin(), dqm_tag_.size(), nullptr);
+  Charge_Vs_PathlengthTIDP.insert( Charge_Vs_PathlengthTIDP.begin(), dqm_tag_.size(), nullptr);
+  Charge_Vs_PathlengthTIDM.insert( Charge_Vs_PathlengthTIDM.begin(), dqm_tag_.size(), nullptr);
+  Charge_Vs_PathlengthTECP1.insert( Charge_Vs_PathlengthTECP1.begin(), dqm_tag_.size(), nullptr);
+  Charge_Vs_PathlengthTECP2.insert( Charge_Vs_PathlengthTECP2.begin(), dqm_tag_.size(), nullptr);
+  Charge_Vs_PathlengthTECM1.insert( Charge_Vs_PathlengthTECM1.begin(), dqm_tag_.size(), nullptr);
+  Charge_Vs_PathlengthTECM2.insert( Charge_Vs_PathlengthTECM2.begin(), dqm_tag_.size(), nullptr);
 
   // configure token for gathering the ntuple variables 
   edm::ParameterSet swhallowgain_pset = iConfig.getUntrackedParameter<edm::ParameterSet>("gain");
@@ -267,6 +267,9 @@ void SiStripGainsPCLWorker::processEvent(const TrackerTopology* topo) {
       if(Validation)     {ClusterChargeOverPath/=(*gainused)[i];}
       if(OldGainRemoving){ClusterChargeOverPath*=(*gainused)[i];}
     }
+
+    // keep processing of pixel cluster charge until here
+    if(APV->SubDet<=2) continue;
       
     // real histogram for calibration
     (Charge_Vs_Index[elepos])->Fill(APV->Index,ClusterChargeOverPath);
@@ -499,7 +502,7 @@ SiStripGainsPCLWorker::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
   ibooker.setCurrentFolder(dqm_dir);
  
   std::string stag(tag);
-  if(stag.size()!=0 && stag[0]!='_') stag.insert(0,1,'_');
+  if(!stag.empty() && stag[0]!='_') stag.insert(0,1,'_');
   
   std::string cvi      = std::string("Charge_Vs_Index") + stag;
   std::string cvpTIB   = std::string("Charge_Vs_PathlengthTIB")   + stag;
@@ -512,8 +515,35 @@ SiStripGainsPCLWorker::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
   std::string cvpTECM2 = std::string("Charge_Vs_PathlengthTECM2") + stag;
   
   int elepos = statCollectionFromMode(tag);
+
+  // The cluster charge is stored by exploiting a non uniform binning in order 
+  // reduce the histogram memory size. The bin width is relaxed with a falling
+  // exponential function and the bin boundaries are stored in the binYarray. 
+  // The binXarray is used to provide as many bins as the APVs.
+  //
+  // More details about this implementations are here:
+  // https://indico.cern.ch/event/649344/contributions/2672267/attachments/1498323/2332518/OptimizeChHisto.pdf
+
+  std::vector<float> binXarray;
+  binXarray.reserve( NStripAPVs+1 );
+  for(int a=0;a<=NStripAPVs;a++){
+     binXarray.push_back( (float)a );
+  }
+
+
+  std::array<float,688> binYarray;
+  double p0 = 5.445;
+  double p1 = 0.002113;
+  double p2 = 69.01576;
+  double y = 0.;
+  for(int b=0;b<687;b++) {
+     binYarray[b] = y;
+     if(y<=902.) y = y + 2.;
+     else y = ( p0 - log(exp(p0-p1*y) - p2*p1)) / p1;
+  }
+  binYarray[687] = 4000.;
   
-  Charge_Vs_Index[elepos]           = ibooker.book2S(cvi.c_str()     , cvi.c_str()     , 88625, 0   , 88624,2000,0,4000);
+  Charge_Vs_Index[elepos]           = ibooker.book2S(cvi.c_str()     , cvi.c_str()     , NStripAPVs, &binXarray[0], 687, binYarray.data());
   Charge_Vs_PathlengthTIB[elepos]   = ibooker.book2S(cvpTIB.c_str()  , cvpTIB.c_str()  , 20   , 0.3 , 1.3  , 250,0,2000);
   Charge_Vs_PathlengthTOB[elepos]   = ibooker.book2S(cvpTOB.c_str()  , cvpTOB.c_str()  , 20   , 0.3 , 1.3  , 250,0,2000);
   Charge_Vs_PathlengthTIDP[elepos]  = ibooker.book2S(cvpTIDP.c_str() , cvpTIDP.c_str() , 20   , 0.3 , 1.3  , 250,0,2000);
@@ -562,5 +592,4 @@ SiStripGainsPCLWorker::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
     int plane = APVGain::subdetectorPlane((hnames[i]).first);
     Charge_4[elepos].push_back( APVGain::APVmon(id,side,plane,monitor) );
   }
-
 }

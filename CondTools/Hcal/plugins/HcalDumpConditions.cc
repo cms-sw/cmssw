@@ -49,8 +49,8 @@ namespace edmtest
 
     explicit  HcalDumpConditions(int i) 
     { }
-    virtual ~ HcalDumpConditions() { }
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+    ~ HcalDumpConditions() override { }
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
     template<class S, class SRcd> void dumpIt(S* myS, SRcd* mySRcd, const edm::Event& e, const edm::EventSetup& context, std::string name, const HcalTopology * topo);
     template<class S, class SRcd> void dumpIt(S* myS, SRcd* mySRcd, const edm::Event& e, const edm::EventSetup& context, std::string name);

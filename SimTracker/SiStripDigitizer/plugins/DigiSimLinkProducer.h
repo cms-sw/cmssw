@@ -33,9 +33,9 @@ public:
   
   explicit DigiSimLinkProducer(const edm::ParameterSet& conf);
   
-  virtual ~DigiSimLinkProducer();
+  ~DigiSimLinkProducer() override;
   
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
   
 private:
   typedef std::vector<std::string> vstring;

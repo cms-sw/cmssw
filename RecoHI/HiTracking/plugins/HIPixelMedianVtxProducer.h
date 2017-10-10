@@ -13,8 +13,8 @@ class HIPixelMedianVtxProducer : public edm::one::EDProducer<>
 {
 public:
 	explicit HIPixelMedianVtxProducer(const edm::ParameterSet& ps);
-	~HIPixelMedianVtxProducer(){};
-	virtual void produce(edm::Event& ev, const edm::EventSetup& es) override;
+	~HIPixelMedianVtxProducer() override{};
+	void produce(edm::Event& ev, const edm::EventSetup& es) override;
 	
 private:
 	void beginJob() override{};

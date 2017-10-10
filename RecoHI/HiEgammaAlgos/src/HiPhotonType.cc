@@ -42,7 +42,7 @@ bool HiPhotonType::IsPrompt(const reco::GenParticle &pp)
   if ( pp.pdgId() != 22)
     return false;
 
-  if ( pp.mother() ==0 ) 
+  if ( pp.mother() ==nullptr ) 
     {
       //      cout <<    "No mom for this particle.." << endl;
       return false;
@@ -61,11 +61,11 @@ bool HiPhotonType::IsPrompt(const reco::GenParticle &pp)
 
 
 HiGammaJetSignalDef::HiGammaJetSignalDef () :
-  fSigParticles(0)
+  fSigParticles(nullptr)
 {   PI = 3.141592653589793238462643383279502884197169399375105820974945;
 }
 HiGammaJetSignalDef::HiGammaJetSignalDef (const reco::GenParticleCollection  *sigParticles) :
-  fSigParticles(0)
+  fSigParticles(nullptr)
 {
   using namespace std;
 

@@ -22,9 +22,9 @@
 //#define DebugLog
 
 HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
-				 edm::ParameterSet const & p) : fibre(0),hf(0),
-								emBranch(0),
-								hadBranch(0),
+				 edm::ParameterSet const & p) : fibre(nullptr),hf(nullptr),
+								emBranch(nullptr),
+								hadBranch(nullptr),
 								npe(0) {
   
 
@@ -58,11 +58,11 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
   }
 
   newForm = (branchEvInfo == "");
-  TTree* event(0);
+  TTree* event(nullptr);
   if (newForm) event = (TTree *) hf ->Get("HFSimHits");
   else         event = (TTree *) hf ->Get("Events");
   if (event) {
-    TBranch *evtInfo(0);
+    TBranch *evtInfo(nullptr);
     if (!newForm) {
       std::string info = branchEvInfo + branchPost;
       evtInfo          = event->GetBranch(info.c_str());
@@ -127,7 +127,7 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
 HFShowerLibrary::~HFShowerLibrary() {
   if (hf)     hf->Close();
   if (fibre)  delete   fibre;
-  fibre  = 0;
+  fibre  = nullptr;
   if (photo)  delete photo;
 }
 

@@ -34,7 +34,7 @@ DTDataIntegrityTest::DTDataIntegrityTest(const ParameterSet& ps) : nevents(0) {
   // prescale on the # of LS to update the test
   prescaleFactor = ps.getUntrackedParameter<int>("diagnosticPrescale", 1);
  
-  bookingdone = 0;
+  bookingdone = false;
  
 }
 
@@ -78,7 +78,7 @@ DTDataIntegrityTest::~DTDataIntegrityTest(){
   context.get<DTReadOutMappingRcd>().get(mapping);
 
   }
-  bookingdone = 1; 
+  bookingdone = true; 
 
 
   // counts number of lumiSegs 

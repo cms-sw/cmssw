@@ -2,7 +2,7 @@
 #include <cmath>
 #include <iostream>
 #include <vector>
-#include <cstring>
+#include <string>
 #include <TCanvas.h>
 #include <TChain.h>
 #include <TFile.h>
@@ -13,6 +13,7 @@
 #include <TProfile.h>
 #include <TROOT.h>
 #include <TStyle.h>
+#include <TString.h>
 #include <TTree.h>
 
 class HBHEMuonOfflineAnalyzer {
@@ -22,7 +23,6 @@ public :
   Int_t           fCurrent; //!current Tree number in a TChain
 
   // Fixed size dimensions of array or collections stored in the TTree if any.
-
   // Declaration of leaf types
   UInt_t                     Event_No;
   UInt_t                     Run_No;
@@ -84,6 +84,20 @@ public :
   std::vector<double>       *hcal_activeHotL5;
   std::vector<double>       *hcal_activeHotL6;
   std::vector<double>       *hcal_activeHotL7;
+  std::vector<double>       *hcal_cdepthHot1;
+  std::vector<double>       *hcal_cdepthHot2;
+  std::vector<double>       *hcal_cdepthHot3;
+  std::vector<double>       *hcal_cdepthHot4;
+  std::vector<double>       *hcal_cdepthHot5;
+  std::vector<double>       *hcal_cdepthHot6;
+  std::vector<double>       *hcal_cdepthHot7;
+  std::vector<double>       *hcal_cdepthHotBG1;
+  std::vector<double>       *hcal_cdepthHotBG2;
+  std::vector<double>       *hcal_cdepthHotBG3;
+  std::vector<double>       *hcal_cdepthHotBG4;
+  std::vector<double>       *hcal_cdepthHotBG5;
+  std::vector<double>       *hcal_cdepthHotBG6;
+  std::vector<double>       *hcal_cdepthHotBG7;
   std::vector<double>       *TrackerLayer;
   std::vector<double>       *matchedId;
   std::vector<bool>         *innerTrack;
@@ -128,10 +142,10 @@ public :
   std::vector<double>       *muon_chi2LocalPosition; 
   std::vector<double>       *muon_segComp;
   std::vector<double>       *tight_validFraction;		
-
+  /*
   std::vector<double>       *mediumid2016;
   std::vector<double>       *mediumid;
-  
+  */
   // List of branches
   TBranch                   *b_Event_No;                            //!
   TBranch                   *b_Run_No;                              //!
@@ -193,6 +207,20 @@ public :
   TBranch                   *b_hcal_activeHotL5;                    //!
   TBranch                   *b_hcal_activeHotL6;                    //!
   TBranch                   *b_hcal_activeHotL7;                    //!
+  TBranch                   *b_hcal_cdepthHot1;                     //!
+  TBranch                   *b_hcal_cdepthHot2;                     //!
+  TBranch                   *b_hcal_cdepthHot3;                     //!
+  TBranch                   *b_hcal_cdepthHot4;                     //!
+  TBranch                   *b_hcal_cdepthHot5;                     //!
+  TBranch                   *b_hcal_cdepthHot6;                     //!
+  TBranch                   *b_hcal_cdepthHot7;                     //!
+  TBranch                   *b_hcal_cdepthHotBG1;                   //!
+  TBranch                   *b_hcal_cdepthHotBG2;                   //!
+  TBranch                   *b_hcal_cdepthHotBG3;                   //!
+  TBranch                   *b_hcal_cdepthHotBG4;                   //!
+  TBranch                   *b_hcal_cdepthHotBG5;                   //!
+  TBranch                   *b_hcal_cdepthHotBG6;                   //!
+  TBranch                   *b_hcal_cdepthHotBG7;                   //!
   TBranch                   *b_TrackerLayer;                        //!
   TBranch                   *b_matchedId;                           //!
   TBranch                   *b_innerTrack;                          //!
@@ -237,19 +265,21 @@ public :
   TBranch                   *b_muon_chi2LocalPosition;              //!
   TBranch                   *b_muon_segComp;                        //!
   TBranch                   *b_tight_validFraction; 		    //!
-
+  /*
   TBranch                   *b_mediumid2016;                        //!
   TBranch                   *b_mediumid;                            //!
+  */
 
-
-  HBHEMuonOfflineAnalyzer(const char *infile, const char *outfile="dyll_PU20_25_output_10.root", const int flag=0, const int mode=1, const int maxDHB=2, const int maxDHE=4);
+  HBHEMuonOfflineAnalyzer(TTree *tree=0, const char *outfile="dyll_PU20_25_output_10.root", int flag=0, int mode=1, int maxDHB=2, int maxDHE=4, int runLo=-1, int runHi=99999999);
+  HBHEMuonOfflineAnalyzer(const char *infile, const char *outfile="dyll_PU20_25_output_10.root", int flag=0, int mode=1, int maxDHB=2, int maxDHE=4, int runLo=-1, int runHi=99999999);
   // mode of LHC is kept 1 for 2017 scenario as no change in depth segmentation
   // mode of LHC is 0 for 2019
   virtual ~HBHEMuonOfflineAnalyzer();
   virtual Int_t    Cut(Long64_t entry);
   virtual Int_t    GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
-  virtual void     Init(TTree *tree);
+  virtual void     Init(TTree *tree, int flag, int mode, int maxDHB, int maxDHE,
+			int runLo, int runHi);
   virtual void     Loop();
   virtual Bool_t   Notify();
   virtual void     Show(Long64_t entry = -1);
@@ -260,6 +290,7 @@ public :
   bool LooseMuon(unsigned int ml);
   bool tightMuon(unsigned int ml);
   bool SoftMuon(unsigned int ml);
+  bool mediumMuon2016(unsigned int ml);
   void etaPhiHcal(unsigned int detId, int &eta, int &phi, int &depth);
   void etaPhiEcal(unsigned int detId, int& type, int& zside,
 		  int& etaX, int& phiY, int& plane, int& strip);
@@ -275,7 +306,8 @@ private:
   static const int maxPhi=72;
   //3x16x72x2 + 5x4x72x2 + 5x9x36x2
   static const int maxHist=20000;//13032;
-  int    modeLHC, maxDepthHB_, maxDepthHE_, maxDepth_;
+  static const int nCut_ = 3;
+  int    modeLHC, maxDepthHB_, maxDepthHE_, maxDepth_, runLo_, runHi_;
   bool   useCorrect_, mergeDepth_;
   int    nHist, nDepths[maxEta], nDepthsPhi[maxEta],indxEta[maxEta][maxDep][maxPhi];
   TFile *output_file;
@@ -303,30 +335,30 @@ private:
   TProfile *h_HotWithoutIso_MuonEnergy_eta[3][maxDep], *h_HotWithoutIso_MuonEnergy_phi[3][maxDep], *h_HotWithoutIso_MuonEnergy_muon_eta[3][maxDep];
 
 };
+HBHEMuonOfflineAnalyzer::HBHEMuonOfflineAnalyzer(TTree *tree,
+						 const char* outFileName, 
+						 int flag, int mode, 
+						 int maxDHB, int maxDHE,
+						 int runLo, int runHi) {
 
+  Init(tree, flag, mode, maxDHB, maxDHE, runLo, runHi);
+
+  //Now book histograms
+  BookHistograms(outFileName);
+}
+ 
 HBHEMuonOfflineAnalyzer::HBHEMuonOfflineAnalyzer(const char* infile,
 						 const char* outFileName, 
-						 const int flag,
-						 const int mode, 
-						 const int maxDHB,
-						 const int maxDHE) {
-  modeLHC     = mode;
-  maxDepthHB_ = maxDHB;
-  maxDepthHE_ = maxDHE;
-  maxDepth_   = (maxDepthHB_ > maxDepthHE_) ? maxDepthHB_ : maxDepthHE_;
-  useCorrect_ = ((flag%10) > 0);
-  mergeDepth_ = (((flag/10)%10) > 0);
+						 int flag, int mode, 
+						 int maxDHB, int maxDHE,
+						 int runLo, int runHi) {
   
-  // if parameter tree is not specified (or zero), connect the file
-  // used to generate this class and read the Tree.
-  // std::cout<<"maxDepth_"<<maxDepth_<<std::endl;
-
   TFile      *f   = new TFile(infile);
-  TDirectory *dir = (TDirectory*)f->Get("HcalHBHEMuonAnalyzer");
+  TDirectory *dir = (TDirectory*)f->Get("hcalHBHEMuon");
   TTree *tree(0);
   dir->GetObject("TREE",tree);
 
-  Init(tree);
+  Init(tree, flag, mode, maxDHB, maxDHE, runLo, runHi);
 
   //Now book histograms
   BookHistograms(outFileName);
@@ -362,7 +394,18 @@ Long64_t HBHEMuonOfflineAnalyzer::LoadTree(Long64_t entry) {
   return centry;
 }
 
-void HBHEMuonOfflineAnalyzer::Init(TTree *tree) {
+void HBHEMuonOfflineAnalyzer::Init(TTree *tree, int flag, int mode, int maxDHB,
+				   int maxDHE, int runLo, int runHi) {
+
+  modeLHC     = mode;
+  maxDepthHB_ = maxDHB;
+  maxDepthHE_ = maxDHE;
+  maxDepth_   = (maxDepthHB_ > maxDepthHE_) ? maxDepthHB_ : maxDepthHE_;
+  runLo_      = runLo;
+  runHi_      = runHi;
+  useCorrect_ = ((flag%10) > 0);
+  mergeDepth_ = (((flag/10)%10) > 0);
+
   // The Init() function is called when the selector needs to initialize
   // a new tree or chain. Typically here the branch addresses and branch
   // pointers of the tree will be set.
@@ -428,6 +471,20 @@ void HBHEMuonOfflineAnalyzer::Init(TTree *tree) {
   hcal_edepthHotCorrect5 = 0;
   hcal_edepthHotCorrect6 = 0;
   hcal_edepthHotCorrect7 = 0;
+  hcal_cdepthHot1 = 0;
+  hcal_cdepthHot2 = 0;
+  hcal_cdepthHot3 = 0;
+  hcal_cdepthHot4 = 0;
+  hcal_cdepthHot5 = 0;
+  hcal_cdepthHot6 = 0;
+  hcal_cdepthHot7 = 0;
+  hcal_cdepthHotBG1 = 0;
+  hcal_cdepthHotBG2 = 0;
+  hcal_cdepthHotBG3 = 0;
+  hcal_cdepthHotBG4 = 0;
+  hcal_cdepthHotBG5 = 0;
+  hcal_cdepthHotBG6 = 0;
+  hcal_cdepthHotBG7 = 0;
   TrackerLayer = 0;
   matchedId = 0;
   innerTrack = 0;
@@ -472,10 +529,10 @@ void HBHEMuonOfflineAnalyzer::Init(TTree *tree) {
   muon_chi2LocalPosition = 0; 
   muon_segComp = 0;
   tight_validFraction = 0;		
-
+  /*
   mediumid= 0;
   mediumid2016 = 0;
-
+  */
   // Set branch addresses and branch pointers
   if (!tree) return;
   fChain = tree;
@@ -542,6 +599,20 @@ void HBHEMuonOfflineAnalyzer::Init(TTree *tree) {
   fChain->SetBranchAddress("hcal_edepthHotCorrect5", &hcal_edepthHotCorrect5, &b_hcal_edepthHotCorrect5);
   fChain->SetBranchAddress("hcal_edepthHotCorrect6", &hcal_edepthHotCorrect6, &b_hcal_edepthHotCorrect6);
   fChain->SetBranchAddress("hcal_edepthHotCorrect7", &hcal_edepthHotCorrect7, &b_hcal_edepthHotCorrect7);
+   fChain->SetBranchAddress("hcal_cdepthHot1", &hcal_cdepthHot1, &b_hcal_cdepthHot1);
+   fChain->SetBranchAddress("hcal_cdepthHot2", &hcal_cdepthHot2, &b_hcal_cdepthHot2);
+   fChain->SetBranchAddress("hcal_cdepthHot3", &hcal_cdepthHot3, &b_hcal_cdepthHot3);
+   fChain->SetBranchAddress("hcal_cdepthHot4", &hcal_cdepthHot4, &b_hcal_cdepthHot4);
+   fChain->SetBranchAddress("hcal_cdepthHot5", &hcal_cdepthHot5, &b_hcal_cdepthHot5);
+   fChain->SetBranchAddress("hcal_cdepthHot6", &hcal_cdepthHot6, &b_hcal_cdepthHot6);
+   fChain->SetBranchAddress("hcal_cdepthHot7", &hcal_cdepthHot7, &b_hcal_cdepthHot7);
+   fChain->SetBranchAddress("hcal_cdepthHotBG1", &hcal_cdepthHotBG1, &b_hcal_cdepthHotBG1);
+   fChain->SetBranchAddress("hcal_cdepthHotBG2", &hcal_cdepthHotBG2, &b_hcal_cdepthHotBG2);
+   fChain->SetBranchAddress("hcal_cdepthHotBG3", &hcal_cdepthHotBG3, &b_hcal_cdepthHotBG3);
+   fChain->SetBranchAddress("hcal_cdepthHotBG4", &hcal_cdepthHotBG4, &b_hcal_cdepthHotBG4);
+   fChain->SetBranchAddress("hcal_cdepthHotBG5", &hcal_cdepthHotBG5, &b_hcal_cdepthHotBG5);
+   fChain->SetBranchAddress("hcal_cdepthHotBG6", &hcal_cdepthHotBG6, &b_hcal_cdepthHotBG6);
+   fChain->SetBranchAddress("hcal_cdepthHotBG7", &hcal_cdepthHotBG7, &b_hcal_cdepthHotBG7);
   fChain->SetBranchAddress("TrackerLayer", &TrackerLayer, &b_TrackerLayer);
   fChain->SetBranchAddress("matchedId", &matchedId, &b_matchedId);
   fChain->SetBranchAddress("innerTrack", &innerTrack, &b_innerTrack);
@@ -586,10 +657,10 @@ void HBHEMuonOfflineAnalyzer::Init(TTree *tree) {
   fChain->SetBranchAddress("muon_chi2LocalPosition", &muon_chi2LocalPosition, &b_muon_chi2LocalPosition); 
   fChain->SetBranchAddress("muon_segComp", &muon_segComp, &b_muon_segComp);
   fChain->SetBranchAddress("tight_validFraction", &tight_validFraction, &b_tight_validFraction);
-
+  /*
   fChain->SetBranchAddress("mediumid", &mediumid, &b_mediumid);
   fChain->SetBranchAddress("mediumid2016", &mediumid2016, &b_mediumid2016);
-  
+  */
   Notify();
 }
 
@@ -600,7 +671,7 @@ void HBHEMuonOfflineAnalyzer::Loop() {
   
   Long64_t nentries = fChain->GetEntriesFast();
 	
-  std::cout << "nevent = " << nentries << std::endl;
+ if (debug_) std::cout << "nevent = " << nentries << std::endl;
 
   Long64_t nbytes = 0, nb = 0;
 
@@ -608,8 +679,9 @@ void HBHEMuonOfflineAnalyzer::Loop() {
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
-    std::cout << "Run " << Run_No << " Event " << Event_No << " Muons " << pt_of_muon->size() << std::endl;
-    for (unsigned int ml = 0;ml< pt_of_muon->size();ml++) {
+    if ((int)(Run_No) < runLo_ || (int)(Run_No) > runHi_) continue;
+    if (debug_) std::cout << "Run " << Run_No << " Event " << Event_No << " Muons " << pt_of_muon->size() << std::endl;
+    for (unsigned int ml = 0; ml< pt_of_muon->size(); ml++) {
 
       if(debug_) std::cout << "ecal_det_id " << ecal_detID->at(ml) << std::endl;
 
@@ -618,31 +690,32 @@ void HBHEMuonOfflineAnalyzer::Loop() {
       double etaEcal = (etaXEcal-0.5)*zsideEcal;
       double phiEcal = phiYEcal-0.5;
 
-      if(debug_) std::cout << "hcal_det_id " << std::hex << hcal_detID->at(ml) << std::dec;
+      if (debug_) std::cout << "hcal_det_id " << std::hex << hcal_detID->at(ml)
+			    << std::dec;
 
-      int etaHcal, phiHcal, depthHcal;
+      int    etaHcal, phiHcal, depthHcal;
       etaPhiHcal(hcal_detID->at(ml),etaHcal,phiHcal,depthHcal);
 
-      int eta = (etaHcal > 0) ? etaHcal-1 : -(1+etaHcal);
-      int nDepth = NDepthBins(eta+1);
-      int nPhi   = NPhiBins(eta+1);
-      int PHI    = (nPhi > 36) ? (phiHcal-1) : (phiHcal-1)/2;
-      
+      int    eta      = (etaHcal > 0) ? etaHcal-1 : -(1+etaHcal);
       double etaXHcal = (etaHcal > 0) ? etaHcal-0.5 : etaHcal+0.5;
-
-      if(debug_)  std::cout<<"phiHcal"<<phiHcal;
-
+      int    nDepth   = NDepthBins(eta+1);
+      int    nPhi     = NPhiBins(eta+1);
+      int    PHI      = (nPhi > 36) ? (phiHcal-1) : (phiHcal-1)/2;
       double phiYHcal = (phiHcal-0.5);
+
+      if (debug_) 
+	std::cout << " etaHcal " << etaHcal << ":" << etaXHcal << " phiHcal " 
+		  << phiHcal << ":" << phiYHcal << ":" << PHI << " Depth " 
+		  << nDepth << " Muon Pt " << pt_of_muon->at(ml) << " Isol "
+		  << IsolationR04->at(ml) << std::endl; 
       
-      if(debug_) std::cout<<"phiYHcal"<<phiYHcal<<std::endl; 
-      
-      for (int cut=0; cut<3; ++cut) {
+      for (int cut=0; cut<nCut_; ++cut) {
 	bool select(false);
 	if      (cut == 0) select = tightMuon(ml);
 	else if (cut == 1) select = SoftMuon(ml);
 	else               select = LooseMuon(ml);
 	
-	
+
 	if (select) {
 	  //	  h_P_Muon[cut]->Fill(p_of_muon->at(ml));
 	  h_Pt_Muon[cut]->Fill(pt_of_muon->at(ml));
@@ -740,62 +813,52 @@ void HBHEMuonOfflineAnalyzer::Loop() {
 	  } else {
 	    for (int dep=0; dep<nDepth; ++dep) {
 	    
-	      if(debug_) std::cout<<"why on 15/2 only"<<std::endl; 
 	      if(debug_) std::cout<<"dep:"<<dep<<std::endl;
-	    
 	    
 	      double en1(-9999), en2(-9999), energyFill(0);
 	      if (dep == 0) {
 		en1 = (useCorrect_) ? hcal_edepthCorrect1->at(ml) : hcal_edepth1->at(ml);
 		en2 = (useCorrect_) ? hcal_edepthHotCorrect1->at(ml) : hcal_edepthHot1->at(ml);
 		energyFill = hcal_activeHotL1->at(ml);  		
-		if(debug_) std::cout<<"Hello in 1 "<<en1<<":"<<en2<<":"<<energyFill<<std::endl;
 	      } else if (dep == 1) {
 		en1 = (useCorrect_) ? hcal_edepthCorrect2->at(ml) : hcal_edepth2->at(ml);
 		en2 = (useCorrect_) ? hcal_edepthHotCorrect2->at(ml) : hcal_edepthHot2->at(ml);
 		energyFill = hcal_activeHotL2->at(ml);  		
-		if(debug_) std::cout<<"Hello in 2 "<<en1<<":"<<en2<<":"<<energyFill<<std::endl;
 	      } else if (dep == 2) {
 		en1 = (useCorrect_) ? hcal_edepthCorrect3->at(ml) : hcal_edepth3->at(ml);
 		en2 = (useCorrect_) ? hcal_edepthHotCorrect3->at(ml) : hcal_edepthHot3->at(ml);
 		energyFill = hcal_activeHotL3->at(ml);  		
-		if(debug_) std::cout<<"Hello in 3 "<<en1<<":"<<en2<<":"<<energyFill<<std::endl;
 	      } else if (dep == 3) {
 		en1 = (useCorrect_) ? hcal_edepthCorrect4->at(ml) : hcal_edepth4->at(ml);
 		en2 = (useCorrect_) ? hcal_edepthHotCorrect4->at(ml) : hcal_edepthHot4->at(ml);
 		energyFill = hcal_activeHotL4->at(ml);  		
-		if(debug_) std::cout<<"Hello in 4 "<<en1<<":"<<en2<<":"<<energyFill<<std::endl;
 	      } else if (dep == 4) {
 		if (hcal_edepthCorrect5->size() > ml) {
 		  en1 = (useCorrect_) ? hcal_edepthCorrect5->at(ml) : hcal_edepth5->at(ml);
 		  en2 = (useCorrect_) ? hcal_edepthHotCorrect5->at(ml) : hcal_edepthHot5->at(ml);
 		  energyFill = hcal_activeHotL5->at(ml);  		
-		  if(debug_) std::cout<<"Hello in 5 "<<en1<<":"<<en2<<":"<<energyFill<<std::endl;
 		}
 	      } else if (dep == 5) {
 		if (hcal_edepthCorrect6->size() > ml) {
 		  en1 = (useCorrect_) ? hcal_edepthCorrect6->at(ml) : hcal_edepth6->at(ml);
 		  en2 = (useCorrect_) ? hcal_edepthHotCorrect6->at(ml) : hcal_edepthHot6->at(ml);
 		  energyFill = hcal_activeHotL6->at(ml);  		
-		  if(debug_) std::cout<<"Hello in 6 "<<en1<<":"<<en2<<":"<<energyFill<<std::endl;
 		}
 	      } else if (dep == 6) {
 		if (hcal_edepthCorrect7->size() > ml) {
 		  en1 = (useCorrect_) ? hcal_edepthCorrect7->at(ml) : hcal_edepth7->at(ml);
 		  en2 = (useCorrect_) ? hcal_edepthHotCorrect7->at(ml) : hcal_edepthHot7->at(ml);
 		  energyFill = hcal_activeHotL7->at(ml);  		
-		  if(debug_) std::cout<<"Hello in 7 "<<en1<<":"<<en2<<":"<<energyFill<<std::endl;
 		}
 	      }
-
-	      if(debug_) std::cout<<" Debug2"<<std::endl;
-	      if(debug_) std::cout<<"ok1"<<en1<<std::endl;
-	      if(debug_) std::cout<<"ok2"<<en2<<std::endl;
+	      if (debug_)
+		std::cout<<"Hello in " << dep+1 << " " << en1 << ":" << en2 
+			 << ":" << energyFill << std::endl;
 
 	      bool ok1 = (en1 > -9999);
 	      bool ok2 = (en2 > -9999);
 
-	      if(debug_) std::cout<<"Before Index"<<std::endl; 
+	      if (debug_) std::cout << "Before Index " << ok1 << ":" << ok2 << std::endl; 
 
 	      int ind = (etaHcal > 0) ? indxEta[eta][dep][PHI] : 1+indxEta[eta][dep][PHI];
 
@@ -878,9 +941,9 @@ void HBHEMuonOfflineAnalyzer::BookHistograms(const char* fname) {
   if (nHist >= maxHist) 
     std::cout << "Problem here " << nHist << ":" << maxHist << std::endl;
 
-  //	TDirectory *d_output_file[3][29];
+  //	TDirectory *d_output_file[nCut_][29];
   //output_file->cd();
-  for (int i=0; i<3; ++i) {
+  for (int i=0; i<nCut_; ++i) {
     sprintf (name,  "h_Pt_Muon_%s", type[i].c_str());
     sprintf (title, "p_{T} of %s muons (GeV)", type[i].c_str());
     h_Pt_Muon[i]  = new TH1D(name, title,100,0,200);
@@ -1059,9 +1122,9 @@ void HBHEMuonOfflineAnalyzer::BookHistograms(const char* fname) {
   //output_file->cd();
 }
 
-bool HBHEMuonOfflineAnalyzer::LooseMuon(unsigned int ml){
+bool HBHEMuonOfflineAnalyzer::LooseMuon(unsigned int ml) {
   if (pt_of_muon->at(ml) > 20.) {
-    if(mediumid2016->at(ml)  == 1) {
+    if (mediumMuon2016(ml)) {
       if (IsolationR04->at(ml) < 0.15) { 
 	return true;   
       }
@@ -1070,9 +1133,9 @@ bool HBHEMuonOfflineAnalyzer::LooseMuon(unsigned int ml){
   return false;   
 } 
 
-bool HBHEMuonOfflineAnalyzer::SoftMuon(unsigned int ml){
+bool HBHEMuonOfflineAnalyzer::SoftMuon(unsigned int ml) {
   if (pt_of_muon->at(ml) > 20.) {
-    if(mediumid2016->at(ml)  == 1) {
+    if (mediumMuon2016(ml)) {
       if (IsolationR04->at(ml) < 0.15) { 
 	return true;   
       }
@@ -1083,13 +1146,27 @@ bool HBHEMuonOfflineAnalyzer::SoftMuon(unsigned int ml){
 
 bool HBHEMuonOfflineAnalyzer::tightMuon(unsigned int ml) {
   if (pt_of_muon->at(ml) > 20.) {
-    if(mediumid2016->at(ml)  == 1) {
+    if (mediumMuon2016(ml)) {
       if (IsolationR04->at(ml) < 0.15) { 
 	return true;   
       }
     }  
   }
   return false;
+}
+
+bool HBHEMuonOfflineAnalyzer::mediumMuon2016(unsigned int ml) {
+  bool medium16 = (((PF_Muon->at(ml))  && 
+		    (Global_Muon->at(ml) || Tracker_muon->at(ml))) && 
+		   (tight_validFraction->at(ml) > 0.49));
+  if (!medium16) return medium16;
+
+  bool goodGlob = (Global_Muon->at(ml) && 
+		   GlobTrack_Chi->at(ml) < 3 && 
+		   muon_chi2LocalPosition->at(ml) < 12 && 
+		   muon_trkKink->at(ml) < 20); 
+  medium16 =  muon_segComp->at(ml) > (goodGlob ? 0.303 : 0.451); 
+  return medium16;
 }
 
 void HBHEMuonOfflineAnalyzer::etaPhiHcal(unsigned int detId, int &eta, int &phi, int &depth) {
@@ -1159,7 +1236,7 @@ void HBHEMuonOfflineAnalyzer::WriteHistograms() {
   std::string type[]={"tight","soft","loose"};
   char name[128];
   
-  std::cout<<"BookHistograms"<<std::endl;
+  std::cout<<"WriteHistograms"<<std::endl;
   nHist = 0;
   for (int eta=0; eta<29; ++eta) {
     
@@ -1175,9 +1252,9 @@ void HBHEMuonOfflineAnalyzer::WriteHistograms() {
     }
   }
 
-  TDirectory *d_output_file[3][29];
+  TDirectory *d_output_file[nCut_][29];
   //output_file->cd();
-  for (int i=0; i<3; ++i) {
+  for (int i=0; i<nCut_; ++i) {
 
     h_Pt_Muon[i]->Write();
     h_Eta_Muon[i]->Write();

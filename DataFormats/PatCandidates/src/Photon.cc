@@ -195,14 +195,14 @@ reco::SuperClusterRef Photon::superCluster() const {
             if (embeddedSeedCluster_ && !(*sc)[0].seed().isAvailable()) {
                 (*sc)[0].setSeed(seed());
             }
-            if (basicClusters_.size() && !(*sc)[0].clusters().isAvailable()) {
+            if (!basicClusters_.empty() && !(*sc)[0].clusters().isAvailable()) {
                 reco::CaloClusterPtrVector clusters;
                 for (unsigned int iclus=0; iclus<basicClusters_.size(); ++iclus) {
                     clusters.push_back(reco::CaloClusterPtr(&basicClusters_,iclus));
                 }
                 (*sc)[0].setClusters(clusters);
             }
-            if (preshowerClusters_.size() && !(*sc)[0].preshowerClusters().isAvailable()) {
+            if (!preshowerClusters_.empty() && !(*sc)[0].preshowerClusters().isAvailable()) {
                 reco::CaloClusterPtrVector clusters;
                 for (unsigned int iclus=0; iclus<preshowerClusters_.size(); ++iclus) {
                     clusters.push_back(reco::CaloClusterPtr(&preshowerClusters_,iclus));
@@ -273,7 +273,7 @@ void Photon::embedPreshowerClusters() {
 
 // method to store the RecHits internally
 void Photon::embedRecHits(const EcalRecHitCollection * rechits) {
-  if (rechits!=0) {
+  if (rechits!=nullptr) {
     recHits_ = *rechits;
     embeddedRecHits_ = true;
   }

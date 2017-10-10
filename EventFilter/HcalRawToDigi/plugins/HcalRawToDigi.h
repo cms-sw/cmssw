@@ -30,9 +30,9 @@ class HcalRawToDigi : public edm::stream::EDProducer <>
 {
 public:
   explicit HcalRawToDigi(const edm::ParameterSet& ps);
-  virtual ~HcalRawToDigi();
+  ~HcalRawToDigi() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  virtual void produce(edm::Event& , const edm::EventSetup&) override;
+  void produce(edm::Event& , const edm::EventSetup&) override;
 private:
   edm::EDGetTokenT<FEDRawDataCollection> tok_data_;
   HcalUnpacker unpacker_;

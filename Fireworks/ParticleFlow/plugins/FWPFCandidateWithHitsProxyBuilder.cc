@@ -79,9 +79,9 @@ void
 FWPFCandidateWithHitsProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext* vc)
 {
    // init PFCandiate collection
-   reco::PFCandidateCollection const * candidates = 0;
+   reco::PFCandidateCollection const * candidates = nullptr;
    iItem->get( candidates );
-   if( candidates == 0 ) return;
+   if( candidates == nullptr ) return;
 
  
    Int_t idx = 0;
@@ -122,7 +122,7 @@ void FWPFCandidateWithHitsProxyBuilder::initPFRecHitsCollections()
    edm::Handle<reco::PFRecHitCollection> handle_hits;
 
 
-   m_collectionHCAL =0;
+   m_collectionHCAL =nullptr;
    try
    {
       // edm::InputTag tag("particleFlowRecHitHCAL");
@@ -182,7 +182,7 @@ const reco::PFRecHit* FWPFCandidateWithHitsProxyBuilder::getHitForDetId(unsigned
          return  &(*it);
       }
    }
-   return 0;
+   return nullptr;
 }
 
 //______________________________________________________________________________
@@ -249,8 +249,8 @@ void FWPFCandidateWithHitsProxyBuilder::addHitsForCandidate(const reco::PFCandid
 { 
    reco::PFCandidate::ElementsInBlocks eleInBlocks = cand.elementsInBlocks();
 
-   TEveBoxSet* boxset = 0;
-   TEveStraightLineSet* lineset = 0;
+   TEveBoxSet* boxset = nullptr;
+   TEveStraightLineSet* lineset = nullptr;
 
    for(unsigned elIdx=0; elIdx<eleInBlocks.size(); elIdx++)
    {
@@ -285,8 +285,8 @@ void FWPFCandidateWithHitsProxyBuilder::addHitsForCandidate(const reco::PFCandid
                boxset = new TEveBoxSet();
                boxset->Reset(TEveBoxSet::kBT_FreeBox, true, hitsandfracs.size());
                boxset->SetAntiFlick(true);
-               boxset->SetAlwaysSecSelect(1);
-               boxset->SetPickable(1);
+               boxset->SetAlwaysSecSelect(true);
+               boxset->SetPickable(true);
                boxset->SetTooltipCBFoo(boxset_tooltip_callback);
             }
 

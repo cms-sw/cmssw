@@ -169,9 +169,11 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
       label = "ME+" + suffix_label[9 - i];
     }
 
-    if (hist < 6 || hist > 13) {
+    if (hist < 6) {
       nChambs = (i % 2) ? 18 : 36;
-    } else {
+    } else if (hist > 13) { 
+      nChambs = (i % 2) ? 36 : 18; 
+    } else { 
       nChambs = 36;
     }
     
@@ -278,7 +280,7 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
     }
   }
       
-  rpcHitTimingInTrack = ibooker.book2D("rpcHitTimingInTrack", "RPC Hit Timing (in Track)", 7, -3, 4, 12, 0, 12);
+  rpcHitTimingInTrack = ibooker.book2D("rpcHitTimingInTrack", "RPC Hit Timing (matched to BX 0 track)", 7, -3, 4, 12, 0, 12);
   rpcHitTimingInTrack->setAxisTitle("BX", 1);
   for (int xbin = 1, xbin_label = -3; xbin <= 7; ++xbin, ++xbin_label) {
     rpcHitTimingInTrack->setBinLabel(xbin, std::to_string(xbin_label), 1);
@@ -302,7 +304,7 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
     }
     emtfTrackBXVsRPCHit[hist] = ibooker.book2D("emtfTrackBXVsRPCHit" + nameNumStation[hist], 
 					       "EMTF " + labelNumStation[hist] + " BX vs RPC Hit BX", 7, -3, 4, 7, -3, 4);
-    emtfTrackBXVsRPCHit[hist]->setAxisTitle("LCT BX", 1);
+    emtfTrackBXVsRPCHit[hist]->setAxisTitle("Hit BX", 1);
     emtfTrackBXVsRPCHit[hist]->setAxisTitle("Track BX", 2);
     for (int bin = 1, bin_label = -3; bin <= 7; ++bin, ++bin_label) {
       emtfTrackBXVsRPCHit[hist]->setBinLabel(bin, std::to_string(bin_label), 1);
@@ -480,7 +482,6 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     emtfTrackPt->Fill(Track->Pt());
     emtfTrackEta->Fill(eta);
     
-    emtfTrackOccupancy->Fill(eta, phi_glob_rad);
     emtfTrackMode->Fill(mode);
     emtfTrackQuality->Fill(quality);
     emtfTrackQualityVsMode->Fill(mode, quality);
@@ -488,6 +489,7 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     // Only plot if there are <= 1 neighbor hits in the track to avoid spikes at sector boundaries
     if (modeNeighbor < 2 || modeNeighbor == 4 || modeNeighbor == 8) {
       emtfTrackPhi->Fill(phi_glob_rad);
+      emtfTrackOccupancy->Fill(eta, phi_glob_rad);
       if (quality >= 12) {
         emtfTrackPhiHighQuality->Fill(phi_glob_rad);
       }

@@ -2,7 +2,7 @@
 #define EventFilter_Utilities_FedRawDataInputSource_h
 
 #include <memory>
-#include <stdio.h>
+#include <cstdio>
 #include <mutex>
 #include <condition_variable>
 #include <thread>
@@ -19,8 +19,6 @@
 #include "FWCore/Sources/interface/DaqProvenanceHelper.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "IOPool/Streamer/interface/FRDEventMessage.h"
-
-#include "EventFilter/FEDInterface/interface/FED1024.h"
 
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 
@@ -47,16 +45,16 @@ friend struct InputChunk;
 
 public:
   explicit FedRawDataInputSource(edm::ParameterSet const&,edm::InputSourceDescription const&);
-  virtual ~FedRawDataInputSource();
+  ~FedRawDataInputSource() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   std::pair<bool,unsigned int> getEventReport(unsigned int lumi, bool erase);
 protected:
-  virtual bool checkNextEvent() override;
-  virtual void read(edm::EventPrincipal& eventPrincipal) override;
+  bool checkNextEvent() override;
+  void read(edm::EventPrincipal& eventPrincipal) override;
 
 private:
-  virtual void rewind_() override;
+  void rewind_() override;
 
   void maybeOpenNewLumiSection(const uint32_t lumiSection);
   void createBoLSFile(const uint32_t lumiSection,bool checkIfExists);
@@ -77,7 +75,7 @@ private:
   //monitoring
   void reportEventsThisLumiInSource(unsigned int lumi,unsigned int events);
 
-  long initFileList(); 
+  long initFileList();
   evf::EvFDaqDirector::FileStatus getFile(unsigned int& ls, std::string& nextFile, uint32_t& fsize, uint64_t& lockWaitTime);
 
   //variables
@@ -224,7 +222,7 @@ struct InputFile {
   uint32_t  chunkPosition_ = 0;
   unsigned int currentChunk_ = 0;
 
-  InputFile(evf::EvFDaqDirector::FileStatus status, unsigned int lumi = 0, std::string const& name = std::string(), 
+  InputFile(evf::EvFDaqDirector::FileStatus status, unsigned int lumi = 0, std::string const& name = std::string(),
       uint32_t fileSize =0, uint32_t nChunks=0, int nEvents=0, FedRawDataInputSource *parent = nullptr):
     parent_(parent),
     status_(status),

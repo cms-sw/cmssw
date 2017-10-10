@@ -166,7 +166,7 @@ void SETMuonSeedProducer::produce(edm::Event& event, const edm::EventSetup& even
       continue;
     }
     //---- are there measurements (or detLayers) used at all?
-    if( filter()->layers().size() )
+    if( !filter()->layers().empty() )
       LogTrace(metname) << debug.dumpLayer( filter()->lastDetLayer());
     else {
       continue;

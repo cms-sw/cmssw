@@ -7,14 +7,14 @@ class PhoAnyPFIsoWithEACut : public CutApplicatorWithEventContentBase {
 public:
   PhoAnyPFIsoWithEACut(const edm::ParameterSet& c);
   
-  result_type operator()(const reco::PhotonPtr&) const override final;
+  result_type operator()(const reco::PhotonPtr&) const final;
 
-  void setConsumes(edm::ConsumesCollector&) override final;
-  void getEventContent(const edm::EventBase&) override final;
+  void setConsumes(edm::ConsumesCollector&) final;
+  void getEventContent(const edm::EventBase&) final;
 
-  double value(const reco::CandidatePtr& cand) const override final;
+  double value(const reco::CandidatePtr& cand) const final;
 
-  CandidateType candidateType() const override final { 
+  CandidateType candidateType() const final { 
     return PHOTON; 
   }
 

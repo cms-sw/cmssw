@@ -43,7 +43,7 @@ void NamedCompositeCandidate::applyRoles()
     Candidate * c = CompositeCandidate::daughter( i );
 
     NamedCompositeCandidate * c1 = dynamic_cast<NamedCompositeCandidate *>(c);
-    if ( c1 != 0 ) {
+    if ( c1 != nullptr ) {
       c1->setName( role );
     }
   }
@@ -103,7 +103,7 @@ void NamedCompositeCandidate::addDaughter( const Candidate & cand, const std::st
   roles_.push_back( s );
   std::unique_ptr<Candidate> c( cand.clone() );
   NamedCompositeCandidate * c1 =  dynamic_cast<NamedCompositeCandidate*>(&*c);
-  if ( c1 != 0 ) {
+  if ( c1 != nullptr ) {
     c1->setName( s );
   }
   CompositeCandidate::addDaughter( std::move(c) );
@@ -121,7 +121,7 @@ void NamedCompositeCandidate::addDaughter( std::unique_ptr<Candidate> cand, cons
 
   roles_.push_back( s );
   NamedCompositeCandidate * c1 = dynamic_cast<NamedCompositeCandidate*>(&*cand);
-  if ( c1 != 0 ) {
+  if ( c1 != nullptr ) {
     c1->setName( s );
   }
   CompositeCandidate::addDaughter( std::move(cand) );
