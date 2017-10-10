@@ -185,6 +185,45 @@ susyMuEGMonitoring.phoSelection = cms.string('(pt > 30 && abs(eta)<1.4442 && had
 susyMuEGMonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu17_Photon30_IsoCaloId*')
 susyMuEGMonitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring('')
 
+#george
+#muon dca
+double_soft_muon_dca_muonpt = hltTOPmonitoring.clone()
+double_soft_muon_dca_muonpt.FolderName   = cms.string('HLT/SUSY/SOS/DCA/Muon/')
+# Selections
+double_soft_muon_dca_muonpt.nmuons           = cms.uint32(2)
+double_soft_muon_dca_muonpt.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
+double_soft_muon_dca_muonpt.HTcut            = cms.double(60)
+double_soft_muon_dca_muonpt.metSelection     =cms.string('pt>150')
+double_soft_muon_dca_muonpt.MHTdefinition    = cms.string('pt>30 & abs(eta)<2.4')
+double_soft_muon_dca_muonpt.MHTcut           = cms.double(150)
+double_soft_muon_dca_muonpt.invMassUppercut  = cms.double(50)
+double_soft_muon_dca_muonpt.invMassLowercut  = cms.double(10)
+# Binning
+double_soft_muon_dca_muonpt.histoPSet.muPtBinning      =cms.vdouble(0,2,5,7,10,12,15,17,20,25,30,50)
+double_soft_muon_dca_muonpt.histoPSet.muPtBinning2D    =cms.vdouble(0,2,5,7,10,12,15,17,20,25,30,50)
+# Triggers
+double_soft_muon_dca_muonpt.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_DoubleMu3_DCA_PFMET50_PFMHT60_v*')
+double_soft_muon_dca_muonpt.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFMET140_PFMHT140_v*')
+
+#met
+double_soft_muon_dca_metpt = hltTOPmonitoring.clone()
+double_soft_muon_dca_metpt.FolderName   = cms.string('HLT/SUSY/SOS/DCA/MET/')
+# Selections
+double_soft_muon_dca_metpt.nmuons           = cms.uint32(2)
+double_soft_muon_dca_metpt.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
+double_soft_muon_dca_metpt.HTcut            = cms.double(60)
+double_soft_muon_dca_metpt.muoSelection     =cms.string('pt>18 & abs(eta)<2.4')
+double_soft_muon_dca_metpt.MHTdefinition    = cms.string('pt>30 & abs(eta)<2.4')
+double_soft_muon_dca_metpt.MHTcut           = cms.double(150)
+double_soft_muon_dca_metpt.invMassUppercut       = cms.double(50)
+double_soft_muon_dca_metpt.invMassLowercut       = cms.double(10)
+# Binning
+double_soft_muon_dca_metpt.histoPSet.metPSet   =cms.PSet(nbins=cms.uint32(50),xmin=cms.double(50),xmax=cms.double(300) )
+# Triggers
+double_soft_muon_dca_metpt.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_DoubleMu3_DCA_PFMET50_PFMHT60_v*')
+double_soft_muon_dca_metpt.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*')
+
+
 susyMonitorHLT = cms.Sequence(
     susyHLTRazorMonitoring
   + susyHLTVBFMonitoring
@@ -199,6 +238,8 @@ susyMonitorHLT = cms.Sequence(
   + double_soft_muon_backup_90_metpt
   + double_soft_muon_backup_90_mhtpt
   + susyMuEGMonitoring 
+  +double_soft_muon_dca_muonpt
+  +double_soft_muon_dca_metpt
 )
 
 susHLTDQMSourceExtra = cms.Sequence(
