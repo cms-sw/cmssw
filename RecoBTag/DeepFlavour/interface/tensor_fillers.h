@@ -1,23 +1,23 @@
 #ifndef RecoBTag_DeepFlavour_tensor_fillers_h
 #define RecoBTag_DeepFlavour_tensor_fillers_h
 
-#include "PhysicsTools/TensorFlow/interface/Tensor.h"
+#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 #include "DataFormats/DeepFormats/interface/DeepFlavourTagInfo.h"
 
 namespace btagbtvdeep {
 
   // Note on setting tensor values:
-  // Instead of using the more convenient tensor.getPtr or tensor.setVector
-  // methods, we exploit that in the following methods values are set along
+  // Instead of using the more convenient tensor.matrix (etc) methods,
+  // we can exploit that in the following methods values are set along
   // the innermost (= last) axis. Those values are stored contiguously in
   // the memory, so it is most performant to get the pointer to the first
   // value and use pointer arithmetic to iterate through the next pointers.
 
-  void jet_tensor_filler(tf::Tensor * tensor,
+  void jet_tensor_filler(tf::Tensor & tensor,
                          std::size_t jet_n,
                          const btagbtvdeep::DeepFlavourFeatures & features) {
 
-    float* ptr = tensor->getPtr<float>(jet_n, 0);
+    float* ptr = &tensor.matrix<float>()(jet_n, 0);
 
     // jet variables
     const auto & jet_features = features.jet_features;
@@ -42,12 +42,12 @@ namespace btagbtvdeep {
 
   }
 
-  void c_pf_tensor_filler(tf::Tensor * tensor,
+  void c_pf_tensor_filler(tf::Tensor & tensor,
                           std::size_t jet_n,
                           std::size_t c_pf_n,
                           const btagbtvdeep::ChargedCandidateFeatures & c_pf_features) {
 
-    float* ptr = tensor->getPtr<float>(jet_n, c_pf_n, 0);
+    float* ptr = &tensor.tensor<float, 3>()(jet_n, c_pf_n, 0);
 
     *ptr     = c_pf_features.btagPf_trackEtaRel;
     *(++ptr) = c_pf_features.btagPf_trackPtRel;
@@ -68,12 +68,12 @@ namespace btagbtvdeep {
 
   }
 
-  void n_pf_tensor_filler(tf::Tensor * tensor,
+  void n_pf_tensor_filler(tf::Tensor & tensor,
                           std::size_t jet_n,
                           std::size_t n_pf_n,
                           const btagbtvdeep::NeutralCandidateFeatures & n_pf_features) {
 
-    float* ptr = tensor->getPtr<float>(jet_n, n_pf_n, 0);
+    float* ptr = &tensor.tensor<float, 3>()(jet_n, n_pf_n, 0);
 
     *ptr     = n_pf_features.ptrel;
     *(++ptr) = n_pf_features.deltaR;
@@ -84,12 +84,12 @@ namespace btagbtvdeep {
 
   }
 
-  void sv_tensor_filler(tf::Tensor * tensor,
+  void sv_tensor_filler(tf::Tensor & tensor,
                           std::size_t jet_n,
                           std::size_t sv_n,
                           const btagbtvdeep::SecondaryVertexFeatures & sv_features) {
 
-    float* ptr = tensor->getPtr<float>(jet_n, sv_n, 0);
+    float* ptr = &tensor.tensor<float, 3>()(jet_n, sv_n, 0);
 
     *ptr     = sv_features.pt;
     *(++ptr) = sv_features.deltaR;
