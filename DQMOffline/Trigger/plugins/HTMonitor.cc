@@ -105,7 +105,7 @@ void HTMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   std::string histname, histtitle;
 
   std::string currentFolder = folderName_ ;
-  ibooker.setCurrentFolder(currentFolder.c_str());
+  ibooker.setCurrentFolder(currentFolder);
 
   if(quantity_ == "HT")
   {
@@ -176,7 +176,7 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
   float deltaPhi_met_j1 = 10.0;
   float deltaPhi_j1_j2 = 10.0;
 
-  if (jets.size() >= 1) deltaPhi_met_j1 = fabs( deltaPhi( pfmet.phi(),  jets.at(0).phi() ));
+  if (!jets.empty()) deltaPhi_met_j1 = fabs( deltaPhi( pfmet.phi(),  jets.at(0).phi() ));
   if (jets.size() >= 2) deltaPhi_j1_j2 = fabs( deltaPhi( jets.at(0).phi(),  jets.at(1).phi() ));
 
   edm::Handle<reco::GsfElectronCollection> eleHandle;
