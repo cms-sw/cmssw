@@ -289,7 +289,7 @@ float HGCalShowerShape::sigmaPhiPhiMax(const l1t::HGCalMulticluster& c3d) const 
     
     const std::vector<std::pair<float, float> >& energy_phi_layer = tc_iter.second;
     const LorentzVector& LV_layer = layer_LV[tc_iter.first];
-    float SigmaPhiPhiLayer = sigmaXX(energy_phi_layer,LV_layer.phi()); //RMS wrt layer phi, not wrt c3d phi
+    float SigmaPhiPhiLayer = sigmaPhiPhi(energy_phi_layer,LV_layer.phi()); //RMS wrt layer phi, not wrt c3d phi
     if(SigmaPhiPhiLayer > SigmaPhiPhiMax) SigmaPhiPhiMax = SigmaPhiPhiLayer;
 
   }
@@ -433,7 +433,7 @@ float HGCalShowerShape::sigmaPhiPhiTot(const l1t::HGCalCluster& c2d) const {
     
   }
   
-  float Spp = sigmaXX(tc_energy_phi,c2d.phi());
+  float Spp = sigmaPhiPhi(tc_energy_phi,c2d.phi());
   
   return Spp;
   
