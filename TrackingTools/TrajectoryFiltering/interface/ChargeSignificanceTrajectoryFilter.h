@@ -19,13 +19,13 @@ public:
   explicit ChargeSignificanceTrajectoryFilter( const edm::ParameterSet & pset, edm::ConsumesCollector& iC):
     theChargeSignificance(pset.getParameter<double>("chargeSignificance")) {}
 
-  virtual bool qualityFilter( const Trajectory& traj) const { return traj.isValid();}
-  virtual bool qualityFilter( const TempTrajectory& traj)const { return traj.isValid();}
+  bool qualityFilter( const Trajectory& traj) const override { return traj.isValid();}
+  bool qualityFilter( const TempTrajectory& traj)const override { return traj.isValid();}
  
-  virtual bool toBeContinued( Trajectory& traj)const { return TBC<Trajectory>(traj);}
-  virtual bool toBeContinued( TempTrajectory& traj) const { return TBC<TempTrajectory>(traj);}
+  bool toBeContinued( Trajectory& traj)const override { return TBC<Trajectory>(traj);}
+  bool toBeContinued( TempTrajectory& traj) const override { return TBC<TempTrajectory>(traj);}
   
-  virtual std::string name() const {return "ChargeSignificanceTrajectoryFilter";}
+  std::string name() const override {return "ChargeSignificanceTrajectoryFilter";}
 
 protected:
 

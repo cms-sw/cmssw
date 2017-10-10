@@ -20,7 +20,7 @@ NavCone::propagateWithPath( const Propagator& prop,
 class NavConeNotImplementedDistanceAlongLine : public std::exception {
 public:
     NavConeNotImplementedDistanceAlongLine() throw() {}
-    virtual ~NavConeNotImplementedDistanceAlongLine() throw() {}
+    ~NavConeNotImplementedDistanceAlongLine() throw() override {}
 };
 
 std::pair<bool,double> 

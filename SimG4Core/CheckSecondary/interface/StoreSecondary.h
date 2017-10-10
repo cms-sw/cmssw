@@ -23,18 +23,18 @@ class StoreSecondary : public SimProducer,
 
 public:
   StoreSecondary(const edm::ParameterSet &p);
-  virtual ~StoreSecondary();
+  ~StoreSecondary() override;
 
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  StoreSecondary(const StoreSecondary&); // stop default
-  const StoreSecondary& operator=(const StoreSecondary&);
+  StoreSecondary(const StoreSecondary&) = delete; // stop default
+  const StoreSecondary& operator=(const StoreSecondary&) = delete;
 
   // observer classes
-  void update(const BeginOfEvent * evt);
-  void update(const BeginOfTrack * trk);
-  void update(const G4Step * step);
+  void update(const BeginOfEvent * evt) override;
+  void update(const BeginOfTrack * trk) override;
+  void update(const G4Step * step) override;
 
 private:
   int                  verbosity, killAfter;

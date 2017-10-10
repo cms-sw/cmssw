@@ -56,12 +56,12 @@ class SPYHistograms: public HistogramBase {
 
   SPYHistograms();
   
-  ~SPYHistograms();
+  ~SPYHistograms() override;
   
   //initialise histograms
   void initialise(const edm::ParameterSet& iConfig,
 		  std::ostringstream* pDebugStream
-		  );
+		  ) override;
 
   //book the top level histograms
   void bookTopLevelHistograms(DQMStore::IBooker &);
@@ -84,12 +84,12 @@ class SPYHistograms: public HistogramBase {
 			      const unsigned int aFedId, 
 			      const unsigned int aFedChannel);
 
-  bool tkHistoMapEnabled(unsigned int aIndex=0){
+  bool tkHistoMapEnabled(unsigned int aIndex=0) override{
     return false;
   };
 
-  TkHistoMap * tkHistoMapPointer(unsigned int aIndex=0){
-    return 0;
+  TkHistoMap * tkHistoMapPointer(unsigned int aIndex=0) override{
+    return nullptr;
 };
 
  protected:

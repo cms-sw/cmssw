@@ -31,15 +31,15 @@
 class PixelVTXMonitor : public edm::EDAnalyzer {
 public:
   PixelVTXMonitor( const edm::ParameterSet& );
-  ~PixelVTXMonitor();
+  ~PixelVTXMonitor() override;
 
 protected:
 
-  void beginJob();
-  void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup);
-  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup);
-  void endRun(edm::Run const& iRun,  edm::EventSetup const& iSetup);
-  void endJob();
+  void beginJob() override;
+  void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
+  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
+  void endRun(edm::Run const& iRun,  edm::EventSetup const& iSetup) override;
+  void endJob() override;
 
 private:
 

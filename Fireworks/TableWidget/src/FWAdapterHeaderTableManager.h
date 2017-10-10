@@ -34,24 +34,24 @@ class FWAdapterHeaderTableManager : public FWTableManagerBase
 
    public:
       FWAdapterHeaderTableManager(const FWTableManagerBase*);
-      virtual ~FWAdapterHeaderTableManager();
+      ~FWAdapterHeaderTableManager() override;
 
       // ---------- const member functions ---------------------
-      virtual  int numberOfRows() const ;
-      virtual  int numberOfColumns() const ;
-      virtual std::vector<std::string> getTitles() const;
-      virtual FWTableCellRendererBase* cellRenderer(int iRow, int iCol) const;
-      int unsortedRowNumber(int) const;
+       int numberOfRows() const override ;
+       int numberOfColumns() const override ;
+      std::vector<std::string> getTitles() const override;
+      FWTableCellRendererBase* cellRenderer(int iRow, int iCol) const override;
+      int unsortedRowNumber(int) const override;
 
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      virtual void implSort(int col, bool sortOrder) ;
+      void implSort(int col, bool sortOrder) override ;
 
    private:
-      FWAdapterHeaderTableManager(const FWAdapterHeaderTableManager&); // stop default
+      FWAdapterHeaderTableManager(const FWAdapterHeaderTableManager&) = delete; // stop default
 
-      const FWAdapterHeaderTableManager& operator=(const FWAdapterHeaderTableManager&); // stop default
+      const FWAdapterHeaderTableManager& operator=(const FWAdapterHeaderTableManager&) = delete; // stop default
 
       // ---------- member data --------------------------------
       const FWTableManagerBase* m_table;

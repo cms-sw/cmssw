@@ -23,7 +23,7 @@ ALIUnitDefinition::ALIUnitDefinition(ALIstring name, ALIstring symbol,
   CategoryIndex = i;
   //
   //insert this Unit in the Unitstable
-  (theUnitsTable[CategoryIndex]->GetUnitsList()).push_back(this);
+  (theUnitsTable[CategoryIndex]->GetUnitsList()).emplace_back(shared_from_this());
 
   //update ALIstring max length for name and symbol
   theUnitsTable[i]->UpdateNameMxLen((ALIint)name.length());
@@ -74,7 +74,7 @@ ALIint ALIUnitDefinition::operator!=(const ALIUnitDefinition &right) const
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 ALIdouble ALIUnitDefinition::GetValueOf(ALIstring stri)
 {
-  if(theUnitsTable.size()==0) BuildUnitsTable();
+  if(theUnitsTable.empty()) BuildUnitsTable();
   ALIstring name,symbol;
   for (size_t i=0;i<theUnitsTable.size();i++)
      { ALIUnitsContainer& units = theUnitsTable[i]->GetUnitsList();
@@ -94,7 +94,7 @@ ALIdouble ALIUnitDefinition::GetValueOf(ALIstring stri)
 
 ALIstring ALIUnitDefinition::GetCategory(ALIstring stri)
 {
-  if(theUnitsTable.size()==0) BuildUnitsTable();
+  if(theUnitsTable.empty()) BuildUnitsTable();
   ALIstring name,symbol;
   for (size_t i=0;i<theUnitsTable.size();i++)
      { ALIUnitsContainer& units = theUnitsTable[i]->GetUnitsList();
@@ -125,117 +125,117 @@ void ALIUnitDefinition::PrintDefinition()
 
 void ALIUnitDefinition::BuildUnitsTable()
 {
- //Length
- new ALIUnitDefinition( "kilometer","km"      ,"Length",kilometer);
- new ALIUnitDefinition(     "meter","m"       ,"Length",meter);
- new ALIUnitDefinition("centimeter","cm"      ,"Length",centimeter);
- new ALIUnitDefinition("millimeter","mm"      ,"Length",millimeter);
- new ALIUnitDefinition("micrometer","mum"     ,"Length",micrometer);
- new ALIUnitDefinition( "nanometer","nm"      ,"Length",nanometer);
- new ALIUnitDefinition(  "angstrom","Ang"     ,"Length",angstrom);
- new ALIUnitDefinition(     "fermi","fm"      ,"Length",fermi);
+  //Length
+  std::make_shared<ALIUnitDefinition>( "kilometer","km"      ,"Length",kilometer);
+  std::make_shared<ALIUnitDefinition>(     "meter","m"       ,"Length",meter);
+  std::make_shared<ALIUnitDefinition>("centimeter","cm"      ,"Length",centimeter);
+  std::make_shared<ALIUnitDefinition>("millimeter","mm"      ,"Length",millimeter);
+  std::make_shared<ALIUnitDefinition>("micrometer","mum"     ,"Length",micrometer);
+  std::make_shared<ALIUnitDefinition>( "nanometer","nm"      ,"Length",nanometer);
+  std::make_shared<ALIUnitDefinition>(  "angstrom","Ang"     ,"Length",angstrom);
+  std::make_shared<ALIUnitDefinition>(     "fermi","fm"      ,"Length",fermi);
 
- //Surface
- new ALIUnitDefinition( "kilometer2","km2"    ,"Surface",kilometer2);
- new ALIUnitDefinition(     "meter2","m2"     ,"Surface",meter2);
- new ALIUnitDefinition("centimeter2","cm2"    ,"Surface",centimeter2);
- new ALIUnitDefinition("millimeter2","mm2"    ,"Surface",millimeter2);
- new ALIUnitDefinition(       "barn","barn"   ,"Surface",barn);
- new ALIUnitDefinition(  "millibarn","mbarn"  ,"Surface",millibarn);
- new ALIUnitDefinition(  "microbarn","mubarn" ,"Surface",microbarn);
- new ALIUnitDefinition(   "nanobarn","nbarn"  ,"Surface",nanobarn);
- new ALIUnitDefinition(   "picobarn","pbarn"  ,"Surface",picobarn);
+  //Surface
+  std::make_shared<ALIUnitDefinition>( "kilometer2","km2"    ,"Surface",kilometer2);
+  std::make_shared<ALIUnitDefinition>(     "meter2","m2"     ,"Surface",meter2);
+  std::make_shared<ALIUnitDefinition>("centimeter2","cm2"    ,"Surface",centimeter2);
+  std::make_shared<ALIUnitDefinition>("millimeter2","mm2"    ,"Surface",millimeter2);
+  std::make_shared<ALIUnitDefinition>(       "barn","barn"   ,"Surface",barn);
+  std::make_shared<ALIUnitDefinition>(  "millibarn","mbarn"  ,"Surface",millibarn);
+  std::make_shared<ALIUnitDefinition>(  "microbarn","mubarn" ,"Surface",microbarn);
+  std::make_shared<ALIUnitDefinition>(   "nanobarn","nbarn"  ,"Surface",nanobarn);
+  std::make_shared<ALIUnitDefinition>(   "picobarn","pbarn"  ,"Surface",picobarn);
 
- //Volume
- new ALIUnitDefinition( "kilometer3","km3"    ,"Volume",kilometer3);
- new ALIUnitDefinition(     "meter3","m3"     ,"Volume",meter3);
- new ALIUnitDefinition("centimeter3","cm3"    ,"Volume",centimeter3);
- new ALIUnitDefinition("millimeter3","mm3"    ,"Volume",millimeter3);
+  //Volume
+  std::make_shared<ALIUnitDefinition>( "kilometer3","km3"    ,"Volume",kilometer3);
+  std::make_shared<ALIUnitDefinition>(     "meter3","m3"     ,"Volume",meter3);
+  std::make_shared<ALIUnitDefinition>("centimeter3","cm3"    ,"Volume",centimeter3);
+  std::make_shared<ALIUnitDefinition>("millimeter3","mm3"    ,"Volume",millimeter3);
 
- //Angle
- new ALIUnitDefinition(     "radian","rad"    ,"Angle",radian);
- new ALIUnitDefinition("milliradian","mrad"   ,"Angle",milliradian);
- new ALIUnitDefinition("milliradian","murad"   ,"Angle",0.001*milliradian);
- new ALIUnitDefinition(  "steradian","sr"     ,"Angle",steradian);
- new ALIUnitDefinition(     "degree","deg"    ,"Angle",degree);
+  //Angle
+  std::make_shared<ALIUnitDefinition>(     "radian","rad"    ,"Angle",radian);
+  std::make_shared<ALIUnitDefinition>("milliradian","mrad"   ,"Angle",milliradian);
+  std::make_shared<ALIUnitDefinition>("milliradian","murad"   ,"Angle",0.001*milliradian);
+  std::make_shared<ALIUnitDefinition>(  "steradian","sr"     ,"Angle",steradian);
+  std::make_shared<ALIUnitDefinition>(     "degree","deg"    ,"Angle",degree);
 
- //Time
- new ALIUnitDefinition(     "second","s"      ,"Time",second);
- new ALIUnitDefinition("millisecond","ms"     ,"Time",millisecond);
- new ALIUnitDefinition("microsecond","mus"    ,"Time",microsecond);
- new ALIUnitDefinition( "nanosecond","ns"     ,"Time",nanosecond);
- new ALIUnitDefinition( "picosecond","ps"     ,"Time",picosecond);
+  //Time
+  std::make_shared<ALIUnitDefinition>(     "second","s"      ,"Time",second);
+  std::make_shared<ALIUnitDefinition>("millisecond","ms"     ,"Time",millisecond);
+  std::make_shared<ALIUnitDefinition>("microsecond","mus"    ,"Time",microsecond);
+  std::make_shared<ALIUnitDefinition>( "nanosecond","ns"     ,"Time",nanosecond);
+  std::make_shared<ALIUnitDefinition>( "picosecond","ps"     ,"Time",picosecond);
 
- //Frequency
- new ALIUnitDefinition(    "hertz","Hz"       ,"Frequency",hertz);
- new ALIUnitDefinition("kilohertz","kHz"      ,"Frequency",kilohertz);
- new ALIUnitDefinition("megahertz","MHz"      ,"Frequency",megahertz);
+  //Frequency
+  std::make_shared<ALIUnitDefinition>(    "hertz","Hz"       ,"Frequency",hertz);
+  std::make_shared<ALIUnitDefinition>("kilohertz","kHz"      ,"Frequency",kilohertz);
+  std::make_shared<ALIUnitDefinition>("megahertz","MHz"      ,"Frequency",megahertz);
 
- //Electric charge
- new ALIUnitDefinition(  "eplus","e+"         ,"Electric charge",eplus);
- new ALIUnitDefinition("coulomb","C"          ,"Electric charge",coulomb);
+  //Electric charge
+  std::make_shared<ALIUnitDefinition>(  "eplus","e+"         ,"Electric charge",eplus);
+  std::make_shared<ALIUnitDefinition>("coulomb","C"          ,"Electric charge",coulomb);
 
- //Energy
- new ALIUnitDefinition(    "electronvolt","eV" ,"Energy",electronvolt);
- new ALIUnitDefinition("kiloelectronvolt","keV","Energy",kiloelectronvolt);
- new ALIUnitDefinition("megaelectronvolt","MeV","Energy",megaelectronvolt);
- new ALIUnitDefinition("gigaelectronvolt","GeV","Energy",gigaelectronvolt);
- new ALIUnitDefinition("teraelectronvolt","TeV","Energy",teraelectronvolt);
- new ALIUnitDefinition("petaelectronvolt","PeV","Energy",petaelectronvolt);
- new ALIUnitDefinition(           "joule","J"  ,"Energy",joule);
+  //Energy
+  std::make_shared<ALIUnitDefinition>(    "electronvolt","eV" ,"Energy",electronvolt);
+  std::make_shared<ALIUnitDefinition>("kiloelectronvolt","keV","Energy",kiloelectronvolt);
+  std::make_shared<ALIUnitDefinition>("megaelectronvolt","MeV","Energy",megaelectronvolt);
+  std::make_shared<ALIUnitDefinition>("gigaelectronvolt","GeV","Energy",gigaelectronvolt);
+  std::make_shared<ALIUnitDefinition>("teraelectronvolt","TeV","Energy",teraelectronvolt);
+  std::make_shared<ALIUnitDefinition>("petaelectronvolt","PeV","Energy",petaelectronvolt);
+  std::make_shared<ALIUnitDefinition>(           "joule","J"  ,"Energy",joule);
 
- //Mass
- new ALIUnitDefinition("milligram","mg","Mass",milligram);
- new ALIUnitDefinition(     "gram","g" ,"Mass",gram);
- new ALIUnitDefinition( "kilogram","kg","Mass",kilogram);
+  //Mass
+  std::make_shared<ALIUnitDefinition>("milligram","mg","Mass",milligram);
+  std::make_shared<ALIUnitDefinition>(     "gram","g" ,"Mass",gram);
+  std::make_shared<ALIUnitDefinition>( "kilogram","kg","Mass",kilogram);
 
- //Volumic Mass
- new ALIUnitDefinition( "g/cm3", "g/cm3","Volumic Mass", g/cm3);
- new ALIUnitDefinition("mg/cm3","mg/cm3","Volumic Mass",mg/cm3);
- new ALIUnitDefinition("kg/m3", "kg/m3", "Volumic Mass",kg/m3);
+  //Volumic Mass
+  std::make_shared<ALIUnitDefinition>( "g/cm3", "g/cm3","Volumic Mass", g/cm3);
+  std::make_shared<ALIUnitDefinition>("mg/cm3","mg/cm3","Volumic Mass",mg/cm3);
+  std::make_shared<ALIUnitDefinition>("kg/m3", "kg/m3", "Volumic Mass",kg/m3);
 
- //Power
- new ALIUnitDefinition("watt","W","Power",watt);
+  //Power
+  std::make_shared<ALIUnitDefinition>("watt","W","Power",watt);
 
- //Force
- new ALIUnitDefinition("newton","N","Force",newton);
+  //Force
+  std::make_shared<ALIUnitDefinition>("newton","N","Force",newton);
 
- //Pressure
- new ALIUnitDefinition(    "pascal","Pa" ,"Pressure",pascal);
- new ALIUnitDefinition(       "bar","bar","Pressure",bar);
- new ALIUnitDefinition("atmosphere","atm","Pressure",atmosphere);
+  //Pressure
+  std::make_shared<ALIUnitDefinition>(    "pascal","Pa" ,"Pressure",pascal);
+  std::make_shared<ALIUnitDefinition>(       "bar","bar","Pressure",bar);
+  std::make_shared<ALIUnitDefinition>("atmosphere","atm","Pressure",atmosphere);
 
- //Electric current
- new ALIUnitDefinition(     "ampere","A"  ,"Electric current",ampere);
- new ALIUnitDefinition("milliampere","mA" ,"Electric current",milliampere);
- new ALIUnitDefinition("microampere","muA","Electric current",microampere);
- new ALIUnitDefinition( "nanoampere","nA" ,"Electric current",nanoampere);
+  //Electric current
+  std::make_shared<ALIUnitDefinition>(     "ampere","A"  ,"Electric current",ampere);
+  std::make_shared<ALIUnitDefinition>("milliampere","mA" ,"Electric current",milliampere);
+  std::make_shared<ALIUnitDefinition>("microampere","muA","Electric current",microampere);
+  std::make_shared<ALIUnitDefinition>( "nanoampere","nA" ,"Electric current",nanoampere);
 
- //Electric potential
- new ALIUnitDefinition(    "volt","V" ,"Electric potential",volt);
- new ALIUnitDefinition("kilovolt","kV","Electric potential",kilovolt);
- new ALIUnitDefinition("megavolt","MV","Electric potential",megavolt);
+  //Electric potential
+  std::make_shared<ALIUnitDefinition>(    "volt","V" ,"Electric potential",volt);
+  std::make_shared<ALIUnitDefinition>("kilovolt","kV","Electric potential",kilovolt);
+  std::make_shared<ALIUnitDefinition>("megavolt","MV","Electric potential",megavolt);
 
- //Magnetic flux
- new ALIUnitDefinition("weber","Wb","Magnetic flux",weber);
+  //Magnetic flux
+  std::make_shared<ALIUnitDefinition>("weber","Wb","Magnetic flux",weber);
 
- //Magnetic flux density
- new ALIUnitDefinition(    "tesla","T" ,"Magnetic flux density",tesla);
- new ALIUnitDefinition("kilogauss","kG","Magnetic flux density",kilogauss);
- new ALIUnitDefinition(    "gauss","G" ,"Magnetic flux density",gauss);
+  //Magnetic flux density
+  std::make_shared<ALIUnitDefinition>(    "tesla","T" ,"Magnetic flux density",tesla);
+  std::make_shared<ALIUnitDefinition>("kilogauss","kG","Magnetic flux density",kilogauss);
+  std::make_shared<ALIUnitDefinition>(    "gauss","G" ,"Magnetic flux density",gauss);
 
- //Temperature
- new ALIUnitDefinition("kelvin","K","Temperature",kelvin);
+  //Temperature
+  std::make_shared<ALIUnitDefinition>("kelvin","K","Temperature",kelvin);
 
- //Amount of substance
- new ALIUnitDefinition("mole","mol","Amount of substance",mole);
+  //Amount of substance
+  std::make_shared<ALIUnitDefinition>("mole","mol","Amount of substance",mole);
 
- //Activity
- new ALIUnitDefinition("becquerel","Bq","Activity",becquerel);
- new ALIUnitDefinition(    "curie","Ci","Activity",curie);
+  //Activity
+  std::make_shared<ALIUnitDefinition>("becquerel","Bq","Activity",becquerel);
+  std::make_shared<ALIUnitDefinition>(    "curie","Ci","Activity",curie);
 
- //Dose
- new ALIUnitDefinition("gray","Gy","Dose",gray);
+  //Dose
+  std::make_shared<ALIUnitDefinition>("gray","Gy","Dose",gray);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....

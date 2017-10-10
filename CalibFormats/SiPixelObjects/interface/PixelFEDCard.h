@@ -11,7 +11,7 @@
 
 #include <vector>
 #include <string>
-#include <stdint.h>
+#include <cstdint>
 
 namespace pos{
 /*!  \ingroup ConfigurationObjects "Configuration Objects"
@@ -44,27 +44,27 @@ namespace pos{
     PixelFEDCard(); // empty
     PixelFEDCard(std::string filename); // create from files
     PixelFEDCard(std::vector<std::vector<std::string> > & tab); // create from DB
-    ~PixelFEDCard() {};
+    ~PixelFEDCard() override {};
 
     void readDBTBMLevels(std::vector<std::vector<std::string> > &tableMat, int first, int last) ;
     void readDBROCLevels(std::vector<std::vector<std::string> > &tableMat, int first, int last) ;
-    void writeASCII(std::string dir="") const; // write to files
-    void 	 writeXML(      pos::PixelConfigKey key, int version, std::string path)                     const ;
-    virtual void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const ;
-    virtual void writeXML(                                                              std::ofstream *out) const ;
-    virtual void writeXMLTrailer(                                                       std::ofstream *out) const ;
-    virtual void writeXMLHeader(pos::PixelConfigKey key, 
+    void writeASCII(std::string dir="") const override; // write to files
+    void 	 writeXML(      pos::PixelConfigKey key, int version, std::string path)                     const override ;
+    void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const override ;
+    void writeXML(                                                              std::ofstream *out) const override ;
+    void writeXMLTrailer(                                                       std::ofstream *out) const override ;
+    void writeXMLHeader(pos::PixelConfigKey key, 
 				int version, 
 				std::string path, 
 				std::ofstream *fedstream, 
 				std::ofstream *roclvlstream, 
-				std::ofstream *tbmlvlsteram) const ;
-    virtual void writeXML(std::ofstream *fedstream,
+				std::ofstream *tbmlvlsteram) const override ;
+    void writeXML(std::ofstream *fedstream,
 			  std::ofstream *rocstream,
-			  std::ofstream *tbmstream) const ;
-    virtual void writeXMLTrailer(std::ofstream *fedstream,
+			  std::ofstream *tbmstream) const override ;
+    void writeXMLTrailer(std::ofstream *fedstream,
 				 std::ofstream *recostream,
-				 std::ofstream *tbmstream) const ;
+				 std::ofstream *tbmstream) const override ;
     uint64_t enabledChannels();  // returns 64-bit integer mask 35..0
 
 

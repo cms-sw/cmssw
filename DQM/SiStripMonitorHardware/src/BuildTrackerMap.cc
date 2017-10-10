@@ -57,11 +57,11 @@ class BuildTrackerMapPlugin : public edm::EDAnalyzer
  public:
 
   explicit BuildTrackerMapPlugin(const edm::ParameterSet&);
-  ~BuildTrackerMapPlugin();
+  ~BuildTrackerMapPlugin() override;
  private:
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   void read(bool aMechView,
 	    std::string aFile,
@@ -160,7 +160,7 @@ void BuildTrackerMapPlugin::read(bool aMechView,
   std::vector<TkHistoMap *> tkHistoMap;
 
   unsigned int nHists = tkHistoMapNameVec_.size();
-  tkHistoMap.resize(nHists,0);
+  tkHistoMap.resize(nHists,nullptr);
   aValidVec.resize(nHists,true);
 
   std::string dirName = folderName_;
@@ -369,7 +369,7 @@ BuildTrackerMapPlugin::endJob()
 
     //(pset_,pDD1); 
     lTkMap->setPalette(1);
-    lTkMap->showPalette(1);
+    lTkMap->showPalette(true);
     if (!tkHistoMapVec_.at(i) || !isValidMap_.at(i)) {
       std::cout << "Warning, tkHistoMap is invalid for element " << i << "... continuing ..." << std::endl;
       continue;

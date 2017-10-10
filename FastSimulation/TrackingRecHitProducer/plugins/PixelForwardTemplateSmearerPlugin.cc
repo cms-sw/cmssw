@@ -51,7 +51,7 @@ class PixelForwardTemplateSmearerPlugin:
             const edm::ParameterSet& config,
             edm::ConsumesCollector& consumesCollector
           );
-          virtual ~PixelForwardTemplateSmearerPlugin();
+          ~PixelForwardTemplateSmearerPlugin() override;
 
     private:
         void initializeForward();

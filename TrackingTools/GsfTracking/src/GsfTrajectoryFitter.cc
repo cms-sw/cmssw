@@ -101,7 +101,7 @@ Trajectory GsfTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
     //
     // temporary protection copied from KFTrajectoryFitter.
     //
-    if ((**ihit).isValid() == false && (**ihit).det() == 0) {
+    if ((**ihit).isValid() == false && (**ihit).det() == nullptr) {
       LogDebug("GsfTrackFitters") << " Error: invalid hit with no GeomDet attached .... skipping";
       continue;
     }

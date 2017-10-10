@@ -27,9 +27,9 @@ namespace edm {
 class HLTBool : public edm::global::EDFilter<> {
 public:
   explicit HLTBool(const edm::ParameterSet&);
-  ~HLTBool();
+  ~HLTBool() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual bool filter(edm::StreamID, edm::Event &, edm::EventSetup const &) const override final;
+  bool filter(edm::StreamID, edm::Event &, edm::EventSetup const &) const final;
 
 private:
 

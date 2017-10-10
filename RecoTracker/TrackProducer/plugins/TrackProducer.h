@@ -20,7 +20,7 @@ public:
   explicit TrackProducer(const edm::ParameterSet& iConfig);
 
   /// Implementation of produce method
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   /// Get Transient Tracks
   std::vector<reco::TransientTrack> getTransient(edm::Event&, const edm::EventSetup&);

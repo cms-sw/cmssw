@@ -53,10 +53,11 @@ namespace edm {
                           ModuleCallingContext const* mcc) {
       Event e(ep, moduleDescription_, mcc);
       e.setConsumer(this);
+      const auto streamIndex =e.streamID().value();
+      e.setProducer(this, &previousParentages_[streamIndex]);
       EventSignalsSentry sentry(act,mcc);
       bool returnValue = this->filter(e.streamID(), e, c);
-      const auto streamIndex =e.streamID().value();
-      commit_(e,&previousParentages_[streamIndex], &previousParentageIds_[streamIndex]);
+      commit_(e, &previousParentageIds_[streamIndex]);
       return returnValue;
     }
     
@@ -86,6 +87,7 @@ namespace edm {
       Run const& cnstR = r;
       this->doBeginRun_(cnstR, c);
       this->doBeginRunSummary_(cnstR, c);
+      r.setProducer(this);
       this->doBeginRunProduce_(r,c);
       commit_(r);
     }
@@ -95,6 +97,7 @@ namespace edm {
                            ModuleCallingContext const* mcc) {
       Run r(rp, moduleDescription_, mcc);
       r.setConsumer(this);
+      r.setProducer(this);
       Run const& cnstR = r;
       this->doEndRunProduce_(r, c);
       this->doEndRunSummary_(r,c);
@@ -110,6 +113,7 @@ namespace edm {
       LuminosityBlock const& cnstLb = lb;
       this->doBeginLuminosityBlock_(cnstLb, c);
       this->doBeginLuminosityBlockSummary_(cnstLb, c);
+      lb.setProducer(this);
       this->doBeginLuminosityBlockProduce_(lb, c);
       commit_(lb);
     }
@@ -119,6 +123,7 @@ namespace edm {
                                        ModuleCallingContext const* mcc) {
       LuminosityBlock lb(lbp, moduleDescription_, mcc);
       lb.setConsumer(this);
+      lb.setProducer(this);
       LuminosityBlock const& cnstLb = lb;
       this->doEndLuminosityBlockProduce_(lb, c);
       this->doEndLuminosityBlockSummary_(cnstLb,c);

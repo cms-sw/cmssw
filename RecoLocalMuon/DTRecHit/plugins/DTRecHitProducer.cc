@@ -89,7 +89,7 @@ void DTRecHitProducer::produce(Event& event, const EventSetup& setup) {
     
     if(debug)
       cout << "Number of hits in this layer: " << recHits.size() << endl;
-    if(recHits.size() > 0) //FIXME: is it really needed?
+    if(!recHits.empty()) //FIXME: is it really needed?
       recHitCollection->put(layerId, recHits.begin(), recHits.end());
   }
 

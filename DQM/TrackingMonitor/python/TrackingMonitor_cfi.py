@@ -372,12 +372,12 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
 
     # NCluster Pixel
     NClusPxBin = cms.int32(200),
-    NClusPxMax = cms.double(19999.5),                      
+    NClusPxMax = cms.double(49999.5),                      
     NClusPxMin = cms.double(-0.5),
 
     # NCluster Strip
     NClusStrBin = cms.int32(500),
-    NClusStrMax = cms.double(99999.5),                      
+    NClusStrMax = cms.double(199999.5),                      
     NClusStrMin = cms.double(-0.5),
 
     # NCluster Vs Tracks
@@ -423,6 +423,11 @@ TrackMon.RegionSizeMin = cms.double(-0.5)
 TrackMon.RegionCandidatePtBin = cms.int32(100)
 TrackMon.RegionCandidatePtMax = cms.double(1000)
 TrackMon.RegionCandidatePtMin = cms.double(0)
+
+# Number of candidates/seed within pattern recognition
+TrackMon.SeedCandBin = cms.int32(20)
+TrackMon.SeedCandMax = cms.double(19.5)
+TrackMon.SeedCandMin = cms.double(-0.5)
 
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker

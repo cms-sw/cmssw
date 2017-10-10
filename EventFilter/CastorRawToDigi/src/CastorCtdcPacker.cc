@@ -13,7 +13,7 @@ using namespace std;
 
 template <class Coll, class DetIdClass> 
 int process(const Coll* pt, const DetId& did, unsigned short* buffer, int& presamples) {
-  if (pt==0) return 0;
+  if (pt==nullptr) return 0;
   int size=0;
   typename Coll::const_iterator i=pt->find(DetIdClass(did));
   if (i!=pt->end()) {

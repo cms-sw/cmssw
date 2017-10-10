@@ -41,11 +41,11 @@ class MainThreadMLscribe : public AbstractMLscribe
 public:
   // ---  birth/death:
   MainThreadMLscribe(std::shared_ptr<ThreadQueue> tqp);
-  virtual ~MainThreadMLscribe();
+  ~MainThreadMLscribe() override;
 
   // --- receive and act on messages:
-  virtual							
-  void  runCommand(MessageLoggerQ::OpCode  opcode, void * operand);
+  							
+  void  runCommand(MessageLoggerQ::OpCode  opcode, void * operand) override;
 		  						
 
 private:

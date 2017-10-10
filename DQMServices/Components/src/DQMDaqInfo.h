@@ -48,15 +48,15 @@
 class DQMDaqInfo : public edm::EDAnalyzer {
 public:
   explicit DQMDaqInfo(const edm::ParameterSet&);
-  ~DQMDaqInfo();
+  ~DQMDaqInfo() override;
   
 
 private:
-  virtual void beginJob() ;
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override ;
+  void beginLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&) override;
+  void endJob() override ;
   
   DQMStore *dbe_;  
 

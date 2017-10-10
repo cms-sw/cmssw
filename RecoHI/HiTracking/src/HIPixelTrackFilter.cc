@@ -47,7 +47,7 @@ bool HIPixelTrackFilter::operator() (const reco::Track* track,const PixelTrackFi
   math::XYZPoint vtxPoint(0.0,0.0,0.0);
   double vzErr =0.0, vxErr=0.0, vyErr=0.0;
   
-  if(theVertices->size()>0) {
+  if(!theVertices->empty()) {
     vtxPoint=theVertices->begin()->position();
     vzErr=theVertices->begin()->zError();
     vxErr=theVertices->begin()->xError();

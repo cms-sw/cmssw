@@ -42,13 +42,13 @@ public:
                int scaledWireTime=0,
 	       float energyDeposit=-995.); 
 	
-  ~CSCRecHit2D();
+  ~CSCRecHit2D() override;
 
 
   /// RecHit2DLocalPos base class interface
-  CSCRecHit2D* clone() const { return new CSCRecHit2D( *this ); }
-  LocalPoint localPosition() const { return theLocalPosition; }
-  LocalError localPositionError() const { return theLocalError; }
+  CSCRecHit2D* clone() const override { return new CSCRecHit2D( *this ); }
+  LocalPoint localPosition() const override { return theLocalPosition; }
+  LocalError localPositionError() const override { return theLocalError; }
   CSCDetId cscDetId() const { return geographicalId(); }
 
   /// Extracting strip channel numbers comprising the rechit - low
@@ -100,7 +100,7 @@ public:
   float energyDepositedInLayer() const { return theEnergyDeposit; }
 
   /// Returns true if the two TrackingRecHits are using the same input information, false otherwise.  In this case, looks at the geographical ID and channel numbers for strips and wires.
-  virtual bool sharesInput(const TrackingRecHit *other, TrackingRecHit::SharedInputType what) const;
+  bool sharesInput(const TrackingRecHit *other, TrackingRecHit::SharedInputType what) const override;
   
   /// Returns true if the two TrackingRecHits are using the same input information, false otherwise.  In this case, looks at the geographical ID and channel numbers for strips and wires.
   bool sharesInput(const TrackingRecHit *other, CSCRecHit2D::SharedInputType what) const;

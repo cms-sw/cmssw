@@ -142,7 +142,7 @@ void NuclearInteractionFinder::definePrimaryHelix(std::vector<TrajectoryMeasurem
 std::vector<TrajectoryMeasurement>
 NuclearInteractionFinder::findCompatibleMeasurements(const TM& lastMeas, double rescale, const LayerMeasurements & layerMeasurements) const
 {
-  TSOS currentState = lastMeas.updatedState();
+  const TSOS& currentState = lastMeas.updatedState();
   LogDebug("NuclearSeedGenerator") << "currentState :" << currentState << "\n";
 
   TSOS newState = rescaleError(rescale, currentState);

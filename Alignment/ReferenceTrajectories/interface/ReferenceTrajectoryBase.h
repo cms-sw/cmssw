@@ -98,7 +98,7 @@
 
 #include <vector>
 
-#include "Alignment/ReferenceTrajectories/interface/GblTrajectory.h"
+#include "GblTrajectory.h"
 
 
 class ReferenceTrajectoryBase : public ReferenceCounted
@@ -133,7 +133,7 @@ public:
     bool allowZeroMaterial{false};
   };
 
-  virtual ~ReferenceTrajectoryBase() {}
+  ~ReferenceTrajectoryBase() override {}
 
   bool isValid() { return theValidityFlag; }
 

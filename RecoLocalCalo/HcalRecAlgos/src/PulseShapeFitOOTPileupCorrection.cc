@@ -209,10 +209,10 @@ namespace FitterFuncs{
 
 PulseShapeFitOOTPileupCorrection::PulseShapeFitOOTPileupCorrection() : cntsetPulseShape(0),
 								       psfPtr_(nullptr), spfunctor_(nullptr), dpfunctor_(nullptr), tpfunctor_(nullptr),
-								       TSMin_(0), TSMax_(0), vts4Chi2_(0), pedestalConstraint_(0),
-								       timeConstraint_(0), addPulseJitter_(0), applyTimeSlew_(0),
+								       TSMin_(0), TSMax_(0), vts4Chi2_(0), pedestalConstraint_(false),
+								       timeConstraint_(false), addPulseJitter_(false), applyTimeSlew_(false),
 								       ts4Min_(0), vts4Max_(0), pulseJitter_(0), timeMean_(0), timeSig_(0), pedMean_(0), pedSig_(0),
-								       noise_(0) {
+								       noise_(0), dcConstraint_(false) {
    hybridfitter = new PSFitter::HybridMinimizer(PSFitter::HybridMinimizer::kMigrad);
    iniTimesArr = { {-100,-75,-50,-25,0,25,50,75,100,125} };
 }
@@ -243,7 +243,7 @@ void PulseShapeFitOOTPileupCorrection::setPUParams(bool   iPedestalConstraint, b
 						   double iNoiseHPD,double iNoiseSiPM,
 						   double iTMin,double iTMax,
 						   const std::vector<double> & its4Chi2,
-						   HcalTimeSlew::BiasSetting slewFlavor, int iFitTimes) {
+						   HcalTimeSlew::BiasSetting slewFlavor, int iFitTimes, bool iDCConstraint) {
 
   TSMin_ = iTMin;
   TSMax_ = iTMax;
@@ -270,6 +270,7 @@ void PulseShapeFitOOTPileupCorrection::setPUParams(bool   iPedestalConstraint, b
   noiseSiPM_          = iNoiseSiPM;
   slewFlavor_         = slewFlavor;
   fitTimes_           = iFitTimes;
+  dcConstraint_       = iDCConstraint;
 
 }
 
@@ -473,7 +474,7 @@ void PulseShapeFitOOTPileupCorrection::fit(int iFit,float &timevalfit,float &cha
    //a special number to label the initial condition
    chi2=-1;
    //3 fits why?!
-   const double *results = 0;
+   const double *results = nullptr;
    for(int tries=0; tries<=3;++tries){
      if( fitTimes_ != 2 || tries !=1 ){
         hybridfitter->SetMinimizerType(PSFitter::HybridMinimizer::kMigrad);
@@ -529,6 +530,7 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
   double noisePHArr[HcalConst::maxSamples]={};
   double tsTOT = 0, tstrig = 0; // in fC
   double tsTOTen = 0; // in GeV
+  double sipmDarkCurrentWidth = psfPtr_->getSiPMDarkCurrent(channelData.darkCurrent(),channelData.fcByPE(),channelData.lambda());
 
   // go over the time slices
   for(unsigned int ip=0; ip<cssize; ++ip){
@@ -551,7 +553,7 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
     // dark current noise relevant for siPM
     noiseDCArr[ip] = 0;
     if(channelData.hasTimeInfo() && (charge-ped)>channelData.tsPedestalWidth(ip)) {
-      noiseDCArr[ip] = psfPtr_->getSiPMDarkCurrent(channelData.darkCurrent(),channelData.fcByPE(),channelData.lambda());
+      noiseDCArr[ip] = sipmDarkCurrentWidth;
     }
 
     // Photo statistics uncertainties
@@ -573,10 +575,12 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
     }
   }
 
-  double averagePedSig2GeV=0.25*(channelData.tsPedestalWidth(0)*channelData.tsPedestalWidth(0)*channelData.tsGain(0)*channelData.tsGain(0) +
-				 channelData.tsPedestalWidth(1)*channelData.tsPedestalWidth(1)*channelData.tsGain(1)*channelData.tsGain(1) +
-				 channelData.tsPedestalWidth(2)*channelData.tsPedestalWidth(2)*channelData.tsGain(2)*channelData.tsGain(2) +
-				 channelData.tsPedestalWidth(3)*channelData.tsPedestalWidth(3)*channelData.tsGain(3)*channelData.tsGain(3));
+  double sipmDarkCurrentWidth2 = 0.;
+  if(dcConstraint_) sipmDarkCurrentWidth2 = sipmDarkCurrentWidth*sipmDarkCurrentWidth;
+  double averagePedSig2GeV=0.25*((channelData.tsPedestalWidth(0)*channelData.tsPedestalWidth(0)+sipmDarkCurrentWidth2)*channelData.tsGain(0)*channelData.tsGain(0) +
+				 (channelData.tsPedestalWidth(1)*channelData.tsPedestalWidth(1)+sipmDarkCurrentWidth2)*channelData.tsGain(1)*channelData.tsGain(1) +
+				 (channelData.tsPedestalWidth(2)*channelData.tsPedestalWidth(2)+sipmDarkCurrentWidth2)*channelData.tsGain(2)*channelData.tsGain(2) +
+				 (channelData.tsPedestalWidth(3)*channelData.tsPedestalWidth(3)+sipmDarkCurrentWidth2)*channelData.tsGain(3)*channelData.tsGain(3));
 
   // redefine the invertpedSig2
   psfPtr_->setinvertpedSig2(1./(averagePedSig2GeV));

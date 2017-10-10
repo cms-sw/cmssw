@@ -154,8 +154,8 @@ DTCombinatorialPatternReco4D::reconstruct() {
   bool hasZed = false;
 
   // has this chamber the Z-superlayer?
-  if (theSegments2DTheta.size()){
-    hasZed = theSegments2DTheta.size() > 0;
+  if (!theSegments2DTheta.empty()){
+    hasZed = !theSegments2DTheta.empty();
     if (debug) cout << "There are " << theSegments2DTheta.size() << " Theta cand" << endl;
   } else {
     if (debug) cout << "No Theta SL" << endl;
@@ -163,13 +163,13 @@ DTCombinatorialPatternReco4D::reconstruct() {
 
   // Now I want to build the concrete DTRecSegment4D.
   if(debug) cout<<"Building of the concrete DTRecSegment4D"<<endl;
-  if (resultPhi.size()) {
+  if (!resultPhi.empty()) {
     for (vector<DTSegmentCand*>::const_iterator phi=resultPhi.begin();
          phi!=resultPhi.end(); ++phi) {
 
       std::unique_ptr<DTChamberRecSegment2D> superPhi(**phi);
 
-      theUpdator->update(superPhi.get(),0);
+      theUpdator->update(superPhi.get(),false);
       if(debug) cout << "superPhi: " << *superPhi << endl;
 
       if (hasZed) {
@@ -201,12 +201,12 @@ DTCombinatorialPatternReco4D::reconstruct() {
           if (debug) cout << "Created a 4D seg " << *newSeg << endl;
 
           /// 4d segment: I have the pos along the wire => further update!
-	  theUpdator->update(newSeg,0,0);
+	  theUpdator->update(newSeg,false,false);
           if (debug) cout << "     seg updated " <<  *newSeg << endl;
 
 
 	  if(!applyT0corr && computeT0corr) theUpdator->calculateT0corr(newSeg);
-          if(applyT0corr) theUpdator->update(newSeg,true,0);
+          if(applyT0corr) theUpdator->update(newSeg,true,false);
 
           result.push_back(newSeg);
         }
@@ -219,7 +219,7 @@ DTCombinatorialPatternReco4D::reconstruct() {
 
        //update the segment with the t0 and possibly vdrift correction
         if(!applyT0corr && computeT0corr) theUpdator->calculateT0corr(newSeg);
- 	if(applyT0corr) theUpdator->update(newSeg,true,0);
+ 	if(applyT0corr) theUpdator->update(newSeg,true,false);
 
         result.push_back(newSeg);
       }
@@ -243,7 +243,7 @@ DTCombinatorialPatternReco4D::reconstruct() {
 		     *newSeg << endl;
 
         if(!applyT0corr && computeT0corr) theUpdator->calculateT0corr(newSeg);
- 	if(applyT0corr) theUpdator->update(newSeg,true,0);
+ 	if(applyT0corr) theUpdator->update(newSeg,true,false);
 
         result.push_back(newSeg);
       }
@@ -262,10 +262,10 @@ vector<DTSegmentCand*> DTCombinatorialPatternReco4D::buildPhiSuperSegmentsCandid
 
   DTSuperLayerId slId;
 
-  if(theHitsFromPhi1.size())
+  if(!theHitsFromPhi1.empty())
     slId = theHitsFromPhi1.front().wireId().superlayerId();
   else
-    if(theHitsFromPhi2.size())
+    if(!theHitsFromPhi2.empty())
       slId = theHitsFromPhi2.front().wireId().superlayerId();
     else{
       if(debug) cout<<"DTCombinatorialPatternReco4D::buildPhiSuperSegmentsCandidates: "

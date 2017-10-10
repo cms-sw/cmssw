@@ -170,9 +170,9 @@ SiStripCorrelateBadStripAndNoise::getHistos(const uint32_t& detid, const Tracker
 TH2F*
 SiStripCorrelateBadStripAndNoise::getHisto(const long unsigned int& index){
   if(vTH2.size()<index+1)
-    vTH2.resize(index+1,0);
+    vTH2.resize(index+1,nullptr);
   
-  if(vTH2[index]==0){
+  if(vTH2[index]==nullptr){
     char name[128];
     sprintf(name,"%lu",index);
     edm::LogInfo("")<<"[getHisto] creating index " << index << std::endl;
@@ -185,7 +185,7 @@ SiStripCorrelateBadStripAndNoise::getHisto(const long unsigned int& index){
 void 
 SiStripCorrelateBadStripAndNoise::endJob() {
   for(size_t i=0;i<vTH2.size();i++)
-    if(vTH2[i]!=0)
+    if(vTH2[i]!=nullptr)
       vTH2[i]->Write();
 
   file->Write();

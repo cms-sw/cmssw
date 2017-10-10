@@ -54,7 +54,7 @@ Bool_t FWGeometryTableViewBase::FWViewCombo::HandleButton(Event_t* event)
    {
       bool map = false;
 
-      FWPopupMenu* m_viewPopup = new FWPopupMenu(0);
+      FWPopupMenu* m_viewPopup = new FWPopupMenu(nullptr);
 
       TEveElementList* views = gEve->GetViewers();
       int idx = 0;
@@ -123,9 +123,9 @@ namespace {
                                 kEnterWindowMask | kLeaveWindowMask);
       }
 
-      virtual ~FWGeometryVF() {};
+      ~FWGeometryVF() override {};
 
-      virtual Bool_t HandleKey(Event_t *event) override
+      Bool_t HandleKey(Event_t *event) override
       {
          if (event->fCode == (UInt_t) gVirtualX->KeysymToKeycode(kKey_Escape)) {
             m_tv->getTableManager()->cancelEditor(true);
@@ -140,9 +140,9 @@ namespace {
    {
    public:
       FWTranspEntry(const TGWindow* p, FWGeometryTableViewBase* tv) :TGTextEntry(p), m_tv (tv){}
-      virtual ~FWTranspEntry() {}
+      ~FWTranspEntry() override {}
 
-      virtual Bool_t HandleKey(Event_t *event) override
+      Bool_t HandleKey(Event_t *event) override
       {
          if (event->fCode == (UInt_t) gVirtualX->KeysymToKeycode(kKey_Escape)) {
             m_tv->getTableManager()->cancelEditor(true);
@@ -167,18 +167,18 @@ FWGeometryTableViewBase::FWGeometryTableViewBase(TEveWindowSlot* iParent,FWViewT
 m_minParentTransparency(this, "MinParentTransparency", type == FWViewType::kOverlapTable ? 0l : 90l, 0l, 100l),
      m_minLeafTransparency(this, "MinLeafTransparency", 0l, 0l, 100l),
      m_colorManager(colMng),
-     m_colorPopup(0),
-     m_eveWindow(0),
-     m_frame(0),
-     m_viewBox(0),
-     m_viewersConfig(0),
+     m_colorPopup(nullptr),
+     m_eveWindow(nullptr),
+     m_frame(nullptr),
+     m_viewBox(nullptr),
+     m_viewersConfig(nullptr),
      m_enableRedraw(true),
-     m_marker(0),
-     m_eveTopNode(0),
-     m_eveScene(0),
+     m_marker(nullptr),
+     m_eveTopNode(nullptr),
+     m_eveScene(nullptr),
      m_tableRowIndexForColorPopup(-1)
 {
-   m_eveWindow = iParent->MakeFrame(0);
+   m_eveWindow = iParent->MakeFrame(nullptr);
    TGCompositeFrame* xf = m_eveWindow->GetGUICompositeFrame();
 
    m_frame = new FWGeometryVF(xf, this);
@@ -241,7 +241,7 @@ TEveScene* getMarkerScene(TEveViewer* v)
   if(si) 
     return ((TEveSceneInfo*)(si))->GetScene();
   else
-    return 0;
+    return nullptr;
 }
 }
 //==============================================================================
@@ -314,7 +314,7 @@ FWGeometryTableViewBase::populate3DViewsFromConfig()
       TEveElementList* viewers = gEve->GetViewers();
       const FWConfiguration::KeyValues* keyVals = m_viewersConfig->keyValues();
 
-      if(0!=keyVals)  
+      if(nullptr!=keyVals)  
       {
          for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it!= keyVals->end(); ++it) {
     
@@ -462,7 +462,7 @@ FWGeometryTableViewBase::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, I
    else if (iColumn == 0)
    {
       setColumnSelected(idx);
-      m_eveTopNode->popupMenu(x, y, 0);
+      m_eveTopNode->popupMenu(x, y, nullptr);
    }
 }
 

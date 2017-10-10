@@ -30,7 +30,7 @@ public:
 //   typedef ROOT::Math::SMatrix<double,N-2,3,ROOT::Math::MatRepStd<double,N-2,3> > AlgebraicMatrixM3;
   typedef ROOT::Math::SMatrix<double,N,N,ROOT::Math::MatRepSym<double,N> > AlgebraicSymMatrixNN;
 
-  virtual ~RefittedTrackState(){}
+  ~RefittedTrackState() override{}
 
   /**
    * Transformation into a FreeTrajectoryState

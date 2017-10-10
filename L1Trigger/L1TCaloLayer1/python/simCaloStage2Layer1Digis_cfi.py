@@ -20,3 +20,6 @@ simCaloStage2Layer1Digis = cms.EDProducer(
     # See UCTLayer1.hh for firmware version
     firmwareVersion = cms.int32(1),
     )
+
+from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
+stage2L1Trigger_2017.toModify( simCaloStage2Layer1Digis, firmwareVersion = cms.int32(3) )

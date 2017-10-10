@@ -15,8 +15,8 @@ class HGCalUncalibRecHitProducer : public edm::stream::EDProducer<> {
   
  public:
   explicit HGCalUncalibRecHitProducer(const edm::ParameterSet& ps);
-  ~HGCalUncalibRecHitProducer();
-  virtual void produce(edm::Event& evt, const edm::EventSetup& es) override;
+  ~HGCalUncalibRecHitProducer() override;
+  void produce(edm::Event& evt, const edm::EventSetup& es) override;
   
  private:
   

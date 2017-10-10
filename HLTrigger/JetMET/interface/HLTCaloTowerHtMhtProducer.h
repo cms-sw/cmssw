@@ -31,9 +31,9 @@ namespace edm {
 class HLTCaloTowerHtMhtProducer : public edm::stream::EDProducer<> {
   public:
     explicit HLTCaloTowerHtMhtProducer(const edm::ParameterSet & iConfig);
-    ~HLTCaloTowerHtMhtProducer();
+    ~HLTCaloTowerHtMhtProducer() override;
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+    void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
   private:
     /// Use pt; otherwise, use et.

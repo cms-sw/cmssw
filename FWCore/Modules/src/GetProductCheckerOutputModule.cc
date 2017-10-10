@@ -33,13 +33,13 @@ namespace edm {
    public:
       // We do not take ownership of passed stream.
       explicit GetProductCheckerOutputModule(ParameterSet const& pset);
-      virtual ~GetProductCheckerOutputModule();
+      ~GetProductCheckerOutputModule() override;
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void write(EventForOutput const& e) override;
-      virtual void writeLuminosityBlock(LuminosityBlockForOutput const&) override;
-      virtual void writeRun(RunForOutput const&) override;
+      void write(EventForOutput const& e) override;
+      void writeLuminosityBlock(LuminosityBlockForOutput const&) override;
+      void writeRun(RunForOutput const&) override;
    };
 
 //

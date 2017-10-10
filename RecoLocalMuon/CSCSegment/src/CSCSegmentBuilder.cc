@@ -18,7 +18,7 @@
 #include <FWCore/Utilities/interface/Exception.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h> 
 
-CSCSegmentBuilder::CSCSegmentBuilder(const edm::ParameterSet& ps) : geom_(0) {
+CSCSegmentBuilder::CSCSegmentBuilder(const edm::ParameterSet& ps) : geom_(nullptr) {
     
     // The algo chosen for the segment building
     int chosenAlgo = ps.getParameter<int>("algo_type") - 1;

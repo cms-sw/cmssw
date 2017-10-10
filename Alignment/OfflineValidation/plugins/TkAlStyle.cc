@@ -115,7 +115,7 @@ public:
       position += "top";
     if( !( position.Contains("left") || position.Contains("right") ) )
       position += "right";
-    TLegend* leg = 0;
+    TLegend* leg = nullptr;
     if(        position.Contains("top")    && position.Contains("right") ) {
       leg = legendTR(nEntries,relWidth);
     } else if( position.Contains("top")    && position.Contains("left")  ) {
@@ -159,7 +159,7 @@ public:
       position += "top";
     if( !( position.Contains("left") || position.Contains("right") ) )
       position += "right";
-    TPaveText* label = 0;
+    TPaveText* label = nullptr;
     if(        position.Contains("top")    && position.Contains("right") ) {
       label = labelTR(nEntries,relWidth);
     } else if( position.Contains("top")    && position.Contains("left")  ) {

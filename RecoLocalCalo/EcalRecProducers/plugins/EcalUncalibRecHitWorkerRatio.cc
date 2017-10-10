@@ -53,8 +53,8 @@ EcalUncalibRecHitWorkerRatio::run( const edm::Event & evt,
 
 	const EcalSampleMask *sampleMask_ = sampleMaskHand_.product();
 
-        const EcalPedestals::Item * aped = 0;
-        const EcalMGPAGainRatio * aGain = 0;
+        const EcalPedestals::Item * aped = nullptr;
+        const EcalMGPAGainRatio * aGain = nullptr;
 
         if (detid.subdetId()==EcalEndcap) {
                 unsigned int hashedIndex = EEDetId(detid).hashedIndex();

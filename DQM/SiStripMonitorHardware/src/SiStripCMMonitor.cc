@@ -64,7 +64,7 @@ class SiStripCMMonitorPlugin : public DQMEDAnalyzer
  public:
 
   explicit SiStripCMMonitorPlugin(const edm::ParameterSet&);
-  ~SiStripCMMonitorPlugin();
+  ~SiStripCMMonitorPlugin() override;
  private:
 
   struct Statistics {
@@ -73,7 +73,7 @@ class SiStripCMMonitorPlugin : public DQMEDAnalyzer
     float Counter;
   };
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void dqmBeginRun(const edm::Run& , const edm::EventSetup& ) override;
 
@@ -143,7 +143,7 @@ SiStripCMMonitorPlugin::SiStripCMMonitorPlugin(const edm::ParameterSet& iConfig)
                 << "[SiStripCMMonitorPlugin]\tPrintDebugMessages? " << (printDebug_ ? "yes" : "no") << std::endl;
   }
     
- std::ostringstream* pDebugStream = (printDebug_>1 ? &debugStream : NULL);
+ std::ostringstream* pDebugStream = (printDebug_>1 ? &debugStream : nullptr);
 
  cmHists_.initialise(iConfig,pDebugStream);
 

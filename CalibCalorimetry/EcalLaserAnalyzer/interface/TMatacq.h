@@ -42,7 +42,7 @@ class TMatacq: public TObject
   TMatacq(int,int,int,int,int,int,int,int,int,int,int);
 
   // Destructor: Does nothing
-  virtual ~TMatacq();
+  ~TMatacq() override;
 
   // Initialize 
   void init();
@@ -76,7 +76,7 @@ class TMatacq: public TObject
   double getWidth80() {return width80;}
   double getSlide() {return slidingmean;}
 
-  ClassDef(TMatacq,0)
+  ClassDefOverride(TMatacq,0)
 };
 
 #endif

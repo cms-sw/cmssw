@@ -24,17 +24,17 @@ public:
   // construction/destruction
   FRDStreamSource(edm::ParameterSet const& pset,
                   edm::InputSourceDescription const& desc);
-  virtual ~FRDStreamSource() {};
+  ~FRDStreamSource() override {};
 
 private:
   // member functions
-  virtual bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& theTime, edm::EventAuxiliary::ExperimentType& eType);
-  virtual void produce(edm::Event& e);
+  bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& theTime, edm::EventAuxiliary::ExperimentType& eType) override;
+  void produce(edm::Event& e) override;
 
-  void beginRun(edm::Run&) {}
-  void endRun(edm::Run&) {}
-  void beginLuminosityBlock(edm::LuminosityBlock&) {}
-  void endLuminosityBlock(edm::LuminosityBlock&) {}
+  void beginRun(edm::Run&) override {}
+  void endRun(edm::Run&) override {}
+  void beginLuminosityBlock(edm::LuminosityBlock&) override {}
+  void endLuminosityBlock(edm::LuminosityBlock&) override {}
 
   bool openFile(const std::string& fileName);
 

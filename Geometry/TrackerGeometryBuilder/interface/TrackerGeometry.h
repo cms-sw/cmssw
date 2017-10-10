@@ -18,7 +18,7 @@ class TrackerGeometry final : public TrackingGeometry {
   friend class TrackerGeomBuilderFromGeometricDet;
 
   void addType(GeomDetType const * p);
-  void addDetUnit(GeomDetUnit const * p);
+  void addDetUnit(GeomDet const * p);
   void addDetUnitId(DetId p);
   void addDet(GeomDet const * p);
   void addDetId(DetId p);
@@ -57,7 +57,7 @@ public:
   ~TrackerGeometry() override ;
 
   const DetTypeContainer&  detTypes()         const override {return theDetTypes;}
-  const DetUnitContainer&  detUnits()         const override {return theDetUnits;}
+  const DetContainer&      detUnits()         const override {return theDetUnits;}
   const DetContainer&      dets()             const override {return theDets;}
   const DetIdContainer&    detUnitIds()       const override {return theDetUnitIds;}
   const DetIdContainer&    detIds()           const override { return theDetIds;}
@@ -98,7 +98,7 @@ private:
   friend class GeometryAligner;
 
   DetTypeContainer  theDetTypes;  // owns the DetTypes
-  DetUnitContainer  theDetUnits;  // they're all also into 'theDets', so we assume 'theDets' owns them
+  DetContainer      theDetUnits;  // they're all also into 'theDets', so we assume 'theDets' owns them
   unsigned int      theOffsetDU[6]; // offsets in the above
   unsigned int      theEndsetDU[6]; // end offsets in the above
   DetContainer      theDets;      // owns *ONLY* the GeomDet * corresponding to GluedDets.

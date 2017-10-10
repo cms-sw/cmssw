@@ -85,7 +85,7 @@ namespace edm
 
    Handle< EBDigiCollection > pEBDigis;
 
-   const EBDigiCollection*  EBDigis = 0;
+   const EBDigiCollection*  EBDigis = nullptr;
 
    if(e.getByToken(EBDigiToken_, pEBDigis) ){
      EBDigis = pEBDigis.product(); // get a ptr to the product
@@ -114,7 +114,7 @@ namespace edm
 
    Handle< EEDigiCollection > pEEDigis;
 
-   const EEDigiCollection*  EEDigis = 0;
+   const EEDigiCollection*  EEDigis = nullptr;
 
    
    if(e.getByToken(EEDigiToken_, pEEDigis) ){
@@ -143,7 +143,7 @@ namespace edm
 
    Handle< ESDigiCollection > pESDigis;
 
-   const ESDigiCollection*  ESDigis = 0;
+   const ESDigiCollection*  ESDigis = nullptr;
 
    
    if(e.getByToken( ESDigiToken_, pESDigis) ){

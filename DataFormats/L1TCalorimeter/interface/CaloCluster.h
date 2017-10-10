@@ -34,7 +34,7 @@ namespace l1t {
           int phi=0
           );
 
-      ~CaloCluster();
+      ~CaloCluster() override;
 
 
 

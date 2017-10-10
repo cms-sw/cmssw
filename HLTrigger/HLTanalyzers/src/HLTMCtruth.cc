@@ -6,8 +6,8 @@
 #include <string>
 #include <cmath>
 #include <functional>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 
 #include "HLTrigger/HLTanalyzers/interface/HLTMCtruth.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"

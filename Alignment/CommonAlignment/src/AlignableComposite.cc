@@ -160,7 +160,7 @@ void AlignableComposite::rotateInGlobalFrame( const RotationType& rotation )
     
       // Local Position given in coordinates of the GLOBAL Frame
       const GlobalVector localPositionVector = (**i).globalPosition() - myPosition;
-      GlobalVector::BasicVectorType lpvgf = localPositionVector.basicVector();
+      const GlobalVector::BasicVectorType& lpvgf = localPositionVector.basicVector();
 
       // rotate with GLOBAL rotation matrix  and subtract => moveVector in 
       // global Coordinates
@@ -235,7 +235,7 @@ void AlignableComposite::addAlignmentPositionErrorFromRotation( const RotationTy
       // when the composite is rotated. 
       // Local Position given in coordinates of the GLOBAL Frame
       const GlobalVector localPositionVector = (**i).globalPosition()-myPosition;
-      GlobalVector::BasicVectorType lpvgf = localPositionVector.basicVector();
+      const GlobalVector::BasicVectorType& lpvgf = localPositionVector.basicVector();
 
       // rotate with GLOBAL rotation matrix  and subtract => moveVector in global coordinates
       // apparently... you have to use the inverse of the rotation here

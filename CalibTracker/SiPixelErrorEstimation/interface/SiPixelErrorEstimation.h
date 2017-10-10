@@ -65,11 +65,11 @@ class SiPixelErrorEstimation : public edm::EDAnalyzer
  public:
   
   explicit SiPixelErrorEstimation(const edm::ParameterSet&);
-  virtual ~SiPixelErrorEstimation();
+  ~SiPixelErrorEstimation() override;
     
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   void computeAnglesFromDetPosition( const SiPixelCluster & cl, 
 				     const GeomDetUnit    & det, 

@@ -32,23 +32,23 @@ class CSCChannelMapperStartup : public CSCChannelMapperBase {
  public:
 
   CSCChannelMapperStartup() {}
-  ~CSCChannelMapperStartup() {}
+  ~CSCChannelMapperStartup() override {}
 
-  virtual std::string name() const {return "CSCChannelMapperStartup";}
+  std::string name() const override {return "CSCChannelMapperStartup";}
 
   /// Return raw strip channel number for input geometrical channel number
-  int rawStripChannel( const CSCDetId& id, int igeom ) const;
+  int rawStripChannel( const CSCDetId& id, int igeom ) const override;
 
   /// Return geometrical strip channel number for input raw channel number
-  int geomStripChannel( const CSCDetId& id, int iraw ) const ;
+  int geomStripChannel( const CSCDetId& id, int iraw ) const override ;
 
   /// Offline conversion of a strip (geometric labelling) back to channel
   /// (Startup: convert the 48 strips of ME1A to 16 ganged channels.)
-  int channelFromStrip( const CSCDetId& id, int strip ) const;
+  int channelFromStrip( const CSCDetId& id, int strip ) const override;
 
   /// Construct raw CSCDetId matching supplied offline CSCDetid
   /// (Startup:  return the ME11 CSCDetID when supplied with that for ME1A)
-  CSCDetId rawCSCDetId( const CSCDetId& id ) const;
+  CSCDetId rawCSCDetId( const CSCDetId& id ) const override;
 
 };
 

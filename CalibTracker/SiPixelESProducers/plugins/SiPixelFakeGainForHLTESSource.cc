@@ -52,7 +52,7 @@ std::unique_ptr<SiPixelGainCalibrationForHLT> SiPixelFakeGainForHLTESSource::pro
    uint32_t nchannels = 0;
    SiPixelGainCalibrationForHLT * obj = new SiPixelGainCalibrationForHLT(25.,30., 2.,3.);
    SiPixelDetInfoFileReader reader(fp_.fullPath());
-   const std::vector<uint32_t> DetIds = reader.getAllDetIds();
+   const std::vector<uint32_t>& DetIds = reader.getAllDetIds();
 
    // Loop over detectors
    for(std::vector<uint32_t>::const_iterator detit=DetIds.begin(); detit!=DetIds.end(); detit++) {

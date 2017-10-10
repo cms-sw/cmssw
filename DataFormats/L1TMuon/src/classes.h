@@ -9,10 +9,6 @@
 #include "DataFormats/L1TMuon/interface/EMTFHit.h"
 #include "DataFormats/L1TMuon/interface/EMTFRoad.h"
 #include "DataFormats/L1TMuon/interface/EMTFTrack.h"
-#include "DataFormats/L1TMuon/interface/EMTFTrack2016.h"
-#include "DataFormats/L1TMuon/interface/EMTFHit2016.h"
-#include "DataFormats/L1TMuon/interface/EMTFTrack2016Extra.h"
-#include "DataFormats/L1TMuon/interface/EMTFHit2016Extra.h"
 
 #include "DataFormats/L1TMuon/interface/L1MuBMTrack.h"
 #include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhi.h"
@@ -39,19 +35,6 @@ namespace {
 
     l1t::EMTFTrackCollection emtfTrack;
     edm::Wrapper<l1t::EMTFTrackCollection> emtfTrackWrap;
-
-    l1t::EMTFTrack2016Collection emtfTrack2016;
-    edm::Wrapper<l1t::EMTFTrack2016Collection> emtfTrack2016Wrap;
-
-    l1t::EMTFHit2016Collection emtfHit2016;
-    edm::Wrapper<l1t::EMTFHit2016Collection> emtfHit2016Wrap;
-
-    l1t::EMTFTrack2016ExtraCollection emtfTrack2016Extra;
-    edm::Wrapper<l1t::EMTFTrack2016ExtraCollection> emtfTrack2016ExtraWrap;
-
-    l1t::EMTFHit2016ExtraCollection emtfHit2016Extra;
-    edm::Wrapper<l1t::EMTFHit2016ExtraCollection> emtfHit2016ExtraWrap;
-
   };
 }
 

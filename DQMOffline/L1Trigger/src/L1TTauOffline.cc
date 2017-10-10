@@ -15,10 +15,10 @@
 #include "TLorentzVector.h"
 
 #include <iomanip>
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 #include <algorithm>
 
 using namespace reco;
@@ -314,7 +314,7 @@ void L1TTauOffline::endRun(edm::Run const& run, edm::EventSetup const& eSetup)
 void L1TTauOffline::bookTauHistos(DQMStore::IBooker & ibooker)
 {
   ibooker.cd();
-  ibooker.setCurrentFolder(histFolder_.c_str());
+  ibooker.setCurrentFolder(histFolder_);
   h_nVertex_ = ibooker.book1D("nVertex", "Number of event vertices in collection", 40, -0.5, 39.5);
   h_tagAndProbeMass_ = ibooker.book1D("tagAndProbeMass", "Invariant mass of tag & probe pair", 100, 40, 140);
 
@@ -366,7 +366,7 @@ void L1TTauOffline::bookTauHistos(DQMStore::IBooker & ibooker)
       "tau #eta resolution  (EB); L1 Tau #eta - PFTau #eta; events", 120, -0.3, 0.3);
 
   // tau turn-ons
-  ibooker.setCurrentFolder(efficiencyFolder_.c_str());
+  ibooker.setCurrentFolder(efficiencyFolder_);
   std::vector<float> tauBins(tauEfficiencyBins_.begin(), tauEfficiencyBins_.end());
   int nBins = tauBins.size() - 1;
   float* tauBinArray = &(tauBins[0]);
@@ -502,7 +502,7 @@ void L1TTauOffline::getTauL1tPairs(edm::Handle<l1t::TauBxCollection> const& l1tC
 			
   for (auto probeTauIt = m_ProbeTaus.begin(); probeTauIt!=m_ProbeTaus.end(); ++probeTauIt) {    
 
-    TauL1TPair pairBestCand((*probeTauIt),0);    
+    TauL1TPair pairBestCand((*probeTauIt),nullptr);    
     
     for(auto l1tIt =  l1tContainer.begin() ; l1tIt!=l1tContainer.end(); ++l1tIt) {
       
@@ -523,7 +523,7 @@ void L1TTauOffline::getTightMuons(edm::Handle<reco::MuonCollection> const& muons
 
   m_TightMuons.clear();
 
-  const reco::PFMET *pfmet=NULL;
+  const reco::PFMET *pfmet=nullptr;
   pfmet=&(mets->front());
 
   int nb_mu=0;
@@ -584,7 +584,7 @@ void L1TTauOffline::getProbeTaus(const edm::Event & iEvent,edm::Handle<reco::PFT
       return;  
     }
 
-  if (m_TightMuons.size()>0){
+  if (!m_TightMuons.empty()){
      TLorentzVector mymu;
      mymu.SetPtEtaPhiE(m_TightMuons[0]->pt(),m_TightMuons[0]->eta(),m_TightMuons[0]->phi(),m_TightMuons[0]->energy());
      int iTau=0;

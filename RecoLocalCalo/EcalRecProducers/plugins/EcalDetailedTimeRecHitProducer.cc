@@ -43,7 +43,7 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h" 
 
 EcalDetailedTimeRecHitProducer::EcalDetailedTimeRecHitProducer(const edm::ParameterSet& ps) :
-  m_geometry(0)
+  m_geometry(nullptr)
 {
   EBRecHitCollection_ = consumes<EBRecHitCollection>( ps.getParameter<edm::InputTag>("EBRecHitCollection") );
   EERecHitCollection_ = consumes<EERecHitCollection>( ps.getParameter<edm::InputTag>("EERecHitCollection") );
@@ -88,8 +88,8 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
         Handle< EBRecHitCollection > pEBRecHits;
         Handle< EERecHitCollection > pEERecHits;
 
-        const EBRecHitCollection*  EBRecHits = 0;
-        const EERecHitCollection*  EERecHits = 0; 
+        const EBRecHitCollection*  EBRecHits = nullptr;
+        const EERecHitCollection*  EERecHits = nullptr; 
 
 	evt.getByToken( EBRecHitCollection_, pEBRecHits);
 	if ( pEBRecHits.isValid() ) {
@@ -110,8 +110,8 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
         Handle< EcalTimeDigiCollection > pEBTimeDigis;
         Handle< EcalTimeDigiCollection > pEETimeDigis;
 
-        const EcalTimeDigiCollection* ebTimeDigis =0;
-        const EcalTimeDigiCollection* eeTimeDigis =0;
+        const EcalTimeDigiCollection* ebTimeDigis =nullptr;
+        const EcalTimeDigiCollection* eeTimeDigis =nullptr;
 
 	evt.getByToken( ebTimeDigiCollection_, pEBTimeDigis);
 	//evt.getByToken( digiProducer_, pEBTimeDigis);
@@ -144,7 +144,7 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
 		
 		if ( VertexHandle.isValid() )
 		  {
-		    if ((*VertexHandle).size()>0) //at least 1 vertex
+		    if (!(*VertexHandle).empty()) //at least 1 vertex
 		      {
 			const reco::Vertex* myVertex= &(*VertexHandle)[0];
 			vertex.reset( new GlobalPoint(myVertex->x(),myVertex->y(),myVertex->z()) );
@@ -159,7 +159,7 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
 		
 		if ( VertexHandle.isValid() )
 		  {
-		    if ((*VertexHandle).size()>0) //at least 1 vertex
+		    if (!(*VertexHandle).empty()) //at least 1 vertex
 		      {
 			assert ((*VertexHandle)[0].vertexId() == 0);
 			const SimVertex* myVertex= &(*VertexHandle)[0];
@@ -233,7 +233,7 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
 double EcalDetailedTimeRecHitProducer::deltaTimeOfFlight( GlobalPoint& vertex, const DetId& detId , int layer) const 
 {
   const CaloCellGeometry* cellGeometry ( m_geometry->getGeometry( detId ) ) ;
-  assert( 0 != cellGeometry ) ;
+  assert( nullptr != cellGeometry ) ;
   GlobalPoint layerPos = (dynamic_cast<const TruncatedPyramid*>(cellGeometry))->getPosition( double(layer)+0.5 ); //depth in mm in the middle of the layer position
   GlobalVector tofVector = layerPos-vertex;
   return (layerPos.mag()*cm-tofVector.mag()*cm)/(float)c_light ;

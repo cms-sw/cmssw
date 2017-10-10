@@ -14,9 +14,9 @@ class HLTmumutktkFilter : public HLTFilter {
 
  public:
   explicit HLTmumutktkFilter(const edm::ParameterSet&);
-  ~HLTmumutktkFilter();
+  ~HLTmumutktkFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
  private:
 

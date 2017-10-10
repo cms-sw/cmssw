@@ -28,10 +28,10 @@ public:
   /// ctor from name string
   PixelBarrelNameUpgrade(std::string name);
 
-  virtual ~PixelBarrelNameUpgrade() { }
+  ~PixelBarrelNameUpgrade() override { }
 
   /// from base class
-  virtual std::string name() const;
+  std::string name() const override;
 
   Shell shell() const { return thePart; }
 
@@ -51,13 +51,13 @@ public:
   bool isHalfModule() const;
   
   /// module Type
-  virtual PixelModuleName::ModuleType  moduleType() const;
+  PixelModuleName::ModuleType  moduleType() const override;
 
   /// return the DetId
   PXBDetId getDetId();
 
   /// check equality of modules from datamemebers
-  virtual bool operator== (const PixelModuleName &) const;
+  bool operator== (const PixelModuleName &) const override;
 
 private:
   Shell thePart;

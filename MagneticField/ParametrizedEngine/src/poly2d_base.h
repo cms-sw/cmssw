@@ -9,7 +9,7 @@
 #include <cstring>
 
 #include <cmath>
-#include <float.h> //in order to use DBL_EPSILON (1+DBL_EPSILON > 1)
+#include <cfloat> //in order to use DBL_EPSILON (1+DBL_EPSILON > 1)
 
 /////////////////////////////////////////////////////////////////////////////////
 //                                                                             //
@@ -88,7 +88,7 @@ public:
 
    virtual ~poly2d_base();
 
-   bool IsOn()    { return bool(data.size());}
+   bool IsOn()    { return bool(!data.empty());}
    bool IsRZSet() { return rz_set;}
 
    void Collect(); //Collect terms and remove zero terms

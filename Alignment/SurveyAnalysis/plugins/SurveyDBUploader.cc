@@ -12,8 +12,8 @@
 SurveyDBUploader::SurveyDBUploader(const edm::ParameterSet& cfg):
   theValueRcd( cfg.getParameter<std::string>("valueRcd") ),
   theErrorExtendedRcd( cfg.getParameter<std::string>("errorRcd") ),
-  theValues(0),
-  theErrors(0)
+  theValues(nullptr),
+  theErrors(nullptr)
 {
 }
 

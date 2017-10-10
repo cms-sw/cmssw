@@ -168,7 +168,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                 EcalTrigTowerDetId ttDetId( ((EBDetId)detId).tower() );
                 edm::Handle<EcalTrigPrimDigiCollection> pTPDigis;
                 evt.getByToken(tpDigiToken_, pTPDigis);
-                const EcalTrigPrimDigiCollection * tpDigis = 0;               
+                const EcalTrigPrimDigiCollection * tpDigis = nullptr;               
 		tpDigis = pTPDigis.product();
            
                 EcalTrigPrimDigiCollection::const_iterator tp = tpDigis->find( ttDetId );
@@ -235,7 +235,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                         
                         edm::Handle<EcalTrigPrimDigiCollection> pTPDigis;
                         evt.getByToken(tpDigiToken_, pTPDigis);
-                        const EcalTrigPrimDigiCollection * tpDigis = 0;
+                        const EcalTrigPrimDigiCollection * tpDigis = nullptr;
 			tpDigis = pTPDigis.product();
 
                         // associated trigger towers

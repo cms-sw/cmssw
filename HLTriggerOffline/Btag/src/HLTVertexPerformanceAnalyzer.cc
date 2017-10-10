@@ -81,7 +81,7 @@ void HLTVertexPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::
 	Handle<std::vector<SimVertex> > simVertexCollection;
 	iEvent.getByToken(simVertexCollection_, simVertexCollection);
 	if (!simVertexCollection.isValid()) { edm::LogInfo("NoSimVertex") << "SimVertex collection is invalid"; return;}
-	if (simVertexCollection->size()==0) { edm::LogInfo("NoSimVertex") << "SimVertex collection is empty"; return;}
+	if (simVertexCollection->empty()) { edm::LogInfo("NoSimVertex") << "SimVertex collection is empty"; return;}
 	const SimVertex simPVh = *(simVertexCollection->begin());
 	simPV=simPVh.position().z();
 	

@@ -45,13 +45,13 @@ Implementation:
 class AnalyzeTuples:public edm::EDAnalyzer {
   public:
     explicit AnalyzeTuples(const edm::ParameterSet &);
-    ~AnalyzeTuples();
+    ~AnalyzeTuples() override;
 
 
   private:
-    virtual void beginJob();
-    virtual void analyze(const edm::Event &, const edm::EventSetup &);
-    virtual void endJob();
+    void beginJob() override;
+    void analyze(const edm::Event &, const edm::EventSetup &) override;
+    void endJob() override;
     void loadEventInfo(TBranch *);
     void getRecord(int type, int record);
     TFile* hf;

@@ -387,7 +387,9 @@ namespace {
 
   class SiStripBadStripByRegion : public cond::payloadInspector::PlotImage<SiStripBadStrip> {
   public:
-    SiStripBadStripByRegion() : cond::payloadInspector::PlotImage<SiStripBadStrip>( "SiStrip BadStrip By Region" ){
+    SiStripBadStripByRegion() : cond::payloadInspector::PlotImage<SiStripBadStrip>( "SiStrip BadStrip By Region" ),
+      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
+    {
       setSingleIov( true );
     }
 
@@ -398,7 +400,7 @@ namespace {
       std::vector<uint32_t> detid;
       payload->getDetIds(detid);
 
-      SiStripDetSummary summaryBadStrips;
+      SiStripDetSummary summaryBadStrips{&m_trackerTopo};
       int totalBadStrips =0;
 
       for (const auto & d : detid) {
@@ -497,6 +499,8 @@ namespace {
 
       return true;
     }
+  private:
+    TrackerTopology m_trackerTopo;
   };
 
 } // close namespace

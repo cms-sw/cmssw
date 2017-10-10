@@ -21,7 +21,7 @@ void MuonTrackCSCChamberResidual::setSegmentResidual(const reco::MuonChamberMatc
   CSCDetId id(trk->id.rawId());
 
   CSCSegmentRef segmentCSC = seg->cscSegmentRef;
-  if (segmentCSC.get() != 0)
+  if (segmentCSC.get() != nullptr)
   {
     const CSCSegment* segment = segmentCSC.get();
     m_numHits = segment->nRecHits();

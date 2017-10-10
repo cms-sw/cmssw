@@ -119,6 +119,7 @@ namespace edm {
     EDProductGetter(),
     processHistoryPtr_(),
     processHistoryID_(),
+    processHistoryIDBeforeConfig_(),
     processConfiguration_(&pc),
     productResolvers_(),
     preg_(reg),
@@ -311,8 +312,9 @@ namespace edm {
   // "Zero" the principal so it can be reused for another Event.
   void
   Principal::clearPrincipal() {
-    processHistoryPtr_.reset();
-    processHistoryID_ = ProcessHistoryID();
+    //We do not clear the product history information
+    // because it rarely changes and recalculating takes
+    // time.
     reader_ = nullptr;
     for(auto& prod : *this) {
       prod->resetProductData();
@@ -352,31 +354,37 @@ namespace edm {
     }
 
     if (historyAppender_ && productRegistry().anyProductProduced()) {
-      processHistoryPtr_ =
-        historyAppender_->appendToProcessHistory(hist,
-                                                 processHistoryRegistry.getMapped(hist),
-                                                 *processConfiguration_);
-      processHistoryID_ = processHistoryPtr_->id();
+      if( (not processHistoryPtr_) || (processHistoryIDBeforeConfig_ != hist) ) {
+        processHistoryPtr_ =
+          historyAppender_->appendToProcessHistory(hist,
+                                                   processHistoryRegistry.  getMapped(hist),
+                                                   *processConfiguration_);
+        processHistoryID_ = processHistoryPtr_->id();
+        processHistoryIDBeforeConfig_ = hist;
+      }
     }
     else {
       std::shared_ptr<ProcessHistory const> inputProcessHistory;
-      if (hist.isValid()) {
-        //does not own the pointer
-        auto noDel =[](void const*){};
-        inputProcessHistory =
-        std::shared_ptr<ProcessHistory const>(processHistoryRegistry.getMapped(hist),noDel);
-        if (inputProcessHistory.get() == nullptr) {
-          throw Exception(errors::LogicError)
-            << "Principal::fillPrincipal\n"
-            << "Input ProcessHistory not found in registry\n"
-            << "Contact a Framework developer\n";
+      if( (not processHistoryPtr_) || (processHistoryIDBeforeConfig_ != hist) ) {
+        if (hist.isValid()) {
+          //does not own the pointer
+          auto noDel =[](void const*){};
+          inputProcessHistory =
+          std::shared_ptr<ProcessHistory const>(processHistoryRegistry.getMapped(hist),noDel);
+          if (inputProcessHistory.get() == nullptr) {
+            throw Exception(errors::LogicError)
+              << "Principal::fillPrincipal\n"
+              << "Input ProcessHistory not found in registry\n"
+              << "Contact a Framework developer\n";
+          }
+        } else {
+          //Since this is static we don't want it deleted
+          inputProcessHistory = std::shared_ptr<ProcessHistory const>(&s_emptyProcessHistory,[](void const*){});
         }
-      } else {
-        //Since this is static we don't want it deleted
-        inputProcessHistory = std::shared_ptr<ProcessHistory const>(&s_emptyProcessHistory,[](void const*){});
+        processHistoryID_ = hist;
+        processHistoryPtr_ = inputProcessHistory;
+        processHistoryIDBeforeConfig_ = hist;
       }
-      processHistoryID_ = hist;
-      processHistoryPtr_ = inputProcessHistory;        
     }
 
     if (orderProcessHistoryID_ != processHistoryID_) {
@@ -502,7 +510,7 @@ namespace edm {
                         ModuleCallingContext const* mcc) const {
 
     ProductData const* result = findProductByLabel(kindOfType, typeID, inputTag, consumer, sra, mcc);
-    if(result == 0) {
+    if(result == nullptr) {
       return BasicHandle(makeHandleExceptionFactory([=]()->std::shared_ptr<cms::Exception> {
         return makeNotFoundException("getByLabel", kindOfType, typeID, inputTag.label(), inputTag.instance(),
                                      appendCurrentProcessIfAlias(inputTag.process(), processConfiguration_->processName()));
@@ -522,7 +530,7 @@ namespace edm {
                         ModuleCallingContext const* mcc) const {
 
     ProductData const* result = findProductByLabel(kindOfType, typeID, label, instance, process,consumer, sra, mcc);
-    if(result == 0) {
+    if(result == nullptr) {
       return BasicHandle(makeHandleExceptionFactory([=]()->std::shared_ptr<cms::Exception> {
         return makeNotFoundException("getByLabel", kindOfType, typeID, label, instance, process);
       }));
@@ -540,7 +548,7 @@ namespace edm {
                         ModuleCallingContext const* mcc) const {
     assert(index !=ProductResolverIndexInvalid);
     auto& productResolver = productResolvers_[index];
-    assert(0!=productResolver.get());
+    assert(nullptr!=productResolver.get());
     auto resolution = productResolver->resolveProduct(*this, skipCurrentProcess, sra, mcc);
     if(resolution.isAmbiguous()) {
       ambiguous = true;
@@ -559,7 +567,7 @@ namespace edm {
                       bool skipCurrentProcess,
                       ModuleCallingContext const* mcc) const {
     auto const& productResolver = productResolvers_.at(index);
-    assert(0!=productResolver.get());
+    assert(nullptr!=productResolver.get());
     productResolver->prefetchAsync(task,*this, skipCurrentProcess,nullptr,mcc);
   }
 
@@ -695,7 +703,7 @@ namespace edm {
         throwAmbiguousException("findProductByLabel", typeID, inputTag.label(), inputTag.instance(),
                                 appendCurrentProcessIfAlias(inputTag.process(), processConfiguration_->processName()));
       } else if (index == ProductResolverIndexInvalid) {
-        return 0;
+        return nullptr;
       }
       inputTag.tryToCacheIndex(index, typeID, branchType(), &productRegistry());
     }
@@ -734,7 +742,7 @@ namespace edm {
     if(index == ProductResolverIndexAmbiguous) {
       throwAmbiguousException("findProductByLabel", typeID, label, instance, process);
     } else if (index == ProductResolverIndexInvalid) {
-      return 0;
+      return nullptr;
     }
     
     if(unlikely( consumer and (not consumer->registeredToConsume(index, false, branchType())))) {

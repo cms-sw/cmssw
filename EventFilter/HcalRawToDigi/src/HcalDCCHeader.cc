@@ -4,8 +4,8 @@
 #include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <string.h>
-#include <stdint.h>
+#include <cstring>
+#include <cstdint>
 
 const int HcalDCCHeader::SPIGOT_COUNT = 15;
 

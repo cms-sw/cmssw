@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 #include <utility>
-#include <stdint.h>
+#include <cstdint>
 
 
 namespace APVGain {
@@ -30,7 +30,7 @@ namespace APVGain {
             subdetectorId(v1),subdetectorSide(v2),subdetectorPlane(v3),monitor(v4) {}
     };
 
-    std::vector<MonitorElement*> FetchMonitor(std::vector<APVmon>, uint32_t, const TrackerTopology* topo=0);
+    std::vector<MonitorElement*> FetchMonitor(std::vector<APVmon>, uint32_t, const TrackerTopology* topo=nullptr);
 };
 
 #endif

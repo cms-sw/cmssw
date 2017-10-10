@@ -18,7 +18,7 @@
 
 using namespace std;
 
-DTTimeBoxFitter::DTTimeBoxFitter(const TString& debugFileName) : hDebugFile(0),
+DTTimeBoxFitter::DTTimeBoxFitter(const TString& debugFileName) : hDebugFile(nullptr),
 								 theVerbosityLevel(0),
 								 theSigma(10.) {
   // Create a root file for debug output only if needed
@@ -30,7 +30,7 @@ DTTimeBoxFitter::DTTimeBoxFitter(const TString& debugFileName) : hDebugFile(0),
 
 
 DTTimeBoxFitter::~DTTimeBoxFitter() {
-  if(hDebugFile != 0) hDebugFile->Close();
+  if(hDebugFile != nullptr) hDebugFile->Close();
 }
 
 
@@ -161,7 +161,7 @@ void DTTimeBoxFitter::getFitSeeds(TH1F *hTBox, double& mean, double& sigma, doub
     nRebins++;
   }
 
-  if(hDebugFile != 0) hDebugFile->cd();
+  if(hDebugFile != nullptr) hDebugFile->cd();
   TString hLName = TString(hTBox->GetName())+"L";
   TH1F hLTB(hLName.Data(), "Logic Time Box", nBins, xMin, xMax);
   // Loop over all time box bins and discriminate them accordigly to the threshold
@@ -169,7 +169,7 @@ void DTTimeBoxFitter::getFitSeeds(TH1F *hTBox, double& mean, double& sigma, doub
     if(hTBox->GetBinContent(i) > threshold)
       hLTB.SetBinContent(i, 1);
   }
-  if(hDebugFile != 0) hLTB.Write();
+  if(hDebugFile != nullptr) hLTB.Write();
   
   // Look for the time box in the "logic histo" and save beginning and lenght of each plateau
   vector< pair<int, int> > startAndLenght;

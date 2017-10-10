@@ -22,9 +22,9 @@
 class HcalSiPMParametersHandler : public popcon::PopConSourceHandler<HcalSiPMParameters> {
 
 public:
-  void getNewObjects();
-  std::string id() const { return m_name;}
-  ~HcalSiPMParametersHandler();
+  void getNewObjects() override;
+  std::string id() const override { return m_name;}
+  ~HcalSiPMParametersHandler() override;
   HcalSiPMParametersHandler(edm::ParameterSet const &);
 
   void initObject(HcalSiPMParameters*);

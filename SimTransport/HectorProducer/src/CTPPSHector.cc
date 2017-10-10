@@ -15,7 +15,7 @@
 
 #include "H_Parameters.h"
 
-#include <math.h>
+#include <cmath>
 
 CTPPSHector::CTPPSHector(const edm::ParameterSet & param, bool verbosity,bool CTPPSTransport) : 
     m_smearAng(false),m_sig_e(0.),m_smearE(false),m_sigmaSTX(0.),m_sigmaSTY(0.),
@@ -122,7 +122,7 @@ void CTPPSHector::clear(){
 
 void CTPPSHector::add( const HepMC::GenEvent * evt ,const edm::EventSetup & iSetup, CLHEP::HepRandomEngine * engine) {
 
-    H_BeamParticle* h_p  = NULL;
+    H_BeamParticle* h_p  = nullptr;
     unsigned int line;
 
     for (HepMC::GenEvent::particle_const_iterator eventParticle =evt->particles_begin();
@@ -197,7 +197,7 @@ void CTPPSHector::add( const HepMC::GenEvent * evt ,const edm::EventSetup & iSet
 void CTPPSHector::filterCTPPS(TRandom3* rootEngine){
 
     unsigned int line;
-    H_BeamParticle * part = NULL;
+    H_BeamParticle * part = nullptr;
  
     std::map< unsigned int, H_BeamParticle* >::iterator it;
 
@@ -207,7 +207,7 @@ void CTPPSHector::filterCTPPS(TRandom3* rootEngine){
     float x1_ctpps;
     float y1_ctpps;
 
-    if ( m_beamPart.size() && lengthctpps>0. ) {
+    if ( !m_beamPart.empty() && lengthctpps>0. ) {
 
         for (it = m_beamPart.begin(); it != m_beamPart.end(); ++it ) {
             line = (*it).first;
@@ -216,14 +216,14 @@ void CTPPSHector::filterCTPPS(TRandom3* rootEngine){
             if(m_verbosity) LogDebug("CTPPSHectorEventProcessing") << "CTPPSHector:filterCTPPS: barcode = " << line;
             if ( (*m_isCharged.find( line )).second ) {
                 direction = (*m_direct.find( line )).second;
-                if ( direction == 1 && m_beamlineCTPPS1 != 0 ) {
+                if ( direction == 1 && m_beamlineCTPPS1 != nullptr ) {
                     
  		    part->computePath(&*m_beamlineCTPPS1);
 
                     is_stop = part->stopped(&* m_beamlineCTPPS1 );
                     if(m_verbosity) LogDebug("CTPPSHectorEventProcessing") << "CTPPSHector:filterCTPPS: barcode = " << line << " positive is_stop=  "<< is_stop;
                 }
-                else if ( direction == -1 && m_beamlineCTPPS2 != 0 ){
+                else if ( direction == -1 && m_beamlineCTPPS2 != nullptr ){
 
                     part->computePath(&*m_beamlineCTPPS2 );
 

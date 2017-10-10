@@ -11,7 +11,7 @@ SimpleNoiseCalculator::SimpleNoiseCalculator() :
   numberOfEvents(0) ,
   alreadyUsedEvent(false)  
 {
-  if (0) cout << "Constructing SimpleNoiseCalculator " << endl;
+  if (false) cout << "Constructing SimpleNoiseCalculator " << endl;
   init();
 }
 //
@@ -19,7 +19,7 @@ SimpleNoiseCalculator::SimpleNoiseCalculator(int evnt_ini, bool use_DB) :
   numberOfEvents(0) ,
   alreadyUsedEvent(false)  
 {
-  if (0) cout << "Constructing SimpleNoiseCalculator " << endl;
+  if (false) cout << "Constructing SimpleNoiseCalculator " << endl;
   useDB_ = use_DB;
   eventsRequiredToCalibrate_ = evnt_ini;
   //  eventsRequiredToUpdate_    = evnt_iter;
@@ -41,7 +41,7 @@ void SimpleNoiseCalculator::init() {
 //  Destructor 
 //
 SimpleNoiseCalculator::~SimpleNoiseCalculator() {
-  if (0) cout << "Destructing SimpleNoiseCalculator " << endl;
+  if (false) cout << "Destructing SimpleNoiseCalculator " << endl;
 }
 //
 // Update the Status of Noise Calculation
@@ -105,7 +105,7 @@ void SimpleNoiseCalculator::updateNoise(ApvAnalysis::PedestalType& in){
 
         theNoise.push_back(static_cast<float>(rmsVal));
   
-        if (0) cout << " SimpleNoiseCalculator::updateNoise " 
+        if (false) cout << " SimpleNoiseCalculator::updateNoise " 
                     << theNoiseSum[i] << " " 
                     << theNoiseSqSum[i] << " "
                     << theEventPerStrip[i] << " "  

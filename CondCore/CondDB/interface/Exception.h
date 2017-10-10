@@ -15,7 +15,7 @@ namespace cond {
       /// Constructor
       Exception( const std::string& message, const std::string& methodName );
       /// Destructor
-      virtual ~Exception() throw() {}
+      ~Exception() throw() override {}
     };
 
     void throwException [[noreturn]] ( const std::string& message, const std::string& methodName );

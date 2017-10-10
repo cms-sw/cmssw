@@ -267,7 +267,7 @@ void DynamicTruncation::compatibleDets(TrajectoryStateOnSurface &tsos, map<int, 
     vector<DetLayer::DetWithState> comps = navLayers[ilayer]->compatibleDets(currentState, *propagatorCompatibleDet, *theEstimator);
     //cout << comps.size() << " compatible Dets with " << navLayers[ilayer]->subDetector() << " Layer " << ilayer << " " 
     //<< dumper.dumpLayer(navLayers[ilayer]);
-    if (comps.size() > 0) {
+    if (!comps.empty()) {
       for ( unsigned int icomp=0; icomp<comps.size(); icomp++ ) {
 		DetId id(comps[icomp].first->geographicalId().rawId());
 		detMap[ilayerCorrected].push_back(id);
@@ -303,7 +303,7 @@ void DynamicTruncation::fillSegmentMaps( map<int, vector<DetId> > &compatibleIds
 //===> testDTstation
 void DynamicTruncation::testDTstation(TrajectoryStateOnSurface &startingState, vector<DTRecSegment4D> const &segments, 
 				      double &bestEstimator, DTRecSegment4D &bestSeg, TrajectoryStateOnSurface &tsosdt) {
-  if (segments.size() == 0) return;
+  if (segments.empty()) return;
   for (unsigned int iSeg = 0; iSeg < segments.size(); iSeg++) {
     DTChamberId chamber(segments[iSeg].chamberId());
     if (!propagator->propagate(startingState, theG->idToDet(chamber)->surface()).isValid()) continue;
@@ -324,7 +324,7 @@ void DynamicTruncation::testDTstation(TrajectoryStateOnSurface &startingState, v
 //===> testCSCstation
 void DynamicTruncation::testCSCstation(TrajectoryStateOnSurface &startingState, vector<CSCSegment> const &segments, 
 				       double &bestEstimator, CSCSegment &bestSeg, TrajectoryStateOnSurface &tsoscsc) {
-  if (segments.size() == 0) return;
+  if (segments.empty()) return;
   for (unsigned int iSeg = 0; iSeg < segments.size(); iSeg++) {
     CSCDetId chamber(segments[iSeg].cscDetId());
     if (!propagator->propagate(startingState, theG->idToDet(chamber)->surface()).isValid()) continue;

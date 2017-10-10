@@ -15,8 +15,8 @@ class FTLUncalibratedRecHitProducer : public edm::stream::EDProducer<> {
   
  public:
   explicit FTLUncalibratedRecHitProducer(const edm::ParameterSet& ps);
-  ~FTLUncalibratedRecHitProducer();
-  virtual void produce(edm::Event& evt, const edm::EventSetup& es) override;
+  ~FTLUncalibratedRecHitProducer() override;
+  void produce(edm::Event& evt, const edm::EventSetup& es) override;
   
  private:
   

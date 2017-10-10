@@ -150,7 +150,7 @@ void AnalysisRootpleProducerOnlyMC::analyze( const Event& e, const EventSetup& )
   InclusiveJet->Clear();
   MonteCarlo->Clear();
 
-  if (ChgGenJetsHandle->size()){
+  if (!ChgGenJetsHandle->empty()){
 
     for ( GenJetCollection::const_iterator it(ChgGenJetsHandle->begin()), itEnd(ChgGenJetsHandle->end());
 	  it!=itEnd; ++it)
@@ -168,7 +168,7 @@ void AnalysisRootpleProducerOnlyMC::analyze( const Event& e, const EventSetup& )
       }
   }
 
-  if (GenJetsHandle->size()){
+  if (!GenJetsHandle->empty()){
 
     for ( GenJetCollection::const_iterator it(GenJetsHandle->begin()), itEnd(GenJetsHandle->end());
 	  it!=itEnd; ++it )
@@ -186,7 +186,7 @@ void AnalysisRootpleProducerOnlyMC::analyze( const Event& e, const EventSetup& )
       }
   }
 
-  if (CandHandleMC->size()){
+  if (!CandHandleMC->empty()){
 
     for (vector<GenParticle>::const_iterator it(CandHandleMC->begin()), itEnd(CandHandleMC->end());
 	 it != itEnd;it++)

@@ -74,14 +74,14 @@ namespace {
   }
 
   class ConstantFinder : public ExpressionElementFinderBase {
-    virtual bool checkStart(char iSymbol) const override final {
+    bool checkStart(char iSymbol) const final {
       if( iSymbol == '-' or iSymbol == '.' or std::isdigit(iSymbol) ) {
         return true;
       }
       return false;
     }
 
-    virtual EvaluatorInfo createEvaluator(std::string::const_iterator iBegin, std::string::const_iterator iEnd) const override final {
+    EvaluatorInfo createEvaluator(std::string::const_iterator iBegin, std::string::const_iterator iEnd) const final {
       EvaluatorInfo info;
       try {
         size_t endIndex=0;
@@ -100,14 +100,14 @@ namespace {
 
 
   class ParameterFinder : public ExpressionElementFinderBase {
-    virtual bool checkStart(char iSymbol) const override final {
+    bool checkStart(char iSymbol) const final {
       if( iSymbol == '[') {
         return true;
       }
       return false;
     }
 
-    virtual EvaluatorInfo createEvaluator(std::string::const_iterator iBegin, std::string::const_iterator iEnd) const override final {
+    EvaluatorInfo createEvaluator(std::string::const_iterator iBegin, std::string::const_iterator iEnd) const final {
       EvaluatorInfo info;
       if(iEnd == iBegin) {
         return info;
@@ -138,14 +138,14 @@ namespace {
   };
   
   class VariableFinder : public ExpressionElementFinderBase {
-    virtual bool checkStart(char iSymbol) const override final {
+    bool checkStart(char iSymbol) const final {
       if( iSymbol == 'x' or iSymbol == 'y' or iSymbol == 'z' or iSymbol == 't' ) {
         return true;
       }
       return false;
     }
     
-    virtual EvaluatorInfo createEvaluator(std::string::const_iterator iBegin, std::string::const_iterator iEnd) const override final {
+    EvaluatorInfo createEvaluator(std::string::const_iterator iBegin, std::string::const_iterator iEnd) const final {
       EvaluatorInfo info;
       if(iBegin == iEnd) {
         return info;
@@ -179,11 +179,11 @@ namespace {
     FunctionFinder(ExpressionFinder const* iEF):
       m_expressionFinder(iEF) {};
 
-    virtual bool checkStart(char iSymbol) const override final {
+    bool checkStart(char iSymbol) const final {
       return std::isalpha(iSymbol);
     }
 
-    virtual EvaluatorInfo createEvaluator(std::string::const_iterator iBegin, std::string::const_iterator iEnd) const override final;
+    EvaluatorInfo createEvaluator(std::string::const_iterator iBegin, std::string::const_iterator iEnd) const final;
 
   private:
     ExpressionFinder const* m_expressionFinder;

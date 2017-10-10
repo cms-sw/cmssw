@@ -18,13 +18,13 @@ public:
     Chi2MeasurementEstimatorBase( maxChi2, nSigma) {}
 
   std::pair<bool, double> estimate(const TrajectoryStateOnSurface& tsos,
-                                   const TrackingRecHit& aRecHit) const ;
+                                   const TrackingRecHit& aRecHit) const override ;
   template <unsigned int N>
   std::pair<bool, double> estimate(const TrajectoryStateOnSurface& tsos,
                                                 const TrackingRecHit& aRecHit) const ;
 
 
-  virtual MRHChi2MeasurementEstimator* clone() const {
+  MRHChi2MeasurementEstimator* clone() const override {
     return new MRHChi2MeasurementEstimator(*this);
   }
   

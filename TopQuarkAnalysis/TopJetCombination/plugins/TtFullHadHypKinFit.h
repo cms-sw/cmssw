@@ -10,16 +10,16 @@ class TtFullHadHypKinFit : public TtFullHadHypothesis  {
  public:
 
   explicit TtFullHadHypKinFit(const edm::ParameterSet&);
-  ~TtFullHadHypKinFit();
+  ~TtFullHadHypKinFit() override;
 
  private:
 
   /// build the event hypothesis key
-  virtual void buildKey() { key_= TtFullHadronicEvent::kKinFit; };
+  void buildKey() override { key_= TtFullHadronicEvent::kKinFit; };
   /// build event hypothesis from the reco objects of a full-hadronic event
-  virtual void buildHypo(edm::Event&,
+  void buildHypo(edm::Event&,
 			 const edm::Handle<std::vector<pat::Jet> >&,
-			 std::vector<int>&, const unsigned int iComb);
+			 std::vector<int>&, const unsigned int iComb) override;
 
   edm::EDGetTokenT<std::vector<int> > statusToken_;
   edm::EDGetTokenT<std::vector<pat::Particle> > lightQToken_;

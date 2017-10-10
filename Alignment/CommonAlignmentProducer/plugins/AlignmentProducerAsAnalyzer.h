@@ -38,33 +38,33 @@ public: //====================================================================
   AlignmentProducerAsAnalyzer(const edm::ParameterSet&);
 
   /// Destructor
-  virtual ~AlignmentProducerAsAnalyzer() = default;
+  ~AlignmentProducerAsAnalyzer() override = default;
 
   /*** Code which implements the interface
        Called from outside ***/
 
-  virtual void beginJob() override;
-  virtual void endJob() override;
+  void beginJob() override;
+  void endJob() override;
 
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
 
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock&,
+  void beginLuminosityBlock(const edm::LuminosityBlock&,
                                     const edm::EventSetup&) override;
-  virtual void endLuminosityBlock(const edm::LuminosityBlock&,
+  void endLuminosityBlock(const edm::LuminosityBlock&,
                                   const edm::EventSetup&) override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
-  virtual bool getTrajTrackAssociationCollection(const edm::Event&,
+  bool getTrajTrackAssociationCollection(const edm::Event&,
                                                  edm::Handle<TrajTrackAssociationCollection>&) override;
-  virtual bool getBeamSpot(const edm::Event&, edm::Handle<reco::BeamSpot>&) override;
-  virtual bool getTkFittedLasBeamCollection(const edm::Run&,
+  bool getBeamSpot(const edm::Event&, edm::Handle<reco::BeamSpot>&) override;
+  bool getTkFittedLasBeamCollection(const edm::Run&,
                                             edm::Handle<TkFittedLasBeamCollection>&) override;
-  virtual bool getTsosVectorCollection(const edm::Run&,
+  bool getTsosVectorCollection(const edm::Run&,
                                        edm::Handle<TsosVectorCollection>&) override;
-  virtual bool getAliClusterValueMap(const edm::Event&,
+  bool getAliClusterValueMap(const edm::Event&,
                                      edm::Handle<AliClusterValueMap>&) override;
 
   edm::EDGetTokenT<TrajTrackAssociationCollection> tjTkAssociationMapToken_;

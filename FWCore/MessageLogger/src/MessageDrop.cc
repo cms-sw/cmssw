@@ -88,7 +88,7 @@ class StringProducerWithPhase : public StringProducer
     {
     }
 
-    virtual std::string theContext() const override {
+    std::string theContext() const override {
       if (cache_.empty()) {
         if (moduleID_ != std::numeric_limits<unsigned int>::max()) {
           auto nameLableIter = idLabelMap_.find(moduleID_);
@@ -133,7 +133,7 @@ class StringProducerPath : public StringProducer{
     , cache_()
     {
     }
-     virtual std::string theContext() const override {
+     std::string theContext() const override {
       if ( cache_.empty() ) {
         cache_.assign(typePtr_);
         cache_.append(path_);
@@ -157,7 +157,7 @@ class StringProducerSinglet : public StringProducer{
     : singlet_("(NoModuleName)")
     {
     }
-    virtual std::string theContext() const override {
+    std::string theContext() const override {
       return singlet_;
     }
     void set(const char * sing) {singlet_ = sing; } 

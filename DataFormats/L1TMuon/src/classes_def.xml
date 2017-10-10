@@ -39,20 +39,6 @@
   <class name="edm::Wrapper<l1t::EMTFTrackCollection>"/>
   <class name="l1t::EMTFPtLUT"/>
 
-  <class name="l1t::EMTFTrack2016"/>
-  <class name="l1t::EMTFTrack2016Collection"/>
-  <class name="edm::Wrapper<l1t::EMTFTrack2016Collection>"/>
-  <class name="l1t::EMTFHit2016"/>
-  <class name="l1t::EMTFHit2016Collection"/>
-  <class name="edm::Wrapper<l1t::EMTFHit2016Collection>"/>
-
-  <class name="l1t::EMTFTrack2016Extra"/>
-  <class name="l1t::EMTFTrack2016ExtraCollection"/>
-  <class name="edm::Wrapper<l1t::EMTFTrack2016ExtraCollection>"/>
-  <class name="l1t::EMTFHit2016Extra"/>
-  <class name="l1t::EMTFHit2016ExtraCollection"/>
-  <class name="edm::Wrapper<l1t::EMTFHit2016ExtraCollection>"/>
-
   <class name="L1MuBMTrackSegPhi" ClassVersion="10">
     <version ClassVersion="10" checksum="3818011888"/>
   </class>

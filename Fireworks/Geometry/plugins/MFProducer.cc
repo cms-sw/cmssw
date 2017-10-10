@@ -13,12 +13,12 @@ class MFProducer : public edm::EDProducer
 {
 public:
   explicit MFProducer( const edm::ParameterSet& );
-  ~MFProducer( void );
+  ~MFProducer( void ) override;
   
 private:
-  virtual void beginJob( void ) override;
-  virtual void produce( edm::Event&, const edm::EventSetup& ) override;
-  virtual void endJob( void ) override;
+  void beginJob( void ) override;
+  void produce( edm::Event&, const edm::EventSetup& ) override;
+  void endJob( void ) override;
   void 		evaluate( const double point[3], double field[3] ) const;
   unsigned	m_mapDensityX;
   unsigned      m_mapDensityY;

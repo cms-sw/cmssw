@@ -9,9 +9,9 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "TRandom.h"
 #include <TF1.h>
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 #include <TProfile.h>
 #include <TProfile2D.h>
 #include <memory>
@@ -177,7 +177,7 @@ void L1EmulatorErrorFlagClient::dqmEndLuminosityBlock(DQMStore::IBooker & ibooke
 // set subsystem agreement value in summary map
 Float_t L1EmulatorErrorFlagClient::setSummary(DQMStore::IGetter &igetter, const unsigned int& iMon) const {
 
-    MonitorElement* QHist = igetter.get(m_systemErrorFlag[iMon].data());
+    MonitorElement* QHist = igetter.get(m_systemErrorFlag[iMon]);
 
     int ntot = 0;
     for (int i = 0; i < QHist->getNbinsX(); i++) {

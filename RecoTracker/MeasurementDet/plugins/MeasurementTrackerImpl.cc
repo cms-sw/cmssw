@@ -117,34 +117,34 @@ void MeasurementTrackerImpl::initialize(const TrackerTopology* trackerTopology)
   bool subIsOT = false;
 
   //if the TkGeometry has the subDet vector filled, the theDetMap is filled, otherwise nothing should happen
-  if(theTrackerGeom->detsPXB().size()!=0) {
+  if(!theTrackerGeom->detsPXB().empty()) {
     subIsPixel = GeomDetEnumerators::isTrackerPixel(theTrackerGeom->geomDetSubDetector(theTrackerGeom->detsPXB().front()->geographicalId().subdetId()));
     addDets(theTrackerGeom->detsPXB(), subIsPixel, subIsOT);
   }
 
-  if(theTrackerGeom->detsPXF().size()!=0) {
+  if(!theTrackerGeom->detsPXF().empty()) {
     subIsPixel = GeomDetEnumerators::isTrackerPixel(theTrackerGeom->geomDetSubDetector(theTrackerGeom->detsPXF().front()->geographicalId().subdetId()));
     addDets(theTrackerGeom->detsPXF(), subIsPixel, subIsOT);
   }
 
   subIsOT = true;
 
-  if(theTrackerGeom->detsTIB().size()!=0) {
+  if(!theTrackerGeom->detsTIB().empty()) {
     subIsPixel = GeomDetEnumerators::isTrackerPixel(theTrackerGeom->geomDetSubDetector(theTrackerGeom->detsTIB().front()->geographicalId().subdetId()));
     addDets(theTrackerGeom->detsTIB(), subIsPixel, subIsOT);
   }
 
-  if(theTrackerGeom->detsTID().size()!=0) {
+  if(!theTrackerGeom->detsTID().empty()) {
     subIsPixel = GeomDetEnumerators::isTrackerPixel(theTrackerGeom->geomDetSubDetector(theTrackerGeom->detsTID().front()->geographicalId().subdetId()));
     addDets(theTrackerGeom->detsTID(), subIsPixel, subIsOT);
   }
 
-  if(theTrackerGeom->detsTOB().size()!=0) {
+  if(!theTrackerGeom->detsTOB().empty()) {
     subIsPixel = GeomDetEnumerators::isTrackerPixel(theTrackerGeom->geomDetSubDetector(theTrackerGeom->detsTOB().front()->geographicalId().subdetId()));
     addDets(theTrackerGeom->detsTOB(), subIsPixel, subIsOT);
   }
 
-  if(theTrackerGeom->detsTEC().size()!=0) { 
+  if(!theTrackerGeom->detsTEC().empty()) { 
     subIsPixel = GeomDetEnumerators::isTrackerPixel(theTrackerGeom->geomDetSubDetector(theTrackerGeom->detsTEC().front()->geographicalId().subdetId()));
     addDets(theTrackerGeom->detsTEC(), subIsPixel, subIsOT);
   }
@@ -249,10 +249,10 @@ void MeasurementTrackerImpl::addDets( const TrackingGeometry::DetContainer& dets
       const GluedGeomDet* gluedDet = dynamic_cast<const GluedGeomDet*>(*gd);
       const StackGeomDet* stackDet = dynamic_cast<const StackGeomDet*>(*gd);
 
-      if ((gluedDet == 0 && stackDet == 0) || (gluedDet != 0 && stackDet != 0)) {
+      if ((gluedDet == nullptr && stackDet == nullptr) || (gluedDet != nullptr && stackDet != nullptr)) {
         throw MeasurementDetException("MeasurementTracker ERROR: GeomDet neither DetUnit nor GluedDet nor StackDet");
       }
-      if(gluedDet != 0)
+      if(gluedDet != nullptr)
         addGluedDet(gluedDet);
       else
         addStackDet(stackDet);
@@ -315,7 +315,7 @@ void MeasurementTrackerImpl::initGluedDet( TkGluedMeasurementDet & det, const Tr
   const GluedGeomDet& gd = det.specificGeomDet();
   const MeasurementDet* monoDet = findDet( gd.monoDet()->geographicalId());
   const MeasurementDet* stereoDet = findDet( gd.stereoDet()->geographicalId());
-  if (monoDet == 0 || stereoDet == 0) {
+  if (monoDet == nullptr || stereoDet == nullptr) {
     edm::LogError("MeasurementDet") << "MeasurementTracker ERROR: GluedDet components not found as MeasurementDets ";
     throw MeasurementDetException("MeasurementTracker ERROR: GluedDet components not found as MeasurementDets");
   }
@@ -328,7 +328,7 @@ void MeasurementTrackerImpl::initStackDet( TkStackMeasurementDet & det)
   const StackGeomDet& gd = det.specificGeomDet();
   const MeasurementDet* lowerDet = findDet( gd.lowerDet()->geographicalId());
   const MeasurementDet* upperDet = findDet( gd.upperDet()->geographicalId());
-  if (lowerDet == 0 || upperDet == 0) {
+  if (lowerDet == nullptr || upperDet == nullptr) {
     edm::LogError("MeasurementDet") << "MeasurementTracker ERROR: StackDet components not found as MeasurementDets ";
     throw MeasurementDetException("MeasurementTracker ERROR: StackDet components not found as MeasurementDets");
   }
@@ -348,7 +348,7 @@ void MeasurementTrackerImpl::initializeStripStatus(const SiStripQuality *quality
   theStDetConditions.setMaskBad128StripBlocks((qualityFlags & MaskBad128StripBlocks) != 0);
   
   
-  if ((quality != 0) && (qualityFlags != 0))  {
+  if ((quality != nullptr) && (qualityFlags != 0))  {
     edm::LogInfo("MeasurementTracker") << "qualityFlags = " << qualityFlags;
     unsigned int on = 0, tot = 0; 
     unsigned int foff = 0, ftot = 0, aoff = 0, atot = 0; 
@@ -414,7 +414,7 @@ void MeasurementTrackerImpl::initializeStripStatus(const SiStripQuality *quality
 }
 
 void MeasurementTrackerImpl::initializePixelStatus(const SiPixelQuality *quality, const SiPixelFedCabling *pixelCabling, int qualityFlags, int qualityDebugFlags) {
-  if ((quality != 0) && (qualityFlags != 0))  {
+  if ((quality != nullptr) && (qualityFlags != 0))  {
     edm::LogInfo("MeasurementTracker") << "qualityFlags = " << qualityFlags;
     unsigned int on = 0, tot = 0, badrocs = 0; 
     for (std::vector<TkPixelMeasurementDet>::iterator i=thePixelDets.begin();

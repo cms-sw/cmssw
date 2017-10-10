@@ -39,6 +39,7 @@ TSGForOI::TSGForOI(const edm::ParameterSet & iConfig) :
   SF4_(iConfig.getParameter<double>("SF4")),
   SF5_(iConfig.getParameter<double>("SF5")),
   tsosDiff_(iConfig.getParameter<double>("tsosDiff")),
+  propagatorName_(iConfig.getParameter<std::string>("propagatorName")), 
   theCategory(string("Muon|RecoMuon|TSGForOI"))
 {
   produces<std::vector<TrajectorySeed> >();
@@ -67,12 +68,14 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
   edm::ESHandle<MagneticField>                  magfieldH;
   edm::ESHandle<Propagator>                     propagatorAlongH;
   edm::ESHandle<Propagator>                     propagatorOppositeH;
+  edm::ESHandle<TrackerGeometry>                tmpTkGeometryH;  
   edm::ESHandle<GlobalTrackingGeometry>         geometryH;
 
   iSetup.get<IdealMagneticFieldRecord>().get(magfieldH);
-  iSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterial", propagatorOppositeH);
-  iSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterial", propagatorAlongH);
+  iSetup.get<TrackingComponentsRecord>().get(propagatorName_, propagatorOppositeH);
+  iSetup.get<TrackingComponentsRecord>().get(propagatorName_, propagatorAlongH);
   iSetup.get<GlobalTrackingGeometryRecord>().get(geometryH);
+  iSetup.get<TrackerDigiGeometryRecord>().get(tmpTkGeometryH);
   iSetup.get<TrackingComponentsRecord>().get(estimatorName_,estimatorH);
   iEvent.getByToken(measurementTrackerTag_, measurementTrackerH);
 
@@ -85,13 +88,17 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
 
   //	Get vector of Detector layers once:
   std::vector<BarrelDetLayer const*> const& tob = measurementTrackerH->geometricSearchTracker()->tobLayers();
-  std::vector<ForwardDetLayer const*> const& tecPositive = measurementTrackerH->geometricSearchTracker()->posTecLayers();
-  std::vector<ForwardDetLayer const*> const& tecNegative = measurementTrackerH->geometricSearchTracker()->negTecLayers();
+  std::vector<ForwardDetLayer const*> const& tecPositive = tmpTkGeometryH->isThere(GeomDetEnumerators::P2OTEC) ? 
+                                                                measurementTrackerH->geometricSearchTracker()->posTidLayers() : 
+                                                                measurementTrackerH->geometricSearchTracker()->posTecLayers(); 
+  std::vector<ForwardDetLayer const*> const& tecNegative = tmpTkGeometryH->isThere(GeomDetEnumerators::P2OTEC) ? 
+                                                                measurementTrackerH->geometricSearchTracker()->negTidLayers() : 
+                                                                measurementTrackerH->geometricSearchTracker()->negTecLayers();
   edm::ESHandle<TrackerTopology> tTopo_handle;
   iSetup.get<TrackerTopologyRcd>().get(tTopo_handle);
   const TrackerTopology* tTopo = tTopo_handle.product();
 
-  //	Get the suitable propagators:
+  //	Get the suitable propagators: 
   std::unique_ptr<Propagator> propagatorAlong = SetPropagationDirection(*propagatorAlongH,alongMomentum);
   std::unique_ptr<Propagator> propagatorOpposite = SetPropagationDirection(*propagatorOppositeH,oppositeToMomentum);
 
@@ -116,7 +123,7 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
     TrajectoryStateOnSurface tsosAtMuonSystem = trajectoryStateTransform::innerStateOnSurface(*l2, *geometryH, magfieldH.product());
     LogTrace("TSGForOI") << "TSGForOI::produce: Created TSOSatMuonSystem: " << tsosAtMuonSystem <<endl;
     
-    if (useHitLessSeeds_){  // 
+    if (useHitLessSeeds_){  
       LogTrace("TSGForOI") << "TSGForOI::produce: Check the error of the L2 parameter and use hit seeds if big errors" << endl;
       StateOnTrackerBound fromInside(propagatorAlong.get());
       TrajectoryStateOnSurface outerTkStateInside = fromInside(fts);
@@ -206,15 +213,16 @@ void TSGForOI::findSeedsOnLayer(
   
   double errorSFHits=1.0;
   double errorSFHitless=1.0;
-  if (!adjustErrorsDynamicallyForHits_)    errorSFHits = fixedErrorRescalingForHits_;
+  if (!adjustErrorsDynamicallyForHits_) errorSFHits = fixedErrorRescalingForHits_;
+  else                                  errorSFHits = calculateSFFromL2(l2);
   if (!adjustErrorsDynamicallyForHitless_) errorSFHitless = fixedErrorRescalingForHitless_;
 
-  // Hitless:
+  // Hitless:  TO Be discarded from here at some point. 
   if (useHitLessSeeds_ && !foundHitlessSeed) {
     LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: Start hitless" << endl;
     std::vector< GeometricSearchDet::DetWithState > dets;
     layer.compatibleDetsV(tsosAtIP, propagatorAlong, *estimatorH, dets);
-    if (dets.size()>0) {  
+    if (!dets.empty()) {  
       auto const& detOnLayer = dets.front().first;
       auto const& tsosOnLayer = dets.front().second;
       LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: tsosOnLayer " << tsosOnLayer << endl;
@@ -234,17 +242,15 @@ void TSGForOI::findSeedsOnLayer(
 	out->push_back(TrajectorySeed(ptsod,rHC,oppositeToMomentum));
 	LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: TSOD (Hitless) done " << endl;
 	foundHitlessSeed=true;
+        numSeedsMade++;
       }
-      numSeedsMade=out->size();
     }
   }
-  //  numSeedsMade=out->size();
 
   // Hits:
   if (layerCount>numOfLayersToTry_) return;
   LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: Start Hits" <<endl;  
-  if (makeSeedsFromHits(tTopo, layer, tsosAtIP, *out, propagatorAlong, *measurementTrackerH, estimatorH, errorSFHits))  ++layerCount; 
-  numSeedsMade=out->size();
+  if (makeSeedsFromHits(tTopo, layer, tsosAtIP, *out, propagatorAlong, *measurementTrackerH, estimatorH, numSeedsMade, errorSFHits))  ++layerCount; 
 }
 
 double TSGForOI::calculateSFFromL2(const reco::TrackRef track) const{
@@ -280,6 +286,7 @@ int TSGForOI::makeSeedsFromHits(
 				const Propagator& propagatorAlong,
 				const MeasurementTrackerEvent &measurementTracker,
 				edm::ESHandle<Chi2MeasurementEstimatorBase>& estimatorH,
+				unsigned int& numSeedsMade,
 				const double errorSF)  const{
 
   //		Error Rescaling:
@@ -330,6 +337,7 @@ int TSGForOI::makeSeedsFromHits(
     LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: number of seedHits: " << seedHits.size() << endl;
     out.push_back(seed);
     found++;
+    numSeedsMade++;
     if (found == numOfHitsToTry_) break;
   }
   return found;
@@ -364,6 +372,7 @@ void TSGForOI::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.add<double>("SF4",7.0);
   desc.add<double>("SF5",10.0);
   desc.add<double>("tsosDiff",0.03);
+  desc.add<std::string>("propagatorName","PropagatorWithMaterial");
   descriptions.add("TSGForOI",desc);
 }
 

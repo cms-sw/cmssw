@@ -2,7 +2,7 @@
 #define ECAL_FENIXTCP_FGVB_EE_H
 
 #include <vector>
-#include <stdint.h>
+#include <cstdint>
 
 class EcalTPGFineGrainTowerEE;
 

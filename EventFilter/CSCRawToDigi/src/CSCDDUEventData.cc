@@ -206,7 +206,7 @@ void CSCDDUEventData::unpack_data(uint16_t *buf, CSCDCCExaminer* examiner)
   theData.clear();
   theData.reserve(theDDUHeader.ncsc());
 
-  if (examiner!= NULL) { // Use selective unpacking mode
+  if (examiner!= nullptr) { // Use selective unpacking mode
 
     if (debug) LogTrace ("CSCDDUEventData|CSCRawToDigi") << "selective unpacking starting";
 

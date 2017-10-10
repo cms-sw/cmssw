@@ -30,10 +30,10 @@ class CTPPSHectorProducer : public edm::one::EDProducer<edm::one::SharedResource
 {
     public:
         explicit CTPPSHectorProducer(edm::ParameterSet const & p);    //!< default constructor
-        virtual ~CTPPSHectorProducer();   //!< default destructor
-        virtual void beginRun(const edm::Run & r,const edm::EventSetup& c) override;
-        virtual void endRun(const edm::Run & r,const edm::EventSetup& c) override;
-        virtual void produce(edm::Event & e, const edm::EventSetup & c)  override;
+        ~CTPPSHectorProducer() override;   //!< default destructor
+        void beginRun(const edm::Run & r,const edm::EventSetup& c) override;
+        void endRun(const edm::Run & r,const edm::EventSetup& c) override;
+        void produce(edm::Event & e, const edm::EventSetup & c)  override;
     private:
         //HepMC::GenEvent * evt_;
         CTPPSHector * hector_ctpps;

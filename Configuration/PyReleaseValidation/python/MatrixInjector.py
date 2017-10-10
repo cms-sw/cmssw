@@ -211,6 +211,7 @@ class MatrixInjector(object):
             wmsplit['HLTDR2_50ns']=1
             wmsplit['HLTDR2_25ns']=1
             wmsplit['HLTDR2_2016']=1
+            wmsplit['HLTDR2_2017']=1
             wmsplit['Hadronizer']=1
             wmsplit['DIGIUP15']=1 
             wmsplit['RECOUP15']=1 
@@ -221,12 +222,14 @@ class MatrixInjector(object):
             wmsplit['DigiFullPU']=1
             wmsplit['RecoFullPU']=1
             wmsplit['RECOHID11']=1
-            wmsplit['DigiFullPU_2023D17PU']=1
+            wmsplit['DigiFullTriggerPU_2023D17PU'] = 1 
             wmsplit['RecoFullGlobalPU_2023D17PU']=1
             wmsplit['DIGIUP17']=1
             wmsplit['RECOUP17']=1
             wmsplit['DIGIUP17_PU25']=1
             wmsplit['RECOUP17_PU25']=1
+            wmsplit['DIGICOS_UP17']=1
+            wmsplit['RECOCOS_UP17']=1
 
                                     
             #import pprint

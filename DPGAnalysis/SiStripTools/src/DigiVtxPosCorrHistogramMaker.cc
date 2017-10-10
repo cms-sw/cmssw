@@ -89,7 +89,7 @@ void DigiVtxPosCorrHistogramMaker::book(const std::string dirname) {
     char name[200];
     char title[500];
 
-    m_subdirs[i] = new TFileDirectory(subev.mkdir(slab.c_str()));
+    m_subdirs[i] = new TFileDirectory(subev.mkdir(slab));
 
     if(m_subdirs[i]) {
       sprintf(name,"n%sdigivsvtxpos",slab.c_str());

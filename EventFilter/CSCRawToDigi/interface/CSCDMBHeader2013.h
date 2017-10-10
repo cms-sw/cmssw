@@ -37,7 +37,7 @@
 
 #include <cassert>
 #include <iosfwd>
-#include <string.h> // bzero
+#include <cstring> // bzero
 #include "DataFormats/CSCDigi/interface/CSCDMBStatusDigi.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCVDMBHeaderFormat.h"
 
@@ -53,39 +53,39 @@ struct CSCDMBHeader2013: public CSCVDMBHeaderFormat  {
       memcpy(this, digi.header(), sizeInWords()*2);
     }
 */
-  virtual bool cfebAvailable(unsigned icfeb);
+  bool cfebAvailable(unsigned icfeb) override;
 
-  virtual void addCFEB(int icfeb);
-  virtual void addNCLCT();  
-  virtual void addNALCT();
-  virtual void setBXN(int bxn);
-  virtual void setL1A(int l1a);
-  virtual void setL1A24(int l1a);
-  virtual void setCrateAddress(int crate, int dmbId);
-  virtual void setdmbID(int newDMBID) { bits.dmb_id = newDMBID; }
-  virtual void setdmbVersion(unsigned int version) {bits.fmt_version = (version<4) ? version: 0;}
+  void addCFEB(int icfeb) override;
+  void addNCLCT() override;  
+  void addNALCT() override;
+  void setBXN(int bxn) override;
+  void setL1A(int l1a) override;
+  void setL1A24(int l1a) override;
+  void setCrateAddress(int crate, int dmbId) override;
+  void setdmbID(int newDMBID) override { bits.dmb_id = newDMBID; }
+  void setdmbVersion(unsigned int version) override {bits.fmt_version = (version<4) ? version: 0;}
 
-  virtual unsigned cfebActive() const { return bits.cfeb_clct_sent; } 
-  virtual unsigned crateID() const;
-  virtual unsigned dmbID() const;
-  virtual unsigned bxn() const;
-  virtual unsigned bxn12() const;
-  virtual unsigned l1a() const;
-  virtual unsigned l1a24() const;
-  virtual unsigned cfebAvailable() const;
-  virtual unsigned nalct() const;
-  virtual unsigned nclct() const;
-  virtual unsigned cfebMovlp() const;
-  virtual unsigned dmbCfebSync() const;
-  virtual unsigned activeDavMismatch() const;
-  virtual unsigned format_version() const;
+  unsigned cfebActive() const override { return bits.cfeb_clct_sent; } 
+  unsigned crateID() const override;
+  unsigned dmbID() const override;
+  unsigned bxn() const override;
+  unsigned bxn12() const override;
+  unsigned l1a() const override;
+  unsigned l1a24() const override;
+  unsigned cfebAvailable() const override;
+  unsigned nalct() const override;
+  unsigned nclct() const override;
+  unsigned cfebMovlp() const override;
+  unsigned dmbCfebSync() const override;
+  unsigned activeDavMismatch() const override;
+  unsigned format_version() const override;
 
-  unsigned sizeInWords() const;
+  unsigned sizeInWords() const override;
  
-  bool check() const;
+  bool check() const override;
 
-  virtual unsigned short * data() {return (unsigned short *)(&bits);}
-  virtual unsigned short * data() const { return (unsigned short *)(&bits);}
+  unsigned short * data() override {return (unsigned short *)(&bits);}
+  unsigned short * data() const override { return (unsigned short *)(&bits);}
 
 
   //ostream & operator<<(ostream &, const CSCDMBHeader &);

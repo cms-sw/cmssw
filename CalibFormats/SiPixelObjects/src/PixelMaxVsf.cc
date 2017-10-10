@@ -11,8 +11,8 @@
 #include <iostream>
 #include <sstream>
 #include <ios>
-#include <assert.h>
-#include <stdio.h>
+#include <cassert>
+#include <cstdio>
 #include <stdexcept>
 
 using namespace std;

@@ -20,7 +20,7 @@ class FedTimingAlgorithm : public CommissioningAlgorithm {
   
   FedTimingAlgorithm( const edm::ParameterSet & pset, FedTimingAnalysis* const );
 
-  virtual ~FedTimingAlgorithm() {;}
+  ~FedTimingAlgorithm() override {;}
   
   inline const Histo& histo() const;
   
@@ -28,9 +28,9 @@ class FedTimingAlgorithm : public CommissioningAlgorithm {
 
   FedTimingAlgorithm() {;}
   
-  void extract( const std::vector<TH1*>& );
+  void extract( const std::vector<TH1*>& ) override;
 
-  void analyse();
+  void analyse() override;
   
  private:
   

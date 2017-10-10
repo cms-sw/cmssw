@@ -260,7 +260,7 @@ void CaloTruthAccumulator::accumulateEvent( const T& event,
     if ( simTracks[i].momentum().E() < minEnergy_ || std::abs(simTracks[i].momentum().Eta()) >= maxPseudoRapidity_ ) continue;
     if ( simTracks[i].noGenpart() ) continue;
     auto temp = CaloTruthAccumulator::descendantSimClusters( simTracks[i].trackId(),simHitPointers );
-    if( temp.size() ) {
+    if( !temp.empty() ) {
       output_.pCaloParticles->emplace_back(simTracks[i]);
       m_caloParticles.sc_start_.push_back(output_.pSimClusters->size());
       auto mbegin = std::make_move_iterator(temp.begin());
@@ -305,7 +305,7 @@ SimClusterCollection CaloTruthAccumulator::descendantSimClusters( Barcode_t barc
   const auto& vtx = hSimVertices->at(m_simVertexBarcodeToIndex[vtxBarcode]);
   const bool isInCalo = (std::abs(vtx.position().z()) > caloStartZ - 30.0); // add a buffer region in front of the calo face
 
-  if (hit_info->size() > 0) {
+  if (!hit_info->empty()) {
     // define the sim cluster starting from the earliest particle that has hits in the calorimeter
     // grab everything that descends from it
     std::unique_ptr<SimHitInfoPerSimTrack_t> marked_hit_info;
@@ -317,7 +317,7 @@ SimClusterCollection CaloTruthAccumulator::descendantSimClusters( Barcode_t barc
       marked_hit_info = std::move( CaloTruthAccumulator::attachedSimHitInfo(barcode,hits,true,false,true) );
     }   
     
-    if( marked_hit_info->size() != 0 ) {
+    if( !marked_hit_info->empty() ) {
       result.emplace_back(simTrack);
       auto& simcluster = result.back();
       

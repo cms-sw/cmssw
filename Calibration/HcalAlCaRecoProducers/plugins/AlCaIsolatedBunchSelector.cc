@@ -38,20 +38,20 @@ namespace AlCaIsolatedBunch {
 class AlCaIsolatedBunchSelector : public edm::stream::EDFilter<edm::GlobalCache<AlCaIsolatedBunch::Counters> > {
 public:
   explicit AlCaIsolatedBunchSelector(edm::ParameterSet const&, const AlCaIsolatedBunch::Counters* count);
-  ~AlCaIsolatedBunchSelector();
+  ~AlCaIsolatedBunchSelector() override;
     
   static std::unique_ptr<AlCaIsolatedBunch::Counters> initializeGlobalCache(edm::ParameterSet const& iConfig) {
     return std::unique_ptr<AlCaIsolatedBunch::Counters>(new AlCaIsolatedBunch::Counters());
   }
 
-  virtual bool filter(edm::Event&, edm::EventSetup const&) override;
-  virtual void endStream() override;
+  bool filter(edm::Event&, edm::EventSetup const&) override;
+  void endStream() override;
   static  void globalEndJob(const AlCaIsolatedBunch::Counters* counters);
   static  void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 private:
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
   
   // ----------member data ---------------------------
   HLTConfigProvider             hltConfig_;
@@ -106,7 +106,7 @@ bool AlCaIsolatedBunchSelector::filter(edm::Event& iEvent,
     const std::vector<std::string> & triggerNames_ = triggerNames.triggerNames();
     for (unsigned int iHLT=0; iHLT<triggerResults->size(); iHLT++) {
       int hlt    = triggerResults->accept(iHLT);
-      if (triggerNames_[iHLT].find(trigName_.c_str())!=std::string::npos) {
+      if (triggerNames_[iHLT].find(trigName_)!=std::string::npos) {
 	if (hlt > 0) {
 	  accept = true;
 #ifdef DebugLog

@@ -39,7 +39,7 @@ namespace edm {
   public:
     RunForOutput(RunPrincipal const& rp, ModuleDescription const& md,
         ModuleCallingContext const*);
-    ~RunForOutput();
+    ~RunForOutput() override;
 
     RunAuxiliary const& runAuxiliary() const {return aux_;}
     RunID const& id() const {return aux_.id();}

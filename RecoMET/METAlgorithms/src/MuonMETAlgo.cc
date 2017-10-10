@@ -8,7 +8,7 @@
 //
 
 //____________________________________________________________________________||
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include "RecoMET/METAlgorithms/interface/MuonMETAlgo.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
@@ -72,7 +72,7 @@ template <class T> void MuonMETAlgo::MuonMETAlgo_run(const edm::View<reco::Muon>
       float deltay = muCorrData.corrY();
 
       const reco::Muon *mu = &inputMuons[i];
-      LorentzVector mup4 = mu->p4();
+      const LorentzVector& mup4 = mu->p4();
     
       sumMuPx    += mup4.px();
       sumMuPy    += mup4.py();

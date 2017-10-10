@@ -40,13 +40,13 @@ namespace sistrip {
   public:
 
     explicit SpyIdentifyRunsModule(const edm::ParameterSet&);
-    ~SpyIdentifyRunsModule();
+    ~SpyIdentifyRunsModule() override;
 
   private:
 
-    virtual void beginJob() override;
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-    virtual void endJob() override;
+    void beginJob() override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void endJob() override;
 
     void writeRunInFile(const unsigned int aRunNumber);
  

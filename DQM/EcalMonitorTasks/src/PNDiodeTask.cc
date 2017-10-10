@@ -37,9 +37,9 @@ namespace ecaldqm {
   void
   PNDiodeTask::runOnErrors(EcalElectronicsIdCollection const& _ids, Collections _collection)
   {
-    if(_ids.size() == 0) return;
+    if(_ids.empty()) return;
 
-    MESet* set(0);
+    MESet* set(nullptr);
 
     switch(_collection){
     case kMEMTowerIdErrors:

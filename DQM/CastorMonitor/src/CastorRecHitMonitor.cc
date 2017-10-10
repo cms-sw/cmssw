@@ -140,7 +140,7 @@ void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker& ibooker,
 void CastorRecHitMonitor::processEventTowers(
         const reco::CastorTowerCollection& castorTowers)
 {
- if(castorTowers.size() <= 0) return;
+ if(castorTowers.empty()) return;
  int nTowers = 0;
 
  for(reco::CastorTowerCollection::const_iterator iTower= castorTowers.begin();
@@ -164,7 +164,7 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits)
  CastorRecHitCollection::const_iterator CASTORiter;
 // if (showTiming)  { cpu_timer.reset(); cpu_timer.start(); } 
 
- if(castorHits.size() <= 0) return;
+ if(castorHits.empty()) return;
 
  //for(edm::TriggerResults::const_iterator iTrig= hltResults->begin();
 //  iTrig!= hltResults->end(); iTrig++) {;}

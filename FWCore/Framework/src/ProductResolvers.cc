@@ -463,7 +463,7 @@ namespace edm {
   DataManagingProductResolver::checkType(WrapperBase const& prod) const {
     // Check if the types match.
     TypeID typeID(prod.dynamicTypeInfo());
-    if(typeID != branchDescription().unwrappedTypeID()) {
+    if(typeID !=TypeID{branchDescription().unwrappedType().unvalidatedTypeInfo()}) {
       // Types do not match.
       throw Exception(errors::EventCorruption)
       << "Product on branch " << branchDescription().branchName() << " is of wrong type.\n"

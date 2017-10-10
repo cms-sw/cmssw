@@ -9,6 +9,10 @@
 //  FitHistExtended(infile, outfile, prefix, numb, type, append, fiteta, iname);
 //      Defaults: numb=50, type=3, append=true, fiteta=true, iname=2
 //
+//             For RBX dependence in sets of histograms from CalibMonitor 
+//  FitHistRBX(infile, outfile, prefix, append, iname);
+//      Defaults: append=true, iname=2
+//
 //             For plotting stored histograms from FitHist's
 //  PlotHist(infile, prefix, text, modePlot, kopt, dataMC, drawStatBox, save);
 //      Defaults: modePlot=0, kopt=0, dataMC=false, drawStatBox=true, save=false
@@ -21,9 +25,11 @@
 //
 //             For plotting on the same canvas plots with different
 //             prefixes residing in the same file with approrprate text
-//   PlotTwoHists(infile, prefix1, text1, prefix2, text2, drawStatBox, save)
+//   PlotTwoHists(infile, prefix1, text1, prefix2, text2, text, drawStatBox,
+//                save);
 //      Defaults: drawStatBox=true; save=false;
 //      Note prefixN, textN have the same meaning as prefix and text for set N
+//           text is the text for general title added within ()
 //
 //             For plotting stored histograms from CalibTree
 //  PlotHistCorrResults(infile, text, prefix, save);
@@ -201,7 +207,7 @@ std::pair<double,double> fitTwoGauss (TH1D* hist, bool debug) {
   startvalues[3] = 0.1*Fit->Value(0); lowValue[3] = 0.0; highValue[3] = 10.*startvalues[3];
   startvalues[4] =     Fit->Value(1); lowValue[4] = 0.5*startvalues[4]; highValue[4] = 2.*startvalues[4];
   startvalues[5] = 2.0*Fit->Value(2); lowValue[5] = 0.5*startvalues[5]; highValue[5] = 100.*startvalues[5];
-  fitrange[0] = mean - 3.0*rms; fitrange[1] = mean + 3.0*rms;
+  fitrange[0] = mean - 2.0*rms; fitrange[1] = mean + 2.0*rms;
   TFitResultPtr Fitfun = functionFit(hist, fitrange, startvalues, lowValue, highValue);
   double wt1    = (Fitfun->Value(0))*(Fitfun->Value(2));
   double value1 = Fitfun->Value(1);
@@ -227,8 +233,8 @@ std::pair<double,double> fitTwoGauss (TH1D* hist, bool debug) {
 std::pair<double,double> fitOneGauss (TH1D* hist, bool debug) {
   double mean     = hist->GetMean();
   double rms      = hist->GetRMS();
-  double LowEdge  = ((mean-1.5*rms)<0.15) ? 0.15 : (mean-1.0*rms);
-  double HighEdge = (hist->GetEntries()>100) ? (mean+1.5*rms) : (mean+1.0*rms);
+  double LowEdge  = ((mean-1.8*rms)<0.15) ? 0.15 : (mean-1.8*rms);
+  double HighEdge = (hist->GetEntries()>25) ? (mean+1.8*rms) : (mean+1.5*rms);
   std::string option = (hist->GetEntries()>100) ? "QRS" : "QRWLS";
   TFitResultPtr Fit = hist->Fit("gaus",option.c_str(),"",LowEdge,HighEdge);
   double value = Fit->Value(1);
@@ -372,7 +378,6 @@ void FitHistExtended(std::string infile, std::string outfile,std::string prefix,
 	sprintf (name, "%s%s%d", prefix.c_str(), lname.c_str(), iname);
 	histo = new TH1D(name, hist0->GetTitle(), numb, xbins);
       }
-      int   nbin = hist0->GetNbinsX();
       if (hist0->GetEntries() > 10) {
 	std::pair<double,double> meaner0 = fitTwoGauss(hist0, debug);
 	std::pair<double,double> meaner1 = GetMean(hist0,0.2,2.0);
@@ -393,7 +398,8 @@ void FitHistExtended(std::string infile, std::string outfile,std::string prefix,
 	double value(0), error(0), total(0);
 	if (hist->GetEntries() > 0) {
 	  value = hist->GetMean(); error = hist->GetRMS();
-	  for (int i=1; i<=nbin; ++i) total += hist->GetBinContent(i);
+	  for (int i=1; i<=hist->GetNbinsX(); ++i) 
+	    total += hist->GetBinContent(i);
 	}
 	if (total > 4) {
 	  if (nv1 > j) nv1 = j;
@@ -423,8 +429,8 @@ void FitHistExtended(std::string infile, std::string outfile,std::string prefix,
       }
       if (histo != 0) {
 	if (histo->GetEntries() > 2 && fiteta) {
-	  int    nbin    = histo->GetNbinsX();
-	  std::cout << "Jmin/max " << jmin << ":" << jmax << ":" << nbin << std::endl;
+	  if (debug) std::cout << "Jmin/max " << jmin << ":" << jmax 
+			       << ":" << histo->GetNbinsX() << std::endl;
 	  double LowEdge = histo->GetBinLowEdge(jmin);
 	  double HighEdge= histo->GetBinLowEdge(jmax)+histo->GetBinWidth(jmax);
 	  TFitResultPtr Fit = histo->Fit("pol0","+QRWLS","",LowEdge,HighEdge);
@@ -452,7 +458,8 @@ void FitHistExtended(std::string infile, std::string outfile,std::string prefix,
 	  double value(0), error(0), total(0);
 	  if (hist->GetEntries() > 0) {
 	    value = hist->GetMean(); error = hist->GetRMS();
-	    for (int i=1; i<=nbin; ++i) total += hist->GetBinContent(i);
+	    for (int i=1; i<=hist->GetNbinsX(); ++i) 
+	      total += hist->GetBinContent(i);
 	  }
 	  if (total > 4) {
 	    sprintf (name, "%sOne", hist1->GetName());
@@ -472,6 +479,64 @@ void FitHistExtended(std::string infile, std::string outfile,std::string prefix,
 	}
       }
     }
+    TFile* theFile(0);
+    if (append) {
+      if (debug) std::cout << "Open file " << outfile << " in append mode\n";
+      theFile = new TFile(outfile.c_str(), "UPDATE");
+    } else {
+      if (debug) std::cout << "Open file " << outfile << " in recreate mode\n";
+      theFile = new TFile(outfile.c_str(), "RECREATE");
+    }
+
+    theFile->cd();
+    for (unsigned int i=0; i<hists.size(); ++i) {
+      TH1D* hnew = (TH1D*)hists[i]->Clone();
+      if (debug) std::cout << "Write Histogram " << hnew->GetTitle() << std::endl;
+      hnew->Write();
+    }
+    theFile->Close();
+    file->Close();
+  }
+}
+
+void FitHistRBX(std::string infile, std::string outfile,std::string prefix,
+		bool append=true, int iname=2) {
+  std::string sname("RBX"), lname("R");
+  int         numb(18);
+  bool        debug(false);
+  char        name[200];
+
+  TFile      *file = new TFile(infile.c_str());
+  std::vector<TH1D*> hists;
+  sprintf (name, "%s%s%d", prefix.c_str(), lname.c_str(), iname);
+  TH1D       *histo = new TH1D(name, "", numb, 0, numb);
+  if (debug) std::cout << infile << " " << file << std::endl;
+  if (file != 0) {
+    for (int j=0; j<numb; ++j) {
+      sprintf (name, "%s%s%d%d", prefix.c_str(), sname.c_str(), iname, j+1);
+      TH1D* hist1 = (TH1D*)file->FindObjectAny(name);
+      if (debug) std::cout << "Get Histogram for " << name << " at " << hist1
+			   << std::endl;
+      TH1D* hist  = (TH1D*)hist1->Clone();
+      double value(0), error(0), total(0);
+      if (hist->GetEntries() > 0) {
+	value = hist->GetMean(); error = hist->GetRMS();
+	for (int i=1; i<=hist->GetNbinsX(); ++i) 
+	  total += hist->GetBinContent(i);
+      }
+      if (total > 4) {
+	std::pair<double,double> meaner = fitOneGauss(hist,debug);
+	value = meaner.first; error = meaner.second;
+      }
+      hists.push_back(hist);
+      histo->SetBinContent(j+1, value);
+      histo->SetBinError(j+1, error);
+    }
+    histo->GetXaxis()->SetTitle("RBX #");
+    histo->GetYaxis()->SetTitle("<E_{HCAL}/(p-E_{ECAL})>");
+    histo->GetYaxis()->SetRangeUser(0.75,1.20);
+    hists.push_back(histo);
+ 
     TFile* theFile(0);
     if (append) {
       if (debug) std::cout << "Open file " << outfile << " in append mode\n";
@@ -555,15 +620,17 @@ void PlotHist(std::string infile, std::string prefix, std::string text,
       pad->SetRightMargin(0.10);
       pad->SetTopMargin(0.10);
       if ((kopt/10)%10 > 0) gPad->SetGrid();
+      hist->GetXaxis()->SetTitleSize(0.04);
       hist->GetXaxis()->SetTitle(xtitl[mode].c_str());
       hist->GetYaxis()->SetTitle(ytitl[mode].c_str());
       hist->GetYaxis()->SetLabelOffset(0.005);
+      hist->GetYaxis()->SetTitleSize(0.04);
       hist->GetYaxis()->SetLabelSize(0.035);
       hist->GetYaxis()->SetTitleOffset(1.10);
       if (mode == 0 || mode == 4) {
 	hist->GetXaxis()->SetRangeUser(0.0,2.5);
       } else {
-	hist->GetYaxis()->SetRangeUser(0.8,1.25);
+	hist->GetYaxis()->SetRangeUser(0.8,1.40);
 	if (kopt%10 > 0) {
 	  int nbin = hist->GetNbinsX();
 	  double LowEdge = hist->GetBinLowEdge(1);
@@ -578,15 +645,11 @@ void PlotHist(std::string infile, std::string prefix, std::string text,
       pad->Update();
       TPaveStats* st1 = (TPaveStats*)hist->GetListOfFunctions()->FindObject("stats");
       if (st1 != NULL) {
-	double ymin = (mode == 0 || mode == 4) ? 0.60 : 0.70; 
-	st1->SetY1NDC(ymin); st1->SetY2NDC(0.80);
+	double ymin = (mode == 0 || mode == 4) ? 0.70 : 0.80; 
+	st1->SetY1NDC(ymin); st1->SetY2NDC(0.90);
 	st1->SetX1NDC(0.65); st1->SetX2NDC(0.90);
       }
-      double ymin = (dataMC) ? 0.79 : 0.84;
-      double ymax = (dataMC) ? 0.84 : 0.89;
-      TPaveText *txt1 = (mode == 0) ? 
-	new TPaveText(0.40,ymin,0.90,ymax,"blNDC") :
-	new TPaveText(0.30,ymin,0.90,ymax,"blNDC");
+      TPaveText *txt1 = new TPaveText(0.25,0.91,0.90,0.96,"blNDC");
       txt1->SetFillColor(0);
       char txt[100];
       if (text == "") {
@@ -722,26 +785,31 @@ void PlotHists(std::string infile, std::string prefix, std::string text,
 }
 
 void PlotTwoHists(std::string infile, std::string prefix1, std::string text1,
-		  std::string prefix2, std::string text2, 
-		  bool drawStatBox=true, bool save=false) {
+		  std::string prefix2, std::string text2, std::string text0,
+		  int type=0, int drawStatBox=0, bool save=false) {
   int         colors[2] = {2,4};
-  std::string names[3] = {"ratio20", "ratio20One", "Z2"};
-  std::string xtitl[3] = {"E_{HCAL}/(p-E_{ECAL})","E_{HCAL}/(p-E_{ECAL})","i#eta"};
-  std::string ytitl[3] = {"Tracks","Tracks","<E_{HCAL}/(p-E_{ECAL})>"};
+  int         numb[2]   = {3,1};
+  std::string names1[3] = {"ratio20", "ratio20One", "Z2"};
+  std::string xtitl1[3] = {"E_{HCAL}/(p-E_{ECAL})","E_{HCAL}/(p-E_{ECAL})","i#eta"};
+  std::string ytitl1[3] = {"Tracks","Tracks","<E_{HCAL}/(p-E_{ECAL})>"};
+  std::string names2[1] = {"R2"};
+  std::string xtitl2[1] = {"RBX #"};
+  std::string ytitl2[1] = {"<E_{HCAL}/(p-E_{ECAL})>"};
 
   gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
   gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
   gStyle->SetOptTitle(0);
-  if (drawStatBox) gStyle->SetOptFit(10);
-  else             gStyle->SetOptFit(0);
+  if ((drawStatBox/10)%10 > 0) gStyle->SetOptFit(10);
+  else                         gStyle->SetOptFit(0);
 
+  if (type != 1) type = 0;  
   char name[100], namep[100];
   TFile      *file = new TFile(infile.c_str());
-  for (int i=0; i<3; ++i) {
+  for (int i=0; i<numb[type]; ++i) {
     std::vector<TH1D*> hists;
     std::vector<int>   kks;
     double ymax(0.77);
-    if (drawStatBox) {
+    if (drawStatBox%10 > 0) {
       if (i != 2)  gStyle->SetOptStat(1100);
       else         gStyle->SetOptStat(10);
     } else {
@@ -749,10 +817,11 @@ void PlotTwoHists(std::string infile, std::string prefix1, std::string text1,
       ymax = 0.82;
     }
     for (int k=0; k<2; ++k) {
-      if (k == 0) 
-	sprintf (name, "%s%s",prefix1.c_str(),names[i].c_str());
+      std::string prefix = (k == 0) ? prefix1 : prefix2;
+      if (type == 0)
+	sprintf (name, "%s%s",prefix.c_str(),names1[i].c_str());
       else
-	sprintf (name, "%s%s",prefix2.c_str(),names[i].c_str());
+	sprintf (name, "%s%s",prefix.c_str(),names2[i].c_str());
       TH1D* hist1 = (TH1D*)file->FindObjectAny(name);
       if (hist1 != 0) {
 	hists.push_back((TH1D*)(hist1->Clone())); 
@@ -760,26 +829,38 @@ void PlotTwoHists(std::string infile, std::string prefix1, std::string text1,
       }
     }
     if (hists.size() == 2) {
-      sprintf (namep,"c_%s%s%s",prefix1.c_str(),prefix2.c_str(),names[i].c_str());
+      if (type == 0)
+	sprintf (namep,"c_%s%s%s",prefix1.c_str(),prefix2.c_str(),names1[i].c_str());
+      else 
+	sprintf (namep,"c_%s%s%s",prefix1.c_str(),prefix2.c_str(),names2[i].c_str());
+      double ymax(0.90);
+      double dy   = (i == 0) ? 0.13 : 0.08;
+      double ymx0 = (drawStatBox==0) ? (ymax-.01) : (ymax-dy*hists.size()-.01);
       TCanvas *pad = new TCanvas(namep, namep, 700, 500);
-      TLegend *legend = new TLegend(0.44, ymax-0.055*hists.size(), 0.69, ymax);
+      TLegend *legend = new TLegend(0.64, ymx0-0.05*hists.size(), 0.89, ymx0);
       legend->SetFillColor(kWhite);
       pad->SetRightMargin(0.10);
       pad->SetTopMargin(0.10);
-      double ymax(0.90);
-      double dy = (i == 0) ? 0.13 : 0.08;
       for (unsigned int jk=0; jk<hists.size(); ++jk) {
 	int k = kks[jk];
-	hists[jk]->GetXaxis()->SetTitle(xtitl[i].c_str());
-	hists[jk]->GetYaxis()->SetTitle(ytitl[i].c_str());
+	hists[jk]->GetXaxis()->SetTitleSize(0.040);
+	if (type == 0) {
+	  hists[jk]->GetXaxis()->SetTitle(xtitl1[i].c_str());
+	  hists[jk]->GetYaxis()->SetTitle(ytitl1[i].c_str());
+	} else {
+	  hists[jk]->GetXaxis()->SetTitle(xtitl2[i].c_str());
+	  hists[jk]->GetYaxis()->SetTitle(ytitl2[i].c_str());
+	}
 	hists[jk]->GetYaxis()->SetLabelOffset(0.005);
 	hists[jk]->GetYaxis()->SetLabelSize(0.035);
+	hists[jk]->GetYaxis()->SetTitleSize(0.040);
 	hists[jk]->GetYaxis()->SetTitleOffset(1.15);
-	if (i != 2) {
+	if ((type == 0) && (i != 2))
 	  hists[jk]->GetXaxis()->SetRangeUser(0.0,2.5);
-	} else  {
-	  hists[jk]->GetYaxis()->SetRangeUser(0.5,2.0);
-	}
+	if ((type == 0) && (i == 2))
+	  hists[jk]->GetYaxis()->SetRangeUser(0.5,1.5);
+	if (type != 0)
+	  hists[jk]->GetYaxis()->SetRangeUser(0.75,1.2);
 	hists[jk]->SetMarkerStyle(20);
 	hists[jk]->SetMarkerColor(colors[k]);
 	hists[jk]->SetLineColor(colors[k]);
@@ -801,10 +882,10 @@ void PlotTwoHists(std::string infile, std::string prefix1, std::string text1,
       }
       legend->Draw("same");
       pad->Update();
-      TPaveText *txt1 = new TPaveText(0.34,0.825,0.69,0.895,"blNDC");
+      TPaveText *txt1 = new TPaveText(0.10,0.905,0.80,0.95,"blNDC");
       txt1->SetFillColor(0);
       char txt[100];
-      sprintf (txt, "Tracks with p = 40:60 GeV");
+      sprintf (txt, "p = 40:60 GeV %s", text0.c_str());
       txt1->AddText(txt);
       txt1->Draw("same");
       TPaveText *txt2 = new TPaveText(0.11,0.825,0.33,0.895,"blNDC");
@@ -812,7 +893,7 @@ void PlotTwoHists(std::string infile, std::string prefix1, std::string text1,
       sprintf (txt, "CMS Preliminary");
       txt2->AddText(txt);
       txt2->Draw("same");
-      if (!drawStatBox && i == 2) {
+      if ((drawStatBox == 0) && (i == 2)) {
 	double xmin = hists[0]->GetBinLowEdge(1);
 	int    nbin = hists[0]->GetNbinsX();
 	double xmax = hists[0]->GetBinLowEdge(nbin)+hists[0]->GetBinWidth(nbin);
@@ -907,7 +988,7 @@ void PlotHistCorrFactor(std::string infile, std::string text,
 			int nmin=20, bool save=false) {
 
   std::vector<cfactors> cfacs;
-  std::ifstream fInput(infile.c_str());
+  std::ifstream fInput(infile);
   int etamin(100), etamax(-100), maxdepth(0);
   if (!fInput.good()) {
     std::cout << "Cannot open file " << infile << std::endl;
@@ -1041,7 +1122,7 @@ void PlotHistCorrFactors(std::string infile1, std::string text1,
   unsigned int nhist[2];
   for (int k1=0; k1<2; ++k1) {
     std::string infile = (k1 == 0) ? infile1 : infile2;
-    std::ifstream fInput(infile.c_str());
+    std::ifstream fInput(infile);
     if (!fInput.good()) {
       std::cout << "Cannot open file " << infile << std::endl;
     } else {

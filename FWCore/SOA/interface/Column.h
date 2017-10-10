@@ -10,23 +10,33 @@
  Description: Column describes a column in a Table
 
  Usage:
-    Instances of the Column class are not intended to be used.
+    Class instances inheriting from the Column class are not intended to be used.
  Instead, the specific Column type is used as a template argument
  to a edm::soa::Table<> to describe a column in the table.
  
  A column is defined by a name and a C++ type.
 
- When declaring a Column template instantiation, the name
- should be declared as a constexpr const char []
- 
+Classes inheriting from Column must declare a 'constexpr const char' array named 'kLabel'. 
  \code
  namespace edm {
  namespace soa {
-   constexpr const char kEta[] = "eta";
-   using Eta = Column<kEta,double>;
+   struct Eta : public Column<double,Eta> {
+     static constexpr const char * const kLabel = "eta";
+   };
  }
  }
  \endcode
+Alternatively, one can use the macro SOA_DECLARE_COLUMN
+\code
+namespace edm {
+namespace soa {
+
+SOA_DECLARE_COLUMN(Eta,double, "eta");
+
+}
+}
+
+\endcode
 
 */
 //
@@ -51,19 +61,18 @@ struct ColumnFillerHolder {
   F m_f;
 };  
 
-template <const char* LABEL, typename T>
+template <typename T, typename INHERIT>
 struct Column
 {
   using type = T;
-  static constexpr char const * const kLabel = LABEL;
   
   static const char* const& label() {
-    static char const* const s_label(LABEL);
+    static char const* const s_label(INHERIT::kLabel);
     return s_label;
   }
   
   template <typename F>
-  static ColumnFillerHolder<Column<LABEL,T>,F> filler(F&& iF) { return {iF}; }
+  static ColumnFillerHolder<INHERIT,F> filler(F&& iF) { return {iF}; }
   
  private:
   Column() = default;
@@ -74,4 +83,6 @@ struct Column
 
 }
 }
+#define SOA_DECLARE_COLUMN(_ClassName_,_Type_,_String_) \
+  struct _ClassName_ : public edm::soa::Column<_Type_,_ClassName_> {static constexpr const char * const kLabel=_String_; }
 #endif

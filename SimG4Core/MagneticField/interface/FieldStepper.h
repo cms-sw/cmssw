@@ -10,11 +10,11 @@ namespace sim {
    {
       public:
      FieldStepper(G4Mag_UsualEqRhs * eq, double del = 0.0);
-	 ~FieldStepper();
-	 virtual void Stepper(const double y[],const double dydx[],double h,
-			      double yout[],double yerr[]);
-	 virtual double DistChord() const;
-	 virtual int IntegratorOrder() const;
+	 ~FieldStepper() override;
+	 void Stepper(const double y[],const double dydx[],double h,
+			      double yout[],double yerr[]) override;
+	 double DistChord() const override;
+	 int IntegratorOrder() const override;
 	 G4MagIntegratorStepper * select(const std::string & s);
       private:
 	 G4MagIntegratorStepper * theStepper;

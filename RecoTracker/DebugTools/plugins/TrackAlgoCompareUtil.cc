@@ -154,7 +154,7 @@ TrackAlgoCompareUtil::produce(edm::StreamID, edm::Event& iEvent, const edm::Even
         }       
         
         // get the reco primary vertex info
-        if(UseVertex && vertexCollAlgoA->size())  
+        if(UseVertex && !vertexCollAlgoA->empty())  
         {
             recoTracktoTP.SetRecoVertex( reco::VertexRef(vertexCollAlgoA, 0) );
         }
@@ -191,7 +191,7 @@ TrackAlgoCompareUtil::produce(edm::StreamID, edm::Event& iEvent, const edm::Even
         }       
         
         // get the reco primary vertex info
-        if(UseVertex && vertexCollAlgoB->size())  
+        if(UseVertex && !vertexCollAlgoB->empty())  
         {
             recoTracktoTP.SetRecoVertex( reco::VertexRef(vertexCollAlgoB, 0) );
         }
@@ -227,7 +227,7 @@ TrackAlgoCompareUtil::produce(edm::StreamID, edm::Event& iEvent, const edm::Even
         }
         
         // get the recoVertex algo A
-        if(UseVertex && vertexCollAlgoA->size())
+        if(UseVertex && !vertexCollAlgoA->empty())
         {
             tptoRecoTrack.SetRecoVertex_AlgoA( reco::VertexRef(vertexCollAlgoA, 0) );
         }
@@ -249,7 +249,7 @@ TrackAlgoCompareUtil::produce(edm::StreamID, edm::Event& iEvent, const edm::Even
             tptoRecoTrack.SetShared_AlgoB(-1.0);
         }
         // get the recoVertex algo B
-        if(UseVertex && vertexCollAlgoB->size())
+        if(UseVertex && !vertexCollAlgoB->empty())
         {
             tptoRecoTrack.SetRecoVertex_AlgoB( reco::VertexRef(vertexCollAlgoB, 0) );
         }

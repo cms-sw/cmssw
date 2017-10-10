@@ -2,15 +2,16 @@
 #include <string>
 #include <vector>
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -19,26 +20,33 @@
 #include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
 
-class HGCalTopologyTester : public edm::EDAnalyzer {
+class HGCalTopologyTester : public edm::one::EDAnalyzer<edm::one::WatchRuns> { 
+
 public:
   explicit HGCalTopologyTester(const edm::ParameterSet& );
-  ~HGCalTopologyTester() override;
-
   
-  void analyze(const edm::Event&, const edm::EventSetup& ) override;
-  void doTest(const HGCalTopology& topology);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void beginJob() override {}
+  void beginRun(edm::Run const&, edm::EventSetup const&) override {}
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
+  void doTest(const HGCalTopology& topology);
+
   // ----------member data ---------------------------
 };
 
 HGCalTopologyTester::HGCalTopologyTester(const edm::ParameterSet& ) {}
 
+void HGCalTopologyTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
-HGCalTopologyTester::~HGCalTopologyTester() {}
+  edm::ParameterSetDescription desc;
+  desc.setUnknown();
+  descriptions.addDefault(desc);
+}
 
-void HGCalTopologyTester::analyze(const edm::Event& , 
-				 const edm::EventSetup& iSetup ) {
+void HGCalTopologyTester::analyze(edm::Event const&, edm::EventSetup const& iSetup ) {
 
   edm::ESHandle<HGCalTopology> topo;
   iSetup.get<IdealGeometryRecord>().get("HGCalEESensitive",topo);

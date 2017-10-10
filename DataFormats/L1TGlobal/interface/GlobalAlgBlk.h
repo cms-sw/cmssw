@@ -49,7 +49,7 @@ public:
 
 
 public:
-    const static unsigned int maxPhysicsTriggers = 512;
+    static constexpr unsigned int maxPhysicsTriggers = 512;
 
     /// set simple members
     void setL1MenuUUID(int uuid)      { m_orbitNr       = uuid; }

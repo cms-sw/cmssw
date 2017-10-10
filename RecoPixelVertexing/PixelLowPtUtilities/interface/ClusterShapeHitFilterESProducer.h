@@ -41,7 +41,7 @@ class ClusterShapeHitFilterESProducer : public edm::ESProducer
 {
  public:
   ClusterShapeHitFilterESProducer(const edm::ParameterSet&);
-  ~ClusterShapeHitFilterESProducer();
+  ~ClusterShapeHitFilterESProducer() override;
 
   typedef std::unique_ptr<ClusterShapeHitFilter> ReturnType;
   ReturnType produce(const ClusterShapeHitFilter::Record &);

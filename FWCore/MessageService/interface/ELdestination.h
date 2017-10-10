@@ -131,8 +131,8 @@ protected:
   // -----  Verboten methods:
   //
 private:
-  ELdestination( const ELdestination & orig );
-  ELdestination& operator= ( const ELdestination & orig );
+  ELdestination( const ELdestination & orig ) = delete;
+  ELdestination& operator= ( const ELdestination & orig ) = delete;
 
 };  // ELdestination
 

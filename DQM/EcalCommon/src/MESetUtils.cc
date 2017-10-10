@@ -34,26 +34,26 @@ namespace ecaldqm
     if(hasZaxis)
       zaxis = binning::formAxis(_MEParam.getUntrackedParameterSet("zaxis"));
 
-    MESet* set(0);
+    MESet* set(nullptr);
 
     if(btype == binning::kTrend){
-      MESetTrend* setTrend(new MESetTrend(path, otype, btype, kind, hasYaxis ? &yaxis : 0));
+      MESetTrend* setTrend(new MESetTrend(path, otype, btype, kind, hasYaxis ? &yaxis : nullptr));
       if(_MEParam.existsAs<bool>("minutely", false) && _MEParam.getUntrackedParameter<bool>("minutely")) setTrend->setMinutely();
       if(_MEParam.existsAs<bool>("cumulative", false) && _MEParam.getUntrackedParameter<bool>("cumulative")) setTrend->setCumulative();
       if(_MEParam.existsAs<bool>("shiftAxis", false) && _MEParam.getUntrackedParameter<bool>("shiftAxis")) setTrend->setShiftAxis();
       set = setTrend;
     }
     else if(otype == binning::nObjType)
-      set = new MESetNonObject(path, otype, btype, kind, hasXaxis ? &xaxis : 0, hasYaxis ? &yaxis : 0, hasZaxis ? &zaxis : 0);
+      set = new MESetNonObject(path, otype, btype, kind, hasXaxis ? &xaxis : nullptr, hasYaxis ? &yaxis : nullptr, hasZaxis ? &zaxis : nullptr);
     else if(otype == binning::kChannel)
 // Class removed until concurrency issue is finalized
 #if 0
       set = new MESetChannel(path, otype, btype, kind);
 #else
-      set = 0;
+      set = nullptr;
 #endif
     else if(btype == binning::kProjEta || btype == binning::kProjPhi)
-      set = new MESetProjection(path, otype, btype, kind, hasYaxis ? &yaxis : 0);
+      set = new MESetProjection(path, otype, btype, kind, hasYaxis ? &yaxis : nullptr);
     else{
       unsigned logicalDimensions(-1);
       switch(kind){
@@ -79,13 +79,13 @@ namespace ecaldqm
         throw cms::Exception("InvalidConfiguration") << "Cannot create MESet at " << path;
 
       if(btype == binning::kUser)
-        set = new MESetEcal(path, otype, btype, kind, logicalDimensions, hasXaxis ? &xaxis : 0, hasYaxis ? &yaxis : 0, hasZaxis ? &zaxis : 0);
+        set = new MESetEcal(path, otype, btype, kind, logicalDimensions, hasXaxis ? &xaxis : nullptr, hasYaxis ? &yaxis : nullptr, hasZaxis ? &zaxis : nullptr);
       else if(logicalDimensions == 0)
         set = new MESetDet0D(path, otype, btype, kind);
       else if(logicalDimensions == 1)
-        set = new MESetDet1D(path, otype, btype, kind, hasYaxis ? &yaxis : 0);
+        set = new MESetDet1D(path, otype, btype, kind, hasYaxis ? &yaxis : nullptr);
       else if(logicalDimensions == 2)
-        set = new MESetDet2D(path, otype, btype, kind, hasZaxis ? &zaxis : 0);
+        set = new MESetDet2D(path, otype, btype, kind, hasZaxis ? &zaxis : nullptr);
     }
 
     if(_MEParam.existsAs<edm::ParameterSet>("multi", false)){
@@ -93,7 +93,7 @@ namespace ecaldqm
         
       edm::ParameterSet const& multiParams(_MEParam.getUntrackedParameterSet("multi"));
       VString replacementNames(multiParams.getParameterNames());
-      if(replacementNames.size() == 0)
+      if(replacementNames.empty())
         throw cms::Exception("InvalidConfiguration") << "0 multiplicity for MESet at " << path;
 
       MESetMulti::ReplCandidates candidates;
@@ -107,7 +107,7 @@ namespace ecaldqm
             reps.push_back(std::to_string(repInts[iR]));
         }
 
-        if(reps.size() == 0)
+        if(reps.empty())
           throw cms::Exception("InvalidConfiguration") << "0 multiplicity for MESet at " << path;
 
         candidates[replacementNames[iD]] = reps;

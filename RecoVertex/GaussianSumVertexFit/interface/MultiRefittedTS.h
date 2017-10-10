@@ -36,55 +36,55 @@ public:
   MultiRefittedTS(const std::vector<RefCountedRefittedTrackState> & prtsComp,
 	const GlobalPoint & referencePosition);
 
-  virtual ~MultiRefittedTS(){}
+  ~MultiRefittedTS() override{}
 
   /**
    * Returns a FreeTrajectoryState. It will be the FTS of the single, collapsed
    * state.
    */
 
-  virtual FreeTrajectoryState freeTrajectoryState() const;
+  FreeTrajectoryState freeTrajectoryState() const override;
 
   /**
    * Returns a multi-state TSOS at a given surface
    */
-  virtual TrajectoryStateOnSurface trajectoryStateOnSurface(
-  		const Surface & surface) const;
+  TrajectoryStateOnSurface trajectoryStateOnSurface(
+  		const Surface & surface) const override;
 
   /**
    * Returns a multi-state TSOS at a given surface, with a given propagator
    */
 
-  virtual TrajectoryStateOnSurface trajectoryStateOnSurface(
-		const Surface & surface, const Propagator & propagator) const;
+  TrajectoryStateOnSurface trajectoryStateOnSurface(
+		const Surface & surface, const Propagator & propagator) const override;
 
   /**
    *   Returns a new reco::Track, which can then be made persistent. The parameters are taken
    *    from FTS described above.
    */
 
-  virtual reco::TransientTrack transientTrack() const;
+  reco::TransientTrack transientTrack() const override;
 
   /**
    * Vector containing the refitted track parameters. Not possible yet for a
    * multi-state, throws an exception.
    */
 
-  virtual AlgebraicVectorN  parameters() const;
+  AlgebraicVectorN  parameters() const override;
 
   /**
    * The covariance matrix. Not possible yet for a
    * multi-state, throws an exception.
    */
 
-  virtual AlgebraicSymMatrixNN  covariance() const;
+  AlgebraicSymMatrixNN  covariance() const override;
 
   /**
    * Position at which the momentum is defined. Not possible yet for a
    * multi-state, throws an exception.
    */
 
-  virtual GlobalPoint position() const;
+  GlobalPoint position() const override;
 
   /**
    * Vector containing the parameters describing the momentum as the vertex.
@@ -92,11 +92,11 @@ public:
    * multi-state, throws an exception.
    */
 
-  virtual AlgebraicVectorM momentumVector() const;
+  AlgebraicVectorM momentumVector() const override;
 
-  virtual double weight() const;
+  double weight() const override;
 
-  virtual std::vector<ReferenceCountingPointer<RefittedTrackState<5> > > components() const
+  std::vector<ReferenceCountingPointer<RefittedTrackState<5> > > components() const override
   {
     return theComponents;
   }
@@ -109,8 +109,8 @@ public:
    * The current state is unchanged.
    */
 
-  virtual ReferenceCountingPointer<RefittedTrackState<5> > stateWithNewWeight
-  	(const double newWeight) const;
+  ReferenceCountingPointer<RefittedTrackState<5> > stateWithNewWeight
+  	(const double newWeight) const override;
 
 
 private:

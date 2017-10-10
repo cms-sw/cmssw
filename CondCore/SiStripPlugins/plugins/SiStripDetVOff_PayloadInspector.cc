@@ -7,6 +7,7 @@
 
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "CondCore/SiStripPlugins/interface/SiStripPayloadInspectorHelper.h"
+#include "CalibTracker/SiStripCommon/interface/StandaloneTrackerTopology.h" 
 
 #include <memory>
 #include <sstream>
@@ -156,7 +157,9 @@ namespace {
     
   public:
     SiStripDetVOffTest() : cond::payloadInspector::Histogram1D<SiStripDetVOff>("SiStrip DetVOff test",
-									       "SiStrip DetVOff test", 10,0.0,10.0){
+									       "SiStrip DetVOff test", 10,0.0,10.0),
+      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
+    {
       Base::setSingleIov( true );
     }
     
@@ -168,8 +171,8 @@ namespace {
 	  std::vector<uint32_t> detid;
 	  payload->getDetIds(detid);
 	  
-	  SiStripDetSummary summaryHV;
-	  SiStripDetSummary summaryLV;
+	  SiStripDetSummary summaryHV{&m_trackerTopo};
+	  SiStripDetSummary summaryLV{&m_trackerTopo};
 	  
 	  for (const auto & d : detid) {
 	    if(payload->IsModuleLVOff(d)) summaryLV.add(d);
@@ -195,6 +198,8 @@ namespace {
       }// iovs
       return true;
     }// fill
+  private:
+    TrackerTopology m_trackerTopo;
   };
 
   /************************************************
@@ -203,7 +208,9 @@ namespace {
 
   class SiStripDetVOffByRegion : public cond::payloadInspector::PlotImage<SiStripDetVOff> {
   public:
-    SiStripDetVOffByRegion() : cond::payloadInspector::PlotImage<SiStripDetVOff>( "SiStrip DetVOff By Region" ){
+    SiStripDetVOffByRegion() : cond::payloadInspector::PlotImage<SiStripDetVOff>( "SiStrip DetVOff By Region" ),
+      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
+    {
       setSingleIov( true );
     }
 
@@ -214,8 +221,8 @@ namespace {
       std::vector<uint32_t> detid;
       payload->getDetIds(detid);
 
-      SiStripDetSummary summaryHV;
-      SiStripDetSummary summaryLV;
+      SiStripDetSummary summaryHV{&m_trackerTopo};
+      SiStripDetSummary summaryLV{&m_trackerTopo};
       
       for (const auto & d : detid) {
 	if(payload->IsModuleLVOff(d)) summaryLV.add(d);
@@ -361,6 +368,8 @@ namespace {
 
       return true;
     }
+  private:
+    TrackerTopology m_trackerTopo;
   };
 
 }

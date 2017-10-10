@@ -30,7 +30,7 @@
 class TkAlCaOverlapTagger : public edm::EDProducer {
  public:
   TkAlCaOverlapTagger(const edm::ParameterSet &iConfig);
-  ~TkAlCaOverlapTagger();
+  ~TkAlCaOverlapTagger() override;
   void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
 
  private:
@@ -92,13 +92,13 @@ void TkAlCaOverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSe
     int hitcnt=-1;
 
     //loop over traj meas
-    const TrajectoryMeasurement* previousTM(0);
+    const TrajectoryMeasurement* previousTM(nullptr);
     DetId previousId(0);
 
     for(std::vector<TrajectoryMeasurement>::const_iterator itTrajMeas = tmColl.begin(); itTrajMeas!=tmColl.end(); ++itTrajMeas){
       hitcnt++;
 
-      if ( previousTM!=0 ) {
+      if ( previousTM!=nullptr ) {
 	//	std::cout<<"Checking TrajMeas ("<<hitcnt+1<<"):"<<std::endl;
 	if(!previousTM->recHit()->isValid()){
 	  //std::cout<<"Previous RecHit invalid !"<<std::endl; 
@@ -119,7 +119,7 @@ void TkAlCaOverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSe
       int layer(layerFromId(detid, tTopo));//layer 1-4=TIB, layer 5-10=TOB
       int subDet = detid.subdetId();
 
-      if ( ( previousTM!=0 )&& (layer!=-1 )) {
+      if ( ( previousTM!=nullptr )&& (layer!=-1 )) {
 	for (std::vector<TrajectoryMeasurement>::const_iterator itmCompare =itTrajMeas-1;itmCompare >= tmColl.begin() &&  itmCompare > itTrajMeas - 4;--itmCompare){
 	  DetId compareId = itmCompare->recHit()->geographicalId();
 	  if ( subDet != compareId.subdetId() || layer  != layerFromId(compareId, tTopo)) break;
@@ -141,10 +141,10 @@ void TkAlCaOverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 	      const SiStripRecHit1D* transstriphit1D = dynamic_cast<const  SiStripRecHit1D*>(hit);
 	   
 	      //   if (type == typeid(SiStripRecHit1D)) {
-	      if(transstriphit1D!=0){
+	      if(transstriphit1D!=nullptr){
 		//	const SiStripRecHit1D* striphit=dynamic_cast<const  SiStripRecHit1D*>(hit);
 		const SiStripRecHit1D* striphit=transstriphit1D;
-		if(striphit!=0){
+		if(striphit!=nullptr){
 		  SiStripRecHit1D::ClusterRef stripclust(striphit->cluster());
 		  
 		  if(stripclust.id()==stripclusters.id()){//ensure that the stripclust is really present in the original cluster collection!!!
@@ -158,11 +158,11 @@ void TkAlCaOverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 		  edm::LogError("TkAlCaOverlapTagger")<<"ERROR in <TkAlCaOverlapTagger::produce>: Dynamic cast of Strip RecHit failed!   TypeId of the RecHit: "<<className(*hit);
 		}
 	      }//end if sistriprechit1D
-	      else if(transstriphit2D!=0){
+	      else if(transstriphit2D!=nullptr){
 	      //else if (type == typeid(SiStripRecHit2D)) {
 		//		const SiStripRecHit2D* striphit=dynamic_cast<const  SiStripRecHit2D*>(hit);
 		const SiStripRecHit2D* striphit=transstriphit2D;   
-		if(striphit!=0){
+		if(striphit!=nullptr){
 		  SiStripRecHit2D::ClusterRef stripclust(striphit->cluster());
 		  
 		  if(stripclust.id()==stripclusters.id()){//ensure that the stripclust is really present in the original cluster collection!!!
@@ -187,7 +187,7 @@ void TkAlCaOverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 	    }//end if hit in Strips
 	    else {//pixel hit
 	      const SiPixelRecHit* transpixelhit = dynamic_cast<const SiPixelRecHit*>(hit);
-	      if(transpixelhit!=0){
+	      if(transpixelhit!=nullptr){
 		const SiPixelRecHit* pixelhit=transpixelhit;
 		SiPixelClusterRefNew pixclust(pixelhit->cluster());
 		

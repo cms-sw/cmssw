@@ -35,7 +35,8 @@ HLTScoutingMuonProducer::HLTScoutingMuonProducer(const edm::ParameterSet& iConfi
     displacedvertexCollection_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("displacedvertexCollection"))),
     muonPtCut(iConfig.getParameter<double>("muonPtCut")),
     muonEtaCut(iConfig.getParameter<double>("muonEtaCut")),
-    minVtxProbCut(iConfig.getParameter<double>("minVtxProbCut"))
+    minVtxProbCut(iConfig.getParameter<double>("minVtxProbCut")),
+    linkToken_ (consumes<reco::MuonTrackLinksCollection>(iConfig.getParameter<edm::InputTag>("InputLinks")))
 {
     //register products
     produces<ScoutingMuonCollection>();
@@ -125,6 +126,12 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
     std::vector<int> vtxInd;
     float minDR2=1e-06;
     int index = 0;
+
+    // Read Links collection:                                                                                                                                                                                              
+    edm::Handle<reco::MuonTrackLinksCollection> links;
+    iEvent.getByToken(linkToken_, links);
+
+
     for (auto &muon : *ChargedCandidateCollection) {
       reco::RecoChargedCandidateRef muonRef = getRef(ChargedCandidateCollection, index);
       ++index;
@@ -134,7 +141,22 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
       reco::TrackRef track = muon.track();
       if (track.isNull() || !track.isAvailable())
 	continue;
-      
+    
+      int validmuhit=0;
+      int matchedsta=0;
+      for(auto const & link : *links){
+        const reco::Track& trackerTrack = *link.trackerTrack();
+        float dR2 = deltaR2(track->eta(),track->phi(),trackerTrack.eta(),trackerTrack.phi());
+        float dPt = std::abs(track->pt() - trackerTrack.pt());
+        if (track->pt() != 0) dPt = dPt/track->pt();
+
+        if (dR2 < 0.02*0.02 and dPt < 0.001) {
+          const reco::TrackRef staTrack = link.standAloneTrack();
+          validmuhit=staTrack->hitPattern().numberOfValidMuonHits() ;
+          matchedsta=staTrack->hitPattern().muonStationsWithValidHits();
+        }
+      }
+  
       if (muon.pt() < muonPtCut)
 	continue;
       if (fabs(muon.eta()) > muonEtaCut)
@@ -145,7 +167,8 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
       
       double hcalisopf=-1.0;
       if ( HcalPFClusterIsoMap.isValid()) { hcalisopf = (*HcalPFClusterIsoMap)[muonRef]; }
-      
+ 
+      vtxInd.reserve(vtxMuPair.size());  
       for (unsigned int i=0; i<vtxMuPair.size(); i++) {
 	float dr2_1 = reco::deltaR2( ((vtxMuPair[i]).first),muon );
 	float dr2_2 = reco::deltaR2( ((vtxMuPair[i]).second),muon );
@@ -156,9 +179,9 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
 			     ecalisopf, hcalisopf,
 			     (*TrackIsoMap)[muonRef], track->chi2(), track->ndof(),
 			     track->charge(), track->dxy(), track->dz(),
-			     track->hitPattern().numberOfValidMuonHits(),
+			     validmuhit,
 			     track->hitPattern().numberOfValidPixelHits(),
-			     0, // nMatchedStations
+			     matchedsta,
 			     track->hitPattern().trackerLayersWithMeasurement(),
 			     2, // Global muon
 			     track->hitPattern().numberOfValidStripHits(),
@@ -176,6 +199,7 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
 			     track->dszError(),
 			     vtxInd
 			     );
+      vtxInd.clear();
     }
     
     // Put output
@@ -196,5 +220,7 @@ void HLTScoutingMuonProducer::fillDescriptions(edm::ConfigurationDescriptions& d
     desc.add<double>("muonPtCut", 4.0);
     desc.add<double>("muonEtaCut", 2.4);
     desc.add<double>("minVtxProbCut", 0.001);
+    desc.add<edm::InputTag>("InputLinks",edm::InputTag("hltL3MuonsIterL3LinksNoVtx"));
+
     descriptions.add("hltScoutingMuonProducer", desc);
 }

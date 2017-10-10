@@ -42,10 +42,10 @@ class HLTL1MuonNoL2Selector : public edm::global::EDProducer<> {
   explicit HLTL1MuonNoL2Selector(const edm::ParameterSet&);
 
   /// Destructor
-  ~HLTL1MuonNoL2Selector();
+  ~HLTL1MuonNoL2Selector() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   
  private:
 

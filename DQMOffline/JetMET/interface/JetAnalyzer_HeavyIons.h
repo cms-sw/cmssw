@@ -85,7 +85,7 @@ class JetAnalyzer_HeavyIons : public DQMEDAnalyzer {
  public:
 
   explicit JetAnalyzer_HeavyIons (const edm::ParameterSet&);
-  virtual ~JetAnalyzer_HeavyIons();
+  ~JetAnalyzer_HeavyIons() override;
   
   void analyze(const edm::Event&, const edm::EventSetup&) override; 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;

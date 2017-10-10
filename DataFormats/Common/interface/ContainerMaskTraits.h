@@ -37,10 +37,10 @@ namespace edm {
       
    private:
       //virtual ~ContainerMaskTraits();
-      ContainerMaskTraits();
-      ContainerMaskTraits(const ContainerMaskTraits&); // stop default
+      ContainerMaskTraits() = delete;
+      ContainerMaskTraits(const ContainerMaskTraits&) = delete; // stop default
 
-      const ContainerMaskTraits& operator=(const ContainerMaskTraits&); // stop default
+      const ContainerMaskTraits& operator=(const ContainerMaskTraits&) = delete; // stop default
 
       // ---------- member data --------------------------------
 

@@ -48,7 +48,7 @@ class TGeoMgrFromDdd : public edm::ESProducer
 {
 public:
    TGeoMgrFromDdd(const edm::ParameterSet&);
-   virtual ~TGeoMgrFromDdd();
+   ~TGeoMgrFromDdd() override;
 
    typedef std::shared_ptr<TGeoManager> ReturnType;
 

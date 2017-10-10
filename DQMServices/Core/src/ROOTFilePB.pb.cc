@@ -18,9 +18,15 @@
 // @@protoc_insertion_point(includes)
 
 namespace dqmstorepb {
-class ROOTFilePB_HistoDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<ROOTFilePB_Histo> {
+class ROOTFilePB_HistoDefaultTypeInternal {
+public:
+ ::google::protobuf::internal::ExplicitlyConstructed<ROOTFilePB_Histo>
+     _instance;
 } _ROOTFilePB_Histo_default_instance_;
-class ROOTFilePBDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<ROOTFilePB> {
+class ROOTFilePBDefaultTypeInternal {
+public:
+ ::google::protobuf::internal::ExplicitlyConstructed<ROOTFilePB>
+     _instance;
 } _ROOTFilePB_default_instance_;
 
 namespace protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto {
@@ -32,11 +38,27 @@ namespace {
 
 }  // namespace
 
-const ::google::protobuf::uint32 TableStruct::offsets[] = {
+PROTOBUF_CONSTEXPR_VAR ::google::protobuf::internal::ParseTableField
+    const TableStruct::entries[] GOOGLE_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
+  {0, 0, 0, ::google::protobuf::internal::kInvalidMask, 0, 0},
+};
+
+PROTOBUF_CONSTEXPR_VAR ::google::protobuf::internal::AuxillaryParseTableField
+    const TableStruct::aux[] GOOGLE_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
+  ::google::protobuf::internal::AuxillaryParseTableField(),
+};
+PROTOBUF_CONSTEXPR_VAR ::google::protobuf::internal::ParseTable const
+    TableStruct::schema[] GOOGLE_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
+  { nullptr, nullptr, 0, -1, -1, -1, -1, nullptr, false },
+  { nullptr, nullptr, 0, -1, -1, -1, -1, nullptr, false },
+};
+
+const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ROOTFilePB_Histo, _has_bits_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ROOTFilePB_Histo, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ROOTFilePB_Histo, full_pathname_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ROOTFilePB_Histo, size_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ROOTFilePB_Histo, streamed_histo_),
@@ -49,13 +71,13 @@ const ::google::protobuf::uint32 TableStruct::offsets[] = {
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ROOTFilePB, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ROOTFilePB, histo_),
   ~0u,
 };
-
-static const ::google::protobuf::internal::MigrationSchema schemas[] = {
-  { 0, 8, sizeof(ROOTFilePB_Histo)},
-  { 12, 17, sizeof(ROOTFilePB)},
+static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
+  { 0, 9, sizeof(ROOTFilePB_Histo)},
+  { 13, 19, sizeof(ROOTFilePB)},
 };
 
 static ::google::protobuf::Message const * const file_default_instances[] = {
@@ -67,10 +89,10 @@ namespace {
 
 void protobuf_AssignDescriptors() {
   AddDescriptors();
-  ::google::protobuf::MessageFactory* factory = NULL;
+  ::google::protobuf::MessageFactory* factory = nullptr;
   AssignDescriptors(
       "DQMServices/Core/src/ROOTFilePB.proto", schemas, file_default_instances, TableStruct::offsets, factory,
-      file_level_metadata, NULL, NULL);
+      file_level_metadata, nullptr, nullptr);
 }
 
 void protobuf_AssignDescriptorsOnce() {
@@ -85,29 +107,24 @@ void protobuf_RegisterTypes(const ::std::string&) {
 }
 
 }  // namespace
-
-void TableStruct::Shutdown() {
-  _ROOTFilePB_Histo_default_instance_.Shutdown();
-  delete file_level_metadata[0].reflection;
-  _ROOTFilePB_default_instance_.Shutdown();
-  delete file_level_metadata[1].reflection;
-}
-
 void TableStruct::InitDefaultsImpl() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::google::protobuf::internal::InitProtobufDefaults();
-  _ROOTFilePB_Histo_default_instance_.DefaultConstruct();
-  _ROOTFilePB_default_instance_.DefaultConstruct();
-}
+  _ROOTFilePB_Histo_default_instance_._instance.DefaultConstruct();
+  ::google::protobuf::internal::OnShutdownDestroyMessage(
+      &_ROOTFilePB_Histo_default_instance_);_ROOTFilePB_default_instance_._instance.DefaultConstruct();
+  ::google::protobuf::internal::OnShutdownDestroyMessage(
+      &_ROOTFilePB_default_instance_);}
 
 void InitDefaults() {
   static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
   ::google::protobuf::GoogleOnceInit(&once, &TableStruct::InitDefaultsImpl);
 }
+namespace {
 void AddDescriptorsImpl() {
   InitDefaults();
-  static const char descriptor[] = {
+  static const char descriptor[] GOOGLE_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
       "\n%DQMServices/Core/src/ROOTFilePB.proto\022"
       "\ndqmstorepb\"\216\001\n\nROOTFilePB\022+\n\005histo\030\001 \003("
       "\0132\034.dqmstorepb.ROOTFilePB.Histo\032S\n\005Histo"
@@ -118,14 +135,14 @@ void AddDescriptorsImpl() {
       descriptor, 196);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "DQMServices/Core/src/ROOTFilePB.proto", &protobuf_RegisterTypes);
-  ::google::protobuf::internal::OnShutdown(&TableStruct::Shutdown);
 }
+} // anonymous namespace
 
 void AddDescriptors() {
   static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
   ::google::protobuf::GoogleOnceInit(&once, &AddDescriptorsImpl);
 }
-// Force AddDescriptors() to be called at static initialization time.
+// Force AddDescriptors() to be called at dynamic initialization time.
 struct StaticDescriptorInitializer {
   StaticDescriptorInitializer() {
     AddDescriptors();
@@ -145,7 +162,7 @@ const int ROOTFilePB_Histo::kFlagsFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 ROOTFilePB_Histo::ROOTFilePB_Histo()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  : ::google::protobuf::Message(), _internal_metadata_(nullptr) {
   if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
     protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::InitDefaults();
   }
@@ -154,7 +171,7 @@ ROOTFilePB_Histo::ROOTFilePB_Histo()
 }
 ROOTFilePB_Histo::ROOTFilePB_Histo(const ROOTFilePB_Histo& from)
   : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
+      _internal_metadata_(nullptr),
       _has_bits_(from._has_bits_),
       _cached_size_(0) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
@@ -167,8 +184,8 @@ ROOTFilePB_Histo::ROOTFilePB_Histo(const ROOTFilePB_Histo& from)
     streamed_histo_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.streamed_histo_);
   }
   ::memcpy(&size_, &from.size_,
-    reinterpret_cast<char*>(&flags_) -
-    reinterpret_cast<char*>(&size_) + sizeof(flags_));
+    static_cast<size_t>(reinterpret_cast<char*>(&flags_) -
+    reinterpret_cast<char*>(&size_)) + sizeof(flags_));
   // @@protoc_insertion_point(copy_constructor:dqmstorepb.ROOTFilePB.Histo)
 }
 
@@ -176,8 +193,9 @@ void ROOTFilePB_Histo::SharedCtor() {
   _cached_size_ = 0;
   full_pathname_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   streamed_histo_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  ::memset(&size_, 0, reinterpret_cast<char*>(&flags_) -
-    reinterpret_cast<char*>(&size_) + sizeof(flags_));
+  ::memset(&size_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&flags_) -
+      reinterpret_cast<char*>(&size_)) + sizeof(flags_));
 }
 
 ROOTFilePB_Histo::~ROOTFilePB_Histo() {
@@ -197,7 +215,7 @@ void ROOTFilePB_Histo::SetCachedSize(int size) const {
 }
 const ::google::protobuf::Descriptor* ROOTFilePB_Histo::descriptor() {
   protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::file_level_metadata[0].descriptor;
+  return protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
 }
 
 const ROOTFilePB_Histo& ROOTFilePB_Histo::default_instance() {
@@ -207,7 +225,7 @@ const ROOTFilePB_Histo& ROOTFilePB_Histo::default_instance() {
 
 ROOTFilePB_Histo* ROOTFilePB_Histo::New(::google::protobuf::Arena* arena) const {
   ROOTFilePB_Histo* n = new ROOTFilePB_Histo;
-  if (arena != NULL) {
+  if (arena != nullptr) {
     arena->Own(n);
   }
   return n;
@@ -215,19 +233,25 @@ ROOTFilePB_Histo* ROOTFilePB_Histo::New(::google::protobuf::Arena* arena) const 
 
 void ROOTFilePB_Histo::Clear() {
 // @@protoc_insertion_point(message_clear_start:dqmstorepb.ROOTFilePB.Histo)
-  if (_has_bits_[0 / 32] & 3u) {
-    if (has_full_pathname()) {
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  cached_has_bits = _has_bits_[0];
+  if (cached_has_bits & 3u) {
+    if (cached_has_bits & 0x00000001u) {
       GOOGLE_DCHECK(!full_pathname_.IsDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited()));
       (*full_pathname_.UnsafeRawStringPointer())->clear();
     }
-    if (has_streamed_histo()) {
+    if (cached_has_bits & 0x00000002u) {
       GOOGLE_DCHECK(!streamed_histo_.IsDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited()));
       (*streamed_histo_.UnsafeRawStringPointer())->clear();
     }
   }
-  if (_has_bits_[0 / 32] & 12u) {
-    ::memset(&size_, 0, reinterpret_cast<char*>(&flags_) -
-      reinterpret_cast<char*>(&size_) + sizeof(flags_));
+  if (cached_has_bits & 12u) {
+    ::memset(&size_, 0, static_cast<size_t>(
+        reinterpret_cast<char*>(&flags_) -
+        reinterpret_cast<char*>(&size_)) + sizeof(flags_));
   }
   _has_bits_.Clear();
   _internal_metadata_.Clear();
@@ -245,11 +269,12 @@ bool ROOTFilePB_Histo::MergePartialFromCodedStream(
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // required string full_pathname = 1;
       case 1: {
-        if (tag == 10u) {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_full_pathname()));
           ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-            this->full_pathname().data(), this->full_pathname().length(),
+            this->full_pathname().data(), static_cast<int>(this->full_pathname().length()),
             ::google::protobuf::internal::WireFormat::PARSE,
             "dqmstorepb.ROOTFilePB.Histo.full_pathname");
         } else {
@@ -260,7 +285,8 @@ bool ROOTFilePB_Histo::MergePartialFromCodedStream(
 
       // required uint32 size = 2;
       case 2: {
-        if (tag == 16u) {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(16u /* 16 & 0xFF */)) {
           set_has_size();
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
@@ -273,7 +299,8 @@ bool ROOTFilePB_Histo::MergePartialFromCodedStream(
 
       // required bytes streamed_histo = 3;
       case 3: {
-        if (tag == 26u) {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(26u /* 26 & 0xFF */)) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
                 input, this->mutable_streamed_histo()));
         } else {
@@ -284,7 +311,8 @@ bool ROOTFilePB_Histo::MergePartialFromCodedStream(
 
       // required uint32 flags = 4;
       case 4: {
-        if (tag == 32u) {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(32u /* 32 & 0xFF */)) {
           set_has_flags();
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
@@ -297,13 +325,11 @@ bool ROOTFilePB_Histo::MergePartialFromCodedStream(
 
       default: {
       handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+        if (tag == 0) {
           goto success;
         }
         DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
+              input, tag, _internal_metadata_.mutable_unknown_fields()));
         break;
       }
     }
@@ -320,10 +346,14 @@ failure:
 void ROOTFilePB_Histo::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:dqmstorepb.ROOTFilePB.Histo)
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = _has_bits_[0];
   // required string full_pathname = 1;
-  if (has_full_pathname()) {
+  if (cached_has_bits & 0x00000001u) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->full_pathname().data(), this->full_pathname().length(),
+      this->full_pathname().data(), static_cast<int>(this->full_pathname().length()),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
       "dqmstorepb.ROOTFilePB.Histo.full_pathname");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
@@ -331,36 +361,40 @@ void ROOTFilePB_Histo::SerializeWithCachedSizes(
   }
 
   // required uint32 size = 2;
-  if (has_size()) {
+  if (cached_has_bits & 0x00000004u) {
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(2, this->size(), output);
   }
 
   // required bytes streamed_histo = 3;
-  if (has_streamed_histo()) {
+  if (cached_has_bits & 0x00000002u) {
     ::google::protobuf::internal::WireFormatLite::WriteBytesMaybeAliased(
       3, this->streamed_histo(), output);
   }
 
   // required uint32 flags = 4;
-  if (has_flags()) {
+  if (cached_has_bits & 0x00000008u) {
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(4, this->flags(), output);
   }
 
   if (_internal_metadata_.have_unknown_fields()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
+        _internal_metadata_.unknown_fields(), output);
   }
   // @@protoc_insertion_point(serialize_end:dqmstorepb.ROOTFilePB.Histo)
 }
 
 ::google::protobuf::uint8* ROOTFilePB_Histo::InternalSerializeWithCachedSizesToArray(
     bool deterministic, ::google::protobuf::uint8* target) const {
-  (void)deterministic;  // Unused
+  (void)deterministic; // Unused
   // @@protoc_insertion_point(serialize_to_array_start:dqmstorepb.ROOTFilePB.Histo)
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = _has_bits_[0];
   // required string full_pathname = 1;
-  if (has_full_pathname()) {
+  if (cached_has_bits & 0x00000001u) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->full_pathname().data(), this->full_pathname().length(),
+      this->full_pathname().data(), static_cast<int>(this->full_pathname().length()),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
       "dqmstorepb.ROOTFilePB.Histo.full_pathname");
     target =
@@ -369,25 +403,25 @@ void ROOTFilePB_Histo::SerializeWithCachedSizes(
   }
 
   // required uint32 size = 2;
-  if (has_size()) {
+  if (cached_has_bits & 0x00000004u) {
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(2, this->size(), target);
   }
 
   // required bytes streamed_histo = 3;
-  if (has_streamed_histo()) {
+  if (cached_has_bits & 0x00000002u) {
     target =
       ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
         3, this->streamed_histo(), target);
   }
 
   // required uint32 flags = 4;
-  if (has_flags()) {
+  if (cached_has_bits & 0x00000008u) {
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(4, this->flags(), target);
   }
 
   if (_internal_metadata_.have_unknown_fields()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
+        _internal_metadata_.unknown_fields(), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:dqmstorepb.ROOTFilePB.Histo)
   return target;
@@ -434,7 +468,7 @@ size_t ROOTFilePB_Histo::ByteSizeLong() const {
   if (_internal_metadata_.have_unknown_fields()) {
     total_size +=
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
+        _internal_metadata_.unknown_fields());
   }
   if (((_has_bits_[0] & 0x0000000f) ^ 0x0000000f) == 0) {  // All required fields are present.
     // required string full_pathname = 1;
@@ -473,7 +507,7 @@ void ROOTFilePB_Histo::MergeFrom(const ::google::protobuf::Message& from) {
   const ROOTFilePB_Histo* source =
       ::google::protobuf::internal::DynamicCastToGenerated<const ROOTFilePB_Histo>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:dqmstorepb.ROOTFilePB.Histo)
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {
@@ -486,21 +520,26 @@ void ROOTFilePB_Histo::MergeFrom(const ROOTFilePB_Histo& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:dqmstorepb.ROOTFilePB.Histo)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  if (from._has_bits_[0 / 32] & 15u) {
-    if (from.has_full_pathname()) {
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = from._has_bits_[0];
+  if (cached_has_bits & 15u) {
+    if (cached_has_bits & 0x00000001u) {
       set_has_full_pathname();
       full_pathname_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.full_pathname_);
     }
-    if (from.has_streamed_histo()) {
+    if (cached_has_bits & 0x00000002u) {
       set_has_streamed_histo();
       streamed_histo_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.streamed_histo_);
     }
-    if (from.has_size()) {
-      set_size(from.size());
+    if (cached_has_bits & 0x00000004u) {
+      size_ = from.size_;
     }
-    if (from.has_flags()) {
-      set_flags(from.flags());
+    if (cached_has_bits & 0x00000008u) {
+      flags_ = from.flags_;
     }
+    _has_bits_[0] |= cached_has_bits;
   }
 }
 
@@ -528,18 +567,19 @@ void ROOTFilePB_Histo::Swap(ROOTFilePB_Histo* other) {
   InternalSwap(other);
 }
 void ROOTFilePB_Histo::InternalSwap(ROOTFilePB_Histo* other) {
+  using std::swap;
   full_pathname_.Swap(&other->full_pathname_);
   streamed_histo_.Swap(&other->streamed_histo_);
-  std::swap(size_, other->size_);
-  std::swap(flags_, other->flags_);
-  std::swap(_has_bits_[0], other->_has_bits_[0]);
+  swap(size_, other->size_);
+  swap(flags_, other->flags_);
+  swap(_has_bits_[0], other->_has_bits_[0]);
   _internal_metadata_.Swap(&other->_internal_metadata_);
-  std::swap(_cached_size_, other->_cached_size_);
+  swap(_cached_size_, other->_cached_size_);
 }
 
 ::google::protobuf::Metadata ROOTFilePB_Histo::GetMetadata() const {
   protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::file_level_metadata[0];
+  return protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::file_level_metadata[kIndexInFileMessages];
 }
 
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
@@ -572,11 +612,12 @@ void ROOTFilePB_Histo::set_full_pathname(const ::std::string& value) {
 void ROOTFilePB_Histo::set_full_pathname(::std::string&& value) {
   set_has_full_pathname();
   full_pathname_.SetNoArena(
-    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
   // @@protoc_insertion_point(field_set_rvalue:dqmstorepb.ROOTFilePB.Histo.full_pathname)
 }
 #endif
 void ROOTFilePB_Histo::set_full_pathname(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
   set_has_full_pathname();
   full_pathname_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:dqmstorepb.ROOTFilePB.Histo.full_pathname)
@@ -658,11 +699,12 @@ void ROOTFilePB_Histo::set_streamed_histo(const ::std::string& value) {
 void ROOTFilePB_Histo::set_streamed_histo(::std::string&& value) {
   set_has_streamed_histo();
   streamed_histo_.SetNoArena(
-    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
   // @@protoc_insertion_point(field_set_rvalue:dqmstorepb.ROOTFilePB.Histo.streamed_histo)
 }
 #endif
 void ROOTFilePB_Histo::set_streamed_histo(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
   set_has_streamed_histo();
   streamed_histo_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:dqmstorepb.ROOTFilePB.Histo.streamed_histo)
@@ -726,7 +768,7 @@ const int ROOTFilePB::kHistoFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 ROOTFilePB::ROOTFilePB()
-  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  : ::google::protobuf::Message(), _internal_metadata_(nullptr) {
   if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
     protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::InitDefaults();
   }
@@ -735,7 +777,7 @@ ROOTFilePB::ROOTFilePB()
 }
 ROOTFilePB::ROOTFilePB(const ROOTFilePB& from)
   : ::google::protobuf::Message(),
-      _internal_metadata_(NULL),
+      _internal_metadata_(nullptr),
       _has_bits_(from._has_bits_),
       _cached_size_(0),
       histo_(from.histo_) {
@@ -762,7 +804,7 @@ void ROOTFilePB::SetCachedSize(int size) const {
 }
 const ::google::protobuf::Descriptor* ROOTFilePB::descriptor() {
   protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::file_level_metadata[1].descriptor;
+  return protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
 }
 
 const ROOTFilePB& ROOTFilePB::default_instance() {
@@ -772,7 +814,7 @@ const ROOTFilePB& ROOTFilePB::default_instance() {
 
 ROOTFilePB* ROOTFilePB::New(::google::protobuf::Arena* arena) const {
   ROOTFilePB* n = new ROOTFilePB;
-  if (arena != NULL) {
+  if (arena != nullptr) {
     arena->Own(n);
   }
   return n;
@@ -780,6 +822,10 @@ ROOTFilePB* ROOTFilePB::New(::google::protobuf::Arena* arena) const {
 
 void ROOTFilePB::Clear() {
 // @@protoc_insertion_point(message_clear_start:dqmstorepb.ROOTFilePB)
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
   histo_.Clear();
   _has_bits_.Clear();
   _internal_metadata_.Clear();
@@ -797,26 +843,23 @@ bool ROOTFilePB::MergePartialFromCodedStream(
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // repeated .dqmstorepb.ROOTFilePB.Histo histo = 1;
       case 1: {
-        if (tag == 10u) {
-          DO_(input->IncrementRecursionDepth());
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtualNoRecursionDepth(
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                 input, add_histo()));
         } else {
           goto handle_unusual;
         }
-        input->UnsafeDecrementRecursionDepth();
         break;
       }
 
       default: {
       handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+        if (tag == 0) {
           goto success;
         }
         DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
+              input, tag, _internal_metadata_.mutable_unknown_fields()));
         break;
       }
     }
@@ -833,33 +876,41 @@ failure:
 void ROOTFilePB::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:dqmstorepb.ROOTFilePB)
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
   // repeated .dqmstorepb.ROOTFilePB.Histo histo = 1;
-  for (unsigned int i = 0, n = this->histo_size(); i < n; i++) {
+  for (unsigned int i = 0,
+      n = static_cast<unsigned int>(this->histo_size()); i < n; i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->histo(i), output);
+      1, this->histo(static_cast<int>(i)), output);
   }
 
   if (_internal_metadata_.have_unknown_fields()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
+        _internal_metadata_.unknown_fields(), output);
   }
   // @@protoc_insertion_point(serialize_end:dqmstorepb.ROOTFilePB)
 }
 
 ::google::protobuf::uint8* ROOTFilePB::InternalSerializeWithCachedSizesToArray(
     bool deterministic, ::google::protobuf::uint8* target) const {
-  (void)deterministic;  // Unused
+  (void)deterministic; // Unused
   // @@protoc_insertion_point(serialize_to_array_start:dqmstorepb.ROOTFilePB)
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
   // repeated .dqmstorepb.ROOTFilePB.Histo histo = 1;
-  for (unsigned int i = 0, n = this->histo_size(); i < n; i++) {
+  for (unsigned int i = 0,
+      n = static_cast<unsigned int>(this->histo_size()); i < n; i++) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageNoVirtualToArray(
-        1, this->histo(i), false, target);
+        1, this->histo(static_cast<int>(i)), deterministic, target);
   }
 
   if (_internal_metadata_.have_unknown_fields()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
+        _internal_metadata_.unknown_fields(), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:dqmstorepb.ROOTFilePB)
   return target;
@@ -872,16 +923,16 @@ size_t ROOTFilePB::ByteSizeLong() const {
   if (_internal_metadata_.have_unknown_fields()) {
     total_size +=
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
+        _internal_metadata_.unknown_fields());
   }
   // repeated .dqmstorepb.ROOTFilePB.Histo histo = 1;
   {
-    unsigned int count = this->histo_size();
+    unsigned int count = static_cast<unsigned int>(this->histo_size());
     total_size += 1UL * count;
     for (unsigned int i = 0; i < count; i++) {
       total_size +=
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->histo(i));
+          this->histo(static_cast<int>(i)));
     }
   }
 
@@ -898,7 +949,7 @@ void ROOTFilePB::MergeFrom(const ::google::protobuf::Message& from) {
   const ROOTFilePB* source =
       ::google::protobuf::internal::DynamicCastToGenerated<const ROOTFilePB>(
           &from);
-  if (source == NULL) {
+  if (source == nullptr) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:dqmstorepb.ROOTFilePB)
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {
@@ -911,6 +962,9 @@ void ROOTFilePB::MergeFrom(const ROOTFilePB& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:dqmstorepb.ROOTFilePB)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
   histo_.MergeFrom(from.histo_);
 }
 
@@ -938,15 +992,16 @@ void ROOTFilePB::Swap(ROOTFilePB* other) {
   InternalSwap(other);
 }
 void ROOTFilePB::InternalSwap(ROOTFilePB* other) {
-  histo_.UnsafeArenaSwap(&other->histo_);
-  std::swap(_has_bits_[0], other->_has_bits_[0]);
+  using std::swap;
+  histo_.InternalSwap(&other->histo_);
+  swap(_has_bits_[0], other->_has_bits_[0]);
   _internal_metadata_.Swap(&other->_internal_metadata_);
-  std::swap(_cached_size_, other->_cached_size_);
+  swap(_cached_size_, other->_cached_size_);
 }
 
 ::google::protobuf::Metadata ROOTFilePB::GetMetadata() const {
   protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::file_level_metadata[1];
+  return protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::file_level_metadata[kIndexInFileMessages];
 }
 
 #if PROTOBUF_INLINE_NOT_IN_HEADERS

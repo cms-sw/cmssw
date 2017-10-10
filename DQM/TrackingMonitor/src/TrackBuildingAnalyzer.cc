@@ -20,30 +20,26 @@
 
 #include <iostream>
 
-TrackBuildingAnalyzer::TrackBuildingAnalyzer(const edm::ParameterSet& iConfig) 
-    : TrackingRegionCandidatePt(nullptr)
-    , TrackingRegionCandidateEta(nullptr)
-    , TrackingRegionCandidatePhi(nullptr)
-    , TrackingRegionCandidatePhiVsEta(nullptr)
-    , SeedPt(nullptr)
-    , SeedEta(nullptr)
-    , SeedPhi(nullptr)
-    , SeedPhiVsEta(nullptr)
-    , SeedTheta(nullptr)
-    , SeedQ(nullptr)
-    , SeedDxy(nullptr)
-    , SeedDz(nullptr)
-    , NumberOfRecHitsPerSeed(nullptr)
-    , NumberOfRecHitsPerSeedVsPhiProfile(nullptr)
-    , NumberOfRecHitsPerSeedVsEtaProfile(nullptr)
-    , stoppingSource(nullptr)
-    , stoppingSourceVSeta(nullptr)
-    , stoppingSourceVSphi(nullptr)
+TrackBuildingAnalyzer::TrackBuildingAnalyzer(const edm::ParameterSet& iConfig):
+  doAllPlots(    iConfig.getParameter<bool>("doAllPlots")),
+  doAllSeedPlots(iConfig.getParameter<bool>("doSeedParameterHistos")),
+  doTCPlots(     iConfig.getParameter<bool>("doTrackCandHistos")),
+  doAllTCPlots(  iConfig.getParameter<bool>("doAllTrackCandHistos")),
+  doPT(          iConfig.getParameter<bool>("doSeedPTHisto")),
+  doETA(         iConfig.getParameter<bool>("doSeedETAHisto")),
+  doPHI(         iConfig.getParameter<bool>("doSeedPHIHisto")),
+  doPHIVsETA(    iConfig.getParameter<bool>("doSeedPHIVsETAHisto")),
+  doTheta(       iConfig.getParameter<bool>("doSeedThetaHisto")),
+  doQ(           iConfig.getParameter<bool>("doSeedQHisto")),
+  doDxy(         iConfig.getParameter<bool>("doSeedDxyHisto")),
+  doDz(          iConfig.getParameter<bool>("doSeedDzHisto")),
+  doNRecHits(    iConfig.getParameter<bool>("doSeedNRecHitsHisto")),
+  doProfPHI(     iConfig.getParameter<bool>("doSeedNVsPhiProf")),
+  doProfETA(     iConfig.getParameter<bool>("doSeedNVsEtaProf")),
+  doStopSource(  iConfig.getParameter<bool>("doStopSource")),
+  doMVAPlots(    iConfig.getParameter<bool>("doMVAPlots")),
+  doRegionPlots( iConfig.getParameter<bool>("doRegionPlots"))
 {
-}
-
-TrackBuildingAnalyzer::~TrackBuildingAnalyzer() 
-{ 
 }
 
 void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::ParameterSet& iConfig)
@@ -112,25 +108,6 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::Pa
   edm::InputTag tcProducer     = iConfig.getParameter<edm::InputTag>("TCProducer");
   std::vector<std::string> mvaProducers = iConfig.getParameter<std::vector<std::string> >("MVAProducers");
   edm::InputTag regionProducer = iConfig.getParameter<edm::InputTag>("RegionProducer");
-  
-  doAllPlots     = iConfig.getParameter<bool>("doAllPlots");
-  doAllSeedPlots = iConfig.getParameter<bool>("doSeedParameterHistos");
-  doTCPlots      = iConfig.getParameter<bool>("doTrackCandHistos");
-  doAllTCPlots   = iConfig.getParameter<bool>("doAllTrackCandHistos");
-  doPT           = iConfig.getParameter<bool>("doSeedPTHisto");
-  doETA          = iConfig.getParameter<bool>("doSeedETAHisto");
-  doPHI          = iConfig.getParameter<bool>("doSeedPHIHisto");
-  doPHIVsETA     = iConfig.getParameter<bool>("doSeedPHIVsETAHisto");
-  doTheta        = iConfig.getParameter<bool>("doSeedThetaHisto");
-  doQ            = iConfig.getParameter<bool>("doSeedQHisto");
-  doDxy          = iConfig.getParameter<bool>("doSeedDxyHisto");
-  doDz           = iConfig.getParameter<bool>("doSeedDzHisto");
-  doNRecHits     = iConfig.getParameter<bool>("doSeedNRecHitsHisto");
-  doProfPHI      = iConfig.getParameter<bool>("doSeedNVsPhiProf");
-  doProfETA      = iConfig.getParameter<bool>("doSeedNVsEtaProf");
-  doStopSource   = iConfig.getParameter<bool>("doStopSource");
-  doMVAPlots     = iConfig.getParameter<bool>("doMVAPlots");
-  doRegionPlots  = iConfig.getParameter<bool>("doRegionPlots");
   
   //    if (doAllPlots){doAllSeedPlots=true; doTCPlots=true;}
   
@@ -252,16 +229,56 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::Pa
     }
   }
 
+  if (doAllSeedPlots || doStopSource) {
+    const auto stopReasonSize = static_cast<unsigned int>(SeedStopReason::SIZE);
+
+    const auto candsBin = iConfig.getParameter<int>(   "SeedCandBin");
+    const auto candsMin = iConfig.getParameter<double>("SeedCandMin");
+    const auto candsMax = iConfig.getParameter<double>("SeedCandMax");
+
+    histname = "SeedStoppingSource_"+seedProducer.label() + "_";
+    seedStoppingSource = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, stopReasonSize, 0., stopReasonSize);
+    seedStoppingSource->setAxisTitle("Stopping reason",1);
+    seedStoppingSource->setAxisTitle("Number of seeds",2);
+
+    histname = "StoppingSourceVsPhi_"+seedProducer.label() + "_";
+    seedStoppingSourceVsPhi = ibooker.bookProfile(histname+CatagoryName, histname+CatagoryName, PhiBin, PhiMin, PhiMax, 2, 0., 2.);
+    seedStoppingSourceVsPhi->setAxisTitle("seed #phi",1);
+    seedStoppingSourceVsPhi->setAxisTitle("fraction stopped",2);
+
+    histname = "StoppingSourceVsEta_"+seedProducer.label() + "_";
+    seedStoppingSourceVsEta = ibooker.bookProfile(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax, 2, 0., 2.);
+    seedStoppingSourceVsEta->setAxisTitle("seed #eta",1);
+    seedStoppingSourceVsEta->setAxisTitle("fraction stopped",2);
+
+    histname = "NumberOfTrajCandsPerSeed_"+seedProducer.label() + "_";
+    numberOfTrajCandsPerSeed = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, candsBin, candsMin, candsMax);
+    numberOfTrajCandsPerSeed->setAxisTitle("Number of Trajectory Candidate for each Seed", 1);
+    numberOfTrajCandsPerSeed->setAxisTitle("Number of Seeds", 2);
+
+    histname = "NumberOfTrajCandsPerSeedVsPhi_"+seedProducer.label() + "_";
+    numberOfTrajCandsPerSeedVsPhi = ibooker.bookProfile(histname+CatagoryName, histname+CatagoryName, PhiBin, PhiMin, PhiMax, candsBin, candsMin, candsMax);
+    numberOfTrajCandsPerSeedVsPhi->setAxisTitle("Seed #phi", 1);
+    numberOfTrajCandsPerSeedVsPhi->setAxisTitle("Number of Trajectory Candidates for each Seed", 2);
+
+    histname = "NumberOfTrajCandsPerSeedVsEta_"+seedProducer.label() + "_";
+    numberOfTrajCandsPerSeedVsEta = ibooker.bookProfile(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax, candsBin, candsMin, candsMax);
+    numberOfTrajCandsPerSeedVsEta->setAxisTitle("Seed #eta", 1);
+    numberOfTrajCandsPerSeedVsEta->setAxisTitle("Number of Trajectory Candidates for each Seed", 2);
+
+    histname = "SeedStoppingSourceVsNumberOfTrajCandsPerSeed_"+seedProducer.label() + "_";
+    seedStoppingSourceVsNumberOfTrajCandsPerSeed = ibooker.book2D(histname+CatagoryName, histname+CatagoryName, candsBin, candsMin, candsMax, stopReasonSize, 0, stopReasonSize);
+    seedStoppingSourceVsNumberOfTrajCandsPerSeed->setAxisTitle("Number of Trajectory Candidates for each Seed", 1);
+
+    for(unsigned int i=0; i<stopReasonSize; ++i) {
+      seedStoppingSource->setBinLabel(i+1, SeedStopReasonName::SeedStopReasonName[i], 1);
+      seedStoppingSourceVsNumberOfTrajCandsPerSeed->setBinLabel(i+1, SeedStopReasonName::SeedStopReasonName[i], 2);
+    }
+  }
+
   if (doAllTCPlots || doStopSource) {
     // DataFormats/TrackReco/interface/TrajectoryStopReasons.h
     size_t StopReasonNameSize = sizeof(StopReasonName::StopReasonName)/sizeof(std::string);
-    if(StopReasonNameSize != static_cast<unsigned int>(StopReason::SIZE)) {
-      throw cms::Exception("Assert") << "StopReason::SIZE is " << static_cast<unsigned int>(StopReason::SIZE)
-				     << " but StopReasonName's only for "
-				     << StopReasonNameSize
-				     << ". Please update DataFormats/TrackReco/interface/TrajectoryStopReasons.h.";
-    }
-    
     
     histname = "StoppingSource_"+seedProducer.label() + "_";
     stoppingSource = ibooker.book1D(histname+CatagoryName,
@@ -422,6 +439,7 @@ void TrackBuildingAnalyzer::analyze
     const edm::Event& iEvent,
     const edm::EventSetup& iSetup,
     const TrajectorySeed& candidate,
+    const SeedStopInfo& stopInfo,
     const reco::BeamSpot& bs,
     const edm::ESHandle<MagneticField>& theMF,
     const edm::ESHandle<TransientTrackingRecHitBuilder>& theTTRHBuilder
@@ -467,7 +485,19 @@ void TrackBuildingAnalyzer::analyze
   if (doAllSeedPlots || doNRecHits) NumberOfRecHitsPerSeed->Fill( numberOfHits );
   if (doAllSeedPlots || doProfETA) NumberOfRecHitsPerSeedVsEtaProfile->Fill( eta, numberOfHits );
   if (doAllSeedPlots || doProfPHI) NumberOfRecHitsPerSeedVsPhiProfile->Fill( phi, numberOfHits );
-  
+  if (doAllSeedPlots || doStopSource) {
+    const double stopped = stopInfo.stopReason() == SeedStopReason::NOT_STOPPED ? 0. : 1.;
+    seedStoppingSource->Fill(stopInfo.stopReasonUC());
+    seedStoppingSourceVsPhi->Fill(phi, stopped);
+    seedStoppingSourceVsEta->Fill(eta, stopped);
+
+    const auto ncands = stopInfo.candidatesPerSeed();
+    numberOfTrajCandsPerSeed->Fill(ncands);
+    numberOfTrajCandsPerSeedVsPhi->Fill(phi, ncands);
+    numberOfTrajCandsPerSeedVsEta->Fill(eta, ncands);
+
+    seedStoppingSourceVsNumberOfTrajCandsPerSeed->Fill(ncands, stopInfo.stopReasonUC());
+  }
 }
 
 // -- Analyse

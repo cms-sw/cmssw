@@ -40,22 +40,22 @@ static const UInt_t kColOptions = kLHintsExpandY|kLHintsFillY|kLHintsShrinkY;
 FWTableWidget::FWTableWidget(FWTableManagerBase* iManager,const TGWindow* p):
 TGCompositeFrame(p),
    m_bodyTable(iManager),
-   m_headerTable(iManager->hasLabelHeaders()?new FWAdapterHeaderTableManager(iManager): static_cast<FWTableManagerBase*>(0)),
-   m_rowHeaderTable(iManager->hasRowHeaders()?new FWAdapterRowHeaderTableManager(iManager): static_cast<FWTableManagerBase*>(0)),
-   m_header(0),
-   m_rowHeader(0),
+   m_headerTable(iManager->hasLabelHeaders()?new FWAdapterHeaderTableManager(iManager): static_cast<FWTableManagerBase*>(nullptr)),
+   m_rowHeaderTable(iManager->hasRowHeaders()?new FWAdapterRowHeaderTableManager(iManager): static_cast<FWTableManagerBase*>(nullptr)),
+   m_header(nullptr),
+   m_rowHeader(nullptr),
    m_showingVSlider(true),
    m_showingHSlider(true),
    m_sortedColumn(-1),
    m_descendingSort(true),
    m_forceLayout(false),
-   m_headerBackground(0),
-   m_headerForeground(0),
-   m_lineSeparator(0)
+   m_headerBackground(nullptr),
+   m_headerForeground(nullptr),
+   m_lineSeparator(nullptr)
 {
    SetLayoutManager( new TGTableLayout(this,3,3) );
    
-   if(0!=m_headerTable) {
+   if(nullptr!=m_headerTable) {
       m_header = new FWTabularWidget(m_headerTable,this);
       AddFrame(m_header, new TGTableLayoutHints(1,2,0,1,kLHintsTop|kLHintsLeft|kRowOptions));	
       if (m_bodyTable->cellDataIsSortable()) m_header->Connect("buttonReleased(Int_t,Int_t,Event_t*,Int_t,Int_t)","FWTableWidget",this,"buttonReleasedInHeader(Int_t,Int_t,Event_t*,Int_t,Int_t)");
@@ -67,7 +67,7 @@ TGCompositeFrame(p),
 
    //set sizes
    std::vector<unsigned int> columnWidths = m_body->widthOfTextInColumns();
-   if(0!=m_header) {
+   if(nullptr!=m_header) {
       std::vector<unsigned int> headerWidths = m_header->widthOfTextInColumns();
       for(std::vector<unsigned int>::iterator it = columnWidths.begin(), itEnd=columnWidths.end(), itHeader=headerWidths.begin();
           it != itEnd;
@@ -77,7 +77,7 @@ TGCompositeFrame(p),
          }
       }
    }
-   if(0!=m_header) {
+   if(nullptr!=m_header) {
       m_header->setWidthOfTextInColumns(columnWidths);
    }
    m_body->setWidthOfTextInColumns(columnWidths);
@@ -117,14 +117,14 @@ TGCompositeFrame(p),
 
 FWTableWidget::~FWTableWidget()
 {
-   if(0!=m_headerBackground) {
+   if(nullptr!=m_headerBackground) {
       gClient->GetResourcePool()->GetGCPool()->FreeGC(m_headerBackground->GetGC());
    }
-   if(0!= m_headerForeground) {
+   if(nullptr!= m_headerForeground) {
       gClient->GetResourcePool()->GetGCPool()->FreeGC(m_headerForeground->GetGC());
    }
    
-   if(0!= m_lineSeparator) {
+   if(nullptr!= m_lineSeparator) {
       gClient->GetResourcePool()->GetGCPool()->FreeGC(m_lineSeparator->GetGC());
    }
       
@@ -148,7 +148,7 @@ FWTableWidget::~FWTableWidget()
 void 
 FWTableWidget::sort(UInt_t iColumn, bool iDescendingSort)
 {
-   if(0!=m_headerTable) {
+   if(nullptr!=m_headerTable) {
       m_headerTable->sort(iColumn,iDescendingSort);
    }
    m_bodyTable->sort(iColumn,iDescendingSort);
@@ -179,24 +179,24 @@ FWTableWidget::SetBackgroundColor(Pixel_t iColor)
 void 
 FWTableWidget::SetHeaderBackgroundColor(Pixel_t iColor)
 {
-   if(0==m_headerBackground) {
+   if(nullptr==m_headerBackground) {
       GCValues_t t = *(gClient->GetResourcePool()->GetFrameGC()->GetAttributes());
       m_headerBackground = gClient->GetResourcePool()->GetGCPool()->GetGC(&t,kTRUE);
    }
    m_headerBackground->SetForeground(iColor);
-   if(0!=m_header) {
+   if(nullptr!=m_header) {
       m_header->setBackgroundAreaContext((*m_headerBackground)());
    }
 }
 void 
 FWTableWidget::SetHeaderForegroundColor(Pixel_t iColor)
 {
-   if(0==m_headerForeground) {
+   if(nullptr==m_headerForeground) {
       GCValues_t t = *(gClient->GetResourcePool()->GetFrameGC()->GetAttributes());
       m_headerForeground = gClient->GetResourcePool()->GetGCPool()->GetGC(&t,kTRUE);
    }
    m_headerForeground->SetForeground(iColor);
-   if(0!=m_header) {
+   if(nullptr!=m_header) {
       m_header->setLineContext((*m_headerForeground)());
    }
 }
@@ -204,7 +204,7 @@ FWTableWidget::SetHeaderForegroundColor(Pixel_t iColor)
 void 
 FWTableWidget::SetLineSeparatorColor(Pixel_t iColor)
 {
-   if(0==m_lineSeparator) {
+   if(nullptr==m_lineSeparator) {
       GCValues_t t = *(gClient->GetResourcePool()->GetFrameGC()->GetAttributes());
       m_lineSeparator = gClient->GetResourcePool()->GetGCPool()->GetGC(&t,kTRUE);
    }

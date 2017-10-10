@@ -1,6 +1,6 @@
 #include <cassert>
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 using namespace std;
 
@@ -59,13 +59,13 @@ MEGeom::getHist( int ilmr, int unit )
   //
   // to produce these root files, run the runGeom executable
   //
-  TH2* h_(0);
-  TFile* rootfile(0);
+  TH2* h_(nullptr);
+  TFile* rootfile(nullptr);
   TString hn_;
   if( ireg==ME::iEBM || ireg==ME::iEBP )
     {
       rootfile = TFile::Open("ebgeom.root");
-      assert( rootfile!=0 );
+      assert( rootfile!=nullptr );
       hn_="eb_loc";
       switch ( unit )
 	{
@@ -88,7 +88,7 @@ MEGeom::getHist( int ilmr, int unit )
 	  rootfile = TFile::Open("eegeom_1.root");
 	}
       if( ireg==ME::iEEP ) rootfile = TFile::Open("eegeom_2.root");
-      assert( rootfile!=0 );
+      assert( rootfile!=nullptr );
       hn_="eem_S"; hn_+= isect; 
       switch (unit)
 	{
@@ -127,13 +127,13 @@ MEGeom::getBoundary( int ilmr, int histtype )
   //
   // to produce these root files, run the runGeom executable
   //
-  TGraph* g_(0);
-  TFile* rootfile(0);
+  TGraph* g_(nullptr);
+  TFile* rootfile(nullptr);
   TString gn_;
   if( ireg==ME::iEBM || ireg==ME::iEBP )
     {
       rootfile = TFile::Open("ebgeom.root");
-      assert( rootfile!=0 );
+      assert( rootfile!=nullptr );
       switch (histtype)
 	{
 	case ME::iSector:             gn_ = "SuperModule"; break;
@@ -149,7 +149,7 @@ MEGeom::getBoundary( int ilmr, int histtype )
 	  rootfile = TFile::Open("eegeom_1.root");
 	}
       if( ireg==ME::iEEP ) rootfile = TFile::Open("eegeom_2.root");
-      assert( rootfile!=0 );
+      assert( rootfile!=nullptr );
       int lmr_= ilmr;
       if( ireg==ME::iEEP ) lmr_-=72;
       else if( ireg==ME::iEEM ) lmr_-=82;
@@ -168,7 +168,7 @@ MEGeom::drawHist( int ilmr, int histtype, TCanvas* canv )
 {
 
   TH2* h = getHist( ilmr, histtype );
-  assert( h!=0 );
+  assert( h!=nullptr );
   TString tname = h->GetTitle();
   switch( histtype )
     {
@@ -182,7 +182,7 @@ MEGeom::drawHist( int ilmr, int histtype, TCanvas* canv )
     case ME::iLVChannel: tname += " LV Channels"; break;
     }
   
-  if( canv==0 )
+  if( canv==nullptr )
     {
       TString cname = tname;
       cname.ReplaceAll(" ","_");
@@ -194,11 +194,11 @@ MEGeom::drawHist( int ilmr, int histtype, TCanvas* canv )
   h->Draw("COLZ");
 
   TGraph* gsect = getBoundary( ilmr, ME::iSector );
-  assert( gsect!=0 );
+  assert( gsect!=nullptr );
   gsect->SetLineWidth( 1 );
   gsect->Draw("LSame");
   TGraph* gside = getBoundary( ilmr, ME::iLMRegion );
-  assert( gside!=0 );
+  assert( gside!=nullptr );
   gside->SetLineWidth( 2 );
   gside->Draw("LSame");
 }
@@ -253,7 +253,7 @@ MEGeom::setBinGlobalHist( TH2* h, int ix, int iy, int iz, float val )
 void
 MEGeom::drawGlobalBoundaries( int lineColor )
 {
-  TGraph* gr(0);
+  TGraph* gr(nullptr);
   for( int ism=1; ism<=36; ism++ )
     {
       gr = MEEBGeom::getGraphBoundary( MEEBGeom::iSuperModule, ism, true );

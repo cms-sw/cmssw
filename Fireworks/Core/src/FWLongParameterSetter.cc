@@ -14,7 +14,7 @@
 #include "TGLabel.h"
 #include "TGNumberEntry.h"
 
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 
 // user include files
@@ -33,8 +33,8 @@
 // constructors and destructor
 //
 FWLongParameterSetter::FWLongParameterSetter() :
-   m_param(0),
-   m_widget(0)
+   m_param(nullptr),
+   m_widget(nullptr)
 {
 }
 
@@ -67,7 +67,7 @@ void
 FWLongParameterSetter::attach(FWParameterBase* iParam)
 {
    m_param = dynamic_cast<FWLongParameter*>(iParam);
-   assert(0!=m_param);
+   assert(nullptr!=m_param);
 }
 
 TGFrame*
@@ -130,8 +130,8 @@ FWLongParameterSetter::doUpdate(Long_t)
    gClient->ProcessEventsFor((TGWindow*)gTQSender);
    in_update = false;
       
-   assert(0!=m_param);
-   assert(0!=m_widget);
+   assert(nullptr!=m_param);
+   assert(nullptr!=m_widget);
    //std::cout <<m_widget->GetNumberEntry()->GetNumber()<<std::endl;
    m_param->set(m_widget->GetNumberEntry()->GetIntNumber());
    update();

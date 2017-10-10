@@ -21,11 +21,11 @@
 class RPCRecHitProbability : public DQMEDAnalyzer {
  public:
   explicit RPCRecHitProbability( const edm::ParameterSet&);
-  ~RPCRecHitProbability();
+  ~RPCRecHitProbability() override;
   
  protected:
   
-  virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
    
  private:

@@ -18,7 +18,7 @@
 class BTagPerformanceHarvester: public DQMEDHarvester {
    public:
       explicit BTagPerformanceHarvester(const edm::ParameterSet& pSet);
-      ~BTagPerformanceHarvester();
+      ~BTagPerformanceHarvester() override;
 
    private:
       void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;

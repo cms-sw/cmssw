@@ -13,44 +13,44 @@ public:
                      const TransientTrackingRecHit::ConstRecHitPointer originalHit,
                      const TrackingRecHitPropagator* propagator);
 
-  virtual AlgebraicSymMatrix parametersError() const {
+  AlgebraicSymMatrix parametersError() const override {
     return HelpertRecHit2DLocalPos().parError( localPositionError(), *det()); 
   }
 
   //virtual ~GenericProjectedRecHit2D(){delete theOriginalTransientHit;}
 
-  virtual AlgebraicVector parameters() const ;
+  AlgebraicVector parameters() const override ;
 
-  virtual LocalPoint localPosition() const {return theLp;}
+  LocalPoint localPosition() const override {return theLp;}
 
-  virtual LocalError localPositionError() const {return theLe;}  
+  LocalError localPositionError() const override {return theLe;}  
 
-  virtual AlgebraicMatrix projectionMatrix() const {return theProjectionMatrix;} 	
+  AlgebraicMatrix projectionMatrix() const override {return theProjectionMatrix;} 	
 
   virtual DetId geographicalId() const {return det() ? det()->geographicalId() : DetId();}
 
-  virtual int dimension() const {return theDimension;}
+  int dimension() const override {return theDimension;}
 
   //this hit lays on the original surface, NOT on the projection surface
-  virtual const TrackingRecHit * hit() const { return theOriginalTransientHit->hit(); }	
+  const TrackingRecHit * hit() const override { return theOriginalTransientHit->hit(); }	
 
-  virtual TrackingRecHit * cloneHit() const { return theOriginalTransientHit->cloneHit(); }	
+  TrackingRecHit * cloneHit() const override { return theOriginalTransientHit->cloneHit(); }	
 
   virtual bool isValid() const{return true;}
 
-  virtual std::vector<const TrackingRecHit*> recHits() const {
+  std::vector<const TrackingRecHit*> recHits() const override {
   	//return theOriginalTransientHit->hit()->recHits();
 	return std::vector<const TrackingRecHit*>();
   }
 
-  virtual std::vector<TrackingRecHit*> recHits() {
+  std::vector<TrackingRecHit*> recHits() override {
 	//should it do something different?
         return std::vector<TrackingRecHit*>();
   }
 
   const TrackingRecHitPropagator* propagator() const {return thePropagator;}
 
-  virtual bool canImproveWithTrack() const {return true;} 
+  bool canImproveWithTrack() const override {return true;} 
    
   const GeomDet* originalDet() const {return theOriginalDet;}
 
@@ -74,7 +74,7 @@ private:
   //const TrackingRecHit* theOriginalHit;
   int theDimension; 
 
-  virtual GenericProjectedRecHit2D* clone() const {
+  GenericProjectedRecHit2D* clone() const override {
     return new GenericProjectedRecHit2D(*this);
   }
 

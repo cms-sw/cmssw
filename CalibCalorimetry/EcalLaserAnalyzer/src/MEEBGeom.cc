@@ -1,7 +1,7 @@
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
-#include <assert.h>
+#include <cassert>
 using namespace std;
 
 #include "CalibCalorimetry/EcalLaserAnalyzer/interface/ME.h"

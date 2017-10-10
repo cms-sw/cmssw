@@ -20,9 +20,9 @@ from DQMOffline.Trigger.HLTTauDQMOffline_cff import *
 from DQMOffline.Trigger.JetMETHLTOfflineAnalyzer_cff import *
 
 # BTV
-from DQMOffline.Trigger.BTVHLTOfflineSource_cfi import *
+from DQMOffline.Trigger.BTVHLTOfflineSource_cff import *
 
-from DQMOffline.Trigger.FSQHLTOfflineSource_cfi import *
+from DQMOffline.Trigger.FSQHLTOfflineSource_cff import *
 from DQMOffline.Trigger.HILowLumiHLTOfflineSource_cfi import *
 
 # TnP
@@ -82,14 +82,14 @@ from DQMOffline.Trigger.BPHMonitor_cff import *
 from DQMOffline.Trigger.topHLTOfflineDQM_cff import *
 from DQMOffline.Trigger.JetMETPromptMonitor_cff import *
 
-offlineHLTSource = cms.Sequence(
+# offline DQM for running also on AOD (w/o the need of the RECO step on-the-fly)
+## ADD here sequences/modules which rely ONLY on collections stored in the AOD format
+offlineHLTSourceOnAOD = cms.Sequence(
     hltResults *
     lumiMonitorHLTsequence *
-    hcalMonitoringSequence *
-    egHLTOffDQMSource *
+    egHLTOffDQMSource * ## NEEDED in VALIDATION, not really in MONITORING
     muonFullOfflineDQM *
     HLTTauDQMOffline *
-    jetMETHLTOfflineAnalyzer * 
     fsqHLTOfflineSourceSequence *
     HILowLumiHLTOfflineSourceSequence *
     hltInclusiveVBFSource *
@@ -98,7 +98,7 @@ offlineHLTSource = cms.Sequence(
     topHLTriggerOfflineDQM *
     eventshapeDQMSequence *
     HeavyIonUCCDQMSequence *
-    hotlineDQMSequence *
+#    hotlineDQMSequence * ## ORPHAN !!!!
     egammaMonitorHLT * 
     exoticaMonitorHLT *
     susyMonitorHLT *
@@ -110,9 +110,54 @@ offlineHLTSource = cms.Sequence(
     bphMonitorHLT *
     hltObjectsMonitor *
     jetmetMonitorHLT
-    )
+)
+
+# offline DQM for running in the standard RECO,DQM (in PromptReco, ReReco, relval, etc)
+## THIS IS THE SEQUENCE TO BE RUN AT TIER0
+## ADD here only sequences/modules which rely on transient collections produced by the RECO step
+## and not stored in the AOD format
+offlineHLTSource = cms.Sequence(
+    offlineHLTSourceOnAOD
+    + hcalMonitoringSequence
+    + jetMETHLTOfflineAnalyzer
+)
+
+# offline DQM to be run on AOD (w/o the need of the RECO step on-the-fly) only in the VALIDATION of the HLT menu based on data
+# it is needed in order to have the DQM code in the release, w/o the issue of crashing the tier0
+# asa the new modules in the sequence offlineHLTSourceOnAODextra are tested,
+# these have to be migrated in the main offlineHLTSourceOnAOD sequence
+offlineHLTSourceOnAODextra = cms.Sequence(
+### POG
+    btvHLTDQMSourceExtra
+    * egmHLTDQMSourceExtra
+    * jmeHLTDQMSourceExtra
+    * muoHLTDQMSourceExtra
+    * tauHLTDQMSourceExtra
+    * trkHLTDQMSourceExtra
+### PAG
+    * b2gHLTDQMSourceExtra
+    * bphHLTDQMSourceExtra
+    * exoHLTDQMSourceExtra
+    * higHLTDQMSourceExtra
+    * smpHLTDQMSourceExtra
+    * susHLTDQMSourceExtra
+    * topHLTDQMSourceExtra
+    * fsqHLTDQMSourceExtra
+#    * hinHLTDQMSourceExtra
+)
+
+# offline DQM to be run on AOD (w/o the need of the RECO step on-the-fly) in the VALIDATION of the HLT menu based on data
+# it is needed in order to have the DQM code in the release, w/o the issue of crashing the tier0
+# asa the new modules in the sequence offlineHLTSourceOnAODextra are tested
+# these have to be migrated in the main offlineHLTSourceOnAOD sequence
+offlineValidationHLTSource = cms.Sequence(
+    offlineHLTSourceOnAOD 
+    + offlineHLTSourceOnAODextra
+)
 
 # offline DQM for the HLTMonitoring stream
+## ADD here only sequences/modules which rely on HLT collections which are stored in the HLTMonitoring stream
+## and are not available in the standard RAW format
 dqmInfoHLTMon = cms.EDAnalyzer("DQMEventInfo",
     subSystemFolder = cms.untracked.string('HLT')
     )

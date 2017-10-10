@@ -16,7 +16,8 @@
   <class name="pat::Lepton<reco::BaseTau>" />
 
   <!-- PAT Objects, and embedded data  -->
-  <class name="pat::Electron"  ClassVersion="36">
+  <class name="pat::Electron"  ClassVersion="37">
+   <version ClassVersion="37" checksum="4284869321"/>
    <version ClassVersion="36" checksum="199321903"/>
    <version ClassVersion="35" checksum="482655666"/>
    <version ClassVersion="34" checksum="3720919820"/>
@@ -59,7 +60,9 @@
   </ioread>
 
 
-  <class name="pat::Muon"  ClassVersion="21">
+  <class name="pat::Muon"  ClassVersion="23">
+   <version ClassVersion="23" checksum="3471390119"/>
+   <version ClassVersion="22" checksum="1816533594"/>
    <version ClassVersion="21" checksum="1539691612"/>
    <version ClassVersion="20" checksum="357097717"/>
    <version ClassVersion="19" checksum="2754486523"/>
@@ -105,7 +108,8 @@
    <version ClassVersion="10" checksum="2244564938"/>
   </class>
 
-  <class name="pat::IsolatedTrack" ClassVersion="4">
+  <class name="pat::IsolatedTrack" ClassVersion="5">
+   <version ClassVersion="5" checksum="139818330"/>
    <version ClassVersion="4" checksum="71166093"/>
    <version ClassVersion="3" checksum="550880582"/>
   </class>
@@ -303,7 +307,8 @@
   <class name="pat::PackedCandidate::PackedCovariance" ClassVersion="3">
    <version ClassVersion="3" checksum="3320406063"/>
   </class>
-  <class name="pat::PackedCandidate" ClassVersion="31">
+  <class name="pat::PackedCandidate" ClassVersion="32">
+   <version ClassVersion="32" checksum="926869123"/>
    <version ClassVersion="31" checksum="1248040002"/>
    <version ClassVersion="30" checksum="3338823671"/>
    <version ClassVersion="29" checksum="649303924"/>
@@ -413,6 +418,10 @@
   <class name="edm::Wrapper<edm::FwdPtr<pat::PackedCandidate> >" />
   <class name="edm::Wrapper<std::vector<edm::FwdPtr<pat::PackedCandidate> > >" />
 
+  <class name="edm::FwdPtr<pat::PackedGenParticle>" />
+  <class name="std::vector<edm::FwdPtr<pat::PackedGenParticle> >" />
+  <class name="edm::Wrapper<edm::FwdPtr<pat::PackedGenParticle> >" />
+  <class name="edm::Wrapper<std::vector<edm::FwdPtr<pat::PackedGenParticle> > >" />
 
   <!-- PAT Object Collections -->
   <class name="std::vector<pat::Electron>" />

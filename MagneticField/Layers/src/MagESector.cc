@@ -30,7 +30,7 @@ MagESector::~MagESector(){
 
 
 const MagVolume * MagESector::findVolume(const GlobalPoint & gp, double tolerance) const {
-  const MagVolume * result = 0;
+  const MagVolume * result = nullptr;
   float Z = gp.z();
 
   // FIXME : use a binfinder
@@ -50,8 +50,8 @@ const MagVolume * MagESector::findVolume(const GlobalPoint & gp, double toleranc
 	// break;  // FIXME: OK if sorted by maxZ
       }
     }
-    if (result!=0) return result;
+    if (result!=nullptr) return result;
   }
 
-  return 0;
+  return nullptr;
 }

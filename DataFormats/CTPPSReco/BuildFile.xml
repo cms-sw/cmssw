@@ -1,5 +1,6 @@
 <use name="DataFormats/Common"/>
 <use name="DataFormats/CTPPSDigi"/>
+<use name="DataFormats/Math"/>
 <use name="root"/>
 <use name="rootmath"/>
 

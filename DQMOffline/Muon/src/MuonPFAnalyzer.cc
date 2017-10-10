@@ -357,7 +357,7 @@ MonitorElement * MuonPFAnalyzer::getPlot(const string & group,
   if (groupIt == thePlots.end()) {
     LogTrace("MuonPFAnalyzer") << "[MuonPFAnalyzer] GROUP : " << group 
 			       << " is not a valid plot group. Returning 0.\n";
-    return 0;
+    return nullptr;
   }
   
   map<string,MonitorElement *>::iterator typeIt = groupIt->second.find(type);
@@ -365,7 +365,7 @@ MonitorElement * MuonPFAnalyzer::getPlot(const string & group,
     LogTrace("MuonPFAnalyzer") << "[MuonPFAnalyzer] TYPE : " << type 
 			       << " is not a valid type for GROUP : " << group 
 			       << ". Returning 0.\n";
-    return 0;
+    return nullptr;
   }
   
   return typeIt->second;
@@ -395,7 +395,7 @@ inline float MuonPFAnalyzer::fDeltaPhi(float phi1, float phi2) {
 void MuonPFAnalyzer::setCodeLabels(MonitorElement *plot, int nAxis) 
 {
 
-  TAxis *axis = 0;
+  TAxis *axis = nullptr;
   
   TH1 * histo = plot->getTH1();
   if(!histo) return;
@@ -423,7 +423,7 @@ void MuonPFAnalyzer::fillInRange(MonitorElement *plot, int nAxis, double x, doub
 
   TH1 * histo =  plot->getTH1();
   
-  TAxis *axis[2] = {0, 0};
+  TAxis *axis[2] = {nullptr, nullptr};
   axis[0] = histo->GetXaxis();
   if (nAxis == 2)
     axis[1] = histo->GetYaxis();
@@ -492,7 +492,7 @@ void MuonPFAnalyzer::recoToGenMatch( Handle<MuonCollection>        & muons,
 	{
       
 	  float bestDR = 999.;
-	  const GenParticle *bestGen = 0;
+	  const GenParticle *bestGen = nullptr;
 
 	  if (theRunOnMC && gens.isValid()) 
 	    {

@@ -1,7 +1,7 @@
 #include "CommonTools/Utils/interface/TMVAZipReader.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <cstdio>
 #include <cstdlib>
 #include "zlib.h"
@@ -21,7 +21,7 @@ bool reco::details::hasEnding(std::string const &fullString, std::string const &
 char* reco::details::readGzipFile(const std::string& weightFile)
 {
   FILE *f = fopen(weightFile.c_str(), "r");
-  if (f==NULL) {
+  if (f==nullptr) {
     throw cms::Exception("InvalidFileState")
       << "Failed to open MVA file = " << weightFile << " !!\n";
   }

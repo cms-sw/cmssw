@@ -110,6 +110,7 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
     iConfig.getParameter<double>("satelliteClusterSeedThreshold");
   double satelliteMajorityFraction = 
     iConfig.getParameter<double>("satelliteMajorityFraction");
+  bool dropUnseedable = iConfig.getParameter<bool>("dropUnseedable");
 
   superClusterAlgo_.setVerbosityLevel(verbose_);
   superClusterAlgo_.setClusteringType(_theclusteringtype);
@@ -136,6 +137,7 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
   superClusterAlgo_.setSatelliteMerging( doSatelliteClusterMerge );
   superClusterAlgo_.setSatelliteThreshold( satelliteClusterSeedThreshold );
   superClusterAlgo_.setMajorityFraction( satelliteMajorityFraction );
+  superClusterAlgo_.setDropUnseedable( dropUnseedable );
   //superClusterAlgo_.setThreshPFClusterMustacheOutBarrel( threshPFClusterMustacheOutBarrel );
   //superClusterAlgo_.setThreshPFClusterMustacheOutEndcap( threshPFClusterMustacheOutEndcap );
 
@@ -355,5 +357,6 @@ void PFECALSuperClusterProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<edm::InputTag>("barrelRecHits",edm::InputTag("ecalRecHit","EcalRecHitsEE"));
   desc.add<edm::InputTag>("endcapRecHits",edm::InputTag("ecalRecHit","EcalRecHitsEB"));
   desc.add<std::string>("PFSuperClusterCollectionEndcapWithPreshower","particleFlowSuperClusterECALEndcapWithPreshower");
+  desc.add<bool>("dropUnseedable",false);
   descriptions.add("particleFlowSuperClusterECALMustache",desc);
 }

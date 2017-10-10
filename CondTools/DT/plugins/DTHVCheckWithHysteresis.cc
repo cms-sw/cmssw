@@ -37,7 +37,7 @@ namespace cond { namespace service {
 DTHVCheckWithHysteresis::DTHVCheckWithHysteresis(
                            const edm::ParameterSet & iConfig, 
                            edm::ActivityRegistry & iAR ) {
-  if ( instance == 0 ) {
+  if ( instance == nullptr ) {
     std::cout << "create DTHVCheckWithHysteresis" << std::endl;
     minHVl = new float[4];
     minHVh = new float[4];

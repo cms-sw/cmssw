@@ -24,9 +24,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <TF1.h>
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 
 using namespace edm;
 using namespace std;

@@ -25,10 +25,10 @@ class MuonSelectionTypeValueMapProducer : public edm::stream::EDProducer<> {
             produces<edm::ValueMap<bool> >().setBranchAlias("muid"+selectionTypeLabel_);
 	    muonToken_ = consumes<reco::MuonCollection>(inputMuonCollection_);
         }
-        virtual ~MuonSelectionTypeValueMapProducer() {}
+        ~MuonSelectionTypeValueMapProducer() override {}
 
     private:
-        virtual void produce(edm::Event&, const edm::EventSetup&) override;
+        void produce(edm::Event&, const edm::EventSetup&) override;
 
         edm::InputTag inputMuonCollection_;
 	edm::EDGetTokenT<reco::MuonCollection> muonToken_;

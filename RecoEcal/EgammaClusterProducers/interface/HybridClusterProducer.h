@@ -23,9 +23,9 @@ class HybridClusterProducer : public edm::stream::EDProducer<>
 
       HybridClusterProducer(const edm::ParameterSet& ps);
 
-      ~HybridClusterProducer();
+      ~HybridClusterProducer() override;
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
    private:
       int nEvt_;         // internal counter of events

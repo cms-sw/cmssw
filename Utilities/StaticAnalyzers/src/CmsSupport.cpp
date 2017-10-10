@@ -24,17 +24,16 @@
 #define ERROR_RATE .0002
 
 
-using namespace clangcms;
 using namespace clang;
 using namespace llvm;
-bool support::isCmsLocalFile(const char* file)
+bool clangcms::support::isCmsLocalFile(const char* file)
 {
   static const char* LocalDir= std::getenv("LOCALRT");
   [[cms::thread_safe]] static int DirLen=-1;
   if (DirLen==-1)
   {
     DirLen=0;
-    if (LocalDir!=NULL) DirLen=strlen(LocalDir);
+    if (LocalDir!=nullptr) DirLen=strlen(LocalDir);
   }
   if ((DirLen==0) || (strncmp(file,LocalDir,DirLen)!=0) || (strncmp(&file[DirLen],"/src/",5)!=0)) return false;
   return true;
@@ -44,7 +43,7 @@ bool support::isCmsLocalFile(const char* file)
 // This is a wrapper around NamedDecl::getQualifiedNameAsString.
 // It produces more qualified output to distinguish several cases
 // which would otherwise be ambiguous.
-std::string support::getQualifiedName(const clang::NamedDecl &d) {
+std::string clangcms::support::getQualifiedName(const clang::NamedDecl &d) {
   std::string ret;
   const DeclContext *ctx = d.getDeclContext();
   if (ctx->isFunctionOrMethod() && isa<NamedDecl>(ctx))
@@ -109,7 +108,7 @@ std::string support::getQualifiedName(const clang::NamedDecl &d) {
 }
 
 
-bool support::isSafeClassName(const std::string &cname) {
+bool clangcms::support::isSafeClassName(const std::string &cname) {
 
   static const std::vector<std::string> names = {
     "atomic<",
@@ -147,14 +146,14 @@ bool support::isSafeClassName(const std::string &cname) {
   return false;
 }
 
-bool support::isDataClass(const std::string & name) {
+bool clangcms::support::isDataClass(const std::string & name) {
      [[cms::thread_safe]] static std::string iname("");
      if ( iname == "") {
           clang::FileSystemOptions FSO;
           clang::FileManager FM(FSO);
           const char * lPath = std::getenv("LOCALRT");
           const char * rPath = std::getenv("CMSSW_RELEASE_BASE");
-          if ( lPath == NULL || rPath == NULL ) {
+          if ( lPath == nullptr || rPath == nullptr ) {
                llvm::errs()<<"\n\nThe scram runtime envorinment is not set.\nRun 'cmsenv' or 'eval `scram runtime -csh`'.\n\n\n";
                exit(1);
           }
@@ -180,13 +179,13 @@ bool support::isDataClass(const std::string & name) {
      return false;
 }
 
-bool support::isInterestingLocation(const std::string & fname) {
+bool clangcms::support::isInterestingLocation(const std::string & fname) {
      if ( fname[0] == '<' && fname.find(".h")==std::string::npos ) return false;
      if ( fname.find("/test/") != std::string::npos ) return false;
      return true;
 }
 
-bool support::isKnownThrUnsafeFunc(const std::string &fname ) {
+bool clangcms::support::isKnownThrUnsafeFunc(const std::string &fname ) {
      static const std::vector<std::string> names = {
           "TGraph::Fit(const char *,", 
           "TGraph2D::Fit(const char *,", 
@@ -202,9 +201,9 @@ bool support::isKnownThrUnsafeFunc(const std::string &fname ) {
      return false;
 }
 
-void support::writeLog(const std::string &ostring,const std::string &tfstring) {
+void clangcms::support::writeLog(const std::string &ostring,const std::string &tfstring) {
      const char * pPath = std::getenv("LOCALRT");
-     if ( pPath == NULL ) {
+     if ( pPath == nullptr ) {
           llvm::errs()<<"\n\nThe scram runtime envorinment is not set.\nRun 'cmsenv' or 'eval `scram runtime -csh`'.\n\n\n";
           exit(1);
      }
@@ -220,12 +219,12 @@ void support::writeLog(const std::string &ostring,const std::string &tfstring) {
      return;
 }
 
-void support::fixAnonNS(std::string & name, const char * fname ){
+void clangcms::support::fixAnonNS(std::string & name, const char * fname ){
      const std::string anon_ns = "(anonymous namespace)";
      if (name.substr(0, anon_ns.size()) == anon_ns ) {
           const char* sname = "/src/";
           const char* filename = std::strstr(fname, sname);
-          if (filename != NULL) name = name.substr(0, anon_ns.size() - 1)+" in "+filename+")"+name.substr(anon_ns.size());
+          if (filename != nullptr) name = name.substr(0, anon_ns.size() - 1)+" in "+filename+")"+name.substr(anon_ns.size());
           }
      return;
 }

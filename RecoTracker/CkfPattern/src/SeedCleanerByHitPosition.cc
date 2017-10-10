@@ -7,7 +7,7 @@ void SeedCleanerByHitPosition::done() {
         // edm::LogInfo("SeedCleanerByHitPosition") << " Calls: " << calls_ << ", Tracks: " << tracks_ <<", Comps: " << comps_  << " Vault: " << trajectories->size() << ".";
         // calls_ = comps_ = tracks_ = 0;
 
-        trajectories = 0; 
+        trajectories = nullptr; 
 }
 bool SeedCleanerByHitPosition::good(const TrajectorySeed *seed) {
     const RecHitComparatorByPosition comp;

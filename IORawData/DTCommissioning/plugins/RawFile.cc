@@ -11,9 +11,9 @@
 
 using namespace std;
 
-RawFile::RawFile() : inputFile(0), xrootdFlag(false) {}
+RawFile::RawFile() : inputFile(nullptr), xrootdFlag(false) {}
 
-RawFile::RawFile(const char* path) : inputFile(0), xrootdFlag(false) {
+RawFile::RawFile(const char* path) : inputFile(nullptr), xrootdFlag(false) {
   open(path);
 }
 
@@ -27,7 +27,7 @@ RawFile* RawFile::open(const char* path) {
   //cout << " Prefix: " << prefix << endl;
 
   char* filename = prefix;
-  if (strlen(prefix)<strlen(path)) filename = strtok(0,":");
+  if (strlen(prefix)<strlen(path)) filename = strtok(nullptr,":");
   //cout << " Filename: " << filename << endl;
 
   if (strcmp(prefix,"root")==0) xrootdFlag = true;
@@ -58,7 +58,7 @@ int RawFile::close() {
   } else {
       flag = fclose(inputFile);
   }
-  inputFile = 0;
+  inputFile = nullptr;
   return flag;
 }
 
@@ -66,7 +66,7 @@ RawFile::~RawFile(){close();}
 
 FILE* RawFile::GetPointer(){ return inputFile;}
 
-bool RawFile::ok(){ return (inputFile!=0);}
+bool RawFile::ok(){ return (inputFile!=nullptr);}
 
 bool RawFile::fail(){ return !ok();}
 

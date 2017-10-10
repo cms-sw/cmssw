@@ -37,7 +37,7 @@ template <class T> T sqr( T t) {return t*t;}
 
 
 TSGFromL1Muon::TSGFromL1Muon(const edm::ParameterSet& cfg)
-  : theConfig(cfg),theHitGenerator(0),theMerger(0)
+  : theConfig(cfg),theHitGenerator(nullptr),theMerger(nullptr)
 {
   produces<L3MuonTrajectorySeedCollection>();
   theSourceTag = cfg.getParameter<edm::InputTag>("L1MuonLabel");

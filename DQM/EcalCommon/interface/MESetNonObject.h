@@ -8,16 +8,16 @@ namespace ecaldqm
   class MESetNonObject : public MESet
   {
   public :
-    MESetNonObject(std::string const&, binning::ObjectType, binning::BinningType, MonitorElement::Kind, binning::AxisSpecs const* = 0, binning::AxisSpecs const* = 0, binning::AxisSpecs const* = 0);
+    MESetNonObject(std::string const&, binning::ObjectType, binning::BinningType, MonitorElement::Kind, binning::AxisSpecs const* = nullptr, binning::AxisSpecs const* = nullptr, binning::AxisSpecs const* = nullptr);
     MESetNonObject(MESetNonObject const&);
-    ~MESetNonObject();
+    ~MESetNonObject() override;
 
     MESet& operator=(MESet const&) override;
 
     MESet* clone(std::string const& = "") const override;
 
     void book(DQMStore::IBooker&) override;
-    bool retrieve(DQMStore::IGetter&, std::string* = 0) const override;
+    bool retrieve(DQMStore::IGetter&, std::string* = nullptr) const override;
 
     void fill(double, double = 1., double = 1.) override;
 

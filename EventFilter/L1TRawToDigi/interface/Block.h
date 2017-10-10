@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "EventFilter/L1TRawToDigi/interface/AMCSpec.h"
+#include "DataFormats/L1Trigger/interface/BxBlock.h"
 
 namespace l1t {
    enum block_t { MP7 = 0, CTP7, MTF7 };
@@ -28,16 +29,16 @@ namespace l1t {
          uint32_t raw(block_t type=MP7) const;
 
       private:
-         static const unsigned int CTP7_shift = 0;
-         static const unsigned int CTP7_mask = 0xffff;
-         static const unsigned int ID_shift = 24;
-         static const unsigned int ID_mask = 0xff;
-         static const unsigned int size_shift = 16;
-         static const unsigned int size_mask = 0xff;
-         static const unsigned int capID_shift = 8;
-         static const unsigned int capID_mask = 0xff;
-         static const unsigned int flags_shift = 0;
-         static const unsigned int flags_mask = 0xff;
+         static constexpr unsigned CTP7_shift = 0;
+         static constexpr unsigned CTP7_mask = 0xffff;
+         static constexpr unsigned ID_shift = 24;
+         static constexpr unsigned ID_mask = 0xff;
+         static constexpr unsigned size_shift = 16;
+         static constexpr unsigned size_mask = 0xff;
+         static constexpr unsigned capID_shift = 8;
+         static constexpr unsigned capID_mask = 0xff;
+         static constexpr unsigned flags_shift = 0;
+         static constexpr unsigned flags_mask = 0xff;
 
          unsigned int id_;
          unsigned int size_;
@@ -50,8 +51,8 @@ namespace l1t {
       public:
          Block(const BlockHeader& h, const uint32_t * payload_start, const uint32_t * payload_end) :
             header_(h), payload_(payload_start, payload_end) {};
-         Block(unsigned int id, const std::vector<uint32_t>& payload, unsigned int capID=0, block_t type=MP7) :
-            header_(id, payload.size(), capID, type), payload_(payload) {};
+         Block(unsigned int id, const std::vector<uint32_t>& payload, unsigned int capID=0, unsigned int flags=0, block_t type=MP7) :
+            header_(id, payload.size(), capID, flags, type), payload_(payload) {};
 
          bool operator<(const Block& o) const { return header() < o.header(); };
 
@@ -63,6 +64,7 @@ namespace l1t {
          void amc(const amc::Header& h) { amc_ = h; };
          amc::Header amc() const { return amc_; };
 
+         BxBlocks getBxBlocks(unsigned int payloadWordsPerBx, bool bxHeader) const;
       private:
          BlockHeader header_;
          amc::Header amc_;
@@ -94,26 +96,26 @@ namespace l1t {
    class MP7Payload : public Payload {
       public:
          MP7Payload(const uint32_t * data, const uint32_t * end, bool legacy_mc=false);
-         virtual unsigned getHeaderSize() const override { return 1; };
-         virtual BlockHeader getHeader() override;
+         unsigned getHeaderSize() const override { return 1; };
+         BlockHeader getHeader() override;
    };
 
    class MTF7Payload : public Payload {
       public:
          MTF7Payload(const uint32_t * data, const uint32_t * end);
          // Unused methods - we override getBlock() instead
-         virtual unsigned getHeaderSize() const override { return 0; };
-         virtual BlockHeader getHeader() override { return BlockHeader(0); };
-         virtual std::unique_ptr<Block> getBlock() override;
+         unsigned getHeaderSize() const override { return 0; };
+         BlockHeader getHeader() override { return BlockHeader(nullptr); };
+         std::unique_ptr<Block> getBlock() override;
       private:
          // sizes in 16 bit words
-         static const unsigned int header_size = 12;
-         static const unsigned int counter_size = 4;
-         static const unsigned int trailer_size = 8;
+         static constexpr unsigned header_size = 12;
+         static constexpr unsigned counter_size = 4;
+         static constexpr unsigned trailer_size = 8;
 
          // maximum of the block length (64bits) and bit patterns of the
          // first bits (of 16bit words)
-         static const unsigned int max_block_length_ = 3;
+         static constexpr unsigned max_block_length_ = 3;
          static const std::vector<unsigned int> block_patterns_;
 
          int count(unsigned int pattern, unsigned int length) const;
@@ -123,12 +125,12 @@ namespace l1t {
    class CTP7Payload : public Payload {
       public:
          CTP7Payload(const uint32_t * data, const uint32_t * end);
-         virtual unsigned getHeaderSize() const override { return 2; };
-         virtual BlockHeader getHeader() override;
+         unsigned getHeaderSize() const override { return 2; };
+         BlockHeader getHeader() override;
       private:
          // FIXME check values
-         static const unsigned int size_mask = 0xff;
-         static const unsigned int size_shift = 16;
+         static constexpr unsigned size_mask = 0xff;
+         static constexpr unsigned size_shift = 16;
 
          unsigned size_;
    };

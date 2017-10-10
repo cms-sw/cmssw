@@ -1,7 +1,7 @@
 #include <EventFilter/DTRawToDigi/plugins/DTDigiToRaw.h>
 #include <DataFormats/DTDigi/interface/DTDDUWords.h>
 
-#include <math.h>
+#include <cmath>
 #include <iostream>
 
 using namespace edm;

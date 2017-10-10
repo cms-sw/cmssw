@@ -20,7 +20,8 @@ phase2_hgcal.toModify(
     PFBasicClusterCollectionEndcap = cms.string(""),
     PFSuperClusterCollectionEndcap = cms.string(""),
     PFSuperClusterCollectionEndcapWithPreshower = cms.string(""),
-    thresh_PFClusterEndcap = cms.double(1.5e-1) # 150 MeV threshold
+    thresh_PFClusterEndcap = cms.double(1.5e-1), # 150 MeV threshold
+    dropUnseedable = cms.bool(True),
 )
 
 particleFlowSuperClusterHGCalFromMultiCl = particleFlowSuperClusterHGCal.clone()

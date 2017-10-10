@@ -20,7 +20,7 @@ DQMOffline_Ele15_HT600 = cms.EDAnalyzer('LepHTMonitor',
                                               folderName = cms.string('HLT_Ele15_IsoVVVL_PFHT600'),
 
                                               jetPtCut = cms.untracked.double(30.0),
-                                              jetEtaCut = cms.untracked.double(3.0),
+                                              jetEtaCut = cms.untracked.double(2.5),
                                               metCut = cms.untracked.double(-1.0),
                                               htCut = cms.untracked.double(-1.0), 
                                               nels = cms.untracked.double(1),
@@ -171,7 +171,7 @@ fastSim.toModify(DQMOffline_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT350_DZ,conversio
 
 
 DQMOffline_LepHT_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
-                                                             subDirs = cms.untracked.vstring('HLT/LepHT/*'),
+                                                             subDirs = cms.untracked.vstring('HLT/SUSY/LepHT/*'),
                                                              efficiency = cms.vstring(
         "lepPtTurnOn_eff ';Offline lepton p_{T} [GeV];#epsilon' lepPtTurnOn_num lepPtTurnOn_den",
         "lepEtaTurnOn_eff ';Offline lepton #eta;#epsilon' lepEtaTurnOn_num lepEtaTurnOn_den",

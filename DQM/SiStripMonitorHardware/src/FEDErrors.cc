@@ -390,14 +390,14 @@ bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData,
 
    
   if (printDebug() && aPrintDebug>2) {
-    const sistrip::FEDBufferBase* debugBuffer = NULL;
+    const sistrip::FEDBufferBase* debugBuffer = nullptr;
 
     if (buffer.get()) debugBuffer = buffer.get();
     //else if (bufferBase.get()) debugBuffer = bufferBase.get();
     if (debugBuffer) {
       std::vector<FEDErrors::APVLevelErrors> & lChVec = getAPVLevelErrors();
       std::ostringstream debugStream;
-      if (lChVec.size()) {
+      if (!lChVec.empty()) {
 	std::sort(lChVec.begin(),lChVec.end());
         debugStream << "[FEDErrors] Cabled channels which had errors: ";
 	
@@ -858,7 +858,7 @@ void FEDErrors::fillEventProperties(long long dbx) {
 
 void FEDErrors::incrementLumiErrors(const bool hasError,
 				    const unsigned int aSubDet){
-  if (!lumiErr_.nTotal.size()) return;
+  if (lumiErr_.nTotal.empty()) return;
   if (aSubDet >= lumiErr_.nTotal.size()) {
     edm::LogError("SiStripMonitorHardware") << " -- FED " << fedID_ 
 					    << ", invalid subdetid : " << aSubDet

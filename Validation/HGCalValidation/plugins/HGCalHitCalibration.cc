@@ -76,7 +76,7 @@ class HGCalHitCalibration : public DQMEDAnalyzer {
   std::map<int, MonitorElement*> hgcal_photon_EoP_CPene_calib_fraction_;
   MonitorElement* LayerOccupancy_;
 
-  static const int layers_ = 60;
+  static constexpr int layers_ = 60;
   std::array<float, layers_> Energy_layer_calib_;
   std::array<float, layers_> Energy_layer_calib_fraction_;
 };

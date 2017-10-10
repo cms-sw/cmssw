@@ -14,7 +14,7 @@ const GEMGeometry::DetTypeContainer&  GEMGeometry::detTypes() const{
   return theEtaPartitionTypes;
 }
 
-const GEMGeometry::DetUnitContainer& GEMGeometry::detUnits() const{
+const GEMGeometry::DetContainer& GEMGeometry::detUnits() const{
   return theEtaPartitions;
 }
 
@@ -30,8 +30,8 @@ const GEMGeometry::DetIdContainer& GEMGeometry::detIds() const{
   return theDetIds;
 }
 
-const GeomDetUnit* GEMGeometry::idToDetUnit(DetId id) const{
-  return dynamic_cast<const GeomDetUnit*>(idToDet(id));
+const GeomDet* GEMGeometry::idToDetUnit(DetId id) const{
+  return dynamic_cast<const GeomDet*>(idToDet(id));
 }
 
 
@@ -101,46 +101,46 @@ const GEMEtaPartition* GEMGeometry::etaPartition(GEMDetId id) const{
 }
 
 void
-GEMGeometry::add(GEMRegion* region){
+GEMGeometry::add(const GEMRegion* region){
   allRegions.emplace_back(region);
 }
 
 void
-GEMGeometry::add(GEMStation* station){
+GEMGeometry::add(const GEMStation* station){
   allStations.emplace_back(station);
 }
 
 void
-GEMGeometry::add(GEMRing* ring){
+GEMGeometry::add(const GEMRing* ring){
   allRings.emplace_back(ring);
 }
 
 void
-GEMGeometry::add(GEMSuperChamber* superChamber){
+GEMGeometry::add(const GEMSuperChamber* superChamber){
   allSuperChambers.emplace_back(superChamber);
   theDets.emplace_back(superChamber);
   theDetIds.emplace_back(superChamber->geographicalId());
-  theMap.insert(std::pair<DetId,GeomDet*>
+  theMap.insert(std::pair<DetId,const GeomDet*>
   		(superChamber->geographicalId(),superChamber));
 }
 
 void
-GEMGeometry::add(GEMEtaPartition* etaPartition){
+GEMGeometry::add(const GEMEtaPartition* etaPartition){
   theDets.emplace_back(etaPartition);
   allEtaPartitions.emplace_back(etaPartition);
   theEtaPartitions.emplace_back(etaPartition);
   theEtaPartitionIds.emplace_back(etaPartition->geographicalId());
   theDetIds.emplace_back(etaPartition->geographicalId());
   theEtaPartitionTypes.emplace_back(&etaPartition->type());
-  theMap.insert(std::pair<DetId,const GeomDetUnit*>
+  theMap.insert(std::pair<DetId,const GeomDet*>
 		(etaPartition->geographicalId(),etaPartition));
 }
 
 void
-GEMGeometry::add(GEMChamber* chamber){
+GEMGeometry::add(const GEMChamber* chamber){
   allChambers.emplace_back(chamber);
   theDets.emplace_back(chamber);
   theDetIds.emplace_back(chamber->geographicalId());
-  theMap.insert(std::pair<DetId,GeomDet*>
+  theMap.insert(std::pair<DetId,const GeomDet*>
 		(chamber->geographicalId(),chamber));
 }

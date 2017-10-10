@@ -62,12 +62,12 @@ class SiStripFEDMonitorPlugin : public DQMEDAnalyzer
 {
  public:
   explicit SiStripFEDMonitorPlugin(const edm::ParameterSet&);
-  ~SiStripFEDMonitorPlugin();
+  ~SiStripFEDMonitorPlugin() override;
  private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
 				    const edm::EventSetup& context) override;
-  virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
 				  const edm::EventSetup& context) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
@@ -150,7 +150,7 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
   }
   
   //don;t generate debug mesages if debug is disabled
-  std::ostringstream* pDebugStream = (printDebug_>1 ? &debugStream : NULL);
+  std::ostringstream* pDebugStream = (printDebug_>1 ? &debugStream : nullptr);
   
   fedHists_.initialise(iConfig,pDebugStream);
 
@@ -319,7 +319,7 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
     for (unsigned int iP(0); iP<nParts; ++iP){
       //std::cout << " -- Partition " << iP << std::endl;
       //std::cout << " --- Number of elements in vec = " << lFeMajFrac[iP].size() << std::endl;
-      if (lFeMajFrac[iP].size()==0) continue;
+      if (lFeMajFrac[iP].empty()) continue;
       std::sort(lFeMajFrac[iP].begin(),lFeMajFrac[iP].end(),SiStripFEDMonitorPlugin::pairComparison);
 
       unsigned int lMajorityCounter = 0;
@@ -450,7 +450,7 @@ void SiStripFEDMonitorPlugin::getMajority(const std::vector<std::pair<unsigned i
     }
   }
   //std::cout << " -- Found " << lfedIds.size() << " elements not matching the majority." << std::endl;
-  if (afedIds.size()>0) {
+  if (!afedIds.empty()) {
     std::sort(afedIds.begin(),afedIds.end());
     std::vector<unsigned int>::iterator lIt = std::unique(afedIds.begin(),afedIds.end());
     afedIds.erase(lIt,afedIds.end());

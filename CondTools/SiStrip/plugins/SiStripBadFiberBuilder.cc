@@ -27,8 +27,6 @@ void SiStripBadFiberBuilder::algoAnalyze(const edm::Event & event, const edm::Ev
 
   SiStripDetInfoFileReader reader(fp_.fullPath());
   
-  const std::vector<uint32_t> DetIds = reader.getAllDetIds();
-
   std::stringstream ss;
   for(Parameters::iterator iBadComponent = BadComponentList_.begin(); iBadComponent != BadComponentList_.end(); ++iBadComponent ) {
     

@@ -39,7 +39,7 @@ double fnc_gaussalpha1alpha2(double*xx,double*pp);
 
 //______________________________________________________________________________
 JetResolution::JetResolution()
-  : resolutionFnc_(0)
+  : resolutionFnc_(nullptr)
 {
   resolutionFnc_ = new TF1();
 }
@@ -47,7 +47,7 @@ JetResolution::JetResolution()
 
 //______________________________________________________________________________
 JetResolution::JetResolution(const string& fileName,bool doGaussian)
-  : resolutionFnc_(0)
+  : resolutionFnc_(nullptr)
 {
   initialize(fileName,doGaussian);
 }
@@ -153,8 +153,8 @@ TF1* JetResolution::parameterEta(const string& parameterName, float eta)
 //______________________________________________________________________________
 TF1* JetResolution::parameter(const string& parameterName,const vector<float>& x)
 {
-  TF1* result(0);
-  for (unsigned i=0;i<parameterFncs_.size()&&result==0;i++) {
+  TF1* result(nullptr);
+  for (unsigned i=0;i<parameterFncs_.size()&&result==nullptr;i++) {
     string fncname = parameterFncs_[i]->GetName();
     if (fncname.find("f"+parameterName)==0) {
       stringstream ssname; ssname<<parameterFncs_[i]->GetName();
@@ -171,7 +171,7 @@ TF1* JetResolution::parameter(const string& parameterName,const vector<float>& x
     }
   }
 
-  if (0==result) cerr<<"JetResolution::parameter() ERROR: no parameter "
+  if (nullptr==result) cerr<<"JetResolution::parameter() ERROR: no parameter "
 		     <<parameterName<<" found."<<endl;
 
   return result;
@@ -181,8 +181,8 @@ TF1* JetResolution::parameter(const string& parameterName,const vector<float>& x
 //______________________________________________________________________________
 double JetResolution::parameterEtaEval(const std::string& parameterName, float eta, float pt)
 {
-  TF1* func(0);
-  JetCorrectorParameters* params(0);
+  TF1* func(nullptr);
+  JetCorrectorParameters* params(nullptr);
   for (std::vector<TF1*>::size_type ifunc = 0; ifunc < parameterFncs_.size(); ++ifunc)
     {
       std::string fncname = parameterFncs_[ifunc]->GetName();

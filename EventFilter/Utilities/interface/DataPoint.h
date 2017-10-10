@@ -15,8 +15,8 @@
 #include <vector>
 #include <memory>
 #include <atomic>
-#include <stdint.h>
-#include <assert.h>
+#include <cstdint>
+#include <cassert>
 
 //synchronization level between streams/threads for atomic updates
 //#define ATOMIC_LEVEL 2 //assume postEvent and postLumi are not synchronized (each invocation can run in different thread)
@@ -42,18 +42,18 @@ public:
 	DataPoint(std::string const& source, std::string const& definition, bool fast=false) :
                  source_(source), definition_(definition), isFastOnly_(fast) { }
 
-	~DataPoint();
+	~DataPoint() override;
 
 	/**
 	 * JSON serialization procedure for this class
 	 */
 
-	virtual void serialize(Json::Value& root) const;
+	void serialize(Json::Value& root) const override;
 
 	/**
 	 * JSON deserialization procedure for this class
 	 */
-	virtual void deserialize(Json::Value& root);
+	void deserialize(Json::Value& root) override;
 
 	std::vector<std::string>& getData() {return data_;}
 	std::string& getDefinition() {return definition_;}
@@ -151,7 +151,7 @@ protected:
 
 	unsigned int * nBinsPtr_ = nullptr;
 	int cacheI_;//int cache
-	bool isCached_=0;
+	bool isCached_=false;
 
 	unsigned int fastIndex_ = 0;
 

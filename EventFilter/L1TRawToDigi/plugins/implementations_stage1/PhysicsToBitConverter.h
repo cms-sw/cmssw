@@ -1,20 +1,20 @@
 #ifndef _PHYSICSTOBITCONVERTER_h
 #define _PHYSICSTOBITCONVERTER_h
 
-#include <stdio.h>
+#include <cstdio>
 #include <string>
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
-#include <stdint.h>
+#include <cstdint>
 #include <iomanip>
 #include <sstream>
 #include <vector>
 #include <array>
 #include <bitset>
-#include <stdint.h>
-#include <math.h>
+#include <cstdint>
+#include <cmath>
 #include "rctDataBase.h"
 
 namespace l1t{
