@@ -102,6 +102,7 @@ rawTagUntracked	= cms.untracked.InputTag("rawDataCollector")
 if isHeavyIon:
 	rawTag			= cms.InputTag("rawDataRepacker")
 	rawTagUntracked	= cms.untracked.InputTag("rawDataRepacker")
+	process.castorDigis.InputLabel = rawTag
 
 #	set the tag for default unpacker
 process.hcalDigis.InputLabel = rawTag
