@@ -1,6 +1,6 @@
 //-------------------------------------------------
 //
-//   Class: DTuROSRawToDigi2
+//   Class: DTuROSRawToDigiSliceTest
 //
 //   L1 DT uROS Raw-to-Digi
 //
@@ -13,7 +13,7 @@
 //
 //--------------------------------------------------
 
-#include "DTuROSRawToDigi2.h"
+#include "DTuROSRawToDigiSliceTest.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
@@ -26,7 +26,7 @@
 #include <iostream>
 
 
-DTuROSRawToDigi2::DTuROSRawToDigi2(const edm::ParameterSet& pset) {
+DTuROSRawToDigiSliceTest::DTuROSRawToDigiSliceTest(const edm::ParameterSet& pset) {
 
   produces<DTDigiCollection>("DTuROSDigis");
   produces<std::vector<DTuROSFEDData>>("DTuROSWords");
@@ -44,10 +44,10 @@ DTuROSRawToDigi2::DTuROSRawToDigi2(const edm::ParameterSet& pset) {
 }
 
 
-DTuROSRawToDigi2::~DTuROSRawToDigi2(){}
+DTuROSRawToDigiSliceTest::~DTuROSRawToDigiSliceTest(){}
 
 
-void DTuROSRawToDigi2::produce(edm::Event& e, const edm::EventSetup& c) {
+void DTuROSRawToDigiSliceTest::produce(edm::Event& e, const edm::EventSetup& c) {
 
   DTDigiCollection digis;
   std::vector<DTuROSFEDData> words;
@@ -63,7 +63,7 @@ void DTuROSRawToDigi2::produce(edm::Event& e, const edm::EventSetup& c) {
 }
 
 
-bool DTuROSRawToDigi2::fillRawData(edm::Event& e, const edm::EventSetup& c,
+bool DTuROSRawToDigiSliceTest::fillRawData(edm::Event& e, const edm::EventSetup& c,
                                   DTDigiCollection& digis, std::vector<DTuROSFEDData>& words) {
 
   edm::Handle<FEDRawDataCollection> data;
@@ -82,7 +82,7 @@ bool DTuROSRawToDigi2::fillRawData(edm::Event& e, const edm::EventSetup& c,
 }
 
 
-void DTuROSRawToDigi2::process(int DTuROSFED,
+void DTuROSRawToDigiSliceTest::process(int DTuROSFED,
                               edm::Handle<FEDRawDataCollection> data,
                               edm::ESHandle<DTReadOutMapping> mapping,
                               DTDigiCollection& digis,
@@ -398,7 +398,7 @@ void DTuROSRawToDigi2::process(int DTuROSFED,
 }
 
 
-int DTuROSRawToDigi2::theDDU(int crate, int slot, int link) {
+int DTuROSRawToDigiSliceTest::theDDU(int crate, int slot, int link) {
 
   if (slot > 7) return 773;
   if (slot < 7) return 774;
@@ -408,7 +408,7 @@ int DTuROSRawToDigi2::theDDU(int crate, int slot, int link) {
 }
 
 
-int DTuROSRawToDigi2::theROS(int crate, int slot, int link) {
+int DTuROSRawToDigiSliceTest::theROS(int crate, int slot, int link) {
 
   if (slot == 12) return 4;
   if (slot ==  9) return 5;
@@ -425,7 +425,7 @@ int DTuROSRawToDigi2::theROS(int crate, int slot, int link) {
 }
 
 
-int DTuROSRawToDigi2::theROB(int crate, int slot, int link) {
+int DTuROSRawToDigiSliceTest::theROB(int crate, int slot, int link) {
 
   int rob = link%24;
   if (slot == 12) rob = (link-60)%24;
@@ -442,7 +442,7 @@ int DTuROSRawToDigi2::theROB(int crate, int slot, int link) {
 }
 
 
-void DTuROSRawToDigi2::calcCRC(long word, int& myC) {
+void DTuROSRawToDigiSliceTest::calcCRC(long word, int& myC) {
 
   int myCRC[16], D[64], C[16];
 
@@ -543,4 +543,4 @@ void DTuROSRawToDigi2::calcCRC(long word, int& myC) {
 
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(DTuROSRawToDigi2);
+DEFINE_FWK_MODULE(DTuROSRawToDigiSliceTest);

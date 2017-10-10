@@ -1,17 +1,18 @@
 //-------------------------------------------------
 //
-/**  \class DTuROSDigiToRaw
+/**  \class DTuROSRawToDigiSliceTest
  *
  *   L1 DT uROS Raw-to-Digi
  *
  *
  *
+ *   C. Heidemann - RWTH Aachen
  *   J. Troconiz  - UAM Madrid
  */
 //
 //--------------------------------------------------
-#ifndef DTuROSRawToDigi_DTuROSDigiToRaw_h
-#define DTuROSRawToDigi_DTuROSDigiToRaw_h
+#ifndef DTuROSRawToDigi_DTuROSRawToDigiSliceTest_h
+#define DTuROSRawToDigi_DTuROSRawToDigiSliceTest_h
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -29,29 +30,29 @@
 #include <string>
 
 class DTReadOutMapping;
+class DTuROSFEDData;
 
 
-class DTuROSDigiToRaw : public edm::stream::EDProducer<> {
+class DTuROSRawToDigiSliceTest : public edm::stream::EDProducer<> {
 
 public:
 
   /// Constructor
-  DTuROSDigiToRaw(const edm::ParameterSet& pset);
+  DTuROSRawToDigiSliceTest(const edm::ParameterSet& pset);
 
   /// Destructor
-  ~DTuROSDigiToRaw() override ;
+  ~DTuROSRawToDigiSliceTest() override ;
 
   /// Produce digis out of raw data
   void produce(edm::Event& e, const edm::EventSetup& c) override ;
 
   /// Generate and fill FED raw data for a full event
-  bool fillRawData(edm::Event& e, const edm::EventSetup& c, FEDRawDataCollection& data);
+  bool fillRawData(edm::Event& e, const edm::EventSetup& c,
+                   DTDigiCollection& digis, std::vector<DTuROSFEDData>& words);
 
 private:
-
-  unsigned int eventNum; 
   
-  edm::InputTag DTDigiInputTag_;
+  edm::InputTag DTuROSInputTag_;
 
   bool debug_;
 
@@ -61,33 +62,34 @@ private:
 
   unsigned char* LineFED;
 
-  int bslts[13], dslts[13];
-
-  std::vector<int> wslts[13];
-
   // Operations
 
   //process data
 
   void process(int DTuROSFED,
-               edm::Handle<DTDigiCollection> digis,
+               edm::Handle<FEDRawDataCollection> data,
                edm::ESHandle<DTReadOutMapping> mapping,
-               FEDRawDataCollection& data);
+               DTDigiCollection& digis,
+               DTuROSFEDData& fwords);
 
   // utilities
-  void clear();
+  inline void readline(int& lines, long& dataWord) {
+    dataWord = *((long*)LineFED);
+    LineFED += 8;
+    ++lines;
+  }
 
-  void calcCRC(int myD1, int myD2, int& myC);
+  void calcCRC(long word, int& myC);
 
-  int theCRT(int ddu, int ros, int rob);
+  int theDDU(int crate, int slot, int link);
 
-  int theSLT(int ddu, int ros, int rob);
+  int theROS(int crate, int slot, int link);
 
-  int theLNK(int ddu, int ros, int rob);
+  int theROB(int crate, int slot, int link);
 
-  edm::InputTag getDTDigiInputTag() { return DTDigiInputTag_; }
+  edm::InputTag getDTuROSInputTag() { return DTuROSInputTag_; }
   
-  edm::EDGetTokenT<DTDigiCollection> Raw_token;
+  edm::EDGetTokenT<FEDRawDataCollection> Raw_token;
 
 };
 #endif
