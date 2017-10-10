@@ -11,8 +11,8 @@
  */
 //
 //--------------------------------------------------
-#ifndef DTuROSRawToDigi_DTuROSRawToDigi_h
-#define DTuROSRawToDigi_DTuROSRawToDigi_h
+#ifndef DTRawToDigi_DTuROSRawToDigi_h
+#define DTRawToDigi_DTuROSRawToDigi_h
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Common/interface/Handle.h"
