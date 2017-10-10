@@ -72,7 +72,7 @@ const GlobalPoint HGCellGeometry::getPosition(const DetId& id) const {
 //----------------------------------------------------------------------
 
 std::ostream& operator<<( std::ostream& s, const HGCellGeometry& cell0) {
-  FlatTrd cell(cell0);
+  const FlatTrd& cell(cell0);
   s << "Center: " << cell.getPosition() << " eta " << cell.etaPos()
     << " phi " << cell.phiPos() << std::endl;
   s << "Axis: " << cell.getThetaAxis() << " " << cell.getPhiAxis() <<std::endl;
