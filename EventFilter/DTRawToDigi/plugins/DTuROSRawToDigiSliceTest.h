@@ -11,8 +11,8 @@
  */
 //
 //--------------------------------------------------
-#ifndef DTuROSRawToDigi_DTuROSRawToDigiSliceTest_h
-#define DTuROSRawToDigi_DTuROSRawToDigiSliceTest_h
+#ifndef DTRawToDigi_DTuROSRawToDigiSliceTest_h
+#define DTRawToDigi_DTuROSRawToDigiSliceTest_h
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Common/interface/Handle.h"
