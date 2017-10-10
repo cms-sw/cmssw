@@ -24,17 +24,25 @@ from RecoTracker.ConversionSeedGenerators.ConversionStep_cff import *
 
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
-iterTrackingEarly = _cfg.createEarlySequence("", "", globals())
-for _eraName, _postfix, _era in _cfg.nonDefaultEras():
-    _era.toReplaceWith(iterTrackingEarly, _cfg.createEarlySequence(_eraName, _postfix, globals()))
+#iterTrackingEarly = _cfg.createEarlySequence("", "", globals())
+#for _eraName, _postfix, _era in _cfg.nonDefaultEras():
+#    _era.toReplaceWith(iterTrackingEarly, _cfg.createEarlySequence(_eraName, _postfix, globals()))
+#
 
-iterTracking = cms.Sequence(InitialStepPreSplitting*
-                            trackerClusterCheck*
-                            iterTrackingEarly*
-                            earlyGeneralTracks*
-                            muonSeededStep*
-                            preDuplicateMergingGeneralTracks*
-                            generalTracksSequence*
-                            ConvStep*
-                            conversionStepTracks
+iterTrackingEarlyTask = _cfg.createEarlyTask("", "", globals())
+for _eraName, _postfix, _era in _cfg.nonDefaultEras():
+    _era.toReplaceWith(iterTrackingEarlyTask, _cfg.createEarlyTask(_eraName, _postfix, globals()))
+iterTrackingEarly = cms.Sequence(iterTrackingEarlyTask)
+
+iterTrackingTask = cms.Task(InitialStepPreSplittingTask,
+                            trackerClusterCheck,
+                            earlyGeneralTracks,
+                            muonSeededStepTask,
+                            preDuplicateMergingGeneralTracks,
+                            generalTracksTask,
+                            ConvStepTask,
+                            conversionStepTracks,
+                            iterTrackingEarlyTask
                             )
+iterTracking = cms.Sequence(iterTrackingTask)
+#iterTracking += iterTrackingEarly

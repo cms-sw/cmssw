@@ -196,28 +196,29 @@ siPixelClusters = jetCoreClusterSplitter.clone(
 from RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi import siPixelRecHits
 from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import MeasurementTrackerEvent
 from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
-InitialStepPreSplitting = cms.Sequence(trackerClusterCheckPreSplitting*
-                                       initialStepSeedLayersPreSplitting*
-                                       initialStepTrackingRegionsPreSplitting*
-                                       initialStepHitDoubletsPreSplitting*
-                                       initialStepHitTripletsPreSplitting*
-                                       initialStepSeedsPreSplitting*
-                                       initialStepTrackCandidatesPreSplitting*
-                                       initialStepTracksPreSplitting*
-                                       firstStepPrimaryVerticesPreSplitting*
-                                       initialStepTrackRefsForJetsPreSplitting*
-                                       caloTowerForTrkPreSplitting*
-                                       ak4CaloJetsForTrkPreSplitting*
-                                       jetsForCoreTrackingPreSplitting*
-                                       siPixelClusters*
-                                       siPixelRecHits*
-                                       MeasurementTrackerEvent*
+InitialStepPreSplittingTask = cms.Task(trackerClusterCheckPreSplitting,
+                                       initialStepSeedLayersPreSplitting,
+                                       initialStepTrackingRegionsPreSplitting,
+                                       initialStepHitDoubletsPreSplitting,
+                                       initialStepHitTripletsPreSplitting,
+                                       initialStepSeedsPreSplitting,
+                                       initialStepTrackCandidatesPreSplitting,
+                                       initialStepTracksPreSplitting,
+                                       firstStepPrimaryVerticesPreSplitting,
+                                       initialStepTrackRefsForJetsPreSplitting,
+                                       caloTowerForTrkPreSplitting,
+                                       ak4CaloJetsForTrkPreSplitting,
+                                       jetsForCoreTrackingPreSplitting,
+                                       siPixelClusters,
+                                       siPixelRecHits,
+                                       MeasurementTrackerEvent,
                                        siPixelClusterShapeCache)
+InitialStepPreSplitting = cms.Sequence(InitialStepPreSplittingTask)
+_InitialStepPreSplittingTask_trackingPhase1 = InitialStepPreSplittingTask.copy()
+_InitialStepPreSplittingTask_trackingPhase1.replace(initialStepHitTripletsPreSplitting, cms.Task(initialStepHitTripletsPreSplitting,initialStepHitQuadrupletsPreSplitting))
+trackingPhase1.toReplaceWith(InitialStepPreSplittingTask, _InitialStepPreSplittingTask_trackingPhase1.copyAndExclude([initialStepHitTripletsPreSplitting]))
+trackingPhase1QuadProp.toReplaceWith(InitialStepPreSplittingTask, _InitialStepPreSplittingTask_trackingPhase1)
 
-_InitialStepPreSplitting_trackingPhase1 = InitialStepPreSplitting.copy()
-_InitialStepPreSplitting_trackingPhase1.replace(initialStepHitTripletsPreSplitting, initialStepHitTripletsPreSplitting*initialStepHitQuadrupletsPreSplitting)
-trackingPhase1.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_trackingPhase1.copyAndExclude([initialStepHitTripletsPreSplitting]))
-trackingPhase1QuadProp.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_trackingPhase1)
 
 # Although InitialStepPreSplitting is not really part of LowPU/Run1/Phase2PU140
 # tracking, we use it to get siPixelClusters and siPixelRecHits
@@ -238,11 +239,11 @@ from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
 trackingLowPU.toReplaceWith(siPixelClusters, _siPixelClusters)
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 trackingPhase2PU140.toReplaceWith(siPixelClusters, _siPixelClusters)
-_InitialStepPreSplitting_LowPU_Phase2PU140 = cms.Sequence(
-    siPixelClusters +
-    siPixelRecHits +
-    MeasurementTrackerEvent +
+_InitialStepPreSplittingTask_LowPU_Phase2PU140 = cms.Task(
+    siPixelClusters ,
+    siPixelRecHits ,
+    MeasurementTrackerEvent ,
     siPixelClusterShapeCache
 )
-trackingLowPU.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_LowPU_Phase2PU140)
-trackingPhase2PU140.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_LowPU_Phase2PU140)
+trackingLowPU.toReplaceWith(InitialStepPreSplittingTask, _InitialStepPreSplittingTask_LowPU_Phase2PU140)
+trackingPhase2PU140.toReplaceWith(InitialStepPreSplittingTask, _InitialStepPreSplittingTask_LowPU_Phase2PU140)

@@ -26,10 +26,11 @@ gedElPFIsoDepositNeutral=isoDepositReplace('gedGsfElectronsTmp','pfAllNeutralHad
 gedElPFIsoDepositGamma=isoDepositReplace('gedGsfElectronsTmp','pfAllPhotons')
 gedElPFIsoDepositPU=isoDepositReplace('gedGsfElectronsTmp','pfPileUpAllChargedParticles')
 
-gedElectronPFIsolationDepositsSequence = cms.Sequence(
-    gedElPFIsoDepositCharged+
-    gedElPFIsoDepositChargedAll+
-    gedElPFIsoDepositGamma+
-    gedElPFIsoDepositNeutral+
+gedElectronPFIsolationDepositsTask = cms.Task(
+    gedElPFIsoDepositCharged,
+    gedElPFIsoDepositChargedAll,
+    gedElPFIsoDepositGamma,
+    gedElPFIsoDepositNeutral,
     gedElPFIsoDepositPU
     )
+gedElectronPFIsolationDepositsSequence = cms.Sequence(gedElectronPFIsolationDepositsTask)

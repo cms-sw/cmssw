@@ -177,9 +177,10 @@ gedElPFIsoValuePU03 = cms.EDProducer("PFCandIsolatorFromDeposits",
    )
 )
 
-gedElectronPFIsolationValuesSequence = cms.Sequence (
-    gedElPFIsoValueCharged03+
-    gedElPFIsoValueChargedAll03+
-    gedElPFIsoValueGamma03+
-    gedElPFIsoValueNeutral03+
+gedElectronPFIsolationValuesTask = cms.Task (
+    gedElPFIsoValueCharged03,
+    gedElPFIsoValueChargedAll03,
+    gedElPFIsoValueGamma03,
+    gedElPFIsoValueNeutral03,
     gedElPFIsoValuePU03 )
+gedElectronPFIsolationValuesSequence = cms.Sequence (gedElectronPFIsolationValuesTask)

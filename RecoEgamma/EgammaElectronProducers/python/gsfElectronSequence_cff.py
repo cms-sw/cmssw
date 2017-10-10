@@ -8,9 +8,13 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoEgamma.EgammaElectronProducers.gsfElectronModules_cff import *
 gsfElectronSequence = cms.Sequence(ecalDrivenGsfElectronCores*ecalDrivenGsfElectrons*gsfElectronCores*gsfElectrons)
-gsfEcalDrivenElectronSequence = cms.Sequence(ecalDrivenGsfElectronCores*ecalDrivenGsfElectrons)
-_gsfEcalDrivenElectronSequenceFromMultiCl = gsfEcalDrivenElectronSequence.copy()
-_gsfEcalDrivenElectronSequenceFromMultiCl += cms.Sequence(ecalDrivenGsfElectronCoresFromMultiCl*ecalDrivenGsfElectronsFromMultiCl)
+
+gsfEcalDrivenElectronTask = cms.Task(ecalDrivenGsfElectronCores,ecalDrivenGsfElectrons)
+gsfEcalDrivenElectronSequence = cms.Sequence(gsfEcalDrivenElectronTask)
+
+_gsfEcalDrivenElectronTaskFromMultiCl = gsfEcalDrivenElectronTask.copy()
+_gsfEcalDrivenElectronTaskFromMultiCl.add(ecalDrivenGsfElectronCoresFromMultiCl,ecalDrivenGsfElectronsFromMultiCl)
+_gsfEcalDrivenElectronSequenceFromMultiCl = cms.Sequence(_gsfEcalDrivenElectronTaskFromMultiCl)
 
 #gsfElectronMergingSequence = cms.Sequence(gsfElectronCores*gsfElectrons)
 

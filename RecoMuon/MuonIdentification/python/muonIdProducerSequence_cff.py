@@ -21,4 +21,3 @@ from RecoMuon.MuonIdentification.cosmics_id import *
 
 from RecoMuon.MuonIdentification.muonShowerInformationProducer_cff import *
 muonIdProducerSequence = cms.Sequence(glbTrackQual*muons1stStep*muonEcalDetIds*muonShowerInformation)
-

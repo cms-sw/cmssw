@@ -7,7 +7,7 @@
 #############################
 
 import FWCore.ParameterSet.Config as cms
-from FWCore.ParameterSet.SequenceTypes import _SequenceCollection
+from FWCore.ParameterSet.SequenceTypes import _SequenceCollection, ModuleNodeVisitor, TaskVisitor
 
 # import standard reconstruction
 # apply modifications before doing the actual import at the end
@@ -51,14 +51,69 @@ _reco.ecalUncalibRecHitSequence.remove(_reco.ecalDetIdToBeRecovered)
 # Changes to tracking sequences
 ##########################################
 # modules to be removed
-_mod2del = _reco.trackingGlobalReco.expandAndClone()._seq._collection
-_mod2del.append(_reco.trackingGlobalReco)
-_mod2del.extend(_reco.recopixelvertexing.expandAndClone()._seq._collection)
-_mod2del.append(_reco.MeasurementTrackerEventPreSplitting)
+_mods = []
+_visitor = ModuleNodeVisitor(_mods)
+_reco.recopixelvertexing.visit(_visitor)
+_reco.trackingGlobalReco.visit(_visitor)
+
 # actually we want to keep a few modules that we need to run (again) after mixing) 
-for _entry in [_reco.firstStepPrimaryVerticesUnsorted,_reco.firstStepPrimaryVertices,_reco.ak4CaloJetsForTrk,_reco.caloTowerForTrk,_reco.initialStepTrackRefsForJets,_reco.trackExtrapolator]:
-    while _entry in _mod2del:
-        _mod2del.remove(_entry)
+_entry = [_reco.firstStepPrimaryVerticesUnsorted,_reco.firstStepPrimaryVertices,_reco.ak4CaloJetsForTrk,_reco.caloTowerForTrk,_reco.initialStepTrackRefsForJets,_reco.trackExtrapolator]
+
+for _key,_value in _reco.__dict__.items():
+    if _value in _mods and _value not in _entry:
+        delattr(_reco,_key)
+
+_mod2del.append(_reco.recopixelvertexing)
+_mod2del.append(_reco.trackingGlobalReco)
+_mod2del.append(_reco.MeasurementTrackerEventPreSplitting)
+_mod2del.append(_reco.PixelLessStep)
+_mod2del.append(_reco.PixelLessStepTask)
+_mod2del.append(_reco.JetCoreRegionalStep)
+_mod2del.append(_reco.JetCoreRegionalStepTask)
+_mod2del.append(_reco.pixelTracksSequence)
+_mod2del.append(_reco.muonSeededStep)
+_mod2del.append(_reco.muonSeededStepTask)
+_mod2del.append(_reco.muonSeededStepExtra)
+_mod2del.append(_reco.muonSeededStepExtraTask)
+_mod2del.append(_reco.muonSeededStepExtraInOut)
+_mod2del.append(_reco.muonSeededStepExtraInOutTask)
+_mod2del.append(_reco.muonSeededStepCore)
+_mod2del.append(_reco.muonSeededStepCoreTask)
+_mod2del.append(_reco.muonSeededStepCoreInOut)
+_mod2del.append(_reco.muonSeededStepCoreInOutTask)
+_mod2del.append(_reco.muonSeededStepCoreOutIn)
+_mod2del.append(_reco.muonSeededStepCoreOutInTask)
+_mod2del.append(_reco.iterTrackingEarly)
+_mod2del.append(_reco.iterTrackingEarlyTask)
+_mod2del.append(_reco.PixelPairStep)
+_mod2del.append(_reco.PixelPairStepTask)
+_mod2del.append(_reco.ckftracks_wodEdX)
+_mod2del.append(_reco.ckftracks_woBH)
+_mod2del.append(_reco.ckftracks)
+_mod2del.append(_reco.TobTecStep)
+_mod2del.append(_reco.TobTecStepTask)
+_mod2del.append(_reco.MixedTripletStep)
+_mod2del.append(_reco.MixedTripletStepTask)
+_mod2del.append(_reco.ConvStep)
+_mod2del.append(_reco.ConvStepTask)
+_mod2del.append(_reco.InitialStep)
+_mod2del.append(_reco.InitialStepTask)
+_mod2del.append(_reco.iterTracking)
+_mod2del.append(_reco.iterTrackingTask)
+_mod2del.append(_reco.generalTracksSequence)
+_mod2del.append(_reco.generalTracksTask)
+_mod2del.append(_reco.DetachedTripletStep)
+_mod2del.append(_reco.DetachedTripletStepTask)
+_mod2del.append(_reco.electronSeedsSeq)
+_mod2del.append(_reco.electronSeedsSeqTask)
+_mod2del.append(_reco.LowPtTripletStep)
+_mod2del.append(_reco.LowPtTripletStepTask)
+_mod2del.append(_reco.InitialStepPreSplitting)
+_mod2del.append(_reco.InitialStepPreSplittingTask)
+_mod2del.append(_reco.doAlldEdXEstimators)
+_mod2del.append(_reco.doAlldEdXEstimatorsTask)
+_mod2del.append(_reco.reconstruction_fromRECO)
+
 
 # remove tracking sequences from main reco sequences
 _reco.localreco.remove(_reco.trackerlocalreco)
@@ -95,7 +150,7 @@ _reco.globalreco.insert(0,_reco.newCombinedSeeds)
 # TODO: investigate whether the dependence on trajectories can be avoided
 import FastSimulation.Tracking.ElectronSeedTrackRefFix_cfi
 _trackerDrivenElectronSeeds = FastSimulation.Tracking.ElectronSeedTrackRefFix_cfi.fixedTrackerDrivenElectronSeeds.clone()
-_reco.electronSeeds.replace(_reco.trackerDrivenElectronSeeds,_reco.trackerDrivenElectronSeeds+_trackerDrivenElectronSeeds)
+_reco.electronSeedsTask.replace(_reco.trackerDrivenElectronSeeds,cms.Task(_reco.trackerDrivenElectronSeeds,_trackerDrivenElectronSeeds))
 _reco.trackerDrivenElectronSeedsTmp = _reco.trackerDrivenElectronSeeds
 _reco.trackerDrivenElectronSeedsTmp.TkColList = cms.VInputTag(cms.InputTag("generalTracksBeforeMixing"))
 _reco.trackerDrivenElectronSeeds = _trackerDrivenElectronSeeds
@@ -119,7 +174,7 @@ _reco.generalConversionTrackProducer.TrackProducer = 'generalTracksBeforeMixing'
 import FastSimulation.Tracking.ConversionTrackRefFix_cfi
 _conversionTrackRefFix = FastSimulation.Tracking.ConversionTrackRefFix_cfi.fixedConversionTracks.clone(
     src = cms.InputTag("generalConversionTrackProducerTmp"))
-_reco.conversionTrackSequenceNoEcalSeeded.replace(_reco.generalConversionTrackProducer,_reco.generalConversionTrackProducer+_conversionTrackRefFix)
+_reco.conversionTrackSequenceNoEcalSeededTask.replace(_reco.generalConversionTrackProducer,cms.Task(_reco.generalConversionTrackProducer,_conversionTrackRefFix))
 _reco.generalConversionTrackProducerTmp = _reco.generalConversionTrackProducer
 _reco.generalConversionTrackProducer = _conversionTrackRefFix
 
@@ -189,6 +244,11 @@ for _entry in _mod2del:
     for _key,_value in _reco.__dict__.items():
         _index = -1
         if isinstance(_value,cms.Sequence):
+            try:
+                _index = _value.index(_entry)
+            except:
+                pass
+        if isinstance(_value,cms.Task):
             try:
                 _index = _value.index(_entry)
             except:
