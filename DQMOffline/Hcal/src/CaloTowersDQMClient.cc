@@ -146,7 +146,6 @@ int CaloTowersDQMClient::CaloTowersEndjob(const std::vector<MonitorElement*> &hc
             phi_factor = 36.;
        }
 
-      std::cout << "sumphi = " << sumphi << std::endl;
        cnorm  = sumphi / phi_factor / fev;
        cnorme = pow(sumphi,0.5) / phi_factor / fev;
        if(fev>0. && cnorm>1.e-30){
