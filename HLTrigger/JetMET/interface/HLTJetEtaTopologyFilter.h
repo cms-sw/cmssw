@@ -24,9 +24,9 @@ class HLTJetEtaTopologyFilter : public HLTFilter {
 
    public:
       explicit HLTJetEtaTopologyFilter(const edm::ParameterSet&);
-      ~HLTJetEtaTopologyFilter();
+      ~HLTJetEtaTopologyFilter() override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
    private:
       const edm::InputTag inputJetTag_; // input tag identifying jets

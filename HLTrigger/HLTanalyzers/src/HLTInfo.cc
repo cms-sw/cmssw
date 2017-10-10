@@ -6,8 +6,8 @@
 #include <string>
 #include <cmath>
 #include <functional>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 
 #include "HLTrigger/HLTanalyzers/interface/HLTInfo.h"
 #include "FWCore/Common/interface/TriggerNames.h"
@@ -115,10 +115,10 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
       int itdum = ntrigs;
       for (auto & dummyBranche : dummyBranches_) {
 	TString trigName(dummyBranche.data());
-	bool addThisBranch = 1;
+	bool addThisBranch = true;
 	for (int itrig = 0; itrig != ntrigs; ++itrig) {
 	  TString realTrigName = triggerNames.triggerName(itrig);
-	  if(trigName == realTrigName) addThisBranch = 0;
+	  if(trigName == realTrigName) addThisBranch = false;
 	}
 	if(addThisBranch){
 	  HltTree->Branch(trigName,trigflag+itdum,trigName+"/I");
@@ -140,7 +140,7 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
 
     for (int itrig = 0; itrig != ntrigs; ++itrig){
 
-      std::string trigName=triggerNames.triggerName(itrig);
+      const std::string& trigName=triggerNames.triggerName(itrig);
       bool accept = hltresults->accept(itrig);
 
       //trigPrescl[itrig] = hltConfig_.prescaleValue(iEvent, eventSetup, trigName);

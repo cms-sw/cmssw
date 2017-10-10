@@ -42,9 +42,9 @@ namespace edm {
 class HLTTrackMETProducer : public edm::stream::EDProducer<> {
   public:
     explicit HLTTrackMETProducer(const edm::ParameterSet & iConfig);
-    ~HLTTrackMETProducer();
+    ~HLTTrackMETProducer() override;
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+    void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
   private:
     /// Use pt; otherwise, use et.

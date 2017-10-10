@@ -46,7 +46,7 @@ public:
     nMuMC =0; nMureco =0; nTrk=0; nSta=0; nNotMuMatching =0 ;
   }
 
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override
   {
 
     Handle<CandidateCollection> zMuMu;
@@ -171,7 +171,7 @@ public:
   }
 
 
-  virtual void endJob() override
+  void endJob() override
   {
 
 

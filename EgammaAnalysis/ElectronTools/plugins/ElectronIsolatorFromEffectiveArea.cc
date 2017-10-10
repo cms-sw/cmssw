@@ -19,7 +19,7 @@ class ElectronIsolatorFromEffectiveArea : public edm::EDFilter {
   explicit ElectronIsolatorFromEffectiveArea(const edm::ParameterSet&);
 
  private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
   edm::InputTag gsfElectronTag;
   edm::InputTag pfElectronTag;
   edm::InputTag patElectronTag;

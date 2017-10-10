@@ -44,7 +44,7 @@ public:
   // construction/destruction
   //
   explicit HLTPrescaler(edm::ParameterSet const& iConfig, const trigger::Efficiency* efficiency);
-  virtual ~HLTPrescaler();
+  ~HLTPrescaler() override;
 
   static std::unique_ptr<trigger::Efficiency> initializeGlobalCache(edm::ParameterSet const&) {
     return std::unique_ptr<trigger::Efficiency>(new trigger::Efficiency());
@@ -56,10 +56,10 @@ public:
   // member functions
   //
   static  void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&lb,
+  void beginLuminosityBlock(edm::LuminosityBlock const&lb,
 				    edm::EventSetup const& iSetup) override;
-  virtual bool filter(edm::Event& iEvent,edm::EventSetup const& iSetup) override;
-  virtual void endStream() override;
+  bool filter(edm::Event& iEvent,edm::EventSetup const& iSetup) override;
+  void endStream() override;
   static  void globalEndJob(const trigger::Efficiency* efficiency);
   
   
