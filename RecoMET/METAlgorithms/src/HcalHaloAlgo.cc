@@ -20,7 +20,8 @@ bool CompareTowers(const CaloTower* x, const CaloTower* y ){
   return x->iphi()*1000 + x->ieta() < y->iphi()*1000 + y->ieta();
 }
 
-HcalHaloAlgo::HcalHaloAlgo() : geo_(nullptr), hgeo_(nullptr) {
+HcalHaloAlgo::HcalHaloAlgo() : geo_(0), hgeo_(0)
+{
   HBRecHitEnergyThreshold = 0.;
   HERecHitEnergyThreshold = 0.;
   SumEnergyThreshold = 0.;
@@ -36,18 +37,16 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 {
 
   HcalHaloData TheHcalHaloData;
-  // ieta overlap geometrically w/ HB
-  const int iEtaOverlap = 22;
-  const int nPhiMax=73;
+  
   // Store Energy sum of rechits as a function of iPhi (iPhi goes from 1 to 72)
-  float SumE[nPhiMax];
+  float SumE[73];
   // Store Number of rechits as a function of iPhi 
-  int NumHits[nPhiMax];
+  int NumHits[73];
   // Store minimum time of rechit as a function of iPhi
-  float MinTimeHits[nPhiMax];
+  float MinTimeHits[73];
   // Store maximum time of rechit as a function of iPhi
-  float MaxTimeHits[nPhiMax];
-  for(unsigned int i = 0 ; i < nPhiMax ; i++ ) 
+  float MaxTimeHits[73];
+  for(unsigned int i = 0 ; i < 73 ; i++ ) 
     {
       SumE[i] = 0;
       NumHits[i]= 0;
@@ -55,73 +54,83 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
       MaxTimeHits[i] = 0.;
     }
   
-  for (const auto & hit : (HBHERecHitCollection)(*TheHBHERecHits)) {
-    HcalDetId id = HcalDetId(hit.id());
-    switch ( id.subdet() ) {      
-    case HcalBarrel:
-      if(hit.energy() < HBRecHitEnergyThreshold )continue;
-      break;
-    case HcalEndcap:
-      if(hit.energy() < HERecHitEnergyThreshold ) continue;
-      break;
-    default:
-      continue;
-    }
-    
-    int iEta = id.ieta();
-    int iPhi = id.iphi();
-    if(iPhi < nPhiMax && std::abs(iEta) <= iEtaOverlap) { 
-      SumE[iPhi]+= hit.energy();
-      NumHits[iPhi] ++;
-	  
-      float time = hit.time();
-      MinTimeHits[iPhi] = time < MinTimeHits[iPhi] ? time : MinTimeHits[iPhi];
-      MaxTimeHits[iPhi] = time > MaxTimeHits[iPhi] ? time : MaxTimeHits[iPhi];
-    }
-  }
-  
-  for (int iPhi = 1 ; iPhi < nPhiMax ; iPhi++ )   {
-    if( SumE[iPhi] >= SumEnergyThreshold && NumHits[iPhi] > NHitsThreshold ) {
-      // Build PhiWedge and store to HcalHaloData if energy or #hits pass thresholds
-      PhiWedge wedge(SumE[iPhi], iPhi, NumHits[iPhi], MinTimeHits[iPhi], MaxTimeHits[iPhi]);
-	  
-      // Loop over rechits again to calculate direction based on timing info
-      std::vector<const HBHERecHit*> Hits;
-      for (const auto & hit : (HBHERecHitCollection)(*TheHBHERecHits)) {
-	HcalDetId id = HcalDetId(hit.id());
-	if( id.iphi() != iPhi ) continue;
-	if( std::abs(id.ieta() ) > iEtaOverlap ) continue;  // has to overlap geometrically w/ HB
-	switch ( id.subdet() ) {
-	case HcalBarrel:
-	  if(hit.energy() < HBRecHitEnergyThreshold )continue;
-	  break;
-	case HcalEndcap:
-	  if(hit.energy() < HERecHitEnergyThreshold ) continue;
+  for( HBHERecHitCollection::const_iterator hit = TheHBHERecHits->begin() ; hit != TheHBHERecHits->end() ; hit++ )
+    {
+      HcalDetId id = HcalDetId(hit->id());                                                                                                    
+      switch ( id.subdet() )                                                                                         
+	{      
+	case HcalBarrel:                                                                           
+	  if(hit->energy() < HBRecHitEnergyThreshold )continue;
+	  break;                                                                                                                  
+	case HcalEndcap:                                                                                          
+	  if(hit->energy() < HERecHitEnergyThreshold ) continue;
 	  break;
 	default:
 	  continue;
 	}
-	Hits.push_back(&(hit));
-      }
-	      
-      std::sort( Hits.begin() , Hits.end() , CompareTime);
-      float MinusToPlus = 0.;
-      float PlusToMinus = 0.;
-      for( unsigned int i = 0 ; i < Hits.size() ; i++ )  {
-	HcalDetId id_i = HcalDetId(Hits[i]->id() );
-	int ieta_i = id_i.ieta();
-	for( unsigned int j = (i+1) ; j < Hits.size() ; j++ ) {
-	  HcalDetId id_j = HcalDetId(Hits[j]->id() );
-	  int ieta_j = id_j.ieta();
-	  if( ieta_i > ieta_j ) PlusToMinus += std::abs(ieta_i - ieta_j ) ;
-	  else                  MinusToPlus += std::abs(ieta_i - ieta_j);
+      
+      int iEta = id.ieta();
+      int iPhi = id.iphi();
+      if(iPhi < 73 && TMath::Abs(iEta) < 23 )
+	{ 
+	  SumE[iPhi]+= hit->energy();
+	  NumHits[iPhi] ++;
+	  
+	  float time = hit->time();
+	  MinTimeHits[iPhi] = time < MinTimeHits[iPhi] ? time : MinTimeHits[iPhi];
+	  MaxTimeHits[iPhi] = time > MaxTimeHits[iPhi] ? time : MaxTimeHits[iPhi];
 	}
-      }
-      float PlusZOriginConfidence = (PlusToMinus + MinusToPlus )? PlusToMinus / ( PlusToMinus + MinusToPlus ) : -1. ;
-      wedge.SetPlusZOriginConfidence( PlusZOriginConfidence );
-      TheHcalHaloData.GetPhiWedges().push_back( wedge );
     }
-  }
+  
+  for( int iPhi = 1 ; iPhi < 73 ; iPhi++ )
+    {
+      if( SumE[iPhi] >= SumEnergyThreshold && NumHits[iPhi] > NHitsThreshold )
+	{
+	  // Build PhiWedge and store to HcalHaloData if energy or #hits pass thresholds
+	  PhiWedge wedge(SumE[iPhi], iPhi, NumHits[iPhi], MinTimeHits[iPhi], MaxTimeHits[iPhi]);
+	  
+	  // Loop over rechits again to calculate direction based on timing info
+	  std::vector<const HBHERecHit*> Hits;
+	  for( HBHERecHitCollection::const_iterator hit = TheHBHERecHits->begin() ; hit != TheHBHERecHits->end() ; hit++ )
+	    {
+
+	      HcalDetId id = HcalDetId(hit->id());
+	      if( id.iphi() != iPhi ) continue;
+	      if( TMath::Abs(id.ieta() ) > 22 ) continue;  // has to overlap geometrically w/ HB
+	      switch ( id.subdet() )
+		{
+		case HcalBarrel:
+		  if(hit->energy() < HBRecHitEnergyThreshold )continue;
+		  break;
+		case HcalEndcap:
+		  if(hit->energy() < HERecHitEnergyThreshold ) continue;
+		  break;
+		default:
+		  continue;
+		}
+	      Hits.push_back(&(*hit));
+	    }
+	      
+	  std::sort( Hits.begin() , Hits.end() , CompareTime);
+	  float MinusToPlus = 0.;
+	  float PlusToMinus = 0.;
+	  for( unsigned int i = 0 ; i < Hits.size() ; i++ )
+	    {
+	      HcalDetId id_i = HcalDetId(Hits[i]->id() );
+	      int ieta_i = id_i.ieta();
+	      for( unsigned int j = (i+1) ; j < Hits.size() ; j++ )
+		{
+		  HcalDetId id_j = HcalDetId(Hits[j]->id() );
+		  int ieta_j = id_j.ieta();
+		  if( ieta_i > ieta_j ) PlusToMinus += TMath::Abs(ieta_i - ieta_j ) ;
+		  else MinusToPlus += TMath::Abs(ieta_i - ieta_j);
+		}
+	    }
+	  float PlusZOriginConfidence = (PlusToMinus + MinusToPlus )? PlusToMinus / ( PlusToMinus + MinusToPlus ) : -1. ;
+	  wedge.SetPlusZOriginConfidence( PlusZOriginConfidence );
+	  TheHcalHaloData.GetPhiWedges().push_back( wedge );
+	}
+    }
 
 
   // Don't use HF.
@@ -130,15 +139,15 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 
   std::map<int, float> iPhiHadEtMap;
   std::vector<const CaloTower*> sortedCaloTowers;
-  for (const auto & tower : (CaloTowerCollection)(*TheCaloTowers)) {
-    if(std::abs(tower.ieta()) > maxAbsIEta) continue;
-    
-    int iPhi = tower.iphi();
-    if(!iPhiHadEtMap.count(iPhi)) iPhiHadEtMap[iPhi] = 0.0;
-    iPhiHadEtMap[iPhi] += tower.hadEt();
+  for(CaloTowerCollection::const_iterator tower = TheCaloTowers->begin(); tower != TheCaloTowers->end(); tower++) {
+    if(std::abs(tower->ieta()) > maxAbsIEta) continue;
 
-    if(tower.numProblematicHcalCells() > 0) sortedCaloTowers.push_back(&(tower));
-    
+    int iPhi = tower->iphi();
+    if(!iPhiHadEtMap.count(iPhi)) iPhiHadEtMap[iPhi] = 0.0;
+    iPhiHadEtMap[iPhi] += tower->hadEt();
+
+    if(tower->numProblematicHcalCells() > 0) sortedCaloTowers.push_back(&(*tower));
+
   }
 
 
@@ -506,8 +515,12 @@ bool HcalHaloAlgo::HEClusterShapeandTimeStudy( HaloClusterCandidateHCAL hcand, b
 
 math::XYZPoint HcalHaloAlgo::getPosition(const DetId &id, reco::Vertex::Point vtx){
 
-  const GlobalPoint pos = ((id.det() == DetId::Hcal) ? hgeo_->getPosition(id) :
-			   GlobalPoint(geo_->getPosition(id)));
+  GlobalPoint pos;
+  if (id.det() == DetId::Hcal) {
+    pos = hgeo_->getPosition(id);
+  } else {
+    pos = GlobalPoint(geo_->getPosition(id));
+  }
   math::XYZPoint posV(pos.x() - vtx.x(),pos.y() - vtx.y(),pos.z() - vtx.z());
   return posV;
 }
