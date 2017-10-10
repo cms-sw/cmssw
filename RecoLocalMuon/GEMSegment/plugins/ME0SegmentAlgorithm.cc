@@ -335,7 +335,7 @@ void ME0SegmentAlgorithm::buildSegments(const ME0Chamber * chamber, const HitAnd
   for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
     averageTime += (*rh)->rh->tof();
   }
-  if(rechits.size() != 0) averageTime=averageTime/(rechits.size());
+  if(!rechits.empty()) averageTime=averageTime/(rechits.size());
   float timeUncrt=0.;
   for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
     timeUncrt += pow((*rh)->rh->tof()-averageTime,2);
