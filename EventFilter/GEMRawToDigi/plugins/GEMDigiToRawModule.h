@@ -13,23 +13,23 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
-#include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
-#include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
-#include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
 
 namespace edm {
-   class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
 
 class GEMDigiToRaw;
 
 class GEMDigiToRawModule : public edm::EDProducer {
  public:
+  typedef cms_uint32_t Word32;
+  typedef cms_uint64_t Word64;
+  
   /// Constructor
   GEMDigiToRawModule(const edm::ParameterSet & pset);
 
   /// Destructor
-  virtual ~GEMDigiToRawModule();
+  virtual ~GEMDigiToRawModule(){}
 
   // Operations
   virtual void produce( edm::Event&, const edm::EventSetup& );
@@ -39,11 +39,11 @@ class GEMDigiToRawModule : public edm::EDProducer {
 
  private:
 
+  // ------------ method called once each 64 Bits data word and keep in vector ------------
+  void ByteVector(std::vector<unsigned char>&, uint64_t&);
+  
   int event_type_;
   edm::EDGetTokenT<GEMDigiCollection>             digi_token;
-  edm::EDGetTokenT<GEMPadDigiCollection>          padDigi_token;
-  edm::EDGetTokenT<GEMPadDigiClusterCollection>   padDigiCluster_token;
-  edm::EDGetTokenT<GEMCoPadDigiCollection>        coPadDigi_token;
   
 };
 #endif
