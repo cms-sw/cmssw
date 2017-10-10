@@ -81,7 +81,7 @@ public:
     static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
     
     /// Produces jets cleaned against leptons
-    virtual void produce(edm::Event &iEvent, edm::EventSetup const &iSetup);
+    void produce(edm::Event &iEvent, edm::EventSetup const &iSetup) override;
     
 private:
     /// Token to identify a collection of leptons that pass an HLT filter

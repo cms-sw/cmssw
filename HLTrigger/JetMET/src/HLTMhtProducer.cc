@@ -64,7 +64,7 @@ void HLTMhtProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     int nj = 0;
     double sumet = 0., mhx = 0., mhy = 0.;
 
-    if (jets->size() > 0) {
+    if (!jets->empty()) {
         for(reco::JetView::const_iterator j = jets->begin(); j != jets->end(); ++j) {
             double pt = usePt_ ? j->pt() : j->et();
             double eta = j->eta();

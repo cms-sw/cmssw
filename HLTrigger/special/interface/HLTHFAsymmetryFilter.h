@@ -50,10 +50,10 @@
 class HLTHFAsymmetryFilter : public edm::EDFilter {
    public:
       explicit HLTHFAsymmetryFilter(const edm::ParameterSet&);
-      ~HLTHFAsymmetryFilter();
+      ~HLTHFAsymmetryFilter() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool filter(edm::Event &, const edm::EventSetup&);
+      bool filter(edm::Event &, const edm::EventSetup&) override;
    private:
       // ----------member data ---------------------------
 

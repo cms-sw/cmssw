@@ -24,8 +24,8 @@ class HLTEgammaGenericQuadraticEtaFilter : public HLTFilter {
 
    public:
       explicit HLTEgammaGenericQuadraticEtaFilter(const edm::ParameterSet&);
-      ~HLTEgammaGenericQuadraticEtaFilter();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      ~HLTEgammaGenericQuadraticEtaFilter() override;
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:

@@ -30,11 +30,11 @@ namespace edm {
 class HLTDisplacedmumumuVtxProducer : public edm::EDProducer {
  public:
   explicit HLTDisplacedmumumuVtxProducer(const edm::ParameterSet&);
-  ~HLTDisplacedmumumuVtxProducer();
+  ~HLTDisplacedmumumuVtxProducer() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual void beginJob() ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override ;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
  private:  
   bool checkPreviousCand(const reco::TrackRef& trackref, std::vector<reco::RecoChargedCandidateRef>& ref2);

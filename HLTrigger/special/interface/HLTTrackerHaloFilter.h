@@ -41,11 +41,11 @@
 class HLTTrackerHaloFilter : public HLTFilter {
 public:
   explicit HLTTrackerHaloFilter(const edm::ParameterSet&);
-  ~HLTTrackerHaloFilter();
+  ~HLTTrackerHaloFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusterInputToken_;
   edm::InputTag inputTag_; // input tag identifying product containing pixel clusters

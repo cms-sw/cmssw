@@ -27,8 +27,8 @@ class HLTEgammaL1MatchFilterPairs : public HLTFilter {
 
    public:
       explicit HLTEgammaL1MatchFilterPairs(const edm::ParameterSet&);
-      ~HLTEgammaL1MatchFilterPairs();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      ~HLTEgammaL1MatchFilterPairs() override;
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:

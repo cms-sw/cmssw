@@ -56,7 +56,7 @@ void HLTCaloTowerHtMhtProducer::produce(edm::Event& iEvent, const edm::EventSetu
 
     double ht = 0., mhx = 0., mhy = 0.;
 
-    if (towers->size() > 0) {
+    if (!towers->empty()) {
         for(auto const & j : *towers) {
             double pt = usePt_ ? j.pt() : j.et();
             double eta = j.eta();

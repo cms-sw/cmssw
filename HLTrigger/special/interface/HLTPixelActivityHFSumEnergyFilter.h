@@ -30,11 +30,11 @@
 class HLTPixelActivityHFSumEnergyFilter : public edm::stream::EDFilter<> {
 public:
   explicit HLTPixelActivityHFSumEnergyFilter(const edm::ParameterSet&);
-  ~HLTPixelActivityHFSumEnergyFilter();
+  ~HLTPixelActivityHFSumEnergyFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  virtual bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   edm::InputTag inputTag_;   // input tag identifying product containing pixel clusters
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > inputToken_;
