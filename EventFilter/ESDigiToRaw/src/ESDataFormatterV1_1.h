@@ -30,9 +30,9 @@ class ESDataFormatterV1_1 : public ESDataFormatter {
   typedef ESDataFormatter::Word64 Word64;
 
   ESDataFormatterV1_1(const edm::ParameterSet& ps);
-  ~ESDataFormatterV1_1();
+  ~ESDataFormatterV1_1() override;
 
-  void DigiToRaw(int fedId, Digis & digis, FEDRawData& fedRawData, const Meta_Data & meta_data) const;
+  void DigiToRaw(int fedId, Digis & digis, FEDRawData& fedRawData, const Meta_Data & meta_data) const override;
 
 
   private :    

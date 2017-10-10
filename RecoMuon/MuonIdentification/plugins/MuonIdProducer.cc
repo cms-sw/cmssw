@@ -34,7 +34,7 @@
 #include "RecoMuon/MuonIdentification/interface/MuonKinkFinder.h"
 
 MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig):
-muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
+muIsoExtractorCalo_(nullptr),muIsoExtractorTrack_(nullptr),muIsoExtractorJet_(nullptr)
 {
   
   LogTrace("MuonIdentification") << "RecoMuon/MuonIdProducer :: Constructor called";
@@ -797,7 +797,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
    LogTrace("MuonIdentification") << "RecoMuon/MuonIdProducer :: fillMuonId";
 
    // perform track - detector association
-   const reco::Track* track = 0;
+   const reco::Track* track = nullptr;
    if      ( aMuon.track().isNonnull() ) track = aMuon.track().get();
    else if ( aMuon.standAloneMuon().isNonnull() ) track = aMuon.standAloneMuon().get();
    else throw cms::Exception("FatalError") << "Failed to fill muon id information for a muon with undefined references to tracks";
@@ -1181,7 +1181,7 @@ void MuonIdProducer::fillMuonIsolation(edm::Event& iEvent, const edm::EventSetup
 				       reco::IsoDeposit& trackDep, reco::IsoDeposit& ecalDep, reco::IsoDeposit& hcalDep, reco::IsoDeposit& hoDep,
 				       reco::IsoDeposit& jetDep)
 {
-   const reco::Track* track = 0;
+   const reco::Track* track = nullptr;
    if ( aMuon.track().isNonnull() ) track = aMuon.track().get();
    else if ( aMuon.standAloneMuon().isNonnull() ) track = aMuon.standAloneMuon().get();
    else throw cms::Exception("FatalError") << "Failed to compute muon isolation information for a muon with undefined references to tracks";

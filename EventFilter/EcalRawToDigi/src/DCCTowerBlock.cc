@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <cstdio>
 #include <algorithm>
 #include "EventFilter/EcalRawToDigi/interface/DCCTowerBlock.h"
 #include "EventFilter/EcalRawToDigi/interface/DCCEventBlock.h"

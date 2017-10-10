@@ -29,13 +29,13 @@ public:
  
     produces<edm::ValueMap<reco::MuonShower> >().setBranchAlias("muonShowerInformation");
   }
-   virtual ~MuonShowerInformationProducer() {
+   ~MuonShowerInformationProducer() override {
     if( showerFiller_)
       delete showerFiller_;
   }
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   edm::InputTag inputMuonCollection_;
   edm::InputTag inputTrackCollection_;
   edm::EDGetTokenT<reco::MuonCollection> muonToken_;

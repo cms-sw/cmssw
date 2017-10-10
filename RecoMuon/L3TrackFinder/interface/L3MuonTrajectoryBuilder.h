@@ -36,14 +36,14 @@ class L3MuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
 	L3MuonTrajectoryBuilder(const edm::ParameterSet&, const MuonServiceProxy*, edm::ConsumesCollector&);
 
     /// Destructor
-    ~L3MuonTrajectoryBuilder();
+    ~L3MuonTrajectoryBuilder() override;
 
     /// Reconstruct trajectories from standalone and tracker only Tracks
     using GlobalTrajectoryBuilderBase::trajectories;
-    MuonTrajectoryBuilder::CandidateContainer trajectories(const TrackCand&);
+    MuonTrajectoryBuilder::CandidateContainer trajectories(const TrackCand&) override;
 
     /// Pass the Event to the algo at each event
-    virtual void setEvent(const edm::Event&);
+    void setEvent(const edm::Event&) override;
 
     /// Add default values for fillDescriptions
     static void fillDescriptions(edm::ParameterSetDescription& descriptions);
@@ -51,7 +51,7 @@ class L3MuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
   private:
 
     /// Make a TrackCand collection using tracker Track, Trajectory information
-    std::vector<TrackCand> makeTkCandCollection(const TrackCand&);
+    std::vector<TrackCand> makeTkCandCollection(const TrackCand&) override;
 
     TrajectoryCleaner* theTrajectoryCleaner;
     edm::InputTag theTkCollName;

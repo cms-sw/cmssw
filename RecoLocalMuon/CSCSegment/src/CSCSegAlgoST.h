@@ -44,7 +44,7 @@ public:
   explicit CSCSegAlgoST(const edm::ParameterSet& ps);
 
   /// Destructor
-  virtual ~CSCSegAlgoST();
+  ~CSCSegAlgoST() override;
 
   /**
    * Build track segments in this chamber (this is where the actual
@@ -61,7 +61,7 @@ public:
   /**
    * Build segments for all desired groups of hits
    */
-  std::vector<CSCSegment> run(const CSCChamber* aChamber, const ChamberHitContainer& rechits); 
+  std::vector<CSCSegment> run(const CSCChamber* aChamber, const ChamberHitContainer& rechits) override; 
 
   /**
    * Build groups of rechits that are separated in x and y to save time on the segment finding

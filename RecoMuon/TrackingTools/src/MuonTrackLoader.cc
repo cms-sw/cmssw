@@ -479,7 +479,7 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
     delete *it;
   }
 
-  if( thePutTkTrackFlag && trackerTracks.isValid() && !(combinedTracks->size() > 0 && trackerTracks->size() > 0 ) )
+  if( thePutTkTrackFlag && trackerTracks.isValid() && !(!combinedTracks->empty() && !trackerTracks->empty() ) )
     LogWarning(metname)<<"The MuonTrackLinkCollection is incomplete"; 
   
   // put the MuonCollection in the event

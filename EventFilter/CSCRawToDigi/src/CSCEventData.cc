@@ -17,20 +17,20 @@ std::atomic<bool> CSCEventData::debug{false};
 
 CSCEventData::CSCEventData(int chamberType, uint16_t format_version) :
     theDMBHeader(format_version),
-    theALCTHeader(0),
-    theAnodeData(0),
-    theALCTTrailer(0),
-    theTMBData(0),
+    theALCTHeader(nullptr),
+    theAnodeData(nullptr),
+    theALCTTrailer(nullptr),
+    theTMBData(nullptr),
     theDMBTrailer(format_version),
     theChamberType(chamberType),
-    alctZSErecovered(0),
+    alctZSErecovered(nullptr),
     zseEnable(0),
     theFormatVersion(format_version)
 {
 
   for (unsigned i = 0; i < MAX_CFEB; ++i)
     {
-      theCFEBData[i] = 0;
+      theCFEBData[i] = nullptr;
     }
 }
 
@@ -255,7 +255,7 @@ void CSCEventData::unpack_data(unsigned short * buf)
     {
       for (int icfeb = 0; icfeb < MAX_CFEB; ++icfeb)
         {
-          theCFEBData[icfeb] = 0;
+          theCFEBData[icfeb] = nullptr;
           int cfeb_available = theDMBHeader.cfebAvailable(icfeb);
           unsigned int cfebTimeout = theDMBTrailer.cfeb_starttimeout() | theDMBTrailer.cfeb_endtimeout();
           //cfeb_available cannot be trusted - need additional verification!
@@ -325,15 +325,15 @@ CSCEventData CSCEventData::operator=(const CSCEventData & data)
 void CSCEventData::init()
 {
   //dataPresent = 0;
-  theALCTHeader = 0;
-  theAnodeData = 0;
-  theALCTTrailer = 0;
-  theTMBData = 0;
+  theALCTHeader = nullptr;
+  theAnodeData = nullptr;
+  theALCTTrailer = nullptr;
+  theTMBData = nullptr;
   for (int icfeb = 0; icfeb < MAX_CFEB; ++icfeb)
     {
-      theCFEBData[icfeb] = 0;
+      theCFEBData[icfeb] = nullptr;
     }
-  alctZSErecovered=0;
+  alctZSErecovered=nullptr;
   zseEnable=0;
 }
 
@@ -344,18 +344,18 @@ void CSCEventData::copy(const CSCEventData & data)
   theFormatVersion = data.theFormatVersion;
   theDMBHeader  = data.theDMBHeader;
   theDMBTrailer = data.theDMBTrailer;
-  if (data.theALCTHeader != NULL)
+  if (data.theALCTHeader != nullptr)
     theALCTHeader  = new CSCALCTHeader(*(data.theALCTHeader));
-  if (data.theAnodeData != NULL)
+  if (data.theAnodeData != nullptr)
     theAnodeData   = new CSCAnodeData(*(data.theAnodeData));
-  if (data.theALCTTrailer != NULL)
+  if (data.theALCTTrailer != nullptr)
     theALCTTrailer = new CSCALCTTrailer(*(data.theALCTTrailer));
-  if (data.theTMBData != NULL)
+  if (data.theTMBData != nullptr)
     theTMBData     = new CSCTMBData(*(data.theTMBData));
   for (int icfeb = 0; icfeb < MAX_CFEB; ++icfeb)
     {
-      theCFEBData[icfeb] = 0;
-      if (data.theCFEBData[icfeb] != NULL)
+      theCFEBData[icfeb] = nullptr;
+      if (data.theCFEBData[icfeb] != nullptr)
         theCFEBData[icfeb] = new CSCCFEBData(*(data.theCFEBData[icfeb]));
     }
   size_  = data.size_;
@@ -403,7 +403,7 @@ std::vector<CSCStripDigi> CSCEventData::stripDigis(unsigned idlayer, unsigned ic
 {
   //  assert(ilayer > 0 && ilayer <= 6); // off because now idlayer is raw cscdetid
   std::vector<CSCStripDigi> result;
-  if (theCFEBData[icfeb] != NULL)
+  if (theCFEBData[icfeb] != nullptr)
     {
       std::vector<CSCStripDigi> newDigis = theCFEBData[icfeb]->digis(idlayer);
       result.insert(result.end(), newDigis.begin(), newDigis.end());
@@ -415,7 +415,7 @@ std::vector<CSCStripDigi> CSCEventData::stripDigis(unsigned idlayer, unsigned ic
 
 std::vector<CSCWireDigi> CSCEventData::wireDigis(unsigned ilayer) const
 {
-  if (theAnodeData == 0)
+  if (theAnodeData == nullptr)
     {
       return std::vector<CSCWireDigi>();
     }
@@ -482,13 +482,13 @@ CSCTMBData * CSCEventData::tmbData() const
 
 CSCTMBHeader * CSCEventData::tmbHeader() const
 {
-  if ((nclct() == 0)||(tmbData()==NULL)) throw cms::Exception("No CLCT header for this chamber");
+  if ((nclct() == 0)||(tmbData()==nullptr)) throw cms::Exception("No CLCT header for this chamber");
   return tmbData()->tmbHeader();
 }
 
 CSCCLCTData * CSCEventData::clctData() const
 {
-  if ((nclct() == 0)||(tmbData()==NULL)) throw cms::Exception("No CLCT data for this chamber");
+  if ((nclct() == 0)||(tmbData()==nullptr)) throw cms::Exception("No CLCT data for this chamber");
   return tmbData()->clctData();
 }
 
@@ -531,7 +531,7 @@ void CSCEventData::setEventInformation(int bxnum, int lvl1num)
 
 void CSCEventData::checkALCTClasses()
 {
-  if (theAnodeData == NULL)
+  if (theAnodeData == nullptr)
     {
       assert(theChamberType>0);
       theALCTHeader = new CSCALCTHeader(theChamberType);
@@ -551,7 +551,7 @@ void CSCEventData::checkTMBClasses()
   if ((theFormatVersion  == 2013) && ((theChamberType == 1) || (theChamberType == 2)) ) {
       nCFEBs = 7;
   }
-  if (theTMBData == NULL)
+  if (theTMBData == nullptr)
     {
       if (theFormatVersion  == 2013) { // Set to TMB format for Post-LS1 data
         theTMBData = new CSCTMBData(2013, 0x7a76, nCFEBs);
@@ -572,7 +572,7 @@ void CSCEventData::add(const CSCStripDigi & digi, int layer)
   unsigned cfeb = (digi.getStrip()-1)/16;
   bool sixteenSamples = false;
   if (digi.getADCCounts().size()==16) sixteenSamples = true;
-  if (theCFEBData[cfeb] == 0)
+  if (theCFEBData[cfeb] == nullptr)
     {
       bool isDCFEB = false;
       if (theDMBHeader.format_version() == 2) isDCFEB = true;
@@ -653,13 +653,13 @@ boost::dynamic_bitset<> CSCEventData::pack()
   // Container for CRC calculations
   std::vector<std::pair<unsigned int, unsigned short*> > crcvec;
 
-  if (theALCTHeader != NULL)
+  if (theALCTHeader != nullptr)
     {
       boost::dynamic_bitset<> alctHeader = theALCTHeader->pack();
       result = bitset_utilities::append(result, alctHeader);
       crcvec.push_back(std::make_pair(theALCTHeader->sizeInWords(), theALCTHeader->data()));
     }
-  if (theAnodeData != NULL)
+  if (theAnodeData != nullptr)
     {
       boost::dynamic_bitset<> anodeData = bitset_utilities::ushortToBitset (theAnodeData->sizeInWords()*16,
                                           theAnodeData->data());
@@ -667,7 +667,7 @@ boost::dynamic_bitset<> CSCEventData::pack()
       crcvec.push_back(std::make_pair(theAnodeData->sizeInWords(), theAnodeData->data()));
 
     }
-  if (theALCTTrailer != NULL)
+  if (theALCTTrailer != nullptr)
     {
       unsigned int crc = calcALCTcrc(crcvec);
       theALCTTrailer->setCRC(crc);
@@ -676,14 +676,14 @@ boost::dynamic_bitset<> CSCEventData::pack()
       result = bitset_utilities::append(result, alctTrailer);
 
     }
-  if (theTMBData != NULL)
+  if (theTMBData != nullptr)
     {
       result  = bitset_utilities::append(result, theTMBData->pack());
     }
 
   for (int icfeb = 0;  icfeb < MAX_CFEB;  ++icfeb)
     {
-      if (theCFEBData[icfeb] != NULL)
+      if (theCFEBData[icfeb] != nullptr)
         {
           boost::dynamic_bitset<> cfebData = bitset_utilities::ushortToBitset(theCFEBData[icfeb]->sizeInWords()*16,
                                              theCFEBData[icfeb]->data());
@@ -708,7 +708,7 @@ unsigned int CSCEventData::calcALCTcrc(std::vector< std::pair<unsigned int, unsi
       for (uint16_t j=0, w=0; j<vec[n].first; j++ )
         {
 	 
-          if (vec[n].second != NULL) { 
+          if (vec[n].second != nullptr) { 
           w = vec[n].second[j] & 0xffff;
           for (uint32_t i=15, t=0, ncrc=0; i<16; i--)
             {

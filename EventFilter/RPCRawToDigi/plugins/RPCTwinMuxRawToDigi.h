@@ -32,7 +32,7 @@ class RPCTwinMuxRawToDigi
 {
 public:
     RPCTwinMuxRawToDigi(edm::ParameterSet const & config);
-    ~RPCTwinMuxRawToDigi();
+    ~RPCTwinMuxRawToDigi() override;
 
     static void compute_crc_64bit(std::uint16_t & crc, std::uint64_t const & word);
 

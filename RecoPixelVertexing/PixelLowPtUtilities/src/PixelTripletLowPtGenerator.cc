@@ -46,7 +46,7 @@ PixelTripletLowPtGenerator::~PixelTripletLowPtGenerator() {}
 void PixelTripletLowPtGenerator::getTracker
   (const edm::EventSetup& es)
 {
-  if(theTracker == 0)
+  if(theTracker == nullptr)
   {
     // Get tracker geometry
     edm::ESHandle<TrackerGeometry> tracker;
@@ -93,7 +93,7 @@ void PixelTripletLowPtGenerator::hitTriplets(
   OrderedHitPairs pairs; pairs.reserve(30000);
   thePairGenerator->hitPairs(region,pairs,ev,es, pairLayers);
 
-  if (pairs.size() == 0) return;
+  if (pairs.empty()) return;
 
   int size = thirdLayers.size();
 

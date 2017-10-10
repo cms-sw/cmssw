@@ -24,35 +24,35 @@ class MuRingForwardDoubleLayer : public RingedForwardLayer {
   MuRingForwardDoubleLayer(const std::vector<const ForwardDetRing*>& frontRings,  
                            const std::vector<const ForwardDetRing*>& backRings);
 
-  virtual ~MuRingForwardDoubleLayer() {}
+  ~MuRingForwardDoubleLayer() override {}
 
 
   // GeometricSearchDet interface
 
-  virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComponents;}
+  const std::vector<const GeomDet*>& basicComponents() const override {return theBasicComponents;}
   
-  virtual const std::vector<const GeometricSearchDet*>& components() const {return theComponents;}
+  const std::vector<const GeometricSearchDet*>& components() const override {return theComponents;}
 
   bool isInsideOut(const TrajectoryStateOnSurface&tsos) const;
 
   // tries closest layer first
-  virtual std::pair<bool, TrajectoryStateOnSurface>
+  std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface&, const Propagator&,
-              const MeasurementEstimator&) const;
+              const MeasurementEstimator&) const override;
 
-  virtual std::vector<DetWithState> 
+  std::vector<DetWithState> 
   compatibleDets( const TrajectoryStateOnSurface& startingState,
 		  const Propagator& prop, 
-		  const MeasurementEstimator& est) const;
+		  const MeasurementEstimator& est) const override;
   
-  virtual std::vector<DetGroup> 
+  std::vector<DetGroup> 
   groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
 			 const Propagator& prop,
-			 const MeasurementEstimator& est) const;
+			 const MeasurementEstimator& est) const override;
 
 
   // DetLayer interface
-  virtual SubDetector subDetector() const {return theBackLayer.subDetector();}
+  SubDetector subDetector() const override {return theBackLayer.subDetector();}
 
 
   // Extension of the interface
@@ -67,7 +67,7 @@ class MuRingForwardDoubleLayer : public RingedForwardLayer {
 
   void selfTest() const;
  protected:
-    virtual BoundDisk * computeSurface();
+    BoundDisk * computeSurface() override;
  private:  
   MuRingForwardLayer theFrontLayer;
   MuRingForwardLayer theBackLayer;

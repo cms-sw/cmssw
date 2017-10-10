@@ -49,14 +49,14 @@ public:
   /// fill from a real datastream
   CSCAnodeData2006(const CSCALCTHeader &, const unsigned short *buf);
 
-  virtual unsigned short * data() {return theDataFrames;}
+  unsigned short * data() override {return theDataFrames;}
   /// the amount of the input binary buffer read, in 16-bit words
-  virtual unsigned short int sizeInWords() const {return nAFEBs_ * nTimeBins_ * 6 * 2;}
+  unsigned short int sizeInWords() const override {return nAFEBs_ * nTimeBins_ * 6 * 2;}
 
   /// input layer is from 1 to 6
-  virtual std::vector<CSCWireDigi> wireDigis(int layer) const;
+  std::vector<CSCWireDigi> wireDigis(int layer) const override;
 
-  virtual void add(const CSCWireDigi &, int layer);
+  void add(const CSCWireDigi &, int layer) override;
 
   static  void selfTest();
 

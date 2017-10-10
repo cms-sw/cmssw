@@ -271,7 +271,7 @@ private:
   double MHTcut_;
   double mll;
   int   sign;
-  
+bool invMassCutInAllMuPairs_;  
 
   //Menglei
   bool enablePhotonPlot_;

@@ -25,7 +25,7 @@ namespace raw_impl {
       //copy constructor
       o_coll = std::make_unique<T>(*(h_coll.product()));
     }
-    if(productName.size()) e.put(std::move(o_coll),productName);
+    if(!productName.empty()) e.put(std::move(o_coll),productName);
     else e.put(std::move(o_coll));
   }
 }
@@ -34,9 +34,9 @@ class HcalRawToDigiFake : public edm::global::EDProducer<>
 {
 public:
   explicit HcalRawToDigiFake(const edm::ParameterSet& ps);
-  virtual ~HcalRawToDigiFake();
+  ~HcalRawToDigiFake() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  virtual void produce(edm::StreamID id, edm::Event& e, const edm::EventSetup& c) const override;
+  void produce(edm::StreamID id, edm::Event& e, const edm::EventSetup& c) const override;
 private:
   //members
   edm::EDGetTokenT<QIE10DigiCollection> tok_QIE10DigiCollection_;

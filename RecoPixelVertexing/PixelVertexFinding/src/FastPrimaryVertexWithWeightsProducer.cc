@@ -20,7 +20,7 @@
 // system include files
 #include <memory>
 #include <vector>
-#include <math.h>
+#include <cmath>
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -59,7 +59,7 @@ class FastPrimaryVertexWithWeightsProducer : public edm::stream::EDProducer<> {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
 
 
