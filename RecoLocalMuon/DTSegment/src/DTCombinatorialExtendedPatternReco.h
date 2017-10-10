@@ -47,21 +47,21 @@ class DTCombinatorialExtendedPatternReco : private DTRecSegment2DBaseAlgo {
     DTCombinatorialExtendedPatternReco(const edm::ParameterSet& pset) ;
 
     /// Destructor
-    virtual ~DTCombinatorialExtendedPatternReco() ;
+    ~DTCombinatorialExtendedPatternReco() override ;
 
     /* Operations */
 
     /// this function is called in the producer
-    virtual edm::OwnVector<DTSLRecSegment2D>
+    edm::OwnVector<DTSLRecSegment2D>
       reconstruct(const DTSuperLayer* sl,
-                  const std::vector<DTRecHit1DPair>& hits);
+                  const std::vector<DTRecHit1DPair>& hits) override;
 
     /// return the algo name
-    virtual std::string algoName() const { return theAlgoName; }
+    std::string algoName() const override { return theAlgoName; }
 
     /// Through this function the EventSetup is percolated to the
     /// objs which request it
-    virtual void setES(const edm::EventSetup& setup);
+    void setES(const edm::EventSetup& setup) override;
 
     // pass clusters to algo
     void setClusters(const std::vector<DTSLRecCluster>& clusters);

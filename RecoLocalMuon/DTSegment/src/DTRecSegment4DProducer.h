@@ -24,12 +24,12 @@ public:
   DTRecSegment4DProducer(const edm::ParameterSet&) ;
 
   /// Destructor
-  virtual ~DTRecSegment4DProducer();
+  ~DTRecSegment4DProducer() override;
 
   // Operations
 
   /// The method which produces the 4D rec segments
-  virtual void produce(edm::Event& event, const edm::EventSetup& setup);
+  void produce(edm::Event& event, const edm::EventSetup& setup) override;
   
 
 protected:

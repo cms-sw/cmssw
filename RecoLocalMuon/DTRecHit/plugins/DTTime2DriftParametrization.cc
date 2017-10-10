@@ -6,8 +6,8 @@
 
 #define THIS_CLASS DTTime2DriftParametrization
 
-#include <math.h>
-#include <stdio.h>
+#include <cmath>
+#include <cstdio>
 #include <algorithm>
 
 #include "DTTime2DriftParametrization.h"

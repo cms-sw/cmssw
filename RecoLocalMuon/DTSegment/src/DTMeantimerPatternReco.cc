@@ -71,7 +71,7 @@ DTMeantimerPatternReco::reconstruct(const DTSuperLayer* sl,
   while (cand<candidates.end()) {
     
     DTSLRecSegment2D *segment = (**cand);
-    theUpdator->update(segment,1);
+    theUpdator->update(segment,true);
 
     if (debug) cout<<"Reconstructed 2D segments "<<*segment<<endl;
     result.push_back(segment);
@@ -217,13 +217,13 @@ DTMeantimerPatternReco::addHits(DTSegmentCand* segCand, const vector<std::shared
     DTSegmentCand::AssPoint rhit(*hit, DTEnums::Right);
 
     segCand->add(lhit);
-    bool left_ok=(fitWithT0(segCand,0)?true:false);
+    bool left_ok=(fitWithT0(segCand,false)?true:false);
     chi2l=segCand->chi2();
     t0l=segCand->t0();
     segCand->removeHit(lhit);
 
     segCand->add(rhit);
-    bool right_ok=(fitWithT0(segCand,0)?true:false);
+    bool right_ok=(fitWithT0(segCand,false)?true:false);
     chi2r=segCand->chi2();
     t0r=segCand->t0();
     segCand->removeHit(rhit);
@@ -331,7 +331,7 @@ DTSegmentCand*
 DTMeantimerPatternReco::fitWithT0(DTSegmentCand* seg, const bool fitdebug)
 {
   // perform the 3 parameter fit on the segment candidate
-  theUpdator->fit(seg,1,fitdebug);
+  theUpdator->fit(seg,true,fitdebug);
   double chi2=seg->chi2();
 
   // Sanity check - drop segment candidates with a failed 3-par fit.
