@@ -59,10 +59,10 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
  public:
   HcalRecHitsAnalyzer(edm::ParameterSet const& conf);
 
-  virtual void analyze(edm::Event const& ev, edm::EventSetup const& c) override;
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(edm::Event const& ev, edm::EventSetup const& c) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   //virtual void beginRun(edm::Run const& run, edm::EventSetup const& c) override;
-  virtual void dqmBeginRun(const edm::Run& run, const edm::EventSetup& c) override;
+  void dqmBeginRun(const edm::Run& run, const edm::EventSetup& c) override;
  private:
   
   virtual void fillRecHitsTmp(int subdet_, edm::Event const& ev);
