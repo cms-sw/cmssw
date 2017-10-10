@@ -19,19 +19,20 @@
 #include "RecoBTag/DeepFlavour/interface/tensor_fillers.h"
 
 // Declaration of the data structure that is hold by the edm::GlobalCache.
-// We cannot use the tf::Graph* instance itself due to some aspects of the TensorFlow C API:
-// The graph instance is passed to the session objects of the stream module copies inside which it
-// is used to obtain pointers to operations it holds. This happens via a non-const C API call, so we
-// need to protect it via std::atomic (although this only happens within the constructor of the
-// DeepFlavourJetTagProducer and never within the actual produce()).
+// In TensorFlow, the computational graph is stored in a stateless meta graph object which can be
+// shared by multiple session instances which handle the initialization of variables related to the
+// meta graph. Following this approach in CMSSW, a meta graph should be stored in a GlobalCache
+// which can be accesses by sessions owned by multiple stream module copies. Instead of using only
+// the plain meta graph, we make use of a Cache struct that can be extended in the future if nedded.
+// In addition, the meta graph is protected via std::atomic, which should not affect the performance
+// as it is only accessed in the module constructor and not in the actual produce loop.
 struct Cache {
-  Cache() : graph(nullptr)
+  Cache() : metaGraph(nullptr)
   {
   }
 
-  std::atomic<tf::Graph*> graph;
+  std::atomic<tf::MetaGraphDef*> metaGraph;
 };
-
 
 class DeepFlavourJetTagProducer : public edm::stream::EDProducer<edm::GlobalCache<Cache>> {
 
@@ -59,12 +60,13 @@ class DeepFlavourJetTagProducer : public edm::stream::EDProducer<edm::GlobalCach
     std::vector<std::string> lp_names_;
 
     // session for TF evaluation
-    tf::Session session_;
+    tf::Session* session_;
 
-    // vector of tensors for inputs, outputs and scalar learning phase 
-    // vectors of inputs to / outputs from the graph that are fed in session running
-    tf::IOs dnn_inputs_;
-    tf::IOs dnn_outputs_;
+    // combined names of all input tensors for faster evaluation
+    std::vector<std::string> all_input_names_;
+
+    // vector of learning phase tensors, i.e., boolean scalar tensors pointing to false
+    std::vector<tf::Tensor> lp_tensors_;
 };
 
 DeepFlavourJetTagProducer::DeepFlavourJetTagProducer(const edm::ParameterSet& iConfig, const Cache* cache) :
@@ -72,8 +74,12 @@ DeepFlavourJetTagProducer::DeepFlavourJetTagProducer(const edm::ParameterSet& iC
   input_names_(iConfig.getParameter<std::vector<std::string>>("input_names")),
   output_names_(iConfig.getParameter<std::vector<std::string>>("output_names")),
   lp_names_(iConfig.getParameter<std::vector<std::string>>("lp_names")),
-  session_(cache->graph)
+  session_(nullptr)
 {
+  // create the session using the meta graph from the cache
+  edm::FileInPath graphPath(iConfig.getParameter<edm::FileInPath>("graph_path"));
+  std::string exportDir = graphPath.fullPath().substr(0, graphPath.fullPath().find_last_of("/"));
+  session_ = tf::createSession(cache->metaGraph, exportDir);
 
   // get output names from flav_table
   const auto & flav_pset = iConfig.getParameter<edm::ParameterSet>("flav_table");
@@ -87,56 +93,27 @@ DeepFlavourJetTagProducer::DeepFlavourJetTagProducer(const edm::ParameterSet& iC
     produces<JetTagCollection>(flav_pair.first);
   }
 
-  // data inputs
-  for (const auto & input_name : input_names_) {
-    // create an empty tensor whose rank, shape and type are set in each produce call
-    // as it adapts to the number of jets in a particular event
-    tf::Tensor* t = new tf::Tensor();
-
-    // create a graph input and store it
-    tf::IO* input = session_.createIO(t, input_name);
-    dnn_inputs_.push_back(input);
-  }
-
   // flag inputs (required because of batch norm)
   // names for the learing phase placeholders (to init and set as false)
-  for (const auto & lp_name : lp_names_) {
-    // create a tensor and set its value to false
-    tf::Tensor* t = new tf::Tensor(0, nullptr, TF_BOOL);
-    *(t->getPtr<bool>()) = false;
-
-    // create a graph input and store it
-    tf::IO* input = session_.createIO(t, lp_name);
-    dnn_inputs_.push_back(input);
+  for (size_t i = 0; i < lp_names_.size(); i++) {
+    // create a bool tensor, set its value to false and store it
+    tf::Tensor t(tf::DT_BOOL, {});
+    t.scalar<bool>()() = false;
+    lp_tensors_.push_back(t);
   }
 
-  // outputs
-  for (const auto & output_name : output_names_) {
-    // create an empty tensor
-    tf::Tensor* t = new tf::Tensor();
-
-    // create a graph output and store it
-    tf::IO* input = session_.createIO(t, output_name);
-    dnn_outputs_.push_back(input);
-  }
+  // store combined input tensor names
+  all_input_names_ = lp_names_;
+  all_input_names_.insert(all_input_names_.end(), input_names_.begin(), input_names_.end());
 }
 
 DeepFlavourJetTagProducer::~DeepFlavourJetTagProducer()
 {
-  // cleanup inputs
-  while (!dnn_inputs_.empty()) {
-    tf::IO* input = dnn_inputs_.back();
-    delete input->getTensor();
-    delete input;
-    dnn_inputs_.pop_back();
-  }
-
-  // cleanup outputs
-  while (!dnn_outputs_.empty()) {
-    tf::IO* output = dnn_outputs_.back();
-    delete output->getTensor();
-    delete output;
-    dnn_outputs_.pop_back();
+  // close and delete the session
+  if (session_ != nullptr) {
+    session_->Close();
+    delete session_;
+    session_ = nullptr;
   }
 }
 
@@ -146,20 +123,23 @@ void DeepFlavourJetTagProducer::fillDescriptions(edm::ConfigurationDescriptions&
 
 std::unique_ptr<Cache> DeepFlavourJetTagProducer::initializeGlobalCache(const edm::ParameterSet& iConfig)
 {
-  // build the graph exportDir from graph_path
+  // set the tensorflow log level to error
+  tf::setLogging("3");
+
+  // build the exportDir from graph_path
   edm::FileInPath graphPath(iConfig.getParameter<edm::FileInPath>("graph_path"));
   std::string exportDir = graphPath.fullPath().substr(0, graphPath.fullPath().find_last_of("/"));
 
-  // create the cache instance and attach the graph to it
+  // create the cache instance and attach the meta graph to it
   Cache* cache = new Cache();
-  cache->graph = new tf::Graph(exportDir, "serve");
+  cache->metaGraph = tf::loadMetaGraph(exportDir);
 
   return std::unique_ptr<Cache>(cache);
 }
 
 void DeepFlavourJetTagProducer::globalEndJob(const Cache* cache)
 {
-  delete cache->graph;
+  delete cache->metaGraph;
 }
 
 void DeepFlavourJetTagProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -170,8 +150,8 @@ void DeepFlavourJetTagProducer::produce(edm::Event& iEvent, const edm::EventSetu
 
   std::vector<std::unique_ptr<JetTagCollection>> output_tags;
 
-  auto n_jets = tf::Shape(tag_infos->size());
-  std::vector<std::vector<tf::Shape>> input_sizes {
+  int64_t n_jets = tag_infos->size();
+  std::vector<tf::TensorShape> input_sizes {
     {n_jets, 15},         // input_1 - global jet features
     {n_jets, 25, 16},     // input_2 - charged pf
     {n_jets, 25, 6},      // input_3 - neutral pf
@@ -179,10 +159,12 @@ void DeepFlavourJetTagProducer::produce(edm::Event& iEvent, const edm::EventSetu
     {n_jets, 1}           // input_5 - jet pt for reg 
   };
 
-  // set rank, shape and type of input tensors
+  // create input tensors based on the input_sizes in this event
+  std::vector<tf::Tensor> input_tensors;
   for (std::size_t i=0; i < input_sizes.size(); i++) {
-    auto & input_shape = input_sizes.at(i);
-    dnn_inputs_.at(i)->getTensor()->init(input_shape.size(), &input_shape[0], TF_FLOAT);
+    tf::Tensor t(tf::DT_FLOAT, input_sizes.at(i));
+    t.flat<float>().setZero();
+    input_tensors.push_back(t);
   }
 
   // fill values
@@ -190,53 +172,37 @@ void DeepFlavourJetTagProducer::produce(edm::Event& iEvent, const edm::EventSetu
 
     // jet and other global features
     const auto & features = tag_infos->at(jet_n).features();
-    jet_tensor_filler(dnn_inputs_.at(0)->getTensor(), jet_n, features);
+    jet_tensor_filler(input_tensors.at(0), jet_n, features);
 
     // c_pf candidates
-    auto max_c_pf_n = std::min(features.c_pf_features.size(), (std::size_t) input_sizes.at(1).at(1));
+    auto max_c_pf_n = std::min(features.c_pf_features.size(), (std::size_t) input_sizes.at(1).dim_size(1));
     for (std::size_t c_pf_n=0; c_pf_n < max_c_pf_n; c_pf_n++) {
       const auto & c_pf_features = features.c_pf_features.at(c_pf_n);
-      c_pf_tensor_filler(dnn_inputs_.at(1)->getTensor(), jet_n, c_pf_n, c_pf_features);
-    }
-    // fill remaining values with zeros
-    std::size_t diff_c_pf_n = (std::size_t)input_sizes.at(1).at(1) - max_c_pf_n;
-    if (diff_c_pf_n > 0) {
-      dnn_inputs_.at(1)->getTensor()->fillValues<float>(
-        0, diff_c_pf_n * (std::size_t)input_sizes.at(1).at(2), jet_n, max_c_pf_n, 0);
+      c_pf_tensor_filler(input_tensors.at(1), jet_n, c_pf_n, c_pf_features);
     }
 
     // n_pf candidates
-    auto max_n_pf_n = std::min(features.n_pf_features.size(), (std::size_t)input_sizes.at(2).at(1));
+    auto max_n_pf_n = std::min(features.n_pf_features.size(), (std::size_t)input_sizes.at(2).dim_size(1));
     for (std::size_t n_pf_n=0; n_pf_n < max_n_pf_n; n_pf_n++) {
       const auto & n_pf_features = features.n_pf_features.at(n_pf_n);
-      n_pf_tensor_filler(dnn_inputs_.at(2)->getTensor(), jet_n, n_pf_n, n_pf_features);
-    }
-    // fill remaining values with zeros
-    std::size_t diff_n_pf_n = (std::size_t)input_sizes.at(2).at(1) - max_n_pf_n;
-    if (diff_n_pf_n > 0) {
-      dnn_inputs_.at(2)->getTensor()->fillValues<float>(
-        0, diff_n_pf_n * (std::size_t)input_sizes.at(2).at(2), jet_n, max_n_pf_n, 0);
+      n_pf_tensor_filler(input_tensors.at(2), jet_n, n_pf_n, n_pf_features);
     }
 
     // sv candidates
-    auto max_sv_n = std::min(features.sv_features.size(), (std::size_t)input_sizes.at(3).at(1));
+    auto max_sv_n = std::min(features.sv_features.size(), (std::size_t)input_sizes.at(3).dim_size(1));
     for (std::size_t sv_n=0; sv_n < max_sv_n; sv_n++) {
       const auto & sv_features = features.sv_features.at(sv_n);
-      sv_tensor_filler(dnn_inputs_.at(3)->getTensor(), jet_n, sv_n, sv_features);
-    }
-    // fill remaining values with zeros
-    std::size_t diff_sv_n = (std::size_t)input_sizes.at(3).at(1) - max_sv_n;
-    if (diff_sv_n > 0) {
-      dnn_inputs_.at(3)->getTensor()->fillValues<float>(
-        0, diff_sv_n * (std::size_t)input_sizes.at(3).at(2), jet_n, max_sv_n, 0);
+      sv_tensor_filler(input_tensors.at(3), jet_n, sv_n, sv_features);
     }
 
     // last input: corrected jet pt
-    *(dnn_inputs_.at(4)->getTensor()->getPtr<float>(jet_n, 0)) = features.jet_features.corr_pt;
+    input_tensors.at(4).matrix<float>()(jet_n, 0) = features.jet_features.corr_pt;
   }
 
   // run the session
-  session_.run(dnn_inputs_, dnn_outputs_);
+  input_tensors.insert(input_tensors.begin(), lp_tensors_.begin(), lp_tensors_.end());
+  std::vector<tf::Tensor> outputs;
+  tf::run(session_, all_input_names_, input_tensors, output_names_, &outputs);
 
   // create output collection
   for (std::size_t i=0; i < flav_pairs_.size(); i++) {
@@ -256,7 +222,7 @@ void DeepFlavourJetTagProducer::produce(edm::Event& iEvent, const edm::EventSetu
       const auto & flav_pair = flav_pairs_.at(flav_n);
       float o_sum = 0.;
       for (const unsigned int & ind : flav_pair.second) {
-        o_sum += *(dnn_outputs_.at(0)->getTensor()->getPtr<float>(jet_n, (tf::Shape)ind));
+        o_sum += outputs.at(0).matrix<float>()(jet_n, ind);
       }
       (*(output_tags.at(flav_n)))[jet_ref] = o_sum;
     }
