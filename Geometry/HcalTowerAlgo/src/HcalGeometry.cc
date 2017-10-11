@@ -11,7 +11,7 @@ typedef CaloCellGeometry::Pt3D     Pt3D     ;
 typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
 typedef CaloCellGeometry::Tr3D     Tr3D     ;
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 HcalGeometry::HcalGeometry(const HcalTopology& topology) :
   m_topology(topology), m_mergePosition(topology.getMergePositionFlag()) {
@@ -90,17 +90,16 @@ const CaloCellGeometry* HcalGeometry::getGeometry(const DetId& id) const {
 #endif
   if (!m_mergePosition) {
 #ifdef EDM_ML_DEBUG
-    std::cout << m_topology.detId2denseId(id) << " " 
-	      << cellGeomPtr(m_topology.detId2denseId(id)) << "\n";
+    std::cout << m_topology.detId2denseId(id) << " " << getGeometryBase(id) 
+	      << "\n";
 #endif
-    return cellGeomPtr(m_topology.detId2denseId(id)); 
+    return getGeometryBase(id);
   } else {
 #ifdef EDM_ML_DEBUG
     std:: cout << m_topology.detId2denseId(m_topology.idFront(id)) << " " 
-	       << cellGeomPtr(m_topology.detId2denseId(m_topology.idFront(id)))
-	       << "\n";
+	       << getGeometryBase(m_topology.idFront(id)) << "\n";
 #endif
-    return cellGeomPtr(m_topology.detId2denseId(m_topology.idFront(id)));
+    return getGeometryBase(m_topology.idFront(id));
   }
 }
 
