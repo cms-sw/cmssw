@@ -55,7 +55,7 @@ public:
 
    void keyPressedInPopup(TGFrame*, UInt_t keysym, UInt_t mask);
  
-   ClassDef(FWGUIValidatingTextEntry, 0);
+   ClassDefOverride(FWGUIValidatingTextEntry, 0);
 
 private:
    FWGUIValidatingTextEntry(const FWGUIValidatingTextEntry&); // stop default

@@ -238,6 +238,6 @@ exception when running testMissingDictionaryChecking_cfg.py.
  <class name="edm::Wrapper<edm::soa::Table<edm::soa::Column<edmtest::kAnInt,int>, edm::soa::Column<edmtest::kAFloat,float>,edm::soa::Column<edmtest::kAString,std::string> > >" persistent="false"/>
 -->
  <class name="edm::soa::Table<edmtest::AnInt, edmtest::AFloat,edmtest::AString >"/>
- <class name="edm::Wrapper<edm::soa::Table<edmtest::AnInt, edmtest::AFloat,edmtest::AString > >" persistent="false"/>
+ <class name="edm::Wrapper<edm::soa::Table<edmtest::AnInt, edmtest::AFloat,edmtest::AString > >"/>
 
 </lcgdict>

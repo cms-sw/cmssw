@@ -24,6 +24,13 @@ process.checkTable = cms.EDAnalyzer("edmtest::TableTestAnalyzer",
 process.eventContent = cms.EDAnalyzer("EventContentAnalyzer")
 
 process.p = cms.Path(process.checkTable, cms.Task(process.tableTest) )
+
+process.out = cms.OutputModule("edmtest::TableTestOutputModule",
+                               outputCommands = cms.untracked.vstring("drop *",
+                                                                      "keep *_tableTest_*_*"
+                                                                    ))
+process.o = cms.EndPath(process.out)
+
 #process.p = cms.Path(process.tableTest+process.eventContent+process.checkTable)
 
 #process.add_(cms.Service("Tracer", dumpPathsAndConsumes= cms.untracked.bool(True) ) )

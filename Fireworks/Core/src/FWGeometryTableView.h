@@ -92,7 +92,7 @@ private:
 
 #endif  
 
-   ClassDef(FWGeometryTableView, 0);
+   ClassDefOverride(FWGeometryTableView, 0);
 };
 
 #endif

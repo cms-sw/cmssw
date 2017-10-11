@@ -30,7 +30,7 @@ public:
 
    void ColorSelected(Color_t); // *SIGNAL*
 
-   ClassDef(FWColorFrame, 0);
+   ClassDefOverride(FWColorFrame, 0);
 
 };
 
@@ -65,7 +65,7 @@ public:
 
    void ColorChanged(Color_t); // *SIGNAL*
 
-   ClassDef(FWColorRow, 0);
+   ClassDefOverride(FWColorRow, 0);
 
 };
 
@@ -107,7 +107,7 @@ public:
    static Bool_t HasFreePalette();
    static void   EnableFreePalette();
 
-   ClassDef(FWColorPopup, 0);
+   ClassDefOverride(FWColorPopup, 0);
 };
 
 
@@ -135,7 +135,7 @@ public:
    const std::string& label() const { return fLabel; } 
    void ColorChosen(Color_t); // *SIGNAL*
 
-   ClassDef(FWColorSelect, 0);
+   ClassDefOverride(FWColorSelect, 0);
 
 };
 #endif
