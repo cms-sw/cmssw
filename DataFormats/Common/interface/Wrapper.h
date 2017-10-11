@@ -64,6 +64,8 @@ private:
                                   std::vector<unsigned long> const& iIndices,
                                   std::vector<void const*>& oPtr) const override;
 
+    std::shared_ptr<soa::TableExaminerBase> tableExaminer_() const override;
+
   private:
     // We wish to disallow copy construction and assignment.
     // We make the copy constructor and assignment operator private.
@@ -144,6 +146,21 @@ private:
     assert(wrappedNewProduct != nullptr);
     return detail::doIsProductEqual<T>()(obj, wrappedNewProduct->obj);
   }
+  
+  namespace soa {
+    template<class T>
+    struct MakeTableExaminer {
+      static std::shared_ptr<edm::soa::TableExaminerBase> make(void const*) {
+        return std::shared_ptr<edm::soa::TableExaminerBase>{};
+      }
+    };
+  }
+  template <typename T>
+  inline
+  std::shared_ptr<edm::soa::TableExaminerBase> Wrapper<T>::tableExaminer_() const {
+    return soa::MakeTableExaminer<T>::make(&obj);
+  }
+
 }
 
 #include "DataFormats/Common/interface/WrapperView.icc"
