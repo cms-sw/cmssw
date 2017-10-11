@@ -14,6 +14,11 @@
 
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 
+#include "EventFilter/GEMRawToDigi/interface/AMC13Event.h"
+#include "CondFormats/DataRecord/interface/GEMEMapRcd.h"
+#include "CondFormats/GEMObjects/interface/GEMEMap.h"
+#include "CondFormats/GEMObjects/interface/GEMROmap.h"
+
 namespace edm {
   class ConfigurationDescriptions;
 }
@@ -22,14 +27,14 @@ class GEMDigiToRaw;
 
 class GEMDigiToRawModule : public edm::EDProducer {
  public:
-  typedef cms_uint32_t Word32;
-  typedef cms_uint64_t Word64;
   
   /// Constructor
   GEMDigiToRawModule(const edm::ParameterSet & pset);
 
   /// Destructor
   virtual ~GEMDigiToRawModule(){}
+
+  virtual void beginRun(const edm::Run &, const edm::EventSetup&);
 
   // Operations
   virtual void produce( edm::Event&, const edm::EventSetup& );
@@ -44,6 +49,9 @@ class GEMDigiToRawModule : public edm::EDProducer {
   
   int event_type_;
   edm::EDGetTokenT<GEMDigiCollection>             digi_token;
+
+  const GEMEMap* m_gemEMap;
+  GEMROmap* m_gemROMap;
   
 };
 #endif
