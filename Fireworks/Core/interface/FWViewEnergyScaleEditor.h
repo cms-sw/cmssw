@@ -47,7 +47,7 @@ public:
    // ---------- member functions ---------------------------
    void setEnabled(bool);
 
-   ClassDef(FWViewEnergyScaleEditor, 0);
+   ClassDefOverride(FWViewEnergyScaleEditor, 0);
 
 private:
    FWViewEnergyScaleEditor(const FWViewEnergyScaleEditor&); // stop default
