@@ -209,7 +209,7 @@ process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('NOT (36 OR 37 OR 
 # HLT trigger selection (HLT_ZeroBias)
 # modified for 0 Tesla HLT menu (no ZeroBias_*)
 process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
-process.hltHighLevel.HLTPaths = cms.vstring( 'HLT_ZeroBias_*' , 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*', 'HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*','HLT_HICentralityVeto*','HLT_HIMinBias*')
+process.hltHighLevel.HLTPaths = cms.vstring( 'HLT_ZeroBias_*' , 'HLT_HIZeroBias*', 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*', 'HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*','HLT_HICentralityVeto*','HLT_HIMinBias*')
 process.hltHighLevel.andOr = cms.bool(True)
 process.hltHighLevel.throw =  cms.bool(False)
 
@@ -305,13 +305,7 @@ process.siStripFEDMonitor.RawDataTag = cms.untracked.InputTag("rawDataRepacker")
     #event selection for pp collisions
   
 process.source.SelectEvents = cms.untracked.vstring(
-            'HLT_L1*',
-            'HLT_Jet*',
-            'HLT_Physics*',
-            'HLT_ZeroBias*',
-            'HLT_PAL1*',
-            'HLT_PAZeroBias*',
-            'HLT_PAAK*'
+           'HLT_HICentralityVeto*','HLT_HIMinBias*','HLT_HIZeroBias*'
             )
 
 process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/sistrip_reference_pp.root'
