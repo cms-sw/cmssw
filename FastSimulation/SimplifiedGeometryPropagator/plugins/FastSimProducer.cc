@@ -396,7 +396,6 @@ FastSimProducer::endStream()
 FSimTrack
 FastSimProducer::createFSimTrack(fastsim::Particle* particle, fastsim::ParticleManager* particleManager)
 {
-	// TODO: Not sure if correct momentum is used for the track... First argument might have to be momentum at origin vertex
 	FSimTrack myFSimTrack(particle->pdgId(), particle->momentum(), particle->simVertexIndex(), particle->genParticleIndex(), particle->simTrackIndex(), particle->charge(), particle->position(), particle->momentum(), particleManager->getSimVertex(particle->simVertexIndex()));
 
 	// move the particle through the caloLayers
