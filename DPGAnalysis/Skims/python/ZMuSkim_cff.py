@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 import copy
 from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 from PhysicsTools.PatAlgos.producersLayer1.genericParticleProducer_cfi import patGenericParticles
-
+from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi import patMuons
 
 ZMuHLTFilter = copy.deepcopy(hltHighLevel)
 ZMuHLTFilter.throw = cms.bool(False)
@@ -82,44 +82,9 @@ looseIsoMuonsForZMuSkim = cms.EDFilter("PATGenericParticleSelector",
 
 
 ###create the "tag collection" of muon candidate, embedding the relevant infos  
-tightMuonsCandidateForZMuSkim = cms.EDProducer("PATMuonProducer",
-    muonSource      = cms.InputTag("muons"),
-    useParticleFlow =  cms.bool( False ),
-    pfMuonSource = cms.InputTag("particleFlow"),
-    embedMuonBestTrack = cms.bool(True), 
-    embedTunePMuonBestTrack = cms.bool(True),
-    forceBestTrackEmbedding = cms.bool(True),
-    embedTrack          = cms.bool(True), ## embed in AOD externally stored tracker track
-    embedCombinedMuon   = cms.bool(True),  ## embed in AOD externally stored combined muon track
-    embedStandAloneMuon = cms.bool(True),  ## embed in AOD externally stored standalone muon track
-    embedPickyMuon      = cms.bool(True),  ## embed in AOD externally stored TeV-refit picky muon track
-    embedTpfmsMuon      = cms.bool(True),  ## embed in AOD externally stored TeV-refit TPFMS muon track
-    embedDytMuon        = cms.bool(True),  ## embed in AOD externally stored TeV-refit DYT muon track
-    embedPFCandidate = cms.bool(False), ## embed in AOD externally stored particle flow candidate
-    embedCaloMETMuonCorrs = cms.bool(False),
-    caloMETMuonCorrs = cms.InputTag("muonMETValueMapProducer"  , "muCorrData"),
-    # embedding of muon MET corrections for tcMET
-    embedTcMETMuonCorrs   = cms.bool(False), # removed from RECO/AOD!
-    tcMETMuonCorrs   = cms.InputTag("muonTCMETValueMapProducer", "muCorrData"),
-    embedPfEcalEnergy = cms.bool(False),
-    addPuppiIsolation = cms.bool(False),
-    addGenMatch   = cms.bool(False),
-    embedGenMatch = cms.bool(False),
-
-    addEfficiencies = cms.bool(False),
-    efficiencies    = cms.PSet(),
-
-    # resolution configurables
-    addResolutions  = cms.bool(False),
-    resolutions = cms.PSet(),
-    # high level selections                                                                                       
-    embedHighLevelSelection = cms.bool(True),
-    beamLineSrc             = cms.InputTag("offlineBeamSpot"),
-    pvSrc                   = cms.InputTag("offlinePrimaryVertices"),
-
-    computeMiniIso = cms.bool(False),
-    pfCandsForMiniIso = cms.InputTag("packedPFCandidates"),
-    miniIsoParams = cms.vdouble(0.05, 0.2, 10.0, 0.5, 0.0001, 0.01, 0.01, 0.01, 0.0),
+tightMuonsCandidateForZMuSkim = patMuons.clone(
+    src = cms.InputTag("muons"),
+    embedHighLevelSelection = cms.bool(True), 
 )
 
 ##apply ~tight muon ID 
