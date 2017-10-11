@@ -69,6 +69,28 @@ const GlobalPoint HGCellGeometry::getPosition(const DetId& id) const {
   return glob;
 }
 
+const std::vector<GlobalPoint> HGCellGeometry::getCorners(const DetId& id) const {
+
+  std::vector<GlobalPoint> co (8, GlobalPoint(0,0,0));
+  HGCalTopology::DecodedDetId id_ = topology().decode(id);
+  std::pair<float,float> xy;
+  if (topology().dddConstants().geomMode() == HGCalGeometryMode::Square) {
+    xy = topology().dddConstants().locateCell(id_.iCell,id_.iLay,id_.iSubSec,true);
+  } else {
+    xy = topology().dddConstants().locateCellHex(id_.iCell,id_.iSec,true);
+  }
+  float dz = param()[0];
+  float dx = param()[11];
+  static const int signx[] = {-1,-1,1,1,-1,-1,1,1};
+  static const int signy[] = {-1,1,1,-1,-1,1,1,-1};
+  static const int signz[] = {-1,-1,-1,-1,1,1,1,1};
+  for (unsigned int i = 0; i != 8; ++i) {
+    const HepGeom::Point3D<float> lcoord(xy.first+signx[i]*dx,xy.second+signy[i]*dx,signz[i]*dz);
+    co[i] = FlatTrd::getPosition(lcoord);
+  }
+  return co;
+}
+
 //----------------------------------------------------------------------
 
 std::ostream& operator<<( std::ostream& s, const HGCellGeometry& cell0) {

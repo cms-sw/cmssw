@@ -79,14 +79,14 @@ public:
   /// Returns the corner points of this cell's volume.
   const CornersVec& getCorners() const { assert(not m_corners.uninitialized()); return m_corners; }
   const RepCorners& getCornersREP() const {  return m_repCorners;}
-  virtual const CornersVec& getCorners(const DetId&) const {return getCorners();}
-  virtual const RepCorners& getCornersREP(const DetId&) const {return getCornersREP();}
+  virtual const std::vector<GlobalPoint> getCorners(const DetId&) const;
+  virtual const RepCorners getCornersREP(const DetId&) const {return getCornersREP();}
   
   /// Returns the position of reference for this cell 
   virtual const GlobalPoint& getPosition() const {return m_refPoint;}
   virtual const GlobalPoint& getBackPoint() const {return m_backPoint;} 
-  virtual const GlobalPoint  getPosition(const DetId&) const {return (GlobalPoint)(getPosition());}
-  virtual const GlobalPoint  getBackPoint(const DetId&) const {return (GlobalPoint)(getBackPoint());}
+  virtual const GlobalPoint  getPosition(const DetId&) const {return getPosition();}
+  virtual const GlobalPoint  getBackPoint(const DetId&) const {return getBackPoint();}
 
   RhoEtaPhi const & repPos() const { return m_rep;}
   float rhoPos() const { return m_rep.rho();}

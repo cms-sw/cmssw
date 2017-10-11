@@ -3,6 +3,7 @@
 
 #include "Geometry/CaloGeometry/interface/FlatTrd.h"
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include <CLHEP/Geometry/Point3D.h>
 #include <CLHEP/Geometry/Plane3D.h>
 #include <CLHEP/Geometry/Vector3D.h>
@@ -16,7 +17,7 @@ public:
   typedef CaloCellGeometry::Pt3D     Pt3D     ;
   typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
   typedef CaloCellGeometry::Tr3D     Tr3D     ;
-  
+
   HGCellGeometry(void);
   
   HGCellGeometry(const HGCellGeometry& tr) ;
@@ -37,6 +38,8 @@ public:
   ~HGCellGeometry() override ;
   
   const GlobalPoint getPosition(const DetId&) const override;
+
+  const std::vector<GlobalPoint> getCorners(const DetId&) const override;
 
   const HGCalTopology& topology() const {return *topo_;}
 

@@ -66,6 +66,18 @@ std::ostream& operator<<( std::ostream& s, const CaloCellGeometry& cell )
    return s ;
 }
 
+
+const std::vector<GlobalPoint> 
+CaloCellGeometry::getCorners(const DetId&) const {
+
+  std::vector<GlobalPoint> globs;
+  if (!m_corners.uninitialized()) {
+    for (const auto & glob : m_corners) 
+      globs.emplace_back(glob);
+  }
+  return globs;
+}
+
 void
 CaloCellGeometry::getTransform( Tr3D& tr , Pt3DVec* lptr ) const 
 {
