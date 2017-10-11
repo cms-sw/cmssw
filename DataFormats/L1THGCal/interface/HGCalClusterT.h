@@ -95,6 +95,7 @@ namespace l1t
       double seedMipPt() const { return seedMipPt_; }
       uint32_t detId() const { return detId_.rawId(); }
 
+
       /* distance in 'cm' */
       double distance( const l1t::HGCalTriggerCell &tc ) const 
       {
@@ -139,8 +140,32 @@ namespace l1t
       uint32_t subdetId() const {return detId_.subdetId();} 
       uint32_t layer() const {return detId_.layer();}
       int32_t zside() const {return detId_.zside();}
-      
 
+
+      //shower shape
+
+      int showerLength() const { return showerLength_; }
+      int firstLayer() const { return firstLayer_; }
+      float eMax() const { return eMax_; }
+      float sigmaEtaEtaMax() const { return sigmaEtaEtaMax_; }
+      float sigmaPhiPhiMax() const { return sigmaPhiPhiMax_; }
+      float sigmaEtaEtaTot() const { return sigmaEtaEtaTot_; }
+      float sigmaPhiPhiTot() const { return sigmaPhiPhiTot_; }
+      float sigmaZZ() const { return sigmaZZ_; }
+      float sigmaRRTot() const { return sigmaRRTot_; }
+      float sigmaRRMax() const { return sigmaRRMax_; }
+
+      void set_showerLength(int showerLength) { showerLength_ = showerLength;}
+      void set_firstLayer(int firstLayer) { firstLayer_ = firstLayer;}
+      void set_eMax(float eMax) { eMax_ = eMax;}
+      void set_sigmaEtaEtaMax(float sigmaEtaEtaMax) { sigmaEtaEtaMax_ = sigmaEtaEtaMax;}
+      void set_sigmaEtaEtaTot(float sigmaEtaEtaTot) { sigmaEtaEtaTot_ = sigmaEtaEtaTot;}
+      void set_sigmaPhiPhiMax(float sigmaPhiPhiMax) { sigmaPhiPhiMax_ = sigmaPhiPhiMax;}
+      void set_sigmaPhiPhiTot(float sigmaPhiPhiTot) { sigmaPhiPhiTot_ = sigmaPhiPhiTot;}
+      void set_sigmaRRMax(float sigmaRRMax) { sigmaRRMax_ = sigmaRRMax;}
+      void set_sigmaRRTot(float sigmaRRTot) { sigmaRRTot_ = sigmaRRTot;}
+      void set_sigmaZZ(float sigmaZZ) { sigmaZZ_ = sigmaZZ;}
+      
       /* operators */
       bool operator<(const HGCalClusterT<C>& cl) const {return mipPt() < cl.mipPt();}
       bool operator>(const HGCalClusterT<C>& cl) const  { return  cl<*this;   }
@@ -157,6 +182,19 @@ namespace l1t
 
       double mipPt_;
       double seedMipPt_;
+
+      //shower shape
+
+      int showerLength_;
+      int firstLayer_;
+      float eMax_;
+      float sigmaEtaEtaMax_;
+      float sigmaPhiPhiMax_;
+      float sigmaRRMax_;
+      float sigmaEtaEtaTot_;
+      float sigmaPhiPhiTot_;
+      float sigmaRRTot_;
+      float sigmaZZ_;
 
       ClusterShapes shapes_;
 
