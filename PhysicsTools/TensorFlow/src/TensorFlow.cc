@@ -109,6 +109,23 @@ Session* createSession(MetaGraphDef* metaGraph, const std::string& exportDir, bo
     return session;
 }
 
+bool closeSession(Session*& session)
+{
+    if (session == nullptr)
+    {
+        return true;
+    }
+
+    // close and delete the session
+    Status status = session->Close();
+    delete session;
+
+    // reset the pointer
+    session = nullptr;
+
+    return status.ok();
+}
+
 void run(Session* session, const NamedTensorList& inputs,
     const std::vector<std::string>& outputNames, const std::vector<std::string>& targetNodes,
     std::vector<Tensor>* outputs)
@@ -119,8 +136,7 @@ void run(Session* session, const NamedTensorList& inputs,
     }
 
     // run and check the status
-    Status status;
-    status = session->Run(inputs, outputNames, targetNodes, outputs);
+    Status status = session->Run(inputs, outputNames, targetNodes, outputs);
     if (!status.ok())
     {
         throw cms::Exception("InvalidRun")

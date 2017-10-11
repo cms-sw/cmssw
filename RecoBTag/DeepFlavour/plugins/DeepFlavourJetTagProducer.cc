@@ -111,9 +111,7 @@ DeepFlavourJetTagProducer::~DeepFlavourJetTagProducer()
 {
   // close and delete the session
   if (session_ != nullptr) {
-    session_->Close();
-    delete session_;
-    session_ = nullptr;
+    tf::closeSession(session_);
   }
 }
 
