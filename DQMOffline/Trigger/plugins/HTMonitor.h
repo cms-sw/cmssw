@@ -115,6 +115,7 @@ private:
   unsigned njets_;
   unsigned nelectrons_;
   unsigned nmuons_;
+  double dEtaCut_;
 
   static constexpr double MAXedge_PHI = 3.2;
   static constexpr int Nbin_PHI = 64;

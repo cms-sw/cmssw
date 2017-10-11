@@ -9,6 +9,7 @@ hltMjjmonitoring = htMonitoring.clone()
 hltMjjmonitoring.FolderName = cms.string('HLT/HT/PFMETNoMu120/')
 hltMjjmonitoring.quantity = cms.string('Mjj') # set quantity to invariant dijetmass
 hltMjjmonitoring.jetSelection = cms.string("pt > 200 && eta < 2.4")
+hltMjjmonitoring.dEtaCut     = cms.double(1.3)
 hltMjjmonitoring.histoPSet.htPSet = cms.PSet(
   nbins = cms.uint32 (  200  ),
   xmin  = cms.double(   -0.5),
