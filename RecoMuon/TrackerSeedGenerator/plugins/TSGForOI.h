@@ -8,7 +8,7 @@
  */
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -30,18 +30,18 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GeomPropagators/interface/StateOnTrackerBound.h"
 
-class TSGForOI : public edm::stream::EDProducer<> {
+class TSGForOI : public edm::global::EDProducer<> {
 public:
 	explicit TSGForOI(const edm::ParameterSet & iConfig);
 	virtual ~TSGForOI();
 	static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-	virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+	virtual void produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 private:
 	/// Labels for input collections
 	const edm::EDGetTokenT<reco::TrackCollection> src_;
 
 	/// Maximum number of seeds for each L2
-	unsigned int numOfMaxSeeds_;
+	const unsigned int numOfMaxSeedsParam_;
 
 	/// How many layers to try
 	const unsigned int numOfLayersToTry_;
@@ -73,11 +73,8 @@ private:
 	/// Switch ON to use Stereo layers instead of using every layer in TEC.
 	const bool useStereoLayersInTEC_;
 
-	/// Surface used to make a TSOS at the PCA to the beamline
-	Plane::PlanePointer dummyPlane_;
-
 	/// KFUpdator defined in constructor
-	std::unique_ptr<TrajectoryStateUpdator> updator_;
+	const std::unique_ptr<TrajectoryStateUpdator> updator_;
 
 	const edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrackerTag_;
 
@@ -90,37 +87,38 @@ private:
 	const double tsosDiff_;
 
 	/// Counters and flags for the implementation
-	bool analysedL2_;
-	bool foundHitlessSeed_;
-	unsigned int numSeedsMade_;
-	unsigned int layerCount_;
-
-	std::string theCategory;
-	edm::ESHandle<MagneticField>          magfield_;
-	edm::ESHandle<Propagator>             propagatorAlong_;
-	edm::ESHandle<Propagator>             propagatorOpposite_;
-	edm::ESHandle<GlobalTrackingGeometry> geometry_;
-	edm::Handle<MeasurementTrackerEvent>  measurementTracker_;
-	edm::ESHandle<Chi2MeasurementEstimatorBase>   estimator_;
+	const std::string theCategory;
 
 	/// Function to find seeds on a given layer
-	void findSeedsOnLayer(const GeometricSearchDet &layer,
-			      const TrajectoryStateOnSurface &tsosAtIP,
-			      const Propagator& propagatorAlong,
-			      const Propagator& propagatorOpposite,
-			      const reco::TrackRef l2,
-			      std::unique_ptr<std::vector<TrajectorySeed> >& seeds);
+	void findSeedsOnLayer(
+				const TrackerTopology* tTopo,
+				const GeometricSearchDet &layer,
+				const TrajectoryStateOnSurface &tsosAtIP,
+				const Propagator& propagatorAlong,
+				const Propagator& propagatorOpposite,
+				const reco::TrackRef l2,
+				edm::ESHandle<Chi2MeasurementEstimatorBase>& estimator_,
+				edm::Handle<MeasurementTrackerEvent>& measurementTrackerH,
+				unsigned int& numSeedsMade,
+				unsigned int& numOfMaxSeeds,
+				unsigned int& layerCount,
+				bool& foundHitlessSeed,
+				bool& analysedL2,
+				std::unique_ptr<std::vector<TrajectorySeed> >& out) const;
 
 	/// Function used to calculate the dynamic error SF by analysing the L2
-	double calculateSFFromL2(const reco::TrackRef track);
+	double calculateSFFromL2(const reco::TrackRef track) const;
 
 	/// Function to find hits on layers and create seeds from updated TSOS
-	int makeSeedsFromHits(const GeometricSearchDet &layer,
-			const TrajectoryStateOnSurface &state,
-			std::vector<TrajectorySeed> &out,
-			const Propagator& propagatorAlong,
-			const MeasurementTrackerEvent &mte,
-			double errorSF);
+	int makeSeedsFromHits(
+				const TrackerTopology* tTopo,
+				const GeometricSearchDet &layer,
+				const TrajectoryStateOnSurface &tsosAtIP,
+				std::vector<TrajectorySeed> &out,
+				const Propagator& propagatorAlong,
+				const MeasurementTrackerEvent &measurementTracker,
+				edm::ESHandle<Chi2MeasurementEstimatorBase>& estimator_,
+				const double errorSF) const;
 
 
 };
