@@ -160,6 +160,19 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
     mvaEstimator_.initialize(fip.fullPath(),mvaDrMax_);
   }
 
+  // MC info
+  simClassification_        = consumes<edm::ValueMap<int> >(edm::InputTag("muonSimClassifier",""));
+  simFlavour_               = consumes<edm::ValueMap<int> >(edm::InputTag("muonSimClassifier","flav"));
+  simHeaviestMotherFlavour_ = consumes<edm::ValueMap<int> >(edm::InputTag("muonSimClassifier","hmomFlav"));
+  simPdgId_                 = consumes<edm::ValueMap<int> >(edm::InputTag("muonSimClassifier","hitsPdgId"));
+  simMotherPdgId_           = consumes<edm::ValueMap<int> >(edm::InputTag("muonSimClassifier","momPdgId"));
+  simBX_                    = consumes<edm::ValueMap<int> >(edm::InputTag("muonSimClassifier","tpBx"));
+  simProdRho_               = consumes<edm::ValueMap<float> >(edm::InputTag("muonSimClassifier","prodRho"));
+  simProdZ_                 = consumes<edm::ValueMap<float> >(edm::InputTag("muonSimClassifier","prodZ"));
+  simProdPt_                = consumes<edm::ValueMap<float> >(edm::InputTag("muonSimClassifier","pt"));
+  simProdEta_               = consumes<edm::ValueMap<float> >(edm::InputTag("muonSimClassifier","eta"));
+  simProdPhi_               = consumes<edm::ValueMap<float> >(edm::InputTag("muonSimClassifier","phi"));
+
   // produces vector of muons
   produces<std::vector<Muon> >();
 }
@@ -272,6 +285,31 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     // this is needed by the IPTools methods from the tracking group
     iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilder);
   }
+
+  // MC info
+  edm::Handle<edm::ValueMap<int> > simClassification;
+  bool simInfoIsAvailalbe = iEvent.getByToken(simClassification_,simClassification);
+  edm::Handle<edm::ValueMap<int> > simFlavour;
+  iEvent.getByToken(simFlavour_,simFlavour);
+  edm::Handle<edm::ValueMap<int> > simHeaviestMotherFlavour;
+  iEvent.getByToken(simHeaviestMotherFlavour_,simHeaviestMotherFlavour);
+  edm::Handle<edm::ValueMap<int> > simPdgId;
+  iEvent.getByToken(simPdgId_,simPdgId);
+  edm::Handle<edm::ValueMap<int> > simMotherPdgId;
+  iEvent.getByToken(simMotherPdgId_,simMotherPdgId);
+  edm::Handle<edm::ValueMap<int> > simBX;
+  iEvent.getByToken(simBX_,simBX);
+  edm::Handle<edm::ValueMap<float> > simProdRho;
+  iEvent.getByToken(simProdRho_,simProdRho);
+  edm::Handle<edm::ValueMap<float> > simProdZ;
+  iEvent.getByToken(simProdZ_,simProdZ);
+  edm::Handle<edm::ValueMap<float> > simProdPt;
+  iEvent.getByToken(simProdPt_,simProdPt);
+  edm::Handle<edm::ValueMap<float> > simProdEta;
+  iEvent.getByToken(simProdEta_,simProdEta);
+  edm::Handle<edm::ValueMap<float> > simProdPhi;
+  iEvent.getByToken(simProdPhi_,simProdPhi);
+  
 
   // this will be the new object collection
   std::vector<Muon> * patMuons = new std::vector<Muon>();
@@ -468,7 +506,57 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
               } 
           }
       }
-
+      // MC info
+      aMuon.initSimInfo();
+      if (simInfoIsAvailalbe){
+	switch ((*simClassification)[muonBaseRef]){
+	case 0: 
+	  aMuon.setSimType(pat::Muon::NotMatched);
+	  break;
+	case 1: 
+	  aMuon.setSimType(pat::Muon::MatchedPunchthrough);
+	  break;
+	case 11: 
+	  aMuon.setSimType(pat::Muon::MatchedElectron);
+	  break;
+	case 4: 
+	  aMuon.setSimType(pat::Muon::MatchedPrimary);
+	  break;
+	case 3: 
+	  aMuon.setSimType(pat::Muon::MatchedHeavyFlavour);
+	  break;
+	case 2: 
+	  aMuon.setSimType(pat::Muon::MatchedLightFlavour);
+	  break;
+	case -1: 
+	  aMuon.setSimType(pat::Muon::GhostPunchthrough);
+	  break;
+	case -11: 
+	  aMuon.setSimType(pat::Muon::GhostElectron);
+	  break;
+	case -4: 
+	  aMuon.setSimType(pat::Muon::GhostPrimary);
+	  break;
+	case -3: 
+	  aMuon.setSimType(pat::Muon::GhostHeavyFlavour);
+	  break;
+	case -2: 
+	  aMuon.setSimType(pat::Muon::GhostLightFlavour);
+	  break;
+	default:
+	  throw cms::Exception("Error") << "uknown MuonSimHitClassification type";
+	}
+	aMuon.setSimFlavour((*simFlavour)[muonBaseRef]);
+	aMuon.setSimHeaviestMotherFlavour((*simHeaviestMotherFlavour)[muonBaseRef]);
+	aMuon.setSimPdgId((*simPdgId)[muonBaseRef]);
+	aMuon.setSimMotherPdgId((*simMotherPdgId)[muonBaseRef]);
+	aMuon.setSimBX((*simBX)[muonBaseRef]);
+	aMuon.setSimProdRho((*simProdRho)[muonBaseRef]);
+	aMuon.setSimProdZ((*simProdZ)[muonBaseRef]);
+	aMuon.setSimPt((*simProdPt)[muonBaseRef]);
+	aMuon.setSimEta((*simProdEta)[muonBaseRef]);
+	aMuon.setSimPhi((*simProdPhi)[muonBaseRef]);
+      }
       patMuons->push_back(aMuon);
     }
   }

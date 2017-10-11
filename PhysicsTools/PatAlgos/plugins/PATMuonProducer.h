@@ -186,6 +186,20 @@ namespace pat {
     pat::helper::EfficiencyLoader efficiencyLoader_;
     /// helper class to add userData to the muon
     pat::PATUserDataHelper<pat::Muon> userDataHelper_;
+
+    /// MC info
+    edm::EDGetTokenT<edm::ValueMap<int> > simClassification_;
+    edm::EDGetTokenT<edm::ValueMap<int> > simFlavour_;
+    edm::EDGetTokenT<edm::ValueMap<int> > simHeaviestMotherFlavour_;
+    edm::EDGetTokenT<edm::ValueMap<int> > simPdgId_;
+    edm::EDGetTokenT<edm::ValueMap<int> > simMotherPdgId_;
+    edm::EDGetTokenT<edm::ValueMap<int> > simBX_;
+    edm::EDGetTokenT<edm::ValueMap<float> > simProdRho_;
+    edm::EDGetTokenT<edm::ValueMap<float> > simProdZ_;
+    edm::EDGetTokenT<edm::ValueMap<float> > simProdPt_;
+    edm::EDGetTokenT<edm::ValueMap<float> > simProdEta_;
+    edm::EDGetTokenT<edm::ValueMap<float> > simProdPhi_;
+    
   };
 
 }
