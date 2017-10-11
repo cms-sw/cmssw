@@ -143,21 +143,21 @@ MuonSimClassifier::MuonSimClassifier(const edm::ParameterSet &iConfig) :
       genParticlesToken_ = consumes<reco::GenParticleCollection>(genParticles_);
     }
 
-    produces<edm::ValueMap<int> >();
-    produces<edm::ValueMap<int> >("ext");
-    produces<edm::ValueMap<int> >("flav");
-    produces<edm::ValueMap<int> >("hitsPdgId");
+    produces<edm::ValueMap<int> >(); // main classification
+    produces<edm::ValueMap<int> >("ext"); // extended classification
+    produces<edm::ValueMap<int> >("flav"); // flavour
+    produces<edm::ValueMap<int> >("hitsPdgId"); // pdg IF of matching tracking particle
     produces<edm::ValueMap<int> >("G4processType"); // Geant process producing the particle
     produces<edm::ValueMap<int> >("momPdgId");
     produces<edm::ValueMap<int> >("momFlav");
-    produces<edm::ValueMap<int> >("momStatus");
+    produces<edm::ValueMap<int> >("momStatus"); 
     produces<edm::ValueMap<int> >("gmomPdgId");
     produces<edm::ValueMap<int> >("gmomFlav");
     produces<edm::ValueMap<int> >("hmomFlav"); // heaviest mother flavour
     produces<edm::ValueMap<int> >("tpId");
     produces<edm::ValueMap<int> >("tpEv");
-    produces<edm::ValueMap<int> >("tpBx");    
-    produces<edm::ValueMap<float> >("signp");
+    produces<edm::ValueMap<int> >("tpBx");    // bunch crossing
+    produces<edm::ValueMap<float> >("signp"); // q x p
     produces<edm::ValueMap<float> >("pt");
     produces<edm::ValueMap<float> >("eta");
     produces<edm::ValueMap<float> >("phi");
