@@ -81,7 +81,7 @@ DeepFlavourTagInfoProducer::DeepFlavourTagInfoProducer(const edm::ParameterSet& 
     use_puppi_value_map_ = true;
   }
 
-  const auto & pvas_tag = iConfig.getParameter<edm::InputTag>("vertexAssociator");
+  const auto & pvas_tag = iConfig.getParameter<edm::InputTag>("vertex_associator");
   if (!pvas_tag.label().empty()) {
     pvasq_value_map_token_ = consumes<edm::ValueMap<int>>(pvas_tag);
     pvas_token_ = consumes<edm::Association<VertexCollection>>(pvas_tag);
@@ -97,6 +97,16 @@ DeepFlavourTagInfoProducer::~DeepFlavourTagInfoProducer()
 
 void DeepFlavourTagInfoProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 {
+  // pfDeepFlavourTagInfos
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("shallow_tag_infos", edm::InputTag("pfDeepCSVTagInfos"));
+  desc.add<double>("jet_radius", 0.4);
+  desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::InputTag>("puppi_value_map", edm::InputTag("puppi"));
+  desc.add<edm::InputTag>("secondary_vertices", edm::InputTag("inclusiveCandidateSecondaryVertices"));
+  desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"));
+  desc.add<edm::InputTag>("vertex_associator", edm::InputTag("primaryVertexAssociation","original"));
+  descriptions.add("pfDeepFlavourTagInfos", desc);
 }
 
 void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
