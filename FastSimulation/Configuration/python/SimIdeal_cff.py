@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from FastSimulation.ParticlePropagator.MagneticFieldMapESProducer_cfi import *
-
 # need for any other modules from commoninputs?
 
 # FastSim SimHits producer
