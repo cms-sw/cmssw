@@ -8,7 +8,7 @@
 
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
-namespace tf
+namespace tensorflow
 {
 
 void setLogging(const std::string& level)
@@ -42,7 +42,7 @@ MetaGraphDef* loadMetaGraph(const std::string& exportDir, bool multiThreaded,
             << "error while loading graph: " << status.ToString();
     }
 
-    // return and return a copy
+    // return a copy
     return new MetaGraphDef(bundle.meta_graph_def);
 }
 
@@ -98,8 +98,8 @@ Session* createSession(MetaGraphDef* metaGraph, const std::string& exportDir, bo
     Tensor varFileTensor(DT_STRING, TensorShape({}));
     varFileTensor.scalar<std::string>()() = varFile;
 
+    // run the restore op
     status = session->Run({ { varFileTensorName, varFileTensor } }, {}, { restoreOpName }, nullptr);
-
     if (!status.ok())
     {
         throw cms::Exception("InvalidSession")
@@ -159,4 +159,4 @@ void run(Session* session, const std::vector<std::string>& inputNames,
     run(session, inputNames, inputTensors, outputNames, {}, outputs);
 }
 
-} // namespace tf
+} // namespace tensorflow

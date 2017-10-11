@@ -19,10 +19,8 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-namespace tf
+namespace tensorflow
 {
-
-using namespace tensorflow;
 
 typedef std::pair<std::string, Tensor> NamedTensor;
 typedef std::vector<NamedTensor> NamedTensorList;
@@ -72,6 +70,9 @@ void run(Session* session, const std::vector<std::string>& inputNames,
     const std::vector<Tensor>& inputTensors, const std::vector<std::string>& outputNames,
     std::vector<Tensor>* outputs);
 
-} // namespace tf
+} // namespace tensorflow
+
+// use a namespace alias
+namespace tf = tensorflow;
 
 #endif // PHYSICSTOOLS_TENSORFLOW_TENSORFLOW_H
