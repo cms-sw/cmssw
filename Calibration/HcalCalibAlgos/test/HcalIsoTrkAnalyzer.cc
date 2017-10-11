@@ -997,7 +997,7 @@ double HcalIsoTrkAnalyzer::trackP(const reco::Track* pTrack,
   double pmom = -1.0;
   if (genParticles.isValid()) {
     double mindR(999.9);
-    for (const auto &p : (reco::GenParticleCollection)(*genParticles)) {
+    for (const auto &p : (*genParticles)) {
       double dR = reco::deltaR(pTrack->eta(), pTrack->phi(),
 			       p.momentum().Eta(), p.momentum().Phi());
       if (dR < mindR) {
@@ -1016,7 +1016,7 @@ double HcalIsoTrkAnalyzer::rhoh(const edm::Handle<CaloTowerCollection>& tower) {
   for (auto eta : etabins_) {
     for (auto phi : phibins_) {
       double hadder = 0;
-      for (const auto & pf_it : (CaloTowerCollection)(*tower)) {
+      for (const auto & pf_it : (*tower)) {
 	if (fabs(eta-pf_it.eta())>etahalfdist_)                 continue;
 	if (fabs(reco::deltaPhi(phi,pf_it.phi()))>phihalfdist_) continue;
 	hadder += pf_it.hadEt();
