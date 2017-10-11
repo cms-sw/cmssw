@@ -46,6 +46,9 @@ Session* createSession(bool multiThreaded = false);
 Session* createSession(MetaGraphDef* metaGraph, const std::string& exportDir,
     bool multiThreaded = false);
 
+// closes a session, calls its destructor, resets the pointer, and returns true on success
+bool closeSession(Session*& session);
+
 // run the session with inputs, outputNames and targetNodes, and store output tensors
 // throws a cms exception when not successful
 void run(Session* session, const NamedTensorList& inputs,

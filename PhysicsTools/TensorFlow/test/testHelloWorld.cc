@@ -106,6 +106,9 @@ void testSession::checkAll()
 
     std::cout << outputs[0].DebugString() << std::endl;
 
-    session->Close();
+    if (!session->Close().ok())
+    {
+        std::cerr << "error while closing session" << std::endl;
+    }
     delete session;
 }

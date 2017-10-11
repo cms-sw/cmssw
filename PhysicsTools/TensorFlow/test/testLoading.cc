@@ -115,9 +115,7 @@ void testLoading::checkAll()
         cms::Exception);
 
     // cleanup
-    session1->Close();
-    session2->Close();
-    delete session1;
-    delete session2;
+    CPPUNIT_ASSERT(tf::closeSession(session1));
+    CPPUNIT_ASSERT(tf::closeSession(session2));
     delete metaGraph;
 }
