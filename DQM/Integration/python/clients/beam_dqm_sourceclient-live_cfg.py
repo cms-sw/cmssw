@@ -261,7 +261,8 @@ process = customise(process)
 
 if (process.runType.getRunType() == process.runType.pp_run or process.runType.getRunType() == process.runType.pp_run_stage1 or
     process.runType.getRunType() == process.runType.cosmic_run or process.runType.getRunType() == process.runType.cosmic_run_stage1 or 
-    process.runType.getRunType() == process.runType.hpu_run):
+    process.runType.getRunType() == process.runType.hpu_run or
+    process.runType.getRunType() == process.runType.hi_run):
 
     print "[beam_dqm_sourceclient-live_cfg]:: Running pp"
 
@@ -383,7 +384,9 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
 #--------------------------------------------------
 # Heavy Ion Stuff
 #--------------------------------------------------
-if (process.runType.getRunType() == process.runType.hi_run):
+# For XeXe run (Oct 12, 2017) only
+#if (process.runType.getRunType() == process.runType.hi_run):
+if (False):
 
     print "beam_dqm_sourceclient-live_cfg:Running HI"
     process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")

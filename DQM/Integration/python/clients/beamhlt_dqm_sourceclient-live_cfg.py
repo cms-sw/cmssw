@@ -86,7 +86,8 @@ if (process.runType.getRunType() == process.runType.pp_run or
     process.runType.getRunType() == process.runType.pp_run_stage1 or
     process.runType.getRunType() == process.runType.cosmic_run or
     process.runType.getRunType() == process.runType.cosmic_run_stage1 or 
-    process.runType.getRunType() == process.runType.hpu_run):
+    process.runType.getRunType() == process.runType.hpu_run or
+    process.runType.getRunType() == process.runType.hi_run):
 
     print "[beamhlt_dqm_sourceclient-live_cfg]:: Running pp"
 
