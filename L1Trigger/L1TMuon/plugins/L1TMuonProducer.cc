@@ -64,9 +64,9 @@ using namespace l1t;
         static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
      private:
-        void beginJob() override ;
+        void beginJob() ;
         void produce(edm::Event&, const edm::EventSetup&) override;
-        void endJob() override ;
+        void endJob() ;
 
         void beginRun(edm::Run const&, edm::EventSetup const&) override;
         void endRun(edm::Run const&, edm::EventSetup const&) override;
