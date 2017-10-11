@@ -13,7 +13,7 @@ plots = {
     'jet': [
         "efficiencyJetEt_HB", "efficiencyJetEt_HE", "efficiencyJetEt_HF",
         "efficiencyJetEt_HB_HE"],
-    'met': ['efficiencyMET'],
+    'met': ['efficiencyMET', 'efficiencyETMHF'],
     'mht': ['efficiencyMHT'],
     'ett': ['efficiencyETT'],
     'htt': ['efficiencyHTT'],
@@ -33,12 +33,15 @@ resolution_plots = [
     "resolutionJetET_HB", "resolutionJetET_HE", "resolutionJetET_HF",
     "resolutionJetET_HB_HE", "resolutionJetPhi_HB", "resolutionJetPhi_HE",
     "resolutionJetPhi_HF", "resolutionJetPhi_HB_HE", "resolutionJetEta",
-    "resolutionMET", "resolutionMHT", "resolutionETT", "resolutionHTT",
-    "resolutionMETPhi", "resolutionMHTPhi",
+    # energy sums
+    "resolutionMET", "resolutionETMHF", "resolutionMHT", "resolutionETT",
+    "resolutionHTT", "resolutionMETPhi", "resolutionETMHFPhi",
+    "resolutionMHTPhi",
 ]
 plots2D = [
-    "L1METvsCaloMET", 'L1MHTvsRecoMHT', 'L1ETTvsCaloETT', 'L1HTTvsRecoHTT',
-    'L1METPhivsCaloMETPhi', 'L1MHTPhivsRecoMHTPhi',
+    'L1METvsCaloMET', 'L1ETMHFvsCaloETMHF', 'L1MHTvsRecoMHT', 'L1ETTvsCaloETT',
+    'L1HTTvsRecoHTT', 'L1METPhivsCaloMETPhi', 'L1ETMHFPhivsCaloETMHFPhi',
+    'L1MHTPhivsRecoMHTPhi',
     # jets
     'L1JetETvsCaloJetET_HB', 'L1JetETvsCaloJetET_HE', 'L1JetETvsCaloJetET_HF',
     'L1JetETvsCaloJetET_HB_HE', 'L1JetPhivsCaloJetPhi_HB', 'L1JetPhivsCaloJetPhi_HE',

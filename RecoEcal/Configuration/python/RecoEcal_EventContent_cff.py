@@ -100,8 +100,9 @@ phase2_hgcal.toReplaceWith( RecoEcalAOD , _phase2_hgcal_RecoEcalAOD  )
 
 from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
 from Configuration.Eras.Modifier_peripheralPbPb_cff import peripheralPbPb
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 #HI-specific products needed in pp scenario special configurations
-for e in [pA_2016, peripheralPbPb]:
+for e in [pA_2016, peripheralPbPb, pp_on_XeXe_2017]:
     for ec in [RecoEcalRECO.outputCommands, RecoEcalFEVT.outputCommands]:
         e.toModify( ec, func=lambda outputCommands: outputCommands.extend(['keep recoCaloClusters_islandBasicClusters_*_*'])
                     )

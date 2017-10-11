@@ -13,7 +13,7 @@ function runTest { echo $1 ; python $1 || die "Failure for configuration: $1" $?
 
 runTest "${LOCAL_TEST_DIR}/RunRepack.py --select-events HLT:path1,HLT:path2 --lfn /store/whatever"
 
-declare -a arr=("cosmics" "pp" "cosmicsEra_Run2_25ns" "cosmicsEra_Run2_2016" "ppEra_Run2_50ns" "ppEra_Run2_25ns" "ppEra_Run2_2016" "ppEra_Run2_2016_trackingLowPU" "ppEra_Run2_2016_pA" "cosmicsEra_Run2_2017" "ppEra_Run2_2017" "ppEra_Run2_2017_trackingLowPU")
+declare -a arr=("cosmics" "pp" "cosmicsEra_Run2_25ns" "cosmicsEra_Run2_2016" "ppEra_Run2_50ns" "ppEra_Run2_25ns" "ppEra_Run2_2016" "ppEra_Run2_2016_trackingLowPU" "ppEra_Run2_2016_pA" "cosmicsEra_Run2_2017" "ppEra_Run2_2017" "ppEra_Run2_2017_trackingLowPU" "ppEra_Run2_2017_pp_on_XeXe")
 for scenario in "${arr[@]}"
 do
      runTest "${LOCAL_TEST_DIR}/RunExpressProcessing.py --scenario $scenario --global-tag GLOBALTAG --lfn /store/whatever --fevt --dqmio  --alcareco TkAlMinBias+SiStripCalMinBias "
@@ -22,7 +22,7 @@ do
 done
 
 
-declare -a arr=("cosmics" "pp" "cosmicsEra_Run2_25ns" "cosmicsEra_Run2_2016" "AlCaLumiPixels" "AlCaTestEnable" "hcalnzs" "hcalnzsEra_Run2_25ns" "hcalnzsEra_Run2_2016" "ppEra_Run2_2016_trackingLowPU" "ppEra_Run2_2016_pA" "ppEra_Run2_50ns" "ppEra_Run2_25ns" "ppEra_Run2_2016" "cosmicsEra_Run2_2017" "hcalnzsEra_Run2_2017" "ppEra_Run2_2017_trackingLowPU" "ppEra_Run2_2017")
+declare -a arr=("cosmics" "pp" "cosmicsEra_Run2_25ns" "cosmicsEra_Run2_2016" "AlCaLumiPixels" "AlCaTestEnable" "hcalnzs" "hcalnzsEra_Run2_25ns" "hcalnzsEra_Run2_2016" "ppEra_Run2_2016_trackingLowPU" "ppEra_Run2_2016_pA" "ppEra_Run2_50ns" "ppEra_Run2_25ns" "ppEra_Run2_2016" "cosmicsEra_Run2_2017" "hcalnzsEra_Run2_2017" "ppEra_Run2_2017_trackingLowPU" "ppEra_Run2_2017_pp_on_XeXe" "ppEra_Run2_2017")
 for scenario in "${arr[@]}"
 do
      runTest "${LOCAL_TEST_DIR}/RunPromptReco.py --scenario $scenario --reco --aod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever  --alcareco TkAlMinBias+SiStripCalMinBias"
@@ -36,14 +36,14 @@ do
 done
 
 
-declare -a arr=("cosmics" "pp" "cosmicsEra_Run2_25ns" "cosmicsEra_Run2_2016" "HeavyIons" "HeavyIonsEra_Run2_HI" "AlCaLumiPixels" "ppEra_Run2_50ns" "ppEra_Run2_25ns" "ppEra_Run2_2016" "ppEra_Run2_2016_trackingLowPU" "ppEra_Run2_2016_pA" "cosmicsEra_Run2_2017" "ppEra_Run2_2017_trackingLowPU" "ppEra_Run2_2017")
+declare -a arr=("cosmics" "pp" "cosmicsEra_Run2_25ns" "cosmicsEra_Run2_2016" "HeavyIons" "HeavyIonsEra_Run2_HI" "AlCaLumiPixels" "ppEra_Run2_50ns" "ppEra_Run2_25ns" "ppEra_Run2_2016" "ppEra_Run2_2016_trackingLowPU" "ppEra_Run2_2016_pA" "cosmicsEra_Run2_2017" "ppEra_Run2_2017_trackingLowPU" "ppEra_Run2_2017_pp_on_XeXe" "ppEra_Run2_2017")
 for scenario in "${arr[@]}"
 do
      runTest "${LOCAL_TEST_DIR}/RunAlcaSkimming.py --scenario $scenario --lfn=/store/whatever --global-tag GLOBALTAG --skims SiStripCalZeroBias,SiStripCalMinBias,PromptCalibProd"
      runTest "${LOCAL_TEST_DIR}/RunDQMHarvesting.py --scenario $scenario --lfn /store/whatever --run 12345 --dataset /A/B/C --global-tag GLOBALTAG"
 done
 
-declare -a arr=("ppEra_Run2_50ns" "ppEra_Run2_25ns" "ppEra_Run2_2016" "ppEra_Run2_2016_trackingLowPU" "ppEra_Run2_2016_pA" "ppEra_Run2_2017" "ppEra_Run2_2017_trackingLowPU")
+declare -a arr=("ppEra_Run2_50ns" "ppEra_Run2_25ns" "ppEra_Run2_2016" "ppEra_Run2_2016_trackingLowPU" "ppEra_Run2_2016_pA" "ppEra_Run2_2017" "ppEra_Run2_2017_trackingLowPU" "ppEra_Run2_2017_pp_on_XeXe")
 for scenario in "${arr[@]}"
 do
      runTest "${LOCAL_TEST_DIR}/RunPromptReco.py --scenario $scenario --reco --aod --miniaod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever  --alcareco TkAlMinBias+SiStripCalMinBias"

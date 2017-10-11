@@ -6,10 +6,15 @@ variables = {
     'photon': L1TEGammaOffline_cfi.photonEfficiencyThresholds,
 }
 
+deepInspectionThresholds = {
+    'electron': L1TEGammaOffline_cfi.deepInspectionElectronThresholds,
+    'photon': [],
+}
+
 plots = {
     'electron': [
         "efficiencyElectronET_EB", "efficiencyElectronET_EE",
-        "efficiencyElectronET_EB_EE"
+        "efficiencyElectronET_EB_EE", "efficiencyElectronPhi_vs_Eta",
     ],
     'photon': [
         "efficiencyPhotonET_EB", "efficiencyPhotonET_EE",
@@ -17,10 +22,24 @@ plots = {
     ]
 }
 
+deepInspectionPlots = {
+    'electron': [
+        'efficiencyElectronEta', 'efficiencyElectronPhi',
+        'efficiencyElectronNVertex'
+    ],
+    'photon': [],
+}
+
 allEfficiencyPlots = []
 add_plot = allEfficiencyPlots.append
 for variable, thresholds in variables.iteritems():
     for plot in plots[variable]:
+        for threshold in thresholds:
+            plotName = '{0}_threshold_{1}'.format(plot, threshold)
+            add_plot(plotName)
+
+for variable, thresholds in deepInspectionThresholds.iteritems():
+    for plot in deepInspectionPlots[variable]:
         for threshold in thresholds:
             plotName = '{0}_threshold_{1}'.format(plot, threshold)
             add_plot(plotName)
