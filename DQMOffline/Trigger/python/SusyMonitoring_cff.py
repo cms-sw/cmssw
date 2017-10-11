@@ -173,7 +173,6 @@ triple_muon_mupt.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_TripleMu
 triple_muon_mupt.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Trimuon5_3p5_2_Upsilon_Muon_v*')
 
 #triplemu dca
-#triple muon
 triple_muon_dca_mupt = hltTOPmonitoring.clone()
 triple_muon_dca_mupt.FolderName   = cms.string('HLT/SUSY/SOS/TrileMu/DCA/Muon')
 # Selections

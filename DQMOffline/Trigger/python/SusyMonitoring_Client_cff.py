@@ -134,9 +134,6 @@ triple_muon_dca_mupt_efficiency = DQMEDHarvester("DQMGenericClient",
         ),
 )
 
-
-
-
 #dca double muon
 double_soft_dca_muonpt_efficiency = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/SUSY/SOS/DCA/Muon/*"),
