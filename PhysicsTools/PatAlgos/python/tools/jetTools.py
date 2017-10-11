@@ -555,7 +555,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                       secondary_vertices=svSource,
                                       shallow_tag_infos = cms.InputTag(btagPrefix+'pfDeepCSVTagInfos'+labelName+postfix),
                                       puppi_value_map = "", # so it is not used
-                                      vertexAssociator = "", # so it is not used
+                                      vertex_associator = "", # so it is not used
                                       ),
                                     process, task)
 
