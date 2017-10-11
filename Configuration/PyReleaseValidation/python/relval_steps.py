@@ -458,6 +458,11 @@ steps['TTbar__DIGIPU1INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/CMSSW_5_2_
 # INPUT command for reminiAOD wf on 80X relval input
 steps['TTbar_13_reminiaodINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/CMSSW_8_0_21-80X_mcRun2_asymptotic_2016_TrancheIV_v6_Tr4GT_v6-v1/GEN-SIM-RECO',label='reminiaod',location='STD')}
 
+#input for a NANOAOD from MINIAOD workflow
+#steps['TTbar_13_80XNanoAODINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/',label='nanoaod80X',location='STD')}
+steps['TTbar_13_92XNanoAODINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/CMSSW_9_2_12-PU25ns_92X_upgrade2017_realistic_v11-v1/MINIAODSIM',label='nanoaod92X',location='STD')}
+steps['TTbar_13_94XNanoAODINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/CMSSW_9_4_0_pre1-PU25ns_93X_mc2017_realistic_v3-v1/MINIAODSIM',label='nanoaod94X',location='STD')}
+
 # 13 TeV recycle GEN-SIM input
 steps['MinBias_13INPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['QCD_Pt_3000_3500_13INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_3000_3500_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
@@ -1944,9 +1949,11 @@ steps['DBLMINIAODMCUP15NODQM'] = merge([{'--conditions':'auto:run2_mc',
                                    '--eventcontent':'MINIAOD',},stepMiniAODMC])
 
 
-stepNanoAODDefaults = { '-s': 'NANO', '--datatier': 'NANO', '-n': 1000 }
-stepNanoAODData = merge([{ '--data':'', '--eventcontent' : 'NANOAOD'    }, stepNanoAODDefaults ])
-stepNanoAODMC   = merge([{ '--mc':''  , '--eventcontent' : 'NANOAODSIM' }, stepNanoAODDefaults ])
+stepNanoAODDefaults = { '-s': 'NANO', '-n': 1000 }
+stepNanoAODData = merge([{ '--data':'', '--eventcontent' : 'NANOAOD' ,'--datatier': 'NANOAOD'    }, stepNanoAODDefaults ])
+stepNanoAODMC   = merge([{ '--mc':''  , '--eventcontent' : 'NANOAODSIM','--datatier': 'NANOAODSIM' }, stepNanoAODDefaults ])
+stepNanoEDMData = merge([{ '--data':'', '--eventcontent' : 'NANOAOD'     }, stepNanoAODDefaults ])
+stepNanoEDMMC   = merge([{ '--mc':''  , '--eventcontent' : 'NANOAODSIM' }, stepNanoAODDefaults ])
 
 steps['NANOAOD2016']   = merge([{'--conditions': 'auto:run2_data_relval', '--era': 'Run2_2016'}, stepNanoAODData ])
 steps['NANOAOD2017']   = merge([{'--conditions': 'auto:run2_data_relval', '--era': 'Run2_2017'}, stepNanoAODData ])
@@ -1960,6 +1967,11 @@ steps['NANOAODMC2017'] = merge([{'--conditions': 'auto:phase1_2017_realistic', '
 steps['NANOAODMC2016_80X'] = merge([{'--era': 'Run2_2016,run2_miniAOD_80XLegacy'}, steps['NANOAODMC2016'] ])
 steps['NANOAODMC2017_92X'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_92X'},       steps['NANOAODMC2017'] ])
 
+steps['NANOEDMMC2017'] = merge([{'--conditions': 'auto:phase1_2017_realistic', '--era': 'Run2_2017'}, stepNanoEDMMC ])
+steps['NANOEDMMC2017_92X'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_92X'},       steps['NANOAODEDMMC2017'] ])
+
+
+steps['NANOMERGE'] = { '-s': 'ENDJOB', '-n': 1000 , '--eventcontent' : 'NANOAODSIM','--datatier': 'NANOAODSIM' }
 
 #################################################################################
 ####From this line till the end of the file :
@@ -2144,7 +2156,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
 
     upgradeStepDict['NanoFull'][k] = {'-s':'NANO',
                                       '--conditions':gt,
-                                      '--datatier':'NANO',
+                                      '--datatier':'NANOAODSIM',
                                       '-n':'10',
                                       '--eventcontent':'NANOAODSIM',
 				      '--filein':'file:step3_inMINIAODSIM.root',

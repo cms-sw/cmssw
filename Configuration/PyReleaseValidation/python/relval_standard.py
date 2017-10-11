@@ -357,6 +357,15 @@ workflows[1325.4] = ['', ['TTbar_13','DIGIUP15','RECOUP15_HIPM','HARVESTUP15']]
 # reminiaod wf on 80X MC
 workflows[1325.5] = ['', ['TTbar_13_reminiaodINPUT','REMINIAOD_mc2016','HARVESTDR2_REMINIAOD_mc2016']]
 
+# nanoaod wf without intermediate EDM,  starting from existing MINIAOD inputs
+workflows[1325.6] = ['', ['TTbar_13_92XNanoAODINPUT','NANOAODMC2017_92X']]
+workflows[1325.7] = ['', ['TTbar_13_94XNanoAODINPUT','NANOAODMC2017']]
+# nanoaod wf with intermediate EDM and merge step, starting from existing MINIAOD inputs
+workflows[1325.8] = ['', ['TTbar_13_92XNanoAODINPUT','NANOEDMMC2017','NANOMERGE']]
+workflows[1325.9] = ['', ['TTbar_13_94XNanoAODINPUT','NANOEDMMC2017_92X','NANOMERGE']]
+
+
+
 workflows[1326] = ['', ['WE_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1329] = ['', ['ZEE_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1356] = ['', ['ZEE_13_DBLMINIAOD','DIGIUP15','RECOAODUP15','HARVESTUP15','DBLMINIAODMCUP15NODQM']] 
