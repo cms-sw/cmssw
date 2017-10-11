@@ -55,7 +55,7 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
       MaxTimeHits[i] = 0.;
     }
   
-  for (const auto & hit : (HBHERecHitCollection)(*TheHBHERecHits)) {
+  for (const auto & hit : (*TheHBHERecHits)) {
     HcalDetId id = HcalDetId(hit.id());
     switch ( id.subdet() ) {      
     case HcalBarrel:
@@ -87,7 +87,7 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 	  
       // Loop over rechits again to calculate direction based on timing info
       std::vector<const HBHERecHit*> Hits;
-      for (const auto & hit : (HBHERecHitCollection)(*TheHBHERecHits)) {
+      for (const auto & hit : (*TheHBHERecHits)) {
 	HcalDetId id = HcalDetId(hit.id());
 	if( id.iphi() != iPhi ) continue;
 	if( std::abs(id.ieta() ) > iEtaOverlap ) continue;  // has to overlap geometrically w/ HB
@@ -130,7 +130,7 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 
   std::map<int, float> iPhiHadEtMap;
   std::vector<const CaloTower*> sortedCaloTowers;
-  for (const auto & tower : (CaloTowerCollection)(*TheCaloTowers)) {
+  for (const auto & tower : (*TheCaloTowers)) {
     if(std::abs(tower.ieta()) > maxAbsIEta) continue;
     
     int iPhi = tower.iphi();
