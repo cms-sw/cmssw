@@ -1523,8 +1523,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             ##adding the necessary chs and track met configuration
             task = getPatAlgosToolsTask(process)
 
-            pfChs = cms.EDFilter("CandPtrSelector", src = "packedPFCandidates", cut = cms.string("fromPV(0)>0"))
-
+            pfChs = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV(0)>0"))
             addToProcessAndTask("pfChs", pfChs, process, task)
             pfMetChs = cms.EDProducer("PFMETProducer",
                                       src = cms.InputTag('pfChs'),
@@ -1547,10 +1546,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             patMetModuleSequence += getattr(process, "pfMetChs")
             patMetModuleSequence += getattr(process, "patChsMet")
 
-            pfTrk = cms.EDFilter("CandPtrSelector", src = "packedPFCandidates", cut = cms.string("charge()!=0 && pvAssociationQuality()>=4 && vertexRef().key()==0"))
-
+            pfTrk = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV(0) > 0 && charge()!=0"))
             addToProcessAndTask("pfTrk", pfTrk, process, task)
-
             pfMetTrk = cms.EDProducer("PFMETProducer",
                                       src = cms.InputTag('pfTrk'),
                                       alias = cms.string('pfMet'),
