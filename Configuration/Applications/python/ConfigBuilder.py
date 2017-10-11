@@ -626,7 +626,7 @@ class ConfigBuilder(object):
 		if self._options.timeoutOutput:
 			CppType='TimeoutPoolOutputModule'
 		if streamType=='DQM' and tier=='DQMIO': CppType='DQMRootOutputModule'
-		if "NANOAOD" in streamType and tier=='NANO': CppType='NanoAODOutputModule'
+		if "NANOAOD" in streamType and 'NANOAOD' in tier : CppType='NanoAODOutputModule'
                 output = cms.OutputModule(CppType,
                                           theEventContent,
                                           fileName = cms.untracked.string(theFileName),
