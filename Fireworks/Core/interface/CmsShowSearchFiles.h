@@ -53,7 +53,7 @@ public:
    
    void hyperlinkClicked(const char*);
 
-   ClassDef(CmsShowSearchFiles, 0);
+   ClassDefOverride(CmsShowSearchFiles, 0);
 
 private:
    void sendToWebBrowser(std::string& iWebFile);
