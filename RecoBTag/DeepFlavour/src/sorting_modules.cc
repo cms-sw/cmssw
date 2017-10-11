@@ -1,8 +1,7 @@
 
-
-
-#include "../interface/sorting_modules.h"
+#include "RecoBTag/DeepFlavour/interface/sorting_modules.h"
 #include <iostream>
+
 namespace btagbtvdeep{
 
 std::vector<std::size_t> invertSortingVector(const std::vector<SortingClass<std::size_t> > & in){
@@ -16,7 +15,7 @@ std::vector<std::size_t> invertSortingVector(const std::vector<SortingClass<std:
     }
     std::vector<std::size_t> out(max+1,0);
     for(std::size_t i=0;i<in.size();i++){
-        out.at(in.at(i).get())=i;
+        out.at(in[i].get())=i;
     }
 
     return out;
