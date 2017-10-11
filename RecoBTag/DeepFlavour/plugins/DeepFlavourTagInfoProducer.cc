@@ -194,7 +194,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
                                    jet.py(),
                                    jet.pz());
 
-    std::vector<sorting::sortingClass<size_t> > c_sorted, n_sorted;
+    std::vector<btagbtvdeep::SortingClass<size_t> > c_sorted, n_sorted;
 
     btagbtvdeep::TrackInfoBuilder trackinfo(track_builder);
 
@@ -220,15 +220,15 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
 
     // sort collections (open the black-box if you please) 
     std::sort(c_sorted.begin(),c_sorted.end(),
-      sorting::sortingClass<std::size_t>::compareByABCInv);
+      btagbtvdeep::SortingClass<std::size_t>::compareByABCInv);
     std::sort(n_sorted.begin(),n_sorted.end(),
-      sorting::sortingClass<std::size_t>::compareByABCInv);
+      btagbtvdeep::SortingClass<std::size_t>::compareByABCInv);
 
     std::vector<size_t> c_sortedindices,n_sortedindices;
    
     // this puts 0 everywhere and the right position in ind 
-    c_sortedindices=sorting::invertSortingVector(c_sorted);
-    n_sortedindices=sorting::invertSortingVector(n_sorted);
+    c_sortedindices=btagbtvdeep::invertSortingVector(c_sorted);
+    n_sortedindices=btagbtvdeep::invertSortingVector(n_sorted);
 
     // set right size to vectors
     features.c_pf_features.clear();
