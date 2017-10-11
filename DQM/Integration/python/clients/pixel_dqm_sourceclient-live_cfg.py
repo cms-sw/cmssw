@@ -92,7 +92,8 @@ process.load("RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_RealData_cf
 
 process.siPixelDigis.IncludeErrors = True
 process.siPixelDigis.InputLabel   = cms.InputTag("rawDataRepacker")
-process.siStripDigis.InputLabel   = cms.InputTag("rawDataRepacker")
+#process.siStripDigis.InputLabel   = cms.InputTag("rawDataRepacker")
+process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
 
 #--------------------------------
 # Heavy Ion Configuration Changes
