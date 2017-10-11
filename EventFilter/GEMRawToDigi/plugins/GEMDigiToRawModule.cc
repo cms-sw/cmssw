@@ -17,10 +17,6 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 #include "EventFilter/GEMRawToDigi/plugins/GEMDigiToRawModule.h"
-#include "EventFilter/GEMRawToDigi/interface/AMC13Event.h"
-
-#include "CondFormats/DataRecord/interface/GEMChamberMapRcd.h"
-#include "CondFormats/GEMObjects/interface/GEMChamberMap.h"
 
 GEMDigiToRawModule::GEMDigiToRawModule(const edm::ParameterSet & pset) 
 {
@@ -34,20 +30,28 @@ void GEMDigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions & descr
   desc.add<edm::InputTag>("gemDigi", edm::InputTag("simMuonGEMDigis"));
 }
 
+void GEMDigiToRawModule::beginRun(const edm::Run &run, const edm::EventSetup& iSetup)
+{
+  edm::ESHandle<GEMEMap> gemEMap;
+  iSetup.get<GEMEMapRcd>().get(gemEMap); 
+  m_gemEMap = gemEMap.product();
+  m_gemROMap = m_gemEMap->convertCS();
+
+}
 
 void GEMDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c ){
 
   bool verbose_ = true;
   ///reverse mapping for packer
-  edm::ESHandle<GEMChamberMap> gemChamberMap;
-  c.get<GEMChamberMapRcd>().get(gemChamberMap); 
-  const GEMChamberMap* theMapping = gemChamberMap.product();
+  edm::ESHandle<GEMEMap> gemEMap;
+  c.get<GEMEMapRcd>().get(gemEMap); 
+  const GEMEMap* theMapping = gemEMap.product();
 
   auto fedRawDataCol = std::make_unique<FEDRawDataCollection>();
 
   // Take digis from the event
   edm::Handle<GEMDigiCollection> gemDigis;
-  e.getByToken( digi_token, gemDigi );
+  e.getByToken( digi_token, gemDigis );
 
   e.put(std::move(fedRawDataCol));
 }

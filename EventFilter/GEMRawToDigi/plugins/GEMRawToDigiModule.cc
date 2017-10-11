@@ -10,11 +10,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
-#include "CondFormats/DataRecord/interface/GEMChamberMapRcd.h"
-#include "CondFormats/GEMObjects/interface/GEMChamberMap.h"
-#include "EventFilter/GEMRawToDigi/interface/AMC13Event.h"
 #include "EventFilter/GEMRawToDigi/plugins/GEMRawToDigiModule.h"
+using namespace gem;
 
 GEMRawToDigiModule::GEMRawToDigiModule(const edm::ParameterSet & pset)
 {
@@ -27,11 +26,17 @@ void GEMRawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions & descr
   desc.add<edm::InputTag>("InputObjects", edm::InputTag("rawDataCollector")); 
 }
 
-void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& c ){
+void GEMRawToDigiModule::beginRun(const edm::Run &run, const edm::EventSetup& iSetup)
+{
+  edm::ESHandle<GEMEMap> gemEMap;
+  iSetup.get<GEMEMapRcd>().get(gemEMap); 
+  m_gemEMap = gemEMap.product();
+  m_gemROMap = m_gemEMap->convertCS();
+
+}
+
+void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup ){
   ///reverse mapping for unPacker
-  edm::ESHandle<GEMChamberMap> gemChamberMap;
-  c.get<GEMChamberMapRcd>().get(gemChamberMap); 
-  const GEMChamberMap* theMapping = gemChamberMap.product();
 
   auto outGEMDigis = std::make_unique<GEMDigiCollection>();
 
@@ -48,59 +53,61 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& c ){
 
     const unsigned char * data = fedData.data();
     
-    m_AMC13Event = new AMC13Event();
+    AMC13Event * amc13Event = new AMC13Event();
     
     const uint64_t* header = reinterpret_cast<const uint64_t* >(data);
-    m_AMC13Event->setCDFHeader(header);
+    amc13Event->setCDFHeader(*header);
 
     
     const uint64_t* word = (const uint64_t*)(header+1);
-    m_AMC13Event->setAMC13header(word);
+    amc13Event->setAMC13header(*word);
     
     // Readout out AMC headers
-    for (unsigned short i = 0; i < m_AMC13Event->nAMC(); i++){
-      m_AMC13Event->addAMCheader(++word);
+    for (unsigned short i = 0; i < amc13Event->nAMC(); i++){
+      amc13Event->addAMCheader(*(++word));
     }
 
     // Readout out AMC payloads
-    for (unsigned short i = 0; i < m_AMC13Event->nAMC(); i++){
-      AMCdata * m_amcdata = new AMCdata();
+    for (unsigned short i = 0; i < amc13Event->nAMC(); i++){
+      AMCdata * amcData = new AMCdata();
       
-      m_amcdata->setAMCheader1(++word);      
-      m_amcdata->setAMCheader2(++word);
-      m_amcdata->setGEMeventHeader(++word);
+      amcData->setAMCheader1(*(++word));      
+      amcData->setAMCheader2(*(++word));
+      amcData->setGEMeventHeader(*(++word));
 
       // Fill GEB
-      for (unsigned short j = 0; j < m_amcdata->GDcount(); j++){
-	GEBdata * m_gebdata = new GEBdata();
-	m_gebdata->setChamberHeader(++word);
-	int m_nvb = m_gebdata->Vwh() / 3; // number of VFAT2 blocks. Eventually add here sanity check
+      for (unsigned short j = 0; j < amcData->GDcount(); j++){
+	GEBdata * gebData = new GEBdata();
+	gebData->setChamberHeader(*(++word));
+	int m_nvb = gebData->Vwh() / 3; // number of VFAT2 blocks. Eventually add here sanity check
 
 	for (unsigned short k = 0; k < m_nvb; k++){
-	  VFATdata * m_vfatdata = new VFATdata();
-	  m_vfatdata->read_fw(++word);
-	  m_vfatdata->read_sw(++word);
-	  m_vfatdata->read_tw(++word);
-	  m_gebdata->v_add(*m_vfatdata);
+	  VFATdata * vfatData = new VFATdata();
+	  vfatData->read_fw(*(++word));
+	  vfatData->read_sw(*(++word));
+	  vfatData->read_tw(*(++word));
+	  gebData->v_add(*vfatData);
 
 
-	  uint16_t bc=m_vfatdata->BC();
-	  uint8_t ec=m_vfatdata->EC();
-	  uint8_t b1010=m_vfatdata->b1010();
-	  uint8_t b1100=m_vfatdata->b1100();
-	  uint8_t b1110=m_vfatdata->b1110();
-	  uint16_t  ChipID=m_vfatdata->ChipID();
-	  //int slot=m_vfatdata->SlotNumber(); 
-	  uint16_t crc = m_vfatdata->crc();
-	  uint16_t crc_check = checkCRC(m_vfatdata);
+	  uint16_t bc=vfatData->BC();
+	  uint8_t ec=vfatData->EC();
+	  uint8_t b1010=vfatData->b1010();
+	  uint8_t b1100=vfatData->b1100();
+	  uint8_t b1110=vfatData->b1110();
+	  uint16_t  ChipID=vfatData->ChipID();
+	  //int slot=vfatData->SlotNumber(); 
+	  uint16_t crc = vfatData->crc();
+	  uint16_t crc_check = checkCRC(vfatData);
 	  bool Quality = (b1010==10) && (b1100==12) && (b1110==14) && (crc==crc_check) ;
 	  uint64_t converted=ChipID+0xf000;    
 
+	  uint8_t chan0xf = 0;
+	  
 	  for(int chan = 0; chan < 128; ++chan) {
 	    if(chan < 64){
-	      chan0xf = ((m_vfatdata->lsData() >> chan) & 0x1);
+	      chan0xf = ((vfatData->lsData() >> chan) & 0x1);
 	    } else {
-	      chan0xf = ((m_vfatdata->msData() >> (chan-64)) & 0x1);
+	      chan0xf = ((vfatData->msData() >> (chan-64)) & 0x1);
 	    }
 
 	    if(chan0xf==0) continue;  
@@ -109,7 +116,7 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& c ){
 	    ec.chamberId=31;
 	    ec.vfatId = ChipID+0xf000;
 	    ec.channelId = chan+1;
-	    GEMROmap::dCoord dc = romapV2->hitPosition(ec);
+	    GEMROmap::dCoord dc = m_gemROMap->hitPosition(ec);
 
 	    int strip=dc.stripId +1;//
 	    if (strip > 2*128) strip-=128*2;
@@ -122,24 +129,65 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& c ){
 	    // NEED TOO FIX GEMDETID
 	    // NEED TOO FIX GEMDETID
 	    // NEED TOO FIX GEMDETID
-	    outGEMDigis.get()->insertDigi(GEMDetId(1,1,1,chamberPosition,schamberPosition,etaP),digi); 
+	    outGEMDigis.get()->insertDigi(GEMDetId(1,1,1,1,1,etaP),digi); 
 	  }
 	  
-	  delete m_vfatdata;
+	  delete vfatData;
 	}
-	m_gebdata->setChamberTrailer(++word);
-	m_amcdata->g_add(*m_gebdata);
-	delete m_gebdata;
+	gebData->setChamberTrailer(*(++word));
+	amcData->g_add(*gebData);
+	delete gebData;
       }
-      m_amcdata->setGEMeventTrailer(++word);
-      m_amcdata->setAMCTrailer(++word);
-      m_AMC13Event->addAMCpayload(*m_amcdata);
-      delete m_amcdata;
+      amcData->setGEMeventTrailer(*(++word));
+      amcData->setAMCTrailer(*(++word));
+      amc13Event->addAMCpayload(*amcData);
+      delete amcData;
     }
-    m_AMC13Event->setAMC13trailer(++word);
-    m_AMC13Event->setCDFTrailer(++word);
+    amc13Event->setAMC13trailer(*(++word));
+    amc13Event->setCDFTrailer(*(++word));
   }
   e.put(std::move(outGEMDigis), "MuonGEMDigis");
 }
 
 
+
+uint16_t GEMRawToDigiModule::checkCRC(VFATdata * vfatData)
+{
+  uint16_t vfatBlockWords[12]; 
+  vfatBlockWords[11] = ((0x000f & vfatData->b1010())<<12) | vfatData->BC();
+  vfatBlockWords[10] = ((0x000f & vfatData->b1100())<<12) | ((0x00ff & vfatData->EC()) <<4) | (0x000f & vfatData->Flag());
+  vfatBlockWords[9]  = ((0x000f & vfatData->b1110())<<12) | vfatData->ChipID();
+  vfatBlockWords[8]  = (0xffff000000000000 & vfatData->msData()) >> 48;
+  vfatBlockWords[7]  = (0x0000ffff00000000 & vfatData->msData()) >> 32;
+  vfatBlockWords[6]  = (0x00000000ffff0000 & vfatData->msData()) >> 16;
+  vfatBlockWords[5]  = (0x000000000000ffff & vfatData->msData());
+  vfatBlockWords[4]  = (0xffff000000000000 & vfatData->lsData()) >> 48;
+  vfatBlockWords[3]  = (0x0000ffff00000000 & vfatData->lsData()) >> 32;
+  vfatBlockWords[2]  = (0x00000000ffff0000 & vfatData->lsData()) >> 16;
+  vfatBlockWords[1] = (0x000000000000ffff & vfatData->lsData());
+
+  uint16_t crc_fin = 0xffff;
+  for (int i = 11; i >= 1; i--)
+    {
+      crc_fin = this->crc_cal(crc_fin, vfatBlockWords[i]);
+    }
+  return(crc_fin);
+}
+
+uint16_t GEMRawToDigiModule::crc_cal(uint16_t crc_in, uint16_t dato)
+{
+  uint16_t v = 0x0001;
+  uint16_t mask = 0x0001;
+  bool d=0;
+  uint16_t crc_temp = crc_in;
+  unsigned char datalen = 16;
+
+  for (int i=0; i<datalen; i++){
+    if (dato & v) d = 1;
+    else d = 0;
+    if ((crc_temp & mask)^d) crc_temp = crc_temp>>1 ^ 0x8408;
+    else crc_temp = crc_temp>>1;
+    v<<=1;
+  }
+  return(crc_temp);
+}

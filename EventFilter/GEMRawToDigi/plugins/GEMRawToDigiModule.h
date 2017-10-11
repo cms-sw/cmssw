@@ -15,6 +15,12 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 
+#include "CondFormats/DataRecord/interface/GEMEMapRcd.h"
+#include "CondFormats/GEMObjects/interface/GEMEMap.h"
+#include "CondFormats/GEMObjects/interface/GEMROmap.h"
+#include "EventFilter/GEMRawToDigi/interface/AMC13Event.h"
+#include "EventFilter/GEMRawToDigi/interface/VFATdata.h"
+
 namespace edm {
    class ConfigurationDescriptions;
 }
@@ -27,15 +33,24 @@ class GEMRawToDigiModule : public edm::EDProducer {
   /// Destructor
   virtual ~GEMRawToDigiModule(){}
 
+  virtual void beginRun(const edm::Run &, const edm::EventSetup&);
+
   // Operations
-  virtual void produce( edm::Event&, const edm::EventSetup& );
+  virtual void produce(edm::Event&, const edm::EventSetup&);
 
   // Fill parameters descriptions
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:
 
-  edm::EDGetTokenT<FEDRawDataCollection> fed_token;  
+  uint16_t checkCRC(gem::VFATdata * m_vfatdata);
+  uint16_t crc_cal(uint16_t crc_in, uint16_t dato);
+  
+  edm::EDGetTokenT<FEDRawDataCollection> fed_token;
+
+  const GEMEMap* m_gemEMap;
+  GEMROmap* m_gemROMap;
+  
 };
 #endif
 
