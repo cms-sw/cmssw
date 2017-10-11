@@ -117,6 +117,29 @@ DeepFlavourJetTagProducer::~DeepFlavourJetTagProducer()
 
 void DeepFlavourJetTagProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 {
+
+  // pfDeepFlavourJetTags
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("src", edm::InputTag("pfDeepFlavourTagInfos"));
+  desc.add<std::vector<std::string>>("input_names", 
+    { "input_1", "input_2", "input_3", "input_4", "input_5" });
+  desc.add<edm::FileInPath>("graph_path",
+    edm::FileInPath("RecoBTag/Combined/data/DeepFlavourV01_C/saved_model.pb"));
+  desc.add<std::vector<std::string>>("lp_names",
+    {"cpf_input_batchnorm/keras_learning_phase"});
+  desc.add<std::vector<std::string>>("output_names",
+    { "ID_pred/Softmax", "regression_pred/BiasAdd", });
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::vector<unsigned int>>("probb", {0});
+    psd0.add<std::vector<unsigned int>>("probbb", {1});
+    psd0.add<std::vector<unsigned int>>("problepb", {2});
+    psd0.add<std::vector<unsigned int>>("probc", {3});
+    psd0.add<std::vector<unsigned int>>("probuds", {4});
+    psd0.add<std::vector<unsigned int>>("probg", {5});
+    desc.add<edm::ParameterSetDescription>("flav_table", psd0);
+  }
+  descriptions.add("pfDeepFlavourJetTags", desc);
 }
 
 std::unique_ptr<Cache> DeepFlavourJetTagProducer::initializeGlobalCache(const edm::ParameterSet& iConfig)
