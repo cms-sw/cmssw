@@ -1,11 +1,14 @@
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/OutputModule.h"
 #include "DataFormats/TestObjects/interface/TableTest.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include <cstring>
 
 namespace {
   std::vector<float> doublesToFloats(std::vector<double> const& iDoubles) {
@@ -78,7 +81,55 @@ namespace edmtest {
     const std::vector<float> aFloats_;
     const std::vector<std::string> aStrings_;
     edm::EDGetTokenT<edmtest::TableTest> tableToken_;
-  };   
+  };
+        
+  class TableTestOutputModule : public edm::global::OutputModule<> {
+  public:
+    TableTestOutputModule(edm::ParameterSet const& pset):
+    edm::global::OutputModuleBase(pset),
+    edm::global::OutputModule<>(pset) {}
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.setComment("Tests edm::soa::Table.");
+      OutputModule::fillDescription(desc);
+      descriptions.add("tabletestOutput", desc);
+    }
+
+  private:
+    void write(edm::EventForOutput const& e) override {
+      using namespace edm;
+      assert(keptProducts()[InEvent].size()>0);
+      for(auto product: keptProducts()[InEvent]) {
+        BranchDescription const* branchDescription = product.first;
+        TypeID const& tid = branchDescription->unwrappedTypeID();
+        EDGetToken const& token = product.second;
+        BasicHandle bh;
+        e.getByToken(token, tid, bh);
+        assert(bh.isValid());
+        auto examiner = bh.wrapper()->tableExaminer();
+        assert(examiner);
+        if( 3 != examiner->columnDescriptions().size()) {
+          throw cms::Exception("RuntimeError")<<"wrong number of columns, expected 3 got "<<examiner->columnDescriptions().size();
+        }
+        for(auto const& c: examiner->columnDescriptions()) {
+          if( 0 == std::strcmp(c.first,edmtest::AnInt::label())) {
+            continue;
+          }
+          if( 0 == std::strcmp(c.first,edmtest::AFloat::label())) {
+            continue;
+          }
+          if( 0 == std::strcmp(c.first,edmtest::AString::label())) {
+            continue;
+          }
+          throw cms::Exception("RuntimeError")<<"unknown column "<<c.first;
+        }
+      }
+    }
+    void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override {}
+    void writeRun(edm::RunForOutput const&) override {}
+  };
 }
 DEFINE_FWK_MODULE(edmtest::TableTestProducer);
 DEFINE_FWK_MODULE(edmtest::TableTestAnalyzer);
+DEFINE_FWK_MODULE(edmtest::TableTestOutputModule);
