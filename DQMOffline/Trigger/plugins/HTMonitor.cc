@@ -29,6 +29,7 @@ HTMonitor::HTMonitor( const edm::ParameterSet& iConfig ) :
   , njets_      ( iConfig.getParameter<unsigned>("njets" )      )
   , nelectrons_ ( iConfig.getParameter<unsigned>("nelectrons" ) )
   , nmuons_     ( iConfig.getParameter<unsigned>("nmuons" )     )
+  , dEtaCut_    ( iConfig.getParameter<double>("dEtaCut")       )
 {
     if(!(quantity_ == "HT" || quantity_ == "Mjj" || quantity_ == "softdrop")) throw cms::Exception("quantity not defined") << "the quantity '" << quantity_ << "' could not be found. Please check your config!" << std::endl;
 }
@@ -243,7 +244,7 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
     if (jets.size() < 2) return;
 
     // deltaEta cut
-    if(fabs(jets.at(0).p4().Eta() - jets.at(1).p4().Eta()) >= 1.3) return;
+    if(fabs(jets.at(0).p4().Eta() - jets.at(1).p4().Eta()) >= dEtaCut_) return;
     float mjj = (jets.at(0).p4() + jets.at(1).p4()).M();
 
     qME_variableBinning_.denominator -> Fill(mjj);
@@ -258,7 +259,7 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
     if (jets.size() < 2) return;
 
     // deltaEta cut
-    if(fabs(jets.at(0).p4().Eta() - jets.at(1).p4().Eta()) >= 1.3) return;
+    if(fabs(jets.at(0).p4().Eta() - jets.at(1).p4().Eta()) >= dEtaCut_) return;
 
     float softdrop = jets.at(0).p4().M();
 
@@ -307,6 +308,7 @@ void HTMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<unsigned>("njets",      0);
   desc.add<unsigned>("nelectrons", 0);
   desc.add<unsigned>("nmuons",     0);
+  desc.add<double>("dEtaCut",      1.3);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");
