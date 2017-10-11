@@ -366,6 +366,10 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::GsfElectron& ele) const {
   const int numberOfClusters =  the_sc->clusters().size();
   const bool missing_clusters = !the_sc->clusters()[numberOfClusters-1].isAvailable();
   if( missing_clusters ) return ; // do not apply corrections in case of missing info (slimmed MiniAOD electrons)
+  
+  //check if fbrem is filled as its needed for E/p combination so abort if its set to the default value 
+  //this will be the case for <5 (or current cuts) for miniAOD electrons
+  if(ele.fbrem()==reco::GsfElectron::ClassificationVariables().trackFbrem) return;
 
   const bool iseb = ele.isEB();  
 
