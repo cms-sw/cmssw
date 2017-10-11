@@ -76,7 +76,7 @@ public:
 
    void clicked();
 
-   ClassDef(CmsShowModelPopup, 0);
+   ClassDefOverride(CmsShowModelPopup, 0);
 
 private:
    CmsShowModelPopup(const CmsShowModelPopup&);    // stop default

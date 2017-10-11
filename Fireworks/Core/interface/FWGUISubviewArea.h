@@ -73,7 +73,7 @@ public:
 
    static FWGUISubviewArea* getToolBarFromWindow(TEveWindow*);
 
-   ClassDef(FWGUISubviewArea, 0);
+   ClassDefOverride(FWGUISubviewArea, 0);
 
 private:
    FWGUISubviewArea(const FWGUISubviewArea&);    // stop default

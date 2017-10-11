@@ -32,7 +32,7 @@ public:
    virtual ULong64_t GetULong64Number();
    virtual void      SetULong64Number(ULong64_t n);
 
-   ClassDef(FWNumberEntryField, 0);
+   ClassDefOverride(FWNumberEntryField, 0);
 
 };
 #endif

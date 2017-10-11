@@ -25,7 +25,7 @@ private:
    FWTEventList(const FWTEventList&); // stop default
    const FWTEventList& operator=(const FWTEventList&); // stop default
 
-   ClassDef(FWTEventList, 0);
+   ClassDefOverride(FWTEventList, 0);
 };
 
 #endif

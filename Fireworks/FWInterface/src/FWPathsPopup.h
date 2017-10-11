@@ -61,7 +61,7 @@ private:
    FWGUIManager             *m_guiManager;
    
 
-   ClassDef(FWPathsPopup, 0);
+   ClassDefOverride(FWPathsPopup, 0);
 };
 
 #endif

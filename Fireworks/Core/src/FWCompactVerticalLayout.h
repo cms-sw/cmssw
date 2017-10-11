@@ -38,7 +38,7 @@ public:
    // ---------- static member functions --------------------
    
    // ---------- member functions ---------------------------
-   ClassDef(FWCompactVerticalLayout,0)  // Vertical layout manager
+   ClassDefOverride(FWCompactVerticalLayout,0)  // Vertical layout manager
 
 private:
    FWCompactVerticalLayout(const FWCompactVerticalLayout&); // stop default
