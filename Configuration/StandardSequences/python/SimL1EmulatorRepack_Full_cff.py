@@ -101,7 +101,7 @@ else:
     simOmtfDigis.srcDTTh             = cms.InputTag("unpackBmtf")
     simOmtfDigis.srcCSC              = cms.InputTag("unpackCsctf") 
     if (stage2L1Trigger_2017.isChosen()):
-        simOmtfDigis.srcRPC          = cms.InputTag('unpackEmtf')
+        simOmtfDigis.srcCSC          = cms.InputTag('unpackEmtf')
 
     # EMTF
     simEmtfDigis.CSCInput            = cms.InputTag("unpackEmtf") 
