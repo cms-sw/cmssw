@@ -10,7 +10,6 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 import sys
 options = VarParsing.VarParsing ('standard')
 options.register('sample', 'data1', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Input sample")
-options.register('atCern', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "At DESY or at CERN")
 options.register('useTrackList', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "Use list of preselected tracks")
 options.register('isTest', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "Test run")
 
@@ -24,7 +23,6 @@ if( hasattr(sys, "argv") ):
                 setattr(options,val[0], val[1])
 
 print "Input sample: ", options.sample
-print "At CERN: ", options.atCern
 print "Use list of preselected tracks: ", options.useTrackList
 print "Test run: ", options.isTest
 
@@ -118,8 +116,8 @@ if isZmumu20: process.load("Alignment.APEEstimation.samples.Mc_TkAlMuonIsolated_
 if isZmumu50: process.load("Alignment.APEEstimation.samples.DYToMuMu_M-50_Tune4C_13TeV-pythia8_Spring14dr-TkAlMuonIsolated-castor_PU_S14_POSTLS170_V6-v1_ALCARECO_cff")
 
 
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
 #~ process.GlobalTag = GlobalTag(process.GlobalTag, 'GR_P_V56', '')
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 print "Using global tag "+process.GlobalTag.globaltag._value
@@ -127,7 +125,6 @@ print "Using global tag "+process.GlobalTag.globaltag._value
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("CondCore.CondDB.CondDB_cfi")
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 
 
@@ -220,47 +217,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 process.load("Alignment.APEEstimation.PrivateSkim_EventContent_cff")
 process.out.outputCommands.extend(process.ApeSkimEventContent.outputCommands)
 
-#if isData1:
-#  if options.atCern:
-#    process.out.fileName = 'root://eoscms//eos/cms/store/caf/user/ajkumar/data/DoubleMu/Run2011A_May10ReReco/apeSkim.root?svcClass=cmscafuser&stageHost=castorcms'
-#  else:
-#    process.out.fileName = '/scratch/hh/current/cms/user/ajkumar/data/alcareco/data/apeSkim.root'
-#elif isData2:
-#  if options.atCern:
-#    #process.out.fileName = 'root://eoscms//eos/cms/store/caf/user/ajkumar/data/DoubleMu/Run2011A_PromptV4/apeSkim.root?svcClass=cmscafuser&stageHost=castorcms'
-#    process.out.fileName = 'apeSkim.root'
-#  else:
-#    process.out.fileName = '/scratch/hh/current/cms/user/ajkumar/data/alcareco/data/apeSkim.root'
-#if isQcd:
-#  if options.atCern:
-#    process.out.fileName = 'root://eoscms//eos/cms/store/caf/user/ajkumar/mc/Summer11/qcd/apeSkim.root?svcClass=cmscafuser&stageHost=castorcms'
-#  else:
-#    process.out.fileName = '/scratch/hh/current/cms/user/ajkumar/data/alcareco/qcd/apeSkim.root'
-#elif isWlnu:
-#  if options.atCern:
-#    process.out.fileName = 'root://eoscms//eos/cms/store/caf/user/ajkumar/mc/Summer11/wlnu/apeSkim.root?svcClass=cmscafuser&stageHost=castorcms'
-#  else:
-#    process.out.fileName = '/scratch/hh/current/cms/user/ajkumar/data/alcareco/wlnu/apeSkim.root'
-#elif isZmumu:
-#  if options.atCern:
-#    process.out.fileName = ''
-#  else:
-#    process.out.fileName = '/scratch/hh/current/cms/user/ajkumar/data/alcareco/zmumu/apeSkim.root'
-#elif isZtautau:
-#  if options.atCern:
-#    process.out.fileName = ''
-#  else:
-#    process.out.fileName = '/scratch/hh/current/cms/user/ajkumar/data/alcareco/ztautau/apeSkim.root'
-#elif isZmumu10:
-#  if options.atCern:
-#    process.out.fileName = 'root://eoscms//eos/cms/store/caf/user/ajkumar/mc/Summer11/zmumu10/apeSkim.root?svcClass=cmscafuser&stageHost=castorcms'
-#  else:
-#    process.out.fileName = ''
-#elif isZmumu20:
-#  if options.atCern:
-#    process.out.fileName = 'root://eoscms//eos/cms/store/caf/user/ajkumar/mc/Summer11/zmumu20/apeSkim.root?svcClass=cmscafuser&stageHost=castorcms'
-#  else:
-#    process.out.fileName = ''
+
 if options.isTest:
   process.out.fileName = os.environ['CMSSW_BASE'] + '/src/Alignment/APEEstimation/hists/test_apeSkim.root'
 

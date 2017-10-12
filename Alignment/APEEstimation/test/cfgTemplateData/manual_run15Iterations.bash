@@ -17,4 +17,3 @@ bash ../startStep1.bash
 sleep 15m
 bash ../createStep2.bash 15
 bash ../startStep2.bash
-        
