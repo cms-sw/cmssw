@@ -281,6 +281,20 @@ AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.jetSelection = cms.string('pt>300 
 AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.bjetSelection = cms.string('pt>330 & abs(eta)<2.4')
 AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_AK8PFJet330_PFAK8BTagCSV_p1_v*')
 AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.histoPSet.jetPtBinning = cms.vdouble(0,300,310,330,350,370,400,450,500,700,1000,1500,3000)
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.histoPSet.lsPSet = cms.PSet(
+  nbins = cms.uint32( 1 ),
+)
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.histoPSet.htPSet = cms.PSet(
+  nbins = cms.uint32( 0 ),
+  xmin  = cms.double(   0   ),
+  xmax  = cms.double(   1   ),
+)
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.histoPSet.ptPSet = cms.PSet(
+  nbins = cms.uint32( 70 ),
+  xmin  = cms.double(   300   ),
+  xmax  = cms.double(  1000 ),
+)
+
 
 AK8PFJet330_TrimMass30_CSV03_PromptMonitoring = hltBTVmonitoring.clone()
 AK8PFJet330_TrimMass30_CSV03_PromptMonitoring.FolderName = cms.string('HLT/Higgs/ggHbb/CSV03/')
@@ -292,6 +306,19 @@ AK8PFJet330_TrimMass30_CSV03_PromptMonitoring.jetSelection = cms.string('pt>300 
 AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.bjetSelection = cms.string('pt>330 & abs(eta)<2.4')
 AK8PFJet330_TrimMass30_CSV03_PromptMonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_AK8PFJet330_PFAK8BTagCSV_p17_v*')
 AK8PFJet330_TrimMass30_CSV03_PromptMonitoring.histoPSet.jetPtBinning = cms.vdouble(0,300,310,330,350,370,400,450,500,700,1000,1500,3000)
+AK8PFJet330_TrimMass30_CSV03_PromptMonitoring.histoPSet.lsPSet = cms.PSet(
+  nbins = cms.uint32( 1 ),
+)
+AK8PFJet330_TrimMass30_CSV03_PromptMonitoring.histoPSet.htPSet = cms.PSet(
+  nbins = cms.uint32( 0 ),
+  xmin  = cms.double(   0   ),
+  xmax  = cms.double(   1   ),
+)
+AK8PFJet330_TrimMass30_CSV03_PromptMonitoring.histoPSet.ptPSet = cms.PSet(
+  nbins = cms.uint32( 70 ),
+  xmin  = cms.double(   300   ),
+  xmax  = cms.double(  1000 ),
+)
 
 ###############################Higgs Monitor HLT##############################################
 higgsMonitorHLT = cms.Sequence(
