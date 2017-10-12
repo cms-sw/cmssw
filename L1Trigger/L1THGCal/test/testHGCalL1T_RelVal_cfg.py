@@ -64,7 +64,7 @@ process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C2d_para
 process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C3d_parameters.calibMatrix = cms.bool(True)
 
 import L1Trigger.L1THGCal.hgcalLayersCalibrationCoefficients_cfi as matrixcalibcoeff
-process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C3d_parameters.calibCoeffMtx = cms.vdouble( matrixcalibcoeff.dEdx_weights_hadron_wBH )
+process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C3d_parameters.calibCoeffMtx = cms.vdouble( matrixcalibcoeff.dEdX_weights )
 
 # load HGCAL TPG simulation
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
