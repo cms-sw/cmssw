@@ -19,6 +19,10 @@ parser.add_argument('outCfg', action='store',
                     help='name of modified output file')
 parser.add_argument('isn', action='store',
                     help='number of the job (three digit number with leading zeros)')
+parser.add_argument("--max-events", dest = "max_events", type = int,
+                    help = "maximum number of events to process")
+parser.add_argument("--skip-events", dest = "skip_events", type = int,
+                    help = "number of events to skip before processing")
 
 # Parse arguments
 args = parser.parse_args()
@@ -67,8 +71,16 @@ for j in xrange(numberOfExtends):
         i+=1
 
     for line in fileinput.input(outCfg, inplace=1):
+        print line,
         if re.match('readFiles\s*=\s*cms.untracked.vstring()',line):
-            print line,
             print insertBlock,
-        else:
-            print line,
+
+if args.skip_events is not None:
+    with open(outCfg, "a") as f:
+        f.write("process.source.skipEvents = cms.untracked.uint32({0:d})\n"
+                .format(args.skip_events))
+
+if args.max_events is not None:
+    with open(outCfg, "a") as f:
+        f.write("process.maxEvents = cms.untracked.PSet(input = "
+                "cms.untracked.int32({0:d}))\n".format(args.max_events))
