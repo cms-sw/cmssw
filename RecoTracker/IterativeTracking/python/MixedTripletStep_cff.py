@@ -108,7 +108,7 @@ mixedTripletStepHitTripletsA = _pixelTripletLargeTipEDProducer.clone(
     produceSeedingHitSets = True,
 )
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer_cff import seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer as _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer
-mixedTripletStepSeedsA = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer.clone(
+_mixedTripletStepSeedsACommon = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer.clone(
     seedingHitSets = "mixedTripletStepHitTripletsA",
     SeedComparitorPSet = dict(# FIXME: is this defined in any cfi that could be imported instead of copy-paste?
         ComponentName = 'PixelClusterShapeSeedComparitor',
@@ -119,15 +119,20 @@ mixedTripletStepSeedsA = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProdu
         ClusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCache')
     ),
 )
-trackingLowPU.toModify(mixedTripletStepSeedsA,
+trackingLowPU.toModify(_mixedTripletStepSeedsACommon,
     SeedComparitorPSet = dict(ClusterShapeHitFilterName = 'ClusterShapeHitFilter')
 )
+mixedTripletStepSeedsA = _mixedTripletStepSeedsACommon.clone()
+
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
+from FastSimulation.Tracking.SeedingMigration import _hitSetProducerToFactoryPSet
 _fastSim_mixedTripletStepSeedsA = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
     layerList = mixedTripletStepSeedLayersA.layerList.value(),
     trackingRegions = "mixedTripletStepTrackingRegionsA",
-    hitMasks = cms.InputTag("mixedTripletStepMasks")
+    hitMasks = cms.InputTag("mixedTripletStepMasks"),
+    seedFinderSelector = dict(pixelTripletGeneratorFactory = _hitSetProducerToFactoryPSet(mixedTripletStepHitTripletsA))
 )
+fastSim.toReplaceWith(mixedTripletStepSeedsA,_fastSim_mixedTripletStepSeedsA)
 
 
 # SEEDING LAYERS
@@ -168,17 +173,14 @@ mixedTripletStepHitDoubletsB = mixedTripletStepHitDoubletsA.clone(
     trackingRegions = "mixedTripletStepTrackingRegionsB",
 )
 mixedTripletStepHitTripletsB = mixedTripletStepHitTripletsA.clone(doublets = "mixedTripletStepHitDoubletsB")
-mixedTripletStepSeedsB = mixedTripletStepSeedsA.clone(seedingHitSets = "mixedTripletStepHitTripletsB")
+mixedTripletStepSeedsB = _mixedTripletStepSeedsACommon.clone(seedingHitSets = "mixedTripletStepHitTripletsB")
 #fastsim
-from FastSimulation.Tracking.SeedingMigration import _hitSetProducerToFactoryPSet
-_fastSim_mixedTripletStepSeedsA.seedFinderSelector.pixelTripletGeneratorFactory = _hitSetProducerToFactoryPSet(mixedTripletStepHitTripletsA)
-fastSim.toReplaceWith(mixedTripletStepSeedsA,_fastSim_mixedTripletStepSeedsA)
 _fastSim_mixedTripletStepSeedsB = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
     layerList = mixedTripletStepSeedLayersB.layerList.value(),
     trackingRegions = "mixedTripletStepTrackingRegionsB",
-    hitMasks = cms.InputTag("mixedTripletStepMasks")
+    hitMasks = cms.InputTag("mixedTripletStepMasks"),
+    seedFinderSelector = dict(pixelTripletGeneratorFactory = _hitSetProducerToFactoryPSet(mixedTripletStepHitTripletsB))
 )
-_fastSim_mixedTripletStepSeedsB.seedFinderSelector.pixelTripletGeneratorFactory = _hitSetProducerToFactoryPSet(mixedTripletStepHitTripletsB)
 fastSim.toReplaceWith(mixedTripletStepSeedsB,_fastSim_mixedTripletStepSeedsB)
 
 
