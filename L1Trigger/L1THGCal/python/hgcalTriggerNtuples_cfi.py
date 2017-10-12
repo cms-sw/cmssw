@@ -34,7 +34,11 @@ ntuple_digis = cms.PSet(
 
 ntuple_triggercells = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleHGCTriggerCells'),
-    TriggerCells = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:calibratedTriggerCells')
+    TriggerCells = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:calibratedTriggerCells'),
+    FillSimEnergy = cms.bool(False),
+    eeSimHits = cms.InputTag('g4SimHits:HGCHitsEE'),
+    fhSimHits = cms.InputTag('g4SimHits:HGCHitsHEfront'),
+    bhSimHits = cms.InputTag('g4SimHits:HcalHits')
 )
 
 ntuple_clusters = cms.PSet(
