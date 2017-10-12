@@ -24,3 +24,4 @@
 <test name="testhep_ml" command="testhep_ml.py"/>
 <test name="testUncertainties" command="testUncertainties.py"/>
 <test name="testImports" command="imports.py"/>
+<test name="testTheano" command="testTheano.py"/>
