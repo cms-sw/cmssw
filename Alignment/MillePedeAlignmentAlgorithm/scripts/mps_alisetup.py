@@ -295,6 +295,8 @@ class SetupAlignment(object):
                        self._general_options["jobname"],
                        self._pede_script,
                        "cmscafuser:"+self._mss_dir]
+            if dataset["numberOfEvents"] > 0:
+                command.extend(["--max-events", str(dataset["numberOfEvents"])])
             command = filter(lambda x: len(x.strip()) > 0, command)
 
             # Some output:
@@ -746,6 +748,11 @@ class SetupAlignment(object):
                     if config["config"].has_option(section,"primaryWidth"):
                         self._datasets[name]["primaryWidth"] \
                             = config["config"].getfloat(section,"primaryWidth")
+
+                    self._datasets[name]["numberOfEvents"] = -1
+                    if config["config"].has_option(section, "numberOfEvents"):
+                        self._datasets[name]["numberOfEvents"] \
+                            = config["config"].getint(section, "numberOfEvents")
 
                     self._datasets[name]["json"] = ""
                     try:

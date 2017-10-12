@@ -23,6 +23,8 @@ parser.add_argument("-N", "--name", # remove restrictions on job name?
                             "colons are not allowed"))
 parser.add_argument("-w", "--weight", type = float,
                     help = "assign statistical weight")
+parser.add_argument("-e", "--max-events", dest = "max_events", type = int,
+                    help = "maximum number of events to process")
 
 parser.add_argument("batch_script",
                     help = "path to the mille batch script template")
@@ -238,10 +240,22 @@ for j in xrange(1, args.n_jobs + 1):
             print "              split failed"
             lib.JOBSTATUS[i-1] = "FAIL"
     theIsn = "{0:03d}".format(i)
-    print "mps_splice.py {} jobData/{}/theSplit jobData/{}/the.py {}".format(args.config_template, jobdir, jobdir, theIsn)
-    mps_tools.run_checked(["mps_splice.py", args.config_template,
-                           "jobData/{}/theSplit".format(jobdir),
-                           "jobData/{}/the.py".format(jobdir), theIsn])
+
+    # create the cfg file
+    cmd = ["mps_splice.py", args.config_template,
+           "jobData/{}/theSplit".format(jobdir),
+           "jobData/{}/the.py".format(jobdir), theIsn]
+    if args.max_events is not None:
+        chunk_size = int(args.max_events/args.n_jobs)
+        event_options = ["--skip-events", str(chunk_size*(j-1))]
+        max_events = (args.max_events - (args.n_jobs-1)*chunk_size
+                      if j == args.n_jobs    # last job gets the remaining events
+                      else chunk_size)
+        event_options.extend(["--max-events", str(max_events)])
+        cmd.extend(event_options)
+    print " ".join(cmd)
+    mps_tools.run_checked(cmd)
+
     # create the run script
     print "mps_script.pl {}  jobData/{}/theScript.sh {}/{} the.py jobData/{}/theSplit {} {} {}".format(args.batch_script, jobdir, theJobData, jobdir, jobdir, theIsn, args.mss_dir, lib.mssDirPool)
     mps_tools.run_checked(["mps_script.pl", args.batch_script,
