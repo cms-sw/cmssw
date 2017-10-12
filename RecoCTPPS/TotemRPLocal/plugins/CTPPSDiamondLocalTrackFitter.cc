@@ -34,20 +34,13 @@ class CTPPSDiamondLocalTrackFitter : public edm::stream::EDProducer<>
     static void fillDescriptions( edm::ConfigurationDescriptions& );
 
   private:
-    void produce( edm::Event&, const edm::EventSetup& ) override;
+    virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+    /// Check if one of the edges of the recHit is within the local track
+    bool hitBelongsToTrack( const CTPPSDiamondLocalTrack& localTrack, const CTPPSDiamondRecHit& recHit ) const;
 
     edm::EDGetTokenT< edm::DetSetVector<CTPPSDiamondRecHit> > recHitsToken_;
     CTPPSDiamondTrackRecognition trk_algo_45_;
     CTPPSDiamondTrackRecognition trk_algo_56_;
-};
-
-inline bool hitBelongsToTrack( const CTPPSDiamondLocalTrack& localTrack, const CTPPSDiamondRecHit& recHit )
-{
-  // Check if one of the edges of the recHit is within the 
-  return ( recHit.getX() + recHit.getXWidth() > localTrack.getX0() - localTrack.getX0Sigma()
-        && recHit.getX() + recHit.getXWidth() < localTrack.getX0() + localTrack.getX0Sigma() )
-      || ( recHit.getX() - recHit.getXWidth() > localTrack.getX0() + localTrack.getX0Sigma()
-        && recHit.getX() - recHit.getXWidth() < localTrack.getX0() - localTrack.getX0Sigma() );
 };
 
 CTPPSDiamondLocalTrackFitter::CTPPSDiamondLocalTrackFitter( const edm::ParameterSet& iConfig ) :
@@ -99,6 +92,15 @@ CTPPSDiamondLocalTrackFitter::produce( edm::Event& iEvent, const edm::EventSetup
   trk_algo_45_.clear();
   trk_algo_56_.clear();
 }
+
+bool
+CTPPSDiamondLocalTrackFitter::hitBelongsToTrack( const CTPPSDiamondLocalTrack& localTrack, const CTPPSDiamondRecHit& recHit ) const
+{
+  return ( recHit.getX() + recHit.getXWidth() > localTrack.getX0() - localTrack.getX0Sigma()
+        && recHit.getX() + recHit.getXWidth() < localTrack.getX0() + localTrack.getX0Sigma() )
+      || ( recHit.getX() - recHit.getXWidth() > localTrack.getX0() + localTrack.getX0Sigma()
+        && recHit.getX() - recHit.getXWidth() < localTrack.getX0() - localTrack.getX0Sigma() );
+};
 
 void
 CTPPSDiamondLocalTrackFitter::fillDescriptions( edm::ConfigurationDescriptions& descr )
