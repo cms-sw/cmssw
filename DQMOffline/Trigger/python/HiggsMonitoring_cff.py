@@ -284,62 +284,49 @@ QuadPFJet98_83_71_15_DoubleBTagCSV_p013_p08_VBF1.bjetSelection    = cms.string('
 QuadPFJet98_83_71_15_DoubleBTagCSV_p013_p08_VBF1.btagalgo         = cms.InputTag("pfCombinedMVAV2BJetTags")
 QuadPFJet98_83_71_15_DoubleBTagCSV_p013_p08_VBF1.workingpoint     = cms.double(-0.715) # Loose
 # Binning
-QuadPFJet98_83_71_15_DoubleBTagCSV_p013_p08_VBF1.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,110,120,130,140,150,200,400)
+#QuadPFJet_BTagCSV_p016_p11_VBF_Mqq240.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
+QuadPFJet98_83_71_15_DoubleBTagCSV_p013_p08_VBF1.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,200,400)
+QuadPFJet98_83_71_15_DoubleBTagCSV_p013_p08_VBF1.histoPSet.HTBinning    = cms.vdouble(0,20,40,60,80,100,125,150,175,200,300,400,500,700,900)
+QuadPFJet98_83_71_15_DoubleBTagCSV_p013_p08_VBF1.histoPSet.metBinning = cms.vdouble(0,20,40,60,80,100,125,150,175,200,300,400,500,700,900)
 # Triggers
 QuadPFJet98_83_71_15_DoubleBTagCSV_p013_p08_VBF1.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_QuadPFJet98_83_71_15_DoubleBTagCSV_p013_p08_VBF1_v*')
+QuadPFJet98_83_71_15_DoubleBTagCSV_p013_p08_VBF1.histoPSet.lsPSet = cms.PSet(
+  nbins = cms.uint32( 1 ),
+)
+QuadPFJet98_83_71_15_DoubleBTagCSV_p013_p08_VBF1.histoPSet.htPSet = cms.PSet(
+  nbins = cms.uint32( 1 ),
+  xmin  = cms.double(   0   ),
+  xmax  = cms.double(   1   ),
+)
+QuadPFJet98_83_71_15_DoubleBTagCSV_p013_p08_VBF1.histoPSet.csvPSet = cms.PSet(
+  nbins = cms.uint32( 20 ),
+  xmin  = cms.double(   0   ),
+  xmax  = cms.double(   1   ),
+)
+QuadPFJet98_83_71_15_DoubleBTagCSV_p013_p08_VBF1.histoPSet.etaPSet = cms.PSet(
+  nbins = cms.uint32( 1 ),
+  xmin  = cms.double(   0   ),
+  xmax  = cms.double(   1   ),
+)
+QuadPFJet98_83_71_15_DoubleBTagCSV_p013_p08_VBF1.histoPSet.ptPSet = cms.PSet(
+  nbins = cms.uint32( 1 ),
+  xmin  = cms.double(   0   ),
+  xmax  = cms.double(   1   ),
+)
 
 
-QuadPFJet103_88_75_15_DoubleBTagCSV_p013_p08_VBF1 = hltTOPmonitoring.clone()
+QuadPFJet103_88_75_15_DoubleBTagCSV_p013_p08_VBF1 = QuadPFJet98_83_71_15_DoubleBTagCSV_p013_p08_VBF1.clone()
 QuadPFJet103_88_75_15_DoubleBTagCSV_p013_p08_VBF1.FolderName= cms.string('HLT/Higgs/VBFHbb/HLT_QuadPFJet103_88_75_15_DoubleBTagCSV_p013_p08_VBF1_v')
-# Selection
-QuadPFJet103_88_75_15_DoubleBTagCSV_p013_p08_VBF1.leptJetDeltaRmin = cms.double(0.0)
-QuadPFJet103_88_75_15_DoubleBTagCSV_p013_p08_VBF1.njets            = cms.uint32(4)
-QuadPFJet103_88_75_15_DoubleBTagCSV_p013_p08_VBF1.jetSelection     = cms.string('pt>15 & abs(eta)<4.7')
-QuadPFJet103_88_75_15_DoubleBTagCSV_p013_p08_VBF1.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
-QuadPFJet103_88_75_15_DoubleBTagCSV_p013_p08_VBF1.HTcut            = cms.double(0)
-QuadPFJet103_88_75_15_DoubleBTagCSV_p013_p08_VBF1.nbjets           = cms.uint32(2)
-QuadPFJet103_88_75_15_DoubleBTagCSV_p013_p08_VBF1.bjetSelection    = cms.string('pt>15 & abs(eta)<4.7')
-QuadPFJet103_88_75_15_DoubleBTagCSV_p013_p08_VBF1.btagalgo         = cms.InputTag("pfCombinedMVAV2BJetTags")
-QuadPFJet103_88_75_15_DoubleBTagCSV_p013_p08_VBF1.workingpoint     = cms.double(-0.715) # Loose
-# Binning
-QuadPFJet103_88_75_15_DoubleBTagCSV_p013_p08_VBF1.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,110,120,130,140,150,200,400)
-# Triggers
 QuadPFJet103_88_75_15_DoubleBTagCSV_p013_p08_VBF1.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_QuadPFJet103_88_75_15_DoubleBTagCSV_p013_p08_VBF1_v*')
 
 
-QuadPFJet105_90_76_15_DoubleBTagCSV_p013_p08_VBF1 = hltTOPmonitoring.clone()
+QuadPFJet105_90_76_15_DoubleBTagCSV_p013_p08_VBF1 = QuadPFJet98_83_71_15_DoubleBTagCSV_p013_p08_VBF1.clone()
 QuadPFJet105_90_76_15_DoubleBTagCSV_p013_p08_VBF1.FolderName= cms.string('HLT/Higgs/VBFHbb/HLT_QuadPFJet105_90_76_15_DoubleBTagCSV_p013_p08_VBF1_v')
-# Selection
-QuadPFJet105_90_76_15_DoubleBTagCSV_p013_p08_VBF1.leptJetDeltaRmin = cms.double(0.0)
-QuadPFJet105_90_76_15_DoubleBTagCSV_p013_p08_VBF1.njets            = cms.uint32(4)
-QuadPFJet105_90_76_15_DoubleBTagCSV_p013_p08_VBF1.jetSelection     = cms.string('pt>15 & abs(eta)<4.7')
-QuadPFJet105_90_76_15_DoubleBTagCSV_p013_p08_VBF1.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
-QuadPFJet105_90_76_15_DoubleBTagCSV_p013_p08_VBF1.HTcut            = cms.double(0)
-QuadPFJet105_90_76_15_DoubleBTagCSV_p013_p08_VBF1.nbjets           = cms.uint32(2)
-QuadPFJet105_90_76_15_DoubleBTagCSV_p013_p08_VBF1.bjetSelection    = cms.string('pt>15 & abs(eta)<4.7')
-QuadPFJet105_90_76_15_DoubleBTagCSV_p013_p08_VBF1.btagalgo         = cms.InputTag("pfCombinedMVAV2BJetTags")
-QuadPFJet105_90_76_15_DoubleBTagCSV_p013_p08_VBF1.workingpoint     = cms.double(-0.715) # Loose
-# Binning
-QuadPFJet105_90_76_15_DoubleBTagCSV_p013_p08_VBF1.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,110,120,130,140,150,200,400)
-# Triggers
 QuadPFJet105_90_76_15_DoubleBTagCSV_p013_p08_VBF1.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_QuadPFJet105_90_76_15_DoubleBTagCSV_p013_p08_VBF1_v*')
 
 
-QuadPFJet111_90_80_15_DoubleBTagCSV_p013_p08_VBF1 = hltTOPmonitoring.clone()
+QuadPFJet111_90_80_15_DoubleBTagCSV_p013_p08_VBF1 = QuadPFJet98_83_71_15_DoubleBTagCSV_p013_p08_VBF1.clone()
 QuadPFJet111_90_80_15_DoubleBTagCSV_p013_p08_VBF1.FolderName= cms.string('HLT/Higgs/VBFHbb/HLT_QuadPFJet111_90_80_15_DoubleBTagCSV_p013_p08_VBF1_v')
-# Selection
-QuadPFJet111_90_80_15_DoubleBTagCSV_p013_p08_VBF1.leptJetDeltaRmin = cms.double(0.0)
-QuadPFJet111_90_80_15_DoubleBTagCSV_p013_p08_VBF1.njets            = cms.uint32(4)
-QuadPFJet111_90_80_15_DoubleBTagCSV_p013_p08_VBF1.jetSelection     = cms.string('pt>15 & abs(eta)<4.7')
-QuadPFJet111_90_80_15_DoubleBTagCSV_p013_p08_VBF1.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
-QuadPFJet111_90_80_15_DoubleBTagCSV_p013_p08_VBF1.HTcut            = cms.double(0)
-QuadPFJet111_90_80_15_DoubleBTagCSV_p013_p08_VBF1.nbjets           = cms.uint32(2)
-QuadPFJet111_90_80_15_DoubleBTagCSV_p013_p08_VBF1.bjetSelection    = cms.string('pt>15 & abs(eta)<4.7')
-QuadPFJet111_90_80_15_DoubleBTagCSV_p013_p08_VBF1.btagalgo         = cms.InputTag("pfCombinedMVAV2BJetTags")
-QuadPFJet111_90_80_15_DoubleBTagCSV_p013_p08_VBF1.workingpoint     = cms.double(-0.715) # Loose
-# Binning
-QuadPFJet111_90_80_15_DoubleBTagCSV_p013_p08_VBF1.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,110,120,130,140,150,200,400)
-# Triggers
 QuadPFJet111_90_80_15_DoubleBTagCSV_p013_p08_VBF1.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_QuadPFJet111_90_80_15_DoubleBTagCSV_p013_p08_VBF1_v*')
 
 
@@ -356,63 +343,51 @@ QuadPFJet98_83_71_15_BTagCSV_p013_VBF1.bjetSelection    = cms.string('pt>15 & ab
 QuadPFJet98_83_71_15_BTagCSV_p013_VBF1.btagalgo         = cms.InputTag("pfCombinedMVAV2BJetTags")
 QuadPFJet98_83_71_15_BTagCSV_p013_VBF1.workingpoint     = cms.double(-0.715) # Loose
 # Binning
-QuadPFJet98_83_71_15_BTagCSV_p013_VBF1.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,110,120,130,140,150,200,400)
+#QuadPFJet_BTagCSV_p016_p11_VBF_Mqq240.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
+QuadPFJet98_83_71_15_BTagCSV_p013_VBF1.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,200,400)
+QuadPFJet98_83_71_15_BTagCSV_p013_VBF1.histoPSet.HTBinning    = cms.vdouble(0,20,40,60,80,100,125,150,175,200,300,400,500,700,900)
+QuadPFJet98_83_71_15_BTagCSV_p013_VBF1.histoPSet.metBinning = cms.vdouble(0,20,40,60,80,100,125,150,175,200,300,400,500,700,900)
 # Triggers
 QuadPFJet98_83_71_15_BTagCSV_p013_VBF1.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_QuadPFJet98_83_71_15_BTagCSV_p013_VBF2_v*')
+QuadPFJet98_83_71_15_BTagCSV_p013_VBF1.histoPSet.lsPSet = cms.PSet(
+  nbins = cms.uint32( 1 ),
+)
+QuadPFJet98_83_71_15_BTagCSV_p013_VBF1.histoPSet.htPSet = cms.PSet(
+  nbins = cms.uint32( 1 ),
+  xmin  = cms.double(   0   ),
+  xmax  = cms.double(   1   ),
+)
+QuadPFJet98_83_71_15_BTagCSV_p013_VBF1.histoPSet.csvPSet = cms.PSet(
+  nbins = cms.uint32( 20 ),
+  xmin  = cms.double(   0   ),
+  xmax  = cms.double(   1   ),
+)
+QuadPFJet98_83_71_15_BTagCSV_p013_VBF1.histoPSet.etaPSet = cms.PSet(
+  nbins = cms.uint32( 1 ),
+  xmin  = cms.double(   0   ),
+  xmax  = cms.double(   1   ),
+)
+QuadPFJet98_83_71_15_BTagCSV_p013_VBF1.histoPSet.ptPSet = cms.PSet(
+  nbins = cms.uint32( 1 ),
+  xmin  = cms.double(   0   ),
+  xmax  = cms.double(   1   ),
+)
 
 
-QuadPFJet103_88_75_15_BTagCSV_p013_VBF1 = hltTOPmonitoring.clone()
+QuadPFJet103_88_75_15_BTagCSV_p013_VBF1 = QuadPFJet98_83_71_15_BTagCSV_p013_VBF1.clone()
 QuadPFJet103_88_75_15_BTagCSV_p013_VBF1.FolderName= cms.string('HLT/Higgs/VBFHbb/HLT_QuadPFJet103_88_75_15_BTagCSV_p013_VBF2_v')
-# Selection
-QuadPFJet103_88_75_15_BTagCSV_p013_VBF1.leptJetDeltaRmin = cms.double(0.0)
-QuadPFJet103_88_75_15_BTagCSV_p013_VBF1.njets            = cms.uint32(4)
-QuadPFJet103_88_75_15_BTagCSV_p013_VBF1.jetSelection     = cms.string('pt>15 & abs(eta)<4.7')
-QuadPFJet103_88_75_15_BTagCSV_p013_VBF1.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
-QuadPFJet103_88_75_15_BTagCSV_p013_VBF1.HTcut            = cms.double(0)
-QuadPFJet103_88_75_15_BTagCSV_p013_VBF1.nbjets           = cms.uint32(1)
-QuadPFJet103_88_75_15_BTagCSV_p013_VBF1.bjetSelection    = cms.string('pt>15 & abs(eta)<4.7')
-QuadPFJet103_88_75_15_BTagCSV_p013_VBF1.btagalgo         = cms.InputTag("pfCombinedMVAV2BJetTags")
-QuadPFJet103_88_75_15_BTagCSV_p013_VBF1.workingpoint     = cms.double(-0.715) # Loose
-# Binning
-QuadPFJet103_88_75_15_BTagCSV_p013_VBF1.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,110,120,130,140,150,200,400)
-# Triggers
 QuadPFJet103_88_75_15_BTagCSV_p013_VBF1.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_QuadPFJet103_88_75_15_BTagCSV_p013_VBF2_v*')
 
 
-QuadPFJet105_90_76_15_BTagCSV_p013_VBF1 = hltTOPmonitoring.clone()
+QuadPFJet105_90_76_15_BTagCSV_p013_VBF1 = QuadPFJet98_83_71_15_BTagCSV_p013_VBF1.clone()
 QuadPFJet105_90_76_15_BTagCSV_p013_VBF1.FolderName= cms.string('HLT/Higgs/VBFHbb/HLT_QuadPFJet105_90_76_15_BTagCSV_p013_VBF2_v')
-# Selection
-QuadPFJet105_90_76_15_BTagCSV_p013_VBF1.leptJetDeltaRmin = cms.double(0.0)
-QuadPFJet105_90_76_15_BTagCSV_p013_VBF1.njets            = cms.uint32(4)
-QuadPFJet105_90_76_15_BTagCSV_p013_VBF1.jetSelection     = cms.string('pt>15 & abs(eta)<4.7')
-QuadPFJet105_90_76_15_BTagCSV_p013_VBF1.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
-QuadPFJet105_90_76_15_BTagCSV_p013_VBF1.HTcut            = cms.double(0)
-QuadPFJet105_90_76_15_BTagCSV_p013_VBF1.nbjets           = cms.uint32(1)
-QuadPFJet105_90_76_15_BTagCSV_p013_VBF1.bjetSelection    = cms.string('pt>15 & abs(eta)<4.7')
-QuadPFJet105_90_76_15_BTagCSV_p013_VBF1.btagalgo         = cms.InputTag("pfCombinedMVAV2BJetTags")
-QuadPFJet105_90_76_15_BTagCSV_p013_VBF1.workingpoint     = cms.double(-0.715) # Loose
-# Binning
-QuadPFJet105_90_76_15_BTagCSV_p013_VBF1.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,110,120,130,140,150,200,400)
-# Triggers
 QuadPFJet105_90_76_15_BTagCSV_p013_VBF1.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_QuadPFJet105_90_76_15_BTagCSV_p013_VBF2_v*')
 
 
-QuadPFJet111_90_80_15_BTagCSV_p013_VBF1 = hltTOPmonitoring.clone()
+QuadPFJet111_90_80_15_BTagCSV_p013_VBF1 = QuadPFJet98_83_71_15_BTagCSV_p013_VBF1.clone()
 QuadPFJet111_90_80_15_BTagCSV_p013_VBF1.FolderName= cms.string('HLT/Higgs/VBFHbb/HLT_QuadPFJet111_90_80_15_BTagCSV_p013_VBF2_v')
-# Selection
-QuadPFJet111_90_80_15_BTagCSV_p013_VBF1.leptJetDeltaRmin = cms.double(0.0)
-QuadPFJet111_90_80_15_BTagCSV_p013_VBF1.njets            = cms.uint32(4)
-QuadPFJet111_90_80_15_BTagCSV_p013_VBF1.jetSelection     = cms.string('pt>15 & abs(eta)<4.7')
-QuadPFJet111_90_80_15_BTagCSV_p013_VBF1.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
-QuadPFJet111_90_80_15_BTagCSV_p013_VBF1.HTcut            = cms.double(0)
-QuadPFJet111_90_80_15_BTagCSV_p013_VBF1.nbjets           = cms.uint32(1)
-QuadPFJet111_90_80_15_BTagCSV_p013_VBF1.bjetSelection    = cms.string('pt>15 & abs(eta)<4.7')
-QuadPFJet111_90_80_15_BTagCSV_p013_VBF1.btagalgo         = cms.InputTag("pfCombinedMVAV2BJetTags")
-QuadPFJet111_90_80_15_BTagCSV_p013_VBF1.workingpoint     = cms.double(-0.715) # Loose
-# Binning
-QuadPFJet111_90_80_15_BTagCSV_p013_VBF1.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,110,120,130,140,150,200,400)
-# Triggers
 QuadPFJet111_90_80_15_BTagCSV_p013_VBF1.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_QuadPFJet111_90_80_15_BTagCSV_p013_VBF2_v*')
+
 
 ###############################Higgs Monitor HLT##############################################
 higgsMonitorHLT = cms.Sequence(
