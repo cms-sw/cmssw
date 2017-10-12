@@ -151,7 +151,7 @@ std::unique_ptr<const GBRForest> PileupJetIdAlgo::getMVA(const std::vector<std::
             if( tmvaNames_[*it].empty() ) tmvaNames_[*it] = *it;
             tmpTMVAReader.AddSpectator( *it, variables_[ tmvaNames_[*it] ].first );
         }
-        reco::details::loadTMVAWeights(&tmpTMVAReader,  tmvaMethod_.c_str(), tmvaWeights.c_str());
+        reco::details::loadTMVAWeights(&tmpTMVAReader,  tmvaMethod_, tmvaWeights);
         return( std::make_unique<const GBRForest> ( dynamic_cast<TMVA::MethodBDT*>( tmpTMVAReader.FindMVA(tmvaMethod_.c_str()) ) ) );
 }
 
@@ -177,7 +177,7 @@ float PileupJetIdAlgo::getMVAval(const std::vector<std::string> &varList, const 
         float mvaval = -2;
         std::vector<float> vars;
         for(std::vector<std::string>::const_iterator it=varList.begin(); it!=varList.end(); ++it) {
-            std::pair<float *,float> var = variables_.at((*it).c_str());
+            std::pair<float *,float> var = variables_.at(*it);
             vars.push_back( *var.first );
         }
         mvaval = reader->GetClassifier(vars.data());
@@ -391,12 +391,15 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 			  }
 			  if(pfTrk==nullptr) { //protection against empty pointers for the miniAOD case
 			    //To handle the electron case
-			    if(lPF!=nullptr) {
-			      pfTrk=(lPF->trackRef().get()==nullptr)?lPF->gsfTrackRef().get():lPF->trackRef().get();
+			    if(isPacked) {
+			      internalId_.d0_ = std::abs(lPack->dxy(vtx->position()));
+			      internalId_.dZ_ = std::abs(lPack->dz(vtx->position()));
 			    }
-			    const reco::Track& impactTrack = (lPack==nullptr)?(*pfTrk):(lPack->pseudoTrack());
-			    internalId_.d0_ = std::abs(impactTrack.dxy(vtx->position()));
-			    internalId_.dZ_ = std::abs(impactTrack.dz(vtx->position()));
+			    else if(lPF!=nullptr) {
+			      pfTrk=(lPF->trackRef().get()==nullptr)?lPF->gsfTrackRef().get():lPF->trackRef().get();
+			      internalId_.d0_ = std::abs(pfTrk->dxy(vtx->position()));
+			      internalId_.dZ_ = std::abs(pfTrk->dz(vtx->position()));
+			    }
 			  }
 			  else {
 			    internalId_.d0_ = std::abs(pfTrk->dxy(vtx->position()));

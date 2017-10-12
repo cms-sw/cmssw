@@ -179,7 +179,6 @@ PFDisplacedVertexFinder::findSeedsFromCandidate(const PFDisplacedVertexCandidate
       tempDisplacedVertexSeeds.push_back( PFDisplacedVertexSeed() );      
       idvc_current = tempDisplacedVertexSeeds.end();
       idvc_current--;
-      bNeedNewCandidate = false;
     }
 
 
