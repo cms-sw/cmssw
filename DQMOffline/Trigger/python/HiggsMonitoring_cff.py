@@ -294,6 +294,11 @@ AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.histoPSet.ptPSet = cms.PSet(
   xmin  = cms.double(   0   ),
   xmax  = cms.double(   1   ),
 )
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.histoPSet.etaPSet = cms.PSet(
+  nbins = cms.uint32( 1 ),
+  xmin  = cms.double(   0   ),
+  xmax  = cms.double(   1   ),
+)
 
 
 AK8PFJet330_TrimMass30_CSV03_PromptMonitoring = AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.clone()
