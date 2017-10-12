@@ -1,0 +1,36 @@
+<lcgdict>
+    <class name="nanoaod::FlatTable::Column" ClassVersion="3">
+        <version ClassVersion="3" checksum="3066258528"/>
+    </class>
+    <class name="std::vector<nanoaod::FlatTable::Column>" />
+    <class name="nanoaod::FlatTable" ClassVersion="3">
+        <version ClassVersion="3" checksum="2443023556"/>
+    </class>
+    <class name="edm::Wrapper<nanoaod::FlatTable>" />
+
+    <class name="nanoaod::MergeableCounterTable::FloatColumn" ClassVersion="3">
+        <version ClassVersion="3" checksum="828208870"/>
+    </class>
+    <class name="nanoaod::MergeableCounterTable::IntColumn" ClassVersion="3">
+        <version ClassVersion="3" checksum="1191014438"/>
+    </class>
+    <class name="nanoaod::MergeableCounterTable::VFloatColumn" ClassVersion="3">
+        <version ClassVersion="3" checksum="719259663"/>
+    </class>
+    <class name="nanoaod::MergeableCounterTable::VIntColumn" ClassVersion="3">
+        <version ClassVersion="3" checksum="2535066991"/>
+    </class>
+    <class name="std::vector<nanoaod::MergeableCounterTable::FloatColumn>" />
+    <class name="std::vector<nanoaod::MergeableCounterTable::VFloatColumn>" />
+    <class name="std::vector<nanoaod::MergeableCounterTable::IntColumn>" />
+    <class name="std::vector<nanoaod::MergeableCounterTable::VIntColumn>" />
+    <class name="nanoaod::MergeableCounterTable" ClassVersion="3">
+        <version ClassVersion="3" checksum="677965884"/>
+    </class>
+    <class name="edm::Wrapper<nanoaod::MergeableCounterTable>" />
+    <class name="nanoaod::UniqueString" ClassVersion="3">
+        <version ClassVersion="3" checksum="2793726511"/>
+    </class>
+    <class name="edm::Wrapper<nanoaod::UniqueString>" />
+</lcgdict>
+
