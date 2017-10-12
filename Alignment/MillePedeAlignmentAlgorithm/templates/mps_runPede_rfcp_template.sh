@@ -30,7 +30,7 @@ if [ "${MSSDIRPOOL}" != "cmscafuser" ]
 then
     :                           # do nothing
 else
-    TREEFILELIST=`ls -l ${MSSDIR} | grep -i treeFile | grep -i root`
+    TREEFILELIST=$(ls -l ${MSSDIR}/tree_files)
 fi
 if [[ -z "${TREEFILELIST}" ]]
 then
