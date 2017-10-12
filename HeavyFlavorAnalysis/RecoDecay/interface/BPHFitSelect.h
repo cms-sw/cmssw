@@ -48,8 +48,8 @@ class BPHFitSelect {
  private:
 
   // private copy and assigment constructors
-  BPHFitSelect           ( const BPHFitSelect& x );
-  BPHFitSelect& operator=( const BPHFitSelect& x );
+  BPHFitSelect           ( const BPHFitSelect& x ) = delete;
+  BPHFitSelect& operator=( const BPHFitSelect& x ) = delete;
 
 };
 

@@ -33,7 +33,7 @@ using namespace std;
 BPHPlusMinusVertex::BPHPlusMinusVertex( const edm::EventSetup* es ):
  BPHDecayVertex( es ),
  oldA( true ),
- inRPhi( 0 ) {
+ inRPhi( nullptr ) {
 }
 
 //--------------
@@ -48,7 +48,7 @@ BPHPlusMinusVertex::~BPHPlusMinusVertex() {
 //--------------
 const ClosestApproachInRPhi& BPHPlusMinusVertex::cAppInRPhi() const {
   if ( oldA ) computeApp();
-  if ( inRPhi == 0 ) {
+  if ( inRPhi == nullptr ) {
     static const ClosestApproachInRPhi ca;
     return ca;
   }
@@ -73,7 +73,7 @@ void BPHPlusMinusVertex::computeApp() const {
   "BPHPlusMinusVertex::computeApp: incomplete, no closest approach available";
   delete inRPhi;
   if ( !chkSize( msg ) ) {
-    inRPhi = 0;
+    inRPhi = nullptr;
     return;
   }
   inRPhi = new ClosestApproachInRPhi;
