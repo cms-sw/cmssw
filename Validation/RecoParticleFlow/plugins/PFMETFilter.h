@@ -12,11 +12,11 @@ class PFMETFilter: public edm::EDFilter{
  public:
 
   explicit PFMETFilter(const edm::ParameterSet&);
-  virtual ~PFMETFilter();
+  ~PFMETFilter() override;
 
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void beginJob();
-  virtual void endJob();
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override;
+  void endJob() override;
   bool checkInput();
 
  private:

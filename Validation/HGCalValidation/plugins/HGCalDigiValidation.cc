@@ -78,8 +78,8 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
   OccupancyMap_plus_.clear();
   OccupancyMap_minus_.clear();
   
-  const HGCalGeometry* geom0(0);
-  const CaloGeometry*  geom1(0);
+  const HGCalGeometry* geom0(nullptr);
+  const CaloGeometry*  geom1(nullptr);
   if (nameDetector_ == "HCal") {
     edm::ESHandle<CaloGeometry> geom;
     iSetup.get<CaloGeometryRecord>().get(geom);
@@ -220,7 +220,7 @@ void HGCalDigiValidation::digiValidation(const T1& detId, const T2* geom,
   
   if (verbosity_>1) edm::LogInfo("HGCalValidation") << detId;
   DetId id1 = DetId(detId.rawId());
-  GlobalPoint global1 = geom->getPosition(id1);
+  const GlobalPoint& global1 = geom->getPosition(id1);
   
   if (verbosity_>1) 
     edm::LogInfo("HGCalValidation") << " adc = "         <<  adc

@@ -60,7 +60,7 @@ public:
   
 
   explicit HGCalRecHitValidation(const edm::ParameterSet&);
-  ~HGCalRecHitValidation();
+  ~HGCalRecHitValidation() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;

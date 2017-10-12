@@ -541,7 +541,7 @@ HcalDigiTester::HcalDigiTester(const edm::ParameterSet& iConfig):
 
   nevtot  = 0;
 
-  if ( outputFile_.size() != 0 ) {
+  if ( !outputFile_.empty() ) {
     edm::LogInfo("OutputInfo") << " Hcal Digi Task histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
     edm::LogInfo("OutputInfo") << " Hcal Digi Task histograms will NOT be saved";

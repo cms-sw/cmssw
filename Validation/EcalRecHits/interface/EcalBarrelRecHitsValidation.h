@@ -43,7 +43,7 @@ public:
 EcalBarrelRecHitsValidation(const edm::ParameterSet& ps);
 
 /// Destructor
-~EcalBarrelRecHitsValidation();
+~EcalBarrelRecHitsValidation() override;
 
 protected:
 

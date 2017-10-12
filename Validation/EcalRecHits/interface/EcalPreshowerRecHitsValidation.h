@@ -40,7 +40,7 @@ class EcalPreshowerRecHitsValidation: public DQMEDAnalyzer{
   EcalPreshowerRecHitsValidation(const edm::ParameterSet& ps);
   
   /// Destructor
-  ~EcalPreshowerRecHitsValidation();
+  ~EcalPreshowerRecHitsValidation() override;
   
  protected:
  

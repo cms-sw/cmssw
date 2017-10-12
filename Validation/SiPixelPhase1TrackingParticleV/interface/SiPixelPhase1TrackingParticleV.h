@@ -37,7 +37,7 @@ class SiPixelPhase1TrackingParticleV : public SiPixelPhase1Base {
 
   public:
   explicit SiPixelPhase1TrackingParticleV(const edm::ParameterSet& conf);
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   private:
   edm::EDGetTokenT<TrackingParticleCollection> vec_TrackingParticle_Token_;

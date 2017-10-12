@@ -32,7 +32,7 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf)
   imc = 1;
   if(mc_ == "no") imc = 0;
   
-  if ( outputFile_.size() != 0 ) {
+  if ( !outputFile_.empty() ) {
     edm::LogInfo("OutputInfo") << " Hcal RecHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
     edm::LogInfo("OutputInfo") << " Hcal RecHit Task histograms will NOT be saved";

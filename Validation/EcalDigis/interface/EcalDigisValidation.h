@@ -55,7 +55,7 @@ public:
 EcalDigisValidation(const edm::ParameterSet& ps);
 
 /// Destructor
-~EcalDigisValidation();
+~EcalDigisValidation() override;
 
 void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
 

@@ -136,12 +136,12 @@
 //#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <memory>
 #include <vector>
 #include <map>
-#include <math.h>
+#include <cmath>
 
 #include "TString.h"
 
@@ -158,10 +158,10 @@ class GlobalRecHitsProducer : public edm::EDProducer
   typedef std::map<uint32_t,float,std::less<uint32_t> > MapType;
 
   explicit GlobalRecHitsProducer(const edm::ParameterSet&);
-  virtual ~GlobalRecHitsProducer();
-  virtual void beginJob();
-  virtual void endJob();  
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  ~GlobalRecHitsProducer() override;
+  void beginJob() override;
+  void endJob() override;  
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
  private:
 

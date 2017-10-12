@@ -134,7 +134,7 @@ class NewMuonTrackValidator : public DQMEDAnalyzer, protected NewMuonTrackValida
   }
   
   /// Destructor
-  virtual ~NewMuonTrackValidator(){ }
+  ~NewMuonTrackValidator() override{ }
 
   /// Method called before the event loop
   //  void beginRun(edm::Run const&, edm::EventSetup const&);

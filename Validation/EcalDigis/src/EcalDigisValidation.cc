@@ -38,7 +38,7 @@ EcalDigisValidation::EcalDigisValidation(const edm::ParameterSet& ps):
   // DQM ROOT output
   outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "");
  
-  if ( outputFile_.size() != 0 ) {
+  if ( !outputFile_.empty() ) {
     edm::LogInfo("OutputInfo") << " Ecal Digi Task histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
     edm::LogInfo("OutputInfo") << " Ecal Digi Task histograms will NOT be saved";
@@ -54,18 +54,18 @@ EcalDigisValidation::EcalDigisValidation(const edm::ParameterSet& ps):
   barrelADCtoGeV_ = 0.035;
   endcapADCtoGeV_ = 0.06;
  
-  meGunEnergy_ = 0;
-  meGunEta_ = 0;   
-  meGunPhi_ = 0;   
+  meGunEnergy_ = nullptr;
+  meGunEta_ = nullptr;   
+  meGunPhi_ = nullptr;   
 
-  meEBDigiSimRatio_ = 0;
-  meEEDigiSimRatio_ = 0;
+  meEBDigiSimRatio_ = nullptr;
+  meEEDigiSimRatio_ = nullptr;
 
-  meEBDigiSimRatiogt10ADC_ = 0;
-  meEEDigiSimRatiogt20ADC_ = 0;
+  meEBDigiSimRatiogt10ADC_ = nullptr;
+  meEEDigiSimRatiogt20ADC_ = nullptr;
 
-  meEBDigiSimRatiogt100ADC_ = 0;
-  meEEDigiSimRatiogt100ADC_ = 0;
+  meEBDigiSimRatiogt100ADC_ = nullptr;
+  meEEDigiSimRatiogt100ADC_ = nullptr;
 
 }
 
@@ -135,16 +135,16 @@ void EcalDigisValidation::analyze(edm::Event const & e, edm::EventSetup const & 
   e.getByToken( g4TkInfoToken_, SimTk );
   e.getByToken( g4VtxInfoToken_, SimVtx );
 
-  const EBDigiCollection* EBdigis =0;
-  const EEDigiCollection* EEdigis =0;
-  const ESDigiCollection* ESdigis =0;
+  const EBDigiCollection* EBdigis =nullptr;
+  const EEDigiCollection* EEdigis =nullptr;
+  const ESDigiCollection* ESdigis =nullptr;
 
   bool isBarrel = true;
   e.getByToken( EBdigiCollectionToken_, EcalDigiEB );
   if (EcalDigiEB.isValid()) {
     EBdigis = EcalDigiEB.product();
     LogDebug("DigiInfo") << "total # EBdigis: " << EBdigis->size() ;
-    if ( EBdigis->size() == 0 ) isBarrel = false;
+    if ( EBdigis->empty() ) isBarrel = false;
   } else {
     isBarrel = false; 
   }
@@ -154,7 +154,7 @@ void EcalDigisValidation::analyze(edm::Event const & e, edm::EventSetup const & 
   if (EcalDigiEE.isValid()) {  
     EEdigis = EcalDigiEE.product();
     LogDebug("DigiInfo") << "total # EEdigis: " << EEdigis->size() ;
-    if ( EEdigis->size() == 0 ) isEndcap = false;
+    if ( EEdigis->empty() ) isEndcap = false;
   } else {
     isEndcap = false; 
   }
@@ -164,7 +164,7 @@ void EcalDigisValidation::analyze(edm::Event const & e, edm::EventSetup const & 
   if (EcalDigiES.isValid()) {
     ESdigis = EcalDigiES.product();
     LogDebug("DigiInfo") << "total # ESdigis: " << ESdigis->size() ;
-    if ( ESdigis->size() == 0 ) isPreshower = false;
+    if ( ESdigis->empty() ) isPreshower = false;
   } else { 
     isPreshower = false; 
   }

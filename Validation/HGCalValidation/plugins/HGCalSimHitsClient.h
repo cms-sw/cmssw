@@ -45,10 +45,10 @@ private:
 
 public:
   explicit HGCalSimHitsClient(const edm::ParameterSet& );
-  virtual ~HGCalSimHitsClient();
+  ~HGCalSimHitsClient() override;
   
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
-  void dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig);
+  void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
+  void dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig) override;
   virtual void runClient_(DQMStore::IBooker &ib, DQMStore::IGetter &ig);   
   int simHitsEndjob(const std::vector<MonitorElement*> &hcalMEs);
 };

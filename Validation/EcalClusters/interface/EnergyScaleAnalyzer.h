@@ -48,12 +48,12 @@ class TFile;
 class EnergyScaleAnalyzer : public edm::EDAnalyzer {
    public:
       explicit EnergyScaleAnalyzer( const edm::ParameterSet& );
-      ~EnergyScaleAnalyzer();
+      ~EnergyScaleAnalyzer() override;
 
 
-      virtual void analyze( const edm::Event&, const edm::EventSetup& );
-      virtual void beginJob();
-      virtual void endJob();
+      void analyze( const edm::Event&, const edm::EventSetup& ) override;
+      void beginJob() override;
+      void endJob() override;
 
       
  private:

@@ -42,7 +42,7 @@ public:
   EcalSelectiveReadoutValidation(const edm::ParameterSet& ps);
 
   /// Destructor
-  ~EcalSelectiveReadoutValidation();
+  ~EcalSelectiveReadoutValidation() override;
  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
  void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override; 
  
@@ -316,7 +316,7 @@ private:
   static int dccZsFIR(const EcalDataFrame& frame,
 		      const std::vector<int>& firWeights,
 		      int firstFIRSample,
-		      bool* saturated = 0);
+		      bool* saturated = nullptr);
   
 
   /** Computes the ZS FIR filter weights from the normalized weights.

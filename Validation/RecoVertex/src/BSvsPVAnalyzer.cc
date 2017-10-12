@@ -50,15 +50,15 @@
 class BSvsPVAnalyzer : public edm::EDAnalyzer {
    public:
       explicit BSvsPVAnalyzer(const edm::ParameterSet&);
-      ~BSvsPVAnalyzer();
+      ~BSvsPVAnalyzer() override;
 
 
 private:
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
+  void endJob() override ;
 
       // ----------member data ---------------------------
 
@@ -125,7 +125,7 @@ BSvsPVAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   if(_firstOnly) {
     reco::VertexCollection firstpv;
-    if(pvcoll->size()) firstpv.push_back((*pvcoll)[0]);
+    if(!pvcoll->empty()) firstpv.push_back((*pvcoll)[0]);
     _bspvhm.fill(iEvent,firstpv,*bs);
   }
   else {

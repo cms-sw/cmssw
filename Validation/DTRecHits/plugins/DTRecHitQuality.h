@@ -53,19 +53,19 @@ public:
   DTRecHitQuality(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~DTRecHitQuality();
+  ~DTRecHitQuality() override;
 
   // Operations
 
   /// Perform the real analysis
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
   // Write the histos to file
 
-  virtual void beginRun(const edm::Run& iRun, const edm::EventSetup &setup);
+  void beginRun(const edm::Run& iRun, const edm::EventSetup &setup) override;
 
-  void endJob();
+  void endJob() override;
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-					 edm::EventSetup const& c);
+					 edm::EventSetup const& c) override;
 
 protected:
 

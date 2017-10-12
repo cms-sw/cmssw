@@ -66,12 +66,12 @@ class MuIsoValidation : public DQMEDAnalyzer {
 public:
   //---------methods----------------------------
   explicit MuIsoValidation(const edm::ParameterSet&);
-  ~MuIsoValidation();
+  ~MuIsoValidation() override;
   
   
 private:
   //---------methods----------------------------
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void InitStatics();
   void RecordData(MuonIterator muon);//Fills Histograms with info from single muon
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;

@@ -19,8 +19,8 @@ class GEMBaseValidation : public DQMEDAnalyzer
 {
 public:
   explicit GEMBaseValidation( const edm::ParameterSet& ps );
-  virtual ~GEMBaseValidation();
-  virtual void analyze(const edm::Event& e, const edm::EventSetup&) = 0 ;
+  ~GEMBaseValidation() override;
+  void analyze(const edm::Event& e, const edm::EventSetup&) override = 0 ;
   MonitorElement* BookHistZR( DQMStore::IBooker &, const char* name, const char* label, unsigned int region_num, unsigned int station_num, unsigned int layer_num =99 ); 
   MonitorElement* BookHistXY( DQMStore::IBooker &, const char* name, const char* label, unsigned int region_num, unsigned int station_num, unsigned int layer_num =99 );
   std::string getSuffixName(int region, int station, int layer);

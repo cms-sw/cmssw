@@ -56,10 +56,10 @@
 class HcalRecHitsValidation : public DQMEDAnalyzer {
  public:
   HcalRecHitsValidation(edm::ParameterSet const& conf);
-  ~HcalRecHitsValidation();
-  virtual void analyze(edm::Event const& ev, edm::EventSetup const& c);
+  ~HcalRecHitsValidation() override;
+  void analyze(edm::Event const& ev, edm::EventSetup const& c) override;
 
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
  private:
   

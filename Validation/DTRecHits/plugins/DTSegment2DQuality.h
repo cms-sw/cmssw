@@ -35,17 +35,17 @@ public:
   DTSegment2DQuality(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~DTSegment2DQuality();
+  ~DTSegment2DQuality() override;
 
   // Operations
 
   /// Perform the real analysis
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
 
-  virtual void beginRun(const edm::Run& iRun, const edm::EventSetup &setup);
+  void beginRun(const edm::Run& iRun, const edm::EventSetup &setup) override;
 
   // Write the histos to file
-  void endJob();
+  void endJob() override;
 
 protected:
 
