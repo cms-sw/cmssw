@@ -626,7 +626,7 @@ class ConfigBuilder(object):
 		if self._options.timeoutOutput:
 			CppType='TimeoutPoolOutputModule'
 		if streamType=='DQM' and tier=='DQMIO': CppType='DQMRootOutputModule'
-		if "NANOAOD" in streamType and tier=='NANO': CppType='NanoAODOutputModule'
+		if "NANOAOD" in streamType and 'NANOAOD' in tier : CppType='NanoAODOutputModule'
                 output = cms.OutputModule(CppType,
                                           theEventContent,
                                           fileName = cms.untracked.string(theFileName),
@@ -1701,6 +1701,11 @@ class ConfigBuilder(object):
             self._options.customisation_file_unsch.insert(0,"PhysicsTools/NanoAOD/nano_cff."+custom)
         else:
             self._options.customisation_file.insert(0,"PhysicsTools/NanoAOD/nano_cff."+custom)
+	if self._options.hltProcess:
+	     if len(self._options.customise_commands) > 1:
+		     self._options.customise_commands = self._options.customise_commands + " \n"
+             self._options.customise_commands = self._options.customise_commands + "process.unpackedPatTrigger.triggerResults= cms.InputTag( 'TriggerResults::"+self._options.hltProcess+"' )\n"
+
 
     def prepare_EI(self, sequence = None):
         ''' Enrich the schedule with event interpretation '''
