@@ -127,15 +127,6 @@ process.load("Configuration.Geometry.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 
-
-process.GlobalTag.toGet = cms.VPSet(
-    cms.PSet(
-        record = cms.string("SiPixelTemplateDBObjectRcd"),
-        tag = cms.string("SiPixelTemplateDBObject_38T_v3_mc"),
-        connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),
-    )
-) 
-
 ##
 ## Number of Events (should be after input file)
 ##
