@@ -158,6 +158,7 @@ process.seqTrackselRefit = trackselRefit.getSequence(process, 'ALCARECOTkAlMuonI
 ##
 process.path = cms.Path(
     process.offlineBeamSpot*
+    process.seqTrackselRefit*
     process.MuSkim
 )
 
