@@ -160,7 +160,9 @@ std::unique_ptr<Cache> DeepFlavourJetTagProducer::initializeGlobalCache(const ed
 
 void DeepFlavourJetTagProducer::globalEndJob(const Cache* cache)
 {
-  delete cache->metaGraph;
+  if (cache->metaGraph != nullptr) {
+    delete cache->metaGraph;
+  }
 }
 
 void DeepFlavourJetTagProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
