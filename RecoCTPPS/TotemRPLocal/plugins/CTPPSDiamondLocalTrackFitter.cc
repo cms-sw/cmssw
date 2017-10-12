@@ -44,12 +44,10 @@ class CTPPSDiamondLocalTrackFitter : public edm::stream::EDProducer<>
 inline bool hitBelongsToTrack( const CTPPSDiamondLocalTrack& localTrack, const CTPPSDiamondRecHit& recHit )
 {
   // Check if one of the edges of the recHit is within the 
-  return ( 
-            ( ( recHit.getX() + recHit.getXWidth() > localTrack.getX0() - localTrack.getX0Sigma() ) &&
-              ( recHit.getX() + recHit.getXWidth() < localTrack.getX0() + localTrack.getX0Sigma() )  ) ||
-            ( ( recHit.getX() - recHit.getXWidth() > localTrack.getX0() + localTrack.getX0Sigma() ) &&
-              ( recHit.getX() - recHit.getXWidth() < localTrack.getX0() - localTrack.getX0Sigma() )  )
-         );
+  return ( recHit.getX() + recHit.getXWidth() > localTrack.getX0() - localTrack.getX0Sigma()
+        && recHit.getX() + recHit.getXWidth() < localTrack.getX0() + localTrack.getX0Sigma() )
+      || ( recHit.getX() - recHit.getXWidth() > localTrack.getX0() + localTrack.getX0Sigma()
+        && recHit.getX() - recHit.getXWidth() < localTrack.getX0() - localTrack.getX0Sigma() );
 };
 
 CTPPSDiamondLocalTrackFitter::CTPPSDiamondLocalTrackFitter( const edm::ParameterSet& iConfig ) :
