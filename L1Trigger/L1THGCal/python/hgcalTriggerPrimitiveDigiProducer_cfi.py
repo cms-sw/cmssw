@@ -67,6 +67,7 @@ C3d_parValues = cms.PSet( dR_multicluster = cms.double(0.01), # dR in normalized
                           minPt_multicluster = cms.double(0.5), # minimum pt of the multicluster (GeV)
                           calibSF_multicluster = cms.double(1.084),
                           type_multicluster = cms.string('dRC3d'), #'DBSCANC3d' for the DBSCAN algorithm 
+                          calibMatrix = cms.bool(True),
                           dist_dbscan_multicluster = cms.double(0.005),
                           minN_dbscan_multicluster = cms.uint32(3)
 
