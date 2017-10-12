@@ -16,20 +16,20 @@ class ChainedJetCorrector : public JetCorrector
 {
 public:
   ChainedJetCorrector (){}
-  virtual ~ChainedJetCorrector () {}
+  ~ChainedJetCorrector () override {}
   
-  virtual double correction (const JetCorrector::LorentzVector& fJet) const;
-  virtual double correction (const reco::Jet& fJet) const;
-  virtual double correction (const reco::Jet& fJet,
+  double correction (const JetCorrector::LorentzVector& fJet) const override;
+  double correction (const reco::Jet& fJet) const override;
+  double correction (const reco::Jet& fJet,
 			     const edm::Event& fEvent,
-			     const edm::EventSetup& fSetup) const;
-  virtual double correction (const reco::Jet& fJet,
+			     const edm::EventSetup& fSetup) const override;
+  double correction (const reco::Jet& fJet,
 			     const edm::RefToBase<reco::Jet>& fJetRef,
 			     const edm::Event& fEvent,
-			     const edm::EventSetup& fSetup) const;
+			     const edm::EventSetup& fSetup) const override;
   
-  virtual bool eventRequired () const;
-  virtual bool refRequired () const;
+  bool eventRequired () const override;
+  bool refRequired () const override;
   
   void push_back (const JetCorrector* fCorrector) {mCorrectors.push_back (fCorrector);}
   void clear () {mCorrectors.clear ();}

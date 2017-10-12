@@ -55,15 +55,15 @@ public:
   //
 public:
   /// apply correction using Jet information only
-  virtual double correction (const LorentzVector& fJet) const override;
+  double correction (const LorentzVector& fJet) const override;
   /// apply correction using Jet information only
-  virtual double correction (const reco::Jet& fJet) const override;
+  double correction (const reco::Jet& fJet) const override;
   /// apply correction using all event information
-  virtual double correction (const reco::Jet& fJet,
+  double correction (const reco::Jet& fJet,
 			     const edm::RefToBase<reco::Jet>& refToRawJet) const override;
   
   //----- if correction needs a jet reference -------------
-  virtual bool refRequired () const override {return true;} 
+  bool refRequired () const override {return true;} 
   
   //
   // private member functions

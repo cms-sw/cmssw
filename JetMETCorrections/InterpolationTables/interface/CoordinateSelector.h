@@ -27,9 +27,9 @@ namespace npstat {
     public:
         inline explicit CoordinateSelector(const unsigned i) : index_(i) {}
 
-        inline virtual ~CoordinateSelector() {}
+        inline ~CoordinateSelector() override {}
 
-        inline double operator()(const double* point, const unsigned dim) const
+        inline double operator()(const double* point, const unsigned dim) const override
         {
             if (dim <= index_)
                 throw npstat::NpstatInvalidArgument(
@@ -37,11 +37,11 @@ namespace npstat {
                     "input array dimensionality is too small");
             return point[index_];
         }
-        inline unsigned minDim() const {return index_ + 1U;}
-        inline unsigned maxDim() const {return UINT_MAX;}
+        inline unsigned minDim() const override {return index_ + 1U;}
+        inline unsigned maxDim() const override {return UINT_MAX;}
 
     private:
-        CoordinateSelector();
+        CoordinateSelector() = delete;
         unsigned index_;
     };
 }

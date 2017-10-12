@@ -31,11 +31,11 @@ class Type0PFMETcorrInputProducer : public edm::stream::EDProducer<>
  public:
 
   explicit Type0PFMETcorrInputProducer(const edm::ParameterSet&);
-  ~Type0PFMETcorrInputProducer();
+  ~Type0PFMETcorrInputProducer() override;
     
  private:
 
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   std::string moduleLabel_;
 

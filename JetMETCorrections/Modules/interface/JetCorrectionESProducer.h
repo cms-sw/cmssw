@@ -40,7 +40,7 @@ public:
     setWhatProduced(this, label);
   }
 
-  ~JetCorrectionESProducer() {}
+  ~JetCorrectionESProducer() override {}
 
   std::shared_ptr<JetCorrector> produce(JetCorrectionsRecord const& iRecord)
   {

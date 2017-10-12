@@ -30,8 +30,8 @@ namespace reco
   public:
     typedef std::vector<T> JetCollection;
     explicit CorrectedJetProducer (const edm::ParameterSet& fParameters);
-    virtual ~CorrectedJetProducer () {}
-    virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+    ~CorrectedJetProducer () override {}
+    void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   private:
     const edm::EDGetTokenT<JetCollection> mInput;
     const std::vector <edm::EDGetTokenT<reco::JetCorrector> > mCorrectorTokens;

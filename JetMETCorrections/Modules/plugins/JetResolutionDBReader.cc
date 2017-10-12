@@ -28,13 +28,13 @@
 class JetResolutionDBReader : public edm::EDAnalyzer {
     public:
         explicit JetResolutionDBReader(const edm::ParameterSet&);
-        ~JetResolutionDBReader();
+        ~JetResolutionDBReader() override;
 
 
     private:
-        virtual void beginJob() override ;
-        virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-        virtual void endJob() override ;
+        void beginJob() override ;
+        void analyze(const edm::Event&, const edm::EventSetup&) override;
+        void endJob() override ;
 
         std::string m_era;
         std::string m_label;
@@ -49,7 +49,7 @@ class JetResolutionScaleFactorDBReader : public edm::EDAnalyzer {
 
 
     private:
-        virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+        void analyze(const edm::Event&, const edm::EventSetup&) override;
 
         std::string m_era;
         std::string m_label;

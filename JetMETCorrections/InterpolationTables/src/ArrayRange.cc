@@ -16,7 +16,7 @@ namespace npstat {
     bool ArrayRange::isCompatible(const ArrayShape& ishape) const
     {
         const unsigned imax = ishape.size();
-        return isCompatible(imax ? &ishape[0] : (unsigned*)0, imax);
+        return isCompatible(imax ? &ishape[0] : (unsigned*)nullptr, imax);
     }
 
     bool ArrayRange::isCompatible(const unsigned* ishape,

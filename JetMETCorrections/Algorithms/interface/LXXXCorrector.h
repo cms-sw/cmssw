@@ -20,19 +20,19 @@ class LXXXCorrector : public JetCorrector
     LXXXCorrector(const JetCorrectorParameters& fConfig, const edm::ParameterSet& fParameters);   
 
     //----- destructor ----------------------------------------
-    virtual ~LXXXCorrector();
+    ~LXXXCorrector() override;
 
     //----- apply correction using Jet information only -------
-    virtual double correction(const LorentzVector& fJet) const;
+    double correction(const LorentzVector& fJet) const override;
 
     //----- apply correction using Jet information only -------
-    virtual double correction(const reco::Jet& fJet) const;
+    double correction(const reco::Jet& fJet) const override;
 
     //----- if correction needs event information -------------
-    virtual bool eventRequired() const {return false;} 
+    bool eventRequired() const override {return false;} 
 
     //----- if correction needs a jet reference -------------
-    virtual bool refRequired() const { return false; }
+    bool refRequired() const override { return false; }
 
   private:
     //----- member data ---------------------------------------

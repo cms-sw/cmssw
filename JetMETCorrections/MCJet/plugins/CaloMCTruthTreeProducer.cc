@@ -50,12 +50,12 @@ void CaloMCTruthTreeProducer::beginJob()
 //////////////////////////////////////////////////////////////////////////////////////////
 void CaloMCTruthTreeProducer::endJob()
 {
-  if (file_ !=0)
+  if (file_ !=nullptr)
     {
       file_->cd();
       mcTruthTree_->Write();
     }
-  file_ = 0;
+  file_ = nullptr;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 void CaloMCTruthTreeProducer::analyze(edm::Event const& event, edm::EventSetup const& iSetup)
@@ -71,7 +71,7 @@ void CaloMCTruthTreeProducer::analyze(edm::Event const& event, edm::EventSetup c
   ptHat_ = hEventInfo->binningValues()[0];
   float rr;
   int njet(0);
-  if (jets->size()>0 && genjets->size()>0)
+  if (!jets->empty() && !genjets->empty())
     {
       for (i_genjet = genjets->begin(); i_genjet != genjets->end(); i_genjet++)
        {
