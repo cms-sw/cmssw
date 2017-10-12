@@ -69,7 +69,7 @@ C3d_parValues = cms.PSet( dR_multicluster = cms.double(0.01), # dR in normalized
                           calibSF_multicluster = cms.double(1.084),
                           type_multicluster = cms.string('dRC3d'), #'DBSCANC3d' for the DBSCAN algorithm 
                           calibMatrix = cms.bool(True),
-                          calibCoeffMtx = matrixcalibcoeff.dEdx_weights_hadron,
+                          calibCoeffMtx = matrixcalibcoeff.dEdX_weights,
                           dist_dbscan_multicluster = cms.double(0.005),
                           minN_dbscan_multicluster = cms.uint32(3)
                           )
