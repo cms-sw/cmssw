@@ -67,6 +67,7 @@ upgradeSteps['baseline'] = {
         'HARVESTFast',
         'HARVESTFullGlobal',
         'ALCAFull',
+        'NanoFull',
     ],
     'PU' : [
         'DigiFullTrigger',
