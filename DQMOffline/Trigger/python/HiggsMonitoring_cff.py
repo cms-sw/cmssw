@@ -299,8 +299,6 @@ higgsMonitorHLT = cms.Sequence(
   + PFMET130_PFMHT130_IDTight_CaloBTagCSV_3p1_TOPmonitoring
   + PFMET140_PFMHT140_IDTight_CaloBTagCSV_3p1_METmonitoring
   + PFMET140_PFMHT140_IDTight_CaloBTagCSV_3p1_TOPmonitoring
-  + AK8PFJet330_TrimMass30_CSV04_PromptMonitoring
-  + AK8PFJet330_TrimMass30_CSV03_PromptMonitoring
   + mssmHbbBtagTriggerMonitor 
   + mssmHbbMonitorHLT 
 )
