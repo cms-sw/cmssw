@@ -270,28 +270,6 @@ mu8diEle12CaloIdLTrackIdL_dz.nmuons = cms.uint32(1)
 mu8diEle12CaloIdLTrackIdL_dz.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu8_DiEle12_CaloIdL_TrackIdL_DZ_v*")
 mu8diEle12CaloIdLTrackIdL_dz.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu8_DiEle12_CaloIdL_TrackIdL_v*")
 
-###########AK8 jet trigger with AK8 CSV requirement############
-AK8PFJet330_TrimMass30_CSV04_PromptMonitoring = hltBTVmonitoring.clone()
-AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.FolderName = cms.string('HLT/Higgs/ggHbb/CSV04/')
-AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.nmuons = cms.uint32(0)
-AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.nelectrons = cms.uint32(0)
-AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.njets = cms.uint32(1)
-AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.jets = cms.InputTag("ak8PFJetsCHS")
-AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.jetSelection = cms.string('pt>300 & abs(eta)<2.4')
-AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.bjetSelection = cms.string('pt>330 & abs(eta)<2.4')
-AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_AK8PFJet330_PFAK8BTagCSV_p1_v*')
-AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.histoPSet.jetPtBinning = cms.vdouble(0,300,310,330,350,370,400,450,500,700,1000,1500,3000)
-
-AK8PFJet330_TrimMass30_CSV03_PromptMonitoring = hltBTVmonitoring.clone()
-AK8PFJet330_TrimMass30_CSV03_PromptMonitoring.FolderName = cms.string('HLT/Higgs/ggHbb/CSV03/')
-AK8PFJet330_TrimMass30_CSV03_PromptMonitoring.nmuons = cms.uint32(0)
-AK8PFJet330_TrimMass30_CSV03_PromptMonitoring.nelectrons = cms.uint32(0)
-AK8PFJet330_TrimMass30_CSV03_PromptMonitoring.njets = cms.uint32(1)
-AK8PFJet330_TrimMass30_CSV03_PromptMonitoring.jets = cms.InputTag("ak8PFJetsCHS")
-AK8PFJet330_TrimMass30_CSV03_PromptMonitoring.jetSelection = cms.string('pt>300 & abs(eta)<2.4')
-AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.bjetSelection = cms.string('pt>330 & abs(eta)<2.4')
-AK8PFJet330_TrimMass30_CSV03_PromptMonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_AK8PFJet330_PFAK8BTagCSV_p17_v*')
-AK8PFJet330_TrimMass30_CSV03_PromptMonitoring.histoPSet.jetPtBinning = cms.vdouble(0,300,310,330,350,370,400,450,500,700,1000,1500,3000)
 
 ###############################Higgs Monitor HLT##############################################
 higgsMonitorHLT = cms.Sequence(
