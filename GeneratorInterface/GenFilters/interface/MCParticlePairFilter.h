@@ -42,10 +42,10 @@ namespace edm {
 class MCParticlePairFilter : public edm::global::EDFilter<> {
    public:
       explicit MCParticlePairFilter(const edm::ParameterSet&);
-      ~MCParticlePairFilter();
+      ~MCParticlePairFilter() override;
 
 
-      virtual bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const;
+      bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
    private:
       // ----------memeber function----------------------
        int charge(int Id) const;
