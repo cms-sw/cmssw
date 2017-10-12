@@ -75,11 +75,13 @@ void testSession::checkAll()
 {
     std::string modelDir = dataPath + "/simplegraph";
 
+    // object to load and run the graph / session
     Status status;
     SessionOptions sessionOptions;
     RunOptions runOptions;
     SavedModelBundle bundle;
 
+    // load everything
     status = LoadSavedModel(sessionOptions, runOptions, modelDir, { "serve" }, &bundle);
     if (!status.ok())
     {
@@ -87,26 +89,36 @@ void testSession::checkAll()
         return;
     }
 
+    // fetch the session 
     Session* session = bundle.session.release();
-    GraphDef graphDef = bundle.meta_graph_def.graph_def();
 
+    // prepare inputs
     Tensor input(tensorflow::DT_FLOAT, { 1, 10 });
     float* d = input.flat<float>().data();
     for (size_t i = 0; i < 10; i++, d++)
     {
         *d = float(i);
     }
-
     Tensor scale(tensorflow::DT_FLOAT, {});
     scale.scalar<float>()() = 1.0;
 
+    // prepare outputs
     std::vector<tensorflow::Tensor> outputs;
 
-    session->Run({ { "input", input }, { "scale", scale } }, { "output" }, {}, &outputs);
+    // session run
+    status = session->Run({ { "input", input }, { "scale", scale } }, { "output" }, {}, &outputs);
+    if (!status.ok())
+    {
+        std::cout << status.ToString() << std::endl;
+        return;
+    }
 
+    // log the output tensor
     std::cout << outputs[0].DebugString() << std::endl;
 
-    if (!session->Close().ok())
+    // close the session
+    status = session->Close();
+    if (!status.ok())
     {
         std::cerr << "error while closing session" << std::endl;
     }
