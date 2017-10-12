@@ -8,6 +8,7 @@
 #include <iostream>
 #include "TCanvas.h"
 #include "TLatex.h"
+#include "TLine.h"
 
 namespace {
   
@@ -128,7 +129,7 @@ namespace {
       y  = 1.0; 
       x1 = 0.02; 
       x2 = x1+0.15; 
-      x3 = x2+0.25;
+      x3 = x2+0.35;
 
       y -= 0.017; 
       l.DrawLatexNDC(x1, y,"#scale[1.2]{Key}"); 
@@ -142,17 +143,27 @@ namespace {
 	y -= 0.017; l.DrawLatexNDC(x1, y,key.c_str()); 
 	const std::vector<std::string> missing_in_last_paths = first_payload->decompose(first_triggerMap.at(key));
 	
-	std::string output;
+	std::map<int,std::string> output;
+	int count=0;
 	for (unsigned int iPath = 0; iPath < missing_in_last_paths.size(); ++iPath) {
-	  std::cout << missing_in_last_paths[iPath] << " ; " ;
-	  output+=missing_in_last_paths[iPath];
-	  output+=";";
+	  //std::cout << missing_in_last_paths[iPath] << " ; " ;
+	  output[count]+=missing_in_last_paths[iPath];
+	  output[count]+=";";
+	  if(output[count].length()>60) count++;
 	}
 	
-	l.DrawLatexNDC(x2,y,("#color[2]{"+output+"}").c_str());  
+	for (unsigned int br=0; br<output.size();br++){
+	  l.DrawLatexNDC(x2,y,("#color[2]{"+output[br]+"}").c_str());  
+	  if(br!=output.size()-1) y -=0.017;
+	}
 	//std::cout << " |||||| not in last";
 	//std::cout << std::endl;
+
+	TLine *line = new TLine(gPad->GetUxmin(),y-0.008,gPad->GetUxmax(),y-0.008);
+	line->Draw();
+
       }
+      
 
       // print the ones missing in the first key
       for(const auto& key : not_in_first_keys ) {
@@ -161,64 +172,86 @@ namespace {
 	const std::vector<std::string> missing_in_first_paths = last_payload->decompose(last_triggerMap.at(key));
 
 	//std::cout << " not in first ||||||";
-	std::string output;
+	std::map<int,std::string> output;
+	int count=0;
 	for (unsigned int iPath = 0; iPath < missing_in_first_paths.size(); ++iPath) {
 	  //std::cout << missing_in_first_paths[iPath] << " ; " ;
-	  output+=missing_in_first_paths[iPath];
-	  output+=";";
+	  output[count]+=missing_in_first_paths[iPath];
+	  output[count]+=";";
+	  if(output[count].length()>60) count++;
 	}
 
-	l.DrawLatexNDC(x3,y,("#color[4]{"+output+"}").c_str());  	    
+	for (unsigned int br=0; br<output.size();br++){
+	  l.DrawLatexNDC(x3,y,("#color[4]{"+output[br]+"}").c_str());  	    
+	  if(br!=output.size()-1) y -= 0.017;
+	}
 	//std::cout << std::endl;
+	
+	TLine *line2 = new TLine(gPad->GetUxmin(),y-0.008,gPad->GetUxmax(),y-0.008);
+	line2->Draw();
+      
       }
 
       for(const auto &element : first_triggerMap){
 
-	if(last_triggerMap.find(element.first)!=last_triggerMap.end()){
+      	if(last_triggerMap.find(element.first)!=last_triggerMap.end()){
 
-	  auto lastElement = last_triggerMap.find(element.first);
+      	  auto lastElement = last_triggerMap.find(element.first);
 	
-	  std::string output;
-	  const std::vector<std::string> first_paths = first_payload->decompose(element.second);
-	  const std::vector<std::string> last_paths  = last_payload->decompose(lastElement->second);
+      	  std::string output;
+      	  const std::vector<std::string> first_paths = first_payload->decompose(element.second);
+      	  const std::vector<std::string> last_paths  = last_payload->decompose(lastElement->second);
 
-	  std::vector<std::string> not_in_first;
-	  std::vector<std::string> not_in_last;
+      	  std::vector<std::string> not_in_first;
+      	  std::vector<std::string> not_in_last;
 
-	  std::set_difference(first_paths.begin(),first_paths.end(),last_paths.begin(),last_paths.end(), 
-			      std::inserter(not_in_last, not_in_last.begin()));
+      	  std::set_difference(first_paths.begin(),first_paths.end(),last_paths.begin(),last_paths.end(), 
+      			      std::inserter(not_in_last, not_in_last.begin()));
 
-	  std::set_difference(last_paths.begin(),last_paths.end(),first_paths.begin(),first_paths.end(), 
-	  		      std::inserter(not_in_first, not_in_first.begin()));
+      	  std::set_difference(last_paths.begin(),last_paths.end(),first_paths.begin(),first_paths.end(), 
+      	  		      std::inserter(not_in_first, not_in_first.begin()));
 
-	  if(not_in_last.size()!=0 || not_in_first.size()!=0) {
+      	  if(not_in_last.size()!=0 || not_in_first.size()!=0) {
 
-	    //std::cout<< element.first << " : "  ;
-	    y -= 0.017; l.DrawLatexNDC(x1, y, element.first.c_str()); 
+      	    //std::cout<< element.first << " : "  ;
+      	    y -= 0.017; l.DrawLatexNDC(x1, y, element.first.c_str()); 
 	    
-	    std::string output;
-	    for (unsigned int iPath = 0; iPath < not_in_last.size(); ++iPath) {
-	      //std::cout << not_in_last[iPath] << " ; " ;
-	      output+= not_in_last[iPath];
-	      output+="; ";
-	    }
+      	    std::map<int,std::string> output; 
+      	    int count(0);
+      	    for (unsigned int iPath = 0; iPath < not_in_last.size(); ++iPath) {
+      	      //std::cout << not_in_last[iPath] << " ; " ;
+      	      output[count]+= not_in_last[iPath];
+      	      output[count]+="; ";
+      	      if(output[count].length()>60) count++;
+      	    }
 
-	    l.DrawLatexNDC(x2,y,("#color[2]{"+output+"}").c_str());  
-	    //std::cout << " ||||||";
+      	    for (unsigned int br=0; br<output.size();br++){
+      	      l.DrawLatexNDC(x2,y-(br*0.017),("#color[6]{"+output[br]+"}").c_str());
+      	    }  
+      	    //std::cout << " ||||||";
 	    
-	    output.clear();
-	    for (unsigned int jPath = 0; jPath < not_in_first.size(); ++jPath) {
-	      //std::cout << not_in_first[jPath] << " ; " ;
-	      output+= not_in_first[jPath];
-	      output+=";";
-	    }
+      	    output.clear();
+      	    count=0;
+      	    for (unsigned int jPath = 0; jPath < not_in_first.size(); ++jPath) {
+      	      //std::cout << not_in_first[jPath] << " ; " ;
+      	      output[count]+= not_in_first[jPath];
+      	      output[count]+=";";
+      	      if(output[count].length()>60) count++;
+      	    }
 
-	    l.DrawLatexNDC(x3,y,("#color[4]{"+output+"}").c_str());  	    
-	    //std::cout << std::endl;
+      	    for (unsigned int br=0; br<output.size();br++){
+      	      l.DrawLatexNDC(x3,y-(br*0.017),("#color[8]{"+output[br]+"}").c_str());  	    
+      	    }
+
+      	    TLine *line3 = new TLine(gPad->GetUxmin(),y-0.008,gPad->GetUxmax(),y-0.008);
+      	    line3->Draw();
+
+      	    //std::cout << std::endl;
  
-	  } // close if there is at least a difference 
-	} // if there is a common key
-      } // loop on the keys
+      	  } // close if there is at least a difference 
+      	} // if there is a common key
+      }
+      //loop on the keys
 
       //canvas.SetCanvasSize(2000,(1-y)*1000);
       std::string fileName(m_imageFileName);
