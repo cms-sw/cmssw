@@ -78,7 +78,7 @@ SoftLepton::SoftLepton(const edm::ParameterSet & iConfig) :
   token_leptonCands(   mayConsume<edm::ValueMap<float> >( iConfig.exists("leptonCands") ? iConfig.getParameter<edm::InputTag>( "leptonCands" ) : edm::InputTag() ) ),
   m_leptonId(          iConfig.exists("leptonId") ? iConfig.getParameter<edm::InputTag>( "leptonId" ) : edm::InputTag() ),
   token_leptonId(      mayConsume<edm::ValueMap<float> >( iConfig.exists("leptonId") ? iConfig.getParameter<edm::InputTag>( "leptonId" ) : edm::InputTag() ) ),
-  m_transientTrackBuilder( 0 ),
+  m_transientTrackBuilder( nullptr ),
   m_refineJetAxis(     iConfig.getParameter<unsigned int>( "refineJetAxis" ) ),
   m_deltaRCut(         iConfig.getParameter<double>( "leptonDeltaRCut" ) ),
   m_chi2Cut(           iConfig.getParameter<double>( "leptonChi2Cut" ) ),

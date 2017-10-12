@@ -266,7 +266,7 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
                 double vertexMass = vertexSum.M();
                 if (vtxType == btag::Vertices::RecoVertex &&
                     vertexMassCorrection) {
-                        GlobalVector dir = svInfo.flightDirection(vtx);
+                        const GlobalVector& dir = svInfo.flightDirection(vtx);
                         double vertexPt2 = math::XYZVector(dir.x(), dir.y(), dir.z()).Cross(vertexSum).Mag2() / dir.mag2();
                         vertexMass = std::sqrt(vertexMass * vertexMass + vertexPt2) + std::sqrt(vertexPt2);
                 }
@@ -287,7 +287,7 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
 
 	reco::PFJet const * pfJet = dynamic_cast<reco::PFJet const *>( &* jet ) ;
 	pat::Jet const * patJet = dynamic_cast<pat::Jet const *>( &* jet ) ;
-	if ( pfJet != 0 ) 
+	if ( pfJet != nullptr ) 
 	{
 		vars.insert(btau::chargedHadronEnergyFraction,pfJet->chargedHadronEnergyFraction(), true);
 		vars.insert(btau::neutralHadronEnergyFraction,pfJet->neutralHadronEnergyFraction(), true);
@@ -304,7 +304,7 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
 		vars.insert(btau::totalMultiplicity,pfJet->chargedHadronMultiplicity()+pfJet->neutralHadronMultiplicity()+pfJet->photonMultiplicity()+pfJet->electronMultiplicity()+pfJet->muonMultiplicity(), true);
 
 	}
-	else if( patJet != 0 && patJet->isPFJet() )
+	else if( patJet != nullptr && patJet->isPFJet() )
 	{
 		vars.insert(btau::chargedHadronEnergyFraction,patJet->chargedHadronEnergyFraction(), true);
 		vars.insert(btau::neutralHadronEnergyFraction,patJet->neutralHadronEnergyFraction(), true);
