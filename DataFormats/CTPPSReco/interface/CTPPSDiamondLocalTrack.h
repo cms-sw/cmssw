@@ -19,10 +19,10 @@ class CTPPSDiamondLocalTrack
 {
   public:
     CTPPSDiamondLocalTrack() :
-      chi_squared_( 0. ), valid_( true ), t_( 0. ), t_sigma_( 0. ), ts_index_( 0 ), mh_( 0 ) {}
+      numOfHits_( 0 ), valid_( true ), t_( 0. ), t_sigma_( 0. ), ts_index_( 0 ), mh_( 0 ) {}
     CTPPSDiamondLocalTrack( const math::XYZPoint& pos0, const math::XYZPoint& pos0_sigma, float chisq, float t, float t_sigma, int oot_idx, int mult_hits ) :
       pos0_( pos0 ), pos0_sigma_( pos0_sigma ),
-      chi_squared_( chisq ), valid_( false ),
+      numOfHits_( 0 ), valid_( false ),
       t_( t ), t_sigma_( t_sigma ), ts_index_( oot_idx ), mh_( mult_hits ) {}
     virtual ~CTPPSDiamondLocalTrack() {}
 
@@ -35,15 +35,16 @@ class CTPPSDiamondLocalTrack
     inline float getY0Sigma() const { return pos0_sigma_.y(); }
 
     inline float getZ0() const { return pos0_.z(); }
-
-    inline float getChiSquared() const { return chi_squared_; }
+    inline float getZ0Sigma() const { return pos0_sigma_.z(); }
+    
+    inline int getNumOfHits() const { return numOfHits_; }
     
     //--- spatial set'ters
 
     inline void setPosition( const math::XYZPoint& pos0 ) { pos0_ = pos0; }
     inline void setPositionSigma( const math::XYZPoint& pos0_sigma ) { pos0_sigma_ = pos0_sigma; }
 
-    inline void setChiSquared( const float chisq ) { chi_squared_ = chisq; }
+    inline void setNumOfHits( const int numOfHits ) { numOfHits_ = numOfHits; }
 
     inline bool isValid() const { return valid_; }
     inline void setValid( bool valid ) { valid_ = valid; }
@@ -72,8 +73,8 @@ class CTPPSDiamondLocalTrack
     /// error on the initial track position
     math::XYZPoint pos0_sigma_;
 
-    /// fit chi^2
-    float chi_squared_;
+    /// number of hits participating in the track
+    int numOfHits_;
 
     /// fit valid?
     bool valid_;

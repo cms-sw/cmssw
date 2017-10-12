@@ -47,6 +47,8 @@ CTPPSDiamondTrackRecognition::clear()
   mhMap_.clear();
   yPosition_ = yPositionInitial_;
   yWidth_ = yWidthInitial_;
+  zPosition_ = zPositionInitial_;
+  zWidth_ = zWidthInitial_;
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -56,21 +58,17 @@ CTPPSDiamondTrackRecognition::addHit( const CTPPSDiamondRecHit& recHit )
 {
   // store hit parameters
   hitParametersVectorMap_[recHit.getOOTIndex()].emplace_back( recHit.getX(), recHit.getXWidth() );
-
-  // Check vertical coordinates
+  
+  // Check y
   if ( yPosition_ == yPositionInitial_ and yWidth_ == yWidthInitial_ ) {
     yPosition_ = recHit.getY();
     yWidth_ = recHit.getYWidth();
   }
-
-  //Multiple hits in the RP
-  if ( recHit.getMultipleHits() ) {
-    if ( mhMap_.find( recHit.getOOTIndex() ) == mhMap_.end() ) {
-      mhMap_[recHit.getOOTIndex()] = 1;
-    }
-    else {
-      ++( mhMap_[recHit.getOOTIndex()] );
-    }
+  
+  // Check z
+  if ( zPosition_ == zPositionInitial_ and zWidth_ == zWidthInitial_ ) {
+    zPosition_ = recHit.getZ();
+    zWidth_ = recHit.getZWidth();
   }
 }
 
@@ -123,7 +121,8 @@ CTPPSDiamondTrackRecognition::produceTracks( edm::DetSet<CTPPSDiamondLocalTrack>
               if ( mhMap_.find( oot.first ) != mhMap_.end() ) mult_hits = mhMap_[oot.first];
 
               CTPPSDiamondLocalTrack track( pos0, pos0_sigma, 0., 0., 0., oot.first, mult_hits );
-              track.setValid( true );
+              track.setValid( true );              
+              
               tracks.push_back( track );
               ++number_of_tracks;
             }
