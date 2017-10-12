@@ -9,7 +9,9 @@ HGCalMulticlusteringImpl::HGCalMulticlusteringImpl( const edm::ParameterSet& con
     calibSF_(conf.getParameter<double>("calibSF_multicluster")),
     multiclusterAlgoType_(conf.getParameter<string>("type_multicluster")),
     distDbscan_(conf.getParameter<double>("dist_dbscan_multicluster")),
-    minNDbscan_(conf.getParameter<unsigned>("minN_dbscan_multicluster"))
+    minNDbscan_(conf.getParameter<unsigned>("minN_dbscan_multicluster")),
+    dEdX_(conf.getParameter< std::vector<double> >("calibCoeffMtx")),
+    MatrixCalib_(conf.getParameter< bool >("calibMatrix"))
 {    
     edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster dR for Near Neighbour search: " << dr_;  
     edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster minimum transverse-momentum: " << ptC3dThreshold_;
@@ -109,10 +111,32 @@ void HGCalMulticlusteringImpl::clusterizeDR( const edm::PtrVector<l1t::HGCalClus
 
     /* making the collection of multiclusters */
     for( unsigned i(0); i<multiclustersTmp.size(); ++i ){
-        math::PtEtaPhiMLorentzVector calibP4(  multiclustersTmp.at(i).pt() * calibSF_, 
+
+        double calibPt=0.;
+        if(MatrixCalib_){
+            const edm::PtrVector<l1t::HGCalCluster> pertinentClu = multiclustersTmp.at(i).constituents();
+            for( edm::PtrVector<l1t::HGCalCluster>::const_iterator it_clu=pertinentClu.begin(); it_clu<pertinentClu.end(); it_clu++){
+                int layerN = -1; 
+                if( (*it_clu)->subdetId()==3 ){
+                    layerN = (*it_clu)->layer();
+                }
+                else if((*it_clu)->subdetId()==4){
+                    layerN = (*it_clu)->layer()+28;
+                }
+                else if((*it_clu)->subdetId()==5){
+                    layerN = (*it_clu)->layer()+12+28;
+                }
+                calibPt += dEdX_.at(layerN) * (*it_clu)->mipPt();
+            }     
+        }else if(!MatrixCalib_){        
+            calibPt = multiclustersTmp.at(i).pt() * calibSF_; 
+        }
+
+        math::PtEtaPhiMLorentzVector calibP4(  calibPt, 
                                                multiclustersTmp.at(i).eta(), 
                                                multiclustersTmp.at(i).phi(), 
                                                0. );
+
         // overwriting the 4p with the calibrated 4p     
         multiclustersTmp.at(i).setP4( calibP4 );
         
