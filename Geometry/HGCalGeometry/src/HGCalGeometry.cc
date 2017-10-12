@@ -263,13 +263,13 @@ unsigned int HGCalGeometry::getClosestCellIndex (const GlobalPoint& r) const {
     float dphi = phip-m_cellVec[k].phiPos();
     while (dphi >   M_PI) dphi -= 2*M_PI;
     while (dphi <= -M_PI) dphi += 2*M_PI;
-    if (fabs(dphi) < dphi10) {
-      float dz = fabs(zp - ((FlatTrd)(m_cellVec[k])).getPosition().z());
+    if (std::abs(dphi) < dphi10) {
+      float dz = std::abs(zp - ((FlatTrd)(m_cellVec[k])).getPosition().z());
       if (dz < (dzmin+0.001)) {
 	dzmin     = dz;
-	if (fabs(dphi) < (dphimin+0.01)) {
+	if (std::abs(dphi) < (dphimin+0.01)) {
 	  cellIndex = k;
-	  dphimin   = fabs(dphi);
+	  dphimin   = std::abs(dphi);
 	} else {
 	  if (cellIndex >= m_cellVec.size()) cellIndex = k;
 	}
