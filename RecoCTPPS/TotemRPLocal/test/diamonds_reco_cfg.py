@@ -27,7 +27,7 @@ process.source = cms.Source('NewEventStreamFileReader',
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(-1)
 )
 
 # raw-to-digi conversion

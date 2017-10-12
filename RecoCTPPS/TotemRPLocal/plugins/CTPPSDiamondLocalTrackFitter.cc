@@ -41,6 +41,17 @@ class CTPPSDiamondLocalTrackFitter : public edm::stream::EDProducer<>
     CTPPSDiamondTrackRecognition trk_algo_56_;
 };
 
+inline bool hitBelongsToTrack( const CTPPSDiamondLocalTrack& localTrack, const CTPPSDiamondRecHit& recHit )
+{
+  // Check if one of the edges of the recHit is within the 
+  return ( 
+            ( ( recHit.getX() + recHit.getXWidth() > localTrack.getX0() - localTrack.getX0Sigma() ) &&
+              ( recHit.getX() + recHit.getXWidth() < localTrack.getX0() + localTrack.getX0Sigma() )  ) ||
+            ( ( recHit.getX() - recHit.getXWidth() > localTrack.getX0() + localTrack.getX0Sigma() ) &&
+              ( recHit.getX() - recHit.getXWidth() < localTrack.getX0() - localTrack.getX0Sigma() )  )
+         );
+};
+
 CTPPSDiamondLocalTrackFitter::CTPPSDiamondLocalTrackFitter( const edm::ParameterSet& iConfig ) :
   recHitsToken_( consumes< edm::DetSetVector<CTPPSDiamondRecHit> >( iConfig.getParameter<edm::InputTag>( "recHitsTag" ) ) ),
   trk_algo_45_ ( iConfig.getParameter<edm::ParameterSet>( "trackingAlgorithmParams" ) ),
@@ -77,13 +88,13 @@ CTPPSDiamondLocalTrackFitter::produce( edm::Event& iEvent, const edm::EventSetup
     {
       for ( edm::DetSet<CTPPSDiamondRecHit>::const_iterator hit = vec->begin(); hit != vec->end(); ++hit )
       {
-	trk_algo_45_.addHit( *hit );
+        trk_algo_45_.addHit( *hit );
       }
     } else
     {
       for ( edm::DetSet<CTPPSDiamondRecHit>::const_iterator hit = vec->begin(); hit != vec->end(); ++hit )
       {
-	trk_algo_56_.addHit( *hit );
+        trk_algo_56_.addHit( *hit );
       }
     }
   }
