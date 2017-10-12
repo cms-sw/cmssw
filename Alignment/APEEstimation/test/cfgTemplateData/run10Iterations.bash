@@ -56,4 +56,3 @@ done
 sleep 1m
 bash ../createStep2.bash 10
 bash ../startStep2.bash
-        
