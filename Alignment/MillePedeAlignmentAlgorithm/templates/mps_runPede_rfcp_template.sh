@@ -4,12 +4,17 @@
 #
 # Adjustments might be needed for CMSSW environment.
 
-#temporary fix (?):
-#unset PYTHONHOME
+# The batch job directory (will vanish after job end):
+BATCH_DIR=$(pwd)
+echo -e "Running at $(date) \n        on ${HOSTNAME} \n        in directory ${BATCH_DIR}."
 
-cd ${CMSSW_BASE}/src
-eval `scramv1 runtime -sh`
-cd -
+# set up the CMS environment
+cd CMSSW_RELEASE_AREA
+eval `scram runtime -sh`
+hash -r
+
+cd ${BATCH_DIR}
+echo Running directory changed to $(pwd).
 
 # these defaults will be overwritten by MPS
 RUNDIR=${HOME}/scratch0/some/path
@@ -98,10 +103,6 @@ copytreefile () {
     fi
 }
 
-# The batch job directory (will vanish after job end):
-BATCH_DIR=$(pwd)
-echo -e "Running at $(date) \n        on ${HOSTNAME} \n        in directory ${BATCH_DIR}."
-
 # stage and copy the binary file(s), first set castor pool for binary files in ${MSSDIR} area
 export -f untilSuccess
 export -f copytreefile
@@ -130,11 +131,6 @@ rm parallel-copy-commands.txt
 # (could also try to substitute in config ".dat" with ".dat.gz"
 #  ONLY for lines which contain "milleBinary" using "sed '/milleBinary/s/.dat/.dat.gz/g'"):
 ln -s milleBinaryISN.dat.gz milleBinaryISN.dat
-
-# set up the CMS environment
-cd CMSSW_RELEASE_AREA
-eval `scram runtime -sh`
-hash -r
 
 cd ${BATCH_DIR}
 echo Running directory changed to $(pwd).
