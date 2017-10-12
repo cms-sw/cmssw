@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
 import RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi as recoparam
 import RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi as recocalibparam 
+import hgcalLayersCalibrationCoefficients_cfi as matrixcalibcoeff
 
 # Digitization parameters
 adcSaturation_fC = digiparam.hgceeDigitizer.digiCfg.feCfg.adcSaturation_fC
@@ -68,9 +69,9 @@ C3d_parValues = cms.PSet( dR_multicluster = cms.double(0.01), # dR in normalized
                           calibSF_multicluster = cms.double(1.084),
                           type_multicluster = cms.string('dRC3d'), #'DBSCANC3d' for the DBSCAN algorithm 
                           calibMatrix = cms.bool(True),
+                          calibCoeffMtx = matrixcalibcoeff.dEdx_weights_hadron,
                           dist_dbscan_multicluster = cms.double(0.005),
                           minN_dbscan_multicluster = cms.uint32(3)
-
                           )
 cluster_algo =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoThreshold'),
                           FECodec = fe_codec.clone(),
