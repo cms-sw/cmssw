@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
 import RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi as recoparam
 import RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi as recocalibparam 
-import hgcalLayersCalibrationCoefficients_cfi as matrixcalibcoeff
+import hgcalLayersCalibrationCoefficients_cfi as layercalibparam
 
 # Digitization parameters
 adcSaturation_fC = digiparam.hgceeDigitizer.digiCfg.feCfg.adcSaturation_fC
@@ -56,6 +56,7 @@ calib_parValues = cms.PSet( siliconCellLSB_fC =  cms.double( triggerCellLsbBefor
                             dEdXweights = layerWeights,
                             thickCorr = cms.double(thicknessCorrection_200)
                             )
+
 C2d_parValues = cms.PSet( seeding_threshold_silicon = cms.double(5), # MipT
                           seeding_threshold_scintillator = cms.double(5), # MipT
                           clustering_threshold_silicon = cms.double(2), # MipT
@@ -68,8 +69,8 @@ C3d_parValues = cms.PSet( dR_multicluster = cms.double(0.01), # dR in normalized
                           minPt_multicluster = cms.double(0.5), # minimum pt of the multicluster (GeV)
                           calibSF_multicluster = cms.double(1.084),
                           type_multicluster = cms.string('dRC3d'), #'DBSCANC3d' for the DBSCAN algorithm 
-                          calibMatrix = cms.bool(True),
-                          calibCoeffMtx = matrixcalibcoeff.dEdX_weights,
+                          applyLayerCalibration = cms.bool(True),
+                          layerWeights = layercalibparam.AllLayer_weights,
                           dist_dbscan_multicluster = cms.double(0.005),
                           minN_dbscan_multicluster = cms.uint32(3)
                           )
