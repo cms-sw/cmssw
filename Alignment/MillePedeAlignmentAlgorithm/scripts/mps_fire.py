@@ -88,9 +88,9 @@ request_cpus          = {cpus:d}
             n_threads = option.replace("threads", "").strip()
             n_threads = max(map(lambda x: int(x), n_threads.split()))
             break
-    if n_threads > 8: n_threads = 8 # HTCondor machines have (currently) 16
-                                    # cores, i.e. we ensure here that 2 of such
-                                    # jobs would fit core-wise on one machine
+    if n_threads > 16: n_threads = 16 # HTCondor machines have (currently) 16
+                                      # cores, i.e. we ensure here that the job
+                                      # would fit core-wise on one machine
 
     print "Determine required disk space on remote host..."
     # determine usage by each file instead of whole directory as this is what
