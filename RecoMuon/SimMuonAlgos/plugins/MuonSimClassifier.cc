@@ -412,8 +412,8 @@ MuonSimClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             gmomFlav[i] = flavour(gmomPdgId[i]);
 
             // Check first IF this is a muon at all
-            if (abs(tp->pdgId()) != 13) {
-	      if (abs(tp->pdgId()) == 11) {
+            if (std::abs(tp->pdgId()) != 13) {
+	      if (std::abs(tp->pdgId()) == 11) {
                 classif[i] = isGhost ? -11 : 11;
                 ext[i]     = isGhost ? -11 : 11;
                 edm::LogVerbatim("MuonSimClassifier") <<"\t This is electron/positron. classif[i] = " << classif[i];
@@ -429,7 +429,7 @@ MuonSimClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
             // Is this SIM muon also a GEN muon, with a mother?
             if (!tp->genParticles().empty() && (momPdgId[i] != 0)) {
-                if (abs(momPdgId[i]) < 100 && (abs(momPdgId[i]) != 15)) {
+                if (std::abs(momPdgId[i]) < 100 && (std::abs(momPdgId[i]) != 15)) {
                     classif[i] = isGhost ? -4 : 4;
 		    flav[i] = 13;
                     ext[i]  = 10;
@@ -454,7 +454,7 @@ MuonSimClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             }
             // extended classification
             if (momPdgId[i] == 0) ext[i] = 2; // if it has no mom, it's not a primary particle so it won't be in ppMuX
-            else if (abs(momPdgId[i]) < 100) ext[i] = (momFlav[i] == 15 ? 9 : 10); // primary mu, or tau->mu
+            else if (std::abs(momPdgId[i]) < 100) ext[i] = (momFlav[i] == 15 ? 9 : 10); // primary mu, or tau->mu
             else if (momFlav[i] == 5) ext[i] = 8; // b->mu
             else if (momFlav[i] == 4) ext[i] = (hmomFlav[i] == 5 ? 7 : 6); // b->c->mu and c->mu
             else if (momStatus[i] != -1) { // primary light particle
