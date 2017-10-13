@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import keras
 import theano
 from keras.models import Sequential
