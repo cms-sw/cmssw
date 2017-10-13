@@ -96,7 +96,6 @@ process.outputDB.DBParameters.authenticationPath = cms.untracked.string(options.
 if options.genFromOMDS == 0:
     # Generate dummy configuration data
     process.load('L1TriggerConfig.L1TConfigProducers.L1TMuonOverlapParamsOnlineProxy_cfi')
-#    process.load('L1TriggerConfig.L1TConfigProducers.L1TMuonEndCapParamsOnlineProxy_cfi')
     process.load('L1TriggerConfig.L1TConfigProducers.L1TMuonEndCapForestOnlineProxy_cfi')
 
 else:
