@@ -10,8 +10,8 @@ HGCalMulticlusteringImpl::HGCalMulticlusteringImpl( const edm::ParameterSet& con
     multiclusterAlgoType_(conf.getParameter<string>("type_multicluster")),
     distDbscan_(conf.getParameter<double>("dist_dbscan_multicluster")),
     minNDbscan_(conf.getParameter<unsigned>("minN_dbscan_multicluster")),
-    dEdX_(conf.getParameter< std::vector<double> >("calibCoeffMtx")),
-    MatrixCalib_(conf.getParameter< bool >("calibMatrix"))
+    layerWeights_(conf.getParameter< std::vector<double> >("layerWeights")),
+    applyLayerWeights_(conf.getParameter< bool >("applyLayerCalibration"))
 {    
     edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster dR for Near Neighbour search: " << dr_;  
     edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster minimum transverse-momentum: " << ptC3dThreshold_;
@@ -19,7 +19,6 @@ HGCalMulticlusteringImpl::HGCalMulticlusteringImpl( const edm::ParameterSet& con
     edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster DBSCAN Clustering distance: " << distDbscan_;
     edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster clustering min number of subclusters: " << minNDbscan_;
     edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster type of multiclustering algortihm: " << multiclusterAlgoType_;
-    
 }
 
 
@@ -113,22 +112,23 @@ void HGCalMulticlusteringImpl::clusterizeDR( const edm::PtrVector<l1t::HGCalClus
     for( unsigned i(0); i<multiclustersTmp.size(); ++i ){
 
         double calibPt=0.;
-        if(MatrixCalib_){
-            const edm::PtrVector<l1t::HGCalCluster> pertinentClu = multiclustersTmp.at(i).constituents();
-            for( edm::PtrVector<l1t::HGCalCluster>::const_iterator it_clu=pertinentClu.begin(); it_clu<pertinentClu.end(); it_clu++){
+        if(applyLayerWeights_){
+            const edm::PtrVector<l1t::HGCalCluster> &pertinentClu = multiclustersTmp.at(i).constituents();
+            for( edm::PtrVector<l1t::HGCalCluster>::const_iterator  it_clu=pertinentClu.begin(); it_clu<pertinentClu.end(); it_clu++){
                 int layerN = -1; 
-                if( (*it_clu)->subdetId()==3 ){
+                if( (*it_clu)->subdetId()==HGCEE ){
                     layerN = (*it_clu)->layer();
                 }
-                else if((*it_clu)->subdetId()==4){
-                    layerN = (*it_clu)->layer()+28;
+                else if((*it_clu)->subdetId()==HGCHEF){
+                    layerN = (*it_clu)->layer()+kLayersEE_;
                 }
-                else if((*it_clu)->subdetId()==5){
-                    layerN = (*it_clu)->layer()+12+28;
+                else if((*it_clu)->subdetId()==HGCHEB){
+                    layerN = (*it_clu)->layer()+kLayersFH_+kLayersEE_;
                 }
-                calibPt += dEdX_.at(layerN) * (*it_clu)->mipPt();
+                calibPt += layerWeights_.at(layerN) * (*it_clu)->mipPt();
             }     
-        }else if(!MatrixCalib_){        
+        }
+        else{        
             calibPt = multiclustersTmp.at(i).pt() * calibSF_; 
         }
 

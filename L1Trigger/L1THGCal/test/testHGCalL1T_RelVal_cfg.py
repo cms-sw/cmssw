@@ -56,18 +56,6 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 # load HGCAL TPG simulation
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
-
-process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C2d_parameters.seeding_threshold_silicon = cms.double(5)
-process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C2d_parameters.clustering_threshold_silicon = cms.double(2)
-process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C2d_parameters.seeding_threshold_scintillator = cms.double(5)
-process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C2d_parameters.clustering_threshold_scintillator = cms.double(2)
-process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C3d_parameters.calibMatrix = cms.bool(True)
-
-import L1Trigger.L1THGCal.hgcalLayersCalibrationCoefficients_cfi as matrixcalibcoeff
-process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C3d_parameters.calibCoeffMtx = cms.vdouble( matrixcalibcoeff.dEdX_weights )
-
-# load HGCAL TPG simulation
-process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
 # Change to V7 trigger geometry for older samples
 #  from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_ZoltanSplit_V7

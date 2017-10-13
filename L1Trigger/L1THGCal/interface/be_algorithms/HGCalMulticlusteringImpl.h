@@ -37,10 +37,14 @@ private:
     string multiclusterAlgoType_;
     double distDbscan_ = 0.005;
     unsigned minNDbscan_ = 3;
-    std::vector<double> dEdX_;
-    bool MatrixCalib_;
+    std::vector<double> layerWeights_;
+    bool applyLayerWeights_;
 
     HGCalShowerShape shape_;
+
+    static const int kLayersEE_=28;
+    static const int kLayersFH_=12;
+    static const int kLayersBH_=12;
 
 };
 

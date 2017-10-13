@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # coefficient evaluated from SinglePhoton pT=50 GeV considering all the layers in EE
-dEdX_weights = cms.vdouble(0.0,
+AllLayer_weights = cms.vdouble(0.0,
                            0.0158115,
                            0.0150911,
                            0.0232459,
@@ -58,7 +58,7 @@ dEdX_weights = cms.vdouble(0.0,
 
 
 # coefficient evaluated from SinglePhoton pT=50 GeV considering only the trigger layer (i.e. only odd layer numbers in EE)
-dEdX_weights_trgLayer = cms.vdouble(0.0,
+TrgLayer_weights = cms.vdouble(0.0,
                                     0.0183664,
                                     0.,
                                     0.0353655,
