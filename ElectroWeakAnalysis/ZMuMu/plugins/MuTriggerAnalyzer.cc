@@ -212,22 +212,12 @@ void MuTriggerAnalyzer::analyze (const Event & ev, const EventSetup &) {
       unsigned int nHighPtGlbMu = highPtGlbMuons.size();
       std::cout << "I've got " << nHighPtGlbMu << " nHighPtGlbMu" << std::endl;
       // unsigned int nHighPtStaMu = highPtStaMuons.size();
-
-	// stop the loop after 10 cicles....
-       	(nHighPtGlbMu> 10)?   nHighPtGlbMu=10 : 1;
-
-	if (nHighPtGlbMu>0 ){
-
-           for(unsigned int i =0 ; i < nHighPtGlbMu ; i++) {
-	    reco::Muon muon1 = highPtGlbMuons[i];
-	    const math::XYZTLorentzVector& mu1(muon1.p4());
-	    //      double pt1= muon1.pt();
-
-	    /* bool singleTrigFlag1 =*/ IsMuMatchedToHLTMu ( muon1,  HLTMuMatched ,maxDeltaR_, maxDPtRel_ );
-
-	  }
-
-	}
+      // stop the loop after 10 cicles....
+      if (nHighPtGlbMu> 10) nHighPtGlbMu=10;
+      
+      for(unsigned int i =0 ; i < nHighPtGlbMu ; i++) {
+	IsMuMatchedToHLTMu ( highPtGlbMuons[i],  HLTMuMatched ,maxDeltaR_, maxDPtRel_ );
+      }
 
 }
 
