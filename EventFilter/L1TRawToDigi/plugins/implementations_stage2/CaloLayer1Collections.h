@@ -18,7 +18,7 @@ namespace l1t {
                caloRegions_(new L1CaloRegionCollection())
             {};
 
-            virtual ~CaloLayer1Collections();
+            ~CaloLayer1Collections() override;
 
             inline EcalTrigPrimDigiCollection* getEcalDigis() {return ecalDigis_.get();};
             inline HcalTrigPrimDigiCollection* getHcalDigis() { return hcalDigis_.get(); };

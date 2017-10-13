@@ -9,7 +9,7 @@ namespace l1t {
    namespace stage2 {
       class CaloLayer1Unpacker : public Unpacker {
          public:
-            virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
+            bool unpack(const Block& block, UnpackerCollections *coll) override;
          
          private:
             void makeECalTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, EcalTrigPrimDigiCollection* ecalTPGs);

@@ -9,7 +9,7 @@ namespace l1t {
    namespace stage2 {
       class CaloLayer1Packer : public Packer {
          public:
-            virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
+            Blocks pack(const edm::Event&, const PackerTokens*) override;
 
          private:
             void makeECalTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, const EcalTrigPrimDigiCollection* ecalTPGs);
