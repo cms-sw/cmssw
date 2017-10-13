@@ -50,18 +50,18 @@ public:
   };
 
   EGExtraInfoModifierFromDB(const edm::ParameterSet& conf);
-  ~EGExtraInfoModifierFromDB();
+  ~EGExtraInfoModifierFromDB() override;
     
-  void setEvent(const edm::Event&) override final;
-  void setEventContent(const edm::EventSetup&) override final;
-  void setConsumes(edm::ConsumesCollector&) override final;
+  void setEvent(const edm::Event&) final;
+  void setEventContent(const edm::EventSetup&) final;
+  void setConsumes(edm::ConsumesCollector&) final;
   
-  void modifyObject(reco::GsfElectron&) const override final;
-  void modifyObject(reco::Photon&) const override final;
+  void modifyObject(reco::GsfElectron&) const final;
+  void modifyObject(reco::Photon&) const final;
   
   // just calls reco versions
-  void modifyObject(pat::Electron&) const override final; 
-  void modifyObject(pat::Photon&) const override final;
+  void modifyObject(pat::Electron&) const final; 
+  void modifyObject(pat::Photon&) const final;
 
 private:
   electron_config e_conf;
@@ -90,7 +90,8 @@ private:
   double eOverP_ECALTRKThr_;     // 0.025
   double epDiffSig_ECALTRKThr_;  // 15
   double epSig_ECALTRKThr_;      // 10
-  
+  bool forceHighEnergyEcalTrainingIfSaturated_;
+
   
 };
 
@@ -107,7 +108,7 @@ EGExtraInfoModifierFromDB::EGExtraInfoModifierFromDB(const edm::ParameterSet& co
   eOverP_ECALTRKThr_ = conf.getParameter<double>("eOverP_ECALTRKThr");
   epDiffSig_ECALTRKThr_ = conf.getParameter<double>("epDiffSig_ECALTRKThr");
   epSig_ECALTRKThr_ = conf.getParameter<double>("epSig_ECALTRKThr");
-
+  forceHighEnergyEcalTrainingIfSaturated_ = conf.getParameter<bool>("forceHighEnergyEcalTrainingIfSaturated");
   rhoTag_ = conf.getParameter<edm::InputTag>("rhoCollection");
 
   constexpr char electronSrc[] =  "electronSrc";
@@ -365,6 +366,10 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::GsfElectron& ele) const {
   const int numberOfClusters =  the_sc->clusters().size();
   const bool missing_clusters = !the_sc->clusters()[numberOfClusters-1].isAvailable();
   if( missing_clusters ) return ; // do not apply corrections in case of missing info (slimmed MiniAOD electrons)
+  
+  //check if fbrem is filled as its needed for E/p combination so abort if its set to the default value 
+  //this will be the case for <5 (or current cuts) for miniAOD electrons
+  if(ele.fbrem()==reco::GsfElectron::ClassificationVariables().trackFbrem) return;
 
   const bool iseb = ele.isEB();  
 
@@ -445,15 +450,17 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::GsfElectron& ele) const {
   
   size_t coridx = 0;
   float raw_pt = raw_energy*the_sc->position().rho()/the_sc->position().r();
-
-  if (iseb && raw_pt < lowEnergy_ECALonlyThr_)
-    coridx = 0;
-  else if (iseb && raw_pt >= lowEnergy_ECALonlyThr_)
-    coridx = 1;
-  else if (!iseb && raw_pt < lowEnergy_ECALonlyThr_)
-    coridx = 2;
-  else if (!iseb && raw_pt >= lowEnergy_ECALonlyThr_)
-    coridx = 3;
+  bool isSaturated = ele.nSaturatedXtals()!=0;
+  
+  if(raw_pt >= lowEnergy_ECALonlyThr_ || 
+     (isSaturated && forceHighEnergyEcalTrainingIfSaturated_)){
+    if(iseb) coridx = 1;
+    else coridx = 3;
+  }else{
+    if(iseb) coridx = 0;
+    else coridx = 2;
+  }
+  
   
   //these are the actual BDT responses
   double rawmean = e_forestH_mean_[coridx]->GetResponse(eval.data());
@@ -539,7 +546,7 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::GsfElectron& ele) const {
 								    oldFourMomentum.y()*combinedEnergy/oldFourMomentum.t(),
 								    oldFourMomentum.z()*combinedEnergy/oldFourMomentum.t(),
 								    combinedEnergy);
- 
+
   ele.correctMomentum(newFourMomentum, ele.trackMomentumError(), combinedEnergyError);
 }
 
@@ -639,15 +646,16 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::Photon& pho) const {
   
   size_t coridx = 0;
   float raw_pt = raw_energy*the_sc->position().rho()/the_sc->position().r();
-
-  if (iseb && raw_pt < lowEnergy_ECALonlyThr_)
-    coridx = 0;
-  else if (iseb && raw_pt >= lowEnergy_ECALonlyThr_)
-    coridx = 1;
-  else if (!iseb && raw_pt < lowEnergy_ECALonlyThr_)
-    coridx = 2;
-  else if (!iseb && raw_pt >= lowEnergy_ECALonlyThr_)
-    coridx = 3;
+  bool isSaturated = pho.nSaturatedXtals();
+  
+  if(raw_pt >= lowEnergy_ECALonlyThr_ || 
+     (isSaturated && forceHighEnergyEcalTrainingIfSaturated_)){
+    if(iseb) coridx = 1;
+    else coridx = 3;
+  }else{
+    if(iseb) coridx = 0;
+    else coridx = 2;
+  }
   
   //these are the actual BDT responses
   double rawmean = ph_forestH_mean_[coridx]->GetResponse(eval.data());
