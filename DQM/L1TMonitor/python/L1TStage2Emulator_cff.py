@@ -122,6 +122,7 @@ from DQM.L1TMonitor.L1TdeStage2CaloLayer1_cfi import *
 from DQM.L1TMonitor.L1TdeStage2CaloLayer2_cfi import *
 from DQM.L1TMonitor.L1TStage2CaloLayer2_cfi import *
 from DQM.L1TMonitor.L1TStage2CaloLayer2Emul_cfi import *
+from DQM.L1TMonitor.L1TStage2uGTCaloLayer2Comp_cfi import *
 
 # BMTF
 from DQM.L1TMonitor.L1TdeStage2BMTF_cfi import *
@@ -157,6 +158,7 @@ l1tStage2EmulatorOnlineDQMValidationEvents = cms.Sequence(
     l1tdeStage2Omtf +
     l1tdeStage2Emtf +
     l1tdeStage2EmtfComp +
+    l1tStage2uGTCaloLayer2Comp +
     l1tStage2uGtEmul
 )
 
