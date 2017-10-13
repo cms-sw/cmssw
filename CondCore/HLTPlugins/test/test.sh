@@ -10,14 +10,32 @@ eval `scram run -sh`;
 cd $W_DIR;
 # Run get payload data script
 
+mkdir -p $W_DIR/plots
+
 ####################
-# Test Gains
+# Test display 
+####################
+/afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py \
+    --plugin pluginAlCaRecoTriggerBits_PayloadInspector \
+    --plot plot_AlCaRecoTriggerBits_Display \
+    --tag AlCaRecoHLTpaths8e29_1e31_v7_hlt \
+    --time_type Run \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
+    --db Prod \
+    --test;
+
+mv *.png $W_DIR/plots/AlCaRecoTriggerBits_Display.png
+
+####################
+# Test compare
 ####################
 /afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py \
     --plugin pluginAlCaRecoTriggerBits_PayloadInspector \
     --plot plot_AlCaRecoTriggerBits_Compare \
-    --tag AlCaRecoTriggerBits_TrackerDQM_v2_express \
+    --tag AlCaRecoHLTpaths8e29_1e31_v7_hlt \
     --time_type Run \
-    --iovs '{"start_iov": "1", "end_iov": "284123"}' \
+    --iovs '{"start_iov": "270000", "end_iov": "304820"}' \
     --db Prod \
     --test;
+
+mv *.png $W_DIR/plots/AlCaRecoTriggerBits_Compare.png
