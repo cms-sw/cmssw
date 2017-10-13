@@ -69,17 +69,21 @@ CTPPSDiamondLocalTrackFitter::produce( edm::Event& iEvent, const edm::EventSetup
 
   // workaround to retrieve the detset for 4-5 without losing the reference
   edm::DetSet<CTPPSDiamondLocalTrack>& tracks45 = pOut->operator[]( id_45 );
+  
+  
+  // Create vector to simplify code for both arms
+  std::vector< edm::DetSet<CTPPSDiamondLocalTrack>* > tracksPair( 2 );
+  tracksPair[0] = &tracks45;
+  tracksPair[1] = &tracks56;
+  
+  std::vector< CTPPSDiamondTrackRecognition* > trackRecoPair( 2 );
+  trackRecoPair[0] = &trk_algo_45_;
+  trackRecoPair[1] = &trk_algo_56_;
 
   // feed hits to the track producers
   for ( const auto& vec : *recHits ) {
     const CTPPSDiamondDetId detid( vec.detId() );
-
-    if ( detid.arm() == 0 ) {
-      for ( const auto& hit : vec ) trk_algo_45_.addHit( hit );
-    }
-    else if ( detid.arm() == 1 ) {
-      for ( const auto& hit : vec ) trk_algo_56_.addHit( hit );
-    }
+    for ( const auto& hit : vec ) trackRecoPair.at( detid.arm() )->addHit( hit );
   }
 
   // retrieve the tracks for both arms
@@ -96,10 +100,17 @@ CTPPSDiamondLocalTrackFitter::produce( edm::Event& iEvent, const edm::EventSetup
 bool
 CTPPSDiamondLocalTrackFitter::hitBelongsToTrack( const CTPPSDiamondLocalTrack& localTrack, const CTPPSDiamondRecHit& recHit ) const
 {
-  return ( recHit.getX() + recHit.getXWidth() > localTrack.getX0() - localTrack.getX0Sigma()
-        && recHit.getX() + recHit.getXWidth() < localTrack.getX0() + localTrack.getX0Sigma() )
-      || ( recHit.getX() - recHit.getXWidth() > localTrack.getX0() + localTrack.getX0Sigma()
-        && recHit.getX() - recHit.getXWidth() < localTrack.getX0() - localTrack.getX0Sigma() );
+  bool inside =  ( recHit.getX() + 0.5 * recHit.getXWidth() > localTrack.getX0() - localTrack.getX0Sigma() - 0.1
+                && recHit.getX() + 0.5 * recHit.getXWidth() < localTrack.getX0() + localTrack.getX0Sigma() + 0.1 )
+              || ( recHit.getX() - 0.5 * recHit.getXWidth() > localTrack.getX0() - localTrack.getX0Sigma() - 0.1
+                && recHit.getX() - 0.5 * recHit.getXWidth() < localTrack.getX0() + localTrack.getX0Sigma() + 0.1 )
+              || ( recHit.getX() - 0.5 * recHit.getXWidth() < localTrack.getX0() - localTrack.getX0Sigma() - 0.1
+                && recHit.getX() + 0.5 * recHit.getXWidth() > localTrack.getX0() + localTrack.getX0Sigma() + 0.1 );
+      
+//   std::cout << "##### Track: " << localTrack.getX0() - localTrack.getX0Sigma() << "  to  " << localTrack.getX0() + localTrack.getX0Sigma() << "\t\tHit: " << recHit.getX() - 0.5 * recHit.getXWidth() << "  to  " << recHit.getX() + 0.5 * recHit.getXWidth();
+//   if ( inside ) std::cout << " Inside! ";
+//   std::cout << std::endl;
+  return inside;
 };
 
 void
@@ -112,7 +123,7 @@ CTPPSDiamondLocalTrackFitter::fillDescriptions( edm::ConfigurationDescriptions& 
     ->setComment( "general verbosity of this module" );
 
   edm::ParameterSetDescription trackingAlgoParams;
-  trackingAlgoParams.add<double>( "threshold", 1.5 )
+  trackingAlgoParams.add<double>( "threshold", 1.9 )
     ->setComment( "minimal number of rechits to be observed before launching the track recognition algorithm" );
   trackingAlgoParams.add<double>( "thresholdFromMaximum", 0.5 );
   trackingAlgoParams.add<double>( "resolution", 0.01 /* mm */ )

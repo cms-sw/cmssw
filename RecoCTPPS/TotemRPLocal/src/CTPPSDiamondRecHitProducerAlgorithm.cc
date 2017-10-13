@@ -27,7 +27,10 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const CTPPSGeometry* geom, const edm
     const float x_pos = det->translation().x(),
                 x_width = 2.0 * det->params().at( 0 ), // parameters stand for half the size
                 y_pos = det->translation().y(),
-                y_width = 2.0 * det->params().at( 1 );
+                y_width = 2.0 * det->params().at( 1 ),
+                z_pos = det->translation().z(),
+                z_width = 2.0 * det->params().at( 2 );  // TODO ?
+                
 
     edm::DetSet<CTPPSDiamondRecHit>& rec_hits = output.find_or_insert( detid );
 
@@ -36,12 +39,14 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const CTPPSGeometry* geom, const edm
 
       const int t = digi->getLeadingEdge();
       const int t0 = ( t-t_shift_ ) % 1024;
-      const int time_slice = ( t-t_shift_ ) / 1024;
+      int time_slice = ( t-t_shift_ ) / 1024;
+      
+      if ( t==0 ) time_slice= NO_LEADING_EDGE_TIMESLICE;
 
       int tot = 0;
       if ( t!=0 && digi->getTrailingEdge()!=0 ) tot = ( (int) digi->getTrailingEdge() ) - t;
 
-      rec_hits.push_back( CTPPSDiamondRecHit( x_pos, x_width, y_pos, y_width, // spatial information
+      rec_hits.push_back( CTPPSDiamondRecHit( x_pos, x_width, y_pos, y_width, z_pos, z_width, // spatial information
                                               ( t0 * ts_to_ns_ ),
                                               ( tot * ts_to_ns_),
                                               time_slice,
