@@ -1,12 +1,19 @@
-#ifndef LUMICORRECTIONS_H
-#define LUMICORRECTIONS_H
+#ifndef CondFormats_Luminosity_LumiCorrections_h
+#define CondFormats_Luminosity_LumiCorrections_h
+
+/** 
+ * \class LumiCorrections
+ * 
+ * \author Sam Higginbotham, Chris Palmer
+ *  
+ *  This class should contain scale factors for correcting
+ *  out-of-time pile-up per bunch crossing on rates intended
+ *  for luminosity estimates.  There is the option of saving 
+ *  the total scale factor on the total luminosity in
+ *  m_overallCorrection as well.  
+ */
 
 
-/*
-*Author: Sam Higginbotham
-*Purpose: to save the corrections for the luminosity to the database 
-*
-*/
 #include <sstream>
 #include <cstring>
 #include <vector>
@@ -21,6 +28,7 @@ class LumiCorrections {
         void  setType2Residual(float type2res){m_type2Residual=type2res;}
         void  setCorrectionsBX(std::vector<float>& correctBX){m_correctionsBX.assign(correctBX.begin(),correctBX.end());} 
         float getOverallCorrection(){return m_overallCorrection;}
+        float getCorrectionAtBX(float bx){return m_correctionsBX[bx];}
         float getType1Fraction(){return m_type1Fraction;}
         float getType1Residual(){return m_type1Residual;}
         float getType2Residual(){return m_type2Residual;}

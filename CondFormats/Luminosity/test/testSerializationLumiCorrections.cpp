@@ -1,6 +1,5 @@
 #include "CondFormats/Serialization/interface/Test.h"
-
-#include "../src/headers.h"
+#include "CondFormats/Luminosity/interface/LumiCorrections.h"
 
 int main()
 {
