@@ -95,21 +95,21 @@ import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.SetCondition as tagw
 ## insert Startgeometry ##
 ##########################
 
-# You can use tagwriter.setCondition() to overwrite conditions in globaltag
-#
-# Examples (ideal phase-1 tracker-alignment conditions):
+# # You can use tagwriter.setCondition() to overwrite conditions in globaltag
+# #
+# # Examples (ideal phase-1 tracker-alignment conditions):
 # tagwriter.setCondition(process,
 #       connect = "frontier://FrontierProd/CMS_CONDITIONS",
 #       record = "TrackerAlignmentRcd",
 #       tag = "TrackerAlignment_Upgrade2017_design_v4")
 # tagwriter.setCondition(process,
 #       connect = "frontier://FrontierProd/CMS_CONDITIONS",
-#       record = "TrackerAlignmentErrorExtendedRcd",
-#       tag = "TrackerAlignmentErrorsExtended_Upgrade2017_design_v0")
-# tagwriter.setCondition(process,
-#       connect = "frontier://FrontierProd/CMS_CONDITIONS",
 #       record = "TrackerSurfaceDeformationRcd",
 #       tag = "TrackerSurfaceDeformations_zero")
+# tagwriter.setCondition(process,
+#       connect = "frontier://FrontierProd/CMS_CONDITIONS",
+#       record = "TrackerAlignmentErrorExtendedRcd",
+#       tag = "TrackerAlignmentErrorsExtended_Upgrade2017_design_v0")
 
 
 #######################
@@ -123,6 +123,7 @@ import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.SetCondition as tagw
 # process.AlignmentProducer.ParameterBuilder.parameterTypes = [
 #     "SelectorRigid,RigidBody",
 #     ]
+#
 # # Define the high-level structure alignables
 # process.AlignmentProducer.ParameterBuilder.SelectorRigid = cms.PSet(
 #     alignParams = cms.vstring(
@@ -146,6 +147,7 @@ import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.SetCondition as tagw
 #     "SelectorBowed,BowedSurface",
 #     "SelectorTwoBowed,TwoBowedSurfaces",
 # ]
+#
 # # Define the high-level structure alignables
 # process.AlignmentProducer.ParameterBuilder.SelectorRigid = cms.PSet(
 #     alignParams = cms.vstring(
@@ -212,10 +214,11 @@ import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.SetCondition as tagw
 # # a list of possible options is documented here:
 # # http://www.desy.de/~kleinwrt/MP2/doc/html/option_page.html#sec-cmd
 # #
-# # you can change pede settings as follows:
+# # you can change or drop pede settings as follows:
 #
 # import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.helper as helper
 # helper.set_pede_option(process, "entries 50 10 2")
+# helper.set_pede_option(process, "compress", drop = True)
 
 
 #################
@@ -229,13 +232,6 @@ import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.SetCondition as tagw
 # process.load("Alignment.CommonAlignment.magneticFieldFilter_cfi")
 # process.magneticFieldFilter.magneticField = 38 # in units of kGauss (=0.1T)
 # helper.add_filter(process, process.magneticFieldFilter)
-#
-# # another useful filter selects only a given APV mode ("peak" or "deco")
-#
-# import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.helper as helper
-# process.load("Alignment.CommonAlignment.apvModeFilter_cfi")
-# processF.apvModeFilter.apvMode = "deco"
-# helper.add_filter(process, process.apvModeFilter)
 
 
 
