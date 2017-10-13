@@ -25,37 +25,57 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<AlCaRecoTriggerBits> payload = fetchPayload( std::get<1>(iov) );
 
-      TCanvas canvas("AlCaRecoTriggerBits","AlCaRecoTriggerBits",2000,1000); 
+      std::string IOVsince  = std::to_string(std::get<0>(iov));
+
       
       // Get map of strings to concatenated list of names of HLT paths:
       typedef std::map<std::string, std::string> TriggerMap;
       const TriggerMap &triggerMap = payload->m_alcarecoToTrig;
 
+      unsigned int mapsize = triggerMap.size();
+      float pitch = 1./(mapsize*1.20);
+
+      //std::cout<<"map size:" << mapsize << " pitch:" << pitch << "ratio: " << 1000./mapsize << std::endl;
+
+      TCanvas canvas("AlCaRecoTriggerBits","AlCaRecoTriggerBits",2000,40*mapsize); 
+
       TLatex l;
-      l.SetTextSize(0.015);
+      l.SetTextSize(pitch-0.002);
 
       // Draw the columns titles
       l.SetTextAlign(12);
 
       float y, x1, x2;
-      y = 1.0; x1 = 0.02; x2 = x1+0.15;
+      y = 1.0; x1 = 0.02; x2 = x1+0.20;
 	
-      int mapsize=triggerMap.size();
+      y -= pitch; 
+      l.DrawLatexNDC(x1, y,"#scale[1.2]{Key}"); 
+      l.DrawLatexNDC(x2, y,("#scale[1.2]{in IOV: "+IOVsince+"}").c_str()); 
+      y -= 0.005;
 
       for(const auto &element : triggerMap){
 	//std::cout<< element.first << " : " ;
 
-	y -= 1./(mapsize+1); l.DrawLatex(x1, y, element.first.c_str()); 
+	y -= pitch; l.DrawLatex(x1, y, element.first.c_str()); 
 
-	std::string output;
+	std::map<int,std::string> output;
+	int count=0;
 	const std::vector<std::string> paths = payload->decompose(element.second);
 	for (unsigned int iPath = 0; iPath < paths.size(); ++iPath) {
 	  //std::cout << paths[iPath] << " ; " ;
-	  output+=paths[iPath];
-	  output+="; ";
+	  output[count]+=paths[iPath];
+	  output[count]+="; ";
+	  if(output[count].length()>80) count++;
 	}
       	
-	l.DrawLatex(x2,y,output.c_str());  
+	for (unsigned int br=0; br<output.size();br++){
+	  l.DrawLatexNDC(x2,y,("#color[2]{"+output[br]+"}").c_str());  
+	  if(br!=output.size()-1) y-=pitch;
+	}
+
+	TLine *line = new TLine(gPad->GetUxmin(),y-(pitch/2.),gPad->GetUxmax(),y-(pitch/2.));
+	line->Draw();
+
 	//std::cout << std::endl;
       }
 
@@ -99,6 +119,9 @@ namespace {
 
       std::vector<std::string> first_keys, not_in_first_keys;
       std::vector<std::string> last_keys, not_in_last_keys;
+
+      unsigned int f_mapsize = first_triggerMap.size();
+      unsigned int l_mapsize = last_triggerMap.size();
 
       // fill the vector of first keys
       for (const auto& element : first_triggerMap){
@@ -231,20 +254,24 @@ namespace {
       	    //std::cout << " ||||||";
 	    
       	    output.clear();
-      	    count=0;
+      	    int count1=0;
       	    for (unsigned int jPath = 0; jPath < not_in_first.size(); ++jPath) {
       	      //std::cout << not_in_first[jPath] << " ; " ;
-      	      output[count]+= not_in_first[jPath];
-      	      output[count]+=";";
-      	      if(output[count].length()>60) count++;
+      	      output[count1]+= not_in_first[jPath];
+      	      output[count1]+=";";
+      	      if(output[count1].length()>60) count1++;
       	    }
 
       	    for (unsigned int br=0; br<output.size();br++){
       	      l.DrawLatexNDC(x3,y-(br*0.017),("#color[8]{"+output[br]+"}").c_str());  	    
       	    }
 
+	    y-=std::max(count,count1)*0.017;
       	    TLine *line3 = new TLine(gPad->GetUxmin(),y-0.008,gPad->GetUxmax(),y-0.008);
       	    line3->Draw();
+	    
+	    // decrease the y position to the maximum of the two lists
+
 
       	    //std::cout << std::endl;
  
