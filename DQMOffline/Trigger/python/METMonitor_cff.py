@@ -163,6 +163,30 @@ PFMETTypeOne120_PFMHT120_IDTight_PFHT60_METmonitoring.FolderName = cms.string('H
 PFMETTypeOne120_PFMHT120_IDTight_PFHT60_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMETTypeOne120_PFMHT120_IDTight_PFHT60_v")
 PFMETTypeOne120_PFMHT120_IDTight_PFHT60_METmonitoring.jetSelection      = cms.string("pt > 70 && abs(eta) < 2.4 && neutralHadronEnergyFraction < 0.8 && chargedHadronEnergyFraction > 0.1")
 
+# HLT_PFMET100_PFMHT100_IDTight_PFHT60                                                                                                                   
+
+PFMET100_PFMHT100_IDTight_PFHT60_METmonitoring = hltMETmonitoring.clone()
+PFMET100_PFMHT100_IDTight_PFHT60_METmonitoring.FolderName = cms.string('HLT/EXO/MET/PFMET100_PFHT60/')
+PFMET100_PFMHT100_IDTight_PFHT60_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET100_PFMHT100_IDTight_PFHT60_v")
+PFMET100_PFMHT100_IDTight_PFHT60_METmonitoring.metSelection      = cms.string("pt > 220")
+PFMET100_PFMHT100_IDTight_PFHT60_METmonitoring.jetSelection      = cms.string("pt > 70 && abs(eta) < 2.4 && neutralHadronEnergyFraction < 0.8 && chargedHadronEnergyFraction > 0.1")
+
+# HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60                                                                                                            
+
+PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60_METmonitoring = hltMETmonitoring.clone()
+PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60_METmonitoring.FolderName = cms.string('HLT/EXO/MET/PFMETNoMu100_PFHT60/')
+PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60")
+PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60_METmonitoring.metSelection      = cms.string("pt > 220")
+PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60_METmonitoring.jetSelection      = cms.string("pt > 70 && abs(eta) < 2.4 && neutralHadronEnergyFraction < 0.8 && chargedHadronEnergyFraction > 0.1")
+
+# HLT_PFMETTypeOne100_PFMHTTypeOne100_IDTight_PFHT60                                                                                                      
+
+PFMETTypeOne100_PFMHTTypeOne100_IDTight_PFHT60_METmonitoring = hltMETmonitoring.clone()
+PFMETTypeOne100_PFMHTTypeOne100_IDTight_PFHT60_METmonitoring.FolderName = cms.string('HLT/EXO/MET/PFMETTypeOne100_PFHT60/')
+PFMETTypeOne100_PFMHTTypeOne100_IDTight_PFHT60_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMETTypeOne100_PFMHTTypeOne100_IDTight_PFHT60_v")
+PFMETTypeOne100_PFMHTTypeOne100_IDTight_PFHT60_METmonitoring.metSelection      = cms.string("pt > 220")
+PFMETTypeOne100_PFMHTTypeOne100_IDTight_PFHT60_METmonitoring.jetSelection      = cms.string("pt > 70 && abs(eta) < 2.4 && neutralHadronEnergyFraction < 0.8 && chargedHadronEnergyFraction > 0.1")
+
 ## Add Pure MET Trigger ##
 # HLT_L1ETMHadSeeds_v 
 L1ETMHadSeeds_METmonitoring = hltMETmonitoring.clone()
@@ -293,6 +317,9 @@ exoHLTMETmonitoring = cms.Sequence(
     + PFMET120_PFMHT120_IDTight_PFHT60_METmonitoring
     + PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60_METmonitoring
     + PFMETTypeOne120_PFMHT120_IDTight_PFHT60_METmonitoring
+    + PFMET100_PFMHT100_IDTight_PFHT60_METmonitoring
+    + PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60_METmonitoring
+    + PFMETTypeOne100_PFMHTTypeOne100_IDTight_PFHT60_METmonitoring
     + L1ETMHadSeeds_METmonitoring
     + CaloMHT90_METmonitoring
     + CaloMET70_HBHECleaned_METmonitoring
