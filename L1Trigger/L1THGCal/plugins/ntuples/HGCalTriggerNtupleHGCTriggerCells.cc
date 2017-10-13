@@ -4,6 +4,7 @@
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 #include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
+#include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
@@ -26,9 +27,10 @@ class HGCalTriggerNtupleHGCTriggerCells : public HGCalTriggerNtupleBase
     virtual void clear() override final;
 
 
-    edm::EDGetToken trigger_cells_token_;
+    edm::EDGetToken trigger_cells_token_, multiclusters_token_;
     edm::EDGetToken simhits_ee_token_, simhits_fh_token_, simhits_bh_token_;
     bool fill_simenergy_;
+    bool filter_cluster_cells_;
     edm::ESHandle<HGCalTriggerGeometryBase> geometry_;
 
 
@@ -48,6 +50,9 @@ class HGCalTriggerNtupleHGCTriggerCells : public HGCalTriggerNtupleBase
     std::vector<float> tc_phi_;
     std::vector<float> tc_pt_;
     std::vector<float> tc_z_;
+    std::vector<uint32_t> tc_cluster_id_;
+    std::vector<uint32_t> tc_multicluster_id_;
+    std::vector<float> tc_multicluster_pt_;
 
 };
 
@@ -60,6 +65,7 @@ HGCalTriggerNtupleHGCTriggerCells::
 HGCalTriggerNtupleHGCTriggerCells(const edm::ParameterSet& conf):HGCalTriggerNtupleBase(conf)
 {
   fill_simenergy_ = conf.getParameter<bool>("FillSimEnergy");
+  filter_cluster_cells_ = conf.getParameter<bool>("FilterClusterCells");
 }
 
 void
@@ -67,6 +73,7 @@ HGCalTriggerNtupleHGCTriggerCells::
 initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& collector)
 {
   trigger_cells_token_ = collector.consumes<l1t::HGCalTriggerCellBxCollection>(conf.getParameter<edm::InputTag>("TriggerCells"));
+  multiclusters_token_ = collector.consumes<l1t::HGCalMulticlusterBxCollection>(conf.getParameter<edm::InputTag>("Multiclusters"));
 
   if (fill_simenergy_) 
   {
@@ -91,6 +98,9 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
   tree.Branch("tc_phi", &tc_phi_);
   tree.Branch("tc_pt", &tc_pt_);
   tree.Branch("tc_z", &tc_z_);
+  tree.Branch("tc_cluster_id", &tc_cluster_id_);
+  tree.Branch("tc_multicluster_id", &tc_multicluster_id_);
+  tree.Branch("tc_multicluster_pt", &tc_multicluster_pt_);
 
 }
 
@@ -104,6 +114,11 @@ fill(const edm::Event& e, const edm::EventSetup& es)
   e.getByToken(trigger_cells_token_, trigger_cells_h);
   const l1t::HGCalTriggerCellBxCollection& trigger_cells = *trigger_cells_h;
 
+  // retrieve clusters
+  edm::Handle<l1t::HGCalMulticlusterBxCollection> multiclusters_h;
+  e.getByToken(multiclusters_token_, multiclusters_h);
+  const l1t::HGCalMulticlusterBxCollection& multiclusters = *multiclusters_h;
+
   // retrieve geometry
   es.get<CaloGeometryRecord>().get(geometry_);
 
@@ -113,11 +128,35 @@ fill(const edm::Event& e, const edm::EventSetup& es)
   std::unordered_map<uint32_t, double> simhits_bh;  
   if(fill_simenergy_) simhits(e, simhits_ee, simhits_fh, simhits_bh);
 
+  // Associate cells to clusters
+  std::unordered_map<uint32_t, uint32_t> cell2cluster;
+  std::unordered_map<uint32_t, l1t::HGCalMulticlusterBxCollection::const_iterator> cell2multicluster;
+  for(auto mcl_itr=multiclusters.begin(0); mcl_itr!=multiclusters.end(0); mcl_itr++)
+  {
+    // loop on 2D clusters inside 3D clusters
+    for(const auto& cl_ptr : mcl_itr->constituents())
+    {
+      // loop on TC inside 2D clusters
+      for(const auto& tc_ptr : cl_ptr->constituents())
+      {
+        cell2cluster.emplace(tc_ptr->detId(), cl_ptr->detId());
+        cell2multicluster.emplace(tc_ptr->detId(), mcl_itr);
+      }
+    }
+  }
+
   clear();
   for(auto tc_itr=trigger_cells.begin(0); tc_itr!=trigger_cells.end(0); tc_itr++)
   {
     if(tc_itr->hwPt()>0)
     {
+      auto cl_itr = cell2cluster.find(tc_itr->detId());
+      auto mcl_itr = cell2multicluster.find(tc_itr->detId());
+      uint32_t cl_id = (cl_itr!=cell2cluster.end() ? cl_itr->second : 0);
+      uint32_t mcl_id = (mcl_itr!=cell2multicluster.end() ? mcl_itr->second->detId() : 0);
+      float mcl_pt = (mcl_itr!=cell2multicluster.end() ? mcl_itr->second->pt() : 0.);
+      // Filter cells not included in a cluster, if requested
+      if(filter_cluster_cells_ && mcl_id==0) continue;
       tc_n_++;
       // hardware data
       HGCalDetId id(tc_itr->detId());
@@ -136,6 +175,10 @@ fill(const edm::Event& e, const edm::EventSetup& es)
       tc_phi_.emplace_back(tc_itr->phi());
       tc_pt_.emplace_back(tc_itr->pt());
       tc_z_.emplace_back(tc_itr->position().z());
+      // Links between TC and clusters
+      tc_cluster_id_.emplace_back(cl_id);
+      tc_multicluster_id_.emplace_back(mcl_id);
+      tc_multicluster_pt_.emplace_back(mcl_pt);
 
       if(fill_simenergy_)
       {
@@ -249,6 +292,9 @@ clear()
   tc_phi_.clear();
   tc_pt_.clear();
   tc_z_.clear();
+  tc_cluster_id_.clear();
+  tc_multicluster_id_.clear();
+  tc_multicluster_pt_.clear();
 }
 
 
