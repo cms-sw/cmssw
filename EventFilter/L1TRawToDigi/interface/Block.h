@@ -123,9 +123,9 @@ namespace l1t {
    class CTP7Payload : public Payload {
       public:
          CTP7Payload(const uint32_t * data, const uint32_t * end, amc::Header amcHeader);
-         virtual unsigned getHeaderSize() const override { return 2; };
-         virtual BlockHeader getHeader() override;
-         virtual std::unique_ptr<Block> getBlock() override;
+         unsigned getHeaderSize() const override { return 2; };
+         BlockHeader getHeader() override;
+         std::unique_ptr<Block> getBlock() override;
       private:
          // FIXME check values
          static constexpr unsigned size_mask = 0xff;
