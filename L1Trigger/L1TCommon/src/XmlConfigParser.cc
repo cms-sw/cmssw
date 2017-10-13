@@ -338,7 +338,7 @@ void XmlConfigParser::readHwDescription(const DOMElement* element, TriggerSystem
         {
           XMLSize_t j = 0;
           if (roleChilds->item(j)->getNodeType() == DOMNode::TEXT_NODE) {
-            role = xercesc::XMLString::transcode(roleChilds->item(j)->getNodeValue());
+            role = cms::xerces::toString(roleChilds->item(j)->getNodeValue());
             pruneString(role);
           }
         }
@@ -358,7 +358,7 @@ void XmlConfigParser::readHwDescription(const DOMElement* element, TriggerSystem
         {
           XMLSize_t j = 0;
           if (crateChilds->item(j)->getNodeType() == DOMNode::TEXT_NODE) {
-            crate = xercesc::XMLString::transcode(crateChilds->item(j)->getNodeValue());
+            crate = cms::xerces::toString(crateChilds->item(j)->getNodeValue());
             pruneString(crate);
           }
         }
