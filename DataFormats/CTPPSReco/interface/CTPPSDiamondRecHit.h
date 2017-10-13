@@ -21,9 +21,9 @@ class CTPPSDiamondRecHit
       t_( 0. ), tot_( 0. ), t_precision_(0.),
       ts_index_( 0 ), hptdc_err_( 0 ), mh_( false )
     {}
-    CTPPSDiamondRecHit( float x, float x_width, float y, float y_width, float t, float tot, int oot_idx, const HPTDCErrorFlags& hptdc_err, const bool mh ) :
-      x_( x ), x_width_( x_width ), y_( y ), y_width_( y_width ),
-      t_( t ), tot_( tot ),
+    CTPPSDiamondRecHit( float x, float x_width, float y, float y_width, float z, float z_width, float t, float tot, float t_precision, int oot_idx, const HPTDCErrorFlags& hptdc_err, const bool mh ) :
+      x_( x ), x_width_( x_width ), y_( y ), y_width_( y_width ), z_( z ), z_width_( z_width ),
+      t_( t ), tot_( tot ), t_precision_(t_precision),
       ts_index_( oot_idx ), hptdc_err_( hptdc_err ), mh_( mh )
     {}
 
