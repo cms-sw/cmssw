@@ -5,22 +5,22 @@
 #include "L1Trigger/L1TCommon/interface/XmlConfigParser.h"
 #include "OnlineDBqueryHelper.h"
 
-class L1TMuonEndcapObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBaseExt {
+class L1TMuonEndCapObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBaseExt {
 private:
 
 public:
     void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
 
-    L1TMuonEndcapObjectKeysOnlineProd(const edm::ParameterSet&);
-    ~L1TMuonEndcapObjectKeysOnlineProd(void) override{}
+    L1TMuonEndCapObjectKeysOnlineProd(const edm::ParameterSet&);
+    ~L1TMuonEndCapObjectKeysOnlineProd(void) override{}
 };
 
-L1TMuonEndcapObjectKeysOnlineProd::L1TMuonEndcapObjectKeysOnlineProd(const edm::ParameterSet& iConfig)
+L1TMuonEndCapObjectKeysOnlineProd::L1TMuonEndCapObjectKeysOnlineProd(const edm::ParameterSet& iConfig)
   : L1ObjectKeysOnlineProdBaseExt( iConfig ){
 }
 
 
-void L1TMuonEndcapObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey ){
+void L1TMuonEndCapObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey ){
 
     std::string EMTFKey = pL1TriggerKey->subsystemKey( L1TriggerKeyExt::kEMTF ) ;
 
@@ -88,4 +88,4 @@ void L1TMuonEndcapObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey
 
 
 //define this as a plug-in
-DEFINE_FWK_EVENTSETUP_MODULE(L1TMuonEndcapObjectKeysOnlineProd);
+DEFINE_FWK_EVENTSETUP_MODULE(L1TMuonEndCapObjectKeysOnlineProd);
