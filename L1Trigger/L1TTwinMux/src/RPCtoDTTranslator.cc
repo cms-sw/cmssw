@@ -169,7 +169,7 @@ void RPCtoDTTranslator::run(const edm::EventSetup& c) {
 ///Use ts2tag variable to store N rpchits for the same st/wheel/sec
           int const bx_range = (max_rpc_bx - min_rpc_bx) + 1 ;
           int hit[bx_range];
-          for (int n : hit) hit[n] = 0;
+          for (int n=0; n<bx_range; n++) hit[n] = 0;
           itr1=0;
           for(unsigned int l1=0; l1<vrpc_hit_layer1.size(); l1++){
            if(vrpc_hit_layer1[l1].station!=st || st>2 || vrpc_hit_layer1[l1].sector!=sec || vrpc_hit_layer1[l1].wheel!=wh) continue;
