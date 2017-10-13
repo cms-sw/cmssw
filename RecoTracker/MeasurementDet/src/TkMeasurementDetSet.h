@@ -22,6 +22,8 @@ class Phase2StripCPE;
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include <unordered_map>
+
 // #define VISTAT
 
 #ifdef VISTAT
@@ -343,8 +345,7 @@ public:
     conditionSet_(&cond),
     detSet_(cond.nDet()),
     empty_(cond.nDet(), true),
-    activeThisEvent_(cond.nDet(), true),
-    badFEDChannelPositionsSet_(cond.nDet()) {}
+    activeThisEvent_(cond.nDet(), true) {}
 
   const PxMeasurementConditionSet & conditions() const { return *conditionSet_; } 
 
@@ -363,24 +364,38 @@ public:
   bool empty(int i) const { return empty_[i];}  
   bool isActive(int i) const { return activeThisEvent_[i] && conditions().isActiveThisPeriod(i); }
 
-  void setEmpty(int i) {empty_[i] = true; activeThisEvent_[i] = true; badFEDChannelPositionsSet_[i].reset(); }
+  void setEmpty(int i) {
+    empty_[i] = true;
+    activeThisEvent_[i] = true;
+    auto found = badFEDChannelPositionsSet_.find(i);
+    if(found != badFEDChannelPositionsSet_.end()) {
+      badFEDChannelPositionsSet_.erase(found);
+    }
+  }
   
   void setEmpty() {
     std::fill(empty_.begin(),empty_.end(),true);
     std::fill(activeThisEvent_.begin(), activeThisEvent_.end(),true);
-    std::fill(badFEDChannelPositionsSet_.begin(), badFEDChannelPositionsSet_.end(), nullptr);
+    badFEDChannelPositionsSet_.clear();
   }
   void setActiveThisEvent(bool active) {
     std::fill(activeThisEvent_.begin(), activeThisEvent_.end(),active);
   }
   
-  const BadFEDChannelPositions* getBadFEDChannelPositions(int i) const { return badFEDChannelPositionsSet_[i].get(); }
-  void addBadFEDChannelPositions(int i, BadFEDChannelPositions& positions) { 
-    if (badFEDChannelPositionsSet_[i]==nullptr) {
-      badFEDChannelPositionsSet_[i]=std::make_unique<BadFEDChannelPositions>(positions);
-      return;
+  const BadFEDChannelPositions* getBadFEDChannelPositions(int i) const {
+    auto found = badFEDChannelPositionsSet_.find(i);
+    if(found == badFEDChannelPositionsSet_.end())
+      return nullptr;
+    return &(found->second);
+  }
+  void addBadFEDChannelPositions(int i, BadFEDChannelPositions& positions) {
+    auto found = badFEDChannelPositionsSet_.find(i);
+    if(found == badFEDChannelPositionsSet_.end()) {
+      badFEDChannelPositionsSet_.emplace(i, positions);
     }
-    badFEDChannelPositionsSet_[i]->insert(badFEDChannelPositionsSet_[i]->end(), positions.begin(), positions.end());
+    else {
+      found->second.insert(found->second.end(), positions.begin(), positions.end());
+    }
   }
 
   /** \brief Turn on/off the module for reconstruction for one events.
@@ -401,7 +416,7 @@ private:
   std::vector<PixelDetSet> detSet_;
   std::vector<bool> empty_;
   std::vector<bool> activeThisEvent_;
-  std::vector<std::unique_ptr<BadFEDChannelPositions> > badFEDChannelPositionsSet_;
+  std::unordered_map<int, BadFEDChannelPositions> badFEDChannelPositionsSet_;
 };
 
 //FIXME:just temporary solution for phase2 OT that works!
