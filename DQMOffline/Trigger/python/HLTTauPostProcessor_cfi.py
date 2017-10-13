@@ -66,16 +66,18 @@ def makePFTauAnalyzer(monitorModule):
 
     m1.efficiency.append("L3EtaPhiEfficiency 'eta phi eff; #eta; #phi' helpers/L3TrigTauEtaPhiEffNum helpers/L3TrigTauEtaPhiEffDenom")
     m1.efficiency.append("tauEtaPhiEfficiency 'eta phi eff; #eta; #phi' helpers/tauEtaPhiEffNum helpers/tauEtaPhiEffDenom")
+    m1.efficiency.append("muonEtaPhiEfficiency 'eta phi eff; #eta; #phi' helpers/muonEtaPhiEffNum helpers/muonEtaPhiEffDenom")
+    m1.efficiency.append("electronEtaPhiEfficiency 'eta phi eff; #eta; #phi' helpers/electronEtaPhiEffNum helpers/electronEtaPhiEffDenom")
 
     return (m1, m2)
 
 
-(HLTTauPostAnalysis_Inclusive, HLTTauPostAnalysis_Inclusive2) = makeInclusiveAnalyzer(hltTauOfflineMonitor_Inclusive)
-(HLTTauPostAnalysis_PFTaus, HLTTauPostAnalysis_PFTaus2) = makePFTauAnalyzer(hltTauOfflineMonitor_PFTaus)
-(HLTTauPostAnalysis_TP, HLTTauPostAnalysis_TP2) = makePFTauAnalyzer(hltTauOfflineMonitor_TagAndProbe)
+(HLTTauPostAnalysisInclusive, HLTTauPostAnalysisInclusive2) = makeInclusiveAnalyzer(hltTauOfflineMonitor_Inclusive)
+(HLTTauPostAnalysisPFTaus, HLTTauPostAnalysisPFTaus2) = makePFTauAnalyzer(hltTauOfflineMonitor_PFTaus)
+(HLTTauPostAnalysisTP, HLTTauPostAnalysisTP2) = makePFTauAnalyzer(hltTauOfflineMonitor_TagAndProbe)
 
 HLTTauPostSeq = cms.Sequence(
-    HLTTauPostAnalysis_Inclusive+HLTTauPostAnalysis_Inclusive2+
-    HLTTauPostAnalysis_PFTaus+HLTTauPostAnalysis_PFTaus2+
-    HLTTauPostAnalysis_TP+HLTTauPostAnalysis_TP2
+    HLTTauPostAnalysisInclusive+HLTTauPostAnalysisInclusive2+
+    HLTTauPostAnalysisPFTaus+HLTTauPostAnalysisPFTaus2+
+    HLTTauPostAnalysisTP+HLTTauPostAnalysisTP2
 )
