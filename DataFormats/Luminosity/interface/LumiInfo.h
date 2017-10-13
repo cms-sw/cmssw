@@ -44,9 +44,9 @@ class LumiInfo {
      * constructor with fill; if total algo is the same as summing
      */
     LumiInfo(float deadtimeFraction, const std::vector<float>& instLumiByBX):
-    deadtimeFraction_(deadtimeFraction)
+    deadtimeFraction_(deadtimeFraction),
+    instLumiByBX_(instLumiByBX)
     {
-        instLumiByBX_.assign(instLumiByBX.begin(), instLumiByBX.end());
         instLumiStatErrByBX_.assign(LumiConstants::numBX, 0.0);
         setTotalInstToBXSum() ;
         totalInstLumiStatErr_=0;
@@ -56,11 +56,11 @@ class LumiInfo {
      * constructor with fill; if total algo DIFFERS from summing
      */
     LumiInfo(float deadtimeFraction, const std::vector<float>& instLumiByBX, float totalInstLumi):
-    deadtimeFraction_(deadtimeFraction)
+    deadtimeFraction_(deadtimeFraction),
+    totalInstLuminosity_(totalInstLumi),
+    instLumiByBX_(instLumiByBX)
     {
-        instLumiByBX_.assign(instLumiByBX.begin(), instLumiByBX.end());
         instLumiStatErrByBX_.assign(LumiConstants::numBX, 0.0);
-        totalInstLuminosity_=totalInstLumi;
         totalInstLumiStatErr_=0;
     }
 
@@ -69,12 +69,12 @@ class LumiInfo {
      */
     LumiInfo(float deadtimeFraction, const std::vector<float>& instLumiByBX, float totalInstLumi,
     const std::vector<float>& instLumiErrByBX, float totalInstLumiErr):
-    deadtimeFraction_(deadtimeFraction)
+    deadtimeFraction_(deadtimeFraction),
+    totalInstLuminosity_(totalInstLumi),
+    totalInstLumiStatErr_(totalInstLumiErr),
+    instLumiByBX_(instLumiByBX),
+    instLumiStatErrByBX_(instLumiErrByBX)
     {
-        instLumiByBX_.assign(instLumiByBX.begin(), instLumiByBX.end());
-        instLumiStatErrByBX_.assign(instLumiErrByBX.begin(), instLumiErrByBX.end());
-        totalInstLuminosity_=totalInstLumi;
-        totalInstLumiStatErr_=totalInstLumiErr;
     }
 
     /** 
@@ -174,9 +174,9 @@ class LumiInfo {
     bool isProductEqual(LumiInfo const& next) const;
 
   private:
+    float deadtimeFraction_;
     float totalInstLuminosity_;
     float totalInstLumiStatErr_;
-    float deadtimeFraction_;
     std::vector<float> instLumiByBX_;
     std::vector<float> instLumiStatErrByBX_;
 }; 
