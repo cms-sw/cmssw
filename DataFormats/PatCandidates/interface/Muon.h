@@ -27,6 +27,7 @@
 #include "DataFormats/PatCandidates/interface/Lepton.h"
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidate.h"
+#include "DataFormats/MuonReco/interface/MuonSimInfo.h"
 
 // Define typedefs for convenience
 namespace pat {
@@ -276,19 +277,8 @@ namespace pat {
       void  setMvaValue(float mva){ mvaValue_ = mva; }
 
       /// MC matching information
-      enum MuonSimType { Unknown, 
-			 NotMatched,
-			 MatchedPunchthrough,
-			 MatchedElectron,
-			 MatchedPrimary,
-			 MatchedHeavyFlavour,
-			 MatchedLightFlavour,
-			 GhostPunchthrough,
-			 GhostElectron,
-			 GhostPrimary,
-			 GhostHeavyFlavour,
-			 GhostLightFlavour };
-      MuonSimType simType() const { return simType_; }
+      reco::MuonSimType simType() const { return simType_; }
+      reco::ExtendedMuonSimType simExtType() const { return simExtType_; }
       //  FLAVOUR:
       //  - for non-muons: 0
       //  - for primary muons: 13
@@ -305,7 +295,8 @@ namespace pat {
       float simPhi() const {     return simPhi_;}
 
       void initSimInfo(void); 
-      void setSimType(MuonSimType type){ simType_ = type; }
+      void setSimType(reco::MuonSimType type){ simType_ = type; }
+      void setExtSimType(reco::ExtendedMuonSimType type){ simExtType_ = type; }
       void setSimFlavour(int f){ simFlavour_ = f;}
       void setSimHeaviestMotherFlavour(int id){ simHeaviestMotherFlavour_ = id;}
       void setSimPdgId(int id){ simPdgId_ = id;}
@@ -392,7 +383,8 @@ namespace pat {
       float mvaValue_;
 
       /// MC matching information
-      MuonSimType simType_;
+      reco::MuonSimType simType_;
+      reco::ExtendedMuonSimType simExtType_;
       int simFlavour_;
       int simHeaviestMotherFlavour_;
       int simPdgId_;

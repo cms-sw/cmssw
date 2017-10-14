@@ -152,7 +152,8 @@ void Muon::initImpactParameters() {
 
 // initialize impact parameter container vars
 void Muon::initSimInfo() {
-  simType_ = Muon::Unknown;
+  simType_ = reco::MuonSimType::Unknown;
+  simExtType_ = reco::ExtendedMuonSimType::ExtUnknown;
   simFlavour_ = 0;
   simHeaviestMotherFlavour_ = 0;
   simPdgId_ = 0;
