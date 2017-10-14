@@ -1,3 +1,12 @@
+<!--
+https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideCreatingNewProducts
+
+Class versioning
+
+Version numbers 0, 1, and 2 have special meaning to ROOT and should
+not be used as version numbers. By convention, CMS will use 3 as the
+initial version number of a class which has never been stored before.
+-->
 <lcgdict>
   <class name="reco::Muon" ClassVersion="19">
    <version ClassVersion="19" checksum="3201675353"/>
@@ -202,5 +211,14 @@
     <class name="edm::Ref<std::vector<reco::ME0Muon>,reco::ME0Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::ME0Muon>,reco::ME0Muon> >"/>
   </selection>
   
+  <class name="reco::MuonSimInfo" ClassVersion="3">
+   <version ClassVersion="3" checksum="2552652034"/>
+  </class>
+  <class name="std::vector<reco::MuonSimInfo>"/>
+  <class name="edm::Wrapper<std::vector<reco::MuonSimInfo> >"/>
+  <class name="edm::ValueMap<reco::MuonSimInfo>"/>
+  <class name="edm::Wrapper<edm::ValueMap<reco::MuonSimInfo> >"/>
+
+
 </lcgdict>
 
