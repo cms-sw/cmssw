@@ -93,6 +93,14 @@ from HLTrigger.Configuration.HLTrigger_EventContent_cff import *
 from DQMOffline.Configuration.DQMOffline_EventContent_cff import *
 #
 #
+# NANOAOD
+#
+#
+from PhysicsTools.NanoAOD.NanoAODEDMEventContent_cff import *
+
+
+#
+#
 # FastSim
 #
 #

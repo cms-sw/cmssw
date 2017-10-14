@@ -59,6 +59,7 @@ if __name__ == '__main__':
                      136.7611, #2016E JetHT reMINIAOD from 80X legacy
                      136.788, #2017B Photon data
                      140.53, #2011 HI data
+                     1325.7, #test NanoAOD from existing MINI
                      1330, #Run2 MC Zmm
                      135.4, #Run 2 Zee ttbar
                      10042.0, #2017 ZMM
