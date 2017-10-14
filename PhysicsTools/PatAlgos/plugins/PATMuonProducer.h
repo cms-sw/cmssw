@@ -188,18 +188,7 @@ namespace pat {
     pat::PATUserDataHelper<pat::Muon> userDataHelper_;
 
     /// MC info
-    edm::EDGetTokenT<edm::ValueMap<int> > simClassification_;
-    edm::EDGetTokenT<edm::ValueMap<int> > simFlavour_;
-    edm::EDGetTokenT<edm::ValueMap<int> > simHeaviestMotherFlavour_;
-    edm::EDGetTokenT<edm::ValueMap<int> > simPdgId_;
-    edm::EDGetTokenT<edm::ValueMap<int> > simMotherPdgId_;
-    edm::EDGetTokenT<edm::ValueMap<int> > simBX_;
-    edm::EDGetTokenT<edm::ValueMap<float> > simProdRho_;
-    edm::EDGetTokenT<edm::ValueMap<float> > simProdZ_;
-    edm::EDGetTokenT<edm::ValueMap<float> > simProdPt_;
-    edm::EDGetTokenT<edm::ValueMap<float> > simProdEta_;
-    edm::EDGetTokenT<edm::ValueMap<float> > simProdPhi_;
-    
+    edm::EDGetTokenT<edm::ValueMap<reco::MuonSimInfo> > simInfo_;
   };
 
 }

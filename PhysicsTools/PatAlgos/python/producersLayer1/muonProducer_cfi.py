@@ -113,7 +113,10 @@ patMuons = cms.EDProducer("PATMuonProducer",
     mvaJetTag = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
     mvaL1Corrector = cms.InputTag("ak4PFCHSL1FastjetCorrector"),
     mvaL1L2L3ResCorrector = cms.InputTag("ak4PFCHSL1FastL2L3Corrector"),
-    rho = cms.InputTag("fixedGridRhoFastjetCentralNeutral")
+    rho = cms.InputTag("fixedGridRhoFastjetCentralNeutral"),
+
+    # MC Info
+    muonSimInfo = cms.InputTag("muonSimClassifier")                 
                           
 )
 
