@@ -127,7 +127,9 @@ for job_id, mps_index in submitted_jobs.items(): # IMPORTANT to copy here (no it
 
     # check if it is a HTCondor job already moved to "history"
     elif "htcondor" in lib.get_class("pede"):
+        userlog = os.path.join("jobData", lib.JOBDIR[mps_index], "HTCJOB")
         condor_h = subprocess.check_output(["condor_history", job_id, "-limit", "1",
+                                            "-userlog", userlog,
                                             "-af:j", "JobStatus", "RemoteSysCpu"],
                                            stderr = subprocess.STDOUT)
         if len(condor_h.strip()) > 0:
