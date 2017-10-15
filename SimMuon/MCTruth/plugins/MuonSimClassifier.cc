@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    MuonSimClassifier
+// Package:    SimMuon/MCTruth
 // Class:      MuonSimClassifier
 //
-/**\class MuonSimClassifier MuonSimClassifier.cc MuonAnalysis/MuonAssociators/src/MuonSimClassifier.cc
+/*
 
 
  CLASSIFICATION: For each RECO Muon, match to SIM particle, and then:
@@ -58,7 +58,7 @@
 
 #include "SimDataFormats/Associations/interface/MuonToTrackingParticleAssociator.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
-#include <SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h>
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
