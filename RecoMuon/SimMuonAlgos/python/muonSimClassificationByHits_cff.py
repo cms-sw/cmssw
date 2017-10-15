@@ -11,6 +11,6 @@ muonSimClassifier = cms.EDProducer("MuonSimClassifier",
     genParticles = cms.InputTag("genParticles"),  # and associations to primary and secondaries
 )
 
-muonSimClassificationByHitsSequence = cms.Sequence(
-    muonAssociatorByHitsNoSimHitsHelper + muonSimClassifier
+muonSimClassificationByHitsSequence = cms.Task(
+    muonAssociatorByHitsNoSimHitsHelper,muonSimClassifier
 )
