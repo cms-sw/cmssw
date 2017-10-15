@@ -38,8 +38,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
-#include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
-#include "CondFormats/DataRecord/interface/L1TCaloParamsO2ORcd.h"
+#include "CondFormats/DataRecord/interface/L1TCaloStage2ParamsRcd.h"
 
 #include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
 #include "DataFormats/L1Trigger/interface/EGamma.h"
@@ -56,18 +55,18 @@ using namespace l1t;
   class L1TStage2Layer2Producer : public edm::EDProducer {
   public:
     explicit L1TStage2Layer2Producer(const edm::ParameterSet& ps);
-    ~L1TStage2Layer2Producer() override;
+    ~L1TStage2Layer2Producer();
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions)
       ;
 
   private:
-    void beginJob() override;
-    void produce(edm::Event&, const edm::EventSetup&) override;
-    void endJob() override;
+    virtual void beginJob() override;
+    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    virtual void endJob() override;
 
-    void beginRun(edm::Run const&, edm::EventSetup const&) override;
-    void endRun(edm::Run const&, edm::EventSetup const&) override;
+    virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+    virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
     //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
     //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
@@ -127,7 +126,6 @@ L1TStage2Layer2Producer::~L1TStage2Layer2Producer() {
 void
 L1TStage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
   using namespace edm;
 
   using namespace l1t;
@@ -264,35 +262,18 @@ L1TStage2Layer2Producer::beginRun(edm::Run const& iRun, edm::EventSetup const& i
 
   // parameters
 
-  unsigned long long id = iSetup.get<L1TCaloParamsRcd>().cacheIdentifier();
+  unsigned long long id = iSetup.get<L1TCaloStage2ParamsRcd>().cacheIdentifier();
 
   if (id != m_paramsCacheId) {
 
     m_paramsCacheId = id;
 
-    // fetch payload corresponding to the current run from the CondDB
-    edm::ESHandle<CaloParams> candidateHandle;
-    iSetup.get<L1TCaloParamsRcd>().get(candidateHandle);
-    std::unique_ptr<l1t::CaloParams> candidate(new l1t::CaloParams( *candidateHandle.product() ));
+    edm::ESHandle<CaloParams> paramsHandle;
+    iSetup.get<L1TCaloStage2ParamsRcd>().get(paramsHandle);
 
-    // fetch the latest greatest prototype (equivalent of static payload)
-    edm::ESHandle<CaloParams> o2oProtoHandle;
-    iSetup.get<L1TCaloParamsO2ORcd>().get(o2oProtoHandle);
-    std::unique_ptr<l1t::CaloParams> prototype(new l1t::CaloParams( *o2oProtoHandle.product() ));
-
-    // prepare to set the emulator's configuration
-    //  and then replace our local copy of the parameters with a new one using placement new
+    // replace our local copy of the parameters with a new one using placement new
     m_params->~CaloParamsHelper();
-
-    // compare the candidate payload misses some of the pnodes compared to the prototype,
-    // if this is the case - the candidate is an old payload that'll crash the Stage2 emulator
-    // and we better use the prototype for the emulator's configuration
-    if( ((CaloParamsHelper*)candidate.get())->getNodes().size() < ((CaloParamsHelper*)prototype.get())->getNodes().size() )
-        m_params = new (m_params) CaloParamsHelper( *o2oProtoHandle.product() );
-    else
-        m_params = new (m_params) CaloParamsHelper( *candidateHandle.product() );
-    // KK: the nifty tricks above (placement new) work as long as current definition of
-    //     CaloParams takes more space than the one obtained from the record
+    m_params = new (m_params) CaloParamsHelper(*paramsHandle.product());
 
     LogDebug("L1TDebug") << *m_params << std::endl;
 
