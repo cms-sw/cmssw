@@ -62,9 +62,6 @@
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-#include <boost/foreach.hpp>
-#define foreach BOOST_FOREACH
-
 //
 // class decleration
 class MuonSimClassifier : public edm::stream::EDProducer<> {
@@ -130,7 +127,7 @@ MuonSimClassifier::MuonSimClassifier(const edm::ParameterSet &iConfig) :
     decayRho_(iConfig.getParameter<double>("decayRho")),
     decayAbsZ_(iConfig.getParameter<double>("decayAbsZ")),
     linkToGenParticles_(iConfig.getParameter<bool>("linkToGenParticles")),
-    genParticles_(linkToGenParticles_ ? iConfig.getParameter<edm::InputTag>("genParticles") : edm::InputTag("NONE"))
+    genParticles_(linkToGenParticles_ ? iConfig.getParameter<edm::InputTag>("genParticles") : edm::InputTag())
 
 {
     std::string trackType = iConfig.getParameter< std::string >("trackType");
@@ -279,8 +276,8 @@ MuonSimClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  simInfo[i].vertex = tp->vertex();
 
 	  // added info on GEANT process producing the TrackingParticle
-	  const std::vector<SimVertex> & G4Vs = tp->parentVertex()->g4Vertices();
-	  simInfo[i].g4processType = G4Vs[0].processType();
+	  const std::vector<SimVertex> & g4Vs = tp->parentVertex()->g4Vertices();
+	  simInfo[i].g4processType = g4Vs[0].processType();
 	  
 	  simInfo[i].charge = tp->charge();
 	  simInfo[i].p4 = tp->p4();
