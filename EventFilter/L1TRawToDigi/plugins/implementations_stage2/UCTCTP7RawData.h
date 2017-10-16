@@ -283,7 +283,7 @@ public:
   bool isTowerMasked(CaloType cType, bool negativeEta, uint32_t cEta, uint32_t iPhi) {
     uint32_t linkStatus = getLinkStatus(cType, negativeEta, cEta, iPhi);
     uint32_t tower = iPhi;
-    if(((cEta - 1) % 2) == 1) tower += 4;
+    if( (cEta %2) == 0 ) tower += 4;
     if(cType == HF) {
       tower = (cEta - 30);
       if(cEta == 41) tower = 10;
