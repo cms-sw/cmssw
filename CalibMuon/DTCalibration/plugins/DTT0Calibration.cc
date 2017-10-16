@@ -457,7 +457,7 @@ void DTT0Calibration::endJob() {
 	++wiret0){
       if((*wiret0).first.layerId().superlayerId() == (*sl)->id()){
 	if(debug)
-	  cout<<"[DTT0CalibrationNew] Superlayer "<<(*sl)->id()
+	  cout<<"[DTT0Calibration] Superlayer "<<(*sl)->id()
 	      <<"layer " <<(*wiret0).first.layerId().layer()<<" with "<<(*wiret0).second<<endl;
 	if(((*wiret0).first.layerId().layer()) % 2){
 	  oddLayersMean = oddLayersMean + (*wiret0).second;
@@ -472,7 +472,7 @@ void DTT0Calibration::endJob() {
     oddLayersMean = oddLayersMean/oddLayersDen;
     evenLayersMean = evenLayersMean/evenLayersDen;
     if(debug && oddLayersMean)
-      cout<<"[DTT0CalibrationNew] Relative T0 mean for  odd layers "<<oddLayersMean<<"  even layers"<<evenLayersMean<<endl;
+      cout<<"[DTT0Calibration] Relative T0 mean for  odd layers "<<oddLayersMean<<"  even layers"<<evenLayersMean<<endl;
 
     //Compute sigma for odd and even superlayers
     double oddLayersSigma=0;
