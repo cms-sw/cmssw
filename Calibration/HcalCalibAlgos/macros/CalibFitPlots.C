@@ -251,6 +251,52 @@ std::pair<double,double> fitOneGauss (TH1D* hist, bool debug) {
   return std::pair<double,double>(value,error);
 }
 
+void readCorrFactors(char* infile, double scale, std::map<int,cfactors>& cfacs,
+		     int& etamin, int& etamax, int& maxdepth) {
+  
+  cfacs.clear();
+  std::ifstream fInput(infile);
+  if (!fInput.good()) {
+    std::cout << "Cannot open file " << infile << std::endl;
+  } else {
+    char buffer [1024];
+    unsigned int all(0), good(0);
+    while (fInput.getline(buffer, 1024)) {
+      ++all;
+      if (buffer [0] == '#') continue; //ignore comment
+      std::vector <std::string> items = splitString (std::string (buffer));
+      if (items.size () != 5) {
+	std::cout << "Ignore  line: " << buffer << std::endl;
+      } else {
+	++good;
+	int   ieta  = std::atoi (items[1].c_str());
+	int   depth = std::atoi (items[2].c_str());
+	float corrf = std::atof (items[3].c_str());
+	float dcorr = std::atof (items[4].c_str());
+	cfactors cfac(ieta,depth,scale*corrf,scale*dcorr);
+	int   detId = std::atoi (items[0].c_str());
+	cfacs[detId] = cfactors(ieta,depth,corrf,dcorr);
+	if (ieta > etamax)    etamax   = ieta;
+	if (ieta < etamin)    etamin   = ieta;
+	if (depth > maxdepth) maxdepth = depth;
+      }
+    }
+    fInput.close();
+    std::cout << "Reads total of " << all << " and " << good << " good records"
+	      << " from " << infile << std::endl;
+  }
+  /*
+  unsigned k(0);
+  std::cout << "Eta Range " << etamin << ":" << etamax << " Max Depth "
+	    << maxdepth << std::endl;
+  for (std::map<int,cfactors>::const_iterator itr = cfacs.begin();
+       itr != cfacs.end(); ++itr, ++k)  
+    std::cout << "[" << k << "] " << std::hex << itr->first << std::dec << ": "
+	      << (itr->second).ieta << " "  << (itr->second).depth << " " 
+	      << (itr->second).corrf << " " << (itr->second).dcorr << std::endl;
+  */
+}
+
 void FitHistStandard(std::string infile,std::string outfile,std::string prefix,
 		     int mode=11111, int type=0, bool append=true, 
 		     bool saveAll=false) {
@@ -342,7 +388,7 @@ void FitHistStandard(std::string infile,std::string outfile,std::string prefix,
   }
 }
 
-void FitHistExtended(std::string infile, std::string outfile,std::string prefix,
+void FitHistExtended(const char* infile, const char* outfile,std::string prefix,
 		     int numb=50, int type=3, bool append=true,
 		     bool fiteta=true, int iname=2) {
   std::string sname("ratio"), lname("Z"), ename("etaB");
@@ -362,7 +408,7 @@ void FitHistExtended(std::string infile, std::string outfile,std::string prefix,
     }
     xbins[neta] = 0;
   }
-  TFile      *file = new TFile(infile.c_str());
+  TFile      *file = new TFile(infile);
   std::vector<TH1D*> hists;
   char name[200];
   if (debug) std::cout << infile << " " << file << std::endl;
@@ -482,10 +528,10 @@ void FitHistExtended(std::string infile, std::string outfile,std::string prefix,
     TFile* theFile(0);
     if (append) {
       if (debug) std::cout << "Open file " << outfile << " in append mode\n";
-      theFile = new TFile(outfile.c_str(), "UPDATE");
+      theFile = new TFile(outfile, "UPDATE");
     } else {
       if (debug) std::cout << "Open file " << outfile << " in recreate mode\n";
-      theFile = new TFile(outfile.c_str(), "RECREATE");
+      theFile = new TFile(outfile, "RECREATE");
     }
 
     theFile->cd();
@@ -499,14 +545,14 @@ void FitHistExtended(std::string infile, std::string outfile,std::string prefix,
   }
 }
 
-void FitHistRBX(std::string infile, std::string outfile,std::string prefix,
+void FitHistRBX(const char* infile, const char* outfile,std::string prefix,
 		bool append=true, int iname=2) {
   std::string sname("RBX"), lname("R");
   int         numb(18);
   bool        debug(false);
   char        name[200];
 
-  TFile      *file = new TFile(infile.c_str());
+  TFile      *file = new TFile(infile);
   std::vector<TH1D*> hists;
   sprintf (name, "%s%s%d", prefix.c_str(), lname.c_str(), iname);
   TH1D       *histo = new TH1D(name, "", numb, 0, numb);
@@ -540,10 +586,10 @@ void FitHistRBX(std::string infile, std::string outfile,std::string prefix,
     TFile* theFile(0);
     if (append) {
       if (debug) std::cout << "Open file " << outfile << " in append mode\n";
-      theFile = new TFile(outfile.c_str(), "UPDATE");
+      theFile = new TFile(outfile, "UPDATE");
     } else {
       if (debug) std::cout << "Open file " << outfile << " in recreate mode\n";
-      theFile = new TFile(outfile.c_str(), "RECREATE");
+      theFile = new TFile(outfile, "RECREATE");
     }
 
     theFile->cd();
@@ -557,7 +603,7 @@ void FitHistRBX(std::string infile, std::string outfile,std::string prefix,
   }
 }
 
-void PlotHist(std::string infile, std::string prefix, std::string text,
+void PlotHist(const char* infile, std::string prefix, std::string text,
 	      int mode=0, int kopt=0, bool dataMC=false, bool drawStatBox=true,
 	      bool save=false) {
 
@@ -591,7 +637,7 @@ void PlotHist(std::string infile, std::string prefix, std::string text,
   } else {
     gStyle->SetOptStat(0);  gStyle->SetOptFit(0);
   }
-  TFile      *file = new TFile(infile.c_str());
+  TFile      *file = new TFile(infile);
   char name[100], namep[100];
   int kmax = (mode == 4) ? 3 : 5;
   for (int k=0; k<kmax; ++k) {
@@ -983,47 +1029,13 @@ void PlotHistCorrResults(std::string infile, std::string text,
   }
 }
 
-void PlotHistCorrFactor(std::string infile, std::string text, 
+void PlotHistCorrFactor(char* infile, std::string text, 
 			std::string prefix="", double scale=1.0,
 			int nmin=20, bool save=false) {
 
-  std::vector<cfactors> cfacs;
-  std::ifstream fInput(infile);
+  std::map<int,cfactors> cfacs;
   int etamin(100), etamax(-100), maxdepth(0);
-  if (!fInput.good()) {
-    std::cout << "Cannot open file " << infile << std::endl;
-  } else {
-    char buffer [1024];
-    unsigned int all(0), good(0);
-    while (fInput.getline(buffer, 1024)) {
-      ++all;
-      if (buffer [0] == '#') continue; //ignore comment
-      std::vector <std::string> items = splitString (std::string (buffer));
-      if (items.size () != 5) {
-	std::cout << "Ignore  line: " << buffer << std::endl;
-      } else {
-	++good;
-	int   ieta  = std::atoi (items[1].c_str());
-	int   depth = std::atoi (items[2].c_str());
-	float corrf = std::atof (items[3].c_str());
-	float dcorr = std::atof (items[4].c_str());
-	cfactors cfac(ieta,depth,scale*corrf,scale*dcorr);
-	cfacs.push_back(cfac);
-	if (ieta > etamax) etamax = ieta;
-	if (ieta < etamin) etamin = ieta;
-	if (depth > maxdepth) maxdepth = depth;
-      }
-    }
-    fInput.close();
-    std::cout << "Reads total of " << all << " and " << good << " good records"
-	      << std::endl;
-  }
-  /*
-  for (unsigned int k = 0; k < cfacs.size(); ++k) 
-    std::cout << "[" << k << "] " << cfacs[k].ieta << " " 
-	      << cfacs[k].depth << " " << cfacs[k].corrf
-	      << " " << cfacs[k].dcorr << std::endl;
-  */
+  readCorrFactors(infile,scale,cfacs,etamin,etamax,maxdepth);
 
   gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
   gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
@@ -1041,12 +1053,13 @@ void PlotHistCorrFactor(std::string infile, std::string text,
     sprintf (name, "hd%d", j+1);
     TH1D* h = new TH1D(name, name, nbin, etamin, etamax);
     int nent(0);
-    for (unsigned int k = 0; k < cfacs.size(); ++k) {
-      if (cfacs[k].depth == j+1) {
-	int ieta = cfacs[k].ieta;
+    for (std::map<int,cfactors>::const_iterator itr = cfacs.begin(); 
+	 itr != cfacs.end(); ++itr) {
+      if ((itr->second).depth == j+1) {
+	int ieta = (itr->second).ieta;
 	int bin  = ieta - etamin + 1;
-	float val = cfacs[k].corrf;
-	float dvl = cfacs[k].dcorr;
+	float val = (itr->second).corrf;
+	float dvl = (itr->second).dcorr;
 	h->SetBinContent(bin,val);
 	h->SetBinError(bin,dvl);
 	nent++;
@@ -1111,54 +1124,17 @@ void PlotHistCorrFactor(std::string infile, std::string text,
   }
 }
 
-void PlotHistCorrFactors(std::string infile1, std::string text1, 
-			 std::string infile2, std::string text2, 
+void PlotHistCorrFactors(char* infile1, std::string text1, 
+			 char* infile2, std::string text2, 
 			 bool ratio=false, bool drawStatBox=true,
 			 int nmin=100, bool dataMC=false, int year=2016,
 			 bool save=false) {
 
-  std::vector<cfactors> cfacs1, cfacs2;
+  std::map<int,cfactors> cfacs1, cfacs2;
   int etamin(100), etamax(-100), maxdepth(0);
+  readCorrFactors(infile1,1.0,cfacs1,etamin,etamax,maxdepth);
+  readCorrFactors(infile2,1.0,cfacs2,etamin,etamax,maxdepth);
   unsigned int nhist[2];
-  for (int k1=0; k1<2; ++k1) {
-    std::string infile = (k1 == 0) ? infile1 : infile2;
-    std::ifstream fInput(infile);
-    if (!fInput.good()) {
-      std::cout << "Cannot open file " << infile << std::endl;
-    } else {
-      char buffer [1024];
-      unsigned int all(0), good(0);
-      while (fInput.getline(buffer, 1024)) {
-	++all;
-	if (buffer [0] == '#') continue; //ignore comment
-	std::vector <std::string> items = splitString (std::string (buffer));
-	if (items.size () != 5) {
-	  std::cout << "Ignore  line: " << buffer << std::endl;
-	} else {
-	  ++good;
-	  int   ieta  = std::atoi (items[1].c_str());
-	  int   depth = std::atoi (items[2].c_str());
-	  float corrf = std::atof (items[3].c_str());
-	  float dcorr = std::atof (items[4].c_str());
-	  cfactors cfac(ieta,depth,corrf,dcorr);
-	  if (k1 == 0) cfacs1.push_back(cfac);
-	  else         cfacs2.push_back(cfac);
-	  if (ieta > etamax) etamax = ieta;
-	  if (ieta < etamin) etamin = ieta;
-	  if (depth > maxdepth) maxdepth = depth;
-	}
-      }
-      fInput.close();
-      std::cout << "Reads total of " << all << " and " << good 
-		<< " good records from " << infile << std::endl;
-    }
-  }
-  /*
-  for (unsigned int k = 0; k < cfacs.size(); ++k) 
-    std::cout << "[" << k << "] " << cfacs[k].ieta << " " 
-	      << cfacs[k].depth << " " << cfacs[k].corrf
-	      << " " << cfacs[k].dcorr << std::endl;
-  */
 
   gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
   gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
@@ -1182,16 +1158,18 @@ void PlotHistCorrFactors(std::string infile1, std::string text1,
       sprintf (name, "hd%d", j+1);
       TH1D* h = new TH1D(name, name, nbin, etamin, etamax);
       double sumNum(0), sumDen(0);
-      for (unsigned int k = 0; k < cfacs1.size(); ++k) {
-	int dep = cfacs1[k].depth;
+      std::map<int,cfactors>::const_iterator ktr = cfacs2.begin();
+      for (std::map<int,cfactors>::const_iterator itr = cfacs1.begin(); 
+	   itr != cfacs1.end(); ++itr,++ktr) {
+	int dep = (itr->second).depth;
 	if (dep == j+1) {
-	  int ieta = cfacs1[k].ieta;
+	  int ieta = (itr->second).ieta;
 	  int bin  = ieta - etamin + 1;
-	  float val = cfacs1[k].corrf/cfacs2[k].corrf;
-	  float dvl = val * sqrt(((cfacs1[k].dcorr*cfacs1[k].dcorr)/
-				  (cfacs1[k].corrf*cfacs1[k].corrf)) +
-				 ((cfacs2[k].dcorr*cfacs2[k].dcorr)/
-				  (cfacs2[k].corrf*cfacs2[k].corrf)));
+	  float val = (itr->second).corrf/(ktr->second).corrf;
+	  float dvl = val * sqrt((((itr->second).dcorr*(itr->second).dcorr)/
+				  ((itr->second).corrf*(itr->second).corrf)) +
+				 (((ktr->second).dcorr*(ktr->second).dcorr)/
+				  ((ktr->second).corrf*(ktr->second).corrf)));
 	  h->SetBinContent(bin,val);
 	  h->SetBinError(bin,dvl);
 	  sumNum += (val/(dvl*dvl));
@@ -1216,19 +1194,20 @@ void PlotHistCorrFactors(std::string infile1, std::string text1,
     }
     nhist[1] = nhist[0] = hists.size();
   } else {
+    std::map<int,cfactors>::const_iterator itr;
     for (int k1=0; k1<2; ++k1) {
       for (int j=0; j<maxdepth; ++j) {
 	sprintf (name, "hd%d%d", j+1, k1);
 	TH1D* h = new TH1D(name, name, nbin, etamin, etamax);
 	int nent(0);
-	unsigned int nsize = (k1 == 0) ? cfacs1.size() : cfacs2.size();
-	for (unsigned int k = 0; k < nsize; ++k) {
-	  int dep = (k1 == 0) ? cfacs1[k].depth : cfacs2[k].depth;
+	for (itr = ((k1 == 0) ? cfacs1.begin() : cfacs2.begin()); 
+	     itr != ((k1 == 0) ? cfacs1.end() : cfacs2.end()); ++itr) {
+	  int dep = (itr->second).depth;
 	  if (dep == j+1) {
-	    int ieta = (k1 == 0) ? cfacs1[k].ieta : cfacs2[k].ieta;
+	    int ieta = (itr->second).ieta;
 	    int bin  = ieta - etamin + 1;
-	    float val = (k1 == 0) ? cfacs1[k].corrf : cfacs2[k].corrf;
-	    float dvl = (k1 == 0) ? cfacs1[k].dcorr : cfacs2[k].dcorr;
+	    float val = (itr->second).corrf;
+	    float dvl = (itr->second).dcorr;
 	    h->SetBinContent(bin,val);
 	    h->SetBinError(bin,dvl);
 	    nent++;
@@ -1315,75 +1294,32 @@ void PlotHistCorrFactors(std::string infile1, std::string text1,
 void PlotHistCorrSys(std::string infilec, int conds, std::string text, 
 		     bool save=false) {
 
-  std::map<int, cfactors> cfacs;
   char fname[100];
   sprintf(fname, "%s_cond0.txt", infilec.c_str());
-  std::ifstream fInput(fname);
   int etamin(100), etamax(-100), maxdepth(0);
-  unsigned int all(0), good(0);
-  if (!fInput.good()) {
-    std::cout << "Cannot open file " << fname << std::endl;
-  } else {
-    char buffer [1024];
-    while (fInput.getline(buffer, 1024)) {
-      ++all;
-      if (buffer [0] == '#') continue; //ignore comment
-      std::vector <std::string> items = splitString (std::string (buffer));
-      if (items.size () != 5) {
-	std::cout << "Ignore  line: " << buffer << std::endl;
-      } else {
-	++good;
-	int   ieta  = std::atoi (items[1].c_str());
-	int   depth = std::atoi (items[2].c_str());
-	float corrf = std::atof (items[3].c_str());
-	float dcorr = std::atof (items[4].c_str());
-	int   detId = std::atoi (items[0].c_str());
-	cfacs[detId] = cfactors(ieta,depth,corrf,dcorr);
-	if (ieta > etamax) etamax = ieta;
-	if (ieta < etamin) etamin = ieta;
-	if (depth > maxdepth) maxdepth = depth;
-      }
-    }
-    fInput.close();
-    std::cout << "Reads total of " << all << " and " << good << " good records"
-	      << " from " << fname << std::endl;
-  }
+  std::map<int,cfactors> cfacs;
+  readCorrFactors(fname,1.0,cfacs,etamin,etamax,maxdepth);
   // There are good records from the master file
-  if (good > 0) {
+  if (cfacs.size() > 0) {
     // Now read the other files
     std::map<int, cfactors> errfacs;
     for (int i=0; i<conds; ++i) {
       sprintf(fname, "%s_cond%d.txt", infilec.c_str(), i+1);
-      std::ifstream fInput(fname);
-      if (!fInput.good()) {
-	std::cout << "Cannot open file " << fname << std::endl;
-      } else {
-	char buffer [1024];
-	unsigned int all(0), good(0);
-	while (fInput.getline(buffer, 1024)) {
-	  ++all;
-	  if (buffer [0] == '#') continue; //ignore comment
-	  std::vector <std::string> items = splitString (std::string (buffer));
-	  if (items.size () != 5) {
-	    std::cout << "Ignore  line: " << buffer << std::endl;
-	  } else {
-	    ++good;
-	    float corrf = std::atof (items[3].c_str());
-	    int   detId = std::atoi (items[0].c_str());
-	    std::map<int, cfactors>::iterator itr = errfacs.find(detId);
-	    if (itr == errfacs.end()) {
-	      errfacs[detId] = cfactors(1,0,corrf,corrf*corrf);
-	    } else {
-	      int nent = (itr->second).ieta + 1;
-	      float c1 = (itr->second).corrf + corrf;
-	      float c2 = (itr->second).dcorr + (corrf*corrf);
-	      errfacs[detId] = cfactors(nent,0,c1,c2);
-	    }
-	  }
+      std::map<int,cfactors> cfacx;
+      int etamin1(100), etamax1(-100), maxdepth1(0);
+      readCorrFactors(fname,1.0,cfacx,etamin1,etamax1,maxdepth1);
+      for (std::map<int,cfactors>::const_iterator itr1 = cfacx.begin(); 
+	   itr1 != cfacx.end(); ++itr1) {
+	std::map<int, cfactors>::iterator itr2 = errfacs.find(itr1->first);
+	float corrf = (itr1->second).corrf;
+	if (itr2 == errfacs.end()) {
+	  errfacs[itr1->first] = cfactors(1,0,corrf,corrf*corrf);
+	} else {
+	  int nent = (itr2->second).ieta + 1;
+	  float c1 = (itr2->second).corrf + corrf;
+	  float c2 = (itr2->second).dcorr + (corrf*corrf);
+	  errfacs[itr1->first] = cfactors(nent,0,c1,c2);
 	}
-	fInput.close();
-	std::cout << "Reads total of " << all << " and " << good 
-		  << " good records from " << fname << std::endl;
       }
     }
     // find the RMS from the distributions
@@ -1471,28 +1407,9 @@ void PlotHistCorrLumis(std::string infilec, int conds, double lumi,
 
   char fname[100];
   sprintf(fname, "%s_0.txt", infilec.c_str());
-  std::ifstream fInput(fname);
-  int etamin(100), etamax(-100), maxdepth(0), good(0);
-  if (!fInput.good()) {
-    std::cout << "Cannot open file " << fname << std::endl;
-  } else {
-    char buffer [1024];
-    while (fInput.getline(buffer, 1024)) {
-      if (buffer [0] == '#') continue; //ignore comment
-      std::vector <std::string> items = splitString (std::string (buffer));
-      if (items.size () != 5) {
-	std::cout << "Ignore  line: " << buffer << std::endl;
-      } else {
-	++good;
-	int   ieta  = std::atoi (items[1].c_str());
-	int   depth = std::atoi (items[2].c_str());
-	if (ieta > etamax) etamax = ieta;
-	if (ieta < etamin) etamin = ieta;
-	if (depth > maxdepth) maxdepth = depth;
-      }
-    }
-    fInput.close();
-  }
+  std::map<int,cfactors> cfacs;
+  int etamin(100), etamax(-100), maxdepth(0);
+  readCorrFactors(fname,1.0,cfacs,etamin,etamax,maxdepth);
   int  nbin = etamax - etamin + 1;
   std::cout << "Max Depth " << maxdepth << " and " << nbin << " eta bins for "
 	    << etamin << ":" << etamax << std::endl;
@@ -1500,14 +1417,12 @@ void PlotHistCorrLumis(std::string infilec, int conds, double lumi,
   // There are good records from the master file
   int colors[8] = {4,2,6,7,1,9,3,5};
   int mtype[8]  = {20,21,22,23,24,25,26,27};
-  if (good > 0) {
+  if (cfacs.size() > 0) {
     // Now read the other files
     std::vector<TH1D*> hists;
     char               name[100];
     for (int i=0; i<conds; ++i) {
       int ih = (int)(hists.size());
-      sprintf(fname, "%s_%d.txt", infilec.c_str(), i);
-      std::ifstream fInput(fname);
       for (int j=0; j<maxdepth; ++j) {
 	sprintf (name, "hd%d%d", j+1, i);
 	TH1D* h = new TH1D(name, name, nbin, etamin, etamax);
@@ -1522,32 +1437,15 @@ void PlotHistCorrLumis(std::string infilec, int conds, double lumi,
 	h->GetYaxis()->SetRangeUser(0.0,0.10);
 	hists.push_back(h);
       }
-      if (!fInput.good()) {
-	std::cout << "Cannot open file " << fname << std::endl;
-      } else {
-	char buffer [1024];
-	unsigned int all(0), good(0);
-	while (fInput.getline(buffer, 1024)) {
-	  ++all;
-	  if (buffer [0] == '#') continue; //ignore comment
-	  std::vector <std::string> items = splitString (std::string (buffer));
-	  if (items.size () != 5) {
-	    std::cout << "Ignore  line: " << buffer << std::endl;
-	  } else {
-	    ++good;
-	    int    ieta  = std::atoi (items[1].c_str());
-	    int    depth = std::atoi (items[2].c_str());
-	    double corrf = std::atof (items[3].c_str());
-	    double dcorr = std::atof (items[4].c_str());
-	    double value = dcorr/corrf;
-	    int    bin   = ieta - etamin + 1;
-	    hists[ih+depth-1]->SetBinContent(bin,value);
-	    hists[ih+depth-1]->SetBinError(bin,0.0001);
-	  }
-	}
-	fInput.close();
-	std::cout << "Reads total of " << all << " and " << good 
-		  << " good records from " << fname << std::endl;
+      sprintf(fname, "%s_%d.txt", infilec.c_str(), i);
+      int etamin1(100), etamax1(-100), maxdepth1(0);
+      readCorrFactors(fname,1.0,cfacs,etamin1,etamax1,maxdepth1);
+      for (std::map<int,cfactors>::const_iterator itr = cfacs.begin(); 
+	   itr != cfacs.end(); ++itr) {
+	double value = (itr->second).dcorr/(itr->second).corrf;
+	int    bin   = (itr->second).ieta - etamin + 1;
+	hists[ih+(itr->second).depth-1]->SetBinContent(bin,value);
+	hists[ih+(itr->second).depth-1]->SetBinError(bin,0.0001);
       }
     }
 
@@ -1581,61 +1479,36 @@ void PlotHistCorrLumis(std::string infilec, int conds, double lumi,
   }
 }
 
-void PlotHistCorrRel(std::string infile1, std::string infile2,
-		     std::string text1, std::string text2, bool save=false) {
+void PlotHistCorrRel(char* infile1, char* infile2, std::string text1, 
+		     std::string text2, bool save=false) {
 
+  std::map<int, cfactors> cfacs1, cfacs2;
+  int etamin(100), etamax(-100), maxdepth(0);
+  readCorrFactors(infile1,1.0,cfacs1,etamin,etamax,maxdepth);
+  readCorrFactors(infile2,1.0,cfacs2,etamin,etamax,maxdepth);
   std::map<int, std::pair<cfactors,cfactors> > cfacs;
-  char fname[100];
-  int good1(1), etamin(100), etamax(-100), maxdepth(0);
-  for (int ifile=0; ifile<2; ++ifile) {
-    if (ifile == 0) {
-      sprintf(fname, "%s.txt", infile1.c_str());
+  for (std::map<int,cfactors>::iterator itr = cfacs1.begin(); 
+       itr != cfacs1.end(); ++itr) {
+    std::map<int,cfactors>::iterator ktr = cfacs2.find(itr->first);
+    if (ktr == cfacs2.end()) {
+      cfactors fac2(((itr->second).ieta),((itr->second).depth),0,-1);
+      cfacs[itr->first] = std::pair<cfactors,cfactors>((itr->second),fac2);
     } else {
-      sprintf(fname, "%s.txt", infile2.c_str());
+      cfactors fac2(ktr->second);
+      cfacs[itr->first] = std::pair<cfactors,cfactors>((itr->second),fac2);
     }
-    std::ifstream fInput(fname);
-    unsigned int all(0), good(0);
-    if (!fInput.good()) {
-      std::cout << "Cannot open file " << fname << std::endl;
-    } else {
-      char buffer [1024];
-      while (fInput.getline(buffer, 1024)) {
-	++all;
-	if (buffer [0] == '#') continue; //ignore comment
-	std::vector <std::string> items = splitString (std::string (buffer));
-	if (items.size () != 5) {
-	  std::cout << "Ignore  line: " << buffer << std::endl;
-	} else {
-	  ++good;
-	  int   ieta  = std::atoi (items[1].c_str());
-	  int   depth = std::atoi (items[2].c_str());
-	  float corrf = std::atof (items[3].c_str());
-	  float dcorr = std::atof (items[4].c_str());
-	  int   detId = std::atoi (items[0].c_str());
-	  if (ifile == 0) {
-	    cfactors fac1(ieta,depth,corrf,dcorr);
-	    cfactors fac2(ieta,depth,0,-1);
-	    cfacs[detId] = std::pair<cfactors,cfactors>(fac1,fac2);
-	  } else {
-	    cfactors fac1(ieta,depth,0,-1);
-	    cfactors fac2(ieta,depth,corrf,dcorr);
-	    std::map<int, std::pair<cfactors,cfactors> >::iterator itr = cfacs.find(detId);
-	    if (itr != cfacs.end()) fac1 = (itr->second).first;
-	    cfacs[detId] = std::pair<cfactors,cfactors>(fac1,fac2);
-	  }
-	  if (ieta > etamax) etamax = ieta;
-	  if (ieta < etamin) etamin = ieta;
-	  if (depth > maxdepth) maxdepth = depth;
-	}
-      }
-      fInput.close();
-      std::cout << "Reads total of " << all << " and " << good 
-		<< " good records" << " from " << fname << std::endl;
-    }
-    good1 *= good;
   }
+  for (std::map<int,cfactors>::iterator itr = cfacs2.begin(); 
+       itr != cfacs2.end(); ++itr) {
+    std::map<int,cfactors>::const_iterator ktr = cfacs1.find(itr->first);
+    if (ktr == cfacs1.end()) {
+      cfactors fac1(((itr->second).ieta),((itr->second).depth),0,-1);
+      cfacs[itr->first] = std::pair<cfactors,cfactors>(fac1,(itr->second));
+    }
+  }
+
   // There are good records in bothe the files
-  if (good1 > 0) {
+  if ((cfacs1.size() > 0) && (cfacs2.size() > 0)) {
     int k(0);
     gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
     gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
@@ -1662,14 +1535,14 @@ void PlotHistCorrRel(std::string infile1, std::string infile2,
 	hists.push_back(h);
       }
     }
-    for (std::map<int, std::pair<cfactors,cfactors> >::iterator itr = cfacs.begin();
-	 itr != cfacs.end(); ++itr,++k) {
-      float mean1 = (itr->second).first.corrf;
-      float error1= (itr->second).first.dcorr;
-      float mean2 = (itr->second).second.corrf;
-      float error2= (itr->second).second.dcorr;
-      int   ieta  = (itr->second).first.ieta;
-      int   depth = (itr->second).first.depth;
+    for (std::map<int,std::pair<cfactors,cfactors> >::iterator it=cfacs.begin();
+	 it != cfacs.end(); ++it,++k) {
+      float mean1 = (it->second).first.corrf;
+      float error1= (it->second).first.dcorr;
+      float mean2 = (it->second).second.corrf;
+      float error2= (it->second).second.dcorr;
+      int   ieta  = (it->second).first.ieta;
+      int   depth = (it->second).first.depth;
       /*
       std::cout << "[" << k << "] " << ieta << " " << depth << " " 
 		<< mean1 << ":" << mean2 << " " << error1 << ":" << error2

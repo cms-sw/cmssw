@@ -4,7 +4,7 @@
 //  CalibMonitor c1(fname, dirname, dupFileName, outFileName, prefix, 
 //                  corrFileName, rcorFileName, flag, numb, dataMC,
 //                  useGen, scale,  etalo, etahi, runlo, runhi, phimin,
-//                  phimax, zside);
+//                  phimax, zside, rbx, exclude);
 //  c1.Loop();
 //  c1.SavePlot(histFileName,append,all);
 //
@@ -22,16 +22,16 @@
 //   fname   (std::string)     = file name of the input ROOT tree
 //   dirname (std::string)     = name of the directory where Tree resides
 //                               (use "HcalIsoTrkAnalyzer")
-//   dupFileName (std::string) = name of the file containing list of entries 
+//   dupFileName (char*)       = name of the file containing list of entries 
 //                               of duplicate events
-//   outFileName (std::string) = name of a text file to be created (under
+//   outFileName (char*)       = name of a text file to be created (under
 //                               control of value of flag) with information
 //                               about events
 //   prefix (std::string)      = String to be added to the name of histogram
 //                               (usually a 4 character string; default="")
-//   corrFileName (std::string)= name of the text file having the correction
+//   corrFileName (char*)      = name of the text file having the correction
 //                               factors to be used (default="", no corr.)
-//   rcorFileName (std::string)= name of the text file having the correction
+//   rcorFileName (char*)      = name of the text file having the correction
 //                               factors as a function of run numbers to be 
 //                               used for raddam correction 
 //                               (default="", no corr.)
@@ -57,6 +57,9 @@
 //   phimax          (int)     = maximum iphi value (72)
 //   zside           (int)     = the side of the detector if phimin and phimax
 //                               differ from 1-72 (1)
+//   rbx             (int)     = zside*(Subdet*100+RBX #) to be consdered (0)
+//   exclude         (bool)    = RBX specified by *rbx* to be exluded or only
+//                               considered (false)
 //
 //   histFileName (std::string)= name of the file containing saved histograms
 //   append (bool)             = true/false if the hitogram file to be opened
@@ -188,19 +191,20 @@ public :
 
   CalibMonitor(const std::string& fname,
 	       const std::string& dirname, 
-	       const std::string& dupFileName, 
-	       const std::string& outTxtFileName, 
+	       const char *       dupFileName, 
+	       const char *       outFileName, 
 	       const std::string& prefix="", 
-	       const std::string& corrFileName="",
-	       const std::string& rcorFileName="", 
+	       const char *       corrFileName="",
+	       const char *       rcorFileName="", 
 	       int flag=0, int numb=42, bool datMC=true, bool useGen=false, 
 	       double scale=1.0, int etalo=0, int etahi=30, int runlo=-1, 
-	       int runhi=99999999, int phimin=1, int phimax=72, int zside=1);
+	       int runhi=99999999, int phimin=1, int phimax=72, int zside=1,
+	       int rbx=0, bool exclude=true);
   virtual ~CalibMonitor();
   virtual Int_t              Cut(Long64_t entry);
   virtual Int_t              GetEntry(Long64_t entry);
   virtual Long64_t           LoadTree(Long64_t entry);
-  virtual void               Init(TTree *tree, const std::string& dupFileName);
+  virtual void               Init(TTree*, const char*, const char*);
   virtual void               Loop();
   virtual Bool_t             Notify();
   virtual void               Show(Long64_t entry = -1);
@@ -210,21 +214,23 @@ public :
   template<class Hist> void  DrawHist(Hist*, TCanvas*);
   void                       SavePlot(const std::string& theName, 
 				      bool append, bool all=false);
-  bool                       ReadCorrFactor(const std::string& fName);
+  bool                       ReadCorrFactor(const char* fName);
   std::vector<std::string>   SplitString (const std::string& fLine);
 private:
 
   static const unsigned int npbin=5, kp50=2;
   CalibCorr*                cFactor_;
-  const std::string         fname_, dirnm_, prefix_, outTxtFileName_;
+  CalibSelectRBX*           cSelect_;
+  const std::string         fname_, dirnm_, prefix_, outFileName_;
   const int                 flag_, numb_;
   const bool                dataMC_, useGen_;
   const int                 etalo_, etahi_, runlo_, runhi_;
-  const int                 phimin_,phimax_,zside_;
+  const int                 phimin_,phimax_,zside_, rbx_;
   const double              scale_;
-  bool                      corrPU_, corrE_, selRBX_, coarseBin_;
+  bool                      exclude_, corrPU_, corrE_, selRBX_, coarseBin_;
   int                       plotType_, flexibleSelect_;
   double                    log2by18_;
+  std::ofstream             fileout_;
   std::vector<Long64_t>     entries_;
   std::vector<double>       etas_, ps_, dl1_;
   std::vector<int>          nvx_, ietas_;
@@ -238,23 +244,25 @@ private:
 
 CalibMonitor::CalibMonitor(const std::string& fname, 
 			   const std::string& dirnm, 
-			   const std::string& dupFileName, 
-			   const std::string& outTxtFileName,
+			   const char*        dupFileName, 
+			   const char*        outFName,
 			   const std::string& prefix, 
-			   const std::string& corrFileName,
-			   const std::string& rcorFileName, int flag, 
+			   const char*        corrFileName,
+			   const char*        rcorFileName, int flag, 
 			   int numb, bool dataMC, bool useGen, double scale, 
 			   int etalo, int etahi, int runlo, int runhi, 
-			   int phimin, int phimax, 
-			   int zside) : cFactor_(nullptr), fname_(fname),
-					dirnm_(dirnm), prefix_(prefix), 
-					outTxtFileName_(outTxtFileName),
-					flag_(flag), numb_(numb),
-					dataMC_(dataMC), useGen_(useGen), 
-					etalo_(etalo), etahi_(etahi), 
-					runlo_(runlo), runhi_(runhi),
-					phimin_(phimin), phimax_(phimax),
-					zside_(zside), scale_(scale) {
+			   int phimin, int phimax, int zside, int rbx,
+			   bool exclude) : cFactor_(nullptr), cSelect_(nullptr),
+					   fname_(fname), dirnm_(dirnm), 
+					   prefix_(prefix), 
+					   outFileName_(std::string(outFName)),
+					   flag_(flag), numb_(numb),
+					   dataMC_(dataMC), useGen_(useGen), 
+					   etalo_(etalo), etahi_(etahi), 
+					   runlo_(runlo), runhi_(runhi),
+					   phimin_(phimin), phimax_(phimax),
+					   zside_(zside), rbx_(rbx), 
+					   scale_(scale), exclude_(exclude) {
   // if parameter tree is not specified (or zero), connect the file
   // used to generate this class and read the Tree
 
@@ -274,15 +282,18 @@ CalibMonitor::CalibMonitor(const std::string& fname,
 	    << " Selection of RBX " << selRBX_ << std::endl;
   TTree      *tree = (TTree*)dir->Get("CalibTree");
   std::cout << "CalibMonitor:Tree " << tree << std::endl;
-  Init(tree,dupFileName);
+  Init(tree,dupFileName,outFName);
   corrE_ = ReadCorrFactor(corrFileName);
-  if (rcorFileName != "") cFactor_ = new CalibCorr(rcorFileName,false);
   std::cout << "Reads correction factors from " << corrFileName << " with flag "
 	    << corrE_ << std::endl;
+  if (std::string(rcorFileName) != "")
+    cFactor_ = new CalibCorr(rcorFileName,false);
+  if (rbx != 0) cSelect_ = new CalibSelectRBX(rbx);
 }
 
 CalibMonitor::~CalibMonitor() {
   delete cFactor_;
+  delete cSelect_;
   if (!fChain)  return;
   delete fChain->GetCurrentFile();
 }
@@ -307,7 +318,8 @@ Long64_t CalibMonitor::LoadTree(Long64_t entry) {
   return centry;
 }
 
-void CalibMonitor::Init(TTree *tree, const std::string& dupFileName) {
+void CalibMonitor::Init(TTree *tree, const char* dupFileName,
+			const char* outFileName) {
   // The Init() function is called when the selector needs to initialize
   // a new tree or chain. Typically here the branch addresses and branch
   // pointers of the tree will be set.
@@ -370,7 +382,7 @@ void CalibMonitor::Init(TTree *tree, const std::string& dupFileName) {
   fChain->SetBranchAddress("t_HitEnergies3", &t_HitEnergies3, &b_t_HitEnergies3);
   Notify();
 
-  ifstream infil1(dupFileName.c_str());
+  ifstream infil1(dupFileName);
   if (!infil1.is_open()) {
     std::cout << "Cannot open " << dupFileName << std::endl;
   } else {
@@ -383,6 +395,18 @@ void CalibMonitor::Init(TTree *tree, const std::string& dupFileName) {
     infil1.close();
     std::cout << "Reads a list of " << entries_.size() << " events from " 
 	      << dupFileName << std::endl;
+  }
+
+  if (((flag_/100)%10)>0) {
+    if (((flag_/100)%10)==2) {
+      fileout_.open(outFileName, std::ofstream::out);
+      std::cout << "Opens " << outFileName << " in output mode" <<std::endl;
+    } else {
+      fileout_.open(outFileName, std::ofstream::app);
+      std::cout << "Opens " << outFileName << " in append mode" <<std::endl;
+    }
+    fileout_ << "Input file: " << fname_ << " Directory: " << dirnm_ 
+	     << " Prefix: " << prefix_ << "\n";
   }
 
   double xbins[99];
@@ -651,19 +675,6 @@ void CalibMonitor::Loop() {
   if (fChain == 0) return;
   const bool debug(false);
 
-  std::ofstream fileout;
-  if (((flag_/100)%10)>0) {
-    if (((flag_/100)%10)==2) {
-      fileout.open(outTxtFileName_, std::ofstream::out);
-      std::cout << "Opens " << outTxtFileName_ << " in output mode" <<std::endl;
-    } else {
-      fileout.open(outTxtFileName_, std::ofstream::app);
-      std::cout << "Opens " << outTxtFileName_ << " in append mode" <<std::endl;
-    }
-    fileout << "Input file: " << fname_ << " Directory: " << dirnm_ 
-	    << " Prefix: " << prefix_ << "\n";
-  }
-
   // Find list of duplicate events  
   Long64_t nentries = fChain->GetEntriesFast();
   std::cout << "Total entries " << nentries << std::endl;
@@ -676,6 +687,8 @@ void CalibMonitor::Loop() {
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
+    if (jentry%10000 == 0) std::cout << "Entry " << jentry << " Run " << t_Run
+				     << " Event " << t_Event << std::endl;
     bool select = (std::find(entries_.begin(),entries_.end(),jentry) == entries_.end());
     if (!select) {
       ++duplicate;
@@ -692,7 +705,13 @@ void CalibMonitor::Loop() {
 		  << ":" << etahi_ << std::endl;
       continue;
     }
-
+    if (cSelect_ != nullptr) {
+      if (exclude_) {
+	if (cSelect_->isItRBX(t_DetIds))          continue;
+      } else {
+	if (!(cSelect_->isItRBX(t_ieta,t_iphi)))  continue;
+      }
+    }
     // if (Cut(ientry) < 0) continue;
     int kp(-1), jp(-1), jp1(-1);
     double pmom = (useGen_ && (t_gentrackP > 0)) ? t_gentrackP : t_p;
@@ -725,9 +744,9 @@ void CalibMonitor::Loop() {
 	jp1 = j-1; break;
       }
     }
-    if (debug) std::cout << "Bin " << kp << ":" << kp1 << ":" << kv << ":" 
-			 << kv1 << ":" << kd << ":" << kd1 << ":" << jp << ":"
-			 << jp1 << std::endl;
+    if (debug) 
+      std::cout << "Bin " << kp << ":" << kp1 << ":" << kv << ":" << kv1 << ":"
+		<< kd << ":" << kd1 << ":" << jp << ":" << jp1 << std::endl;
     if (plotType_ <= 1) {
       h_p[0]->Fill(pmom,t_EventWeight);
       h_eta[0]->Fill(t_ieta,t_EventWeight);
@@ -843,14 +862,14 @@ void CalibMonitor::Loop() {
       kount++;
       if (((flag_/100)%10) != 0) {
 	good++;
-	fileout << good << " " << jentry << " " << t_Run  << " " 
-		<< t_Event << " " << t_ieta << " " << pmom << std::endl;
+	fileout_ << good << " " << jentry << " " << t_Run  << " " 
+		 << t_Event << " " << t_ieta << " " << pmom << std::endl;
       }
     }
   }
   if (((flag_/100)%10)>0) {
-    fileout.close();
-    std::cout << "Writes " << good << " events in the file " << outTxtFileName_
+    fileout_.close();
+    std::cout << "Writes " << good << " events in the file " << outFileName_
 	      << std::endl;
   }
   std::cout << "Finds " << duplicate << " Duplicate events out of " << kount
@@ -1007,10 +1026,10 @@ void CalibMonitor::PlotHist(int itype, int inum, bool save) {
   }
 }
 
-bool CalibMonitor::ReadCorrFactor(const std::string& fname) {
+bool CalibMonitor::ReadCorrFactor(const char* fname) {
   bool ok(false);
-  if (fname != "") {
-    std::ifstream fInput(fname.c_str());
+  if (std::string(fname) != "") {
+    std::ifstream fInput(fname);
     if (!fInput.good()) {
       std::cout << "Cannot open file " << fname << std::endl;
     } else {

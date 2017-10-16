@@ -7,14 +7,33 @@
 #include <fstream>
 #include <sstream>
 
+void unpackDetId(unsigned int detId, int& subdet, int& zside, int& ieta, 
+		 int& iphi, int& depth) {
+  // The maskings are defined in DataFormats/DetId/interface/DetId.h
+  //                      and in DataFormats/HcalDetId/interface/HcalDetId.h
+  // The macro does not invoke the classes there and use them
+  subdet = ((detId >> 25) & (0x7));
+  if ((detId&0x1000000) == 0) {
+    ieta   = ((detId >> 7) & 0x3F);
+    zside  = (detId&0x2000)?(1):(-1);
+    depth  = ((detId >> 14) & 0x1F);
+    iphi   = (detId & 0x3F);
+  } else {
+    ieta   = ((detId >> 10) & 0x1FF);
+    zside  = (detId&0x80000)?(1):(-1);
+    depth  = ((detId >> 20) & 0xF);
+    iphi   = (detId & 0x3FF);
+  }
+}
+
 class CalibCorr {
 public :
-  CalibCorr(const std::string& infile, bool debug=false);
+  CalibCorr(const char* infile, bool debug=false);
   ~CalibCorr() {}
 
   float getCorr(int run, unsigned int id);
 private:
-  void                     readCorr(const std::string& infile);
+  void                     readCorr(const char* infile);
   std::vector<std::string> splitString(const std::string&);
   unsigned int getDetIdHE(int ieta, int iphi, int depth);
   unsigned int getDetId(int subdet, int ieta, int iphi, int depth);
@@ -26,7 +45,20 @@ private:
   std::vector<int>              runlow_;
 };
 
-CalibCorr::CalibCorr(const std::string& infile, bool debug) : debug_(debug) {
+class CalibSelectRBX {
+public:
+  CalibSelectRBX(int rbx);
+  ~CalibSelectRBX() {}
+
+  bool isItRBX(const unsigned int);
+  bool isItRBX(const std::vector<unsigned int> *);
+  bool isItRBX(const int, const int);
+private:
+  int              subdet_, zside_;
+  std::vector<int> phis_;
+};
+
+CalibCorr::CalibCorr(const char* infile, bool debug) : debug_(debug) {
   readCorr(infile);
 }
 
@@ -46,14 +78,8 @@ float CalibCorr::getCorr(int run, unsigned int id) {
     if (itr != corrFac_[ip].end()) cfac = itr->second;
   }
   if (debug_) {
-    // The maskings are defined in DataFormats/DetId/interface/DetId.h
-    //                      and in DataFormats/HcalDetId/interface/HcalDetId.h
-    // The macro does not invoke the classes there and use them
-    int subdet = (idx >> 25) & (0x7);
-    int depth  = (idx >> 20) & (0xF);
-    int zside  = (idx&0x80000)?(1):(-1);
-    int ieta   = (idx >> 10) & (0x1FF);
-    int iphi   = (idx) & (0x3FF);
+    int  subdet, zside, ieta, iphi, depth;
+    unpackDetId(idx, subdet, zside, ieta, iphi, depth);
     std::cout << "ID " << std::hex << id << std::dec << " (Sub " << subdet 
 	      << " eta " << zside*ieta << " phi " << iphi << " depth " << depth
 	      << ")  Factor " << cfac << std::endl;
@@ -61,7 +87,7 @@ float CalibCorr::getCorr(int run, unsigned int id) {
   return cfac;
 }
 
-void CalibCorr::readCorr(const std::string& infile) {
+void CalibCorr::readCorr(const char* infile) {
 
   std::ifstream fInput(infile);
   unsigned int ncorr(0);
@@ -151,21 +177,8 @@ unsigned int CalibCorr::getDetId(int subdet, int ieta, int iphi, int depth) {
 }
 
 unsigned int CalibCorr::correctDetId(const unsigned int & detId) {
-  // All numbers used here are described as masks/offsets in 
-  // DataFormats/HcalDetId/interface/HcalDetId.h
-  int subdet = ((detId >> 25) & (0x7));
-  int ieta, zside, depth, iphi;
-  if ((detId&0x1000000) == 0) {
-    ieta   = ((detId >> 7) & 0x3F);
-    zside  = (detId&0x2000)?(1):(-1);
-    depth  = ((detId >> 14) & 0x1F);
-    iphi   = (detId & 0x3F);
-  } else {
-    ieta   = ((detId >> 10) & 0x1FF);
-    zside  = (detId&0x80000)?(1):(-1);
-    depth  = ((detId >> 20) & 0xF);
-    iphi   = (detId & 0x3FF);
-  }
+  int subdet, ieta, zside, depth, iphi;
+  unpackDetId(detId, subdet, zside, ieta, iphi, depth);
   if (subdet == 0) {
     if (ieta > 16)                    subdet = 2;
     else if (ieta == 16 && depth > 2) subdet = 2;
@@ -177,4 +190,74 @@ unsigned int CalibCorr::correctDetId(const unsigned int & detId) {
 	      << "(Sub " << subdet << " eta " << ieta*zside << " phi " << iphi
 	      << " depth " << depth << ")" << std::endl;
   return id;
+}
+
+CalibSelectRBX::CalibSelectRBX(int rbx) {
+  zside_    = (rbx > 0) ? 1 : -1;
+  subdet_   = (std::abs(rbx)/100)%10;
+  if (subdet_ != 1) subdet_ = 2;
+  int iphis = std::abs(rbx)%100;
+  if (iphis > 0 && iphis <= 18) {
+    for (int i=0; i<4; ++i) {
+      int iphi = (iphis-2)*4+3+i;
+      if (iphi < 1) iphi += 72;
+      phis_.push_back(iphi);
+    }
+  }
+  std::cout << "Select RBX " << rbx << " ==> Subdet " << subdet_ << " zside "
+	    << zside_ << " with " << phis_.size() << " iphi values:";
+  for (unsigned int i=0; i<phis_.size(); ++i) std::cout << " " << phis_[i];
+  std::cout << std::endl;
+}
+
+bool CalibSelectRBX::isItRBX(const unsigned int detId) {
+  bool ok(true);
+  if (phis_.size() == 4) {
+    int subdet, ieta, zside, depth, iphi;
+    unpackDetId(detId, subdet, zside, ieta, iphi, depth);
+    ok = ((subdet == subdet_) && (zside == zside_) &&
+	  (std::find(phis_.begin(),phis_.end(),iphi) != phis_.end()));
+    /*
+    std::cout << "isItRBX:subdet|zside|iphi " << subdet << ":" << zside 
+		<< ":" << iphi << " OK " << ok << std::endl;
+    */
+  }
+  return ok;
+}
+
+bool CalibSelectRBX::isItRBX(const std::vector<unsigned int> * detId) {
+  bool ok(true);
+  if (phis_.size() == 4) {
+    ok = true;
+    for (unsigned int i=0; i < detId->size(); ++i) {
+      int subdet, ieta, zside, depth, iphi;
+      unpackDetId((*detId)[i], subdet, zside, ieta, iphi, depth);
+      ok = ((subdet == subdet_) && (zside == zside_) &&
+	    (std::find(phis_.begin(),phis_.end(),iphi) != phis_.end()));
+      /*
+      std::cout << "isItRBX: subdet|zside|iphi " << subdet << ":" << zside 
+		<< ":" << iphi << std::endl;
+      */
+      if (ok) break;
+    }
+  }
+//std::cout << "isItRBX: size " << detId->size() << " OK " << ok << std::endl;
+  return ok;
+}
+
+bool CalibSelectRBX::isItRBX(const int ieta, const int iphi) {
+  bool ok(true);
+  if (phis_.size() == 4) {
+    int zside = (ieta > 0) ? 1 : -1;
+    int subd1 = (std::abs(ieta) <= 16) ? 1 : 2;
+    int subd2 = (std::abs(ieta) >= 16) ? 2 : 1;
+    ok        = (((subd1 == subdet_) || (subd2 == subdet_)) && 
+		 (zside == zside_) &&
+		 (std::find(phis_.begin(),phis_.end(),iphi) != phis_.end()));
+  }
+  /*
+  std::cout << "isItRBX: ieta " << ieta << " iphi " << iphi << " OK " << ok 
+	    << std::endl;
+  */
+  return ok;
 }
