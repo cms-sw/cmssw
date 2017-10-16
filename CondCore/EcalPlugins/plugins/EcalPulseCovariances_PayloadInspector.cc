@@ -189,7 +189,8 @@ namespace {
 	ipad++;
       }
 
-      canvas.SaveAs("ecalpulsecovariances.png");
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
       return true;
     }// fill method
   };
@@ -322,7 +323,8 @@ namespace {
       //      endcap_r->Draw("COLZ1");
       grid(endcap_r);
 
-      canvas.SaveAs("ecalpulsecovariancesMatrix.png");
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
       return true;
     }// fill method
 
