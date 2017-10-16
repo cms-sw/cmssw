@@ -9,6 +9,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 
 using namespace edm;
@@ -34,7 +35,7 @@ HcalRechitIsoCalculator::HcalRechitIsoCalculator(const edm::Event &iEvent, const
   ESHandle<CaloGeometry> geometryHandle;
   iSetup.get<CaloGeometryRecord>().get(geometryHandle);
   if(geometryHandle.isValid())
-    geometry_ = geometryHandle.product();
+    geometry_ = (HcalGeometry*)((geometryHandle.product())->getSubdetectorGeometry(DetId(DetId::Hcal,HcalBarrel)));
   else
     geometry_ = nullptr;
 
@@ -52,7 +53,7 @@ double HcalRechitIsoCalculator::getHcalRechitIso(const reco::SuperClusterRef clu
    for(size_t index = 0; index < fHBHERecHits_->size(); index++) {
       const HBHERecHit &rechit = (*fHBHERecHits_)[index];
       const DetId &detid = rechit.id();
-      const GlobalPoint& hitpoint = geometry_->getPosition(detid);
+      const GlobalPoint hitpoint = geometry_->getPosition(detid);
       double eta = hitpoint.eta();
 
       double dR2 = reco::deltaR2(*cluster, hitpoint);
