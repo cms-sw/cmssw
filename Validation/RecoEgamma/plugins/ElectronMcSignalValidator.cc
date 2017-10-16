@@ -662,7 +662,7 @@ void ElectronMcSignalValidator::bookHistograms( DQMStore::IBooker & iBooker, edm
   // matched electrons
   setBookPrefix("h_mc") ;
   h1_mc_Eta_matched = bookH1withSumw2(iBooker, "Eta_matched","Efficiency vs gen eta",eta_nbin,eta_min,eta_max);
-  h1_mc_AbsEta_matched = bookH1withSumw2(iBooker, "AbsEta_matched","Efficiency vs gen |eta|",eta_nbin/2,0.,2.5);
+  h1_mc_AbsEta_matched = bookH1withSumw2(iBooker, "AbsEta_matched","Efficiency vs gen |eta|",eta_nbin/2,0.,eta_max);
   h1_mc_Pt_matched = bookH1(iBooker, "Pt_matched","Efficiency vs gen transverse momentum",pteff_nbin,5.,pt_max);
   h1_mc_Phi_matched = bookH1withSumw2(iBooker, "Phi_matched","Efficiency vs gen phi",phi_nbin,phi_min,phi_max);
   h1_mc_Z_matched = bookH1withSumw2(iBooker, "Z_matched","Efficiency vs gen vertex z",xyz_nbin,-25,25);

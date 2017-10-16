@@ -495,7 +495,7 @@ void ElectronMcFakeValidator::bookHistograms( DQMStore::IBooker & iBooker, edm::
 
   htitle = "Efficiency vs matching "+matchingObjectType+" " ;
   h1_ele_matchingObjectEta_matched = bookH1withSumw2(iBooker, "matchingObjectEta_matched",htitle+"#eta",eta_nbin,eta_min,eta_max);
-  h1_ele_matchingObjectAbsEta_matched = bookH1withSumw2(iBooker, "matchingObjectAbsEta_matched",htitle+"|#eta|",eta_nbin/2,0.,2.5);
+  h1_ele_matchingObjectAbsEta_matched = bookH1withSumw2(iBooker, "matchingObjectAbsEta_matched",htitle+"|#eta|",eta_nbin/2,0.,eta_max);
   h1_ele_matchingObjectPt_matched = bookH1(iBooker, "matchingObjectPt_matched",htitle+"p_{T}",pteff_nbin,5.,pt_max);
   h1_ele_matchingObjectPhi_matched = bookH1withSumw2(iBooker, "matchingObjectPhi_matched",htitle+"phi",phi_nbin,phi_min,phi_max);
   h1_ele_matchingObjectZ_matched = bookH1withSumw2(iBooker, "matchingObjectZ_matched",htitle+"z",xyz_nbin,-25,25);

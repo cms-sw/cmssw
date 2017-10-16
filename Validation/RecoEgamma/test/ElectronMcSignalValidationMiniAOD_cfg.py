@@ -4,12 +4,13 @@ import os
 import DQMOffline.EGamma.electronDataDiscovery as dd
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("ElectronValidation")
+from Configuration.StandardSequences.Eras import eras 
 
-process.options = cms.untracked.PSet( 
-#    SkipEvent = cms.untracked.vstring('ProductNotFound'),
-#    Rethrow = cms.untracked.vstring('ProductNotFound')
-)
+#process = cms.Process("electronValidation")
+#process = cms.Process("electronValidation",eras.Run2_2017)
+process = cms.Process('electronValidation',eras.Phase2) 
+
+process.options = cms.untracked.PSet( )
 
 #from FWCore.Modules.printContent_cfi import * 
 
@@ -74,10 +75,9 @@ process.load("Configuration.StandardSequences.EDMtoMEAtJobEnd_cff") # new
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 from Configuration.AlCa.autoCond import autoCond
-#process.GlobalTag.globaltag = '90X_upgrade2017_realistic_v20'
-process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']#+'::All'
-#process.GlobalTag.globaltag = '75X_mcRun2_asymptotic_Queue'
-#process.GlobalTag.globaltag = '75X_mcRun2_startup_Queue'
+#process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']#+'::All'
+process.GlobalTag.globaltag = '93X_upgrade2023_realistic_v0'
+#process.GlobalTag.globaltag = '93X_mc2017_realistic_v1'
 
 # FOR DATA REDONE FROM RAW, ONE MUST HIDE IsoFromDeps
 # CONFIGURATION
