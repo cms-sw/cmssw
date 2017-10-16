@@ -67,5 +67,19 @@ electronMcSignalValidator = cms.EDAnalyzer("ElectronMcSignalValidator",
   histosCfg = cms.PSet(electronMcSignalHistosCfg)
 )
 
-
-
+phase2_hgcal.toModify(
+    electronMcSignalValidator,
+#  electronCollection = cms.InputTag("ecalDrivenGsfElectrons"),
+#  electronCoreCollection = cms.InputTag("ecalDrivenGsfElectronCores"),
+    electronCollection = 'ecalDrivenGsfElectronsFromMultiCl',
+    electronCoreCollection = 'ecalDrivenGsfElectronCoresFromMultiCl',
+    electronTrackCollection = 'electronGsfTracksFromMultiCl',
+    electronSeedCollection = 'electronMergedSeedsFromMultiCl',
+    MaxAbsEta = cms.double(3.0),
+    histosCfg = dict( 
+        Nbineta = 60 ,
+        Nbineta2D = 60 ,
+        Etamin = -3.0 ,
+        Etamax = 3.0 ,
+    ),
+)
