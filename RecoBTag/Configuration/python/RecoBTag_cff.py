@@ -67,8 +67,7 @@ pfBTaggingTask = cms.Task(
     #CSV + soft-lepton + jet probability discriminators combined
     pfCombinedMVAV2BJetTags,
     pfChargeBJetTags,
-    # task for new DeepFlavour tagger
-    pfDeepFlavourTask
+
 )
 
 pfBTagging = cms.Sequence(pfBTaggingTask)
