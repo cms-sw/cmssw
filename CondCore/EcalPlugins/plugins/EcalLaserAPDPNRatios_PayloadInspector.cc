@@ -228,8 +228,9 @@ namespace {
 	pad[i][2]->cd();
 	DrawEE(endc_p[i], pEEmin[i], 1.1);
       }
-      canvas.SaveAs("ecallaserAPDPNratios.png");
 
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
       return true;
     }// fill method
   };
@@ -401,8 +402,9 @@ namespace {
        DrawEE(endc_p[i], pEEmin[i], pEEmax[i]);
        endc_p[i]->GetZaxis()->SetLabelSize(0.02);
      }
-     canvas.SaveAs("ecallaserAPDPNratiosdiff.png");
 
+     std::string ImageName(m_imageFileName);
+     canvas.SaveAs(ImageName.c_str());
      return true;
     }// fill method
   };

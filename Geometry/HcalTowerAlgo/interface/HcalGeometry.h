@@ -42,19 +42,21 @@ public:
 
   unsigned int numberOfShapes() const override { return m_topology.getNumberOfShapes() ; }
   unsigned int numberOfParametersPerShape() const override { return k_NumberOfParametersPerShape ; }
-
+  
   explicit HcalGeometry(const HcalTopology& topology);
-
+  
   /// The HcalGeometry will delete all its cell geometries at destruction time
   ~HcalGeometry() override;
   
   const std::vector<DetId>& getValidDetIds(DetId::Detector det    = DetId::Detector ( 0 ), 
-						   int             subdet = 0 ) const override;
+					   int             subdet = 0 ) const override;
 
+  const CaloCellGeometry* getGeometry( const DetId& id ) const override ;
+  
   DetId getClosestCell(const GlobalPoint& r) const override ;
-      
+  
   CaloSubdetectorGeometry::DetIdSet getCells( const GlobalPoint& r,
-						      double             dR ) const override ;
+					      double             dR ) const override ;
 
   GlobalPoint                   getPosition(const DetId& id) const;
   GlobalPoint                   getBackPosition(const DetId& id) const;
@@ -65,18 +67,18 @@ public:
   static unsigned int numberOfBarrelAlignments() { return 36 ; }
 
   static unsigned int numberOfEndcapAlignments() { return 36 ; }
-
+  
   static unsigned int numberOfForwardAlignments() { return 36 ; }
 
   static unsigned int numberOfOuterAlignments() { return 60 ; }
 
   unsigned int getHxSize(const int type) const;
 
-  static unsigned int numberOfAlignments() 
-    { return ( numberOfBarrelAlignments() +
-	       numberOfEndcapAlignments() +
-	       numberOfOuterAlignments() +
-	       numberOfForwardAlignments() ) ; }
+  static unsigned int numberOfAlignments() { 
+    return ( numberOfBarrelAlignments() +
+	     numberOfEndcapAlignments() +
+	     numberOfOuterAlignments() +
+	     numberOfForwardAlignments() ) ; }
 
   static unsigned int alignmentBarrelIndexLocal(    const DetId& id ) ;
   static unsigned int alignmentEndcapIndexLocal(    const DetId& id ) ;
@@ -100,19 +102,19 @@ public:
 		     Pt3D&           ref   ) ;
   
   void newCell( const GlobalPoint& f1 ,
-			const GlobalPoint& f2 ,
-			const GlobalPoint& f3 ,
-			const CCGFloat*    parm,
-			const DetId&       detId     ) override ;
+		const GlobalPoint& f2 ,
+		const GlobalPoint& f3 ,
+		const CCGFloat*    parm,
+		const DetId&       detId     ) override ;
 
-  const CaloCellGeometry* getGeometry( const DetId& id ) const override {
-      return cellGeomPtr( m_topology.detId2denseId( id ) ) ;
+  const CaloCellGeometry* getGeometryBase( const DetId& id ) const {
+    return cellGeomPtr( m_topology.detId2denseId( id ) ) ;
   }
 
   void getSummary( CaloSubdetectorGeometry::TrVec&  trVector,
-			   CaloSubdetectorGeometry::IVec&   iVector,
-			   CaloSubdetectorGeometry::DimVec& dimVector,
-			   CaloSubdetectorGeometry::IVec& dinsVector ) const override ;
+		   CaloSubdetectorGeometry::IVec&   iVector,
+		   CaloSubdetectorGeometry::DimVec& dimVector,
+		   CaloSubdetectorGeometry::IVec& dinsVector ) const override ;
 
   const HcalTopology& topology() const { return m_topology; }
 
@@ -127,17 +129,17 @@ private:
 
   //returns din
   unsigned int newCellImpl( const GlobalPoint& f1 ,
-			const GlobalPoint& f2 ,
-			const GlobalPoint& f3 ,
-			const CCGFloat*    parm,
-			const DetId&       detId     ) ;
+			    const GlobalPoint& f2 ,
+			    const GlobalPoint& f3 ,
+			    const CCGFloat*    parm,
+			    const DetId&       detId     ) ;
 
   //can only be used by friend classes, to ensure sorting is done at the end
   void newCellFast( const GlobalPoint& f1 ,
-			const GlobalPoint& f2 ,
-			const GlobalPoint& f3 ,
-			const CCGFloat*    parm,
-			const DetId&       detId     ) ;
+		    const GlobalPoint& f2 ,
+		    const GlobalPoint& f3 ,
+		    const CCGFloat*    parm,
+		    const DetId&       detId     ) ;
 
   void increaseReserve(unsigned int extra);
   void sortValidIds();
