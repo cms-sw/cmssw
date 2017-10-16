@@ -47,7 +47,7 @@ public:
    *   bad      = there were many bad strips within the ellipse (in Tracker)
    *            = hit is compatible with the trajectory, but chi2 is too large (in Muon System)
    */
-  enum Type { valid = 0, missing = 1, inactive = 2, bad = 3, missing_inner = 4, missing_outer = 5};
+  enum Type { valid = 0, missing = 1, inactive = 2, bad = 3, missing_inner = 4, missing_outer = 5, inactive_inner = 6, inactive_outer = 7};
   static const int typeMask = 0xf;  // mask for the above
   static const int rttiShift = 24; // shift amount to get the rtti
  
