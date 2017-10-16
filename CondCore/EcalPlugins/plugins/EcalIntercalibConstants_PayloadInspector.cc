@@ -186,7 +186,9 @@ namespace {
       pad[2]->cd();
       //      ICMap.DrawEE(endc_p, 0., 2.);
       DrawEE(endc_p, 0., 2.5);
-      canvas.SaveAs("ecalICmap.png");
+
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
       return true;
     }// fill method
   };
@@ -287,8 +289,9 @@ namespace {
       DrawEB(barrel, pEBmin, pEBmax);
       pad[2]->cd();
       DrawEE(endc_p, pEEmin, pEEmax);
-      canvas.SaveAs("ecalICdiff.png");
 
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
       return true;
     }// fill method
   };
