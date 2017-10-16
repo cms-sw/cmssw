@@ -5,8 +5,12 @@
 
 namespace l1t {
 namespace stage2 {
-   bool
-   CaloLayer1Unpacker::unpack(const Block& block, UnpackerCollections *coll)
+
+   // max_iEta_HcalTP = 41; // barrel <= 16, endcap <= 29, hf <= 41  
+   // there are two TT29’s: one in HE readout in TT28 and another in HF readout in TT30
+   // max_iPhi_HcalTP = 72;
+
+   bool CaloLayer1Unpacker::unpack(const Block& block, UnpackerCollections *coll)
    {
       LogDebug("L1T") << "Block size = " << block.header().getSize();
       LogDebug("L1T") << "Board ID = " << block.amc().getBoardID();
