@@ -8,10 +8,11 @@
 namespace l1t {
 namespace stage2 {
    
-   const int max_iEta_HcalTP = 41; // barrel <= 16, endcap <= 29, hf <= 41
-   const int max_iPhi_HcalTP = 72;
-   Blocks
-   CaloLayer1Packer::pack(const edm::Event& event, const PackerTokens* toks)
+   // max_iEta_HcalTP = 41; // barrel <= 16, endcap <= 28, hf <= 41
+   // there are two TT29’s: one in HE readout in TT28 and another in HF readout in TT30
+   // max_iPhi_HcalTP = 72;
+   
+   Blocks CaloLayer1Packer::pack(const edm::Event& event, const PackerTokens* toks)
    {
       edm::Handle<EcalTrigPrimDigiCollection> ecalDigis;
       event.getByToken(static_cast<const CaloLayer1Tokens*>(toks)->getEcalDigiToken(), ecalDigis);
@@ -53,7 +54,7 @@ namespace stage2 {
       UCTCTP7RawData::CaloType cType = UCTCTP7RawData::EBEE;
       for(uint32_t iPhi = 0; iPhi < 4; iPhi++) { // Loop over all four phi divisions on card
          int cPhi = - 1 + lPhi * 4 + iPhi; // Calorimeter phi index
-         if(cPhi == 0) cPhi = max_iPhi_HcalTP;
+         if(cPhi == 0) cPhi = 72;
          else if(cPhi == -1) cPhi = 71;
          else if(cPhi < -1) {
             LogError("CaloLayer1Packer") << "Major error in makeECalTPGs" << std::endl;
@@ -83,7 +84,7 @@ namespace stage2 {
       UCTCTP7RawData::CaloType cType = UCTCTP7RawData::HBHE;
       for(uint32_t iPhi = 0; iPhi < 4; iPhi++) { // Loop over all four phi divisions on card
          int cPhi = - 1 + lPhi * 4 + iPhi; // Calorimeter phi index
-         if(cPhi == 0) cPhi = max_iPhi_HcalTP;
+         if(cPhi == 0) cPhi = 72;
          else if(cPhi == -1) cPhi = 71;
          else if(cPhi < -1) {
             LogError("CaloLayer1Packer") << "Major error in makeHCalTPGs" << std::endl;
@@ -114,10 +115,10 @@ namespace stage2 {
          if(side == 0) negativeEta = true;
          for(uint32_t iEta = 30; iEta <= 40; iEta++) {
             for(uint32_t iPhi = 0; iPhi < 2; iPhi++) {
-               if(iPhi == 1 && iEta == 40) iEta = max_iEta_HcalTP;
+               if(iPhi == 1 && iEta == 40) iEta = 41;
                int cPhi = 1 + lPhi * 4 + iPhi * 2; // Calorimeter phi index: 1, 3, 5, ... 71
-               if(iEta == max_iEta_HcalTP) cPhi -= 2; // Last two HF are 3, 7, 11, ...
-               cPhi = (cPhi+69)%max_iPhi_HcalTP + 1; // cPhi -= 2 mod 72
+               if(iEta == 41) cPhi -= 2; // Last two HF are 3, 7, 11, ...
+               cPhi = (cPhi+69)%72 + 1; // cPhi -= 2 mod 72
                int cEta = iEta;
                if(negativeEta) cEta = -iEta;
 
