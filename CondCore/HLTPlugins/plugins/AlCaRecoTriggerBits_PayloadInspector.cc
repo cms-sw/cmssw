@@ -70,8 +70,8 @@ namespace {
 	  if(br!=output.size()-1) y-=pitch;
 	}
 
-	TLine *line = new TLine(gPad->GetUxmin(),y-(pitch/2.),gPad->GetUxmax(),y-(pitch/2.));
-	line->Draw();
+	TLine line = TLine(gPad->GetUxmin(),y-(pitch/2.),gPad->GetUxmax(),y-(pitch/2.));
+	line.Draw("same");
 
 	//std::cout << std::endl;
       }
@@ -176,12 +176,6 @@ namespace {
 	    count++;
 	    output[count]+=missing_in_last_paths[iPath];
 	  }
-
-	  /* old logic
-	  output[count]+=missing_in_last_paths[iPath];
-	  output[count]+=";";
-	  if(output[count].length()>30) count++;
-	  */
 	}
 	
 	for (unsigned int br=0; br<output.size();br++){
@@ -191,7 +185,7 @@ namespace {
 	//std::cout << " |||||| not in last";
 	//std::cout << std::endl;
 
-	TLine *line = new TLine(gPad->GetUxmin(),y-0.008,gPad->GetUxmax(),y-0.008);
+	TLine *line = new TLine (gPad->GetUxmin(),y-0.008,gPad->GetUxmax(),y-0.008);
 	line->Draw();
 
       }
@@ -216,12 +210,6 @@ namespace {
 	    count++;
 	    output[count]+=missing_in_first_paths[iPath];
 	  }
-
-	  /* old logic
-	  output[count]+=missing_in_first_paths[iPath];
-	  output[count]+=";";
-	  if(output[count].length()>30) count++;
-	  */
 	}
 
 	for (unsigned int br=0; br<output.size();br++){
@@ -271,12 +259,6 @@ namespace {
 		count++;
 		output[count]+=not_in_last[iPath];
 	      }
-
-	      /* old logic
-      	      output[count]+= not_in_last[iPath];
-      	      output[count]+="; ";
-      	      if(output[count].length()>60) count++;
-	      */
       	    }
 
       	    for (unsigned int br=0; br<output.size();br++){
@@ -296,12 +278,6 @@ namespace {
 		count++;
 		output[count]+=not_in_first[jPath];
 	      }
-
-	      /* old logic
-      	      output[count1]+= not_in_first[jPath];
-      	      output[count1]+=";";
-      	      if(output[count1].length()>60) count1++;
-	      */
       	    }
 
       	    for (unsigned int br=0; br<output.size();br++){
@@ -310,6 +286,7 @@ namespace {
 
 	    // decrease the y position to the maximum of the two lists
 	    y-=std::max(count,count1)*pitch;
+
       	    TLine *line3 = new TLine(gPad->GetUxmin(),y-0.008,gPad->GetUxmax(),y-0.008);
       	    line3->Draw();
 	    
