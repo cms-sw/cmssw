@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 LowPtTrimuonPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
         "HLT_TrkMu15_DoubleTrkMu5NoFiltersNoVtx_v", #signal
+        "HLT_TrkMu16_DoubleTrkMu6NoFiltersNoVtx_v",
         "HLT_TrkMu17_DoubleTrkMu8NoFiltersNoVtx_v", #signal
         "HLT_Dimuon0_Jpsi_Muon_v",                  # control
         "HLT_Mu17_TkMu8_DZ",                        # backup
