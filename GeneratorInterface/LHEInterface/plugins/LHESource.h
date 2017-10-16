@@ -20,9 +20,11 @@ namespace lhef {
 
 namespace edm {
 	class EventPrincipal;
+        class LuminosityBlockAuxiliary;
 	class LuminosityBlockPrincipal;
 	class ParameterSet;
 	class Run;
+        class RunAuxiliary;
 	class RunPrincipal;
 }
 
@@ -43,6 +45,8 @@ class LHERunInfoProduct;
 	virtual void readLuminosityBlock_(edm::LuminosityBlockPrincipal& lumiPrincipal) override;
 	virtual void readEvent_(edm::EventPrincipal& eventPrincipal) override;
         virtual void produce(edm::Event&) override {}
+        std::shared_ptr<edm::RunAuxiliary> readRunAuxiliary_() override;
+        std::shared_ptr<edm::LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
 
 	void nextEvent();
 

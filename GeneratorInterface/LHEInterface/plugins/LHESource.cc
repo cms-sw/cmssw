@@ -17,6 +17,9 @@
 #include "FWCore/Utilities/interface/TypeID.h"
 
 #include "DataFormats/Common/interface/OrphanHandle.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
+#include "DataFormats/Provenance/interface/RunAuxiliary.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
@@ -210,6 +213,26 @@ LHESource::readEvent_(edm::EventPrincipal& eventPrincipal) {
 	partonLevel.reset();
 
 	resetEventCached();
+}
+
+std::shared_ptr<edm::RunAuxiliary>
+LHESource::readRunAuxiliary_() {
+  edm::Timestamp ts = edm::Timestamp(presentTime());
+  resetNewRun();
+  auto aux = std::make_shared<edm::RunAuxiliary>(eventID().run(), ts, edm::Timestamp::invalidTimestamp());
+  aux->setProcessHistoryID(phid_);
+  return aux;
+}
+
+std::shared_ptr<edm::LuminosityBlockAuxiliary>
+LHESource::readLuminosityBlockAuxiliary_() {
+  if (processingMode() == Runs) return std::shared_ptr<edm::LuminosityBlockAuxiliary>();
+  edm::Timestamp ts = edm::Timestamp(presentTime());
+  resetNewLumi();
+  auto aux = std::make_shared<edm::LuminosityBlockAuxiliary>(eventID().run(), eventID().luminosityBlock(),
+                                                             ts, edm::Timestamp::invalidTimestamp());
+  aux->setProcessHistoryID(phid_);
+  return aux;
 }
 
 DEFINE_FWK_INPUT_SOURCE(LHESource);
