@@ -10,5 +10,5 @@ l1tStage2uGTCaloLayer2Comp = cms.EDAnalyzer(
     uGTTauCollection       = cms.InputTag("gtStage2Digis", "Tau"),
     calol2EtSumCollection  = cms.InputTag("caloStage2Digis", "EtSum"),
     uGTEtSumCollection     = cms.InputTag("gtStage2Digis", "EtSum"),
-    monitorDir = cms.untracked.string("L1TEMU/L1TStage2uGTCaloLayer2Comp")
+    monitorDir = cms.untracked.string("L1T/L1TStage2uGTCaloLayer2Comp")
 )
