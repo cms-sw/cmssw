@@ -1523,28 +1523,28 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             ##adding the necessary chs and track met configuration
             task = getPatAlgosToolsTask(process)
 
-            pfChs = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV(0)>0"))
-            addToProcessAndTask("pfChs", pfChs, process, task)
-            pfMetChs = cms.EDProducer("PFMETProducer",
-                                      src = cms.InputTag('pfChs'),
+            pfCHS = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV(0)>0"))
+            addToProcessAndTask("pfCHS", pfCHS, process, task)
+            pfMetCHS = cms.EDProducer("PFMETProducer",
+                                      src = cms.InputTag('pfCHS'),
                                       alias = cms.string('pfMet'),
                                       globalThreshold = cms.double(0.0),
                                       calculateSignificance = cms.bool(False),
                                       )            
 
-            addToProcessAndTask("pfMetChs", pfMetChs, process, task)
+            addToProcessAndTask("pfMetCHS", pfMetCHS, process, task)
 
             addMETCollection(process,
-                             labelName = "patChsMet",
-                             metSource = "pfMetChs"
+                             labelName = "patCHSMet",
+                             metSource = "pfMetCHS"
                              )
 
-            getattr(process,"patChsMet").computeMETSignificance = cms.bool(False)
-            getattr(process,"patChsMet").addGenMET = False
+            process.patCHSMet.computeMETSignificant = cms.bool(False)
+            process.patCHSMet.addGenMET = cms.bool(False)
 
-            patMetModuleSequence += getattr(process, "pfChs")
-            patMetModuleSequence += getattr(process, "pfMetChs")
-            patMetModuleSequence += getattr(process, "patChsMet")
+            patMetModuleSequence += getattr(process, "pfCHS")
+            patMetModuleSequence += getattr(process, "pfMetCHS")
+            patMetModuleSequence += getattr(process, "patCHSMet")
 
             pfTrk = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV(0) > 0 && charge()!=0"))
             addToProcessAndTask("pfTrk", pfTrk, process, task)
@@ -1562,8 +1562,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                              metSource = "pfMetTrk"
                              )
 
-            getattr(process,"patTrkMet").computeMETSignificance = cms.bool(False)
-            getattr(process,"patTrkMet").addGenMET = False
+            process.patTrkMet.computeMETSignificant = cms.bool(False)
+            process.patTrkMet.addGenMET = cms.bool(False)
 
             patMetModuleSequence += getattr(process, "pfTrk")
             patMetModuleSequence += getattr(process, "pfMetTrk")

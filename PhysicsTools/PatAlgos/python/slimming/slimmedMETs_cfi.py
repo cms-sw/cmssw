@@ -17,7 +17,7 @@ slimmedMETs = cms.EDProducer("PATMETSlimmer",
    caloMET = cms.InputTag("patCaloMet"),
 
    #adding CHS and Track MET for the Jet/MET studies
-   chsMET = cms.InputTag("patChsMet"),
+   chsMET = cms.InputTag("patCHSMet"),
    trkMET = cms.InputTag("patTrkMet"),
 
    #switch to read the type0 correction from the existing slimmedMET

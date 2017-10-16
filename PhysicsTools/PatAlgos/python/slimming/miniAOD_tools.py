@@ -188,11 +188,11 @@ def miniAOD_customizeCommon(process):
     task.add(process.pfMetCHS)    
 
     addMETCollection(process,
-                     labelName = "patChsMet",
+                     labelName = "patCHSMet",
                      metSource = "pfMetCHS"
                      )
 
-    process.patChsMet.computeMETSignificance = cms.bool(False)
+    process.patCHSMet.computeMETSignificance = cms.bool(False)
 
     #  ==================  CHSMET 
 
