@@ -42,7 +42,7 @@ Generator::Generator(const ParameterSet & p) :
   Z_lmax(0),
   Z_hector(0),
   pdgFilterSel(false), 
-  fPDGFilter(false) 
+  fPDGFilter(false)
 {
   bool lumi = p.getParameter<bool>("ApplyLumiMonitorCuts");
   if(lumi) { fLumiFilter = new LumiMonitorFilter(); }
@@ -57,9 +57,9 @@ Generator::Generator(const ParameterSet & p) :
   pdgFilter.resize(0);
   if ( p.exists("PDGselection") ) {
     pdgFilterSel = (p.getParameter<edm::ParameterSet>("PDGselection")).
-                    getParameter<bool>("PDGfilterSel");
+      getParameter<bool>("PDGfilterSel");
     pdgFilter = (p.getParameter<edm::ParameterSet>("PDGselection")).
-                    getParameter<std::vector< int > >("PDGfilter");
+      getParameter<std::vector< int > >("PDGfilter");
     if(!pdgFilter.empty()) { 
       fPDGFilter = true; 
       for ( unsigned int ii = 0; ii < pdgFilter.size(); ++ii) {
@@ -163,6 +163,17 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 
       // Particles which are not decayed by generator
       if (status == 1) {
+
+	// filter out unwanted particles and vertices
+	if(fPDGFilter && !pdgFilterSel && IsInTheFilterList(*pitr)) { 
+	  if(verbose > 0) {
+	    throw edm::Exception(edm::errors::LogicError) 
+	      << "Generator produces a particle with status=1 and pdgid= " 
+	      << (*pitr)->pdg_id();
+	  }
+	  continue; 
+	}
+
         qvtx = true;
         if (verbose > 2) LogDebug("SimG4CoreGenerator") 
 	  << "GenVertex barcode = " << (*vitr)->barcode() 
@@ -211,10 +222,8 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 
       // Filter on allowed particle species if required      
       if (fPDGFilter) {
-        std::vector<int>::iterator it = find(pdgFilter.begin(),pdgFilter.end(),
-					     (*pitr)->pdg_id()); 
-        if ( (it != pdgFilter.end() && !pdgFilterSel) 
-	     || ( it == pdgFilter.end() && pdgFilterSel ) ) {
+	bool isInTheList = IsInTheFilterList(*pitr);
+	if((!pdgFilterSel && isInTheList) || (pdgFilterSel && !isInTheList)) { 
           if (verbose > 2) LogDebug("SimG4CoreGenerator") 
 	    << "Skip GenParticle barcode = " << (*pitr)->barcode() 
 	    << " PDG Id = " << (*pitr)->pdg_id();
@@ -262,7 +271,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
       // protection against numerical problems for extremely low momenta
       // compute impact point at transition to Hector
       const double minTan = 1.e-20;
-      if(fabs(z1) < Z_hector && fabs(pz) >= minTan*ptot) {
+      if(std::abs(z1) < Z_hector && std::abs(pz) >= minTan*ptot) {
         if(pz > 0.0) { zimpact =  Z_hector; }
 	else         { zimpact = -Z_hector; }
         double del = (zimpact - z1)/pz;
@@ -284,7 +293,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
       // Particles of status 1 trasnported along the beam pipe for forward 
       // detectors (HECTOR) always pass to Geant4 without cuts 
       if( 1 == status && 
-	  fabs(zimpact) >= Z_hector && rimpact2 <= theDecRCut2) {
+	  std::abs(zimpact) >= Z_hector && rimpact2 <= theDecRCut2) {
         toBeAdded = true;
         if ( verbose > 2 ) LogDebug("SimG4CoreGenerator") 
 	  << "GenParticle barcode = " << (*pitr)->barcode() 
@@ -293,7 +302,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 
 	// Standard case: particles not decayed by the generator
 	if(1 == status && 
-           (fabs(zimpact) < Z_hector || rimpact2 > theDecRCut2)) {
+           (std::abs(zimpact) < Z_hector || rimpact2 > theDecRCut2)) {
 
 	  // Ptot cut for all particles
 	  if (fPCuts && (ptot < theMinPCut || ptot > theMaxPCut)) {
@@ -316,7 +325,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 	    double zi = z1;
 
 	    // can be propagated along Z
-	    if(fabs(pz) >= minTan*ptot) {
+	    if(std::abs(pz) >= minTan*ptot) {
 	      if((zi >= Z_lmax) & (pz < 0.0)) {
 		zi = Z_lmax;
 	      } else if((zi <= Z_lmin) & (pz > 0.0)) {
@@ -346,7 +355,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 	  // are used for Geant4 tracking with predefined decay channel
 	  // In the case of decay in vacuum particle is not tracked by Geant4
 	} else if(2 == status &&
-		  x2*x2 + y2*y2 >= theDecRCut2 && fabs(z2) < Z_hector) {
+		  x2*x2 + y2*y2 >= theDecRCut2 && std::abs(z2) < Z_hector) {
 
 	  toBeAdded = true;
 	  if ( verbose > 2 ) LogDebug("SimG4CoreGenerator") 
@@ -515,32 +524,35 @@ bool Generator::particlePassesPrimaryCuts(const G4ThreeVector& p) const
 
 bool Generator::isExotic(HepMC::GenParticle* p) const
 {
-  int pdgid = abs(p->pdg_id());  
+  int pdgid = std::abs(p->pdg_id());  
   if ((pdgid >= 1000000 && pdgid <  4000000) || // SUSY, R-hadron, and technicolor particles
       pdgid == 17 || // 4th generation lepton 
       pdgid == 34 || // W-prime
       pdgid == 37)   // charged Higgs
     {
-    return true;
-  } 
-
+      return true;
+    } 
   return false;
 }
 
 bool Generator::isExoticNonDetectable(HepMC::GenParticle* p) const
 {
-  int pdgid = abs(p->pdg_id());  
+  int pdgid = std::abs(p->pdg_id());  
   HepPDT::ParticleID pid(p->pdg_id());
   int charge = pid.threeCharge();
   if ((charge==0) && (pdgid >= 1000000 && pdgid <  1000040)) // SUSY 
     {
-    return true;
-  } 
-
+      return true;
+    } 
   return false;
 }
 
-
+bool Generator::IsInTheFilterList(HepMC::GenParticle* p) const
+{
+  int pdgid = std::abs(p->pdg_id());
+  for(auto & pdg : pdgFilter) { if(std::abs(pdg) == pdgid) { return true; } }
+  return false;
+}
 
 void Generator::nonBeamEvent2G4(const HepMC::GenEvent * evt, G4Event * g4evt) 
 {
