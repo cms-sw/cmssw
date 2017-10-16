@@ -43,6 +43,7 @@ namespace {
       l.SetTextAlign(12);
 
       float y, x1, x2;
+      std::vector<float> y_line;
       y = 1.0; x1 = 0.02; x2 = x1+0.20;
 	
       y -= pitch; 
@@ -70,10 +71,20 @@ namespace {
 	  if(br!=output.size()-1) y-=pitch;
 	}
 
-	TLine line = TLine(gPad->GetUxmin(),y-(pitch/2.),gPad->GetUxmax(),y-(pitch/2.));
-	line.Draw("same");
-
+	y_line.push_back(y-(pitch/2.));
+       
 	//std::cout << std::endl;
+      }
+
+      TLine lines[y_line.size()];
+      unsigned int iL=0;
+      for (const auto & line : y_line){
+	lines[iL] = TLine(gPad->GetUxmin(),line,gPad->GetUxmax(),line);
+	lines[iL].SetLineWidth(1);
+	lines[iL].SetLineStyle(9);
+	lines[iL].SetLineColor(2);
+	lines[iL].Draw("same");
+	iL++;
       }
 
       std::string fileName(m_imageFileName);
@@ -87,7 +98,7 @@ namespace {
   *************************************************/
   class AlCaRecoTriggerBits_Compare: public cond::payloadInspector::PlotImage<AlCaRecoTriggerBits> {
   public:
-    AlCaRecoTriggerBits_Compare() : cond::payloadInspector::PlotImage<AlCaRecoTriggerBits>( "Table of AlCaRecoTriggerBits" ){
+    AlCaRecoTriggerBits_Compare() : cond::payloadInspector::PlotImage<AlCaRecoTriggerBits>( "Table of AlCaRecoTriggerBits comparison" ){
       setSingleIov( false );
     }
 
@@ -117,9 +128,6 @@ namespace {
       std::vector<std::string> first_keys, not_in_first_keys;
       std::vector<std::string> last_keys, not_in_last_keys;
 
-      unsigned int f_mapsize = first_triggerMap.size();
-      unsigned int l_mapsize = last_triggerMap.size();
-
       // fill the vector of first keys
       for (const auto& element : first_triggerMap){
 	first_keys.push_back(element.first);
@@ -137,31 +145,33 @@ namespace {
       std::set_difference(last_keys.begin(),last_keys.end(),first_keys.begin(),first_keys.end(), 
 			  std::inserter(not_in_first_keys, not_in_first_keys.begin()));
 
-      TCanvas canvas("AlCaRecoTriggerBits","AlCaRecoTriggerBits",2500,std::max(f_mapsize,l_mapsize)*40); 
       float pitch = 0.013;
-
-      TLatex l;
-      l.SetTextSize(0.012);
-
-      // Draw the columns titles
-      l.SetTextAlign(12);
-
       float y, x1, x2, x3;
+
+      std::vector<float>         y_x1,y_x2,y_x3,y_line;
+      std::vector<std::string>   s_x1,s_x2,s_x3;
+
       y  = 1.0; 
       x1 = 0.02; 
       x2 = x1+0.20; 
       x3 = x2+0.30;
 
       y -= pitch; 
-      l.DrawLatexNDC(x1, y,"#scale[1.2]{Key}"); 
-      l.DrawLatexNDC(x2, y,("#scale[1.2]{in IOV: "+firstIOVsince+"}").c_str()); 
-      l.DrawLatexNDC(x3, y,("#scale[1.2]{in IOV: "+lastIOVsince+"}").c_str()); 
+      y_x1.push_back(y);
+      s_x1.push_back("#scale[1.2]{Key}");
+      y_x2.push_back(y);
+      s_x2.push_back("#scale[1.2]{in IOV: "+firstIOVsince+"}");
+      y_x3.push_back(y);
+      s_x3.push_back("#scale[1.2]{in IOV: "+lastIOVsince+"}");
       y -= pitch/3;
 
       // print the ones missing in the last key
       for(const auto& key : not_in_last_keys ) {
 	//std::cout<< key ;
-	y -= pitch; l.DrawLatexNDC(x1, y,key.c_str()); 
+	y -= pitch;  
+	y_x1.push_back(y);
+	s_x1.push_back(key);
+
 	const std::vector<std::string> missing_in_last_paths = first_payload->decompose(first_triggerMap.at(key));
 	
 	std::map<int,std::string> output;
@@ -179,14 +189,14 @@ namespace {
 	}
 	
 	for (unsigned int br=0; br<output.size();br++){
-	  l.DrawLatexNDC(x2,y,("#color[2]{"+output[br]+"}").c_str());  
+	  y_x2.push_back(y);
+	  s_x2.push_back("#color[2]{"+output[br]+"}");
 	  if(br!=output.size()-1) y -=pitch;
 	}
 	//std::cout << " |||||| not in last";
 	//std::cout << std::endl;
 
-	TLine *line = new TLine (gPad->GetUxmin(),y-0.008,gPad->GetUxmax(),y-0.008);
-	line->Draw();
+	y_line.push_back(y-0.008);
 
       }
       
@@ -194,7 +204,9 @@ namespace {
       // print the ones missing in the first key
       for(const auto& key : not_in_first_keys ) {
 	//std::cout<< key ;
-	y -= pitch; l.DrawLatexNDC(x1, y,key.c_str()); 
+	y -= pitch;  
+	y_x1.push_back(y);
+	s_x1.push_back(key);
 	const std::vector<std::string> missing_in_first_paths = last_payload->decompose(last_triggerMap.at(key));
 
 	//std::cout << " not in first ||||||";
@@ -213,14 +225,14 @@ namespace {
 	}
 
 	for (unsigned int br=0; br<output.size();br++){
-	  l.DrawLatexNDC(x3,y,("#color[4]{"+output[br]+"}").c_str());  	    
+	  y_x3.push_back(y);
+	  s_x3.push_back("#color[4]{"+output[br]+"}");
 	  if(br!=output.size()-1) y -= pitch;
 	}
 	//std::cout << std::endl;
 	
-	TLine *line2 = new TLine(gPad->GetUxmin(),y-0.008,gPad->GetUxmax(),y-0.008);
-	line2->Draw();
-      
+	y_line.push_back(y-0.008);
+	
       }
 
       for(const auto &element : first_triggerMap){
@@ -242,11 +254,13 @@ namespace {
       	  std::set_difference(last_paths.begin(),last_paths.end(),first_paths.begin(),first_paths.end(), 
       	  		      std::inserter(not_in_first, not_in_first.begin()));
 
-      	  if(not_in_last.size()!=0 || not_in_first.size()!=0) {
+      	  if(!not_in_last.empty() || !not_in_first.empty()) {
 
       	    //std::cout<< element.first << " : "  ;
-      	    y -= pitch; l.DrawLatexNDC(x1, y, element.first.c_str()); 
-	    
+      	    y -= pitch;  
+	    y_x1.push_back(y);
+	    s_x1.push_back(element.first);
+    
       	    std::map<int,std::string> output; 
       	    int count(0);
       	    for (unsigned int iPath = 0; iPath < not_in_last.size(); ++iPath) {
@@ -262,7 +276,8 @@ namespace {
       	    }
 
       	    for (unsigned int br=0; br<output.size();br++){
-      	      l.DrawLatexNDC(x2,y-(br*pitch),("#color[6]{"+output[br]+"}").c_str());
+	      y_x2.push_back(y-(br*pitch));
+	      s_x2.push_back("#color[6]{"+output[br]+"}");
       	    }  
       	    //std::cout << " ||||||";
 	    
@@ -280,22 +295,57 @@ namespace {
 	      }
       	    }
 
-      	    for (unsigned int br=0; br<output.size();br++){
-      	      l.DrawLatexNDC(x3,y-(br*pitch),("#color[8]{"+output[br]+"}").c_str());  	    
+      	    for (unsigned int br=0; br<output.size();br++){  
+	      y_x3.push_back(y-(br*pitch));
+	      s_x3.push_back("#color[8]{"+output[br]+"}");
       	    }
 
 	    // decrease the y position to the maximum of the two lists
 	    y-=std::max(count,count1)*pitch;
-
-      	    TLine *line3 = new TLine(gPad->GetUxmin(),y-0.008,gPad->GetUxmax(),y-0.008);
-      	    line3->Draw();
+	    y_line.push_back(y-0.008);
 	    
       	    //std::cout << std::endl;
  
       	  } // close if there is at least a difference 
       	} // if there is a common key
+      }//loop on the keys
+
+      TCanvas canvas("AlCaRecoTriggerBits","AlCaRecoTriggerBits",2500.,std::max(y_x1.size(),y_x2.size())*40); 
+
+      TLatex l;
+      // Draw the columns titles
+      l.SetTextAlign(12);
+
+      float newpitch = 1/(std::max(y_x1.size(),y_x2.size())*1.65);
+      float factor  = newpitch/pitch;
+      l.SetTextSize(newpitch-0.002);
+      canvas.cd();
+      for(unsigned int i=0;i<y_x1.size();i++){
+	l.DrawLatexNDC(x1,1-(1-y_x1[i])*factor,s_x1[i].c_str());
       }
-      //loop on the keys
+
+      for(unsigned int i=0;i<y_x2.size();i++){
+	l.DrawLatexNDC(x2,1-(1-y_x2[i])*factor,s_x2[i].c_str());
+      }
+
+      for(unsigned int i=0;i<y_x3.size();i++){
+	l.DrawLatexNDC(x3,1-(1-y_x3[i])*factor,s_x3[i].c_str());
+      }
+
+      canvas.cd();
+      canvas.Update();
+
+      TLine lines[y_line.size()];
+      unsigned int iL=0;
+      for (const auto & line : y_line){
+	//std::cout<<1-(1-line)*factor<<std::endl;
+	lines[iL] = TLine(gPad->GetUxmin(),1-(1-line)*factor,gPad->GetUxmax(),1-(1-line)*factor);
+	lines[iL].SetLineWidth(1);
+	lines[iL].SetLineStyle(9);
+	lines[iL].SetLineColor(2);
+	lines[iL].Draw("same");
+	iL++;
+      }
 
       //canvas.SetCanvasSize(2000,(1-y)*1000);
       std::string fileName(m_imageFileName);
@@ -303,7 +353,6 @@ namespace {
       return true;
     }
   };
-
 
 }
 
