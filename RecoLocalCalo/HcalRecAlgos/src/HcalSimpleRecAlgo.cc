@@ -24,10 +24,10 @@ HcalSimpleRecAlgo::HcalSimpleRecAlgo(bool correctForTimeslew, bool correctForPul
   correctForPulse_(correctForPulse),
   phaseNS_(phaseNS), runnum_(0), setLeakCorrection_(false), puCorrMethod_(0)
 {  
+  hcalTimeSlew_delay_ = nullptr;
   pulseCorr_ = std::make_unique<HcalPulseContainmentManager>(MaximumFractionalError);
   pedSubFxn_ = std::make_unique<PedestalSub>();
-  hltOOTpuCorr_ = std::make_unique<HcalDeterministicFit>();
-  hcalTimeSlew_delay_ = nullptr;
+  hltOOTpuCorr_ = std::make_unique<HcalDeterministicFit>(hcalTimeSlew_delay_);
 }
 
 
@@ -309,6 +309,11 @@ namespace HcalSimpleRecAlgoImpl {
       if (wpksamp!=0) wpksamp=(maxA + 2.0*t2) / wpksamp; 
       time = (maxI - digi.presamples())*25.0 + timeshift_ns_hbheho(wpksamp);
 
+      //------------
+      //C.Madrid
+      //Need to fix this
+      //------------
+      HcalTimeSlew* hcalTimeSlew_delay_ = nullptr;
       if (slewCorrect) time-=hcalTimeSlew_delay_->delay(std::max(1.0,fc_ampl),slewFlavor);
 	  
       time=time-calibs.timecorr(); // time calibration
