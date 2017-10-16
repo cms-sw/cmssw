@@ -591,42 +591,42 @@ void L1TCaloParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetu
     cout<<endl<<" Layer1: "<<endl;
     std::vector<double> ecalSF = ptr1->layer1ECalScaleFactors();
     cout<<"  layer1ECalScaleFactors= ["<< ecalSF.size()<<"] "<<flush;
-    float _ecalSF[ ecalSF.size() ];
-    for(unsigned int i=0; i<ecalSF.size(); i++) _ecalSF[i] = int(ecalSF[i]*1000.)/1000.;
-    cout << hash( _ecalSF , sizeof(float)*ecalSF.size() ) << endl;
+    int _ecalSF[ ecalSF.size() ];
+    for(unsigned int i=0; i<ecalSF.size(); i++) _ecalSF[i] = int(ecalSF[i]*100000.);
+    cout << hash( _ecalSF , sizeof(int)*ecalSF.size() ) << endl;
     if( printEcalSF ){
         cout << endl << "    [" << endl;
         for(unsigned int i=0; i<ecalSF.size(); i++)
-            cout<<(i==0?"":",")<<ecalSF[i];
+            cout<<(i==0?"":",")<<int(ecalSF[i]*1000.)/1000.;
         cout << "]" << endl;
     }
     std::vector<double> hcalSF = ptr1->layer1HCalScaleFactors();
     cout<<"  layer1HCalScaleFactors= ["<< hcalSF.size()<<"] "<<flush;
-    float _hcalSF[ hcalSF.size() ];
+    int _hcalSF[ hcalSF.size() ];
     for(unsigned int i=0; i<hcalSF.size(); i++){
         // round false precision
 //        double significand;
 //        int    exponent;
 //        significand = frexp( hcalSF[i],  &exponent );
 //         _hcalSF[i] = ldexp( int(significand*10000)/10000., exponent );
-         _hcalSF[i] = int(hcalSF[i]*1000.)/1000.;
+         _hcalSF[i] = int(hcalSF[i]*100000.);
     }
-    cout << hash( _hcalSF, sizeof(float)*hcalSF.size() ) << endl;
+    cout << hash( _hcalSF, sizeof(int)*hcalSF.size() ) << endl;
     if( printHcalSF ){
         cout << endl << "    [" << endl;
         for(unsigned int i=0; i<hcalSF.size(); i++)
-            cout<<(i==0?"":",")<<hcalSF[i];
+            cout<<(i==0?"":",")<<int(hcalSF[i]*1000.)/1000.;
         cout<<"]"<<endl;
     }
     std::vector<double> hfSF   = ptr1->layer1HFScaleFactors();
     cout<<"  layer1HFScaleFactors=   ["<< hfSF.size()<<"] "<<flush;
-    float _hfSF[ hfSF.size() ];
-    for(unsigned int i=0; i<hfSF.size(); i++) _hfSF[i] = int(hfSF[i]*1000.)/1000.;
-    cout << hash(  _hfSF, sizeof(float)*hfSF.size() ) << endl;
+    int _hfSF[ hfSF.size() ];
+    for(unsigned int i=0; i<hfSF.size(); i++) _hfSF[i] = int(hfSF[i]*100000.);
+    cout << hash(  _hfSF, sizeof(int)*hfSF.size() ) << endl;
     if( printHfSF ){
         cout << endl << "    [" << endl;
         for(unsigned int i=0; i<hfSF.size(); i++)
-            cout<<(i==0?"":",")<<hfSF[i];
+            cout<<(i==0?"":",")<<int(hfSF[i]*1000.)/1000.;
         cout<<"]"<<endl;
     }
 

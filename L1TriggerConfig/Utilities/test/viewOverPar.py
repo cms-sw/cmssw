@@ -50,7 +50,7 @@ else :
 process.source = cms.Source("EmptySource", firstRun = cms.untracked.uint32(options.run))
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
-process.l1mor = cms.EDAnalyzer("L1TMuonOverlapReader", printLayerMap = cms.untracked.bool(True) )
+process.l1mor = cms.EDAnalyzer("L1TMuonOverlapParamsViewer", printLayerMap = cms.untracked.bool(True) )
 
 process.p = cms.Path(process.l1mor)
 
