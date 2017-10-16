@@ -20,15 +20,15 @@
 #include <iostream>
 using namespace std;
 
-class L1TMuonEndcapViewer: public edm::EDAnalyzer {
+class L1TMuonEndCapParamsViewer: public edm::EDAnalyzer {
 public:
     void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-    explicit L1TMuonEndcapViewer(const edm::ParameterSet&) : edm::EDAnalyzer(){}
-    ~L1TMuonEndcapViewer(void) override{}
+    explicit L1TMuonEndCapParamsViewer(const edm::ParameterSet&) : edm::EDAnalyzer(){}
+    ~L1TMuonEndCapParamsViewer(void) override{}
 };
 
-void L1TMuonEndcapViewer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){
+void L1TMuonEndCapParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){
 
     edm::ESHandle<L1TMuonEndCapParams> handle1;
     evSetup.get<L1TMuonEndCapParamsRcd>().get( handle1 ) ;
@@ -56,5 +56,5 @@ void L1TMuonEndcapViewer::analyze(const edm::Event& iEvent, const edm::EventSetu
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 
-DEFINE_FWK_MODULE(L1TMuonEndcapViewer);
+DEFINE_FWK_MODULE(L1TMuonEndCapParamsViewer);
 
