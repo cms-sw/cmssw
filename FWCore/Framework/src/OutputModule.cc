@@ -224,6 +224,10 @@ namespace edm {
     return result;
   }
   
+  bool OutputModule::needToRunSelection() const {
+    return !wantAllEvents_;
+  }
+
   bool OutputModule::prePrefetchSelection(StreamID id, EventPrincipal const& ep, ModuleCallingContext const* mcc) {
     if(wantAllEvents_) return true;
     auto& s = selectors_[id.value()];
