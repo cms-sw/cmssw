@@ -47,8 +47,9 @@ public:
   static double analyticPulseShapeSiPMHO(double t);
   static double analyticPulseShapeSiPMHE(double t);
   static constexpr float Y11RANGE_ = nBinsSiPM_;
-  static constexpr float Y11MAX_ = 0.04;
+  static constexpr float Y11MAX_ = 0.09;
   static double Y11TimePDF(double t);
+  static double Y11203(double t);
   static double generatePhotonTime(CLHEP::HepRandomEngine* engine);
   //this function can take function pointers *or* functors!
   template <class F1, class F2>

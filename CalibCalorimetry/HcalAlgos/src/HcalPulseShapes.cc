@@ -815,6 +815,28 @@ double HcalPulseShapes::generatePhotonTime(CLHEP::HepRandomEngine* engine) {
   }
 }
 
-double HcalPulseShapes::Y11TimePDF(double t) {
+
+//Original scintillator+Y11 fit from Vasken's 2001 measurement
+double HcalPulseShapes::Y11203(double t) {
   return exp(-0.0635-0.1518*t)*pow(t, 2.528)/2485.9;
+}
+
+//New scintillator+Y11 model from Vasken's 2017 measurement plus a Landau correction term
+double HcalPulseShapes::Y11TimePDF(double t) {
+  //Fit From Deconvolved Data
+  double A,n,t0,fit;
+  A=0.104204; n=0.44064; t0=10.0186;
+  fit = A*(1-exp(-t/n))*exp(-t/t0);
+
+  //Correction Term
+  double norm,mpv,sigma,corTerm;
+  norm=0.0806123; mpv=0; sigma=20;
+  corTerm = norm*TMath::Landau(t,mpv,sigma);
+
+  //Overall Y11
+  double frac = 0.13;
+  double val  = (1-frac)*fit + frac*corTerm;
+
+  if(val >= 0) return val;
+  else return 0.0;
 }
