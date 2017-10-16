@@ -206,6 +206,7 @@ namespace edm {
 
     void registerProductsAndCallbacks(OutputModule const*, ProductRegistry const*) {}
     
+    bool needToRunSelection() const;
     bool prePrefetchSelection(StreamID id, EventPrincipal const&, ModuleCallingContext const*);
 
     /// Ask the OutputModule if we should end the current file.

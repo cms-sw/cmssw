@@ -219,6 +219,7 @@ namespace edm {
     virtual std::string workerType() const = 0;
     virtual bool implDo(EventPrincipal const&, EventSetup const& c,
                         ModuleCallingContext const* mcc) = 0;
+    virtual bool implNeedToRunSelection() const = 0;
     virtual bool implDoPrePrefetchSelection(StreamID id,
                                             EventPrincipal const& ep,
                                             ModuleCallingContext const* mcc) = 0;
@@ -497,6 +498,9 @@ namespace edm {
       }
       static bool wantsTransition(Worker const* iWorker) {
         return true;
+      }      
+      static bool needToRunSelection( Worker const* iWorker) {
+        return iWorker->implNeedToRunSelection();
       }
     };
 
@@ -520,6 +524,9 @@ namespace edm {
       static bool wantsTransition(Worker const* iWorker) {
         return iWorker->wantsGlobalRuns();
       }
+      static bool needToRunSelection( Worker const* iWorker) {
+        return false;
+      }
     };
     template<>
     class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionStreamBegin>>{
@@ -540,6 +547,9 @@ namespace edm {
       }
       static bool wantsTransition(Worker const* iWorker) {
         return iWorker->wantsStreamRuns();
+      }
+      static bool needToRunSelection( Worker const* iWorker) {
+        return false;
       }
     };
     template<>
@@ -562,6 +572,9 @@ namespace edm {
       static bool wantsTransition(Worker const* iWorker) {
         return iWorker->wantsGlobalRuns();
       }
+      static bool needToRunSelection( Worker const* iWorker) {
+        return false;
+      }
     };
     template<>
     class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionStreamEnd>>{
@@ -583,6 +596,9 @@ namespace edm {
       static bool wantsTransition(Worker const* iWorker) {
         return iWorker->wantsStreamRuns();
       }
+      static bool needToRunSelection( Worker const* iWorker) {
+        return false;
+      }
     };
 
     template<>
@@ -603,9 +619,11 @@ namespace edm {
                                        ModuleCallingContext const* mcc) {
         return true;
       }
-
       static bool wantsTransition(Worker const* iWorker) {
         return iWorker->wantsGlobalLuminosityBlocks();
+      }
+      static bool needToRunSelection( Worker const* iWorker) {
+        return false;
       }
     };
     template<>
@@ -626,9 +644,11 @@ namespace edm {
                                        ModuleCallingContext const* mcc) {
         return true;
       }
-
       static bool wantsTransition(Worker const* iWorker) {
         return iWorker->wantsStreamLuminosityBlocks();
+      }
+      static bool needToRunSelection( Worker const* iWorker) {
+        return false;
       }
 };
 
@@ -652,7 +672,9 @@ namespace edm {
       static bool wantsTransition(Worker const* iWorker) {
         return iWorker->wantsGlobalLuminosityBlocks();
       }
-
+      static bool needToRunSelection( Worker const* iWorker) {
+        return false;
+      }
     };
     template<>
     class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd>>{
@@ -672,9 +694,11 @@ namespace edm {
                                        ModuleCallingContext const* mcc) {
         return true;
       }
-      
       static bool wantsTransition(Worker const* iWorker) {
         return iWorker->wantsStreamLuminosityBlocks();
+       }
+      static bool needToRunSelection( Worker const* iWorker) {
+        return false;
       }
     };
   }
@@ -701,13 +725,15 @@ namespace edm {
       moduleCallingContext_.setContext(ModuleCallingContext::State::kPrefetching,parentContext,nullptr);
 
       //if have TriggerResults based selection we want to reject the event before doing prefetching
-      try {
-        if( not workerhelper::CallImpl<T>::prePrefetchSelection(this,streamID,ep,&moduleCallingContext_) ) {
-          setPassed<T::isEvent_>();
-          waitingTasks_.doneWaiting(nullptr);
-          return;
-        }
-      }catch(...) {}
+      if(workerhelper::CallImpl<T>::needToRunSelection(this)) {
+        try {
+          if( not workerhelper::CallImpl<T>::prePrefetchSelection(this,streamID,ep,&moduleCallingContext_) ) {
+            setPassed<T::isEvent_>();
+            waitingTasks_.doneWaiting(nullptr);
+            return;
+          }
+        }catch(...) {}
+      }
       
       auto runTask = new (tbb::task::allocate_root()) RunModuleTask<T>(
         this, ep,es,streamID,parentContext,context);

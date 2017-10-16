@@ -159,12 +159,21 @@ namespace edm{
   template<typename T>
   inline
   bool
+  WorkerT<T>::implNeedToRunSelection() const { return false;}
+
+  template<typename T>
+  inline
+  bool
   WorkerT<T>::implDoPrePrefetchSelection(StreamID id,
                                          EventPrincipal const& ep,
                                          ModuleCallingContext const* mcc) {
     return true;
   }
 
+  template<>
+  inline
+  bool
+  WorkerT<OutputModule>::implNeedToRunSelection() const { return true;}
   template<>
   inline
   bool
@@ -177,6 +186,10 @@ namespace edm{
   template<>
   inline
   bool
+  WorkerT<edm::one::OutputModuleBase>::implNeedToRunSelection() const { return true;}
+  template<>
+  inline
+  bool
   WorkerT<edm::one::OutputModuleBase>::implDoPrePrefetchSelection(StreamID id,
                                                                   EventPrincipal const& ep,
                                                                   ModuleCallingContext const* mcc) {
@@ -186,12 +199,20 @@ namespace edm{
   template<>
   inline
   bool
+  WorkerT<edm::global::OutputModuleBase>::implNeedToRunSelection() const { return true;}
+  template<>
+  inline
+  bool
   WorkerT<edm::global::OutputModuleBase>::implDoPrePrefetchSelection(StreamID id,
                                                                      EventPrincipal const& ep,
                                                                      ModuleCallingContext const* mcc) {
     return module_->prePrefetchSelection(id,ep,mcc);
   }
 
+  template<>
+  inline
+  bool
+  WorkerT<edm::limited::OutputModuleBase>::implNeedToRunSelection() const { return true;}
   template<>
   inline
   bool
