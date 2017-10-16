@@ -173,7 +173,11 @@ uint16_t HitPattern::encode(uint16_t det, uint16_t subdet, uint16_t layer, uint1
     pattern |= (side & SideMask) << SideOffset;
 
     TrackingRecHit::Type patternHitType = (hitType == TrackingRecHit::missing_inner ||
-                                           hitType == TrackingRecHit::missing_outer) ? TrackingRecHit::missing : hitType;
+                                           hitType == TrackingRecHit::missing_outer) ? TrackingRecHit::missing 
+                                          : ( 
+                                             (hitType == TrackingRecHit::inactive_inner ||
+                                              hitType == TrackingRecHit::inactive_outer) ? TrackingRecHit::inactive
+                                            :hitType);
 
     pattern |= (patternHitType & HitTypeMask) << HitTypeOffset;
 
@@ -225,6 +229,8 @@ bool HitPattern::appendHit(const uint16_t pattern, TrackingRecHit::Type hitType)
         }
         return insertTrackHit(pattern);
         break;
+    case TrackingRecHit::inactive_inner:
+       	break;
     case TrackingRecHit::missing_inner:
         if unlikely(((hitCount != endInner) && (0 != beginInner || 0 != endInner))) {
             cms::Exception("HitPattern")
@@ -237,6 +243,8 @@ bool HitPattern::appendHit(const uint16_t pattern, TrackingRecHit::Type hitType)
             return false;
         }
         return insertExpectedInnerHit(pattern);
+        break;
+    case TrackingRecHit::inactive_outer:
         break;
     case TrackingRecHit::missing_outer:
         if unlikely(((hitCount != endOuter) && (0 != beginOuter || 0 != endOuter))) {

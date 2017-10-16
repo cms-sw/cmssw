@@ -235,6 +235,8 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track,
 	        //cout << "WARNING: this hit is marked as lost because the detector was marked as active" << endl;
         }else{
 	        //cout << "WARNING: this hit is NOT marked as lost because the detector was marked as inactive" << endl;
+                InvalidTrackingRecHit tmpHit(*detWithState.front().first, outIn ? TrackingRecHit::inactive_outer : TrackingRecHit::inactive_inner);
+                track.appendHitPattern(tmpHit, *ttopo);
         }
       } //end loop over layers
     }; // end lambda
