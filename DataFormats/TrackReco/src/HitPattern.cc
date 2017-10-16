@@ -230,7 +230,6 @@ bool HitPattern::appendHit(const uint16_t pattern, TrackingRecHit::Type hitType)
         return insertTrackHit(pattern);
         break;
     case TrackingRecHit::inactive_inner:
-       	break;
     case TrackingRecHit::missing_inner:
         if unlikely(((hitCount != endInner) && (0 != beginInner || 0 != endInner))) {
             cms::Exception("HitPattern")
@@ -245,7 +244,6 @@ bool HitPattern::appendHit(const uint16_t pattern, TrackingRecHit::Type hitType)
         return insertExpectedInnerHit(pattern);
         break;
     case TrackingRecHit::inactive_outer:
-        break;
     case TrackingRecHit::missing_outer:
         if unlikely(((hitCount != endOuter) && (0 != beginOuter || 0 != endOuter))) {
             cms::Exception("HitPattern")
