@@ -101,6 +101,7 @@ void L1TEfficiencyPlotHandler::book(DQMStore::IBooker &ibooker, DQMStore::IGette
   else if (is2D) {
     h_efficiency_ = ibooker.book2D(plotName_, den->getTH2F());
   }
+  h_efficiency_->setEfficiencyFlag();
 }
 
 void L1TEfficiencyPlotHandler::computeEfficiency(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter)
