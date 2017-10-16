@@ -63,11 +63,11 @@ class TrackAnalyzer
 	void bookHistosForLScertification(DQMStore::IBooker & ibooker);
 	void bookHistosForBeamSpot(DQMStore::IBooker & ibooker);
         void bookHistosForTrackerSpecific(DQMStore::IBooker & ibooker);
-        void bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &ibooker, const edm::EventSetup & iSetup, const std::string suffix);
+        void bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &ibooker, const edm::EventSetup & iSetup, const std::string suffix, bool useInac);
         void fillHistosForHitProperties(const edm::EventSetup& iSetup, const reco::Track & track, std::string sname);
 	void fillHistosForLScertification(const edm::EventSetup& iSetup, const reco::Track & track, std::string sname);
         void fillHistosForTrackerSpecific(const reco::Track & track);
-        void fillHistosForEfficiencyFromHitPatter(const reco::Track & track, const std::string suffix, const float monitoring);
+        void fillHistosForEfficiencyFromHitPatter(const reco::Track & track, const std::string suffix, const float monitoring,bool useInac);
 
         // ----------member data ---------------------------
 	std::string TopFolder_;
