@@ -81,17 +81,17 @@ DTT0CalibrationRMS::DTT0CalibrationRMS(const edm::ParameterSet& pset) {
 }
 
 // Destructor
-DTT0Calibration::~DTT0Calibration(){
-  if(debug) 
-    cout << "[DTT0Calibration]Destructor called!" << endl;
+DTT0CalibrationRMS::~DTT0CalibrationRMS(){
+  if(debug)
+    cout << "[DTT0CalibrationRMS]Destructor called!" << endl;
 
   theFile->Close();
 }
 
  /// Perform the real analysis
-void DTT0Calibration::analyze(const edm::Event & event, const edm::EventSetup& eventSetup) {
+void DTT0CalibrationRMS::analyze(const edm::Event & event, const edm::EventSetup& eventSetup) {
   if(debug || event.id().event() % 500==0)
-    cout << "--- [DTT0Calibration] Analysing Event: #Run: " << event.id().run()
+    cout << "--- [DTT0CalibrationRMS] Analysing Event: #Run: " << event.id().run()
 	 << " #Event: " << event.id().event() << endl;
   nevents++;
 
@@ -317,7 +317,7 @@ void DTT0CalibrationRMS::endJob() {
       t0sAbsolute->set((*wiret0).first, t0, theSigmaT0PerWire[(*wiret0).first],DTTimeUnits::counts); 
     }
     else{
-      cout<<"[DTT0Calibration] ERROR: no digis in wire "<<(*wiret0).first<<endl;
+      cout<<"[DTT0CalibrationRMS] ERROR: no digis in wire "<<(*wiret0).first<<endl;
       abort();
     }
   }
