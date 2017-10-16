@@ -68,10 +68,10 @@ parseHBHEMethod2Description(const edm::ParameterSet& conf)
     //Sorry for this
     //-C.Madrid
     ////////////////////
-    hcalTimeSlew_delay_ = new HcalTimeSlew(); 
+    HcalTimeSlew* hcalTimeSlew_delay = nullptr; 
 
     std::unique_ptr<PulseShapeFitOOTPileupCorrection> corr =
-      std::make_unique<PulseShapeFitOOTPileupCorrection>(hcalTimeSlew_delay_);
+      std::make_unique<PulseShapeFitOOTPileupCorrection>(hcalTimeSlew_delay);
 
     corr->setPUParams(iPedestalConstraint, iTimeConstraint, iAddPulseJitter,
                       iApplyTimeSlew, iTS4Min, iTS4Max,
@@ -97,7 +97,13 @@ parseHBHEMethod3Description(const edm::ParameterSet& conf)
     PedestalSub pedSubFxn;
     pedSubFxn.init(0, iPedSubThreshold, 0.0);
 
-    std::unique_ptr<HcalDeterministicFit> fit = std::make_unique<HcalDeterministicFit>();
+    //-----------------
+    //C. Madrid
+    //Need to fix this
+    //
+    HcalTimeSlew* hcalTimeSlew_delay = nullptr;
+
+    std::unique_ptr<HcalDeterministicFit> fit = std::make_unique<HcalDeterministicFit>(hcalTimeSlew_delay);
     fit->init( (HcalTimeSlew::ParaSource)iTimeSlewParsType,
 	       HcalTimeSlew::Medium, iApplyTimeSlew,
 	       pedSubFxn, iTimeSlewPars, irespCorrM3);
