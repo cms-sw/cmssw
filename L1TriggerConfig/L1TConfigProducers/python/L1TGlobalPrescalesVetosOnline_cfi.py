@@ -6,6 +6,5 @@ L1TGlobalPrescalesVetosOnlineProd = cms.ESProducer("L1TGlobalPrescalesVetosOnlin
     onlineAuthentication = cms.string('.'),
     forceGeneration      = cms.bool(False),
     onlineDB             = cms.string('oracle://CMS_OMDS_LB/CMS_TRG_R'),
-    transactionSafe      = cms.bool(True), # nothrow guarantee if set to False: carry on no matter what
-    xmlModel             = cms.int32(2017) # can be set to 2016 for backward compatibility
+    transactionSafe      = cms.bool(True) # nothrow guarantee if set to False: carry on no matter what
 )

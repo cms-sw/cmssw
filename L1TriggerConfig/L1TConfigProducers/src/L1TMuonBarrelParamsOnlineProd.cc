@@ -19,7 +19,7 @@ private:
 public:
     std::shared_ptr<L1TMuonBarrelParams> newObject(const std::string& objectKey, const L1TMuonBarrelParamsO2ORcd& record) override ;
 
-    L1TMuonBarrelParamsOnlineProd(const edm::ParameterSet&) override ;
+    L1TMuonBarrelParamsOnlineProd(const edm::ParameterSet&);
     ~L1TMuonBarrelParamsOnlineProd(void){}
 };
 

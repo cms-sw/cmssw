@@ -27,7 +27,6 @@
 
 class L1TGlobalPrescalesVetosOnlineProd : public L1ConfigOnlineProdBaseExt<L1TGlobalPrescalesVetosO2ORcd,L1TGlobalPrescalesVetos> {
 private:
-    int xmlModel;
     bool transactionSafe;
 public:
     virtual std::shared_ptr<L1TGlobalPrescalesVetos> newObject(const std::string& objectKey, const L1TGlobalPrescalesVetosO2ORcd& record) override ;
@@ -37,7 +36,6 @@ public:
 };
 
 L1TGlobalPrescalesVetosOnlineProd::L1TGlobalPrescalesVetosOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TGlobalPrescalesVetosO2ORcd,L1TGlobalPrescalesVetos>(iConfig) {
-    xmlModel = iConfig.getParameter<int32_t>("xmlModel");
     transactionSafe = iConfig.getParameter<bool>("transactionSafe");
 }
 
@@ -64,8 +62,6 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
     std::string uGTrsKey  = objectKey.substr(objectKey.find(":")+1, std::string::npos);
 
     std::string stage2Schema = "CMS_TRG_L1_CONF" ;
-
-    if( xmlModel > 2016 ){
 
         std::string l1_menu_key;
         std::vector< std::string > queryStrings ;
@@ -139,14 +135,11 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
         for(auto algo : pMenu->getAlgorithmMap())
            algoName2bit[algo.first] = algo.second.getIndex();
 
-    } else { // xmlModel <= 2016 
-        // identity
-        for(unsigned int algoBit = 0; algoBit < m_numberPhysTriggers; algoBit++)
-           algoName2bit[std::to_string(algoBit)] = algoBit;
 
-    }
 
-    std::vector< std::string > queryColumns;
+
+    ///std::vector< std::string > queryColumns;
+    queryColumns.clear();
     queryColumns.push_back( "ALGOBX_MASK"     ) ;
     queryColumns.push_back( "ALGO_FINOR_MASK" ) ;
     queryColumns.push_back( "ALGO_FINOR_VETO" ) ;
@@ -359,7 +352,6 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
     // Algo bx mask
     unsigned int m_bx_mask_default = 1;
 
-if( xmlModel > 2016 ){
 
     std::vector<std::string>  bx_algo_name;
     std::vector<std::string>  bx_range;
@@ -649,42 +641,6 @@ if( xmlModel > 2016 ){
       }
     }
 
-} else { // xmlModel <= 2016 
-
-    try {
-        // old algo bx mask
-        l1t::XmlConfigParser xmlReader_mask_algobx;
-        l1t::TriggerSystem ts_mask_algobx;
-        ts_mask_algobx.addProcessor("uGtProcessor", "uGtProcessor","-1","-1");
-
-        // run the parser 
-        xmlReader_mask_algobx.readDOMFromString( xmlPayload_mask_algobx ); // initialize it
-        xmlReader_mask_algobx.readRootElement( ts_mask_algobx, "uGT" ); // extract all of the relevant context
-        ts_mask_algobx.setConfigured();
-
-        const std::map<std::string, l1t::Parameter>& settings_mask_algobx = ts_mask_algobx.getParameters("uGtProcessor");
-        std::map<std::string,unsigned int> mask_algobx_columns = settings_mask_algobx.at("algorithmBxMask").getColumnIndices();
-        std::vector<unsigned int> bunches = settings_mask_algobx.at("algorithmBxMask").getTableColumn<unsigned int>("bx/algo");
-
-        unsigned int numCol_mask_algobx = mask_algobx_columns.size();
-
-        int NumAlgoBitsInMask = numCol_mask_algobx - 1;
-        for( int iBit=0; iBit<NumAlgoBitsInMask; iBit++ ){
-          std::vector<unsigned int> algo = settings_mask_algobx.at("algorithmBxMask").getTableColumn<unsigned int>(std::to_string(iBit).c_str());
-          for(unsigned int bx=0; bx<bunches.size(); bx++){
-              if( algo[bx]!=m_bx_mask_default ) triggerAlgoBxMaskAlgoTrig[ bunches[bx] ].push_back(iBit);
-          }
-        }
-    } catch ( std::runtime_error &e ){
-        if( transactionSafe )
-            throw std::runtime_error(std::string("SummaryForFunctionManager: uGTrs | Faulty  | ") + e.what());
-        else {
-            edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "returning empty L1TGlobalPrescalesVetos object";
-            return std::shared_ptr< L1TGlobalPrescalesVetos >( new L1TGlobalPrescalesVetos() ) ;
-        }
-    }
-
-}
 /////////////
 
   l1t::PrescalesVetosHelper data_( new L1TGlobalPrescalesVetos() );

@@ -18,7 +18,7 @@ private:
 public:
     std::shared_ptr<L1TMuonEndCapParams> newObject(const std::string& objectKey, const L1TMuonEndCapParamsO2ORcd& record) override ;
 
-    L1TMuonEndCapParamsOnlineProd(const edm::ParameterSet&) override ;
+    L1TMuonEndCapParamsOnlineProd(const edm::ParameterSet&);
     ~L1TMuonEndCapParamsOnlineProd(void){}
 };
 
