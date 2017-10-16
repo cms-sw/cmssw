@@ -244,6 +244,17 @@ SKIMStreamEXOMONOPOLE = cms.FilteredStream(
         dataTier = cms.untracked.string('USER')
         )
 
+from Configuration.Skimming.PDWG_EXODisplacedJet_cff import *
+EXODisplacedJetPath = cms.Path(EXODisplacedJetSkimSequence)
+SKIMStreamEXODisplacedJet = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'EXODisplacedJet',
+    paths = (EXODisplacedJetPath),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+)
+
 #####################
 # For the Data on Data Mixing in TSG
 from HLTrigger.Configuration.HLT_Fake1_cff import fragment as _fragment
