@@ -334,6 +334,24 @@ def miniAOD_customizeCommon(process):
     run2_miniAOD_80XLegacy.toReplaceWith(
         process.makePatTausTask, _makePatTausTaskWithTauReReco)
     #---------------------------------------------------------------------------
+    # update jets to include DeepFlavour
+    from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+
+    updateJetCollection(
+       process,
+       labelName = 'DeepFlavour',
+       jetSource = cms.InputTag('patJets'),
+       jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
+       btagDiscriminators = [
+          'pfDeepFlavourJetTags:probb',
+          'pfDeepFlavourJetTags:probbb',
+          'pfDeepFlavourJetTags:problepb',
+          'pfDeepFlavourJetTags:probc',
+          'pfDeepFlavourJetTags:probuds',
+          'pfDeepFlavourJetTags:probg',
+       ]
+    )
+    process.selectedPatJets.src = cms.InputTag('updatedPatJetsTransientCorrectedDeepFlavour')
 
     # Adding puppi jets
     if not hasattr(process, 'ak4PFJetsPuppi'): #MM: avoid confilct with substructure call
