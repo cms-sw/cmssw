@@ -9,10 +9,10 @@ class L1TMuonEndCapObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBaseExt {
 private:
     bool transactionSafe;
 public:
-    virtual void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
+    void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
 
     L1TMuonEndCapObjectKeysOnlineProd(const edm::ParameterSet&);
-    ~L1TMuonEndCapObjectKeysOnlineProd(void){}
+    ~L1TMuonEndCapObjectKeysOnlineProd(void) override{}
 };
 
 L1TMuonEndCapObjectKeysOnlineProd::L1TMuonEndCapObjectKeysOnlineProd(const edm::ParameterSet& iConfig)
