@@ -1,0 +1,9 @@
+<use   name="CondCore/PopCon"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/GEMObjects"/>
+<use   name="CondTools/GEM"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<library   file="*.cc" name="CondToolsGEMPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>
