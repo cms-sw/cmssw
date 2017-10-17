@@ -125,7 +125,7 @@ namespace spr{
     int    subdet  = detId.subdet();	
     double eThr    = spr::eHCALThreshold(subdet, hbThr, heThr, hfThr, hoThr);
     bool   hbhe    = (detId.ietaAbs() == 16);
-    int    depthHE = (maxDepth <= 6) ? 3 : 4;
+    const int depthHE(3);
 #ifdef EDM_ML_DEBUG
     if (debug)
       std::cout << "energyHCALCell: input ID " << detId << " MaxDepth " << maxDepth << " Threshold (E) " << eThr << " (T) " << tMin << ":" << tMax << std::endl;
