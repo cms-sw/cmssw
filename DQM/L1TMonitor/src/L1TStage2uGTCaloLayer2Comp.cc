@@ -137,18 +137,18 @@ bool L1TStage2uGTCaloLayer2Comp::compareJets(
 {
   bool eventGood = true;
 
-  l1t::JetBxCollection::const_iterator calol2It = calol2Col->begin(currBx);
-  l1t::JetBxCollection::const_iterator uGTIt = uGTCol->begin(currBx);
+  l1t::JetBxCollection::const_iterator calol2It = calol2Col->begin();
+  l1t::JetBxCollection::const_iterator uGTIt = uGTCol->begin();
 
   // process jets
-  if (calol2Col->size(currBx) != uGTCol->size(currBx)) {
+  if (calol2Col->size() != uGTCol->size()) {
     comparisonNum->Fill(EVENTBADJETCOL);
     return false;
   }
 
   int nJets = 0;
-  if (calol2It != calol2Col->end(currBx) ||
-      uGTIt != uGTCol->end(currBx)) {
+  if (calol2It != calol2Col->end() ||
+      uGTIt != uGTCol->end()) {
     while(true) {
 
       ++nJets;
@@ -180,12 +180,12 @@ bool L1TStage2uGTCaloLayer2Comp::compareJets(
       ++calol2It;
       ++uGTIt;
 
-      if (calol2It == calol2Col->end(currBx) ||
-	  uGTIt == uGTCol->end(currBx))
+      if (calol2It == calol2Col->end() ||
+	  uGTIt == uGTCol->end())
 	break;
     }
   } else {
-    if (calol2Col->size(currBx) != 0 || uGTCol->size(currBx) != 0) {
+    if (calol2Col->size() != 0 || uGTCol->size() != 0) {
       comparisonNum->Fill(EVENTBADJETCOL);
       return false;
     }
@@ -203,18 +203,18 @@ bool L1TStage2uGTCaloLayer2Comp::compareEGs(
 {
   bool eventGood = true;
 
-  l1t::EGammaBxCollection::const_iterator calol2It = calol2Col->begin(currBx);
-  l1t::EGammaBxCollection::const_iterator uGTIt = uGTCol->begin(currBx);
+  l1t::EGammaBxCollection::const_iterator calol2It = calol2Col->begin();
+  l1t::EGammaBxCollection::const_iterator uGTIt = uGTCol->begin();
 
   // check length of collections
-  if (calol2Col->size(currBx) != uGTCol->size(currBx)) {
+  if (calol2Col->size() != uGTCol->size()) {
     comparisonNum->Fill(EVENTBADEGCOL);
     return false;
   }
 
   // processing continues only of length of object collections is the same
-  if (calol2It != calol2Col->end(currBx) ||
-      uGTIt != uGTCol->end(currBx)) {
+  if (calol2It != calol2Col->end() ||
+      uGTIt != uGTCol->end()) {
 
     while(true) {
 
@@ -245,12 +245,12 @@ bool L1TStage2uGTCaloLayer2Comp::compareEGs(
       ++calol2It;
       ++uGTIt;
 
-      if (calol2It == calol2Col->end(currBx) ||
-	  uGTIt == uGTCol->end(currBx))
+      if (calol2It == calol2Col->end() ||
+	  uGTIt == uGTCol->end())
 	break;
     }
   } else {
-    if (calol2Col->size(currBx) != 0 || uGTCol->size(currBx) != 0) {
+    if (calol2Col->size() != 0 || uGTCol->size() != 0) {
       comparisonNum->Fill(EVENTBADEGCOL);
       return false;
     }
@@ -268,18 +268,18 @@ bool L1TStage2uGTCaloLayer2Comp::compareTaus(
 {
   bool eventGood = true;
 
-  l1t::TauBxCollection::const_iterator calol2It = calol2Col->begin(currBx);
-  l1t::TauBxCollection::const_iterator uGTIt = uGTCol->begin(currBx);
+  l1t::TauBxCollection::const_iterator calol2It = calol2Col->begin();
+  l1t::TauBxCollection::const_iterator uGTIt = uGTCol->begin();
 
   // check length of collections
-  if (calol2Col->size(currBx) != uGTCol->size(currBx)) {
+  if (calol2Col->size() != uGTCol->size()) {
     comparisonNum->Fill(EVENTBADTAUCOL);
     return false;
   }
 
   // processing continues only of length of object collections is the same
-  if (calol2It != calol2Col->end(currBx) ||
-      uGTIt != uGTCol->end(currBx)) {
+  if (calol2It != calol2Col->end() ||
+      uGTIt != uGTCol->end()) {
 
     while(true) {
       // object Et mismatch
@@ -309,12 +309,12 @@ bool L1TStage2uGTCaloLayer2Comp::compareTaus(
       ++calol2It;
       ++uGTIt;
 
-      if (calol2It == calol2Col->end(currBx) ||
-	  uGTIt == uGTCol->end(currBx))
+      if (calol2It == calol2Col->end() ||
+	  uGTIt == uGTCol->end())
 	break;
     }
   } else {
-    if (calol2Col->size(currBx) != 0 || uGTCol->size(currBx) != 0) {
+    if (calol2Col->size() != 0 || uGTCol->size() != 0) {
       comparisonNum->Fill(EVENTBADTAUCOL);
       return false;
     }
@@ -337,13 +337,13 @@ bool L1TStage2uGTCaloLayer2Comp::compareSums(
   double calol2Phi = 0;
   double uGTPhi    = 0;
 
-  l1t::EtSumBxCollection::const_iterator calol2It = calol2Col->begin(currBx);
-  l1t::EtSumBxCollection::const_iterator uGTIt = uGTCol->begin(currBx);
+  l1t::EtSumBxCollection::const_iterator calol2It = calol2Col->begin();
+  l1t::EtSumBxCollection::const_iterator uGTIt = uGTCol->begin();
 
   // if either calol2 or ugt collections are empty, or they have different
   // size, mark the event as bad (this should never occur in normal running)
-  if (calol2Col->isEmpty(currBx) || uGTCol->isEmpty(currBx) ||
-      (calol2Col->size(currBx) != uGTCol->size(currBx))) {
+  if (calol2Col->isEmpty() || uGTCol->isEmpty() ||
+      (calol2Col->size() != uGTCol->size())) {
     comparisonNum->Fill(EVENTBADSUMCOL);
     return false;
   }
@@ -396,7 +396,7 @@ bool L1TStage2uGTCaloLayer2Comp::compareSums(
     ++calol2It;
     ++uGTIt;
 
-    if (calol2It == calol2Col->end(currBx) || uGTIt == uGTCol->end(currBx))
+    if (calol2It == calol2Col->end() || uGTIt == uGTCol->end())
       break;
   }
 
