@@ -20,7 +20,7 @@ public:
     std::shared_ptr<L1TMuonBarrelParams> newObject(const std::string& objectKey, const L1TMuonBarrelParamsO2ORcd& record) override ;
 
     L1TMuonBarrelParamsOnlineProd(const edm::ParameterSet&);
-    ~L1TMuonBarrelParamsOnlineProd(void){}
+    ~L1TMuonBarrelParamsOnlineProd(void) override{}
 };
 
 L1TMuonBarrelParamsOnlineProd::L1TMuonBarrelParamsOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TMuonBarrelParamsO2ORcd,L1TMuonBarrelParams>(iConfig) {
@@ -40,7 +40,7 @@ std::shared_ptr<L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObject(co
             throw std::runtime_error("SummaryForFunctionManager: BMTF  | Faulty  | Empty objectKey");
         else {
             edm::LogError( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << "returning unmodified prototype of L1TMuonBarrelParams";
-            return std::shared_ptr< L1TMuonBarrelParams >( new L1TMuonBarrelParams( *(baseSettings.product()) ) ) ;
+            return std::make_shared< L1TMuonBarrelParams >( *(baseSettings.product()) ) ;
         }
     }
 
@@ -105,7 +105,7 @@ std::shared_ptr<L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObject(co
             throw std::runtime_error(std::string("SummaryForFunctionManager: BMTF  | Faulty  | ") + e.what());
         else {
             edm::LogError( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << "returning unmodified prototype of L1TMuonBarrelParams";
-            return std::shared_ptr< L1TMuonBarrelParams >( new L1TMuonBarrelParams( *(baseSettings.product()) ) ) ;
+            return std::make_shared< L1TMuonBarrelParams >( *(baseSettings.product()) ) ;
         }
     }
 
@@ -158,7 +158,7 @@ std::shared_ptr<L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObject(co
             throw std::runtime_error(std::string("SummaryForFunctionManager: BMTF  | Faulty  | ") + e.what());
         else {
             edm::LogError( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << "returning unmodified prototype of L1TMuonBarrelParams";
-            return std::shared_ptr< L1TMuonBarrelParams >( new L1TMuonBarrelParams( *(baseSettings.product()) ) ) ;
+            return std::make_shared< L1TMuonBarrelParams >( *(baseSettings.product()) ) ;
         }
     }
 
@@ -171,7 +171,7 @@ std::shared_ptr<L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObject(co
             throw std::runtime_error(std::string("SummaryForFunctionManager: BMTF  | Faulty  | ") + e.what());
         else {
             edm::LogError( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << "returning unmodified prototype of L1TMuonBarrelParams";
-            return std::shared_ptr< L1TMuonBarrelParams >( new L1TMuonBarrelParams( *(baseSettings.product()) ) ) ;
+            return std::make_shared< L1TMuonBarrelParams >( *(baseSettings.product()) ) ;
         }
     }
 

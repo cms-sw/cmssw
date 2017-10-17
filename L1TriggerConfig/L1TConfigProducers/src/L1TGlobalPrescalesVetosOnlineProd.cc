@@ -29,10 +29,10 @@ class L1TGlobalPrescalesVetosOnlineProd : public L1ConfigOnlineProdBaseExt<L1TGl
 private:
     bool transactionSafe;
 public:
-    virtual std::shared_ptr<L1TGlobalPrescalesVetos> newObject(const std::string& objectKey, const L1TGlobalPrescalesVetosO2ORcd& record) override ;
+    std::shared_ptr<L1TGlobalPrescalesVetos> newObject(const std::string& objectKey, const L1TGlobalPrescalesVetosO2ORcd& record) override ;
 
     L1TGlobalPrescalesVetosOnlineProd(const edm::ParameterSet&);
-    ~L1TGlobalPrescalesVetosOnlineProd(void){}
+    ~L1TGlobalPrescalesVetosOnlineProd(void) override{}
 };
 
 L1TGlobalPrescalesVetosOnlineProd::L1TGlobalPrescalesVetosOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TGlobalPrescalesVetosO2ORcd,L1TGlobalPrescalesVetos>(iConfig) {
@@ -49,7 +49,7 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
             throw std::runtime_error("SummaryForFunctionManager: uGTrs | Faulty  | Empty objectKey");
         else {
             edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "returning empty L1TGlobalPrescalesVetos object";
-            return std::shared_ptr< L1TGlobalPrescalesVetos >( new L1TGlobalPrescalesVetos() ) ;
+            return std::make_shared< L1TGlobalPrescalesVetos >( ) ;
         }
     }
 
@@ -82,7 +82,7 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
                 throw std::runtime_error("SummaryForFunctionManager: uGTrs | Faulty  | Broken key");
             else {
                 edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "returning empty L1TGlobalPrescalesVetos object";
-                return std::shared_ptr< L1TGlobalPrescalesVetos >( new L1TGlobalPrescalesVetos() ) ;
+                return std::make_shared< L1TGlobalPrescalesVetos >( ) ;
             }
         }
 
@@ -96,7 +96,7 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
                 throw std::runtime_error("SummaryForFunctionManager: uGTrs | Faulty  | Empty objectKey");
             else {
                 edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "returning empty L1TGlobalPrescalesVetos object";
-                return std::shared_ptr< L1TGlobalPrescalesVetos >( new L1TGlobalPrescalesVetos() ) ;
+                return std::make_shared< L1TGlobalPrescalesVetos >( ) ;
             }
         }
 
@@ -117,7 +117,7 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
                 throw std::runtime_error("SummaryForFunctionManager: uGTrs | Faulty  | Broken key");
             else {
                 edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "returning empty L1TGlobalPrescalesVetos object";
-                return std::shared_ptr< L1TGlobalPrescalesVetos >( new L1TGlobalPrescalesVetos() ) ;
+                return std::make_shared< L1TGlobalPrescalesVetos >( ) ;
             }
         }
 
@@ -163,7 +163,7 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
             throw std::runtime_error(std::string("SummaryForFunctionManager: uGTrs | Faulty  | ") + e.what());
         else {
             edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "returning empty L1TGlobalPrescalesVetos object";
-            return std::shared_ptr< L1TGlobalPrescalesVetos >( new L1TGlobalPrescalesVetos() ) ;
+            return std::make_shared< L1TGlobalPrescalesVetos >( ) ;
         }
     }
 
@@ -234,7 +234,7 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
             throw std::runtime_error(std::string("SummaryForFunctionManager: uGTrs | Faulty  | ") + e.what());
         else {
             edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "returning empty L1TGlobalPrescalesVetos object";
-            return std::shared_ptr< L1TGlobalPrescalesVetos >( new L1TGlobalPrescalesVetos() ) ;
+            return std::make_shared< L1TGlobalPrescalesVetos >( ) ;
         }
     }
 
@@ -289,7 +289,7 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
             throw std::runtime_error(std::string("SummaryForFunctionManager: uGTrs | Faulty  | ") + e.what());
         else {
             edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "returning empty L1TGlobalPrescalesVetos object";
-            return std::shared_ptr< L1TGlobalPrescalesVetos >( new L1TGlobalPrescalesVetos() ) ;
+            return std::make_shared< L1TGlobalPrescalesVetos >( ) ;
         }
     }
 
@@ -343,7 +343,7 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
             throw std::runtime_error(std::string("SummaryForFunctionManager: uGTrs | Faulty  | ") + e.what());
         else {
             edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "returning empty L1TGlobalPrescalesVetos object";
-            return std::shared_ptr< L1TGlobalPrescalesVetos >( new L1TGlobalPrescalesVetos() ) ;
+            return std::make_shared< L1TGlobalPrescalesVetos >( ) ;
         }
     }
 
@@ -376,7 +376,7 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
             throw std::runtime_error(std::string("SummaryForFunctionManager: uGTrs | Faulty  | ") + e.what());
         else {
             edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "returning empty L1TGlobalPrescalesVetos object";
-            return std::shared_ptr< L1TGlobalPrescalesVetos >( new L1TGlobalPrescalesVetos() ) ;
+            return std::make_shared< L1TGlobalPrescalesVetos >( ) ;
         }
     }
 
@@ -418,7 +418,7 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
             first = 0;
             last = 3563;
         } else {
-            char *dash = 0;
+            char *dash = nullptr;
             first = strtoul(s2.data(), &dash, 0);
             while( *dash != '\0' && *dash != '-' ) ++dash;
             last  = (*dash != '\0' ? strtoul(++dash, &dash, 0) : first);

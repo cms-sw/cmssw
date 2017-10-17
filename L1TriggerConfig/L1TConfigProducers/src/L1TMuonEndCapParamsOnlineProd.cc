@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include <time.h>
+#include <ctime>
 #include <string>
 #include <map>
 
@@ -19,7 +19,7 @@ public:
     std::shared_ptr<L1TMuonEndCapParams> newObject(const std::string& objectKey, const L1TMuonEndCapParamsO2ORcd& record) override ;
 
     L1TMuonEndCapParamsOnlineProd(const edm::ParameterSet&);
-    ~L1TMuonEndCapParamsOnlineProd(void){}
+    ~L1TMuonEndCapParamsOnlineProd(void) override{}
 };
 
 L1TMuonEndCapParamsOnlineProd::L1TMuonEndCapParamsOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TMuonEndCapParamsO2ORcd,L1TMuonEndCapParams>(iConfig){
@@ -40,7 +40,7 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndCapParamsOnlineProd::newObject(co
             throw std::runtime_error("SummaryForFunctionManager: BMTF  | Faulty  | Empty objectKey");
         else {
             edm::LogError( "L1-O2O: L1TMuonEndCapParamsOnlineProd" ) << "returning unmodified prototype of L1TMuonEndCapParams";
-            return std::shared_ptr< L1TMuonEndCapParams >( new L1TMuonEndCapParams( *(baseSettings.product()) ) ) ;
+            return std::make_shared< L1TMuonEndCapParams >( *(baseSettings.product()) ) ;
         }
     }
 
@@ -80,7 +80,7 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndCapParamsOnlineProd::newObject(co
             throw std::runtime_error("SummaryForFunctionManager: EMTF  | Faulty  | Broken key");
         else {
             edm::LogError( "L1-O2O: L1TMuonEndCapParamsOnlineProd" ) << "returning unmodified prototype of L1TMuonEndCapParams";
-            return std::shared_ptr< L1TMuonEndCapParams >( new L1TMuonEndCapParams( *(baseSettings.product()) ) ) ;
+            return std::make_shared< L1TMuonEndCapParams >( *(baseSettings.product()) ) ;
         }
     }
 
@@ -113,7 +113,7 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndCapParamsOnlineProd::newObject(co
             throw std::runtime_error("SummaryForFunctionManager: EMTF  | Faulty  | Cannot parse XMLs");
         else {
             edm::LogError( "L1-O2O: L1TMuonEndCapParamsOnlineProd" ) << "returning unmodified prototype of L1TMuonEndCapParams";
-            return std::shared_ptr< L1TMuonEndCapParams >( new L1TMuonEndCapParams( *(baseSettings.product()) ) ) ;
+            return std::make_shared< L1TMuonEndCapParams >( *(baseSettings.product()) ) ;
         }
     }
 

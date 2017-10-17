@@ -25,17 +25,17 @@ private:
     bool printPtaThreshold;
 
 public:
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     explicit L1TMuonBarrelParamsViewer(const edm::ParameterSet&) : edm::EDAnalyzer(){
         printPtaThreshold = false;
     }
-    virtual ~L1TMuonBarrelParamsViewer(void){}
+    ~L1TMuonBarrelParamsViewer(void) override{}
 };
 
 
 #include <openssl/sha.h>
-#include <math.h>
+#include <cmath>
 #include <iostream>
 using namespace std;
 
@@ -92,7 +92,7 @@ void L1TMuonBarrelParamsViewer::analyze(const edm::Event& iEvent, const edm::Eve
         pta_threshold[i] = ptr1->pta_threshold()[i];
         if( printPtaThreshold ) cout<<"   "<<pta_threshold[i]<<endl;
     }
-    if( ptr1->pta_threshold().size() )
+    if( !ptr1->pta_threshold().empty() )
         cout << hash(pta_threshold, sizeof(int)*ptr1->pta_threshold().size()) << endl;
     else cout<<endl;
 
