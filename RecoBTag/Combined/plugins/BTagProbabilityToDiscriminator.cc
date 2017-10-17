@@ -53,7 +53,7 @@ using namespace reco;
 class BTagProbabilityToDiscriminator : public edm::stream::EDProducer<> {
 public:
 	explicit BTagProbabilityToDiscriminator(const edm::ParameterSet&);
-	~BTagProbabilityToDiscriminator() {}
+	~BTagProbabilityToDiscriminator() override {}
 
 	static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -68,9 +68,9 @@ private:
 		vstring denominator;
 	};
 
-	virtual void beginStream(edm::StreamID) override {}
-	virtual void produce(edm::Event&, const edm::EventSetup&) override;
-	virtual void endStream() override {}
+	void beginStream(edm::StreamID) override {}
+	void produce(edm::Event&, const edm::EventSetup&) override;
+	void endStream() override {}
 
 	// ----------member data ---------------------------
 	std::vector<Discriminator> discrims_;
@@ -100,7 +100,7 @@ BTagProbabilityToDiscriminator::BTagProbabilityToDiscriminator(const edm::Parame
 		discrims_.push_back(current);
 	}
 
-	if(!jet_tags_.size()) {
+	if(jet_tags_.empty()) {
 		throw cms::Exception("RuntimeError") << "The module BTagProbabilityToDiscriminator is run without any input probability to work on!" << std::endl;
 	}
 }
@@ -143,7 +143,7 @@ BTagProbabilityToDiscriminator::produce(edm::Event& iEvent, const edm::EventSetu
 		for(size_t disc_idx = 0; disc_idx < output_tags.size(); disc_idx++) {
 			float numerator = 0;
 			for(auto& num : discrims_[disc_idx].numerator) numerator += (*tags[num])[key];
-			float denominator = discrims_[disc_idx].denominator.size() ? 0 : 1;
+			float denominator = !discrims_[disc_idx].denominator.empty() ? 0 : 1;
 			for(auto& den : discrims_[disc_idx].denominator) denominator += (*tags[den])[key];
 			float new_value = (denominator != 0) ? numerator / denominator : -10.;
 			(*output_tags[disc_idx])[key] = new_value;
