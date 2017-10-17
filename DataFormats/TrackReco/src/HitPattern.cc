@@ -692,69 +692,69 @@ int HitPattern::stripTECLayersWithoutMeasurement(HitCategory category) const
 }
 
 
-int HitPattern::pixelBarrelLayersTotallyOffOrBad() const
+int HitPattern::pixelBarrelLayersTotallyOffOrBad(HitCategory category) const
 {
     int count = 0;
     uint16_t NPixBarrel = 4;
     for (uint16_t layer = 1; layer <= NPixBarrel; layer++) {
-        if (getTrackerLayerCase(TRACK_HITS, PixelSubdetector::PixelBarrel, layer) == HIT_TYPE::INACTIVE) {
+        if (getTrackerLayerCase(category, PixelSubdetector::PixelBarrel, layer) == HIT_TYPE::INACTIVE) {
             count++;
         }
     }
     return count;
 }
 
-int HitPattern::pixelEndcapLayersTotallyOffOrBad() const
+int HitPattern::pixelEndcapLayersTotallyOffOrBad(HitCategory category) const
 {
     int count = 0;
     uint16_t NPixForward = 3;
     for (uint16_t layer = 1; layer <= NPixForward; layer++) {
-        if (getTrackerLayerCase(TRACK_HITS, PixelSubdetector::PixelEndcap, layer) == HIT_TYPE::INACTIVE) {
+        if (getTrackerLayerCase(category, PixelSubdetector::PixelEndcap, layer) == HIT_TYPE::INACTIVE) {
             count++;
         }
     }
     return count;
 }
 
-int HitPattern::stripTIBLayersTotallyOffOrBad() const
+int HitPattern::stripTIBLayersTotallyOffOrBad(HitCategory category) const
 {
     int count = 0;
     for (uint16_t layer = 1; layer <= 4; layer++) {
-        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TIB, layer) == HIT_TYPE::INACTIVE) {
+        if (getTrackerLayerCase(category, StripSubdetector::TIB, layer) == HIT_TYPE::INACTIVE) {
             count++;
         }
     }
     return count;
 }
 
-int HitPattern::stripTIDLayersTotallyOffOrBad() const
+int HitPattern::stripTIDLayersTotallyOffOrBad(HitCategory category) const
 {
     int count = 0;
     for (uint16_t layer = 1; layer <= 3; layer++) {
-        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TID, layer) == HIT_TYPE::INACTIVE) {
+        if (getTrackerLayerCase(category, StripSubdetector::TID, layer) == HIT_TYPE::INACTIVE) {
             count++;
         }
     }
     return count;
 }
 
-int HitPattern::stripTOBLayersTotallyOffOrBad() const
+int HitPattern::stripTOBLayersTotallyOffOrBad(HitCategory category) const
 {
     int count = 0;
     for (uint16_t layer = 1; layer <= 6; layer++) {
 
-        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TOB, layer) == HIT_TYPE::INACTIVE) {
+        if (getTrackerLayerCase(category, StripSubdetector::TOB, layer) == HIT_TYPE::INACTIVE) {
             count++;
         }
     }
     return count;
 }
 
-int HitPattern::stripTECLayersTotallyOffOrBad() const
+int HitPattern::stripTECLayersTotallyOffOrBad(HitCategory category) const
 {
     int count = 0;
     for (uint16_t layer = 1; layer <= 9; layer++) {
-        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TEC, layer) == HIT_TYPE::INACTIVE) {
+        if (getTrackerLayerCase(category, StripSubdetector::TEC, layer) == HIT_TYPE::INACTIVE) {
             count++;
         }
     }
