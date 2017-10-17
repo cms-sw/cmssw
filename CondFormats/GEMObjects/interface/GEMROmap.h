@@ -6,7 +6,7 @@ class GEMROmap{
  public:
   struct eCoord{
     int chamberId;
-    int vfatId;
+    uint16_t vfatId;
     int channelId;
     bool operator < (const eCoord& r) const{
       if (chamberId == r.chamberId){

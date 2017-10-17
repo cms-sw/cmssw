@@ -32,7 +32,7 @@ class GEMEMap {
     std::vector<int> depth;
     std::vector<int> strip_number;
     std::vector<int> vfat_chnnel_number;
-    std::vector<int> vfatId;
+    std::vector<uint16_t> vfatId;
     std::vector<int> sec; 
 
     COND_SERIALIZABLE;
