@@ -46,11 +46,11 @@ namespace egHLT {
       HLTISOLHAD    =0x00040000,
       HLTISOLEM     =0x00080000,
       //track quaility cuts (hlt track algo isnt very forgiving)
-      CTFTRACK      =0x00010000,
+      CTFTRACK      =0x01000000,
       //hlt quantities that are slightly different to reco
-      HLTDETAIN     =0x00020000,
-      HLTDPHIIN     =0x00040000,
-      HLTINVEINVP   =0x00080000,
+      HLTDETAIN     =0x02000000,
+      HLTDPHIIN     =0x04000000,
+      HLTINVEINVP   =0x08000000,
       //flag that if its set, shows the code is invalid
       INVALID       =0x80000000
       
