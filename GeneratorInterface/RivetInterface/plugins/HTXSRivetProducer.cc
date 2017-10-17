@@ -102,7 +102,7 @@ void HTXSRivetProducer::produce( edm::Event & iEvent, const edm::EventSetup & ) 
               
               if(HSvtx){
                 for (auto ptcl:particles(HSvtx,HepMC::children)) {
-                    if (ptcl->pdg_id() == 24 || ptcl->pdg_id() == -24) ++nWs;
+                    if (std::abs(ptcl->pdg_id()) == 24) ++nWs;
                     if (ptcl->pdg_id() == 23) ++nZs;
                     if (abs(ptcl->pdg_id()) == 6) ++nTs;
                     if (abs(ptcl->pdg_id()) == 5) ++nBs;
@@ -192,53 +192,53 @@ void HTXSRivetProducer::beginRun(edm::Run const& iRun, edm::EventSetup const& es
               for (unsigned int iLine = 0; iLine<lines.size(); iLine++) {
                   std::string line=lines.at(iLine);
                   // POWHEG
-                  if (strstr(line.c_str(),"gg_H_quark-mass-effects")) {
+                  if (line.find("gg_H_quark-mass-effects") != std::string::npos) {
                       std::cout<<iLine<< " "<<line<<std::endl;
                       m_HiggsProdMode = HTXS::GGF;
                       break;
                   }
-                  if (strstr(line.c_str(),"Process: HJ")) { // MiNLO HJ
+                  if (line.find("Process: HJ") != std::string::npos) {
                       std::cout<<iLine<< " "<<line<<std::endl;
                       m_HiggsProdMode = HTXS::GGF;
                       break;
                   }
-                  if (strstr(line.c_str(),"Process: HJJ")) { // MiNLO HJJ
+                  if (line.find("Process: HJJ") != std::string::npos) {
                       std::cout<<iLine<< " "<<line<<std::endl;
                       m_HiggsProdMode = HTXS::GGF;
                       break;
                   }
-                  if (strstr(line.c_str(),"VBF_H")) {
+                  if (line.find("VBF_H") != std::string::npos) {
                       std::cout<<iLine<< " "<<line<<std::endl;
                       m_HiggsProdMode = HTXS::VBF;
                       break;
                   }
-                  if (strstr(line.c_str(),"HZJ")) {
+                  if (line.find("HZJ") != std::string::npos) {
                       std::cout<<iLine<< " "<<line<<std::endl;
                       m_HiggsProdMode = HTXS::QQ2ZH;
                       break;
                   }
-                  if (strstr(line.c_str(),"ggHZ")) {
+                  if (line.find("ggHZ") != std::string::npos) {
                       std::cout<<iLine<< " "<<line<<std::endl;
                       m_HiggsProdMode = HTXS::GG2ZH;
                       break;
                   }
                   // MC@NLO
-                  if (strstr(line.c_str(),"ggh012j")) {
+                  if (line.find("ggh012j") != std::string::npos) {
                       std::cout<<iLine<< " "<<line<<std::endl;
                       m_HiggsProdMode = HTXS::GGF;
                       break;
                   }
-                  if (strstr(line.c_str(),"vbfh")) {
+                  if (line.find("vbfh") != std::string::npos) {
                       std::cout<<iLine<< " "<<line<<std::endl;
                       m_HiggsProdMode = HTXS::VBF;
                       break;
                   }
-                  if (strstr(line.c_str(),"zh012j")) {
+                  if (line.find("zh012j") != std::string::npos) {
                       std::cout<<iLine<< " "<<line<<std::endl;
                       m_HiggsProdMode = HTXS::QQ2ZH;
                       break;
                   }
-                  if (strstr(line.c_str(),"ggzh01j")) {
+                  if (line.find("ggzh01j") != std::string::npos) {
                       std::cout<<iLine<< " "<<line<<std::endl;
                       m_HiggsProdMode = HTXS::GG2ZH;
                       break;
