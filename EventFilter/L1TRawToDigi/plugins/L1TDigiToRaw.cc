@@ -47,19 +47,19 @@ namespace l1t {
    class L1TDigiToRaw : public edm::stream::EDProducer<> {
       public:
          explicit L1TDigiToRaw(const edm::ParameterSet&);
-         ~L1TDigiToRaw();
+         ~L1TDigiToRaw() override;
 
          static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
          using edm::stream::EDProducer<>::consumes;
 
       private:
-         virtual void produce(edm::Event&, const edm::EventSetup&) override;
+         void produce(edm::Event&, const edm::EventSetup&) override;
 
-         virtual void beginRun(edm::Run const&, edm::EventSetup const&) override {};
-         virtual void endRun(edm::Run const&, edm::EventSetup const&) override {};
-         virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {};
-         virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {};
+         void beginRun(edm::Run const&, edm::EventSetup const&) override {};
+         void endRun(edm::Run const&, edm::EventSetup const&) override {};
+         void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {};
+         void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {};
 
          // ----------member data ---------------------------
          int evtType_;
@@ -72,12 +72,15 @@ namespace l1t {
 
          std::unique_ptr<PackingSetup> setup_;
          std::unique_ptr<PackerTokens> tokens_;
+
+         bool ctp7_mode_;
    };
 }
 
 namespace l1t {
    L1TDigiToRaw::L1TDigiToRaw(const edm::ParameterSet& config) :
-      fedId_(config.getParameter<int>("FedId"))
+      fedId_(config.getParameter<int>("FedId")),
+      ctp7_mode_(config.getUntrackedParameter<bool>("CTP7"))
    {
       // Register products
       produces<FEDRawDataCollection>();
@@ -110,8 +113,13 @@ namespace l1t {
       amc13::Packet amc13;
 
       auto bxId = event.bunchCrossing();
+      // Note: L1ID != event ID
+      // See e.g. triggerCount vs. eventNumber
+      // in EventFilter/FEDInterface/interface/FED1024.h
+      // But the trigger count is not stored in cmssw event class
       auto evtId = event.id().event();
       auto orbit = event.eventAuxiliary().orbitNumber();
+      LogDebug("L1T") << "Forming FED with metadata bxId=" << bxId << ", l1ID=" << evtId << ", orbit=" << orbit;
 
       // Create all the AMC payloads to pack into the AMC13
       for (const auto& item: setup_->getPackers(fedId_, fwId_)) {
@@ -122,6 +130,7 @@ namespace l1t {
          Blocks block_load;
          for (const auto& packer: packers) {
             LogDebug("L1T") << "Adding packed blocks";
+            packer->setBoard(board);
             auto blocks = packer->pack(event, tokens_.get());
             block_load.insert(block_load.end(), blocks.begin(), blocks.end());
          }
@@ -131,10 +140,13 @@ namespace l1t {
          LogDebug("L1T") << "Concatenating blocks";
 
          std::vector<uint32_t> load32;
-         // TODO Infrastructure firmware version.  Currently not used.
-         // Would change the way the payload has to be unpacked.
-         load32.push_back(0);
-         load32.push_back(fwId_);
+         // CTP7 stores this info in AMC user header
+         if ( not ctp7_mode_ ) {
+            // TODO Infrastructure firmware version.  Currently not used.
+            // Would change the way the payload has to be unpacked.
+            load32.push_back(0);
+            load32.push_back(fwId_);
+         }
          for (const auto& block: block_load) {
             LogDebug("L1T") << "Adding block " << block.header().getID() << " with size " << block.payload().size();
             auto load = block.payload();
@@ -147,7 +159,11 @@ namespace l1t {
             LogDebug("L1T") << s.str();
 #endif
 
-            load32.push_back(block.header().raw(MP7));
+            if ( block.header().getType() == CTP7 ) {
+              // Header is two words for CTP7, first word is just a magic
+              load32.push_back(0xA110CA7E);
+            }
+            load32.push_back(block.header().raw());
             load32.insert(load32.end(), load.begin(), load.end());
          }
 
@@ -166,7 +182,9 @@ namespace l1t {
 
          LogDebug("L1T") << "Creating AMC packet";
 
-         amc13.add(amc_no, board, evtId, orbit, bxId, load64);
+         unsigned amc_user_header = 0;
+         if ( ctp7_mode_ ) amc_user_header = fwId_;
+         amc13.add(amc_no, board, evtId, orbit, bxId, load64, amc_user_header);
       }
 
       std::unique_ptr<FEDRawDataCollection> raw_coll(new FEDRawDataCollection());
@@ -234,6 +252,7 @@ namespace l1t {
      desc.addOptional<edm::InputTag>("InputLabel",edm::InputTag(""));
      desc.addUntracked<int>("lenSlinkHeader", 8);
      desc.addUntracked<int>("lenSlinkTrailer", 8);
+     desc.addUntracked<bool>("CTP7", false);
 
      PackingSetupFactory::get()->fillDescription(desc);
 
