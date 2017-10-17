@@ -45,29 +45,29 @@ namespace l1t {
       void add_format_error()           { format_errors += 1;   }
       void set_dataword (uint64_t bits) { dataword = bits;      }
 
-      int      Wire()           const { return wire;           }
-      int      Quality()        const { return quality;        }
-      int      CLCT_pattern()   const { return clct_pattern;   }
-      int      BC0()            const { return bc0;            }
-      int      BXE()            const { return bxe;            }
-      int      LR()             const { return lr;             }
-      int      CSC_ID()         const { return csc_ID;         }
-      int      Strip()          const { return strip;          }
-      int      AFFF()           const { return afff;           }
-      int      CIK()            const { return cik;            }
-      int      NIT()            const { return nit;            }
-      int      ME_BXN()         const { return me_bxn;         }
-      int      AFEF()           const { return afef;           }
-      int      SE()             const { return se;             }
-      int      SM()             const { return sm;             }
-      int      EPC()            const { return epc;            }
-      int      AF()             const { return af;             }
-      int      Station()        const { return station;        }
-      int      VP()             const { return vp;             }      
-      int      TBIN()           const { return tbin;           }
-      int      Stub_num()       const { return stub_num;       }
-      int      Format_Errors()  const { return format_errors;  }
-      uint64_t Dataword()       const { return dataword;       }      
+      int Wire()           const { return wire;           }
+      int Quality()        const { return quality;        }
+      int CLCT_pattern()   const { return clct_pattern;   }
+      int BC0()            const { return bc0;            }
+      int BXE()            const { return bxe;            }
+      int LR()             const { return lr;             }
+      int CSC_ID()         const { return csc_ID;         }
+      int Strip()          const { return strip;          }
+      int AFFF()           const { return afff;           }
+      int CIK()            const { return cik;            }
+      int NIT()            const { return nit;            }
+      int ME_BXN()         const { return me_bxn;         }
+      int AFEF()           const { return afef;           }
+      int SE()             const { return se;             }
+      int SM()             const { return sm;             }
+      int EPC()            const { return epc;            }
+      int AF()             const { return af;             }
+      int Station()        const { return station;        }
+      int VP()             const { return vp;             }      
+      int TBIN()           const { return tbin;           }
+      int Stub_num()       const { return stub_num;       }
+      int Format_errors()  const { return format_errors;  }
+      uint64_t Dataword()  const { return dataword;       }      
       
     private:
 
