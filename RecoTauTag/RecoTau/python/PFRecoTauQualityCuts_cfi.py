@@ -14,7 +14,7 @@ PFTauQualityCuts = cms.PSet(
         minTrackVertexWeight         = cms.double(-1.),    # Tracks weight in vertex
         minTrackPixelHits            = cms.uint32(0),      # pixel-only hits
         minTrackHits                 = cms.uint32(3),      # total track hits
-        minGammaEt                   = cms.double(0.5),    # filter PFgammas below given Pt
+        minGammaEt                   = cms.double(1.0),    # filter PFgammas below given Pt
         #useTracksInsteadOfPFHadrons  = cms.bool(False),   # if true, use generalTracks, instead of PFChargedHadrons
         minNeutralHadronEt           = cms.double(30.)
     ),
@@ -36,7 +36,7 @@ PFTauQualityCuts = cms.PSet(
         minTrackVertexWeight         = cms.double(-1.),    # Tracks weight in vertex
         minTrackPixelHits            = cms.uint32(0),      # pixel-only hits
         minTrackHits                 = cms.uint32(3),      # total track hits
-        minGammaEt                   = cms.double(0.5)     # filter PFgammas below given Pt
+        minGammaEt                   = cms.double(1.0)     # filter PFgammas below given Pt
         #useTracksInsteadOfPFHadrons  = cms.bool(False),   # if true, use generalTracks, instead of PFChargedHadrons
     ),
     # The central definition of primary vertex source.
