@@ -162,7 +162,7 @@ void BTagProbabilityToDiscriminator::produce(edm::Event &iEvent,
       float denominator = !discrims_[disc_idx].denominator.empty() ? 0 : 1;
       for (auto &den : discrims_[disc_idx].denominator)
         denominator += (*tags[den])[key];
-      float new_value = (denominator != 0) ? numerator / denominator : -10.;
+      float new_value = (denominator != 0 && numerator > 0) ? numerator / denominator : -10.;
       (*output_tags[disc_idx])[key] = new_value;
     }
   }

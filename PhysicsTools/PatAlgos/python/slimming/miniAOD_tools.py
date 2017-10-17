@@ -238,7 +238,7 @@ def miniAOD_customizeCommon(process):
 
     ## DeepCSV meta discriminators (simple arithmethic on output probabilities)
     process.load('RecoBTag.Combined.deepFlavour_cff')
-    task.add(process.pfDeepFlavourTask)
+    task.add(process.pfDeepCSVDiscriminatorsJetTags)
     process.patJets.discriminatorSources.extend([
             cms.InputTag('pfDeepCSVDiscriminatorsJetTags:BvsAll' ),
             cms.InputTag('pfDeepCSVDiscriminatorsJetTags:CvsB'   ),

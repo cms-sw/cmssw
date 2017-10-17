@@ -56,8 +56,6 @@ pfDeepFlavourTask = cms.Task(
     pfDeepCSVTagInfos,
     pfDeepCMVATagInfos, #SKIP for the moment
     pfDeepCSVJetTags
-    , pfDeepCSVDiscriminatorsJetTags
     , pfDeepCMVAJetTags
-    , pfDeepCMVADiscriminatorsJetTags
 )
 pfDeepFlavour = cms.Sequence(pfDeepFlavourTask)
