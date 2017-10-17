@@ -84,11 +84,6 @@ void popcon::GEMEMapSourceHandler::getNewObjects()
   if(WhichConf.Contains("CMS")){
     mapfiles.push_back("GEM_GE1P_GE1M_Depth1_Depth2_ChannelsFromDB_Nov_7_2016.csv");
   }
-  else if(WhichConf.Contains("CosmicStand")){
-    //mapfiles.push_back("COSMIC_VFAT_CHANNELS_7Nov2016.csv");
-    //mapfiles.push_back("COSMIC_VFAT_CHANNELS_8Nov2016.csv");
-      mapfiles.push_back("COSMIC_VFAT_CHANNELS_LONG_15Dec2016.csv");
-  }
   
   // mapfiles.push_back("GEM_GE1P01_Depth1_ChannelsFromDB_Sept_01_2016.csv");
   // mapfiles.push_back("GEM_GE1P01_Depth2_ChannelsFromDB_Sept_01_2016.csv");
@@ -114,27 +109,11 @@ void popcon::GEMEMapSourceHandler::getNewObjects()
       //mapping v2:             SUBDET   SECTOR	         TYPE	ZPOSN	IETA   IPHI   DEPTH   VFAT_POSN	  DET_STRIP   VFAT_CHAN   CONN_PIN
       //mapping CS (7 Nov 2016) SUBDET   TSCOL   TSROW   TYPE   ZPOSN   IETA   IPHI   DEPTH   VFAT_POSN   DET_STRIP   VFAT_CHAN   CONN_PIN
       
-      std::string sdet, sec, typ;
-      int tsc, tsr, vfat_pos, z_dir, ieta, iphi, dep, str_num, vfat_chn_num, px_con_pin;
+      int vfat_pos, z_dir, ieta, iphi, dep, str_num, vfat_chn_num, sec;
       std::stringstream ssline(line);
       
       getline( ssline, field, ',' );
-      std::stringstream Sdet(field);
-      std::stringstream Sec, TScol, TSrow;
-      if(WhichConf.Contains("CMS")){
-	getline( ssline, field, ',' );
-	std::stringstream Sec(field);
-	Sec >> sec;
-      }
-      else if(WhichConf.Contains("CosmicStand")){
-	getline( ssline, field, ',' );
-	std::stringstream TScol(field);
-	getline( ssline, field, ',' );
-	std::stringstream TSrow(field);
-	TScol >> tsc; TSrow >> tsr;
-      }
-      getline( ssline, field, ',' );
-      std::stringstream Typ(field);
+      std::stringstream Sec(field);
       getline( ssline, field, ',' );
       std::stringstream Z_dir(field);
       getline( ssline, field, ',' );
@@ -149,45 +128,26 @@ void popcon::GEMEMapSourceHandler::getNewObjects()
       std::stringstream Str_num(field);
       getline( ssline, field, ',' );
       std::stringstream Vfat_chn_num(field);
-      getline( ssline, field, ',' );
-      std::stringstream Px_con_pin(field);
       
       if(WhichConf.Contains("CMS")){
-	Sdet >> sdet; Typ >> typ; Z_dir >> z_dir; Ieta >> ieta; Iphi >> iphi; Dep >> dep; Vfat_pos >> vfat_pos; Str_num >> str_num; Vfat_chn_num >> vfat_chn_num; Px_con_pin >>  px_con_pin;
-      }
-      else if(WhichConf.Contains("CosmicStand")){
-	Sdet >> sdet; Typ >> typ; Z_dir >> z_dir; Ieta >> ieta; Iphi >> iphi; Dep >> dep; Vfat_pos >> vfat_pos; Str_num >> str_num; Vfat_chn_num >> vfat_chn_num; Px_con_pin >>  px_con_pin;
+	Sec >> sec;Z_dir >> z_dir; Ieta >> ieta; Iphi >> iphi; Dep >> dep; Vfat_pos >> vfat_pos; Str_num >> str_num; Vfat_chn_num >> vfat_chn_num;
       }
       
-      LogDebug( "GEMMapSourceHandler" ) << "Subdet=" << sdet
-                                        << ", Sector=" << sec    //for CMS GE1/1
-                                        << ", TScol=" << tsc     //for CS
-                                        << ", TSrow=" << tsr     //for CS
-					<< ", Type=" << typ
-					<< ", z_direction="<< z_dir
+      LogDebug( "GEMMapSourceHandler" ) << ", z_direction="<< z_dir
 					<< ", ieta="<< ieta
 					<< ", iphi="<< iphi
 					<< ", depth="<< dep
 					<< ", vfat position="<< vfat_pos
 					<< ", strip no.=" << str_num
 					<< ", vfat channel no.="<< vfat_chn_num
-					<< ", Px connector pin="<< px_con_pin << std::endl;
+					<< std::endl;
       
       
       if(WhichConf.Contains("CMS")){
-	std::cout<<"Subdet="<<sdet<<" Sector="<<sec<<" Type="<<typ<<" z_direction="<<z_dir<<" ieta="<<ieta<<" iphi="<<iphi<<" depth="<<dep<<" vfat position="<<vfat_pos<<" strip no.="<<str_num<<" vfat channel no.="<<vfat_chn_num<<" Px connector pin="<<px_con_pin<<std::endl;
-      }
-      else if(WhichConf.Contains("CosmicStand")){
-	std::cout<<"Subdet="<<sdet<<" TScol="<<tsc<<" TSrow="<<tsr<<" Type="<<typ<<" z_direction="<<z_dir<<" ieta="<<ieta<<" iphi="<<iphi<<" depth="<<dep<<" vfat position="<<vfat_pos<<" strip no.="<<str_num<<" vfat channel no.="<<vfat_chn_num<<" Px connector pin="<<px_con_pin<<std::endl;
+	std::cout<<" Sector="<<sec<<" z_direction="<<z_dir<<" ieta="<<ieta<<" iphi="<<iphi<<" depth="<<dep<<" vfat position="<<vfat_pos<<" strip no.="<<str_num<<" vfat channel no.="<<vfat_chn_num<<std::endl;
       }
       
-      vmtype.subdet.push_back(sdet);
-      if(WhichConf.Contains("CMS"))vmtype.sector.push_back(sec);
-      else if(WhichConf.Contains("CosmicStand")){
-	vmtype.tscol.push_back(tsc);
-	vmtype.tsrow.push_back(tsr);
-      }
-      vmtype.type.push_back(typ);
+      vmtype.sec.push_back(sec);
       vmtype.vfat_position.push_back(vfat_pos);
       vmtype.z_direction.push_back(z_dir);
       vmtype.iEta.push_back(ieta);
@@ -195,7 +155,6 @@ void popcon::GEMEMapSourceHandler::getNewObjects()
       vmtype.depth.push_back(dep);
       vmtype.strip_number.push_back(str_num);
       vmtype.vfat_chnnel_number.push_back(vfat_chn_num);
-      vmtype.px_connector_pin.push_back(px_con_pin);
     }
     eMap->theVFatMaptype.push_back(vmtype);
   }
