@@ -9,7 +9,7 @@ from DQMOffline.Trigger.DQMOffline_LumiMontiroring_cff import *
 from DQMOffline.Trigger.HLTGeneralOffline_cfi import *
 # Egamma
 from DQMOffline.Trigger.EgHLTOfflineSource_cfi import *
-from DQMOffline.Trigger.EgammaMonitoring_cff import *
+from DQMOffline.Trigger.EgammaMonitoring_cff import * # tag-n-probe (egammaMonitorHLT + egmHLTDQMSourceExtra)
 # Muon
 from DQMOffline.Trigger.MuonOffline_Trigger_cff import *
 # Top
@@ -129,6 +129,7 @@ offlineHLTSource = cms.Sequence(
 # asa the new modules in the sequence offlineHLTSourceOnAODextra are tested,
 # these have to be migrated in the main offlineHLTSourceOnAOD sequence
 offlineHLTSourceOnAODextra = cms.Sequence(
+
 ### POG
     btvHLTDQMSourceExtra
     * egmHLTDQMSourceExtra
@@ -152,7 +153,7 @@ offlineHLTSourceOnAODextra = cms.Sequence(
 # it is needed in order to have the DQM code in the release, w/o the issue of crashing the tier0
 # asa the new modules in the sequence offlineHLTSourceOnAODextra are tested
 # these have to be migrated in the main offlineHLTSourceOnAOD sequence
-offlineValidationHLTSource = cms.Sequence(
+offlineValidationHLTSourceOnAOD = cms.Sequence(
     offlineHLTSourceOnAOD 
     + offlineHLTSourceOnAODextra
 )
