@@ -253,7 +253,7 @@ void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &iboo
 	nbins = NBINS[i];
 	min = MIN[i];
 	max = MAX[i];
-	name = /*(useInac ? "All" :"") +*/ NAME[i];
+	name = NAME[i];
       }
     }
   
