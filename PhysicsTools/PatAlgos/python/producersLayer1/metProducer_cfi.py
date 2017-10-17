@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoMET.METProducers.METSignificanceParams_cfi import METSignificanceParams
 
+
 patMETs = cms.EDProducer("PATMETProducer",
     # input
     metSource  = cms.InputTag("pfMetT1"),
@@ -58,5 +59,3 @@ patMETs = cms.EDProducer("PATMETProducer",
     srcRho = cms.InputTag('fixedGridRhoAll'),
     parameters = METSignificanceParams
 )
-
-

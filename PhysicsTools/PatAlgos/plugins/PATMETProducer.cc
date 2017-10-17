@@ -95,6 +95,7 @@ void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     // add the generated MET
     if (addGenMET_) amet.setGenMET((*genMETs)[idx]);
 
+
     //add the MET significance
     if(calculateMETSignificance_) {
       const reco::METCovMatrix& sigcov = getMETCovMatrix(iEvent, iSetup);
@@ -115,7 +116,6 @@ void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     if ( useUserData_ ) {
       userDataHelper_.add( amet, iEvent, iSetup );
     }
-
 
     // correct for muons if demanded... never more: it's now done by JetMETCorrections
     // add the MET to the vector of METs
