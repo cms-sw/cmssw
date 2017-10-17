@@ -36,9 +36,8 @@ void GEMRawToDigiModule::beginRun(const edm::Run &run, const edm::EventSetup& iS
 
 }
 
-void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup ){
-  ///reverse mapping for unPacker
-
+void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup )
+{
   auto outGEMDigis = std::make_unique<GEMDigiCollection>();
 
   // Take raw from the event
