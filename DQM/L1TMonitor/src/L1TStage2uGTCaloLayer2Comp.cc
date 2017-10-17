@@ -38,7 +38,7 @@ void L1TStage2uGTCaloLayer2Comp::bookHistograms(
 
   // the index of the first bin in histogram should match value of first enum
   comparisonNum = ibooker.book1D(
-    "CaloLayer2-uGT link check - Numerator",
+    "errorSummaryNum",
     "CaloLayer2-uGT link check - Numerator (# disagreements)", 15, 1, 16);
 
   comparisonNum->setBinLabel(EVENTBAD, "# bad evts");
@@ -58,7 +58,7 @@ void L1TStage2uGTCaloLayer2Comp::bookHistograms(
   comparisonNum->setBinLabel(BADSUM, "# bad sums");
 
   comparisonDenum = ibooker.book1D(
-    "CaloLayer2-uGT link check - Denumerator",
+    "errorSummaryDen",
     "CaloLayer2-uGT link check - Denumerator (# objects)", 15, 1, 16);
 
   comparisonDenum->setBinLabel(EVENTS1, "# evts");
