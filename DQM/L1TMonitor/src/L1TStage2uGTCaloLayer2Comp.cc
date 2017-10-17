@@ -212,7 +212,7 @@ bool L1TStage2uGTCaloLayer2Comp::compareEGs(
     return false;
   }
 
-  // processing continues only of length of data collections is the same
+  // processing continues only of length of object collections is the same
   if (calol2It != calol2Col->end(currBx) ||
       uGTIt != uGTCol->end(currBx)) {
 
@@ -256,7 +256,7 @@ bool L1TStage2uGTCaloLayer2Comp::compareEGs(
     }
   }
 
-  // return a boolean that states whether the jet data in the event is in
+  // return a boolean that states whether the eg data in the event is in
   // agreement
   return eventGood;
 }
@@ -277,7 +277,7 @@ bool L1TStage2uGTCaloLayer2Comp::compareTaus(
     return false;
   }
 
-  // processing continues only of length of data collections is the same
+  // processing continues only of length of object collections is the same
   if (calol2It != calol2Col->end(currBx) ||
       uGTIt != uGTCol->end(currBx)) {
 
@@ -320,7 +320,7 @@ bool L1TStage2uGTCaloLayer2Comp::compareTaus(
     }
   }
 
-  // return a boolean that states whether the jet data in the event is in
+  // return a boolean that states whether the tau data in the event is in
   // agreement
   return eventGood;
 }
@@ -340,7 +340,7 @@ bool L1TStage2uGTCaloLayer2Comp::compareSums(
   l1t::EtSumBxCollection::const_iterator calol2It = calol2Col->begin(currBx);
   l1t::EtSumBxCollection::const_iterator uGTIt = uGTCol->begin(currBx);
 
-  // if either data or emulator collections are empty, or they have different
+  // if either calol2 or ugt collections are empty, or they have different
   // size, mark the event as bad (this should never occur in normal running)
   if (calol2Col->isEmpty(currBx) || uGTCol->isEmpty(currBx) ||
       (calol2Col->size(currBx) != uGTCol->size(currBx))) {
@@ -400,7 +400,7 @@ bool L1TStage2uGTCaloLayer2Comp::compareSums(
       break;
   }
 
-  // return a boolean that states whether the jet data in the event is in
+  // return a boolean that states whether the sum data in the event is in
   // agreement
   return eventGood;
 }
