@@ -23,7 +23,7 @@ l1tStage2uGMTOutVsuGTInRatioClient = DQMEDHarvester("L1TStage2RatioClient",
 )
 
 # sequences
-l1tStage2uGMTMuonCompClient = cms.Sequence(
+l1tStage2uGTCaloLayer2CompClient = cms.Sequence(
     l1tStage2uGMTOutVsuGTInRatioClient
 )
 
