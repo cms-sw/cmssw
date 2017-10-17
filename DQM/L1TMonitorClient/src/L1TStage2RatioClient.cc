@@ -44,6 +44,7 @@ void L1TStage2RatioClient::book(DQMStore::IBooker& ibooker, DQMStore::IGetter& i
     TH1F *hNum = numME_->getTH1F();
 
     ratioME_ = ibooker.book1D(ratioName_, ratioTitle_, hNum->GetNbinsX(), hNum->GetXaxis()->GetXmin(), hNum->GetXaxis()->GetXmax());
+    ratioME_->setEfficiencyFlag();
     ratioME_->setAxisTitle(yAxisTitle_, 2);
   }
 }
