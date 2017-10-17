@@ -12,7 +12,7 @@ errHistNumStr = 'errorSummaryNum'
 errHistDenStr = 'errorSummaryDen'
 
 # Muons
-l1tStage2uGMTOutVsuGTInRatioClient = DQMEDHarvester("L1TStage2RatioClient",
+l1tStage2uGTvsCaloLayer2RatioClient = DQMEDHarvester("L1TStage2RatioClient",
     monitorDir = cms.untracked.string(ugtDqmDir + '/' + calol2uGTDir),
     inputNum = cms.untracked.string(ugtDqmDir + '/' + calol2uGTDir + '/' + errHistNumStr),
     inputDen = cms.untracked.string(ugtDqmDir + '/' + calol2uGTDir + '/'+ errHistDenStr),
@@ -24,6 +24,6 @@ l1tStage2uGMTOutVsuGTInRatioClient = DQMEDHarvester("L1TStage2RatioClient",
 
 # sequences
 l1tStage2uGTCaloLayer2CompClient = cms.Sequence(
-    l1tStage2uGMTOutVsuGTInRatioClient
+    l1tStage2uGTvsCaloLayer2RatioClient
 )
 
