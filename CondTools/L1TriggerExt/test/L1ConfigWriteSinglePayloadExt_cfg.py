@@ -50,6 +50,11 @@ options.register('outputDBAuth',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Authentication path for outputDB")
+options.register('protoDBAuth',
+                 '.', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Authentication path for protoDB")
 options.register('overwriteKey',
                  0, #default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -95,13 +100,15 @@ process.outputDB.DBParameters.authenticationPath = cms.untracked.string(options.
 
 if options.genFromOMDS == 0:
     # Generate dummy configuration data
-    process.load('L1TriggerConfig.L1TConfigProducers.L1TMuonOverlapParamsOnlineProxy_cfi')
-    process.load('L1TriggerConfig.L1TConfigProducers.L1TMuonEndCapForestOnlineProxy_cfi')
-
+    if options.objectType == 'L1TMuonEndCapForest' :
+        process.load('L1TriggerConfig.L1TConfigProducers.L1TMuonEndCapForestOnlineProxy_cfi')
+        process.l1emtfForestProtodb.DBParameters.authenticationPath = cms.untracked.string(options.protoDBAuth)
+    else :
+        process.load('L1TriggerConfig.L1TConfigProducers.L1TMuonOverlapParamsOnlineProxy_cfi')
 else:
     # Generate configuration data from OMDS
     process.load("CondTools.L1TriggerExt.L1ConfigTSCPayloadsExt_cff")
-    process.load("CondTools.L1TriggerExt.L1ConfigRSPayloadsExt_cff")
+    #process.load("CondTools.L1TriggerExt.L1ConfigRSPayloadsExt_cff")
 
 # writer modules
 from CondTools.L1TriggerExt.L1CondDBPayloadWriterExt_cff import initPayloadWriterExt
