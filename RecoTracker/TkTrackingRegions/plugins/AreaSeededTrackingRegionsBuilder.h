@@ -4,7 +4,6 @@
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -14,8 +13,7 @@
 
 class AreaSeededTrackingRegionsBuilder {
 public:
-
-  typedef enum {BEAM_SPOT_FIXED, BEAM_SPOT_SIGMA, VERTICES_FIXED, VERTICES_SIGMA } Mode;
+  using Origins = std::vector< std::pair< GlobalPoint, float > >; // (origin, half-length in z)
 
   class Area {
   public:
@@ -47,21 +45,13 @@ public:
     explicit Builder(const AreaSeededTrackingRegionsBuilder *conf): m_conf(conf) {}
     ~Builder() = default;
 
-    template <typename... Args>
-    void addOrigin(Args&&... args) {
-      m_origins.emplace_back(std::forward<Args>(args)...);
-    }
-
     void setMeasurementTracker(const MeasurementTrackerEvent *mte) { m_measurementTracker = mte; }
 
-    bool empty() const { return m_origins.empty(); }
-
-    std::vector<std::unique_ptr<TrackingRegion> > regions(const std::vector<Area>& areas) const;
+    std::vector<std::unique_ptr<TrackingRegion> > regions(const Origins& origins, const std::vector<Area>& areas) const;
 
   private:
     const AreaSeededTrackingRegionsBuilder *m_conf = nullptr;
     const MeasurementTrackerEvent *m_measurementTracker = nullptr;
-    std::vector< std::pair< GlobalPoint, float > > m_origins;
   };
 
   AreaSeededTrackingRegionsBuilder(const edm::ParameterSet& regPSet, edm::ConsumesCollector&& iC): AreaSeededTrackingRegionsBuilder(regPSet, iC) {}
@@ -70,31 +60,19 @@ public:
 
   static void fillDescriptions(edm::ParameterSetDescription& desc);
 
-  Builder beginEvent(const edm::Event& e, const edm::EventSetup& es) const;
+  Builder beginEvent(const edm::Event& e) const;
 
 private:
-
-  Mode m_mode;
-
-  edm::EDGetTokenT<reco::VertexCollection> token_vertex;
-  edm::EDGetTokenT<reco::BeamSpot> token_beamSpot;
-  int m_maxNVertices;
-
   std::vector<Area> m_areas;
 
   float m_extraPhi;
   float m_extraEta;
   float m_ptMin;
   float m_originRadius;
-  float m_zErrorBeamSpot;
   bool m_precise;
   edm::EDGetTokenT<MeasurementTrackerEvent> token_measurementTracker;
   RectangularEtaPhiTrackingRegion::UseMeasurementTracker m_whereToUseMeasurementTracker;
   bool m_searchOpt;
-
-  float m_nSigmaZVertex;
-  float m_zErrorVertex;
-  float m_nSigmaZBeamSpot;
 };
 
 #endif

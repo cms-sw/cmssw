@@ -15,63 +15,27 @@ namespace {
 }
 
 AreaSeededTrackingRegionsBuilder::AreaSeededTrackingRegionsBuilder(const edm::ParameterSet& regPSet, edm::ConsumesCollector& iC) {
-  // operation mode
-  std::string modeString       = regPSet.getParameter<std::string>("mode");
-  if      (modeString == "BeamSpotFixed") m_mode = BEAM_SPOT_FIXED;
-  else if (modeString == "BeamSpotSigma") m_mode = BEAM_SPOT_SIGMA;
-  else if (modeString == "VerticesFixed") m_mode = VERTICES_FIXED;
-  else if (modeString == "VerticesSigma") m_mode = VERTICES_SIGMA;
-  else  throw cms::Exception("Configuration") <<"Unknown mode string: "<<modeString;
-
   m_extraPhi = regPSet.getParameter<double>("extraPhi");
   m_extraEta = regPSet.getParameter<double>("extraEta");
-
-  token_beamSpot     = iC.consumes<reco::BeamSpot>(regPSet.getParameter<edm::InputTag>("beamSpot"));
-  m_maxNVertices     = 1;
-  if (m_mode == VERTICES_FIXED || m_mode == VERTICES_SIGMA) {
-    token_vertex       = iC.consumes<reco::VertexCollection>(regPSet.getParameter<edm::InputTag>("vertexCollection"));
-    m_maxNVertices     = regPSet.getParameter<int>("maxNVertices");
-  }
 
   // RectangularEtaPhiTrackingRegion parameters:
   m_ptMin            = regPSet.getParameter<double>("ptMin");
   m_originRadius     = regPSet.getParameter<double>("originRadius");
-  m_zErrorBeamSpot   = regPSet.getParameter<double>("zErrorBeamSpot");
   m_precise          = regPSet.getParameter<bool>("precise");
   m_whereToUseMeasurementTracker = RectangularEtaPhiTrackingRegion::stringToUseMeasurementTracker(regPSet.getParameter<std::string>("whereToUseMeasurementTracker"));
   if(m_whereToUseMeasurementTracker != RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever) {
     token_measurementTracker = iC.consumes<MeasurementTrackerEvent>(regPSet.getParameter<edm::InputTag>("measurementTrackerName"));
   }
   m_searchOpt = regPSet.getParameter<bool>("searchOpt");
-
-  // mode-dependent z-halflength of tracking regions
-  if (m_mode == VERTICES_SIGMA)  m_nSigmaZVertex   = regPSet.getParameter<double>("nSigmaZVertex");
-  if (m_mode == VERTICES_FIXED)  m_zErrorVertex     = regPSet.getParameter<double>("zErrorVertex");
-  m_nSigmaZBeamSpot = -1.;
-  if (m_mode == BEAM_SPOT_SIGMA) {
-    m_nSigmaZBeamSpot = regPSet.getParameter<double>("nSigmaZBeamSpot");
-    if (m_nSigmaZBeamSpot < 0.)
-      throw cms::Exception("Configuration") << "nSigmaZBeamSpot must be positive for BeamSpotSigma mode!";
-  }
 }
 
 void AreaSeededTrackingRegionsBuilder::fillDescriptions(edm::ParameterSetDescription& desc) {
   desc.add<double>("extraPhi", 0.);
   desc.add<double>("extraEta", 0.);
 
-  desc.add<std::string>("mode", "BeamSpotFixed");
-  desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
-  desc.add<edm::InputTag>("vertexCollection", edm::InputTag("firstStepPrimaryVertices"));
-  desc.add<int>("maxNVertices", -1);
-
   desc.add<double>("ptMin", 0.9);
   desc.add<double>("originRadius", 0.2);
-  desc.add<double>("zErrorBeamSpot", 24.2);
   desc.add<bool>("precise", true);
-
-  desc.add<double>("nSigmaZVertex", 3.);
-  desc.add<double>("zErrorVertex", 0.2);
-  desc.add<double>("nSigmaZBeamSpot", 4.);
 
   desc.add<std::string>("whereToUseMeasurementTracker", "Never");
   desc.add<edm::InputTag>("measurementTrackerName", edm::InputTag(""));
@@ -79,44 +43,8 @@ void AreaSeededTrackingRegionsBuilder::fillDescriptions(edm::ParameterSetDescrip
   desc.add<bool>("searchOpt", false);
 }
 
-AreaSeededTrackingRegionsBuilder::Builder AreaSeededTrackingRegionsBuilder::beginEvent(const edm::Event& e, const edm::EventSetup& es) const {
+AreaSeededTrackingRegionsBuilder::Builder AreaSeededTrackingRegionsBuilder::beginEvent(const edm::Event& e) const {
   auto builder = Builder(this);
-
-  // always need the beam spot (as a fall back strategy for vertex modes)
-  edm::Handle< reco::BeamSpot > bs;
-  e.getByToken( token_beamSpot, bs );
-  if( !bs.isValid() ) return builder;
-
-  // this is a default origin for all modes
-  GlobalPoint default_origin( bs->x0(), bs->y0(), bs->z0() );
-
-  // vector of origin & halfLength pairs:
-  std::vector< std::pair< GlobalPoint, float > > origins;
-
-  // fill the origins and halfLengths depending on the mode
-  if (m_mode == BEAM_SPOT_FIXED || m_mode == BEAM_SPOT_SIGMA) {
-    builder.addOrigin(default_origin,
-                      (m_mode == BEAM_SPOT_FIXED) ? m_zErrorBeamSpot : m_nSigmaZBeamSpot*bs->sigmaZ() );
-  } else if (m_mode == VERTICES_FIXED || m_mode == VERTICES_SIGMA) {
-    edm::Handle< reco::VertexCollection > vertices;
-    e.getByToken( token_vertex, vertices );
-    int n_vert = 0;
-    for(const auto& v: *vertices) {
-      if(v.isFake() || !v.isValid()) continue;
-
-      builder.addOrigin( GlobalPoint( v.x(), v.y(), v.z() ),
-                         (m_mode == VERTICES_FIXED) ? m_zErrorVertex : m_nSigmaZVertex*v.zError() );
-      ++n_vert;
-      if(m_maxNVertices >= 0 && n_vert >= m_maxNVertices) {
-        break;
-      }
-    }
-    // no-vertex fall-back case:
-    if(builder.empty()) {
-      builder.addOrigin( default_origin,
-                         (m_nSigmaZBeamSpot > 0.) ? m_nSigmaZBeamSpot*bs->z0Error() : m_zErrorBeamSpot );
-    }
-  }
 
   if( !token_measurementTracker.isUninitialized() ) {
     edm::Handle<MeasurementTrackerEvent> hmte;
@@ -128,12 +56,12 @@ AreaSeededTrackingRegionsBuilder::Builder AreaSeededTrackingRegionsBuilder::begi
 }
 
 
-std::vector<std::unique_ptr<TrackingRegion> > AreaSeededTrackingRegionsBuilder::Builder::regions(const std::vector<Area>& areas) const {
+std::vector<std::unique_ptr<TrackingRegion> > AreaSeededTrackingRegionsBuilder::Builder::regions(const Origins& origins, const std::vector<Area>& areas) const {
   std::vector<std::unique_ptr<TrackingRegion> > result;
 
   // create tracking regions in directions of the points of interest
   int n_regions = 0;
-  for(const auto& origin: m_origins) {
+  for(const auto& origin: origins) {
     float minEta=std::numeric_limits<float>::max(), maxEta=std::numeric_limits<float>::lowest();
     float minPhi=std::numeric_limits<float>::max(), maxPhi=std::numeric_limits<float>::lowest();
 
