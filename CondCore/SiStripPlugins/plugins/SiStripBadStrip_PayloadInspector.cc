@@ -1063,6 +1063,11 @@ namespace {
 	i++;
       }
 
+      canv.cd();
+      TLatex title;
+      title.SetTextSize(0.027);
+      title.SetTextColor(kBlue);
+      title.DrawLatexNDC(0.12,0.97,("IOV: "+std::to_string(std::get<0>(iov))+"| "+std::get<1>(iov)).c_str()); 
       std::string fileName(m_imageFileName);
       canv.SaveAs(fileName.c_str());
 
