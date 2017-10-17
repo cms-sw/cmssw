@@ -49,12 +49,17 @@ options.register('outputDBAuth',
                  '.', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
-                 "Authentication path for outputDB")
+                 "Authentication path for output DB")
+options.register('protoDBConnect',
+                 'oracle://cms_orcon_prod/CMS_CONDITIONS', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Authentication path for proto DB")
 options.register('protoDBAuth',
                  '.', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
-                 "Authentication path for protoDB")
+                 "Authentication path for proto DB")
 options.register('overwriteKey',
                  0, #default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -102,6 +107,7 @@ if options.genFromOMDS == 0:
     # Generate dummy configuration data
     if options.objectType == 'L1TMuonEndCapForest' :
         process.load('L1TriggerConfig.L1TConfigProducers.L1TMuonEndCapForestOnlineProxy_cfi')
+        process.l1emtfForestProtodb.DBParameters.connect            = cms.untracked.string(options.protoDBConnect)
         process.l1emtfForestProtodb.DBParameters.authenticationPath = cms.untracked.string(options.protoDBAuth)
     else :
         process.load('L1TriggerConfig.L1TConfigProducers.L1TMuonOverlapParamsOnlineProxy_cfi')
