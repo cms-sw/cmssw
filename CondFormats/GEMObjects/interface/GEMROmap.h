@@ -1,11 +1,12 @@
 #ifndef GEMRawToDigi_GEMROMAO_H
 #define GEMRawToDigi_GEMROMAO_H
 #include <map>
+#include <DataFormats/MuonDetId/interface/GEMDetId.h>
 class GEMROmap{
  public:
   struct eCoord{
     int chamberId;
-    int vfatId;
+    uint16_t vfatId;
     int channelId;
     bool operator < (const eCoord& r) const{
       if (chamberId == r.chamberId){
@@ -22,6 +23,7 @@ class GEMROmap{
   struct dCoord{
     int etaId;
     int stripId;
+    GEMDetId gemDetId;
   };
 
  public:
