@@ -110,15 +110,17 @@ offlineHLTSourceOnAOD = cms.Sequence(
     jetmetMonitorHLT
 )
 
-offlineHLTSourceOnRECO
+offlineHLTSourceWithRECO = cms.Sequence(
+    jetMETHLTOfflineAnalyzer
+)
 
 # offline DQM for running in the standard RECO,DQM (in PromptReco, ReReco, relval, etc)
 ## THIS IS THE SEQUENCE TO BE RUN AT TIER0
 ## ADD here only sequences/modules which rely on transient collections produced by the RECO step
 ## and not stored in the AOD format
 offlineHLTSource = cms.Sequence(
+    offlineHLTSourceWithRECO *
     offlineHLTSourceOnAOD
-    + jetMETHLTOfflineAnalyzer
 )
 
 
