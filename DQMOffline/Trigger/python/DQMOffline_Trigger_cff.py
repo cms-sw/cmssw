@@ -46,14 +46,14 @@ from DQMOffline.Trigger.SiPixel_OfflineMonitoring_cff import *
 # photon jet
 from DQMOffline.Trigger.HigPhotonJetHLTOfflineSource_cfi import * 
 
-#hotline 
-from DQMOffline.Trigger.hotlineDQM_cfi import *
+##hotline 
+#from DQMOffline.Trigger.hotlineDQM_cfi import * # ORPHAN
 
-#eventshape
-from DQMOffline.Trigger.eventshapeDQM_cfi import *
+##eventshape
+#from DQMOffline.Trigger.eventshapeDQM_cfi import * # OBSOLETE
 
-#UCC
-from DQMOffline.Trigger.heavyionUCCDQM_cfi import *
+##UCC
+#from DQMOffline.Trigger.heavyionUCCDQM_cfi import * # OBSOLETE
 
 import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvHLT= DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
@@ -89,13 +89,12 @@ offlineHLTSourceOnAOD = cms.Sequence(
     muonFullOfflineDQM *
     HLTTauDQMOffline *
     fsqHLTOfflineSourceSequence *
-    HILowLumiHLTOfflineSourceSequence *
     hltInclusiveVBFSource *
     higPhotonJetHLTOfflineSource*
     dqmEnvHLT *
     topHLTriggerOfflineDQM *
-    eventshapeDQMSequence *
-    HeavyIonUCCDQMSequence *
+#    eventshapeDQMSequence * ## OBSOLETE !!!! (looks for HLT_HIQ2Top005_Centrality1030_v, HLT_HIQ2Bottom005_Centrality1030_v, etc)
+#    HeavyIonUCCDQMSequence * ## OBSOLETE !!!! (looks for HLT_HIUCC100_v and HLT_HIUCC020_v)
 #    hotlineDQMSequence * ## ORPHAN !!!!
     egammaMonitorHLT * 
     exoticaMonitorHLT *
@@ -106,7 +105,7 @@ offlineHLTSourceOnAOD = cms.Sequence(
     topMonitorHLT *
     btagMonitorHLT *
     bphMonitorHLT *
-    hltObjectsMonitor *
+    hltObjectsMonitor * # as online DQM, requested/suggested by TSG coordinators
     jetmetMonitorHLT
 )
 
@@ -123,13 +122,23 @@ offlineHLTSource = cms.Sequence(
     offlineHLTSourceOnAOD
 )
 
+## sequence for HI
+offlineHLTSourceOnAOD4LowLumi = cms.Sequence(
+    offlineHLTSource *
+    HILowLumiHLTOfflineSourceSequence
+)
+
+offlineHLTSource = cms.Sequence(
+    offlineHLTSourceWithRECO *
+    offlineHLTSourceOnAOD
+)
+
 
 # offline DQM to be run on AOD (w/o the need of the RECO step on-the-fly) only in the VALIDATION of the HLT menu based on data
 # it is needed in order to have the DQM code in the release, w/o the issue of crashing the tier0
 # asa the new modules in the sequence offlineHLTSourceOnAODextra are tested,
 # these have to be migrated in the main offlineHLTSourceOnAOD sequence
 offlineHLTSourceOnAODextra = cms.Sequence(
-
 ### POG
     btvHLTDQMSourceExtra
     * egmHLTDQMSourceExtra
@@ -158,9 +167,11 @@ offlineValidationHLTSourceOnAOD = cms.Sequence(
     + offlineHLTSourceOnAODextra
 )
 
+# this sequence can be used by AlCa for the validation of conditions,
+# because it is like offlineHLTSource (run @tier0) + offlineHLTSourceOnAODextra (meant to validate new features)
 offlineValidationHLTSource = cms.Sequence(
-    offlineHLTSourceWithRECO
-    + offlineValidationHLTSourceOnAOD
+    offlineHLTSource
+    + offlineHLTSourceOnAODextra
 )
 
 # offline DQM for the HLTMonitoring stream
@@ -170,6 +181,7 @@ dqmInfoHLTMon = cms.EDAnalyzer("DQMEventInfo",
     subSystemFolder = cms.untracked.string('HLT')
     )
 
+# sequences run @tier0 on HLTMonitor PD
 OfflineHLTMonitoring = cms.Sequence(
     dqmInfoHLTMon *
     lumiMonitorHLTsequence * # lumi
@@ -181,11 +193,16 @@ OfflineHLTMonitoring = cms.Sequence(
     egmTrackingMonitorHLT * # egm tracking
     vertexingMonitorHLT # vertexing
     )
+
+# sequences run @tier0 on HLTMonitor PD w/ HI (PbPb, XeXe), pPb, ppRef
 OfflineHLTMonitoringPA = cms.Sequence(
     dqmInfoHLTMon *
     trackingMonitorHLT *
     PAtrackingMonitorHLT  
     )
 
-triggerOfflineDQMSource =  cms.Sequence(offlineHLTSource)
+### sequence run @tier0 (called by main DQM sequences in DQMOffline/Configuration/python/DQMOffline_cff.py) on all PDs, but HLTMonitor one
+triggerOfflineDQMSource =  cms.Sequence(
+    offlineHLTSource
+)
  
