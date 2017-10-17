@@ -339,9 +339,15 @@ def miniAOD_customizeCommon(process):
 
     updateJetCollection(
        process,
-       labelName = 'DeepFlavour',
-       jetSource = cms.InputTag('patJets'),
-       jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
+       jetSource = cms.InputTag('selectedPatJets'),
+       # updateJetCollection defaults to MiniAOD inputs.
+       # Here, this needs to be changed to RECO/AOD inputs
+       pvSource = cms.InputTag('offlinePrimaryVertices'),
+       pfCandidates = cms.InputTag('particleFlow'),
+       svSource = cms.InputTag('inclusiveCandidateSecondaryVertices'),
+       muSource = cms.InputTag('muons'),
+       elSource = cms.InputTag('gedGsfElectrons'),
+       jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), ''),
        btagDiscriminators = [
           'pfDeepFlavourJetTags:probb',
           'pfDeepFlavourJetTags:probbb',
@@ -349,9 +355,10 @@ def miniAOD_customizeCommon(process):
           'pfDeepFlavourJetTags:probc',
           'pfDeepFlavourJetTags:probuds',
           'pfDeepFlavourJetTags:probg',
-       ]
+       ],
+       postfix = 'BTAG'
     )
-    process.selectedPatJets.src = cms.InputTag('updatedPatJetsTransientCorrectedDeepFlavour')
+    process.slimmedJets.src = cms.InputTag('selectedUpdatedPatJetsBTAG')
 
     # Adding puppi jets
     if not hasattr(process, 'ak4PFJetsPuppi'): #MM: avoid confilct with substructure call
