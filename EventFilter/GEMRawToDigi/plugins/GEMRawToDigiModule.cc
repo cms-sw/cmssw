@@ -32,7 +32,7 @@ void GEMRawToDigiModule::beginRun(const edm::Run &run, const edm::EventSetup& iS
   edm::ESHandle<GEMEMap> gemEMap;
   iSetup.get<GEMEMapRcd>().get(gemEMap); 
   m_gemEMap = gemEMap.product();
-  m_gemROMap = m_gemEMap->convertCS();
+  m_gemROMap = m_gemEMap->convert();
 
 }
 
@@ -119,12 +119,13 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 	    if (strip > 2*128) strip-=128*2;
 	    else if (strip < 128) strip+=128*2;
 
-	    int etaP=dc.etaId;	  
+	    //int etaP=dc.etaId;	  
 	    // NEED TOO FIX GEMDETID
 	    //GEMDetId gemId = getGEMDetID(ChipID);
 	    
 	    GEMDigi digi(strip,bc);
-	    outGEMDigis.get()->insertDigi(GEMDetId(1,1,1,1,1,etaP),digi); 
+	    //outGEMDigis.get()->insertDigi(GEMDetId(1,1,1,1,1,etaP),digi); 
+	    outGEMDigis.get()->insertDigi(dc.gemDetId,digi); 
 	  }
 	  
 	  delete vfatData;

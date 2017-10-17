@@ -1,6 +1,7 @@
 #ifndef GEMRawToDigi_GEMROMAO_H
 #define GEMRawToDigi_GEMROMAO_H
 #include <map>
+#include <DataFormats/MuonDetId/interface/GEMDetId.h>
 class GEMROmap{
  public:
   struct eCoord{
@@ -22,6 +23,7 @@ class GEMROmap{
   struct dCoord{
     int etaId;
     int stripId;
+    GEMDetId gemDetId;
   };
 
  public:

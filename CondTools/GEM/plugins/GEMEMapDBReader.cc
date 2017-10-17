@@ -68,19 +68,13 @@ void GEMEMapDBReader::analyze( const edm::Event& iEvent, const edm::EventSetup& 
     std::cout <<"  Map TYPE "<<imap->VFATmapTypeId<<std::endl;
     for (unsigned int ix=0;ix<imap->strip_number.size();ix++){
       std::cout <<
-    	" subdet "<<imap->subdet[ix] <<
-    	//" sector "<<imap->sector[ix] <<
-    	" tscol "<<imap->tscol[ix] <<
-    	" tsrow "<<imap->tsrow[ix] <<
-    	" type "<<imap->type[ix] <<
     	" z_direction "<<imap->z_direction[ix] <<
     	" iEta "<<imap->iEta[ix] <<
     	" iPhi "<<imap->iPhi[ix] <<
     	" depth "<<imap->depth[ix] <<
     	" vfat_position "<<imap->vfat_position[ix] <<
     	" strip_number "<<imap->strip_number[ix] <<
-    	" vfat_chnnel_number "<<imap->vfat_chnnel_number[ix]<<
-    	" px_connector_pin "<<imap->px_connector_pin[ix]<<std::endl;
+    	" vfat_chnnel_number "<<imap->vfat_chnnel_number[ix]<<std::endl;
     }
   }
   //}

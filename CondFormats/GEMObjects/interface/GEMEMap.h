@@ -15,8 +15,6 @@ class GEMEMap {
 
   const std::string & version() const;
   GEMROmap* convert() const;
-  GEMROmap* convertCS() const;    
-  GEMROmap* convertCSConfigurable(std::vector<unsigned long long>* vfats,std::vector<int>* slot) const;
 
   struct GEMEMapItem {
     int ChamberID;
@@ -27,11 +25,6 @@ class GEMEMap {
   };  
   struct GEMVFatMaptype {
     int VFATmapTypeId;
-    std::vector<std::string> subdet;
-    std::vector<std::string> sector;   //for CMS GE1/1
-    std::vector<int> tscol;   //for CS
-    std::vector<int> tsrow;   //for CS
-    std::vector<std::string> type;
     std::vector<int> vfat_position;
     std::vector<int> z_direction;
     std::vector<int> iEta;
@@ -39,7 +32,8 @@ class GEMEMap {
     std::vector<int> depth;
     std::vector<int> strip_number;
     std::vector<int> vfat_chnnel_number;
-    std::vector<int> px_connector_pin;
+    std::vector<int> vfatId;
+    std::vector<int> sec; 
 
     COND_SERIALIZABLE;
   };
