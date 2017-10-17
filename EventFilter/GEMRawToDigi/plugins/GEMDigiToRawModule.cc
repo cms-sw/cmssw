@@ -37,7 +37,7 @@ void GEMDigiToRawModule::beginRun(const edm::Run &run, const edm::EventSetup& iS
   edm::ESHandle<GEMEMap> gemEMap;
   iSetup.get<GEMEMapRcd>().get(gemEMap); 
   m_gemEMap = gemEMap.product();
-  m_gemROMap = m_gemEMap->convertCS();
+  m_gemROMap = m_gemEMap->convert();
 
 }
 
