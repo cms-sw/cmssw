@@ -283,7 +283,6 @@ namespace Rivet {
     
     /// @brief Return bin index of x given the provided bin edges. 0=first bin, -1=underflow bin.
     int getBin(double x, std::vector<double> bins) {
-      if (bins.empty()||x<bins[0]) return -1; // should not happen!
       for (size_t i=1;i<bins.size();++i)
         if (x<bins[i]) return i-1;
       return bins.size()-1;
@@ -446,7 +445,7 @@ namespace Rivet {
       hist_stage0->fill( cat.stage0_cat/10*2+F, weight );
       
       // Stage 1 enum offsets for each production mode: GGF=12, VBF=6, WH= 5, QQ2ZH=5, GG2ZH=4, TTH=2, BBH=2, TH=2
-      static vector<int> offset({0,1,13,19,24,29,33,35,37,39});
+      vector<int> offset({0,1,13,19,24,29,33,35,37,39});
       int off = offset[P];
       hist_stage1_pTjet25->fill(cat.stage1_cat_pTjet25GeV%100 + off, weight);
       hist_stage1_pTjet30->fill(cat.stage1_cat_pTjet30GeV%100 + off, weight);
