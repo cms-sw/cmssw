@@ -41,7 +41,12 @@ class PixelClusterCounts {
         std::vector<int> const & readCounts() const {
             return(m_counts);
         }
-  
+        std::vector<int> const & readEvents() const {
+            return(m_events);
+        }
+        std::vector<int> const & readModID() const {
+            return(m_ModID);
+        } 
 
       private:
         std::vector<int> m_counts;
