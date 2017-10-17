@@ -67,6 +67,7 @@ electronMcSignalValidator = cms.EDAnalyzer("ElectronMcSignalValidator",
   histosCfg = cms.PSet(electronMcSignalHistosCfg)
 )
 
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify(
     electronMcSignalValidator,
 #  electronCollection = cms.InputTag("ecalDrivenGsfElectrons"),
