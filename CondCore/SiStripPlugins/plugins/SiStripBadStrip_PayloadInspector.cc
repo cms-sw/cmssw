@@ -539,10 +539,9 @@ namespace {
       std::string lastIOVsince  = std::to_string(std::get<0>(lastiov));
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
       
+      // last payload
       std::vector<uint32_t> detid;
       last_payload->getDetIds(detid);
-
-      // last payload
 
       SiStripDetSummary summaryLastBadStrips{&m_trackerTopo};
       int totalLastBadStrips =0;
@@ -558,7 +557,10 @@ namespace {
       }
       std::map<unsigned int, SiStripDetSummary::Values> mapLastBadStrips = summaryLastBadStrips.getCounts();
 
-      // first payload
+      // first payload 
+      // needs to be cleared to avoid bias using only detIds of last payload
+      detid.clear();
+      first_payload->getDetIds(detid);
 
       SiStripDetSummary summaryFirstBadStrips{&m_trackerTopo};
       int totalFirstBadStrips =0;
