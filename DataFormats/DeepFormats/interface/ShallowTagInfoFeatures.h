@@ -10,9 +10,6 @@ class ShallowTagInfoFeatures {
   public:
 
     // jet general
-    float trackJetPt;              // track-based jet transverse momentum
-    float jetNTracks;              // tracks associated to jet
-    float jetNSecondaryVertices;   // number of secondary vertices associated to the jet
     float trackSumJetEtRatio;      // ratio of track sum transverse energy over jet energy
     float trackSumJetDeltaR;       // pseudoangular distance between jet axis and track fourvector sum
     float trackSip2dValAboveCharm; // track 2D signed impact parameter of first track lifting mass above charm

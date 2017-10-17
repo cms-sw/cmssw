@@ -1,19 +1,19 @@
 <lcgdict>
 
   <class name="btagbtvdeep::JetFeatures" ClassVersion="10">
-    <version ClassVersion="10" checksum="1410252760"/>
+    <version ClassVersion="10" checksum="386672900"/>
   </class>
   <class name="btagbtvdeep::SecondaryVertexFeatures" ClassVersion="10">
-    <version ClassVersion="10" checksum="31497587"/>
+    <version ClassVersion="10" checksum="3610780843"/>
   </class>
   <class name="btagbtvdeep::ShallowTagInfoFeatures" ClassVersion="10">
-    <version ClassVersion="10" checksum="3873970568"/>
+    <version ClassVersion="10" checksum="273372007"/>
   </class>
   <class name="btagbtvdeep::NeutralCandidateFeatures" ClassVersion="10">
-    <version ClassVersion="10" checksum="399104112"/>
+    <version ClassVersion="10" checksum="3423761844"/>
   </class>
   <class name="btagbtvdeep::ChargedCandidateFeatures" ClassVersion="10">
-    <version ClassVersion="10" checksum="2941521977"/>
+    <version ClassVersion="10" checksum="4222096501"/>
   </class>
   <class name="btagbtvdeep::DeepFlavourFeatures" ClassVersion="10">
     <version ClassVersion="10" checksum="2487956635"/>

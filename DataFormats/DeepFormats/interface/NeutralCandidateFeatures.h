@@ -9,16 +9,9 @@ class NeutralCandidateFeatures {
 
   public:
 
-    float pt;
-    float eta;
-    float phi;
-
     float ptrel;
-    float erel;
 
     float puppiw;
-    float phirel;
-    float etarel;
     float deltaR;
     float isGamma;
 
