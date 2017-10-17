@@ -11,7 +11,7 @@ typedef CaloCellGeometry::Pt3D     Pt3D     ;
 typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
 typedef CaloCellGeometry::Tr3D     Tr3D     ;
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 HcalGeometry::HcalGeometry(const HcalTopology& topology) :
   m_topology(topology), m_mergePosition(topology.getMergePositionFlag()) {
