@@ -171,7 +171,10 @@ susyMuEGMonitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring('')
 
 susyMonitorHLT = cms.Sequence(
     susyHLTRazorMonitoring
-  + susyHLTVBFMonitoring
+)
+
+susHLTDQMSourceExtra = cms.Sequence(
+  susyHLTVBFMonitoring
   + LepHTMonitor
   + susyHLTEleCaloJets
   + double_soft_muon_muonpt
@@ -183,7 +186,4 @@ susyMonitorHLT = cms.Sequence(
   + double_soft_muon_backup_90_metpt
   + double_soft_muon_backup_90_mhtpt
   + susyMuEGMonitoring 
-)
-
-susHLTDQMSourceExtra = cms.Sequence(
 )

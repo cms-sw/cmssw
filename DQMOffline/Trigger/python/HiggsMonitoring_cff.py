@@ -271,6 +271,9 @@ mu8diEle12CaloIdLTrackIdL_dz.denGenericTriggerEventPSet.hltPaths = cms.vstring("
 
 ###############################Higgs Monitor HLT##############################################
 higgsMonitorHLT = cms.Sequence(
+)
+
+higHLTDQMSourceExtra = cms.Sequence(
     higgsinvHLTJetMETmonitoring
   + higgsHLTDiphotonMonitoring
   + higgstautauHLTVBFmonitoring
@@ -299,7 +302,4 @@ higgsMonitorHLT = cms.Sequence(
   + PFMET140_PFMHT140_IDTight_CaloBTagCSV_3p1_TOPmonitoring
   + mssmHbbBtagTriggerMonitor 
   + mssmHbbMonitorHLT 
-)
-
-higHLTDQMSourceExtra = cms.Sequence(
 )
