@@ -158,6 +158,11 @@ offlineValidationHLTSourceOnAOD = cms.Sequence(
     + offlineHLTSourceOnAODextra
 )
 
+offlineValidationHLTSource = cms.Sequence(
+    offlineHLTSourceWithRECO
+    + offlineValidationHLTSourceOnAOD
+)
+
 # offline DQM for the HLTMonitoring stream
 ## ADD here only sequences/modules which rely on HLT collections which are stored in the HLTMonitoring stream
 ## and are not available in the standard RAW format
