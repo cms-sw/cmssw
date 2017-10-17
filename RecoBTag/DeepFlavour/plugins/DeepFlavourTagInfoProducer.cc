@@ -119,6 +119,11 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
 
   edm::Handle<VertexCollection> vtxs;
   iEvent.getByToken(vtx_token_, vtxs);
+  if (vtxs->empty()) {
+    // produce empty TagInfos in case no primary vertex
+    iEvent.put(std::move(output_tag_infos));
+    return; // exit event
+  }
   // reference to primary vertex
   const auto & pv = vtxs->at(0);
 
@@ -152,7 +157,6 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     const auto & jet = jets->at(jet_n);
     // dynamical castoting to pointers, null if not possible
     const auto * pf_jet = dynamic_cast<const reco::PFJet *>(&jet);
-    const auto * pat_jet = dynamic_cast<const pat::Jet *>(&jet);
     edm::RefToBase<reco::Jet> jet_ref(jets, jet_n);
     // TagInfoCollection not in an associative container so search for matchs
     const edm::View<reco::ShallowTagInfo> & taginfos = *shallow_tag_infos;
@@ -206,18 +210,20 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
 
     std::vector<btagbtvdeep::SortingClass<size_t> > c_sorted, n_sorted;
 
-    btagbtvdeep::TrackInfoBuilder trackinfo(track_builder);
+    // to cache the TrackInfo
+    std::map<unsigned int, btagbtvdeep::TrackInfoBuilder> trackinfos;
 
     // unsorted reference to sv
     const auto & svs_unsorted = *svs;     
     // fill collection, from DeepTNtuples plus some styling
     for (unsigned int i = 0; i <  jet.numberOfDaughters(); i++){
-        auto cand = dynamic_cast<const reco::Candidate *>(jet.daughter(i));
+        auto cand = jet.daughter(i);
         if(cand){
+          // candidates under 950MeV are not considered
+          // might change if we use also white-listing
+          if (cand->pt()<0.95) continue; 
           if (cand->charge() != 0) {
-            // charged candidates under 950MeV are not considered
-            // might change if we use also white-listing
-            if (cand->pt()<0.95) continue;
+            auto trackinfo = trackinfos.emplace(i,track_builder).first->second;
             trackinfo.buildTrackInfo(cand,jet_dir,jet_ref_track_dir,pv);
             c_sorted.emplace_back(i, trackinfo.getTrackSip2dSig(),
                     -btagbtvdeep::mindrsvpfcand(svs_unsorted,cand), cand->pt()/jet.pt());
@@ -253,19 +259,20 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     // get pointer and check that is correct
     auto cand = dynamic_cast<const reco::Candidate *>(jet.daughter(i));
     if(!cand) continue;
+    // candidates under 950MeV are not considered
+    // might change if we use also white-listing
+    if (cand->pt()<0.95) continue;
+
     auto packed_cand = dynamic_cast<const pat::PackedCandidate *>(cand);
     auto reco_cand = dynamic_cast<const reco::PFCandidate *>(cand);
 
     float drminpfcandsv = btagbtvdeep::mindrsvpfcand(svs_unsorted, cand);
     
     if (cand->charge() != 0) {
-      // charged candidates under 950MeV are not considered
-      // might change if we use also white-listing
-      if (cand->pt()<0.95) continue;
       // is charged candidate
       auto entry = c_sortedindices.at(i);
-      // build track info
-      trackinfo.buildTrackInfo(cand,jet_dir,jet_ref_track_dir,pv);
+      // get cached track info
+      auto & trackinfo = trackinfos.at(i);
       // get_ref to vector element
       auto & c_pf_features = features.c_pf_features.at(entry);
       // fill feature structure 
