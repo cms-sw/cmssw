@@ -19,9 +19,9 @@ namespace pat {
   class PATMETSlimmer : public edm::global::EDProducer<> {
   public:
     explicit PATMETSlimmer(const edm::ParameterSet & iConfig);
-    virtual ~PATMETSlimmer() { }
+    ~PATMETSlimmer() override { }
     
-    virtual void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const;
+    void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
     
   private:
     class OneMETShift {
@@ -65,6 +65,8 @@ pat::PATMETSlimmer::PATMETSlimmer(const edm::ParameterSet & iConfig) :
   maybeReadShifts( iConfig, "tXYUncForT1Smear", pat::MET::TXYForT1Smear );
   maybeReadShifts( iConfig, "tXYUncForT01Smear", pat::MET::TXYForT01Smear );
   maybeReadShifts( iConfig, "caloMET", pat::MET::Calo );
+  maybeReadShifts( iConfig, "chsMET", pat::MET::Chs );
+  maybeReadShifts( iConfig, "trkMET", pat::MET::Trk );
 
   produces<std::vector<pat::MET> >();
 }
