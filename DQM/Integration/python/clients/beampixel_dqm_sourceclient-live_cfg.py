@@ -180,7 +180,9 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.siPixelDigis.InputLabel          = cms.InputTag("rawDataRepacker")
     process.siStripDigis.ProductLabel        = cms.InputTag("rawDataRepacker")
 
+    process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
     process.load("Configuration.StandardSequences.ReconstructionHeavyIons_cff")
+    process.load("RecoLocalTracker.Configuration.RecoLocalTrackerHeavyIons_cff")
 
 
     #----------------------------
@@ -218,9 +220,14 @@ if (process.runType.getRunType() == process.runType.hi_run):
     #----------------------------
     # Pixel-Tracks&Vertices Config
     #----------------------------
+    from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
+    from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
+    siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(src = 'siPixelClustersPreSplitting')
+
     from RecoHI.HiTracking.HIPixelVerticesPreSplitting_cff import *
     process.PixelLayerTriplets.BPix.HitProducer = cms.string("siPixelRecHitsPreSplitting")
     process.PixelLayerTriplets.FPix.HitProducer = cms.string("siPixelRecHitsPreSplitting")
+
     process.hiPixel3PrimTracksFilter = process.hiFilter.clone(VertexCollection     = cms.InputTag("hiSelectedVertexPreSplitting"),
                                                               clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCachePreSplitting"))
     process.hiPixel3PrimTracks.Filter                    = cms.InputTag("hiPixel3PrimTracksFilter")
@@ -230,6 +237,13 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.hiPixel3PrimTracks.clusterShapeCacheSrc      = cms.InputTag("siPixelClusterShapeCachePreSplitting")
     process.hiPixel3ProtoTracksPreSplitting.originRadius = cms.double(0.4)
     process.hiPixelAdaptiveVertexPreSplitting.vertexCollections.useBeamConstraint = cms.bool(False)
+
+    process.hiPixel3ProtoTracksPreSplitting.RegionFactoryPSet.RegionPSet.originRadius = 0.2   # default 0.2
+    process.hiPixel3ProtoTracksPreSplitting.RegionFactoryPSet.RegionPSet.fixedError   = 0.5   # default 3.0
+    process.hiSelectedProtoTracksPreSplitting.maxD0Significance                       = 100   # default 5.0
+    process.hiPixelAdaptiveVertexPreSplitting.TkFilterParameters.maxD0Significance    = 100   # default 3.0
+    process.hiPixelAdaptiveVertexPreSplitting.vertexCollections.useBeamConstraint     = False # default False
+    process.hiPixelAdaptiveVertexPreSplitting.vertexCollections.maxDistanceToBeam     = 1.0   # default 0.1
 
 
     #----------------------------
