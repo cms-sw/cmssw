@@ -95,7 +95,7 @@ class L1TStage2uGTCaloLayer2Comp : public DQMEDAnalyzer {
    * the jets contained in a given event.
    *
    * Method is called once per each event with the jet collections associated
-   * with the event being extracted for bx = 0. The implementation checks
+   * with the event being extracted for all bx. The implementation checks
    * if the size of collections is the same and when so, compares the jets in
    * the same positions within the calol2/ugt collections. The number and type
    * of discrepancies are accumulated in different bins of a summary histogram.
@@ -115,7 +115,7 @@ class L1TStage2uGTCaloLayer2Comp : public DQMEDAnalyzer {
    * the e/gs contained in a given event.
    *
    * Method is called once per each event with the e/g collections associated
-   * with the event being extracted for bx = 0. The implementation checks
+   * with the event being extracted for all bx. The implementation checks
    * if the size of collections is the same and when so, compares the e/gs in
    * the same positions within the calol2/ugt collections. The number and type
    * of discrepancies are accumulated in different bins of a summary histogram.
@@ -134,11 +134,10 @@ class L1TStage2uGTCaloLayer2Comp : public DQMEDAnalyzer {
    * Encapsulates the code required for performing a comparison of
    * the taus contained in a given event.
    *
-   * Method is called once per each event with the tau collections associated
-   * with the event being extracted for bx = 0. The implementation checks
+   * Method is called once per each event with the e/g collections associated
+   * with the event being extracted for all bx. The implementation checks
    * if the size of collections is the same and when so, compares the taus in
    * the same positions within the calol2/ugt collections. The number and type
-   * of discrepancies are accumulated in different bins of a summary histogram.
    *
    * @param edm::Handle<l1t::TauBXCollection>& calol2Col Reference to tau
    *    collection from CaloLayer2
@@ -155,8 +154,8 @@ class L1TStage2uGTCaloLayer2Comp : public DQMEDAnalyzer {
    * the taus contained in a given event.
    *
    * Method is called once per each event with the sum collections associated
-   * with the event being extracted for bx = 0. The implementation loops
-   * over the collection and depending of the sum type, where vector and scalar
+   * with the event being extracted for all bx. The implementation loops
+   * over the collection and depending of the their type
    * sums are compared separately but all sum errors are accumulated together.
    *
    * @param edm::Handle<l1t::TauBXCollection>& calol2Col Reference to sum
@@ -223,9 +222,6 @@ class L1TStage2uGTCaloLayer2Comp : public DQMEDAnalyzer {
   MonitorElement * comparisonNum;
   MonitorElement * comparisonDenum;
   bool verbose;
-
-  // use only bx = 0
-  const unsigned int currBx = 0;
 };
 
 #endif
