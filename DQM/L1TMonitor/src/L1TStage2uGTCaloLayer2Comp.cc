@@ -342,7 +342,7 @@ bool L1TStage2uGTCaloLayer2Comp::compareSums(
 
   // if either calol2 or ugt collections are empty, or they have different
   // size, mark the event as bad (this should never occur in normal running)
-  if (calol2Col->isEmpty() || uGTCol->isEmpty() ||
+  if (calol2Col->size() == 0 || uGTCol->size() == 0 ||
       (calol2Col->size() != uGTCol->size())) {
     comparisonNum->Fill(EVENTBADSUMCOL);
     return false;
