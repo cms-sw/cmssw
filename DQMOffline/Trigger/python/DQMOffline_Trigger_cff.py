@@ -37,9 +37,6 @@ from DQMOffline.Trigger.PrimaryVertexMonitoring_cff import *
 from DQMOffline.Trigger.TrackingMonitoring_cff import *
 from DQMOffline.Trigger.TrackingMonitoringPA_cff import*
 
-# hcal
-from DQMOffline.Trigger.HCALMonitoring_cff import *
-
 # strip
 from DQMOffline.Trigger.SiStrip_OfflineMonitoring_cff import *
 
@@ -113,15 +110,17 @@ offlineHLTSourceOnAOD = cms.Sequence(
     jetmetMonitorHLT
 )
 
+offlineHLTSourceOnRECO
+
 # offline DQM for running in the standard RECO,DQM (in PromptReco, ReReco, relval, etc)
 ## THIS IS THE SEQUENCE TO BE RUN AT TIER0
 ## ADD here only sequences/modules which rely on transient collections produced by the RECO step
 ## and not stored in the AOD format
 offlineHLTSource = cms.Sequence(
     offlineHLTSourceOnAOD
-    + hcalMonitoringSequence
     + jetMETHLTOfflineAnalyzer
 )
+
 
 # offline DQM to be run on AOD (w/o the need of the RECO step on-the-fly) only in the VALIDATION of the HLT menu based on data
 # it is needed in order to have the DQM code in the release, w/o the issue of crashing the tier0

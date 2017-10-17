@@ -40,7 +40,12 @@ hltassociation = cms.Sequence(
     )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
-hltvalidationCommon = cms.Sequence()
+# hcal
+from DQMOffline.Trigger.HCALMonitoring_cff import *
+
+hltvalidationCommon = cms.Sequence(
+    hcalMonitoringSequence
+)
 hltvalidationWithMC    = cms.Sequence(
     HLTMuonVal
     +HLTTauVal
@@ -57,7 +62,8 @@ hltvalidationWithMC    = cms.Sequence(
 #too noisy for now    +hltbtagValidationSequence
     +hltHCALdigisAnalyzer+hltHCALRecoAnalyzer+hltHCALNoiseRates # HCAL
 )
-hltvalidationWithData  = cms.Sequence()
+hltvalidationWithData  = cms.Sequence(
+)
 
 hltvalidation = cms.Sequence(
     hltvalidationCommon *
