@@ -992,8 +992,8 @@ namespace {
 	ss << "\nTEC- Disk " << i-9 << " :\t\t"<<NBadComponent[3][i][0]<<"\t"<<NBadComponent[3][i][1]<<"\t"<<NBadComponent[3][i][2]<<"\t"<<NBadComponent[3][i][3];
       ss<< "\n";
 
-      //edm::LogInfo("SiStripBadStrip_PayloadInspector") << ss.str() << std::endl;
-      std::cout<<  ss.str() << std::endl;
+      edm::LogInfo("SiStripBadStrip_PayloadInspector") << ss.str() << std::endl;
+      //std::cout<<  ss.str() << std::endl;
 
       TH2I *masterTable = new TH2I("table","",4,0.,4.,39,0.,39.);
       
