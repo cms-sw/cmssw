@@ -32,7 +32,7 @@ void GEMRawToDigiModule::beginRun(const edm::Run &run, const edm::EventSetup& iS
   edm::ESHandle<GEMEMap> gemEMap;
   iSetup.get<GEMEMapRcd>().get(gemEMap); 
   m_gemEMap = gemEMap.product();
-  m_gemROMap = m_gemEMap->convertCS();
+  m_gemROMap = m_gemEMap->convert();
 
 }
 
@@ -90,7 +90,7 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 	  uint8_t b1010=vfatData->b1010();
 	  uint8_t b1100=vfatData->b1100();
 	  uint8_t b1110=vfatData->b1110();
-	  uint16_t  ChipID=vfatData->ChipID();
+	  uint16_t ChipID=vfatData->ChipID();
 	  //int slot=vfatData->SlotNumber(); 
 	  uint16_t crc = vfatData->crc();
 	  uint16_t crc_check = checkCRC(vfatData);
@@ -110,7 +110,7 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 	    if(chan0xf==0) continue;  
 
 	    GEMROmap::eCoord ec;
-	    ec.chamberId=31;
+	    //ec.chamberId=31;
 	    ec.vfatId = ChipID+0xf000;
 	    ec.channelId = chan+1;
 	    GEMROmap::dCoord dc = m_gemROMap->hitPosition(ec);
@@ -119,12 +119,8 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 	    if (strip > 2*128) strip-=128*2;
 	    else if (strip < 128) strip+=128*2;
 
-	    int etaP=dc.etaId;	  
-	    // NEED TOO FIX GEMDETID
-	    //GEMDetId gemId = getGEMDetID(ChipID);
-	    
 	    GEMDigi digi(strip,bc);
-	    outGEMDigis.get()->insertDigi(GEMDetId(1,1,1,1,1,etaP),digi); 
+	    outGEMDigis.get()->insertDigi(dc.gemDetId,digi);
 	  }
 	  
 	  delete vfatData;
