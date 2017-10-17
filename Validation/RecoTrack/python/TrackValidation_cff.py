@@ -189,6 +189,9 @@ def _getSeedingLayers(seedProducers, config):
             return _findSeedingLayers(prod.triplets.getModuleLabel())
         elif hasattr(prod, "doublets"):
             return _findSeedingLayers(prod.doublets.getModuleLabel())
+        label = prod.trackingRegionsSeedingLayers.getModuleLabel()
+        if label != "":
+            return label
         return prod.seedingLayers.getModuleLabel()
 
     seedingLayersMerged = []
