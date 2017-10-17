@@ -15,6 +15,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Math/interface/PtEtaPhiMass.h"
 
+#include "VertexBeamspotOrigins.h"
 #include "AreaSeededTrackingRegionsBuilder.h"
 
 #include <array>
@@ -50,6 +51,7 @@ public:
   typedef enum {BEAM_SPOT_FIXED, BEAM_SPOT_SIGMA, VERTICES_FIXED, VERTICES_SIGMA } Mode;
 
   AreaSeededTrackingRegionsProducer(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC):
+    m_origins(conf.getParameter<edm::ParameterSet>("RegionPSet"), iC),
     m_builder(conf.getParameter<edm::ParameterSet>("RegionPSet"), iC)
   {
     edm::ParameterSet regPSet = conf.getParameter<edm::ParameterSet>("RegionPSet");
@@ -87,6 +89,7 @@ public:
     */
     desc.addVPSet("areas", descAreas, vDefaults);
 
+    VertexBeamspotOrigins::fillDescriptions(desc);
     AreaSeededTrackingRegionsBuilder::fillDescriptions(desc);
 
     // Only for backwards-compatibility
@@ -98,11 +101,13 @@ public:
 
   std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& e, const edm::EventSetup& es) const
   {
-    auto builder = m_builder.beginEvent(e, es);
-    return builder.regions(m_areas);
+    auto origins = m_origins.origins(e);
+    auto builder = m_builder.beginEvent(e);
+    return builder.regions(origins, m_areas);
   }
   
 private:
+  VertexBeamspotOrigins m_origins;
   AreaSeededTrackingRegionsBuilder m_builder;
   std::vector<AreaSeededTrackingRegionsBuilder::Area> m_areas;
 };
