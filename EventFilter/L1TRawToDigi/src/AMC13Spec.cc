@@ -58,12 +58,12 @@ namespace amc13 {
    }
 
    void
-   Packet::add(unsigned int amc_no, unsigned int board, unsigned int lv1id, unsigned int orbit, unsigned int bx, const std::vector<uint64_t>& load)
+   Packet::add(unsigned int amc_no, unsigned int board, unsigned int lv1id, unsigned int orbit, unsigned int bx, const std::vector<uint64_t>& load, unsigned int user)
    {
       edm::LogInfo("AMC") << "Adding board " << board << " with payload size " << load.size()
          << " as payload #" << amc_no;
       // Start by indexing with 1
-      payload_.push_back(amc::Packet(amc_no, board, lv1id, orbit, bx, load));
+      payload_.push_back(amc::Packet(amc_no, board, lv1id, orbit, bx, load, user));
    }
 
    bool
