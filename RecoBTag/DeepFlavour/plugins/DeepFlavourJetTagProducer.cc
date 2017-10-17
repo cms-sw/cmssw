@@ -218,8 +218,8 @@ void DeepFlavourJetTagProducer::produce(edm::Event& iEvent, const edm::EventSetu
       sv_tensor_filler(input_tensors.at(3), jet_n, sv_n, sv_features);
     }
 
-    // last input: corrected jet pt
-    input_tensors.at(4).matrix<float>()(jet_n, 0) = features.jet_features.corr_pt;
+    // last input: jet pt
+    input_tensors.at(4).matrix<float>()(jet_n, 0) = features.jet_features.pt;
   }
 
   // run the session

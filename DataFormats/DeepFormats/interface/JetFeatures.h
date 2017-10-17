@@ -10,9 +10,7 @@ class JetFeatures {
   public:
 
     float pt;
-    float corr_pt;
     float eta;
-    float phi;
     float mass;
     float energy;
 

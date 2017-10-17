@@ -1,17 +1,19 @@
 #ifndef RecoBTag_DeepFlavour_JetConverter_h
 #define RecoBTag_DeepFlavour_JetConverter_h
 
+#include "DataFormats/DeepFormats/interface/JetFeatures.h"
+
+#include "DataFormats/JetReco/interface/Jet.h"
+
 namespace btagbtvdeep {
 
   class JetConverter {
     public:
 
-      template <typename JetType, typename JetFeaturesType>
-      static void JetToFeatures( const JetType & jet, JetFeaturesType & jet_features) {
-        jet_features.pt = jet.pt(); // uncorrected was used on DeepNtuples
+      static void JetToFeatures(const reco::Jet & jet,
+                                JetFeatures & jet_features) {
+        jet_features.pt = jet.pt(); // uncorrected
         jet_features.eta = jet.eta();
-        jet_features.phi = jet.phi();
-        jet_features.corr_pt = jet.pt();
         jet_features.mass = jet.mass();
         jet_features.energy = jet.energy();
       }
