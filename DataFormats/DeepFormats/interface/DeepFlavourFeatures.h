@@ -25,9 +25,6 @@ class DeepFlavourFeatures {
     
     std::size_t npv; // used by deep flavour
 
-    // for ROOT schema evolution
-    CMS_CLASS_VERSION(10)
-    
 };    
 
 

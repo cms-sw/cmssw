@@ -1,22 +1,22 @@
 <lcgdict>
 
-  <class name="btagbtvdeep::JetFeatures" ClassVersion="10">
-    <version ClassVersion="10" checksum="386672900"/>
+  <class name="btagbtvdeep::JetFeatures" ClassVersion="3">
+    <version ClassVersion="3" checksum="386672900"/>
   </class>
-  <class name="btagbtvdeep::SecondaryVertexFeatures" ClassVersion="10">
-    <version ClassVersion="10" checksum="3610780843"/>
+  <class name="btagbtvdeep::SecondaryVertexFeatures" ClassVersion="3">
+    <version ClassVersion="3" checksum="3610780843"/>
   </class>
-  <class name="btagbtvdeep::ShallowTagInfoFeatures" ClassVersion="10">
-    <version ClassVersion="10" checksum="273372007"/>
+  <class name="btagbtvdeep::ShallowTagInfoFeatures" ClassVersion="3">
+    <version ClassVersion="3" checksum="273372007"/>
   </class>
-  <class name="btagbtvdeep::NeutralCandidateFeatures" ClassVersion="10">
-    <version ClassVersion="10" checksum="3423761844"/>
+  <class name="btagbtvdeep::NeutralCandidateFeatures" ClassVersion="3">
+    <version ClassVersion="3" checksum="938442516"/>
   </class>
-  <class name="btagbtvdeep::ChargedCandidateFeatures" ClassVersion="10">
-    <version ClassVersion="10" checksum="4222096501"/>
+  <class name="btagbtvdeep::ChargedCandidateFeatures" ClassVersion="3">
+    <version ClassVersion="3" checksum="1302021141"/>
   </class>
-  <class name="btagbtvdeep::DeepFlavourFeatures" ClassVersion="10">
-    <version ClassVersion="10" checksum="2487956635"/>
+  <class name="btagbtvdeep::DeepFlavourFeatures" ClassVersion="3">
+    <version ClassVersion="3" checksum="2487956635"/>
   </class>
 
   <class name="reco::DeepFlavourTagInfo"/>

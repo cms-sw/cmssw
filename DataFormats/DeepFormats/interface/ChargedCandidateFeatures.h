@@ -11,7 +11,7 @@ class ChargedCandidateFeatures {
 
     float ptrel;
     float puppiw;
-    float VTX_ass;
+    float vtx_ass;
 
     float btagPf_trackEtaRel;
     float btagPf_trackPtRel;
@@ -30,9 +30,6 @@ class ChargedCandidateFeatures {
     float quality;
 
     float drminsv;
-
-    // for ROOT schema evolution
-    CMS_CLASS_VERSION(10)
 
 };
 

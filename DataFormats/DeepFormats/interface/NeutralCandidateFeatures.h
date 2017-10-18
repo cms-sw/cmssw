@@ -15,11 +15,8 @@ class NeutralCandidateFeatures {
     float deltaR;
     float isGamma;
 
-    float HadFrac;
+    float hadFrac;
     float drminsv;
-
-    // for ROOT schema evolution
-    CMS_CLASS_VERSION(10)
 
 };
 

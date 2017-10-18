@@ -39,7 +39,7 @@ namespace btagbtvdeep {
 
         CommonCandidateToFeatures(n_pf, jet, drminpfcandsv, n_pf_features);
 
-        n_pf_features.HadFrac = n_pf->hcalFraction();
+        n_pf_features.hadFrac = n_pf->hcalFraction();
         n_pf_features.puppiw = n_pf->puppiWeight();
     
       } 
@@ -52,15 +52,13 @@ namespace btagbtvdeep {
         CommonCandidateToFeatures(n_pf, jet, drminpfcandsv, n_pf_features);
         n_pf_features.puppiw = puppiw;
 
-        bool isIsolatedChargedHadron = false;
         // need to get a value map and more stuff to do properly
-        //  https://github.com/cms-sw/cmssw/blob/master/PhysicsTools/PatAlgos/python/slimming/packedPFCandidates_cfi.py
+        // otherwise will be different than for PackedCandidates
+        // https://github.com/cms-sw/cmssw/blob/master/PhysicsTools/PatAlgos/python/slimming/packedPFCandidates_cfi.py
         if(abs(n_pf->pdgId()) == 1 || abs(n_pf->pdgId()) == 130) {
-          n_pf_features.HadFrac = n_pf->hcalEnergy()/(n_pf->ecalEnergy()+n_pf->hcalEnergy());
-        } else if(isIsolatedChargedHadron) {
-          //    outPtrP->back().setHcalFraction(n_pf->rawHcalEnergy()/(n_pf->rawEcalEnergy()+n_pf->rawHcalEnergy()));
+          n_pf_features.hadFrac = n_pf->hcalEnergy()/(n_pf->ecalEnergy()+n_pf->hcalEnergy());
         } else {
-          n_pf_features.HadFrac = 0;
+          n_pf_features.hadFrac = 0;
         }
     
       } 
