@@ -26,13 +26,10 @@ inline T deltaPhi (T phi1, T phi2) {
 inline bool phiLess(float x, float y) {
   auto ix = phi2int(toPhi(x));
   auto iy = phi2int(toPhi(y));
-
-  return (ix-iy)<0;
-
-}
+  return ix<iy; // avoid overflows on signed ints//(ix-iy)<0;
 
 }
-
+}
 
 template<> float unsafe_atan2f<0>(float,float) { return 1.f;}
 template<> float unsafe_atan2f<99>(float y,float x) { return std::atan2(y,x);}
@@ -158,12 +155,12 @@ void testIntPhi() {
   assert(phiLess(0.f,2.f));
   assert(phiLess(6.f,0.f));
   assert(phiLess(3.2f,0.f));
-  assert(phiLess(3.0f,3.2f));
-
+  assert(phiLess(-3.08319f,3.0f));
+  //assert(phiLess(3.0f,3.2f));
   assert(phiLess(-0.3f,0.f));
   assert(phiLess(-0.3f,0.1f));
   assert(phiLess(-3.0f,0.f));
-  assert(phiLess(3.0f,-3.0f));
+  //assert(phiLess(3.0f,-3.0f));
   assert(phiLess(0.f,-3.4f));
 
   // go around the clock
