@@ -31,11 +31,8 @@ public:
 
   static void fillDescriptions(edm::ParameterSetDescription& desc);
 
-  bool check(const edm::EventSetup& es);
-  void updateEventSetup(const edm::EventSetup& es);
-
   unsigned short numberOfLayers() const { return theLayers.size(); }
-  std::unique_ptr<SeedingLayerSetsHits> hits(const edm::Event& ev, const edm::EventSetup& es) const;
+  std::unique_ptr<SeedingLayerSetsHits> hits(const edm::Event& ev, const edm::EventSetup& es);
 
   using SeedingLayerId = std::tuple<GeomDetEnumerators::SubDetector, TrackerDetSide::Side, int>;
   static SeedingLayerId nameToEnumId(const std::string& name);
@@ -43,6 +40,7 @@ public:
 
 private:
   edm::ParameterSet layerConfig(const std::string & nameLayer,const edm::ParameterSet& cfg) const;
+  void updateEventSetup(const edm::EventSetup& es);
 
   edm::ESWatcher<TrackerRecoGeometryRecord> geometryWatcher_;
   edm::ESWatcher<TransientRecHitRecord> trhWatcher_;
