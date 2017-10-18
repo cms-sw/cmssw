@@ -1,7 +1,5 @@
-#ifndef DataFormats_DeepFormats_NeutralCandidateFeatures_h
-#define DataFormats_DeepFormats_NeutralCandidateFeatures_h
-
-#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
+#ifndef DataFormats_BTauReco_NeutralCandidateFeatures_h
+#define DataFormats_BTauReco_NeutralCandidateFeatures_h
 
 namespace btagbtvdeep {
 
@@ -22,4 +20,4 @@ class NeutralCandidateFeatures {
 
 }
 
-#endif //DataFormats_DeepFormats_NeutralCandidateFeatures_h
+#endif //DataFormats_BTauReco_NeutralCandidateFeatures_h

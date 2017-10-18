@@ -1,14 +1,13 @@
-#ifndef DataFormats_DeepFormats_DeepFlavourFeatures_h
-#define DataFormats_DeepFormats_DeepFlavourFeatures_h
+#ifndef DataFormats_BTauReco_DeepFlavourFeatures_h
+#define DataFormats_BTauReco_DeepFlavourFeatures_h
 
 #include <vector>
 
-#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
-#include "DataFormats/DeepFormats/interface/JetFeatures.h"
-#include "DataFormats/DeepFormats/interface/SecondaryVertexFeatures.h"
-#include "DataFormats/DeepFormats/interface/ShallowTagInfoFeatures.h"
-#include "DataFormats/DeepFormats/interface/NeutralCandidateFeatures.h"
-#include "DataFormats/DeepFormats/interface/ChargedCandidateFeatures.h"
+#include "DataFormats/BTauReco/interface/JetFeatures.h"
+#include "DataFormats/BTauReco/interface/SecondaryVertexFeatures.h"
+#include "DataFormats/BTauReco/interface/ShallowTagInfoFeatures.h"
+#include "DataFormats/BTauReco/interface/NeutralCandidateFeatures.h"
+#include "DataFormats/BTauReco/interface/ChargedCandidateFeatures.h"
 
 namespace btagbtvdeep {
 
@@ -30,4 +29,4 @@ class DeepFlavourFeatures {
 
 }  
 
-#endif //DataFormats_DeepFormats_DeepFlavourFeatures_h
+#endif //DataFormats_BTauReco_DeepFlavourFeatures_h

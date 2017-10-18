@@ -2,7 +2,7 @@
 #define RecoBTag_DeepFlavour_tensor_fillers_h
 
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
-#include "DataFormats/DeepFormats/interface/DeepFlavourTagInfo.h"
+#include "DataFormats/BTauReco/interface/DeepFlavourTagInfo.h"
 
 namespace btagbtvdeep {
 

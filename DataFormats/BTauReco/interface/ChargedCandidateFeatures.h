@@ -1,7 +1,5 @@
-#ifndef DataFormats_DeepFormats_ChargedCandidateFeatures_h
-#define DataFormats_DeepFormats_ChargedCandidateFeatures_h
-
-#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
+#ifndef DataFormats_BTauReco_ChargedCandidateFeatures_h
+#define DataFormats_BTauReco_ChargedCandidateFeatures_h
 
 namespace btagbtvdeep {
 
@@ -35,4 +33,4 @@ class ChargedCandidateFeatures {
 
 }
 
-#endif //DataFormats_DeepFormats_ChargedCandidateFeatures_h
+#endif //DataFormats_BTauReco_ChargedCandidateFeatures_h
