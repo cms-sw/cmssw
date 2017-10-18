@@ -19,14 +19,14 @@
 #include "DataFormats/BTauReco/interface/DeepFlavourTagInfo.h"
 #include "DataFormats/BTauReco/interface/DeepFlavourFeatures.h"
 
-#include "RecoBTag/DeepFlavour/interface/JetConverter.h"
-#include "RecoBTag/DeepFlavour/interface/BTagConverter.h"
-#include "RecoBTag/DeepFlavour/interface/SVConverter.h"
-#include "RecoBTag/DeepFlavour/interface/NeutralCandidateConverter.h"
-#include "RecoBTag/DeepFlavour/interface/ChargedCandidateConverter.h"
+#include "RecoBTag/DeepFlavour/plugins/JetConverter.h"
+#include "RecoBTag/DeepFlavour/plugins/BTagConverter.h"
+#include "RecoBTag/DeepFlavour/plugins/SVConverter.h"
+#include "RecoBTag/DeepFlavour/plugins/NeutralCandidateConverter.h"
+#include "RecoBTag/DeepFlavour/plugins/ChargedCandidateConverter.h"
 
-#include "RecoBTag/DeepFlavour/interface/TrackInfoBuilder.h"
-#include "RecoBTag/DeepFlavour/interface/sorting_modules.h"
+#include "RecoBTag/DeepFlavour/plugins/TrackInfoBuilder.h"
+#include "RecoBTag/DeepFlavour/plugins/sorting_modules.h"
 
 
 

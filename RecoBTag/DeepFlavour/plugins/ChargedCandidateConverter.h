@@ -1,8 +1,8 @@
 #ifndef RecoSV_DeepFlavour_ChargedCandidateConverter_h
 #define RecoSV_DeepFlavour_ChargedCandidateConverter_h
 
-#include "RecoBTag/DeepFlavour/interface/deep_helpers.h"
-#include "RecoBTag/DeepFlavour/interface/TrackInfoBuilder.h"
+#include "RecoBTag/DeepFlavour/plugins/deep_helpers.h"
+#include "RecoBTag/DeepFlavour/plugins/TrackInfoBuilder.h"
 #include "DataFormats/BTauReco/interface/ChargedCandidateFeatures.h"
 
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
