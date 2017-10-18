@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from CondCore.CondDB.CondDB_cfi import *
 CondDB.DBParameters.authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
-CondDB.connect = cms.string('sqlite_file:GEMEMap.db')
+CondDB.connect = cms.string('sqlite_file:../data/GEMEMap.db')
 #from CondCore.DBCommon.CondDBSetup_cfi import *
 #CondDBSetup.DBParameters.authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
 GEMCabling = cms.ESSource("PoolDBESSource",
