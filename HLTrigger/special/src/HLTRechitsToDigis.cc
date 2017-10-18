@@ -284,7 +284,7 @@ HLTRechitsToDigis::fillDescriptions(edm::ConfigurationDescriptions& descriptions
     ->setComment("Name for the collection of Digis saved by the module");
   desc.add<edm::InputTag>("recHits",edm::InputTag("hltAlCaPi0EBUncalibrator","pi0EcalRecHitsEB"))
     ->setComment("Collection of rechits to match Digis to");  
-  desc.add<edm::InputTag>("srFlagsIn",edm::InputTag("ecalSrFlags","ebSrFlags"))
+  desc.add<edm::InputTag>("srFlagsIn",edm::InputTag("ecalSrFlags"))
     ->setComment("The collection of either barrel or endcap srFlags which correspond to the rechit collection");
   desc.add<std::string>("srFlagsOut","pi0EBSrFlags")
     ->setComment("Name for the collection of SrFlags saved by the module");
