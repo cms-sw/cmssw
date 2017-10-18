@@ -1,7 +1,5 @@
-#ifndef DataFormats_DeepFormats_ShallowTagInfoFeatures_h
-#define DataFormats_DeepFormats_ShallowTagInfoFeatures_h
-
-#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
+#ifndef DataFormats_BTauReco_ShallowTagInfoFeatures_h
+#define DataFormats_BTauReco_ShallowTagInfoFeatures_h
 
 namespace btagbtvdeep {
 
@@ -25,4 +23,4 @@ class ShallowTagInfoFeatures {
 
 }
 
-#endif //DataFormats_DeepFormats_ShallowTagInfoFeatures_h
+#endif //DataFormats_BTauReco_ShallowTagInfoFeatures_h

@@ -16,8 +16,8 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
-#include "DataFormats/DeepFormats/interface/DeepFlavourTagInfo.h"
-#include "DataFormats/DeepFormats/interface/DeepFlavourFeatures.h"
+#include "DataFormats/BTauReco/interface/DeepFlavourTagInfo.h"
+#include "DataFormats/BTauReco/interface/DeepFlavourFeatures.h"
 
 #include "RecoBTag/DeepFlavour/interface/JetConverter.h"
 #include "RecoBTag/DeepFlavour/interface/BTagConverter.h"
