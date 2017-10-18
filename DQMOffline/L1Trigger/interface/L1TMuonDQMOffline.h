@@ -147,10 +147,44 @@ class L1TMuonDQMOffline : public DQMEDAnalyzer {
         edm::ESHandle<Propagator> m_propagatorAlong;
         edm::ESHandle<Propagator> m_propagatorOpposite;
 
+        enum Resol
+        {
+            RESOL_Pt,
+            RESOL_1overPt,
+            RESOL_Eta,
+            RESOL_Phi,
+            RESOL_Charge,
+
+            RESOL_Pt_OPEN,
+            RESOL_1overPt_OPEN,
+            RESOL_Eta_OPEN,
+            RESOL_Phi_OPEN,
+            RESOL_Charge_OPEN,
+
+            RESOL_Pt_DOUBLE,
+            RESOL_1overPt_DOUBLE,
+            RESOL_Eta_DOUBLE,
+            RESOL_Phi_DOUBLE,
+            RESOL_Charge_DOUBLE,
+
+            RESOL_Pt_SINGLE,
+            RESOL_1overPt_SINGLE,
+            RESOL_Eta_SINGLE,
+            RESOL_Phi_SINGLE,
+            RESOL_Charge_SINGLE,
+        };
+
+        enum Control
+        {
+            CONTROL_MuonGmtDeltaR,
+            CONTROL_NTightVsAll,
+            CONTROL_NProbesVsTight,
+        };
+
         // histos
         std::map<int, std::map<std::string, MonitorElement*> > m_EfficiencyHistos;
-        std::map<std::string, MonitorElement*> m_ResolutionHistos;        
-        std::map<std::string, MonitorElement*> m_ControlHistos;
+        std::map<Resol, MonitorElement*> m_ResolutionHistos;
+        std::map<Control, MonitorElement*> m_ControlHistos;
 
         // helper variables
         std::vector<const reco::Muon*>  m_TightMuons;
