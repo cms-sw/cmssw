@@ -1,5 +1,6 @@
 
 #include "RecoBTag/DeepFlavour/interface/sorting_modules.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
 
 namespace btagbtvdeep{
@@ -11,7 +12,7 @@ std::vector<std::size_t> invertSortingVector(const std::vector<SortingClass<std:
     }
 
     if(max>1e3){
-        throw std::runtime_error("sorting vector size more than 1k ");
+        throw cms::Exception("sorting vector size more than 1k ");
     }
     std::vector<std::size_t> out(max+1,0);
     for(std::size_t i=0;i<in.size();i++){
