@@ -569,10 +569,16 @@ GenXSecAnalyzer::endJob() {
       << "After matching: total cross section = " 
       << std::scientific << std::setprecision(3)  
       << xsecAfterMatching_[last].value() << " +- " << xsecAfterMatching_[last].error() <<  " pb";
+      
+    edm::LogPrint("GenXSecAnalyzer")
+      << "Matching efficiency = "
+      << std::fixed << std::setprecision(1)
+          << (thisEventEffStat.filterEfficiency(+3) * 100) << " +/- " 
+          << ( thisEventEffStat.filterEfficiencyError(+3) * 100) <<"   [TO BE USED IN MCM]";
   }
   else if(hepidwtup_ == -1 )
     edm::LogPrint("GenXSecAnalyzer") 
-      << "Before Filtrer: total cross section = " 
+      << "Before Filter: total cross section = " 
       << std::scientific << std::setprecision(3)  
       << xsecPreFilter_.value() << " +- " << xsecPreFilter_.error() <<  " pb";
 
@@ -634,7 +640,7 @@ GenXSecAnalyzer::endJob() {
       << "(" << filterOnly_event_total << ")"
       << " = " 
       <<  std::scientific << std::setprecision(3) 
-      << filterOnly_event_eff << " +- " << filterOnly_event_err;
+      << filterOnly_event_eff << " +- " << filterOnly_event_err << "    [TO BE USED IN MCM]";
 
       // fill negative fraction of negative weights and uncertainty after filter
       final_fract_neg_w = filterOnly_event_pass > 0 ? filterOnlyEffStat_.numPassNegativeEvents()/(filterOnly_event_pass) : 0;
