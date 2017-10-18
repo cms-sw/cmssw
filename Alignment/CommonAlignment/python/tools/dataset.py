@@ -49,8 +49,8 @@ def getrunnumbersfromfile(filename, trydas=True, allowunknown=False, dasinstance
     error = "does not start with /store"
   elif parts[2] in ["mc", "relval"]:
     return [1]
-  elif parts[-2] != "00000" or not parts[-1].endswith(".root"):
-    error = "does not end with 00000/something.root"
+  elif not parts[-1].endswith(".root"):
+    error = "does not end with something.root"
   elif len(parts) != 12:
     error = "should be exactly 11 slashes counting the first one"
   else:
