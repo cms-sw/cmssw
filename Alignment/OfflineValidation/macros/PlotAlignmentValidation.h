@@ -103,6 +103,8 @@ public:
   int maxNumberOfLayers(int subdetector);
   
   THStack* addHists(const TString& selection, const TString &residType = "xPrime", TLegend **myLegend = 0, bool printModuleIds = false, bool validforphase0 = false);//add hists fulfilling 'selection' on TTree; residType: xPrime,yPrime,xPrimeNorm,yPrimeNorm,x,y,xNorm; if (printModuleIds): cout DetIds
+
+  float twotailedStudentTTestEqualMean(float t, float v);
   
   // These are helpers for DMR plotting
 
