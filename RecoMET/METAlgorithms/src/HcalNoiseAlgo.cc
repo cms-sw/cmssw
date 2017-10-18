@@ -83,7 +83,7 @@ CommonHcalNoiseRBXData::CommonHcalNoiseRBXData(const reco::HcalNoiseRBX& rbx, do
     }
   }
 
-  // emf
+  // emf (get the one with minimum value)
   HPDEMF_ = 999.;
   for(std::vector<reco::HcalNoiseHPD>::const_iterator it1=rbx.HPDsBegin(); it1!=rbx.HPDsEnd(); ++it1) {
     double eme=it1->caloTowerEmE();

@@ -100,7 +100,7 @@ MCParticlePairFilter::~MCParticlePairFilter()
 
 
 // ------------ method called to skim the data  ------------
-bool MCParticlePairFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool MCParticlePairFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
    using namespace edm;
    bool accepted = false;
@@ -268,7 +268,7 @@ bool MCParticlePairFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
     
 }
 
-int MCParticlePairFilter::charge(const int& Id){
+int MCParticlePairFilter::charge(int Id) const {
 
   
   //...Purpose: to give three times the charge for a particle/parton.
@@ -280,7 +280,7 @@ int MCParticlePairFilter::charge(const int& Id){
   int hepchg;
 
 
-  int ichg[109]={-1,2,-1,2,-1,2,-1,2,0,0,-3,0,-3,0,-3,0,
+  constexpr const int ichg[109]={-1,2,-1,2,-1,2,-1,2,0,0,-3,0,-3,0,-3,0,
 -3,0,0,0,0,0,0,3,0,0,0,0,0,0,3,0,3,6,0,0,3,6,0,0,-1,2,-1,2,-1,2,0,0,0,0,
 -3,0,-3,0,-3,0,0,0,0,0,-1,2,-1,2,-1,2,0,0,0,0,
 -3,0,-3,0,-3,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};

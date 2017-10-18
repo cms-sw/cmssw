@@ -626,6 +626,7 @@ class ConfigBuilder(object):
 		if self._options.timeoutOutput:
 			CppType='TimeoutPoolOutputModule'
 		if streamType=='DQM' and tier=='DQMIO': CppType='DQMRootOutputModule'
+		if "NANOAOD" in streamType and 'NANOAOD' in tier : CppType='NanoAODOutputModule'
                 output = cms.OutputModule(CppType,
                                           theEventContent,
                                           fileName = cms.untracked.string(theFileName),
@@ -921,6 +922,7 @@ class ConfigBuilder(object):
         self.L1TrackTriggerDefaultCFF="Configuration/StandardSequences/L1TrackTrigger_cff"
         self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_Data_cff"
         self.PATDefaultCFF="Configuration/StandardSequences/PAT_cff"
+        self.NANODefaultCFF="PhysicsTools/NanoAOD/nano_cff"
 	self.EIDefaultCFF=None
         self.SKIMDefaultCFF="Configuration/StandardSequences/Skims_cff"
         self.POSTRECODefaultCFF="Configuration/StandardSequences/PostRecoGenerator_cff"
@@ -980,6 +982,7 @@ class ConfigBuilder(object):
         self.REPACKDefaultSeq='DigiToRawRepack'
 	self.PATDefaultSeq='miniAOD'
 	self.PATGENDefaultSeq='miniGEN'
+	self.NANODefaultSeq='nanoSequence'
 
         self.EVTCONTDefaultCFF="Configuration/EventContent/EventContent_cff"
 
@@ -994,6 +997,7 @@ class ConfigBuilder(object):
 		self.PATGENDefaultCFF="Configuration/StandardSequences/PATGEN_cff"
                 self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineMC_cff"
                 self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreamsMC_cff"
+	        self.NANODefaultSeq='nanoSequenceMC'
 	else:
 		self._options.beamspot = None
 	
@@ -1688,6 +1692,21 @@ class ConfigBuilder(object):
             raise Exception("PATGEN step can only run on MC")
         return
 
+    def prepare_NANO(self, sequence = "nanoAOD"):
+        ''' Enrich the schedule with NANO '''
+        self.loadDefaultOrSpecifiedCFF(sequence,self.NANODefaultCFF)
+	self.scheduleSequence(sequence.split('.')[-1],'nanoAOD_step')
+        custom = "nanoAOD_customizeData" if self._options.isData else "nanoAOD_customizeMC"
+        if self._options.runUnscheduled:
+            self._options.customisation_file_unsch.insert(0,"PhysicsTools/NanoAOD/nano_cff."+custom)
+        else:
+            self._options.customisation_file.insert(0,"PhysicsTools/NanoAOD/nano_cff."+custom)
+	if self._options.hltProcess:
+	     if len(self._options.customise_commands) > 1:
+		     self._options.customise_commands = self._options.customise_commands + " \n"
+             self._options.customise_commands = self._options.customise_commands + "process.unpackedPatTrigger.triggerResults= cms.InputTag( 'TriggerResults::"+self._options.hltProcess+"' )\n"
+
+
     def prepare_EI(self, sequence = None):
         ''' Enrich the schedule with event interpretation '''
 	from Configuration.StandardSequences.EventInterpretation import EventInterpretation
@@ -2224,6 +2243,14 @@ class ConfigBuilder(object):
 		self.pythonCfgCode += self.addCustomise(1)
 
 	self.pythonCfgCode += self.addCustomiseCmdLine()
+
+        if hasattr(self.process,"logErrorHarvester"):
+                #configure logErrorHarvester to wait for same EDProducers to finish as the OutputModules
+                self.pythonCfgCode +="\n#Have logErrorHarvester wait for the same EDProducers to finish as those providing data for the OutputModule\n"
+                self.pythonCfgCode +="from FWCore.Modules.logErrorHarvester_cff import customiseLogErrorHarvesterUsingOutputCommands\n"
+                self.pythonCfgCode +="process = customiseLogErrorHarvesterUsingOutputCommands(process)\n"
+                from FWCore.Modules.logErrorHarvester_cff import customiseLogErrorHarvesterUsingOutputCommands
+                self.process = customiseLogErrorHarvesterUsingOutputCommands(self.process)
 
         # Temporary hack to put the early delete customization after
         # everything else

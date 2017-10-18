@@ -13,6 +13,7 @@
 #include "DQMOffline/Trigger/interface/EgHLTOffPho.h"
 #include "DQMOffline/Trigger/interface/EgHLTMonElemWithCut.h"
 #include "DQMOffline/Trigger/interface/EgHLTMonElemMgrEBEE.h"
+#include "DQMOffline/Trigger/interface/EgHLTMonElemMgrHEP.h"
 #include "DQMOffline/Trigger/interface/EgHLTDQMCut.h"
 #include "DQMOffline/Trigger/interface/EgHLTMonElemContainer.h"
 #include "DQMOffline/Trigger/interface/EgHLTBinData.h"
@@ -44,6 +45,9 @@ namespace egHLT {
     void initStdEffHists(std::vector<MonElemWithCutBase<OffPho>*>& histVec,const std::string& filterName,const std::string& baseName,int nrBins,double xMin,double xMax,float (OffPho::*vsVarFunc)()const,const CutMasks& masks);   
     void initStdEffHists(std::vector<MonElemWithCutBase<OffPho>*>& histVec,const std::string& filterName,const std::string& baseName,const BinData::Data1D& bins,float (OffPho::*vsVarFunc)()const,const CutMasks& masks);
 
+   //for hep region plots
+    void initStdEleHistsHEP(std::vector<MonElemManagerBase<OffEle>*>& histVec,const std::string& filterName,const std::string& baseName,const BinData& bins); 
+    void initStdPhoHistsHEP(std::vector<MonElemManagerBase<OffPho>*>& histVec,const std::string& filterName,const std::string& baseName,const BinData& bins); 
     //we own the passed in pointer
     void initStdEleCutHists(std::vector<MonElemWithCutBase<OffEle>*>& histVec,const std::string& filterName,const std::string& baseName,const BinData& bins,EgHLTDQMCut<OffEle>* cut=nullptr);
     void initStdPhoCutHists(std::vector<MonElemWithCutBase<OffPho>*>& histVec,const std::string& filterName,const std::string& baseName,const BinData& bins,EgHLTDQMCut<OffPho>* cut=nullptr);
@@ -84,6 +88,10 @@ namespace egHLT {
       histVec.push_back(new MonElemMgrEBEE<T,varType>(iBooker, name,title,binData.nr,binData.min,binData.max,varFunc));
     }
 
+    template<class T,typename varType> void addStdHistHEP( std::vector<MonElemManagerBase<T>*>& histVec,const std::string& name,const std::string& title,                                                                                       
+                                                       const BinData::Data1D& binData,varType (T::*varFunc)()const){
+      histVec.push_back(new MonElemMgrHEP<T,varType>(iBooker, name,title,binData.nr,binData.min,binData.max,varFunc));
+    }                                                  
     //this function is special in that it figures out the Et cut from the trigger name
     //it then passes the cut as normal into the other addTightLooseTrigHist functions
     //it also makes an uncut et distribution
