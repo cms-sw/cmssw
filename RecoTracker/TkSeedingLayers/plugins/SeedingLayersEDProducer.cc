@@ -36,9 +36,6 @@ void SeedingLayersEDProducer::fillDescriptions(edm::ConfigurationDescriptions& d
 }
 
 void SeedingLayersEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  builder_.updateEventSetup(iSetup);
-
-  // Get hits
   auto prod = builder_.hits(iEvent, iSetup);
   //prod->print();
 

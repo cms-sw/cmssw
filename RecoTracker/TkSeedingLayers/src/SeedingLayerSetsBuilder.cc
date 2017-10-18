@@ -353,7 +353,9 @@ void SeedingLayerSetsBuilder::updateEventSetup(const edm::EventSetup& es) {
 }
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
-std::unique_ptr<SeedingLayerSetsHits> SeedingLayerSetsBuilder::hits(const edm::Event& ev, const edm::EventSetup& es) const {
+std::unique_ptr<SeedingLayerSetsHits> SeedingLayerSetsBuilder::hits(const edm::Event& ev, const edm::EventSetup& es) {
+  updateEventSetup(es);
+
   auto ret = std::make_unique<SeedingLayerSetsHits>(theNumberOfLayersInSet,
                                                     &theLayerSetIndices,
                                                     &theLayerNames,
