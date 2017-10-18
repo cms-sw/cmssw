@@ -67,8 +67,8 @@ hltvalidationWithData  = cms.Sequence(
 
 hltvalidation = cms.Sequence(
     hltvalidationCommon *
-    hltvalidation4mc *
-    hltvalidation4data
+    hltvalidationWithMC *
+    hltvalidationWithData
 )
 
 # some hlt collections have no direct fastsim equivalent
