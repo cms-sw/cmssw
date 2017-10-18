@@ -13,7 +13,7 @@ class RegionalMuonCand {
         kWheelSide=0, kWheelNum=1, kStat1=2, kStat2=3, kStat3=4, kStat4=5, kSegSelStat1=6, kSegSelStat2=7, kSegSelStat3=8, kSegSelStat4=9, kNumBmtfSubAddr=10
     };
     /// Enum to identify the individual parts of the OMTF track address
-    /// Update kNumEmtfSubAddr if you add additional enums
+    /// Update kNumOmtfSubAddr if you add additional enums
     enum omtfAddress {
 	kLayers=0, kZero=1, kWeight=2, kNumOmtfSubAddr=3
     };
@@ -27,13 +27,30 @@ class RegionalMuonCand {
     explicit RegionalMuonCand(uint64_t dataword);
 
     RegionalMuonCand() :
-      m_hwPt(0), m_hwPhi(0), m_hwEta(0), m_hwHF(false), m_hwSign(0), m_hwSignValid(0), m_hwQuality(0), m_dataword(0)
+      m_hwPt(0), m_hwPhi(0), m_hwEta(0), m_hwHF(false), m_hwSign(0), m_hwSignValid(0), m_hwQuality(0),
+      m_trackAddress({{kWheelSide, 0}, {kWheelNum, 0}, {kStat1, 0}, {kStat2, 0}, {kStat3, 0}, {kStat4, 0}, {kSegSelStat1, 0}, {kSegSelStat2, 0}, {kSegSelStat3, 0}, {kSegSelStat4, 0}}),
+      m_dataword(0)
       {
         setTFIdentifiers(0, bmtf);
       };
 
     RegionalMuonCand(int pt, int phi, int eta, int sign, int signvalid, int quality, int processor, tftype trackFinder) :
       m_hwPt(pt), m_hwPhi(phi), m_hwEta(eta), m_hwHF(false), m_hwSign(sign), m_hwSignValid(signvalid), m_hwQuality(quality),
+      m_dataword(0)
+      {
+        setTFIdentifiers(processor, trackFinder);
+        // set default track addresses
+        if (trackFinder == tftype::bmtf) {
+          m_trackAddress = {{kWheelSide, 0}, {kWheelNum, 0}, {kStat1, 0}, {kStat2, 0}, {kStat3, 0}, {kStat4, 0}, {kSegSelStat1, 0}, {kSegSelStat2, 0}, {kSegSelStat3, 0}, {kSegSelStat4, 0}};
+        } else if (trackFinder == tftype::omtf_pos || trackFinder == tftype::omtf_neg) {
+          m_trackAddress = {{kLayers, 0}, {kZero, 0}, {kWeight, 0}};
+        } else if (trackFinder == tftype::emtf_pos || trackFinder == tftype::emtf_neg) {
+          m_trackAddress = {{kME1Seg, 0}, {kME1Ch, 0}, {kME2Seg, 0}, {kME2Ch, 0}, {kME3Seg, 0}, {kME3Ch, 0}, {kME4Seg, 0}, {kME4Ch, 0}, {kTrkNum, 0}, {kBX, 0}};
+        }
+      };
+
+    RegionalMuonCand(int pt, int phi, int eta, int sign, int signvalid, int quality, int processor, tftype trackFinder, std::map<int, int> trackAddress) :
+      m_hwPt(pt), m_hwPhi(phi), m_hwEta(eta), m_hwHF(false), m_hwSign(sign), m_hwSignValid(signvalid), m_hwQuality(quality), m_trackAddress(trackAddress),
       m_dataword(0)
       {
         setTFIdentifiers(processor, trackFinder);
