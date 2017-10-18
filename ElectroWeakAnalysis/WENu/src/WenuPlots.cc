@@ -261,7 +261,7 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   ele_id_dphi      = (Float_t)  myElec->deltaPhiSuperClusterTrackAtVtx();
   ele_id_hoe       = (Float_t)  myElec->hadronicOverEm();
   //
-  ele_cr_mhitsinner= myElec->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+  ele_cr_mhitsinner= myElec->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
   ele_cr_dcot      = myElec->convDcot();
   ele_cr_dist      = myElec->convDist();
   //
@@ -517,7 +517,7 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
       ele2nd_id_dphi   = (Float_t)  mySecondElec->deltaPhiSuperClusterTrackAtVtx();
       ele2nd_id_hoe    = (Float_t)  mySecondElec->hadronicOverEm();
 
-      ele2nd_cr_mhitsinner = mySecondElec->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+      ele2nd_cr_mhitsinner = mySecondElec->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
       ele2nd_cr_dcot       = mySecondElec->convDcot();
       ele2nd_cr_dist       = mySecondElec->convDist();
 
@@ -676,7 +676,7 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   std::cout << "tracIso: " <<  trackIso << ", " << myElec->trackIso() << ", ecaliso: " << ecalIso
 	    << ", " << myElec->ecalIso() << ", hcaliso: " << hcalIso << ", "  << myElec->hcalIso()
 	    << ", mishits: "
-	    << myElec->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS)
+	    << myElec->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS)
 	    << std::endl;
   std::cout << "Electron ID: 95relIso=" << myElec->electronID("simpleEleId95relIso")
 	    << " 90relIso=" << myElec->electronID("simpleEleId90relIso")

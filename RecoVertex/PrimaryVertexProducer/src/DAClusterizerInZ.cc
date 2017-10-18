@@ -529,7 +529,7 @@ void DAClusterizerInZ::dump(const double beta, const vector<vertex_t> & y, const
       cout << setw(1) << tks[i].tt->track().hitPattern().pixelEndcapLayersWithMeasurement(); 
       cout << setw(1) << hex << tks[i].tt->track().hitPattern().trackerLayersWithMeasurement() -
           tks[i].tt->track().hitPattern().pixelLayersWithMeasurement() << dec; 
-      cout << "=" << setw(1) << hex << tks[i].tt->track().hitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS) << dec;
+      cout << "=" << setw(1) << hex << tks[i].tt->track().hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS) << dec;
 
       Measurement1D IP=tks[i].tt->stateAtBeamLine().transverseImpactParameter();
       cout << setw (8) << IP.value() << "+/-" << setw (6) << IP.error();

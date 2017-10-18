@@ -66,10 +66,12 @@ namespace {
 
         for (int i = 0; i < p.numberOfHits(reco::HitPattern::MISSING_INNER_HITS); ++i) {
           uint32_t hit = p.getHitPattern(reco::HitPattern::MISSING_INNER_HITS, i);
-
+          detLayer(os, p, hit);
           if(p.missingHitFilter(hit)) {
-            detLayer(os, p, hit);
-            os << " ";
+            os << "(miss)";
+          }
+          else if(p.inactiveHitFilter(hit)) {
+            os << "(inact)";
           }
         }
       }
@@ -78,10 +80,12 @@ namespace {
 
         for (int i = 0; i < p.numberOfHits(reco::HitPattern::MISSING_OUTER_HITS); ++i) {
           uint32_t hit = p.getHitPattern(reco::HitPattern::MISSING_OUTER_HITS, i);
-
+          detLayer(os, p, hit);
           if(p.missingHitFilter(hit)) {
-            detLayer(os, p, hit);
-            os << " ";
+            os << "(miss)";
+          }
+          else if(p.inactiveHitFilter(hit)) {
+            os << "(inact)";
           }
         }
       }

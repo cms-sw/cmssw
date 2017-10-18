@@ -402,7 +402,7 @@ bool DQMExample_Step1::MediumEle (const edm::Event & iEvent, const edm::EventSet
   float HOverE        = electron.hadronicOverEm();
   float ooemoop       = (1.0/electron.ecalEnergy() - electron.eSuperClusterOverP()/electron.ecalEnergy());
   
-  int mishits             = electron.gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+  int mishits             = electron.gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
   int nAmbiguousGsfTracks = electron.ambiguousGsfTracksSize();
   
   reco::GsfTrackRef eleTrack  = electron.gsfTrack() ;

@@ -84,7 +84,7 @@ IsoDeposit PFCandWithSuperClusterExtractor::depositFromObject(const Event & even
     for (PFCandidateCollection::const_iterator it = PFCandH->begin(), ed = PFCandH->end(); it != ed; ++it) {
         double dR = deltaR(it->eta(), it->phi(), eta, phi);
         // If MissHits>0 (possibly reconstructed as a photon in the PF in this case, kill the the photon if sharing the same SC)
-        if (cand.gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS) > 0 
+        if (cand.gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) > 0 
                 && theMissHitVetoSuperClusterMatch && it->mva_nothing_gamma() > 0.99 
                 && cand.superCluster().isNonnull() && it->superClusterRef().isNonnull() 
                 && cand.superCluster() == it->superClusterRef()){

@@ -1251,9 +1251,9 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     RefToBase<reco::Track> tklead = aConv.tracks().at(ilead);
     RefToBase<reco::Track> tktrail = aConv.tracks().at(itrail);
 
-    int deltaExpectedHitsInner = tklead->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS)
-       - tktrail->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
-    int leadExpectedHitsInner = tklead->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+    int deltaExpectedHitsInner = tklead->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS)
+       - tktrail->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+    int leadExpectedHitsInner = tklead->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
     uint leadNHitsBeforeVtx = aConv.nHitsBeforeVtx().size()>1 ? aConv.nHitsBeforeVtx().at(ilead) : 0;
     uint trailNHitsBeforeVtx = aConv.nHitsBeforeVtx().size()>1 ? aConv.nHitsBeforeVtx().at(itrail) : 0;
 

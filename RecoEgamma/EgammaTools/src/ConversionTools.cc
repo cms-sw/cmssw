@@ -307,7 +307,7 @@ bool ConversionTools::hasMatchedPromptElectron(const reco::SuperClusterRef &sc, 
     if (it->reco::GsfElectron::superCluster()!=sc) continue;
 
     //check expected inner hits
-    if (it->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS) > 0) continue;
+    if (it->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) > 0) continue;
 
     //check if electron is matching to a conversion
     if (hasMatchedConversion(*it,convCol,beamspot,allowCkfMatch,lxyMin,probMin,nHitsBeforeVtxMax)) continue;
@@ -339,7 +339,7 @@ reco::GsfElectronRef ConversionTools::matchedPromptElectron(const reco::SuperClu
     if (it->reco::GsfElectron::superCluster()!=sc) continue;
 
     //check expected inner hits
-    if (it->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS) > 0) continue;
+    if (it->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) > 0) continue;
 
     //check if electron is matching to a conversion
     if (hasMatchedConversion(*it,convCol,beamspot,allowCkfMatch,lxyMin,probMin,nHitsBeforeVtxMax)) continue;

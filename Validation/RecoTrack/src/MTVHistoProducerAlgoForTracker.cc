@@ -1296,8 +1296,8 @@ void MTVHistoProducerAlgoForTracker::fill_simAssociated_recoTrack_histos(int cou
     //nchi2 and hits global distributions
     h_hits[count]->Fill(track.numberOfValidHits());
     h_losthits[count]->Fill(track.numberOfLostHits());
-    h_nmisslayers_inner[count]->Fill(track.hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS));
-    h_nmisslayers_outer[count]->Fill(track.hitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS));
+    h_nmisslayers_inner[count]->Fill(track.hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS));
+    h_nmisslayers_outer[count]->Fill(track.hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS));
     if(trackFromSeedFitFailed(track))
       return;
 
