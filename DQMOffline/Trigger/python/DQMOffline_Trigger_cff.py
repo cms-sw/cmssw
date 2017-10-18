@@ -171,13 +171,6 @@ offlineValidationHLTSourceOnAOD = cms.Sequence(
     + offlineHLTSourceOnAODextra
 )
 
-# this sequence can be used by AlCa for the validation of conditions,
-# because it is like offlineHLTSource (run @tier0) + offlineHLTSourceOnAODextra (meant to validate new features)
-offlineValidationHLTSource = cms.Sequence(
-    offlineHLTSource
-    + offlineHLTSourceOnAODextra
-)
-
 # offline DQM for the HLTMonitoring stream
 ## ADD here only sequences/modules which rely on HLT collections which are stored in the HLTMonitoring stream
 ## and are not available in the standard RAW format
@@ -214,3 +207,9 @@ triggerOfflineDQMSource4LowLumi =  cms.Sequence(
     offlineHLTSource4LowLumi
 )
  
+# this sequence can be used by AlCa for the validation of conditions,
+# because it is like offlineHLTSource (run @tier0) + offlineHLTSourceOnAODextra (meant to validate new features)
+offlineValidationHLTSource = cms.Sequence(
+    offlineHLTSource
+    + offlineHLTSourceOnAODextra
+)
