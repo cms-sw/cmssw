@@ -25,9 +25,6 @@ class SecondaryVertexFeatures {
     float costhetasvpv;
     float enratio;
 
-    // for ROOT schema evolution
-    CMS_CLASS_VERSION(10)
-
 };
 
 }

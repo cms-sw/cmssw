@@ -60,7 +60,7 @@ namespace btagbtvdeep {
 
         CommonCandidateToFeatures(c_pf, jet, track_info, drminpfcandsv, c_pf_features);
     
-        c_pf_features.VTX_ass = c_pf->pvAssociationQuality();
+        c_pf_features.vtx_ass = c_pf->pvAssociationQuality();
 
         c_pf_features.puppiw = c_pf->puppiWeight();
 
@@ -81,11 +81,11 @@ namespace btagbtvdeep {
 
         CommonCandidateToFeatures(c_pf, jet, track_info, drminpfcandsv, c_pf_features);
     
-        c_pf_features.VTX_ass = (float) pat::PackedCandidate::PVAssociationQuality(qualityMap[pv_ass_quality]);
+        c_pf_features.vtx_ass = (float) pat::PackedCandidate::PVAssociationQuality(qualityMap[pv_ass_quality]);
         if (c_pf->trackRef().isNonnull() && 
             pv->trackWeight(c_pf->trackRef()) > 0.5 &&
             pv_ass_quality == 7) {
-          c_pf_features.VTX_ass = (float) pat::PackedCandidate::UsedInFitTight;
+          c_pf_features.vtx_ass = (float) pat::PackedCandidate::UsedInFitTight;
         }
 
         c_pf_features.puppiw = puppiw;

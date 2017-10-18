@@ -21,9 +21,6 @@ class ShallowTagInfoFeatures {
     float jetNTracksEtaRel; // tracks associated to jet for which trackEtaRel is calculated
     float jetNSelectedTracks;    
 
-    // for ROOT schema evolution
-    CMS_CLASS_VERSION(10)
-
 };
 
 }
