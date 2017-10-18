@@ -109,7 +109,7 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 	    if(chan0xf==0) continue;  
 
 	    GEMROmap::eCoord ec;
-	    ec.chamberId=31;
+	    //ec.chamberId=31;
 	    ec.vfatId = ChipID+0xf000;
 	    ec.channelId = chan+1;
 	    GEMROmap::dCoord dc = m_gemROMap->hitPosition(ec);
