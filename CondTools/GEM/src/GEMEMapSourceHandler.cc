@@ -19,8 +19,7 @@
 #include <cstdlib>
 #include <vector>
 
-#include <inttypes.h> /* strtoumax */
-
+#include <DataFormats/MuonDetId/interface/GEMDetId.h>
 
 popcon::GEMEMapSourceHandler::GEMEMapSourceHandler( const edm::ParameterSet& ps ):
   m_name( ps.getUntrackedParameter<std::string>( "name", "GEMEMapSourceHandler" ) ),
@@ -85,14 +84,6 @@ void popcon::GEMEMapSourceHandler::getNewObjects()
 
   mapfiles.push_back("vfat_position.csv");
   
-  // mapfiles.push_back("GEM_GE1P01_Depth1_ChannelsFromDB_Sept_01_2016.csv");
-  // mapfiles.push_back("GEM_GE1P01_Depth2_ChannelsFromDB_Sept_01_2016.csv");
-
-  // mapfiles.push_back("GEM_GE1M_Depth1_ChannelsFromDB_Sept_01_2016.csv");
-  // mapfiles.push_back("GEM_GE1M_Depth2_ChannelsFromDB_Sept_01_2016.csv");
-  // mapfiles.push_back("GEM_GE1P_Depth1_ChannelsFromDB_Sept_01_2016.csv");
-  // mapfiles.push_back("GEM_GE1P_Depth2_ChannelsFromDB_Sept_01_2016.csv");
-  
   for (unsigned int ifm=0;ifm<mapfiles.size();ifm++){  
     GEMEMap::GEMVFatMaptype vmtype;
     std::string filename(baseCMS+mapfiles[ifm]);
@@ -135,9 +126,6 @@ void popcon::GEMEMapSourceHandler::getNewObjects()
       getline( ssline, field, ',' );
       char* chr = strdup(field.c_str());
       std::cout << chr << std::endl;
-      //std::stringstream Vfat_add(field);
-      //std::cout << Vfat_add << std::endl; 
-      //vfat_add = field;
       vfat_add = strtol(chr,NULL,16);
       Sec >> sec;Z_dir >> z_dir; Ieta >> ieta; Iphi >> iphi; Dep >> dep; Vfat_pos >> vfat_pos; Str_num >> str_num; Vfat_chn_num >> vfat_chn_num; //(uint16_t)chr >> vfat_add;
       
@@ -151,7 +139,8 @@ void popcon::GEMEMapSourceHandler::getNewObjects()
 					<< std::endl;
       
       std::cout<<" Sector="<<sec<<" z_direction="<<z_dir<<" ieta="<<ieta<<" iphi="<<iphi<<" depth="<<dep<<" vfat position="<<vfat_pos<<" strip no.="<<str_num<<" vfat channel no.="<<vfat_chn_num<<" vfat address = " << vfat_add <<std::endl;
-      
+      //GEMDetId id(z_dir, 1, 1, dep, sec, ieta);
+      //std::cout  << id.rawId() << std::endl;    
       vmtype.sec.push_back(sec);
       vmtype.vfat_position.push_back(vfat_pos);
       vmtype.z_direction.push_back(z_dir);

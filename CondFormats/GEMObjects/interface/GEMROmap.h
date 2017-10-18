@@ -5,23 +5,23 @@
 class GEMROmap{
  public:
   struct eCoord{
-    int chamberId;
+    //int chamberId;
     uint16_t vfatId;
     int channelId;
     bool operator < (const eCoord& r) const{
-      if (chamberId == r.chamberId){
-	if ( vfatId == r.vfatId){
-	  return channelId < r.channelId;
-	}else{
-	  return vfatId<r.vfatId;
-	}
+      //if (chamberId == r.chamberId){
+      if ( vfatId == r.vfatId){
+        return channelId < r.channelId;
       }else{
-	return chamberId < r.chamberId;
+        return vfatId<r.vfatId;
       }
+      //}else{
+      //	return chamberId < r.chamberId;
+      //}
     }
   };
   struct dCoord{
-    int etaId;
+    //int etaId;
     int stripId;
     GEMDetId gemDetId;
   };
