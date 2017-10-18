@@ -12,6 +12,11 @@ skimRawContent = RAWEventContent.clone()
 skimRawContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
 skimRawContent.outputCommands.append("drop *_*_*_SKIM")
 
+from Configuration.EventContent.EventContent_cff import RAWAODEventContent
+skimRawAODContent = RAWAODEventContent.clone()
+skimRawAODContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
+skimRawAODContent.outputCommands.append("drop *_*_*_SKIM")
+
 #####################
 # event splitting special skims
 
@@ -250,9 +255,9 @@ SKIMStreamEXODisplacedJet = cms.FilteredStream(
     responsible = 'PDWG',
     name = 'EXODisplacedJet',
     paths = (EXODisplacedJetPath),
-    content = skimContent.outputCommands,
+    content = skimRawAODContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
+    dataTier = cms.untracked.string('USER')
 )
 
 #####################

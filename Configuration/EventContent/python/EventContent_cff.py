@@ -173,6 +173,17 @@ AODEventContent = cms.PSet(
 )
 #
 #
+# RAWAOD Data Tier definition
+#
+#
+RAWAODEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    eventAutoFlushCompressedSize=cms.untracked.int32(30*1024*1024),
+    compressionAlgorithm=cms.untracked.string("LZMA"),
+    compressionLevel=cms.untracked.int32(4)
+)
+#
+#
 # RAWSIM Data Tier definition
 # ===========================
 #
@@ -476,6 +487,12 @@ AODEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 AODEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 AODEventContent.outputCommands.extend(EITopPAGEventContent.outputCommands)
 ctpps_2016.toModify(AODEventContent, outputCommands = AODEventContent.outputCommands + RecoCTPPSAOD.outputCommands)
+
+RAWAODEventContent.outputCommands.extend(AODEventContent.outputCommands)
+RAWAODEventContent.outputCommands.extend(cms.untracked.vstring(
+    'keep FEDRawDataCollection_rawDataCollector_*_*',
+    'keep FEDRawDataCollection_source_*_*'
+))
 
 RAWSIMEventContent.outputCommands.extend(RAWEventContent.outputCommands)
 RAWSIMEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)
