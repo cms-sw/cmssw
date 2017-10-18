@@ -34,11 +34,11 @@ struct Cache {
   std::atomic<tf::MetaGraphDef*> metaGraph;
 };
 
-class DeepFlavourJetTagProducer : public edm::stream::EDProducer<edm::GlobalCache<Cache>> {
+class DeepFlavourTFJetTagsProducer : public edm::stream::EDProducer<edm::GlobalCache<Cache>> {
 
   public:
-    explicit DeepFlavourJetTagProducer(const edm::ParameterSet&, const Cache*);
-    ~DeepFlavourJetTagProducer() override;
+    explicit DeepFlavourTFJetTagsProducer(const edm::ParameterSet&, const Cache*);
+    ~DeepFlavourTFJetTagsProducer() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
@@ -69,7 +69,7 @@ class DeepFlavourJetTagProducer : public edm::stream::EDProducer<edm::GlobalCach
     std::vector<tf::Tensor> lp_tensors_;
 };
 
-DeepFlavourJetTagProducer::DeepFlavourJetTagProducer(const edm::ParameterSet& iConfig, const Cache* cache) :
+DeepFlavourTFJetTagsProducer::DeepFlavourTFJetTagsProducer(const edm::ParameterSet& iConfig, const Cache* cache) :
   src_(consumes<TagInfoCollection>(iConfig.getParameter<edm::InputTag>("src"))),
   input_names_(iConfig.getParameter<std::vector<std::string>>("input_names")),
   output_names_(iConfig.getParameter<std::vector<std::string>>("output_names")),
@@ -107,7 +107,7 @@ DeepFlavourJetTagProducer::DeepFlavourJetTagProducer(const edm::ParameterSet& iC
   all_input_names_.insert(all_input_names_.end(), input_names_.begin(), input_names_.end());
 }
 
-DeepFlavourJetTagProducer::~DeepFlavourJetTagProducer()
+DeepFlavourTFJetTagsProducer::~DeepFlavourTFJetTagsProducer()
 {
   // close and delete the session
   if (session_ != nullptr) {
@@ -115,7 +115,7 @@ DeepFlavourJetTagProducer::~DeepFlavourJetTagProducer()
   }
 }
 
-void DeepFlavourJetTagProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
+void DeepFlavourTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 {
 
   // pfDeepFlavourJetTags
@@ -142,7 +142,7 @@ void DeepFlavourJetTagProducer::fillDescriptions(edm::ConfigurationDescriptions&
   descriptions.add("pfDeepFlavourJetTags", desc);
 }
 
-std::unique_ptr<Cache> DeepFlavourJetTagProducer::initializeGlobalCache(const edm::ParameterSet& iConfig)
+std::unique_ptr<Cache> DeepFlavourTFJetTagsProducer::initializeGlobalCache(const edm::ParameterSet& iConfig)
 {
   // set the tensorflow log level to error
   tf::setLogging("3");
@@ -158,14 +158,14 @@ std::unique_ptr<Cache> DeepFlavourJetTagProducer::initializeGlobalCache(const ed
   return std::unique_ptr<Cache>(cache);
 }
 
-void DeepFlavourJetTagProducer::globalEndJob(const Cache* cache)
+void DeepFlavourTFJetTagsProducer::globalEndJob(const Cache* cache)
 {
   if (cache->metaGraph != nullptr) {
     delete cache->metaGraph;
   }
 }
 
-void DeepFlavourJetTagProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void DeepFlavourTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
   edm::Handle<TagInfoCollection> tag_infos;
@@ -258,4 +258,4 @@ void DeepFlavourJetTagProducer::produce(edm::Event& iEvent, const edm::EventSetu
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(DeepFlavourJetTagProducer);
+DEFINE_FWK_MODULE(DeepFlavourTFJetTagsProducer);
