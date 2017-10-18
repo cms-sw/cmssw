@@ -109,16 +109,17 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 	    if(chan0xf==0) continue;  
 
 	    GEMROmap::eCoord ec;
-	    //ec.chamberId=31;
 	    ec.vfatId = ChipID+0xf000;
-	    ec.channelId = chan+1;
+	    ec.channelId = chan;
 	    GEMROmap::dCoord dc = m_gemROMap->hitPosition(ec);
 
-	    int strip=dc.stripId +1;//
-	    if (strip > 2*128) strip-=128*2;
-	    else if (strip < 128) strip+=128*2;
-
-	    GEMDigi digi(strip,bc);
+	    std::cout <<"GEMRawToDigiModule ChipID "<< ChipID
+		      <<" gemDetId "<< dc.gemDetId
+		      <<" chan "<< chan
+		      <<" strip "<< dc.stripId
+		      <<std::endl;
+	    
+	    GEMDigi digi(dc.stripId,bc);
 	    outGEMDigis.get()->insertDigi(dc.gemDetId,digi);
 	  }
 	  
