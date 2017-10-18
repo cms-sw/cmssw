@@ -1,28 +1,28 @@
 #ifndef PLOTALIGNNMENTVALIDATION_H_
 #define PLOTALIGNNMENTVALIDATION_H_
 
-#include <TStyle.h>
-#include <TSystem.h>
-#include <vector>
-#include <memory>
-#include <string>
+#include "Alignment/OfflineValidation/interface/TkOffTreeVariables.h"
+
+#include "TCanvas.h"
+#include "TDirectory.h"
+#include "TDirectoryFile.h"
+#include "TFile.h"
+#include "THStack.h"
+#include "TLegend.h"
+#include "TString.h"
+#include "TStyle.h"
+#include "TSystem.h"
+#include "TTree.h"
+
+#include <cstdio>
+#include <cstdlib>
+#include <exception>
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <sstream>
-#include <stdio.h>
-#include <stdlib.h>
-#include "TTree.h"
-#include "TString.h"
-#include "TDirectory.h"
-#include "TCanvas.h"
-#include "TFile.h"
-#include "TDirectoryFile.h"
-#include "TLegend.h"
-#include "THStack.h"
-#include <exception>
-
-// This line works only if we have a CMSSW environment...
-#include "Alignment/OfflineValidation/interface/TkOffTreeVariables.h"
+#include <string>
+#include <vector>
 
 class TkOfflineVariables {
 public:
