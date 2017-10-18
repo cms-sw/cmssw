@@ -49,9 +49,10 @@ SimL1Emulator = cms.Sequence( SimL1EmulatorCore )
 # Next we load ES producers for any conditions that are not yet in GT,
 # using the Era configuration.
 #
-from L1Trigger.L1TCalorimeter.hackConditions_cff import *
-from L1Trigger.L1TMuon.hackConditions_cff import *
-from L1Trigger.L1TGlobal.hackConditions_cff import *
+#from L1Trigger.L1TCalorimeter.hackConditions_cff import *
+#from L1Trigger.L1TMuon.hackConditions_cff import *
+# from L1Trigger.L1TGlobal.hackConditions_cff import *
+from L1Trigger.L1TGlobal.GlobalParameters_cff import *
 
 # 2017 EMTF emulator uses payloads and forests from DB, but not yet in GT
 from L1Trigger.L1TMuonEndCap.fakeEmtfParams_2017_MC_cff import *

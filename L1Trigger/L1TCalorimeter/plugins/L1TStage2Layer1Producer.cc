@@ -37,7 +37,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/Stage2PreProcessor.h"
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
-#include "CondFormats/DataRecord/interface/L1TCaloStage2ParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
 
 #include "CondFormats/L1TObjects/interface/L1CaloEcalScale.h"
 #include "CondFormats/DataRecord/interface/L1CaloEcalScaleRcd.h"
@@ -64,18 +64,18 @@ using namespace l1t;
   class L1TStage2Layer1Producer : public edm::EDProducer {
   public:
     explicit L1TStage2Layer1Producer(const edm::ParameterSet& ps);
-    ~L1TStage2Layer1Producer();
+    ~L1TStage2Layer1Producer() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions)
       ;
 
   private:
-    virtual void beginJob() override;
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
-    virtual void endJob() override;
+    void beginJob() override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
+    void endJob() override;
 
-    virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-    virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+    void beginRun(edm::Run const&, edm::EventSetup const&) override;
+    void endRun(edm::Run const&, edm::EventSetup const&) override;
     //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
     //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
@@ -110,7 +110,7 @@ L1TStage2Layer1Producer::L1TStage2Layer1Producer(const edm::ParameterSet& ps) :
   ecalToken_(bxLast_+1-bxFirst_),
   hcalToken_(bxLast_+1-bxFirst_),
   paramsCacheId_(0),
-  params_(0)
+  params_(nullptr)
 {
 
   // register what you produce
@@ -348,14 +348,14 @@ L1TStage2Layer1Producer::beginRun(edm::Run const& iRun, edm::EventSetup const& i
 
   // parameters
 
-  unsigned long long id = iSetup.get<L1TCaloStage2ParamsRcd>().cacheIdentifier();
+  unsigned long long id = iSetup.get<L1TCaloParamsRcd>().cacheIdentifier();
 
   if (id != paramsCacheId_) {
 
     paramsCacheId_ = id;
 
     edm::ESHandle<CaloParams> paramsHandle;
-    iSetup.get<L1TCaloStage2ParamsRcd>().get(paramsHandle);
+    iSetup.get<L1TCaloParamsRcd>().get(paramsHandle);
 
     // replace our local copy of the parameters with a new one using placement new
     params_->~CaloParamsHelper();

@@ -47,8 +47,6 @@ else:
         cms.InputTag('unpackHcal'),
         cms.InputTag('unpackHcal')
     )
-    # L1TEventSetupForHF1x1TPs
-    from L1Trigger.L1TCalorimeter.caloStage2Params_HFTP_cfi import *
 
     from L1Trigger.Configuration.SimL1Emulator_cff import *
     simDtTriggerPrimitiveDigis.digiTag = 'unpackDT'
