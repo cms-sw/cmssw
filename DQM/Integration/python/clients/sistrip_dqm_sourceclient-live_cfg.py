@@ -158,14 +158,14 @@ process.stripQTester = cms.EDAnalyzer("QualityTester",
     qtestOnEndRun = cms.untracked.bool(True)
 )
 
-process.trackingQTester = cms.EDAnalyzer("QualityTester",
-    qtList = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config.xml'),
-    prescaleFactor = cms.untracked.int32(3),                               
-    getQualityTestsFromFile = cms.untracked.bool(True),
-    qtestOnEndLumi = cms.untracked.bool(True),
-    qtestOnEndRun = cms.untracked.bool(True)
-)
-
+#process.trackingQTester = cms.EDAnalyzer("QualityTester",
+#    qtList = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config.xml'),
+#    prescaleFactor = cms.untracked.int32(3),                               
+#    getQualityTestsFromFile = cms.untracked.bool(True),
+#    qtestOnEndLumi = cms.untracked.bool(True),
+#    qtestOnEndRun = cms.untracked.bool(True)
+#)
+#
 
 #--------------------------
 # Service
@@ -213,7 +213,7 @@ process.hltHighLevel.throw =  cms.bool(False)
 # Scheduling
 #--------------------------
 process.SiStripSources_LocalReco = cms.Sequence(process.siStripFEDMonitor*process.SiStripMonitorDigi*process.SiStripMonitorClusterReal)
-process.DQMCommon                = cms.Sequence(process.stripQTester*process.trackingQTester*process.dqmEnv*process.dqmEnvTr*process.dqmSaver)
+process.DQMCommon                = cms.Sequence(process.stripQTester*process.dqmEnv*process.dqmEnvTr*process.dqmSaver)
 process.RecoForDQM_LocalReco     = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.gtDigis*process.trackerlocalreco*process.gtEvmDigis)
 
 #--------------------------
@@ -258,12 +258,12 @@ if (process.runType.getRunType() == process.runType.cosmic_run or process.runTyp
     process.stripQTester.qtestOnEndLumi          = cms.untracked.bool(True)
     process.stripQTester.qtestOnEndRun           = cms.untracked.bool(True)
 
-    process.trackingQTester.qtList                  = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config_cosmic.xml')
-    process.trackingQTester.prescaleFactor          = cms.untracked.int32(1)
-    process.trackingQTester.getQualityTestsFromFile = cms.untracked.bool(True)
-    process.trackingQTester.qtestOnEndLumi          = cms.untracked.bool(True)
-    process.trackingQTester.qtestOnEndRun           = cms.untracked.bool(True)                                                                    
-
+#process.trackingQTester.qtList                  = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config_cosmic.xml')
+#process.trackingQTester.prescaleFactor          = cms.untracked.int32(1)
+#process.trackingQTester.getQualityTestsFromFile = cms.untracked.bool(True)
+#process.trackingQTester.qtestOnEndLumi          = cms.untracked.bool(True)
+#process.trackingQTester.qtestOnEndRun           = cms.untracked.bool(True)                                                                    
+#
     process.p = cms.Path(process.scalersRawToDigi*
                          process.APVPhases*
                          process.consecutiveHEs*
@@ -330,12 +330,12 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
         process.TrackingAnalyser.verbose = cms.untracked.bool(True)
     process.TrackingClient = cms.Sequence( process.TrackingAnalyser )
     
-    process.trackingQTester.qtList                  = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config.xml')
-    process.trackingQTester.prescaleFactor          = cms.untracked.int32(1)
-    process.trackingQTester.getQualityTestsFromFile = cms.untracked.bool(True)
-    process.trackingQTester.qtestOnEndLumi          = cms.untracked.bool(True)
-    process.trackingQTester.qtestOnEndRun           = cms.untracked.bool(True)                                                                    
-
+#process.trackingQTester.qtList                  = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config.xml')
+#process.trackingQTester.prescaleFactor          = cms.untracked.int32(1)
+#process.trackingQTester.getQualityTestsFromFile = cms.untracked.bool(True)
+#process.trackingQTester.qtestOnEndLumi          = cms.untracked.bool(True)
+#process.trackingQTester.qtestOnEndRun           = cms.untracked.bool(True)                                                                    
+#
     # Reco for pp collisions
 
     process.load('RecoTracker.IterativeTracking.InitialStepPreSplitting_cff')
@@ -532,11 +532,11 @@ if (process.runType.getRunType() == process.runType.hi_run):
                                      qtestOnEndRun = cms.untracked.bool(True)
                                      )
 
-    process.trackingQTester.qtList                  = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config_heavyion.xml')
-    process.trackingQTester.prescaleFactor          = cms.untracked.int32(2)
-    process.trackingQTester.getQualityTestsFromFile = cms.untracked.bool(True)
-    process.trackingQTester.qtestOnEndLumi          = cms.untracked.bool(True)
-    process.trackingQTester.qtestOnEndRun           = cms.untracked.bool(True)
+    #process.trackingQTester.qtList                  = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config_heavyion.xml')
+    #process.trackingQTester.prescaleFactor          = cms.untracked.int32(2)
+    #process.trackingQTester.getQualityTestsFromFile = cms.untracked.bool(True)
+    #process.trackingQTester.qtestOnEndLumi          = cms.untracked.bool(True)
+    #process.trackingQTester.qtestOnEndRun           = cms.untracked.bool(True)
 
 #    process.trackingQTester = cms.EDAnalyzer("QualityTester",
 #                                               qtList = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config_heavyion.xml'),
@@ -577,7 +577,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.PixelLayerTriplets.FPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
 
     process.hiProtoTrackFilter.siPixelRecHits = "siPixelRecHitsPreSplitting"
-    process.hiPixel3ProtoTracks.RegionFactoryPSet.RegionPSet.siPixelRecHits = cms.InputTag("siPixelRecHitsPreSplitting")
+    #process.hiPixel3ProtoTracks.RegionFactoryPSet.RegionPSet.siPixelRecHits = cms.InputTag("siPixelRecHitsPreSplitting")
 
     process.hiFilter.clusterShapeCacheSrc = "siPixelClusterShapeCachePreSplitting"
 
@@ -596,12 +596,12 @@ if (process.runType.getRunType() == process.runType.hi_run):
                          process.RecoForDQM_LocalReco*
                          process.DQMCommon*
                          process.SiStripClients*
-                         process.SiStripSources_LocalReco*
-                         process.RecoForDQM_TrkReco*
-                         process.SiStripSources_TrkReco*
-                         process.multFilter*
-                         process.SiStripBaselineValidator*
-                         process.TrackingClient
+                         process.SiStripSources_LocalReco
+                         #process.RecoForDQM_TrkReco*
+                         #process.SiStripSources_TrkReco*
+                         #process.multFilter*
+                         #process.SiStripBaselineValidator*
+                         #process.TrackingClient
                          )
     
 
