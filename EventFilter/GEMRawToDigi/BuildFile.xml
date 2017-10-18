@@ -6,6 +6,8 @@
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/GEMObjects"/>
 <use   name="FWCore/MessageLogger"/>
+<use   name="Utilities/StorageFactory"/>
+<use   name="FWCore/Sources"/>
 <use   name="rootrflx"/>
 <use   name="boost"/>
 <use   name="root"/>
