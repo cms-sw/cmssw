@@ -3,7 +3,7 @@
 
 #include "RecoBTag/DeepFlavour/interface/deep_helpers.h"
 #include "RecoBTag/DeepFlavour/interface/TrackInfoBuilder.h"
-#include "DataFormats/DeepFormats/interface/ChargedCandidateFeatures.h"
+#include "DataFormats/BTauReco/interface/ChargedCandidateFeatures.h"
 
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"

@@ -12,7 +12,7 @@
 
 #include "DataFormats/BTauReco/interface/JetTag.h"
 
-#include "DataFormats/DeepFormats/interface/DeepFlavourTagInfo.h"
+#include "DataFormats/BTauReco/interface/DeepFlavourTagInfo.h"
 
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 

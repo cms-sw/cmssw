@@ -1,7 +1,7 @@
 #ifndef RecoBTag_DeepFlavour_JetConverter_h
 #define RecoBTag_DeepFlavour_JetConverter_h
 
-#include "DataFormats/DeepFormats/interface/JetFeatures.h"
+#include "DataFormats/BTauReco/interface/JetFeatures.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
 
