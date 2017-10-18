@@ -496,6 +496,8 @@ GenXSecAnalyzer::endJob() {
     unsigned int i = 0;
     double jetmatch_eff=0;
     double jetmatch_err=0;
+    double matching_eff=1;
+    double matching_efferr=1;
 
     for(std::map<int, GenFilterInfo>::const_iterator iter = jetMatchEffStat_.begin();
           iter!=jetMatchEffStat_.end(); ++iter, i++){ 
@@ -554,6 +556,8 @@ GenXSecAnalyzer::endJob() {
           << (thisEventEffStat.filterEfficiency(+3) * 100) << " +/- " 
           << ( thisEventEffStat.filterEfficiencyError(+3) * 100);
 
+      matching_eff = thisEventEffStat.filterEfficiency(+3);
+      matching_efferr = thisEventEffStat.filterEfficiencyError(+3);
     }
     delete [] title;
 
@@ -569,12 +573,14 @@ GenXSecAnalyzer::endJob() {
       << "After matching: total cross section = " 
       << std::scientific << std::setprecision(3)  
       << xsecAfterMatching_[last].value() << " +- " << xsecAfterMatching_[last].error() <<  " pb";
-      
+
+          
     edm::LogPrint("GenXSecAnalyzer")
       << "Matching efficiency = "
       << std::fixed << std::setprecision(1)
-          << (thisEventEffStat.filterEfficiency(+3) * 100) << " +/- " 
-          << ( thisEventEffStat.filterEfficiencyError(+3) * 100) <<"   [TO BE USED IN MCM]";
+      <<  matching_eff << " +/- " 
+      <<  matching_efferr <<"   [TO BE USED IN MCM]";
+    
   }
   else if(hepidwtup_ == -1 )
     edm::LogPrint("GenXSecAnalyzer") 
