@@ -367,6 +367,7 @@ namespace edm {
         reportData.insert(std::make_pair("EventThroughput", d2str(event_throughput)));
         reportData.insert(std::make_pair("TotalJobTime", d2str(total_job_time)));
         reportData.insert(std::make_pair("TotalJobCPU", d2str(total_job_cpu)));
+        reportData.insert(std::make_pair("TotalLoopTime", d2str(total_loop_time)));
         reportData.insert(std::make_pair("TotalLoopCPU", d2str(total_loop_cpu)));
         reportData.insert(std::make_pair("TotalInitTime", d2str(total_initialization_time)));
         reportData.insert(std::make_pair("TotalInitCPU", d2str(total_initialization_cpu)));

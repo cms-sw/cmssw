@@ -13,7 +13,7 @@ namespace gen {
 
 Py8InterfaceBase::Py8InterfaceBase( edm::ParameterSet const& ps ) :
 BaseHadronizer(ps),
-useEvtGen(false), evtgenDecays(0)
+useEvtGen(false), evtgenDecays(nullptr)
 {  
   fParameters = ps;
   
@@ -49,7 +49,7 @@ useEvtGen(false), evtgenDecays(0)
 bool Py8InterfaceBase::readSettings( int ) 
 {
 
-   fMasterGen.reset(new Pythia);
+   if(!fMasterGen.get()) fMasterGen.reset(new Pythia);
    fDecayer.reset(new Pythia);
 
    //add settings for resonance decay filter

@@ -25,18 +25,22 @@ namespace l1t {
     };
   
    uint32_t
-   BlockHeader::raw(block_t type) const
+   BlockHeader::raw() const
    {
       if (type_ == MP7) {
          LogTrace("L1T") << "Writing MP7 link header";
          return ((id_ & ID_mask) << ID_shift) | ((size_ & size_mask) << size_shift) | ((capID_ & capID_mask) << capID_shift) | ((flags_ & flags_mask) << flags_shift);
       }
+      else if (type_ == CTP7) {
+         LogTrace("L1T") << "Writing CTP7 link header";
+         return flags_;
+      }
       // if (type_ == MTF7) {
       //    LogTrace("L1T") << "Writing MTF7 link header";
       //    return ((id_ & ID_mask) << ID_shift) | ((size_ & size_mask) << size_shift) | ((capID_ & capID_mask) << capID_shift);
       // }
-      LogTrace("L1T") << "Writing CTP7 link header";
-      return ((id_ & CTP7_mask) << CTP7_shift);
+      LogTrace("L1T") << "Writing meaningless link header";
+      return 0;
    }
 
    BxBlocks
@@ -203,16 +207,61 @@ namespace l1t {
     return std::unique_ptr<Block>(new Block(pattern, payload, 0, MTF7));
   }
   
-   CTP7Payload::CTP7Payload(const uint32_t * data, const uint32_t * end) : Payload(data, end)
+   CTP7Payload::CTP7Payload(const uint32_t * data, const uint32_t * end, amc::Header amcHeader) : Payload(data, end), amcHeader_(amcHeader)
    {
+      if (not (*data_ == 0xA110CA7E) ) {
+        edm::LogError("L1T") << "CTP7 block with invalid header:" << std::hex << *data_;
+      }
       ++data_;
-      size_ = (*data >> size_shift) & size_mask;
+      bx_per_l1a_ = (*data_ >> 16) & 0xff;
+      calo_bxid_ = *data_ & 0xfff;
+      capId_ = 0;
+      if (bx_per_l1a_ > 1) {
+        edm::LogInfo("L1T") << "CTP7 block with multiple bunch crossings:" << bx_per_l1a_;
+      }
+      algo_ = amcHeader_.getUserData();
+      infra_ = 0;
       ++data_;
    }
 
    BlockHeader
    CTP7Payload::getHeader()
    {
-      return BlockHeader(data_++, size_);
+      // only one block type, use dummy id
+      unsigned blockId = 0;
+      // CTP7 header contains number of BX in payload and the bunch crossing ID
+      // Not sure how to map to generic BlockHeader variables, so just packing
+      // it all in flags variable
+      unsigned blockFlags = ((bx_per_l1a_&0xf)<<16) | (calo_bxid_&0xfff);
+      unsigned blockSize = 192;
+      return BlockHeader(blockId, blockSize, capId_, blockFlags, CTP7);
+   }
+
+   std::unique_ptr<Block>
+   CTP7Payload::getBlock()
+   {
+      if (end_ - data_ < getHeaderSize()) {
+         LogDebug("L1T") << "Reached end of payload";
+         return std::auto_ptr<Block>();
+      }
+      if ( capId_ > bx_per_l1a_ ) {
+        edm::LogWarning("L1T") << "CTP7 with more bunch crossings than expected";
+      }
+
+      auto header = getHeader();
+
+      if (end_ - data_ < header.getSize()) {
+         edm::LogError("L1T")
+            << "Expecting a block size of " << header.getSize()
+            << " but only " << (end_ - data_) << " words remaining";
+         return std::auto_ptr<Block>();
+      }
+
+      LogTrace("L1T") << "Creating block with size " << header.getSize();
+
+      auto res = std::unique_ptr<Block>(new Block(header, data_, data_ + header.getSize()));
+      data_ += header.getSize();
+      capId_++;
+      return res;
    }
 }

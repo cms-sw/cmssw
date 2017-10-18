@@ -62,19 +62,18 @@ class TauDiscriminationProducerBase : public edm::stream::EDProducer<> {
     // derived!  classes must call the parameterset constructor.
     TauDiscriminationProducerBase();
 
-    virtual ~TauDiscriminationProducerBase(){}
+    ~TauDiscriminationProducerBase() override {}
 
-    void produce(edm::Event&, const edm::EventSetup&);
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     // called at the beginning of every event - override if necessary.
-    virtual void beginEvent(const edm::Event& evt,
-                            const edm::EventSetup& evtSetup) {}
+    virtual void beginEvent(const edm::Event&, const edm::EventSetup&) {}
 
     // abstract functions implemented in derived classes.
     virtual double discriminate(const TauRef& tau) const = 0;
 
     // called at the end of event processing - override if necessary.
-    virtual void endEvent(edm::Event& evt) {}
+    virtual void endEvent(edm::Event&) {}
 
     struct TauDiscInfo {
       edm::InputTag label;

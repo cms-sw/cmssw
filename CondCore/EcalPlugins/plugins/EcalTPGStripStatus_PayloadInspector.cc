@@ -151,7 +151,8 @@ namespace {
       DrawEE(endc_p, 0., wei[1]);
       t1.DrawLatex(0.15, 0.92, Form("%i crystals", EEstat[1]));
 
-      canvas.SaveAs("ecalTPGcrystalstatus.png");
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
       return true;
     }// fill method
   };
@@ -346,7 +347,8 @@ namespace {
       DrawEE(endc_p, -1.0, 1.0);
       t1.DrawLatex(0.15, 0.92, Form("new %i old %i", EEstat[1][0], EEstat[1][1]));
 
-      canvas.SaveAs("ecalTPGcrystalstatusDiff.png");
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
       return true;
     }// fill method
   };

@@ -83,6 +83,26 @@ HcalGeometry::getValidDetIds( DetId::Detector det,
 		 ( HcalForward == subdet ? *m_hfIds.load() : *m_emptyIds.load() ) ) ) ) ) ;
 }
 
+const CaloCellGeometry* HcalGeometry::getGeometry(const DetId& id) const {
+#ifdef EDM_ML_DEBUG
+  std::cout << "HcalGeometry::getGeometry for " << HcalDetId(id) << "  " 
+	    << m_mergePosition << " ";
+#endif
+  if (!m_mergePosition) {
+#ifdef EDM_ML_DEBUG
+    std::cout << m_topology.detId2denseId(id) << " " << getGeometryBase(id) 
+	      << "\n";
+#endif
+    return getGeometryBase(id);
+  } else {
+#ifdef EDM_ML_DEBUG
+    std:: cout << m_topology.detId2denseId(m_topology.idFront(id)) << " " 
+	       << getGeometryBase(m_topology.idFront(id)) << "\n";
+#endif
+    return getGeometryBase(m_topology.idFront(id));
+  }
+}
+
 DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const {
 
   // Now find the closest eta_bin, eta value of a bin i is average
@@ -150,31 +170,31 @@ DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const {
 
 GlobalPoint HcalGeometry::getPosition(const DetId& id) const {
   if (!m_mergePosition) {
-    return (getGeometry(id)->getPosition());
+    return (getGeometryBase(id)->getPosition());
   } else {
-    return (getGeometry(m_topology.idFront(id))->getPosition());
+    return (getGeometryBase(m_topology.idFront(id))->getPosition());
   }
 }
 
 GlobalPoint HcalGeometry::getBackPosition(const DetId& id) const {
   if (!m_mergePosition) {
-    return (getGeometry(id)->getBackPoint());
+    return (getGeometryBase(id)->getBackPoint());
   } else {
     std::vector<HcalDetId> ids;
     m_topology.unmergeDepthDetId(HcalDetId(id),ids);
-    return (getGeometry(ids.back())->getBackPoint());
+    return (getGeometryBase(ids.back())->getBackPoint());
   }
 }
 
 CaloCellGeometry::CornersVec HcalGeometry::getCorners(const DetId& id) const {
   if (!m_mergePosition) {
-    return (getGeometry(id)->getCorners());
+    return (getGeometryBase(id)->getCorners());
   } else {
     std::vector<HcalDetId> ids;
     m_topology.unmergeDepthDetId(HcalDetId(id),ids);
     CaloCellGeometry::CornersVec mcorners;
-    CaloCellGeometry::CornersVec mcf = getGeometry(ids.front())->getCorners();
-    CaloCellGeometry::CornersVec mcb = getGeometry(ids.back())->getCorners();
+    CaloCellGeometry::CornersVec mcf = getGeometryBase(ids.front())->getCorners();
+    CaloCellGeometry::CornersVec mcb = getGeometryBase(ids.back())->getCorners();
     for (unsigned int k=0; k<4; ++k) {
       mcorners[k]   = mcf[k];
       mcorners[k+4] = mcb[k+4];
@@ -232,7 +252,7 @@ CaloSubdetectorGeometry::DetIdSet HcalGeometry::getCells(const GlobalPoint& r,
 		 for (int idep ( idep_lo ) ; idep <= idep_hi ; ++idep ) {
 		   const HcalDetId did ( hs[is], ieta, iphi, idep ) ;
 		   if (m_topology.valid(did)) {
-		     const CaloCellGeometry* cell ( getGeometry( did ) );
+		     const CaloCellGeometry* cell ( getGeometryBase( did ) );
 		     if (nullptr != cell ) {
 		       const GlobalPoint& p   ( cell->getPosition() ) ;
 		       const double       eta ( p.eta() ) ;

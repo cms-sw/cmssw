@@ -7,6 +7,9 @@
 <use name="DataFormats/L1TMuon"/>
 <use name="DataFormats/L1TCalorimeter"/>
 <use name="DataFormats/TCDS"/>
+<use name="DataFormats/EcalDigi"/>
+<use name="DataFormats/HcalDigi"/>
+<use name="DataFormats/L1CaloTrigger"/>
 <use name="L1Trigger/L1TCalorimeter"/>
 <use name="L1Trigger/L1TGlobal"/>
 <use name="L1Trigger/L1TMuon"/>
