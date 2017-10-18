@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.Trigger.BTVHLTOfflineSource_cfi import *
+from DQMOffline.Trigger.BTaggingMonitoring_cff import *
 
 btvHLTDQMSourceExtra = cms.Sequence(
     BTagMu_AK4DiJet20_Mu5
