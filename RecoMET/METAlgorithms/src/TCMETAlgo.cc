@@ -554,13 +554,13 @@ void TCMETAlgo::findGoodShowerTracks(std::vector<int>& goodShowerTracks)
 
 //____________________________________________________________________________||
 int TCMETAlgo::nExpectedInnerHits(const reco::TrackRef track){
-  return track->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+  return track->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
 }
 
 //____________________________________________________________________________||
 int TCMETAlgo::nExpectedOuterHits(const reco::TrackRef track)
 {
-  return track->hitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS);
+  return track->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS);
 }
 
 //____________________________________________________________________________||

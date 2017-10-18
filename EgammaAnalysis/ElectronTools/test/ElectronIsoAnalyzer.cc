@@ -228,7 +228,7 @@ ElectronIsoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       neutralBarrel_->Fill(neutral/myElectronRef->pt());
       sumBarrel_->Fill((charged+photon+neutral)/myElectronRef->pt());
       sumCorrBarrel_->Fill(myPfIsoPuCorr/myElectronRef->pt());
-      missHitsBarrel_->Fill(myElectronRef->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS));
+      missHitsBarrel_->Fill(myElectronRef->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS));
 
     } else {
       chargedEndcaps_ ->Fill(charged/myElectronRef->pt());
@@ -236,7 +236,7 @@ ElectronIsoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       neutralEndcaps_->Fill(neutral/myElectronRef->pt());
       sumEndcaps_->Fill((charged+photon+neutral)/myElectronRef->pt());
       sumCorrEndcaps_->Fill(myPfIsoPuCorr/myElectronRef->pt());
-      missHitsEndcap_->Fill(myElectronRef->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS));
+      missHitsEndcap_->Fill(myElectronRef->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS));
     }
   }
 

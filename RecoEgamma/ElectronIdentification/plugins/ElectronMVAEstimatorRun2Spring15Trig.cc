@@ -269,7 +269,7 @@ fillMVAVariables(const edm::Ptr<reco::Candidate>& particle,
 
   allMVAVars.gsfhits         = eleRecoPtr->gsfTrack()->hitPattern().trackerLayersWithMeasurement();
   allMVAVars.expectedMissingInnerHits = eleRecoPtr->gsfTrack()
-    ->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+    ->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
 
   reco::ConversionRef conv_ref = ConversionTools::matchedConversion(*eleRecoPtr,
 								    conversions, 

@@ -410,7 +410,7 @@ std::vector<float >  PFIsolationEstimator::fGetIsolationInRings(const reco::GsfE
   fVx =  electron->vx();
   fVy =  electron->vy();
   fVz =  electron->vz();
-  iMissHits = electron->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+  iMissHits = electron->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
   
   //  if(electron->ecalDrivenSeed())
   refSC = electron->superCluster();

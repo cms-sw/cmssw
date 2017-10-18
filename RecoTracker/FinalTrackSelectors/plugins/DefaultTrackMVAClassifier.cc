@@ -67,8 +67,8 @@ struct mva {
     auto tmva_eta_ = trk.eta();
     auto tmva_relpterr_ = float(trk.ptError())/std::max(float(trk.pt()),0.000001f);
     auto tmva_nhits_ = trk.numberOfValidHits();
-    int lostIn = trk.hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
-    int lostOut = trk.hitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS);
+    int lostIn = trk.hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+    int lostOut = trk.hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS);
     auto tmva_minlost_ = std::min(lostIn,lostOut);
     auto tmva_lostmidfrac_ = static_cast<float>(trk.numberOfLostHits()) / static_cast<float>(trk.numberOfValidHits() + trk.numberOfLostHits());
    

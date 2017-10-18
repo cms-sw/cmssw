@@ -680,8 +680,8 @@ void NewMuonTrackValidator::analyze(const edm::Event& event, const edm::EventSet
 	  nTRK_LayersWithMeas_vs_eta[w]->Fill(xetaRec,track->hitPattern().trackerLayersWithMeasurement());
 	  nPixel_LayersWithMeas_vs_eta[w]->Fill(xetaRec,track->hitPattern().pixelLayersWithMeasurement());
 	  h_nlosthits[w]->Fill(track->numberOfLostHits());
-	  h_nmisslayers_inner[w]->Fill(track->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS));
-	  h_nmisslayers_outer[w]->Fill(track->hitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS));
+	  h_nmisslayers_inner[w]->Fill(track->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS));
+	  h_nmisslayers_outer[w]->Fill(track->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS));
 	  nlosthits_vs_eta[w]->Fill(xetaRec,track->numberOfLostHits());
 	}
 
