@@ -14,9 +14,6 @@ class JetFeatures {
     float mass;
     float energy;
 
-    // for ROOT schema evolution
-    CMS_CLASS_VERSION(10)
-
 };
 
 }
