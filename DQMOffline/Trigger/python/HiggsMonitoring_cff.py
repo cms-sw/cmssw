@@ -8,6 +8,7 @@ from DQMOffline.Trigger.VBFTauMonitor_cff import *
 from DQMOffline.Trigger.MssmHbbBtagTriggerMonitor_cff import *
 from DQMOffline.Trigger.MssmHbbMonitoring_cff import *
 from DQMOffline.Trigger.HiggsMonitoring_cfi import hltHIGmonitoring
+from DQMOffline.Trigger.BTaggingMonitor_cfi import hltBTVmonitoring
 
 # HLT_PFMET100_PFMHT100_IDTight_CaloBTagCSV_3p1 MET monitoring
 PFMET100_PFMHT100_IDTight_CaloBTagCSV_3p1_METmonitoring = hltMETmonitoring.clone()
@@ -269,6 +270,41 @@ mu8diEle12CaloIdLTrackIdL_dz.nmuons = cms.uint32(1)
 mu8diEle12CaloIdLTrackIdL_dz.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu8_DiEle12_CaloIdL_TrackIdL_DZ_v*")
 mu8diEle12CaloIdLTrackIdL_dz.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu8_DiEle12_CaloIdL_TrackIdL_v*")
 
+###########AK8 jet trigger with AK8 CSV requirement############
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring = hltBTVmonitoring.clone()
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.FolderName = cms.string('HLT/Higgs/ggHbb/CSV04/')
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.nmuons = cms.uint32(0)
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.nelectrons = cms.uint32(0)
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.njets = cms.uint32(1)
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.jets = cms.InputTag("ak8PFJetsCHS")
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.jetSelection = cms.string('pt>300 & abs(eta)<2.4')
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.bjetSelection = cms.string('pt>300 & abs(eta)<2.4')
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_AK8PFJet330_PFAK8BTagCSV_p1_v*')
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.histoPSet.jetPtBinning = cms.vdouble(0,300,310,330,350,370,400,450,500,700,1000,1500,3000)
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.histoPSet.lsPSet = cms.PSet(
+  nbins = cms.uint32( 1 ),
+)
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.histoPSet.htPSet = cms.PSet(
+  nbins = cms.uint32( 1 ),
+  xmin  = cms.double(   0   ),
+  xmax  = cms.double(   1   ),
+)
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.histoPSet.ptPSet = cms.PSet(
+  nbins = cms.uint32( 1 ),
+  xmin  = cms.double(   0   ),
+  xmax  = cms.double(   1   ),
+)
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.histoPSet.etaPSet = cms.PSet(
+  nbins = cms.uint32( 1 ),
+  xmin  = cms.double(   0   ),
+  xmax  = cms.double(   1   ),
+)
+
+
+AK8PFJet330_TrimMass30_CSV03_PromptMonitoring = AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.clone()
+AK8PFJet330_TrimMass30_CSV03_PromptMonitoring.FolderName = cms.string('HLT/Higgs/ggHbb/CSV03/')
+AK8PFJet330_TrimMass30_CSV03_PromptMonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_AK8PFJet330_PFAK8BTagCSV_p17_v*')
+
 ###############################Higgs Monitor HLT##############################################
 higgsMonitorHLT = cms.Sequence(
     higgsinvHLTJetMETmonitoring
@@ -297,9 +333,12 @@ higgsMonitorHLT = cms.Sequence(
   + PFMET130_PFMHT130_IDTight_CaloBTagCSV_3p1_TOPmonitoring
   + PFMET140_PFMHT140_IDTight_CaloBTagCSV_3p1_METmonitoring
   + PFMET140_PFMHT140_IDTight_CaloBTagCSV_3p1_TOPmonitoring
+  + AK8PFJet330_TrimMass30_CSV04_PromptMonitoring
+  + AK8PFJet330_TrimMass30_CSV03_PromptMonitoring
   + mssmHbbBtagTriggerMonitor 
   + mssmHbbMonitorHLT 
 )
+
 
 higHLTDQMSourceExtra = cms.Sequence(
 )
