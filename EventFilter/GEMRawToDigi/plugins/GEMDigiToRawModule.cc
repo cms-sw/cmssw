@@ -41,8 +41,8 @@ void GEMDigiToRawModule::beginRun(const edm::Run &run, const edm::EventSetup& iS
 
 }
 
-void GEMDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c ){
-
+void GEMDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
+{
   bool verbose_ = true;
 
   auto fedRawDataCol = std::make_unique<FEDRawDataCollection>();
@@ -62,7 +62,7 @@ void GEMDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c ){
     const GEMDigiCollection::Range& range = (*gemdgIt).second;
     for (GEMDigiCollection::const_iterator digiIt = range.first; digiIt!=range.second; ++digiIt){
       const GEMDigi & digi = (*digiIt);
-      int bx    = 0; // digi.bx(); // setting all bx to 0 for now
+      //int bx    = digi.bx(); // setting all bx to 0 for now
       int strip = digi.strip();
       // use strip to get vFat ID
       // pair<int, int > vFatChan = vFatChannel(gemId, strip);
@@ -85,18 +85,18 @@ void GEMDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c ){
 
       if (vFatStrIt->second.size() == 0) continue;
       
-      uint8_t  b1010      =0;             ///<1010:4 Control bits, shoud be 1010
+      uint8_t  b1010      =0xA;           ///<1010:4 Control bits, shoud be 1010
       uint16_t BC         =0;             ///<Bunch Crossing number, 12 bits
-      uint8_t  b1100      =0;             ///<1100:4, Control bits, shoud be 1100
+      uint8_t  b1100      =0xC;           ///<1100:4, Control bits, shoud be 1100
       uint8_t  EC         =0;             ///<Event Counter, 8 bits
       uint8_t  Flag       =0;             ///<Control Flags: 4 bits, Hamming Error/AFULL/SEUlogic/SUEI2C
-      uint8_t  b1110      =0;             ///<1110:4 Control bits, shoud be 1110
+      uint8_t  b1110      =0xE;           ///<1110:4 Control bits, shoud be 1110
       uint16_t crc        =0;             ///<Check Sum value, 16 bits
       uint16_t crc_calc   =0;             ///<Check Sum value recalculated, 16 bits
       int      SlotNumber =0;             ///<Calculated chip position
       bool     isBlockGood=0;             ///<Shows if block is good (control bits, chip ID and CRC checks)
 
-	uint16_t ChipID = vFatStrIt->first; ///<Chip ID, 12 bits
+      uint16_t ChipID = vFatStrIt->first; ///<Chip ID, 12 bits
       uint64_t lsData     =0;             ///<channels from 1to64 
       uint64_t msData     =0;             ///<channels from 65to128
       
@@ -124,8 +124,7 @@ void GEMDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c ){
 
   for (auto amc13It : amc13Events){
     AMC13Event * amc13Event = amc13It;
-    //std::cout <<"amc13Event->nAMC() "<< amc13Event->nAMC() << std::end;
-
+    std::cout <<"amc13Event->nAMC() "<< int(amc13Event->nAMC()) << std::endl;
     
     //FEDRawData * rawData = new FEDRawData(amc13Event.dataSize());
 

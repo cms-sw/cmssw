@@ -36,9 +36,8 @@ void GEMRawToDigiModule::beginRun(const edm::Run &run, const edm::EventSetup& iS
 
 }
 
-void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup ){
-  ///reverse mapping for unPacker
-
+void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup )
+{
   auto outGEMDigis = std::make_unique<GEMDigiCollection>();
 
   // Take raw from the event
@@ -90,7 +89,7 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 	  uint8_t b1010=vfatData->b1010();
 	  uint8_t b1100=vfatData->b1100();
 	  uint8_t b1110=vfatData->b1110();
-	  uint16_t  ChipID=vfatData->ChipID();
+	  uint16_t ChipID=vfatData->ChipID();
 	  //int slot=vfatData->SlotNumber(); 
 	  uint16_t crc = vfatData->crc();
 	  uint16_t crc_check = checkCRC(vfatData);
@@ -110,22 +109,18 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 	    if(chan0xf==0) continue;  
 
 	    GEMROmap::eCoord ec;
-	    //ec.chamberId=31;
 	    ec.vfatId = ChipID+0xf000;
-	    ec.channelId = chan+1;
+	    ec.channelId = chan;
 	    GEMROmap::dCoord dc = m_gemROMap->hitPosition(ec);
 
-	    int strip=dc.stripId +1;//
-	    if (strip > 2*128) strip-=128*2;
-	    else if (strip < 128) strip+=128*2;
-
-	    //int etaP=dc.etaId;	  
-	    // NEED TOO FIX GEMDETID
-	    //GEMDetId gemId = getGEMDetID(ChipID);
+	    std::cout <<"GEMRawToDigiModule ChipID "<< ChipID
+		      <<" gemDetId "<< dc.gemDetId
+		      <<" chan "<< chan
+		      <<" strip "<< dc.stripId
+		      <<std::endl;
 	    
-	    GEMDigi digi(strip,bc);
-	    //outGEMDigis.get()->insertDigi(GEMDetId(1,1,1,1,1,etaP),digi); 
-	    outGEMDigis.get()->insertDigi(dc.gemDetId,digi); 
+	    GEMDigi digi(dc.stripId,bc);
+	    outGEMDigis.get()->insertDigi(dc.gemDetId,digi);
 	  }
 	  
 	  delete vfatData;
