@@ -50,6 +50,7 @@ class DeepFlavourTagInfoProducer : public edm::stream::EDProducer<> {
 
     
     const double jet_radius_;
+    const double min_candidate_pt_;
 
     edm::EDGetTokenT<edm::View<reco::Jet>>  jet_token_;
     edm::EDGetTokenT<VertexCollection> vtx_token_;
@@ -66,6 +67,7 @@ class DeepFlavourTagInfoProducer : public edm::stream::EDProducer<> {
 
 DeepFlavourTagInfoProducer::DeepFlavourTagInfoProducer(const edm::ParameterSet& iConfig) :
   jet_radius_(iConfig.getParameter<double>("jet_radius")),
+  min_candidate_pt_(iConfig.getParameter<double>("min_candidate_pt")),
   jet_token_(consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("jets"))),
   vtx_token_(consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
   sv_token_(consumes<SVCollection>(iConfig.getParameter<edm::InputTag>("secondary_vertices"))),
@@ -101,6 +103,7 @@ void DeepFlavourTagInfoProducer::fillDescriptions(edm::ConfigurationDescriptions
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("shallow_tag_infos", edm::InputTag("pfDeepCSVTagInfos"));
   desc.add<double>("jet_radius", 0.4);
+  desc.add<double>("min_candidate_pt", 0.95);
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
   desc.add<edm::InputTag>("puppi_value_map", edm::InputTag("puppi"));
   desc.add<edm::InputTag>("secondary_vertices", edm::InputTag("inclusiveCandidateSecondaryVertices"));
@@ -219,9 +222,9 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     for (unsigned int i = 0; i <  jet.numberOfDaughters(); i++){
         auto cand = jet.daughter(i);
         if(cand){
-          // candidates under 950MeV are not considered
+          // candidates under 950MeV (configurable) are not considered
           // might change if we use also white-listing
-          if (cand->pt()<0.95) continue; 
+          if (cand->pt()< min_candidate_pt_) continue; 
           if (cand->charge() != 0) {
             auto trackinfo = trackinfos.emplace(i,track_builder).first->second;
             trackinfo.buildTrackInfo(cand,jet_dir,jet_ref_track_dir,pv);
