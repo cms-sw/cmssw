@@ -391,10 +391,6 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     GoodPVtxMin = cms.double( 0.),
     GoodPVtxMax = cms.double(200.),
 
-    PVBin  = cms.int32 ( 150 ),
-    PVMin  = cms.double(   0.5),
-    PVMax  = cms.double( 150.5),
-
     LUMIBin  = cms.int32 ( 300 ),   # irrelevant
     LUMIMin  = cms.double(  200.),
     LUMIMax  = cms.double(20000.),
@@ -418,6 +414,10 @@ LongDCAMax = cms.double(8.0),
 
 # Overcoming the 255 arguments limit
 # TrackingRegion monitoring
+TrackMon.PVBin = cms.int32 ( 150 )
+TrackMon.PVMin = cms.double(   0.5)
+TrackMon.PVMax = cms.double( 150.5)
+
 TrackMon.RegionProducer = cms.InputTag("")
 TrackMon.RegionCandidates = cms.InputTag("")
 TrackMon.doRegionPlots = cms.bool(False)
