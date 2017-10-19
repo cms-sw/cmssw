@@ -30,6 +30,9 @@ theDigitizers = cms.PSet(
   ),
   puVtx = cms.PSet(
     pileupVtxDigitizer
+  ),
+  mergedtruth = cms.PSet(
+    trackingParticles
   )
 )
 
@@ -65,13 +68,8 @@ from SimFastTiming.Configuration.SimFastTiming_cff import fastTimeDigitizer
 phase2_timing_layer.toModify( theDigitizers,
                         fastTimingLayer = fastTimeDigitizer.clone() )
 
-theDigitizersValid = cms.PSet(
-    theDigitizers,
-    mergedtruth = cms.PSet(
-        trackingParticles
-        )
-    )
-
+theDigitizersValid = cms.PSet(theDigitizers)
+theDigitizers.mergedtruth.select.signalOnlyTP = cms.bool(True)
 
 phase2_hgcal.toModify( theDigitizersValid,
                        calotruth = cms.PSet( caloParticles ) )

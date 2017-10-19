@@ -13,7 +13,8 @@ SimGeneralRAW = cms.PSet(
                                            'keep PileupSummaryInfos_*_*_*',
                                            'keep int6stdbitsetstdpairs_*_AffectedAPVList_*',
                                            'keep int_*_bunchSpacing_*',
-                                           'keep *_genPUProtons_*_*') 
+                                           'keep *_genPUProtons_*_*',
+                                           'keep *_mix_MergedTrackTruth_*') 
 )
 #RECO content
 SimGeneralRECO = cms.PSet(
