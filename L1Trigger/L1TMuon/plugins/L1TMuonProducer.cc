@@ -20,7 +20,7 @@
 
 // system include files
 #include <memory>
-#include <sstream>
+#include <fstream>
 
 // user include files
 #include "FWCore/Framework/interface/EventSetup.h"
