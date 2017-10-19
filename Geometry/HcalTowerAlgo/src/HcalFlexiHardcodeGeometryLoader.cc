@@ -79,12 +79,12 @@ std::vector<HcalFlexiHardcodeGeometryLoader::HBHOCellParameters> HcalFlexiHardco
       double rmax = gconsHB[layl].first+gconsHB[layl].second;
       for (unsigned int j=0; j<etabin.phis.size(); ++j) {
 #ifdef EDM_ML_DEBUG
-	std::cout << "HBRing " << iring << " eta " << etabins[i].etaMin << ":"
-		  << etabins[i].etaMax << " depth " << depth << " R " << rmin
-		  << ":" << rmax << " Phi " << etabins[i].phis[j].first << ":" 
-		  << etabins[i].phis[j].second << ":" << dphi << " layer[" << k 
-		  << "]: " << etabins[i].layer[k].first-1 << ":"
-		  << etabins[i].layer[k].second << std::endl;
+	std::cout << "HBRing " << iring << " eta " << etabin.etaMin << ":"
+		  << etabin.etaMax << " depth " << depth << " R " << rmin
+		  << ":" << rmax << " Phi " << etabin.phis[j].first << ":" 
+		  << etabin.phis[j].second << ":" << dphi << " layer[" << k 
+		  << "]: " << etabin.layer[k].first-1 << ":"
+		  << etabin.layer[k].second << std::endl;
 #endif
 	result.emplace_back (HcalFlexiHardcodeGeometryLoader::HBHOCellParameters(iring, depth, etabin.phis[j].first, etabin.phis[j].second, dphi, rmin, rmax, etabin.etaMin, etabin.etaMax));
       }
@@ -191,10 +191,13 @@ std::vector<HcalFlexiHardcodeGeometryLoader::HECellParameters> HcalFlexiHardcode
 	(etabin.phis[1].second-etabin.phis[0].second) : 
 	((2.0*M_PI)/MAX_HCAL_PHI);
 #ifdef EDM_ML_DEBUG
-      std::cout << "FlexiGeometryLoader::Ring " << iring << " nphi " << nphi
-		<< " dstart " << depth << " dphi " << dphi << " units "
-		<< units << " fioff " << fioff << " layers "
-		<< etabins[i].layer.size() << std::endl;
+      std::cout << "FlexiGeometryLoader::Ring " << iring << " nphi " 
+		<< etabin.phis.size() << " dstart " << depth << " dphi " 
+		<< dphi << " layers "<< etabin.layer.size() << std::endl;
+      for (unsigned int j=0; j<etabin.phis.size(); ++j) 
+	std::cout << " [" << j << "] " << etabin.phis[j].first << ":" 
+		  << etabin.phis[j].second;
+      std::cout << std::endl;
 #endif
       for (unsigned int k=0; k<etabin.layer.size(); ++k) {
 	int layf = etabin.layer[k].first-1;
@@ -212,12 +215,12 @@ std::vector<HcalFlexiHardcodeGeometryLoader::HECellParameters> HcalFlexiHardcode
 	if (zmin >= zmax) zmax = zmin+10.;
 	for (unsigned int j=0; j<etabin.phis.size(); ++j) {
 #ifdef EDM_ML_DEBUG
-	  std::cout << "HERing " << iring << " eta " << etabins[i].etaMin << ":"
-		    << etabins[i].etaMax << " depth " << depth << " Z " << zmin
-		    << ":" << zmax << " Phi :" << etabins[i].phis[j].first 
-		    << ":" << etabins[i].phis[j].second << ":" << dphi 
-		    << " layer[" << k << "]: " << etabins[i].layer[k].first-1 
-		    << ":" << etabins[i].layer[k].second-1 << std::endl;
+	  std::cout << "HERing " << iring << " eta " << etabin.etaMin << ":"
+		    << etabin.etaMax << " depth " << depth << " Z " << zmin
+		    << ":" << zmax << " Phi :" << etabin.phis[j].first 
+		    << ":" << etabin.phis[j].second << ":" << dphi 
+		    << " layer[" << k << "]: " << etabin.layer[k].first-1 
+		    << ":" << etabin.layer[k].second-1 << std::endl;
 #endif
 	  result.emplace_back(HcalFlexiHardcodeGeometryLoader::HECellParameters(iring, depth, etabin.phis[j].first, etabin.phis[j].second, dphi, zmin, zmax, etabin.etaMin, etabin.etaMax));
 	}
@@ -296,10 +299,10 @@ void HcalFlexiHardcodeGeometryLoader::fillHE (HcalGeometry* fGeometry, const std
     float phiCenter = param.phi; // middle of the cell
     float etaCenter = 0.5 * (param.etaMin + param.etaMax);
     int   iside     = (param.ieta >= 0) ? 1 : -1;
-    float perp = param.zMin / sinh (etaCenter);
+    float z = (isBH_) ? (iside*0.5*(param.zMin+param.zMax)) : (iside*param.zMin);
+    float perp = std::abs(z) / sinh (etaCenter);
     float x = perp * cos (phiCenter);
     float y = perp * sin (phiCenter);
-    float z = (isBH_) ? (iside*0.5*(param.zMin+param.zMax)) : (iside*param.zMin);
     // make cell geometry
     GlobalPoint refPoint (x,y,z); // center of the cell's face
     std::vector<CCGFloat> cellParams;
