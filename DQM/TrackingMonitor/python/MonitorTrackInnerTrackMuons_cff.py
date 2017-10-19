@@ -21,7 +21,10 @@ muonInnerTrack = SimMuon.MCTruth.MuonTrackProducer_cfi.muonTrackProducer.clone()
 muonInnerTrack.muonsTag = cms.InputTag("muonsPt10")
 muonInnerTrack.selectionTags = ('All',)
 muonInnerTrack.trackType = "innerTrack"
-
+muonInnerTrack.TkSizeBin = 10
+muonInnerTrack.TkSizeMax = 10.
+muonInnerTrack.phiErrMax = 0.001
+muonInnerTrack.etaErrMax = 0.001
 
 import DQM.TrackingMonitor.TrackingMonitor_cfi
 MonitorTrackMuonsInnerTrack = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
