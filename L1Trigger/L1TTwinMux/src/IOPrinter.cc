@@ -12,7 +12,9 @@
 #include "L1Trigger/L1TTwinMux/interface/IOPrinter.h"
 #include "L1Trigger/L1TTwinMux/interface/L1MuTMChambPhContainer.h"
 
-void IOPrinter::run(edm::Handle<L1MuDTChambPhContainer> inphiDigis, L1MuDTChambPhContainer outphiDigis,edm::Handle<RPCDigiCollection> rpcDigis, const edm::EventSetup& c) {
+using namespace std;
+
+void IOPrinter::run(edm::Handle<L1MuDTChambPhContainer> inphiDigis, const L1MuDTChambPhContainer & outphiDigis,edm::Handle<RPCDigiCollection> rpcDigis, const edm::EventSetup& c) {
 
     cout<<"======================================================"<<endl;
     int bx=0, wheel=0, sector=0, station=1;
@@ -97,7 +99,7 @@ cout<<"======================================================"<<endl;
 }
 
 
-void IOPrinter::run(L1MuDTChambPhContainer* inphiDigis,L1MuDTChambPhContainer outphiDigis,RPCDigiCollection* rpcDigis,const edm::EventSetup& c) {
+void IOPrinter::run(L1MuDTChambPhContainer* inphiDigis,const L1MuDTChambPhContainer & outphiDigis,RPCDigiCollection* rpcDigis,const edm::EventSetup& c) {
 
   cout<<"======================================================"<<endl;
   int bx=0, wheel=0, sector=0, station=1;
@@ -116,7 +118,7 @@ void IOPrinter::run(L1MuDTChambPhContainer* inphiDigis,L1MuDTChambPhContainer ou
     for (wheel=-2;wheel<=2; wheel++ ){
       for (sector=0;sector<12; sector++ ){
         for (station=1; station<=4; station++){
-          int nhits = DTRPCBxCorrection::noRPCHits(*inphiDigis, bx, wheel, sector, station);
+          int nhits = DTRPCBxCorrection::nRPCHits(*inphiDigis, bx, wheel, sector, station);
           for(int hit=0; hit<nhits; hit++){
             dtts1=nullptr;
             dtts1 = inphiDigis_tm->chPhiSegm(wheel,station,sector,bx,hit);

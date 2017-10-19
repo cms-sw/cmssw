@@ -10,8 +10,8 @@
 //   mod.: G Karathanasis
 //--------------------------------------------------
 
-#ifndef AlignTrackSegments_H
-#define AlignTrackSegments_H
+#ifndef L1T_TwinMux_AlignTrackSegments_H
+#define L1T_TwinMux_AlignTrackSegments_H
 
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
@@ -37,7 +37,7 @@ public:
   void run(const edm::EventSetup& c);
 
  ///Return Output PhContainer
- L1MuDTChambPhContainer getDTContainer(){  return m_dt_tsshifted;}
+ const L1MuDTChambPhContainer & getDTContainer(){  return m_dt_tsshifted;}
 
 private:
 

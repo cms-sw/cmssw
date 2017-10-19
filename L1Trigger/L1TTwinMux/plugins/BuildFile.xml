@@ -3,7 +3,6 @@
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/L1TObjects"/>
 <use name="L1Trigger/L1TTwinMux"/>
-<flags LDFLAGS="-fPIC"/>
 <flags EDM_PLUGIN="1"/>
 <flags ADD_SUBDIR="1"/>
 </library>

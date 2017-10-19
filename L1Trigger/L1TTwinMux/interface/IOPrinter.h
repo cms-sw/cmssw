@@ -25,15 +25,13 @@
 #include "L1Trigger/L1TTwinMux/interface/DTRPCBxCorrection.h"
 #include "L1Trigger/L1TTwinMux/interface/RPCHitCleaner.h"
 
-using namespace std;
-
 class IOPrinter{
 public:
   IOPrinter() {};
   ~IOPrinter() {};
-  void run(edm::Handle<L1MuDTChambPhContainer>, L1MuDTChambPhContainer ,  edm::Handle<RPCDigiCollection>,
+  void run(edm::Handle<L1MuDTChambPhContainer>, const L1MuDTChambPhContainer &,  edm::Handle<RPCDigiCollection>,
             const edm::EventSetup& );
-  void run(L1MuDTChambPhContainer*, L1MuDTChambPhContainer , RPCDigiCollection*,
+  void run(L1MuDTChambPhContainer*, const L1MuDTChambPhContainer & , RPCDigiCollection*,
             const edm::EventSetup& );
 
 };

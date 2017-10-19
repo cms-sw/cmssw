@@ -54,15 +54,13 @@ L1MuTMChambPhContainer::Phi_Container const* L1MuTMChambPhContainer::getContaine
 
 bool L1MuTMChambPhContainer::bxEmpty(int step) const {
 
-  bool empty = true;
-
   for ( Phi_iterator i  = phiSegments.begin();
                      i != phiSegments.end();
                      i++ ) {
-    if  (step == i->bxNum()) empty = false;
+    if  (step == i->bxNum()) return false;
   }
 
-  return(empty);
+  return true;
 }
 
 int L1MuTMChambPhContainer::bxSize(int step1, int step2) const {
