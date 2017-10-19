@@ -121,7 +121,7 @@ PFCheckHitPattern::analyze(const TrackerTopology* tkerTopo, const TrackerGeometr
 
   for (int i = 0; i < hp.numberOfHits(HitPattern::MISSING_INNER_HITS); i++) {
     uint32_t hit = hp.getHitPattern(HitPattern::MISSING_INNER_HITS, i);
-    if (reco::HitPattern::trackerHitFilter(hit)) {
+    if (reco::HitPattern::trackerHitFilter(hit) && reco::HitPattern::missingHitFilter(hit)) {
       uint32_t subDet = reco::HitPattern::getSubStructure(hit);
       uint32_t layer = reco::HitPattern::getLayer(hit);
       DetInfo detInfo(subDet, layer);
