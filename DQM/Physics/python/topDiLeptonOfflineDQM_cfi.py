@@ -419,7 +419,7 @@ DiElectronDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
       label = cms.string("elecs:step0"),
       src   = cms.InputTag("pfIsolatedElectronsEI"),
       ##electronId = cms.PSet( src = cms.InputTag("mvaTrigV0"), cutValue = cms.double(0.5) ),      
-      select = cms.string("pt>20 & abs(eta)<2.5 && gsfElectronRef.gsfTrack.hitPattern().numberOfHits('MISSING_INNER_HITS') <= 0 && " + ElelooseIsoCut),
+      select = cms.string("pt>20 & abs(eta)<2.5 && gsfElectronRef.gsfTrack.hitPattern().numberOfLostHits('MISSING_INNER_HITS') <= 0 && " + ElelooseIsoCut),
       #abs(gsfElectronRef.gsfTrack.d0)<0.04
       min = cms.int32(2),
       max = cms.int32(2),
