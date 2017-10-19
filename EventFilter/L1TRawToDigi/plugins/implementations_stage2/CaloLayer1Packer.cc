@@ -57,7 +57,7 @@ namespace stage2 {
          if(cPhi == 0) cPhi = 72;
          else if(cPhi == -1) cPhi = 71;
          else if(cPhi < -1) {
-            LogError("CaloLayer1Packer") << "Major error in makeECalTPGs" << std::endl;
+           edm::LogError("CaloLayer1Packer") << "Major error in makeECalTPGs" << std::endl;
             return;
          }
          for(int cEta =   -28; cEta <= 28; cEta++) { // Calorimeter Eta indices (HB/HE for now)
@@ -87,7 +87,7 @@ namespace stage2 {
          if(cPhi == 0) cPhi = 72;
          else if(cPhi == -1) cPhi = 71;
          else if(cPhi < -1) {
-            LogError("CaloLayer1Packer") << "Major error in makeHCalTPGs" << std::endl;
+           edm::LogError("CaloLayer1Packer") << "Major error in makeHCalTPGs" << std::endl;
             return;
          }
          for(int cEta =   -28; cEta <= 28; cEta++) { // Calorimeter Eta indices (HB/HE for now)
