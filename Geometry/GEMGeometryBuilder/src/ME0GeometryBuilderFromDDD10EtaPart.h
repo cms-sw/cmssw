@@ -34,11 +34,11 @@ class ME0GeometryBuilderFromDDD10EtaPart
   ME0BoundPlane boundPlane(const DDFilteredView& fv,
                            Bounds* bounds, bool isOddChamber) const ;
   
-  ME0Chamber* buildChamber(DDFilteredView& fv, ME0DetId detId) const;
+  std::shared_ptr< ME0Chamber > buildChamber(DDFilteredView& fv, ME0DetId detId) const;
 
-  ME0Layer* buildLayer(DDFilteredView& fv, ME0DetId detId) const;
+  std::shared_ptr< ME0Layer > buildLayer(DDFilteredView& fv, ME0DetId detId) const;
   
-  ME0EtaPartition* buildEtaPartition(DDFilteredView& fv, ME0DetId detId) const;
+  std::shared_ptr< ME0EtaPartition > buildEtaPartition(DDFilteredView& fv, ME0DetId detId) const;
 };
 
 #endif

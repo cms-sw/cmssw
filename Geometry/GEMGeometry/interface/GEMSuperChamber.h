@@ -38,21 +38,21 @@ class GEMSuperChamber : public GeomDet
   bool operator==(const GEMSuperChamber& sch) const;
 
   /// Add chamber to the super chamber which takes ownership
-  void add(const GEMChamber* ch);
+  void add( std::shared_ptr< GEMChamber > ch );
   
   /// Return the chambers in the super chamber
-  std::vector<const GeomDet*> components() const override;
+  std::vector< std::shared_ptr< GeomDet >> components() const override;
 
   /// Return the sub-component (chamber) with a given id in this super chamber
-  const GeomDet* component(DetId id) const override;
+  const std::shared_ptr< GeomDet > component(DetId id) const override;
 
   /// Return the chamber corresponding to the given id 
-  const GEMChamber* chamber(GEMDetId id) const;
+  const std::shared_ptr< GEMChamber > chamber( GEMDetId id ) const;
 
-  const GEMChamber* chamber(int layer) const;
+  const std::shared_ptr< GEMChamber > chamber( int layer ) const;
   
   /// Return the chambers in the super chamber
-  const std::vector<const GEMChamber*>& chambers() const;
+  const std::vector< std::shared_ptr< GEMChamber >>& chambers() const;
 
   /// Return numbers of chambers
   int nChambers() const;
@@ -62,7 +62,7 @@ class GEMSuperChamber : public GeomDet
   GEMDetId detId_;
 
   // vector of chambers for a super chamber
-  std::vector<const GEMChamber*> chambers_;
+  std::vector< std::shared_ptr< GEMChamber >> chambers_;
 
 };
 #endif

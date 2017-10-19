@@ -93,8 +93,6 @@ TrackerGeometry::TrackerGeometry(GeometricDet const* gd)
 }
 
 TrackerGeometry::~TrackerGeometry() {
-    for (auto d : theDets) delete const_cast<GeomDet*>(d);
-    for (auto d : theDetTypes) delete const_cast<GeomDetType*>(d);
 }
 
 void TrackerGeometry::finalize() {
@@ -112,13 +110,13 @@ void TrackerGeometry::finalize() {
     theTECDets.shrink_to_fit(); // not owned: they're also in 'theDets'
 }
 
-void TrackerGeometry::addType(GeomDetType const * p) {
+void TrackerGeometry::addType( std::shared_ptr< GeomDetType > p ) {
   theDetTypes.emplace_back(p);  // add to vector
 }
 
-void TrackerGeometry::addDetUnit(GeomDet const * p) {
+void TrackerGeometry::addDetUnit( std::shared_ptr< GeomDet > p ) {
   // set index
-  const_cast<GeomDet *>(p)->setIndex(theDetUnits.size());
+  p->setIndex(theDetUnits.size());
   theDetUnits.emplace_back(p);  // add to vector
   theMapUnit.insert(std::make_pair(p->geographicalId().rawId(),p));
 }
@@ -127,9 +125,9 @@ void TrackerGeometry::addDetUnitId(DetId p){
   theDetUnitIds.emplace_back(p);
 }
 
-void TrackerGeometry::addDet(GeomDet const * p) {
+void TrackerGeometry::addDet( std::shared_ptr< GeomDet > p ) {
   // set index
-  const_cast<GeomDet *>(p)->setGdetIndex(theDets.size());
+  p->setGdetIndex(theDets.size());
   theDets.emplace_back(p);  // add to vector
   theMap.insert(std::make_pair(p->geographicalId().rawId(),p));
   DetId id(p->geographicalId());
@@ -198,24 +196,24 @@ TrackerGeometry::detsTEC() const
   return theTECDets;
 }
 
-const TrackerGeomDet * 
+const std::shared_ptr< GeomDet >
 TrackerGeometry::idToDetUnit(DetId s)const
 {
   mapIdToDetUnit::const_iterator p=theMapUnit.find(s.rawId());
   if (p != theMapUnit.end()) {
-    return static_cast<const TrackerGeomDet *>(p->second);
+    return p->second;
   } else {
     throw cms::Exception("WrongTrackerSubDet") << "Invalid DetID: no GeomDetUnit associated with raw ID "
 					       << s.rawId() << " of subdet ID " << s.subdetId();
   }
 }
 
-const TrackerGeomDet* 
+const std::shared_ptr< GeomDet >
 TrackerGeometry::idToDet(DetId s)const
 {
   mapIdToDet::const_iterator p=theMap.find(s.rawId());
   if (p != theMap.end()) {
-    return static_cast<const TrackerGeomDet *>(p->second);
+    return p->second;
   } else {
     throw cms::Exception("WrongTrackerSubDet") << "Invalid DetID: no GeomDetUnit associated with raw ID "
 					       << s.rawId() << " of subdet ID " << s.subdetId();

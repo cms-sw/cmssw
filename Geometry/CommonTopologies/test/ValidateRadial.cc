@@ -68,7 +68,7 @@ get_list_of_radial_topologies(const edm::Event&e, const edm::EventSetup& es) {
 				     470049476,//TEC r6
 				     470045428}; //TEC r7
   for(unsigned int radial_detid : radial_detids) {
-    auto g = dynamic_cast<const StripGeomDetUnit*>(theTrackerGeometry->idToDet( radial_detid ));
+    auto g = std::static_pointer_cast< const StripGeomDetUnit >(theTrackerGeometry->idToDet( radial_detid ));
     if (!g) std::cout << "no geom for " << radial_detid << std::endl;
     auto const topol = &g->specificTopology();
     const TkRadialStripTopology* rt =nullptr;	

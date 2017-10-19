@@ -38,7 +38,8 @@ RPCRoll::type() const
   return (*_rrs);
 }
 
-const RPCChamber* RPCRoll::chamber() const {
+const std::shared_ptr< RPCChamber >
+RPCRoll::chamber() const {
   return theCh;
 }
 
@@ -101,19 +102,14 @@ RPCRoll::isForward() const
   return (!this->isBarrel());
 } 
 
-
-
 const StripTopology&
 RPCRoll::specificTopology() const
 {
   return _rrs->specificTopology();
 }
 
-
-
-
 void
-RPCRoll::setChamber(const RPCChamber* ch)
+RPCRoll::setChamber( std::shared_ptr< RPCChamber > ch)
 {
   theCh = ch; 
 }

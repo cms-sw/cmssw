@@ -129,11 +129,11 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
 
     // Set EtaPartition of RollDetId equal to 1
     ME0DetId rollDetId2(rollDetId.region(),rollDetId.layer(),rollDetId.station(),1);
-    ME0EtaPartition* mep = new ME0EtaPartition(rollDetId2, surf, e_p_specs);
+    auto mep = std::make_shared< ME0EtaPartition > ( rollDetId2, surf, e_p_specs );
 
     // For Nick ... build also the layer
     ME0DetId layerDetId(rollDetId.layerId());
-    ME0Layer* ml = new ME0Layer(layerDetId, surf);
+    auto ml = std::make_shared< ME0Layer > ( layerDetId, surf );
 
     // Add the eta partition to the geometry
     geometry->add(mep);
@@ -165,21 +165,20 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
       LogDebug("ME0GeometryBuilderFromDDD") << "ME0DetId = " << fId ;
       LogDebug("ME0GeometryBuilderFromDDD") << "ME0ChamberId = " << chamberId ;
       // compute the overall boundplane using the first eta partition
-      const ME0EtaPartition* p(geometry->etaPartition(fId));
-      const BoundPlane& bps = p->surface();
+      const BoundPlane& bps = geometry->etaPartition(fId)->surface();
       BoundPlane* bp = const_cast<BoundPlane*>(&bps);
       ReferenceCountingPointer<BoundPlane> surf(bp);
       
-      ME0Chamber* ch = new ME0Chamber(chamberId, surf); 
+      auto ch = std::make_shared< ME0Chamber >( chamberId, surf ); 
       LogDebug("ME0GeometryBuilderFromDDD")  << "Creating chamber " << chamberId << " with " << vDetId.size() << " eta partitions";
       
       for(auto id : vDetId){
 	LogDebug("ME0GeometryBuilderFromDDD") << "Adding eta partition " << id << " to ME0 chamber";
-	ch->add(const_cast<ME0EtaPartition*>(geometry->etaPartition(id)));
+	ch->add( geometry->etaPartition( id ));
       }
 
       LogDebug("ME0GeometryBuilderFromDDD") << "Adding the chamber to the geometry";
-      geometry->add(ch);
+      geometry->add( ch );
       vDetId.clear();
     }
     vDetId.emplace_back(detId);

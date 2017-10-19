@@ -78,16 +78,14 @@ RPCGEO2::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
    edm::ESHandle<RPCGeometry> rpcGeo;
    iSetup.get<MuonGeometryRecord>().get(rpcGeo);
 
-   for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
-     if( dynamic_cast< const RPCChamber* >( *it ) != nullptr ){
-       const RPCChamber* ch = dynamic_cast< const RPCChamber* >( *it ); 
-       std::vector< const RPCRoll*> roles = (ch->rolls());
-       
-       for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
-	 RPCDetId rpcId = (*r)->id();
+   for( auto it : rpcGeo->dets()) {
+     if( std::static_pointer_cast< RPCChamber >( it ) != nullptr ){
+       auto ch = std::static_pointer_cast< RPCChamber >( it ); 
+       for( auto r : ch->rolls()) {
+	 RPCDetId rpcId = r->id();
 	 RPCGeomServ rpcsrv(rpcId);
 	 if (rpcId.region()==0){ 
-	   const BoundPlane & RPCSurface = (*r)->surface();
+	   const BoundPlane & RPCSurface = r->surface();
 	   GlobalPoint CenterPointRollGlobal = RPCSurface.toGlobal(LocalPoint(0,0,0));
 	   std::cout<<rpcsrv.name()<<" "<<CenterPointRollGlobal.x()<<" "<<CenterPointRollGlobal.y()<<" "<<CenterPointRollGlobal.z()<<std::endl;
 	   GlobalPoint i = RPCSurface.toGlobal(LocalPoint(1,0,0));
@@ -96,7 +94,7 @@ RPCGEO2::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 	   std::cout<<" j "<<j.x()<<" "<<j.y()<<" "<<j.z()<<std::endl;
 
 	 }else{
-	   const BoundPlane & RPCSurface = (*r)->surface();
+	   const BoundPlane & RPCSurface = r->surface();
 	   GlobalPoint CenterPointRollGlobal = RPCSurface.toGlobal(LocalPoint(0,0,0));
 	   std::cout<<rpcsrv.name()<<" "<<CenterPointRollGlobal.x()<<" "<<CenterPointRollGlobal.y()<<" "<<CenterPointRollGlobal.z()<<std::endl;
 	 }

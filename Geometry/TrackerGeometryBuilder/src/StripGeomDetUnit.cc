@@ -3,7 +3,7 @@
 
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 
-StripGeomDetUnit::StripGeomDetUnit( BoundPlane* sp, StripGeomDetType const * type, DetId id) : 
+StripGeomDetUnit::StripGeomDetUnit( BoundPlane* sp, std::shared_ptr< StripGeomDetType > type, DetId id) : 
   TrackerGeomDet(sp), theTopology(new ProxyStripTopology(type, sp))
 {
   setDetId(id);

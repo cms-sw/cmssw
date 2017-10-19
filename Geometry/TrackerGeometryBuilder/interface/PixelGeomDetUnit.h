@@ -15,7 +15,7 @@ class SurfaceDeformation;
 class PixelGeomDetUnit final : public TrackerGeomDet {
 public:
 
-  PixelGeomDetUnit(BoundPlane* sp, PixelGeomDetType const * type, DetId id);
+  PixelGeomDetUnit(BoundPlane* sp, std::shared_ptr< PixelGeomDetType > type, DetId id);
 
   // DetUnit interface
 

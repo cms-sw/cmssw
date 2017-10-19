@@ -37,7 +37,7 @@ GEMGeometryBuilderFromCondDB::build(const std::shared_ptr<GEMGeometry>& theGeome
 				    const RecoIdealGeometry& rgeo )
 {
   const std::vector<DetId>& detids( rgeo.detIds());
-  std::vector<GEMSuperChamber*> superChambers;
+  std::vector< std::shared_ptr< GEMSuperChamber >> superChambers;
 
   std::string name;
   std::vector<double>::const_iterator tranStart;
@@ -91,12 +91,12 @@ GEMGeometryBuilderFromCondDB::build(const std::shared_ptr<GEMGeometry>& theGeome
   
     BoundPlane* bp = new BoundPlane( pos, rot, bounds );
     ReferenceCountingPointer<BoundPlane> surf( bp );
-    GEMEtaPartition* gep = new GEMEtaPartition( gemid, surf, epSpecs );
+    auto gep = std::make_shared< GEMEtaPartition >( gemid, surf, epSpecs );
     LogDebug("GEMGeometryBuilder") << "GEM Eta Partition created with id = " << gemid
 				   << " and added to the GEMGeometry" << std::endl;
     theGeometry->add(gep);
     
-    std::list<GEMEtaPartition *> gepList;
+    std::list< std::shared_ptr< GEMEtaPartition >> gepList;
     if( m_chids.find( chid ) != m_chids.end()) {
       gepList = m_chids[chid];
     }
@@ -108,7 +108,7 @@ GEMGeometryBuilderFromCondDB::build(const std::shared_ptr<GEMGeometry>& theGeome
 
   for( const auto& ich : m_chids ) {
     GEMDetId chid = ich.first;
-    std::list<GEMEtaPartition * > gepList = ich.second;
+    std::list< std::shared_ptr< GEMEtaPartition > > gepList = ich.second;
 
     // compute the overall boundplane. At the moment we use just the last
     // surface
@@ -122,14 +122,14 @@ GEMGeometryBuilderFromCondDB::build(const std::shared_ptr<GEMGeometry>& theGeome
     // Create the superchamber
     if( chid.layer() == 1 ) {
       GEMDetId schid( chid.region(), chid.ring(), chid.station(), 0, chid.chamber(), 0 );
-      GEMSuperChamber* sch = new GEMSuperChamber( schid, surf );
+      auto sch = std::make_shared< GEMSuperChamber >( schid, surf );
       LogDebug("GEMGeometryBuilder") << "GEM SuperChamber created with id = " << schid
 				     << " and added to the GEMGeometry" << std::endl;
       superChambers.emplace_back( sch );
     }
     
     // Create the chamber 
-    GEMChamber* ch = new GEMChamber( chid, surf ); 
+    auto ch = std::make_shared< GEMChamber >( chid, surf ); 
     LogDebug("GEMGeometryBuilder") << "GEM Chamber created with id = " << chid
 				   << " = " << chid.rawId() << " and added to the GEMGeometry" << std::endl;
     LogDebug("GEMGeometryBuilder") << "GEM Chamber has following eta partitions associated: " << std::endl;
@@ -148,16 +148,16 @@ GEMGeometryBuilderFromCondDB::build(const std::shared_ptr<GEMGeometry>& theGeome
 
   // construct the regions, stations and rings. 
   for( int re = -1; re <= 1; re = re+2 ) {
-    GEMRegion* region = new GEMRegion( re );
+    auto region = std::make_shared< GEMRegion >( re );
     for( int st = 1; st <= GEMDetId::maxStationId; ++st ) {
-      GEMStation* station = new GEMStation(re, st);
+      auto station = std::make_shared< GEMStation >(re, st);
       std::string sign( re==-1 ? "-" : "");
       std::string name("GE" + sign + std::to_string(st) + "/1");
       station->setName(name);
       for( int ri = 1; ri <= 1; ++ri ) {
-	GEMRing* ring = new GEMRing( re, st, ri );
+	auto ring = std::make_shared< GEMRing >( re, st, ri );
 	for( unsigned sch = 0; sch < superChambers.size(); ++sch ) {
-	  GEMSuperChamber* superChamber = superChambers[sch];
+	  auto superChamber = superChambers[sch];
 	  const GEMDetId detId( superChamber->id());
 	  if (detId.region() != re || detId.station() != st || detId.ring() != ri) continue;
 	  

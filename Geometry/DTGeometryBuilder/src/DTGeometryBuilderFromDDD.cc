@@ -37,9 +37,6 @@ DTGeometryBuilderFromDDD::~DTGeometryBuilderFromDDD(){}
 void DTGeometryBuilderFromDDD::build(std::shared_ptr<DTGeometry> theGeometry,
                                      const DDCompactView* cview,
                                      const MuonDDDConstants& muonConstants){
-  //  cout << "DTGeometryBuilderFromDDD::build" << endl;
-  //   static const string t0 = "DTGeometryBuilderFromDDD::build";
-  //   TimeMe timer(t0,true);
 
   std::string attribute = "MuStructure"; 
   std::string value     = "MuonBarrelDT";
@@ -52,13 +49,9 @@ void DTGeometryBuilderFromDDD::build(std::shared_ptr<DTGeometry> theGeometry,
 }
 
 
-void DTGeometryBuilderFromDDD::buildGeometry(const std::shared_ptr<DTGeometry>& theGeometry,
-                                             DDFilteredView& fv,
-                                             const MuonDDDConstants& muonConstants) const {
-  // static const string t0 = "DTGeometryBuilderFromDDD::buildGeometry";
-  // TimeMe timer(t0,true);
-
-  //DTGeometry* theGeometry = new DTGeometry;
+void DTGeometryBuilderFromDDD::buildGeometry( const std::shared_ptr<DTGeometry>& theGeometry,
+					      DDFilteredView& fv,
+					      const MuonDDDConstants& muonConstants) const {
 
   bool doChamber = fv.firstChild();
 
@@ -74,14 +67,14 @@ void DTGeometryBuilderFromDDD::buildGeometry(const std::shared_ptr<DTGeometry>& 
     val=DDValue("FEPos");
     string FEPos;
     if (DDfetch(&params,val)) FEPos = val.strings()[0];
-    DTChamber* chamber = buildChamber(fv,type, muonConstants);
+    auto chamber = buildChamber(fv,type, muonConstants);
 
     // Loop on SLs
     bool doSL = fv.firstChild();
     int SLCounter=0;
     while (doSL) {
       SLCounter++;
-      DTSuperLayer* sl = buildSuperLayer(fv, chamber, type, muonConstants);
+      auto sl = buildSuperLayer(fv, chamber, type, muonConstants);
       theGeometry->add(sl);
 
       bool doL = fv.firstChild();
@@ -89,7 +82,7 @@ void DTGeometryBuilderFromDDD::buildGeometry(const std::shared_ptr<DTGeometry>& 
       // Loop on SLs
       while (doL) {
         LCounter++;
-        DTLayer* layer = buildLayer(fv, sl, type, muonConstants);
+        auto layer = buildLayer(fv, sl, type, muonConstants);
         theGeometry->add(layer);
 
         fv.parent();
@@ -106,8 +99,9 @@ void DTGeometryBuilderFromDDD::buildGeometry(const std::shared_ptr<DTGeometry>& 
   } // chambers
 }
 
-DTChamber* DTGeometryBuilderFromDDD::buildChamber(DDFilteredView& fv,
-                                                  const string& type, const MuonDDDConstants& muonConstants) const {
+std::shared_ptr< DTChamber >
+DTGeometryBuilderFromDDD::buildChamber(DDFilteredView& fv,
+				       const string& type, const MuonDDDConstants& muonConstants) const {
   MuonDDDNumbering mdddnum (muonConstants);
   DTNumberingScheme dtnum (muonConstants);
   int rawid = dtnum.getDetId(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
@@ -128,15 +122,14 @@ DTChamber* DTGeometryBuilderFromDDD::buildChamber(DDFilteredView& fv,
 
   RCPPlane surf(plane(fv, new RectangularPlaneBounds(width, length, thickness) ));
 
-  DTChamber* chamber = new DTChamber(detId, surf);
-
-  return chamber;
+  return std::make_shared< DTChamber>(detId, surf);
 }
 
-DTSuperLayer* DTGeometryBuilderFromDDD::buildSuperLayer(DDFilteredView& fv,
-                                                        DTChamber* chamber,
-                                                        const std::string& type, 
-							const MuonDDDConstants& muonConstants) const {
+std::shared_ptr< DTSuperLayer >
+DTGeometryBuilderFromDDD::buildSuperLayer(DDFilteredView& fv,
+					  std::shared_ptr< DTChamber > chamber,
+					  const std::string& type, 
+					  const MuonDDDConstants& muonConstants) const {
 
   MuonDDDNumbering mdddnum(muonConstants);
   DTNumberingScheme dtnum(muonConstants);
@@ -153,10 +146,7 @@ DTSuperLayer* DTGeometryBuilderFromDDD::buildSuperLayer(DDFilteredView& fv,
   // Ok this is the slayer position...
   RCPPlane surf(plane(fv, new RectangularPlaneBounds(width, length, thickness) ));
 
-  DTSuperLayer* slayer = new DTSuperLayer(slId, surf, chamber);
-
-  //LocalPoint lpos(10,20,30);
-  //GlobalPoint gpos=slayer->toGlobal(lpos);
+  auto slayer = std::make_shared< DTSuperLayer >(slId, surf, chamber);
 
   // add to the chamber
   chamber->add(slayer);
@@ -164,10 +154,11 @@ DTSuperLayer* DTGeometryBuilderFromDDD::buildSuperLayer(DDFilteredView& fv,
 }
 
 
-DTLayer* DTGeometryBuilderFromDDD::buildLayer(DDFilteredView& fv,
-                                              DTSuperLayer* sl,
-                                              const std::string& type,
-					      const MuonDDDConstants& muonConstants) const {
+std::shared_ptr< DTLayer >
+DTGeometryBuilderFromDDD::buildLayer(DDFilteredView& fv,
+				     std::shared_ptr< DTSuperLayer > sl,
+				     const std::string& type,
+				     const MuonDDDConstants& muonConstants) const {
 
   MuonDDDNumbering mdddnum(muonConstants);
   DTNumberingScheme dtnum(muonConstants);
@@ -197,7 +188,7 @@ DTLayer* DTGeometryBuilderFromDDD::buildLayer(DDFilteredView& fv,
 
   DTLayerType layerType;
 
-  DTLayer* layer = new DTLayer(layId, surf, topology, layerType, sl);
+  auto layer = std::make_shared< DTLayer >(layId, surf, topology, layerType, sl);
 
   sl->add(layer);
   return layer;

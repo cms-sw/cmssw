@@ -70,19 +70,19 @@ CSCChamberSpecs::CSCChamberSpecs(
   // Layer thickness can come from specs too
   float hThickness = specsValue(32)/10./2.; // mm->cm, and then want half the thickness
 
-  poszOddLayerGeometry = new CSCLayerGeometry( geom, iChamberType, bounds,
+  poszOddLayerGeometry = std::make_shared< CSCLayerGeometry >( geom, iChamberType, bounds,
      nstrips, -stripOffset1, phiPitch, whereStripsMeet, extentOfStripPlane, yCentreOfStripPlane,
      wg, wireAngleInDegrees, yOfFirstWire, hThickness );
 
-  poszEvenLayerGeometry = new CSCLayerGeometry( geom, iChamberType, bounds,
+  poszEvenLayerGeometry = std::make_shared< CSCLayerGeometry >( geom, iChamberType, bounds,
      nstrips, -stripOffset2, phiPitch, whereStripsMeet, extentOfStripPlane, yCentreOfStripPlane,
      wg, wireAngleInDegrees, yOfFirstWire, hThickness );
 
-  negzOddLayerGeometry = new CSCLayerGeometry( geom, iChamberType, bounds,
+  negzOddLayerGeometry = std::make_shared< CSCLayerGeometry >( geom, iChamberType, bounds,
      nstrips, -stripOffset1, phiPitch, whereStripsMeet, extentOfStripPlane, yCentreOfStripPlane,
      wg, -wireAngleInDegrees, yOfFirstWire, hThickness );
 
-  negzEvenLayerGeometry = new CSCLayerGeometry( geom, iChamberType, bounds,
+  negzEvenLayerGeometry = std::make_shared< CSCLayerGeometry >( geom, iChamberType, bounds,
      nstrips, -stripOffset2, phiPitch, whereStripsMeet, extentOfStripPlane, yCentreOfStripPlane,
      wg, -wireAngleInDegrees, yOfFirstWire, hThickness );
 
@@ -90,15 +90,7 @@ CSCChamberSpecs::CSCChamberSpecs(
 
 
 CSCChamberSpecs::~CSCChamberSpecs()
-{
-  LogTrace("CSCChamberSpecs|CSC") << myName << " destroying this=" << this;
-
-  delete poszOddLayerGeometry;
-  delete poszEvenLayerGeometry;
-  delete negzOddLayerGeometry;
-  delete negzEvenLayerGeometry;
-}
-
+{}
 
 bool CSCChamberSpecs::operator!=( const CSCChamberSpecs& specs ) const
 {
