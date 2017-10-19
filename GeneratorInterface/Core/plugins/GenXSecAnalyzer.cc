@@ -468,7 +468,7 @@ GenXSecAnalyzer::endJob() {
                                    << "GenXsecAnalyzer:" << "\n"
                                    << "------------------------------------";
  
-  if(!jetMatchEffStat_.size()) {
+  if(jetMatchEffStat_.empty()) {
     edm::LogPrint("GenXSecAnalyzer") << "------------------------------------" << "\n"
                                      << "Cross-section summary not available" << "\n"
                                      << "------------------------------------";
@@ -496,6 +496,8 @@ GenXSecAnalyzer::endJob() {
     unsigned int i = 0;
     double jetmatch_eff=0;
     double jetmatch_err=0;
+    double matching_eff=1;
+    double matching_efferr=1;
 
     for(std::map<int, GenFilterInfo>::const_iterator iter = jetMatchEffStat_.begin();
           iter!=jetMatchEffStat_.end(); ++iter, i++){ 
@@ -554,6 +556,8 @@ GenXSecAnalyzer::endJob() {
           << (thisEventEffStat.filterEfficiency(+3) * 100) << " +/- " 
           << ( thisEventEffStat.filterEfficiencyError(+3) * 100);
 
+      matching_eff = thisEventEffStat.filterEfficiency(+3);
+      matching_efferr = thisEventEffStat.filterEfficiencyError(+3);
     }
     delete [] title;
 
@@ -569,10 +573,18 @@ GenXSecAnalyzer::endJob() {
       << "After matching: total cross section = " 
       << std::scientific << std::setprecision(3)  
       << xsecAfterMatching_[last].value() << " +- " << xsecAfterMatching_[last].error() <<  " pb";
+
+          
+    edm::LogPrint("GenXSecAnalyzer")
+      << "Matching efficiency = "
+      << std::fixed << std::setprecision(1)
+      <<  matching_eff << " +/- " 
+      <<  matching_efferr <<"   [TO BE USED IN MCM]";
+    
   }
   else if(hepidwtup_ == -1 )
     edm::LogPrint("GenXSecAnalyzer") 
-      << "Before Filtrer: total cross section = " 
+      << "Before Filter: total cross section = " 
       << std::scientific << std::setprecision(3)  
       << xsecPreFilter_.value() << " +- " << xsecPreFilter_.error() <<  " pb";
 
@@ -634,7 +646,7 @@ GenXSecAnalyzer::endJob() {
       << "(" << filterOnly_event_total << ")"
       << " = " 
       <<  std::scientific << std::setprecision(3) 
-      << filterOnly_event_eff << " +- " << filterOnly_event_err;
+      << filterOnly_event_eff << " +- " << filterOnly_event_err << "    [TO BE USED IN MCM]";
 
       // fill negative fraction of negative weights and uncertainty after filter
       final_fract_neg_w = filterOnly_event_pass > 0 ? filterOnlyEffStat_.numPassNegativeEvents()/(filterOnly_event_pass) : 0;
