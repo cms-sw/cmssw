@@ -41,13 +41,13 @@ public:
  ///Return Output PhContainer
  L1MuDTChambPhContainer getDTContainer(){  return m_dt_tsshifted;}
 
-  static int noRPCHits(L1MuTMChambPhContainer inCon, int bx, int wh, int sec, int st);
-  static int noRPCHits(L1MuDTChambPhContainer inCon, int bx, int wh, int sec, int st);
+  static int nRPCHits(L1MuTMChambPhContainer inCon, int bx, int wh, int sec, int st);
+  static int nRPCHits(L1MuDTChambPhContainer inCon, int bx, int wh, int sec, int st);
   static int deltaPhi(int dt_phi, int rpc_strip );
 
 private:
   int sign(float);
-  int flipBit(int);
+  inline int flipBit(int inv){ return (inv^1);};
   void BxCorrection(int track_seg);
 
   std::vector<int> concat_delta(std::vector<int>, std::vector<int>, std::vector<int>);

@@ -57,14 +57,13 @@ void DTLowQMatching::Matching(int track_seg){
    for (sector=0;sector<12; sector++ ){
     for (station=1; station<=4; station++){
      for(bx=-3; bx<=3; bx++){
-         vector<int> delta_m, delta_p, delta_0;
          int matched = 0;
          for(int rpcbx=bx-1; rpcbx<=bx+1; rpcbx++){
             dtts=nullptr; rpcts1=nullptr; 
             dtts = m_phiDTDigis_tm->chPhiSegm(wheel,station,sector,bx ,track_seg);
             if(!dtts || dtts->code()>=2) continue;
             int nhits = 0;    
-            nhits = DTRPCBxCorrection::noRPCHits(m_phiRPCDigis, rpcbx, wheel, sector, station);
+            nhits = DTRPCBxCorrection::nRPCHits(m_phiRPCDigis, rpcbx, wheel, sector, station);
             for(int hit=0; hit<nhits; hit++){
               rpcts1 = m_phiRPCDigis_tm->chPhiSegm(wheel, station, sector, rpcbx,hit);
               //If DT primitives with q<2 match with rpc hits do nothing else
