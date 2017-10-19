@@ -56,8 +56,8 @@ Session* createSession(bool multiThreaded)
     setThreading(sessionOptions, multiThreaded ? 0 : 1);
 
     // create a new, empty session
-    tf::Session* session = nullptr;
-    status = tf::NewSession(sessionOptions, &session);
+    Session* session = nullptr;
+    status = NewSession(sessionOptions, &session);
     if (!status.ok())
     {
         throw cms::Exception("InvalidSession")
