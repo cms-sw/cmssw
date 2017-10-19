@@ -5,7 +5,7 @@
 # with command line options: SingleElectronPt10_cfi.py -s GEN,SIM,DIGI,L1 --pileup=NoPileUp --geometry DB --conditions=auto:startup -n 1 --no_exec
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('L1')
+process = cms.Process('RAW')
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -18,11 +18,9 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(-1)
+    #input = cms.untracked.int32(1)
 )
-
-# Input source
-#process.source = cms.Source("EmptySource")
 
 process.options = cms.untracked.PSet(
     SkipEvent = cms.untracked.vstring('ProductNotFound')
@@ -49,53 +47,40 @@ process.output = cms.OutputModule(
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 
-# enable debug message logging for our modules
-process.MessageLogger = cms.Service(
-    "MessageLogger",
-    threshold  = cms.untracked.string('DEBUG'),
-    categories = cms.untracked.vstring('L1T'),
-#    l1t   = cms.untracked.PSet(
-#	threshold  = cms.untracked.string('DEBUG')
-#    ),
-    debugModules = cms.untracked.vstring('*'),
-#        'stage1Raw',
-#        'caloStage1Digis'
-#    ),
-#    cout = cms.untracked.PSet(
-#    )
-)
-
 # TTree output file
 process.load("CommonTools.UtilAlgos.TFileService_cfi")
 process.TFileService.fileName = cms.string('l1t.root')
 
-# raw data from MP card
-#process.rawDataCollector = cms.EDProducer("GEMDataInputSource",
-#    filename         = cms.untracked.string("/home/jlee/unpacker/src/run304140_ls0001_streamA_StorageManager.dat"),
-#    fedId            = cms.untracked.int32(1467)
-#)
-#process.source = cms.Source("PixelSLinkDataInputSource",
 process.source = cms.Source("GEMDataInputSource",
     runNumber = cms.untracked.int32(-1),
-    fileNames = cms.untracked.vstring('file:/home/jlee/unpacker/src/run304140_ls0001_streamA_StorageManager.dat'),
+    fileNames = cms.untracked.vstring('file:run304140_ls0001_streamA_StorageManager.dat'),
     fedid = cms.untracked.int32(1467)
 )
+process.MessageLogger.categories.append("GEMDataInputSource")
+
 # dump raw data
 process.dumpRaw = cms.EDAnalyzer("DumpFEDRawDataProduct",
-    label = cms.untracked.string("rawDataCollector"),
+    label = cms.untracked.string("source"),
     feds = cms.untracked.vint32 ( 1467 ),
     dumpPayload = cms.untracked.bool ( True )
 )
 
 # raw to digi
-#process.load('EventFilter.L1TRawToDigi.caloStage1Digis_cfi')
-#process.caloStage1Digis.InputLabel = cms.InputTag('GEMDatToRaw')
+process.load('EventFilter.GEMRawToDigi.gemRawToDigi_cfi')
+process.load('EventFilter.GEMRawToDigi.GEMSQLiteCabling_cfi')
+process.gemRawToDigi.InputObjects = cms.InputTag('source')
+
+# enable debug message logging for our modules
+process.MessageLogger = cms.Service("MessageLogger",
+    threshold  = cms.untracked.string('INFO'),
+    debugModules = cms.untracked.vstring('*'),
+    categories = cms.untracked.vstring("GEMDataInputSource")
+)
 
 # Path and EndPath definitions
 process.path = cms.Path(
-    #process.rawDataCollector
-    #+process.dumpRaw
-    #+process.caloStage1Digis
+    process.dumpRaw
+    +process.gemRawToDigi
 )
 
 process.out = cms.EndPath(
