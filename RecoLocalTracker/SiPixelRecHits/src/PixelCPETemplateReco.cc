@@ -439,9 +439,11 @@ PixelCPETemplateReco::localError(DetParam const & theDetParam,  ClusterParam & t
    //cout << "CPETemplate : " << endl;
    
    //--- Default is the maximum error used for edge clusters.
-   const float sig12 = 1./sqrt(12.0);
-   float xerr = theDetParam.thePitchX *sig12;
-   float yerr = theDetParam.thePitchY *sig12;
+   //--- (never used, in fact: let comment it out, shut up the complains of the static analyzer, and save a few CPU cycles)
+   //   const float sig12 = 1./sqrt(12.0);
+   //   float xerr = theDetParam.thePitchX *sig12;
+   //   float yerr = theDetParam.thePitchY *sig12;
+   float xerr, yerr;
    
    // Check if the errors were already set at the clusters splitting level
    if ( theClusterParam.theCluster->getSplitClusterErrorX() > 0.0f && theClusterParam.theCluster->getSplitClusterErrorX() < 7777.7f &&
