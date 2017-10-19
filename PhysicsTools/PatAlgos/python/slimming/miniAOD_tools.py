@@ -236,16 +236,13 @@ def miniAOD_customizeCommon(process):
 
     process.patJets.userData.userFloats.src += [ cms.InputTag('QGTagger:qgLikelihood'), ]
 
-    ## DeepCSV/CMVA meta discriminators (simple arithmethic on output probabilities)
+    ## DeepCSV meta discriminators (simple arithmethic on output probabilities)
     process.load('RecoBTag.Combined.deepFlavour_cff')
     task.add(process.pfDeepFlavourTask)
     process.patJets.discriminatorSources.extend([
             cms.InputTag('pfDeepCSVDiscriminatorsJetTags:BvsAll' ),
             cms.InputTag('pfDeepCSVDiscriminatorsJetTags:CvsB'   ),
             cms.InputTag('pfDeepCSVDiscriminatorsJetTags:CvsL'   ),
-            cms.InputTag('pfDeepCMVADiscriminatorsJetTags:BvsAll'),
-            cms.InputTag('pfDeepCMVADiscriminatorsJetTags:CvsB'  ),
-            cms.InputTag('pfDeepCMVADiscriminatorsJetTags:CvsL'  )
             ])
 
     ## CaloJets
