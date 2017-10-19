@@ -97,7 +97,7 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
 //-----------------------------------------------------------------------------
 PixelCPETemplateReco::~PixelCPETemplateReco()
 {
-   // &&& delete template store?
+   for(auto x : thePixelTemp_) x.destroy();
 }
 
 PixelCPEBase::ClusterParam* PixelCPETemplateReco::createClusterParam(const SiPixelCluster & cl) const
