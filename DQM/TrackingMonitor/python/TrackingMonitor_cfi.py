@@ -391,10 +391,6 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     GoodPVtxMin = cms.double( 0.),
     GoodPVtxMax = cms.double(200.),
 
-    PVBin  = cms.int32 ( 50 ),
-    PVMin  = cms.double(  0.5),
-    PVMax  = cms.double( 50.5),
-
     LUMIBin  = cms.int32 ( 4000 ),
     LUMIMin  = cms.double(    0.),
     LUMIMax  = cms.double(20000.),
@@ -414,6 +410,12 @@ LongDCABins = cms.int32(100),
 LongDCAMin = cms.double(-8.0),
 LongDCAMax = cms.double(8.0),          
 )
+
+# Overcoming the 255 arguments limit
+# TrackingRegion monitoring
+TrackMon.PVBin = cms.int32 ( 50 )
+TrackMon.PVMin = cms.double(   0.5)
+TrackMon.PVMax = cms.double( 50.5)
 
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
