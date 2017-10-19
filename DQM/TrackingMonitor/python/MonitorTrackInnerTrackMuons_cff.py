@@ -25,6 +25,9 @@ muonInnerTrack.TkSizeBin = 10
 muonInnerTrack.TkSizeMax = 10.
 muonInnerTrack.phiErrMax = 0.001
 muonInnerTrack.etaErrMax = 0.001
+muonInnerTrack.PVBin =  40
+muonInnerTrack.PVMin =   0.5
+muonInnerTrack.PVMax = 120.5
 
 import DQM.TrackingMonitor.TrackingMonitor_cfi
 MonitorTrackMuonsInnerTrack = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
