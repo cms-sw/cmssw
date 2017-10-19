@@ -9,6 +9,7 @@
 <use   name="root"/>
 <use   name="GeneratorInterface/Pythia6Interface"/>
 <use   name="GeneratorInterface/Core"/>
+<use   name="pythia8"/>
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="DataFormats/GeometryVector"/>
 <use   name="DataFormats/GeometrySurface"/>
