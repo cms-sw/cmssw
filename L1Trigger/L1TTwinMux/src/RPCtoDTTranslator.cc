@@ -309,6 +309,7 @@ int RPCtoDTTranslator::localX(RPCDetId detid, const edm::EventSetup& c, int stri
 }
 
 int RPCtoDTTranslator::bendingAngle(int xin, int xout, int phi){
+    // use chamber size and max angle in hw units 512
     int atanv = (int)(atan((xout-xin)/34.6) * 512);
     if(atanv>512) return 512;
     int rvalue = atanv - phi/8;
