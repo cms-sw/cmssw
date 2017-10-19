@@ -23,27 +23,27 @@
 // shared by multiple session instances which handle the initialization of variables related to the
 // meta graph. Following this approach in CMSSW, a meta graph should be stored in a GlobalCache
 // which can be accesses by sessions owned by multiple stream module copies. Instead of using only
-// the plain meta graph, we make use of a Cache struct that can be extended in the future if nedded.
+// the plain meta graph, we make use of a cache struct that can be extended in the future if nedded.
 // In addition, the meta graph is protected via std::atomic, which should not affect the performance
 // as it is only accessed in the module constructor and not in the actual produce loop.
-struct Cache {
-  Cache() : metaGraph(nullptr)
+struct DeepFlavourTFCache {
+  DeepFlavourTFCache() : metaGraph(nullptr)
   {
   }
 
   std::atomic<tensorflow::MetaGraphDef*> metaGraph;
 };
 
-class DeepFlavourTFJetTagsProducer : public edm::stream::EDProducer<edm::GlobalCache<Cache>> {
+class DeepFlavourTFJetTagsProducer : public edm::stream::EDProducer<edm::GlobalCache<DeepFlavourTFCache>> {
 
   public:
-    explicit DeepFlavourTFJetTagsProducer(const edm::ParameterSet&, const Cache*);
+    explicit DeepFlavourTFJetTagsProducer(const edm::ParameterSet&, const DeepFlavourTFCache*);
     ~DeepFlavourTFJetTagsProducer() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
-    static std::unique_ptr<Cache> initializeGlobalCache(const edm::ParameterSet&);
-    static void globalEndJob(const Cache*);
+    static std::unique_ptr<DeepFlavourTFCache> initializeGlobalCache(const edm::ParameterSet&);
+    static void globalEndJob(const DeepFlavourTFCache*);
 
   private:
     typedef std::vector<reco::DeepFlavourTagInfo> TagInfoCollection;
@@ -69,7 +69,8 @@ class DeepFlavourTFJetTagsProducer : public edm::stream::EDProducer<edm::GlobalC
     std::vector<tensorflow::Tensor> lp_tensors_;
 };
 
-DeepFlavourTFJetTagsProducer::DeepFlavourTFJetTagsProducer(const edm::ParameterSet& iConfig, const Cache* cache) :
+DeepFlavourTFJetTagsProducer::DeepFlavourTFJetTagsProducer(const edm::ParameterSet& iConfig,
+  const DeepFlavourTFCache* cache) :
   src_(consumes<TagInfoCollection>(iConfig.getParameter<edm::InputTag>("src"))),
   input_names_(iConfig.getParameter<std::vector<std::string>>("input_names")),
   output_names_(iConfig.getParameter<std::vector<std::string>>("output_names")),
@@ -142,7 +143,8 @@ void DeepFlavourTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptio
   descriptions.add("pfDeepFlavourJetTags", desc);
 }
 
-std::unique_ptr<Cache> DeepFlavourTFJetTagsProducer::initializeGlobalCache(const edm::ParameterSet& iConfig)
+std::unique_ptr<DeepFlavourTFCache> DeepFlavourTFJetTagsProducer::initializeGlobalCache(
+  const edm::ParameterSet& iConfig)
 {
   // set the tensorflow log level to error
   tensorflow::setLogging("3");
@@ -152,13 +154,13 @@ std::unique_ptr<Cache> DeepFlavourTFJetTagsProducer::initializeGlobalCache(const
   std::string exportDir = graphPath.fullPath().substr(0, graphPath.fullPath().find_last_of("/"));
 
   // create the cache instance and attach the meta graph to it
-  Cache* cache = new Cache();
+  DeepFlavourTFCache* cache = new DeepFlavourTFCache();
   cache->metaGraph = tensorflow::loadMetaGraph(exportDir);
 
-  return std::unique_ptr<Cache>(cache);
+  return std::unique_ptr<DeepFlavourTFCache>(cache);
 }
 
-void DeepFlavourTFJetTagsProducer::globalEndJob(const Cache* cache)
+void DeepFlavourTFJetTagsProducer::globalEndJob(const DeepFlavourTFCache* cache)
 {
   if (cache->metaGraph != nullptr) {
     delete cache->metaGraph;
