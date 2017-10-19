@@ -1,7 +1,6 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <library file="*.cc" name="RecoBTagCombinedPlugins">
-	<flags CXXFLAGS="-g"/>  
   <use   name="lwtnn"/>
   <use   name="boost"/>
   <use   name="classlib"/>
