@@ -9,7 +9,7 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerNtupleBase.h"
-
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 
 
 
@@ -27,6 +27,7 @@ class HGCalTriggerNtupleHGCTriggerCells : public HGCalTriggerNtupleBase
     void simhits(const edm::Event& e, std::unordered_map<uint32_t, double>& simhits_ee, std::unordered_map<uint32_t, double>& simhits_fh, std::unordered_map<uint32_t, double>& simhits_bh);
     virtual void clear() override final;
 
+    HGCalTriggerTools triggerTools_;
 
     edm::EDGetToken trigger_cells_token_, multiclusters_token_;
     edm::EDGetToken simhits_ee_token_, simhits_fh_token_, simhits_bh_token_;
@@ -100,7 +101,7 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
   tree.Branch("tc_layer", &tc_layer_);
   tree.Branch("tc_wafer", &tc_wafer_);
   tree.Branch("tc_wafertype", &tc_wafertype_);
-  tree.Branch("tc_cell", &tc_cell_);    
+  tree.Branch("tc_cell", &tc_cell_);
   tree.Branch("tc_data", &tc_data_);
   tree.Branch("tc_pt", &tc_pt_);
   tree.Branch("tc_mipPt", &tc_mipPt_);
@@ -158,6 +159,8 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     }
   }
 
+  triggerTools_.setEventSetup(es);
+
   clear();
   for(auto tc_itr=trigger_cells.begin(0); tc_itr!=trigger_cells.end(0); tc_itr++)
   {
@@ -176,7 +179,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
       tc_id_.emplace_back(tc_itr->detId());
       tc_subdet_.emplace_back(id.subdetId());
       tc_side_.emplace_back(id.zside());
-      tc_layer_.emplace_back(id.layer());
+      tc_layer_.emplace_back(triggerTools_.getLayerWithOffset(id));
       tc_wafer_.emplace_back(id.wafer());
       tc_wafertype_.emplace_back(id.waferType());
       tc_cell_.emplace_back(id.cell());
@@ -335,7 +338,3 @@ clear()
   tc_multicluster_id_.clear();
   tc_multicluster_pt_.clear();
 }
-
-
-
-
