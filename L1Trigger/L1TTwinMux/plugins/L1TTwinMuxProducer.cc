@@ -55,6 +55,7 @@ m_dtthetadigi = consumes<L1MuDTChambThContainer>(pset.getParameter<edm::InputTag
 m_rpcsource   = consumes<RPCDigiCollection>(pset.getParameter<edm::InputTag>("RPC_Source"));
 
 produces<L1MuDTChambPhContainer>();
+produces<L1MuDTChambThContainer>();
 
 }
 
@@ -92,9 +93,13 @@ void L1TTwinMuxProducer::produce(edm::Event& e, const edm::EventSetup& c) {
   auto l1ttmp = std::make_unique<L1MuDTChambPhContainer>();
   m_l1tma->run(phiDigis, thetaDigis, rpcDigis,c);
   *l1ttmp = m_l1tma->get_ph_tm_output();
+  //null transfer of theta digis
+  auto l1ttmth = std::make_unique<L1MuDTChambThContainer>();
+  const std::vector< L1MuDTChambThDigi>* theta=thetaDigis->getContainer();
+  l1ttmth->setContainer(*theta); 
 
   e.put(std::move(l1ttmp));
-  //  e.put(std::move(l1ttmp));
+  e.put(std::move(l1ttmth));
 }
 
 
