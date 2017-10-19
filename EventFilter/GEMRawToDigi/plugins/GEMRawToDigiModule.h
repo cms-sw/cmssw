@@ -8,6 +8,7 @@
 
 #include <FWCore/Framework/interface/ConsumesCollector.h>
 #include <FWCore/Framework/interface/EDProducer.h>
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -52,6 +53,5 @@ class GEMRawToDigiModule : public edm::EDProducer {
   GEMROmap* m_gemROMap;
   
 };
+DEFINE_FWK_MODULE(GEMRawToDigiModule);
 #endif
-
-

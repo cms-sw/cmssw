@@ -29,7 +29,10 @@ class GEMROmap{
   };
 
   GEMROmap(){};
-  
+
+  bool isValidChipID(const eCoord& ec){
+    return roMap.find(ec) != roMap.end();
+  }
   const dCoord& hitPosition(const eCoord& ec){return roMap[ec];}
   
   void add(eCoord e,dCoord d) {roMap[e]=d;}

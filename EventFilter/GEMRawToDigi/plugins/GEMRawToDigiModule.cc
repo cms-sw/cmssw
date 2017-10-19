@@ -43,7 +43,7 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
   // Take raw from the event
   edm::Handle<FEDRawDataCollection> fed_buffers;
   e.getByToken( fed_token, fed_buffers );
-
+  
   for (unsigned int id=FEDNumbering::MINGEMFEDID; id<=FEDNumbering::MAXGEMFEDID; ++id){ 
     const FEDRawData& fedData = fed_buffers->FEDData(id);
     
@@ -51,6 +51,7 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
     if (nWords==0) continue;
 
     const unsigned char * data = fedData.data();
+    std::cout <<"GEMRawToDigiModule data.size() "<< nWords<<std::endl;
     
     AMC13Event * amc13Event = new AMC13Event();
     
@@ -62,6 +63,7 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
     for (unsigned short i = 0; i < amc13Event->nAMC(); ++i){
       amc13Event->addAMCheader(*(++word));
     }
+    std::cout <<"GEMRawToDigiModule amc13Event->nAMC() "<< amc13Event->nAMC()<<std::endl;
 
     // Readout out AMC payloads
     for (unsigned short i = 0; i < amc13Event->nAMC(); ++i){
@@ -71,12 +73,14 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
       amcData->setAMCheader2(*(++word));
       amcData->setGEMeventHeader(*(++word));
 
+      std::cout <<"GEMRawToDigiModule amcData->GDcount() "<<amcData->GDcount()<<std::endl;
       // Fill GEB
       for (unsigned short j = 0; j < amcData->GDcount(); ++j){
 	GEBdata * gebData = new GEBdata();
 	gebData->setChamberHeader(*(++word));
 	int m_nvb = gebData->Vwh() / 3; // number of VFAT2 blocks. Eventually add here sanity check
 
+	std::cout <<"GEMRawToDigiModule number of VFAT2 blocks "<< m_nvb<<std::endl;
 	for (unsigned short k = 0; k < m_nvb; k++){
 	  VFATdata * vfatData = new VFATdata();
 	  vfatData->read_fw(*(++word));
@@ -85,7 +89,7 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 	  gebData->v_add(*vfatData);
 
 	  uint16_t bc=vfatData->BC();
-	  uint8_t ec=vfatData->EC();
+	  //uint8_t ec=vfatData->EC();
 	  uint8_t b1010=vfatData->b1010();
 	  uint8_t b1100=vfatData->b1100();
 	  uint8_t b1110=vfatData->b1110();
@@ -94,35 +98,41 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 	  uint16_t crc = vfatData->crc();
 	  uint16_t crc_check = checkCRC(vfatData);
 	  bool Quality = (b1010==10) && (b1100==12) && (b1110==14) && (crc==crc_check) ;
-	  uint64_t converted=ChipID+0xf000;    
+	  //uint64_t converted=ChipID+0xf000;    
 
-	  uint8_t chan0xf = 0;
-	  
+	  std::cout <<"GEMRawToDigiModule Quality "<< Quality <<std::endl;	    
+	  //check if ChipID exists.
+	  GEMROmap::eCoord ec;
+	  ec.vfatId = ChipID+0xf000;
+	  ec.channelId = 1;
+	  if (!m_gemROMap->isValidChipID(ec)){
+	    std::cout <<"GEMRawToDigiModule InValid ChipID "<< ec.vfatId
+		      <<std::endl;	    
+	    delete vfatData;
+	    continue;
+	  }
+	    
 	  for (int chan = 0; chan < 128; ++chan) {
-	    if (chan < 64){
-	      chan0xf = ((vfatData->lsData() >> chan) & 0x1);
-	    }
-	    else {
-	      chan0xf = ((vfatData->msData() >> (chan-64)) & 0x1);
-	    }
+	    uint8_t chan0xf = 0;
+	    if (chan < 64) chan0xf = ((vfatData->lsData() >> chan) & 0x1);
+	    else chan0xf = ((vfatData->msData() >> (chan-64)) & 0x1);
 
 	    if(chan0xf==0) continue;  
 
-	    GEMROmap::eCoord ec;
-	    ec.vfatId = ChipID+0xf000;
 	    ec.channelId = chan;
 	    GEMROmap::dCoord dc = m_gemROMap->hitPosition(ec);
-
-	    std::cout <<"GEMRawToDigiModule ChipID "<< ChipID
-		      <<" gemDetId "<< dc.gemDetId
+	    
+	    GEMDetId gemDetId(dc.gemDetId);
+	    GEMDigi digi(dc.stripId,bc);
+	    
+	    std::cout <<"GEMRawToDigiModule ChipID "<< ec.vfatId
+		      <<" gemDetId "<< gemDetId
 		      <<" chan "<< chan
 		      <<" strip "<< dc.stripId
 		      <<std::endl;
 	    
-	    GEMDigi digi(dc.stripId,bc);
-	    outGEMDigis.get()->insertDigi(dc.gemDetId,digi);
+	    outGEMDigis.get()->insertDigi(gemDetId,digi);
 	  }
-	  
 	  delete vfatData;
 	}
 	
@@ -185,3 +195,4 @@ uint16_t GEMRawToDigiModule::crc_cal(uint16_t crc_in, uint16_t dato)
   
   return(crc_temp);
 }
+
