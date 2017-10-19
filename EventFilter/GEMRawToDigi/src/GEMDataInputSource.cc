@@ -28,13 +28,12 @@
 #include <iostream>
 
 using namespace edm;
+using namespace std;
 
 // function to get the trigger number from fill words
 int GEMDataInputSource::getEventNumberFromFillWords(const std::vector<uint64_t>& buffer, uint32_t & totword ){
   // buffer validity, should already be pretty clean as this is exactly what goes into the FEDRawDataobject.
   
-  // code copied directly from A. Ryd's fill word checker in PixelFEDInterface::PwordSlink64
-
   int fif2cnt=0;
   int dumcnt=0;
   int gapcnt=0;
@@ -186,11 +185,17 @@ bool GEMDataInputSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& 
   
     uint16_t count=0;
     eventnumber = (m_data >> 32)&0x00ffffff ;
+
+    cout << "GEMDataInputSource::setRunAndEventInfo m_data 1 "<< m_data << endl;
     if(m_currenteventnumber==0)
       m_currenteventnumber=eventnumber;
+    
     edm::LogInfo("GEMDataInputSource::produce()") << "**** event number = " << eventnumber << " global event number " << m_currenteventnumber << " data " << std::hex << m_data << std::dec << std::endl;
+    
     while ((m_data >> 60) != 0x5){
       std::cout << std::hex << m_data << std::dec << std::endl;
+      cout << "GEMDataInputSource::setRunAndEventInfo m_data 2 "<< m_data << endl;
+      
       if (count==0){
 	edm::LogWarning("") << "DATA CORRUPTION!" ;
 	edm::LogWarning("") << "Expected to find header, but read: 0x"
@@ -199,6 +204,8 @@ bool GEMDataInputSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& 
    
       count++;
       int n=m_file.read((char*)&m_data,8);
+      cout << "GEMDataInputSource::setRunAndEventInfo m_data 3 "<< m_data << endl;
+      
       edm::LogWarning("") << "next data " << std::hex << m_data << std::dec << std::endl;
     
       if (n!=8) {
@@ -206,7 +213,7 @@ bool GEMDataInputSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& 
 	return false;
       }
     }
- 
+
 
     if (count>0) {
       edm::LogWarning("")<<"Had to read "<<count<<" words before finding header!"<<std::endl;
