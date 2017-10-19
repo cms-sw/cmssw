@@ -391,6 +391,10 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     GoodPVtxMin = cms.double( 0.),
     GoodPVtxMax = cms.double(200.),
 
+    PVBin  = cms.int32 ( 50 ),
+    PVMin  = cms.double(  0.5),
+    PVMax  = cms.double( 50.5),
+
     LUMIBin  = cms.int32 ( 4000 ),
     LUMIMin  = cms.double(    0.),
     LUMIMax  = cms.double(20000.),

@@ -213,10 +213,13 @@ void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &iboo
     float LUMIMin = conf_->getParameter<double>("LUMIMin");
     float LUMIMax = conf_->getParameter<double>("LUMIMax");
     
+    int PVBin = conf_->getParameter<int>("PVBin");
+    float PVMin = conf_->getParameter<double>("PVMin");
+    float PVMax = conf_->getParameter<double>("PVMax");
 
-    int NBINS[]        = { 50,   int(GetLumi::lastBunchCrossing),  300  , LUMIBin};
-    float MIN[]        = { 0.5,     0.5,  0., LUMIMin };
-    float MAX[]        = { 50.5, float(GetLumi::lastBunchCrossing)+0.5,  3., LUMIMax };
+    int NBINS[]        = { PVBin,   int(GetLumi::lastBunchCrossing),  300  , LUMIBin};
+    float MIN[]        = { PVMin,     0.5,  0., LUMIMin };
+    float MAX[]        = { PVMax, float(GetLumi::lastBunchCrossing)+0.5,  3., LUMIMax };
     std::string NAME[] = { "", "VsBX", "VsLUMI", "VsLUMI" };
     
     int mon = -1;
