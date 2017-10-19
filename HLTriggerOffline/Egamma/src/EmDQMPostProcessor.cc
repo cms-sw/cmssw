@@ -383,7 +383,7 @@ TH2F* EmDQMPostProcessor::dividehistos2D(DQMStore::IBooker & ibooker, DQMStore::
 
   // Check if histograms actually exist
 
-  if(num=nullptr || denom==nullptr) return nullptr;
+  if(num==nullptr || denom==nullptr) return nullptr;
 
   MonitorElement* meOut = ibooker.book2D(outName,titel,num->GetXaxis()->GetNbins(),num->GetXaxis()->GetXmin(),num->GetXaxis()->GetXmax(),num->GetYaxis()->GetNbins(),num->GetYaxis()->GetXmin(),num->GetYaxis()->GetXmax());
  TH2F* out= meOut->getTH2F();
