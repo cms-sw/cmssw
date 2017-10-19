@@ -20,7 +20,6 @@
 
 // system include files
 #include <memory>
-#include <fstream>
 #include <sstream>
 
 // user include files
@@ -499,7 +498,6 @@ L1TMuonProducer::convertMuons(const edm::Handle<MicroGMTConfiguration::InputColl
     if(wedges[i].size() > 3) edm::LogWarning("Input Mismatch") << " too many inputs per processor for barrel. Wedge " << i << ": Size " << wedges[i].size() << std::endl;
   }
 }
-
 
 // ------------ method called when starting to processes a run  ------------
 void
