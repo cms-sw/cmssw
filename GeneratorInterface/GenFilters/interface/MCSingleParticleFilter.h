@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -39,23 +39,23 @@ namespace edm {
   class HepMCProduct;
 }
 
-class MCSingleParticleFilter : public edm::EDFilter {
+class MCSingleParticleFilter : public edm::global::EDFilter<> {
    public:
       explicit MCSingleParticleFilter(const edm::ParameterSet&);
-      ~MCSingleParticleFilter();
+      ~MCSingleParticleFilter() override;
 
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
    private:
       // ----------memeber function----------------------
       // ----------member data ---------------------------
       
-       edm::EDGetTokenT<edm::HepMCProduct> token_;
+       const edm::EDGetTokenT<edm::HepMCProduct> token_;
        std::vector<int> particleID;  
        std::vector<double> ptMin;
        std::vector<double> etaMin;  
        std::vector<double> etaMax;
        std::vector<int> status;
-       double betaBoost;
+       const double betaBoost;
 };
 #endif

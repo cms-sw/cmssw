@@ -83,7 +83,7 @@ MCSingleParticleFilter::~MCSingleParticleFilter()
 
 
 // ------------ method called to skim the data  ------------
-bool MCSingleParticleFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool MCSingleParticleFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
    using namespace edm;
    bool accepted = false;
@@ -116,6 +116,6 @@ bool MCSingleParticleFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
 
    }
    
-   if (accepted){ return true; } else {return false;}
+   return accepted;
    
 }
