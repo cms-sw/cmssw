@@ -1,13 +1,11 @@
 #include "GeneratorInterface/GenFilters/interface/PythiaDauVFilter.h"
-
-
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "HepMC/PythiaWrapper6_4.h"
 #include <iostream>
 #include <vector>
 
 using namespace edm;
 using namespace std;
+using namespace Pythia8;
 
 
 PythiaDauVFilter::PythiaDauVFilter(const edm::ParameterSet& iConfig) :
@@ -17,10 +15,7 @@ PythiaDauVFilter::PythiaDauVFilter(const edm::ParameterSet& iConfig) :
   motherID(iConfig.getUntrackedParameter("MotherID", 0)),
   chargeconju(iConfig.getUntrackedParameter("ChargeConjugation", true)),
   ndaughters(iConfig.getUntrackedParameter("NumberDaughters", 0)),
-  //minptcut(iConfig.getUntrackedParameter("MinPt", 0.)),
   maxptcut(iConfig.getUntrackedParameter("MaxPt", 14000.))
-  //minetacut(iConfig.getUntrackedParameter("MinEta", -10.)),
-  //maxetacut(iConfig.getUntrackedParameter("MaxEta", 10.)) 
 {
   //now do what ever initialization is needed
   vector<int> defdauID;
@@ -44,8 +39,11 @@ PythiaDauVFilter::PythiaDauVFilter(const edm::ParameterSet& iConfig) :
   cout << "maxptcut   = " << maxptcut << endl;
   cout << "particleID = " << particleID << endl;
   cout << "motherID   = " << motherID << endl;
-  cout << "----------------------------------------------------------------------" << endl;
 
+ // create pythia8 instance to access particle data
+  cout << "Creating pythia8 instance for particle properties " << endl;
+  if(!fLookupGen.get()) fLookupGen.reset(new Pythia());
+  cout << "----------------------------------------------------------------------" << endl;
 }
 
 
@@ -63,7 +61,7 @@ PythiaDauVFilter::~PythiaDauVFilter()
 //
 
 // ------------ method called to produce the data  ------------
-bool PythiaDauVFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool PythiaDauVFilter::filter(edm::StreamID,edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
   bool accepted = false;
   Handle<HepMCProduct> evt;
@@ -190,9 +188,7 @@ bool PythiaDauVFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  }
 	  for (unsigned int i=0; i<dauIDs.size(); ++i) {
 	    int IDanti = -dauIDs[i];
-	    int pythiaCode = PYCOMP(dauIDs[i]);
-	    int has_antipart = pydat2.kchg[3-1][pythiaCode-1];
-	    if (has_antipart == 0) IDanti = dauIDs[i];
+            if ( !(fLookupGen->particleData.isParticle( IDanti )) ) IDanti = dauIDs[i]; 
 	    if ((*des)->pdg_id() != IDanti) continue ;
 	    if (fVerbose > 5) {
 	      cout << "i = " << i << " pT = " << (*des)->momentum().perp() << " eta = " << (*des)->momentum().eta() << endl;
@@ -226,14 +222,8 @@ bool PythiaDauVFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }    
   
   delete myGenEvent; 
-  
-  
-  if (accepted){
-    return true; 
-  } else {
-    return false;
-  }
-  
+  return accepted;
+
 }
 
 //define this as a plug-in
