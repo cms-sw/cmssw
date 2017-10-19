@@ -31,7 +31,7 @@ struct Cache {
   {
   }
 
-  std::atomic<tf::MetaGraphDef*> metaGraph;
+  std::atomic<tensorflow::MetaGraphDef*> metaGraph;
 };
 
 class DeepFlavourTFJetTagsProducer : public edm::stream::EDProducer<edm::GlobalCache<Cache>> {
@@ -60,13 +60,13 @@ class DeepFlavourTFJetTagsProducer : public edm::stream::EDProducer<edm::GlobalC
     std::vector<std::string> lp_names_;
 
     // session for TF evaluation
-    tf::Session* session_;
+    tensorflow::Session* session_;
 
     // combined names of all input tensors for faster evaluation
     std::vector<std::string> all_input_names_;
 
     // vector of learning phase tensors, i.e., boolean scalar tensors pointing to false
-    std::vector<tf::Tensor> lp_tensors_;
+    std::vector<tensorflow::Tensor> lp_tensors_;
 };
 
 DeepFlavourTFJetTagsProducer::DeepFlavourTFJetTagsProducer(const edm::ParameterSet& iConfig, const Cache* cache) :
@@ -79,7 +79,7 @@ DeepFlavourTFJetTagsProducer::DeepFlavourTFJetTagsProducer(const edm::ParameterS
   // create the session using the meta graph from the cache
   edm::FileInPath graphPath(iConfig.getParameter<edm::FileInPath>("graph_path"));
   std::string exportDir = graphPath.fullPath().substr(0, graphPath.fullPath().find_last_of("/"));
-  session_ = tf::createSession(cache->metaGraph, exportDir);
+  session_ = tensorflow::createSession(cache->metaGraph, exportDir);
 
   // get output names from flav_table
   const auto & flav_pset = iConfig.getParameter<edm::ParameterSet>("flav_table");
@@ -97,7 +97,7 @@ DeepFlavourTFJetTagsProducer::DeepFlavourTFJetTagsProducer(const edm::ParameterS
   // names for the learing phase placeholders (to init and set as false)
   for (size_t i = 0; i < lp_names_.size(); i++) {
     // create a bool tensor, set its value to false and store it
-    tf::Tensor t(tf::DT_BOOL, {});
+    tensorflow::Tensor t(tensorflow::DT_BOOL, {});
     t.scalar<bool>()() = false;
     lp_tensors_.push_back(t);
   }
@@ -111,7 +111,7 @@ DeepFlavourTFJetTagsProducer::~DeepFlavourTFJetTagsProducer()
 {
   // close and delete the session
   if (session_ != nullptr) {
-    tf::closeSession(session_);
+    tensorflow::closeSession(session_);
   }
 }
 
@@ -145,7 +145,7 @@ void DeepFlavourTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptio
 std::unique_ptr<Cache> DeepFlavourTFJetTagsProducer::initializeGlobalCache(const edm::ParameterSet& iConfig)
 {
   // set the tensorflow log level to error
-  tf::setLogging("3");
+  tensorflow::setLogging("3");
 
   // build the exportDir from graph_path
   edm::FileInPath graphPath(iConfig.getParameter<edm::FileInPath>("graph_path"));
@@ -153,7 +153,7 @@ std::unique_ptr<Cache> DeepFlavourTFJetTagsProducer::initializeGlobalCache(const
 
   // create the cache instance and attach the meta graph to it
   Cache* cache = new Cache();
-  cache->metaGraph = tf::loadMetaGraph(exportDir);
+  cache->metaGraph = tensorflow::loadMetaGraph(exportDir);
 
   return std::unique_ptr<Cache>(cache);
 }
@@ -174,7 +174,7 @@ void DeepFlavourTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventS
   std::vector<std::unique_ptr<JetTagCollection>> output_tags;
 
   int64_t n_jets = tag_infos->size();
-  std::vector<tf::TensorShape> input_sizes {
+  std::vector<tensorflow::TensorShape> input_sizes {
     {n_jets, 15},         // input_1 - global jet features
     {n_jets, 25, 16},     // input_2 - charged pf
     {n_jets, 25, 6},      // input_3 - neutral pf
@@ -183,9 +183,9 @@ void DeepFlavourTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventS
   };
 
   // create input tensors based on the input_sizes in this event
-  std::vector<tf::Tensor> input_tensors;
+  std::vector<tensorflow::Tensor> input_tensors;
   for (std::size_t i=0; i < input_sizes.size(); i++) {
-    tf::Tensor t(tf::DT_FLOAT, input_sizes.at(i));
+    tensorflow::Tensor t(tensorflow::DT_FLOAT, input_sizes.at(i));
     t.flat<float>().setZero();
     input_tensors.push_back(t);
   }
@@ -224,8 +224,8 @@ void DeepFlavourTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventS
 
   // run the session
   input_tensors.insert(input_tensors.begin(), lp_tensors_.begin(), lp_tensors_.end());
-  std::vector<tf::Tensor> outputs;
-  tf::run(session_, all_input_names_, input_tensors, output_names_, &outputs);
+  std::vector<tensorflow::Tensor> outputs;
+  tensorflow::run(session_, all_input_names_, input_tensors, output_names_, &outputs);
 
   // create output collection
   for (std::size_t i=0; i < flav_pairs_.size(); i++) {

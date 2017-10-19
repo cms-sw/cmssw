@@ -13,7 +13,7 @@ namespace btagbtvdeep {
   // the memory, so it is most performant to get the pointer to the first
   // value and use pointer arithmetic to iterate through the next pointers.
 
-  void jet_tensor_filler(tf::Tensor & tensor,
+  void jet_tensor_filler(tensorflow::Tensor & tensor,
                          std::size_t jet_n,
                          const btagbtvdeep::DeepFlavourFeatures & features) {
 
@@ -42,7 +42,7 @@ namespace btagbtvdeep {
 
   }
 
-  void c_pf_tensor_filler(tf::Tensor & tensor,
+  void c_pf_tensor_filler(tensorflow::Tensor & tensor,
                           std::size_t jet_n,
                           std::size_t c_pf_n,
                           const btagbtvdeep::ChargedCandidateFeatures & c_pf_features) {
@@ -68,7 +68,7 @@ namespace btagbtvdeep {
 
   }
 
-  void n_pf_tensor_filler(tf::Tensor & tensor,
+  void n_pf_tensor_filler(tensorflow::Tensor & tensor,
                           std::size_t jet_n,
                           std::size_t n_pf_n,
                           const btagbtvdeep::NeutralCandidateFeatures & n_pf_features) {
@@ -84,7 +84,7 @@ namespace btagbtvdeep {
 
   }
 
-  void sv_tensor_filler(tf::Tensor & tensor,
+  void sv_tensor_filler(tensorflow::Tensor & tensor,
                           std::size_t jet_n,
                           std::size_t sv_n,
                           const btagbtvdeep::SecondaryVertexFeatures & sv_features) {

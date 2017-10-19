@@ -75,7 +75,4 @@ void run(Session* session, const std::vector<std::string>& inputNames,
 
 } // namespace tensorflow
 
-// use a namespace alias
-namespace tf = tensorflow;
-
 #endif // PHYSICSTOOLS_TENSORFLOW_TENSORFLOW_H
