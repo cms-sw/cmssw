@@ -21,6 +21,19 @@ using tensorflow::RunOptions;
 using tensorflow::SavedModelBundle;
 using tensorflow::Tensor;
 
+std::string cmsswPath(std::string path)
+{
+    if (path.size() > 0 && path.substr(0, 1) != "/")
+    {
+        path = "/" + path;
+    }
+
+    std::string base = std::string(std::getenv("CMSSW_BASE"));
+    std::string releaseBase = std::string(std::getenv("CMSSW_RELEASE_BASE"));
+
+    return (boost::filesystem::exists(base.c_str()) ? base : releaseBase) + path;
+}
+
 class testSession : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE(testSession);
@@ -39,11 +52,11 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testSession);
 
 void testSession::setUp()
 {
-    dataPath = std::string(getenv("CMSSW_BASE")) + "/test/" + std::string(getenv("SCRAM_ARCH"))
-        + "/" + boost::filesystem::unique_path().string();
+    dataPath = cmsswPath("/test/" + std::string(getenv("SCRAM_ARCH"))
+        + "/" + boost::filesystem::unique_path().string());
 
     // create the graph
-    std::string testPath = std::string(getenv("CMSSW_BASE")) + "/src/PhysicsTools/TensorFlow/test";
+    std::string testPath = cmsswPath("/src/PhysicsTools/TensorFlow/test");
     std::string cmd = "python " + testPath + "/creategraph.py " + dataPath;
     std::array<char, 128> buffer;
     std::string result;
