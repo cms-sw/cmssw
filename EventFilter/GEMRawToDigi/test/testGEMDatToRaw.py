@@ -18,9 +18,9 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
-    #input = cms.untracked.int32(1)
-)
+    input = cms.untracked.int32(-1))
+
+process.maxEvents.input = cms.untracked.int32(10)
 
 process.options = cms.untracked.PSet(
     SkipEvent = cms.untracked.vstring('ProductNotFound')
@@ -56,7 +56,6 @@ process.source = cms.Source("GEMDataInputSource",
     fileNames = cms.untracked.vstring('file:run304140_ls0001_streamA_StorageManager.dat'),
     fedid = cms.untracked.int32(1467)
 )
-process.MessageLogger.categories.append("GEMDataInputSource")
 
 # dump raw data
 process.dumpRaw = cms.EDAnalyzer("DumpFEDRawDataProduct",
@@ -79,8 +78,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 # Path and EndPath definitions
 process.path = cms.Path(
-    process.dumpRaw
-    +process.gemRawToDigi
+    process.gemRawToDigi
+    #process.dumpRaw+process.gemRawToDigi
 )
 
 process.out = cms.EndPath(

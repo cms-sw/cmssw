@@ -100,6 +100,7 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 	  bool Quality = (b1010==10) && (b1100==12) && (b1110==14) && (crc==crc_check) ;
 	  //uint64_t converted=ChipID+0xf000;    
 
+	  if(crc!=crc_check) std::cout<<"DIFFERENT CRC :"<<crc<<"   "<<crc_check<<std::endl;
 	  std::cout <<"GEMRawToDigiModule Quality "<< Quality <<std::endl;	    
 	  //check if ChipID exists.
 	  GEMROmap::eCoord ec;
@@ -111,7 +112,7 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 	    delete vfatData;
 	    continue;
 	  }
-	    
+	  
 	  for (int chan = 0; chan < 128; ++chan) {
 	    uint8_t chan0xf = 0;
 	    if (chan < 64) chan0xf = ((vfatData->lsData() >> chan) & 0x1);
@@ -119,17 +120,19 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
 
 	    if(chan0xf==0) continue;  
 
-	    ec.channelId = chan;
+	    // need to check if vfatData->lsData() starts from 0 or 1
+	    // currently mapping has chan 1 - 129
+	    ec.channelId = chan+1;
 	    GEMROmap::dCoord dc = m_gemROMap->hitPosition(ec);
 	    
 	    GEMDetId gemDetId(dc.gemDetId);
 	    GEMDigi digi(dc.stripId,bc);
 	    
 	    std::cout <<"GEMRawToDigiModule ChipID "<< ec.vfatId
-		      <<" gemDetId "<< gemDetId
-		      <<" chan "<< chan
-		      <<" strip "<< dc.stripId
-		      <<std::endl;
+	    	      <<" gemDetId "<< gemDetId
+	    	      <<" chan "<< chan
+	    	      <<" strip "<< dc.stripId
+	    	      <<std::endl;
 	    
 	    outGEMDigis.get()->insertDigi(gemDetId,digi);
 	  }
