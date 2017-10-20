@@ -1,13 +1,13 @@
 # hltGetConfiguration --full --offline --data /dev/CMSSW_9_2_0/PRef --type PRef --unprescale --process HLTPRef --globaltag auto:run2_hlt_PRef --input file:RelVal_Raw_PRef_DATA.root
 
-# /dev/CMSSW_9_2_0/PRef/V126 (CMSSW_9_2_10)
+# /dev/CMSSW_9_2_0/PRef/V137 (CMSSW_9_2_10)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPRef" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_2_0/PRef/V126')
+  tableName = cms.string('/dev/CMSSW_9_2_0/PRef/V137')
 )
 
 process.transferSystem = cms.PSet( 
@@ -12084,14 +12084,14 @@ process.hltHIL2Mu20L2Filtered = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
     PreviousCandTag = cms.InputTag( "hltHIL1SingleMu16Filtered" ),
-    MinPt = cms.double( 20.0 ),
+    MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     SeedMapTag = cms.InputTag( "hltL2Muons" ),
     MaxEta = cms.double( 2.5 ),
     MinNhits = cms.vint32( 0 ),
     MinDxySig = cms.double( -1.0 ),
     MinNchambers = cms.vint32( 0 ),
-    AbsEtaBins = cms.vdouble( 5.0 ),
+    AbsEtaBins = cms.vdouble( 0.0 ),
     MaxDz = cms.double( 9999.0 ),
     MatchToPreviousCand = cms.bool( True ),
     CandTag = cms.InputTag( "hltL2MuonCandidates" ),
