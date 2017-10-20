@@ -3,6 +3,8 @@
 
 #include "CaloLayer1Unpacker.h"
 
+using namespace edm;
+
 namespace l1t {
 namespace stage2 {
 
