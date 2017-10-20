@@ -86,7 +86,7 @@ struct RecoMuonValidator::MuonME {
 
   {
     ibooker.cd();
-    ibooker.setCurrentFolder(dirName.c_str());
+    ibooker.setCurrentFolder(dirName);
 
     doAbsEta_ = hDim.doAbsEta;
     usePFMuon_ = hDim.usePFMuon;
@@ -862,7 +862,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     const double simDxy = -simVtx.x()*sin(simPhi)+simVtx.y()*cos(simPhi);
     const double simDz  = simVtx.z() - (simVtx.x()*simMom.x()+simVtx.y()*simMom.y())*simMom.z()/simMom.perp2();
     
-    const unsigned int nSimHits = simRef->numberOfAllHits();
+    const unsigned int nSimHits = simRef->numberOfHits();
 
     muonME_->hSimP_  ->Fill(simP  );
     muonME_->hSimPt_ ->Fill(simPt );

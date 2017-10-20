@@ -783,7 +783,7 @@ void PackedCandidateTrackValidator::analyze(const edm::Event& iEvent, const edm:
     const auto trackNumberOfHits = track.hitPattern().numberOfValidHits();
     const auto trackNumberOfPixelHits = track.hitPattern().numberOfValidPixelHits();
     const auto trackNumberOfStripHits = track.hitPattern().numberOfValidStripHits();
-    const auto pcNumberOfHits = pcRef->numberOfAllHits();
+    const auto pcNumberOfHits = pcRef->numberOfHits();
     const auto pcNumberOfPixelHits = pcRef->numberOfPixelHits();
     const auto pcNumberOfStripHits = pcNumberOfHits - pcNumberOfPixelHits;
     const auto trackNumberOfLayers = track.hitPattern().trackerLayersWithMeasurement();
