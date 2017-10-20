@@ -17,7 +17,7 @@ args = parser.parse_args()
 dataset = Dataset(args.dataset)
 
 if not args.validation and not args.hippy:
-  raise RuntimeError("have to provide --validation-output or --hippy-output")
+  raise RuntimeError("have to provide --validation or --hippy")
 if args.validation and not args.hippy and args.events_per_job:
   raise RuntimeError("--events-per-job is only used for HipPy")
 
