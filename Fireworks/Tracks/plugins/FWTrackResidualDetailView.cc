@@ -59,7 +59,7 @@ FWTrackResidualDetailView::prepareData(const FWModelId &id, const reco::Track* t
    assert(geom != nullptr);
 
    const HitPattern &hitpat = track->hitPattern();
-   m_nhits = hitpat.numberOfHits(reco::HitPattern::TRACK_HITS);
+   m_nhits = hitpat.numberOfAllHits(reco::HitPattern::TRACK_HITS);
    for (int i = 0; i < m_nhits; ++i) {
        //printf("there are %d hits in the pattern, %d in the vector, this is %u\n",
        //        m_nhits, track->recHitsEnd() - track->recHitsBegin(), (*(track->recHitsBegin() + i))->geographicalId().rawId());

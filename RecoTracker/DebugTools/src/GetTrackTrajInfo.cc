@@ -66,7 +66,7 @@ std::vector< GetTrackTrajInfo::Result > GetTrackTrajInfo::analyze(const edm::Eve
   // Loop over info for each hit
   // N.B. Hits are sorted according to increasing distance from origin by
   // RecoTracker/TrackProducer/src/TrackProducerBase.cc
-  for (int i = 0; i < hp.numberOfHits(reco::HitPattern::TRACK_HITS); i++) {
+  for (int i = 0; i < hp.numberOfAllHits(reco::HitPattern::TRACK_HITS); i++) {
     uint32_t hit = hp.getHitPattern(reco::HitPattern::TRACK_HITS, i);
     if (reco::HitPattern::trackerHitFilter(hit) && reco::HitPattern::validHitFilter(hit)) {
       uint32_t subDet = reco::HitPattern::getSubStructure(hit);

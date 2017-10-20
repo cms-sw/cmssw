@@ -813,13 +813,13 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     commonME_->hMuonPhi_->Fill(muonPhi);
 
     if (iMuon->isGlobalMuon()) {
-      double gtHitPat = iMuon->globalTrack()->hitPattern().numberOfHits(HitPattern::TRACK_HITS)
+      double gtHitPat = iMuon->globalTrack()->hitPattern().numberOfAllHits(HitPattern::TRACK_HITS)
         - iMuon->globalTrack()->hitPattern().numberOfValidHits();
 
-      double itHitPat = iMuon->innerTrack()->hitPattern().numberOfHits(HitPattern::TRACK_HITS)
+      double itHitPat = iMuon->innerTrack()->hitPattern().numberOfAllHits(HitPattern::TRACK_HITS)
         - iMuon->innerTrack()->hitPattern().numberOfValidHits();
 
-      double otHitPat = iMuon->outerTrack()->hitPattern().numberOfHits(HitPattern::TRACK_HITS)
+      double otHitPat = iMuon->outerTrack()->hitPattern().numberOfAllHits(HitPattern::TRACK_HITS)
         - iMuon->outerTrack()->hitPattern().numberOfValidHits();
       
       commonME_->hNInvalidHitsGTHitPattern_->Fill(gtHitPat);
@@ -862,7 +862,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     const double simDxy = -simVtx.x()*sin(simPhi)+simVtx.y()*cos(simPhi);
     const double simDz  = simVtx.z() - (simVtx.x()*simMom.x()+simVtx.y()*simMom.y())*simMom.z()/simMom.perp2();
     
-    const unsigned int nSimHits = simRef->numberOfHits();
+    const unsigned int nSimHits = simRef->numberOfAllHits();
 
     muonME_->hSimP_  ->Fill(simP  );
     muonME_->hSimPt_ ->Fill(simPt );

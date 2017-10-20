@@ -1038,7 +1038,7 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   auto phiOut =  track.outerPosition().phi();
   auto etaOut =  track.outerPosition().eta();
 
-  int nRecHits      = track.hitPattern().numberOfHits(reco::HitPattern::TRACK_HITS);
+  int nRecHits      = track.hitPattern().numberOfAllHits(reco::HitPattern::TRACK_HITS);
   int nValidRecHits = track.numberOfValidHits();
   int nLostRecHits  = track.numberOfLostHits();
   int nLostIn =      track.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS);
@@ -1279,7 +1279,7 @@ void TrackAnalyzer::fillHistosForEfficiencyFromHitPatter(const reco::Track & tra
       // reco::HitPattern::HitCategory, defined here:
       // http://cmslxr.fnal.gov/dxr/CMSSW/source/DataFormats/TrackReco/interface/HitPattern.h
       for (unsigned int category = 0; category < 3; ++category) {
-        for (int hit = 0; hit < hp.numberOfHits((reco::HitPattern::HitCategory)(category)); ++hit) {
+        for (int hit = 0; hit < hp.numberOfAllHits((reco::HitPattern::HitCategory)(category)); ++hit) {
           auto pattern = hp.getHitPattern((reco::HitPattern::HitCategory)(category), hit);
           // Boolean bad is missing simply because it is inferred and the only missing case.
           bool valid = hp.validHitFilter(pattern);
@@ -1758,7 +1758,7 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
       tkmes.TrackPhiErr->Fill(phierror);
       tkmes.TrackEtaErr->Fill(etaerror);
       
-      int nRecHits      = track.hitPattern().numberOfHits(reco::HitPattern::TRACK_HITS);
+      int nRecHits      = track.hitPattern().numberOfAllHits(reco::HitPattern::TRACK_HITS);
       int nValidRecHits = track.numberOfValidHits();
       // rec hits 
       tkmes.NumberOfRecHitsPerTrackVsPhi->Fill(phi,    nRecHits);

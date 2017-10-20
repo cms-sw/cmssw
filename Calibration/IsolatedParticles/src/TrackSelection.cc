@@ -35,8 +35,8 @@ namespace spr{
       if (parameters.minOuterHit>0 && (hitp.stripTOBLayersWithMeasurement()+hitp.stripTECLayersWithMeasurement() ) < parameters.minOuterHit) select = false;
 #ifdef EDM_ML_DEBUG
       if (debug) {
-	std::cout << "Default Hit Pattern with " << hitp.numberOfHits(reco::HitPattern::TRACK_HITS) << " hits" << std::endl;
-	for (int i=0; i<hitp.numberOfHits(reco::HitPattern::TRACK_HITS); i++) 
+	std::cout << "Default Hit Pattern with " << hitp.numberOfAllHits(reco::HitPattern::TRACK_HITS) << " hits" << std::endl;
+	for (int i=0; i<hitp.numberOfAllHits(reco::HitPattern::TRACK_HITS); i++) 
 	  hitp.printHitPattern(reco::HitPattern::TRACK_HITS, i, std::cout);
       }
 #endif
@@ -46,8 +46,8 @@ namespace spr{
       if (hitp.trackerLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS) > parameters.maxInMiss) select = false;
 #ifdef EDM_ML_DEBUG
       if (debug) {
-	std::cout << "Inner Hit Pattern with " << hitp.numberOfHits(reco::HitPattern::MISSING_INNER_HITS) << " hits" << std::endl;
-	for (int i=0; i<hitp.numberOfHits(reco::HitPattern::MISSING_INNER_HITS); i++) 
+	std::cout << "Inner Hit Pattern with " << hitp.numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS) << " hits" << std::endl;
+	for (int i=0; i<hitp.numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS); i++) 
 	  hitp.printHitPattern(reco::HitPattern::MISSING_INNER_HITS, i, std::cout);
       }
 #endif
@@ -57,8 +57,8 @@ namespace spr{
       if (hitp.trackerLayersWithoutMeasurement(reco::HitPattern::MISSING_OUTER_HITS) > parameters.maxOutMiss) select = false;
 #ifdef EDM_ML_DEBUG
       if (debug) {
-	std::cout << "Outer Hit Pattern with " << hitp.numberOfHits(reco::HitPattern::MISSING_OUTER_HITS) << " hits" << std::endl;
-	for (int i=0; i<hitp.numberOfHits(reco::HitPattern::MISSING_OUTER_HITS); i++) 
+	std::cout << "Outer Hit Pattern with " << hitp.numberOfAllHits(reco::HitPattern::MISSING_OUTER_HITS) << " hits" << std::endl;
+	for (int i=0; i<hitp.numberOfAllHits(reco::HitPattern::MISSING_OUTER_HITS); i++) 
 	  hitp.printHitPattern(reco::HitPattern::MISSING_OUTER_HITS, i, std::cout);
       }
 #endif
