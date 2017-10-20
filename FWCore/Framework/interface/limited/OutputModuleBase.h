@@ -271,7 +271,9 @@ namespace edm {
       virtual void doEndLuminosityBlockSummary_(LuminosityBlockForOutput const&, EventSetup const&){}
       virtual void doRespondToOpenInputFile_(FileBlock const&) {}
       virtual void doRespondToCloseInputFile_(FileBlock const&) {}
-      
+
+      bool hasAcquire() const { return false; }
+
       void keepThisBranch(BranchDescription const& desc,
                           std::map<BranchID, BranchDescription const*>& trueBranchIDToKeptBranchDesc,
                           std::set<BranchID>& keptProductsInEvent);

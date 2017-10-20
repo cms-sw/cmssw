@@ -31,6 +31,8 @@
 
 // forward declarations
 namespace edm {
+
+  class WaitingTaskWithArenaHolder;
   
   namespace global {
     namespace impl {
@@ -53,7 +55,9 @@ namespace edm {
       private:
         void preallocStreams(unsigned int iNStreams) final {
           caches_.resize(iNStreams,static_cast<C*>(nullptr));
+          preallocStreamsExtend(iNStreams);
         }
+        virtual void preallocStreamsExtend(unsigned int iNStreams) {}
         void doBeginStream_(StreamID id) final {
           caches_[id.value()] = beginStream(id).release();
         }
@@ -290,6 +294,29 @@ namespace edm {
         }
         
         virtual void globalEndLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&, S const*) const = 0;
+      };
+
+      template <typename T>
+      class ExternalWork : public virtual T {
+      public:
+        ExternalWork() = default;
+        ExternalWork(ExternalWork const&) = delete;
+        ExternalWork& operator=(ExternalWork const&) = delete;
+        ~ExternalWork() noexcept(false) {};
+
+      private:
+
+        bool hasAcquire() const override { return true; }
+
+        void doAcquire_(StreamID,
+                        Event const&,
+                        edm::EventSetup const&,
+                        WaitingTaskWithArenaHolder&) override final;
+
+        virtual void acquire(StreamID,
+                             Event const&,
+                             edm::EventSetup const&,
+                             WaitingTaskWithArenaHolder) const = 0;
       };
     }
   }

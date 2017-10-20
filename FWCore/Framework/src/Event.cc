@@ -52,7 +52,9 @@ namespace edm {
   }
 
   void
-  Event::setProducer( ProducerBase const* iProd, std::vector<BranchID>* previousParentage) {
+  Event::setProducer(ProducerBase const* iProd,
+                     std::vector<BranchID>* previousParentage,
+                     std::vector<BranchID>* gotBranchIDsFromAcquire) {
     provRecorder_.setProducer(iProd);
     //set appropriate size
     putProducts_.resize(
@@ -69,6 +71,14 @@ namespace edm {
         return;
       }
       gotBranchIDsFromPrevious_.resize(previousParentage->size(),false);
+      if (gotBranchIDsFromAcquire) {
+        for (auto const& branchID : *gotBranchIDsFromAcquire) {
+          addToGotBranchIDs(branchID);
+        }
+      }
+    } else if (gotBranchIDsFromAcquire) {
+      gotBranchIDsFromAcquire_ = gotBranchIDsFromAcquire;
+      gotBranchIDsFromAcquire_->clear();
     }
   }
 
@@ -229,14 +239,20 @@ namespace edm {
 
   void
   Event::addToGotBranchIDs(Provenance const& prov) const {
+    addToGotBranchIDs(prov.originalBranchID());
+  }
+
+  void
+  Event::addToGotBranchIDs(BranchID const& branchID) const {
     if(previousBranchIDs_) {
-      auto id = prov.originalBranchID();
-      auto range = std::equal_range(previousBranchIDs_->begin(), previousBranchIDs_->end(),id);
+      auto range = std::equal_range(previousBranchIDs_->begin(), previousBranchIDs_->end(), branchID);
       if(range.first ==range.second) {
-        gotBranchIDs_.insert(id.id());
+        gotBranchIDs_.insert(branchID.id());
       } else {
         gotBranchIDsFromPrevious_[range.first - previousBranchIDs_->begin()] = true;
       }
+    } else if (gotBranchIDsFromAcquire_) {
+      gotBranchIDsFromAcquire_->push_back(branchID);
     }
   }
 
