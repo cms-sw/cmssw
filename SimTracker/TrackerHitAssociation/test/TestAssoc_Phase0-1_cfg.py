@@ -3,9 +3,7 @@ import FWCore.ParameterSet.Config as cms
 import os 
 
 # Create a new CMS process
-process = cms.Process('Phase01TrackerRecHitTest')
-
-from Configuration.StandardSequences.Eras import eras  # wtf(2)
+from Configuration.StandardSequences.Eras import eras
 process = cms.Process('assocTest',eras.Run2_2017)
 
 # Import all the necessary files
@@ -16,7 +14,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 
-process.load('Configuration.EventContent.EventContent_cff')  # wtf(5)
+process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
@@ -49,7 +47,7 @@ process.TFileService = cms.Service('TFileService',
     fileName = cms.string('file:Run2_Trk_rechits_validation.root')
 )
 
-process.mix.playback = True  # wtf (3)
+process.mix.playback = True
 process.mix.digitizers = cms.PSet()
 for a in process.aliases: delattr(process, a)
 
@@ -99,11 +97,11 @@ process.testassociator = cms.EDAnalyzer("TestAssociator",
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
 # Number of events (-1 = all)
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 # Processes to run
 
-process.raw2digi_step = cms.Path(process.RawToDigi)  # wtf (3)
+process.raw2digi_step = cms.Path(process.RawToDigi)
 process.L1Reco_step = cms.Path(process.L1Reco)
 process.reconstruction_step = cms.Path(process.reconstruction)
 
