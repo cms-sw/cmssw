@@ -380,6 +380,9 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
 	}
       }
     }
+    else {
+	throw cms::Exception("Invalid Jet Inputs") <<"Did not specify appropriate inputs for VirtualJetProducer, Abort!\n";    
+    }
   }
   LogDebug("VirtualJetProducer") << "Got inputs\n";
   
