@@ -155,17 +155,17 @@ process.dumpRaw = cms.EDAnalyzer(
 # raw to digi
 process.load('EventFilter.GEMRawToDigi.gemRawToDigi_cfi')
 process.load('EventFilter.GEMRawToDigi.GEMSQLiteCabling_cfi')
-process.gemRawToDigi.InputObjects = cms.InputTag('rawDataCollector')
+process.gemDigis.InputObjects = cms.InputTag('rawDataCollector')
 
 if (options.debug):
-    process.gemRawToDigi.debug = cms.untracked.bool(True)
+    process.gemDigis.debug = cms.untracked.bool(True)
 
 
 # Path and EndPath definitions
 process.path = cms.Path(
     #process.validationEventFilter
     process.dumpRaw
-    +process.gemRawToDigi
+    +process.gemDigis
 )
 
 # enable validation event filtering
