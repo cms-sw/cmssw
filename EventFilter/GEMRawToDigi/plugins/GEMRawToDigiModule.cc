@@ -18,13 +18,13 @@ using namespace gem;
 
 GEMRawToDigiModule::GEMRawToDigiModule(const edm::ParameterSet & pset)
 {
-  fed_token = consumes<FEDRawDataCollection>( pset.getParameter<edm::InputTag>("InputObjects") );  
-  produces<GEMDigiCollection>("MuonGEMDigis"); 
+  fed_token = consumes<FEDRawDataCollection>( pset.getParameter<edm::InputTag>("InputLabel") );  
+  produces<GEMDigiCollection>(); 
 }
 
 void GEMRawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("InputObjects", edm::InputTag("rawDataCollector")); 
+  desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector")); 
 }
 
 void GEMRawToDigiModule::beginRun(const edm::Run &run, const edm::EventSetup& iSetup)
@@ -145,7 +145,7 @@ void GEMRawToDigiModule::produce( edm::Event & e, const edm::EventSetup& iSetup 
     amc13Event->setCDFTrailer(*(++word));
   }
   
-  e.put(std::move(outGEMDigis), "MuonGEMDigis");
+  e.put(std::move(outGEMDigis));
 }
 
 uint16_t GEMRawToDigiModule::checkCRC(VFATdata * vfatData)
