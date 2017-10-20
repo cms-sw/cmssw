@@ -9,8 +9,8 @@
 //
 //
 //--------------------------------------------------
-#ifndef L1MuTMChambPhContainer_H
-#define L1MuTMChambPhContainer_H
+#ifndef L1T_TwinMux_L1MuTMChambPhContainer_H
+#define L1T_TwinMux_L1MuTMChambPhContainer_H
 
 //------------------------------------
 // Collaborating Class Declarations --

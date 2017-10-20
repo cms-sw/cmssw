@@ -10,8 +10,8 @@
 //   mod.: g Karathanasis
 //--------------------------------------------------
 
-#ifndef DTLowQMatching_H
-#define DTLowQMatching_H
+#ifndef L1T_TwinMux_DTLowQMatching_H
+#define L1T_TwinMux_DTLowQMatching_H
 
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"

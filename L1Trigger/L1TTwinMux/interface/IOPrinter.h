@@ -8,8 +8,8 @@
 //   Author :
 //   G. Flouris               U Ioannina    Feb. 2015
 //--------------------------------------------------
-#ifndef IOPrinter_H
-#define IOPrinter_H
+#ifndef L1T_TwinMux_IOPrinter_H
+#define L1T_TwinMux_IOPrinter_H
 
 
 #include <iostream>
