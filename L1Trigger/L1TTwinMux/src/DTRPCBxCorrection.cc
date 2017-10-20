@@ -94,7 +94,10 @@ void DTRPCBxCorrection::BxCorrection(int track_seg){
        }//end of rpc bx and dtts, rpcts1, dttsnew go out of scope
 
     ///Concatanate all vectors in one
-    vector<int> delta = concat_delta(delta_0, delta_p, delta_m);
+    vector<int> delta;
+    delta.insert(delta.end(), delta_0.begin(), delta_0.end());
+    delta.insert(delta.end(), delta_p.begin(), delta_p.end());
+    delta.insert(delta.end(), delta_m.begin(), delta_m.end());
     ///Shift primitives if vector>0
     if(!delta.empty()){
        L1MuDTChambPhDigi * dtts=nullptr; 
@@ -165,14 +168,6 @@ void DTRPCBxCorrection::BxCorrection(int track_seg){
 int DTRPCBxCorrection::deltaPhi(int dt_phi, int rpc2dt_phi ){
   int delta_phi = abs( dt_phi - rpc2dt_phi );
   return delta_phi;
-}
-
-std::vector<int> DTRPCBxCorrection::concat_delta(vector<int> delta_0, vector<int> delta_p, vector<int> delta_m){
-    vector<int> delta;
-    delta.insert(delta.end(), delta_0.begin(), delta_0.end());
-    delta.insert(delta.end(), delta_p.begin(), delta_p.end());
-    delta.insert(delta.end(), delta_m.begin(), delta_m.end());
-    return delta;
 }
 
 int DTRPCBxCorrection::sign(float inv){
