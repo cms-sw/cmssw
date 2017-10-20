@@ -307,6 +307,10 @@ AK8PFJet330_TrimMass30_CSV03_PromptMonitoring.numGenericTriggerEventPSet.hltPath
 
 ###############################Higgs Monitor HLT##############################################
 higgsMonitorHLT = cms.Sequence(
+)
+
+
+higHLTDQMSourceExtra = cms.Sequence(
     higgsinvHLTJetMETmonitoring
   + higgsHLTDiphotonMonitoring
   + higgstautauHLTVBFmonitoring
@@ -337,8 +341,4 @@ higgsMonitorHLT = cms.Sequence(
   + AK8PFJet330_TrimMass30_CSV03_PromptMonitoring
   + mssmHbbBtagTriggerMonitor 
   + mssmHbbMonitorHLT 
-)
-
-
-higHLTDQMSourceExtra = cms.Sequence(
 )
