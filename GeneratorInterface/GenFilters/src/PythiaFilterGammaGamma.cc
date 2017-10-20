@@ -37,7 +37,7 @@ PythiaFilterGammaGamma::PythiaFilterGammaGamma(const edm::ParameterSet& iConfig)
   acceptPrompts(iConfig.getUntrackedParameter<bool>("AcceptPrompts")), 
   promptPtThreshold(iConfig.getUntrackedParameter<double>("PromptPtThreshold")) {
   
-  if (maxEvents != 0) cout << "PythiaFilterGammaGamma: WARNING, ignoring unsuported option, maxEvents = " << maxEvents << endl;
+  if (maxEvents != 0) edm::LogInfo("PythiaFilterGammaGamma::PythiaFilterGammaGamma") << "WARNING, ignoring unsuported option, maxEvents = " << maxEvents << endl;
   
 }
 

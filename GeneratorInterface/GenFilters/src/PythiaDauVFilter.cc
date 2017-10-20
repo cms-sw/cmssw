@@ -31,19 +31,18 @@ PythiaDauVFilter::PythiaDauVFilter(const edm::ParameterSet& iConfig) :
   defmaxetacut.push_back(10.);
   maxetacut = iConfig.getUntrackedParameter< vector<double> >("MaxEta",defmaxetacut);
 
-  cout << "----------------------------------------------------------------------" << endl;
-  cout << "--- PythiaDauVFilter" << endl;
+  edm::LogInfo("PythiaDauVFilter") << "----------------------------------------------------------------------" << endl;
+  edm::LogInfo("PythiaDauVFilter") << "--- PythiaDauVFilter" << endl;
   for (unsigned int i=0; i<dauIDs.size(); ++i) {
-    cout << "ID: " <<  dauIDs[i] << " pT > " << minptcut[i] << " " << minetacut[i] << " eta < " << maxetacut[i] << endl;
+	  edm::LogInfo("PythiaDauVFilter") << "ID: " <<  dauIDs[i] << " pT > " << minptcut[i] << " " << minetacut[i] << " eta < " << maxetacut[i] << endl;
   }
-  cout << "maxptcut   = " << maxptcut << endl;
-  cout << "particleID = " << particleID << endl;
-  cout << "motherID   = " << motherID << endl;
+  edm::LogInfo("PythiaDauVFilter") << "maxptcut   = " << maxptcut << endl;
+  edm::LogInfo("PythiaDauVFilter") << "particleID = " << particleID << endl;
+  edm::LogInfo("PythiaDauVFilter") << "motherID   = " << motherID << endl;
 
  // create pythia8 instance to access particle data
-  cout << "Creating pythia8 instance for particle properties " << endl;
+  edm::LogInfo("PythiaDauVFilter") << "Creating pythia8 instance for particle properties" << endl;
   if(!fLookupGen.get()) fLookupGen.reset(new Pythia());
-  cout << "----------------------------------------------------------------------" << endl;
 }
 
 
@@ -73,7 +72,7 @@ bool PythiaDauVFilter::filter(edm::StreamID,edm::Event& iEvent, const edm::Event
   HepMC::GenEvent *myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
   
   if (fVerbose > 5) {
-    cout << "looking for " << particleID << endl;
+    edm::LogInfo("PythiaDauVFilter") << "looking for " << particleID << endl;
   }
     
   for (HepMC::GenEvent::particle_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end(); ++p) {
@@ -87,7 +86,7 @@ bool PythiaDauVFilter::filter(edm::StreamID,edm::Event& iEvent, const edm::Event
 	   des != (*p)->production_vertex()->particles_in_const_end();
 	   ++des) {
 	if (fVerbose > 10) {
-	  cout << "mother: " << (*des)->pdg_id() << " pT: " << (*des)->momentum().perp() << " eta: " << (*des)->momentum().eta() << endl;
+		edm::LogInfo("PythiaDauVFilter") << "mother: " << (*des)->pdg_id() << " pT: " << (*des)->momentum().perp() << " eta: " << (*des)->momentum().eta() << endl;
 	}
 	if (abs(motherID) == abs((*des)->pdg_id())) {
 	  OK = 1; 
@@ -101,7 +100,7 @@ bool PythiaDauVFilter::filter(edm::StreamID,edm::Event& iEvent, const edm::Event
     int ndauac = 0;
     int ndau = 0;     
     if (fVerbose > 5) {
-      cout << "found ID: " << (*p)->pdg_id() << " pT: " << (*p)->momentum().perp() << " eta: " << (*p)->momentum().eta() << endl;
+	    edm::LogInfo("PythiaDauVFilter") << "found ID: " << (*p)->pdg_id() << " pT: " << (*p)->momentum().perp() << " eta: " << (*p)->momentum().eta() << endl;
     }
     vparticles.push_back((*p)->pdg_id()); 
     if ((*p)->end_vertex()) {	
@@ -110,12 +109,12 @@ bool PythiaDauVFilter::filter(edm::StreamID,edm::Event& iEvent, const edm::Event
 	   ++des) {
 	++ndau;       
 	if (fVerbose > 5) {
-	  cout << "ID: " << (*des)->pdg_id() << " pT: " << (*des)->momentum().perp() << " eta: " << (*des)->momentum().eta() << endl;
+		edm::LogInfo("PythiaDauVFilter") << "ID: " << (*des)->pdg_id() << " pT: " << (*des)->momentum().perp() << " eta: " << (*des)->momentum().eta() << endl;
 	}
 	for (unsigned int i=0; i<dauIDs.size(); ++i) {
 	  if ((*des)->pdg_id() != dauIDs[i] ) continue ;
 	  if (fVerbose > 5) {
-	    cout << "i = " << i << " pT = " << (*des)->momentum().perp() << " eta = " << (*des)->momentum().eta() << endl;
+		  edm::LogInfo("PythiaDauVFilter") << "i = " << i << " pT = " << (*des)->momentum().perp() << " eta = " << (*des)->momentum().eta() << endl;
 	  }
 	  if ((*des)->momentum().perp() >  minptcut[i]  &&
 	      (*des)->momentum().perp() <  maxptcut  &&
@@ -124,7 +123,7 @@ bool PythiaDauVFilter::filter(edm::StreamID,edm::Event& iEvent, const edm::Event
 	    ++ndauac;
 	    vparticles.push_back((*des)->pdg_id()); 
 	    if (fVerbose > 2) {
-	      cout << "  accepted this particle " <<  (*des)->pdg_id()
+		    edm::LogInfo("PythiaDauVFilter") << "  accepted this particle " <<  (*des)->pdg_id()
 		   << " pT = " << (*des)->momentum().perp() << " eta = " << (*des)->momentum().eta() << endl;
 	    }
 	    break;
@@ -137,9 +136,9 @@ bool PythiaDauVFilter::filter(edm::StreamID,edm::Event& iEvent, const edm::Event
     if (ndau >=  ndaughters && ndauac == ndaughters) {
       accepted = true;
       if (fVerbose > 0) {
-	cout << "  accepted this decay: ";
-	for (unsigned int iv = 0; iv < vparticles.size(); ++iv) cout << vparticles[iv] << " "; 
-	cout << " from mother = " << motherID << endl;
+         edm::LogInfo("PythiaDauVFilter") << "  accepted this decay: ";
+	for (unsigned int iv = 0; iv < vparticles.size(); ++iv) edm::LogInfo("PythiaDauVFilter") << vparticles[iv] << " "; 
+	edm::LogInfo("PythiaDauVFilter") << " from mother = " << motherID << endl;
       }
       break;
     }    
@@ -162,7 +161,7 @@ bool PythiaDauVFilter::filter(edm::StreamID,edm::Event& iEvent, const edm::Event
 	     des != (*p)->production_vertex()->particles_in_const_end();
 	     ++des) {
 	  if (fVerbose > 10) {
-	    cout << "mother: " << (*des)->pdg_id() << " pT: " << (*des)->momentum().perp() << " eta: " << (*des)->momentum().eta() << endl;
+		  edm::LogInfo("PythiaDauVFilter") << "mother: " << (*des)->pdg_id() << " pT: " << (*des)->momentum().perp() << " eta: " << (*des)->momentum().eta() << endl;
 	  }
 	  if (abs(motherID) == abs((*des)->pdg_id())) {
 	    OK = 1; 
@@ -173,7 +172,7 @@ bool PythiaDauVFilter::filter(edm::StreamID,edm::Event& iEvent, const edm::Event
       if (0 == OK) continue; 
       
       if (fVerbose > 5) {
-	cout << "found ID: " << (*p)->pdg_id() << " pT: " << (*p)->momentum().perp() << " eta: " << (*p)->momentum().eta() << endl;
+	      edm::LogInfo("PythiaDauVFilter") << "found ID: " << (*p)->pdg_id() << " pT: " << (*p)->momentum().perp() << " eta: " << (*p)->momentum().eta() << endl;
       }
       vparticles.push_back((*p)->pdg_id()); 
       int ndauac = 0;
@@ -184,14 +183,14 @@ bool PythiaDauVFilter::filter(edm::StreamID,edm::Event& iEvent, const edm::Event
 	     ++des) {
 	  ++ndau;
 	  if (fVerbose > 5) {
-	    cout << "ID: " << (*des)->pdg_id() << " pT: " << (*des)->momentum().perp() << " eta: " << (*des)->momentum().eta() << endl;
+		  edm::LogInfo("PythiaDauVFilter") << "ID: " << (*des)->pdg_id() << " pT: " << (*des)->momentum().perp() << " eta: " << (*des)->momentum().eta() << endl;
 	  }
 	  for (unsigned int i=0; i<dauIDs.size(); ++i) {
 	    int IDanti = -dauIDs[i];
             if ( !(fLookupGen->particleData.isParticle( IDanti )) ) IDanti = dauIDs[i]; 
 	    if ((*des)->pdg_id() != IDanti) continue ;
 	    if (fVerbose > 5) {
-	      cout << "i = " << i << " pT = " << (*des)->momentum().perp() << " eta = " << (*des)->momentum().eta() << endl;
+		    edm::LogInfo("PythiaDauVFilter") << "i = " << i << " pT = " << (*des)->momentum().perp() << " eta = " << (*des)->momentum().eta() << endl;
 	    }
 	    if ((*des)->momentum().perp() >  minptcut[i]  &&
 		(*des)->momentum().perp() <  maxptcut  &&
@@ -200,7 +199,7 @@ bool PythiaDauVFilter::filter(edm::StreamID,edm::Event& iEvent, const edm::Event
 	      ++ndauac;
 	      vparticles.push_back((*des)->pdg_id()); 
 	      if (fVerbose > 2) {
-		cout << "  accepted this particle " <<  (*des)->pdg_id()
+		      edm::LogInfo("PythiaDauVFilter") << "  accepted this particle " <<  (*des)->pdg_id()
 		     << " pT = " << (*des)->momentum().perp() << " eta = " << (*des)->momentum().eta() << endl;
 	      }
 	      break;
@@ -211,9 +210,9 @@ bool PythiaDauVFilter::filter(edm::StreamID,edm::Event& iEvent, const edm::Event
       if (ndau >=  ndaughters && ndauac == ndaughters ) {
 	accepted = true;
 	if (fVerbose > 0) {
-	  cout << "  accepted this anti-decay: ";
-	  for (unsigned int iv = 0; iv < vparticles.size(); ++iv) cout << vparticles[iv] << " "; 
-	  cout << " from mother = " << motherID << endl;
+	  edm::LogInfo("PythiaDauVFilter") << "  accepted this anti-decay: ";
+	  for (unsigned int iv = 0; iv < vparticles.size(); ++iv) edm::LogInfo("PythiaDauVFilter") << vparticles[iv] << " "; 
+	  edm::LogInfo("PythiaDauVFilter") << " from mother = " << motherID << endl;
 	}
 	break;
       }    
