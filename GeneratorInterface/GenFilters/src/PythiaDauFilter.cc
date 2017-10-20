@@ -25,9 +25,8 @@ maxetacut(iConfig.getUntrackedParameter("MaxEta", 10.))
    defdauID.push_back(0);
    dauIDs = iConfig.getUntrackedParameter< vector<int> >("DaughterIDs",defdauID);
  // create pythia8 instance to access particle data
-   cout << "Creating pythia8 instance for particle properties " << endl;
+   edm::LogInfo("PythiaDauFilter::PythiaDauFilter") << "Creating pythia8 instance for particle properties" << endl;
    if(!fLookupGen.get()) fLookupGen.reset(new Pythia());
-   cout << "----------------------------------------------------------------------" << endl;
 }
 
 

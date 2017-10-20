@@ -61,6 +61,6 @@ class PythiaDauFilter : public edm::global::EDFilter<> {
        const double maxptcut;
        const double minetacut;
        const double maxetacut;
-       std::auto_ptr<Pythia8::Pythia> fLookupGen; // this instance is for accessing particleData information
+       std::unique_ptr<Pythia8::Pythia> fLookupGen; // this instance is for accessing particleData information
 };
 #endif
