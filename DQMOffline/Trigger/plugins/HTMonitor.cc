@@ -177,8 +177,8 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
   float deltaPhi_met_j1 = 10.0;
   float deltaPhi_j1_j2 = 10.0;
 
-  if (!jets.empty()) deltaPhi_met_j1 = fabs( deltaPhi( pfmet.phi(),  jets.at(0).phi() ));
-  if (jets.size() >= 2) deltaPhi_j1_j2 = fabs( deltaPhi( jets.at(0).phi(),  jets.at(1).phi() ));
+  if (!jets.empty()) deltaPhi_met_j1 = fabs( deltaPhi( pfmet.phi(),  jets[0].phi() ));
+  if (jets.size() >= 2) deltaPhi_j1_j2 = fabs( deltaPhi( jets[0].phi(),  jets[1].phi() ));
 
   edm::Handle<reco::GsfElectronCollection> eleHandle;
   iEvent.getByToken( eleToken_, eleHandle );
@@ -244,8 +244,8 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
     if (jets.size() < 2) return;
 
     // deltaEta cut
-    if(fabs(jets.at(0).p4().Eta() - jets.at(1).p4().Eta()) >= dEtaCut_) return;
-    float mjj = (jets.at(0).p4() + jets.at(1).p4()).M();
+    if(fabs(jets[0].p4().Eta() - jets[1].p4().Eta()) >= dEtaCut_) return;
+    float mjj = (jets[0].p4() + jets[1].p4()).M();
 
     qME_variableBinning_.denominator -> Fill(mjj);
 
@@ -259,9 +259,9 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
     if (jets.size() < 2) return;
 
     // deltaEta cut
-    if(fabs(jets.at(0).p4().Eta() - jets.at(1).p4().Eta()) >= dEtaCut_) return;
+    if(fabs(jets[0].p4().Eta() - jets[1].p4().Eta()) >= dEtaCut_) return;
 
-    float softdrop = jets.at(0).p4().M();
+    float softdrop = jets[0].p4().M();
 
     qME_variableBinning_.denominator -> Fill(softdrop);
 
