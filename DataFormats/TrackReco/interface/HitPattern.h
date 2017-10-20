@@ -87,7 +87,7 @@
 //    const reco::HitPattern &p = track->hitPattern();
 //    
 //     // loop over the hits of the track. 
-//    for (int i = 0; i < p.numberOfHits(HitPattern::TRACK_HITS); i++) {
+//    for (int i = 0; i < p.numberOfAllHits(HitPattern::TRACK_HITS); i++) {
 //        uint32_t hit = p.getHitPattern(HitPattern::TRACK_HITS, i);
 //    
 //        // if the hit is valid and in pixel barrel, print out the layer
@@ -266,10 +266,10 @@ public:
     // has valid hit in PXB/PXF layer x 
     bool hasValidHitInPixelLayer(enum PixelSubdetector::SubDetector, uint16_t layer) const;
     
-    int numberOfHits(HitCategory category) const;                 // not-null
+    int numberOfAllHits(HitCategory category) const;                 // not-null
     int numberOfValidHits() const;                                // not-null, valid
 
-    int numberOfTrackerHits(HitCategory category) const;          // not-null, tracker
+    int numberOfAllTrackerHits(HitCategory category) const;          // not-null, tracker
     int numberOfValidTrackerHits() const;                         // not-null, valid, tracker
     int numberOfValidPixelHits() const;                           // not-null, valid, pixel
     int numberOfValidPixelBarrelHits() const;                     // not-null, valid, pixel PXB
@@ -804,13 +804,13 @@ inline bool HitPattern::badHitFilter(uint16_t pattern)
     return getHitType(pattern) == HitPattern::BAD;
 }
 
-inline int HitPattern::numberOfHits(HitCategory category) const
+inline int HitPattern::numberOfAllHits(HitCategory category) const
 {
     std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
     return range.second - range.first;
 }
 
-inline int HitPattern::numberOfTrackerHits(HitCategory category) const
+inline int HitPattern::numberOfAllTrackerHits(HitCategory category) const
 {
     return countHits(category, trackerHitFilter);
 }

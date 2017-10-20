@@ -868,14 +868,14 @@ void HitPattern::printHitPattern(HitCategory category, int position, std::ostrea
 void HitPattern::print(HitCategory category, std::ostream &stream) const
 {
     stream << "HitPattern" << std::endl;
-    for (int i = 0; i < numberOfHits(category); ++i) {
+    for (int i = 0; i < numberOfAllHits(category); ++i) {
         printHitPattern(category, i, stream);
     }
     std::ios_base::fmtflags flags = stream.flags();
     stream.setf(std::ios_base::hex, std::ios_base::basefield);
     stream.setf(std::ios_base::showbase);
 
-    for (int i = 0; i < this->numberOfHits(category); ++i) {
+    for (int i = 0; i < this->numberOfAllHits(category); ++i) {
         stream << getHitPattern(category, i) << std::endl;
     }
 

@@ -264,7 +264,7 @@
             };
 
             auto fillNewHitPatternFromNewHitPattern = [&](const HitPattern hitPattern, const HitPattern::HitCategory category) {
-                uint8_t hitCount = hitPattern.numberOfHits(HitPattern::TRACK_HITS);
+                uint8_t hitCount = hitPattern.numberOfAllHits(HitPattern::TRACK_HITS);
                 for (int i = 0; i < hitCount; i++) {
                     uint16_t pattern = hitPattern.getHitPattern(HitPattern::TRACK_HITS, i);
                     if(!appendNewHitPattern(pattern, category)) {

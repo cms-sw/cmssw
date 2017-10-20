@@ -45,7 +45,7 @@ namespace {
     void print(std::ostream& os) const {
       const reco::HitPattern &p = track.hitPattern();
 
-      for (int i = 0; i < p.numberOfHits(reco::HitPattern::TRACK_HITS); ++i) {
+      for (int i = 0; i < p.numberOfAllHits(reco::HitPattern::TRACK_HITS); ++i) {
         uint32_t hit = p.getHitPattern(reco::HitPattern::TRACK_HITS, i);
 
         detLayer(os, p, hit);
@@ -64,7 +64,7 @@ namespace {
       if(p.numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) > 0) {
         os << "lost inner ";
 
-        for (int i = 0; i < p.numberOfHits(reco::HitPattern::MISSING_INNER_HITS); ++i) {
+        for (int i = 0; i < p.numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS); ++i) {
           uint32_t hit = p.getHitPattern(reco::HitPattern::MISSING_INNER_HITS, i);
           detLayer(os, p, hit);
           if(p.missingHitFilter(hit)) {
@@ -78,7 +78,7 @@ namespace {
       if(p.numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS) > 0) {
         os << "lost outer ";
 
-        for (int i = 0; i < p.numberOfHits(reco::HitPattern::MISSING_OUTER_HITS); ++i) {
+        for (int i = 0; i < p.numberOfAllHits(reco::HitPattern::MISSING_OUTER_HITS); ++i) {
           uint32_t hit = p.getHitPattern(reco::HitPattern::MISSING_OUTER_HITS, i);
           detLayer(os, p, hit);
           if(p.missingHitFilter(hit)) {
@@ -783,7 +783,7 @@ void PackedCandidateTrackValidator::analyze(const edm::Event& iEvent, const edm:
     const auto trackNumberOfHits = track.hitPattern().numberOfValidHits();
     const auto trackNumberOfPixelHits = track.hitPattern().numberOfValidPixelHits();
     const auto trackNumberOfStripHits = track.hitPattern().numberOfValidStripHits();
-    const auto pcNumberOfHits = pcRef->numberOfHits();
+    const auto pcNumberOfHits = pcRef->numberOfAllHits();
     const auto pcNumberOfPixelHits = pcRef->numberOfPixelHits();
     const auto pcNumberOfStripHits = pcNumberOfHits - pcNumberOfPixelHits;
     const auto trackNumberOfLayers = track.hitPattern().trackerLayersWithMeasurement();
@@ -936,7 +936,7 @@ void PackedCandidateTrackValidator::analyze(const edm::Event& iEvent, const edm:
                                                     << " charge " << diffCharge << " " << trackPc.charge() << " " << track.charge()
                                                     << " normalizedChi2 " << diffNormalizedChi2 << " " << trackPc.normalizedChi2() << " " << track.normalizedChi2()
                                                     << "\n "
-                                                    << " numberOfHits " << diffNumberOfHits << " " << pcNumberOfHits << " " << trackNumberOfHits
+                                                    << " numberOfAllHits " << diffNumberOfHits << " " << pcNumberOfHits << " " << trackNumberOfHits
                                                     << " numberOfPixelHits " << diffNumberOfPixelHits << " " << pcNumberOfPixelHits << " " << trackNumberOfPixelHits
                                                     << " numberOfStripHits # " << pcNumberOfStripHits << " " << trackNumberOfStripHits
                                                     << "\n "

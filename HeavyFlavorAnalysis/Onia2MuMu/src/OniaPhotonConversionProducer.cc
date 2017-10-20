@@ -259,7 +259,7 @@ bool OniaPhotonConversionProducer::checkTkVtxCompatibility(const reco::Conversio
 bool OniaPhotonConversionProducer::foundCompatibleInnerHits(const reco::HitPattern& hitPatA, const reco::HitPattern& hitPatB) {
   size_t count=0;
   uint32_t oldSubStr=0;
-  for (int i=0; i<hitPatA.numberOfHits(reco::HitPattern::HitCategory::TRACK_HITS) && count<2; i++) {
+  for (int i=0; i<hitPatA.numberOfAllHits(reco::HitPattern::HitCategory::TRACK_HITS) && count<2; i++) {
     uint32_t hitA = hitPatA.getHitPattern(reco::HitPattern::HitCategory::TRACK_HITS,i);
     if (!hitPatA.validHitFilter(hitA) || !hitPatA.trackerHitFilter(hitA)) continue;
     
