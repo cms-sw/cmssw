@@ -155,7 +155,7 @@ MuonSimClassifier::~MuonSimClassifier()
 
 void dumpFormatedInfo(const reco::MuonSimInfo& simInfo){
   return;
-  edm::LogVerbatim("MuonSimClassifier") << 
+  LogTrace("MuonSimClassifier") << 
     "\t Particle pdgId = " << simInfo.pdgId << 
     ", (Event,Bx) = "<< "(" << simInfo.tpEvent << "," << simInfo.tpBX << ")" <<
     "\n\t   q*p = " << simInfo.charge*simInfo.p4.P() << 
@@ -184,9 +184,9 @@ MuonSimClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     reco::MuonToSimCollection recSimColl;
     reco::SimToMuonCollection simRecColl;
-    edm::LogVerbatim("MuonSimClassifier") <<"\n ***************************************************************** ";
-    edm::LogVerbatim("MuonSimClassifier") <<  " RECO MUON association, type:  "<< trackType_;
-    edm::LogVerbatim("MuonSimClassifier") <<  " ***************************************************************** \n";
+    LogTrace("MuonSimClassifier") <<"\n ***************************************************************** ";
+    LogTrace("MuonSimClassifier") <<  " RECO MUON association, type:  "<< trackType_;
+    LogTrace("MuonSimClassifier") <<  " ***************************************************************** \n";
 
     edm::RefToBaseVector<reco::Muon> allMuons;
     for (size_t i = 0, n = muons->size(); i < n; ++i) {
@@ -204,9 +204,9 @@ MuonSimClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     reco::MuonToSimCollection updSTA_recSimColl;
     reco::SimToMuonCollection updSTA_simRecColl;
     if (trackType_ == reco::GlobalTk) {
-      edm::LogVerbatim("MuonSimClassifier") <<"\n ***************************************************************** ";
-      edm::LogVerbatim("MuonSimClassifier") <<  " STANDALONE (UpdAtVtx) MUON association ";
-      edm::LogVerbatim("MuonSimClassifier") <<  " ***************************************************************** \n";
+      LogTrace("MuonSimClassifier") <<"\n ***************************************************************** ";
+      LogTrace("MuonSimClassifier") <<  " STANDALONE (UpdAtVtx) MUON association ";
+      LogTrace("MuonSimClassifier") <<  " ***************************************************************** \n";
       assoByHits->associateMuons(updSTA_recSimColl, updSTA_simRecColl, allMuons, reco::OuterTk, allTPs);
     }
 
@@ -214,7 +214,7 @@ MuonSimClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     typedef reco::SimToMuonCollection::const_iterator s2r_it;
 
     size_t nmu = muons->size();
-    edm::LogVerbatim("MuonSimClassifier") <<"\n There are "<<nmu<<" reco::Muons.";
+    LogTrace("MuonSimClassifier") <<"\n There are "<<nmu<<" reco::Muons.";
 
     std::vector<reco::MuonSimInfo> simInfo;
 
@@ -226,7 +226,7 @@ MuonSimClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     // loop on reco muons
     for(size_t i = 0; i < nmu; ++i) {
       simInfo.push_back(reco::MuonSimInfo());
-      edm::LogVerbatim("MuonSimClassifier") <<"\n reco::Muon # "<<i;
+      LogTrace("MuonSimClassifier") <<"\n reco::Muon # "<<i;
 
         TrackingParticleRef        tp;
         edm::RefToBase<reco::Muon> muMatchBack;
@@ -241,7 +241,7 @@ MuonSimClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  if (matchback != simRecColl.end()) {
 	    muMatchBack = matchback->second.front().first;
 	  } else {
-	    edm::LogWarning("MuonSimClassifier") << "\n***WARNING:  This I do NOT understand: why no match back? *** \n";
+	    LogTrace("MuonSimClassifier") << "\n***WARNING:  This I do NOT understand: why no match back? *** \n";
 	  }
         } else {
 	  if ((trackType_ == reco::GlobalTk) && allMuons.at(i)->isGlobalMuon()) {
@@ -255,18 +255,18 @@ MuonSimClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      if (matchback != updSTA_simRecColl.end()) {
 		muMatchBack = matchback->second.front().first;
 	      } else {
-		edm::LogWarning("MuonSimClassifier") << 
+		LogTrace("MuonSimClassifier") << 
 		  "\n***WARNING:  This I do NOT understand: why no match back in updSTA? *** \n";
 	      }
 	    }
 	  } else {
-	    edm::LogVerbatim("MuonSimClassifier") <<"\t No matching TrackingParticle is found ";
+	    LogTrace("MuonSimClassifier") <<"\t No matching TrackingParticle is found ";
 	  }
 	}
 	
         if (tp.isNonnull()) {
 	  bool isGhost = muMatchBack != allMuons.at(i);
-	  if (isGhost) edm::LogVerbatim("MuonSimClassifier") <<"\t *** This seems a Duplicate muon ! classif[i] will be < 0 ***";
+	  if (isGhost) LogTrace("MuonSimClassifier") <<"\t *** This seems a Duplicate muon ! classif[i] will be < 0 ***";
 
 	  // identify signal and pileup TP
 	  simInfo[i].tpBX      = tp->eventId().bunchCrossing();
@@ -311,7 +311,7 @@ MuonSimClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		simInfo[i].motherVertex = genMom->vertex(); 
 	      }
 	      dumpFormatedInfo(simInfo[i]);
-	      edm::LogVerbatim("MuonSimClassifier") << 
+	      LogTrace("MuonSimClassifier") << 
 		"\t   has GEN mother pdgId = " << simInfo[i].motherPdgId << 
 		" (status = " << simInfo[i].motherStatus << ")";
 		
@@ -319,7 +319,7 @@ MuonSimClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      
 	      if (genGMom.isNonnull()) {
 		simInfo[i].grandMotherPdgId = genGMom->pdgId();
-		edm::LogVerbatim("MuonSimClassifier") << 
+		LogTrace("MuonSimClassifier") << 
 		  "\t\t mother prod. vertex rho = " << simInfo[i].motherVertex.Rho() << ", z = " << simInfo[i].motherVertex.Z() << 
 		  ", grand-mom pdgId = " << simInfo[i].grandMotherPdgId;
 	      }
@@ -329,13 +329,13 @@ MuonSimClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		   nMom = nMom->numberOfMothers() > 0 ? nMom->motherRef() : reco::GenParticleRef()) {
 		int flav = flavour(nMom->pdgId());
 		if (simInfo[i].heaviestMotherFlavour < flav) simInfo[i].heaviestMotherFlavour = flav;
-		edm::LogVerbatim("MuonSimClassifier") 
+		LogTrace("MuonSimClassifier") 
 		  << "\t\t backtracking flavour: mom pdgId = " << nMom->pdgId()
 		  << ", flavour = " << flav << ", heaviest so far = " << simInfo[i].heaviestMotherFlavour;
 	      }
 	    } else {   // mother is null ??
 	      dumpFormatedInfo(simInfo[i]);
-	      edm::LogWarning("MuonSimClassifier") <<"\t   has NO mother!";
+	      LogTrace("MuonSimClassifier") <<"\t   has NO mother!";
 	    }
 	  } else { // Muon is in SIM Only
 	    TrackingParticleRef simMom = getTpMother(tp);
@@ -343,7 +343,7 @@ MuonSimClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      simInfo[i].motherPdgId = simMom->pdgId();
 	      simInfo[i].motherVertex = simMom->vertex();
 	      dumpFormatedInfo(simInfo[i]);
-	      edm::LogVerbatim("MuonSimClassifier") <<
+	      LogTrace("MuonSimClassifier") <<
 		"\t   has SIM mother pdgId = " << simInfo[i].motherPdgId << 
 		" produced at rho = " << simMom->vertex().Rho() << ", z = " << simMom->vertex().Z();
 	      
@@ -353,19 +353,19 @@ MuonSimClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 						simMom->genParticles()[0]->motherRef() : 
 						reco::GenParticleRef());
 		if (genGMom.isNonnull()) simInfo[i].grandMotherPdgId = genGMom->pdgId();
-		edm::LogVerbatim("MuonSimClassifier") << 
+		LogTrace("MuonSimClassifier") << 
 		  "\t\t SIM mother is in GEN (status " << simInfo[i].motherStatus << 
 		  "), grand-mom id = " << simInfo[i].grandMotherPdgId;
 	      } else {
 		simInfo[i].motherStatus = -1;
 		TrackingParticleRef simGMom = getTpMother(simMom);
 		if (simGMom.isNonnull()) simInfo[i].grandMotherPdgId = simGMom->pdgId();
-		edm::LogVerbatim("MuonSimClassifier") << 
+		LogTrace("MuonSimClassifier") << 
 		  "\t\t SIM mother is in SIM only, grand-mom id = " << simInfo[i].grandMotherPdgId;
 	      }
 	    } else {
 	      dumpFormatedInfo(simInfo[i]);
-	      edm::LogWarning("MuonSimClassifier") <<"\t   has NO mother!";
+	      LogTrace("MuonSimClassifier") <<"\t   has NO mother!";
 	    }
 	  }
 	  simInfo[i].motherFlavour = flavour(simInfo[i].motherPdgId);
@@ -376,11 +376,11 @@ MuonSimClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    if (std::abs(tp->pdgId()) == 11) {
 	      simInfo[i].primaryClass  = isGhost ? reco::MuonSimType::GhostElectron : reco::MuonSimType::MatchedElectron;
 	      simInfo[i].extendedClass = isGhost ? reco::ExtendedMuonSimType::ExtGhostElectron : reco::ExtendedMuonSimType::ExtMatchedElectron;
-	      edm::LogVerbatim("MuonSimClassifier") <<"\t This is electron/positron. classif[i] = " << simInfo[i].primaryClass;
+	      LogTrace("MuonSimClassifier") <<"\t This is electron/positron. classif[i] = " << simInfo[i].primaryClass;
 	    } else {
 	      simInfo[i].primaryClass  = isGhost ? reco::MuonSimType::GhostPunchthrough : reco::MuonSimType::MatchedPunchthrough;
 	      simInfo[i].extendedClass = isGhost ? reco::ExtendedMuonSimType::ExtGhostPunchthrough : reco::ExtendedMuonSimType::ExtMatchedPunchthrough;
-	      edm::LogVerbatim("MuonSimClassifier") <<"\t This is not a muon. Sorry. classif[i] = " << simInfo[i].primaryClass;
+	      LogTrace("MuonSimClassifier") <<"\t This is not a muon. Sorry. classif[i] = " << simInfo[i].primaryClass;
 	    }
 	    continue;
 	  }
@@ -395,7 +395,7 @@ MuonSimClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      simInfo[i].extendedClass  = isGhost ?
 		reco::ExtendedMuonSimType::GhostMuonFromGaugeOrHiggsBoson :
 		reco::ExtendedMuonSimType::MatchedMuonFromGaugeOrHiggsBoson;
-	      edm::LogVerbatim("MuonSimClassifier") <<"\t This seems PRIMARY MUON ! classif[i] = " << simInfo[i].primaryClass;
+	      LogTrace("MuonSimClassifier") <<"\t This seems PRIMARY MUON ! classif[i] = " << simInfo[i].primaryClass;
 	    } else if (simInfo[i].motherFlavour == 4 || simInfo[i].motherFlavour == 5 || simInfo[i].motherFlavour == 15) {
 	      simInfo[i].primaryClass = isGhost ? 
 		reco::MuonSimType::GhostMuonFromHeavyFlavour : 
@@ -417,20 +417,20 @@ MuonSimClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		simInfo[i].extendedClass = isGhost ? 
 		  reco::ExtendedMuonSimType::GhostMuonFromC :
 		  reco::ExtendedMuonSimType::MatchedMuonFromC;
-	      edm::LogVerbatim("MuonSimClassifier") <<"\t This seems HEAVY FLAVOUR ! classif[i] = " << simInfo[i].primaryClass;
+	      LogTrace("MuonSimClassifier") <<"\t This seems HEAVY FLAVOUR ! classif[i] = " << simInfo[i].primaryClass;
 	    } else {
 	      simInfo[i].primaryClass = isGhost ? 
 		reco::MuonSimType::GhostMuonFromLightFlavour : 
 		reco::MuonSimType::MatchedMuonFromLightFlavour;
 	      simInfo[i].flavour    = simInfo[i].motherFlavour;
-	      edm::LogVerbatim("MuonSimClassifier") <<"\t This seems LIGHT FLAVOUR ! classif[i] = " << simInfo[i].primaryClass;
+	      LogTrace("MuonSimClassifier") <<"\t This seems LIGHT FLAVOUR ! classif[i] = " << simInfo[i].primaryClass;
 	    }
 	  } else {
 	    simInfo[i].primaryClass = isGhost ? 
 	      reco::MuonSimType::GhostMuonFromLightFlavour : 
 	      reco::MuonSimType::MatchedMuonFromLightFlavour;
 	    simInfo[i].flavour    = simInfo[i].motherFlavour;
-	    edm::LogVerbatim("MuonSimClassifier") <<"\t This seems LIGHT FLAVOUR ! classif[i] = " << simInfo[i].primaryClass;
+	    LogTrace("MuonSimClassifier") <<"\t This seems LIGHT FLAVOUR ! classif[i] = " << simInfo[i].primaryClass;
 	  }
 	  
 	  // extended classification
@@ -504,7 +504,7 @@ MuonSimClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      muToSecondary[i] = indexPlus1 - 1;
 	    }
 	  }
-	  edm::LogVerbatim("MuonSimClassifier") <<"\t Extended classification code = " << simInfo[i].extendedClass;
+	  LogTrace("MuonSimClassifier") <<"\t Extended classification code = " << simInfo[i].extendedClass;
 	} else { // if (tp.isNonnull())
 	  simInfo[i].primaryClass  = reco::MuonSimType::NotMatched;
 	  simInfo[i].extendedClass = reco::ExtendedMuonSimType::ExtNotMatched;
