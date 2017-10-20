@@ -174,7 +174,7 @@ HLTRechitsToDigis::produce(edm::Event& iEvent, edm::EventSetup const& setup)  {
     iEvent.getByToken(digisEBInToken_, digisEBHandle);
     const EBDigiCollection* digisEB = digisEBHandle.product();   
 
-    const EBSrFlagCollection* srFlagsEB = 0;
+    const EBSrFlagCollection* srFlagsEB = nullptr;
     // protection against uninitialized token (empty InputTag) to allow for backward compatibility
     if (not srFlagsEBInToken_.isUninitialized()) {
       iEvent.getByToken(srFlagsEBInToken_, srFlagsEBHandle);      
@@ -214,7 +214,7 @@ HLTRechitsToDigis::produce(edm::Event& iEvent, edm::EventSetup const& setup)  {
     iEvent.getByToken(digisEEInToken_, digisEEHandle);
     const EEDigiCollection* digisEE = digisEEHandle.product();   
 
-    const EESrFlagCollection* srFlagsEE = 0;
+    const EESrFlagCollection* srFlagsEE = nullptr;
     // protection against uninitialized token (empty InputTag) to allow for backward compatibility
     if (not srFlagsEEInToken_.isUninitialized()) {
       iEvent.getByToken(srFlagsEEInToken_, srFlagsEEHandle);
