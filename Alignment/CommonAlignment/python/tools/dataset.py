@@ -146,6 +146,7 @@ class DatasetBase(object):
             rejected += datafile.nevents
         elif any(firstrun <= run <= lastrun for run in datafile.runs):
           raise DatasetError("file {} has multiple runs {}, which straddle firstrun or lastrun".format(datafile.filename, datafile.runs))
+      f.write("#total events in these files: {}".format(accepted))
       f.write(validationfooter)
 
   def writefilelist_hippy(self, firstrun, lastrun, eventsperjob, maxevents, outputfile):
