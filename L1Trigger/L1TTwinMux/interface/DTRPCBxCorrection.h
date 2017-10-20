@@ -50,8 +50,6 @@ private:
   inline int flipBit(int inv){ return (inv^1);};
   void BxCorrection(int track_seg);
 
-  std::vector<int> concat_delta(std::vector<int>, std::vector<int>, std::vector<int>);
-
 //  L1MuTMChambPhContainer m_phiDTDigis;
 //  L1MuTMChambPhContainer m_phiRPCDigis;
   L1MuDTChambPhContainer m_phiDTDigis;
