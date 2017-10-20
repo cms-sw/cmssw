@@ -82,6 +82,9 @@ private:
   void  preModuleEvent ( StreamContext const&, ModuleCallingContext const& );
   void  postModuleEvent( StreamContext const&, ModuleCallingContext const& );
   
+  void  preModuleEventAcquire ( StreamContext const&, ModuleCallingContext const& );
+  void  postModuleEventAcquire( StreamContext const&, ModuleCallingContext const& );
+
   void  preModuleBeginJob  ( ModuleDescription const & );
   void  postModuleBeginJob ( ModuleDescription const & );
   void  preModuleEndJob  ( ModuleDescription const & );

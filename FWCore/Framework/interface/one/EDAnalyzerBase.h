@@ -112,6 +112,8 @@ namespace edm {
       virtual void doBeginLuminosityBlock_(LuminosityBlock const& lbp, EventSetup const& c);
       virtual void doEndLuminosityBlock_(LuminosityBlock const& lbp, EventSetup const& c);
 
+      bool hasAcquire() const { return false; }
+
       virtual SharedResourcesAcquirer createAcquirer();
 
       void setModuleDescription(ModuleDescription const& md) {

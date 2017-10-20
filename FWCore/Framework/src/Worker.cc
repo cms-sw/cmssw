@@ -84,7 +84,8 @@ private:
     cached_exception_(),
     actReg_(),
     earlyDeleteHelper_(nullptr),
-    workStarted_(false)
+    workStarted_(false),
+    ranAcquireWithoutException_(false)
   {
   }
 
@@ -376,5 +377,50 @@ private:
     if(earlyDeleteHelper_) {
       earlyDeleteHelper_->moduleRan(iEvent);
     }
+  }
+
+  void Worker::runAcquire(EventPrincipal const& ep,
+                          EventSetup const& es,
+                          ParentContext const& parentContext,
+                          WaitingTaskWithArenaHolder& holder) {
+
+    ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
+    try {
+      convertException::wrap([&]()
+      {
+        this->implDoAcquire(ep, es, &moduleCallingContext_, holder);
+        ranAcquireWithoutException_ = true;
+      });
+    } catch(cms::Exception& ex) {
+      exceptionContext(ex, &moduleCallingContext_);
+      TransitionIDValue<EventPrincipal> idValue(ep);
+      if(shouldRethrowException(std::current_exception(), parentContext, true, idValue)) {
+        timesRun_.fetch_add(1,std::memory_order_relaxed);
+        throw;
+      }
+    }
+  }
+
+  void Worker::runAcquireAfterAsyncPrefetch(std::exception_ptr const* iEPtr,
+                                            EventPrincipal const& ep,
+                                            EventSetup const& es,
+                                            ParentContext const& parentContext,
+                                            WaitingTaskWithArenaHolder holder) {
+    std::exception_ptr exceptionPtr;
+    if(iEPtr) {
+      assert(*iEPtr);
+      TransitionIDValue<EventPrincipal> idValue(ep);
+      if(shouldRethrowException(*iEPtr, parentContext, true, idValue)) {
+        exceptionPtr = *iEPtr;
+      }
+      moduleCallingContext_.setContext(ModuleCallingContext::State::kInvalid,ParentContext(),nullptr);
+    } else {
+      try {
+        runAcquire(ep, es, parentContext, holder);
+      } catch(...) {
+        exceptionPtr = std::current_exception();
+      }
+    }
+    holder.doneWaiting(exceptionPtr);
   }
 }

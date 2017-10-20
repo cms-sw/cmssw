@@ -39,6 +39,7 @@ namespace edm {
   class ProductRegistry;
   class ThinnedAssociationsHelper;
   class WaitingTask;
+  class WaitingTaskWithArenaHolder;
 
   namespace maker {
     template<typename T> class ModuleHolderT;
@@ -72,9 +73,13 @@ namespace edm {
       virtual bool wantsStreamLuminosityBlocks() const =0;
 
     private:
-      bool doEvent(EventPrincipal const& ep, EventSetup const& c,
+      bool doEvent(EventPrincipal const&, EventSetup const&,
                    ActivityRegistry*,
                    ModuleCallingContext const*);
+      void doAcquire(EventPrincipal const&, EventSetup const&,
+                     ActivityRegistry*,
+                     ModuleCallingContext const*,
+                     WaitingTaskWithArenaHolder&);
       void doPreallocate(PreallocationConfiguration const&);
       void doBeginJob();
       void doEndJob();
@@ -149,13 +154,17 @@ namespace edm {
       virtual void doEndRunProduce_(Run& rp, EventSetup const& c);
       virtual void doBeginLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c);
       virtual void doEndLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c);
-      
-      
+
+      virtual bool hasAcquire() const { return false; }
+
+      virtual void doAcquire_(StreamID, Event const&, edm::EventSetup const&, WaitingTaskWithArenaHolder&);
+
       void setModuleDescription(ModuleDescription const& md) {
         moduleDescription_ = md;
       }
       ModuleDescription moduleDescription_;
       std::unique_ptr<std::vector<BranchID>[]> previousParentages_;
+      std::unique_ptr<std::vector<BranchID>[]> gotBranchIDsFromAcquire_;
       std::unique_ptr<ParentageID[]> previousParentageIds_;
     };
 

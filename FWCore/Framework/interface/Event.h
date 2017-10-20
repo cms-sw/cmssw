@@ -77,7 +77,9 @@ namespace edm {
 
     void setSharedResourcesAcquirer( SharedResourcesAcquirer* iResourceAcquirer);
     
-    void setProducer( ProducerBase const* iProd, std::vector<BranchID>* previousParentage );
+    void setProducer(ProducerBase const* iProd,
+                     std::vector<BranchID>* previousParentage,
+                     std::vector<BranchID>* gotBranchIDsFromAcquire = nullptr);
 
     // AUX functions are defined in EventBase
     EventAuxiliary const& eventAuxiliary() const override {return aux_;}
@@ -313,8 +315,10 @@ namespace edm {
     mutable BranchIDSet gotBranchIDs_;
     mutable std::vector<bool> gotBranchIDsFromPrevious_;
     std::vector<BranchID>* previousBranchIDs_ = nullptr;
-    
+    std::vector<BranchID>* gotBranchIDsFromAcquire_ = nullptr;
+
     void addToGotBranchIDs(Provenance const& prov) const;
+    void addToGotBranchIDs(BranchID const& branchID) const;
 
     // We own the retrieved Views, and have to destroy them.
     mutable std::vector<std::shared_ptr<ViewBase> > gotViews_;
