@@ -63,6 +63,9 @@ AK8PFJet420_TrimMass30_PromptMonitoring.ptcut = cms.double(420)
 AK8PFJet420_TrimMass30_PromptMonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_AK8PFJet420_TrimMass30_v*")
 
 b2gMonitorHLT = cms.Sequence(
+)
+
+b2gHLTDQMSourceExtra = cms.Sequence(
     AK8PFHT750_TrimMass50_HTmonitoring +
     AK8PFHT800_TrimMass50_HTmonitoring + 
     AK8PFHT850_TrimMass50_HTmonitoring + 
@@ -73,7 +76,4 @@ b2gMonitorHLT = cms.Sequence(
     AK8PFJet420_TrimMass30_PromptMonitoring +
     B2GegmGsfElectronIDsForDQM*
     B2GegHLTDQMOfflineTnPSource
-)
-
-b2gHLTDQMSourceExtra = cms.Sequence(
 )

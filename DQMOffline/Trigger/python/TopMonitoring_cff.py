@@ -588,6 +588,9 @@ fullyhadronic_DoubleBTag_DeepCSV_bjet.denGenericTriggerEventPSet.hltPaths = cms.
 
 
 topMonitorHLT = cms.Sequence(
+    )
+
+topHLTDQMSourceExtra = cms.Sequence(
     topEleJet_ele
     + topEleJet_jet
     + topEleJet_all
@@ -630,7 +633,4 @@ topMonitorHLT = cms.Sequence(
     + fullyhadronic_DoubleBTag_DeepCSV_all
     + fullyhadronic_DoubleBTag_DeepCSV_jet
     + fullyhadronic_DoubleBTag_DeepCSV_bjet
-    )
-
-topHLTDQMSourceExtra = cms.Sequence(
 )

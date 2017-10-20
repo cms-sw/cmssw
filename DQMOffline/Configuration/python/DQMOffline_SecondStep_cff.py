@@ -70,6 +70,12 @@ DQMOffline_SecondStep = cms.Sequence( dqmRefHistoRootFileGetter *
                                       HLTMonitoringClient *
                                       DQMMessageLoggerClientSeq *
                                       dqmFastTimerServiceClient)
+
+DQMOffline_SecondStep_ExtraHLT = cms.Sequence( 
+    DQMOffline_SecondStep *
+    hltOfflineDQMClientExtra
+)
+
 DQMOffline_SecondStep_FakeHLT = cms.Sequence( DQMOffline_SecondStep )
 DQMOffline_SecondStep_FakeHLT.remove( HLTMonitoringClient )
 
