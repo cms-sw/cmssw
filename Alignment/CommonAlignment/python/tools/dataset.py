@@ -195,6 +195,7 @@ class Dataset(object):
             inthisjob += datafile.nevents
             if inthisjob >= eventsperjob:
               f.write("\n")
+              inthisjob = 0
             else:
               f.write(",")
           else:
