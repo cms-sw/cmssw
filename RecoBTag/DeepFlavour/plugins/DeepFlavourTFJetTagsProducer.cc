@@ -62,9 +62,6 @@ class DeepFlavourTFJetTagsProducer : public edm::stream::EDProducer<edm::GlobalC
     // session for TF evaluation
     tensorflow::Session* session_;
 
-    // combined names of all input tensors for faster evaluation
-    std::vector<std::string> all_input_names_;
-
     // vector of learning phase tensors, i.e., boolean scalar tensors pointing to false
     std::vector<tensorflow::Tensor> lp_tensors_;
 };
@@ -102,10 +99,6 @@ DeepFlavourTFJetTagsProducer::DeepFlavourTFJetTagsProducer(const edm::ParameterS
     t.scalar<bool>()() = false;
     lp_tensors_.push_back(t);
   }
-
-  // store combined input tensor names
-  all_input_names_ = lp_names_;
-  all_input_names_.insert(all_input_names_.end(), input_names_.begin(), input_names_.end());
 }
 
 DeepFlavourTFJetTagsProducer::~DeepFlavourTFJetTagsProducer()
@@ -184,50 +177,59 @@ void DeepFlavourTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventS
     {n_jets, 1}           // input_5 - jet pt for reg 
   };
 
-  // create input tensors based on the input_sizes in this event
-  std::vector<tensorflow::Tensor> input_tensors;
+  // create a list of named tensors, i.e. a vector of (string, Tensor) pairs, with proper size to
+  // prevent element copying that would occur via push_back's
+  // the default Tensor constructor creates a scalar so this should be fine w.r.t. to memory
+  tensorflow::NamedTensorList input_tensors;
+  input_tensors.resize(input_sizes.size() + lp_tensors_.size());
+
+  // add actual input tensors that hold physics information
   for (std::size_t i=0; i < input_sizes.size(); i++) {
-    tensorflow::Tensor t(tensorflow::DT_FLOAT, input_sizes.at(i));
-    t.flat<float>().setZero();
-    input_tensors.push_back(t);
+    input_tensors[i] = tensorflow::NamedTensor(
+      input_names_[i], tensorflow::Tensor(tensorflow::DT_FLOAT, input_sizes.at(i)));
+    input_tensors[i].second.flat<float>().setZero();
   }
 
-  // fill values
+  // add learning-phase tensors behind them
+  for (std::size_t i=0; i < lp_tensors_.size(); i++) {
+    input_tensors[input_sizes.size() + i] = tensorflow::NamedTensor(lp_names_[i], lp_tensors_[i]);
+  }
+
+  // fill values of the input tensors
   for (std::size_t jet_n=0; jet_n < tag_infos->size(); jet_n++) {
 
     // jet and other global features
     const auto & features = tag_infos->at(jet_n).features();
-    jet_tensor_filler(input_tensors.at(0), jet_n, features);
+    jet_tensor_filler(input_tensors.at(0).second, jet_n, features);
 
     // c_pf candidates
     auto max_c_pf_n = std::min(features.c_pf_features.size(), (std::size_t) input_sizes.at(1).dim_size(1));
     for (std::size_t c_pf_n=0; c_pf_n < max_c_pf_n; c_pf_n++) {
       const auto & c_pf_features = features.c_pf_features.at(c_pf_n);
-      c_pf_tensor_filler(input_tensors.at(1), jet_n, c_pf_n, c_pf_features);
+      c_pf_tensor_filler(input_tensors.at(1).second, jet_n, c_pf_n, c_pf_features);
     }
 
     // n_pf candidates
     auto max_n_pf_n = std::min(features.n_pf_features.size(), (std::size_t)input_sizes.at(2).dim_size(1));
     for (std::size_t n_pf_n=0; n_pf_n < max_n_pf_n; n_pf_n++) {
       const auto & n_pf_features = features.n_pf_features.at(n_pf_n);
-      n_pf_tensor_filler(input_tensors.at(2), jet_n, n_pf_n, n_pf_features);
+      n_pf_tensor_filler(input_tensors.at(2).second, jet_n, n_pf_n, n_pf_features);
     }
 
     // sv candidates
     auto max_sv_n = std::min(features.sv_features.size(), (std::size_t)input_sizes.at(3).dim_size(1));
     for (std::size_t sv_n=0; sv_n < max_sv_n; sv_n++) {
       const auto & sv_features = features.sv_features.at(sv_n);
-      sv_tensor_filler(input_tensors.at(3), jet_n, sv_n, sv_features);
+      sv_tensor_filler(input_tensors.at(3).second, jet_n, sv_n, sv_features);
     }
 
     // last input: jet pt
-    input_tensors.at(4).matrix<float>()(jet_n, 0) = features.jet_features.pt;
+    input_tensors.at(4).second.matrix<float>()(jet_n, 0) = features.jet_features.pt;
   }
 
   // run the session
-  input_tensors.insert(input_tensors.begin(), lp_tensors_.begin(), lp_tensors_.end());
   std::vector<tensorflow::Tensor> outputs;
-  tensorflow::run(session_, all_input_names_, input_tensors, output_names_, &outputs);
+  tensorflow::run(session_, input_tensors, output_names_, &outputs);
 
   // create output collection
   for (std::size_t i=0; i < flav_pairs_.size(); i++) {
