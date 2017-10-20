@@ -10,8 +10,8 @@
 //   mod.: g karathanasis
 //--------------------------------------------------
 
-#ifndef DTRPCBxCorrection_H
-#define DTRPCBxCorrection_H
+#ifndef L1T_TwinMux_DTRPCBxCorrection_H
+#define L1T_TwinMux_DTRPCBxCorrection_H
 
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"

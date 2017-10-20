@@ -9,8 +9,8 @@
 //   G. Flouris               U Ioannina    Feb. 2015
 //--------------------------------------------------
 
-#ifndef RPC_HITCLEANER_H
-#define RPC_HITCLEANER_H
+#ifndef L1T_TwinMuxRPC_HITCLEANER_H
+#define L1T_TwinMuxRPC_HITCLEANER_H
 
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 

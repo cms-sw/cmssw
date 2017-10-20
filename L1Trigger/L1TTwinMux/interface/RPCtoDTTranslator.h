@@ -9,8 +9,8 @@
 //   G. Flouris               U Ioannina    Feb. 2015
 //--------------------------------------------------
 
-#ifndef RPC_DTTranslator_H
-#define RPC_DTTranslator_H
+#ifndef L1T_TwinMux_RPC_DTTranslator_H
+#define L1T_TwinMux_RPC_DTTranslator_H
 
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
