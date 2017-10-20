@@ -3,7 +3,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
-using namespace edm;
 
 class UCTCTP7RawData {
 public:
@@ -13,7 +12,7 @@ public:
   UCTCTP7RawData(uint32_t *d) : myDataPtr(d) {
     // Yes this ptr is read-write, you better be damn sure it is size 192 or else...
     if(myDataPtr == nullptr) {
-      LogError("UCTCTP7RawData") << "You gave me a nullptr :<";
+      edm::LogError("UCTCTP7RawData") << "You gave me a nullptr :<";
     }
   }
   
@@ -29,11 +28,11 @@ public:
     size_t index = 0;
     if(cType == EBEE || cType == HBHE) {
       if(iPhi > 3) {
-	LogError("UCTCTP7RawData") << "Incorrect iPhi; iPhi = " << iPhi << "; should be in [0,3]";
+        edm::LogError("UCTCTP7RawData") << "Incorrect iPhi; iPhi = " << iPhi << "; should be in [0,3]";
 	return index;
       }
       if(cEta < 1 || cEta > 28) {
-	LogError("UCTCTP7RawData") << "Incorrect caloEta; cEta = " << cEta << "; should be in [1-28]";
+        edm::LogError("UCTCTP7RawData") << "Incorrect caloEta; cEta = " << cEta << "; should be in [1-28]";
 	return index;
       }
       // ECAL/HB+HE fragment size is 3 32-bit words
@@ -63,11 +62,11 @@ public:
     }
     else if(cType == HF) {
       if(iPhi > 1) {
-	LogError("UCTCTP7RawData") << "HF iPhi should be 0 or 1 (for a , b) - invalid iPhi  = " << iPhi;
+        edm::LogError("UCTCTP7RawData") << "HF iPhi should be 0 or 1 (for a , b) - invalid iPhi  = " << iPhi;
 	return index;
       }
       if(cEta < 30 || cEta > 41) {
-	LogError("UCTCTP7RawData") << "HF cEta should be between 30 and 41 - invalid cEta = " << cEta;
+        edm::LogError("UCTCTP7RawData") << "HF cEta should be between 30 and 41 - invalid cEta = " << cEta;
 	return index;
       }
       if(negativeEta) {
@@ -94,11 +93,11 @@ public:
       }
     }
     else {
-      LogError("UCTCTP7RawData") << "Unknown CaloType " << cType;
+      edm::LogError("UCTCTP7RawData") << "Unknown CaloType " << cType;
       return index;
     }
     if ( index >= 192 ) {
-      LogError("UCTCTP7RawData") << "Managed to calculate an out-of-bounds index, buyer beware";
+      edm::LogError("UCTCTP7RawData") << "Managed to calculate an out-of-bounds index, buyer beware";
     }
     return index;
   }
@@ -133,7 +132,7 @@ public:
       index += (3 - ((cEta - 30) / 4));
       if ( index == 0 ) {
         // Since we sticth index-1, zero is also illegal
-        LogError("UCTCTP7RawData") << "Managed to calculate an out-of-bounds index, buyer beware";
+        edm::LogError("UCTCTP7RawData") << "Managed to calculate an out-of-bounds index, buyer beware";
       }
     }
     else {
@@ -141,7 +140,7 @@ public:
       return 0;
     }
     if ( index >= 192 ) {
-      LogError("UCTCTP7RawData") << "Managed to calculate an out-of-bounds index, buyer beware";
+      edm::LogError("UCTCTP7RawData") << "Managed to calculate an out-of-bounds index, buyer beware";
     }
     return index;
   }
@@ -247,7 +246,7 @@ public:
     size_t index = 2 * 14 * (3 + 3) + 4 * 4 + (region / 2);
     if(negativeEta) index += 4;
     if ( index >= 192 ) {
-      LogError("UCTCTP7RawData") << "Managed to calculate an out-of-bounds index, buyer beware";
+      edm::LogError("UCTCTP7RawData") << "Managed to calculate an out-of-bounds index, buyer beware";
     }
     return index;
   }
