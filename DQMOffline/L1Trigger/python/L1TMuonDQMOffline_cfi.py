@@ -28,7 +28,7 @@ effVsEtaBins = [i*(etaMax-etaMin)/nEtaBins + etaMin for i in range(nEtaBins+1)]
 l1tMuonDQMOffline = cms.EDAnalyzer("L1TMuonDQMOffline",
     histFolder = cms.untracked.string('L1T/L1TMuon'),
     gmtPtCuts = cms.untracked.vint32(muonEfficiencyThresholds),
-
+    tagPtCut = cms.untracked.double(30.),
     muonInputTag = cms.untracked.InputTag("muons"),
     gmtInputTag  = cms.untracked.InputTag("gmtStage2Digis","Muon"),
     vtxInputTag = cms.untracked.InputTag("offlinePrimaryVertices"),
