@@ -160,16 +160,32 @@ GEMDataInputSource::GEMDataInputSource(const edm::ParameterSet& pset,
     if(m_runnumber!=-1)
       edm::LogInfo("") << "WARNING: observed run number encoded in S-Link dump. Overwriting run number as defined in .cfg file!!! Run number now set to " << runnum << " (was " << m_runnumber << ")";
     m_runnumber=runnum;
-  } 
-  temp_file.read((char*)&m_data,8);
+  }
+
+  cout << "GEMDataInputSource m_data "<< m_data<< endl;
+  
+  cout << "GEMDataInputSource 0x5 "<< (0x0f & (m_data >> 60))
+       << " Evt_ty "<< (0x0f & (m_data >> 56))
+       << " LV1_id "<< (0x00ffffff & (m_data >> 32))
+       << " BX_id "<< (0x0fff & (m_data >> 20))
+       << " Source_id "<< (0x0fff & (m_data >> 8))
+       << endl;  
+  //temp_file.read((char*)&m_data,8);
+  cout << "GEMDataInputSource"
+       << " CalTyp " << (0x0f & (m_data >> 56))
+       << " nAMC " << (0x0f & (m_data >> 52))
+       << " OrN " << (m_data >> 4)
+       << " cb0 " << (0x0f & m_data)
+       << endl;  
+
+  
   m_currenteventnumber = (m_data >> 32)&0x00ffffff ;
+  cout << "GEMDataInputSource m_currenteventnumber "<< m_currenteventnumber << endl;
+
 }
     
 // destructor
-GEMDataInputSource::~GEMDataInputSource() {
-
-
-}
+GEMDataInputSource::~GEMDataInputSource() {}
 
 bool GEMDataInputSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time, edm::EventAuxiliary::ExperimentType&) {
   Storage & m_file = *storage;
@@ -179,6 +195,7 @@ bool GEMDataInputSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& 
     
   //  uint32_t currenteventnumber = (m_data >> 32)&0x00ffffff;
   uint32_t eventnumber =(m_data >> 32)&0x00ffffff ;
+  cout << "GEMDataInputSource eventnumber "<< eventnumber << endl;
   
   do{
     std::vector<uint64_t> buffer;
@@ -186,56 +203,59 @@ bool GEMDataInputSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& 
     uint16_t count=0;
     eventnumber = (m_data >> 32)&0x00ffffff ;
 
-    cout << "GEMDataInputSource::setRunAndEventInfo m_data 1 "<< m_data << endl;
+    cout << "GEMDataInputSource m_data 1 "<< m_data << endl;
     if(m_currenteventnumber==0)
       m_currenteventnumber=eventnumber;
     
     edm::LogInfo("GEMDataInputSource::produce()") << "**** event number = " << eventnumber << " global event number " << m_currenteventnumber << " data " << std::hex << m_data << std::dec << std::endl;
-    
-    while ((m_data >> 60) != 0x5){
-      std::cout << std::hex << m_data << std::dec << std::endl;
-      cout << "GEMDataInputSource::setRunAndEventInfo m_data 2 "<< m_data << endl;
+
+    bool doFEROLheaders = false;
+    if (doFEROLheaders) {    
+      while ((m_data >> 60) != 0x5){
+	std::cout << std::hex << m_data << std::dec << std::endl;
+	cout << "GEMDataInputSource m_data 2 "<< m_data << endl;
       
-      if (count==0){
-	edm::LogWarning("") << "DATA CORRUPTION!" ;
-	edm::LogWarning("") << "Expected to find header, but read: 0x"
-			    << std::hex<<m_data<<std::dec ;
-      }
+	if (count==0){
+	  edm::LogWarning("") << "DATA CORRUPTION!" ;
+	  edm::LogWarning("") << "Expected to find header, but read: 0x"
+			      << std::hex<<m_data<<std::dec ;
+	}
    
-      count++;
-      int n=m_file.read((char*)&m_data,8);
-      cout << "GEMDataInputSource::setRunAndEventInfo m_data 3 "<< m_data << endl;
+	count++;
+	int n=m_file.read((char*)&m_data,8);
+	cout << "GEMDataInputSource m_data 3 "<< m_data << endl;
       
-      edm::LogWarning("") << "next data " << std::hex << m_data << std::dec << std::endl;
+	edm::LogWarning("") << "next data " << std::hex << m_data << std::dec << std::endl;
     
-      if (n!=8) {
-	edm::LogInfo("") << "End of input file" ;
-	return false;
+	if (n!=8) {
+	  edm::LogInfo("") << "End of input file" ;
+	  return false;
+	}
       }
-    }
-
-
-    if (count>0) {
-      edm::LogWarning("")<<"Had to read "<<count<<" words before finding header!"<<std::endl;
+      if (count>0) {
+	edm::LogWarning("")<<"Had to read "<<count<<" words before finding header!"<<std::endl;
+      }
     }
 
     if (m_fedid>-1) {
-      m_data=(m_data&0xfffffffffff000ffLL)|((m_fedid&0xfff)<<8);
+      //m_data=(m_data&0xfffffffffff000ffLL)|((m_fedid&0xfff)<<8);
+      cout << "GEMDataInputSource m_data 4 "<< m_data << endl;      
     }
 
     uint16_t fed_id=(m_data>>8)&0xfff;
-    //   std::cout << "fed id = " << fed_id << std::endl;
+    std::cout << "fed id = " << fed_id << std::endl;
     buffer.push_back(m_data);
-  
+    
     do{
       m_file.read((char*)&m_data,8);
+      uint16_t fed_id=(m_data>>8)&0xfff;
+      if (fed_id == m_fedid) std::cout << "fed id found at buffer.size() " << buffer.size() << std::endl;
       buffer.push_back(m_data);
     }
     while((m_data >> 60) != 0xa);
-    //  std::cout << "read " <<  buffer.size() << " long words" << std::endl;
+    std::cout << "read " <<  buffer.size() << " long words" << std::endl;
 
     auto rawData = std::make_unique<FEDRawData>(8*buffer.size());
-    //  FEDRawData * rawData = new FEDRawData(8*buffer.size());
     unsigned char* dataptr=rawData->data();
 
     for (uint16_t i=0;i<buffer.size();i++){
@@ -245,11 +265,11 @@ bool GEMDataInputSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& 
     int nfillwords = 0;//getEventNumberFromFillWords(buffer,thetriggernumber);
 
     if(nfillwords>0){
-      LogInfo("") << "n fill words = " << nfillwords <<  ", trigger numbers: " << thetriggernumber << "," << m_currenttriggernumber << std::endl;
+      std::cout << "n fill words = " << nfillwords <<  ", trigger numbers: " << thetriggernumber << "," << m_currenttriggernumber << std::endl;
       m_eventnumber_shift = thetriggernumber - m_currenttriggernumber;
     }
     m_currenttriggernumber = thetriggernumber;
-    FEDRawData& fedRawData = buffers->FEDData( fed_id );
+    FEDRawData& fedRawData = buffers->FEDData( m_fedid );
     fedRawData=*rawData;
     
     // read the first data member of the next blob to check on event number
@@ -270,6 +290,7 @@ bool GEMDataInputSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& 
   else
     id = edm::EventID(id.run(), id.luminosityBlock(), realeventno);
   return true;
+  
 }
 
 // produce() method. This is the worker method that is called every event.
