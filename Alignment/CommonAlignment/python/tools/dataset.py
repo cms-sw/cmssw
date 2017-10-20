@@ -1,3 +1,4 @@
+import abc
 import csv
 import os
 import re
@@ -110,7 +111,73 @@ class DataFile(object):
   def getdict(self):
     return {"filename": self.filename, "nevents": str(self.nevents), "runs": " ".join(str(_) for _ in self.runs)}
 
-class Dataset(object):
+class DatasetBase(object):
+  __metaclass__ = abc.ABCMeta
+
+  @abc.abstractmethod
+  def getfiles(self):
+    pass
+
+  @abc.abstractproperty
+  def headercomment(self):
+    pass
+
+  def writefilelist_validation(self, firstrun, lastrun, maxevents, outputfile=None):
+    if outputfile is None:
+      outputfile = os.path.join(os.environ["CMSSW_BASE"], "src", "Alignment", "OfflineValidation", "python", self.filenamebase+"_cff.py")
+
+    if maxevents < 0: maxevents = float("inf")
+    totalevents = sum(datafile.nevents for datafile in self.getfiles() if firstrun <= min(datafile.runs) <= max(datafile.runs) <= lastrun)
+    if totalevents == 0:
+      raise ValueError("No events within the run range!")
+    accepted = rejected = 0.  #float so fractions are easier
+
+    fractiontoaccept = 1.*maxevents / totalevents
+
+    with open(outputfile, "w") as f:
+      f.write("#"+self.headercomment+"\n")
+      f.write(validationheader)
+      for datafile in self.getfiles():
+        if firstrun <= min(datafile.runs) <= max(datafile.runs) <= lastrun:
+          if accepted == 0 or accepted / (accepted+rejected) <= fractiontoaccept:
+            f.write('"' + datafile.filename + '",\n')
+            accepted += datafile.nevents
+          else:
+            rejected += datafile.nevents
+        elif any(firstrun <= run <= lastrun for run in datafile.runs):
+          raise DatasetError("file {} has multiple runs {}, which straddle firstrun or lastrun".format(datafile.filename, datafile.runs))
+      f.write(validationfooter)
+
+  def writefilelist_hippy(self, firstrun, lastrun, eventsperjob, maxevents, outputfile):
+    if maxevents < 0: maxevents = float("inf")
+    totalevents = sum(datafile.nevents for datafile in self.getfiles() if firstrun <= min(datafile.runs) <= max(datafile.runs) <= lastrun)
+    if totalevents == 0:
+      raise ValueError("No events within the run range!")
+    accepted = rejected = inthisjob = 0.  #float so fractions are easier
+
+    fractiontoaccept = 1.*maxevents / totalevents
+    writecomma = False
+
+    with open(outputfile, "w") as f:
+      for datafile in self.getfiles():
+        if firstrun <= min(datafile.runs) <= max(datafile.runs) <= lastrun:
+          if accepted == 0 or accepted / (accepted+rejected) <= fractiontoaccept:
+            if writecomma: f.write(",")
+            f.write("'" + datafile.filename + "'")
+            accepted += datafile.nevents
+            inthisjob += datafile.nevents
+            if inthisjob >= eventsperjob:
+              f.write("\n")
+              inthisjob = 0
+              writecomma = False
+            else:
+              writecomma = True
+          else:
+            rejected += datafile.nevents
+        elif any(firstrun <= run <= lastrun for run in datafile.runs):
+          raise DatasetError("file {} has multiple runs {}, which straddle firstrun or lastrun".format(datafile.filename, datafile.runs))
+
+class Dataset(DatasetBase):
   def __init__(self, datasetname, dasinstance=defaultdasinstance):
     self.datasetname = datasetname
     if re.match(r'/.+/.+/.+', datasetname):
@@ -151,58 +218,27 @@ class Dataset(object):
       print "Couldn't write the dataset csv file:\n\n{}".format(e)
     return result
 
-  def writefilelist_validation(self, firstrun, lastrun, maxevents, outputfile=None):
-    if outputfile is None:
-      outputfile = os.path.join(os.environ["CMSSW_BASE"], "src", "Alignment", "OfflineValidation", "python", self.filenamebase+"_cff.py")
+  @property
+  def headercomment(self):
+    return self.datasetname
 
-    if maxevents < 0: maxevents = float("inf")
-    totalevents = sum(datafile.nevents for datafile in self.getfiles() if firstrun <= min(datafile.runs) <= max(datafile.runs) <= lastrun)
-    if totalevents == 0:
-      raise ValueError("No events within the run range!")
-    accepted = rejected = 0.  #float so fractions are easier
+class MultipleDatasets(DatasetBase):
+  def __init__(self, *datasets, **kwargs):
+    dasinstance = defaultdasinstance
+    for kw, kwarg in kwargs.iteritems():
+      if kw == "dasinstance":
+        dasinstance = kwarg
+      else:
+        raise TypeError("Unknown kwarg {}={}".format(kw, kwarg))
+    self.datasets = [Dataset(dataset, dasinstance=dasinstance) for dataset in datasets]
 
-    fractiontoaccept = 1.*maxevents / totalevents
+  @cache
+  def getfiles(self):
+    return sum([d.getfiles() for d in self.datasets], [])
 
-    with open(outputfile, "w") as f:
-      f.write("#"+self.datasetname+"\n")
-      f.write(validationheader)
-      for datafile in self.getfiles():
-        if firstrun <= min(datafile.runs) <= max(datafile.runs) <= lastrun:
-          if accepted == 0 or accepted / (accepted+rejected) <= fractiontoaccept:
-            f.write('"' + datafile.filename + '",\n')
-            accepted += datafile.nevents
-          else:
-            rejected += datafile.nevents
-        elif any(firstrun <= run <= lastrun for run in datafile.runs):
-          raise DatasetError("file {} has multiple runs {}, which straddle firstrun or lastrun".format(datafile.filename, datafile.runs))
-      f.write(validationfooter)
-
-  def writefilelist_hippy(self, firstrun, lastrun, eventsperjob, maxevents, outputfile):
-    if maxevents < 0: maxevents = float("inf")
-    totalevents = sum(datafile.nevents for datafile in self.getfiles() if firstrun <= min(datafile.runs) <= max(datafile.runs) <= lastrun)
-    if totalevents == 0:
-      raise ValueError("No events within the run range!")
-    accepted = rejected = inthisjob = 0.  #float so fractions are easier
-
-    fractiontoaccept = 1.*maxevents / totalevents
-
-    with open(outputfile, "w") as f:
-      for datafile in self.getfiles():
-        if firstrun <= min(datafile.runs) <= max(datafile.runs) <= lastrun:
-          if accepted == 0 or accepted / (accepted+rejected) <= fractiontoaccept:
-            f.write("'" + datafile.filename + "'")
-            accepted += datafile.nevents
-            inthisjob += datafile.nevents
-            if inthisjob >= eventsperjob:
-              f.write("\n")
-              inthisjob = 0
-            else:
-              f.write(",")
-          else:
-            rejected += datafile.nevents
-        elif any(firstrun <= run <= lastrun for run in datafile.runs):
-          raise DatasetError("file {} has multiple runs {}, which straddle firstrun or lastrun".format(datafile.filename, datafile.runs))
-
+  @property
+  def headercomment(self):
+    return ", ".join(d.headercomment for d in self.datasets)
 
 validationheader = """
 import FWCore.ParameterSet.Config as cms
@@ -217,4 +253,3 @@ readFiles.extend( [
 validationfooter = """
 ] )
 """
-

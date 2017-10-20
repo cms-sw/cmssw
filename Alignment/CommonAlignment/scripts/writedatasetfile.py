@@ -2,10 +2,10 @@
 
 import argparse
 
-from Alignment.CommonAlignment.tools.dataset import Dataset
+from Alignment.CommonAlignment.tools.dataset import MultipleDatasets
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-d", "--dataset", required=True, help="dataset name on DAS")
+parser.add_argument("-d", "--dataset", required=True, help="dataset name on DAS (can give multiple)", action="append")
 parser.add_argument("--hippy", help="output file name for HipPy")
 parser.add_argument("-v", "--validation", help="output file name for validation")
 parser.add_argument("-f", "--first-run", default=0, type=int)
@@ -14,7 +14,7 @@ parser.add_argument("-m", "--max-events", default=float("inf"), type=int)
 parser.add_argument("-j", "--events-per-job", type=int)
 
 args = parser.parse_args()
-dataset = Dataset(args.dataset)
+dataset = MultipleDatasets(*args.dataset)
 
 if not args.validation and not args.hippy:
   raise RuntimeError("have to provide --validation or --hippy")
