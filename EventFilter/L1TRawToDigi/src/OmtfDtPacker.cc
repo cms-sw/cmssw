@@ -49,7 +49,7 @@ void DtPacker::pack(const L1MuDTChambPhContainer* phCont, const L1MuDTChambThCon
   //
   //
   for (const auto &  chDigi : *dtthDigisBMTF.getContainer() ) {
-    if (abs(chDigi.whNum()) != 2) continue;
+    if (std::abs(chDigi.whNum()) != 2) continue;
     if (chDigi.stNum() ==4) continue;
     DtDataWord64 data;
     int bxNumber = chDigi.bxNum();
