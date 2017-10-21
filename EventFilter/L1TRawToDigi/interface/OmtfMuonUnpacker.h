@@ -4,7 +4,7 @@
 #include <string>
 
 
-#include "EventFilter/L1TRawToDigi/interface/OmtfDataWord64.h"
+#include "DataFormats/L1TMuon/interface/OMTF/OmtfDataWord64.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 

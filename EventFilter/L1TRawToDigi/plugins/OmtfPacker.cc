@@ -23,8 +23,8 @@
 #include "EventFilter/L1TRawToDigi/interface/AMCSpec.h"
 #include "FWCore/Utilities/interface/CRC16.h"
 
-#include "EventFilter/L1TRawToDigi/interface/OmtfDataWord64.h"
-#include "EventFilter/L1TRawToDigi/interface/OmtfCscDataWord64.h"
+#include "DataFormats/L1TMuon/interface/OMTF/OmtfDataWord64.h"
+#include "DataFormats/L1TMuon/interface/OMTF/OmtfCscDataWord64.h"
 #include "EventFilter/L1TRawToDigi/interface/OmtfDtDataWord64.h"
 #include "EventFilter/L1TRawToDigi/interface/OmtfRpcDataWord64.h"
 #include "EventFilter/L1TRawToDigi/interface/OmtfMuonDataWord64.h"

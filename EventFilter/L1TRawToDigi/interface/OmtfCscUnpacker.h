@@ -4,7 +4,7 @@
 #include <string>
 
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
-#include "EventFilter/L1TRawToDigi/interface/OmtfDataWord64.h"
+#include "DataFormats/L1TMuon/interface/OMTF/OmtfDataWord64.h"
 #include "EventFilter/L1TRawToDigi/interface/OmtfLinkMappingCsc.h"
 
 namespace edm { class EventSetup; }

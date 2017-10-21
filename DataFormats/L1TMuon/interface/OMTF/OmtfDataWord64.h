@@ -1,5 +1,5 @@
-#ifndef EventFilter_L1TRawToDigi_Omtf_DataWord64_H
-#define EventFilter_L1TRawToDigi_Omtf_DataWord64_H 
+#ifndef DataFormat_L1TMuon_Omtf_DataWord64_H
+#define DataFormat_L1TMuon_Omtf_DataWord64_H 
 
 #include<cstdint>
 #include<iostream>

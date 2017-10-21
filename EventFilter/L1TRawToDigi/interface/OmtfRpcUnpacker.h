@@ -4,7 +4,7 @@
 #include <string>
 
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
-#include "EventFilter/L1TRawToDigi/interface/OmtfDataWord64.h"
+#include "DataFormats/L1TMuon/interface/OMTF/OmtfDataWord64.h"
 #include "EventFilter/L1TRawToDigi/interface/OmtfLinkMappingRpc.h"
 
 namespace edm { class EventSetup; }

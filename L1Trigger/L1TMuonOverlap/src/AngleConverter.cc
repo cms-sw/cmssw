@@ -93,7 +93,7 @@ int fixCscOffsetGeom(int offsetLoc) {
   // fix for CSC feo dependance from GlobalTag
 
   // dump of CSC offsets for MC global tag
-  std::vector<int> offCSC = { -154, -133, -17, -4, 4, 17, 133, 146, 154, 167, 
+  const std::vector<int> offCSC = { -154, -133, -17, -4, 4, 17, 133, 146, 154, 167, 
                             283, 296, 304, 317, 433, 446, 454, 467,  
                             583, 596, 604, 617, 733, 746, 754, 767,  883, 904};
   auto gep = std::lower_bound(offCSC.begin(), offCSC.end(), offsetLoc);

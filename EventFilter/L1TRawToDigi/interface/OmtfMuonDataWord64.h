@@ -2,7 +2,7 @@
 #define EventFilter_L1TRawToDigi_Omtf_MuonDataWord64_H
 
 #include <iostream>
-#include "EventFilter/L1TRawToDigi/interface/OmtfDataWord64.h"
+#include "DataFormats/L1TMuon/interface/OMTF/OmtfDataWord64.h"
 
 namespace omtf {
 class MuonDataWord64 {

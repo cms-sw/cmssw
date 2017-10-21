@@ -10,7 +10,7 @@ void DtPacker::pack(const L1MuDTChambPhContainer* phCont, const L1MuDTChambThCon
   const L1MuDTChambPhContainer& dtphDigisBMTF = *phCont;
   const L1MuDTChambThContainer& dtthDigisBMTF = *thCont;
   for (const auto &  chDigi : *dtphDigisBMTF.getContainer() ) {
-    if (abs(chDigi.whNum()) != 2) continue;
+    if (std::abs(chDigi.whNum()) != 2) continue;
     if (chDigi.stNum() ==4) continue;
     DtDataWord64 data;
     data.st_phi_ = chDigi.phi();

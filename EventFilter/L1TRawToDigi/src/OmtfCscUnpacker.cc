@@ -5,7 +5,7 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 
-#include "EventFilter/L1TRawToDigi/interface/OmtfCscDataWord64.h"
+#include "DataFormats/L1TMuon/interface/OMTF/OmtfCscDataWord64.h"
 
 
 namespace omtf {
