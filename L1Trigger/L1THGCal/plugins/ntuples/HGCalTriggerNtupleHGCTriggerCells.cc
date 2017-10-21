@@ -31,9 +31,11 @@ class HGCalTriggerNtupleHGCTriggerCells : public HGCalTriggerNtupleBase
     std::vector<int> tc_wafertype_ ;
     std::vector<int> tc_cell_;
     std::vector<uint32_t> tc_data_;
+    std::vector<float> tc_mipPt_;
     std::vector<float> tc_energy_;
     std::vector<float> tc_eta_;
     std::vector<float> tc_phi_;
+    std::vector<float> tc_pt_;
     std::vector<float> tc_z_;
 
 };
@@ -63,9 +65,11 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
   tree.Branch("tc_wafertype", &tc_wafertype_);
   tree.Branch("tc_cell", &tc_cell_);    
   tree.Branch("tc_data", &tc_data_);
+  tree.Branch("tc_mipPt", &tc_mipPt_);
   tree.Branch("tc_energy", &tc_energy_);
   tree.Branch("tc_eta", &tc_eta_);
   tree.Branch("tc_phi", &tc_phi_);
+  tree.Branch("tc_pt", &tc_pt_);
   tree.Branch("tc_z", &tc_z_);
 
 }
@@ -100,10 +104,12 @@ fill(const edm::Event& e, const edm::EventSetup& es)
       tc_wafertype_.emplace_back(id.waferType());
       tc_cell_.emplace_back(id.cell());
       tc_data_.emplace_back(tc_itr->hwPt());
+      tc_mipPt_.emplace_back(tc_itr->mipPt());
       // physical values 
       tc_energy_.emplace_back(tc_itr->energy());
       tc_eta_.emplace_back(tc_itr->eta());
       tc_phi_.emplace_back(tc_itr->phi());
+      tc_pt_.emplace_back(tc_itr->pt());
       tc_z_.emplace_back(tc_itr->position().z());
     }
   }
@@ -123,9 +129,11 @@ clear()
   tc_wafertype_.clear();
   tc_cell_.clear();
   tc_data_.clear();
+  tc_mipPt_.clear();
   tc_energy_.clear();
   tc_eta_.clear();
   tc_phi_.clear();
+  tc_pt_.clear();
   tc_z_.clear();
 }
 
