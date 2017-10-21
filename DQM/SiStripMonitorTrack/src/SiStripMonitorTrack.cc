@@ -1059,8 +1059,8 @@ void SiStripMonitorTrack::trackStudyFromTrack(
     // hit pattern of the track
    // const reco::HitPattern & hitsPattern = track->hitPattern();
     // loop over the hits of the track
-    //    for (int i=0; i<hitsPattern.numberOfHits(); i++) {
-   // for (int i=0; i<hitsPattern.numberOfHits(reco::HitPattern::TRACK_HITS); i++) {
+    //    for (int i=0; i<hitsPattern.numberOfAllHits(); i++) {
+   // for (int i=0; i<hitsPattern.numberOfAllHits(reco::HitPattern::TRACK_HITS); i++) {
    //   uint32_t hit = hitsPattern.getHitPattern(reco::HitPattern::TRACK_HITS,i);
 
       // if the hit is valid and in pixel barrel, print out the layer

@@ -151,7 +151,7 @@ namespace
   {
     if ( muon.outerTrack().isNonnull() ) {
       const reco::HitPattern &muonHitPattern = muon.outerTrack()->hitPattern();
-      for (int iHit = 0; iHit < muonHitPattern.numberOfHits(HitPattern::TRACK_HITS); ++iHit) {
+      for (int iHit = 0; iHit < muonHitPattern.numberOfAllHits(HitPattern::TRACK_HITS); ++iHit) {
           uint32_t hit = muonHitPattern.getHitPattern(HitPattern::TRACK_HITS, iHit);
 	if ( hit == 0 ) break;	    
 	if ( muonHitPattern.muonHitFilter(hit) && (muonHitPattern.getHitType(hit) == TrackingRecHit::valid || muonHitPattern.getHitType(hit) == TrackingRecHit::bad) ) {
