@@ -459,6 +459,8 @@ FWTrackHitsDetailView::addModules( const reco::Track& track,
 		  name += "LOST ";
 		  shape->SetMainColor( kRed );
 		  break;
+               case TrackingRecHit::inactive_inner:
+               case TrackingRecHit::inactive_outer:
 	       case TrackingRecHit::inactive:
 		  name += "INACTIVE ";
 		  shape->SetMainColor( 28 );

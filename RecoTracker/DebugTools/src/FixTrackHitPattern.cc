@@ -133,8 +133,8 @@ FixTrackHitPattern::Result FixTrackHitPattern::analyze(const edm::EventSetup& iS
       }
 
       // Print result for debugging.
-      LogDebug("FTHP")<<"Number of missing hits "<<newHitPattern.numberOfHits(HitPattern::ALL_HITS)<<"/"<<counter<<endl;
-      for (int j = 0; j < std::max(newHitPattern.numberOfHits(HitPattern::ALL_HITS), counter); j++) {
+      LogDebug("FTHP")<<"Number of missing hits "<<newHitPattern.numberOfAllHits(HitPattern::ALL_HITS)<<"/"<<counter<<endl;
+      for (int j = 0; j < std::max(newHitPattern.numberOfAllHits(HitPattern::ALL_HITS), counter); j++) {
 	uint32_t hp = newHitPattern.getHitPattern(j);
 	uint32_t subDet = newHitPattern.getSubStructure(hp);
 	uint32_t layer = newHitPattern.getLayer(hp);

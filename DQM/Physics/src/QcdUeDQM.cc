@@ -656,7 +656,7 @@ bool QcdUeDQM::trackSelection(const reco::Track &trk, const reco::BeamSpot *bs,
   bool hasPIX1 = false;
   if (requirePIX1_) {
     const reco::HitPattern &p = trk.hitPattern();
-    for (int i = 0; i < p.numberOfHits(reco::HitPattern::TRACK_HITS); i++) {
+    for (int i = 0; i < p.numberOfAllHits(reco::HitPattern::TRACK_HITS); i++) {
       uint32_t hit = p.getHitPattern(reco::HitPattern::TRACK_HITS, i);
       if (reco::HitPattern::validHitFilter(hit) &&
           reco::HitPattern::pixelHitFilter(hit) &&

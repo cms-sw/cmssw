@@ -377,7 +377,7 @@ FWConvTrackHitsDetailView::setTextInfo(const FWModelId &id, const reco::Conversi
    y -= lineH;
    const reco::HitPattern &hp0 = track0->hitPattern();
    int nvalid_tk0 = 0, ninvalid_tk0 = 0, npix_tk0 = 0, nstrip_tk0 = 0;
-   for(int i_tk0 = 0; i_tk0 < hp0.numberOfHits(reco::HitPattern::TRACK_HITS); i_tk0++) {
+   for(int i_tk0 = 0; i_tk0 < hp0.numberOfAllHits(reco::HitPattern::TRACK_HITS); i_tk0++) {
        uint32_t hit = hp0.getHitPattern(reco::HitPattern::TRACK_HITS, i_tk0);
        if(reco::HitPattern::validHitFilter(hit)) {
            nvalid_tk0++;
@@ -391,7 +391,7 @@ FWConvTrackHitsDetailView::setTextInfo(const FWModelId &id, const reco::Conversi
    y -= lineH;
 
    int npix_mhi_tk0 = 0, nstrip_mhi_tk0 = 0;
-   for(int i_mhi_tk0 = 0; i_mhi_tk0 < hp0.numberOfHits(reco::HitPattern::MISSING_INNER_HITS); i_mhi_tk0++) {
+   for(int i_mhi_tk0 = 0; i_mhi_tk0 < hp0.numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS); i_mhi_tk0++) {
        uint32_t hit = hp0.getHitPattern(reco::HitPattern::MISSING_INNER_HITS, i_mhi_tk0);
        if (reco::HitPattern::pixelHitFilter(hit)) npix_mhi_tk0++;
        else if (reco::HitPattern::stripHitFilter(hit)) nstrip_mhi_tk0++;
@@ -409,7 +409,7 @@ FWConvTrackHitsDetailView::setTextInfo(const FWModelId &id, const reco::Conversi
 
    const reco::HitPattern &hp1 = track1->hitPattern();
    int nvalid_tk1 = 0, ninvalid_tk1 = 0, npix_tk1 = 0, nstrip_tk1 = 0;
-   for(int i_tk1 = 0; i_tk1 < hp1.numberOfHits(reco::HitPattern::TRACK_HITS); i_tk1++) {
+   for(int i_tk1 = 0; i_tk1 < hp1.numberOfAllHits(reco::HitPattern::TRACK_HITS); i_tk1++) {
        uint32_t hit = hp1.getHitPattern(reco::HitPattern::TRACK_HITS, i_tk1);
        if(reco::HitPattern::validHitFilter(hit)) {
            nvalid_tk1++;
@@ -423,7 +423,7 @@ FWConvTrackHitsDetailView::setTextInfo(const FWModelId &id, const reco::Conversi
    y -= lineH;
 
    int npix_mhi_tk1 = 0, nstrip_mhi_tk1 = 0;
-   for(int i_mhi_tk1 = 0; i_mhi_tk1 < hp1.numberOfHits(reco::HitPattern::MISSING_INNER_HITS); i_mhi_tk1++) {
+   for(int i_mhi_tk1 = 0; i_mhi_tk1 < hp1.numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS); i_mhi_tk1++) {
        uint32_t hit = hp1.getHitPattern(reco::HitPattern::MISSING_INNER_HITS, i_mhi_tk1);
        if (reco::HitPattern::pixelHitFilter(hit)) npix_mhi_tk1++;
        else if (reco::HitPattern::stripHitFilter(hit)) nstrip_mhi_tk1++;
@@ -568,6 +568,8 @@ FWConvTrackHitsDetailView::addModules( const reco::Track& track,
 		  name += "LOST ";
 		  shape->SetMainColor( kRed );
 		  break;
+               case TrackingRecHit::inactive_inner:
+               case TrackingRecHit::inactive_outer:
 	       case TrackingRecHit::inactive:
 		  name += "INACTIVE ";
 		  shape->SetMainColor( 28 );
