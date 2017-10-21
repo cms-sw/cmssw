@@ -7,7 +7,8 @@ ntuple_event = cms.PSet(
 
 ntuple_gen = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleGen'),
-    GenParticles = cms.InputTag('genParticles')
+    GenParticles = cms.InputTag('genParticles'),
+    GenPU = cms.InputTag('addPileupInfo')
 )
 
 ntuple_gentau = cms.PSet(
