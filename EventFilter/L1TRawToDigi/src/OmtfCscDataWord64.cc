@@ -1,4 +1,4 @@
-#include "EventFilter/L1TRawToDigi/interface/OmtfCscDataWord64.h"
+#include "DataFormats/L1TMuon/interface/OMTF/OmtfCscDataWord64.h"
 
 namespace omtf {
 std::ostream & operator<< (std::ostream &out, const CscDataWord64 &o) {

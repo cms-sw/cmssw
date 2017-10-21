@@ -32,12 +32,12 @@ MapEleIndex2LBIndex translateOmtf2Pact(const RpcLinkMap & omtfLink2Ele, const RP
   MapEleIndex2LBIndex omtf2rpc;
 
   std::vector<const DccSpec*> dccs = pactCabling->dccList();
-  for (std::vector<const DccSpec*>::const_iterator it1= dccs.begin(); it1!= dccs.end(); ++it1) {
-    const std::vector<TriggerBoardSpec> & rmbs = (*it1)->triggerBoards();
-    for (std::vector<TriggerBoardSpec>::const_iterator it2 = rmbs.begin(); it2 != rmbs.end(); ++it2) {
-      const  std::vector<LinkConnSpec> & links = it2->linkConns();
-      for (std::vector<LinkConnSpec>::const_iterator it3 = links.begin(); it3 != links.end(); ++it3) {
-        const  std::vector<LinkBoardSpec> & lbs = it3->linkBoards();
+  for (auto it1 : dccs) {
+    const std::vector<TriggerBoardSpec> & rmbs = it1->triggerBoards();
+    for (auto const & it2 : rmbs) {
+      const  std::vector<LinkConnSpec> & links = it2.linkConns();
+      for (auto const & it3 : links) {
+        const  std::vector<LinkBoardSpec> & lbs = it3.linkBoards();
         for (std::vector<LinkBoardSpec>::const_iterator it4=lbs.begin(); it4 != lbs.end(); ++it4) {
 
           try {
@@ -45,7 +45,7 @@ MapEleIndex2LBIndex translateOmtf2Pact(const RpcLinkMap & omtfLink2Ele, const RP
             std::string lbName = lbNameCH.substr(0,lbNameCH.size()-4);
             const std::vector<EleIndex> & omtfEles = omtfLink2Ele.omtfEleIndex(lbName);
 //          std::cout <<"  isOK ! " <<  it4->linkBoardName() <<" has: " << omtfEles.size() << " first: "<< omtfEles[0] << std::endl;
-            LinkBoardElectronicIndex rpcEle = { (*it1)->id(), it2->dccInputChannelNum(), it3->triggerBoardInputNumber(), it4->linkBoardNumInLink()};
+            LinkBoardElectronicIndex rpcEle = { it1->id(), it2.dccInputChannelNum(), it3.triggerBoardInputNumber(), it4->linkBoardNumInLink()};
             for ( const auto & omtfEle : omtfEles ) omtf2rpc[omtfEle]= rpcEle;
           }
           catch(...) { ; } // std::cout << "exception! "<<it4->linkBoardName()<< std::endl; }
@@ -81,10 +81,10 @@ void RpcLinkMap::init(const edm::EventSetup& es) {
     unsigned int link = item.first.getAMCInput();
     std::string lbName =  item.second.getName();
 
-    std::ostringstream processorNameStr; processorNameStr<<"OMTF";;
-    if (fedId==1380) processorNameStr<< "n"; else processorNameStr<< "p";
-    processorNameStr<< amcSlot/2+1;
-    std::string processorName(processorNameStr.str());
+    std::string processorNameStr = "OMTF";;
+    if (fedId==1380) processorNameStr = "OMTFn"; else processorNameStr = "OMTFp";
+    processorNameStr += std::to_string(amcSlot/2+1);
+    std::string processorName = processorNameStr;
 
     std::map< unsigned int, std::string > & li2lb = link2lbName[processorName];
     std::map< std::string, unsigned int > & lb2li = lbName2link[processorName];

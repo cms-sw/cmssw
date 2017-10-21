@@ -1,8 +1,8 @@
-#ifndef EventFilter_L1TRawToDigi_Omtf_CscDataWord64_H
-#define EventFilter_L1TRawToDigi_Omtf_CscDataWord64_H
+#ifndef DataFormat_L1TMuon_Omtf_CscDataWord64_H
+#define DataFormat_L1TMuon_Omtf_CscDataWord64_H
 
 #include<iostream>
-#include "EventFilter/L1TRawToDigi/interface/OmtfDataWord64.h"
+#include "DataFormats/L1TMuon/interface/OMTF/OmtfDataWord64.h"
 
 namespace omtf {
 

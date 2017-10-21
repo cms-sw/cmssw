@@ -1,7 +1,7 @@
 #include "EventFilter/L1TRawToDigi/interface/OmtfCscPacker.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "EventFilter/L1TRawToDigi/interface/OmtfCscDataWord64.h"
+#include "DataFormats/L1TMuon/interface/OMTF/OmtfCscDataWord64.h"
 
 namespace omtf {
 
