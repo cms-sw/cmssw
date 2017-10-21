@@ -26,7 +26,7 @@ autoCond = {
     # GlobalTag for Run2 data reprocessing
     'run2_data'         :   '92X_dataRun2_v7',
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
-    'run2_data_relval'  :   '92X_dataRun2_relval_v7',
+    'run2_data_relval'  :   '92X_dataRun2_relval_v8',
     # GlobalTag for Run2 data 2016H relvals only: Prompt Conditions + fixed L1 menu (to be removed)
     'run2_data_promptlike' : '92X_dataRun2_PromptLike_v7',
 
