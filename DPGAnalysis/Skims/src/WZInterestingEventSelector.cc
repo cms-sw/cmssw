@@ -208,7 +208,7 @@ bool WZInterestingEventSelector::electronSelection( const GsfElectron* eleRef , 
       if (eleRef->hcalOverEcal()>ee_hoeCut_) return false;
     }
   
-  if (eleRef->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS) > missHitCut_) return false;
+  if (eleRef->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) > missHitCut_) return false;
   
   return true;
 }
