@@ -94,7 +94,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
       if(PVI.getBunchCrossing() == 0)
       { 
 	gen_PUNumInt_ = PVI.getPU_NumInteractions();
-        gen_TrueNumInt_ = PVI.getTrueNumInteractions();
+	gen_TrueNumInt_ = PVI.getTrueNumInteractions();
       }
     }
 
