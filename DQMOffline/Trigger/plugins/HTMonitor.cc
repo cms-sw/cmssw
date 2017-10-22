@@ -10,7 +10,6 @@
 
 HTMonitor::HTMonitor( const edm::ParameterSet& iConfig ) : 
   folderName_             ( iConfig.getParameter<std::string>("FolderName") )
-  , quantity_             ( iConfig.getParameter<std::string>("quantity") )
   , metToken_             ( consumes<reco::PFMETCollection>      (iConfig.getParameter<edm::InputTag>("met")         ) )
   , jetToken_             ( mayConsume<reco::JetView>      (iConfig.getParameter<edm::InputTag>("jets")      ) )
   , eleToken_             ( mayConsume<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons") ) )
@@ -31,7 +30,23 @@ HTMonitor::HTMonitor( const edm::ParameterSet& iConfig ) :
   , nmuons_     ( iConfig.getParameter<unsigned>("nmuons" )     )
   , dEtaCut_    ( iConfig.getParameter<double>("dEtaCut")       )
 {
-    if(!(quantity_ == "HT" || quantity_ == "Mjj" || quantity_ == "softdrop")) throw cms::Exception("quantity not defined") << "the quantity '" << quantity_ << "' could not be found. Please check your config!" << std::endl;
+    string quantity = iConfig.getParameter<std::string>("quantity");
+    if(quantity == "HT")
+    {
+        quantity_ = HT;
+    }
+    else if(quantity == "Mjj")
+    {
+        quantity_ = MJJ;
+    }
+    else if(quantity == "softdrop")
+    {
+        quantity_ = SOFTDROP;
+    }
+    else
+    {
+        throw cms::Exception("quantity not defined") << "the quantity '" << quantity << "' is undefined. Please check your config!" << std::endl;
+    }
 }
 
 HTMonitor::~HTMonitor() = default;
@@ -108,39 +123,45 @@ void HTMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   std::string currentFolder = folderName_ ;
   ibooker.setCurrentFolder(currentFolder);
 
-  if(quantity_ == "HT")
+  switch(quantity_)
   {
-    histname = "ht_variable"; histtitle = "HT";
-    bookME(ibooker,qME_variableBinning_,histname,histtitle,ht_variable_binning_);
-    setHTitle(qME_variableBinning_,"HT [GeV]","events / [GeV]");
+    case HT:
+    {
+        histname = "ht_variable"; histtitle = "HT";
+        bookME(ibooker,qME_variableBinning_,histname,histtitle,ht_variable_binning_);
+        setHTitle(qME_variableBinning_,"HT [GeV]","events / [GeV]");
 
-    histname = "htVsLS"; histtitle = "HT vs LS";
-    bookME(ibooker,htVsLS_,histname,histtitle,ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax,ht_binning_.xmin, ht_binning_.xmax);
-    setHTitle(htVsLS_,"LS","HT [GeV]");
+        histname = "htVsLS"; histtitle = "HT vs LS";
+        bookME(ibooker,htVsLS_,histname,histtitle,ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax,ht_binning_.xmin, ht_binning_.xmax);
+        setHTitle(htVsLS_,"LS","HT [GeV]");
 
-    histname = "deltaphi_metjet1"; histtitle = "DPHI_METJ1";
-    bookME(ibooker,deltaphimetj1ME_,histname,histtitle,phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
-    setHTitle(deltaphimetj1ME_,"delta phi (met, j1)","events / 0.1 rad");
+        histname = "deltaphi_metjet1"; histtitle = "DPHI_METJ1";
+        bookME(ibooker,deltaphimetj1ME_,histname,histtitle,phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
+        setHTitle(deltaphimetj1ME_,"delta phi (met, j1)","events / 0.1 rad");
 
-    histname = "deltaphi_jet1jet2"; histtitle = "DPHI_J1J2";
-    bookME(ibooker,deltaphij1j2ME_,histname,histtitle,phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
-    setHTitle(deltaphij1j2ME_,"delta phi (j1, j2)","events / 0.1 rad");
-  }
-  else if(quantity_ == "Mjj")
-  {
-    histname = "mjj_variable"; histtitle = "Mjj";
-    bookME(ibooker,qME_variableBinning_,histname,histtitle, ht_variable_binning_);
-    setHTitle(qME_variableBinning_,"Mjj [GeV]","events / [GeV]");
-  }
-  else if(quantity_ == "softdrop")
-  {
-    histname = "softdrop_variable"; histtitle = "softdropmass";
-    bookME(ibooker,qME_variableBinning_,histname,histtitle, ht_variable_binning_);
-    setHTitle(qME_variableBinning_,"leading jet softdropmass [GeV]","events / [GeV]");
-  }
-  else
-  {
-    throw cms::Exception("quantity not defined") << "this shouldn't have happened'" << std::endl;
+        histname = "deltaphi_jet1jet2"; histtitle = "DPHI_J1J2";
+        bookME(ibooker,deltaphij1j2ME_,histname,histtitle,phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
+        setHTitle(deltaphij1j2ME_,"delta phi (j1, j2)","events / 0.1 rad");
+        break;
+    }
+
+
+    case MJJ:
+    {
+        histname = "mjj_variable"; histtitle = "Mjj";
+        bookME(ibooker,qME_variableBinning_,histname,histtitle, ht_variable_binning_);
+        setHTitle(qME_variableBinning_,"Mjj [GeV]","events / [GeV]");
+        break;
+    }
+
+
+    case SOFTDROP:
+    {
+        histname = "softdrop_variable"; histtitle = "softdropmass";
+        bookME(ibooker,qME_variableBinning_,histname,histtitle, ht_variable_binning_);
+        setHTitle(qME_variableBinning_,"leading jet softdropmass [GeV]","events / [GeV]");
+        break;
+    }
   }
 
   // Initialize the GenericTriggerEventFlag
@@ -212,67 +233,71 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
   if ( muons.size() < nmuons_ ) return;
 
   // fill histograms
-  if(quantity_ == "HT")
+  switch(quantity_)
   {
-    float ht = 0.0;
-    for ( auto const & j : *jetHandle )
+    case HT:
     {
-        if ( jetSelection_HT_(j)) ht += j.pt();
+        float ht = 0.0;
+        for ( auto const & j : *jetHandle )
+        {
+            if ( jetSelection_HT_(j)) ht += j.pt();
+        }
+
+        // filling histograms (denominator)  
+        qME_variableBinning_.denominator -> Fill(ht);
+
+        deltaphimetj1ME_.denominator -> Fill(deltaPhi_met_j1);
+        deltaphij1j2ME_.denominator -> Fill(deltaPhi_j1_j2);
+
+        int ls = iEvent.id().luminosityBlock();
+        htVsLS_.denominator -> Fill(ls, ht);
+
+        // applying selection for numerator
+        if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
+
+        // filling histograms (num_genTriggerEventFlag_)  
+        qME_variableBinning_.numerator -> Fill(ht);
+
+        htVsLS_.numerator -> Fill(ls, ht);
+        deltaphimetj1ME_.numerator  -> Fill(deltaPhi_met_j1); 
+        deltaphij1j2ME_.numerator  -> Fill(deltaPhi_j1_j2);
+        break;
     }
 
-    // filling histograms (denominator)  
-    qME_variableBinning_.denominator -> Fill(ht);
+    case MJJ:
+    {
+        if (jets.size() < 2) return;
 
-    deltaphimetj1ME_.denominator -> Fill(deltaPhi_met_j1);
-    deltaphij1j2ME_.denominator -> Fill(deltaPhi_j1_j2);
+        // deltaEta cut
+        if(fabs(jets[0].p4().Eta() - jets[1].p4().Eta()) >= dEtaCut_) return;
+        float mjj = (jets[0].p4() + jets[1].p4()).M();
 
-    int ls = iEvent.id().luminosityBlock();
-    htVsLS_.denominator -> Fill(ls, ht);
+        qME_variableBinning_.denominator -> Fill(mjj);
 
-    // applying selection for numerator
-    if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
+        // applying selection for numerator
+        if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
-    // filling histograms (num_genTriggerEventFlag_)  
-    qME_variableBinning_.numerator -> Fill(ht);
+        qME_variableBinning_.numerator -> Fill(mjj);
+        break;
+    }
 
-    htVsLS_.numerator -> Fill(ls, ht);
-    deltaphimetj1ME_.numerator  -> Fill(deltaPhi_met_j1); 
-    deltaphij1j2ME_.numerator  -> Fill(deltaPhi_j1_j2);
-  }
-  else if(quantity_ == "Mjj")
-  {
-    if (jets.size() < 2) return;
+    case SOFTDROP:
+    {
+        if (jets.size() < 2) return;
 
-    // deltaEta cut
-    if(fabs(jets[0].p4().Eta() - jets[1].p4().Eta()) >= dEtaCut_) return;
-    float mjj = (jets[0].p4() + jets[1].p4()).M();
+        // deltaEta cut
+        if(fabs(jets[0].p4().Eta() - jets[1].p4().Eta()) >= dEtaCut_) return;
 
-    qME_variableBinning_.denominator -> Fill(mjj);
+        float softdrop = jets[0].p4().M();
 
-    // applying selection for numerator
-    if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
+        qME_variableBinning_.denominator -> Fill(softdrop);
 
-    qME_variableBinning_.numerator -> Fill(mjj);
-  }
-  else if(quantity_ == "softdrop")
-  {
-    if (jets.size() < 2) return;
+        // applying selection for numerator
+        if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
-    // deltaEta cut
-    if(fabs(jets[0].p4().Eta() - jets[1].p4().Eta()) >= dEtaCut_) return;
-
-    float softdrop = jets[0].p4().M();
-
-    qME_variableBinning_.denominator -> Fill(softdrop);
-
-    // applying selection for numerator
-    if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
-
-    qME_variableBinning_.numerator -> Fill(softdrop);
-  }
-  else
-  {
-    throw cms::Exception("quantity not defined") << "this shouldn't have happened'" << std::endl;
+        qME_variableBinning_.numerator -> Fill(softdrop);
+        break;
+    }
   }
 }
 
