@@ -40,13 +40,13 @@ namespace l1t
 	    continue;
 
 	  //initializing null block_payloads and block_id
-	  std::vector<uint32_t> payload_0(6,(uint32_t)0);
-	  std::vector<uint32_t> payload_p1(6,(uint32_t)0);
-	  std::vector<uint32_t> payload_n1(6,(uint32_t)0);
-	  std::vector<uint32_t> payload_p2(6,(uint32_t)0);
-	  std::vector<uint32_t> payload_n2(6,(uint32_t)0);
+	  std::vector<uint32_t> payload_0 (6,0);
+	  std::vector<uint32_t> payload_p1(6,0);
+	  std::vector<uint32_t> payload_n1(6,0);
+	  std::vector<uint32_t> payload_p2(6,0);
+	  std::vector<uint32_t> payload_n2(6,0);
 
-	  unsigned int block_id = (unsigned int)(2*link);
+	  unsigned int block_id = 2*link;
 	  
 	  std::vector<bool> bxPresent(5,false);
 	  bool moreBXphi = false;
@@ -55,9 +55,9 @@ namespace l1t
 	  
 	  //The first 4 phi words for the link's payload
 
-	  for(L1MuDTChambPhContainer::Phi_Container::const_iterator iphi =  phInputs->getContainer()->begin(); iphi != phInputs->getContainer()->end(); ++iphi)
-	    {   
-	      if (iphi->bxNum() != 0)
+          for (const auto &  iphi : *(phInputs->getContainer()) )
+	  {   
+	      if (iphi.bxNum() != 0)
 		moreBXphi = true;
 
 	      //	      std::cout << "scNum+1 = " << iphi->scNum()+1 << ",   board_id = " << board_id << std::endl;
@@ -65,31 +65,31 @@ namespace l1t
 
 	      //BC = iphi->BxCnt();//this thing here is not completely functional
 
-	      if ( iphi->scNum()+1 != board_id )
+	      if ( iphi.scNum()+1 != board_id )
 		continue;
 	      //	      std::cout << "correct board" << std::endl;
 
-	      if (link != ownLinks_[4+2*(iphi->whNum())+iphi->Ts2Tag()])
+	      if (link != ownLinks_[4+2*(iphi.whNum())+iphi.Ts2Tag()])
 		continue;
 	      // 	      std::cout << "correct link" << std::endl;
 	     
-	      bxPresent[2+iphi->bxNum()] = true;
+	      bxPresent[2+iphi.bxNum()] = true;
 
 	      //1 create 32word, 2 insert 32word in correct Block Slot
-	      uint32_t word_32bit = wordPhMaker(*iphi);//1
+	      uint32_t word_32bit = wordPhMaker(iphi);//1
 	      if (bxPresent[0]){
-		payload_n2[iphi->stNum()-1] = word_32bit;
+		payload_n2[iphi.stNum()-1] = word_32bit;
 	      }
 	      else if (bxPresent[1]){
-		payload_n1[iphi->stNum()-1] = word_32bit;
+		payload_n1[iphi.stNum()-1] = word_32bit;
 	      }
 	      else if (bxPresent[2])
-		payload_0[iphi->stNum()-1] = word_32bit;
+		payload_0[iphi.stNum()-1] = word_32bit;
 	      else if (bxPresent[3]){
-		payload_p1[iphi->stNum()-1] = word_32bit;
+		payload_p1[iphi.stNum()-1] = word_32bit;
 	      }
 	      else if (bxPresent[4]){
-		payload_p2[iphi->stNum()-1] = word_32bit;
+		payload_p2[iphi.stNum()-1] = word_32bit;
 	      }
 
 	      bxPresent.assign(5,false);

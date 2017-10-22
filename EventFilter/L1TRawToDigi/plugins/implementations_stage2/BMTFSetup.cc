@@ -25,9 +25,9 @@ namespace l1t {
 	 
 	  if (fed == 1376 || fed == 1377) {
 
-	    int board_out[]={1,7,2,8,3,9,4,10,5,11,6,12};//these are board_ids per amc_no-1
+            std::array<int,12> board_out = { {1,7,2,8,3,9,4,10,5,11,6,12} };//these are board_ids per amc_no-1
 
-	    for (int i=1; i<=12; i++)
+	    for (unsigned int i=1; i<=board_out.size(); i++)
 	      {
 		if (i%2 != 0) {//maybe this check is not needed
 		  res[{i, board_out[i-1]}] = {PackerFactory::get()->make("stage2::BMTFPackerOutput"),
@@ -93,7 +93,7 @@ namespace l1t {
          auto inputMuonsNew = UnpackerFactory::get()->make("stage2::BMTFUnpackerInputsNewQual");
 
          UnpackerMap res;
-         if (fed == 1376 || fed == 1377 || true) {
+         if (fed == 1376 || fed == 1377) {
             for (int iL = 0; iL <= 70; iL += 2) {
                if (iL == 12 || iL == 14 || ( iL > 26 && iL < 32) || iL == 60 || iL == 62)
                   continue;
