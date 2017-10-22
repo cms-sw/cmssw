@@ -411,10 +411,10 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
    bool  fitStatus   = false;
    bool useTriple = false;
 
-   int BX[3] = {int(soi),int(soi+1),int(soi-1)};
+   unsigned BX[3] = {soi,soi+1,soi-1};
    if(ts4Chi2_ != 0) fit(1,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,tmpy,BX);
 // Based on the pulse shape ( 2. likely gives the same performance )
-   if(tmpy[int(soi-2)] > 3.*tmpy[int(soi-1)]) BX[2] = int(soi-2);
+   if(tmpy[soi-2] > 3.*tmpy[soi-1]) BX[2] = soi-2;
 // Only do three-pulse fit when tstrig < ts4Max_, otherwise one-pulse fit is used (above)
    if(chi2 > ts4Chi2_ && tstrig < ts4Max_)   { //fails chi2 cut goes straight to 3 Pulse fit
      fit(3,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,tmpy,BX);
@@ -439,7 +439,7 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
    return outfitStatus;
 }
 
-void PulseShapeFitOOTPileupCorrection::fit(int iFit,float &timevalfit,float &chargevalfit,float &pedvalfit,float &chi2,bool &fitStatus,double &iTSMax,const double &iTSTOTEn,double *iEnArr,int (&iBX)[3]) const { 
+void PulseShapeFitOOTPileupCorrection::fit(int iFit,float &timevalfit,float &chargevalfit,float &pedvalfit,float &chi2,bool &fitStatus,double &iTSMax,const double &iTSTOTEn,double *iEnArr,unsigned (&iBX)[3]) const {
   int n = 3;
   if(iFit == 2) n = 5; //Two   Pulse Fit 
   if(iFit == 3) n = 7; //Three Pulse Fit 
