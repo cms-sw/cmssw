@@ -18,8 +18,15 @@ void setLogging(const std::string& level)
 
 void setThreading(SessionOptions& sessionOptions, int nThreads)
 {
+    // set number of threads used for intra and inter operation communication
     sessionOptions.config.set_intra_op_parallelism_threads(nThreads);
     sessionOptions.config.set_inter_op_parallelism_threads(nThreads);
+
+    // when exactly one thread is requested use the custom session factory
+    if (nThreads == 1)
+    {
+        sessionOptions.target = "no_threads";
+    }
 }
 
 MetaGraphDef* loadMetaGraph(const std::string& exportDir, bool multiThreaded,
@@ -31,7 +38,7 @@ MetaGraphDef* loadMetaGraph(const std::string& exportDir, bool multiThreaded,
     RunOptions runOptions;
     SavedModelBundle bundle;
 
-    // set the number of threads
+    // set thread options
     setThreading(sessionOptions, multiThreaded ? 0 : 1);
 
     // load the model
@@ -52,7 +59,7 @@ Session* createSession(bool multiThreaded)
     Status status;
     SessionOptions sessionOptions;
 
-    // set the number of threads
+    // set thread options
     setThreading(sessionOptions, multiThreaded ? 0 : 1);
 
     // create a new, empty session
