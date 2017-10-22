@@ -121,8 +121,8 @@ public:
     const HcalPulseShapes::Shape* currentPulseShape_=nullptr;
     void setChi2Term( bool isHPD );
 
-    void setPulseShapeTemplate  (const HcalPulseShapes::Shape& ps, bool isHPD);
-    void resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps);
+    void setPulseShapeTemplate  (const HcalPulseShapes::Shape& ps, bool isHPD, unsigned nSamples_);
+    void resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps, unsigned nSamples_);
 
 private:
     int pulseShapeFit(const double * energyArr, const double * pedenArr, const double *chargeArr, 
@@ -168,8 +168,6 @@ private:
     bool dcConstraint_;
 
     bool isCurrentChannelHPD_;
-
-    mutable unsigned nSamples_;
 
 };
 
