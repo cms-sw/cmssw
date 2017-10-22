@@ -28,20 +28,20 @@ HcalPulseShapes::HcalPulseShapes()
 /*
 
 Reco  MC
---------------------------------------------------------------------------------------
-000                                                   not used (reserved)
-101   101      hpdShape_                              HPD (original version)
-102   102      =101                                   HPD BV 30 volts in HBP iphi54
-103   123      hpdShape_v2, hpdShapeMC_v2             HPD (2011. oct version)
-104   124      hpdBV30Shape_v2, hpdBV30ShapeMC_v2     HPD bv30 in HBP iph54
-105   125      hpdShape_v2, hpdShapeMC_v2             HPD (2011.11.12 version)
-201   201      siPMShape_                             SiPMs Zecotec shape   (HO)
-202   202      =201,                                  SiPMs Hamamatsu shape (HO)
-203   203      siPMShape2017_                         SiPMs Hamamatsu shape (HE 2017)
-205   205      siPMShapeData2017_                     SiPMs from Data (HE data 2017)
-301   301      hfShape_                               regular HF PMT shape
-401   401                                             regular ZDC shape
---------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
+000                                              not used (reserved)
+101   101   hpdShape_                            HPD (original version)
+102   102   =101                                 HPD BV 30 volts in HBP iphi54
+103   123   hpdShape_v2,hpdShapeMC_v2            HPD (2011. oct version)
+104   124   hpdBV30Shape_v2,hpdBV30ShapeMC_v2    HPD bv30 in HBP iph54
+105   125   hpdShape_v2,hpdShapeMC_v2            HPD (2011.11.12 version)
+201   201   siPMShapeHO_                         SiPMs Zecotec shape   (HO)
+202   202   =201,                                SiPMs Hamamatsu shape (HO)
+205   203   siPMShapeData2017_,siPMShapeMC2017_  SiPMs from Data, Hamamatsu shape (HE 2017)
+      206   siPMShapeMC2018_                     SiPMs Hamamatsu shape (HE 2018)
+301   301   hfShape_                             regular HF PMT shape
+401   401                                        regular ZDC shape
+-------------------------------------------------------------------------------------------
 
 */
 
@@ -85,14 +85,16 @@ Reco  MC
   // HF and SiPM
 
   computeHFShape();
-  computeSiPMShape();
-  computeSiPMShape2017();
+  computeSiPMShapeHO();
+  computeSiPMShapeHE(Y11203,siPMShapeMC2017_);
   computeSiPMShapeData2017();
+  computeSiPMShapeHE(Y11206,siPMShapeMC2018_);
 
-  theShapes[201] = &siPMShape_;
+  theShapes[201] = &siPMShapeHO_;
   theShapes[202] = theShapes[201];
-  theShapes[203] = &siPMShape2017_;
+  theShapes[203] = &siPMShapeMC2017_;
   theShapes[205] = &siPMShapeData2017_;
+  theShapes[206] = &siPMShapeMC2018_;
   theShapes[301] = &hfShape_;
   //theShapes[401] = new CaloCachedShapeIntegrator(&theZDCShape);
 
@@ -543,7 +545,7 @@ void HcalPulseShapes::computeSiPMShapeData2017()
   }
 }
 
-void HcalPulseShapes::computeSiPMShape()
+void HcalPulseShapes::computeSiPMShapeHO()
 {
 
   unsigned int nbin = 128; 
@@ -680,7 +682,7 @@ void HcalPulseShapes::computeSiPMShape()
     7.153448381918271e-7
   };
 
-  siPMShape_.setNBin(nbin);
+  siPMShapeHO_.setNBin(nbin);
 
   double norm = 0.;
   for (unsigned int j = 0; j < nbin; ++j) {
@@ -689,16 +691,17 @@ void HcalPulseShapes::computeSiPMShape()
 
   for (unsigned int j = 0; j < nbin; ++j) {
     nt[j] /= norm;
-    siPMShape_.setShapeBin(j,nt[j]);
+    siPMShapeHO_.setShapeBin(j,nt[j]);
   }
 }
 
-void HcalPulseShapes::computeSiPMShape2017()
+template <class Y11Func>
+void HcalPulseShapes::computeSiPMShapeHE(Y11Func y11Func, Shape y11Shape)
 {
   //numerical convolution of SiPM pulse + WLS fiber shape
-  std::vector<double> nt = convolve(nBinsSiPM_,analyticPulseShapeSiPMHE,Y11TimePDF);
+  std::vector<double> nt = convolve(nBinsSiPM_,analyticPulseShapeSiPMHE,y11Func);
 
-  siPMShape2017_.setNBin(nBinsSiPM_);
+  y11Shape.setNBin(nBinsSiPM_);
 
   //skip first bin, always 0
   double norm = 0.;
@@ -708,7 +711,7 @@ void HcalPulseShapes::computeSiPMShape2017()
 
   for (unsigned int j = 1; j <= nBinsSiPM_; ++j) {
     nt[j] /= norm;
-    siPMShape2017_.setShapeBin(j,nt[j]);
+    y11Shape.setShapeBin(j,nt[j]);
   }
 }
 
@@ -810,7 +813,7 @@ double HcalPulseShapes::generatePhotonTime(CLHEP::HepRandomEngine* engine) {
   double result(0.);
   while (true) {
     result = CLHEP::RandFlat::shoot(engine, HcalPulseShapes::Y11RANGE_);
-    if (CLHEP::RandFlat::shoot(engine, HcalPulseShapes::Y11MAX_) < HcalPulseShapes::Y11TimePDF(result))
+    if (CLHEP::RandFlat::shoot(engine, HcalPulseShapes::Y11MAX206_) < HcalPulseShapes::Y11206(result))
       return result;
   }
 }
@@ -822,7 +825,7 @@ double HcalPulseShapes::Y11203(double t) {
 }
 
 //New scintillator+Y11 model from Vasken's 2017 measurement plus a Landau correction term
-double HcalPulseShapes::Y11TimePDF(double t) {
+double HcalPulseShapes::Y11206(double t) {
   //Fit From Deconvolved Data
   double A,n,t0,fit;
   A=0.104204; n=0.44064; t0=10.0186;

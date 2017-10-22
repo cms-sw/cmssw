@@ -32,7 +32,7 @@ public:
   const Shape& hbShape() const { return hpdShape_; }
   const Shape& heShape() const { return hpdShape_; }
   const Shape& hfShape() const { return hfShape_; }
-  const Shape& hoShape(bool sipm=false) const { return sipm ? siPMShape_ : hpdShape_; }
+  const Shape& hoShape(bool sipm=false) const { return sipm ? siPMShapeHO_ : hpdShape_; }
   //  return Shape for given shapeType.
   const Shape& getShape(int shapeType) const;
   /// automatically figures out which shape to return
@@ -47,9 +47,10 @@ public:
   static double analyticPulseShapeSiPMHO(double t);
   static double analyticPulseShapeSiPMHE(double t);
   static constexpr float Y11RANGE_ = nBinsSiPM_;
-  static constexpr float Y11MAX_ = 0.09;
-  static double Y11TimePDF(double t);
+  static constexpr float Y11MAX203_ = 0.04;
+  static constexpr float Y11MAX206_ = 0.09;
   static double Y11203(double t);
+  static double Y11206(double t);
   static double generatePhotonTime(CLHEP::HepRandomEngine* engine);
   //this function can take function pointers *or* functors!
   template <class F1, class F2>
@@ -69,10 +70,13 @@ private:
   void computeHPDShape(float, float, float, float, float ,
                        float, float, float, Shape&);
   void computeHFShape();
-  void computeSiPMShape();
-  void computeSiPMShape2017();
+  void computeSiPMShapeHO();
+  template <class Y11Func>
+  void computeSiPMShapeHE(Y11Func,Shape);
   void computeSiPMShapeData2017();
-  Shape hpdShape_, hfShape_, siPMShape_, siPMShape2017_, siPMShapeData2017_;
+  Shape hpdShape_, hfShape_, siPMShapeHO_;
+  Shape siPMShapeMC2017_, siPMShapeData2017_;
+  Shape siPMShapeMC2018_;
   Shape hpdShape_v2, hpdShapeMC_v2;
   Shape hpdShape_v3, hpdShapeMC_v3;
   Shape hpdBV30Shape_v2, hpdBV30ShapeMC_v2;
