@@ -33,18 +33,17 @@ void setThreading(SessionOptions& sessionOptions, int nThreads);
 
 // loads a meta graph definition saved at exportDir using the SavedModel interface for a tag
 // transfers ownership
-MetaGraphDef* loadMetaGraph(const std::string& exportDir, bool multiThreaded = false,
-    const std::string& tag = kSavedModelTagServe);
+MetaGraphDef* loadMetaGraph(const std::string& exportDir,
+    const std::string& tag = kSavedModelTagServe, int nThreads = 1);
 
 // return a new, empty session
 // transfers ownership
-Session* createSession(bool multiThreaded = false);
+Session* createSession(int nThreads = 1);
 
 // return a new session that contains an already loaded meta graph whose exportDir must be given in
 // order to load and initialize the variables within the session
 // transfers ownership
-Session* createSession(MetaGraphDef* metaGraph, const std::string& exportDir,
-    bool multiThreaded = false);
+Session* createSession(MetaGraphDef* metaGraph, const std::string& exportDir, int nThreads = 1);
 
 // closes a session, calls its destructor, resets the pointer, and returns true on success
 bool closeSession(Session*& session);
