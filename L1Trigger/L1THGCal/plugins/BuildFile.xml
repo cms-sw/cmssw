@@ -32,5 +32,6 @@
   <use   name="SimDataFormats/CaloTest"/>
   <use   name="DataFormats/JetReco"/>
   <use   name="Geometry/HcalTowerAlgo"/>
+  <use   name="SimDataFormats/PileupSummaryInfo"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
