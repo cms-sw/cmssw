@@ -10,7 +10,7 @@ namespace FitterFuncs{
   PulseShapeFunctor::PulseShapeFunctor(const HcalPulseShapes::Shape& pulse,
 				       bool iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iAddTimeSlew,
 				       double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
-				       double iNoise) : 
+				       double iNoise,unsigned nSamplesToFit) :
     cntNANinfit(0),
     acc25nsVec(HcalConst::maxPSshapeBin), diff25nsItvlVec(HcalConst::maxPSshapeBin),
     accVarLenIdxZEROVec(HcalConst::nsPerBX), diffVarItvlIdxZEROVec(HcalConst::nsPerBX), 
@@ -60,6 +60,9 @@ namespace FitterFuncs{
     inverttimeSig2_ = inverttimeSig_*inverttimeSig_;
     invertpedSig_ = 1./pedSig_;
     invertpedSig2_ = invertpedSig_*invertpedSig_;
+
+    nSamplesToFit_ = nSamplesToFit;
+
   }
 
   void PulseShapeFunctor::funcHPDShape(std::array<double,HcalConst::maxSamples> & ntmpbin, const double &pulseTime, const double &pulseHeight,const double &slew) { 
@@ -107,7 +110,7 @@ namespace FitterFuncs{
   }
 
   double PulseShapeFunctor::EvalPulse(const double *pars, unsigned int nPars) {
-      constexpr unsigned nbins = (unsigned) HcalConst::maxSamples;
+
       unsigned i =0, j=0;
       //Stop crashes
       for(i =0; i < nPars; ++i ) if( edm::isNotFinite(pars[i]) ){ ++ cntNANinfit; return 1e10; }
@@ -121,7 +124,7 @@ namespace FitterFuncs{
 	int time = (pars[0]+timeShift_-timeMean_)*HcalConst::invertnsPerBx;
 	//Interpolate the fit (Quickly)
 	funcHPDShape(pulse_shape_, pars[0],pars[1],psFit_slew[time]);
-	for (j=0; j<nbins; ++j) {
+	for (j=0; j<nSamplesToFit_; ++j) {
 	  psFit_erry2[j]  = psFit_erry2[j] + pulse_shape_[j]*pulse_shape_[j]*pulseJitter_;
 	  pulse_shape_sum_[j] = pulse_shape_[j] + pars[nPars-1];
 	}
@@ -133,7 +136,7 @@ namespace FitterFuncs{
 	  funcHPDShape(pulse_shape_, pars[i*2],pars[i*2+1],psFit_slew[time]);
 	  // add an uncertainty from the pulse (currently noise * pulse height =>Ecal uses full cov)
 	 /////
-	  for (j=0; j<nbins; ++j) {
+	  for (j=0; j<nSamplesToFit_; ++j) {
 	    psFit_erry2[j] += pulse_shape_[j]*pulse_shape_[j]*pulseJitter_;
 	    pulse_shape_sum_[j] += pulse_shape_[j];
 	  }	    
@@ -144,7 +147,7 @@ namespace FitterFuncs{
 	int time = (pars[0]+timeShift_-timeMean_)*HcalConst::invertnsPerBx;
 	//Interpolate the fit (Quickly)
 	funcHPDShape(pulse_shape_, pars[0],pars[1],psFit_slew[time]);
-	for(j=0; j<nbins; ++j)
+	for(j=0; j<nSamplesToFit_; ++j)
 	  pulse_shape_sum_[j] = pulse_shape_[j] + pars[nPars-1];
 
 	i=1;
@@ -153,13 +156,13 @@ namespace FitterFuncs{
 	  //Interpolate the fit (Quickly)
 	  funcHPDShape(pulse_shape_, pars[i*2],pars[i*2+1],psFit_slew[time]);
 	  // add an uncertainty from the pulse (currently noise * pulse height =>Ecal uses full cov)
-	  for(j=0; j<nbins; ++j)
+	  for(j=0; j<nSamplesToFit_; ++j)
 	    pulse_shape_sum_[j] += pulse_shape_[j];
 	  i++;
 	}
       }
 
-      for (i=0;i<nbins; ++i) 
+      for (i=0;i<nSamplesToFit_; ++i)
         chisq += (psFit_y[i]- pulse_shape_sum_[i])*(psFit_y[i]- pulse_shape_sum_[i])/psFit_erry2[i];
 
       if(pedestalConstraint_) {
@@ -289,7 +292,7 @@ void PulseShapeFitOOTPileupCorrection::setPulseShapeTemplate(const HcalPulseShap
 void PulseShapeFitOOTPileupCorrection::resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps) { 
    ++ cntsetPulseShape;
    psfPtr_.reset(new FitterFuncs::PulseShapeFunctor(ps,pedestalConstraint_,timeConstraint_,addPulseJitter_,applyTimeSlew_,
-								 pulseJitter_,timeMean_,timeSig_,pedMean_,pedSig_,noise_));
+						    pulseJitter_,timeMean_,timeSig_,pedMean_,pedSig_,noise_,nSamples_));
    spfunctor_    = std::unique_ptr<ROOT::Math::Functor>( new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::singlePulseShapeFunc, 3) );
    dpfunctor_    = std::unique_ptr<ROOT::Math::Functor>( new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::doublePulseShapeFunc, 5) );
    tpfunctor_    = std::unique_ptr<ROOT::Math::Functor>( new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::triplePulseShapeFunc, 7) );
@@ -307,6 +310,8 @@ void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs,
    psfPtr_->setDefaultcntNANinfit();
 
    const unsigned int cssize = cs.size();
+   nSamples_=cs.size();
+
 // initialize arrays to be zero
    double chargeArr[HcalConst::maxSamples]={}, pedArr[HcalConst::maxSamples]={}, gainArr[HcalConst::maxSamples]={};
    double energyArr[HcalConst::maxSamples]={}, pedenArr[HcalConst::maxSamples]={};
@@ -351,7 +356,8 @@ void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs,
    std::vector<float> fitParsVec;
 
    if(tstrig >= ts4Min_&& tsTOTen > 0.) { //Two sigma from 0
-     pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, gainArr, tsTOTen, fitParsVec, noiseArrSq);
+     unsigned int soi=4;
+     pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, gainArr, tsTOTen, fitParsVec, noiseArrSq, soi);
    } else {
      fitParsVec.clear();
      fitParsVec.push_back(0.); //charge
@@ -370,7 +376,7 @@ void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs,
 
 constexpr char const* varNames[] = {"time", "energy","time1","energy1","time2","energy2", "ped"};
 
-int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, const double * pedenArr, const double *chargeArr, const double *pedArr, const double *gainArr, const double tsTOTen, std::vector<float> &fitParsVec, const double * noiseArrSq)  const {
+int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, const double * pedenArr, const double *chargeArr, const double *pedArr, const double *gainArr, const double tsTOTen, std::vector<float> &fitParsVec, const double * noiseArrSq, unsigned int soi )  const {
    double tsMAX=0;
    double tmpx[HcalConst::maxSamples], tmpy[HcalConst::maxSamples], tmperry[HcalConst::maxSamples],tmperry2[HcalConst::maxSamples],tmpslew[HcalConst::maxSamples];
    double tstrig = 0; // in fC
@@ -406,10 +412,10 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
    bool  fitStatus   = false;
    bool useTriple = false;
 
-   int BX[3] = {4,5,3};
+   int BX[3] = {int(soi),int(soi+1),int(soi-1)};
    if(ts4Chi2_ != 0) fit(1,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,tmpy,BX);
 // Based on the pulse shape ( 2. likely gives the same performance )
-   if(tmpy[2] > 3.*tmpy[3]) BX[2] = 2;
+   if(tmpy[int(soi-2)] > 3.*tmpy[int(soi-1)]) BX[2] = int(soi-2);
 // Only do three-pulse fit when tstrig < ts4Max_, otherwise one-pulse fit is used (above)
    if(chi2 > ts4Chi2_ && tstrig < ts4Max_)   { //fails chi2 cut goes straight to 3 Pulse fit
      fit(3,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,tmpy,BX);
@@ -521,6 +527,8 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
   psfPtr_->setDefaultcntNANinfit();
 
   const unsigned cssize = channelData.nSamples();
+  nSamples_=cssize;
+
   // initialize arrays to be zero
   double chargeArr[HcalConst::maxSamples]={}, pedArr[HcalConst::maxSamples]={}, gainArr[HcalConst::maxSamples]={};
   double energyArr[HcalConst::maxSamples]={}, pedenArr[HcalConst::maxSamples]={};
@@ -593,7 +601,7 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
 
   std::vector<float> fitParsVec;
   if(tstrig >= ts4Min_ && tsTOTen > 0.) { //Two sigma from 0
-    pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, gainArr, tsTOTen, fitParsVec,noiseArrSq);
+    pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, gainArr, tsTOTen, fitParsVec, noiseArrSq, channelData.soi() );
   } else {
     fitParsVec.clear();
     fitParsVec.push_back(0.); //charge
