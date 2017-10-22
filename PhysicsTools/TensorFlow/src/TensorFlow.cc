@@ -29,8 +29,7 @@ void setThreading(SessionOptions& sessionOptions, int nThreads)
     }
 }
 
-MetaGraphDef* loadMetaGraph(const std::string& exportDir, bool multiThreaded,
-    const std::string& tag)
+MetaGraphDef* loadMetaGraph(const std::string& exportDir, const std::string& tag, int nThreads)
 {
     // objects to load the graph
     Status status;
@@ -39,7 +38,7 @@ MetaGraphDef* loadMetaGraph(const std::string& exportDir, bool multiThreaded,
     SavedModelBundle bundle;
 
     // set thread options
-    setThreading(sessionOptions, multiThreaded ? 0 : 1);
+    setThreading(sessionOptions, nThreads);
 
     // load the model
     status = LoadSavedModel(sessionOptions, runOptions, exportDir, { tag }, &bundle);
@@ -53,14 +52,14 @@ MetaGraphDef* loadMetaGraph(const std::string& exportDir, bool multiThreaded,
     return new MetaGraphDef(bundle.meta_graph_def);
 }
 
-Session* createSession(bool multiThreaded)
+Session* createSession(int nThreads)
 {
     // objects to create the session
     Status status;
     SessionOptions sessionOptions;
 
     // set thread options
-    setThreading(sessionOptions, multiThreaded ? 0 : 1);
+    setThreading(sessionOptions, nThreads);
 
     // create a new, empty session
     Session* session = nullptr;
@@ -74,9 +73,9 @@ Session* createSession(bool multiThreaded)
     return session;
 }
 
-Session* createSession(MetaGraphDef* metaGraph, const std::string& exportDir, bool multiThreaded)
+Session* createSession(MetaGraphDef* metaGraph, const std::string& exportDir, int nThreads)
 {
-    Session* session = createSession(multiThreaded);
+    Session* session = createSession(nThreads);
 
     // add the graph def from the meta graph
     Status status;
