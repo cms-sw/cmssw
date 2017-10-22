@@ -19,7 +19,7 @@ class HcalTopology;
 class HcalShapes : public CaloShapes
 {
 public:
-  enum {HPD=101, LONG=102, ZECOTEK=201, HAMAMATSU=202, HE2017=203, HF=301, ZDC=401};
+  enum {HPD=101, LONG=102, ZECOTEK=201, HAMAMATSU=202, HE2017=203, HE2018=206, HF=301, ZDC=401};
   HcalShapes();
   ~HcalShapes() override;
 

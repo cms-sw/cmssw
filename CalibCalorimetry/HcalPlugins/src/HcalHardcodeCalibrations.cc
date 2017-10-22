@@ -934,8 +934,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hbUpgrade.add<std::vector<double>>("qieOffset", std::vector<double>({0.0, 0.0, 0.0, 0.0}));
 	desc_hbUpgrade.add<std::vector<double>>("qieSlope", std::vector<double>({0.333, 0.333, 0.333, 0.333}));
 	desc_hbUpgrade.add<int>("qieType", 2);
-	desc_hbUpgrade.add<int>("mcShape",203);
-	desc_hbUpgrade.add<int>("recoShape",203);
+	desc_hbUpgrade.add<int>("mcShape",206);
+	desc_hbUpgrade.add<int>("recoShape",206);
 	desc_hbUpgrade.add<double>("photoelectronsToAnalog",57.5);
 	desc_hbUpgrade.add<std::vector<double>>("darkCurrent", std::vector<double>({0.055}));
 	desc_hbUpgrade.add<bool>("doRadiationDamage", true);
@@ -973,8 +973,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_heUpgrade.add<std::vector<double>>("qieOffset", std::vector<double>({0.0, 0.0, 0.0, 0.0}));
 	desc_heUpgrade.add<std::vector<double>>("qieSlope", std::vector<double>({0.333, 0.333, 0.333, 0.333}));
 	desc_heUpgrade.add<int>("qieType", 2);
-	desc_heUpgrade.add<int>("mcShape",203);
-	desc_heUpgrade.add<int>("recoShape",203);
+	desc_heUpgrade.add<int>("mcShape",206);
+	desc_heUpgrade.add<int>("recoShape",206);
 	desc_heUpgrade.add<double>("photoelectronsToAnalog",57.5);
 	desc_heUpgrade.add<std::vector<double>>("darkCurrent", std::vector<double>({0.055}));
 	desc_heUpgrade.add<bool>("doRadiationDamage", true);
