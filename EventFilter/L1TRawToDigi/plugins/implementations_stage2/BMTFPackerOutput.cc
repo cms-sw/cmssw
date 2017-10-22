@@ -16,6 +16,8 @@ namespace l1t
 	auto muonToken = static_cast<const BMTFTokens*>(toks)->getOutputMuonToken();
 
         Blocks blocks;
+
+        const int bmtfBlockID = 123;
         
 	edm::Handle<RegionalMuonCandBxCollection> muons;
         event.getByToken(muonToken, muons);
@@ -26,37 +28,37 @@ namespace l1t
 		if (imu->processor()+1 == board_id){
 		  uint32_t firstWord(0), lastWord(0);
 		  RegionalMuonRawDigiTranslator::generatePackedDataWords(*imu, firstWord, lastWord);
-		  payloadMap_[123].push_back(firstWord); //imu->link()*2+1
-		  payloadMap_[123].push_back(lastWord); //imu->link()*2+1
+		  payloadMap_[bmtfBlockID].push_back(firstWord); //imu->link()*2+1
+		  payloadMap_[bmtfBlockID].push_back(lastWord); //imu->link()*2+1
 		}
 	      }//imu
 
 
 	    //in case less than 3 muons have been found by the processor
-	    if (payloadMap_[123].size() < 6) 
+	    if (payloadMap_[bmtfBlockID].size() < 6) 
 	      {
-		unsigned int initialSize = payloadMap_[123].size();
+		unsigned int initialSize = payloadMap_[bmtfBlockID].size();
 
 		for(unsigned int j = 0; j < 3-initialSize/2; j++){
-		  payloadMap_[123].push_back(0);
+		  payloadMap_[bmtfBlockID].push_back(0);
 		  uint32_t nullMuon_word2 = 0 | ( (65532 & 0xFFFF) << 3 ) | ( (2 & 0x3) << 0 );
-		  payloadMap_[123].push_back(nullMuon_word2);
+		  payloadMap_[bmtfBlockID].push_back(nullMuon_word2);
 		}
 	      }
-	    else if (payloadMap_[123].size() < 30 && payloadMap_[123].size() > 6)
+	    else if (payloadMap_[bmtfBlockID].size() < 30 && payloadMap_[bmtfBlockID].size() > 6)
 	      {
-		unsigned int initialSize = payloadMap_[123].size();
+		unsigned int initialSize = payloadMap_[bmtfBlockID].size();
 
 		for(unsigned int j = 0; j < 15-initialSize/2; j++){
-		  payloadMap_[123].push_back(0);
+		  payloadMap_[bmtfBlockID].push_back(0);
 		  uint32_t nullMuon_word2 = 0 | ( (65532 & 0xFFFF) << 3 ) | ( (2 & 0x3) << 0 );
-		  payloadMap_[123].push_back(nullMuon_word2);
+		  payloadMap_[bmtfBlockID].push_back(nullMuon_word2);
 		}
 	      }
 
 	    
 
-	Block block(123, payloadMap_[123]);
+	Block block(bmtfBlockID, payloadMap_[bmtfBlockID]);
 
 	blocks.push_back(block);
 	
