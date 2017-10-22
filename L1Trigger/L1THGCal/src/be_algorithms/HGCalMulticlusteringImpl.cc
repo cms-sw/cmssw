@@ -138,9 +138,9 @@ void HGCalMulticlusteringImpl::clusterizeDR( const edm::PtrVector<l1t::HGCalClus
         double mcl_z = multiclustersTmp.at(i).centre().z();
 
         double mcl_rho = sqrt( mcl_x*mcl_x + mcl_y*mcl_y);
-        double tanTheta = ( mcl_z / mcl_rho );
+        double cotanTheta = ( mcl_z / mcl_rho );
 
-        double mcl_eta = asinh(tanTheta);
+        double mcl_eta = asinh(cotanTheta);
 
         double mcl_phi = 0.;
         if(mcl_y>0){
