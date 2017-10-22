@@ -69,7 +69,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
 
     edm::Handle<std::vector< PileupSummaryInfo > >  PupInfo_h;
     e.getByToken(gen_PU_token_, PupInfo_h);
-    const std::vector< PileupSummaryInfo > PupInfo = *PupInfo_h;
+    const std::vector< PileupSummaryInfo >& PupInfo = *PupInfo_h;
 
     clear();
     gen_n_ = gen_particles.size();
@@ -91,11 +91,11 @@ fill(const edm::Event& e, const edm::EventSetup& es)
 
     for(const auto& PVI : PupInfo)
     {
-      if(PVI.getBunchCrossing() == 0)
-      { 
-	gen_PUNumInt_ = PVI.getPU_NumInteractions();
-	gen_TrueNumInt_ = PVI.getTrueNumInteractions();
-      }
+        if(PVI.getBunchCrossing() == 0)
+        { 
+            gen_PUNumInt_ = PVI.getPU_NumInteractions();
+            gen_TrueNumInt_ = PVI.getTrueNumInteractions();
+        }
     }
 
 }
