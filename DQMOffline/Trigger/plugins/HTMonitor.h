@@ -41,6 +41,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 class GenericTriggerEventFlag;
+enum quant {HT, MJJ, SOFTDROP};
 
 //
 // class declaration
@@ -87,7 +88,7 @@ private:
 
   std::string folderName_;
   std::string histoSuffix_;
-  std::string quantity_;
+  quant quantity_;
 
   edm::EDGetTokenT<reco::PFMETCollection>       metToken_;
   edm::EDGetTokenT< reco::JetView >  jetToken_;
