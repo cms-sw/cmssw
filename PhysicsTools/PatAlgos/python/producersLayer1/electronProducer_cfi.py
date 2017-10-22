@@ -11,6 +11,7 @@ patElectrons = cms.EDProducer("PATElectronProducer",
     usePfCandidateMultiMap = cms.bool( False ),
 
     # collections for mva input variables
+    addMVAVariables = cms.bool( True ),
     reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
     reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
 
