@@ -3,6 +3,8 @@
 <use   name="DataFormats/EgammaReco"/>
 <use   name="DataFormats/EgammaCandidates"/>
 <use   name="Geometry/CaloGeometry"/>
+<use   name="FastSimulation/CaloGeometryTools"/>
+<use   name="RecoLocalCalo/HGCalRecAlgos"/>
 <use   name="clhep"/>
 <use   name="root"/>
 <use   name="PhysicsTools/MVAComputer"/>
