@@ -277,19 +277,19 @@ void PulseShapeFitOOTPileupCorrection::setPUParams(bool   iPedestalConstraint, b
 
 }
 
-void PulseShapeFitOOTPileupCorrection::setPulseShapeTemplate(const HcalPulseShapes::Shape& ps, bool isHPD) {
+void PulseShapeFitOOTPileupCorrection::setPulseShapeTemplate(const HcalPulseShapes::Shape& ps, bool isHPD, unsigned nSamples_) {
   // initialize for every different channel types (HPD vs SiPM)
 
   if (!(&ps == currentPulseShape_ && isHPD == isCurrentChannelHPD_))
     {
       setChi2Term(isHPD);
-      resetPulseShapeTemplate(ps);
+      resetPulseShapeTemplate(ps,nSamples_);
       currentPulseShape_ = &ps;
       isCurrentChannelHPD_ = isHPD;
     }
 }
 
-void PulseShapeFitOOTPileupCorrection::resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps) { 
+void PulseShapeFitOOTPileupCorrection::resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps, unsigned nSamples_) {
    ++ cntsetPulseShape;
    psfPtr_.reset(new FitterFuncs::PulseShapeFunctor(ps,pedestalConstraint_,timeConstraint_,addPulseJitter_,applyTimeSlew_,
 						    pulseJitter_,timeMean_,timeSig_,pedMean_,pedSig_,noise_,nSamples_));
@@ -310,7 +310,6 @@ void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs,
    psfPtr_->setDefaultcntNANinfit();
 
    const unsigned int cssize = cs.size();
-   nSamples_=cs.size();
 
 // initialize arrays to be zero
    double chargeArr[HcalConst::maxSamples]={}, pedArr[HcalConst::maxSamples]={}, gainArr[HcalConst::maxSamples]={};
@@ -527,7 +526,6 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
   psfPtr_->setDefaultcntNANinfit();
 
   const unsigned cssize = channelData.nSamples();
-  nSamples_=cssize;
 
   // initialize arrays to be zero
   double chargeArr[HcalConst::maxSamples]={}, pedArr[HcalConst::maxSamples]={}, gainArr[HcalConst::maxSamples]={};
