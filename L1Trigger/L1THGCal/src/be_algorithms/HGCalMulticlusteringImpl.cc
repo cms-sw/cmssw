@@ -132,9 +132,26 @@ void HGCalMulticlusteringImpl::clusterizeDR( const edm::PtrVector<l1t::HGCalClus
             calibPt = multiclustersTmp.at(i).pt() * calibSF_; 
         }
 
+        // compute the eta, phi observables for multicluster starting from its barycenter x,y,z position 
+        double mcl_x = multiclustersTmp.at(i).centre().x();
+        double mcl_y = multiclustersTmp.at(i).centre().y();
+        double mcl_z = multiclustersTmp.at(i).centre().z();
+
+        double mcl_rho = sqrt( mcl_x*mcl_x + mcl_y*mcl_y);
+        double tanTheta = ( mcl_z / mcl_rho );
+
+        double mcl_eta = asinh(tanTheta);
+
+        double mcl_phi = 0.;
+        if(mcl_y>0){
+            mcl_phi = acos( mcl_x / mcl_rho );
+        }else{
+            mcl_phi = -acos( mcl_x / mcl_rho );
+        }
+
         math::PtEtaPhiMLorentzVector calibP4(  calibPt, 
-                                               multiclustersTmp.at(i).eta(), 
-                                               multiclustersTmp.at(i).phi(), 
+                                               mcl_eta, 
+                                               mcl_phi, 
                                                0. );
 
         // overwriting the 4p with the calibrated 4p     
