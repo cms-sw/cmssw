@@ -240,11 +240,11 @@ void Phase2TrackerRecHitsValidation::analyze(const edm::Event& event, const edm:
         if (!geomDetUnit) continue;
 
         // initialize the nhit counters if they don't exist for this layer
-        std::map< unsigned int, unsigned int >::iterator nhitit(nRecHits[det].find(layer));
+        auto nhitit(nRecHits[det].find(layer));
         if (nhitit == nRecHits[det].end()) {
-	  nRecHits       [det].insert(std::pair<unsigned int, unsigned int>(layer, 0));
-	  nPrimarySimHits[det].insert(std::pair<unsigned int, unsigned int>(layer, 0));
-	  nOtherSimHits  [det].insert(std::pair<unsigned int, unsigned int>(layer, 0));
+	  nRecHits       [det].emplace(std::pair<unsigned int, unsigned int>(layer, 0));
+	  nPrimarySimHits[det].emplace(std::pair<unsigned int, unsigned int>(layer, 0));
+	  nOtherSimHits  [det].emplace(std::pair<unsigned int, unsigned int>(layer, 0));
 	}
 
         // Create histograms if they do not yet exist for this layer
@@ -371,7 +371,7 @@ void Phase2TrackerRecHitsValidation::analyze(const edm::Event& event, const edm:
                 histogramLayer->second.pullX_P [det][nch]->Fill((localPosClu.x() - localPosHit.x())/sqrt(rechitIt->localPositionError().xx()));
                 histogramLayer->second.pullY_P [det][0]  ->Fill((localPosClu.y() - localPosHit.y())/sqrt(rechitIt->localPositionError().yy()));
                 histogramLayer->second.pullY_P [det][nch]->Fill((localPosClu.y() - localPosHit.y())/sqrt(rechitIt->localPositionError().yy()));
-                if (makeEtaPlots_) {
+                if (makeEtaPlots_ && rechitIt->localPositionError().xx() && rechitIt->localPositionError().yy()) {
                   histogramLayer->second.deltaX_eta_P[det][0]  ->Fill(eta, localPosClu.x() - localPosHit.x());
                   histogramLayer->second.deltaX_eta_P[det][nch]->Fill(eta, localPosClu.x() - localPosHit.x());
                   histogramLayer->second.deltaY_eta_P[det][0]  ->Fill(eta, localPosClu.y() - localPosHit.y());
@@ -389,20 +389,20 @@ void Phase2TrackerRecHitsValidation::analyze(const edm::Event& event, const edm:
 
     // fill the counter histos per layer
     for (unsigned int det = 1; det < 3; ++det) {
-      for (std::map<unsigned int, unsigned int>::const_iterator it = nRecHits[det].begin(); it != nRecHits[det].end(); ++it) {
-        std::map< unsigned int, RecHitHistos >::iterator histogramLayer(histograms_.find(it->first));
+      for (auto it : nRecHits[det]) {
+        auto histogramLayer(histograms_.find(it.first));
         if (histogramLayer == histograms_.end()) std::cout << "*** SL *** No histogram for an existing counter! This should not happen!" << std::endl;
-        histogramLayer->second.numberRecHits[det]->Fill(it->second);
+        histogramLayer->second.numberRecHits[det]->Fill(it.second);
       }
-      for (std::map<unsigned int, unsigned int>::const_iterator it = nPrimarySimHits[det].begin(); it != nPrimarySimHits[det].end(); ++it) {
-        std::map< unsigned int, RecHitHistos >::iterator histogramLayer(histograms_.find(it->first));
+      for (auto it : nPrimarySimHits[det]) {
+        auto histogramLayer(histograms_.find(it.first));
         if (histogramLayer == histograms_.end()) std::cout << "*** SL *** No histogram for an existing counter! This should not happen!" << std::endl;
-        histogramLayer->second.primarySimHits[det]->Fill(it->second);
+        histogramLayer->second.primarySimHits[det]->Fill(it.second);
       }
-      for (std::map<unsigned int, unsigned int>::const_iterator it = nOtherSimHits[det].begin(); it != nOtherSimHits[det].end(); ++it) {
-        std::map< unsigned int, RecHitHistos >::iterator histogramLayer(histograms_.find(it->first));
+      for (auto it : nOtherSimHits[det]) {
+        auto histogramLayer(histograms_.find(it.first));
         if (histogramLayer == histograms_.end()) std::cout << "*** SL *** No histogram for an existing counter! This should not happen!" << std::endl;
-        histogramLayer->second.otherSimHits[det]->Fill(it->second);
+        histogramLayer->second.otherSimHits[det]->Fill(it.second);
       }
     }
 
@@ -638,7 +638,6 @@ std::vector<unsigned int> Phase2TrackerRecHitsValidation::getSimTrackId(const ed
   edm::DetSetVector< PixelDigiSimLink >::const_iterator DSViter(pixelSimLinks->find(detId));
   if (DSViter == pixelSimLinks->end()) return retvec;
   for (edm::DetSet< PixelDigiSimLink >::const_iterator it = DSViter->data.begin(); it != DSViter->data.end(); ++it) {
-    retvec.push_back(it->SimTrackId());
     if (channel == it->channel()) {
       retvec.push_back(it->SimTrackId());
     }
