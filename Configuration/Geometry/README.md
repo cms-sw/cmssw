@@ -4,7 +4,7 @@ Different versions of various subdetectors can be combined. The available versio
 
 Tracker:
 * T4: Phase2 flat tracker (v2016-04-12) w/ phase 2 pixel (v4.0.2.6)
-* T5: Phase2 tilted tracker (v6.1.3) w/ phase 2 pixel (v4.0.2.5) 
+* T5: Phase2 tilted tracker (v6.1.3) w/ phase 2 pixel (v4.0.4) (Inner Tracker barrel has lower radii than in the TDR)
 
 Calorimeters:
 * C3: HGCal (v8) + Phase2 HCAL and EB
