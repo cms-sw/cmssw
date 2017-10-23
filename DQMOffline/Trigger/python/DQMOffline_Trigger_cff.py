@@ -127,11 +127,6 @@ offlineHLTSourceOnAOD4LowLumi = cms.Sequence(
     HILowLumiHLTOfflineSourceSequence
 )
 
-offlineHLTSource = cms.Sequence(
-    offlineHLTSourceWithRECO *
-    offlineHLTSourceOnAOD
-)
-
 offlineHLTSource4LowLumi = cms.Sequence(
     offlineHLTSourceWithRECO *
     offlineHLTSourceOnAOD4LowLumi
