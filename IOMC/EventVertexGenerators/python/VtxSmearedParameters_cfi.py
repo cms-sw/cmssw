@@ -42,7 +42,9 @@ FlatVtxSmearingParameters = cms.PSet(
     MinX = cms.double(-0.0015),
     MinY = cms.double(-0.0015),
     MinZ = cms.double(-5.3),
-    TimeOffset = cms.double(0.0)
+    TimeOffset = cms.double(0.0),
+    MaxT = cms.double(0.0),
+    MinT = cms.double(0.0)
 )
 #############################################
 # Beta functions smearing (pp 7+7 TeV)

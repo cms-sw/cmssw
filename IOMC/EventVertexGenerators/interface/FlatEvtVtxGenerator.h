@@ -48,8 +48,8 @@ private:
   /** Copy assignment operator */
   FlatEvtVtxGenerator&  operator = (const FlatEvtVtxGenerator & rhs ) = delete;
 private:
-  double fMinX, fMinY, fMinZ;
-  double fMaxX, fMaxY, fMaxZ;
+  double fMinX, fMinY, fMinZ, fMinT;
+  double fMaxX, fMaxY, fMaxZ, fMaxT;
   double fTimeOffset;
 };
 
