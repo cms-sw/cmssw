@@ -19,8 +19,10 @@
 using namespace std;
 
 class Settings;
-class Histos;
-class TrackFitGeneric;
+
+namespace vertexFinder {
+  class Histos;
+}
 
 class VertexProducer : public edm::EDProducer {
 
@@ -47,7 +49,7 @@ private:
   const edm::EDGetTokenT<TTTrackCollection> l1TracksToken_;
 
   Settings *settings_;
-  Histos   *hists_;
+  vertexFinder::Histos   *hists_;
 };
 
 #endif

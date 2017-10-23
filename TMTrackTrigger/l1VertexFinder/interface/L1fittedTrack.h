@@ -4,6 +4,7 @@
 
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
+class TP;
 
 namespace vertexFinder {
 
@@ -17,6 +18,11 @@ public:
   float phi0() const;
   float pt() const;
   float z0() const;
+
+  float chi2dof() const;
+
+  // FIXME: Update contstructor to find matched TP
+  const TP* getMatchedTP() const { return NULL; }
 
 private:
   TTTrack< Ref_Phase2TrackerDigi_ > track_;

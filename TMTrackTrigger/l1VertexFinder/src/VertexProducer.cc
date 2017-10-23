@@ -3,7 +3,7 @@
 
 #include <TMTrackTrigger/TMTrackFinder/interface/InputData.h>
 #include <TMTrackTrigger/TMTrackFinder/interface/Settings.h>
-#include <TMTrackTrigger/TMTrackFinder/interface/Histos.h>
+#include <TMTrackTrigger/VertexFinder/interface/Histos.h>
 #include "TMTrackTrigger/VertexFinder/interface/VertexFinder.h"
 #include "TMTrackTrigger/VertexFinder/interface/L1fittedTrack.h"
 
@@ -37,7 +37,7 @@ VertexProducer::VertexProducer(const edm::ParameterSet& iConfig):
   cout.precision(4);
 
   // Book histograms.
-  hists_ = new Histos( settings_ );
+  hists_ = new vertexFinder::Histos( settings_ );
   hists_->book();
 
   //--- Define EDM output to be written to file (if required) 

@@ -32,4 +32,10 @@ float L1fittedTrack::z0() const
   return track_.getPOCA().z();
 }
 
+float L1fittedTrack::chi2dof() const
+{
+  // FIXME: Double check nPar=4 is correct
+  return track_.getChi2Red();
+}
+
 } // end ns vertexFinder
