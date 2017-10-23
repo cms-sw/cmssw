@@ -31,7 +31,7 @@ def fill_time_info(mps_index, status, cpu_time):
 # mapping of HTCondor status codes to MPS status
 htcondor_jobstatus = {"1": "PEND", # Idle
                       "2": "RUN",  # Running
-                      "3": "DONE", # Removed
+                      "3": "EXIT", # Removed
                       "4": "DONE", # Completed
                       "5": "PEND", # Held
                       "6": "RUN",  # Transferring output
