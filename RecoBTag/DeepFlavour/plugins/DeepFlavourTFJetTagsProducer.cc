@@ -45,6 +45,19 @@ class DeepFlavourTFJetTagsProducer : public edm::stream::EDProducer<edm::GlobalC
     static std::unique_ptr<DeepFlavourTFCache> initializeGlobalCache(const edm::ParameterSet&);
     static void globalEndJob(const DeepFlavourTFCache*);
 
+    enum InputIndexes {
+      kGlobal = 0,
+      kChargedCandidates = 1,
+      kNeutralCandidates = 2,
+      kVertices = 3,
+      kJetPt = 4
+    };
+
+    enum OutputIndexes {
+      kJetFlavour = 0,
+      kRegJetPt = 1,
+    };
+
   private:
     typedef std::vector<reco::DeepFlavourTagInfo> TagInfoCollection;
     typedef reco::JetTagCollection JetTagCollection;
@@ -200,31 +213,37 @@ void DeepFlavourTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventS
 
     // jet and other global features
     const auto & features = tag_infos->at(jet_n).features();
-    jet_tensor_filler(input_tensors.at(0).second, jet_n, features);
+    jet_tensor_filler(input_tensors.at(kGlobal).second, jet_n, features);
 
     // c_pf candidates
-    auto max_c_pf_n = std::min(features.c_pf_features.size(), (std::size_t) input_sizes.at(1).dim_size(1));
+    auto max_c_pf_n = std::min(features.c_pf_features.size(),
+      (std::size_t) input_sizes.at(kChargedCandidates).dim_size(1));
     for (std::size_t c_pf_n=0; c_pf_n < max_c_pf_n; c_pf_n++) {
       const auto & c_pf_features = features.c_pf_features.at(c_pf_n);
-      c_pf_tensor_filler(input_tensors.at(1).second, jet_n, c_pf_n, c_pf_features);
+      c_pf_tensor_filler(input_tensors.at(kChargedCandidates).second,
+                         jet_n, c_pf_n, c_pf_features);
     }
 
     // n_pf candidates
-    auto max_n_pf_n = std::min(features.n_pf_features.size(), (std::size_t)input_sizes.at(2).dim_size(1));
+    auto max_n_pf_n = std::min(features.n_pf_features.size(),
+      (std::size_t) input_sizes.at(kNeutralCandidates).dim_size(1));
     for (std::size_t n_pf_n=0; n_pf_n < max_n_pf_n; n_pf_n++) {
       const auto & n_pf_features = features.n_pf_features.at(n_pf_n);
-      n_pf_tensor_filler(input_tensors.at(2).second, jet_n, n_pf_n, n_pf_features);
+      n_pf_tensor_filler(input_tensors.at(kNeutralCandidates).second,
+                         jet_n, n_pf_n, n_pf_features);
     }
 
     // sv candidates
-    auto max_sv_n = std::min(features.sv_features.size(), (std::size_t)input_sizes.at(3).dim_size(1));
+    auto max_sv_n = std::min(features.sv_features.size(),
+      (std::size_t) input_sizes.at(kVertices).dim_size(1));
     for (std::size_t sv_n=0; sv_n < max_sv_n; sv_n++) {
       const auto & sv_features = features.sv_features.at(sv_n);
-      sv_tensor_filler(input_tensors.at(3).second, jet_n, sv_n, sv_features);
+      sv_tensor_filler(input_tensors.at(kVertices).second,
+                       jet_n, sv_n, sv_features);
     }
 
     // last input: jet pt
-    input_tensors.at(4).second.matrix<float>()(jet_n, 0) = features.jet_features.pt;
+    input_tensors.at(kJetPt).second.matrix<float>()(jet_n, 0) = features.jet_features.pt;
   }
 
   // run the session
@@ -249,7 +268,7 @@ void DeepFlavourTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventS
       const auto & flav_pair = flav_pairs_.at(flav_n);
       float o_sum = 0.;
       for (const unsigned int & ind : flav_pair.second) {
-        o_sum += outputs.at(0).matrix<float>()(jet_n, ind);
+        o_sum += outputs.at(kJetFlavour).matrix<float>()(jet_n, ind);
       }
       (*(output_tags.at(flav_n)))[jet_ref] = o_sum;
     }
