@@ -20,7 +20,7 @@ lib.read_db()
 # loop over DONE jobs
 for i in xrange(len(lib.JOBID)):
     # check also "FETCH" to recover from possibly failed runs of 'mps_fetch.py'
-    if lib.JOBSTATUS[i] in ("DONE", "FETCH", "DISABLEDFETCH"):
+    if lib.JOBSTATUS[i] in ("DONE", "EXIT", "FETCH", "DISABLEDFETCH"):
         # move the LSF output to /jobData/
         theJobDir = 'jobData/'+lib.JOBDIR[i]
         theBatchDirectory = r"LSFJOB_"+ lib.JOBID[i]
