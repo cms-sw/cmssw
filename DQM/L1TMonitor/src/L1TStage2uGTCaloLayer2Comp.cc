@@ -405,4 +405,4 @@ bool L1TStage2uGTCaloLayer2Comp::compareSums(
   return eventGood;
 }
 
-DEFINE_FWK_MODULE (L1TStage2uGTCaloLayer2Comp);
+
