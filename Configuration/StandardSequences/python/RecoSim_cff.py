@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimMuon.Configuration.SimMuon_cff import *
+from SimMuon.MCTruth.muonSimClassificationByHits_cff import *
 
-recosim = cms.Task( simMuonTask )
+recosim = cms.Task( muonSimClassificationByHitsTask )

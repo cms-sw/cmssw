@@ -30,8 +30,3 @@ run3_GEM.toReplaceWith( muonDigi, _run3_muonDigi )
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toReplaceWith( muonDigi, _phase2_muonDigi )
 
-from SimMuon.MCTruth.muonSimClassificationByHits_cff import *
-
-simMuonTask = cms.Task(
-    muonSimClassificationByHitsTask
-    )
