@@ -210,11 +210,11 @@ void Phase2TrackerClusterizerValidation::analyze(const edm::Event& event, const 
         if (!geomDetUnit) continue;
 
         // initialize the nhit counters if they don't exist for this layer
-        std::map< unsigned int, unsigned int >::iterator nhitit(nClusters[det].find(layer));
+        auto nhitit(nClusters[det].find(layer));
         if (nhitit == nClusters[det].end()) {
-	  nClusters      [det].insert(std::pair<unsigned int, unsigned int>(layer, 0));
-	  nPrimarySimHits[det].insert(std::pair<unsigned int, unsigned int>(layer, 0));
-	  nOtherSimHits  [det].insert(std::pair<unsigned int, unsigned int>(layer, 0));
+	  nClusters      [det].emplace(std::pair<unsigned int, unsigned int>(layer, 0));
+	  nPrimarySimHits[det].emplace(std::pair<unsigned int, unsigned int>(layer, 0));
+	  nOtherSimHits  [det].emplace(std::pair<unsigned int, unsigned int>(layer, 0));
 	}
 
         // Create histograms for the layer if they do not yet exist
@@ -234,13 +234,13 @@ void Phase2TrackerClusterizerValidation::analyze(const edm::Event& event, const 
             for (unsigned int i(0); i < clustIt->size(); ++i) {
                 unsigned int channel(Phase2TrackerDigi::pixelToChannel(clustIt->firstRow() + i, clustIt->column())); 
                 std::vector<unsigned int> simTrackIds(getSimTrackId(pixelSimLinks, detId, channel));
-                for (unsigned int i=0; i<simTrackIds.size(); ++i) {
+                for (auto it : simTrackIds) {
                   bool add = true;
                   for (unsigned int j=0; j<clusterSimTrackIds.size(); ++j) {
 		    // only save simtrackids that are not present yet
-                    if (simTrackIds.at(i)==clusterSimTrackIds.at(j)) add = false;
+                    if (it==clusterSimTrackIds.at(j)) add = false;
                   }
-                  if (add) clusterSimTrackIds.push_back(simTrackIds.at(i));
+                  if (add) clusterSimTrackIds.push_back(it);
 		}
             }
 
@@ -250,13 +250,13 @@ void Phase2TrackerClusterizerValidation::analyze(const edm::Event& event, const 
 	    const PSimHit * simhit = 0; // bad naming to avoid changing code below. This is the closest simhit in x
 	    float minx=10000;
             for (unsigned int simhitidx = 0; simhitidx < 2; ++simhitidx) { // loop over both barrel and endcap hits
-              for (edm::PSimHitContainer::const_iterator simhitIt(simHitsRaw[simhitidx]->begin()); simhitIt != simHitsRaw[simhitidx]->end(); ++simhitIt) {
-                if (rawid == simhitIt->detUnitId()) {
-                  //std::cout << "=== " << rawid << " " << &*simhitIt << " " << simhitIt->trackId() << " " << simhitIt->localPosition().x() << " " << simhitIt->localPosition().y() << std::endl;
-		  if (std::find(clusterSimTrackIds.begin(), clusterSimTrackIds.end(), simhitIt->trackId()) != clusterSimTrackIds.end()) {
-		    if (!simhit || fabs(simhitIt->localPosition().x()-localPosClu.x())<minx) {
-		      minx = fabs(simhitIt->localPosition().x()-localPosClu.x());
-		      simhit = &*simhitIt;
+              for (auto simhitIt : *simHitsRaw[simhitidx]) {
+                if (rawid == simhitIt.detUnitId()) {
+                  //std::cout << "=== " << rawid << " " << &simhitIt << " " << simhitIt.trackId() << " " << simhitIt.localPosition().x() << " " << simhitIt.localPosition().y() << std::endl;
+		  if (std::find(clusterSimTrackIds.begin(), clusterSimTrackIds.end(), simhitIt.trackId()) != clusterSimTrackIds.end()) {
+		    if (!simhit || fabs(simhitIt.localPosition().x()-localPosClu.x())<minx) {
+		      minx = fabs(simhitIt.localPosition().x()-localPosClu.x());
+		      simhit = &simhitIt;
 		    }
 		  }
 	        }
@@ -265,7 +265,7 @@ void Phase2TrackerClusterizerValidation::analyze(const edm::Event& event, const 
             if (!simhit) continue;
 
             // only look at simhits from highpT tracks
-            std::map< unsigned int, SimTrack >::const_iterator simTrackIt(simTracks.find(simhit->trackId()));
+            auto simTrackIt(simTracks.find(simhit->trackId()));
             if (simTrackIt == simTracks.end()) continue;
 
             /*
@@ -316,20 +316,20 @@ void Phase2TrackerClusterizerValidation::analyze(const edm::Event& event, const 
 
     // fill the counter histos per layer
     for (unsigned int det = 1; det < 3; ++det) {
-      for (std::map<unsigned int, unsigned int>::const_iterator it = nClusters[det].begin(); it != nClusters[det].end(); ++it) {
-        std::map< unsigned int, ClusterHistos >::iterator histogramLayer(histograms_.find(it->first));
+      for (auto it : nClusters[det]) {
+        auto histogramLayer(histograms_.find(it.first));
         if (histogramLayer == histograms_.end()) std::cout << "*** SL *** No histogram for an existing counter! This should not happen!" << std::endl;
-        histogramLayer->second.numberClusters[det]->Fill(it->second);
+        histogramLayer->second.numberClusters[det]->Fill(it.second);
       }
-      for (std::map<unsigned int, unsigned int>::const_iterator it = nPrimarySimHits[det].begin(); it != nPrimarySimHits[det].end(); ++it) {
-        std::map< unsigned int, ClusterHistos >::iterator histogramLayer(histograms_.find(it->first));
+      for (auto it : nPrimarySimHits[det]) {
+        auto histogramLayer(histograms_.find(it.first));
         if (histogramLayer == histograms_.end()) std::cout << "*** SL *** No histogram for an existing counter! This should not happen!" << std::endl;
-        histogramLayer->second.primarySimHits[det]->Fill(it->second);
+        histogramLayer->second.primarySimHits[det]->Fill(it.second);
       }
-      for (std::map<unsigned int, unsigned int>::const_iterator it = nOtherSimHits[det].begin(); it != nOtherSimHits[det].end(); ++it) {
-        std::map< unsigned int, ClusterHistos >::iterator histogramLayer(histograms_.find(it->first));
+      for (auto it : nOtherSimHits[det]) {
+        auto histogramLayer(histograms_.find(it.first));
         if (histogramLayer == histograms_.end()) std::cout << "*** SL *** No histogram for an existing counter! This should not happen!" << std::endl;
-        histogramLayer->second.otherSimHits[det]->Fill(it->second);
+        histogramLayer->second.otherSimHits[det]->Fill(it.second);
       }
     }
 
@@ -473,7 +473,6 @@ std::vector<unsigned int> Phase2TrackerClusterizerValidation::getSimTrackId(cons
   edm::DetSetVector< PixelDigiSimLink >::const_iterator DSViter(pixelSimLinks->find(detId));
   if (DSViter == pixelSimLinks->end()) return retvec;
   for (edm::DetSet< PixelDigiSimLink >::const_iterator it = DSViter->data.begin(); it != DSViter->data.end(); ++it) {
-    retvec.push_back(it->SimTrackId());
     if (channel == it->channel()) {
       retvec.push_back(it->SimTrackId());
     }
@@ -483,4 +482,5 @@ std::vector<unsigned int> Phase2TrackerClusterizerValidation::getSimTrackId(cons
 
 
 DEFINE_FWK_MODULE(Phase2TrackerClusterizerValidation);
+
 
