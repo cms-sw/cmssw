@@ -57,6 +57,9 @@ namespace l1t
 
           for (const auto &  iphi : *(phInputs->getContainer()) )
 	  {   
+              // Only allow -2 <= bxNum <= 2, as in Stage2 data
+              if (std::abs(iphi.bxNum()) > 2) continue;
+
 	      if (iphi.bxNum() != 0)
 		moreBXphi = true;
 
@@ -128,60 +131,63 @@ namespace l1t
 	    
 
 	    int theta_iterators = 0;//debug	
-	    for( L1MuDTChambThContainer::The_Container::const_iterator ithe =  thInputs->getContainer()->begin(); ithe != thInputs->getContainer()->end(); ++ithe)
-	      {
-		if (ithe->bxNum() != 0)
+            for (const auto &  ithe : *(thInputs->getContainer()) )
+	    {
+                // Only allow -2 <= bxNum <= 2, as in Stage2 data
+                if (std::abs(ithe.bxNum()) > 2) continue;
+
+		if (ithe.bxNum() != 0)
 		  moreBXeta = true;
 
 		theta_iterators++;//debug
 
 		//debug
-		//		std::cout << "scNum+1 = " << ithe->scNum()+1 << ",   board_id = " << board_id << std::endl;
-		//		std::cout << "bx, station = " << ithe->bxNum() << ", " << ithe->stNum() << std::endl;
-		//		std::cout << "related link: " << ownLinks_[4+2*(ithe->whNum())] << std::endl;
+		//		std::cout << "scNum+1 = " << ithe.scNum()+1 << ",   board_id = " << board_id << std::endl;
+		//		std::cout << "bx, station = " << ithe.bxNum() << ", " << ithe.stNum() << std::endl;
+		//		std::cout << "related link: " << ownLinks_[4+2*(ithe.whNum())] << std::endl;
 
-		if ( ithe->scNum()+1 != board_id )
+		if ( ithe.scNum()+1 != board_id )
 		  continue;
 
-		if ( link != ownLinks_[4+2*(ithe->whNum())] )
+		if ( link != ownLinks_[4+2*(ithe.whNum())] )
 		  continue;
 
-		bxPresent[2+ithe->bxNum()] = true;
+		bxPresent[2+ithe.bxNum()] = true;
 
 
 		//positions for the next link
-		uint32_t posEta_7bit = wordThMaker(*ithe, false);
+		uint32_t posEta_7bit = wordThMaker(ithe, false);
 
 		//qualities for this link
-		uint32_t qualEta_7bit = wordThMaker(*ithe, true);
-		qualEta_32bit = qualEta_32bit | ( (qualEta_7bit & 0x7F) << 7*(ithe->stNum()-1) );
+		uint32_t qualEta_7bit = wordThMaker(ithe, true);
+		qualEta_32bit = qualEta_32bit | ( (qualEta_7bit & 0x7F) << 7*(ithe.stNum()-1) );
 
 
 		//write the eta-pos and eta-qual information at the correct payload per BX
 		if (bxPresent[0]){		  
 		  payload_n2[4] = qualEta_32bit;
 		  payload_n2[5] = etaNull_32bit | (2 & 0x2);
-		  posEta_n2_32bit = posEta_n2_32bit | ( (posEta_7bit & 0x7F) << 7*(ithe->stNum()-1) );
+		  posEta_n2_32bit = posEta_n2_32bit | ( (posEta_7bit & 0x7F) << 7*(ithe.stNum()-1) );
 		}
 		else if (bxPresent[1]){
 		  payload_n1[4] = qualEta_32bit;
 		  payload_n1[5] = etaNull_32bit | (2 & 0x2);
-		  posEta_n1_32bit = posEta_n1_32bit | ( (posEta_7bit & 0x7F) << 7*(ithe->stNum()-1) );
+		  posEta_n1_32bit = posEta_n1_32bit | ( (posEta_7bit & 0x7F) << 7*(ithe.stNum()-1) );
 		}
 		else if (bxPresent[2]){
 		  payload_0[4] = qualEta_32bit;
 		  payload_0[5] = etaNull_32bit | (2 & 0x2);
-		  posEta_0_32bit = posEta_0_32bit | ( (posEta_7bit & 0x7F) << 7*(ithe->stNum()-1) );
+		  posEta_0_32bit = posEta_0_32bit | ( (posEta_7bit & 0x7F) << 7*(ithe.stNum()-1) );
 		}
 		else if (bxPresent[3]){
 		  payload_p1[4] = qualEta_32bit;
 		  payload_p1[5] = etaNull_32bit | (2 & 0x2);
-		  posEta_p1_32bit = posEta_p1_32bit | ( (posEta_7bit & 0x7F) << 7*(ithe->stNum()-1) );
+		  posEta_p1_32bit = posEta_p1_32bit | ( (posEta_7bit & 0x7F) << 7*(ithe.stNum()-1) );
 		}
 		else if (bxPresent[4]){
 		  payload_p2[4] = qualEta_32bit;
 		  payload_p2[5] = etaNull_32bit | (2 & 0x2);
-		  posEta_p2_32bit = posEta_p2_32bit | ( (posEta_7bit & 0x7F) << 7*(ithe->stNum()-1) );
+		  posEta_p2_32bit = posEta_p2_32bit | ( (posEta_7bit & 0x7F) << 7*(ithe.stNum()-1) );
 		}
 
 		bxPresent.assign(5,false);
