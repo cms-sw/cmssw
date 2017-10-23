@@ -77,6 +77,8 @@ class DeepFlavourTFJetTagsProducer : public edm::stream::EDProducer<edm::GlobalC
 
     // vector of learning phase tensors, i.e., boolean scalar tensors pointing to false
     std::vector<tensorflow::Tensor> lp_tensors_;
+    // flag to evaluate model batch or jet by jet
+    bool batch_eval_;
 };
 
 DeepFlavourTFJetTagsProducer::DeepFlavourTFJetTagsProducer(const edm::ParameterSet& iConfig,
@@ -85,7 +87,8 @@ DeepFlavourTFJetTagsProducer::DeepFlavourTFJetTagsProducer(const edm::ParameterS
   input_names_(iConfig.getParameter<std::vector<std::string>>("input_names")),
   output_names_(iConfig.getParameter<std::vector<std::string>>("output_names")),
   lp_names_(iConfig.getParameter<std::vector<std::string>>("lp_names")),
-  session_(nullptr)
+  session_(nullptr),
+  batch_eval_(iConfig.getParameter<bool>("batch_eval"))
 {
   // create the session using the meta graph from the cache
   edm::FileInPath graphPath(iConfig.getParameter<edm::FileInPath>("graph_path"));
@@ -146,6 +149,8 @@ void DeepFlavourTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptio
     psd0.add<std::vector<unsigned int>>("probg", {5});
     desc.add<edm::ParameterSetDescription>("flav_table", psd0);
   }
+
+  desc.add<bool>("batch_eval", false);
   descriptions.add("pfDeepFlavourJetTags", desc);
 }
 
@@ -179,15 +184,28 @@ void DeepFlavourTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventS
   edm::Handle<TagInfoCollection> tag_infos;
   iEvent.getByToken(src_, tag_infos);
 
+  // initialize output collection
   std::vector<std::unique_ptr<JetTagCollection>> output_tags;
+  for (std::size_t i=0; i < flav_pairs_.size(); i++) {
+    if (!tag_infos->empty()) {
+      auto jet_ref = tag_infos->begin()->jet();
+      output_tags.emplace_back(std::make_unique<JetTagCollection>(
+            edm::makeRefToBaseProdFrom(jet_ref, iEvent)));
+    } else {
+      output_tags.emplace_back(std::make_unique<JetTagCollection>());
+    }
+  }
 
-  int64_t n_jets = tag_infos->size();
+  const int64_t n_jets = tag_infos->size();
+  // either all jets or one per batch for the time being
+  const int64_t n_batch_jets = batch_eval_ ?  n_jets : 1;
+
   std::vector<tensorflow::TensorShape> input_sizes {
-    {n_jets, 15},         // input_1 - global jet features
-    {n_jets, 25, 16},     // input_2 - charged pf
-    {n_jets, 25, 6},      // input_3 - neutral pf
-    {n_jets, 4, 12},      // input_4 - vertices 
-    {n_jets, 1}           // input_5 - jet pt for reg 
+    {n_batch_jets, 15},         // input_1 - global jet features
+    {n_batch_jets, 25, 16},     // input_2 - charged pf
+    {n_batch_jets, 25, 6},      // input_3 - neutral pf
+    {n_batch_jets, 4, 12},      // input_4 - vertices 
+    {n_batch_jets, 1}           // input_5 - jet pt for reg 
   };
 
   // create a list of named tensors, i.e. a vector of (string, Tensor) pairs, with proper size to
@@ -208,69 +226,69 @@ void DeepFlavourTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventS
     input_tensors[input_sizes.size() + i] = tensorflow::NamedTensor(lp_names_[i], lp_tensors_[i]);
   }
 
-  // fill values of the input tensors
-  for (std::size_t jet_n=0; jet_n < tag_infos->size(); jet_n++) {
+  std::size_t n_batches = n_jets/n_batch_jets; // either 1 or n_jets
+  for (std::size_t batch_n=0; batch_n < n_batches; batch_n++) {
 
-    // jet and other global features
-    const auto & features = tag_infos->at(jet_n).features();
-    jet_tensor_filler(input_tensors.at(kGlobal).second, jet_n, features);
+    // fill values of the input tensors
+    for (std::size_t jet_bn=0; jet_bn < (std::size_t) n_batch_jets; jet_bn++) {
 
-    // c_pf candidates
-    auto max_c_pf_n = std::min(features.c_pf_features.size(),
-      (std::size_t) input_sizes.at(kChargedCandidates).dim_size(1));
-    for (std::size_t c_pf_n=0; c_pf_n < max_c_pf_n; c_pf_n++) {
-      const auto & c_pf_features = features.c_pf_features.at(c_pf_n);
-      c_pf_tensor_filler(input_tensors.at(kChargedCandidates).second,
-                         jet_n, c_pf_n, c_pf_features);
-    }
+      // global jet index (jet_bn is the jet batch index)
+      std::size_t jet_n = batch_n*n_batch_jets + jet_bn;
 
-    // n_pf candidates
-    auto max_n_pf_n = std::min(features.n_pf_features.size(),
-      (std::size_t) input_sizes.at(kNeutralCandidates).dim_size(1));
-    for (std::size_t n_pf_n=0; n_pf_n < max_n_pf_n; n_pf_n++) {
-      const auto & n_pf_features = features.n_pf_features.at(n_pf_n);
-      n_pf_tensor_filler(input_tensors.at(kNeutralCandidates).second,
-                         jet_n, n_pf_n, n_pf_features);
-    }
+      // jet and other global features
+      const auto & features = tag_infos->at(jet_n).features();
+      jet_tensor_filler(input_tensors.at(kGlobal).second, jet_bn, features);
 
-    // sv candidates
-    auto max_sv_n = std::min(features.sv_features.size(),
-      (std::size_t) input_sizes.at(kVertices).dim_size(1));
-    for (std::size_t sv_n=0; sv_n < max_sv_n; sv_n++) {
-      const auto & sv_features = features.sv_features.at(sv_n);
-      sv_tensor_filler(input_tensors.at(kVertices).second,
-                       jet_n, sv_n, sv_features);
-    }
-
-    // last input: jet pt
-    input_tensors.at(kJetPt).second.matrix<float>()(jet_n, 0) = features.jet_features.pt;
-  }
-
-  // run the session
-  std::vector<tensorflow::Tensor> outputs;
-  tensorflow::run(session_, input_tensors, output_names_, &outputs);
-
-  // create output collection
-  for (std::size_t i=0; i < flav_pairs_.size(); i++) {
-    if (!tag_infos->empty()) {
-      auto jet_ref = tag_infos->begin()->jet();
-      output_tags.emplace_back(std::make_unique<JetTagCollection>(
-            edm::makeRefToBaseProdFrom(jet_ref, iEvent)));
-    } else {
-      output_tags.emplace_back(std::make_unique<JetTagCollection>());
-    }
-  }
-
-  // set output values for flavour probs
-  for (std::size_t jet_n=0; jet_n < tag_infos->size(); jet_n++) {
-    const auto & jet_ref = tag_infos->at(jet_n).jet();
-    for (std::size_t flav_n=0; flav_n < flav_pairs_.size(); flav_n++) {
-      const auto & flav_pair = flav_pairs_.at(flav_n);
-      float o_sum = 0.;
-      for (const unsigned int & ind : flav_pair.second) {
-        o_sum += outputs.at(kJetFlavour).matrix<float>()(jet_n, ind);
+      // c_pf candidates
+      auto max_c_pf_n = std::min(features.c_pf_features.size(),
+        (std::size_t) input_sizes.at(kChargedCandidates).dim_size(1));
+      for (std::size_t c_pf_n=0; c_pf_n < max_c_pf_n; c_pf_n++) {
+        const auto & c_pf_features = features.c_pf_features.at(c_pf_n);
+        c_pf_tensor_filler(input_tensors.at(kChargedCandidates).second,
+                           jet_bn, c_pf_n, c_pf_features);
       }
-      (*(output_tags.at(flav_n)))[jet_ref] = o_sum;
+
+      // n_pf candidates
+      auto max_n_pf_n = std::min(features.n_pf_features.size(),
+        (std::size_t) input_sizes.at(kNeutralCandidates).dim_size(1));
+      for (std::size_t n_pf_n=0; n_pf_n < max_n_pf_n; n_pf_n++) {
+        const auto & n_pf_features = features.n_pf_features.at(n_pf_n);
+        n_pf_tensor_filler(input_tensors.at(kNeutralCandidates).second,
+                           jet_bn, n_pf_n, n_pf_features);
+      }
+
+      // sv candidates
+      auto max_sv_n = std::min(features.sv_features.size(),
+        (std::size_t) input_sizes.at(kVertices).dim_size(1));
+      for (std::size_t sv_n=0; sv_n < max_sv_n; sv_n++) {
+        const auto & sv_features = features.sv_features.at(sv_n);
+        sv_tensor_filler(input_tensors.at(kVertices).second,
+                         jet_bn, sv_n, sv_features);
+      }
+
+      // last input: jet pt
+      input_tensors.at(kJetPt).second.matrix<float>()(jet_bn, 0) = features.jet_features.pt;
+    }
+
+    // run the session
+    std::vector<tensorflow::Tensor> outputs;
+    tensorflow::run(session_, input_tensors, output_names_, &outputs);
+
+    // set output values for flavour probs
+    for (std::size_t jet_bn=0; jet_bn < (std::size_t) n_batch_jets; jet_bn++) {
+
+      // global jet index (jet_bn is the jet batch index)
+      std::size_t jet_n = batch_n*n_batch_jets + jet_bn;
+
+      const auto & jet_ref = tag_infos->at(jet_n).jet();
+      for (std::size_t flav_n=0; flav_n < flav_pairs_.size(); flav_n++) {
+        const auto & flav_pair = flav_pairs_.at(flav_n);
+        float o_sum = 0.;
+        for (const unsigned int & ind : flav_pair.second) {
+          o_sum += outputs.at(kJetFlavour).matrix<float>()(jet_bn, ind);
+        }
+        (*(output_tags.at(flav_n)))[jet_ref] = o_sum;
+      }
     }
   }
 
