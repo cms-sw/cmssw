@@ -44,31 +44,31 @@ class RPCGeometry : public TrackingGeometry {
   const DetIdContainer& detIds() const override;
 
   // Return the pointer to the GeomDetUnit corresponding to a given DetId
-  const GeomDet* idToDetUnit(DetId) const override;
+  const std::shared_ptr< GeomDet > idToDetUnit(DetId) const override;
 
   // Return the pointer to the GeomDet corresponding to a given DetId
-  const GeomDet* idToDet(DetId) const override;
+  const std::shared_ptr< GeomDet > idToDet(DetId) const override;
 
 
   //---- Extension of the interface
 
   /// Return a vector of all RPC chambers
-  const std::vector<const RPCChamber*>& chambers() const;
+  const std::vector< std::shared_ptr< RPCChamber >>& chambers() const;
 
   /// Return a vector of all RPC rolls
-  const std::vector<const RPCRoll*>& rolls() const;
+  const std::vector< std::shared_ptr< RPCRoll >>& rolls() const;
 
   // Return a RPCChamber given its id
-  const RPCChamber* chamber(RPCDetId id) const;
+  const std::shared_ptr< RPCChamber > chamber(RPCDetId id) const;
 
   /// Return a roll given its id
-  const RPCRoll* roll(RPCDetId id) const;
+  const std::shared_ptr< RPCRoll > roll(RPCDetId id) const;
 
   /// Add a RPC roll to the Geometry
-  void add(RPCRoll* roll);
+  void add( std::shared_ptr< RPCRoll > roll);
 
   /// Add a RPC roll to the Geometry
-  void add(RPCChamber* ch);
+  void add( std::shared_ptr< RPCChamber > ch);
 
  private:
   DetContainer theRolls;
@@ -80,8 +80,8 @@ class RPCGeometry : public TrackingGeometry {
   // Map for efficient lookup by DetId 
   mapIdToDet theMap;
 
-  std::vector<const RPCRoll*> allRolls; // Are not owned by this class; are owned by their chamber.
-  std::vector<const RPCChamber*> allChambers; // Are owned by this class.
+  std::vector< std::shared_ptr< RPCRoll >> allRolls; // Are not owned by this class; are owned by their chamber.
+  std::vector< std::shared_ptr< RPCChamber >> allChambers; // Are owned by this class.
 
 };
 

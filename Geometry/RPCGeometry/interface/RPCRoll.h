@@ -9,7 +9,8 @@
 class StripTopology;
 class RPCRollSpecs;
 class RPCChamber;
-class RPCRoll : public GeomDetUnit{
+
+class RPCRoll : public GeomDet {
 
  public:
   
@@ -22,7 +23,7 @@ class RPCRoll : public GeomDetUnit{
   const GeomDetType& type() const override; 
  
   /// Return the chamber this roll belongs to 
-  const RPCChamber* chamber() const;
+  const std::shared_ptr< RPCChamber > chamber() const;
   
   int nstrips() const;
 
@@ -36,13 +37,13 @@ class RPCRoll : public GeomDetUnit{
   bool isBarrel() const; 
   bool isForward() const;
   bool isIRPC() const {return (((this->id()).region()!=0) && (((this->id()).station()==3)||((this->id()).station()==4))&&((this->id()).ring()==1));}
- private:
-  void setChamber(const RPCChamber* ch);
 
  private:
+  void setChamber( std::shared_ptr< RPCChamber > ch);
+
   RPCDetId _id;
   RPCRollSpecs* _rrs;
-  const RPCChamber* theCh; // NOT owned
+  std::shared_ptr< RPCChamber > theCh;
 };
 
 #endif

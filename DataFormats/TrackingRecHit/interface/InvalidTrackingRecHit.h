@@ -9,7 +9,7 @@ class InvalidTrackingRecHit : public TrackingRecHit {
 public:
   typedef TrackingRecHit::Type Type;
   
-  InvalidTrackingRecHit(GeomDet const & idet, Type type ) : TrackingRecHit(idet, type)  {}
+  InvalidTrackingRecHit(std::shared_ptr<GeomDet> idet, Type type ) : TrackingRecHit(idet, type)  {}
   explicit InvalidTrackingRecHit(Type type) : TrackingRecHit(DetId(0), type) {}
 
   InvalidTrackingRecHit() : TrackingRecHit(DetId(0), TrackingRecHit::missing) {}

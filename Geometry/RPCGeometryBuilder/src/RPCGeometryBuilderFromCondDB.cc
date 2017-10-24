@@ -104,11 +104,11 @@ RPCGeometry* RPCGeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
 
     BoundPlane* bp = new BoundPlane(pos,rot,bounds);
     ReferenceCountingPointer<BoundPlane> surf(bp);
-    RPCRoll* r = new RPCRoll(rpcid,surf,rollspecs);
+    auto r = std::make_shared< RPCRoll >(rpcid,surf,rollspecs);
     geometry->add(r);
 
     auto rls = chids.find(chid);
-    if ( rls == chids.end() ) rls = chids.insert(std::make_pair(chid, std::list<RPCRoll*>())).first;
+    if ( rls == chids.end() ) rls = chids.insert(std::make_pair(chid, std::list< std::shared_ptr< RPCRoll >>())).first;
     rls->second.emplace_back(r);
   }
 
@@ -178,7 +178,7 @@ RPCGeometry* RPCGeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
 
     ReferenceCountingPointer<BoundPlane> surf(bp);
     // Create the chamber
-    RPCChamber* ch = new RPCChamber (chid, surf);
+    auto ch = std::make_shared< RPCChamber >(chid, surf);
     // Add the rolls to rhe chamber
     for(auto rl : rls ) ch->add(rl);
     // Add the chamber to the geometry

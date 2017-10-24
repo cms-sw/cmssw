@@ -73,9 +73,9 @@ void DTGeometryAnalyzer::analyze( const edm::Event& iEvent,
 
     DetId detId = det->geographicalId();
     int id = detId(); // or detId.rawId()
-    const GeomDet* gdet_=pDD->idToDet(detId);
-    const GeomDetUnit* gdet=pDD->idToDetUnit(detId);
-    const DTLayer* lay=dynamic_cast<const DTLayer*>(gdet);
+    auto gdet_=pDD->idToDet(detId);
+    auto gdet=pDD->idToDetUnit(detId);
+    auto lay=std::static_pointer_cast< DTLayer >(gdet);
     cout << "GeomDetUnit is of type " << detId.det() << " and raw id = " << id << endl;
     assert(det==gdet);
     assert(gdet_==gdet);
@@ -137,36 +137,36 @@ void DTGeometryAnalyzer::analyze( const edm::Event& iEvent,
       for (int se=1; se <= ((st==4) ? 14 : 12) ; ++se) {
 
         DTChamberId id(w,st,se);
-        const DTChamber* ch = pDD->chamber(id);
+        auto ch = pDD->chamber(id);
         if (!ch)
 	  cout << "ERROR ch not found " << id << endl;
 	else
 	{	  
 	  if (id!=ch->id()) cout << "ERROR: got wrong chamber: Cerco camera " << id << " e trovo " << ch->id() << endl;
 	  // test idToDet for chamber
-	  const GeomDet* gdetc=pDD->idToDet(id);
+	  auto gdetc=pDD->idToDet(id);
 	  assert(gdetc==ch);
 
 	  for (int sl=1; sl<= 3 ; ++sl) {
 	    if (sl==2 && st==4) continue;
 	    DTSuperLayerId slid(id,sl);
-	    const DTSuperLayer* dtsl = pDD->superLayer(slid);
+	    auto dtsl = pDD->superLayer(slid);
 	    if (!dtsl)
 	      cout << "ERROR sl not found " << slid << endl;
 	    else
 	    {
 	      if (slid!=dtsl->id()) cout << "ERROR: got wrong sl! Cerco sl " << slid << " e trovo " << dtsl->id() << endl;
 	      // test idToDet for superLayer
-	      const GeomDet* gdets=pDD->idToDet(slid);
+	      auto gdets=pDD->idToDet(slid);
 	      assert(gdets==dtsl);
 
 	      for (int l=1; l<=4; ++l) {
 		DTLayerId lid(slid,l);
-		const DTLayer* lay = pDD->layer(lid);
+		auto lay = pDD->layer(lid);
 		if (!lay) cout << "ERROR lay not found " << lid << endl;
 		if (lid!=lay->id()) cout << "ERROR: got wrong layer Cerco lay  " << lid << " e trovo " << lay->id() << endl;
 		// test idToDet for layer
-		const GeomDet* gdetl=pDD->idToDet(lid);
+		auto gdetl=pDD->idToDet(lid);
 		assert(gdetl==lay);
 	      }
 	    } 

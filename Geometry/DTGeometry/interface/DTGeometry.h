@@ -24,7 +24,7 @@ class GeomDetType;
 
 class DTGeometry : public TrackingGeometry {
 
-  typedef std::map<DetId, GeomDet*> DTDetMap;
+  typedef std::map<DetId, std::shared_ptr< GeomDet >> DTDetMap;
 
   public:
     /// Default constructor
@@ -51,32 +51,32 @@ class DTGeometry : public TrackingGeometry {
     const DetIdContainer& detIds() const override;
 
     // Return the pointer to the GeomDetUnit corresponding to a given DetId
-    const GeomDet* idToDetUnit(DetId) const override;
+    const std::shared_ptr< GeomDet > idToDetUnit(DetId) const override;
 
     // Return the pointer to the GeomDet corresponding to a given DetId
-    const GeomDet* idToDet(DetId) const override;
+    const std::shared_ptr< GeomDet > idToDet(DetId) const override;
 
 
     //---- Extension of the interface
 
     /// Return a vector of all Chamber
-    const std::vector<const DTChamber*>& chambers() const;
+    const std::vector< std::shared_ptr< DTChamber >>& chambers() const;
 
     /// Return a vector of all SuperLayer
-    const std::vector<const DTSuperLayer*>& superLayers() const;
+    const std::vector< std::shared_ptr< DTSuperLayer >>& superLayers() const;
 
     /// Return a vector of all SuperLayer
-    const std::vector<const DTLayer*>& layers() const;
+    const std::vector< std::shared_ptr< DTLayer >>& layers() const;
 
 
     /// Return a DTChamber given its id
-    const DTChamber* chamber(const DTChamberId& id) const;
+    const std::shared_ptr< DTChamber > chamber(const DTChamberId& id) const;
 
     /// Return a DTSuperLayer given its id
-    const DTSuperLayer* superLayer(const DTSuperLayerId& id) const;
+    const std::shared_ptr< DTSuperLayer > superLayer(const DTSuperLayerId& id) const;
 
     /// Return a layer given its id
-    const DTLayer* layer(const DTLayerId& id) const;
+    const std::shared_ptr< DTLayer > layer(const DTLayerId& id) const;
 
 
   private:
@@ -88,24 +88,24 @@ class DTGeometry : public TrackingGeometry {
 
 
     /// Add a DTChamber to Geometry
-    void add(DTChamber* ch);
+    void add( std::shared_ptr< DTChamber > ch );
 
     /// Add a DTSuperLayer to Geometry
-    void add(DTSuperLayer* sl);
+    void add( std::shared_ptr< DTSuperLayer > sl );
 
     /// Add a DTLayer to Geometry
-    void add(DTLayer* l);
+    void add( std::shared_ptr< DTLayer > l );
 
 
     // The chambers are owned by the geometry (and in turn own superlayers
     // and layers)
-    std::vector<const DTChamber*> theChambers; 
+    std::vector< std::shared_ptr< DTChamber >> theChambers; 
 
     // All following pointers are redundant; they are used only for an
     // efficient implementation of the interface, and are NOT owned.
 
-    std::vector<const DTSuperLayer*> theSuperLayers; 
-    std::vector<const DTLayer*> theLayers;
+    std::vector< std::shared_ptr< DTSuperLayer >> theSuperLayers; 
+    std::vector< std::shared_ptr< DTLayer >> theLayers;
 
     // Map for efficient lookup by DetId 
     DTDetMap          theMap;

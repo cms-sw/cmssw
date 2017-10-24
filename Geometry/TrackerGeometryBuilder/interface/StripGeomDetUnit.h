@@ -15,7 +15,7 @@ class SurfaceDeformation;
 class StripGeomDetUnit final : public TrackerGeomDet {
 public:
 
-  StripGeomDetUnit( BoundPlane* sp, StripGeomDetType const * type, DetId id);
+  StripGeomDetUnit( BoundPlane* sp, std::shared_ptr< StripGeomDetType > type, DetId id);
 
   // Det interface
 

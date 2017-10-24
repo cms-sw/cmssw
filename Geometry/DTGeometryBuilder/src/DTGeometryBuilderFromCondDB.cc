@@ -38,15 +38,15 @@ DTGeometryBuilderFromCondDB::~DTGeometryBuilderFromCondDB() {
 
 /* Operations */ 
 void
-DTGeometryBuilderFromCondDB::build(const std::shared_ptr<DTGeometry>& theGeometry,
-                                   const RecoIdealGeometry& rig) {
+DTGeometryBuilderFromCondDB::build( const std::shared_ptr<DTGeometry>& theGeometry,
+				    const RecoIdealGeometry& rig) {
   //  cout << "DTGeometryBuilderFromCondDB " << endl;
   const std::vector<DetId>& detids(rig.detIds());
   //  cout << "size " << detids.size() << endl;
 
   size_t idt = 0;
-  DTChamber* chamber(nullptr);
-  DTSuperLayer* sl(nullptr);
+  std::shared_ptr< DTChamber > chamber(nullptr);
+  std::shared_ptr< DTSuperLayer > sl(nullptr);
   while(idt < detids.size()) {
     //copy(par.begin(), par.end(), ostream_iterator<double>(std::cout," "));
     if (int(*(rig.shapeStart(idt)))==0){ // a Chamber
@@ -67,7 +67,7 @@ DTGeometryBuilderFromCondDB::build(const std::shared_ptr<DTGeometry>& theGeometr
     else if (int(*(rig.shapeStart(idt)))==2){ // a Layer
       DTLayerId lid(detids[idt]);
       //cout << "    LAY: " <<  lid << endl;
-      DTLayer* lay = buildLayer(sl, lid, rig, idt);
+      auto lay = buildLayer(sl, lid, rig, idt);
       theGeometry->add(lay);
     } else {
       cout << "What is this?" << endl;
@@ -77,11 +77,11 @@ DTGeometryBuilderFromCondDB::build(const std::shared_ptr<DTGeometry>& theGeometr
   if (chamber) theGeometry->add(chamber); // add the last chamber
 }
 
-DTChamber* DTGeometryBuilderFromCondDB::buildChamber(const DetId& id,
-                                                     const RecoIdealGeometry& rig,
-						     size_t idt ) const {
-  DTChamberId detId(id);  
-
+std::shared_ptr< DTChamber >
+DTGeometryBuilderFromCondDB::buildChamber(const DetId& id,
+					  const RecoIdealGeometry& rig,
+					  size_t idt ) const {
+  DTChamberId detId(id);
 
   float width = (*(rig.shapeStart(idt) + 1))/cm;     // r-phi  dimension - different in different chambers
   float length = (*(rig.shapeStart(idt) + 2))/cm;    // z      dimension - constant 125.55 cm
@@ -93,16 +93,14 @@ DTChamber* DTGeometryBuilderFromCondDB::buildChamber(const DetId& id,
   // thickness is long local Z
   RCPPlane surf(plane(rig.tranStart(idt), rig.rotStart(idt), new RectangularPlaneBounds(width, length, thickness) ));
 
-  DTChamber* chamber = new DTChamber(detId, surf);
-
-  return chamber;
+  return std::make_shared< DTChamber >(detId, surf);
 }
 
-DTSuperLayer*
-DTGeometryBuilderFromCondDB::buildSuperLayer(DTChamber* chamber,
-                                             const DetId& id,
-                                             const RecoIdealGeometry& rig,
-					     size_t idt) const {
+std::shared_ptr< DTSuperLayer >
+DTGeometryBuilderFromCondDB::buildSuperLayer( std::shared_ptr< DTChamber > chamber,
+					      const DetId& id,
+					      const RecoIdealGeometry& rig,
+					      size_t idt) const {
 
   DTSuperLayerId slId(id);
 
@@ -113,7 +111,7 @@ DTGeometryBuilderFromCondDB::buildSuperLayer(DTChamber* chamber,
   // Ok this is the slayer position...
   RCPPlane surf(plane(rig.tranStart(idt), rig.rotStart(idt), new RectangularPlaneBounds(width, length, thickness) ));
 
-  DTSuperLayer* slayer = new DTSuperLayer(slId, surf, chamber);
+  auto slayer = std::make_shared< DTSuperLayer >(slId, surf, chamber);
 
   // cout << "adding slayer " << slayer->id() << " to chamber "<<  chamber->id() << endl;
   assert(chamber);
@@ -121,11 +119,11 @@ DTGeometryBuilderFromCondDB::buildSuperLayer(DTChamber* chamber,
   return slayer;
 }
 
-DTLayer*
-DTGeometryBuilderFromCondDB::buildLayer(DTSuperLayer* sl,
-                                        const DetId& id,
-                                        const RecoIdealGeometry& rig,
-					size_t idt) const {
+std::shared_ptr< DTLayer >
+DTGeometryBuilderFromCondDB::buildLayer( std::shared_ptr< DTSuperLayer > sl,
+					 const DetId& id,
+					 const RecoIdealGeometry& rig,
+					 size_t idt) const {
 
   DTLayerId layId(id);
 
@@ -145,7 +143,7 @@ DTGeometryBuilderFromCondDB::buildLayer(DTSuperLayer* sl,
 
   DTLayerType layerType;
 
-  DTLayer* layer = new DTLayer(layId, surf, topology, layerType, sl);
+  auto layer = std::make_shared< DTLayer >(layId, surf, topology, layerType, sl);
   // cout << "adding layer " << layer->id() << " to sl "<<  sl->id() << endl;
 
   assert(sl);

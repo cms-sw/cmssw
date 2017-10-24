@@ -8,7 +8,7 @@
 
 // Warning, remember to assign this pointer to a ReferenceCountingPointer!
 PlaneBuilderForGluedDet::ResultType
-PlaneBuilderForGluedDet::plane( const std::vector<const GeomDetUnit*>& dets ) const
+PlaneBuilderForGluedDet::plane( const std::vector< std::shared_ptr< GeomDet >>& dets ) const
 {
   // find mean position
   typedef Surface::PositionType::BasicVectorType Vector;
@@ -33,7 +33,7 @@ PlaneBuilderForGluedDet::plane( const std::vector<const GeomDetUnit*>& dets ) co
 
 
 std::pair<RectangularPlaneBounds*, GlobalVector>
-PlaneBuilderForGluedDet::computeRectBounds( const std::vector<const GeomDetUnit*>& dets, const Plane& plane ) const
+PlaneBuilderForGluedDet::computeRectBounds( const std::vector< std::shared_ptr< GeomDet >>& dets, const Plane& plane ) const
 {
   // go over all corners and compute maximum deviations from mean pos.
   std::vector<GlobalPoint> corners;
@@ -66,7 +66,7 @@ PlaneBuilderForGluedDet::computeRectBounds( const std::vector<const GeomDetUnit*
 }
 
 Surface::RotationType
-PlaneBuilderForGluedDet::computeRotation( const std::vector<GeomDetUnit const*>& dets, const Surface::PositionType& meanPos) const
+PlaneBuilderForGluedDet::computeRotation( const std::vector< std::shared_ptr< GeomDet >>& dets, const Surface::PositionType& meanPos) const
 {
   // choose first mono out-pointing rotation
   // the rotations of GluedDets coincide with the mono part

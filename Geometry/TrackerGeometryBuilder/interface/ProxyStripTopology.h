@@ -32,7 +32,7 @@ class Plane;
 class ProxyStripTopology final : public StripTopology {
 public:
 
-  ProxyStripTopology(StripGeomDetType const * type, Plane * bp);
+  ProxyStripTopology( std::shared_ptr< StripGeomDetType > type, Plane * bp);
 
   LocalPoint localPosition( const MeasurementPoint& mp ) const override { return specificTopology().localPosition(mp);}
   /// conversion taking also the predicted track state 
@@ -108,7 +108,7 @@ private:
   SurfaceDeformation::Local2DVector
     positionCorrection(const Topology::LocalTrackPred &trk) const;
 
-  StripGeomDetType const * theType;
+  std::shared_ptr< StripGeomDetType > theType;
   float theLength, theWidth;
   std::unique_ptr<const SurfaceDeformation> theSurfaceDeformation;
 };

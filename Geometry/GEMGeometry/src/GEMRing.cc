@@ -19,12 +19,12 @@ bool GEMRing::operator==(const GEMRing& ri) const {
 	   ring_ == ri.ring() );
 }
 
-void GEMRing::add(GEMSuperChamber* sch) {
+void GEMRing::add( std::shared_ptr< GEMSuperChamber > sch ) {
   superChambers_.emplace_back(sch);
 }
   
-std::vector<const GeomDet*> GEMRing::components() const {
-  std::vector<const GeomDet*> result;
+std::vector< std::shared_ptr< GeomDet >> GEMRing::components() const {
+  std::vector< std::shared_ptr< GeomDet > > result;
   for (auto sch : superChambers_) {
     auto newSch(sch->components());
     result.insert(result.end(), newSch.begin(), newSch.end());
@@ -32,16 +32,19 @@ std::vector<const GeomDet*> GEMRing::components() const {
   return result;
 }
 
-const GeomDet* GEMRing::component(DetId id) const {
+const std::shared_ptr< GeomDet >
+GEMRing::component( DetId id ) const {
   return superChamber(GEMDetId(id.rawId()));
 }
 
-const GEMSuperChamber* GEMRing::superChamber(GEMDetId id) const {
+const std::shared_ptr< GEMSuperChamber >
+GEMRing::superChamber( GEMDetId id ) const {
   if (id.region()!=region_ || id.station()!=station_ || id.ring()!=ring_) return nullptr; // not in this station
   return superChamber(id.chamber());
 }
 
-const GEMSuperChamber* GEMRing::superChamber(int isch) const {
+const std::shared_ptr< GEMSuperChamber >
+GEMRing::superChamber( int isch ) const {
   for (auto sch : superChambers_) {
     if (sch->id().chamber() == isch) {
       return sch;
@@ -50,7 +53,8 @@ const GEMSuperChamber* GEMRing::superChamber(int isch) const {
   return nullptr;
 }
   
-const std::vector<const GEMSuperChamber*>& GEMRing::superChambers() const {
+const std::vector< std::shared_ptr< GEMSuperChamber >>&
+GEMRing::superChambers() const {
   return superChambers_;
 }
 

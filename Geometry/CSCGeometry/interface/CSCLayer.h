@@ -25,7 +25,7 @@ class CSCLayer : public GeomDetUnit {
 
 public:
 
-  CSCLayer( const BoundPlane::BoundPlanePointer& sp, CSCDetId id, const CSCChamber* ch, const CSCLayerGeometry* geo ) : 
+  CSCLayer( const BoundPlane::BoundPlanePointer& sp, CSCDetId id, std::shared_ptr< CSCChamber > ch, std::shared_ptr< CSCLayerGeometry > geo ) : 
   GeomDetUnit( sp ), theId( id ), theChamber( ch ), theGeometry( geo ) {
     setDetId(id);
 }
@@ -44,12 +44,12 @@ public:
   /**
    * Access to object handling layer geomerty
    */
-  const CSCLayerGeometry* geometry() const { return theGeometry; }
+  const std::shared_ptr< CSCLayerGeometry > geometry() const { return theGeometry; }
 
   /**
    * Access to parent chamber
    */
-  const CSCChamber* chamber() const { return theChamber; }
+  const std::shared_ptr< CSCChamber > chamber() const { return theChamber; }
   
   /**
    * Global point at center of the given strip,
@@ -67,14 +67,14 @@ private:
 
   CSCDetId theId;
 
-  const CSCChamber* theChamber; // NOT owned
+  std::shared_ptr< CSCChamber > theChamber;
   // Pointer2Chamber theChamber; // use a smart pointer instead
 
   // Local geometry is handled by the LayerGeometry
   // but only the Layer itself knows how to transform to the 
   // global frame so global calculations are handled by the
   // Layer not the LayerGeometry.
-  const CSCLayerGeometry* theGeometry; // must have topology()
+  std::shared_ptr< CSCLayerGeometry > theGeometry; // must have topology()
 };
 
 #endif // Geometry_CSCGeometry_CSCLayer_H

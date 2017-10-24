@@ -3,7 +3,7 @@
 
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 
-PixelGeomDetUnit::PixelGeomDetUnit( BoundPlane* sp, PixelGeomDetType const * type, DetId id) : 
+PixelGeomDetUnit::PixelGeomDetUnit( BoundPlane* sp, std::shared_ptr< PixelGeomDetType > type, DetId id) : 
   TrackerGeomDet(sp), theTopology(new ProxyPixelTopology(type, sp))
 {
   setDetId(id);

@@ -27,6 +27,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
 #include <cmath>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -66,9 +67,9 @@ public:
   const Topology& topology() const override;
 
   /// Accessors for LayerGeometry's
-  const CSCLayerGeometry* oddLayerGeometry( int iendcap ) const 
+  std::shared_ptr< CSCLayerGeometry > oddLayerGeometry( int iendcap ) const 
    { return (iendcap==1? poszOddLayerGeometry:negzOddLayerGeometry);}
-  const CSCLayerGeometry* evenLayerGeometry( int iendcap ) const 
+  std::shared_ptr< CSCLayerGeometry > evenLayerGeometry( int iendcap ) const 
    { return (iendcap==1? poszEvenLayerGeometry:negzEvenLayerGeometry);}
 
    /**
@@ -211,10 +212,10 @@ public:
   }
 
   // A ChamberSpecs has 4 associated LayerGeometry's
-  CSCLayerGeometry* poszOddLayerGeometry;
-  CSCLayerGeometry* poszEvenLayerGeometry;
-  CSCLayerGeometry* negzOddLayerGeometry;
-  CSCLayerGeometry* negzEvenLayerGeometry;
+  std::shared_ptr< CSCLayerGeometry > poszOddLayerGeometry;
+  std::shared_ptr< CSCLayerGeometry > poszEvenLayerGeometry;
+  std::shared_ptr< CSCLayerGeometry > negzOddLayerGeometry;
+  std::shared_ptr< CSCLayerGeometry > negzEvenLayerGeometry;
 
   //  theChamberType is a unique integer 1-10 for a station, ring pair.
 

@@ -23,7 +23,7 @@ class DTSuperLayer;
 class DTChamber;
 
 
-class DTLayer : public GeomDetUnit {
+class DTLayer : public GeomDet {
 
   public:
 
@@ -32,7 +32,7 @@ class DTLayer : public GeomDetUnit {
             ReferenceCountingPointer<BoundPlane>& plane,
             const DTTopology& topo,
             const DTLayerType& type,
-            const DTSuperLayer* sl=nullptr) ;
+            std::shared_ptr< DTSuperLayer > sl=nullptr) ;
 
 /* Destructor */ 
     ~DTLayer() override ;
@@ -49,26 +49,24 @@ class DTLayer : public GeomDetUnit {
 
     /// Return the Superlayer this Layer belongs to (0 if any, eg if a
     /// layer is built on his own)
-    const DTSuperLayer* superLayer() const ;
+    const std::shared_ptr< DTSuperLayer > superLayer() const ;
 
     /// Return the chamber this Layer belongs to (0 if none, eg if a layer is
     /// built on his own)
-    const DTChamber* chamber() const;
+    const std::shared_ptr< DTChamber > chamber() const;
 
     /// True if the id are the same
     bool operator==(const DTLayer& l) const;
 
     /// A Layer has no components
-    std::vector< const GeomDet*> components() const override;
+    std::vector< std::shared_ptr< GeomDet >> components() const override;
 
   private:
     DTLayerId   theId;
     DTTopology  theTopo;
     DTLayerType theType;
 
-    const DTSuperLayer*   theSL;
-  protected:
-
+    std::shared_ptr< DTSuperLayer >   theSL;
 };
 #endif // DTLAYER_H
 

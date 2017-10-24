@@ -91,18 +91,13 @@ RPCSectorAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup&
 
 //      //----------------------- RPCCHAMBER TEST -------------------------------------------------------
 
-    if( dynamic_cast< const RPCChamber* >( it ) != nullptr ){
-      const RPCChamber* ch = dynamic_cast< const RPCChamber* >( it ); 
+    if( std::static_pointer_cast< RPCChamber >( it ) != nullptr ){
+      auto ch = std::static_pointer_cast< RPCChamber >( it ); 
       
-      
-      //RPCDetId detId=ch->id();
-      
-      std::vector< const RPCRoll*> rolls = (ch->rolls());
-      for(auto & roll : rolls){
+      for(auto & roll : ch->rolls()){
 	
 	if(roll->id().region() == -1 &&
 	   roll->id().station() > 0)// &&
-	  // (*r)->id().sector() == 8)
 	  {
 	    std::cout<<"RPCDetId = "<<roll->id()<<std::endl;
 	    RPCGeomServ geosvc(roll->id()); 

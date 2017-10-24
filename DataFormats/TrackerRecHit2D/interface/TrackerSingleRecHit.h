@@ -29,18 +29,18 @@ public:
   
   template<typename CluRef>
   TrackerSingleRecHit(const LocalPoint& p, const LocalError& e,
-		      GeomDet const & idet,
+		      std::shared_ptr<const GeomDet> idet,
 		      CluRef const&  clus) : Base(p,e,idet, trackerHitRTTI::single), cluster_(clus){}
 
   // for projected...
   template<typename CluRef>
   TrackerSingleRecHit(const LocalPoint& p, const LocalError& e,
-		      GeomDet const & idet, trackerHitRTTI::RTTI rt,
+		      std::shared_ptr<const GeomDet> idet, trackerHitRTTI::RTTI rt,
 		      CluRef const&  clus) : Base(p,e,idet, rt), cluster_(clus){}
 
   // a single hit is on a detunit
-  const GeomDetUnit* detUnit() const override {
-    return static_cast<const GeomDetUnit*>(det());
+  const std::shared_ptr<const GeomDet> detUnit() const override {
+    return det();
   }
 
   // used by trackMerger (to be improved)

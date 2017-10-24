@@ -41,11 +41,11 @@ class GEMGeometryBuilderFromDDD
   RCPBoundPlane boundPlane(const DDFilteredView& fv,
 			   Bounds* bounds, bool isOddChamber) const ;
   
-  GEMSuperChamber* buildSuperChamber(DDFilteredView& fv, GEMDetId detId) const;
+  std::shared_ptr< GEMSuperChamber > buildSuperChamber(DDFilteredView& fv, GEMDetId detId) const;
 
-  GEMChamber* buildChamber(DDFilteredView& fv, GEMDetId detId) const;
+  std::shared_ptr< GEMChamber > buildChamber(DDFilteredView& fv, GEMDetId detId) const;
   
-  GEMEtaPartition* buildEtaPartition(DDFilteredView& fv, GEMDetId detId) const;
+  std::shared_ptr< GEMEtaPartition > buildEtaPartition(DDFilteredView& fv, GEMDetId detId) const;
 };
 
 #endif

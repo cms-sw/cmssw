@@ -3,7 +3,7 @@
 using namespace std;
 using namespace edm;
 
-SiTrackerMultiRecHit::SiTrackerMultiRecHit(const LocalPoint& pos, const LocalError& err, GeomDet const & idet,
+SiTrackerMultiRecHit::SiTrackerMultiRecHit(const LocalPoint& pos, const LocalError& err, std::shared_ptr<const GeomDet> idet,
 					   const std::vector< std::pair<const TrackingRecHit*, float> >& aHitMap, double annealing):
   BaseTrackerRecHit(pos,err, idet,trackerHitRTTI::multi)	
 {

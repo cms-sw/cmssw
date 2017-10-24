@@ -7,9 +7,6 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
 
-// #include "CondFormats/DataRecord/interface/RecoIdealGeometryRcd.h"
-// #include "CondFormats/DataRecord/interface/CSCRecoDigiParametersRcd.h"
-//#include "Geometry/Records/interface/RecoIdealGeometryRcd.h"
 #include "Geometry/Records/interface/CSCRecoGeometryRcd.h"
 #include "Geometry/Records/interface/CSCRecoDigiParametersRcd.h"
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
@@ -102,13 +99,6 @@ std::shared_ptr<CSCGeometry> CSCGeometryESModule::produce(const MuonGeometryReco
     edm::ESHandle<Alignments> alignments;
     record.getRecord<CSCAlignmentRcd>().get(alignmentsLabel_, alignments);
     edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
-// <<<<<<< CSCGeometryESModule.cc
-//     record.getRecord<CSCAlignmentErrorExtendedRcd>().get( alignmentErrors );
-//     GeometryAligner aligner;
-//     aligner.applyAlignments<CSCGeometry>( &(*_cscGeometry),
-// 					  &(*alignments), &(*alignmentErrors),
-// 	 align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
-// =======
     record.getRecord<CSCAlignmentErrorExtendedRcd>().get(alignmentsLabel_,  alignmentErrors);
     // Only apply alignment if values exist
     if (alignments->empty() && alignmentErrors->empty() && globalPosition->empty()) {
@@ -119,9 +109,8 @@ std::shared_ptr<CSCGeometry> CSCGeometryESModule::produce(const MuonGeometryReco
     } else {
       GeometryAligner aligner;
       aligner.applyAlignments<CSCGeometry>( &(*cscGeometry), &(*alignments), &(*alignmentErrors),
-	                    align::DetectorGlobalPosition(*globalPosition, DetId(DetId::Muon)) );
+					    align::DetectorGlobalPosition(*globalPosition, DetId(DetId::Muon)) );
     }
-// >>>>>>> 1.8
   }
 
   return cscGeometry;
@@ -137,14 +126,6 @@ void CSCGeometryESModule::initCSCGeometry_( const MuonGeometryRecord& record )
   cscGeometry = std::make_shared<CSCGeometry>( debugV, useGangedStripsInME1a, useOnlyWiresInME1a, useRealWireGeometry,
 								 useCentreTIOffsets );
 
-  //  cscGeometry->setUseRealWireGeometry( useRealWireGeometry );
-  //  cscGeometry->setOnlyWiresInME1a( useOnlyWiresInME1a );
-  //  cscGeometry->setGangedStripsInME1a( useGangedStripsInME1a );
-  //  cscGeometry->setUseCentreTIOffsets( useCentreTIOffsets );
-  //  cscGeometry->setDebugV( debugV );
-
-  //  if ( debugV ) cscGeometry->queryModelling();
-
   // Called whenever the muon numbering (or ideal geometry) changes
   //
   if ( useDDD_ ) {
@@ -153,7 +134,6 @@ void CSCGeometryESModule::initCSCGeometry_( const MuonGeometryRecord& record )
     record.getRecord<IdealGeometryRecord>().get(cpv);
     record.getRecord<MuonNumberingRecord>().get( mdc );
     CSCGeometryBuilderFromDDD builder;
-    //    _cscGeometry = std::shared_ptr<CSCGeometry>(builder.build(_cscGeometry, &(*cpv), *mdc));
     builder.build(cscGeometry, &(*cpv), *mdc);
   } else {
     edm::ESHandle<RecoIdealGeometry> rig;
@@ -161,7 +141,6 @@ void CSCGeometryESModule::initCSCGeometry_( const MuonGeometryRecord& record )
     record.getRecord<CSCRecoGeometryRcd>().get(rig);
     record.getRecord<CSCRecoDigiParametersRcd>().get(rdp);
     CSCGeometryBuilder cscgb;
-    //    _cscGeometry = std::shared_ptr<CSCGeometry>(cscgb.build(_cscGeometry, *rig, *rdp));
     cscgb.build(cscGeometry, *rig, *rdp);
   }
   recreateGeometry_=false;

@@ -7,28 +7,20 @@
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
-
 CSCChamber::~CSCChamber(){
-  // Delete all layers
-  for (std::vector<const CSCLayer*>::const_iterator i=theComponents.begin();
-       i!=theComponents.end(); ++i){
-    delete (*i);
-  }
 }
 
-
-std::vector<const GeomDet*> 
+std::vector< std::shared_ptr< GeomDet > > 
 CSCChamber::components() const {
-  return std::vector <const GeomDet*>(theComponents.begin(),theComponents.end());
+  return std::vector < std::shared_ptr< GeomDet > >( theComponents.begin(), theComponents.end());
 }
 
-
-const GeomDet* CSCChamber::component(DetId id) const {
+const std::shared_ptr< GeomDet >
+CSCChamber::component(DetId id) const {
   return layer(CSCDetId(id.rawId()));
 }
 
-
-void CSCChamber::addComponent( int n, const CSCLayer* gd ) { 
+void CSCChamber::addComponent( int n, std::shared_ptr< CSCLayer > gd ) { 
 	
   if ((n>0) && (n<7)) 
     theComponents[n-1] = gd; 
@@ -36,12 +28,14 @@ void CSCChamber::addComponent( int n, const CSCLayer* gd ) {
     edm::LogError("CSC") << "Each chamber has only SIX layers.";
 }
 
-const CSCLayer* CSCChamber::layer(CSCDetId iid) const {
+const std::shared_ptr< CSCLayer >
+CSCChamber::layer(CSCDetId iid) const {
   if (iid.chamberId()!=id()) return nullptr; // not in this chamber
   return layer(iid.layer());
 }
   
-const CSCLayer* CSCChamber::layer(int ilay) const{
+const std::shared_ptr< CSCLayer >
+CSCChamber::layer(int ilay) const{
   	
   if ((ilay>0) && (ilay<7)) 
     return theComponents[ilay-1];

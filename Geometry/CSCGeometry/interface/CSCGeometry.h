@@ -23,14 +23,14 @@ class CSCWireGroupPackage;
 
 class CSCGeometry : public TrackingGeometry {
 
-  typedef std::map<DetId, GeomDet*> CSCDetMap;
+  typedef std::map<DetId, std::shared_ptr< GeomDet >> CSCDetMap;
   // The buffer for specs need not really be a map. Could do it with a vector!
-  typedef std::map<int, const CSCChamberSpecs*, std::less<int> > CSCSpecsContainer;
+  typedef std::map<int, std::shared_ptr< CSCChamberSpecs >, std::less<int> > CSCSpecsContainer;
 
  public:
 
-  typedef std::vector<const CSCChamber*> ChamberContainer;
-  typedef std::vector<const CSCLayer*> LayerContainer;
+  typedef std::vector< std::shared_ptr< CSCChamber >> ChamberContainer;
+  typedef std::vector< std::shared_ptr< CSCLayer >> LayerContainer;
 
   friend class CSCGeometryBuilder; //FromDDD;
   friend class GeometryAligner;
@@ -62,18 +62,18 @@ class CSCGeometry : public TrackingGeometry {
   const DetIdContainer& detIds() const override;
 
   // Return the pointer to the GeomDetUnit corresponding to a given DetId
-  const GeomDet* idToDetUnit(DetId) const override;
+  const std::shared_ptr< GeomDet > idToDetUnit(DetId) const override;
 
   // Return the pointer to the GeomDet corresponding to a given DetId
-  const GeomDet* idToDet(DetId) const override;
+  const std::shared_ptr< GeomDet > idToDet(DetId) const override;
 
   //---- Extension of the interface
 
   /// Return the chamber corresponding to given DetId
-  const CSCChamber* chamber(CSCDetId id) const;
+  const std::shared_ptr< CSCChamber > chamber(CSCDetId id) const;
 
   /// Return the layer corresponding to given DetId
-  const CSCLayer* layer(CSCDetId id) const;
+  const std::shared_ptr< CSCLayer > layer(CSCDetId id) const;
 
   /// Return a vector of all chambers
   const ChamberContainer& chambers() const;
@@ -87,17 +87,17 @@ class CSCGeometry : public TrackingGeometry {
    * Return the CSCChamberSpecs* for given chamber type
    * if it exists, or 0 if it has not been created.
    */
-  const CSCChamberSpecs* findSpecs( int iChamberType );
+  const std::shared_ptr< CSCChamberSpecs > findSpecs( int iChamberType );
 
   /**
    * Build CSCChamberSpecs for given chamber type.
    *
    * @@ a good candidate to be replaced by a factory?
    */
-  const CSCChamberSpecs* buildSpecs( int iChamberType,
-				 const std::vector<float>& fpar,
-				 const std::vector<float>& fupar,
-				 const CSCWireGroupPackage& wg );
+  const std::shared_ptr< CSCChamberSpecs > buildSpecs( int iChamberType,
+						       const std::vector<float>& fpar,
+						       const std::vector<float>& fupar,
+						       const CSCWireGroupPackage& wg );
 
   void setGangedStripsInME1a(bool gs) { gangedstripsME1a_ = gs; }
   void setOnlyWiresInME1a(bool ow) { onlywiresME1a_ = ow; }
@@ -136,19 +136,19 @@ class CSCGeometry : public TrackingGeometry {
  private:
 
   /// Add a chamber with given DetId.
-  void addChamber(CSCChamber* ch);
+  void addChamber( std::shared_ptr< CSCChamber > ch);
   
   /// Add a DetUnit
-  void addLayer(CSCLayer* l);
+  void addLayer( std::shared_ptr< CSCLayer > l);
 
   /// Add a DetType
-  void addDetType(GeomDetType* type);
+  void addDetType( std::shared_ptr< GeomDetType > type);
 
   /// Add a DetId
   void addDetId(DetId id);
 
   /// Add a GeomDet; not to be called by the builder.
-  void addDet(GeomDet* det);
+  void addDet( std::shared_ptr< GeomDet > det);
 
   // The chambers are owned by the geometry (which in turn own layers)
   ChamberContainer  theChambers; 

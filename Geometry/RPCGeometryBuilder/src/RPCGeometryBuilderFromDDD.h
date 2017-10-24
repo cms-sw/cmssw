@@ -11,6 +11,7 @@
 
 #include <string>
 #include <map>
+#include <memory>
 #include <list>
 
 class DDCompactView;
@@ -33,7 +34,7 @@ class RPCGeometryBuilderFromDDD
 
  private:
   RPCGeometry* buildGeometry(DDFilteredView& fview, const MuonDDDConstants& muonConstants);
-  std::map<RPCDetId,std::list<RPCRoll *> > chids;
+  std::map<RPCDetId,std::list< std::shared_ptr< RPCRoll >>> chids;
 
   bool theComp11Flag;
 

@@ -27,7 +27,7 @@ void BaseTrackerRecHit::check() const {
 #endif
 
 bool BaseTrackerRecHit::hasPositionAndError() const {
-  return det();
+  return det() != nullptr;
   
   //  return (err_.xx() != 0) || (err_.yy() != 0) || (err_.xy() != 0) ||
   //       (pos_.x()  != 0) || (pos_.y()  != 0) || (pos_.z()  != 0);

@@ -25,12 +25,13 @@ bool GEMStation::operator==(const GEMStation& st) const {
   return (region_ == st.region() && station_ == st.station());
 }
 
-void GEMStation::add(GEMRing* ring) {
+void GEMStation::add( std::shared_ptr< GEMRing > ring ) {
   rings_.emplace_back(ring);
 }
 
-std::vector<const GeomDet*> GEMStation::components() const {
-  std::vector<const GeomDet*> result;
+std::vector< std::shared_ptr< GeomDet >>
+GEMStation::components() const {
+  std::vector< std::shared_ptr< GeomDet > > result;
   for (auto ri : rings_) {
     auto newSch(ri->components());
     result.insert(result.end(), newSch.begin(), newSch.end());
@@ -38,26 +39,30 @@ std::vector<const GeomDet*> GEMStation::components() const {
   return result;
 }
 
-const GeomDet* GEMStation::component(DetId id) const {
- auto detId(GEMDetId(id.rawId()));
- return ring(detId.ring())->component(id);
+const std::shared_ptr< GeomDet >
+GEMStation::component( DetId id ) const {
+  auto detId(GEMDetId(id.rawId()));
+  return ring(detId.ring())->component(id);
 }
 
-const GEMSuperChamber* GEMStation::superChamber(GEMDetId id) const {
+const std::shared_ptr< GEMSuperChamber >
+GEMStation::superChamber( GEMDetId id ) const {
   if (id.region()!=region_ || id.station()!=station_ ) return nullptr; // not in this station
   return ring(id.ring())->superChamber(id.chamber());
 }
 
-std::vector<const GEMSuperChamber*> GEMStation::superChambers() const {
-  std::vector<const GEMSuperChamber*> result;
+std::vector< std::shared_ptr< GEMSuperChamber >>
+GEMStation::superChambers() const {
+  std::vector< std::shared_ptr< GEMSuperChamber > > result;
   for (auto ri : rings_ ){
-    std::vector<const GEMSuperChamber*> newSch(ri->superChambers());
+    std::vector< std::shared_ptr< GEMSuperChamber > > newSch( ri->superChambers());
     result.insert(result.end(), newSch.begin(), newSch.end());
   }
   return result;
 }
 
-const GEMRing* GEMStation::ring(int ring) const {
+const std::shared_ptr< GEMRing >
+GEMStation::ring(int ring) const {
   for (auto ri : rings_) {
     if (ring == ri->ring()) {
       return ri;
@@ -66,7 +71,8 @@ const GEMRing* GEMStation::ring(int ring) const {
   return nullptr;
 }
 
-const std::vector<const GEMRing*>& GEMStation::rings() const {
+const std::vector< std::shared_ptr< GEMRing >>&
+GEMStation::rings() const {
   return rings_;
 }
 
@@ -89,4 +95,3 @@ int GEMStation::region() const {
 int GEMStation::station() const {
   return station_;
 }
-

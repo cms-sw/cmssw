@@ -12,7 +12,7 @@ class SiStripMatchedRecHit2D final : public BaseTrackerRecHit {
   SiStripMatchedRecHit2D(){}
   ~SiStripMatchedRecHit2D() override{}
 
-  SiStripMatchedRecHit2D( const LocalPoint& pos, const LocalError& err, GeomDet const & idet,
+  SiStripMatchedRecHit2D( const LocalPoint& pos, const LocalError& err, std::shared_ptr<const GeomDet> idet,
 			  const SiStripRecHit2D* rMono,const SiStripRecHit2D* rStereo):
     BaseTrackerRecHit(pos, err, idet, trackerHitRTTI::match), clusterMono_(rMono->omniClusterRef()), clusterStereo_(rStereo->omniClusterRef()){}
 

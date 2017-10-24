@@ -153,14 +153,14 @@ void CSCGeometryBuilder::buildChamber (
 		   << " upar[" << fupar.size()-1 << "]=" << fupar[fupar.size()-1];
 
 
-  const CSCChamber* chamber = theGeometry->chamber( chamberId );
+  auto chamber = theGeometry->chamber( chamberId );
   if ( chamber ){
   }
   else { // this chamber not yet built/stored
   
     LogTrace(myName) << myName <<": CSCChamberSpecs::build requested for ME" << jstat << jring ;
      int chamberType = CSCChamberSpecs::whatChamberType( jstat, jring );
-     const CSCChamberSpecs* aSpecs = theGeometry->findSpecs( chamberType );
+     auto aSpecs = theGeometry->findSpecs( chamberType );
     if ( !fupar.empty() && aSpecs == nullptr ) {
       // make new one:
       aSpecs = theGeometry->buildSpecs (chamberType, fpar, fupar, wg);
@@ -237,7 +237,7 @@ void CSCGeometryBuilder::buildChamber (
 
     Plane::PlanePointer plane = Plane::build(aVec, aRot, bounds); 
 
-    CSCChamber* chamber = new CSCChamber( plane, chamberId, aSpecs );
+    auto chamber = std::make_shared< CSCChamber >( plane, chamberId, aSpecs );
     theGeometry->addChamber( chamber ); 
 
     LogTrace(myName) << myName << ": Create chamber E" << jend << " S" << jstat 
@@ -267,15 +267,15 @@ void CSCGeometryBuilder::buildChamber (
       CSCDetId layerId = CSCDetId( jend, jstat, jring, jch, j );
 
       // extra-careful check that we haven't already built this layer
-      const CSCLayer* cLayer = dynamic_cast<const CSCLayer*> (theGeometry->idToDet( layerId ) );
+      auto cLayer = std::static_pointer_cast< CSCLayer > (theGeometry->idToDet( layerId ) );
 
       if ( cLayer == nullptr ) {
 
 	// build the layer - need the chamber's specs and an appropriate layer-geometry
-         const CSCChamberSpecs* aSpecs = chamber->specs();
-         const CSCLayerGeometry* geom = 
-                    (j%2 != 0) ? aSpecs->oddLayerGeometry( jend ) : 
-                                 aSpecs->evenLayerGeometry( jend );
+         auto aSpecs = chamber->specs();
+         auto geom = 
+	   (j%2 != 0) ? aSpecs->oddLayerGeometry( jend ) : 
+	   aSpecs->evenLayerGeometry( jend );
 
         // Build appropriate BoundPlane, based on parent chamber, with gas gap as thickness
 
@@ -289,7 +289,7 @@ void CSCGeometryBuilder::buildChamber (
         TrapezoidalPlaneBounds* bounds = new TrapezoidalPlaneBounds( dims[0], dims[1], dims[3], layerThickness/2. );
         Plane::PlanePointer plane = Plane::build(layerPosition, chamberRotation, bounds);
 
-        CSCLayer* layer = new CSCLayer( plane, layerId, chamber, geom );
+        auto layer = std::make_shared< CSCLayer >( plane, layerId, chamber, geom );
 
         LogTrace(myName) << myName << ": Create layer E" << jend << " S" << jstat 
 	            << " R" << jring << " C" << jch << " L" << j

@@ -27,14 +27,13 @@ class SurfaceDeformation;
 
 
 class GeomDet {
-public:
+
+ public:
+
   using SubDetector = GeomDetEnumerators::SubDetector;
 
-
   explicit GeomDet( Plane* plane): thePlane(plane) {}
-  explicit GeomDet( const ReferenceCountingPointer<Plane>& plane) : thePlane(plane) {}
-
-
+  explicit GeomDet( const ReferenceCountingPointer<Plane>& plane) : thePlane( plane ) {}
 
   virtual ~GeomDet();
 
@@ -51,27 +50,27 @@ public:
   const Surface::RotationType& rotation() const { return surface().rotation();}
 
   /// Conversion to the global R.F. from the R.F. of the GeomDet
-  GlobalPoint toGlobal(const Local2DPoint& lp) const {
-    return surface().toGlobal( lp);
+  GlobalPoint toGlobal( const Local2DPoint& lp ) const {
+    return surface().toGlobal( lp );
   }
   
   /// Conversion to the global R.F. from the R.F. of the GeomDet
-  GlobalPoint toGlobal(const Local3DPoint& lp) const {
-    return surface().toGlobal( lp);
+  GlobalPoint toGlobal( const Local3DPoint& lp ) const {
+    return surface().toGlobal( lp );
   }
 
   /// Conversion to the global R.F. from the R.F. of the GeomDet
-  GlobalVector toGlobal(const LocalVector& lv) const {
-    return surface().toGlobal( lv);
+  GlobalVector toGlobal( const LocalVector& lv ) const {
+    return surface().toGlobal( lv );
   }
   
   /// Conversion to the R.F. of the GeomDet
-  LocalPoint toLocal(const GlobalPoint& gp) const {
-    return surface().toLocal( gp);
+  LocalPoint toLocal( const GlobalPoint& gp ) const {
+    return surface().toLocal( gp );
   }
   
   /// Conversion to the R.F. of the GeomDet
-  LocalVector toLocal(const GlobalVector& gv) const {
+  LocalVector toLocal( const GlobalVector& gv ) const {
     return surface().toLocal( gv);
   } 
 
@@ -85,15 +84,14 @@ public:
   virtual bool isLeaf() const { return components().empty();}
 
   /// Returns direct components, if any
-  virtual std::vector< const GeomDet*> components() const { return std::vector< const GeomDet*>(); }
+  virtual std::vector< std::shared_ptr< GeomDet >> components() const { return std::vector< std::shared_ptr< GeomDet >>(); }
 
   /// Returns a component GeomDet given its DetId, if existing
   // FIXME: must become pure virtual
-  virtual const GeomDet* component(DetId /*id*/) const {return nullptr;}
+  virtual const std::shared_ptr< GeomDet > component( DetId /*id*/) const {return nullptr;}
 
   /// Return pointer to alignment errors. 
   AlignmentPositionError const* alignmentPositionError() const { return theAlignmentPositionError;}
-
 
   // specific unit index in a given subdetector (such as Tracker)
   int index() const { return m_index;}
@@ -103,66 +101,59 @@ public:
   int gdetIndex() const { return m_gdetIndex;}
   void setGdetIndex(int i) { m_gdetIndex=i;}
 
-
   virtual const Topology& topology() const;
 
   virtual const GeomDetType& type() const;
-
 
   /// Return pointer to surface deformation. 
   /// Defaults to "null" if not reimplemented in the derived classes.
   virtual const SurfaceDeformation* surfaceDeformation() const { return nullptr; }
 
+ protected:
 
+  void setDetId( DetId id ) {
+    m_detId = id;
+  }
 
-  protected:
+  AlignmentPositionError* theAlignmentPositionError = nullptr;
 
-    void setDetId(DetId id) {
-      m_detId = id;
-    }
+ private:
 
-private:
-
-  ReferenceCountingPointer<Plane>  thePlane;
+  ReferenceCountingPointer<Plane> thePlane;
   DetId m_detId;
-  int m_index=-1;
-  int m_gdetIndex=-1;
-protected:
-  AlignmentPositionError* theAlignmentPositionError=nullptr;
-
-private:
+  int m_index = -1;
+  int m_gdetIndex = -1;
 
   /// Alignment part of interface, available only to friend 
   friend class DetPositioner;
-
+  
   /// Relative displacement (with respect to current position).
   /// Does not move components (if any).
-  void move( const GlobalVector& displacement);
-
+  void move( const GlobalVector& displacement );
+  
   /// Relative rotation (with respect to current orientation).
   /// Does not move components (if any).
-  void rotate( const Surface::RotationType& rotation);
 
+  void rotate( const Surface::RotationType& rotation );
+  
   /// Replaces the current position and rotation with new ones.
   /// actually replaces the surface with a new surface.
   /// Does not move components (if any).
-   
+  
   void setPosition( const Surface::PositionType& position, 
-		    const Surface::RotationType& rotation);
-
+		    const Surface::RotationType& rotation );
+  
   /// set the LocalAlignmentError properly trasforming the ape 
   /// Does not affect the AlignmentPositionError of components (if any).
   
-  virtual bool setAlignmentPositionError (const AlignmentPositionError& ape); 
-
-private:
-
-
+  virtual bool setAlignmentPositionError( const AlignmentPositionError& ape ); 
+    
   /// set the SurfaceDeformation for this GeomDetUnit.
   /// Does not affect the SurfaceDeformation of components (if any).
   /// Throws if not implemented in derived class.
-  virtual void setSurfaceDeformation(const SurfaceDeformation * deformation);
-
+  
+  virtual void setSurfaceDeformation( const SurfaceDeformation* deformation );
+  
 };
 
 using GeomDetUnit = GeomDet;

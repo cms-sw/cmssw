@@ -92,20 +92,15 @@ RPCRadiiAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& 
 
 //      //----------------------- RPCCHAMBER TEST -------------------------------------------------------
 
-    if( dynamic_cast< const RPCChamber* >( it ) != nullptr ){
-      const RPCChamber* ch = dynamic_cast< const RPCChamber* >( it ); 
+    if( std::static_pointer_cast< RPCChamber >( it ) != nullptr ){
+      auto ch = std::static_pointer_cast< RPCChamber >( it ); 
       
-      
-      //RPCDetId detId=ch->id();
-      
-      std::vector< const RPCRoll*> rolls = (ch->rolls());
+      auto rolls = ch->rolls();
       for(auto & roll : rolls){
 	
 	if(roll->id().region() == -1 &&
-	   roll->id().station() > 0)// &&
-	   //	   (*r)->id().ring() == 2)
+	   roll->id().station() > 0)
 	  {
-	    //	    std::cout<<"RPCDetId = "<<(*r)->id()<<std::endl;
 	    RPCGeomServ geosvc(roll->id()); 
 	    LocalPoint centre(0.,0.,0.);
 	    GlobalPoint gc = roll->toGlobal(centre);
@@ -118,8 +113,6 @@ RPCRadiiAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& 
 		      <<std::endl;
 	  }
       }
-       
-       
     }
   }
     std::cout << dashedLine_ << " end" << std::endl;

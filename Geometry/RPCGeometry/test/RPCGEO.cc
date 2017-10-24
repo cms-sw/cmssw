@@ -119,13 +119,13 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
    }
 
    
-   for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
+   for( auto it : rpcGeo->dets()) {
      // The DetId can be a chamber or a roll
      // Consider only the chambers and ask the rolls belonging to this chamber later on
      // So this is a loop on the chambers
-     if( dynamic_cast< const RPCChamber* >( *it ) != nullptr ){
-       const RPCChamber* ch = dynamic_cast< const RPCChamber* >( *it ); 
-       std::vector< const RPCRoll*> rolls = (ch->rolls());
+     if( std::static_pointer_cast< RPCChamber >( it ) != nullptr ){
+       auto ch = std::static_pointer_cast< RPCChamber >( it ); 
+       auto rolls = ch->rolls();
        //detailstream<<"RPC Chamber"<<ch->id()<<std::endl;       
        if(ch->id().region()==1){	 
 	 switch(ch->id().station()){
@@ -186,9 +186,9 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
        // ======================================
        // Loop over the rolls inside the chamber
        // ======================================
-       for(std::vector<const RPCRoll*>::const_iterator r = rolls.begin();r != rolls.end(); ++r){
-	 RPCDetId rpcId = (*r)->id();
-	 int stripsinthisroll=(*r)->nstrips();
+       for( auto r : rolls) {
+	 RPCDetId rpcId = r->id();
+	 int stripsinthisroll=r->nstrips();
 	 RPCGeomServ rpcsrv(rpcId);
 	 ++RollsInCMS;
 	 // detailstream<<rpcId<<rpcsrv.name()<<" strips="<<stripsinthisroll<<std::endl;
@@ -199,7 +199,7 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 	 // ----------------
 	 if (rpcId.region()==0){ 
 	   //detailstream<<"Getting the RPC Topolgy"<<std::endl;
-	   const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&((*r)->topology()));
+	   const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&(r->topology()));
 	   float s1 = static_cast<float>(1)-0.5;
            float sLast = static_cast<float>(stripsinthisroll)-0.5;
 	   float stripl = top_->stripLength();
@@ -216,7 +216,7 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 	   detailstream<<" || area roll ="<<stripl*stripw<<"[cm^2] || area total barrel = "<<areabarrel<<"[cm^2]"<<std::endl;
 	   // ++++++++++++++++
 
-	   const BoundPlane & RPCSurface = (*r)->surface();
+	   const BoundPlane & RPCSurface = r->surface();
 	   GlobalPoint FirstStripCenterPointInGlobal = RPCSurface.toGlobal(top_->localPosition(s1));
 	   GlobalPoint LastStripCenterPointInGlobal = RPCSurface.toGlobal(top_->localPosition(sLast));
 	   double rpcphiFirst = FirstStripCenterPointInGlobal.barePhi();//*180./3.141592;
@@ -267,7 +267,7 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 	 // start RPC Endcap
 	 // -------------------
 	 else {
-	   const TrapezoidalStripTopology* top_= dynamic_cast<const TrapezoidalStripTopology*> (&((*r)->topology()));
+	   const TrapezoidalStripTopology* top_= dynamic_cast<const TrapezoidalStripTopology*> (&(r->topology()));
 	   float s1 = static_cast<float>(1)-0.5;
 	   float sLast = static_cast<float>(stripsinthisroll)-0.5;
 	   float stripl = top_->stripLength();
@@ -284,7 +284,7 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 	   detailstream<<" || area roll ="<<stripl*stripw<<"[cm^2] || area total endcap = "<<areaendcap<<"[cm^2]"<<std::endl;
 	   // ++++++++++++++++
 
-	   const BoundPlane & RPCSurface = (*r)->surface();
+	   const BoundPlane & RPCSurface = r->surface();
 	   GlobalPoint FirstStripCenterPointInGlobal = RPCSurface.toGlobal(top_->localPosition(s1));
 	   GlobalPoint LastStripCenterPointInGlobal = RPCSurface.toGlobal(top_->localPosition(sLast));
 	   double rpcphiFirst = FirstStripCenterPointInGlobal.barePhi();//*180./3.141592;
@@ -396,10 +396,6 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 	   ++rollsNearDiskp3;
 	 }	 
 	 for(int strip=1; strip<=stripsinthisroll; ++strip){
-	   // LocalPoint lCentre=(*r)->centreOfStrip(strip);
-	   // const BoundSurface& bSurface = (*r)->surface();
-	   // GlobalPoint gCentre = bSurface.toGlobal(lCentre);
-	   // detailstream<<"Strip="<<strip<<" "<<gCentre.x()<<" "<<gCentre.y()<<" "<<gCentre.z()<<std::endl;
 	   ++StripsInCMS;
 	   if(rpcId.region()==0) ++counterstripsBarrel;
 	   else ++counterstripsEndCap; 
