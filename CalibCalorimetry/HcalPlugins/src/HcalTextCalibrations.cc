@@ -43,6 +43,14 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
       setWhatProduced (this, &HcalTextCalibrations::producePedestalWidths);
       findingRecord <HcalPedestalWidthsRcd> ();
     }
+    if (objectName == "EffectivePedestals") {
+      setWhatProduced (this, &HcalTextCalibrations::produceEffectivePedestals, edm::es::Label("effective"));
+      findingRecord <HcalPedestalsRcd> ();
+    }
+    else if (objectName == "EffectivePedestalWidths") {
+      setWhatProduced (this, &HcalTextCalibrations::produceEffectivePedestalWidths, edm::es::Label("effective"));
+      findingRecord <HcalPedestalWidthsRcd> ();
+    }
     else if (objectName == "Gains") {
       setWhatProduced (this, &HcalTextCalibrations::produceGains);
       findingRecord <HcalGainsRcd> ();
@@ -211,6 +219,21 @@ std::unique_ptr<HcalPedestalWidths> HcalTextCalibrations::producePedestalWidths 
   rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
   return get_impl_topo<HcalPedestalWidths> (mInputs ["PedestalWidths"],topo);
+}
+
+std::unique_ptr<HcalPedestals> HcalTextCalibrations::produceEffectivePedestals (const HcalPedestalsRcd& rcd) {
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+
+  return get_impl_topo<HcalPedestals> (mInputs ["PedestalsEffective"],topo);
+}
+
+std::unique_ptr<HcalPedestalWidths> HcalTextCalibrations::produceEffectivePedestalWidths (const HcalPedestalWidthsRcd& rcd) {
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  return get_impl_topo<HcalPedestalWidths> (mInputs ["PedestalWidthsEffective"],topo);
 }
 
 std::unique_ptr<HcalGains> HcalTextCalibrations::produceGains (const HcalGainsRcd& rcd) {

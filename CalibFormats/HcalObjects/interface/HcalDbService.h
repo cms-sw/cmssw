@@ -60,8 +60,16 @@ class HcalDbService {
   const HcalTPParameters* getHcalTPParameters () const;
   const HcalMCParam* getHcalMCParam (const HcalGenericDetId& fId) const;
 
-  void setData (const HcalPedestals* fItem) {mPedestals = fItem; mCalibSet = nullptr;}
-  void setData (const HcalPedestalWidths* fItem) {mPedestalWidths = fItem; mCalibWidthSet = nullptr;}
+  void setData (const HcalPedestals* fItem, bool eff=false) {
+    if(eff) mEffectivePedestals = fItem;
+    else mPedestals = fItem;
+    mCalibSet = nullptr;
+  }
+  void setData (const HcalPedestalWidths* fItem, bool eff=false) {
+    if(eff) mEffectivePedestalWidths = fItem;
+    else mPedestalWidths = fItem;
+    mCalibWidthSet = nullptr;
+  }
   void setData (const HcalGains* fItem) {mGains = fItem; mCalibSet = nullptr; }
   void setData (const HcalGainWidths* fItem) {mGainWidths = fItem; mCalibWidthSet = nullptr; }
   void setData (const HcalQIEData* fItem) {mQIEData = fItem; mCalibSet=nullptr; mCalibWidthSet=nullptr;}
@@ -91,6 +99,8 @@ class HcalDbService {
   void buildCalibWidths() const;
   const HcalPedestals* mPedestals;
   const HcalPedestalWidths* mPedestalWidths;
+  const HcalPedestals* mEffectivePedestals;
+  const HcalPedestalWidths* mEffectivePedestalWidths;
   const HcalGains* mGains;
   const HcalGainWidths* mGainWidths;
   const HcalQIEData* mQIEData;

@@ -23,6 +23,8 @@ options.parseArguments()
 allconds = [
     'Pedestals',
     'PedestalWidths',
+    'EffectivePedestals',
+    'EffectivePedestalWidths',
     'Gains',
     'QIEData',
     'QIETypes',
