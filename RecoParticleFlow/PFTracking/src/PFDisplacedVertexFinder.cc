@@ -167,10 +167,9 @@ PFDisplacedVertexFinder::findSeedsFromCandidate(const PFDisplacedVertexCandidate
 	break;
       }
       const GlobalPoint vertexPoint = (*idvc_current).seedPoint();
-      double Delta_Long = getLongDiff(vertexPoint, dcaPoint);
-      double Delta_Transv = getTransvDiff(vertexPoint, dcaPoint);
-      if (Delta_Long > longSize_) continue;
-      if (Delta_Transv > transvSize_) continue;
+      std::pair<float,float> diffs = getTransvLongDiff(vertexPoint,dcaPoint);
+      if (diffs.second > longSize_) continue;
+      if (diffs.first > transvSize_) continue;
       bNeedNewCandidate = false;
       break;
     }
@@ -694,10 +693,9 @@ PFDisplacedVertexFinder::isCloseTo(const PFDisplacedVertexSeed& dv1, const PFDis
   const GlobalPoint& vP1 = dv1.seedPoint();
   const GlobalPoint& vP2 = dv2.seedPoint();
 
-  double Delta_Long = getLongDiff(vP1, vP2);
-  if (Delta_Long > longSize_) return false;
-  double Delta_Transv = getTransvDiff(vP1, vP2);
-  if (Delta_Transv > transvSize_) return false;
+  std::pair<float,float> diffs = getTransvLongDiff(vP1,vP2);
+  if (diffs.second > longSize_) return false;
+  if (diffs.first > transvSize_) return false;
   //  if (Delta_Long < longSize_ && Delta_Transv < transvSize_) isCloseTo = true;
 
   return true;
@@ -731,6 +729,17 @@ PFDisplacedVertexFinder::getTransvDiff(const GlobalPoint& Ref, const GlobalPoint
   Basic3DVector<double>vRef(Ref);
   Basic3DVector<double>vToProject(ToProject);
   return fabs(vRef.cross(vToProject).mag()/vRef.mag());
+
+}
+
+std::pair<float,float>
+PFDisplacedVertexFinder::getTransvLongDiff(const GlobalPoint& Ref, const GlobalPoint& ToProject) const {
+
+  Basic3DVector<float>vRef(Ref);
+  Basic3DVector<float>vToProject(ToProject);
+  double oneOverMag = 1.0/vRef.mag();
+
+  return std::make_pair(fabs(vRef.cross(vToProject).mag()*oneOverMag),fabs((vRef.dot(vToProject)-vRef.mag2())*oneOverMag));
 
 }
 

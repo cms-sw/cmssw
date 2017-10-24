@@ -142,6 +142,7 @@ class PFDisplacedVertexFinder {
 
   double getTransvDiff(const GlobalPoint&, const GlobalPoint&) const;
   double getLongDiff(const GlobalPoint&, const GlobalPoint&) const;
+  std::pair<float,float> getTransvLongDiff(const GlobalPoint&, const GlobalPoint&) const;
   double getLongProj(const GlobalPoint&, const GlobalVector&) const;
 
   reco::PFDisplacedVertex::VertexTrackType getVertexTrackType(PFTrackHitFullInfo&) const;
@@ -160,8 +161,8 @@ class PFDisplacedVertexFinder {
 
   /// Algo parameters for the vertex finder
 
-  double transvSize_;
-  double longSize_;
+  float transvSize_;
+  float longSize_;
   double primaryVertexCut_;
   double tobCut_;
   double tecCut_;
