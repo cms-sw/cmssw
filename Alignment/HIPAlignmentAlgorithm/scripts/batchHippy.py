@@ -13,7 +13,6 @@ from datetime import date
 from optparse import OptionParser
 
 
-
 class MyBatchManager:
    '''Batch manager specific to cmsRun processes.'''
 
@@ -53,10 +52,15 @@ class MyBatchManager:
       self.parser.add_option("--resubmit", action="store_true",
                                 dest="resubmit", default=False,
                                 help="Resubmit a job from the last iteration")
+      self.parser.add_option("--redirectproxy", action="store_true",
+                                dest="redirectproxy", default=False,
+                                help="Redirect the proxy to a path visible in batch")
       self.parser.add_option("--dry", dest="dryRun", type="int",
                                 default=0,
                                 help="Do not submit jobs, just set up the cfg files")
       (self.opt,self.args) = self.parser.parse_args()
+
+      self.checkProxy() # Check if Grid proxy initialized
 
       self.mkdir(self.opt.outputdir)
 
@@ -69,15 +73,21 @@ class MyBatchManager:
 
       self.jobname = self.opt.outputdir.split('/')[-1]
 
+      if self.opt.redirectproxy:
+         print "Job {} is configured to redirect its Grid proxy.".format(self.jobname)
+         self.redirectProxy()
+
       if self.opt.sendto is not None:
          self.opt.sendto.strip()
          self.opt.sendto.replace(","," ")
          print "Job {} is configured to notify {}.".format(self.jobname, self.opt.sendto)
 
+      # Set numerical flags for iterator_py
       self.SDflag = 1 if self.opt.useSD else 0
+      self.redirectproxyflag = 1 if self.opt.redirectproxy else 0
 
 
-   def mkdir( self, dirname ):
+   def mkdir(self, dirname):
       mkdir = 'mkdir -p %s' % dirname
       ret = os.system( mkdir )
       if( ret != 0 ):
@@ -142,17 +152,25 @@ class MyBatchManager:
          self.opt.aligncfg,
          self.opt.trkselcfg,
          self.SDflag,
+         self.redirectproxyflag,
          self.opt.dryRun
          )
       ret = os.system( jobcmd )
       self.finalize(ret)
 
+   def checkProxy(self):
+      try:
+         subprocess.check_call(["voms-proxy-info", "--exists"])
+      except subprocess.CalledProcessError:
+         print "Please initialize your proxy before submitting."
+         sys.exit(1)
 
-
+   def redirectProxy(self):
+      local_proxy = subprocess.check_output(["voms-proxy-info", "--path"]).strip()
+      shutil.copyfile(local_proxy, os.path.join(self.opt.outputdir,"/.user_proxy"))
 
 
 
 if __name__ == '__main__':
    batchManager = MyBatchManager()
    batchManager.submitJobs()
-
