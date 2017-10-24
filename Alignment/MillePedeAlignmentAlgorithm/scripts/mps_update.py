@@ -121,7 +121,7 @@ for job_id, mps_index in submitted_jobs.items(): # IMPORTANT to copy here (no it
     theBatchDirectory = "LSFJOB_"+job_id
     if os.path.isdir(theBatchDirectory):
         print "Directory ", theBatchDirectory, "exists"
-        lib.JOBSTATUS[i] = disabled + "DONE"
+        lib.JOBSTATUS[mps_index] = disabled + "DONE"
         submitted_jobs.pop(job_id)
         continue
 
