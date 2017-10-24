@@ -8,7 +8,7 @@
 //
 //   Author :
 //   J. Troconiz  - UAM
-//   y el eterno retorno
+//
 //
 //--------------------------------------------------
 
@@ -98,26 +98,28 @@ void DTuROSDigiToRaw::process(int DTuROSFED,
       int slId      = dttal.superlayer();
       int layerId   = dttal.layer();
       int cellId    = (*ta).wire();
-      int tdcTime   = (*ta).countsTDC();
 
       int dduId, rosId, robId, tdcId, tdcChannel;
       if ( ! mapping->geometryToReadOut(wheelId, stationId, sectorId, slId, layerId, cellId,
 					dduId, rosId, robId, tdcId, tdcChannel)) {
 
-	int crate = theCRT(dduId, rosId, robId);
-	int slot  = theSLT(dduId, rosId, robId);
-	int link  = theLNK(dduId, rosId, robId);
+	int crate = theCRT(dduId);
 
 	if (crate != DTuROSFED) continue;
 
-	bslts[slot]++;
+	int slot  = theSLT(dduId, rosId, robId);
+	int link  = theLNK(dduId, rosId, robId);
+
+	int tdcTime   = (*ta).countsTDC();
+
+	bslts[slot-1]++;
 
 	int word = (      (link&0x7F)<<21)
 	         + (     (tdcId&0x03)<<19)
 	         + ((tdcChannel&0x1F)<<14)
 	         + (    tdcTime&0x3FFF   );
 
-	wslts[slot].push_back(word);
+	wslts[slot-1].push_back(word);
 
       }
     }
@@ -127,7 +129,7 @@ void DTuROSDigiToRaw::process(int DTuROSFED,
   int lines = 4;
   int nslts = 0;
 
-  for (int sltit = 1; sltit <= 12; sltit++) {
+  for (int sltit = 0; sltit < DOCESLOTS; sltit++) {
 
     if (bslts[sltit] == 0) continue;
     nslts += 1;
@@ -139,7 +141,7 @@ void DTuROSDigiToRaw::process(int DTuROSFED,
 
   FEDRawData& dttfdata = data.FEDData(DTuROSFED);
   dttfdata.resize(lines*8); // size in bytes
-  unsigned char* LineFED=dttfdata.data();
+  unsigned char* lineFED=dttfdata.data();
 
   int dataWord1, dataWord2;
 
@@ -151,9 +153,9 @@ void DTuROSDigiToRaw::process(int DTuROSFED,
 
   int newCRC =  0xFFFF;
   calcCRC(dataWord1, dataWord2, newCRC);
-  *((int*)LineFED)=dataWord2; 
-  LineFED+=4;
-  *((int*)LineFED)=dataWord1; 
+  *((int*)lineFED)=dataWord2; 
+  lineFED+=4;
+  *((int*)lineFED)=dataWord1; 
 
   //--> AMC sizes
 
@@ -161,48 +163,48 @@ void DTuROSDigiToRaw::process(int DTuROSFED,
   dataWord2 = 0;
 
   calcCRC(dataWord1, dataWord2, newCRC);
-  LineFED+=4;
-  *((int*)LineFED)=dataWord2; 
-  LineFED+=4;
-  *((int*)LineFED)=dataWord1; 
+  lineFED+=4;
+  *((int*)lineFED)=dataWord2; 
+  lineFED+=4;
+  *((int*)lineFED)=dataWord1; 
 
-  for (int sltit = 1; sltit <= 12; sltit++) {
+  for (int sltit = 0; sltit < DOCESLOTS; sltit++) {
 
     if (bslts[sltit] == 0) continue;
 
     dataWord1 = (dslts[sltit]&0xFFFFFF);
-    dataWord2 = (sltit&0xF)<<16;
+    dataWord2 = ((sltit+1)&0xF)<<16;
 
     calcCRC(dataWord1, dataWord2, newCRC);
-    LineFED+=4;
-    *((int*)LineFED)=dataWord2; 
-    LineFED+=4;
-    *((int*)LineFED)=dataWord1; 
+    lineFED+=4;
+    *((int*)lineFED)=dataWord2; 
+    lineFED+=4;
+    *((int*)lineFED)=dataWord1; 
   }
 
   //--> AMC data
 
-  for (int sltit = 1; sltit <= 12; sltit++) {
+  for (int sltit = 0; sltit < DOCESLOTS; sltit++) {
 
     if (bslts[sltit] == 0) continue;
 
-    dataWord1 = (sltit&0xF)<<24;
+    dataWord1 = ((sltit+1)&0xF)<<24;
     dataWord2 = 0;
 
     calcCRC(dataWord1, dataWord2, newCRC);
-    LineFED+=4;
-    *((int*)LineFED)=dataWord2; 
-    LineFED+=4;
-    *((int*)LineFED)=dataWord1; 
+    lineFED+=4;
+    *((int*)lineFED)=dataWord2; 
+    lineFED+=4;
+    *((int*)lineFED)=dataWord1; 
 
     dataWord1 = 0;
     dataWord2 = 0;
 
     calcCRC(dataWord1, dataWord2, newCRC);
-    LineFED+=4;
-    *((int*)LineFED)=dataWord2; 
-    LineFED+=4;
-    *((int*)LineFED)=dataWord1; 
+    lineFED+=4;
+    *((int*)lineFED)=dataWord2; 
+    lineFED+=4;
+    *((int*)lineFED)=dataWord1; 
 
     for (int nhit = 0; nhit < bslts[sltit]/2; nhit++) {
 
@@ -211,10 +213,10 @@ void DTuROSDigiToRaw::process(int DTuROSFED,
       dataWord2 = wslts[sltit].at(nhit*2+1);
 
       calcCRC(dataWord1, dataWord2, newCRC);
-      LineFED+=4;
-      *((int*)LineFED)=dataWord2; 
-      LineFED+=4;
-      *((int*)LineFED)=dataWord1; 
+      lineFED+=4;
+      *((int*)lineFED)=dataWord2; 
+      lineFED+=4;
+      *((int*)lineFED)=dataWord1; 
     }
 
     if (bslts[sltit]%2 == 1) {
@@ -224,38 +226,38 @@ void DTuROSDigiToRaw::process(int DTuROSFED,
       dataWord2 = 0;
 
       calcCRC(dataWord1, dataWord2, newCRC);
-      LineFED+=4;
-      *((int*)LineFED)=dataWord2; 
-      LineFED+=4;
-      *((int*)LineFED)=dataWord1; 
+      lineFED+=4;
+      *((int*)lineFED)=dataWord2; 
+      lineFED+=4;
+      *((int*)lineFED)=dataWord1; 
     }
 
     dataWord1 = 0x40000000;
     dataWord2 = 0;
 
     calcCRC(dataWord1, dataWord2, newCRC);
-    LineFED+=4;
-    *((int*)LineFED)=dataWord2; 
-    LineFED+=4;
-    *((int*)LineFED)=dataWord1; 
+    lineFED+=4;
+    *((int*)lineFED)=dataWord2; 
+    lineFED+=4;
+    *((int*)lineFED)=dataWord1; 
 
     dataWord1 = 0x40000000;
     dataWord2 = 0;
 
     calcCRC(dataWord1, dataWord2, newCRC);
-    LineFED+=4;
-    *((int*)LineFED)=dataWord2; 
-    LineFED+=4;
-    *((int*)LineFED)=dataWord1; 
+    lineFED+=4;
+    *((int*)lineFED)=dataWord2; 
+    lineFED+=4;
+    *((int*)lineFED)=dataWord1; 
 
     dataWord1 = 0;
     dataWord2 = (dslts[sltit]&0xFFFFF);
 
     calcCRC(dataWord1, dataWord2, newCRC);
-    LineFED+=4;
-    *((int*)LineFED)=dataWord2; 
-    LineFED+=4;
-    *((int*)LineFED)=dataWord1; 
+    lineFED+=4;
+    *((int*)lineFED)=dataWord2; 
+    lineFED+=4;
+    *((int*)lineFED)=dataWord1; 
   }
 
   //--> Trailer - line 1
@@ -264,10 +266,10 @@ void DTuROSDigiToRaw::process(int DTuROSFED,
   dataWord2 = 0;
 
   calcCRC(dataWord1, dataWord2, newCRC);
-  LineFED+=4;
-  *((int*)LineFED)=dataWord2; 
-  LineFED+=4;
-  *((int*)LineFED)=dataWord1; 
+  lineFED+=4;
+  *((int*)lineFED)=dataWord2; 
+  lineFED+=4;
+  *((int*)lineFED)=dataWord1; 
 
   //--> Trailer - line 2
 
@@ -279,10 +281,10 @@ void DTuROSDigiToRaw::process(int DTuROSFED,
 
   dataWord2 += (newCRC&0xFFFF)<<16;
 
-  LineFED+=4;
-  *((int*)LineFED)=dataWord2; 
-  LineFED+=4;
-  *((int*)LineFED)=dataWord1; 
+  lineFED+=4;
+  *((int*)lineFED)=dataWord2; 
+  lineFED+=4;
+  *((int*)lineFED)=dataWord1; 
 
   return;
 }
@@ -290,7 +292,7 @@ void DTuROSDigiToRaw::process(int DTuROSFED,
 
 void DTuROSDigiToRaw::clear() {
 
-  for (int sltit = 0; sltit <= 12; sltit++) {
+  for (int sltit = 0; sltit < DOCESLOTS; sltit++) {
 
     bslts[sltit]=0;
     dslts[sltit]=0;
@@ -301,11 +303,11 @@ void DTuROSDigiToRaw::clear() {
 }
 
 
-int DTuROSDigiToRaw::theCRT(int ddu, int ros, int rob) {
+int DTuROSDigiToRaw::theCRT(int ddu) {
 
   if (ddu == 770) return 1368;
-  if (ddu == 771) return 1368;
-  if (ddu == 772) return 1369;
+  else if (ddu == 771) return 1368;
+  else if (ddu == 772) return 1369;
   return 1370;
 }
 
@@ -315,7 +317,7 @@ int DTuROSDigiToRaw::theSLT(int ddu, int ros, int rob) {
   int slot = ((ros-1)/3)+1;
   if (rob == 23) slot = 5;
   if (ddu == 771) slot += 6;
-  if (ddu == 773) slot += 6;
+  else if (ddu == 773) slot += 6;
   return slot;
 }
 

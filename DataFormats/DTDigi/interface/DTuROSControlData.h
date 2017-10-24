@@ -14,6 +14,9 @@
 #ifndef DTDigi_DTuROSControlData_h
 #define DTDigi_DTuROSControlData_h
 
+#define DOCESLOTS 12
+
+
 #include <vector>
 
 
@@ -81,7 +84,7 @@ class DTuROSFEDData {
 public:
 
   /// Constructor
-  DTuROSFEDData() {for (int i=0; i<12; i++) rsize_[i] = 0;} 
+  DTuROSFEDData() {for (int i=0; i<DOCESLOTS; i++) rsize_[i] = 0;} 
 
   /// Destructor
   ~DTuROSFEDData(){};
@@ -122,9 +125,9 @@ private:
 
   long header1_, header2_, trailer_;
 
-  int fed_, nslots_, evtLgth_, rsize_[12];
+  int fed_, nslots_, evtLgth_, rsize_[DOCESLOTS];
 
-  DTuROSROSData rdata_[12];
+  DTuROSROSData rdata_[DOCESLOTS];
 
 };
 
