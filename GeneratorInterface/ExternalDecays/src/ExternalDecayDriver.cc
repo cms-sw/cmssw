@@ -67,6 +67,13 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
 	fPhotosInterface->SetDecayRandomEngine(decayRandomEngine);
       }
     }
+    //JTao for photo++
+    if (curSet == "Photospp" || curSet == "Photospp356" ){
+      if ( !fPhotosInterface ){
+       fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photospp356", pset.getUntrackedParameter< ParameterSet>(curSet)));
+       fPhotosInterface->SetDecayRandomEngine(decayRandomEngine);
+      }
+    }
   }
 }
 
