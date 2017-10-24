@@ -90,10 +90,16 @@ DeepFlavourTFJetTagsProducer::DeepFlavourTFJetTagsProducer(const edm::ParameterS
   session_(nullptr),
   batch_eval_(iConfig.getParameter<bool>("batch_eval"))
 {
+  // get threading config and build session options
+  size_t nThreads = iConfig.getParameter<unsigned int>("nThreads");
+  std::string singleThreadPool = iConfig.getParameter<std::string>("singleThreadPool");
+  tensorflow::SessionOptions sessionOptions;
+  tensorflow::setThreading(sessionOptions, nThreads, singleThreadPool);
+
   // create the session using the meta graph from the cache
   edm::FileInPath graphPath(iConfig.getParameter<edm::FileInPath>("graph_path"));
   std::string exportDir = graphPath.fullPath().substr(0, graphPath.fullPath().find_last_of("/"));
-  session_ = tensorflow::createSession(cache->metaGraph, exportDir);
+  session_ = tensorflow::createSession(cache->metaGraph, exportDir, sessionOptions);
 
   // get output names from flav_table
   const auto & flav_pset = iConfig.getParameter<edm::ParameterSet>("flav_table");
@@ -151,6 +157,10 @@ void DeepFlavourTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptio
   }
 
   desc.add<bool>("batch_eval", false);
+
+  desc.add<unsigned int>("nThreads", 1);
+  desc.add<std::string>("singleThreadPool", "no_threads");
+
   descriptions.add("pfDeepFlavourJetTags", desc);
 }
 
@@ -164,9 +174,15 @@ std::unique_ptr<DeepFlavourTFCache> DeepFlavourTFJetTagsProducer::initializeGlob
   edm::FileInPath graphPath(iConfig.getParameter<edm::FileInPath>("graph_path"));
   std::string exportDir = graphPath.fullPath().substr(0, graphPath.fullPath().find_last_of("/"));
 
+  // get threading config and build session options
+  size_t nThreads = iConfig.getParameter<unsigned int>("nThreads");
+  std::string singleThreadPool = iConfig.getParameter<std::string>("singleThreadPool");
+  tensorflow::SessionOptions sessionOptions;
+  tensorflow::setThreading(sessionOptions, nThreads, singleThreadPool);
+
   // create the cache instance and attach the meta graph to it
   DeepFlavourTFCache* cache = new DeepFlavourTFCache();
-  cache->metaGraph = tensorflow::loadMetaGraph(exportDir);
+  cache->metaGraph = tensorflow::loadMetaGraph(exportDir, "serve", sessionOptions);
 
   return std::unique_ptr<DeepFlavourTFCache>(cache);
 }
