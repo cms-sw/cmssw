@@ -39,13 +39,13 @@ public:
 
   class InactiveAreas {
   public:
-    InactiveAreas(const std::vector<SeedingLayerId> *layers,
-                  std::vector<DetGroupSpanContainer>&& spans,
-                  const std::vector<std::pair<unsigned short, unsigned short> > *layerPairs,
+    InactiveAreas(const std::vector<SeedingLayerId> *inactiveLayers,
+                  std::vector<DetGroupSpanContainer>&& inactiveSpans,
+                  const std::vector<std::pair<unsigned short, unsigned short> > *inactiveLayerPairIndices,
                   const std::vector<std::vector<LayerSetIndex> > *layerSetIndexInactiveToActive):
-      layers_(layers),
-      spans_(std::move(spans)),
-      layerPairIndices_(layerPairs),
+      inactiveLayers_(inactiveLayers),
+      inactiveSpans_(std::move(inactiveSpans)),
+      inactiveLayerPairIndices_(inactiveLayerPairIndices),
       layerSetIndexInactiveToActive_(layerSetIndexInactiveToActive)
     {}
 
@@ -53,9 +53,9 @@ public:
     std::vector<std::pair<std::vector<DetGroupSpan>, std::vector<LayerSetIndex> > > spansAndLayerSets(const GlobalPoint& point, float zwidth) const;
 
   private:
-    const std::vector<SeedingLayerId> *layers_;   // pointer to PixelInactiveAreaFinder::layers_
-    std::vector<DetGroupSpanContainer> spans_;    // inactive areas for each layer, indexing corresponds to layers_
-    const std::vector<std::pair<unsigned short, unsigned short> > *layerPairIndices_; // indices to the layer pair within the input SeedingLayerSetsHits
+    const std::vector<SeedingLayerId> *inactiveLayers_;   // pointer to PixelInactiveAreaFinder::layers_
+    std::vector<DetGroupSpanContainer> inactiveSpans_;    // inactive areas for each layer, indexing corresponds to layers_
+    const std::vector<std::pair<unsigned short, unsigned short> > *inactiveLayerPairIndices_; // indices to the layer pair within the input SeedingLayerSetsHits for pairs of layers to check for correlated inactive regions
     const std::vector<std::vector<LayerSetIndex> > *layerSetIndexInactiveToActive_; // mapping from index in "inactive" seeding layers to "active" seeding layers
   };
 
@@ -73,9 +73,9 @@ private:
   const bool debug_;
   const bool createPlottingFiles_;
 
-  std::vector<SeedingLayerId> layers_;
-  std::vector<std::pair<unsigned short, unsigned short> > layerSetIndices_; // indices within layers_
-  std::vector<std::vector<LayerSetIndex> > layerSetIndexInactiveToActive_; // mapping from index in layers_ to constructor seedingLayers+seedingLayerSetsLooper
+  std::vector<SeedingLayerId> inactiveLayers_; // layers to check for inactive regions
+  std::vector<std::pair<unsigned short, unsigned short> > inactiveLayerSetIndices_; // indices within inactiveLayers_
+  std::vector<std::vector<LayerSetIndex> > layerSetIndexInactiveToActive_; // mapping from index in inactiveLayers_ to constructor seedingLayers+seedingLayerSetsLooper
 
   // Output type aliases
   using DetGroupSpanContainerPair = std::pair<DetGroupSpanContainer,DetGroupSpanContainer>;
@@ -89,7 +89,6 @@ private:
   const static unsigned int nModulesPerLadder = 8;
   // type aliases
   using det_t = uint32_t;
-  using Span_t = std::pair<float,float>;
   using DetContainer = std::vector<uint32_t>;
   using DetGroup = std::vector<uint32_t>;
   using DetGroupContainer = std::vector<DetGroup>;
@@ -102,10 +101,10 @@ private:
   const TrackerGeometry *trackerGeometry_ = nullptr;
   const TrackerTopology *trackerTopology_ = nullptr;
 
-  DetContainer pixelDetsBarrel;
-  DetContainer pixelDetsEndcap;
-  DetContainer badPixelDetsBarrel;
-  DetContainer badPixelDetsEndcap;
+  DetContainer pixelDetsBarrel_;
+  DetContainer pixelDetsEndcap_;
+  DetContainer badPixelDetsBarrel_;
+  DetContainer badPixelDetsEndcap_;
   // functions for fetching date from handles
   void updatePixelDets(const edm::EventSetup& iSetup);
   void getBadPixelDets();
@@ -117,8 +116,6 @@ private:
   void printBadDetGroupSpans();
   void createPlottingFiles();
   // Functions for finding bad detGroups
-  static bool phiRangesOverlap(const float x1,const float x2, const float y1,const float y2);
-  static bool phiRangesOverlap(const Span_t&phiSpanA, const Span_t&phiSpanB);
   bool detWorks(det_t det);
   DetGroup badAdjecentDetsBarrel(const det_t & det);
   DetGroup badAdjecentDetsEndcap(const det_t & det);
@@ -126,8 +123,6 @@ private:
   DetGroupContainer badDetGroupsBarrel();
   DetGroupContainer badDetGroupsEndcap();
   // Functions for finding ranges that detGroups cover
-  static bool phiMoreClockwise(float phiA, float phiB);
-  static bool phiMoreCounterclockwise(float phiA, float phiB);
   void getPhiSpanBarrel(const DetGroup & detGroup, DetGroupSpan & cspan);
   void getPhiSpanEndcap(const DetGroup & detGroup, DetGroupSpan & cspan);
   void getZSpan(const DetGroup & detGroup, DetGroupSpan & cspan);

@@ -35,6 +35,7 @@ namespace {
   using LayerPair = std::pair<SeedingLayerSetsBuilder::SeedingLayerId, SeedingLayerSetsBuilder::SeedingLayerId>;
   using ActiveLayerSetToInactiveSetsMap = std::map<LayerPair, edm::VecArray<LayerPair, 5> >;
   using Stream = std::stringstream;
+  using Span_t = std::pair<float,float>;
 
   ActiveLayerSetToInactiveSetsMap createActiveToInactiveMap() {
     ActiveLayerSetToInactiveSetsMap map;
@@ -129,6 +130,68 @@ namespace {
     }
     edm::LogPrint("") << ss.str();
   }
+
+  // Functions for finding bad detGroups
+  bool phiRangesOverlap(const Span_t&phiSpanA, const Span_t&phiSpanB) {
+    float x1,x2,y1,y2;
+    std::tie(x1,x2) = phiSpanA;
+    std::tie(y1,y2) = phiSpanB;
+    // assuming phi ranges are [x1,x2] and [y1,y2] and xi,yi in [-pi,pi]
+    if(x1<=x2 && y1<=y2){
+      return x1<=y2 && y1 <= x2;
+    }else if (( x1>x2 && y1 <= y2) || (y1 > y2 && x1 <= x2 )){
+      return y1 <= x2 || x1 <= y2;
+    }else if (x1 > x2 && y1 > y2){
+      return true;
+    }else {
+      return false;
+    }
+  }
+
+  // Functions for finding ranges that detGroups cover
+  bool phiMoreClockwise(float phiA, float phiB) {
+    // TODO: simplify (no need for trigonometry!) and reduce copy-paste
+
+    // return true if a is more clockwise than b
+    // assuming both angels are in same half
+    float xa,ya,xb,yb;
+    xa = cos(phiA);
+    ya = sin(phiA);
+    xb = cos(phiB);
+    yb = sin(phiB);
+    if(xa >= 0 && xb >= 0){
+      return ya <= yb;
+    }else if (ya >= 0 && yb >= 0 ){
+      return xa >= xb;
+    }else if (xa <= 0 && xb <= 0){
+      return ya >= yb;
+    }else if (ya <= 0 && yb <= 0){
+      return xa <= xb;
+    }else {
+      return false;
+    }
+  }
+  bool phiMoreCounterclockwise(float phiA, float phiB) {
+    // return true if a is more counterclockwise than b
+    // assuming both ngels are in same half
+    float xa,ya,xb,yb;
+    xa = cos(phiA);
+    ya = sin(phiA);
+    xb = cos(phiB);
+    yb = sin(phiB);
+    if(xa >= 0 && xb >= 0){
+      return ya >= yb;
+    }else if (ya >= 0 && yb >= 0 ){
+    return xa <= xb;
+    }else if (xa <= 0 && xb <= 0){
+      return ya <= yb;
+    }else if (ya <= 0 && yb <= 0){
+      return xa >= xb;
+    }else {
+      return false;
+    }
+  }
+
   // Functions for findind overlapping functions
   float zAxisIntersection(const float zrPointA[2], const float zrPointB[2]){
     return (zrPointB[0]-zrPointA[0])/(zrPointB[1]-zrPointA[1])*(-zrPointA[1])+zrPointA[0];
@@ -339,10 +402,10 @@ PixelInactiveAreaFinder::InactiveAreas::spansAndLayerSets(const GlobalPoint& poi
 
   LogDebug("PixelInactiveAreaFinder") << "Origin at " << point.x() << "," << point.y() << "," << point.z() << " z half width " << zwidth;
 
-  for(LayerSetIndex i=0, end=layerPairIndices_->size(); i<end; ++i) {
-    const auto& layerIdxPair = (*layerPairIndices_)[i];
-    const auto& innerSpans = spans_[layerIdxPair.first];
-    const auto& outerSpans = spans_[layerIdxPair.second];
+  for(LayerSetIndex i=0, end=inactiveLayerPairIndices_->size(); i<end; ++i) {
+    const auto& layerIdxPair = (*inactiveLayerPairIndices_)[i];
+    const auto& innerSpans = inactiveSpans_[layerIdxPair.first];
+    const auto& outerSpans = inactiveSpans_[layerIdxPair.second];
 
     for(const auto& innerSpan: innerSpans) {
       for(const auto& outerSpan: outerSpans) {
@@ -351,8 +414,8 @@ PixelInactiveAreaFinder::InactiveAreas::spansAndLayerSets(const GlobalPoint& poi
           std::pair<float,float> range(0,0);
 
           bool zOverlap = false;
-          const auto innerDet = std::get<0>((*layers_)[layerIdxPair.first]);
-          const auto outerDet = std::get<0>((*layers_)[layerIdxPair.second]);
+          const auto innerDet = std::get<0>((*inactiveLayers_)[layerIdxPair.first]);
+          const auto outerDet = std::get<0>((*inactiveLayers_)[layerIdxPair.second]);
           if(innerDet == GeomDetEnumerators::PixelBarrel) {
             if(outerDet == GeomDetEnumerators::PixelBarrel)
               zOverlap = getZAxisOverlapRangeBarrel(innerSpan, outerSpan, range);
@@ -402,13 +465,13 @@ PixelInactiveAreaFinder::PixelInactiveAreaFinder(const edm::ParameterSet& iConfi
 #endif
 
   auto findOrAdd = [&](SeedingLayerId layer) -> unsigned short {
-    auto found = std::find(layers_.cbegin(), layers_.cend(), layer);
-    if(found == layers_.cend()) {
-      auto ret = layers_.size();
-      layers_.push_back(layer);
+    auto found = std::find(inactiveLayers_.cbegin(), inactiveLayers_.cend(), layer);
+    if(found == inactiveLayers_.cend()) {
+      auto ret = inactiveLayers_.size();
+      inactiveLayers_.push_back(layer);
       return ret;
     }
-    return std::distance(layers_.cbegin(), found);
+    return std::distance(inactiveLayers_.cbegin(), found);
   };
 
   // mapping from active layer pairs to inactive layer pairs
@@ -429,13 +492,13 @@ PixelInactiveAreaFinder::PixelInactiveAreaFinder(const edm::ParameterSet& iConfi
       auto innerInd = findOrAdd(inactiveLayerSet.first);
       auto outerInd = findOrAdd(inactiveLayerSet.second);
 
-      auto found = std::find(layerSetIndices_.cbegin(), layerSetIndices_.cend(), std::make_pair(innerInd, outerInd));
-      if(found == layerSetIndices_.end()) {
-        layerSetIndices_.emplace_back(innerInd, outerInd);
+      auto found = std::find(inactiveLayerSetIndices_.cbegin(), inactiveLayerSetIndices_.cend(), std::make_pair(innerInd, outerInd));
+      if(found == inactiveLayerSetIndices_.end()) {
+        inactiveLayerSetIndices_.emplace_back(innerInd, outerInd);
         layerSetIndexInactiveToActive_.push_back(std::vector<LayerSetIndex>{{i}});
       }
       else {
-        layerSetIndexInactiveToActive_.at(std::distance(layerSetIndices_.cbegin(), found)).push_back(i); // TODO: move to operator[] once finished
+        layerSetIndexInactiveToActive_.at(std::distance(inactiveLayerSetIndices_.cbegin(), found)).push_back(i); // TODO: move to operator[] once finished
       }
 
       LogTrace("PixelInactiveAreaFinder") << " inactive layer set " << inactiveLayerSet.first << "+" << inactiveLayerSet.second;
@@ -447,8 +510,8 @@ PixelInactiveAreaFinder::PixelInactiveAreaFinder(const edm::ParameterSet& iConfi
 
 #ifdef EDM_ML_DEBUG
   LogDebug("PixelInactiveAreaFinder") << "All inactive layer sets";
-  for(const auto& idxPair: layerSetIndices_) {
-    LogTrace("PixelInactiveAreaFinder") << " " << layers_[idxPair.first] << "+" << layers_[idxPair.second];
+  for(const auto& idxPair: inactiveLayerSetIndices_) {
+    LogTrace("PixelInactiveAreaFinder") << " " << inactiveLayers_[idxPair.first] << "+" << inactiveLayers_[idxPair.second];
   }
 #endif
 }
@@ -489,9 +552,9 @@ PixelInactiveAreaFinder::inactiveAreas(const edm::Event& iEvent, const edm::Even
   // returns pair where first is barrel spans and second endcap spans
   DetGroupSpanContainerPair cspans = detGroupSpans();
 
-  // map spans to a vector with consisntent indexing with layers_ and layerSetIndices_
+  // map spans to a vector with consistent indexing with inactiveLayers_ and inactiveLayerSetIndices_
   // TODO: try to move the inner logic towards this direction as well
-  std::vector<DetGroupSpanContainer> spans(layers_.size());
+  std::vector<DetGroupSpanContainer> spans(inactiveLayers_.size());
 
   auto doWork = [&](const DetGroupSpanContainer& container) {
     for(const auto& span: container) {
@@ -499,18 +562,18 @@ PixelInactiveAreaFinder::inactiveAreas(const edm::Event& iEvent, const edm::Even
       const auto side = (subdet == GeomDetEnumerators::PixelBarrel ? TrackerDetSide::Barrel :
                          (span.zSpan.first < 0 ? TrackerDetSide::NegEndcap : TrackerDetSide::PosEndcap));
       const auto layer = subdet == GeomDetEnumerators::PixelBarrel ? span.layer : span.disk;
-      auto found = std::find(layers_.begin(), layers_.end(), SeedingLayerId(subdet, side, layer));
-      if(found != layers_.end()) { // it is possible that this layer is ignored by the configuration
-        spans[std::distance(layers_.begin(), found)].push_back(span);
+      auto found = std::find(inactiveLayers_.begin(), inactiveLayers_.end(), SeedingLayerId(subdet, side, layer));
+      if(found != inactiveLayers_.end()) { // it is possible that this layer is ignored by the configuration
+        spans[std::distance(inactiveLayers_.begin(), found)].push_back(span);
       }
     }
   };
   doWork(cspans.first);
   doWork(cspans.second);
 
-  auto ret = InactiveAreas(&layers_,
+  auto ret = InactiveAreas(&inactiveLayers_,
                            std::move(spans),
-                           &layerSetIndices_,
+                           &inactiveLayerSetIndices_,
                            &layerSetIndexInactiveToActive_);
 
   if(debug_) {
@@ -525,36 +588,36 @@ void PixelInactiveAreaFinder::updatePixelDets(const edm::EventSetup& iSetup) {
   if(!geometryWatcher_.check(iSetup))
     return;
 
-  pixelDetsBarrel.clear();
-  pixelDetsEndcap.clear();
+  pixelDetsBarrel_.clear();
+  pixelDetsEndcap_.clear();
 
   for(auto const & geomDetPtr : trackerGeometry_->detsPXB() ) {
     if(geomDetPtr->geographicalId().subdetId() == PixelSubdetector::PixelBarrel){
-      pixelDetsBarrel.push_back(geomDetPtr->geographicalId().rawId());
+      pixelDetsBarrel_.push_back(geomDetPtr->geographicalId().rawId());
     }
   }
   for(auto const & geomDetPtr : trackerGeometry_->detsPXF() ) {
     if(geomDetPtr->geographicalId().subdetId() == PixelSubdetector::PixelEndcap){
-      pixelDetsEndcap.push_back(geomDetPtr->geographicalId().rawId());
+      pixelDetsEndcap_.push_back(geomDetPtr->geographicalId().rawId());
     }
   }
-  std::sort(pixelDetsBarrel.begin(),pixelDetsBarrel.end());
-  std::sort(pixelDetsEndcap.begin(),pixelDetsEndcap.end());
+  std::sort(pixelDetsBarrel_.begin(),pixelDetsBarrel_.end());
+  std::sort(pixelDetsEndcap_.begin(),pixelDetsEndcap_.end());
 }
 void PixelInactiveAreaFinder::getBadPixelDets(){
   for(auto const & disabledModule : pixelQuality_->getBadComponentList() ){
     if( DetId(disabledModule.DetID).subdetId() == PixelSubdetector::PixelBarrel ){
-      badPixelDetsBarrel.push_back( disabledModule.DetID );
+      badPixelDetsBarrel_.push_back( disabledModule.DetID );
     } else if ( DetId(disabledModule.DetID).subdetId() == PixelSubdetector::PixelEndcap ){
-      badPixelDetsEndcap.push_back( disabledModule.DetID );
+      badPixelDetsEndcap_.push_back( disabledModule.DetID );
     }
   }
-  std::sort(badPixelDetsBarrel.begin(),badPixelDetsBarrel.end());
-  std::sort(badPixelDetsEndcap.begin(),badPixelDetsEndcap.end());
-  badPixelDetsBarrel.erase(
-                           std::unique(badPixelDetsBarrel.begin(),badPixelDetsBarrel.end()),badPixelDetsBarrel.end());
-  badPixelDetsEndcap.erase(
-                           std::unique(badPixelDetsEndcap.begin(),badPixelDetsEndcap.end()),badPixelDetsEndcap.end());
+  std::sort(badPixelDetsBarrel_.begin(),badPixelDetsBarrel_.end());
+  std::sort(badPixelDetsEndcap_.begin(),badPixelDetsEndcap_.end());
+  badPixelDetsBarrel_.erase(
+                           std::unique(badPixelDetsBarrel_.begin(),badPixelDetsBarrel_.end()),badPixelDetsBarrel_.end());
+  badPixelDetsEndcap_.erase(
+                           std::unique(badPixelDetsEndcap_.begin(),badPixelDetsEndcap_.end()),badPixelDetsEndcap_.end());
 }
 // Printing functions
 void PixelInactiveAreaFinder::detInfo(const det_t & det, Stream & ss){
@@ -603,12 +666,12 @@ void PixelInactiveAreaFinder::detInfo(const det_t & det, Stream & ss){
 void PixelInactiveAreaFinder::printPixelDets(){
   edm::LogPrint("") << "Barrel detectors:";
   Stream ss;
-  for(auto const & det : pixelDetsBarrel){
+  for(auto const & det : pixelDetsBarrel_){
     detInfo(det,ss);
     edm::LogPrint("") << ss.str();ss.str(std::string());
   }
   edm::LogPrint("") << "Endcap detectors;";
-  for(auto const & det : pixelDetsEndcap){
+  for(auto const & det : pixelDetsEndcap_){
     detInfo(det,ss);
     edm::LogPrint("") << ss.str();ss.str(std::string());
   }
@@ -616,12 +679,12 @@ void PixelInactiveAreaFinder::printPixelDets(){
 void PixelInactiveAreaFinder::printBadPixelDets(){
   edm::LogPrint("") << "Bad barrel detectors:";
   Stream ss;
-  for(auto const & det : badPixelDetsBarrel){
+  for(auto const & det : badPixelDetsBarrel_){
     detInfo(det,ss);
     edm::LogPrint("") << ss.str();ss.str(std::string());
   }
   edm::LogPrint("") << "Endcap detectors;";
-  for(auto const & det : badPixelDetsEndcap){
+  for(auto const & det : badPixelDetsEndcap_){
     detInfo(det,ss);
     edm::LogPrint("") << ss.str();ss.str(std::string());
   }
@@ -673,12 +736,12 @@ void PixelInactiveAreaFinder::createPlottingFiles(){
   // All detectors to file DETECTORS
   Stream ss;
   std::ofstream fsDet("DETECTORS.txt");
-  for(auto const & det : pixelDetsBarrel){
+  for(auto const & det : pixelDetsBarrel_){
     detInfo(det,ss);
     ss << std::endl;
   }
   edm::LogPrint("") << "Endcap detectors;";
-  for(auto const & det : pixelDetsEndcap){
+  for(auto const & det : pixelDetsEndcap_){
     detInfo(det,ss);
     ss << std::endl;
   }
@@ -686,11 +749,11 @@ void PixelInactiveAreaFinder::createPlottingFiles(){
   ss.str(std::string());
   // Bad detectors
   std::ofstream fsBadDet("BADDETECTORS.txt");
-  for(auto const & det : badPixelDetsBarrel){
+  for(auto const & det : badPixelDetsBarrel_){
     detInfo(det,ss);
     ss<<std::endl;
   }
-  for(auto const & det : badPixelDetsEndcap){
+  for(auto const & det : badPixelDetsEndcap_){
     detInfo(det,ss);
     ss<<std::endl;
   }
@@ -710,41 +773,13 @@ void PixelInactiveAreaFinder::createPlottingFiles(){
 
 }
 // Functions for finding bad detGroups
-bool PixelInactiveAreaFinder::phiRangesOverlap(const float x1,const float x2, const float y1,const float y2){
-
-  // assuming phi ranges are [x1,x2] and [y1,y2] and xi,yi in [-pi,pi]
-  if(x1<=x2 && y1<=y2){
-    return x1<=y2 && y1 <= x2;
-  }else if (( x1>x2 && y1 <= y2) || (y1 > y2 && x1 <= x2 )){
-    return y1 <= x2 || x1 <= y2;
-  }else if (x1 > x2 && y1 > y2){
-    return true;
-  }else {
-    return false;
-  }
-}
-bool PixelInactiveAreaFinder::phiRangesOverlap(const Span_t & phiSpanA, const Span_t & phiSpanB){
-  float x1,x2,y1,y2;
-  std::tie(x1,x2) = phiSpanA;
-  std::tie(y1,y2) = phiSpanB;
-  // assuming phi ranges are [x1,x2] and [y1,y2] and xi,yi in [-pi,pi]
-  if(x1<=x2 && y1<=y2){
-    return x1<=y2 && y1 <= x2;
-  }else if (( x1>x2 && y1 <= y2) || (y1 > y2 && x1 <= x2 )){
-    return y1 <= x2 || x1 <= y2;
-  }else if (x1 > x2 && y1 > y2){
-    return true;
-  }else {
-    return false;
-  }
-}
 bool PixelInactiveAreaFinder::detWorks(det_t det){
   return 
-    std::find(badPixelDetsBarrel.begin(),badPixelDetsBarrel.end(),det)
-    == badPixelDetsBarrel.end()
+    std::find(badPixelDetsBarrel_.begin(),badPixelDetsBarrel_.end(),det)
+    == badPixelDetsBarrel_.end()
     &&
-    std::find(badPixelDetsEndcap.begin(),badPixelDetsEndcap.end(),det)
-    == badPixelDetsEndcap.end()
+    std::find(badPixelDetsEndcap_.begin(),badPixelDetsEndcap_.end(),det)
+    == badPixelDetsEndcap_.end()
     ;
 }
 PixelInactiveAreaFinder::DetGroup PixelInactiveAreaFinder::badAdjecentDetsBarrel(const det_t & det){
@@ -800,7 +835,7 @@ PixelInactiveAreaFinder::DetGroup PixelInactiveAreaFinder::badAdjecentDetsEndcap
   tie(z,ignore) = detSurf.zSpan();
   disk = trackerTopology_->pxfDisk(DetId(det));
   // add detectors from same disk whose phi ranges overlap to the adjecent list
-  for(auto const & detComp : badPixelDetsEndcap){
+  for(auto const & detComp : badPixelDetsEndcap_){
     auto const & detIdComp = DetId(detComp);
     auto const & detSurfComp = trackerGeometry_->idToDet(detIdComp)->surface();
     diskComp = trackerTopology_->pxfDisk(detIdComp);
@@ -843,7 +878,7 @@ PixelInactiveAreaFinder::DetGroup PixelInactiveAreaFinder::reachableDetGroup(con
 PixelInactiveAreaFinder::DetGroupContainer PixelInactiveAreaFinder::badDetGroupsBarrel(){
   DetGroupContainer detGroups;
   DetectorSet foundDets;
-  for(auto const & badDet : badPixelDetsBarrel){
+  for(auto const & badDet : badPixelDetsBarrel_){
     if(foundDets.find(badDet) == foundDets.end()){
       detGroups.push_back(this->reachableDetGroup(badDet,foundDets));
     } 
@@ -853,7 +888,7 @@ PixelInactiveAreaFinder::DetGroupContainer PixelInactiveAreaFinder::badDetGroups
 PixelInactiveAreaFinder::DetGroupContainer PixelInactiveAreaFinder::badDetGroupsEndcap(){
   DetGroupContainer detGroups;
   DetectorSet foundDets;
-  for(auto const & badDet : badPixelDetsEndcap){
+  for(auto const & badDet : badPixelDetsEndcap_){
     if(foundDets.find(badDet) == foundDets.end()){
       detGroups.push_back(this->reachableDetGroup(badDet,foundDets));
     } 
@@ -861,46 +896,6 @@ PixelInactiveAreaFinder::DetGroupContainer PixelInactiveAreaFinder::badDetGroups
   return detGroups;
 }
 // Functions for finding DetGroupSpans
-bool PixelInactiveAreaFinder::phiMoreClockwise(float phiA, float phiB){
-  // return true if a is more clockwise than b
-  // assuming both angels are in same half
-  float xa,ya,xb,yb;
-  xa = cos(phiA);
-  ya = sin(phiA);
-  xb = cos(phiB);
-  yb = sin(phiB);
-  if(xa >= 0 && xb >= 0){
-    return ya <= yb;
-  }else if (ya >= 0 && yb >= 0 ){
-    return xa >= xb;
-  }else if (xa <= 0 && xb <= 0){
-    return ya >= yb;
-  }else if (ya <= 0 && yb <= 0){
-    return xa <= xb;
-  }else {
-    return false;
-  }
-}
-bool PixelInactiveAreaFinder::phiMoreCounterclockwise(float phiA, float phiB){
-  // return true if a is more counterclockwise than b
-  // assuming both ngels are in same half
-  float xa,ya,xb,yb;
-  xa = cos(phiA);
-  ya = sin(phiA);
-  xb = cos(phiB);
-  yb = sin(phiB);
-  if(xa >= 0 && xb >= 0){
-    return ya >= yb;
-  }else if (ya >= 0 && yb >= 0 ){
-    return xa <= xb;
-  }else if (xa <= 0 && xb <= 0){
-    return ya <= yb;
-  }else if (ya <= 0 && yb <= 0){
-    return xa >= xb;
-  }else {
-    return false;
-  }
-}
 void PixelInactiveAreaFinder::getPhiSpanBarrel(const DetGroup & detGroup, DetGroupSpan & cspan){
   // find phiSpan using ordered vector of unique ladders in detGroup
   if(detGroup.size() == 0){
