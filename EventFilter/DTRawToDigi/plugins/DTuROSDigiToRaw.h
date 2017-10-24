@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
+#include "DataFormats/DTDigi/interface/DTuROSControlData.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
@@ -59,11 +60,11 @@ private:
 
   std::vector<int> feds_;
 
-  unsigned char* LineFED;
+  unsigned char* lineFED;
 
-  int bslts[13], dslts[13];
+  int bslts[DOCESLOTS], dslts[DOCESLOTS];
 
-  std::vector<int> wslts[13];
+  std::vector<int> wslts[DOCESLOTS];
 
   // Operations
 
@@ -79,7 +80,7 @@ private:
 
   void calcCRC(int myD1, int myD2, int& myC);
 
-  int theCRT(int ddu, int ros, int rob);
+  int theCRT(int ddu);
 
   int theSLT(int ddu, int ros, int rob);
 

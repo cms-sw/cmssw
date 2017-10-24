@@ -112,7 +112,7 @@ void DTuROSRawToDigi::process(int DTuROSFED,
   if ( dturosdata.size() == 0 ) return;
 
 
-  LineFED=dturosdata.data(); 
+  lineFED=dturosdata.data(); 
   long dataWord = 0;
   int lines  = 0; // counting including header
   readline(lines, dataWord);

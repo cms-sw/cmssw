@@ -60,7 +60,7 @@ private:
 
   std::vector<int> feds_;
 
-  unsigned char* LineFED;
+  unsigned char* lineFED;
 
   // Operations
 
@@ -74,8 +74,8 @@ private:
 
   // utilities
   inline void readline(int& lines, long& dataWord) {
-    dataWord = *((long*)LineFED);
-    LineFED += 8;
+    dataWord = *((long*)lineFED);
+    lineFED += 8;
     ++lines;
   }
 
