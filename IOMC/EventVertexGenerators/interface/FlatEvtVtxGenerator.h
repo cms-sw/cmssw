@@ -50,7 +50,6 @@ private:
 private:
   double fMinX, fMinY, fMinZ, fMinT;
   double fMaxX, fMaxY, fMaxZ, fMaxT;
-  double fTimeOffset;
 };
 
 #endif
