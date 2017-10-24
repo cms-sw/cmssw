@@ -115,7 +115,7 @@ PFCandConnector::connect(std::unique_ptr<PFCandidateCollection>& pfCand) {
 	       << " ECAL = " << pfCand->at(ce1).ecalEnergy() 
 	       << " HCAL = " << pfCand->at(ce1).hcalEnergy() 
 	       << " dE(Trk-CALO) = " << pfCand->at(ce1).trackRef()->p()-pfCand->at(ce1).ecalEnergy()-pfCand->at(ce1).hcalEnergy() 
-	       << " Nmissing hits = " << pfCand->at(ce1).trackRef()->hitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS) << endl;
+	       << " Nmissing hits = " << pfCand->at(ce1).trackRef()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS) << endl;
 
 	if (debug_) (pfCand->at(ce1)).displacedVertexRef(fT_FROM_DISP_)->Dump();
 		
@@ -191,7 +191,7 @@ PFCandConnector::analyseNuclearWPrim(std::unique_ptr<PFCandidateCollection>& pfC
 			 << " ECAL = " << pfCand->at(ce2).ecalEnergy() 
 			 << " HCAL = " << pfCand->at(ce2).hcalEnergy() 
 			 << " dE(Trk-CALO) = " << pfCand->at(ce2).trackRef()->p()-pfCand->at(ce2).ecalEnergy()-pfCand->at(ce2).hcalEnergy() 
-			 << " Nmissing hits = " << pfCand->at(ce2).trackRef()->hitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS) << endl;
+			 << " Nmissing hits = " << pfCand->at(ce2).trackRef()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS) << endl;
 
 	if(isPrimaryNucl(pfCand->at(ce2))){
 	  if (debug_) cout << "\t\t but it is also a Primary Candidate " << ce2 << endl;
@@ -214,7 +214,7 @@ PFCandConnector::analyseNuclearWPrim(std::unique_ptr<PFCandidateCollection>& pfC
 
 	double caloEn = pfCand->at(ce2).ecalEnergy() + pfCand->at(ce2).hcalEnergy();
 	double deltaEn =  pfCand->at(ce2).p4().E() - caloEn;
-	int nMissOuterHits = pfCand->at(ce2).trackRef()->hitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS);
+	int nMissOuterHits = pfCand->at(ce2).trackRef()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS);
 	
 
 	// Check if the difference Track Calo is not too large and if we can trust the track, ie it doesn't miss too much hits.
@@ -341,7 +341,7 @@ PFCandConnector::analyseNuclearWSec(std::unique_ptr<PFCandidateCollection>& pfCa
 
   double caloEn = pfCand->at(ce1).ecalEnergy() + pfCand->at(ce1).hcalEnergy();
   double deltaEn =  pfCand->at(ce1).p4().E() - caloEn;
-  int nMissOuterHits = pfCand->at(ce1).trackRef()->hitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS);
+  int nMissOuterHits = pfCand->at(ce1).trackRef()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS);
 
 
   ref1 = pfCand->at(ce1).displacedVertexRef(fT_FROM_DISP_);
@@ -422,7 +422,7 @@ PFCandConnector::analyseNuclearWSec(std::unique_ptr<PFCandidateCollection>& pfCa
 			 << " ECAL = " << pfCand->at(ce2).ecalEnergy() 
 			 << " HCAL = " << pfCand->at(ce2).hcalEnergy() 
 			 << " dE(Trk-CALO) = " << pfCand->at(ce2).trackRef()->p()-pfCand->at(ce2).ecalEnergy()-pfCand->at(ce2).hcalEnergy() 
-			 << " Nmissing hits = " << pfCand->at(ce2).trackRef()->hitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS) << endl;
+			 << " Nmissing hits = " << pfCand->at(ce2).trackRef()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS) << endl;
 
 	// Take now the parameters of the secondary track that are relevant and use them to construct the NI candidate
 	PFCandidate::ElementsInBlocks elementsInBlocks = pfCand->at(ce2).elementsInBlocks();
@@ -437,7 +437,7 @@ PFCandConnector::analyseNuclearWSec(std::unique_ptr<PFCandidateCollection>& pfCa
 
 	double caloEn = pfCand->at(ce2).ecalEnergy() + pfCand->at(ce2).hcalEnergy();
 	double deltaEn =  pfCand->at(ce2).p4().E() - caloEn;
-	int nMissOuterHits = pfCand->at(ce2).trackRef()->hitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS); 
+	int nMissOuterHits = pfCand->at(ce2).trackRef()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS); 
 	if (deltaEn > ptErrorSecondary_ && nMissOuterHits > 1) {
 	  math::XYZTLorentzVectorD momentumToAdd = pfCand->at(ce2).p4()*caloEn/pfCand->at(ce2).p4().E();
 	  momentumSec += momentumToAdd;

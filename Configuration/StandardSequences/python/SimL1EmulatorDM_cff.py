@@ -19,6 +19,7 @@ if not stage2L1Trigger.isChosen():
     simRctDigis.hcalDigis=cms.VInputTag(cms.InputTag("DMHcalTriggerPrimitiveDigis"))   
     simRctDigis.ecalDigis=cms.VInputTag(cms.InputTag("DMEcalTriggerPrimitiveDigis"))   
 else:
+    #seems likely that this code does not support 2015 MC...
     simTwinMuxDigis.RPC_Source = cms.InputTag('mixData')
     simOmtfDigis.srcRPC = cms.InputTag('mixData')
     simCaloStage2Layer1Digis.ecalToken = cms.InputTag("DMEcalTriggerPrimitiveDigis")

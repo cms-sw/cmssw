@@ -30,6 +30,7 @@
 
 #include <DataFormats/MuonReco/interface/EmulatedME0SegmentCollection.h>
 #include <DataFormats/MuonReco/interface/ME0MuonCollection.h>
+#include "DataFormats/MuonReco/interface/MuonSimInfo.h"
 
 #include <vector>
 #include <map>
@@ -160,6 +161,12 @@ namespace DataFormats_MuonReco {
     EmulatedME0SegmentCollection segcol;
     edm::Wrapper<EmulatedME0SegmentCollection> scw1;
     edm::Ref<EmulatedME0SegmentCollection> scr1;    
+
+    reco::MuonSimInfo MSI;
+    std::vector<reco::MuonSimInfo> vMSI;
+    edm::Wrapper<std::vector<reco::MuonSimInfo> > wvMSI;
+    edm::ValueMap<reco::MuonSimInfo> vmMSI;
+    edm::Wrapper<edm::ValueMap<reco::MuonSimInfo> > wvmMSI;
   };
 }
 
