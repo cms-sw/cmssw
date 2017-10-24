@@ -242,9 +242,9 @@ void Phase2TrackerRecHitsValidation::analyze(const edm::Event& event, const edm:
         // initialize the nhit counters if they don't exist for this layer
         auto nhitit(nRecHits[det].find(layer));
         if (nhitit == nRecHits[det].end()) {
-	  nRecHits       [det].emplace(std::pair<unsigned int, unsigned int>(layer, 0));
-	  nPrimarySimHits[det].emplace(std::pair<unsigned int, unsigned int>(layer, 0));
-	  nOtherSimHits  [det].emplace(std::pair<unsigned int, unsigned int>(layer, 0));
+	  nRecHits       [det].emplace(layer, 0);
+	  nPrimarySimHits[det].emplace(layer, 0);
+	  nOtherSimHits  [det].emplace(layer, 0);
 	}
 
         // Create histograms if they do not yet exist for this layer

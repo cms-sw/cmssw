@@ -167,7 +167,7 @@ void Phase2TrackerClusterizerValidation::analyze(const edm::Event& event, const 
     SimTracksMap simTracks;
     for (edm::SimTrackContainer::const_iterator simTrackIt(simTracksRaw->begin()); simTrackIt != simTracksRaw->end(); ++simTrackIt) {
       if (simTrackIt->momentum().pt() > simtrackminpt_) {
-        simTracks.insert(std::pair< unsigned int, SimTrack >(simTrackIt->trackId(), *simTrackIt));
+        simTracks.emplace(simTrackIt->trackId(), *simTrackIt);
       }
     }
 
@@ -212,9 +212,9 @@ void Phase2TrackerClusterizerValidation::analyze(const edm::Event& event, const 
         // initialize the nhit counters if they don't exist for this layer
         auto nhitit(nClusters[det].find(layer));
         if (nhitit == nClusters[det].end()) {
-	  nClusters      [det].emplace(std::pair<unsigned int, unsigned int>(layer, 0));
-	  nPrimarySimHits[det].emplace(std::pair<unsigned int, unsigned int>(layer, 0));
-	  nOtherSimHits  [det].emplace(std::pair<unsigned int, unsigned int>(layer, 0));
+	  nClusters      [det].emplace(layer, 0);
+	  nPrimarySimHits[det].emplace(layer, 0);
+	  nOtherSimHits  [det].emplace(layer, 0);
 	}
 
         // Create histograms for the layer if they do not yet exist
@@ -243,6 +243,7 @@ void Phase2TrackerClusterizerValidation::analyze(const edm::Event& event, const 
                   if (add) clusterSimTrackIds.push_back(it);
 		}
             }
+	    std::sort(clusterSimTrackIds.begin(), clusterSimTrackIds.end());
 
 	    // find the closest simhit
 	    // this is needed because otherwise you get cases with simhits and clusters being swapped
