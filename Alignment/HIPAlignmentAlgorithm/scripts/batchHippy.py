@@ -167,7 +167,7 @@ class MyBatchManager:
 
    def redirectProxy(self):
       local_proxy = subprocess.check_output(["voms-proxy-info", "--path"]).strip()
-      shutil.copyfile(local_proxy, os.path.join(self.opt.outputdir,"/.user_proxy"))
+      shutil.copyfile(local_proxy, os.path.join(self.opt.outputdir,".user_proxy"))
 
 
 
