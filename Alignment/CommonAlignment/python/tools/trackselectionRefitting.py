@@ -329,11 +329,23 @@ def getSequence(process, collection,
            strSrcConstr = module.srcConstr.getModuleLabel()
            if strSrcConstr:
                procsrcconstr = getattr(process,strSrcConstr)
-               if procsrcconstr.src != module.src:
-                  module.srcConstr=''
-                  module.constraint=''
-               else:
-                  moduleSum += procsrcconstr
+               if hasattr(procsrcconstr,"src"): # Momentum or track parameter constraints
+                  if procsrcconstr.src != module.src:
+                     module.srcConstr=''
+                     module.constraint=''
+                  else:
+                     moduleSum += procsrcconstr # Add constraint
+               elif hasattr(procsrcconstr,"srcTrk"): # Vertex constraint
+                  if procsrcconstr.srcTrk != module.src:
+                     module.srcConstr=''
+                     module.constraint=''
+                  else:
+                     procsrcconstrsrcvtx = getattr(process,procsrcconstr.srcVtx.getModuleLabel())
+                     if type(procsrcconstrsrcvtx) is cms.EDFilter: # If source of vertices is itself a filter (e.g. good PVs)
+                        procsrcconstrsrcvtxprefilter = getattr(process,procsrcconstrsrcvtx.src.getModuleLabel())
+                        moduleSum += procsrcconstrsrcvtxprefilter # Add vertex source to constraint before filter
+                     moduleSum += procsrcconstrsrcvtx # Add vertex source to constraint
+                     moduleSum += procsrcconstr # Add constraint
 
         moduleSum += module # append the other modules
 
