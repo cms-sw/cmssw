@@ -5,6 +5,8 @@
 
 #include <memory>
 #include <iostream>
+#include <string>
+#include <vector>
 
 #include "FWCore/Framework/interface/ValidityInterval.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -196,6 +198,14 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
       setWhatProduced (this, &HcalHardcodeCalibrations::producePedestalWidths);
       findingRecord <HcalPedestalWidthsRcd> ();
     }
+    if ((objectName == "EffectivePedestals") || all) {
+      setWhatProduced (this, &HcalHardcodeCalibrations::produceEffectivePedestals, edm::es::Label("effective"));
+      findingRecord <HcalPedestalsRcd> ();
+    }
+    if ((objectName == "EffectivePedestalWidths") || all) {
+      setWhatProduced (this, &HcalHardcodeCalibrations::produceEffectivePedestalWidths, edm::es::Label("effective"));
+      findingRecord <HcalPedestalWidthsRcd> ();
+    }
     if ((objectName == "Gains") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceGains);
       findingRecord <HcalGainsRcd> ();
@@ -318,8 +328,9 @@ HcalHardcodeCalibrations::setIntervalFor( const edm::eventsetup::EventSetupRecor
   oInterval = edm::ValidityInterval (edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime()); //infinite
 }
 
-std::unique_ptr<HcalPedestals> HcalHardcodeCalibrations::producePedestals (const HcalPedestalsRcd& rec) {
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::producePedestals-> ...";
+std::unique_ptr<HcalPedestals> HcalHardcodeCalibrations::producePedestals_ (const HcalPedestalsRcd& rec, bool eff) {
+  std::string seff = eff ? "Effective" : "";
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produce" << seff << "Pedestals-> ...";
   edm::ESHandle<HcalTopology> htopo;
   rec.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
@@ -327,14 +338,15 @@ std::unique_ptr<HcalPedestals> HcalHardcodeCalibrations::producePedestals (const
   auto result = std::make_unique<HcalPedestals>(topo,false);
   std::vector <HcalGenericDetId> cells = allCells(*topo, dbHardcode.killHE());
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalPedestal item = dbHardcode.makePedestal (*cell, false);
+    HcalPedestal item = dbHardcode.makePedestal (*cell, false, eff, topo, iLumi);
     result->addValues(item);
   }
   return result;
 }
 
-std::unique_ptr<HcalPedestalWidths> HcalHardcodeCalibrations::producePedestalWidths (const HcalPedestalWidthsRcd& rec) {
-  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::producePedestalWidths-> ...";
+std::unique_ptr<HcalPedestalWidths> HcalHardcodeCalibrations::producePedestalWidths_ (const HcalPedestalWidthsRcd& rec, bool eff) {
+  std::string seff = eff ? "Effective" : "";
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produce" << seff << "PedestalWidths-> ...";
   edm::ESHandle<HcalTopology> htopo;
   rec.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
@@ -342,10 +354,26 @@ std::unique_ptr<HcalPedestalWidths> HcalHardcodeCalibrations::producePedestalWid
   auto result = std::make_unique<HcalPedestalWidths>(topo,false);
   std::vector <HcalGenericDetId> cells = allCells(*htopo, dbHardcode.killHE());
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalPedestalWidth item = dbHardcode.makePedestalWidth (*cell);
+    HcalPedestalWidth item = dbHardcode.makePedestalWidth (*cell, eff, topo, iLumi);
     result->addValues(item);
   }
   return result;
+}
+
+std::unique_ptr<HcalPedestals> HcalHardcodeCalibrations::producePedestals (const HcalPedestalsRcd& rec){
+  return producePedestals_(rec,false);
+}
+
+std::unique_ptr<HcalPedestals> HcalHardcodeCalibrations::produceEffectivePedestals (const HcalPedestalsRcd& rec){
+  return producePedestals_(rec,true);
+}
+
+std::unique_ptr<HcalPedestalWidths> HcalHardcodeCalibrations::producePedestalWidths (const HcalPedestalWidthsRcd& rec){
+  return producePedestalWidths_(rec,false);
+}
+
+std::unique_ptr<HcalPedestalWidths> HcalHardcodeCalibrations::produceEffectivePedestalWidths (const HcalPedestalWidthsRcd& rec){
+  return producePedestalWidths_(rec,true);
 }
 
 std::unique_ptr<HcalGains> HcalHardcodeCalibrations::produceGains (const HcalGainsRcd& rec) {

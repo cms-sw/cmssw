@@ -63,8 +63,12 @@ protected:
 			      const edm::IOVSyncValue& , 
 			      edm::ValidityInterval&) override ;
 
+  std::unique_ptr<HcalPedestals> producePedestals_ (const HcalPedestalsRcd& rcd, bool eff);
+  std::unique_ptr<HcalPedestalWidths> producePedestalWidths_ (const HcalPedestalWidthsRcd& rcd, bool eff);
   std::unique_ptr<HcalPedestals> producePedestals (const HcalPedestalsRcd& rcd);
   std::unique_ptr<HcalPedestalWidths> producePedestalWidths (const HcalPedestalWidthsRcd& rcd);
+  std::unique_ptr<HcalPedestals> produceEffectivePedestals (const HcalPedestalsRcd& rcd);
+  std::unique_ptr<HcalPedestalWidths> produceEffectivePedestalWidths (const HcalPedestalWidthsRcd& rcd);
   std::unique_ptr<HcalGains> produceGains (const HcalGainsRcd& rcd);
   std::unique_ptr<HcalGainWidths> produceGainWidths (const HcalGainWidthsRcd& rcd);
   std::unique_ptr<HcalQIEData> produceQIEData (const HcalQIEDataRcd& rcd);
