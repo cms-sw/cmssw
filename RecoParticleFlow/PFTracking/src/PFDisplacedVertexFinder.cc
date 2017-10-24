@@ -737,7 +737,7 @@ PFDisplacedVertexFinder::getTransvLongDiff(const GlobalPoint& Ref, const GlobalP
 
   Basic3DVector<float>vRef(Ref);
   Basic3DVector<float>vToProject(ToProject);
-  float oneOverMag = 1.0/vRef.mag();
+  float oneOverMag = 1.0f/vRef.mag();
 
   return std::make_pair(fabs(vRef.cross(vToProject).mag()*oneOverMag),fabs((vRef.dot(vToProject)-vRef.mag2())*oneOverMag));
 
