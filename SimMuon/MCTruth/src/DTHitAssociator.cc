@@ -80,8 +80,8 @@ void DTHitAssociator::initEvent(const edm::Event &iEvent, const edm::EventSetup&
                               <<", associatorByWire = "<<associatorByWire;
   
   if (!links_exist && !associatorByWire) {
-    edm::LogWarning("DTHitAssociator")<<"*** WARNING in DTHitAssociator::DTHitAssociator: associatorByWire reset to TRUE !"
-				      <<"    \t (missing DTDigiSimLinkCollection ?)";
+    LogTrace("DTHitAssociator")<<"*** WARNING in DTHitAssociator::DTHitAssociator: associatorByWire reset to TRUE !"
+			       <<"    \t (missing DTDigiSimLinkCollection ?)";
     associatorByWire = true;
   }
   
@@ -180,7 +180,7 @@ void DTHitAssociator::initEvent(const edm::Event &iEvent, const edm::EventSetup&
     }
     
     if (mapOfSimHit.end() != mapOfSimHit.begin()) {
-      edm::LogVerbatim("DTHitAssociator")<<"\n *** Dump DT PSimHit's ***";
+      LogTrace("DTHitAssociator")<<"\n *** Dump DT PSimHit's ***";
       
       int jwire = 0;
       int ihit = 0;
@@ -194,14 +194,14 @@ void DTHitAssociator::initEvent(const edm::Event &iEvent, const edm::EventSetup&
 	     hitIT != mapOfSimHit[wireid].end(); 
 	     hitIT++ , ihit++) {
 	  PSimHit hit = hitIT->first;
-	  edm::LogVerbatim("DTHitAssociator")
+	  LogTrace("DTHitAssociator")
 	    <<"PSimHit "<<ihit <<", wire "<<wireid //<<", detID = "<<hit.detUnitId()
 	    <<", SimTrack Id:"<<hit.trackId()<<"/Evt:(" <<hit.eventId().event()<<","<<hit.eventId().bunchCrossing()<<") "
 	    <<", pdg = "<<hit.particleType()<<", procs = "<<hit.processType();
 	}	
       } 
     } else {
-      edm::LogVerbatim("DTHitAssociator")<<"\n *** There are NO DT PSimHit's ***";
+      LogTrace("DTHitAssociator")<<"\n *** There are NO DT PSimHit's ***";
     }
 
     if(mapOfDigi.end() != mapOfDigi.begin()) {
@@ -210,13 +210,13 @@ void DTHitAssociator::initEvent(const edm::Event &iEvent, const edm::EventSetup&
       int ihit = 0;
       
       for(DigiMap::const_iterator mapIT=mapOfDigi.begin(); mapIT!=mapOfDigi.end(); ++mapIT , jwire++) {
-	edm::LogVerbatim("DTHitAssociator")<<"\n *** Dump DT digis ***";
+	LogTrace("DTHitAssociator")<<"\n *** Dump DT digis ***";
 
 	DTWireId wireid = (*mapIT).first;
 	for (vector<DTDigi>::const_iterator hitIT = mapOfDigi[wireid].begin(); 
 	     hitIT != mapOfDigi[wireid].end(); 
 	     hitIT++ , ihit++) {
-	  edm::LogVerbatim("DTHitAssociator")
+	  LogTrace("DTHitAssociator")
 	    <<"DTDigi "<<ihit<<", wire "<<wireid<<", number = "<<hitIT->number()<<", TDC counts = "<<hitIT->countsTDC();
 	}	
       }
@@ -225,7 +225,7 @@ void DTHitAssociator::initEvent(const edm::Event &iEvent, const edm::EventSetup&
     }
     
     if (mapOfRecHit.end() != mapOfRecHit.begin()) 
-      edm::LogVerbatim("DTHitAssociator")<<"\n *** Analyze DTRecHitCollection by DTWireId ***";
+      LogTrace("DTHitAssociator")<<"\n *** Analyze DTRecHitCollection by DTWireId ***";
     
     int iwire = 0;
     for(RecHitMap::const_iterator mapIT=mapOfRecHit.begin(); 
@@ -233,11 +233,11 @@ void DTHitAssociator::initEvent(const edm::Event &iEvent, const edm::EventSetup&
 	++mapIT , iwire++) {
       
       DTWireId wireid = (*mapIT).first;
-      edm::LogVerbatim("DTHitAssociator")<<"\n==================================================================="; 
-      edm::LogVerbatim("DTHitAssociator")<<"wire index = "<<iwire<<"  *** DTWireId = "<<" ("<<wireid<<")";
+      LogTrace("DTHitAssociator")<<"\n==================================================================="; 
+      LogTrace("DTHitAssociator")<<"wire index = "<<iwire<<"  *** DTWireId = "<<" ("<<wireid<<")";
       
       if(mapOfSimHit.find(wireid) != mapOfSimHit.end()) {
-	edm::LogVerbatim("DTHitAssociator")<<"\n"<<mapOfSimHit[wireid].size()<<" SimHits (PSimHit):";
+	LogTrace("DTHitAssociator")<<"\n"<<mapOfSimHit[wireid].size()<<" SimHits (PSimHit):";
 	
 	for (vector<PSimHit_withFlag>::const_iterator hitIT = mapOfSimHit[wireid].begin(); 
 	     hitIT != mapOfSimHit[wireid].end(); 
@@ -247,35 +247,35 @@ void DTHitAssociator::initEvent(const edm::Event &iEvent, const edm::EventSetup&
 	  string simhitlog = "\t SimTrack Id = "+tId.str();
 	  if (hitIT->second) simhitlog = simhitlog + "\t -VALID HIT-";
 	  else simhitlog = simhitlog + "\t -not valid hit-";
-	  edm::LogVerbatim("DTHitAssociator")<<simhitlog;
+	  LogTrace("DTHitAssociator")<<simhitlog;
 	}
       }
       
       if(mapOfLinks.find(wireid) != mapOfLinks.end()) {
-	edm::LogVerbatim("DTHitAssociator")<<"\n"<<mapOfLinks[wireid].size()<<" Links (DTDigiSimLink):";
+	LogTrace("DTHitAssociator")<<"\n"<<mapOfLinks[wireid].size()<<" Links (DTDigiSimLink):";
 	
 	for (vector<DTDigiSimLink>::const_iterator hitIT = mapOfLinks[wireid].begin(); 
 	     hitIT != mapOfLinks[wireid].end(); 
 	     ++hitIT) {
-	  edm::LogVerbatim("DTHitAssociator")
+	  LogTrace("DTHitAssociator")
 	    <<"\t digi number = "<<hitIT->number()<<", time = "<<hitIT->time()<<", SimTrackId = "<<hitIT->SimTrackId();
 	}
       }
       
       if(mapOfDigi.find(wireid) != mapOfDigi.end()) {
-	edm::LogVerbatim("DTHitAssociator")<<"\n"<<mapOfDigi[wireid].size()<<" Digis (DTDigi):";
+	LogTrace("DTHitAssociator")<<"\n"<<mapOfDigi[wireid].size()<<" Digis (DTDigi):";
 	for (vector<DTDigi>::const_iterator hitIT = mapOfDigi[wireid].begin(); 
 	     hitIT != mapOfDigi[wireid].end(); 
 	     ++hitIT) {
-	  edm::LogVerbatim("DTHitAssociator")<<"\t digi number = "<<hitIT->number()<<", time = "<<hitIT->time();
+	  LogTrace("DTHitAssociator")<<"\t digi number = "<<hitIT->number()<<", time = "<<hitIT->time();
 	}
       }
       
-      edm::LogVerbatim("DTHitAssociator")<<"\n"<<(*mapIT).second.size()<<" RecHits (DTRecHit1DPair):";    
+      LogTrace("DTHitAssociator")<<"\n"<<(*mapIT).second.size()<<" RecHits (DTRecHit1DPair):";    
       for(vector<DTRecHit1DPair>::const_iterator vIT =(*mapIT).second.begin(); 
 	  vIT !=(*mapIT).second.end(); 
 	  ++vIT) {
-	edm::LogVerbatim("DTHitAssociator")<<"\t digi time = "<<vIT->digiTime();
+	LogTrace("DTHitAssociator")<<"\t digi time = "<<vIT->digiTime();
       }
     }
   }
@@ -291,7 +291,7 @@ std::vector<DTHitAssociator::SimHitIdpr> DTHitAssociator::associateHitId(const T
   if (dtrechit) {
     simtrackids = associateDTHitId(dtrechit);
   } else {
-    edm::LogWarning("DTHitAssociator")<<"*** WARNING in DTHitAssociator::associateHitId, null dynamic_cast !";
+    LogTrace("DTHitAssociator")<<"*** WARNING in DTHitAssociator::associateHitId, null dynamic_cast !";
   }
   return simtrackids;
 }
@@ -358,8 +358,8 @@ std::vector<DTHitAssociator::SimHitIdpr> DTHitAssociator::associateDTHitId(const
       }
 
     } else {
-      edm::LogError("DTHitAssociator")<<"*** ERROR in DTHitAssociator::associateDTHitId - DTRecHit1D: "
-				      <<*dtrechit<<" has no associated DTDigiSimLink !"<<endl;
+      LogTrace("DTHitAssociator")<<"*** ERROR in DTHitAssociator::associateDTHitId - DTRecHit1D: "
+				 <<*dtrechit<<" has no associated DTDigiSimLink !"<<endl;
       return matched; 
     }
   }
@@ -416,7 +416,7 @@ std::vector<PSimHit> DTHitAssociator::associateHit(const TrackingRecHit & hit) c
     }
 
   } else {
-    edm::LogWarning("DTHitAssociator")<<"*** WARNING in DTHitAssociator::associateHit, null dynamic_cast !";
+    LogTrace("DTHitAssociator")<<"*** WARNING in DTHitAssociator::associateHit, null dynamic_cast !";
   }
   return simhits;
 }

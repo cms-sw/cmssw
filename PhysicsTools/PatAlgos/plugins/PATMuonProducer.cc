@@ -9,6 +9,7 @@
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonSimInfo.h"
 
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 
@@ -160,6 +161,9 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
     mvaEstimator_.initialize(fip.fullPath(),mvaDrMax_);
   }
 
+  // MC info
+  simInfo_        = consumes<edm::ValueMap<reco::MuonSimInfo> >(iConfig.getParameter<edm::InputTag>("muonSimInfo"));
+
   // produces vector of muons
   produces<std::vector<Muon> >();
 }
@@ -272,6 +276,10 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     // this is needed by the IPTools methods from the tracking group
     iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilder);
   }
+
+  // MC info
+  edm::Handle<edm::ValueMap<reco::MuonSimInfo> > simInfo;
+  bool simInfoIsAvailalbe = iEvent.getByToken(simInfo_,simInfo);
 
   // this will be the new object collection
   std::vector<Muon> * patMuons = new std::vector<Muon>();
@@ -468,7 +476,23 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
               } 
           }
       }
-
+      // MC info
+      aMuon.initSimInfo();
+      if (simInfoIsAvailalbe){
+	const auto& msi = (*simInfo)[muonBaseRef];
+	aMuon.setSimType(msi.primaryClass);
+	aMuon.setExtSimType(msi.extendedClass);
+	aMuon.setSimFlavour(msi.flavour);
+	aMuon.setSimHeaviestMotherFlavour(msi.heaviestMotherFlavour);
+	aMuon.setSimPdgId(msi.pdgId);
+	aMuon.setSimMotherPdgId(msi.motherPdgId);
+	aMuon.setSimBX(msi.tpBX);
+	aMuon.setSimProdRho(msi.vertex.Rho());
+	aMuon.setSimProdZ(msi.vertex.Z());
+	aMuon.setSimPt(msi.p4.pt());
+	aMuon.setSimEta(msi.p4.eta());
+	aMuon.setSimPhi(msi.p4.phi());
+      }
       patMuons->push_back(aMuon);
     }
   }
