@@ -16,7 +16,6 @@
 <use name="SimDataFormats/TrackingAnalysis"/>
 <use name="SimGeneral/TrackingAnalysis"/>
 <use name="SimTracker/TrackTriggerAssociation"/>
-<use name="TMTrackTrigger/TMTrackFinder"/>
 <use name="boost"/>
 <use name="roothistmatrix"/>
 <flags CXXFLAGS="-g -Wno-unused-variable"/>

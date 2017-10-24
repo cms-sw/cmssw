@@ -1,6 +1,7 @@
 #include "TMTrackTrigger/VertexFinder/interface/RecoVertex.h"
 
-using namespace vertexFinder;
+
+namespace vertexFinder {
 
 void RecoVertex::computeParameters(){
 	pT_ = 0.;
@@ -32,4 +33,6 @@ void RecoVertex::computeParameters(){
 	met_ = sqrt(metX_*metX_ + metY_*metY_);
 	z0square /= tracks_.size();
 	z0width_ = sqrt(fabs(z0_*z0_ - z0square));
+}
+
 }

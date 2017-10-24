@@ -2,9 +2,13 @@
 #include "TMTrackTrigger/VertexFinder/interface/VertexFinder.h"
 
 
-using namespace std;
-using namespace vertexFinder;
+#include "TMTrackTrigger/VertexFinder/interface/Settings.h"
 
+
+using namespace std;
+
+
+namespace vertexFinder {
 
 void VertexFinder::GapClustering(){
 
@@ -314,5 +318,7 @@ void VertexFinder::TDRalgorithm(){
 			vxPt = vertex.pT();
 		} 
 	}
+
+}
 
 }

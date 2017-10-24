@@ -1,8 +1,8 @@
 #include <TMTrackTrigger/VertexFinder/interface/VertexProducer.h>
 
 
-#include <TMTrackTrigger/TMTrackFinder/interface/InputData.h>
-#include <TMTrackTrigger/TMTrackFinder/interface/Settings.h>
+#include <TMTrackTrigger/VertexFinder/interface/InputData.h>
+#include <TMTrackTrigger/VertexFinder/interface/Settings.h>
 #include <TMTrackTrigger/VertexFinder/interface/Histos.h>
 #include "TMTrackTrigger/VertexFinder/interface/VertexFinder.h"
 #include "TMTrackTrigger/VertexFinder/interface/L1fittedTrack.h"
@@ -13,6 +13,9 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+
 #include "boost/numeric/ublas/matrix.hpp"
 #include <iostream>
 #include <vector>
@@ -22,6 +25,9 @@
 using namespace std;
 using boost::numeric::ublas::matrix;
 
+using namespace vertexFinder;
+
+
 VertexProducer::VertexProducer(const edm::ParameterSet& iConfig):
   tpInputTag( consumes<TrackingParticleCollection>( iConfig.getParameter<edm::InputTag>("tpInputTag") ) ),
   stubInputTag( consumes<DetSetVec>( iConfig.getParameter<edm::InputTag>("stubInputTag") ) ),
@@ -30,7 +36,7 @@ VertexProducer::VertexProducer(const edm::ParameterSet& iConfig):
   l1TracksToken_( consumes<TTTrackCollection>(iConfig.getParameter<edm::InputTag>("l1TracksInputTag")) )
 {
   // Get configuration parameters
-  settings_ = new Settings(iConfig);
+  settings_ = new vertexFinder::Settings(iConfig);
 
   // Tame debug printout.
   cout.setf(ios::fixed, ios::floatfield);
@@ -86,8 +92,29 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   std::vector<vertexFinder::L1fittedTrack> l1Tracks;
   l1Tracks.reserve(l1TracksHandle->size());
-  for(const auto& track : *l1TracksHandle)
-    l1Tracks.push_back(vertexFinder::L1fittedTrack(track));
+
+  {
+    // Get the tracker geometry info needed to unpack the stub info.
+    edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
+    iSetup.get<TrackerDigiGeometryRecord>().get( trackerGeometryHandle );
+    edm::ESHandle<TrackerTopology> trackerTopologyHandle;
+    iSetup.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
+
+
+    map<edm::Ptr< TrackingParticle >, const TP* > translateTP;
+    for (const TP& tp : inputData.getTPs()) {
+      TrackingParticlePtr tpPtr(tp);
+      translateTP[tpPtr] = &tp;
+    }
+
+    edm::Handle<TTStubAssMap>    mcTruthTTStubHandle;
+    edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle;
+    iEvent.getByToken(stubTruthInputTag, mcTruthTTStubHandle );
+    iEvent.getByToken(clusterTruthInputTag, mcTruthTTClusterHandle );
+
+    for(const auto& track : *l1TracksHandle)
+      l1Tracks.push_back(vertexFinder::L1fittedTrack(track, *settings_, trackerGeometryHandle.product(), trackerTopologyHandle.product(), translateTP, mcTruthTTStubHandle, mcTruthTTClusterHandle));
+  }
 
   std::vector<const vertexFinder::L1fittedTrack*> l1TrackPtrs;
   l1TrackPtrs.reserve(l1Tracks.size());

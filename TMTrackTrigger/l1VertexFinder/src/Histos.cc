@@ -1,9 +1,9 @@
 #include "TMTrackTrigger/VertexFinder/interface/Histos.h"
 
-#include "TMTrackTrigger/TMTrackFinder/interface/InputData.h"
+#include "TMTrackTrigger/VertexFinder/interface/InputData.h"
 #include "TMTrackTrigger/VertexFinder/interface/L1fittedTrack.h"
 #include "TMTrackTrigger/VertexFinder/interface/VertexFinder.h"
-#include <TMTrackTrigger/TMTrackFinder/interface/Settings.h>
+#include <TMTrackTrigger/VertexFinder/interface/Settings.h>
 
 
 #include "DataFormats/Math/interface/deltaPhi.h"

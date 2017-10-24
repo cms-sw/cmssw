@@ -10,7 +10,9 @@
 #include <vector>
 
 
-typedef std::vector<const vertexFinder::L1fittedTrack*> FitTrackCollection;
+namespace vertexFinder {
+
+typedef std::vector<const L1fittedTrack*> FitTrackCollection;
 typedef std::vector<RecoVertex> RecoVertexCollection;
 
 class VertexFinder {
@@ -21,13 +23,13 @@ public:
   ~VertexFinder(){}
 
   struct SortTracksByZ0{
-    inline bool operator() (const vertexFinder::L1fittedTrack* track0, const vertexFinder::L1fittedTrack* track1){
+    inline bool operator() (const L1fittedTrack* track0, const L1fittedTrack* track1){
       return(track0->z0() < track1->z0());
     }
   };
 
   struct SortTracksByPt{
-    inline bool operator() (const vertexFinder::L1fittedTrack* track0, const vertexFinder::L1fittedTrack* track1){
+    inline bool operator() (const L1fittedTrack* track0, const L1fittedTrack* track1){
       return(fabs(track0->pt()) > fabs(track1->pt()));
     }
   };
@@ -90,5 +92,7 @@ private:
   FitTrackCollection tdr_pileup_tracks_;
 
 };
+
+} // end namespace vertexFinder
 
 #endif

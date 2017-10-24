@@ -13,20 +13,20 @@ using  boost::numeric::ublas::matrix;
 #include <string>
 
 
-class InputData;
-class Settings;
 class TH1F;
 class TH2F;
 class TProfile;
 class TGraphAsymmErrors;
 class TGraphErrors;
 class TEfficiency;
-class VertexFinder;
 
 
 namespace vertexFinder {
 
+class InputData;
 class L1fittedTrack;
+class Settings;
+class VertexFinder;
 
 class Histos {
 

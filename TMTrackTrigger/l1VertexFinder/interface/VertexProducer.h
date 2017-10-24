@@ -18,10 +18,10 @@
 
 using namespace std;
 
-class Settings;
 
 namespace vertexFinder {
   class Histos;
+  class Settings;
 }
 
 class VertexProducer : public edm::EDProducer {
@@ -48,7 +48,7 @@ private:
   const edm::EDGetTokenT<TTClusterAssMap> clusterTruthInputTag;
   const edm::EDGetTokenT<TTTrackCollection> l1TracksToken_;
 
-  Settings *settings_;
+  vertexFinder::Settings *settings_;
   vertexFinder::Histos   *hists_;
 };
 
