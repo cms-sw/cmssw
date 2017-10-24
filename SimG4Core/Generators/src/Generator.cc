@@ -17,9 +17,9 @@
 #include "G4PhysicalConstants.hh"
 #include "G4Log.hh"
 
+#include <sstream>
+
 using namespace edm;
-//using std::cout;
-//using std::endl;
 
 Generator::Generator(const ParameterSet & p) : 
   fPCuts(p.getParameter<bool>("ApplyPCuts")),
@@ -62,15 +62,17 @@ Generator::Generator(const ParameterSet & p) :
       getParameter<std::vector< int > >("PDGfilter");
     if(!pdgFilter.empty()) { 
       fPDGFilter = true; 
-      for ( unsigned int ii = 0; ii < pdgFilter.size(); ++ii) {
-	if (pdgFilterSel) {
-	  edm::LogWarning("SimG4CoreGenerator") 
-	    << " *** Selecting only PDG ID = " << pdgFilter[ii];
-	} else {
-	  edm::LogWarning("SimG4CoreGenerator") 
-	    << " *** Filtering out PDG ID = " << pdgFilter[ii];
-	}
+      std::stringstream ss;
+      ss << "SimG4Core/Generator: ";
+      if (pdgFilterSel) {
+	ss << " Selecting only PDG ID = ";
+      } else {
+	ss << " Filtering out PDG ID = ";
       }
+      for ( unsigned int ii = 0; ii < pdgFilter.size(); ++ii) {
+	ss << pdgFilter[ii] << "  ";
+      }
+      edm::LogInfo("SimG4CoreGenerator") << ss.str();
     }
   }
 
@@ -105,7 +107,10 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
   HepMC::GenEvent *evt=new HepMC::GenEvent(*evt_orig);
 
   if ( *(evt->vertices_begin()) == nullptr ) {
-    throw SimG4Exception("SimG4CoreGenerator: Corrupted Event - GenEvent with no vertex");
+    std::stringstream ss;
+    ss << "SimG4Core/Generator: in event " << g4evt->GetEventID()
+       << " Corrupted Event - GenEvent with no vertex \n"; 
+    throw SimG4Exception(ss.str());
   }  
   
   if (!evt->weights().empty()) {
@@ -152,7 +157,8 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
       // 2:  particles are decayed by generator but need to be propagated by GEANT
       // 3:  particles are decayed by generator but do not need to be propagated by GEANT
       int status = (*pitr)->status();
-      if (status > 3 && isExotic(*pitr) && (!(isExoticNonDetectable(*pitr)))) {
+      int pdg = (*pitr)->pdg_id();
+      if (status > 3 && isExotic(pdg) && (!(isExoticNonDetectable(pdg)))) {
         // In Pythia 8, there are many status codes besides 1, 2, 3.
         // By setting the status to 2 for exotic particles, they will be checked:
         // if its decay vertex is outside the beampipe, it will be propagated by GEANT.
@@ -165,13 +171,8 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
       if (status == 1) {
 
 	// filter out unwanted particles and vertices
-	if(fPDGFilter && !pdgFilterSel && IsInTheFilterList(*pitr)) { 
-	  if(verbose > 0) {
-	    throw edm::Exception(edm::errors::LogicError) 
-	      << "Generator produces a particle with status=1 and pdgid= " 
-	      << (*pitr)->pdg_id();
-	  }
-	  continue; 
+	if(fPDGFilter && !pdgFilterSel && IsInTheFilterList(pdg)) { 
+	  continue;
 	}
 
         qvtx = true;
@@ -200,6 +201,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 	  // particles with status 2 without end_vertex are 
 	  // equivalent to stable
 	  qvtx = true;
+	  break;
 	}
       }
     }
@@ -220,41 +222,57 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
     for (pitr= (*vitr)->particles_begin(HepMC::children);
          pitr != (*vitr)->particles_end(HepMC::children); ++pitr){
 
+      int status = (*pitr)->status();
+      int pdg = (*pitr)->pdg_id();
+      bool hasDecayVertex = (nullptr != (*pitr)->end_vertex()) ? true : false;
+
       // Filter on allowed particle species if required      
-      if (fPDGFilter) {
-	bool isInTheList = IsInTheFilterList(*pitr);
+      if (fPDGFilter) { 
+	bool isInTheList = IsInTheFilterList(pdg);
 	if((!pdgFilterSel && isInTheList) || (pdgFilterSel && !isInTheList)) { 
-          if (verbose > 2) LogDebug("SimG4CoreGenerator") 
-	    << "Skip GenParticle barcode = " << (*pitr)->barcode() 
-	    << " PDG Id = " << (*pitr)->pdg_id();
+	  edm::LogInfo("SimG4CoreGenerator") 
+	    << " Skiped GenParticle barcode= " << (*pitr)->barcode() 
+	    << " PDGid= " << pdg
+	    << " status= " << status 
+	    << " isExotic: " << isExotic(pdg)
+	    << " isExoticNotDet: " << isExoticNonDetectable(pdg)
+	    << " isInTheList: " << isInTheList
+	    << " hasDecayVertex: " << hasDecayVertex;
           continue;
         }
       }
 
-      double x2 = 0.0;
-      double y2 = 0.0;
-      double z2 = 0.0;
-      double decay_length = 0.0;
-      int status = (*pitr)->status();
+      edm::LogInfo("SimG4CoreGenerator") 
+	<< " pdg= " << pdg
+	<< " status= " << status 
+	<< " hasPreDefinedDecay: " << hasDecayVertex
+	<< " isExotic: " << isExotic(pdg)
+	<< " isExoticNotDet: " << isExoticNonDetectable(pdg)
+	<< " isInTheList: " << IsInTheFilterList(pdg);
 
-      if (status > 3 && isExotic(*pitr) && (!(isExoticNonDetectable(*pitr))) ) {
-	status = 2;
+      if (status > 3 && isExotic(pdg) && (!(isExoticNonDetectable(pdg))) ) {
+	status = hasDecayVertex ? 2 : 1;
+      } 
+
+      // this particle has predefined decay but has no vertex
+      if (2 == status && !hasDecayVertex) { 
+	edm::LogWarning("SimG4CoreGenerator: in event ") 
+	  << g4evt->GetEventID()
+	  << " a particle " 
+	  << " pdgid= " << pdg
+	  << " has status=2 but has no decay vertex, so will be fully tracked by Geant4";
+	status = 1; 
       }
 
-      // check the status, 2 has end point with decay defined by generator
-      if (1 == status || 2 == status) {
-
-        // this particle has decayed but have no vertex
-	// it is an exotic case
-        if ( !(*pitr)->end_vertex() ) { 
-          status = 1; 
-	} else {
-          x2 = (*pitr)->end_vertex()->position().x();
-          y2 = (*pitr)->end_vertex()->position().y();
-          z2 = (*pitr)->end_vertex()->position().z();
-	  decay_length = 
-	      std::sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)+(z2-z1)*(z2-z1));
-	}
+      double x2 = x1;
+      double y2 = y1;
+      double z2 = z1;
+      double decay_length = 0.0;
+      if(2 == status) {
+	x2 = (*pitr)->end_vertex()->position().x();
+	y2 = (*pitr)->end_vertex()->position().y();
+	z2 = (*pitr)->end_vertex()->position().z();
+	decay_length = std::sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)+(z2-z1)*(z2-z1));
       } 
 
       bool toBeAdded = false;
@@ -282,7 +300,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
       
       if (verbose > 2) LogDebug("SimG4CoreGenerator") 
 	<< "Processing GenParticle barcode= " << (*pitr)->barcode() 
-	<< " pdg= " << (*pitr)-> pdg_id()
+	<< " pdg= " << pdg
 	<< " status= " << (*pitr)->status() 
 	<< " st= " << status 
 	<< " rimpact(cm)= " << std::sqrt(rimpact2)/cm
@@ -365,9 +383,8 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 	}
       }
       if(toBeAdded){
-        G4int pdgcode= (*pitr)-> pdg_id();
         G4PrimaryParticle* g4prim= 
-          new G4PrimaryParticle(pdgcode, px*GeV, py*GeV, pz*GeV);
+          new G4PrimaryParticle(pdg, px*GeV, py*GeV, pz*GeV);
         
         if ( g4prim->GetG4code() != nullptr ){ 
           g4prim->SetMass( g4prim->GetG4code()->GetPDGMass() );
@@ -522,34 +539,28 @@ bool Generator::particlePassesPrimaryCuts(const G4ThreeVector& p) const
   return flag;
 }
 
-bool Generator::isExotic(HepMC::GenParticle* p) const
+bool Generator::isExotic(int pdgcode) const
 {
-  int pdgid = std::abs(p->pdg_id());  
-  if ((pdgid >= 1000000 && pdgid <  4000000) || // SUSY, R-hadron, and technicolor particles
-      pdgid == 17 || // 4th generation lepton 
-      pdgid == 34 || // W-prime
-      pdgid == 37)   // charged Higgs
-    {
-      return true;
-    } 
-  return false;
+  int pdgid = std::abs(pdgcode);  
+  return ((pdgid >= 1000000 && pdgid <  4000000) || // SUSY, R-hadron, and technicolor particles
+	  pdgid == 17 || // 4th generation lepton 
+	  pdgid == 34 || // W-prime
+	  pdgid == 37)   // charged Higgs
+    ? true : false;
 }
 
-bool Generator::isExoticNonDetectable(HepMC::GenParticle* p) const
+bool Generator::isExoticNonDetectable(int pdgcode) const
 {
-  int pdgid = std::abs(p->pdg_id());  
-  HepPDT::ParticleID pid(p->pdg_id());
+  int pdgid = std::abs(pdgcode);  
+  HepPDT::ParticleID pid(pdgcode);
   int charge = pid.threeCharge();
-  if ((charge==0) && (pdgid >= 1000000 && pdgid <  1000040)) // SUSY 
-    {
-      return true;
-    } 
-  return false;
+  return ((charge==0) && (pdgid >= 1000000 && pdgid <  1000040)) // SUSY 
+    ? true : false;
 }
 
-bool Generator::IsInTheFilterList(HepMC::GenParticle* p) const
+bool Generator::IsInTheFilterList(int pdgcode) const
 {
-  int pdgid = std::abs(p->pdg_id());
+  int pdgid = std::abs(pdgcode);
   for(auto & pdg : pdgFilter) { if(std::abs(pdg) == pdgid) { return true; } }
   return false;
 }
