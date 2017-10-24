@@ -15,14 +15,11 @@ process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
+
 options = VarParsing.VarParsing ('analysis')
 
 #--- Specify input MC
-#options.register('inputMC', '../../../Samples/Muons_fixed_pT_10GeV/PU0.txt', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Files to be processed")
-#options.register('inputMC', '../../../Samples/Electrons_FixedPt_10GeV/PU0.txt', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Files to be processed")
-# options.register('inputMC', '../PU140scratch.txt', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Files to be processed")
-# options.register('inputMC', '../SamplesCMS/MonoJetPU200.txt', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Files to be processed")
-options.register('inputMC','../NewSamples/ChargedHiggs500/PU0.txt', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Files to be processed")
+options.register('inputMC','ttbar_NoPU.txt', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Files to be processed")
 
 #--- Specify number of events to process.
 options.register('Events',-1,VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int,"Number of Events to analyze")
@@ -32,11 +29,10 @@ options.register('histFile','Hist.root',VarParsing.VarParsing.multiplicity.singl
 
 options.parseArguments()
 
-#--- input and output
 
+#--- input and output
 list = FileUtils.loadListFromFile(options.inputMC)
 readFiles = cms.untracked.vstring(*list)
-# readFiles = cms.untracked.vstring("/store/mc/TTI2023Upg14D/PYTHIA6_Tauola_TTbar_TuneZ2star_14TeV/GEN-SIM-DIGI-RAW/PU200_DES23_62_V1-v1/110000/004C20AB-4D9E-E611-AE77-00266CFFBDAC.root")
 secFiles = cms.untracked.vstring()
 
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) )
@@ -66,16 +62,9 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 process.Timing = cms.Service("Timing", summaryOnly = cms.untracked.bool(True))
 
-#--- Load code that produces our L1 tracks and makes corresponding histograms.
 
-#--- Either use this one for studies of the final 2025 system.
+#--- Load config fragment that configures vertex producer
 process.load('TMTrackTrigger.VertexFinder.VertexProducer_cff')
 
-
-#--- Optionally override default configuration parameters here (example given of how).
-
-#process.TMTrackProducer.HTArraySpecRz.EnableRzHT = cms.bool(True)
-process.load('SimTracker.TrackTriggerAssociation.TrackTriggerAssociator_cff')
-process.TTClusterAssociatorFromPixelDigis.digiSimLinks = cms.InputTag("simSiPixelDigis","Tracker")
-process.p = cms.Path(process.TrackTriggerAssociatorClustersStubs * process.VertexProducer)
+process.p = cms.Path(process.VertexProducer)
 process.e = cms.EndPath(process.out)

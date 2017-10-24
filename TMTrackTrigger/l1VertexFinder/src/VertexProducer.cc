@@ -174,8 +174,6 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 void VertexProducer::endJob() 
 {
   hists_->endJobAnalysis();
-
-  cout<<endl<<"Number of (eta,phi) sectors used = (" << settings_->numEtaRegions() << "," << settings_->numPhiSectors()<<")"<<endl; 
 }
 
 DEFINE_FWK_MODULE(VertexProducer);
