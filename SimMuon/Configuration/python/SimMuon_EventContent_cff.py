@@ -36,8 +36,12 @@ SimMuonRECO = cms.PSet(
 )
 #AOD content
 SimMuonAOD = cms.PSet(
-    outputCommands = cms.untracked.vstring()
+    outputCommands = cms.untracked.vstring(
+        # Sim matching information
+        'keep *_muonSimClassifier_*_*'
+        )
 )
+SimMuonRECO.outputCommands.extend(SimMuonAOD.outputCommands)
 
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
 run2_GEM_2017.toModify( SimMuonFEVTDEBUG, outputCommands = SimMuonFEVTDEBUG.outputCommands + ['keep *_simMuonGEMDigis_*_*',

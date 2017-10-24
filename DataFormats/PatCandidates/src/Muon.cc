@@ -35,6 +35,7 @@ Muon::Muon() :
     mvaValue_(0)
 {
   initImpactParameters();
+  initSimInfo();
 }
 
 /// constructor from reco::Muon
@@ -62,6 +63,7 @@ Muon::Muon(const reco::Muon & aMuon) :
     mvaValue_(0)
 {
   initImpactParameters();
+  initSimInfo();
 }
 
 /// constructor from ref to reco::Muon
@@ -89,6 +91,7 @@ Muon::Muon(const edm::RefToBase<reco::Muon> & aMuonRef) :
     mvaValue_(0)
 {
   initImpactParameters();
+  initSimInfo();
 }
 
 /// constructor from ref to reco::Muon
@@ -116,6 +119,7 @@ Muon::Muon(const edm::Ptr<reco::Muon> & aMuonRef) :
     mvaValue_(0)
 {
   initImpactParameters();
+  initSimInfo();
 }
 
 /// destructor
@@ -144,6 +148,22 @@ void Muon::initImpactParameters() {
   std::fill(ip_, ip_+IpTypeSize, 0.0f);
   std::fill(eip_, eip_+IpTypeSize, 0.0f);
   cachedIP_ = 0;
+}
+
+// initialize impact parameter container vars
+void Muon::initSimInfo() {
+  simType_ = reco::MuonSimType::Unknown;
+  simExtType_ = reco::ExtendedMuonSimType::ExtUnknown;
+  simFlavour_ = 0;
+  simHeaviestMotherFlavour_ = 0;
+  simPdgId_ = 0;
+  simMotherPdgId_ = 0;
+  simBX_ = 999;
+  simProdRho_ = 0.0;
+  simProdZ_ = 0.0;
+  simPt_ = 0.0;
+  simEta_ = 0.0;
+  simPhi_ = 0.0;
 }
 
 
