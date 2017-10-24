@@ -22,7 +22,6 @@ FlatEvtVtxGenerator::FlatEvtVtxGenerator(const edm::ParameterSet& p )
   fMaxZ = p.getParameter<double>("MaxZ")*cm;     
   fMinT = p.getParameter<double>("MinT")*ns*c_light;
   fMaxT = p.getParameter<double>("MaxT")*ns*c_light;
-  fTimeOffset = p.getParameter<double>("TimeOffset")*ns*c_light;
   
   if (fMinX > fMaxX) {
     throw cms::Exception("Configuration")
@@ -56,9 +55,9 @@ HepMC::FourVector FlatEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine* engine)
   aX = CLHEP::RandFlat::shoot(engine, fMinX, fMaxX);
   aY = CLHEP::RandFlat::shoot(engine, fMinY, fMaxY);
   aZ = CLHEP::RandFlat::shoot(engine, fMinZ, fMaxZ);
-  aT = CLHEP::RandFlat::shoot(engine, fMinT-std::abs(fMaxZ-fMinZ), fMaxT+std::abs(fMaxZ-fMinZ));
+  aT = CLHEP::RandFlat::shoot(engine, fMinT, fMaxT);
 
-  return HepMC::FourVector(aX,aY,aZ,aT+fTimeOffset);
+  return HepMC::FourVector(aX,aY,aZ,aT);
 }
 
 void FlatEvtVtxGenerator::minX(double min) 
