@@ -19,7 +19,7 @@ public:
   ~Phase2TrackerRecHit1D() override {}
 
   Phase2TrackerRecHit1D( const LocalPoint& pos, const LocalError& err, 
-                         GeomDet const & idet,
+                         std::shared_ptr<GeomDet> idet,
 		         CluRef const&  clus) : TrackerSingleRecHit(pos,err,idet,clus){}
 
   Phase2TrackerRecHit1D * clone() const override { return new Phase2TrackerRecHit1D( * this); }

@@ -21,7 +21,7 @@ public:
   ~SiTrackerMultiRecHit() override{}	
   
   
-  SiTrackerMultiRecHit(const LocalPoint&, const LocalError&, GeomDet const & idet,
+  SiTrackerMultiRecHit(const LocalPoint&, const LocalError&, std::shared_ptr<GeomDet> idet,
 		       const std::vector< std::pair<const TrackingRecHit*, float> >&, double);
   
   SiTrackerMultiRecHit* clone() const override {return new SiTrackerMultiRecHit(*this);}

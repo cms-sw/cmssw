@@ -91,7 +91,7 @@ void CSCDetIdAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
    for( const auto& it : pDD->detUnits()) {
 
      // Check each DetUnit really is a CSC layer
-     auto layer = dynamic_cast<CSCLayer const*>( it );
+     auto layer = std::static_pointer_cast<CSCLayer>( it );
      
       if( layer ) {
         ++icountAll; // how many layers we see
@@ -167,10 +167,10 @@ void CSCDetIdAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
 	assert( cscDetId3 == cscDetId );
           
 	// Check idToDetUnit
-	   const GeomDetUnit * gdu = pDD->idToDetUnit(detId);
+	   const std::shared_ptr<GeomDet> gdu = pDD->idToDetUnit(detId);
 	   assert(gdu==layer);
 	// Check idToDet
-	   const GeomDet * gd = pDD->idToDet(detId);
+	   const std::shared_ptr<GeomDet> gd = pDD->idToDet(detId);
 	   assert(gd==layer);
     }
     else {

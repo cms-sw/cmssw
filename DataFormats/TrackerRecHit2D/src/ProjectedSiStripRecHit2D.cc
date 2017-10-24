@@ -3,9 +3,9 @@
 
 // #include<iostream>
 
-void ProjectedSiStripRecHit2D::setDet(const GeomDet & idet) {
+void ProjectedSiStripRecHit2D::setDet(std::shared_ptr<GeomDet> idet) {
     TrackingRecHit::setDet(idet);
-    const GluedGeomDet& gdet = static_cast<const GluedGeomDet&>(idet);
-    theOriginalDet = trackerHitRTTI::isProjMono(*this) ? gdet.monoDet() : gdet.stereoDet();
+    std::shared_ptr<GluedGeomDet> gdet = std::static_pointer_cast<GluedGeomDet>(idet);
+    theOriginalDet = trackerHitRTTI::isProjMono(*this) ? gdet->monoDet() : gdet->stereoDet();
 }
 

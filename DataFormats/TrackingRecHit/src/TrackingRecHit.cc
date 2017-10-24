@@ -38,7 +38,7 @@ namespace {
   }
 }
 
-const GeomDetUnit * TrackingRecHit::detUnit() const
+const std::shared_ptr<GeomDet> TrackingRecHit::detUnit() const
 {
   return det();
 }
