@@ -5,6 +5,12 @@
  * Generate event vertices according to a Flat distribution. 
  * Attention: All values are assumed to be cm!
  *
+ * Important note: flat independent distributions in Z and T are not correct for physics production
+ * In reality, if two flat beams interact the real distribution will not be flat with independent Z and T
+ * but Z and T will be correlated, as example in GaussEvtVtxGenerator.
+ * Can restore correlation in configuration via MinT += (MinZ - MaxZ)/2 and MaxT += (MaxZ - MinZ)/2
+ * in [ns] units (recall c_light = 29.98cm/ns)
+ *
  */
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
