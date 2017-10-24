@@ -483,7 +483,7 @@ class SimpleCutBasedElectronIDSelectionFunctor : public Selector<pat::Electron> 
       cIso = ( electron.dr03TkSumPt()+electron.dr03EcalRecHitSumEt()+
 	       electron.dr03HcalTowerSumEt()  ) / eleET;
     }
-    Int_t innerHits = electron.gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+    Int_t innerHits = electron.gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
     // in 39 conversion rejection variables are accessible from Gsf electron
     Double_t dist = electron.convDist(); // default value is -9999 if conversion partner not found
     Double_t dcot = electron.convDcot(); // default value is -9999 if conversion partner not found

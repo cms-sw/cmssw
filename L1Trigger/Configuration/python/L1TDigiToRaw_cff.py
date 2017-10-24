@@ -14,6 +14,7 @@ from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
 stage1L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("caloStage1Raw")) )
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 stage2L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.extend([cms.InputTag("caloLayer1RawFed1354"), cms.InputTag("caloLayer1RawFed1356"), cms.InputTag("caloLayer1RawFed1358")]) )
+stage2L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("bmtfStage2Raw")) )
 stage2L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("caloStage2Raw")) )
 stage2L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("gmtStage2Raw")) )
 stage2L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("gtStage2Raw")) )
@@ -68,8 +69,9 @@ if stage1L1Trigger.isChosen() and not stage2L1Trigger.isChosen():
 if stage2L1Trigger.isChosen():
     from EventFilter.L1TRawToDigi.caloLayer1Raw_cfi import *
     from EventFilter.L1TRawToDigi.caloStage2Raw_cfi import *
+    from EventFilter.L1TRawToDigi.bmtfStage2Raw_cfi import *
+    from EventFilter.L1TRawToDigi.omtfStage2Raw_cfi import *
     from EventFilter.L1TRawToDigi.gmtStage2Raw_cfi import *
     from EventFilter.L1TRawToDigi.gtStage2Raw_cfi import *
-    L1TDigiToRaw = cms.Sequence(caloLayer1Raw + caloStage2Raw + gmtStage2Raw + gtStage2Raw)
-    # Missing: muon TFs
-
+    # Missing: muon EMTF
+    L1TDigiToRaw = cms.Sequence(caloLayer1Raw + caloStage2Raw + bmtfStage2Raw + omtfStage2Raw + gmtStage2Raw + gtStage2Raw)
