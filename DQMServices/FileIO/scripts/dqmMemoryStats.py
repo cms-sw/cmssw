@@ -56,6 +56,7 @@ class HistogramAnalyzer(object):
 
     def difference(self, ref):
         results = HistogramAnalyzer()
+        results._all = dict(self._all)
 
         zero = HistogramEntry("null", 0, 0, 0, 0)
         def cmp(a, b):
