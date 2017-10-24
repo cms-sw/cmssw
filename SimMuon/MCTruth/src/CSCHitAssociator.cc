@@ -58,7 +58,7 @@ std::vector<CSCHitAssociator::SimHitIdpr> CSCHitAssociator::associateCSCHitId(co
       }
     }
     
-  } else edm::LogWarning("CSCHitAssociator")
+  } else LogTrace("CSCHitAssociator")
     <<"*** WARNING in CSCHitAssociator::associateCSCHitId - CSC layer "<<detId<<" has no DigiSimLinks !"<<std::endl;   
   
   return simtrackids;
@@ -97,10 +97,10 @@ std::vector<CSCHitAssociator::SimHitIdpr> CSCHitAssociator::associateHitId(const
 	}
       }
       
-    } else edm::LogWarning("CSCHitAssociator")
+    } else LogTrace("CSCHitAssociator")
       <<"*** WARNING in CSCHitAssociator::associateHitId - CSC layer "<<detId<<" has no DigiSimLinks !"<<std::endl;   
     
-  } else edm::LogWarning("CSCHitAssociator")<<"*** WARNING in CSCHitAssociator::associateHitId, null dynamic_cast !";
+  } else LogTrace("CSCHitAssociator")<<"*** WARNING in CSCHitAssociator::associateHitId, null dynamic_cast !";
   
   return simtrackids;
 }

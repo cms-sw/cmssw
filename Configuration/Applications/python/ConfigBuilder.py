@@ -921,6 +921,7 @@ class ConfigBuilder(object):
         self.L1RecoDefaultCFF="Configuration/StandardSequences/L1Reco_cff"
         self.L1TrackTriggerDefaultCFF="Configuration/StandardSequences/L1TrackTrigger_cff"
         self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_Data_cff"
+        self.RECOSIMDefaultCFF="Configuration/StandardSequences/RecoSim_cff"
         self.PATDefaultCFF="Configuration/StandardSequences/PAT_cff"
         self.NANODefaultCFF="PhysicsTools/NanoAOD/nano_cff"
 	self.EIDefaultCFF=None
@@ -972,7 +973,7 @@ class ConfigBuilder(object):
                 self.RECODefaultSeq='reconstruction'
         else:
                 self.RECODefaultSeq='reconstruction_fromRECO'
-
+        self.RECOSIMDefaultSeq='recosim'
 	self.EIDefaultSeq='top'
         self.POSTRECODefaultSeq=None
         self.L1HwValDefaultSeq='L1HwVal'
@@ -1646,6 +1647,12 @@ class ConfigBuilder(object):
         ''' Enrich the schedule with reconstruction '''
         self.loadDefaultOrSpecifiedCFF(sequence,self.RECODefaultCFF)
 	self.scheduleSequence(sequence.split('.')[-1],'reconstruction_step')
+        return
+
+    def prepare_RECOSIM(self, sequence = "recosim"):
+        ''' Enrich the schedule with reconstruction '''
+        self.loadDefaultOrSpecifiedCFF(sequence,self.RECOSIMDefaultCFF)
+	self.scheduleSequence(sequence.split('.')[-1],'recosim_step')
         return
 
     def prepare_RECOBEFMIX(self, sequence = "reconstruction"):
