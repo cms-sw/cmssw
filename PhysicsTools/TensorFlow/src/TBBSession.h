@@ -13,8 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef PHYSICSTOOLS_TENSORFLOW_NTSESSION_H
-#define PHYSICSTOOLS_TENSORFLOW_NTSESSION_H
+#ifndef PHYSICSTOOLS_TENSORFLOW_TBBSESSION_H
+#define PHYSICSTOOLS_TENSORFLOW_TBBSESSION_H
 
 #include <atomic>
 #include <memory>
@@ -22,6 +22,8 @@ limitations under the License.
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+
+#include "tbb/task_arena.h"
 
 #include "tensorflow/core/common_runtime/costmodel_manager.h"
 #include "tensorflow/core/common_runtime/debugger_state_interface.h"
@@ -42,24 +44,28 @@ limitations under the License.
 #include "tensorflow/core/platform/types.h"
 #include "tensorflow/core/public/session.h"
 
+namespace tbb {
+class task_group;
+}
+
 namespace tensorflow {
 
 class CostModel;
 class DebugGateway;
 class Device;
-class NTSessionFactory;
+class TBBSessionFactory;
 
-class NTSession : public Session {
+class TBBSession : public Session {
  public:
   typedef std::function<void(Session*)> CloseCallback;
 
   // Takes ownership of 'device_mgr'.
-  // 'factory' is used to unregister the NTSession with 'factory' when its
+  // 'factory' is used to unregister the TBBSession with 'factory' when its
   // closed. This ensures that Reset requests from the 'factory' don't get sent
   // to sessions that are already closed.
-  NTSession(const SessionOptions& options, const DeviceMgr* device_mgr,
-                NTSessionFactory* factory);
-  ~NTSession() override;
+  TBBSession(const SessionOptions& options, const DeviceMgr* device_mgr,
+                TBBSessionFactory* factory);
+  ~TBBSession() override;
 
   typedef std::vector<std::pair<string, Tensor>> NamedTensorList;
   typedef std::unordered_map<StringPiece, Node*, StringPiece::Hasher>
@@ -80,17 +86,8 @@ class NTSession : public Session {
                            std::vector<Tensor>* outputs,
                            RunMetadata* run_metadata) override;
 
-  // NOTE: PRunSetup and PRun are added to support partial execution. This
-  // feature is experimental and subject to change.
-  ::tensorflow::Status PRunSetup(const std::vector<string>& input_names,
-                                 const std::vector<string>& output_names,
-                                 const std::vector<string>& target_nodes,
-                                 string* handle) override;
-  ::tensorflow::Status PRun(const string& handle, const NamedTensorList& inputs,
-                            const std::vector<string>& output_names,
-                            std::vector<Tensor>* outputs) override;
 
-  // Reset clears 'containers' from the device_mgr of the NTSession.
+  // Reset clears 'containers' from the device_mgr of the TBBSession.
   // If 'containers' is empty, then Reset clears the default container.
   ::tensorflow::Status Reset(const std::vector<string>& containers);
 
@@ -103,7 +100,7 @@ class NTSession : public Session {
   }
 
  private:
-  typedef NTSession ME;
+  typedef TBBSession ME;
 
   // We create one executor and its dependent library runtime for
   // every partition.
@@ -207,33 +204,14 @@ class NTSession : public Session {
   ::tensorflow::Status ResourceHandleToInputTensor(
       const Tensor& resource_tensor, Tensor* retrieved_tensor);
 
-  // Feeds more inputs to the executors, triggering further execution.
-  ::tensorflow::Status SendPRunInputs(
-      const std::vector<std::pair<string, Tensor>>& inputs,
-      const ExecutorsAndKeys* executors_and_keys,
-      IntraProcessRendezvous* rendez);
-
-  // Fetches more outputs from the executors. It waits until the output
-  // tensors are computed.
-  ::tensorflow::Status RecvPRunOutputs(
-      const std::vector<string>& output_names,
-      const ExecutorsAndKeys* executors_and_keys, RunState* run_state,
-      std::vector<Tensor>* outputs);
-
-  // Check if the specified fetches can be computed from the feeds
-  // that we have already provided.
-  ::tensorflow::Status CheckFetch(
-      const std::vector<std::pair<string, Tensor>>& feeds,
-      const std::vector<string>& fetches,
-      const ExecutorsAndKeys* executors_and_keys, const RunState* run_state);
-
   // Use the appropriate WaitForNotification function based on whether
   // operation_timeout_in_ms is greater than 0.
   //
   // If the timeout expires, the `cm->StartCancel()` will be called.
   ::tensorflow::Status WaitForNotification(Notification* n,
                                            int64 timeout_in_ms);
-  void WaitForNotification(RunState* run_state, CancellationManager* cm,
+  void WaitForNotification(tbb::task_arena& arena, tbb::task_group& group,  
+                           RunState* run_state, CancellationManager* cm,
                            int64 timeout_in_ms);
 
   ::tensorflow::Status CheckNotClosed() {
@@ -269,7 +247,7 @@ class NTSession : public Session {
 
   // If true, blocks until device has finished all queued operations in a step.
   bool sync_on_finish_ = true;
-  void SchedClosure(std::function<void()> c);
+  void SchedClosure(tbb::task_arena& arena, tbb::task_group& g, std::function<void()> c);
 
   mutex executor_lock_;  // protects executors_
   // Holds mappings from signature to the executors that process
@@ -287,7 +265,7 @@ class NTSession : public Session {
   // This holds all the tensors that are currently alive in the session.
   SessionState session_state_;
 
-  NTSessionFactory* const factory_;  // not owned
+  TBBSessionFactory* const factory_;  // not owned
   CancellationManager* cancellation_manager_;
 
   // Map of placed stateful nodes, i.e. nodes for which is_stateful()
@@ -325,7 +303,7 @@ class NTSession : public Session {
 
   Executor::Args::NodeOutputsCallback node_outputs_callback_ = nullptr;
 
-  TF_DISALLOW_COPY_AND_ASSIGN(NTSession);
+  TF_DISALLOW_COPY_AND_ASSIGN(TBBSession);
 
   // EXPERIMENTAL: debugger (tfdbg) related
   friend class DebugGateway;
@@ -333,4 +311,4 @@ class NTSession : public Session {
 
 }  // end namespace tensorflow
 
-#endif  // PHYSICSTOOLS_TENSORFLOW_NTSESSION_H
+#endif  // PHYSICSTOOLS_TENSORFLOW_TBBSESSION_H
