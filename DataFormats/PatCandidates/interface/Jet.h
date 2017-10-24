@@ -263,8 +263,6 @@ namespace pat {
 	if (specificJPT_.empty()) throw cms::Exception("Type Mismatch") << "This PAT jet was not made from a JPTJet.\n";
 	return specificJPT_[0];
       }
-      /// check to see if the PFSpecific object is stored
-      bool hasPFSpecific() const { return !specificPF_.empty(); }
       /// retrieve the pf specific part of the jet
       const PFSpecific& pfSpecific() const {
 	if (specificPF_.empty()) throw cms::Exception("Type Mismatch") << "This PAT jet was not made from a PFJet.\n";
