@@ -16,50 +16,58 @@ void setLogging(const std::string& level)
     setenv("TF_CPP_MIN_LOG_LEVEL", level.c_str(), 0);
 }
 
-void setThreading(SessionOptions& sessionOptions, int nThreads)
+void setThreading(SessionOptions& sessionOptions, int nThreads,
+    const std::string& singleThreadPool)
 {
     // set number of threads used for intra and inter operation communication
     sessionOptions.config.set_intra_op_parallelism_threads(nThreads);
     sessionOptions.config.set_inter_op_parallelism_threads(nThreads);
 
-    // when exactly one thread is requested use the custom session factory
-    if (nThreads == 1)
+    // when exactly one thread is requested use a custom thread pool
+    if (nThreads == 1 && !singleThreadPool.empty())
     {
-        sessionOptions.target = "no_threads";
+        // check for known thread pools
+        if (singleThreadPool != "no_threads" && singleThreadPool != "tbb")
+        {
+            throw cms::Exception("UnknownThreadPool")
+                << "thread pool '" << singleThreadPool << "' unknown, use 'no_threads' or 'tbb'";
+        }
+        sessionOptions.target = singleThreadPool;
     }
 }
 
-MetaGraphDef* loadMetaGraph(const std::string& exportDir, const std::string& tag, int nThreads)
+MetaGraphDef* loadMetaGraph(const std::string& exportDir, const std::string& tag,
+    SessionOptions& sessionOptions)
 {
     // objects to load the graph
     Status status;
-    SessionOptions sessionOptions;
     RunOptions runOptions;
     SavedModelBundle bundle;
-
-    // set thread options
-    setThreading(sessionOptions, nThreads);
 
     // load the model
     status = LoadSavedModel(sessionOptions, runOptions, exportDir, { tag }, &bundle);
     if (!status.ok())
     {
-        throw cms::Exception("InvalidGraph")
-            << "error while loading graph: " << status.ToString();
+        throw cms::Exception("InvalidGraph") << "error while loading graph: " << status.ToString();
     }
 
-    // return a copy
+    // return a copy of the graph
     return new MetaGraphDef(bundle.meta_graph_def);
 }
 
-Session* createSession(int nThreads)
+MetaGraphDef* loadMetaGraph(const std::string& exportDir, const std::string& tag, int nThreads)
+{
+    // create session options and set thread options
+    SessionOptions sessionOptions;
+    setThreading(sessionOptions, nThreads);
+
+    return loadMetaGraph(exportDir, tag, sessionOptions);
+}
+
+Session* createSession(SessionOptions& sessionOptions)
 {
     // objects to create the session
     Status status;
-    SessionOptions sessionOptions;
-
-    // set thread options
-    setThreading(sessionOptions, nThreads);
 
     // create a new, empty session
     Session* session = nullptr;
@@ -73,9 +81,19 @@ Session* createSession(int nThreads)
     return session;
 }
 
-Session* createSession(MetaGraphDef* metaGraph, const std::string& exportDir, int nThreads)
+Session* createSession(int nThreads)
 {
-    Session* session = createSession(nThreads);
+    // create session options and set thread options
+    SessionOptions sessionOptions;
+    setThreading(sessionOptions, nThreads);
+
+    return createSession(sessionOptions);
+}
+
+Session* createSession(MetaGraphDef* metaGraph, const std::string& exportDir,
+    SessionOptions& sessionOptions)
+{
+    Session* session = createSession(sessionOptions);
 
     // add the graph def from the meta graph
     Status status;
@@ -113,6 +131,15 @@ Session* createSession(MetaGraphDef* metaGraph, const std::string& exportDir, in
     }
 
     return session;
+}
+
+Session* createSession(MetaGraphDef* metaGraph, const std::string& exportDir, int nThreads)
+{
+    // create session options and set thread options
+    SessionOptions sessionOptions;
+    setThreading(sessionOptions, nThreads);
+
+    return createSession(metaGraph, exportDir, sessionOptions);
 }
 
 bool closeSession(Session*& session)
