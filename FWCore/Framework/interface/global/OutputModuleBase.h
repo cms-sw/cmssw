@@ -226,6 +226,7 @@ namespace edm {
       void registerProductsAndCallbacks(OutputModuleBase const*, ProductRegistry const*) {}
 
       bool needToRunSelection() const;
+      std::vector<ProductResolverIndexAndSkipBit> productsUsedBySelection() const;
       bool prePrefetchSelection(StreamID id, EventPrincipal const&, ModuleCallingContext const*);
       
       // Do the end-of-file tasks; this is only called internally, after
