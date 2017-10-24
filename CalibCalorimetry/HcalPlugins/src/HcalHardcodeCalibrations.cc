@@ -183,120 +183,120 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
   }
 
   std::vector <std::string> toGet = iConfig.getUntrackedParameter <std::vector <std::string> > ("toGet");
-  for(std::vector <std::string>::iterator objectName = toGet.begin(); objectName != toGet.end(); ++objectName ) {
-    bool all = *objectName == "all";
+  for(auto& objectName : toGet){
+    bool all = objectName == "all";
 #ifdef DebugLog
-    std::cout << "Load parameters for " << *objectName << std::endl;
+    std::cout << "Load parameters for " << objectName << std::endl;
 #endif
-    if ((*objectName == "Pedestals") || all) {
+    if ((objectName == "Pedestals") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::producePedestals);
       findingRecord <HcalPedestalsRcd> ();
     }
-    if ((*objectName == "PedestalWidths") || all) {
+    if ((objectName == "PedestalWidths") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::producePedestalWidths);
       findingRecord <HcalPedestalWidthsRcd> ();
     }
-    if ((*objectName == "Gains") || all) {
+    if ((objectName == "Gains") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceGains);
       findingRecord <HcalGainsRcd> ();
     }
-    if ((*objectName == "GainWidths") || all) {
+    if ((objectName == "GainWidths") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceGainWidths);
       findingRecord <HcalGainWidthsRcd> ();
     }
-    if ((*objectName == "QIEData") || all) {
+    if ((objectName == "QIEData") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceQIEData);
       findingRecord <HcalQIEDataRcd> ();
     }
-    if ((*objectName == "QIETypes") || all) {
+    if ((objectName == "QIETypes") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceQIETypes);
       findingRecord <HcalQIETypesRcd> ();
     }
-    if ((*objectName == "ChannelQuality") || (*objectName == "channelQuality") || all) {
+    if ((objectName == "ChannelQuality") || (objectName == "channelQuality") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceChannelQuality);
       findingRecord <HcalChannelQualityRcd> ();
     }
-    if ((*objectName == "ElectronicsMap") || (*objectName == "electronicsMap") || all) {
+    if ((objectName == "ElectronicsMap") || (objectName == "electronicsMap") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceElectronicsMap);
       findingRecord <HcalElectronicsMapRcd> ();
     }
-    if ((*objectName == "ZSThresholds") || (*objectName == "zsThresholds") || all) {
+    if ((objectName == "ZSThresholds") || (objectName == "zsThresholds") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceZSThresholds);
       findingRecord <HcalZSThresholdsRcd> ();
     }
-    if ((*objectName == "RespCorrs") || (*objectName == "ResponseCorrection") || all) {
+    if ((objectName == "RespCorrs") || (objectName == "ResponseCorrection") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceRespCorrs);
       findingRecord <HcalRespCorrsRcd> ();
     }
-    if ((*objectName == "LUTCorrs") || (*objectName == "LUTCorrection") || all) {
+    if ((objectName == "LUTCorrs") || (objectName == "LUTCorrection") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceLUTCorrs);
       findingRecord <HcalLUTCorrsRcd> ();
     }
-    if ((*objectName == "PFCorrs") || (*objectName == "PFCorrection") || all) {
+    if ((objectName == "PFCorrs") || (objectName == "PFCorrection") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::producePFCorrs);
       findingRecord <HcalPFCorrsRcd> ();
     }
-    if ((*objectName == "TimeCorrs") || (*objectName == "TimeCorrection") || all) {
+    if ((objectName == "TimeCorrs") || (objectName == "TimeCorrection") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceTimeCorrs);
       findingRecord <HcalTimeCorrsRcd> ();
     }
-    if ((*objectName == "L1TriggerObjects") || (*objectName == "L1Trigger") || all) {
+    if ((objectName == "L1TriggerObjects") || (objectName == "L1Trigger") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceL1TriggerObjects);
       findingRecord <HcalL1TriggerObjectsRcd> ();
     }
-    if ((*objectName == "ValidationCorrs") || (*objectName == "ValidationCorrection") || all) {
+    if ((objectName == "ValidationCorrs") || (objectName == "ValidationCorrection") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceValidationCorrs);
       findingRecord <HcalValidationCorrsRcd> ();
     }
-    if ((*objectName == "LutMetadata") || (*objectName == "lutMetadata") || all) {
+    if ((objectName == "LutMetadata") || (objectName == "lutMetadata") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceLutMetadata);
       findingRecord <HcalLutMetadataRcd> ();
     }
-    if ((*objectName == "DcsValues") || all) {
+    if ((objectName == "DcsValues") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceDcsValues);
       findingRecord <HcalDcsRcd> ();
     }
-    if ((*objectName == "DcsMap") || (*objectName == "dcsMap") || all) {
+    if ((objectName == "DcsMap") || (objectName == "dcsMap") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceDcsMap);
       findingRecord <HcalDcsMapRcd> ();
     }
-    if ((*objectName == "RecoParams") || all) {
+    if ((objectName == "RecoParams") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceRecoParams);
       findingRecord <HcalRecoParamsRcd> ();
     }
-    if ((*objectName == "LongRecoParams") || all) {
+    if ((objectName == "LongRecoParams") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceLongRecoParams);
       findingRecord <HcalLongRecoParamsRcd> ();
     }
-    if ((*objectName == "ZDCLowGainFractions") || all) {
+    if ((objectName == "ZDCLowGainFractions") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceZDCLowGainFractions);
       findingRecord <HcalZDCLowGainFractionsRcd> ();
     }
-    if ((*objectName == "MCParams") || all) {
+    if ((objectName == "MCParams") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceMCParams);
       findingRecord <HcalMCParamsRcd> ();
     }
-    if ((*objectName == "FlagHFDigiTimeParams") || all) {
+    if ((objectName == "FlagHFDigiTimeParams") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceFlagHFDigiTimeParams);
       findingRecord <HcalFlagHFDigiTimeParamsRcd> ();
     }
-    if ((*objectName == "FrontEndMap") || (*objectName == "frontEndMap") || all) {
+    if ((objectName == "FrontEndMap") || (objectName == "frontEndMap") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceFrontEndMap);
       findingRecord <HcalFrontEndMapRcd> ();
     }
-    if ((*objectName == "SiPMParameters") || all) {
+    if ((objectName == "SiPMParameters") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceSiPMParameters);
       findingRecord <HcalSiPMParametersRcd> ();
     }
-    if ((*objectName == "SiPMCharacteristics") || all) {
+    if ((objectName == "SiPMCharacteristics") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceSiPMCharacteristics);
       findingRecord <HcalSiPMCharacteristicsRcd> ();
     }
-    if ((*objectName == "TPChannelParameters") || all) {
+    if ((objectName == "TPChannelParameters") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceTPChannelParameters);
       findingRecord <HcalTPChannelParametersRcd> ();
     }
-    if ((*objectName == "TPParameters") || all) {
+    if ((objectName == "TPParameters") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceTPParameters);
       findingRecord <HcalTPParametersRcd> ();
     }
