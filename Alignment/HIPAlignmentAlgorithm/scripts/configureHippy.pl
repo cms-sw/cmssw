@@ -11,6 +11,7 @@ $incommoncfg = $ARGV[3];
 $inaligncfg = $ARGV[4];
 $intrkselcfg = $ARGV[5];
 $inuseSurfDef = $ARGV[6];
+$inredirectProxy = $ARGV[7];
 
 $strUseSD = "";
 if ($inuseSurfDef == 0){
@@ -52,6 +53,8 @@ cp scripts/checkError.sh $odir/main/;
 ");
 $success*=replace( "$odir/common_cff_py.txt", "<iovs>", "$iovstr" );
 $success*=replace( "$odir/common_cff_py.txt", "<SURFDEFOPT>", "$strUseSD" );
+$success*=replace( "$odir/runScript.csh", "<PROXYREDIRECT>", "$inredirectProxy" );
+
 
 foreach $data1 ( @dataFileInput1 ) {
 
