@@ -59,9 +59,9 @@ public:
   TrackingRecHit(DetId id,  unsigned int rt, Type type=valid  ) : m_id(id), m_status((rt<< rttiShift)|int(type)),  m_det(nullptr){}
 
 
-  explicit TrackingRecHit( std::shared_ptr<GeomDet> idet, Type type=valid) : m_id(idet->geographicalId()), m_status(type), m_det(idet){}
-  TrackingRecHit( std::shared_ptr<GeomDet> idet,  unsigned int rt, Type type=valid  ) : m_id(idet->geographicalId()), m_status((rt<< rttiShift)|int(type)),  m_det(idet){}
-  TrackingRecHit( std::shared_ptr<GeomDet> idet,  TrackingRecHit const & rh) : m_id(rh.m_id), m_status(rh.m_status), m_det(idet){} 
+  explicit TrackingRecHit( std::shared_ptr<const GeomDet> idet, Type type=valid) : m_id(idet->geographicalId()), m_status(type), m_det(idet){}
+  TrackingRecHit( std::shared_ptr<const GeomDet> idet,  unsigned int rt, Type type=valid  ) : m_id(idet->geographicalId()), m_status((rt<< rttiShift)|int(type)),  m_det(idet){}
+  TrackingRecHit( std::shared_ptr<const GeomDet> idet,  TrackingRecHit const & rh) : m_id(rh.m_id), m_status(rh.m_status), m_det(idet){} 
 
 
   virtual ~TrackingRecHit() {}
@@ -75,13 +75,13 @@ public:
 #ifndef __GCCXML__
   virtual RecHitPointer cloneSH() const { return RecHitPointer(clone());}
   // clone and add the geom (ready for refit)
-  RecHitPointer cloneForFit(const std::shared_ptr<GeomDet> idet) const {
+  RecHitPointer cloneForFit(const std::shared_ptr<const GeomDet> idet) const {
     auto cl = cloneSH();
     const_cast<TrackingRecHit&>(*cl).setDet(idet); // const_cast (can be fixed editing some 100 files)
     return cl;  
   }
 #endif
-  virtual void setDet(const std::shared_ptr<GeomDet> idet) {m_det = idet;}
+  virtual void setDet(const std::shared_ptr<const GeomDet> idet) {m_det = idet;}
 
   
   virtual AlgebraicVector parameters() const = 0;
@@ -115,14 +115,14 @@ public:
   id_type rawId() const { return m_id;}
   DetId geographicalId() const {return m_id;}
 
-  const std::shared_ptr<GeomDet> det() const { return m_det;}
+  const std::shared_ptr<const GeomDet> det() const { return m_det;}
   virtual const Surface * surface() const {return &(det()->surface());}
 
 
   /// CAUTION: the GeomDetUnit* is zero for composite hits 
   /// (matched hits in the tracker, segments in the muon).
   /// Always check this pointer before using it!
-  virtual const std::shared_ptr<GeomDet> detUnit() const;
+  virtual const std::shared_ptr<const GeomDet> detUnit() const;
   
 
   virtual LocalPoint localPosition() const = 0;
@@ -191,7 +191,7 @@ private:
 
   unsigned int m_status; // bit assigned (type 0-8) (rtti 24-31) 
 
-  std::shared_ptr<GeomDet> m_det;
+  std::shared_ptr<const GeomDet> m_det;
 
 };
 

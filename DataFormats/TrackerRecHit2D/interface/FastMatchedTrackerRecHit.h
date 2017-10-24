@@ -16,7 +16,7 @@ class FastMatchedTrackerRecHit : public FastTrackerRecHit{
     
     FastMatchedTrackerRecHit( const LocalPoint & pos, 
 			      const LocalError & err,
-			      std::shared_ptr<GeomDet> idet,
+			      std::shared_ptr<const GeomDet> idet,
 			      const FastSingleTrackerRecHit & rMono, 
 			      const FastSingleTrackerRecHit & rStereo,
 			      bool stereoHitFirst = false) 

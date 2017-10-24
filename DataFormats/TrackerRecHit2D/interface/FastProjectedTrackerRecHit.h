@@ -15,7 +15,7 @@ class FastProjectedTrackerRecHit : public FastTrackerRecHit {
     
     FastProjectedTrackerRecHit( const LocalPoint& pos, 
 				const LocalError& err, 
-				std::shared_ptr<GeomDet> idet,
+				std::shared_ptr<const GeomDet> idet,
 				FastSingleTrackerRecHit const & originalHit) 
 	: FastTrackerRecHit(pos, err, idet, 
 			    ProjectedSiStripRecHit2D::isMono(idet,originalHit.det()) 

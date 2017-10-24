@@ -8,7 +8,7 @@
 class ProjectedSiStripRecHit2D final  : public TrackerSingleRecHit  {
 public:
   
-  inline static bool isMono(std::shared_ptr<GeomDet> gdet, std::shared_ptr<GeomDet> sdet) {
+  inline static bool isMono(std::shared_ptr<const GeomDet> gdet, std::shared_ptr<const GeomDet> sdet) {
     return (sdet->geographicalId()-gdet->geographicalId())==2;
   }
   
@@ -18,7 +18,7 @@ public:
   ProjectedSiStripRecHit2D() : theOriginalDet(nullptr) {}
 
   ProjectedSiStripRecHit2D( const LocalPoint& pos, const LocalError& err, 
-			    std::shared_ptr<GeomDet> idet,
+			    std::shared_ptr<const GeomDet> idet,
 			    SiStripRecHit2D const & originalHit) :
     TrackerSingleRecHit(pos, err, idet, 
 			isMono(idet,originalHit.det()) ? trackerHitRTTI::projMono: trackerHitRTTI::projStereo,
@@ -30,7 +30,7 @@ public:
     
   template<typename CluRef>
   ProjectedSiStripRecHit2D( const LocalPoint& pos, const LocalError& err, 
-			    std::shared_ptr<GeomDet> idet, std::shared_ptr<GeomDet> originalDet,
+			    std::shared_ptr<const GeomDet> idet, std::shared_ptr<const GeomDet> originalDet,
 			    CluRef const&  clus) :
     TrackerSingleRecHit(pos, err, idet, 
 			isMono(idet,originalDet) ? trackerHitRTTI::projMono: trackerHitRTTI::projStereo,
@@ -40,7 +40,7 @@ public:
     }
 
 
-  void setDet(std::shared_ptr<GeomDet> idet) override;
+  void setDet(std::shared_ptr<const GeomDet> idet) override;
 
   bool canImproveWithTrack() const override {return true;}
 
@@ -52,7 +52,7 @@ public:
   
   typedef OmniClusterRef::ClusterStripRef         ClusterRef;
   ClusterRef cluster()  const { return cluster_strip() ; }
-  const std::shared_ptr<GeomDet> originalDet() const {
+  const std::shared_ptr<const GeomDet> originalDet() const {
     return theOriginalDet;
   }
   unsigned int originalId() const { return trackerHitRTTI::projId(*this);}
@@ -83,7 +83,7 @@ private:
 #endif
 
 private:
-  std::shared_ptr<GeomDet> theOriginalDet;
+  std::shared_ptr<const GeomDet> theOriginalDet;
 
 };
 

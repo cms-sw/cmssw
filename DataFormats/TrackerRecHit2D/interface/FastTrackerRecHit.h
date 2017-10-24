@@ -53,7 +53,7 @@ class FastTrackerRecHit : public BaseTrackerRecHit
     /// constructor
     /// requires a position with error in local detector coordinates,
     /// the detector id, and type information (rt)
-    FastTrackerRecHit( const LocalPoint& p, const LocalError&e, std::shared_ptr<GeomDet> idet,fastTrackerRecHitType::HitType hitType) 
+    FastTrackerRecHit( const LocalPoint& p, const LocalError&e, std::shared_ptr<const GeomDet> idet,fastTrackerRecHitType::HitType hitType) 
 	: BaseTrackerRecHit(p,e,idet,fastTrackerRecHitType::rtti(hitType)) 
 	, isPixel_(fastTrackerRecHitType::isPixel(hitType))
 	, is2D_(fastTrackerRecHitType::is2D(hitType))

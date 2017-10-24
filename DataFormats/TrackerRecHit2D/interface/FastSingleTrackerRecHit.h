@@ -14,7 +14,7 @@ class FastSingleTrackerRecHit : public FastTrackerRecHit {
 	, eventId_(0) {}
     
 
-    FastSingleTrackerRecHit (const LocalPoint& p, const LocalError&e, std::shared_ptr<GeomDet> idet,fastTrackerRecHitType::HitType hitType)
+    FastSingleTrackerRecHit (const LocalPoint& p, const LocalError&e, std::shared_ptr<const GeomDet> idet,fastTrackerRecHitType::HitType hitType)
 	: FastTrackerRecHit(p,e,idet,hitType)
 	, id_(-1)
 	, eventId_(0) {}

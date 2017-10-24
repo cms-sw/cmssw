@@ -43,9 +43,9 @@ public:
  BaseTrackerRecHit(DetId id, trackerHitRTTI::RTTI rt) :  TrackingRecHit(id,(unsigned int)(rt)),qualWord_(0) {}
 
  BaseTrackerRecHit( const LocalPoint& p, const LocalError&e,
-		    std::shared_ptr<GeomDet> idet, trackerHitRTTI::RTTI rt) :  
+		    std::shared_ptr<const GeomDet> idet, trackerHitRTTI::RTTI rt) :  
   TrackingRecHit(idet, (unsigned int)(rt)), pos_(p), err_(e), qualWord_(0){
-    LocalError lape = std::static_pointer_cast<TrackerGeomDet>(det())->localAlignmentError();
+    LocalError lape = std::static_pointer_cast<const TrackerGeomDet>(det())->localAlignmentError();
     if (lape.valid())
       err_ = LocalError(err_.xx()+lape.xx(),
 			err_.xy()+lape.xy(),

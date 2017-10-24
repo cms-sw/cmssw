@@ -32,7 +32,7 @@ public:
 
   SiPixelRecHit( const LocalPoint& pos , const LocalError& err, 
 		 SiPixelRecHitQuality::QualWordType qual,
-		 std::shared_ptr<GeomDet> idet,
+		 std::shared_ptr<const GeomDet> idet,
 		 ClusterRef const&  clus) : 
     TrackerSingleRecHit(pos,err,idet, clus){
     qualWord_=qual; }
