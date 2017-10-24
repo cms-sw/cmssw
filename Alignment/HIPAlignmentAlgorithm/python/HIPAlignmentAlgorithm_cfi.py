@@ -86,8 +86,9 @@ HIPAlignmentAlgorithm = cms.PSet(
 
     monitorConfig = cms.PSet(
         outfile = cms.string('HIPAlignmentEvents.root'),
+        maxEventsPerJob = cms.int32(-1),
         fillTrackMonitoring = cms.bool(False),
-        maxEventsPerJob = cms.int32(100),
+        maxTracks = cms.int32(100),
         fillTrackHitMonitoring = cms.bool(False),
         maxHits = cms.int32(10000), # Not per track, just total
     ),
