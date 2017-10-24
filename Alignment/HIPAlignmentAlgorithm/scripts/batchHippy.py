@@ -143,7 +143,7 @@ class MyBatchManager:
       else:
          if self.opt.dryRun > 0:
             print 'Dry run option is enabled. Will not submit jobs to the queue'
-         jobcmd = 'scripts/iterator_py {} {} {} {} {} {} {} {} {}'.format(
+         jobcmd = 'scripts/iterator_py {} {} {} {} {} {} {} {} {} {}'.format(
          self.opt.niter,
          self.opt.outputdir,
          self.opt.lstfile,
