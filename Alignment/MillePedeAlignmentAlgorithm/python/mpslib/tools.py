@@ -210,3 +210,15 @@ def compute_product_string(product_string):
 
     factors = [float(f) for f in product_string.split("*")]
     return str(reduce(lambda x,y: x*y, factors))
+
+
+def check_proxy():
+    """Check if GRID proxy has been initialized."""
+
+    try:
+        with open(os.devnull, "w") as dump:
+            subprocess.check_call(["voms-proxy-info", "--exists"],
+                                  stdout = dump, stderr = dump)
+    except subprocess.CalledProcessError:
+        return False
+    return True

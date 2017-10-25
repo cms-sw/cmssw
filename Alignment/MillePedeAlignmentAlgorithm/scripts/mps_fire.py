@@ -30,11 +30,8 @@ def forward_proxy(rundir):
     - `rundir`: directory for storing the forwarded proxy
     """
 
-    # check first if proxy is set
-    try:
-        subprocess.check_call(["voms-proxy-info", "--exists"])
-    except subprocess.CalledProcessError:
-        print "Please initialize your proxy before submitting."
+    if not mps_tools.check_proxy():
+        print "Please create proxy via 'voms-proxy-init -voms cms -rfc'."
         sys.exit(1)
 
     local_proxy = subprocess.check_output(["voms-proxy-info", "--path"]).strip()
