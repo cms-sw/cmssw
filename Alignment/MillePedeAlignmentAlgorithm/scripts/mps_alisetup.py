@@ -241,6 +241,14 @@ class SetupAlignment(object):
     def _create_mille_jobs(self):
         """Create the mille jobs based on the [dataset:<name>] sections."""
 
+        gt_regex = re.compile('setupGlobaltag\s*\=\s*[\"\'](.*?)[\"\']')
+        sg_regex = re.compile("setupRunStartGeometry\s*\=\s*.*$", re.M)
+        collection_regex = re.compile('setupCollection\s*\=\s*[\"\'](.*?)[\"\']')
+        czt_regex = re.compile('setupCosmicsZeroTesla\s*\=\s*.*$', re.M)
+        cdm_regex = re.compile('setupCosmicsDecoMode\s*\=\s*.*$', re.M)
+        pw_regex = re.compile('setupPrimaryWidth\s*\=\s*.*$', re.M)
+        json_regex = re.compile('setupJson\s*\=\s*.*$', re.M)
+
         first_dataset = True
         for name, dataset in self._datasets.iteritems():
             print "="*75
@@ -253,29 +261,29 @@ class SetupAlignment(object):
                 print dataset["configTemplate"], "cannot be found."
                 sys.exit(1)
 
-            tmpFile = re.sub('setupGlobaltag\s*\=\s*[\"\'](.*?)[\"\']',
+            tmpFile = re.sub(gt_regex,
                              'setupGlobaltag = \"'+dataset["globaltag"]+'\"',
                              tmpFile)
-            tmpFile = re.sub(re.compile("setupRunStartGeometry\s*\=\s*.*$", re.M),
+            tmpFile = re.sub(sg_regex,
                              "setupRunStartGeometry = "+
                              self._general_options["FirstRunForStartGeometry"], tmpFile)
-            tmpFile = re.sub('setupCollection\s*\=\s*[\"\'](.*?)[\"\']',
+            tmpFile = re.sub(collection_regex,
                              'setupCollection = \"'+dataset["collection"]+'\"',
                              tmpFile)
             if dataset['cosmicsZeroTesla']:
-                tmpFile = re.sub(re.compile('setupCosmicsZeroTesla\s*\=\s*.*$', re.M),
+                tmpFile = re.sub(czt_regex,
                                  'setupCosmicsZeroTesla = True',
                                  tmpFile)
             if dataset['cosmicsDecoMode']:
-                tmpFile = re.sub(re.compile('setupCosmicsDecoMode\s*\=\s*.*$', re.M),
+                tmpFile = re.sub(cdm_regex,
                                  'setupCosmicsDecoMode = True',
                                  tmpFile)
             if dataset['primaryWidth'] > 0.0:
-                tmpFile = re.sub(re.compile('setupPrimaryWidth\s*\=\s*.*$', re.M),
+                tmpFile = re.sub(pw_regex,
                                  'setupPrimaryWidth = '+str(dataset["primaryWidth"]),
                                  tmpFile)
             if dataset['json'] != '':
-                tmpFile = re.sub(re.compile('setupJson\s*\=\s*.*$', re.M),
+                tmpFile = re.sub(json_regex,
                                  'setupJson = \"'+dataset["json"]+'\"',
                                  tmpFile)
 
