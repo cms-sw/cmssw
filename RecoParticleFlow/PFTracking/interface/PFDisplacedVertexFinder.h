@@ -140,10 +140,7 @@ class PFDisplacedVertexFinder {
 
   bool isCloseTo(const reco::PFDisplacedVertexSeed&, const reco::PFDisplacedVertexSeed&) const;
 
-  double getTransvDiff(const GlobalPoint&, const GlobalPoint&) const;
-  double getLongDiff(const GlobalPoint&, const GlobalPoint&) const;
   std::pair<float,float> getTransvLongDiff(const GlobalPoint&, const GlobalPoint&) const;
-  double getLongProj(const GlobalPoint&, const GlobalVector&) const;
 
   reco::PFDisplacedVertex::VertexTrackType getVertexTrackType(PFTrackHitFullInfo&) const;
 
