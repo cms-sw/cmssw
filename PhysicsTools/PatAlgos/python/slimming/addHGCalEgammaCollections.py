@@ -13,6 +13,8 @@ def addHGCalEgammaCollections(process):
             embedGenMatch    = cms.bool(False),
             embedBasicClusters = cms.bool(False),
             embedPflowBasicClusters = cms.bool(False),
+            embedRecHits = cms.bool(False),
+            embedGsfTrack = cms.bool(True),
             isolationValues = cms.PSet(),
             isolationValuesNoPFId = cms.PSet(),
             addMVAVariables = cms.bool(False),
@@ -27,7 +29,7 @@ def addHGCalEgammaCollections(process):
     addToProcessAndTask('selectedPatElectronsFromMultiCl',
         process.selectedPatElectrons.clone(
             src = cms.InputTag("patElectronsFromMultiCl"),
-            cut = cms.string("!isEB()"),
+            cut = cms.string("!isEB && pt > 15"),
         ),
         process, task
     )
@@ -52,6 +54,7 @@ def addHGCalEgammaCollections(process):
             addPhotonID = cms.bool(False),
             addGenMatch = cms.bool(False),
             embedGenMatch = cms.bool(False),
+            embedRecHits = cms.bool(False),
             embedBasicClusters = cms.bool(False),
             saveRegressionData = cms.bool(False),
             isolationValues = cms.PSet(),
@@ -65,7 +68,8 @@ def addHGCalEgammaCollections(process):
     ])
     addToProcessAndTask('selectedPatPhotonsFromMultiCl',
         process.selectedPatPhotons.clone(
-            src = cms.InputTag("patPhotonsFromMultiCl")
+            src = cms.InputTag("patPhotonsFromMultiCl"),
+            cut = cms.string("!isEB && pt > 15"),
         ),
         process, task
     )
