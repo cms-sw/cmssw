@@ -230,12 +230,15 @@ for j in xrange(1, args.n_jobs + 1):
     else:
         lib.JOBSP2.append("")
     lib.JOBSP3.append(args.name)
+
     # create the split card files
-    print "mps_split.pl {} {} {} > jobData/{}/theSplit".format(args.input_file_list, j, args.n_jobs, jobdir)
+    cmd = ["mps_split.pl", args.input_file_list,
+           str(j if args.max_events is None else 1),
+           str(args.n_jobs if args.max_events is None else 1)]
+    print " ".join(cmd)+" > jobData/{}/theSplit".format(jobdir)
     with open("jobData/{}/theSplit".format(jobdir), "w") as f:
         try:
-            subprocess.check_call(["mps_split.pl", args.input_file_list,
-                                   str(j), str(args.n_jobs)], stdout = f)
+            subprocess.check_call(cmd, stdout = f)
         except subprocess.CalledProcessError:
             print "              split failed"
             lib.JOBSTATUS[i-1] = "FAIL"
