@@ -178,7 +178,7 @@ class CSCALCTHeader {
       default:
 	edm::LogError("CSCALCTHeader|CSCRawToDigi")
           <<"check(): ALCT firmware version is bad/not defined!";
-        return 0;
+        return false;
       }
   }
  

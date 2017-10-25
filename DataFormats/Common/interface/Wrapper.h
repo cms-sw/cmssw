@@ -29,7 +29,7 @@ namespace edm {
     Wrapper() : WrapperBase(), present(false), obj() {}
     explicit Wrapper(std::unique_ptr<T> ptr);
     ~Wrapper() override {}
-    T const* product() const {return (present ? &obj : 0);}
+    T const* product() const {return (present ? &obj : nullptr);}
     T const* operator->() const {return product();}
 
     //these are used by FWLite
@@ -63,6 +63,8 @@ private:
     void do_fillPtrVector(std::type_info const& iToType,
                                   std::vector<unsigned long> const& iIndices,
                                   std::vector<void const*>& oPtr) const override;
+
+    std::shared_ptr<soa::TableExaminerBase> tableExaminer_() const override;
 
   private:
     // We wish to disallow copy construction and assignment.
@@ -144,6 +146,21 @@ private:
     assert(wrappedNewProduct != nullptr);
     return detail::doIsProductEqual<T>()(obj, wrappedNewProduct->obj);
   }
+  
+  namespace soa {
+    template<class T>
+    struct MakeTableExaminer {
+      static std::shared_ptr<edm::soa::TableExaminerBase> make(void const*) {
+        return std::shared_ptr<edm::soa::TableExaminerBase>{};
+      }
+    };
+  }
+  template <typename T>
+  inline
+  std::shared_ptr<edm::soa::TableExaminerBase> Wrapper<T>::tableExaminer_() const {
+    return soa::MakeTableExaminer<T>::make(&obj);
+  }
+
 }
 
 #include "DataFormats/Common/interface/WrapperView.icc"

@@ -26,12 +26,12 @@ class EcalDetIdAssociator: public CaloDetIdAssociator{
 
    EcalDetIdAssociator(const edm::ParameterSet& pSet):CaloDetIdAssociator(pSet){};
 
-   virtual const char* name() const override { return "ECAL"; }
+   const char* name() const override { return "ECAL"; }
 
  protected:
 
-   virtual const unsigned int getNumberOfSubdetectors() const override { return 2;}
-   virtual void getValidDetIds(unsigned int subDetectorIndex, std::vector<DetId>& validIds) const  override{
+   const unsigned int getNumberOfSubdetectors() const override { return 2;}
+   void getValidDetIds(unsigned int subDetectorIndex, std::vector<DetId>& validIds) const  override{
      if ( subDetectorIndex == 0 )
        validIds = geometry_->getValidDetIds(DetId::Ecal, EcalBarrel);//EB
      else

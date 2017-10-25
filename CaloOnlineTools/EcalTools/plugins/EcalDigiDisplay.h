@@ -22,12 +22,12 @@ class EcalDigiDisplay : public edm::EDAnalyzer {
   //Constractor
   EcalDigiDisplay(const edm::ParameterSet& ps);
   //Distractor
-  ~EcalDigiDisplay();
+  ~EcalDigiDisplay() override;
   
  private:
-  virtual void analyze( edm::Event const & e, edm::EventSetup const & c);
-  virtual void beginRun(edm::Run const &, edm::EventSetup const & c);
-  virtual void endJob();
+  void analyze( edm::Event const & e, edm::EventSetup const & c) override;
+  void beginRun(edm::Run const &, edm::EventSetup const & c) override;
+  void endJob() override;
   
  protected:
   void readEBDigis (edm::Handle<EBDigiCollection> digis, int Mode);

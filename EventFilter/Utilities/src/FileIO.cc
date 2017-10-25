@@ -12,7 +12,7 @@
 #include <streambuf>
 #include <cstdlib>
 #include <dirent.h>
-#include <stdio.h>
+#include <cstdio>
 #include <sys/stat.h>
 #include <cstring>
 

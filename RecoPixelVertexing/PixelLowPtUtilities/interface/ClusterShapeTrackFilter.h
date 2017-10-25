@@ -26,8 +26,8 @@ class ClusterShapeTrackFilter : public PixelTrackFilterBase
 {
  public:
   ClusterShapeTrackFilter(const SiPixelClusterShapeCache *cache, double ptmin, double ptmax, const edm::EventSetup& es);
-  virtual ~ClusterShapeTrackFilter();
-  virtual bool operator() (const reco::Track*, const std::vector<const TrackingRecHit *> &hits) const override;
+  ~ClusterShapeTrackFilter() override;
+  bool operator() (const reco::Track*, const std::vector<const TrackingRecHit *> &hits) const override;
 
  private:
   float areaParallelogram(const Global2DVector & a,

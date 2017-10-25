@@ -17,7 +17,7 @@
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
 
 FWViewContext::FWViewContext():
-   m_energyScale(0)
+   m_energyScale(nullptr)
 {
 }
 

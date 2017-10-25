@@ -7,10 +7,14 @@
 <use name="DataFormats/L1TMuon"/>
 <use name="DataFormats/L1TCalorimeter"/>
 <use name="DataFormats/TCDS"/>
+<use name="DataFormats/EcalDigi"/>
+<use name="DataFormats/HcalDigi"/>
+<use name="DataFormats/L1CaloTrigger"/>
 <use name="L1Trigger/L1TCalorimeter"/>
 <use name="L1Trigger/L1TGlobal"/>
 <use name="L1Trigger/L1TMuon"/>
 <use name="L1Trigger/L1TMuonEndCap"/>
+<use name="EventFilter/RPCRawToDigi"/>
 <use name="EventFilter/L1TRawToDigi"/>
 <flags EDM_PLUGIN="1"/>
 <flags ADD_SUBDIR="1"/>

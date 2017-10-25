@@ -118,7 +118,7 @@ class QcdLowPtDQM : public DQMEDAnalyzer {
   };
 
   QcdLowPtDQM(const edm::ParameterSet &parameters);
-  virtual ~QcdLowPtDQM();
+  ~QcdLowPtDQM() override;
   void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&,
                       edm::EventSetup const&) override;
@@ -130,16 +130,16 @@ class QcdLowPtDQM : public DQMEDAnalyzer {
  private:
   void book1D(DQMStore::IBooker &, std::vector<MonitorElement *> &mes, const std::string &name,
               const std::string &title, int nx, double x1, double x2,
-              bool sumw2 = 1, bool sbox = 1);
+              bool sumw2 = true, bool sbox = true);
   void book2D(DQMStore::IBooker &, std::vector<MonitorElement *> &mes, const std::string &name,
               const std::string &title, int nx, double x1, double x2, int ny,
-              double y1, double y2, bool sumw2 = 1, bool sbox = 1);
+              double y1, double y2, bool sumw2 = true, bool sbox = true);
   void create1D(std::vector<TH1F *> &mes, const std::string &name,
                 const std::string &title, int nx, double x1, double x2,
-                bool sumw2 = 1, bool sbox = 1);
+                bool sumw2 = true, bool sbox = true);
   void create2D(std::vector<TH2F *> &mes, const std::string &name,
                 const std::string &title, int nx, double x1, double x2, int ny,
-                double y1, double y2, bool sumw2 = 1, bool sbox = 1);
+                double y1, double y2, bool sumw2 = true, bool sbox = true);
   void fill1D(std::vector<TH1F *> &hs, double val, double w = 1.);
   void fill1D(std::vector<MonitorElement *> &mes, double val, double w = 1.);
   void fill2D(std::vector<TH2F *> &hs, double valx, double valy, double w = 1.);
@@ -333,7 +333,7 @@ inline bool QcdLowPtDQM::getProductSafe(const std::string name,
   // get just one
   // product with the given name. If not, we return false.
 
-  if (name.size() == 0) return false;
+  if (name.empty()) return false;
 
   try {
     event.getByLabel(edm::InputTag(name), prod);

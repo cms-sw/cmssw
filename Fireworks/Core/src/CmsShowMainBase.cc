@@ -52,14 +52,14 @@ CmsShowMainBase::CmsShowMainBase()
      m_colorManager( new FWColorManager(m_changeManager.get())),
      m_configurationManager(new FWConfigurationManager),
      m_eiManager(new FWEventItemsManager(m_changeManager.get())),
-     m_guiManager(0),
+     m_guiManager(nullptr),
      m_selectionManager(new FWSelectionManager(m_changeManager.get())),
      m_startupTasks(new CmsShowTaskExecutor),
      m_viewManager(new FWViewManagerManager(m_changeManager.get(), m_colorManager.get())),
      m_autoLoadTimer(new SignalTimer()),
-     m_navigatorPtr(0),
-     m_metadataManagerPtr(0),
-     m_contextPtr(0),
+     m_navigatorPtr(nullptr),
+     m_metadataManagerPtr(nullptr),
+     m_contextPtr(nullptr),
      m_autoSaveAllViewsHeight(-1),
      m_autoLoadTimerRunning(kFALSE),
      m_forward(true),
@@ -83,15 +83,15 @@ CmsShowMainBase::setupActions()
    m_guiManager->setDelayBetweenEvents(m_playDelay);
 
    m_navigatorPtr->newEvent_.connect(boost::bind(&CmsShowMainBase::eventChangedSlot, this));
-   if (m_guiManager->getAction(cmsshow::sNextEvent) != 0)
+   if (m_guiManager->getAction(cmsshow::sNextEvent) != nullptr)
       m_guiManager->getAction(cmsshow::sNextEvent)->activated.connect(sigc::mem_fun(*this, &CmsShowMainBase::doNextEvent));
-   if (m_guiManager->getAction(cmsshow::sPreviousEvent) != 0)
+   if (m_guiManager->getAction(cmsshow::sPreviousEvent) != nullptr)
       m_guiManager->getAction(cmsshow::sPreviousEvent)->activated.connect(sigc::mem_fun(*this, &CmsShowMainBase::doPreviousEvent));
-   if (m_guiManager->getAction(cmsshow::sGotoFirstEvent) != 0)
+   if (m_guiManager->getAction(cmsshow::sGotoFirstEvent) != nullptr)
       m_guiManager->getAction(cmsshow::sGotoFirstEvent)->activated.connect(sigc::mem_fun(*this, &CmsShowMainBase::doFirstEvent));
-   if (m_guiManager->getAction(cmsshow::sGotoLastEvent) != 0)
+   if (m_guiManager->getAction(cmsshow::sGotoLastEvent) != nullptr)
       m_guiManager->getAction(cmsshow::sGotoLastEvent)->activated.connect(sigc::mem_fun(*this, &CmsShowMainBase::doLastEvent));
-   if (m_guiManager->getAction(cmsshow::sQuit) != 0) 
+   if (m_guiManager->getAction(cmsshow::sQuit) != nullptr) 
       m_guiManager->getAction(cmsshow::sQuit)->activated.connect(sigc::mem_fun(*this, &CmsShowMainBase::quit));
  
    m_guiManager->changedEventId_.connect(boost::bind(&CmsShowMainBase::goToRunEvent,this,_1,_2,_3));
@@ -256,7 +256,7 @@ CmsShowMainBase::setup(FWNavigatorBase *navigator,
    std::string macPath(gSystem->Getenv("CMSSW_BASE"));
    macPath += "/src/Fireworks/Core/macros";
    const char* base = gSystem->Getenv("CMSSW_RELEASE_BASE");
-   if(0!=base) {
+   if(nullptr!=base) {
       macPath+=":";
       macPath +=base;
       macPath +="/src/Fireworks/Core/macros";

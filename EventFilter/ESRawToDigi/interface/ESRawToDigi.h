@@ -16,11 +16,11 @@ class ESRawToDigi : public edm::stream::EDProducer<> {
  public:
   
   ESRawToDigi(const edm::ParameterSet& ps);
-  virtual ~ESRawToDigi();
+  ~ESRawToDigi() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
  
-  void produce(edm::Event& e, const edm::EventSetup& es);
+  void produce(edm::Event& e, const edm::EventSetup& es) override;
   
  private:
 

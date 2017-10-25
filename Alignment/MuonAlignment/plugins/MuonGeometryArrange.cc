@@ -45,8 +45,8 @@ MuonGeometryArrange::MuonGeometryArrange(const edm::ParameterSet& cfg) :
   _levelStrings(cfg.getUntrackedParameter<std::vector<std::string> >("levels")),
   _writeToDB(false), _commonMuonLevel(align::invalid), firstEvent_(true)
 {
-	referenceMuon=0x0;
-	currentMuon=0x0;
+	referenceMuon=nullptr;
+	currentMuon=nullptr;
 	// Input is XML
 	_inputXMLCurrent = cfg.getUntrackedParameter<std::string> ("inputXMLCurrent");
 	_inputXMLReference = cfg.getUntrackedParameter<std::string> ("inputXMLReference");
@@ -166,8 +166,8 @@ void MuonGeometryArrange::endHist(){
    int minI, maxI;
 
    minV=99999999.; maxV=-minV;  minI=9999999; maxI=-minI;
-   TGraph* grx=0x0;
-   TH2F* dxh=0x0;
+   TGraph* grx=nullptr;
+   TH2F* dxh=nullptr;
 
 // for position plots:
    for(i=0; i<size; i++){
@@ -410,7 +410,7 @@ void MuonGeometryArrange::makeGraph(int sizeI, float smi, float sma,
 	const char* titleg, const char* axis,
 	const float* xp, const float* yp, int size){
 
-  if(minV>=maxV || smi>=sma || sizeI<=1 || xp==0x0 || yp==0x0) return;
+  if(minV>=maxV || smi>=sma || sizeI<=1 || xp==nullptr || yp==nullptr) return;
   	// out of bounds, bail
   float diff=maxV-minV;
   float over=.05*diff;
@@ -489,8 +489,8 @@ void MuonGeometryArrange::compare(Alignable* refAli, Alignable* curAli,
                 Alignable* curAliCopy2){
 
  // First sanity
-  if(refAli==0x0){return;}	
-  if(curAli==0x0){return;}
+  if(refAli==nullptr){return;}	
+  if(curAli==nullptr){return;}
   
   const std::vector<Alignable*>& refComp = refAli->components();
   const std::vector<Alignable*>& curComp = curAli->components();
@@ -508,8 +508,8 @@ void MuonGeometryArrange::compare(Alignable* refAli, Alignable* curAli,
 void MuonGeometryArrange::compareGeometries(Alignable* refAli, 
 		Alignable* curAli, Alignable* curCopy){
  // First sanity
-  if(refAli==0x0){return;}	
-  if(curAli==0x0){return;}
+  if(refAli==nullptr){return;}	
+  if(curAli==nullptr){return;}
  // Is this the Ring we want to align?  If so it will contain the
  // chambers specified in the configuration file	
   if(!isMother(refAli)) return;	// Not the desired alignable object
@@ -876,7 +876,7 @@ void MuonGeometryArrange::fillTree(Alignable *refAli, const AlgebraicVector& dif
 //////////////////////////////////////////////////
 bool MuonGeometryArrange::isMother(Alignable* ali){
   // Is this the mother ring?
- if(ali==0x0) return false;	// elementary sanity
+ if(ali==nullptr) return false;	// elementary sanity
  const std::vector<Alignable*>& aliComp = ali->components();
 
  int size=aliComp.size();
@@ -891,7 +891,7 @@ bool MuonGeometryArrange::isMother(Alignable* ali){
 
 bool MuonGeometryArrange::checkChosen(Alignable* ali){
  // Check whether the item passed satisfies the criteria given.
-  if(ali==0x0) return false;	// elementary sanity
+  if(ali==nullptr) return false;	// elementary sanity
  // Is this in the CSC section?  If not, bail.  Later may extend.
   if(ali->geomDetId().det()!=DetId::Muon ||
      ali->geomDetId().subdetId()!=MuonSubdetId::CSC) return false;
@@ -928,7 +928,7 @@ bool MuonGeometryArrange::passChosen( Alignable* ali ){
  // The fact that it has layers as sub components, or the fact that it is
  // the first item with a non-zero ID breakdown?  Pick the latter.
  //
- if(ali==0x0) return false;
+ if(ali==nullptr) return false;
  if(checkChosen(ali)) return true;	// If this is one of the desired
  					// CSC chambers, accept it
  const std::vector<Alignable*>& aliComp = ali->components();

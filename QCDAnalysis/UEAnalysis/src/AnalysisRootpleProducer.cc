@@ -269,7 +269,7 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
     ChargedJet->Clear();
 
     // jets from charged particles at hadron level
-    if (ChgGenJetsHandle->size()){
+    if (!ChgGenJetsHandle->empty()){
 
       for ( GenJetCollection::const_iterator it(ChgGenJetsHandle->begin()), itEnd(ChgGenJetsHandle->end());
 	    it!=itEnd; ++it)
@@ -289,7 +289,7 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
 
 
     // GenJets
-    if (GenJetsHandle->size()){
+    if (!GenJetsHandle->empty()){
 
       for ( GenJetCollection::const_iterator it(GenJetsHandle->begin()), itEnd(GenJetsHandle->end());
 	    it!=itEnd; ++it )
@@ -309,7 +309,7 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
 
 
     // hadron level particles
-    if (CandHandleMC->size()){
+    if (!CandHandleMC->empty()){
 
       for (vector<GenParticle>::const_iterator it(CandHandleMC->begin()), itEnd(CandHandleMC->end());
 	   it != itEnd;it++)
@@ -348,7 +348,7 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
   TracksJet->Clear();
   CalorimeterJet->Clear();
 
-  if(RecoCaloJetsHandle->size())
+  if(!RecoCaloJetsHandle->empty())
     {
     for(CaloJetCollection::const_iterator it(RecoCaloJetsHandle->begin()), itEnd(RecoCaloJetsHandle->end());
 	it!=itEnd;++it)
@@ -365,7 +365,7 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
       }
     }
 
-  if(TracksJetsHandle->size())
+  if(!TracksJetsHandle->empty())
     {
       for(BasicJetCollection::const_iterator it(TracksJetsHandle->begin()), itEnd(TracksJetsHandle->end());
 	  it!=itEnd;++it)
@@ -382,7 +382,7 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
 	}
     }
 
-  if(CandHandleRECO->size())
+  if(!CandHandleRECO->empty())
     {
       for(CandidateCollection::const_iterator it(CandHandleRECO->begin()), itEnd(CandHandleRECO->end());
 	  it!=itEnd;++it)

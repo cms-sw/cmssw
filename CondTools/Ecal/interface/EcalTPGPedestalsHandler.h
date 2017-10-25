@@ -6,7 +6,7 @@
 #include <string>
 #include <map>
 #include <iostream>
-#include <time.h>
+#include <ctime>
 
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
@@ -57,10 +57,10 @@ namespace popcon
 		public:
 
                         EcalTPGPedestalsHandler(edm::ParameterSet const & );
-			~EcalTPGPedestalsHandler(); 
-			void getNewObjects();
+			~EcalTPGPedestalsHandler() override; 
+			void getNewObjects() override;
 
-			std::string id() const { return m_name;}
+			std::string id() const override { return m_name;}
 
 			void readFromFile(const char* inputFile) ;
 			void writeFile(const char* inputFile);

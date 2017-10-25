@@ -40,12 +40,12 @@ using namespace std;
 class CentralityTableProducer : public edm::EDAnalyzer {
    public:
       explicit CentralityTableProducer(const edm::ParameterSet&);
-      ~CentralityTableProducer();
+      ~CentralityTableProducer() override;
 
    private:
       virtual void beginRun(const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
    void printBin(const CentralityTable::CBin*);
       // ----------member data ---------------------------
 
@@ -85,8 +85,8 @@ CentralityTableProducer::CentralityTableProducer(const edm::ParameterSet& iConfi
    runnum_(0)
 {
    //now do what ever initialization is needed
-   makeDBFromTFile_ = iConfig.getUntrackedParameter<bool>("makeDBFromTFile",1);
-   makeTFileFromDB_ = iConfig.getUntrackedParameter<bool>("makeTFileFromDB",0);
+   makeDBFromTFile_ = iConfig.getUntrackedParameter<bool>("makeDBFromTFile",true);
+   makeTFileFromDB_ = iConfig.getUntrackedParameter<bool>("makeTFileFromDB",false);
    firstRunOnly_ = iConfig.getUntrackedParameter<bool>("isMC",false);
    debug_ = iConfig.getUntrackedParameter<bool>("debug",false);
    if(makeDBFromTFile_){

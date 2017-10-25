@@ -95,16 +95,16 @@ namespace edm {
          // ---------- static member functions --------------------
          
          // ---------- member functions ---------------------------
-         std::set<EventSetupRecordKey> dependentRecords() const {
+         std::set<EventSetupRecordKey> dependentRecords() const override {
             return findDependentRecordsFor<T>();
          }
       protected:
-         EventSetupRecord& record() { return record_; }
+         EventSetupRecord& record() override { return record_; }
          
       private:
-         EventSetupRecordProviderTemplate(EventSetupRecordProviderTemplate const&); // stop default
+         EventSetupRecordProviderTemplate(EventSetupRecordProviderTemplate const&) = delete; // stop default
          
-         EventSetupRecordProviderTemplate const& operator=(EventSetupRecordProviderTemplate const&); // stop default
+         EventSetupRecordProviderTemplate const& operator=(EventSetupRecordProviderTemplate const&) = delete; // stop default
          
          // ---------- member data --------------------------------
          T record_;

@@ -59,7 +59,7 @@ MuonGEMDetLayerGeometryBuilder::buildLayer(int endcap,vector<int>& rings, int st
 					   const GEMGeometry& geo) {
 
   const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuonGEMDetLayerGeometryBuilder";
-  MuRingForwardDoubleLayer * result = 0;
+  MuRingForwardDoubleLayer * result = nullptr;
   vector<const ForwardDetRing*> frontRings, backRings;
 
 
@@ -74,7 +74,7 @@ MuonGEMDetLayerGeometryBuilder::buildLayer(int endcap,vector<int>& rings, int st
 
  	  const GeomDet* geomDet = geo.idToDet(gemId);
 	  
-	  if (geomDet !=0) {
+	  if (geomDet !=nullptr) {
 	    bool isInFront = isFront(gemId);
 	    if(isInFront)
             {
@@ -93,13 +93,13 @@ MuonGEMDetLayerGeometryBuilder::buildLayer(int endcap,vector<int>& rings, int st
 	  }
       }
 
-      if (frontDets.size()!=0) {
+      if (!frontDets.empty()) {
 	precomputed_value_sort(frontDets.begin(), frontDets.end(), geomsort::DetPhi());
 	frontRings.push_back(new MuDetRing(frontDets));
 	LogTrace(metname) << "New front ring with " << frontDets.size()
 			  << " chambers at z="<< frontRings.back()->position().z();
       }
-      if (backDets.size()!=0) {
+      if (!backDets.empty()) {
         precomputed_value_sort(backDets.begin(), backDets.end(), geomsort::DetPhi());
         backRings.push_back(new MuDetRing(backDets));
         LogTrace(metname) << "New back ring with " << backDets.size()
@@ -112,9 +112,9 @@ MuonGEMDetLayerGeometryBuilder::buildLayer(int endcap,vector<int>& rings, int st
 
   // How should they be sorted?
   //    precomputed_value_sort(muDetRods.begin(), muDetRods.end(), geomsort::ExtractZ<GeometricSearchDet,float>());                                   
-  if(backRings.size()!=0 && frontRings.size()!=0) result = new MuRingForwardDoubleLayer(frontRings, backRings);
-    else result = 0;
-  if(result != 0){
+  if(!backRings.empty() && !frontRings.empty()) result = new MuRingForwardDoubleLayer(frontRings, backRings);
+    else result = nullptr;
+  if(result != nullptr){
     LogTrace(metname) << "New MuRingForwardLayer with " << frontRings.size()
 		      << " and " << backRings.size()
 		      << " rings, at Z " << result->position().z()

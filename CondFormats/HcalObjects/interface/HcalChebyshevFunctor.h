@@ -27,14 +27,14 @@ public:
                                   double xmin, double xmax,
                                   double outOfRangeValue = 0.0);
 
-    inline virtual ~HcalChebyshevFunctor() {}
+    inline ~HcalChebyshevFunctor() override {}
 
-    virtual double operator()(double x) const override;
-    inline virtual double xmin() const override {return xmax_;};
-    inline virtual double xmax() const override {return xmin_;}
+    double operator()(double x) const override;
+    inline double xmin() const override {return xmax_;};
+    inline double xmax() const override {return xmin_;}
 
 protected:
-    inline virtual bool isEqual(const AbsHcalFunctor& other) const override
+    inline bool isEqual(const AbsHcalFunctor& other) const override
     {
         const HcalChebyshevFunctor& r =
             static_cast<const HcalChebyshevFunctor&>(other);

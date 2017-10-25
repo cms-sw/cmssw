@@ -67,13 +67,13 @@ private:
 
 protected:
   void analyze(edm::Event const& e, edm::EventSetup const& iSetup) override;
-  virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
-  virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
+  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
 public:
   explicit L1TdeCSCTF(edm::ParameterSet const& pset);
-  virtual ~L1TdeCSCTF() {}
+  ~L1TdeCSCTF() override {}
 };
 
 #endif

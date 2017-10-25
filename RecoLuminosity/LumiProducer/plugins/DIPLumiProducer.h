@@ -26,12 +26,12 @@ class DIPLumiProducer: public edm::ESProducer , public edm::EventSetupRecordInte
   ReturnSummaryType produceSummary(const DIPLuminosityRcd&);
   typedef std::shared_ptr<DIPLumiDetail> ReturnDetailType;
   ReturnDetailType produceDetail(const DIPLuminosityRcd&);
-  ~DIPLumiProducer();
+  ~DIPLumiProducer() override;
 
  protected:
-  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
                                const edm::IOVSyncValue&,
-                               edm::ValidityInterval& );  
+                               edm::ValidityInterval& ) override;  
  private:
   unsigned int maxavailableLSforRun(coral::ISchema& schema,const std::string&tablename,unsigned int runnumber);
  private:

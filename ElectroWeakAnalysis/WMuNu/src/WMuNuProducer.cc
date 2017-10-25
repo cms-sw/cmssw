@@ -34,14 +34,14 @@
 class WMuNuProducer : public edm::EDProducer {
 public:
   WMuNuProducer(const edm::ParameterSet&);
-  ~WMuNuProducer();
+  ~WMuNuProducer() override;
 
 
 private:
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void beginJob() override;
-  virtual void endJob() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override;
+  void endJob() override;
 
   edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
   edm::EDGetTokenT<edm::View<reco::MET> > metToken_;

@@ -31,7 +31,7 @@ class QcdPhotonsDQM : public DQMEDAnalyzer {
   QcdPhotonsDQM(const edm::ParameterSet&);
 
   /// Destructor
-  virtual ~QcdPhotonsDQM();
+  ~QcdPhotonsDQM() override;
 
   //Book histograms
   void bookHistograms(DQMStore::IBooker &,

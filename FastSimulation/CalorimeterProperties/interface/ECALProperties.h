@@ -19,21 +19,21 @@ class ECALProperties : public CalorimeterProperties
 
   ECALProperties() : scaleEnergy_(0.0212){ } 
 
-  virtual ~ECALProperties() {
+  ~ECALProperties() override {
   }
 
   /// Effective A: 170.87 for Standard ECAL
-  inline double theAeff() const { return Aeff_; }
+  inline double theAeff() const override { return Aeff_; }
 
   /// Effective Z: 68.36 for Standard ECAL
-  inline double theZeff() const { return Zeff_; }
+  inline double theZeff() const override { return Zeff_; }
 
   /// Density in g/cm3: 8.280 for Standard ECAL
-  inline double rho() const { return rho_; }
+  inline double rho() const override { return rho_; }
 
   /// Radiation length in cm
   //  inline double radLenIncm()  const { return radiationLengthIncm(); }: 0.89 for Standard ECAL
-  inline double radLenIncm()  const { return radLenIncm_; }
+  inline double radLenIncm()  const override { return radLenIncm_; }
 
   /// Radiation length in cm but static 
   // This is needed in Calorimetry/CrystalSegment. Patrick, if you don't like it, give
@@ -41,16 +41,16 @@ class ECALProperties : public CalorimeterProperties
   // static inline double radiationLengthIncm() { return 0.89; }
 
   /// Radiation length in g/cm^2: 7.37  for Standard ECAL
-  inline double radLenIngcm2() const { return radLenIngcm2_; }
+  inline double radLenIngcm2() const override { return radLenIngcm2_; }
 
   /// Moliere Radius in cm : 2.190 for Standard ECAL
-  inline   double moliereRadius() const { return moliereRadius_; }
+  inline   double moliereRadius() const override { return moliereRadius_; }
 
   /// Critical energy in GeV (2.66E-3*(x0*Z/A)^1.1): 8.74E-3 for Standard ECAL
-  inline double criticalEnergy() const { return criticalEnergy_; }
+  inline double criticalEnergy() const override { return criticalEnergy_; }
 
   ///Interaction length in cm: 18.5 for Standard ECAL
-  inline double interactionLength() const { return interactionLength_; }
+  inline double interactionLength() const override { return interactionLength_; }
 
   ///Sampling fraction Fs of the calorimeter. 0 for homogeneous one
   inline double theFs() const { return Fs_; }

@@ -136,7 +136,7 @@ private:
   std::string                   theTrackQuality_, processName_, labelHBHE_;
   std::string                   labelTower_, l1Filter_, l2Filter_, l3Filter_;
   std::string                   l1TrigName_;
-  bool                          ignoreTrigger_, useRaw_;
+  bool                          ignoreTrigger_, useRaw_, useL1Trigger_;
   bool                          unCorrect_, collapseDepth_;
   const HcalDDDRecConstants    *hdc_;
   std::vector<double>           etabins_, phibins_;
@@ -215,8 +215,8 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig) :
   // maxRestrictionP_ = 8 GeV as came from a study
   maxRestrictionP_                    = iConfig.getParameter<double>("MaxTrackP");
   slopeRestrictionP_                  = iConfig.getParameter<double>("SlopeTrackP");
-  eIsolate1_                          = iConfig.getParameter<double>("IsolationEnergyStr");
-  eIsolate2_                          = iConfig.getParameter<double>("IsolationEnergySft");
+  eIsolate1_                          = iConfig.getParameter<double>("IsolationEnergyTight");
+  eIsolate2_                          = iConfig.getParameter<double>("IsolationEnergyLoose");
   triggerEvent_                       = iConfig.getParameter<edm::InputTag>("TriggerEventLabel");
   theTriggerResultsLabel_             = iConfig.getParameter<edm::InputTag>("TriggerResultLabel");
   labelGenTrack_                      = iConfig.getParameter<std::string>("TrackLabel");
@@ -230,6 +230,7 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig) :
   std::string prdnam                  = iConfig.getUntrackedParameter<std::string>("ProducerName","");
   ignoreTrigger_                      = iConfig.getUntrackedParameter<bool>("IgnoreTriggers", false);
   useRaw_                             = iConfig.getUntrackedParameter<bool>("UseRaw", false);
+  useL1Trigger_                       = iConfig.getUntrackedParameter<bool>("UseL1Trigger", false);
   hcalScale_                          = iConfig.getUntrackedParameter<double>("HcalScale", 1.0);
   dataType_                           = iConfig.getUntrackedParameter<int>("DataType", 0);
   mode_                               = iConfig.getUntrackedParameter<int>("OutMode", 11);
@@ -305,6 +306,7 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig) :
 				   <<"\t hcalScale_ "      << hcalScale_ 
 				   <<"\n\t useRaw_ "       << useRaw_
 				   <<"\t ignoreTrigger_ "  << ignoreTrigger_
+				   <<"\n\t useL1Trigegr_ " << useL1Trigger_
 				   <<"\t dataType_      "  << dataType_
 				   <<"\t mode_          "  << mode_
 				   <<"\t unCorrect_     "  << unCorrect_
@@ -506,12 +508,13 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
 #endif
 
   std::array<int,3> ntksave{ {0,0,0} };
-  if (ignoreTrigger_) {
+  if (ignoreTrigger_ || useL1Trigger_) {
     t_l1pt  = t_l1eta = t_l1phi = 0;
     t_l3pt  = t_l3eta = t_l3phi = 0;
-    ntksave = fillTree(vecL1, vecL3, leadPV, trkCaloDirections, geo, 
-		       barrelRecHitsHandle, endcapRecHitsHandle, hbhe,
-		       caloTower, genParticles, respCorrs);
+    if (ignoreTrigger_ || t_L1Bit)
+      ntksave = fillTree(vecL1, vecL3, leadPV, trkCaloDirections, geo, 
+			 barrelRecHitsHandle, endcapRecHitsHandle, hbhe,
+			 caloTower, genParticles, respCorrs);
     t_TracksSaved = ntksave[0];
     t_TracksLoose = ntksave[1];
     t_TracksTight = ntksave[2];
@@ -787,8 +790,8 @@ void HcalIsoTrkAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descri
   // following 4 parameters are for isolation cuts and described in the code
   desc.add<double>("MaxTrackP",8.0);
   desc.add<double>("SlopeTrackP",0.05090504066);
-  desc.add<double>("IsolationEnergyStr",2.0);
-  desc.add<double>("IsolationEnergySft",10.0);
+  desc.add<double>("IsolationEnergyTight",2.0);
+  desc.add<double>("IsolationEnergyLoose",10.0);
   // various labels for collections used in the code
   desc.add<edm::InputTag>("TriggerEventLabel",edm::InputTag("hltTriggerSummaryAOD","","HLT"));
   desc.add<edm::InputTag>("TriggerResultLabel",edm::InputTag("TriggerResults","","HLT"));
@@ -807,6 +810,7 @@ void HcalIsoTrkAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descri
   //  Data type 0/1 for single jet trigger or others
   desc.addUntracked<bool>("IgnoreTriggers",false);
   desc.addUntracked<bool>("UseRaw",false);
+  desc.addUntracked<bool>("UseL1Trigger",false);
   desc.addUntracked<double>("HcalScale",1.0);
   desc.addUntracked<int>("DataType",0);
   desc.addUntracked<int>("OutMode",11);
@@ -992,13 +996,12 @@ double HcalIsoTrkAnalyzer::trackP(const reco::Track* pTrack,
 
   double pmom = -1.0;
   if (genParticles.isValid()) {
-    reco::GenParticleCollection::const_iterator p;
     double mindR(999.9);
-    for (p=genParticles->begin(); p!=genParticles->end(); ++p) {
+    for (const auto &p : (*genParticles)) {
       double dR = reco::deltaR(pTrack->eta(), pTrack->phi(),
-			       p->momentum().Eta(), p->momentum().Phi());
+			       p.momentum().Eta(), p.momentum().Phi());
       if (dR < mindR) {
-	mindR = dR; pmom = p->momentum().R();
+	mindR = dR; pmom = p.momentum().R();
       }
     }
   }
@@ -1013,11 +1016,10 @@ double HcalIsoTrkAnalyzer::rhoh(const edm::Handle<CaloTowerCollection>& tower) {
   for (auto eta : etabins_) {
     for (auto phi : phibins_) {
       double hadder = 0;
-      for (CaloTowerCollection::const_iterator pf_it = tower->begin(); 
-	   pf_it != tower->end(); pf_it++) {
-	if (fabs(eta-pf_it->eta())>etahalfdist_)                 continue;
-	if (fabs(reco::deltaPhi(phi,pf_it->phi()))>phihalfdist_) continue;
-	hadder+=pf_it->hadEt();
+      for (const auto & pf_it : (*tower)) {
+	if (fabs(eta-pf_it.eta())>etahalfdist_)                 continue;
+	if (fabs(reco::deltaPhi(phi,pf_it.phi()))>phihalfdist_) continue;
+	hadder += pf_it.hadEt();
       }
       sumPFNallSMDQH2.emplace_back(hadder);
     }

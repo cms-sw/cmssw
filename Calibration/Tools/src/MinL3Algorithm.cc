@@ -5,7 +5,7 @@
  */
 
 #include "Calibration/Tools/interface/MinL3Algorithm.h"
-#include <math.h>
+#include <cmath>
 
 MinL3Algorithm::MinL3Algorithm(float kweight_, int squareMode_, int mineta_, int maxeta_, int minphi_, int maxphi_)
   :kweight(kweight_), squareMode(squareMode_), mineta(mineta_), maxeta(maxeta_), minphi(minphi_), maxphi(maxphi_), countEvents(0)

@@ -225,7 +225,7 @@ void MonitorTrackResidualsBase<pixel_or_strip>::analyze(const edm::Event& iEvent
 
   edm::Handle<reco::VertexCollection> vertices;
   iEvent.getByToken(offlinePrimaryVerticesToken_, vertices);
-  if (!vertices.isValid() || vertices->size() == 0) return;
+  if (!vertices.isValid() || vertices->empty()) return;
   const auto primaryVertex = vertices->at(0); 
 
   //Retrieve tracker topology from geometry

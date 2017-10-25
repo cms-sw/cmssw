@@ -70,7 +70,7 @@
 class CreateIdealTkAlRecords : public edm::one::EDAnalyzer<>  {
 public:
   explicit CreateIdealTkAlRecords(const edm::ParameterSet&);
-  ~CreateIdealTkAlRecords();
+  ~CreateIdealTkAlRecords() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   static std::string toString(const GeomDetEnumerators::SubDetector&);
@@ -79,7 +79,7 @@ public:
   toSubDetectors(const std::vector<std::string>& subs);
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void clearAlignmentInfos();
   std::unique_ptr<TrackerGeometry> retrieveGeometry(const edm::EventSetup&);
   void addAlignmentInfo(const GeomDet&);

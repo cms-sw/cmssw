@@ -74,9 +74,9 @@ HcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle<HFRecHitCollection> HFRecHitsHandle;
   Handle<HORecHitCollection> HORecHitsHandle;
 
-  const HBHERecHitCollection*  HBHERecHits = 0;
-  const HFRecHitCollection*  HFRecHits = 0;
-  const HORecHitCollection*  HORecHits = 0;
+  const HBHERecHitCollection*  HBHERecHits = nullptr;
+  const HFRecHitCollection*  HFRecHits = nullptr;
+  const HORecHitCollection*  HORecHits = nullptr;
 
   iEvent.getByToken(tok_hbhe_,HBHERecHitsHandle);
   if (!HBHERecHitsHandle.isValid()) {

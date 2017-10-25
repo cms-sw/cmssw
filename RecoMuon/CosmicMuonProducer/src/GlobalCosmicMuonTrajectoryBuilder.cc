@@ -103,7 +103,7 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
 
   ConstRecHitContainer muRecHits;
 
-  if (muCand.first == 0 || !muCand.first->isValid()) { 
+  if (muCand.first == nullptr || !muCand.first->isValid()) { 
      muRecHits = getTransientRecHits(*muTrack);
   } else {
      muRecHits = muCand.first->recHits();
@@ -148,7 +148,7 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
    ( firstState1.globalPosition().y() > firstState2.globalPosition().y() )? firstState1 : firstState2;
 
     GlobalPoint front, back;
-    if(hits.size()>0){
+    if(!hits.empty()){
       front=hits.front()->globalPosition();
       back=hits.back()->globalPosition();
       if ( (front.perp()<130 && fabs(front.z())<300)|| (back.perp() <130 && fabs(back.z())<300)){
@@ -334,7 +334,7 @@ std::vector<GlobalCosmicMuonTrajectoryBuilder::TrackCand> GlobalCosmicMuonTrajec
    vector<TrackCand> tkTrackCands;
    for(reco::TrackCollection::size_type i=0; i<theTrackerTracks->size(); ++i){
      reco::TrackRef tkTrack(theTrackerTracks,i);
-     TrackCand tkCand = TrackCand((Trajectory*)(0),tkTrack);
+     TrackCand tkCand = TrackCand((Trajectory*)nullptr,tkTrack);
      tkTrackCands.push_back(tkCand);
      LogTrace(category_) << "chisq is " << theTrackMatcher->match(mu,tkCand,0,0);
      LogTrace(category_) << "d is " << theTrackMatcher->match(mu,tkCand,1,0);

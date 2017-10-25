@@ -3,33 +3,17 @@
 
 /* \class TestAssociator
  *
- * \author Patrizia Azzi (INFN PD), Vincenzo Chiochia (Uni Zuerich)
+ * \author Patrizia Azzi (INFN PD), Vincenzo Chiochia (Uni Zuerich), Bill Ford (Colorado)
  *
  *
  ************************************************************/
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
- 
- 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
- 
-//--- for SimHit
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
-#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"                                                                                                                          
-//needed for the geometry:
-#include "DataFormats/DetId/interface/DetId.h"
-
+#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"                                                                                                    
 
 class TestAssociator : public edm::EDAnalyzer
 {
@@ -40,21 +24,21 @@ class TestAssociator : public edm::EDAnalyzer
   ~TestAssociator() override;
 
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-  
-  std::vector<PSimHit> matched;
 
  private:
   
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
-  const StripTopology* topol;
-  int numStrips;    // number of strips in the module
-  bool doPixel_, doStrip_;
+  bool doPixel_, doStrip_, useOTph2_;
 
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripMatchedRecHit2D> > matchedRecHitToken;
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripRecHit2D> > rphiRecHitToken,stereoRecHitToken;
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelRecHit> > siPixelRecHitsToken;
+  edm::EDGetTokenT<edmNew::DetSetVector<Phase2TrackerRecHit1D> > siPhase2RecHitsToken;
+
+  template<typename rechitType>
+    void printRechitSimhit(const edm::Handle<edmNew::DetSetVector<rechitType>> rechitCollection,
+			   const char* rechitName, int hitCounter, TrackerHitAssociator& associate) const;
+
 };
-
-
 
 #endif

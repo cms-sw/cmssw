@@ -25,7 +25,7 @@
 #include <sstream>
 #include <sys/types.h>
 #include <dirent.h>
-#include <errno.h>
+#include <cerrno>
 #include "TProfile.h"
 
 using namespace sistrip;
@@ -34,7 +34,7 @@ using namespace sistrip;
 // 
 SiStripCommissioningOfflineClient::SiStripCommissioningOfflineClient( const edm::ParameterSet& pset ) 
   : bei_( edm::Service<DQMStore>().operator->() ),
-    histos_(0),
+    histos_(nullptr),
     //inputFiles_( pset.getUntrackedParameter< std::vector<std::string> >( "InputRootFiles", std::vector<std::string>() ) ),
     outputFileName_( pset.getUntrackedParameter<std::string>( "OutputRootFile", "" ) ),
     collateHistos_( !pset.getUntrackedParameter<bool>( "UseClientFile", false ) ),
@@ -194,7 +194,7 @@ void SiStripCommissioningOfflineClient::beginRun( const edm::Run& run, const edm
     << " directories containing MonitorElements";
   
   // Some more debug
-  if (0) {
+  if (false) {
     std::stringstream ss;
     ss << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
        << " Directories found: " << std::endl;
@@ -410,13 +410,13 @@ void SiStripCommissioningOfflineClient::createHistos( const edm::ParameterSet& p
 	    runType_ == sistrip::CALIBRATION_SCAN ||
 	    runType_ == sistrip::CALIBRATION_SCAN_DECO) { histos_ = new CalibrationHistograms( pset, bei_,runType_ ); }
   else if ( runType_ == sistrip::UNDEFINED_RUN_TYPE   ) { 
-    histos_ = 0; 
+    histos_ = nullptr; 
     edm::LogError(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Undefined run type!";
     return;
   } else if ( runType_ == sistrip::UNKNOWN_RUN_TYPE )   { 
-    histos_ = 0;
+    histos_ = nullptr;
     edm::LogError(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Unknown run type!";
@@ -446,7 +446,7 @@ void SiStripCommissioningOfflineClient::setInputFiles( std::vector<std::string>&
   // Open directory
   DIR* dp;
   struct dirent* dirp;
-  if ( (dp = opendir(path.c_str())) == NULL ) {
+  if ( (dp = opendir(path.c_str())) == nullptr ) {
     edm::LogError(mlDqmClient_) 
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Error locating directory \"" << path
@@ -455,7 +455,7 @@ void SiStripCommissioningOfflineClient::setInputFiles( std::vector<std::string>&
   }
 
   // Find compatible files
-  while ( (dirp = readdir(dp)) != NULL ) {
+  while ( (dirp = readdir(dp)) != nullptr ) {
     std::string fileName(dirp->d_name);
     bool goodName = ( fileName.find(nameStr) != std::string::npos );
     bool goodRun  = ( fileName.find(runStr) != std::string::npos );

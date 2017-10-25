@@ -21,7 +21,7 @@ namespace l1t {
 	   int hwEtEm=0,
 	   int hwEtHad=0);
     
-    ~CaloRegion();
+    ~CaloRegion() override;
 
     void setEtEm( double et );
     void setEtHad( double et );

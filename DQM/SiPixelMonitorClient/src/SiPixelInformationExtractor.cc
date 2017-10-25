@@ -53,7 +53,7 @@
 #include "TProfile.h"
 
 #include <iostream>
-#include <math.h>
+#include <cmath>
 #include <map>
 
 #include <cstdlib> // for free() - Root can allocate with malloc() - sigh...
@@ -311,7 +311,7 @@ void SiPixelInformationExtractor::getNormalization2D(MonitorElement     * theME,
  */
 int SiPixelInformationExtractor::getDetId(MonitorElement * mE) 
 {
- string mEName = mE->getName();
+ const string& mEName = mE->getName();
 
  int detId = 0;
  

@@ -32,7 +32,7 @@ V00-03-25
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include <numeric>
-#include <math.h>
+#include <cmath>
 #include <memory>
 #include <TMath.h>
 #include <iostream>
@@ -619,7 +619,7 @@ void BeamMonitor::analyze(const Event& iEvent,
   if(iEvent.getByToken(hltSrc_, triggerResults)){
      const edm::TriggerNames & trigNames = iEvent.triggerNames(*triggerResults); 
       for (unsigned int i=0; i< triggerResults->size(); i++){
-           std::string trigName = trigNames.triggerName(i);
+           const std::string& trigName = trigNames.triggerName(i);
 
          if(JetTrigPass) continue;
 
@@ -1036,7 +1036,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
 
    //---Fix for Cut Flow Table for Running average in a same way//the previous code  has problem for resetting!!!
    mapLSCF[countLumi_] = *theBeamFitter->getCutFlow();
-   if(StartAverage_ && mapLSCF.size()){
+   if(StartAverage_ && !mapLSCF.empty()){
      const TH1F& cutFlowToSubtract = mapLSCF.begin()->second;
      // Subtract the last cut flow from all of the others.
      std::map<int, TH1F>::iterator cf = mapLSCF.begin();

@@ -49,10 +49,10 @@ LaserAlignmentSimulation::LaserAlignmentSimulation(edm::ParameterSet const& theC
 
 LaserAlignmentSimulation::~LaserAlignmentSimulation() 
 {
-  if ( theMaterialProperties != 0 )        { delete theMaterialProperties; }
-  if ( theSteppingAction != 0 )            { delete theSteppingAction; }
-  if ( thePrimaryGenerator != 0 )          { delete thePrimaryGenerator; }
-  if ( theTimer != 0 )                     { delete theTimer; }
+  if ( theMaterialProperties != nullptr )        { delete theMaterialProperties; }
+  if ( theSteppingAction != nullptr )            { delete theSteppingAction; }
+  if ( thePrimaryGenerator != nullptr )          { delete thePrimaryGenerator; }
+  if ( theTimer != nullptr )                     { delete theTimer; }
 }
 
 void LaserAlignmentSimulation::update(const BeginOfRun * myRun)

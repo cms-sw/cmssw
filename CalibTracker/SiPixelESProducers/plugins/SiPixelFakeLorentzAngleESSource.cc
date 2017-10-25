@@ -50,7 +50,7 @@ std::unique_ptr<SiPixelLorentzAngle> SiPixelFakeLorentzAngleESSource::produce(co
 	unsigned int nmodules = 0;
 	SiPixelLorentzAngle * obj = new SiPixelLorentzAngle();
 	SiPixelDetInfoFileReader reader(fp_.fullPath());
-	const std::vector<uint32_t> DetIds = reader.getAllDetIds();
+	const std::vector<uint32_t>& DetIds = reader.getAllDetIds();
 	
 	// Loop over detectors
 	for(std::vector<uint32_t>::const_iterator detit = DetIds.begin(); detit!=DetIds.end(); detit++) {

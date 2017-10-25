@@ -144,7 +144,7 @@ namespace edm {
                 //static regex const eComma(",");
                 //result = regex_replace(result,eComma,"");
                 std::cout <<" no template match for \""<<result<<"\""<<std::endl;
-                assert(0 =="failed to find a match for template class");
+                assert(nullptr =="failed to find a match for template class");
              }
           } else {
              shouldStop=true;

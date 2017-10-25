@@ -18,7 +18,7 @@
 class dso_hidden NavigationSchoolESProducer final : public edm::ESProducer {
 public:
   NavigationSchoolESProducer(const edm::ParameterSet&);
-  ~NavigationSchoolESProducer();
+  ~NavigationSchoolESProducer() override;
   
   typedef std::shared_ptr<NavigationSchool> ReturnType;
 
