@@ -84,16 +84,17 @@ genVisTaus = cms.EDProducer("GenVisTauProducer",
 genVisTauTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("genVisTaus"),
     cut = cms.string("pt > 10."),
-    name= cms.string("GenVisTau"),
+    name = cms.string("GenVisTau"),
     doc = cms.string("gen hadronic taus "),
     singleton = cms.bool(False), # the number of entries is variable
     extension = cms.bool(False), # this is the main table for generator level hadronic tau decays
     variables = cms.PSet(
-         pt  = Var("pt",  float,precision=8),
+         pt = Var("pt", float,precision=8),
          phi = Var("phi", float,precision=8),
-         eta  = Var("eta",  float,precision=8),
-	 pdgId  = Var("pdgId", int, doc="PDG id"),
-	 status  = Var("status", int, doc="Hadronic tau decay mode. 0=OneProng0PiZero, 1=OneProng1PiZero, 2=OneProng2PiZero, 10=ThreeProng0PiZero, 11=ThreeProng1PiZero, 15=Other"),
+         eta = Var("eta", float,precision=8),
+         mass = Var("mass", float,precision=8),                           
+	 charge = Var("charge", int),
+	 status = Var("status", int, doc="Hadronic tau decay mode. 0=OneProng0PiZero, 1=OneProng1PiZero, 2=OneProng2PiZero, 10=ThreeProng0PiZero, 11=ThreeProng1PiZero, 15=Other"),
 	 genPartIdxMother = Var("?numberOfMothers>0?motherRef(0).key():-1", int, doc="index of the mother particle"),
     )
 )
