@@ -703,44 +703,15 @@ PFDisplacedVertexFinder::isCloseTo(const PFDisplacedVertexSeed& dv1, const PFDis
 }
 
 
-double  
-PFDisplacedVertexFinder::getLongDiff(const GlobalPoint& Ref, const GlobalPoint& ToProject) const {
-
-  Basic3DVector<double>vRef(Ref);
-  Basic3DVector<double>vToProject(ToProject);
-  return fabs((vRef.dot(vToProject)-vRef.mag2())/vRef.mag());
-
-}
-
-double  
-PFDisplacedVertexFinder::getLongProj(const GlobalPoint& Ref, const GlobalVector& ToProject) const {
-
-  Basic3DVector<double>vRef(Ref);
-  Basic3DVector<double>vToProject(ToProject);
-  return (vRef.dot(vToProject))/vRef.mag();
-
-
-}
-
-
-double  
-PFDisplacedVertexFinder::getTransvDiff(const GlobalPoint& Ref, const GlobalPoint& ToProject) const {
-
-  Basic3DVector<double>vRef(Ref);
-  Basic3DVector<double>vToProject(ToProject);
-  return fabs(vRef.cross(vToProject).mag()/vRef.mag());
-
-}
-
 std::pair<float,float>
 PFDisplacedVertexFinder::getTransvLongDiff(const GlobalPoint& Ref, const GlobalPoint& ToProject) const {
 
-  Basic3DVector<float>vRef(Ref);
-  Basic3DVector<float>vToProject(ToProject);
-  float oneOverMag = 1.0f/vRef.mag();
+  const auto & vRef = Ref.basicVector();
+  const auto & vToProject = ToProject.basicVector();
+  float vRefMag2 = vRef.mag2();
+  float oneOverMag = 1.0f/sqrt(vRefMag2);
 
-  return std::make_pair(fabs(vRef.cross(vToProject).mag()*oneOverMag),fabs((vRef.dot(vToProject)-vRef.mag2())*oneOverMag));
-
+  return std::make_pair(fabs(vRef.cross(vToProject).mag()*oneOverMag),fabs((vRef.dot(vToProject)-vRefMag2)*oneOverMag));
 }
 
 
