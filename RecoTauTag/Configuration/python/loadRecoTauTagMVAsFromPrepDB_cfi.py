@@ -248,7 +248,7 @@ for training, gbrForestName in tauIdDiscrMVA_trainings_run2_2016.items():
     )
 tauIdDiscrMVA_2017_version = "v1"
 for training, gbrForestName in tauIdDiscrMVA_trainings_run2_2017.items():
-    process.loadRecoTauTagMVAsFromPrepDB.toGet.append(
+    loadRecoTauTagMVAsFromPrepDB.toGet.append(
         cms.PSet(
             record = cms.string('GBRWrapperRcd'),
             tag = cms.string("RecoTauTag_%s%s" % (gbrForestName, tauIdDiscrMVA_2017_version)),
@@ -256,7 +256,7 @@ for training, gbrForestName in tauIdDiscrMVA_trainings_run2_2017.items():
         )
     )
     for WP in tauIdDiscrMVA_WPs_run2_2017[training].keys():
-        process.loadRecoTauTagMVAsFromPrepDB.toGet.append(
+        loadRecoTauTagMVAsFromPrepDB.toGet.append(
             cms.PSet(
                 record = cms.string('PhysicsTGraphPayloadRcd'),
                 tag = cms.string("RecoTauTag_%s%s_WP%s" % (gbrForestName, tauIdDiscrMVA_2017_version, WP)),
@@ -267,7 +267,7 @@ for training, gbrForestName in tauIdDiscrMVA_trainings_run2_2017.items():
 	cms.PSet(
 	    record = cms.string('PhysicsTFormulaPayloadRcd'),
 	    tag = cms.string("RecoTauTag_%s%s_mvaOutput_normalization" % (gbrForestName, tauIdDiscrMVA_2017_version)),
-	    label = cms.untracked.string("RecoTauTag_%s%s_mvaOutput_normalization" % (gbrForestName, tauIdDiscrMVA_2017version))
+	    label = cms.untracked.string("RecoTauTag_%s%s_mvaOutput_normalization" % (gbrForestName, tauIdDiscrMVA_2017_version))
 	)
     )
 
