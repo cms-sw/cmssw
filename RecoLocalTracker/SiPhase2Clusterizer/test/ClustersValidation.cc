@@ -254,7 +254,8 @@ void Phase2TrackerClusterizerValidation::analyze(const edm::Event& event, const 
               for (auto simhitIt : *simHitsRaw[simhitidx]) {
                 if (rawid == simhitIt.detUnitId()) {
                   //std::cout << "=== " << rawid << " " << &simhitIt << " " << simhitIt.trackId() << " " << simhitIt.localPosition().x() << " " << simhitIt.localPosition().y() << std::endl;
-		  if (std::find(clusterSimTrackIds.begin(), clusterSimTrackIds.end(), simhitIt.trackId()) != clusterSimTrackIds.end()) {
+                  auto it = std::lower_bound(clusterSimTrackIds.begin(), clusterSimTrackIds.end(), simhitIt.trackId());
+                  if (it != clusterSimTrackIds.end() && *it == simhitIt.trackId()) {
 		    if (!simhit || fabs(simhitIt.localPosition().x()-localPosClu.x())<minx) {
 		      minx = fabs(simhitIt.localPosition().x()-localPosClu.x());
 		      simhit = &simhitIt;

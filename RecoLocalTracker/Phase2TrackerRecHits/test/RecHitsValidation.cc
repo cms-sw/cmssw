@@ -289,7 +289,8 @@ void Phase2TrackerRecHitsValidation::analyze(const edm::Event& event, const edm:
               for (edm::PSimHitContainer::const_iterator simhitIt(simHitsRaw[simhitidx]->begin()); simhitIt != simHitsRaw[simhitidx]->end(); ++simhitIt) {
                 if (rawid == simhitIt->detUnitId()) {
                   //std::cout << "=== " << rawid << " " << &*simhitIt << " " << simhitIt->trackId() << " " << simhitIt->localPosition().x() << " " << simhitIt->localPosition().y() << std::endl;
-		  if (std::find(clusterSimTrackIds.begin(), clusterSimTrackIds.end(), simhitIt->trackId()) != clusterSimTrackIds.end()) {
+                  auto it = std::lower_bound(clusterSimTrackIds.begin(), clusterSimTrackIds.end(), simhitIt->trackId());
+                  if (it != clusterSimTrackIds.end() && *it == simhitIt->trackId()) {
 		    if (!simhit || fabs(simhitIt->localPosition().x()-localPosClu.x())<minx) {
 		      minx = fabs(simhitIt->localPosition().x()-localPosClu.x());
 		      simhit = &*simhitIt;
@@ -343,19 +344,23 @@ void Phase2TrackerRecHitsValidation::analyze(const edm::Event& event, const edm:
             histogramLayer->second.deltaX[det][nch]->Fill(localPosClu.x() - localPosHit.x());
             histogramLayer->second.deltaY[det][0]  ->Fill(localPosClu.y() - localPosHit.y());
             histogramLayer->second.deltaY[det][nch]->Fill(localPosClu.y() - localPosHit.y());
-            histogramLayer->second.pullX [det][0]  ->Fill((localPosClu.x() - localPosHit.x())/sqrt(rechitIt->localPositionError().xx()));
-            histogramLayer->second.pullX [det][nch]->Fill((localPosClu.x() - localPosHit.x())/sqrt(rechitIt->localPositionError().xx()));
-            histogramLayer->second.pullY [det][0]  ->Fill((localPosClu.y() - localPosHit.y())/sqrt(rechitIt->localPositionError().yy()));
-            histogramLayer->second.pullY [det][nch]->Fill((localPosClu.y() - localPosHit.y())/sqrt(rechitIt->localPositionError().yy()));
+            if (rechitIt->localPositionError().xx() && rechitIt->localPositionError().yy()) {
+              histogramLayer->second.pullX [det][0]  ->Fill((localPosClu.x() - localPosHit.x())/sqrt(rechitIt->localPositionError().xx()));
+              histogramLayer->second.pullX [det][nch]->Fill((localPosClu.x() - localPosHit.x())/sqrt(rechitIt->localPositionError().xx()));
+              histogramLayer->second.pullY [det][0]  ->Fill((localPosClu.y() - localPosHit.y())/sqrt(rechitIt->localPositionError().yy()));
+              histogramLayer->second.pullY [det][nch]->Fill((localPosClu.y() - localPosHit.y())/sqrt(rechitIt->localPositionError().yy()));
+	    }
             if (makeEtaPlots_) {
               histogramLayer->second.deltaX_eta[det][0]  ->Fill(eta, localPosClu.x() - localPosHit.x());
               histogramLayer->second.deltaX_eta[det][nch]->Fill(eta, localPosClu.x() - localPosHit.x());
               histogramLayer->second.deltaY_eta[det][0]  ->Fill(eta, localPosClu.y() - localPosHit.y());
               histogramLayer->second.deltaY_eta[det][nch]->Fill(eta, localPosClu.y() - localPosHit.y());
-              histogramLayer->second.pullX_eta [det][0]  ->Fill(eta, (localPosClu.x() - localPosHit.x())/sqrt(rechitIt->localPositionError().xx()));
-              histogramLayer->second.pullX_eta [det][nch]->Fill(eta, (localPosClu.x() - localPosHit.x())/sqrt(rechitIt->localPositionError().xx()));
-              histogramLayer->second.pullY_eta [det][0]  ->Fill(eta, (localPosClu.y() - localPosHit.y())/sqrt(rechitIt->localPositionError().yy()));
-              histogramLayer->second.pullY_eta [det][nch]->Fill(eta, (localPosClu.y() - localPosHit.y())/sqrt(rechitIt->localPositionError().yy()));
+              if (rechitIt->localPositionError().xx() && rechitIt->localPositionError().yy()) {
+                histogramLayer->second.pullX_eta [det][0]  ->Fill(eta, (localPosClu.x() - localPosHit.x())/sqrt(rechitIt->localPositionError().xx()));
+                histogramLayer->second.pullX_eta [det][nch]->Fill(eta, (localPosClu.x() - localPosHit.x())/sqrt(rechitIt->localPositionError().xx()));
+                histogramLayer->second.pullY_eta [det][0]  ->Fill(eta, (localPosClu.y() - localPosHit.y())/sqrt(rechitIt->localPositionError().yy()));
+                histogramLayer->second.pullY_eta [det][nch]->Fill(eta, (localPosClu.y() - localPosHit.y())/sqrt(rechitIt->localPositionError().yy()));
+              }
             }
 
             // fill histos for primary particles only
@@ -367,19 +372,23 @@ void Phase2TrackerRecHitsValidation::analyze(const edm::Event& event, const edm:
                 histogramLayer->second.deltaX_P[det][nch]->Fill(localPosClu.x() - localPosHit.x());
                 histogramLayer->second.deltaY_P[det][0]  ->Fill(localPosClu.y() - localPosHit.y());
                 histogramLayer->second.deltaY_P[det][nch]->Fill(localPosClu.y() - localPosHit.y());
-                histogramLayer->second.pullX_P [det][0]  ->Fill((localPosClu.x() - localPosHit.x())/sqrt(rechitIt->localPositionError().xx()));
-                histogramLayer->second.pullX_P [det][nch]->Fill((localPosClu.x() - localPosHit.x())/sqrt(rechitIt->localPositionError().xx()));
-                histogramLayer->second.pullY_P [det][0]  ->Fill((localPosClu.y() - localPosHit.y())/sqrt(rechitIt->localPositionError().yy()));
-                histogramLayer->second.pullY_P [det][nch]->Fill((localPosClu.y() - localPosHit.y())/sqrt(rechitIt->localPositionError().yy()));
-                if (makeEtaPlots_ && rechitIt->localPositionError().xx() && rechitIt->localPositionError().yy()) {
+                if (rechitIt->localPositionError().xx() && rechitIt->localPositionError().yy()) {
+                  histogramLayer->second.pullX_P [det][0]  ->Fill((localPosClu.x() - localPosHit.x())/sqrt(rechitIt->localPositionError().xx()));
+                  histogramLayer->second.pullX_P [det][nch]->Fill((localPosClu.x() - localPosHit.x())/sqrt(rechitIt->localPositionError().xx()));
+                  histogramLayer->second.pullY_P [det][0]  ->Fill((localPosClu.y() - localPosHit.y())/sqrt(rechitIt->localPositionError().yy()));
+                  histogramLayer->second.pullY_P [det][nch]->Fill((localPosClu.y() - localPosHit.y())/sqrt(rechitIt->localPositionError().yy()));
+                }
+                if (makeEtaPlots_) {
                   histogramLayer->second.deltaX_eta_P[det][0]  ->Fill(eta, localPosClu.x() - localPosHit.x());
                   histogramLayer->second.deltaX_eta_P[det][nch]->Fill(eta, localPosClu.x() - localPosHit.x());
                   histogramLayer->second.deltaY_eta_P[det][0]  ->Fill(eta, localPosClu.y() - localPosHit.y());
                   histogramLayer->second.deltaY_eta_P[det][nch]->Fill(eta, localPosClu.y() - localPosHit.y());
-                  histogramLayer->second.pullX_eta_P [det][0]  ->Fill(eta, (localPosClu.x() - localPosHit.x())/sqrt(rechitIt->localPositionError().xx()));
-                  histogramLayer->second.pullX_eta_P [det][nch]->Fill(eta, (localPosClu.x() - localPosHit.x())/sqrt(rechitIt->localPositionError().xx()));
-                  histogramLayer->second.pullY_eta_P [det][0]  ->Fill(eta, (localPosClu.y() - localPosHit.y())/sqrt(rechitIt->localPositionError().yy()));
-                  histogramLayer->second.pullY_eta_P [det][nch]->Fill(eta, (localPosClu.y() - localPosHit.y())/sqrt(rechitIt->localPositionError().yy()));
+                  if (rechitIt->localPositionError().xx() && rechitIt->localPositionError().yy()) {
+                    histogramLayer->second.pullX_eta_P [det][0]  ->Fill(eta, (localPosClu.x() - localPosHit.x())/sqrt(rechitIt->localPositionError().xx()));
+                    histogramLayer->second.pullX_eta_P [det][nch]->Fill(eta, (localPosClu.x() - localPosHit.x())/sqrt(rechitIt->localPositionError().xx()));
+                    histogramLayer->second.pullY_eta_P [det][0]  ->Fill(eta, (localPosClu.y() - localPosHit.y())/sqrt(rechitIt->localPositionError().yy()));
+                    histogramLayer->second.pullY_eta_P [det][nch]->Fill(eta, (localPosClu.y() - localPosHit.y())/sqrt(rechitIt->localPositionError().yy()));
+                  }
                 }
             }
 
