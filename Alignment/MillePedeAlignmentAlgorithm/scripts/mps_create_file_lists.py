@@ -17,6 +17,7 @@ import subprocess
 import multiprocessing
 import FWCore.PythonUtilities.LumiList as LumiList
 import Utilities.General.cmssw_das_client as cmssw_das_client
+import Alignment.MillePedeAlignmentAlgorithm.mpslib.tools as mps_tools
 
 
 ################################################################################
@@ -51,7 +52,7 @@ class FileListCreator(object):
         self._parser = self._define_parser()
         self._args = self._parser.parse_args(argv)
 
-        if not check_proxy():
+        if not mps_tools.check_proxy():
             print_msg(
                 "Please create proxy via 'voms-proxy-init -voms cms -rfc'.")
             sys.exit(1)
@@ -1063,18 +1064,6 @@ def get_chunks(long_list, chunk_size):
 
     for i in xrange(0, len(long_list), chunk_size):
         yield long_list[i:i+chunk_size]
-
-
-def check_proxy():
-    """Check if GRID proxy has been initialized."""
-
-    try:
-        with open(os.devnull, "w") as dump:
-            subprocess.check_call(["voms-proxy-info", "--exists"],
-                                  stdout = dump, stderr = dump)
-    except subprocess.CalledProcessError:
-        return False
-    return True
 
 
 def merge_strings(strings):
