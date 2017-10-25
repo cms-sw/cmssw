@@ -54,9 +54,9 @@ template <typename BT= reco::Candidate>
   public:
   MuIsolatorResultProducer(const edm::ParameterSet&);
   
-  virtual ~MuIsolatorResultProducer();
+  ~MuIsolatorResultProducer() override;
   
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
   private:
   typedef muisorhelper::Isolator Isolator;
@@ -125,7 +125,7 @@ void MuIsolatorResultProducer<BT>::writeOutImpl(edm::Event& event, const CandMap
   typename edm::ValueMap<RT>::Filler filler(*outMap); 
 
   //! fill/insert of non-empty values only
-  if (candMapT.get().size()>0){
+  if (!candMapT.get().empty()){
     filler.insert(candMapT.handle(), resV.begin(), resV.end()); 
     filler.fill(); 
   }
@@ -186,7 +186,7 @@ template<typename BT>
 MuIsolatorResultProducer<BT>::MuIsolatorResultProducer(const edm::ParameterSet& par) :
   theConfig(par),
   theRemoveOtherVetos(par.getParameter<bool>("RemoveOtherVetos")),
-  theIsolator(0),
+  theIsolator(nullptr),
   theBeam(0,0,0)
 {
   LogDebug("RecoMuon|MuonIsolation")<<" MuIsolatorResultProducer CTOR";
@@ -245,7 +245,7 @@ MuIsolatorResultProducer<BT>::MuIsolatorResultProducer(const edm::ParameterSet& 
     }
   }
   
-  if (theIsolator == 0 ){
+  if (theIsolator == nullptr ){
     edm::LogError("MuonIsolationProducers")<<"Failed to initialize an isolator";
   }
   theResultType = theIsolator->resultType();
@@ -316,7 +316,7 @@ void MuIsolatorResultProducer<BT>::produce(edm::Event& event, const edm::EventSe
   Results results(colSize);
 
   //! extra vetos will be filled here
-  std::vector<reco::IsoDeposit::Vetos*> vetoDeps(theDepositConfs.size(), 0);
+  std::vector<reco::IsoDeposit::Vetos*> vetoDeps(theDepositConfs.size(), nullptr);
 
   if (colSize != 0){
     if (theRemoveOtherVetos){
@@ -342,7 +342,7 @@ void MuIsolatorResultProducer<BT>::produce(edm::Event& event, const edm::EventSe
     //! do cleanup
     if (vetoDeps[iDep]){
       delete vetoDeps[iDep];
-      vetoDeps[iDep] = 0;
+      vetoDeps[iDep] = nullptr;
     }
   }
 }
@@ -358,7 +358,7 @@ MuIsolatorResultProducer<BT>::initAssociation(edm::Event& event, CandMap& candMa
     edm::Handle<reco::IsoDepositMap> depH;
     event.getByLabel(theDepositConfs[iMap].tag, depH);
     LogDebug(metname) <<"Got Deposits of size "<<depH->size();
-    if (depH->size()==0) continue;
+    if (depH->empty()) continue;
 
     //! WARNING: the input ValueMaps are better be for a single key product ID
     //! no effort is done (FIXME) for more complex cases
@@ -412,7 +412,7 @@ void MuIsolatorResultProducer<BT>::initVetos(std::vector<reco::IsoDeposit::Vetos
 	  ){
 	LogDebug(metname)<<"muon passes the cuts";
 	for (unsigned int iDep =0; iDep < candMapT.get()[muI].second.size(); ++iDep){
-	  if (vetos[iDep] == 0) vetos[iDep] = new reco::IsoDeposit::Vetos();
+	  if (vetos[iDep] == nullptr) vetos[iDep] = new reco::IsoDeposit::Vetos();
 
 	  vetos[iDep]->push_back(candMapT.get()[muI].second[iDep].dep->veto());
 	}

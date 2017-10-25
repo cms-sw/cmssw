@@ -42,46 +42,46 @@ JetAnalyzer_HeavyIons_matching::JetAnalyzer_HeavyIons_matching(const edm::Parame
 
   // initialize the Jet matching histograms
 
-  mpT_ratio_Jet1Jet2 = 0;
-  mpT_Jet1_matched = 0;
-  mpT_Jet2_matched = 0;
-  mpT_Jet1_unmatched = 0;
-  mpT_Jet2_unmatched = 0;
+  mpT_ratio_Jet1Jet2 = nullptr;
+  mpT_Jet1_matched = nullptr;
+  mpT_Jet2_matched = nullptr;
+  mpT_Jet1_unmatched = nullptr;
+  mpT_Jet2_unmatched = nullptr;
 
   // we need to add histograms which will hold the hadronic and electromagnetic energy content for the unmatched Jets.
   if(std::string("VsCalo") == JetType1 || std::string("PuCalo") == JetType1){
-    mHadEnergy_Jet1_unmatched = 0;
-    mEmEnergy_Jet1_unmatched = 0; 
+    mHadEnergy_Jet1_unmatched = nullptr;
+    mEmEnergy_Jet1_unmatched = nullptr; 
   }
   if(std::string("VsCalo") == JetType2 || std::string("PuCalo") == JetType2) {
-    mHadEnergy_Jet2_unmatched = 0;
-    mEmEnergy_Jet2_unmatched = 0; 
+    mHadEnergy_Jet2_unmatched = nullptr;
+    mEmEnergy_Jet2_unmatched = nullptr; 
   }
 
   if(std::string("VsPF") == JetType1){
-    mChargedHadronEnergy_Jet1_unmatched = 0; 
-    mNeutralHadronEnergy_Jet1_unmatched = 0;
-    mChargedEmEnergy_Jet1_unmatched = 0;
-    mNeutralEmEnergy_Jet1_unmatched = 0;
-    mChargedMuEnergy_Jet1_unmatched = 0;
-    mChargedHadEnergyFraction_Jet1_unmatched = 0;
-    mNeutralHadEnergyFraction_Jet1_unmatched = 0;
-    mPhotonEnergyFraction_Jet1_unmatched = 0;
-    mElectronEnergyFraction_Jet1_unmatched = 0;
-    mMuonEnergyFraction_Jet1_unmatched = 0;
+    mChargedHadronEnergy_Jet1_unmatched = nullptr; 
+    mNeutralHadronEnergy_Jet1_unmatched = nullptr;
+    mChargedEmEnergy_Jet1_unmatched = nullptr;
+    mNeutralEmEnergy_Jet1_unmatched = nullptr;
+    mChargedMuEnergy_Jet1_unmatched = nullptr;
+    mChargedHadEnergyFraction_Jet1_unmatched = nullptr;
+    mNeutralHadEnergyFraction_Jet1_unmatched = nullptr;
+    mPhotonEnergyFraction_Jet1_unmatched = nullptr;
+    mElectronEnergyFraction_Jet1_unmatched = nullptr;
+    mMuonEnergyFraction_Jet1_unmatched = nullptr;
   }
   
   if(std::string("VsPF") == JetType2){
-    mChargedHadronEnergy_Jet2_unmatched = 0; 
-    mNeutralHadronEnergy_Jet2_unmatched = 0;
-    mChargedEmEnergy_Jet2_unmatched = 0;
-    mNeutralEmEnergy_Jet2_unmatched = 0;
-    mChargedMuEnergy_Jet2_unmatched = 0;
-    mChargedHadEnergyFraction_Jet2_unmatched = 0;
-    mNeutralHadEnergyFraction_Jet2_unmatched = 0;
-    mPhotonEnergyFraction_Jet2_unmatched = 0;
-    mElectronEnergyFraction_Jet2_unmatched = 0;
-    mMuonEnergyFraction_Jet2_unmatched = 0;
+    mChargedHadronEnergy_Jet2_unmatched = nullptr; 
+    mNeutralHadronEnergy_Jet2_unmatched = nullptr;
+    mChargedEmEnergy_Jet2_unmatched = nullptr;
+    mNeutralEmEnergy_Jet2_unmatched = nullptr;
+    mChargedMuEnergy_Jet2_unmatched = nullptr;
+    mChargedHadEnergyFraction_Jet2_unmatched = nullptr;
+    mNeutralHadEnergyFraction_Jet2_unmatched = nullptr;
+    mPhotonEnergyFraction_Jet2_unmatched = nullptr;
+    mElectronEnergyFraction_Jet2_unmatched = nullptr;
+    mMuonEnergyFraction_Jet2_unmatched = nullptr;
   }
   
   

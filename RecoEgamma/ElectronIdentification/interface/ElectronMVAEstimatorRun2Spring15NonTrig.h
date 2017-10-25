@@ -86,7 +86,7 @@ class ElectronMVAEstimatorRun2Spring15NonTrig : public AnyMVAEstimatorRun2Base{
   
   // Constructor and destructor
   ElectronMVAEstimatorRun2Spring15NonTrig(const edm::ParameterSet& conf);
-  ~ElectronMVAEstimatorRun2Spring15NonTrig();
+  ~ElectronMVAEstimatorRun2Spring15NonTrig() override;
 
   // Calculation of the MVA value
   float mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event&) const override;
@@ -95,10 +95,10 @@ class ElectronMVAEstimatorRun2Spring15NonTrig : public AnyMVAEstimatorRun2Base{
   std::unique_ptr<const GBRForest> createSingleReader(const int iCategory, 
                                                       const edm::FileInPath &weightFile);
 
-  virtual int getNCategories() const override { return nCategories; }
+  int getNCategories() const override { return nCategories; }
   bool isEndcapCategory( int category ) const;
-  virtual const std::string& getName() const override final { return _name; }
-  virtual const std::string& getTag() const override final { return _tag; }
+  const std::string& getName() const final { return _name; }
+  const std::string& getTag() const final { return _tag; }
 
   // Functions that should work on both pat and reco electrons
   // (use the fact that pat::Electron inherits from reco::GsfElectron)
@@ -110,7 +110,7 @@ class ElectronMVAEstimatorRun2Spring15NonTrig : public AnyMVAEstimatorRun2Base{
 
   // Call this function once after the constructor to declare
   // the needed event content pieces to the framework
-  void setConsumes(edm::ConsumesCollector&&) const override final;
+  void setConsumes(edm::ConsumesCollector&&) const final;
   // Call this function once per event to retrieve all needed
   // event content pices
   

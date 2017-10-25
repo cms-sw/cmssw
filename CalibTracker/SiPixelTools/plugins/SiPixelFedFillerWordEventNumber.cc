@@ -379,7 +379,7 @@ SiPixelFedFillerWordEventNumber ::produce(edm::Event& iEvent, const edm::EventSe
       int value = PwordSlink64((uint64_t*)fedRawData.data(),(int)fedRawData.size(), totword);
       if(value!=0){
 	//====== Verify that the vector is not empty
-	if(vecSaveFillerWords.size()!=0){
+	if(!vecSaveFillerWords.empty()){
 	  for(vecSaveFillerWords_It = vecSaveFillerWords.begin(); vecSaveFillerWords_It != vecSaveFillerWords.end(); vecSaveFillerWords_It++){
 	    SaveFillerWords->push_back(*vecSaveFillerWords_It);
 	  }

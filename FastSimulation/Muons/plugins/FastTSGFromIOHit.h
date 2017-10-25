@@ -29,7 +29,7 @@ public:
   FastTSGFromIOHit(const edm::ParameterSet &pset,edm::ConsumesCollector& iC);
 
   /// destructor
-  virtual ~FastTSGFromIOHit();
+  ~FastTSGFromIOHit() override;
 
   /// generate seed(s) for a track
     void  trackerSeeds(const TrackCand&, const TrackingRegion&, const TrackerTopology *tTopo, std::vector<TrajectorySeed>&) override;

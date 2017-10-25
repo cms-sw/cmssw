@@ -50,9 +50,9 @@ public:
    void add(FWParameterBase*);
 
 private:
-   FWParameterizable(const FWParameterizable&);    // stop default
+   FWParameterizable(const FWParameterizable&) = delete;    // stop default
 
-   const FWParameterizable& operator=(const FWParameterizable&);    // stop default
+   const FWParameterizable& operator=(const FWParameterizable&) = delete;    // stop default
 
    // ---------- member data --------------------------------
    std::vector<FWParameterBase* > m_parameters;

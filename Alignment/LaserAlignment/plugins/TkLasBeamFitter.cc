@@ -65,12 +65,12 @@ using namespace std;
 class TkLasBeamFitter : public edm::one::EDProducer<edm::EndRunProducer> {
 public:
   explicit TkLasBeamFitter(const edm::ParameterSet &config);
-  ~TkLasBeamFitter();
+  ~TkLasBeamFitter() override;
   
   //virtual void beginJob(const edm::EventSetup& /*access deprecated*/) {}
-  virtual void produce(edm::Event &event, const edm::EventSetup &setup) override;
+  void produce(edm::Event &event, const edm::EventSetup &setup) override;
   // virtual void beginRun(edm::Run &run, const edm::EventSetup &setup);
-  virtual void endRunProduce(edm::Run &run, const edm::EventSetup &setup) override;
+  void endRunProduce(edm::Run &run, const edm::EventSetup &setup) override;
   //virtual void endJob() {}
 
 private:
@@ -167,8 +167,8 @@ double TkLasBeamFitter::gBeamZ0 = 0.0;
 double TkLasBeamFitter::gBeamSplitterZprime = 0.0;
 unsigned int TkLasBeamFitter::gHitsAtTecMinus = 0;
 double TkLasBeamFitter::gBSparam = 0.0;
-bool TkLasBeamFitter::gFitBeamSplitters = 0;
-bool TkLasBeamFitter::gIsInnerBarrel = 0;
+bool TkLasBeamFitter::gFitBeamSplitters = false;
+bool TkLasBeamFitter::gIsInnerBarrel = false;
 
 // handles
 Handle<TkLasBeamCollection> laserBeams;
@@ -182,12 +182,12 @@ TkLasBeamFitter::TkLasBeamFitter(const edm::ParameterSet &iConfig) :
   src_(iConfig.getParameter<edm::InputTag>("src")),
   fitBeamSplitters_(iConfig.getParameter<bool>("fitBeamSplitters")),
   nAtParameters_(iConfig.getParameter<unsigned int>("numberOfFittedAtParameters")),
-  h_bsAngle(0), h_hitX(0), h_hitXTecPlus(0), h_hitXTecMinus(0),
-  h_hitXAt(0), h_chi2(0), h_chi2ndof(0), h_pull(0), h_res(0), 
-  h_resTecPlus(0), h_resTecMinus(0), h_resAt(0),
-  h_bsAngleVsBeam(0), h_hitXvsZTecPlus(0), h_hitXvsZTecMinus(0),
-  h_hitXvsZAt(0), h_resVsZTecPlus(0), h_resVsZTecMinus(0), h_resVsZAt(0),
-  h_resVsHitTecPlus(0), h_resVsHitTecMinus(0), h_resVsHitAt(0)
+  h_bsAngle(nullptr), h_hitX(nullptr), h_hitXTecPlus(nullptr), h_hitXTecMinus(nullptr),
+  h_hitXAt(nullptr), h_chi2(nullptr), h_chi2ndof(nullptr), h_pull(nullptr), h_res(nullptr), 
+  h_resTecPlus(nullptr), h_resTecMinus(nullptr), h_resAt(nullptr),
+  h_bsAngleVsBeam(nullptr), h_hitXvsZTecPlus(nullptr), h_hitXvsZTecMinus(nullptr),
+  h_hitXvsZAt(nullptr), h_resVsZTecPlus(nullptr), h_resVsZTecMinus(nullptr), h_resVsZAt(nullptr),
+  h_resVsHitTecPlus(nullptr), h_resVsHitTecMinus(nullptr), h_resVsHitAt(nullptr)
 {
   // declare the products to produce
   this->produces<TkFittedLasBeamCollection, edm::Transition::EndRun>();
@@ -413,10 +413,10 @@ void TkLasBeamFitter::getLasBeams(TkFittedLasBeam &beam, vector<TrajectoryStateO
       gBarrelModuleOffset.push_back(gBarrelModuleRadius.back() - gBeamR);
       // TIB/TOB flag
       if(gBarrelModuleOffset.back() < 0.0){
-	gIsInnerBarrel = 1;
+	gIsInnerBarrel = true;
       }
       else{
-	gIsInnerBarrel = 0;
+	gIsInnerBarrel = false;
       }
       gHitZprime.push_back(globHit[hit].z() - gBeamZ0 - abs(gBarrelModuleOffset.back())); 
     }

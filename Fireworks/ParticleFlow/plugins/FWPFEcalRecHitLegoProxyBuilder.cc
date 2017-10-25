@@ -71,7 +71,7 @@ FWPFEcalRecHitLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementList
       std::vector<TEveVector> etaphiCorners(8);
       TEveVector centre;
 
-      if( corners == 0 )
+      if( corners == nullptr )
          continue;
 
       int k = 3;

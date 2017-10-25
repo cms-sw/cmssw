@@ -48,13 +48,13 @@ PixelCPETemplateRecoESProducer::produce(const TkPixelCPERecord & iRecord){
   iRecord.getRecord<TrackerDigiGeometryRecord>().getRecord<TrackerTopologyRcd>().get(hTT);
 
   edm::ESHandle<SiPixelLorentzAngle> lorentzAngle;
-  const SiPixelLorentzAngle * lorentzAngleProduct = 0;
+  const SiPixelLorentzAngle * lorentzAngleProduct = nullptr;
   if(DoLorentz_) { //  LA correction from alignment 
     iRecord.getRecord<SiPixelLorentzAngleRcd>().get("fromAlignment",lorentzAngle);
     lorentzAngleProduct = lorentzAngle.product();
   } else { // Normal, deafult LA actually is NOT needed
     //iRecord.getRecord<SiPixelLorentzAngleRcd>().get(lorentzAngle);
-    lorentzAngleProduct=NULL;  // null is ok becuse LA is not use by templates in this mode
+    lorentzAngleProduct=nullptr;  // null is ok becuse LA is not use by templates in this mode
   }
 
   ESHandle<SiPixelTemplateDBObject> templateDBobject;

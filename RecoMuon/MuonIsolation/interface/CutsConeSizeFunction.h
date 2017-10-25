@@ -7,10 +7,10 @@
 namespace muonisolation {
 class CutsConeSizeFunction : public IsolatorByDeposit::ConeSizeFunction {
 public: 
-  CutsConeSizeFunction(const Cuts & cuts) : theLastCut(0), theCuts(cuts) {} 
-  virtual ~CutsConeSizeFunction() = default;
+  CutsConeSizeFunction(const Cuts & cuts) : theLastCut(nullptr), theCuts(cuts) {} 
+  ~CutsConeSizeFunction() override = default;
   float threshold() const { return theLastCut->threshold; }
-  float coneSize( float eta, float pt) const {
+  float coneSize( float eta, float pt) const override {
     theLastCut = & theCuts(eta); 
     return theLastCut->conesize;
   } 

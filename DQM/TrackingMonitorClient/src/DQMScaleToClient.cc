@@ -49,11 +49,11 @@ void DQMScaleToClient::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter&
 
   // create and cd into new folder
   std::string currentFolder = outputmepset_.folder;
-  ibooker_.setCurrentFolder(currentFolder.c_str());
+  ibooker_.setCurrentFolder(currentFolder);
 
   //get available histograms
   hname = inputmepset_.folder + "/" + inputmepset_.name;
-  MonitorElement* inputme = igetter_.get( hname.c_str() );
+  MonitorElement* inputme = igetter_.get( hname );
 
   if (!inputme) {
     edm::LogError("DQMScaleToClient") <<  "MEs not found! " 
@@ -63,7 +63,7 @@ void DQMScaleToClient::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter&
   }
 
   //book new histogram
-  ibooker_.setCurrentFolder(currentFolder.c_str());
+  ibooker_.setCurrentFolder(currentFolder);
   hname = outputmepset_.name;
   scaled_ = ibooker_.book1D(hname,(TH1F*)inputme->getTH1()->Clone(hname.c_str()));
 

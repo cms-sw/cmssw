@@ -84,7 +84,7 @@ void RandomtXiGunProducer::produce(edm::Event &e, const edm::EventSetup& es)
        double Xi = 0;
        double phi=0;
        if (fFireForward) {
-          while(1) {
+          while(true) {
                Xi     = CLHEP::RandFlat::shoot(engine,fMinXi,fMaxXi);
                double min_t = std::max(fMint,Minimum_t(Xi));
                double max_t = fMaxt;
@@ -103,7 +103,7 @@ void RandomtXiGunProducer::produce(edm::Event &e, const edm::EventSetup& es)
           Vtx->add_particle_out(Part);
        }
        if ( fFireBackward) {
-          while(1) {
+          while(true) {
                Xi     = CLHEP::RandFlat::shoot(engine,fMinXi,fMaxXi);
                double min_t = std::max(fMint,Minimum_t(Xi));
                double max_t = fMaxt;

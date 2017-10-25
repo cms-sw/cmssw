@@ -245,7 +245,7 @@ PF_PU_AssoMapAlgos::SortAssociationMap(TrackToVertexAssMap* trackvertexassInput)
 
 	}
 
-	while (vertexptsumvector.size()!=0){
+	while (!vertexptsumvector.empty()){
 
 	  VertexRef vertexref_highestpT;
 	  float highestpT = 0.;
@@ -665,7 +665,7 @@ VertexRef
 PF_PU_AssoMapAlgos::FindV0Vertex(const TrackRef trackref, const VertexCompositeCandidate& V0_vtx, ESHandle<MagneticField> bFieldH, const EventSetup& iSetup, Handle<BeamSpot> bsH, std::vector<reco::VertexRef>* vtxcollV, double tWeight)
 {
 
-	math::XYZPoint dec_pos = V0_vtx.vertex();
+	const math::XYZPoint& dec_pos = V0_vtx.vertex();
 
 	math::XYZVector dec_mom(V0_vtx.momentum().x(),
 	                        V0_vtx.momentum().y(),
@@ -789,7 +789,7 @@ PF_PU_AssoMapAlgos::FindNIVertex(const TrackRef trackref, const PFDisplacedVerte
 
 	}
 
-	math::XYZPoint ni_pos = displVtx.position();
+	const math::XYZPoint& ni_pos = displVtx.position();
 
 	math::XYZVector ni_mom(displVtx.primaryMomentum().x(),
 	                       displVtx.primaryMomentum().y(),

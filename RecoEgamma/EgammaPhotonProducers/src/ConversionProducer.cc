@@ -71,7 +71,7 @@ Implementation:
 
 
 ConversionProducer::ConversionProducer(const edm::ParameterSet& iConfig):
-  theVertexFinder_(0)
+  theVertexFinder_(nullptr)
 
 {
   algoName_ = iConfig.getParameter<std::string>( "AlgorithmName" );
@@ -159,7 +159,7 @@ ConversionProducer::ConversionProducer(const edm::ParameterSet& iConfig):
 
   theVertexFinder_ = new ConversionVertexFinder ( iConfig );
 
-  thettbuilder_ = 0;
+  thettbuilder_ = nullptr;
 
   //output
   ConvertedPhotonCollection_     = iConfig.getParameter<std::string>("convertedPhotonCollection");

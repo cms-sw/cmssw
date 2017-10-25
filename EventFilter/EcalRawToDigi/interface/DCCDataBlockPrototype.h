@@ -16,11 +16,11 @@
 #include <vector>
 #include <map>
 #include <utility>
-#include <stdio.h>
+#include <cstdio>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include "DCCRawDataDefinitions.h"
-#include <stdint.h>
+#include <cstdint>
 
 class EcalElectronicsMapper;
 class DCCDataUnpacker;

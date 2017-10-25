@@ -80,15 +80,15 @@ struct stAPVGain{unsigned int Index; int DetId; int APVId; int SubDet; float Eta
 class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
    public:
       explicit SiStripGainFromData(const edm::ParameterSet&);
-      ~SiStripGainFromData();
+      ~SiStripGainFromData() override;
 
 
    private:
-      virtual void algoBeginJob(const edm::EventSetup&) override ;
-      virtual void algoEndJob() override ;
-      virtual void algoBeginRun(const edm::Run &, const edm::EventSetup &) override;
+      void algoBeginJob(const edm::EventSetup&) override ;
+      void algoEndJob() override ;
+      void algoBeginRun(const edm::Run &, const edm::EventSetup &) override;
 //      virtual void algoBeginRun(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-      virtual void algoAnalyze(const edm::Event &, const edm::EventSetup &) override;
+      void algoAnalyze(const edm::Event &, const edm::EventSetup &) override;
 
       SiStripApvGain* getNewObject() override;
       DQMStore* dqmStore_;
@@ -567,7 +567,7 @@ SiStripGainFromData::algoEndJob() {
    if( strcmp(AlgoMode.c_str(),"WriteOnDB")==0 || strcmp(AlgoMode.c_str(),"Merge")==0){
       TH1::AddDirectory(kTRUE);
 
-      TFile* file = NULL;
+      TFile* file = nullptr;
       for(unsigned int f=0;f<VInputFiles.size();f++){
          printf("Loading New Input File : %s\n", VInputFiles[f].c_str());
  	 if(CheckIfFileExist){
@@ -637,7 +637,7 @@ SiStripGainFromData::algoEndJob() {
 
 
    if( strcmp(AlgoMode.c_str(),"MultiJob")!=0 ){
-      TH1D* Proj = NULL;
+      TH1D* Proj = nullptr;
       double* FitResults = new double[5];
       I=0;
       for(auto it = APVsColl.begin();it!=APVsColl.end();it++){
@@ -648,7 +648,7 @@ SiStripGainFromData::algoEndJob() {
          int bin = APV_Charge->GetXaxis()->FindBin(APV->Index);
          Proj = APV_Charge->ProjectionY(" ",bin,bin,"e");
          Proj = (TH1D*)Proj->Clone();
-         if(Proj==NULL)continue;
+         if(Proj==nullptr)continue;
 
 	 // ADD PROJECTTIONS COMMING FROM THE SECOND APV IN THE PAIR
          if(CalibrationLevel==1){
@@ -662,7 +662,7 @@ SiStripGainFromData::algoEndJob() {
 
             int bin2 = APV_Charge->GetXaxis()->FindBin(APV2->Index);
             TH1D* Proj2 = APV_Charge->ProjectionY(" ",bin2,bin2,"e");
-            if(Proj2!=NULL){
+            if(Proj2!=nullptr){
 		Proj->Add(Proj2,1);
 	    }
          }else if(CalibrationLevel>1){
@@ -675,7 +675,7 @@ SiStripGainFromData::algoEndJob() {
 
                 int bin2 = APV_Charge->GetXaxis()->FindBin(APV2->Index);
                 TH1D* Proj2 = APV_Charge->ProjectionY(" ",bin2,bin2,"e");
-                if(Proj2!=NULL){
+                if(Proj2!=nullptr){
 //                   printf("%8i %i--> %4.0f + %4.0f\n",APV2->DetId, APV2->APVId, Proj->GetEntries(), Proj2->GetEntries());
                    Proj->Add(Proj2,1);
                 }
@@ -752,7 +752,7 @@ SiStripGainFromData::algoEndJob() {
 
 
          Proj = APV_PathLength->ProjectionY(" ",bin,bin,"e");
-         if(Proj==NULL)continue;
+         if(Proj==nullptr)continue;
 
          APV_PathLengthM->SetBinContent(APV->Index, Proj->GetMean(1)      );
          APV_PathLengthM->SetBinError  (APV->Index, Proj->GetMeanError(1) );
@@ -964,7 +964,7 @@ SiStripGainFromData::algoEndJob() {
    }
 
    dqmStore_->cd();
-   dqmStore_->save(OutputHistos.c_str());
+   dqmStore_->save(OutputHistos);
 
 }
 
@@ -1198,7 +1198,7 @@ bool SiStripGainFromData::IsFarFromBorder(TrajectoryStateOnSurface trajState, co
   LocalError  HitLocalError = trajState.localError().positionError() ;
 
   const GeomDetUnit* it = tkGeom->idToDetUnit(DetId(detid));
-  if (dynamic_cast<const StripGeomDetUnit*>(it)==0 && dynamic_cast<const PixelGeomDetUnit*>(it)==0) {
+  if (dynamic_cast<const StripGeomDetUnit*>(it)==nullptr && dynamic_cast<const PixelGeomDetUnit*>(it)==nullptr) {
      std::cout << "this detID doesn't seem to belong to the Tracker" << std::endl;
      return false;
   }
@@ -1288,14 +1288,14 @@ SiStripApvGain* SiStripGainFromData::getNewObject()
 
 
    SiStripApvGain * obj = new SiStripApvGain();
-   std::vector<float>* theSiStripVector = NULL;
+   std::vector<float>* theSiStripVector = nullptr;
    int PreviousDetId = -1; 
    for(unsigned int a=0;a<APVsCollOrdered.size();a++)
    {
       stAPVGain* APV = APVsCollOrdered[a];
-      if(APV==NULL){ printf("Bug\n"); continue; }
+      if(APV==nullptr){ printf("Bug\n"); continue; }
       if(APV->DetId != PreviousDetId){
-         if(theSiStripVector!=NULL){
+         if(theSiStripVector!=nullptr){
 	    SiStripApvGain::Range range(theSiStripVector->begin(),theSiStripVector->end());
 	    if ( !obj->put(PreviousDetId,range) )  printf("Bug to put detId = %i\n",PreviousDetId);
 	 }
@@ -1308,7 +1308,7 @@ SiStripApvGain* SiStripGainFromData::getNewObject()
 //      theSiStripVector->push_back(APV->Gain);
    }
 
-   if(theSiStripVector!=NULL){
+   if(theSiStripVector!=nullptr){
       SiStripApvGain::Range range(theSiStripVector->begin(),theSiStripVector->end());
       if ( !obj->put(PreviousDetId,range) )  printf("Bug to put detId = %i\n",PreviousDetId);
    }

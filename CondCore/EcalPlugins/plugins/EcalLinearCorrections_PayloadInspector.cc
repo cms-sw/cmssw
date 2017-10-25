@@ -183,7 +183,9 @@ namespace {
 	pad[valId][2]->cd();
 	DrawEE(endc_p[valId], pEEmin[valId], pEEmax[valId]);
       }
-      canvas.SaveAs("ecallincorr.png");
+
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
       return true;
     }// fill method
   };   // class EcalLinearCorrectionsPlot
@@ -386,7 +388,9 @@ namespace {
 	pad[valId][2]->cd();
 	DrawEE(endc_p[valId], pEEmin[valId], pEEmax[valId]);
       }
-      canvas.SaveAs("ecallincorrDiff.png");
+
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
       return true;
     }// fill method
   };   // class EcalLinearCorrectionsDiff

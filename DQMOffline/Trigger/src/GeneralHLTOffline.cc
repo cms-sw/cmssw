@@ -447,13 +447,13 @@ void GeneralHLTOffline::setupHltMatrix(DQMStore::IBooker & iBooker, const std::s
 
   PD_Folder = "HLT/GeneralHLTOffline/" + label;
 
-  iBooker.setCurrentFolder(PD_Folder.c_str());
+  iBooker.setCurrentFolder(PD_Folder);
 
   // make it the top level directory, that is on the same dir level as
   // paths
   std::string folderz;
   folderz = "HLT/GeneralHLTOffline/" + label;
-  iBooker.setCurrentFolder(folderz.c_str());
+  iBooker.setCurrentFolder(folderz);
 
   std::string dnamez = "cppath_" + label + "_" + hlt_menu_;
   int sizez = PDsVectorPathsVector[iPD].size();

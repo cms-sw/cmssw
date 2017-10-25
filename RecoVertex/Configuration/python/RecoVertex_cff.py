@@ -64,4 +64,3 @@ _phase2_tktiming_vertexreco = cms.Sequence( vertexreco.copy() *
 
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 phase2_timing.toReplaceWith(vertexreco, _phase2_tktiming_vertexreco)
-

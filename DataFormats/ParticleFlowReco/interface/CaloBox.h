@@ -46,7 +46,7 @@ public:
 
 private:
 	std::map<std::pair<int, int>, double> energies_;
-	CaloBox();
+	CaloBox() = delete;
 
 };
 

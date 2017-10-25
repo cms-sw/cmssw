@@ -8,7 +8,7 @@ PhotonEnergyCalibratorRun2::PhotonEnergyCalibratorRun2(bool isMC, bool synchroni
 						       std::string correctionFile
 						       ) :
   isMC_(isMC), synchronization_(synchronization),
-  rng_(0),
+  rng_(nullptr),
   _correctionRetriever(correctionFile) // here is opening the files and reading thecorrections
 {
   if(isMC_) {

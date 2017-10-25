@@ -13,8 +13,8 @@ TtSemiLepHypothesis::TtSemiLepHypothesis(const edm::ParameterSet& cfg):
   metsToken_(consumes<std::vector<pat::MET> >(cfg.getParameter<edm::InputTag>("mets"))),
   nJetsConsideredToken_(consumes<int>(cfg.getParameter<edm::InputTag>("nJetsConsidered"))),
   numberOfRealNeutrinoSolutions_(-1),
-  lightQ_(0), lightQBar_(0), hadronicB_(0),
-  leptonicB_(0), neutrino_(0), lepton_(0)
+  lightQ_(nullptr), lightQBar_(nullptr), hadronicB_(nullptr),
+  leptonicB_(nullptr), neutrino_(nullptr), lepton_(nullptr)
 {
   getMatch_ = false;
   if( cfg.exists("match") ) {
@@ -113,12 +113,12 @@ void
 TtSemiLepHypothesis::resetCandidates()
 {
   numberOfRealNeutrinoSolutions_ = -1;
-  lightQ_    = 0;
-  lightQBar_ = 0;
-  hadronicB_ = 0;
-  leptonicB_ = 0;
-  neutrino_  = 0;
-  lepton_    = 0;
+  lightQ_    = nullptr;
+  lightQBar_ = nullptr;
+  hadronicB_ = nullptr;
+  leptonicB_ = nullptr;
+  neutrino_  = nullptr;
+  lepton_    = nullptr;
 }
 
 /// return event hypothesis

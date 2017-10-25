@@ -24,15 +24,15 @@ class SiPixelGainCalibrationForHLTSimService : public SiPixelGainCalibrationServ
 
  public:
   explicit SiPixelGainCalibrationForHLTSimService(const edm::ParameterSet& conf) : SiPixelGainCalibrationServicePayloadGetter<SiPixelGainCalibrationForHLT,SiPixelGainCalibrationForHLTSimRcd>(conf){};
-  ~SiPixelGainCalibrationForHLTSimService(){};
+  ~SiPixelGainCalibrationForHLTSimService() override{};
 
   // column granularity
-  float   getPedestal  ( const uint32_t& detID,const int& col, const int& row);
-  float   getGain      ( const uint32_t& detID,const int& col, const int& row);
-  bool    isDead       ( const uint32_t& detID,const int& col, const int& row); //also return dead by column.
-  bool    isDeadColumn ( const uint32_t& detID,const int& col, const int& row);
-  bool    isNoisy       ( const uint32_t& detID,const int& col, const int& row);
-  bool    isNoisyColumn ( const uint32_t& detID,const int& col, const int& row);
+  float   getPedestal  ( const uint32_t& detID,const int& col, const int& row) override;
+  float   getGain      ( const uint32_t& detID,const int& col, const int& row) override;
+  bool    isDead       ( const uint32_t& detID,const int& col, const int& row) override; //also return dead by column.
+  bool    isDeadColumn ( const uint32_t& detID,const int& col, const int& row) override;
+  bool    isNoisy       ( const uint32_t& detID,const int& col, const int& row) override;
+  bool    isNoisyColumn ( const uint32_t& detID,const int& col, const int& row) override;
 
 };
 #endif

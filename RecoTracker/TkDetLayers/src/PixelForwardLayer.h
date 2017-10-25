@@ -15,21 +15,21 @@
 class PixelForwardLayer final : public ForwardDetLayer {
  public:
   PixelForwardLayer(std::vector<const PixelBlade*>& blades);
-  ~PixelForwardLayer();
+  ~PixelForwardLayer() override;
   
   // GeometricSearchDet interface
   
-  virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
+  const std::vector<const GeomDet*>& basicComponents() const override {return theBasicComps;}
 
-  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold)) {return theComps;}
+  const std::vector<const GeometricSearchDet*>& components() const override __attribute__ ((cold)) {return theComps;}
   
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
 			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const __attribute__ ((hot));
+			       std::vector<DetGroup> & result) const override __attribute__ ((hot));
 
   // DetLayer interface
-  virtual SubDetector subDetector() const {return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::PixelEndcap];}
+  SubDetector subDetector() const override {return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::PixelEndcap];}
   
 
  private:  

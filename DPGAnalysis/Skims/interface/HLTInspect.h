@@ -33,10 +33,10 @@
 class HLTInspect : public edm::EDAnalyzer {
 public:
   explicit HLTInspect( const edm::ParameterSet & );
-  ~HLTInspect();
+  ~HLTInspect() override;
   
 private:
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;   
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;   
   std::vector<std::string>  hlNames_;  // name of each HLT algorithm
   edm::InputTag hlTriggerResults_;
   bool init_;

@@ -247,8 +247,8 @@ class DTDeadFlag {
 
  private:
 
-  DTDeadFlag(DTDeadFlag const&);
-  DTDeadFlag& operator=(DTDeadFlag const&);
+  DTDeadFlag(DTDeadFlag const&) = delete;
+  DTDeadFlag& operator=(DTDeadFlag const&) = delete;
 
   std::string dataVersion;
 

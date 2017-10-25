@@ -49,7 +49,7 @@ public:
     L1GtHfRingEtSumsTemplate( const L1GtHfRingEtSumsTemplate& );
 
     // destructor
-    virtual ~L1GtHfRingEtSumsTemplate();
+    ~L1GtHfRingEtSumsTemplate() override;
 
     // assign operator
     L1GtHfRingEtSumsTemplate& operator= (const L1GtHfRingEtSumsTemplate&);
@@ -80,7 +80,7 @@ public:
 
 
     /// print the condition
-    virtual void print(std::ostream& myCout) const;
+    void print(std::ostream& myCout) const override;
 
     /// output stream operator
     friend std::ostream& operator<<(std::ostream&, const L1GtHfRingEtSumsTemplate&);

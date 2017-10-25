@@ -27,7 +27,7 @@ class VirtualKinematicParticle:public KinematicParticle
                      ReferenceCountingPointer<KinematicParticle> previousParticle,
 		                                   KinematicStatePropagator * pr);
  
- virtual ~VirtualKinematicParticle();
+ ~VirtualKinematicParticle() override;
  
 /**
  * Comparison by contents operator
@@ -36,17 +36,17 @@ class VirtualKinematicParticle:public KinematicParticle
  * compares the initial KinematicStates
  * Retunes true if they match.
  */ 
-  bool operator==(const KinematicParticle& other)const;
+  bool operator==(const KinematicParticle& other)const override;
 
-  bool operator==(const ReferenceCountingPointer<KinematicParticle>& other) const;
+  bool operator==(const ReferenceCountingPointer<KinematicParticle>& other) const override;
 
-  bool operator!=(const KinematicParticle& other)const;
+  bool operator!=(const KinematicParticle& other)const override;
 
 /**
  * Access to KinematicState of particle
  * at given point
  */ 
- KinematicState stateAtPoint(const GlobalPoint& point)const;
+ KinematicState stateAtPoint(const GlobalPoint& point)const override;
  
 /**
  * Method producing new particle with refitted parameters.
@@ -54,13 +54,13 @@ class VirtualKinematicParticle:public KinematicParticle
  * RCP<VirtualKinematicParticle> is  returned.
  */ 
  RefCountedKinematicParticle refittedParticle(const KinematicState& state,
-                               float chi2, float ndf, KinematicConstraint * cons = 0)const;
+                               float chi2, float ndf, KinematicConstraint * cons = nullptr)const override;
 			       
 /**
  * Method returning LinearizedTrackState of the particle needed for
  * Kalman flter vertex fit. This implementation uses the ParticleLinearizedTrackStateFactory class.
  */					    
- RefCountedLinearizedTrackState particleLinearizedTrackState(const GlobalPoint& point)const; 
+ RefCountedLinearizedTrackState particleLinearizedTrackState(const GlobalPoint& point)const override; 
 			        
  private:
  

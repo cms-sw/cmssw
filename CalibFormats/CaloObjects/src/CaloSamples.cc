@@ -1,6 +1,6 @@
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <math.h>
+#include <cmath>
 #include <iostream>
 
 CaloSamples::CaloSamples() : id_(), size_(0), presamples_(0), preciseSize_(0), precisePresamples_(0) { setBlank() ; }
@@ -56,8 +56,8 @@ CaloSamples& CaloSamples::operator+=(const CaloSamples & other) {
   for(i = 0; i < size_; ++i) {
     data_[i] += other.data_[i];
   }
-  if ( preciseData_.size() == 0 && other.preciseData_.size() > 0 ) resetPrecise();
-  if ( other.preciseData_.size() > 0 ) {
+  if ( preciseData_.empty() && !other.preciseData_.empty() ) resetPrecise();
+  if ( !other.preciseData_.empty() ) {
     for(i = 0; i < preciseSize_; ++i) {
       preciseData_[i] += other.preciseData_[i];
     }

@@ -124,7 +124,7 @@ bool PerigeeMultiLTS::operator ==(LinearizedTrackState<5>& other)const
 {
   const PerigeeMultiLTS* otherP =
   	dynamic_cast<const PerigeeMultiLTS*>(&other);
-  if (otherP == 0) {
+  if (otherP == nullptr) {
    throw VertexException("PerigeeMultiLTS: don't know how to compare myself to non-perigee track state");
   }
   return (otherP->track() == theTrack);

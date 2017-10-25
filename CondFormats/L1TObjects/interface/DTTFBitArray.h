@@ -358,13 +358,13 @@ class DTTFBitArray {
    int nw = this->nWords();
     int ub = this->unusedBits();
     if(this->dataWord(nw-1)<<ub!=         // check last word
-           a.dataWord(nw-1)<<ub)return 0;
+           a.dataWord(nw-1)<<ub)return false;
     if(nw>1){
       for (int iw=0;iw<nw-1;iw++){
-	if(this->dataWord(iw)!=a.dataWord(iw)) return 0;
+	if(this->dataWord(iw)!=a.dataWord(iw)) return false;
       }
     }
-    return 1;
+    return true;
   }
   
   // logical operators <
@@ -374,20 +374,20 @@ class DTTFBitArray {
     unsigned aaa = this->dataWord(nw-1)<<ub; // ignore unused bits
     unsigned bbb =     a.dataWord(nw-1)<<ub; // in both operands
     if        (aaa<bbb) {
-      return 1;
+      return true;
     } else if (aaa>bbb) {
-      return 0;
+      return false;
     }
     if(nw>1){
       for (int iw=nw-2;iw>=0;iw--){
 	if        (this->dataWord(iw)<a.dataWord(iw)) {
-	  return 1;
+	  return true;
 	} else if (this->dataWord(iw)>a.dataWord(iw)) {
-	  return 0;
+	  return false;
 	}
       }
     }
-    return 0;
+    return false;
   }
   
   // logical operators !=

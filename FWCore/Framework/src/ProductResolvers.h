@@ -47,12 +47,12 @@ namespace edm {
     theStatus_(iDefaultStatus),
     defaultStatus_(iDefaultStatus){}
 
-    virtual void connectTo(ProductResolverBase const&, Principal const*) override final;
+    void connectTo(ProductResolverBase const&, Principal const*) final;
 
     void resetStatus() {theStatus_ = defaultStatus_;}
 
     //Give AliasProductResolver access
-    virtual void resetProductData_(bool deleteEarly) override;
+    void resetProductData_(bool deleteEarly) override;
 
   protected:
     void setProduct(std::unique_ptr<WrapperBase> edp) const;
@@ -72,21 +72,21 @@ namespace edm {
     // merges the product with the pre-existing product
     void mergeProduct(std::unique_ptr<WrapperBase> edp) const;
 
-    virtual void putOrMergeProduct_(std::unique_ptr<WrapperBase> prod) const override final;
-    virtual bool productUnavailable_() const override final;
-    virtual bool productResolved_() const override final;
-    virtual bool productWasDeleted_() const override final;
-    virtual bool productWasFetchedAndIsValid_( bool iSkipCurrentProcess) const override final;
+    void putOrMergeProduct_(std::unique_ptr<WrapperBase> prod) const final;
+    bool productUnavailable_() const final;
+    bool productResolved_() const final;
+    bool productWasDeleted_() const final;
+    bool productWasFetchedAndIsValid_( bool iSkipCurrentProcess) const final;
 
-    virtual BranchDescription const& branchDescription_() const override final {return *getProductData().branchDescription();}
-    virtual void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) override final {productData_.resetBranchDescription(bd);}
-    virtual Provenance const* provenance_() const override final {return &productData_.provenance();}
+    BranchDescription const& branchDescription_() const final {return *getProductData().branchDescription();}
+    void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) final {productData_.resetBranchDescription(bd);}
+    Provenance const* provenance_() const final {return &productData_.provenance();}
 
-    virtual std::string const& resolvedModuleLabel_() const override final {return moduleLabel();}
-    virtual void setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) override final;
-    virtual void setProcessHistory_(ProcessHistory const& ph) override final;
-    virtual ProductProvenance const* productProvenancePtr_() const override final;
-    virtual bool singleProduct_() const override final;
+    std::string const& resolvedModuleLabel_() const final {return moduleLabel();}
+    void setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) final;
+    void setProcessHistory_(ProcessHistory const& ph) final;
+    ProductProvenance const* productProvenancePtr_() const final;
+    bool singleProduct_() const final;
 
     ProductData productData_;
     mutable std::atomic<ProductStatus> theStatus_;
@@ -100,28 +100,28 @@ namespace edm {
       m_prefetchRequested{ false },
       aux_{nullptr} {}
 
-    virtual void setupUnscheduled(UnscheduledConfigurator const&) override final;
+    void setupUnscheduled(UnscheduledConfigurator const&) final;
 
     private:
-      virtual bool isFromCurrentProcess() const override final;
+      bool isFromCurrentProcess() const final;
 
 
-      virtual Resolution resolveProduct_(Principal const& principal,
+      Resolution resolveProduct_(Principal const& principal,
                                          bool skipCurrentProcess,
                                          SharedResourcesAcquirer* sra,
                                          ModuleCallingContext const* mcc) const override;
-    virtual  void prefetchAsync_(WaitingTask* waitTask,
+     void prefetchAsync_(WaitingTask* waitTask,
                                  Principal const& principal,
                                  bool skipCurrentProcess,
                                  SharedResourcesAcquirer* sra,
                                  ModuleCallingContext const* mcc) const override;
-      virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
+      void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
 
-      virtual void retrieveAndMerge_(Principal const& principal) const override;
+      void retrieveAndMerge_(Principal const& principal) const override;
 
-      virtual bool unscheduledWasNotRun_() const override final {return false;}
+      bool unscheduledWasNotRun_() const final {return false;}
 
-      virtual void resetProductData_(bool deleteEarly) override;
+      void resetProductData_(bool deleteEarly) override;
 
       mutable std::atomic<bool> m_prefetchRequested;
       mutable WaitingTaskList m_waitingTasks;
@@ -134,12 +134,12 @@ namespace edm {
     public:
       ProducedProductResolver(std::shared_ptr<BranchDescription const> bd, ProductStatus iDefaultStatus) : DataManagingProductResolver(bd, iDefaultStatus) {assert(bd->produced());}
 
-      virtual void resetFailedFromThisProcess() override;
+      void resetFailedFromThisProcess() override;
 
     protected:
-      virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
+      void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
     private:
-      virtual bool isFromCurrentProcess() const override final;
+      bool isFromCurrentProcess() const final;
 
   };
 
@@ -147,22 +147,22 @@ namespace edm {
   public:
     explicit PuttableProductResolver(std::shared_ptr<BranchDescription const> bd) : ProducedProductResolver(bd, ProductStatus::NotPut), worker_(nullptr), prefetchRequested_(false) {}
 
-    virtual void setupUnscheduled(UnscheduledConfigurator const&) override final;
+    void setupUnscheduled(UnscheduledConfigurator const&) final;
 
   private:
-    virtual Resolution resolveProduct_(Principal const& principal,
+    Resolution resolveProduct_(Principal const& principal,
                                        bool skipCurrentProcess,
                                        SharedResourcesAcquirer* sra,
                                        ModuleCallingContext const* mcc) const override;
-    virtual  void prefetchAsync_(WaitingTask* waitTask,
+     void prefetchAsync_(WaitingTask* waitTask,
                                  Principal const& principal,
                                  bool skipCurrentProcess,
                                  SharedResourcesAcquirer* sra,
                                  ModuleCallingContext const* mcc) const override;
-    virtual bool unscheduledWasNotRun_() const override {return false;}
+    bool unscheduledWasNotRun_() const override {return false;}
 
-    virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
-    virtual void resetProductData_(bool deleteEarly) override;
+    void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
+    void resetProductData_(bool deleteEarly) override;
 
     mutable WaitingTaskList m_waitingTasks;
     Worker* worker_;
@@ -177,21 +177,21 @@ namespace edm {
        aux_(nullptr),
        prefetchRequested_(false){}
 
-      virtual void setupUnscheduled(UnscheduledConfigurator const&) override final;
+      void setupUnscheduled(UnscheduledConfigurator const&) final;
 
     private:
-      virtual Resolution resolveProduct_(Principal const& principal,
+      Resolution resolveProduct_(Principal const& principal,
                                          bool skipCurrentProcess,
                                          SharedResourcesAcquirer* sra,
                                          ModuleCallingContext const* mcc) const override;
-      virtual  void prefetchAsync_(WaitingTask* waitTask,
+       void prefetchAsync_(WaitingTask* waitTask,
                                    Principal const& principal,
                                    bool skipCurrentProcess,
                                    SharedResourcesAcquirer* sra,
                                    ModuleCallingContext const* mcc) const override;
-      virtual bool unscheduledWasNotRun_() const override {return status() == ProductStatus::ResolveNotRun;}
+      bool unscheduledWasNotRun_() const override {return status() == ProductStatus::ResolveNotRun;}
 
-      virtual void resetProductData_(bool deleteEarly) override;
+      void resetProductData_(bool deleteEarly) override;
 
       mutable WaitingTaskList waitingTasks_;
       UnscheduledAuxiliary const* aux_;
@@ -204,44 +204,44 @@ namespace edm {
       typedef ProducedProductResolver::ProductStatus ProductStatus;
       explicit AliasProductResolver(std::shared_ptr<BranchDescription const> bd, ProducedProductResolver& realProduct) : ProductResolverBase(), realProduct_(realProduct), bd_(bd) {}
 
-      virtual void connectTo(ProductResolverBase const& iOther, Principal const* iParentPrincipal) override final {
+      void connectTo(ProductResolverBase const& iOther, Principal const* iParentPrincipal) final {
         realProduct_.connectTo(iOther, iParentPrincipal );
       };
 
     private:
-      virtual Resolution resolveProduct_(Principal const& principal,
+      Resolution resolveProduct_(Principal const& principal,
                                          bool skipCurrentProcess,
                                          SharedResourcesAcquirer* sra,
                                          ModuleCallingContext const* mcc) const override {
         return realProduct_.resolveProduct(principal, skipCurrentProcess, sra, mcc);}
-      virtual  void prefetchAsync_(WaitingTask* waitTask,
+       void prefetchAsync_(WaitingTask* waitTask,
                                    Principal const& principal,
                                    bool skipCurrentProcess,
                                    SharedResourcesAcquirer* sra,
                                    ModuleCallingContext const* mcc) const override {
         realProduct_.prefetchAsync(waitTask, principal, skipCurrentProcess, sra, mcc);
       }
-      virtual bool unscheduledWasNotRun_() const override {return realProduct_.unscheduledWasNotRun();}
-      virtual bool productUnavailable_() const override {return realProduct_.productUnavailable();}
-      virtual bool productResolved_() const override final {
+      bool unscheduledWasNotRun_() const override {return realProduct_.unscheduledWasNotRun();}
+      bool productUnavailable_() const override {return realProduct_.productUnavailable();}
+      bool productResolved_() const final {
           return realProduct_.productResolved(); }
-      virtual bool productWasDeleted_() const override {return realProduct_.productWasDeleted();}
-      virtual bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const override final {
+      bool productWasDeleted_() const override {return realProduct_.productWasDeleted();}
+      bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const final {
         return realProduct_.productWasFetchedAndIsValid(iSkipCurrentProcess);
       }
 
-      virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
-      virtual void putOrMergeProduct_(std::unique_ptr<WrapperBase> prod) const override final;
-      virtual BranchDescription const& branchDescription_() const override {return *bd_;}
-      virtual void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) override {bd_ = bd;}
-      virtual Provenance const* provenance_() const override final { return realProduct_.provenance(); }
+      void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
+      void putOrMergeProduct_(std::unique_ptr<WrapperBase> prod) const final;
+      BranchDescription const& branchDescription_() const override {return *bd_;}
+      void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) override {bd_ = bd;}
+      Provenance const* provenance_() const final { return realProduct_.provenance(); }
 
-      virtual std::string const& resolvedModuleLabel_() const override {return realProduct_.moduleLabel();}
-      virtual void setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) override;
-      virtual void setProcessHistory_(ProcessHistory const& ph) override;
-      virtual ProductProvenance const* productProvenancePtr_() const override;
-      virtual void resetProductData_(bool deleteEarly) override;
-      virtual bool singleProduct_() const override;
+      std::string const& resolvedModuleLabel_() const override {return realProduct_.moduleLabel();}
+      void setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) override;
+      void setProcessHistory_(ProcessHistory const& ph) override;
+      ProductProvenance const* productProvenancePtr_() const override;
+      void resetProductData_(bool deleteEarly) override;
+      bool singleProduct_() const override;
 
       ProducedProductResolver& realProduct_;
       std::shared_ptr<BranchDescription const> bd_;
@@ -252,20 +252,20 @@ namespace edm {
     typedef ProducedProductResolver::ProductStatus ProductStatus;
     explicit ParentProcessProductResolver(std::shared_ptr<BranchDescription const> bd) : ProductResolverBase(), realProduct_(nullptr), bd_(bd), provRetriever_(nullptr), parentPrincipal_(nullptr) {}
 
-    virtual void connectTo(ProductResolverBase const& iOther, Principal const* iParentPrincipal) override final {
+    void connectTo(ProductResolverBase const& iOther, Principal const* iParentPrincipal) final {
       realProduct_ = &iOther;
       parentPrincipal_ = iParentPrincipal;
     };
 
   private:
-    virtual Resolution resolveProduct_(Principal const& principal,
+    Resolution resolveProduct_(Principal const& principal,
                                        bool skipCurrentProcess,
                                        SharedResourcesAcquirer* sra,
                                        ModuleCallingContext const* mcc) const override {
       skipCurrentProcess = false;
       return realProduct_->resolveProduct(*parentPrincipal_, skipCurrentProcess, sra, mcc);
     }
-    virtual  void prefetchAsync_(WaitingTask* waitTask,
+     void prefetchAsync_(WaitingTask* waitTask,
                                  Principal const& principal,
                                  bool skipCurrentProcess,
                                  SharedResourcesAcquirer* sra,
@@ -273,31 +273,31 @@ namespace edm {
       skipCurrentProcess = false;
       realProduct_->prefetchAsync( waitTask, *parentPrincipal_, skipCurrentProcess, sra, mcc);
     }
-    virtual bool unscheduledWasNotRun_() const override {
+    bool unscheduledWasNotRun_() const override {
       if (realProduct_) return realProduct_->unscheduledWasNotRun();
       throwNullRealProduct();
       return false;
     }
-    virtual bool productUnavailable_() const override {return realProduct_->productUnavailable();}
-    virtual bool productResolved_() const override final { return realProduct_->productResolved(); }
-    virtual bool productWasDeleted_() const override {return realProduct_->productWasDeleted();}
-    virtual bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const override {
+    bool productUnavailable_() const override {return realProduct_->productUnavailable();}
+    bool productResolved_() const final { return realProduct_->productResolved(); }
+    bool productWasDeleted_() const override {return realProduct_->productWasDeleted();}
+    bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const override {
       iSkipCurrentProcess = false;
       return realProduct_->productWasFetchedAndIsValid(iSkipCurrentProcess);
     }
 
-    virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
-    virtual void putOrMergeProduct_(std::unique_ptr<WrapperBase> prod) const override final;
-    virtual BranchDescription const& branchDescription_() const override {return *bd_;}
-    virtual void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) override {bd_ = bd;}
-    virtual Provenance const* provenance_() const override final {return realProduct_->provenance();
+    void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
+    void putOrMergeProduct_(std::unique_ptr<WrapperBase> prod) const final;
+    BranchDescription const& branchDescription_() const override {return *bd_;}
+    void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) override {bd_ = bd;}
+    Provenance const* provenance_() const final {return realProduct_->provenance();
     }
-    virtual std::string const& resolvedModuleLabel_() const override {return realProduct_->moduleLabel();}
-    virtual void setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) override;
-    virtual void setProcessHistory_(ProcessHistory const& ph) override;
-    virtual ProductProvenance const* productProvenancePtr_() const override;
-    virtual void resetProductData_(bool deleteEarly) override;
-    virtual bool singleProduct_() const override;
+    std::string const& resolvedModuleLabel_() const override {return realProduct_->moduleLabel();}
+    void setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) override;
+    void setProcessHistory_(ProcessHistory const& ph) override;
+    ProductProvenance const* productProvenancePtr_() const override;
+    void resetProductData_(bool deleteEarly) override;
+    bool singleProduct_() const override;
     void throwNullRealProduct() const;
 
     ProductResolverBase const* realProduct_;
@@ -312,7 +312,7 @@ namespace edm {
       NoProcessProductResolver(std::vector<ProductResolverIndex> const& matchingHolders,
                              std::vector<bool> const& ambiguous);
 
-    virtual void connectTo(ProductResolverBase const& iOther, Principal const*) override final ;
+    void connectTo(ProductResolverBase const& iOther, Principal const*) final ;
 
     void tryPrefetchResolverAsync(unsigned int iProcessingIndex,
                                   Principal const& principal,
@@ -331,33 +331,33 @@ namespace edm {
                         std::exception_ptr iExceptPtr) const;
     private:
       unsigned int unsetIndexValue() const;
-      virtual Resolution resolveProduct_(Principal const& principal,
+      Resolution resolveProduct_(Principal const& principal,
                                          bool skipCurrentProcess,
                                          SharedResourcesAcquirer* sra,
                                          ModuleCallingContext const* mcc) const override;
-      virtual  void prefetchAsync_(WaitingTask* waitTask,
+       void prefetchAsync_(WaitingTask* waitTask,
                                    Principal const& principal,
                                    bool skipCurrentProcess,
                                    SharedResourcesAcquirer* sra,
                                    ModuleCallingContext const* mcc) const override;
-      virtual bool unscheduledWasNotRun_() const override;
-      virtual bool productUnavailable_() const override;
-      virtual bool productWasDeleted_() const override;
-      virtual bool productResolved_() const override final;
-      virtual bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const override;
+      bool unscheduledWasNotRun_() const override;
+      bool productUnavailable_() const override;
+      bool productWasDeleted_() const override;
+      bool productResolved_() const final;
+      bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const override;
 
-      virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
-      virtual void putOrMergeProduct_(std::unique_ptr<WrapperBase> prod) const override final;
-      virtual BranchDescription const& branchDescription_() const override;
-      virtual void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) override;
-      virtual Provenance const* provenance_() const override;
+      void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
+      void putOrMergeProduct_(std::unique_ptr<WrapperBase> prod) const final;
+      BranchDescription const& branchDescription_() const override;
+      void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) override;
+      Provenance const* provenance_() const override;
 
-      virtual std::string const& resolvedModuleLabel_() const override {return moduleLabel();}
-      virtual void setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) override;
-      virtual void setProcessHistory_(ProcessHistory const& ph) override;
-      virtual ProductProvenance const* productProvenancePtr_() const override;
-      virtual void resetProductData_(bool deleteEarly) override;
-      virtual bool singleProduct_() const override;
+      std::string const& resolvedModuleLabel_() const override {return moduleLabel();}
+      void setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) override;
+      void setProcessHistory_(ProcessHistory const& ph) override;
+      ProductProvenance const* productProvenancePtr_() const override;
+      void resetProductData_(bool deleteEarly) override;
+      bool singleProduct_() const override;
 
       Resolution tryResolver(unsigned int index,
                              Principal const& principal,
@@ -384,36 +384,36 @@ namespace edm {
     SingleChoiceNoProcessProductResolver(ProductResolverIndex iChoice):
     ProductResolverBase(), realResolverIndex_(iChoice) {}
 
-    virtual void connectTo(ProductResolverBase const& iOther, Principal const*) override final ;
+    void connectTo(ProductResolverBase const& iOther, Principal const*) final ;
 
   private:
-    virtual Resolution resolveProduct_(Principal const& principal,
+    Resolution resolveProduct_(Principal const& principal,
                                        bool skipCurrentProcess,
                                        SharedResourcesAcquirer* sra,
                                        ModuleCallingContext const* mcc) const override;
-    virtual  void prefetchAsync_(WaitingTask* waitTask,
+     void prefetchAsync_(WaitingTask* waitTask,
                                  Principal const& principal,
                                  bool skipCurrentProcess,
                                  SharedResourcesAcquirer* sra,
                                  ModuleCallingContext const* mcc) const override;
-    virtual bool unscheduledWasNotRun_() const override;
-    virtual bool productUnavailable_() const override;
-    virtual bool productWasDeleted_() const override;
-    virtual bool productResolved_() const override final;
-    virtual bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const override;
+    bool unscheduledWasNotRun_() const override;
+    bool productUnavailable_() const override;
+    bool productWasDeleted_() const override;
+    bool productResolved_() const final;
+    bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const override;
 
-    virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
-    virtual void putOrMergeProduct_(std::unique_ptr<WrapperBase> prod) const override final;
-    virtual BranchDescription const& branchDescription_() const override;
-    virtual void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) override;
-    virtual Provenance const* provenance_() const override;
+    void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
+    void putOrMergeProduct_(std::unique_ptr<WrapperBase> prod) const final;
+    BranchDescription const& branchDescription_() const override;
+    void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) override;
+    Provenance const* provenance_() const override;
 
-    virtual std::string const& resolvedModuleLabel_() const override {return moduleLabel();}
-    virtual void setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) override;
-    virtual void setProcessHistory_(ProcessHistory const& ph) override;
-    virtual ProductProvenance const* productProvenancePtr_() const override;
-    virtual void resetProductData_(bool deleteEarly) override;
-    virtual bool singleProduct_() const override;
+    std::string const& resolvedModuleLabel_() const override {return moduleLabel();}
+    void setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) override;
+    void setProcessHistory_(ProcessHistory const& ph) override;
+    ProductProvenance const* productProvenancePtr_() const override;
+    void resetProductData_(bool deleteEarly) override;
+    bool singleProduct_() const override;
 
     ProductResolverIndex realResolverIndex_;
   };

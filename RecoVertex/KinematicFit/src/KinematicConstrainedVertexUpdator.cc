@@ -49,7 +49,7 @@ KinematicConstrainedVertexUpdator::update(const AlgebraicVector& inPar,
 //additional constraints to apply 
   AlgebraicMatrix g;
   AlgebraicVector val;
-  if(cs == 0)
+  if(cs == nullptr)
   {
  
 //unconstrained vertex fitter case
@@ -150,7 +150,7 @@ KinematicConstrainedVertexUpdator::update(const AlgebraicVector& inPar,
 //this is ndf without significant prior
 //vertex so -3 factor exists here 
   float ndf = 2*vSize - 3;
-  if(cs != 0){ndf += cs->numberOfEquations();}
+  if(cs != nullptr){ndf += cs->numberOfEquations();}
  
 
 //making resulting vertex 

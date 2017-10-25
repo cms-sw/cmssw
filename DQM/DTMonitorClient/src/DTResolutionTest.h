@@ -49,7 +49,7 @@ public:
   DTResolutionTest(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~DTResolutionTest();
+  ~DTResolutionTest() override;
 
 protected:
 

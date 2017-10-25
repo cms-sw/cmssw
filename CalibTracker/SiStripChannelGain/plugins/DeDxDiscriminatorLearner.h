@@ -23,17 +23,17 @@ class DeDxDiscriminatorLearner : public ConditionDBWriter<PhysicsTools::Calibrat
 public:
 
   explicit DeDxDiscriminatorLearner(const edm::ParameterSet&);
-  ~DeDxDiscriminatorLearner();
+  ~DeDxDiscriminatorLearner() override;
 
 private:
-  virtual void algoBeginJob(const edm::EventSetup&) ;
-  virtual void algoAnalyze(const edm::Event&, const edm::EventSetup&);
-  virtual void algoEndJob();
+  void algoBeginJob(const edm::EventSetup&) override ;
+  void algoAnalyze(const edm::Event&, const edm::EventSetup&) override;
+  void algoEndJob() override;
 
   void         processHit(const TrackingRecHit* recHit, float trackMomentum, float& cosine,  const TrajectoryStateOnSurface& trajState);
   void         algoAnalyzeTheTree(const edm::EventSetup& iSetup);
 
-  PhysicsTools::Calibration::HistogramD3D * getNewObject();
+  PhysicsTools::Calibration::HistogramD3D * getNewObject() override;
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<TrajTrackAssociationCollection>   m_trajTrackAssociationTag;

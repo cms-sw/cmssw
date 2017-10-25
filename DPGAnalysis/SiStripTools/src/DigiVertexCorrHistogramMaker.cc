@@ -92,7 +92,7 @@ void DigiVertexCorrHistogramMaker::book(const std::string dirname, edm::Consumes
     char name[200];
     char title[500];
 
-    m_subdirs[i] = new TFileDirectory(subev.mkdir(slab.c_str()));
+    m_subdirs[i] = new TFileDirectory(subev.mkdir(slab));
     m_fhm[i] = new RunHistogramManager(iC, true);
 
     if(m_subdirs[i]) {

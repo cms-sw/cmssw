@@ -131,14 +131,14 @@ namespace ecaldqm
     MESet& meQualitySummary(MEs_.at("QualitySummary"));
     MESet& mePNQualitySummary(MEs_.at("PNQualitySummary"));
 
-    MESetMulti const* sLaser(using_("Laser") ? static_cast<MESetMulti const*>(&sources_.at("Laser")) : 0);
-    MESetMulti const* sLaserPN(using_("LaserPN") ? static_cast<MESetMulti const*>(&sources_.at("LaserPN")) : 0);
-    MESetMulti const* sLed(using_("Led") ? static_cast<MESetMulti const*>(&sources_.at("Led")) : 0);
-    MESetMulti const* sLedPN(using_("LedPN") ? static_cast<MESetMulti const*>(&sources_.at("LedPN")) : 0);
-    MESetMulti const* sTestPulse(using_("TestPulse") ? static_cast<MESetMulti const*>(&sources_.at("TestPulse")) : 0);
-    MESetMulti const* sTestPulsePN(using_("TestPulsePN") ? static_cast<MESetMulti const*>(&sources_.at("TestPulsePN")) : 0);
-    MESetMulti const* sPedestal(using_("Pedestal") ? static_cast<MESetMulti const*>(&sources_.at("Pedestal")) : 0);
-    MESetMulti const* sPedestalPN(using_("PedestalPN") ? static_cast<MESetMulti const*>(&sources_.at("PedestalPN")) : 0);
+    MESetMulti const* sLaser(using_("Laser") ? static_cast<MESetMulti const*>(&sources_.at("Laser")) : nullptr);
+    MESetMulti const* sLaserPN(using_("LaserPN") ? static_cast<MESetMulti const*>(&sources_.at("LaserPN")) : nullptr);
+    MESetMulti const* sLed(using_("Led") ? static_cast<MESetMulti const*>(&sources_.at("Led")) : nullptr);
+    MESetMulti const* sLedPN(using_("LedPN") ? static_cast<MESetMulti const*>(&sources_.at("LedPN")) : nullptr);
+    MESetMulti const* sTestPulse(using_("TestPulse") ? static_cast<MESetMulti const*>(&sources_.at("TestPulse")) : nullptr);
+    MESetMulti const* sTestPulsePN(using_("TestPulsePN") ? static_cast<MESetMulti const*>(&sources_.at("TestPulsePN")) : nullptr);
+    MESetMulti const* sPedestal(using_("Pedestal") ? static_cast<MESetMulti const*>(&sources_.at("Pedestal")) : nullptr);
+    MESetMulti const* sPedestalPN(using_("PedestalPN") ? static_cast<MESetMulti const*>(&sources_.at("PedestalPN")) : nullptr);
     MESet const& sPNIntegrity(sources_.at("PNIntegrity"));
 
     MESet::iterator qEnd(meQualitySummary.end());

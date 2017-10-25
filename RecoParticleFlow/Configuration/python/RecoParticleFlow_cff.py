@@ -72,3 +72,22 @@ phase2_hgcal.toModify( tpClusterProducer,
 
 phase2_hgcal.toReplaceWith( particleFlowTmp, _phase2_hgcal_particleFlowTmp )
 phase2_hgcal.toReplaceWith( particleFlowReco, _phase2_hgcal_particleFlowReco )
+
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+
+pp_on_XeXe_2017.toModify(particleFlowDisplacedVertexCandidate,
+                         tracksSelectorParameters = dict(pt_min = 999999.0,
+                                                         nChi2_max = 0.0,
+                                                         pt_min_prim = 999999.0,
+                                                         dxy = 999999.0)
+                         )
+
+pp_on_XeXe_2017.toModify(particleFlowBlock, useNuclear = cms.bool(False))
+
+pp_on_XeXe_2017.toModify(pfNoPileUpIso, enable = cms.bool(False))
+pp_on_XeXe_2017.toModify(pfPileUpIso, enable = cms.bool(False))
+pp_on_XeXe_2017.toModify(pfNoPileUp, enable = cms.bool(False))
+pp_on_XeXe_2017.toModify(pfPileUp, enable = cms.bool(False))
+
+
+

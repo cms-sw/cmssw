@@ -25,7 +25,7 @@ namespace {
   class ClusterChargeMasker : public edm::stream::EDProducer<> {
   public:
     ClusterChargeMasker(const edm::ParameterSet& iConfig);
-    ~ClusterChargeMasker(){}
+    ~ClusterChargeMasker() override{}
     void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override ;
   private:
  

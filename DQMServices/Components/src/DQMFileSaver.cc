@@ -236,7 +236,7 @@ DQMFileSaver::saveForOnline(int run, const std::string &suffix, const std::strin
     {
       dbe_->cd();
       std::vector<MonitorElement*> pNamesVector = dbe_->getMatchingContents("^" + systems[i] + "/.*/EventInfo/processName",lat::Regexp::Perl);
-      if (pNamesVector.size() > 0){
+      if (!pNamesVector.empty()){
         doSaveForOnline(dbe_, run, enableMultiThread_,
                         fileBaseName_ + systems[i] + suffix + child_ + ".root",
                         "", "^(Reference/)?([^/]+)", rewrite,

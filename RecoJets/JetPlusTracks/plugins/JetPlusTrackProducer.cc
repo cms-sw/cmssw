@@ -267,7 +267,7 @@ JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 // If we add primary vertex
    edm::Handle<reco::VertexCollection> pvCollection;
    iEvent.getByToken(input_vertex_token_, pvCollection);
-   if ( pvCollection.isValid() && pvCollection->size()>0 ) vertex_=pvCollection->begin()->position();
+   if ( pvCollection.isValid() && !pvCollection->empty() ) vertex_=pvCollection->begin()->position();
 
    reco::JPTJet fJet(p4, vertex_, specific, corrected.getJetConstituents()); 
 

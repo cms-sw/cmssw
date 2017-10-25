@@ -99,7 +99,10 @@ namespace edm {
            (tl.typeID_ == *std::get<0>(it->second)) and
            (tl.productInstanceName_ == std::get<1>(it->second)) ) {
           putTokenToResolverIndex_[i] = std::get<2>(it->second);
-          break;
+          //NOTE: The ExternalLHEProducer puts the 'same' product in at
+          // both beginRun and endRun. Therefore we can get multiple matches.
+          // When the module is finally fixed, we can use the 'break'
+          //break;
         }
         ++i;
       }

@@ -17,8 +17,8 @@ namespace edm {
 class HLTElectronMissingHitsFilter : public HLTFilter {
  public:
       explicit HLTElectronMissingHitsFilter(const edm::ParameterSet&);
-      ~HLTElectronMissingHitsFilter();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      ~HLTElectronMissingHitsFilter() override;
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:

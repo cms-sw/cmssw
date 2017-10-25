@@ -60,7 +60,7 @@ PFCandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet
     "New methods can be easily implemented if requested.";
   typedef std::vector<std::string> vstring;
   vstring vetos = iConfig.getParameter< vstring >("vetos");
-  reco::isodeposit::EventDependentAbsVeto *evdep=0;
+  reco::isodeposit::EventDependentAbsVeto *evdep=nullptr;
   static boost::regex ecalSwitch("^Ecal(Barrel|Endcaps):(.*)");
 
   for (vstring::const_iterator it = vetos.begin(), ed = vetos.end(); it != ed; ++it) {
@@ -166,7 +166,7 @@ PFCandIsolatorFromDeposits::PFCandIsolatorFromDeposits(const ParameterSet& par) 
   for (VPSet::const_iterator it = depPSets.begin(), ed = depPSets.end(); it != ed; ++it) {
     sources_.push_back(SingleDeposit(*it, consumesCollector()));
   }
-  if (sources_.size() == 0) throw cms::Exception("Configuration Error") << "Please specify at least one deposit!";
+  if (sources_.empty()) throw cms::Exception("Configuration Error") << "Please specify at least one deposit!";
   produces<CandDoubleMap>();
 }
 
@@ -184,7 +184,7 @@ void PFCandIsolatorFromDeposits::produce(Event& event, const EventSetup& eventSe
 
   const IsoDepositMap & map = begin->map();
 
-  if (map.size()==0) { // !!???
+  if (map.empty()) { // !!???
         event.put(std::unique_ptr<CandDoubleMap>(new CandDoubleMap()));
         return;
   }

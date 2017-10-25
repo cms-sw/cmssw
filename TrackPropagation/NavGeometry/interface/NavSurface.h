@@ -25,7 +25,7 @@ public:
     typedef Surface::GlobalVector         GlobalVector;
     typedef std::pair<TrajectoryStateOnSurface,double> TSOSwithPath;
 
-    virtual ~NavSurface() {}
+    ~NavSurface() override {}
 
     /// Access to actual surface
     virtual const Surface& surface() const = 0; 

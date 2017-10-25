@@ -39,9 +39,9 @@ class PrimaryVertexSorter : public edm::stream::EDProducer<> {
 
   explicit PrimaryVertexSorter(const edm::ParameterSet&);
 
-  ~PrimaryVertexSorter() {}
+  ~PrimaryVertexSorter() override {}
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
 
@@ -161,8 +161,8 @@ using namespace reco;
   Handle<edm::ValueMap<float> > trackTimeTagHandle;
   Handle<edm::ValueMap<float> > trackTimeResoTagHandle;
   
-  const edm::ValueMap<float> *trackTimeTag = 0;
-  const edm::ValueMap<float> *trackTimeResoTag = 0;
+  const edm::ValueMap<float> *trackTimeTag = nullptr;
+  const edm::ValueMap<float> *trackTimeResoTag = nullptr;
   if (useTiming_ && needsProductsForTiming()) {
     iEvent.getByToken(tokenTrackTimeTag_, trackTimeTagHandle);
     iEvent.getByToken(tokenTrackTimeResoTag_, trackTimeResoTagHandle);

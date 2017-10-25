@@ -77,10 +77,14 @@ process.l1tEmulatorMonitorPath = cms.Path(
     )
 
 # To get L1 conditions that are not in GlobalTag / O2O yet
-process.load("L1Trigger.L1TCalorimeter.hackConditions_cff")
-process.load("L1Trigger.L1TMuon.hackConditions_cff")
-process.gmtParams.caloInputsMasked = cms.bool(True) # Disable uGMT calo inputs like in the online configuration
-process.load("L1Trigger.L1TGlobal.hackConditions_cff")
+#process.load("L1Trigger.L1TCalorimeter.hackConditions_cff")
+#process.load("L1Trigger.L1TMuon.hackConditions_cff")
+#process.gmtParams.caloInputsMasked = cms.bool(True) # Disable uGMT calo inputs like in the online configuration
+#process.load("L1Trigger.L1TGlobal.hackConditions_cff")
+process.load("L1Trigger.L1TGlobal.GlobalParameters_cff")
+
+# 2017 EMTF emulator uses payloads and forests from DB, but not yet in GT
+process.load("L1Trigger.L1TMuonEndCap.fakeEmtfParams_2017_MC_cff")
 
 # To get CaloTPGTranscoder
 process.load('SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff')

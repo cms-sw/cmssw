@@ -44,9 +44,9 @@ namespace edm {
       // ---------- member functions ---------------------------
       
     private:
-      LoadAllDictionaries(const LoadAllDictionaries&); // stop default
+      LoadAllDictionaries(const LoadAllDictionaries&) = delete; // stop default
       
-      const LoadAllDictionaries& operator=(const LoadAllDictionaries&); // stop default
+      const LoadAllDictionaries& operator=(const LoadAllDictionaries&) = delete; // stop default
       
       // ---------- member data --------------------------------
       

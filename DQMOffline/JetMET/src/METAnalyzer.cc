@@ -28,7 +28,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "math.h"
+#include <cmath>
 #include "TH2F.h"
 #include "TH2.h"
 
@@ -755,10 +755,10 @@ void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibo
 	  MEyPFCand_.push_back(0.);
 	  
 	  profilePFCand_x_.push_back(ibooker.bookProfile(std::string(v->getParameter<std::string>("name")).append("_Px_").c_str(),     std::string(v->getParameter<std::string>("name"))+"Px",       nbinsPFCand, nMinPFCand, nMaxPFCand, -300,300));
-	  profilePFCand_x_name_.push_back(std::string(v->getParameter<std::string>("name")).append("_Px_").c_str());
+	  profilePFCand_x_name_.push_back(std::string(v->getParameter<std::string>("name")).append("_Px_"));
 	  map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+profilePFCand_x_name_[profilePFCand_x_name_.size()-1], profilePFCand_x_[profilePFCand_x_.size()-1]));
 	  profilePFCand_y_.push_back(ibooker.bookProfile(std::string(v->getParameter<std::string>("name")).append("_Py_").c_str(),     std::string(v->getParameter<std::string>("name"))+"Py",       nbinsPFCand, nMinPFCand, nMaxPFCand, -300,300));
-	  profilePFCand_y_name_.push_back(std::string(v->getParameter<std::string>("name")).append("_Py_").c_str());
+	  profilePFCand_y_name_.push_back(std::string(v->getParameter<std::string>("name")).append("_Py_"));
 	  map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+profilePFCand_y_name_[profilePFCand_y_name_.size()-1], profilePFCand_y_[profilePFCand_y_.size()-1]));
 	}
       }	
@@ -1194,10 +1194,10 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if(!patmetcoll.isValid()) return;
   }
 
-  const MET *met=NULL;
-  const pat::MET *patmet=NULL;
-  const PFMET *pfmet=NULL;
-  const CaloMET *calomet=NULL;
+  const MET *met=nullptr;
+  const pat::MET *patmet=nullptr;
+  const PFMET *pfmet=nullptr;
+  const CaloMET *calomet=nullptr;
   //if(isTCMet_){
   //met=&(tcmetcoll->front());
   //}
@@ -1491,7 +1491,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     const TechnicalTriggerWord&  technicalTriggerWordBeforeMaskBx0 = gtReadoutRecord->technicalTriggerWord();
     //const TechnicalTriggerWord&  technicalTriggerWordBeforeMaskBxG = gtReadoutRecord->technicalTriggerWord(1);
     //const TechnicalTriggerWord&  technicalTriggerWordBeforeMaskBxH = gtReadoutRecord->technicalTriggerWord(2);
-    if (m_bitAlgTechTrig_ > -1 && technicalTriggerWordBeforeMaskBx0.size() > 0) {
+    if (m_bitAlgTechTrig_ > -1 && !technicalTriggerWordBeforeMaskBx0.empty()) {
       techTriggerResultBx0 = technicalTriggerWordBeforeMaskBx0.at(m_bitAlgTechTrig_);
       if(techTriggerResultBx0!=0){
 	techTriggerResultBxM2 = technicalTriggerWordBeforeMaskBxM2.at(m_bitAlgTechTrig_);

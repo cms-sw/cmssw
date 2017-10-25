@@ -25,20 +25,20 @@ class HCALProperties : public CalorimeterProperties
 
   HCALProperties(const edm::ParameterSet& fastDet);
 
-  virtual ~HCALProperties() {
+  ~HCALProperties() override {
   }
 
   /// Effective A
-  inline double theAeff() const { return HCALAeff_; }
+  inline double theAeff() const override { return HCALAeff_; }
 
   /// Effective Z
-  inline double theZeff() const { return HCALZeff_; }
+  inline double theZeff() const override { return HCALZeff_; }
 
   /// Density in g/cm3
-  inline double rho() const { return HCALrho_; }
+  inline double rho() const override { return HCALrho_; }
 
   /// Radiation length in cm
-  inline double radLenIncm()  const { return radiationLengthIncm(); }
+  inline double radLenIncm()  const override { return radiationLengthIncm(); }
 
   /// Radiation length in cm but static 
   // This is needed in Calorimetry/CrystalSegment. 
@@ -47,17 +47,17 @@ class HCALProperties : public CalorimeterProperties
   inline double radiationLengthIncm() const { return HCALradiationLengthIncm_; }
  
   /// Radiation length in g/cm^2
-  inline double radLenIngcm2() const { return HCALradLenIngcm2_; }
+  inline double radLenIngcm2() const override { return HCALradLenIngcm2_; }
 
   /// Moliere Radius in cm (=7 A/Z in g/cm^2)
-  inline   double moliereRadius() const { return HCALmoliereRadius_; }
+  inline   double moliereRadius() const override { return HCALmoliereRadius_; }
   //inline double moliereRadius()  const { return 2.4; }
 
   /// Critical energy in GeV (2.66E-3*(x0*Z/A)^1.1)
-  inline double criticalEnergy() const { return HCALcriticalEnergy_; }
+  inline double criticalEnergy() const override { return HCALcriticalEnergy_; }
 
   ///Interaction length in cm
-  inline double interactionLength() const { return HCALinteractionLength_; }
+  inline double interactionLength() const override { return HCALinteractionLength_; }
 
   ///h/pi Warning ! This is a ad-hoc parameter. It has been tuned to get a good agreement on 1TeV electrons
   ///It might have nothing to do with reality

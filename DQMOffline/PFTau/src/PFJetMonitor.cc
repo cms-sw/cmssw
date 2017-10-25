@@ -22,13 +22,13 @@ PFJetMonitor::PFJetMonitor( float dRMax, bool matchCharge, Benchmark::Mode mode)
   
   setRange( 0.0, 10e10, -10.0, 10.0, -3.14, 3.14);
   
-  delta_frac_VS_frac_muon_           = 0;
-  delta_frac_VS_frac_photon_         = 0;
-  delta_frac_VS_frac_electron_       = 0;
-  delta_frac_VS_frac_charged_hadron_ = 0;
-  delta_frac_VS_frac_neutral_hadron_ = 0;
+  delta_frac_VS_frac_muon_           = nullptr;
+  delta_frac_VS_frac_photon_         = nullptr;
+  delta_frac_VS_frac_electron_       = nullptr;
+  delta_frac_VS_frac_charged_hadron_ = nullptr;
+  delta_frac_VS_frac_neutral_hadron_ = nullptr;
 
-  deltaR_   = 0;
+  deltaR_   = nullptr;
 
   createPFractionHistos_ = false;
   histogramBooked_ = false;

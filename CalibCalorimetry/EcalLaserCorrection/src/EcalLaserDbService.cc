@@ -15,10 +15,10 @@ using namespace std;
 
 EcalLaserDbService::EcalLaserDbService () 
   : 
-  mAlphas_ (0),
-  mAPDPNRatiosRef_ (0),
-  mAPDPNRatios_ (0),
-  mLinearCorrections_ (0)
+  mAlphas_ (nullptr),
+  mAPDPNRatiosRef_ (nullptr),
+  mAPDPNRatios_ (nullptr),
+  mLinearCorrections_ (nullptr)
  {}
 
 

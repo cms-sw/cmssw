@@ -12,7 +12,7 @@
 class TrajectoryStateException : public cms::Exception{
 public:
   TrajectoryStateException( const std::string& message) throw() :  cms::Exception(message){}
-  virtual ~TrajectoryStateException() throw() {}
+  ~TrajectoryStateException() throw() override {}
 };
 
 #endif

@@ -110,13 +110,13 @@ void SiStripCommissioningOfflineDbClient::createHistos( const edm::ParameterSet&
             runType_ == sistrip::CALIBRATION_SCAN_DECO)
                                                 { histos_ = new CalibrationHistosUsingDb( pset, bei_, db, runType_ ); }
   else if ( runType_ == sistrip::UNDEFINED_RUN_TYPE ) { 
-    histos_ = 0; 
+    histos_ = nullptr; 
     edm::LogError(mlDqmClient_)
       << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
       << " Undefined run type!";
     return;
   } else if ( runType_ == sistrip::UNKNOWN_RUN_TYPE ) {
-    histos_ = 0;
+    histos_ = nullptr;
     edm::LogError(mlDqmClient_)
       << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
       << " Unknown run type!";

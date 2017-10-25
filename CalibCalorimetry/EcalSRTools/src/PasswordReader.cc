@@ -24,7 +24,7 @@ void PasswordReader::readPassword(const std::string& fileName,
     size_t pos = 0;
     getline(f, line);
     trim(line, " \t");
-    if(line[0]=='#' || line.size()==0){//comment line
+    if(line[0]=='#' || line.empty()){//comment line
       continue;
     }
     ++nstatements;

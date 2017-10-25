@@ -214,7 +214,7 @@ public:
 	std::string toString() const override {
 		std::stringstream ss;
 		ss << "[";
-		if (histo_.size())
+		if (!histo_.empty())
 			for (unsigned int i = 0; i < histo_.size(); i++) {
 				ss << histo_[i];
 				if (i<histo_.size()-1) ss << ",";

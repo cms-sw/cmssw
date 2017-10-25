@@ -43,17 +43,17 @@ public:
   AlignableMuon( const DTGeometry* , const CSCGeometry* );
 
   /// Destructor
-  ~AlignableMuon();
+  ~AlignableMuon() override;
   
   /// Updater using DTGeometry and CSCGeometry.
   /// The given geometries have to match the current ones.
   void update(const DTGeometry* , const CSCGeometry*);
 
   /// Return all components
-  virtual align::Alignables components() const { return theMuonComponents; }
+  align::Alignables components() const override { return theMuonComponents; }
 
   /// Alignable tracker has no mother
-  virtual Alignable* mother() { return 0; }
+  virtual Alignable* mother() { return nullptr; }
 
   /// Methods to return specific of components
   align::Alignables DTLayers();
@@ -96,10 +96,10 @@ private:
   AlignableSurface computeSurface();
 
   /// Get alignments sorted by DetId
-  Alignments* alignments() const;
+  Alignments* alignments() const override;
 
   /// Get alignment errors sorted by DetId
-  AlignmentErrorsExtended* alignmentErrors() const;
+  AlignmentErrorsExtended* alignmentErrors() const override;
 
 
 
