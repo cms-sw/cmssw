@@ -34,10 +34,10 @@
 class EgammaEcalRecHitIsolationProducer : public edm::stream::EDProducer<> {
    public:
       explicit EgammaEcalRecHitIsolationProducer(const edm::ParameterSet&);
-      ~EgammaEcalRecHitIsolationProducer();
+      ~EgammaEcalRecHitIsolationProducer() override;
 
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
    private:
       // ----------member data ---------------------------
 

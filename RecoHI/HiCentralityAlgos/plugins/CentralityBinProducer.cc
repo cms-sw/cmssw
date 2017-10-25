@@ -49,11 +49,11 @@ class CentralityBinProducer : public edm::EDProducer {
   enum VariableType {HFtowers = 0, HFtowersPlus = 1, HFtowersMinus = 2, HFtowersTrunc = 3, HFtowersPlusTrunc = 4, HFtowersMinusTrunc = 5, HFhits = 6, PixelHits = 7, PixelTracks = 8, Tracks = 9, EB = 10, EE = 11, ZDChitsPlus = 12, ZDChitsMinus = 13, Missing = 14};
    public:
       explicit CentralityBinProducer(const edm::ParameterSet&);
-      ~CentralityBinProducer();
+      ~CentralityBinProducer() override;
 
    private:
-      virtual void beginRun(edm::Run const& run, const edm::EventSetup& iSetup) override;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void beginRun(edm::Run const& run, const edm::EventSetup& iSetup) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
 
@@ -118,7 +118,7 @@ CentralityBinProducer::CentralityBinProducer(const edm::ParameterSet& iConfig):
    }
    centralityLabel_ = centralityVariable_+centralityMC_;
 
-   produces<int>(centralityVariable_.data());
+   produces<int>(centralityVariable_);
 }
 
 
@@ -171,7 +171,7 @@ CentralityBinProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   }
 
-  iEvent.put(std::make_unique<int>(bin),centralityVariable_.data());
+  iEvent.put(std::make_unique<int>(bin),centralityVariable_);
 
 }
 

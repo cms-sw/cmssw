@@ -32,22 +32,22 @@ class FWTriggerTableViewTableManager : public FWTableManagerBase {
    friend class FWTriggerTableView;
 public:
    FWTriggerTableViewTableManager(const FWTriggerTableView *);
-   virtual ~FWTriggerTableViewTableManager();
+   ~FWTriggerTableViewTableManager() override;
 
    // ---------- const member functions ---------------------
    ///Number of rows in the table
-   virtual int numberOfRows() const;
-   virtual int numberOfColumns() const;
-   virtual std::vector<std::string> getTitles() const;
-   virtual int unsortedRowNumber(int iSortedRowNumber) const;
+   int numberOfRows() const override;
+   int numberOfColumns() const override;
+   std::vector<std::string> getTitles() const override;
+   int unsortedRowNumber(int iSortedRowNumber) const override;
 
-   virtual FWTableCellRendererBase* cellRenderer(int iSortedRowNumber, int iCol) const;
+   FWTableCellRendererBase* cellRenderer(int iSortedRowNumber, int iCol) const override;
    void dataChanged();   //*SIGNAL*
 
 protected:
    ///Called by 'sort' method to actually handle the sorting of the
    ///rows. Arguments are the same as 'sort'
-   virtual void implSort(int iCol, bool iSortOrder);
+   void implSort(int iCol, bool iSortOrder) override;
    std::vector<int> m_sortedToUnsortedIndices;
 
    const FWTriggerTableView *m_view;
@@ -55,8 +55,8 @@ protected:
    FWTextTableCellRenderer *m_renderer;
 
 private:
-   FWTriggerTableViewTableManager(const FWTriggerTableViewTableManager&); // stop default     
-   const FWTriggerTableViewTableManager& operator=(const FWTriggerTableViewTableManager&); // stop default
+   FWTriggerTableViewTableManager(const FWTriggerTableViewTableManager&) = delete; // stop default     
+   const FWTriggerTableViewTableManager& operator=(const FWTriggerTableViewTableManager&) = delete; // stop default
 };
 
 

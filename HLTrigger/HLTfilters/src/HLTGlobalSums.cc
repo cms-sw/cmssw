@@ -118,7 +118,7 @@ HLTGlobalSums<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
    }
 
    LogDebug("") << "Size of MET collection: " << objects->size();
-   if (objects->size()==0) {
+   if (objects->empty()) {
      LogDebug("") << "MET collection does not contain a MET object!";
    } else if (objects->size()>1) {
      LogDebug("") << "MET collection contains more than one MET object!";

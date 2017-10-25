@@ -5,8 +5,8 @@
 
 using namespace reco;
 
-CaloRecoTauAlgorithm::CaloRecoTauAlgorithm() : TransientTrackBuilder_(0),MagneticField_(0),chargedpi_mass_(0.13957018){}  
-CaloRecoTauAlgorithm::CaloRecoTauAlgorithm(const edm::ParameterSet& iConfig) : TransientTrackBuilder_(0),MagneticField_(0),chargedpi_mass_(0.13957018){
+CaloRecoTauAlgorithm::CaloRecoTauAlgorithm() : TransientTrackBuilder_(nullptr),MagneticField_(nullptr),chargedpi_mass_(0.13957018){}  
+CaloRecoTauAlgorithm::CaloRecoTauAlgorithm(const edm::ParameterSet& iConfig) : TransientTrackBuilder_(nullptr),MagneticField_(nullptr),chargedpi_mass_(0.13957018){
   LeadTrack_minPt_                    = iConfig.getParameter<double>("LeadTrack_minPt");
   Track_minPt_                        = iConfig.getParameter<double>("Track_minPt");
   IsolationTrack_minPt_               = iConfig.getParameter<double>("IsolationTrack_minPt");
@@ -75,7 +75,7 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(edm::Event& iEvent,const edm::EventSe
   if(myleadTk.isNonnull()){
     myCaloTau.setleadTrack(myleadTk);
     double myleadTkDZ=(*myleadTk).dz(myPV.position());
-    if(TransientTrackBuilder_!=0)
+    if(TransientTrackBuilder_!=nullptr)
     { 
       const TransientTrack myleadTransientTk=TransientTrackBuilder_->build(&(*myleadTk));
       GlobalVector myCaloJetdir((*myCaloJet).px(),(*myCaloJet).py(),(*myCaloJet).pz());
@@ -88,7 +88,7 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(edm::Event& iEvent,const edm::EventSe
       myCaloTau_refInnerPosition_z=(*myleadTk).innerPosition().z(); 
     }
     
-    if(MagneticField_!=0){ 
+    if(MagneticField_!=nullptr){ 
       math::XYZPoint mypropagleadTrackECALSurfContactPoint=TauTagTools::propagTrackECALSurfContactPoint(MagneticField_,myleadTk);
       if(mypropagleadTrackECALSurfContactPoint.R()!=0.){
 	double myleadTrackHCAL3x3hottesthitDEta=0.;
@@ -309,14 +309,14 @@ std::vector<CaloTowerDetId> CaloRecoTauAlgorithm::getCaloTowerneighbourDetIds(co
   std::vector<DetId> northDetIds=myCaloTowerTopology.north(myCaloTowerDetId);
   std::vector<DetId> westDetIds=myCaloTowerTopology.west(myCaloTowerDetId);
   std::vector<DetId> northwestDetIds,southwestDetIds;
-  if (westDetIds.size()>0){
+  if (!westDetIds.empty()){
     northwestDetIds=myCaloTowerTopology.north(westDetIds[0]);
     southwestDetIds=myCaloTowerTopology.south(westDetIds[(int)westDetIds.size()-1]);
   }
   std::vector<DetId> southDetIds=myCaloTowerTopology.south(myCaloTowerDetId);
   std::vector<DetId> eastDetIds=myCaloTowerTopology.east(myCaloTowerDetId);
   std::vector<DetId> northeastDetIds,southeastDetIds;
-  if (eastDetIds.size()>0){
+  if (!eastDetIds.empty()){
     northeastDetIds=myCaloTowerTopology.north(eastDetIds[0]);
     southeastDetIds=myCaloTowerTopology.south(eastDetIds[(int)eastDetIds.size()-1]);
   }

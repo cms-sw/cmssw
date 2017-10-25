@@ -30,14 +30,14 @@ public:
   explicit TrackerScenarioBuilder( AlignableTracker* alignable );
 
   /// Destructor
-  ~TrackerScenarioBuilder() {};
+  ~TrackerScenarioBuilder() override {};
 
   /// Apply misalignment scenario to the tracker
-  void applyScenario( const edm::ParameterSet& scenario );
+  void applyScenario( const edm::ParameterSet& scenario ) override;
   /// does this still make sense?
-  virtual bool isTopLevel_(const std::string& parameterSetName) const;
+  bool isTopLevel_(const std::string& parameterSetName) const override;
   /// True if hierarchy level 'sub' could be part of hierarchy level 'large'.
-  virtual bool possiblyPartOf(const std::string &sub, const std::string &large) const;
+  bool possiblyPartOf(const std::string &sub, const std::string &large) const override;
 
 private:
   std::string stripOffModule(const align::StructureType& type) const;

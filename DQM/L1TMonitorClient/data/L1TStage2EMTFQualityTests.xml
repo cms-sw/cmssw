@@ -13,8 +13,8 @@
     <TYPE>NoisyChannel</TYPE>	
     <PARAM name="tolerance">20</PARAM>
     <PARAM name="neighbours">9</PARAM>
-    <PARAM name="error">0.990</PARAM>
-    <PARAM name="warning">0.995</PARAM>
+    <PARAM name="error">0.996</PARAM>
+    <PARAM name="warning">0.999</PARAM>
   </QTEST>
   
   <LINK name="*/L1TStage2EMTF/cscLCTOccupancy">
@@ -24,24 +24,24 @@
 
   <!-- EMTF Track BX -->
 
-  <QTEST name="EMTF_TrackBXSpectrum">
-    <TYPE>Comp2Ref2DChi2</TYPE>	
-    <PARAM name="testparam">0</PARAM>
-    <PARAM name="error">0.01</PARAM>
-    <PARAM name="warning">0.30</PARAM>
-    <PARAM name="minEntries">96</PARAM>
-  </QTEST>
+  <!-- <QTEST name="EMTF_TrackBXSpectrum"> -->
+  <!--   <TYPE>Comp2Ref2DChi2</TYPE> -->
+  <!--   <PARAM name="testparam">0</PARAM> -->
+  <!--   <PARAM name="error">0.01</PARAM> -->
+  <!--   <PARAM name="warning">0.30</PARAM> -->
+  <!--   <PARAM name="minEntries">96</PARAM> -->
+  <!-- </QTEST> -->
 
   <QTEST name="EMTF_TrackBXNoisyTrack">
-    <TYPE>NoisyChannel</TYPE>	
+    <TYPE>NoisyChannel</TYPE>
     <PARAM name="tolerance">10</PARAM>
     <PARAM name="neighbours">1</PARAM>
-    <PARAM name="error">0.990</PARAM>
-    <PARAM name="warning">0.995</PARAM>
+    <PARAM name="error">0.996</PARAM>
+    <PARAM name="warning">0.999</PARAM>
   </QTEST>
   
   <LINK name="*/L1TStage2EMTF/emtfTrackBX">
-      <TestName activate="true">EMTF_TrackBXSpectrum</TestName>
+      <!-- <TestName activate="true">EMTF_TrackBXSpectrum</TestName> -->
       <TestName activate="true">EMTF_TrackBXNoisyTrack</TestName>
   </LINK>
 

@@ -13,8 +13,13 @@ WrapperBase: The base class of all things that will be inserted into the Event.
 
 #include <typeinfo>
 #include <vector>
+#include <memory>
 
 namespace edm {
+  namespace soa {
+    class TableExaminerBase;
+  }
+  
   class WrapperBase : public ViewTypeChecker {
   public:
     WrapperBase();
@@ -48,6 +53,9 @@ namespace edm {
     bool hasIsProductEqual() const {return hasIsProductEqual_();}
     bool isProductEqual(WrapperBase const* newProduct) const {return isProductEqual_(newProduct);}
 
+    std::shared_ptr<soa::TableExaminerBase> tableExaminer() const {
+      return tableExaminer_();
+    }
   private:
     virtual std::type_info const& dynamicTypeInfo_() const = 0;
 
@@ -73,6 +81,9 @@ namespace edm {
     virtual void do_fillPtrVector(std::type_info const& iToType,
                                   std::vector<unsigned long> const& iIndicies,
                                   std::vector<void const*>& oPtr) const = 0;
+    
+    virtual std::shared_ptr<soa::TableExaminerBase> tableExaminer_() const = 0;
+
   };
 }
 #endif

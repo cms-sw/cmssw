@@ -40,17 +40,17 @@ class HcalOfflineHarvesting : public hcaldqm::DQHarvester
 {
 	public:
 		HcalOfflineHarvesting(edm::ParameterSet const&);
-		virtual ~HcalOfflineHarvesting(){}
+		~HcalOfflineHarvesting() override{}
 
-		virtual void beginRun(edm::Run const&,
-			edm::EventSetup const&);
+		void beginRun(edm::Run const&,
+			edm::EventSetup const&) override;
 
 	protected:
-		virtual void _dqmEndLuminosityBlock(DQMStore::IBooker&,
+		void _dqmEndLuminosityBlock(DQMStore::IBooker&,
 			DQMStore::IGetter&, edm::LuminosityBlock const&,
-			edm::EventSetup const&);
-		virtual void _dqmEndJob(DQMStore::IBooker&,
-			DQMStore::IGetter&);
+			edm::EventSetup const&) override;
+		void _dqmEndJob(DQMStore::IBooker&,
+			DQMStore::IGetter&) override;
 
 		enum Summary
 		{

@@ -27,7 +27,7 @@ class MuonDetLayerGeometry : public DetLayerGeometry{
   friend class MuonDetLayerGeometryESProducer;  
 
   /// Destructor
-  virtual ~MuonDetLayerGeometry();
+  ~MuonDetLayerGeometry() override;
 
   /// return the DT DetLayers (barrel), inside-out
   const std::vector<const DetLayer*>& allDTLayers() const;
@@ -126,7 +126,7 @@ class MuonDetLayerGeometry : public DetLayerGeometry{
 //////////////////////////////
   
   /// return the DetLayer which correspond to a certain DetId
-  virtual const DetLayer* idToLayer(const DetId& detId) const override;
+  const DetLayer* idToLayer(const DetId& detId) const override;
 
  private:
   /// Add CSC layers 

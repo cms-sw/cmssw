@@ -256,7 +256,7 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
             lostHits = ( nlost == 1 ? pat::PackedCandidate::oneLostInnerHit : pat::PackedCandidate::moreLostInnerHits);
           }
 
-
+	  
           outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), vtx, ptTrk, etaAtVtx, phiAtVtx, cand.pdgId(), PVRefProd, PV.key()));
           outPtrP->back().setAssociationQuality(pat::PackedCandidate::PVAssociationQuality(qualityMap[quality]));
           outPtrP->back().setCovarianceVersion(covarianceVersion_);
@@ -299,11 +299,11 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
             PV = reco::VertexRef(PVs, 0);
             PVpos = PV->position();
           }
-
+	
           outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), PVpos, cand.pt(), cand.eta(), cand.phi(), cand.pdgId(), PVRefProd, PV.key()));
           outPtrP->back().setAssociationQuality(pat::PackedCandidate::PVAssociationQuality(pat::PackedCandidate::UsedInFitTight));
         }
-
+    
 	// neutrals and isolated charged hadrons
 
         bool isIsolatedChargedHadron = false;
@@ -322,6 +322,10 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
 	  outPtrP->back().setHcalFraction(0);
 	}
 	
+	//specifically this is the PFLinker requirements to apply the e/gamma regression
+	if(cand.particleId() == reco::PFCandidate::e || (cand.particleId() == reco::PFCandidate::gamma && cand.mva_nothing_gamma()>0.)) { 
+	  outPtrP->back().setGoodEgamma();
+	}
        
         if (usePuppi_){
            reco::PFCandidateRef pkref( cands, ic );

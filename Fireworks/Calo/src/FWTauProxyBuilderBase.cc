@@ -140,7 +140,7 @@ FWTauProxyBuilderBase::addConstituentTracks( const reco::BaseTau &tau, class TEv
 {
    for( reco::TrackRefVector::iterator i = tau.signalTracks().begin(), iEnd = tau.signalTracks().end();
 	i != iEnd; ++i ) {
-      TEveTrack* track( 0 );
+      TEveTrack* track( nullptr );
       if( i->isAvailable() ) {
          track = fireworks::prepareTrack( **i, context().getTrackPropagator() );
          track->MakeTrack();

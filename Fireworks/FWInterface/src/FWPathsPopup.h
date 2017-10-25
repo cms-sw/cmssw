@@ -41,7 +41,7 @@ public:
    void updateFilterString(const char *str);
    void windowIsClosing();
 
-   virtual Bool_t HandleKey(Event_t* event);
+   Bool_t HandleKey(Event_t* event) override;
 
 private:
    const edm::ScheduleInfo  *m_info;
@@ -61,7 +61,7 @@ private:
    FWGUIManager             *m_guiManager;
    
 
-   ClassDef(FWPathsPopup, 0);
+   ClassDefOverride(FWPathsPopup, 0);
 };
 
 #endif

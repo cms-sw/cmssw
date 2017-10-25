@@ -37,25 +37,25 @@ class FWMETProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::MET>
 {
 public:
    FWMETProxyBuilder() {}
-   virtual ~FWMETProxyBuilder() {}
+   ~FWMETProxyBuilder() override {}
 
-   virtual bool haveSingleProduct() const { return false; } // use buildViewType instead of buildView
+   bool haveSingleProduct() const override { return false; } // use buildViewType instead of buildView
 
-   virtual bool havePerViewProduct(FWViewType::EType) const { return true; } // used energy scaling
+   bool havePerViewProduct(FWViewType::EType) const override { return true; } // used energy scaling
    
-   virtual void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc);
+   void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc) override;
  
-   virtual void cleanLocal() { m_lines.clear(); }
+   void cleanLocal() override { m_lines.clear(); }
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
  
-   FWMETProxyBuilder( const FWMETProxyBuilder& );    // stop default
-   const FWMETProxyBuilder& operator=( const FWMETProxyBuilder& );    // stop default
+   FWMETProxyBuilder( const FWMETProxyBuilder& ) = delete;    // stop default
+   const FWMETProxyBuilder& operator=( const FWMETProxyBuilder& ) = delete;    // stop default
 
    using FWSimpleProxyBuilderTemplate<reco::MET>::buildViewType;
-   virtual void buildViewType(const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*);
+   void buildViewType(const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*) override;
    
    std::vector<fireworks::scaleMarker> m_lines;
 };

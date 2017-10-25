@@ -28,7 +28,7 @@ public:
   typedef std::vector<MuonRecHitPointer>                             MuonRecHitContainer;
   typedef std::vector<ConstMuonRecHitPointer>                        ConstMuonRecHitContainer;
   
-  virtual ~MuonTransientTrackingRecHit(){}
+  ~MuonTransientTrackingRecHit() override{}
 
   /// Direction in 3D for segments, otherwise (0,0,0)
   virtual LocalVector localDirection() const;
@@ -42,7 +42,7 @@ public:
   /// Error on the global direction
   virtual GlobalError globalDirectionError() const;
  
-  virtual AlgebraicSymMatrix parametersError() const  override;
+  AlgebraicSymMatrix parametersError() const  override;
 
   /// Chi square of the fit for segments, else 0
   virtual double chi2() const;
@@ -66,7 +66,7 @@ public:
   bool isRPC() const;
 
   /// return the sub components of this transient rechit
-  virtual ConstRecHitContainer transientHits() const override;
+  ConstRecHitContainer transientHits() const override;
 
   /// FIXME virtual ConstMuonRecHitContainer specificTransientHits() const;
 
@@ -91,7 +91,7 @@ public:
   /// Copy ctor
   MuonTransientTrackingRecHit(const MuonTransientTrackingRecHit & other );
 
-  virtual MuonTransientTrackingRecHit* clone() const  override {
+  MuonTransientTrackingRecHit* clone() const  override {
     return new MuonTransientTrackingRecHit(*this);
   }
 

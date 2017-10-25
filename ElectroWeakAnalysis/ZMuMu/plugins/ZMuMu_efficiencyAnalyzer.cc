@@ -48,13 +48,13 @@ class ZMuMu_efficiencyAnalyzer : public edm::EDAnalyzer {
 public:
   ZMuMu_efficiencyAnalyzer(const edm::ParameterSet& pset);
 private:
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
   bool check_ifZmumu(const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
   float getParticlePt(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
   float getParticleEta(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
   float getParticlePhi(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
   Particle::LorentzVector getParticleP4(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
-  virtual void endJob() override;
+  void endJob() override;
 
   EDGetTokenT<CandidateView> zMuMuToken_;
   EDGetTokenT<GenParticleMatch> zMuMuMatchMapToken_;
@@ -299,7 +299,7 @@ void ZMuMu_efficiencyAnalyzer::analyze(const Event& event, const EventSetup& set
 
   bool zMuMu_found = false;
   // loop on ZMuMu
-  if (zMuMu->size() > 0 ) {
+  if (!zMuMu->empty() ) {
     for(unsigned int i = 0; i < zMuMu->size(); ++i) { //loop on candidates
       const Candidate & zMuMuCand = (*zMuMu)[i]; //the candidate
       CandidateBaseRef zMuMuCandRef = zMuMu->refAt(i);
@@ -328,9 +328,9 @@ void ZMuMu_efficiencyAnalyzer::analyze(const Event& event, const EventSetup& set
 
       bool trig0found = false;
       bool trig1found = false;
-      if( mu0HLTMatches.size()>0 )
+      if( !mu0HLTMatches.empty() )
 	trig0found = true;
-      if( mu1HLTMatches.size()>0 )
+      if( !mu1HLTMatches.empty() )
 	trig1found = true;
 
       // kinematic selection
@@ -441,7 +441,7 @@ void ZMuMu_efficiencyAnalyzer::analyze(const Event& event, const EventSetup& set
 
   // loop on ZMuSta
   bool zMuSta_found = false;
-  if (!zMuMu_found && zMuStandAlone->size() > 0 ) {
+  if (!zMuMu_found && !zMuStandAlone->empty() ) {
     event.getByToken(zMuStandAloneMatchMapToken_, zMuStandAloneMatchMap);
     for(unsigned int i = 0; i < zMuStandAlone->size(); ++i) { //loop on candidates
       const Candidate & zMuStandAloneCand = (*zMuStandAlone)[i]; //the candidate
@@ -470,9 +470,9 @@ void ZMuMu_efficiencyAnalyzer::analyze(const Event& event, const EventSetup& set
 
       bool trig0found = false;
       bool trig1found = false;
-      if( mu0HLTMatches.size()>0 )
+      if( !mu0HLTMatches.empty() )
 	trig0found = true;
-      if( mu1HLTMatches.size()>0 )
+      if( !mu1HLTMatches.empty() )
 	trig1found = true;
 
       // check HLT match of Global muon and save eta, pt of second muon (standAlone)
@@ -527,7 +527,7 @@ void ZMuMu_efficiencyAnalyzer::analyze(const Event& event, const EventSetup& set
 
   // loop on ZMuTrack
   //  bool zMuTrack_found = false;
-  if (!zMuMu_found && !zMuSta_found && zMuTrack->size() > 0 ) {
+  if (!zMuMu_found && !zMuSta_found && !zMuTrack->empty() ) {
     event.getByToken(zMuTrackMatchMapToken_, zMuTrackMatchMap);
     for(unsigned int i = 0; i < zMuTrack->size(); ++i) { //loop on candidates
       const Candidate & zMuTrackCand = (*zMuTrack)[i]; //the candidate
@@ -551,7 +551,7 @@ void ZMuMu_efficiencyAnalyzer::analyze(const Event& event, const EventSetup& set
 	muonDau0.triggerObjectMatchesByPath( "HLT_Mu9" );
 
       bool trig0found = false;
-      if( mu0HLTMatches.size()>0 )
+      if( !mu0HLTMatches.empty() )
 	trig0found = true;
 
       bool checkOppositeCharge = false;

@@ -33,7 +33,7 @@ class HLTEcalPFClusterIsolationProducer : public edm::stream::EDProducer<> {
   
  public:
   explicit HLTEcalPFClusterIsolationProducer(const edm::ParameterSet&);
-  ~HLTEcalPFClusterIsolationProducer();    
+  ~HLTEcalPFClusterIsolationProducer() override;    
       
   void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);

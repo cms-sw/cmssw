@@ -22,7 +22,7 @@ class UnifiedSCCollectionProducer : public edm::stream::EDProducer<>
 
       UnifiedSCCollectionProducer(const edm::ParameterSet& ps);
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
       
   private:
 	  // the clean collection      

@@ -27,7 +27,7 @@
 class BeamMonitorBx : public edm::EDAnalyzer {
  public:
   BeamMonitorBx( const edm::ParameterSet& );
-  ~BeamMonitorBx();
+  ~BeamMonitorBx() override;
 
   typedef int BxNum;
   typedef std::map<BxNum,reco::BeamSpot> BeamSpotMapBx;

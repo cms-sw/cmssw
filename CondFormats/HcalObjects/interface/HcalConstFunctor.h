@@ -18,12 +18,12 @@ public:
     // Normal constructor
     explicit HcalConstFunctor(const double value);
 
-    inline virtual ~HcalConstFunctor() {}
+    inline ~HcalConstFunctor() override {}
 
-    virtual double operator()(double x) const override;
+    double operator()(double x) const override;
 
 protected:
-    inline virtual bool isEqual(const AbsHcalFunctor& other) const override
+    inline bool isEqual(const AbsHcalFunctor& other) const override
     {
         const HcalConstFunctor& r = static_cast<const HcalConstFunctor&>(other);
         return value_ == r.value_;

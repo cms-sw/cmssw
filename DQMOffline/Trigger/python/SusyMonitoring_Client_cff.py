@@ -98,6 +98,54 @@ double_soft_muon_backup_90_mhtpt_efficiency = DQMEDHarvester("DQMGenericClient",
 
         ),
 )
+triple_muon_mupt_efficiency = DQMEDHarvester("DQMGenericClient",
+    subDirs        = cms.untracked.vstring("HLT/SUSY/SOS/TripleMu/MuonPt/*"),
+    verbose        = cms.untracked.uint32(0), # Set to 2 for all messages 
+    resolution     = cms.vstring(),
+    efficiency     = cms.vstring(
+    "effic_muPt_1       'efficiency vs muon pt; muon pt [GeV]; efficiency' muPt_1_numerator       muPt_1_variableBinning_denominator",
+    "effic_muEta_1       'efficiency vs muon eta; muon eta ; efficiency' muEta_1_variableBinning_numerator       muEta_1_variableBinning_denominator",
+    "effic_muPhi_1       'efficiency vs muon phi; muon phi ; efficiency' muPhi_1_numerator       muPhi_1_denominator",
+
+    "effic_muPt_2       'efficiency vs muon pt; muon pt [GeV]; efficiency' muPt_2_variableBinning_numerator       muPt_2_variableBinning_denominator",
+    "effic_muEta_2       'efficiency vs muon eta; muon eta ; efficiency' muEta_2_variableBinning_numerator       muEta_2_variableBinning_denominator",
+    "effic_muPhi_2       'efficiency vs muon phi; muon phi ; efficiency' muPhi_2_numerator       muPhi_2_denominator",
+    "effic_muPt_3       'efficiency vs muon pt; muon pt [GeV]; efficiency' muPt_3_variableBinning_numerator       muPt_3_variableBinning_denominator",
+    "effic_muEta_3       'efficiency vs muon eta; muon eta ; efficiency' muEta_3_variableBinning_numerator       muEta_3_variableBinning_denominator",
+    "effic_muPhi_2       'efficiency vs muon phi; muon phi ; efficiency' muPhi_3_numerator       muPhi_3_denominator",
+        ),
+)
+
+#dca double muon
+double_soft_dca_muonpt_efficiency = DQMEDHarvester("DQMGenericClient",
+    subDirs        = cms.untracked.vstring("HLT/SUSY/SOS/DCA/Muon/*"),
+    verbose        = cms.untracked.uint32(0), # Set to 2 for all messages 
+    resolution     = cms.vstring(),
+    efficiency     = cms.vstring(
+
+    "effic_muPt_1       'efficiency vs muon pt; muon pt [GeV]; efficiency' muPt_1_numerator       muPt_1_variableBinning_denominator",
+   "effic_muEta_1       'efficiency vs muon eta; muon eta ; efficiency' muEta_1_variableBinning_numerator       muEta_1_variableBinning_denominator",
+     "effic_muPhi_1       'efficiency vs muon phi; muon phi ; efficiency' muPhi_1_numerator       muPhi_1_denominator",
+
+     "effic_muPt_2       'efficiency vs muon pt; muon pt [GeV]; efficiency' muPt_2_variableBinning_numerator       muPt_2_variableBinning_denominator",
+      "effic_muEta_2       'efficiency vs muon eta; muon eta ; efficiency' muEta_2_variableBinning_numerator       muEta_2_variableBinning_denominator",
+      "effic_muPhi_2       'efficiency vs muon phi; muon phi ; efficiency' muPhi_2_numerator       muPhi_2_denominator",
+
+       "effic_mu1mu2Pt       'efficiency vs mu1mu2 Pt; mu1 Pt [GeV]; mu2 Pt [GeV]' mu1Pt_mu2Pt_numerator   mu1Pt_mu2Pt_denominator",
+       "effic_mu1mu2Eta       'efficiency vs mu1mu2 Eta; mu1 Eta ; mu2 Eta' mu1Eta_mu2Eta_numerator   mu1Eta_mu2Eta_denominator",
+
+        ),
+)
+
+double_soft_dca_metpt_efficiency = DQMEDHarvester("DQMGenericClient",
+    subDirs        = cms.untracked.vstring("HLT/SUSY/SOS/DCA/MET/*"),
+    verbose        = cms.untracked.uint32(0), # Set to 2 for all messages 
+    resolution     = cms.vstring(),
+    efficiency     = cms.vstring(
+      "effic_MET       'efficiency vs met pt; met [GeV]; efficiency' met_numerator       met_denominator",
+
+        ),
+)
 
 
 susyClient = cms.Sequence(
@@ -112,5 +160,8 @@ susyClient = cms.Sequence(
   + double_soft_muon_backup_70_mhtpt_efficiency
   + double_soft_muon_backup_90_metpt_efficiency
   + double_soft_muon_backup_90_mhtpt_efficiency
+  + double_soft_dca_muonpt_efficiency
+  + double_soft_dca_metpt_efficiency
   + susyHLTRazorClient
+  + triple_muon_mupt_efficiency
 )

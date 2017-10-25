@@ -21,9 +21,9 @@ class HLT2jetGapFilter : public HLTFilter {
 
    public:
       explicit HLT2jetGapFilter(const edm::ParameterSet&);
-      ~HLT2jetGapFilter();
+      ~HLT2jetGapFilter() override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
    private:
       edm::EDGetTokenT<reco::CaloJetCollection> m_theCaloJetToken;

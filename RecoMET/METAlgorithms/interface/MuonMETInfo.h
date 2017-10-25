@@ -19,7 +19,7 @@ struct MuonMETInfo {
   MuonMETInfo():
   ecalE(0), hcalE(0), hoE(0),
   ecalPos(0,0,0),hcalPos(0,0,0), hoPos(0,0,0),
-  useAverage(0), useTkAssociatorPositions(0),useHO(0){ }
+  useAverage(false), useTkAssociatorPositions(false),useHO(false){ }
 
 };
   

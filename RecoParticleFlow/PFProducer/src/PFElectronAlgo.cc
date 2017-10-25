@@ -121,7 +121,7 @@ void PFElectronAlgo::RunPFElectron(const reco::PFBlockRef&  blockRef,
     // This function finds also the best estimation of the initial electron 4-momentum.
 
     SetCandidates(blockRef,associatedToGsf,associatedToBrems,associatedToEcal);
-    if (elCandidate_.size() > 0 ){
+    if (!elCandidate_.empty() ){
       isvalid_ = true;
       // when a pfelectron candidate is created all the elements associated to the
       // electron are locked. 
@@ -144,7 +144,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 
   const reco::PFBlock& block = *blockRef;
   const edm::OwnVector< reco::PFBlockElement >&  elements = block.elements();
-  PFBlock::LinkData linkData =  block.linkData();  
+  const PFBlock::LinkData& linkData =  block.linkData();  
   
   bool IsThereAGSFTrack = false;
   bool IsThereAGoodGSFTrack = false;
@@ -179,7 +179,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 				kfElems,
 				reco::PFBlockElement::TRACK,
 				reco::PFBlock::LINKTEST_ALL );
-      thisIsAMuon = kfElems.size() ? 
+      thisIsAMuon = !kfElems.empty() ? 
       PFMuonAlgo::isMuon(elements[kfElems.begin()->second]) : false;
       // Otherwise store index
       if ( !thisIsAMuon && active[iEle] ) { 
@@ -227,7 +227,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 				gsfElems ,
 				reco::PFBlockElement::GSF,
 				reco::PFBlock::LINKTEST_ALL );
-      if(gsfElems.size() == 0){
+      if(gsfElems.empty()){
 	// This means that the considered kf is *not* associated
 	// to any gsf track
 	std::multimap<double, unsigned int> ecalKfElems;
@@ -235,7 +235,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 				  ecalKfElems,
 				  reco::PFBlockElement::ECAL,
 				  reco::PFBlock::LINKTEST_ALL );
-	if(ecalKfElems.size() > 0) { 
+	if(!ecalKfElems.empty()) { 
 	  unsigned int ecalKf_index = ecalKfElems.begin()->second;
 	  if(localactive[ecalKf_index]==true) {
 	    // Check if this clusters is however well linked to a primary gsf track
@@ -255,7 +255,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 					ecalGsfElems,
 					reco::PFBlockElement::ECAL,
 					reco::PFBlock::LINKTEST_ALL );
-	      if(ecalGsfElems.size() > 0) {
+	      if(!ecalGsfElems.empty()) {
 		if (ecalGsfElems.begin()->second == ecalKf_index) {
 		  isGsfLinked = true;
 		}
@@ -266,7 +266,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	      // of the tracking fifth step
 	      const reco::PFBlockElementTrack * kfEle =  
 		dynamic_cast<const reco::PFBlockElementTrack*>((&elements[(trackIs[iEle])])); 	
-	      reco::TrackRef refKf = kfEle->trackRef();
+	      const reco::TrackRef& refKf = kfEle->trackRef();
 	      
 	      int nexhits = refKf->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
 	      
@@ -330,7 +330,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 				reco::PFBlockElement::TRACK,
 				reco::PFBlock::LINKTEST_ALL );
       std::multimap<double, unsigned int> ecalKfElems;
-      if (kfElems.size() > 0) {
+      if (!kfElems.empty()) {
 	// 19 Mar 2010 now a loop is needed because > 1 KF track could
 	// be associated to the same GSF track
 
@@ -367,7 +367,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 				reco::PFBlock::LINKTEST_ALL );    
       double ecalGsf_dist = CutGSFECAL;
       unsigned int ClosestEcalGsf_index = CutIndex;
-      if (ecalGsfElems.size() > 0) {	
+      if (!ecalGsfElems.empty()) {	
 	if(localactive[(ecalGsfElems.begin()->second)] == true) {
 	  // check energy compatibility for outer eta != ecal entrance, looping tracks
 	  bool compatibleEPout = true;
@@ -390,7 +390,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 				      reco::PFBlockElement::GSF,
 				      reco::PFBlock::LINKTEST_ALL);
 	    
-	    if(ecalOtherGsfElems.size()>0) {
+	    if(!ecalOtherGsfElems.empty()) {
 	      // get if it is closed to a conv brem gsf tracks
 	      const reco::PFBlockElementGsfTrack * gsfCheck  =  
 		dynamic_cast<const reco::PFBlockElementGsfTrack*>((&elements[ecalOtherGsfElems.begin()->second]));
@@ -406,7 +406,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	}
       }
       // if any cluster is found with the gsf-ecal link, try with kf-ecal
-      else if(ecalKfElems.size() > 0) {
+      else if(!ecalKfElems.empty()) {
 	if(localactive[(ecalKfElems.begin()->second)] == true) {
 	  ClosestEcalGsf_index = ecalKfElems.begin()->second;	  
 	  ecalGsf_dist = block.dist(gsfIs[iEle],ClosestEcalGsf_index,
@@ -419,7 +419,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 				    ecalOtherGsfElems,
 				    reco::PFBlockElement::GSF,
 				    reco::PFBlock::LINKTEST_ALL);
-	  if(ecalOtherGsfElems.size() > 0) {
+	  if(!ecalOtherGsfElems.empty()) {
 	    const reco::PFBlockElementGsfTrack * gsfCheck  =  
 	      dynamic_cast<const reco::PFBlockElementGsfTrack*>((&elements[ecalOtherGsfElems.begin()->second]));
 
@@ -522,7 +522,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 				      ecalOtherGsfElems,
 				      reco::PFBlockElement::GSF,
 				      reco::PFBlock::LINKTEST_ALL);
-	    if (ecalOtherGsfElems.size() > 0) {
+	    if (!ecalOtherGsfElems.empty()) {
 	      const reco::PFBlockElementGsfTrack * gsfCheck  =  
 		dynamic_cast<const reco::PFBlockElementGsfTrack*>((&elements[ecalOtherGsfElems.begin()->second]));
 	      if(ecalOtherGsfElems.begin()->second != gsfIs[iEle] &&
@@ -589,7 +589,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 				      ecalOtherGsfElems,
 				      reco::PFBlockElement::GSF,
 				      reco::PFBlock::LINKTEST_ALL);
-	    if(ecalOtherGsfElems.size()) {
+	    if(!ecalOtherGsfElems.empty()) {
 	      if(ecalOtherGsfElems.begin()->second != gsfIs[iEle]) continue;
 	    } 
 	    
@@ -637,7 +637,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 
       // if any clusters have been associated to the gsf track	  
       // use the Ecal clusters associated to the latest brem and associate it to the gsf
-       if(GsfElemIndex.size() == 0){
+       if(GsfElemIndex.empty()){
 	if(latestBrem_index < CutIndex) {
 	  unsigned int ckey = cleanedEcalBremElems.count(latestBrem_index);
 	  if(ckey == 1) {
@@ -697,7 +697,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 					ecalConvElems,
 					reco::PFBlockElement::ECAL,
 					reco::PFBlock::LINKTEST_ALL );    
-	      if(ecalConvElems.size() > 0) {
+	      if(!ecalConvElems.empty()) {
 		// the ecal cluster is still active?
 		if(localactive[(ecalConvElems.begin()->second)] == true) {
 		  if (DebugSetLinksDetailed)
@@ -708,7 +708,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 					    ecalOtherGsfPrimElems,
 					    reco::PFBlockElement::GSF,
 					    reco::PFBlock::LINKTEST_ALL);
-		  if(ecalOtherGsfPrimElems.size()>0) {
+		  if(!ecalOtherGsfPrimElems.empty()) {
 		    unsigned int gsfprimcheck_index = ecalOtherGsfPrimElems.begin()->second;
 		    const reco::PFBlockElementGsfTrack * gsfCheck  =  
 		      dynamic_cast<const reco::PFBlockElementGsfTrack*>((&elements[gsfprimcheck_index]));
@@ -764,7 +764,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
       // 19 Mar 2010: add KF and ECAL elements from converted brem photons
       vector<unsigned int> convBremKFTrack;
       convBremKFTrack.clear();
-      if (kfElems.size() > 0) {
+      if (!kfElems.empty()) {
 	for(std::multimap<double, unsigned int>::iterator itkf = kfElems.begin();
 	    itkf != kfElems.end(); ++itkf) {
 	  const reco::PFBlockElementTrack * TrkEl  =  
@@ -779,9 +779,9 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 				      ecalConvElems,
 				      reco::PFBlockElement::ECAL,
 				      reco::PFBlock::LINKTEST_ALL );
-	    if(ecalConvElems.size() > 0) {
+	    if(!ecalConvElems.empty()) {
 	      // Further Cleaning: DANIELE This could be improved!
-	      TrackRef trkRef =   TrkEl->trackRef();
+	      const TrackRef& trkRef =   TrkEl->trackRef();
 	      // iter0, iter1, iter2, iter3 = Algo < 3
 	      bool isGoodTrack = PFTrackAlgoTools::isGoodForEGM(trkRef->algo());
 	      float secpin = trkRef->p();	
@@ -805,7 +805,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	      bool isPoHE = false;
 
 	      float enehcalclust = -1;
-	      if(hcalConvElems.size() > 0) {
+	      if(!hcalConvElems.empty()) {
 		const reco::PFBlockElementCluster * clusthcal =  
 		  dynamic_cast<const reco::PFBlockElementCluster*>((&elements[(hcalConvElems.begin()->second)])); 
 		enehcalclust  =clusthcal->clusterRef()->energy();
@@ -869,7 +869,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 					  ecalOtherKFPrimElems,
 					  reco::PFBlockElement::TRACK,
 					  reco::PFBlock::LINKTEST_ALL);
-		if(ecalOtherKFPrimElems.size() > 0) {
+		if(!ecalOtherKFPrimElems.empty()) {
 		  
 		  // check that this ECAL clusters is the best associated to at least one of the  KF tracks
 		  // linked to the considered GSF track
@@ -943,7 +943,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
       }
  
       // 4May import EG supercluster
-      if(EcalIndex.size() > 0 && useEGammaSupercluster_) {
+      if(!EcalIndex.empty() && useEGammaSupercluster_) {
 	double sumEtEcalInTheCone  = 0.;
 	
 	// Position of the first cluster
@@ -998,7 +998,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	  if(localactive[(trackIs[iTrack])]==true) {
 	    const reco::PFBlockElementTrack * kfEle =  
 	      dynamic_cast<const reco::PFBlockElementTrack*>((&elements[(trackIs[iTrack])])); 	
-	    reco::TrackRef trkref = kfEle->trackRef();
+	    const reco::TrackRef& trkref = kfEle->trackRef();
 	    if (trkref.isNonnull()) {
 	      double deta_trk =  trkref->eta() - RefGSF->etaMode();
 	      double dphi_trk =  trkref->phi() - RefGSF->phiMode();
@@ -1095,7 +1095,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 				      ecalFromSuperClusterElems,
 				      reco::PFBlockElement::ECAL,
 				      reco::PFBlock::LINKTEST_ALL);
-	    if(ecalFromSuperClusterElems.size() > 0) {
+	    if(!ecalFromSuperClusterElems.empty()) {
 	      for(std::multimap<double, unsigned int>::iterator itsc = ecalFromSuperClusterElems.begin();
 		  itsc != ecalFromSuperClusterElems.end(); ++itsc) {
 		if(localactive[itsc->second] == false) {
@@ -1107,7 +1107,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 					  ecalOtherKFPrimElems,
 					  reco::PFBlockElement::TRACK,
 					  reco::PFBlock::LINKTEST_ALL);
-		if(ecalOtherKFPrimElems.size() > 0) {
+		if(!ecalOtherKFPrimElems.empty()) {
 		  if(localactive[ecalOtherKFPrimElems.begin()->second] == true) {
 		    if (DebugSetLinksDetailed)
 		      cout << "**** PFElectronAlgo:: SUPERCLUSTER FOUND BUT FAILS KF VETO *** " << endl;
@@ -1267,7 +1267,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	      // }
 	  }
 	  // if the closest ecal cluster has been link with the KF, check KF - HCAL link
-	  if(hcalGsfElems.size() == 0 && ClosestEcalWithKf == true) {
+	  if(hcalGsfElems.empty() && ClosestEcalWithKf == true) {
 	    std::multimap<double, unsigned int> hcalKfElems;
 	    block.associatedElements( KfGsf_index,linkData,
 				      hcalKfElems,
@@ -1297,7 +1297,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 				    kfEtraElems,
 				    reco::PFBlockElement::TRACK,
 				    reco::PFBlock::LINKTEST_ALL );
-	  if(kfEtraElems.size() > 0) {
+	  if(!kfEtraElems.empty()) {
 	    for( std::multimap<double, unsigned int>::iterator it = kfEtraElems.begin();
 		 it != kfEtraElems.end();it++) {
 	      unsigned int index = it->second;
@@ -1426,7 +1426,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 					const reco::Vertex & primaryVertex){
   //PFEnergyCalibration pfcalib_;  
   const reco::PFBlock& block = *blockRef;
-  PFBlock::LinkData linkData =  block.linkData();     
+  const PFBlock::LinkData& linkData =  block.linkData();     
   const edm::OwnVector< reco::PFBlockElement >&  elements = block.elements();
   bool DebugIDOutputs = false;
   if(DebugIDOutputs) cout << " ######## Enter in SetIDOutputs #########" << endl;
@@ -1753,7 +1753,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 		//if(kfTk->trackType(reco::PFBlockElement::T_FROM_GAMMACONV)) continue;
 		
 		
-		reco::TrackRef trackref =  kfTk->trackRef();
+		const reco::TrackRef& trackref =  kfTk->trackRef();
 		bool goodTrack = PFTrackAlgoTools::isGoodForEGM(trackref->algo());
 		// iter0, iter1, iter2, iter3 = Algo < 3
 		// algo 4,5,6,7
@@ -1789,7 +1789,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 					    hcalKfElems,
 					    reco::PFBlockElement::HCAL,
 					    reco::PFBlock::LINKTEST_ALL );
-		  if(hcalKfElems.size() > 0) {
+		  if(!hcalKfElems.empty()) {
 		    itrackHcalLinked++;
 		  }
 		}
@@ -1912,7 +1912,7 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 					 AssMap& associatedToEcal_){
   
   const reco::PFBlock& block = *blockRef;
-  PFBlock::LinkData linkData =  block.linkData();     
+  const PFBlock::LinkData& linkData =  block.linkData();     
   const edm::OwnVector< reco::PFBlockElement >&  elements = block.elements();
   PFEnergyResolution pfresol_;
   //PFEnergyCalibration pfcalib_;
@@ -2301,7 +2301,7 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 				  reco::PFBlock::LINKTEST_ALL );
 
 	double phiTrack = RefGSF->phiMode();
-	if(bremElems.size()>0) {
+	if(!bremElems.empty()) {
 	  unsigned int brem_index =  bremElems.begin()->second;
 	  const reco::PFBlockElementBrem * BremEl  =  
 	    dynamic_cast<const reco::PFBlockElementBrem*>((&elements[brem_index]));
@@ -2548,7 +2548,7 @@ void PFElectronAlgo::SetActive(const reco::PFBlockRef&  blockRef,
 				     AssMap& associatedToEcal_,
 				     std::vector<bool>& active){
   const reco::PFBlock& block = *blockRef;
-  PFBlock::LinkData linkData =  block.linkData();  
+  const PFBlock::LinkData& linkData =  block.linkData();  
    
   const edm::OwnVector< reco::PFBlockElement >&  elements = block.elements();
   
@@ -2559,7 +2559,7 @@ void PFElectronAlgo::SetActive(const reco::PFBlockRef&  blockRef,
     unsigned int gsf_index =  igsf->first;
     const reco::PFBlockElementGsfTrack * GsfEl  =  
       dynamic_cast<const reco::PFBlockElementGsfTrack*>((&elements[gsf_index]));
-    reco::GsfTrackRef RefGSF = GsfEl->GsftrackRef();
+    const reco::GsfTrackRef& RefGSF = GsfEl->GsftrackRef();
 
     // lock only the elements that pass the BDT cut
     bool bypassmva=false;
@@ -2585,7 +2585,7 @@ void PFElectronAlgo::SetActive(const reco::PFBlockRef&  blockRef,
 	unsigned int keyecalgsf = assogsf_index[ielegsf];
 
 	// added protection against fifth step
-	if(fifthStepKfTrack_.size() > 0) {
+	if(!fifthStepKfTrack_.empty()) {
 	  for(unsigned int itr = 0; itr < fifthStepKfTrack_.size(); itr++) {
 	    if(fifthStepKfTrack_[itr].first == keyecalgsf) {
 	      active[(fifthStepKfTrack_[itr].second)] = false;
@@ -2594,7 +2594,7 @@ void PFElectronAlgo::SetActive(const reco::PFBlockRef&  blockRef,
 	}
 
 	// added locking for conv gsf tracks and kf tracks
-	if(convGsfTrack_.size() > 0) {
+	if(!convGsfTrack_.empty()) {
 	  for(unsigned int iconv = 0; iconv < convGsfTrack_.size(); iconv++) {
 	    if(convGsfTrack_[iconv].first == keyecalgsf) {
 	      // lock the GSF track
@@ -2606,7 +2606,7 @@ void PFElectronAlgo::SetActive(const reco::PFBlockRef&  blockRef,
 					convKf,
 					reco::PFBlockElement::TRACK,
 					reco::PFBlock::LINKTEST_ALL );
-	      if(convKf.size() > 0) {
+	      if(!convKf.empty()) {
 		active[convKf.begin()->second] = false;
 	      }
 	    }
@@ -2638,7 +2638,7 @@ void PFElectronAlgo::SetActive(const reco::PFBlockRef&  blockRef,
 	    active[(assobrem_index[ibrem])] = false;
 
 	    // add protection against fifth step
-	    if(fifthStepKfTrack_.size() > 0) {
+	    if(!fifthStepKfTrack_.empty()) {
 	      for(unsigned int itr = 0; itr < fifthStepKfTrack_.size(); itr++) {
 		if(fifthStepKfTrack_[itr].first == keyecalbrem) {
 		  active[(fifthStepKfTrack_[itr].second)] = false;
@@ -2669,10 +2669,10 @@ bool PFElectronAlgo::isPrimaryTrack(const reco::PFBlockElementTrack& KfEl,
 				    const reco::PFBlockElementGsfTrack& GsfEl) {
   bool isPrimary = false;
   
-  GsfPFRecTrackRef gsfPfRef = GsfEl.GsftrackRefPF();
+  const GsfPFRecTrackRef& gsfPfRef = GsfEl.GsftrackRefPF();
   
   if(gsfPfRef.isNonnull()) {
-    PFRecTrackRef  kfPfRef = KfEl.trackRefPF();
+    const PFRecTrackRef&  kfPfRef = KfEl.trackRefPF();
     PFRecTrackRef  kfPfRef_fromGsf = (*gsfPfRef).kfPFRecTrackRef();
     if(kfPfRef.isNonnull() && kfPfRef_fromGsf.isNonnull()) {
       reco::TrackRef kfref= (*kfPfRef).trackRef();

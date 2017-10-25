@@ -58,12 +58,12 @@ class HLTJetMETValidation : public DQMEDAnalyzer {
   
  public:
   explicit HLTJetMETValidation(const edm::ParameterSet&);
-  ~HLTJetMETValidation();
+  ~HLTJetMETValidation() override;
   
  private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const & iRun, edm::EventSetup const & iSetup) override;
-  virtual void dqmBeginRun(edm::Run const& iRun,edm::EventSetup const& iSetup) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const & iRun, edm::EventSetup const & iSetup) override;
+  void dqmBeginRun(edm::Run const& iRun,edm::EventSetup const& iSetup) override;
 
   void getHLTResults(const edm::TriggerResults&,
                      const edm::TriggerNames & triggerNames);

@@ -17,7 +17,7 @@ public:
 
   TrackFilterForPVFinding(const edm::ParameterSet& conf);
   bool operator() (const reco::TransientTrack & tracks)const;
-  std::vector<reco::TransientTrack> select (const std::vector<reco::TransientTrack>& tracks)const;
+  std::vector<reco::TransientTrack> select (const std::vector<reco::TransientTrack>& tracks)const override;
 
 private:
 

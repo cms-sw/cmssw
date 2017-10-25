@@ -82,8 +82,8 @@ reco::Track MuonErrorMatrixAdjuster::makeTrack(const reco::Track & recotrack_ori
   //get the parameters of the track so I can reconstruct it
   double chi2 = recotrack_orig.chi2();
   double ndof = recotrack_orig.ndof();
-  math::XYZPoint refpos = recotrack_orig.referencePoint();
-  math::XYZVector mom = recotrack_orig.momentum();
+  const math::XYZPoint& refpos = recotrack_orig.referencePoint();
+  const math::XYZVector& mom = recotrack_orig.momentum();
   int charge = recotrack_orig.charge();
   
   reco::TrackBase::CovarianceMatrix covariance_matrix = fix_cov_matrix(recotrack_orig.covariance(),PCAstate.momentum());
@@ -106,12 +106,12 @@ reco::TrackExtra * MuonErrorMatrixAdjuster::makeTrackExtra(const reco::Track & r
   reco::TrackBase::CovarianceMatrix scale_matrix(recotrack.covariance());
   if (!divide(scale_matrix,recotrack_orig.covariance())){
     edm::LogError( theCategory)<<"original track error matrix has term ==0... skipping.";
-    return 0; }
+    return nullptr; }
   
   const reco::TrackExtraRef & trackExtra_orig = recotrack_orig.extra();
   if (trackExtra_orig.isNull()) {
     edm::LogError( theCategory)<<"original track has no track extra... skipping.";
-    return 0;}
+    return nullptr;}
 
   //copy the outer state. rescaling the error matrix
   reco::TrackBase::CovarianceMatrix outerCov(trackExtra_orig->outerStateCovariance());

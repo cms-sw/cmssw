@@ -253,7 +253,7 @@ const EcalRecHitCollection * EgammaHLTIslandClusterProducer::getCollection(edm::
     {
       std::cout << "could not get a handle on the EcalRecHitCollection!" << std::endl;
       edm::LogError("EgammaHLTIslandClusterProducerError") << "Error! can't get the product ";
-      return 0;
+      return nullptr;
     } 
   return rhcHandle.product();
 }

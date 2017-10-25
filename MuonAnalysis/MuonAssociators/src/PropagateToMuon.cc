@@ -75,7 +75,7 @@ PropagateToMuon::startingState(const reco::Candidate &reco) const {
     FreeTrajectoryState ret;
     if (whichTrack_ != None) {
         const reco::RecoCandidate *rc = dynamic_cast<const reco::RecoCandidate *>(&reco);
-        if (rc == 0) throw cms::Exception("Invalid Data") << "Input object is not a RecoCandidate.\n";
+        if (rc == nullptr) throw cms::Exception("Invalid Data") << "Input object is not a RecoCandidate.\n";
         reco::TrackRef tk;
         switch (whichTrack_) {
             case TrackerTk: tk = rc->track();          break; 
@@ -134,7 +134,7 @@ PropagateToMuon::startingState(const SimTrack &tk, const edm::SimVertexContainer
 
 TrajectoryStateOnSurface
 PropagateToMuon::extrapolate(const FreeTrajectoryState &start) const {
-    if (!magfield_.isValid() || barrelCylinder_ == 0) {
+    if (!magfield_.isValid() || barrelCylinder_ == nullptr) {
         throw cms::Exception("NotInitialized") << "PropagateToMuon: You must call init(const edm::EventSetup &iSetup) before using this object.\n"; 
     }
 

@@ -20,11 +20,11 @@ class ParticleBasedIsoProducer : public edm::stream::EDProducer<>
  public:
 
   ParticleBasedIsoProducer(const edm::ParameterSet& conf);
-  ~ParticleBasedIsoProducer();
+  ~ParticleBasedIsoProducer() override;
   
-  virtual void beginRun (edm::Run const& r, edm::EventSetup const & es) override;
-  virtual void endRun(edm::Run const&,  edm::EventSetup const&) override;
-  virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
+  void beginRun (edm::Run const& r, edm::EventSetup const & es) override;
+  void endRun(edm::Run const&,  edm::EventSetup const&) override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
    
  private:
  

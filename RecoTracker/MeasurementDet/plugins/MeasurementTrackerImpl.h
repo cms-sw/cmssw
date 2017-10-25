@@ -62,9 +62,9 @@ public:
                      const SiPixelFedCabling *pixelCabling,
                      int   pixelQualityFlags,
                      int   pixelQualityDebugFlags,
-		     const ClusterParameterEstimator<Phase2TrackerCluster1D>* phase2OTCPE = 0);
+		     const ClusterParameterEstimator<Phase2TrackerCluster1D>* phase2OTCPE = nullptr);
 
-  virtual ~MeasurementTrackerImpl();
+  ~MeasurementTrackerImpl() override;
  
   const TrackingGeometry* geomTracker() const { return theTrackerGeom;}
 
@@ -72,7 +72,7 @@ public:
 
   /// MeasurementDetSystem interface  (won't be overloaded anymore)
   MeasurementDetWithData 
-  idToDet(const DetId& id, const MeasurementTrackerEvent &data) const {
+  idToDet(const DetId& id, const MeasurementTrackerEvent &data) const override {
     return MeasurementDetWithData(*idToDetBare(id, data), data);
   }
 
@@ -93,7 +93,7 @@ public:
       //throw exception;
     }
     
-    return 0; //to avoid compile warning
+    return nullptr; //to avoid compile warning
   }
 
   typedef std::unordered_map<unsigned int,MeasurementDet*>   DetContainer;
@@ -105,9 +105,9 @@ public:
   const std::vector<TkGluedMeasurementDet>& gluedDets() const {return theGluedDets;}
   const std::vector<TkStackMeasurementDet>& stackDets() const {return theStackDets;}
 
-  virtual const StMeasurementConditionSet & stripDetConditions() const { return theStDetConditions; }
-  virtual const PxMeasurementConditionSet & pixelDetConditions() const { return thePxDetConditions; }
-  virtual const Phase2OTMeasurementConditionSet & phase2DetConditions() const { return thePhase2DetConditions; }
+  const StMeasurementConditionSet & stripDetConditions() const override { return theStDetConditions; }
+  const PxMeasurementConditionSet & pixelDetConditions() const override { return thePxDetConditions; }
+  const Phase2OTMeasurementConditionSet & phase2DetConditions() const override { return thePhase2DetConditions; }
 
  protected:
   const edm::ParameterSet& pset_;

@@ -164,7 +164,7 @@ MuonCkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed&seed,
         }
 	
         //if fails: try to rescale locally the state to find measurements
-        if ((unsigned int)invalidHits==result.size() && theRescaleErrorIfFail!=1.0 && result.size()!=0)
+        if ((unsigned int)invalidHits==result.size() && theRescaleErrorIfFail!=1.0 && !result.empty())
           {
 	    result.clear();
 	    LogDebug("CkfPattern")<<"using a rescale by "<< theRescaleErrorIfFail <<" to find measurements.";
@@ -176,13 +176,13 @@ MuonCkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed&seed,
       }
 
       //if fails: go to next layers
-      if (result.size()==0 || (unsigned int)invalidHits==result.size())
+      if (result.empty() || (unsigned int)invalidHits==result.size())
         {
           result.clear();
 	  LogDebug("CkfPattern")<<"Need to go to next layer to get measurements";
           //the following will "JUMP" the first layer measurements
 	  nl = theNavigationSchool->nextLayers(*l, *currentState.freeState(), traj.direction());
-	  if (nl.size()==0){
+	  if (nl.empty()){
             LogDebug("CkfPattern")<<" there was no next layer with wellInside. Use the next with no check.";
             //means you did not get any compatible layer on the next 1/2 tracker layer.
             // use the next layers with no checking
@@ -193,7 +193,7 @@ MuonCkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed&seed,
         }
 
       //if fails: this is on the next layers already, try rescaling locally the state
-      if (result.size()!=0 && (unsigned int)invalidHits==result.size() && theRescaleErrorIfFail!=1.0)
+      if (!result.empty() && (unsigned int)invalidHits==result.size() && theRescaleErrorIfFail!=1.0)
         {
           result.clear();
 	  LogDebug("CkfPattern")<<"using a rescale by "<< theRescaleErrorIfFail <<" to find measurements on next layers.";

@@ -48,15 +48,15 @@ public:
     explicit L1GTEvmDigiToRaw(const edm::ParameterSet&);
 
     /// destructor
-    virtual ~L1GTEvmDigiToRaw();
+    ~L1GTEvmDigiToRaw() override;
 
 private:
 
     /// beginning of job stuff
-    virtual void beginJob();
+    void beginJob() override;
 
     /// loop over events
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     /// block packers -------------
 
@@ -80,7 +80,7 @@ private:
     void packTrailer(unsigned char*, unsigned char*, int);
 
     /// end of job stuff
-    virtual void endJob();
+    void endJob() override;
 
 private:
 

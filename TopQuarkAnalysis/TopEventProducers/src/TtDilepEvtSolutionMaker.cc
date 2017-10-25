@@ -90,14 +90,14 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
   std::vector<int>  JetVetoByTaus;
 
   //select MET (TopMET vector is sorted on ET)
-  if(mets->size()>=1) { METFound = true; }
+  if(!mets->empty()) { METFound = true; }
 
   // If we have electrons and muons available,
   // build a solutions with electrons and muons.
   if (muons->size() + electrons->size() >=2) {
     // select leptons
-    if (electrons->size() == 0) mumu = true;
-    else if (muons->size() == 0) ee = true;
+    if (electrons->empty()) mumu = true;
+    else if (muons->empty()) ee = true;
     else if (electrons->size() == 1) {
       if (muons->size() == 1) emu = true;
       else if (PTComp(&(*electrons)[0], &(*muons)[1])) emu = true;
@@ -155,13 +155,13 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
   // If a tau is needed to have two leptons, then only consider the taus.
   // This is the minimal modification of the dilept selection that includes taus,
   // since we are considering taus only when no other solution exist.
-  else if(muons->size() + electrons->size()==1 && taus->size()>0) {
+  else if(muons->size() + electrons->size()==1 && !taus->empty()) {
     // select leptons
     if(muons->size()==1) {
       mutau = true;
       // depending on the muon charge, set the right muon index and specify channel
       int expectedCharge = - muons->begin()->charge();
-      int* tauIdx = NULL;
+      int* tauIdx = nullptr;
       if (expectedCharge<0) {
 	selMuonp = 0;
 	tauIdx = &selTaum;
@@ -209,7 +209,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
       etau = true;
       // depending on the electron charge, set the right electron index and specify channel
       int expectedCharge = - electrons->begin()->charge();
-      int* tauIdx = NULL;
+      int* tauIdx = nullptr;
       if (expectedCharge<0) {
 	selElectronp = 0;
 	tauIdx = &selTaum;

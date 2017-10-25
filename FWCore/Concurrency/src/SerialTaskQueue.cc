@@ -37,7 +37,7 @@ bool
 SerialTaskQueue::resume() {
   if(0==--m_pauseCount) {
     tbb::task* t = pickNextTask();
-    if(0 != t) {
+    if(nullptr != t) {
       tbb::task::spawn(*t);
     }
     return true;
@@ -48,15 +48,15 @@ SerialTaskQueue::resume() {
 void
 SerialTaskQueue::pushTask(TaskBase* iTask) {
   tbb::task* t = pushAndGetNextTask(iTask);
-  if(0!=t) {
+  if(nullptr!=t) {
     tbb::task::spawn(*t);      
   }
 }
 
 tbb::task* 
 SerialTaskQueue::pushAndGetNextTask(TaskBase* iTask) {
-  tbb::task* returnValue{0};
-  if likely(0!=iTask) {
+  tbb::task* returnValue{nullptr};
+  if likely(nullptr!=iTask) {
     m_tasks.push(iTask);
     returnValue = pickNextTask();
   }
@@ -75,7 +75,7 @@ SerialTaskQueue::pickNextTask() {
   
   bool expect = false;
   if likely(0 == m_pauseCount and m_taskChosen.compare_exchange_strong(expect,true)) {
-    TaskBase* t=0;
+    TaskBase* t=nullptr;
     if likely(m_tasks.try_pop(t)) {
       return t;
     }
@@ -85,7 +85,7 @@ SerialTaskQueue::pickNextTask() {
     //was a new entry added after we called 'try_pop' but before we did the clear?
     expect = false;
     if(not m_tasks.empty() and m_taskChosen.compare_exchange_strong(expect,true)) {
-      TaskBase* t=0;
+      TaskBase* t=nullptr;
       if(m_tasks.try_pop(t)) {
         return t;
       }
@@ -94,7 +94,7 @@ SerialTaskQueue::pickNextTask() {
       
     }
   }
-  return 0;
+  return nullptr;
 }
 
 void SerialTaskQueue::pushAndWait(tbb::empty_task* iWait, TaskBase* iTask) {

@@ -15,11 +15,11 @@ class TtSemiLepKinFitProducer : public edm::EDProducer {
  public:
 
   explicit TtSemiLepKinFitProducer(const edm::ParameterSet&);
-  ~TtSemiLepKinFitProducer();
+  ~TtSemiLepKinFitProducer() override;
 
  private:
   // produce
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   // convert unsigned to Param
   TtSemiLepKinFitter::Param param(unsigned);

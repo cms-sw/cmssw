@@ -63,12 +63,12 @@ class ValidateGeometry : public edm::EDAnalyzer
 {
 public:
   explicit ValidateGeometry(const edm::ParameterSet&);
-  ~ValidateGeometry();
+  ~ValidateGeometry() override;
 
 private:
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;  
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;  
 
   void validateRPCGeometry(const int regionNumber, 
                            const char* regionName);
@@ -342,7 +342,7 @@ ValidateGeometry::validateRPCGeometry(const int regionNumber, const char* region
 
         const float* parameters = fwGeometry_.getParameters(rpcDetId.rawId());
 
-        if ( parameters == 0 )
+        if ( parameters == nullptr )
         {
           std::cout<<"Parameters empty for RPC with detid: "
                    << rpcDetId.rawId() <<std::endl;
@@ -473,7 +473,7 @@ ValidateGeometry::validateDTLayerGeometry()
         
       const float* parameters = fwGeometry_.getParameters(layerId.rawId());
       
-      if ( parameters == 0 )
+      if ( parameters == nullptr )
       {
         std::cout<<"Parameters empty for DT layer with detid: " 
                  << layerId.rawId() <<std::endl;
@@ -629,7 +629,7 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
 
       const float* parameters = fwGeometry_.getParameters(detId.rawId());
 
-      if ( parameters == 0 )
+      if ( parameters == nullptr )
       {
         std::cout<<"Parameters empty for CSC layer with detid: "
                  << detId.rawId() <<std::endl;
@@ -856,7 +856,7 @@ ValidateGeometry::validateCaloGeometry(DetId::Detector detector,
 
     const float* points = fwGeometry_.getCorners(rawId);
 
-    if ( points == 0 )
+    if ( points == nullptr )
     { 
       std::cout <<"Failed to get points of "<< detname 
                 <<" element with detid: "<< rawId <<std::endl;
@@ -938,7 +938,7 @@ ValidateGeometry::validatePixelTopology(const TrackerGeometry::DetContainer& det
 
     const float* parameters = fwGeometry_.getParameters(rawId);
 
-    if ( parameters == 0 )
+    if ( parameters == nullptr )
     {
       std::cout<<"Parameters empty for "<< detname <<" element with detid: "
                << rawId <<std::endl;
@@ -993,7 +993,7 @@ ValidateGeometry::validateStripTopology(const TrackerGeometry::DetContainer& det
     
     const float* parameters = fwGeometry_.getParameters(rawId);
 
-    if ( parameters == 0 )
+    if ( parameters == nullptr )
     {    
       std::cout<<"Parameters empty for "<< detname <<" element with detid: "
                << rawId <<std::endl;

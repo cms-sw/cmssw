@@ -52,7 +52,7 @@ namespace fftjetcms {
   class FFTJetInterface : public edm::EDProducer
   {
   public:
-    virtual ~FFTJetInterface() {}
+    ~FFTJetInterface() override {}
 
   protected:
     explicit FFTJetInterface(const edm::ParameterSet&);
@@ -60,7 +60,7 @@ namespace fftjetcms {
     template<class Ptr>
     void checkConfig(const Ptr& ptr, const char* message)
     {
-      if (ptr.get() == NULL)
+      if (ptr.get() == nullptr)
 	throw cms::Exception("FFTJetBadConfig") << message << std::endl;
     }
 
@@ -106,9 +106,9 @@ namespace fftjetcms {
 
   private:
     // Explicitly disable other ways to construct this object
-    FFTJetInterface();
-    FFTJetInterface(const FFTJetInterface&);
-    FFTJetInterface& operator=(const FFTJetInterface&);
+    FFTJetInterface() = delete;
+    FFTJetInterface(const FFTJetInterface&) = delete;
+    FFTJetInterface& operator=(const FFTJetInterface&) = delete;
 
     const bool insertCompleteEvent;
     const double completeEventScale;

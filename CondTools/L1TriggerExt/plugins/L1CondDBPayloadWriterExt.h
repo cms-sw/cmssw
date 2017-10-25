@@ -15,13 +15,13 @@
 class L1CondDBPayloadWriterExt : public edm::EDAnalyzer {
    public:
       explicit L1CondDBPayloadWriterExt(const edm::ParameterSet&);
-      ~L1CondDBPayloadWriterExt();
+      ~L1CondDBPayloadWriterExt() override;
 
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       // ----------member data ---------------------------
       l1t::DataWriterExt m_writer ;

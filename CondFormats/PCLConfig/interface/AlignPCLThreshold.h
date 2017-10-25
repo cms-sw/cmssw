@@ -70,7 +70,7 @@ public:
   float getMaxMoveThetaYcut()  const {return m_thetaYCoord.m_maxMoveCut;}
   float getMaxMoveThetaZcut()  const {return m_thetaZCoord.m_maxMoveCut;}
 
-  bool hasExtraDOF()           const {return (m_extraDOF.size()>0);}
+  bool hasExtraDOF()           const {return (!m_extraDOF.empty());}
   unsigned int extraDOFSize()  const {return m_extraDOF.size();}
   std::array<float,4> getExtraDOFCuts(const unsigned int i) const;
   std::string getExtraDOFLabel(const unsigned int i) const;

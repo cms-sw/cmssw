@@ -26,15 +26,15 @@ protected:
 
 public:
    TEveEllipsoidGL();
-   virtual ~TEveEllipsoidGL() {}
+   ~TEveEllipsoidGL() override {}
 
-   virtual Bool_t SetModel(TObject* obj, const Option_t* opt=0);
-   virtual void   SetBBox();
+   Bool_t SetModel(TObject* obj, const Option_t* opt=nullptr) override;
+   void   SetBBox() override;
 
-   virtual void   DirectDraw(TGLRnrCtx & rnrCtx) const;
-virtual Bool_t IgnoreSizeForOfInterest() const { return kTRUE; }
+   void   DirectDraw(TGLRnrCtx & rnrCtx) const override;
+Bool_t IgnoreSizeForOfInterest() const override { return kTRUE; }
 
-  ClassDef(TEveEllipsoidGL, 0); // GL renderer class for TEveEllipsoid.
+  ClassDefOverride(TEveEllipsoidGL, 0); // GL renderer class for TEveEllipsoid.
 };
 
 
@@ -58,13 +58,13 @@ protected:
 
 public:
    TEveEllipsoidProjectedGL();
-   virtual ~TEveEllipsoidProjectedGL() {}
+   ~TEveEllipsoidProjectedGL() override {}
 
-   virtual Bool_t SetModel(TObject* obj, const Option_t* opt=0);
-   virtual void   SetBBox();
+   Bool_t SetModel(TObject* obj, const Option_t* opt=nullptr) override;
+   void   SetBBox() override;
 
-   virtual void   DirectDraw(TGLRnrCtx & rnrCtx) const;
-   ClassDef(TEveEllipsoidProjectedGL, 0); // GL renderer class for TEveEllipsoid.
+   void   DirectDraw(TGLRnrCtx & rnrCtx) const override;
+   ClassDefOverride(TEveEllipsoidProjectedGL, 0); // GL renderer class for TEveEllipsoid.
 };
 
 #endif

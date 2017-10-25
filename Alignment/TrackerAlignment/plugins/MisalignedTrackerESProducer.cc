@@ -42,7 +42,7 @@ public:
   MisalignedTrackerESProducer(const edm::ParameterSet & p);
   
   /// Destructor
-  virtual ~MisalignedTrackerESProducer(); 
+  ~MisalignedTrackerESProducer() override; 
   
   /// Produce the misaligned tracker geometry and store it
   std::shared_ptr<TrackerGeometry> produce(const TrackerDigiGeometryRecord& iRecord);

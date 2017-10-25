@@ -41,10 +41,10 @@ class AlCaGammaJetProducer : public edm::EDProducer {
 
 public:
   explicit AlCaGammaJetProducer(const edm::ParameterSet&);
-  ~AlCaGammaJetProducer();
-  virtual void beginJob() ;
-  virtual void produce(edm::Event &, const edm::EventSetup&);
-  virtual void endJob();
+  ~AlCaGammaJetProducer() override;
+  void beginJob() override ;
+  void produce(edm::Event &, const edm::EventSetup&) override;
+  void endJob() override;
 
 private:
   bool select(const reco::PhotonCollection&, const reco::PFJetCollection&);
@@ -138,7 +138,7 @@ void AlCaGammaJetProducer::endJob() {
 bool AlCaGammaJetProducer::select (const reco::PhotonCollection &ph, const reco::PFJetCollection &jt) {
 
   // Check the requirement for minimum pT
-  if (ph.size() == 0) return false;
+  if (ph.empty()) return false;
   bool ok(false);
   for (reco::PFJetCollection::const_iterator itr=jt.begin();
        itr!=jt.end(); ++itr) {

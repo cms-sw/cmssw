@@ -27,6 +27,7 @@
 #include "DataFormats/PatCandidates/interface/Lepton.h"
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidate.h"
+#include "DataFormats/MuonReco/interface/MuonSimInfo.h"
 
 // Define typedefs for convenience
 namespace pat {
@@ -265,6 +266,47 @@ namespace pat {
       float pfEcalEnergy() const { return pfEcalEnergy_; }
       void setPfEcalEnergy(float pfEcalEnergy) { pfEcalEnergy_ = pfEcalEnergy; }
 
+      /// near-by jet information
+      float jetPtRatio() const { return jetPtRatio_; }
+      float jetPtRel()   const { return jetPtRel_; }
+      void  setJetPtRatio(float jetPtRatio){ jetPtRatio_ = jetPtRatio; }
+      void  setJetPtRel(float jetPtRel){ jetPtRel_ = jetPtRel; }
+
+      /// Muon MVA
+      float mvaValue() const { return mvaValue_; }
+      void  setMvaValue(float mva){ mvaValue_ = mva; }
+
+      /// MC matching information
+      reco::MuonSimType simType() const { return simType_; }
+      reco::ExtendedMuonSimType simExtType() const { return simExtType_; }
+      //  FLAVOUR:
+      //  - for non-muons: 0
+      //  - for primary muons: 13
+      //  - for non primary muons: flavour of the mother: std::abs(pdgId) of heaviest quark, or 15 for tau
+      int simFlavour() const { return simFlavour_;}
+      int simHeaviestMotherFlavour() const { return simHeaviestMotherFlavour_;}
+      int simPdgId() const { return simPdgId_;}
+      int simMotherPdgId() const { return simMotherPdgId_;}
+      int simBX() const { return simBX_;}
+      float simProdRho() const { return simProdRho_;}
+      float simProdZ() const {   return simProdZ_;}
+      float simPt() const {      return simPt_;}
+      float simEta() const {     return simEta_;}
+      float simPhi() const {     return simPhi_;}
+
+      void initSimInfo(void); 
+      void setSimType(reco::MuonSimType type){ simType_ = type; }
+      void setExtSimType(reco::ExtendedMuonSimType type){ simExtType_ = type; }
+      void setSimFlavour(int f){ simFlavour_ = f;}
+      void setSimHeaviestMotherFlavour(int id){ simHeaviestMotherFlavour_ = id;}
+      void setSimPdgId(int id){ simPdgId_ = id;}
+      void setSimMotherPdgId(int id){ simMotherPdgId_ = id;}
+      void setSimBX(int bx){ simBX_ = bx;}
+      void setSimProdRho(float rho){ simProdRho_ = rho;}
+      void setSimProdZ(float z){ simProdZ_ = z;}
+      void setSimPt(float pt){ simPt_ = pt;}
+      void setSimEta(float eta){ simEta_ = eta;}
+      void setSimPhi(float phi){ simPhi_ = phi;}
     protected:
 
       // ---- for content embedding ----
@@ -332,6 +374,28 @@ namespace pat {
       float puppiNoLeptonsPhotonIso_;
 
       float pfEcalEnergy_;
+
+      /// near-by jet information
+      float jetPtRatio_;
+      float jetPtRel_;
+
+      /// Muon MVA
+      float mvaValue_;
+
+      /// MC matching information
+      reco::MuonSimType simType_;
+      reco::ExtendedMuonSimType simExtType_;
+      int simFlavour_;
+      int simHeaviestMotherFlavour_;
+      int simPdgId_;
+      int simMotherPdgId_;
+      int simBX_;
+      float simProdRho_;
+      float simProdZ_;
+      float simPt_;
+      float simEta_;
+      float simPhi_;
+      
   };
 
 

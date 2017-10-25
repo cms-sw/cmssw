@@ -286,14 +286,14 @@ class HBHEPhase1Reconstructor : public edm::stream::EDProducer<>
 {
 public:
     explicit HBHEPhase1Reconstructor(const edm::ParameterSet&);
-    ~HBHEPhase1Reconstructor();
+    ~HBHEPhase1Reconstructor() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-    virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-    virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void beginRun(edm::Run const&, edm::EventSetup const&) override;
+    void endRun(edm::Run const&, edm::EventSetup const&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     // Configuration parameters
     std::string algoConfigClass_;

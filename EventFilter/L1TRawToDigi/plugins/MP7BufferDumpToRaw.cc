@@ -57,15 +57,15 @@ namespace l1t {
 class MP7BufferDumpToRaw : public edm::EDProducer {
 public:
   explicit MP7BufferDumpToRaw(const edm::ParameterSet&);
-  ~MP7BufferDumpToRaw();
+  ~MP7BufferDumpToRaw() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
   
 private:
-  virtual void beginJob() override;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void beginJob() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   std::vector<Block> getBlocks(int iAmc);
 
@@ -409,7 +409,7 @@ MP7BufferDumpToRaw::formatAMC(amc13::Packet& amc13, const std::vector<Block>& bl
     LogDebug("L1T") << s.str();
 #endif
     
-    load32.push_back(block.header().raw(MP7));
+    load32.push_back(block.header().raw());
     load32.insert(load32.end(), load.begin(), load.end());
   }
   

@@ -25,7 +25,7 @@ public:
   /// Constructor
   explicit GEMSegmentProducer(const edm::ParameterSet&);
   /// Destructor
-  virtual ~GEMSegmentProducer() {}
+  ~GEMSegmentProducer() override {}
   /// Produce the GEMSegment collection
   void produce(edm::Event&, const edm::EventSetup&) override;
 

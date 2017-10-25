@@ -75,7 +75,7 @@ MatcherByPullsAlgorithm::match(const reco::RecoCandidate &src,
                       const std::vector<uint8_t>       &good) const 
 {
     const reco::Track * tk = track(src);
-    return (tk == 0 ? 
+    return (tk == nullptr ? 
             std::pair<int,float>(-1,9e9) : 
             match(*tk, cands, good));
 }
@@ -106,7 +106,7 @@ MatcherByPullsAlgorithm::matchMany(const reco::RecoCandidate &src,
                 std::vector<std::pair<double,int> >  &matchesToFill) const
 {
     const reco::Track * tk = track(src);
-    if (tk != 0) matchMany(*tk, cands, good, matchesToFill);
+    if (tk != nullptr) matchMany(*tk, cands, good, matchesToFill);
 }
 
 void
@@ -135,9 +135,9 @@ MatcherByPullsAlgorithm::matchMany(const reco::Track &tk,
 const reco::Track * 
 MatcherByPullsAlgorithm::track(const reco::RecoCandidate &muon) const {
     switch (track_) {
-        case StaTrack : return muon.standAloneMuon().isNonnull() ? muon.standAloneMuon().get() : 0;
-        case GlbTrack : return muon.combinedMuon().isNonnull()   ? muon.combinedMuon().get()   : 0;
-        case TrkTrack : return muon.track().isNonnull()          ? muon.track().get()          : 0;
+        case StaTrack : return muon.standAloneMuon().isNonnull() ? muon.standAloneMuon().get() : nullptr;
+        case GlbTrack : return muon.combinedMuon().isNonnull()   ? muon.combinedMuon().get()   : nullptr;
+        case TrkTrack : return muon.track().isNonnull()          ? muon.track().get()          : nullptr;
     }
     assert(false);
 }

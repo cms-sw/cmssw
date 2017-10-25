@@ -50,13 +50,13 @@ public:
     explicit HLTL1TSeed(const edm::ParameterSet&);
 
     /// destructor
-    virtual ~HLTL1TSeed();
+    ~HLTL1TSeed() override;
 
     /// parameter description
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
     /// filter the event
-    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+    bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
 
 private:
 

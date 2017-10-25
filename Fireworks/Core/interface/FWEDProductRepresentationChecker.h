@@ -36,16 +36,16 @@ public:
                                     bool iRequiresFF = false);
 
    // ---------- const member functions ---------------------
-   virtual FWRepresentationInfo infoFor(const std::string& iTypeName) const;
+   FWRepresentationInfo infoFor(const std::string& iTypeName) const override;
 
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
 
 private:
-   FWEDProductRepresentationChecker(const FWEDProductRepresentationChecker&); // stop default
+   FWEDProductRepresentationChecker(const FWEDProductRepresentationChecker&) = delete; // stop default
 
-   const FWEDProductRepresentationChecker& operator=(const FWEDProductRepresentationChecker&); // stop default
+   const FWEDProductRepresentationChecker& operator=(const FWEDProductRepresentationChecker&) = delete; // stop default
 
    // ---------- member data --------------------------------
    const std::string m_typeidName;

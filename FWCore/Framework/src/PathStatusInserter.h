@@ -18,7 +18,7 @@ namespace edm {
 
     void setPathStatus(StreamID const&, HLTPathStatus const&);
 
-    void produce(StreamID, Event&, EventSetup const&) const override final;
+    void produce(StreamID, Event&, EventSetup const&) const final;
 
   private:
 

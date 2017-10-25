@@ -58,7 +58,7 @@ RegressionEnergyPatElectronProducer::RegressionEnergyPatElectronProducer( const 
 
   //load weights and initialize
   regressionEvaluator_ = new ElectronEnergyRegressionEvaluate();
-  regressionEvaluator_->initialize(regressionInputFile_.c_str(),type);
+  regressionEvaluator_->initialize(regressionInputFile_,type);
 
   if(produceValueMaps_) {
     produces<edm::ValueMap<double> >(nameEnergyReg_);
@@ -176,9 +176,9 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
       std::cout << "Pat Electron : " << ele->pt() << " " << ele->eta() << " " << ele->phi() << "\n";
     }
 
-    pat::Electron * myPatElectron = (inputCollectionType_ == 0 ) ?  0 : new pat::Electron((*patCollectionH)[iele]);
+    pat::Electron * myPatElectron = (inputCollectionType_ == 0 ) ?  nullptr : new pat::Electron((*patCollectionH)[iele]);
     // Get RecHit Collection
-    const EcalRecHitCollection * recHits=0;
+    const EcalRecHitCollection * recHits=nullptr;
     if (useReducedRecHits_) {
       if(ele->isEB()) {
 	recHits = pEBRecHits.product();
@@ -188,7 +188,7 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
       recHits = (*patCollectionH)[iele].recHits();
     }
 
-    SuperClusterHelper * mySCHelper = 0 ;
+    SuperClusterHelper * mySCHelper = nullptr ;
     if ( inputCollectionType_ == 0 ) {
       mySCHelper = new SuperClusterHelper(&(*ele),recHits,ecalTopology_,caloGeometry_);
     } else if ( inputCollectionType_ == 1) {
@@ -517,7 +517,7 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
 										       debug_);
 	FinalMomentum = RegressionMomentum;
 	FinalMomentumError = RegressionMomentumError;
-	math::XYZTLorentzVector oldMomentum = ele->p4();
+	const math::XYZTLorentzVector& oldMomentum = ele->p4();
 	math::XYZTLorentzVector newMomentum = math::XYZTLorentzVector
 	  ( oldMomentum.x()*FinalMomentum/oldMomentum.t(),
 	    oldMomentum.y()*FinalMomentum/oldMomentum.t(),
