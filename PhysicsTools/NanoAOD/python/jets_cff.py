@@ -172,9 +172,9 @@ fatJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     variables = cms.PSet(P4Vars,
         area = Var("jetArea()", float, doc="jet catchment area, for JECs",precision=10),
         tau1 = Var("userFloat('NjettinessAK8Puppi:tau1')",float, doc="Nsubjettiness (1 axis)",precision=10),
-        tau21 = Var("?userFloat('NjettinessAK8Puppi:tau1') > 0.? userFloat('NjettinessAK8Puppi:tau2') / userFloat('NjettinessAK8Puppi:tau1'):-1",float, doc="Nsubjettiness (2 / 1 axis)",precision=10),
-        tau32 = Var("?userFloat('NjettinessAK8Puppi:tau2') > 0.?userFloat('NjettinessAK8Puppi:tau3') / userFloat('NjettinessAK8Puppi:tau2'):-1",float, doc="Nsubjettiness (3 / 2 axis)",precision=10),
-        tau42 = Var("?userFloat('NjettinessAK8Puppi:tau2') > 0.?userFloat('NjettinessAK8Puppi:tau4') / userFloat('NjettinessAK8Puppi:tau2'):-1",float, doc="Nsubjettiness (4 / 2 axis)",precision=10),
+        tau2 = Var("userFloat('NjettinessAK8Puppi:tau2')",float, doc="Nsubjettiness (2 axis)",precision=10),
+        tau3 = Var("userFloat('NjettinessAK8Puppi:tau3')",float, doc="Nsubjettiness (3 axis)",precision=10),
+        tau4 = Var("userFloat('NjettinessAK8Puppi:tau4')",float, doc="Nsubjettiness (4 axis)",precision=10),
         n2b1 = Var("userFloat('ak8PFJetsPuppiSoftDropValueMap:nb1AK8PuppiSoftDropN2')", float, doc="N2 with beta=1", precision=10),
         n3b1 = Var("userFloat('ak8PFJetsPuppiSoftDropValueMap:nb1AK8PuppiSoftDropN3')", float, doc="N3 with beta=1", precision=10),
         msoftdrop = Var("userFloat('ak8PFJetsPuppiSoftDropMass')",float, doc="Soft drop mass",precision=10),
@@ -196,11 +196,13 @@ fatJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     )
 )
 ### Era dependent customization
-run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.mpruned, expr = cms.string("userFloat(\'ak8PFJetsCHSPrunedMass\')"),)
 run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.msoftdrop, expr = cms.string("userFloat(\'ak8PFJetsCHSSoftDropMass\')"),)
-run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau1, expr = cms.string("userFloat(\'NjettinessAK8:tau1\')"),)
-run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau2, expr = cms.string("userFloat(\'NjettinessAK8:tau2\')"),)
-run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau3, expr = cms.string("userFloat(\'NjettinessAK8:tau3\')"),)
+run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau1, expr = cms.string("userFloat(\'ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau1\')"),)
+run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau2, expr = cms.string("userFloat(\'ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau2\')"),)
+run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau3, expr = cms.string("userFloat(\'ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau3\')"),)
+run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau1, expr = cms.string("userFloat(\'ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau4\')"),)
+run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.n2b1, expr = cms.string("-1"),)
+run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.n3b1, expr = cms.string("-1"),)
 
 subJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("slimmedJetsAK8PFPuppiSoftDropPacked","SubJets"),
