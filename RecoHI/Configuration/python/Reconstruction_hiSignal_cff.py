@@ -21,11 +21,11 @@ heavyIonTracking = cms.Sequence(hiPixelVertices
                                 )
 
 #Ecal
-hiSignalCorrectedIslandBarrelSuperClusters = correctedIslandBarrelSuperClusters.clone()
-hiSignalCorrectedIslandEndcapSuperClusters = correctedIslandEndcapSuperClusters.clone()
+hiSignalCorrectedIslandBarrelSuperClusters = hiCorrectedIslandBarrelSuperClusters.clone()
+hiSignalCorrectedIslandEndcapSuperClusters = hiCorrectedIslandEndcapSuperClusters.clone()
 
-islandClusteringSequence = cms.Sequence(islandBasicClusters
-                                        *islandSuperClusters
+hiIslandClusteringSequence = cms.Sequence(islandBasicClusters
+                                        *hiIslandSuperClusters
                                         *hiSignalCorrectedIslandBarrelSuperClusters
                                         *hiSignalCorrectedIslandEndcapSuperClusters
                                         )
