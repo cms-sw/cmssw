@@ -13,22 +13,22 @@ HcalLedAnalysis::HcalLedAnalysis(const edm::ParameterSet& ps)
 {
   // init
 
-  m_coder = 0;
-  m_ped   = 0;
-  m_shape = 0;
+  m_coder = nullptr;
+  m_ped   = nullptr;
+  m_shape = nullptr;
   evt=0;
   sample=0;
-  m_file=0;
+  m_file=nullptr;
   // output files
   for(int k=0;k<4;k++) state.push_back(true); // 4 cap-ids (do we care?)
   m_outputFileText = ps.getUntrackedParameter<string>("outputFileText", "");
   m_outputFileX = ps.getUntrackedParameter<string>("outputFileXML","");
-  if ( m_outputFileText.size() != 0 ) {
+  if ( !m_outputFileText.empty() ) {
     cout << "Hcal LED results will be saved to " << m_outputFileText.c_str() << endl;
     m_outFile.open(m_outputFileText.c_str());
   } 
   m_outputFileROOT = ps.getUntrackedParameter<string>("outputFileHist", "");
-  if ( m_outputFileROOT.size() != 0 ) {
+  if ( !m_outputFileROOT.empty() ) {
     cout << "Hcal LED histograms will be saved to " << m_outputFileROOT.c_str() << endl;
   }
 
@@ -536,7 +536,7 @@ void HcalLedAnalysis::processLedEvent(const HBHEDigiCollection& hbhe,
 
   if (m_usecalib){
     try{
-      if(!calib.size()) throw (int)calib.size();
+      if(calib.empty()) throw (int)calib.size();
       // this is effectively a loop over electronic channels
       for (HcalCalibDigiCollection::const_iterator j=calib.begin(); j!=calib.end(); ++j){
         const HcalCalibDataFrame digi = (const HcalCalibDataFrame)(*j);   
@@ -553,7 +553,7 @@ void HcalLedAnalysis::processLedEvent(const HBHEDigiCollection& hbhe,
 
   // HB + HE
   try{
-    if(!hbhe.size()) throw (int)hbhe.size();
+    if(hbhe.empty()) throw (int)hbhe.size();
 // this is effectively a loop over electronic channels
     for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); ++j){
       const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
@@ -572,7 +572,7 @@ void HcalLedAnalysis::processLedEvent(const HBHEDigiCollection& hbhe,
 
   // HO
   try{
-    if(!ho.size()) throw (int)ho.size();
+    if(ho.empty()) throw (int)ho.size();
     for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); ++j){
       const HODataFrame digi = (const HODataFrame)(*j);
       _meol = hoHists.LEDTRENDS.find(digi.id());
@@ -588,7 +588,7 @@ void HcalLedAnalysis::processLedEvent(const HBHEDigiCollection& hbhe,
 
   // HF
   try{
-    if(!hf.size()) throw (int)hf.size();
+    if(hf.empty()) throw (int)hf.size();
     for (HFDigiCollection::const_iterator j=hf.begin(); j!=hf.end(); ++j){
       const HFDataFrame digi = (const HFDataFrame)(*j);
       _meol = hfHists.LEDTRENDS.find(digi.id());

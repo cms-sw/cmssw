@@ -17,13 +17,13 @@ public:
   // construction/destruction
   //
   explicit PlaybackRawDataProvider(const edm::ParameterSet&);
-  virtual ~PlaybackRawDataProvider();
+  ~PlaybackRawDataProvider() override;
   
   // EDAnalyzer interface
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
-  virtual void respondToCloseInputFile(edm::FileBlock const& fb);
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+  void respondToCloseInputFile(edm::FileBlock const& fb) override;
 
   // provide cached fed collection (and run/evt number, if needed!)
   virtual FEDRawDataCollection* getFEDRawData();

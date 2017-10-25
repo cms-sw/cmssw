@@ -32,7 +32,7 @@ SeedFromProtoTrack::SeedFromProtoTrack(const reco::Track & proto,
 SeedFromProtoTrack::SeedFromProtoTrack(const reco::Track & proto,  const edm::EventSetup& es)
   : theValid(true)
 {
-  const TrackingRecHit* hit = 0;
+  const TrackingRecHit* hit = nullptr;
   for (unsigned int iHit = 0, nHits = proto.recHitsSize(); iHit < nHits; ++iHit) {
     TrackingRecHitRef refHit = proto.recHit(iHit);
     hit = &(*refHit);
@@ -54,8 +54,8 @@ void SeedFromProtoTrack::init(const reco::Track & proto, const edm::EventSetup& 
   edm::ESHandle<MagneticField> field;
   es.get<IdealMagneticFieldRecord>().get(field);//fixme
 
-  reco::TrackBase::Point  vtx = proto.referencePoint();
-  reco::TrackBase::Vector mom = proto.momentum();
+  const reco::TrackBase::Point&  vtx = proto.referencePoint();
+  const reco::TrackBase::Vector& mom = proto.momentum();
   GlobalTrajectoryParameters gtp( 
       GlobalPoint(vtx.x(),vtx.y(),vtx.z()),
       GlobalVector(mom.x(),mom.y(),mom.z()),

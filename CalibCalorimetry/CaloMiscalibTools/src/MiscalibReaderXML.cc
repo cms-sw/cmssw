@@ -2,8 +2,8 @@
 #include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLDomUtils.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMap.h"
 #include "FWCore/Concurrency/interface/Xerces.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <string>
 #include <vector>
 

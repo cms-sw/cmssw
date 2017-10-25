@@ -24,9 +24,9 @@ class HLTMuonPFIsoFilter : public HLTFilter {
 
    public:
       explicit HLTMuonPFIsoFilter(const edm::ParameterSet&);
-      ~HLTMuonPFIsoFilter();
+      ~HLTMuonPFIsoFilter() override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
    private:
       static bool triggerdByPreviousLevel(const reco::RecoChargedCandidateRef &, const std::vector<reco::RecoChargedCandidateRef> &);

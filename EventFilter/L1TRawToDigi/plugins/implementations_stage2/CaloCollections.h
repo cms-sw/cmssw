@@ -26,7 +26,7 @@ namespace l1t {
 		 mp_egammas_(new EGammaBxCollection()),
 	       mp_taus_(new TauBxCollection()) {};
 
-            virtual ~CaloCollections();
+            ~CaloCollections() override;
 
             inline CaloTowerBxCollection* getTowers() { return towers_.get(); };
             inline EGammaBxCollection* getEGammas() override { return egammas_.get(); };

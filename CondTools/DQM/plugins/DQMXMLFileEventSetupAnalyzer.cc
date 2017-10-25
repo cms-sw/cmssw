@@ -23,9 +23,9 @@ namespace edmtest {
    public:
     explicit DQMXMLFileEventSetupAnalyzer(const edm::ParameterSet & pset);
     explicit DQMXMLFileEventSetupAnalyzer(int i);
-    virtual ~DQMXMLFileEventSetupAnalyzer();
-    virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
-    virtual void beginRun(edm::Run const&, edm::EventSetup const&) override ;
+    ~DQMXMLFileEventSetupAnalyzer() override;
+    void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+    void beginRun(edm::Run const&, edm::EventSetup const&) override ;
   private:
     bool init_ ;
     std::string labelToGet_ ;

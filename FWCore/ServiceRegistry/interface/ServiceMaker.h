@@ -76,23 +76,23 @@ public:
          //virtual ~ServiceMaker();
 
          // ---------- const member functions ---------------------
-         virtual std::type_info const& serviceType() const { return typeid(T); }
+         std::type_info const& serviceType() const override { return typeid(T); }
 
-         virtual bool make(ParameterSet const& iPS,
+         bool make(ParameterSet const& iPS,
                            ActivityRegistry& iAR,
-                           ServicesManager& oSM) const {
+                           ServicesManager& oSM) const override {
             TMaker maker;
             std::unique_ptr<T> pService(maker.make(iPS, iAR));
             auto ptr = std::make_shared<ServiceWrapper<T> >(std::move(pService));
             return oSM.put(ptr);
          }
 
-         virtual bool saveConfiguration() const {
-            return ServiceMakerBase::testSaveConfiguration(static_cast<typename TMaker::concrete_t const*>(0));
+         bool saveConfiguration() const override {
+            return ServiceMakerBase::testSaveConfiguration(static_cast<typename TMaker::concrete_t const*>(nullptr));
          }
 
-         virtual bool processWideService() const {
-            return service::isProcessWideService(static_cast<typename TMaker::concrete_t const*>(0));
+         bool processWideService() const override {
+            return service::isProcessWideService(static_cast<typename TMaker::concrete_t const*>(nullptr));
          }
 
          // ---------- static member functions --------------------
@@ -100,9 +100,9 @@ public:
          // ---------- member functions ---------------------------
 
 private:
-         ServiceMaker(ServiceMaker const&); // stop default
+         ServiceMaker(ServiceMaker const&) = delete; // stop default
 
-         ServiceMaker const& operator=(ServiceMaker const&); // stop default
+         ServiceMaker const& operator=(ServiceMaker const&) = delete; // stop default
 
          // ---------- member data --------------------------------
 

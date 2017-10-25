@@ -32,10 +32,10 @@ class DQMStore;
 class TkAlCaRecoMonitor : public DQMEDAnalyzer {
  public:
   explicit TkAlCaRecoMonitor(const edm::ParameterSet&);
-  ~TkAlCaRecoMonitor();
+  ~TkAlCaRecoMonitor() override;
 
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   
  private:
   void fillHitmaps(const reco::Track &track, const TrackerGeometry& geometry);

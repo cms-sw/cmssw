@@ -49,23 +49,23 @@ class AlCaGammaJetSelector : public edm::stream::EDFilter<edm::GlobalCache<AlCaG
 
 public:
   explicit AlCaGammaJetSelector(const edm::ParameterSet&, const AlCaGammaJet::Counters* count);
-  ~AlCaGammaJetSelector();
+  ~AlCaGammaJetSelector() override;
   
   static std::unique_ptr<AlCaGammaJet::Counters> initializeGlobalCache(edm::ParameterSet const& ) {
     return std::make_unique<AlCaGammaJet::Counters>();
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void endStream() override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endStream() override;
   static  void globalEndJob(const AlCaGammaJet::Counters* counters);
 
 private:
 
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override {}
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override {}
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {}
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {}
+  void beginRun(edm::Run const&, edm::EventSetup const&) override {}
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
+  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {}
+  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {}
   bool select(const reco::PhotonCollection&, const reco::PFJetCollection&);
 
   // ----------member data ---------------------------
@@ -171,7 +171,7 @@ bool AlCaGammaJetSelector::select (const reco::PhotonCollection &photons,
 				   const reco::PFJetCollection &jets) {
 
   // Check the requirement for minimum pT
-  if (photons.size() == 0) return false;
+  if (photons.empty()) return false;
   bool ok(false);
   for (reco::PFJetCollection::const_iterator itr=jets.begin();
        itr!=jets.end(); ++itr) {

@@ -126,17 +126,17 @@ EcnaAnalyzer::EcnaAnalyzer(const edm::ParameterSet& pSet) :
   if( fOutcomeError == kTRUE )return;
   //===========================================================================================
 
-  fRunTypeCounter = 0;
+  fRunTypeCounter = nullptr;
   fMaxRunTypeCounter = 26;
   fRunTypeCounter = new Int_t[fMaxRunTypeCounter];
   for(Int_t i=0; i<fMaxRunTypeCounter; i++){fRunTypeCounter[i] = 0;}
 
-  fMgpaGainCounter = 0;
+  fMgpaGainCounter = nullptr;
   fMaxMgpaGainCounter = 4;  // Because chozen gain = 0,1,2,3
   fMgpaGainCounter = new Int_t[fMaxMgpaGainCounter];
   for(Int_t i=0; i<fMaxMgpaGainCounter; i++){fMgpaGainCounter[i] = 0;}
 
-  fFedIdCounter = 0;
+  fFedIdCounter = nullptr;
   fMaxFedIdCounter = 54;
   fFedIdCounter = new Int_t[fMaxFedIdCounter];
   for(Int_t i=0; i<fMaxFedIdCounter; i++){fFedIdCounter[i] = 0;}
@@ -275,11 +275,11 @@ EcnaAnalyzer::EcnaAnalyzer(const edm::ParameterSet& pSet) :
 
 
   //.......................... counters of events for GetSampleAdcValues
-  fBuildEventDistribBad = 0;
+  fBuildEventDistribBad = nullptr;
   fBuildEventDistribBad = new Int_t[fMaxTreatedStexCounter];
   for(Int_t i=0; i<fMaxTreatedStexCounter; i++){fBuildEventDistribBad[i] = 0;}
 
-  fBuildEventDistribGood = 0;
+  fBuildEventDistribGood = nullptr;
   fBuildEventDistribGood = new Int_t[fMaxTreatedStexCounter];
   for(Int_t i=0; i<fMaxTreatedStexCounter; i++){fBuildEventDistribGood[i] = 0;}
 
@@ -391,8 +391,8 @@ EcnaAnalyzer::EcnaAnalyzer(const edm::ParameterSet& pSet) :
   //......... DATA DEPENDENT PARAMETERS
   fRunNumber  = 0;
 
-  fMyCnaEBSM  = 0;
-  fMyCnaEEDee = 0;
+  fMyCnaEBSM  = nullptr;
+  fMyCnaEEDee = nullptr;
 
   fRunTypeNumber  = -1;
   fMgpaGainNumber = -1;
@@ -435,7 +435,7 @@ EcnaAnalyzer::~EcnaAnalyzer()
   //-------------------------------------------------------------------------------
 
   //....................................................... EB (SM)
-  if( fMyCnaEBSM == 0 && fStexName == "SM" )
+  if( fMyCnaEBSM == nullptr && fStexName == "SM" )
     {
       std::cout << std::endl << "!EcnaAnalyzer-destructor> **** ERROR **** fMyCnaEBSM = " << fMyCnaEBSM
 		<< ". !===> ECNA HAS NOT BEEN INITIALIZED." << std::endl
@@ -449,7 +449,7 @@ EcnaAnalyzer::~EcnaAnalyzer()
     {
       for(Int_t iSM = fSMIndexBegin; iSM < fSMIndexStop; iSM++)
 	{
-	  if( fMyCnaEBSM[iSM] != 0 )
+	  if( fMyCnaEBSM[iSM] != nullptr )
 	    {
 	      //........................................ register dates 1 and 2
 	      fMyCnaEBSM[iSM]->StartStopDate(fDateFirst[iSM], fDateLast[iSM]);
@@ -476,7 +476,7 @@ EcnaAnalyzer::~EcnaAnalyzer()
     }
   //....................................................... EE (Dee)
 
-  if( fMyCnaEEDee == 0 && fStexName == "Dee" )
+  if( fMyCnaEEDee == nullptr && fStexName == "Dee" )
     {
       std::cout << std::endl << "!EcnaAnalyzer-destructor> **** ERROR **** fMyCnaEEDee = " << fMyCnaEEDee
 		<< ". !===> ECNA HAS NOT BEEN INITIALIZED." << std::endl
@@ -490,7 +490,7 @@ EcnaAnalyzer::~EcnaAnalyzer()
     {
       for(Int_t iDee = fDeeIndexBegin; iDee < fDeeIndexStop; iDee++)
 	{
-	  if( fMyCnaEEDee[iDee] != 0 )
+	  if( fMyCnaEEDee[iDee] != nullptr )
 	    {
 	      //........................................ register dates 1 and 2
 	      fMyCnaEEDee[iDee]->StartStopDate(fDateFirst[iDee], fDateLast[iDee]);
@@ -616,7 +616,7 @@ void EcnaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   //********************************************* EVENT TREATMENT ********************************
   Handle<EcalRawDataCollection> pEventHeader;
-  const EcalRawDataCollection* myEventHeader = 0;
+  const EcalRawDataCollection* myEventHeader = nullptr;
   try{
     iEvent.getByLabel(eventHeaderProducer_, eventHeaderCollection_, pEventHeader);
     myEventHeader = pEventHeader.product();
@@ -716,18 +716,18 @@ void EcnaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   //============================ Ecna init for the pointers array =================================
   //.................................................................. EB (SM)
-  if( fMyCnaEBSM == 0 && fStexName == "SM" )
+  if( fMyCnaEBSM == nullptr && fStexName == "SM" )
     {
       fMyCnaEBSM = new TEcnaRun*[fMyEBEcal->MaxSMInEB()];
       for(Int_t i0SM = 0; i0SM < fMyEBEcal->MaxSMInEB(); i0SM++)
-	{fMyCnaEBSM[i0SM] = 0;}
+	{fMyCnaEBSM[i0SM] = nullptr;}
     }
   //.................................................................. EE (Dee)
-  if( fMyCnaEEDee == 0 && fStexName == "Dee" )
+  if( fMyCnaEEDee == nullptr && fStexName == "Dee" )
     {
       fMyCnaEEDee = new TEcnaRun*[fMyEEEcal->MaxDeeInEE()];
       for(Int_t iDee = 0; iDee < fMyEEEcal->MaxDeeInEE(); iDee++)
-	{fMyCnaEEDee[iDee] = 0;}
+	{fMyCnaEEDee[iDee] = nullptr;}
     }
   
   //============================ EVENT TREATMENT ==============================
@@ -742,7 +742,7 @@ void EcnaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	{
 	  //......................................... Get digisEB
 	  Handle<EBDigiCollection> pdigisEB;
-	  const EBDigiCollection* digisEB = 0;
+	  const EBDigiCollection* digisEB = nullptr;
 	  try{
 	    iEvent.getByLabel(digiProducer_, EBdigiCollection_, pdigisEB); 
 	    digisEB = pdigisEB.product();
@@ -773,7 +773,7 @@ void EcnaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 		  
 		  if( i0SM >= 0 && i0SM<fMaxTreatedStexCounter )
 		    {
-		      if( fMyCnaEBSM[i0SM] == 0 && fStexStatus[i0SM] != 2 )
+		      if( fMyCnaEBSM[i0SM] == nullptr && fStexStatus[i0SM] != 2 )
 			{
 			  //=============================== Init Ecna EB ===============================
 			  fMyCnaEBSM[i0SM] = new TEcnaRun(fMyEcnaEBObjectManager, "EB", fNbOfSamples);
@@ -894,7 +894,7 @@ void EcnaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	{
 	  //......................................... Get digisEE
 	  Handle<EEDigiCollection> pdigisEE;
-	  const EEDigiCollection* digisEE = 0;
+	  const EEDigiCollection* digisEE = nullptr;
 	  try{
 	    iEvent.getByLabel(digiProducer_, EEdigiCollection_, pdigisEE); 
 	    digisEE = pdigisEE.product();
@@ -948,7 +948,7 @@ void EcnaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 		  if( i0Dee >= 0 && i0Dee<fMaxTreatedStexCounter )
 		    {
-		      if( fMyCnaEEDee[i0Dee] == 0  && fStexStatus[i0Dee] != 2 )
+		      if( fMyCnaEEDee[i0Dee] == nullptr  && fStexStatus[i0Dee] != 2 )
 			{
 			  //=============================== Init Ecna EE ===============================
 			  fMyCnaEEDee[i0Dee] = new TEcnaRun(fMyEcnaEEObjectManager, "EE", fNbOfSamples);
@@ -1254,7 +1254,7 @@ void EcnaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	  //================================= WRITE RESULTS FILE
 	  if( fStexName == "SM" )
 	    {
-	      if( fMyCnaEBSM[i0Stex] != 0 )
+	      if( fMyCnaEBSM[i0Stex] != nullptr )
 		{
 		  //........................................ register dates 1 and 2
 		  fMyCnaEBSM[i0Stex]->StartStopDate(fDateFirst[i0Stex], fDateLast[i0Stex]);
@@ -1272,13 +1272,13 @@ void EcnaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 		    }
 		}
 	      // set pointer to zero in order to avoid recalculation and rewriting at the destructor level
-	      delete fMyCnaEBSM[i0Stex];  fMyCnaEBSM[i0Stex] = 0;
+	      delete fMyCnaEBSM[i0Stex];  fMyCnaEBSM[i0Stex] = nullptr;
 	      std::cout << "!EcnaAnalyzer::analyze> Set memory free: delete done for SM " << i0Stex+1 << std::endl;
 	    }
 
 	  if( fStexName == "Dee" )
 	    {
-	      if( fMyCnaEEDee[i0Stex] != 0 )
+	      if( fMyCnaEEDee[i0Stex] != nullptr )
 		{
 		  //........................................ register dates 1 and 2
 		  fMyCnaEEDee[i0Stex]->StartStopDate(fDateFirst[i0Stex], fDateLast[i0Stex]);
@@ -1296,7 +1296,7 @@ void EcnaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 		    }
 		}
 	      // set pointer to zero in order to avoid recalculation and rewriting at the destructor level
-	      delete fMyCnaEEDee[i0Stex]; fMyCnaEEDee[i0Stex] = 0;
+	      delete fMyCnaEEDee[i0Stex]; fMyCnaEEDee[i0Stex] = nullptr;
 	      std::cout << "!EcnaAnalyzer::analyze> Set memory free: delete done for Dee " << i0Stex+1 << std::endl;
 	    }
 

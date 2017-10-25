@@ -1,5 +1,5 @@
 #include <memory>
-#include <math.h>
+#include <cmath>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -277,7 +277,7 @@ InvRingCalib::duringLoop (const edm::Event& iEvent,
   //gets the barrel recHits
   double pSubtract = 0.;
   double pTk = 0.;
-  const EcalRecHitCollection* barrelHitsCollection = 0;
+  const EcalRecHitCollection* barrelHitsCollection = nullptr;
   edm::Handle<EBRecHitCollection> barrelRecHitsHandle ;
   iEvent.getByLabel (m_barrelAlCa, barrelRecHitsHandle) ;
   barrelHitsCollection = barrelRecHitsHandle.product () ;
@@ -287,7 +287,7 @@ InvRingCalib::duringLoop (const edm::Event& iEvent,
      return  kContinue ;
     }
   //gets the endcap recHits
-  const EcalRecHitCollection* endcapHitsCollection = 0;
+  const EcalRecHitCollection* endcapHitsCollection = nullptr;
   edm::Handle<EERecHitCollection> endcapRecHitsHandle ;
   iEvent.getByLabel (m_endcapAlCa, endcapRecHitsHandle) ;
   endcapHitsCollection = endcapRecHitsHandle.product () ;

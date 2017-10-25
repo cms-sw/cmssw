@@ -572,7 +572,6 @@ namespace {
 				       matched_pfcs.end()));	
       }
       for( const auto& clelem : best_comb ) {
-	const reco::PFClusterRef& clref = clelem->clusterRef();
 	if( std::find(cluster_list.begin(),cluster_list.end(),clelem) ==
 	    cluster_list.end() ) {
 	  cluster_list.push_back(clelem);

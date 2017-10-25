@@ -37,7 +37,7 @@ using namespace std;
 #define SLINK_WORD_SIZE 8 
 
 
-DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& ps) : unpacker(0),dataType("") {
+DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& ps) : unpacker(nullptr),dataType("") {
 
   dataType = ps.getParameter<string>("dataType");
 

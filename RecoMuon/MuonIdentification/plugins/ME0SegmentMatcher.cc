@@ -79,12 +79,12 @@ public:
   /// Constructor
   explicit ME0SegmentMatcher(const edm::ParameterSet&);
   /// Destructor
-  ~ME0SegmentMatcher();
+  ~ME0SegmentMatcher() override;
   /// Produce the ME0Segment collection
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
     
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
 
 
 
@@ -246,7 +246,7 @@ void ME0SegmentMatcher::produce(edm::Event& ev, const edm::EventSetup& setup) {
 
 	LocalTrajectoryParameters ltp(r3FinalReco,p3FinalReco,chargeReco);
 	JacobianCartesianToLocal jctl(chamber->surface(),ltp);
-	AlgebraicMatrix56 jacobGlbToLoc = jctl.jacobian(); 
+	const AlgebraicMatrix56& jacobGlbToLoc = jctl.jacobian(); 
 
 	AlgebraicMatrix55 Ctmp =  (jacobGlbToLoc * covFinalReco) * ROOT::Math::Transpose(jacobGlbToLoc); 
 	AlgebraicSymMatrix55 C;  // I couldn't find any other way, so I resort to the brute force

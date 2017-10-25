@@ -225,7 +225,7 @@ void popcon::L1RPCHwConfigSourceHandler::readHwConfig1()
 
 int popcon::L1RPCHwConfigSourceHandler::Compare2Configs(const Ref& _set1, L1RPCHwConfig* set2)
 {
-  Ref set1 = _set1;
+  const Ref& set1 = _set1;
   std::cout<<"Size of new object is : "<<std::flush;
   std::cout<<set2->size()<<std::endl;
   std::cout<<"Size of ref object is : "<<std::flush;

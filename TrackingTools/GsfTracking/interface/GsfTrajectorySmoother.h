@@ -36,22 +36,22 @@ public:
 			const MultiTrajectoryStateMerger& merger,
 			float errorRescaling,
 			const bool materialBeforeUpdate = true,
-			const DetLayerGeometry* detLayerGeometry=0);
+			const DetLayerGeometry* detLayerGeometry=nullptr);
 
-  virtual ~GsfTrajectorySmoother();
+  ~GsfTrajectorySmoother() override;
 
-  virtual Trajectory trajectory(const Trajectory& aTraj) const override;
+  Trajectory trajectory(const Trajectory& aTraj) const override;
 
   const TrajectoryStateUpdator* updator() const {return theUpdator;}
   const MeasurementEstimator* estimator() const {return theEstimator;}
 
-  virtual GsfTrajectorySmoother* clone() const override
+  GsfTrajectorySmoother* clone() const override
   {
     return new GsfTrajectorySmoother(*theAlongPropagator,*theUpdator,*theEstimator,
 				     *theMerger,theErrorRescaling,theMatBeforeUpdate,theGeometry);
   }
 
-  virtual void setHitCloner(TkCloner const * hc)  override{
+  void setHitCloner(TkCloner const * hc)  override{
   }
 
 

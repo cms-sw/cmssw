@@ -283,7 +283,7 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
       args.push_back(*iToken);
     }
 
-    if ( args.size() == 0 || args.size() > 2) {
+    if ( args.empty() || args.size() > 2) {
       LogInfo("DQMGenericClient") << "Wrong input to cdCmds\n";
       continue;
     }
@@ -332,7 +332,7 @@ void DQMGenericClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
   // this endRun function
 
   // needed to access the DQMStore::save method
-  theDQM = 0;
+  theDQM = nullptr;
   theDQM = Service<DQMStore>().operator->();
 
   // Process wildcard in the sub-directory
@@ -497,7 +497,7 @@ void DQMGenericClient::computeEfficiency (DQMStore::IBooker& ibooker, DQMStore::
     // Here is where you have trouble --- you need
     // to understand what type of hist you have.
 
-    ME* efficME = 0;
+    ME* efficME = nullptr;
 
     // Parse the class name
     // This works, but there might be a better way

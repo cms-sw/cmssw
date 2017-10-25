@@ -18,9 +18,9 @@ HcalTBSource::HcalTBSource(const edm::ParameterSet & pset, edm::InputSourceDescr
   m_quiet( pset.getUntrackedParameter<bool>("quiet",true)),
   m_onlyRemapped( pset.getUntrackedParameter<bool>("onlyRemapped",false))
 {
-  m_tree=0;
+  m_tree=nullptr;
   m_fileCounter=-1;
-  m_file=0;
+  m_file=nullptr;
   m_i=0;
 
   unpackSetup(pset.getUntrackedParameter<std::vector<std::string> >("streams",std::vector<std::string>()));
@@ -44,33 +44,33 @@ void HcalTBSource::unpackSetup(const std::vector<std::string>& params) {
 }
 
 HcalTBSource::~HcalTBSource() {
-  if (m_file!=0) {
+  if (m_file!=nullptr) {
     m_file->Close();
-    m_file=0;
-    m_tree=0;
+    m_file=nullptr;
+    m_tree=nullptr;
   }
 }
 
 void HcalTBSource::openFile(const std::string& filename) {
-  if (m_file!=0) {
+  if (m_file!=nullptr) {
     m_file->Close();
-    m_file=0;
-    m_tree=0;
+    m_file=nullptr;
+    m_tree=nullptr;
   }
   
   //  try {
   m_file=TFile::Open(filename.c_str());
-  if (m_file==0) {
+  if (m_file==nullptr) {
     edm::LogError("HCAL") << "Unable to open " << filename << endl;
-    m_tree=0;
+    m_tree=nullptr;
     return;
   } 
   
   m_tree=(TTree*)m_file->Get("CMSRAW");
   
-  if (m_tree==0) {
+  if (m_tree==nullptr) {
     m_file->Close();
-    m_file=0;
+    m_file=nullptr;
     edm::LogError("HCAL") << "Unable to find CMSRAW tree" << endl;
     return;
   }
@@ -83,9 +83,9 @@ void HcalTBSource::openFile(const std::string& filename) {
   n_chunks=0;
   for (int i=0; i<lb->GetSize(); i++) {
     TBranch* b=(TBranch*)lb->At(i);
-    if (b==0) continue;
+    if (b==nullptr) continue;
     if (!strcmp(b->GetClassName(),"CDFEventInfo")) {
-      m_eventInfo=0;
+      m_eventInfo=nullptr;
       b->SetAddress(&m_eventInfo);
     } else {
       if (strcmp(b->GetClassName(),"CDFChunk")) continue;
@@ -96,7 +96,7 @@ void HcalTBSource::openFile(const std::string& filename) {
 	  edm::LogInfo("HCAL") << "Also reading branch " << b->GetName();
       }
       
-      m_chunks[n_chunks]=0; // allow ROOT to allocate 
+      m_chunks[n_chunks]=nullptr; // allow ROOT to allocate 
       b->SetAddress(&(m_chunks[n_chunks]));
       m_chunkIds[n_chunks]=m_sourceIdRemap[b->GetName()];
       n_chunks++;
@@ -108,24 +108,24 @@ void HcalTBSource::openFile(const std::string& filename) {
 bool HcalTBSource::setRunAndEventInfo(EventID& id, TimeValue_t& time, edm::EventAuxiliary::ExperimentType&) {
   bool is_new=false;
 
-  while (m_tree==0 || m_i==m_tree->GetEntries()) {
+  while (m_tree==nullptr || m_i==m_tree->GetEntries()) {
     m_fileCounter++;
-    if (m_file!=0) {
+    if (m_file!=nullptr) {
        m_file->Close();
-       m_file=0; 
-       m_tree=0;
+       m_file=nullptr; 
+       m_tree=nullptr;
     }
     if (m_fileCounter>=int(fileNames().size())) return false; // nothing good
     openFile(fileNames()[m_fileCounter]);
     is_new=true;
   }
 
-  if (m_tree==0 || m_i==m_tree->GetEntries()) return false; //nothing good
+  if (m_tree==nullptr || m_i==m_tree->GetEntries()) return false; //nothing good
 
   m_tree->GetEntry(m_i);
   m_i++;
 
-  if (m_eventInfo!=0) {
+  if (m_eventInfo!=nullptr) {
     if (is_new) {
       if (m_eventInfo->getEventNumber()==0) m_eventNumberOffset=1;
       else m_eventNumberOffset=0;

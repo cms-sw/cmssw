@@ -15,7 +15,7 @@ class CkfDebugTrajectoryBuilder: public CkfTrajectoryBuilder{
     }
 
 
-  virtual void setDebugger( CkfDebugger * dbg) const { theDbg = dbg;}
+  void setDebugger( CkfDebugger * dbg) const override { theDbg = dbg;}
   virtual CkfDebugger * debugger() const{ return theDbg;}
 
  private:
@@ -33,7 +33,7 @@ class CkfDebugTrajectoryBuilder: public CkfTrajectoryBuilder{
     return theDbg->analyseCompatibleMeasurements(traj,meas,theMeasurementTracker,theForwardPropagator,theEstimator,theTTRHBuilder);
   };
   void fillSeedHistoDebugger(std::vector<TrajectoryMeasurement>::iterator begin, 
-			     std::vector<TrajectoryMeasurement>::iterator end) const {
+			     std::vector<TrajectoryMeasurement>::iterator end) const override {
     //edm::LogVerbatim("CkfDebugger") <<"CkfDebugTrajectoryBuilder::fillSeedHistoDebugger "<<theDbg;
     if (end-begin>=2)
       theDbg->fillSeedHist(begin->recHit(),(begin+1)->recHit(),(begin+1)->updatedState());

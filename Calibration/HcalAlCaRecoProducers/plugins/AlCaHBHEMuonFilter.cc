@@ -49,21 +49,21 @@ namespace AlCaHBHEMuons {
 class AlCaHBHEMuonFilter : public edm::stream::EDFilter<edm::GlobalCache<AlCaHBHEMuons::Counters> > {
 public:
   explicit AlCaHBHEMuonFilter(edm::ParameterSet const&, const AlCaHBHEMuons::Counters* count);
-  ~AlCaHBHEMuonFilter();
+  ~AlCaHBHEMuonFilter() override;
   
   static std::unique_ptr<AlCaHBHEMuons::Counters> initializeGlobalCache(edm::ParameterSet const&) {
     return std::make_unique<AlCaHBHEMuons::Counters>();
   }
   
-  virtual bool filter(edm::Event&, edm::EventSetup const&) override;
-  virtual void endStream() override;
+  bool filter(edm::Event&, edm::EventSetup const&) override;
+  void endStream() override;
   static  void globalEndJob(const AlCaHBHEMuons::Counters* counters);
   static  void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 private:
 
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
   
   // ----------member data ---------------------------
   HLTConfigProvider          hltConfig_;
@@ -145,7 +145,7 @@ bool AlCaHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
     for (unsigned int iHLT=0; iHLT<triggerResults->size(); iHLT++) {
       int hlt    = triggerResults->accept(iHLT);
       for (unsigned int i=0; i<trigNames_.size(); ++i) {
-	if (triggerNames_[iHLT].find(trigNames_[i].c_str())!=std::string::npos){
+	if (triggerNames_[iHLT].find(trigNames_[i])!=std::string::npos){
 	  if (hlt > 0) {
 	    ok = true;
 	  }

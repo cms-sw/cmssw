@@ -22,9 +22,9 @@ class HLTMuonL1TRegionalFilter : public HLTFilter {
 
   public:
     explicit HLTMuonL1TRegionalFilter(const edm::ParameterSet&);
-    ~HLTMuonL1TRegionalFilter();
+    ~HLTMuonL1TRegionalFilter() override;
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+    bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
   private:
     /// input tag identifying the product containing muons

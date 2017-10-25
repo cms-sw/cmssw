@@ -22,10 +22,10 @@
 
 #include <iostream>
 #include <iomanip>
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 #include <vector>
 
 //
@@ -61,14 +61,14 @@ void SiStripDaqInfo::bookStatus() {
     dqmStore_->cd();
     std::string strip_dir = "";
     SiStripUtility::getTopFolderPath(dqmStore_, "SiStrip", strip_dir);
-    if (strip_dir.size() > 0) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
+    if (!strip_dir.empty()) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
     else dqmStore_->setCurrentFolder("SiStrip/EventInfo");
 
     
     DaqFraction_= dqmStore_->bookFloat("DAQSummary");  
 
     dqmStore_->cd();    
-    if (strip_dir.size() > 0) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo/DAQContents");
+    if (!strip_dir.empty()) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo/DAQContents");
     else dqmStore_->setCurrentFolder("SiStrip/EventInfo/DAQContents");
       
     std::vector<std::string> det_type;
@@ -134,7 +134,7 @@ void SiStripDaqInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup
   const int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID; 
 
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-  if( eSetup.find( recordKey ) != 0) {
+  if( eSetup.find( recordKey ) != nullptr) {
 
     edm::ESHandle<RunInfo> sumFED;
     eSetup.get<RunInfoRcd>().get(sumFED);    

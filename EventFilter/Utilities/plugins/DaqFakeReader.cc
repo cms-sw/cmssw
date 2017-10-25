@@ -20,7 +20,7 @@
 
 #include <cmath>
 #include <sys/time.h>
-#include <string.h>
+#include <cstring>
 
 
 using namespace std;
@@ -94,7 +94,7 @@ int DaqFakeReader::fillRawData(Event& e,
 	       eID, *data, meansize, width);
 
       timeval now;
-      gettimeofday(&now,0);
+      gettimeofday(&now,nullptr);
       fillGTPFED(eID, *data,&now);
       //TODO: write fake TCDS FED filler
     }
@@ -104,7 +104,7 @@ int DaqFakeReader::fillRawData(Event& e,
 void DaqFakeReader::produce(Event&e, EventSetup const&es){
 
   edm::Handle<FEDRawDataCollection> rawdata;
-  FEDRawDataCollection *fedcoll = 0;
+  FEDRawDataCollection *fedcoll = nullptr;
   fillRawData(e,fedcoll);
   std::unique_ptr<FEDRawDataCollection> bare_product(fedcoll);
   e.put(std::move(bare_product));

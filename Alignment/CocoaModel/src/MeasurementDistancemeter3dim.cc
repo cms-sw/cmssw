@@ -33,11 +33,11 @@ void MeasurementDistancemeter3dim::calculateSimulatedValue( ALIbool firstTime )
   if( ALIUtils::debug >= 5) std::cout  << "OptOList size" <<OptOList().size() << std::endl;
 
   //----- Check that there are only two measurements that are 'distance_target' and 'distancemeter3dim'
-  ALIbool right_objects = 0;
+  ALIbool right_objects = false;
   if( OptOList().size() == 2 ) {
     if( (*vocite)->type() == "distance_target"
 	&& ( (*(vocite+1))->type() == "distancemeter3dim" ) ) { 
-      right_objects = 1;
+      right_objects = true;
     } 
   }
   if( !right_objects ) {

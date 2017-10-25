@@ -30,13 +30,13 @@
 
 // helper files
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <memory>
 #include <vector>
 #include <map>
-#include <assert.h>
-#include <stdint.h>
+#include <cassert>
+#include <cstdint>
 
 #include "TString.h"
 #include "TH1F.h"
@@ -56,14 +56,14 @@ class MEtoEDMConverter : public edm::one::EDProducer<edm::one::WatchRuns,
 {
 public:
   explicit MEtoEDMConverter(const edm::ParameterSet&);
-  virtual ~MEtoEDMConverter();
-  virtual void beginJob() override;
-  virtual void endJob() override;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void beginRun(edm::Run const&, const edm::EventSetup&) override;
-  virtual void endRun(edm::Run const&, const edm::EventSetup&) override;
-  virtual void endRunProduce(edm::Run&, const edm::EventSetup&) override;
-  virtual void endLuminosityBlockProduce(edm::LuminosityBlock&, const edm::EventSetup&) override;
+  ~MEtoEDMConverter() override;
+  void beginJob() override;
+  void endJob() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(edm::Run const&, const edm::EventSetup&) override;
+  void endRun(edm::Run const&, const edm::EventSetup&) override;
+  void endRunProduce(edm::Run&, const edm::EventSetup&) override;
+  void endLuminosityBlockProduce(edm::LuminosityBlock&, const edm::EventSetup&) override;
 
   template <class T>
       void putData(T& iPutTo, bool iLumiOnly, uint32_t run, uint32_t lumi);

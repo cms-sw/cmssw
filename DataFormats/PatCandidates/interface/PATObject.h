@@ -60,7 +60,7 @@ namespace pat {
       /// constructor from reference
       PATObject(const edm::Ptr<ObjectType> & ref);
       /// destructor
-      virtual ~PATObject() {}
+      ~PATObject() override {}
       // returns a clone                                  // NO: ObjectType can be an abstract type like reco::Candidate
       // virtual PATObject<ObjectType> * clone() const ;  //     for which the clone() can't be defined
 
@@ -243,7 +243,7 @@ namespace pat {
       /// If you stored multiple GenParticles, you can specify which one you want.
       const reco::GenParticle * genParticle(size_t idx=0)    const {
             reco::GenParticleRef ref = genParticleRef(idx);
-            return ref.isNonnull() ? ref.get() : 0;
+            return ref.isNonnull() ? ref.get() : nullptr;
       }
       /// Number of generator level particles stored as ref or embedded
       size_t genParticlesSize() const {
@@ -488,7 +488,7 @@ namespace pat {
     if (refToOrig_.isNull()) {
       // this object was not produced from a reference, so no link to the
       // original object exists -> return a 0-pointer
-      return 0;
+      return nullptr;
     } else if (!refToOrig_.isAvailable()) {
       throw edm::Exception(edm::errors::ProductNotFound) << "The original collection from which this PAT object was made is not present any more in the event, hence you cannot access the originating object anymore.";
     } else {
@@ -501,9 +501,9 @@ namespace pat {
 
   template <class ObjectType>
   const TriggerObjectStandAlone * PATObject<ObjectType>::triggerObjectMatch( const size_t idx ) const {
-    if ( idx >= triggerObjectMatches().size() ) return 0;
+    if ( idx >= triggerObjectMatches().size() ) return nullptr;
     TriggerObjectStandAloneRef ref( &triggerObjectMatchesEmbedded_, idx );
-    return ref.isNonnull() ? ref.get() : 0;
+    return ref.isNonnull() ? ref.get() : nullptr;
   }
 
   template <class ObjectType>
@@ -521,9 +521,9 @@ namespace pat {
     for ( size_t i = 0; i < triggerObjectMatches().size(); ++i ) {
       if ( triggerObjectMatch( i ) != 0 && triggerObjectMatch( i )->hasTriggerObjectType( triggerObjectType ) ) refs.push_back( i );
     }
-    if ( idx >= refs.size() ) return 0;
+    if ( idx >= refs.size() ) return nullptr;
     TriggerObjectStandAloneRef ref( &triggerObjectMatchesEmbedded_, refs.at( idx ) );
-    return ref.isNonnull() ? ref.get() : 0;
+    return ref.isNonnull() ? ref.get() : nullptr;
   }
 
   template <class ObjectType>
@@ -543,9 +543,9 @@ namespace pat {
         refs.push_back( i );
       }
     }
-    if ( idx >= refs.size() ) return 0;
+    if ( idx >= refs.size() ) return nullptr;
     TriggerObjectStandAloneRef ref( &triggerObjectMatchesEmbedded_, refs.at( idx ) );
-    return ref.isNonnull() ? ref.get() : 0;
+    return ref.isNonnull() ? ref.get() : nullptr;
   }
 
   template <class ObjectType>
@@ -563,9 +563,9 @@ namespace pat {
     for ( size_t i = 0; i < triggerObjectMatches().size(); ++i ) {
       if ( triggerObjectMatch( i ) != 0 && triggerObjectMatch( i )->hasConditionName( nameCondition ) ) refs.push_back( i );
     }
-    if ( idx >= refs.size() ) return 0;
+    if ( idx >= refs.size() ) return nullptr;
     TriggerObjectStandAloneRef ref( &triggerObjectMatchesEmbedded_, refs.at( idx ) );
-    return ref.isNonnull() ? ref.get() : 0;
+    return ref.isNonnull() ? ref.get() : nullptr;
   }
 
   template <class ObjectType>
@@ -583,9 +583,9 @@ namespace pat {
     for ( size_t i = 0; i < triggerObjectMatches().size(); ++i ) {
       if ( triggerObjectMatch( i ) != 0 && triggerObjectMatch( i )->hasAlgorithmName( nameAlgorithm, algoCondAccepted ) ) refs.push_back( i );
     }
-    if ( idx >= refs.size() ) return 0;
+    if ( idx >= refs.size() ) return nullptr;
     TriggerObjectStandAloneRef ref( &triggerObjectMatchesEmbedded_, refs.at( idx ) );
-    return ref.isNonnull() ? ref.get() : 0;
+    return ref.isNonnull() ? ref.get() : nullptr;
   }
 
   template <class ObjectType>
@@ -603,9 +603,9 @@ namespace pat {
     for ( size_t i = 0; i < triggerObjectMatches().size(); ++i ) {
       if ( triggerObjectMatch( i ) != 0 && triggerObjectMatch( i )->hasFilterLabel( labelFilter ) ) refs.push_back( i );
     }
-    if ( idx >= refs.size() ) return 0;
+    if ( idx >= refs.size() ) return nullptr;
     TriggerObjectStandAloneRef ref( &triggerObjectMatchesEmbedded_, refs.at( idx ) );
-    return ref.isNonnull() ? ref.get() : 0;
+    return ref.isNonnull() ? ref.get() : nullptr;
   }
 
   template <class ObjectType>
@@ -623,9 +623,9 @@ namespace pat {
     for ( size_t i = 0; i < triggerObjectMatches().size(); ++i ) {
       if ( triggerObjectMatch( i ) != 0 && triggerObjectMatch( i )->hasPathName( namePath, pathLastFilterAccepted, pathL3FilterAccepted ) ) refs.push_back( i );
     }
-    if ( idx >= refs.size() ) return 0;
+    if ( idx >= refs.size() ) return nullptr;
     TriggerObjectStandAloneRef ref( &triggerObjectMatchesEmbedded_, refs.at( idx ) );
-    return ref.isNonnull() ? ref.get() : 0;
+    return ref.isNonnull() ? ref.get() : nullptr;
   }
 
   template <class ObjectType>

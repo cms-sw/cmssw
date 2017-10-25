@@ -1,5 +1,5 @@
 #include "FastSimulation/CTPPSFastGeometry/interface/CTPPSTrkDetector.h"
-#include <math.h>
+#include <cmath>
 CTPPSTrkDetector::CTPPSTrkDetector(double detw, double deth, double detin):
                 ppsDetectorWidth_(detw), ppsDetectorHeight_(deth), ppsDetectorPosition_(detin) {clear();}
 void CTPPSTrkDetector::AddHit(unsigned int detID,double x, double y, double z)

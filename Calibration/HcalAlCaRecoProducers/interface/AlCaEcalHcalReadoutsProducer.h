@@ -37,10 +37,10 @@
 class AlCaEcalHcalReadoutsProducer : public edm::EDProducer {
    public:
       explicit AlCaEcalHcalReadoutsProducer(const edm::ParameterSet&);
-      ~AlCaEcalHcalReadoutsProducer();
+      ~AlCaEcalHcalReadoutsProducer() override;
 
 
-      virtual void produce(edm::Event &, const edm::EventSetup&);
+      void produce(edm::Event &, const edm::EventSetup&) override;
    private:
       // ----------member data ---------------------------
 

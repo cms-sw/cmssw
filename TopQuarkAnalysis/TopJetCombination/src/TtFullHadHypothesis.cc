@@ -4,7 +4,7 @@
 /// default constructor
 TtFullHadHypothesis::TtFullHadHypothesis(const edm::ParameterSet& cfg):
   jetsToken_(consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))),
-  lightQ_(0), lightQBar_(0), b_(0), bBar_(0), lightP_(0), lightPBar_(0)
+  lightQ_(nullptr), lightQBar_(nullptr), b_(nullptr), bBar_(nullptr), lightP_(nullptr), lightPBar_(nullptr)
 {
   getMatch_ = false;
   if( cfg.exists("match") ) {
@@ -77,12 +77,12 @@ TtFullHadHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
 void
 TtFullHadHypothesis::resetCandidates()
 {
-  lightQ_    = 0;
-  lightQBar_ = 0;
-  b_         = 0;
-  bBar_      = 0;
-  lightP_    = 0;
-  lightPBar_ = 0;
+  lightQ_    = nullptr;
+  lightQBar_ = nullptr;
+  b_         = nullptr;
+  bBar_      = nullptr;
+  lightP_    = nullptr;
+  lightPBar_ = nullptr;
 }
 
 /// return event hypothesis

@@ -39,7 +39,7 @@ AlignmentStats::AlignmentStats(const edm::ParameterSet &iConfig) :
   //sanity checks
 
   //init
-  outtree_=0;
+  outtree_=nullptr;
 
 }//end constructor
 
@@ -184,7 +184,7 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
 	if (type == typeid(SiStripRecHit1D)) {
 	  //Notice the difference respect to when one loops on Trajectories: the recHit is a TrackingRecHit and not a TransientTrackingRecHit
 	  const SiStripRecHit1D* striphit=dynamic_cast<const  SiStripRecHit1D*>(hit);
-	  if(striphit!=0){
+	  if(striphit!=nullptr){
 	    SiStripRecHit1D::ClusterRef stripclust(striphit->cluster());
 	    inval = OverlapMap[stripclust];
 	  }
@@ -195,7 +195,7 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
 	}//end if sistriprechit1D
 	if (type == typeid(SiStripRecHit2D)) {
 	  const SiStripRecHit2D* striphit=dynamic_cast<const  SiStripRecHit2D*>(hit);
-	  if(striphit!=0){
+	  if(striphit!=nullptr){
 	    SiStripRecHit2D::ClusterRef stripclust(striphit->cluster());
 	    inval = OverlapMap[stripclust];
 	    //cout<<"Taken the Strip Cluster with ProdId "<<stripclust.id() <<"; the Value in the map is "<<inval<<"  (DetId is "<<hit->geographicalId().rawId()<<")"<<endl;
@@ -209,7 +209,7 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
       }//end if hit in Strips
       else{
 	const SiPixelRecHit* pixelhit= dynamic_cast<const SiPixelRecHit*>(hit);
-	if(pixelhit!=0){
+	if(pixelhit!=nullptr){
 	  SiPixelClusterRefNew pixclust(pixelhit->cluster());
 	  inval = OverlapMap[pixclust];
 	  //cout<<"Taken the Pixel Cluster with ProdId "<<pixclust.id() <<"; the Value in the map is "<<inval<<"  (DetId is "<<hit->geographicalId().rawId()<<")"<<endl;

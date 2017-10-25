@@ -77,11 +77,11 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset,
    deltaPhi1Low_(pset.getParameter<double>("DeltaPhi1Low")),
    deltaPhi1High_(pset.getParameter<double>("DeltaPhi1High")),
    deltaPhi1Coef1_(0.), deltaPhi1Coef2_(0.),
-   myMatchEle(0), myMatchPos(0),
-   thePropagator(0),
-   theMeasurementTracker(0),
+   myMatchEle(nullptr), myMatchPos(nullptr),
+   thePropagator(nullptr),
+   theMeasurementTracker(nullptr),
    theMeasurementTrackerEventTag(ts.token_measTrkEvt),
-   theSetup(0), 
+   theSetup(nullptr), 
    cacheIDMagField_(0),/*cacheIDGeom_(0),*/cacheIDNavSchool_(0),cacheIDCkfComp_(0),cacheIDTrkGeom_(0)
 {
   // so that deltaPhi1 = deltaPhi1Coef1_ + deltaPhi1Coef2_/clusterEnergyT
@@ -457,7 +457,7 @@ void ElectronSeedGenerator::seedsFromRecHits
      { continue ; }
     reco::ElectronSeed seed(pts_,recHits_,dir) ;
     seed.setCaloCluster(cluster) ;
-    addSeed(seed,0,positron,out) ;
+    addSeed(seed,nullptr,positron,out) ;
    }
  }
 
@@ -594,8 +594,8 @@ bool ElectronSeedGenerator::prepareElTrackSeed
 
   recHits_.clear();
 
-  SiPixelRecHit *pixhit=0;
-  SiStripMatchedRecHit2D *striphit=0;
+  SiPixelRecHit *pixhit=nullptr;
+  SiStripMatchedRecHit2D *striphit=nullptr;
   const SiPixelRecHit* constpixhit = dynamic_cast <const SiPixelRecHit*> (innerhit->hit());
   if (constpixhit) {
     pixhit=new SiPixelRecHit(*constpixhit);

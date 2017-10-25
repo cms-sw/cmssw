@@ -47,7 +47,7 @@ class PositionCalc
   math::XYZPoint Calculate_Location( const HitsAndFractions&      iDetIds  ,
 				     const edm::SortedCollection<HitType>*    iRecHits ,
 				     const CaloSubdetectorGeometry* iSubGeom ,
-				     const CaloSubdetectorGeometry* iESGeom = 0 ) ;
+				     const CaloSubdetectorGeometry* iESGeom = nullptr ) ;
 
  private:
   bool    param_LogWeighted_;
@@ -74,13 +74,13 @@ PositionCalc::Calculate_Location( const PositionCalc::HitsAndFractions& iDetIds 
   
   // Throw an error if the cluster was not initialized properly
   
-  if( 0 == iRecHits || 0 == iSubGeom ) {
+  if( nullptr == iRecHits || nullptr == iSubGeom ) {
     throw cms::Exception("PositionCalc")
       << "Calculate_Location() called uninitialized or wrong initialization.";
   }
   
-  if( 0 != iDetIds.size()   &&
-      0 != iRecHits->size()     ) {
+  if( !iDetIds.empty()   &&
+      !iRecHits->empty()     ) {
     
     HitsAndEnergies detIds; 
     detIds.reserve( iDetIds.size() ) ;
@@ -117,7 +117,7 @@ PositionCalc::Calculate_Location( const PositionCalc::HitsAndFractions& iDetIds 
 				    << " , returning (0,0,0)";
     } else {
       // first time or when es geom changes set flags
-      if( 0 != iESGeom && m_esGeom != iESGeom ) {
+      if( nullptr != iESGeom && m_esGeom != iESGeom ) {
 	m_esGeom = iESGeom ;
 	for( uint32_t ic ( 0 ) ;
 	     ( ic != m_esGeom->getValidDetIds().size() ) &&

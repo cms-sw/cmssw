@@ -29,9 +29,10 @@ if hasattr(theDigitizersNoNoise,"strip"):
     theDigitizersNoNoise.strip.FedAlgorithm = cms.int32(5) # special ZS mode: accept adc>0
     theDigitizersNoNoise.strip.makeDigiSimLinks = cms.untracked.bool(False)
 theDigitizersNoNoiseValid = cms.PSet(
-    theDigitizersNoNoise,
-    mergedtruth = SimGeneral.MixingModule.digitizers_cfi.trackingParticles
+    theDigitizersNoNoise
     )
+theDigitizersNoNoiseValid.mergedtruth.select.signalOnlyTP = cms.bool(False)
+
 if hasattr(theDigitizersNoNoiseValid,"pixel"):
     theDigitizersNoNoiseValid.pixel.makeDigiSimLinks = cms.untracked.bool(True)
 if hasattr(theDigitizersNoNoiseValid,"strip"):

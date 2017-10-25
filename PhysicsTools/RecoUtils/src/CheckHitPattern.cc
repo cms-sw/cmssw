@@ -134,7 +134,7 @@ CheckHitPattern::Result CheckHitPattern::analyze(const edm::EventSetup& iSetup,
   // Count number of valid hits on track definately in front of the vertex,
   // taking into account finite depth of each layer.
   unsigned int nHitBefore = 0;
-  for (int i = 0; i < hp.numberOfHits(reco::HitPattern::TRACK_HITS); i++) {
+  for (int i = 0; i < hp.numberOfAllHits(reco::HitPattern::TRACK_HITS); i++) {
       uint32_t hit = hp.getHitPattern(reco::HitPattern::TRACK_HITS, i);
       if (reco::HitPattern::trackerHitFilter(hit) && reco::HitPattern::validHitFilter(hit)) {
           uint32_t subDet = reco::HitPattern::getSubStructure(hit);
@@ -154,7 +154,7 @@ CheckHitPattern::Result CheckHitPattern::analyze(const edm::EventSetup& iSetup,
   // Count number of missing hits before the innermost hit on the track,
   // taking into account finite depth of each layer.
   unsigned int nMissHitAfter = 0;
-  for (int i = 0; i < ip.numberOfHits(reco::HitPattern::MISSING_INNER_HITS); i++) {
+  for (int i = 0; i < ip.numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS); i++) {
       uint32_t hit = ip.getHitPattern(reco::HitPattern::MISSING_INNER_HITS, i);
       //    if (ip.trackerHitFilter(hit)) {
       if (reco::HitPattern::trackerHitFilter(hit) && reco::HitPattern::missingHitFilter(hit)) {
@@ -189,7 +189,7 @@ void CheckHitPattern::print(const reco::Track& track) const {
 }
 
 void CheckHitPattern::print(const reco::HitPattern::HitCategory category, const reco::HitPattern& hp) const {
-    for (int i = 0; i < hp.numberOfHits(category); i++) {
+    for (int i = 0; i < hp.numberOfAllHits(category); i++) {
         uint32_t hit = hp.getHitPattern(category, i);
         if (reco::HitPattern::trackerHitFilter(hit)) {
             uint32_t subdet = reco::HitPattern::getSubStructure(hit);

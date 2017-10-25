@@ -48,7 +48,7 @@ MonitorElementsDb::MonitorElementsDb( const edm::ParameterSet& ps, std::string& 
       parser_->load();
     } catch( const std::runtime_error e ) {
       delete parser_;
-      parser_ = 0;
+      parser_ = nullptr;
       std::cerr << "Error loading parser: " << e.what() << std::endl;
     }
 
@@ -57,7 +57,7 @@ MonitorElementsDb::MonitorElementsDb( const edm::ParameterSet& ps, std::string& 
     for( unsigned int i=0; i< MEinfo_.size(); i++ ) {
 
       MonitorElement* tmp;
-      tmp = 0;
+      tmp = nullptr;
       if( strcmp(MEinfo_[i].type.c_str(), "th1d") == 0 ) {
         tmp = dqmStore_->book1D( MEinfo_[i].title, MEinfo_[i].title, MEinfo_[i].xbins, MEinfo_[i].xfrom, MEinfo_[i].xto );
       }
@@ -100,7 +100,7 @@ void MonitorElementsDb::endJob( void ){
 
   std::cout << "MonitorElementsDb: analyzed " << ievt_ << " events" << std::endl;
   for( unsigned int i = 0; i<MEs_.size(); i++ ) {
-    if( MEs_[i] != 0 ) dqmStore_->removeElement( MEs_[i]->getName() );
+    if( MEs_[i] != nullptr ) dqmStore_->removeElement( MEs_[i]->getName() );
   }
 
 }
@@ -120,7 +120,7 @@ void MonitorElementsDb::analyze( const edm::Event& e, const edm::EventSetup& c, 
 
       // i-th ME...
 
-      if( MEs_[i] != 0 && ( ievt_ % MEinfo_[i].ncycle ) == 0 ) {
+      if( MEs_[i] != nullptr && ( ievt_ % MEinfo_[i].ncycle ) == 0 ) {
 
         MEs_[i]->Reset();
 
@@ -165,7 +165,7 @@ void MonitorElementsDb::analyze( const edm::Event& e, const edm::EventSetup& c, 
             vvars.clear();
             for( unsigned int l=0; l<vars.size(); l++ ) {
               if( !vars[l].empty() ) {
-        	vvars.push_back( row[vars[l].c_str()].data<float>() );
+        	vvars.push_back( row[vars[l]].data<float>() );
               }
             }
             if( vvars.size() == 2 ) {
@@ -210,11 +210,11 @@ void MonitorElementsDb::htmlOutput(std::string& htmlDir){
 
   gStyle->SetOptStat(0);
   gStyle->SetOptFit();
-  gStyle->SetPalette(1,0);
+  gStyle->SetPalette(1,nullptr);
 
   for( unsigned int i=0; i<MEinfo_.size(); i++ ) {
 
-    if( MEs_[i] != 0 && ( ievt_ % MEinfo_[i].ncycle ) == 0 ) {
+    if( MEs_[i] != nullptr && ( ievt_ % MEinfo_[i].ncycle ) == 0 ) {
 
       TCanvas* c1;
       int n = MEinfo_[i].xbins > MEinfo_[i].ybins ? int( round( float( MEinfo_[i].xbins ) / float( MEinfo_[i].ybins ) ) ) :

@@ -238,7 +238,7 @@ void AlignableMuon::buildCSCEndcap(const CSCGeometry* pCSC, bool update)
 
         if (!update) {
           // Not all stations have 4 rings: only add the rings that exist (have chambers associated with them)
-          if (tmpCSCChambersInRing.size() > 0) {
+          if (!tmpCSCChambersInRing.empty()) {
 
             // Store the alignable CSC chambers
             theCSCChambers.insert(theCSCChambers.end(),

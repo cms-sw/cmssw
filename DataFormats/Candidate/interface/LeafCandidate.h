@@ -63,153 +63,153 @@ namespace reco {
     }
 
     /// destructor
-    virtual ~LeafCandidate();
+    ~LeafCandidate() override;
     /// number of daughters
-    virtual size_t numberOfDaughters() const;
+    size_t numberOfDaughters() const override;
     /// return daughter at a given position (throws an exception)
-    virtual const Candidate * daughter( size_type ) const;
+    const Candidate * daughter( size_type ) const override;
     /// number of mothers
-    virtual size_t numberOfMothers() const;
+    size_t numberOfMothers() const override;
     /// return mother at a given position (throws an exception)
-    virtual const Candidate * mother( size_type ) const;
+    const Candidate * mother( size_type ) const override;
     /// return daughter at a given position (throws an exception)
-    virtual Candidate * daughter( size_type );
+    Candidate * daughter( size_type ) override;
     /// return daughter with a specified role name
-    virtual Candidate * daughter(const std::string& s );
+    Candidate * daughter(const std::string& s ) override;
     /// return daughter with a specified role name                                        
-    virtual const Candidate * daughter(const std::string& s ) const;
+    const Candidate * daughter(const std::string& s ) const override;
     /// return the number of source Candidates                                            
     /// ( the candidates used to construct this Candidate)                                
-    virtual size_t numberOfSourceCandidatePtrs() const { return 0;}
+    size_t numberOfSourceCandidatePtrs() const override { return 0;}
     /// return a Ptr to one of the source Candidates                                      
     /// ( the candidates used to construct this Candidate)                                
-    virtual CandidatePtr sourceCandidatePtr( size_type i ) const {
+    CandidatePtr sourceCandidatePtr( size_type i ) const override {
       return CandidatePtr();
     }
 
     /// electric charge
-    virtual int charge() const final { return m_state.charge(); }
+    int charge() const final { return m_state.charge(); }
     /// set electric charge                                                               
-    virtual void setCharge( Charge q ) final { m_state.setCharge(q); }
+    void setCharge( Charge q ) final { m_state.setCharge(q); }
     /// electric charge                                                                   
-    virtual int threeCharge() const final { return m_state.threeCharge(); }
+    int threeCharge() const final { return m_state.threeCharge(); }
     /// set electric charge                                                               
-    virtual void setThreeCharge( Charge qx3 ) final {m_state.setThreeCharge(qx3); }
+    void setThreeCharge( Charge qx3 ) final {m_state.setThreeCharge(qx3); }
     /// four-momentum Lorentz vector                                                      
-    virtual const LorentzVector & p4() const final { return m_state.p4(); }
+    const LorentzVector & p4() const final { return m_state.p4(); }
     /// four-momentum Lorentz vector                                                      
-    virtual const PolarLorentzVector & polarP4() const final { return m_state.polarP4(); }
+    const PolarLorentzVector & polarP4() const final { return m_state.polarP4(); }
     /// spatial momentum vector                                                           
-    virtual Vector momentum() const final { return m_state.momentum(); }
+    Vector momentum() const final { return m_state.momentum(); }
     /// boost vector to boost a Lorentz vector                                            
     /// to the particle center of mass system                                             
-    virtual Vector boostToCM() const final { return m_state.boostToCM(); }
+    Vector boostToCM() const final { return m_state.boostToCM(); }
     /// magnitude of momentum vector                                                      
-    virtual double p() const final { return m_state.p(); }
+    double p() const final { return m_state.p(); }
     /// energy                                                                            
-    virtual double energy() const final { return m_state.energy(); }
+    double energy() const final { return m_state.energy(); }
     /// transverse energy                                                                 
-    virtual double et() const final { return m_state.et(); }
+    double et() const final { return m_state.et(); }
     /// transverse energy squared (use this for cut!)                                                                 
-    virtual double et2() const final { return m_state.et2(); }
+    double et2() const final { return m_state.et2(); }
     /// mass                                                                              
-    virtual double mass() const final { return m_state.mass(); }
+    double mass() const final { return m_state.mass(); }
     /// mass squared                                                                      
-    virtual double massSqr() const final { return mass() * mass(); }
+    double massSqr() const final { return mass() * mass(); }
 
     /// transverse mass                                                                   
-    virtual double mt() const final  { return m_state.mt(); }
+    double mt() const final  { return m_state.mt(); }
     /// transverse mass squared                                                           
-    virtual double mtSqr() const final  { return m_state.mtSqr(); }
+    double mtSqr() const final  { return m_state.mtSqr(); }
     /// x coordinate of momentum vector                                                   
-    virtual double px() const final  {  return m_state.px(); }
+    double px() const final  {  return m_state.px(); }
     /// y coordinate of momentum vector                                                   
-    virtual double py() const final  { return m_state.py(); }
+    double py() const final  { return m_state.py(); }
     /// z coordinate of momentum vector                                                   
-    virtual double pz() const final  {  return m_state.pz(); }
+    double pz() const final  {  return m_state.pz(); }
     /// transverse momentum                                                               
-    virtual double pt() const final  { return m_state.pt();}
+    double pt() const final  { return m_state.pt();}
     /// momentum azimuthal angle                                                          
-    virtual double phi() const final  { return m_state.phi(); }
+    double phi() const final  { return m_state.phi(); }
     /// momentum polar angle                                                              
-    virtual double theta() const final  {  return m_state.theta(); }
+    double theta() const final  {  return m_state.theta(); }
     /// momentum pseudorapidity                                                           
-    virtual  double eta() const final  { return m_state.eta(); }
+     double eta() const final  { return m_state.eta(); }
     /// rapidity                                                                          
-    virtual double rapidity() const final  {  return m_state.rapidity(); }
+    double rapidity() const final  {  return m_state.rapidity(); }
     /// rapidity                                                                          
-    virtual double y() const final  { return rapidity(); }
+    double y() const final  { return rapidity(); }
     /// set 4-momentum                                                                    
-    virtual void setP4( const LorentzVector & p4 ) final  { m_state.setP4(p4);}
+    void setP4( const LorentzVector & p4 ) final  { m_state.setP4(p4);}
     /// set 4-momentum                                                                    
-    virtual void setP4( const PolarLorentzVector & p4 ) final  {m_state.setP4(p4); }
+    void setP4( const PolarLorentzVector & p4 ) final  {m_state.setP4(p4); }
     /// set particle mass                                                                 
-    virtual void setMass( double m ) final  {m_state.setMass(m);}
-    virtual void setPz( double pz ) final  { m_state.setPz(pz);}
+    void setMass( double m ) final  {m_state.setMass(m);}
+    void setPz( double pz ) final  { m_state.setPz(pz);}
     /// vertex position                 (overwritten by PF...)                                                  
-    virtual const Point & vertex() const { return m_state.vertex(); }
+    const Point & vertex() const override { return m_state.vertex(); }
     /// x coordinate of vertex position                                                   
-    virtual double vx() const  { return m_state.vx(); }
+    double vx() const override  { return m_state.vx(); }
     /// y coordinate of vertex position                                                   
-    virtual double vy() const  { return m_state.vy(); }
+    double vy() const override  { return m_state.vy(); }
     /// z coordinate of vertex position                                                   
-    virtual double vz() const  { return m_state.vz(); }
+    double vz() const override  { return m_state.vz(); }
     /// set vertex                                                                        
-    virtual void setVertex( const Point & vertex )   { m_state.setVertex(vertex); }
+    void setVertex( const Point & vertex ) override   { m_state.setVertex(vertex); }
 
     /// PDG identifier                                                                    
-    virtual int pdgId() const final  { return m_state.pdgId(); }
+    int pdgId() const final  { return m_state.pdgId(); }
     // set PDG identifier                                                                 
-    virtual void setPdgId( int pdgId ) final  { m_state.setPdgId(pdgId); }
+    void setPdgId( int pdgId ) final  { m_state.setPdgId(pdgId); }
     /// status word                                                                       
-    virtual int status() const final  { return m_state.status(); }
+    int status() const final  { return m_state.status(); }
     /// set status word                                                                   
-    virtual void setStatus( int status ) final  { m_state.setStatus(status); }
+    void setStatus( int status ) final  { m_state.setStatus(status); }
     /// long lived flag                                                                   
     /// set long lived flag                                                               
-    virtual void setLongLived() final  { m_state.setLongLived(); }
+    void setLongLived() final  { m_state.setLongLived(); }
     /// is long lived?                                                                    
-    virtual bool longLived() const final  { return m_state.longLived(); }
+    bool longLived() const final  { return m_state.longLived(); }
     /// do mass constraint flag
     /// set mass constraint flag
-    virtual void setMassConstraint() final  { m_state.setMassConstraint();}
+    void setMassConstraint() final  { m_state.setMassConstraint();}
     /// do mass constraint?
-    virtual bool massConstraint() const final  { return m_state.massConstraint(); }
+    bool massConstraint() const final  { return m_state.massConstraint(); }
 
     /// returns a clone of the Candidate object                                           
-    virtual LeafCandidate * clone() const  {
+    LeafCandidate * clone() const override  {
       return new LeafCandidate( *this );
     }
 
     /// chi-squares                                                                                                    
-    virtual double vertexChi2() const;
+    double vertexChi2() const override;
     /** Number of degrees of freedom                                                                                   
      *  Meant to be Double32_t for soft-assignment fitters:                                                            
      *  tracks may contribute to the vertex with fractional weights.                                                   
      *  The ndof is then = to the sum of the track weights.                                                            
      *  see e.g. CMS NOTE-2006/032, CMS NOTE-2004/002                                                                  
      */
-    virtual double vertexNdof() const;
+    double vertexNdof() const override;
     /// chi-squared divided by n.d.o.f.                                                                                
-    virtual double vertexNormalizedChi2() const;
+    double vertexNormalizedChi2() const override;
     /// (i, j)-th element of error matrix, i, j = 0, ... 2                                                             
-    virtual double vertexCovariance(int i, int j) const;
+    double vertexCovariance(int i, int j) const override;
     /// return SMatrix                                                                                                 
     CovarianceMatrix vertexCovariance() const final  { CovarianceMatrix m; fillVertexCovariance(m); return m; }
     /// fill SMatrix                                                                                                   
-    virtual void fillVertexCovariance(CovarianceMatrix & v) const;
+    void fillVertexCovariance(CovarianceMatrix & v) const override;
     /// returns true if this candidate has a reference to a master clone.                                              
     /// This only happens if the concrete Candidate type is ShallowCloneCandidate                                      
-    virtual bool hasMasterClone() const;
+    bool hasMasterClone() const override;
     /// returns ptr to master clone, if existing.                                                                      
     /// Throws an exception unless the concrete Candidate type is ShallowCloneCandidate                                
-    virtual const CandidateBaseRef & masterClone() const;
+    const CandidateBaseRef & masterClone() const override;
     /// returns true if this candidate has a ptr to a master clone.                                                    
     /// This only happens if the concrete Candidate type is ShallowClonePtrCandidate                                   
-    virtual bool hasMasterClonePtr() const;
+    bool hasMasterClonePtr() const override;
     /// returns ptr to master clone, if existing.                                                                      
     /// Throws an exception unless the concrete Candidate type is ShallowClonePtrCandidate                             
-    virtual const CandidatePtr & masterClonePtr() const;
+    const CandidatePtr & masterClonePtr() const override;
 
     /// cast master clone reference to a concrete type                                                                 
     template<typename Ref>
@@ -248,22 +248,22 @@ namespace reco {
 
 
 
-    virtual bool isElectron() const;
-    virtual bool isMuon() const;
-    virtual bool isStandAloneMuon() const;
-    virtual bool isGlobalMuon() const;
-    virtual bool isTrackerMuon() const;
-    virtual bool isCaloMuon() const;
-    virtual bool isPhoton() const;
-    virtual bool isConvertedPhoton() const;
-    virtual bool isJet() const;
+    bool isElectron() const override;
+    bool isMuon() const override;
+    bool isStandAloneMuon() const override;
+    bool isGlobalMuon() const override;
+    bool isTrackerMuon() const override;
+    bool isCaloMuon() const override;
+    bool isPhoton() const override;
+    bool isConvertedPhoton() const override;
+    bool isJet() const override;
 
   private:
     ParticleState m_state;
 
     private:
     /// check overlap with another Candidate                                              
-    virtual bool overlap( const Candidate & ) const;
+    bool overlap( const Candidate & ) const override;
     template<typename, typename, typename> friend struct component;
     friend class ::OverlapChecker;
     friend class ShallowCloneCandidate;

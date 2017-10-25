@@ -44,9 +44,9 @@ int main(int argc, char* argv[])
   std::cout << "open  file: " << argv[1] << std::endl;
   // -------------------------------------------------
   TFile* inFile = TFile::Open(argv[1]);
-  TTree* events_= 0;
+  TTree* events_= nullptr;
   if( inFile ) inFile->GetObject("Events", events_); 
-  if( events_==0 ){
+  if( events_==nullptr ){
     // -------------------------------------------------  
     std::cerr << "ERROR:: " 
 	      << "Unable to retrieve TTree Events!" << std::endl
@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
   // acess branch of elecs
   char jetsName[50];
   sprintf(jetsName, "patJets_selectedPatJets__%s.obj", argv[2]);
-  TBranch* jets_ = events_->GetBranch( jetsName ); assert( jets_!=0 );
+  TBranch* jets_ = events_->GetBranch( jetsName ); assert( jets_!=nullptr );
   
   // loop over events and fill histograms
   std::vector<pat::Jet> jets;

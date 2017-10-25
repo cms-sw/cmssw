@@ -35,7 +35,7 @@ InOutConversionTrackFinder::InOutConversionTrackFinder(const edm::ParameterSet& 
  } else if (cleaner == "CachingSeedCleanerBySharedInput") {
    theSeedCleaner_ = new CachingSeedCleanerBySharedInput();
  } else if (cleaner == "none") {
-   theSeedCleaner_ = 0;
+   theSeedCleaner_ = nullptr;
  } else {
    throw cms::Exception("InOutRedundantSeedCleaner not found", cleaner);
  }

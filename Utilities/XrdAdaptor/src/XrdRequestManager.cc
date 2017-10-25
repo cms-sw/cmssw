@@ -1,5 +1,5 @@
 
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 #include <algorithm>
 #include <netdb.h>
@@ -69,7 +69,7 @@ long long timeDiffMS(const timespec &a, const timespec &b)
  */
 class SendMonitoringInfoHandler : boost::noncopyable, public XrdCl::ResponseHandler
 {
-    virtual void HandleResponse(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response) override
+    void HandleResponse(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response) override
     {
         if (response)
         {
@@ -99,7 +99,7 @@ SendMonitoringInfo(XrdCl::File &file)
     const char * jobId = edm::storage::StatisticsSenderService::getJobID();
     std::string lastUrl;
     file.GetProperty("LastURL", lastUrl);
-    if (jobId && lastUrl.size())
+    if (jobId && !lastUrl.empty())
     {
         XrdCl::URL url(lastUrl);
         XrdCl::FileSystem fs(url);
@@ -152,7 +152,7 @@ RequestManager::initialize(std::weak_ptr<RequestManager> self)
   {
     file.reset(new XrdCl::File());
     auto opaque = prepareOpaqueString();
-    std::string new_filename = m_name + (opaque.size() ? ((m_name.find("?") == m_name.npos) ? "?" : "&") + opaque : "");
+    std::string new_filename = m_name + (!opaque.empty() ? ((m_name.find("?") == m_name.npos) ? "?" : "&") + opaque : "");
     SyncHostResponseHandler handler;
     XrdCl::XRootDStatus openStatus = file->Open(new_filename, m_flags, m_perms, &handler);
     if (!openStatus.IsOK())
@@ -197,11 +197,11 @@ RequestManager::initialize(std::weak_ptr<RequestManager> self)
       std::string dataServer, lastUrl;
       file->GetProperty("DataServer", dataServer);
       file->GetProperty("LastURL", lastUrl);
-      if (dataServer.size())
+      if (!dataServer.empty())
       {
         ex.addAdditionalInfo("Problematic data server: " + dataServer);
       }
-      if (lastUrl.size())
+      if (!lastUrl.empty())
       {
         ex.addAdditionalInfo("Last URL tried: " + lastUrl);
         edm::LogWarning("XrdAdaptorInternal") << "Failed to open file at URL " << lastUrl << ".";
@@ -211,7 +211,7 @@ RequestManager::initialize(std::weak_ptr<RequestManager> self)
         ex << ". No additional data servers were found.";
         throw ex;
       }
-      if (dataServer.size())
+      if (!dataServer.empty())
       {
         m_disabledSourceStrings.insert(dataServer);
         m_disabledExcludeStrings.insert(excludeString);
@@ -291,10 +291,10 @@ RequestManager::queueUpdateCurrentServer(const std::string &id)
 namespace  {
   std::string formatSites(std::vector<std::shared_ptr<Source> > const& iSources) {
     std::string siteA, siteB;
-    if (iSources.size()) {siteA = iSources[0]->Site();}
+    if (!iSources.empty()) {siteA = iSources[0]->Site();}
     if (iSources.size() == 2) {siteB = iSources[1]->Site();}
     std::string siteList = siteA;
-    if (siteB.size() && (siteB != siteA)) {siteList = siteA + ", " + siteB;}
+    if (!siteB.empty() && (siteB != siteA)) {siteList = siteA + ", " + siteB;}
     return siteList;
   }
 }
@@ -305,15 +305,15 @@ RequestManager::reportSiteChange(std::vector<std::shared_ptr<Source> > const& iO
                                std::string orig_site) const
 {
   auto siteList = formatSites(iNew);
-  if (orig_site.size() && (orig_site != siteList))
+  if (!orig_site.empty() && (orig_site != siteList))
   {
     edm::LogWarning("XrdAdaptor") << "Data is served from " << siteList << " instead of original site " << orig_site;
   }
   else {
     auto oldSites = formatSites(iOld);
-    if (!orig_site.size() && (siteList != oldSites))
+    if (orig_site.empty() && (siteList != oldSites))
     {
-      if (oldSites.size() >0 )
+      if (!oldSites.empty() )
         edm::LogWarning("XrdAdaptor") << "Data is now served from " << siteList << " instead of previous " << oldSites;
     }
   }
@@ -734,19 +734,19 @@ XrdAdaptor::RequestManager::handle(std::shared_ptr<std::vector<IOPosBuffer> > io
 
     std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr1, c_ptr2;
     std::future<IOSize> future1, future2;
-    if (req1->size())
+    if (!req1->empty())
     {
         c_ptr1.reset(new XrdAdaptor::ClientRequest(*this, req1));
         activeSources[0]->handle(c_ptr1);
         future1 = c_ptr1->get_future();
     }
-    if (req2->size())
+    if (!req2->empty())
     {
         c_ptr2.reset(new XrdAdaptor::ClientRequest(*this, req2));
         activeSources[1]->handle(c_ptr2);
         future2 = c_ptr2->get_future();
     }
-    if (req1->size() && req2->size())
+    if (!req1->empty() && !req2->empty())
     {
         std::future<IOSize> task = std::async(std::launch::deferred,
             [](std::future<IOSize> a, std::future<IOSize> b){
@@ -770,8 +770,8 @@ XrdAdaptor::RequestManager::handle(std::shared_ptr<std::vector<IOPosBuffer> > io
         //edm::LogVerbatim("XrdAdaptorInternal") << "Total time to create requests " << static_cast<int>(1000*timer.realTime()) << std::endl;
         return task;
     }
-    else if (req1->size()) { return future1; }
-    else if (req2->size()) { return future2; }
+    else if (!req1->empty()) { return future1; }
+    else if (!req2->empty()) { return future2; }
     else
     {   // Degenerate case - no bytes to read.
         std::promise<IOSize> p; p.set_value(0);
@@ -808,7 +808,7 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr,
     m_disabledSources.insert(source_ptr);
 
     std::unique_lock<std::recursive_mutex> sentry(m_source_mutex);
-    if ((m_activeSources.size() > 0) && (m_activeSources[0].get() == source_ptr.get()))
+    if ((!m_activeSources.empty()) && (m_activeSources[0].get() == source_ptr.get()))
     {
         auto oldSources = m_activeSources;
         m_activeSources.erase(m_activeSources.begin());
@@ -821,7 +821,7 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr,
         reportSiteChange(oldSources, m_activeSources);
     }
     std::shared_ptr<Source> new_source;
-    if (m_activeSources.size() == 0)
+    if (m_activeSources.empty())
     {
         std::shared_future<std::shared_ptr<Source> > future = m_open_handler->open();
         timespec now;
@@ -894,7 +894,7 @@ consumeChunkFront(size_t &front, std::vector<IOPosBuffer> &input, std::vector<IO
         if (io.size() > chunksize)
         {
             IOSize consumed;
-            if (output.size() && (outio.size() < XRD_CL_MAX_CHUNK) && (outio.offset() + static_cast<IOOffset>(outio.size()) == io.offset()))
+            if (!output.empty() && (outio.size() < XRD_CL_MAX_CHUNK) && (outio.offset() + static_cast<IOOffset>(outio.size()) == io.offset()))
             {
                 if (outio.size() + chunksize > XRD_CL_MAX_CHUNK)
                 {
@@ -943,7 +943,7 @@ consumeChunkBack(size_t front, std::vector<IOPosBuffer> &input, std::vector<IOPo
         if (io.size() > chunksize)
         {
             IOSize consumed;
-            if (output.size() && (outio.size() < XRD_CL_MAX_CHUNK) && (outio.offset() + static_cast<IOOffset>(outio.size()) == io.offset()))
+            if (!output.empty() && (outio.size() < XRD_CL_MAX_CHUNK) && (outio.offset() + static_cast<IOOffset>(outio.size()) == io.offset()))
             {
                 if (outio.size() + chunksize > XRD_CL_MAX_CHUNK)
                 {
@@ -1001,7 +1001,7 @@ static IOSize validateList(const std::vector<IOPosBuffer> req)
 void
 XrdAdaptor::RequestManager::splitClientRequest(const std::vector<IOPosBuffer> &iolist, std::vector<IOPosBuffer> &req1, std::vector<IOPosBuffer> &req2, std::vector<std::shared_ptr<Source>> const& activeSources) const
 {
-    if (iolist.size() == 0) return;
+    if (iolist.empty()) return;
     std::vector<IOPosBuffer> tmp_iolist(iolist.begin(), iolist.end());
     req1.reserve(iolist.size()/2+1);
     req2.reserve(iolist.size()/2+1);
@@ -1136,7 +1136,7 @@ XrdAdaptor::RequestManager::OpenHandler::current_source()
     }
     std::string dataServer;
     m_file->GetProperty("DataServer", dataServer);
-    if (!dataServer.size()) { return "(unknown source)"; }
+    if (dataServer.empty()) { return "(unknown source)"; }
     return dataServer;
 }
 

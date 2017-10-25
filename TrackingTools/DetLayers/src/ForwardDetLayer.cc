@@ -105,7 +105,7 @@ ForwardDetLayer::compatible( const TrajectoryStateOnSurface& ts,
 			     const Propagator& prop, 
 			     const MeasurementEstimator&) const
 {
-  if unlikely(theDisk == 0)  edm::LogError("DetLayers") 
+  if unlikely(theDisk == nullptr)  edm::LogError("DetLayers") 
     << "ERROR: BarrelDetLayer::compatible() is used before the layer surface is initialized" ;
   // throw an exception? which one?
 

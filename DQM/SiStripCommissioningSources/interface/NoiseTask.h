@@ -20,13 +20,13 @@ class NoiseTask: public CommissioningTask
 {
   public:
     NoiseTask( DQMStore *, const FedChannelConnection &);
-    virtual ~NoiseTask();
+    ~NoiseTask() override;
     
   private:
-    virtual void book();
-    virtual void fill( const SiStripEventSummary &,
-                       const edm::DetSet<SiStripRawDigi> &);
-    virtual void update();
+    void book() override;
+    void fill( const SiStripEventSummary &,
+                       const edm::DetSet<SiStripRawDigi> &) override;
+    void update() override;
 
     std::vector<HistoSet> peds_;
     std::vector<HistoSet> cm_;

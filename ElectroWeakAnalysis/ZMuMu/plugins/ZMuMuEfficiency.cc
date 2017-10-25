@@ -37,13 +37,13 @@ class ZMuMuEfficiency : public edm::EDAnalyzer {
 public:
   ZMuMuEfficiency(const edm::ParameterSet& pset);
 private:
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
   bool check_ifZmumu(const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
   float getParticlePt(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
   float getParticleEta(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
   float getParticlePhi(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
   Particle::LorentzVector getParticleP4(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
-  virtual void endJob() override;
+  void endJob() override;
 
   EDGetTokenT<CandidateView> zMuMuToken_;
   EDGetTokenT<GenParticleMatch> zMuMuMatchMapToken_;
@@ -340,10 +340,10 @@ void ZMuMuEfficiency::analyze(const Event& event, const EventSetup& setup) {
 	    h_muptGenPassed_->Fill(mupluspt);
 	    h_muptGenPassed_->Fill(muminuspt);
 
-	    if (zMuMu->size() > 0 ) {
+	    if (!zMuMu->empty() ) {
 	      n_zMuMufound_genZsele++;
 	    }
-	    else if (zMuStandAlone->size() > 0 ) {
+	    else if (!zMuStandAlone->empty() ) {
 		n_zMuStafound_genZsele++;
 	    }
 	    else {
@@ -360,7 +360,7 @@ void ZMuMuEfficiency::analyze(const Event& event, const EventSetup& setup) {
 
   //TRACK efficiency (conto numero di eventi Zmumu global e ZmuSta (ricorda che sono due campioni esclusivi)
 
-  if (zMuMu->size() > 0 ) {
+  if (!zMuMu->empty() ) {
     numberOfEventsWithZMuMufound++;
     event.getByToken(zMuMuMatchMapToken_, zMuMuMatchMap);
     event.getByToken(muonIsoToken_, muonIso);
@@ -421,7 +421,7 @@ void ZMuMuEfficiency::analyze(const Event& event, const EventSetup& setup) {
     }
   }
 
-  if (zMuStandAlone->size() > 0) {
+  if (!zMuStandAlone->empty()) {
     numberOfEventsWithZMuStafound++;
     event.getByToken(zMuStandAloneMatchMapToken_, zMuStandAloneMatchMap);
     event.getByToken(muonIsoToken_, muonIso);
@@ -472,7 +472,7 @@ void ZMuMuEfficiency::analyze(const Event& event, const EventSetup& setup) {
 
   //STANDALONE efficiency
 
-  if (zMuTrack->size() > 0) {
+  if (!zMuTrack->empty()) {
     event.getByToken(zMuTrackMatchMapToken_, zMuTrackMatchMap);
     event.getByToken(muonIsoToken_, muonIso);
     event.getByToken(trackIsoToken_, trackIso);

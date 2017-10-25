@@ -19,19 +19,19 @@ class DualTrajectoryFactory : public TrajectoryFactoryBase
 {
 public:
   DualTrajectoryFactory(const edm::ParameterSet &config);
-  virtual ~DualTrajectoryFactory();
+  ~DualTrajectoryFactory() override;
 
   /// Produce the reference trajectories.
-  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup  &setup,
+  const ReferenceTrajectoryCollection trajectories(const edm::EventSetup  &setup,
 							   const ConstTrajTrackPairCollection &tracks,
 							   const reco::BeamSpot &beamSpot) const override;
 
-  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
+  const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
 							   const ConstTrajTrackPairCollection &tracks,
 							   const ExternalPredictionCollection &external,
 							   const reco::BeamSpot &beamSpot) const override;
 
-  virtual DualTrajectoryFactory* clone() const override { return new DualTrajectoryFactory(*this); }
+  DualTrajectoryFactory* clone() const override { return new DualTrajectoryFactory(*this); }
 
 protected:
   struct DualTrajectoryInput

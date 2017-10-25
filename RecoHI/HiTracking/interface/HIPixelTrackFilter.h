@@ -15,8 +15,8 @@ public:
 	                   double lipMax, double lipMaxTolerance,
 	                   double chi2max,
 	                   bool useClusterShape);
-	virtual ~HIPixelTrackFilter();
-	virtual bool operator() (const reco::Track*, const PixelTrackFilterBase::Hits & hits) const override;
+	~HIPixelTrackFilter() override;
+	bool operator() (const reco::Track*, const PixelTrackFilterBase::Hits & hits) const override;
 private:
 	const reco::VertexCollection *theVertices;
 	double theTIPMax, theNSigmaTipMaxTolerance;

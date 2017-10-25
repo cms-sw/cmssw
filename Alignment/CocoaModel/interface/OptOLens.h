@@ -23,15 +23,15 @@ public:
   OptOLens();
   OptOLens(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data) : 
   OpticalObject( parent, type, name, copy_data){ };
-  ~OptOLens(){ };
+  ~OptOLens() override{ };
 
   //---------- Propagate light for measurement meas
-  virtual void participateInMeasurement( LightRay& lightray, Measurement& meas, const ALIstring& behav );
+  void participateInMeasurement( LightRay& lightray, Measurement& meas, const ALIstring& behav ) override;
 
 #ifdef COCOA_VIS
   virtual void fillIguana();
 #endif
-  void constructSolidShape();
+  void constructSolidShape() override;
 
 };
 

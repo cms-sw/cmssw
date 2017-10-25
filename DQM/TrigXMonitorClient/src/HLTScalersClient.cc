@@ -65,9 +65,9 @@ const int kPerHisto = 20;
 
 /// Constructors
 HLTScalersClient::HLTScalersClient(const edm::ParameterSet& ps):
-  dbe_(0),
+  dbe_(nullptr),
   nLumi_(0),
-  currentRate_(0),
+  currentRate_(nullptr),
   currentLumiBlockNumber_(0),
   first_(true), missingPathNames_(true),
   folderName_(ps.getUntrackedParameter<std::string>("dqmFolder", 
@@ -162,7 +162,7 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   // get raw data
   std::string scalHisto = folderName_ + "/raw/hltScalers";
   MonitorElement *scalers = dbe_->get(scalHisto);
-  if ( scalers == 0 ) {
+  if ( scalers == nullptr ) {
     LogDebug("HLTScalersClient") << "cannot get hlt scalers histogram, "
 				 << "bailing out.";
     if ( debug_ )
@@ -338,15 +338,15 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
   std::string nLumiHisto(folderName_ + "/nLumiBlock");
   MonitorElement *nLumi = dbe_->get(nLumiHisto);
-  if ( nLumi == 0 ) {
+  if ( nLumi == nullptr ) {
     nLumiHisto = folderName_ + "/raw/nLumiBlock";
     nLumi = dbe_->get(nLumiHisto);
   }
-  int testval = (nLumi!=0?nLumi->getIntValue():-1);
+  int testval = (nLumi!=nullptr?nLumi->getIntValue():-1);
   LogDebug("HLTScalersClient") << "Lumi Block from DQM: "
 			<< testval
 			<< ", local is " << nLumi_;
-  int nL = (nLumi!=0?nLumi->getIntValue():nLumi_);
+  int nL = (nLumi!=nullptr?nLumi->getIntValue():nLumi_);
   if ( nL > MAX_LUMI_SEG_HLT ) {
     LogDebug("HLTScalersClient") << "Too many Lumi segments, "
 				 << nL << " is greater than MAX_LUMI_SEG_HLT,"
@@ -360,7 +360,7 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   double num_fu = -1.0;
   std::string mergeName(folderName_ + "/raw/hltMerge");
   MonitorElement *merge = dbe_->get(mergeName);
-  if ( merge != 0 ) {
+  if ( merge != nullptr ) {
     num_fu = merge->getBinContent(1);
     if ( debug_ ) {
       std::cout << "Number of received entries: " << num_fu
@@ -383,7 +383,7 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
   std::string overallScalerName(folderName_ + "/raw/hltOverallScaler");
   MonitorElement *hltScaler = dbe_->get(overallScalerName);
-  if ( hltScaler != 0 ) {
+  if ( hltScaler != nullptr ) {
     double current_count = hltScaler->getBinContent(1);
     hltCount_->setBinContent(nL,current_count);
     recentOverallCountsPerLS_.update(CountLS_t(nL,current_count));
@@ -442,7 +442,7 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
     // ---------------------------- overall rate, absolute counts
     std::string overallScalerName(folderName_ + "/raw/hltOverallScaler");
     MonitorElement *hltScaler = dbe_->get(overallScalerName);
-    if ( hltScaler != 0 ) {
+    if ( hltScaler != nullptr ) {
       double current_count = hltScaler->getBinContent(1);
       hltCount_->setBinContent(nL,current_count);
       recentOverallCountsPerLS_.update(CountLS_t(nL,current_count));
@@ -513,7 +513,7 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   // ------ overall rate normalized - all data
   overallScalerName = std::string(folderName_ + "/raw/hltOverallScaler");
   hltScaler = dbe_->get(overallScalerName);
-  if ( hltScaler != 0 ) {
+  if ( hltScaler != nullptr ) {
     double cnt = hltScaler->getBinContent(1);
 //     hltCountN_->setBinContent(nL,cnt);
     float sf = num_fu/maxFU_;

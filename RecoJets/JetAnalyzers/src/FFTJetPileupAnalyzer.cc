@@ -53,20 +53,20 @@ class FFTJetPileupAnalyzer : public edm::EDAnalyzer
 {
 public:
     explicit FFTJetPileupAnalyzer(const edm::ParameterSet&);
-    ~FFTJetPileupAnalyzer();
+    ~FFTJetPileupAnalyzer() override;
 
 private:
-    FFTJetPileupAnalyzer();
-    FFTJetPileupAnalyzer(const FFTJetPileupAnalyzer&);
-    FFTJetPileupAnalyzer& operator=(const FFTJetPileupAnalyzer&);
+    FFTJetPileupAnalyzer() = delete;
+    FFTJetPileupAnalyzer(const FFTJetPileupAnalyzer&) = delete;
+    FFTJetPileupAnalyzer& operator=(const FFTJetPileupAnalyzer&) = delete;
 
     // The following method should take all necessary info from
     // PileupSummaryInfo and fill out the ntuple
     void analyzePileup(const std::vector<PileupSummaryInfo>& pInfo);
 
-    virtual void beginJob() override ;
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-    virtual void endJob() override ;
+    void beginJob() override ;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void endJob() override ;
 
     edm::InputTag histoLabel;
     edm::InputTag summaryLabel;
@@ -131,7 +131,7 @@ FFTJetPileupAnalyzer::FFTJetPileupAnalyzer(const edm::ParameterSet& ps)
       init_param(bool, verbosePileupInfo),
       init_param(double, vertexNdofCut),
       init_param(double, crazyEnergyCut),
-      nt(0),
+      nt(nullptr),
       totalNpu(-1),
       totalNPV(-1),
       counter(0)

@@ -111,7 +111,7 @@ class HLTCaloObjInRegionsProducer : public edm::stream::EDProducer<> {
   
 
   HLTCaloObjInRegionsProducer(const edm::ParameterSet& ps);
-  ~HLTCaloObjInRegionsProducer(){}
+  ~HLTCaloObjInRegionsProducer() override{}
 
   void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);

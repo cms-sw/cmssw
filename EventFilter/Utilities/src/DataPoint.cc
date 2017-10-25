@@ -10,7 +10,7 @@
 #include <tbb/concurrent_vector.h>
 
 #include <algorithm>
-#include <assert.h>
+#include <cassert>
 
 //max collected updates per lumi
 #define MAXUPDATES 0xffffffff
@@ -42,10 +42,10 @@ DataPoint::~DataPoint()
 
 void DataPoint::serialize(Json::Value& root) const
 {
-  if (source_.size()) {
+  if (!source_.empty()) {
     root[SOURCE] = source_;
   }
-  if (definition_.size()) {
+  if (!definition_.empty()) {
     root[DEFINITION] = definition_;
   }
   for (unsigned int i=0;i<data_.size();i++)
@@ -114,9 +114,9 @@ void DataPoint::makeStreamLumiMap(unsigned int size)
 void DataPoint::serialize(Json::Value& root, bool rootInit, std::string const&input) const
 {
   if (rootInit) {
-    if (source_.size())
+    if (!source_.empty())
       root[SOURCE] = source_;
-    if (definition_.size())
+    if (!definition_.empty())
       root[DEFINITION] = definition_;
   }
   root[DATA].append(input);

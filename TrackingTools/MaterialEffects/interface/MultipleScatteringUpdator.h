@@ -14,7 +14,7 @@
 
 class MultipleScatteringUpdator final : public MaterialEffectsUpdator 
 {
-  virtual dso_export MultipleScatteringUpdator* clone() const {
+  dso_export MultipleScatteringUpdator* clone() const override {
     return new MultipleScatteringUpdator(*this);
   }
 
@@ -27,11 +27,11 @@ public:
     MaterialEffectsUpdator(mass),
     thePtMin(ptMin) {}
   /// destructor
-  ~MultipleScatteringUpdator() {}
+  ~MultipleScatteringUpdator() override {}
 
 
   // here comes the actual computation of the values
-  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect & effect) const;
+  void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect & effect) const override;
 
 
 private:  

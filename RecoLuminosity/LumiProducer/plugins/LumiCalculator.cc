@@ -35,16 +35,16 @@ class LumiCalculator : public edm::EDAnalyzer{
 public:
   
   explicit LumiCalculator(edm::ParameterSet const& pset);
-  virtual ~LumiCalculator();
+  ~LumiCalculator() override;
 
 private:  
-  virtual void beginJob() override;
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& c) override;
-  virtual void endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, 
+  void beginJob() override;
+  void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
+  void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, 
 				  edm::EventSetup const& c) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endJob() override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void endJob() override;
   std::vector<std::string> splitpathstr(const std::string& strValue,const std::string separator);
   HLTConfigProvider hltConfig_;
   std::multimap<std::string,std::string> trgpathMmap_;//key:hltpath,value:l1bit
@@ -68,7 +68,7 @@ LumiCalculator::LumiCalculator(edm::ParameterSet const& pset):log_( new edm::Log
 // -----------------------------------------------------------------
 
 LumiCalculator::~LumiCalculator(){
-  delete log_; log_=0; 
+  delete log_; log_=nullptr; 
 }
 
 // -----------------------------------------------------------------
@@ -156,7 +156,7 @@ void LumiCalculator::beginRun(const edm::Run& run, const edm::EventSetup& c){
 	  continue;
 	}else{
 	  for(std::vector<std::string>::iterator i=seeds.begin();i!=seeds.end();++i){
-	    if(i->size()!=0 && showTrgInfo_)  *log_<<"\t\tseed: "<<*i<<"\n";
+	    if(!i->empty() && showTrgInfo_)  *log_<<"\t\tseed: "<<*i<<"\n";
 	    if(i==seeds.begin()){//for now we take the first one from OR
 		trgpathMmap_.insert(std::make_pair(hltname,*i));
 	    }
@@ -175,7 +175,7 @@ void LumiCalculator::beginRun(const edm::Run& run, const edm::EventSetup& c){
 	}else{
 	  for(std::vector<std::string>::iterator i=seeds.begin();
 	      i!=seeds.end();++i){
-	    if(i->size()!=0 && showTrgInfo_) *log_<<"\t\tseed: "<<*i<<"\n";
+	    if(!i->empty() && showTrgInfo_) *log_<<"\t\tseed: "<<*i<<"\n";
 	    if(i==seeds.begin()){//for now we take the first one 
 	      trgpathMmap_.insert(std::make_pair(hltname,*i));
 	    }

@@ -21,7 +21,7 @@ HLTMhtFilter::HLTMhtFilter(const edm::ParameterSet & iConfig) : HLTFilter(iConfi
   mhtLabels_ ( iConfig.getParameter<std::vector<edm::InputTag> >("mhtLabels") ),
   nOrs_      ( mhtLabels_.size() ) {  // number of settings to .OR.
     if (!(mhtLabels_.size() == minMht_.size()) ||
-        mhtLabels_.size() == 0 ) {
+        mhtLabels_.empty() ) {
         nOrs_ = (minMht_.size()    < nOrs_ ? minMht_.size()    : nOrs_);
         edm::LogError("HLTMhtFilter") << "inconsistent module configuration!";
     }
@@ -62,7 +62,7 @@ bool HLTMhtFilter::hltFilter(edm::Event & iEvent, const edm::EventSetup & iSetup
       edm::Handle<reco::METCollection> hmht;
       iEvent.getByToken(m_theMhtToken[i], hmht);
       double mht = 0;
-      if (hmht->size() > 0)  mht = hmht->front().pt();
+      if (!hmht->empty())  mht = hmht->front().pt();
       
       // Check if the event passes this cut set
       accept = accept || (mht > minMht_[i]);

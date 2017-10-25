@@ -72,7 +72,7 @@ ME0SegAlgoRU::ME0SegAlgoRU(const edm::ParameterSet& ps)
 			<< "maxTOFDiff          = " <<stdParameters.maxTOFDiff       << "\n"
 			<< std::endl;
 
-	theChamber=0;
+	theChamber=nullptr;
 
 }
 
@@ -161,7 +161,7 @@ std::vector<ME0Segment> ME0SegAlgoRU::run(const ME0Chamber * chamber, const HitA
 		//displaced muons will not worry about it  later
 		//Iteration 2a: If we don't allow wide segments simply do displaced
 		// Or if we already found a segment simply skip to displaced
-		if(!allowWideSegments || segments.size()){
+		if(!allowWideSegments || !segments.empty()){
 			doDisplaced();
 			return segments;
 		}
@@ -422,7 +422,7 @@ bool ME0SegAlgoRU::hasHitOnLayer(const HitAndPositionPtrContainer& proto_segment
 }
 
 void ME0SegAlgoRU::compareProtoSegment(std::unique_ptr<MuonSegFit>& current_fit, HitAndPositionPtrContainer& current_proto_segment, const HitAndPosition& new_hit) const {
-	const HitAndPosition * old_hit = 0;
+	const HitAndPosition * old_hit = nullptr;
 	HitAndPositionPtrContainer new_proto_segment = current_proto_segment;
 
 	HitAndPositionPtrContainer::const_iterator it;
@@ -434,7 +434,7 @@ void ME0SegAlgoRU::compareProtoSegment(std::unique_ptr<MuonSegFit>& current_fit,
 			++it;
 		}
 	}
-	if(old_hit == 0) return;
+	if(old_hit == nullptr) return;
 	auto new_fit = addHit(new_proto_segment,new_hit);
 
 	//If on the same strip but different BX choose the closest

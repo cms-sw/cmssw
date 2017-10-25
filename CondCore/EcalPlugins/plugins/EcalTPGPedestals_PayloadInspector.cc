@@ -137,7 +137,8 @@ namespace {
 	DrawEE(endc_p_m[gId], mEEmin[gId], mEEmax[gId]);
       }
 
-      canvas.SaveAs("ecalTPGPedestals.png");
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
       return true;
     }// fill method
   };
@@ -295,7 +296,8 @@ namespace {
 	DrawEE(endc_p_m[gId], mEEmin[gId], mEEmax[gId]);
       }
 
-      canvas.SaveAs("ecalTPGPedestalsDiff.png");
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
       return true;
     }// fill method
   };

@@ -48,7 +48,7 @@ const GlobalObjectMap* GlobalObjectMapRecord::getObjectMap(
         << "\n  does not exists in the trigger menu."
         << "\n  Returning zero pointer for getObjectMap\n\n" << std::endl;
 
-    return 0;
+    return nullptr;
 
 }
     
@@ -72,7 +72,7 @@ const GlobalObjectMap* GlobalObjectMapRecord::getObjectMap(
         << "\n  does not exists in the trigger menu."
         << "\n  Returning zero pointer for getObjectMap\n\n" << std::endl;
 
-    return 0;
+    return nullptr;
     
 }
 
@@ -100,7 +100,7 @@ const CombinationsInCond* GlobalObjectMapRecord::getCombinationsInCond(
     << "\n  Returning zero pointer for getCombinationsInCond\n\n"
     << std::endl;
 
-    return 0;
+    return nullptr;
 
 }
 
@@ -126,7 +126,7 @@ const CombinationsInCond* GlobalObjectMapRecord::getCombinationsInCond(
     << "\n  Returning zero pointer for getCombinationsInCond\n\n"
     << std::endl;
 
-    return 0;
+    return nullptr;
 
 }
 

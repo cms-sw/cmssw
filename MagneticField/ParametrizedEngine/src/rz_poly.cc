@@ -63,17 +63,17 @@ rz_poly::rz_poly(const rz_poly& S)
    if (max_nr) {
       r_pow = new double [max_nr];
       copy(S.r_pow, S.r_pow+max_nr, r_pow);
-   } else r_pow = 0;
+   } else r_pow = nullptr;
 
    if (max_nz) {
       z_pow = new double [max_nz];
       copy(S.z_pow, S.z_pow+max_nz, z_pow);
-   } else z_pow = 0;
+   } else z_pow = nullptr;
 
    if (S.is_off) {
       is_off = new bool [data.size()];
       copy(S.is_off, S.is_off+data.size(), is_off);
-   } else is_off = 0;
+   } else is_off = nullptr;
 }
 
 //_______________________________________________________________________________
@@ -106,7 +106,7 @@ void rz_poly::SetON(int npoly)
 //_______________________________________________________________________________
 void rz_poly::Print()
 {
-   if (!data.size()) {
+   if (data.empty()) {
       cout << "The \"rz_poly\" object is NOT initialized!" << endl;
       return;
    }
@@ -151,7 +151,7 @@ rz_poly rz_poly::Diff(int nvar, bool keep_empty)
             v3x.push_back(v3);
          }
       }
-      if (v3x.size() || keep_empty) {
+      if (!v3x.empty() || keep_empty) {
          v3x.resize(v3x.size());
          p_out.data.push_back(v3x);
          tmp_mask[ind_tmp] = is_off[ip];
@@ -247,7 +247,7 @@ double rz_poly::GetSVal(double r, double z, const double *C) const
 {
 //Return value of a polynomial, ignoring terms, that are switched off
 
-   if (r_pow == 0) return 0.;
+   if (r_pow == nullptr) return 0.;
    
    double term, rez = 0.;
    int ip, it;
@@ -278,7 +278,7 @@ double *rz_poly::GetVVal(double r, double z, double *rez_out)
 //in n_active elements. In a case if rez_out == 0, a new array of n_active length
 //is created; it is in user's responsibility to free the memory after all;
 //
-   if (r_pow == 0) return 0;
+   if (r_pow == nullptr) return nullptr;
    
    double term;
    int ip, it;

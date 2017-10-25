@@ -120,9 +120,9 @@ public:
     
     TemplatedSoftLeptonTagInfo(void) : m_leptons() {}
 
-    virtual ~TemplatedSoftLeptonTagInfo(void) {}
+    ~TemplatedSoftLeptonTagInfo(void) override {}
   
-    virtual TemplatedSoftLeptonTagInfo* clone(void) const { return new TemplatedSoftLeptonTagInfo(*this); }
+    TemplatedSoftLeptonTagInfo* clone(void) const override { return new TemplatedSoftLeptonTagInfo(*this); }
 
     unsigned int leptons(void) const { 
         return m_leptons.size(); 
@@ -141,7 +141,7 @@ public:
     }
 
     /// returns a description of the extended informations in a TaggingVariableList
-    virtual TaggingVariableList taggingVariables(void) const;
+    TaggingVariableList taggingVariables(void) const override;
 
     // Used by ROOT storage
     CMS_CLASS_VERSION(2)

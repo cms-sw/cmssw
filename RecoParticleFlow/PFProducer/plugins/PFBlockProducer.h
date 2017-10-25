@@ -49,12 +49,12 @@ class PFBlockProducer : public edm::stream::EDProducer<> {
 
   explicit PFBlockProducer(const edm::ParameterSet&);
 
-  ~PFBlockProducer();
+  ~PFBlockProducer() override;
   
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, 
+  void beginLuminosityBlock(edm::LuminosityBlock const&, 
 				    edm::EventSetup const&) override;
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
   /// verbose ?

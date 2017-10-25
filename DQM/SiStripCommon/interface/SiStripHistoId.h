@@ -37,8 +37,8 @@ class SiStripHistoId
       uint32_t    getComponentId(std::string histoid);
       std::string getComponentType(std::string histoid);
    private:
-      SiStripHistoId(const SiStripHistoId&); // stop default
-      const SiStripHistoId& operator=(const SiStripHistoId&); // stop default
+      SiStripHistoId(const SiStripHistoId&) = delete; // stop default
+      const SiStripHistoId& operator=(const SiStripHistoId&) = delete; // stop default
       std::string returnIdPart(std::string histoid, uint32_t whichpart);
 };
 

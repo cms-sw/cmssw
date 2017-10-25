@@ -31,7 +31,7 @@ class SiStripTFile : public TFile {
 		Int_t compress = 1 );
   
   /** Destructor */
-  virtual ~SiStripTFile();
+  ~SiStripTFile() override;
   
   /** */
   typedef std::vector<TH1*> Histos;

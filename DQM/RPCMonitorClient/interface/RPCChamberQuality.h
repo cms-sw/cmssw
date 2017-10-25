@@ -12,7 +12,7 @@ class RPCChamberQuality:public DQMEDHarvester{
  public:
   
   RPCChamberQuality(const edm::ParameterSet& ps);
-  virtual ~RPCChamberQuality();
+  ~RPCChamberQuality() override;
   
   
  protected:

@@ -1,11 +1,11 @@
 #include "EventFilter/CastorRawToDigi/interface/CastorRawCollections.h"
 
 CastorRawCollections::CastorRawCollections() {
-  castorCont=0;
-  zdcCont=0;
-  tpCont=0;
-  calibCont=0;
-  ttp=0;
+  castorCont=nullptr;
+  zdcCont=nullptr;
+  tpCont=nullptr;
+  calibCont=nullptr;
+  ttp=nullptr;
 }
 CastorRawCollections::~CastorRawCollections() {
  
