@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "EventFilter/L1TRawToDigi/interface/AMCSpec.h"
+#include "DataFormats/L1Trigger/interface/BxBlock.h"
 
 namespace l1t {
    enum block_t { MP7 = 0, CTP7, MTF7 };
@@ -50,8 +51,8 @@ namespace l1t {
       public:
          Block(const BlockHeader& h, const uint32_t * payload_start, const uint32_t * payload_end) :
             header_(h), payload_(payload_start, payload_end) {};
-         Block(unsigned int id, const std::vector<uint32_t>& payload, unsigned int capID=0, block_t type=MP7) :
-            header_(id, payload.size(), capID, type), payload_(payload) {};
+         Block(unsigned int id, const std::vector<uint32_t>& payload, unsigned int capID=0, unsigned int flags=0, block_t type=MP7) :
+            header_(id, payload.size(), capID, flags, type), payload_(payload) {};
 
          bool operator<(const Block& o) const { return header() < o.header(); };
 
@@ -63,6 +64,7 @@ namespace l1t {
          void amc(const amc::Header& h) { amc_ = h; };
          amc::Header amc() const { return amc_; };
 
+         BxBlocks getBxBlocks(unsigned int payloadWordsPerBx, bool bxHeader) const;
       private:
          BlockHeader header_;
          amc::Header amc_;
@@ -94,17 +96,17 @@ namespace l1t {
    class MP7Payload : public Payload {
       public:
          MP7Payload(const uint32_t * data, const uint32_t * end, bool legacy_mc=false);
-         virtual unsigned getHeaderSize() const override { return 1; };
-         virtual BlockHeader getHeader() override;
+         unsigned getHeaderSize() const override { return 1; };
+         BlockHeader getHeader() override;
    };
 
    class MTF7Payload : public Payload {
       public:
          MTF7Payload(const uint32_t * data, const uint32_t * end);
          // Unused methods - we override getBlock() instead
-         virtual unsigned getHeaderSize() const override { return 0; };
-         virtual BlockHeader getHeader() override { return BlockHeader(0); };
-         virtual std::unique_ptr<Block> getBlock() override;
+         unsigned getHeaderSize() const override { return 0; };
+         BlockHeader getHeader() override { return BlockHeader(nullptr); };
+         std::unique_ptr<Block> getBlock() override;
       private:
          // sizes in 16 bit words
          static const unsigned int header_size = 12;
@@ -123,8 +125,8 @@ namespace l1t {
    class CTP7Payload : public Payload {
       public:
          CTP7Payload(const uint32_t * data, const uint32_t * end);
-         virtual unsigned getHeaderSize() const override { return 2; };
-         virtual BlockHeader getHeader() override;
+         unsigned getHeaderSize() const override { return 2; };
+         BlockHeader getHeader() override;
       private:
          // FIXME check values
          static const unsigned int size_mask = 0xff;

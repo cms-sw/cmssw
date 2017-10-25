@@ -108,7 +108,7 @@ namespace fwlite {
 //
 // constructors and destructor
 //
-  Event::Event(TFile* iFile):
+  Event::Event(TFile* iFile, bool useCache,std::function<void (TBranch const&)> baFunc):
   file_(iFile),
 //  eventTree_(nullptr),
   eventHistoryTree_(nullptr),
@@ -122,7 +122,7 @@ namespace fwlite {
               std::make_shared<EventHistoryGetter>(this),
               std::shared_ptr<BranchMapReader>(&branchMap_,NoDelete()),
               std::make_shared<internal::ProductGetter>(this),
-              true) {
+              useCache, baFunc) {
     if(nullptr == iFile) {
       throw cms::Exception("NoFile") << "The TFile pointer passed to the constructor was null";
     }

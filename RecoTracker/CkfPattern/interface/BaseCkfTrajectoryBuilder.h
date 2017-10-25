@@ -136,7 +136,6 @@ public:
   void moveToResult( TempTrajectory&& traj, TempTrajectoryContainer& result, bool inOut = false) const;    
 
   StateAndLayers findStateAndLayers(const TrajectorySeed& seed, const TempTrajectory& traj) const;
-  StateAndLayers findStateAndLayers(const TempTrajectory& traj) const;
 
  private:
   void seedMeasurements(const TrajectorySeed& seed, TempTrajectory & result) const;

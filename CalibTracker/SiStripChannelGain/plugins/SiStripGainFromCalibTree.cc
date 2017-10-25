@@ -82,6 +82,7 @@
 #include "CalibTracker/SiStripChannelGain/interface/APVGainHelpers.h"
 
 #include <unordered_map>
+#include <array>
 
 
 
@@ -208,7 +209,8 @@ private:
         MonitorElement* MPV_Vs_PhiTECthin;                       /*!< MPV vs Phi for TEC thin planes */
         MonitorElement* MPV_Vs_PhiTECthick;                      /*!< MPV vs Phi for TID tick planes */
 
-        MonitorElement* NoMPV;                                   /*!< R,Z map of missing APV calibration */
+        MonitorElement* NoMPVmasked;                             /*!< R,Z map of missing APV calibration (masked modules)*/
+        MonitorElement* NoMPVfit;                                /*!< R,Z map of missing APV calibration (no fit) */
 
         MonitorElement* Gains;                                   /*!< distribution of gain factors */
         MonitorElement* MPVs;                                    /*!< distribution of MPVs */
@@ -479,7 +481,33 @@ void SiStripGainFromCalibTree::bookDQMHistos(const char* dqm_dir, const char* ta
 
     int elepos = (m_harvestingMode && AlgoMode=="PCL")? Harvest : statCollectionFromMode(tag);
 
-    Charge_Vs_Index[elepos]           = dbe->book2S(cvi.c_str()     , cvi.c_str()     , 88625, 0   , 88624,2000,0,4000);
+    // The cluster charge is stored by exploiting a non uniform binning in order 
+    // reduce the histogram memory size. The bin width is relaxed with a falling
+    // exponential function and the bin boundaries are stored in the binYarray. 
+    // The binXarray is used to provide as many bins as the APVs.
+    //
+    // More details about this implementations are here:
+    // https://indico.cern.ch/event/649344/contributions/2672267/attachments/1498323/2332518/OptimizeChHisto.pdf
+
+    std::vector<float> binXarray;
+    binXarray.reserve( NStripAPVs+1 );
+    for(int a=0;a<=NStripAPVs;a++){
+       binXarray.push_back( (float)a );
+    }
+ 
+    std::array<float,688> binYarray;
+    double p0 = 5.445;
+    double p1 = 0.002113;
+    double p2 = 69.01576;
+    double y = 0.;
+    for(int b=0;b<687;b++) {
+       binYarray[b] = y;
+       if(y<=902.) y = y + 2.;
+       else y = ( p0 - log(exp(p0-p1*y) - p2*p1)) / p1;
+    }
+    binYarray[687] = 4000.;
+
+    Charge_Vs_Index[elepos]           = dbe->book2S(cvi.c_str()     , cvi.c_str()     , NStripAPVs, &binXarray[0], 687, binYarray.data());
     //Charge_Vs_Index_Absolute[elepos]  = dbe->book2S(cviA.c_str()    , cviA.c_str()    , 88625, 0   , 88624,1000,0,4000);
     Charge_Vs_PathlengthTIB[elepos]   = dbe->book2S(cvpTIB.c_str()  , cvpTIB.c_str()  , 20   , 0.3 , 1.3  , 250,0,2000);
     Charge_Vs_PathlengthTOB[elepos]   = dbe->book2S(cvpTOB.c_str()  , cvpTOB.c_str()  , 20   , 0.3 , 1.3  , 250,0,2000);
@@ -551,7 +579,8 @@ void SiStripGainFromCalibTree::bookDQMHistos(const char* dqm_dir, const char* ta
         MPV_Vs_PhiTECthin  = dbe->book2DD("MPV_vs_PhiTEC1","MPV vs Phi TEC-thin" , 50, -3.4, 3.4, MPVbin, MPVmin, MPVmax);
         MPV_Vs_PhiTECthick = dbe->book2DD("MPV_vs_PhiTEC2","MPV vs Phi TEC-thick", 50, -3.4, 3.4, MPVbin, MPVmin, MPVmax);
 
-        NoMPV          = dbe->book2DD("NoMPV"         ,"NoMPV"         ,350, -350, 350, 240, 0, 120);
+        NoMPVfit           = dbe->book2DD("NoMPVfit"      ,"Modules with bad Landau Fit",350, -350, 350, 240, 0, 120);
+        NoMPVmasked        = dbe->book2DD("NoMPVmasked"   ,"Masked Modules"             ,350, -350, 350, 240, 0, 120);
 
         Gains          = dbe->book1DD("Gains"         ,"Gains"             ,                300, 0, 2);
         MPVs           = dbe->book1DD("MPVs"          ,"MPVs"              ,                MPVbin, MPVmin, MPVmax);
@@ -969,7 +998,7 @@ SiStripGainFromCalibTree::algoEndJob() {
 		algoAnalyzeTheTree();
 	}else if(m_harvestingMode){
 		NClusterStrip = (Charge_Vs_Index[Harvest])->getTH2S()->Integral(0,NStripAPVs+1, 0, 99999 );
-		NClusterPixel = (Charge_Vs_Index[Harvest])->getTH2S()->Integral(NStripAPVs+2, NStripAPVs+NPixelDets+2, 0, 99999 );
+		//NClusterPixel = (Charge_Vs_Index[Harvest])->getTH2S()->Integral(NStripAPVs+2, NStripAPVs+NPixelDets+2, 0, 99999 );
 	}
 
 	// Now that we have the full statistics we can extract the information of the 2D histograms
@@ -1121,7 +1150,10 @@ void SiStripGainFromCalibTree::processEvent() {
 			if(Validation)     {ClusterChargeOverPath/=(*gainused)[i];}
 			if(OldGainRemoving){ClusterChargeOverPath*=(*gainused)[i];}
 		}
-		//(Charge_Vs_Index_Absolute[elepos])->Fill(APV->Index,Charge);   
+
+                // keep pixel cluster charge processing until here
+		if(APV->SubDet<=2) continue;
+
 		(Charge_Vs_Index[elepos])         ->Fill(APV->Index,ClusterChargeOverPath);
 
 
@@ -1358,8 +1390,9 @@ void SiStripGainFromCalibTree::qualityMonitor() {
         }
 
 
-        if (FitMPV<0.) {  // No fit of MPV
-            NoMPV->Fill(z,R);
+        if (FitMPV<=0.) {  // No fit of MPV
+            if (APV->isMasked) NoMPVmasked->Fill(z,R);
+            else               NoMPVfit->Fill(z,R);
 
         } else {          // Fit of MPV
             if(FitMPV>0.) Gains->Fill(Gain);
@@ -1482,19 +1515,19 @@ void SiStripGainFromCalibTree::storeOnTree(TFileService* tfs)
 	FILE* Gains = stdout;
 	fprintf(Gains,"NEvents   = %i\n",NEvent);
 	fprintf(Gains,"NTracks   = %i\n",NTrack);
-	fprintf(Gains,"NClustersPixel = %i\n",NClusterPixel);
+	//fprintf(Gains,"NClustersPixel = %i\n",NClusterPixel);
 	fprintf(Gains,"NClustersStrip = %i\n",NClusterStrip);
-	fprintf(Gains,"Number of Pixel Dets = %lu\n",static_cast<unsigned long>(NPixelDets));
+	//fprintf(Gains,"Number of Pixel Dets = %lu\n",static_cast<unsigned long>(NPixelDets));
 	fprintf(Gains,"Number of Strip APVs = %lu\n",static_cast<unsigned long>(NStripAPVs));
 	fprintf(Gains,"GoodFits = %i BadFits = %i ratio = %f%%   (MASKED=%i)\n",GOOD,BAD,(100.0*GOOD)/(GOOD+BAD), MASKED);
 
 	Gains=fopen(OutputGains.c_str(),"w");
 	fprintf(Gains,"NEvents   = %i\n",NEvent);
 	fprintf(Gains,"NTracks   = %i\n",NTrack);
-	fprintf(Gains,"NClustersPixel = %i\n",NClusterPixel);
+	//fprintf(Gains,"NClustersPixel = %i\n",NClusterPixel);
 	fprintf(Gains,"NClustersStrip = %i\n",NClusterStrip);
 	fprintf(Gains,"Number of Strip APVs = %lu\n",static_cast<unsigned long>(NStripAPVs));
-	fprintf(Gains,"Number of Pixel Dets = %lu\n",static_cast<unsigned long>(NPixelDets));
+	//fprintf(Gains,"Number of Pixel Dets = %lu\n",static_cast<unsigned long>(NPixelDets));
 	fprintf(Gains,"GoodFits = %i BadFits = %i ratio = %f%%   (MASKED=%i)\n",GOOD,BAD,(100.0*GOOD)/(GOOD+BAD), MASKED);
 
         int elepos = statCollectionFromMode(m_calibrationMode.c_str());

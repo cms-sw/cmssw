@@ -38,6 +38,8 @@
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
+#include "Fireworks/Core/src/FWTTreeCache.h"
+
 //
 // constructors and destructor
 //
@@ -230,7 +232,13 @@ CmsShowNavigator::goTo(FileQueue_i fi, int event)
       fwLog(fwlog::kDebug) << "cpuInfo.fLoad1m \t" << cpuInfo.fLoad1m << std::endl;
       fwLog(fwlog::kDebug) << "cpuInfo.fLoad5m \t" << cpuInfo.fLoad5m << std::endl;
    }
-   
+
+   if (FWTTreeCache::IsLogging())
+   {
+      printf("FWTTreeCache statistics before going to event %d:\n", event);
+      (*m_currentFile)->tree()->PrintCacheStats(); // ("cachedbranches");
+   }
+
    (*m_currentFile)->event()->to(event);
    (*m_currentFile)->tree()->LoadTree(event);
    m_currentEvent = event;

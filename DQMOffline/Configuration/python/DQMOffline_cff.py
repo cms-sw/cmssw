@@ -176,4 +176,3 @@ from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
 phase2_hcal.toReplaceWith( PostDQMOfflineMiniAOD, PostDQMOfflineMiniAOD.copyAndExclude([
     pfMetDQMAnalyzerMiniAOD, pfPuppiMetDQMAnalyzerMiniAOD # No hcalnoise yet
 ]))
-

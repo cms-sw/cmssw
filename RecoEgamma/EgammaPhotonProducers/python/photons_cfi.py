@@ -76,3 +76,12 @@ photons = cms.EDProducer("PhotonProducer",
 )
 
 
+photonsIsland = photons.clone(
+    photonCoreProducer = "islandPhotonCore",
+    minSCEtBarrel = 5.0,
+    minSCEtEndcap = 15.0,
+    minR9Barrel = 10.,
+    minR9Endcap = 10.,
+    maxHoverEEndcap = 0.5,
+    maxHoverEBarrel = 0.99
+)

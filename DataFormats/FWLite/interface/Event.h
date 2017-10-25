@@ -48,6 +48,7 @@
 #include <memory>
 #include <cstring>
 #include <string>
+#include <functional>
 
 #include "Rtypes.h"
 
@@ -86,8 +87,15 @@ namespace fwlite {
 
       public:
          // NOTE: Does NOT take ownership so iFile must remain around
-         // at least as long as Event
-         Event(TFile* iFile);
+         // at least as long as Event.
+         // useCache and baFunc (branch-access-function) are passed to
+         // DataGetterHelper and help with external management of TTreeCache
+         // associated with the file. By default useCache is true and internal
+         // DataGetterHelper caching is enabled. When user sets useCache to
+         // false no cache is created unless user attaches and controls it
+         // himself.
+         Event(TFile* iFile, bool useCache=true,
+               std::function<void (TBranch const&)> baFunc=[](TBranch const&){});
          virtual ~Event();
 
          ///Advance to next event in the TFile

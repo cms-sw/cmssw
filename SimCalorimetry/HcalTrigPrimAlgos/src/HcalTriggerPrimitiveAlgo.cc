@@ -208,23 +208,28 @@ HcalTriggerPrimitiveAlgo::addSignal(const QIE10DataFrame& frame)
          continue;
       }
 
-      IntegerCaloSamples samples(id, frame.samples());
+      int nsamples=frame.samples();
+
+      IntegerCaloSamples samples(id, nsamples);
       samples.setPresamples(frame.presamples());
       incoder_->adc2Linear(frame, samples);
 
       // Don't add to final collection yet
       // HF PMT veto sum is calculated in analyzerHF()
-      IntegerCaloSamples zero_samples(id, frame.samples());
+      IntegerCaloSamples zero_samples(id, nsamples);
       zero_samples.setPresamples(frame.presamples());
       addSignal(zero_samples);
 
       auto fid = HcalDetId(frame.id());
       auto& details = theHFUpgradeDetailMap[id][fid.maskDepth()];
-      details[fid.depth() - 1].samples = samples;
-      details[fid.depth() - 1].digi = frame;
-      details[fid.depth() - 1].validity.resize(frame.samples());
-      for (int idx = 0; idx < frame.samples(); ++idx)
-         details[fid.depth() - 1].validity[idx] = validChannel(frame, idx);
+      auto& detail = details[fid.depth()-1];
+      detail.samples = samples;
+      detail.digi = frame;
+      detail.validity.resize(nsamples);
+      incoder_->lookupMSB(frame, detail.fgbit);
+      for (int idx = 0; idx < nsamples; ++idx){
+         detail.validity[idx] = validChannel(frame, idx);
+      }
    }
 }
 
@@ -628,7 +633,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
 
             for (const auto& detail: details) {
                if (idx < int(detail.digi.size()) and detail.validity[idx] and HcalDetId(detail.digi.id()).ietaAbs() >= FIRST_FINEGRAIN_TOWER) {
-                  finegrain[ibin][1] = finegrain[ibin][1] or (detail.digi[idx].adc() > (int) FG_HF_threshold_);
+                  finegrain[ibin][1] = finegrain[ibin][1] or detail.fgbit[idx];
                }
             }
 

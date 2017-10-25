@@ -16,6 +16,7 @@ for tracks in selectedTracks :
     label = 'TrackerCollisionSelectedTrackMonCommon' + str(tracks)
     locals()[label] = TrackerCollisionTrackMonCommon.clone()
     locals()[label].TrackProducer    = cms.InputTag(tracks)
+    locals()[label].allTrackProducer = cms.InputTag(allTrackProducer[tracks])
     locals()[label].FolderName       = cms.string(mainfolderName[tracks])
     locals()[label].PVFolderName     = cms.string(vertexfolderName[tracks])
     locals()[label].TrackPtMin       = trackPtMin[tracks]
@@ -45,6 +46,7 @@ for tracks in selectedTracks :
     locals()[label].doPlotsVsBXlumi                     = doPlotsVsBXlumi                     [tracks]
     locals()[label].doPlotsVsGoodPVtx                   = doPlotsVsGoodPVtx                   [tracks]
     locals()[label].doEffFromHitPatternVsPU             = doEffFromHitPatternVsPU             [tracks]
+    locals()[label].doEffFromHitPatternVsLUMI           = doEffFromHitPatternVsLumi           [tracks]
     if tracks == 'generalTracks':
         locals()[label].doEffFromHitPatternVsBX = False
     else:

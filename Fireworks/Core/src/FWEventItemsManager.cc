@@ -80,8 +80,10 @@ FWEventItemsManager::~FWEventItemsManager()
 //
 // member functions
 //
-const FWEventItem*
-FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem, const FWConfiguration* pbc)
+FWEventItem*
+FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem,
+                         const FWConfiguration* pbc,
+                         bool doSetEvent)
 {
    FWPhysicsObjectDesc temp(iItem);
    
@@ -96,7 +98,8 @@ FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem, const FWConfiguration
                                      temp, pbc));
    newItem_(m_items.back());
    m_items.back()->goingToBeDestroyed_.connect(boost::bind(&FWEventItemsManager::removeItem,this,_1));
-   if(m_event) {
+   if (doSetEvent && m_event)
+   {
       FWChangeSentry sentry(*m_changeManager);
       m_items.back()->setEvent(m_event);
    }
@@ -203,7 +206,6 @@ FWEventItemsManager::addTo(FWConfiguration& iTo) const
 void
 FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
 {
- 
    FWColorManager* cm = m_context->colorManager();
    assert(0!=cm);
 
@@ -211,6 +213,9 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
    const FWConfiguration::KeyValues* keyValues =  iFrom.keyValues();
 
    if (keyValues == 0) return;
+
+   std::vector<FWEventItem*> newItems;
+   newItems.reserve(keyValues->size());
 
    for (FWConfiguration::KeyValues::const_iterator it = keyValues->begin();
         it != keyValues->end();
@@ -287,7 +292,14 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
                                filterExpression,
                                layer);
       
-      add(desc, proxyConfig );
+      newItems.push_back( add(desc, proxyConfig, false) );
+   }
+
+   if (m_event)
+   {
+      FWChangeSentry sentry(*m_changeManager);
+      for (auto ip : newItems)
+         ip->setEvent(m_event);
    }
 }
 
@@ -305,6 +317,7 @@ void
 FWEventItemsManager::removeItem(const FWEventItem* iItem)
 {
    assert(iItem->id() < m_items.size());
+   removingItem_(iItem);
    m_items[iItem->id()] = 0;
 }
 

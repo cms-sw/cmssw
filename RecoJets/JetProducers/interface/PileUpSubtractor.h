@@ -31,7 +31,6 @@ class PileUpSubtractor{
   
   PileUpSubtractor(const edm::ParameterSet& iConfig,  edm::ConsumesCollector && iC); 
   virtual ~PileUpSubtractor(){;}
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   virtual void setDefinition(JetDefPtr const & jetDef);
   virtual void reset(std::vector<edm::Ptr<reco::Candidate> >& input,

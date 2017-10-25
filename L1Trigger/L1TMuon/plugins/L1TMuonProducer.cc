@@ -21,13 +21,12 @@
 // system include files
 #include <memory>
 #include <fstream>
-#include <sstream>
 
 // user include files
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -55,22 +54,20 @@
 //
 using namespace l1t;
 
-  class L1TMuonProducer : public edm::EDProducer {
+  class L1TMuonProducer : public edm::stream::EDProducer<> {
      public:
         explicit L1TMuonProducer(const edm::ParameterSet&);
-        ~L1TMuonProducer();
+        ~L1TMuonProducer() override;
 
         static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
      private:
-        virtual void beginJob() ;
-        virtual void produce(edm::Event&, const edm::EventSetup&);
-        virtual void endJob() ;
+        void produce(edm::Event&, const edm::EventSetup&) override;
 
-        virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-        virtual void endRun(edm::Run const&, edm::EventSetup const&);
-        virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-        virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+        void beginRun(edm::Run const&, edm::EventSetup const&) override;
+        void endRun(edm::Run const&, edm::EventSetup const&) override;
+        void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+        void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
         static bool compareMuons(const std::shared_ptr<MicroGMTConfiguration::InterMuon>& mu1,
                                 const std::shared_ptr<MicroGMTConfiguration::InterMuon>& mu2);
@@ -500,17 +497,6 @@ L1TMuonProducer::convertMuons(const edm::Handle<MicroGMTConfiguration::InputColl
   }
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void
-L1TMuonProducer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void
-L1TMuonProducer::endJob() {
-}
-
 // ------------ method called when starting to processes a run  ------------
 void
 L1TMuonProducer::beginRun(edm::Run const& run, edm::EventSetup const& iSetup)
@@ -519,7 +505,7 @@ L1TMuonProducer::beginRun(edm::Run const& run, edm::EventSetup const& iSetup)
   edm::ESHandle<L1TMuonGlobalParams> microGMTParamsHandle;
   microGMTParamsRcd.get(microGMTParamsHandle);
 
-  microGMTParamsHelper = std::unique_ptr<L1TMuonGlobalParamsHelper>(new L1TMuonGlobalParamsHelper(*microGMTParamsHandle.product()));
+  microGMTParamsHelper = std::make_unique<L1TMuonGlobalParamsHelper>(*microGMTParamsHandle.product());
   if (!microGMTParamsHelper) {
     edm::LogError("L1TMuonProducer") << "Could not retrieve parameters from Event Setup" << std::endl;
   }

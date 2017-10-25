@@ -57,3 +57,22 @@ SiPixelPhase1TrackClustersAnalyzer_cosmics.VertexCut = cms.untracked.bool(False)
 
 siPixelPhase1OfflineDQM_source_cosmics.replace(SiPixelPhase1TrackClustersAnalyzer,
                                                SiPixelPhase1TrackClustersAnalyzer_cosmics)
+
+siPixelPhase1OfflineDQM_source_hi = siPixelPhase1OfflineDQM_source.copyAndExclude([
+   SiPixelPhase1RecHitsAnalyzer,
+   SiPixelPhase1TrackResidualsAnalyzer 
+])
+
+SiPixelPhase1TrackClustersAnalyzer_hi = SiPixelPhase1TrackClustersAnalyzer.clone()
+SiPixelPhase1TrackClustersAnalyzer_hi.tracks = "hiGeneralTracks"
+SiPixelPhase1TrackClustersAnalyzer_hi.vertices = "hiSelectedVertex"
+
+siPixelPhase1OfflineDQM_source_hi.replace(SiPixelPhase1TrackClustersAnalyzer,
+                                          SiPixelPhase1TrackClustersAnalyzer_hi)
+
+SiPixelPhase1TrackEfficiencyAnalyzer_hi = SiPixelPhase1TrackEfficiencyAnalyzer.clone()
+SiPixelPhase1TrackEfficiencyAnalyzer_hi.tracks = "hiGeneralTracks"
+SiPixelPhase1TrackEfficiencyAnalyzer_hi.primaryvertices = "hiSelectedVertex"
+
+siPixelPhase1OfflineDQM_source_hi.replace(SiPixelPhase1TrackEfficiencyAnalyzer,
+                                          SiPixelPhase1TrackEfficiencyAnalyzer_hi)

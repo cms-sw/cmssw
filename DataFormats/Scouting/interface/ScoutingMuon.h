@@ -15,7 +15,7 @@ class ScoutingMuon
 	      int nTrackerLayersWithMeasurement, int type, int nValidStripHits, float trk_qoverp, 
 	      float trk_lambda, float trk_pt, 
 	      float trk_phi, float trk_eta, float dxyError, float dzError, float trk_qoverpError, 
-	      float trk_lambdaError, float trk_phiError, float trk_dsz, float trk_dszError, std::vector<int> const& vtxIndx):
+	      float trk_lambdaError, float trk_phiError, float trk_dsz, float trk_dszError, std::vector<int> vtxIndx):
   pt_(pt), eta_(eta), phi_(phi), m_(m),
     ecalIso_(ecalIso), hcalIso_(hcalIso), trackIso_(trackIso),
     chi2_(chi2), ndof_(ndof), charge_(charge), dxy_(dxy), dz_(dz),
@@ -24,7 +24,7 @@ class ScoutingMuon
     nTrackerLayersWithMeasurement_(nTrackerLayersWithMeasurement), type_(type), nValidStripHits_(nValidStripHits), trk_qoverp_(trk_qoverp), 
     trk_lambda_(trk_lambda), trk_pt_(trk_pt), 
     trk_phi_(trk_phi), trk_eta_(trk_eta), dxyError_(dxyError), dzError_(dzError), trk_qoverpError_(trk_qoverpError), trk_lambdaError_(trk_lambdaError), 
-    trk_phiError_(trk_phiError), trk_dsz_(trk_dsz), trk_dszError_(trk_dszError), vtxIndx_(vtxIndx){}
+    trk_phiError_(trk_phiError), trk_dsz_(trk_dsz), trk_dszError_(trk_dszError), vtxIndx_(std::move(vtxIndx)){}
   //default constructor
  ScoutingMuon():pt_(0), eta_(0), phi_(0), m_(0), ecalIso_(0), hcalIso_(0), trackIso_(0),
     chi2_(0), ndof_(0), charge_(0), dxy_(0), dz_(0), nValidMuonHits_(0),

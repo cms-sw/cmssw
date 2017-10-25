@@ -26,14 +26,11 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-         
-                            #fileNames = cms.untracked.vstring('/store/data/Run2016D/TestEnablesEcalHcal/RAW/v2/000/276/315/00000/92AB6184-FD41-E611-A550-02163E01464C.root'),
-                            #fileNames = cms.untracked.vstring('/store/data/Run2016D/TestEnablesEcalHcal/RAW/v2/000/276/318/00000/8487C425-1242-E611-81E6-02163E0146AF.root'),
-                            fileNames = cms.untracked.vstring(
-        #'file://store_data_Run2016D_TestEnablesEcalHcal_RAW_v2_000_276_315_00000_92AB6184-FD41-E611-A550-02163E01464C.root',
-        #'file://store_data_Run2016D_TestEnablesEcalHcal_RAW_v2_000_276_318_00000_8487C425-1242-E611-81E6-02163E0146AF.root',
-        'file:///afs/cern.ch/work/a/argiro/ecalpedPCL/data/store_data_Run2016D_TestEnablesEcalHcal_RAW_v2_000_276_318_00000_5A25B228-1242-E611-BA75-02163E0120B0.root',
-                                                              ), 
+ fileNames = cms.untracked.vstring(
+     '/store/data/Run2017B/TestEnablesEcalHcal/RAW/v1/000/299/149/00000/24768806-E869-E711-A7F2-02163E019BBE.root',
+     '/store/data/Run2017B/TestEnablesEcalHcal/RAW/v1/000/299/149/00000/26D7BF02-E869-E711-842E-02163E01A1CE.root',
+     '/store/data/Run2017B/TestEnablesEcalHcal/RAW/v1/000/299/149/00000/2AED4B13-EB69-E711-A167-02163E01A5B3.root',         
+                                  ), 
                             secondaryFileNames = cms.untracked.vstring(),
                             #duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
  )
@@ -58,13 +55,12 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
 
 # Path and EndPath definitions
-#process.ecalpedstalPCL = cms.EDAnalyzer('ECALpedestalPCLworker',
-#                                        BarrelDigis=cms.InputTag('ecalDigis','ebDigis'),
-#                                        EndcapDigis=cms.InputTag('ecalDigis','eeDigis'))
 
 process.load('Calibration.EcalCalibAlgos.ecalPedestalPCLworker_cfi')
 
-process.raw2digi_step = cms.Path(process.ecalDigis*process.ecalpedestalPCL)
+
+process.tcdsDigis = cms.EDProducer('TcdsRawToDigi', InputLabel=cms.InputTag('hltEcalCalibrationRaw'))
+process.raw2digi_step = cms.Path(process.tcdsDigis*process.ecalDigis*process.ecalpedestalPCL)
 
 process.DQMoutput = cms.OutputModule("DQMRootOutputModule",                                      
                                      fileName = cms.untracked.string("OUT_step1.root"))
@@ -75,5 +71,5 @@ process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 process.schedule = cms.Schedule(process.raw2digi_step,process.DQMoutput_step)
 
 
-
 process.ecalDigis.InputLabel = cms.InputTag('hltEcalCalibrationRaw')
+

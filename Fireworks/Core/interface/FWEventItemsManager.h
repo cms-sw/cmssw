@@ -64,7 +64,8 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   const FWEventItem* add(const FWPhysicsObjectDesc& iItem,  const FWConfiguration* pbConf = 0);
+   FWEventItem* add(const FWPhysicsObjectDesc& iItem, const FWConfiguration* pbConf=0,
+                    bool doSetEvent=true);
    void clearItems();
 
    void newEvent(const edm::EventBase* iEvent);
@@ -72,7 +73,9 @@ public:
    void setContext(fireworks::Context*);
 
    sigc::signal<void, FWEventItem*> newItem_;
-   sigc::signal<void> goingToClearItems_;
+   sigc::signal<void, const FWEventItem*> removingItem_;
+   sigc::signal<void>               goingToClearItems_;
+
 private:
 
    void removeItem(const FWEventItem*);

@@ -409,7 +409,7 @@ namespace edm {
     }
     else{ // have to read PU information from playback info
       for (int bunchIdx = minBunch_; bunchIdx <= maxBunch_; ++bunchIdx) {
-
+	bunchCrossingList.push_back(bunchIdx);
 	for (size_t readSrcIdx=0; readSrcIdx<maxNbSources_; ++readSrcIdx) {
                                                                       
 	  if(oldFormatPlayback) {
@@ -418,12 +418,16 @@ namespace edm {
 	    if(readSrcIdx == 0) {
 	      PileupList.push_back(numberOfEvents);
 	      TrueNumInteractions_.push_back(numberOfEvents);
+	      numInteractionList.push_back(numberOfEvents);
+	      TrueInteractionList.push_back(numberOfEvents);
 	    }
 	  } else {
 	    size_t numberOfEvents = playbackInfo_H->getNumberOfEvents(bunchIdx, readSrcIdx);
 	    if(readSrcIdx == 0) {
 	      PileupList.push_back(numberOfEvents);
 	      TrueNumInteractions_.push_back(numberOfEvents);
+	      numInteractionList.push_back(numberOfEvents);
+	      TrueInteractionList.push_back(numberOfEvents);
 	    }
 	  }
 	}

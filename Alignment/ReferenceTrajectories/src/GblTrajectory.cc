@@ -603,6 +603,7 @@ namespace gbl {
 
     int nOffset = aPoint.getOffset();
 
+    anIndex = {};
     aJacobian.setZero();
     if (nOffset < 0) // need interpolation
       {
@@ -697,6 +698,7 @@ namespace gbl {
 
     int nOffset = aPoint.getOffset();
 
+    anIndex = {};
     aJacobian.setZero();
 
     Matrix2d prevW, prevWJ, nextW, nextWJ;
@@ -1077,6 +1079,7 @@ namespace gbl {
             if (measDim > 2) {
               matPDer = matP * matDer;
             } else { // 'shortcut' for position measurements
+              matPDer.setZero();
               matPDer.block<2, 5>(3, 0) = matP.block<2, 2>(3, 3)
                 * matDer.block<2, 5>(3, 0);
             }
@@ -1084,6 +1087,7 @@ namespace gbl {
             if (numInnerTrans > 0) {
               // transform for external parameters
               proDer.resize(measDim, Eigen::NoChange);
+              proDer.setZero();
               // match parameters
               unsigned int ifirst = 0;
               unsigned int ilabel = 0;
@@ -1151,6 +1155,7 @@ namespace gbl {
             if (numInnerTrans > 0) {
               // transform for external parameters
               proDer.resize(nDim, Eigen::NoChange);
+              proDer.setZero();
               // match parameters
               unsigned int ifirst = 0;
               unsigned int ilabel = 0;

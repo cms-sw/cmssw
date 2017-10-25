@@ -186,7 +186,8 @@ SiStripGainsPCLHarvester::gainQualityMonitor(DQMStore::IBooker& ibooker_, const 
   MonitorElement* MPV_Vs_PhiTECthin  = ibooker_.book2DD("MPVvsPhiTEC1","MPV vs Phi TEC-thin ",50,-3.4,3.4,MPVbin,MPVmin,MPVmax);
   MonitorElement* MPV_Vs_PhiTECthick = ibooker_.book2DD("MPVvsPhiTEC2","MPV vs Phi TEC-thick",50,-3.4,3.4,MPVbin,MPVmin,MPVmax);
 
-  MonitorElement* NoMPV              = ibooker_.book2DD("NoMPV"         ,"NoMPV"         ,350, -350, 350, 240, 0, 120);
+  MonitorElement* NoMPVfit           = ibooker_.book2DD("NoMPVfit"    ,"Modules with bad Landau Fit",350, -350, 350, 240, 0, 120);
+  MonitorElement* NoMPVmasked        = ibooker_.book2DD("NoMPVmasked" ,"Masked Modules"             ,350, -350, 350, 240, 0, 120);
 
   MonitorElement* Gains              = ibooker_.book1DD("Gains"         ,"Gains"            , 300, 0, 2);
   MonitorElement* MPVs               = ibooker_.book1DD("MPVs"          ,"MPVs"             , MPVbin,MPVmin,MPVmax);
@@ -262,8 +263,9 @@ SiStripGainsPCLHarvester::gainQualityMonitor(DQMStore::IBooker& ibooker_, const 
     }
     
 
-    if (FitMPV<0.) {  // No fit of MPV
-       NoMPV->Fill(z,R);
+    if (FitMPV<=0.) {  // No fit of MPV
+       if (APV->isMasked) NoMPVmasked->Fill(z,R);
+       else               NoMPVfit->Fill(z,R);
 
     } else {          // Fit of MPV
        if(FitMPV>0.) Gains->Fill(Gain);

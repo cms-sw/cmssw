@@ -454,7 +454,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (const TrajectorySeed& seed,
 					      TempTrajectoryContainer& newCand, 
 					      TempTrajectoryContainer& result) const
 {
-  std::pair<TSOS,std::vector<const DetLayer*> > && stateAndLayers = findStateAndLayers(traj);
+  std::pair<TSOS,std::vector<const DetLayer*> > && stateAndLayers = findStateAndLayers(seed,traj);
 
 
   if(maxPt2ForLooperReconstruction>0){
@@ -488,7 +488,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (const TrajectorySeed& seed,
     TSOS stateToUse = stateAndLayers.first;
     
     double dPhiCacheForLoopersReconstruction(0);
-    if unlikely((*il)==traj.lastLayer()){
+    if unlikely(!traj.empty() && (*il)==traj.lastLayer()){
 	
 	if(maxPt2ForLooperReconstruction>0){
 	  // ------ For loopers reconstruction

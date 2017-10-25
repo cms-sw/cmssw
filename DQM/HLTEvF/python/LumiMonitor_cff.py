@@ -19,6 +19,11 @@ lumiMonitor = cms.EDAnalyzer("LumiMonitor",
             xmin  = cms.double( 3000.),
             xmax  = cms.double(12000.),
       ),
+      puPSet                      = cms.PSet(
+            nbins = cms.int32 (260 ),
+            xmin  = cms.double(  0.),
+            xmax  = cms.double(130.),
+      ),
       pixellumiPSet               = cms.PSet(
             nbins = cms.int32 (300 ),
             xmin  = cms.double(  0.),

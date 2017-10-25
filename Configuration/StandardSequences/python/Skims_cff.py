@@ -25,9 +25,16 @@ def documentSkims():
 
 def getSkimDataTier(skimname):
     import Configuration.StandardSequences.Skims_cff as Skims
+    import DPGAnalysis.Skims.SkimsCosmics_DPG_cff as CosmicSkims
 
     for skim in Skims.__dict__:
         skimstream = getattr(Skims,skim)
+        if (not isinstance(skimstream,cms.FilteredStream)): continue
+
+        if skimname == skimstream['name']:
+            return skimstream['dataTier']
+    for skim in CosmicSkims.__dict__:
+        skimstream = getattr(CosmicSkims,skim)
         if (not isinstance(skimstream,cms.FilteredStream)): continue
 
         if skimname == skimstream['name']:

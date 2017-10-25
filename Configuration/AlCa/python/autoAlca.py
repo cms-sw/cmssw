@@ -1,4 +1,4 @@
-AlCaRecoMatrix = {"AlCaLumiPixels" : "LumiPixels+AlCaPCCZeroBias+AlCaPCCRandom",
+AlCaRecoMatrix = {"AlCaLumiPixels" : "AlCaPCCZeroBias+AlCaPCCRandom",
                   "Charmonium"     : "TkAlJpsiMuMu",
                   "Commissioning"  : "HcalCalIsoTrk+HcalCalIsolatedBunchSelector+TkAlMinBias+SiStripCalMinBias",
                   "Cosmics"        : "TkAlCosmics0T+MuAlGlobalCosmics+DtCalibCosmics",

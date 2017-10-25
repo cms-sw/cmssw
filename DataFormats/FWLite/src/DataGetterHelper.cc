@@ -52,17 +52,19 @@ namespace fwlite {
                                        std::shared_ptr<HistoryGetterBase> historyGetter,
                                        std::shared_ptr<BranchMapReader> branchMap,
                                        std::shared_ptr<edm::EDProductGetter> getter,
-                                       bool useCache):
+                                       bool useCache, std::function<void (TBranch const&)> baFunc):
         branchMap_(branchMap),
         historyGetter_(historyGetter),
         getter_(getter),
-        tcTrained_(false)
+        tcTrained_(false),
+        tcUse_(useCache),
+        branchAccessFunc_(baFunc)
     {
         if(nullptr == tree) {
             throw cms::Exception("NoTree")<<"The TTree pointer passed to the constructor was null";
         }
         tree_ = tree;
-        if (useCache) {
+        if (tcUse_) {
             tree_->SetCacheSize();
         }
     }
@@ -131,20 +133,22 @@ namespace fwlite {
         //obj.destruct();
         ////END OF WORK AROUND
 
-        TTreeCache* tcache = dynamic_cast<TTreeCache*> (branchMap_->getFile()->GetCacheRead());
+        if (tcUse_) {
+            TTreeCache* tcache = dynamic_cast<TTreeCache*> (branchMap_->getFile()->GetCacheRead());
 
-        if (nullptr == tcache) {
-            iData.branch_->GetEntry(eventEntry);
-        } else {
-            if (!tcTrained_) {
-                tcache->SetLearnEntries(100);
-                tcache->SetEntryRange(0, tree_->GetEntries());
-                tcTrained_ = true;
+            if (nullptr != tcache) {
+                if (!tcTrained_) {
+                    tcache->SetLearnEntries(100);
+                    tcache->SetEntryRange(0, tree_->GetEntries());
+                    tcTrained_ = true;
+                }
+                tree_->LoadTree(eventEntry);
             }
-            tree_->LoadTree(eventEntry);
-            iData.branch_->GetEntry(eventEntry);
-       }
-       iData.lastProduct_=eventEntry;
+        }
+        branchAccessFunc_(*iData.branch_);
+        iData.branch_->GetEntry(eventEntry);
+
+        iData.lastProduct_=eventEntry;
     }
 
     internal::Data&
