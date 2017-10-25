@@ -166,7 +166,7 @@ void HcalDbProducer::pedestalWidthsCallback (const HcalPedestalWidthsRcd& fRecor
   const HcalTopology* topo=&(*htopo);
   mPedestalWidths->setTopo(topo);
 
-  mService->setData (mEffectivePedestalWidths.get());
+  mService->setData (mPedestalWidths.get());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("PedestalWidths")) != mDumpRequest.end()) {
     *mDumpStream << "New HCAL PedestalWidths set" << std::endl;
     HcalDbASCIIIO::dumpObject (*mDumpStream, *(mPedestalWidths));
