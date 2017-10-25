@@ -1439,10 +1439,12 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
             r = _rawdict(r)
             boost_run_map.append( (r['run_number'],r['run_start_time'],r['boost_version']) )
         TagMetadata = session2.get_dbtype(conddb.TagMetadata)
-        q = session2.query(TagMetadata.min_serialization_v).filter(TagMetadata.tag_name == second )
+        q = session2.query(TagMetadata.min_serialization_v,TagMetadata.min_since).filter(TagMetadata.tag_name == second )
         tagBoostVersion = None
+        minIov = None
         for r in q:
             tagBoostVersion = r[0]
+            minIov = r[1]
             break
         currentTagBoostVersion = tagBoostVersion
         if len(iovs)>0 and destExists and currentTagBoostVersion is None:
@@ -1455,7 +1457,9 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
         niovs += 1
         if payloadSerializationVersionMap is not None:
             if v in payloadSerializationVersionMap.keys():
-                tagBoostVersion = serialization_metadata.do_update_tag_boost_version(tagBoostVersion,payloadSerializationVersionMap[v], k, destTimeType, boost_run_map )
+                tagBoostVersion = serialization_metadata.do_update_tag_boost_version(tagBoostVersion,minIov,payloadSerializationVersionMap[v], k, destTimeType, boost_run_map )
+        if minIov is None or k<minIov:
+            minIov = k
     if not niovs==0:
         logging.info('%s iov(s) copied.',niovs)
         merge = False
@@ -1469,7 +1473,7 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
             else:
                 merge = True
         if merge:
-            session2.merge(TagMetadata(tag_name=second,min_serialization_v=tagBoostVersion,modification_time=copyTime))
+            session2.merge(TagMetadata(tag_name=second,min_serialization_v=tagBoostVersion,min_since=minIov,modification_time=copyTime))
             logging.info('Destination Tag boost Version set to %s ( was %s )' %(tagBoostVersion,currentTagBoostVersion) )
     return ret, niovs
 
