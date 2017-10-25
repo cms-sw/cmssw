@@ -199,8 +199,7 @@ def psetGsfEleFull5x5SigmaIEtaIEtaWithSatCut(wpEB, wpEE):
         maxSigmaIEtaIEtaEE = cms.double( wpEE.full5x5SigmaIEtaIEtaCut ),
         maxNrSatCrysIn5x5EB =cms.int32( 0 ),
         maxNrSatCrysIn5x5EE =cms.int32( 0 ),
-        nrSatCrysValueMap = cms.InputTag("heepIDVarValueMaps","eleNrSaturateIn5x5"),
-        needsAdditionalProducts = cms.bool(True),
+        needsAdditionalProducts = cms.bool(False), 
         
         isIgnored = cms.bool(False)
         )
@@ -229,8 +228,7 @@ def psetGsfEleFull5x5E2x5OverE5x5WithSatCut(wpEB, wpEE):
         minE2x5OverE5x5EE = cms.double( wpEE.minE2x5OverE5x5Cut ),
         maxNrSatCrysIn5x5EB =cms.int32( 0 ),
         maxNrSatCrysIn5x5EE =cms.int32( 0 ),
-        nrSatCrysValueMap = cms.InputTag("heepIDVarValueMaps","eleNrSaturateIn5x5"),
-        needsAdditionalProducts = cms.bool(True),
+        needsAdditionalProducts = cms.bool(False),
         isIgnored = cms.bool(False)
         )
 # Configure the cut of E/H

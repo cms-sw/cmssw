@@ -45,10 +45,10 @@ void (FWConvTrackHitsDetailView::*foo)();
 }
 
 FWConvTrackHitsDetailView::FWConvTrackHitsDetailView ():
-  m_modules(0),
-  m_moduleLabels(0),
-  m_hits(0),
-  m_legend(0),
+  m_modules(nullptr),
+  m_moduleLabels(nullptr),
+  m_hits(nullptr),
+  m_legend(nullptr),
   m_orthographic(false)
 {
 }
@@ -175,7 +175,7 @@ FWConvTrackHitsDetailView::build (const FWModelId &id, const reco::Conversion* c
    for( TEveElement::List_i i = m_modules->BeginChildren(), end = m_modules->EndChildren(); i != end; ++i )
    {
       TEveGeoShape* gs = dynamic_cast<TEveGeoShape*>(*i);
-      if (gs == 0 && (*i != 0)) {
+      if (gs == nullptr && (*i != nullptr)) {
          std::cerr << "Got a " << typeid(**i).name() << ", expecting TEveGeoShape. ignoring (it must be the clusters)." << std::endl;
          continue;
       }
@@ -271,7 +271,7 @@ FWConvTrackHitsDetailView::build (const FWModelId &id, const reco::Conversion* c
 
    
    TEveVectorD c  = ( trk1->GetVertex() + trk0->GetVertex()) *0.5;
-   if (1)
+   if (true)
    { 
       setCameraInit(viewerGL(),TGLViewer::kCameraPerspXOZ, fwd, up, c); //default
       setCameraInit(viewerGL(),TGLViewer::kCameraPerspYOZ, up,  lft,c);
@@ -377,7 +377,7 @@ FWConvTrackHitsDetailView::setTextInfo(const FWModelId &id, const reco::Conversi
    y -= lineH;
    const reco::HitPattern &hp0 = track0->hitPattern();
    int nvalid_tk0 = 0, ninvalid_tk0 = 0, npix_tk0 = 0, nstrip_tk0 = 0;
-   for(int i_tk0 = 0; i_tk0 < hp0.numberOfHits(reco::HitPattern::TRACK_HITS); i_tk0++) {
+   for(int i_tk0 = 0; i_tk0 < hp0.numberOfAllHits(reco::HitPattern::TRACK_HITS); i_tk0++) {
        uint32_t hit = hp0.getHitPattern(reco::HitPattern::TRACK_HITS, i_tk0);
        if(reco::HitPattern::validHitFilter(hit)) {
            nvalid_tk0++;
@@ -391,7 +391,7 @@ FWConvTrackHitsDetailView::setTextInfo(const FWModelId &id, const reco::Conversi
    y -= lineH;
 
    int npix_mhi_tk0 = 0, nstrip_mhi_tk0 = 0;
-   for(int i_mhi_tk0 = 0; i_mhi_tk0 < hp0.numberOfHits(reco::HitPattern::MISSING_INNER_HITS); i_mhi_tk0++) {
+   for(int i_mhi_tk0 = 0; i_mhi_tk0 < hp0.numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS); i_mhi_tk0++) {
        uint32_t hit = hp0.getHitPattern(reco::HitPattern::MISSING_INNER_HITS, i_mhi_tk0);
        if (reco::HitPattern::pixelHitFilter(hit)) npix_mhi_tk0++;
        else if (reco::HitPattern::stripHitFilter(hit)) nstrip_mhi_tk0++;
@@ -409,7 +409,7 @@ FWConvTrackHitsDetailView::setTextInfo(const FWModelId &id, const reco::Conversi
 
    const reco::HitPattern &hp1 = track1->hitPattern();
    int nvalid_tk1 = 0, ninvalid_tk1 = 0, npix_tk1 = 0, nstrip_tk1 = 0;
-   for(int i_tk1 = 0; i_tk1 < hp1.numberOfHits(reco::HitPattern::TRACK_HITS); i_tk1++) {
+   for(int i_tk1 = 0; i_tk1 < hp1.numberOfAllHits(reco::HitPattern::TRACK_HITS); i_tk1++) {
        uint32_t hit = hp1.getHitPattern(reco::HitPattern::TRACK_HITS, i_tk1);
        if(reco::HitPattern::validHitFilter(hit)) {
            nvalid_tk1++;
@@ -423,7 +423,7 @@ FWConvTrackHitsDetailView::setTextInfo(const FWModelId &id, const reco::Conversi
    y -= lineH;
 
    int npix_mhi_tk1 = 0, nstrip_mhi_tk1 = 0;
-   for(int i_mhi_tk1 = 0; i_mhi_tk1 < hp1.numberOfHits(reco::HitPattern::MISSING_INNER_HITS); i_mhi_tk1++) {
+   for(int i_mhi_tk1 = 0; i_mhi_tk1 < hp1.numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS); i_mhi_tk1++) {
        uint32_t hit = hp1.getHitPattern(reco::HitPattern::MISSING_INNER_HITS, i_mhi_tk1);
        if (reco::HitPattern::pixelHitFilter(hit)) npix_mhi_tk1++;
        else if (reco::HitPattern::stripHitFilter(hit)) nstrip_mhi_tk1++;
@@ -553,7 +553,7 @@ FWConvTrackHitsDetailView::addModules( const reco::Track& track,
 	 if( iItem->getGeom())
 	 {
 	    TEveGeoShape* shape = iItem->getGeom()->getEveShape( detid );
-	    if( 0 != shape )
+	    if( nullptr != shape )
 	    {
 	       shape->SetMainTransparency( 65 );
 	       shape->SetPickable( kTRUE );
@@ -568,6 +568,8 @@ FWConvTrackHitsDetailView::addModules( const reco::Track& track,
 		  name += "LOST ";
 		  shape->SetMainColor( kRed );
 		  break;
+               case TrackingRecHit::inactive_inner:
+               case TrackingRecHit::inactive_outer:
 	       case TrackingRecHit::inactive:
 		  name += "INACTIVE ";
 		  shape->SetMainColor( 28 );

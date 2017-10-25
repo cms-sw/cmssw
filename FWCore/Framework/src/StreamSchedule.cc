@@ -256,7 +256,7 @@ namespace edm {
     initializeBranchToReadingWorker(opts,preg,branchToReadingWorker);
     
     //If no delete early items have been specified we don't have to do anything
-    if(branchToReadingWorker.size()==0) {
+    if(branchToReadingWorker.empty()) {
       return;
     }
     const std::vector<std::string> kEmpty;
@@ -269,7 +269,7 @@ namespace edm {
     modReg.forAllModuleHolders([this, &branchToReadingWorker,&nUniqueBranchesToDelete](maker::ModuleHolder* iHolder){
       auto comm = iHolder->createOutputModuleCommunicator();
       if (comm) {
-        if(branchToReadingWorker.size()>0) {
+        if(!branchToReadingWorker.empty()) {
           //If an OutputModule needs a product, we can't delete it early
           // so we should remove it from our list
           SelectedProductsForBranchType const& kept = comm->keptProducts();
@@ -285,14 +285,14 @@ namespace edm {
       }
     });
     
-    if(branchToReadingWorker.size()==0) {
+    if(branchToReadingWorker.empty()) {
       return;
     }
     
     for (auto w :allWorkers()) {
       //determine if this module could read a branch we want to delete early
       auto pset = pset::Registry::instance()->getMapped(w->description().parameterSetID());
-      if(0!=pset) {
+      if(nullptr!=pset) {
         auto branches = pset->getUntrackedParameter<std::vector<std::string>>("mightGet",kEmpty);
         if(not branches.empty()) {
           ++upperLimitOnReadingWorker;
@@ -334,7 +334,7 @@ namespace edm {
         }
       }
     }  
-    if(0!=branchToReadingWorker.size()) {
+    if(!branchToReadingWorker.empty()) {
       earlyDeleteHelpers_.reserve(upperLimitOnReadingWorker);
       earlyDeleteHelperToBranchIndicies_.resize(upperLimitOnIndicies,0);
       earlyDeleteBranchToCount_.reserve(nUniqueBranchesToDelete);
@@ -422,7 +422,7 @@ namespace edm {
 
       bool isTracked;
       ParameterSet* modpset = proc_pset.getPSetForUpdate(moduleLabel, isTracked);
-      if (modpset == 0) {
+      if (modpset == nullptr) {
         std::string pathType("endpath");
         if (!search_all(endPathNames, pathName)) {
           pathType = std::string("path");
@@ -824,7 +824,7 @@ namespace edm {
     sum.timesExcept += path.timesExcept();
     
     Path::size_type sz = path.size();
-    if(sum.moduleInPathSummaries.size()==0) {
+    if(sum.moduleInPathSummaries.empty()) {
       std::vector<ModuleInPathSummary> temp(sz);
       for (size_t i = 0; i != sz; ++i) {
         fillModuleInPathSummary(path, i, temp[i]);

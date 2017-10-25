@@ -24,14 +24,14 @@ class SiPixelGainCalibrationOfflineSimService : public SiPixelGainCalibrationSer
 
  public:
   explicit SiPixelGainCalibrationOfflineSimService(const edm::ParameterSet& conf) : SiPixelGainCalibrationServicePayloadGetter<SiPixelGainCalibrationOffline,SiPixelGainCalibrationOfflineSimRcd>(conf){};
-  ~SiPixelGainCalibrationOfflineSimService(){};
+  ~SiPixelGainCalibrationOfflineSimService() override{};
 
   // pixel granularity
-  float   getPedestal  ( const uint32_t& detID,const int& col, const int& row);
-  float   getGain      ( const uint32_t& detID,const int& col, const int& row);
-  bool    isDead       ( const uint32_t& detID,const int& col, const int& row);
-  bool    isDeadColumn ( const uint32_t& detID,const int& col, const int& row);
-  bool    isNoisy       ( const uint32_t& detID,const int& col, const int& row);
-  bool    isNoisyColumn ( const uint32_t& detID,const int& col, const int& row);
+  float   getPedestal  ( const uint32_t& detID,const int& col, const int& row) override;
+  float   getGain      ( const uint32_t& detID,const int& col, const int& row) override;
+  bool    isDead       ( const uint32_t& detID,const int& col, const int& row) override;
+  bool    isDeadColumn ( const uint32_t& detID,const int& col, const int& row) override;
+  bool    isNoisy       ( const uint32_t& detID,const int& col, const int& row) override;
+  bool    isNoisyColumn ( const uint32_t& detID,const int& col, const int& row) override;
 };
 #endif

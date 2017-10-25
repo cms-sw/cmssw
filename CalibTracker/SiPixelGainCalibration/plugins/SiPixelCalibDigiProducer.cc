@@ -94,13 +94,13 @@ SiPixelCalibDigiProducer::store()
   //  std::cout << "in store() " << std::endl;
   if(iEventCounter_%pattern_repeat_==0){
     //    std::cout << "now at event " << iEventCounter_ <<" where we save the calibration information into the CMSSW digi";
-    return 1;
+    return true;
   }
   else if(iEventCounter_==calib_->expectedTotalEvents())
-    return 1;
+    return true;
   else
-    return 0;
-  return 1;
+    return false;
+  return true;
 }
 ////////////////////////////////////////////////////////////////////
 // function description:
@@ -332,7 +332,7 @@ bool SiPixelCalibDigiProducer::checkPixel(uint32_t detid, short row, short col){
   
   
   edm::LogInfo("SiPixelCalibDigiProducer") << "Event" << iEventCounter_ << ",now in checkpixel() " << std::endl;
-  if(currentpattern_.size()==0)
+  if(currentpattern_.empty())
     setPattern();
   //  uint32_t iroc;
   uint32_t fedid = detid_to_fedid_[detid];

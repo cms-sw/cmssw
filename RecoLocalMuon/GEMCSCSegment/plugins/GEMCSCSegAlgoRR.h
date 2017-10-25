@@ -32,13 +32,13 @@ public:
   explicit GEMCSCSegAlgoRR(const edm::ParameterSet& ps);
 
   /// Destructor
-  ~GEMCSCSegAlgoRR();
+  ~GEMCSCSegAlgoRR() override;
 
   /**
    * Build segments for all desired groups of hits
    */
   std::vector<GEMCSCSegment> run( const std::map<uint32_t, const CSCLayer*>& csclayermap, const std::map<uint32_t, const GEMEtaPartition*>& gemrollmap,
-				  const std::vector<const CSCSegment*>& cscsegments, const std::vector<const GEMRecHit*>& gemrechits);
+				  const std::vector<const CSCSegment*>& cscsegments, const std::vector<const GEMRecHit*>& gemrechits) override;
 private:
 
   /// Utility functions 

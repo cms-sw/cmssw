@@ -57,7 +57,7 @@ struct   ErrorFrameTransformer {
   //new Jacobian for 6x6 APE in muon code
   static LocalErrorExtended transform46(const GlobalErrorExtended& ge, const AlgebraicVector& positions, const AlgebraicVector& directions) {
 
-    AlgebraicSymMatrix66 as(ge.matrix());
+    const AlgebraicSymMatrix66& as(ge.matrix());
 
     AlgebraicMatrix46 jacobian46;
     jacobian46[0][0] = 1.;

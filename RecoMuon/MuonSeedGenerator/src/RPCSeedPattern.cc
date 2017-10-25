@@ -493,7 +493,7 @@ bool RPCSeedPattern::checkSegment() const
     {
         count++;
         const GeomDet* Detector = (*iter)->det();
-        if(dynamic_cast<const RPCChamber*>(Detector) != 0)
+        if(dynamic_cast<const RPCChamber*>(Detector) != nullptr)
         {
             const RPCChamber* RPCCh = dynamic_cast<const RPCChamber*>(Detector);
             RPCDetId RPCId = RPCCh->id();

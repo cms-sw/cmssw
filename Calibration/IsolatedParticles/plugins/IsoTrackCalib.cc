@@ -80,19 +80,19 @@ class IsoTrackCalib : public edm::EDAnalyzer {
 
 public:
   explicit IsoTrackCalib(const edm::ParameterSet&);
-  ~IsoTrackCalib();
+  ~IsoTrackCalib() override;
  
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   double dR(double eta1, double eta2, double phi1, double phi2);
 
 private:
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
  
   double dEta(math::XYZTLorentzVector&, math::XYZTLorentzVector&);
   double dPhi(math::XYZTLorentzVector&, math::XYZTLorentzVector&);
@@ -291,7 +291,7 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent,
   edm::Handle<reco::BeamSpot> beamSpotH;
   iEvent.getByToken(tok_bs_, beamSpotH);
   math::XYZPoint leadPV(0,0,0);
-  if (recVtxs->size()>0 && !((*recVtxs)[0].isFake())) {
+  if (!recVtxs->empty() && !((*recVtxs)[0].isFake())) {
     leadPV = math::XYZPoint( (*recVtxs)[0].x(),(*recVtxs)[0].y(), (*recVtxs)[0].z() );
   } else if (beamSpotH.isValid()) {
     leadPV = beamSpotH->position();

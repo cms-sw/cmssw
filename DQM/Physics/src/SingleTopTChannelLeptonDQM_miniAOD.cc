@@ -584,7 +584,7 @@ void MonitorEnsemble::fill(const edm::Event& event,
 
       pat::Jet sel = *jet;
 
-      if ( jetSelectJet==0)
+      if ( jetSelectJet==nullptr)
 	jetSelectJet.reset(new StringCutObjectSelector<pat::Jet>(jetSelect_));
 
       if (!((*jetSelectJet)(sel))) continue;
@@ -728,7 +728,7 @@ void MonitorEnsemble::fill(const edm::Event& event,
       fill("eventLogger_", 1.5, logged_ + 0.5,
            event.eventAuxiliary().luminosityBlock());
       fill("eventLogger_", 2.5, logged_ + 0.5, event.eventAuxiliary().event());
-      if (correctedJets.size() > 0)
+      if (!correctedJets.empty())
         fill("eventLogger_", 3.5, logged_ + 0.5, correctedJets[0].pt());
       if (correctedJets.size() > 1)
         fill("eventLogger_", 4.5, logged_ + 0.5, correctedJets[1].pt());
@@ -884,14 +884,14 @@ void SingleTopTChannelLeptonDQM_miniAOD::analyze(const edm::Event& event,
       if (type == "presel") {
         selection_[key].second->fill(event, setup);
       }
-      if (type == "elecs" && electronStep_ != 0) {
+      if (type == "elecs" && electronStep_ != nullptr) {
         if (electronStep_->select(event)) {
           ++passed;
           selection_[key].second->fill(event, setup);
         } else
           break;
       }
-      if (type == "muons" && muonStep_ != 0) {
+      if (type == "muons" && muonStep_ != nullptr) {
         if (muonStep_->select(event)) {
           ++passed;
           selection_[key].second->fill(event, setup);
@@ -908,7 +908,7 @@ void SingleTopTChannelLeptonDQM_miniAOD::analyze(const edm::Event& event,
             break;
         }
       }
-      if (type == "met" && metStep_ != 0) {
+      if (type == "met" && metStep_ != nullptr) {
         if (metStep_->select(event)) {
           ++passed;
           selection_[key].second->fill(event, setup);

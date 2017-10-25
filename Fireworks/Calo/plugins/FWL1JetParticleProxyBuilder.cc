@@ -19,16 +19,16 @@ class FWL1JetParticleProxyBuilder : public FWSimpleProxyBuilderTemplate<l1extra:
 {
 public:
    FWL1JetParticleProxyBuilder( void ) {}
-   virtual ~FWL1JetParticleProxyBuilder( void ) {}
+   ~FWL1JetParticleProxyBuilder( void ) override {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWL1JetParticleProxyBuilder( const FWL1JetParticleProxyBuilder& );    // stop default
-   const FWL1JetParticleProxyBuilder& operator=( const FWL1JetParticleProxyBuilder& );    // stop default
+   FWL1JetParticleProxyBuilder( const FWL1JetParticleProxyBuilder& ) = delete;    // stop default
+   const FWL1JetParticleProxyBuilder& operator=( const FWL1JetParticleProxyBuilder& ) = delete;    // stop default
   
    using FWSimpleProxyBuilderTemplate<l1extra::L1JetParticle>::build;
-   virtual void build( const l1extra::L1JetParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext* );
+   void build( const l1extra::L1JetParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext* ) override;
 };
 
 void

@@ -134,10 +134,10 @@ bool EcalTPGDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string cont
   }
   
   if (m_cacheIDs[container] == cacheID) {
-    return 0;
+    return false;
   } else {
     m_cacheIDs[container] = cacheID;
-    return 1;
+    return true;
   }
 
 }

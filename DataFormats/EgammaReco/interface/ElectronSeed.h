@@ -81,8 +81,8 @@ namespace reco
     ElectronSeed() ;
     ElectronSeed( const TrajectorySeed & ) ;
     ElectronSeed( PTrajectoryStateOnDet & pts, RecHitContainer & rh,  PropagationDirection & dir ) ;
-    ElectronSeed * clone() const { return new ElectronSeed(*this) ; }
-    virtual ~ElectronSeed();
+    ElectronSeed * clone() const override { return new ElectronSeed(*this) ; }
+    ~ElectronSeed() override;
 
     //! Set additional info
     void setCtfTrack( const CtfTrackRef & ) ;

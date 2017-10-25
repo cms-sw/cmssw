@@ -76,7 +76,7 @@
 GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet& par,
                                                          const MuonServiceProxy* service,
 							 edm::ConsumesCollector& iC) : 
-  theLayerMeasurements(0),theTrackTransformer(0),theRegionBuilder(0), theService(service),theGlbRefitter(0) {
+  theLayerMeasurements(nullptr),theTrackTransformer(nullptr),theRegionBuilder(nullptr), theService(service),theGlbRefitter(nullptr) {
 
   theCategory = par.getUntrackedParameter<std::string>("Category", "Muon|RecoMuon|GlobalMuon|GlobalTrajectoryBuilderBase");
 
@@ -219,8 +219,8 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
 	    innerTsos.rescaleError(100.);
 	                  
 	    TC refitted0,refitted1;
-	    MuonCandidate* finalTrajectory = 0;
-	    Trajectory *tkTrajectory = 0;
+	    MuonCandidate* finalTrajectory = nullptr;
+	    Trajectory *tkTrajectory = nullptr;
 	
 	    // tracker only track
 	    if ( ! (it->trackerTrajectory() && it->trackerTrajectory()->isValid()) ) {
@@ -236,25 +236,25 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
 	    refitted1 = theGlbRefitter->refit( *it->trackerTrack(), tTT, allRecHits,theMuonHitsOption, theTopo);
 	    LogTrace(theCategory)<<"     This track-sta refitted to " << refitted1.size() << " trajectories";
 	
-	    Trajectory *glbTrajectory1 = 0;
+	    Trajectory *glbTrajectory1 = nullptr;
 	    if (!refitted1.empty()) glbTrajectory1 = new Trajectory(*(refitted1.begin()));
 	    else LogDebug(theCategory)<< "     Failed to load global track trajectory 1"; 
 	    if (glbTrajectory1) glbTrajectory1->setSeedRef(tmpSeed);
 	    
-	    finalTrajectory = 0;
+	    finalTrajectory = nullptr;
 	    if(glbTrajectory1 && tkTrajectory) finalTrajectory = new MuonCandidate(glbTrajectory1, it->muonTrack(), it->trackerTrack(),
-						tkTrajectory? new Trajectory(*tkTrajectory) : 0);
+						tkTrajectory? new Trajectory(*tkTrajectory) : nullptr);
 	
 	    if ( finalTrajectory ) refittedResult.push_back(finalTrajectory);
 	    if(tkTrajectory) delete tkTrajectory;
 	  }
 	  else{
-		MuonCandidate* finalTrajectory = 0;
+		MuonCandidate* finalTrajectory = nullptr;
 		edm::RefToBase<TrajectorySeed> tmpSeed;
 		if(it->trackerTrack()->seedRef().isAvailable()) tmpSeed = it->trackerTrack()->seedRef();
 	
 		TC refitted0;
-		Trajectory *tkTrajectory = 0;
+		Trajectory *tkTrajectory = nullptr;
 		if ( ! (it->trackerTrajectory() && it->trackerTrajectory()->isValid()) ) {
 		  refitted0 = theTrackTransformer->transform(it->trackerTrack());
 		  if (!refitted0.empty()){
@@ -273,8 +273,8 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
 
   // choose the best global fit for this Standalone Muon based on the track probability
   CandidateContainer selectedResult;
-  MuonCandidate* tmpCand = 0;
-  if ( refittedResult.size() > 0 ) tmpCand = *(refittedResult.begin());
+  MuonCandidate* tmpCand = nullptr;
+  if ( !refittedResult.empty() ) tmpCand = *(refittedResult.begin());
   double minProb = std::numeric_limits<double>::max();
 
   for (auto&& iter: refittedResult){
@@ -288,7 +288,7 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
   }
 
   if ( tmpCand )  selectedResult.push_back(new MuonCandidate(new Trajectory(*(tmpCand->trajectory())), tmpCand->muonTrack(), tmpCand->trackerTrack(), 
-							     (tmpCand->trackerTrajectory())? new Trajectory( *(tmpCand->trackerTrajectory()) ):0 ) );
+							     (tmpCand->trackerTrajectory())? new Trajectory( *(tmpCand->trackerTrajectory()) ):nullptr ) );
 
   for (auto&& it: refittedResult){
     if ( it->trajectory() ) delete it->trajectory();

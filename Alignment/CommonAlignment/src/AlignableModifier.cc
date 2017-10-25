@@ -1,5 +1,5 @@
 #include <memory>
-#include <ctype.h>
+#include <cctype>
 
 #include "CLHEP/Random/DRand48Engine.h"
 #include "CLHEP/Random/RandGauss.h"

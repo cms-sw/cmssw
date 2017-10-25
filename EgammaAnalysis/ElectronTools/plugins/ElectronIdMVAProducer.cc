@@ -24,10 +24,10 @@
 class ElectronIdMVAProducer : public edm::EDFilter {
 public:
   explicit ElectronIdMVAProducer(const edm::ParameterSet&);
-  ~ElectronIdMVAProducer();
+  ~ElectronIdMVAProducer() override;
   
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
   
   // ----------member data ---------------------------
   bool verbose_;
@@ -116,7 +116,7 @@ bool ElectronIdMVAProducer::filter(edm::Event& iEvent, const edm::EventSetup& iS
   
   reco::Vertex dummy;
   const reco::Vertex *pv = &dummy;
-  if ( vertexCollection->size() != 0) {
+  if ( !vertexCollection->empty()) {
     pv = &*vertexCollection->begin();
   } else { // create a dummy PV
     reco::Vertex::Error e;

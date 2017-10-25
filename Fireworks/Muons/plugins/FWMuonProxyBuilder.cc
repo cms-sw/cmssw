@@ -21,23 +21,23 @@ class FWMuonProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Muon>
 {
 public:
    FWMuonProxyBuilder( void ) {}
-   virtual ~FWMuonProxyBuilder( void ) {}
+   ~FWMuonProxyBuilder( void ) override {}
 
-   virtual void setItem(const FWEventItem* iItem) override;
+   void setItem(const FWEventItem* iItem) override;
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
    // Disable default copy constructor
-   FWMuonProxyBuilder( const FWMuonProxyBuilder& );
+   FWMuonProxyBuilder( const FWMuonProxyBuilder& ) = delete;
    // Disable default assignment operator
-   const FWMuonProxyBuilder& operator=( const FWMuonProxyBuilder& );
+   const FWMuonProxyBuilder& operator=( const FWMuonProxyBuilder& ) = delete;
 
 
    using FWSimpleProxyBuilderTemplate<reco::Muon>::build;
-   virtual void build( const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
+   void build( const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 
-   virtual void localModelChanges( const FWModelId& iId, TEveElement* iCompound,
+   void localModelChanges( const FWModelId& iId, TEveElement* iCompound,
                                    FWViewType::EType viewType, const FWViewContext* vc ) override;
 
    mutable FWMuonBuilder m_builder;

@@ -54,7 +54,7 @@ void L1TGMTClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &iget
     eff_eta_dtcsc = bookClone1DVB(ibooker, igetter, "eff_eta_dtcsc", "efficiency DTCSC vs eta",
             "eta_DTCSC_and_RPC");
 
-    if (eff_eta_dtcsc != 0) {
+    if (eff_eta_dtcsc != nullptr) {
         eff_eta_dtcsc->setAxisTitle("eta", 1);
         if(eff_eta_dtcsc->getTH1F()->GetSumw2N() == 0) eff_eta_dtcsc->getTH1F()->Sumw2();
 
@@ -63,7 +63,7 @@ void L1TGMTClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &iget
     eff_eta_rpc = bookClone1DVB(ibooker, igetter, "eff_eta_rpc", "efficiency RPC vs eta",
             "eta_DTCSC_and_RPC");
 
-    if (eff_eta_rpc != 0) {
+    if (eff_eta_rpc != nullptr) {
         eff_eta_rpc->setAxisTitle("eta", 1);
         if(eff_eta_rpc->getTH1F()->GetSumw2N() == 0) eff_eta_rpc->getTH1F()->Sumw2();
 
@@ -72,7 +72,7 @@ void L1TGMTClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &iget
     eff_phi_dtcsc = bookClone1D(ibooker, igetter, "eff_phi_dtcsc", "efficiency DTCSC vs phi",
             "phi_DTCSC_and_RPC");
 
-    if (eff_phi_dtcsc != 0) {
+    if (eff_phi_dtcsc != nullptr) {
         eff_phi_dtcsc->setAxisTitle("phi (deg)", 1);
         if(eff_phi_dtcsc->getTH1F()->GetSumw2N() == 0) eff_phi_dtcsc->getTH1F()->Sumw2();
 
@@ -81,7 +81,7 @@ void L1TGMTClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &iget
     eff_phi_rpc = bookClone1D(ibooker, igetter, "eff_phi_rpc", "efficiency RPC vs phi",
             "phi_DTCSC_and_RPC");
 
-    if (eff_phi_rpc != 0) {
+    if (eff_phi_rpc != nullptr) {
         eff_phi_rpc->setAxisTitle("phi (deg)", 1);
         if(eff_phi_rpc->getTH1F()->GetSumw2N() == 0) eff_phi_rpc->getTH1F()->Sumw2();
 
@@ -90,7 +90,7 @@ void L1TGMTClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &iget
     eff_etaphi_dtcsc = bookClone2D(ibooker, igetter, "eff_etaphi_dtcsc",
             "efficiency DTCSC vs eta and phi", "etaphi_DTCSC_and_RPC");
 
-    if (eff_etaphi_dtcsc != 0) {
+    if (eff_etaphi_dtcsc != nullptr) {
         eff_etaphi_dtcsc->setAxisTitle("eta", 1);
         eff_etaphi_dtcsc->setAxisTitle("phi (deg)", 2);
         if(eff_etaphi_dtcsc->getTH2F()->GetSumw2N() == 0) eff_etaphi_dtcsc->getTH2F()->Sumw2();
@@ -100,7 +100,7 @@ void L1TGMTClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &iget
     eff_etaphi_rpc = bookClone2D(ibooker, igetter, "eff_etaphi_rpc",
             "efficiency RPC vs eta and phi", "etaphi_DTCSC_and_RPC");
 
-    if (eff_etaphi_rpc != 0) {
+    if (eff_etaphi_rpc != nullptr) {
         eff_etaphi_rpc->setAxisTitle("eta", 1);
         eff_etaphi_rpc->setAxisTitle("phi (deg)", 2);
         if(eff_etaphi_rpc->getTH2F()->GetSumw2N() == 0) eff_etaphi_rpc->getTH2F()->Sumw2();
@@ -138,7 +138,7 @@ void L1TGMTClient::makeRatio1D(DQMStore::IBooker &ibooker, DQMStore::IGetter &ig
     TH1F* h1 = get1DHisto(input_dir_ + "/" + h1Name, igetter);
     TH1F* h2 = get1DHisto(input_dir_ + "/" + h2Name, igetter);
 
-    if (mer == 0) {
+    if (mer == nullptr) {
         LogDebug("TriggerDQM")
                 << "\nL1TGMTClient::makeRatio1D: monitoring element zero, not able to retrieve histogram"
                 << std::endl;
@@ -160,7 +160,7 @@ void L1TGMTClient::makeEfficiency1D(DQMStore::IBooker &ibooker, DQMStore::IGette
     TH1F* he = get1DHisto(input_dir_ + "/" + heName, igetter);
     TH1F* hi = get1DHisto(input_dir_ + "/" + hiName, igetter);
 
-    if (meeff == 0) {
+    if (meeff == nullptr) {
         LogDebug("TriggerDQM")
                 << "L1TGMTClient::makeEfficiency1D: monitoring element zero, not able to retrieve histogram"
                 << std::endl;
@@ -185,7 +185,7 @@ void L1TGMTClient::makeEfficiency2D(DQMStore::IBooker &ibooker, DQMStore::IGette
     TH2F* he = get2DHisto(input_dir_ + "/" + heName, igetter);
     TH2F* hi = get2DHisto(input_dir_ + "/" + hiName, igetter);
 
-    if (meeff == 0) {
+    if (meeff == nullptr) {
         LogDebug("TriggerDQM")
                 << "\nL1TGMTClient::makeEfficiency2D: monitoring element zero, not able to retrieve histogram"
                 << std::endl;
@@ -209,7 +209,7 @@ TH1F* L1TGMTClient::get1DHisto(std::string meName, DQMStore::IGetter &igetter) {
 
     if (!me_) {
         LogDebug("TriggerDQM") << "\nL1TGMTClient: " << meName << " NOT FOUND.";
-        return 0;
+        return nullptr;
     }
 
     return me_->getTH1F();
@@ -221,7 +221,7 @@ TH2F* L1TGMTClient::get2DHisto(std::string meName, DQMStore::IGetter &igetter) {
 
     if (!me_) {
         LogDebug("TriggerDQM") << "\nL1TGMTClient: " << meName << " NOT FOUND.";
-        return 0;
+        return nullptr;
     }
     return me_->getTH2F();
 }
@@ -246,7 +246,7 @@ MonitorElement* L1TGMTClient::bookClone1D(DQMStore::IBooker &ibooker, DQMStore::
         LogDebug("TriggerDQM")
                 << "\nL1TGMTClient::bookClone1D: not able to clone histogram "
                 << hrefName << std::endl;
-        me = 0;
+        me = nullptr;
     }
 
     return me;
@@ -279,7 +279,7 @@ MonitorElement* L1TGMTClient::bookClone1DVB(DQMStore::IBooker &ibooker, DQMStore
         LogDebug("TriggerDQM")
                 << "\nL1TGMTClient::bookClone1DVB: not able to clone histogram "
                 << hrefName << std::endl;
-        me = 0;
+        me = nullptr;
     }
 
     return me;
@@ -309,7 +309,7 @@ MonitorElement* L1TGMTClient::bookClone2D(DQMStore::IBooker &ibooker, DQMStore::
         LogDebug("TriggerDQM")
                 << "\nL1TGMTClient::bookClone2D: not able to clone histogram "
                 << hrefName << std::endl;
-        me = 0;
+        me = nullptr;
     }
 
     return me;

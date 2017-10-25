@@ -76,9 +76,9 @@ class DependentRecordImplementation : public EventSetupRecordImplementation<Reco
       // ---------- member functions ---------------------------
 
    private:
-      DependentRecordImplementation(const DependentRecordImplementation&); // stop default
+      DependentRecordImplementation(const DependentRecordImplementation&) = delete; // stop default
 
-      const DependentRecordImplementation& operator=(const DependentRecordImplementation&); // stop default
+      const DependentRecordImplementation& operator=(const DependentRecordImplementation&) = delete; // stop default
 
       // ---------- member data --------------------------------
 

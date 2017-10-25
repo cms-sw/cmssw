@@ -30,13 +30,13 @@ class L1TdeGCT : public DQMEDAnalyzer {
  public:
 
   explicit L1TdeGCT(const edm::ParameterSet&);
-  ~L1TdeGCT();
+  ~L1TdeGCT() override;
 
  protected:
 
-  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
+  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
  
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 

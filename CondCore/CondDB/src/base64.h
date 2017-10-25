@@ -22,10 +22,10 @@
 # define BASE64_H
 
 /* Get size_t. */
-# include <stddef.h>
+# include <cstddef>
 
 /* Get bool. */
-# include <stdbool.h>
+
 
 /* This uses that the expression (n+(k-1))/k means the smallest
    integer >= n/k, i.e., the ceiling of n/k.  */

@@ -46,7 +46,7 @@ public:
  * vertex fit using LMS with Lagrange multipliers method.
  */  
  RefCountedKinematicTree fit(const std::vector<RefCountedKinematicParticle> &part) {
-   return fit(part, 0, 0);
+   return fit(part, nullptr, nullptr);
  }
 
 /**
@@ -54,7 +54,7 @@ public:
  */  
  RefCountedKinematicTree fit(const std::vector<RefCountedKinematicParticle> &part,
                             MultiTrackKinematicConstraint * cs) {
-   return fit(part, cs, 0);
+   return fit(part, cs, nullptr);
  };
     
 /**

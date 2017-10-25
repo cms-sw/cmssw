@@ -42,12 +42,12 @@ public:
   explicit PixelSLinkDataInputSource(const edm::ParameterSet& pset, 
 				     const edm::InputSourceDescription& desc);
 
-  virtual ~PixelSLinkDataInputSource();
+  ~PixelSLinkDataInputSource() override;
 
 private:
 
-  virtual bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time, edm::EventAuxiliary::ExperimentType&);
-  virtual void produce(edm::Event& event);
+  bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time, edm::EventAuxiliary::ExperimentType&) override;
+  void produce(edm::Event& event) override;
   uint32_t synchronizeEvents();
 
   int m_fedid;

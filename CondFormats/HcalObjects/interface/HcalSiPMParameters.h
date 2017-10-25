@@ -10,11 +10,11 @@ class HcalSiPMParameters: public HcalCondObjectContainer<HcalSiPMParameter> {
 public:
   //constructor definition: has to contain 
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalSiPMParameters():HcalCondObjectContainer<HcalSiPMParameter>(0) {}
+  HcalSiPMParameters():HcalCondObjectContainer<HcalSiPMParameter>(nullptr) {}
 #endif
   HcalSiPMParameters(const HcalTopology* topo):HcalCondObjectContainer<HcalSiPMParameter>(topo) {}
 
-  std::string myname() const {return (std::string)"HcalSiPMParameters";}
+  std::string myname() const override {return (std::string)"HcalSiPMParameters";}
 
   COND_SERIALIZABLE;
 };

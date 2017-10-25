@@ -18,13 +18,13 @@ class TopGenEventAnalyzer : public edm::EDAnalyzer {
  public:
 
   explicit TopGenEventAnalyzer(const edm::ParameterSet&);
-  ~TopGenEventAnalyzer();
+  ~TopGenEventAnalyzer() override;
 
  private:
 
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   edm::EDGetTokenT<TtGenEvent> inputGenEventToken_;
 

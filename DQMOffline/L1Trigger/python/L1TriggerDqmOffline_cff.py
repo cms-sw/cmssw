@@ -258,9 +258,13 @@ l1EmulatorMonitorClient.remove(l1EmulatorErrorFlagClient)
 #stage2 
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 
-from L1Trigger.L1TGlobal.hackConditions_cff import *
-from L1Trigger.L1TMuon.hackConditions_cff import *
-from L1Trigger.L1TCalorimeter.hackConditions_cff import *
+#from L1Trigger.L1TGlobal.hackConditions_cff import *
+#from L1Trigger.L1TMuon.hackConditions_cff import *
+#from L1Trigger.L1TCalorimeter.hackConditions_cff import *
+from L1Trigger.L1TGlobal.GlobalParameters_cff import *
+
+# 2017 EMTF emulator uses payloads and forests from DB, but not yet in GT
+from L1Trigger.L1TMuonEndCap.fakeEmtfParams_2017_MC_cff import *
 
 from DQMOffline.L1Trigger.L1TStage2CaloLayer2Offline_cfi import *
 l1tStage2CaloLayer2OfflineDQMEmu.stage2CaloLayer2JetSource=cms.InputTag("valCaloStage2Layer2Digis")

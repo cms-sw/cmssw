@@ -28,8 +28,8 @@ class CalibratedElectronProducer: public edm::EDProducer
 {
     public:
         explicit CalibratedElectronProducer( const edm::ParameterSet & ) ;
-        virtual ~CalibratedElectronProducer();
-        virtual void produce( edm::Event &, const edm::EventSetup & ) ;
+        ~CalibratedElectronProducer() override;
+        void produce( edm::Event &, const edm::EventSetup & ) override ;
 
     private:
         edm::EDGetTokenT<reco::GsfElectronCollection> inputElectronsToken_ ;

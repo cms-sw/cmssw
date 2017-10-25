@@ -54,23 +54,23 @@ namespace fwlite {
       typedef std::map<edm::BranchID, edm::BranchDescription> bidToDesc;
 
       Strategy(TFile* file, int fileVersion);
-      virtual ~Strategy();
-      virtual bool updateFile(TFile* file) override;
-      virtual bool updateEvent(Long_t eventEntry) override { eventEntry_ = eventEntry; return true; }
-      virtual bool updateLuminosityBlock(Long_t luminosityBlockEntry) override {
+      ~Strategy() override;
+      bool updateFile(TFile* file) override;
+      bool updateEvent(Long_t eventEntry) override { eventEntry_ = eventEntry; return true; }
+      bool updateLuminosityBlock(Long_t luminosityBlockEntry) override {
         luminosityBlockEntry_ = luminosityBlockEntry;
         return true;
       }
-      virtual bool updateRun(Long_t runEntry) override {
+      bool updateRun(Long_t runEntry) override {
         runEntry_ = runEntry;
         return true;
       }
-      virtual bool updateMap() override { return true; }
-      virtual edm::BranchID productToBranchID(edm::ProductID const& pid) override;
-      virtual edm::BranchDescription const& productToBranch(edm::ProductID const& pid) override;
-      virtual edm::BranchDescription const& branchIDToBranch(edm::BranchID const& bid) const override;
-      virtual std::vector<edm::BranchDescription> const& getBranchDescriptions() override;
-      virtual edm::ThinnedAssociationsHelper const& thinnedAssociationsHelper() const override { return *thinnedAssociationsHelper_; }
+      bool updateMap() override { return true; }
+      edm::BranchID productToBranchID(edm::ProductID const& pid) override;
+      edm::BranchDescription const& productToBranch(edm::ProductID const& pid) override;
+      edm::BranchDescription const& branchIDToBranch(edm::BranchID const& bid) const override;
+      std::vector<edm::BranchDescription> const& getBranchDescriptions() override;
+      edm::ThinnedAssociationsHelper const& thinnedAssociationsHelper() const override { return *thinnedAssociationsHelper_; }
 
       TBranch* getBranchRegistry(edm::ProductRegistry** pReg);
 
@@ -150,9 +150,9 @@ namespace fwlite {
     class BranchMapReaderStrategyV1 : public Strategy {
     public:
       BranchMapReaderStrategyV1(TFile* file, int fileVersion);
-      virtual bool updateFile(TFile* file) override;
-      virtual bool updateMap() override;
-      virtual edm::BranchListIndexes const& branchListIndexes() const override {return dummyBranchListIndexes_;}
+      bool updateFile(TFile* file) override;
+      bool updateMap() override;
+      edm::BranchListIndexes const& branchListIndexes() const override {return dummyBranchListIndexes_;}
     private:
       edm::BranchListIndexes dummyBranchListIndexes_;
     };
@@ -203,7 +203,7 @@ namespace fwlite {
     class BranchMapReaderStrategyV7 : public BranchMapReaderStrategyV1 {
     public:
       BranchMapReaderStrategyV7(TFile* file, int fileVersion);
-      virtual edm::BranchListIndexes const& branchListIndexes() const override {return dummyBranchListIndexes_;}
+      edm::BranchListIndexes const& branchListIndexes() const override {return dummyBranchListIndexes_;}
     private:
       edm::BranchListIndexes dummyBranchListIndexes_;
     };
@@ -216,12 +216,12 @@ namespace fwlite {
     class BranchMapReaderStrategyV8 : public Strategy {
     public:
       BranchMapReaderStrategyV8(TFile* file, int fileVersion);
-      virtual bool updateFile(TFile* file) override;
-      virtual bool updateEvent(Long_t eventEntry) override;
-      virtual bool updateLuminosityBlock(Long_t luminosityBlockEntry) override;
-      virtual bool updateRun(Long_t runEntry) override;
-      virtual bool updateMap() override;
-      virtual edm::BranchListIndexes const& branchListIndexes() const override {return dummyBranchListIndexes_;}
+      bool updateFile(TFile* file) override;
+      bool updateEvent(Long_t eventEntry) override;
+      bool updateLuminosityBlock(Long_t luminosityBlockEntry) override;
+      bool updateRun(Long_t runEntry) override;
+      bool updateMap() override;
+      edm::BranchListIndexes const& branchListIndexes() const override {return dummyBranchListIndexes_;}
     private:
       edm::propagate_const<TBranch*> entryInfoBranch_;
       edm::EventEntryInfoVector  eventEntryInfoVector_;
@@ -316,13 +316,13 @@ namespace fwlite {
     class BranchMapReaderStrategyV11 : public Strategy {
     public:
       BranchMapReaderStrategyV11(TFile* file, int fileVersion);
-      virtual bool updateFile(TFile* file) override;
-      virtual bool updateEvent(Long_t eventEntry) override;
-      virtual bool updateLuminosityBlock(Long_t luminosityBlockEntry) override;
-      virtual bool updateRun(Long_t runEntry) override;
-      virtual bool updateMap() override;
-      virtual edm::BranchID productToBranchID(edm::ProductID const& pid) override;
-      virtual edm::BranchListIndexes const& branchListIndexes() const override {return history_.branchListIndexes();}
+      bool updateFile(TFile* file) override;
+      bool updateEvent(Long_t eventEntry) override;
+      bool updateLuminosityBlock(Long_t luminosityBlockEntry) override;
+      bool updateRun(Long_t runEntry) override;
+      bool updateMap() override;
+      edm::BranchID productToBranchID(edm::ProductID const& pid) override;
+      edm::BranchListIndexes const& branchListIndexes() const override {return history_.branchListIndexes();}
     private:
       edm::propagate_const<std::unique_ptr<edm::BranchIDLists>> branchIDLists_;
       edm::propagate_const<TTree*> eventHistoryTree_;
@@ -371,7 +371,7 @@ namespace fwlite {
       }
       branchIDLists_ = std::make_unique<edm::BranchIDLists>();
       edm::BranchIDLists* branchIDListsPtr = branchIDLists_.get();
-      if(metaDataTree->FindBranch(edm::poolNames::branchIDListBranchName().c_str()) != 0) {
+      if(metaDataTree->FindBranch(edm::poolNames::branchIDListBranchName().c_str()) != nullptr) {
         TBranch* b = metaDataTree->GetBranch(edm::poolNames::branchIDListBranchName().c_str());
         b->SetAddress(&branchIDListsPtr);
         b->GetEntry(0);
@@ -433,13 +433,13 @@ namespace fwlite {
     class BranchMapReaderStrategyV17 : public Strategy {
     public:
       BranchMapReaderStrategyV17(TFile* file, int fileVersion);
-      virtual bool updateFile(TFile* file) override;
-      virtual bool updateEvent(Long_t eventEntry) override;
-      virtual bool updateLuminosityBlock(Long_t luminosityBlockEntry) override;
-      virtual bool updateRun(Long_t runEntry) override;
-      virtual bool updateMap() override;
-      virtual edm::BranchID productToBranchID(edm::ProductID const& pid) override;
-      virtual edm::BranchListIndexes const& branchListIndexes() const override {return branchListIndexes_;}
+      bool updateFile(TFile* file) override;
+      bool updateEvent(Long_t eventEntry) override;
+      bool updateLuminosityBlock(Long_t luminosityBlockEntry) override;
+      bool updateRun(Long_t runEntry) override;
+      bool updateMap() override;
+      edm::BranchID productToBranchID(edm::ProductID const& pid) override;
+      edm::BranchListIndexes const& branchListIndexes() const override {return branchListIndexes_;}
     private:
       edm::propagate_const<std::unique_ptr<edm::BranchIDLists>> branchIDLists_;
       edm::propagate_const<TTree*> eventsTree_;
@@ -495,7 +495,7 @@ namespace fwlite {
 
       branchIDLists_ = std::make_unique<edm::BranchIDLists>();
       edm::BranchIDLists* branchIDListsPtr = branchIDLists_.get();
-      if(metaDataTree->FindBranch(edm::poolNames::branchIDListBranchName().c_str()) != 0) {
+      if(metaDataTree->FindBranch(edm::poolNames::branchIDListBranchName().c_str()) != nullptr) {
         TBranch* b = metaDataTree->GetBranch(edm::poolNames::branchIDListBranchName().c_str());
         b->SetAddress(&branchIDListsPtr);
         b->GetEntry(0);

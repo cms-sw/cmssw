@@ -50,9 +50,14 @@ REGISTER_L1_WRITER(L1TGlobalPrescalesVetosO2ORcd, L1TGlobalPrescalesVetos);
 REGISTER_L1_WRITER(L1TMuonBarrelParamsO2ORcd, L1TMuonBarrelParams);
 
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h"
-#include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsO2ORcd.h"
+#include "CondFormats/DataRecord/interface/L1TMuonEndCapParamsO2ORcd.h"
 
-REGISTER_L1_WRITER(L1TMuonEndcapParamsO2ORcd, L1TMuonEndCapParams);
+REGISTER_L1_WRITER(L1TMuonEndCapParamsO2ORcd, L1TMuonEndCapParams);
+
+#include "CondFormats/L1TObjects/interface/L1TMuonEndCapForest.h"
+#include "CondFormats/DataRecord/interface/L1TMuonEndCapForestO2ORcd.h"
+
+REGISTER_L1_WRITER(L1TMuonEndCapForestO2ORcd, L1TMuonEndCapForest);
 
 #include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsO2ORcd.h"

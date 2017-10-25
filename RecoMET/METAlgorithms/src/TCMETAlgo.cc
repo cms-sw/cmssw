@@ -58,7 +58,7 @@ typedef math::XYZTLorentzVector LorentzVector;
 
 //____________________________________________________________________________||
 TCMETAlgo::TCMETAlgo()
-  : response_function_(0), showerRF_(0)
+  : response_function_(nullptr), showerRF_(nullptr)
 { }
 
 //____________________________________________________________________________||
@@ -142,7 +142,7 @@ void TCMETAlgo::configure(const edm::ParameterSet& iConfig, edm::ConsumesCollect
 
 
   showerRF_          = getResponseFunction_shower();
-  response_function_ = 0;
+  response_function_ = nullptr;
 
   int rfType = iConfig.getParameter<int>("rf_type");
 
@@ -554,13 +554,13 @@ void TCMETAlgo::findGoodShowerTracks(std::vector<int>& goodShowerTracks)
 
 //____________________________________________________________________________||
 int TCMETAlgo::nExpectedInnerHits(const reco::TrackRef track){
-  return track->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+  return track->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
 }
 
 //____________________________________________________________________________||
 int TCMETAlgo::nExpectedOuterHits(const reco::TrackRef track)
 {
-  return track->hitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS);
+  return track->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS);
 }
 
 //____________________________________________________________________________||
@@ -675,7 +675,7 @@ bool TCMETAlgo::isGoodTrack(const reco::TrackRef track)
   if( !( ( track->qualityMask() & cut ) == cut ) ) return false;
 
   bool isGoodAlgo = false;
-  if( trkAlgos_.size() == 0 ) isGoodAlgo = true;
+  if( trkAlgos_.empty() ) isGoodAlgo = true;
   for( unsigned int i = 0; i < trkAlgos_.size(); i++ )
     {
       if( track->algo() == trkAlgos_.at(i) ) isGoodAlgo = true;

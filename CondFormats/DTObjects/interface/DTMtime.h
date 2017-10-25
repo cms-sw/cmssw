@@ -268,8 +268,8 @@ class DTMtime {
 
  private:
 
-  DTMtime(DTMtime const&);
-  DTMtime& operator=(DTMtime const&);
+  DTMtime(DTMtime const&) = delete;
+  DTMtime& operator=(DTMtime const&) = delete;
 
   std::string dataVersion;
   float nsPerCount;

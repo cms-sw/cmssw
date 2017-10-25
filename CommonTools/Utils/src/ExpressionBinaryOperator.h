@@ -17,7 +17,7 @@ namespace reco {
   namespace parser {
     template<typename Op>
     struct ExpressionBinaryOperator : public ExpressionBase {
-      virtual double value(const edm::ObjectWithDict& o) const { 
+      double value(const edm::ObjectWithDict& o) const override { 
 	return op_((*lhs_).value(o), (*rhs_).value(o));
       }
       ExpressionBinaryOperator(ExpressionStack & expStack) { 

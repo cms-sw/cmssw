@@ -179,7 +179,6 @@ PFDisplacedVertexFinder::findSeedsFromCandidate(const PFDisplacedVertexCandidate
       tempDisplacedVertexSeeds.push_back( PFDisplacedVertexSeed() );      
       idvc_current = tempDisplacedVertexSeeds.end();
       idvc_current--;
-      bNeedNewCandidate = false;
     }
 
 
@@ -237,7 +236,7 @@ PFDisplacedVertexFinder::fitVertexFromSeed(const PFDisplacedVertexSeed& displace
   // ---- Prepare transient track list ----
 
   set < TrackBaseRef, PFDisplacedVertexSeed::Compare > const& tracksToFit = displacedVertexSeed.elements();
-  GlobalPoint seedPoint = displacedVertexSeed.seedPoint();
+  const GlobalPoint& seedPoint = displacedVertexSeed.seedPoint();
 
   vector<TransientTrack> transTracks;
   vector<TransientTrack> transTracksRaw;
@@ -435,7 +434,7 @@ PFDisplacedVertexFinder::fitVertexFromSeed(const PFDisplacedVertexSeed& displace
 		 << " pt = " <<  transTracksRaw[i].track().pt()
 		 << " dxy (wrt (0,0,0)) = " << transTracksRaw[i].track().dxy()
 		 << " nHits = " << transTracksRaw[i].track().numberOfValidHits()
-		 << " nOuterHits = " << transTracksRaw[i].track().hitPattern().numberOfHits(HitPattern::MISSING_OUTER_HITS) << endl;
+		 << " nOuterHits = " << transTracksRaw[i].track().hitPattern().numberOfLostHits(HitPattern::MISSING_OUTER_HITS) << endl;
 	} 
       } else {
 	
@@ -692,8 +691,8 @@ PFDisplacedVertexFinder::rejectAndLabelVertex(PFDisplacedVertex& dv){
 bool 
 PFDisplacedVertexFinder::isCloseTo(const PFDisplacedVertexSeed& dv1, const PFDisplacedVertexSeed& dv2) const {
 
-  const GlobalPoint vP1 = dv1.seedPoint();
-  const GlobalPoint vP2 = dv2.seedPoint();
+  const GlobalPoint& vP1 = dv1.seedPoint();
+  const GlobalPoint& vP2 = dv2.seedPoint();
 
   double Delta_Long = getLongDiff(vP1, vP2);
   if (Delta_Long > longSize_) return false;

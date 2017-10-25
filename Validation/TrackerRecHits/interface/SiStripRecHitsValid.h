@@ -51,7 +51,7 @@ class SiStripRecHitsValid : public DQMEDAnalyzer {
   
   SiStripRecHitsValid(const edm::ParameterSet& conf);
   
-  ~SiStripRecHitsValid();
+  ~SiStripRecHitsValid() override;
  
   struct TotalMEs{ // MEs for total detector Level
     MonitorElement*  meNumTotrphi;
@@ -126,8 +126,8 @@ class SiStripRecHitsValid : public DQMEDAnalyzer {
 
  protected:
 
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es) override;
   void beginJob(const edm::EventSetup& es);
 
  private: 
@@ -198,10 +198,10 @@ class SiStripRecHitsValid : public DQMEDAnalyzer {
   
   MonitorElement* bookME1D(DQMStore::IBooker & ibooker,const char* ParameterSetLabel, const char* HistoName, const char* HistoTitle);
 
-  inline void fillME(MonitorElement* ME,float value1){if (ME!=0)ME->Fill(value1);}
-  inline void fillME(MonitorElement* ME,float value1,float value2){if (ME!=0)ME->Fill(value1,value2);}
-  inline void fillME(MonitorElement* ME,float value1,float value2,float value3){if (ME!=0)ME->Fill(value1,value2,value3);}
-  inline void fillME(MonitorElement* ME,float value1,float value2,float value3,float value4){if (ME!=0)ME->Fill(value1,value2,value3,value4);}
+  inline void fillME(MonitorElement* ME,float value1){if (ME!=nullptr)ME->Fill(value1);}
+  inline void fillME(MonitorElement* ME,float value1,float value2){if (ME!=nullptr)ME->Fill(value1,value2);}
+  inline void fillME(MonitorElement* ME,float value1,float value2,float value3){if (ME!=nullptr)ME->Fill(value1,value2,value3);}
+  inline void fillME(MonitorElement* ME,float value1,float value2,float value3,float value4){if (ME!=nullptr)ME->Fill(value1,value2,value3,value4);}
 
   edm::ParameterSet conf_;
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;

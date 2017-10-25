@@ -21,9 +21,9 @@ public:
 
   explicit BunchSpacingProducer(const edm::ParameterSet&);
 
-  ~BunchSpacingProducer();
+  ~BunchSpacingProducer() override;
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override final;
+  void produce(edm::Event&, const edm::EventSetup&) final;
 
   static void fillDescriptions( edm::ConfigurationDescriptions & ) ;
   

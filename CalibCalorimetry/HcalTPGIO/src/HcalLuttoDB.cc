@@ -56,11 +56,11 @@ using namespace std;
 class HcalLuttoDB : public edm::EDAnalyzer {
 public:
   explicit HcalLuttoDB(const edm::ParameterSet&);
-  ~HcalLuttoDB();
+  ~HcalLuttoDB() override;
   
-  virtual void beginJob() override ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
 private:
   void writeoutlut1(HcalDetId id, HcalElectronicsId eid, const std::vector<unsigned short>& lut, std::ostream& os);
@@ -278,7 +278,7 @@ HcalLuttoDB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::vector<HcalElectronicsId> allEID = Map_->allElectronicsId();
   std::vector<HcalElectronicsId>::iterator itreid;
 
-  std::ostream* pfile=0;
+  std::ostream* pfile=nullptr;
   oc_=openChecksums();
   
   for (int crate=0; crate<20; crate++) {
@@ -290,28 +290,28 @@ HcalLuttoDB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  HcalTrigTowerDetId tid=Map_->lookupTrigger(*itreid);
 	  if (tid.null()) continue;
 
-	  if (filePerCrate_ && pfile==0) pfile=openPerCrate(crate);
-	  else if (pfile==0) pfile=openPerLut2(*itreid);
+	  if (filePerCrate_ && pfile==nullptr) pfile=openPerCrate(crate);
+	  else if (pfile==nullptr) pfile=openPerLut2(*itreid);
 
 	  std::vector<unsigned char> lut=extractOutputLut(*outTranscoder,tid);
 	  writeoutlut2(tid,*itreid,lut,*pfile);
-	  if (!filePerCrate_) { delete pfile; pfile=0; }	  
+	  if (!filePerCrate_) { delete pfile; pfile=nullptr; }	  
 	} else { // lut1
 	  HcalGenericDetId gid=Map_->lookup(*itreid);
 	  if (gid.null() || !(gid.genericSubdet()==HcalGenericDetId::HcalGenBarrel || gid.genericSubdet()==HcalGenericDetId::HcalGenEndcap || gid.genericSubdet()==HcalGenericDetId::HcalGenForward)) continue;
 	  
-	  if (filePerCrate_ && pfile==0) pfile=openPerCrate(crate);
-	  else if (pfile==0) pfile=openPerLut1(*itreid);
+	  if (filePerCrate_ && pfile==nullptr) pfile=openPerCrate(crate);
+	  else if (pfile==nullptr) pfile=openPerLut1(*itreid);
 
 	  std::vector<unsigned short> lut=inputCoder->getLinearizationLUT(HcalDetId(gid));
 	  writeoutlut1(HcalDetId(gid),*itreid,lut,*pfile);
-	  if (!filePerCrate_) { delete pfile; pfile=0; }
+	  if (!filePerCrate_) { delete pfile; pfile=nullptr; }
 	}
       }
-    if (pfile!=0) {
+    if (pfile!=nullptr) {
       if (filePerCrate_) *pfile << "</CFGBrickSet>\n";
       delete pfile;
-      pfile=0;
+      pfile=nullptr;
     }
   }
   *oc_ << "</CFGBrick>\n";
@@ -326,7 +326,7 @@ void
 HcalLuttoDB::beginJob()
 {
   char buffer[120];
-  time_t now=time(0);
+  time_t now=time(nullptr);
   struct tm* tm=localtime(&now);
   strftime(buffer,120,"%F %T",tm);
   creationstamp_     = buffer;

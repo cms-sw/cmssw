@@ -8,12 +8,12 @@
 #include "DQMServices/Core/interface/QReport.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include <TMath.h>
-#include <limits.h>
+#include <climits>
 #include <TFile.h>
 #include <TDirectory.h>
 #include <TProfile.h>
@@ -107,7 +107,7 @@ void L1TOccupancyClient::book(DQMStore::IBooker &ibooker, DQMStore::IGetter &ige
       ibooker.setCurrentFolder("L1T/L1TOccupancy/Results");
       string          title = testName;
       MonitorElement* m     = ibooker.book2D(title.c_str(),hservice_->getDifferentialHistogram(testName));
-      m->setTitle(title.c_str()); 
+      m->setTitle(title); 
       m->Reset();
       meResults[title] = m; 
 
@@ -116,14 +116,14 @@ void L1TOccupancyClient::book(DQMStore::IBooker &ibooker, DQMStore::IGetter &ige
       title = testName;
       m = ibooker.book2D(title.c_str(),hservice_->getDifferentialHistogram(testName));
       m->Reset();
-      m->setTitle(title.c_str());
+      m->setTitle(title);
       meDifferential[title] = m;
       
       // * Fraction of bad cells
       ibooker.setCurrentFolder("L1T/L1TOccupancy/Certification");
       title = testName;
       m = ibooker.book1D(title.c_str(),title.c_str(),2500,-.5,2500.-.5);
-      m->setTitle(title.c_str());
+      m->setTitle(title);
       meCertification[title] = m;
    
         mValidTests.push_back(&(*it));
@@ -569,7 +569,7 @@ double L1TOccupancyClient::xySymmetry(const ParameterSet  &              ps,
 double L1TOccupancyClient::getAvrg(TH2F* iHist, string iTestName, int iAxis, int iNBins, int iBinStrip, int iAvgMode) {
 
   double avg = 0.0;
-  TH1D* proj = NULL;
+  TH1D* proj = nullptr;
   TH2F* histo = new TH2F(*iHist);
 
   std::vector<double> values;

@@ -80,7 +80,7 @@ class PFEGammaAlgo {
     float > KFValMap;  
     
   struct ProtoEGObject {
-    ProtoEGObject() : parentSC(NULL) {}
+    ProtoEGObject() : parentSC(nullptr) {}
     reco::PFBlockRef parentBlock;
     const PFSCElement* parentSC; // if ECAL driven
     reco::ElectronSeedRef electronSeed; // if there is one
@@ -167,7 +167,7 @@ class PFEGammaAlgo {
                           const reco::PFBlockRef&  blockRef,
                           std::vector< bool >&  active){
     RunPFEG(hoc,blockRef,active);
-    return (egCandidate_.size()>0);
+    return (!egCandidate_.empty());
   };
   
   //get PFCandidate collection

@@ -130,7 +130,7 @@ public:
 
    class SignalTimer : public TTimer {
    public:
-      virtual Bool_t Notify() {
+      Bool_t Notify() override {
          timeout_();
          return true;
       }

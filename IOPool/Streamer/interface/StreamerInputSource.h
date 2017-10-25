@@ -33,7 +33,7 @@ namespace edm {
   public:  
     explicit StreamerInputSource(ParameterSet const& pset,
                  InputSourceDescription const& desc);
-    virtual ~StreamerInputSource();
+    ~StreamerInputSource() override;
     static void fillDescription(ParameterSetDescription& description);
 
     std::unique_ptr<SendJobHeader> deserializeRegistry(InitMsgView const& initView);
@@ -71,16 +71,16 @@ namespace edm {
     class EventPrincipalHolder : public EDProductGetter {
     public:
       EventPrincipalHolder();
-      virtual ~EventPrincipalHolder();
+      ~EventPrincipalHolder() override;
 
-      virtual WrapperBase const* getIt(ProductID const& id) const override;
-      virtual WrapperBase const* getThinnedProduct(ProductID const&, unsigned int&) const override;
-      virtual void getThinnedProducts(ProductID const& pid,
+      WrapperBase const* getIt(ProductID const& id) const override;
+      WrapperBase const* getThinnedProduct(ProductID const&, unsigned int&) const override;
+      void getThinnedProducts(ProductID const& pid,
                                       std::vector<WrapperBase const*>& wrappers,
                                       std::vector<unsigned int>& keys) const override;
 
 
-      virtual unsigned int transitionIndex_() const override;
+      unsigned int transitionIndex_() const override;
 
       void setEventPrincipal(EventPrincipal* ep);
 
@@ -89,11 +89,11 @@ namespace edm {
       EventPrincipal const* eventPrincipal_;
     };
 
-    virtual void read(EventPrincipal& eventPrincipal);
+    void read(EventPrincipal& eventPrincipal) override;
 
-    virtual void setRun(RunNumber_t r);
+    void setRun(RunNumber_t r) override;
 
-    virtual std::unique_ptr<FileBlock> readFile_();
+    std::unique_ptr<FileBlock> readFile_() override;
 
     edm::propagate_const<TClass*> tc_;
     std::vector<unsigned char> dest_;

@@ -556,6 +556,11 @@ namespace pat {
         qualityFlags_ = (qualityFlags_ & ~muonFlagsMask) | ((muonFlags << muonFlagsShift) & muonFlagsMask);
     }
 
+    void setGoodEgamma(bool isGoodEgamma = true) {
+        int16_t egFlags = (isGoodEgamma << egammaFlagsShift) & egammaFlagsMask;
+        qualityFlags_ = (qualityFlags_& ~egammaFlagsMask) | egFlags;
+    }
+
     /// PDG identifier                                                                    
     int pdgId() const override   { return pdgId_; }
     // set PDG identifier                                                                 
@@ -626,6 +631,7 @@ namespace pat {
     bool isPhoton() const override { return false; }
     bool isConvertedPhoton() const override { return false; }
     bool isJet() const override { return false; }
+    bool isGoodEgamma() const { return (qualityFlags_ & egammaFlagsMask) !=0; }
 
     // puppiweights
     void setPuppiWeight(float p, float p_nolep = 0.0);  /// Set both weights at once (with option for only full PUPPI)
@@ -761,7 +767,8 @@ namespace pat {
         assignmentQualityMask = 0x7, assignmentQualityShift = 0,
         trackHighPurityMask  = 0x8, trackHighPurityShift=3,
         lostInnerHitsMask = 0x30, lostInnerHitsShift=4,
-        muonFlagsMask = 0x0600, muonFlagsShift=9
+        muonFlagsMask = 0x0600, muonFlagsShift=9,
+	egammaFlagsMask = 0x0800, egammaFlagsShift=11
     };
     
     /// static to allow unit testing

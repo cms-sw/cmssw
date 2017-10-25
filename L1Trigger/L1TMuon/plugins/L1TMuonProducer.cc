@@ -46,7 +46,9 @@
 
 #include "CondFormats/L1TObjects/interface/L1TMuonGlobalParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonGlobalParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TMuonGlobalParamsO2ORcd.h"
 #include "L1Trigger/L1TMuon/interface/L1TMuonGlobalParamsHelper.h"
+#include "L1Trigger/L1TMuon/interface/L1TMuonGlobalParams_PUBLIC.h"
 
 #include "TMath.h"
 //
@@ -505,10 +507,13 @@ L1TMuonProducer::beginRun(edm::Run const& run, edm::EventSetup const& iSetup)
   edm::ESHandle<L1TMuonGlobalParams> microGMTParamsHandle;
   microGMTParamsRcd.get(microGMTParamsHandle);
 
-  microGMTParamsHelper = std::make_unique<L1TMuonGlobalParamsHelper>(*microGMTParamsHandle.product());
-  if (!microGMTParamsHelper) {
-    edm::LogError("L1TMuonProducer") << "Could not retrieve parameters from Event Setup" << std::endl;
-  }
+  std::unique_ptr<L1TMuonGlobalParams_PUBLIC> microGMTParams( new L1TMuonGlobalParams_PUBLIC( cast_to_L1TMuonGlobalParams_PUBLIC(*microGMTParamsHandle.product()) ) );
+  if( microGMTParams->pnodes_.empty() ){ 
+      edm::ESHandle<L1TMuonGlobalParams> o2oProtoHandle;
+      iSetup.get<L1TMuonGlobalParamsO2ORcd>().get(o2oProtoHandle);
+      microGMTParamsHelper = std::unique_ptr<L1TMuonGlobalParamsHelper>(new L1TMuonGlobalParamsHelper(*o2oProtoHandle.product()));
+  } else
+      microGMTParamsHelper.reset( new L1TMuonGlobalParamsHelper(cast_to_L1TMuonGlobalParams(*microGMTParams.get())) );
 
   //microGMTParamsHelper->print(std::cout);
   m_inputsToDisable  = microGMTParamsHelper->inputsToDisable();

@@ -8,10 +8,10 @@
 class ScoutingTestAnalyzer : public ScoutingAnalyzerBase {
   public:
     explicit ScoutingTestAnalyzer( const edm::ParameterSet &  ) ;
-    virtual ~ScoutingTestAnalyzer() ;
+    ~ScoutingTestAnalyzer() override ;
     void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-    virtual void analyze( const edm::Event & , const edm::EventSetup &  ) override;
-    virtual void endRun( edm::Run const &, edm::EventSetup const & ) override ;
+    void analyze( const edm::Event & , const edm::EventSetup &  ) override;
+    void endRun( edm::Run const &, edm::EventSetup const & ) override ;
   private: 
     // histograms
     edm::InputTag m_pfJetsCollectionTag;

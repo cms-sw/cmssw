@@ -44,13 +44,13 @@ public:
   bool singleState() const override { return false;}
 
 
-  virtual bool canUpdateLocalParameters() const override { return false; }
-  virtual void update( const LocalTrajectoryParameters& p,
+  bool canUpdateLocalParameters() const override { return false; }
+  void update( const LocalTrajectoryParameters& p,
                        const Surface& aSurface,
                        const MagneticField* field,
                        const SurfaceSide side ) override;
 
-  virtual void update(double weight,
+  void update(double weight,
                        const LocalTrajectoryParameters& p,
                        const LocalTrajectoryError& err,
                        const Surface& aSurface,
