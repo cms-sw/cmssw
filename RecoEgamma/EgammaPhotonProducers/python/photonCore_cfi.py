@@ -22,7 +22,7 @@ photonCoreFromMultiCl = photonCore.clone(
 )
 
 islandPhotonCore = photonCore.clone(
-    scHybridBarrelProducer = "correctedIslandBarrelSuperClusters",
-    scIslandEndcapProducer = "correctedIslandEndcapSuperClusters",
+    scHybridBarrelProducer = "hiCorrectedIslandBarrelSuperClusters",
+    scIslandEndcapProducer = "hiCorrectedIslandEndcapSuperClusters",
     minSCEt = 8.0
 )
