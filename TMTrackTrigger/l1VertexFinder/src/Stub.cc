@@ -17,6 +17,7 @@ namespace vertexFinder {
 
 Stub::Stub(TTStubRef ttStubRef, unsigned int index_in_vStubs, const Settings* settings, 
            const TrackerGeometry*  trackerGeometry, const TrackerTopology*  trackerTopology) :
+  TTStubRef(ttStubRef),
   settings_(settings)
 {
   // Get coordinates of stub.
