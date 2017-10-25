@@ -74,7 +74,6 @@ from DQMOffline.Trigger.HiggsMonitoring_cff import *
 from DQMOffline.Trigger.StandardModelMonitoring_cff import *
 # TOP
 from DQMOffline.Trigger.TopMonitoring_cff import *
-
 # BTV
 from DQMOffline.Trigger.BTaggingMonitoring_cff import *
 # BPH
