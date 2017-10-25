@@ -10,49 +10,44 @@
 
 
 // system include files
+#include <fstream>
+#include <iostream>
 #include <memory>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
 #include <unistd.h>
 
 // user include files
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-
-#include "FWCore/Common/interface/TriggerNames.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-
-#include "DataFormats/BTauReco/interface/JetTag.h"
-#include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
-
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <string>
-#include <sstream>
 
 class BTVHLTOfflineSource : public DQMEDAnalyzer {
  public:
   explicit BTVHLTOfflineSource(const edm::ParameterSet&);
-  ~BTVHLTOfflineSource();
+  ~BTVHLTOfflineSource() override;
 
  private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const & run, edm::EventSetup const & c) override;
-  virtual void dqmBeginRun(edm::Run const& run, edm::EventSetup const& c) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const & run, edm::EventSetup const & c) override;
+  void dqmBeginRun(edm::Run const& run, edm::EventSetup const& c) override;
 
   bool verbose_;
   std::string dirname_;
@@ -109,7 +104,7 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
     };
 
 
-    ~PathInfo() {};
+    ~PathInfo() = default;;
     PathInfo(int prescaleUsed,
 	     std::string pathName,
 	     std::string filterName,
@@ -117,11 +112,13 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
 	     size_t type,
 	     std::string triggerType):
       prescaleUsed_(prescaleUsed),
-      pathName_(pathName),
-      filterName_(filterName),
-      processName_(processName),
+      pathName_(std::move(pathName)),
+      filterName_(std::move(filterName)),
+      processName_(std::move(processName)),
       objectType_(type),
-      triggerType_(triggerType){};
+      triggerType_(std::move(triggerType))
+    {
+    }
 
       MonitorElement * getMEhisto_CSV()               { return CSV_;}
       MonitorElement * getMEhisto_Pt()                { return Pt_; }
@@ -132,33 +129,33 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
       MonitorElement * getMEhisto_PVz_HLTMinusRECO()      { return PVz_HLTMinusRECO_;}
       MonitorElement * getMEhisto_fastPVz_HLTMinusRECO()  { return fastPVz_HLTMinusRECO_;}
      
-      const std::string getLabel(void ) const {
+      const std::string getLabel( ) const {
 	return filterName_;
       }
       void setLabel(std::string labelName){
-	filterName_ = labelName;
+	filterName_ = std::move(labelName);
 	return;
       }
-      const std::string getPath(void ) const {
+      const std::string getPath( ) const {
 	return pathName_;
       }
-      const int getprescaleUsed(void) const {
+      const int getprescaleUsed() const {
 	return prescaleUsed_;
       }
-      const std::string getProcess(void ) const {
+      const std::string getProcess( ) const {
 	return processName_;
       }
-      const int getObjectType(void ) const {
+      const int getObjectType( ) const {
 	return objectType_;
       }
-      const std::string getTriggerType(void ) const {
+      const std::string getTriggerType( ) const {
 	return triggerType_;
       }
-      const edm::InputTag getTag(void) const{
+      const edm::InputTag getTag() const{
 	edm::InputTag tagName(filterName_,"",processName_);
 	return tagName;
       }
-      bool operator==(const std::string v)
+      bool operator==(const std::string& v)
       {
 	return v==pathName_;
       }
@@ -187,7 +184,7 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
   public:
     PathInfoCollection(): std::vector<PathInfo>()
       {};
-      std::vector<PathInfo>::iterator find(std::string pathName) {
+      std::vector<PathInfo>::iterator find(const std::string& pathName) {
         return std::find(begin(), end(), pathName);
       }
   };

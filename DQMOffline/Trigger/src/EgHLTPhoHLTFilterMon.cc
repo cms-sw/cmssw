@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "DQMOffline/Trigger/interface/EgHLTPhoHLTFilterMon.h"
 
 #include "DQMOffline/Trigger/interface/EgHLTDQMCut.h"
@@ -11,8 +13,8 @@
 
 using namespace egHLT ;
 
-PhoHLTFilterMon::PhoHLTFilterMon(MonElemFuncs& monElemFuncs, const std::string& filterName,TrigCodes::TrigBitSet filterBit,const BinData& bins,const CutMasks& masks):
-  filterName_(filterName),
+PhoHLTFilterMon::PhoHLTFilterMon(MonElemFuncs& monElemFuncs, std::string  filterName,TrigCodes::TrigBitSet filterBit,const BinData& bins,const CutMasks& masks):
+  filterName_(std::move(filterName)),
   filterBit_(filterBit)
 {
   bool monHLTFailedPho=false;
@@ -20,8 +22,8 @@ PhoHLTFilterMon::PhoHLTFilterMon(MonElemFuncs& monElemFuncs, const std::string& 
 
   phoMonElems_.push_back(new MonElemContainer<OffPho>());
   //phoMonElems_.push_back(new MonElemContainer<OffPho>("_cut"," cut, debug hists ",new EgHLTDQMVarCut<OffPho>(~0x0,&OffPho::cutCode)));
-  for(size_t i=0;i<phoMonElems_.size();i++){
-    monElemFuncs.initStdPhoHists(phoMonElems_[i]->monElems(),filterName_,filterName_+"_pho_passFilter"+phoMonElems_[i]->name(),bins);
+  for(auto & phoMonElem : phoMonElems_){
+    monElemFuncs.initStdPhoHists(phoMonElem->monElems(),filterName_,filterName_+"_pho_passFilter"+phoMonElem->name(),bins);
   }
   
   if(monHLTFailedPho) phoFailMonElems_.push_back(new MonElemContainer<OffPho>());
@@ -32,11 +34,11 @@ PhoHLTFilterMon::PhoHLTFilterMon(MonElemFuncs& monElemFuncs, const std::string& 
   phoEffHists_.push_back(new MonElemContainer<OffPho>()); 
   // phoEffHists_.push_back(new MonElemContainer<OffPho>("_jetTag"," Tag and Probe ",new EgJetB2BCut<OffPho>(-M_PI/12,M_PI/12,0.3)));
   if(doN1andSingleEffsPho){
-    for(size_t i=0;i<phoEffHists_.size();i++){ 
-      monElemFuncs.initStdEffHists(phoEffHists_[i]->cutMonElems(),filterName_,
-				    filterName_+"_pho_effVsEt"+phoEffHists_[i]->name(),bins.et,&OffPho::et,masks);
-      monElemFuncs.initStdEffHists(phoEffHists_[i]->cutMonElems(),filterName_,
-				    filterName_+"_pho_effVsEta"+phoEffHists_[i]->name(),bins.eta,&OffPho::eta,masks); 
+    for(auto & phoEffHist : phoEffHists_){ 
+      monElemFuncs.initStdEffHists(phoEffHist->cutMonElems(),filterName_,
+				    filterName_+"_pho_effVsEt"+phoEffHist->name(),bins.et,&OffPho::et,masks);
+      monElemFuncs.initStdEffHists(phoEffHist->cutMonElems(),filterName_,
+				    filterName_+"_pho_effVsEta"+phoEffHist->name(),bins.eta,&OffPho::eta,masks); 
       /* monElemFuncs.initStdEffHists(phoEffHists_[i]->cutMonElems(),filterName_,
 	 filterName_+"_pho_effVsPhi"+phoEffHists_[i]->name(),bins.phi,&OffPho::phi,masks);*/
     }
@@ -59,9 +61,9 @@ PhoHLTFilterMon::PhoHLTFilterMon(MonElemFuncs& monElemFuncs, const std::string& 
   
 PhoHLTFilterMon::~PhoHLTFilterMon()
 {
-  for(size_t i=0;i<phoMonElems_.size();i++) delete phoMonElems_[i];
-  for(size_t i=0;i<phoFailMonElems_.size();i++) delete phoFailMonElems_[i];
-  for(size_t i=0;i<phoEffHists_.size();i++) delete phoEffHists_[i];
+  for(auto & phoMonElem : phoMonElems_) delete phoMonElem;
+  for(auto & phoFailMonElem : phoFailMonElems_) delete phoFailMonElem;
+  for(auto & phoEffHist : phoEffHists_) delete phoEffHist;
   delete diPhoMassBothME_;
   delete diPhoMassOnlyOneME_; 
   delete diPhoMassBothHighME_;
@@ -74,10 +76,10 @@ void PhoHLTFilterMon::fill(const OffEvt& evt,float weight)
   for(size_t phoNr=0;phoNr<evt.phos().size();phoNr++){
     const OffPho& pho = evt.phos()[phoNr];
     if((pho.trigBits()&filterBit_)!=0){ //pho passes
-      for(size_t monElemNr=0;monElemNr<phoMonElems_.size();monElemNr++) phoMonElems_[monElemNr]->fill(pho,evt,weight);
-      for(size_t monElemNr=0;monElemNr<phoEffHists_.size();monElemNr++) phoEffHists_[monElemNr]->fill(pho,evt,weight);
+      for(auto & phoMonElem : phoMonElems_) phoMonElem->fill(pho,evt,weight);
+      for(auto & phoEffHist : phoEffHists_) phoEffHist->fill(pho,evt,weight);
     }else { //pho didnt pass trigger
-      for(size_t monElemNr=0;monElemNr<phoFailMonElems_.size();monElemNr++) phoFailMonElems_[monElemNr]->fill(pho,evt,weight);
+      for(auto & phoFailMonElem : phoFailMonElems_) phoFailMonElem->fill(pho,evt,weight);
     }
   }//end loop over photons
 
