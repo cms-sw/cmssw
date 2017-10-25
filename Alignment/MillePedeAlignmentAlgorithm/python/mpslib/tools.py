@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import importlib
 import sqlalchemy
@@ -182,3 +183,30 @@ def get_iovs(db, tag):
     session.close()
 
     return sorted([int(item[0]) for item in iovs])
+
+
+def replace_factors(product_string, name, value):
+    """Takes a `product_string` and replaces all factors with `name` by `value`.
+
+    Arguments:
+    - `product_string`: input string containing a product
+    - `name`: name of the factor
+    - `value`: value of the factor
+    """
+
+    value = str(value)                                 # ensure it's a string
+    return re.sub(r"^"+name+r"$", value,               # single factor
+                  re.sub(r"[*]"+name+r"$", r"*"+value, # rhs
+                         re.sub(r"^"+name+r"[*]", value+r"*", # lhs
+                                re.sub(r"[*]"+name+r"[*]", r"*"+value+r"*",
+                                       product_string))))
+
+def compute_product_string(product_string):
+    """Takes `product_string` and returns the product of the factors as string.
+
+    Arguments:
+    - `product_string`: string containing product ('<factor>*<factor>*...')
+    """
+
+    factors = [float(f) for f in product_string.split("*")]
+    return str(reduce(lambda x,y: x*y, factors))
