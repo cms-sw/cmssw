@@ -95,11 +95,23 @@ def nanoAOD_customizeMC(process):
 
 ### Era dependent customization
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-#remove stuff 
+#remove stuff
 _80x_sequence = nanoSequence.copy()
 _80x_sequence.remove(isoTrackTable)
 _80x_sequence.remove(isoTrackSequence)
+_80x_sequenceMC = nanoSequenceMC.copy()
+_80x_sequenceMC.remove(genSubJetTableAK8)
 run2_miniAOD_80XLegacy.toReplaceWith( nanoSequence, _80x_sequence)
+run2_miniAOD_80XLegacy.toReplaceWith( nanoSequenceMC, _80x_sequenceMC)
 
 	
 
+from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
+#remove stuff
+
+_92x_sequence = nanoSequence.copy()
+_92x_sequence.remove(isoTrackTable)
+_92x_sequenceMC = nanoSequenceMC.copy()
+_92x_sequenceMC.remove(genSubJetTableAK8)
+run2_nanoAOD_92X.toReplaceWith( nanoSequence, _92x_sequence)
+run2_nanoAOD_92X.toReplaceWith( nanoSequenceMC, _92x_sequenceMC)
