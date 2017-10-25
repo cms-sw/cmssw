@@ -173,6 +173,26 @@ namespace edm {
   }
 
   void
+  EventPrincipal::put(
+             ProductResolverIndex index,
+             std::unique_ptr<WrapperBase> edp,
+             ParentageID parentage) const {
+    if(edp.get() == nullptr) {
+      throw Exception(errors::InsertFailure, "Null Pointer")
+      << "put: Cannot put because ptr to product is null."
+      << "\n";
+    }
+    auto phb = getProductResolverByIndex(index);
+    
+    productProvenanceRetrieverPtr()->insertIntoSet(ProductProvenance(phb->branchDescription().branchID(), std::move(parentage)));
+
+    assert(phb);
+    // ProductResolver assumes ownership
+    phb->putProduct(std::move(edp));
+
+  }
+
+  void
   EventPrincipal::putOnRead(
         BranchDescription const& bd,
         std::unique_ptr<WrapperBase> edp,

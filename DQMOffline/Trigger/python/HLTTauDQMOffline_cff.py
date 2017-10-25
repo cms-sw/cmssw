@@ -16,3 +16,6 @@ HLTTauDQMOfflineHarvesting = cms.Sequence(HLTTauPostSeq)
 HLTTauDQMOfflineQuality = cms.Sequence(hltTauOfflineQualityTests)
 
 HLTTauDQMOfflineCertification = cms.Sequence(hltTauOfflineCertification)
+
+tauHLTDQMSourceExtra = cms.Sequence(
+)

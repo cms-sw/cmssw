@@ -33,19 +33,19 @@ namespace evf {
     
   public:
     explicit RecoEventOutputModuleForFU(edm::ParameterSet const& ps);  
-    virtual ~RecoEventOutputModuleForFU();
+    ~RecoEventOutputModuleForFU() override;
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     
   private:
     void initRun();
-    virtual void start() override;
-    virtual void stop() override;
-    virtual void doOutputHeader(InitMsgBuilder const& init_message) override;
-    virtual void doOutputEvent(EventMsgBuilder const& msg) override;
+    void start() override;
+    void stop() override;
+    void doOutputHeader(InitMsgBuilder const& init_message) override;
+    void doOutputEvent(EventMsgBuilder const& msg) override;
     //virtual void beginRun(edm::RunForOutput const&);
-    virtual void beginJob() override;
-    virtual void beginLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
-    virtual void endLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
+    void beginJob() override;
+    void beginLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
+    void endLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
 
   private:
     std::auto_ptr<Consumer> c_;
@@ -309,7 +309,7 @@ namespace evf {
         std::string deschecksum = edm::Service<evf::EvFDaqDirector>()->getMergedDatChecksumFilePath(ls.luminosityBlock(), stream_label_);
 
         struct stat istat;
-        FILE * cf = NULL;
+        FILE * cf = nullptr;
         uint32_t mergedAdler32=1;
         //get adler32 accumulated checksum for the merged file
         if (!stat(deschecksum.c_str(), &istat)) {

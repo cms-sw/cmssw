@@ -18,7 +18,7 @@ MagGeoBuilderFromDDD::bSlab::~bSlab(){}
 
 MagGeoBuilderFromDDD::bSlab::bSlab(handles::const_iterator begin, handles::const_iterator end) :
   volumes(begin, end),
-  mslab(0)
+  mslab(nullptr)
 {
   if (volumes.size() > 1) {
     // Sort volumes by dphi i.e. phi(j)-phi(i) > 0 if j>1.
@@ -56,7 +56,7 @@ Geom::Phi<float>  MagGeoBuilderFromDDD::bSlab::maxPhi() const {
 
 
 MagBSlab * MagGeoBuilderFromDDD::bSlab::buildMagBSlab() const {
-  if (mslab==0) {
+  if (mslab==nullptr) {
     vector<MagVolume*> mVols;
     for (handles::const_iterator vol = volumes.begin();
 	 vol!=volumes.end(); ++vol) {

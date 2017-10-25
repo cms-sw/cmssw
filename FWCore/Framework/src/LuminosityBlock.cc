@@ -46,6 +46,9 @@ namespace edm {
   void
   LuminosityBlock::setProducer(ProducerBase const* iProducer) {
     provRecorder_.setProducer(iProducer);
+    //set appropriate size
+    putProducts_.resize(
+            provRecorder_.putTokenIndexToProductResolverIndex().size());
   }
 
 
@@ -67,16 +70,17 @@ namespace edm {
   void
   LuminosityBlock::commit_(std::vector<edm::ProductResolverIndex> const& iShouldPut) {
     LuminosityBlockPrincipal const& lbp = luminosityBlockPrincipal();
-    ProductPtrVec::iterator pit(putProducts().begin());
-    ProductPtrVec::iterator pie(putProducts().end());
-
-    while(pit != pie) {
-        lbp.put(*pit->second, std::move(get_underlying_safe(pit->first)));
-        ++pit;
+    size_t nPut = 0;
+    for(size_t i = 0; i < putProducts().size();++i) {
+      auto& p = get_underlying_safe(putProducts()[i]);
+      if(p) {
+        lbp.put(provRecorder_.putTokenIndexToProductResolverIndex()[i],  std::move(p));
+        ++nPut;
+      }
     }
     
     auto sz = iShouldPut.size();
-    if(sz !=0 and sz != putProducts().size()) {
+    if(sz !=0 and sz != nPut) {
       //some were missed
       auto& p = provRecorder_.principal();
       for(auto index: iShouldPut){

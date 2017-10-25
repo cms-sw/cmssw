@@ -3,7 +3,7 @@
 
 #include <string>
 #include <ostream>
-#include <stdint.h>
+#include <cstdint>
 
 /** \brief Readout chain identification for Castor 
 Bits for the readout chain : some names need change!

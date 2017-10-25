@@ -36,7 +36,7 @@ class MuonEnergyDepositAnalyzer : public DQMEDAnalyzer{
   MuonEnergyDepositAnalyzer(const edm::ParameterSet&);
   
   /// Destructor
-  virtual ~MuonEnergyDepositAnalyzer();
+  ~MuonEnergyDepositAnalyzer() override;
   
   /* Operations */
   void analyze(const edm::Event&, const edm::EventSetup&) override;

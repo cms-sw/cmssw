@@ -14,14 +14,14 @@ public:
 		       const edm::ParameterSet& pSet, unsigned int mc, 
 		       bool willFinalize, DQMStore::IBooker & ibook);
   
-  ~SoftLeptonTagPlotter(void) ;
+  ~SoftLeptonTagPlotter(void) override ;
 
-  void analyzeTag(const reco::BaseTagInfo * baseTagInfo, double jec, int jetFlavour, float w/*=1*/);
+  void analyzeTag(const reco::BaseTagInfo * baseTagInfo, double jec, int jetFlavour, float w/*=1*/) override;
 
-  virtual void finalize(DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_) {}
+  void finalize(DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_) override {}
 
-  void psPlot(const std::string & name);
-  void epsPlot(const std::string & name);
+  void psPlot(const std::string & name) override;
+  void epsPlot(const std::string & name) override;
 
 private:
 

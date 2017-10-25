@@ -24,9 +24,9 @@ class HLTHcalMETNoiseFilter : public edm::EDFilter {
   
  public:
   explicit HLTHcalMETNoiseFilter(const edm::ParameterSet&);
-  ~HLTHcalMETNoiseFilter();
+  ~HLTHcalMETNoiseFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
   
  private:
   edm::EDGetTokenT<reco::HcalNoiseRBXCollection> m_theHcalNoiseToken;

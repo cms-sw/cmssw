@@ -41,11 +41,11 @@ namespace {
 class TGLClipsiLogical : public TGLLogicalShape
 {
 protected:
-   virtual void DirectDraw(TGLRnrCtx & rnrCtx) const override{}
+   void DirectDraw(TGLRnrCtx & rnrCtx) const override{}
 
 public:
    TGLClipsiLogical() : TGLLogicalShape() {}
-   virtual ~TGLClipsiLogical() {}
+   ~TGLClipsiLogical() override {}
    void Resize(Double_t ext){}
 };
 
@@ -55,17 +55,17 @@ class Clipsi : public TGLClip
 {
 private:
    TGLRnrCtx* m_rnrCtx;
-   Clipsi(const Clipsi&);            // Not implemented
-   Clipsi& operator=(const Clipsi&); // Not implemented
+   Clipsi(const Clipsi&) = delete;            // Not implemented
+   Clipsi& operator=(const Clipsi&) = delete; // Not implemented
 
    TGLVertex3 vtx[4];
    TGLVertex3 appexOffset;
 
 public:
    Clipsi(TGLRnrCtx* ctx):TGLClip(* new TGLClipsiLogical, TGLMatrix(), fgColor), m_rnrCtx(ctx){}
-   virtual ~Clipsi() {}
+   ~Clipsi() override {}
    using TGLClip::Setup;
-   virtual void Setup(const TGLBoundingBox & bbox) override {}
+   void Setup(const TGLBoundingBox & bbox) override {}
 
    void SetPlaneInfo(TEveVector* vec)
    {
@@ -82,7 +82,7 @@ public:
 
 
    using TGLClip::PlaneSet;
-   virtual void PlaneSet(TGLPlaneSet_t & planeSet) const override
+   void PlaneSet(TGLPlaneSet_t & planeSet) const override
    {
       TGLVertex3 o = appexOffset;
 
@@ -104,15 +104,15 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId, unsigned int version):
    FWEveView(iParent, typeId, version ),
-   m_geometry(0),
-   m_glClip(0),
+   m_geometry(nullptr),
+   m_glClip(nullptr),
    m_showMuonBarrel(this, "Show Muon Barrel",  0l, 0l, 2l ),
    m_showMuonEndcap(this, "Show Muon Endcap", false ),
    m_showPixelBarrel(this, "Show Pixel Barrel", false ),
    m_showPixelEndcap(this, "Show Pixel Endcap", false),
    m_showTrackerBarrel(this, "Show Tracker Barrel", false ),
    m_showTrackerEndcap(this, "Show Tracker Endcap", false),
-   m_ecalBarrel(0),
+   m_ecalBarrel(nullptr),
    m_showEcalBarrel(this, "Show Ecal Barrel", false),
    m_rnrStyle(this, "Render Style", 0l, 0l, 2l),
    m_selectable(this, "Enable Tooltips", false),
@@ -123,8 +123,8 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId, un
    m_clipDelta1(this, "Clip Delta1", 0.2, 0.01, 2),
    m_clipDelta2(this, "Clip Delta2", 0.2, 0.01, 2),
    m_clipAppexOffset(this, "Appex Offset", 10l, 0l, 50l),
-   m_DMT(0),
-   m_DMTline(0)
+   m_DMT(nullptr),
+   m_DMTline(nullptr)
 {
    viewerGL()->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
    m_DMT = new FW3DViewDistanceMeasureTool();
@@ -235,19 +235,19 @@ FW3DViewBase::selectable( bool x)
 void
 FW3DViewBase::enableSceneClip( bool x)
 {
-   if (m_glClip == 0)  {
+   if (m_glClip == nullptr)  {
       m_glClip = new Clipsi(viewerGL()->GetRnrCtx());
 
       m_glClip->SetMode(TGLClip::kOutside);
    }
 
-   geoScene()->GetGLScene()->SetClip(x ? m_glClip : 0);
+   geoScene()->GetGLScene()->SetClip(x ? m_glClip : nullptr);
    for (TEveElement::List_i it =gEve->GetScenes()->BeginChildren(); it != gEve->GetScenes()->EndChildren(); ++it )
    {
       if (strncmp((*it)->GetElementName(), "TopGeoNodeScene", 15) == 0)
-         ((TEveScene*)(*it))->GetGLScene()->SetClip(x ? m_glClip : 0);
+         ((TEveScene*)(*it))->GetGLScene()->SetClip(x ? m_glClip : nullptr);
    }
-   eventScene()->GetGLScene()->SetClip(x ? m_glClip : 0);
+   eventScene()->GetGLScene()->SetClip(x ? m_glClip : nullptr);
    updateClipPlanes(true);
    viewerGL()->RequestDraw();
 }

@@ -24,10 +24,10 @@
 #include <string>
 
 MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff)
-  : PairProduction(0), Bremsstrahlung(0),MuonBremsstrahlung(0),
-    MultipleScattering(0), EnergyLoss(0), 
-    NuclearInteraction(0),
-    pTmin(999.), use_hardcoded(1)
+  : PairProduction(nullptr), Bremsstrahlung(nullptr),MuonBremsstrahlung(nullptr),
+    MultipleScattering(nullptr), EnergyLoss(nullptr), 
+    NuclearInteraction(nullptr),
+    pTmin(999.), use_hardcoded(true)
 {
   // Set the minimal photon energy for a Brem from e+/-
 

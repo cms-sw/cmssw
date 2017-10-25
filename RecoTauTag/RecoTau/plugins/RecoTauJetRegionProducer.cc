@@ -35,7 +35,7 @@ class RecoTauJetRegionProducer : public edm::stream::EDProducer<>
   typedef edm::Association<reco::PFJetCollection> PFJetMatchMap;
   typedef edm::AssociationMap<edm::OneToMany<std::vector<reco::PFJet>, std::vector<reco::PFCandidate>, unsigned int> > JetToPFCandidateAssociation;
   explicit RecoTauJetRegionProducer(const edm::ParameterSet& pset);
-  ~RecoTauJetRegionProducer() {}
+  ~RecoTauJetRegionProducer() override {}
 
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
 

@@ -193,7 +193,7 @@ AdaptiveVertexFitter::vertex(const vector<RefCountedVertexTrack> & tracks) const
 CachingVertex<5>
 AdaptiveVertexFitter::vertex(const vector<RefCountedVertexTrack> & tracks, const reco::BeamSpot & spot ) const
 {
-  if ( tracks.size() < 1 )
+  if ( tracks.empty() )
   {
     LogError("RecoVertex|AdaptiveVertexFitter")
       << "Supplied no tracks. Vertex is invalid.";
@@ -234,7 +234,7 @@ CachingVertex<5>
 AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & unstracks,
 			       const reco::BeamSpot& beamSpot) const
 {
-  if ( unstracks.size() < 1 )
+  if ( unstracks.empty() )
   {
     LogError("RecoVertex|AdaptiveVertexFitter")
       << "Supplied no tracks. Vertex is invalid.";
@@ -271,7 +271,7 @@ CachingVertex<5> AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack>
                   const GlobalError& priorError) const
 
 {
-  if ( tracks.size() < 1 )
+  if ( tracks.empty() )
   {
     LogError("RecoVertex|AdaptiveVertexFitter")
       << "Supplied no tracks. Vertex is invalid.";
@@ -292,7 +292,7 @@ CachingVertex<5> AdaptiveVertexFitter::vertex(
                   const GlobalPoint& priorPos,
                   const GlobalError& priorError) const
 {
-  if ( tracks.size() < 1 )
+  if ( tracks.empty() )
   {
     LogError("RecoVertex|AdaptiveVertexFitter")
       << "Supplied no tracks. Vertex is invalid.";
@@ -342,7 +342,7 @@ AdaptiveVertexFitter::reLinearizeTracks(
                                 const vector<RefCountedVertexTrack> & tracks,
                                 const CachingVertex<5> & vertex ) const
 {
-  VertexState seed = vertex.vertexState();
+  const VertexState& seed = vertex.vertexState();
   GlobalPoint linP = seed.position();
   vector<RefCountedLinearizedTrackState> lTracks;
   for(vector<RefCountedVertexTrack>::const_iterator i = tracks.begin();
@@ -394,7 +394,7 @@ AdaptiveVertexFitter::reWeightTracks(
                     const vector<RefCountedLinearizedTrackState> & lTracks,
                     const CachingVertex<5> & vertex ) const
 {
-  VertexState seed = vertex.vertexState();
+  const VertexState& seed = vertex.vertexState();
   // cout << "[AdaptiveVertexFitter] now reweight around " << seed.position() << endl;
   theNr++;
   // GlobalPoint pos = seed.position();

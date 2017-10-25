@@ -42,7 +42,7 @@
 class GenericTriggerEventFlag;
 
 struct MEbinning {
-  int nbins;
+  unsigned int nbins;
   double xmin;
   double xmax;
 };

@@ -95,7 +95,7 @@ DIPLumiProducer::produceSummary(const DIPLuminosityRcd&)
   }else{
     m_summaryresult=m_summarycache[currentls];
   }
-  if(m_summaryresult.get()==0){
+  if(m_summaryresult.get()==nullptr){
     return std::make_shared<DIPLumiSummary>();
   }
   return m_summaryresult;
@@ -127,7 +127,7 @@ DIPLumiProducer::produceDetail(const DIPLuminosityRcd&)
   }else{
     m_detailresult=m_detailcache[currentls];
   }
-  if(m_detailresult.get()==0){
+  if(m_detailresult.get()==nullptr){
     return std::make_shared<DIPLumiDetail>();
   }
   return m_detailresult;

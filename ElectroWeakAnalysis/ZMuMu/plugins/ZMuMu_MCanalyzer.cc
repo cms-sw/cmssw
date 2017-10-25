@@ -50,13 +50,13 @@ class ZMuMu_MCanalyzer : public edm::EDAnalyzer {
 public:
   ZMuMu_MCanalyzer(const edm::ParameterSet& pset);
 private:
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
   bool check_ifZmumu(const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
   float getParticlePt(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
   float getParticleEta(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
   float getParticlePhi(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
   Particle::LorentzVector getParticleP4(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
-  virtual void endJob() override;
+  void endJob() override;
 
   EDGetTokenT<CandidateView> zMuMuToken_;
   EDGetTokenT<GenParticleMatch> zMuMuMatchMapToken_;
@@ -137,9 +137,9 @@ double isolation(const T * t, double ptThreshold, double etEcalThreshold, double
 
 double candidateIsolation( const reco::Candidate* c, double ptThreshold, double etEcalThreshold, double etHcalThreshold , double dRVetoTrk, double dRTrk, double dREcal , double dRHcal,  double alpha, double beta, bool relativeIsolation) {
   const pat::Muon * mu = dynamic_cast<const pat::Muon *>(&*c->masterClone());
-  if(mu != 0) return isolation(mu, ptThreshold, etEcalThreshold, etHcalThreshold ,dRVetoTrk, dRTrk, dREcal , dRHcal,  alpha, beta, relativeIsolation);
+  if(mu != nullptr) return isolation(mu, ptThreshold, etEcalThreshold, etHcalThreshold ,dRVetoTrk, dRTrk, dREcal , dRHcal,  alpha, beta, relativeIsolation);
   const pat::GenericParticle * trk = dynamic_cast<const pat::GenericParticle*>(&*c->masterClone());
-  if(trk != 0) return isolation(trk,  ptThreshold, etEcalThreshold, etHcalThreshold ,dRVetoTrk, dRTrk, dREcal ,
+  if(trk != nullptr) return isolation(trk,  ptThreshold, etEcalThreshold, etHcalThreshold ,dRVetoTrk, dRTrk, dREcal ,
 				dRHcal,  alpha, beta, relativeIsolation);
   throw edm::Exception(edm::errors::InvalidReference)
     << "Candidate daughter #0 is neither pat::Muons nor pat::GenericParticle\n";
@@ -253,7 +253,7 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
   bool zMuMu_found = false;
 
   // loop on ZMuMu
-  if (zMuMu->size() > 0 ) {
+  if (!zMuMu->empty() ) {
     event.getByToken(zMuMuMatchMapToken_, zMuMuMatchMap);
     for(unsigned int i = 0; i < zMuMu->size(); ++i) { //loop on candidates
       const Candidate & zMuMuCand = (*zMuMu)[i]; //the candidate
@@ -283,9 +283,9 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
 
       bool trig0found = false;
       bool trig1found = false;
-      if( mu0HLTMatches.size()>0 )
+      if( !mu0HLTMatches.empty() )
 	trig0found = true;
-      if( mu1HLTMatches.size()>0 )
+      if( !mu1HLTMatches.empty() )
 	trig1found = true;
 
       GenParticleRef zMuMuMatch = (*zMuMuMatchMap)[zMuMuCandRef];
@@ -328,7 +328,7 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
 
   // loop on ZMuSta
   bool zMuSta_found = false;
-  if (!zMuMu_found && zMuStandAlone->size() > 0 ) {
+  if (!zMuMu_found && !zMuStandAlone->empty() ) {
     event.getByToken(zMuStandAloneMatchMapToken_, zMuStandAloneMatchMap);
     for(unsigned int i = 0; i < zMuStandAlone->size(); ++i) { //loop on candidates
       const Candidate & zMuStandAloneCand = (*zMuStandAlone)[i]; //the candidate
@@ -356,7 +356,7 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
 	muonDau0.triggerObjectMatchesByPath( hltPath_ );
 
       bool trig0found = false;
-      if( mu0HLTMatches.size()>0 )
+      if( !mu0HLTMatches.empty() )
 	trig0found = true;
 
       if(zMuStandAloneMatch.isNonnull()) {  // ZMuStandAlone matched
@@ -375,7 +375,7 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
 
 
   // loop on ZMuTrack
-  if (!zMuMu_found && !zMuSta_found && zMuTrack->size() > 0 ) {
+  if (!zMuMu_found && !zMuSta_found && !zMuTrack->empty() ) {
     event.getByToken(zMuTrackMatchMapToken_, zMuTrackMatchMap);
     for(unsigned int i = 0; i < zMuTrack->size(); ++i) { //loop on candidates
       const Candidate & zMuTrackCand = (*zMuTrack)[i]; //the candidate
@@ -401,7 +401,7 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
 	muonDau0.triggerObjectMatchesByPath( hltPath_ );
 
       bool trig0found = false;
-      if( mu0HLTMatches.size()>0 )
+      if( !mu0HLTMatches.empty() )
 	trig0found = true;
 
       GenParticleRef zMuTrackMatch = (*zMuTrackMatchMap)[zMuTrackCandRef];

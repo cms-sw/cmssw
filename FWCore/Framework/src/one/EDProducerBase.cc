@@ -54,11 +54,11 @@ namespace edm {
                             ModuleCallingContext const* mcc) {
       Event e(ep, moduleDescription_, mcc);
       e.setConsumer(this);
-      e.setProducer(this);
+      e.setProducer(this, &previousParentage_);
       e.setSharedResourcesAcquirer(&resourcesAcquirer_);
       EventSignalsSentry sentry(act,mcc);
       this->produce(e, c);
-      commit_(e,&previousParentage_, &previousParentageId_);
+      commit_(e, &previousParentageId_);
       return true;
     }
     

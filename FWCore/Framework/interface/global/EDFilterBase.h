@@ -54,7 +54,7 @@ namespace edm {
       typedef EDFilterBase ModuleType;
 
       EDFilterBase();
-      virtual ~EDFilterBase();
+      ~EDFilterBase() override;
 
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
       static void prevalidate(ConfigurationDescriptions& descriptions);

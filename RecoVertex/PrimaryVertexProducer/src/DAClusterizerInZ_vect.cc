@@ -285,7 +285,7 @@ bool DAClusterizerInZ_vect::merge(vertex_t & y, double & beta)const{
       critical.push_back( make_pair( std::fabs(y._z[k + 1] - y._z[k]), k) );
     }
   }
-  if (critical.size() == 0) return false;
+  if (critical.empty()) return false;
 
   std::stable_sort(critical.begin(), critical.end(), std::less<std::pair<double, unsigned int> >() );
 
@@ -436,7 +436,7 @@ DAClusterizerInZ_vect::split(const double beta,  track_t &tks, vertex_t & y, dou
       critical.push_back( make_pair(Tc, k));
     }
   }
-  if (critical.size()==0) return false;
+  if (critical.empty()) return false;
 
 
   std::stable_sort(critical.begin(), critical.end(), std::greater<std::pair<double, unsigned int> >() );
@@ -759,7 +759,7 @@ vector<vector<reco::TransientTrack> > DAClusterizerInZ_vect::clusterize(
     std::cout  << "# DAClusterizerInZ::clusterize   pv.size=" << pv.size()
 					     << endl;
   }
-  if (pv.size() == 0) {
+  if (pv.empty()) {
     return clusters;
   }
   
@@ -874,7 +874,7 @@ void DAClusterizerInZ_vect::dump(const double beta, const vertex_t & y,
 					- tks.tt[i]->track().hitPattern().pixelLayersWithMeasurement()
 					<< dec;
 			std::cout  << "=" << setw(1) << hex
-					<< tks.tt[i]->track().hitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS)
+					<< tks.tt[i]->track().hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS)
 					<< dec;
 
 			Measurement1D IP =

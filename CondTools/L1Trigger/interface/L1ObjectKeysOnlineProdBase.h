@@ -39,7 +39,7 @@
 class L1ObjectKeysOnlineProdBase : public edm::ESProducer {
    public:
       L1ObjectKeysOnlineProdBase(const edm::ParameterSet&);
-      ~L1ObjectKeysOnlineProdBase();
+      ~L1ObjectKeysOnlineProdBase() override;
 
       typedef std::shared_ptr<L1TriggerKey> ReturnType;
 

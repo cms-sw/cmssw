@@ -14,6 +14,7 @@ class testPackedCandidate : public CppUnit::TestFixture {
   CPPUNIT_TEST(testPackUnpack);
   CPPUNIT_TEST(testSimulateReadFromRoot);
   CPPUNIT_TEST(testPackUnpackTime);
+  CPPUNIT_TEST(testQualityFlags);
 
   CPPUNIT_TEST_SUITE_END();
 public:
@@ -26,6 +27,7 @@ public:
   void testSimulateReadFromRoot();
 
   void testPackUnpackTime();
+  void testQualityFlags();
 
 private:
 };
@@ -73,6 +75,7 @@ static bool tolerance(double iLHS, double iRHS, double fraction) {
   return std::abs(iLHS-iRHS) <= fraction*std::abs(iLHS+iRHS)/2.;
 }
 
+
 void 
 testPackedCandidate::testPackUnpack() {
 
@@ -109,6 +112,19 @@ testPackedCandidate::testPackUnpack() {
   CPPUNIT_ASSERT(tolerance(pc.ptTrk(),trkPt,0.001));
   CPPUNIT_ASSERT(tolerance(pc.etaAtVtx(),trkEta,0.001));
   CPPUNIT_ASSERT(tolerance(pc.phiAtVtx(),trkPhi,0.001));
+  //Check again after a setP4
+  pc.setP4(plv*2);
+  CPPUNIT_ASSERT(tolerance(pc.ptTrk(),trkPt,0.001));
+  CPPUNIT_ASSERT(tolerance(pc.etaAtVtx(),trkEta,0.001));
+  CPPUNIT_ASSERT(tolerance(pc.phiAtVtx(),trkPhi,0.001));
+  pc.setP4(lv*3);
+  CPPUNIT_ASSERT(tolerance(pc.ptTrk(),trkPt,0.001));
+  CPPUNIT_ASSERT(tolerance(pc.etaAtVtx(),trkEta,0.001));
+  CPPUNIT_ASSERT(tolerance(pc.phiAtVtx(),trkPhi,0.001));
+  pc.setPz(pc.p4().Pz()+3.3);
+  CPPUNIT_ASSERT(tolerance(pc.ptTrk(),trkPt,0.005));
+  CPPUNIT_ASSERT(tolerance(pc.etaAtVtx(),trkEta,0.005));
+  CPPUNIT_ASSERT(tolerance(pc.phiAtVtx(),trkPhi,0.005));
 }
 
 void testPackedCandidate::testSimulateReadFromRoot() {
@@ -257,3 +273,48 @@ void testPackedCandidate::testPackUnpackTime() {
   if (debug) std::cout << std::endl;
 }
 
+
+void testPackedCandidate::testQualityFlags() {
+
+  const std::vector<pat::PackedCandidate::PVAssociationQuality> pvAssocVals = { 
+    pat::PackedCandidate::NotReconstructedPrimary,pat::PackedCandidate::OtherDeltaZ,pat::PackedCandidate::CompatibilityBTag,pat::PackedCandidate::CompatibilityDz,pat::PackedCandidate::UsedInFitLoose,pat::PackedCandidate::UsedInFitTight
+  };
+  const std::vector<pat::PackedCandidate::LostInnerHits> lostHitsVals = {
+    pat::PackedCandidate::validHitInFirstPixelBarrelLayer,pat::PackedCandidate::noLostInnerHits,pat::PackedCandidate::oneLostInnerHit,pat::PackedCandidate::moreLostInnerHits
+  };
+  const std::vector<bool> trackQualVals = {false,true};
+  const std::vector<bool> glbMuonVals={false,true};
+  const std::vector<bool> staMuonVals={false,true};
+  const std::vector<bool> goodEGVals={false,true};
+  
+  pat::PackedCandidate cand;
+
+  for(auto pvAssoc : pvAssocVals){
+    for(auto lostHits : lostHitsVals){
+      for(auto trackQual : trackQualVals){
+	for(auto glbMuon : glbMuonVals){
+	  for(auto staMuon : staMuonVals){
+	    for(auto goodEGamma : goodEGVals){
+	      cand.setMuonID(staMuon,glbMuon);
+	      cand.setGoodEgamma(goodEGamma);
+	      cand.setAssociationQuality(pvAssoc);
+	      cand.setLostInnerHits(lostHits);
+	      cand.setTrackHighPurity(trackQual);
+	      
+	      CPPUNIT_ASSERT(lostHits==cand.lostInnerHits());
+	      CPPUNIT_ASSERT(goodEGamma==cand.isGoodEgamma());
+	      CPPUNIT_ASSERT(staMuon==cand.isStandAloneMuon());
+	      CPPUNIT_ASSERT(glbMuon==cand.isGlobalMuon());
+	      CPPUNIT_ASSERT(trackQual==cand.trackHighPurity());
+	      CPPUNIT_ASSERT(pvAssoc==cand.pvAssociationQuality());
+
+	    }
+	  }
+	}
+      }
+    }
+  }
+}
+	      
+	      
+	    

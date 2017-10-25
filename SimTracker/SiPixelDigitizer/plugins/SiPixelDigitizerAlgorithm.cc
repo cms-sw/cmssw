@@ -175,11 +175,13 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   theThresholdInE_FPix(conf.getParameter<double>("ThresholdInElectrons_FPix")),
   theThresholdInE_BPix(conf.getParameter<double>("ThresholdInElectrons_BPix")),
   theThresholdInE_BPix_L1(conf.exists("ThresholdInElectrons_BPix_L1")?conf.getParameter<double>("ThresholdInElectrons_BPix_L1"):theThresholdInE_BPix),
+  theThresholdInE_BPix_L2(conf.exists("ThresholdInElectrons_BPix_L2")?conf.getParameter<double>("ThresholdInElectrons_BPix_L2"):theThresholdInE_BPix),
 
   // Add threshold gaussian smearing:
   theThresholdSmearing_FPix(conf.getParameter<double>("ThresholdSmearing_FPix")),
   theThresholdSmearing_BPix(conf.getParameter<double>("ThresholdSmearing_BPix")),
   theThresholdSmearing_BPix_L1(conf.exists("ThresholdSmearing_BPix_L1")?conf.getParameter<double>("ThresholdSmearing_BPix_L1"):theThresholdSmearing_BPix),
+  theThresholdSmearing_BPix_L2(conf.exists("ThresholdSmearing_BPix_L2")?conf.getParameter<double>("ThresholdSmearing_BPix_L2"):theThresholdSmearing_BPix),
 
   // electrons to VCAL conversion needed in misscalibrate()
   electronsPerVCAL(conf.getParameter<double>("ElectronsPerVcal")),
@@ -255,6 +257,8 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
 			      << theThresholdInE_BPix
                               << "threshold in electron BPix Layer1 = "
                               << theThresholdInE_BPix_L1
+                              << "threshold in electron BPix Layer2 = "
+                              << theThresholdInE_BPix_L2
 			      <<" " << theElectronPerADC << " " << theAdcFullScale
 			      << " The delta cut-off is set to " << tMax
 			      << " pix-inefficiency "<<AddPixelInefficiency;
@@ -501,9 +505,9 @@ void SiPixelDigitizerAlgorithm::PixelEfficiencies::init_from_db(const edm::ESHan
   std::vector<uint32_t > DetIdmasks = SiPixelDynamicInefficiency->getDetIdmasks();
   
   // Loop on all modules, calculate geometrical scale factors and store in map for easy access
-  for(TrackerGeometry::DetUnitContainer::const_iterator it_module = geom->detUnits().begin(); it_module != geom->detUnits().end(); it_module++) {
-    if( dynamic_cast<PixelGeomDetUnit const*>((*it_module))==nullptr) continue;
-    const DetId detid = (*it_module)->geographicalId();
+  for( const auto& it_module : geom->detUnits()) {
+    if( dynamic_cast<PixelGeomDetUnit const*>(it_module)==nullptr) continue;
+    const DetId detid = it_module->geographicalId();
     uint32_t rawid = detid.rawId();
     PixelGeomFactors[rawid] = 1;
     ColGeomFactors[rawid] = 1;
@@ -518,9 +522,9 @@ void SiPixelDigitizerAlgorithm::PixelEfficiencies::init_from_db(const edm::ESHan
   size_t i=0;
   for (auto factor : PUFactors) {
     const DetId db_id = DetId(factor.first);
-    for(TrackerGeometry::DetUnitContainer::const_iterator it_module = geom->detUnits().begin(); it_module != geom->detUnits().end(); it_module++) {
-      if( dynamic_cast<PixelGeomDetUnit const*>((*it_module))==nullptr) continue;
-      const DetId detid = (*it_module)->geographicalId();
+    for( const auto& it_module : geom->detUnits()) {
+      if( dynamic_cast<PixelGeomDetUnit const*>(it_module)==nullptr) continue;
+      const DetId detid = it_module->geographicalId();
       if (!matches(detid, db_id, DetIdmasks)) continue;
       if (iPU.count(detid.rawId())) {
 	throw cms::Exception("Database")<<"Multiple db_ids match to same module in SiPixelDynamicInefficiency DB Object";
@@ -699,16 +703,24 @@ void SiPixelDigitizerAlgorithm::digitize(const PixelGeomDetUnit* pixdet,
     if(pixdet->type().isTrackerPixel() && pixdet->type().isBarrel()){ // Barrel modules
       int lay = tTopo->layer(detID);
       if(addThresholdSmearing) {
-	if((pixdet->subDetector()==GeomDetEnumerators::SubDetector::PixelBarrel || pixdet->subDetector()==GeomDetEnumerators::SubDetector::P1PXB)  && lay==1) {
-	  thePixelThresholdInE = CLHEP::RandGaussQ::shoot(engine, theThresholdInE_BPix_L1, theThresholdSmearing_BPix_L1); // gaussian smearing
-	} else {
-	  thePixelThresholdInE = CLHEP::RandGaussQ::shoot(engine, theThresholdInE_BPix , theThresholdSmearing_BPix); // gaussian smearing
+	if(pixdet->subDetector()==GeomDetEnumerators::SubDetector::PixelBarrel || pixdet->subDetector()==GeomDetEnumerators::SubDetector::P1PXB) {
+	  if (lay==1) {
+	    thePixelThresholdInE = CLHEP::RandGaussQ::shoot(engine, theThresholdInE_BPix_L1, theThresholdSmearing_BPix_L1); // gaussian smearing
+	  } else if (lay==2) {
+	    thePixelThresholdInE = CLHEP::RandGaussQ::shoot(engine, theThresholdInE_BPix_L2, theThresholdSmearing_BPix_L2); // gaussian smearing
+	  } else {
+	    thePixelThresholdInE = CLHEP::RandGaussQ::shoot(engine, theThresholdInE_BPix , theThresholdSmearing_BPix); // gaussian smearing
+	  }
 	}
       } else {
-	if((pixdet->subDetector()==GeomDetEnumerators::SubDetector::PixelBarrel || pixdet->subDetector()==GeomDetEnumerators::SubDetector::P1PXB)  && lay==1) {
-	  thePixelThresholdInE = theThresholdInE_BPix_L1;
-	} else {
-	  thePixelThresholdInE = theThresholdInE_BPix; // no smearing
+	if(pixdet->subDetector()==GeomDetEnumerators::SubDetector::PixelBarrel || pixdet->subDetector()==GeomDetEnumerators::SubDetector::P1PXB) {
+	  if (lay==1) {
+	    thePixelThresholdInE = theThresholdInE_BPix_L1;
+	  } else if (lay==2) {
+	    thePixelThresholdInE = theThresholdInE_BPix_L2;
+	  } else {
+	    thePixelThresholdInE = theThresholdInE_BPix; // no smearing
+	  }
 	}
       }
     } else if(pixdet->type().isTrackerPixel()) { // Forward disks modules
@@ -1254,6 +1266,7 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
 			       << " pixel threshold FPix" << theThresholdInE_FPix << " "
                                << " pixel threshold BPix" << theThresholdInE_BPix << " "
                                << " pixel threshold BPix Layer1" << theThresholdInE_BPix_L1 << " "
+                               << " pixel threshold BPix Layer2" << theThresholdInE_BPix_L2 << " "
 			       << " List pixels passing threshold ";
 #endif
 

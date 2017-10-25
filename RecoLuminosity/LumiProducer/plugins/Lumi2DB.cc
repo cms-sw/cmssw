@@ -34,10 +34,10 @@ namespace lumi{
   public:
     const static unsigned int COMMITLSINTERVAL=500; //commit interval in LS,totalrow=nls*(1+nalgo)
     Lumi2DB(const std::string& dest);
-    virtual unsigned long long retrieveData( unsigned int ) override;
-    virtual const std::string dataType() const override;
-    virtual const std::string sourceType() const override;
-    virtual ~Lumi2DB();
+    unsigned long long retrieveData( unsigned int ) override;
+    const std::string dataType() const override;
+    const std::string sourceType() const override;
+    ~Lumi2DB() override;
   
     struct LumiSource{
       unsigned int run;
@@ -160,7 +160,7 @@ lumi::Lumi2DB::writeBeamIntensityOnly(
   std::string& lumiversion = inputData["lumiversion"].data<std::string>();
 
   lumi::Lumi2DB::LumiResult::const_iterator lumiIt;
-  coral::IBulkOperation* summaryUpdater=0;
+  coral::IBulkOperation* summaryUpdater=nullptr;
   unsigned int totallumils=std::distance(lumiBeg,lumiEnd);
   unsigned int lumiindx=0;
   unsigned int comittedls=0;
@@ -201,13 +201,13 @@ lumi::Lumi2DB::writeBeamIntensityOnly(
     if(comittedls==Lumi2DB::COMMITLSINTERVAL){
       std::cout<<"\t committing in LS chunck "<<comittedls<<std::endl; 
       delete summaryUpdater;
-      summaryUpdater=0;
+      summaryUpdater=nullptr;
       session->transaction().commit();
       comittedls=0;
       std::cout<<"\t committed "<<std::endl; 
     }else if( lumiindx==(totallumils-1) ){
       std::cout<<"\t committing at the end"<<std::endl; 
-      delete summaryUpdater; summaryUpdater=0;
+      delete summaryUpdater; summaryUpdater=nullptr;
       session->transaction().commit();
       std::cout<<"\t done"<<std::endl; 
     }
@@ -277,8 +277,8 @@ lumi::Lumi2DB::writeAllLumiData(
   std::string& algoname=detailData["ALGONAME"].data<std::string>();
     
   lumi::Lumi2DB::LumiResult::const_iterator lumiIt;
-  coral::IBulkOperation* summaryInserter=0;
-  coral::IBulkOperation* detailInserter=0;
+  coral::IBulkOperation* summaryInserter=nullptr;
+  coral::IBulkOperation* detailInserter=nullptr;
   //one loop for ids
   //nested transaction doesn't work with bulk inserter
   unsigned int totallumils=std::distance(lumiBeg,lumiEnd);
@@ -401,16 +401,16 @@ lumi::Lumi2DB::writeAllLumiData(
     if(comittedls==Lumi2DB::COMMITLSINTERVAL){
       std::cout<<"\t committing in LS chunck "<<comittedls<<std::endl; 
       delete summaryInserter;
-      summaryInserter=0;
+      summaryInserter=nullptr;
       delete detailInserter;
-      detailInserter=0;
+      detailInserter=nullptr;
       session->transaction().commit();
       comittedls=0;
       std::cout<<"\t committed "<<std::endl; 
     }else if( lumiindx==(totallumils-1) ){
       std::cout<<"\t committing at the end"<<std::endl; 
-      delete summaryInserter; summaryInserter=0;
-      delete detailInserter; detailInserter=0;
+      delete summaryInserter; summaryInserter=nullptr;
+      delete detailInserter; detailInserter=nullptr;
       session->transaction().commit();
       std::cout<<"\t done"<<std::endl; 
     }
@@ -480,7 +480,7 @@ lumi::Lumi2DB::writeAllLumiDataToSchema2(
   coral::Blob& bxlumiquality_occ2=summaryData["BXLUMIQUALITY_OCC2"].data<coral::Blob>();
 
   lumi::Lumi2DB::LumiResult::const_iterator lumiIt;
-  coral::IBulkOperation* summaryInserter=0;
+  coral::IBulkOperation* summaryInserter=nullptr;
 
   unsigned int totallumils=std::distance(lumiBeg,lumiEnd);
   unsigned int lumiindx=0;
@@ -635,13 +635,13 @@ lumi::Lumi2DB::writeAllLumiDataToSchema2(
     if(comittedls==Lumi2DB::COMMITLSINTERVAL){
       std::cout<<"\t committing in LS chunck "<<comittedls<<std::endl; 
       delete summaryInserter;
-      summaryInserter=0;
+      summaryInserter=nullptr;
       session->transaction().commit();
       comittedls=0;
       std::cout<<"\t committed "<<std::endl; 
     }else if( lumiindx==(totallumils-1) ){
       std::cout<<"\t committing at the end"<<std::endl; 
-      delete summaryInserter; summaryInserter=0;
+      delete summaryInserter; summaryInserter=nullptr;
       session->transaction().commit();
       std::cout<<"\t done"<<std::endl; 
     }
@@ -690,11 +690,11 @@ lumi::Lumi2DB::parseSourceString(lumi::Lumi2DB::LumiSource& result)const{
 
 void
 lumi::Lumi2DB::retrieveBeamIntensity(HCAL_HLX::DIP_COMBINED_DATA* dataPtr, Lumi2DB::beamData&b)const{
-   if(dataPtr==0){
+   if(dataPtr==nullptr){
       std::cout<<"HCAL_HLX::DIP_COMBINED_DATA* dataPtr=0"<<std::endl;
-      b.bxindex=0;
-      b.beamintensity_1=0;
-      b.beamintensity_2=0;
+      b.bxindex=nullptr;
+      b.beamintensity_1=nullptr;
+      b.beamintensity_2=nullptr;
       b.nlivebx=0;
    }else{
       b.bxindex=(short*)::malloc(sizeof(short)*lumi::N_BX);
@@ -803,7 +803,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
       beamData b;
       b.mode="N/A";
       b.energy=0.0;
-      this->retrieveBeamIntensity(0,b);
+      this->retrieveBeamIntensity(nullptr,b);
       dipmap.insert(std::make_pair(i,b));
     }
   }
@@ -847,7 +847,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
 	h.bxindex=(short*)malloc(sizeof(short)*h.nlivebx);
 	h.beamintensity_1=(float*)malloc(sizeof(float)*h.nlivebx);
 	h.beamintensity_2=(float*)malloc(sizeof(float)*h.nlivebx);
-	if(h.bxindex==0 || h.beamintensity_1==0 || h.beamintensity_2==0){
+	if(h.bxindex==nullptr || h.beamintensity_1==nullptr || h.beamintensity_2==nullptr){
 	  std::cout<<"malloc failed"<<std::endl;
 	}
 	//std::cout<<"h.bxindex size "<<sizeof(short)*h.nlivebx<<std::endl;
@@ -858,22 +858,22 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
 	std::memmove(h.beamintensity_1,beamIt->second.beamintensity_1,sizeof(float)*h.nlivebx);
 	std::memmove(h.beamintensity_2,beamIt->second.beamintensity_2,sizeof(float)*h.nlivebx);
 
-	::free(beamIt->second.bxindex);beamIt->second.bxindex=0;
-	::free(beamIt->second.beamintensity_1);beamIt->second.beamintensity_1=0;
-	::free(beamIt->second.beamintensity_2);beamIt->second.beamintensity_2=0;
+	::free(beamIt->second.bxindex);beamIt->second.bxindex=nullptr;
+	::free(beamIt->second.beamintensity_1);beamIt->second.beamintensity_1=nullptr;
+	::free(beamIt->second.beamintensity_2);beamIt->second.beamintensity_2=nullptr;
       }else{
 	//std::cout<<"h.nlivebx is zero"<<std::endl;
-	h.bxindex=0;
-	h.beamintensity_1=0;
-	h.beamintensity_2=0;
+	h.bxindex=nullptr;
+	h.beamintensity_1=nullptr;
+	h.beamintensity_2=nullptr;
       }
     }else{
       h.beammode="N/A";
       h.beamenergy=0.0;
       h.nlivebx=0;
-      h.bxindex=0;
-      h.beamintensity_1=0;
-      h.beamintensity_2=0;
+      h.bxindex=nullptr;
+      h.beamintensity_1=nullptr;
+      h.beamintensity_2=nullptr;
     }
     h.startorbit=lumiheader->startOrbit;
     h.numorbit=lumiheader->numOrbits;

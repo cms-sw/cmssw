@@ -176,12 +176,18 @@ CTPPSGeometryESModule::buildDetGeomDesc( DDFilteredView* fv, DetGeomDesc* gd )
       newGD->setGeographicalID( TotemRPDetId( arm, station, rp, detector ) );
     }
 
-    // strip RPs
-    else if ( name == DDD_TOTEM_RP_RP_NAME ) {
-      const unsigned int decRPId = fv->copyno();
+    // strip and pixels RPs
+    else if ( name == DDD_TOTEM_RP_RP_NAME || name == DDD_CTPPS_PIXELS_RP_NAME) {
+      uint32_t decRPId = uint32_t(fv->copyno());
 
-      // check it is a strip RP
-      if ( decRPId < 10000 ) {
+      // check if it is a pixel RP
+      if ( decRPId >= 10000 ){
+        decRPId = decRPId % 10000;
+        const unsigned int armIdx = ( decRPId / 100 ) % 10;
+        const unsigned int stIdx = ( decRPId / 10 ) % 10;
+        const unsigned int rpIdx = decRPId % 10;
+         newGD->setGeographicalID( CTPPSPixelDetId( armIdx, stIdx, rpIdx ) );
+      }else{
         const unsigned int armIdx = ( decRPId / 100 ) % 10;
         const unsigned int stIdx = ( decRPId / 10 ) % 10;
         const unsigned int rpIdx = decRPId % 10;
@@ -206,19 +212,6 @@ CTPPSGeometryESModule::buildDetGeomDesc( DDFilteredView* fv, DetGeomDesc* gd )
       newGD->setGeographicalID( CTPPSPixelDetId( arm, station, rp, detector ) );
     }
 
-    // pixel RPs
-    else if ( name == DDD_CTPPS_PIXELS_RP_NAME ) {
-      uint32_t decRPId = fv->copyno();
-    
-      // check it is a pixel RP
-      if ( decRPId >= 10000 ) {
-        decRPId = decRPId % 10000;
-        const uint32_t armIdx = ( decRPId / 100 ) % 10;
-        const uint32_t stIdx = ( decRPId / 10 ) % 10;
-        const uint32_t rpIdx = decRPId % 10;
-        newGD->setGeographicalID( CTPPSPixelDetId( armIdx, stIdx, rpIdx ) );
-      }
-    }
 
     // diamond/UFSD sensors
     else if ( name == DDD_CTPPS_DIAMONDS_SEGMENT_NAME || name == DDD_CTPPS_UFSD_SEGMENT_NAME ) {

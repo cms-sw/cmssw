@@ -37,6 +37,8 @@ HLTTauDQMTagAndProbePlotter::HLTTauDQMTagAndProbePlotter(const edm::ParameterSet
     etamin_   = iConfig.getParameter<double>("etamin");
     etamax_   = iConfig.getParameter<double>("etamax");
   }
+
+  nOfflineObjs = iConfig.getUntrackedParameter<unsigned int>("nOfflObjs",1);
 }
 
 #include <algorithm>
@@ -78,6 +80,8 @@ void HLTTauDQMTagAndProbePlotter::analyze(edm::Event const& iEvent, edm::EventSe
   if(xvariable == "muon")     offlineObjects = refCollection.muons;
   if(xvariable == "electron") offlineObjects = refCollection.electrons;
   if(xvariable == "met")      offlineObjects = refCollection.met;
+
+  if(offlineObjects.size() < nOfflineObjs) return;
 
   for(const LV& offlineObject: offlineObjects) {
 

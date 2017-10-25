@@ -17,9 +17,9 @@ namespace pat {
   class PATVertexSlimmer : public edm::global::EDProducer<> {
   public:
     explicit PATVertexSlimmer(const edm::ParameterSet&);
-    ~PATVertexSlimmer();
+    ~PATVertexSlimmer() override;
     
-    virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const;
+    void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   private:
     const edm::EDGetTokenT<std::vector<reco::Vertex> > src_;
     const edm::EDGetTokenT<edm::ValueMap<float> > score_;
@@ -46,15 +46,15 @@ void pat::PATVertexSlimmer::produce(edm::StreamID, edm::Event& iEvent, const edm
     outPtr->reserve(vertices->size());
     for (unsigned int i = 0, n = vertices->size(); i < n; ++i) {
         const reco::Vertex &v = (*vertices)[i];
-        auto co = v.covariance();
+        auto co = v.covariance4D();
         if(i>0) {
-          for(size_t j=0;j<3;j++){
-            for(size_t k=j;k<3;k++){
+          for(size_t j=0;j<4;j++){
+            for(size_t k=j;k<4;k++){
               co(j,k) = MiniFloatConverter::reduceMantissaToNbits<10>( co(j,k) );
             }
           }
         }
-        outPtr->push_back(reco::Vertex(v.position(), co, v.chi2(), v.ndof(), 0));
+        outPtr->push_back(reco::Vertex(v.position(), co, v.t(), v.chi2(), v.ndof(), 0));
     }
 
     auto oh = iEvent.put(std::move(outPtr));

@@ -232,12 +232,12 @@ std::vector<CSCSegment> CSCSegAlgoRU::buildSegments(const CSCChamber* aChamber, 
 	aState.proto_segment = best_proto_segment[j];
 	best_proto_segment[j].clear();
 	//SKIP empty proto-segments
-	if(aState.proto_segment.size() == 0) continue;
+	if(aState.proto_segment.empty()) continue;
 	updateParameters(aState);
 	// Create an actual CSCSegment - retrieve all info from the fit
 	CSCSegment temp(aState.sfit->hits(), aState.sfit->intercept(),
 			aState.sfit->localdir(), aState.sfit->covarianceMatrix(), aState.sfit->chi2());
-	aState.sfit = 0;
+	aState.sfit = nullptr;
 	segments.push_back(temp);
 	//if the segment has 3 hits flag them as used in a particular way
 	if(aState.proto_segment.size() == 3){

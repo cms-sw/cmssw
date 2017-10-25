@@ -84,3 +84,12 @@ photonsFromMultiCl = photons.clone(
   photonProducer = 'photonCoreFromMultiCl'
 )
 
+photonsIsland = photons.clone(
+    photonProducer = "islandPhotonCore",
+    minSCEtBarrel = 5.0,
+    minSCEtEndcap = 15.0,
+    minR9Barrel = 10.,
+    minR9Endcap = 10.,
+    maxHoverEEndcap = 0.5,
+    maxHoverEBarrel = 0.99
+)

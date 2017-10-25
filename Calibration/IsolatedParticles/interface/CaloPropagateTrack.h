@@ -108,6 +108,7 @@ namespace spr{
   spr::propagatedTrack propagateTrackToECAL(const reco::Track*, const MagneticField*, bool debug=false);
   spr::propagatedTrack propagateTrackToECAL(unsigned int thisTrk, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const MagneticField*, bool debug=false);
   std::pair<math::XYZPoint,bool> propagateECAL(const reco::Track*, const MagneticField*, bool debug=false);
+  std::pair<DetId,bool> propagateIdECAL(const HcalDetId& id, const CaloGeometry* geo, const MagneticField*, bool debug=false);
   std::pair<math::XYZPoint,bool> propagateECAL(const GlobalPoint& vertex, const GlobalVector& momentum, int charge, const MagneticField*, bool debug=false);
 
   // Propagate tracks to the HCAL surface and optionally returns the 

@@ -60,7 +60,7 @@ AlcaBeamMonitorClient::AlcaBeamMonitorClient(const ParameterSet& ps)
        itV != varNamesV_.end(); itV++) {
     for (multimap<string, string>::iterator itM = histoByCategoryNames_.begin();
          itM != histoByCategoryNames_.end(); itM++) {
-      histosMap_[*itV][itM->first][itM->second] = 0;
+      histosMap_[*itV][itM->first][itM->second] = nullptr;
       positionsMap_[*itV][itM->first][itM->second] =
           3 * numberOfValuesToSave_;  // value, error, ok
       ++numberOfValuesToSave_;
@@ -85,7 +85,7 @@ void AlcaBeamMonitorClient::beginRun(const edm::Run& r,
         for (map<string, MonitorElement*>::iterator itMMM =
                  itMM->second.begin();
              itMMM != itMM->second.end(); itMMM++) {
-          if (itMMM->second != 0) {
+          if (itMMM->second != nullptr) {
             if (itMM->first == "lumi") {
               dbe_->removeElement(monitorName_ + "Debug",
                                   itMMM->second->getName());
@@ -97,7 +97,7 @@ void AlcaBeamMonitorClient::beginRun(const edm::Run& r,
                                                << itMM->first;
               // assert(0);
             }
-            itMMM->second = 0;
+            itMMM->second = nullptr;
           }
         }
       }
@@ -116,7 +116,7 @@ void AlcaBeamMonitorClient::analyze(const Event& iEvent,
 //----------------------------------------------------------------------------------------------------------------------
 void AlcaBeamMonitorClient::endLuminosityBlock(const LuminosityBlock& iLumi,
                                                const EventSetup& iSetup) {
-  MonitorElement* tmp = 0;
+  MonitorElement* tmp = nullptr;
   tmp = dbe_->get(monitorName_ + "Service/hHistoLumiValues");
   if (!tmp) {
     return;
@@ -131,7 +131,7 @@ void AlcaBeamMonitorClient::endLuminosityBlock(const LuminosityBlock& iLumi,
 //----------------------------------------------------------------------------------------------------------------------
 void AlcaBeamMonitorClient::endRun(const Run& iRun, const EventSetup& context) {
   // use this in case any LS is missing.
-  if (valuesMap_.size() == 0) {
+  if (valuesMap_.empty()) {
     LogInfo("AlcaBeamMonitorClient")
         << "The histogram "
         << monitorName_ +
@@ -186,13 +186,13 @@ void AlcaBeamMonitorClient::endRun(const Run& iRun, const EventSetup& context) {
                    (itM->first == "sigmaX" || itM->first == "sigmaY" ||
                     itM->first == "sigmaZ")) {
             dbe_->setCurrentFolder(monitorName_ + "Validation");
-            itMMM->second = 0;
+            itMMM->second = nullptr;
           } else {
             LogInfo("AlcaBeamMonitorClient") << "Unrecognized category "
                                              << itMM->first;
             // assert(0);
           }
-          if (itMMM->second != 0) {
+          if (itMMM->second != nullptr) {
             if (itMMM->first.find('-') != string::npos) {
               itMMM->second->setAxisTitle(
                   string("#Delta ") + itM->first + "_{0} (cm)", 2);
@@ -217,7 +217,7 @@ void AlcaBeamMonitorClient::endRun(const Run& iRun, const EventSetup& context) {
         for (map<LuminosityBlockNumber_t, vector<double> >::iterator itVal =
                  valuesMap_.begin();
              itVal != valuesMap_.end(); itVal++) {
-          if (itHHH->second != 0) {
+          if (itHHH->second != nullptr) {
             //	    cout << positionsMap_[itH->first][itHH->first][itHHH->first]
             //<< endl;
             if (itVal->second[positionsMap_[itH->first][itHH->first]
@@ -255,7 +255,7 @@ void AlcaBeamMonitorClient::endRun(const Run& iRun, const EventSetup& context) {
         for (map<string, MonitorElement*>::iterator itHHH =
                  itHH->second.begin();
              itHHH != itHH->second.end(); itHHH++) {
-          if (itHHH->second != 0) {
+          if (itHHH->second != nullptr) {
             for (int bin = 1; bin <= itHHH->second->getTH1()->GetNbinsX();
                  bin++) {
               if (itHHH->second->getTH1()->GetBinError(bin) != 0 ||
@@ -298,7 +298,7 @@ void AlcaBeamMonitorClient::endRun(const Run& iRun, const EventSetup& context) {
         for (map<string, MonitorElement*>::iterator itHHH =
                  itHH->second.begin();
              itHHH != itHH->second.end(); itHHH++) {
-          if (itHHH->second != 0) {
+          if (itHHH->second != nullptr) {
             if (itHHH->first == "Lumibased BeamSpotFit" ||
                 itHHH->first == "Lumibased PrimaryVertex" ||
                 itHHH->first == "Lumibased DataBase" ||

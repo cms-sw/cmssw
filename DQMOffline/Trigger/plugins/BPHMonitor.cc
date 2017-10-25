@@ -248,7 +248,7 @@ void BPHMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
     histname =trMuPh+"1Phi"; histtitle =trMuPh+"1Phi";
     bookME(ibooker,mu1Phi_,histname,histtitle, phi_binning_);
     setMETitle(mu1Phi_,trMuPh+"_#phi","events / 0.1 rad");
-  
+
     histname =trMuPh+"1Eta"; histtitle = trMuPh+"1_Eta";
     bookME(ibooker,mu1Eta_,histname,histtitle, eta_binning_);
     setMETitle(mu1Eta_,trMuPh+"_#eta","events/ ");

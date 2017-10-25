@@ -67,7 +67,7 @@ RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(const std::vector<
 // linearization point
 // (only compute it using the linearization point finder if no point was passed to the fit function):
  GlobalPoint linPoint;
- if (pt!=0) {
+ if (pt!=nullptr) {
    linPoint  = *pt;
  }
  else {

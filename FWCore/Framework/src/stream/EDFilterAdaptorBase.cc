@@ -53,10 +53,10 @@ namespace edm {
       auto mod = m_streamModules[ep.streamID()];
       Event e(ep, moduleDescription(), mcc);
       e.setConsumer(mod);
-      e.setProducer(mod);
+      e.setProducer(mod,&mod->previousParentage_);
       EventSignalsSentry sentry(act,mcc);
       bool result = mod->filter(e, c);
-      commit(e,&mod->previousParentage_, &mod->previousParentageId_);
+      commit(e, &mod->previousParentageId_);
       return result;
     }
     

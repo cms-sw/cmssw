@@ -39,7 +39,7 @@ public:
     token_vertex      = iC.consumes<reco::VertexCollection>(regionPSet.getParameter<edm::InputTag>("VertexCollection"));
   }   
 
-  virtual ~GlobalTrackingRegionWithVerticesProducer(){}
+  ~GlobalTrackingRegionWithVerticesProducer() override{}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -65,7 +65,7 @@ public:
     descriptions.add("globalTrackingRegionWithVertices", descRegion);
   }
 
-  virtual std::vector<std::unique_ptr<TrackingRegion> > regions
+  std::vector<std::unique_ptr<TrackingRegion> > regions
     (const edm::Event& ev, const edm::EventSetup&) const override
   {
     std::vector<std::unique_ptr<TrackingRegion> > result;

@@ -20,3 +20,15 @@ simGmtStage2Digis = cms.EDProducer('L1TMuonProducer',
 
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toModify( simGmtStage2Digis, runPhase2 =cms.bool(True) )
+
+from CondCore.CondDB.CondDB_cfi import CondDB
+CondDB.connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
+l1ugmtdb = cms.ESSource("PoolDBESSource",
+       CondDB,
+       toGet   = cms.VPSet(
+            cms.PSet(
+                 record = cms.string('L1TMuonGlobalParamsO2ORcd'),
+                 tag = cms.string("L1TMuonGlobalParamsPrototype_Stage2v0_hlt")
+            )
+       )
+)

@@ -123,7 +123,8 @@ namespace {
       t1.SetTextSize(0.045);
       t1.DrawLatex(0.5, 0.91, txt);
 
-      c1.SaveAs("ebmasks.png");
+      std::string ImageName(m_imageFileName);
+      c1.SaveAs(ImageName.c_str());
       return true;
     }
   };
@@ -261,8 +262,9 @@ namespace {
       t1.SetTextSize(0.05);
       t1.DrawLatex(0.14, 0.84, "EE-");
       t1.DrawLatex(0.86, 0.84, "EE+");
-      c1.SaveAs("eemasks.png");
-
+ 
+      std::string ImageName(m_imageFileName);
+      c1.SaveAs(ImageName.c_str());
       return true;
     }// fill method
   };
@@ -375,7 +377,8 @@ namespace {
       t1.SetTextSize(0.045);
       t1.DrawLatex(0.5, 0.91, txt);
 
-      c1.SaveAs("ebmaskdiff.png");
+      std::string ImageName(m_imageFileName);
+      c1.SaveAs(ImageName.c_str());
       return true;
     }// fill method
   };
@@ -515,8 +518,9 @@ namespace {
       t1.SetTextSize(0.05);
       t1.DrawLatex(0.14, 0.84, "EE-");
       t1.DrawLatex(0.86, 0.84, "EE+");
-      c1.SaveAs("eemaskdiff.png");
 
+      std::string ImageName(m_imageFileName);
+      c1.SaveAs(ImageName.c_str());
       return true;
     }// fill method
   };

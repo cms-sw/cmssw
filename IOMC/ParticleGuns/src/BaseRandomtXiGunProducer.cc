@@ -31,7 +31,7 @@ using namespace CLHEP;
 
 
 BaseRandomtXiGunProducer::BaseRandomtXiGunProducer( const edm::ParameterSet& pset ) :
-   fEvt(0)
+   fEvt(nullptr)
 {
    Service<RandomNumberGenerator> rng;
    if(!rng.isAvailable()) {

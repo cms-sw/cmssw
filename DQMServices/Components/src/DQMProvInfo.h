@@ -13,7 +13,8 @@
 #include <DQMServices/Core/interface/MonitorElement.h>
 
 #include <DataFormats/Scalers/interface/DcsStatus.h>
-#include <DataFormats/Scalers/interface/BSTRecord.h>
+
+#include <DataFormats/TCDS/interface/TCDSRecord.h>
 
 #include <string>
 #include <vector>
@@ -23,7 +24,7 @@ class DQMProvInfo : public DQMEDAnalyzer {
   // Constructor
   DQMProvInfo(const edm::ParameterSet& ps);
   // Destructor
-  virtual ~DQMProvInfo();
+  ~DQMProvInfo() override;
 
  protected:
   void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override ;
@@ -50,7 +51,7 @@ class DQMProvInfo : public DQMEDAnalyzer {
   // To max amount of lumisections we foresee for the plots
   // DQM GUI renderplugins provide scaling to actual amount
   const static int MAX_LUMIS = 6000;
-  
+
   // Numbers of each of the vertical bins
   const static int VBIN_CSC_P = 1;
   const static int VBIN_CSC_M = 2;
@@ -77,17 +78,17 @@ class DQMProvInfo : public DQMEDAnalyzer {
   const static int VBIN_TE_M = 23;
   const static int VBIN_CASTOR = 24;
   const static int VBIN_ZDC = 25;
-  
+
   // Highest DCS bin, used for the length of the corresponding array.
   // We will have the indexes to this array the same as the vbins numbers.
   // (I.e. value at index 0 will not be used.)
   const static int MAX_DCS_VBINS = 25;
-  
+
   const static int VBIN_PHYSICS_DECLARED = 26;
   const static int VBIN_MOMENTUM = 27;
   const static int VBIN_STABLE_BEAM = 28;
   const static int VBIN_VALID = 29;
-  
+
   const static int MAX_VBINS = 29;
 
   // Beam momentum at flat top, used to determine if collisions are
@@ -107,7 +108,7 @@ class DQMProvInfo : public DQMEDAnalyzer {
   std::string provinfofolder_;
 
   edm::EDGetTokenT<DcsStatusCollection> dcsStatusCollection_;
-  edm::EDGetTokenT<BSTRecord> bstrecord_;
+  edm::EDGetTokenT<TCDSRecord> tcdsrecord_;
 
   // MonitorElements for LhcInfo and corresponding variables
   MonitorElement* hBeamMode_;

@@ -153,6 +153,10 @@ namespace edm {
         std::unique_ptr<WrapperBase> edp,
         ProductProvenance const& productProvenance) const;
 
+    void put(ProductResolverIndex index,
+             std::unique_ptr<WrapperBase> edp,
+             ParentageID productProvenance) const;
+
     void putOnRead(
         BranchDescription const& bd,
         std::unique_ptr<WrapperBase> edp,

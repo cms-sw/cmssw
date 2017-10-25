@@ -27,7 +27,7 @@ namespace l1t {
 		 algBlk_(new GlobalAlgBlkBxCollection()),
 		 extBlk_(new GlobalExtBlkBxCollection())  {};
 
-            virtual ~GTCollections();
+            ~GTCollections() override;
             
 	    inline MuonBxCollection* getMuons(const unsigned int copy) override { return muons_.get(); };
 	    inline EGammaBxCollection* getEGammas() override { return egammas_.get(); };

@@ -10,5 +10,6 @@ pfLinker = cms.EDProducer("PFLinker",
                           OutputPF = cms.string(""),
                           ValueMapElectrons = cms.string("electrons"),                              
                           ValueMapPhotons = cms.string("photons"),
-                          ValueMapMerged = cms.string("all")
+                          ValueMapMerged = cms.string("all"),
+                          forceElectronsInHGCAL = cms.bool(False)
                           )

@@ -43,14 +43,14 @@ class FWTauProxyBuilderBase : public FWProxyBuilderBase
 {
 public:
    FWTauProxyBuilderBase();
-   virtual ~FWTauProxyBuilderBase();
+   ~FWTauProxyBuilderBase() override;
 
-   virtual bool haveSingleProduct() const { return false; }
-   virtual bool havePerViewProduct(FWViewType::EType) const { return true; }
-   virtual void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc);
-   virtual void cleanLocal();
+   bool haveSingleProduct() const override { return false; }
+   bool havePerViewProduct(FWViewType::EType) const override { return true; }
+   void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc) override;
+   void cleanLocal() override;
    
-   virtual void setItem(const FWEventItem* iItem);
+   void setItem(const FWEventItem* iItem) override;
    
 protected:
    float m_minTheta;
@@ -58,12 +58,12 @@ protected:
    std::vector<double> m_phis;
    void buildBaseTau( const reco::BaseTau& iTau, const reco::Jet* iJet, TEveElement* comp, FWViewType::EType type, const FWViewContext* vc);
 
-   virtual void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
-                                  FWViewType::EType viewType, const FWViewContext* vc);
+   void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
+                                  FWViewType::EType viewType, const FWViewContext* vc) override;
 private:
-   FWTauProxyBuilderBase(const FWTauProxyBuilderBase&); // stop default
+   FWTauProxyBuilderBase(const FWTauProxyBuilderBase&) = delete; // stop default
 
-   const FWTauProxyBuilderBase& operator=(const FWTauProxyBuilderBase&); // stop default
+   const FWTauProxyBuilderBase& operator=(const FWTauProxyBuilderBase&) = delete; // stop default
 
    // ---------- member data --------------------------------
    // Add Tracks which passed quality cuts and

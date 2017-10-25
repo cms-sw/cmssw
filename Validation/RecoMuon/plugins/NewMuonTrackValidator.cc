@@ -47,7 +47,7 @@ void NewMuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run 
         dirName+="_TkAsso";
       }
       std::replace(dirName.begin(), dirName.end(), ':', '_');
-      ibooker.setCurrentFolder(dirName.c_str());
+      ibooker.setCurrentFolder(dirName);
 
       h_tracks.push_back( ibooker.book1D("Ntracks","Number of reconstructed tracks",100,-0.5,99.5) );
       h_fakes.push_back( ibooker.book1D("Nfakes","Number of fake reco tracks",20,-0.5,19.5) );
@@ -409,7 +409,7 @@ void NewMuonTrackValidator::analyze(const edm::Event& event, const edm::EventSet
 	int assoc_recoTrack_NValidHits = 0;
 	if(simRecColl.find(tpr) != simRecColl.end()) {
 	  auto const & rt = simRecColl[tpr];
-	  if (rt.size()!=0) {
+	  if (!rt.empty()) {
 	    RefToBase<Track> assoc_recoTrack = rt.begin()->first;
 	    edm::LogVerbatim("NewMuonTrackValidator")<<"-----------------------------associated Track #"<<assoc_recoTrack.key();
 	    TP_is_matched = true;
@@ -516,7 +516,7 @@ void NewMuonTrackValidator::analyze(const edm::Event& event, const edm::EventSet
 	  
 	  if(recSimColl.find(track) != recSimColl.end()) {
 	    tp = recSimColl[track];	
-	    if (tp.size() != 0) {
+	    if (!tp.empty()) {
 	      tpr = tp.begin()->first;	
 	      // RtS and StR must associate the same pair !
 	      if(simRecColl.find(tpr) != simRecColl.end()) {
@@ -545,7 +545,7 @@ void NewMuonTrackValidator::analyze(const edm::Event& event, const edm::EventSet
 	else {
 	  if(recSimColl.find(track) != recSimColl.end()){
 	    tp = recSimColl[track];
-	    if (tp.size()!=0) {
+	    if (!tp.empty()) {
 	      tpr = tp.begin()->first;
 	      Track_is_matched = true;
 	      at++;
@@ -680,8 +680,8 @@ void NewMuonTrackValidator::analyze(const edm::Event& event, const edm::EventSet
 	  nTRK_LayersWithMeas_vs_eta[w]->Fill(xetaRec,track->hitPattern().trackerLayersWithMeasurement());
 	  nPixel_LayersWithMeas_vs_eta[w]->Fill(xetaRec,track->hitPattern().pixelLayersWithMeasurement());
 	  h_nlosthits[w]->Fill(track->numberOfLostHits());
-	  h_nmisslayers_inner[w]->Fill(track->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS));
-	  h_nmisslayers_outer[w]->Fill(track->hitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS));
+	  h_nmisslayers_inner[w]->Fill(track->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS));
+	  h_nmisslayers_outer[w]->Fill(track->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS));
 	  nlosthits_vs_eta[w]->Fill(xetaRec,track->numberOfLostHits());
 	}
 

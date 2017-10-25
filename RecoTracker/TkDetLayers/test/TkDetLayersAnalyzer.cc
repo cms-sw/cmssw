@@ -157,8 +157,8 @@ TkDetLayersAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
   DetTrie trie(0);
 
   {
-    const TrackingGeometry::DetUnitContainer&  modules = pTrackerGeometry->detUnits(); 
-    typedef TrackingGeometry::DetUnitContainer::const_iterator Iter;
+    const TrackingGeometry::DetContainer&  modules = pTrackerGeometry->detUnits(); 
+    typedef TrackingGeometry::DetContainer::const_iterator Iter;
     Iter b=modules.begin();
     Iter e=modules.end();
     Iter last;

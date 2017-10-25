@@ -20,7 +20,7 @@ MVAJetTagPlotter::MVAJetTagPlotter(const std::string &tagName,
                                    unsigned int mc, bool willFinalize, 
 				   DQMStore::IBooker & ibook):
 	BaseTagInfoPlotter(folderName, etaPtBin),
-	jetTagComputer(tagName), computer(0),
+	jetTagComputer(tagName), computer(nullptr),
 	categoryVariable(btau::lastTaggingVariable)
 {
 	typedef std::vector<ParameterSet> VParameterSet;

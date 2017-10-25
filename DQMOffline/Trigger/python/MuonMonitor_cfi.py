@@ -4,8 +4,13 @@ from DQMOffline.Trigger.muonMonitoring_cfi import muonMonitoring
 
 hltMuonmonitoring = muonMonitoring.clone()
 hltMuonmonitoring.FolderName = cms.string('HLT/Muon/TrkMu16_DoubleTrkMu6NoFiltersNoVtx/')
+hltMuonmonitoring.histoPSet.lsPSet = cms.PSet(
+  nbins = cms.uint32 ( 250 ),
+  xmin  = cms.double(    0.),
+  xmax  = cms.double( 2500.),
+)
 hltMuonmonitoring.histoPSet.muonPSet = cms.PSet(
-  nbins = cms.int32 (  500  ),
+  nbins = cms.uint32(  500  ), ### THIS SHOULD BE VARIABLE BINNING !!!!!
   xmin  = cms.double(  0.0),
   xmax  = cms.double(500),
 )

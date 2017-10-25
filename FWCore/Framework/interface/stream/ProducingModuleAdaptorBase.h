@@ -93,8 +93,11 @@ namespace edm {
 
       std::vector<ConsumesInfo> consumesInfo() const;
 
+      using ModuleToResolverIndicies = std::unordered_multimap<std::string,
+      std::tuple<edm::TypeID const*, const char*, edm::ProductResolverIndex>>;
+      
       void resolvePutIndicies(BranchType iBranchType,
-                              std::unordered_multimap<std::string, edm::ProductResolverIndex> const& iIndicies,
+                              ModuleToResolverIndicies const& iIndicies,
                               std::string const& moduleLabel);
       
       std::vector<edm::ProductResolverIndex> const& indiciesForPutProducts(BranchType iBranchType) const;
@@ -113,9 +116,9 @@ namespace edm {
       void commit(LuminosityBlock& iLumi) {
         iLumi.commit_(m_streamModules[0]->indiciesForPutProducts(InLumi));
       }
-      template<typename L, typename I>
-      void commit(Event& iEvent, L* iList, I* iID) {
-        iEvent.commit_(m_streamModules[0]->indiciesForPutProducts(InEvent), iList,iID);
+      template<typename I>
+      void commit(Event& iEvent, I* iID) {
+        iEvent.commit_(m_streamModules[0]->indiciesForPutProducts(InEvent), iID);
       }
 
       const EDConsumerBase* consumer() {

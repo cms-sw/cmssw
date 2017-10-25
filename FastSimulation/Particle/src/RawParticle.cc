@@ -95,7 +95,7 @@ RawParticle::init() {
   myCharge=0.;
   myMass=0.;
   //tab = ParticleTable::instance();
-  myInfo=0;
+  myInfo=nullptr;
 }
 
 void 

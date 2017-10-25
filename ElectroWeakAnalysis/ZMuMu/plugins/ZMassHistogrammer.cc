@@ -8,7 +8,7 @@ class ZMassHistogrammer : public edm::EDAnalyzer {
 public:
   ZMassHistogrammer(const edm::ParameterSet& pset);
 private:
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
   edm::EDGetTokenT<reco::CandidateView>  zToken_;
   edm::EDGetTokenT<reco::CandidateView>  genToken_;
   TH1F *h_mZ_, *h_mZMC_;

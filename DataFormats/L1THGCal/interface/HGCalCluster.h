@@ -22,7 +22,7 @@ namespace l1t {
 
       HGCalCluster( const edm::Ptr<l1t::HGCalTriggerCell> &tc );
       
-      ~HGCalCluster();
+      ~HGCalCluster() override;
 
       void setModule(uint32_t module) {module_ = module;}
       uint32_t module() const {return module_;}

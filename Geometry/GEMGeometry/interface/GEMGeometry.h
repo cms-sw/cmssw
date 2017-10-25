@@ -33,20 +33,20 @@ class GEMGeometry : public TrackingGeometry {
   // Return a vector of all det types
   const DetTypeContainer&  detTypes() const override;
 
-  // Return a vector of all GeomDetUnit
-  const DetUnitContainer& detUnits() const override;
+  // Return a vector of all GeomDet
+  const DetContainer& detUnits() const override;
 
   // Return a vector of all GeomDet
   const DetContainer& dets() const override;
   
-  // Return a vector of all GeomDetUnit DetIds
+  // Return a vector of all GeomDet DetIds
   const DetIdContainer& detUnitIds() const override;
 
   // Return a vector of all GeomDet DetIds
   const DetIdContainer& detIds() const override;
 
-  // Return the pointer to the GeomDetUnit corresponding to a given DetId
-  const GeomDetUnit* idToDetUnit(DetId) const override;
+  // Return the pointer to the GeomDet corresponding to a given DetId
+  const GeomDet* idToDetUnit(DetId) const override;
 
   // Return the pointer to the GeomDet corresponding to a given DetId
   const GeomDet* idToDet(DetId) const override;
@@ -109,7 +109,7 @@ class GEMGeometry : public TrackingGeometry {
   void add(const GEMEtaPartition* etaPartition);
 
  private:
-  DetUnitContainer theEtaPartitions;
+  DetContainer theEtaPartitions;
   DetContainer theDets;
   DetTypeContainer theEtaPartitionTypes;
   DetIdContainer theEtaPartitionIds;

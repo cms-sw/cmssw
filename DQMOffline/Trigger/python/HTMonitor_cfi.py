@@ -4,6 +4,11 @@ from DQMOffline.Trigger.htMonitoring_cfi import htMonitoring
 
 hltHTmonitoring = htMonitoring.clone()
 hltHTmonitoring.FolderName = cms.string('HLT/HT/PFMETNoMu120/')
+hltHTmonitoring.histoPSet.lsPSet = cms.PSet(
+  nbins = cms.uint32(  250 ),
+  xmin  = cms.double(    0.),
+  xmax  = cms.double( 2500.),
+)
 hltHTmonitoring.histoPSet.htPSet = cms.PSet(
   nbins = cms.uint32 (  200  ),
   xmin  = cms.double(   -0.5),

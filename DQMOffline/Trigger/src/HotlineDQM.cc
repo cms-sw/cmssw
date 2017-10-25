@@ -163,7 +163,7 @@ void HotlineDQM::analyze(edm::Event const& e, edm::EventSetup const& eSetup){
         if(useHT) h_OnlineHT->Fill(ht);
 
         //fill muon pt histogram
-        if(MuonCollection->size() > 0){
+        if(!MuonCollection->empty()){
             float maxMuPt = -1.0;
             for(auto &mu : *MuonCollection){
                 if(mu.pt() > maxMuPt) maxMuPt = mu.pt();
@@ -172,7 +172,7 @@ void HotlineDQM::analyze(edm::Event const& e, edm::EventSetup const& eSetup){
         }
 
         //fill photon pt histogram
-        if(PhotonCollection->size() > 0){
+        if(!PhotonCollection->empty()){
             float maxPhoPt = -1.0;
             for(auto &pho : *PhotonCollection){
                 if(pho.pt() > maxPhoPt) maxPhoPt = pho.pt();

@@ -96,8 +96,8 @@ class AlignmentMonitorBase
       const edm::InputTag m_beamSpotTag;
 
    private:
-      AlignmentMonitorBase(const AlignmentMonitorBase&); // stop default
-      const AlignmentMonitorBase& operator=(const AlignmentMonitorBase&); // stop default
+      AlignmentMonitorBase(const AlignmentMonitorBase&) = delete; // stop default
+      const AlignmentMonitorBase& operator=(const AlignmentMonitorBase&) = delete; // stop default
 
       // ---------- member data --------------------------------
 

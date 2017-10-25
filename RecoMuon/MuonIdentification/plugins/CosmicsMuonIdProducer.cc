@@ -33,13 +33,13 @@ public:
       trackTokens_.push_back(consumes<reco::TrackCollection>(inputTrackCollections_.at(i)));
 
   }
-  virtual ~CosmicsMuonIdProducer() {
+  ~CosmicsMuonIdProducer() override {
     if (compatibilityFiller_)
       delete compatibilityFiller_;
   }
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   edm::InputTag inputMuonCollection_;
   std::vector<edm::InputTag> inputTrackCollections_;
   edm::EDGetTokenT<reco::MuonCollection> muonToken_;

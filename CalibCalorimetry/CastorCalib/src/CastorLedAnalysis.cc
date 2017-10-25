@@ -9,7 +9,7 @@
 
 #include "CalibCalorimetry/CastorCalib/interface/CastorLedAnalysis.h"
 #include <TFile.h>
-#include <math.h>
+#include <cmath>
 
 using namespace std;
 
@@ -19,17 +19,17 @@ CastorLedAnalysis::CastorLedAnalysis(const edm::ParameterSet& ps)
   // init
   evt=0;
   sample=0;
-  m_file=0;
+  m_file=nullptr;
   // output files
   for(int k=0;k<4;k++) state.push_back(true); // 4 cap-ids (do we care?)
   m_outputFileText = ps.getUntrackedParameter<string>("outputFileText", "");
   m_outputFileX = ps.getUntrackedParameter<string>("outputFileXML","");
-  if ( m_outputFileText.size() != 0 ) {
+  if ( !m_outputFileText.empty() ) {
     cout << "Castor LED results will be saved to " << m_outputFileText.c_str() << endl;
     m_outFile.open(m_outputFileText.c_str());
   } 
   m_outputFileROOT = ps.getUntrackedParameter<string>("outputFileHist", "");
-  if ( m_outputFileROOT.size() != 0 ) {
+  if ( !m_outputFileROOT.empty() ) {
     cout << "Castor LED histograms will be saved to " << m_outputFileROOT.c_str() << endl;
   }
 
@@ -494,7 +494,7 @@ void CastorLedAnalysis::processLedEvent(const CastorDigiCollection& castor,
 
   // HF/Castor
   try{
-    if(!castor.size()) throw (int)castor.size();
+    if(castor.empty()) throw (int)castor.size();
     for (CastorDigiCollection::const_iterator j=castor.begin(); j!=castor.end(); ++j){
       const CastorDataFrame digi = (const CastorDataFrame)(*j);
       _meol = castorHists.LEDTRENDS.find(digi.id());

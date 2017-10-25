@@ -14,7 +14,7 @@ const GEMGeometry::DetTypeContainer&  GEMGeometry::detTypes() const{
   return theEtaPartitionTypes;
 }
 
-const GEMGeometry::DetUnitContainer& GEMGeometry::detUnits() const{
+const GEMGeometry::DetContainer& GEMGeometry::detUnits() const{
   return theEtaPartitions;
 }
 
@@ -30,8 +30,8 @@ const GEMGeometry::DetIdContainer& GEMGeometry::detIds() const{
   return theDetIds;
 }
 
-const GeomDetUnit* GEMGeometry::idToDetUnit(DetId id) const{
-  return dynamic_cast<const GeomDetUnit*>(idToDet(id));
+const GeomDet* GEMGeometry::idToDetUnit(DetId id) const{
+  return dynamic_cast<const GeomDet*>(idToDet(id));
 }
 
 
@@ -132,7 +132,7 @@ GEMGeometry::add(const GEMEtaPartition* etaPartition){
   theEtaPartitionIds.emplace_back(etaPartition->geographicalId());
   theDetIds.emplace_back(etaPartition->geographicalId());
   theEtaPartitionTypes.emplace_back(&etaPartition->type());
-  theMap.insert(std::pair<DetId,const GeomDetUnit*>
+  theMap.insert(std::pair<DetId,const GeomDet*>
 		(etaPartition->geographicalId(),etaPartition));
 }
 

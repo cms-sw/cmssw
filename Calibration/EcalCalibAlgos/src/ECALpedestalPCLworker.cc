@@ -30,8 +30,8 @@ ECALpedestalPCLworker::ECALpedestalPCLworker(const edm::ParameterSet& iConfig)
     nBins_          = iConfig.getParameter<int>("nBins");
     dqmDir_         = iConfig.getParameter<std::string>("dqmDir");
 
-    edm::InputTag bstRecord= iConfig.getParameter<edm::InputTag>("bstRecord");  
-    bstToken_       = consumes<BSTRecord>(bstRecord);
+    edm::InputTag tcdsRecord= iConfig.getParameter<edm::InputTag>("tcdsRecord");
+    tcdsToken_       = consumes<TCDSRecord>(tcdsRecord);
     requireStableBeam_ = iConfig.getParameter<bool>("requireStableBeam");
 }
 
@@ -53,10 +53,10 @@ ECALpedestalPCLworker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     // Only Events with stable beam
  
     if (requireStableBeam_){
-        edm::Handle<BSTRecord> bstData;           
-        iEvent.getByToken(bstToken_,bstData);
-        int beamMode = static_cast<int>( bstData->beamMode() );
-        if (beamMode != 11 ) return;
+        edm::Handle<TCDSRecord> tcdsData;
+        iEvent.getByToken(tcdsToken_,tcdsData);
+        int beamMode = tcdsData->getBST().getBeamMode();
+        if (beamMode != BSTRecord::BeamMode::STABLE) return;
     }
 
     for (EBDigiCollection::const_iterator pDigi=pDigiEB->begin(); pDigi!=pDigiEB->end(); ++pDigi){

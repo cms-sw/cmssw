@@ -33,11 +33,11 @@ namespace edm {
     bool rc = false;
     Event e(ep, moduleDescription_, mcc);
     e.setConsumer(this);
-    e.setProducer(this);
+    e.setProducer(this,&previousParentage_);
     e.setSharedResourcesAcquirer(&resourceAcquirer_);
     EventSignalsSentry sentry(act,mcc);
     rc = this->filter(e, c);
-    commit_(e,&previousParentage_, &previousParentageId_);
+    commit_(e, &previousParentageId_);
     return rc;
   }
 

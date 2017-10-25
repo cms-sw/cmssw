@@ -9,9 +9,7 @@
 #include "FWCore/Framework/interface/ExceptionHelpers.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
-#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -44,7 +42,6 @@ namespace edm {
   }
 
   InputSource::InputSource(ParameterSet const& pset, InputSourceDescription const& desc) :
-      ProductRegistryHelper(),
       actReg_(desc.actReg_),
       maxEvents_(desc.maxEvents_),
       remainingEvents_(maxEvents_),
@@ -235,9 +232,6 @@ namespace edm {
 
   void
   InputSource::registerProducts() {
-    if(!typeLabelList().empty()) {
-      addToRegistry(typeLabelList().begin(), typeLabelList().end(), moduleDescription(), productRegistryUpdate());
-    }
   }
 
   // Return a dummy file block.
@@ -447,30 +441,18 @@ namespace edm {
 
   void
   InputSource::doBeginRun(RunPrincipal& rp, ProcessContext const* ) {
-    Run run(rp, moduleDescription(), nullptr);
-    callWithTryCatchAndPrint<void>( [this,&run](){ beginRun(run); }, "Calling InputSource::beginRun" );
-    run.commit_(std::vector<edm::ProductResolverIndex>());
   }
 
   void
   InputSource::doEndRun(RunPrincipal& rp, bool cleaningUpAfterException, ProcessContext const* ) {
-    Run run(rp, moduleDescription(), nullptr);
-    callWithTryCatchAndPrint<void>( [this,&run](){ endRun(run); }, "Calling InputSource::endRun", cleaningUpAfterException );
-    run.commit_(std::vector<edm::ProductResolverIndex>());
   }
 
   void
   InputSource::doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext const* ) {
-    LuminosityBlock lb(lbp, moduleDescription(), nullptr);
-    callWithTryCatchAndPrint<void>( [this,&lb](){ beginLuminosityBlock(lb); }, "Calling InputSource::beginLuminosityBlock" );
-    lb.commit_(std::vector<edm::ProductResolverIndex>());
   }
 
   void
   InputSource::doEndLumi(LuminosityBlockPrincipal& lbp, bool cleaningUpAfterException, ProcessContext const* ) {
-    LuminosityBlock lb(lbp, moduleDescription(), nullptr);
-    callWithTryCatchAndPrint<void>( [this,&lb](){ endLuminosityBlock(lb); }, "Calling InputSource::endLuminosityBlock", cleaningUpAfterException );
-    lb.commit_(std::vector<edm::ProductResolverIndex>());
   }
 
   bool
@@ -490,18 +472,6 @@ namespace edm {
     return callWithTryCatchAndPrint<ProcessingController::ReverseState>( [this](){ return reverseState_(); },
                                                                          "Calling InputSource::reverseState__" );
   }
-
-  void
-  InputSource::beginLuminosityBlock(LuminosityBlock&) {}
-
-  void
-  InputSource::endLuminosityBlock(LuminosityBlock&) {}
-
-  void
-  InputSource::beginRun(Run&) {}
-
-  void
-  InputSource::endRun(Run&) {}
 
   void
   InputSource::beginJob() {}

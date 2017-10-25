@@ -174,14 +174,14 @@ void PixelJetPuId::produce(edm::StreamID sid, edm::Event& iEvent, const edm::Eve
     iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
     
     //init JetTagCollection
-    if(generaljets.product()->size()>0)
+    if(!generaljets.product()->empty())
     {
         edm::RefToBase<reco::Jet> jj = edm::RefToBase<reco::Jet>(generaljets,0);
         pOut_jetTagCollection.reset(new reco::JetTagCollection(edm::makeRefToBaseProdFrom(jj, iEvent)));
     }
      
     //loop on trackIPTagInfos
-    if(primaryVertex->size()>0)
+    if(!primaryVertex->empty())
     {
         const reco::Vertex* pv = &*primaryVertex->begin();
         //loop on jets

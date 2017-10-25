@@ -151,6 +151,7 @@ importToBlock( const edm::Event& e,
       if( vetoed.count(pftrackref->trackRef().key()) == 0 || muonref.isNonnull()){
 	elems.emplace_back(trkElem);
       }
+      else delete trkElem;
     }
   }
   elems.shrink_to_fit();

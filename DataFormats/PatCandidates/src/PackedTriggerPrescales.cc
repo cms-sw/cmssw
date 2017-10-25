@@ -5,7 +5,7 @@
 pat::PackedTriggerPrescales::PackedTriggerPrescales(const edm::Handle<edm::TriggerResults> & handle) :
     prescaleValues_(), 
     triggerResults_(edm::RefProd<edm::TriggerResults>(handle).refCore()),
-    triggerNames_(0)
+    triggerNames_(nullptr)
 {
     prescaleValues_.resize(handle->size(),0);
 }
@@ -16,7 +16,7 @@ int pat::PackedTriggerPrescales::getPrescaleForIndex(int index) const {
 }
 
 int pat::PackedTriggerPrescales::getPrescaleForName(const std::string & name, bool prefixOnly) const {
-    if (triggerNames_ == 0) throw cms::Exception("LogicError", "getPrescaleForName called without having called setTriggerNames first");
+    if (triggerNames_ == nullptr) throw cms::Exception("LogicError", "getPrescaleForName called without having called setTriggerNames first");
     if (prefixOnly) {
         const std::vector<std::string> &names = triggerNames_->triggerNames();
         size_t siz = name.length()-1;

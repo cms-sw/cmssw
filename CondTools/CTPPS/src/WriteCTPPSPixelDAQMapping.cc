@@ -26,7 +26,7 @@
 #include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelDAQMapping.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelAnalysisMask.h"
 
-#include <stdint.h>
+#include <cstdint>
 
 //----------------------------------------------------------------------------------------------------
 
@@ -37,10 +37,10 @@ class WriteCTPPSPixelDAQMapping : public edm::one::EDAnalyzer<>
 {
   public:
     WriteCTPPSPixelDAQMapping(const edm::ParameterSet &ps);
-    ~WriteCTPPSPixelDAQMapping() {}
+    ~WriteCTPPSPixelDAQMapping() override {}
 
   private:
-    virtual void analyze(const edm::Event &e, const edm::EventSetup &es) override;
+    void analyze(const edm::Event &e, const edm::EventSetup &es) override;
     cond::Time_t daqmappingiov_;
     std::string record_;
     std::string label_;

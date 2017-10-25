@@ -122,19 +122,19 @@ public:
 
   explicit LumiProducer(const edm::ParameterSet&);
 
-  ~LumiProducer();
+  ~LumiProducer() override;
   
 private:
   
-  virtual void produce(edm::Event&, const edm::EventSetup&) override final;
+  void produce(edm::Event&, const edm::EventSetup&) final;
 
-  virtual void beginRun(edm::Run const&, edm::EventSetup const &) override final;
+  void beginRun(edm::Run const&, edm::EventSetup const &) final;
 
-  virtual void beginLuminosityBlockProduce(edm::LuminosityBlock & iLBlock,
-				    edm::EventSetup const& iSetup) override final;
+  void beginLuminosityBlockProduce(edm::LuminosityBlock & iLBlock,
+				    edm::EventSetup const& iSetup) final;
  
-  virtual void endRun(edm::Run const&, edm::EventSetup const &) override final;
-  virtual void endRunProduce(edm::Run&, edm::EventSetup const &) override final;
+  void endRun(edm::Run const&, edm::EventSetup const &) final;
+  void endRunProduce(edm::Run&, edm::EventSetup const &) final;
 
   bool fillLumi(edm::LuminosityBlock & iLBlock);
   void fillRunCache(const coral::ISchema& schema,unsigned int runnumber);
@@ -779,7 +779,7 @@ LumiProducer::fillLSCache(unsigned int luminum){
 	unsigned int* hltaccepts=(unsigned int*)::malloc(hltacceptblob.size());
 	std::memmove(hltaccepts,hltacceptblob_StartAddress,hltacceptblob.size()); 	
 	unsigned int nhltaccepts = sizeof(hltaccepts)/sizeof(unsigned int);
-        if(nhltaccepts > 0 && m_runcache.HLTPathNames.size() == 0){
+        if(nhltaccepts > 0 && m_runcache.HLTPathNames.empty()){
           edm::LogWarning("CorruptOrMissingHLTData")<<"Got "<<nhltaccepts
 <<" hltaccepts, but the run chache is empty. hltdata will  not be written";
             break;

@@ -13,7 +13,6 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h" 	 
 #include "TauRegionalPixelSeedGenerator.h" 	 
 #include "TrackingRegionsFromBeamSpotAndL2Tau.h"
-#include "CandidateSeededTrackingRegionsProducer.h"
 #include "RecoTauTag/HLTProducers/interface/TauJetSelectorForHLTTrackSeeding.h"
 #include "RecoTauTag/HLTProducers/interface/VertexFromTrackProducer.h"
 //#include "RecoTauTag/HLTProducers/interface/L2TauPixelTrackMatch.h"
@@ -30,13 +29,10 @@ typedef L1TJetsMatching<reco::CaloJet> L1TCaloJetsMatching ;
 
 DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, TauRegionalPixelSeedGenerator, "TauRegionalPixelSeedGenerator");      
 DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, TrackingRegionsFromBeamSpotAndL2Tau, "TrackingRegionsFromBeamSpotAndL2Tau");
-DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, CandidateSeededTrackingRegionsProducer, "CandidateSeededTrackingRegionsProducer");
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionEDProducerT.h"
 using TauRegionalPixelSeedTrackingRegionEDProducer = TrackingRegionEDProducerT<TauRegionalPixelSeedGenerator>;
 DEFINE_FWK_MODULE(TauRegionalPixelSeedTrackingRegionEDProducer);
-using CandidateSeededTrackingRegionsEDProducer = TrackingRegionEDProducerT<CandidateSeededTrackingRegionsProducer>;
-DEFINE_FWK_MODULE(CandidateSeededTrackingRegionsEDProducer);
 using TrackingRegionsFromBeamSpotAndL2TauEDProducer = TrackingRegionEDProducerT<TrackingRegionsFromBeamSpotAndL2Tau>;
 DEFINE_FWK_MODULE(TrackingRegionsFromBeamSpotAndL2TauEDProducer);
 

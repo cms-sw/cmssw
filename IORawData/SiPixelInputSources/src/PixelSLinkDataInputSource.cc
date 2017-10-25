@@ -139,7 +139,7 @@ PixelSLinkDataInputSource::PixelSLinkDataInputSource(const edm::ParameterSet& ps
     
   edm::LogInfo("PixelSLinkDataInputSource") << " unsigned long int size = " << sizeof(unsigned long int) <<"\n unsigned long size = " << sizeof(unsigned long)<<"\n unsigned long long size = " << sizeof(unsigned long long) <<  "\n uint32_t size = " << sizeof(uint32_t) << "\n uint64_t size = " << sizeof(uint64_t) << std::endl;
 
-  bool exists = StorageFactory::get() -> check(currentfilename.c_str(), &size);
+  bool exists = StorageFactory::get() -> check(currentfilename, &size);
   
   edm::LogInfo("PixelSLinkDataInputSource") << "file size " << size << std::endl;
   
@@ -148,7 +148,7 @@ PixelSLinkDataInputSource::PixelSLinkDataInputSource(const edm::ParameterSet& ps
     return;
   }
   // now open the file stream:
-  storage =StorageFactory::get()->open(currentfilename.c_str());
+  storage =StorageFactory::get()->open(currentfilename);
   // (throw if storage is 0)
 
   // check run number by opening up data file...

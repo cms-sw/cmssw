@@ -231,7 +231,7 @@ MuonAssociatorByHitsHelper::associateRecoToSimIndices(const TrackHitsCollection 
       <<n_dt_matched<<"/"<<n_csc_matched<<"/"<<n_rpc_matched<<"/"<<n_gem_matched<<" in Tracker/DT/CSC/RPC/GEM)";
 
     if (n_all>0 && n_matching_simhits == 0)
-      edm::LogWarning("MuonAssociatorByHitsHelper")
+      edm::LogVerbatim("MuonAssociatorByHitsHelper")
 	<<"*** WARNING in MuonAssociatorByHitsHelper::associateRecoToSim: no matching PSimHit found for this reco::Track !";
 
     if (n_matching_simhits != 0) {
@@ -516,7 +516,7 @@ MuonAssociatorByHitsHelper::associateSimToRecoIndices( const TrackHitsCollection
       <<n_dt_matched<<"/"<<n_csc_matched<<"/"<<n_rpc_matched<<"/"<<n_gem_matched<<" in Tracker/DT/CSC/RPC/GEM)";
     
     if (printRtS && n_all>0 && n_matching_simhits==0)
-      edm::LogWarning("MuonAssociatorByHitsHelper")
+      edm::LogVerbatim("MuonAssociatorByHitsHelper")
 	<<"*** WARNING in MuonAssociatorByHitsHelper::associateSimToReco: no matching PSimHit found for this reco::Track !";
     
     if (n_matching_simhits != 0) {
@@ -973,7 +973,7 @@ void MuonAssociatorByHitsHelper::getMatchedIds
                     
 		  } 
 		}
-	      } else if (printRtS) edm::LogWarning("MuonAssociatorByHitsHelper")
+	      } else if (printRtS) edm::LogVerbatim("MuonAssociatorByHitsHelper")
 		<<"*** WARNING in MuonAssociatorByHitsHelper::getMatchedIds, null dynamic_cast of a DT TrackingRecHit !";
 	      
 	      unsigned int i_detid = (*ithit)->geographicalId().rawId();
@@ -993,7 +993,7 @@ void MuonAssociatorByHitsHelper::getMatchedIds
 	    }	      
 	  }  // if (dtsegment)
 
-	  else if (printRtS) edm::LogWarning("MuonAssociatorByHitsHelper")
+	  else if (printRtS) edm::LogVerbatim("MuonAssociatorByHitsHelper")
 	    <<"*** WARNING in MuonAssociatorByHitsHelper::getMatchedIds, DT TrackingRecHit is neither DTRecHit1D nor DTRecSegment4D ! ";	    
 	}
       }
@@ -1074,7 +1074,7 @@ void MuonAssociatorByHitsHelper::getMatchedIds
                     muon_matchedIds_INVALID.push_back (new uint_SimHitIdpr_pair(iH,i_SimTrackIds));
 		  }
 		}
-	      } else if (printRtS) edm::LogWarning("MuonAssociatorByHitsHelper")
+	      } else if (printRtS) edm::LogVerbatim("MuonAssociatorByHitsHelper")
 		<<"*** WARNING in MuonAssociatorByHitsHelper::getMatchedIds, null dynamic_cast of a CSC TrackingRecHit !";
 	      
 	      unsigned int i_detid = (*ithit)->geographicalId().rawId();
@@ -1094,7 +1094,7 @@ void MuonAssociatorByHitsHelper::getMatchedIds
 	    }	    
 	  }  // if (cscsegment)
 
-	  else if (printRtS) edm::LogWarning("MuonAssociatorByHitsHelper")
+	  else if (printRtS) edm::LogVerbatim("MuonAssociatorByHitsHelper")
 	    <<"*** WARNING in MuonAssociatorByHitsHelper::getMatchedIds, CSC TrackingRecHit is neither CSCRecHit2D nor CSCSegment ! ";
 	}
       }
@@ -1203,7 +1203,7 @@ void MuonAssociatorByHitsHelper::getMatchedIds
                     muon_matchedIds_INVALID.push_back (new uint_SimHitIdpr_pair(iH,i_SimTrackIds));
 		  }
 		}
-	      } else if (printRtS) edm::LogWarning("MuonAssociatorByHitsHelper")
+	      } else if (printRtS) edm::LogVerbatim("MuonAssociatorByHitsHelper")
 		<<"*** WARNING in MuonAssociatorByHitsHelper::getMatchedIds, null dynamic_cast of a GEM TrackingRecHit !";
 	      
 	      if (printRtS){
