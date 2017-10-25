@@ -28,15 +28,15 @@ autoCond = {
     # GlobalTag for Run2 data reprocessing
     'run2_data'         :   '94X_dataRun2_v2',
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
-    'run2_data_relval'  :   '94X_dataRun2_relval_v3',
+    'run2_data_relval'  :   '94X_dataRun2_relval_v5',
     # GlobalTag for Run2 data 2016H relvals only: Prompt Conditions + fixed L1 menu (to be removed)
-    'run2_data_promptlike' : '94X_dataRun2_PromptLike_v3',
+    'run2_data_promptlike' : '94X_dataRun2_PromptLike_v5',
     # GlobalTag for Run1 HLT: it points to the online GT
     'run1_hlt'          :   '94X_dataRun2_HLT_frozen_v3',
     # GlobalTag for Run2 HLT: it points to the online GT
     'run2_hlt'          :   '94X_dataRun2_HLT_frozen_v3',
     # GlobalTag for Run2 HLT RelVals: customizations to run with fixed L1 Menu
-    'run2_hlt_relval'   :   '94X_dataRun2_HLT_relval_v2',
+    'run2_hlt_relval'   :   '94X_dataRun2_HLT_relval_v5',
     # GlobalTag for Run2 HLT for HI: it points to the online GT
     'run2_hlt_hi'       :   '94X_dataRun2_HLTHI_frozen_v2',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
