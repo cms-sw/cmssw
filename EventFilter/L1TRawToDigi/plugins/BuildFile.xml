@@ -6,6 +6,7 @@
 <use name="DataFormats/L1Trigger"/>
 <use name="DataFormats/L1TMuon"/>
 <use name="DataFormats/L1TCalorimeter"/>
+<use name="DataFormats/TCDS"/>
 <use name="L1Trigger/L1TCalorimeter"/>
 <use name="L1Trigger/L1TGlobal"/>
 <use name="L1Trigger/L1TMuon"/>
