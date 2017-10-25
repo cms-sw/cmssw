@@ -11,15 +11,15 @@ from RecoEcal.EgammaClusterProducers.particleFlowSuperClusteringSequence_cff imp
 
 particleFlowSuperClusterECAL.regressionConfig.vertexCollection = 'hiSelectedVertex'
 
-hiEcalClusteringSequence = cms.Sequence(islandClusteringSequence*hybridClusteringSequence*multi5x5ClusteringSequence*multi5x5PreshowerClusteringSequence*preshowerClusteringSequence*particleFlowSuperClusteringSequence)
+hiEcalClusteringSequence = cms.Sequence(hiIslandClusteringSequence*hybridClusteringSequence*multi5x5ClusteringSequence*multi5x5PreshowerClusteringSequence*preshowerClusteringSequence*particleFlowSuperClusteringSequence)
 
 
 # reco photon producer
 from RecoEgamma.EgammaPhotonProducers.photonSequence_cff import *
 
 # use island for the moment
-photonCore.scHybridBarrelProducer = cms.InputTag("correctedIslandBarrelSuperClusters")
-photonCore.scIslandEndcapProducer = cms.InputTag("correctedIslandEndcapSuperClusters")
+photonCore.scHybridBarrelProducer = cms.InputTag("hiCorrectedIslandBarrelSuperClusters")
+photonCore.scIslandEndcapProducer = cms.InputTag("hiCorrectedIslandEndcapSuperClusters")
 photonCore.minSCEt = cms.double(8.0)
 photons.minSCEtBarrel = cms.double(5.0)
 photons.minSCEtEndcap = cms.double(15.0)
