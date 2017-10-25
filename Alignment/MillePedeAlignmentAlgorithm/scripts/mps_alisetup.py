@@ -120,12 +120,16 @@ class SetupAlignment(object):
                            self._config.get("general",
                                             "externalDatasets").split(","))
             datasets = filter(lambda x: len(x.strip()) > 0, datasets)
-            for dataset in datasets:
+            for item in datasets:
+                splitted = item.split("|")
+                dataset = splitted[0].strip()
+                weight = splitted[1] if len(splitted) > 1 else None
                 config = ConfigParser.ConfigParser()
                 config.optionxform = str
                 config.read(dataset)
                 config.config_path = dataset
-                self._external_datasets[dataset] = {"config": config}
+                self._external_datasets[dataset] = {"config": config,
+                                                    "weight": weight}
 
 
     def _construct_paths(self):
@@ -194,6 +198,7 @@ class SetupAlignment(object):
         common_weights_list = [[(name, weight)
                                 for weight in  self._common_weights[name]]
                                for name in self._common_weights]
+
         common_weights_dicts = []
         for item in itertools.product(*common_weights_list):
             d = {}
@@ -201,17 +206,27 @@ class SetupAlignment(object):
                 d[name] = weight
             common_weights_dicts.append(d)
 
-        self._weight_configs = []
+        weight_configs = []
         for weight_conf in itertools.product(*weights_list):
-            if len(self._common_weights) > 0:
-                for common_weight in common_weights_dicts:
-                    self._weight_configs.append([(dataset[0],
-                                     reduce(lambda x,y: re.sub(r"^"+y+r"$",
-                                                               common_weight[y], x),
-                                            common_weight, dataset[1]))
-                                    for dataset in weight_conf])
-            else:
-                self._weight_configs.append(weight_conf)
+            number_of_configs = len(weight_configs)
+            for common_weight in common_weights_dicts:
+                replaced_config \
+                    = tuple([(dataset[0],
+                              reduce(lambda x,y: mps_tools.replace_factors(x, y, common_weight[y]),
+                                     common_weight, dataset[1]))
+                             for dataset in weight_conf])
+                if replaced_config not in weight_configs:
+                    weight_configs.append(replaced_config)
+
+            # default if config contains no common weights:
+            if len(weight_configs) == number_of_configs:
+                weight_configs.append(weight_conf)
+
+        for weight_config in weight_configs:
+            resolved_weight_config \
+                = [(dataset[0], mps_tools.compute_product_string(dataset[1]))
+                   for dataset in weight_config]
+            self._weight_configs.append(resolved_weight_config)
 
 
     def _fetch_pede_settings(self):
@@ -666,10 +681,19 @@ class SetupAlignment(object):
 
         all_configs = collections.OrderedDict()
         all_configs["main"] = {"config": self._config,
-                               "general": self._general_options}
+                               "general": self._general_options,
+                               "weight": None}
         all_configs.update(self._external_datasets)
 
         for config in all_configs.itervalues():
+            global_weight = "1" if config["weight"] is None else config["weight"]
+            if global_weight+self._config.config_path in self._common_weights:
+                global_weight = self._common_weights[global_weight+
+                                                     self._config.config_path]
+            elif global_weight in self._common_weights:
+                global_weight = self._common_weights[global_weight]
+            else:
+                global_weight = (global_weight,)
             common_weights = {}
             weight_dict = {}
             for section in config["config"].sections():
@@ -682,10 +706,6 @@ class SetupAlignment(object):
                         common_weights[option] \
                             = [x.strip() for x in
                                config["config"].get(section, option).split(",")]
-                        # self._common_weights[option] \
-                        #     = [x.strip() for x in
-                        #        config["config"].get(section, option).split(",")]
-                        # common_weights[option] = self._common_weights[option]
                 elif section.startswith("dataset:"):
                     print "-"*75
                     # set name from section-name
@@ -706,6 +726,9 @@ class SetupAlignment(object):
                                config["config"].get(section, "weight").split(",")]
                     else:
                         self._weight_dict[name] = ["1.0"]
+                    self._weight_dict[name] = [global_w+"*"+w
+                                               for w in self._weight_dict[name]
+                                               for global_w in global_weight]
                     weight_dict[name] = self._weight_dict[name]
 
                     # extract essential variables
@@ -810,9 +833,12 @@ class SetupAlignment(object):
             # check if local weights override global weights and resolve name clashes
             for weight_name, weight_values in common_weights.iteritems():
                 for key, weight in weight_dict.iteritems():
-                    if weight_name in weight:
+                    if any([weight_name in w for w in weight]):
                         self._common_weights[weight_name+config["config"].config_path] = weight_values
-                        self._weight_dict[key] = [re.sub(r"^"+weight_name+r"$", weight_name+config["config"].config_path, w) for w in weight]
+                        self._weight_dict[key] = [mps_tools.replace_factors(w,
+                                                                            weight_name,
+                                                                            weight_name+config["config"].config_path)
+                                                  for w in weight]
                     else:
                         self._common_weights[weight_name] = weight_values
                         self._weight_dict[key] = weight
