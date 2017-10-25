@@ -28,6 +28,7 @@ from DQMOffline.Trigger.TopMonitoring_Client_cff import *
 
 from DQMOffline.Trigger.BTaggingMonitoring_Client_cff import *
 from DQMOffline.Trigger.BPHMonitoring_Client_cff import *
+from DQMOffline.Trigger.DiJetMonitor_Client_cff import * 
 hltOfflineDQMClient = cms.Sequence(
 #    hltGeneralSeqClient *
     sipixelHarvesterHLTsequence *
@@ -48,6 +49,7 @@ hltOfflineDQMClient = cms.Sequence(
     smpClient *
     topClient *
     btaggingClient *
-    bphClient
+    bphClient*
+    dijetClient
     )
 
