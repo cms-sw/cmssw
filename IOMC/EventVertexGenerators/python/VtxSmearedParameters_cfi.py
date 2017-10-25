@@ -660,19 +660,19 @@ RealisticHICollisionFixZ2015VtxSmearingParameters = cms.PSet(
     TimeOffset = cms.double(0.0),
     X0 = cms.double(0.1025),
     Y0 = cms.double(0.1654),
-    Z0 = cms.double(3.2528)
+    Z0 = cms.double(0.771)
 )
 # Numbers based on beamspot fits to 2017 XeXe data
 RealisticXeXeCollision2017VtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
-    BetaStar = cms.double(60.0),
-    Emittance = cms.double(1.70e-07),
+    BetaStar = cms.double(30.0),
+    Emittance = cms.double(3.61e-08),
     Alpha = cms.double(0.0),
-    SigmaZ = cms.double(5.2278),
+    SigmaZ = cms.double(4.73),
     TimeOffset = cms.double(0.0),
-    X0 = cms.double(0.1025),
-    Y0 = cms.double(0.1654),
-    Z0 = cms.double(3.2528)
+    X0 = cms.double(-0.0260),
+    Y0 = cms.double(0.0796),
+    Z0 = cms.double(0.693)
 )
 
 # Estimate for 2015 pp collisions at 5.02 TeV, based on feedback from accelerator:  beta* ~ 400cm, normalized emittance = 2.5 um, SigmaZ similar to RunIIWinter15GS
