@@ -220,7 +220,7 @@ singleTopElectronMediumDQM_miniAOD = cms.EDAnalyzer("SingleTopTChannelLeptonDQM_
    cms.PSet(
       label = cms.string("elecs:step0"),
       src   = cms.InputTag("slimmedElectrons"),
-      select = cms.string("pt>30 & abs(eta)<2.5 & abs(gsfTrack.d0)<0.02 && gsfTrack.hitPattern().numberOfHits('MISSING_INNER_HITS') <= 0 && (abs(superCluster.eta) <= 1.4442 || abs(superCluster.eta) >= 1.5660) && " + EletightIsoCut),
+      select = cms.string("pt>30 & abs(eta)<2.5 & abs(gsfTrack.d0)<0.02 && gsfTrack.hitPattern().numberOfLostHits('MISSING_INNER_HITS') <= 0 && (abs(superCluster.eta) <= 1.4442 || abs(superCluster.eta) >= 1.5660) && " + EletightIsoCut),
       min = cms.int32(1),
       max = cms.int32(1),
     ),

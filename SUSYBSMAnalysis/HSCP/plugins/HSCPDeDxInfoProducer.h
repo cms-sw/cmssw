@@ -33,11 +33,11 @@
 class HSCPDeDxInfoProducer : public edm::stream::EDProducer<> {
 public:
   explicit HSCPDeDxInfoProducer(const edm::ParameterSet&);
-  ~HSCPDeDxInfoProducer();
+  ~HSCPDeDxInfoProducer() override;
 
 private:
-  virtual void beginRun(edm::Run const& run, const edm::EventSetup&) override;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(edm::Run const& run, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   void   makeCalibrationMap(const TrackerGeometry& tkGeom);
   void   processHit(const TrackingRecHit* recHit, float trackMomentum, float& cosine, susybsm::HSCPDeDxInfo& hscpDeDxInfo,  LocalPoint HitLocalPos);

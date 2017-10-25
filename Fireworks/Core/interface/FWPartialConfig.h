@@ -12,7 +12,7 @@ class FWPartialConfigGUI : public TGTransientFrame
 {
  public:
   FWPartialConfigGUI(const char* path,  FWConfigurationManager*);
-  ~FWPartialConfigGUI() {}
+  ~FWPartialConfigGUI() override {}
   void Cancel();
 
  protected:
@@ -20,7 +20,7 @@ class FWPartialConfigGUI : public TGTransientFrame
   FWConfiguration m_origConfig;
   FWConfigurationManager* m_cfgMng;
 
-  ClassDef(FWPartialConfigGUI, 0);
+  ClassDefOverride(FWPartialConfigGUI, 0);
 };
 
 //---------------------------------------------------------------------
@@ -29,14 +29,14 @@ class FWPartialConfigLoadGUI : public FWPartialConfigGUI
 {
  public:
   FWPartialConfigLoadGUI( const char* path,  FWConfigurationManager* ,FWEventItemsManager*);
-  ~FWPartialConfigLoadGUI();
+  ~FWPartialConfigLoadGUI() override;
 
   void Load();
 
  private:
   FWEventItemsManager* m_eiMng;
   const char* m_oldConfigName;
-  ClassDef(FWPartialConfigLoadGUI, 0);
+  ClassDefOverride(FWPartialConfigLoadGUI, 0);
 };
 
 
@@ -46,7 +46,7 @@ class FWPartialConfigSaveGUI : public FWPartialConfigGUI
 {
  public:
    FWPartialConfigSaveGUI( const char* path_out,const char* path_in, FWConfigurationManager* );
-  ~FWPartialConfigSaveGUI() {}
+  ~FWPartialConfigSaveGUI() override {}
 
   void WriteConfig();
 
@@ -54,7 +54,7 @@ class FWPartialConfigSaveGUI : public FWPartialConfigGUI
   std::string m_outFileName;
   std::string m_currFileName;
 
-  ClassDef(FWPartialConfigSaveGUI, 0);
+  ClassDefOverride(FWPartialConfigSaveGUI, 0);
 };
 
 

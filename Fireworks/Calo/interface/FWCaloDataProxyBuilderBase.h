@@ -35,19 +35,19 @@ class FWCaloDataProxyBuilderBase : public FWProxyBuilderBase
 {
 public:
    FWCaloDataProxyBuilderBase();
-   virtual ~FWCaloDataProxyBuilderBase();
+   ~FWCaloDataProxyBuilderBase() override;
 
    // ---------- const member functions ---------------------
 
-   virtual bool willHandleInteraction() const { return true; }
+   bool willHandleInteraction() const override { return true; }
 
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
 
 protected:
-   virtual void build(const FWEventItem* iItem,
-                      TEveElementList* product, const FWViewContext*);
+   void build(const FWEventItem* iItem,
+                      TEveElementList* product, const FWViewContext*) override;
 
    virtual void setCaloData(const fireworks::Context&) = 0;
    virtual void fillCaloData() = 0; 
@@ -56,17 +56,17 @@ protected:
    // ---------- member data --------------------------------
    TEveCaloData* m_caloData;
    Int_t m_sliceIndex;
-   virtual void itemBeingDestroyed(const FWEventItem*);
+   void itemBeingDestroyed(const FWEventItem*) override;
 
 private:
-   FWCaloDataProxyBuilderBase(const FWCaloDataProxyBuilderBase&); // stop default
+   FWCaloDataProxyBuilderBase(const FWCaloDataProxyBuilderBase&) = delete; // stop default
 
-   const FWCaloDataProxyBuilderBase& operator=(const FWCaloDataProxyBuilderBase&); // stop default
+   const FWCaloDataProxyBuilderBase& operator=(const FWCaloDataProxyBuilderBase&) = delete; // stop default
 
    // ---------- member data --------------------------------
 
 
-   virtual void modelChanges(const FWModelIds&, Product*);
+   void modelChanges(const FWModelIds&, Product*) override;
 
    void clearCaloDataSelection();
 };

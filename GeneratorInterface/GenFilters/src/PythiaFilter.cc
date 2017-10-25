@@ -46,7 +46,7 @@ PythiaFilter::~PythiaFilter()
 //
 
 // ------------ method called to produce the data  ------------
-bool PythiaFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool PythiaFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
    using namespace edm;
    bool accepted = false;
@@ -60,7 +60,7 @@ bool PythiaFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
 	   p != myGenEvent->particles_end(); ++p ) {
        HepMC::FourVector mom = MCFilterZboostHelper::zboost((*p)->momentum(),betaBoost);
-       rapidity = 0.5*log( (mom.e()+mom.pz()) / (mom.e()-mom.pz()) );
+       double rapidity = 0.5*log( (mom.e()+mom.pz()) / (mom.e()-mom.pz()) );
        
        if ( abs((*p)->pdg_id()) == particleID 
 	    && mom.rho() > minpcut 

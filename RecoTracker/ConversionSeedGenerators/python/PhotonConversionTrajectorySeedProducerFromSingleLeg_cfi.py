@@ -67,4 +67,10 @@ from Configuration.Eras.Modifier_peripheralPbPb_cff import peripheralPbPb
 peripheralPbPb.toModify(photonConvTrajSeedFromSingleLeg,
                         ClusterCheckPSet = dict(cut = "strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
                         )
-
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+pp_on_XeXe_2017.toModify(photonConvTrajSeedFromSingleLeg,
+                         ClusterCheckPSet = dict(MaxNumberOfPixelClusters = 100000,
+                                                 cut = "strip < 1000000 && pixel < 100000 && (strip < 50000 + 10*pixel) && (pixel < 5000 + strip/2.)"
+                                                 ),
+                         OrderedHitsFactoryPSet = dict(maxElement = 100000)
+                         )

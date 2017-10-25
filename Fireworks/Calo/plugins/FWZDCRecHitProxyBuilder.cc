@@ -14,13 +14,13 @@ class FWZDCRecHitProxyBuilder :  public FWCaloRecHitDigitSetProxyBuilder
 {
 public:
    FWZDCRecHitProxyBuilder( void ) {}  
-   virtual ~FWZDCRecHitProxyBuilder( void ) {}
+   ~FWZDCRecHitProxyBuilder( void ) override {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWZDCRecHitProxyBuilder( const FWZDCRecHitProxyBuilder& );
-   const FWZDCRecHitProxyBuilder& operator=( const FWZDCRecHitProxyBuilder& );	
+   FWZDCRecHitProxyBuilder( const FWZDCRecHitProxyBuilder& ) = delete;
+   const FWZDCRecHitProxyBuilder& operator=( const FWZDCRecHitProxyBuilder& ) = delete;	
 };
 
 

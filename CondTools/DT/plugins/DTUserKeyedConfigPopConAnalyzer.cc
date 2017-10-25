@@ -13,8 +13,8 @@ class DTUserKeyedConfigPopConAnalyzer: public popcon::PopConAnalyzer<DTUserKeyed
  public:
   DTUserKeyedConfigPopConAnalyzer(const edm::ParameterSet& pset):
     popcon::PopConAnalyzer<DTUserKeyedConfigHandler>( pset ) {}
-  virtual ~DTUserKeyedConfigPopConAnalyzer(){}
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& s) override{
+  ~DTUserKeyedConfigPopConAnalyzer() override{}
+  void analyze(const edm::Event& e, const edm::EventSetup& s) override{
 
     edm::ESHandle<cond::persistency::KeyList> klh;
     std::cout<<"got eshandle"<<std::endl;

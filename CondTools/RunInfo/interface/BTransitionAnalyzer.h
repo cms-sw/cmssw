@@ -25,10 +25,10 @@ namespace cond {
     // implicit copy constructor
     // implicit assignment operator
     // implicit destructor
-    virtual void beginJob() final {};
-    virtual void beginRun(edm::Run const&, edm::EventSetup const&) final {};
-    virtual void analyze(edm::Event const&, edm::EventSetup const&) final {};
-    virtual void endRun(edm::Run const& run , edm::EventSetup const& eventSetup) final {
+    void beginJob() final {};
+    void beginRun(edm::Run const&, edm::EventSetup const&) final {};
+    void analyze(edm::Event const&, edm::EventSetup const&) final {};
+    void endRun(edm::Run const& run , edm::EventSetup const& eventSetup) final {
       edm::ESHandle<RunInfo> runInfoHandle;
       edm::ESHandle<T> payloadHandle, payloadRefHandle;
       eventSetup.get<RunInfoRcd>().get(runInfoHandle);
@@ -62,7 +62,7 @@ namespace cond {
         edm::LogError( "BTransitionAnalyzer" ) << "PoolDBOutputService unavailable";
       }
     }
-    virtual void endJob() final {};
+    void endJob() final {};
     virtual bool equalPayloads( edm::ESHandle<T> const & payloadHandle, edm::ESHandle<T> const & payloadRefHandle ) = 0;
   private:
     double m_currentThreshold;

@@ -143,11 +143,11 @@ MuonCandidate::CandidateContainer L3MuonTrajectoryBuilder::trajectories(const Tr
   LogDebug(category) << "turn tkMatchedTracks into MuonCandidates";
   CandidateContainer tkTrajs;
   for (std::vector<TrackCand>::const_iterator tkt = trackerTracks.begin(); tkt != trackerTracks.end(); tkt++) {
-    if ((*tkt).first != 0 && (*tkt).first->isValid()) {
-      MuonCandidate* muonCand = new MuonCandidate( 0 ,staCand.second,(*tkt).second, new Trajectory(*(*tkt).first));
+    if ((*tkt).first != nullptr && (*tkt).first->isValid()) {
+      MuonCandidate* muonCand = new MuonCandidate( nullptr ,staCand.second,(*tkt).second, new Trajectory(*(*tkt).first));
       tkTrajs.push_back(muonCand);
     } else {
-      MuonCandidate* muonCand = new MuonCandidate( 0 ,staCand.second,(*tkt).second, 0);
+      MuonCandidate* muonCand = new MuonCandidate( nullptr ,staCand.second,(*tkt).second, nullptr);
       tkTrajs.push_back(muonCand);
     }
   }
@@ -161,7 +161,7 @@ MuonCandidate::CandidateContainer L3MuonTrajectoryBuilder::trajectories(const Tr
   LogDebug(category) << "Found "<< result.size() << " L3Muons from one L2Cand";
 
   // free memory
-  if ( staCandIn.first == 0) delete staCand.first;
+  if ( staCandIn.first == nullptr) delete staCand.first;
 
   for( CandidateContainer::const_iterator it = tkTrajs.begin(); it != tkTrajs.end(); ++it) {
     if ( (*it)->trajectory() ) delete (*it)->trajectory();
@@ -190,7 +190,7 @@ std::vector<L3MuonTrajectoryBuilder::TrackCand> L3MuonTrajectoryBuilder::makeTkC
 //    auto tkCand = TrackCand((Trajectory*)(0),tkTrack);
   for ( unsigned int position = 0; position != allTrackerTracks->size(); ++position ) {
     reco::TrackRef tkTrackRef(allTrackerTracks,position);
-    TrackCand tkCand = TrackCand((Trajectory*)(0),tkTrackRef);
+    TrackCand tkCand = TrackCand((Trajectory*)nullptr,tkTrackRef);
     tkCandColl.push_back(tkCand);
   }
 

@@ -28,8 +28,8 @@ double TrackAndHOLinker::testLink
     const reco::PFBlockElement* elem2) const {  
   constexpr reco::PFTrajectoryPoint::LayerType HOLayer =
     reco::PFTrajectoryPoint::HOLayer;
-  const reco::PFBlockElementTrack   *tkelem(NULL);
-  const reco::PFBlockElementCluster *hoelem(NULL);
+  const reco::PFBlockElementTrack   *tkelem(nullptr);
+  const reco::PFBlockElementCluster *hoelem(nullptr);
   double dist(-1.0);
   if( elem1->type() < elem2->type() ) {
     tkelem = static_cast<const reco::PFBlockElementTrack*>(elem1);

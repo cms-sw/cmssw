@@ -16,7 +16,7 @@ namespace {
 class  Chi2MeasurementEstimatorESProducer: public edm::ESProducer{
  public:
   Chi2MeasurementEstimatorESProducer(const edm::ParameterSet & p);
-  virtual ~Chi2MeasurementEstimatorESProducer();
+  ~Chi2MeasurementEstimatorESProducer() override;
   std::shared_ptr<Chi2MeasurementEstimatorBase> produce(const TrackingComponentsRecord &);
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);

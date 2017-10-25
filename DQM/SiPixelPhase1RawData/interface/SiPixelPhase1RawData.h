@@ -25,7 +25,7 @@ class SiPixelPhase1RawData : public SiPixelPhase1Base {
 
   public:
   explicit SiPixelPhase1RawData(const edm::ParameterSet& conf);
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   private:
   edm::EDGetTokenT<DetSetVector<SiPixelRawDataError>> srcToken_;

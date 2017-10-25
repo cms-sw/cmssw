@@ -33,9 +33,9 @@ class HLTJetTag : public HLTFilter {
 
   public:
     explicit HLTJetTag(const edm::ParameterSet & config);
-    ~HLTJetTag();
+    ~HLTJetTag() override;
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    virtual bool hltFilter(edm::Event & event, const edm::EventSetup & setup, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+    bool hltFilter(edm::Event & event, const edm::EventSetup & setup, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
 private:
   edm::InputTag                     m_Jets;      // module label of input JetCollection

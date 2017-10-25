@@ -47,11 +47,11 @@ class LA_Filler_Fitter {
   static std::string method(Method m,bool fit=true) { 
     switch(m) {
     case WIDTH: return      "_width_prof";
-    case PROB1: return fit? SymmetryFit::name(method(m,0)): "_prob_w1"   ;  
-    case AVGV2: return fit? SymmetryFit::name(method(m,0)): "_avg_var_w2";  
-    case AVGV3: return fit? SymmetryFit::name(method(m,0)): "_avg_var_w3";  
-    case RMSV2: return fit? SymmetryFit::name(method(m,0)): "_rms_var_w2";  
-    case RMSV3: return fit? SymmetryFit::name(method(m,0)): "_rms_var_w3";  
+    case PROB1: return fit? SymmetryFit::name(method(m,false)): "_prob_w1"   ;  
+    case AVGV2: return fit? SymmetryFit::name(method(m,false)): "_avg_var_w2";  
+    case AVGV3: return fit? SymmetryFit::name(method(m,false)): "_avg_var_w3";  
+    case RMSV2: return fit? SymmetryFit::name(method(m,false)): "_rms_var_w2";  
+    case RMSV3: return fit? SymmetryFit::name(method(m,false)): "_rms_var_w3";  
     default: return "_UNKNOWN";
     }
   }

@@ -15,24 +15,24 @@ public:
                       FontStruct_t font = GetDefaultFontStruct(),
                       UInt_t option = kSunkenFrame | kDoubleBorder,
                       Pixel_t back = GetWhitePixel());
-   FWNumberEntryField(const TGWindow *parent = 0,
+   FWNumberEntryField(const TGWindow *parent = nullptr,
                       Int_t id = -1, Double_t val = 0,
                       EStyle style = kNESReal,
                       EAttribute attr = kNEAAnyNumber,
                       ELimit limits = kNELNoLimits,
                       Double_t min = 0, Double_t max = 1);
 
-   virtual ~FWNumberEntryField() {}
+   ~FWNumberEntryField() override {}
 
-   virtual Bool_t HandleFocusChange(Event_t* event);
-   virtual void   ReturnPressed();
+   Bool_t HandleFocusChange(Event_t* event) override;
+   void   ReturnPressed() override;
 
    virtual UInt_t    GetUIntNumber();
    virtual void      SetUIntNumber(UInt_t n);
    virtual ULong64_t GetULong64Number();
    virtual void      SetULong64Number(ULong64_t n);
 
-   ClassDef(FWNumberEntryField, 0);
+   ClassDefOverride(FWNumberEntryField, 0);
 
 };
 #endif

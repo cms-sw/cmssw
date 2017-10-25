@@ -64,7 +64,7 @@ namespace cms
   public:
     //--- Constructor, virtual destructor (just in case)
     explicit SiPixelRecHitConverter(const edm::ParameterSet& conf);
-    virtual ~SiPixelRecHitConverter();
+    ~SiPixelRecHitConverter() override;
 
     //--- Factory method to make CPE's depending on the ParameterSet
     //--- Not sure if we need to make more than one CPE to run concurrently
@@ -75,7 +75,7 @@ namespace cms
     //--- realistic use case...
 
     //--- The top-level event method.
-    virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
+    void produce(edm::Event& e, const edm::EventSetup& c) override;
 
     //--- Execute the position estimator algorithm(s).
     //--- New interface with DetSetVector

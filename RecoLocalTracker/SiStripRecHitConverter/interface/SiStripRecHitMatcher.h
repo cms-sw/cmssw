@@ -212,7 +212,7 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
     
    // in case of no track hypothesis assume a track from the origin through the center of the strip
     if(notk){
-      LocalPoint lcenterofstrip=secondHit.localPositionFast();
+      const LocalPoint& lcenterofstrip=secondHit.localPositionFast();
       GlobalPoint gcenterofstrip= partnerStripDetTrans.toGlobal(lcenterofstrip);
       GlobalVector gtrackdirection=gcenterofstrip-GlobalPoint(0,0,0);
       trdir=gluedDetInvTrans.toLocal(gtrackdirection);
@@ -255,7 +255,7 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
     
     // in case of no track hypothesis assume a track from the origin through the center of the strip
     if(notk){
-      LocalPoint lcenterofstrip=monoRH.localPositionFast();
+      const LocalPoint& lcenterofstrip=monoRH.localPositionFast();
       GlobalPoint gcenterofstrip= stripDetTrans.toGlobal(lcenterofstrip);
       GlobalVector gtrackdirection=gcenterofstrip-GlobalPoint(0,0,0);
       trdir=gluedDetInvTrans.toLocal(gtrackdirection);

@@ -11,7 +11,7 @@ class ZMCHistogrammer : public edm::EDAnalyzer {
 public:
   ZMCHistogrammer(const edm::ParameterSet& pset);
 private:
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
   edm::EDGetTokenT<reco::CandidateView>  zToken_;
   edm::EDGetTokenT<reco::CandidateView>  genToken_;
   edm::EDGetTokenT<std::vector<reco::GenParticleRef> >  matchToken_;

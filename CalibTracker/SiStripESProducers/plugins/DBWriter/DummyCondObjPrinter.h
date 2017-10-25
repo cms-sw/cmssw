@@ -18,8 +18,8 @@ class DummyCondObjPrinter : public edm::EDAnalyzer {
 public:
 
   explicit DummyCondObjPrinter(const edm::ParameterSet& iConfig);
-  ~DummyCondObjPrinter();
-  void analyze(const edm::Event& e, const edm::EventSetup&es);
+  ~DummyCondObjPrinter() override;
+  void analyze(const edm::Event& e, const edm::EventSetup&es) override;
 
 
  private:

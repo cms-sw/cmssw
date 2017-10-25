@@ -20,11 +20,11 @@
 class ISRGammaWeightProducer : public edm::EDProducer {
    public:
       explicit ISRGammaWeightProducer(const edm::ParameterSet&);
-      ~ISRGammaWeightProducer();
+      ~ISRGammaWeightProducer() override;
 
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
    private:
       edm::EDGetTokenT<reco::GenParticleCollection> genToken_;
@@ -64,7 +64,7 @@ void ISRGammaWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&)
       (*weight) = 1.;
 
       // Find the boson at the hard scattering level
-      const reco::GenParticle* boson = 0;
+      const reco::GenParticle* boson = nullptr;
       int parton1Key = -1;
       int parton2Key = -1;
       for (unsigned int i = 0; i<gensize; ++i) {
@@ -82,10 +82,10 @@ void ISRGammaWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&)
       }
 
       // Consider only photons near the hard-scattering process
-      const reco::GenParticle* photon = 0;
+      const reco::GenParticle* photon = nullptr;
       if (boson) {
         for (unsigned int i = 0; i<gensize; ++i) {
-            photon = 0;
+            photon = nullptr;
             const reco::GenParticle& part = (*genParticles)[i];
             int status = abs(part.status());
             if (status!=1) continue;

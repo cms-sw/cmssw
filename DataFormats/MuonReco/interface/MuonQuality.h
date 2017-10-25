@@ -33,12 +33,12 @@ namespace reco {
       math::XYZPoint glbKink_position;
       
       MuonQuality():
-	updatedSta(0),
+	updatedSta(false),
 	trkKink(0), glbKink(0),
 	trkRelChi2(0), staRelChi2(0),
 	chi2LocalPosition(0),chi2LocalMomentum(0),
 	localDistance(0),globalDeltaEtaPhi(0),
-	tightMatch(0),glbTrackProbability(0)
+	tightMatch(false),glbTrackProbability(0)
       { }
        
     };

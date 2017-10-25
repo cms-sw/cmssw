@@ -40,7 +40,7 @@ namespace edm {
   public:
     enum DropMetaData { DropNone, DropDroppedPrior, DropPrior, DropAll };
     explicit PoolOutputModule(ParameterSet const& ps);
-    virtual ~PoolOutputModule();
+    ~PoolOutputModule() override;
     PoolOutputModule(PoolOutputModule const&) = delete; // Disallow copying and moving
     PoolOutputModule& operator=(PoolOutputModule const&) = delete; // Disallow copying and moving
     std::string const& fileName() const {return fileName_;}
@@ -126,23 +126,23 @@ namespace edm {
 
   protected:
     ///allow inheriting classes to override but still be able to call this method in the overridden version
-    virtual bool shouldWeCloseFile() const override;
-    virtual void write(EventForOutput const& e) override;
+    bool shouldWeCloseFile() const override;
+    void write(EventForOutput const& e) override;
 
     virtual std::pair<std::string, std::string> physicalAndLogicalNameForNewFile();
     virtual void doExtrasAfterCloseFile();
   private:
-    virtual void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const override;
+    void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const override;
 
-    virtual void openFile(FileBlock const& fb) override;
-    virtual void respondToOpenInputFile(FileBlock const& fb) override;
-    virtual void respondToCloseInputFile(FileBlock const& fb) override;
-    virtual void writeLuminosityBlock(LuminosityBlockForOutput const& lb) override;
-    virtual void writeRun(RunForOutput const& r) override;
-    virtual bool isFileOpen() const override;
+    void openFile(FileBlock const& fb) override;
+    void respondToOpenInputFile(FileBlock const& fb) override;
+    void respondToCloseInputFile(FileBlock const& fb) override;
+    void writeLuminosityBlock(LuminosityBlockForOutput const& lb) override;
+    void writeRun(RunForOutput const& r) override;
+    bool isFileOpen() const override;
     void reallyOpenFile();
-    virtual void reallyCloseFile() override;
-    virtual void beginJob() override;
+    void reallyCloseFile() override;
+    void beginJob() override;
 
     typedef std::map<BranchID, std::set<ParentageID> > BranchParents;
     void updateBranchParentsForOneBranch(ProductProvenanceRetriever const* provRetriever,

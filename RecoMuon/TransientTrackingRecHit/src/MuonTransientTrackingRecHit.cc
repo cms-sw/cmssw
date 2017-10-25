@@ -58,7 +58,7 @@ AlgebraicSymMatrix MuonTransientTrackingRecHit::parametersError() const {
   AlgebraicVector par = GenericTransientTrackingRecHit::parameters();
 
   const AlignmentPositionError* APE = det()->alignmentPositionError();
-  if (APE != NULL) {
+  if (APE != nullptr) {
     AlgebraicVector positions(2,0);
     AlgebraicVector directions(2,0);
 
@@ -167,7 +167,7 @@ TransientTrackingRecHit::ConstRecHitContainer MuonTransientTrackingRecHit::trans
   // the sub rec hit of this TransientRecHit
   std::vector<const TrackingRecHit*> ownRecHits = recHits();
 
-  if(ownRecHits.size() == 0){
+  if(ownRecHits.empty()){
     theSubTransientRecHits.push_back(TransientTrackingRecHit::RecHitPointer(clone()));
     return theSubTransientRecHits;
   }

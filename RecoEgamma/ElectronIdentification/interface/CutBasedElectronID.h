@@ -13,10 +13,10 @@ public:
   
   CutBasedElectronID(const edm::ParameterSet& conf,edm::ConsumesCollector & iC);
 
-  virtual ~CutBasedElectronID() {};
+  ~CutBasedElectronID() override {};
 
-  void setup(const edm::ParameterSet& conf);
-  double result(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&);
+  void setup(const edm::ParameterSet& conf) override;
+  double result(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&) override;
   double cicSelection(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&);
   double robustSelection(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&);
   int classify(const reco::GsfElectron*);

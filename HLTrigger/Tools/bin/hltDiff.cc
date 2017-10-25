@@ -10,7 +10,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
-#include <stdio.h>
+#include <cstdio>
 #include <iomanip>
 #include <memory>
 #include <algorithm>
@@ -88,7 +88,7 @@ public:
       }
     }
   }
-  virtual ~HLTConfigDataEx()  = default;
+  ~HLTConfigDataEx()  override = default;
   std::string const & processName() const override {
     return data_.processName();
   }
@@ -151,7 +151,7 @@ public:
       config_(config),
       index_(index)
     { }
-    virtual ~View()  = default;
+    ~View()  override = default;
     std::string const & processName() const override;
     unsigned int size() const override;
     unsigned int size(unsigned int trigger) const override;
@@ -731,7 +731,7 @@ public:
     
     JsonTriggerEventState& pushTrigger(int _tr) {
       // check whether the last trigger is the one
-      if (triggerStates.size() > 0) {
+      if (!triggerStates.empty()) {
         JsonTriggerEventState& lastTrigger = triggerStates.back();
         if (lastTrigger.tr == _tr)
           return lastTrigger;
@@ -754,11 +754,11 @@ public:
 
   JsonEvent& pushEvent(int _run, int _lumi, int _event) {
     // ensuring that this RUN is present in the producer
-    if ( (m_run_events.count(_run) == 0 && !useSingleOutFile) || m_run_events.size() == 0 )
+    if ( (m_run_events.count(_run) == 0 && !useSingleOutFile) || m_run_events.empty() )
       m_run_events.emplace(_run, std::vector<JsonEvent>());
     std::vector<JsonEvent>& v_events = useSingleOutFile ? m_run_events.begin()->second : m_run_events.at(_run);
     // check whether the last  event is the one
-    if (v_events.size() > 0) {
+    if (!v_events.empty()) {
       JsonEvent& lastEvent = v_events.back();
       if (lastEvent.run == _run && lastEvent.lumi == _lumi && lastEvent.event == _event)
         return lastEvent;
@@ -785,7 +785,7 @@ public:
     if (!writeJson) return;
     std::set<std::string> filesCreated;
     std::ofstream out_file;
-    if (m_run_events.size() > 0) {
+    if (!m_run_events.empty()) {
       // Creating a separate file for each run
       for (const auto& runEvents : m_run_events) {
         const int run = runEvents.first;
@@ -828,7 +828,7 @@ public:
       filesCreated.insert(output_name);
     }
 
-    if (filesCreated.size() > 0) {
+    if (!filesCreated.empty()) {
       std::cout << "Created the following JSON files:" << std::endl;
       for (const std::string& filename : filesCreated)
         std::cout << " " << filename << std::endl;
@@ -908,11 +908,11 @@ private:
     }
 
     bool keepForC() const { 
-      return v_changed.size() > 0;
+      return !v_changed.empty();
     }
 
     bool keepForGL() const {
-      return v_gained.size() > 0 || v_lost.size() > 0;
+      return !v_gained.empty() || !v_lost.empty();
     }
   };
   
@@ -1176,7 +1176,7 @@ public:
   void write() {
     std::vector<std::string> filesCreated;
     // Processing every run from the JSON producer
-    if (json.m_run_events.size() > 0) {
+    if (!json.m_run_events.empty()) {
       for (const auto& runEvents : json.m_run_events) {
         prepareSummaries(runEvents.first, runEvents.second);
         if (storeROOT) {
@@ -1197,7 +1197,7 @@ public:
       }
     }
 
-    if (filesCreated.size() > 0) {
+    if (!filesCreated.empty()) {
       std::cout << "Created the following summary files:" << std::endl;
       for (const std::string& filename : filesCreated)
         std::cout << " " << filename << std::endl;

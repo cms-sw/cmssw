@@ -46,14 +46,14 @@
 class CaloTowersMerger : public edm::EDProducer {
    public:
       explicit CaloTowersMerger(const edm::ParameterSet&);
-      ~CaloTowersMerger();
+      ~CaloTowersMerger() override;
 
   CaloTower mergedTower(const CaloTower& t1, const CaloTower& t2);
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       
       // ----------member data ---------------------------
 

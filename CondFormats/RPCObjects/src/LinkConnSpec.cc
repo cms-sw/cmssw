@@ -25,6 +25,6 @@ const LinkBoardSpec * LinkConnSpec::linkBoard( int linkBoardNumInLink) const
   for (IT it=theLBs.begin(); it != theLBs.end(); it++) {
     if(linkBoardNumInLink==it->linkBoardNumInLink()) return &(*it);
   }
-  return 0;
+  return nullptr;
 }
 

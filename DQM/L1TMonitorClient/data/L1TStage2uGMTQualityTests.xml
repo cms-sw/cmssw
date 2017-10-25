@@ -8,8 +8,8 @@
     <TYPE>ContentsXRange</TYPE>	
     <PARAM name="xmin">0</PARAM>
     <PARAM name="xmax">0</PARAM>
-    <PARAM name="error">0.30</PARAM>
-    <PARAM name="warning">0.50</PARAM>
+    <PARAM name="error">0.20</PARAM>
+    <PARAM name="warning">0.30</PARAM>
   </QTEST>
 
   <QTEST name="uGMT_MuonBXMeanAtBX0">
@@ -32,13 +32,6 @@
 
   <!-- uGMT Muon Eta -->
 
-  <QTEST name="uGMT_MuonEtaSpectrum">
-    <TYPE>Comp2RefKolmogorov</TYPE>	
-    <PARAM name="testparam">0</PARAM>
-    <PARAM name="error">0.30</PARAM>
-    <PARAM name="warning">0.70</PARAM>
-  </QTEST>
-
   <QTEST name="uGMT_MuonEtaMeanAt0">
     <TYPE>MeanWithinExpected</TYPE>
     <PARAM name="mean">0.0</PARAM>
@@ -53,7 +46,6 @@
   </QTEST>
   
   <LINK name="*/L1TStage2uGMT/ugmtMuonEta">
-      <TestName activate="true">uGMT_MuonEtaSpectrum</TestName>
       <TestName activate="true">uGMT_MuonEtaMeanAt0</TestName>
   </LINK>
 
@@ -67,32 +59,12 @@
     <PARAM name="warning">0.99</PARAM>
   </QTEST>
 
-  <QTEST name="uGMT_MuonPtSpectrum">
-    <TYPE>Comp2RefKolmogorov</TYPE>	
-    <PARAM name="testparam">0</PARAM>
-    <PARAM name="error">0.01</PARAM>
-    <PARAM name="warning">0.30</PARAM>
-  </QTEST>
-
   
   <LINK name="*/L1TStage2uGMT/ugmtMuonPt">
       <TestName activate="true">uGMT_MuonPtRange</TestName>
-      <TestName activate="true">uGMT_MuonPtSpectrum</TestName>
   </LINK>
 
   <!-- uGMT Muon Phi-Eta -->
-
-  <QTEST name="uGMT_MuonPhivsEtaSpectrum">
-    <TYPE>Comp2Ref2DChi2</TYPE>	
-    <PARAM name="testparam">0</PARAM>
-    <PARAM name="error">0.01</PARAM>
-    <PARAM name="warning">0.30</PARAM>
-    <PARAM name="minEntries">3100</PARAM>
-  </QTEST>
-  
-  <LINK name="*/L1TStage2uGMT/ugmtMuonPhivsEta">
-      <TestName activate="true">uGMT_MuonPhivsEtaSpectrum</TestName>
-  </LINK>
 
 
   <!-- uGMT BMTF Quality Tests -->
@@ -132,8 +104,8 @@
   <QTEST name="uGMT_BMTFhwPhiSpectrum">
     <TYPE>Comp2RefKolmogorov</TYPE>	
     <PARAM name="testparam">0</PARAM>
-    <PARAM name="error">0.30</PARAM>
-    <PARAM name="warning">0.70</PARAM>
+    <PARAM name="error">0.01</PARAM>
+    <PARAM name="warning">0.10</PARAM>
   </QTEST>
 
   
@@ -146,8 +118,8 @@
   <QTEST name="uGMT_BMTFhwEtaSpectrum">
     <TYPE>Comp2RefKolmogorov</TYPE>	
     <PARAM name="testparam">0</PARAM>
-    <PARAM name="error">0.30</PARAM>
-    <PARAM name="warning">0.70</PARAM>
+    <PARAM name="error">0.01</PARAM>
+    <PARAM name="warning">0.10</PARAM>
   </QTEST>
 
   <QTEST name="uGMT_BMTFhwEtaMeanAt0">
@@ -221,8 +193,8 @@
   <QTEST name="uGMT_OMTFhwPhiNegSpectrum">
     <TYPE>Comp2RefKolmogorov</TYPE>	
     <PARAM name="testparam">0</PARAM>
-    <PARAM name="error">0.30</PARAM>
-    <PARAM name="warning">0.70</PARAM>
+    <PARAM name="error">0.01</PARAM>
+    <PARAM name="warning">0.10</PARAM>
   </QTEST>
 
   
@@ -235,8 +207,8 @@
   <QTEST name="uGMT_OMTFhwPhiPosSpectrum" activate="true">
     <TYPE>Comp2RefKolmogorov</TYPE>	
     <PARAM name="testparam">0</PARAM>
-    <PARAM name="error">0.30</PARAM>
-    <PARAM name="warning">0.70</PARAM>
+    <PARAM name="error">0.01</PARAM>
+    <PARAM name="warning">0.10</PARAM>
   </QTEST>
 
   
@@ -249,8 +221,8 @@
   <QTEST name="uGMT_OMTFhwEtaSpectrum">
     <TYPE>Comp2RefKolmogorov</TYPE>	
     <PARAM name="testparam">0</PARAM>
-    <PARAM name="error">0.30</PARAM>
-    <PARAM name="warning">0.70</PARAM>
+    <PARAM name="error">0.01</PARAM>
+    <PARAM name="warning">0.04</PARAM>
   </QTEST>
 
   <QTEST name="uGMT_OMTFhwEtaMeanAt0">
@@ -281,17 +253,9 @@
     <PARAM name="error">0.98</PARAM>
     <PARAM name="warning">0.99</PARAM>
   </QTEST>
-
-  <QTEST name="uGMT_OMTFhwPtSpectrum">
-    <TYPE>Comp2RefKolmogorov</TYPE>	
-    <PARAM name="testparam">0</PARAM>
-    <PARAM name="error">0.30</PARAM>
-    <PARAM name="warning">0.70</PARAM>
-  </QTEST>
   
   <LINK name="*/L1TStage2uGMT/*/ugmtOMTFhwPt">
       <TestName activate="true">uGMT_OMTFhwPtRange</TestName>
-      <TestName activate="true">uGMT_OMTFhwPtSpectrum</TestName>
   </LINK>
 
   <!-- uGMT OMTF HW Sign -->
@@ -318,8 +282,8 @@
     <TYPE>ContentsXRange</TYPE>	
     <PARAM name="xmin">0</PARAM>
     <PARAM name="xmax">0</PARAM>
-    <PARAM name="error">0.30</PARAM>
-    <PARAM name="warning">0.50</PARAM>
+    <PARAM name="error">0.20</PARAM>
+    <PARAM name="warning">0.30</PARAM>
   </QTEST>
 
   <QTEST name="uGMT_EMTFBXMeanAtBX0">
@@ -328,8 +292,8 @@
     <PARAM name="useRMS">0</PARAM>
     <PARAM name="useSigma">0</PARAM>
     <PARAM name="useRange">1</PARAM>
-    <PARAM name="xmin">-0.05</PARAM>
-    <PARAM name="xmax">0.05</PARAM>
+    <PARAM name="xmin">-0.15</PARAM>
+    <PARAM name="xmax">0.15</PARAM>
     <PARAM name="error">0.95</PARAM>
     <PARAM name="warning">0.99</PARAM>
     <PARAM name="minEntries">20</PARAM>
@@ -344,10 +308,10 @@
   <!-- uGMT EMTF Muon Phi -->
 
   <QTEST name="uGMT_EMTFMuonPhiSpectrum">
-    <TYPE>Comp2RefKolmogorov</TYPE>	
+    <TYPE>Comp2RefChi2</TYPE>	
     <PARAM name="testparam">0</PARAM>
-    <PARAM name="error">0.10</PARAM>
-    <PARAM name="warning">0.50</PARAM>
+    <PARAM name="error">0.01</PARAM>
+    <PARAM name="warning">0.10</PARAM>
   </QTEST>
 
   <QTEST name="uGMT_EMTFMuonPhiMeanAt0">

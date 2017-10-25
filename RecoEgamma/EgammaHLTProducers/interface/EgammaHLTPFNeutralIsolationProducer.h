@@ -32,7 +32,7 @@ namespace edm {
 class EgammaHLTPFNeutralIsolationProducer : public edm::EDProducer {
  public:
   explicit EgammaHLTPFNeutralIsolationProducer(const edm::ParameterSet&);
-  ~EgammaHLTPFNeutralIsolationProducer() {};    
+  ~EgammaHLTPFNeutralIsolationProducer() override {};    
       
   void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);

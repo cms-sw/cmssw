@@ -51,16 +51,16 @@ class TtDilepEvtSolution {
   // get the matched gen particles
   //-------------------------------------------
   const edm::RefProd<TtGenEvent> & getGenEvent() const { return theGenEvt_; };
-  const reco::GenParticle * getGenT() const { if (!theGenEvt_) return 0; else return theGenEvt_->top(); };
-  const reco::GenParticle * getGenWp() const { if (!theGenEvt_) return 0; else return theGenEvt_->wPlus(); };
-  const reco::GenParticle * getGenB() const { if (!theGenEvt_) return 0; else return theGenEvt_->b(); };
-  const reco::GenParticle * getGenLepp() const { if (!theGenEvt_) return 0; else return theGenEvt_->leptonBar(); };
-  const reco::GenParticle * getGenN() const { if (!theGenEvt_) return 0; else return theGenEvt_->neutrino(); };
-  const reco::GenParticle * getGenTbar() const { if (!theGenEvt_) return 0; else return theGenEvt_->topBar(); };
-  const reco::GenParticle * getGenWm() const { if (!theGenEvt_) return 0; else return theGenEvt_->wMinus(); };
-  const reco::GenParticle * getGenBbar() const { if (!theGenEvt_) return 0; else return theGenEvt_->bBar(); };
-  const reco::GenParticle * getGenLepm() const { if (!theGenEvt_) return 0; else return theGenEvt_->lepton(); };
-  const reco::GenParticle * getGenNbar() const { if (!theGenEvt_) return 0; else return theGenEvt_->neutrinoBar(); };
+  const reco::GenParticle * getGenT() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->top(); };
+  const reco::GenParticle * getGenWp() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->wPlus(); };
+  const reco::GenParticle * getGenB() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->b(); };
+  const reco::GenParticle * getGenLepp() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->leptonBar(); };
+  const reco::GenParticle * getGenN() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->neutrino(); };
+  const reco::GenParticle * getGenTbar() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->topBar(); };
+  const reco::GenParticle * getGenWm() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->wMinus(); };
+  const reco::GenParticle * getGenBbar() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->bBar(); };
+  const reco::GenParticle * getGenLepm() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->lepton(); };
+  const reco::GenParticle * getGenNbar() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->neutrinoBar(); };
 
   //-------------------------------------------
   // get (un-)/calibrated reco objects

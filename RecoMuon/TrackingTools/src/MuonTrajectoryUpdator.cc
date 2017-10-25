@@ -216,7 +216,7 @@ MuonTrajectoryUpdator::propagateState(const TrajectoryStateOnSurface& state,
 				      const TransientTrackingRecHit::ConstRecHitPointer  & current,
 				      const Propagator *propagator) const{
 
-  const TransientTrackingRecHit::ConstRecHitPointer mother = measurement->recHit();
+  const TransientTrackingRecHit::ConstRecHitPointer& mother = measurement->recHit();
 
   if( current->geographicalId() == mother->geographicalId() )
     return measurement->predictedState();

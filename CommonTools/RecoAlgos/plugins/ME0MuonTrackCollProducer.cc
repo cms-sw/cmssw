@@ -30,10 +30,10 @@ class ME0MuonTrackCollProducer : public edm::stream::EDProducer<> {
 public:
   explicit ME0MuonTrackCollProducer(const edm::ParameterSet&);
   //std::vector<double> findSimVtx(edm::Event& iEvent);
-  ~ME0MuonTrackCollProducer();
+  ~ME0MuonTrackCollProducer() override;
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   edm::Handle <std::vector<reco::ME0Muon> > OurMuons;
   //edm::Handle<reco::ME0MuonCollection> muonCollectionH;
   edm::InputTag OurMuonsTag;

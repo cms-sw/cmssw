@@ -53,12 +53,12 @@ namespace reco {
 class CentralityProducer : public edm::EDProducer {
    public:
       explicit CentralityProducer(const edm::ParameterSet&);
-      ~CentralityProducer();
+      ~CentralityProducer() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       
       // ----------member data ---------------------------
 
@@ -348,7 +348,7 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if( daughter > (*recoVertices)[greatestvtx].tracksSize()) greatestvtx = i;
      }
 
-     if(recoVertices->size()>0){
+     if(!recoVertices->empty()){
       vx = (*recoVertices)[greatestvtx].position().x();
       vy = (*recoVertices)[greatestvtx].position().y();
       vz = (*recoVertices)[greatestvtx].position().z();

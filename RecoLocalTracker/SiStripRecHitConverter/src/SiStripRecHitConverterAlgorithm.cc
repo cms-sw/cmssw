@@ -329,6 +329,6 @@ bool SiStripRecHitConverterAlgorithm::
 useModule(const uint32_t id) const
 {
   const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)tracker->idToDetUnit(id);
-  if(stripdet==0) edm::LogWarning("SiStripRecHitConverter") << "Detid=" << id << " not found";
-  return stripdet!=0 && (!useQuality || quality->IsModuleUsable(id));
+  if(stripdet==nullptr) edm::LogWarning("SiStripRecHitConverter") << "Detid=" << id << " not found";
+  return stripdet!=nullptr && (!useQuality || quality->IsModuleUsable(id));
 }

@@ -13,7 +13,7 @@
 // system include files
 #include "TClass.h"
 #include "TROOT.h"
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 #include <boost/bind.hpp>
 
@@ -35,9 +35,9 @@
 // constructors and destructor
 //
 FWViewManagerBase::FWViewManagerBase() :
-   m_context(0),
-   m_changeManager(0),
-   m_colorManager(0)
+   m_context(nullptr),
+   m_changeManager(nullptr),
+   m_colorManager(nullptr)
 {
 }
 
@@ -71,11 +71,11 @@ FWViewManagerBase::createInstanceOf(const TClass* iBaseClass,
 {
    //create proxy builders
    Int_t error;
-   assert(iBaseClass !=0);
+   assert(iBaseClass !=nullptr);
 
    //does the class already exist?
    TClass *c = TClass::GetClass( iNameOfClass );
-   if(0==c) {
+   if(nullptr==c) {
       //try to load a macro of that name
 
       //How can I tell if this succeeds or failes? error and value are always 0!
@@ -83,16 +83,16 @@ FWViewManagerBase::createInstanceOf(const TClass* iBaseClass,
       // Int_t value =
       gROOT->LoadMacro( (std::string(iNameOfClass)+".C+").c_str(), &error );
       c = TClass::GetClass( iNameOfClass );
-      if(0==c ) {
+      if(nullptr==c ) {
          std::cerr <<"failed to find "<< iNameOfClass << std::endl;
-         return 0;
+         return nullptr;
       }
    }
    void* inst = c->New();
    void* baseClassInst = c->DynamicCast(iBaseClass,inst);
-   if(0==baseClassInst) {
+   if(nullptr==baseClassInst) {
       std::cerr<<"conversion to "<<iBaseClass->ClassName() << " for class " << iNameOfClass << " failed"<<std::endl;
-      return 0;
+      return nullptr;
    }
    return baseClassInst;
 }
@@ -119,7 +119,7 @@ FWViewManagerBase::colorsChangedSlot()
 void
 FWViewManagerBase::setChangeManager(FWModelChangeManager* iCM)
 {
-   assert(0!=iCM);
+   assert(nullptr!=iCM);
    m_changeManager = iCM;
    m_changeManager->changeSignalsAreComing_.connect(boost::bind(&FWViewManagerBase::modelChangesComing,this));
    m_changeManager->changeSignalsAreDone_.connect(boost::bind(&FWViewManagerBase::modelChangesDone,this));
@@ -128,7 +128,7 @@ FWViewManagerBase::setChangeManager(FWModelChangeManager* iCM)
 void
 FWViewManagerBase::setColorManager(FWColorManager* iCM)
 {
-   assert(0!= iCM);
+   assert(nullptr!= iCM);
    m_colorManager = iCM;
    m_colorManager->colorsHaveChanged_.connect(boost::bind(&FWViewManagerBase::colorsChanged,this));
    //make sure to pickup any changes that occurred earlier
@@ -142,14 +142,14 @@ FWViewManagerBase::setColorManager(FWColorManager* iCM)
 FWModelChangeManager&
 FWViewManagerBase::changeManager() const
 {
-   assert(m_changeManager != 0);
+   assert(m_changeManager != nullptr);
    return *m_changeManager;
 }
 
 FWColorManager&
 FWViewManagerBase::colorManager() const
 {
-   assert(m_colorManager !=0);
+   assert(m_colorManager !=nullptr);
    return *m_colorManager;
 }
 

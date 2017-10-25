@@ -26,7 +26,7 @@ public:
   /// Constructor
   explicit ME0SegmentProducer(const edm::ParameterSet&);
   /// Destructor
-  virtual ~ME0SegmentProducer() {}
+  ~ME0SegmentProducer() override {}
   /// Produce the ME0Segment collection
   void produce(edm::Event&, const edm::EventSetup&) override;
 

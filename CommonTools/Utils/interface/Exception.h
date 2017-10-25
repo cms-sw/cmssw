@@ -56,10 +56,10 @@ namespace reco {
          Exception(const Exception& iOther) : BaseException(iOther) {
             ost_ << iOther.ost_.str();
          }
-         ~Exception() throw() {}
+         ~Exception() throw() override {}
 
          // ---------- const member functions ---------------------
-         const char* what() const throw() { what_ = ost_.str(); return what_.c_str();}
+         const char* what() const throw() override { what_ = ost_.str(); return what_.c_str();}
 
          // ---------- static member functions --------------------
 

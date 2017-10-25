@@ -84,10 +84,16 @@ from DQMOffline.Trigger.JetMETPromptMonitor_cff import *
 
 # offline DQM for running also on AOD (w/o the need of the RECO step on-the-fly)
 ## ADD here sequences/modules which rely ONLY on collections stored in the AOD format
+
+egHLTOffDQMSource_HEP17 = egHLTOffDQMSource.clone()
+egHLTOffDQMSource_HEP17.subDQMDirName=cms.string('HEP17')
+egHLTOffDQMSource_HEP17.doHEP =cms.bool(True)
+
 offlineHLTSourceOnAOD = cms.Sequence(
     hltResults *
     lumiMonitorHLTsequence *
     egHLTOffDQMSource * ## NEEDED in VALIDATION, not really in MONITORING
+    egHLTOffDQMSource_HEP17 * ## NEEDED in VALIDATION, not really in MONITORING
     muonFullOfflineDQM *
     HLTTauDQMOffline *
     fsqHLTOfflineSourceSequence *

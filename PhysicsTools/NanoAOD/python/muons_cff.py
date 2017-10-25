@@ -6,7 +6,7 @@ from PhysicsTools.NanoAOD.common_cff import *
 isoForMu = cms.EDProducer("MuonIsoValueMapProducer",
     src = cms.InputTag("slimmedMuons"),
     relative = cms.bool(False),
-    rho_MiniIso = cms.InputTag("fixedGridRhoFastjetCentralNeutral"),
+    rho_MiniIso = cms.InputTag("fixedGridRhoFastjetAll"),
     EAFile_MiniIso = cms.FileInPath("PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_80X.txt"),
 )
 

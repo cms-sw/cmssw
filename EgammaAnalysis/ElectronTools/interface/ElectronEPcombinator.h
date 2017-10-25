@@ -2,8 +2,8 @@
 #define ElectronEPcombinator_H
 
 #include "EgammaAnalysis/ElectronTools/interface/SimpleElectron.h"
-#include <stdio.h>
-#include <math.h>
+#include <cstdio>
+#include <cmath>
 
 class ElectronEPcombinator
 {

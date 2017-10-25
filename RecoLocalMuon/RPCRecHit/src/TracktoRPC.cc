@@ -113,7 +113,7 @@ for(trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(
              const GlobalPoint dcPoint = DTSurface.toGlobal(LocalPoint(0.,0.,0.));
 
              TrajectoryMeasurement tMt = trajectory->closestMeasurement(dcPoint);
-             TrajectoryStateOnSurface upd2 = (tMt).updatedState();
+             const TrajectoryStateOnSurface& upd2 = (tMt).updatedState();
              if(upd2.isValid())
              {
                 LocalPoint trajLP = upd2.localPosition();
@@ -162,7 +162,7 @@ for(trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(
              const GlobalPoint dcPoint = CSCSurface.toGlobal(LocalPoint(0.,0.,0.));
 
              TrajectoryMeasurement tMt = trajectory->closestMeasurement(dcPoint);
-             TrajectoryStateOnSurface upd2 = (tMt).updatedState();
+             const TrajectoryStateOnSurface& upd2 = (tMt).updatedState();
 
              if(upd2.isValid() && cscid.station()!=4 && cscid.ring()!=1 )
              {
@@ -297,7 +297,7 @@ for(trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(
               const GlobalPoint dcPoint = DTSurface.toGlobal(LocalPoint(0.,0.,0.));
 
               TrajectoryMeasurement tMt = trajectory->closestMeasurement(dcPoint);
-              TrajectoryStateOnSurface upd2 = (tMt).updatedState();
+              const TrajectoryStateOnSurface& upd2 = (tMt).updatedState();
               if(upd2.isValid())
               {
                  TrajectoryStateOnSurface ptss =  thePropagator->propagate(upd2, rpcGeo->idToDet(*rpcroll2)->surface());
@@ -349,7 +349,7 @@ for(trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(
               const GlobalPoint dcPoint = CSCSurface.toGlobal(LocalPoint(0.,0.,0.));
 
               TrajectoryMeasurement tMt = trajectory->closestMeasurement(dcPoint);
-              TrajectoryStateOnSurface upd2 = (tMt).updatedState();
+              const TrajectoryStateOnSurface& upd2 = (tMt).updatedState();
               if(upd2.isValid())  
               {
                  TrajectoryStateOnSurface ptss =  thePropagator->propagate(upd2, rpcGeo->idToDet(*rpcroll2)->surface());

@@ -55,3 +55,7 @@ inclusiveCandidateVertexingCvsLTask = cms.Task(inclusiveCandidateVertexFinderCvs
                                                candidateVertexArbitratorCvsL,
                                                inclusiveCandidateSecondaryVerticesCvsL)
 inclusiveCandidateVertexingCvsL = cms.Sequence(inclusiveCandidateVertexingCvsLTask)
+
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+pp_on_XeXe_2017.toModify(inclusiveVertexFinder, minHits = 10, minPt = 1.0)
+pp_on_XeXe_2017.toModify(inclusiveCandidateVertexFinderCvsL, minHits = 10, minPt = 1.0)

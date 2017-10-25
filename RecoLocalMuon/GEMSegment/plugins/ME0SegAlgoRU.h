@@ -53,12 +53,12 @@ public:
 	/// Constructor
 	explicit ME0SegAlgoRU(const edm::ParameterSet& ps);
 	/// Destructor
-	virtual ~ME0SegAlgoRU() {};
+	~ME0SegAlgoRU() override {};
 
 	/**
 	 * Here we must implement the algorithm
 	 */
-	std::vector<ME0Segment> run(const ME0Chamber * chamber, const HitAndPositionContainer& rechits);
+	std::vector<ME0Segment> run(const ME0Chamber * chamber, const HitAndPositionContainer& rechits) override;
 
 private:
 

@@ -47,15 +47,15 @@ SiStripGainsPCLWorker::SiStripGainsPCLWorker(const edm::ParameterSet& iConfig) :
   dqm_tag_.push_back( "IsoMuon0T" );     // statistic collection from Isolated Muon @ 0 T
   dqm_tag_.push_back( "Harvest" );       // statistic collection: Harvest
   
-  Charge_Vs_Index.insert( Charge_Vs_Index.begin(), dqm_tag_.size(), 0);
-  Charge_Vs_PathlengthTIB.insert( Charge_Vs_PathlengthTIB.begin(), dqm_tag_.size(), 0);
-  Charge_Vs_PathlengthTOB.insert( Charge_Vs_PathlengthTOB.begin(), dqm_tag_.size(), 0);
-  Charge_Vs_PathlengthTIDP.insert( Charge_Vs_PathlengthTIDP.begin(), dqm_tag_.size(), 0);
-  Charge_Vs_PathlengthTIDM.insert( Charge_Vs_PathlengthTIDM.begin(), dqm_tag_.size(), 0);
-  Charge_Vs_PathlengthTECP1.insert( Charge_Vs_PathlengthTECP1.begin(), dqm_tag_.size(), 0);
-  Charge_Vs_PathlengthTECP2.insert( Charge_Vs_PathlengthTECP2.begin(), dqm_tag_.size(), 0);
-  Charge_Vs_PathlengthTECM1.insert( Charge_Vs_PathlengthTECM1.begin(), dqm_tag_.size(), 0);
-  Charge_Vs_PathlengthTECM2.insert( Charge_Vs_PathlengthTECM2.begin(), dqm_tag_.size(), 0);
+  Charge_Vs_Index.insert( Charge_Vs_Index.begin(), dqm_tag_.size(), nullptr);
+  Charge_Vs_PathlengthTIB.insert( Charge_Vs_PathlengthTIB.begin(), dqm_tag_.size(), nullptr);
+  Charge_Vs_PathlengthTOB.insert( Charge_Vs_PathlengthTOB.begin(), dqm_tag_.size(), nullptr);
+  Charge_Vs_PathlengthTIDP.insert( Charge_Vs_PathlengthTIDP.begin(), dqm_tag_.size(), nullptr);
+  Charge_Vs_PathlengthTIDM.insert( Charge_Vs_PathlengthTIDM.begin(), dqm_tag_.size(), nullptr);
+  Charge_Vs_PathlengthTECP1.insert( Charge_Vs_PathlengthTECP1.begin(), dqm_tag_.size(), nullptr);
+  Charge_Vs_PathlengthTECP2.insert( Charge_Vs_PathlengthTECP2.begin(), dqm_tag_.size(), nullptr);
+  Charge_Vs_PathlengthTECM1.insert( Charge_Vs_PathlengthTECM1.begin(), dqm_tag_.size(), nullptr);
+  Charge_Vs_PathlengthTECM2.insert( Charge_Vs_PathlengthTECM2.begin(), dqm_tag_.size(), nullptr);
 
   // configure token for gathering the ntuple variables 
   edm::ParameterSet swhallowgain_pset = iConfig.getUntrackedParameter<edm::ParameterSet>("gain");
@@ -502,7 +502,7 @@ SiStripGainsPCLWorker::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
   ibooker.setCurrentFolder(dqm_dir);
  
   std::string stag(tag);
-  if(stag.size()!=0 && stag[0]!='_') stag.insert(0,1,'_');
+  if(!stag.empty() && stag[0]!='_') stag.insert(0,1,'_');
   
   std::string cvi      = std::string("Charge_Vs_Index") + stag;
   std::string cvpTIB   = std::string("Charge_Vs_PathlengthTIB")   + stag;

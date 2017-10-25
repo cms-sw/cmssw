@@ -184,7 +184,7 @@ int MuonCSCSeedFromRecHits::segmentQuality(ConstMuonRecHitPointer  segment) cons
 MuonCSCSeedFromRecHits::ConstMuonRecHitPointer
 MuonCSCSeedFromRecHits::bestEndcapHit(const MuonRecHitContainer & endcapHits) const
 {
-  MuonRecHitPointer me1=0, meit=0;
+  MuonRecHitPointer me1=nullptr, meit=nullptr;
   float dPhiGloDir = .0;                            //  +v
   float bestdPhiGloDir = M_PI;                      //  +v
   int quality1 = 0, quality = 0;        //  +v  I= 5,6-p. / II= 4p.  / III= 3p.

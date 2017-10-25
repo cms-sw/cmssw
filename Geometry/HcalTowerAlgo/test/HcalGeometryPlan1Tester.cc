@@ -41,16 +41,18 @@ void HcalGeometryPlan1Tester::analyze(const edm::Event& /*iEvent*/,
   edm::ESHandle<HcalTopology> topologyHandle;
   iSetup.get<HcalRecNumberingRecord>().get(topologyHandle);
   const HcalTopology topology = (*topologyHandle);
-  HcalGeometry* geom(nullptr);
+  //  HcalGeometry* geom(nullptr);
+  const CaloSubdetectorGeometry* geom(nullptr);
   if (geomES_) {
     edm::ESHandle<CaloGeometry> pG;
     iSetup.get<CaloGeometryRecord>().get(pG);
     const CaloGeometry* geo = pG.product();
-    geom = (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
+    geom = (geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
   } else {
     HcalFlexiHardcodeGeometryLoader m_loader(ps0_);
-    geom = (HcalGeometry*)(m_loader.load(topology, hcons));
+    geom = (m_loader.load(topology, hcons));
   }
+  //  geom  = (HcalGeometry*)(geom0);
 
   std::vector<HcalDetId> idsp;
   bool ok = hcons.specialRBXHBHE(true,idsp);
@@ -62,15 +64,22 @@ void HcalGeometryPlan1Tester::analyze(const edm::Event& /*iEvent*/,
     if (topology.valid(*itr)) {
       ++nall;
       HcalDetId idnew = hcons.mergedDepthDetId(*itr);
-      GlobalPoint pt1 = geom->getGeometry(*itr)->getPosition();
-      GlobalPoint pt2 = geom->getPosition(idnew);
-      double     deta = pt1.eta() - pt2.eta();
-      double     dphi = pt1.phi() - pt2.phi();
-      ok              = (std::abs(deta)<0.00001) && (std::abs(dphi)<0.00001);
+      GlobalPoint pt1 = ((HcalGeometry*)(geom))->getGeometryBase(*itr)->getPosition();
+      GlobalPoint pt2 = geom->getGeometry(idnew)->getPosition();
+      GlobalPoint pt0 = ((HcalGeometry*)(geom))->getPosition(idnew);
+      double     deta = std::abs(pt1.eta() - pt2.eta());
+      double     dphi = std::abs(pt1.phi() - pt2.phi());
+      if (dphi > M_PI) dphi -= (2*M_PI);
+      ok              = (deta<0.00001) && (dphi<0.00001);
+      deta = std::abs(pt0.eta() - pt2.eta());
+      dphi = std::abs(pt0.phi() - pt2.phi());
+      if (dphi > M_PI) dphi -= (2*M_PI);
+      if ((deta>0.00001) || (dphi>0.00001)) ok = false;
       std::cout << "Unmerged ID " << (*itr) << " (" << pt1.eta() << ", " 
 		<< pt1.phi() << ", " << pt1.z() << ") Merged ID " << idnew
 		<< " (" << pt2.eta() << ", " << pt2.phi() << ", " << pt2.z()
-		<< ") ";
+		<< ") or (" << pt0.eta() << ", " << pt0.phi() << ", " 
+		<< pt0.z() << ")";
       if (ok) ++ngood;
       else    std::cout << " ***** ERROR *****";
       std::cout << std::endl;

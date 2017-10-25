@@ -118,7 +118,7 @@ EcalUncalibRecHitWorkerAnalFit::run( const edm::Event& evt,
         gainRatios[2] = aGain.gain6Over1()*aGain.gain12Over6();
 
         if ( detid.subdetId() == EcalBarrel ) {
-                EcalUncalibratedRecHit aHit = algoEB_.makeRecHit(*itdg, pedVec, gainRatios, 0 ,0);
+                EcalUncalibratedRecHit aHit = algoEB_.makeRecHit(*itdg, pedVec, gainRatios, nullptr ,nullptr);
                 result.push_back( aHit );
                 if(aHit.amplitude()>0.) {
                         LogDebug("EcalUncalibRecHitInfo") << "EcalUncalibRecHitWorkerAnalFit: processed EBDataFrame with id: "
@@ -126,7 +126,7 @@ EcalUncalibRecHitWorkerAnalFit::run( const edm::Event& evt,
                                 << "\n" << "uncalib rechit amplitude: " << aHit.amplitude();
                 }
         } else {
-                EcalUncalibratedRecHit aHit = algoEE_.makeRecHit(*itdg, pedVec, gainRatios, 0, 0);
+                EcalUncalibratedRecHit aHit = algoEE_.makeRecHit(*itdg, pedVec, gainRatios, nullptr, nullptr);
                 result.push_back( aHit );
                 if(aHit.amplitude()>0.) {
                         LogDebug("EcalUncalibRecHitInfo") << "EcalUncalibRecHitWorkerAnalFit: processed EEDataFrame with id: "

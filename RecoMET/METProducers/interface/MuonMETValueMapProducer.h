@@ -40,10 +40,10 @@ class MuonMETValueMapProducer : public edm::stream::EDProducer<>
 {
 public:
   explicit MuonMETValueMapProducer(const edm::ParameterSet&);
-  ~MuonMETValueMapProducer() { }
+  ~MuonMETValueMapProducer() override { }
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   void determine_deltax_deltay(double& deltax, double& deltay, const reco::Muon& muon, double bfield, edm::Event& iEvent, const edm::EventSetup& iSetup);
   reco::MuonMETCorrectionData::Type decide_correction_type(const reco::Muon& muon, const math::XYZPoint &beamSpotPosition);

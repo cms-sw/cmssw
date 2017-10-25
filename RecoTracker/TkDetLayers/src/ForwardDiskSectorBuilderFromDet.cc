@@ -48,7 +48,7 @@ ForwardDiskSectorBuilderFromDet::computeBounds( const vector<const GeomDet*>& de
   for (vector<const GeomDet*>::const_iterator idet=dets.begin();
        idet != dets.end(); idet++) {
     vector<const GeomDet*> detUnits = (**idet).components();
-    if( detUnits.size() ){
+    if( !detUnits.empty() ){
       for (vector<const GeomDet*>::const_iterator detu=detUnits.begin();
 	   detu!=detUnits.end(); detu++) {
 	// edm::LogInfo(TkDetLayers) << " Builder: Position of detUnit :"<< (**detu).position() ;      

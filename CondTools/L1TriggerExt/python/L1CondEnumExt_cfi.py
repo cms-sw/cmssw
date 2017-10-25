@@ -6,9 +6,10 @@ class L1CondEnumExt:
     L1TUtmTriggerMenu=2
     L1TMuonBarrelParams=3
     L1TMuonOverlapParams=4
-    L1TMuonEndcapParams=5
+    L1TMuonEndCapParams=5
     L1TMuonGlobalParams=6
     L1TCaloParams=7
     L1TGlobalPrescalesVetos=8
-    NumL1Cond=9
+    L1TMuonEndCapForest=9
+    NumL1Cond=10
     

@@ -8,8 +8,8 @@ class BaseGeomException : public std::exception {
 public:
   BaseGeomException() throw() {}
   BaseGeomException( const std::string& message) : theMessage(message) {}
-  virtual ~BaseGeomException() throw() {}
-  virtual const char* what() const throw() { return theMessage.c_str();}
+  ~BaseGeomException() throw() override {}
+  const char* what() const throw() override { return theMessage.c_str();}
 private:
   std::string theMessage;
 };
@@ -18,7 +18,7 @@ class GeometryError : public BaseGeomException {
 public:
   GeometryError() throw() {}
   GeometryError( const std::string& message) : BaseGeomException(message) {}
-  virtual ~GeometryError() throw() {}
+  ~GeometryError() throw() override {}
 };
 
 #endif

@@ -235,7 +235,7 @@ void L1TRate_Offline::endLuminosityBlock(LuminosityBlock const& lumiBlock, Event
   unsigned int         prescalesIndex=0;
 
   bool isDefCount;
-  map<TString,double>* counts=0;
+  map<TString,double>* counts=nullptr;
 
   // Resetting MonitorElements so we can refill them
   for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
@@ -359,7 +359,7 @@ void L1TRate_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
   unsigned int eventLS  = iEvent.id().luminosityBlock();
 
   // Getting the trigger trigger rates from GT and buffering it
-  if(triggerScalers.isValid() && triggerScalers->size()){
+  if(triggerScalers.isValid() && !triggerScalers->empty()){
 
     Level1TriggerScalersCollection::const_iterator itL1TScalers = triggerScalers->begin();
     Level1TriggerRates trigRates(*itL1TScalers,EventRun);
@@ -406,7 +406,7 @@ void L1TRate_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
 
 
   // Getting from the SCAL the luminosity information and buffering it
-  if(colLScal.isValid() && colLScal->size()){
+  if(colLScal.isValid() && !colLScal->empty()){
 
     LumiScalersCollection::const_iterator itLScal = colLScal->begin();
     unsigned int scalLS  = itLScal->sectionNumber();
@@ -464,7 +464,7 @@ void L1TRate_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
         if(gtFdlVectorData[i].bxInEvent()==0){indexFDL=i; break;}
       }
 
-      if(gtFdlVectorData.size() != 0)
+      if(!gtFdlVectorData.empty())
         {
 	  int CurrentPrescalesIndex  = gtFdlVectorData[indexFDL].gtPrescaleFactorIndexAlgo(); // <###### WE NEED TO STORE THIS
 	  m_lsPrescaleIndex[eventLS] = CurrentPrescalesIndex;

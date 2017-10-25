@@ -45,9 +45,9 @@ public:
    // ---------- member functions ---------------------------
 
 private:
-   FWRepresentationCheckerBase(const FWRepresentationCheckerBase&); // stop default
+   FWRepresentationCheckerBase(const FWRepresentationCheckerBase&) = delete; // stop default
 
-   const FWRepresentationCheckerBase& operator=(const FWRepresentationCheckerBase&); // stop default
+   const FWRepresentationCheckerBase& operator=(const FWRepresentationCheckerBase&) = delete; // stop default
 
    // ---------- member data --------------------------------
    const std::string m_purpose;

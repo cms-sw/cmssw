@@ -33,22 +33,22 @@ class FWBoolParameterSetter : public FWParameterSetterBase
 
 public:
    FWBoolParameterSetter();
-   virtual ~FWBoolParameterSetter();
+   ~FWBoolParameterSetter() override;
 
    // ---------- const member functions ---------------------
 
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   virtual void attach(FWParameterBase*) ;
-   virtual TGFrame* build(TGFrame* iParent, bool labelBack = true) ;
-   virtual void setEnabled(bool);
+   void attach(FWParameterBase*) override ;
+   TGFrame* build(TGFrame* iParent, bool labelBack = true) override ;
+   void setEnabled(bool) override;
    void doUpdate();
 
 private:
-   FWBoolParameterSetter(const FWBoolParameterSetter&);    // stop default
+   FWBoolParameterSetter(const FWBoolParameterSetter&) = delete;    // stop default
 
-   const FWBoolParameterSetter& operator=(const FWBoolParameterSetter&);    // stop default
+   const FWBoolParameterSetter& operator=(const FWBoolParameterSetter&) = delete;    // stop default
 
    // ---------- member data --------------------------------
    FWBoolParameter* m_param;

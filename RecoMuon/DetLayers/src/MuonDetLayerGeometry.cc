@@ -365,7 +365,7 @@ const DetLayer* MuonDetLayerGeometry::idToLayer(const DetId &detId) const{
   else throw cms::Exception("InvalidSubdetId")<< detId.subdetId();
 
   std::map<DetId,const DetLayer*>::const_iterator layer = detLayersMap.find(id);
-  if (layer == detLayersMap.end()) return 0;
+  if (layer == detLayersMap.end()) return nullptr;
   return layer->second; 
 }
 

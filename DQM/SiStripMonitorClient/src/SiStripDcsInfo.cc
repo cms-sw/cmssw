@@ -22,10 +22,10 @@
 
 #include <iostream>
 #include <iomanip>
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 
 //
 // -- Contructor
@@ -57,42 +57,42 @@ void SiStripDcsInfo::beginJob() {
   
   tag = "TIB";   
   local_mes.folder_name = "TIB";
-  local_mes.DcsFractionME  = 0;
+  local_mes.DcsFractionME  = nullptr;
   local_mes.TotalDetectors = 0; 
   local_mes.FaultyDetectors.clear();
   SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
       
   tag = "TOB";
   local_mes.folder_name = "TOB";
-  local_mes.DcsFractionME  = 0;
+  local_mes.DcsFractionME  = nullptr;
   local_mes.TotalDetectors = 0; 
   local_mes.FaultyDetectors.clear();
   SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
 
   tag = "TECB";
   local_mes.folder_name = "TEC/MINUS";
-  local_mes.DcsFractionME  = 0;
+  local_mes.DcsFractionME  = nullptr;
   local_mes.TotalDetectors = 0; 
   local_mes.FaultyDetectors.clear();
   SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
 
   tag = "TECF";
   local_mes.folder_name = "TEC/PLUS";
-  local_mes.DcsFractionME  = 0;
+  local_mes.DcsFractionME  = nullptr;
   local_mes.TotalDetectors = 0; 
   local_mes.FaultyDetectors.clear();
   SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
 
   tag = "TIDB";
   local_mes.folder_name = "TID/MINUS";
-  local_mes.DcsFractionME  = 0;
+  local_mes.DcsFractionME  = nullptr;
   local_mes.TotalDetectors = 0; 
   local_mes.FaultyDetectors.clear();
   SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
 
   tag = "TIDF";
   local_mes.folder_name = "TID/PLUS";
-  local_mes.DcsFractionME  = 0;
+  local_mes.DcsFractionME  = nullptr;
   local_mes.TotalDetectors = 0; 
   local_mes.FaultyDetectors.clear();
   SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
@@ -108,7 +108,7 @@ void SiStripDcsInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup
 
   // Count Tracker FEDs from RunInfo
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-  if( eSetup.find( recordKey ) != 0) {
+  if( eSetup.find( recordKey ) != nullptr) {
     
     edm::ESHandle<RunInfo> sumFED;
     eSetup.get<RunInfoRcd>().get(sumFED);    
@@ -179,7 +179,7 @@ void SiStripDcsInfo::bookStatus() {
   if (!bookedStatus_) {
     std::string strip_dir = "";
     SiStripUtility::getTopFolderPath(dqmStore_, "SiStrip", strip_dir); 
-    if (strip_dir.size() > 0) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
+    if (!strip_dir.empty()) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
     else dqmStore_->setCurrentFolder("SiStrip/EventInfo");
        
     DcsFraction_= dqmStore_->bookFloat("DCSSummary");  
@@ -187,7 +187,7 @@ void SiStripDcsInfo::bookStatus() {
     DcsFraction_->setLumiFlag();
     
     dqmStore_->cd();
-    if (strip_dir.size() > 0)  dqmStore_->setCurrentFolder(strip_dir+"/EventInfo/DCSContents");
+    if (!strip_dir.empty())  dqmStore_->setCurrentFolder(strip_dir+"/EventInfo/DCSContents");
     else dqmStore_->setCurrentFolder("SiStrip/EventInfo/DCSContents"); 
     for (std::map<std::string,SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
       SubDetMEs local_mes;	

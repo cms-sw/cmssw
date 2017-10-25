@@ -51,19 +51,19 @@ void StEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   edm::Handle<std::vector<pat::Muon> > muons;
   if(leptonFlavour_ == "muon"){
     iEvent.getByToken(muonSrcToken_, muons);
-    if( muons->size() > 0 ) leptonFound = true;
+    if( !muons->empty() ) leptonFound = true;
   }
   edm::Handle<std::vector<pat::Electron> > electrons;
   if(leptonFlavour_ == "electron"){
     iEvent.getByToken(electronSrcToken_, electrons);
-    if( electrons->size() > 0 ) leptonFound = true;
+    if( !electrons->empty() ) leptonFound = true;
   }
 
   // select MET (TopMET vector is sorted on ET)
   bool metFound = false;
   edm::Handle<std::vector<pat::MET> > mets;
   iEvent.getByToken(metSrcToken_, mets);
-  if( mets->size() > 0 ) metFound = true;
+  if( !mets->empty() ) metFound = true;
 
   // select Jets
   bool jetsFound = false;
@@ -132,7 +132,7 @@ void StEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       if(jets->size()<maxJets)   				  std::cout<<"@ nr jets = " << jets->size() << " < " << maxJets <<std::endl;
       if(leptonFlavour_ == "muon" && !leptonFound)     	          std::cout<<"@ no good muon candidate"<<std::endl;
       if(leptonFlavour_ == "electron" && !leptonFound)             std::cout<<"@ no good electron candidate"<<std::endl;
-      if(mets->size() == 0)    					  std::cout<<"@ no MET reconstruction"<<std::endl;
+      if(mets->empty())    					  std::cout<<"@ no MET reconstruction"<<std::endl;
 
       StEvtSolution asol;
       evtsols->push_back(asol);

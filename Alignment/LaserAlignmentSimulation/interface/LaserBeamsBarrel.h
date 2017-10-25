@@ -26,11 +26,11 @@ class LaserBeamsBarrel : public G4VUserPrimaryGeneratorAction
 	/// constructor
   LaserBeamsBarrel(G4int nPhotonsInGun, G4int nPhotonsInBeam, G4double PhotonEnergy);
 	/// destructor
-  ~LaserBeamsBarrel();
+  ~LaserBeamsBarrel() override;
 
  public:
 	/// shoot optical photons into the detector at the beginning of an event
-  void GeneratePrimaries(G4Event* myEvent);
+  void GeneratePrimaries(G4Event* myEvent) override;
 	/// set the polarisation of the photons
   void setOptPhotonPolar(G4double Angle);
 

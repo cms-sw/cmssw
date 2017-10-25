@@ -60,12 +60,12 @@
 class OverlapProblemTPAnalyzer : public edm::EDAnalyzer {
 public:
   explicit OverlapProblemTPAnalyzer(const edm::ParameterSet&);
-  ~OverlapProblemTPAnalyzer();
+  ~OverlapProblemTPAnalyzer() override;
   
 private:
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   
       // ----------member data ---------------------------
 

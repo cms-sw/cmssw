@@ -14,7 +14,7 @@ namespace l1t {
       public:
 	virtual int  checkFormat(const Block& block); 
 	// virtual bool checkFormat() override; // Return "false" if block format does not match expected format
-	virtual bool unpack(const Block& block, UnpackerCollections *coll) override; // Apparently it's always good to use override in C++
+	bool unpack(const Block& block, UnpackerCollections *coll) override; // Apparently it's always good to use override in C++
 	// virtual bool packBlock(const Block& block, UnpackerCollections *coll) override;
       };
       
@@ -175,27 +175,27 @@ namespace l1t {
 	Hit_.set_stub_num(0);
 	// // See if matching hit is already in event record (from neighboring sector) 
 	// bool duplicate_hit_exists = false;
-	for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
+	for (auto const & iHit : *res_hit) {
 	  
-	  if ( Hit_.BX()      == res_hit->at(iHit).BX()      && 
-	       Hit_.Endcap()  == res_hit->at(iHit).Endcap()  &&
-	       Hit_.Station() == res_hit->at(iHit).Station() &&
-	       Hit_.Chamber() == res_hit->at(iHit).Chamber() ) {
+	  if ( Hit_.BX()      == iHit.BX()      && 
+	       Hit_.Endcap()  == iHit.Endcap()  &&
+	       Hit_.Station() == iHit.Station() &&
+	       Hit_.Chamber() == iHit.Chamber() ) {
 
-	    if ( (res_hit->at(iHit).Is_CSC() == 1 && res_hit->at(iHit).Ring() == 2) ||
-		 (res_hit->at(iHit).Is_RPC() == 1) ) { // RPC rings 2 and 3 both map to CSC ring 2 
+	    if ( (iHit.Is_CSC() == 1 && iHit.Ring() == 2) ||
+		 (iHit.Is_RPC() == 1) ) { // RPC rings 2 and 3 both map to CSC ring 2 
 
-	      if ( Hit_.Neighbor() == res_hit->at(iHit).Neighbor() ) {
+	      if ( Hit_.Neighbor() == iHit.Neighbor() ) {
 		Hit_.set_stub_num( Hit_.Stub_num() + 1);
-	      } // else if ( res_hit->at(iHit).Is_RPC()   == 1               &&
-	      // 		  res_hit->at(iHit).Ring()     == Hit_.Ring()     &&
-	      // 		  res_hit->at(iHit).Theta_fp() == Hit_.Theta_fp() &&
-	      // 		  res_hit->at(iHit).Phi_fp()   == Hit_.Phi_fp()   ) {
-	      // 	duplicate_hit_exists = true;
+	      } // else if ( iHit.Is_RPC()   == 1               &&
+	      	// 	  iHit.Ring()     == Hit_.Ring()     &&
+	      	// 	  iHit.Theta_fp() == Hit_.Theta_fp() &&
+	      	// 	  iHit.Phi_fp()   == Hit_.Phi_fp()   ) {
+	      	// duplicate_hit_exists = true;
 	      // }
 	    }
 	  }
-	} // End loop: for (uint iHit = 0; iHit < res_hit->size(); iHit++)
+	} // End loop: for (auto const & iHit : *res_hit)
 
 	(res->at(iOut)).push_RPC(RPC_);
 	res_hit->push_back(Hit_);
