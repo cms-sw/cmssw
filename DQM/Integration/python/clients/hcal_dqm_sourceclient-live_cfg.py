@@ -83,6 +83,7 @@ rawTagUntracked = cms.untracked.InputTag("rawDataCollector")
 if isHeavyIon:
 	rawTag = cms.InputTag("rawDataRepacker")
 	rawTagUntracked = cms.untracked.InputTag("rawDataRepacker")
+	process.castorDigis.InputLabel = rawTag
 
 process.emulTPDigis = \
 		process.simHcalTriggerPrimitiveDigis.clone()

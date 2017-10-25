@@ -50,12 +50,12 @@ namespace l1t {
 class L1TCaloTowersFilter : public edm::EDFilter {
 public:
   explicit L1TCaloTowersFilter(const edm::ParameterSet&);
-  virtual ~L1TCaloTowersFilter();
+  ~L1TCaloTowersFilter() override;
   
 private:
-  virtual void beginJob() override ;
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
   
   // ----------member data ---------------------------
   edm::EDGetTokenT<FEDRawDataCollection> fedData_;

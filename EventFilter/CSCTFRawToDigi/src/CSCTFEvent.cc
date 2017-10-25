@@ -1,6 +1,6 @@
 #include "EventFilter/CSCTFRawToDigi/src/CSCTFEvent.h"
 #include "EventFilter/CSCTFRawToDigi/src/CSCSPHeader.h"
-#include <string.h>
+#include <cstring>
 #include <stdexcept>
 
 unsigned int CSCTFEvent::unpack(const unsigned short *buf, unsigned int length) {

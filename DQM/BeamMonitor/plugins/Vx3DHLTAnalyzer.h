@@ -51,7 +51,7 @@ class Vx3DHLTAnalyzer : public DQMEDAnalyzer
 
  public:
   Vx3DHLTAnalyzer  (const edm::ParameterSet&);
-  ~Vx3DHLTAnalyzer ();
+  ~Vx3DHLTAnalyzer () override;
 
  protected:
   double Gauss3DFunc(const double* par);

@@ -19,7 +19,7 @@ class RecoTauChargeCleanerPlugin : public RecoTauCleanerPlugin
 {
 public:
 	explicit RecoTauChargeCleanerPlugin(const edm::ParameterSet&, edm::ConsumesCollector &&iC);
-	~RecoTauChargeCleanerPlugin() {}
+	~RecoTauChargeCleanerPlugin() override {}
 	double operator()(const PFTauRef& tau) const override;
 
 private:

@@ -18,8 +18,8 @@ class EcalClusterEnergyUncertaintyObjectSpecific : public EcalClusterEnergyUncer
         public:
                 EcalClusterEnergyUncertaintyObjectSpecific( const edm::ParameterSet &){};
                 // compute the correction
-                virtual float getValue( const reco::SuperCluster &, const int mode ) const;
-                virtual float getValue( const reco::BasicCluster &, const EcalRecHitCollection & ) const { return 0.;};
+                float getValue( const reco::SuperCluster &, const int mode ) const override;
+                float getValue( const reco::BasicCluster &, const EcalRecHitCollection & ) const override { return 0.;};
 	
 };
 

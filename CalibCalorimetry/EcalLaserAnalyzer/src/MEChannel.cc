@@ -12,7 +12,7 @@ using namespace std;
 MEChannel::MEChannel( int ix, int iy, int id_, MEChannel* mother )
   : _m(mother)
 {
-  if( _m==0 ) 
+  if( _m==nullptr ) 
     {
       _ig=0;      
     }
@@ -85,7 +85,7 @@ bool
 MEChannel::getListOfAncestors( std::vector< MEChannel* >& vec )
 {
   MEChannel* mother = this->m();
-  if( mother!=0 )
+  if( mother!=nullptr )
     {
       vec.push_back( mother );
       mother->getListOfAncestors( vec );
@@ -99,13 +99,13 @@ MEChannel::getAncestor( int g )
   if( _ig==g ) return this;
   
   MEChannel* mother = this->m();
-  if( mother!=0 )
+  if( mother!=nullptr )
     {
       if( mother->_ig==g ) return mother;
       return mother->getAncestor( g );
     }
 
-  return 0;
+  return nullptr;
 }
 
 bool
@@ -136,8 +136,8 @@ MEChannel::getDescendant( int ig, int id_ )
 {
   std::vector< MEChannel* > vec;
   bool OK = getListOfDescendants( ig, vec );
-  if( !OK ) return 0;
-  MEChannel* leaf(0);
+  if( !OK ) return nullptr;
+  MEChannel* leaf(nullptr);
   for( unsigned int ii=0; ii<vec.size(); ii++ )
     {
       leaf = vec[ii];
@@ -151,7 +151,7 @@ MEChannel::getFirstDescendant( int ig )
 {
   std::vector< MEChannel* > vec;
   bool OK = getListOfDescendants( ig, vec );
-  if( !OK ) return 0;
+  if( !OK ) return nullptr;
   return vec[0];
 }
 
@@ -160,7 +160,7 @@ MEChannel::getChannel( int ig, int ix, int iy )
 {
   assert( ig>=0 );
   MEChannel* leaf = getChannel( ix, iy );
-  if( leaf==0 ) return 0;
+  if( leaf==nullptr ) return nullptr;
   while( ig!=leaf->_ig )
     {
       leaf = leaf->_m;
@@ -178,13 +178,13 @@ MEChannel::getChannel( int ix, int iy )
 	  return this;
 	}
       else
-	return 0;
+	return nullptr;
     }
-  MEChannel* leaf(0);
+  MEChannel* leaf(nullptr);
   for( unsigned ii=0; ii<n(); ii++ )
     {
       leaf =  _d[ii]->getChannel( ix, iy ); 
-      if( leaf!=0 ) break;
+      if( leaf!=nullptr ) break;
     }
   return leaf;
 }

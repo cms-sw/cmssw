@@ -14,9 +14,9 @@ namespace ecaldqm
   class MESetDet1D : public MESetEcal
   {
   public :
-    MESetDet1D(std::string const&, binning::ObjectType, binning::BinningType, MonitorElement::Kind, binning::AxisSpecs const* = 0);
+    MESetDet1D(std::string const&, binning::ObjectType, binning::BinningType, MonitorElement::Kind, binning::AxisSpecs const* = nullptr);
     MESetDet1D(MESetDet1D const&);
-    ~MESetDet1D();
+    ~MESetDet1D() override;
 
     MESet* clone(std::string const& = "") const override;
 

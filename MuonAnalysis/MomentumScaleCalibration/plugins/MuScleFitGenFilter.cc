@@ -33,11 +33,11 @@
 class MuScleFitGenFilter : public edm::EDFilter {
  public:
   explicit MuScleFitGenFilter(const edm::ParameterSet&);
-  ~MuScleFitGenFilter();
+  ~MuScleFitGenFilter() override;
 
  private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override {};
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override {};
 
   std::string genParticlesName_;
   edm::EDGetTokenT<edm::HepMCProduct> evtMCToken_;

@@ -11,7 +11,7 @@
 #include <DataFormats/Math/interface/deltaPhi.h>
 
 //STL
-#include <math.h>
+#include <cmath>
 //ROOT
 #include "TLorentzVector.h"
 
@@ -156,7 +156,7 @@ AlignmentTwoBodyDecayTrackSelector::checkMass(const Tracks& cands) const
     }
   }
 
-  if (candCollection.size()==0) return result;
+  if (candCollection.empty()) return result;
 
   sort(candCollection.begin(), candCollection.end(), 
        higherTwoBodyDecayPt<candCollectionItem>());
@@ -192,7 +192,7 @@ AlignmentTwoBodyDecayTrackSelector::checkMETMass(const Tracks& cands,const edm::
   
   LogDebug("Alignment") <<">  cands size : "<< cands.size();
   
-  if (cands.size()==0) return result;
+  if (cands.empty()) return result;
 
   TLorentzVector track;
   TLorentzVector met4;
@@ -245,7 +245,7 @@ AlignmentTwoBodyDecayTrackSelector::checkMETMass(const Tracks& cands,const edm::
     }
   }
 
-  if (candCollection.size()==0) return result;
+  if (candCollection.empty()) return result;
 
   sort(candCollection.begin(), candCollection.end(), 
        higherTwoBodyDecayPt<candCollectionItem>());

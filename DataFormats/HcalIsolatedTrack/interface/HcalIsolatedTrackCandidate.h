@@ -53,13 +53,13 @@ namespace reco {
     HcalIsolatedTrackCandidate(const HcalIsolatedTrackCandidate&);
 
     /// destructor
-    virtual ~HcalIsolatedTrackCandidate();
+    ~HcalIsolatedTrackCandidate() override;
 
     /// returns a clone of the candidate
-    virtual HcalIsolatedTrackCandidate * clone() const;
+    HcalIsolatedTrackCandidate * clone() const override;
 
     /// refrence to a Track
-    virtual reco::TrackRef track() const;
+    reco::TrackRef track() const override;
     void setTrack(const reco::TrackRef & tr) { track_ = tr; }
 
     /// highest energy of other tracks in the cone around the candidate
@@ -104,7 +104,7 @@ namespace reco {
 
   private:
     /// check overlap with another candidate
-    virtual bool overlap( const Candidate & ) const;
+    bool overlap( const Candidate & ) const override;
     /// reference to a Track
     reco::TrackRef track_;
     /// reference to a L1 tau jet

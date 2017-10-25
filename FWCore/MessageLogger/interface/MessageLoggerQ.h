@@ -77,8 +77,8 @@ private:
 				   std::string const & commandMnemonic);
 
   // --- no copying:
-  MessageLoggerQ( MessageLoggerQ const & );
-  void  operator = ( MessageLoggerQ const & );
+  MessageLoggerQ( MessageLoggerQ const & ) = delete;
+  void  operator = ( MessageLoggerQ const & ) = delete;
 
   // --- data:
   [[cms::thread_safe]] static  std::shared_ptr<edm::service::AbstractMLscribe> mlscribe_ptr;

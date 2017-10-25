@@ -41,9 +41,9 @@ using namespace std;
 class HcalDigiToRawuHTR : public edm::global::EDProducer<> {
 public:
   explicit HcalDigiToRawuHTR(const edm::ParameterSet&);
-  ~HcalDigiToRawuHTR();
+  ~HcalDigiToRawuHTR() override;
 
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

@@ -351,7 +351,7 @@ bool SiPixelSCurveCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixe
 
       //get Chi2
       Double_t params[3]   = {threshold, sigma, amplitude};
-      gMinuit->Eval(3, NULL, chi2, params, 0);
+      gMinuit->Eval(3, nullptr, chi2, params, 0);
       //calculate Chi2 proability
       if (nDOF <= 0)
          chi2probability = 0;

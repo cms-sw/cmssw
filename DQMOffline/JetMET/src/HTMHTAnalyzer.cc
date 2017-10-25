@@ -108,7 +108,7 @@ void HTMHTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     }
   }
   // for empty input vectors (n==0), take all HLT triggers!
-  if (HLTPathsJetMBByName_.size()==0) _trig_JetMB=triggerResults.size()-1;
+  if (HLTPathsJetMBByName_.empty()) _trig_JetMB=triggerResults.size()-1;
 
   if (_trig_JetMB==0) return;
    

@@ -43,7 +43,7 @@ QIE10DataFrame::Sample::Sample(const wide_type wide) {
 QIE10DataFrame::Sample::wide_type QIE10DataFrame::Sample::wideRaw() const {
   static_assert(sizeof(QIE10DataFrame::Sample::wide_type) == 2*sizeof(word1_),
                 "The wide result type must be able to contain two words");
-  wide_type result;
+  wide_type result = 0;
   edm::DataFrame::data_type* ptr =
       reinterpret_cast<edm::DataFrame::data_type*>(&result);
   ptr[0] = word1_;

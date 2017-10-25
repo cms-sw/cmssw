@@ -33,14 +33,14 @@ class FWLegoCandidate : public TEveStraightLineSet
       FWLegoCandidate( const FWViewContext *vc, const fireworks::Context &context, 
             float et, float energy, float pt, float eta, float phi );
       FWLegoCandidate(){}
-      virtual ~FWLegoCandidate(){}
+      ~FWLegoCandidate() override{}
 
    // --------------------- Member Functions --------------------------
       void updateScale( const FWViewContext *vc, const fireworks::Context& );
 
    private:
-      FWLegoCandidate( const FWLegoCandidate& );                    // Disable default copy constructor
-      const FWLegoCandidate& operator=( const FWLegoCandidate& );   // Disable default assignment operator
+      FWLegoCandidate( const FWLegoCandidate& ) = delete;                    // Disable default copy constructor
+      const FWLegoCandidate& operator=( const FWLegoCandidate& ) = delete;   // Disable default assignment operator
 
    // ----------------------- Data Members ----------------------------
       float m_energy;

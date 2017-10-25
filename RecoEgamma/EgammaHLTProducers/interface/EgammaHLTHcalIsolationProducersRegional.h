@@ -38,7 +38,7 @@ class EgammaHLTHcalIsolation;
 class EgammaHLTHcalIsolationProducersRegional : public edm::EDProducer {
 public:
   explicit EgammaHLTHcalIsolationProducersRegional(const edm::ParameterSet&);
-  ~EgammaHLTHcalIsolationProducersRegional();
+  ~EgammaHLTHcalIsolationProducersRegional() override;
 
   void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);

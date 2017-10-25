@@ -53,10 +53,10 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
 
   // Prepare the map of files
   // Loop over the particle names
-  TFile* aVFile=0;
-  std::vector<TTree*> aVTree(thePionEN.size(),static_cast<TTree*>(0));
-  std::vector<TBranch*> aVBranch(thePionEN.size(),static_cast<TBranch*>(0));
-  std::vector<NUEvent*> aVNUEvents(thePionEN.size(),static_cast<NUEvent*>(0));
+  TFile* aVFile=nullptr;
+  std::vector<TTree*> aVTree(thePionEN.size(),static_cast<TTree*>(nullptr));
+  std::vector<TBranch*> aVBranch(thePionEN.size(),static_cast<TBranch*>(nullptr));
+  std::vector<NUEvent*> aVNUEvents(thePionEN.size(),static_cast<NUEvent*>(nullptr));
   std::vector<unsigned> aVCurrentEntry(thePionEN.size(),static_cast<unsigned>(0));
   std::vector<unsigned> aVCurrentInteraction(thePionEN.size(),static_cast<unsigned>(0));
   std::vector<unsigned> aVNumberOfEntries(thePionEN.size(),static_cast<unsigned>(0));

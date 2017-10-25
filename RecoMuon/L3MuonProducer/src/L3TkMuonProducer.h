@@ -30,10 +30,10 @@ class L3TkMuonProducer : public edm::stream::EDProducer<> {
   L3TkMuonProducer(const edm::ParameterSet&);
   
   /// destructor
-  virtual ~L3TkMuonProducer(); 
+  ~L3TkMuonProducer() override; 
   
   /// produce candidates
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   typedef edm::Ref<L3MuonTrajectorySeedCollection> SeedRef;
   

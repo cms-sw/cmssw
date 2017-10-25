@@ -43,7 +43,7 @@ namespace cms
 class ProducerAnalyzer : public edm::EDAnalyzer {
    public:
       explicit ProducerAnalyzer(const edm::ParameterSet&);
-      ~ProducerAnalyzer();
+      ~ProducerAnalyzer() override;
 
       void analyze(const edm::Event&, const edm::EventSetup&) override;
       void beginJob() override;

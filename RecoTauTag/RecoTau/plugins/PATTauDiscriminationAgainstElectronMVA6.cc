@@ -41,13 +41,13 @@ class PATTauDiscriminationAgainstElectronMVA6 : public PATTauDiscriminationProdu
     produces<PATTauDiscriminator>("category");
   }
 
-  void beginEvent(const edm::Event&, const edm::EventSetup&);
+  void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
-  double discriminate(const TauRef&) const;
+  double discriminate(const TauRef&) const override;
 
-  void endEvent(edm::Event&);
+  void endEvent(edm::Event&) override;
 
-  ~PATTauDiscriminationAgainstElectronMVA6(){}
+  ~PATTauDiscriminationAgainstElectronMVA6() override{}
 
 private:
   bool isInEcalCrack(double) const;
@@ -105,10 +105,10 @@ double PATTauDiscriminationAgainstElectronMVA6::discriminate(const TauRef& theTa
 	deltaRDummy = deltaREleTau;
 	if( deltaREleTau < 0.3 ){ 	
 	  double mva_match = mva_->MVAValue(*theTauRef, theElectron, usePhiAtEcalEntranceExtrapolation_);	  
-	  bool hasGsfTrack = 0;
+	  bool hasGsfTrack = false;
           pat::PackedCandidate const* packedLeadTauCand = dynamic_cast<pat::PackedCandidate const*>(theTauRef->leadChargedHadrCand().get());
           if( abs(packedLeadTauCand->pdgId()) == 11 ) 
-	    hasGsfTrack = 1;
+	    hasGsfTrack = true;
 	  if ( !hasGsfTrack )
             hasGsfTrack = theElectron.gsfTrack().isNonnull();
 
@@ -143,9 +143,9 @@ double PATTauDiscriminationAgainstElectronMVA6::discriminate(const TauRef& theTa
 
     if ( !isGsfElectronMatched ) {
       mvaValue = mva_->MVAValue(*theTauRef, usePhiAtEcalEntranceExtrapolation_);
-      bool hasGsfTrack = 0;
+      bool hasGsfTrack = false;
       pat::PackedCandidate const* packedLeadTauCand = dynamic_cast<pat::PackedCandidate const*>(theTauRef->leadChargedHadrCand().get());
-      if( abs(packedLeadTauCand->pdgId()) == 11 ) hasGsfTrack = 1;
+      if( abs(packedLeadTauCand->pdgId()) == 11 ) hasGsfTrack = true;
           
       // veto taus that go to Ecal crack
       if ( isInEcalCrack(tauEtaAtEcalEntrance) || isInEcalCrack(leadChargedPFCandEtaAtEcalEntrance) ) {

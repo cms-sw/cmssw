@@ -23,19 +23,19 @@ class PreshowerLayer1Properties : public PreshowerProperties
 
   PreshowerLayer1Properties(const edm::ParameterSet& fastDet); 
 
-  ~PreshowerLayer1Properties() {
+  ~PreshowerLayer1Properties() override {
     ;
   }
   
   /// Fraction of energy collected on sensitive detectors
-  inline double sensitiveFraction() const { return 0.0036; }
+  inline double sensitiveFraction() const override { return 0.0036; }
 
   /// Number of Mips/GeV [Default : 41.7 Mips/GeV or 24 MeV/Mips]
-  inline double mipsPerGeV() const { return mips; }
+  inline double mipsPerGeV() const override { return mips; }
 
   /// Thickness in cm (Pretend it is all lead)
   /// Default : 1.02 cm at normal incidence
-  double thickness(double eta) const ;
+  double thickness(double eta) const override ;
 };
 
 #endif

@@ -12,7 +12,7 @@ using namespace calib;
 using namespace std;
 
 
-CalibElectron::CalibElectron() : theElectron_(0), theHits_(0), theEEHits_(0)
+CalibElectron::CalibElectron() : theElectron_(nullptr), theHits_(nullptr), theEEHits_(nullptr)
 {
 }
 
@@ -33,7 +33,7 @@ std::vector< std::pair<int,float> > CalibElectron::getCalibModulesWeights(TStrin
       
       for(std::vector<std::pair<DetId,float> >::const_iterator idIt=scDetIds.begin(); idIt!=scDetIds.end(); ++idIt){
     
-	const EcalRecHit* rh=0;
+	const EcalRecHit* rh=nullptr;
 	if ( (*idIt).first.subdetId() == EcalBarrel) 
 	  rh = &*(theHits_->find((*idIt).first));
 	else if ( (*idIt).first.subdetId() == EcalEndcap) 
@@ -63,7 +63,7 @@ std::vector< std::pair<int,float> > CalibElectron::getCalibModulesWeights(TStrin
 
       for(std::vector<std::pair<DetId,float> >::const_iterator idIt=scDetIds.begin(); idIt!=scDetIds.end(); ++idIt){
 
-        const EcalRecHit* rh=0;
+        const EcalRecHit* rh=nullptr;
         if ( (*idIt).first.subdetId() == EcalBarrel)
           rh = &*(theHits_->find((*idIt).first));
         else if ( (*idIt).first.subdetId() == EcalEndcap)
@@ -92,7 +92,7 @@ std::vector< std::pair<int,float> > CalibElectron::getCalibModulesWeights(TStrin
 
       for(std::vector<std::pair<DetId,float> >::const_iterator idIt=scDetIds.begin(); idIt!=scDetIds.end(); ++idIt){
 	
-        const EcalRecHit* rh=0;
+        const EcalRecHit* rh=nullptr;
         if ( (*idIt).first.subdetId() == EcalBarrel)
           rh = &*(theHits_->find((*idIt).first));
         else if ( (*idIt).first.subdetId() == EcalEndcap)
@@ -122,7 +122,7 @@ std::vector< std::pair<int,float> > CalibElectron::getCalibModulesWeights(TStrin
 
 
       for(std::vector<std::pair<DetId,float> >::const_iterator idIt=scDetIds.begin(); idIt!=scDetIds.end(); ++idIt){
-        const EcalRecHit* rh=0;
+        const EcalRecHit* rh=nullptr;
         if ( (*idIt).first.subdetId() == EcalBarrel)
           rh = &*(theHits_->find((*idIt).first));
         else if ( (*idIt).first.subdetId() == EcalEndcap)

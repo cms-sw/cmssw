@@ -38,7 +38,7 @@ namespace l1t {
          for (int bx=firstBX; bx<=lastBX; bx++){
 
             unsigned int crate;
-            bool even=0;
+            bool even=false;
 
             std::vector <uint32_t> uint;
             uint.reserve(6);
@@ -104,7 +104,7 @@ namespace l1t {
          for (int bx=firstBX; bx<=lastBX; bx++){
 
             unsigned int crate;
-            bool even=0;
+            bool even=false;
 
             PhysicsToBitConverter converter;
             rctDataBase database;

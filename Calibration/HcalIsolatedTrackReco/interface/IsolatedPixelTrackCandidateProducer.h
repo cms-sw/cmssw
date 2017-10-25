@@ -43,11 +43,11 @@ class IsolatedPixelTrackCandidateProducer : public edm::stream::EDProducer<> {
 public:
 
   IsolatedPixelTrackCandidateProducer (const edm::ParameterSet& ps);
-  ~IsolatedPixelTrackCandidateProducer();
+  ~IsolatedPixelTrackCandidateProducer() override;
   
 
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void produce(edm::Event& evt, const edm::EventSetup& es) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void produce(edm::Event& evt, const edm::EventSetup& es) override;
   
   double getDistInCM(double eta1, double phi1, double eta2, double phi2);
   std::pair<double, double> GetEtaPhiAtEcal(double etaIP, double phiIP, double pT, int charge, double vtxZ);

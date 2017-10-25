@@ -36,7 +36,7 @@ void SuperClusterShapeAlgo::Calculate_Covariances(const reco::SuperCluster &pass
     continue; 
    }
     const CaloCellGeometry *this_cell = geometry_->getGeometry(rHit->id());
-    if ( this_cell == 0 ) {
+    if ( this_cell == nullptr ) {
       //edm::LogInfo("SuperClusterShapeAlgo") << "pointer to the cell in Calculate_Covariances is NULL!";
       continue;
     }

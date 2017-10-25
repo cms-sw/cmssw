@@ -88,11 +88,11 @@ namespace reco
     
   public:
     explicit HcalHaloDataProducer(const edm::ParameterSet&);
-    ~HcalHaloDataProducer();
+    ~HcalHaloDataProducer() override;
     
   private:
     
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
     
     //RecHit Level
     edm::InputTag IT_HBHERecHit;

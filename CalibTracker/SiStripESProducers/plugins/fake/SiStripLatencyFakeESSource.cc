@@ -25,9 +25,9 @@
 class SiStripLatencyFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   SiStripLatencyFakeESSource(const edm::ParameterSet&);
-  ~SiStripLatencyFakeESSource();
+  ~SiStripLatencyFakeESSource() override;
 
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity );
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity ) override;
 
   typedef std::shared_ptr<SiStripLatency> ReturnType;
   ReturnType produce(const SiStripLatencyRcd&);
@@ -67,7 +67,7 @@ SiStripLatencyFakeESSource::produce(const SiStripLatencyRcd& iRecord)
   std::shared_ptr<SiStripLatency> latency{new SiStripLatency};
 
   SiStripDetInfoFileReader reader{m_file.fullPath()};
-  const auto detInfos = reader.getAllData();
+  const auto& detInfos = reader.getAllData();
   // Take the last detId. Since the map is sorted it will be the biggest value
   if ( ! detInfos.empty() ) {
     // Set the apv number as 6, the highest possible

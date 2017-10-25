@@ -36,8 +36,8 @@ public:
    static const int kTextBuffer;
    static const int kSeperatorWidth;
 
-   FWTabularWidget(FWTableManagerBase* iManager,const TGWindow* p=0, GContext_t context = getDefaultGC()());
-   virtual ~FWTabularWidget();
+   FWTabularWidget(FWTableManagerBase* iManager,const TGWindow* p=nullptr, GContext_t context = getDefaultGC()());
+   ~FWTabularWidget() override;
 
    // ---------- const member functions ---------------------
    const std::vector<unsigned int>& widthOfTextInColumns() const { return m_widthOfTextInColumns;}
@@ -48,13 +48,13 @@ public:
 
    // ---------- member functions ---------------------------
    void setWidthOfTextInColumns(const std::vector<unsigned int>& );
-   void DoRedraw();
-   TGDimension GetDefaultSize() const;
+   void DoRedraw() override;
+   TGDimension GetDefaultSize() const override;
 
    void setVerticalOffset(UInt_t);
    void setHorizontalOffset(UInt_t);
 
-   virtual Bool_t HandleButton(Event_t *event);
+   Bool_t HandleButton(Event_t *event) override;
 
    void buttonPressed(Int_t row, Int_t column, Event_t* event, Int_t relX, Int_t relY); //*SIGNAL*
    void buttonReleased(Int_t row, Int_t column, Event_t* event, Int_t relX, Int_t relY); //*SIGNAL*
@@ -62,7 +62,7 @@ public:
    void dataChanged();
    void needToRedraw();
 
-   ClassDef(FWTabularWidget,0);
+   ClassDefOverride(FWTabularWidget,0);
    
    void setLineContext(GContext_t iContext);
    void setBackgroundAreaContext(GContext_t iContext);

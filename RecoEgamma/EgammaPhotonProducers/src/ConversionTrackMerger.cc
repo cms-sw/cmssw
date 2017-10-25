@@ -71,7 +71,7 @@
     // this allows ConversionTrackMerger to be used as a cleaner only if handed just one list
     // if both input lists don't exist, will issue 2 warnings and generate an empty output collection
     //
-    const reco::ConversionTrackCollection *TC1 = 0;
+    const reco::ConversionTrackCollection *TC1 = nullptr;
     static const reco::ConversionTrackCollection s_empty1, s_empty2;
     edm::Handle<reco::ConversionTrackCollection> trackCollection1;
     e.getByToken(trackProducer1, trackCollection1);
@@ -86,7 +86,7 @@
     }
     reco::ConversionTrackCollection tC1 = *TC1;
 
-    const reco::ConversionTrackCollection *TC2 = 0;
+    const reco::ConversionTrackCollection *TC2 = nullptr;
     edm::Handle<reco::ConversionTrackCollection> trackCollection2;
     e.getByToken(trackProducer2, trackCollection2);
     if (trackCollection2.isValid()) {
@@ -127,7 +127,7 @@
      }
    }
 
-   if ( (0<tC1.size())&&(0<tC2.size()) ){
+   if ( (!tC1.empty())&&(!tC2.empty()) ){
     i=-1;
     for (reco::ConversionTrackCollection::iterator track=tC1.begin(); track!=tC1.end(); ++track){
       i++; 
@@ -216,7 +216,7 @@
   //  output selected tracks - if any
   //
    
-   if ( 0<tC1.size() ){
+   if ( !tC1.empty() ){
      i=0;
      for (reco::ConversionTrackCollection::const_iterator track=tC1.begin(); track!=tC1.end(); 
 	  ++track, ++i){
@@ -232,7 +232,7 @@
    //Fill the trajectories, etc. for 1st collection
  
    
-   if ( 0<tC2.size() ){
+   if ( !tC2.empty() ){
     i=0;
     for (reco::ConversionTrackCollection::const_iterator track=tC2.begin(); track!=tC2.end();
 	 ++track, ++i){

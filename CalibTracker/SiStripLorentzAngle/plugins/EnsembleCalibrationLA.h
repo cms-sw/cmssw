@@ -11,9 +11,9 @@ class EnsembleCalibrationLA : public edm::EDAnalyzer {
  public:
 
   explicit EnsembleCalibrationLA(const edm::ParameterSet&);
-  void analyze(const edm::Event&, const edm::EventSetup&) {}
-  void endRun(const edm::Run&, const edm::EventSetup&);
-  void endJob();
+  void analyze(const edm::Event&, const edm::EventSetup&) override {}
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
+  void endJob() override;
 
  private:
   

@@ -60,7 +60,7 @@ class Electron( Lepton ):
             #'1/E-1/p' : abs(1.0/self.physObj.ecalEnergy() - self.physObj.eSuperClusterOverP()/self.physObj.ecalEnergy()),
             '1/E-1/p' : abs(1.0/self.physObj.ecalEnergy() - self.physObj.eSuperClusterOverP()/self.physObj.ecalEnergy()) if self.physObj.ecalEnergy()>0. else 9e9,
             'conversionVeto' : self.physObj.passConversionVeto(),
-            'missingHits' : self.physObj.gsfTrack().hitPattern().numberOfHits(ROOT.reco.HitPattern.MISSING_INNER_HITS), # http://cmslxr.fnal.gov/source/DataFormats/TrackReco/interface/HitPattern.h?v=CMSSW_7_2_3#0153
+            'missingHits' : self.physObj.gsfTrack().hitPattern().numberOfLostHits(ROOT.reco.HitPattern.MISSING_INNER_HITS), # http://cmslxr.fnal.gov/source/DataFormats/TrackReco/interface/HitPattern.h?v=CMSSW_7_2_3#0153
             'dxy' : abs(self.dxy()),
             'dz' : abs(self.dz()),
         }
@@ -402,7 +402,7 @@ class Electron( Lepton ):
         if hasattr(self.gsfTrack(),"trackerExpectedHitsInner") :
 		return self.gsfTrack().trackerExpectedHitsInner().numberOfLostHits()
 	else :
-		return self.gsfTrack().hitPattern().numberOfHits(ROOT.reco.HitPattern.MISSING_INNER_HITS)
+		return self.gsfTrack().hitPattern().numberOfLostHits(ROOT.reco.HitPattern.MISSING_INNER_HITS)
 
     def validCandidateP4Kind(self):
         raw = self.physObj.candidateP4Kind()

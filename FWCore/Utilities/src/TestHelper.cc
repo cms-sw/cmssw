@@ -30,7 +30,7 @@ int run_script(std::string const& shell, std::string const& script) {
   }
 
   if(pid == 0) { // child
-    execlp(shell.c_str(), "sh", "-c", script.c_str(), static_cast<char const*>(0));
+    execlp(shell.c_str(), "sh", "-c", script.c_str(), static_cast<char const*>(nullptr));
     std::cerr << "child failed becuase '" << strerror(errno) << "'\n";
     _exit(127); // signal parent and children processes
   } else { // parent
@@ -67,7 +67,7 @@ int do_work(int argc, char* argv[], char** env) {
     std::cout << "Current directory is: " << currentPath.string() << '\n';
     std::cout << "Current environment:\n";
     std::cout << "---------------------\n";
-    for(int i = 0; env[i] != 0; ++i) std::cout << env[i] << '\n';
+    for(int i = 0; env[i] != nullptr; ++i) std::cout << env[i] << '\n';
     std::cout << "---------------------\n";
     std::cout << "Executable name: " << argv[0] << '\n';
     return -1;

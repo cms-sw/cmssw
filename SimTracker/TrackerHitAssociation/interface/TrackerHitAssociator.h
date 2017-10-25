@@ -98,7 +98,7 @@ class TrackerHitAssociator {
   std::vector<SimHitIdpr> associateFastRecHit(const FastTrackerRecHit * rechit) const;
   std::vector<SimHitIdpr> associateMultiRecHitId(const SiTrackerMultiRecHit * multirechit, std::vector<simhitAddr>* simhitCFPos=nullptr) const;
   std::vector<PSimHit>    associateMultiRecHit(const SiTrackerMultiRecHit * multirechit) const;
-  
+ 
   
   typedef std::map<unsigned int, std::vector<PSimHit> > simhit_map;
   simhit_map SimHitMap;
@@ -109,6 +109,7 @@ class TrackerHitAssociator {
   typedef std::vector<std::string> vstring;
 
   void makeMaps(const edm::Event& theEvent, const Config& config);
+  inline std::string printDetBnchEvtTrk(const DetId& detid, const uint32_t& detID, std::vector<SimHitIdpr>& simtrackid) const;
   edm::Handle< edm::DetSetVector<StripDigiSimLink> >  stripdigisimlink;
   edm::Handle< edm::DetSetVector<PixelDigiSimLink> >  pixeldigisimlink;
   edm::Handle< edm::DetSetVector<PixelDigiSimLink> >  ph2trackerdigisimlink;

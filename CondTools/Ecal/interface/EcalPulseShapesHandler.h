@@ -6,7 +6,7 @@
 #include <string>
 #include <map>
 #include <iostream>
-#include <time.h>
+#include <ctime>
 
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
@@ -44,11 +44,11 @@ namespace popcon
       
     public:
       EcalPulseShapesHandler(edm::ParameterSet const & );
-      ~EcalPulseShapesHandler();
+      ~EcalPulseShapesHandler() override;
       bool checkPulseShape(EcalPulseShapes::Item* item);
       void fillSimPulseShape(EcalPulseShapes::Item* item, bool isbarrel);
-      void getNewObjects();
-      std::string id() const { return m_name;}
+      void getNewObjects() override;
+      std::string id() const override { return m_name;}
 
     private:
       const EcalPulseShapes * mypulseshapes;

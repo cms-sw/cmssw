@@ -23,7 +23,7 @@ public:
   RPCEfficiencyShiftHisto(const edm::ParameterSet& iConfig);
   
   /// Destructor
-  virtual ~RPCEfficiencyShiftHisto();
+  ~RPCEfficiencyShiftHisto() override;
 
  protected:
   void beginJob() override;

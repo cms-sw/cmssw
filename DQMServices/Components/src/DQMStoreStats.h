@@ -86,19 +86,19 @@ class VIterator : public Iterator<Item>
 {
   public:
     VIterator(const std::vector<Item>* aVector):vector_(aVector),index(0) {;} 
-    virtual ~VIterator() = default; 
-    virtual void First()     {index=0;}
-    virtual void Next()      { ++index;}
+    ~VIterator() override = default; 
+    void First() override     {index=0;}
+    void Next() override      { ++index;}
     virtual int  size()      { return vector_->size();}
     virtual int  getIndex()  { return (int)index;}
 
-    virtual bool IsDone() const
+    bool IsDone() const override
     {
       if(index < (unsigned int)vector_->size()) return false ;
       return true ;
     }
 
-    virtual Item CurrentItem() const
+    Item CurrentItem() const override
     {
       return vector_->operator[](index) ;
     }
@@ -120,7 +120,7 @@ public:
   Folder(const std::string name):totalHistos_(0),totalBins_(0),
                                  totalEmptyBins_(0),totalMemory_(0),
                                  id_(10),level_(0),folderName_(name),
-                                 father_(0){;}
+                                 father_(nullptr){;}
 
   ~Folder(void) {
     for(std::vector<Folder*>::iterator i = subfolders_.begin(), e = subfolders_.end() ; i != e ; ++i)
@@ -293,33 +293,33 @@ private:
 class DQMStoreStats : public edm::EDAnalyzer {
 public:
   DQMStoreStats( const edm::ParameterSet& );
-  ~DQMStoreStats();
+  ~DQMStoreStats() override;
 
   enum statsMode { considerAllME = 0, considerOnlyLumiProductME = 1 };
 
 protected:
    
   // BeginJob
-  void beginJob();
+  void beginJob() override;
 
   // BeginRun
-  void beginRun(const edm::Run& r, const edm::EventSetup& c);
+  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
 
   // Fake Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                            const edm::EventSetup& context);
+                            const edm::EventSetup& context) override;
 
   // DQM Client Diagnostic
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                          const edm::EventSetup& c);
+                          const edm::EventSetup& c) override;
 
   // EndRun
-  void endRun(const edm::Run& r, const edm::EventSetup& c);
+  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
 
   // Endjob
-  void endJob();
+  void endJob() override;
 
 private:
 

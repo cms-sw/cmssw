@@ -1,6 +1,7 @@
 #include "DQMOffline/Trigger/interface/EgHLTMonElemFuncs.h"
 
 #include "DQMOffline/Trigger/interface/EgHLTMonElemMgrEBEE.h"
+#include "DQMOffline/Trigger/interface/EgHLTMonElemMgrHEP.h"
 #include "DQMOffline/Trigger/interface/EgHLTEgCutCodes.h"
 #include "DQMOffline/Trigger/interface/EgHLTDQMCut.h"
 #include "DQMOffline/Trigger/interface/EgHLTCutMasks.h"
@@ -95,6 +96,99 @@ void MonElemFuncs::initStdPhoHists(std::vector<MonElemManagerBase<OffPho>*>& his
 							     bins.etaVsPhi.nrY,bins.etaVsPhi.yMin,bins.etaVsPhi.yMax,
 							     &OffPho::hltEta,&OffPho::hltPhi));
 }
+
+
+void MonElemFuncs::initStdEleHistsHEP(std::vector<MonElemManagerBase<OffEle>*>& histVec,const std::string& filterName,const std::string& baseName,const BinData& bins)
+{
+  addStdHistHEP<OffEle,float>(histVec,baseName+"_energy",baseName+" reco CaloEnergy;reco CaloEnergy (GeV)",bins.energy, &OffEle::energy);
+  addStdHistHEP<OffEle,float>(histVec,baseName+"_et",baseName+" E_{T};E_{T} (GeV)",bins.et,&OffEle::et); 
+  addStdHistHEP<OffEle,float>(histVec,baseName+"_etHigh",baseName+" E_{T};E_{T} (GeV)",bins.etHigh,&OffEle::et); 
+  addStdHistHEP<OffEle,float>(histVec,baseName+"_etSC",baseName+" E^{SC}_{T};E^{SC}_{T} (GeV)",bins.et,&OffEle::etSC);
+  addStdHistHEP<OffEle,float>(histVec,baseName+"_eta",baseName+" #eta;#eta",bins.eta,&OffEle::detEta);		
+  addStdHistHEP<OffEle,float>(histVec,baseName+"_phi",baseName+" #phi;#phi (rad)",bins.phi,&OffEle::phi);
+  // addStdHist<OffEle,int>(histVec,baseName+"_charge",baseName+" Charge; charge",bins.charge,&OffEle::charge);
+  
+  addStdHistHEP<OffEle,float>(histVec,baseName+"_hOverE",baseName+" H/E; H/E",bins.hOverE,&OffEle::hOverE);
+  //----Morse
+  addStdHistHEP<OffEle,float>(histVec,baseName+"_maxr9",baseName+" MAXR9 ; MAXR9",bins.maxr9,&OffEle::r9);
+  addStdHistHEP<OffEle,float>(histVec,baseName+"_HLTenergy",baseName+" HLT Energy;HLT Energy (GeV)",bins.HLTenergy,&OffEle::hltEnergy); 
+  addStdHistHEP<OffEle,float>(histVec,baseName+"_HLTeta",baseName+" HLT #eta;HLT #eta",bins.HLTeta,&OffEle::hltEta);		
+  addStdHistHEP<OffEle,float>(histVec,baseName+"_HLTphi",baseName+" HLT #phi;HLT #phi (rad)",bins.HLTphi,&OffEle::hltPhi);
+  //-------
+  addStdHistHEP<OffEle,float>(histVec,baseName+"_dPhiIn",baseName+" #Delta #phi_{in}; #Delta #phi_{in}",bins.dPhiIn,&OffEle::dPhiIn);
+  addStdHistHEP<OffEle,float>(histVec,baseName+"_dEtaIn",baseName+" #Delta #eta_{in}; #Delta #eta_{in}",bins.dEtaIn,&OffEle::dEtaIn);
+  addStdHistHEP<OffEle,float>(histVec,baseName+"_sigmaIEtaIEta",baseName+"#sigma_{i#etai#eta}; #sigma_{i#etai#eta}",bins.sigEtaEta,&OffEle::sigmaIEtaIEta);  
+  addStdHistHEP<OffEle,float>(histVec,baseName+"_epIn",baseName+"E/p_{in}; E/p_{in}",bins.eOverP,&OffEle::epIn);
+  addStdHistHEP<OffEle,float>(histVec,baseName+"_epOut",baseName+"E/p_{out}; E/p_{out}",bins.eOverP,&OffEle::epOut); 
+  addStdHistHEP<OffEle,float>(histVec,baseName+"_invEInvP",baseName+"1/E -1/p; 1/E - 1/p",bins.invEInvP,&OffEle::invEInvP);
+
+  addStdHistHEP<OffEle,float>(histVec,baseName+"_e2x5Over5x5",baseName+"E^{2x5}/E^{5x5}; E^{2x5}/E^{5x5}",bins.e2x5,&OffEle::e2x5MaxOver5x5);
+  addStdHistHEP<OffEle,float>(histVec,baseName+"_e1x5Over5x5",baseName+"E^{1x5}/E^{5x5}; E^{1x5}/E^{5x5}",bins.e1x5,&OffEle::e1x5Over5x5);
+  //addStdHist<OffEle,float>(histVec,baseName+"_isolEM",baseName+"Isol EM; Isol EM (GeV)",bins.isolEm,&OffEle::isolEm); 
+  //addStdHist<OffEle,float>(histVec,baseName+"_isolHad",baseName+"Isol Had; Isol Had (GeV)",bins.isolHad,&OffEle::isolHad);
+  //addStdHist<OffEle,float>(histVec,baseName+"_isolPtTrks",baseName+"Isol Pt Trks; Isol Pt Tracks (GeV/c)",bins.isolPtTrks,&OffEle::isolPtTrks); 
+  addStdHistHEP<OffEle,float>(histVec,baseName+"_hltIsolTrksEle",baseName+"HLT Ele Isol Trks; HLT Ele Iso Tracks (GeV/c)",bins.isolPtTrks,&OffEle::hltIsolTrksEle);  
+  //addStdHist<OffEle,float>(histVec,baseName+"_hltIsolTrksPho",baseName+"HLT Pho Isol Trks; HLT Pho Iso Tracks (GeV/c)",bins.isolPtTrks,&OffEle::hltIsolTrksPho); 
+  addStdHistHEP<OffEle,float>(histVec,baseName+"_hltIsolHad",baseName+"HLT Isol Had; HLT Isol Had (GeV)",bins.isolHad,&OffEle::hltIsolHad);
+  addStdHistHEP<OffEle,float>(histVec,baseName+"_hltIsolEm",baseName+"HLT Isol Em; HLT Isol Em (GeV)",bins.isolEm,&OffEle::hltIsolEm);
+  addStdHistHEP<OffEle,float>(histVec,baseName+"_DeltaE",baseName+"HLT Energy - reco SC Energy;HLT Energy - reco SC Energy (GeV)",bins.deltaE,&OffEle::DeltaE);
+/*
+  histVec.push_back(new MonElemManager2D<OffEle,float,float>(iBooker, baseName+"_etaVsPhi",
+							     baseName+" #eta vs #phi;#eta;#phi (rad)",
+							     bins.etaVsPhi.nrX,bins.etaVsPhi.xMin,bins.etaVsPhi.xMax,
+							     bins.etaVsPhi.nrY,bins.etaVsPhi.yMin,bins.etaVsPhi.yMax,
+							     &OffEle::detEta,&OffEle::phi));
+  histVec.push_back(new MonElemManager2D<OffEle,float,float>(iBooker, baseName+"_HLTetaVsHLTphi",
+							     baseName+" HLT #eta vs HLT #phi;HLT #eta;HLT #phi (rad)",
+							     bins.etaVsPhi.nrX,bins.etaVsPhi.xMin,bins.etaVsPhi.xMax,
+							     bins.etaVsPhi.nrY,bins.etaVsPhi.yMin,bins.etaVsPhi.yMax,
+							     &OffEle::hltEta,&OffEle::hltPhi));
+*/
+}
+
+void MonElemFuncs::initStdPhoHistsHEP(std::vector<MonElemManagerBase<OffPho>*>& histVec,const std::string& filterName,const std::string& baseName,const BinData& bins)
+{
+
+  addStdHistHEP<OffPho,float>(histVec,baseName+"_energy",baseName+" reco Energy;reco Energy (GeV)",bins.energy, &OffPho::energy);
+  addStdHistHEP<OffPho,float>(histVec,baseName+"_et",baseName+" E_{T};E_{T} (GeV)",bins.et,&OffPho::et); 
+  addStdHistHEP<OffPho,float>(histVec,baseName+"_etHigh",baseName+" E_{T};E_{T} (GeV)",bins.etHigh,&OffPho::et);
+  addStdHistHEP<OffPho,float>(histVec,baseName+"_etSC",baseName+" E^{SC}_{T};E^{SC}_{T} (GeV)",bins.et,&OffPho::etSC);
+  addStdHistHEP<OffPho,float>(histVec,baseName+"_eta",baseName+" #eta;#eta",bins.eta,&OffPho::detEta);		
+  addStdHistHEP<OffPho,float>(histVec,baseName+"_phi",baseName+" #phi;#phi (rad)",bins.phi,&OffPho::phi);
+  
+  addStdHistHEP<OffPho,float>(histVec,baseName+"_hOverE",baseName+" H/E; H/E",bins.hOverE,&OffPho::hOverE);
+  //----Morse
+  //addStdHist<OffPho,float>(histVec,baseName+"_r9",baseName+" R9 ; R9",bins.r9,&OffPho::r9);
+  //addStdHist<OffPho,float>(histVec,baseName+"_minr9",baseName+" MINR9 ; MINR9",bins.minr9,&OffPho::r9);
+  addStdHistHEP<OffPho,float>(histVec,baseName+"_maxr9",baseName+" MAXR9 ; MAXR9",bins.maxr9,&OffPho::r9);
+  addStdHistHEP<OffPho,float>(histVec,baseName+"_HLTenergy",baseName+" HLT Energy;HLT Energy (GeV)",bins.HLTenergy,&OffPho::hltEnergy); 
+  addStdHistHEP<OffPho,float>(histVec,baseName+"_HLTeta",baseName+" HLT #eta;HLT #eta",bins.HLTeta,&OffPho::hltEta);		
+  addStdHistHEP<OffPho,float>(histVec,baseName+"_HLTphi",baseName+" HLT #phi;HLT #phi (rad)",bins.HLTphi,&OffPho::hltPhi);
+  //-------
+  addStdHistHEP<OffPho,float>(histVec,baseName+"_sigmaIEtaIEta",baseName+"#sigma_{i#etai#eta}; #sigma_{i#etai#eta}",bins.sigEtaEta,&OffPho::sigmaIEtaIEta);  
+  addStdHistHEP<OffPho,float>(histVec,baseName+"_e2x5Over5x5",baseName+"E^{2x5}/E^{5x5}; E^{2x5}/E^{5x5}",bins.e2x5,&OffPho::e2x5MaxOver5x5);
+  addStdHistHEP<OffPho,float>(histVec,baseName+"_e1x5Over5x5",baseName+"E^{1x5}/E^{5x5}; E^{1x5}/E^{5x5}",bins.e1x5,&OffPho::e1x5Over5x5);
+  addStdHistHEP<OffPho,float>(histVec,baseName+"_isolEM",baseName+"Isol EM; Isol EM (GeV)",bins.isolEm,&OffPho::isolEm); 
+  addStdHistHEP<OffPho,float>(histVec,baseName+"_isolHad",baseName+"Isol Had; Isol Had (GeV)",bins.isolHad,&OffPho::isolHad);
+  addStdHistHEP<OffPho,float>(histVec,baseName+"_isolPtTrks",baseName+"Isol Pt Trks; Isol Pt Tracks (GeV/c)",bins.isolPtTrks,&OffPho::isolPtTrks);  
+  addStdHistHEP<OffPho,int>(histVec,baseName+"_isolNrTrks",baseName+"Isol Nr Trks; Isol Nr Tracks",bins.isolNrTrks,&OffPho::isolNrTrks); 
+  //addStdHist<OffPho,float>(histVec,baseName+"_hltIsolTrks",baseName+"HLT Isol Trks; HLT Iso Tracks (GeV/c)",bins.isolPtTrks,&OffPho::hltIsolTrks); 
+  //addStdHist<OffPho,float>(histVec,baseName+"_hltIsolHad",baseName+"HLT Isol Had; HLT Isol Had (GeV)",bins.isolPtTrks,&OffPho::hltIsolHad);
+  addStdHistHEP<OffPho,float>(histVec,baseName+"_DeltaE",baseName+"HLT Energy - reco SC Energy;HLT Energy - reco SC Energy (GeV)",bins.deltaE,&OffPho::DeltaE);
+/* histVec.push_back(new MonElemManager2D<OffPho,float,float>(iBooker, baseName+"_etaVsPhi",
+							     baseName+" #eta vs #phi;#eta;#phi (rad)",
+							     bins.etaVsPhi.nrX,bins.etaVsPhi.xMin,bins.etaVsPhi.xMax,
+							     bins.etaVsPhi.nrY,bins.etaVsPhi.yMin,bins.etaVsPhi.yMax,
+							     &OffPho::detEta,&OffPho::phi));
+  histVec.push_back(new MonElemManager2D<OffPho,float,float>(iBooker, baseName+"_HLTetaVsHLTphi",
+							     baseName+" HLT #eta vs HLT #phi;HLT #eta;HLT #phi (rad)",
+							     bins.etaVsPhi.nrX,bins.etaVsPhi.xMin,bins.etaVsPhi.xMax,
+							     bins.etaVsPhi.nrY,bins.etaVsPhi.yMin,bins.etaVsPhi.yMax,
+							     &OffPho::hltEta,&OffPho::hltPhi));
+
+*/
+}
+
  
 void MonElemFuncs::initStdEffHists(std::vector<MonElemWithCutBase<OffEle>*>& histVec,const std::string& filterName,const std::string& baseName,const BinData::Data1D& bins,float (OffEle::*vsVarFunc)()const,const CutMasks& masks)
 {

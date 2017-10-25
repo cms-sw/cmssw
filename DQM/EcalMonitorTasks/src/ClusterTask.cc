@@ -21,8 +21,8 @@ namespace ecaldqm
 {
   ClusterTask::ClusterTask() :
     DQWorkerTask(),
-    ebHits_(0),
-    eeHits_(0),
+    ebHits_(nullptr),
+    eeHits_(nullptr),
     //    ievt_(0),
     //    massCalcPrescale_(_workerParams.getUntrackedParameter<int>("massCalcPrescale")),
     doExtra_(true),
@@ -105,7 +105,7 @@ namespace ecaldqm
     _es.get<L1GtTriggerMenuRcd>().get(menuRcd) ;
     L1GtTriggerMenu const* menu(menuRcd.product());
 
-    if ( dWord.size() > 0)  { //protect against no L1GT in run
+    if ( !dWord.empty())  { //protect against no L1GT in run
       for(unsigned iT(0); iT != egTriggerAlgos_.size(); ++iT){
 	if(menu->gtAlgorithmResult(egTriggerAlgos_[iT], dWord)){
 	  triggered_.set(kEcalTrigger);
@@ -177,8 +177,8 @@ namespace ecaldqm
   {
     //    ++ievt_;
 
-    ebHits_ = 0;
-    eeHits_ = 0;
+    ebHits_ = nullptr;
+    eeHits_ = nullptr;
   }
   
   bool
@@ -374,14 +374,14 @@ namespace ecaldqm
     MESet& meSingleCrystalCluster(MEs_.at("SingleCrystalCluster"));
     MESet& meSCR9(MEs_.at("SCR9"));
 
-    MESet* meSCSizeVsEnergy(doExtra_ ? &MEs_.at("SCSizeVsEnergy") : 0);
-    MESet* meSCSeedOccupancyHighE(doExtra_ ? &MEs_.at("SCSeedOccupancyHighE") : 0);
-    MESet* meSCSeedOccupancyTrig(doExtra_ ? &MEs_.at("SCSeedOccupancyTrig") : 0);
-    MESet* meSCSeedTimeTrigEx(doExtra_ ? &MEs_.at("SCSeedTimeTrigEx") : 0);
-    MESet* meSCSeedTimeMapTrigEx(doExtra_ ? &MEs_.at("SCSeedTimeMapTrigEx") : 0);
-    MESet* meSCOccupancyProjEta(doExtra_ ? &MEs_.at("SCOccupancyProjEta") : 0);
-    MESet* meSCOccupancyProjPhi(doExtra_ ? &MEs_.at("SCOccupancyProjPhi") : 0);
-    MESet* meSCSwissCross(doExtra_ ? &MEs_.at("SCSwissCross") : 0);
+    MESet* meSCSizeVsEnergy(doExtra_ ? &MEs_.at("SCSizeVsEnergy") : nullptr);
+    MESet* meSCSeedOccupancyHighE(doExtra_ ? &MEs_.at("SCSeedOccupancyHighE") : nullptr);
+    MESet* meSCSeedOccupancyTrig(doExtra_ ? &MEs_.at("SCSeedOccupancyTrig") : nullptr);
+    MESet* meSCSeedTimeTrigEx(doExtra_ ? &MEs_.at("SCSeedTimeTrigEx") : nullptr);
+    MESet* meSCSeedTimeMapTrigEx(doExtra_ ? &MEs_.at("SCSeedTimeMapTrigEx") : nullptr);
+    MESet* meSCOccupancyProjEta(doExtra_ ? &MEs_.at("SCOccupancyProjEta") : nullptr);
+    MESet* meSCOccupancyProjPhi(doExtra_ ? &MEs_.at("SCOccupancyProjPhi") : nullptr);
+    MESet* meSCSwissCross(doExtra_ ? &MEs_.at("SCSwissCross") : nullptr);
 
     EcalRecHitCollection const* hits(isBarrel ? ebHits_ : eeHits_);
 

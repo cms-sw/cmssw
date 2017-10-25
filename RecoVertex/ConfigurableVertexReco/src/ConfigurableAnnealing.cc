@@ -7,7 +7,7 @@
 using namespace std;
 
 ConfigurableAnnealing::ConfigurableAnnealing ( const edm::ParameterSet & m ) :
-  theImpl( 0 )
+  theImpl( nullptr )
 {
   string type = m.getParameter<string>("annealing");
   // edm::LogWarning("ConfigurableAnnealing") << "below one code ist still here.";

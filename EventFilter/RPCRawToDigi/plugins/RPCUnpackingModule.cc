@@ -42,7 +42,7 @@ RPCUnpackingModule::RPCUnpackingModule(const edm::ParameterSet& pset)
   : dataLabel_(pset.getParameter<edm::InputTag>("InputLabel")),
     doSynchro_(pset.getParameter<bool>("doSynchro")),
     eventCounter_(0),
-    theCabling(0)
+    theCabling(nullptr)
 {
   produces<RPCDigiCollection>();
   produces<RPCRawDataCounts>();
@@ -98,7 +98,7 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es)
 
     const FEDRawData & rawData = allFEDRawData->FEDData(fedId);
     RPCRecordFormatter interpreter = 
-        theCabling ? RPCRecordFormatter(fedId,&theReadoutMappingSearch) : RPCRecordFormatter(fedId,0);
+        theCabling ? RPCRecordFormatter(fedId,&theReadoutMappingSearch) : RPCRecordFormatter(fedId,nullptr);
     int triggerBX =0;
     int nWords = rawData.size()/sizeof(Word64);
     if (nWords==0) continue;

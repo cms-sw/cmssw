@@ -41,11 +41,11 @@ namespace edm {
 class HLTHcalNZSFilter : public HLTFilter {
 public:
   explicit HLTHcalNZSFilter(const edm::ParameterSet&);
-  virtual ~HLTHcalNZSFilter();
+  ~HLTHcalNZSFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
   // ----------member data ---------------------------
 

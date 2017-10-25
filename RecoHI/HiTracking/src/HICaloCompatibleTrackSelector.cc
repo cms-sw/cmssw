@@ -130,7 +130,7 @@ void HICaloCompatibleTrackSelector::produce( edm::Event& evt, const edm::EventSe
     selTracks_->push_back( reco::Track( trk ) ); // clone and store
     
     
-    if(isSelected) selTracks_->back().setQuality(reco::TrackBase::qualityByName(qualityToSet_.c_str()));
+    if(isSelected) selTracks_->back().setQuality(reco::TrackBase::qualityByName(qualityToSet_));
     
         
     if (copyExtras_) {

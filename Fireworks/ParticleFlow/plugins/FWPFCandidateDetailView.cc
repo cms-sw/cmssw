@@ -49,11 +49,11 @@
 
 FWPFCandidateDetailView::FWPFCandidateDetailView ():
    m_range(1),
-   m_candidate(0),
-   m_legend(0),
-   m_slider(0),
+   m_candidate(nullptr),
+   m_legend(nullptr),
+   m_slider(nullptr),
    m_sliderListener(),
-   m_eventList(0),
+   m_eventList(nullptr),
    m_plotEt(true),
    m_rnrHcal(true)
 {}
@@ -86,7 +86,7 @@ bool FWPFCandidateDetailView::isPntInRng(float x, float y)
 void
 FWPFCandidateDetailView::makeLegend()
 {
-   m_legend = new TLegend( 0.01, 0.01, 0.99, 0.99, 0, "NDC" );
+   m_legend = new TLegend( 0.01, 0.01, 0.99, 0.99, nullptr, "NDC" );
    m_legend->SetFillColor(kWhite);
    m_legend->SetTextSize( 0.07 );
    m_legend->SetBorderSize( 0 );
@@ -142,7 +142,7 @@ FWPFCandidateDetailView::setTextInfo(const FWModelId &id, const reco::PFCandidat
 
    m_legend->SetY2(y);
    m_legend->Draw();
-   m_legend = 0; // Deleted together with TPad.
+   m_legend = nullptr; // Deleted together with TPad.
 }
 
 void
@@ -364,7 +364,7 @@ namespace
 {
 TEveStraightLineSet::Line_t* AddLineToLineSet(TEveStraightLineSet* ls, const std::vector< TEveVector >& pnts, int i0, int i1) 
 {
-   if (0) {
+   if (false) {
       printf("add line \n");
       pnts[i0].Dump();
       pnts[i1].Dump();

@@ -17,12 +17,13 @@ regressionModifier = \
                 uncertaintyKey_ecalonly = cms.vstring('photon_eb_ECALonly_lowpt_var', 'photon_eb_ECALonly_var', 'photon_ee_ECALonly_lowpt_var', 'photon_ee_ECALonly_var'),
                                           ),
 
-              lowEnergy_ECALonlyThr = cms.double(300.),
+              lowEnergy_ECALonlyThr = cms.double(99999.),
               lowEnergy_ECALTRKThr = cms.double(50.),
               highEnergy_ECALTRKThr = cms.double(200.),
               eOverP_ECALTRKThr = cms.double(0.025),
               epDiffSig_ECALTRKThr = cms.double(15.),
               epSig_ECALTRKThr = cms.double(10.),
+              forceHighEnergyEcalTrainingIfSaturated = cms.bool(True)
 
               )
     

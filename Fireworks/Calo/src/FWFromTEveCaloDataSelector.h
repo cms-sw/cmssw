@@ -36,22 +36,22 @@ class FWFromTEveCaloDataSelector : public FWFromEveSelectorBase
 
 public:
    FWFromTEveCaloDataSelector(TEveCaloData*);
-   virtual ~FWFromTEveCaloDataSelector();
+   ~FWFromTEveCaloDataSelector() override;
    
    // ---------- const member functions ---------------------
    
    // ---------- static member functions --------------------
    
    // ---------- member functions ---------------------------
-   void doSelect();
-   void doUnselect();   
+   void doSelect() override;
+   void doUnselect() override;   
 
    void addSliceSelector(int iSlice, FWFromSliceSelector*);
    void resetSliceSelector(int iSlice);
 private:
-   FWFromTEveCaloDataSelector(const FWFromTEveCaloDataSelector&); // stop default
+   FWFromTEveCaloDataSelector(const FWFromTEveCaloDataSelector&) = delete; // stop default
    
-   const FWFromTEveCaloDataSelector& operator=(const FWFromTEveCaloDataSelector&); // stop default
+   const FWFromTEveCaloDataSelector& operator=(const FWFromTEveCaloDataSelector&) = delete; // stop default
    
    // ---------- member data --------------------------------
    std::vector<FWFromSliceSelector*> m_sliceSelectors;

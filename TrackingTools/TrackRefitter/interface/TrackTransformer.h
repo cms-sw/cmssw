@@ -43,7 +43,7 @@ public:
   explicit TrackTransformer(const edm::ParameterSet&);
 
   /// Destructor
-  ~TrackTransformer();
+  ~TrackTransformer() override;
   
   // Operations
 

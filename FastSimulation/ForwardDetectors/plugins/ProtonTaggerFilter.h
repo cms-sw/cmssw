@@ -40,7 +40,7 @@ class ProtonTaggerFilter : public edm::stream::EDFilter <>
   explicit ProtonTaggerFilter(edm::ParameterSet const & p);
 
   /// empty destructor
-  virtual ~ProtonTaggerFilter();
+  ~ProtonTaggerFilter() override;
 
   /// startup function of the EDFilter
   virtual void beginJob();
@@ -49,7 +49,7 @@ class ProtonTaggerFilter : public edm::stream::EDFilter <>
   virtual void endJob();
 
   /// decide if the event is accepted by the proton taggers
-  virtual bool filter(edm::Event & e, const edm::EventSetup & c);
+  bool filter(edm::Event & e, const edm::EventSetup & c) override;
 
  private:
 

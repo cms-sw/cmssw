@@ -129,7 +129,7 @@
 class ApeEstimator : public edm::EDAnalyzer {
    public:
       explicit ApeEstimator(const edm::ParameterSet&);
-      ~ApeEstimator();
+      ~ApeEstimator() override;
 
 
    private:
@@ -143,9 +143,9 @@ class ApeEstimator : public edm::EDAnalyzer {
       };
       typedef std::pair<TrackStruct::HitState,PositionAndError2> StatePositionAndError2;
       
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob();
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override;
       
       bool isHit2D(const TrackingRecHit&)const;
       
@@ -257,7 +257,7 @@ ApeEstimator::sectorBuilder(){
     edm::LogError("SectorBuilder")<<"TrackerTreeFile not found";
     return;
   }
-  TTree* tkTree(0);
+  TTree* tkTree(nullptr);
   tkTreeFile->GetObject("TrackerTreeGenerator/TrackerTree/TrackerTree",tkTree);
   if(tkTree){
     edm::LogInfo("SectorBuilder")<<"TrackerTree OK";
@@ -425,7 +425,7 @@ ApeEstimator::sectorBuilder(){
 
 bool
 ApeEstimator::checkIntervalsForSectors(const unsigned int sectorCounter, const std::vector<double>& v_id)const{
-  if(v_id.size()==0)return true;
+  if(v_id.empty())return true;
   if(v_id.size()%2==1){
     edm::LogError("SectorBuilder")<<"Incorrect Sector Definition: Position Vectors need even number of arguments (Intervals)"
                                      <<"\n... sector selection is not applied, sector "<<sectorCounter<<" is not built";
@@ -446,7 +446,7 @@ ApeEstimator::checkIntervalsForSectors(const unsigned int sectorCounter, const s
 
 bool
 ApeEstimator::checkModuleIds(const unsigned int id, const std::vector<unsigned int>& v_id)const{
-  if(v_id.size()==0)return true;
+  if(v_id.empty())return true;
   for(std::vector<unsigned int>::const_iterator i_id = v_id.begin(); i_id != v_id.end(); ++i_id){
     if(id==*i_id)return true;
   }
@@ -455,7 +455,7 @@ ApeEstimator::checkModuleIds(const unsigned int id, const std::vector<unsigned i
 
 bool
 ApeEstimator::checkModuleBools(const bool id, const std::vector<unsigned int>& v_id)const{
-  if(v_id.size()==0)return true;
+  if(v_id.empty())return true;
   for(std::vector<unsigned int>::const_iterator i_id = v_id.begin(); i_id != v_id.end(); ++i_id){
     if(1==*i_id && id)return true;
     if(2==*i_id && !id)return true;
@@ -465,7 +465,7 @@ ApeEstimator::checkModuleBools(const bool id, const std::vector<unsigned int>& v
 
 bool
 ApeEstimator::checkModuleDirections(const int id, const std::vector<int>& v_id)const{
-  if(v_id.size()==0)return true;
+  if(v_id.empty())return true;
   for(std::vector<int>::const_iterator i_id = v_id.begin(); i_id != v_id.end(); ++i_id){
     if(id==*i_id)return true;
   }
@@ -474,7 +474,7 @@ ApeEstimator::checkModuleDirections(const int id, const std::vector<int>& v_id)c
 
 bool
 ApeEstimator::checkModulePositions(const float id, const std::vector<double>& v_id)const{
-  if(v_id.size()==0)return true;
+  if(v_id.empty())return true;
   int entry(1); double intervalBegin(999.);
   for(std::vector<double>::const_iterator i_id = v_id.begin(); i_id != v_id.end(); ++i_id, ++entry){
     if(entry%2==1)intervalBegin = *i_id;
@@ -600,13 +600,13 @@ ApeEstimator::bookSectorHistsForAnalyzerMode(){
     }
     
     std::stringstream sector; sector << "Sector_" << (*i_sector).first;
-    TFileDirectory secDir = fileService->mkdir(sector.str().c_str());
+    TFileDirectory secDir = fileService->mkdir(sector.str());
     
     // Dummy histo containing the sector name as title
     (*i_sector).second.Name = secDir.make<TH1F>("z_name",(*i_sector).second.name.c_str(),1,0,1);
     
     // Do not book histos for empty sectors
-    if((*i_sector).second.v_rawId.size()==0){
+    if((*i_sector).second.v_rawId.empty()){
       continue;
     }
     // Set parameters for correlationHists
@@ -799,23 +799,23 @@ ApeEstimator::bookSectorHistsForApeCalculation(){
     }
     
     std::stringstream sector; sector << "Sector_" << (*i_sector).first;
-    TFileDirectory secDir = fileService->mkdir(sector.str().c_str());
+    TFileDirectory secDir = fileService->mkdir(sector.str());
     
     // Dummy histo containing the sector name as title
     (*i_sector).second.Name = secDir.make<TH1F>("z_name",(*i_sector).second.name.c_str(),1,0,1);
     
     // Do not book histos for empty sectors
-    if((*i_sector).second.v_rawId.size()==0){
+    if((*i_sector).second.v_rawId.empty()){
       continue;
     }
     
     
     // Distributions in each interval (stay in [cm], to have all calculations in [cm])
-    if(m_resErrBins_.size()==0){m_resErrBins_[1].first = 0.;m_resErrBins_[1].second = 0.01;} // default if no selection taken into account: calculate APE with one bin with residual error 0-100um
+    if(m_resErrBins_.empty()){m_resErrBins_[1].first = 0.;m_resErrBins_[1].second = 0.01;} // default if no selection taken into account: calculate APE with one bin with residual error 0-100um
     for(std::map<unsigned int,std::pair<double,double> >::const_iterator i_errBins = m_resErrBins_.begin();
          i_errBins != m_resErrBins_.end(); ++i_errBins){
       std::stringstream interval; interval << "Interval_" << (*i_errBins).first;
-      TFileDirectory intDir = secDir.mkdir(interval.str().c_str());
+      TFileDirectory intDir = secDir.mkdir(interval.str());
       (*i_sector).second.m_binnedHists[(*i_errBins).first]["sigmaX"]  = intDir.make<TH1F>("h_sigmaX","residual resolution #sigma_{x};#sigma_{x}  [cm];# hits",100,0.,0.01);
       (*i_sector).second.m_binnedHists[(*i_errBins).first]["norResX"] = intDir.make<TH1F>("h_norResX","normalized residual r_{x}/#sigma_{r,x};(x_{trk}-x_{hit})/#sigma_{r,x};# hits",100,-10,10);
       if((*i_sector).second.isPixel){
@@ -1240,7 +1240,7 @@ ApeEstimator::fillHitVariables(const TrajectoryMeasurement& i_meas, const edm::E
       edm::LogError("FillHitVariables")<<"RecHit in Strip is 'Matched' or 'Projected', but here all should be monohits per module";
       hitParams.hitState = TrackStruct::invalid; return hitParams;
     }
-    const SiStripCluster* clusterPtr(0);
+    const SiStripCluster* clusterPtr(nullptr);
     if(m_tkTreeVar_[rawId].subdetId==StripSubdetector::TIB || m_tkTreeVar_[rawId].subdetId==StripSubdetector::TOB){
       if(dynamic_cast<const SiStripRecHit1D*>(&recHit)){
         const SiStripRecHit1D& stripHit = dynamic_cast<const SiStripRecHit1D&>(recHit);
@@ -1344,7 +1344,7 @@ ApeEstimator::fillHitVariables(const TrajectoryMeasurement& i_meas, const edm::E
   
   if(!hitParams.isModuleUsable){hitParams.hitState = TrackStruct::invalid; return hitParams;}
   
-  if(0==hitParams.v_sector.size()){hitParams.hitState = TrackStruct::notAssignedToSectors; return hitParams;}
+  if(hitParams.v_sector.empty()){hitParams.hitState = TrackStruct::notAssignedToSectors; return hitParams;}
   
   return hitParams;
 //}  
@@ -1515,7 +1515,7 @@ ApeEstimator::hitSelection(){
   edm::LogInfo("HitSelector")<<"applying hit cuts ...";
   bool emptyMap(true);
   for(std::map<std::string, std::vector<double> >::iterator i_hitSelection = m_hitSelection_.begin(); i_hitSelection != m_hitSelection_.end(); ++i_hitSelection){
-    if(0 < (*i_hitSelection).second.size()){
+    if(!(*i_hitSelection).second.empty()){
       int entry(1); double intervalBegin(999.);
       for(std::vector<double>::iterator i_hitInterval = (*i_hitSelection).second.begin(); i_hitInterval != (*i_hitSelection).second.end(); ++entry){
         if(entry%2==1){intervalBegin = *i_hitInterval; ++i_hitInterval;}
@@ -1530,14 +1530,14 @@ ApeEstimator::hitSelection(){
 	  }
 	}
       }
-      if(0 < (*i_hitSelection).second.size())emptyMap = false;
+      if(!(*i_hitSelection).second.empty())emptyMap = false;
     }
   }
   
   
   bool emptyMapUInt(true);
   for(std::map<std::string, std::vector<unsigned int> >::iterator i_hitSelection = m_hitSelectionUInt_.begin(); i_hitSelection != m_hitSelectionUInt_.end(); ++i_hitSelection){
-    if(0 < (*i_hitSelection).second.size()){
+    if(!(*i_hitSelection).second.empty()){
       int entry(1); unsigned int intervalBegin(999);
       for(std::vector<unsigned int>::iterator i_hitInterval = (*i_hitSelection).second.begin(); i_hitInterval != (*i_hitSelection).second.end(); ++entry){
         if(entry%2==1){intervalBegin = *i_hitInterval; ++i_hitInterval;}
@@ -1552,7 +1552,7 @@ ApeEstimator::hitSelection(){
 	  }
 	}
       }
-      if(0 < (*i_hitSelection).second.size())emptyMapUInt = false;
+      if(!(*i_hitSelection).second.empty())emptyMapUInt = false;
     }
   }
   
@@ -1613,7 +1613,7 @@ ApeEstimator::hitSelected(TrackStruct::HitParameterStruct& hitParams)const{
   for(std::map<std::string, std::vector<double> >::const_iterator i_hitSelection = m_hitSelection_.begin(); i_hitSelection != m_hitSelection_.end(); ++i_hitSelection){
     const std::string& hitSelection((*i_hitSelection).first);
     const std::vector<double>& v_hitSelection((*i_hitSelection).second);
-    if(v_hitSelection.size()==0)continue;
+    if(v_hitSelection.empty())continue;
     
     // For pixel and strip sectors in common
     if     (hitSelection == "phiSens")        {if(!this->inDoubleInterval(v_hitSelection, hitParams.phiSens))isGoodHit = false;}
@@ -1667,7 +1667,7 @@ ApeEstimator::hitSelected(TrackStruct::HitParameterStruct& hitParams)const{
   for(std::map<std::string, std::vector<unsigned int> >::const_iterator i_hitSelection = m_hitSelectionUInt_.begin(); i_hitSelection != m_hitSelectionUInt_.end(); ++i_hitSelection){
     const std::string& hitSelection((*i_hitSelection).first);
     const std::vector<unsigned int>& v_hitSelection((*i_hitSelection).second);
-    if(v_hitSelection.size()==0)continue;
+    if(v_hitSelection.empty())continue;
     
     // For pixel and strip sectors in common
     
@@ -2197,7 +2197,7 @@ ApeEstimator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      if(analyzerMode_)this->fillHistsForAnalyzerMode(trackStruct);
      if(calculateApe_)this->fillHistsForApeCalculation(trackStruct);
      
-     if(trackStruct.v_hitParams.size()>0)++trackSizeGood;
+     if(!trackStruct.v_hitParams.empty())++trackSizeGood;
    }
    if(analyzerMode_ && trackSizeGood>0)tkDetector_.TrkSizeGood->Fill(trackSizeGood);
 }

@@ -96,7 +96,7 @@ PFCheckHitPattern::analyze(const TrackerTopology* tkerTopo, const TrackerGeometr
   unsigned int nHitBefore = 0;
   unsigned int nHitAfter = 0;
 
-  for (int i = 0; i < hp.numberOfHits(HitPattern::TRACK_HITS); i++) {
+  for (int i = 0; i < hp.numberOfAllHits(HitPattern::TRACK_HITS); i++) {
     uint32_t hit = hp.getHitPattern(HitPattern::TRACK_HITS, i);
     if (hp.trackerHitFilter(hit) && hp.validHitFilter(hit)) {
       uint32_t subDet = hp.getSubStructure(hit);
@@ -119,9 +119,9 @@ PFCheckHitPattern::analyze(const TrackerTopology* tkerTopo, const TrackerGeometr
   unsigned int nMissHitAfter = 0;
   unsigned int nMissHitBefore = 0;
 
-  for (int i = 0; i < hp.numberOfHits(HitPattern::MISSING_INNER_HITS); i++) {
+  for (int i = 0; i < hp.numberOfAllHits(HitPattern::MISSING_INNER_HITS); i++) {
     uint32_t hit = hp.getHitPattern(HitPattern::MISSING_INNER_HITS, i);
-    if (reco::HitPattern::trackerHitFilter(hit)) {
+    if (reco::HitPattern::trackerHitFilter(hit) && reco::HitPattern::missingHitFilter(hit)) {
       uint32_t subDet = reco::HitPattern::getSubStructure(hit);
       uint32_t layer = reco::HitPattern::getLayer(hit);
       DetInfo detInfo(subDet, layer);
@@ -158,7 +158,7 @@ void PFCheckHitPattern::print(const TrackBaseRef track) const {
 }
 
 void PFCheckHitPattern::print(const reco::HitPattern::HitCategory category, const reco::HitPattern& hp) const {
-  for (int i = 0; i < hp.numberOfHits(category); i++) {
+  for (int i = 0; i < hp.numberOfAllHits(category); i++) {
     uint32_t hit = hp.getHitPattern(category, i);
     if (hp.trackerHitFilter(hit)) {
       uint32_t subdet = hp.getSubStructure(hit);

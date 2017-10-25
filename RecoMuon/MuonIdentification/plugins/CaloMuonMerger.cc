@@ -23,9 +23,9 @@
 class CaloMuonMerger : public edm::stream::EDProducer<> {
 public:
   explicit CaloMuonMerger(const edm::ParameterSet & iConfig);
-  virtual ~CaloMuonMerger() { }
+  ~CaloMuonMerger() override { }
 
-  virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+  void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
 private:
   edm::InputTag muons_;

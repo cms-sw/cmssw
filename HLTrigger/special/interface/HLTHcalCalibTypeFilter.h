@@ -43,12 +43,12 @@ namespace edm {
 class HLTHcalCalibTypeFilter : public edm::global::EDFilter<> {
 public:
   explicit HLTHcalCalibTypeFilter(const edm::ParameterSet&);
-  virtual ~HLTHcalCalibTypeFilter();
+  ~HLTHcalCalibTypeFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
 private:
-  virtual bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-  virtual void endJob(void) override;
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void endJob(void) override;
   
   // ----------member data ---------------------------
   const edm::EDGetTokenT<FEDRawDataCollection> DataInputToken_;

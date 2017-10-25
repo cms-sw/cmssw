@@ -13,7 +13,7 @@
 
 // Changes
 // Namespace for the HCAL HLX
-#include <stdint.h>
+#include <cstdint>
 
 namespace HCAL_HLX{
 

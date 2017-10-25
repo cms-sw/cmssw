@@ -27,13 +27,13 @@ public:
   IsolatorByDepositCount(float conesize, const std::vector<double>& thresh);
   IsolatorByDepositCount(const ConeSizeFunction * conesize, const std::vector<double>& thresh);
 
-  virtual ~IsolatorByDepositCount() = default;
+  ~IsolatorByDepositCount() override = default;
 
   //! Compute the deposit within the cone and return the isolation result
-  virtual Result result(const DepositContainer& deposits, const edm::Event* = 0) const;
+  Result result(const DepositContainer& deposits, const edm::Event* = nullptr) const override;
 
 
-  void setConeSize(float conesize) { theConeSize = conesize; theConeSizeFunction = 0;} 
+  void setConeSize(float conesize) { theConeSize = conesize; theConeSizeFunction = nullptr;} 
 
   void setConeSize(ConeSizeFunction * conesize) { theConeSizeFunction = conesize; }
 
@@ -43,7 +43,7 @@ public:
     return theConeSizeFunction ? theConeSizeFunction->coneSize(eta,pT) : theConeSize;
   }
 
-  virtual ResultType resultType() const { return ISOL_INT_TYPE;}
+  ResultType resultType() const override { return ISOL_INT_TYPE;}
 
 
 private:

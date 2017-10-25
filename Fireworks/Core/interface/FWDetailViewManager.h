@@ -60,8 +60,8 @@ protected:
 
 private:
 
-   FWDetailViewManager(const FWDetailViewManager&);    // stop default
-   const FWDetailViewManager& operator=(const FWDetailViewManager&);    // stop default
+   FWDetailViewManager(const FWDetailViewManager&) = delete;    // stop default
+   const FWDetailViewManager& operator=(const FWDetailViewManager&) = delete;    // stop default
 
    std::vector<std::string> findViewersFor(const std::string&) const;
 

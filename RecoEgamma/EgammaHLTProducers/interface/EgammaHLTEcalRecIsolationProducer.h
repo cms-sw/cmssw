@@ -34,7 +34,7 @@ namespace edm {
 class EgammaHLTEcalRecIsolationProducer : public edm::EDProducer {
  public:
   explicit EgammaHLTEcalRecIsolationProducer(const edm::ParameterSet&);
-  ~EgammaHLTEcalRecIsolationProducer();
+  ~EgammaHLTEcalRecIsolationProducer() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

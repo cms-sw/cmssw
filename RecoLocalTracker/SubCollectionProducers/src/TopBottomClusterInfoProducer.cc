@@ -32,7 +32,7 @@
 class TopBottomClusterInfoProducer : public edm::global::EDProducer<> {
 public:
   TopBottomClusterInfoProducer(const edm::ParameterSet& iConfig) ;
-  ~TopBottomClusterInfoProducer() ;
+  ~TopBottomClusterInfoProducer() override ;
   void produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const override ;
   
 private:

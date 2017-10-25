@@ -34,7 +34,7 @@ class HIPTwoBodyDecayAnalyzer : public edm::EDAnalyzer {
 public:
   
   explicit HIPTwoBodyDecayAnalyzer(const edm::ParameterSet&);
-  ~HIPTwoBodyDecayAnalyzer();
+  ~HIPTwoBodyDecayAnalyzer() override;
 
   edm::EDGetTokenT<reco::TrackCollection> alcareco_trackCollToken_;
   edm::EDGetTokenT<reco::TrackCollection> refit1_trackCollToken_;
@@ -57,9 +57,9 @@ private:
     BranchType_unknown_t
   };
 
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   void bookAllBranches();
   bool bookBranch(std::string bname, BranchType btype);

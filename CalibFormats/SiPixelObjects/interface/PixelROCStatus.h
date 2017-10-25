@@ -6,7 +6,7 @@
 *    A longer explanation will be placed here later
 */
 
-#include <stdint.h>
+#include <cstdint>
 #include <set>
 #include <string>
 

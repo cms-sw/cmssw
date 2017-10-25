@@ -227,7 +227,7 @@ HistogramManager::makePathName(SummationSpecification const& s,
   std::string suffix = "";
 
   // we omit the last value here, to get all disks next to each other etc.
-  if (significantvalues.size() > 0) {
+  if (!significantvalues.empty()) {
     for (auto it = significantvalues.begin();
               it != (significantvalues.end()-1); ++it) {
       auto name = geometryInterface.formatValue(it->first, it->second);
@@ -399,7 +399,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
         }
         mei.dimensions = tot_parameters;
         if (mei.do_profile) mei.title = "Profile of " + mei.title;
-        if (mei.zlabel.size() > 0) mei.title = mei.title + " (Z: " + mei.zlabel + ")";
+        if (!mei.zlabel.empty()) mei.title = mei.title + " (Z: " + mei.zlabel + ")";
       } 
       // only update range
       MEInfo& mei = toBeBooked[significantvalues]; 

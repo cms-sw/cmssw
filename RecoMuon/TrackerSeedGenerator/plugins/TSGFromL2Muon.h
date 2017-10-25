@@ -24,9 +24,9 @@ class TrackerSeedCleaner;
 class TSGFromL2Muon : public edm::stream::EDProducer<> {
 public:
   TSGFromL2Muon(const edm::ParameterSet& cfg);
-  virtual ~TSGFromL2Muon();
-  virtual void beginRun(const edm::Run & run, const edm::EventSetup&es) override;
-  virtual void produce(edm::Event& ev, const edm::EventSetup& es) override;
+  ~TSGFromL2Muon() override;
+  void beginRun(const edm::Run & run, const edm::EventSetup&es) override;
+  void produce(edm::Event& ev, const edm::EventSetup& es) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:

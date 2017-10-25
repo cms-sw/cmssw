@@ -16,19 +16,19 @@ class FWBeamSpotProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::BeamSpo
 {
 public:
   FWBeamSpotProxyBuilder( void ) {}
-  virtual ~FWBeamSpotProxyBuilder( void ) {}
+  ~FWBeamSpotProxyBuilder( void ) override {}
    
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
   // Disable default copy constructor
-  FWBeamSpotProxyBuilder( const FWBeamSpotProxyBuilder& );
+  FWBeamSpotProxyBuilder( const FWBeamSpotProxyBuilder& ) = delete;
   // Disable default assignment operator
-  const FWBeamSpotProxyBuilder& operator=( const FWBeamSpotProxyBuilder& );
-  virtual void localModelChanges(const FWModelId& iId, TEveElement* parent, FWViewType::EType viewType, const FWViewContext* vc) override;
+  const FWBeamSpotProxyBuilder& operator=( const FWBeamSpotProxyBuilder& ) = delete;
+  void localModelChanges(const FWModelId& iId, TEveElement* parent, FWViewType::EType viewType, const FWViewContext* vc) override;
 
   using FWSimpleProxyBuilderTemplate<reco::BeamSpot>::build;
-  virtual void build( const reco::BeamSpot& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
+  void build( const reco::BeamSpot& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 };
 
 void FWBeamSpotProxyBuilder::localModelChanges(const FWModelId& iId, TEveElement* parent, FWViewType::EType viewType, const FWViewContext* vc)

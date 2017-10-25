@@ -26,7 +26,7 @@ namespace l1t {
 	EMTFLCTs_(new CSCCorrelatedLCTDigiCollection())
 	  {};
       
-      virtual ~EMTFCollections();
+      ~EMTFCollections() override;
       
       inline RegionalMuonCandBxCollection* getRegionalMuonCands() { return regionalMuonCands_.get(); }
       // How does this work?  I haven't even defined a "get()" function for the EMTFDaqOutCollection. - AWB 28.01.16

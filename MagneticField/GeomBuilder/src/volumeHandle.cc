@@ -39,12 +39,12 @@ MagGeoBuilderFromDDD::volumeHandle::~volumeHandle(){
 MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool expand2Pi)
   : name(fv.logicalPart().name().name()),
     copyno(fv.copyno()),
-    magVolume(0),
+    magVolume(nullptr),
     masterSector(1),
     theRN(0.),
     theRMin(0.),
     theRMax(0.),
-    refPlane(0),
+    refPlane(nullptr),
     solid(fv.logicalPart().solid()),
     center_(GlobalPoint(fv.translation().x()/cm,
 			fv.translation().y()/cm,
@@ -328,9 +328,9 @@ bool MagGeoBuilderFromDDD::volumeHandle::sameSurface(const Surface & s1, Sides w
   const Surface & s2 = *(surfaces[which_side]);
   // Try with a plane.
   const Plane * p1 = dynamic_cast<const Plane*>(&s1);
-  if (p1!=0) {
+  if (p1!=nullptr) {
     const Plane * p2 = dynamic_cast<const Plane*>(&s2);
-    if (p2==0) {
+    if (p2==nullptr) {
       if (MagGeoBuilderFromDDD::debug) cout << "      sameSurface: different types" << endl;
       return false;
     }
@@ -354,9 +354,9 @@ bool MagGeoBuilderFromDDD::volumeHandle::sameSurface(const Surface & s1, Sides w
 
   // Try with a cylinder.  
   const Cylinder * cy1 = dynamic_cast<const Cylinder*>(&s1);
-  if (cy1!=0) {
+  if (cy1!=nullptr) {
     const Cylinder * cy2 = dynamic_cast<const Cylinder*>(&s2);
-    if (cy2==0) {
+    if (cy2==nullptr) {
       if (MagGeoBuilderFromDDD::debug) cout << "      sameSurface: different types" << endl;
       return false;
     }
@@ -370,9 +370,9 @@ bool MagGeoBuilderFromDDD::volumeHandle::sameSurface(const Surface & s1, Sides w
 
   // Try with a cone.  
   const Cone * co1 = dynamic_cast<const Cone*>(&s1);
-  if (co1!=0) {
+  if (co1!=nullptr) {
     const Cone * co2 = dynamic_cast<const Cone*>(&s2);
-    if (co2==0) {
+    if (co2==nullptr) {
       if (MagGeoBuilderFromDDD::debug) cout << "      sameSurface: different types" << endl;
       return false;
     }
@@ -405,7 +405,7 @@ bool MagGeoBuilderFromDDD::volumeHandle::setSurface(const Surface & s1, Sides wh
     //FIXME: Just planes for the time being!!!
     const Plane * p1 = dynamic_cast<const Plane*>(&s1);
     const Plane * p2 = dynamic_cast<const Plane*>(&s2);
-    if (p1!=0 && p2 !=0) 
+    if (p1!=nullptr && p2 !=nullptr) 
       cout << p1->normalVector() << p1->position() << endl
 	   << p2->normalVector() << p2->position() << endl;
     return false;
