@@ -688,10 +688,10 @@ def _get_prompt_fcsr( session, timeType ):
         try:
             fcsr = t0DataSvc.getFirstSafeRun()
         except ValueError, e:
-            self.logdebug('ValueError for firstConditionSafeRun from Tier-0 %s ' % (str(e),) )
+            logging.error('ValueError for firstConditionSafeRun from Tier-0 %s ' % (str(e),) )
             # We got an answer but it is invalid. So far this usually means
             # "None" which is not JSON, when the Tier0 is stopped.
-            raise Exception('invalid firstConditionSafeRun from Tier-0')
+            raise Exception('Invalid firstConditionSafeRun from Tier-0')
         except Tier0Error:
             # Impossible to get anything from the server after retries,
             # i.e. unreachable, so no data.
