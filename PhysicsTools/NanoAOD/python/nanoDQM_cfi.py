@@ -149,7 +149,7 @@ nanoDQM = cms.EDAnalyzer("NanoAODDQM",
             sels = cms.PSet(),
             plots = cms.VPSet(
                 Count1D('_size', 4, -0.5, 3.5, 'gen hadronic taus '),
-                Plot1D('charge', 'charge', 3, -1.5, 1.5, 'charge'),                     
+                Plot1D('charge', 'charge', 3, -1.5, 1.5, 'charge'),
                 Plot1D('eta', 'eta', 20, -5, 5, 'eta'),
                 NoPlot('genPartIdxMother'),
                 Plot1D('mass', 'mass', 20, 0, 2, 'mass'),
