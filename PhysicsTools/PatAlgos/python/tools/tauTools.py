@@ -118,6 +118,7 @@ hpsTauIDSources = [
     ("againstMuonLoose3", "DiscriminationByLooseMuonRejection3"),
     ("againstMuonTight3", "DiscriminationByTightMuonRejection3"),
     ("byIsolationMVArun2v1DBoldDMwLTraw", "DiscriminationByIsolationMVArun2v1DBoldDMwLTraw"),
+    ("byVVLooseIsolationMVArun2v1DBoldDMwLT", "DiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT"),
     ("byVLooseIsolationMVArun2v1DBoldDMwLT", "DiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT"),
     ("byLooseIsolationMVArun2v1DBoldDMwLT", "DiscriminationByLooseIsolationMVArun2v1DBoldDMwLT"),
     ("byMediumIsolationMVArun2v1DBoldDMwLT", "DiscriminationByMediumIsolationMVArun2v1DBoldDMwLT"),
