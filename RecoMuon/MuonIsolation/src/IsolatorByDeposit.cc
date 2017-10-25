@@ -5,7 +5,7 @@ using reco::IsoDeposit;
 using namespace muonisolation;
 
 IsolatorByDeposit::IsolatorByDeposit(float conesize, const vector<double>& weights) 
-  : theConeSizeFunction(0), theConeSize(conesize), theWeights(weights)
+  : theConeSizeFunction(nullptr), theConeSize(conesize), theWeights(weights)
 { 
   theDepThresholds = std::vector<double>(weights.size(), -1e12);
 }
@@ -17,7 +17,7 @@ IsolatorByDeposit::IsolatorByDeposit(const ConeSizeFunction * conesize, const ve
 }
 
 IsolatorByDeposit::IsolatorByDeposit(float conesize, const vector<double>& weights, const vector<double>& dThresh) 
-  : theConeSizeFunction(0), theConeSize(conesize), theWeights(weights),
+  : theConeSizeFunction(nullptr), theConeSize(conesize), theWeights(weights),
     theDepThresholds(dThresh)
 { }
 
@@ -59,7 +59,7 @@ IsolatorByDeposit::weightedSum(const DepositContainer& deposits,
 
   typedef DepositContainer::const_iterator DI;
   for (DI dep = deposits.begin(), depEnd = deposits.end(); dep != depEnd; ++dep) {
-    if (dep->vetos != 0){
+    if (dep->vetos != nullptr){
       sumDep += dep->dep->depositAndCountWithin(dRcone, *dep->vetos, (*dThresh)).first * (*w);
     } else {
       sumDep += dep->dep->depositAndCountWithin(dRcone, Vetos(), (*dThresh)).first * (*w);

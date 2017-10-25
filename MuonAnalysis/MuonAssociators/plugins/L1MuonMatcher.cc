@@ -33,11 +33,11 @@ namespace pat {
   class L1MuonMatcher : public edm::EDProducer {
     public:
       explicit L1MuonMatcher(const edm::ParameterSet & iConfig);
-      virtual ~L1MuonMatcher() { }
+      ~L1MuonMatcher() override { }
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
-      virtual void beginRun(const edm::Run & iRun, const edm::EventSetup& iSetup) override;
+      void beginRun(const edm::Run & iRun, const edm::EventSetup& iSetup) override;
     private:
       typedef pat::TriggerObjectStandAlone           PATPrimitive;
       typedef pat::TriggerObjectStandAloneCollection PATPrimitiveCollection;

@@ -48,12 +48,12 @@ class TtHadEvtSolution {
   // get the matched gen particles
   //-------------------------------------------
   const edm::RefProd<TtGenEvent> & getGenEvent() const { return theGenEvt_; };
-  const reco::GenParticle * getGenHadb() const { if (!theGenEvt_) return 0; else return theGenEvt_->b(); };
-  const reco::GenParticle * getGenHadbbar() const { if (!theGenEvt_) return 0; else return theGenEvt_->bBar(); };
-  const reco::GenParticle * getGenHadp() const { if (!theGenEvt_) return 0; else return theGenEvt_->daughterQuarkOfWPlus(); };
-  const reco::GenParticle * getGenHadq() const { if (!theGenEvt_) return 0; else return theGenEvt_->daughterQuarkBarOfWPlus(); };
-  const reco::GenParticle * getGenHadj() const { if (!theGenEvt_) return 0; else return theGenEvt_->daughterQuarkOfWMinus(); };
-  const reco::GenParticle * getGenHadk() const { if (!theGenEvt_) return 0; else return theGenEvt_->daughterQuarkBarOfWMinus(); };
+  const reco::GenParticle * getGenHadb() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->b(); };
+  const reco::GenParticle * getGenHadbbar() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->bBar(); };
+  const reco::GenParticle * getGenHadp() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->daughterQuarkOfWPlus(); };
+  const reco::GenParticle * getGenHadq() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->daughterQuarkBarOfWPlus(); };
+  const reco::GenParticle * getGenHadj() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->daughterQuarkOfWMinus(); };
+  const reco::GenParticle * getGenHadk() const { if (!theGenEvt_) return nullptr; else return theGenEvt_->daughterQuarkBarOfWMinus(); };
   
   //-------------------------------------------
   // get (un-)/calibrated reco objects
@@ -88,12 +88,12 @@ class TtHadEvtSolution {
   reco::Particle getFitHadtbar() const;
   reco::Particle getFitHadW_plus() const;
   reco::Particle getFitHadW_minus() const;
-  pat::Particle getFitHadb() const { return (fitHadb_.size()>0 ? fitHadb_.front() : pat::Particle()); };
-  pat::Particle getFitHadbbar() const { return (fitHadbbar_.size()>0 ? fitHadbbar_.front() : pat::Particle()); };
-  pat::Particle getFitHadp() const { return (fitHadp_.size()>0 ? fitHadp_.front() : pat::Particle()); };
-  pat::Particle getFitHadq() const { return (fitHadq_.size()>0 ? fitHadq_.front() : pat::Particle()); };
-  pat::Particle getFitHadj() const { return (fitHadj_.size()>0 ? fitHadj_.front() : pat::Particle()); };
-  pat::Particle getFitHadk() const { return (fitHadk_.size()>0 ? fitHadk_.front() : pat::Particle()); };
+  pat::Particle getFitHadb() const { return (!fitHadb_.empty() ? fitHadb_.front() : pat::Particle()); };
+  pat::Particle getFitHadbbar() const { return (!fitHadbbar_.empty() ? fitHadbbar_.front() : pat::Particle()); };
+  pat::Particle getFitHadp() const { return (!fitHadp_.empty() ? fitHadp_.front() : pat::Particle()); };
+  pat::Particle getFitHadq() const { return (!fitHadq_.empty() ? fitHadq_.front() : pat::Particle()); };
+  pat::Particle getFitHadj() const { return (!fitHadj_.empty() ? fitHadj_.front() : pat::Particle()); };
+  pat::Particle getFitHadk() const { return (!fitHadk_.empty() ? fitHadk_.front() : pat::Particle()); };
 
   //-------------------------------------------  
   // get the selected hadronic decay chain 

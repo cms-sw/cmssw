@@ -39,7 +39,7 @@
 #include "TFile.h"
 #include "TH1F.h"
 #include <memory>
-#include <math.h>
+#include <cmath>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -71,7 +71,7 @@ public:
   explicit EmDQM(const edm::ParameterSet& pset);
 
   /// Destructor
-  ~EmDQM();
+  ~EmDQM() override;
 
   // Operations
 
@@ -108,6 +108,9 @@ private:
   double etaMax_;
   double phiMax_;
   unsigned int nbins_;
+  double eta2DMax_;
+  double phi2DMax_;
+  unsigned int nbins2D_;
   unsigned int minEtForEtaEffPlot_;
   bool useHumanReadableHistTitles_;
   bool mcMatchedOnly_;
@@ -203,6 +206,9 @@ private:
   std::vector<std::vector<MonitorElement*> > histEtOfHltObjMatchToGens;
   std::vector<std::vector<MonitorElement*> > histEtaOfHltObjMatchToGens;
   std::vector<std::vector<MonitorElement*> > histPhiOfHltObjMatchToGens;
+  std::vector<std::vector<MonitorElement*> > etaphihists;
+  std::vector<std::vector<MonitorElement*> > etaphihistmatchs;
+  std::vector<std::vector<MonitorElement*> > histEtaPhiOfHltObjMatchToGens;
   // Plots of efficiency per step
   std::vector<MonitorElement*> totals;
   std::vector<MonitorElement*> totalmatchs;
@@ -210,6 +216,7 @@ private:
   std::vector<MonitorElement*> etgens;
   std::vector<MonitorElement*> etagens;
   std::vector<MonitorElement*> phigens;
+  std::vector<MonitorElement*> etaphigens;
 
   GreaterByPt<reco::Particle> pTComparator_;
   GreaterByPt<reco::GenParticle> pTGenComparator_;

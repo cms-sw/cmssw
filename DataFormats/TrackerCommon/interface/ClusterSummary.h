@@ -28,7 +28,7 @@
 #include <map>
 #include <vector>
 #include<iostream>
-#include <string.h>
+#include <cstring>
 #include <sstream>
 #include "FWCore/Utilities/interface/Exception.h"
 

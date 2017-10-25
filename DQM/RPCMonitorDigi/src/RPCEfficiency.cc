@@ -144,7 +144,7 @@ void RPCEfficiency::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const &
   
   for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){ //Loop on all detector units
 
-    if(dynamic_cast< const RPCChamber* >( *it ) != 0 ){ // check if chamber exists
+    if(dynamic_cast< const RPCChamber* >( *it ) != nullptr ){ // check if chamber exists
       const RPCChamber* ch = dynamic_cast< const RPCChamber* >( *it ); 
       std::vector< const RPCRoll*> roles = (ch->rolls()); //get all rolls in a chambers
 
@@ -449,8 +449,8 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		  //check if the dimension of the segment is 2 and the station is 4
 
 		  if(segment->dimension()==2){
-		    LocalVector segmentDirectionMB4=segmentDirection;
-		    LocalPoint segmentPositionMB4=segmentPosition;
+		    const LocalVector& segmentDirectionMB4=segmentDirection;
+		    const LocalPoint& segmentPositionMB4=segmentPosition;
 		    
 		    
 		    const BoundPlane& DTSurface4 = dtGeo->idToDet(DTId)->surface();
@@ -496,7 +496,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 			  
 			  std::set<RPCDetId> rollsForThisDT = rollstoreDT[DTStationIndex(0,dtWheel,dtSector,dtStation)]; //It should be always 4
 			  
-			  assert(rollsForThisDT.size()>=1);
+			  assert(!rollsForThisDT.empty());
 			  
 			  for (std::set<RPCDetId>::iterator iteraRoll=rollsForThisDT.begin();iteraRoll != rollsForThisDT.end(); iteraRoll++){
 			    const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll); //roll asociado a MB4

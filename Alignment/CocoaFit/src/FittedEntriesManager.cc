@@ -14,7 +14,7 @@
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 
-FittedEntriesManager* FittedEntriesManager::instance = 0;
+FittedEntriesManager* FittedEntriesManager::instance = nullptr;
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@  Gets the only instance of Model

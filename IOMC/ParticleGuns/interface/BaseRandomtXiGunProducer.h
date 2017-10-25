@@ -31,7 +31,7 @@ namespace edm
   
   public:
     BaseRandomtXiGunProducer(const ParameterSet &);
-    virtual ~BaseRandomtXiGunProducer();
+    ~BaseRandomtXiGunProducer() override;
     void beginRun(const edm::Run & r, const edm::EventSetup& ) override ;
     void endRun(const edm::Run& r, const edm::EventSetup& ) override;
     void endRunProduce(edm::Run& r, const edm::EventSetup&) override;

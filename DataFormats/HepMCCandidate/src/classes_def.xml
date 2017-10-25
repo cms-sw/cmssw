@@ -11,12 +11,17 @@
   <class name="edm::Association<std::vector<reco::GenParticle> >" />
   <class name="edm::Wrapper<edm::Association<std::vector<reco::GenParticle> > >" />
 
+
   <class name="reco::GenParticleRef" />
   <class name="reco::GenParticleRefProd" />
   <class name="reco::GenParticleRefVector" />
   <class name="std::vector<std::vector<reco::GenParticleRef> >"/>
   <class name="std::vector<reco::GenParticleRef>" />
   <class name="edm::Wrapper<reco::GenParticleRefVector>" />
+  <class name="edm::Ptr<reco::GenParticle>" />
+  <class name="edm::FwdPtr<reco::GenParticle>" />
+  <class name="std::vector<edm::FwdPtr<reco::GenParticle> >" />
+  <class name="edm::Wrapper<std::vector<edm::FwdPtr<reco::GenParticle> > >" />  
   <class name="edm::reftobase::Holder<reco::Candidate, reco::GenParticleRef>" />
   <class name="edm::reftobase::RefHolder<reco::GenParticleRef>" />
   <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::GenParticleRefVector>" />

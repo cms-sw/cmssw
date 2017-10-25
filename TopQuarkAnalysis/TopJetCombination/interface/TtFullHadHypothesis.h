@@ -32,11 +32,11 @@ class TtFullHadHypothesis : public edm::EDProducer {
   /// default constructor
   explicit TtFullHadHypothesis(const edm::ParameterSet& cfg);
   /// default destructor
-  ~TtFullHadHypothesis();
+  ~TtFullHadHypothesis() override;
 
  protected:
   /// produce the event hypothesis as CompositeCandidate and Key
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   /// reset candidate pointers before hypo build process
   void resetCandidates();
   /// helper function to construct the proper correction level string for corresponding quarkType,

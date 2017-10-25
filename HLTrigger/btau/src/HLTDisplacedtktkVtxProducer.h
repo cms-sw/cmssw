@@ -35,10 +35,10 @@ namespace edm {
 class HLTDisplacedtktkVtxProducer : public edm::stream::EDProducer<> {
  public:
   explicit HLTDisplacedtktkVtxProducer(const edm::ParameterSet&);
-  ~HLTDisplacedtktkVtxProducer();
+  ~HLTDisplacedtktkVtxProducer() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);  
   virtual void beginJob();
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob();
 
  private:  

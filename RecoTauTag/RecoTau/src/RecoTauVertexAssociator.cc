@@ -27,7 +27,7 @@ reco::TrackBaseRef RecoTauVertexAssociator::getLeadTrack(const PFJet& jet) const
     std::cout << " vxTrkFiltering = " << vxTrkFiltering_ << std::endl;
   }
 
-  if ( chargedPFCands.size() == 0 ) {
+  if ( chargedPFCands.empty() ) {
     return reco::TrackBaseRef();
   }
 
@@ -42,14 +42,14 @@ reco::TrackBaseRef RecoTauVertexAssociator::getLeadTrack(const PFJet& jet) const
   }
 
   PFCandidatePtr leadPFCand;
-  if ( selectedPFCands.size() >= 1 ) {
+  if ( !selectedPFCands.empty() ) {
     double leadTrackPt = 0.;
     if ( leadingTrkOrPFCandOption_ == kFirstTrack){ leadPFCand=selectedPFCands[0];}
     else
     {
       for ( std::vector<PFCandidatePtr>::const_iterator pfCand = selectedPFCands.begin();
   	  pfCand != selectedPFCands.end(); ++pfCand ) {
-        const reco::Track* track = 0;
+        const reco::Track* track = nullptr;
         if ( (*pfCand)->trackRef().isNonnull() ) track = (*pfCand)->trackRef().get();
         else if ( (*pfCand)->gsfTrackRef().isNonnull() ) track = (*pfCand)->gsfTrackRef().get();
         if ( !track ) continue;
@@ -127,9 +127,9 @@ namespace {
 }
 
 RecoTauVertexAssociator::RecoTauVertexAssociator(const edm::ParameterSet& pset, edm::ConsumesCollector && iC)
-  : vertexSelector_(0),
-    qcuts_(0),
-    jetToVertexAssociation_(0),
+  : vertexSelector_(nullptr),
+    qcuts_(nullptr),
+    jetToVertexAssociation_(nullptr),
     lastEvent_(0)
 {
   //std::cout << "<RecoTauVertexAssociator::RecoTauVertexAssociator>:" << std::endl;
@@ -224,7 +224,7 @@ void RecoTauVertexAssociator::setEvent(const edm::Event& evt)
     if ( vertexSelector_ && !(*vertexSelector_)(*vertex) ) continue;
     selectedVertices_.push_back(vertex);
   }
-  if ( selectedVertices_.size() > 0 ) {
+  if ( !selectedVertices_.empty() ) {
     qcuts_->setPV(selectedVertices_[0]);
   }
   edm::EventNumber_t currentEvent = evt.id().event();
@@ -258,10 +258,10 @@ reco::VertexRef
 RecoTauVertexAssociator::associatedVertex(const TrackBaseRef& track) const 
 {
 
-  reco::VertexRef trkVertex = ( selectedVertices_.size() > 0 ) ? selectedVertices_[0] : reco::VertexRef();
+  reco::VertexRef trkVertex = ( !selectedVertices_.empty() ) ? selectedVertices_[0] : reco::VertexRef();
 
   if ( algo_ == kHighestPtInEvent ) {
-    if ( selectedVertices_.size() > 0 ) trkVertex = selectedVertices_[0];
+    if ( !selectedVertices_.empty() ) trkVertex = selectedVertices_[0];
   } else if ( algo_ == kClosestDeltaZ ) {
     if ( track.isNonnull() ) {
       double closestDistance = 1.e+6;
@@ -347,7 +347,7 @@ RecoTauVertexAssociator::associatedVertex(const PFJet& jet) const
     std::cout << " recoverLeadingTrk = " << recoverLeadingTrk_ << std::endl;
   }
 
-  reco::VertexRef jetVertex = ( selectedVertices_.size() > 0 ) ? selectedVertices_[0] : reco::VertexRef();
+  reco::VertexRef jetVertex = ( !selectedVertices_.empty() ) ? selectedVertices_[0] : reco::VertexRef();
   const PFJet* jetPtr = &jet;
 
   // check if jet-vertex association has been determined for this jet before
@@ -357,7 +357,7 @@ RecoTauVertexAssociator::associatedVertex(const PFJet& jet) const
   } else {
     // no jet-vertex association exists for this jet yet, compute it!
     if ( algo_ == kHighestPtInEvent ) {
-      if ( selectedVertices_.size() > 0 ) jetVertex = selectedVertices_[0];
+      if ( !selectedVertices_.empty() ) jetVertex = selectedVertices_[0];
     } else if ( algo_ == kClosestDeltaZ || 
 		algo_ == kHighestWeigtForLeadTrack || 
 		algo_ == kCombined ) {

@@ -4,9 +4,9 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <cassert>
 #include <davix.hpp>
-#include <errno.h>
+#include <cerrno>
 #include <fcntl.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <unistd.h>
 #include <vector>
 #include <mutex>
@@ -67,7 +67,7 @@ void DavixFile::configureDavixLogLevel() {
   long logLevel = 0;
   char *logptr = nullptr;
   char const * const davixDebug = getenv("Davix_Debug");
-  if (davixDebug != NULL) {
+  if (davixDebug != nullptr) {
     logLevel = strtol(davixDebug, &logptr, 0);
     if (errno) {
       edm::LogWarning("DavixFile") << "Got error while converting "
@@ -161,7 +161,7 @@ void DavixFile::open(const std::string &name, int flags /* = IOFlags::OpenRead *
 
 void DavixFile::open(const char *name, int flags /* = IOFlags::OpenRead */, int perms /* = 066 */) {
   // Actual open
-  if ((name == 0) || (*name == 0)) {
+  if ((name == nullptr) || (*name == 0)) {
     edm::Exception ex(edm::errors::FileOpenError);
     ex << "Cannot open a file without name";
     ex.addContext("Calling DavixFile::open()");
@@ -192,10 +192,10 @@ void DavixFile::open(const char *name, int flags /* = IOFlags::OpenRead */, int 
   DavixError *davixErr = nullptr;
   RequestParams davixReqParams;
   // Set up X509 authentication
-  davixReqParams.setClientCertCallbackX509(&X509Authentication, NULL);
+  davixReqParams.setClientCertCallbackX509(&X509Authentication, nullptr);
   // Set also CERT_DIR if it is set in envinroment, otherwise use default
-  const char *cert_dir = NULL;
-  if ((cert_dir = getenv("X509_CERT_DIR")) == NULL)
+  const char *cert_dir = nullptr;
+  if ((cert_dir = getenv("X509_CERT_DIR")) == nullptr)
     cert_dir = "/etc/grid-security/certificates";
   davixReqParams.addCertificateAuthorityPath(cert_dir);
 

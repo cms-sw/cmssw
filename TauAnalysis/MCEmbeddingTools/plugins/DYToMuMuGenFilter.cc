@@ -17,14 +17,14 @@
 class DYToMuMuGenFilter: public edm::stream::EDFilter<> {
    public:
       explicit DYToMuMuGenFilter(const edm::ParameterSet&);
-      ~DYToMuMuGenFilter();
+      ~DYToMuMuGenFilter() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginStream(edm::StreamID) override;
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endStream() override;
+      void beginStream(edm::StreamID) override;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endStream() override;
       
       edm::InputTag inputTag_;
       edm::EDGetTokenT<reco::GenParticleCollection> genParticleCollection_;

@@ -41,7 +41,7 @@ namespace edm
 
     void setTrigResultForStream(unsigned int iStreamIndex,
                                 const TrigResPtr& trptr);
-    void produce(StreamID id, edm::Event& e, edm::EventSetup const& c) const override final;
+    void produce(StreamID id, edm::Event& e, edm::EventSetup const& c) const final;
 
   private:
     std::vector<edm::propagate_const<TrigResPtr>> resultsPerStream_;

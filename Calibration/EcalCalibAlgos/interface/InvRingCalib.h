@@ -30,12 +30,12 @@ class InvRingCalib : public edm::EDLooper {
     //! ctor
     explicit InvRingCalib(const edm::ParameterSet&);
     //! dtor
-    ~InvRingCalib();
-    void beginOfJob() ;
-    void endOfJob();
-    void startingNewLoop(unsigned int) ;
-    Status duringLoop(const edm::Event&, const edm::EventSetup&) ;
-    Status endOfLoop(const edm::EventSetup&,unsigned int iCounter) ;
+    ~InvRingCalib() override;
+    void beginOfJob() override ;
+    void endOfJob() override;
+    void startingNewLoop(unsigned int) override ;
+    Status duringLoop(const edm::Event&, const edm::EventSetup&) override ;
+    Status endOfLoop(const edm::EventSetup&,unsigned int iCounter) override ;
     
  //end
 

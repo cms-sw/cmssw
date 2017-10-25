@@ -34,7 +34,7 @@ public:
   AlignmentParametersData( const AlgebraicVector& param,
 			   const AlgebraicSymMatrix& cov );
 
-  ~AlignmentParametersData( void );
+  ~AlignmentParametersData( void ) override;
 
   /// Access to the parameter vector.
   const AlgebraicVector& parameters( void ) const { return *theParameters; }

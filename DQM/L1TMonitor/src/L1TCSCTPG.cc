@@ -21,7 +21,7 @@ L1TCSCTPG::L1TCSCTPG(const ParameterSet& ps)
   if(verbose_) cout << "L1TCSCTPG: constructor...." << endl;
 
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
-  if ( outputFile_.size() != 0 ) {
+  if ( !outputFile_.empty() ) {
     cout << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << endl;
   }
 

@@ -93,12 +93,12 @@ struct hit{
 class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
   public:
     explicit SiStripHitEffFromCalibTree(const edm::ParameterSet&);
-    ~SiStripHitEffFromCalibTree();
+    ~SiStripHitEffFromCalibTree() override;
 
   private:
     virtual void algoBeginJob();
-    virtual void algoEndJob() override;
-    virtual void algoAnalyze(const edm::Event& e, const edm::EventSetup& c) override;
+    void algoEndJob() override;
+    void algoAnalyze(const edm::Event& e, const edm::EventSetup& c) override;
     void SetBadComponents(int i, int component,SiStripQuality::BadComponent& BC, std::stringstream ssV[4][19], int NBadComponent[4][19][4]);
     void makeTKMap();
     void makeHotColdMaps();
@@ -240,7 +240,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
       badModules_file.close();
 	}
   }
-  if(badModules_list.size()) cout<<"Remove additionnal bad modules from the analysis: "<<endl;
+  if(!badModules_list.empty()) cout<<"Remove additionnal bad modules from the analysis: "<<endl;
   set<uint32_t>::iterator itBadMod;
   for (itBadMod=badModules_list.begin(); itBadMod!=badModules_list.end(); ++itBadMod) 
     cout<<" "<<*itBadMod<<endl;
@@ -297,7 +297,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
 	TLeaf* BunchLf = CalibTree->GetLeaf("bunchx");
 	TLeaf* InstLumiLf = CalibTree->GetLeaf("instLumi");
 	TLeaf* PULf = CalibTree->GetLeaf("PU");
-	TLeaf* CMLf = 0;
+	TLeaf* CMLf = nullptr;
 	if(_useCM) CMLf = CalibTree->GetLeaf("commonMode");
 
 	int nevents = CalibTree->GetEntries();
@@ -332,9 +332,9 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
       unsigned int bx = (unsigned int)BunchLf->GetValue();
       if(_bunchx > 0 && _bunchx != bx) continue;
 	  double instLumi = 0;
-	  if(InstLumiLf!=0) instLumi = InstLumiLf->GetValue();
+	  if(InstLumiLf!=nullptr) instLumi = InstLumiLf->GetValue();
 	  double PU = 0;
-	  if(PULf!=0) PU = PULf->GetValue();
+	  if(PULf!=nullptr) PU = PULf->GetValue();
 	  int CM = -100;
 	  if(_useCM) CM = CMLf->GetValue();
 
@@ -391,7 +391,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
     	  float htedge   = 0;
     	  float hapoth   = 0;
 		  if(layer>=11) {
-			const BoundPlane plane = stripdet->surface();
+			const BoundPlane& plane = stripdet->surface();
 			const TrapezoidalPlaneBounds* trapezoidalBounds( dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
 			std::array<const float, 4> const & parameters = (*trapezoidalBounds).parameters(); 
 			hbedge         = parameters[0];

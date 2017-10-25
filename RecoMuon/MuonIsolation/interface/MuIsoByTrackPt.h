@@ -16,15 +16,15 @@ namespace edm { class ParameterSet; }
 class MuIsoByTrackPt : public MuIsoBaseAlgorithm {
 public:
   MuIsoByTrackPt(const edm::ParameterSet& conf, edm::ConsumesCollector && iC);
-  virtual ~MuIsoByTrackPt();
+  ~MuIsoByTrackPt() override;
 
-  virtual float isolation(const edm::Event&, const edm::EventSetup&, const reco::Track& muon);
-  virtual float isolation(const edm::Event& ev, const edm::EventSetup& es, const reco::TrackRef& muon)
+  float isolation(const edm::Event&, const edm::EventSetup&, const reco::Track& muon) override;
+  float isolation(const edm::Event& ev, const edm::EventSetup& es, const reco::TrackRef& muon) override
   {
     return isolation(ev, es, *muon);
   }
-  virtual bool isIsolated(const edm::Event&, const edm::EventSetup&, const reco::Track& muon);
-  virtual bool isIsolated(const edm::Event& ev, const edm::EventSetup& es, const reco::TrackRef& muon)
+  bool isIsolated(const edm::Event&, const edm::EventSetup&, const reco::Track& muon) override;
+  bool isIsolated(const edm::Event& ev, const edm::EventSetup& es, const reco::TrackRef& muon) override
   {
     return isIsolated(ev, es, *muon);
   }

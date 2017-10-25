@@ -68,7 +68,7 @@ if not (stage2L1Trigger.isChosen()):
 # Stage-2 Trigger
 #
 if stage2L1Trigger.isChosen():
-    from L1Trigger.L1TMuonBarrel.simTwinMuxDigis_cfi import *
+    from L1Trigger.L1TTwinMux.simTwinMuxDigis_cfi import *
     from L1Trigger.L1TMuonBarrel.simBmtfDigis_cfi import *
     from L1Trigger.L1TMuonEndCap.simEmtfDigis_cfi import *
     from L1Trigger.L1TMuonOverlap.simOmtfDigis_cfi import *

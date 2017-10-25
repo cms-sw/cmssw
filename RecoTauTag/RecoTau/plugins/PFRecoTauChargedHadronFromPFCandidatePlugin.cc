@@ -42,11 +42,11 @@ class PFRecoTauChargedHadronFromPFCandidatePlugin : public PFRecoTauChargedHadro
 {
  public:
   explicit PFRecoTauChargedHadronFromPFCandidatePlugin(const edm::ParameterSet&, edm::ConsumesCollector &&iC);
-  virtual ~PFRecoTauChargedHadronFromPFCandidatePlugin();
+  ~PFRecoTauChargedHadronFromPFCandidatePlugin() override;
   // Return type is auto_ptr<ChargedHadronVector>
-  return_type operator()(const reco::PFJet&) const;
+  return_type operator()(const reco::PFJet&) const override;
   // Hook to update PV information
-  virtual void beginEvent();
+  void beginEvent() override;
   
  private:
   typedef std::vector<reco::PFCandidatePtr> PFCandPtrs;
@@ -79,7 +79,7 @@ class PFRecoTauChargedHadronFromPFCandidatePlugin : public PFRecoTauChargedHadro
   PFRecoTauChargedHadronFromPFCandidatePlugin::PFRecoTauChargedHadronFromPFCandidatePlugin(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC)
     : PFRecoTauChargedHadronBuilderPlugin(pset,std::move(iC)),
       vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts"),std::move(iC)),
-    qcuts_(0)
+    qcuts_(nullptr)
 {
   edm::ParameterSet qcuts_pset = pset.getParameterSet("qualityCuts").getParameterSet("signalQualityCuts");
   qcuts_ = new RecoTauQualityCuts(qcuts_pset);

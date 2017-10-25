@@ -94,7 +94,7 @@ private:
 class FWDialogBuilder : public FWLayoutBuilder
 {
 public:
-   FWDialogBuilder(TGCompositeFrame *window, FWDialogBuilder *parent = 0, bool expandY = true);
+   FWDialogBuilder(TGCompositeFrame *window, FWDialogBuilder *parent = nullptr, bool expandY = true);
 
    FWDialogBuilder &newRow();
    FWDialogBuilder &indent(int left = 2, int right = -1);   
@@ -103,23 +103,23 @@ public:
    FWDialogBuilder &addLabel(const char *text,
                              size_t fontSize = 12,
                              size_t weight = 0,
-                             TGLabel **out = 0);
+                             TGLabel **out = nullptr);
    
-   FWDialogBuilder &addTextView(const char *defaultText = 0,
-                                TGTextView **out = 0);
+   FWDialogBuilder &addTextView(const char *defaultText = nullptr,
+                                TGTextView **out = nullptr);
 
   // Is default text meaningful here as the html is
   // a document with structure?
-   FWDialogBuilder &addHtml(TGHtml **out = 0);
+   FWDialogBuilder &addHtml(TGHtml **out = nullptr);
 
-   FWDialogBuilder &addTextEdit(const char *defaultText = 0,
-                                TGTextEdit **out = 0);
+   FWDialogBuilder &addTextEdit(const char *defaultText = nullptr,
+                                TGTextEdit **out = nullptr);
    FWDialogBuilder &addColorPicker(const FWColorManager *manager,
-                                   FWColorSelect **out = 0);
+                                   FWColorSelect **out = nullptr);
    
-   FWDialogBuilder &addHSlider(size_t size, TGHSlider **out = 0);
+   FWDialogBuilder &addHSlider(size_t size, TGHSlider **out = nullptr);
    
-   FWDialogBuilder &addTextButton(const char *text, TGTextButton **out = 0);
+   FWDialogBuilder &addTextButton(const char *text, TGTextButton **out = nullptr);
    FWDialogBuilder &addValidatingTextEntry(const char *defaultText, 
                                            FWGUIValidatingTextEntry **out);
    FWDialogBuilder &addTextEntry(const char *defaultText, TGTextEntry **out);
@@ -128,8 +128,8 @@ public:
                                    int min, int max,
                                    TGNumberEntry **out);
    
-   FWDialogBuilder &addCheckbox(const char *text, TGCheckButton **out = 0);
-   FWDialogBuilder &addTable(FWTableManagerBase *manager, FWTableWidget **out = 0);
+   FWDialogBuilder &addCheckbox(const char *text, TGCheckButton **out = nullptr);
+   FWDialogBuilder &addTable(FWTableManagerBase *manager, FWTableWidget **out = nullptr);
 
       
    FWDialogBuilder &addHSeparator(size_t horizontalPadding = 4, 

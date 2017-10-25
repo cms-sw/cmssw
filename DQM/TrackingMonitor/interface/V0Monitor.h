@@ -40,7 +40,7 @@ class V0Monitor : public DQMEDAnalyzer
 {
 public:
   V0Monitor( const edm::ParameterSet& );
-  ~V0Monitor();
+  ~V0Monitor() override;
 
 protected:
 

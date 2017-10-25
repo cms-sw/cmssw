@@ -76,7 +76,7 @@ void VZeroProducer::produce(Event& ev, const EventSetup& es)
   auto result = std::make_unique<reco::VZeroCollection>();
 
   // Check all combination of positives and negatives
-  if(positives.size() > 0 && negatives.size() > 0)
+  if(!positives.empty() && !negatives.empty())
     for(reco::track_iterator ipos = positives.begin();
                              ipos!= positives.end(); ipos++)
     for(reco::track_iterator ineg = negatives.begin();

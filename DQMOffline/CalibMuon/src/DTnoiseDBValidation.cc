@@ -28,9 +28,9 @@
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 #include "TFile.h"
 #include "TH1F.h"
 
@@ -279,7 +279,7 @@ void DTnoiseDBValidation::bookHisto(const DTChamberId& chId) {
      // Get the chamber from the geometry
      int nWiresMax = 0;
      const DTChamber* dtchamber = dtGeom_->chamber(chId);
-     const vector<const DTSuperLayer*> superlayers = dtchamber->superLayers();
+     const vector<const DTSuperLayer*>& superlayers = dtchamber->superLayers();
 
      // Loop over layers and find the max # of wires
      for(vector<const DTSuperLayer*>::const_iterator sl = superlayers.begin();

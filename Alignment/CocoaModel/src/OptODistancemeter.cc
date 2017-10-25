@@ -43,7 +43,7 @@ void OptODistancemeter::makeMeasurement( LightRay& lightray, Measurement& meas )
   ALILine dm_line( centreGlob(), ZAxis );
 
   CLHEP::Hep3Vector ZAxisdt(0.,0.,1.);
-  CLHEP::HepRotation rmtdt = opto_prev->rmGlob();
+  const CLHEP::HepRotation& rmtdt = opto_prev->rmGlob();
   ZAxisdt = rmtdt * ZAxisdt;
   ALIPlane dt_plane( opto_prev->centreGlob(), ZAxisdt ); 
 

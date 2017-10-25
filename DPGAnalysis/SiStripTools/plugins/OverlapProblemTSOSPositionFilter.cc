@@ -66,10 +66,10 @@
 class OverlapProblemTSOSPositionFilter : public edm::EDFilter {
 public:
   explicit OverlapProblemTSOSPositionFilter(const edm::ParameterSet&);
-  ~OverlapProblemTSOSPositionFilter();
+  ~OverlapProblemTSOSPositionFilter() override;
   
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
   
       // ----------member data ---------------------------
 

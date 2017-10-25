@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate.h (v10.00)
+//  SiPixelTemplate.h (v10.13)
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
@@ -71,6 +71,12 @@
 //  V9.00 - Expand header to include multi and single dcol thresholds, LA biases, and (variable) Qbin definitions
 //  V9.01 - Protect against negative error squared
 //  V10.00 - Update to work with Phase 1 FPix.  Fix some code problems introduced by other maintainers.
+//  V10.01 - Fix initialization style as suggested by S. Krutelyov
+//  V10.10 - Add class variables and methods to correctly calculate the probabilities of single pixel clusters
+//  V10.11 - Allow subdetector ID=5 for FPix R2P2 [allows better internal labeling of templates]
+//  V10.12 - Enforce minimum signal size in pixel charge uncertainty calculation
+//  V10.13 - Update the variable size [SI_PIXEL_TEMPLATE_USE_BOOST] option so that it works with VI's enhancements
+
 
 
 // Created by Morris Swartz on 10/27/06.
@@ -203,15 +209,24 @@ struct SiPixelTemplateHeader {           //!< template header structure
 
 struct SiPixelTemplateStore { //!< template storage structure
    SiPixelTemplateHeader head;
+#ifndef SI_PIXEL_TEMPLATE_USE_BOOST
    float cotbetaY[60];
    float cotbetaX[5];
    float cotalphaX[29];
-#ifndef SI_PIXEL_TEMPLATE_USE_BOOST
    SiPixelTemplateEntry enty[60];     //!< 60 Barrel y templates spanning cluster lengths from 0px to +18px [28 entries for fpix]
    SiPixelTemplateEntry entx[5][29];  //!< 29 Barrel x templates spanning cluster lengths from -6px (-1.125Rad) to +6px (+1.125Rad) in each of 5 slices [3x29 for fpix]
+   void destroy() {};
 #else
+   float* cotbetaY=nullptr;
+   float* cotbetaX=nullptr;
+   float* cotalphaX=nullptr;
    boost::multi_array<SiPixelTemplateEntry,1> enty;     //!< use 1d entry to store [60] barrel entries or [28] fpix entries
    boost::multi_array<SiPixelTemplateEntry,2> entx;     //!< use 2d entry to store [5][29] barrel entries or [3][29] fpix entries
+   void destroy() {  // deletes arrays created by pushfile method of SiPixelTemplate
+      if (cotbetaY!=nullptr) delete[] cotbetaY;
+      if (cotbetaX!=nullptr) delete[] cotbetaX;
+      if (cotalphaX!=nullptr) delete[] cotalphaX;
+   }
 #endif
 } ;
 
@@ -323,7 +338,7 @@ public:
    float pixmax() {return pixmax_;}         //!< maximum pixel charge
    float qscale() {return qscale_;}         //!< charge scaling factor
    float s50() {return s50_;}               //!< 1/2 of the pixel threshold signal in electrons
-   float ss50() {return ss50_;}               //!< 1/2 of the pixel threshold signal in electrons
+   float ss50() {return ss50_;}               //!< 1/2 of the single pixel per double column threshold in electrons
    float symax() {return symax_;}             //!< average pixel signal for y-projection of cluster
    float dyone() {return dyone_;}             //!< mean offset/correction for one pixel y-clusters
    float syone() {return syone_;}             //!< rms for one pixel y-clusters
@@ -515,6 +530,10 @@ public:
    float ysize() {return ysize_;}                                    //!< pixel y-size (microns)
    float zsize() {return zsize_;}                                    //!< pixel z-size or thickness (microns)
    float r_qMeas_qTrue() {return r_qMeas_qTrue_;}                    //!< ratio of measured to true cluster charge
+   float fracyone() {return fracyone_;}                              //!< The simulated fraction of single pixel y-clusters 
+   float fracxone() {return fracxone_;}                              //!< The simulated fraction of single pixel x-clusters 
+   float fracytwo() {return fracytwo_;}                              //!< The simulated fraction of single double-size pixel y-clusters 
+   float fracxtwo() {return fracxtwo_;}                              //!< The simulated fraction of single double-size pixel x-clusters 
    //  float yspare(int i) {assert(i>=0 && i<5); return pyspare[i];}    //!< vector of 5 spares interpolated in beta only
    //  float xspare(int i) {assert(i>=0 && i<10); return pxspare[i];}    //!< vector of 10 spares interpolated in alpha and beta
    
@@ -536,8 +555,8 @@ private:
    float qavg_;              //!< average cluster charge for this set of track angles
    float pixmax_;            //!< maximum pixel charge
    float qscale_;            //!< charge scaling factor
-   float s50_;               //!< 1/2 of the pixel threshold signal in adc units
-   float ss50_;              //!< 1/2 of the pixel threshold signal in adc units
+   float s50_;               //!< 1/2 of the pixel single col threshold signal in electrons
+   float ss50_;              //!< 1/2 of the pixel double col threshold signal in electrons
    float symax_;             //!< average pixel signal for y-projection of cluster
    float syparmax_;          //!< maximum pixel signal for parameterization of y uncertainties
    float dyone_;             //!< mean offset/correction for one pixel y-clusters
@@ -614,6 +633,10 @@ private:
    float nxbins_;            //!< number of bins in each dimension of the x-splitting template
    float r_qMeas_qTrue_;     //!< ratio of measured to true cluster charges
    float fbin_[3];           //!< The QBin definitions in Q_clus/Q_avg
+   float fracyone_;          //!< The simulated fraction of single pixel y-clusters 
+   float fracxone_;          //!< The simulated fraction of single pixel x-clusters 
+   float fracytwo_;          //!< The simulated fraction of single double-size pixel y-clusters 
+   float fracxtwo_;          //!< The simulated fraction of single double-size pixel x-clusters 
    boost::multi_array<float,2> temp2dy_; //!< 2d-primitive for spltting 3-d template
    boost::multi_array<float,2> temp2dx_; //!< 2d-primitive for spltting 3-d template
    

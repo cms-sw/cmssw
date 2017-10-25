@@ -37,15 +37,15 @@ public:
 
 
   CosmicMuonSmoother(const edm::ParameterSet&,const MuonServiceProxy* service);
-  virtual ~CosmicMuonSmoother();
+  ~CosmicMuonSmoother() override;
 
   Trajectory trajectory(const Trajectory&) const override;
 
-  virtual TrajectoryContainer trajectories(const Trajectory& traj) const override {
+  TrajectoryContainer trajectories(const Trajectory& traj) const override {
      return TrajectorySmoother::trajectories(traj);
   }
 
-  virtual CosmicMuonSmoother* clone() const override {
+  CosmicMuonSmoother* clone() const override {
     return new CosmicMuonSmoother(*this);
   }
 
@@ -71,7 +71,7 @@ public:
                               const TrajectoryStateOnSurface& firstPredTsos) const;
 
 
-  virtual void setHitCloner(TkCloner const * hc) override {}
+  void setHitCloner(TkCloner const * hc) override {}
 
 private:
   std::vector<Trajectory> smooth(const std::vector<Trajectory>& ) const;

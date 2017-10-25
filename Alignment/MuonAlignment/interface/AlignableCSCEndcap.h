@@ -34,9 +34,9 @@ class AlignableCSCEndcap : public AlignableComposite
 
   AlignableCSCEndcap( const std::vector<AlignableCSCStation*>& cscStations );
 
-  ~AlignableCSCEndcap();
+  ~AlignableCSCEndcap() override;
   
-  virtual std::vector<Alignable*> components() const 
+  std::vector<Alignable*> components() const override 
   {
 
         std::vector<Alignable*> result;
@@ -58,13 +58,13 @@ class AlignableCSCEndcap : public AlignableComposite
   friend std::ostream& operator << ( std::ostream&, const AlignableCSCEndcap& );
 
   /// Recursive printout of the muon End Cap structure
-  void dump( void ) const;
+  void dump( void ) const override;
 
   // Get alignments sorted by DetId
-  Alignments* alignments() const;
+  Alignments* alignments() const override;
 
   // Get alignment errors sorted by DetId
-  AlignmentErrorsExtended* alignmentErrors() const;
+  AlignmentErrorsExtended* alignmentErrors() const override;
 
 
 

@@ -57,13 +57,13 @@
 class APVModeFilter : public edm::stream::EDFilter<> {
 public:
   explicit APVModeFilter(const edm::ParameterSet&);
-  ~APVModeFilter() = default;
+  ~APVModeFilter() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
   using BitMask = std::bitset<16>; /// APV mode is encoded in uin16_t
 

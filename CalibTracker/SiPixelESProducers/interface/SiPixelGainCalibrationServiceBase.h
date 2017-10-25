@@ -59,25 +59,25 @@ class SiPixelGainCalibrationServicePayloadGetter : public SiPixelGainCalibration
 
  public:
   explicit SiPixelGainCalibrationServicePayloadGetter(const edm::ParameterSet& conf);
-  virtual ~SiPixelGainCalibrationServicePayloadGetter(){};
+  ~SiPixelGainCalibrationServicePayloadGetter() override{};
 
   //Abstract methods
-  virtual float getGain(const uint32_t& detID, const int& col, const int& row)=0;
-  virtual float getPedestal(const uint32_t& detID, const int& col, const int& row)=0;
+  float getGain(const uint32_t& detID, const int& col, const int& row) override =0;
+  float getPedestal(const uint32_t& detID, const int& col, const int& row) override =0;
 
-  virtual bool isDead       ( const uint32_t& detID, const int& col, const int& row )=0;
-  virtual bool isDeadColumn ( const uint32_t& detID, const int& col, const int& row )=0;
+  bool isDead       ( const uint32_t& detID, const int& col, const int& row ) override =0;
+  bool isDeadColumn ( const uint32_t& detID, const int& col, const int& row ) override =0;
 
-  virtual bool isNoisy       ( const uint32_t& detID, const int& col, const int& row )=0;
-  virtual bool isNoisyColumn ( const uint32_t& detID, const int& col, const int& row )=0;
+  bool isNoisy       ( const uint32_t& detID, const int& col, const int& row ) override =0;
+  bool isNoisyColumn ( const uint32_t& detID, const int& col, const int& row ) override =0;
 
-  void    setESObjects(const edm::EventSetup& es );
+  void    setESObjects(const edm::EventSetup& es ) override;
 
-  std::vector<uint32_t> getDetIds();
-  double getGainLow();
-  double getGainHigh();
-  double getPedLow();
-  double getPedHigh();
+  std::vector<uint32_t> getDetIds() override;
+  double getGainLow() override;
+  double getGainHigh() override;
+  double getPedLow() override;
+  double getPedHigh() override;
 
  protected:
 

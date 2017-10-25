@@ -22,9 +22,9 @@
 class HcalZDCLowGainFractionsHandler : public popcon::PopConSourceHandler<HcalZDCLowGainFractions>
 {
  public:
-  void getNewObjects();
-  std::string id() const { return m_name;}
-  ~HcalZDCLowGainFractionsHandler();
+  void getNewObjects() override;
+  std::string id() const override { return m_name;}
+  ~HcalZDCLowGainFractionsHandler() override;
   HcalZDCLowGainFractionsHandler(edm::ParameterSet const &);
 
   void initObject(HcalZDCLowGainFractions*);

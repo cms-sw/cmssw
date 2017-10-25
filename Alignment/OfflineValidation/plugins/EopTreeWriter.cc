@@ -68,13 +68,13 @@
 class EopTreeWriter : public edm::EDAnalyzer {
    public:
       explicit EopTreeWriter(const edm::ParameterSet&);
-      ~EopTreeWriter();
+      ~EopTreeWriter() override;
 
 
    private:
-      virtual void beginJob() override ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       double getDistInCM(double eta1, double phi1, double eta2, double phi2);
 
@@ -189,7 +189,7 @@ EopTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    parameters_.useMuon = false;
 
    if(pixelInAlca)
-     if(isoPixelTracks->size()==0) return;
+     if(isoPixelTracks->empty()) return;
 
    for(reco::TrackCollection::const_iterator track = tracks->begin();track!=tracks->end();++track){
 
@@ -249,7 +249,7 @@ EopTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 {
 	   ////////////////////// FIND ECAL CLUSTER ENERGY
 	   // R-scheme of ECAL CLUSTERIZATION
-	   GlobalPoint posH = geo->getPosition((*ehit).detid());
+	   const GlobalPoint& posH = geo->getPosition((*ehit).detid());
 	   double phihit = posH.phi();
 	   double etahit = posH.eta();
 	   
@@ -291,7 +291,7 @@ EopTreeWriter::beginJob()
 void 
 EopTreeWriter::endJob() {
 
-  delete treeMemPtr_; treeMemPtr_ = 0;
+  delete treeMemPtr_; treeMemPtr_ = nullptr;
 
 }
 

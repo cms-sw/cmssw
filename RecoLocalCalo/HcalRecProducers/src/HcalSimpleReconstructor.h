@@ -26,10 +26,10 @@ class HcalTopology;
     class HcalSimpleReconstructor : public edm::stream::EDProducer<> {
     public:
       explicit HcalSimpleReconstructor(const edm::ParameterSet& ps);
-      virtual ~HcalSimpleReconstructor();
-      virtual void produce(edm::Event& e, const edm::EventSetup& c) override final;
-      virtual void beginRun(edm::Run const&r, edm::EventSetup const & es) override final;
-      virtual void endRun(edm::Run const&r, edm::EventSetup const & es) override final;
+      ~HcalSimpleReconstructor() override;
+      void produce(edm::Event& e, const edm::EventSetup& c) final;
+      void beginRun(edm::Run const&r, edm::EventSetup const & es) final;
+      void endRun(edm::Run const&r, edm::EventSetup const & es) final;
 
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 

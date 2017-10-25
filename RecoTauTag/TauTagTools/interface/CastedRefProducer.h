@@ -34,9 +34,9 @@ class CastedRefProducer : public edm::EDProducer {
           produces<OutputCollection>();
         }
     /// destructor
-    ~CastedRefProducer(){};
+    ~CastedRefProducer() override{};
     /// process an event
-    virtual void produce(edm::Event& evt, const edm::EventSetup& es) {
+    void produce(edm::Event& evt, const edm::EventSetup& es) override {
       // Output collection
       auto coll = std::make_unique<OutputCollection>();
       // Get input

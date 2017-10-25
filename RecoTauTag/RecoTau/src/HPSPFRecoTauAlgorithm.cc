@@ -16,7 +16,7 @@ HPSPFRecoTauAlgorithm::HPSPFRecoTauAlgorithm(const edm::ParameterSet& config):
 
 HPSPFRecoTauAlgorithm::~HPSPFRecoTauAlgorithm()
 {
-  if(candidateMerger_ !=0 ) delete candidateMerger_;
+  if(candidateMerger_ !=nullptr ) delete candidateMerger_;
 }
 
 PFTau
@@ -55,12 +55,12 @@ HPSPFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& tagInfo,const Vertex& v
 
 
   //Lets see if we created any taus
-  if(pfTaus_.size()>0) {
+  if(!pfTaus_.empty()) {
 
     pfTau = getBestTauCandidate(pfTaus_);
 
     //Set the IP for the leading track
-    if(TransientTrackBuilder_!=0 &&pfTau.leadPFChargedHadrCand()->trackRef().isNonnull()) {
+    if(TransientTrackBuilder_!=nullptr &&pfTau.leadPFChargedHadrCand()->trackRef().isNonnull()) {
       const TransientTrack leadTrack=TransientTrackBuilder_->build(pfTau.leadPFChargedHadrCand()->trackRef());
       if(pfTau.pfTauTagInfoRef().isNonnull())
         if(pfTau.pfTauTagInfoRef()->pfjetRef().isNonnull()) {
@@ -89,7 +89,7 @@ HPSPFRecoTauAlgorithm::buildOneProng(const reco::PFTauTagInfoRef& tagInfo,const 
 {
   PFTauCollection  taus;
 
-  if(hadrons.size()>0)
+  if(!hadrons.empty())
     for(unsigned int h=0;h<hadrons.size();++h) {
       PFCandidatePtr hadron = hadrons[h];
 
@@ -126,7 +126,7 @@ HPSPFRecoTauAlgorithm::buildOneProng(const reco::PFTauTagInfoRef& tagInfo,const 
             taus.push_back(tau);
           }
     }
-  if(taus.size()>0) {
+  if(!taus.empty()) {
     pfTaus_.push_back(getBestTauCandidate(taus));
   }
 
@@ -145,7 +145,7 @@ HPSPFRecoTauAlgorithm::buildOneProngStrip(const reco::PFTauTagInfoRef& tagInfo,c
 
 
   //make taus like this only if there is at least one hadron+ 1 strip
-  if(hadrons.size()>0&&strips.size()>0){
+  if(!hadrons.empty()&&!strips.empty()){
     //Combinatorics between strips and clusters
     for(std::vector<std::vector<PFCandidatePtr>>::const_iterator candVector=strips.begin();candVector!=strips.end();++candVector)
       for(std::vector<PFCandidatePtr>::const_iterator hadron=hadrons.begin();hadron!=hadrons.end();++hadron) {
@@ -191,7 +191,7 @@ HPSPFRecoTauAlgorithm::buildOneProngStrip(const reco::PFTauTagInfoRef& tagInfo,c
                 tauCone=std::max(ROOT::Math::VectorUtil::DeltaR(tau.p4(),(*hadron)->p4()),
                                  ROOT::Math::VectorUtil::DeltaR(tau.p4(),strip));
 
-              if(emConstituents.size()>0)
+              if(!emConstituents.empty())
                 for(std::vector<PFCandidatePtr>::const_iterator j=emConstituents.begin();j!=emConstituents.end();++j)  {
                   signal.push_back(*j);
                   signalG.push_back(*j);
@@ -224,7 +224,7 @@ HPSPFRecoTauAlgorithm::buildOneProngStrip(const reco::PFTauTagInfoRef& tagInfo,c
       }
   }
 
-  if(taus.size()>0) {
+  if(!taus.empty()) {
     pfTaus_.push_back(getBestTauCandidate(taus));
   }
 
@@ -238,7 +238,7 @@ HPSPFRecoTauAlgorithm::buildOneProngTwoStrips(const reco::PFTauTagInfoRef& tagIn
   PFTauCollection taus;
 
   //make taus like this only if there is at least one hadron+ 2 strips
-  if(hadrons.size()>0&&strips.size()>1){
+  if(!hadrons.empty()&&strips.size()>1){
     //Combinatorics between strips and clusters
     for(unsigned int Nstrip1=0;Nstrip1<strips.size()-1;++Nstrip1)
       for(unsigned int Nstrip2=Nstrip1+1;Nstrip2<strips.size();++Nstrip2)
@@ -343,7 +343,7 @@ HPSPFRecoTauAlgorithm::buildOneProngTwoStrips(const reco::PFTauTagInfoRef& tagIn
         }
   }
 
-  if(taus.size()>0) {
+  if(!taus.empty()) {
     pfTaus_.push_back(getBestTauCandidate(taus));
   }
 }
@@ -418,7 +418,7 @@ HPSPFRecoTauAlgorithm::buildThreeProngs(const reco::PFTauTagInfoRef& tagInfo,con
             }
         }
 
-  if(taus.size()>0) {
+  if(!taus.empty()) {
     PFTau bestTau  = getBestTauCandidate(taus);
     if(refitThreeProng(bestTau))
       //Apply mass constraint

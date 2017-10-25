@@ -33,12 +33,12 @@ public:
   /// Constructor
   explicit GEMSegmentAlgorithm(const edm::ParameterSet& ps);
   /// Destructor
-  virtual ~GEMSegmentAlgorithm();
+  ~GEMSegmentAlgorithm() override;
 
   /**
    * Build segments for all desired groups of hits
    */
-  std::vector<GEMSegment> run(const GEMEnsemble& ensemble, const EnsembleHitContainer& rechits); 
+  std::vector<GEMSegment> run(const GEMEnsemble& ensemble, const EnsembleHitContainer& rechits) override; 
 
 private:
   /// Utility functions 

@@ -30,10 +30,10 @@ class FSimEvent;
 class EFilter : public edm::stream::EDFilter<> {
  public:
   explicit EFilter(const edm::ParameterSet&);
-  ~EFilter();
+  ~EFilter() override;
 
  private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
   
   // ----------member data ---------------------------
 /*   edm::ParameterSet  vertexGenerator_;  */

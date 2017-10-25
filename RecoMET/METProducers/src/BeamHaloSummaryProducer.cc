@@ -193,7 +193,7 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
   iEvent.getByToken(hcalhalodata_token_, TheHcalHaloData);
 
   const HcalHaloData HcalData = (*TheHcalHaloData.product() );
-  const std::vector<PhiWedge> HcalWedges = HcalData.GetPhiWedges();
+  const std::vector<PhiWedge>& HcalWedges = HcalData.GetPhiWedges();
   bool HcalLooseId = false, HcalTightId = false;
   for( std::vector<PhiWedge>::const_iterator iWedge = HcalWedges.begin() ; iWedge != HcalWedges.end() ; iWedge++ )
     {
@@ -246,11 +246,11 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
   bool GlobalLooseId = false;
   bool GlobalTightId = false;
   const GlobalHaloData GlobalData = (*TheGlobalHaloData.product() );
-  const std::vector<PhiWedge> MatchedHcalWedges = GlobalData.GetMatchedHcalPhiWedges();
-  const std::vector<PhiWedge> MatchedEcalWedges = GlobalData.GetMatchedEcalPhiWedges();
+  const std::vector<PhiWedge>& MatchedHcalWedges = GlobalData.GetMatchedHcalPhiWedges();
+  const std::vector<PhiWedge>& MatchedEcalWedges = GlobalData.GetMatchedEcalPhiWedges();
 
   //Loose Id
-  if( MatchedEcalWedges.size() || MatchedHcalWedges.size() ) 
+  if( !MatchedEcalWedges.empty() || !MatchedHcalWedges.empty() ) 
     GlobalLooseId = true;
 
   //Tight Id

@@ -46,7 +46,7 @@ class L1MuDTTrackCand: public L1MuRegionalCand {
                    int uwh, int usc, int utag, int adr1, int adr2, int adr3, int adr4 );
 
   //  Destructor
-  ~L1MuDTTrackCand();
+  ~L1MuDTTrackCand() override;
 
   // Operations
   int whNum()        const;

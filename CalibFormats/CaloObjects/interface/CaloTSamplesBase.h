@@ -3,7 +3,7 @@
 
 #include <ostream>
 #include "DataFormats/DetId/interface/DetId.h"
-#include <assert.h>
+#include <cassert>
 
 template <class Ttype> 
 class CaloTSamplesBase 

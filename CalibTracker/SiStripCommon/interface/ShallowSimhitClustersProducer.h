@@ -19,7 +19,7 @@ class ShallowSimhitClustersProducer : public edm::EDProducer {
   std::string Prefix;
 	std::string runningmode_;
 
-  void produce( edm::Event &, const edm::EventSetup & );
+  void produce( edm::Event &, const edm::EventSetup & ) override;
   shallow::CLUSTERMAP::const_iterator match_cluster(const unsigned&, 
 						    const float&, 
 						    const shallow::CLUSTERMAP&, 

@@ -189,7 +189,7 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
 
 	//std::cout << "nDoubleLegConv="<<cand.photonExtraRef()->conversionRef().size()<<std::endl;
 
-	if (cand.photonExtraRef()->conversionRef().size()>0){
+	if (!cand.photonExtraRef()->conversionRef().empty()){
 
 	  pfConv_.push_back(reco::ConversionRefVector());
 
@@ -208,7 +208,7 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
 	
 	//std::cout << "nSingleLegConv=" <<singleLegConvColl.size() << std::endl;
 
-	if (singleLegConvColl.size()>0){
+	if (!singleLegConvColl.empty()){
 
 	  pfSingleLegConv_.push_back(std::vector<reco::TrackRef>());
 	  pfSingleLegConvMva_.push_back(std::vector<float>());
@@ -525,7 +525,7 @@ void PFPhotonTranslator::createBasicCluster(const reco::PFBlockElement & PFBE,
 					      std::vector<const reco::PFCluster *> & pfClusters,
 					      const reco::PFCandidate & coCandidate) const
 {
-  reco::PFClusterRef myPFClusterRef = PFBE.clusterRef();
+  const reco::PFClusterRef& myPFClusterRef = PFBE.clusterRef();
   if(myPFClusterRef.isNull()) return;  
 
   const reco::PFCluster & myPFCluster (*myPFClusterRef);
@@ -545,7 +545,7 @@ void PFPhotonTranslator::createBasicCluster(const reco::PFBlockElement & PFBE,
 
 void PFPhotonTranslator::createPreshowerCluster(const reco::PFBlockElement & PFBE, reco::PreshowerClusterCollection& preshowerClusters,unsigned plane) const
 {
-  reco::PFClusterRef  myPFClusterRef= PFBE.clusterRef();
+  const reco::PFClusterRef&  myPFClusterRef= PFBE.clusterRef();
   preshowerClusters.push_back(reco::PreshowerCluster(myPFClusterRef->energy(),myPFClusterRef->position(),
 					       myPFClusterRef->hitsAndFractions(),plane));
 }
@@ -715,7 +715,6 @@ void PFPhotonTranslator::createOneLegConversions(const edm::OrphanHandle<reco::S
 	    std::vector<reco::TrackRef> OneLegConvVector;
 	    OneLegConvVector.push_back(pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]);
 	    
-	    reco::CaloClusterPtrVector clu=scPtrVec;
 	    std::vector<reco::TrackRef> tr=OneLegConvVector;
 	    std::vector<math::XYZPointF>trackPositionAtEcalVec;
 	    std::vector<math::XYZPointF>innPointVec;
@@ -896,7 +895,7 @@ void PFPhotonTranslator::createPhotons(reco::VertexCollection &vertexCollection,
       reco::PhotonCoreRef PCref(reco::PhotonCoreRef(photonCoresHandle, iphot));
 
       math::XYZPoint vtx(0.,0.,0.);
-      if (vertexCollection.size()>0) vtx = vertexCollection.begin()->position();
+      if (!vertexCollection.empty()) vtx = vertexCollection.begin()->position();
       //std::cout << "vtx made" << std::endl;
 
       math::XYZVector direction =  PCref->parentSuperCluster()->position() - vtx;

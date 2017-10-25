@@ -364,7 +364,7 @@ ReferenceTrajectory::createUpdator(MaterialEffects materialEffects, double mass)
     return new CombinedMaterialEffectsUpdator(mass);
 }
 
-  return 0;
+  return nullptr;
 }
 
 //__________________________________________________________________________________
@@ -430,7 +430,7 @@ void ReferenceTrajectory::fillMeasurementAndError(const TransientTrackingRecHit:
   //             hit uncertainty estimate!
 
    // FIXME FIXME  CLONE
-  auto newHitPtr =  hitPtr;
+  const auto& newHitPtr =  hitPtr;
 //  TransientTrackingRecHit::ConstRecHitPointer newHitPtr(hitPtr->canImproveWithTrack() ?
 //							hitPtr->clone(updatedTsos) : hitPtr);
 

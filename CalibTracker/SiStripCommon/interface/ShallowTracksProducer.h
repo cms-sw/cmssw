@@ -14,6 +14,6 @@ private:
   edm::InputTag theTracksLabel;
   std::string Prefix;
   std::string Suffix;
-  void produce( edm::Event &, const edm::EventSetup & );
+  void produce( edm::Event &, const edm::EventSetup & ) override;
 };
 #endif

@@ -15,11 +15,11 @@ using namespace edm;
 DQMMessageLoggerClient::DQMMessageLoggerClient( const edm::ParameterSet& ps ) {
 
   parameters = ps;
-  theDbe = NULL;
-  modulesErrorsFound = NULL;
-  modulesWarningsFound = NULL;
-  categoriesWarningsFound = NULL;
-  categoriesErrorsFound = NULL;
+  theDbe = nullptr;
+  modulesErrorsFound = nullptr;
+  modulesWarningsFound = nullptr;
+  categoriesWarningsFound = nullptr;
+  categoriesErrorsFound = nullptr;
   directoryName = parameters.getParameter<string>("Directory");
 
 }
@@ -36,7 +36,7 @@ void DQMMessageLoggerClient::beginJob() {
   //LogTrace(metname)<<"[DQMMessageLoggerClient] Parameters initialization";
   theDbe = Service<DQMStore>().operator->();
 
-  if(theDbe!=NULL){   
+  if(theDbe!=nullptr){   
     theDbe->setCurrentFolder(directoryName);
   }
 
@@ -122,7 +122,7 @@ void DQMMessageLoggerClient::fillHistograms(){
 	  modulesWarningsFound->setBinLabel(1,"Module name");
 	}
 	for (int i=0; i<nonzeros; ++i){
-	  if(modulesWarningsFound!=NULL){
+	  if(modulesWarningsFound!=nullptr){
 	    //gPad->SetBottomMargin(2);
 	    //cout << binContent[i] <<" "<<binLabel[i] << endl;
 	    modulesWarningsFound->setBinContent(i+1,binContent[i]);
@@ -142,7 +142,7 @@ void DQMMessageLoggerClient::fillHistograms(){
 	  modulesErrorsFound->setBinLabel(1,"Module name");
 	}
 	for (int i=0; i<nonzeros; ++i){
-	  if(modulesErrorsFound!=NULL){
+	  if(modulesErrorsFound!=nullptr){
 	    //gPad->SetBottomMargin(2);
 	    modulesErrorsFound->setBinContent(i+1,binContent[i]);
 	    modulesErrorsFound->setBinLabel(i+1,binLabel[i]);
@@ -161,7 +161,7 @@ void DQMMessageLoggerClient::fillHistograms(){
 	  categoriesWarningsFound->setBinLabel(1,"Category name");
 	}
 	for (int i=0; i<nonzeros; ++i){
-	  if(categoriesWarningsFound!=NULL){
+	  if(categoriesWarningsFound!=nullptr){
 	    //gPad->SetBottomMargin(2);
 	    //cout << binContent[i] <<" " <<binLabel[i] << endl;
 	    categoriesWarningsFound->setBinContent(i+1,binContent[i]);
@@ -181,7 +181,7 @@ void DQMMessageLoggerClient::fillHistograms(){
 	  categoriesErrorsFound->setBinLabel(1,"Category name");
 	}
 	for (int i=0; i<nonzeros; ++i){
-	  if(categoriesErrorsFound!=NULL){
+	  if(categoriesErrorsFound!=nullptr){
 	    //gPad->SetBottomMargin(2);
 	    categoriesErrorsFound->setBinContent(i+1,binContent[i]);
 	    categoriesErrorsFound->setBinLabel(i+1,binLabel[i]);

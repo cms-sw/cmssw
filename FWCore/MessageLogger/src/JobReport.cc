@@ -328,7 +328,7 @@ namespace edm {
   }
 
     JobReport::JobReport() :
-      impl_(new JobReportImpl(0)) {
+      impl_(new JobReportImpl(nullptr)) {
     }
 
     JobReport::JobReport(std::ostream* iOstream) : impl_(new JobReportImpl(iOstream)) {

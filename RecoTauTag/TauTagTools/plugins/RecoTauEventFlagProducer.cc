@@ -21,7 +21,7 @@ class RecoTauEventFlagProducer : public edm::EDProducer {
       flag_ = pset.getParameter<int>("flag");
       produces<int>();
     }
-    ~RecoTauEventFlagProducer() {}
+    ~RecoTauEventFlagProducer() override {}
     void produce(edm::Event& evt, const edm::EventSetup &es) override {
       evt.put(std::make_unique<int>(flag_));
     }

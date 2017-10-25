@@ -32,7 +32,7 @@ namespace
 class RecoTauTwoProngFilter : public RecoTauModifierPlugin {
   public:
   explicit RecoTauTwoProngFilter(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC);
-    virtual ~RecoTauTwoProngFilter() {}
+    ~RecoTauTwoProngFilter() override {}
     void operator()(PFTau&) const override;
   private:
     double minPtFractionForSecondProng_;

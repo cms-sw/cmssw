@@ -50,7 +50,7 @@ PFDisplacedVertexHelper::isTrackSelected(const reco::Track& trk,
 
   bool isGoodTrack = false;
     
-  bool isHighPurity = trk.quality( trk.qualityByName(tracksSelector_.quality().data()) );
+  bool isHighPurity = trk.quality( trk.qualityByName(tracksSelector_.quality()) );
         
   double nChi2  = trk.normalizedChi2(); 
   double pt = trk.pt();
@@ -73,7 +73,7 @@ PFDisplacedVertexHelper::isTrackSelected(const reco::Track& trk,
       && pt >  tracksSelector_.pt_min();
   } else {
     // Secondary tracks selection
-    int nOuterHits = trk.hitPattern().numberOfHits(HitPattern::MISSING_OUTER_HITS);
+    int nOuterHits = trk.hitPattern().numberOfLostHits(HitPattern::MISSING_OUTER_HITS);
 
     double dxy = trk.dxy(pvtx_);
       

@@ -73,7 +73,7 @@ public:
    rz_harm_poly(const poly2d_base &S) : poly2d_base(S), L(0), M(0) {++Cnt;}
    rz_harm_poly(const rz_harm_poly &S) : poly2d_base(S), L(S.L), M(S.M) {++Cnt;}
    rz_harm_poly(const unsigned N);
-   ~rz_harm_poly();
+   ~rz_harm_poly() override;
    
    bool IsPhiSet() { return phi_set;}
    

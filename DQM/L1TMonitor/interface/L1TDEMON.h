@@ -32,15 +32,15 @@ class L1TDEMON : public DQMEDAnalyzer {
  public:
 
   explicit L1TDEMON(const edm::ParameterSet&);
-  ~L1TDEMON();
+  ~L1TDEMON() override;
 
  protected:
 
   //virtual void beginJob(void) ;
-  virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
-  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
     
  private:
 

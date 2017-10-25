@@ -12,8 +12,8 @@
 #include <sstream>
 #include <ios>
 #include <stdexcept>
-#include <assert.h>
-#include <stdio.h>
+#include <cassert>
+#include <cstdio>
 
 using namespace std;
 using namespace pos;
@@ -273,7 +273,7 @@ std::set <unsigned int> PixelDetectorConfig::getFEDs(PixelNameTranslation* trans
 {
 
   std::set <unsigned int> feds;
-  assert(modules_.size()!=0);
+  assert(!modules_.empty());
   std::vector<PixelModuleName>::const_iterator imodule=modules_.begin();
         
   for (;imodule!=modules_.end();++imodule) {
@@ -298,7 +298,7 @@ std::map <unsigned int, std::set<unsigned int> > PixelDetectorConfig::getFEDsAnd
   //      FED Number                channels
 
   std::map <unsigned int, std::set<unsigned int> > fedsChannels;
-  assert(modules_.size()!=0);
+  assert(!modules_.empty());
   std::vector<PixelModuleName>::const_iterator imodule=modules_.begin();
 
   for (;imodule!=modules_.end();++imodule) {
@@ -342,7 +342,7 @@ void PixelDetectorConfig::writeASCII(std::string dir) const {
   }
 
 
-  if(rocs_.size() == 0) 
+  if(rocs_.empty()) 
     {
       std::vector<PixelModuleName>::const_iterator imodule=modules_.begin();
       
@@ -424,7 +424,7 @@ void PixelDetectorConfig::writeXML( std::ofstream *outstream,
 {
   std::stringstream s ; s << __LINE__ << "]\t[PixelDetectorConfig::writeXML()]\t\t\t    " ;
   std::string mthn = s.str() ;
-  if(rocs_.size() == 0) 
+  if(rocs_.empty()) 
     {
       std::vector<PixelModuleName>::const_iterator imodule=modules_.begin();
       
@@ -500,7 +500,7 @@ void PixelDetectorConfig::writeXML(pos::PixelConfigKey key, int version, std::st
   out << ""                                                                                           << std::endl ;
   out << ""                                                                                           << std::endl ;
 
-  if(rocs_.size() == 0) 
+  if(rocs_.empty()) 
     {
       std::vector<PixelModuleName>::const_iterator imodule=modules_.begin();
       

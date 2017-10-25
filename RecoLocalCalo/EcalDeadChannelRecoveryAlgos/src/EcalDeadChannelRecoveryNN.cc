@@ -10,7 +10,7 @@
 template <typename T>
 EcalDeadChannelRecoveryNN<T>::EcalDeadChannelRecoveryNN() {
   for (int id = 0; id < 9; ++id) {
-    ctx_[id].mlp = NULL;
+    ctx_[id].mlp = nullptr;
   }
 
   this->load();
@@ -44,7 +44,7 @@ void EcalDeadChannelRecoveryNN<T>::load_file(MultiLayerPerceptronContext& ctx, s
   std::string path = edm::FileInPath(fn).fullPath();
 
   auto t = std::make_unique<TTree>("t", "dummy MLP tree");
-  t->SetDirectory(0);
+  t->SetDirectory(nullptr);
 
   t->Branch("z1", &(ctx.tmp[0]), "z1/D");
   t->Branch("z2", &(ctx.tmp[1]), "z2/D");

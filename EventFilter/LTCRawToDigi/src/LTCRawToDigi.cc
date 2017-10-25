@@ -42,10 +42,10 @@
 class LTCRawToDigi : public edm::EDProducer {
    public:
       explicit LTCRawToDigi(const edm::ParameterSet&);
-      ~LTCRawToDigi();
+      ~LTCRawToDigi() override;
 
 
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
    private:
       // ----------member data ---------------------------
 };

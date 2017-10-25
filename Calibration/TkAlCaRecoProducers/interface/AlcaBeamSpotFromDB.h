@@ -24,13 +24,13 @@ ________________________________________________________________**/
 class AlcaBeamSpotFromDB : public edm::one::EDProducer<edm::EndLuminosityBlockProducer> {
  public:
   explicit AlcaBeamSpotFromDB(const edm::ParameterSet&);
-  ~AlcaBeamSpotFromDB();
+  ~AlcaBeamSpotFromDB() override;
 
  private:
-  virtual void beginJob() override final;
-  virtual void endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) override final;
-  virtual void produce                  (edm::Event& iEvent, const edm::EventSetup& iSetup) override final;
-  virtual void endJob()  override final;
+  void beginJob() final;
+  void endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) final;
+  void produce                  (edm::Event& iEvent, const edm::EventSetup& iSetup) final;
+  void endJob()  final;
 
 
 };

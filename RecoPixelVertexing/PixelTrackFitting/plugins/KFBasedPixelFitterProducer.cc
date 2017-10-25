@@ -23,12 +23,12 @@
 class KFBasedPixelFitterProducer: public edm::global::EDProducer<> {
 public:
   explicit KFBasedPixelFitterProducer(const edm::ParameterSet& iConfig);
-  ~KFBasedPixelFitterProducer() {}
+  ~KFBasedPixelFitterProducer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
+  void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
   std::string thePropagatorLabel;
   std::string thePropagatorOppositeLabel;
