@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
  
-ecalBadCalibSep2017ListFilter = cms.EDFilter(
+ecalBadCalibFilter = cms.EDFilter(
   "EcalBadCalibFilter",
  
   # use this if using AOD:
