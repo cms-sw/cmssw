@@ -33,7 +33,6 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 
 	_vflags.resize(nTPFlag);
 	_vflags[fEtMsm]=flag::Flag("EtMsm");
-	_vflags[fFGMsm]=flag::Flag("FGMsm");
 	_vflags[fDataMsn]=flag::Flag("DataMsn");
 	_vflags[fEmulMsn]=flag::Flag("EmulMsn");
 	_vflags[fUnknownIds]=flag::Flag("UnknownIds");
@@ -915,23 +914,27 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 			//	^^^ONLINE ONLY!
 		}
 
-		//	FIND a data digi
-		HcalTrigPrimDigiCollection::const_iterator jt=cdata->find(tid);
-		if (jt==cdata->end())
-		{
-			tid.ietaAbs()>=29?numMsnHF++:numMsnHBHE++;
-			_cEtCorr_TTSubdet.fill(tid, -2, soiEt);
-			if (_ptype != fOffline) { // hidefed2crate
-				if (eid.isVMEid())
-					_cMsnData_ElectronicsVME.fill(eid);
-				else
-					_cMsnData_ElectronicsuTCA.fill(eid);
-			}
-			if (soiEt>_cutEt)
+		// Look for a data digi. 
+		// Do not perform if the emulated digi is zero suppressed.
+		if(!(it->zsMarkAndPass())) {
+			HcalTrigPrimDigiCollection::const_iterator jt=cdata->find(tid);
+			if (jt==cdata->end())
 			{
-				tid.ietaAbs()>=29?numMsnCutHF++:numMsnCutHBHE++;
-				if (_ptype==fOnline)
-					_xDataMsn.get(eid)++;
+				tid.ietaAbs()>=29?numMsnHF++:numMsnHBHE++;
+				_cEtCorr_TTSubdet.fill(tid, -2, soiEt);
+				_cMsnData_depthlike.fill(tid);
+				if (_ptype != fOffline) { // hidefed2crate
+					if (eid.isVMEid())
+						_cMsnData_ElectronicsVME.fill(eid);
+					else
+						_cMsnData_ElectronicsuTCA.fill(eid);
+				}
+				if (soiEt>_cutEt)
+				{
+					tid.ietaAbs()>=29?numMsnCutHF++:numMsnCutHBHE++;
+					if (_ptype==fOnline)
+						_xDataMsn.get(eid)++;
+				}
 			}
 		}
 	}
@@ -1020,14 +1023,14 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 			//	FED is @cDAQ
 			double etmsm = _xNumCorr.get(eid)>0?
 				double(_xEtMsm.get(eid))/double(_xNumCorr.get(eid)):0;
-			double fgmsm = _xNumCorr.get(eid)>0?
-				double(_xFGMsm.get(eid))/double(_xNumCorr.get(eid)):0;
 			/*	
 			 * UNUSED VARS
 			 * double dmsm = _xDataTotal.get(eid)>0?
 				double(_xDataMsn.get(eid))/double(_xDataTotal.get(eid)):0;
 			double emsm = _xEmulTotal.get(eid)>0?
 				double(_xEmulMsn.get(eid))/double(_xEmulTotal.get(eid)):0;
+			double fgmsm = _xNumCorr.get(eid)>0?
+				double(_xFGMsm.get(eid))/double(_xNumCorr.get(eid)):0;				
 				*/
 			if (etmsm>=_thresh_EtMsmRate_high)
 				_vflags[fEtMsm]._state = flag::fBAD;
@@ -1035,12 +1038,6 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 				_vflags[fEtMsm]._state = flag::fPROBLEMATIC;
 			else
 				_vflags[fEtMsm]._state = flag::fGOOD;
-			if (fgmsm>=_thresh_FGMsmRate_high)
-				_vflags[fFGMsm]._state = flag::fBAD;
-			else if (fgmsm>=_thresh_FGMsmRate_low)
-				_vflags[fFGMsm]._state = flag::fPROBLEMATIC;
-			else
-				_vflags[fFGMsm]._state = flag::fGOOD;
 			/*
 			 *	DISABLE THESE FLAGS FOR ONLINE FOR NOW!
 			if (dmsm>=_thresh_DataMsn)
