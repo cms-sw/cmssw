@@ -26,8 +26,6 @@ class CTPPSDiamondRecHitProducerAlgorithm
     CTPPSDiamondRecHitProducerAlgorithm( const edm::ParameterSet& conf );
 
     void build( const CTPPSGeometry*, const edm::DetSetVector<CTPPSDiamondDigi>&, edm::DetSetVector<CTPPSDiamondRecHit>& );
-    
-    enum {NO_LEADING_EDGE_TIMESLICE = -10};
 
   private:
     /// Conversion constant between HPTDC time slice and absolute time (in ns)
