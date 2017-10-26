@@ -63,6 +63,13 @@ def customiseFor20429(process):
         del producer.GBRForestFileName
     return process
 
+# rename HI-specific islandSuperClusters modules
+def customiseFor20929(process):
+    for producer in producers_by_type(process, "PreshowerClusterProducer"):
+        if hasattr(producer, "endcapSClusterProducer"):
+            producer.endcapSClusterProducer = cms.InputTag("hiCorrectedIslandEndcapSuperClusters")
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -74,5 +81,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     process = customiseFor19989(process)
     process = customiseFor20422(process)
     process = customiseFor20429(process)
+    if (menuType == "HIon"):
+        process = customiseFor20929(process)
 
     return process
