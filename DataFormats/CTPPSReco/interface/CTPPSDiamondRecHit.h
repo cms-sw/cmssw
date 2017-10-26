@@ -12,6 +12,8 @@
 
 #include "DataFormats/CTPPSDigi/interface/HPTDCErrorFlags.h"
 
+enum {CTPPSDIAMONDRECHIT_WITHOUT_LEADING_TIMESLICE = -10};
+
 /// Reconstructed hit in diamond detectors.
 class CTPPSDiamondRecHit
 {
@@ -26,6 +28,7 @@ class CTPPSDiamondRecHit
       t_( t ), tot_( tot ), t_precision_(t_precision),
       ts_index_( oot_idx ), hptdc_err_( hptdc_err ), mh_( mh )
     {}
+    
 
     inline void setX( const float& x ) { x_ = x; }
     inline float getX() const { return x_; }
@@ -62,6 +65,7 @@ class CTPPSDiamondRecHit
 
     inline void setHPTDCErrorFlags( const HPTDCErrorFlags& err ) { hptdc_err_ = err; }
     inline HPTDCErrorFlags getHPTDCErrorFlags() const { return hptdc_err_; }
+    
 
   private:
     float x_, x_width_;

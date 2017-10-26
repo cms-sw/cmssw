@@ -38,6 +38,7 @@ class CTPPSDiamondLocalTrack
     inline float getZ0Sigma() const { return pos0_sigma_.z(); }
     
     inline int getNumOfHits() const { return numOfHits_; }
+    inline int getNumOfPlanes() const { return numOfPlanes_; }
     
     //--- spatial set'ters
 
@@ -45,6 +46,7 @@ class CTPPSDiamondLocalTrack
     inline void setPositionSigma( const math::XYZPoint& pos0_sigma ) { pos0_sigma_ = pos0_sigma; }
 
     inline void setNumOfHits( const int numOfHits ) { numOfHits_ = numOfHits; }
+    inline void setNumOfPlanes( const int numOfPlanes ) { numOfPlanes_ = numOfPlanes; }
 
     inline bool isValid() const { return valid_; }
     inline void setValid( bool valid ) { valid_ = valid; }
@@ -75,6 +77,9 @@ class CTPPSDiamondLocalTrack
 
     /// number of hits participating in the track
     int numOfHits_;
+    
+    /// number of planes participating in the track
+    int numOfPlanes_;
 
     /// fit valid?
     bool valid_;
@@ -98,5 +103,18 @@ inline bool operator<( const CTPPSDiamondLocalTrack& lhs, const CTPPSDiamondLoca
   // then sort by x-position
   return ( lhs.getX0() < rhs.getX0() );
 }
+
+inline bool
+CTPPSHitBelongsToTrack( const CTPPSDiamondLocalTrack& localTrack, const CTPPSDiamondRecHit& recHit, float tolerance=0.1 )
+{
+  return
+  ( recHit.getOOTIndex() == localTrack.getOOTIndex() &&
+               ( ( recHit.getX() + 0.5 * recHit.getXWidth() > localTrack.getX0() - localTrack.getX0Sigma() - tolerance
+                && recHit.getX() + 0.5 * recHit.getXWidth() < localTrack.getX0() + localTrack.getX0Sigma() + tolerance )
+              || ( recHit.getX() - 0.5 * recHit.getXWidth() > localTrack.getX0() - localTrack.getX0Sigma() - tolerance
+                && recHit.getX() - 0.5 * recHit.getXWidth() < localTrack.getX0() + localTrack.getX0Sigma() + tolerance )
+              || ( recHit.getX() - 0.5 * recHit.getXWidth() < localTrack.getX0() - localTrack.getX0Sigma() - tolerance
+                && recHit.getX() + 0.5 * recHit.getXWidth() > localTrack.getX0() + localTrack.getX0Sigma() + tolerance ) ) );
+};
 
 #endif
