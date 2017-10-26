@@ -117,18 +117,18 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 
 	if (_ptype != fOffline) {
-	  for (int iChan = 0; iChan < 4; ++iChan) {
-	    _cTimingRatio_vs_LS[iChan].initialize(_name, "TimingRatio_vs_LS",
-						  hcaldqm::hashfunctions::fdepth,
-						  new hcaldqm::quantity::LumiSection(_maxLS),
-						  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTimingRatio),
-						  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
-	    _cTDCTime_vs_LS[iChan].initialize(_name, "TDCTime_vs_LS",
-					      hcaldqm::hashfunctions::fdepth,
-					      new hcaldqm::quantity::LumiSection(_maxLS),
-					      new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),
-					      new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
-	  }
+		for (int iChan = 0; iChan < 4; ++iChan) {
+			//_cTimingRatio_vs_LS[iChan].initialize(_name, "TimingRatio_vs_LS",
+			//				  hcaldqm::hashfunctions::fdepth,
+			//				  new hcaldqm::quantity::LumiSection(_maxLS),
+			//				  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTimingRatio),
+			//				  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+			_cTDCTime_vs_LS[iChan].initialize(_name, "TDCTime_vs_LS",
+						      hcaldqm::hashfunctions::fdepth,
+						      new hcaldqm::quantity::LumiSection(2000),
+						      new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),
+						      new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+		}
 		unsigned int itr = 0;
 		std::map<std::pair<unsigned int, unsigned int>, unsigned int> itr_map;
 		for(unsigned int crate = 34; crate <= 34; ++crate) {
@@ -159,7 +159,7 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 		char aux[100];
 		sprintf(aux, "/IEta%d_IPhi%d", timingChannels[iChan].first, timingChannels[iChan].second);
 		std::cout << "[debug] aux = " << aux << std::endl;
-		_cTimingRatio_vs_LS[iChan].book(ib, _emap, _filter_timingChannels[iChan], _subsystem, aux);
+		//_cTimingRatio_vs_LS[iChan].book(ib, _emap, _filter_timingChannels[iChan], _subsystem, aux);
 		_cTDCTime_vs_LS[iChan].book(ib, _emap, _filter_timingChannels[iChan], _subsystem, aux);
 	}
 
@@ -265,7 +265,7 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 						ratio = 0.;
 					}
 				}
-				_cTimingRatio_vs_LS[iChan].fill(HcalDetId(did), _currentLS, ratio);
+				//_cTimingRatio_vs_LS[iChan].fill(HcalDetId(did), _currentLS, ratio);
 			}
 		}
 	}
