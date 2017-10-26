@@ -275,6 +275,9 @@ void PixelThresholdClusterizer::copy_to_buffer( DigiIterator begin, DigiIterator
 #endif
 
     if(adc<100) adc=100; // put all negative pixel charges into the 100 elec bin 
+    /* This is semi-random good number. The exact number (in place of 100) is irrelevant from the point 
+       of view of the final cluster charge since these are typically >= 20000.
+    */
 
     if ( adc >= thePixelThreshold) {
       theBuffer.set_adc( row, col, adc);
