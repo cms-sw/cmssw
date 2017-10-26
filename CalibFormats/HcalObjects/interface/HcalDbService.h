@@ -38,6 +38,8 @@ class HcalDbService {
 
   const HcalPedestal* getPedestal (const HcalGenericDetId& fId) const;
   const HcalPedestalWidth* getPedestalWidth (const HcalGenericDetId& fId) const;
+  const HcalPedestal* getEffectivePedestal (const HcalGenericDetId& fId) const;
+  const HcalPedestalWidth* getEffectivePedestalWidth (const HcalGenericDetId& fId) const;
   const HcalGain* getGain (const HcalGenericDetId& fId) const;
   const HcalGainWidth* getGainWidth (const HcalGenericDetId& fId) const;
   const HcalQIECoder* getHcalCoder (const HcalGenericDetId& fId) const;
@@ -92,11 +94,13 @@ class HcalDbService {
 
  private:
   bool makeHcalCalibration (const HcalGenericDetId& fId, HcalCalibrations* fObject, 
-			    bool pedestalInADC) const;
+			    bool pedestalInADC, bool effPedestalInADC) const;
   void buildCalibrations() const;
   bool makeHcalCalibrationWidth (const HcalGenericDetId& fId, HcalCalibrationWidths* fObject, 
-				 bool pedestalInADC) const;
+				 bool pedestalInADC, bool effPedestalInADC) const;
   void buildCalibWidths() const;
+  bool convertPedestals(const HcalGenericDetId& fId, const HcalPedestal* pedestal, float* pedTrue, bool inADC) const;
+  bool convertPedestalWidths(const HcalGenericDetId& fId, const HcalPedestalWidth* pedestalwidth, float* pedTrueWidth, bool inADC) const;
   const HcalPedestals* mPedestals;
   const HcalPedestalWidths* mPedestalWidths;
   const HcalPedestals* mEffectivePedestals;
