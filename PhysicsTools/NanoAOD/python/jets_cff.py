@@ -257,7 +257,7 @@ genJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     )
 )
 
-genJetTableAK8 = cms.EDProducer("SimpleCandidateFlatTableProducer",
+genJetAK8Table = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("slimmedGenJetsAK8"),
     cut = cms.string("pt > 100."),
     name = cms.string("GenJetAK8"),
@@ -268,7 +268,7 @@ genJetTableAK8 = cms.EDProducer("SimpleCandidateFlatTableProducer",
 	#anything else?
     )
 )
-genSubJetTableAK8 = cms.EDProducer("SimpleCandidateFlatTableProducer",
+genSubJetAK8Table = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("slimmedGenJetsAK8SoftDropSubJets"),
     cut = cms.string(""),  ## These don't get a pt cut, but in miniAOD only subjets from fat jets with pt > 100 are kept
     name = cms.string("SubGenJetAK8"),
@@ -286,6 +286,6 @@ jetSequence = cms.Sequence(looseJetId+tightJetId+slimmedJetsWithUserData+jetCorr
 jetTables = cms.Sequence(bjetMVA+ jetTable+fatJetTable+subJetTable+saJetTable+saTable)
 
 #MC only producers and tables
-jetMC = cms.Sequence(jetMCTable+genJetTable+genJetTableAK8+genSubJetTableAK8)
+jetMC = cms.Sequence(jetMCTable+genJetTable+genJetAK8Table+genSubJetAK8Table)
 
 
