@@ -17,11 +17,15 @@ ecalBadCalibFilter = cms.EDFilter(
   # minimum rechit et to flag as bad: 
   ecalMinEt        = cms.double(50.),
   # DetId of bad channel:
-  baddetEcal        = cms.vuint32(872439604,872422825,872420274,872423218,
-                                  872423215,872416066,872435036,872439336,
-                                  872420273,872436907,872420147,872439731,
-                                  872436657,872420397,872439732,872439339,
-                                  872439603),                                  
+  baddetEcal       = cms.vuint32(),
+
+  from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+  phase2_common.toModify(ecalBadCalibFilter, baddetEcal = [872439604,872422825,872420274,872423218,
+                                                           872423215,872416066,872435036,872439336,
+                                                           872420273,872436907,872420147,872439731,
+                                                           872436657,872420397,872439732,872439339,
+                                                           872439603]),
+
   taggingMode = cms.bool(False),
   #prints debug info for each channel if set to true
   debug = cms.bool(False),
