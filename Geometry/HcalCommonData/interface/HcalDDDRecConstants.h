@@ -68,6 +68,8 @@ public:
   std::vector<int>          getDepth(const unsigned int& eta, const bool& extra) const;
   int                       getDepthEta16(const int& det, const int& iphi, 
 					  const int& zside) const {return hcons.getDepthEta16(det,iphi,zside);}
+  int                       getDepthEta29(const int& iphi, const int& zside, 
+					  const int& type) const {return hcons.getDepthEta29(iphi,zside,type);}
   std::vector<HcalEtaBin>   getEtaBins(const int& itype) const;
   std::pair<double,double>  getEtaPhi(const int& subdet, const int& ieta, const int& iphi) const;
   std::pair<int,int>        getEtaRange(const int& i) const
