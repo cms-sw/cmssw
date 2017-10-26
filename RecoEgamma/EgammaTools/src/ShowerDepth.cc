@@ -1,5 +1,5 @@
 #include "RecoEgamma/EgammaTools/interface/ShowerDepth.h"
-#include <tgmath.h>
+#include <ctgmath>
 #include <iostream>
 
 ShowerDepth::ShowerDepth() {

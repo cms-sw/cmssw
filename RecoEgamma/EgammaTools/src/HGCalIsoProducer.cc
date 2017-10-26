@@ -9,7 +9,7 @@
 #include <stdexcept>
 #include "../interface/HGCalIsoProducer.h"
 
-HGCalIsoProducer::HGCalIsoProducer():dr2_(0.15*0.15),mindr2_(0),rechittools_(0),debug_(false),nlayers_(30){
+HGCalIsoProducer::HGCalIsoProducer():dr2_(0.15*0.15),mindr2_(0),rechittools_(nullptr),debug_(false),nlayers_(30){
 
     allHitMap_ = new std::map<DetId, const HGCRecHit *>();
     mapassigned_=false;
