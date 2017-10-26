@@ -27,7 +27,7 @@ GEMROmap* GEMEMap::convert() const{
       ec.vfatId= imap->vfatId[ix];
       ec.channelId=imap->vfat_chnnel_number[ix];
       GEMROmap::dCoord dc;
-      dc.stripId = 1 + imap->strip_number[ix]+(imap->vfat_position[ix]-1)%3*128;
+      dc.stripId = 1 + imap->strip_number[ix]+(imap->iPhi[ix]-1)%3*128;
       dc.gemDetId = GEMDetId(imap->z_direction[ix], 1, std::abs(imap->z_direction[ix]), imap->depth[ix], imap->sec[ix], imap->iEta[ix]); 
       romap->add(ec,dc);
     }
