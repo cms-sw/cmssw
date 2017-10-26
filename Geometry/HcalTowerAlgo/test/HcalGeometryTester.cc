@@ -71,6 +71,7 @@ void HcalGeometryTester::analyze(const edm::Event& /*iEvent*/,
   testTriggerGeometry(topology);
 
   testClosestCells(geom, topology);
+
   std::cout << "HcalGeometryTester::Test SLHC Hcal Geometry" << std::endl;
   std::vector<int> dins;
 
@@ -80,6 +81,7 @@ void HcalGeometryTester::analyze(const edm::Event& /*iEvent*/,
   testFlexiValidDetIds(geom, topology, DetId::Hcal, HcalForward," FORWARD ", dins );
 
   testFlexiGeomHF(geom);
+
 }
 
 void HcalGeometryTester::testValidDetIds(CaloSubdetectorGeometry* caloGeom,
@@ -108,7 +110,7 @@ void HcalGeometryTester::testValidDetIds(CaloSubdetectorGeometry* caloGeom,
 void HcalGeometryTester::testClosestCells(CaloSubdetectorGeometry* g,
 					  const HcalTopology& topology ) {
   
-  // make sure each cel is its own closest cell
+  // make sure each cell is its own closest cell
   HcalDetId barrelDet1(HcalBarrel, 1, 1, 1);
   HcalDetId barrelDet2(HcalBarrel, 16, 50, 1);
   HcalDetId endcapDet1(HcalEndcap, -17, 72, 1);
@@ -123,8 +125,13 @@ void HcalGeometryTester::testClosestCells(CaloSubdetectorGeometry* g,
   if (topology.valid(forwardDet1)) testClosestCell(forwardDet1, g);
   if (topology.valid(forwardDet3)) testClosestCell(forwardDet3, g);
   
-  const std::vector<DetId>& ids=g->getValidDetIds(DetId::Hcal,HcalBarrel);
-  for (auto id : ids) {
+  const std::vector<DetId>& idsb=g->getValidDetIds(DetId::Hcal,HcalBarrel);
+  for (auto id : idsb) {
+    testClosestCell(HcalDetId(id), g);
+  }
+  
+  const std::vector<DetId>& idse=g->getValidDetIds(DetId::Hcal,HcalEndcap);
+  for (auto id : idse) {
     testClosestCell(HcalDetId(id), g);
   }
 }
