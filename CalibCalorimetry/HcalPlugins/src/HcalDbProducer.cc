@@ -66,13 +66,12 @@ HcalDbProducer::HcalDbProducer( const edm::ParameterSet& fConfig)
 			  &HcalDbProducer::TPChannelParametersCallback &
 			  &HcalDbProducer::TPParametersCallback &
 			  &HcalDbProducer::lutMetadataCallback &
-			  &HcalDbProducer::MCParamsCallback
+			  &HcalDbProducer::MCParamsCallback &
+              &HcalDbProducer::effectivePedestalsCallback &
+              &HcalDbProducer::effectivePedestalWidthsCallback
 			  )
 		   );
 
-  setWhatProduced(this, (dependsOn (&HcalDbProducer::effectivePedestalsCallback) &
-			  &HcalDbProducer::effectivePedestalWidthsCallback
-			  ), edm::es::Label("effective"));
   setWhatProduced(this, &HcalDbProducer::produceChannelQualityWithTopo, edm::es::Label("withTopo"));
   //now do what ever other initialization is needed
 
