@@ -42,14 +42,14 @@
 class HGCalElectronIDValueMapProducer : public edm::stream::EDProducer<> {
   public:
     explicit HGCalElectronIDValueMapProducer(const edm::ParameterSet&);
-    ~HGCalElectronIDValueMapProducer();
+    ~HGCalElectronIDValueMapProducer() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
-    virtual void beginStream(edm::StreamID) override;
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
-    virtual void endStream() override;
+    void beginStream(edm::StreamID) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
+    void endStream() override;
 
     // ----------member data ---------------------------
     edm::EDGetTokenT<edm::View<reco::GsfElectron>> ElectronsToken_;
