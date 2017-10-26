@@ -259,8 +259,6 @@ namespace SiStripPI {
     }
   }
 
-
-  
   // code is mutuated from CalibTracker/SiStripQuality/plugins/SiStripQualityStatistics
 
   /*--------------------------------------------------------------------*/
@@ -269,15 +267,13 @@ namespace SiStripPI {
   {
    
     if (BC.BadApvs){
-      NBadComponent[i][0][2]+= ( (BC.BadApvs>>5)&0x1 )+ ( (BC.BadApvs>>4)&0x1 ) + ( (BC.BadApvs>>3)&0x1 ) + 
-	( (BC.BadApvs>>2)&0x1 )+ ( (BC.BadApvs>>1)&0x1 ) + ( (BC.BadApvs)&0x1 );
-      NBadComponent[i][component][2]+= ( (BC.BadApvs>>5)&0x1 )+ ( (BC.BadApvs>>4)&0x1 ) + ( (BC.BadApvs>>3)&0x1 ) + 
-	( (BC.BadApvs>>2)&0x1 )+ ( (BC.BadApvs>>1)&0x1 ) + ( (BC.BadApvs)&0x1 );
+      NBadComponent[i][0][2]+= std::bitset<16>(BC.BadApvs&0x3f).count(); 
+      NBadComponent[i][component][2]+= std::bitset<16>(BC.BadApvs&0x3f).count(); 
     }
 
     if (BC.BadFibers){ 
-      NBadComponent[i][0][1]+= ( (BC.BadFibers>>2)&0x1 )+ ( (BC.BadFibers>>1)&0x1 ) + ( (BC.BadFibers)&0x1 );
-      NBadComponent[i][component][1]+= ( (BC.BadFibers>>2)&0x1 )+ ( (BC.BadFibers>>1)&0x1 ) + ( (BC.BadFibers)&0x1 );
+      NBadComponent[i][0][1]+= std::bitset<4>(BC.BadFibers&0x7).count();
+      NBadComponent[i][component][1]+= std::bitset<4>(BC.BadFibers&0x7).count();
     }   
 
     if (BC.BadModule){
