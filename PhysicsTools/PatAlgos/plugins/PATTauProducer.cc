@@ -330,6 +330,11 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	  edm::Handle<reco::CaloTauDiscriminator> caloTauIdDiscr;
 	  iEvent.getByToken(caloTauIDTokens_[i], caloTauIdDiscr);
 
+	  if(!caloTauIdDiscr.isValid()){
+	    edm::LogWarning("DataSource") << "Tau discriminator '" << tauIDSrcs_[i].first
+					  << "' has not been found in the event. It will not be embedded into the pat::Tau object.";
+	    continue;
+	  }
 	  ids[i].first = tauIDSrcs_[i].first;
 	  ids[i].second = getTauIdDiscriminator(caloTauCollection, idx, caloTauIdDiscr);
 	} else {
