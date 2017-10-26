@@ -839,21 +839,12 @@ namespace {
       // store global info
 
       //k: 0=BadModule, 1=BadFiber, 2=BadApv, 3=BadStrips
-      int NTkBadComponent[4];
+      int NTkBadComponent[4] = {0};
 
       //legend: NBadComponent[i][j][k]= SubSystem i, layer/disk/wheel j, BadModule/Fiber/Apv k
       //     i: 0=TIB, 1=TID, 2=TOB, 3=TEC
       //     k: 0=BadModule, 1=BadFiber, 2=BadApv, 3=BadStrips
-      int NBadComponent[4][19][4];  
-
-      // initialize
-      for(int i=0;i<4;++i){
-	NTkBadComponent[i]=0;
-	for(int j=0;j<19;++j){
-	  for(int k=0;k<4;++k)
-	    NBadComponent[i][j][k]=0;
-	}
-      }
+      int NBadComponent[4][19][4] = {{{0}}};  
     
       std::vector<SiStripQuality::BadComponent> BC = siStripQuality_->getBadComponentList();
   
@@ -995,7 +986,7 @@ namespace {
       edm::LogInfo("SiStripBadStrip_PayloadInspector") << ss.str() << std::endl;
       //std::cout<<  ss.str() << std::endl;
 
-      TH2I *masterTable = new TH2I("table","",4,0.,4.,39,0.,39.);
+      auto masterTable = std::unique_ptr<TH2I>(new TH2I("table","",4,0.,4.,39,0.,39.));
       
       std::string labelsX[4]={"Bad Modules","Bad Fibers","Bad APVs","Bad Strips"};
       std::string labelsY[40]={"Tracker","TIB","TID","TOB","TEC","TIB Layer 1","TIB Layer 2","TIB Layer 3","TIB Layer 4","TID+ Disk 1","TID+ Disk 2","TID+ Disk 3","TID- Disk 1","TID- Disk 2","TID- Disk 3","TOB Layer 1","TOB Layer 2","TOB Layer 3","TOB Layer 4","TOB Layer 5","TOB Layer 6","TEC+ Disk 1","TEC+ Disk 2","TEC+ Disk 3","TEC+ Disk 4","TEC+ Disk 5","TEC+ Disk 6","TEC+ Disk 7","TEC+ Disk 8","TEC+ Disk 9","TEC- Disk 1","TEC- Disk 2","TEC- Disk 3","TEC- Disk 4","TEC- Disk 5","TEC- Disk 6","TEC- Disk 7","TEC- Disk 8","TEC- Disk 9"};
@@ -1018,16 +1009,16 @@ namespace {
       int layerIndex=0;
       for(int iY=39;iY>=1;iY--){
        	for(int iX=0;iX<=3;iX++){
-       	  if(iY==39){ 
-       	    masterTable->SetBinContent(iX+1,iY,NTkBadComponent[iX]);
-      	  } else if (iY>=35){
+       	  if(iY==39){
+	    masterTable->SetBinContent(iX+1,iY,NTkBadComponent[iX]);
+	  } else if (iY>=35){
 	    masterTable->SetBinContent(iX+1,iY,NBadComponent[(39-iY)-1][0][iX]);
-	  } else {      
+	  } else {
 	    if(iX==0) layerIndex++;
 	    //std::cout<<"iY:"<<iY << " cursor: "  <<cursor << " layerIndex: " << layerIndex << " layer check: "<< layerBoundaries[cursor] <<std::endl;
 	    masterTable->SetBinContent(iX+1,iY,NBadComponent[cursor][layerIndex][iX]);
 	  }
-       	}
+	}
 	if(layerIndex==layerBoundaries[cursor]){
 	  // bring on the subdet counter and reset the layer count
 	  cursor++;
@@ -1035,7 +1026,7 @@ namespace {
 	  boundaries.push_back(iY);
 	}
       }
-
+      
       TCanvas canv("canv","canv",800,800);
       canv.cd();
 
