@@ -372,7 +372,7 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	sumPhiTimesEnergy += icand->positionAtECALEntrance().phi()*icand->energy();		
 	sumEtaTimesEnergy += icand->positionAtECALEntrance().eta()*icand->energy();
         sumEnergy += icand->energy();	 
-	const reco::Track* track = 0;
+	const reco::Track* track = nullptr;
      	if ( icand->trackRef().isNonnull() ) track = icand->trackRef().get();
      	else if ( icand->muonRef().isNonnull() && icand->muonRef()->innerTrack().isNonnull()  ) track = icand->muonRef()->innerTrack().get();
      	else if ( icand->muonRef().isNonnull() && icand->muonRef()->globalTrack().isNonnull() ) track = icand->muonRef()->globalTrack().get();
