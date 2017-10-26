@@ -51,7 +51,7 @@ def write_HTCondor_submit_file(path, script, config, lib):
     resources = lib.get_class("pede").split("_")[1:] # strip off 'htcondor'
     job_flavour = resources[-1]
 
-    job_submit_template="""
+    job_submit_template="""\
 universe              = vanilla
 executable            = {script:s}
 output                = {jobm:s}/STDOUT
@@ -73,6 +73,9 @@ request_cpus          = {cpus:d}
         job_submit_template += """\
 +BigMemJob            = True
 +AccountingGroup      = "group_u_CMS.e_cms_caf_bigmem"
+
+# automatically remove the job if the submitter has no permissions to run a BigMemJob
+periodic_remove       = !regexp("group_u_CMS.e_cms_caf_bigmem", AccountingGroup) && BigMemJob =?= True
 """
     job_submit_template += "\nqueue\n"
 
