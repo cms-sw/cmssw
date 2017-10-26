@@ -315,6 +315,11 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	  edm::Handle<reco::PFTauDiscriminator> pfTauIdDiscr;
 	  iEvent.getByToken(pfTauIDTokens_[i], pfTauIdDiscr);
 
+	  if(!pfTauIdDiscr.isValid()){
+	    edm::LogWarning("DataSource") << "Tau discriminator '" << tauIDSrcs_[i].first
+					  << "' has not been found in the event. It will not be embedded into the pat::Tau object.";
+	    continue;
+	  }
 	  ids[i].first = tauIDSrcs_[i].first;
 	  ids[i].second = getTauIdDiscriminator(pfTauCollection, idx, pfTauIdDiscr);
 	} else if ( typeid(*tausRef) == typeid(reco::CaloTau) ) {
