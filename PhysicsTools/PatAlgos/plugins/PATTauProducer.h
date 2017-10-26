@@ -93,7 +93,7 @@ namespace pat {
       std::vector<NameTag> tauIDSrcs_;
       std::vector<edm::EDGetTokenT<reco::CaloTauDiscriminator> > caloTauIDTokens_;
       std::vector<edm::EDGetTokenT<reco::PFTauDiscriminator> > pfTauIDTokens_;
-
+      bool          skipMissingTauID_;
       // tools
       GreaterByPt<Tau>       pTTauComparator_;
 
