@@ -115,22 +115,6 @@ class SetupAlignment(object):
         self._config.read(self._args.alignmentConfig)
         self._config.config_path = self._args.alignmentConfig
 
-        if self._config.has_option("general", "externalDatasets"):
-            datasets = map(lambda x: x.strip(),
-                           self._config.get("general",
-                                            "externalDatasets").split(","))
-            datasets = filter(lambda x: len(x.strip()) > 0, datasets)
-            for item in datasets:
-                splitted = item.split("|")
-                dataset = splitted[0].strip()
-                weight = splitted[1] if len(splitted) > 1 else None
-                config = ConfigParser.ConfigParser()
-                config.optionxform = str
-                config.read(dataset)
-                config.config_path = dataset
-                self._external_datasets[dataset] = {"config": config,
-                                                    "weight": weight}
-
 
     def _construct_paths(self):
         """Determine directory paths and create the ones that are needed."""
@@ -159,9 +143,33 @@ class SetupAlignment(object):
         """Create and fill `general_options` dictionary."""
 
         print "="*75
+        self._fetch_dataset_directory()
+        self._fetch_external_datasets()
         self._fetch_essentials()
         self._fetch_defaults()
-        self._fetch_dataset_directory()
+
+
+    def _fetch_external_datasets(self):
+        """Fetch information about external datasets."""
+
+        if self._config.has_option("general", "externalDatasets"):
+            datasets = map(lambda x: x.strip(),
+                           self._config.get("general",
+                                            "externalDatasets").split(","))
+            datasets = filter(lambda x: len(x.strip()) > 0, datasets)
+            for item in datasets:
+                splitted = item.split("|")
+                dataset = splitted[0].strip()
+                dataset = os.path.expandvars(dataset)
+
+                weight = splitted[1] if len(splitted) > 1 else None
+                config = ConfigParser.ConfigParser()
+                config.optionxform = str
+                config.read(dataset)
+                config.config_path = dataset
+                self._external_datasets[dataset] = {"config": config,
+                                                    "weight": weight}
+
 
 
     def _create_mass_storage_directory(self):
