@@ -268,9 +268,9 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
     // quantization noise from the ADC (QIE8 or QIE10/11)
     noiseADCArr[ip] = (1./sqrt(12))*channelData.tsDFcPerADC(ip);
 
-    // dark current noise relevant for siPM
+    // dark current noise relevant for siPM (only if effective pedestal not used)
     noiseDCArr[ip] = 0;
-    if(channelData.hasTimeInfo() && (charge-ped)>channelData.tsPedestalWidth(ip)) {
+    if(channelData.hasTimeInfo() && !channelData.hasEffectivePedestals() && (charge-ped)>channelData.tsPedestalWidth(ip)) {
       noiseDCArr[ip] = psfPtr_->getSiPMDarkCurrent(channelData.darkCurrent(),channelData.fcByPE(),channelData.lambda());
     }
 
