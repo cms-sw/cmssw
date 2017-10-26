@@ -889,7 +889,7 @@ class Dataset(object):
             unknownfilenames, reasons = [], set()
             for filename in fileList[:]:
                 try:
-                    if not firstRun < self.getrunnumberfromfilename(filename) < lastRun:
+                    if not firstRun <= self.getrunnumberfromfilename(filename) <= lastRun:
                         fileList.remove(filename)
                 except AllInOneError as e:
                     if forcerunselection: raise
