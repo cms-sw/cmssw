@@ -39,7 +39,7 @@ public:
 		     double iTMin, double iTMax,
 		     const std::vector<double> & its4Chi2, HcalTimeSlew::BiasSetting slewFlavor, int iFitTimes);
 
-    const HcalPulseShapes::Shape* currentPulseShape_=NULL;
+    const HcalPulseShapes::Shape* currentPulseShape_=nullptr;
     void setChi2Term( bool isHPD );
 
     void setPulseShapeTemplate  (const HcalPulseShapes::Shape& ps, bool isHPD, unsigned nSamples);
