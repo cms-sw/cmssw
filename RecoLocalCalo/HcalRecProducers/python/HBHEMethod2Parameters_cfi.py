@@ -11,7 +11,13 @@ m2Parameters = cms.PSet(
     ts4Max                = cms.vdouble(100.,45000.), #fC # this is roughly 20 GeV
     pulseJitter           = cms.double(1.),           #GeV/bin 
     ###
-    meanTime              = cms.double(0.),   #ns 
+
+    #HPD Setting
+    #meanTime              = cms.double(0.),   #ns
+ 
+    #SiPM Setting
+    meanTime              = cms.double(-6.3),   #ns 
+
     timeSigmaHPD          = cms.double(5.),   #ns 
     timeSigmaSiPM         = cms.double(2.5),  #ns
     meanPed               = cms.double(0.),   #GeV
