@@ -1,12 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 # Energy scale correction for Island Endcap SuperClusters
-hiCorrectedIslandEndcapSuperClusters = cms.EDProducer("HiEgammaSCCorrectionMaker",
+correctedIslandEndcapSuperClusters = cms.EDProducer("HiEgammaSCCorrectionMaker",
     corectedSuperClusterCollection = cms.string(''),
     sigmaElectronicNoise = cms.double(0.15),
     superClusterAlgo = cms.string('Island'),
     etThresh = cms.double(0.0),
-    rawSuperClusterProducer = cms.InputTag("hiIslandSuperClusters","hiIslandEndcapSuperClusters"),
+    rawSuperClusterProducer = cms.InputTag("islandSuperClusters","islandEndcapSuperClusters"),
     applyEnergyCorrection = cms.bool(True),
     isl_fCorrPset = cms.PSet(
         fEtaVect = cms.vdouble(0.993,0,0.00546,1.165,-0.180844,+0.040312),
