@@ -86,9 +86,9 @@ Reco  MC
 
   computeHFShape();
   computeSiPMShapeHO();
-  computeSiPMShapeHE(Y11203,siPMShapeMC2017_);
+  computeSiPMShapeHE203();
   computeSiPMShapeData2017();
-  computeSiPMShapeHE(Y11206,siPMShapeMC2018_);
+  computeSiPMShapeHE206();
 
   theShapes[201] = &siPMShapeHO_;
   theShapes[202] = theShapes[201];
@@ -695,13 +695,12 @@ void HcalPulseShapes::computeSiPMShapeHO()
   }
 }
 
-template <class Y11Func>
-void HcalPulseShapes::computeSiPMShapeHE(Y11Func y11Func, Shape y11Shape)
+void HcalPulseShapes::computeSiPMShapeHE203()
 {
   //numerical convolution of SiPM pulse + WLS fiber shape
-  std::vector<double> nt = convolve(nBinsSiPM_,analyticPulseShapeSiPMHE,y11Func);
+  std::vector<double> nt = convolve(nBinsSiPM_,analyticPulseShapeSiPMHE,Y11203);
 
-  y11Shape.setNBin(nBinsSiPM_);
+  siPMShapeMC2017_.setNBin(nBinsSiPM_);
 
   //skip first bin, always 0
   double norm = 0.;
@@ -711,7 +710,26 @@ void HcalPulseShapes::computeSiPMShapeHE(Y11Func y11Func, Shape y11Shape)
 
   for (unsigned int j = 1; j <= nBinsSiPM_; ++j) {
     nt[j] /= norm;
-    y11Shape.setShapeBin(j,nt[j]);
+    siPMShapeMC2017_.setShapeBin(j,nt[j]);
+  }
+}
+
+void HcalPulseShapes::computeSiPMShapeHE206()
+{
+  //numerical convolution of SiPM pulse + WLS fiber shape
+  std::vector<double> nt = convolve(nBinsSiPM_,analyticPulseShapeSiPMHE,Y11206);
+
+  siPMShapeMC2018_.setNBin(nBinsSiPM_);
+
+  //skip first bin, always 0
+  double norm = 0.;
+  for (unsigned int j = 1; j <= nBinsSiPM_; ++j) {
+    norm += (nt[j]>0) ? nt[j] : 0.;
+  }
+
+  for (unsigned int j = 1; j <= nBinsSiPM_; ++j) {
+    nt[j] /= norm;
+    siPMShapeMC2018_.setShapeBin(j,nt[j]);
   }
 }
 
