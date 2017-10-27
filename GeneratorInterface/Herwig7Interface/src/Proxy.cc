@@ -16,7 +16,7 @@ static ProxyMap *getProxyMapInstance()
 {
 	static struct Sentinel {
 		Sentinel() : instance(new ProxyMap) {}
-		~Sentinel() { delete instance; instance = 0; }
+		~Sentinel() { delete instance; instance = nullptr; }
 
 		ProxyMap	*instance;
 	} sentinel;

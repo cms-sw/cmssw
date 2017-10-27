@@ -30,7 +30,7 @@ namespace CLHEP {
 class Herwig7Hadronizer : public Herwig7Interface, public gen::BaseHadronizer {
     public:
 	Herwig7Hadronizer(const edm::ParameterSet &params);
-	~Herwig7Hadronizer();
+	~Herwig7Hadronizer() override;
 
 	bool readSettings( int ) { return true; }
 	bool initializeForInternalPartons();
@@ -50,7 +50,7 @@ class Herwig7Hadronizer : public Herwig7Interface, public gen::BaseHadronizer {
 
     private:
 
-        virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override { setPEGRandomEngine(v); }
+        void doSetRandomEngine(CLHEP::HepRandomEngine* v) override { setPEGRandomEngine(v); }
 
 	unsigned int			eventsToPrint;
 

@@ -42,7 +42,7 @@ class RandomEngineGlue : public RandomGenerator {
 		friend class RandomEngineGlue;
 		friend class ThePEG::Proxy<Proxy>;
 
-		inline Proxy(ProxyID id) : Base(id), instance(0) {}
+		inline Proxy(ProxyID id) : Base(id), instance(nullptr) {}
 
 		RandomEngineGlue *instance;
 
