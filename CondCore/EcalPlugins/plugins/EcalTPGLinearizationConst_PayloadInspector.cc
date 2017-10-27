@@ -180,7 +180,8 @@ namespace {
 	DrawEE(endc_p_r[gId], rEEmin[gId], rEEmax[gId]);
       }
 
-      canvas.SaveAs("ecalTPGLinearizationConst.png");
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
       return true;
     }// fill method
   };
@@ -222,7 +223,7 @@ namespace {
       }
 
       unsigned int run[2], irun = 0;
-      float gEB[3][kEBChannels], gEE[3][kEEChannels];
+      //float gEB[3][kEBChannels], gEE[3][kEEChannels];
       for ( auto const & iov: iovs) {
 	std::shared_ptr<EcalTPGLinearizationConst> payload = fetchPayload( std::get<1>(iov) );
 	run[irun] = std::get<0>(iov);
@@ -417,7 +418,8 @@ namespace {
 	DrawEE(endc_p_r[gId], rEEmin[gId], rEEmax[gId]);
       }
 
-      canvas.SaveAs("ecalTPGLinearizationConstDiff.png");
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
       return true;
     }// fill method
   };

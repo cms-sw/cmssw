@@ -84,7 +84,7 @@ RKPropagatorInS::propagateParametersOnPlane( const FreeTrajectoryState& ts,
     // get solution
     //
     std::pair<bool,double> propResult = planeCrossing.pathLength(plane);
-    if likely( propResult.first && theVolume !=0) {
+    if likely( propResult.first && theVolume !=nullptr) {
       double s = propResult.second;
       // point (reconverted to GlobalPoint)
       GlobalPoint x (planeCrossing.position(s));
@@ -202,7 +202,7 @@ RKPropagatorInS::propagateParametersOnCylinder( const FreeTrajectoryState& ts,
   typedef Solver::Vector                                  RKVector;
   
   
-  GlobalPoint sp = cyl.position();
+  const GlobalPoint& sp = cyl.position();
   if unlikely(sp.x()!=0. || sp.y()!=0.) {
       throw PropagationException("Cannot propagate to an arbitrary cylinder");
     }
@@ -236,7 +236,7 @@ RKPropagatorInS::propagateParametersOnCylinder( const FreeTrajectoryState& ts,
       // get solution
       //
       std::pair<bool,double> propResult = cylCrossing.pathLength(cyl);
-      if  likely( propResult.first && theVolume !=0) {
+      if  likely( propResult.first && theVolume !=nullptr) {
 	  double s = propResult.second;
 	  // point (reconverted to GlobalPoint)
 	  GlobalPoint x (cylCrossing.position(s));
@@ -360,26 +360,26 @@ PropagationDirection RKPropagatorInS::invertDirection( PropagationDirection dir)
 
 Basic3DVector<double> RKPropagatorInS::rkPosition( const GlobalPoint& pos) const
 {
-  if (theVolume != 0) return theVolume->toLocal( pos).basicVector();
+  if (theVolume != nullptr) return theVolume->toLocal( pos).basicVector();
   else return pos.basicVector();
 }
 
 Basic3DVector<double> RKPropagatorInS::rkMomentum( const GlobalVector& mom) const
 {
-  if (theVolume != 0) return theVolume->toLocal( mom).basicVector();
+  if (theVolume != nullptr) return theVolume->toLocal( mom).basicVector();
   else return mom.basicVector();
 }
 
 GlobalPoint RKPropagatorInS::globalPosition( const Basic3DVector<float>& pos) const
 {
-  if (theVolume != 0) return theVolume->toGlobal( LocalPoint(pos));
+  if (theVolume != nullptr) return theVolume->toGlobal( LocalPoint(pos));
   else return GlobalPoint(pos);
 }
 
 GlobalVector RKPropagatorInS::globalMomentum( const Basic3DVector<float>& mom) const
 
 {
-  if (theVolume != 0) return theVolume->toGlobal( LocalVector(mom));
+  if (theVolume != nullptr) return theVolume->toGlobal( LocalVector(mom));
   else return GlobalVector(mom);
 }
 

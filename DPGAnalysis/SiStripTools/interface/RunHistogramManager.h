@@ -39,14 +39,14 @@ template <class T>
     _type(type), _name(name), _title(title), _nbinx(nbinx), _xmin(xmin), _xmax(xmax),
     _nbiny(nbiny), _ymin(ymin), _ymax(ymax), _runpointers() { }
 
-    ~HistoParams() {
+    ~HistoParams() override {
 
       delete _pointer;
       LogDebug("Destructor") << "Destroy " << _name;
 
     }
 
-    virtual void beginRun(const unsigned int irun, TFileDirectory& subrun, const char* fillrun) {
+    void beginRun(const unsigned int irun, TFileDirectory& subrun, const char* fillrun) override {
 
       if(_runpointers.find(irun)!=_runpointers.end()) {
 	*_pointer = _runpointers[irun];
@@ -99,14 +99,14 @@ template <>
     _nbiny(nbiny), _ymin(ymin), _ymax(ymax), _runpointers() { }
 
 
-    ~HistoParams() {
+    ~HistoParams() override {
 
       delete _pointer;
       LogDebug("TH2FDestructor") << "Destroy " << _name;
 
     }
 
-    virtual void beginRun(const unsigned int irun, TFileDirectory& subrun, const char* fillrun) {
+    void beginRun(const unsigned int irun, TFileDirectory& subrun, const char* fillrun) override {
 
       if(_runpointers.find(irun)!=_runpointers.end()) {
 	*_pointer = _runpointers[irun];
@@ -163,14 +163,14 @@ template <>
     _nbiny(nbiny), _ymin(ymin), _ymax(ymax), _runpointers() { }
 
 
-    ~HistoParams() {
+    ~HistoParams() override {
 
       delete _pointer;
       LogDebug("TProfile2DDestructor") << "Destroy " << _name;
 
     }
 
-    virtual void beginRun(const unsigned int irun, TFileDirectory& subrun, const char* fillrun) {
+    void beginRun(const unsigned int irun, TFileDirectory& subrun, const char* fillrun) override {
 
       if(_runpointers.find(irun)!=_runpointers.end()) {
 	*_pointer = _runpointers[irun];

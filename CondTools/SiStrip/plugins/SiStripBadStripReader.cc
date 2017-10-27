@@ -4,7 +4,7 @@
 #include "CondTools/SiStrip/plugins/SiStripBadStripReader.h"
 
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <sys/time.h>
 
 SiStripBadStripReader::SiStripBadStripReader( const edm::ParameterSet& iConfig ):

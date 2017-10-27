@@ -129,7 +129,7 @@ void DTTimeEvolutionHisto::updateTimeSlot(int ls, int nEventsInLS) {
     }
 
 
-    if(nEventsInLastTimeSlot.size() > 0 && nEventsInLastTimeSlot.size()%theLSPrescale==0) { // update the value of the slot and reset the counters
+    if(!nEventsInLastTimeSlot.empty() && nEventsInLastTimeSlot.size()%theLSPrescale==0) { // update the value of the slot and reset the counters
       int firstLSinTimeSlot = nEventsInLastTimeSlot.begin()->first;
       int lastLSinTimeSlot  = nEventsInLastTimeSlot.rbegin()->first;
 
@@ -203,7 +203,7 @@ void DTTimeEvolutionHisto::updateTimeSlot(int ls, int nEventsInLS) {
 
 
 void DTTimeEvolutionHisto::normalizeTo(const MonitorElement *histForNorm) {
-  if(histo == 0) {
+  if(histo == nullptr) {
     LogWarning("DTDQM|DTMonitorModule|DTMonitorClient|DTTimeEvolutionHisto")
       << "[DTTimeEvolutionHisto]***Error: pointer to ME is NULL" << endl;
     return;

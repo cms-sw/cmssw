@@ -25,13 +25,13 @@ public:
   HGCDigiProducer(edm::ParameterSet const& pset, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
   HGCDigiProducer(edm::ParameterSet const& pset, edm::ConsumesCollector& iC);
 
-  virtual void initializeEvent(edm::Event const&, edm::EventSetup const&) override;
-  virtual void finalizeEvent(edm::Event&, edm::EventSetup const&) override;
-  virtual void accumulate(edm::Event const&, edm::EventSetup const&) override;
-  virtual void accumulate(PileUpEventPrincipal const&, edm::EventSetup const&, edm::StreamID const&) override;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  ~HGCDigiProducer();
+  void initializeEvent(edm::Event const&, edm::EventSetup const&) override;
+  void finalizeEvent(edm::Event&, edm::EventSetup const&) override;
+  void accumulate(edm::Event const&, edm::EventSetup const&) override;
+  void accumulate(PileUpEventPrincipal const&, edm::EventSetup const&, edm::StreamID const&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  ~HGCDigiProducer() override;
 private:
   CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
   //the digitizer

@@ -24,11 +24,11 @@ CastorDigiProducer::CastorDigiProducer(const edm::ParameterSet& ps, edm::stream:
   theCastorShape(new CastorShape()),
   theCastorIntegratedShape(new CaloShapeIntegrator(theCastorShape)),
   theCastorResponse(new CaloHitResponse(theParameterMap, theCastorIntegratedShape)),
-  theAmplifier(0),
-  theCoderFactory(0),
-  theElectronicsSim(0),
-  theHitCorrection(0),
-  theCastorDigitizer(0),
+  theAmplifier(nullptr),
+  theCoderFactory(nullptr),
+  theElectronicsSim(nullptr),
+  theHitCorrection(nullptr),
+  theCastorDigitizer(nullptr),
   theCastorHits()
 {
   theHitsProducerTag = ps.getParameter<edm::InputTag>("hitsProducer");
@@ -94,7 +94,7 @@ void CastorDigiProducer::initializeEvent(edm::Event const&, edm::EventSetup cons
 void CastorDigiProducer::accumulateCaloHits(std::vector<PCaloHit> const& hcalHits, int bunchCrossing, CLHEP::HepRandomEngine* engine) {
   //fillFakeHits();
 
-  if(theHitCorrection != 0) {
+  if(theHitCorrection != nullptr) {
     theHitCorrection->fillChargeSums(hcalHits);
   }
   theCastorDigitizer->add(hcalHits, bunchCrossing, engine);

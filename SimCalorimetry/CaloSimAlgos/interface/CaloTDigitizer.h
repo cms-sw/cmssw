@@ -46,9 +46,9 @@ public:
 
   CaloTDigitizer(CaloHitResponse * hitResponse, ElectronicsSim * electronicsSim, bool addNoise)
   :  theHitResponse(hitResponse),
-     theNoiseSignalGenerator(0),
+     theNoiseSignalGenerator(nullptr),
      theElectronicsSim(electronicsSim),
-     theDetIds(0),
+     theDetIds(nullptr),
      addNoise_(addNoise),
      debugCS_(false)
   {
@@ -95,9 +95,9 @@ public:
   /// Collects the digis
 
   void run(DigiCollection & output, CLHEP::HepRandomEngine* engine) {
-    assert(theDetIds->size() != 0);
+    assert(!theDetIds->empty());
 
-    if(theNoiseSignalGenerator != 0) addNoiseSignals(engine);
+    if(theNoiseSignalGenerator != nullptr) addNoiseSignals(engine);
 
     theHitResponse->finalizeHits(engine);
     //std::cout << " In CaloTDigitizer, after finalize hits " << std::endl;
@@ -121,13 +121,13 @@ public:
        if(analogSignal && debugCS_) csColl_.push_back(*analogSignal);
        bool needToDeleteSignal = false;
        // don't bother digitizing if no signal and no noise
-       if(analogSignal == 0 && addNoise_) {
+       if(analogSignal == nullptr && addNoise_) {
          // I guess we need to make a blank signal for this cell.
          // Don't bother storing it anywhere.
          analogSignal = new CaloSamples(theHitResponse->makeBlankSignal(*idItr));
          needToDeleteSignal = true;
        }
-       if(analogSignal != 0) { 
+       if(analogSignal != nullptr) { 
          runAnalogToDigital(output,engine,analogSignal,idItr,theElectronicsSim);
          if(needToDeleteSignal) delete analogSignal;
       }

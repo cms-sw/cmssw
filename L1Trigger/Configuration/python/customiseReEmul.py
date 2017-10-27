@@ -258,7 +258,7 @@ def L1TReEmulFromRAWLegacyMuon(process):
     process.simDtTriggerPrimitiveDigis.digiTag = cms.InputTag('muonDTDigis')
 
 ## - TwinMux
-    from L1Trigger.L1TMuonBarrel.simTwinMuxDigis_cfi import simTwinMuxDigis
+    from L1Trigger.L1TTwinMux.simTwinMuxDigis_cfi import simTwinMuxDigis
     process.simTwinMuxDigisForDttf = simTwinMuxDigis.clone()
     process.simTwinMuxDigisForDttf.RPC_Source         = cms.InputTag('muonRPCDigis')
     process.simTwinMuxDigisForDttf.DTDigi_Source      = cms.InputTag('bmtfDigis')

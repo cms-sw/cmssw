@@ -27,7 +27,7 @@ const TriggerBoardSpec * DccSpec::triggerBoard(int channelNumber) const
   for (IT it=theTBs.begin(); it != theTBs.end(); it++) {
     if(channelNumber ==it->dccInputChannelNum()) return &(*it);
   }
-  return 0;
+  return nullptr;
 
 }
 

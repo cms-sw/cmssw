@@ -20,10 +20,8 @@ from PhysicsTools.PatAlgos.producersLayer1.tauProducer_cfi import *
 
 makePatTausTask = cms.Task(
     # reco pre-production
-    patHPSPFTauDiscriminationTask,
     patPFCandidateIsoDepositSelectionTask,
     patPFTauIsolationTask,
-    #patTauJetCorrections *
     # pat specifics
     tauMatch,
     tauGenJets,

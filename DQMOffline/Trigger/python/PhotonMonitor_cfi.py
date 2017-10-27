@@ -4,6 +4,11 @@ from DQMOffline.Trigger.photonMonitoring_cfi import photonMonitoring
 
 hltPhotonmonitoring = photonMonitoring.clone()
 hltPhotonmonitoring.FolderName = cms.string('HLT/Photon/Photon200/')
+hltPhotonmonitoring.histoPSet.lsPSet = cms.PSet(
+  nbins = cms.uint32 ( 250 ),
+  xmin  = cms.double(    0.),
+  xmax  = cms.double( 2500.),
+)
 hltPhotonmonitoring.histoPSet.photonPSet = cms.PSet(
   nbins = cms.uint32(  500  ),
   xmin  = cms.double(  0.0),

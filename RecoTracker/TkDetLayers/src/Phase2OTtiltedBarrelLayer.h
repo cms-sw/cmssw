@@ -22,7 +22,7 @@ class Phase2OTtiltedBarrelLayer final : public Phase2OTBarrelLayer {
                             std::vector<const Phase2EndcapRing*>& negRings,
                             std::vector<const Phase2EndcapRing*>& posRings);
   
-  ~Phase2OTtiltedBarrelLayer();
+  ~Phase2OTtiltedBarrelLayer() override;
   
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,

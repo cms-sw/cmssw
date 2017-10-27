@@ -149,7 +149,7 @@ void TrackerSeedCleaner::clean( const reco::TrackRef& muR, const RectangularEtaP
   }
 
    //the new seeds collection
-   if(result.size()!=0 && (useDirection_Cleaner || usePt_Cleaner)) seeds.swap(result);
+   if(!result.empty() && (useDirection_Cleaner || usePt_Cleaner)) seeds.swap(result);
 
    LogDebug("TrackerSeedCleaner")<<seeds.size()<<" trajectory seeds to the events after cleaning"<<endl;
  

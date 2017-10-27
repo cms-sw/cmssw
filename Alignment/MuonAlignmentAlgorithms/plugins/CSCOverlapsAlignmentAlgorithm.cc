@@ -44,11 +44,11 @@ CSCOverlapsAlignmentAlgorithm::CSCOverlapsAlignmentAlgorithm(const edm::Paramete
     m_propagatorName = iConfig.getParameter<edm::ParameterSet>("TrackTransformer").getParameter<std::string>("Propagator");
   }
   else {
-    m_trackTransformer = NULL;
+    m_trackTransformer = nullptr;
     m_propagatorName = std::string("");
   }
 
-  m_propagatorPointer = NULL;
+  m_propagatorPointer = nullptr;
 
   if (m_makeHistograms) {
     edm::Service<TFileService> tFileService;
@@ -137,47 +137,47 @@ CSCOverlapsAlignmentAlgorithm::CSCOverlapsAlignmentAlgorithm(const edm::Paramete
     m_RPhipos_mem4 = tFileService->make<TH2F>("RPhipos_mem4", "Positions: ME-4", 144, -M_PI, M_PI, 21, 0., 700.);
   }
   else {
-    m_histP10 = NULL;
-    m_histP100 = NULL;
-    m_histP1000 = NULL;
-    m_hitsPerChamber = NULL;
-    m_fiducial_ME11 = NULL;
-    m_fiducial_ME12 = NULL;
-    m_fiducial_MEx1 = NULL;
-    m_fiducial_MEx2 = NULL;
-    m_slope = NULL;
-    m_slope_MEp4 = NULL;
-    m_slope_MEp3 = NULL;
-    m_slope_MEp2 = NULL;
-    m_slope_MEp1 = NULL;
-    m_slope_MEm1 = NULL;
-    m_slope_MEm2 = NULL;
-    m_slope_MEm3 = NULL;
-    m_slope_MEm4 = NULL;
-    m_slopeResiduals = NULL;
-    m_slopeResiduals_weighted = NULL;
-    m_slopeResiduals_normalized = NULL;
-    m_offsetResiduals = NULL;
-    m_offsetResiduals_weighted = NULL;
-    m_offsetResiduals_normalized = NULL;
-    m_drdz = NULL;
-    m_occupancy = NULL;
-    m_XYpos_mep1 = NULL;
-    m_XYpos_mep2 = NULL;
-    m_XYpos_mep3 = NULL;
-    m_XYpos_mep4 = NULL;
-    m_XYpos_mem1 = NULL;
-    m_XYpos_mem2 = NULL;
-    m_XYpos_mem3 = NULL;
-    m_XYpos_mem4 = NULL;
-    m_RPhipos_mep1 = NULL;
-    m_RPhipos_mep2 = NULL;
-    m_RPhipos_mep3 = NULL;
-    m_RPhipos_mep4 = NULL;
-    m_RPhipos_mem1 = NULL;
-    m_RPhipos_mem2 = NULL;
-    m_RPhipos_mem3 = NULL;
-    m_RPhipos_mem4 = NULL;
+    m_histP10 = nullptr;
+    m_histP100 = nullptr;
+    m_histP1000 = nullptr;
+    m_hitsPerChamber = nullptr;
+    m_fiducial_ME11 = nullptr;
+    m_fiducial_ME12 = nullptr;
+    m_fiducial_MEx1 = nullptr;
+    m_fiducial_MEx2 = nullptr;
+    m_slope = nullptr;
+    m_slope_MEp4 = nullptr;
+    m_slope_MEp3 = nullptr;
+    m_slope_MEp2 = nullptr;
+    m_slope_MEp1 = nullptr;
+    m_slope_MEm1 = nullptr;
+    m_slope_MEm2 = nullptr;
+    m_slope_MEm3 = nullptr;
+    m_slope_MEm4 = nullptr;
+    m_slopeResiduals = nullptr;
+    m_slopeResiduals_weighted = nullptr;
+    m_slopeResiduals_normalized = nullptr;
+    m_offsetResiduals = nullptr;
+    m_offsetResiduals_weighted = nullptr;
+    m_offsetResiduals_normalized = nullptr;
+    m_drdz = nullptr;
+    m_occupancy = nullptr;
+    m_XYpos_mep1 = nullptr;
+    m_XYpos_mep2 = nullptr;
+    m_XYpos_mep3 = nullptr;
+    m_XYpos_mep4 = nullptr;
+    m_XYpos_mem1 = nullptr;
+    m_XYpos_mem2 = nullptr;
+    m_XYpos_mem3 = nullptr;
+    m_XYpos_mem4 = nullptr;
+    m_RPhipos_mep1 = nullptr;
+    m_RPhipos_mep2 = nullptr;
+    m_RPhipos_mep3 = nullptr;
+    m_RPhipos_mep4 = nullptr;
+    m_RPhipos_mem1 = nullptr;
+    m_RPhipos_mem2 = nullptr;
+    m_RPhipos_mem3 = nullptr;
+    m_RPhipos_mem4 = nullptr;
   }
 }
 
@@ -187,7 +187,7 @@ void CSCOverlapsAlignmentAlgorithm::initialize(const edm::EventSetup& iSetup, Al
   m_alignmentParameterStore = alignmentParameterStore;
   m_alignables = m_alignmentParameterStore->alignables();
 
-  if (alignableTracker == NULL) m_alignableNavigator = new AlignableNavigator(alignableMuon);
+  if (alignableTracker == nullptr) m_alignableNavigator = new AlignableNavigator(alignableMuon);
   else m_alignableNavigator = new AlignableNavigator(alignableTracker, alignableMuon);
 
   for (std::vector<Alignable*>::const_iterator alignable = m_alignables.begin();  alignable != m_alignables.end();  ++alignable) {
@@ -209,7 +209,7 @@ void CSCOverlapsAlignmentAlgorithm::initialize(const edm::EventSetup& iSetup, Al
     (*residualsConstraint)->setZplane(&*cscGeometry);
   }
 
-  if (m_readTemporaryFiles.size() != 0) {
+  if (!m_readTemporaryFiles.empty()) {
     std::vector<std::ifstream*> input;
     for (std::vector<std::string>::const_iterator fileName = m_readTemporaryFiles.begin();  fileName != m_readTemporaryFiles.end();  ++fileName) {
       input.push_back(new std::ifstream(fileName->c_str()));
@@ -241,7 +241,7 @@ void CSCOverlapsAlignmentAlgorithm::run(const edm::EventSetup& iSetup, const Eve
   edm::ESHandle<TransientTrackBuilder> transientTrackBuilder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transientTrackBuilder);
 
-  if (m_trackTransformer != NULL) m_trackTransformer->setServices(iSetup);
+  if (m_trackTransformer != nullptr) m_trackTransformer->setServices(iSetup);
 
   const ConstTrajTrackPairCollection &trajtracks = eventInfo.trajTrackPairs();
   for (ConstTrajTrackPairCollection::const_iterator trajtrack = trajtracks.begin();  trajtrack != trajtracks.end();  ++trajtrack) {

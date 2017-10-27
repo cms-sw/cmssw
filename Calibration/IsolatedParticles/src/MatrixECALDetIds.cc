@@ -48,7 +48,7 @@ namespace spr{
       std::vector<DetId> vdetExtra;
       spr::extraIds(det, vdets, ieta, ieta, iphi, iphi, 
 		    *barrelGeom, *endcapGeom, vdetExtra, debug);
-      if (vdetExtra.size() > 0) 
+      if (!vdetExtra.empty()) 
 	vdets.insert(vdets.end(), vdetExtra.begin(), vdetExtra.end());
     }
 
@@ -157,7 +157,7 @@ namespace spr{
       std::vector<DetId> vdetExtra;
       spr::extraIds(det, vdets, ietaE, ietaW, iphiN, iphiS, 
 		    *barrelGeom, *endcapGeom, vdetExtra, debug);
-      if (vdetExtra.size() > 0) 
+      if (!vdetExtra.empty()) 
 	vdets.insert(vdets.end(), vdetExtra.begin(), vdetExtra.end());
     }
 
@@ -663,7 +663,7 @@ namespace spr{
     if (det.subdetId() == EcalBarrel) {
       EBDetId detId = det;
       std::vector<DetId> neighbours = barrelTopo.getNeighbours(detId,dir);
-      if (neighbours.size()>0 && !neighbours[0].null()) {
+      if (!neighbours.empty() && !neighbours[0].null()) {
 	cells.push_back(neighbours[0]);
 	cell = neighbours[0];
 	ok   = 1;
@@ -676,7 +676,7 @@ namespace spr{
 	  // take closest neighbour on the other side, that is in the endcap
 	  cell = *(ol.begin() );
 	  neighbours = endcapTopo.getNeighbours(cell,dir);
-	  if (neighbours.size()>0 && !neighbours[0].null()) ok = 1;
+	  if (!neighbours.empty() && !neighbours[0].null()) ok = 1;
 	  else                                              ok =-1;
 	  for (EcalBarrelGeometry::OrderedListOfEEDetId::const_iterator iptr=ol.begin(); iptr != ol.end(); ++iptr)
 	    cells.push_back(*iptr);
@@ -685,7 +685,7 @@ namespace spr{
     } else if (det.subdetId() == EcalEndcap) {
       EEDetId detId = det;
       std::vector<DetId> neighbours = endcapTopo.getNeighbours(detId,dir);
-      if (neighbours.size()>0 && !neighbours[0].null()) {
+      if (!neighbours.empty() && !neighbours[0].null()) {
 	cells.push_back(neighbours[0]);
 	cell = neighbours[0];
 	ok   = 1;
@@ -700,7 +700,7 @@ namespace spr{
 	  // take closest neighbour on the other side, that is in the barrel.
 	  cell = *(ol.begin() );
 	  neighbours = barrelTopo.getNeighbours(cell,dir);
-	  if (neighbours.size()>0 && !neighbours[0].null()) ok = 1;
+	  if (!neighbours.empty() && !neighbours[0].null()) ok = 1;
 	  else                                              ok =-1;
 	  for (EcalEndcapGeometry::OrderedListOfEBDetId::const_iterator iptr=ol.begin(); iptr != ol.end(); ++iptr)
 	    cells.push_back(*iptr);

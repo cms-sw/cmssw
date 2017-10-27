@@ -2,7 +2,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 
 using namespace reco;

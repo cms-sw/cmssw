@@ -36,15 +36,15 @@ class ME0ChamberMasker : public edm::stream::EDProducer<>
 
    public:
       explicit ME0ChamberMasker(const edm::ParameterSet&);
-      ~ME0ChamberMasker();
+      ~ME0ChamberMasker() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
       
-      virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-      virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+      void beginRun(edm::Run const&, edm::EventSetup const&) override;
+      void endRun(edm::Run const&, edm::EventSetup const&) override;
 
       // ----------member data ---------------------------
   bool me0Minus_;

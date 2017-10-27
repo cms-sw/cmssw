@@ -33,7 +33,7 @@
 using namespace pixeltrackfitting;
 
 PixelTracksProducer::PixelTracksProducer(const edm::ParameterSet& conf) : 
-  theRegionProducer(0)
+  theRegionProducer(nullptr)
 {  
 
   produces<reco::TrackCollection>();
@@ -91,7 +91,7 @@ PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   e.getByToken(seedProducerToken,theSeeds);
 
   // No seed -> output an empty track collection
-  if(theSeeds->size() == 0) {
+  if(theSeeds->empty()) {
     e.put(std::move(tracks));
     e.put(std::move(recHits));
     e.put(std::move(trackExtras));
@@ -118,7 +118,7 @@ PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       edm::OwnVector<TrackingRecHit>::const_iterator theLastSeedingRecHit = theSeedingRecHitRange.second;
 
       // Loop over the rechits
-      std::vector<const TrackingRecHit*> TripletHits(3,static_cast<const TrackingRecHit*>(0));
+      std::vector<const TrackingRecHit*> TripletHits(3,static_cast<const TrackingRecHit*>(nullptr));
       for ( unsigned i=0; aSeedingRecHit!=theLastSeedingRecHit; ++i,++aSeedingRecHit )  
 	TripletHits[i] = &(*aSeedingRecHit);
       

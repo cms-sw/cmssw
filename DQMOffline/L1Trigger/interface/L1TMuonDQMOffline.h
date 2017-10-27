@@ -75,14 +75,16 @@ class MuonGmtPair {
         ~MuonGmtPair() { };
 
         double dR();
+        double pt()  const { return m_muon->pt(); };
         double eta() const { return m_muon->eta(); };
         double phi() const { return m_muon->phi(); };
-        double pt()  const { return m_muon->pt(); };
+        int charge() const {return m_muon->charge(); };
         double gmtPt() const { return m_regMu ? m_regMu->pt() : -1.; };
-        int gmtQual() const { return m_regMu ? m_regMu->hwQual() : -1; };
-        double gmtPhi() const { return m_regMu ? m_regMu->phi() : -5.; };
         double gmtEta() const { return m_regMu ? m_regMu->eta() : -5.; };
-
+        double gmtPhi() const { return m_regMu ? m_regMu->phi() : -5.; };
+        int gmtCharge() const {return m_regMu ? m_regMu->charge() : -5; };
+        int gmtQual() const { return m_regMu ? m_regMu->hwQual() : -1; };
+        
         void propagate(edm::ESHandle<MagneticField> bField,
          edm::ESHandle<Propagator> propagatorAlong,
          edm::ESHandle<Propagator> propagatorOpposite);
@@ -113,16 +115,17 @@ class MuonGmtPair {
 class L1TMuonDQMOffline : public DQMEDAnalyzer {
     public:
         L1TMuonDQMOffline(const edm::ParameterSet& ps);
-        virtual ~L1TMuonDQMOffline();
+        ~L1TMuonDQMOffline() override;
 
     protected:
    // Luminosity Block
-        virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
+        void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
         virtual void dqmEndLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
-        virtual void dqmBeginRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
+        void dqmBeginRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
         virtual void bookControlHistos(DQMStore::IBooker &);
         virtual void bookEfficiencyHistos(DQMStore::IBooker &ibooker, int ptCut);
-        virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& run, const edm::EventSetup& iSetup) override;
+        virtual void bookResolutionHistos(DQMStore::IBooker &ibooker);
+        void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& run, const edm::EventSetup& iSetup) override;
        //virtual void analyze (const edm::Event& e, const edm::EventSetup& c);
 
     private:
@@ -144,9 +147,44 @@ class L1TMuonDQMOffline : public DQMEDAnalyzer {
         edm::ESHandle<Propagator> m_propagatorAlong;
         edm::ESHandle<Propagator> m_propagatorOpposite;
 
+        enum Resol
+        {
+            RESOL_Pt,
+            RESOL_1overPt,
+            RESOL_Eta,
+            RESOL_Phi,
+            RESOL_Charge,
+
+            RESOL_Pt_OPEN,
+            RESOL_1overPt_OPEN,
+            RESOL_Eta_OPEN,
+            RESOL_Phi_OPEN,
+            RESOL_Charge_OPEN,
+
+            RESOL_Pt_DOUBLE,
+            RESOL_1overPt_DOUBLE,
+            RESOL_Eta_DOUBLE,
+            RESOL_Phi_DOUBLE,
+            RESOL_Charge_DOUBLE,
+
+            RESOL_Pt_SINGLE,
+            RESOL_1overPt_SINGLE,
+            RESOL_Eta_SINGLE,
+            RESOL_Phi_SINGLE,
+            RESOL_Charge_SINGLE,
+        };
+
+        enum Control
+        {
+            CONTROL_MuonGmtDeltaR,
+            CONTROL_NTightVsAll,
+            CONTROL_NProbesVsTight,
+        };
+
         // histos
         std::map<int, std::map<std::string, MonitorElement*> > m_EfficiencyHistos;
-        std::map<std::string, MonitorElement*> m_ControlHistos;
+        std::map<Resol, MonitorElement*> m_ResolutionHistos;
+        std::map<Control, MonitorElement*> m_ControlHistos;
 
         // helper variables
         std::vector<const reco::Muon*>  m_TightMuons;
@@ -162,6 +200,7 @@ class L1TMuonDQMOffline : public DQMEDAnalyzer {
         bool  m_verbose;
         std::string m_HistFolder;
         std::vector<int> m_GmtPtCuts;
+        double m_TagPtCut;
         edm::EDGetTokenT<reco::MuonCollection> m_MuonInputTag;
         edm::EDGetTokenT<l1t::MuonBxCollection> m_GmtInputTag;
         edm::EDGetTokenT<reco::VertexCollection> m_VtxInputTag;

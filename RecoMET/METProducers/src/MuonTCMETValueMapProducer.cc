@@ -99,7 +99,7 @@ MuonTCMETValueMapProducer::MuonTCMETValueMapProducer(const edm::ParameterSet& iC
   useCaloMuons_ = iConfig.getParameter<bool>("useCaloMuons");
   muonMinValidStaHits_ = iConfig.getParameter<int>("muonMinValidStaHits");
 
-  response_function = 0;
+  response_function = nullptr;
   tcmetAlgo_=new TCMETAlgo();
 
   if( rfType_ == 1 )
@@ -355,7 +355,7 @@ bool MuonTCMETValueMapProducer::isGoodTrack( const reco::Muon* muon )
   if( !( (siTrack->qualityMask() & cut) == cut ) ) return false;
 	  
   bool isGoodAlgo = false;
-  if( trkAlgos_.size() == 0 ) isGoodAlgo = true;
+  if( trkAlgos_.empty() ) isGoodAlgo = true;
   for( unsigned int i = 0; i < trkAlgos_.size(); i++ )
     {
       if( siTrack->algo() == trkAlgos_.at(i) ) isGoodAlgo = true;

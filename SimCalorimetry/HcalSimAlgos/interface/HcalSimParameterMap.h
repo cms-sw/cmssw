@@ -15,9 +15,9 @@ public:
   /// configurable parameters
   HcalSimParameterMap(const edm::ParameterSet & p);
 
-  virtual ~HcalSimParameterMap() {}
+  ~HcalSimParameterMap() override {}
 
-  virtual const CaloSimParameters & simParameters(const DetId & id) const;
+  const CaloSimParameters & simParameters(const DetId & id) const override;
 
   /// accessors
   const HcalSimParameters & hbParameters() const {return theHBParameters;}

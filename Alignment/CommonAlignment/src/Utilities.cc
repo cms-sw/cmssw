@@ -228,7 +228,7 @@ align::makeNonOverlappingRunRanges(const edm::VParameterSet& runRanges,
         ipset.getParameter<std::vector<std::string> >("RunRanges");
       for (const auto& irange: RunRangeStrings) {
         if (irange.find(':')==std::string::npos) {
-          long int temp{strtol(irange.c_str(), 0, 0)};
+          long int temp{strtol(irange.c_str(), nullptr, 0)};
           auto first = (temp != -1) ? temp : beginValue;
           uniqueFirstRunNumbers[first] = first;
         } else {
@@ -238,7 +238,7 @@ align::makeNonOverlappingRunRanges(const edm::VParameterSet& runRanges,
             << "the start run number is used internally. The number of the last"
             << " run is ignored and can besafely removed from the config file.";
           auto tokens = edm::tokenize(irange, ":");
-          long int temp{strtol(tokens[0].c_str(), 0, 0)};
+          long int temp{strtol(tokens[0].c_str(), nullptr, 0)};
           auto first = (temp != -1) ? temp : beginValue;
           uniqueFirstRunNumbers[first] = first;
         }

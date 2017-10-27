@@ -12,9 +12,9 @@ class testReader : public edm::EDAnalyzer {
   
  public:
   testReader(const edm::ParameterSet&);
-  virtual ~testReader();
-  virtual void beginJob() {}  
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  ~testReader() override;
+  void beginJob() override {}  
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   
  private:
   edm::InputTag tracksTag;

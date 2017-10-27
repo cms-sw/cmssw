@@ -16,12 +16,12 @@ class TIBLayer final : public TBLayer {
   TIBLayer(std::vector<const TIBRing*>& innerRings,
 	   std::vector<const TIBRing*>& outerRings) __attribute__ ((cold));
 
-  ~TIBLayer() __attribute__ ((cold));
+  ~TIBLayer() override __attribute__ ((cold));
 
  private:
   // private methods for the implementation of groupedCompatibleDets()
 
-  std::tuple<bool,int,int>  computeIndexes(GlobalPoint gInnerPoint, GlobalPoint gOuterPoint) const  __attribute__ ((hot));
+  std::tuple<bool,int,int>  computeIndexes(GlobalPoint gInnerPoint, GlobalPoint gOuterPoint) const  override __attribute__ ((hot));
 
 
   void searchNeighbors( const TrajectoryStateOnSurface& tsos,
@@ -30,11 +30,11 @@ class TIBLayer final : public TBLayer {
 			const SubLayerCrossing& crossing,
 			float window, 
 			std::vector<DetGroup>& result,
-			bool checkClosest) const __attribute__ ((hot));
+			bool checkClosest) const override __attribute__ ((hot));
 
   float computeWindowSize( const GeomDet* det, 
 			   const TrajectoryStateOnSurface& tsos, 
-			   const MeasurementEstimator& est) const  __attribute__ ((hot));
+			   const MeasurementEstimator& est) const  override __attribute__ ((hot));
 
   static bool overlap( const GlobalPoint& gpos, const GeometricSearchDet& ring, float window)   __attribute__ ((hot));
 

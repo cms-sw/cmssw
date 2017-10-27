@@ -22,14 +22,14 @@ class DTNewROS8FileReader : public edm::EDProducer {
   DTNewROS8FileReader(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~DTNewROS8FileReader();
+  ~DTNewROS8FileReader() override;
 
   /// Generate and fill FED raw data for a full event
   virtual int fillRawData(edm::Event& e,
 //			  edm::Timestamp& tstamp, 
 			  FEDRawDataCollection*& data);
 
-  virtual void produce(edm::Event&, edm::EventSetup const&);
+  void produce(edm::Event&, edm::EventSetup const&) override;
 
   virtual bool checkEndOfFile();
 

@@ -18,7 +18,7 @@ namespace reco {
     struct NotCombiner : public SelectorBase {
       NotCombiner( SelectorPtr arg ) :
 	arg_( arg ) {}
-      virtual bool operator()( const edm::ObjectWithDict& o ) const {
+      bool operator()( const edm::ObjectWithDict& o ) const override {
 	return ! (*arg_)( o );
       }
     private:

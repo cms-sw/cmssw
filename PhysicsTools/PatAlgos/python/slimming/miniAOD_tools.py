@@ -26,6 +26,7 @@ def miniAOD_customizeCommon(process):
     process.patMuons.puppiNoLeptonsIsolationPhotons        = cms.InputTag("muonPUPPINoLeptonsIsolation","gamma-DR040-ThresholdVeto000-ConeVeto001")
 
     process.patMuons.computeMiniIso = cms.bool(True)
+    process.patMuons.computeMuonMVA = cms.bool(True)
     
     #
     # disable embedding of electron and photon associated objects already stored by the ReducedEGProducer
@@ -172,6 +173,56 @@ def miniAOD_customizeCommon(process):
     del process.slimmedMETsNoHF.caloMET
     # ================== NoHF pfMET
 
+    #  ==================  CHSMET 
+    process.CHSCands = cms.EDFilter("CandPtrSelector",
+                                    src=cms.InputTag("packedPFCandidates"),
+                                    cut=cms.string("fromPV(0) > 0")
+                                    )
+    task.add(process.CHSCands)
+
+    process.pfMetCHS = cms.EDProducer("PFMETProducer",
+                                      src = cms.InputTag("CHSCands"),
+                                      alias = cms.string('pfMet'),
+                                      globalThreshold = cms.double(0.0),
+                                      calculateSignificance = cms.bool(False),
+                                      )
+    task.add(process.pfMetCHS)    
+
+    addMETCollection(process,
+                     labelName = "patCHSMet",
+                     metSource = "pfMetCHS"
+                     )
+
+    process.patCHSMet.computeMETSignificance = cms.bool(False)
+
+    #  ==================  CHSMET 
+
+    #  ==================  TrkMET 
+    process.TrkCands = cms.EDFilter("CandPtrSelector",
+                                    src=cms.InputTag("packedPFCandidates"),
+                                    cut=cms.string("charge()!=0 && pvAssociationQuality()>=4 && vertexRef().key()==0")
+                                    )
+    task.add(process.TrkCands)
+
+    process.pfMetTrk = cms.EDProducer("PFMETProducer",
+                                      src = cms.InputTag("TrkCands"),
+                                      alias = cms.string('pfMet'),
+                                      globalThreshold = cms.double(0.0),
+                                      calculateSignificance = cms.bool(False),
+                                      )
+
+    task.add(process.pfMetTrk)
+
+    addMETCollection(process,
+                     labelName = "patTrkMet",
+                     metSource = "pfMetTrk"
+                     )
+
+    process.patTrkMet.computeMETSignificance = cms.bool(False)
+
+    #  ==================  TrkMET 
+    
+
     ## PU JetID
     process.load("RecoJets.JetProducers.PileupJetID_cfi")
     task.add(process.pileUpJetIDTask)
@@ -262,6 +313,17 @@ def miniAOD_customizeCommon(process):
     #Adding  Boosted Subjets taus
     from RecoTauTag.Configuration.boostedHPSPFTaus_cfi import addBoostedTaus
     addBoostedTaus(process)
+    #---------------------------------------------------------------------------
+    #Adding tau reco for 80X legacy reMiniAOD
+    #make a copy of makePatTauTask to avoid labels and substitution problems
+    _makePatTausTaskWithTauReReco = process.makePatTausTask.copy()
+    #add PFTau reco modules to cloned makePatTauTask
+    process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
+    _makePatTausTaskWithTauReReco.add(process.PFTauTask)
+    #replace original task by extended one for the miniAOD_80XLegacy era
+    from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+    run2_miniAOD_80XLegacy.toReplaceWith(
+        process.makePatTausTask, _makePatTausTaskWithTauReReco)
     #---------------------------------------------------------------------------
 
     # Adding puppi jets
@@ -363,7 +425,7 @@ def miniAOD_customizeMC(process):
     #Boosted taus 
     process.tauMatchBoosted.matched = "prunedGenParticles"
     process.tauGenJetsBoosted.GenParticles = "prunedGenParticles"
-    process.patJetPartons.particles = "prunedGenParticles"
+    process.patJetPartons.particles = "genParticles"
     process.patJetPartonMatch.matched = "prunedGenParticles"
     process.patJetPartonMatch.mcStatus = [ 3, 23 ]
     process.patJetGenJetMatch.matched = "slimmedGenJets"
@@ -402,4 +464,13 @@ def miniAOD_customizeAllData(process):
 def miniAOD_customizeAllMC(process):
     miniAOD_customizeCommon(process)
     miniAOD_customizeMC(process)
+    return process
+
+def miniAOD_customizeAllMCFastSim(process):
+    miniAOD_customizeCommon(process)
+    miniAOD_customizeMC(process)
+    from PhysicsTools.PatAlgos.slimming.metFilterPaths_cff import miniAOD_customizeMETFiltersFastSim
+    process = miniAOD_customizeMETFiltersFastSim(process)
+    from PhysicsTools.PatAlgos.slimming.isolatedTracks_cfi import miniAOD_customizeIsolatedTracksFastSim
+    process = miniAOD_customizeIsolatedTracksFastSim(process)
     return process

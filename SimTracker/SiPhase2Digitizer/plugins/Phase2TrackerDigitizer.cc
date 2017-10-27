@@ -286,8 +286,8 @@ namespace cms
 	  linkcollector.data.emplace_back(digi_p.first, sim_p.second->trackId(), sim_p.second->hitIndex(), sim_p.second->tofBin(), sim_p.second->eventId(), sim_p.first);
 	}
       }  	
-      if (collector.data.size() > 0) digiVector.push_back(std::move(collector));	  
-      if (linkcollector.data.size() > 0) digiLinkVector.push_back(std::move(linkcollector));
+      if (!collector.data.empty()) digiVector.push_back(std::move(collector));	  
+      if (!linkcollector.data.empty()) digiLinkVector.push_back(std::move(linkcollector));
     } 
     
     // Step C: create collection with the cache vector of DetSet 
@@ -326,8 +326,8 @@ namespace cms
 	}
      }  	
 	
-      if (collector.data.size() > 0) digiVector.push_back(std::move(collector));	  
-      if (linkcollector.data.size() > 0) digiLinkVector.push_back(std::move(linkcollector));
+      if (!collector.data.empty()) digiVector.push_back(std::move(collector));	  
+      if (!linkcollector.data.empty()) digiLinkVector.push_back(std::move(linkcollector));
     } 
     
     // Step C: create collection with the cache vector of DetSet 

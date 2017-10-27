@@ -21,12 +21,12 @@ class HcalShapes : public CaloShapes
 public:
   enum {HPD=101, LONG=102, ZECOTEK=201, HAMAMATSU=202, HE2017=203, HF=301, ZDC=401};
   HcalShapes();
-  ~HcalShapes();
+  ~HcalShapes() override;
 
   void beginRun(edm::EventSetup const & es);
   void endRun();
 
-  virtual const CaloVShape * shape(const DetId & detId, bool precise=false) const;
+  const CaloVShape * shape(const DetId & detId, bool precise=false) const override;
 
 private:
   typedef std::map<int, const CaloVShape *> ShapeMap;

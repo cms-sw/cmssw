@@ -29,20 +29,20 @@ class FWCandidateLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Ca
    public:
    // ---------------- Constructor(s)/Destructor ----------------------
       FWCandidateLegoProxyBuilder(){}
-      virtual ~FWCandidateLegoProxyBuilder(){}
+      ~FWCandidateLegoProxyBuilder() override{}
 
    // --------------------- Member Functions --------------------------
-      virtual bool havePerViewProduct( FWViewType::EType ) const override { return true; }
-      virtual void scaleProduct( TEveElementList*, FWViewType::EType, const FWViewContext* ) override;
-      virtual void localModelChanges( const FWModelId&, TEveElement*, FWViewType::EType,
+      bool havePerViewProduct( FWViewType::EType ) const override { return true; }
+      void scaleProduct( TEveElementList*, FWViewType::EType, const FWViewContext* ) override;
+      void localModelChanges( const FWModelId&, TEveElement*, FWViewType::EType,
                                  const FWViewContext* ) override;
 
       REGISTER_PROXYBUILDER_METHODS();
 
    private:
    // ----------------------- Data Members ----------------------------
-      FWCandidateLegoProxyBuilder( const FWCandidateLegoProxyBuilder& );
-      const FWCandidateLegoProxyBuilder& operator=( const FWCandidateLegoProxyBuilder& );
+      FWCandidateLegoProxyBuilder( const FWCandidateLegoProxyBuilder& ) = delete;
+      const FWCandidateLegoProxyBuilder& operator=( const FWCandidateLegoProxyBuilder& ) = delete;
 
    // --------------------- Member Functions --------------------------
       using FWSimpleProxyBuilderTemplate<reco::Candidate>::build;

@@ -41,13 +41,13 @@
 class MagneticFieldFilter : public edm::stream::EDFilter<> {
 public:
   explicit MagneticFieldFilter(const edm::ParameterSet&);
-  ~MagneticFieldFilter() = default;
+  ~MagneticFieldFilter() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
   /// convert Ampere (A) to Tesla (T)
   float currentToField(const float& current) const;

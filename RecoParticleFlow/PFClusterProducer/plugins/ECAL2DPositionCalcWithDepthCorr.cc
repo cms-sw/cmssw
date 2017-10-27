@@ -97,6 +97,9 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
   }
   cluster.setEnergy(cl_energy);
   cluster.setTime(cl_time/cl_timeweight);
+  if (_timeResolutionCalc) {
+    cluster.setTimeError(std::sqrt(1.0f/float(cl_timeweight)));
+  }
   cluster.setLayer(max_e_layer);
   const CaloSubdetectorGeometry* ecal_geom = nullptr;
   // get seed geometry information  

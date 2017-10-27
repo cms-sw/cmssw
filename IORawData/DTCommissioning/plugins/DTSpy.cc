@@ -8,8 +8,8 @@
  */
 
 #include "DTSpy.h"
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 
 #define DTSPY_HEAD_SIZE 36
 #define DTSPY_MAX_MSG  512*1024

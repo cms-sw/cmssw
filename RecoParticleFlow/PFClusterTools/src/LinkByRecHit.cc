@@ -522,8 +522,8 @@ LinkByRecHit::testHFEMAndHFHADByRecHit(const reco::PFCluster& clusterHFEM,
 				      const reco::PFCluster& clusterHFHAD,
 				      bool debug) {
   
-  auto posxyzEM = clusterHFEM.position();
-  auto posxyzHAD = clusterHFHAD.position();
+  const auto& posxyzEM = clusterHFEM.position();
+  const auto& posxyzHAD = clusterHFHAD.position();
 
   double dX = posxyzEM.X()-posxyzHAD.X();
   double dY = posxyzEM.Y()-posxyzHAD.Y();

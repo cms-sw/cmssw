@@ -134,7 +134,7 @@ namespace Json {
                                         unsigned int &unicode );
       bool addError( const std::string &message, 
                      Token &token,
-                     Location extra = 0 );
+                     Location extra = nullptr );
       bool recoverFromError( TokenType skipUntilToken );
       bool addErrorAndRecover( const std::string &message, 
                                Token &token,

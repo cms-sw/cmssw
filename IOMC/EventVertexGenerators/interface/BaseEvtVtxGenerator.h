@@ -26,9 +26,9 @@ class BaseEvtVtxGenerator : public edm::stream::EDProducer<>
       
    // ctor & dtor
    explicit BaseEvtVtxGenerator( const edm::ParameterSet& );
-   virtual ~BaseEvtVtxGenerator();
+   ~BaseEvtVtxGenerator() override;
       
-   virtual void produce( edm::Event&, const edm::EventSetup&) override;
+   void produce( edm::Event&, const edm::EventSetup&) override;
 
    virtual HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const = 0 ;
    /** This method - and the comment - is a left-over from COBRA-OSCAR time :

@@ -67,16 +67,23 @@ looseAnalyzerTnP.targetParams = looseMuonParams
 #tightAnalyzer.probeParams = cms.PSet() 
 
 
-globalAnalyzerRef = hltMuonOfflineAnalyzer.clone()
-globalAnalyzerRef.destination = "HLT/Muon/DistributionsGlobal"
-globalAnalyzerRef.targetParams = globalMuonParams
-globalAnalyzerRef.hltPathsToCheck = cms.vstring(
+refPathsList = cms.vstring(
     "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
     "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v",
     "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v",
     "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v",
     "HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v",
-    "HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v")
+    "HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v"
+    "HLT_Mu18_Mu9_DZ_v",
+    "HLT_Mu18_Mu9_v",
+    "HLT_Mu18_Mu9_SameSign_DZ_v",
+    "HLT_Mu18_Mu9_SameSign_v"
+    )
+
+globalAnalyzerRef = hltMuonOfflineAnalyzer.clone()
+globalAnalyzerRef.destination = "HLT/Muon/DistributionsGlobal"
+globalAnalyzerRef.targetParams = globalMuonParams
+globalAnalyzerRef.hltPathsToCheck = refPathsList
 globalAnalyzerRef.requiredTriggers = cms.untracked.vstring(
     "HLT_Mu17_TrkIsoVVL_v")
 
@@ -85,13 +92,7 @@ globalAnalyzerRef.requiredTriggers = cms.untracked.vstring(
 trackerAnalyzerRef = hltMuonOfflineAnalyzer.clone()
 trackerAnalyzerRef.destination = "HLT/Muon/DistributionsTracker"
 trackerAnalyzerRef.targetParams = trackerMuonParams
-trackerAnalyzerRef.hltPathsToCheck = cms.vstring(
-    "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
-    "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v",
-    "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v",
-    "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v",
-    "HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v",
-    "HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v")
+trackerAnalyzerRef.hltPathsToCheck = refPathsList
 trackerAnalyzerRef.requiredTriggers = cms.untracked.vstring(
     "HLT_Mu17_TrkIsoVVL_v")
 #trackerAnalyzerRef.probeParams = cms.PSet()
@@ -99,13 +100,8 @@ trackerAnalyzerRef.requiredTriggers = cms.untracked.vstring(
 tightAnalyzerRef = hltMuonOfflineAnalyzer.clone()
 tightAnalyzerRef.destination = "HLT/Muon/DistributionsTight"
 tightAnalyzerRef.targetParams = tightMuonParams
-tightAnalyzerRef.hltPathsToCheck = cms.vstring(
-    "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
-    "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v",
-    "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v",
-    "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v",
-    "HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v",
-    "HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v")
+tightAnalyzerRef.hltPathsToCheck = refPathsList
+
 tightAnalyzerRef.requiredTriggers = cms.untracked.vstring(
     "HLT_Mu17_TrkIsoVVL_v")
 #tightAnalyzerRef.probeParams = cms.PSet() 
@@ -113,15 +109,59 @@ tightAnalyzerRef.requiredTriggers = cms.untracked.vstring(
 looseAnalyzerRef = hltMuonOfflineAnalyzer.clone()
 looseAnalyzerRef.destination = "HLT/Muon/DistributionsLoose"
 looseAnalyzerRef.targetParams = looseMuonParams
-looseAnalyzerRef.hltPathsToCheck = cms.vstring(
-    "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
-    "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v",
-    "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v",
-    "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v",
-    "HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v",
-    "HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v")
+looseAnalyzerRef.hltPathsToCheck = refPathsList
 looseAnalyzerRef.requiredTriggers = cms.untracked.vstring(
     "HLT_Mu17_TrkIsoVVL_v")
+#tightAnalyzer.probeParams = cms.PSet() 
+
+
+
+refPathsList19 =  cms.vstring(
+    "HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8_v", 
+    "HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8_v"  ,
+    "HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_v"        ,
+    "HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_v",
+    "HLT_Mu20_Mu10_DZ_v",
+    "HLT_Mu20_Mu10_SameSign_DZ_v",
+    "HLT_Mu20_Mu10_SameSign_v",
+    "HLT_Mu20_Mu10_v",
+    "HLT_Mu23_Mu12_DZ_v",
+    "HLT_Mu23_Mu12_SameSign_DZ_v",
+    "HLT_Mu23_Mu12_SameSign_v",
+    "HLT_Mu23_Mu12_v"
+    )
+
+globalAnalyzerRef19 = hltMuonOfflineAnalyzer.clone()
+globalAnalyzerRef19.destination = "HLT/Muon/DistributionsGlobal"
+globalAnalyzerRef19.targetParams = globalMuonParams
+globalAnalyzerRef19.hltPathsToCheck = refPathsList19
+globalAnalyzerRef19.requiredTriggers = cms.untracked.vstring(
+    "HLT_Mu19_TrkIsoVVL_v")
+
+#globalAnalyzerRef19.probeParams = cms.PSet()
+
+trackerAnalyzerRef19 = hltMuonOfflineAnalyzer.clone()
+trackerAnalyzerRef19.destination = "HLT/Muon/DistributionsTracker"
+trackerAnalyzerRef19.targetParams = trackerMuonParams
+trackerAnalyzerRef19.hltPathsToCheck = refPathsList19
+trackerAnalyzerRef19.requiredTriggers = cms.untracked.vstring(
+    "HLT_Mu19_TrkIsoVVL_v")
+#trackerAnalyzerRef19.probeParams = cms.PSet()
+
+tightAnalyzerRef19 = hltMuonOfflineAnalyzer.clone()
+tightAnalyzerRef19.destination = "HLT/Muon/DistributionsTight"
+tightAnalyzerRef19.targetParams = tightMuonParams
+tightAnalyzerRef19.hltPathsToCheck = refPathsList19
+tightAnalyzerRef19.requiredTriggers = cms.untracked.vstring(
+    "HLT_Mu19_TrkIsoVVL_v")
+#tightAnalyzerRef19.probeParams = cms.PSet() 
+
+looseAnalyzerRef19 = hltMuonOfflineAnalyzer.clone()
+looseAnalyzerRef19.destination = "HLT/Muon/DistributionsLoose"
+looseAnalyzerRef19.targetParams = looseMuonParams
+looseAnalyzerRef19.hltPathsToCheck = refPathsList19
+looseAnalyzerRef19.requiredTriggers = cms.untracked.vstring(
+    "HLT_Mu19_TrkIsoVVL_v")
 #tightAnalyzer.probeParams = cms.PSet() 
 
 
@@ -135,7 +175,11 @@ hltMuonOfflineAnalyzers = cms.Sequence(
     globalAnalyzerRef  *
     trackerAnalyzerRef *
     tightAnalyzerRef   *
-    looseAnalyzerRef
+    looseAnalyzerRef   *
+    globalAnalyzerRef19  *
+    trackerAnalyzerRef19 *
+    tightAnalyzerRef19   *
+    looseAnalyzerRef19
 )
 
 from Configuration.Eras.Modifier_pA_2016_cff import pA_2016

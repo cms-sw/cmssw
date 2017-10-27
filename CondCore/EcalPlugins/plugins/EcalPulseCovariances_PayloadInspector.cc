@@ -189,7 +189,8 @@ namespace {
 	ipad++;
       }
 
-      canvas.SaveAs("ecalpulsecovariances.png");
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
       return true;
     }// fill method
   };
@@ -227,7 +228,7 @@ namespace {
 	  else if(ieta > 0.) eta = eta - 0.5;   //   0.5 to 84.5
 	  else eta  = eta + 0.5;          //  -84.5 to -0.5
 	  for (int iphi = 1; iphi <= MAX_IPHI; iphi++) {
-	    Double_t phi = (Double_t)iphi - 0.5;
+	    //Double_t phi = (Double_t)iphi - 0.5;
 	    EBDetId id(ieta, iphi);
 	    for(int i = 0; i < TEMPLATESAMPLES; ++i) {
 	      for(int j = 0; j < TEMPLATESAMPLES; ++j) {
@@ -322,7 +323,8 @@ namespace {
       //      endcap_r->Draw("COLZ1");
       grid(endcap_r);
 
-      canvas.SaveAs("ecalpulsecovariancesMatrix.png");
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
       return true;
     }// fill method
 

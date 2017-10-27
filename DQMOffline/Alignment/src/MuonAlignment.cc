@@ -322,7 +322,7 @@ void MuonAlignment::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                         const Plane* pDest = dynamic_cast<const Plane*>(&geomDet->surface());
                         const Cylinder* cDest = dynamic_cast<const Cylinder*>(&geomDet->surface());
 
-                        if(pDest != 0 || cDest != 0) {   
+                        if(pDest != nullptr || cDest != nullptr) {   
  
 //			 	    Propagator *updatePropagator=thePropagator->clone();
 //				    updatePropagator->setPropagationDirection(propagationDir);

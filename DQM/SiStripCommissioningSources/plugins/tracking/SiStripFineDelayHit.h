@@ -39,11 +39,11 @@
 class SiStripFineDelayHit : public edm::EDProducer {
    public:
       explicit SiStripFineDelayHit(const edm::ParameterSet&);
-      virtual ~SiStripFineDelayHit();
+      ~SiStripFineDelayHit() override;
 
    private:
-      virtual void beginRun(const edm::Run &, const edm::EventSetup &) override;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void beginRun(const edm::Run &, const edm::EventSetup &) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
       virtual void produceNoTracking(edm::Event&, const edm::EventSetup&);
       using DeviceMask = std::pair<uint32_t,uint32_t>;
       DeviceMask deviceMask(const StripSubdetector::SubDetector subdet,const int substructure,const TrackerTopology* tkrTopo);

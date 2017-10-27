@@ -66,7 +66,7 @@ std::vector< GetTrackTrajInfo::Result > GetTrackTrajInfo::analyze(const edm::Eve
   // Loop over info for each hit
   // N.B. Hits are sorted according to increasing distance from origin by
   // RecoTracker/TrackProducer/src/TrackProducerBase.cc
-  for (int i = 0; i < hp.numberOfHits(reco::HitPattern::TRACK_HITS); i++) {
+  for (int i = 0; i < hp.numberOfAllHits(reco::HitPattern::TRACK_HITS); i++) {
     uint32_t hit = hp.getHitPattern(reco::HitPattern::TRACK_HITS, i);
     if (reco::HitPattern::trackerHitFilter(hit) && reco::HitPattern::validHitFilter(hit)) {
       uint32_t subDet = reco::HitPattern::getSubStructure(hit);
@@ -75,7 +75,7 @@ std::vector< GetTrackTrajInfo::Result > GetTrackTrajInfo::analyze(const edm::Eve
       LogDebug("GTTI")<<"    hit in subdet="<<subDet<<" layer="<<layer;
 
       // Get corresponding DetLayer object (based on code in GeometricSearchTracker::idToLayer(...)
-      const DetLayer* detLayer = 0;
+      const DetLayer* detLayer = nullptr;
       if (subDet == StripSubdetector::TIB) {
         detLayer = tracker->tibLayers()[layer - 1];
       } else if (subDet == StripSubdetector::TOB) {
@@ -105,7 +105,7 @@ std::vector< GetTrackTrajInfo::Result > GetTrackTrajInfo::analyze(const edm::Eve
 	propagator.setPropagationDirection(along);
 	std::vector< GeometricSearchDet::DetWithState > detWithState = detLayer->compatibleDets(initTSOS, propagator, estimator);
 	// Check that at least one sensor was compatible with the track trajectory.
-	if(detWithState.size() > 0) {
+	if(!detWithState.empty()) {
 	  // Store track trajectory at this sensor.
 	  result.valid    = true;
 	  result.accurate = true;

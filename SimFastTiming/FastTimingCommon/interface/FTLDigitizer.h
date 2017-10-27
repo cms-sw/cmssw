@@ -68,7 +68,7 @@ namespace ftl_digitizer {
     bxTime_( config.getParameter< double >("bxTime") ),         
     tofDelay_( config.getParameter< double >("tofDelay") ) { }
     
-    virtual ~FTLDigitizer() { }
+    ~FTLDigitizer() override { }
     
     /**
        @short handle SimHit accumulation

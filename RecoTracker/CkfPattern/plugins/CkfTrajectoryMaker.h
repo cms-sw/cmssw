@@ -39,11 +39,11 @@ namespace cms
       produces<std::vector<SeedStopInfo> >();
     }
 
-    virtual ~CkfTrajectoryMaker(){;}
+    ~CkfTrajectoryMaker() override{;}
 
-    virtual void beginRun (edm::Run const & run, edm::EventSetup const & es) override {beginRunBase(run,es);}
+    void beginRun (edm::Run const & run, edm::EventSetup const & es) override {beginRunBase(run,es);}
 
-    virtual void produce(edm::Event& e, const edm::EventSetup& es) override {produceBase(e,es);}
+    void produce(edm::Event& e, const edm::EventSetup& es) override {produceBase(e,es);}
   };
 }
 

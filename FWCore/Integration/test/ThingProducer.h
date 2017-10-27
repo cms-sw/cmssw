@@ -11,6 +11,10 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Integration/test/ThingAlgorithm.h"
+#include "FWCore/Utilities/interface/EDPutToken.h"
+
+#include "DataFormats/TestObjects/interface/ThingCollection.h"
+
 
 namespace edmtest {
   class ThingProducer : public edm::global::EDProducer<edm::BeginRunProducer,
@@ -37,6 +41,11 @@ namespace edmtest {
 
   private:
     ThingAlgorithm alg_;
+    edm::EDPutTokenT<ThingCollection> evToken_;
+    edm::EDPutTokenT<ThingCollection> brToken_;
+    edm::EDPutTokenT<ThingCollection> erToken_;
+    edm::EDPutTokenT<ThingCollection> blToken_;
+    edm::EDPutTokenT<ThingCollection> elToken_;
     bool noPut_;
   };
 }

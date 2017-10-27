@@ -75,8 +75,8 @@ class PATTauDiscriminationByMVAIsolationRun2 : public PATTauDiscriminationProduc
     explicit PATTauDiscriminationByMVAIsolationRun2(const edm::ParameterSet& cfg)
       : PATTauDiscriminationProducerBase(cfg),
         moduleLabel_(cfg.getParameter<std::string>("@module_label")),
-	mvaReader_(0),
-	mvaInput_(0),
+	mvaReader_(nullptr),
+	mvaInput_(nullptr),
 	category_output_()
     {
        mvaName_ = cfg.getParameter<std::string>("mvaName");
@@ -119,13 +119,13 @@ class PATTauDiscriminationByMVAIsolationRun2 : public PATTauDiscriminationProduc
        produces<pat::PATTauDiscriminator>("category");
     }  
 		
-    void beginEvent(const edm::Event&, const edm::EventSetup&);
+    void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 		
-    double discriminate(const TauRef&) const;
+    double discriminate(const TauRef&) const override;
 		
-    void endEvent(edm::Event&);
+    void endEvent(edm::Event&) override;
 		
-    ~PATTauDiscriminationByMVAIsolationRun2()
+    ~PATTauDiscriminationByMVAIsolationRun2() override
     {
       if(!loadMVAfromDB_) delete mvaReader_;
       delete[] mvaInput_;

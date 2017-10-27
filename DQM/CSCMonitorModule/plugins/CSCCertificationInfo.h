@@ -46,7 +46,7 @@ class CSCCertificationInfo : public DQMEDHarvester {
   public:
 
     explicit CSCCertificationInfo(const edm::ParameterSet&);
-    ~CSCCertificationInfo() { }
+    ~CSCCertificationInfo() override { }
 
   protected:
     void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;

@@ -22,11 +22,11 @@ class CaloTowerCandidateCreator : public edm::stream::EDProducer<> {
   /// constructor from parameter set
   CaloTowerCandidateCreator( const edm::ParameterSet & );
   /// destructor
-  ~CaloTowerCandidateCreator();
+  ~CaloTowerCandidateCreator() override;
 
  private:
   /// process one event
-  void produce( edm::Event& e, const edm::EventSetup& );
+  void produce( edm::Event& e, const edm::EventSetup& ) override;
   /// verbosity
   int mVerbose;
   /// token of source collection

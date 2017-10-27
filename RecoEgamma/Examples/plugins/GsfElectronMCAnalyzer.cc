@@ -1827,7 +1827,7 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       const Candidate * mother = mcIter->mother();
       matchingMotherID=false;
       for (unsigned int i=0; i<matchingMotherIDs_.size(); i++)
-        if ((mother == 0) || ((mother != 0) &&  mother->pdgId() == matchingMotherIDs_[i]) ) matchingMotherID=true;
+        if ((mother == nullptr) || ((mother != nullptr) &&  mother->pdgId() == matchingMotherIDs_[i]) ) matchingMotherID=true;
 
       if (matchingMotherID) {
 
@@ -1906,7 +1906,7 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       const Candidate * mother = mcIter->mother();
       matchingMotherID=false;
       for (unsigned int i=0; i<matchingMotherIDs_.size(); i++)
-       if ((mother == 0) || ((mother != 0) &&  mother->pdgId() == matchingMotherIDs_[i]) ) matchingMotherID=true;
+       if ((mother == nullptr) || ((mother != nullptr) &&  mother->pdgId() == matchingMotherIDs_[i]) ) matchingMotherID=true;
 
       if (matchingMotherID) {
 

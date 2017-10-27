@@ -42,13 +42,13 @@ class PhotonIDValueMapProducer : public edm::stream::EDProducer<> {
   public:
   
   explicit PhotonIDValueMapProducer(const edm::ParameterSet&);
-  ~PhotonIDValueMapProducer();
+  ~PhotonIDValueMapProducer() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
   
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   void writeValueMap(edm::Event &iEvent,
 		     const edm::Handle<edm::View<reco::Photon> > & handle,
@@ -76,7 +76,7 @@ class PhotonIDValueMapProducer : public edm::stream::EDProducer<> {
   reco::PFCandidate::ParticleType
   candidatePdgId(const edm::Ptr<reco::Candidate> candidate, bool isAOD);
 
-  const reco::Track* getTrackPointer(const edm::Ptr<reco::Candidate> candidate, bool isAOD);
+  std::pair<float,float> getTrackDxyDz(const edm::Ptr<reco::Candidate> & candidate, const reco::Particle::Point & vtxpos, bool isAOD);
 
 
   // The object that will compute 5x5 quantities  
@@ -269,7 +269,7 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
   if( !pfCandidatesHandle.isValid() )
     iEvent.getByToken(pfCandidatesTokenMiniAOD_, pfCandidatesHandle);
 
-  if( !isAOD && src->size() ) {
+  if( !isAOD && !src->empty() ) {
     edm::Ptr<pat::Photon> test(src->ptrAt(0));
     if( test.isNull() || !test.isAvailable() ) {
       throw cms::Exception("InvalidConfiguration")
@@ -378,13 +378,10 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
       if( thisCandidateType == reco::PFCandidate::h ){
 	// for charged hadrons, additionally check consistency
 	// with the PV
-	const reco::Track *theTrack = getTrackPointer( iCand, isAOD );
 
-	float dxy = theTrack->dxy(pv.position());
-	if(fabs(dxy) > dxyMax) continue;
-
-	float dz  = theTrack->dz(pv.position());
-	if (fabs(dz) > dzMax) continue;
+        auto dxydz = getTrackDxyDz(iCand, pv.position(), isAOD);
+        if ( fabs(dxydz.first) > dxyMax) continue;
+        if ( fabs(dxydz.second) > dzMax) continue;
 
 	// The candidate is eligible, increment the isolaiton
 	chargedIsoSum += iCand->pt();
@@ -507,13 +504,10 @@ float PhotonIDValueMapProducer
 
       if (iCand->pt() < ptMin)
 	continue;
-      
-      const reco::Track *theTrack = getTrackPointer( iCand, isAOD );
-      float dxy = theTrack->dxy(vtx->position());
-      if( fabs(dxy) > dxyMax) continue;
-      
-      float dz = theTrack->dz(vtx->position());
-      if ( fabs(dz) > dzMax) continue;
+
+      auto dxydz = getTrackDxyDz(iCand, vtx->position(), isAOD);
+      if ( fabs(dxydz.first) > dxyMax) continue;
+      if ( fabs(dxydz.second) > dzMax) continue;
       
       float dR2 = deltaR2(photon_directionWrtVtx.Eta(), photon_directionWrtVtx.Phi(), 
                           iCand->eta(),      iCand->phi());
@@ -525,7 +519,7 @@ float PhotonIDValueMapProducer
     allIsolations.push_back(sum);
   }
 
-  if( allIsolations.size()>0 )
+  if( !allIsolations.empty() )
     worstIsolation = * std::max_element( allIsolations.begin(), allIsolations.end() );
   
   return worstIsolation;
@@ -552,16 +546,17 @@ PhotonIDValueMapProducer::candidatePdgId(const edm::Ptr<reco::Candidate> candida
   return thisCandidateType;
 }
 
-const reco::Track* 
-PhotonIDValueMapProducer::getTrackPointer(const edm::Ptr<reco::Candidate> candidate, bool isAOD){
+std::pair<float,float>
+PhotonIDValueMapProducer::getTrackDxyDz(const edm::Ptr<reco::Candidate> & candidate, const reco::Particle::Point & vtxpos, bool isAOD) {
 
-  const reco::Track* theTrack = nullptr;
-  if( isAOD )
-    theTrack = &*( ((const recoCandPtr) candidate)->trackRef());
-  else
-    theTrack = &( ((const patCandPtr) candidate)->pseudoTrack());
+  if( isAOD ) {
+    const reco::Track & theTrack = *recoCandPtr(candidate)->trackRef();
+    return std::make_pair(theTrack.dxy(vtxpos),theTrack.dz(vtxpos));
+  } else {
+    const pat::PackedCandidate & theCand = *(patCandPtr(candidate));
+    return std::make_pair(theCand.dxy(vtxpos),theCand.dz(vtxpos));
+  }
 
-  return theTrack;
 }
 
 DEFINE_FWK_MODULE(PhotonIDValueMapProducer);

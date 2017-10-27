@@ -50,7 +50,7 @@ class CSCGeometry : public TrackingGeometry {
   const DetTypeContainer&  detTypes() const override;
 
   // Return a vector of all GeomDetUnit
-  const DetUnitContainer& detUnits() const override;
+  const DetContainer& detUnits() const override;
 
   // Return a vector of all GeomDet (including all GeomDetUnits)
   const DetContainer& dets() const override;
@@ -62,7 +62,7 @@ class CSCGeometry : public TrackingGeometry {
   const DetIdContainer& detIds() const override;
 
   // Return the pointer to the GeomDetUnit corresponding to a given DetId
-  const GeomDetUnit* idToDetUnit(DetId) const override;
+  const GeomDet* idToDetUnit(DetId) const override;
 
   // Return the pointer to the GeomDet corresponding to a given DetId
   const GeomDet* idToDet(DetId) const override;
@@ -160,7 +160,7 @@ class CSCGeometry : public TrackingGeometry {
   // to save memory.
   DetTypeContainer  theDetTypes;
   DetContainer      theDets;       // all dets (chambers and layers)
-  DetUnitContainer  theDetUnits;   // all layers
+  DetContainer      theDetUnits;   // all layers
   DetIdContainer    theDetIds;
   DetIdContainer    theDetUnitIds;
 

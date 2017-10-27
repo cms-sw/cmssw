@@ -30,6 +30,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -95,7 +96,7 @@ class TauDiscriminationAgainstCaloMuon final : public TauDiscriminationProducerB
   typedef edm::Ref<TauCollection> TauRef;    
 
   explicit TauDiscriminationAgainstCaloMuon(const edm::ParameterSet&);
-  ~TauDiscriminationAgainstCaloMuon() {} 
+  ~TauDiscriminationAgainstCaloMuon() override {} 
 
   // called at the beginning of every event
   void beginEvent(const edm::Event&, const edm::EventSetup&) override;
@@ -178,7 +179,7 @@ void TauDiscriminationAgainstCaloMuon<TauType, TauDiscriminator>::beginEvent(con
   edm::Handle<reco::VertexCollection> vertices;
   evt.getByLabel(srcVertex_, vertices);
   eventVertexPosition_ = GlobalPoint(0., 0., 0.);
-  if ( vertices->size() >= 1 ) {
+  if (!vertices->empty()) {
     const reco::Vertex& thePrimaryEventVertex = (*vertices->begin());
     eventVertexPosition_ = GlobalPoint(thePrimaryEventVertex.x(), thePrimaryEventVertex.y(), thePrimaryEventVertex.z());
   }
@@ -228,42 +229,31 @@ double compEcalEnergySum(const EcalRecHitCollection& ecalRecHits,
 }
 
 double compHcalEnergySum(const HBHERecHitCollection& hcalRecHits, 
-			 const CaloSubdetectorGeometry* hbGeometry, const CaloSubdetectorGeometry* heGeometry, 
-			 const reco::TransientTrack& transientTrack, double dR, 
+			 const HcalGeometry* hcGeometry, 
+			 const reco::TransientTrack& transientTrack, double dR,
 			 const GlobalPoint& eventVertexPosition)
 {
   double hcalEnergySum = 0.;
   for ( HBHERecHitCollection::const_iterator hcalRecHit = hcalRecHits.begin();
 	hcalRecHit != hcalRecHits.end(); ++hcalRecHit ) {
-    const CaloCellGeometry* hbCellGeometry = hbGeometry->getGeometry(hcalRecHit->detid());
-    const CaloCellGeometry* heCellGeometry = heGeometry->getGeometry(hcalRecHit->detid());
 
-    const GlobalPoint* cellPosition = 0;
-    if ( hbCellGeometry ) cellPosition = &(hbCellGeometry->getPosition());
-    if ( heCellGeometry ) cellPosition = &(heCellGeometry->getPosition());
-
-    if ( !cellPosition ) {
-      edm::LogError ("compHcalEnergySum") 
-	<< " Failed to access HCAL geometry for detId = " << hcalRecHit->detid().rawId()
-	<< " --> skipping !!";
-      continue;
-    }
+    const GlobalPoint cellPosition = hcGeometry->getPosition(hcalRecHit->detid());
 
 //--- CV: speed up computation by requiring eta-phi distance
 //        between cell position and track direction to be dR < 0.5
-    Vector3DBase<float, GlobalTag> cellPositionRelVertex = (*cellPosition) - eventVertexPosition;
+    Vector3DBase<float, GlobalTag> cellPositionRelVertex = (cellPosition) - eventVertexPosition;
     if ( deltaR(cellPositionRelVertex.eta(), cellPositionRelVertex.phi(), 
 		transientTrack.track().eta(), transientTrack.track().phi()) > 0.5 ) continue;
 
-    TrajectoryStateClosestToPoint dcaPosition = transientTrack.trajectoryStateClosestToPoint(*cellPosition);
+    TrajectoryStateClosestToPoint dcaPosition = transientTrack.trajectoryStateClosestToPoint(cellPosition);
     
-    Vector3DBase<float, GlobalTag> d = ((*cellPosition) - dcaPosition.position());
+    Vector3DBase<float, GlobalTag> d = ((cellPosition) - dcaPosition.position());
 
     TVector3 d3(d.x(), d.y(), d.z());
     TVector3 dir(transientTrack.track().px(), transientTrack.track().py(), transientTrack.track().pz());
 
     double dPerp = d3.Cross(dir.Unit()).Mag();
-    double dParl = TVector3(cellPosition->x(), cellPosition->y(), cellPosition->z()).Dot(dir.Unit());
+    double dParl = TVector3(cellPosition.x(), cellPosition.y(), cellPosition.z()).Dot(dir.Unit());
 
     if ( dPerp < dR && dParl > 100. ) {
       hcalEnergySum += hcalRecHit->energy();
@@ -280,8 +270,7 @@ double TauDiscriminationAgainstCaloMuon<TauType, TauDiscriminator>::discriminate
 
   const CaloSubdetectorGeometry* ebGeometry = caloGeometry_->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   const CaloSubdetectorGeometry* eeGeometry = caloGeometry_->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-  const CaloSubdetectorGeometry* hbGeometry = caloGeometry_->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
-  const CaloSubdetectorGeometry* heGeometry = caloGeometry_->getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
+  const HcalGeometry* hcGeometry = (HcalGeometry*)(caloGeometry_->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
 
   TrackRef leadTrackRef = leadTrackExtractor_.getLeadTrack(*tau);
 
@@ -298,7 +287,7 @@ double TauDiscriminationAgainstCaloMuon<TauType, TauDiscriminator>::discriminate
       double eeEnergySum = compEcalEnergySum(*eeRecHits_, eeGeometry, transientTrack, drEcal_, eventVertexPosition_);
       double ecalEnergySum = ebEnergySum + eeEnergySum;
       
-      double hbheEnergySum = compHcalEnergySum(*hbheRecHits_, hbGeometry, heGeometry, transientTrack, drHcal_, eventVertexPosition_);
+      double hbheEnergySum = compHcalEnergySum(*hbheRecHits_, hcGeometry, transientTrack, drHcal_, eventVertexPosition_);
       
       double caloEnergySum = ecalEnergySum + hbheEnergySum;
 

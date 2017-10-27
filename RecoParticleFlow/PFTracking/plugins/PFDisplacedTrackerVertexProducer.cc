@@ -8,7 +8,7 @@
 using namespace std;
 using namespace edm;
 PFDisplacedTrackerVertexProducer::PFDisplacedTrackerVertexProducer(const ParameterSet& iConfig):
-  pfTransformer_(0)
+  pfTransformer_(nullptr)
 {
   produces<reco::PFRecTrackCollection>();
   produces<reco::PFDisplacedTrackerVertexCollection>();

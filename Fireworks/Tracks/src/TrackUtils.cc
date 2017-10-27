@@ -334,7 +334,7 @@ setupAddElement(TEveElement* el, TEveElement* parent, const FWEventItem* item, b
 
 const SiStripCluster* extractClusterFromTrackingRecHit( const TrackingRecHit* rechit )
 {
-   const SiStripCluster* cluster = 0;
+   const SiStripCluster* cluster = nullptr;
 
    if( const SiStripRecHit2D* hit2D = dynamic_cast<const SiStripRecHit2D*>( rechit ))
    {     
@@ -342,7 +342,7 @@ const SiStripCluster* extractClusterFromTrackingRecHit( const TrackingRecHit* re
       
 	 cluster = hit2D->cluster().get();
    }
-   if( cluster == 0 )
+   if( cluster == nullptr )
    {
      if( const SiStripRecHit1D* hit1D = dynamic_cast<const SiStripRecHit1D*>( rechit ))
      {
@@ -360,7 +360,7 @@ addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveEl
    // master is true if the product is for proxy builder
    const FWGeometry *geom = iItem->getGeom();
 
-   const edmNew::DetSetVector<SiStripCluster> * allClusters = 0;
+   const edmNew::DetSetVector<SiStripCluster> * allClusters = nullptr;
    if( addNearbyClusters )
    {
       for( trackingRecHit_iterator it = t.recHitsBegin(), itEnd = t.recHitsEnd(); it != itEnd; ++it )
@@ -411,7 +411,7 @@ addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveEl
 
       if( cluster )
       {
-         if( allClusters != 0 )
+         if( allClusters != nullptr )
          {
             const edmNew::DetSet<SiStripCluster> & clustersOnThisDet = (*allClusters)[rechit->geographicalId().rawId()];
 
@@ -475,7 +475,7 @@ addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveEl
       }
       else if( !rechit->isValid() && ( rawid != 0 )) // lost hit
       {
-         if( allClusters != 0 )
+         if( allClusters != nullptr )
 	 {
             edmNew::DetSetVector<SiStripCluster>::const_iterator itds = allClusters->find( rawid );
             if( itds != allClusters->end())
@@ -523,7 +523,7 @@ addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveEl
 void
 pushNearbyPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, const reco::Track &t )
 {
-   const edmNew::DetSetVector<SiPixelCluster> * allClusters = 0;
+   const edmNew::DetSetVector<SiPixelCluster> * allClusters = nullptr;
    for( trackingRecHit_iterator it = t.recHitsBegin(), itEnd = t.recHitsEnd(); it != itEnd; ++it)
    {
       if( typeid(**it) == typeid( SiPixelRecHit ))
@@ -538,7 +538,7 @@ pushNearbyPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iIte
 	 }
       }
    }
-   if( allClusters == 0 ) return;
+   if( allClusters == nullptr ) return;
 
    const FWGeometry *geom = iItem.getGeom();
 
@@ -560,7 +560,7 @@ pushNearbyPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iIte
       unsigned int subdet = (unsigned int)id.subdetId();
       if(( subdet != PixelSubdetector::PixelBarrel ) && ( subdet != PixelSubdetector::PixelEndcap )) continue;
 
-      const SiPixelCluster* hitCluster = 0;
+      const SiPixelCluster* hitCluster = nullptr;
       if( const SiPixelRecHit* pixel = dynamic_cast<const SiPixelRecHit*>( rh ))
 	 hitCluster = pixel->cluster().get();
       edmNew::DetSetVector<SiPixelCluster>::const_iterator itds = allClusters->find(id.rawId());

@@ -535,7 +535,7 @@ void EcalSimRawData::getEbDigi(const edm::Event& event,
   event.getByLabel(digiProducer_, ebDigiCollection_, hEbDigis);
 
   int nSamples = 0;
-  if(hEbDigis.isValid() && hEbDigis->size()>0){//there is at least one digi
+  if(hEbDigis.isValid() && !hEbDigis->empty()){//there is at least one digi
     nSamples  = hEbDigis->begin()->size();//gets the sample count from 1st digi
   }
 
@@ -601,7 +601,7 @@ void EcalSimRawData::getTp(const edm::Event& event,
 			   int tcp[nTtEta][nTtPhi]) const{
   edm::Handle<EcalTrigPrimDigiCollection> hTpDigis;
   event.getByLabel(tpProducer_, collName, hTpDigis);
-  if(hTpDigis.isValid() && hTpDigis->size()>0){
+  if(hTpDigis.isValid() && !hTpDigis->empty()){
     const EcalTrigPrimDigiCollection& tpDigis = *hTpDigis.product();
 
     //    EcalSelectiveReadout::ttFlag_t ttf[nTtEta][nTtPhi];
@@ -631,7 +631,7 @@ void EcalSimRawData::getTp(const edm::Event& event,
 
       if(tpVerbose_){
 	if(tcp[iTtEta0][iTtPhi0]!=0) //print non-zero values only
-	cout << collName << (collName.size()==0?"":" ")
+	cout << collName << (collName.empty()?"":" ")
 	     << "TP(" << setw(2) << iTtEta0 << "," << iTtPhi0 << ") = "
 	     << "0x" << setw(4) 
 	     << tcp[iTtEta0][iTtPhi0]

@@ -52,7 +52,7 @@ public:
   TEcnaNArrayD(TEcnaObject*, Int_t,Int_t,Int_t,Int_t);
   TEcnaNArrayD(TEcnaObject*, Int_t,Int_t,Int_t,Int_t,Int_t);
   TEcnaNArrayD(TEcnaObject*, Int_t,Int_t,Int_t,Int_t,Int_t,Int_t);
-  virtual ~TEcnaNArrayD();
+  ~TEcnaNArrayD() override;
   void     Clean();
   Double_t GetOverFlow() const { return fA[fNL-1]; }
   void     ReSet(Int_t);
@@ -73,6 +73,6 @@ public:
   Double_t &operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4);
   Double_t &operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4,Int_t i5);
   Double_t &operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4,Int_t i5,Int_t i6);
-  ClassDef(TEcnaNArrayD,1) //ROOT class for multidimensional arrays of Double_t
+  ClassDefOverride(TEcnaNArrayD,1) //ROOT class for multidimensional arrays of Double_t
 };
 #endif

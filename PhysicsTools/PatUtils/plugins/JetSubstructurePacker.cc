@@ -46,49 +46,58 @@ JetSubstructurePacker::produce(edm::Event& iEvent, const edm::EventSetup&)
   for ( size_t i = 0; i < algoTags_.size(); ++i ) {
     iEvent.getByToken( algoTokens_[i], algoHandles[i] ); 
   }
-
+  
   // Loop over the input jets that will be modified.
   for ( auto const & ijet : *jetHandle  ) {
     // Copy the jet.
     outputs->push_back( ijet );
-
     // Loop over the substructure collections
     unsigned int index = 0;
+    
     for ( auto const & ialgoHandle : algoHandles ) {      
       std::vector< edm::Ptr<pat::Jet> > nextSubjets;
       float dRMin = distMax_;
-
-      for ( auto const & jjet : *ialgoHandle ) {
-	
+      for ( auto const & jjet : *ialgoHandle ) {       
 	if ( reco::deltaR( ijet, jjet ) < dRMin ) {
+	  for ( auto const & userfloatstr : jjet.userFloatNames() ) {
+	    outputs->back().addUserFloat( userfloatstr, jjet.userFloat(userfloatstr) );
+	  }
+	  for ( auto const & userintstr : jjet.userIntNames() ) {
+	    outputs->back().addUserInt( userintstr, jjet.userInt(userintstr) );
+	  }
+	  for ( auto const & usercandstr : jjet.userCandNames() ) {
+	    outputs->back().addUserCand( usercandstr, jjet.userCand(usercandstr) );
+	  }
 	  for ( size_t ida = 0; ida < jjet.numberOfDaughters(); ++ida ) {
-
 	    reco::CandidatePtr candPtr =  jjet.daughterPtr( ida);
 	    nextSubjets.push_back( edm::Ptr<pat::Jet> ( candPtr ) );
 	  }
 	  break;
 	}
-	
       }
-
       outputs->back().addSubjets( nextSubjets, algoLabels_[index] );
       ++index; 
     }
 
     // fix daughters
     if (fixDaughters_) {
+
         std::vector<reco::CandidatePtr> daughtersInSubjets;
         std::vector<reco::CandidatePtr> daughtersNew;
-        const std::vector<reco::CandidatePtr> & jdaus = outputs->back().daughterPtrVector();
-        //std::cout << "Jet with pt " << outputs->back().pt() << ", " << outputs->back().numberOfDaughters() << " daughters, " << outputs->back().subjets().size() << ", subjets" << std::endl;
+        const std::vector<reco::CandidatePtr> & jdausPF = outputs->back().daughterPtrVector();
+	std::vector<reco::CandidatePtr> jdaus;
+	jdaus.reserve( jdausPF.size() );
+	// Convert the daughters to packed candidates. This is easier than ref-navigating through PUPPI or CHS to particleFlow.
+	for ( auto const & jdau : jdausPF ) {
+	  jdaus.push_back( edm::refToPtr((*pf2pc)[jdau]) );
+	}
+		
         for ( const edm::Ptr<pat::Jet> & subjet : outputs->back().subjets()) {
             const std::vector<reco::CandidatePtr> & sjdaus = subjet->daughterPtrVector();
-
             // check that the subjet does not contain any extra constituents not contained in the jet
             bool skipSubjet = false;
             for (const reco::CandidatePtr & dau : sjdaus) {
-                reco::CandidatePtr rekeyed = edm::refToPtr((*pc2pf)[dau]);
-                if (std::find(jdaus.begin(), jdaus.end(), rekeyed) == jdaus.end()) {
+                if (std::find(jdaus.begin(), jdaus.end(), dau) == jdaus.end()) {
                     skipSubjet = true;
                     break;
                 }
@@ -97,25 +106,12 @@ JetSubstructurePacker::produce(edm::Event& iEvent, const edm::EventSetup&)
 
             daughtersInSubjets.insert(daughtersInSubjets.end(), sjdaus.begin(), sjdaus.end());
             daughtersNew.push_back( reco::CandidatePtr(subjet) );
-            //std::cout << "     found  " << subjet->numberOfDaughters() << " daughters in a subjet" << std::endl;
         }
-        //if (!daughtersInSubjets.empty()) std::cout << "     subjet daughters are from collection " << daughtersInSubjets.front().id() << std::endl;
-        //std::cout << "     in total,  " << daughtersInSubjets.size() << " daughters from subjets" << std::endl;
         for (const reco::CandidatePtr & dau : jdaus) {
-            //if (!pf2pc->contains(dau.id())) {
-            //    std::cout << "     daughter from collection " << dau.id() << " not in the value map!" << std::endl;
-            //    std::cout << "     map expects collection " << pf2pc->ids().front().first << std::endl;
-            //    continue;
-            //}
-            reco::CandidatePtr rekeyed = edm::refToPtr((*pf2pc)[dau]);
-            if (std::find(daughtersInSubjets.begin(), daughtersInSubjets.end(), rekeyed) == daughtersInSubjets.end()) {
-                daughtersNew.push_back( rekeyed );
+            if (std::find(daughtersInSubjets.begin(), daughtersInSubjets.end(), dau) == daughtersInSubjets.end()) {
+                daughtersNew.push_back( dau );
             }
         }
-        //std::cout << "     in total,  " << daughtersNew.size() << " daughters including subjets" << std::endl;
-        //if (daughtersNew.size() + daughtersInSubjets.size() - outputs->back().subjets().size() == outputs->back().numberOfDaughters()) {
-        //    std::cout << "     it all adds up to the original number of daughters" << std::endl;
-        //}
         outputs->back().clearDaughters();
         for (const auto & dau : daughtersNew) outputs->back().addDaughter(dau);
     }

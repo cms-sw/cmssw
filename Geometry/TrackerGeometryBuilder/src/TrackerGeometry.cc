@@ -116,9 +116,9 @@ void TrackerGeometry::addType(GeomDetType const * p) {
   theDetTypes.emplace_back(p);  // add to vector
 }
 
-void TrackerGeometry::addDetUnit(GeomDetUnit const * p) {
+void TrackerGeometry::addDetUnit(GeomDet const * p) {
   // set index
-  const_cast<GeomDetUnit *>(p)->setIndex(theDetUnits.size());
+  const_cast<GeomDet *>(p)->setIndex(theDetUnits.size());
   theDetUnits.emplace_back(p);  // add to vector
   theMapUnit.insert(std::make_pair(p->geographicalId().rawId(),p));
 }

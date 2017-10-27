@@ -108,9 +108,9 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 
   if(MixInfo) {  // extract information - way easier than counting vertices
 
-    const std::vector<int> bunchCrossing = MixInfo->getMix_bunchCrossing();
-    const std::vector<int> interactions = MixInfo->getMix_Ninteractions();
-    const std::vector<float> TrueInteractions = MixInfo->getMix_TrueInteractions();
+    const std::vector<int>& bunchCrossing = MixInfo->getMix_bunchCrossing();
+    const std::vector<int>& interactions = MixInfo->getMix_Ninteractions();
+    const std::vector<float>& TrueInteractions = MixInfo->getMix_TrueInteractions();
     const std::vector<edm::EventID> eventInfoList= MixInfo->getMix_eventInfo();
 
     bunchSpacing = MixInfo->getMix_bunchSpacing();
@@ -158,12 +158,12 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 
     Have_pThats = true;
 
-    const std::vector<int> bunchCrossing = MixInfo->getMix_bunchCrossing();
-    const std::vector<int> interactions = MixInfo->getMix_Ninteractions();
+    const std::vector<int>& bunchCrossing = MixInfo->getMix_bunchCrossing();
+    const std::vector<int>& interactions = MixInfo->getMix_Ninteractions();
 
-    const std::vector<float> PtHatInput = MixVtxInfo->getMix_pT_hats();
-    const std::vector<float> ZposInput = MixVtxInfo->getMix_z_Vtxs();
-    const std::vector<float> TposInput = MixVtxInfo->getMix_t_Vtxs();
+    const std::vector<float>& PtHatInput = MixVtxInfo->getMix_pT_hats();
+    const std::vector<float>& ZposInput = MixVtxInfo->getMix_z_Vtxs();
+    const std::vector<float>& TposInput = MixVtxInfo->getMix_t_Vtxs();
 
     // store information from pileup vertices, if it's in the event:
 

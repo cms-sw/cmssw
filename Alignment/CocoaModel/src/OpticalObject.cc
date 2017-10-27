@@ -280,9 +280,15 @@ void OpticalObject::transformCylindrical2Cartesian()
   ALIuint siz =  theCoordinateEntryVector.size();
   ALIdouble R = theCoordinateEntryVector[0]->value();
   ALIdouble phi = theCoordinateEntryVector[1]->value()/ALIUtils::LengthValueDimensionFactor()*ALIUtils::AngleValueDimensionFactor();
-  ALIdouble newcoor[] = { R*cos(phi),
-                          R*sin(phi),
-                          theCoordinateEntryVector[2]->value() // Z
+  if (siz != 3) {
+    throw cms::Exception("LogicError")
+      << "@SUB=OpticalObject::transformCylindrical2Cartesian\n"
+      << "Transformation from cylindrical to cartesian coordinates requires the"
+      << " coordinate entry vector to have a size of three.";
+  }
+  ALIdouble newcoor[3] = { R*cos(phi),
+                           R*sin(phi),
+                           theCoordinateEntryVector[2]->value() // Z
   };
   //-  std::cout << " phi " << phi << std::endl;
    //----- Name is filled from here to include 'centre' or 'angles'

@@ -15,8 +15,8 @@ class TrackListCombiner : public edm::global::EDProducer<>
 {
 public:
   explicit TrackListCombiner(const edm::ParameterSet& ps);
-  ~TrackListCombiner();
-  virtual void produce(edm::StreamID, edm::Event& ev, const edm::EventSetup& es) const override;
+  ~TrackListCombiner() override;
+  void produce(edm::StreamID, edm::Event& ev, const edm::EventSetup& es) const override;
 
 private:
   struct Tags {

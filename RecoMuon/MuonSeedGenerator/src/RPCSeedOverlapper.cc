@@ -69,7 +69,7 @@ void RPCSeedOverlapper::CheckOverlap(const edm::EventSetup& iSetup, std::vector<
     edm::ESHandle<RPCGeometry> rpcGeometry;
     iSetup.get<MuonGeometryRecord>().get(rpcGeometry);
 
-    while(weightedSeedsRef->size() != 0) {
+    while(!weightedSeedsRef->empty()) {
         cout << "Finding the weighted seeds group from " << weightedSeedsRef->size() << " seeds which share some recHits" << endl; 
         // Take 1st seed in SeedsRef as referrence and find a collection which always share some recHits with some other
         tempRecHits.clear();

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 heavyFlavorValidationHarvesting = DQMEDHarvester("HeavyFlavorHarvesting",
-  MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Mu5'),
+  MyDQMrootFolder = cms.untracked.string('HLT/BPH/HLT/HLT_Mu5'),
   Efficiencies = cms.untracked.VPSet(
     cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("globMuon_genEtaPt","genMuon_genEtaPt","effGlobGen_genEtaPt") ),
     cms.untracked.PSet( NumDenEffMEnames = cms.untracked.vstring("filt1Muon_recoEtaPt","globMuon_recoEtaPt","effFilt1Glob_recoEtaPt") ),

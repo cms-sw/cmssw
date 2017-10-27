@@ -22,12 +22,14 @@ def extractBlock(config, blocks, target):
   proc.wait()
 
 def extractBlocks(config):
-  outputA    = ( 'hltOutputA', 'hltOutputPhysicsCommissioning' )
-  outputALCA = ( 'hltOutputALCAPHISYM', 'hltOutputALCAP0', 'hltOutputALCALUMIPIXELS' , 'hltOutputRPCMON' )
-  outputMON  = ( 'hltOutputA', 'hltOutputPhysicsCommissioning', 'hltOutputDQM', 'hltOutputHLTMonitor', 'hltOutputLookArea', 'hltOutputReleaseValidation' )
-  extractBlock(config, outputA,    'hltOutputA_cff.py')
-  extractBlock(config, outputALCA, 'hltOutputALCA_cff.py')
-  extractBlock(config, outputMON,  'hltOutputMON_cff.py')
+  outputA        = ( 'hltOutputA', 'hltOutputPhysicsCommissioning' )
+  outputALCA     = ( 'hltOutputALCAPHISYM', 'hltOutputALCAP0', 'hltOutputALCALUMIPIXELS' , 'hltOutputRPCMON' )
+  outputMON      = ( 'hltOutputA', 'hltOutputPhysicsCommissioning', 'hltOutputDQM', 'hltOutputHLTMonitor', 'hltOutputLookArea', 'hltOutputReleaseValidation')
+  outputScouting = ( 'hltOutputScoutingPF', 'hltOutputScoutingCaloMuon')
+  extractBlock(config, outputA,         'hltOutputA_cff.py')
+  extractBlock(config, outputALCA,      'hltOutputALCA_cff.py')
+  extractBlock(config, outputMON,       'hltOutputMON_cff.py')
+  extractBlock(config, outputScouting,  'hltScouting_cff.py')
 
 def makePSet(statements):
   statements = list(statements)
@@ -71,6 +73,7 @@ extractBlocks( config )
 import hltOutputA_cff
 import hltOutputALCA_cff
 import hltOutputMON_cff
+import hltScouting_cff
 
 # hltDebugOutput
 
@@ -120,6 +123,20 @@ hltDebugWithAlCaOutputBlocks = (
 )
 hltDebugWithAlCaOutputContent = buildPSet(hltDebugWithAlCaOutputBlocks)
 
+# hltScoutingOutput
+
+if not hasattr(hltScouting_cff,'block_hltOutputScoutingPF'):
+  hltScouting_cff.block_hltOutputScoutingPF = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+if not hasattr(hltScouting_cff,'block_hltOutputScoutingCaloMuon'):
+  hltScouting_cff.block_hltOutputScoutingCaloMuon = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+
+hltScoutingOutputBlocks = (
+  # the DQM, HLTDQM and HLTMON streams have the HLT debug outputs used online
+  hltScouting_cff.block_hltOutputScoutingPF.outputCommands,
+  hltScouting_cff.block_hltOutputScoutingCaloMuon.outputCommands,
+)
+hltScoutingOutputContent = buildPSet(hltScoutingOutputBlocks)
+
 
 # hltDefaultOutput
 if not hasattr(hltOutputA_cff,'block_hltOutputA'):
@@ -165,6 +182,11 @@ HLTDebugFEVT = cms.PSet(
 )
 HLTDebugFEVT.outputCommands.extend(hltDebugWithAlCaOutputContent.outputCommands)
 
+# Scouting event content
+HLTScouting = cms.PSet(
+    outputCommands = cms.vstring()
+)
+HLTScouting.outputCommands.extend(hltScoutingOutputContent.outputCommands)
 
 # dump the expanded event content configurations to a python configuration fragment
 dump = open('HLTrigger_EventContent_cff.py', 'w')
@@ -184,4 +206,5 @@ dump.write('HLTriggerRECO = cms.PSet(\n    outputCommands = cms.vstring( *(\n%s\
 dump.write('HLTriggerAOD  = cms.PSet(\n    outputCommands = cms.vstring( *(\n%s\n    ) )\n)\n\n'  % ',\n'.join( '        \'%s\'' % keep for keep in HLTriggerAOD.outputCommands))
 dump.write('HLTDebugRAW   = cms.PSet(\n    outputCommands = cms.vstring( *(\n%s\n    ) )\n)\n\n'  % ',\n'.join( '        \'%s\'' % keep for keep in HLTDebugRAW.outputCommands))
 dump.write('HLTDebugFEVT  = cms.PSet(\n    outputCommands = cms.vstring( *(\n%s\n    ) )\n)\n\n'  % ',\n'.join( '        \'%s\'' % keep for keep in HLTDebugFEVT.outputCommands))
+dump.write('HLTScouting  = cms.PSet(\n    outputCommands = cms.vstring( *(\n%s\n    ) )\n)\n\n'  % ',\n'.join( '        \'%s\'' % keep for keep in HLTScouting.outputCommands))
 dump.close()

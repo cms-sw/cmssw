@@ -29,12 +29,12 @@ class CTPPSDiamondLocalTrackFitter : public edm::stream::EDProducer<>
 {
   public:
     explicit CTPPSDiamondLocalTrackFitter( const edm::ParameterSet& );
-    ~CTPPSDiamondLocalTrackFitter();
+    ~CTPPSDiamondLocalTrackFitter() override;
 
     static void fillDescriptions( edm::ConfigurationDescriptions& );
 
   private:
-    virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+    void produce( edm::Event&, const edm::EventSetup& ) override;
 
     edm::EDGetTokenT< edm::DetSetVector<CTPPSDiamondRecHit> > recHitsToken_;
     CTPPSDiamondTrackRecognition trk_algo_45_;

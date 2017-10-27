@@ -113,7 +113,7 @@ bool ZGoldenFilter::operator()(const reco::Candidate & z) const {
     else {
       name = fullname;
     }
-    if ( toc.size() != 0 ) {
+    if ( !toc.empty() ) {
       const trigger::Keys & k = handleTriggerEvent_->filterKeys(ia);
       for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
 	if (name == L3FilterName_  ) {
@@ -133,7 +133,7 @@ bool ZGoldenFilter::operator()(const reco::Candidate & z) const {
   bool firstdisStandAlone = (dau0->isStandAloneMuon() ? true : false);
   std::vector<bool> IsDau0Matched_;
   std::vector<bool> IsDau1Matched_;
-  if(dau0 != 0){
+  if(dau0 != nullptr){
     // checking if dau0 is matched to any HLT muon....
     singleTrigFlag0 = IsMuMatchedToHLTMu ( dau0,  HLTMuMatched ,maxDeltaR_, maxDPtRel_ );
 
@@ -143,7 +143,7 @@ bool ZGoldenFilter::operator()(const reco::Candidate & z) const {
   }
   bool secondismuon = (dau1->isGlobalMuon() ? true : false);
   bool secondisStandAlone = (dau1->isStandAloneMuon() ? true : false);
-  if(dau1 != 0 && (secondismuon ||secondisStandAlone) ){
+  if(dau1 != nullptr && (secondismuon ||secondisStandAlone) ){
     singleTrigFlag1 = IsMuMatchedToHLTMu ( dau1,  HLTMuMatched ,maxDeltaR_, maxDPtRel_ );
     for (unsigned int y=0; y< HLTMuMatched.size(); y++  ){
       IsDau1Matched_.push_back( IsMuMatchedToHLTSingleMu ( dau1,  HLTMuMatched[y] ,maxDeltaR_, maxDPtRel_ ));

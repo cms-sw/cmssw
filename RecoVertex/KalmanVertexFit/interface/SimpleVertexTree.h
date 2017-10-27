@@ -47,7 +47,7 @@ public:
    */
 
   SimpleVertexTree(const char * fitterName = "VertexFitter",
-  		   const MagneticField * magField = 0);
+  		   const MagneticField * magField = nullptr);
   virtual ~SimpleVertexTree();
 
   /**
@@ -56,11 +56,11 @@ public:
    * Timing information for the fit can also be provided.
    */
 
-  void fill(const TransientVertex & recv, const TrackingVertex *simv = 0, 
-  	    reco::RecoToSimCollection *recSimColl = 0,
+  void fill(const TransientVertex & recv, const TrackingVertex *simv = nullptr, 
+  	    reco::RecoToSimCollection *recSimColl = nullptr,
   	    const float &time = 0.);
 
-  void fill(const TransientVertex & recv, const TrackingVertex *simv = 0,
+  void fill(const TransientVertex & recv, const TrackingVertex *simv = nullptr,
   	    const float &time = 0.);
 
   /**

@@ -83,12 +83,29 @@ namespace edm {
   }
   
   void ProducerBase::resolvePutIndicies(BranchType iBranchType,
-                          std::unordered_multimap<std::string, edm::ProductResolverIndex> const& iIndicies,
+                          ModuleToResolverIndicies const& iIndicies,
                           std::string const& moduleLabel) {
+    auto const& plist = typeLabelList();
+    if(putTokenToResolverIndex_.size() != plist.size()) {
+      putTokenToResolverIndex_.resize(plist.size(),std::numeric_limits<unsigned int>::max());
+    }
     auto range = iIndicies.equal_range(moduleLabel);
     putIndicies_[iBranchType].reserve(iIndicies.count(moduleLabel));
     for(auto it = range.first; it != range.second;++it) {
-      putIndicies_[iBranchType].push_back(it->second);
+      putIndicies_[iBranchType].push_back(std::get<2>(it->second));
+      unsigned int i = 0;
+      for(auto const& tl: plist) {
+        if(convertToBranchType(tl.transition_) == iBranchType and
+           (tl.typeID_ == *std::get<0>(it->second)) and
+           (tl.productInstanceName_ == std::get<1>(it->second)) ) {
+          putTokenToResolverIndex_[i] = std::get<2>(it->second);
+          //NOTE: The ExternalLHEProducer puts the 'same' product in at
+          // both beginRun and endRun. Therefore we can get multiple matches.
+          // When the module is finally fixed, we can use the 'break'
+          //break;
+        }
+        ++i;
+      }
     }
   }
 }

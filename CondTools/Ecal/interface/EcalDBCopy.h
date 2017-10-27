@@ -18,9 +18,9 @@ namespace edm {
 class  EcalDBCopy : public edm::EDAnalyzer {
  public:
   explicit  EcalDBCopy(const edm::ParameterSet& iConfig );
-  ~EcalDBCopy();
+  ~EcalDBCopy() override;
 
-  virtual void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup);
+  void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup) override;
 
  private:
   bool shouldCopy(const edm::EventSetup& evtSetup, std::string container);

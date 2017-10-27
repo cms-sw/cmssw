@@ -31,7 +31,7 @@ EcalTimeDigiProducer::EcalTimeDigiProducer( const edm::ParameterSet& params, edm
    m_hitsProducerTokenEE  ( sumes.consumes<std::vector<PCaloHit> >( m_hitsProducerTagEE) ) ,
    m_timeLayerEB     (  params.getParameter<int> ("timeLayerBarrel") ),
    m_timeLayerEE     (  params.getParameter<int> ("timeLayerEndcap") ),
-   m_Geometry          ( 0 ) 
+   m_Geometry          ( nullptr ) 
 {
    mixMod.produces<EcalTimeDigiCollection>(m_EBdigiCollection);
    mixMod.produces<EcalTimeDigiCollection>(m_EEdigiCollection);

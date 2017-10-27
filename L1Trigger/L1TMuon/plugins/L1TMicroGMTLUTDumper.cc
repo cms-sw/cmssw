@@ -26,7 +26,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -53,14 +53,15 @@
 //
 using namespace l1t;
 
-class L1TMicroGMTLUTDumper : public edm::EDAnalyzer {
+class L1TMicroGMTLUTDumper : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
    public:
       explicit L1TMicroGMTLUTDumper(const edm::ParameterSet&);
-      ~L1TMicroGMTLUTDumper();
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      ~L1TMicroGMTLUTDumper() override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
 
    private:
-      virtual void beginRun(edm::Run const&, edm::EventSetup const&);
+      void beginRun(edm::Run const&, edm::EventSetup const&) override;
+      void endRun(edm::Run const&, edm::EventSetup const&) override;
 
       void dumpLut(MicroGMTLUT*, const std::string&);
 
@@ -111,7 +112,7 @@ L1TMicroGMTLUTDumper::L1TMicroGMTLUTDumper(const edm::ParameterSet& iConfig)
   //now do what ever other initialization is needed
   m_foldername = iConfig.getParameter<std::string> ("out_directory");
 
-  microGMTParamsHelper = std::unique_ptr<L1TMuonGlobalParamsHelper>(new L1TMuonGlobalParamsHelper());
+  microGMTParamsHelper = std::make_unique<L1TMuonGlobalParamsHelper>();
 }
 
 
@@ -170,7 +171,7 @@ L1TMicroGMTLUTDumper::beginRun(edm::Run const& run, edm::EventSetup const& iSetu
   edm::ESHandle<L1TMuonGlobalParams> microGMTParamsHandle;
   microGMTParamsRcd.get(microGMTParamsHandle);
 
-  microGMTParamsHelper = std::unique_ptr<L1TMuonGlobalParamsHelper>(new L1TMuonGlobalParamsHelper(*microGMTParamsHandle.product()));
+  microGMTParamsHelper = std::make_unique<L1TMuonGlobalParamsHelper>(*microGMTParamsHandle.product());
   if (!microGMTParamsHelper) {
     edm::LogError("L1TMicroGMTLUTDumper") << "Could not retrieve parameters from Event Setup" << std::endl;
   }
@@ -201,5 +202,11 @@ L1TMicroGMTLUTDumper::beginRun(edm::Run const& run, edm::EventSetup const& iSetu
   m_fwdNegSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParamsHelper->fwdNegSingleMatchQualLUT(), cancel_t::emtf_emtf_neg, fwVersion);
 }
 
-//define this as a plug-in
+// ------------ method called when ending to processes a run  ------------
+void
+L1TMicroGMTLUTDumper::endRun(edm::Run const&, edm::EventSetup const&)
+{
+}
+
+ //define this as a plug-in
 DEFINE_FWK_MODULE(L1TMicroGMTLUTDumper);

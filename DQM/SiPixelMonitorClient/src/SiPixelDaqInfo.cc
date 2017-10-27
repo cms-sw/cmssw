@@ -41,7 +41,7 @@ void SiPixelDaqInfo::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQMStore
   }
 
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-  if(0 != iSetup.find( recordKey ) ) {
+  if(nullptr != iSetup.find( recordKey ) ) {
     //get fed summary information
     ESHandle<RunInfo> sumFED;
     iSetup.get<RunInfoRcd>().get(sumFED);    

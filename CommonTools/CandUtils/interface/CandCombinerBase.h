@@ -318,7 +318,7 @@ void CandCombinerBase<OutputCollection, CandPtr>::combine(size_t collectionIndex
       typename OutputCollection::value_type c;
       size_t nameIndex = 0;
       for(typename CandStack::const_iterator i = stack.begin(); i != stack.end(); ++i, ++ nameIndex) {
-	if ( names.size() > 0 )
+	if ( !names.empty() )
 	  addDaughter(c, i->first.first, names[nameIndex]);
 	else
 	  addDaughter(c, i->first.first);	  

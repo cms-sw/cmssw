@@ -12,7 +12,7 @@
 
 MatchedHitRZCorrectionFromBending::
 MatchedHitRZCorrectionFromBending(DetId detId, const TrackerTopology *tTopo)
-  : rFixup(0), zFixup(0)
+  : rFixup(nullptr), zFixup(nullptr)
 {
   if (detId.subdetId() == SiStripDetId::TIB &&
       tTopo->tibIsDoubleSide(detId))
@@ -21,7 +21,7 @@ MatchedHitRZCorrectionFromBending(DetId detId, const TrackerTopology *tTopo)
 
 MatchedHitRZCorrectionFromBending::
     MatchedHitRZCorrectionFromBending(const DetLayer *layer, const TrackerTopology *tTopo)
-  : rFixup(0), zFixup(0)
+  : rFixup(nullptr), zFixup(nullptr)
 {
   if (layer->subDetector() == GeomDetEnumerators::TIB) {
     const GeometricSearchDet *tibLayer = layer;

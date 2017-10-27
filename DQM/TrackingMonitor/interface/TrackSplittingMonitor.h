@@ -44,9 +44,9 @@ class TProfile;
 class TrackSplittingMonitor : public DQMEDAnalyzer {
 public:
 	explicit TrackSplittingMonitor(const edm::ParameterSet&);
-	~TrackSplittingMonitor();
+	~TrackSplittingMonitor() override;
 	
-	virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+	void analyze(const edm::Event&, const edm::EventSetup&) override;
 	void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 	
 private:

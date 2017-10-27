@@ -39,9 +39,9 @@ class AlCaElectronTracksReducer : public edm::EDProducer {
  public:
 
   explicit AlCaElectronTracksReducer(const edm::ParameterSet&);
-  ~AlCaElectronTracksReducer();
+  ~AlCaElectronTracksReducer() override;
   
-  virtual void produce(edm::Event &, const edm::EventSetup&);
+  void produce(edm::Event &, const edm::EventSetup&) override;
 
 private:
   // ----------member data ---------------------------

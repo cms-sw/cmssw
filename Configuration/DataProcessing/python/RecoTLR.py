@@ -60,6 +60,9 @@ def customisePostEra_Run2_2017_harvesting_trackingOnly(process):
     _customise_HPbeamspot(process)
     return process
 
+def customisePostEra_Run2_2017_pp_on_XeXe(process):
+    customisePostEra_Run2_2017(process)
+    return process
 
 ##############################################################################
 def customisePPData(process):

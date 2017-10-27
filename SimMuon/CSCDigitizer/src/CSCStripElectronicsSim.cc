@@ -34,8 +34,8 @@ CSCStripElectronicsSim::CSCStripElectronicsSim(const edm::ParameterSet & p)
   nScaBins_(p.getParameter<int>("nScaBins")),
   doSuppression_(p.getParameter<bool>("doSuppression")),
   doCrosstalk_(p.getParameter<bool>("doCrosstalk")),
-  theStripConditions(0),
-  theCrosstalkGenerator(0),
+  theStripConditions(nullptr),
+  theCrosstalkGenerator(nullptr),
   theComparatorClockJump(2),
   sca_time_bin_size(50.),
   sca_peak_bin(p.getParameter<int>("scaPeakBin")),
@@ -157,7 +157,7 @@ CSCStripElectronicsSim::runComparator(std::vector<CSCComparatorDigi> & result, C
          // --x- 110   6
          // ---x 111   7
          // just to prevent a copy
-         const CSCAnalogSignal * mainSignal = 0;
+         const CSCAnalogSignal * mainSignal = nullptr;
          // pick the higher of the two strips in the pair
          if(height1 > height2) {
            mainSignal = &signal1;

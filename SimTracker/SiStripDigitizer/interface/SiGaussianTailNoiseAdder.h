@@ -17,7 +17,7 @@ namespace CLHEP {
 class SiGaussianTailNoiseAdder : public SiNoiseAdder{
  public:
   SiGaussianTailNoiseAdder(float);
-  ~SiGaussianTailNoiseAdder();
+  ~SiGaussianTailNoiseAdder() override;
   void addNoise(std::vector<float>&, size_t&, size_t&, int, float, CLHEP::HepRandomEngine*) const override;
   
   void addNoiseVR(std::vector<float> &, std::vector<float> &, CLHEP::HepRandomEngine*) const override;

@@ -20,8 +20,18 @@ ctppsDiamondDQMSource = cms.EDAnalyzer("CTPPSDiamondDQMSource",
         ),
         # 2017
         cms.PSet(
-            validityRange = cms.EventRange("292521:min - 999999999:max"),
+            validityRange = cms.EventRange("292521:min - 301417:max"),
             centralOOT = cms.int32(3),
+        ),
+        # 2017, after channel delays corrections
+        cms.PSet(
+            validityRange = cms.EventRange("301418:min - 301517:max"),
+            centralOOT = cms.int32(1),
+        ),
+        # 2017, after channel delays corrections
+        cms.PSet(
+            validityRange = cms.EventRange("301518:min - 9999999:max"),
+            centralOOT = cms.int32(0),
         ),
     ),
   

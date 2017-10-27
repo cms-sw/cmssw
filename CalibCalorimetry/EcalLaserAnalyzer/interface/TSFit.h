@@ -69,7 +69,7 @@ public :
 
   TSFit( int size = SDIM, int size_sh = PLSHDIM );
 
-  virtual ~TSFit() {}
+  ~TSFit() override {}
 
   void set_params( int, int, int, int, int, double, double, int, int );
 
@@ -86,7 +86,7 @@ public :
 
   double inverms  ( int, double xx[matdim][matdim], double yy[matdim][matdim] );
 
-  ClassDef( TSFit, 0 )
+  ClassDefOverride( TSFit, 0 )
 };
 
 #endif

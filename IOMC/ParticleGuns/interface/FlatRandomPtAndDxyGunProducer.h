@@ -27,9 +27,9 @@ namespace edm
 
     public:
         FlatRandomPtAndDxyGunProducer(const ParameterSet & pset);
-        virtual ~FlatRandomPtAndDxyGunProducer();
+        ~FlatRandomPtAndDxyGunProducer() override;
 
-        virtual void produce(Event & e, const EventSetup& es) override;
+        void produce(Event & e, const EventSetup& es) override;
 
     private:
 

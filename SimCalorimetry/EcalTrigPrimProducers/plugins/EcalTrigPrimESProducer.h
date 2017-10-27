@@ -50,7 +50,7 @@
 class EcalTrigPrimESProducer : public edm::ESProducer {
  public:
   EcalTrigPrimESProducer(const edm::ParameterSet&);
-  ~EcalTrigPrimESProducer();
+  ~EcalTrigPrimESProducer() override;
 
   std::unique_ptr<EcalTPGPedestals> producePedestals(const EcalTPGPedestalsRcd &) ;
   std::unique_ptr<EcalTPGLinearizationConst> produceLinearizationConst(const EcalTPGLinearizationConstRcd &) ;

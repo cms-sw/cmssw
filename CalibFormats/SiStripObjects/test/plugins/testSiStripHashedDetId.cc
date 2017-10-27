@@ -52,7 +52,7 @@ void testSiStripHashedDetId::initialize( const edm::EventSetup& setup ) {
   // Build list of DetIds
   std::vector<uint32_t> dets;
   dets.reserve(16000);
-  TrackerGeometry::DetUnitContainer::const_iterator iter = geom->detUnits().begin();
+  TrackerGeometry::DetContainer::const_iterator iter = geom->detUnits().begin();
   for( ; iter != geom->detUnits().end(); ++iter ) {
     const auto strip = dynamic_cast<const StripGeomDetUnit*>(*iter);
     if( strip ) {

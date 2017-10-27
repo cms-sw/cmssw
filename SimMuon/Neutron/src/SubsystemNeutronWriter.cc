@@ -24,7 +24,7 @@ public:
 };
 
 SubsystemNeutronWriter::SubsystemNeutronWriter(edm::ParameterSet const& pset) 
-: theHitWriter(0),
+: theHitWriter(nullptr),
   useRandFlat(false),
   theInputTag(pset.getParameter<edm::InputTag>("input")),
   theNeutronTimeCut(pset.getParameter<double>("neutronTimeCut")),

@@ -21,7 +21,7 @@ class CastorHitAnalyzer : public edm::one::EDAnalyzer<>
 public:
 
   explicit CastorHitAnalyzer(edm::ParameterSet const& conf);
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+  void analyze(edm::Event const& e, edm::EventSetup const& c) override;
 
 
 private:

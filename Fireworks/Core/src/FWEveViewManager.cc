@@ -34,6 +34,7 @@
 #include "Fireworks/Core/interface/FWInteractionList.h"
 #include "Fireworks/Core/interface/CmsShowCommon.h"
 #include "Fireworks/Core/interface/fwLog.h"
+#include "Fireworks/Core/interface/FWViewEnergyScale.h"
 #include "Fireworks/Core/interface/FWSimpleRepresentationChecker.h"
 
 // PB
@@ -224,7 +225,7 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
       std::string builderName = info.m_name;
       int builderViewBit =  info.m_viewBit;
       
-      FWProxyBuilderBase* builder = 0;
+      FWProxyBuilderBase* builder = nullptr;
       try
       {
          builder = FWProxyBuilderFactory::get()->create(builderName);
@@ -254,7 +255,7 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
       {
          typedef std::map<const FWEventItem*, FWInteractionList*>::iterator Iterator;
          std::pair<Iterator, bool> t = m_interactionLists.insert(std::make_pair(iItem,
-                                                                                (FWInteractionList*)0));
+                                                                                (FWInteractionList*)nullptr));
 
          if (t.second == true)
             t.first->second = new FWInteractionList(iItem);
@@ -285,7 +286,7 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
          }
          else 
          {
-            TEveElementList* product = builder->createProduct(type, 0);
+            TEveElementList* product = builder->createProduct(type, nullptr);
          
             for (size_t i = 0, e = m_views[viewType].size(); i != e; ++i)
                addElements(iItem, m_views[viewType][i].get(), viewType, product);
@@ -600,7 +601,7 @@ FWEveViewManager::setContext(const fireworks::Context* x)
 {
    FWViewManagerBase::setContext(x);
    x->commonPrefs()->getEnergyScale()->parameterChanged_.connect(boost::bind(&FWEveViewManager::globalEnergyScaleChanged,this));
-
+   x->commonPrefs()->eventCenterChanged_.connect(boost::bind(&FWEveViewManager::eventCenterChanged,this));
 }
 
 void
@@ -617,6 +618,19 @@ FWEveViewManager::globalEnergyScaleChanged()
       }
 
    }
+}
+
+void
+FWEveViewManager::eventCenterChanged()
+{
+   for (int t = 0 ; t < FWViewType::kTypeSize; ++t)
+   {
+      for(EveViewVec_it i = m_views[t].begin(); i != m_views[t].end(); ++i) 
+      {
+	(*i)->setupEventCenter();
+      }
+   }
+
 }
 
 void
@@ -732,13 +746,13 @@ FWEveViewManager::eventEnd()
 FWFromEveSelectorBase *getSelector(TEveElement *iElement)
 {
    if (!iElement)
-      return 0;
+      return nullptr;
 
    //std::cout <<"  non null"<<std::endl;
    void* userData = iElement->GetUserData();
    //std::cout <<"  user data "<<userData<<std::endl;
    if (!userData)
-      return 0;
+      return nullptr;
 
    //std::cout <<"    have userData"<<std::endl;
    //std::cout <<"      calo"<<std::endl;
@@ -822,7 +836,7 @@ FWEveViewManager::haveViewForBit(int bit) const
 {
    for (int t = 0; t < FWViewType::kTypeSize; ++t)
    {
-      if ((bit & (1 << t)) && m_views[t].size())
+      if ((bit & (1 << t)) && !m_views[t].empty())
          return true;
    }
    // printf("have %d view for bit %d \n", haveView, bit);

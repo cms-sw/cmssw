@@ -14,7 +14,7 @@
 //__________________________________________________________________________________________________
 AlignableDet::AlignableDet( const GeomDet* geomDet, bool addComponents ) : 
   AlignableComposite( geomDet ), 
-  theAlignmentPositionError(0)
+  theAlignmentPositionError(nullptr)
 {
   // ensure that the surface is not constrained to the average position of the
   // components:
@@ -26,7 +26,7 @@ AlignableDet::AlignableDet( const GeomDet* geomDet, bool addComponents ) :
   }
 
   if (addComponents) {
-    if ( geomDet->components().size() == 0 ) { // Is a DetUnit
+    if ( geomDet->components().empty() ) { // Is a DetUnit
       throw cms::Exception("BadHierarchy") << "[AlignableDet] GeomDet with DetId " 
                                            << geomDet->geographicalId().rawId() 
                                            << " has no components, use AlignableDetUnit.\n";
@@ -69,7 +69,7 @@ void AlignableDet::update(const GeomDet* geomDet, bool updateComponents)
   }
 
   if (updateComponents) {
-    if (geomDet->components().size() == 0 ) { // Is a DetUnit
+    if (geomDet->components().empty() ) { // Is a DetUnit
       throw cms::Exception("BadHierarchy")
 	<< "[AlignableDet] GeomDet with DetId "
 	<< geomDet->geographicalId().rawId()
@@ -151,7 +151,7 @@ void AlignableDet::addAlignmentPositionErrorFromRotation(const RotationType& rot
   // (xWidth/2,yLength/2,0) caused by the rotation rot
   GlobalVector localPositionVector = surface().toGlobal( LocalVector(.5 * surface().width(), .5 * surface().length(), 0.) );
 
-  LocalVector::BasicVectorType lpvgf = localPositionVector.basicVector();
+  const LocalVector::BasicVectorType& lpvgf = localPositionVector.basicVector();
   GlobalVector gv( rot.multiplyInverse(lpvgf) - lpvgf );
 
   AlignmentPositionError  ape( gv.x(),gv.y(),gv.z() );

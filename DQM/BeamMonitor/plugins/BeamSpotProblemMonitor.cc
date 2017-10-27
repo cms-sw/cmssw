@@ -31,7 +31,7 @@
 #include "DQMServices/Core/interface/QReport.h"
 
 #include <numeric>
-#include <math.h>
+#include <cmath>
 #include <TMath.h>
 #include <iostream>
 #include <TStyle.h>
@@ -239,7 +239,7 @@ void BeamSpotProblemMonitor::analyze(const Event& iEvent,
         ALARM_ON_  = false;
 
  
-   if (handleScaler->size()!=0)
+   if (!handleScaler->empty())
      {
       spotOnline = * ( handleScaler->begin() );
 
@@ -334,7 +334,6 @@ void BeamSpotProblemMonitor::FillPlots(const LuminosityBlock& lumiSeg,int &lastl
     		          /* S.Dutta : Commenting out these variables are not used and giving error with "-Werror=unused-variable" option
     	                   float qtresult = BeamSpotQReport->getQTresult();
                            int qtstatus   = BeamSpotQReport->getStatus() ; // get QT status value (see table below) */
-               	           std::string qtmessage = BeamSpotQReport->getMessage() ; // get the whole QT result message
                       }
 
 

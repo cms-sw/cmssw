@@ -23,20 +23,20 @@ public:
 				    const std::vector<SurfaceAndSide>& limits) :
 	theLimits( limits), theSurface(surf) {}
 
-  virtual float length()    const { return 0;}
-  virtual float width()     const { return 0;}
-  virtual float thickness() const { return 0;}
+  float length()    const override { return 0;}
+  float width()     const override { return 0;}
+  float thickness() const override { return 0;}
 
 
   using Bounds::inside;
 
-  virtual bool inside( const Local3DPoint& lp) const {
+  bool inside( const Local3DPoint& lp) const override {
     return myInside(lp,0);
   }
     
-  virtual bool inside( const Local3DPoint&, const LocalError&, float scale=1.f) const;
+  bool inside( const Local3DPoint&, const LocalError&, float scale=1.f) const override;
 
-  virtual Bounds* clone() const {return new GeneralNSurfaceDelimitedBounds(*this);}
+  Bounds* clone() const override {return new GeneralNSurfaceDelimitedBounds(*this);}
     
 private:
 
