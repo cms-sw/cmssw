@@ -24,9 +24,9 @@ ecalBadCalibFilter = cms.EDFilter(
   debug = cms.bool(False),
 )
 
-from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-phase2_common.toModify(ecalBadCalibFilter, baddetEcal = [872439604,872422825,872420274,872423218,
-                                                         872423215,872416066,872435036,872439336,
-                                                         872420273,872436907,872420147,872439731,
-                                                         872436657,872420397,872439732,872439339,
-                                                         872439603])
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+run2_common.toModify(ecalBadCalibFilter, baddetEcal = [872439604,872422825,872420274,872423218,
+                                                       872423215,872416066,872435036,872439336,
+                                                       872420273,872436907,872420147,872439731,
+                                                       872436657,872420397,872439732,872439339,
+                                                       872439603])
