@@ -16,6 +16,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalTestNumbering.h"
 
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
@@ -61,7 +62,7 @@ private:
   edm::EDGetTokenT<edm::PSimHitContainer> toks_tkLow_[6];
   std::string    muonLab[3], tkHighLab[6], tkLowLab[6];
   double         tmax_, eMIP_;
-  bool           storeRL_;
+  bool           storeRL_, testNumber_;
 
   TH1F           *hit_[9],  *time_[9], *edepEM_[9], *edepHad_[9], *edep_[9];
   TH1F           *etot_[9], *etotg_[9], *timeAll_[9], *hitMu, *hitHigh;
@@ -82,9 +83,10 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
 
 
   double maxEnergy_= ps.getUntrackedParameter<double>("MaxEnergy", 200.0);
-  tmax_     = ps.getUntrackedParameter<double>("TimeCut", 100.0);
-  eMIP_     = ps.getUntrackedParameter<double>("MIPCut",  0.70);
-  storeRL_  = ps.getUntrackedParameter<bool>("StoreRL", false);
+  tmax_            = ps.getUntrackedParameter<double>("TimeCut",   100.0);
+  eMIP_            = ps.getUntrackedParameter<double>("MIPCut",     0.70);
+  storeRL_         = ps.getUntrackedParameter<bool>("StoreRL",     false);
+  testNumber_      = ps.getUntrackedParameter<bool>("TestNumbering",false);
 
   muonLab[0]  = "MuonRPCHits";
   muonLab[1]  = "MuonCSCHits";
@@ -240,8 +242,18 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
 void  CaloSimHitStudy::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.addUntracked<std::string>("SourceLabel", "generatorSmeared");
+  desc.addUntracked<std::string>("ModuleLabel", "g4SimHits");
+  desc.addUntracked<std::string>("EBCollection","EcalHitsEB");
+  desc.addUntracked<std::string>("EECollection","EcalHitsEE");
+  desc.addUntracked<std::string>("ESCollection","EcalHitsES");
+  desc.addUntracked<std::string>("HCCollection","HcalHits");
+  desc.addUntracked<double>("MaxEnergy",   200.0);
+  desc.addUntracked<double>("TimeCut",     100.0);
+  desc.addUntracked<double>("MIPCut",       0.70);
+  desc.addUntracked<bool>("StoreRL",       false);
+  desc.addUntracked<bool>("TestNumbering", false);
+  descriptions.add("CaloSimHitStudy",desc);
 }
 
 void CaloSimHitStudy::analyze(edm::Event const& e, edm::EventSetup const& ) {
@@ -362,8 +374,14 @@ void CaloSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits, int indx) {
 	if (time < 100) etotG[idx] += edep;
       }
     } else {
-      HcalDetId id     = HcalDetId(id_);
-      int subdet       = id.subdet();
+      int subdet(0);
+      if (testNumber_) {
+	int ieta(0), phi(0), z(0), lay(0), depth(0);
+	HcalTestNumbering::unpackHcalIndex(id_,subdet,z,depth,ieta,phi,lay);
+      } else {
+	HcalDetId id = HcalDetId(id_);
+	subdet       = id.subdet();
+      }
       if      (subdet == static_cast<int>(HcalBarrel))  {idx = indx+2; nHB++;}
       else if (subdet == static_cast<int>(HcalEndcap))  {idx = indx+3; nHE++;}
       else if (subdet == static_cast<int>(HcalOuter))   {idx = indx+4; nHO++;}
@@ -425,9 +443,14 @@ void CaloSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits, int indx) {
       }
       if (idx >= 0 && idx < 5) timeAll_[idx]->Fill(time);
     } else if (indx == 3) {
-      HcalDetId id     = HcalDetId(id_);
-      int idx          = -1;
-      int subdet       = id.subdet();
+      int idx(-1), subdet(0);
+      if (testNumber_) {
+	int ieta(0), phi(0), z(0), lay(0), depth(0);
+	HcalTestNumbering::unpackHcalIndex(id_,subdet,z,depth,ieta,phi,lay);
+      } else {
+	HcalDetId id = HcalDetId(id_);
+	subdet       = id.subdet();
+      }
       if      (subdet == static_cast<int>(HcalBarrel))  {idx = indx+2;}
       else if (subdet == static_cast<int>(HcalEndcap))  {idx = indx+3;}
       else if (subdet == static_cast<int>(HcalOuter))   {idx = indx+4;}
@@ -483,8 +506,14 @@ void CaloSimHitStudy::analyzeHits (std::vector<PCaloHit>& ebHits,
   for (unsigned int i=0; i<hcHits.size(); i++) {
     double edep      = hcHits[i].energy();
     double time      = hcHits[i].time();
-    HcalDetId id     = HcalDetId(hcHits[i].id());
-    int subdet       = id.subdet();
+    int subdet(0);
+    if (testNumber_) {
+      int ieta(0), phi(0), z(0), lay(0), depth(0);
+      HcalTestNumbering::unpackHcalIndex(hcHits[i].id(),subdet,z,depth,ieta,phi,lay);
+    } else {
+      HcalDetId id = HcalDetId(hcHits[i].id());
+      subdet       = id.subdet();
+    }
     if (subdet == static_cast<int>(HcalBarrel) || 
 	subdet == static_cast<int>(HcalEndcap)) {
       edepH += edep;
