@@ -20,8 +20,8 @@ namespace hltdqm {
     if(filterIndex<trigEvt.sizeFilters()){ //check that filter is in triggerEvent
       const trigger::Keys& trigKeys = trigEvt.filterKeys(filterIndex); 
       const trigger::TriggerObjectCollection & trigObjColl(trigEvt.getObjects());
-      for(trigger::Keys::const_iterator keyIt=trigKeys.begin();keyIt!=trigKeys.end();++keyIt){ 
-	const trigger::TriggerObject& trigObj = trigObjColl[*keyIt];
+      for(unsigned short trigKey : trigKeys){ 
+	const trigger::TriggerObject& trigObj = trigObjColl[trigKey];
 	if(reco::deltaR2(trigObj.eta(),trigObj.phi(),objEta,objPhi)<kMaxDR2) return true;
       }
     }

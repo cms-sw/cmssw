@@ -16,8 +16,8 @@ BPHMonitor::BPHMonitor( const edm::ParameterSet& iConfig ) :
   , phi_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("phiPSet")    ) )
   , pt_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("ptPSet")    ) )
   , eta_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("etaPSet")    ) )
-  , d0_binning_           ( getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("d0PSet")     ) )
-  , z0_binning_           ( getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("z0PSet")     ) )
+  , d0_binning_           ( getHistoPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("d0PSet")     ) )
+  , z0_binning_           ( getHistoPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("z0PSet")     ) )
   , num_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"),consumesCollector(), *this))
   , den_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"),consumesCollector(), *this))
   , muoSelection_ ( iConfig.getParameter<std::string>("muoSelection") )
@@ -43,7 +43,7 @@ BPHMonitor::~BPHMonitor()
   if (den_genTriggerEventFlag_) delete den_genTriggerEventFlag_;
 }
 
-MEbinning BPHMonitor::getHistoPSet(edm::ParameterSet pset)
+MEbinning BPHMonitor::getHistoPSet(const edm::ParameterSet& pset)
 {
   return MEbinning{
     pset.getParameter<int32_t>("nbins"),
@@ -52,7 +52,7 @@ MEbinning BPHMonitor::getHistoPSet(edm::ParameterSet pset)
       };
 }
 
-MEbinning BPHMonitor::getHistoLSPSet(edm::ParameterSet pset)
+MEbinning BPHMonitor::getHistoLSPSet(const edm::ParameterSet& pset)
 {
   return MEbinning{
     pset.getParameter<int32_t>("nbins"),
@@ -61,7 +61,7 @@ MEbinning BPHMonitor::getHistoLSPSet(edm::ParameterSet pset)
       };
 }
 
-void BPHMonitor::setMETitle(METME& me, std::string titleX, std::string titleY)
+void BPHMonitor::setMETitle(METME& me, const std::string& titleX, const std::string& titleY)
 {
   me.numerator->setAxisTitle(titleX,1);
   me.numerator->setAxisTitle(titleY,2);
@@ -114,7 +114,7 @@ void BPHMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   std::string histname, histtitle;
 
   std::string currentFolder = folderName_ ;
-  ibooker.setCurrentFolder(currentFolder.c_str());
+  ibooker.setCurrentFolder(currentFolder);
   
   histname = "muPt"; histtitle = "mu_P_{t}";
   bookME(ibooker,muPt_,histname,histtitle, pt_binning_.nbins, pt_binning_.xmin, pt_binning_.xmax);
@@ -163,7 +163,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     muPhi_.denominator->Fill(m.phi());
     muEta_.denominator->Fill(m.eta());
     muPt_.denominator ->Fill(m.pt());
-    const reco::Track * track = 0;
+    const reco::Track * track = nullptr;
     if (m.isTrackerMuon()) track = & * m.innerTrack();
     else if (m.isStandAloneMuon()) track = & * m.outerTrack();
     if (track) {
@@ -180,7 +180,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     muPhi_.numerator->Fill(m.phi());
     muEta_.numerator->Fill(m.eta());
     muPt_.numerator ->Fill(m.pt());
-    const reco::Track * track = 0;
+    const reco::Track * track = nullptr;
     if (m.isTrackerMuon()) track = & * m.innerTrack();
     else if (m.isStandAloneMuon()) track = & * m.outerTrack();
     if (track) {

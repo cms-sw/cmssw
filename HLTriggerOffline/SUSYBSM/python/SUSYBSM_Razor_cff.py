@@ -222,7 +222,7 @@ SUSY_HLT_Razor_DM_Calo_Rsq0p25 = cms.EDAnalyzer("SUSY_HLT_Razor",
   hemispheres = cms.InputTag('caloHemispheres')
 )
 
-SUSY_HLT_Razor_PostVal_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
+SUSYoHLToRazorPostValPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_RsqMR300_Rsq0p09_MR200_v", "HLT/SUSYBSM/HLT_RsqMR300_Rsq0p09_MR200_4jet_v", "HLT/SUSYBSM/HLT_Rsq0p36_v", "HLT/SUSYBSM/HLT_RsqMR270_Rsq0p09_MR200_v", "HLT/SUSYBSM/HLT_RsqMR270_Rsq0p09_MR200_4jet_v", "HLT/SUSYBSM/HLT_Rsq0p30_v", "HLT/SUSYBSM/HLT_RsqMR260_Rsq0p09_MR200_v", "HLT/SUSYBSM/HLT_RsqMR260_Rsq0p09_MR200_4jet_v", "HLT/SUSYBSM/HLT_RsqMR240_Rsq0p09_MR200_v", "HLT/SUSYBSM/HLT_RsqMR240_Rsq0p09_MR200_4jet_v", "HLT/SUSYBSM/HLT_Rsq0p25_v", "HLT/SUSYBSM/HLT_RsqMR240_Rsq0p09_MR200_Calo_v", "HLT/SUSYBSM/HLT_RsqMR240_Rsq0p09_MR200_4jet_Calo_v", "HLT/SUSYBSM/HLT_Rsq0p25_Calo_v", "HLT/SUSYBSM/HLT_Rsq0p02_MR300_TriPFJet80_60_40_BTagCSV_p063_p20_Mbb60_200_v", "HLT/SUSYBSM/HLT_Rsq0p02_MR300_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_v"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),

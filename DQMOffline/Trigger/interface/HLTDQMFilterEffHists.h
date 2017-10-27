@@ -36,8 +36,8 @@ class HLTDQMFilterEffHists {
 public:
   
   explicit HLTDQMFilterEffHists(const edm::ParameterSet& config,
-				const std::string& baseHistName,
-				const std::string& hltProcess);
+				std::string  baseHistName,
+				std::string  hltProcess);
 
   static edm::ParameterSetDescription makePSetDescription();
   static edm::ParameterSetDescription makePSetDescriptionHistConfigs();
@@ -62,14 +62,14 @@ private:
 
 template <typename ObjType> 
 HLTDQMFilterEffHists<ObjType>::HLTDQMFilterEffHists(const edm::ParameterSet& config,
-					const std::string& baseHistName,
-					const std::string& hltProcess):
+					std::string  baseHistName,
+					std::string  hltProcess):
   rangeCuts_(config.getParameter<std::vector<edm::ParameterSet> >("rangeCuts")),
   filterName_(config.getParameter<std::string>("filterName")), 
   histTitle_(config.getParameter<std::string>("histTitle")),
   folderName_(config.getParameter<std::string>("folderName")),
-  baseHistName_(baseHistName),
-  hltProcess_(hltProcess)
+  baseHistName_(std::move(baseHistName)),
+  hltProcess_(std::move(hltProcess))
 {
   
 }
