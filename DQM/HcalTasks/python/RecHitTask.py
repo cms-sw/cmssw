@@ -20,6 +20,10 @@ recHitTask = cms.EDAnalyzer(
 
 	#	thresholds
 	thresh_unihf = cms.untracked.double(0.2),
+
+	# prerechits
+	hfPreRecHitsAvailable = cms.untracked.bool(False),
+	tagPreHF = cms.untracked.InputTag(""),
 )
 
 

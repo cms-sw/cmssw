@@ -40,7 +40,6 @@ class DigiComparisonTask : public hcaldqm::DQTask
 		edm::EDGetTokenT<HBHEDigiCollection>	_tokHBHE2;
 
 		//	emap+hashmap
-		HcalElectronicsMap const* _emap;
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmapuTCA;
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmapVME;
 
