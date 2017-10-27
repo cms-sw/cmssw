@@ -100,6 +100,11 @@ namespace edm {
       const ModuleDescription& moduleDescription() const {
         return moduleDescription_;
       }
+      
+      //Output modules always need writeRun and writeLumi to be called
+      bool wantsGlobalRuns() const {return true;}
+      bool wantsGlobalLuminosityBlocks() const {return true;}
+
     protected:
       
       ModuleDescription const& description() const;

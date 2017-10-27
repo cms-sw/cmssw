@@ -60,6 +60,8 @@ namespace edm {
             RunWatcher& operator=(RunWatcher const&) = delete;
             ~RunWatcher() noexcept(false) override {};
             
+            bool wantsGlobalRuns() const override {return true;}
+
          private:
             void doBeginRun_(Run const& rp, EventSetup const& c) final;
             void doEndRun_(Run const& rp, EventSetup const& c) final;
@@ -77,6 +79,8 @@ namespace edm {
             LuminosityBlockWatcher& operator=(LuminosityBlockWatcher const&) = delete;
             ~LuminosityBlockWatcher() noexcept(false) override {};
             
+            bool wantsGlobalLuminosityBlocks() const override {return true;}
+
          private:
             void doBeginLuminosityBlock_(LuminosityBlock const& rp, EventSetup const& c) final;
             void doEndLuminosityBlock_(LuminosityBlock const& rp, EventSetup const& c) final;
@@ -93,6 +97,7 @@ namespace edm {
             BeginRunProducer& operator=(BeginRunProducer const&) = delete;
             ~BeginRunProducer() noexcept(false) override {};
             
+            bool wantsGlobalRuns() const override {return true;}
          private:
             void doBeginRunProduce_(Run& rp, EventSetup const& c) final;
 
@@ -107,6 +112,8 @@ namespace edm {
             EndRunProducer& operator=(EndRunProducer const&) = delete;
             ~EndRunProducer() noexcept(false) override {};
             
+            bool wantsGlobalRuns() const override {return true;}
+
          private:
             
             void doEndRunProduce_(Run& rp, EventSetup const& c) final;
@@ -121,7 +128,9 @@ namespace edm {
             BeginLuminosityBlockProducer( BeginLuminosityBlockProducer const&) = delete;
             BeginLuminosityBlockProducer& operator=(BeginLuminosityBlockProducer const&) = delete;
             ~BeginLuminosityBlockProducer() noexcept(false) override {};
-            
+
+            bool wantsGlobalLuminosityBlocks() const override {return true;}
+
          private:
             void doBeginLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c) final;
 
@@ -136,6 +145,8 @@ namespace edm {
             EndLuminosityBlockProducer& operator=(EndLuminosityBlockProducer const&) = delete;
             ~EndLuminosityBlockProducer() noexcept(false) override {};
             
+            bool wantsGlobalLuminosityBlocks() const override {return true;}
+
          private:
             void doEndLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c) final;
 

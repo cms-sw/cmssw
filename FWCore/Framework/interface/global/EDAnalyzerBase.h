@@ -61,6 +61,9 @@ namespace edm {
       // Warning: the returned moduleDescription will be invalid during construction
       ModuleDescription const& moduleDescription() const { return moduleDescription_; }
 
+      virtual bool wantsGlobalRuns() const =0;
+      virtual bool wantsGlobalLuminosityBlocks() const =0;
+
     private:
       bool doEvent(EventPrincipal const& ep, EventSetup const& c,
                    ActivityRegistry*,
