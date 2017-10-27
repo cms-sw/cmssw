@@ -64,7 +64,9 @@ from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toReplaceWith( Flag_trkPOG_manystripclus53X, cms.Path() )
 phase2_common.toReplaceWith( Flag_trkPOG_toomanystripclus53X, cms.Path() )
 phase2_common.toReplaceWith( Flag_trkPOGFilters, cms.Path(~logErrorTooManyClusters) )
-phase2_common.toReplaceWith( Flag_ecalBadCalibFilter, cms.Path(ecalBadCalibFilter) )
+
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+run2_common.toReplaceWith( Flag_ecalBadCalibFilter, cms.Path(ecalBadCalibFilter) )
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith( Flag_HBHENoiseFilter, cms.Path() )
