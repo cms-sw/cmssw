@@ -84,7 +84,7 @@ nanoDQM = cms.EDAnalyzer("NanoAODDQM",
                 Plot1D('tau3', 'tau3', 20, 0.00, 1.0, 'Nsubjettiness (3 axis)'),
                 Plot1D('tau4', 'tau4', 20, 0.00, 1.0, 'Nsubjettiness (4 axis)'),
                 Plot1D('n2b1', 'n2b1', 20, 0.00, 1.0, 'N2 (beta=1)'),
-                Plot1D('n3b1', 'n3b1', 20, 0.00, 1.0, 'N3 (beta=1)'),
+                Plot1D('n3b1', 'n3b1', 20, 0.00, 5.0, 'N3 (beta=1)'),
             )
         ),
         Flag = cms.PSet(
