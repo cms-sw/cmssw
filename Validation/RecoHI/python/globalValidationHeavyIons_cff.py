@@ -14,11 +14,11 @@ StripTrackingRecHitsValid.tracksInput = hiTracks
 egammaBasicClusterAnalyzer.barrelBasicClusterCollection = cms.InputTag("islandBasicClusters","islandBarrelBasicClusters")
 egammaBasicClusterAnalyzer.endcapBasicClusterCollection = cms.InputTag("islandBasicClusters","islandEndcapBasicClusters")
 egammaSuperClusterAnalyzer.barrelRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB")
-egammaSuperClusterAnalyzer.barrelRawSuperClusterCollection = cms.InputTag("hiIslandSuperClusters","hiIslandBarrelSuperClusters")
-egammaSuperClusterAnalyzer.barrelCorSuperClusterCollection = cms.InputTag("hiCorrectedIslandBarrelSuperClusters")
+egammaSuperClusterAnalyzer.barrelRawSuperClusterCollection = cms.InputTag("islandSuperClusters","islandBarrelSuperClusters")
+egammaSuperClusterAnalyzer.barrelCorSuperClusterCollection = cms.InputTag("correctedIslandBarrelSuperClusters")
 egammaSuperClusterAnalyzer.endcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE")
-egammaSuperClusterAnalyzer.endcapRawSuperClusterCollection = cms.InputTag("hiIslandSuperClusters","hiIslandEndcapSuperClusters")
-egammaSuperClusterAnalyzer.endcapCorSuperClusterCollection = cms.InputTag("hiCorrectedIslandEndcapSuperClusters")
+egammaSuperClusterAnalyzer.endcapRawSuperClusterCollection = cms.InputTag("islandSuperClusters","islandEndcapSuperClusters")
+egammaSuperClusterAnalyzer.endcapCorSuperClusterCollection = cms.InputTag("correctedIslandEndcapSuperClusters")
 #egammaSuperClusterAnalyzer.endcapPreSuperClusterCollection = cms.InputTag("islandEndcapSuperClustersWithPreshower") #to be implemented: only multi5x5 for now
 
 

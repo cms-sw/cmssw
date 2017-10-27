@@ -25,9 +25,15 @@ from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
 from Configuration.Eras.Modifier_peripheralPbPb_cff import peripheralPbPb
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 
-from RecoHI.HiEgammaAlgos.HiIslandClusteringSequence_cff import *
+from RecoEcal.EgammaClusterProducers.islandBasicClusters_cfi import islandBasicClusters
+from RecoHI.HiEgammaAlgos.HiIslandSuperClusters_cfi import islandSuperClusters
+from RecoHI.HiEgammaAlgos.HiCorrectedIslandBarrelSuperClusters_cfi import correctedIslandBarrelSuperClusters
+from RecoHI.HiEgammaAlgos.HiCorrectedIslandEndcapSuperClusters_cfi import correctedIslandEndcapSuperClusters
 
 _ecalClustersHI = ecalClusters.copy()
-_ecalClustersHI += hiIslandClusteringSequence
+_ecalClustersHI += islandBasicClusters
+_ecalClustersHI += islandSuperClusters
+_ecalClustersHI += correctedIslandBarrelSuperClusters
+_ecalClustersHI += correctedIslandEndcapSuperClusters
 for e in [pA_2016, peripheralPbPb, pp_on_XeXe_2017]:
     e.toReplaceWith(ecalClusters, _ecalClustersHI)
