@@ -1,0 +1,337 @@
+<use name="cuda"/>
+<flags CXXFLAGS="-Wno-error=maybe-uninitialized"/>
+<flags CXXFLAGS="-Wno-error=missing-braces"/>
+<flags CXXFLAGS="-Wno-error=sign-compare"/>
+<flags CXXFLAGS="-Wno-error=strict-aliasing"/>
+<flags CXXFLAGS="-Wno-error=switch"/>
+<flags CXXFLAGS="-Wno-error=unused-but-set-variable"/>
+<flags CXXFLAGS="-Wno-error=unused-variable"/>
+<flags CXXFLAGS="-Wno-error=write-strings"/>
+<flags NO_TESTRUN="1"/>
+
+<!-- 0_Simple -->
+<bin name="cudaUnifiedMemoryStreams" file="0_Simple/UnifiedMemoryStreams/UnifiedMemoryStreams.cu">
+  <use name="cuda-cublas"/>
+  <flags CXXFLAGS="-fopenmp"/>
+</bin>
+<bin name="cudaAsyncAPI" file="0_Simple/asyncAPI/asyncAPI.cu"/>
+<bin name="cudaCdpSimplePrint" file="0_Simple/cdpSimplePrint/cdpSimplePrint.cu"/>
+<bin name="cudaCdpSimpleQuicksort" file="0_Simple/cdpSimpleQuicksort/cdpSimpleQuicksort.cu"/>
+<bin name="cudaClock" file="0_Simple/clock/clock.cu"/>
+<bin name="cudaClock_nvrtc" file="0_Simple/clock_nvrtc/clock_kernel.cu 0_Simple/clock_nvrtc/clock.cpp">
+  <use name="cuda-nvrtc"/>
+</bin>
+<bin name="cudaCppIntegration" file="0_Simple/cppIntegration/cppIntegration.cu 0_Simple/cppIntegration/cppIntegration_gold.cpp 0_Simple/cppIntegration/main.cpp"/>
+<bin name="cudaCppOverload" file="0_Simple/cppOverload/cppOverload.cu"/>
+<bin name="cudaOpenMP" file="0_Simple/cudaOpenMP/cudaOpenMP.cu">
+  <flags CXXFLAGS="-fopenmp"/>
+</bin>
+<bin name="cudaTensorCoreGemm" file="0_Simple/cudaTensorCoreGemm/cudaTensorCoreGemm.cu">
+  <!-- tensor cores require CUDA compute 7.0 or higher -->
+  <flags REM_CUDA_FLAGS="-gencode arch=compute_%"/>
+  <flags CUDA_FLAGS="-gencode arch=compute_70,code=sm_70"/>
+</bin>
+<bin name="cudaFp16ScalarProduct" file="0_Simple/fp16ScalarProduct/fp16ScalarProduct.cu">
+  <!-- 16-bit floating point require CUDA compute 6.0 or higher -->
+  <flags REM_CUDA_FLAGS="-gencode arch=compute_%"/>
+  <flags CUDA_FLAGS="-gencode arch=compute_61,code=sm_61"/>
+</bin>
+<bin name="cudaInlinePTX" file="0_Simple/inlinePTX/inlinePTX.cu"/>
+<bin name="cudaInlinePTX_nvrtc" file="0_Simple/inlinePTX_nvrtc/inlinePTX_kernel.cu 0_Simple/inlinePTX_nvrtc/inlinePTX.cpp">
+  <use name="cuda-nvrtc"/>
+</bin>
+<bin name="cudaMatrixMul" file="0_Simple/matrixMul/matrixMul.cu"/>
+<bin name="cudaMatrixMulCUBLAS" file="0_Simple/matrixMulCUBLAS/matrixMulCUBLAS.cpp">
+  <use name="cuda-cublas"/>
+</bin>
+<bin name="cudaMatrixMulDrv" file="0_Simple/matrixMulDrv/matrixMulDrv.cpp 0_Simple/matrixMulDrv/matrixMul_kernel.cu"/>
+<bin name="cudaMatrixMul_nvrtc" file="0_Simple/matrixMul_nvrtc/matrixMul_kernel.cu 0_Simple/matrixMul_nvrtc/matrixMul.cpp">
+  <use name="cuda-nvrtc"/>
+</bin>
+<bin name="cudaSimpleAssert" file="0_Simple/simpleAssert/simpleAssert.cu"/>
+<bin name="cudaSimpleAssert_nvrtc" file="0_Simple/simpleAssert_nvrtc/simpleAssert_kernel.cu 0_Simple/simpleAssert_nvrtc/simpleAssert.cpp">
+  <use name="cuda-nvrtc"/>
+</bin>
+<bin name="cudaSimpleAtomicIntrinsics" file="0_Simple/simpleAtomicIntrinsics/simpleAtomicIntrinsics_cpu.cpp 0_Simple/simpleAtomicIntrinsics/simpleAtomicIntrinsics.cu"/>
+<bin name="cudaSimpleAtomicIntrinsics_nvrtc" file="0_Simple/simpleAtomicIntrinsics_nvrtc/simpleAtomicIntrinsics_cpu.cpp 0_Simple/simpleAtomicIntrinsics_nvrtc/simpleAtomicIntrinsics.cpp">
+  <use name="cuda-nvrtc"/>
+</bin>
+<bin name="cudaSimpleCallback" file="0_Simple/simpleCallback/simpleCallback.cu 0_Simple/simpleCallback/multithreading.cpp"/>
+<bin name="cudaSimpleCooperativeGroups" file="0_Simple/simpleCooperativeGroups/simpleCooperativeGroups.cu"/>
+<bin name="cudaSimpleCubemapTexture" file="0_Simple/simpleCubemapTexture/simpleCubemapTexture.cu"/>
+<bin name="cudaSimpleIPC" file="0_Simple/simpleIPC/simpleIPC.cu"/>
+<bin name="cudaSimpleLayeredTexture" file="0_Simple/simpleLayeredTexture/simpleLayeredTexture.cu"/>
+<bin name="cudaSimpleMPI" file="0_Simple/simpleMPI/simpleMPI_main.cpp 0_Simple/simpleMPI/simpleMPI.cu">
+  <use name="openmpi"/>
+</bin>
+<bin name="cudaSimpleMultiCopy" file="0_Simple/simpleMultiCopy/simpleMultiCopy.cu"/>
+<bin name="cudaSimpleMultiGPU" file="0_Simple/simpleMultiGPU/simpleMultiGPU.cu"/>
+<bin name="cudaSimpleOccupancy" file="0_Simple/simpleOccupancy/simpleOccupancy.cu"/>
+<bin name="cudaSimpleP2P" file="0_Simple/simpleP2P/simpleP2P.cu"/>
+<bin name="cudaSimplePitchLinearTexture" file="0_Simple/simplePitchLinearTexture/simplePitchLinearTexture.cu"/>
+<bin name="cudaSimplePrintf" file="0_Simple/simplePrintf/simplePrintf.cu"/>
+<bin name="cudaSimpleSeparateCompilation" file="0_Simple/simpleSeparateCompilation/simpleDeviceLibrary.cu 0_Simple/simpleSeparateCompilation/simpleSeparateCompilation.cu"/>
+<bin name="cudaSimpleStreams" file="0_Simple/simpleStreams/simpleStreams.cu"/>
+<bin name="cudaSimpleSurfaceWrite" file="0_Simple/simpleSurfaceWrite/simpleSurfaceWrite.cu"/>
+<bin name="cudaSimpleTemplates" file="0_Simple/simpleTemplates/simpleTemplates.cu"/>
+<bin name="cudaSimpleTemplates_nvrtc" file="0_Simple/simpleTemplates_nvrtc/simpleTemplates_kernel.cu 0_Simple/simpleTemplates_nvrtc/simpleTemplates.cpp">
+  <use name="cuda-nvrtc"/>
+</bin>
+<bin name="cudaSimpleTexture" file="0_Simple/simpleTexture/simpleTexture.cu"/>
+<bin name="cudaSimpleTextureDrv" file="0_Simple/simpleTextureDrv/simpleTextureDrv.cpp 0_Simple/simpleTextureDrv/simpleTexture_kernel.cu"/>
+<bin name="cudaSimpleVoteIntrinsics" file="0_Simple/simpleVoteIntrinsics/simpleVoteIntrinsics.cu"/>
+<bin name="cudaSimpleVoteIntrinsics_nvrtc" file="0_Simple/simpleVoteIntrinsics_nvrtc/simpleVoteIntrinsics.cpp">
+  <use name="cuda-nvrtc"/>
+</bin>
+<bin name="cudaSimpleZeroCopy" file="0_Simple/simpleZeroCopy/simpleZeroCopy.cu"/>
+<bin name="cudaSystemWideAtomics" file="0_Simple/systemWideAtomics/systemWideAtomics.cu">
+  <!-- system-wide atomics require CUDA compute 6.0 or higher -->
+  <flags REM_CUDA_FLAGS="-gencode arch=compute_%"/>
+  <flags CUDA_FLAGS="-gencode arch=compute_61,code=sm_61"/>
+</bin>
+<bin name="cudaTemplate" file="0_Simple/template/template.cu 0_Simple/template/template_cpu.cpp"/>
+<bin name="cudaVectorAdd" file="0_Simple/vectorAdd/vectorAdd.cu"/>
+<bin name="cudaVectorAddDrv" file="0_Simple/vectorAddDrv/vectorAddDrv.cpp 0_Simple/vectorAddDrv/vectorAdd_kernel.cu"/>
+<bin name="cudaVectorAdd_nvrtc" file="0_Simple/vectorAdd_nvrtc/vectorAdd.cpp 0_Simple/vectorAdd_nvrtc/vectorAdd_kernel.cu">
+  <use name="cuda-nvrtc"/>
+</bin>
+
+<!-- 1_Utilities -->
+<bin name="cudaBandwidthTest" file="1_Utilities/bandwidthTest/bandwidthTest.cu"/>
+<bin name="cudaDeviceQuery" file="1_Utilities/deviceQuery/deviceQuery.cpp"/>
+<bin name="cudaDeviceQueryDrv" file="1_Utilities/deviceQueryDrv/deviceQueryDrv.cpp"/>
+<bin name="cudaP2pBandwidthLatencyTest" file="1_Utilities/p2pBandwidthLatencyTest/p2pBandwidthLatencyTest.cu"/>
+<bin name="cudaTopologyQuery" file="1_Utilities/topologyQuery/topologyQuery.cu"/>
+
+<!-- 2_Graphics -->
+<!-- these use OpenGL/EGL
+<bin name="cudaMandelbrot" file="2_Graphics/Mandelbrot/Mandelbrot_gold.cpp 2_Graphics/Mandelbrot/Mandelbrot_cuda.cu 2_Graphics/Mandelbrot/Mandelbrot.cpp"/>
+<bin name="cudaBindlessTexture" file="2_Graphics/bindlessTexture/bindlessTexture_kernel.cu 2_Graphics/bindlessTexture/bindlessTexture.cpp"/>
+<bin name="cudaMarchingCubes" file="2_Graphics/marchingCubes/marchingCubes.cpp 2_Graphics/marchingCubes/marchingCubes_kernel.cu"/>
+<bin name="cudaSimpleGL" file="2_Graphics/simpleGL/simpleGL.cu"/>
+<bin name="cudaSimpleGLES" file="2_Graphics/simpleGLES/graphics_interface.c 2_Graphics/simpleGLES/simpleGLES.cu"/>
+<bin name="cudaSimpleGLES_EGLOutput" file="2_Graphics/simpleGLES_EGLOutput/graphics_interface_egloutput_via_egl.c 2_Graphics/simpleGLES_EGLOutput/simpleGLES_EGLOutput.cu"/>
+<bin name="cudaSimpleGLES_screen" file="2_Graphics/simpleGLES_screen/simpleGLES_screen.cu 2_Graphics/simpleGLES_screen/graphics_interface.c"/>
+<bin name="cudaSimpleTexture3D" file="2_Graphics/simpleTexture3D/simpleTexture3D_kernel.cu 2_Graphics/simpleTexture3D/simpleTexture3D.cpp"/>
+<bin name="cudaVolumeFiltering" file="2_Graphics/volumeFiltering/volume.cpp 2_Graphics/volumeFiltering/volumeFilter_kernel.cu 2_Graphics/volumeFiltering/volumeRender_kernel.cu 2_Graphics/volumeFiltering/volumeFiltering.cpp"/>
+<bin name="cudaVolumeRender" file="2_Graphics/volumeRender/volumeRender.cpp 2_Graphics/volumeRender/volumeRender_kernel.cu"/>
+-->
+
+<!-- 3_Imaging -->
+<!-- these use OpenGL/EGL
+<bin name="cudaEGLStream_CUDA_CrossGPU" file="3_Imaging/EGLStream_CUDA_CrossGPU/eglstrm_common.c 3_Imaging/EGLStream_CUDA_CrossGPU/cuda_producer.c 3_Imaging/EGLStream_CUDA_CrossGPU/cuda_consumer.c 3_Imaging/EGLStream_CUDA_CrossGPU/kernel.cu 3_Imaging/EGLStream_CUDA_CrossGPU/main.c"/>
+<bin name="cudaEGLStreams_CUDA_Interop" file="3_Imaging/EGLStreams_CUDA_Interop/cuda_producer.cpp 3_Imaging/EGLStreams_CUDA_Interop/main.cpp 3_Imaging/EGLStreams_CUDA_Interop/cuda_consumer.cpp 3_Imaging/EGLStreams_CUDA_Interop/eglstrm_common.cpp"/>
+-->
+<bin name="cudaHSOpticalFlow" file="3_Imaging/HSOpticalFlow/flowCUDA.cu 3_Imaging/HSOpticalFlow/main.cpp 3_Imaging/HSOpticalFlow/flowGold.cpp"/>
+<!-- these use OpenGL/EGL
+<bin name="cudaSobelFilter" file="3_Imaging/SobelFilter/SobelFilter.cpp 3_Imaging/SobelFilter/SobelFilter_kernels.cu"/>
+<bin name="cudaBicubicTexture" file="3_Imaging/bicubicTexture/bicubicTexture_cuda.cu 3_Imaging/bicubicTexture/bicubicTexture.cpp"/>
+<bin name="cudaBilateralFilter" file="3_Imaging/bilateralFilter/bilateral_kernel.cu 3_Imaging/bilateralFilter/bilateralFilter_cpu.cpp 3_Imaging/bilateralFilter/bmploader.cpp 3_Imaging/bilateralFilter/bilateralFilter.cpp"/>
+<bin name="cudaBoxFilter" file="3_Imaging/boxFilter/boxFilter_kernel.cu 3_Imaging/boxFilter/boxFilter_cpu.cpp 3_Imaging/boxFilter/boxFilter.cpp"/>
+<bin name="cudaConvolutionFFT2D" file="3_Imaging/convolutionFFT2D/convolutionFFT2D.cu 3_Imaging/convolutionFFT2D/main.cpp 3_Imaging/convolutionFFT2D/convolutionFFT2D_gold.cpp"/>
+-->
+<bin name="cudaConvolutionSeparable" file="3_Imaging/convolutionSeparable/convolutionSeparable_gold.cpp 3_Imaging/convolutionSeparable/main.cpp 3_Imaging/convolutionSeparable/convolutionSeparable.cu"/>
+<bin name="cudaConvolutionTexture" file="3_Imaging/convolutionTexture/convolutionTexture.cu 3_Imaging/convolutionTexture/main.cpp 3_Imaging/convolutionTexture/convolutionTexture_gold.cpp"/>
+<!-- this uses OpenGL/EGL
+<bin name="cudaDecodeGL" file="3_Imaging/cudaDecodeGL/NV12ToARGB_drvapi.cu 3_Imaging/cudaDecodeGL/videoDecodeGL.cpp 3_Imaging/cudaDecodeGL/dynlink_cuda.cpp 3_Imaging/cudaDecodeGL/cudaModuleMgr.cpp 3_Imaging/cudaDecodeGL/VideoDecoder.cpp 3_Imaging/cudaDecodeGL/dynlink_nvcuvid.cpp 3_Imaging/cudaDecodeGL/cudaProcessFrame.cpp 3_Imaging/cudaDecodeGL/VideoSource.cpp 3_Imaging/cudaDecodeGL/VideoParser.cpp 3_Imaging/cudaDecodeGL/FrameQueue.cpp 3_Imaging/cudaDecodeGL/ImageGL.cpp"/>
+-->
+<bin name="cudaDct8x8" file="3_Imaging/dct8x8/BmpUtil.cpp 3_Imaging/dct8x8/dct8x8.cu 3_Imaging/dct8x8/DCT8x8_Gold.cpp"/>
+<bin name="cudaDwtHaar1D" file="3_Imaging/dwtHaar1D/dwtHaar1D.cu"/>
+<bin name="cudaDxtc" file="3_Imaging/dxtc/dxtc.cu"/>
+<bin name="cudaHistogram" file="3_Imaging/histogram/histogram_gold.cpp 3_Imaging/histogram/histogram64.cu 3_Imaging/histogram/main.cpp 3_Imaging/histogram/histogram256.cu"/>
+<!-- these use OpenGL/EGL
+<bin name="cudaImageDenoising" file="3_Imaging/imageDenoising/imageDenoising.cu 3_Imaging/imageDenoising/imageDenoisingGL.cpp 3_Imaging/imageDenoising/bmploader.cpp"/>
+<bin name="cudaPostProcessGL" file="3_Imaging/postProcessGL/main.cpp 3_Imaging/postProcessGL/postProcessGL.cu"/>
+<bin name="cudaRecursiveGaussian" file="3_Imaging/recursiveGaussian/recursiveGaussian_cuda.cu 3_Imaging/recursiveGaussian/recursiveGaussian.cpp"/>
+<bin name="cudaSimpleCUDA2GL" file="3_Imaging/simpleCUDA2GL/simpleCUDA2GL.cu 3_Imaging/simpleCUDA2GL/main.cpp"/>
+-->
+<bin name="cudaStereoDisparity" file="3_Imaging/stereoDisparity/stereoDisparity.cu"/>
+
+<!-- 4_Finance -->
+<bin name="cudaBlackScholes" file="4_Finance/BlackScholes/BlackScholes_gold.cpp 4_Finance/BlackScholes/BlackScholes.cu"/>
+<bin name="cudaBlackScholes_nvrtc" file="4_Finance/BlackScholes_nvrtc/BlackScholes.cpp 4_Finance/BlackScholes_nvrtc/BlackScholes_gold.cpp">
+  <use name="cuda-nvrtc"/>
+</bin>
+<bin name="cudaMonteCarloMultiGPU" file="4_Finance/MonteCarloMultiGPU/multithreading.cpp 4_Finance/MonteCarloMultiGPU/MonteCarlo_kernel.cu 4_Finance/MonteCarloMultiGPU/MonteCarloMultiGPU.cpp 4_Finance/MonteCarloMultiGPU/MonteCarlo_gold.cpp">
+  <use name="cuda-curand"/>
+</bin>
+<bin name="cudaSobolQRNG" file="4_Finance/SobolQRNG/sobol_primitives.cpp 4_Finance/SobolQRNG/sobol_gpu.cu 4_Finance/SobolQRNG/sobol_gold.cpp 4_Finance/SobolQRNG/sobol.cpp"/>
+<bin name="cudaBinomialOptions" file="4_Finance/binomialOptions/binomialOptions_kernel.cu 4_Finance/binomialOptions/binomialOptions.cpp 4_Finance/binomialOptions/binomialOptions_gold.cpp"/>
+<bin name="cudaBinomialOptions_nvrtc" file="4_Finance/binomialOptions_nvrtc/binomialOptions_kernel.cu 4_Finance/binomialOptions_nvrtc/binomialOptions_gpu.cpp 4_Finance/binomialOptions_nvrtc/binomialOptions.cpp 4_Finance/binomialOptions_nvrtc/binomialOptions_gold.cpp">
+  <use name="cuda-nvrtc"/>
+</bin>
+<bin name="cudaQuasirandomGenerator" file="4_Finance/quasirandomGenerator/quasirandomGenerator_kernel.cu 4_Finance/quasirandomGenerator/quasirandomGenerator_gold.cpp 4_Finance/quasirandomGenerator/quasirandomGenerator.cpp"/>
+<bin name="cudaQuasirandomGenerator_nvrtc" file="4_Finance/quasirandomGenerator_nvrtc/quasirandomGenerator_kernel.cu 4_Finance/quasirandomGenerator_nvrtc/quasirandomGenerator_gold.cpp 4_Finance/quasirandomGenerator_nvrtc/quasirandomGenerator.cpp">
+  <use name="cuda-nvrtc"/>
+</bin>
+
+<!-- 5_Simulations -->
+<!-- these use OpenGL/EGL
+<bin name="cudaFluidsGL" file="5_Simulations/fluidsGL/fluidsGL.cpp 5_Simulations/fluidsGL/fluidsGL_kernels.cu"/>
+<bin name="cudaFluidsGLES" file="5_Simulations/fluidsGLES/fluidsGLES_kernels.cu 5_Simulations/fluidsGLES/fluidsGLES.cpp"/>
+<bin name="cudaNbody" file="5_Simulations/nbody/bodysystemcuda.cu 5_Simulations/nbody/render_particles.cpp 5_Simulations/nbody/nbody.cpp"/>
+<bin name="cudaNbody_opengles" file="5_Simulations/nbody_opengles/bodysystemcuda.cu 5_Simulations/nbody_opengles/nbody_opengles.cpp 5_Simulations/nbody_opengles/render_particles.cpp"/>
+<bin name="cudaNbody_screen" file="5_Simulations/nbody_screen/bodysystemcuda.cu 5_Simulations/nbody_screen/nbody_screen.cpp 5_Simulations/nbody_screen/render_particles.cpp"/>
+<bin name="cudaOceanFFT" file="5_Simulations/oceanFFT/oceanFFT_kernel.cu 5_Simulations/oceanFFT/oceanFFT.cpp"/>
+<bin name="cudaParticles" file="5_Simulations/particles/particleSystem_cuda.cu 5_Simulations/particles/particleSystem.cpp 5_Simulations/particles/shaders.cpp 5_Simulations/particles/render_particles.cpp 5_Simulations/particles/particles.cpp"/>
+<bin name="cudaSmokeParticles" file="5_Simulations/smokeParticles/ParticleSystem.cpp 5_Simulations/smokeParticles/GLSLProgram.cpp 5_Simulations/smokeParticles/SmokeShaders.cpp 5_Simulations/smokeParticles/framebufferObject.cpp 5_Simulations/smokeParticles/renderbuffer.cpp 5_Simulations/smokeParticles/ParticleSystem_cuda.cu 5_Simulations/smokeParticles/particleDemo.cpp 5_Simulations/smokeParticles/SmokeRenderer.cpp"/>
+-->
+
+<!-- 6_Advanced -->
+<bin name="cudaFDTD3d" file="6_Advanced/FDTD3d/src/FDTD3dGPU.cu 6_Advanced/FDTD3d/src/FDTD3d.cpp 6_Advanced/FDTD3d/src/FDTD3dReference.cpp"/>
+<!-- this uses OpenGL/EGL
+<bin name="cudaFunctionPointers" file="6_Advanced/FunctionPointers/FunctionPointers.cpp 6_Advanced/FunctionPointers/FunctionPointers_kernels.cu"/>
+-->
+<bin name="cudaStreamPriorities" file="6_Advanced/StreamPriorities/StreamPriorities.cu"/>
+<bin name="cudaAlignedTypes" file="6_Advanced/alignedTypes/alignedTypes.cu"/>
+<bin name="cudaC++11_cuda" file="6_Advanced/c++11_cuda/c++11_cuda.cu"/>
+<bin name="cudaCdpAdvancedQuicksort" file="6_Advanced/cdpAdvancedQuicksort/cdpBitonicSort.cu 6_Advanced/cdpAdvancedQuicksort/cdpAdvancedQuicksort.cu"/>
+<bin name="cudaCdpBezierTessellation" file="6_Advanced/cdpBezierTessellation/BezierLineCDP.cu"/>
+<bin name="cudaCdpLUDecomposition" file="6_Advanced/cdpLUDecomposition/cdp_lu.cu 6_Advanced/cdpLUDecomposition/cdp_lu_main.cu 6_Advanced/cdpLUDecomposition/dgetrf.cu 6_Advanced/cdpLUDecomposition/dgetf2.cu 6_Advanced/cdpLUDecomposition/dlaswp.cu">
+  <use name="cuda-cublas"/>
+</bin>
+<bin name="cudaCdpQuadtree" file="6_Advanced/cdpQuadtree/cdpQuadtree.cu"/>
+<bin name="cudaConcurrentKernels" file="6_Advanced/concurrentKernels/concurrentKernels.cu"/>
+<bin name="cudaConjugateGradientMultiBlockCG" file="6_Advanced/conjugateGradientMultiBlockCG/conjugateGradientMultiBlockCG.cu">
+  <!-- cooperative groups require CUDA compute 6.0 or higher -->
+  <flags REM_CUDA_FLAGS="-gencode arch=compute_%"/>
+  <flags CUDA_FLAGS="-gencode arch=compute_61,code=sm_61"/>
+</bin>
+<bin name="cudaEigenvalues" file="6_Advanced/eigenvalues/gerschgorin.cpp 6_Advanced/eigenvalues/bisect_small.cu 6_Advanced/eigenvalues/matlab.cpp 6_Advanced/eigenvalues/bisect_util.cu 6_Advanced/eigenvalues/main.cu 6_Advanced/eigenvalues/bisect_large.cu"/>
+<bin name="cudaFastWalshTransform" file="6_Advanced/fastWalshTransform/fastWalshTransform_gold.cpp 6_Advanced/fastWalshTransform/fastWalshTransform.cu"/>
+<!-- FIXME there seems to be a problem related to the -I include path
+<bin name="cudaInterval" file="6_Advanced/interval/interval.cu">
+  <use name="boost"/>
+</bin>
+-->
+<bin name="cudaLineOfSight" file="6_Advanced/lineOfSight/lineOfSight.cu"/>
+<bin name="cudaMatrixMulDynlinkJIT" file="6_Advanced/matrixMulDynlinkJIT/matrixMul_gold.cpp 6_Advanced/matrixMulDynlinkJIT/matrixMul_kernel_32_ptxdump.c 6_Advanced/matrixMulDynlinkJIT/matrixMul_kernel_64_ptxdump.c 6_Advanced/matrixMulDynlinkJIT/cuda_drvapi_dynlink.c 6_Advanced/matrixMulDynlinkJIT/matrixMulDynlinkJIT.cpp">
+  <flags LDFLAGS="-ldl"/>
+</bin>
+<bin name="cudaMergeSort" file="6_Advanced/mergeSort/mergeSort.cu 6_Advanced/mergeSort/mergeSort_host.cpp 6_Advanced/mergeSort/mergeSort_validate.cpp 6_Advanced/mergeSort/bitonic.cu 6_Advanced/mergeSort/main.cpp"/>
+<bin name="cudaNewdelete" file="6_Advanced/newdelete/newdelete.cu"/>
+<bin name="cudaPtxjit" file="6_Advanced/ptxjit/ptxjit.cpp"/>
+<bin name="cudaRadixSortThrust" file="6_Advanced/radixSortThrust/radixSortThrust.cu"/>
+<bin name="cudaReduction" file="6_Advanced/reduction/reduction_kernel.cu 6_Advanced/reduction/reduction.cpp"/>
+<bin name="cudaReductionMultiBlockCG" file="6_Advanced/reductionMultiBlockCG/reductionMultiBlockCG.cu">
+  <!-- cooperative groups require CUDA compute 6.0 or higher -->
+  <flags REM_CUDA_FLAGS="-gencode arch=compute_%"/>
+  <flags CUDA_FLAGS="-gencode arch=compute_61,code=sm_61"/>
+</bin>
+<bin name="cudaScalarProd" file="6_Advanced/scalarProd/scalarProd_cpu.cpp 6_Advanced/scalarProd/scalarProd.cu"/>
+<bin name="cudaScan" file="6_Advanced/scan/scan_gold.cpp 6_Advanced/scan/scan.cu 6_Advanced/scan/main.cpp"/>
+<bin name="cudaSegmentationTreeThrust" file="6_Advanced/segmentationTreeThrust/segmentationTree.cu"/>
+<bin name="cudaShfl_scan" file="6_Advanced/shfl_scan/shfl_scan.cu"/>
+<bin name="cudaSimpleHyperQ" file="6_Advanced/simpleHyperQ/simpleHyperQ.cu"/>
+<bin name="cudaSortingNetworks" file="6_Advanced/sortingNetworks/sortingNetworks_validate.cpp 6_Advanced/sortingNetworks/bitonicSort.cu 6_Advanced/sortingNetworks/main.cpp 6_Advanced/sortingNetworks/oddEvenMergeSort.cu"/>
+<bin name="cudaThreadFenceReduction" file="6_Advanced/threadFenceReduction/threadFenceReduction.cu"/>
+<bin name="cudaThreadMigration" file="6_Advanced/threadMigration/threadMigration_kernel.cu 6_Advanced/threadMigration/threadMigration.cpp"/>
+<bin name="cudaTranspose" file="6_Advanced/transpose/transpose.cu"/>
+<bin name="cudaWarpAggregatedAtomicsCG" file="6_Advanced/warpAggregatedAtomicsCG/warpAggregatedAtomicsCG.cu"/>
+
+<!-- 7_CUDALibraries -->
+<bin name="cudaBiCGStab" file="7_CUDALibraries/BiCGStab/mmio.c 7_CUDALibraries/BiCGStab/pbicgstab.cpp">
+  <use name="cuda-cublas"/>
+  <use name="cuda-cusparse"/>
+</bin>
+<!-- FIXME this uses 7_CUDALibraries/common
+<bin name="cudaFilterBorderControlNPP" file="7_CUDALibraries/FilterBorderControlNPP/FilterBorderControlNPP.cpp"/>
+-->
+<bin name="cudaMC_EstimatePiInlineP" file="7_CUDALibraries/MC_EstimatePiInlineP/src/piestimator.cu 7_CUDALibraries/MC_EstimatePiInlineP/src/test.cpp 7_CUDALibraries/MC_EstimatePiInlineP/src/main.cpp"/>
+<bin name="cudaMC_EstimatePiInlineQ" file="7_CUDALibraries/MC_EstimatePiInlineQ/src/piestimator.cu 7_CUDALibraries/MC_EstimatePiInlineQ/src/test.cpp 7_CUDALibraries/MC_EstimatePiInlineQ/src/main.cpp">
+  <use name="cuda-curand"/>
+</bin>
+<bin name="cudaMC_EstimatePiP" file="7_CUDALibraries/MC_EstimatePiP/src/piestimator.cu 7_CUDALibraries/MC_EstimatePiP/src/test.cpp 7_CUDALibraries/MC_EstimatePiP/src/main.cpp">
+  <use name="cuda-curand"/>
+</bin>
+<bin name="cudaMC_EstimatePiQ" file="7_CUDALibraries/MC_EstimatePiQ/src/piestimator.cu 7_CUDALibraries/MC_EstimatePiQ/src/test.cpp 7_CUDALibraries/MC_EstimatePiQ/src/main.cpp">
+  <use name="cuda-curand"/>
+</bin>
+<bin name="cudaMC_SingleAsianOptionP" file="7_CUDALibraries/MC_SingleAsianOptionP/src/pricingengine.cu 7_CUDALibraries/MC_SingleAsianOptionP/src/test.cpp 7_CUDALibraries/MC_SingleAsianOptionP/src/main.cpp"/>
+<bin name="cudaMersenneTwisterGP11213" file="7_CUDALibraries/MersenneTwisterGP11213/MersenneTwister.cpp">
+  <use name="cuda-curand"/>
+</bin>
+<bin name="cudaBatchCUBLAS" file="7_CUDALibraries/batchCUBLAS/batchCUBLAS.cpp">
+  <use name="cuda-cublas"/>
+</bin>
+<!-- FIXME these use 7_CUDALibraries/common
+<bin name="cudaBoxFilterNPP" file="7_CUDALibraries/boxFilterNPP/boxFilterNPP.cpp"/>
+<bin name="cudaCannyEdgeDetectorNPP" file="7_CUDALibraries/cannyEdgeDetectorNPP/cannyEdgeDetectorNPP.cpp"/>
+-->
+<bin name="cudaConjugateGradient" file="7_CUDALibraries/conjugateGradient/main.cpp">
+  <use name="cuda-cublas"/>
+  <use name="cuda-cusparse"/>
+</bin>
+<bin name="cudaConjugateGradientPrecond" file="7_CUDALibraries/conjugateGradientPrecond/main.cpp">
+  <use name="cuda-cublas"/>
+  <use name="cuda-cusparse"/>
+</bin>
+<bin name="cudaConjugateGradientUM" file="7_CUDALibraries/conjugateGradientUM/main.cpp">
+  <use name="cuda-cublas"/>
+  <use name="cuda-cusparse"/>
+</bin>
+<bin name="cudaCuHook" file="7_CUDALibraries/cuHook/cuHook.cpp 7_CUDALibraries/cuHook/libcuhook.cpp">
+  <flags LDFLAGS="-ldl"/>
+</bin>
+<bin name="cudaCuSolverDn_LinearSolver" file="7_CUDALibraries/cuSolverDn_LinearSolver/mmio.c 7_CUDALibraries/cuSolverDn_LinearSolver/cuSolverDn_LinearSolver.cpp 7_CUDALibraries/cuSolverDn_LinearSolver/mmio_wrapper.cpp">
+  <use name="cuda-cublas"/>
+  <use name="cuda-cusolver"/>
+  <use name="cuda-cusparse"/>
+</bin>
+<bin name="cudaCuSolverRf" file="7_CUDALibraries/cuSolverRf/mmio.c 7_CUDALibraries/cuSolverRf/cuSolverRf.cpp 7_CUDALibraries/cuSolverRf/mmio_wrapper.cpp">
+  <use name="cuda-cusolver"/>
+  <use name="cuda-cusparse"/>
+</bin>
+<bin name="cudaCuSolverSp_LinearSolver" file="7_CUDALibraries/cuSolverSp_LinearSolver/mmio.c 7_CUDALibraries/cuSolverSp_LinearSolver/cuSolverSp_LinearSolver.cpp 7_CUDALibraries/cuSolverSp_LinearSolver/mmio_wrapper.cpp">
+  <use name="cuda-cusolver"/>
+  <use name="cuda-cusparse"/>
+</bin>
+<bin name="cudaCuSolverSp_LowlevelCholesky" file="7_CUDALibraries/cuSolverSp_LowlevelCholesky/cuSolverSp_LowlevelCholesky.cpp 7_CUDALibraries/cuSolverSp_LowlevelCholesky/mmio.c 7_CUDALibraries/cuSolverSp_LowlevelCholesky/mmio_wrapper.cpp">
+  <use name="cuda-cusolver"/>
+  <use name="cuda-cusparse"/>
+</bin>
+<bin name="cudaCuSolverSp_LowlevelQR" file="7_CUDALibraries/cuSolverSp_LowlevelQR/cuSolverSp_LowlevelQR.cpp 7_CUDALibraries/cuSolverSp_LowlevelQR/mmio.c 7_CUDALibraries/cuSolverSp_LowlevelQR/mmio_wrapper.cpp">
+  <use name="cuda-cusolver"/>
+  <use name="cuda-cusparse"/>
+</bin>
+<!-- FIXME these use 7_CUDALibraries/common
+<bin name="cudaFreeImageInteropNPP" file="7_CUDALibraries/freeImageInteropNPP/freeImageInteropNPP.cpp"/>
+<bin name="cudaHistEqualizationNPP" file="7_CUDALibraries/histEqualizationNPP/histEqualizationNPP.cpp"/>
+<bin name="cudaJpegNPP" file="7_CUDALibraries/jpegNPP/jpegNPP.cpp"/>
+-->
+<bin name="cudaNvgraph_Pagerank" file="7_CUDALibraries/nvgraph_Pagerank/nvgraph_Pagerank.cpp">
+  <use name="cuda-nvgraph"/>
+</bin>
+<bin name="cudaNvgraph_SSSP" file="7_CUDALibraries/nvgraph_SSSP/nvgraph_SSSP.cpp">
+  <use name="cuda-nvgraph"/>
+</bin>
+<bin name="cudaNvgraph_SemiRingSpMV" file="7_CUDALibraries/nvgraph_SemiRingSpMV/nvgraph_SemiRingSpMV.cpp">
+  <use name="cuda-nvgraph"/>
+</bin>
+<bin name="cudaNvgraph_SpectralClustering" file="7_CUDALibraries/nvgraph_SpectralClustering/nvgraph_SpectralClustering.cpp">
+  <use name="cuda-nvgraph"/>
+</bin>
+<!-- this uses OpenGL/EGL
+<bin name="cudaRandomFog" file="7_CUDALibraries/randomFog/rng.cpp 7_CUDALibraries/randomFog/randomFog.cpp"/>
+-->
+<bin name="cudaSimpleCUBLAS" file="7_CUDALibraries/simpleCUBLAS/simpleCUBLAS.cpp">
+  <use name="cuda-cublas"/>
+</bin>
+<bin name="cudaSimpleCUBLASXT" file="7_CUDALibraries/simpleCUBLASXT/simpleCUBLASXT.cpp">
+  <use name="cuda-cublas"/>
+</bin>
+<bin name="cudaSimpleCUFFT" file="7_CUDALibraries/simpleCUFFT/simpleCUFFT.cu">
+  <use name="cuda-cufft"/>
+</bin>
+<bin name="cudaSimpleCUFFT_2d_MGPU" file="7_CUDALibraries/simpleCUFFT_2d_MGPU/simpleCUFFT_2d_MGPU.cu">
+  <use name="cuda-cufft"/>
+</bin>
+<bin name="cudaSimpleCUFFT_MGPU" file="7_CUDALibraries/simpleCUFFT_MGPU/simpleCUFFT_MGPU.cu">
+  <use name="cuda-cufft"/>
+</bin>
+<bin name="cudaSimpleCUFFT_callback" file="7_CUDALibraries/simpleCUFFT_callback/simpleCUFFT_callback.cu">
+  <use name="cuda-cufft"/>
+</bin>
+<bin name="cudaSimpleDevLibCUBLAS" file="7_CUDALibraries/simpleDevLibCUBLAS/kernels.cu 7_CUDALibraries/simpleDevLibCUBLAS/simpleDevLibCUBLAS.cpp">
+  <use name="cuda-cublas"/>
+</bin>

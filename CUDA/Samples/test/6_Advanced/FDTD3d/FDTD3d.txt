@@ -1,0 +1,49 @@
+d:\sw\devrel\SDK10\Compute\C\bin\win64\Release\FDTD3d.exe Starting...
+
+Set-up, based upon target device GMEM size...
+ getTargetDeviceGlobalMemSize
+ cudaGetDeviceCount
+ cudaGetDeviceProperties
+ calloc host_output
+ malloc input
+ malloc coeff
+ generateRandomData
+
+FDTD on 376 x 376 x 376 volume with symmetric filter radius 4 for 5 timesteps...
+
+fdtdReference...
+ calloc intermediate
+ Host FDTD loop
+	t = 0
+	t = 1
+	t = 2
+	t = 3
+	t = 4
+
+fdtdReference complete
+ calloc device_output
+fdtdGPU...
+ cudaGetDeviceCount
+ cudaSetDevice (device 0)
+ cudaMalloc bufferOut
+ cudaMalloc bufferIn
+ cudaFuncGetAttributes
+ set block size to 32x16
+ set grid size to 12x24
+ cudaMemcpy (HostToDevice) bufferIn
+ cudaMemcpy (HostToDevice) bufferOut
+ cudaMemcpyToSymbol (HostToDevice) stencil
+ GPU FDTD loop
+	t = 0 launch kernel
+	t = 1 launch kernel
+	t = 2 launch kernel
+	t = 3 launch kernel
+	t = 4 launch kernel
+
+ cutilDeviceSynchronize
+ cudaMemcpy (DeviceToHost)
+
+ cutilDeviceReset
+fdtdGPU complete
+
+CompareData (tolerance 0.000100)...
