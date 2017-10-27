@@ -27,16 +27,11 @@ void PhotonIDHelper::eventInit(const edm::Event& iEvent,const edm::EventSetup &i
     edm::Handle<HGCRecHitCollection> recHitHandleBH;
     iEvent.getByToken(recHitsBH_, recHitHandleBH);
 
-    pcaHelper_.fillHitMap(*recHitHandleEE,*recHitHandleFH,*recHitHandleBH);
-    isoHelper_.setHitMap(pcaHelper_.getHitMap());
     recHitTools_.getEventSetup(iSetup);
     pcaHelper_.setRecHitTools(&recHitTools_);
     isoHelper_.setRecHitTools(&recHitTools_);
-}
-
-void PhotonIDHelper::setRecHitTools(const hgcal::RecHitTools * recHitTools){
-    pcaHelper_.setRecHitTools(recHitTools);
-    isoHelper_.setRecHitTools(recHitTools);
+    pcaHelper_.fillHitMap(*recHitHandleEE,*recHitHandleFH,*recHitHandleBH);
+    isoHelper_.setRecHits(recHitHandleEE, recHitHandleFH, recHitHandleBH);
 }
 
 void PhotonIDHelper::computeHGCAL(const reco::Photon & thePhoton, float radius) {
