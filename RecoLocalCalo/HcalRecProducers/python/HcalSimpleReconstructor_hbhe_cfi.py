@@ -13,5 +13,11 @@ hbheprereco = cms.EDProducer("HcalSimpleReconstructor",
 )
 
 # special M0 settings
-hbheprereco.correctionPhaseNS = cms.double(13.0)
+
+#HPD Setting
+#hbheprereco.correctionPhaseNS = cms.double(13.0)
+
+#SiPM Setting
+hbheprereco.correctionPhaseNS = cms.double(6.7)
+
 hbheprereco.samplesToAdd = cms.int32(4)
