@@ -174,6 +174,23 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		hcaldqm::hashfunctions::fSubdetPM,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+	_cBadTDCValues_SubdetPM.initialize(_name, "BadTDCValues", 
+		hcaldqm::hashfunctions::fSubdetPM,
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBadTDC),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+	_cBadTDCvsBX_SubdetPM.initialize(_name, "BadTDCvsBX", 
+		hcaldqm::hashfunctions::fSubdetPM, 
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBX),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+	_cBadTDCvsLS_SubdetPM.initialize(_name, "BadTDCvsLS", 
+		hcaldqm::hashfunctions::fSubdetPM, 
+		new hcaldqm::quantity::LumiSection(_maxLS),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+	_cBadTDCCount_depth.initialize(_name, "BadTDCCount", 
+		hcaldqm::hashfunctions::fdepth,
+		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
+		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 
 	if (_ptype == fOnline || _ptype == fLocal) {
 		_cOccupancy_Crate.initialize(_name,
@@ -435,6 +452,10 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_cLETDCvsADC_SubdetPM.book(ib, _emap, _filter_HF, _subsystem);
 	_cLETDCvsTS_SubdetPM.book(ib, _emap, _filter_HF, _subsystem);
 	_cLETDCTime_SubdetPM.book(ib, _emap, _filter_HF, _subsystem);
+	_cBadTDCValues_SubdetPM.book(ib, _emap, _filter_HF, _subsystem);
+	_cBadTDCvsBX_SubdetPM.book(ib, _emap, _filter_HF, _subsystem);
+	_cBadTDCvsLS_SubdetPM.book(ib, _emap, _filter_HF, _subsystem);
+	_cBadTDCCount_depth	.book(ib, _emap, _filter_HF, _subsystem);
 
 	//	BOOK HISTOGRAMS that are only for Online
 	_ehashmap.initialize(_emap, electronicsmap::fD2EHashMap);
@@ -1030,6 +1051,14 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 						double time = i*25. + (digi[i].le_tdc() / 2.);
 						_cLETDCTime_SubdetPM.fill(did, time);
 						_cLETDCTimevsADC_SubdetPM.fill(did, digi[i].adc(), time);
+					}
+
+					// Bad TDC values: 50-61 should never happen in QIE10 or QIE11, but we are seeing some in 2017 data.
+					if ((50 <= digi[i].le_tdc()) && (digi[i].le_tdc() <= 61)) {
+						_cBadTDCValues_SubdetPM.fill(did, digi[i].le_tdc());
+						_cBadTDCvsBX_SubdetPM.fill(did, bx);
+						_cBadTDCvsLS_SubdetPM.fill(did, _currentLS);
+						_cBadTDCCount_depth.fill(did);
 					}
 				}
 

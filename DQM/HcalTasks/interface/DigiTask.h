@@ -164,6 +164,12 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::Container2D _cLETDCvsTS_SubdetPM;
 		hcaldqm::Container1D _cLETDCTime_SubdetPM;
 
+		// Bad TDC histograms
+		hcaldqm::Container1D _cBadTDCValues_SubdetPM;
+		hcaldqm::Container1D _cBadTDCvsBX_SubdetPM;
+		hcaldqm::Container1D _cBadTDCvsLS_SubdetPM;
+		hcaldqm::Container2D _cBadTDCCount_depth;
+
 		//	#events counters
 		MonitorElement *meNumEvents1LS; // to transfer the #events to harvesting
 		MonitorElement *meUnknownIds1LS;
