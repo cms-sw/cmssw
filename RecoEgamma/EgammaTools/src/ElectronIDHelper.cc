@@ -27,15 +27,11 @@ void ElectronIDHelper::eventInit(const edm::Event& iEvent,const edm::EventSetup 
     edm::Handle<HGCRecHitCollection> recHitHandleBH;
     iEvent.getByToken(recHitsBH_, recHitHandleBH);
 
-    pcaHelper_.fillHitMap(*recHitHandleEE,*recHitHandleFH,*recHitHandleBH);
-    isoHelper_.setHitMap(pcaHelper_.getHitMap());
     recHitTools_.getEventSetup(iSetup);
     pcaHelper_.setRecHitTools(&recHitTools_);
     isoHelper_.setRecHitTools(&recHitTools_);
-}
-
-void ElectronIDHelper::setRecHitTools(const hgcal::RecHitTools * recHitTools){
-    pcaHelper_.setRecHitTools(recHitTools);
+    pcaHelper_.fillHitMap(*recHitHandleEE,*recHitHandleFH,*recHitHandleBH);
+    isoHelper_.setRecHits(recHitHandleEE, recHitHandleFH, recHitHandleBH);
 }
 
 void ElectronIDHelper::computeHGCAL(const reco::GsfElectron & theElectron, float radius) {

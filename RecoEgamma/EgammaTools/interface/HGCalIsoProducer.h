@@ -60,12 +60,11 @@ public:
     void setNLayers(size_t nLayers){nlayers_=nLayers;}
 
     /// fill - once per event
-    void fillHitMap(const HGCRecHitCollection & rechitsEE,
-            const HGCRecHitCollection & rechitsFH,
-            const HGCRecHitCollection & rechitsBH);
-
-    /// to set from outside - once per event
-    void setHitMap(std::map<DetId, const HGCRecHit *> * hitmap);
+    void setRecHits(
+        edm::Handle<HGCRecHitCollection> hitsEE,
+        edm::Handle<HGCRecHitCollection> hitsFH,
+        edm::Handle<HGCRecHitCollection> hitsBH
+      );
 
     void produceHGCalIso(const reco::CaloClusterPtr & seedCluster);
 
@@ -78,8 +77,10 @@ private:
     float dr2_,mindr2_;
 
     const hgcal::RecHitTools* rechittools_;
-    std::map<DetId, const HGCRecHit *> * allHitMap_;
-    bool mapassigned_;
+    edm::Handle<HGCRecHitCollection> recHitsEE_;
+    edm::Handle<HGCRecHitCollection> recHitsFH_;
+    edm::Handle<HGCRecHitCollection> recHitsBH_;
+    std::vector<std::pair<float,float>> hitEtaPhiCache_;
     bool debug_;
     size_t nlayers_;
 };

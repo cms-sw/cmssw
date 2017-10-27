@@ -32,16 +32,9 @@ public:
     PhotonIDHelper(){;}
     PhotonIDHelper(const edm::ParameterSet &, edm::ConsumesCollector && iC);
     ~PhotonIDHelper(){;}
-    // Use either eventInit if you are not using the HGCAL ntupler or setHitMap and setRecHitTools
-    // to be run once per event
-    void eventInit(const edm::Event& iEvent,const edm::EventSetup &iSetup);
 
-    //  use these two setters from the HGCAL ntupler before doing anaything else
-    inline void setHitMap( std::map<DetId,const HGCRecHit *> * hitMap) {
-            pcaHelper_.setHitMap(hitMap);
-            isoHelper_.setHitMap(hitMap);
-    }
-    void setRecHitTools(const hgcal::RecHitTools * recHitTools);
+    // Use eventInit once per event
+    void eventInit(const edm::Event& iEvent,const edm::EventSetup &iSetup);
 
     void computeHGCAL(const reco::Photon & thePhoton, float radius);
 

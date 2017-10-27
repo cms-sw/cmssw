@@ -10,15 +10,39 @@
 #include "../interface/HGCalIsoProducer.h"
 
 HGCalIsoProducer::HGCalIsoProducer():dr2_(0.15*0.15),mindr2_(0),rechittools_(nullptr),debug_(false),nlayers_(30){
-
-    allHitMap_ = new std::map<DetId, const HGCRecHit *>();
-    mapassigned_=false;
     setNRings(5);
 }
 
 HGCalIsoProducer::~HGCalIsoProducer(){
-    if(!mapassigned_ &&allHitMap_)
-        delete allHitMap_;
+}
+
+void HGCalIsoProducer::setRecHits(
+        edm::Handle<HGCRecHitCollection> hitsEE,
+        edm::Handle<HGCRecHitCollection> hitsFH,
+        edm::Handle<HGCRecHitCollection> hitsBH
+     ){
+    recHitsEE_=hitsEE;
+    recHitsFH_=hitsFH;
+    recHitsBH_=hitsBH;
+
+    if(!rechittools_)
+        throw std::runtime_error("HGCalIsoProducer::produceHGCalIso: rechittools not set");
+    
+    hitEtaPhiCache_.clear();
+    hitEtaPhiCache_.reserve(recHitsEE_->size()+recHitsFH_->size()+recHitsBH_->size());
+
+    // Since HGCal is not projective and the rechits don't cache any
+    // eta,phi, we make our own here
+    auto makeEtaPhiPair = [this](const auto& hit) {
+        const GlobalPoint position = rechittools_->getPosition(hit.id());
+        float eta=rechittools_->getEta(position, 0); //assume vertex at z=0
+        float phi=rechittools_->getPhi(position);
+        return std::make_pair(eta, phi);
+    };
+
+    for(const auto& hit : *recHitsEE_) hitEtaPhiCache_.push_back(makeEtaPhiPair(hit));
+    for(const auto& hit : *recHitsFH_) hitEtaPhiCache_.push_back(makeEtaPhiPair(hit));
+    for(const auto& hit : *recHitsBH_) hitEtaPhiCache_.push_back(makeEtaPhiPair(hit));
 }
 
 void HGCalIsoProducer::produceHGCalIso(const reco::CaloClusterPtr & seed){
@@ -29,32 +53,40 @@ void HGCalIsoProducer::produceHGCalIso(const reco::CaloClusterPtr & seed){
     for(auto& r:isoringdeposits_)
         r=0;
 
+    // compiler couldn't figure out seed is const and
+    // recomputed log(atan2()) every time...
+    const float seedEta=seed->eta();
+    const float seedPhi=seed->phi();
+    const std::vector<std::pair<DetId, float>> & seedhitmap= seed->hitsAndFractions();
 
-    //this could be replaced by the hit map created by storeRecHits in PCAhelpers
-    std::vector<DetId>seedhits;
-    const std::vector<std::pair<DetId,float > > & seedhitmap= seed->hitsAndFractions();
-    for(const auto& h:seedhitmap)
-        seedhits.push_back(h.first);
+    auto checkAndFill = [this, &seedEta, &seedPhi, &seedhitmap](const HGCRecHit& hit, std::pair<float,float> etaphiVal) {
+        float deltar2=reco::deltaR2(etaphiVal.first,etaphiVal.second,seedEta,seedPhi);
+        if(deltar2>dr2_ || deltar2<mindr2_) return;
 
-    for(const auto& hit: *allHitMap_) {
-
-        const GlobalPoint position = rechittools_->getPosition(hit.first);
-        float eta=rechittools_->getEta(position, 0);//assume vertex at z=0
-        float phi=rechittools_->getPhi(position);
-
-        float deltar2=reco::deltaR2(eta,phi,seed->eta(),seed->phi());
-
-        if(deltar2>dr2_ || deltar2<mindr2_) continue;
-
-        size_t layer=rechittools_->getLayerWithOffset(hit.first);
-        if(layer>=nlayers_) continue;
+        size_t layer=rechittools_->getLayerWithOffset(hit.id());
+        if(layer>=nlayers_) return;
 
         const size_t& ring=ringasso_.at(layer);
 
         //do not consider hits associated to the photon cluster
-        if(std::find(seedhits.begin(),seedhits.end(),hit.first)==seedhits.end()){
-            isoringdeposits_.at(ring)+=hit.second->energy();
+        if( std::none_of(seedhitmap.begin(), seedhitmap.end(), [&hit](const auto& seedhit){return hit.id()==seedhit.first;}) ){
+            isoringdeposits_.at(ring)+=hit.energy();
         }
+    };
+
+    // The cache order is EE,FH,BH, so we should loop over them the same here
+    auto itEtaPhiCache = hitEtaPhiCache_.cbegin();
+    for(const auto& hit : *recHitsEE_){
+      checkAndFill(hit, *itEtaPhiCache);
+      itEtaPhiCache++;
+    }
+    for(const auto& hit : *recHitsFH_){
+      checkAndFill(hit, *itEtaPhiCache);
+      itEtaPhiCache++;
+    }
+    for(const auto& hit : *recHitsBH_){
+      checkAndFill(hit, *itEtaPhiCache);
+      itEtaPhiCache++;
     }
 }
 
@@ -74,44 +106,6 @@ void HGCalIsoProducer::setNRings(const size_t nrings){
         }
     }
     isoringdeposits_.resize(nrings,0);
-}
-
-//copied from electronIDProducer - can be merged
-void HGCalIsoProducer::fillHitMap(const HGCRecHitCollection & rechitsEE,
-                                 const HGCRecHitCollection & rechitsFH,
-                                 const HGCRecHitCollection & rechitsBH) {
-    allHitMap_->clear();
-    unsigned hitsize = rechitsEE.size();
-    for ( unsigned i=0; i< hitsize ; ++i) {
-        (*allHitMap_)[rechitsEE[i].detid()] = & rechitsEE[i];
-    }
-
-    if (debug_)
-        std::cout << " EE " << hitsize << " RecHits " << std::endl;
-    hitsize = rechitsFH.size();
-    for ( unsigned i=0; i< hitsize ; ++i) {
-        (*allHitMap_)[rechitsFH[i].detid()] = & rechitsFH[i];
-    }
-    if (debug_)
-        std::cout << " FH " << hitsize << " RecHits " << std::endl;
-    hitsize = rechitsBH.size();
-    for ( unsigned i=0; i< hitsize ; ++i) {
-        (*allHitMap_)[rechitsBH[i].detid()] = & rechitsBH[i];
-    }
-    if (debug_)
-        std::cout << " BH " << hitsize << " RecHits " << std::endl;
-    if( debug_)
-        std::cout << " Stored " << allHitMap_->size() << " rechits " << std::endl;
-
-}
-
-
-
-void HGCalIsoProducer::setHitMap(std::map<DetId, const HGCRecHit *> * hitmap){
-    if(!mapassigned_ && allHitMap_)
-        delete allHitMap_;
-    mapassigned_=true;
-    allHitMap_=hitmap;
 }
 
 const float& HGCalIsoProducer::getIso(const size_t& ring)const{
