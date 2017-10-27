@@ -71,8 +71,8 @@ private:
                        float, float, float, Shape&);
   void computeHFShape();
   void computeSiPMShapeHO();
-  template <class Y11Func>
-  void computeSiPMShapeHE(Y11Func,Shape);
+  void computeSiPMShapeHE203();
+  void computeSiPMShapeHE206();
   void computeSiPMShapeData2017();
   Shape hpdShape_, hfShape_, siPMShapeHO_;
   Shape siPMShapeMC2017_, siPMShapeData2017_;
