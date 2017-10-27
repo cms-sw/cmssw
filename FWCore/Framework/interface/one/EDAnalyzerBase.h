@@ -63,6 +63,9 @@ namespace edm {
       // Warning: the returned moduleDescription will be invalid during construction
       ModuleDescription const& moduleDescription() const { return moduleDescription_; }
 
+      virtual bool wantsGlobalRuns() const =0;
+      virtual bool wantsGlobalLuminosityBlocks() const =0;
+
       void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func);
 
     private:

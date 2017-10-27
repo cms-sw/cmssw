@@ -81,6 +81,9 @@ namespace edm {
     static const std::string& baseType();
     static void prevalidate(ConfigurationDescriptions& );
 
+    static bool wantsGlobalRuns() {return true;}
+    static bool wantsGlobalLuminosityBlocks() {return true;}
+
     bool wantAllEvents() const {return wantAllEvents_;}
 
     BranchIDLists const* branchIDLists();
