@@ -24,7 +24,7 @@ RecoHiEgammaRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(
     #'keep recoSuperClusters_*_*_*',
      'keep recoSuperCluster_cleanedHybridSuperClusters_*_*',
-     'keep recoSuperCluster_correctedEndcapSuperClustersWithPreshower_*_*',     
+     'keep recoSuperCluster_hiCorrectedEndcapSuperClustersWithPreshower_*_*',
      'keep recoSuperCluster_correctedHybridSuperClusters_*_*',        
      'keep recoSuperCluster_hiCorrectedIslandBarrelSuperClusters_*_*',
      'keep recoSuperCluster_hiCorrectedIslandEndcapSuperClusters_*_*',
