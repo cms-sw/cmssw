@@ -302,6 +302,9 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
     h_etaMax->SetBinContent(1.,etaOfProbe_);
     h_nbins->SetBinContent(1.,nBins_);
     h_nLadders->SetBinContent(1.,nLadders_);
+    h_pTinfo->SetBinContent(1.,mypT_bins_.size());
+    h_pTinfo->SetBinContent(2.,minPt_);
+    h_pTinfo->SetBinContent(3.,maxPt_);
   }
 
   //=======================================================
@@ -1252,7 +1255,6 @@ void PrimaryVertexValidation::beginJob()
   }
   
   h_runFromEvent      = EventFeatures.make<TH1I>("h_runFromEvent","run number from config;;run number (from event)",1,-0.5,0.5);
-
   h_nTracks           = EventFeatures.make<TH1F>("h_nTracks","number of tracks per event;n_{tracks}/event;n_{events}",300,-0.5,299.5);	     
   h_nClus             = EventFeatures.make<TH1F>("h_nClus","number of track clusters;n_{clusters}/event;n_{events}",50,-0.5,49.5);	     
   h_nOfflineVertices  = EventFeatures.make<TH1F>("h_nOfflineVertices","number of offline reconstructed vertices;n_{vertices}/event;n_{events}",50,-0.5,49.5);  
@@ -1271,6 +1273,11 @@ void PrimaryVertexValidation::beginJob()
   h_BeamWidthY        = EventFeatures.make<TH1F>("h_BeamWidthY","y-coordinate beam width;#sigma_{Y}^{beam};n_{events}",100,0.,0.01);        
 
   h_etaMax            = EventFeatures.make<TH1F>("etaMax","etaMax",1,-0.5,0.5);
+  h_pTinfo            = EventFeatures.make<TH1F>("pTinfo","pTinfo",3,-1.5,1.5);
+  h_pTinfo->GetXaxis()->SetBinLabel(1,"n. bins");
+  h_pTinfo->GetXaxis()->SetBinLabel(2,"pT min");
+  h_pTinfo->GetXaxis()->SetBinLabel(3,"pT max");
+
   h_nbins             = EventFeatures.make<TH1F>("nbins","nbins",1,-0.5,0.5);
   h_nLadders          = EventFeatures.make<TH1F>("nladders","n. ladders",1,-0.5,0.5);
 
