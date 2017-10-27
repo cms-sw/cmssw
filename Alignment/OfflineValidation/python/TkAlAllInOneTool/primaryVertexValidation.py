@@ -12,7 +12,8 @@ class PrimaryVertexValidation(GenericValidationData_CTSR, ValidationWithPlots):
     resultBaseName  = "PrimaryVertexValidation"
     outputBaseName  = "PrimaryVertexValidation"
     defaults = {
-        "pvvalidationreference": ("/store/group/alca_trackeralign/validation/PVValidation/Reference/PrimaryVertexValidation_phaseIMC92X_upgrade2017_realistic.root"),
+        # N.B.: the reference needs to be updated each time the format of the output is changed
+        "pvvalidationreference": ("/store/group/alca_trackeralign/validation/PVValidation/Reference/PrimaryVertexValidation_phaseIMC92X_upgrade2017_Ideal.root"),
         "doBPix":"True",
         "doFPix":"True"
         }
