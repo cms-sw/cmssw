@@ -97,15 +97,15 @@ void TestPhiMemoryImage::test_rotation()
     image.rotl(i);
 
     if (i == 0)
-      CPPUNIT_ASSERT_EQUAL(image.get_word(0, 0), (word0 << i) | (word0 >> (64-i)));
+      CPPUNIT_ASSERT_EQUAL(image.get_word(0, 0), (word0 << i));
     else if (i < 64)
       CPPUNIT_ASSERT_EQUAL(image.get_word(0, 0), (word0 << i) | (word2 >> (64-i)));
     else if (i == 64)
-      CPPUNIT_ASSERT_EQUAL(image.get_word(0, 0), (word2 << (i-64)) | (word2 >> (128-i)));
+      CPPUNIT_ASSERT_EQUAL(image.get_word(0, 0), (word2 << (i-64)));
     else if (i < 128)
       CPPUNIT_ASSERT_EQUAL(image.get_word(0, 0), (word2 << (i-64)) | (word1 >> (128-i)));
     else if (i == 128)
-      CPPUNIT_ASSERT_EQUAL(image.get_word(0, 0), (word1 << (i-128)) | (word1 >> (192-i)));
+      CPPUNIT_ASSERT_EQUAL(image.get_word(0, 0), (word1 << (i-128)));
     else if (i < 192)
       CPPUNIT_ASSERT_EQUAL(image.get_word(0, 0), (word1 << (i-128)) | (word0 >> (192-i)));
     else
