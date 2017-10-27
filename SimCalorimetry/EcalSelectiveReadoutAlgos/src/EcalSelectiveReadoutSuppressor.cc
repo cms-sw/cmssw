@@ -275,7 +275,7 @@ void EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
   EEDigiCollection selectedEndcapDigis;
   
   run(eventSetup, trigPrims, barrelDigis, endcapDigis,
-      &selectedBarrelDigis, &selectedEndcapDigis, 0, 0);
+      &selectedBarrelDigis, &selectedEndcapDigis, nullptr, nullptr);
   
 //replaces the input with the suppressed version
   barrelDigis.swap(selectedBarrelDigis);
@@ -435,7 +435,7 @@ void EcalSelectiveReadoutSuppressor::setTtFlags(const EcalTrigPrimDigiCollection
 
 
 vector<int> EcalSelectiveReadoutSuppressor::getFIRWeigths() {
-  if(firWeights.size()==0){
+  if(firWeights.empty()){
     firWeights = vector<int>(nFIRTaps, 0); //default weight: 0;
     const static int maxWeight = 0xEFF; //weights coded on 11+1 signed bits
     for(unsigned i=0; i < min((size_t)nFIRTaps,weights.size()); ++i){ 
@@ -457,8 +457,8 @@ EcalSelectiveReadoutSuppressor::setTtFlags(const edm::EventSetup& es,
   //ecal geometry:
 //  static const CaloSubdetectorGeometry* eeGeometry = 0;
 //  static const CaloSubdetectorGeometry* ebGeometry = 0;
-  const CaloSubdetectorGeometry* eeGeometry = 0;
-  const CaloSubdetectorGeometry* ebGeometry = 0;
+  const CaloSubdetectorGeometry* eeGeometry = nullptr;
+  const CaloSubdetectorGeometry* ebGeometry = nullptr;
 //  if(eeGeometry==0 || ebGeometry==0){
     edm::ESHandle<CaloGeometry> geoHandle;
     es.get<CaloGeometryRecord>().get(geoHandle);

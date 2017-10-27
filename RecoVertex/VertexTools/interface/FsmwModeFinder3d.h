@@ -26,8 +26,8 @@ public:
      */
     FsmwModeFinder3d( float fraction = .5, float weightExponent = -2.,
                       float cutoff=10 /* microns */, int no_weights_above = 10 );
-    virtual GlobalPoint operator()( const std::vector< PointAndDistance> & ) const;
-    virtual FsmwModeFinder3d* clone() const;
+    GlobalPoint operator()( const std::vector< PointAndDistance> & ) const override;
+    FsmwModeFinder3d* clone() const override;
 private:
     float theFraction;
     float theWeightExponent;

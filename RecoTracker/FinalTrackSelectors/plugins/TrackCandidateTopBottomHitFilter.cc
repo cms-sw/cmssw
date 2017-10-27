@@ -42,11 +42,11 @@ Implementation:
 class dso_hidden TrackCandidateTopBottomHitFilter final : public edm::stream::EDProducer<> {
 public:
   explicit TrackCandidateTopBottomHitFilter(const edm::ParameterSet&);
-  ~TrackCandidateTopBottomHitFilter();
+  ~TrackCandidateTopBottomHitFilter() override;
 
 private:
-  virtual void beginRun(edm::Run const& run, const edm::EventSetup&) override;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(edm::Run const& run, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   edm::EDGetTokenT<TrackCandidateCollection> label;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   std::string builderName;

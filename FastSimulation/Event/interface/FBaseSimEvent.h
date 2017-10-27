@@ -126,7 +126,7 @@ public:
 
   /// Add a new track to the Event and to the various lists
   int addSimTrack(const RawParticle* p, int iv, int ig=-1, 
-		  const HepMC::GenVertex* ev=0);
+		  const HepMC::GenVertex* ev=nullptr);
 
   /// Add a new vertex to the Event and to the various lists
   int addSimVertex(const XYZTLorentzVector& decayVertex, int im=-1,

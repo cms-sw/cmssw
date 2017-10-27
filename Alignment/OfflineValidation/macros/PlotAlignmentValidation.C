@@ -1,44 +1,46 @@
-#include <TStyle.h>
-#include <TSystem.h>
+#include "Alignment/OfflineValidation/macros/PlotAlignmentValidation.h"
+
+#include "Alignment/OfflineValidation/plugins/TkAlStyle.cc"
+#include "Alignment/OfflineValidation/interface/TkOffTreeVariables.h"
+
+#include "Math/ProbFunc.h"
+
+#include "TAxis.h"
+#include "TCanvas.h"
+#include "TDirectory.h"
+#include "TDirectoryFile.h"
+#include "TF1.h"
+#include "TFile.h"
+#include "TGaxis.h"
+#include "TH2F.h"
+#include "THStack.h"
+#include "TKey.h"
+#include "TLatex.h"
+#include "TLegend.h"
+#include "TLegendEntry.h"
+#include "TPad.h"
+#include "TPaveStats.h"
+#include "TPaveText.h"
+#include "TProfile.h"
+#include "TRandom3.h"
+#include "TRegexp.h"
+#include "TROOT.h"
+#include "TString.h"
+#include "TStyle.h"
+#include "TSystem.h"
+#include "TTree.h"
+
 #include <algorithm>
 #include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <exception>
 #include <fstream>
 #include <iostream>
 #include <memory>
 #include <sstream>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string>
 #include <vector>
-#include "TTree.h"
-#include "TString.h"
-#include "TAxis.h"
-#include "TGaxis.h"
-#include "TProfile.h"
-#include "TH2F.h"
-#include "TROOT.h"
-#include "TDirectory.h"
-#include "TCanvas.h"
-#include "TFile.h"
-#include "TDirectoryFile.h"
-#include "TLegend.h"
-#include "TLegendEntry.h"
-#include "THStack.h"
-#include <exception>
-#include "TKey.h"
-#include "TPad.h"
-#include "TPaveText.h"
-#include "TPaveStats.h"
-#include "TF1.h"
-#include "TRegexp.h"
-#include "TLatex.h"
-#include <TRandom3.h>
-
-// This line works only if we have a CMSSW environment...
-#include "Alignment/OfflineValidation/interface/TkOffTreeVariables.h"
-
-#include "Alignment/OfflineValidation/macros/PlotAlignmentValidation.h"
-#include "Alignment/OfflineValidation/plugins/TkAlStyle.cc"
 
 //------------------------------------------------------------------------------
 PlotAlignmentValidation::PlotAlignmentValidation(bool bigtext) : bigtext_(bigtext)

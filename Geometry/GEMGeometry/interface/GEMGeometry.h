@@ -33,20 +33,20 @@ class GEMGeometry : public TrackingGeometry {
   // Return a vector of all det types
   const DetTypeContainer&  detTypes() const override;
 
-  // Return a vector of all GeomDetUnit
-  const DetUnitContainer& detUnits() const override;
+  // Return a vector of all GeomDet
+  const DetContainer& detUnits() const override;
 
   // Return a vector of all GeomDet
   const DetContainer& dets() const override;
   
-  // Return a vector of all GeomDetUnit DetIds
+  // Return a vector of all GeomDet DetIds
   const DetIdContainer& detUnitIds() const override;
 
   // Return a vector of all GeomDet DetIds
   const DetIdContainer& detIds() const override;
 
-  // Return the pointer to the GeomDetUnit corresponding to a given DetId
-  const GeomDetUnit* idToDetUnit(DetId) const override;
+  // Return the pointer to the GeomDet corresponding to a given DetId
+  const GeomDet* idToDetUnit(DetId) const override;
 
   // Return the pointer to the GeomDet corresponding to a given DetId
   const GeomDet* idToDet(DetId) const override;
@@ -91,25 +91,25 @@ class GEMGeometry : public TrackingGeometry {
   const GEMEtaPartition* etaPartition(GEMDetId id) const;
 
   /// Add a GEMRegion to the Geometry
-  void add(GEMRegion* region);
+  void add(const GEMRegion* region);
 
   /// Add a GEMStation to the Geometry
-  void add(GEMStation* station);
+  void add(const GEMStation* station);
 
   /// Add a GEMRing to the Geometry
-  void add(GEMRing* ring);
+  void add(const GEMRing* ring);
 
   /// Add a GEMSuperChamber to the Geometry
-  void add(GEMSuperChamber* sch);
+  void add(const GEMSuperChamber* sch);
  
   /// Add a GEMChamber to the Geometry
-  void add(GEMChamber* ch);
+  void add(const GEMChamber* ch);
 
   /// Add a GEMEtaPartition  to the Geometry
-  void add(GEMEtaPartition* etaPartition);
+  void add(const GEMEtaPartition* etaPartition);
 
  private:
-  DetUnitContainer theEtaPartitions;
+  DetContainer theEtaPartitions;
   DetContainer theDets;
   DetTypeContainer theEtaPartitionTypes;
   DetIdContainer theEtaPartitionIds;

@@ -31,9 +31,9 @@ class CSCRecHitDProducer : public edm::stream::EDProducer<> {
 
 public:
   explicit CSCRecHitDProducer( const edm::ParameterSet& ps );
-  ~CSCRecHitDProducer();
+  ~CSCRecHitDProducer() override;
 
-  virtual void produce( edm::Event&, const edm::EventSetup& );
+  void produce( edm::Event&, const edm::EventSetup& ) override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 

@@ -37,15 +37,15 @@
 class Mixing2DB : public edm::one::EDAnalyzer<> {
    public:
       explicit Mixing2DB(const edm::ParameterSet&);
-      virtual ~Mixing2DB();
+      ~Mixing2DB() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
    private:
-      virtual void beginJob() override ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob()  override;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob()  override;
 
 
       // ----------member data ---------------------------

@@ -262,7 +262,7 @@ void JetAnaPythia<Jet>::analyze(edm::Event const& evt, edm::EventSetup const& iS
        const reco::GenParticle & p = (*genParticlesHandle_)[i];
        int id = p.pdgId();
        int st = p.status();
-       math::XYZTLorentzVector genP4 = p.p4();
+       const math::XYZTLorentzVector& genP4 = p.p4();
        if(i>=2&&i<=8)std::cout << "particle " << i << ": id=" << id << ", status=" << st << ", mass=" << genP4.mass() << ", pt=" <<  genP4.pt() << ", eta=" << genP4.eta() << std::endl; 
      }
      // Examine the 7th particle in pythia.
@@ -331,14 +331,14 @@ template<class Jet>
 void JetAnaPythia<Jet>::endJob() 
 {
   /////////// Write Histograms in output ROOT file ////////
-  if (m_file !=0) 
+  if (m_file !=nullptr) 
     {
       m_file->cd();
       mcTruthTree_->Write(); 
       for (std::map<TString, TH1*>::iterator hid = m_HistNames1D.begin(); hid != m_HistNames1D.end(); hid++)
         hid->second->Write();
       delete m_file;
-      m_file = 0;      
+      m_file = nullptr;      
     }
 }
 ////////////////////////////////////////////////////////////////////////////////////////

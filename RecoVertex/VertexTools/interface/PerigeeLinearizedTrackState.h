@@ -47,37 +47,37 @@ public:
    * Returns a new linearized state with respect to a new linearization point.
    * A new object of the same type is returned, without change to the existing one.
    */
-  virtual  RefCountedLinearizedTrackState stateWithNewLinearizationPoint
-    (const GlobalPoint & newLP) const;
+   RefCountedLinearizedTrackState stateWithNewLinearizationPoint
+    (const GlobalPoint & newLP) const override;
 
 
   /**
    * The point at which the track state has been linearized
    */
-  const GlobalPoint & linearizationPoint() const { return theLinPoint; }
+  const GlobalPoint & linearizationPoint() const override { return theLinPoint; }
 
-  virtual reco::TransientTrack track() const { return theTrack; }
+  reco::TransientTrack track() const override { return theTrack; }
 
   const TrajectoryStateOnSurface state() const { return theTSOS; }
 
   /** Method returning the constant term of the Taylor expansion
    *  of the measurement equation
    */
-  const AlgebraicVector5 & constantTerm() const;
+  const AlgebraicVector5 & constantTerm() const override;
 
   /** Method returning the Position Jacobian from the Taylor expansion
    *  (Matrix A)
    */
-  const AlgebraicMatrix53 & positionJacobian() const;
+  const AlgebraicMatrix53 & positionJacobian() const override;
 
   /** Method returning the Momentum Jacobian from the Taylor expansion
    *  (Matrix B)
    */
-  const AlgebraicMatrix53 & momentumJacobian() const;
+  const AlgebraicMatrix53 & momentumJacobian() const override;
 
   /** Method returning the parameters of the Taylor expansion
    */
-  const AlgebraicVector5 & parametersFromExpansion() const;
+  const AlgebraicVector5 & parametersFromExpansion() const override;
 
   /** Method returning the track state at the point of closest approach
    *  to the linearization point, in the transverse plane (a.k.a.
@@ -88,60 +88,60 @@ public:
   /** Method returning the parameters of the track state at the
    *  transverse impact point.
    */
-  AlgebraicVector5 predictedStateParameters() const;
+  AlgebraicVector5 predictedStateParameters() const override;
 
   /** Method returning the momentum part of the parameters of the track state
    *  at the linearization point.
    */
-  virtual AlgebraicVector3 predictedStateMomentumParameters() const;
+  AlgebraicVector3 predictedStateMomentumParameters() const override;
 
   /** Method returning the weight matrix of the track state at the
    *  transverse impact point.
    * The error variable is 0 in case of success.
    */
-  AlgebraicSymMatrix55 predictedStateWeight(int & error) const;
+  AlgebraicSymMatrix55 predictedStateWeight(int & error) const override;
 
   /** Method returning the covariance matrix of the track state at the
    *  transverse impact point.
    */
-  AlgebraicSymMatrix55 predictedStateError() const;
+  AlgebraicSymMatrix55 predictedStateError() const override;
 
   /** Method returning the momentum covariance matrix of the track state at the
    *  transverse impact point.
    */
-  AlgebraicSymMatrix33 predictedStateMomentumError() const;
+  AlgebraicSymMatrix33 predictedStateMomentumError() const override;
 
 //   /** Method returning the impact point measurement
 //    */
 //   ImpactPointMeasurement impactPointMeasurement() const;
 
-  TrackCharge charge() const {return theCharge;}
+  TrackCharge charge() const override {return theCharge;}
 
-  bool hasError() const;
+  bool hasError() const override;
 
-  bool operator ==(LinearizedTrackState<5> & other)const;
+  bool operator ==(LinearizedTrackState<5> & other)const override;
 
   bool operator ==(ReferenceCountingPointer<LinearizedTrackState<5> >& other)const;
 
   /** Creates the correct refitted state according to the results of the
    *  track refit.
    */
-  virtual RefCountedRefittedTrackState createRefittedTrackState(
+  RefCountedRefittedTrackState createRefittedTrackState(
   	const GlobalPoint & vertexPosition,
 	const AlgebraicVector3 & vectorParameters,
-	const AlgebraicSymMatrix66 & covarianceMatrix) const;
+	const AlgebraicSymMatrix66 & covarianceMatrix) const override;
 
 
-  virtual AlgebraicVector5 refittedParamFromEquation(
-	const RefCountedRefittedTrackState & theRefittedState) const;
+  AlgebraicVector5 refittedParamFromEquation(
+	const RefCountedRefittedTrackState & theRefittedState) const override;
 
-  virtual double weightInMixture() const {return theTSOS.weight();}
+  double weightInMixture() const override {return theTSOS.weight();}
 
-  virtual void inline checkParameters(AlgebraicVector5 & parameters) const;
+  void inline checkParameters(AlgebraicVector5 & parameters) const override;
 
-  virtual std::vector<ReferenceCountingPointer<LinearizedTrackState<5> > > components() const;
+  std::vector<ReferenceCountingPointer<LinearizedTrackState<5> > > components() const override;
 
-  virtual bool isValid() const;
+  bool isValid() const override;
 
 private:
 

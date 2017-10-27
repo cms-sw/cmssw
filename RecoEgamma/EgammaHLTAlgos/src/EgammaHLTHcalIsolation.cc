@@ -109,7 +109,7 @@ bool EgammaHLTHcalIsolation::passDepth_(const HcalDetId id)const
 bool EgammaHLTHcalIsolation::passCleaning_(const CaloRecHit* hit,const HcalSeverityLevelComputer* hcalSevLvlComp,
 					   const HcalChannelQuality* hcalChanStatus)const
 {
-  if(hcalSevLvlComp==NULL || hcalChanStatus==NULL) return true; //return true if we dont have valid pointers
+  if(hcalSevLvlComp==nullptr || hcalChanStatus==nullptr) return true; //return true if we dont have valid pointers
 
   const DetId id = hit->detid();
   

@@ -32,7 +32,7 @@ AutoMagneticFieldESProducer::AutoMagneticFieldESProducer(const edm::ParameterSet
   nominalCurrents = pset.getUntrackedParameter<vector<int> >("nominalCurrents"); 
   maps = pset.getUntrackedParameter<vector<string> >("mapLabels");
 
-  if (maps.size()==0 || (maps.size() != nominalCurrents.size())) {
+  if (maps.empty() || (maps.size() != nominalCurrents.size())) {
     throw cms::Exception("InvalidParameter") << "Invalid values for parameters \"nominalCurrents\" and \"maps\"";
   }
 }

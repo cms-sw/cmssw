@@ -25,6 +25,7 @@ namespace {
   constexpr int PXID_bits = 8;
   constexpr int ADC_bits  = 8;
   constexpr int OMIT_ERR_bits = 1;
+  constexpr int AUTO_MASK_bits = 1;
   
   constexpr int CRC_shift = 2;
   constexpr int ADC_shift  = 0;
@@ -33,6 +34,7 @@ namespace {
   constexpr int ROC_shift  = DCOL_shift + DCOL_bits;
   constexpr int LINK_shift = ROC_shift + ROC_bits;
   constexpr int OMIT_ERR_shift = 20;
+  constexpr int AUTO_MASK_shift = 20;
   
   constexpr cms_uint32_t dummyDetId = 0xffffffff;
   
@@ -110,13 +112,16 @@ bool ErrorChecker::checkTrailer(bool& errorsInEvent, int fedId, int nWords, cons
   return fedTrailer.moreTrailers();
 }
 
-bool ErrorChecker::checkROC(bool& errorsInEvent, int fedId, const SiPixelFrameConverter* converter, Word32& errorWord, Errors& errors)
+bool ErrorChecker::checkROC(bool& errorsInEvent, int fedId, const SiPixelFrameConverter* converter, 
+			    const SiPixelFedCabling* theCablingTree, Word32& errorWord, Errors& errors)
 {
   int errorType = (errorWord >> ROC_shift) & ERROR_mask;
   if likely(errorType<25) return true;
 
  switch (errorType) {
     case(25) : {
+     CablingPathToDetUnit cablingPath = { unsigned(fedId), (errorWord >> LINK_shift) & LINK_mask, 1 };
+     if (!theCablingTree->findItem(cablingPath)) return false;
      LogDebug("")<<"  invalid ROC=25 found (errorType=25)";
      errorsInEvent = true;
      break;
@@ -145,6 +150,15 @@ bool ErrorChecker::checkROC(bool& errorsInEvent, int fedId, const SiPixelFrameCo
    }
    case(30) : {
      LogDebug("")<<"  TBM error trailer (errorType=30)";
+     int StateMatch_bits      = 4;
+     int StateMatch_shift     = 8;
+     uint32_t StateMatch_mask = ~(~uint32_t(0) << StateMatch_bits);
+     int StateMatch = (errorWord >> StateMatch_shift) & StateMatch_mask;
+     if( StateMatch!=1 && StateMatch!=8 ) {
+       LogDebug("")<<" FED error 30 with unexpected State Bits (errorType=30)";
+       return false;
+     }
+     if( StateMatch==1 ) errorType = 40; // 1=Overflow -> 40, 8=number of ROCs -> 30 
      errorsInEvent = true;
      break;
    }
@@ -157,15 +171,6 @@ bool ErrorChecker::checkROC(bool& errorsInEvent, int fedId, const SiPixelFrameCo
  };
 
  if(includeErrors) {
-   // check to see if overflow error for type 30, change type to 40 if so
-   if(errorType==30) {
-     int StateMach_bits      = 4;
-     int StateMach_shift     = 8;
-     uint32_t StateMach_mask = ~(~uint32_t(0) << StateMach_bits);
-     int StateMach = (errorWord >> StateMach_shift) & StateMach_mask;
-     if( StateMach==4 || StateMach==9 ) errorType = 40;
-   }
-
    // store error
    SiPixelRawDataError error(errorWord, errorType, fedId);
    cms_uint32_t detId;
@@ -232,7 +237,7 @@ cms_uint32_t ErrorChecker::errorDetId(const SiPixelFrameConverter* converter,
 
   switch (errorType) {
     case  25 : case  30 : case  31 : case  36 : case 40 : {
-      // set dummy values for cabling just to get detId from link if in Barrel
+      // set dummy values for cabling just to get detId from link
       cabling.dcol = 0;
       cabling.pxid = 2;
       cabling.roc  = 1;
@@ -240,8 +245,7 @@ cms_uint32_t ErrorChecker::errorDetId(const SiPixelFrameConverter* converter,
 
       DetectorIndex detIdx;
       int status = converter->toDetector(cabling, detIdx);
-      if (status) break;
-      if(DetId(detIdx.rawId).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) return detIdx.rawId;
+      if (!status) return detIdx.rawId;
       break;
     }
     case  29 : {
@@ -274,8 +278,7 @@ cms_uint32_t ErrorChecker::errorDetId(const SiPixelFrameConverter* converter,
       cabling.link = chanNmbr;  
       DetectorIndex detIdx;
       int status = converter->toDetector(cabling, detIdx);
-      if (status) break;
-      if(DetId(detIdx.rawId).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) return detIdx.rawId;
+      if (!status) return detIdx.rawId;
       break;
     }
     case  37 : case  38: {

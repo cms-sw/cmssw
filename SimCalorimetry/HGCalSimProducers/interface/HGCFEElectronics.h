@@ -43,6 +43,19 @@ class HGCFEElectronics
       }
   }
 
+
+  void SetNoiseValues(const std::vector<float>& noise_fC){
+    noise_fC_.insert(noise_fC_.end(), noise_fC.begin(), noise_fC.end());
+  };
+
+  float getTimeJitter(float totalCharge, int thickness){
+    float A2 = jitterNoise2_ns_.at(thickness-1);
+    float C2 = jitterConstant2_ns_.at(thickness-1);
+    float X2 = pow((totalCharge/noise_fC_.at(thickness-1)), 2.);
+    float jitter2 = A2 / X2 + C2;
+    return sqrt(jitter2);
+  };
+
   /**
      @short returns the LSB in MIP currently configured
   */
@@ -50,6 +63,7 @@ class HGCFEElectronics
   float getTDClsb()       { return tdcLSB_fC_;       }  
   float getADCThreshold() { return adcThreshold_fC_; }
   float getTDCOnset()     { return tdcOnset_fC_;     }
+  std::array<float,3> getTDCForToAOnset()    { return tdcForToAOnset_fC_; }
   void setADClsb(float newLSB) { adcLSB_fC_=newLSB; }
 
   /**
@@ -83,13 +97,16 @@ class HGCFEElectronics
   //private members
   uint32_t fwVersion_;
   std::array<float,6> adcPulse_, pulseAvgT_;
+  std::array<float,3> tdcForToAOnset_fC_;
   std::vector<float> tdcChargeDrainParameterisation_;
   float adcSaturation_fC_, adcLSB_fC_, tdcLSB_fC_, tdcSaturation_fC_,
-    adcThreshold_fC_, tdcOnset_fC_, toaLSB_ns_, tdcResolutionInNs_; 
+    adcThreshold_fC_, tdcOnset_fC_, toaLSB_ns_, tdcResolutionInNs_;
+  std::array<float,3> jitterNoise2_ns_, jitterConstant2_ns_;
+  std::vector<float> noise_fC_;
   uint32_t toaMode_;
   bool thresholdFollowsMIP_;
   //caches
-  std::array<bool,hgc::nSamples>  busyFlags, totFlags;
+  std::array<bool,hgc::nSamples>  busyFlags, totFlags, toaFlags;
   hgc::HGCSimHitData newCharge, toaFromToT;
 };
 

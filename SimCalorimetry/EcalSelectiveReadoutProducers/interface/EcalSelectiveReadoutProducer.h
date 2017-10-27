@@ -23,15 +23,15 @@ public:
 
   /** Destructor
    */
-  virtual
-  ~EcalSelectiveReadoutProducer();
+  
+  ~EcalSelectiveReadoutProducer() override;
 
   /** Produces the EDM products
    * @param CMS event
    * @param eventSetup event conditions
    */
-  virtual void
-  produce(edm::Event& event, const edm::EventSetup& eventSetup);
+  void
+  produce(edm::Event& event, const edm::EventSetup& eventSetup) override;
 
   /** Help function to print SR flags.
    * @param ebSrFlags the action flags of EB

@@ -16,12 +16,12 @@
 class MuonWithPFIsoProducer : public edm::EDProducer {
    public:
       explicit MuonWithPFIsoProducer(const edm::ParameterSet&);
-      ~MuonWithPFIsoProducer();
+      ~MuonWithPFIsoProducer() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
       edm::EDGetTokenT<edm::View<reco::PFCandidate> > pfToken_;

@@ -38,7 +38,7 @@ class GEMSuperChamber : public GeomDet
   bool operator==(const GEMSuperChamber& sch) const;
 
   /// Add chamber to the super chamber which takes ownership
-  void add(GEMChamber* ch);
+  void add(const GEMChamber* ch);
   
   /// Return the chambers in the super chamber
   std::vector<const GeomDet*> components() const override;

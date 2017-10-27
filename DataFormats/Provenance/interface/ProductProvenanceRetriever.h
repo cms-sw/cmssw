@@ -65,7 +65,7 @@ namespace edm {
 
     ProductProvenance const* branchIDToProvenanceForProducedOnly(BranchID const& bid) const;
     
-    void insertIntoSet(ProductProvenance const& provenanceProduct) const;
+    void insertIntoSet(ProductProvenance provenanceProduct) const;
 
     void mergeProvenanceRetrievers(std::shared_ptr<ProductProvenanceRetriever> other);
 

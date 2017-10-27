@@ -51,7 +51,7 @@ TrackingMaterialAnalyser::TrackingMaterialAnalyser(const edm::ParameterSet& iPSe
   if (m_saveSummaryPlot)
     m_plotter               = new TrackingMaterialPlotter( 300., 120., 10 );      // 10x10 points per cm2
   else
-    m_plotter               = NULL;
+    m_plotter               = nullptr;
 }
 
 //-------------------------------------------------------------------------
@@ -143,7 +143,7 @@ void TrackingMaterialAnalyser::analyze(const edm::Event& event, const edm::Event
   // Initialize m_groups iff it has size equal to zero, so that we are
   // sure it will never be repopulated with the same entries over and
   // over again in the eventloop, at each call of the analyze method.
-  if (m_groups.size() == 0) {
+  if (m_groups.empty()) {
     for (unsigned int i = 0; i < m_groupNames.size(); ++i)
       m_groups.push_back( new MaterialAccountingGroup( m_groupNames[i], * hDDD) );
 

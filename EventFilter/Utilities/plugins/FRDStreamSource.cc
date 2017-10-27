@@ -6,10 +6,11 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
+#include "DataFormats/TCDS/interface/TCDSRaw.h"
+
 #include "EventFilter/FEDInterface/interface/GlobalEventNumber.h"
 #include "EventFilter/FEDInterface/interface/fed_header.h"
 #include "EventFilter/FEDInterface/interface/fed_trailer.h"
-#include "EventFilter/FEDInterface/interface/FED1024.h"
 
 #include "EventFilter/Utilities/plugins/FRDStreamSource.h"
 #include "EventFilter/Utilities/interface/crc32c.h"
@@ -119,14 +120,10 @@ bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& the
     }
     if (fedId == FEDNumbering::MINTCDSuTCAFEDID) {
       foundTCDSFED=true;
-      evf::evtn::TCDSRecord record((unsigned char *)(event + eventSize ));
-      id = edm::EventID(frdEventMsg->run(),record.getHeader().getData().header.lumiSection,
-			record.getHeader().getData().header.eventNumber);
+      tcds::Raw_v1 const* tcds = reinterpret_cast<tcds::Raw_v1 const*>(event + eventSize);
+      id = edm::EventID(frdEventMsg->run(),tcds->header.lumiSection,tcds->header.eventNumber);
       eType = ((edm::EventAuxiliary::ExperimentType)FED_EVTY_EXTRACT(fedHeader->eventid));
-      //evf::evtn::evm_board_setformat(fedSize);
-      uint64_t gpsh = record.getBST().getBST().bst.gpstimehigh;
-      uint32_t gpsl = record.getBST().getBST().bst.gpstimelow;
-      theTime = static_cast<edm::TimeValue_t>((gpsh << 32) + gpsl);
+      theTime = static_cast<edm::TimeValue_t>(((uint64_t)tcds->bst.gpstimehigh << 32) | tcds->bst.gpstimelow);
     }
 
     if (fedId == FEDNumbering::MINTriggerGTPFEDID && !foundTCDSFED) {

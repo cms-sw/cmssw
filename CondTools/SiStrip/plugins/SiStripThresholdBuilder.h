@@ -20,9 +20,9 @@ class SiStripThresholdBuilder : public edm::EDAnalyzer {
 
   explicit SiStripThresholdBuilder( const edm::ParameterSet& iConfig);
 
-  ~SiStripThresholdBuilder(){};
+  ~SiStripThresholdBuilder() override{};
 
-  virtual void analyze(const edm::Event& , const edm::EventSetup& );
+  void analyze(const edm::Event& , const edm::EventSetup& ) override;
 
  private:
   edm::FileInPath fp_;

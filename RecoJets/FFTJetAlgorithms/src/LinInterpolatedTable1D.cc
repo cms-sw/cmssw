@@ -48,7 +48,7 @@ namespace fftjetcms {
         const bool rightExtrapolationLinear) const
     {
         if (!isMonotonous())
-            return std::auto_ptr<LinInterpolatedTable1D>(NULL);
+            return std::auto_ptr<LinInterpolatedTable1D>(nullptr);
 
         std::vector<std::pair<double,double> > points;
         points.reserve(npoints_);

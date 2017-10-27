@@ -111,6 +111,7 @@ process.load("DQM.SiPixelPhase1Config.SiPixelPhase1OnlineDQM_cff")
 process.PerModule.enabled=True
 process.PerReadout.enabled=True
 process.OverlayCurvesForTiming.enabled=False
+process.IsOffline.enabled=False
 
 #--------------------------
 # Service

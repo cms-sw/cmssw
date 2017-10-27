@@ -17,6 +17,7 @@
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -85,9 +86,11 @@ private:
 };
 
 using PFJetConstituentSelector = JetConstituentSelector<reco::PFJet>;
+using GenJetConstituentSelector = JetConstituentSelector<reco::GenJet, std::vector<edm::FwdPtr<reco::GenParticle>>>;
 using PatJetConstituentSelector = JetConstituentSelector<pat::Jet, std::vector<edm::FwdPtr<pat::PackedCandidate>>>;
 using MiniAODJetConstituentSelector = JetConstituentSelector<reco::PFJet, std::vector<edm::FwdPtr<pat::PackedCandidate>>>;
 
 DEFINE_FWK_MODULE(PFJetConstituentSelector);
+DEFINE_FWK_MODULE(GenJetConstituentSelector);
 DEFINE_FWK_MODULE(PatJetConstituentSelector);
 DEFINE_FWK_MODULE(MiniAODJetConstituentSelector);

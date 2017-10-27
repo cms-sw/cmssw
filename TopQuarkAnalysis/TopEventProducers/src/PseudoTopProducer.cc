@@ -313,7 +313,7 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
       pseudoTop->push_back(l2);
       pseudoTop->push_back(n2);
     }
-    else if ( leptons->size() >= 1 and neutrinos->size() >= 1 and ljetIdxs.size() >= 2 ) {
+    else if ( !leptons->empty() and !neutrinos->empty() and ljetIdxs.size() >= 2 ) {
       // Then continue to the semi-leptonic channel
       const auto& lepton = leptons->at(0);
       if ( lepton.pt() < minLeptonPtSemilepton_ or std::abs(lepton.eta()) > maxLeptonEtaSemilepton_ ) break;

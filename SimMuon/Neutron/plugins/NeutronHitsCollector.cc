@@ -39,11 +39,11 @@ class NeutronHitsCollector : public edm::stream::EDProducer<>
 {
 public:
   explicit NeutronHitsCollector(const edm::ParameterSet&);
-  ~NeutronHitsCollector() {};
+  ~NeutronHitsCollector() override {};
 
 private:
   virtual void beginJob();
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob();
 
   std::string neutron_label_csc;

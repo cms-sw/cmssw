@@ -17,7 +17,7 @@ public:
     TrackerPSimHitSelector(edm::ParameterSet const & config) : PSimHitSelector(config) {}
 
     //! Pre-process event information
-    virtual void select(PSimHitCollection &, edm::Event const &, edm::EventSetup const &) const;
+    void select(PSimHitCollection &, edm::Event const &, edm::EventSetup const &) const override;
 
 };
 

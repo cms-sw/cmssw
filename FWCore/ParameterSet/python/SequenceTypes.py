@@ -390,6 +390,8 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
     def resolve(self, processDict,keepIfCannotResolve=False):
         if self._seq is not None:
             self._seq = self._seq.resolve(processDict,keepIfCannotResolve)
+        for task in self._tasks:
+            task.resolve(processDict,keepIfCannotResolve)
         return self
     def __setattr__(self,name,value):
         if not name.startswith("_"):
@@ -1247,8 +1249,9 @@ class Task(_ConfigureComponent, _Labelable) :
     def add(self, *items):
         for item in items:
             if not isinstance(item, _ConfigureComponent) or not item._isTaskComponent():
-                raise RuntimeError("Adding an entry of type '" + type(item).__name__ + "'to a Task.\n"
-                                   "It is illegal to add this type to a Task.")
+                if not isinstance(item, TaskPlaceholder):
+                    raise RuntimeError("Adding an entry of type '" + type(item).__name__ + "'to a Task.\n"
+                                       "It is illegal to add this type to a Task.")
             self._collection.add(item)
 
     def _place(self, name, proc):
@@ -1396,6 +1399,53 @@ class Task(_ConfigureComponent, _Labelable) :
             self._collection.clear()
             self.add(*v.result(self))
         return v.didRemove()
+
+    def resolve(self, processDict,keepIfCannotResolve=False):
+        temp = OrderedSet()
+        for i in self._collection:
+            if isinstance(i, Task) or isinstance(i, TaskPlaceholder):
+                temp.add(i.resolve(processDict,keepIfCannotResolve))
+            else:
+                temp.add(i)
+        self._collection = temp
+        return self
+
+class TaskPlaceholder(object):
+    def __init__(self, name):
+        self._name = name
+    def _isTaskComponent(self):
+        return True
+    def isLeaf(self):
+        return False
+    def visit(self,visitor):
+        pass
+    def __str__(self):
+        return self._name
+    def insertInto(self, parameterSet, myname):
+        raise RuntimeError("The TaskPlaceholder "+self._name
+                           +" was never overridden")
+    def resolve(self, processDict,keepIfCannotResolve=False):
+        if not self._name in processDict:
+            if keepIfCannotResolve:
+                return self
+            raise RuntimeError("The TaskPlaceholder "+self._name+ " cannot be resolved.\n Known keys are:"+str(processDict.keys()))
+        o = processDict[self._name]
+        if not o._isTaskComponent():
+            raise RuntimeError("The TaskPlaceholder "+self._name+ " refers to an object type which is not allowed to be on a task: "+str(type(o)))
+        if isinstance(o, Task):
+            return o.resolve(processDict)
+        return o
+    def copy(self):
+        returnValue =TaskPlaceholder.__new__(type(self))
+        returnValue.__init__(self._name)
+        return returnValue
+    def dumpSequencePython(self, options=PrintOptions()):
+        return 'cms.TaskPlaceholder("%s")'%self._name
+    def dumpPython(self, options=PrintOptions()):
+        result = 'cms.TaskPlaceholder(\"'
+        if options.isCfg:
+           result += 'process.'
+        result += +self._name+'\")\n'
 
 if __name__=="__main__":
     import unittest

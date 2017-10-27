@@ -26,7 +26,7 @@ METplusTrackMonitor::METplusTrackMonitor( const edm::ParameterSet& iConfig ) :
   , met_variable_binning_    ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("metBinning") )
   , muonPt_variable_binning_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("ptBinning")  )
   , met_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("metPSet")    ) )
-  , ls_binning_           ( getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("lsPSet")     ) )
+  , ls_binning_           ( getHistoPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("lsPSet")     ) )
   , pt_binning_           ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("ptPSet")     ) )
   , eta_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("etaPSet")    ) )
   , phi_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("phiPSet")    ) )
@@ -72,7 +72,7 @@ void METplusTrackMonitor::bookHistograms(DQMStore::IBooker     &ibooker,
    std::string histname, histtitle;
 
    std::string currentFolder = folderName_;
-   ibooker.setCurrentFolder(currentFolder.c_str());
+   ibooker.setCurrentFolder(currentFolder);
 
    // MET leg histograms
 
@@ -155,7 +155,7 @@ void METplusTrackMonitor::bookHistograms(DQMStore::IBooker     &ibooker,
 
   edm::Handle<reco::VertexCollection> primaryVertices;
   iEvent.getByToken(vtxToken_, primaryVertices);
-  if(!primaryVertices->size()) return;
+  if(primaryVertices->empty()) return;
   const reco::Vertex* pv = nullptr;
   for(auto const& v: *primaryVertices) {
     if (!vtxSelection_(v)) continue;

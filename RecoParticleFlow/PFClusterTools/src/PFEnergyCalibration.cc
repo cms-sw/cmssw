@@ -4,7 +4,7 @@
 #include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
 
 #include <TMath.h>
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include <TF1.h>
 #include <map>
@@ -13,7 +13,7 @@
 
 using namespace std;
 
-PFEnergyCalibration::PFEnergyCalibration() : pfCalibrations(0), esEEInterCalib_(0)
+PFEnergyCalibration::PFEnergyCalibration() : pfCalibrations(nullptr), esEEInterCalib_(nullptr)
 {
   initializeCalibrationFunctions();
 }
@@ -876,19 +876,19 @@ PFEnergyCalibration::EcorrPS(double eEcal,double ePS1,double ePS2,double etaEcal
   // gives the good weights to each subdetector
   double gammaprime=Gamma(etaEcal)/9e-5;
 
-  if(outputPS1 == 0 && outputPS2 == 0 && esEEInterCalib_ != 0){
+  if(outputPS1 == 0 && outputPS2 == 0 && esEEInterCalib_ != nullptr){
     // both ES planes working
     // scaling factor accounting for data-mc                                                                                 
     outputPS1=gammaprime*ePS1 * esEEInterCalib_->getGammaLow0();
     outputPS2=gammaprime*Alpha(etaEcal)*ePS2 * esEEInterCalib_->getGammaLow3();
   }
-  else if(outputPS1 == 0 && outputPS2 == -1 && esEEInterCalib_ != 0){
+  else if(outputPS1 == 0 && outputPS2 == -1 && esEEInterCalib_ != nullptr){
     // ESP1 only working
     double corrTotES = gammaprime*ePS1 * esEEInterCalib_->getGammaLow0() * esEEInterCalib_->getGammaLow1();
     outputPS1 = gammaprime*ePS1 * esEEInterCalib_->getGammaLow0();
     outputPS2 = corrTotES - outputPS1;
   }
-  else if(outputPS1 == -1 && outputPS2 == 0 && esEEInterCalib_ != 0){
+  else if(outputPS1 == -1 && outputPS2 == 0 && esEEInterCalib_ != nullptr){
     // ESP2 only working
     double corrTotES = gammaprime*Alpha(etaEcal)*ePS2 * esEEInterCalib_->getGammaLow3() * esEEInterCalib_->getGammaLow2();
     outputPS2 = gammaprime*Alpha(etaEcal)*ePS2 * esEEInterCalib_->getGammaLow3();

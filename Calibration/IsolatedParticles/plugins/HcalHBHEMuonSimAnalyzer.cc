@@ -44,15 +44,15 @@ class HcalHBHEMuonSimAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns,
 
 public:
   explicit HcalHBHEMuonSimAnalyzer(const edm::ParameterSet&);
-  ~HcalHBHEMuonSimAnalyzer();
+  ~HcalHBHEMuonSimAnalyzer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginJob() override;
-  virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override {}
+  void beginJob() override;
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
   void         clearVectors();
@@ -130,9 +130,6 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent,
 #ifdef EDM_ML_DEBUG
   debug = ((verbosity_/10)>0);
 #endif
-  // depthHE is the first depth index for HE for |ieta| = 16
-  // It used to be 3 for all runs preceding 2017 and 4 beyond that
-  int depthHE = (maxDepth_ <= 6) ? 3 : 4;
 
   edm::ESHandle<HcalDDDRecConstants> pHRNDC;
   iSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
@@ -275,9 +272,11 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent,
 	HcalSubdetector subdet = HcalDetId(closestCell).subdet();
 	int             ieta   = HcalDetId(closestCell).ieta();
 	int             iphi   = HcalDetId(closestCell).iphi();
+	int             zside  = HcalDetId(closestCell).zside();
 	bool            hbhe   = (std::abs(ieta) == 16);
+	int             depthHE= hcons->getMinDepth(1,16,iphi,zside);
 	std::vector<std::pair<double,int> > ehdepth;
-	spr::energyHCALCell((HcalDetId)closestCell, calohh, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, debug);
+	spr::energyHCALCell((HcalDetId)closestCell, calohh, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, depthHE, debug);
 	for (unsigned int i=0; i<ehdepth.size(); ++i) {
 	  eHcalDepth[ehdepth[i].second-1] = ehdepth[i].first;
 	  HcalSubdetector subdet0 = (hbhe) ? ((ehdepth[i].second >= depthHE) ? HcalEndcap : HcalBarrel) : subdet;
@@ -309,9 +308,11 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent,
 	  subdet = HcalDetId(hotCell).subdet();
 	  ieta   = HcalDetId(hotCell).ieta();
 	  iphi   = HcalDetId(hotCell).iphi();
+	  zside  = HcalDetId(hotCell).zside();
 	  hbhe   = (std::abs(ieta) == 16);
+	  depthHE= hcons->getMinDepth(1,16,iphi,zside);
 	  std::vector<std::pair<double,int> > ehdepth;
-	  spr::energyHCALCell(hotCell, calohh, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, tMinH_, tMaxH_, debug);
+	  spr::energyHCALCell(hotCell, calohh, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, tMinH_, tMaxH_, depthHE, debug);
 	  for (unsigned int i=0; i<ehdepth.size(); ++i) {
 	    eHcalDepthHot[ehdepth[i].second-1] = ehdepth[i].first;
 	    HcalSubdetector subdet0 = (hbhe) ? ((ehdepth[i].second >= depthHE) ? HcalEndcap : HcalBarrel) : subdet;
@@ -349,7 +350,7 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent,
       }
     }
   }
-  if (hcalHot_.size() > 0) tree_->Fill();
+  if (!hcalHot_.empty()) tree_->Fill();
 }
 
 void HcalHBHEMuonSimAnalyzer::beginJob() {

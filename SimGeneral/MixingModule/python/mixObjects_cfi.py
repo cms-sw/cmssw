@@ -119,7 +119,7 @@ if fastSim.isChosen():
     mixSimVertices.input = cms.VInputTag(cms.InputTag("famosSimHits"))
     
 mixHepMCProducts = cms.PSet(
-    makeCrossingFrame = cms.untracked.bool(False),
+    makeCrossingFrame = cms.untracked.bool(True),
     input = cms.VInputTag(cms.InputTag("generatorSmeared"),cms.InputTag("generator")),
     type = cms.string('HepMCProduct')
 )

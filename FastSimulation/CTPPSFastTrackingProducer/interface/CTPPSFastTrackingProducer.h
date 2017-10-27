@@ -37,11 +37,11 @@
 #include <fstream>
 #include <string>
 #include <cmath>
-#include <math.h>
+#include <cmath>
 #include <map>
 #include <vector>
 #include <utility>
-#include <math.h>
+#include <cmath>
 
 #include <TMatrixD.h>
 
@@ -63,13 +63,13 @@
 class CTPPSFastTrackingProducer : public edm::stream::EDProducer<> {
     public:
         explicit CTPPSFastTrackingProducer(const edm::ParameterSet&);
-        ~CTPPSFastTrackingProducer();
+        ~CTPPSFastTrackingProducer() override;
         typedef CLHEP::HepLorentzVector LorentzVector;
 
     private:
-        virtual void beginStream(edm::StreamID) override;
-        virtual void produce(edm::Event&, const edm::EventSetup&) override;
-        virtual void endStream() override;
+        void beginStream(edm::StreamID) override;
+        void produce(edm::Event&, const edm::EventSetup&) override;
+        void endStream() override;
         //this function will only be called once per event
         virtual void beginEvent(edm::Event& event, const edm::EventSetup& eventSetup);
         virtual void endEvent(edm::Event& event, const edm::EventSetup& eventSetup);

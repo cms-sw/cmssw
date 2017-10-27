@@ -25,7 +25,7 @@ public:
 
   GEMSimpleModel(const edm::ParameterSet&);
 
-  ~GEMSimpleModel();
+  ~GEMSimpleModel() override;
 
   void setup() override;
 

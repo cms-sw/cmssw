@@ -138,6 +138,10 @@ initialStepTrajectoryFilterBase = _initialStepTrajectoryFilterBase.clone(
 )
 from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016
 _tracker_apv_vfp30_2016.toModify(initialStepTrajectoryFilterBase, maxCCCLostHits = 2)
+
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+pp_on_XeXe_2017.toModify(initialStepTrajectoryFilterBase, minPt=0.6)
+
 initialStepTrajectoryFilterInOut = initialStepTrajectoryFilterBase.clone(
     minimumNumberOfHits = 4,
     seedExtension = 1,
@@ -248,7 +252,7 @@ from RecoTracker.FinalTrackSelectors.TrackMVAClassifierDetached_cfi import *
 
 initialStepClassifier1 = TrackMVAClassifierPrompt.clone()
 initialStepClassifier1.src = 'initialStepTracks'
-initialStepClassifier1.GBRForestLabel = 'MVASelectorIter0_13TeV'
+initialStepClassifier1.mva.GBRForestLabel = 'MVASelectorIter0_13TeV'
 initialStepClassifier1.qualityCuts = [-0.9,-0.8,-0.7]
 
 from RecoTracker.IterativeTracking.DetachedTripletStep_cff import detachedTripletStepClassifier1
@@ -263,11 +267,11 @@ initialStep = ClassifierMerger.clone()
 initialStep.inputClassifiers=['initialStepClassifier1','initialStepClassifier2','initialStepClassifier3']
 
 trackingPhase1.toReplaceWith(initialStep, initialStepClassifier1.clone(
-        GBRForestLabel = 'MVASelectorInitialStep_Phase1',
+        mva = dict(GBRForestLabel = 'MVASelectorInitialStep_Phase1'),
         qualityCuts = [-0.95,-0.85,-0.75],
 ))
 trackingPhase1QuadProp.toReplaceWith(initialStep, initialStepClassifier1.clone(
-        GBRForestLabel = 'MVASelectorInitialStep_Phase1',
+        mva = dict(GBRForestLabel = 'MVASelectorInitialStep_Phase1'),
         qualityCuts = [-0.95,-0.85,-0.75],
 ))
 

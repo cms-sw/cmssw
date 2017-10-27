@@ -16,7 +16,7 @@ class  ParametersDefinerForTPESProducer: public edm::ESProducer{
 
  public:
   ParametersDefinerForTPESProducer(const edm::ParameterSet & p);
-  virtual ~ParametersDefinerForTPESProducer(); 
+  ~ParametersDefinerForTPESProducer() override; 
   std::shared_ptr<ParametersDefinerForTP> produce(const TrackAssociatorRecord &);
 
   edm::ParameterSet pset_;

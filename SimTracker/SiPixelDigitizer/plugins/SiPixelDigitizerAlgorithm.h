@@ -188,12 +188,12 @@ class SiPixelDigitizerAlgorithm  {
   class SignalPoint {
   public:
     SignalPoint() : _pos(0,0), _time(0), _amplitude(0), 
-      _sigma_x(1.), _sigma_y(1.), _hitp(0) {}
+      _sigma_x(1.), _sigma_y(1.), _hitp(nullptr) {}
     
     SignalPoint( float x, float y, float sigma_x, float sigma_y,
 		 float t, float a=1.0) :
     _pos(x,y), _time(t), _amplitude(a), _sigma_x(sigma_x), 
-      _sigma_y(sigma_y), _hitp(0) {}
+      _sigma_y(sigma_y), _hitp(nullptr) {}
     
     SignalPoint( float x, float y, float sigma_x, float sigma_y,
 		 float t, const PSimHit& hit, float a=1.0) :
@@ -317,10 +317,12 @@ class SiPixelDigitizerAlgorithm  {
     const float theThresholdInE_FPix;  // Pixel threshold in electrons FPix.
     const float theThresholdInE_BPix;  // Pixel threshold in electrons BPix.
     const float theThresholdInE_BPix_L1; // In case the BPix layer1 gets a different threshold
+    const float theThresholdInE_BPix_L2; // In case the BPix layer2 gets a different threshold
 
     const double theThresholdSmearing_FPix;
     const double theThresholdSmearing_BPix;
     const double theThresholdSmearing_BPix_L1;
+    const double theThresholdSmearing_BPix_L2;
 
     const float electronsPerVCAL;          // for electrons - VCAL conversion
     const float electronsPerVCAL_Offset;   // in misscalibrate()

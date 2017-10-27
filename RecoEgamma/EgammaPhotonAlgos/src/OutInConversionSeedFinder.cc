@@ -365,7 +365,7 @@ MeasurementEstimator * OutInConversionSeedFinder::makeEstimator(const DetLayer *
  
   //std::cout  << "OutInConversionSeedFinder::makeEstimator  " << "\n";
 
-  MeasurementEstimator * newEstimator=0;
+  MeasurementEstimator * newEstimator=nullptr;
 
   if (layer->location() == GeomDetEnumerators::barrel ) {
     
@@ -405,7 +405,7 @@ void OutInConversionSeedFinder::completeSeed(const TrajectoryMeasurement & m1,
 
   //std::cout <<  "OutInConversionSeedFinder::completeSeed ilayer " << ilayer << "\n";
 
-  MeasurementEstimator * newEstimator=0;
+  MeasurementEstimator * newEstimator=nullptr;
   const DetLayer * layer = theLayerList_[ilayer];
   
 

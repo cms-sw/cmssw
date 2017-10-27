@@ -95,7 +95,7 @@ RemoteFile::get (int localfd, const std::string &name, char **cmd, int mode)
   assert (! (mode & (IOFlags::OpenWrite | IOFlags::OpenCreate)));
 
   pid_t	 pid = -1;
-  int    rc = posix_spawnp (&pid, cmd[0], 0, 0, cmd, environ);
+  int    rc = posix_spawnp (&pid, cmd[0], nullptr, nullptr, cmd, environ);
 
   if (rc == -1)
   {

@@ -41,11 +41,11 @@ class EcalCoder
       EcalCoder( bool        addNoise        , 
 		 bool        PreMix1         ,
 		 Noisifier* ebCorrNoise0     ,
-		 Noisifier* eeCorrNoise0 = 0 ,
-		 Noisifier* ebCorrNoise1 = 0 ,
-		 Noisifier* eeCorrNoise1 = 0 ,
-		 Noisifier* ebCorrNoise2 = 0 ,
-		 Noisifier* eeCorrNoise2 = 0   ) ; // make EE version optional for tb compatibility
+		 Noisifier* eeCorrNoise0 = nullptr ,
+		 Noisifier* ebCorrNoise1 = nullptr ,
+		 Noisifier* eeCorrNoise1 = nullptr ,
+		 Noisifier* ebCorrNoise2 = nullptr ,
+		 Noisifier* eeCorrNoise2 = nullptr   ) ; // make EE version optional for tb compatibility
       /// dtor
       virtual ~EcalCoder() ;
 

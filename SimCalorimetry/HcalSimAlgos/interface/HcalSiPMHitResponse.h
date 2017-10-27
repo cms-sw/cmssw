@@ -28,18 +28,18 @@ public:
   HcalSiPMHitResponse(const CaloVSimParameterMap * parameterMap, 
 		      const CaloShapes * shapes, bool PreMix1 = false, bool HighFidelity = true);
 
-  virtual ~HcalSiPMHitResponse();
+  ~HcalSiPMHitResponse() override;
 
   typedef std::vector<unsigned int> photonTimeHist;
   typedef std::map< DetId, photonTimeHist > photonTimeMap;
 
-  virtual void initializeHits() override;
+  void initializeHits() override;
 
-  virtual void finalizeHits(CLHEP::HepRandomEngine*) override;
+  void finalizeHits(CLHEP::HepRandomEngine*) override;
 
-  virtual void add(const PCaloHit& hit, CLHEP::HepRandomEngine*) override;
+  void add(const PCaloHit& hit, CLHEP::HepRandomEngine*) override;
 
-  virtual void add(const CaloSamples& signal) override;
+  void add(const CaloSamples& signal) override;
 
   virtual void addPEnoise(CLHEP::HepRandomEngine* engine);
 

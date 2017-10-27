@@ -119,11 +119,11 @@ SiPixel2DTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const edm::
 	templids[k] = (short) theTemplIds[k];
 	}
 
-	for(TrackerGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){	
-		if( (*it)!=0){
+	for( const auto& it : pDD->detUnits()) {
+		if( it!=0){
 			// Here is the actual looping step over all DetIds:				
-			DetId detid=(*it)->geographicalId();
-                        const DetId detidc = (*it)->geographicalId();
+			DetId detid=it->geographicalId();
+                        const DetId detidc = it->geographicalId();
 
 			unsigned int layer=0, disk=0, side=0, blade=0, panel=0, module=0;
 					

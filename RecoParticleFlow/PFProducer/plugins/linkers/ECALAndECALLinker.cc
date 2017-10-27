@@ -45,8 +45,8 @@ testLink( const reco::PFBlockElement* elem1,
   const reco::PFBlockElementCluster* ecal2 = 
     static_cast<const reco::PFBlockElementCluster*>(elem2);
  
-  const reco::SuperClusterRef sc1 = ecal1->superClusterRef();
-  const reco::SuperClusterRef sc2 = ecal2->superClusterRef();
+  const reco::SuperClusterRef& sc1 = ecal1->superClusterRef();
+  const reco::SuperClusterRef& sc2 = ecal2->superClusterRef();
 
   const reco::PFClusterRef& clus1 = ecal1->clusterRef();
   const reco::PFClusterRef& clus2 = ecal2->clusterRef();

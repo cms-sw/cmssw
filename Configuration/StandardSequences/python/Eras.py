@@ -23,6 +23,7 @@ class Eras (object):
                  'Run2_2017_trackingRun2',
                  'Run2_2017_trackingPhase1QuadProp',
                  'Run2_2017_trackingLowPU',
+                 'Run2_2017_pp_on_XeXe',
                  'Run2_2018',
                  'Run3',
                  'Phase2',
@@ -41,7 +42,7 @@ class Eras (object):
                            'phase2_hgcal', 'phase2_muon', 'phase2_timing',
                            'phase2_timing_layer','phase2_hcal',
                            'trackingLowPU', 'trackingPhase1', 'trackingPhase1QuadProp', 'ctpps_2016', 'trackingPhase2PU140',
-                           'tracker_apv_vfp30_2016', 'run2_miniAOD_80XLegacy',
+                           'tracker_apv_vfp30_2016', 'run2_miniAOD_80XLegacy', 'run2_nanoAOD_92X',
                            'hcalHardcodeConditions', 'hcalSkipPacker']
         internalUseModChains = ['run2_2017_noTrackingModifier']
 

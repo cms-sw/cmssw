@@ -19,19 +19,19 @@ class DualBzeroTrajectoryFactory : public TrajectoryFactoryBase
 {
 public:
   DualBzeroTrajectoryFactory(const edm::ParameterSet &config);
-  virtual ~DualBzeroTrajectoryFactory();
+  ~DualBzeroTrajectoryFactory() override;
 
   /// Produce the reference trajectories.
-  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
+  const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
 							   const ConstTrajTrackPairCollection &tracks,
 							    const reco::BeamSpot &beamSpot) const override;
 
-  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
+  const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
 							   const ConstTrajTrackPairCollection &tracks,
 							   const ExternalPredictionCollection &external,
 							   const reco::BeamSpot &beamSpot) const override;
 
-  virtual DualBzeroTrajectoryFactory* clone() const override { return new DualBzeroTrajectoryFactory(*this); }
+  DualBzeroTrajectoryFactory* clone() const override { return new DualBzeroTrajectoryFactory(*this); }
 
 protected:
   struct DualBzeroTrajectoryInput

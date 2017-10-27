@@ -517,6 +517,33 @@ void test_throwIfImproperDependencies::twoPathsNoCycleTest()
     CPPUNIT_ASSERT( testCase(md,paths));
   }
 
+  {
+    //The same sequence of modules appear on a Path and EndPath
+    // Check that the framework does not get confused when jumping
+    // from one path to the other path just because of the
+    // TriggerResults connection.
+    
+    ModuleDependsOnMap md = {
+      {"A_TR", {"zEP1"}},
+      {"A", {"B"}},
+      {"B", {"H"}},
+      {"C", {}},
+      {"D" ,{}},
+      {"E" , {}},
+      {"G",{"D"}},
+      {"H",{"D"}},
+      {"zEP1", {}},
+      {"zSEP2", {"A_TR"}}
+    };
+    PathToModules paths = {
+      {"p2", {"D", "G","H","B","C","zEP1"}},
+      {"p3", {"A"}}, //Needed to make graph search start here
+      {"p1", {"zSEP2","E","D","G","H","B", "C"}} };
+  
+    
+    CPPUNIT_ASSERT( testCase(md,paths));
+    
+  }
 }
 
 void test_throwIfImproperDependencies::twoPathsWithCycleTest()
@@ -652,6 +679,23 @@ void test_throwIfImproperDependencies::twoPathsWithCycleTest()
       {"p2", {"Filter", "B", "D","zEP2"}},
       {"p3", {"C","D","zEP3"}},
       {"p4", {"zSEP4","B","zEP4"}} };
+    
+    CPPUNIT_ASSERT_THROW( testCase(md,paths), cms::Exception);
+  }
+
+  {
+    // The data dependency for 'D" can be met
+    // by the order of modules on path p2
+    // but NOT by path3
+    ModuleDependsOnMap md = {
+      {"A_TR", {"zEP1","zEP2"}},
+      { "B",{}},
+      {"zFilter", {"A_TR"}}
+    };
+    PathToModules paths = {
+      {"p1", {"zFilter","B","zEP1"}},
+      {"p2", {"zFilter", "B","zEP2"}}
+    };
     
     CPPUNIT_ASSERT_THROW( testCase(md,paths), cms::Exception);
   }

@@ -49,9 +49,9 @@ public:
                            const reco::BeamSpot& beamSpot,
                            const ReferenceTrajectoryBase::Config& config);
 
-  virtual ~BzeroReferenceTrajectory() {}
+  ~BzeroReferenceTrajectory() override {}
 
-  virtual BzeroReferenceTrajectory* clone() const
+  BzeroReferenceTrajectory* clone() const override
     { return new BzeroReferenceTrajectory(*this); }
 
 private:

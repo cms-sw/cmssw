@@ -107,7 +107,7 @@ namespace cscdqm {
        */
       const std::string getFullPath() const {
         std::string path(getPath());
-        if (path.size() > 0) path.append("/");
+        if (!path.empty()) path.append("/");
         path.append(getName());
         return path;
       }
@@ -284,8 +284,8 @@ namespace cscdqm {
        * @return 
        */
       FEDHistoDef(const HistoId p_id, const HwId p_fedId) : HistoDef(p_id), fedId(p_fedId) { }
-      const HwId getFEDId() const { return fedId; }
-      const std::string getPath() const { return getPath(fedId); }
+      const HwId getFEDId() const override { return fedId; }
+      const std::string getPath() const override { return getPath(fedId); }
 
       /**
        * @brief  Static FED path formatter
@@ -310,8 +310,8 @@ namespace cscdqm {
         return *this;
       }
 
-      const std::string processTitle(const std::string& p_title) const {
-        return processName(p_title.c_str(), getFEDId());
+      const std::string processTitle(const std::string& p_title) const override {
+        return processName(p_title, getFEDId());
       }
         
   };      
@@ -335,8 +335,8 @@ namespace cscdqm {
        * @return 
        */
       DDUHistoDef(const HistoId p_id, const HwId p_dduId) : HistoDef(p_id), dduId(p_dduId) { }
-      const HwId getDDUId() const { return dduId; }
-      const std::string getPath() const { return getPath(dduId); }
+      const HwId getDDUId() const override { return dduId; }
+      const std::string getPath() const override { return getPath(dduId); }
 
       /**
        * @brief  Static DDU path formatter
@@ -361,8 +361,8 @@ namespace cscdqm {
         return *this;
       }
 
-      const std::string processTitle(const std::string& p_title) const {
-        return processName(p_title.c_str(), getDDUId());
+      const std::string processTitle(const std::string& p_title) const override {
+        return processName(p_title, getDDUId());
       }
 
   };
@@ -396,11 +396,11 @@ namespace cscdqm {
       CSCHistoDef(const HistoId p_id, const HwId p_crateId, const HwId p_dmbId, const HwId p_addId = 0) : 
         HistoDef(p_id), crateId(p_crateId), dmbId(p_dmbId), addId(p_addId) { }
 
-      const HwId getCrateId() const { return crateId; }
-      const HwId getDMBId()   const { return dmbId; }
-      const HwId getAddId()   const { return addId; }
-      const std::string getName() const { return processName(getHistoName(), getAddId()); }
-      const std::string getPath() const { return getPath(crateId, dmbId); }
+      const HwId getCrateId() const override { return crateId; }
+      const HwId getDMBId()   const override { return dmbId; }
+      const HwId getAddId()   const override { return addId; }
+      const std::string getName() const override { return processName(getHistoName(), getAddId()); }
+      const std::string getPath() const override { return getPath(crateId, dmbId); }
 
       /**
        * @brief  Static CSC path formatter
@@ -428,8 +428,8 @@ namespace cscdqm {
         return *this;
       }
 
-      const std::string processTitle(const std::string& p_title) const {
-        return processName(p_title.c_str(), getAddId());
+      const std::string processTitle(const std::string& p_title) const override {
+        return processName(p_title, getAddId());
       }
 
 

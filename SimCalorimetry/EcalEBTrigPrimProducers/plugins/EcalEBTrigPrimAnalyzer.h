@@ -24,11 +24,11 @@
 class EcalEBTrigPrimAnalyzer : public edm::one::EDAnalyzer<> {
    public:
   explicit EcalEBTrigPrimAnalyzer(const edm::ParameterSet&);
-  ~EcalEBTrigPrimAnalyzer();
+  ~EcalEBTrigPrimAnalyzer() override;
 
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob();
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
    private:
 
   int nEvents_;

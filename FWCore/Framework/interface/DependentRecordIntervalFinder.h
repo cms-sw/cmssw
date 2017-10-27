@@ -38,7 +38,7 @@ class DependentRecordIntervalFinder : public EventSetupRecordIntervalFinder
 
    public:
       DependentRecordIntervalFinder(const EventSetupRecordKey&);
-      virtual ~DependentRecordIntervalFinder();
+      ~DependentRecordIntervalFinder() override;
 
       // ---------- const member functions ---------------------
       bool haveProviders() const {
@@ -52,14 +52,14 @@ class DependentRecordIntervalFinder : public EventSetupRecordIntervalFinder
       
       void setAlternateFinder(std::shared_ptr<EventSetupRecordIntervalFinder>);
    protected:
-      virtual void setIntervalFor(const EventSetupRecordKey&,
+      void setIntervalFor(const EventSetupRecordKey&,
                                    const IOVSyncValue& , 
-                                   ValidityInterval&);
+                                   ValidityInterval&) override;
       
    private:
-      DependentRecordIntervalFinder(const DependentRecordIntervalFinder&); // stop default
+      DependentRecordIntervalFinder(const DependentRecordIntervalFinder&) = delete; // stop default
 
-      const DependentRecordIntervalFinder& operator=(const DependentRecordIntervalFinder&); // stop default
+      const DependentRecordIntervalFinder& operator=(const DependentRecordIntervalFinder&) = delete; // stop default
 
       // ---------- member data --------------------------------
       typedef std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordProvider>>> Providers;

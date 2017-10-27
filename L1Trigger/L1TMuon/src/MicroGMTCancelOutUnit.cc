@@ -46,12 +46,12 @@ MicroGMTCancelOutUnit::setCancelOutBits(GMTInternalWedges& wedges, tftype trackF
     maxWedges = 12;
   }
   for (int currentWedge = 0; currentWedge < maxWedges; ++currentWedge) {
-    for (auto mu : wedges.at(currentWedge)) {
+    for (const auto &mu : wedges.at(currentWedge)) {
       coll1.push_back(mu);
     }
     // handle wrap around: max "wedge" has to be compared to first "wedge"
     int neighbourWedge = (currentWedge + 1) % maxWedges;
-    for (auto mu : wedges.at(neighbourWedge)) {
+    for (const auto &mu : wedges.at(neighbourWedge)) {
       coll2.push_back(mu);
     }
     if (mode == cancelmode::coordinate) {
@@ -76,7 +76,7 @@ MicroGMTCancelOutUnit::setCancelOutBitsOverlapBarrel(GMTInternalWedges& omtfSect
   coll2.reserve(12);
 
   for (int currentSector = 0; currentSector < 6; ++currentSector) {
-    for (auto omtfMuon : omtfSectors.at(currentSector)) {
+    for (const auto &omtfMuon : omtfSectors.at(currentSector)) {
       coll1.push_back(omtfMuon);
     }
     // BMTF | 1  | 2  | 3  | 4  | 5  | 6  | 7  | 8  | 9  | 10 | 11 | 0  |
@@ -85,7 +85,7 @@ MicroGMTCancelOutUnit::setCancelOutBitsOverlapBarrel(GMTInternalWedges& omtfSect
     // e.g. OMTF 0 with BMTF 0, 1, 2, 3, OMTF 2 with BMTF 4, 5, 6, 7 etc.
     for (int i = 0; i < 4; ++i) {
       int currentWedge = (currentSector * 2 + i) % 12;
-      for (auto bmtfMuon : bmtfWedges.at(currentWedge)) {
+      for (const auto &bmtfMuon : bmtfWedges.at(currentWedge)) {
         coll2.push_back(bmtfMuon);
       }
     }
@@ -110,7 +110,7 @@ MicroGMTCancelOutUnit::setCancelOutBitsOverlapEndcap(GMTInternalWedges& omtfSect
   coll2.reserve(9);
 
   for (int curOmtfSector = 0; curOmtfSector < 6; ++curOmtfSector) {
-    for (auto omtfMuon : omtfSectors.at(curOmtfSector)) {
+    for (const auto &omtfMuon : omtfSectors.at(curOmtfSector)) {
       coll1.push_back(omtfMuon);
     }
     // OMTF |    0    |    1    |    2    |    3    |    4    |    5    |
@@ -120,7 +120,7 @@ MicroGMTCancelOutUnit::setCancelOutBitsOverlapEndcap(GMTInternalWedges& omtfSect
     for (int i = 0; i < 3; ++i) {
       // handling the wrap around: adding 5 because 0 has to be compared to 5
       int curEmtfSector = ((curOmtfSector + 5) + i) % 6;
-      for (auto emtfMuon : emtfSectors.at(curEmtfSector)) {
+      for (const auto &emtfMuon : emtfSectors.at(curEmtfSector)) {
         coll2.push_back(emtfMuon);
       }
     }
@@ -137,7 +137,7 @@ MicroGMTCancelOutUnit::setCancelOutBitsOverlapEndcap(GMTInternalWedges& omtfSect
 void
 MicroGMTCancelOutUnit::getCoordinateCancelBits(std::vector<std::shared_ptr<GMTInternalMuon>>& coll1, std::vector<std::shared_ptr<GMTInternalMuon>>& coll2)
 {
-  if (coll1.size() == 0 || coll2.size() == 0) {
+  if (coll1.empty() || coll2.empty()) {
     return;
   }
   tftype coll1TfType = (*coll1.begin())->trackFinderType();
@@ -193,7 +193,7 @@ MicroGMTCancelOutUnit::getCoordinateCancelBits(std::vector<std::shared_ptr<GMTIn
 void
 MicroGMTCancelOutUnit::getTrackAddrCancelBits(std::vector<std::shared_ptr<GMTInternalMuon>>& coll1, std::vector<std::shared_ptr<GMTInternalMuon>>& coll2)
 {
-  if (coll1.size() == 0 || coll2.size() == 0) {
+  if (coll1.empty() || coll2.empty()) {
     return;
   }
   // Address based cancel out is implemented for BMTF only

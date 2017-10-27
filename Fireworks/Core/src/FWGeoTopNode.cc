@@ -47,7 +47,7 @@
 #include "Fireworks/Core/interface/FWViewType.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
-TGLViewer* FWGeoTopNode::s_pickedViewer = 0;
+TGLViewer* FWGeoTopNode::s_pickedViewer = nullptr;
 TGLVector3 FWGeoTopNode::s_pickedCamera3DCenter;
 
 UInt_t FWGeoTopNode::phyID(int tableIdx) 
@@ -370,7 +370,7 @@ FWPopupMenu* FWGeoTopNode::setPopupMenu(int iX, int iY, TGLViewer* v, bool overl
    if (getFirstSelectedTableIndex() < 0)
    {
       if (fSted.empty()) fwLog(fwlog::kInfo) << "No menu -- no node/entry selected \n";
-      return 0;
+      return nullptr;
    }
    
    FWPopupMenu* nodePopup = new FWPopupMenu();

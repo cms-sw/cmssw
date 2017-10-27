@@ -35,12 +35,12 @@ class AlignmentMonitorMuonVsCurvature: public AlignmentMonitorBase
 {
 public:
   AlignmentMonitorMuonVsCurvature(const edm::ParameterSet& cfg);
-  virtual ~AlignmentMonitorMuonVsCurvature() {}
+  ~AlignmentMonitorMuonVsCurvature() override {}
 
   void book() override;
 
   void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks) override;
-  void processMuonResidualsFromTrack(MuonResidualsFromTrack &mrft, const Trajectory* traj = NULL);
+  void processMuonResidualsFromTrack(MuonResidualsFromTrack &mrft, const Trajectory* traj = nullptr);
 
 private:
   
@@ -135,9 +135,9 @@ void AlignmentMonitorMuonVsCurvature::book()
       }
 
       th2f_wheel_st_sector[wheel+2][station-1][sector-1][component] =
-          book2D("/iterN/", th2f_name.str().c_str(), "", 30, -xminmax, xminmax, ynbins, -yminmax, yminmax);
+          book2D("/iterN/", th2f_name.str(), "", 30, -xminmax, xminmax, ynbins, -yminmax, yminmax);
       tprofile_wheel_st_sector[wheel+2][station-1][sector-1][component] =
-          bookProfile("/iterN/", tprofile_name.str().c_str(), "", 30,  -xminmax, xminmax);
+          bookProfile("/iterN/", tprofile_name.str(), "", 30,  -xminmax, xminmax);
     }
   }
 
@@ -176,9 +176,9 @@ void AlignmentMonitorMuonVsCurvature::book()
       tprofile_name << "tprofile_" << stname[station] << ringname << chname << componentname.str();
 
       th2f_st_ring_chamber[station][ring-1][chamber-1][component] =
-          book2D("/iterN/", th2f_name.str().c_str(), "", 30, -xminmax, xminmax, 100, -yminmax, yminmax);
+          book2D("/iterN/", th2f_name.str(), "", 30, -xminmax, xminmax, 100, -yminmax, yminmax);
       tprofile_st_ring_chamber[station][ring-1][chamber-1][component] =
-          bookProfile("/iterN/", tprofile_name.str().c_str(), "", 30, -xminmax, xminmax);
+          bookProfile("/iterN/", tprofile_name.str(), "", 30, -xminmax, xminmax);
     }
   }
 
@@ -265,7 +265,7 @@ void AlignmentMonitorMuonVsCurvature::processMuonResidualsFromTrack(MuonResidual
       DTChamberId dtid(chamberId->rawId());
       MuonChamberResidual *dt13 = mrft.chamberResidual(*chamberId, MuonChamberResidual::kDT13);
       
-      if (dt13 != NULL  &&  dt13->numHits() >= m_minDT13Hits)
+      if (dt13 != nullptr  &&  dt13->numHits() >= m_minDT13Hits)
       {
         int wheel = dtid.wheel() + 2;
         int station = dtid.station() -1;
@@ -289,7 +289,7 @@ void AlignmentMonitorMuonVsCurvature::processMuonResidualsFromTrack(MuonResidual
       CSCDetId cscid(chamberId->rawId());
       MuonChamberResidual *csc = mrft.chamberResidual(*chamberId, MuonChamberResidual::kCSC);
 
-      if (csc != NULL  &&  csc->numHits() >= m_minCSCHits)
+      if (csc != nullptr  &&  csc->numHits() >= m_minCSCHits)
       {
         int station = 4*cscid.endcap() + cscid.station() - 5;
         int ring = cscid.ring() - 1;

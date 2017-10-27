@@ -315,6 +315,7 @@ void PFlow2DClusterizerWithTime::clusterTimeResolutionFromSeed(reco::PFCluster&
        clusterRes2 = _timeResolutionCalcBarrel->timeResolution2(rh.energy());
      else
        clusterRes2 = _timeResolutionCalcEndcap->timeResolution2(rh.energy());
+     cluster.setTimeError(std::sqrt(float(clusterRes2)));
     }
   }
 }
@@ -348,6 +349,7 @@ void PFlow2DClusterizerWithTime::clusterTimeResolution(reco::PFCluster& cluster,
   if (sumSigma2 > 0.) {
     clusterRes2 = 1./sumSigma2;
     cluster.setTime(sumTimeSigma2/sumSigma2);
+    cluster.setTimeError(std::sqrt(float(clusterRes2)));
   } else {
     clusterRes2 = 999999.;
   }

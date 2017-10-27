@@ -28,7 +28,7 @@ class EcalEBTrigPrimProducer : public edm::stream::EDProducer<>
   
   explicit EcalEBTrigPrimProducer(const edm::ParameterSet& conf);
   
-  virtual ~EcalEBTrigPrimProducer();
+  ~EcalEBTrigPrimProducer() override;
   
 
   void beginRun(const edm::Run& run, const edm::EventSetup& es) override;

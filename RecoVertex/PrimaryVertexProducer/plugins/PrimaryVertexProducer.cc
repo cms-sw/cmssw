@@ -200,9 +200,10 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         for( const auto& tk : *iclus ) {
           const double time = tk.timeExt();
           const double inverr = 1.0/tk.dtErrorExt();
-          meantime += time*inverr;
-          expv_x2  += time*time*inverr;
-          normw    += inverr;
+          const double w = inverr*inverr;
+          meantime += time*w;
+          expv_x2  += time*time*w;
+          normw    += w;
         }
         meantime = meantime/normw;
         expv_x2 = expv_x2/normw;

@@ -40,6 +40,12 @@ simSiStripDigis = cms.EDAlias(
 #    )
 #)
 
+genPUProtons = cms.EDAlias(
+    mixData = cms.VPSet(
+        cms.PSet( type = cms.string('recoGenParticles') )
+    )
+)
+
 # no castor,pixel,strip digis in fastsim
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(simCastorDigis, mix = None)

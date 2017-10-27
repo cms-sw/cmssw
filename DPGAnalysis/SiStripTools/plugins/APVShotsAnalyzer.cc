@@ -70,15 +70,15 @@
 class APVShotsAnalyzer : public edm::EDAnalyzer {
 public:
   explicit APVShotsAnalyzer(const edm::ParameterSet&);
-  ~APVShotsAnalyzer();
+  ~APVShotsAnalyzer() override;
 
 
 private:
-  virtual void beginJob() override ;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   void updateDetCabling( const edm::EventSetup& setup );
 
@@ -151,7 +151,7 @@ APVShotsAnalyzer::APVShotsAnalyzer(const edm::ParameterSet& iConfig):
   _rhm(consumesCollector()),
   _useCabling(iConfig.getUntrackedParameter<bool>("useCabling",true)),
   _cacheIdDet(0),
-  _detCabling(0)
+  _detCabling(nullptr)
 {
    //now do what ever initialization is needed
 
@@ -227,7 +227,7 @@ APVShotsAnalyzer::~APVShotsAnalyzer()
 
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-  if ( _detCabling ) _detCabling = 0;
+  if ( _detCabling ) _detCabling = nullptr;
 
 }
 

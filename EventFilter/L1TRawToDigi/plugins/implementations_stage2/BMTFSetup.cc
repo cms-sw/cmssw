@@ -8,6 +8,7 @@
 
 namespace l1t {
    namespace stage2 {
+
       std::unique_ptr<PackerTokens>
       BMTFSetup::registerConsumes(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc)
       {
@@ -20,16 +21,52 @@ namespace l1t {
       BMTFSetup::getPackers(int fed, unsigned int fw)
       {
          PackerMap res;
+	 //res are in format res[amc_no, board_id]
+	 
+	  if (fed == 1376 || fed == 1377) {
 
-         /*               if (fed == 1360) {
-         // Use board id 1 for packing
-         res[{1, 1}] = {
-         PackerFactory::get()->make("stage2::MuonPacker")
-         };
-         }
-         */
+            std::array<int,12> board_out = { {1,7,2,8,3,9,4,10,5,11,6,12} };//these are board_ids per amc_no-1
+
+	    for (unsigned int i=1; i<=board_out.size(); i++)
+	      {
+		if (i%2 != 0) {//maybe this check is not needed
+		  res[{i, board_out[i-1]}] = {PackerFactory::get()->make("stage2::BMTFPackerOutput"),
+					      PackerFactory::get()->make("stage2::BMTFPackerInputs")};
+		}
+		else{
+		  res[{i, board_out[i-1]}] = {PackerFactory::get()->make("stage2::BMTFPackerOutput"),
+					      PackerFactory::get()->make("stage2::BMTFPackerInputs")};
+		}
+
+	     }
+	  }//if feds
+
+	   /*
+	 if (fed == 1376) {
+	   std::cout << "fed is 1376" << std::endl;
+	   for (int i=1; i <= 12; i = i+2){//itr for amc_no = 1,3,5,7,9,11
+	     res[{i,board_out[i-1]}] = {PackerFactory::get()->make("stage2::BMTFPackerOutput"),
+					PackerFactory::get()->make("stage2::BMTFPackerInputs")};
+	   }
+
+	 }
+	 else if (fed == 1377) {
+	   std::cout << "fed is 1377" << std::endl;
+	   for (int i=2; i <=12; i = i+2){//itr for amc_no = 2,4,6,8,10,12
+	     res[{i,board_out[i-1]}] = {PackerFactory::get()->make("stage2::BMTFPackerOutput"),
+					PackerFactory::get()->make("stage2::BMTFPackerInputs")};
+	   }
+	
+	 }
+	 else{
+	   std::cout << std::endl;
+	   std::cout << "The given fed is not a BMTF fed (1376 or 1377)" << std::endl;
+	   std::cout << std::endl;
+	 }//if feds
+	   */
+
          return res;
-      }
+   }//getPackers
 
       void
       BMTFSetup::registerProducts(edm::stream::EDProducerBase& prod)
@@ -50,6 +87,7 @@ namespace l1t {
       UnpackerMap
       BMTFSetup::getUnpackers(int fed, int board, int amc, unsigned int fw)
       {
+
          auto outputMuon = UnpackerFactory::get()->make("stage2::BMTFUnpackerOutput");
          auto inputMuonsOld = UnpackerFactory::get()->make("stage2::BMTFUnpackerInputsOldQual");
          auto inputMuonsNew = UnpackerFactory::get()->make("stage2::BMTFUnpackerInputsNewQual");
@@ -60,11 +98,13 @@ namespace l1t {
                if (iL == 12 || iL == 14 || ( iL > 26 && iL < 32) || iL == 60 || iL == 62)
                   continue;
 
-               if (fw < 2452619552)
+               if (fw < 2452619552){
                   res[iL] = inputMuonsOld;
-               else
+	       }
+               else{
                   res[iL] = inputMuonsNew;
-            }
+	       }
+	    }
             res[123] = outputMuon;
          }
          return res;

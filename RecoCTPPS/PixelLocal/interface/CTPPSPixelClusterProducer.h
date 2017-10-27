@@ -41,9 +41,9 @@ class CTPPSPixelClusterProducer : public edm::stream::EDProducer<>
 public:
   explicit CTPPSPixelClusterProducer(const edm::ParameterSet& param);
  
-  ~CTPPSPixelClusterProducer();
+  ~CTPPSPixelClusterProducer() override;
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:

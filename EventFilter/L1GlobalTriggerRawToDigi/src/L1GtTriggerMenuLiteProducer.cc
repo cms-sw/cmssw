@@ -63,7 +63,7 @@ L1GtTriggerMenuLiteProducer::L1GtTriggerMenuLiteProducer(
     m_physicsDaqPartition(0) {
 
     // EDM product in Run Data
-    produces<L1GtTriggerMenuLite, edm::InRun>();
+    produces<L1GtTriggerMenuLite, edm::Transition::BeginRun>();
 
 }
 

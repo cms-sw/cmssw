@@ -9,12 +9,12 @@ pixelClusterVsLumi = dqmCorrelationClient.clone(
       folder = cms.string("HLT/Pixel/"),
       name   = cms.string("num_clusters_per_instLumi"),
       doXaxis = cms.bool( True ),
-      nbinsX = cms.int32( 5000),
+      nbinsX = cms.int32(    40 ),
       xminX  = cms.double(    0.),
       xmaxX  = cms.double(20000.),
 #      doYaxis = cms.bool( False ),
       doYaxis = cms.bool( True ),
-      nbinsY = cms.int32 (   4000 ),
+      nbinsY = cms.int32 (    400 ),
       xminY  = cms.double(      0.),
       xmaxY  = cms.double( 400000.),
    ),
@@ -55,6 +55,6 @@ sipixelHarvesterHLTsequence = cms.Sequence(
 #    + hltSiPixelPhase1TrackClustersHarvester
     pixelClusterVsLumiPXBarrel
     + pixelClusterVsLumiPXForward
-    + pixelTrackClusterVsLumiPXBarrel
-    + pixelTrackClusterVsLumiPXForward
+#    + pixelTrackClusterVsLumiPXBarrel
+#    + pixelTrackClusterVsLumiPXForward
 )    

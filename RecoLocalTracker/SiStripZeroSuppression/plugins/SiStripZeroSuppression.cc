@@ -68,7 +68,7 @@ inline void SiStripZeroSuppression::StandardZeroSuppression(edm::Event& e){
     edm::Handle< edm::DetSetVector<SiStripRawDigi> > input;
     e.getByToken(*inputToken,input);
 
-      if (input->size())
+      if (!input->empty())
         processRaw(*inputTag, *input);
     
       e.put(std::make_unique<edm::DetSetVector<SiStripDigi>>(output_base), inputTag->instance());
@@ -126,7 +126,7 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
 
       //here storing the output
       this->storeExtraOutput(rawDigis->id, nAPVflagged);
-      if (suppressedDigis.size() && (storeInZScollBadAPV || nAPVflagged ==0)) 
+      if (!suppressedDigis.empty() && (storeInZScollBadAPV || nAPVflagged ==0)) 
 	output_base.push_back(suppressedDigis); 
          
       if (produceRawDigis && nAPVflagged > 0){  
@@ -189,7 +189,7 @@ void SiStripZeroSuppression::storeBaseline(uint32_t id, const std::vector< std::
     
   }
   
-  if(baselineDetSet.size())
+  if(!baselineDetSet.empty())
     output_baseline.push_back(baselineDetSet);
   
 }
@@ -215,7 +215,7 @@ void SiStripZeroSuppression::storeBaselinePoints(uint32_t id){
       }    
 
     
-    if(baspointDetSet.size())
+    if(!baspointDetSet.empty())
     output_baseline_points.push_back(baspointDetSet);
   
 }
@@ -251,7 +251,7 @@ void SiStripZeroSuppression::storeCMN(uint32_t id, const std::vector< std::pair<
     apvNb++;
   }
    
-  if(apvDetSet.size())
+  if(!apvDetSet.empty())
     output_apvcm.push_back(apvDetSet);
   
 }
@@ -267,7 +267,7 @@ inline void SiStripZeroSuppression::MergeCollectionsZeroSuppression(edm::Event& 
 	
     std::cout << inputdigi->size() << " " << inputraw->size() << std::endl;
 	
-    if (inputraw->size()){
+    if (!inputraw->empty()){
 		
 		std::vector<edm::DetSet<SiStripDigi> > outputdigi; 
 		outputdigi.clear();
@@ -303,7 +303,7 @@ inline void SiStripZeroSuppression::MergeCollectionsZeroSuppression(edm::Event& 
 				std::vector<int16_t> processedRawDigis(rawDigis->size());
                                 algorithms->SuppressVirginRawData(*rawDigis, suppressedDigis);
 		  	   
-				if(suppressedDigis.size()){	  
+				if(!suppressedDigis.empty()){	  
 					std::cout << "looking for the detId with the new ZS in the collection of the zero suppressed data" << std::endl; 
 					std::vector<edm::DetSet<SiStripDigi> >::iterator zsModule = outputdigi.begin();
 					//std::vector<edm::DetSet<SiStripDigi> >::iterator LastLowerIdDigis = zsModule;
@@ -419,7 +419,7 @@ inline void SiStripZeroSuppression::CollectionMergedZeroSuppression(edm::Event& 
     std::vector<edm::DetSet<SiStripRawDigi> > outputraw;  
        
 	
-    if (inputraw->size())	
+    if (!inputraw->empty())	
       processRaw(*inputTag, *inputraw);
     
 	

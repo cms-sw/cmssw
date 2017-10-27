@@ -28,7 +28,7 @@ public:
   DTTriggerEfficiencyTest(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~DTTriggerEfficiencyTest();
+  ~DTTriggerEfficiencyTest() override;
 
 protected:
 
@@ -51,10 +51,10 @@ protected:
   std::string getMEName(std::string histoTag, std::string folder, int wh);
 
   /// BeginRun
-  void beginRun(const edm::Run& r, const edm::EventSetup& c);
+  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
 
   /// DQM Client Diagnostic
-  void runClientDiagnostic(DQMStore::IBooker &, DQMStore::IGetter &);
+  void runClientDiagnostic(DQMStore::IBooker &, DQMStore::IGetter &) override;
   void Bookings(DQMStore::IBooker &, DQMStore::IGetter &);
 
  private:

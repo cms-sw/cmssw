@@ -49,10 +49,10 @@ class NuclearInteractionSimulator : public MaterialEffectsSimulator
 			      double distCut);
 
   /// Default Destructor
-  ~NuclearInteractionSimulator();
+  ~NuclearInteractionSimulator() override;
 
   /// Save current nuclear interaction (for later use)
-  void save();
+  void save() override;
 
   /// Read former nuclear interaction (from previous run)
   bool read(std::string inputFile);
@@ -60,7 +60,7 @@ class NuclearInteractionSimulator : public MaterialEffectsSimulator
  private:
 
   /// Generate a nuclear interaction according to the probability that it happens
-  void compute(ParticlePropagator& Particle, RandomEngineAndDistribution const*);
+  void compute(ParticlePropagator& Particle, RandomEngineAndDistribution const*) override;
 
   /// Compute distance between secondary and primary
   double distanceToPrimary(const RawParticle& Particle,

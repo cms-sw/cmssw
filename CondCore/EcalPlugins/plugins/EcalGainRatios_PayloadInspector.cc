@@ -157,7 +157,8 @@ namespace {
       st->SetX1NDC(0.6); //new x start position
       st->SetY1NDC(0.75); //new y start position
 
-      canvas.SaveAs("ecalGainRatios.png");
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
       return true;
     }// fill method
   };
@@ -317,7 +318,8 @@ namespace {
       st->SetX1NDC(0.6); //new x start position
       st->SetY1NDC(0.75); //new y start position
 
-      canvas.SaveAs("ecalGainRatiosDiff.png");
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
       return true;
     }// fill method
   };

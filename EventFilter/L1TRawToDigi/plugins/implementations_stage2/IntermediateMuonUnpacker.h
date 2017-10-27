@@ -8,15 +8,23 @@ namespace l1t {
       class IntermediateMuonUnpacker : public Unpacker {
          public:
             IntermediateMuonUnpacker();
-            ~IntermediateMuonUnpacker() {};
+            ~IntermediateMuonUnpacker() override {};
 
-            virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
+            bool unpack(const Block& block, UnpackerCollections *coll) override;
 
             inline unsigned int getAlgoVersion() { return algoVersion_; };
             inline void setAlgoVersion(const unsigned int version) { algoVersion_ = version; };
 
          private:
+            static constexpr unsigned nWords_ = 6; // every link transmits 6 words (3 muons) per bx
+            static constexpr unsigned bxzs_enable_shift_ = 1;
+
+            MuonBxCollection* res1_;
+            MuonBxCollection* res2_;
             unsigned int algoVersion_;
+            unsigned int coll1Cnt_;
+
+            void unpackBx(int bx, const std::vector<uint32_t>& payload, unsigned int startIdx=0);
       };
    }
 }

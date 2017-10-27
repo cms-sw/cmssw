@@ -37,7 +37,7 @@ betaBoost(iConfig.getUntrackedParameter("BetaBoost",0.))
      ||  (etaMin.size() > 1 && particleID.size() != etaMin.size()) 
      ||  (etaMax.size() > 1 && particleID.size() != etaMax.size())
      ||  (status.size() > 1 && particleID.size() != status.size()) ) {
-      cout << "WARNING: MCPROCESSFILTER : size of MinPthat and/or MaxPthat not matching with ProcessID size!!" << endl;
+	    edm::LogInfo("MCSingleParticleFilter") << "WARNING: size of MinPthat and/or MaxPthat not matching with ProcessID size!!" << endl;
     }
 
     // if ptMin size smaller than particleID , fill up further with defaults
@@ -83,7 +83,7 @@ MCSingleParticleFilter::~MCSingleParticleFilter()
 
 
 // ------------ method called to skim the data  ------------
-bool MCSingleParticleFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool MCSingleParticleFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
    using namespace edm;
    bool accepted = false;
@@ -116,6 +116,6 @@ bool MCSingleParticleFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
 
    }
    
-   if (accepted){ return true; } else {return false;}
+   return accepted;
    
 }

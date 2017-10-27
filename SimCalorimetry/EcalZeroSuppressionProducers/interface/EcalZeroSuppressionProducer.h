@@ -29,10 +29,10 @@ public:
   // constructor when the parameter set system is available.
   //
   explicit EcalZeroSuppressionProducer(const edm::ParameterSet& params);
-  virtual ~EcalZeroSuppressionProducer();
+  ~EcalZeroSuppressionProducer() override;
 
   /**Produces the EDM products,*/
-  virtual void produce(edm::Event& event, const edm::EventSetup& eventSetup);
+  void produce(edm::Event& event, const edm::EventSetup& eventSetup) override;
 
   void initCalibrations(const edm::EventSetup & eventSetup);
 

@@ -19,7 +19,7 @@ const char EcalSelectiveReadout::srpFlagMarker[] = {'.', 'S', 'N', 'C',
                                                     '4', '5', '6', '7'};
 
 EcalSelectiveReadout::EcalSelectiveReadout(int dEta_, int dPhi_):
-  theTriggerMap(0), theElecMap(0), dEta(dEta_), dPhi(dPhi_) {
+  theTriggerMap(nullptr), theElecMap(nullptr), dEta(dEta_), dPhi(dPhi_) {
 }
 
 void EcalSelectiveReadout::resetEeRuInterest(){

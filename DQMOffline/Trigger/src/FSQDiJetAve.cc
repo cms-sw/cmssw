@@ -337,10 +337,10 @@ class HandlerTemplate: public BaseHandler {
             std::vector<TOutputCandidateType> cands;
             getFilteredCands((TInputCandidateType *)nullptr, cands, iEvent, iSetup, hltConfig, trgEvent, weight);
 
-            if (cands.size()==0) return;
+            if (cands.empty()) return;
 
             std::vector<TOutputCandidateType> bestCombinationFromCands = getBestCombination(cands);
-            if (bestCombinationFromCands.size()==0) return;
+            if (bestCombinationFromCands.empty()) return;
 
             // plot 
             std::map<std::string,  MonitorElement*>::iterator it, itE;
@@ -413,7 +413,7 @@ class HandlerTemplate: public BaseHandler {
             } // combinations loop ends
 
             std::vector<TOutputCandidateType > bestCombinationFromCands;
-            if (bestCombination.size()!=0 && bestCombination.at(0)>=0){
+            if (!bestCombination.empty() && bestCombination.at(0)>=0){
                 for (int i = 0; i<m_combinedObjectDimension;++i){
                           bestCombinationFromCands.push_back( cands.at(bestCombination.at(i)));
                 }

@@ -86,7 +86,7 @@ class ListGroups : public edm::one::EDAnalyzer<>
 {
 public:
   ListGroups(const edm::ParameterSet &);
-  virtual ~ListGroups();
+  ~ListGroups() override;
 
 private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
@@ -131,7 +131,7 @@ ListGroups::~ListGroups() {
   for (auto plot : m_plots)
     delete plot;
 
-  if (m_groups.size())
+  if (!m_groups.empty())
     for (auto g : m_groups)
       delete g;
 }

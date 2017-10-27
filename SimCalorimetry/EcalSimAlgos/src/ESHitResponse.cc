@@ -11,8 +11,8 @@ ESHitResponse::ESHitResponse( const CaloVSimParameterMap* parameterMap ,
 			      const CaloVShape*           shape          ) :
    EcalHitResponse( parameterMap , shape )
 {
-   assert( 0 != parameterMap ) ;
-   assert( 0 != shape ) ;
+   assert( nullptr != parameterMap ) ;
+   assert( nullptr != shape ) ;
    const ESDetId detId ( ESDetId::detIdFromDenseIndex( 0 ) ) ;
    const CaloSimParameters& parameters ( parameterMap->simParameters( detId ) ) ;
 

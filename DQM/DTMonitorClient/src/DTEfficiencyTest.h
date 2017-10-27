@@ -50,14 +50,14 @@ public:
   DTEfficiencyTest(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~DTEfficiencyTest();
+  ~DTEfficiencyTest() override;
 
 protected:
 
   /// beginrun
-  void beginRun(const edm::Run& r, const edm::EventSetup& c);
+  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
 
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
   /// book the new ME
 
@@ -72,7 +72,7 @@ protected:
   
   /// DQM Client Diagnostic
 
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &);
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
 
 private:

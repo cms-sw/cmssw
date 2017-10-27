@@ -209,6 +209,10 @@ phase2_timing.toModify(
         initialSeed = cms.untracked.uint32(1234567), 
         engineName = cms.untracked.string('HepJamesRandom') 
         ),
+    gsfTrackTimeValueMapProducer = cms.PSet( 
+        initialSeed = cms.untracked.uint32(1234567), 
+        engineName = cms.untracked.string('HepJamesRandom') 
+        ),
     ecalBarrelClusterFastTimer = cms.PSet(
         initialSeed = cms.untracked.uint32(1234567),
         engineName = cms.untracked.string('HepJamesRandom')

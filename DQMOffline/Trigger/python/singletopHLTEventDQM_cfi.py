@@ -11,7 +11,7 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
     ## sub-directory to write the monitor histograms to
     ## [mandatory] : should not be changed w/o explicit
     ## communication to TopCom!
-    directory = cms.string("HLT/TopHLTOffline/SingleTop/SingleMuon/"),
+    directory = cms.string("HLT/TOP/SingleTop/SingleMuon/"),
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
@@ -151,7 +151,7 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
     ## sub-directory to write the monitor histograms to
     ## [mandatory] : should not be changed w/o explicit
     ## communication to TopCom!
-    directory = cms.string("HLT/TopHLTOffline/SingleTop/SingleElectron/"),
+    directory = cms.string("HLT/TOP/SingleTop/SingleElectron/"),
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),

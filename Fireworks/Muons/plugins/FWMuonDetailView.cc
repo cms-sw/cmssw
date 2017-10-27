@@ -30,8 +30,8 @@
 // constructors and destructor
 //
 FWMuonDetailView::FWMuonDetailView():
-   m_data(0),
-   m_builder(0)
+   m_data(nullptr),
+   m_builder(nullptr)
 { 
 }
 
@@ -47,7 +47,7 @@ FWMuonDetailView::~FWMuonDetailView()
 //
 void FWMuonDetailView::build(const FWModelId &id, const reco::Muon* iMuon)
 {
-   if(0==iMuon) return;
+   if(nullptr==iMuon) return;
 
    double eta = iMuon->eta();
    double phi = iMuon->phi();
@@ -78,7 +78,7 @@ void FWMuonDetailView::build(const FWModelId &id, const reco::Muon* iMuon)
    overlay->SetShowPlane(kFALSE);
    overlay->SetShowPerspective(kFALSE);
    overlay->SetCaloLego(lego);
-   overlay->SetShowScales(0); // temporary
+   overlay->SetShowScales(false); // temporary
    viewerGL()->AddOverlayElement(overlay);
 
    // set event handler and flip camera to top view at beginning

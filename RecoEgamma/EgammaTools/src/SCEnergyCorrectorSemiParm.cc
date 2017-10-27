@@ -14,12 +14,12 @@ using namespace reco;
 
 //--------------------------------------------------------------------------------------------------
 SCEnergyCorrectorSemiParm::SCEnergyCorrectorSemiParm() :
-foresteb_(0),
-forestee_(0),
-forestsigmaeb_(0),
-forestsigmaee_(0),
-calotopo_(0),
-calogeom_(0)
+foresteb_(nullptr),
+forestee_(nullptr),
+forestsigmaeb_(nullptr),
+forestsigmaee_(nullptr),
+calotopo_(nullptr),
+calogeom_(nullptr)
 {}
 
 //--------------------------------------------------------------------------------------------------

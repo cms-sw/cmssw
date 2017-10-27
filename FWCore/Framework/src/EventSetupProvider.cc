@@ -67,7 +67,7 @@ providers_(),
 knownRecordsSupplier_( std::make_unique<KnownRecordsSupplierImpl>(providers_)),
 mustFinishConfiguration_(true),
 subProcessIndex_(subProcessIndex),
-preferredProviderInfo_((0!=iInfo) ? (new PreferredProviderInfo(*iInfo)): 0),
+preferredProviderInfo_((nullptr!=iInfo) ? (new PreferredProviderInfo(*iInfo)): nullptr),
 finders_(new std::vector<std::shared_ptr<EventSetupRecordIntervalFinder> >() ),
 dataProviders_(new std::vector<std::shared_ptr<DataProxyProvider> >() ),
 referencedDataKeys_(new std::map<EventSetupRecordKey, std::map<DataKey, ComponentDescription const*> >),
@@ -114,7 +114,7 @@ EventSetupProvider::insert(const EventSetupRecordKey& iKey, std::unique_ptr<Even
 void 
 EventSetupProvider::add(std::shared_ptr<DataProxyProvider> iProvider)
 {
-   assert(iProvider.get() != 0);
+   assert(iProvider.get() != nullptr);
    dataProviders_->push_back(iProvider);
 }
 
@@ -132,7 +132,7 @@ EventSetupProvider::replaceExisting(std::shared_ptr<DataProxyProvider> dataProxy
 void 
 EventSetupProvider::add(std::shared_ptr<EventSetupRecordIntervalFinder> iFinder)
 {
-   assert(iFinder.get() != 0);
+   assert(iFinder.get() != nullptr);
    finders_->push_back(iFinder);
 }
 
@@ -201,7 +201,7 @@ RecordToPreferred determinePreferred(const EventSetupProvider::PreferredProvider
 {
    using namespace edm::eventsetup;
    RecordToPreferred returnValue;
-   if(0 != iInfo){
+   if(nullptr != iInfo){
       for(EventSetupProvider::PreferredProviderInfo::const_iterator itInfo = iInfo->begin(),
           itInfoEnd = iInfo->end();
           itInfo != itInfoEnd;
@@ -358,7 +358,7 @@ EventSetupProvider::finishConfiguration()
       itProvider->second->usePreferred(*preferredInfo);
       
       std::set<EventSetupRecordKey> records = itProvider->second->dependentRecords();
-      if(records.size() != 0) {
+      if(!records.empty()) {
          std::string missingRecords;
          std::vector<std::shared_ptr<EventSetupRecordProvider> > depProviders;
          depProviders.reserve(records.size());
@@ -370,7 +370,7 @@ EventSetupProvider::finishConfiguration()
             Providers::iterator itFound = providers_.find(*itRecord);
             if(itFound == providers_.end()) {
                foundAllProviders = false;
-               if(missingRecords.size() == 0) {
+               if(missingRecords.empty()) {
                  missingRecords = itRecord->name();
                } else {
                  missingRecords += ", ";

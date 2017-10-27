@@ -1,6 +1,6 @@
 #include<typeinfo>
 #include <iostream>
-#include <math.h>
+#include <cmath>
 
 #include "SimGeneral/NoiseGenerators/interface/GaussianTailNoiseGenerator.h"
 
@@ -149,15 +149,15 @@ Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::Para
   tMax(conf_common.getParameter<double>("DeltaProductionCut")),
 
   badPixels(conf_specific.getParameter<std::vector<edm::ParameterSet> >("CellsToKill")),
-  fluctuate(fluctuateCharge ? new SiG4UniversalFluctuation() : 0),
-  theNoiser(addNoise ? new GaussianTailNoiseGenerator() : 0),
-  theSiPixelGainCalibrationService_(use_ineff_from_db_ ? new SiPixelGainCalibrationOfflineSimService(conf_specific) : 0),
+  fluctuate(fluctuateCharge ? new SiG4UniversalFluctuation() : nullptr),
+  theNoiser(addNoise ? new GaussianTailNoiseGenerator() : nullptr),
+  theSiPixelGainCalibrationService_(use_ineff_from_db_ ? new SiPixelGainCalibrationOfflineSimService(conf_specific) : nullptr),
   subdetEfficiencies_(conf_specific),
-  flatDistribution_((addNoise || AddPixelInefficiency || fluctuateCharge || addThresholdSmearing) ? new CLHEP::RandFlat(eng, 0., 1.) : 0),
-  gaussDistribution_((addNoise || AddPixelInefficiency || fluctuateCharge || addThresholdSmearing) ? new CLHEP::RandGaussQ(eng, 0., theReadoutNoise) : 0),
+  flatDistribution_((addNoise || AddPixelInefficiency || fluctuateCharge || addThresholdSmearing) ? new CLHEP::RandFlat(eng, 0., 1.) : nullptr),
+  gaussDistribution_((addNoise || AddPixelInefficiency || fluctuateCharge || addThresholdSmearing) ? new CLHEP::RandGaussQ(eng, 0., theReadoutNoise) : nullptr),
   // Threshold smearing with gaussian distribution:
-  smearedThreshold_Endcap_(addThresholdSmearing ? new CLHEP::RandGaussQ(eng, theThresholdInE_Endcap , theThresholdSmearing_Endcap) : 0),
-  smearedThreshold_Barrel_(addThresholdSmearing ? new CLHEP::RandGaussQ(eng, theThresholdInE_Barrel , theThresholdSmearing_Barrel) : 0),
+  smearedThreshold_Endcap_(addThresholdSmearing ? new CLHEP::RandGaussQ(eng, theThresholdInE_Endcap , theThresholdSmearing_Endcap) : nullptr),
+  smearedThreshold_Barrel_(addThresholdSmearing ? new CLHEP::RandGaussQ(eng, theThresholdInE_Barrel , theThresholdSmearing_Barrel) : nullptr),
   rengine_(&eng)
 {
   LogInfo("Phase2TrackerDigitizerAlgorithm") << "Phase2TrackerDigitizerAlgorithm constructed\n"
@@ -932,7 +932,7 @@ void Phase2TrackerDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* p
   if (addNoise) add_noise(pixdet, theThresholdInE/theNoiseInElectrons);  // generate noise
   
   // Do only if needed
-  if (AddPixelInefficiency && theSignal.size() > 0) {
+  if (AddPixelInefficiency && !theSignal.empty()) {
     if (use_ineff_from_db_) 
       pixel_inefficiency_db(detID);
     else                    

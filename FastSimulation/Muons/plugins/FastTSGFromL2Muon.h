@@ -25,9 +25,9 @@ class FastTSGFromL2Muon : public edm::stream::EDProducer <> {
  public:
 
   FastTSGFromL2Muon(const edm::ParameterSet& cfg);
-  virtual ~FastTSGFromL2Muon();
-  virtual void beginRun(edm::Run const& run, edm::EventSetup const& es) override;
-  virtual void produce(edm::Event& ev, const edm::EventSetup& es) override;
+  ~FastTSGFromL2Muon() override;
+  void beginRun(edm::Run const& run, edm::EventSetup const& es) override;
+  void produce(edm::Event& ev, const edm::EventSetup& es) override;
   
  private:
 

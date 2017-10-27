@@ -28,13 +28,13 @@ public:
     throw cms::Exception("DeprecatedConstructor") << "Please make sure you're calling this with the threaded mixing module...";
   }
 
-  virtual void initializeEvent(edm::Event const&, edm::EventSetup const&) override;
-  virtual void finalizeEvent(edm::Event&, edm::EventSetup const&) override;
-  virtual void accumulate(edm::Event const&, edm::EventSetup const&) override;
-  virtual void accumulate(PileUpEventPrincipal const&, edm::EventSetup const&, edm::StreamID const&) override;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  ~FTLDigiProducer();
+  void initializeEvent(edm::Event const&, edm::EventSetup const&) override;
+  void finalizeEvent(edm::Event&, edm::EventSetup const&) override;
+  void accumulate(edm::Event const&, edm::EventSetup const&) override;
+  void accumulate(PileUpEventPrincipal const&, edm::EventSetup const&, edm::StreamID const&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  ~FTLDigiProducer() override;
 private:
   CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
   //the digitizer

@@ -23,12 +23,12 @@
 class TrackFitterProducer: public edm::global::EDProducer<> {
 public:
   explicit TrackFitterProducer(const edm::ParameterSet& iConfig);
-  ~TrackFitterProducer() {}
+  ~TrackFitterProducer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
+  void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
   std::string theTTRHBuilderName;
   edm::EDGetTokenT<reco::BeamSpot> theBeamSpotToken;

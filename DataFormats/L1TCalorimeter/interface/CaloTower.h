@@ -27,7 +27,7 @@ namespace l1t {
 	       int hwEtHad=0,
 	       int hwEtRatio=0);
     
-    ~CaloTower();
+    ~CaloTower() override;
 
     void setEtEm( double et );
     void setEtHad( double et );

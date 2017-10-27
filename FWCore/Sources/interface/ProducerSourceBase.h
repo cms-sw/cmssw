@@ -4,7 +4,7 @@
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Framework/interface/InputSource.h"
+#include "FWCore/Sources/interface/PuttableSourceBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -17,7 +17,7 @@
 namespace edm {
   class ParameterSet;
   class ParameterSetDescription;
-  class ProducerSourceBase : public InputSource {
+  class ProducerSourceBase : public PuttableSourceBase {
   public:
     explicit ProducerSourceBase(ParameterSet const& pset, InputSourceDescription const& desc, bool realData);
     ~ProducerSourceBase() noexcept(false) override;
@@ -35,7 +35,7 @@ namespace edm {
     LuminosityBlockNumber_t luminosityBlock() const {return eventID_.luminosityBlock();}
 
     static void fillDescription(ParameterSetDescription& desc);
-
+    
   protected:
 
   private:
@@ -46,10 +46,7 @@ namespace edm {
     virtual bool noFiles() const;
     virtual size_t fileIndex() const;
     void beginJob() override;
-    void beginRun(Run&) override;
-    void endRun(Run&) override;
-    void beginLuminosityBlock(LuminosityBlock&) override;
-    void endLuminosityBlock(LuminosityBlock&) override;
+    
     void readEvent_(EventPrincipal& eventPrincipal) override;
     std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
     std::shared_ptr<RunAuxiliary> readRunAuxiliary_() override;

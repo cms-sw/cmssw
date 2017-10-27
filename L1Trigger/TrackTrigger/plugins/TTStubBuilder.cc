@@ -35,8 +35,8 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
 
   /// Get the maximum number of stubs per ROC
   /// (CBC3-style)
-  //  unsigned maxStubs = theStackedTracker->getCBC3MaxStubs();
-  unsigned maxStubs = 3;
+  //  unsigned maxStubs = theStackedTracker->getCBC3MaxStubs();  
+  unsigned maxStubs = 0; // 0 is default, cut is disabled
 
   for (auto gd=theTrackerGeom->dets().begin(); gd != theTrackerGeom->dets().end(); gd++) {
       DetId detid = (*gd)->geographicalId();
@@ -58,7 +58,7 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
     /// If there are Clusters in both sensors
     /// you can try and make a Stub
     /// This is ~redundant
-    if ( lowerClusters.size() == 0 || upperClusters.size() == 0 )
+    if ( lowerClusters.empty() || upperClusters.empty() )
       continue;
 
     /// Create the vectors of objects to be passed to the FastFillers
@@ -208,7 +208,7 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
       } /// End of loop over temp output
     } /// End store only the selected stubs if max no. stub/ROC is set
     /// Create the FastFillers
-    if ( tempInner.size() > 0 )
+    if ( !tempInner.empty() )
     {
       typename edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >::FastFiller lowerOutputFiller( *ttClusterDSVForOutput, lowerDetid );
       for ( unsigned int m = 0; m < tempInner.size(); m++ )
@@ -219,7 +219,7 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
         lowerOutputFiller.abort();
     }
 
-    if ( tempOuter.size() > 0 )
+    if ( !tempOuter.empty() )
     {
       typename edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >::FastFiller upperOutputFiller( *ttClusterDSVForOutput, upperDetid );
       for ( unsigned int m = 0; m < tempOuter.size(); m++ )
@@ -230,7 +230,7 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
         upperOutputFiller.abort();
     }
 
-    if ( tempAccepted.size() > 0 )
+    if ( !tempAccepted.empty() )
     {
       typename edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >::FastFiller tempAcceptedFiller( *ttStubDSVForOutputTemp, stackDetid);
       for ( unsigned int m = 0; m < tempAccepted.size(); m++ )
@@ -280,8 +280,8 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
       TTStub< Ref_Phase2TrackerDigi_ > tempTTStub( stubIter->getDetId() );
 
       /// Compare the clusters stored in the stub with the ones of this module
-      edm::Ref< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >, TTCluster< Ref_Phase2TrackerDigi_ > > lowerClusterToBeReplaced = stubIter->getClusterRef(0);
-      edm::Ref< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >, TTCluster< Ref_Phase2TrackerDigi_ > > upperClusterToBeReplaced = stubIter->getClusterRef(1);
+      const edm::Ref< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >, TTCluster< Ref_Phase2TrackerDigi_ > >& lowerClusterToBeReplaced = stubIter->getClusterRef(0);
+      const edm::Ref< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >, TTCluster< Ref_Phase2TrackerDigi_ > >& upperClusterToBeReplaced = stubIter->getClusterRef(1);
 
       bool lowerOK = false;
       bool upperOK = false;

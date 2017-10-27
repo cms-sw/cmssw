@@ -24,6 +24,7 @@
 <use   name="DataFormats/Math"/>
 <use   name="DataFormats/MuonDetId"/>
 <use   name="DataFormats/RecoCandidate"/>
+<use   name="DataFormats/TCDS"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/VertexReco"/>
 <use   name="DataFormats/MuonReco"/>
@@ -49,5 +50,6 @@
 <use   name="Geometry/EcalAlgo"/>
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="TrackingTools/TransientTrack"/>
+<use   name="CalibCalorimetry/EcalTPGTools"/>
 
 <flags   EDM_PLUGIN="1"/>

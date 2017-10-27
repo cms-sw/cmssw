@@ -35,7 +35,7 @@ TrackingParticle RecoTracktoTP::TPMother(unsigned short i) const
                         break;
                     }
                 }
-                if(result.size()) break;
+                if(!result.empty()) break;
             }
         }
         else

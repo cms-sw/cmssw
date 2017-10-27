@@ -22,7 +22,7 @@ class ME0Geometry : public TrackingGeometry {
   const DetTypeContainer&  detTypes() const override;
 
   // Return a vector of all GeomDetUnit
-  const DetUnitContainer& detUnits() const override;
+  const DetContainer& detUnits() const override;
 
   // Return a vector of all GeomDet
   const DetContainer& dets() const override;
@@ -34,7 +34,7 @@ class ME0Geometry : public TrackingGeometry {
   const DetIdContainer& detIds() const override;
 
   // Return the pointer to the GeomDetUnit corresponding to a given DetId
-  const GeomDetUnit* idToDetUnit(DetId) const override;
+  const GeomDet* idToDetUnit(DetId) const override;
 
   // Return the pointer to the GeomDet corresponding to a given DetId
   const GeomDet* idToDet(DetId) const override;
@@ -71,7 +71,7 @@ class ME0Geometry : public TrackingGeometry {
   void add(ME0Chamber* chamber);
 
  private:
-  DetUnitContainer theEtaPartitions;
+  DetContainer theEtaPartitions;
   DetTypeContainer theEtaPartitionTypes;
   DetIdContainer   theEtaPartitionIds;
   DetIdContainer   theDetIds;

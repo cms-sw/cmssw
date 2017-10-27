@@ -32,7 +32,7 @@ class MuonAlignmentInputSurveyDB: public MuonAlignmentInputMethod {
    public:
       MuonAlignmentInputSurveyDB();
       MuonAlignmentInputSurveyDB(std::string dtLabel, std::string cscLabel);
-      virtual ~MuonAlignmentInputSurveyDB();
+      ~MuonAlignmentInputSurveyDB() override;
 
       // ---------- const member functions ---------------------
 
@@ -40,12 +40,12 @@ class MuonAlignmentInputSurveyDB: public MuonAlignmentInputMethod {
 
       // ---------- member functions ---------------------------
 
-      virtual AlignableMuon *newAlignableMuon(const edm::EventSetup &iSetup) const;
+      AlignableMuon *newAlignableMuon(const edm::EventSetup &iSetup) const override;
 
    private:
-      MuonAlignmentInputSurveyDB(const MuonAlignmentInputSurveyDB&); // stop default
+      MuonAlignmentInputSurveyDB(const MuonAlignmentInputSurveyDB&) = delete; // stop default
 
-      const MuonAlignmentInputSurveyDB& operator=(const MuonAlignmentInputSurveyDB&); // stop default
+      const MuonAlignmentInputSurveyDB& operator=(const MuonAlignmentInputSurveyDB&) = delete; // stop default
 
       void addSurveyInfo_(Alignable* ali,
 			  unsigned int* theSurveyIndex,

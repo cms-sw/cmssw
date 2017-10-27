@@ -35,7 +35,7 @@ DQMProvInfo::DQMProvInfo(const edm::ParameterSet& ps) {
       consumes<DcsStatusCollection>(ps.getUntrackedParameter<std::string>(
           "dcsStatusCollection", "scalersRawToDigi"));
   // Used to get the BST record from the TCDS information
-  bstrecord_ = consumes<BSTRecord>(ps.getUntrackedParameter<edm::InputTag>("bstData", edm::InputTag("tcdsDigis","bstRecord")));
+  tcdsrecord_ = consumes<TCDSRecord>(ps.getUntrackedParameter<edm::InputTag>("tcdsData", edm::InputTag("tcdsDigis","tcdsRecord")));
   // Initialization of the global tag
   globalTag_ = "MODULE::DEFAULT";  // default
   globalTagRetrieved_ = false;     // set as soon as retrieved from first event
@@ -250,18 +250,18 @@ void DQMProvInfo::analyze(const edm::Event& event, const edm::EventSetup& c) {
 }
 
 void DQMProvInfo::analyzeLhcInfo(const edm::Event& event) {
-  edm::Handle<BSTRecord> bstData;
-  event.getByToken( bstrecord_, bstData );
-  // We unpack the BST record from TCDS
-  if( bstData.isValid() ) {
+  edm::Handle<TCDSRecord> tcdsData;
+  event.getByToken( tcdsrecord_, tcdsData );
+  // We unpack the TCDS record from TCDS
+  if( tcdsData.isValid() ) {
     //and we look at the BST information
-    lhcFill_ = static_cast<int>( bstData->lhcFill() );
-    beamMode_ = static_cast<int>( bstData->beamMode() );
-    momentum_ = static_cast<int>( bstData->beamMomentum() );
-    intensity1_ = static_cast<int>( bstData->intensityBeam1() );
-    intensity2_ = static_cast<int>( bstData->intensityBeam2() );
+    lhcFill_ = static_cast<int>( tcdsData->getBST().getLhcFill() );
+    beamMode_ = static_cast<int>( tcdsData->getBST().getBeamMode() );
+    momentum_ = static_cast<int>( tcdsData->getBST().getBeamMomentum() );
+    intensity1_ = static_cast<int>( tcdsData->getBST().getIntensityBeam1() );
+    intensity2_ = static_cast<int>( tcdsData->getBST().getIntensityBeam2() );
   } else {
-    edm::LogWarning("DQMProvInfo") << "BST Record from TCDS Data inaccessible.";
+    edm::LogWarning("DQMProvInfo") << "TCDS Data inaccessible.";
   }
 }
 
@@ -289,7 +289,7 @@ void DQMProvInfo::analyzeEventInfo(const edm::Event& event) {
       physicsDeclared_ = true;
       foundFirstPhysicsDeclared_ = true;
     }
-    
+
     // The DCS on lumi level is considered ON if the bit is set in EVERY event
     dcsBits_[VBIN_CSC_P] &= dcsStatusItr->ready(DcsStatus::CSCp);
     dcsBits_[VBIN_CSC_M] &= dcsStatusItr->ready(DcsStatus::CSCm);
@@ -338,7 +338,7 @@ void DQMProvInfo::analyzeEventInfo(const edm::Event& event) {
                            || dcsBits_[VBIN_RPC] );
   // Some info-level logging
   edm::LogInfo("DQMProvInfo") << "Physics declared bit: "
-                              << physicsDeclared_ << std::endl; 
+                              << physicsDeclared_ << std::endl;
 }
 
 void DQMProvInfo::analyzeProvInfo(const edm::Event& event) {

@@ -47,9 +47,9 @@ struct dso_hidden TkStripRecHitIter {
     : mdet(&imdet),tsos(&itsos),data(&idata), clusterI(ci), clusterE(ce) {}
   
   
-  const TkStripMeasurementDet * mdet = 0;
-  const TrajectoryStateOnSurface * tsos=0;
-  const MeasurementTrackerEvent * data=0;
+  const TkStripMeasurementDet * mdet = nullptr;
+  const TrajectoryStateOnSurface * tsos=nullptr;
+  const MeasurementTrackerEvent * data=nullptr;
   
   new_const_iterator clusterI;
   new_const_iterator clusterE;
@@ -96,7 +96,7 @@ public:
   
   typedef std::vector<SiStripCluster>::const_iterator const_iterator;
   
-  virtual ~TkStripMeasurementDet(){}
+  ~TkStripMeasurementDet() override{}
   
   TkStripMeasurementDet( const GeomDet* gdet, StMeasurementConditionSet & conditionSet );
 
@@ -117,17 +117,17 @@ public:
 
   
   /** \brief Is this module active in reconstruction? It must be both 'setActiveThisEvent' and 'setActive'. */
-  bool isActive(const MeasurementTrackerEvent & data) const { return data.stripData().isActive(index()); }
+  bool isActive(const MeasurementTrackerEvent & data) const override { return data.stripData().isActive(index()); }
   
   //TO BE IMPLEMENTED
-  bool hasBadComponents( const TrajectoryStateOnSurface &tsos, const MeasurementTrackerEvent & data ) const {return false;}
+  bool hasBadComponents( const TrajectoryStateOnSurface &tsos, const MeasurementTrackerEvent & data ) const override {return false;}
   
   
   std::tuple<TkStripRecHitIter,TkStripRecHitIter> hitRange(const TrajectoryStateOnSurface&, const MeasurementTrackerEvent & data) const;
   void advance(TkStripRecHitIter & hi ) const;
   SiStripRecHit2D hit(TkStripRecHitIter const & hi ) const;
   
-  virtual RecHitContainer recHits( const TrajectoryStateOnSurface&, const MeasurementTrackerEvent & data) const;
+  RecHitContainer recHits( const TrajectoryStateOnSurface&, const MeasurementTrackerEvent & data) const override;
 
 
   bool empty(const MeasurementTrackerEvent & data) const;
@@ -136,17 +136,17 @@ public:
   bool simpleRecHits( const TrajectoryStateOnSurface& ts, const MeasurementEstimator& est, const MeasurementTrackerEvent & data, std::vector<SiStripRecHit2D> &result) const ;
   
   // simple hits
-  virtual bool recHits(SimpleHitContainer & result,  
-		       const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator&, const MeasurementTrackerEvent & data) const;
+  bool recHits(SimpleHitContainer & result,  
+		       const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator&, const MeasurementTrackerEvent & data) const override;
 
   // TTRH
-  virtual bool recHits( const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator& est, const MeasurementTrackerEvent & data,
-			RecHitContainer & result, std::vector<float> & diffs) const;
+  bool recHits( const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator& est, const MeasurementTrackerEvent & data,
+			RecHitContainer & result, std::vector<float> & diffs) const override;
   
   
-  virtual bool measurements( const TrajectoryStateOnSurface& stateOnThisDet,
+  bool measurements( const TrajectoryStateOnSurface& stateOnThisDet,
 			     const MeasurementEstimator& est, const MeasurementTrackerEvent & data,
-			     TempMeasurements & result) const;
+			     TempMeasurements & result) const override;
   
   const StripGeomDetUnit& specificGeomDet() const {return static_cast<StripGeomDetUnit const &>(fastGeomDet());}
   

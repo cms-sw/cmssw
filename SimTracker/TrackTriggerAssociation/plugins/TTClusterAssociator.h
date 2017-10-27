@@ -50,7 +50,7 @@ class TTClusterAssociator : public edm::stream::EDProducer<>
     explicit TTClusterAssociator( const edm::ParameterSet& iConfig );
 
     /// Destructor
-    ~TTClusterAssociator();
+    ~TTClusterAssociator() override;
 
   private:
     /// Data members
@@ -75,9 +75,9 @@ class TTClusterAssociator : public edm::stream::EDProducer<>
 
 
     /// Mandatory methods
-    virtual void beginRun( const edm::Run& run, const edm::EventSetup& iSetup );
-    virtual void endRun( const edm::Run& run, const edm::EventSetup& iSetup );
-    virtual void produce( edm::Event& iEvent, const edm::EventSetup& iSetup );
+    void beginRun( const edm::Run& run, const edm::EventSetup& iSetup ) override;
+    void endRun( const edm::Run& run, const edm::EventSetup& iSetup ) override;
+    void produce( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
 
 }; /// Close class
 

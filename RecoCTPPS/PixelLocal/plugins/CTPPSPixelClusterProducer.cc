@@ -22,8 +22,8 @@ void CTPPSPixelClusterProducer::fillDescriptions(edm::ConfigurationDescriptions 
   edm::ParameterSetDescription desc;
   desc.addUntracked<int>("RPixVerbosity",0);
   desc.add<std::string>("label", "ctppsPixelDigis");
-  desc.add<int>("SeedADCThreshold",15);
-  desc.add<int>("ADCThreshold",10);
+  desc.add<int>("SeedADCThreshold",2);
+  desc.add<int>("ADCThreshold",2);
   desc.add<double>("ElectronADCGain",135.0);
   desc.add<int>("VCaltoElectronGain",50);
   desc.add<int>("VCaltoElectronOffset",-411);
@@ -40,13 +40,13 @@ void CTPPSPixelClusterProducer::produce(edm::Event& iEvent, const edm::EventSetu
 // get analysis mask to mask channels
   edm::ESHandle<CTPPSPixelAnalysisMask> aMask;
 
-  if(rpd->size())
+  if(!rpd->empty())
     iSetup.get<CTPPSPixelAnalysisMaskRcd>().get(aMask);
   
   edm::DetSetVector<CTPPSPixelCluster>  output;
 
 // run clusterisation
-  if (rpd->size()){
+  if (!rpd->empty()){
 // get calibration DB
     theGainCalibrationDB.getDB(iEvent,iSetup);
     run(*rpd, output, aMask.product());

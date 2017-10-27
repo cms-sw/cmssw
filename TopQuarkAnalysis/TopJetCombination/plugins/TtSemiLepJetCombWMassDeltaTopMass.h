@@ -15,13 +15,13 @@ class TtSemiLepJetCombWMassDeltaTopMass : public edm::EDProducer {
  public:
 
   explicit TtSemiLepJetCombWMassDeltaTopMass(const edm::ParameterSet&);
-  ~TtSemiLepJetCombWMassDeltaTopMass();
+  ~TtSemiLepJetCombWMassDeltaTopMass() override;
 
  private:
 
-  virtual void beginJob() {};
-  virtual void produce(edm::Event& evt, const edm::EventSetup& setup);
-  virtual void endJob() {};
+  void beginJob() override {};
+  void produce(edm::Event& evt, const edm::EventSetup& setup) override;
+  void endJob() override {};
 
   bool isValid(const int& idx, const edm::Handle<std::vector<pat::Jet> >& jets){ return (0<=idx && idx<(int)jets->size()); };
 

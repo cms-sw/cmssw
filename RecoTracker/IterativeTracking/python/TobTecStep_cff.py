@@ -46,6 +46,16 @@ tobTecStepTrackingRegionsTripl = _globalTrackingRegionFromBeamSpotFixedZ.clone(R
     originRadius = 3.5
 ))
 
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
+pp_on_XeXe_2017.toReplaceWith(tobTecStepTrackingRegionsTripl, 
+                              _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
+            fixedError = 5.0,
+            ptMin = 2.0,
+            originRadius = 3.5
+            )                                                                      )
+)
+
 # Triplet seeding
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import ClusterShapeHitFilterESProducer as _ClusterShapeHitFilterESProducer
 tobTecStepClusterShapeHitFilter = _ClusterShapeHitFilterESProducer.clone(
@@ -119,6 +129,15 @@ tobTecStepTrackingRegionsPair = _globalTrackingRegionFromBeamSpotFixedZ.clone(Re
     originRadius = 6.0,
 ))
 
+from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
+pp_on_XeXe_2017.toReplaceWith(tobTecStepTrackingRegionsPair, 
+                              _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
+            fixedError = 7.5,
+            ptMin = 2.0,
+            originRadius = 6.0
+            )                                                                      )
+)
+
 # Pair seeds
 tobTecStepHitDoubletsPair = _hitPairEDProducer.clone(
     seedingLayers = "tobTecStepSeedLayersPair",
@@ -158,6 +177,7 @@ tobTecStepTrajectoryFilter = _tobTecStepTrajectoryFilterBase.clone(
 trackingLowPU.toReplaceWith(tobTecStepTrajectoryFilter, _tobTecStepTrajectoryFilterBase.clone(
     minimumNumberOfHits = 6,
 ))
+pp_on_XeXe_2017.toModify(tobTecStepTrajectoryFilter, minPt=2.0)
 
 tobTecStepInOutTrajectoryFilter = tobTecStepTrajectoryFilter.clone(
     minimumNumberOfHits = 4,
@@ -290,11 +310,11 @@ from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierDetached_cfi import *
 tobTecStepClassifier1 = TrackMVAClassifierDetached.clone()
 tobTecStepClassifier1.src = 'tobTecStepTracks'
-tobTecStepClassifier1.GBRForestLabel = 'MVASelectorIter6_13TeV'
+tobTecStepClassifier1.mva.GBRForestLabel = 'MVASelectorIter6_13TeV'
 tobTecStepClassifier1.qualityCuts = [-0.6,-0.45,-0.3]
 tobTecStepClassifier2 = TrackMVAClassifierPrompt.clone()
 tobTecStepClassifier2.src = 'tobTecStepTracks'
-tobTecStepClassifier2.GBRForestLabel = 'MVASelectorIter0_13TeV'
+tobTecStepClassifier2.mva.GBRForestLabel = 'MVASelectorIter0_13TeV'
 tobTecStepClassifier2.qualityCuts = [0.0,0.0,0.0]
 
 from RecoTracker.FinalTrackSelectors.ClassifierMerger_cfi import *
@@ -304,11 +324,11 @@ tobTecStep.inputClassifiers=['tobTecStepClassifier1','tobTecStepClassifier2']
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
 from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
 trackingPhase1.toReplaceWith(tobTecStep, tobTecStepClassifier1.clone(
-     GBRForestLabel = 'MVASelectorTobTecStep_Phase1',
+     mva = dict(GBRForestLabel = 'MVASelectorTobTecStep_Phase1'),
      qualityCuts = [-0.6,-0.45,-0.3],
 ))
 trackingPhase1QuadProp.toReplaceWith(tobTecStep, tobTecStepClassifier1.clone(
-     GBRForestLabel = 'MVASelectorTobTecStep_Phase1',
+     mva = dict(GBRForestLabel = 'MVASelectorTobTecStep_Phase1'),
      qualityCuts = [-0.6,-0.45,-0.3],
 ))
 

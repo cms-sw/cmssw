@@ -132,7 +132,7 @@ AlignmentUserVariables* MillePedeVariablesIORoot::readOne(Alignable *ali, int &i
                                << "No index for id/type = (" << ali->id() << "/"
                                << ali->alignableObjectId() << ") found!";
     ierr = 1;
-    return 0;
+    return nullptr;
   }
 
   MillePedeVariables *mpVar = new MillePedeVariables(myNumPar, myLabel, myName);

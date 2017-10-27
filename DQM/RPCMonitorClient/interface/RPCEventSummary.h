@@ -18,7 +18,7 @@ public:
   RPCEventSummary(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~RPCEventSummary();
+  ~RPCEventSummary() override;
 
 
  protected:

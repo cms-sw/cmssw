@@ -39,11 +39,11 @@ public:
 
   explicit ME0DigiSimLinkReader(const edm::ParameterSet& pset);
 
-  virtual ~ME0DigiSimLinkReader()
+  ~ME0DigiSimLinkReader() override
   {
   }
 
-  void analyze(const edm::Event &, const edm::EventSetup&);
+  void analyze(const edm::Event &, const edm::EventSetup&) override;
 
 private:
 

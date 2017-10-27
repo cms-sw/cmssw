@@ -9,13 +9,13 @@ class EEShape : public EcalShapeBase
   
       EEShape() ;
 
-      virtual ~EEShape() ;
+      ~EEShape() override ;
 
-      virtual double threshold() const ;
+      double threshold() const override ;
 
    protected:
   
-      virtual void fillShape( EcalShapeBase::DVec& aVec ) const ;
+      void fillShape( EcalShapeBase::DVec& aVec ) const override ;
 };
   
 

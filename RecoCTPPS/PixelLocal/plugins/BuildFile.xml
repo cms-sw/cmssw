@@ -5,7 +5,6 @@
 <use name="DataFormats/CTPPSDetId"/>
 <use name="DataFormats/CTPPSDigi"/>
 <use name="DataFormats/CTPPSReco"/>
-<use name="CondTools/CTPPS"/>
 
 <use name="CondFormats/CTPPSReadoutObjects"/>
 <use name="CondFormats/DataRecord"/>

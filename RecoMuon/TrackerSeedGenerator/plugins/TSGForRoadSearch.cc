@@ -40,7 +40,7 @@ TSGForRoadSearch::TSGForRoadSearch(const edm::ParameterSet & par,edm::ConsumesCo
 
   theManySeeds = par.getParameter<bool>("manySeeds");
   if (theManySeeds){ theUpdator = new KFUpdator();}
-  else{  theUpdator=0;}
+  else{  theUpdator=nullptr;}
 
   edm::ParameterSet errorMatrixPset = par.getParameter<edm::ParameterSet>("errorMatrixPset");
   if (!errorMatrixPset.empty()){
@@ -48,10 +48,10 @@ TSGForRoadSearch::TSGForRoadSearch(const edm::ParameterSet & par,edm::ConsumesCo
     theErrorMatrixAdjuster = new MuonErrorMatrix(errorMatrixPset);}
   else {
     theAdjustAtIp =false;
-    theErrorMatrixAdjuster=0;}
+    theErrorMatrixAdjuster=nullptr;}
 
   theMeasurementTrackerEventTag = par.getParameter<edm::InputTag>("MeasurementTrackerEvent");
-  theMeasurementTrackerEvent = 0;
+  theMeasurementTrackerEvent = nullptr;
 
   theMeasurementTrackerEventToken=iC.consumes<MeasurementTrackerEvent>(theMeasurementTrackerEventTag);
 }
@@ -144,7 +144,7 @@ void TSGForRoadSearch::makeSeeds_0(const reco::Track & muon, std::vector<Traject
   const std::vector<const ForwardDetLayer*> &ntidc = theGeometricSearchTracker->negTidLayers();
   const std::vector<const ForwardDetLayer*> &ntecc = theGeometricSearchTracker->negTecLayers();
 
-  const DetLayer *inLayer = 0;
+  const DetLayer *inLayer = nullptr;
   if( fabs(z) < ptidc.front()->surface().position().z()  ) {
     inLayer = blc.front();
   } else if ( fabs(z) < ptecc.front()->surface().position().z() ) {
@@ -159,7 +159,7 @@ void TSGForRoadSearch::makeSeeds_0(const reco::Track & muon, std::vector<Traject
   inLayer->compatibleDetsV(inner,*theProxyService->propagator(thePropagatorCompatibleName),*theChi2Estimator,compatible);
 
   //loop the parts until at least a compatible is found
-  while (compatible.size()==0) {
+  while (compatible.empty()) {
     switch ( GeomDetEnumerators::subDetGeom[inLayer->subDetector()] ) {
     case GeomDetEnumerators::PixelBarrel:
     case GeomDetEnumerators::PixelEndcap:
@@ -224,7 +224,7 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
   LogDebug(theCategory)<<"starting looking for a compatible layer from: "<<outer<<"\nz: "<<z<<"TEC1 z: "<<ptecc.front()->surface().position().z();
 
   unsigned int layerShift=0;
-  const DetLayer *inLayer = 0;
+  const DetLayer *inLayer = nullptr;
   if (fabs(z) < ptecc.front()->surface().position().z()  ){
     inLayer = *(blc.rbegin()+layerShift);
     LogTrace(theCategory)<<"choosing TOB layer with shift: "<<layerShift;
@@ -250,7 +250,7 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
   inLayer->compatibleDetsV(outer,*theProxyService->propagator(thePropagatorCompatibleName),*theChi2Estimator,compatible);
 
   //loop the parts until at least a compatible is found
-  while (compatible.size()==0) {
+  while (compatible.empty()) {
     switch ( GeomDetEnumerators::subDetGeom[inLayer->subDetector()] ) {
     case GeomDetEnumerators::PixelBarrel:
     case GeomDetEnumerators::PixelEndcap:
@@ -321,7 +321,7 @@ void TSGForRoadSearch::makeSeeds_4(const reco::Track & muon, std::vector<Traject
       makeSeeds_0(muon, result);
       return;}
 
-  const DetLayer *inLayer = 0;
+  const DetLayer *inLayer = nullptr;
   std::vector<const ForwardDetLayer*>::const_iterator layerIt ;
 
   double fz=fabs(z);
@@ -352,7 +352,7 @@ void TSGForRoadSearch::makeSeeds_4(const reco::Track & muon, std::vector<Traject
   inLayer->compatibleDetsV(inner,*theProxyService->propagator(thePropagatorCompatibleName),*theChi2Estimator,compatible);
   
   //if none were found. you should do something more.
-  if (compatible.size()==0){
+  if (compatible.empty()){
     std::vector<const ForwardDetLayer*>::const_iterator pxlEnd = (z>0)? ppxlc.end() : npxlc.end();
     std::vector<const ForwardDetLayer*>::const_iterator tidEnd = (z>0)? ptidc.end() : ntidc.end();
     std::vector<const ForwardDetLayer*>::const_iterator tecEnd = (z>0)? ptecc.end() : ntecc.end();
@@ -363,7 +363,7 @@ void TSGForRoadSearch::makeSeeds_4(const reco::Track & muon, std::vector<Traject
     //go to first disk if not already in a disk situation
     if (!dynamic_cast<const ForwardDetLayer*>(inLayer)) layerIt =pxlBegin--;
     
-    while (compatible.size()==0) {
+    while (compatible.empty()) {
       switch ( GeomDetEnumerators::subDetGeom[(*layerIt)->subDetector()] ) {
       case GeomDetEnumerators::PixelEndcap:
 	{

@@ -17,7 +17,7 @@ bool     rz_harm_poly::phi_set = false; //TRUE if phi value is set
 unsigned rz_harm_poly::MaxM   = 0;      //Max. M among "rz_harm_poly" objects
 
 unsigned   rz_harm_poly::TASize  = 0;   //TrigArr size
-trig_pair *rz_harm_poly::TrigArr = 0;   //Array with angular data
+trig_pair *rz_harm_poly::TrigArr = nullptr;   //Array with angular data
 
 //_______________________________________________________________________________
 rz_harm_poly::rz_harm_poly(const unsigned N)
@@ -60,7 +60,7 @@ rz_harm_poly::~rz_harm_poly()
       }
    } else { //last instance -> memory cleanup
       if (TrigArr) delete [] TrigArr;
-      TrigArr = 0;
+      TrigArr = nullptr;
       TASize = 0;
       MaxM = 0;
       phival = -11111.;
@@ -180,7 +180,7 @@ rz_harm_poly rz_harm_poly::LadderUp()
       }
    }
    p_out.Collect();
-   if (p_out.data.size()) {
+   if (!p_out.data.empty()) {
       p_out.L = L;
       p_out.M = M+1;
       if (std::abs(p_out.M) > int(MaxM)) MaxM = std::abs(p_out.M);
@@ -218,7 +218,7 @@ rz_harm_poly rz_harm_poly::LadderDwn()
       }
    }
    p_out.Collect();
-   if (p_out.data.size()) {
+   if (!p_out.data.empty()) {
       p_out.L = L;
       p_out.M = M-1;
       if (std::abs(p_out.M) > int(MaxM)) MaxM = std::abs(p_out.M);

@@ -46,7 +46,7 @@ using namespace std;
 
 SimpleConvertedPhotonAnalyzer::SimpleConvertedPhotonAnalyzer( const edm::ParameterSet& pset )
    : fOutputFileName_( pset.getUntrackedParameter<string>("HistOutFile",std::string("TestConversions.root")) ),
-     fOutputFile_(0)
+     fOutputFile_(nullptr)
 {
 
   convertedPhotonCollectionProducer_ = pset.getParameter<std::string>("phoProducer");

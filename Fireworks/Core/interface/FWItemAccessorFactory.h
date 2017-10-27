@@ -49,9 +49,9 @@ public:
    // ---------- member functions ---------------------------
 
 private:
-   FWItemAccessorFactory(const FWItemAccessorFactory&); // stop default
+   FWItemAccessorFactory(const FWItemAccessorFactory&) = delete; // stop default
 
-   const FWItemAccessorFactory& operator=(const FWItemAccessorFactory&); // stop default
+   const FWItemAccessorFactory& operator=(const FWItemAccessorFactory&) = delete; // stop default
 
    // ---------- member data --------------------------------
 
