@@ -121,6 +121,8 @@ private:
     int noise_;
     bool testNumber_;
     bool hep17_;
+    bool HEPhase1_;
+    bool HBPhase1_;
 
     edm::EDGetTokenT<edm::PCaloHitContainer> tok_mc_;
     edm::EDGetTokenT< HBHEDigiCollection > tok_hbhe_; 
