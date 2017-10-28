@@ -58,13 +58,13 @@ class RandomEngineGlue : public RandomGenerator {
 	};
 
     protected:
-	virtual void fill();
-	virtual void setSeed(long seed);
+	void fill() override;
+	void setSeed(long seed) override;
 
 	IBPtr clone() const override { return new_ptr(*this); }
 	IBPtr fullclone() const override { return new_ptr(*this); }
 
-	void doinit() throw(InitException) override;
+	void doinit() noexcept(false) override;
 
     private:
 	Proxy::ProxyID		proxyID;
