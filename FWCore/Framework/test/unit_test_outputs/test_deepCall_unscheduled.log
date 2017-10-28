@@ -74,42 +74,8 @@ ModuleCallingContext state = Running
 ++++ starting: source run
 ++++ finished: source run
 ++++ starting: global begin run 1 : time = 1000000
-++++++ starting: global begin run for module: label = 'one' id = 4
-GlobalContext: transition = BeginRun
-    run: 1 luminosityBlock: 0
-    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1000000
-    ProcessContext: TEST 0879c0d316e266ea880036ce316ef5aa
-ModuleCallingContext state = Running
-    moduleDescription: Module type=IntProducer, Module label=one, Parameter Set ID=bece7daf7ab0166d4f6047cc887d46b8
-    GlobalContext: transition = BeginRun
-    run: 1 luminosityBlock: 0
-    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1000000
-    ProcessContext: TEST 0879c0d316e266ea880036ce316ef5aa
-
-++++++ finished: global begin run for module: label = 'one' id = 4
-GlobalContext: transition = BeginRun
-    run: 1 luminosityBlock: 0
-    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1000000
-    ProcessContext: TEST 0879c0d316e266ea880036ce316ef5aa
-ModuleCallingContext state = Running
-    moduleDescription: Module type=IntProducer, Module label=one, Parameter Set ID=bece7daf7ab0166d4f6047cc887d46b8
-    GlobalContext: transition = BeginRun
-    run: 1 luminosityBlock: 0
-    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1000000
-    ProcessContext: TEST 0879c0d316e266ea880036ce316ef5aa
-
-++++++ starting: global begin run for module: label = 'result1' id = 5
-++++++ finished: global begin run for module: label = 'result1' id = 5
-++++++ starting: global begin run for module: label = 'result2' id = 6
-++++++ finished: global begin run for module: label = 'result2' id = 6
-++++++ starting: global begin run for module: label = 'result4' id = 7
-++++++ finished: global begin run for module: label = 'result4' id = 7
 ++++++ starting: global begin run for module: label = 'get' id = 3
 ++++++ finished: global begin run for module: label = 'get' id = 3
-++++++ starting: global begin run for module: label = 'TriggerResults' id = 1
-++++++ finished: global begin run for module: label = 'TriggerResults' id = 1
-++++++ starting: global begin run for module: label = 'p' id = 2
-++++++ finished: global begin run for module: label = 'p' id = 2
 ++++ finished: global begin run 1 : time = 1000000
 ++++ starting: begin run: stream = 0 run = 1 time = 1000000
 ++++++ starting: begin run for module: stream = 0 label = 'result4' id = 7
@@ -148,42 +114,8 @@ ModuleCallingContext state = Running
 ++++ starting: source lumi
 ++++ finished: source lumi
 ++++ starting: global begin lumi: run = 1 lumi = 1 time = 1000000
-++++++ starting: global begin lumi for module: label = 'one' id = 4
-GlobalContext: transition = BeginLuminosityBlock
-    run: 1 luminosityBlock: 1
-    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1000000
-    ProcessContext: TEST 0879c0d316e266ea880036ce316ef5aa
-ModuleCallingContext state = Running
-    moduleDescription: Module type=IntProducer, Module label=one, Parameter Set ID=bece7daf7ab0166d4f6047cc887d46b8
-    GlobalContext: transition = BeginLuminosityBlock
-    run: 1 luminosityBlock: 1
-    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1000000
-    ProcessContext: TEST 0879c0d316e266ea880036ce316ef5aa
-
-++++++ finished: global begin lumi for module: label = 'one' id = 4
-GlobalContext: transition = BeginLuminosityBlock
-    run: 1 luminosityBlock: 1
-    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1000000
-    ProcessContext: TEST 0879c0d316e266ea880036ce316ef5aa
-ModuleCallingContext state = Running
-    moduleDescription: Module type=IntProducer, Module label=one, Parameter Set ID=bece7daf7ab0166d4f6047cc887d46b8
-    GlobalContext: transition = BeginLuminosityBlock
-    run: 1 luminosityBlock: 1
-    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1000000
-    ProcessContext: TEST 0879c0d316e266ea880036ce316ef5aa
-
-++++++ starting: global begin lumi for module: label = 'result1' id = 5
-++++++ finished: global begin lumi for module: label = 'result1' id = 5
-++++++ starting: global begin lumi for module: label = 'result2' id = 6
-++++++ finished: global begin lumi for module: label = 'result2' id = 6
-++++++ starting: global begin lumi for module: label = 'result4' id = 7
-++++++ finished: global begin lumi for module: label = 'result4' id = 7
 ++++++ starting: global begin lumi for module: label = 'get' id = 3
 ++++++ finished: global begin lumi for module: label = 'get' id = 3
-++++++ starting: global begin lumi for module: label = 'TriggerResults' id = 1
-++++++ finished: global begin lumi for module: label = 'TriggerResults' id = 1
-++++++ starting: global begin lumi for module: label = 'p' id = 2
-++++++ finished: global begin lumi for module: label = 'p' id = 2
 ++++ finished: global begin lumi: run = 1 lumi = 1 time = 1000000
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 1 time = 1000000
 ++++++ starting: begin lumi for module: stream = 0 label = 'result4' id = 7
@@ -602,42 +534,8 @@ ModuleCallingContext state = Running
 ++++++ finished: end lumi for module: stream = 0 label = 'get' id = 3
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 1 time = 1000030
 ++++ starting: global end lumi: run = 1 lumi = 1 time = 1000000
-++++++ starting: global end lumi for module: label = 'one' id = 4
-GlobalContext: transition = EndLuminosityBlock
-    run: 1 luminosityBlock: 1
-    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1000000
-    ProcessContext: TEST 0879c0d316e266ea880036ce316ef5aa
-ModuleCallingContext state = Running
-    moduleDescription: Module type=IntProducer, Module label=one, Parameter Set ID=bece7daf7ab0166d4f6047cc887d46b8
-    GlobalContext: transition = EndLuminosityBlock
-    run: 1 luminosityBlock: 1
-    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1000000
-    ProcessContext: TEST 0879c0d316e266ea880036ce316ef5aa
-
-++++++ finished: global end lumi for module: label = 'one' id = 4
-GlobalContext: transition = EndLuminosityBlock
-    run: 1 luminosityBlock: 1
-    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1000000
-    ProcessContext: TEST 0879c0d316e266ea880036ce316ef5aa
-ModuleCallingContext state = Running
-    moduleDescription: Module type=IntProducer, Module label=one, Parameter Set ID=bece7daf7ab0166d4f6047cc887d46b8
-    GlobalContext: transition = EndLuminosityBlock
-    run: 1 luminosityBlock: 1
-    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1000000
-    ProcessContext: TEST 0879c0d316e266ea880036ce316ef5aa
-
-++++++ starting: global end lumi for module: label = 'result1' id = 5
-++++++ finished: global end lumi for module: label = 'result1' id = 5
-++++++ starting: global end lumi for module: label = 'result2' id = 6
-++++++ finished: global end lumi for module: label = 'result2' id = 6
-++++++ starting: global end lumi for module: label = 'result4' id = 7
-++++++ finished: global end lumi for module: label = 'result4' id = 7
 ++++++ starting: global end lumi for module: label = 'get' id = 3
 ++++++ finished: global end lumi for module: label = 'get' id = 3
-++++++ starting: global end lumi for module: label = 'TriggerResults' id = 1
-++++++ finished: global end lumi for module: label = 'TriggerResults' id = 1
-++++++ starting: global end lumi for module: label = 'p' id = 2
-++++++ finished: global end lumi for module: label = 'p' id = 2
 ++++ finished: global end lumi: run = 1 lumi = 1 time = 1000000
 ++++ starting: end run: stream = 0 run = 1 time = 1000030
 ++++++ starting: end run for module: stream = 0 label = 'result4' id = 7
@@ -674,42 +572,8 @@ ModuleCallingContext state = Running
 ++++++ finished: end run for module: stream = 0 label = 'get' id = 3
 ++++ finished: end run: stream = 0 run = 1 time = 1000030
 ++++ starting: global end run 1 : time = 1000030
-++++++ starting: global end run for module: label = 'one' id = 4
-GlobalContext: transition = EndRun
-    run: 1 luminosityBlock: 0
-    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1000030
-    ProcessContext: TEST 0879c0d316e266ea880036ce316ef5aa
-ModuleCallingContext state = Running
-    moduleDescription: Module type=IntProducer, Module label=one, Parameter Set ID=bece7daf7ab0166d4f6047cc887d46b8
-    GlobalContext: transition = EndRun
-    run: 1 luminosityBlock: 0
-    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1000030
-    ProcessContext: TEST 0879c0d316e266ea880036ce316ef5aa
-
-++++++ finished: global end run for module: label = 'one' id = 4
-GlobalContext: transition = EndRun
-    run: 1 luminosityBlock: 0
-    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1000030
-    ProcessContext: TEST 0879c0d316e266ea880036ce316ef5aa
-ModuleCallingContext state = Running
-    moduleDescription: Module type=IntProducer, Module label=one, Parameter Set ID=bece7daf7ab0166d4f6047cc887d46b8
-    GlobalContext: transition = EndRun
-    run: 1 luminosityBlock: 0
-    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1000030
-    ProcessContext: TEST 0879c0d316e266ea880036ce316ef5aa
-
-++++++ starting: global end run for module: label = 'result1' id = 5
-++++++ finished: global end run for module: label = 'result1' id = 5
-++++++ starting: global end run for module: label = 'result2' id = 6
-++++++ finished: global end run for module: label = 'result2' id = 6
-++++++ starting: global end run for module: label = 'result4' id = 7
-++++++ finished: global end run for module: label = 'result4' id = 7
 ++++++ starting: global end run for module: label = 'get' id = 3
 ++++++ finished: global end run for module: label = 'get' id = 3
-++++++ starting: global end run for module: label = 'TriggerResults' id = 1
-++++++ finished: global end run for module: label = 'TriggerResults' id = 1
-++++++ starting: global end run for module: label = 'p' id = 2
-++++++ finished: global end run for module: label = 'p' id = 2
 ++++ finished: global end run 1 : time = 1000030
 ++++ starting: end stream for module: stream = 0 label = 'get' id = 3
 ++++ finished: end stream for module: stream = 0 label = 'get' id = 3

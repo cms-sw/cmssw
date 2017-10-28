@@ -148,7 +148,14 @@ namespace edm {
       GlobalContext const* context_;
     };
 
-    
+    static bool shouldRunWorker(Worker const* iWorker, RunPrincipal const*) {
+      return iWorker->wantsGlobalRuns();
+    }
+
+    static bool shouldRunWorker(Worker const* iWorker, LuminosityBlockPrincipal const*) {
+      return iWorker->wantsGlobalLuminosityBlocks();
+    }
+
     /// returns the action table
     ExceptionToActionTable const& actionTable() const {
       return workerManager_.actionTable();
@@ -235,7 +242,9 @@ namespace edm {
     //make sure the task doesn't get run until all workers have beens started
     WaitingTaskHolder holdForLoop(doneTask);
     for(auto& worker: boost::adaptors::reverse((allWorkers()))) {
-      worker->doWorkAsync<T>(doneTask,ep,es,StreamID::invalidStreamID(),parentContext,globalContext.get());
+      if(shouldRunWorker(worker, static_cast<typename T::MyPrincipal const*>(nullptr))) {
+        worker->doWorkAsync<T>(doneTask,ep,es,StreamID::invalidStreamID(),parentContext,globalContext.get());
+      }
     }
 
   }

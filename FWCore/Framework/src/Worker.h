@@ -114,6 +114,9 @@ namespace edm {
     Worker(Worker const&) = delete; // Disallow copying and moving
     Worker& operator=(Worker const&) = delete; // Disallow copying and moving
 
+    virtual bool wantsGlobalRuns() const = 0;
+    virtual bool wantsGlobalLuminosityBlocks() const = 0;
+    
     template <typename T>
     bool doWork(typename T::MyPrincipal const&, EventSetup const& c,
                 StreamID stream,
