@@ -23,7 +23,7 @@ namespace ThePEG {
 class RandomEngineGlue : public RandomGenerator {
     public:
 	RandomEngineGlue();
-	virtual ~RandomEngineGlue();
+	~RandomEngineGlue() override;
 
 	void setRandomEngine(CLHEP::HepRandomEngine* v) { randomEngine = v; }
 
@@ -61,10 +61,10 @@ class RandomEngineGlue : public RandomGenerator {
 	virtual void fill();
 	virtual void setSeed(long seed);
 
-	virtual IBPtr clone() const { return new_ptr(*this); }
-	virtual IBPtr fullclone() const { return new_ptr(*this); }
+	IBPtr clone() const override { return new_ptr(*this); }
+	IBPtr fullclone() const override { return new_ptr(*this); }
 
-	virtual void doinit() throw(InitException);
+	void doinit() throw(InitException) override;
 
     private:
 	Proxy::ProxyID		proxyID;

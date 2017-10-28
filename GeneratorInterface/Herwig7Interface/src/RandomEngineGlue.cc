@@ -49,7 +49,7 @@ void RandomEngineGlue::setSeed(long seed)
 	// we ignore this, CMSSW overrides the seed from ThePEG
 }
 
-void RandomEngineGlue::doinit() throw(InitException)
+void RandomEngineGlue::doinit() noexcept(false)
 {
 	RandomGenerator::doinit();
 
