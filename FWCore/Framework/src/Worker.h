@@ -687,6 +687,10 @@ namespace edm {
                            StreamID streamID,
                            ParentContext const& parentContext,
                            typename T::Context const* context) {
+    if (not workerhelper::CallImpl<T>::wantsTransition(this)) {
+      return;
+    }
+
     waitingTasks_.add(task);
     if(T::isEvent_) {
       timesVisited_.fetch_add(1,std::memory_order_relaxed);
