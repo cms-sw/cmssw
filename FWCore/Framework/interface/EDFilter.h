@@ -54,6 +54,8 @@ namespace edm {
 
     static bool wantsGlobalRuns() {return true;}
     static bool wantsGlobalLuminosityBlocks() {return true;}
+    static bool wantsStreamRuns() {return false;}
+    static bool wantsStreamLuminosityBlocks() {return false;};
 
   private:
     bool doEvent(EventPrincipal const& ep, EventSetup const& c,

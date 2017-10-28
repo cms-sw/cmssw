@@ -116,7 +116,9 @@ namespace edm {
 
     virtual bool wantsGlobalRuns() const = 0;
     virtual bool wantsGlobalLuminosityBlocks() const = 0;
-    
+    virtual bool wantsStreamRuns() const = 0;
+    virtual bool wantsStreamLuminosityBlocks() const = 0;
+
     template <typename T>
     bool doWork(typename T::MyPrincipal const&, EventSetup const& c,
                 StreamID stream,
@@ -493,6 +495,9 @@ namespace edm {
                                        ModuleCallingContext const* mcc) {
         return iWorker->implDoPrePrefetchSelection(id,ep,mcc);
       }
+      static bool wantsTransition(Worker const* iWorker) {
+        return true;
+      }
     };
 
     template<>
@@ -512,6 +517,9 @@ namespace edm {
                                        ModuleCallingContext const* mcc) {
         return true;
       }
+      static bool wantsTransition(Worker const* iWorker) {
+        return iWorker->wantsGlobalRuns();
+      }
     };
     template<>
     class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionStreamBegin>>{
@@ -529,6 +537,9 @@ namespace edm {
                                        typename Arg::MyPrincipal const& ep,
                                        ModuleCallingContext const* mcc) {
         return true;
+      }
+      static bool wantsTransition(Worker const* iWorker) {
+        return iWorker->wantsStreamRuns();
       }
     };
     template<>
@@ -548,6 +559,9 @@ namespace edm {
                                        ModuleCallingContext const* mcc) {
         return true;
       }
+      static bool wantsTransition(Worker const* iWorker) {
+        return iWorker->wantsGlobalRuns();
+      }
     };
     template<>
     class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionStreamEnd>>{
@@ -565,6 +579,9 @@ namespace edm {
                                        typename Arg::MyPrincipal const& ep,
                                        ModuleCallingContext const* mcc) {
         return true;
+      }
+      static bool wantsTransition(Worker const* iWorker) {
+        return iWorker->wantsStreamRuns();
       }
     };
 
@@ -586,6 +603,10 @@ namespace edm {
                                        ModuleCallingContext const* mcc) {
         return true;
       }
+
+      static bool wantsTransition(Worker const* iWorker) {
+        return iWorker->wantsGlobalLuminosityBlocks();
+      }
     };
     template<>
     class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>>{
@@ -604,6 +625,10 @@ namespace edm {
                                        typename Arg::MyPrincipal const& ep,
                                        ModuleCallingContext const* mcc) {
         return true;
+      }
+
+      static bool wantsTransition(Worker const* iWorker) {
+        return iWorker->wantsStreamLuminosityBlocks();
       }
 };
 
@@ -624,6 +649,9 @@ namespace edm {
                                        ModuleCallingContext const* mcc) {
         return true;
       }
+      static bool wantsTransition(Worker const* iWorker) {
+        return iWorker->wantsGlobalLuminosityBlocks();
+      }
 
     };
     template<>
@@ -643,6 +671,10 @@ namespace edm {
                                        typename Arg::MyPrincipal const& ep,
                                        ModuleCallingContext const* mcc) {
         return true;
+      }
+      
+      static bool wantsTransition(Worker const* iWorker) {
+        return iWorker->wantsStreamLuminosityBlocks();
       }
     };
   }
@@ -715,6 +747,9 @@ namespace edm {
                            StreamID streamID,
                            ParentContext const& parentContext,
                            typename T::Context const* context) {
+    if (not workerhelper::CallImpl<T>::wantsTransition(this)) {
+      return;
+    }
     waitingTasks_.add(task);
     bool expected = false;
     if(workStarted_.compare_exchange_strong(expected,true)) {

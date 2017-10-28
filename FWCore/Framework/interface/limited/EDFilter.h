@@ -57,6 +57,12 @@ namespace edm {
       bool wantsGlobalLuminosityBlocks() const final {
         return WantsGlobalLuminosityBlockTransitions<T...>::value;
       }
+      bool wantsStreamRuns() const final {
+        return WantsStreamRunTransitions<T...>::value;
+      }
+      bool wantsStreamLuminosityBlocks() const final {
+        return WantsStreamLuminosityBlockTransitions<T...>::value;
+      }
 
       // ---------- static member functions --------------------
       

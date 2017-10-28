@@ -69,6 +69,8 @@ namespace edm {
       
       virtual bool wantsGlobalRuns() const =0;
       virtual bool wantsGlobalLuminosityBlocks() const =0;
+      virtual bool wantsStreamRuns() const =0;
+      virtual bool wantsStreamLuminosityBlocks() const =0;
 
       unsigned int concurrencyLimit() const { return queue_.concurrencyLimit(); }
 
