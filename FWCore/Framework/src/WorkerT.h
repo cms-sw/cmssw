@@ -44,8 +44,11 @@ namespace edm {
     
     Types moduleType() const override;
     
-    virtual bool wantsGlobalRuns() const final;
-    virtual bool wantsGlobalLuminosityBlocks() const final;
+    bool wantsGlobalRuns() const final;
+    bool wantsGlobalLuminosityBlocks() const final;
+    bool wantsStreamRuns() const final;
+    bool wantsStreamLuminosityBlocks() const final;
+
 
     void updateLookup(BranchType iBranchType,
                               ProductResolverIndexHelper const&) override;

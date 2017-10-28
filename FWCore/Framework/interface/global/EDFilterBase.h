@@ -65,6 +65,8 @@ namespace edm {
 
       virtual bool wantsGlobalRuns() const =0;
       virtual bool wantsGlobalLuminosityBlocks() const =0;
+      virtual bool wantsStreamRuns() const =0;
+      virtual bool wantsStreamLuminosityBlocks() const =0;
 
     private:
       bool doEvent(EventPrincipal const& ep, EventSetup const& c,

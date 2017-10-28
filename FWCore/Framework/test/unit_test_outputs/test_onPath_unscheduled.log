@@ -50,10 +50,6 @@
 ++++ starting: begin run: stream = 0 run = 1 time = 1000000
 ++++++ starting: begin run for module: stream = 0 label = 'two' id = 5
 ++++++ finished: begin run for module: stream = 0 label = 'two' id = 5
-++++++ starting: begin run for module: stream = 0 label = 'getOne' id = 4
-++++++ finished: begin run for module: stream = 0 label = 'getOne' id = 4
-++++++ starting: begin run for module: stream = 0 label = 'getTwo' id = 6
-++++++ finished: begin run for module: stream = 0 label = 'getTwo' id = 6
 ++++++ starting: begin run for module: stream = 0 label = 'one' id = 3
 ++++++ finished: begin run for module: stream = 0 label = 'one' id = 3
 ++++ finished: begin run: stream = 0 run = 1 time = 1000000
@@ -68,10 +64,6 @@
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 1 time = 1000000
 ++++++ starting: begin lumi for module: stream = 0 label = 'two' id = 5
 ++++++ finished: begin lumi for module: stream = 0 label = 'two' id = 5
-++++++ starting: begin lumi for module: stream = 0 label = 'getOne' id = 4
-++++++ finished: begin lumi for module: stream = 0 label = 'getOne' id = 4
-++++++ starting: begin lumi for module: stream = 0 label = 'getTwo' id = 6
-++++++ finished: begin lumi for module: stream = 0 label = 'getTwo' id = 6
 ++++++ starting: begin lumi for module: stream = 0 label = 'one' id = 3
 ++++++ finished: begin lumi for module: stream = 0 label = 'one' id = 3
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 1 time = 1000000
@@ -162,10 +154,6 @@
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 1 time = 1000030
 ++++++ starting: end lumi for module: stream = 0 label = 'two' id = 5
 ++++++ finished: end lumi for module: stream = 0 label = 'two' id = 5
-++++++ starting: end lumi for module: stream = 0 label = 'getOne' id = 4
-++++++ finished: end lumi for module: stream = 0 label = 'getOne' id = 4
-++++++ starting: end lumi for module: stream = 0 label = 'getTwo' id = 6
-++++++ finished: end lumi for module: stream = 0 label = 'getTwo' id = 6
 ++++++ starting: end lumi for module: stream = 0 label = 'one' id = 3
 ++++++ finished: end lumi for module: stream = 0 label = 'one' id = 3
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 1 time = 1000030
@@ -178,10 +166,6 @@
 ++++ starting: end run: stream = 0 run = 1 time = 1000030
 ++++++ starting: end run for module: stream = 0 label = 'two' id = 5
 ++++++ finished: end run for module: stream = 0 label = 'two' id = 5
-++++++ starting: end run for module: stream = 0 label = 'getOne' id = 4
-++++++ finished: end run for module: stream = 0 label = 'getOne' id = 4
-++++++ starting: end run for module: stream = 0 label = 'getTwo' id = 6
-++++++ finished: end run for module: stream = 0 label = 'getTwo' id = 6
 ++++++ starting: end run for module: stream = 0 label = 'one' id = 3
 ++++++ finished: end run for module: stream = 0 label = 'one' id = 3
 ++++ finished: end run: stream = 0 run = 1 time = 1000030

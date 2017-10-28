@@ -65,6 +65,8 @@ namespace edm {
 
       virtual bool wantsGlobalRuns() const =0;
       virtual bool wantsGlobalLuminosityBlocks() const =0;
+      bool wantsStreamRuns() const {return false;}
+      bool wantsStreamLuminosityBlocks() const {return false;};
 
       void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func);
 

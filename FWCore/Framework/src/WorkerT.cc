@@ -139,6 +139,16 @@ namespace edm{
   }
 
   template<typename T>
+  bool WorkerT<T>::wantsStreamRuns() const {
+    return module_->wantsStreamRuns();
+  }
+  
+  template<typename T>
+  bool WorkerT<T>::wantsStreamLuminosityBlocks() const {
+    return module_->wantsStreamLuminosityBlocks();
+  }
+
+  template<typename T>
   inline
   bool
   WorkerT<T>::implDo(EventPrincipal const& ep, EventSetup const& c, ModuleCallingContext const* mcc) {
