@@ -94,6 +94,12 @@ namespace edm {
       static const std::string& baseType();
       static void prevalidate(ConfigurationDescriptions& );
       
+      //Output modules always need writeRun and writeLumi to be called
+      bool wantsGlobalRuns() const {return true;}
+      bool wantsGlobalLuminosityBlocks() const {return true;}
+      bool wantsStreamRuns() const {return false;}
+      bool wantsStreamLuminosityBlocks() const {return false;};
+
       bool wantAllEvents() const {return wantAllEvents_;}
       
       BranchIDLists const* branchIDLists();
