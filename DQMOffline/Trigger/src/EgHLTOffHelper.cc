@@ -113,10 +113,10 @@ void OffHelper::setupTriggers(const HLTConfigProvider& hltConfig,const std::vect
   //now loading the cuts for every trigger into our vector which stores them
   //only load cuts for triggers that are in hltFiltersUsed
   
-  for(size_t trigNr=0;trigNr<trigCutParams_.size();trigNr++) {
-    std::string trigName = trigCutParams_[trigNr].getParameter<std::string>("trigName");
+  for(auto & trigCutParam : trigCutParams_) {
+    std::string trigName = trigCutParam.getParameter<std::string>("trigName");
     if(std::find(hltFiltersUsed_.begin(),hltFiltersUsed_.end(),trigName)!=hltFiltersUsed_.end()){ //perhaps I should sort hltFiltersUsed_....
-      trigCuts_.push_back(std::make_pair(trigCodes.getCode(trigName),OffEgSel(trigCutParams_[trigNr])));
+      trigCuts_.push_back(std::make_pair(trigCodes.getCode(trigName),OffEgSel(trigCutParam)));
       //   std::cout<<trigName<<std::endl<<"between"<<std::endl<<trigCutParams_[trigNr]<<std::endl<<"after"<<std::endl;
     }
   }
@@ -131,9 +131,9 @@ void OffHelper::setupTriggers(const HLTConfigProvider& hltConfig,const std::vect
   l1PreScaledFilters_.clear();
   l1PreScaledPaths_.clear();
   l1PreAndSeedFilters_.clear();
-  for(size_t filterNr=0;filterNr<hltFiltersUsed_.size();filterNr++){
-    if(hltFiltersUsed_[filterNr].find("hltPreL1")==0){ //l1 prescaled path
-      l1PreScaledFilters_.push_back(hltFiltersUsed_[filterNr]);
+  for(auto & filterNr : hltFiltersUsed_){
+    if(filterNr.find("hltPreL1")==0){ //l1 prescaled path
+      l1PreScaledFilters_.push_back(filterNr);
     }
   }
 
@@ -204,30 +204,30 @@ int OffHelper::fillOffEleVec(std::vector<OffEle>& egHLTOffEles)
 {
   egHLTOffEles.clear();
   egHLTOffEles.reserve(recoEles_->size());
-  for(reco::GsfElectronCollection::const_iterator gsfIter=recoEles_->begin(); gsfIter!=recoEles_->end();++gsfIter){
-    if(!gsfIter->ecalDrivenSeed()) continue; //avoid PF electrons (this is Eg HLT validation and HLT is ecal driven)
+  for(auto const & gsfIter : *recoEles_){
+    if(!gsfIter.ecalDrivenSeed()) continue; //avoid PF electrons (this is Eg HLT validation and HLT is ecal driven)
 
     int nVertex=0;
-    for(reco::VertexCollection::const_iterator nVit=recoVertices_->begin(); nVit!=recoVertices_->end();++nVit){
-      if( !nVit->isFake() 
-	  && nVit->ndof()>4  
-	  && std::fabs( nVit->z()<24.0) 
-	  && sqrt(nVit->x()*nVit->x() + nVit->y()*nVit->y())<2.0){nVertex++;}
+    for(auto const & nVit : *recoVertices_){
+      if( !nVit.isFake() 
+	  && nVit.ndof()>4  
+	  && std::fabs( nVit.z()<24.0) 
+	  && sqrt(nVit.x()*nVit.x() + nVit.y()*nVit.y())<2.0){nVertex++;}
     }
     //if(nVertex>20)std::cout<<"nVertex: "<<nVertex<<std::endl;
     OffEle::EventData eventData;
     eventData.NVertex=nVertex;
 
     OffEle::IsolData isolData;   
-    fillIsolData(*gsfIter,isolData);
+    fillIsolData(gsfIter,isolData);
     
     OffEle::ClusShapeData clusShapeData;
-    fillClusShapeData(*gsfIter,clusShapeData);
+    fillClusShapeData(gsfIter,clusShapeData);
 
     OffEle::HLTData hltData;
-    fillHLTData(*gsfIter,hltData);
+    fillHLTData(gsfIter,hltData);
 
-    egHLTOffEles.push_back(OffEle(*gsfIter,clusShapeData,isolData,hltData,eventData));
+    egHLTOffEles.emplace_back(gsfIter,clusShapeData,isolData,hltData,eventData);
     
     //now we would like to set the cut results
     OffEle& ele =  egHLTOffEles.back();
@@ -235,7 +235,7 @@ int OffHelper::fillOffEleVec(std::vector<OffEle>& egHLTOffEles)
     ele.setLooseCutCode(eleLooseCuts_.getCutCode(ele));
     
     std::vector<std::pair<TrigCodes::TrigBitSet,int> >trigCutsCutCodes;
-    for(size_t i=0;i<trigCuts_.size();i++) trigCutsCutCodes.push_back(std::make_pair(trigCuts_[i].first,trigCuts_[i].second.getCutCode(ele)));
+    for(auto & trigCut : trigCuts_) trigCutsCutCodes.push_back(std::make_pair(trigCut.first,trigCut.second.getCutCode(ele)));
     ele.setTrigCutsCutCodes(trigCutsCutCodes);
   }//end loop over gsf electron collection
   return 0;
@@ -358,24 +358,24 @@ int OffHelper::fillOffPhoVec(std::vector<OffPho>& egHLTOffPhos)
 {
   egHLTOffPhos.clear();
   egHLTOffPhos.reserve(recoPhos_->size());
-  for(reco::PhotonCollection::const_iterator phoIter=recoPhos_->begin(); phoIter!=recoPhos_->end();++phoIter){
+  for(auto const & phoIter : *recoPhos_){
 
     OffPho::IsolData isolData;  
     OffPho::ClusShapeData clusShapeData;
   
-    fillIsolData(*phoIter,isolData);
-    fillClusShapeData(*phoIter,clusShapeData);
+    fillIsolData(phoIter,isolData);
+    fillClusShapeData(phoIter,clusShapeData);
    
     OffPho::HLTData hltData;
-    fillHLTDataPho(*phoIter,hltData); 
+    fillHLTDataPho(phoIter,hltData); 
 
-    egHLTOffPhos.push_back(OffPho(*phoIter,clusShapeData,isolData,hltData));
+    egHLTOffPhos.emplace_back(phoIter,clusShapeData,isolData,hltData);
     OffPho& pho =  egHLTOffPhos.back();
     pho.setCutCode(phoCuts_.getCutCode(pho));
     pho.setLooseCutCode(phoLooseCuts_.getCutCode(pho));
 
     std::vector<std::pair<TrigCodes::TrigBitSet,int> >trigCutsCutCodes;
-    for(size_t i=0;i<trigCuts_.size();i++) trigCutsCutCodes.push_back(std::make_pair(trigCuts_[i].first,trigCuts_[i].second.getCutCode(pho)));
+    for(auto & trigCut : trigCuts_) trigCutsCutCodes.push_back(std::make_pair(trigCut.first,trigCut.second.getCutCode(pho)));
     pho.setTrigCutsCutCodes(trigCutsCutCodes); 
 
 

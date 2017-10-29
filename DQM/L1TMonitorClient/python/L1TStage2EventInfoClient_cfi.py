@@ -256,6 +256,11 @@ l1tStage2EventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                                 QualityTestSummaryEnabled = cms.uint32(0)
                                 ),
                             cms.PSet(
+                                QualityTestName = cms.string("uGMT_EMTFMuonPhiSpectrum"),
+                                QualityTestHist = cms.string("L1T/L1TStage2uGMT/ugmtMuonPhiEmtf"),
+                                QualityTestSummaryEnabled = cms.uint32(0)
+                                ),
+                            cms.PSet(
                                 QualityTestName = cms.string("uGMT_EMTFMuonPhiMeanAt0"),
                                 QualityTestHist = cms.string("L1T/L1TStage2uGMT/ugmtMuonPhiEmtf"),
                                 QualityTestSummaryEnabled = cms.uint32(1)

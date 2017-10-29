@@ -60,8 +60,8 @@ namespace egHLT {
     static const ComCodes codes_;
     
   private:
-    EgCutCodes(){} //not going to allow instainitiation
-    ~EgCutCodes(){}
+    EgCutCodes()= default; //not going to allow instainitiation
+    ~EgCutCodes()= default;
     
   public:
     static int getCode(const std::string& descript){return codes_.getCode(descript.c_str());}

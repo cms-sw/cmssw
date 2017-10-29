@@ -164,7 +164,7 @@ void HLTTauDQMPathPlotter::bookHistograms(DQMStore::IBooker &iBooker) {
 }
 
 
-HLTTauDQMPathPlotter::~HLTTauDQMPathPlotter() {}
+HLTTauDQMPathPlotter::~HLTTauDQMPathPlotter() = default;
 
 void HLTTauDQMPathPlotter::analyze(const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const HLTTauDQMOfflineObjects& refCollection) {
   std::vector<HLTTauDQMPath::Object> triggerObjs;

@@ -41,6 +41,7 @@ private:
   void                              initMap(G4String, const DDCompactView &);
   double                            curve_LY(G4Step*); 
   double                            crystalLength(G4LogicalVolume*);
+  double                            crystalDepth(G4LogicalVolume*, const G4ThreeVector&);
   void                              getBaseNumber(const G4Step*); 
   double                            getBirkL3(G4Step*);
   std::vector<double>               getDDDArray(const std::string&,

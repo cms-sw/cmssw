@@ -12,3 +12,6 @@ jetMETHLTOfflineAnalyzer = cms.Sequence(
     * jetMETHLTOfflineSourceAK4Fwd
     * jetMETHLTOfflineSourceAK8Fwd
 )
+
+jmeHLTDQMSourceExtra = cms.Sequence(
+)
