@@ -127,6 +127,27 @@ namespace edm{
   WorkerT<T>::~WorkerT() {
   }
 
+  
+  template<typename T>
+  bool WorkerT<T>::wantsGlobalRuns() const {
+    return module_->wantsGlobalRuns();
+  }
+  
+  template<typename T>
+  bool WorkerT<T>::wantsGlobalLuminosityBlocks() const {
+    return module_->wantsGlobalLuminosityBlocks();
+  }
+
+  template<typename T>
+  bool WorkerT<T>::wantsStreamRuns() const {
+    return module_->wantsStreamRuns();
+  }
+  
+  template<typename T>
+  bool WorkerT<T>::wantsStreamLuminosityBlocks() const {
+    return module_->wantsStreamLuminosityBlocks();
+  }
+
   template<typename T>
   inline
   bool
