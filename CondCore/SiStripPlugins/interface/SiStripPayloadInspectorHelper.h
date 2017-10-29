@@ -6,6 +6,7 @@
 #include <string>
 #include "TH1.h"
 #include "TPaveText.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"   
 #include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h" 
 
@@ -257,6 +258,30 @@ namespace SiStripPI {
       
     }
   }
+
+  // code is mutuated from CalibTracker/SiStripQuality/plugins/SiStripQualityStatistics
+
+  /*--------------------------------------------------------------------*/
+  void setBadComponents(int i, int component, SiStripQuality::BadComponent& BC,int NBadComponent[4][19][4])
+  /*--------------------------------------------------------------------*/
+  {
+   
+    if (BC.BadApvs){
+      NBadComponent[i][0][2]+= std::bitset<16>(BC.BadApvs&0x3f).count(); 
+      NBadComponent[i][component][2]+= std::bitset<16>(BC.BadApvs&0x3f).count(); 
+    }
+
+    if (BC.BadFibers){ 
+      NBadComponent[i][0][1]+= std::bitset<4>(BC.BadFibers&0x7).count();
+      NBadComponent[i][component][1]+= std::bitset<4>(BC.BadFibers&0x7).count();
+    }   
+
+    if (BC.BadModule){
+      NBadComponent[i][0][0]++;
+      NBadComponent[i][component][0]++;
+    }
+  }
+
 };
 
 #endif
