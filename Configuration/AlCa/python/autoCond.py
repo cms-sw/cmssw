@@ -10,17 +10,19 @@ autoCond = {
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run1
     'run1_mc_pa'        :   '92X_mcRun1_pA_v2',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
-    'run2_design'       :   '92X_mcRun2_design_v2',
+    'run2_design'       :   '92X_mcRun2_design_v3',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
-    'run2_mc_50ns'      :   '92X_mcRun2_startup_v2',
+    'run2_mc_50ns'      :   '92X_mcRun2_startup_v3',
     #GlobalTag for MC production with optimistic alignment and calibrations for Run2
-    'run2_mc'           :   '92X_mcRun2_asymptotic_v2',
+    'run2_mc'           :   '92X_mcRun2_asymptotic_v4',
+    # GlobalTag for MC production (L1 Trigger Stage1) with starup-like alignment and calibrations for Run2, L1 trigger in Stage1 mode
+    'run2_mc_l1stage1'  :   '92X_mcRun2_asymptotic_v1',
     # GlobalTag for MC production (cosmics) with starup-like alignment and calibrations for Run2, Strip tracker in peak mode
-    'run2_mc_cosmics'   :   '92X_mcRun2cosmics_startup_deco_v2',
+    'run2_mc_cosmics'   :   '92X_mcRun2cosmics_startup_deco_v3',
     # GlobalTag for MC production (Heavy Ions collisions) with optimistic alignment and calibrations for Run2
-    'run2_mc_hi'        :   '92X_mcRun2_HeavyIon_v2',
+    'run2_mc_hi'        :   '92X_mcRun2_HeavyIon_v3',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
-    'run2_mc_pa'        :   '92X_mcRun2_pA_v2',
+    'run2_mc_pa'        :   '92X_mcRun2_pA_v3',
     # GlobalTag for Run1 data reprocessing
     'run1_data'         :   '92X_dataRun2_v7',
     # GlobalTag for Run2 data reprocessing
@@ -39,23 +41,23 @@ autoCond = {
     # GlobalTag for Run2 HLT for HI: it points to the online GT
     'run2_hlt_hi'       :   '92X_dataRun2_HLTHI_frozen_v6',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
-    'phase1_2017_design'       :  '92X_upgrade2017_design_IdealBS_v11',
+    'phase1_2017_design'       :  '92X_upgrade2017_design_IdealBS_v13',
     # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
-    'phase1_2017_realistic'    : '92X_upgrade2017_realistic_v11',
+    'phase1_2017_realistic'    : '92X_upgrade2017_realistic_v12',
     # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in DECO mode
-    'phase1_2017_cosmics'      : '92X_upgrade2017cosmics_realistic_deco_v11',
+    'phase1_2017_cosmics'      : '92X_upgrade2017cosmics_realistic_deco_v12',
     # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in PEAK mode
-    'phase1_2017_cosmics_peak' : '92X_upgrade2017cosmics_realistic_peak_v11',
+    'phase1_2017_cosmics_peak' : '92X_upgrade2017cosmics_realistic_peak_v12',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for full Phase1 2018 (and 0,0,0-centred beamspot)
-    'phase1_2018_design'       : '92X_upgrade2018_design_IdealBS_v8',
+    'phase1_2018_design'       : '92X_upgrade2018_design_IdealBS_v9',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector
-    'phase1_2018_realistic'    : '92X_upgrade2018_realistic_v9',
+    'phase1_2018_realistic'    : '92X_upgrade2018_realistic_v10',
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in DECO mode
-    'phase1_2018_cosmics'      :   '92X_upgrade2018cosmics_realistic_deco_v9',
+    'phase1_2018_cosmics'      :   '92X_upgrade2018cosmics_realistic_deco_v10',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
     'phase1_2019_design'       : 'DES19_70_V2', # placeholder (GT not meant for standard RelVal) 
     # GlobalTag for MC production with realistic conditions for Phase2 2023
-    'phase2_realistic'         : '92X_upgrade2023_realistic_v3'
+    'phase2_realistic'         : '92X_upgrade2023_realistic_v5'
 }
 
 aliases = {

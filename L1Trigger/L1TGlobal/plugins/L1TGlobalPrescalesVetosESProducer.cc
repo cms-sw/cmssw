@@ -396,7 +396,9 @@ L1TGlobalPrescalesVetosESProducer::produce(const L1TGlobalPrescalesVetosRcd& iRe
 
   // write the condition format to the event setup via the helper:
   using namespace edm::es;
-  std::shared_ptr<L1TGlobalPrescalesVetos> pMenu(data_.getWriteInstance());
+  // Return copy so that we don't give away our owned pointer to framework
+  auto pMenu = std::make_shared<L1TGlobalPrescalesVetos>(*data_.getWriteInstance());
+
   return pMenu;
 }
 

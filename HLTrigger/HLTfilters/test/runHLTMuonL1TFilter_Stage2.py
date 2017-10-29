@@ -36,7 +36,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 # LOCAL CONDITIONS NEEDED FOR RE-EMULATION OF GT
 #
 
-from L1Trigger.L1TGlobal.StableParameters_cff import *
+from L1Trigger.L1TGlobal.GlobalParameters_cff import *
 from L1Trigger.L1TGlobal.TriggerMenu_cff import *
 TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2015_25nsStage1_v7_uGT.xml')
 
