@@ -343,7 +343,12 @@ namespace {
             int rc = poll(&poll_info, 1, ms_remaining);
             if (rc <= 0)
             {
-              rc = (rc == 0) ? -ETIMEDOUT : -errno;
+              if (rc < 0) {
+                if (errno == EINTR || errno == EAGAIN) { continue; }
+                rc = -errno;
+              } else {
+                rc = -ETIMEDOUT;
+              }
               if ((flags & O_NONBLOCK) != O_NONBLOCK)
               {
                 fcntl(fd, F_SETFL, flags);
