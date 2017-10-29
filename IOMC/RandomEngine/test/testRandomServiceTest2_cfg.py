@@ -38,6 +38,10 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
         initialSeed = cms.untracked.uint32(7),
         engineName = cms.untracked.string('TRandom3')
     ),
+    t6 = cms.PSet(
+        initialSeed = cms.untracked.uint32(7),
+        engineName = cms.untracked.string('MixMaxRng')
+    ),
     enableChecking = cms.untracked.bool(True),
     restoreFileName = cms.untracked.string('StashState3.data')
 )
@@ -78,6 +82,15 @@ process.t4 = cms.EDAnalyzer("TestRandomNumberServiceGlobal",
                             skippedEvents = cms.untracked.vuint32(4),
                             seedByLumi = cms.untracked.vuint32(0, 85, 85, 205, 205)
 )
+process.t4 = cms.EDAnalyzer("TestRandomNumberServiceGlobal",
+                            engineName = cms.untracked.string('MixMaxRng'),
+                            seeds = cms.untracked.vuint32(85),
+                            offset = cms.untracked.uint32(2),
+                            maxEvents = cms.untracked.uint32(15),
+                            nStreams = cms.untracked.uint32(1),
+                            skippedEvents = cms.untracked.vuint32(4),
+                            seedByLumi = cms.untracked.vuint32(0, 85, 85, 205, 205)
+)
 
-process.p = cms.Path(process.t1+process.t2+process.t3+process.t4)
+process.p = cms.Path(process.t1+process.t2+process.t3+process.t4+process.t6)
 process.o = cms.EndPath(process.out)

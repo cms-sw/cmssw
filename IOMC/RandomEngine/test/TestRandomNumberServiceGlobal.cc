@@ -72,6 +72,7 @@ the text file containing the states.
 #include "CLHEP/Random/engineIDulong.h"
 #include "CLHEP/Random/JamesRandom.h"
 #include "CLHEP/Random/RanecuEngine.h"
+#include "CLHEP/Random/MixMaxRng.h"
 
 #include <fstream>
 #include <iostream>
@@ -352,6 +353,8 @@ TestRandomNumberServiceGlobal::globalBeginLuminosityBlock(edm::LuminosityBlock c
     long int seedL = static_cast<long int>(seed0);
     if(engineName_ == "HepJamesRandom") {
       lumiCache->referenceEngine_ = std::shared_ptr<CLHEP::HepRandomEngine>(new CLHEP::HepJamesRandom(seedL)); // propagate_const<T> has no reset() function
+    } else if(engineName_ == "MixMaxRng") {
+      lumiCache->referenceEngine_ = std::shared_ptr<CLHEP::HepRandomEngine>(new CLHEP::MixMaxRng(seedL)); // propagate_const<T> has no reset() function
     } else {
       lumiCache->referenceEngine_ = std::shared_ptr<CLHEP::HepRandomEngine>(new edm::TRandomAdaptor(seedL)); // propagate_const<T> has no reset() function
     }
@@ -404,6 +407,8 @@ TestRandomNumberServiceGlobal::beginStream(edm::StreamID streamID) const {
     long int seedL = static_cast<long int>(seeds_.at(0) + streamID.value() + offset_);
     if(engineName_ == "HepJamesRandom") {
       streamCache->referenceEngine_ = std::shared_ptr<CLHEP::HepRandomEngine>(new CLHEP::HepJamesRandom(seedL)); // propagate_const<T> has no reset() function
+    } else if(engineName_ == "MixMaxRng") {
+      streamCache->referenceEngine_ = std::shared_ptr<CLHEP::HepRandomEngine>(new CLHEP::MixMaxRng(seedL)); // propagate_const<T> has no reset() function
     } else {
       streamCache->referenceEngine_ = std::shared_ptr<CLHEP::HepRandomEngine>(new edm::TRandomAdaptor(seedL)); // propagate_const<T> has no reset() function
     }
