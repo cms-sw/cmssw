@@ -21,11 +21,14 @@ class HGCalTriggerNtupleHGCMulticlusters : public HGCalTriggerNtupleBase
     edm::EDGetToken multiclusters_token_;
 
     int cl3d_n_ ;
+    std::vector<uint32_t> cl3d_id_;
     std::vector<float> cl3d_pt_;
     std::vector<float> cl3d_energy_;
     std::vector<float> cl3d_eta_;
     std::vector<float> cl3d_phi_;
-    std::vector<int> cl3d_nclu_;
+    std::vector<int> cl3d_clusters_n_;
+    std::vector<std::vector<uint32_t>> cl3d_clusters_id_;
+    // cluster shower shapes
     std::vector<int> cl3d_showerlength_;
     std::vector<int> cl3d_firstlayer_;
     std::vector<float> cl3d_seetot_;
@@ -36,7 +39,6 @@ class HGCalTriggerNtupleHGCMulticlusters : public HGCalTriggerNtupleBase
     std::vector<float> cl3d_srrtot_;
     std::vector<float> cl3d_srrmax_;
     std::vector<float> cl3d_emaxe_;
-    std::vector<std::vector<unsigned>> cl3d_clusters_;   
 };
 
 DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory,
@@ -56,11 +58,13 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
   multiclusters_token_ = collector.consumes<l1t::HGCalMulticlusterBxCollection>(conf.getParameter<edm::InputTag>("Multiclusters"));
 
   tree.Branch("cl3d_n", &cl3d_n_, "cl3d_n/I");
+  tree.Branch("cl3d_id", &cl3d_id_);
   tree.Branch("cl3d_pt", &cl3d_pt_);
   tree.Branch("cl3d_energy", &cl3d_energy_);
   tree.Branch("cl3d_eta", &cl3d_eta_);
   tree.Branch("cl3d_phi", &cl3d_phi_);
-  tree.Branch("cl3d_nclu", &cl3d_nclu_);
+  tree.Branch("cl3d_clusters_n", &cl3d_clusters_n_);
+  tree.Branch("cl3d_clusters_id", &cl3d_clusters_id_);
   tree.Branch("cl3d_showerlength", &cl3d_showerlength_);
   tree.Branch("cl3d_firstlayer", &cl3d_firstlayer_);
   tree.Branch("cl3d_seetot", &cl3d_seetot_);
@@ -70,8 +74,7 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
   tree.Branch("cl3d_szz", &cl3d_szz_);
   tree.Branch("cl3d_srrtot", &cl3d_srrtot_);
   tree.Branch("cl3d_srrmax", &cl3d_srrmax_);
-  tree.Branch("cl3d_emaxe", &cl3d_emaxe_);  
-  tree.Branch("cl3d_clusters", &cl3d_clusters_);
+  tree.Branch("cl3d_emaxe", &cl3d_emaxe_);
 
 }
 
@@ -93,12 +96,13 @@ fill(const edm::Event& e, const edm::EventSetup& es)
   for(auto cl3d_itr=multiclusters.begin(0); cl3d_itr!=multiclusters.end(0); cl3d_itr++)
   {
     cl3d_n_++;
+    cl3d_id_.emplace_back(cl3d_itr->detId());
     // physical values 
     cl3d_pt_.emplace_back(cl3d_itr->pt());
     cl3d_energy_.emplace_back(cl3d_itr->energy());
     cl3d_eta_.emplace_back(cl3d_itr->eta());
     cl3d_phi_.emplace_back(cl3d_itr->phi());
-    cl3d_nclu_.emplace_back(cl3d_itr->constituents().size());
+    cl3d_clusters_n_.emplace_back(cl3d_itr->constituents().size());
     cl3d_showerlength_.emplace_back(cl3d_itr->showerLength());
     cl3d_firstlayer_.emplace_back(cl3d_itr->firstLayer());
     cl3d_seetot_.emplace_back(cl3d_itr->sigmaEtaEtaTot());
@@ -111,9 +115,9 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     cl3d_emaxe_.emplace_back(cl3d_itr->eMax()/cl3d_itr->energy());
 
     // Retrieve indices of trigger cells inside cluster
-    cl3d_clusters_.emplace_back(cl3d_itr->constituents().size());
+    cl3d_clusters_id_.emplace_back(cl3d_itr->constituents().size());
     std::transform(cl3d_itr->constituents_begin(), cl3d_itr->constituents_end(),
-        cl3d_clusters_.back().begin(), [](const edm::Ptr<l1t::HGCalCluster>& cl){return cl.key();}
+        cl3d_clusters_id_.back().begin(), [](const edm::Ptr<l1t::HGCalCluster>& cl){return cl->detId();}
         );
   }
 }
@@ -124,11 +128,13 @@ HGCalTriggerNtupleHGCMulticlusters::
 clear()
 {
   cl3d_n_ = 0;
+  cl3d_id_.clear();
   cl3d_pt_.clear();
   cl3d_energy_.clear();
   cl3d_eta_.clear();
   cl3d_phi_.clear();
-  cl3d_nclu_.clear();
+  cl3d_clusters_n_.clear();
+  cl3d_clusters_id_.clear();
   cl3d_showerlength_.clear();
   cl3d_firstlayer_.clear();
   cl3d_seetot_.clear();
@@ -139,8 +145,6 @@ clear()
   cl3d_srrtot_.clear();
   cl3d_srrmax_.clear();
   cl3d_emaxe_.clear();
-  cl3d_clusters_.clear();
-  
 }
 
 
