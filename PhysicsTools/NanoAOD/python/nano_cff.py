@@ -110,7 +110,6 @@ from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
 #remove stuff
 
 _92x_sequence = nanoSequence.copy()
-_92x_sequence.remove(isoTrackTable)
 _92x_sequenceMC = nanoSequenceMC.copy()
 _92x_sequenceMC.remove(genSubJetAK8Table)
 run2_nanoAOD_92X.toReplaceWith( nanoSequence, _92x_sequence)
