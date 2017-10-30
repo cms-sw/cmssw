@@ -82,13 +82,6 @@ def nanoAOD_customizeData(process):
 
 def nanoAOD_customizeMC(process):
     process = nanoAOD_customizeCommon(process)
-    ## FIXME:  WILL NO LONGER NEED RANDOM SEEDS WHEN DETERMINISTIC SMEARING WILL BE IMPLEMENTED
-    if not hasattr(process,'RandomNumberGeneratorService'):
-        process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService")
-    for X in 'calibratedPatElectrons','calibratedPatPhotons':
-        if not hasattr(process.RandomNumberGeneratorService,X):
-            setattr(process.RandomNumberGeneratorService, X, 
-                cms.PSet(initialSeed = cms.untracked.uint32(81), engineName = cms.untracked.string('TRandom3')))
     process.calibratedPatElectrons.isMC = cms.bool(True)
     process.calibratedPatPhotons.isMC = cms.bool(True)
     return process
