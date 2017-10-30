@@ -51,6 +51,7 @@ void SiPixelPhase1TrackingParticleV::analyze(const edm::Event& iEvent, const edm
   edm::Handle<TrackingParticleCollection>  TruthTrackContainer;
   iEvent.getByToken( vec_TrackingParticle_Token_, TruthTrackContainer );
   const TrackingParticleCollection *tPC   = TruthTrackContainer.product();
+  std::vector<std::pair<unsigned int, const PSimHit *>> trackIdToHitPtr_;
 
   // A multimap linking SimTrack::trackId() to a pointer to PSimHit
   // Similar to TrackingTruthAccumulator
