@@ -34,7 +34,6 @@ public:
         _hepmcCollection(consumes<HepMCProduct>(cfg.getParameter<edm::InputTag>("HepMCCollection"))),
         _lheRunInfo(consumes<LHERunInfoProduct,edm::InRun>(cfg.getParameter<edm::InputTag>("LHERunInfo")))
     {
-        _analysisHandler = new Rivet::AnalysisHandler();
         _HTXS = new Rivet::HiggsTemplateCrossSections();
         
         _isFirstEvent = true;
@@ -58,7 +57,7 @@ private:
     edm::EDGetTokenT<edm::HepMCProduct> _hepmcCollection;
     edm::EDGetTokenT<LHERunInfoProduct> _lheRunInfo;
     
-    Rivet::AnalysisHandler* _analysisHandler;
+    Rivet::AnalysisHandler _analysisHandler;
     Rivet::HiggsTemplateCrossSections* _HTXS;
     
     bool _isFirstEvent;
@@ -73,7 +72,7 @@ HTXSRivetProducer::~HTXSRivetProducer(){
 }
 
 void HTXSRivetProducer::beginJob(){
-    _analysisHandler->addAnalysis(_HTXS);
+    _analysisHandler.addAnalysis(_HTXS);
 }
 
 void HTXSRivetProducer::produce( edm::Event & iEvent, const edm::EventSetup & ) {
@@ -154,7 +153,7 @@ void HTXSRivetProducer::produce( edm::Event & iEvent, const edm::EventSetup & ) 
           }            
 
           // initialize rivet analysis
-          _analysisHandler->init(*myGenEvent);
+          _analysisHandler.init(*myGenEvent);
           _isFirstEvent = false;
 
       }

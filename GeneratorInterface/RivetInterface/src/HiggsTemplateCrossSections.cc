@@ -44,7 +44,7 @@ namespace Rivet {
       const GenVertex* prodVtx = p.genParticle()->production_vertex();
       if (prodVtx == nullptr) return false;
       // for each ancestor, check if it matches any of the input particles
-      for (auto ancestor:particles(prodVtx, HepMC::ancestors)){ 
+      for (const auto & ancestor:particles(prodVtx, HepMC::ancestors)){ 
 	for ( auto part:ptcls ) 
 	  if ( ancestor==part.genParticle() ) return true;
       }
