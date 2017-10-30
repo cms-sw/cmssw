@@ -109,7 +109,7 @@ def inspectRootFile(infile):
                 htemp = ROOT.gROOT.FindObject("htemp")
                 n = htemp.GetEntries() * htemp.GetMean()
                 htemp.Delete()
-            branchmap[counter]._entries = entries
+            branchmap[counter].entries = entries
             for c in countees:
                 br = branchmap[c] 
                 br.entries = n
@@ -168,7 +168,7 @@ def makeSurvey(treeName, treeData):
         else:
             tag = "<b><a href=\"#%s\">%s</a></b><br/>" % (s['name'],s['name']);
             tag += "Size: %.0f b/%s (%.1f%%)" % (s['tot']/entries*1024, unit, s['tot']/allsize*100);
-            if (s['kind'] in ("Vector","Collection")):
+            if (s['kind'] in ("Vector","Collection")) and s['entries'] > 0:
                 tag += "<br/>Items/%s:  %.1f, %.0f b/item" %(unit, float(s['entries'])/entries, s['tot']/s['entries']*1024);
             scriptdata.append( "{ 'label':'%s', 'tag':'%s', 'size':%s, 'tip':'%s' }" % ( s['name'], s['name'], s['tot']/entries, tag) )
         runningtotal += s['tot']
@@ -264,7 +264,7 @@ def writeSizeReport(fileData, stream):
         stream.write("<tr class='header'><th>" + "</th><th>".join( [ "branch", "kind", "b/event", "b/item", "plot", "%" ]) + "</th></tr>\n")
         subs = [ fileData.Events['branches'][b] for b in s['subs'] ]
         for b in sorted(subs, key = lambda s : - s['tot']):
-            stream.write("<th title=\"%s\">%s</th><td style='text-align : left;'>%s</td><td>%.1f</td><td>%.1f</td>" % (b['doc'],b['name'], b['kind'], b['tot']/events*1024, b['tot']/s['entries']*1024))
+            stream.write("<th title=\"%s\">%s</th><td style='text-align : left;'>%s</td><td>%.1f</td><td>%.1f</td>" % (b['doc'],b['name'], b['kind'], b['tot']/events*1024, b['tot']/s['entries']*1024 if s['entries'] else 0))
             stream.write("<td class=\"img\"><img src='http://gpetrucc.web.cern.ch/gpetrucc/micro/blue-dot.gif' width='%d' height='%d' /></td>" % ( b['tot']/s['tot']*200, 10 ))
             stream.write("<td>%.1f%%</td>" % (b['tot']/s['tot'] * 100.0))
             stream.write("</tr>\n")
