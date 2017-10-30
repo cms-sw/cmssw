@@ -334,6 +334,14 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
           errorSummaryNum->Fill(RQUAL);
         }
       }
+      if (muonIt1->hwHF() != muonIt2->hwHF()) {
+        muonMismatch = true;
+        summary->Fill(HFBAD);
+        if (incBin[RHF]) {
+          muonSelMismatch = true;
+          errorSummaryNum->Fill(RHF);
+        }
+      }
       if (muonIt1->link() != muonIt2->link()) {
         muonMismatch = true;
         summary->Fill(LINKBAD);
