@@ -108,6 +108,24 @@ int HGCalShowerShape::firstLayer(const l1t::HGCalMulticluster& c3d) const {
 }
 
 
+int HGCalShowerShape::maxLayer(const l1t::HGCalMulticluster& c3d) const {
+
+  const edm::PtrVector<l1t::HGCalCluster>& clustersPtrs = c3d.constituents();
+  std::unordered_map<int, float> layers_pt;
+  float max_pt = 0.;
+  int max_layer = 0;
+  for(const auto& cluster_ptr : clustersPtrs){
+    int layer = HGC_layer(cluster_ptr->subdetId(),cluster_ptr->layer());     
+    auto itr_insert = layers_pt.emplace(layer, 0.);
+    itr_insert.first->second += cluster_ptr->pt();
+    if(itr_insert.first->second>max_pt){
+      max_pt = itr_insert.first->second;
+      max_layer = layer;
+    }
+  }
+  return max_layer;
+}
+
 
 int HGCalShowerShape::lastLayer(const l1t::HGCalMulticluster& c3d) const {
 
@@ -126,8 +144,25 @@ int HGCalShowerShape::lastLayer(const l1t::HGCalMulticluster& c3d) const {
     
 }
 
-
-
+int HGCalShowerShape::coreShowerLength(const l1t::HGCalMulticluster& c3d) const
+{
+  const edm::PtrVector<l1t::HGCalCluster>& clustersPtrs = c3d.constituents();
+  std::vector<bool> layers(kLayersEE_+kLayersFH_+kLayersBH_);
+  for(const auto& cluster_ptr : clustersPtrs)
+  {
+    int layer = HGC_layer(cluster_ptr->subdetId(), cluster_ptr->layer());
+    layers[layer-1] = true;
+  }
+  int length = 0;
+  int maxlength = 0;
+  for(bool layer : layers)
+  {
+    if(layer) length++;
+    else length = 0;
+    if(length>maxlength) maxlength = length;
+  }
+  return maxlength;
+}
 
 
 float HGCalShowerShape::sigmaEtaEtaTot(const l1t::HGCalMulticluster& c3d) const {
@@ -341,6 +376,57 @@ float HGCalShowerShape::sigmaRRMax(const l1t::HGCalMulticluster& c3d) const {
 
 
 }
+
+
+float HGCalShowerShape::sigmaRRMean(const l1t::HGCalMulticluster& c3d, float radius) const {
+
+  const edm::PtrVector<l1t::HGCalCluster>& clustersPtrs = c3d.constituents();
+  // group trigger cells by layer
+  std::unordered_map<int, std::vector<edm::Ptr<l1t::HGCalTriggerCell>> > layers_tcs;
+  for(const auto& clu : clustersPtrs){
+    int layer = HGC_layer(clu->subdetId(),clu->layer());
+    const edm::PtrVector<l1t::HGCalTriggerCell>& triggerCells = clu->constituents();
+    for(const auto& tc : triggerCells){
+      layers_tcs[layer].emplace_back(tc);
+    }
+  }
+
+  // Select trigger cells within X cm of the max TC in the layer
+  std::unordered_map<int, std::vector<std::pair<float,float> > > tc_layers_energy_r;
+  for(const auto& layer_tcs : layers_tcs){
+    int layer = layer_tcs.first;
+    edm::Ptr<l1t::HGCalTriggerCell> max_tc = layer_tcs.second.front();
+    for(const auto& tc : layer_tcs.second){
+      if(tc->energy()>max_tc->energy()) max_tc = tc;
+    }
+    for(const auto& tc : layer_tcs.second){
+      double dx = tc->position().x() - max_tc->position().x();
+      double dy = tc->position().y() - max_tc->position().y();
+      double distance_to_max = std::sqrt(dx*dx+dy*dy);
+      if(distance_to_max<radius){
+        float r = std::sqrt(tc->position().x()*tc->position().x() + tc->position().y()*tc->position().y())/std::abs(tc->position().z());
+        tc_layers_energy_r[layer].emplace_back( std::make_pair(tc->energy(), r));
+      }
+    }
+  }
+
+  // Compute srr layer by layer
+  std::vector<std::pair<float,float>> layers_energy_srr2;
+  for(const auto& layer_energy_r : tc_layers_energy_r){
+    const auto& energy_r = layer_energy_r.second;
+    float r_mean_layer = meanX(energy_r);
+    float srr = sigmaXX(energy_r,r_mean_layer);
+    double energy_sum = 0.;
+    for(const auto& energy_r : energy_r){
+      energy_sum += energy_r.first;
+    }
+    layers_energy_srr2.emplace_back(std::make_pair(energy_sum, srr*srr));
+  }
+  // Combine all layer srr
+  float srr2_mean = meanX(layers_energy_srr2);
+  return std::sqrt(srr2_mean);
+}
+
 
 
 float HGCalShowerShape::eMax(const l1t::HGCalMulticluster& c3d) const {
