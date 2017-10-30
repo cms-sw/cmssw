@@ -158,35 +158,41 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
 
 es_prefer_hcalHardcode = cms.ESPrefer("HcalHardcodeCalibrations", "es_hardcode")
 
+_toGet = [
+    'GainWidths',
+    'MCParams',
+    'RecoParams',
+    'RespCorrs',
+    'QIEData',
+    'QIETypes',
+    'Gains',
+    'Pedestals',
+    'PedestalWidths',
+    'ChannelQuality',
+    'ZSThresholds',
+    'TimeCorrs',
+    'LUTCorrs',
+    'LutMetadata',
+    'L1TriggerObjects',
+    'PFCorrs',
+    'ElectronicsMap',
+    'FrontEndMap',
+    'CovarianceMatrices',
+    'SiPMParameters',
+    'SiPMCharacteristics',
+    'TPChannelParameters',
+    'TPParameters',
+    'FlagHFDigiTimeParams'
+]
+
+_toGet_noEmap = _toGet[:]
+_toGet_noEmap.remove('ElectronicsMap')
+
+
 from Configuration.Eras.Modifier_hcalHardcodeConditions_cff import hcalHardcodeConditions
 hcalHardcodeConditions.toModify( es_hardcode,
-	toGet = cms.untracked.vstring(
-		'GainWidths',
-		'MCParams',
-		'RecoParams',
-		'RespCorrs',
-		'QIEData',
-		'QIETypes',
-		'Gains',
-		'Pedestals',
-		'PedestalWidths',
-		'ChannelQuality',
-		'ZSThresholds',
-		'TimeCorrs',
-		'LUTCorrs',
-		'LutMetadata',
-		'L1TriggerObjects',
-		'PFCorrs',
-		'ElectronicsMap',
-		'FrontEndMap',
-		'CovarianceMatrices',
-		'SiPMParameters',
-		'SiPMCharacteristics',
-		'TPChannelParameters',
-		'TPParameters',
-		'FlagHFDigiTimeParams'
-	),
-	GainWidthsForTrigPrims = cms.bool(True) 
+    toGet = cms.untracked.vstring(_toGet),
+    GainWidthsForTrigPrims = cms.bool(True) 
 )
 
 from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
@@ -194,12 +200,16 @@ from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
 from Configuration.Eras.Modifier_run2_HE_2017_cff import run2_HE_2017
 from Configuration.Eras.Modifier_run2_HEPlan1_2017_cff import run2_HEPlan1_2017
 from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
+from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
 
 run2_HCAL_2017.toModify( es_hardcode, useLayer0Weight = cms.bool(True) )
 run2_HF_2017.toModify( es_hardcode, useHFUpgrade = cms.bool(True) )
 run2_HE_2017.toModify( es_hardcode, useHEUpgrade = cms.bool(True), HEreCalibCutoff = cms.double(100.0) )
 run2_HEPlan1_2017.toModify( es_hardcode, testHEPlan1 = cms.bool(True), useHEUpgrade = cms.bool(False), HEreCalibCutoff = cms.double(20.0) )
 run3_HB.toModify( es_hardcode, useHBUpgrade = cms.bool(True), HBreCalibCutoff = cms.double(100.0) )
+
+# now that we have an emap
+phase2_hcal.toModify( es_hardcode, toGet = cms.untracked.vstring(_toGet_noEmap) )
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify( es_hardcode, killHE = cms.bool(True) )

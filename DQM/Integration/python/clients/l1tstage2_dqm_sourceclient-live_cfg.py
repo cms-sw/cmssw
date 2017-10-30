@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
-process = cms.Process("L1TStage2DQM", eras.Run2_2016)
+process = cms.Process("L1TStage2DQM", eras.Run2_2017)
 
 #--------------------------------------------------
 # Event Source and Condition
@@ -99,6 +99,38 @@ if (process.runType.getRunType() == process.runType.cosmic_run):
 # Heavy-Ion run
 if (process.runType.getRunType() == process.runType.hi_run):
     process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1t_reference_hi.root"
+    process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.ctppsDiamondRawToDigi.rawDataTag = cms.InputTag("rawDataRepacker")
+    process.ctppsPixelDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.ecalDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataRepacker")
+    process.hcalDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.muonCSCDigis.InputObjects = cms.InputTag("rawDataRepacker")
+    process.muonDTDigis.inputLabel = cms.InputTag("rawDataRepacker")
+    process.muonRPCDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
+    process.siPixelDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
+    process.tcdsDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.tcdsRawToDigi.InputLabel = cms.InputTag("rawDataRepacker")
+    process.totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataRepacker")
+    process.totemTriggerRawToDigi.rawDataTag = cms.InputTag("rawDataRepacker")
+    process.csctfDigis.producer = cms.InputTag("rawDataRepacker")
+    process.dttfDigis.DTTF_FED_Source = cms.InputTag("rawDataRepacker")
+    process.gctDigis.inputLabel = cms.InputTag("rawDataRepacker")
+    process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataRepacker")
+    process.twinMuxStage2Digis.DTTM7_FED_Source = cms.InputTag("rawDataRepacker")
+    process.bmtfDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.emtfStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.gmtStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.l1tCaloLayer1Digis.fedRawDataLabel = cms.InputTag("rawDataRepacker")
+    process.caloStage1Digis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.caloStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.gtStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.l1tStage2CaloLayer1.fedRawDataLabel = cms.InputTag("rawDataRepacker")
+    process.l1tStage2uGMTZeroSupp.rawData = cms.InputTag("rawDataRepacker")
+    process.l1tStage2uGMTZeroSuppFatEvts.rawData = cms.InputTag("rawDataRepacker")
+    process.selfFatEventFilter.rawInput = cms.InputTag("rawDataRepacker")
 
 #--------------------------------------------------
 # L1T Online DQM Schedule

@@ -265,7 +265,7 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
  
   math::XYZPoint bspot;
   bspot= (bmspot.isValid()) ? bmspot->position() : math::XYZPoint(0,0,0);
-  
+
   if (_Muon.isValid()) { 
     for (reco::MuonCollection::const_iterator RecMuon = _Muon->begin(); RecMuon!= _Muon->end(); ++RecMuon)  {
       muon_is_good.push_back(RecMuon->isPFMuon());
@@ -380,9 +380,12 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	  const DetId closestCell(trackID.detIdHCAL);
 	  eHcal = spr::eHCALmatrix(theHBHETopology, closestCell, hbhe,0,0, false, true, -100.0, -100.0, -100.0, -100.0, -500.,500.,useRaw_);
 	  
+	  int iphi    = ((HcalDetId)(closestCell)).iphi();
+	  int zside   = ((HcalDetId)(closestCell)).iphi();
+	  int depthHE = theHBHETopology->dddConstants()->getMinDepth(1,16,iphi,zside);
 	  //std::cout<<"eHcal"<<eHcal<<std::endl;
 	  std::vector<std::pair<double,int> > ehdepth;
-	  spr::energyHCALCell((HcalDetId) closestCell, hbhe, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, useRaw_,(((verbosity_/1000)%10)>0));
+	  spr::energyHCALCell((HcalDetId) closestCell, hbhe, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, useRaw_, depthHE, (((verbosity_/1000)%10)>0));
 	  for (unsigned int i=0; i<ehdepth.size(); ++i) {
 	    eHcalDepth[ehdepth[i].second-1] = ehdepth[i].first;
 	    //std::cout<<eHcalDepth[ehdepth[i].second-1]<<std::endl;
@@ -392,8 +395,11 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	  
 	  //std::cout<<"eHcal"<<eHcal<<std::endl;
 	  const DetId closestCellCalo(trackID.detIdHCAL);
+	  iphi    = ((HcalDetId)(closestCellCalo)).iphi();
+	  zside   = ((HcalDetId)(closestCellCalo)).iphi();
+	  depthHE = theHBHETopology->dddConstants()->getMinDepth(1,16,iphi,zside);
 	  std::vector<std::pair<double,int> > ehdepthCalo;
-	  spr::energyHCALCell((HcalDetId) closestCellCalo, calosimhits, ehdepthCalo, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, useRaw_, (((verbosity_/1000)%10)>0));
+	  spr::energyHCALCell((HcalDetId) closestCellCalo, calosimhits, ehdepthCalo, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, useRaw_, depthHE, (((verbosity_/1000)%10)>0));
 	  for (unsigned int i=0; i<ehdepthCalo.size(); ++i) {
 	    eHcalDepthCalo[ehdepthCalo[i].second-1] = ehdepthCalo[i].first;
 	    //std::cout<<eHcalDepth[ehdepth[i].second-1]<<std::endl;
@@ -407,14 +413,16 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	  h3x3 = spr::eHCALmatrix(geo,theHBHETopology, closestCell, hbhe, 1,1, hotCell, false, useRaw_, false);
 	  h3x3Calo = spr::eHCALmatrix(geo,theHBHETopology, closestCellCalo, calosimhits, 1,1, hotCellCalo, false, useRaw_, false);
 
-	  isHot = matchId(closestCell,hotCell);
+	  isHot     = matchId(closestCell,hotCell);
 	  isHotCalo = matchId(closestCellCalo,hotCellCalo);
 
 	  // std::cout<<"hcal 3X3  < "<<h3x3<<">" << " ClosestCell <" << (HcalDetId)(closestCell) << "> hotCell id < " << hotCell << "> isHot" << isHot << std::endl;
 	  if (hotCell != HcalDetId()) {
+	    iphi    = ((HcalDetId)(hotCell)).iphi();
+	    zside   = ((HcalDetId)(hotCell)).iphi();
+	    depthHE = theHBHETopology->dddConstants()->getMinDepth(1,16,iphi,zside);
 	    std::vector<std::pair<double,int> > ehdepth;
-	    //   spr::energyHCALCell(hotCell, hbhe, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, useRaw_, false);//(((verbosity_/1000)%10)>0    ));
-	    spr::energyHCALCell(hotCell, hbhe, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, false);
+	    spr::energyHCALCell(hotCell, hbhe, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, depthHE, false);//(((verbosity_/1000)%10)>0));
 	    for (unsigned int i=0; i<ehdepth.size(); ++i) {
 	      eHcalDepthHot[ehdepth[i].second-1] = ehdepth[i].first;
 	      //  std::cout<<eHcalDepthHot[ehdepth[i].second-1]<<std::endl;
@@ -422,9 +430,12 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	  }
 
 	  if (hotCellCalo != HcalDetId()) {
+	    iphi    = ((HcalDetId)(hotCellCalo)).iphi();
+	    zside   = ((HcalDetId)(hotCellCalo)).iphi();
+	    depthHE = theHBHETopology->dddConstants()->getMinDepth(1,16,iphi,zside);
 	    std::vector<std::pair<double,int> > ehdepthCalo;
 
-	    spr::energyHCALCell(hotCellCalo, calosimhits, ehdepthCalo, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, useRaw_, false);
+	    spr::energyHCALCell(hotCellCalo, calosimhits, ehdepthCalo, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, useRaw_, depthHE, false);
 	    for (unsigned int i=0; i<ehdepthCalo.size(); ++i) {
 	      eHcalDepthHotCalo[ehdepthCalo[i].second-1] = ehdepthCalo[i].first;
 	      //  std::cout<<eHcalDepthHot[ehdepth[i].second-1]<<std::endl;                                                                         
