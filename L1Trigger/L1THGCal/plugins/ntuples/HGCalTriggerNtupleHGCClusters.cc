@@ -26,6 +26,7 @@ class HGCalTriggerNtupleHGCClusters : public HGCalTriggerNtupleBase
 
     int cl_n_ ;
     std::vector<uint32_t> cl_id_;
+    std::vector<float> cl_mipPt_;
     std::vector<float> cl_pt_;
     std::vector<float> cl_energy_;
     std::vector<float> cl_eta_;
@@ -59,6 +60,7 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
 
   tree.Branch("cl_n", &cl_n_, "cl_n/I");
   tree.Branch("cl_id", &cl_id_);
+  tree.Branch("cl_mipPt", &cl_mipPt_);
   tree.Branch("cl_pt", &cl_pt_);
   tree.Branch("cl_energy", &cl_energy_);
   tree.Branch("cl_eta", &cl_eta_);
@@ -107,6 +109,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     float mcl_pt = (mcl_itr!=cluster2multicluster.end() ? mcl_itr->second->pt() : 0.);
     if(filter_clusters_in_multiclusters_ && mcl_id==0) continue;
     cl_n_++;
+    cl_mipPt_.emplace_back(cl_itr->mipPt());
     // physical values 
     cl_pt_.emplace_back(cl_itr->pt());
     cl_energy_.emplace_back(cl_itr->energy());
