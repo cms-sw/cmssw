@@ -187,8 +187,6 @@ void DTuROSRawToDigi::process(int DTuROSFED,
 
        readline(lines, dataWord);
        calcCRC(dataWord, newCRC);
-
-
        DTuROSWordContainer.push_back(dataWord);
 
     }

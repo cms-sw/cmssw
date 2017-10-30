@@ -223,7 +223,7 @@ void DTuROSDigiToRaw::process(int DTuROSFED,
 
       dataWord1 = 0x20000000
                 + wslts[sltit].at(bslts[sltit]-1);
-      dataWord2 = 0;
+      dataWord2 = 0x1FFFFFFF;
 
       calcCRC(dataWord1, dataWord2, newCRC);
       lineFED+=4;
