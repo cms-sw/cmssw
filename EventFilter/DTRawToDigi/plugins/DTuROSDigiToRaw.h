@@ -60,8 +60,6 @@ private:
 
   std::vector<int> feds_;
 
-  unsigned char* lineFED;
-
   int bslts[DOCESLOTS], dslts[DOCESLOTS];
 
   std::vector<int> wslts[DOCESLOTS];
