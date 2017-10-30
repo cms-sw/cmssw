@@ -42,7 +42,6 @@ class SiPixelPhase1TrackingParticleV : public SiPixelPhase1Base {
   private:
   edm::EDGetTokenT<TrackingParticleCollection> vec_TrackingParticle_Token_;
   std::vector<edm::EDGetTokenT<std::vector<PSimHit> > > simHitTokens_;
-  std::vector<std::pair<unsigned int, const PSimHit *>> trackIdToHitPtr_;
 };
 
 #endif
