@@ -24,13 +24,7 @@ namespace HcalConst{
    constexpr int maxSamples = 10;
    constexpr int maxPSshapeBin = 256;
    constexpr int nsPerBX = 25;
-   
-   //HPD Setting
    constexpr float iniTimeShift = 92.5f;
-
-   //SiPM Setting
-   //constexpr float iniTimeShift = 86.2f;
-
    constexpr double invertnsPerBx = 0.04;
 
 }
