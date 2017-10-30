@@ -367,10 +367,16 @@ TestRandomNumberServiceGlobal::globalBeginLuminosityBlock(edm::LuminosityBlock c
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine& engine = rng->getEngine(lumi.index());
 
-  if(engine.flat() != lumiCache->referenceRandomNumbers_.at(0) ||
-     engine.flat() != lumiCache->referenceRandomNumbers_.at(1)) {
+  double x1 = engine.flat();
+  double x2 = engine.flat();
+
+  if(x1 != lumiCache->referenceRandomNumbers_.at(0) ||
+     x2 != lumiCache->referenceRandomNumbers_.at(1)) {
     throw cms::Exception("TestRandomNumberService")
-      << "TestRandomNumberServiceGlobal::globalBeginLuminosityBlock: Random sequence does not match expected sequence";
+      << "TestRandomNumberServiceGlobal::globalBeginLuminosityBlock: Random sequence does not match expected sequence for \n"
+      << engine.name() << " " << lumiCache->referenceRandomNumbers_.at(0) 
+      << " " << lumiCache->referenceRandomNumbers_.at(1) << " seed0= " << seed0 << "\n" 
+      << lumiCache->referenceEngine_->name() << " " << x1 << " " << x2 << "  " << lumi.index();
   }
 
   return lumiCache;
