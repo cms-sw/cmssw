@@ -1,16 +1,5 @@
 PrimaryVertexValidationTemplate="""
 
-process.HighPurityTrackSelector.trackQualities = cms.vstring()
-process.HighPurityTrackSelector.pMin     = cms.double(0.)
-process.AlignmentTrackSelector.pMin      = cms.double(0.)
-process.AlignmentTrackSelector.ptMin     = cms.double(0.)
-process.AlignmentTrackSelector.nHitMin2D = cms.uint32(0)
-process.AlignmentTrackSelector.nHitMin   = cms.double(0.)
-process.AlignmentTrackSelector.d0Min     = cms.double(-999999.0)
-process.AlignmentTrackSelector.d0Max     = cms.double(+999999.0)
-process.AlignmentTrackSelector.dzMin     = cms.double(-999999.0)
-process.AlignmentTrackSelector.dzMax     = cms.double(+999999.0)
-
 isDA = .oO[isda]Oo.
 isMC = .oO[ismc]Oo.
 

@@ -51,10 +51,6 @@ process.MessageLogger.cout = cms.untracked.PSet(
     )
 process.MessageLogger.statistics.append('cout') 
 
-# process.load("FWCore.MessageService.MessageLogger_cfi")
-# process.MessageLogger.destinations = ['cout', 'cerr']
-# process.MessageLogger.cerr.FwkReport.reportEvery = 1000
-
 ####################################################################
 # Produce the Transient Track Record in the event
 ####################################################################
@@ -185,17 +181,29 @@ else:
 ####################################################################
 # Load and Configure TrackRefitter
 ####################################################################
-#import Alignment.CommonAlignment.tools.trackselectionRefitting as trackselRefit
-#process.seqTrackselRefit = trackselRefit.getSequence(process,'generalTracks')
-#process.seqTrackselRefit.TrackSelector.ptMin = cms.double(3)
+# process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
+# import RecoTracker.TrackProducer.TrackRefitters_cff
+# process.FinalTrackRefitter = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitter.clone()
+# process.FinalTrackRefitter.src = "generalTracks"
+# process.FinalTrackRefitter.TrajectoryInEvent = True
+# process.FinalTrackRefitter.NavigationSchool = ''
+# process.FinalTrackRefitter.TTRHBuilder = "WithAngleAndTemplate"
 
-process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
-import RecoTracker.TrackProducer.TrackRefitters_cff
-process.FinalTrackRefitter = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitter.clone()
-process.FinalTrackRefitter.src = "generalTracks"
-process.FinalTrackRefitter.TrajectoryInEvent = True
-process.FinalTrackRefitter.NavigationSchool = ''
-process.FinalTrackRefitter.TTRHBuilder = "WithAngleAndTemplate"
+####################################################################
+# Load and Configure Common Track Selection and refitting sequence
+####################################################################
+import Alignment.CommonAlignment.tools.trackselectionRefitting as trackselRefit
+process.seqTrackselRefit = trackselRefit.getSequence(process, 'generalTracks',
+                                                     isPVValidation=True, 
+                                                     TTRHBuilder='WithAngleAndTemplate',
+                                                     usePixelQualityFlag=True,
+                                                     openMassWindow=False,
+                                                     cosmicsDecoMode=True,
+                                                     cosmicsZeroTesla=False,
+                                                     momentumConstraint=None,
+                                                     cosmicTrackSplitting=False,
+                                                     use_d0cut=False,
+                                                     )
 
 ####################################################################
 # Output file
@@ -287,10 +295,11 @@ else:
 # Path
 ####################################################################
 process.p = cms.Path(process.goodvertexSkim*
-                     process.offlineBeamSpot*
-                     # in case common fit sequence is uses
-                     #process.seqTrackselRefit*
+                     #### in case of old-style single refit sequence
+                     #process.offlineBeamSpot*
                      # in case NavigatioSchool is set !='' 
                      #process.MeasurementTrackerEvent*
-                     process.FinalTrackRefitter*
+                     #process.FinalTrackRefitter*
+                     # in case common fit sequence is used
+                     process.seqTrackselRefit*
                      process.PVValidation)

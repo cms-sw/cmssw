@@ -163,6 +163,7 @@ process.MessageLogger.statistics.append('cout')
 CommonTrackSelectionRefitting = """
 import Alignment.CommonAlignment.tools.trackselectionRefitting as trackselRefit
 process.seqTrackselRefit = trackselRefit.getSequence(process, '.oO[trackcollection]Oo.',
+                                                     isPVValidation=.oO[ispvvalidation]Oo., 
                                                      TTRHBuilder='.oO[ttrhbuilder]Oo.',
                                                      usePixelQualityFlag=.oO[usepixelqualityflag]Oo.,
                                                      openMassWindow=.oO[openmasswindow]Oo.,
