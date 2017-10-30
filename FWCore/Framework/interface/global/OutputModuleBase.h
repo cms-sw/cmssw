@@ -92,7 +92,7 @@ namespace edm {
       static void prevalidate(ConfigurationDescriptions& );
       
       bool wantAllEvents() const {return wantAllEvents_;}
-      
+
       BranchIDLists const* branchIDLists();
 
       ThinnedAssociationsHelper const* thinnedAssociationsHelper() const;
@@ -100,6 +100,14 @@ namespace edm {
       const ModuleDescription& moduleDescription() const {
         return moduleDescription_;
       }
+      
+      //Output modules always need writeRun and writeLumi to be called
+      bool wantsGlobalRuns() const {return true;}
+      bool wantsGlobalLuminosityBlocks() const {return true;}
+
+      virtual bool wantsStreamRuns() const =0;
+      virtual bool wantsStreamLuminosityBlocks() const =0;
+
     protected:
       
       ModuleDescription const& description() const;
