@@ -807,6 +807,15 @@ bool Pythia8Hadronizer::hadronize()
     nFSRveto += fEmissionVetoHook->getNFSRveto();  
   }
 
+  // fill shower weights
+  // http://home.thep.lu.se/~torbjorn/pythia82html/Variations.html
+  if( fMasterGen->info.nWeights() > 1 ){
+    for(int i = 0; i < fMasterGen->info.nWeights(); ++i) {
+      double wgt = fMasterGen->info.weight(i);
+      event()->weights().push_back(wgt);
+    }
+  }
+
   return true;
 
 }
