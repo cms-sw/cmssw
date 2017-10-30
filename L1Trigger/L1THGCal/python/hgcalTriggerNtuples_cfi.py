@@ -7,13 +7,14 @@ ntuple_event = cms.PSet(
 
 ntuple_gen = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleGen'),
-    GenParticles = cms.InputTag('genParticles')
+    GenParticles = cms.InputTag('genParticles'),
+    GenPU = cms.InputTag('addPileupInfo')
 )
 
 ntuple_gentau = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleGenTau'),
     GenParticles = cms.InputTag('genParticles'),
-    isPythia8 = cms.bool(True)
+    isPythia8 = cms.bool(False)
 )
 
 ntuple_genjet = cms.PSet(
@@ -61,6 +62,7 @@ hgcalTriggerNtuplizer = cms.EDAnalyzer(
         ntuple_event,
         ntuple_gen,
         ntuple_genjet,
+        ntuple_gentau,
         ntuple_digis,
         ntuple_triggercells,
         ntuple_clusters,
