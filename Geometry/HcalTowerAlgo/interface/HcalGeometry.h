@@ -16,6 +16,8 @@ class HcalHardcodeGeometryLoader;
 
 class HcalGeometry : public CaloSubdetectorGeometry {
 
+  friend class HcalGeometryPlan1Tester;
+
 public:
 
   friend class HcalFlexiHardcodeGeometryLoader;
@@ -107,10 +109,6 @@ public:
 		const CCGFloat*    parm,
 		const DetId&       detId     ) override ;
 
-  const CaloCellGeometry* getGeometryBase( const DetId& id ) const {
-    return cellGeomPtr( m_topology.detId2denseId( id ) ) ;
-  }
-
   void getSummary( CaloSubdetectorGeometry::TrVec&  trVector,
 		   CaloSubdetectorGeometry::IVec&   iVector,
 		   CaloSubdetectorGeometry::DimVec& dimVector,
@@ -126,6 +124,11 @@ protected:
   unsigned int sizeForDenseIndex(const DetId& id) const override { return m_topology.ncells(); }
 
 private:
+
+  // Base clas for getting geometry
+  const CaloCellGeometry* getGeometryBase( const DetId& id ) const {
+    return cellGeomPtr( m_topology.detId2denseId( id ) ) ;
+  }
 
   //returns din
   unsigned int newCellImpl( const GlobalPoint& f1 ,
