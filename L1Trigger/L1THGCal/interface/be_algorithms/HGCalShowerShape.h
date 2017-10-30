@@ -16,7 +16,10 @@ class HGCalShowerShape{
 
     int firstLayer(const l1t::HGCalMulticluster& c3d) const;
     int lastLayer(const l1t::HGCalMulticluster& c3d) const;
+    int maxLayer(const l1t::HGCalMulticluster& c3d) const;
     int showerLength(const l1t::HGCalMulticluster& c3d) const {return lastLayer(c3d)-firstLayer(c3d)+1; }//in number of layers
+    // Maximum number of consecutive layers in the cluster
+    int coreShowerLength(const l1t::HGCalMulticluster& c3d) const;
   
     float eMax(const l1t::HGCalMulticluster& c3d) const;  
   
@@ -33,6 +36,7 @@ class HGCalShowerShape{
     float sigmaRRTot(const l1t::HGCalMulticluster& c3d) const;
     float sigmaRRTot(const l1t::HGCalCluster& c2d) const;       
     float sigmaRRMax(const l1t::HGCalMulticluster& c3d) const;  
+    float sigmaRRMean(const l1t::HGCalMulticluster& c3d, float radius=5.) const;
 
     private: 
     
