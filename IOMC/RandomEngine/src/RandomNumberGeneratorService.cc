@@ -574,6 +574,8 @@ namespace edm {
           os << " " << i.engine()->name();
           if(i.engine()->name() == std::string("HepJamesRandom")) {
             os << "  " << i.engine()->getSeed();
+          } else if(i.engine()->name() == std::string("MixMaxRng")) {
+            os << "  " << i.engine()->getSeed();
           } else {
             os << "  engine does not know seeds";
           }
@@ -592,6 +594,8 @@ namespace edm {
           }
           os << " " << i.engine()->name();
           if(i.engine()->name() == std::string("HepJamesRandom")) {
+            os << "  " << i.engine()->getSeed();
+          } else if(i.engine()->name() == std::string("MixMaxRng")) {
             os << "  " << i.engine()->getSeed();
           } else {
             os << "  engine does not know seeds";
