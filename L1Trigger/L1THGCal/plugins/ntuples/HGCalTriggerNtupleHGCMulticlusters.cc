@@ -21,6 +21,7 @@ class HGCalTriggerNtupleHGCMulticlusters : public HGCalTriggerNtupleBase
     edm::EDGetToken multiclusters_token_;
 
     int cl3d_n_ ;
+    std::vector<uint32_t> cl3d_id_;
     std::vector<float> cl3d_pt_;
     std::vector<float> cl3d_energy_;
     std::vector<float> cl3d_eta_;
@@ -57,6 +58,7 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
   multiclusters_token_ = collector.consumes<l1t::HGCalMulticlusterBxCollection>(conf.getParameter<edm::InputTag>("Multiclusters"));
 
   tree.Branch("cl3d_n", &cl3d_n_, "cl3d_n/I");
+  tree.Branch("cl3d_id", &cl3d_id_);
   tree.Branch("cl3d_pt", &cl3d_pt_);
   tree.Branch("cl3d_energy", &cl3d_energy_);
   tree.Branch("cl3d_eta", &cl3d_eta_);
@@ -94,6 +96,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
   for(auto cl3d_itr=multiclusters.begin(0); cl3d_itr!=multiclusters.end(0); cl3d_itr++)
   {
     cl3d_n_++;
+    cl3d_id_.emplace_back(cl3d_itr->detId());
     // physical values 
     cl3d_pt_.emplace_back(cl3d_itr->pt());
     cl3d_energy_.emplace_back(cl3d_itr->energy());
@@ -125,6 +128,7 @@ HGCalTriggerNtupleHGCMulticlusters::
 clear()
 {
   cl3d_n_ = 0;
+  cl3d_id_.clear();
   cl3d_pt_.clear();
   cl3d_energy_.clear();
   cl3d_eta_.clear();

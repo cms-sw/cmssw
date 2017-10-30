@@ -25,12 +25,14 @@ class HGCalTriggerNtupleHGCClusters : public HGCalTriggerNtupleBase
     edm::EDGetToken clusters_token_, multiclusters_token_;
 
     int cl_n_ ;
+    std::vector<uint32_t> cl_id_;
     std::vector<float> cl_mipPt_;
     std::vector<float> cl_pt_;
     std::vector<float> cl_energy_;
     std::vector<float> cl_eta_;
     std::vector<float> cl_phi_;
     std::vector<int> cl_layer_;
+    std::vector<int> cl_subdet_;
     std::vector<int> cl_cells_n_;
     std::vector<std::vector<uint32_t>> cl_cells_id_;   
     std::vector<uint32_t> cl_multicluster_id_;
@@ -57,12 +59,14 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
   multiclusters_token_ = collector.consumes<l1t::HGCalMulticlusterBxCollection>(conf.getParameter<edm::InputTag>("Multiclusters"));
 
   tree.Branch("cl_n", &cl_n_, "cl_n/I");
+  tree.Branch("cl_id", &cl_id_);
   tree.Branch("cl_mipPt", &cl_mipPt_);
   tree.Branch("cl_pt", &cl_pt_);
   tree.Branch("cl_energy", &cl_energy_);
   tree.Branch("cl_eta", &cl_eta_);
   tree.Branch("cl_phi", &cl_phi_);  
   tree.Branch("cl_layer", &cl_layer_);
+  tree.Branch("cl_subdet", &cl_subdet_);
   tree.Branch("cl_cells_n", &cl_cells_n_);
   tree.Branch("cl_cells_id", &cl_cells_id_);
   tree.Branch("cl_multicluster_id", &cl_multicluster_id_);
@@ -111,7 +115,9 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     cl_energy_.emplace_back(cl_itr->energy());
     cl_eta_.emplace_back(cl_itr->eta());
     cl_phi_.emplace_back(cl_itr->phi());
+    cl_id_.emplace_back(cl_itr->detId());
     cl_layer_.emplace_back(cl_itr->layer());
+    cl_subdet_.emplace_back(cl_itr->subdetId());
     cl_cells_n_.emplace_back(cl_itr->constituents().size());
     // Retrieve indices of trigger cells inside cluster
     cl_cells_id_.emplace_back(cl_itr->constituents().size());
@@ -129,11 +135,13 @@ HGCalTriggerNtupleHGCClusters::
 clear()
 {
   cl_n_ = 0;
+  cl_id_.clear();
   cl_pt_.clear();
   cl_energy_.clear();
   cl_eta_.clear();
   cl_phi_.clear();
   cl_layer_.clear();
+  cl_subdet_.clear();
   cl_cells_n_.clear();
   cl_cells_id_.clear();
   cl_multicluster_id_.clear();
