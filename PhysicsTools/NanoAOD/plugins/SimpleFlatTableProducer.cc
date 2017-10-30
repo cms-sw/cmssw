@@ -195,7 +195,7 @@ class EventSingletonSimpleFlatTableProducer : public SimpleFlatTableProducerBase
         EventSingletonSimpleFlatTableProducer( edm::ParameterSet const & params ):
             SimpleFlatTableProducerBase<T,T>(params) {}
 
-        virtual ~EventSingletonSimpleFlatTableProducer() {}
+        ~EventSingletonSimpleFlatTableProducer() override {}
 
         std::unique_ptr<nanoaod::FlatTable> fillTable(const edm::Event &, const edm::Handle<T> & prod) const override {
             auto out = std::make_unique<nanoaod::FlatTable>(1, this->name_, true, this->extension_);
