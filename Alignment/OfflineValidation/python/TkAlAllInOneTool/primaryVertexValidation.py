@@ -49,6 +49,10 @@ class PrimaryVertexValidation(GenericValidationData_CTSR, ValidationWithPlots):
         return False
 
     @property
+    def isPVValidation(self):
+        return True
+
+    @property
     def ProcessName(self):
         return "PrimaryVertexValidation"
 
