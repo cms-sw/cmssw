@@ -136,6 +136,7 @@ clear()
 {
   cl_n_ = 0;
   cl_id_.clear();
+  cl_mipPt_.clear();
   cl_pt_.clear();
   cl_energy_.clear();
   cl_eta_.clear();
