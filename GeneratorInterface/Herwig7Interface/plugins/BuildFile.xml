@@ -1,6 +1,5 @@
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="herwigpp"/>
-<use name="thepeg"/>
 <use name="GeneratorInterface/Herwig7Interface"/>
 <library name="GeneratorInterfaceHerwig7HadronizerPlugins" file="Herwig7Hadronizer.cc">
 	<use name="GeneratorInterface/Core"/>
