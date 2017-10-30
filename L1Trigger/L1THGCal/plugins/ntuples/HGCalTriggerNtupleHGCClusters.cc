@@ -21,7 +21,7 @@ class HGCalTriggerNtupleHGCClusters : public HGCalTriggerNtupleBase
   private:
     virtual void clear() override final;
 
-    bool filter_clusters_;
+    bool filter_clusters_in_multiclusters_;
     edm::EDGetToken clusters_token_, multiclusters_token_;
 
     int cl_n_ ;
@@ -48,7 +48,7 @@ DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory,
 HGCalTriggerNtupleHGCClusters::
 HGCalTriggerNtupleHGCClusters(const edm::ParameterSet& conf):HGCalTriggerNtupleBase(conf)
 {
-  filter_clusters_ = conf.getParameter<bool>("FilterClusters");
+  filter_clusters_in_multiclusters_ = conf.getParameter<bool>("FilterClustersInMulticlusters");
 }
 
 void
@@ -107,7 +107,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     auto mcl_itr = cluster2multicluster.find(cl_itr->detId());
     uint32_t mcl_id = (mcl_itr!=cluster2multicluster.end() ? mcl_itr->second->detId() : 0);
     float mcl_pt = (mcl_itr!=cluster2multicluster.end() ? mcl_itr->second->pt() : 0.);
-    if(filter_clusters_ && mcl_id==0) continue;
+    if(filter_clusters_in_multiclusters_ && mcl_id==0) continue;
     cl_n_++;
     cl_mipPt_.emplace_back(cl_itr->mipPt());
     // physical values 

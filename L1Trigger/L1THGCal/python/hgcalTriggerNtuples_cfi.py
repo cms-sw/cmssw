@@ -37,18 +37,18 @@ ntuple_triggercells = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleHGCTriggerCells'),
     TriggerCells = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:calibratedTriggerCells'),
     Multiclusters = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:cluster3D'),
-    FillSimEnergy = cms.bool(False),
-    FilterClusterCells = cms.bool(True),
     eeSimHits = cms.InputTag('g4SimHits:HGCHitsEE'),
     fhSimHits = cms.InputTag('g4SimHits:HGCHitsHEfront'),
-    bhSimHits = cms.InputTag('g4SimHits:HcalHits')
+    bhSimHits = cms.InputTag('g4SimHits:HcalHits'),
+    FillSimEnergy = cms.bool(False),
+    FilterCellsInMulticlusters = cms.bool(True)
 )
 
 ntuple_clusters = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleHGCClusters'),
     Clusters = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:cluster2D'),
     Multiclusters = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:cluster3D'),
-    FilterClusters = cms.bool(True)
+    FilterClustersInMulticlusters = cms.bool(True)
 )
 
 ntuple_multicluster = cms.PSet(

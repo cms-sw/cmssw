@@ -30,7 +30,7 @@ class HGCalTriggerNtupleHGCTriggerCells : public HGCalTriggerNtupleBase
     edm::EDGetToken trigger_cells_token_, multiclusters_token_;
     edm::EDGetToken simhits_ee_token_, simhits_fh_token_, simhits_bh_token_;
     bool fill_simenergy_;
-    bool filter_cluster_cells_;
+    bool filter_cells_in_multiclusters_;
     edm::ESHandle<HGCalTriggerGeometryBase> geometry_;
 
 
@@ -67,7 +67,7 @@ HGCalTriggerNtupleHGCTriggerCells::
 HGCalTriggerNtupleHGCTriggerCells(const edm::ParameterSet& conf):HGCalTriggerNtupleBase(conf)
 {
   fill_simenergy_ = conf.getParameter<bool>("FillSimEnergy");
-  filter_cluster_cells_ = conf.getParameter<bool>("FilterClusterCells");
+  filter_cells_in_multiclusters_ = conf.getParameter<bool>("FilterCellsInMulticlusters");
 }
 
 void
@@ -159,8 +159,8 @@ fill(const edm::Event& e, const edm::EventSetup& es)
       uint32_t cl_id = (cl_itr!=cell2cluster.end() ? cl_itr->second : 0);
       uint32_t mcl_id = (mcl_itr!=cell2multicluster.end() ? mcl_itr->second->detId() : 0);
       float mcl_pt = (mcl_itr!=cell2multicluster.end() ? mcl_itr->second->pt() : 0.);
-      // Filter cells not included in a cluster, if requested
-      if(filter_cluster_cells_ && mcl_id==0) continue;
+      // Filter cells not included in a multicluster, if requested
+      if(filter_cells_in_multiclusters_ && mcl_id==0) continue;
       tc_n_++;
       // hardware data
       HGCalDetId id(tc_itr->detId());
