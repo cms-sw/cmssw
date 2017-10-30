@@ -1,12 +1,6 @@
 <architecture name="slc6_amd64">
  <flags LDFLAGS="-Wl,-dynamic-linker,$(GLIBC_BASE)/lib64/ld.so"/>
 </architecture>
-<release name=".*_ASAN_.*">
-  <flags LDFLAGS="-fsanitize=address -static-libasan"/>
-</release>
-<release name=".*_UBSAN_.*">
-  <flags LDFLAGS="-g -fsanitize=undefined -static-libubsan"/>
-</release>
 <use   name="boost"/>
 <use   name="FWCore/ParameterSet"/>
 <bin   file="edmPluginHelp.cpp">
