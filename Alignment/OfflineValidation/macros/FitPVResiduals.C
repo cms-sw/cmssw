@@ -59,15 +59,18 @@ public:
   int getLineStyle(){ return lineStyle; }
   TString getName(){ return legendName; }
   TFile* getFile(){ return file; }
+  TString getFileName() { return fname;}
 private:
   TFile* file;
   int lineColor;
   int lineStyle;
   TString legendName;
+  TString fname;
 };
 
 PVValidationVariables::PVValidationVariables(TString fileName, TString baseDir, TString legName, int lColor, int lStyle)
 {
+  fname = fileName;
   lineColor = lColor;
   lineStyle = lStyle % 100;
   if (legName=="") {
@@ -81,7 +84,7 @@ PVValidationVariables::PVValidationVariables(TString fileName, TString baseDir, 
   }
 
   // check if the base dir exists
-  file = TFile::Open( fileName.Data() );
+  file = TFile::Open( fileName.Data(), "READ" );
   if (file->Get( baseDir.Data() ) )  {
     std::cout<<"found base directory: " << baseDir.Data()<<std::endl;
   } else {
@@ -285,7 +288,7 @@ Double_t fDLine(Double_t *x, Double_t *par);
 void FitULine(TH1 *hist);
 void FitDLine(TH1 *hist);
 
-params::measurement getTheRangeUser(TH1F* thePlot,Limits* thePlotLimits);
+params::measurement getTheRangeUser(TH1F* thePlot,Limits* thePlotLimits,bool tag=false);
 
 void setStyle();
 
@@ -404,7 +407,8 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
     
     for(std::vector<PVValidationVariables*>::iterator it = sourceList.begin();
 	it != sourceList.end(); ++it){
-      FileList->Add((*it)->getFile());
+      //FileList->Add((*it)->getFile()); // was extremely slow
+      FileList->Add( TFile::Open((*it)->getFileName(),"READ")  );  
     }
     theFileCount = sourceList.size();
   }
@@ -1284,13 +1288,13 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
   if(minPt>0.){
 
     TCanvas *dxyPtTrend = new TCanvas("dxyPtTrend","dxyPtTrend",1200,600);
-    arrangeCanvas(dxyPtTrend,dxyPtMeanTrend,dxyPtWidthTrend,nFiles_,LegLabels,theDate);
+    arrangeCanvas(dxyPtTrend,dxyPtMeanTrend,dxyPtWidthTrend,nFiles_,LegLabels,theDate,false,setAutoLimits);
   
     dxyPtTrend->SaveAs("dxyPtTrend_"+theStrDate+theStrAlignment+".pdf");
     dxyPtTrend->SaveAs("dxyPtTrend_"+theStrDate+theStrAlignment+".png");
 
     TCanvas *dzPtTrend = new TCanvas("dzPtTrend","dzPtTrend",1200,600);
-    arrangeCanvas(dzPtTrend,dzPtMeanTrend,dzPtWidthTrend,nFiles_,LegLabels,theDate);
+    arrangeCanvas(dzPtTrend,dzPtMeanTrend,dzPtWidthTrend,nFiles_,LegLabels,theDate,false,setAutoLimits);
     
     dzPtTrend->SaveAs("dzPtTrend_"+theStrDate+theStrAlignment+".pdf");
     dzPtTrend->SaveAs("dzPtTrend_"+theStrDate+theStrAlignment+".png");
@@ -1338,13 +1342,13 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
   if(minPt>0.){
 
     TCanvas *dxyNormPtTrend = new TCanvas("dxyNormPtTrend","dxyNormPtTrend",1200,600);
-    arrangeCanvas(dxyNormPtTrend,dxyNormPtMeanTrend,dxyNormPtWidthTrend,nFiles_,LegLabels,theDate);
+    arrangeCanvas(dxyNormPtTrend,dxyNormPtMeanTrend,dxyNormPtWidthTrend,nFiles_,LegLabels,theDate,false,setAutoLimits);
 
     dxyNormPtTrend->SaveAs("dxyPtTrendNorm_"+theStrDate+theStrAlignment+".pdf");
     dxyNormPtTrend->SaveAs("dxyPtTrendNorm_"+theStrDate+theStrAlignment+".png");
     
     TCanvas *dzNormPtTrend = new TCanvas("dzNormPtTrend","dzNormPtTrend",1200,600);
-    arrangeCanvas(dzNormPtTrend,dzNormPtMeanTrend,dzNormPtWidthTrend,nFiles_,LegLabels,theDate);
+    arrangeCanvas(dzNormPtTrend,dzNormPtMeanTrend,dzNormPtWidthTrend,nFiles_,LegLabels,theDate,false,setAutoLimits);
 
     dzNormPtTrend->SaveAs("dzPtTrendNorm_"+theStrDate+theStrAlignment+".pdf");
     dzNormPtTrend->SaveAs("dzPtTrendNorm_"+theStrDate+theStrAlignment+".png");
@@ -3530,7 +3534,7 @@ void MakeNiceTF1Style(TF1 *f1,Int_t color)
 }
 
 /*--------------------------------------------------------------------*/
-params::measurement getTheRangeUser(TH1F* thePlot, Limits* lims)
+params::measurement getTheRangeUser(TH1F* thePlot, Limits* lims, bool tag)
 /*--------------------------------------------------------------------*/
 {
   TString theTitle = thePlot->GetName();
@@ -3563,7 +3567,7 @@ params::measurement getTheRangeUser(TH1F* thePlot, Limits* lims)
   if (theTitle.Contains("norm")){
     if (theTitle.Contains("means")){
       if(theTitle.Contains("dxy") || theTitle.Contains("dx") || theTitle.Contains("dy")){
-	if(theTitle.Contains("phi")){
+	if(theTitle.Contains("phi") || theTitle.Contains("pT")){
 	  result = std::make_pair(-lims->get_dxyPhiNormMax().first,lims->get_dxyPhiNormMax().first);
 	} else if (theTitle.Contains("eta")){
 	  result = std::make_pair(-lims->get_dxyEtaNormMax().first,lims->get_dxyEtaNormMax().first);
@@ -3571,7 +3575,7 @@ params::measurement getTheRangeUser(TH1F* thePlot, Limits* lims)
 	  result = std::make_pair(-0.8,0.8);
 	}
       } else if(theTitle.Contains("dz")){
-	if(theTitle.Contains("phi")){
+	if(theTitle.Contains("phi") || theTitle.Contains("pT")){
 	  result = std::make_pair(-lims->get_dzPhiNormMax().first,lims->get_dzPhiNormMax().first);
 	} else if (theTitle.Contains("eta")){
 	  result = std::make_pair(-lims->get_dzEtaNormMax().first,lims->get_dzEtaNormMax().first);
@@ -3601,7 +3605,7 @@ params::measurement getTheRangeUser(TH1F* thePlot, Limits* lims)
   } else {
     if (theTitle.Contains("means")){
       if(theTitle.Contains("dxy") || theTitle.Contains("dx") || theTitle.Contains("dy")){
-	if(theTitle.Contains("phi")){
+	if(theTitle.Contains("phi") || theTitle.Contains("pT")){
 	  result = std::make_pair(-lims->get_dxyPhiMax().first,lims->get_dxyPhiMax().first);
 	} else if (theTitle.Contains("eta")){
 	  result = std::make_pair(-lims->get_dxyEtaMax().first,lims->get_dxyEtaMax().first);
@@ -3609,7 +3613,7 @@ params::measurement getTheRangeUser(TH1F* thePlot, Limits* lims)
 	  result = std::make_pair(-40.,40.);
 	}
       } else if(theTitle.Contains("dz")){
-	if(theTitle.Contains("phi")){
+	if(theTitle.Contains("phi") || theTitle.Contains("pT")){
 	  result = std::make_pair(-lims->get_dzPhiMax().first,lims->get_dzPhiMax().first);
 	} else if (theTitle.Contains("eta")){
 	  result = std::make_pair(-lims->get_dzEtaMax().first,lims->get_dzEtaMax().first);
@@ -3638,6 +3642,7 @@ params::measurement getTheRangeUser(TH1F* thePlot, Limits* lims)
     }
   }
 
+  if(tag) std::cout<<theTitle << " " << result.first << " " << result.second << std::endl;
   return result;
   
 }
