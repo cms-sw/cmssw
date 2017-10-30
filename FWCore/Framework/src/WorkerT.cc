@@ -159,12 +159,26 @@ namespace edm{
   template<typename T>
   inline
   bool
+  WorkerT<T>::implNeedToRunSelection() const { return false;}
+
+  template<typename T>
+  inline
+  bool
   WorkerT<T>::implDoPrePrefetchSelection(StreamID id,
                                          EventPrincipal const& ep,
                                          ModuleCallingContext const* mcc) {
     return true;
   }
+  template<typename T>
+  inline
+  void
+  WorkerT<T>::itemsToGetForSelection(std::vector<ProductResolverIndexAndSkipBit>&) const {}
 
+
+  template<>
+  inline
+  bool
+  WorkerT<OutputModule>::implNeedToRunSelection() const { return true;}
   template<>
   inline
   bool
@@ -173,6 +187,17 @@ namespace edm{
                                                     ModuleCallingContext const* mcc) {
     return module_->prePrefetchSelection(id,ep,mcc);
   }
+  template<>
+  inline
+  void
+  WorkerT<OutputModule>::itemsToGetForSelection(std::vector<ProductResolverIndexAndSkipBit>& iItems) const {
+    iItems = module_->productsUsedBySelection();
+  }
+
+  template<>
+  inline
+  bool
+  WorkerT<edm::one::OutputModuleBase>::implNeedToRunSelection() const { return true;}
 
   template<>
   inline
@@ -182,7 +207,17 @@ namespace edm{
                                                                   ModuleCallingContext const* mcc) {
     return module_->prePrefetchSelection(id,ep,mcc);
   }
+  template<>
+  inline
+  void
+  WorkerT<edm::one::OutputModuleBase>::itemsToGetForSelection(std::vector<ProductResolverIndexAndSkipBit>& iItems) const {
+    iItems = module_->productsUsedBySelection();
+  }
 
+  template<>
+  inline
+  bool
+  WorkerT<edm::global::OutputModuleBase>::implNeedToRunSelection() const { return true;}
   template<>
   inline
   bool
@@ -191,7 +226,17 @@ namespace edm{
                                                                      ModuleCallingContext const* mcc) {
     return module_->prePrefetchSelection(id,ep,mcc);
   }
+  template<>
+  inline
+  void
+  WorkerT<edm::global::OutputModuleBase>::itemsToGetForSelection(std::vector<ProductResolverIndexAndSkipBit>& iItems) const {
+    iItems = module_->productsUsedBySelection();
+  }
 
+  template<>
+  inline
+  bool
+  WorkerT<edm::limited::OutputModuleBase>::implNeedToRunSelection() const { return true;}
   template<>
   inline
   bool
@@ -199,6 +244,12 @@ namespace edm{
                                                                      EventPrincipal const& ep,
                                                                      ModuleCallingContext const* mcc) {
     return module_->prePrefetchSelection(id,ep,mcc);
+  }
+  template<>
+  inline
+  void
+  WorkerT<edm::limited::OutputModuleBase>::itemsToGetForSelection(std::vector<ProductResolverIndexAndSkipBit>& iItems) const {
+    iItems = module_->productsUsedBySelection();
   }
 
   template<typename T>
