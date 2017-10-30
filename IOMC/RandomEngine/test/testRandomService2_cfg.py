@@ -29,7 +29,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
         initialSeed = cms.untracked.uint32(205),
         engineName = cms.untracked.string('TRandom3')
     ),
-    t5 = cms.PSet(
+    t6 = cms.PSet(
         initialSeed = cms.untracked.uint32(206),
         engineName = cms.untracked.string('MixMaxRng')
     ),

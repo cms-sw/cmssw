@@ -164,7 +164,7 @@ namespace edm {
                    "configuration file was " << initialSeedSet[0] << ".  This was for \n"
                 << "the module with label " << label << ".\n";
             }
-	  } else if(engineName == "MixMaxRng") {
+          } else if(engineName == "MixMaxRng") {
             if(initialSeedSet[0] > maxSeedTRandom3) {
               throw Exception(errors::Configuration)
                 << "The CLHEP::MixMaxRng engine seed should be in the range 0 to " << maxSeedTRandom3 << ".\n"
@@ -172,7 +172,7 @@ namespace edm {
                    "configuration file was " << initialSeedSet[0] << ".  This was for \n"
                 << "the module with label " << label << ".\n";
             }
-	  } else if(engineName == "TRandom3") {
+          } else if(engineName == "TRandom3") {
             if(initialSeedSet[0] > maxSeedTRandom3) {
               throw Exception(errors::Configuration)
                 << "The CLHEP::MixMaxRng engine seed should be in the range 0 to " << maxSeedTRandom3 << ".\n"
@@ -1150,7 +1150,7 @@ namespace edm {
               if(seedOffset != 0 || eventSeedOffset != 0) {
                 resetEngineSeeds(engines.back(), name, seeds, seedOffset, eventSeedOffset);
               }
-	    } else if(name == "MixMaxRng") {
+            } else if(name == "MixMaxRng") {
               std::shared_ptr<CLHEP::HepRandomEngine> engine = std::make_shared<CLHEP::MixMaxRng>(seedL);
               engines.emplace_back(label, seeds, engine);
               if(seedOffset != 0 || eventSeedOffset != 0) {
