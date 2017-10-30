@@ -186,7 +186,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		hcaldqm::hashfunctions::fSubdetPM, 
 		new hcaldqm::quantity::LumiSection(_maxLS),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
-	_cBadTDCCount_depth_HF.initialize(_name, "BadTDCCount", 
+	_cBadTDCCount_depth.initialize(_name, "BadTDCCount", 
 		hcaldqm::hashfunctions::fdepth,
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
@@ -203,11 +203,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		hcaldqm::hashfunctions::fSubdetPM, 
 		new hcaldqm::quantity::LumiSection(_maxLS),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
-	_cBadTDCCount_depth_HEP17.initialize(_name, "BadTDCCount", 
-		hcaldqm::hashfunctions::fdepth,
-		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
-		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 
 	if (_ptype == fOnline || _ptype == fLocal) {
 		_cOccupancy_Crate.initialize(_name,
@@ -472,11 +467,10 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_cBadTDCValues_SubdetPM_HF.book(ib, _emap, _filter_HF, _subsystem);
 	_cBadTDCvsBX_SubdetPM_HF.book(ib, _emap, _filter_HF, _subsystem);
 	_cBadTDCvsLS_SubdetPM_HF.book(ib, _emap, _filter_HF, _subsystem);
-	_cBadTDCCount_depth_HF	.book(ib, _emap, _filter_HF, _subsystem);
+	_cBadTDCCount_depth.book(ib, _emap, _filter_HF, _subsystem);
 	_cBadTDCValues_SubdetPM_HEP17.book(ib, _emap, _filter_HEP17, _subsystem);
 	_cBadTDCvsBX_SubdetPM_HEP17.book(ib, _emap, _filter_HEP17, _subsystem);
 	_cBadTDCvsLS_SubdetPM_HEP17.book(ib, _emap, _filter_HEP17, _subsystem);
-	_cBadTDCCount_depth_HEP17.book(ib, _emap, _filter_HEP17, _subsystem);
 
 	//	BOOK HISTOGRAMS that are only for Online
 	_ehashmap.initialize(_emap, electronicsmap::fD2EHashMap);
