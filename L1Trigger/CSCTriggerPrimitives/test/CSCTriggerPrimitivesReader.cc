@@ -2294,7 +2294,7 @@ void CSCTriggerPrimitivesReader::drawALCTHistos() {
   TText t;
   t.SetTextFont(32);
   t.SetTextSize(0.025);
-  char pagenum[7], titl[50];
+  char pagenum[16], titl[50];
   TPaveLabel *title;
 
   int max_idh = plotME42 ? CSC_TYPES : CSC_TYPES-1;
@@ -2368,7 +2368,7 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
   TText t;
   t.SetTextFont(32);
   t.SetTextSize(0.025);
-  char pagenum[7], titl[50];
+  char pagenum[16], titl[50];
   TPaveLabel *title;
 
   ps->NewPage();
@@ -2537,7 +2537,7 @@ void CSCTriggerPrimitivesReader::drawLCTTMBHistos() {
   TText t;
   t.SetTextFont(32);
   t.SetTextSize(0.025);
-  char pagenum[7], titl[50];
+  char pagenum[16], titl[50];
   TPaveLabel *title;
 
   int max_idh = plotME42 ? CSC_TYPES : CSC_TYPES-1;
@@ -2634,7 +2634,7 @@ void CSCTriggerPrimitivesReader::drawLCTMPCHistos() {
   TText t;
   t.SetTextFont(32);
   t.SetTextSize(0.025);
-  char pagenum[7];
+  char pagenum[16];
   TPaveLabel *title;
 
   ps->NewPage();
@@ -2707,7 +2707,7 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
   TText t;
   t.SetTextFont(32);
   t.SetTextSize(0.025);
-  char pagenum[7];
+  char pagenum[16];
   TPaveLabel *title;
   Int_t nbins;
 
@@ -3045,7 +3045,7 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   TText t;
   t.SetTextFont(32);
   t.SetTextSize(0.025);
-  char pagenum[7];
+  char pagenum[16];
   TPaveLabel *title;
 
   int max_idh = plotME42 ? CSC_TYPES : CSC_TYPES-1;
@@ -3422,7 +3422,7 @@ void CSCTriggerPrimitivesReader::drawEfficHistos() {
   TText t;
   t.SetTextFont(32);
   t.SetTextSize(0.025);
-  char pagenum[7];
+  char pagenum[16];
   TPaveLabel *title;
   char histtitle[60];
   
