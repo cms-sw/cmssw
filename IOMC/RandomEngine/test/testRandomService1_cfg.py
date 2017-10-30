@@ -63,7 +63,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
     ),
     t6 = cms.PSet(
         initialSeed = cms.untracked.uint32(85),
-        engineName = cms.untracked.string('MinMaxRng')
+        engineName = cms.untracked.string('MixMaxRng')
     ),
     enableChecking = cms.untracked.bool(True),
     verbose = cms.untracked.bool(True)
