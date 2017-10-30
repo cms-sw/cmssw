@@ -178,6 +178,8 @@ from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 for e in [pA_2016, peripheralPbPb, pp_on_XeXe_2017]:
     for ec in [RecoEgammaAOD.outputCommands, RecoEgammaRECO.outputCommands, RecoEgammaFEVT.outputCommands]:
         e.toModify( ec, func=lambda outputCommands: outputCommands.extend(['keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducerppGED_*_*',
-                                                                           'keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducerpp_*_*'
+                                                                           'keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducerpp_*_*',
+                                                                           'keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducerppIsland_*_*',
+                                                                           'keep recoPhotons_islandPhotons_*_*'
                                                                            ])
                     )
