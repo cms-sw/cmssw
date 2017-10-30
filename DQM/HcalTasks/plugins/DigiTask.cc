@@ -174,19 +174,36 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		hcaldqm::hashfunctions::fSubdetPM,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
-	_cBadTDCValues_SubdetPM.initialize(_name, "BadTDCValues", 
+	_cBadTDCValues_SubdetPM_HF.initialize(_name, "BadTDCValues", 
 		hcaldqm::hashfunctions::fSubdetPM,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBadTDC),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
-	_cBadTDCvsBX_SubdetPM.initialize(_name, "BadTDCvsBX", 
+	_cBadTDCvsBX_SubdetPM_HF.initialize(_name, "BadTDCvsBX", 
 		hcaldqm::hashfunctions::fSubdetPM, 
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBX),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
-	_cBadTDCvsLS_SubdetPM.initialize(_name, "BadTDCvsLS", 
+	_cBadTDCvsLS_SubdetPM_HF.initialize(_name, "BadTDCvsLS", 
 		hcaldqm::hashfunctions::fSubdetPM, 
 		new hcaldqm::quantity::LumiSection(_maxLS),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
-	_cBadTDCCount_depth.initialize(_name, "BadTDCCount", 
+	_cBadTDCCount_depth_HF.initialize(_name, "BadTDCCount", 
+		hcaldqm::hashfunctions::fdepth,
+		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
+		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+	_cBadTDCValues_SubdetPM_HEP17.initialize(_name, "BadTDCValues", 
+		hcaldqm::hashfunctions::fSubdetPM,
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBadTDC),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+	_cBadTDCvsBX_SubdetPM_HEP17.initialize(_name, "BadTDCvsBX", 
+		hcaldqm::hashfunctions::fSubdetPM, 
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBX),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+	_cBadTDCvsLS_SubdetPM_HEP17.initialize(_name, "BadTDCvsLS", 
+		hcaldqm::hashfunctions::fSubdetPM, 
+		new hcaldqm::quantity::LumiSection(_maxLS),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+	_cBadTDCCount_depth_HEP17.initialize(_name, "BadTDCCount", 
 		hcaldqm::hashfunctions::fdepth,
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
@@ -452,10 +469,14 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_cLETDCvsADC_SubdetPM.book(ib, _emap, _filter_HF, _subsystem);
 	_cLETDCvsTS_SubdetPM.book(ib, _emap, _filter_HF, _subsystem);
 	_cLETDCTime_SubdetPM.book(ib, _emap, _filter_HF, _subsystem);
-	_cBadTDCValues_SubdetPM.book(ib, _emap, _filter_HF, _subsystem);
-	_cBadTDCvsBX_SubdetPM.book(ib, _emap, _filter_HF, _subsystem);
-	_cBadTDCvsLS_SubdetPM.book(ib, _emap, _filter_HF, _subsystem);
-	_cBadTDCCount_depth	.book(ib, _emap, _filter_HF, _subsystem);
+	_cBadTDCValues_SubdetPM_HF.book(ib, _emap, _filter_HF, _subsystem);
+	_cBadTDCvsBX_SubdetPM_HF.book(ib, _emap, _filter_HF, _subsystem);
+	_cBadTDCvsLS_SubdetPM_HF.book(ib, _emap, _filter_HF, _subsystem);
+	_cBadTDCCount_depth_HF	.book(ib, _emap, _filter_HF, _subsystem);
+	_cBadTDCValues_SubdetPM_HEP17.book(ib, _emap, _filter_HEP17, _subsystem);
+	_cBadTDCvsBX_SubdetPM_HEP17.book(ib, _emap, _filter_HEP17, _subsystem);
+	_cBadTDCvsLS_SubdetPM_HEP17.book(ib, _emap, _filter_HEP17, _subsystem);
+	_cBadTDCCount_depth_HEP17.book(ib, _emap, _filter_HEP17, _subsystem);
 
 	//	BOOK HISTOGRAMS that are only for Online
 	_ehashmap.initialize(_emap, electronicsmap::fD2EHashMap);
@@ -778,6 +799,17 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				}*/
 			}
 		}
+		for (int i=0; i<digi.samples(); i++) {
+			if (!_filter_HEP17.filter(did)) {
+				// Bad TDC values: 50-61 should never happen in QIE10 or QIE11, but we are seeing some in 2017 data.
+				if ((50 <= digi[i].tdc()) && (digi[i].tdc() <= 61)) {
+					_cBadTDCValues_SubdetPM_HEP17.fill(did, digi[i].tdc());
+					_cBadTDCvsBX_SubdetPM_HEP17.fill(did, bx);
+					_cBadTDCvsLS_SubdetPM_HEP17.fill(did, _currentLS);
+					_cBadTDCCount_depth.fill(did);
+				}
+			}
+		}
 
 		if (sumQ>_cutSumQ_HEP17)
 		{
@@ -1055,9 +1087,9 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 
 					// Bad TDC values: 50-61 should never happen in QIE10 or QIE11, but we are seeing some in 2017 data.
 					if ((50 <= digi[i].le_tdc()) && (digi[i].le_tdc() <= 61)) {
-						_cBadTDCValues_SubdetPM.fill(did, digi[i].le_tdc());
-						_cBadTDCvsBX_SubdetPM.fill(did, bx);
-						_cBadTDCvsLS_SubdetPM.fill(did, _currentLS);
+						_cBadTDCValues_SubdetPM_HF.fill(did, digi[i].le_tdc());
+						_cBadTDCvsBX_SubdetPM_HF.fill(did, bx);
+						_cBadTDCvsLS_SubdetPM_HF.fill(did, _currentLS);
 						_cBadTDCCount_depth.fill(did);
 					}
 				}
