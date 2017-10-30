@@ -83,6 +83,8 @@ namespace edm {
   private:
     bool implDo(EventPrincipal const& ep, EventSetup const& c,
                         ModuleCallingContext const* mcc) override;
+    void itemsToGetForSelection(std::vector<ProductResolverIndexAndSkipBit>&) const final;
+    bool implNeedToRunSelection() const final;
     bool implDoPrePrefetchSelection(StreamID id,
                                             EventPrincipal const& ep,
                                             ModuleCallingContext const* mcc) override;
