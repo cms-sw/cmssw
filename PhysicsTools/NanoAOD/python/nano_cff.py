@@ -88,10 +88,14 @@ def nanoAOD_customizeMC(process):
 
 ### Era dependent customization
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-#remove stuff 
+from RecoJets.JetProducers.QGTagger_cfi import  QGTagger
+qgtagger80x=QGTagger.clone(srcJets="slimmedJets",srcVertexCollection="offlineSlimmedPrimaryVertices")
 _80x_sequence = nanoSequence.copy()
+#remove stuff 
 _80x_sequence.remove(isoTrackTable)
 _80x_sequence.remove(isoTrackSequence)
+#add qgl
+_80x_sequence.insert(1,qgtagger80x)
 run2_miniAOD_80XLegacy.toReplaceWith( nanoSequence, _80x_sequence)
 
 	
