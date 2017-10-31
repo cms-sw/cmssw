@@ -30,7 +30,9 @@ class HGCalTriggerNtupleHGCMulticlusters : public HGCalTriggerNtupleBase
     std::vector<std::vector<uint32_t>> cl3d_clusters_id_;
     // cluster shower shapes
     std::vector<int> cl3d_showerlength_;
+    std::vector<int> cl3d_coreshowerlength_;
     std::vector<int> cl3d_firstlayer_;
+    std::vector<int> cl3d_maxlayer_;
     std::vector<float> cl3d_seetot_;
     std::vector<float> cl3d_seemax_;
     std::vector<float> cl3d_spptot_;
@@ -38,6 +40,7 @@ class HGCalTriggerNtupleHGCMulticlusters : public HGCalTriggerNtupleBase
     std::vector<float> cl3d_szz_;
     std::vector<float> cl3d_srrtot_;
     std::vector<float> cl3d_srrmax_;
+    std::vector<float> cl3d_srrmean_;
     std::vector<float> cl3d_emaxe_;
 };
 
@@ -66,7 +69,9 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
   tree.Branch("cl3d_clusters_n", &cl3d_clusters_n_);
   tree.Branch("cl3d_clusters_id", &cl3d_clusters_id_);
   tree.Branch("cl3d_showerlength", &cl3d_showerlength_);
+  tree.Branch("cl3d_coreshowerlength", &cl3d_coreshowerlength_);
   tree.Branch("cl3d_firstlayer", &cl3d_firstlayer_);
+  tree.Branch("cl3d_maxlayer", &cl3d_maxlayer_);
   tree.Branch("cl3d_seetot", &cl3d_seetot_);
   tree.Branch("cl3d_seemax", &cl3d_seemax_);
   tree.Branch("cl3d_spptot", &cl3d_spptot_);
@@ -74,6 +79,7 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
   tree.Branch("cl3d_szz", &cl3d_szz_);
   tree.Branch("cl3d_srrtot", &cl3d_srrtot_);
   tree.Branch("cl3d_srrmax", &cl3d_srrmax_);
+  tree.Branch("cl3d_srrmean", &cl3d_srrmean_);
   tree.Branch("cl3d_emaxe", &cl3d_emaxe_);
 
 }
@@ -104,7 +110,9 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     cl3d_phi_.emplace_back(cl3d_itr->phi());
     cl3d_clusters_n_.emplace_back(cl3d_itr->constituents().size());
     cl3d_showerlength_.emplace_back(cl3d_itr->showerLength());
+    cl3d_coreshowerlength_.emplace_back(cl3d_itr->coreShowerLength());
     cl3d_firstlayer_.emplace_back(cl3d_itr->firstLayer());
+    cl3d_maxlayer_.emplace_back(cl3d_itr->maxLayer());
     cl3d_seetot_.emplace_back(cl3d_itr->sigmaEtaEtaTot());
     cl3d_seemax_.emplace_back(cl3d_itr->sigmaEtaEtaMax());
     cl3d_spptot_.emplace_back(cl3d_itr->sigmaPhiPhiTot());
@@ -112,6 +120,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     cl3d_szz_.emplace_back(cl3d_itr->sigmaZZ());
     cl3d_srrtot_.emplace_back(cl3d_itr->sigmaRRTot());
     cl3d_srrmax_.emplace_back(cl3d_itr->sigmaRRMax());
+    cl3d_srrmean_.emplace_back(cl3d_itr->sigmaRRMean());
     cl3d_emaxe_.emplace_back(cl3d_itr->eMax()/cl3d_itr->energy());
 
     // Retrieve indices of trigger cells inside cluster
@@ -136,7 +145,9 @@ clear()
   cl3d_clusters_n_.clear();
   cl3d_clusters_id_.clear();
   cl3d_showerlength_.clear();
+  cl3d_coreshowerlength_.clear();
   cl3d_firstlayer_.clear();
+  cl3d_maxlayer_.clear();
   cl3d_seetot_.clear();
   cl3d_seemax_.clear();
   cl3d_spptot_.clear();
@@ -144,6 +155,7 @@ clear()
   cl3d_szz_.clear();
   cl3d_srrtot_.clear();
   cl3d_srrmax_.clear();
+  cl3d_srrmean_.clear();
   cl3d_emaxe_.clear();
 }
 
