@@ -82,6 +82,7 @@ class L1EGCrystalClusterProducer : public edm::EDProducer {
       bool cluster_passes_electronWP90(float &cluster_pt, float &cluster_eta, float &iso, float &e2x5, float &e5x5, float &hover) const;
       bool cluster_passes_photonWP80(float &cluster_pt, float &cluster_eta, float &iso, float &e2x5, float &e5x5, float &e2x2) const;
       bool cluster_passes_electronWP98(float &cluster_pt, float &cluster_eta, float &iso, float &e2x5, float &e5x5) const;
+      bool cluster_passes_looseL1TkMatchWP(float &cluster_pt, float &cluster_eta, float &iso, float &e2x5, float &e5x5) const;
 
       double EtminForStore;
       double EcalTpEtMin;
@@ -401,6 +402,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       float e5x5 = 0.;
       float e3x5 = 0.;
       bool electronWP98;
+      bool looseL1TkMatchWP;
       bool photonWP80;
       bool electronWP90;
       bool passesStage2Eff;
@@ -661,6 +663,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       // Check if cluster passes electron or photon WPs
       float cluster_eta = weightedPosition.eta();
       electronWP98 = cluster_passes_electronWP98( correctedTotalPt, cluster_eta, ECalIsolation, e2x5, e5x5);
+      looseL1TkMatchWP = cluster_passes_looseL1TkMatchWP( correctedTotalPt, cluster_eta, ECalIsolation, e2x5, e5x5);
       photonWP80 = cluster_passes_photonWP80( correctedTotalPt, cluster_eta, ECalIsolation, e2x5, e5x5, e2x2);
       electronWP90 = cluster_passes_electronWP90( correctedTotalPt, cluster_eta, ECalIsolation, e2x5, e5x5, hovere);
       passesStage2Eff = cluster_passes_stage2_eff_cuts( correctedTotalPt, cluster_eta, ECalIsolation, e2x5, e5x5, hovere);
@@ -669,7 +672,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       // Form a l1slhc::L1EGCrystalCluster
       reco::Candidate::PolarLorentzVector p4(correctedTotalPt, weightedPosition.eta(), weightedPosition.phi(), 0.);
       l1slhc::L1EGCrystalCluster cluster(p4, hovere, ECalIsolation, centerhit.id, totalPtPUcorr, bremStrength,
-            e2x2, e2x5, e3x5, e5x5, electronWP98, photonWP80, electronWP90, passesStage2Eff);
+            e2x2, e2x5, e3x5, e5x5, electronWP98, photonWP80, electronWP90, looseL1TkMatchWP, passesStage2Eff);
       // Save pt array
       cluster.SetCrystalPtInfo(crystalPt);
       params["crystalCount"] = crystalPt.size();
@@ -815,5 +818,26 @@ L1EGCrystalClusterProducer::cluster_passes_base_cuts(const l1slhc::L1EGCrystalCl
    }
    return false; // out of eta range
 }
+
+
+bool
+L1EGCrystalClusterProducer::cluster_passes_looseL1TkMatchWP(float &cluster_pt, float &cluster_eta, float &iso, float &e2x5, float &e5x5) const {
+   if ( fabs(cluster_eta) < 1.479 )
+   {
+      bool passIso = false;
+      bool passShowerShape = false;
+
+      if ( ( 0.944 + -0.65 * TMath::Exp( -0.4 * cluster_pt ) < (e2x5 / e5x5)) ) {
+	     passShowerShape = true; }
+      if ( ( 0.38 + 1.9 * TMath::Exp( -0.05 * cluster_pt ) > iso ) ) {
+	     passIso = true; }
+
+      if ( passShowerShape && passIso ) {
+	      return true; }
+
+   }
+   return false;
+}
+
 
 DEFINE_FWK_MODULE(L1EGCrystalClusterProducer);
