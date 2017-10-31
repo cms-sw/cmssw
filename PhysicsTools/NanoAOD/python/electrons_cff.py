@@ -40,7 +40,7 @@ bitmapVIDForEle = cms.EDProducer("EleVIDNestedWPBitmapProducer",
 isoForEle = cms.EDProducer("EleIsoValueMapProducer",
     src = cms.InputTag("slimmedElectrons"),
     relative = cms.bool(False),
-    rho_MiniIso = cms.InputTag("fixedGridRhoFastjetCentralNeutral"),
+    rho_MiniIso = cms.InputTag("fixedGridRhoFastjetAll"),
     rho_PFIso = cms.InputTag("fixedGridRhoFastjetAll"),
     EAFile_MiniIso = cms.FileInPath("RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt"),
     EAFile_PFIso = cms.FileInPath("RecoEgamma/ElectronIdentification/data/Summer16/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_80X.txt"),
@@ -54,6 +54,7 @@ ptRatioRelForEle = cms.EDProducer("ElectronJetVarProducer",
 
 from EgammaAnalysis.ElectronTools.calibratedElectronsRun2_cfi import calibratedPatElectrons
 calibratedPatElectrons.correctionFile = cms.string("PhysicsTools/NanoAOD/data/80X_ichepV1_2016_ele") # hack, should go somewhere in EgammaAnalysis
+calibratedPatElectrons.semiDeterministic = cms.bool(True)
 
 energyCorrForEle =  cms.EDProducer("ElectronEnergyVarProducer",
     srcRaw = cms.InputTag("slimmedElectrons"),
@@ -162,10 +163,14 @@ electronTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         miniPFRelIso_all = Var("userFloat('miniIsoAll')/pt",float,doc="mini PF relative isolation, total (with scaled rho*EA PU corrections)"),
         pfRelIso03_chg = Var("userFloat('PFIsoChg')/pt",float,doc="PF relative isolation dR=0.3, charged component"),
         pfRelIso03_all = Var("userFloat('PFIsoAll')/pt",float,doc="PF relative isolation dR=0.3, total (with rho*EA PU corrections)"),
+        dr03TkSumPt = Var("?pt>35?dr03TkSumPt():0",float,doc="Non-PF track isolation within a delta R cone of 0.3 with electron pt > 35 GeV",precision=8),
+        dr03EcalRecHitSumEt = Var("?pt>35?dr03EcalRecHitSumEt():0",float,doc="Non-PF Ecal isolation within a delta R cone of 0.3 with electron pt > 35 GeV",precision=8),
+        dr03HcalDepth1TowerSumEt = Var("?pt>35?dr03HcalDepth1TowerSumEt():0",float,doc="Non-PF Hcal isolation within a delta R cone of 0.3 with electron pt > 35 GeV",precision=8),
         hoe = Var("hadronicOverEm()",float,doc="H over E",precision=8),
         tightCharge = Var("isGsfCtfScPixChargeConsistent() + isGsfScPixChargeConsistent()",int,doc="Tight charge criteria (0:none, 1:isGsfScPixChargeConsistent, 2:isGsfCtfScPixChargeConsistent)"),
         convVeto = Var("passConversionVeto()",bool,doc="pass conversion veto"),
         lostHits = Var("gsfTrack.hitPattern.numberOfLostHits('MISSING_INNER_HITS')","uint8",doc="number of missing inner hits"),
+        isPFcand = Var("pfCandidateRef().isNonnull()",bool,doc="electron is PF candidate"),
     ),
     externalVariables = cms.PSet(
         mvaTTH = ExtVar(cms.InputTag("electronMVATTH"),float, doc="TTH MVA lepton ID score",precision=14),
