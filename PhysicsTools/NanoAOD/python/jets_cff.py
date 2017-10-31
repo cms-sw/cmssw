@@ -239,6 +239,12 @@ genJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 	#anything else?
     )
 )
+genJetFlavourTable = cms.EDProducer("GenJetFlavourTableProducer",
+    name = genJetTable.name,
+    src = genJetTable.src,
+    cut = genJetTable.cut,
+    jetFlavourInfos = cms.InputTag("slimmedGenJetsFlavourInfos"),
+)
 
 
 
@@ -248,5 +254,5 @@ jetSequence = cms.Sequence(looseJetId+tightJetId+slimmedJetsWithUserData+jetCorr
 jetTables = cms.Sequence(bjetMVA+ jetTable+fatJetTable+subJetTable+saJetTable+saTable)
 
 #MC only producers and tables
-jetMC = cms.Sequence(jetMCTable+genJetTable)
+jetMC = cms.Sequence(jetMCTable+genJetTable+genJetFlavourTable)
 
