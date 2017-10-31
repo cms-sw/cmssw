@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:   RecoEgamma/HGCalPhotonIDValueMapProducer
+// Package:   RecoEgamma/EgammaTools
 // Class:    HGCalPhotonIDValueMapProducer
 //
-/**\class HGCalPhotonIDValueMapProducer HGCalPhotonIDValueMapProducer.cc RecoEgamma/HGCalPhotonIDValueMapProducer/plugins/HGCalPhotonIDValueMapProducer.cc
+/**\class HGCalPhotonIDValueMapProducer HGCalPhotonIDValueMapProducer.cc RecoEgamma/EgammaTools/plugins/HGCalPhotonIDValueMapProducer.cc
 
  Description: [one line class summary]
 
@@ -90,14 +90,15 @@ HGCalPhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
   const size_t prevMapSize = maps_.size();
 
   // Clear previous map
-  for(auto&& kv : maps_) kv.second.clear();
+  for(auto&& kv : maps_) {
+    kv.second.clear();
+    kv.second.reserve(photonsH->size());
+  }
 
   // Set up helper tool
   phoIDHelper_->eventInit(iEvent,iSetup);
 
-  for(size_t iPho=0; iPho<photonsH->size(); ++iPho) {
-    const auto& pho = photonsH->at(iPho);
-
+  for(const auto& pho : *photonsH) {
     if(pho.isEB()) {
       // Fill some dummy value
       for(auto&& kv : maps_) {
@@ -120,12 +121,6 @@ HGCalPhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
       float depthCompatibility = phoIDHelper_->clusterDepthCompatibility(ld, measuredDepth, expectedDepth, expectedSigma);
 
       // Fill here all the ValueMaps from their appropriate functions
-
-      // Energies / PT
-      maps_["scEt"].push_back(pho.superCluster()->energy() / std::cosh(pho.superCluster()->eta()));
-      maps_["scEnergy"].push_back(pho.superCluster()->energy());
-      maps_["seedOrigEt"].push_back(pho.superCluster()->seed()->energy() / std::cosh(pho.superCluster()->seed()->eta()));
-      maps_["seedOrigEnergy"].push_back(pho.superCluster()->seed()->energy());
 
       // energies calculated in an cylinder around the axis of the pho cluster
       float seed_tot_energy = ld.energyEE() + ld.energyFH() + ld.energyBH();
@@ -150,7 +145,6 @@ HGCalPhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
       maps_["sigmaEE"].push_back(phoIDHelper_->sigmaEE());
       maps_["sigmaPP"].push_back(phoIDHelper_->sigmaPP());
 
-
       // long profile
       maps_["nLayers"].push_back(ld.nLayers());
       maps_["firstLayer"].push_back(ld.firstLayer());
@@ -158,7 +152,6 @@ HGCalPhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
       maps_["e4oEtot"].push_back(ld.e4oEtot());
       maps_["layerEfrac10"].push_back(ld.layerEfrac10());
       maps_["layerEfrac90"].push_back(ld.layerEfrac90());
-      //maps_["firstLayerEnergy"].push_back(ld.energyPerLayer()[ld.firstLayer()]);
 
       // depth
       maps_["measuredDepth"].push_back(measuredDepth);

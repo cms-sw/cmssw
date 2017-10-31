@@ -1,36 +1,23 @@
 import FWCore.ParameterSet.Config as cms
 from RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi import dEdX_weights as dEdX
 
-HGCalElectronIDValueMap = cms.EDProducer("HGCalElectronIDValueMapProducer",
-    electrons = cms.InputTag("ecalDrivenGsfElectronsFromMultiCl"),
+hgcalPhotonIDValueMap = cms.EDProducer("HGCalPhotonIDValueMapProducer",
+    photons = cms.InputTag("photonsFromMultiCl"),
     pcaRadius = cms.double(3.),
     EERecHits = cms.InputTag('HGCalRecHit:HGCEERecHits'),
     FHRecHits = cms.InputTag('HGCalRecHit:HGCHEFRecHits'),
     BHRecHits = cms.InputTag('HGCalRecHit:HGCHEBRecHits'),
     dEdXWeights = dEdX,
+    photonIsoDeltaR = cms.double(0.15),
+    photonIsoNRings = cms.uint32(5),
+    photonIsoDeltaRmin = cms.double(0.),
     variables = cms.vstring([
-        # Energies / pT
-        "gsfTrackPt",
-        "pOutPt",
-        "scEt",
-        "scEnergy",
-        "ecOrigEt",
-        "ecOrigEnergy",
-        # energies calculated in an cylinder around the axis of the electron cluster
-        "ecEt",
-        "ecEnergy",
-        "ecEnergyEE",
-        "ecEnergyFH",
-        "ecEnergyBH",
-        # Track-based
-        "fbrem",
-        "gsfTrackHits",
-        "gsfTrackChi2",
-        "kfTrackHits",
-        "kfTrackChi2",
-        # Track-matching
-        "dEtaTrackClust",
-        "dPhiTrackClust",
+        # energies calculated in an cylinder around the axis of the seed cluster
+        "seedEt",
+        "seedEnergy",
+        "seedEnergyEE",
+        "seedEnergyFH",
+        "seedEnergyBH",
         # Cluster shapes
         # PCA related
         "pcaEig1",

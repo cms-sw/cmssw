@@ -8,15 +8,15 @@ PhotonIDHelper::PhotonIDHelper(const edm::ParameterSet  & iConfig,edm::ConsumesC
         bhRecHitInputTag_(iConfig.getParameter<edm::InputTag> ("BHRecHits") ),
         dEdXWeights_(iConfig.getParameter<std::vector<double> >("dEdXWeights"))
 {
-    isoHelper_.setDeltaR(iConfig.getUntrackedParameter<double>("photonIsoDeltaR", 0.15));
-    isoHelper_.setNRings(iConfig.getUntrackedParameter<int>("photonIsoNRings", 5));
-    isoHelper_.setMinDeltaR(iConfig.getUntrackedParameter<double>("photonIsoDeltaRmin", 0.));
+    isoHelper_.setDeltaR(iConfig.getParameter<double>("photonIsoDeltaR"));
+    isoHelper_.setNRings(iConfig.getParameter<unsigned int>("photonIsoNRings"));
+    isoHelper_.setMinDeltaR(iConfig.getParameter<double>("photonIsoDeltaRmin"));
 
     recHitsEE_ = iC.consumes<HGCRecHitCollection>(eeRecHitInputTag_);
     recHitsFH_ = iC.consumes<HGCRecHitCollection>(fhRecHitInputTag_);
     recHitsBH_ = iC.consumes<HGCRecHitCollection>(bhRecHitInputTag_);
     pcaHelper_.setdEdXWeights(dEdXWeights_);
-    debug_ = false;
+    debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
 }
 
 void PhotonIDHelper::eventInit(const edm::Event& iEvent,const edm::EventSetup &iSetup) {

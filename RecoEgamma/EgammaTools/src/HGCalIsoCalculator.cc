@@ -1,5 +1,5 @@
 /*
- * HGCalIsoProducer.cc
+ * HGCalIsoCalculator.cc
  *
  *  Created on: 13 Oct 2017
  *      Author: jkiesele
@@ -7,16 +7,16 @@
 
 #include "DataFormats/Math/interface/deltaR.h"
 #include <stdexcept>
-#include "../interface/HGCalIsoProducer.h"
+#include "RecoEgamma/EgammaTools//interface/HGCalIsoCalculator.h"
 
-HGCalIsoProducer::HGCalIsoProducer():dr2_(0.15*0.15),mindr2_(0),rechittools_(nullptr),debug_(false),nlayers_(30){
+HGCalIsoCalculator::HGCalIsoCalculator():dr2_(0.15*0.15),mindr2_(0),rechittools_(nullptr),debug_(false),nlayers_(30){
     setNRings(5);
 }
 
-HGCalIsoProducer::~HGCalIsoProducer(){
+HGCalIsoCalculator::~HGCalIsoCalculator(){
 }
 
-void HGCalIsoProducer::setRecHits(
+void HGCalIsoCalculator::setRecHits(
         edm::Handle<HGCRecHitCollection> hitsEE,
         edm::Handle<HGCRecHitCollection> hitsFH,
         edm::Handle<HGCRecHitCollection> hitsBH
@@ -26,7 +26,7 @@ void HGCalIsoProducer::setRecHits(
     recHitsBH_=hitsBH;
 
     if(!rechittools_)
-        throw std::runtime_error("HGCalIsoProducer::produceHGCalIso: rechittools not set");
+        throw cms::Exception("HGCalIsoCalculator::produceHGCalIso: rechittools not set");
     
     hitEtaPhiCache_.clear();
     hitEtaPhiCache_.reserve(recHitsEE_->size()+recHitsFH_->size()+recHitsBH_->size());
@@ -45,31 +45,30 @@ void HGCalIsoProducer::setRecHits(
     for(const auto& hit : *recHitsBH_) hitEtaPhiCache_.push_back(makeEtaPhiPair(hit));
 }
 
-void HGCalIsoProducer::produceHGCalIso(const reco::CaloClusterPtr & seed){
+void HGCalIsoCalculator::produceHGCalIso(const reco::CaloClusterPtr & seed){
 
     if(!rechittools_)
-        throw std::runtime_error("HGCalIsoProducer::produceHGCalIso: rechittools not set");
+        throw cms::Exception("HGCalIsoCalculator::produceHGCalIso: rechittools not set");
 
     for(auto& r:isoringdeposits_)
         r=0;
 
-    // compiler couldn't figure out seed is const and
-    // recomputed log(atan2()) every time...
+    // make local temporaries to pass to the lambda
+    // avoids recomputing every iteration
     const float seedEta=seed->eta();
     const float seedPhi=seed->phi();
-    const std::vector<std::pair<DetId, float>> & seedhitmap= seed->hitsAndFractions();
+    const std::vector<std::pair<DetId, float>> & seedHitsAndFractions = seed->hitsAndFractions();
 
-    auto checkAndFill = [this, &seedEta, &seedPhi, &seedhitmap](const HGCRecHit& hit, std::pair<float,float> etaphiVal) {
+    auto checkAndFill = [this, &seedEta, &seedPhi, &seedHitsAndFractions](const HGCRecHit& hit, std::pair<float,float> etaphiVal) {
         float deltar2=reco::deltaR2(etaphiVal.first,etaphiVal.second,seedEta,seedPhi);
         if(deltar2>dr2_ || deltar2<mindr2_) return;
 
-        size_t layer=rechittools_->getLayerWithOffset(hit.id());
+        unsigned int layer=rechittools_->getLayerWithOffset(hit.id());
         if(layer>=nlayers_) return;
 
-        const size_t& ring=ringasso_.at(layer);
-
         //do not consider hits associated to the photon cluster
-        if( std::none_of(seedhitmap.begin(), seedhitmap.end(), [&hit](const auto& seedhit){return hit.id()==seedhit.first;}) ){
+        if( std::none_of(seedHitsAndFractions.begin(), seedHitsAndFractions.end(), [&hit](const auto& seedhit){return hit.id()==seedhit.first;}) ){
+            const unsigned int ring=ringasso_.at(layer);
             isoringdeposits_.at(ring)+=hit.energy();
         }
     };
@@ -90,13 +89,13 @@ void HGCalIsoProducer::produceHGCalIso(const reco::CaloClusterPtr & seed){
     }
 }
 
-void HGCalIsoProducer::setNRings(const size_t nrings){
+void HGCalIsoCalculator::setNRings(const size_t nrings){
     if(nrings>nlayers_)
-        throw std::logic_error("PhotonHGCalIsoProducer::setNRings: max number of rings reached");
+        throw std::logic_error("PhotonHGCalIsoCalculator::setNRings: max number of rings reached");
 
     ringasso_.clear();
     isoringdeposits_.clear();
-    size_t separator=nlayers_/nrings;
+    unsigned int separator=nlayers_/nrings;
     size_t counter=0;
     for(size_t i=0;i<nlayers_+1;i++){
         ringasso_.push_back(counter);
@@ -108,8 +107,8 @@ void HGCalIsoProducer::setNRings(const size_t nrings){
     isoringdeposits_.resize(nrings,0);
 }
 
-const float& HGCalIsoProducer::getIso(const size_t& ring)const{
+const float& HGCalIsoCalculator::getIso(const size_t& ring)const{
     if(ring>=isoringdeposits_.size())
-        throw std::out_of_range("HGCalIsoProducer::getIso: ring index out of range");
-    return isoringdeposits_.at(ring);
+        throw cms::Exception("HGCalIsoCalculator::getIso: ring index out of range");
+    return isoringdeposits_[ring];
 }
