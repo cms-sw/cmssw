@@ -6,6 +6,7 @@
 #include <string>
 #include "TH1.h"
 #include "TPaveText.h"
+#include "TStyle.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"   
 #include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h" 
@@ -69,6 +70,48 @@ namespace SiStripPI {
     TID2r = 4020, TID2s = 4021,
     TID3r = 4030, TID3s = 4031,
     END_OF_REGIONS	
+  };
+
+  // mapping to get the bin number
+  std::map<SiStripPI::TrackerRegion,unsigned int> binToEnumMap{
+    {TrackerRegion::TIB1r,1 }, 
+    {TrackerRegion::TIB1s,2 },
+    {TrackerRegion::TIB2r,3 }, 
+    {TrackerRegion::TIB2s,4 },
+    {TrackerRegion::TIB3r,5 },
+    {TrackerRegion::TIB4r,6 },
+    {TrackerRegion::TOB1r,7 }, 
+    {TrackerRegion::TOB1s,8 },
+    {TrackerRegion::TOB2r,9 }, 
+    {TrackerRegion::TOB2s,10},
+    {TrackerRegion::TOB3r,11},
+    {TrackerRegion::TOB4r,12},
+    {TrackerRegion::TOB5r,13},
+    {TrackerRegion::TOB6r,14},
+    {TrackerRegion::TEC1r,15}, 
+    {TrackerRegion::TEC1s,16},
+    {TrackerRegion::TEC2r,17}, 
+    {TrackerRegion::TEC2s,18},
+    {TrackerRegion::TEC3r,19}, 
+    {TrackerRegion::TEC3s,20},
+    {TrackerRegion::TEC4r,21}, 
+    {TrackerRegion::TEC4s,22},
+    {TrackerRegion::TEC5r,23}, 
+    {TrackerRegion::TEC5s,24},
+    {TrackerRegion::TEC6r,25}, 
+    {TrackerRegion::TEC6s,26},
+    {TrackerRegion::TEC7r,27}, 
+    {TrackerRegion::TEC7s,28},
+    {TrackerRegion::TEC8r,29}, 
+    {TrackerRegion::TEC8s,30},
+    {TrackerRegion::TEC9r,31}, 
+    {TrackerRegion::TEC9s,32},
+    {TrackerRegion::TID1r,33}, 
+    {TrackerRegion::TID1s,34},
+    {TrackerRegion::TID2r,35}, 
+    {TrackerRegion::TID2s,36},
+    {TrackerRegion::TID3r,37}, 
+    {TrackerRegion::TID3s,38}
   };
 
   /*--------------------------------------------------------------------*/
@@ -281,7 +324,128 @@ namespace SiStripPI {
       NBadComponent[i][component][0]++;
     }
   }
+  
+  enum palette {HALFGRAY,GRAY,BLUES,REDS,ANTIGRAY,FIRE,ANTIFIRE,LOGREDBLUE,LOGBLUERED,DEFAULT};
+
+  /*--------------------------------------------------------------------*/
+  void setPaletteStyle(SiStripPI::palette palette) 
+  /*--------------------------------------------------------------------*/
+  {
+  
+    TStyle *palettestyle = new TStyle("palettestyle","Style for P-TDR");
+  
+    const int NRGBs = 5;
+    const int NCont = 255;
+    
+    switch(palette){
+
+    case HALFGRAY:
+      {
+	double stops[NRGBs] = {0.00, 0.34, 0.61, 0.84, 1.00};
+	double red[NRGBs]   = {1.00, 0.91, 0.80, 0.67, 1.00};
+	double green[NRGBs] = {1.00, 0.91, 0.80, 0.67, 1.00};
+	double blue[NRGBs]  = {1.00, 0.91, 0.80, 0.67, 1.00};
+	TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+      }
+      break;
+
+    case GRAY:
+      {
+	double stops[NRGBs] = {0.00, 0.01, 0.05, 0.09, 0.1};
+	double red[NRGBs]   = {1.00, 0.84, 0.61, 0.34, 0.00};
+	double green[NRGBs] = {1.00, 0.84, 0.61, 0.34, 0.00};
+	double blue[NRGBs]  = {1.00, 0.84, 0.61, 0.34, 0.00};
+      	TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+      }
+      break;
+
+    case BLUES:
+      {
+	double stops[NRGBs] = {0.00, 0.34, 0.61, 0.84, 1.00};
+	double red[NRGBs]   = {1.00, 0.84, 0.61, 0.34, 0.00};
+	double green[NRGBs] = {1.00, 0.84, 0.61, 0.34, 0.00};
+	double blue[NRGBs]  = {1.00, 1.00, 1.00, 1.00, 1.00};
+	TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+	
+      }
+      break;
+      
+    case REDS:
+	{
+	  double stops[NRGBs] = {0.00, 0.34, 0.61, 0.84, 1.00};
+	  double red[NRGBs]   = {1.00, 1.00, 1.00, 1.00, 1.00};
+	  double green[NRGBs] = {1.00, 0.84, 0.61, 0.34, 0.00};
+	  double blue[NRGBs]  = {1.00, 0.84, 0.61, 0.34, 0.00};
+	  TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);	
+	}
+	break;
+      
+    case ANTIGRAY:
+      {
+	double stops[NRGBs] = {0.00, 0.34, 0.61, 0.84, 1.00};
+	double red[NRGBs]   = {0.00, 0.34, 0.61, 0.84, 1.00};
+	double green[NRGBs] = {0.00, 0.34, 0.61, 0.84, 1.00};
+	double blue[NRGBs]  = {0.00, 0.34, 0.61, 0.84, 1.00};
+	TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);		
+      }      
+      break;
+      
+    case FIRE:
+      {
+	double stops[NRGBs] = {0.00, 0.20, 0.80, 1.00};
+	double red[NRGBs]   = {1.00, 1.00, 1.00, 0.50};
+	double green[NRGBs] = {1.00, 1.00, 0.00, 0.00};
+	double blue[NRGBs]  = {0.20, 0.00, 0.00, 0.00};
+	TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);	
+      }
+      break;
+
+    case ANTIFIRE:
+      {
+	double stops[NRGBs] = {0.00, 0.20, 0.80, 1.00};
+	double red[NRGBs]   = {0.50, 1.00, 1.00, 1.00};
+	double green[NRGBs] = {0.00, 0.00, 1.00, 1.00};
+	double blue[NRGBs]  = {0.00, 0.00, 0.00, 0.20};
+	TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);		
+      }
+      break;
+
+    case LOGREDBLUE:
+      {
+	double stops[NRGBs] = {0.0001, 0.0010, 0.0100, 0.1000,  1.0000};
+	double red[NRGBs]   = {1.00,   0.75,   0.50,   0.25,    0.00};
+	double green[NRGBs] = {0.00,   0.00,   0.00,   0.00,    0.00};
+	double blue[NRGBs]  = {0.00,   0.25,   0.50,   0.75,    1.00};
+	TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);		
+      }
+      break;
+      
+    case LOGBLUERED:
+      {
+	double stops[NRGBs] = {0.0001, 0.0010, 0.0100, 0.1000,  1.0000};
+	double red[NRGBs]   = {0.00,   0.25,   0.50,   0.75,    1.00};
+	double green[NRGBs] = {0.00,   0.00,   0.00,   0.00,    0.00};
+	double blue[NRGBs]  = {1.00,   0.75,   0.50,   0.25,    0.00};
+	TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);			
+      } 
+      break;
+    
+    case DEFAULT:
+      {
+	double stops[NRGBs] = {0.00, 0.34, 0.61, 0.84, 1.00};
+	double red[NRGBs]   = {0.00, 0.00, 0.87, 1.00, 0.51};
+	double green[NRGBs] = {0.00, 0.81, 1.00, 0.20, 0.00};
+	double blue[NRGBs]  = {0.51, 1.00, 0.12, 0.00, 0.00};
+	TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);	
+      }
+      break;
+    default:
+      std::cout<<"should nevere be here" << std::endl;
+      break;
+    }
+    
+    palettestyle->SetNumberContours(NCont);
+  }
 
 };
-
 #endif

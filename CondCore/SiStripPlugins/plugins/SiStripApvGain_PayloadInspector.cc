@@ -28,6 +28,7 @@
 #include <iostream>
 
 // include ROOT 
+#include "TProfile.h"
 #include "TH2F.h"
 #include "TLegend.h"
 #include "TCanvas.h"
@@ -161,7 +162,7 @@ namespace {
               SiStripApvGain::Range range = payload->getRange(d);
               for (int it=0;it<range.second-range.first;it++){
                   float gain = payload->getApvGain(it, range);
-                  fillWithValue(static_cast<float>((subid == 5) ? tTopo.tobLayer(d)+4 : tTopo.tibLayer(d)),
+                  fillWithValue(static_cast<float>((subid == 5) ? tTopo.tobLayer(d)+3 : tTopo.tibLayer(d)-1),
                                 (gain > 2.0)?2.0:gain);
               }
             }//loop over detIds
@@ -338,7 +339,7 @@ namespace {
             SiStripApvGain::Range range = payload->getRange(d);
             for (int it=0;it<range.second-range.first;it++){
               float gain = payload->getApvGain(it, range);
-              fillWithValue((float) disk, (gain>2.0)?2.0:gain);
+              fillWithValue((float) disk-1, (gain>2.0)?2.0:gain);
             }// apvs
           }// detids
         }
@@ -385,7 +386,7 @@ namespace {
             SiStripApvGain::Range range = payload->getRange(d);
             for (int it=0;it<range.second-range.first;it++){
               float gain = payload->getApvGain(it, range);
-              fillWithValue((float) disk, (gain>2.0)?2.0:gain);
+              fillWithValue((float) disk-1, (gain>2.0)?2.0:gain);
             }//apvs
           }//detids
         }
@@ -1072,7 +1073,7 @@ namespace {
       std::vector<std::string> parts = {"TEC","TOB","TIB","TID"};
       
       for ( const auto &part : parts){
-	ratios[part]   = std::make_shared<TH1F>(Form("hRatio_%s",part.c_str()),Form("Gains ratio IOV: %s/ IOV: %s ;New Gain (%s) / Previous Gain (%s);Number of APV",lastIOVsince.c_str(),firstIOVsince.c_str(),lastIOVsince.c_str(),firstIOVsince.c_str()),100,0.,2.);
+	ratios[part]   = std::make_shared<TH1F>(Form("hRatio_%s",part.c_str()),Form("Gains ratio IOV: %s/ IOV: %s ;New Gain (%s) / Previous Gain (%s);Number of APV",lastIOVsince.c_str(),firstIOVsince.c_str(),lastIOVsince.c_str(),firstIOVsince.c_str()),200,0.,2.);
 	scatters[part] = std::make_shared<TH2F>(Form("hScatter_%s",part.c_str()),Form("new Gain (%s) vs previous Gain (%s);Previous Gain (%s);New Gain (%s)",lastIOVsince.c_str(),firstIOVsince.c_str(),firstIOVsince.c_str(),lastIOVsince.c_str()),100,0.5,1.8,100,0.5,1.8);
       }
       
@@ -1168,6 +1169,270 @@ namespace {
       return true;
 
     }
+  };
+
+  //*******************************************//
+  // Compare Gains from 2 IOVs, module by module
+  //******************************************//
+
+  class SiStripApvGainsByModuleComparator : public cond::payloadInspector::PlotImage<SiStripApvGain> {
+  public:
+    SiStripApvGainsByModuleComparator () : cond::payloadInspector::PlotImage<SiStripApvGain>( "Module by Module Comparison of SiStrip APV gains" ){
+      setSingleIov( false );
+    }
+    
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+
+      std::vector<std::tuple<cond::Time_t,cond::Hash> > sorted_iovs = iovs;
+       
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
+	  return std::get<0>(t1) < std::get<0>(t2);
+	});
+      
+      auto firstiov  = sorted_iovs.front();
+      auto lastiov   = sorted_iovs.back();
+      
+      std::shared_ptr<SiStripApvGain> last_payload  = fetchPayload( std::get<1>(lastiov) );
+      std::shared_ptr<SiStripApvGain> first_payload = fetchPayload( std::get<1>(firstiov) );
+      
+      std::string lastIOVsince  = std::to_string(std::get<0>(lastiov));
+      std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
+
+      std::vector<uint32_t> detid;
+      last_payload->getDetIds(detid);
+
+      std::map<uint32_t,float> lastmap,firstmap;
+
+      // loop on the last payload
+      for (const auto & d : detid) {
+	SiStripApvGain::Range range=last_payload->getRange(d);
+	float Gain=0;
+	float nAPV=0;
+	for( int it=0; it < range.second - range.first; ++it ) {
+	  nAPV+=1;
+	  Gain+=last_payload->getApvGain(it,range);
+	} // end loop on APVs
+	lastmap[d]=Gain/nAPV;
+      } // end loop on detids
+
+      detid.clear();
+      first_payload->getDetIds(detid);
+
+      // loop on the first payload
+      for (const auto & d : detid) {
+	SiStripApvGain::Range range=first_payload->getRange(d);
+	float Gain=0;
+	float nAPV=0;
+	for( int it=0; it < range.second - range.first; ++it ) {
+	  nAPV+=1;
+	  Gain+=first_payload->getApvGain(it,range);
+	} // end loop on APVs
+	firstmap[d]=Gain/nAPV;
+      }  // end loop on detids
+      
+      TCanvas canvas("Payload comparison","payload comparison",1400,1000); 
+      canvas.cd();
+      
+      auto h_ratio = std::make_shared<TH1F>("hRatioByModuleId",Form("Gains ratio IOV: %s/ IOV: %s ;DetId index;New Gain (%s) / Previous Gain (%s)",lastIOVsince.c_str(),firstIOVsince.c_str(),lastIOVsince.c_str(),firstIOVsince.c_str()),firstmap.size(),0.,firstmap.size());
+      
+      int binCounter=0;
+      for(const auto &item : firstmap ) {
+	binCounter++;
+	auto detid = item.first;
+	float fractional_change = (firstmap[detid]-lastmap[detid])/firstmap[detid];
+	h_ratio->SetBinContent(binCounter,fractional_change);
+      }
+
+      h_ratio->Draw();
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }
+  };
+
+  //*******************************************//
+  // Compare Gains from 2 IOVs, region by region
+  //******************************************//
+
+  class SiStripApvGainsByRegionComparator : public cond::payloadInspector::PlotImage<SiStripApvGain> {
+  public:
+    SiStripApvGainsByRegionComparator () : cond::payloadInspector::PlotImage<SiStripApvGain>( "Module by Module Comparison of SiStrip APV gains" ),
+      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
+    {
+      setSingleIov( false );
+    }
+    
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+
+      //gStyle->SetPalette(5);
+      SiStripPI::setPaletteStyle(SiStripPI::GRAY);
+
+      std::vector<std::tuple<cond::Time_t,cond::Hash> > sorted_iovs = iovs;
+       
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
+	  return std::get<0>(t1) < std::get<0>(t2);
+	});
+      
+      auto firstiov  = sorted_iovs.front();
+      auto lastiov   = sorted_iovs.back();
+      
+      std::shared_ptr<SiStripApvGain> last_payload  = fetchPayload( std::get<1>(lastiov) );
+      std::shared_ptr<SiStripApvGain> first_payload = fetchPayload( std::get<1>(firstiov) );
+      
+      std::string lastIOVsince  = std::to_string(std::get<0>(lastiov));
+      std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
+
+      std::vector<uint32_t> detid;
+      last_payload->getDetIds(detid);
+
+      std::map<std::pair<uint32_t,int>,float> lastmap,firstmap;
+
+      // loop on the last payload
+      for (const auto & d : detid) {
+	SiStripApvGain::Range range=last_payload->getRange(d);
+	float Gain=0;
+	float nAPV=0;
+	for( int it=0; it < range.second - range.first; ++it ) {
+	  nAPV+=1;
+	  Gain=last_payload->getApvGain(it,range);
+	  std::pair<uint32_t,int> index = std::make_pair(d,nAPV);
+	  lastmap[index]=Gain;
+	} // end loop on APVs
+      } // end loop on detids
+
+      detid.clear();
+      first_payload->getDetIds(detid);
+
+      // loop on the first payload
+      for (const auto & d : detid) {
+	SiStripApvGain::Range range=first_payload->getRange(d);
+	float Gain=0;
+	float nAPV=0;
+	for( int it=0; it < range.second - range.first; ++it ) {
+	  nAPV+=1;
+	  Gain=first_payload->getApvGain(it,range);
+	  std::pair<uint32_t,int> index = std::make_pair(d,nAPV);
+	  firstmap[index]=Gain;
+	} // end loop on APVs
+      }  // end loop on detids
+      
+      TCanvas canvas("Payload comparison by Tracker Region","payload comparison by Tracker Region",1800,800); 
+      canvas.Divide(2,1);
+      
+      auto h2first = std::unique_ptr<TH2F>(new TH2F("byPartition1","SiStrip APV Gain average by partition;; average SiStrip Gain",38,1.,39.,100.,0.,2.));
+      auto h2last  = std::unique_ptr<TH2F>(new TH2F("byPartition2","SiStrip APV Gain average by partition;; average SiStrip Gain",38,1.,39.,100.,0.,2.));
+
+      auto h2ratio  = std::unique_ptr<TH2F>(new TH2F("byPartitionRatio",
+						     Form("SiStrip APV Gains ratio by partition;; Gains ratio IOV: %s/ IOV %s",lastIOVsince.c_str(),firstIOVsince.c_str())
+						     ,38,1.,39.,100.,0.5,1.5));
+      
+      h2first->SetStats(false);
+      h2last->SetStats(false);
+      h2ratio->SetStats(false);
+
+      canvas.cd(1)->SetBottomMargin(0.18);
+      canvas.cd(1)->SetLeftMargin(0.12);
+      canvas.cd(1)->SetRightMargin(0.08);
+      canvas.Modified();
+
+      std::vector<int> boundaries;
+      std::string detector;
+      std::string currentDetector;
+
+      for (const auto &element : lastmap){
+	auto region = getTheRegion(element.first.first);
+      	h2last->Fill(SiStripPI::binToEnumMap[region],element.second);
+	h2last->GetXaxis()->SetBinLabel(SiStripPI::binToEnumMap[region],SiStripPI::regionType(region));
+	h2ratio->Fill(SiStripPI::binToEnumMap[region],element.second/firstmap[element.first]);
+	h2ratio->GetXaxis()->SetBinLabel(SiStripPI::binToEnumMap[region],SiStripPI::regionType(region));
+      }
+
+      for (const auto &element : firstmap){
+	auto region = getTheRegion(element.first.first);
+	h2first->Fill(SiStripPI::binToEnumMap[region],element.second);
+	h2first->GetXaxis()->SetBinLabel(SiStripPI::binToEnumMap[region],SiStripPI::regionType(region));
+      }
+      
+      h2first->GetXaxis()->LabelsOption("v");
+      h2last->GetXaxis()->LabelsOption("v");
+      h2ratio->GetXaxis()->LabelsOption("v");
+
+      h2last->SetLineColor(kBlue);
+      h2first->SetLineColor(kRed);
+      h2first->SetFillColor(kRed);
+
+      canvas.cd(1);
+      h2first->Draw("BOX");
+      h2last->Draw("BOXsame");
+      
+      TLegend legend = TLegend(0.70,0.8,0.95,0.9);
+      legend.SetHeader("Gain Comparison","C"); // option "C" allows to center the header
+      legend.AddEntry(h2first.get(),("IOV: "+std::to_string(std::get<0>(firstiov))).c_str(),"PL");
+      legend.AddEntry(h2last.get() ,("IOV: "+std::to_string(std::get<0>(lastiov))).c_str(),"PL");
+      legend.Draw("same");
+
+      canvas.cd(2);
+      canvas.cd(2)->SetBottomMargin(0.18);
+      canvas.cd(2)->SetLeftMargin(0.12);
+      canvas.cd(2)->SetRightMargin(0.14);
+
+      h2ratio->Draw("COLZ");
+      TProfile *hpfx_tmp = (TProfile*) h2ratio->ProfileX("_pfx",1,-1,"o");
+      hpfx_tmp->SetStats(kFALSE);
+      hpfx_tmp->SetMarkerColor(kRed);
+      hpfx_tmp->SetLineColor(kRed);
+      hpfx_tmp->SetMarkerSize(1.2); 
+      hpfx_tmp->SetMarkerStyle(20); 
+      hpfx_tmp->Draw("same");
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      delete hpfx_tmp;
+      return true;
+    }
+  private:
+    TrackerTopology m_trackerTopo;
+
+    SiStripPI::TrackerRegion getTheRegion(DetId detid){
+      
+      int layer = 0;
+      int stereo = 0;
+      int detNum = 0;
+
+      switch (detid.subdetId()) {
+      case StripSubdetector::TIB:
+	layer = m_trackerTopo.tibLayer(detid);
+	stereo = m_trackerTopo.tibStereo(detid);
+	detNum = 1000;
+	break;
+      case StripSubdetector::TOB:
+	layer = m_trackerTopo.tobLayer(detid);
+	stereo = m_trackerTopo.tobStereo(detid);
+	detNum = 2000;
+	break;
+      case StripSubdetector::TEC:
+	// is this module in TEC+ or TEC-?
+	layer = m_trackerTopo.tecWheel(detid);
+	stereo = m_trackerTopo.tecStereo(detid);
+	detNum = 3000;
+	break;
+      case StripSubdetector::TID:
+	// is this module in TID+ or TID-?
+	layer = m_trackerTopo.tidWheel(detid);
+	stereo = m_trackerTopo.tidStereo(detid);
+	detNum = 4000;
+	break;
+      }
+
+      detNum += layer*10 + stereo;
+      return static_cast<SiStripPI::TrackerRegion>(detNum);
+    }
+
   };
 
   /************************************************
@@ -1454,7 +1719,9 @@ PAYLOAD_INSPECTOR_MODULE(SiStripApvGain){
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsTest);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsByPartition);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsComparator);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsByModuleComparator);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsComparatorByPartition);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsByRegionComparator);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvBarrelGainsByLayer);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvAbsoluteBarrelGainsByLayer);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvEndcapMinusGainsByDisk);
