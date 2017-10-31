@@ -161,8 +161,54 @@ void
 BTagProbabilityToDiscriminator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
-  edm::ParameterSetDescription desc;
-  desc.setUnknown();
+	edm::ParameterSetDescription desc;
+  {
+		edm::ParameterSetDescription vpsd1;
+    vpsd1.add<std::vector<edm::InputTag>>("denominator", {});
+    vpsd1.add<std::vector<edm::InputTag>>("numerator", {
+				edm::InputTag("pfDeepCSVJetTags","probb"),
+					edm::InputTag("pfDeepCSVJetTags","probbb"),
+					});
+    vpsd1.add<std::string>("name", "BvsAll");
+		std::vector<edm::ParameterSet> temp1;
+    temp1.reserve(3);
+    {
+			edm::ParameterSet temp2;
+      temp2.addParameter<std::vector<edm::InputTag>>("denominator", {});
+      temp2.addParameter<std::vector<edm::InputTag>>("numerator", {
+					edm::InputTag("pfDeepCSVJetTags","probb"),
+						edm::InputTag("pfDeepCSVJetTags","probbb"),
+						});
+      temp2.addParameter<std::string>("name", "BvsAll");
+      temp1.push_back(temp2);
+    }
+    {
+			edm::ParameterSet temp2;
+      temp2.addParameter<std::vector<edm::InputTag>>("denominator", {
+					edm::InputTag("pfDeepCSVJetTags","probc"),
+						edm::InputTag("pfDeepCSVJetTags","probb"),
+						edm::InputTag("pfDeepCSVJetTags","probbb"),
+						});
+      temp2.addParameter<std::vector<edm::InputTag>>("numerator", {
+					edm::InputTag("pfDeepCSVJetTags","probc"),
+						});
+      temp2.addParameter<std::string>("name", "CvsB");
+      temp1.push_back(temp2);
+    }
+    {
+			edm::ParameterSet temp2;
+      temp2.addParameter<std::vector<edm::InputTag>>("denominator", {
+					edm::InputTag("pfDeepCSVJetTags","probudsg"),
+						edm::InputTag("pfDeepCSVJetTags","probc"),
+						});
+      temp2.addParameter<std::vector<edm::InputTag>>("numerator", {
+					edm::InputTag("pfDeepCSVJetTags","probc"),
+						});
+      temp2.addParameter<std::string>("name", "CvsL");
+      temp1.push_back(temp2);
+    }
+    desc.addVPSet("discriminators", vpsd1, temp1);
+  }
   descriptions.addDefault(desc);
 }
 
