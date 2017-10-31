@@ -258,11 +258,28 @@ genJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 	#anything else?
     )
 )
+patJetPartons = cms.EDProducer('HadronAndPartonSelector',
+    src = cms.InputTag("generator"),
+    particles = cms.InputTag("prunedGenParticles"),
+    partonMode = cms.string("Auto"),
+    fullChainPhysPartons = cms.bool(True)
+)
+genJetFlavourAssociation = cms.EDProducer("JetFlavourClustering",
+    jets = genJetTable.src,
+    bHadrons = cms.InputTag("patJetPartons","bHadrons"),
+    cHadrons = cms.InputTag("patJetPartons","cHadrons"),
+    partons = cms.InputTag("patJetPartons","physicsPartons"),
+    leptons = cms.InputTag("patJetPartons","leptons"),
+    jetAlgorithm = cms.string("AntiKt"),
+    rParam = cms.double(0.4),
+    ghostRescaling = cms.double(1e-18),
+    hadronFlavourHasPriority = cms.bool(False)
+)
 genJetFlavourTable = cms.EDProducer("GenJetFlavourTableProducer",
     name = genJetTable.name,
     src = genJetTable.src,
     cut = genJetTable.cut,
-    jetFlavourInfos = cms.InputTag("slimmedGenJetsFlavourInfos"),
+    jetFlavourInfos = cms.InputTag("genJetFlavourAssociation"),
 )
 
 genJetAK8Table = cms.EDProducer("SimpleCandidateFlatTableProducer",
@@ -275,6 +292,23 @@ genJetAK8Table = cms.EDProducer("SimpleCandidateFlatTableProducer",
     variables = cms.PSet(P4Vars,
 	#anything else?
     )
+)
+genJetAK8FlavourAssociation = cms.EDProducer("JetFlavourClustering",
+    jets = genJetAK8Table.src,
+    bHadrons = cms.InputTag("patJetPartons","bHadrons"),
+    cHadrons = cms.InputTag("patJetPartons","cHadrons"),
+    partons = cms.InputTag("patJetPartons","physicsPartons"),
+    leptons = cms.InputTag("patJetPartons","leptons"),
+    jetAlgorithm = cms.string("AntiKt"),
+    rParam = cms.double(0.8),
+    ghostRescaling = cms.double(1e-18),
+    hadronFlavourHasPriority = cms.bool(False)
+)
+genJetAK8FlavourTable = cms.EDProducer("GenJetFlavourTableProducer",
+    name = genJetAK8Table.name,
+    src = genJetAK8Table.src,
+    cut = cms.string(""),
+    jetFlavourInfos = cms.InputTag("genJetAK8FlavourAssociation"),
 )
 genSubJetAK8Table = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("slimmedGenJetsAK8SoftDropSubJets"),
@@ -294,5 +328,5 @@ jetSequence = cms.Sequence(looseJetId+tightJetId+slimmedJetsWithUserData+jetCorr
 jetTables = cms.Sequence(bjetMVA+ jetTable+fatJetTable+subJetTable+saJetTable+saTable)
 
 #MC only producers and tables
-jetMC = cms.Sequence(jetMCTable+genJetTable+genJetFlavourTable+genJetAK8Table+genSubJetAK8Table)
+jetMC = cms.Sequence(jetMCTable+genJetTable+patJetPartons+genJetFlavourAssociation+genJetFlavourTable+genJetAK8Table+genJetAK8FlavourAssociation+genJetAK8FlavourTable+genSubJetAK8Table)
 
