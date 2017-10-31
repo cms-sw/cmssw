@@ -1,0 +1,11 @@
+<use name="cuda"/>
+<flags CXXFLAGS="-Wno-error=maybe-uninitialized"/>
+<flags CXXFLAGS="-Wno-error=sign-compare"/>
+<flags CXXFLAGS="-Wno-error=strict-aliasing"/>
+<flags CXXFLAGS="-Wno-error=switch"/>
+<flags CXXFLAGS="-Wno-error=unused-but-set-variable"/>
+<flags CXXFLAGS="-Wno-error=unused-variable"/>
+<flags CXXFLAGS="-Wno-error=write-strings"/>
+<flags NO_TESTRUN="1"/>
+
+<bin name="cudaApp" file="main.cc *.cu"/>
