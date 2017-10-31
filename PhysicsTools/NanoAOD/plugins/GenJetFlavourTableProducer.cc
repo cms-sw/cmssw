@@ -28,7 +28,7 @@ class GenJetFlavourTableProducer : public edm::global::EDProducer<> {
             cut_(iConfig.getParameter<std::string>("cut"), true),
             jetFlavourInfosToken_(consumes<reco::JetFlavourInfoMatchingCollection>(iConfig.getParameter<edm::InputTag>("jetFlavourInfos")))
         {
-            produces<FlatTable>();
+            produces<nanoaod::FlatTable>();
         }
 
         ~GenJetFlavourTableProducer() override {};
@@ -77,9 +77,9 @@ GenJetFlavourTableProducer::produce(edm::StreamID, edm::Event& iEvent, const edm
       }
     }
 
-    auto tab  = std::make_unique<FlatTable>(ncand, name_, false, true);
-    tab->addColumn<int>("partonFlavour", partonFlavour, "flavour from parton matching", FlatTable::IntColumn);
-    tab->addColumn<uint8_t>("hadronFlavour", hadronFlavour, "flavour from hadron ghost clustering", FlatTable::UInt8Column);
+    auto tab  = std::make_unique<nanoaod::FlatTable>(ncand, name_, false, true);
+    tab->addColumn<int>("partonFlavour", partonFlavour, "flavour from parton matching", nanoaod::FlatTable::IntColumn);
+    tab->addColumn<uint8_t>("hadronFlavour", hadronFlavour, "flavour from hadron ghost clustering", nanoaod::FlatTable::UInt8Column);
 
     iEvent.put(std::move(tab));
 }
