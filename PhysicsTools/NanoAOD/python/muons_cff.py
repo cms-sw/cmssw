@@ -2,6 +2,17 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
 from PhysicsTools.NanoAOD.common_cff import *
+import PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi
+
+# this below is used only in some eras
+slimmedMuonsUpdated = cms.EDProducer("PATMuonUpdater",
+    src = cms.InputTag("slimmedMuons"),
+    vertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
+    computeMiniIso = cms.bool(False),
+    pfCandsForMiniIso = cms.InputTag("packedPFCandidates"),
+    miniIsoParams = PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi.patMuons.miniIsoParams, # so they're in sync
+)
+run2_miniAOD_80XLegacy.toModify( slimmedMuonsUpdated, computeMiniIso = True )
 
 isoForMu = cms.EDProducer("MuonIsoValueMapProducer",
     src = cms.InputTag("slimmedMuons"),
@@ -9,12 +20,16 @@ isoForMu = cms.EDProducer("MuonIsoValueMapProducer",
     rho_MiniIso = cms.InputTag("fixedGridRhoFastjetAll"),
     EAFile_MiniIso = cms.FileInPath("PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_80X.txt"),
 )
+run2_miniAOD_80XLegacy.toModify(isoForMu, src = "slimmedMuonsUpdated")
+run2_nanoAOD_92X.toModify(isoForMu, src = "slimmedMuonsUpdated")
 
 ptRatioRelForMu = cms.EDProducer("MuonJetVarProducer",
     srcJet = cms.InputTag("slimmedJets"),
     srcLep = cms.InputTag("slimmedMuons"),
     srcVtx = cms.InputTag("offlineSlimmedPrimaryVertices"),
 )
+run2_miniAOD_80XLegacy.toModify(ptRatioRelForMu, srcLep = "slimmedMuonsUpdated")
+run2_nanoAOD_92X.toModify(ptRatioRelForMu, srcLep = "slimmedMuonsUpdated")
 
 slimmedMuonsWithUserData = cms.EDProducer("PATMuonUserDataEmbedder",
      src = cms.InputTag("slimmedMuons"),
@@ -29,18 +44,13 @@ slimmedMuonsWithUserData = cms.EDProducer("PATMuonUserDataEmbedder",
         jetForLepJetVar = cms.InputTag("ptRatioRelForMu:jetForLepJetVar") # warning: Ptr is null if no match is found
      ),
 )
-# this below is used only in some eras
-slimmedMuonsWithDZ = cms.EDProducer("PATMuonUpdater",
-    src = cms.InputTag("slimmedMuonsWithUserData"),
-    vertices = cms.InputTag("offlineSlimmedPrimaryVertices")
-)
+run2_miniAOD_80XLegacy.toModify(slimmedMuonsWithUserData, src = "slimmedMuonsUpdated")
+run2_nanoAOD_92X.toModify(slimmedMuonsWithUserData, src = "slimmedMuonsUpdated")
 
 finalMuons = cms.EDFilter("PATMuonRefSelector",
     src = cms.InputTag("slimmedMuonsWithUserData"),
     cut = cms.string("pt > 3 && track.isNonnull && isLooseMuon")
 )
-run2_miniAOD_80XLegacy.toModify(finalMuons, src = "slimmedMuonsWithDZ")
-run2_nanoAOD_92X.toModify(finalMuons, src = "slimmedMuonsWithDZ")
 
 muonMVATTH= cms.EDProducer("MuonBaseMVAValueMapProducer",
     src = cms.InputTag("linkedObjects","muons"),
@@ -127,7 +137,7 @@ muonSequence = cms.Sequence(isoForMu + ptRatioRelForMu + slimmedMuonsWithUserDat
 muonMC = cms.Sequence(muonsMCMatchForTable + muonMCTable)
 muonTables = cms.Sequence(muonMVATTH + muonTable + muonIDTable)
 
-_withDZ_sequence = muonSequence.copy()
-_withDZ_sequence.replace(finalMuons, slimmedMuonsWithDZ+finalMuons)
-run2_nanoAOD_92X.toReplaceWith(muonSequence, _withDZ_sequence)
-run2_miniAOD_80XLegacy.toReplaceWith(muonSequence, _withDZ_sequence)
+_withUpdate_sequence = muonSequence.copy()
+_withUpdate_sequence.replace(isoForMu, slimmedMuonsUpdated+isoForMu)
+run2_nanoAOD_92X.toReplaceWith(muonSequence, _withUpdate_sequence)
+run2_miniAOD_80XLegacy.toReplaceWith(muonSequence, _withUpdate_sequence)
