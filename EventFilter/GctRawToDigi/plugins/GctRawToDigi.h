@@ -46,13 +46,13 @@ class GctRawToDigi : public edm::stream::EDProducer<>
 public:
 
   explicit GctRawToDigi(const edm::ParameterSet&);
-  ~GctRawToDigi();
+  ~GctRawToDigi() override;
 
    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
  
 private: // methods
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
   /// Unpacks the raw data
   /*! \param invalidDataFlag - if true, then won't attempt unpack but just output empty collecions. */

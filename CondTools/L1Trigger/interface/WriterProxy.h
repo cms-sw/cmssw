@@ -46,10 +46,10 @@ template<class Record, class Type>
 class WriterProxyT : public WriterProxy
 {
     public:
-        virtual ~WriterProxyT() {}
+        ~WriterProxyT() override {}
 
         /* This method requires that Record and Type supports copy constructor */
-        virtual std::string save (const edm::EventSetup & setup) const
+        std::string save (const edm::EventSetup & setup) const override
         {
             // load record and type from EventSetup and save them in db
             edm::ESHandle<Type> handle;

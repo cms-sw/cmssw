@@ -26,7 +26,7 @@ const float EcalTimeMapDigitizer::MIN_ENERGY_THRESHOLD=5e-5; //50 KeV threshold 
 
 EcalTimeMapDigitizer::EcalTimeMapDigitizer(EcalSubdetector myDet):
   m_subDet(myDet),
-  m_geometry(0)
+  m_geometry(nullptr)
 {
 //    edm::Service<edm::RandomNumberGenerator> rng ;
 //    if ( !rng.isAvailable() ) 
@@ -264,7 +264,7 @@ EcalTimeMapDigitizer::timeOfFlight( const DetId& detId , int layer) const
 {
   //not using the layer yet
    const CaloCellGeometry* cellGeometry ( m_geometry->getGeometry( detId ) ) ;
-   assert( 0 != cellGeometry ) ;
+   assert( nullptr != cellGeometry ) ;
    GlobalPoint layerPos = (dynamic_cast<const TruncatedPyramid*>(cellGeometry))->getPosition( double(layer)+0.5 ); //depth in mm in the middle of the layer position
    return layerPos.mag()*cm/c_light ;
 }

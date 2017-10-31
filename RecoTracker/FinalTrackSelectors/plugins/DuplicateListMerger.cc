@@ -44,7 +44,7 @@ class DuplicateListMerger final : public edm::global::EDProducer<> {
   /// constructor
   explicit DuplicateListMerger(const edm::ParameterSet& iPara);
   /// destructor
-  virtual ~DuplicateListMerger();
+  ~DuplicateListMerger() override;
   
   /// alias for container of candidate and input tracks
   using CandidateToDuplicate = std::vector<std::pair<int, int>>;

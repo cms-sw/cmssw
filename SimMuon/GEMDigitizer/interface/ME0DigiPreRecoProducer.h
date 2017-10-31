@@ -20,11 +20,11 @@ public:
 
   explicit ME0DigiPreRecoProducer(const edm::ParameterSet& ps);
 
-  virtual ~ME0DigiPreRecoProducer();
+  ~ME0DigiPreRecoProducer() override;
 
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
 

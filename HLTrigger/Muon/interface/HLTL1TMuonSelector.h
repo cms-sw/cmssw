@@ -38,10 +38,10 @@ class HLTL1TMuonSelector : public edm::global::EDProducer<> {
   explicit HLTL1TMuonSelector(const edm::ParameterSet&);
 
   /// Destructor
-  ~HLTL1TMuonSelector();
+  ~HLTL1TMuonSelector() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   
  private:
 

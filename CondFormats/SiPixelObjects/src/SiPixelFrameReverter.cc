@@ -41,7 +41,7 @@ void SiPixelFrameReverter::buildStructure(const edm::EventSetup& iSetup)
 
   for(auto it = pDD->dets().begin(); it != pDD->dets().end(); it++){
     
-    if(dynamic_cast<PixelGeomDetUnit const *>((*it))!=0){
+    if(dynamic_cast<PixelGeomDetUnit const *>((*it))!=nullptr){
 
       DetId detId = (*it)->geographicalId();
       uint32_t id = detId();

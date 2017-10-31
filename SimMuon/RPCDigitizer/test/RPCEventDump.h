@@ -13,7 +13,7 @@
 class RPCEventDump : public edm::EDProducer {
  public:
   RPCEventDump(const edm::ParameterSet& config);
-  ~RPCEventDump(){}
+  ~RPCEventDump() override{}
   void produce(edm::Event& e, const edm::EventSetup& c) override;
 
  private:

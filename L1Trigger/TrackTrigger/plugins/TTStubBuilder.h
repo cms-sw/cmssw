@@ -47,7 +47,7 @@ class TTStubBuilder : public edm::EDProducer
     explicit TTStubBuilder( const edm::ParameterSet& iConfig );
 
     /// Destructor;
-    ~TTStubBuilder();
+    ~TTStubBuilder() override;
 
   private:
     /// Data members
@@ -56,9 +56,9 @@ class TTStubBuilder : public edm::EDProducer
     bool ForbidMultipleStubs;
 
     /// Mandatory methods
-    virtual void beginRun( const edm::Run& run, const edm::EventSetup& iSetup );
-    virtual void endRun( const edm::Run& run, const edm::EventSetup& iSetup );
-    virtual void produce( edm::Event& iEvent, const edm::EventSetup& iSetup );
+    void beginRun( const edm::Run& run, const edm::EventSetup& iSetup ) override;
+    void endRun( const edm::Run& run, const edm::EventSetup& iSetup ) override; 
+    void produce( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
 
     /// Sorting method for stubs
     /// NOTE: this must be static!

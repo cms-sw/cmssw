@@ -12,11 +12,11 @@ public:
                   double timePhase, bool syncPhase);
   HFSimParameters(const edm::ParameterSet & p);
 
-  virtual ~HFSimParameters() {}
+  ~HFSimParameters() override {}
 
   void setDbService(const HcalDbService * service) {theDbService = service;}
 
-  virtual double photoelectronsToAnalog(const DetId & detId) const;
+  double photoelectronsToAnalog(const DetId & detId) const override;
 
   double fCtoGeV(const DetId & detId) const;
 

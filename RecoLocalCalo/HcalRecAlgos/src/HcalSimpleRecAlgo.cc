@@ -64,7 +64,7 @@ void HcalSimpleRecAlgo::setpuCorrParams(bool   iPedestalConstraint, bool iTimeCo
 			       iTS4Min, iTS4Max, iPulseJitter,iTimeMean,iTimeSig,iTimeSigSiPM,iPedMean,iPedSig,iPedSigSiPM,iNoise,iNoiseSiPM,iTMin,iTMax,its4Chi2,
 			       HcalTimeSlew::Medium, iFitTimes);
 
-  psFitOOTpuCorr_->setChi2Term(1); // isHPD all the time
+  psFitOOTpuCorr_->setChi2Term(true); // isHPD all the time
 
 //  int shapeNum = HPDShapev3MCNum;
 //  psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(shapeNum));
@@ -180,7 +180,7 @@ namespace HcalSimpleRecAlgoImpl {
     // arrange the calculations so that we do not
     // repeat them.
     double uncorrectedEnergy[CaloSamples::MAXSAMPLES] {}, buf[CaloSamples::MAXSAMPLES] {};
-    double* correctedEnergy = 0;
+    double* correctedEnergy = nullptr;
     double fc_ampl = 0.0, corr_fc_ampl = 0.0;
     bool pulseShapeCorrApplied = false, readjustTiming = false;
     *leakCorrApplied = false;
@@ -327,7 +327,7 @@ namespace HcalSimpleRecAlgoImpl {
 
 // Disable method 1 inside the removePileup function this way!
 // Some code in removePileup does NOT do pileup correction & to make sure maximum share of code
-    const AbsOOTPileupCorrection * inputAbsOOTpuCorr = ( puCorrMethod == 1 ? pileupCorrection: 0 );
+    const AbsOOTPileupCorrection * inputAbsOOTpuCorr = ( puCorrMethod == 1 ? pileupCorrection: nullptr );
 
     removePileup(digi, coder, calibs, ifirst, n,
 		pulseCorrect, corr, inputAbsOOTpuCorr,
@@ -428,7 +428,7 @@ namespace HcalSimpleRecAlgoImpl {
     
     // Disable method 1 inside the removePileup function this way!
     // Some code in removePileup does NOT do pileup correction & to make sure maximum share of code
-    const AbsOOTPileupCorrection * inputAbsOOTpuCorr = ( puCorrMethod == 1 ? pileupCorrection: 0 );
+    const AbsOOTPileupCorrection * inputAbsOOTpuCorr = ( puCorrMethod == 1 ? pileupCorrection: nullptr );
     
     removePileup(digi, coder, calibs, ifirst, n,
 		 pulseCorrect, corr, inputAbsOOTpuCorr,
@@ -543,7 +543,7 @@ HcalCalibRecHit HcalSimpleRecAlgo::reconstruct(const HcalCalibDataFrame& digi, i
 									 first,toadd,correctForTimeslew_,correctForPulse_,
 									 pulseCorr_->get(digi.id(), toadd, phaseNS_),
 									 HcalTimeSlew::Fast,
-                                                                         runnum_, false, 0,
+                                                                         runnum_, false, nullptr,
                                                                          bunchCrossingInfo_, lenBunchCrossingInfo_, puCorrMethod_, psFitOOTpuCorr_.get(),/*hlt*/hltOOTpuCorr_.get(),pedSubFxn_.get());
 }
 

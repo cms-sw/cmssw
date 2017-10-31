@@ -16,7 +16,7 @@ namespace ecaldqm
 {
   TrigPrimTask::TrigPrimTask() :
     DQWorkerTask(),
-    realTps_(0),
+    realTps_(nullptr),
     runOnEmul_(false),
     //     HLTCaloPath_(""),
     //     HLTMuonPath_(""),
@@ -71,7 +71,7 @@ namespace ecaldqm
 
     towerReadouts_.clear();
 
-    realTps_ = 0;
+    realTps_ = nullptr;
 
     //     HLTCaloBit_ = false;
     //     HLTMuonBit_ = false;
@@ -347,7 +347,7 @@ namespace ecaldqm
                 }
               } // Et match found
             } // iDigi
-            if(!matchedIndex.size()) matchedIndex.push_back(0); // no Et match found => no emul
+            if(matchedIndex.empty()) matchedIndex.push_back(0); // no Et match found => no emul
                         
             // Fill Real vs Emulated TP Et
             meRealvEmulEt.fill( ttid,realEt,(*tpItr)[2].compressedEt() ); // iDigi=2:in-time BX

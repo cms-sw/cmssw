@@ -31,7 +31,7 @@ void LightRay::startLightRay( OpticalObject* opto )
 
   //---------- Get Z axis of opto
   CLHEP::Hep3Vector ZAxis(0.,0.,1.);
-  CLHEP::HepRotation rmt = opto->rmGlob();
+  const CLHEP::HepRotation& rmt = opto->rmGlob();
   ZAxis = rmt * ZAxis;
 
   //---------- By convention, direction of LightRay = opto_ZAxis
@@ -88,7 +88,7 @@ void LightRay::intersect( const OpticalObject& opto )
 {
   if(ALIUtils::debug >= 3) std::cout << "% LR INTERSECT WITH OPTO" << std::endl;
   CLHEP::Hep3Vector ZAxis(0.,0.,1.);
-  CLHEP::HepRotation rmt = opto.rmGlob();
+  const CLHEP::HepRotation& rmt = opto.rmGlob();
   ZAxis = rmt*ZAxis;
   ALIPlane optoPlane(opto.centreGlob(), ZAxis);
   intersect( optoPlane );
@@ -277,7 +277,7 @@ void LightRay::shiftAndDeviateWhileTraversing( const OpticalObject* opto, ALIdou
   CLHEP::Hep3Vector XAxis(1.,0.,0.);
   CLHEP::Hep3Vector YAxis(0.,1.,0.);
   CLHEP::Hep3Vector ZAxis(0.,0.,1.);
-  CLHEP::HepRotation rmt = opto->rmGlob();
+  const CLHEP::HepRotation& rmt = opto->rmGlob();
   XAxis = rmt*XAxis;
   YAxis = rmt*YAxis;
   ZAxis = rmt*ZAxis;

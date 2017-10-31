@@ -76,7 +76,7 @@ class TriggerMatcherToHLTDebug: public edm::EDProducer {
         explicit TriggerMatcherToHLTDebug(const edm::ParameterSet &pset);
 
         /// Destructor
-        virtual ~TriggerMatcherToHLTDebug();
+        ~TriggerMatcherToHLTDebug() override;
 
         // Operations
         void produce(edm::Event & event, const edm::EventSetup& eventSetup) override;

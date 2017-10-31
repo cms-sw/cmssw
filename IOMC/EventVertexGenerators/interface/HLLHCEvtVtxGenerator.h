@@ -29,21 +29,21 @@ public:
 
     HLLHCEvtVtxGenerator(const edm::ParameterSet & p);
 
-    virtual ~HLLHCEvtVtxGenerator();
+    ~HLLHCEvtVtxGenerator() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
     /// return a new event vertex
-    virtual HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override;
+    HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override;
 
-    virtual TMatrixD const* GetInvLorentzBoost() const override {return 0;};
+    TMatrixD const* GetInvLorentzBoost() const override {return nullptr;};
    
 private:
     /** Copy constructor */
-    HLLHCEvtVtxGenerator(const HLLHCEvtVtxGenerator &p);
+    HLLHCEvtVtxGenerator(const HLLHCEvtVtxGenerator &p) = delete;
 
     /** Copy assignment operator */
-    HLLHCEvtVtxGenerator&  operator = (const HLLHCEvtVtxGenerator & rhs );
+    HLLHCEvtVtxGenerator&  operator = (const HLLHCEvtVtxGenerator & rhs ) = delete;
     
     //spatial and time offset for mean collision
     const double fMeanX, fMeanY, fMeanZ, fTimeOffset;

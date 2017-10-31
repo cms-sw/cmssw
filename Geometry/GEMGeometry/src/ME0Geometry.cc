@@ -15,7 +15,7 @@ const ME0Geometry::DetTypeContainer&  ME0Geometry::detTypes() const{
 }
 
 
-const ME0Geometry::DetUnitContainer& ME0Geometry::detUnits() const{
+const ME0Geometry::DetContainer& ME0Geometry::detUnits() const{
   return theEtaPartitions;
 }
 
@@ -35,8 +35,8 @@ const ME0Geometry::DetIdContainer& ME0Geometry::detIds() const{
 }
 
 
-const GeomDetUnit* ME0Geometry::idToDetUnit(DetId id) const{
-  return dynamic_cast<const GeomDetUnit*>(idToDet(id));
+const GeomDet* ME0Geometry::idToDetUnit(DetId id) const{
+  return dynamic_cast<const GeomDet*>(idToDet(id));
 }
 
 const GeomDet* ME0Geometry::idToDet(DetId id) const{
@@ -83,7 +83,7 @@ ME0Geometry::add(ME0EtaPartition* etaPartition){
   theDets.emplace_back(etaPartition);
   theDetIds.emplace_back(etaPartition->geographicalId());
   theEtaPartitionTypes.emplace_back(&etaPartition->type());
-  theMap.insert(std::pair<DetId,GeomDetUnit*>
+  theMap.insert(std::pair<DetId,GeomDet*>
 		(etaPartition->geographicalId(),etaPartition));
 }
 
@@ -96,7 +96,7 @@ ME0Geometry::add(ME0Layer* layer){
   theDets.emplace_back(layer);
   theDetIds.emplace_back(layer->geographicalId());
   theEtaPartitionTypes.emplace_back(&layer->type());
-  theMap.insert(std::pair<DetId,GeomDetUnit*>
+  theMap.insert(std::pair<DetId,GeomDet*>
 		(layer->geographicalId(),layer));
 }
 

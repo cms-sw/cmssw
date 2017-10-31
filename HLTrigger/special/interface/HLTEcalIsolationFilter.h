@@ -12,8 +12,8 @@ class HLTEcalIsolationFilter : public HLTFilter {
 
    public:
       explicit HLTEcalIsolationFilter(const edm::ParameterSet&);
-      ~HLTEcalIsolationFilter();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      ~HLTEcalIsolationFilter() override;
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:

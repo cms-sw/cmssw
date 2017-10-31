@@ -292,7 +292,7 @@ namespace edm
 
      Handle< ZDCDigiCollection > pZDCDigis;
 
-     const ZDCDigiCollection*  ZDCDigis = 0;
+     const ZDCDigiCollection*  ZDCDigis = nullptr;
 
      if( e.getByToken( ZDCDigiToken_, pZDCDigis) ) {
        ZDCDigis = pZDCDigis.product(); // get a ptr to the product

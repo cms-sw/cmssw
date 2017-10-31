@@ -50,14 +50,14 @@ public:
         produces< TagInfosCollection >();
   }
 
-  virtual ~JetDeltaRTagInfoValueMapProducer() {}
+  ~JetDeltaRTagInfoValueMapProducer() override {}
 
 private:
 
-  virtual void beginJob() override {}
-  virtual void endJob() override {}
+  void beginJob() override {}
+  void endJob() override {}
 
-  virtual void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override {
+  void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override {
 
     std::unique_ptr< TagInfosCollection > mappedTagInfos ( new TagInfosCollection() );
 

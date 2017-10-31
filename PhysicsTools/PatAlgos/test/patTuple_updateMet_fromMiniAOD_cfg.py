@@ -36,6 +36,8 @@ from Configuration.EventContent.EventContent_cff import MINIAODSIMEventContent
 process.out.outputCommands = MINIAODSIMEventContent.outputCommands
 process.out.outputCommands.append("keep *_slimmedMETs_*_*")
 process.out.outputCommands.append("keep *_patPFMet_*_*")
+process.out.outputCommands.append("keep *_patCHSMet_*_*")
+process.out.outputCommands.append("keep *_patTrkMet_*_*")
 process.out.outputCommands.append("keep *_patPFMetT1_*_*")
 process.out.outputCommands.append("keep *_patPFMetT1JetResDown_*_*")
 process.out.outputCommands.append("keep *_patPFMetT1JetResUp_*_*")

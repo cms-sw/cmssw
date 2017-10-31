@@ -21,13 +21,13 @@ CastorSimParameters(const edm::ParameterSet & p);
  CastorSimParameters(const edm::ParameterSet & p);
   */
 
-virtual ~CastorSimParameters() {}
+~CastorSimParameters() override {}
 
 void setDbService(const CastorDbService * service) {theDbService = service;}
 
 //virtual double simHitToPhotoelectrons(const DetId & detId) const;
 
-virtual double photoelectronsToAnalog(const DetId & detId) const;
+double photoelectronsToAnalog(const DetId & detId) const override;
 
 double fCtoGeV(const DetId & detId) const;
 

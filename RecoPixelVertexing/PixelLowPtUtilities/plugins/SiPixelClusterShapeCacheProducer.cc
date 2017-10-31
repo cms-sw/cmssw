@@ -26,11 +26,11 @@
 class SiPixelClusterShapeCacheProducer: public edm::global::EDProducer<> {
 public:
   explicit SiPixelClusterShapeCacheProducer(const edm::ParameterSet& iConfig);
-  ~SiPixelClusterShapeCacheProducer();
+  ~SiPixelClusterShapeCacheProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const;
+  void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
 private:
   using InputCollection = edmNew::DetSetVector<SiPixelCluster>;

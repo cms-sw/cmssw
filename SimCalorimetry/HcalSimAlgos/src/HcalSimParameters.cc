@@ -18,8 +18,8 @@ HcalSimParameters::HcalSimParameters(double simHitToPhotoelectrons,
 				     )
 : CaloSimParameters(simHitToPhotoelectrons,  0.0, samplingFactor, timePhase,
                     readoutFrameSize, binOfMaximum, doPhotostatistics, syncPhase),
-  theDbService(0),
-  theSiPMcharacteristics(0),
+  theDbService(nullptr),
+  theSiPMcharacteristics(nullptr),
   theFirstRing(firstRing),
   theSamplingFactors(samplingFactors),
   theSiPMSmearing(false),
@@ -33,7 +33,7 @@ HcalSimParameters::HcalSimParameters(double simHitToPhotoelectrons,
 
 HcalSimParameters::HcalSimParameters(const edm::ParameterSet & p)
 :  CaloSimParameters(p,true),
-   theDbService(0),
+   theDbService(nullptr),
    theFirstRing( p.getParameter<int>("firstRing") ),
    theSamplingFactors( p.getParameter<std::vector<double> >("samplingFactors") ),
    theSiPMSmearing( p.getParameter<bool>("doSiPMSmearing") ),
@@ -69,7 +69,7 @@ double HcalSimParameters::simHitToPhotoelectrons(const DetId & detId) const
 
 double HcalSimParameters::fCtoGeV(const DetId & detId) const
 {
-  assert(theDbService != 0);
+  assert(theDbService != nullptr);
   HcalGenericDetId hcalGenDetId(detId);
   const HcalGain* gains = theDbService->getGain(hcalGenDetId);
   const HcalGainWidth* gwidths = theDbService->getGainWidth(hcalGenDetId);

@@ -14,7 +14,7 @@ from Modules import *
 from Modules import _Module
 from SequenceTypes import *
 from SequenceTypes import _ModuleSequenceType, _Sequenceable  #extend needs it
-from SequenceVisitors import PathValidator, EndPathValidator, ScheduleTaskValidator, NodeVisitor, CompositeVisitor
+from SequenceVisitors import PathValidator, EndPathValidator, ScheduleTaskValidator, NodeVisitor, CompositeVisitor, ModuleNamesFromGlobalsVisitor
 import DictTypes
 
 from ExceptionHandling import *
@@ -918,6 +918,7 @@ class Process(object):
                 else:
                     triggerPaths.append(pathname)
             for task in self.schedule_()._tasks:
+                task.resolve(self.__dict__)
                 scheduleTaskValidator = ScheduleTaskValidator()
                 task.visit(scheduleTaskValidator)
                 task.visit(nodeVisitor)
@@ -955,6 +956,9 @@ class Process(object):
             x.resolve(self.__dict__,keepUnresolvedSequencePlaceholders)
         for x in self.endpaths.itervalues():
             x.resolve(self.__dict__,keepUnresolvedSequencePlaceholders)
+        if not self.schedule_() == None:
+            for task in self.schedule_()._tasks:
+                task.resolve(self.__dict__,keepUnresolvedSequencePlaceholders)
 
     def prune(self,verbose=False,keepUnresolvedSequencePlaceholders=False):
         """ Remove clutter from the process that we think is unnecessary:
@@ -2630,6 +2634,165 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             self.assert_(hasattr(p, 's'))
             self.assert_(hasattr(p, 'pth'))
             self.assertEqual(p.s.dumpPython(''),'cms.Sequence(cms.SequencePlaceholder("a")+process.b)\n')
+        def testTaskPlaceholder(self):
+            p = Process("test")
+            p.a = EDProducer("ma")
+            p.b = EDAnalyzer("mb")
+            p.t1 = Task(TaskPlaceholder("c"))
+            p.t2 = Task(p.a, TaskPlaceholder("d"), p.t1)
+            p.t3 = Task(TaskPlaceholder("e"))
+            p.path1 = Path(p.b, p.t2, p.t3)
+            p.t5 = Task(p.a, TaskPlaceholder("g"), TaskPlaceholder("t4"))
+            p.t4 = Task(TaskPlaceholder("f"))
+            p.endpath1 = EndPath(p.b, p.t5)
+            p.t6 = Task(TaskPlaceholder("h"))
+            p.t7 = Task(p.a, TaskPlaceholder("i"), p.t6)
+            p.t8 = Task(TaskPlaceholder("j"))
+            p.schedule = Schedule(p.path1, p.endpath1,tasks=[p.t7,p.t8])
+            p.c = EDProducer("mc")
+            p.d = EDProducer("md")
+            p.e = EDProducer("me")
+            p.f = EDProducer("mf")
+            p.g = EDProducer("mg")
+            p.h = EDProducer("mh")
+            p.i = EDProducer("mi")
+            p.j = EDProducer("mj")
+            self.assertEqual(p.dumpPython(),
+"""import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("test")
+
+process.a = cms.EDProducer("ma")
+
+
+process.c = cms.EDProducer("mc")
+
+
+process.d = cms.EDProducer("md")
+
+
+process.e = cms.EDProducer("me")
+
+
+process.f = cms.EDProducer("mf")
+
+
+process.g = cms.EDProducer("mg")
+
+
+process.h = cms.EDProducer("mh")
+
+
+process.i = cms.EDProducer("mi")
+
+
+process.j = cms.EDProducer("mj")
+
+
+process.b = cms.EDAnalyzer("mb")
+
+
+process.t8 = cms.Task(cms.TaskPlaceholder("j"))
+
+
+process.t6 = cms.Task(cms.TaskPlaceholder("h"))
+
+
+process.t7 = cms.Task(cms.TaskPlaceholder("i"), process.a, process.t6)
+
+
+process.t4 = cms.Task(cms.TaskPlaceholder("f"))
+
+
+process.t5 = cms.Task(cms.TaskPlaceholder("g"), cms.TaskPlaceholder("t4"), process.a)
+
+
+process.t3 = cms.Task(cms.TaskPlaceholder("e"))
+
+
+process.t1 = cms.Task(cms.TaskPlaceholder("c"))
+
+
+process.t2 = cms.Task(cms.TaskPlaceholder("d"), process.a, process.t1)
+
+
+process.path1 = cms.Path(process.b, process.t2, process.t3)
+
+
+process.endpath1 = cms.EndPath(process.b, process.t5)
+
+
+process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[process.t7, process.t8])
+""")
+            p.resolve()
+            self.assertEqual(p.dumpPython(),
+"""import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("test")
+
+process.a = cms.EDProducer("ma")
+
+
+process.c = cms.EDProducer("mc")
+
+
+process.d = cms.EDProducer("md")
+
+
+process.e = cms.EDProducer("me")
+
+
+process.f = cms.EDProducer("mf")
+
+
+process.g = cms.EDProducer("mg")
+
+
+process.h = cms.EDProducer("mh")
+
+
+process.i = cms.EDProducer("mi")
+
+
+process.j = cms.EDProducer("mj")
+
+
+process.b = cms.EDAnalyzer("mb")
+
+
+process.t8 = cms.Task(process.j)
+
+
+process.t6 = cms.Task(process.h)
+
+
+process.t7 = cms.Task(process.a, process.i, process.t6)
+
+
+process.t4 = cms.Task(process.f)
+
+
+process.t5 = cms.Task(process.a, process.g, process.t4)
+
+
+process.t3 = cms.Task(process.e)
+
+
+process.t1 = cms.Task(process.c)
+
+
+process.t2 = cms.Task(process.a, process.d, process.t1)
+
+
+process.path1 = cms.Path(process.b, process.t2, process.t3)
+
+
+process.endpath1 = cms.EndPath(process.b, process.t5)
+
+
+process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[process.t7, process.t8])
+""")
+
         def testDelete(self):
             p = Process("test")
             p.a = EDAnalyzer("MyAnalyzer")

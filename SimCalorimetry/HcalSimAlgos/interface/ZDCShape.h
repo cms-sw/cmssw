@@ -20,10 +20,10 @@ public:
   ZDCShape();
   ZDCShape(const ZDCShape&d);
 
-  virtual ~ZDCShape(){}
+  ~ZDCShape() override{}
   
-  virtual double operator () (double time) const;
-  virtual double       timeToRise()         const  ;
+  double operator () (double time) const override;
+  double       timeToRise()         const override  ;
 
 
  private:

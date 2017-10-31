@@ -56,11 +56,11 @@ public:
 
   explicit ME0ReDigiProducer(const edm::ParameterSet& ps);
 
-  virtual ~ME0ReDigiProducer();
+  ~ME0ReDigiProducer() override;
 
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 
   void buildDigis(const ME0DigiPreRecoCollection &,

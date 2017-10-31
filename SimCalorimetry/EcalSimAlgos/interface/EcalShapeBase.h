@@ -17,13 +17,13 @@ class EcalShapeBase : public CaloVShape
   
       EcalShapeBase( bool   aSaveDerivative ) ;
 
-      virtual ~EcalShapeBase() ;
+      ~EcalShapeBase() override ;
 
-      double operator() ( double aTime ) const ;
+      double operator() ( double aTime ) const override ;
 
       double         timeOfThr()  const ;
       double         timeOfMax()  const ;
-      virtual double timeToRise() const ;
+      double timeToRise() const override ;
 
       virtual double threshold()             const = 0 ;
   

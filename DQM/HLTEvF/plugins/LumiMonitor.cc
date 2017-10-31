@@ -13,6 +13,7 @@ LumiMonitor::LumiMonitor( const edm::ParameterSet& iConfig ) :
   folderName_             ( iConfig.getParameter<std::string>("FolderName") )
   , lumiScalersToken_     ( consumes<LumiScalersCollection>(iConfig.getParameter<edm::InputTag>("scalers") ) ) 
   , lumi_binning_         ( getHistoPSet  (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("lumiPSet"))         )
+  , pu_binning_           ( getHistoPSet  (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("puPSet"))           )
   , ls_binning_           ( getHistoLSPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("lsPSet"))           )
   , doPixelLumi_          ( iConfig.getParameter<bool>("doPixelLumi") )
   , pixelClustersToken_           ( doPixelLumi_ ? consumes<edmNew::DetSetVector<SiPixelCluster> >(iConfig.getParameter<edm::InputTag>("pixelClusters") ) : edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> () )
@@ -26,6 +27,7 @@ LumiMonitor::LumiMonitor( const edm::ParameterSet& iConfig ) :
   numberOfPixelClustersVsLS_   = nullptr;
   numberOfPixelClustersVsLumi_ = nullptr;
   lumiVsLS_                    = nullptr;
+  puVsLS_                      = nullptr;
   pixelLumiVsLS_               = nullptr;
   pixelLumiVsLumi_             = nullptr;
 
@@ -49,8 +51,8 @@ MEbinning LumiMonitor::getHistoLSPSet(edm::ParameterSet pset)
 {
   return MEbinning{
     pset.getParameter<int32_t>("nbins"),
-      0.,
-      double(pset.getParameter<int32_t>("nbins"))
+      -0.5,
+      double(pset.getParameter<int32_t>("nbins")-0.5)
       };
 }
 
@@ -62,7 +64,7 @@ void LumiMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   std::string histname, histtitle;
 
   std::string currentFolder = folderName_ ;
-  ibooker.setCurrentFolder(currentFolder.c_str());
+  ibooker.setCurrentFolder(currentFolder);
 
   if ( doPixelLumi_ ) {
     histname = "numberOfPixelClustersVsLS"; histtitle = "number of pixel clusters vs LS";
@@ -103,6 +105,14 @@ void LumiMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   lumiVsLS_->setAxisTitle("LS",1);
   lumiVsLS_->setAxisTitle("scal inst lumi E30 [Hz cm^{-2}]",2);
 
+  histname = "puVsLS"; histtitle = "scal PU vs LS";
+  puVsLS_ = ibooker.bookProfile(histname, histtitle, 
+				  ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax,
+				  pu_binning_.xmin, pu_binning_.xmax);
+  //  puVsLS_->getTH1()->SetCanExtend(TH1::kAllAxes);
+  puVsLS_->setAxisTitle("LS",1);
+  puVsLS_->setAxisTitle("scal PU",2);
+
 }
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -115,15 +125,19 @@ void LumiMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   int ls = iEvent.id().luminosityBlock();
 
   float scal_lumi = -1.;
+  float scal_pu   = -1.;
   edm::Handle<LumiScalersCollection> lumiScalers;
   iEvent.getByToken(lumiScalersToken_, lumiScalers);
-  if ( lumiScalers.isValid() && lumiScalers->size() ) {
+  if ( lumiScalers.isValid() && !lumiScalers->empty() ) {
     LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
     scal_lumi = scalit->instantLumi();
+    scal_pu   = scalit->pileup();
   } else {
     scal_lumi = -1.;
+    scal_pu   = -1.;
   }
   lumiVsLS_ -> Fill(ls, scal_lumi);
+  puVsLS_   -> Fill(ls, scal_pu  );
 
   if ( doPixelLumi_ ) {
     size_t pixel_clusters = 0;
@@ -200,6 +214,10 @@ void LumiMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions
   edm::ParameterSetDescription lumiPSet;
   fillHistoPSetDescription(lumiPSet);
   histoPSet.add<edm::ParameterSetDescription>("lumiPSet", lumiPSet);
+
+  edm::ParameterSetDescription puPSet;
+  fillHistoPSetDescription(puPSet);
+  histoPSet.add<edm::ParameterSetDescription>("puPSet", puPSet);
 
   edm::ParameterSetDescription pixellumiPSet;
   fillHistoPSetDescription(pixellumiPSet);

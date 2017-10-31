@@ -43,14 +43,14 @@ template<class C> class EcalUncalibRecHitRecAnalFitAlgo : public EcalUncalibRecH
 
  public:
   // destructor
-  virtual ~EcalUncalibRecHitRecAnalFitAlgo<C>() { };
+  ~EcalUncalibRecHitRecAnalFitAlgo<C>() override { };
 
 
   /// Compute parameters
-  virtual EcalUncalibratedRecHit makeRecHit(const C& dataFrame, const double* pedestals,
+  EcalUncalibratedRecHit makeRecHit(const C& dataFrame, const double* pedestals,
 					    const double* gainRatios,
 					    const EcalWeightSet::EcalWeightMatrix** weights, 
-					    const EcalWeightSet::EcalChi2WeightMatrix** chi2Matrix)
+					    const EcalWeightSet::EcalChi2WeightMatrix** chi2Matrix) override
     { 
     double amplitude_(-1.),  pedestal_(-1.), jitter_(-1.), chi2_(-1.);
 
@@ -62,14 +62,14 @@ template<class C> class EcalUncalibRecHitRecAnalFitAlgo : public EcalUncalibRecH
     int iGainSwitch = 0;
     double maxsample(-1);
     int imax(-1);
-    bool isSaturated = 0;
+    bool isSaturated = false;
     uint32_t flag = 0;
     for(int iSample = 0; iSample < C::MAXSAMPLES; iSample++) {
       int gainId = dataFrame.sample(iSample).gainId(); 
       if ( dataFrame.isSaturated() ) 
 	{
 	  gainId = 3;
-	  isSaturated = 1;
+	  isSaturated = true;
 	}
 
       if (gainId != gainId0) ++iGainSwitch ;

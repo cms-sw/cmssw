@@ -280,12 +280,12 @@ void SurveyInputCSCfromPins::analyze(const edm::Event&, const edm::EventSetup& i
 
 
 void SurveyInputCSCfromPins::fillAllRecords(Alignable *ali) {
-   	if (ali->survey() == 0) {
+   	if (ali->survey() == nullptr) {
 
 	   AlignableCSCChamber *ali_AlignableCSCChamber = dynamic_cast<AlignableCSCChamber*>(ali);
 	   AlignableCSCStation *ali_AlignableCSCStation = dynamic_cast<AlignableCSCStation*>(ali);
 
-	   if (ali_AlignableCSCChamber != 0) {
+	   if (ali_AlignableCSCChamber != nullptr) {
 	      CSCDetId detid(ali->geomDetId());
 	      if (abs(detid.station()) == 1  &&  (detid.ring() == 1  ||  detid.ring() == 4)) {
 		 align::ErrorMatrix error = ROOT::Math::SMatrixIdentity();
@@ -325,7 +325,7 @@ void SurveyInputCSCfromPins::fillAllRecords(Alignable *ali) {
 	      }
 	   }
 
-	   else if (ali_AlignableCSCStation != 0) {
+	   else if (ali_AlignableCSCStation != nullptr) {
 	      align::ErrorMatrix error = ROOT::Math::SMatrixIdentity();
 	      error(0,0) = m_stationErrorX;
 	      error(1,1) = m_stationErrorY;

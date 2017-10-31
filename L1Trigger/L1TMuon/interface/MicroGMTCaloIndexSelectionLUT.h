@@ -10,7 +10,7 @@ namespace l1t {
       MicroGMTCaloIndexSelectionLUT() {};
       explicit MicroGMTCaloIndexSelectionLUT (const std::string& fname, int type);
       explicit MicroGMTCaloIndexSelectionLUT (l1t::LUT* lut, int type);
-      virtual ~MicroGMTCaloIndexSelectionLUT() {};
+      ~MicroGMTCaloIndexSelectionLUT() override {};
 
       // returns the index corresponding to the calo tower sum 
       int lookup(int angle) const;

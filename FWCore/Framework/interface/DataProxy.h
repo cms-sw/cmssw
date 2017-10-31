@@ -83,9 +83,9 @@ namespace edm {
 
          void clearCacheIsValid();
       private:
-         DataProxy(DataProxy const&); // stop default
+         DataProxy(DataProxy const&) = delete; // stop default
 
-         DataProxy const& operator=(DataProxy const&); // stop default
+         DataProxy const& operator=(DataProxy const&) = delete; // stop default
 
          // ---------- member data --------------------------------
          [[cms::thread_safe]] mutable void const* cache_; //protected by a global mutex

@@ -26,9 +26,9 @@ namespace edmtest {
     noPut_(pset.getUntrackedParameter<bool>("noPut", false))
 {
     produces<Thing>("event");
-    produces<Thing, edm::InLumi>("beginLumi");
+    produces<Thing, edm::Transition::BeginLuminosityBlock>("beginLumi");
     produces<Thing, edm::Transition::EndLuminosityBlock>("endLumi");
-    produces<Thing, edm::InRun>("beginRun");
+    produces<Thing, edm::Transition::BeginRun>("beginRun");
     produces<Thing, edm::Transition::EndRun>("endRun");
 
     produces<ThingWithMerge>("event");

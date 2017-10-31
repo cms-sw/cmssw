@@ -99,7 +99,7 @@ class ESProducer : public ESProxyFactoryProducer
 
    public:
       ESProducer();
-      virtual ~ESProducer() noexcept(false);
+      ~ESProducer() noexcept(false) override;
 
       // ---------- const member functions ---------------------
 
@@ -180,9 +180,9 @@ class ESProducer : public ESProxyFactoryProducer
          }
       */
    private:
-      ESProducer(const ESProducer&); // stop default
+      ESProducer(const ESProducer&) = delete; // stop default
 
-      ESProducer const& operator=(const ESProducer&); // stop default
+      ESProducer const& operator=(const ESProducer&) = delete; // stop default
 
       /*
       template<typename T, typename TProduct>

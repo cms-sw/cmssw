@@ -585,7 +585,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
                 // in case of object-less triggers (e.g. L1_ZeroBias) condObjType vector is empty, so don't seed!
                 //
-                if(condObjType.size() == 0) {
+                if(condObjType.empty()) {
 
                   LogTrace("HLTL1TSeed")
                   << "\talgoName = " << objMap->algoName() << " is object-less L1 algorithm, so do not attempt to store any objects to the list of seeds.\n"

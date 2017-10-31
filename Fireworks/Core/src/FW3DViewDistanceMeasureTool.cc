@@ -9,8 +9,8 @@ const char * lbpformat="(%.2f, %.2f, %.2f)";
 }
 
 FW3DViewDistanceMeasureTool::FW3DViewDistanceMeasureTool():
-  m_action(kNone), m_bp1(0), m_bp2(0),
-  m_lp1(0), m_lp2(0), m_ldist(0)
+  m_action(kNone), m_bp1(nullptr), m_bp2(nullptr),
+  m_lp1(nullptr), m_lp2(nullptr), m_ldist(nullptr)
 {
 }
 

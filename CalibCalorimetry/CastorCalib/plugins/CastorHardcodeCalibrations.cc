@@ -37,7 +37,7 @@ namespace {
 
 std::vector<HcalGenericDetId> allCells (bool h2_mode) {
   static std::vector<HcalGenericDetId> result;
-  if (result.size () <= 0) {
+  if (result.empty()) {
 
     CastorTopology castortopology;
     HcalCastorDetId cell;

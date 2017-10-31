@@ -27,14 +27,14 @@ class LaserDQM : public edm::EDAnalyzer
 	/// constructor
   explicit LaserDQM(edm::ParameterSet const& theConf);
 	/// destructor
-  ~LaserDQM();
+  ~LaserDQM() override;
   
   /// this method will do the user analysis 
-  virtual void analyze(edm::Event const& theEvent, edm::EventSetup const& theSetup);
+  void analyze(edm::Event const& theEvent, edm::EventSetup const& theSetup) override;
   /// begin job
-  virtual void beginJob();
+  void beginJob() override;
 	/// end job
-  virtual void endJob(void);
+  void endJob(void) override;
     
  private:
 	/// fill adc counts from the laser beam into a monitor histogram

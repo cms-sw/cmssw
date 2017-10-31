@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
-  <ConstantsSection label="CTPPS_Diamond_Plane3.xml">
+  <ConstantsSection label="CTPPS_Diamond_Plane4.xml">
     <Constant name="Str1_dx" value="-[CTPPS_Diamond_Parameters:Diamond_dx]*2+[CTPPS_Diamond_Parameters:UnMet_Edge]+[CTPPS_Diamond_Parameters:Pat3_Str1_dx]/2"/>
     <Constant name="Str2_dx" value="-[CTPPS_Diamond_Parameters:Diamond_dx]*2+[CTPPS_Diamond_Parameters:UnMet_Edge]+[CTPPS_Diamond_Parameters:Pat3_Str1_dx]+[CTPPS_Diamond_Parameters:Pat3_Str2_dx]/2+[CTPPS_Diamond_Parameters:UnMet_gap]"/>
     <Constant name="Str3_dx" value="-[CTPPS_Diamond_Parameters:Diamond_dx]*2+[CTPPS_Diamond_Parameters:UnMet_Edge]+[CTPPS_Diamond_Parameters:Pat3_Str1_dx]+[CTPPS_Diamond_Parameters:Pat3_Str2_dx]+[CTPPS_Diamond_Parameters:Pat3_Str3_dx]/2+[CTPPS_Diamond_Parameters:UnMet_gap]*2"/>
@@ -28,13 +28,6 @@
   </LogicalPartSection>
 
   <PosPartSection label="CTPPS_Diamond_Plane4.xml">
-
-    <PosPart copyNumber="4">
-      <rParent name="CTPPS_Diamond_Plane"/>
-      <rChild name="CTPPS_Diamond_Detector_Assembly:PCB"/>
-      <Translation x="-[CTPPS_Diamond_Parameters:Diamond_dx]*2+[CTPPS_Diamond_Parameters:PCB_dx]/2+[CTPPS_Diamond_Parameters:PCB_extend_dx]" y="0*mm" z="([CTPPS_Diamond_Parameters:Diamond_dz]+[CTPPS_Diamond_Parameters:Metalized_thick]+[CTPPS_Diamond_Parameters:PCB_thick])/2"/>
-      <rRotation name="rotations:000D"/>
-    </PosPart>
 
     <!-- ******** Pattern 3 ********* -->
     <PosPart copyNumber="300">

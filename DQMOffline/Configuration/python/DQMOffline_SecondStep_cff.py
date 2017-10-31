@@ -16,7 +16,9 @@ from DQM.BeamMonitor.AlcaBeamMonitorClient_cff import *
 from DQMServices.Components.DQMFEDIntegrityClient_cff import *
 from Validation.RecoTau.DQMSequences_cfi import *
 from DQMOffline.Hcal.HcalDQMOfflinePostProcessor_cff import *
+from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
 from DQM.HcalTasks.OfflineHarvestingSequence_pp import *
+from PhysicsTools.NanoAOD.nanoDQM_cff import *
 
 DQMOffline_SecondStep_PreDPG = cms.Sequence( dqmDcsInfoClient *
                                              ecal_dqm_client_offline *
@@ -28,7 +30,8 @@ DQMOffline_SecondStep_PreDPG = cms.Sequence( dqmDcsInfoClient *
                                              es_dqm_client_offline *
                                              hcalOfflineHarvesting *
                                              HcalDQMOfflinePostProcessor * 
-                                             dqmFEDIntegrityClient )
+                                             dqmFEDIntegrityClient *
+                                             l1TriggerDqmOfflineClient )
 
 DQMOffline_SecondStepDPG = cms.Sequence( dqmRefHistoRootFileGetter *
                                          DQMOffline_SecondStep_PreDPG *
@@ -36,7 +39,6 @@ DQMOffline_SecondStepDPG = cms.Sequence( dqmRefHistoRootFileGetter *
 
 from DQMOffline.Muon.muonQualityTests_cff import *
 from DQMOffline.EGamma.egammaPostProcessing_cff import *
-from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
 from DQMOffline.Trigger.DQMOffline_Trigger_Client_cff import *
 from DQMOffline.Trigger.DQMOffline_HLT_Client_cff import *
 from DQMOffline.RecoB.dqmCollector_cff import *
@@ -86,11 +88,11 @@ DQMHarvestCommon = cms.Sequence( dqmRefHistoRootFileGetter *
                                  PixelOfflineDQMClientNoDataCertification *
                                  triggerOfflineDQMClient *
                                  hltOfflineDQMClient *
+                                 l1TriggerDqmOfflineClient *
                                  dqmFEDIntegrityClient *
                                  alcaBeamMonitorClient *
                                  runTauEff *
-                                 dqmFastTimerServiceClient *
-                                 l1TriggerDqmOfflineClient
+                                 dqmFastTimerServiceClient
                                 )
 DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmRefHistoRootFileGetter *
                                                DQMMessageLoggerClientSeq *
@@ -100,6 +102,7 @@ DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmRefHistoRootFileGetter *
                                                PixelOfflineDQMClientNoDataCertification *
                                                triggerOfflineDQMClient *
                                                hltOfflineDQMClient *
+                                               l1TriggerDqmOfflineClient *
                                                dqmFEDIntegrityClient *
                                                alcaBeamMonitorClient *
                                                runTauEff  *
@@ -138,3 +141,5 @@ DQMHarvestEGamma = cms.Sequence( egammaPostProcessing )
 DQMHarvestBTag = cms.Sequence( bTagCollectorSequenceDATA )
 
 DQMHarvestMiniAOD = cms.Sequence( dataCertificationJetMETSequence * muonQualityTests_miniAOD)
+DQMHarvestNanoAOD = cms.Sequence( nanoHarvest )
+

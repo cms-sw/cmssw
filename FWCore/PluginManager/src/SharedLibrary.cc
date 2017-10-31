@@ -13,7 +13,7 @@
 // system include files
 #include <string> /*needed by the following include*/
 #include <dlfcn.h>
-#include <errno.h>
+#include <cerrno>
 
 // user include files
 #include "FWCore/PluginManager/interface/SharedLibrary.h"

@@ -31,7 +31,7 @@ class FWProxyBuilderTemplate : public FWProxyBuilderBase
 {
 public:
    FWProxyBuilderTemplate() : m_helper(typeid(T)) {}
-   virtual ~FWProxyBuilderTemplate() {}
+   ~FWProxyBuilderTemplate() override {}
 
    // ---------- const member functions ---------------------
 
@@ -43,9 +43,9 @@ protected:
    const T& modelData(int index) { return *reinterpret_cast<const T*>(m_helper.offsetObject(item()->modelData(index))); }
 
 private:
-   FWProxyBuilderTemplate(const FWProxyBuilderTemplate&); // stop default
+   FWProxyBuilderTemplate(const FWProxyBuilderTemplate&) = delete; // stop default
 
-   const FWProxyBuilderTemplate& operator=(const FWProxyBuilderTemplate&); // stop default
+   const FWProxyBuilderTemplate& operator=(const FWProxyBuilderTemplate&) = delete; // stop default
 
    virtual void itemChangedImp(const FWEventItem* iItem) { if (iItem) m_helper.itemChanged(iItem); }
    

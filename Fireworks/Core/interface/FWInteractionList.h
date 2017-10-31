@@ -51,9 +51,9 @@ public:
    void itemChanged();
 
 private:
-   FWInteractionList(const FWInteractionList&); // stop default
+   FWInteractionList(const FWInteractionList&) = delete; // stop default
 
-   const FWInteractionList& operator=(const FWInteractionList&); // stop default
+   const FWInteractionList& operator=(const FWInteractionList&) = delete; // stop default
 
    // ---------- member data --------------------------------
 

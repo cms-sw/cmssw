@@ -33,24 +33,25 @@ public:
   static const float  lsb_;
 
   HcaluLUTTPGCoder(const HcalTopology* topo);
-  virtual ~HcaluLUTTPGCoder();
-  virtual void adc2Linear(const HBHEDataFrame& df, IntegerCaloSamples& ics) const override;
-  virtual void adc2Linear(const HFDataFrame& df, IntegerCaloSamples& ics) const override;
-  virtual void adc2Linear(const QIE10DataFrame& df, IntegerCaloSamples& ics) const override;
-  virtual void adc2Linear(const QIE11DataFrame& df, IntegerCaloSamples& ics) const override;
-  virtual void compress(const IntegerCaloSamples& ics, const std::vector<bool>& featureBits, HcalTriggerPrimitiveDigi& tp) const override;
-  virtual unsigned short adc2Linear(HcalQIESample sample,HcalDetId id) const override;
-  virtual float getLUTPedestal(HcalDetId id) const override;
-  virtual float getLUTGain(HcalDetId id) const override;
-  virtual std::vector<unsigned short> getLinearizationLUT(HcalDetId id) const override;
+  ~HcaluLUTTPGCoder() override;
+  void adc2Linear(const HBHEDataFrame& df, IntegerCaloSamples& ics) const override;
+  void adc2Linear(const HFDataFrame& df, IntegerCaloSamples& ics) const override;
+  void adc2Linear(const QIE10DataFrame& df, IntegerCaloSamples& ics) const override;
+  void adc2Linear(const QIE11DataFrame& df, IntegerCaloSamples& ics) const override;
+  void compress(const IntegerCaloSamples& ics, const std::vector<bool>& featureBits, HcalTriggerPrimitiveDigi& tp) const override;
+  unsigned short adc2Linear(HcalQIESample sample,HcalDetId id) const override;
+  float getLUTPedestal(HcalDetId id) const override;
+  float getLUTGain(HcalDetId id) const override;
+  std::vector<unsigned short> getLinearizationLUT(HcalDetId id) const override;
 
   void update(const HcalDbService& conditions);
   void update(const char* filename, bool appendMSB = false);
   void updateXML(const char* filename);
   void setLUTGenerationMode(bool gen){ LUTGenerationMode_ = gen; };
+  void setFGHFthreshold(unsigned int fgthreshold){ FG_HF_threshold_ = fgthreshold; };
   void setMaskBit(int bit){ bitToMask_ = bit; };
-  std::vector<unsigned short> getLinearizationLUTWithMSB(const HcalDetId& id) const;
   void lookupMSB(const HBHEDataFrame& df, std::vector<bool>& msb) const;
+  void lookupMSB(const QIE10DataFrame& df, std::vector<bool>& msb) const;
   void lookupMSB(const QIE11DataFrame& df, std::vector<std::bitset<2>>& msb) const;
   bool getMSB(const HcalDetId& id, int adc) const;
   int getLUTId(HcalSubdetector id, int ieta, int iphi, int depth) const;
@@ -74,18 +75,17 @@ private:
   static const int QIE8_LUT_MSB = 0x400;
   static const int QIE11_LUT_MSB0 = 0x400;
   static const int QIE11_LUT_MSB1 = 0x800;
+  static const int QIE10_LUT_MSB  = 0x1000;
   
   // member variables
   const HcalTopology* topo_;
   bool LUTGenerationMode_;
+  unsigned int FG_HF_threshold_;
   int  bitToMask_;
   int  firstHBEta_, lastHBEta_, nHBEta_, maxDepthHB_, sizeHB_;
   int  firstHEEta_, lastHEEta_, nHEEta_, maxDepthHE_, sizeHE_;
   int  firstHFEta_, lastHFEta_, nHFEta_, maxDepthHF_, sizeHF_;
   std::vector< Lut > inputLUT_;
-  std::vector< Lut > upgradeQIE10LUT_;
-  std::vector< Lut > upgradeQIE11LUT_;
-  std::vector<int> QIEType_;
   std::vector<float> gain_;
   std::vector<float> ped_;
 };

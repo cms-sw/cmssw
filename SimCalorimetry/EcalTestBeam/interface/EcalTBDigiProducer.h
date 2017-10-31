@@ -24,16 +24,16 @@ class EcalTBDigiProducer : public EcalDigiProducer
    public:
 
       EcalTBDigiProducer( const edm::ParameterSet& params, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC) ;
-      virtual ~EcalTBDigiProducer() ;
+      ~EcalTBDigiProducer() override ;
 
 
-      virtual void initializeEvent(edm::Event const&, edm::EventSetup const&);
-      virtual void finalizeEvent(edm::Event&, edm::EventSetup const&);
+      void initializeEvent(edm::Event const&, edm::EventSetup const&) override;
+      void finalizeEvent(edm::Event&, edm::EventSetup const&) override;
 
    private:
 
-      virtual void cacheEBDigis( const EBDigiCollection* ebDigiPtr ) const ;
-      virtual void cacheEEDigis( const EEDigiCollection* eeDigiPtr ) const ; 
+      void cacheEBDigis( const EBDigiCollection* ebDigiPtr ) const override ;
+      void cacheEEDigis( const EEDigiCollection* eeDigiPtr ) const override ; 
 
       void setPhaseShift( const DetId& detId ) ;
 

@@ -16,8 +16,8 @@ public:
          const std::string& user,
          const std::string& pass);
 	      
-   virtual ~L1TriggerScalerRead();
-   void run();
+   ~L1TriggerScalerRead() override;
+   void run() override;
 
    void dropTable(const std::string & table );
    

@@ -21,7 +21,7 @@ class CandMCMatchTableProducer : public edm::global::EDProducer<> {
             src_(consumes<reco::CandidateView>(params.getParameter<edm::InputTag>("src"))),
             candMap_(consumes<edm::Association<reco::GenParticleCollection>>(params.getParameter<edm::InputTag>("mcMap")))            
         {
-            produces<FlatTable>();
+            produces<nanoaod::FlatTable>();
             const std::string & type = params.getParameter<std::string>("objType");
             if (type == "Muon") type_ = MMuon;
             else if (type == "Electron") type_ = MElectron;
@@ -53,7 +53,7 @@ class CandMCMatchTableProducer : public edm::global::EDProducer<> {
             iEvent.getByToken(src_, cands);
             unsigned int ncand = cands->size();
 
-            auto tab  = std::make_unique<FlatTable>(ncand, objName_, false, true);
+            auto tab  = std::make_unique<nanoaod::FlatTable>(ncand, objName_, false, true);
 
             edm::Handle<edm::Association<reco::GenParticleCollection>> map;
             iEvent.getByToken(candMap_, map);
@@ -101,8 +101,8 @@ class CandMCMatchTableProducer : public edm::global::EDProducer<> {
                 };
             }        
             
-            tab->addColumn<int>(branchName_+"Idx",  key, "Index into genParticle list for "+doc_, FlatTable::IntColumn);
-            tab->addColumn<uint8_t>(branchName_+"Flav", flav, "Flavour of genParticle for "+doc_+": "+flavDoc_, FlatTable::UInt8Column);
+            tab->addColumn<int>(branchName_+"Idx",  key, "Index into genParticle list for "+doc_, nanoaod::FlatTable::IntColumn);
+            tab->addColumn<uint8_t>(branchName_+"Flav", flav, "Flavour of genParticle for "+doc_+": "+flavDoc_, nanoaod::FlatTable::UInt8Column);
 
             iEvent.put(std::move(tab));
         }
@@ -127,7 +127,7 @@ class CandMCMatchTableProducer : public edm::global::EDProducer<> {
 
         static void fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
             edm::ParameterSetDescription desc;
-            desc.add<std::string>("objName")->setComment("name of the FlatTable to extend with this table");
+            desc.add<std::string>("objName")->setComment("name of the nanoaod::FlatTable to extend with this table");
             desc.add<std::string>("branchName")->setComment("name of the column to write (the final branch in the nanoaod will be <objName>_<branchName>Idx and <objName>_<branchName>Flav");
             desc.add<std::string>("docString")->setComment("documentation to forward to the output");
             desc.add<edm::InputTag>("src")->setComment("physics object collection for the reconstructed objects (e.g. leptons)");

@@ -17,3 +17,7 @@ exoticaMonitorHLT = cms.Sequence(
   + exoHLTMuonmonitoring
   + exoHLTDisplacedJetmonitoring
 )
+
+
+exoHLTDQMSourceExtra = cms.Sequence(
+)

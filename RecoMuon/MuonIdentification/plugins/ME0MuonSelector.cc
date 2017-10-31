@@ -20,7 +20,7 @@ SelectionType selectionTypeFromString( const std::string &label )
       { "VeryLoose", VeryLoose },
       { "Loose", Loose },
       { "Tight", Tight },
-      { 0, (SelectionType)-1 }
+      { nullptr, (SelectionType)-1 }
    };
 
    SelectionType value = (SelectionType)-1;
@@ -66,10 +66,10 @@ bool muon::isGoodMuon(const reco::ME0Muon& me0muon, double MaxPullX, double MaxD
 {
   using namespace reco;
 
-  ME0Segment thisSegment = me0muon.me0segment();
+  const ME0Segment& thisSegment = me0muon.me0segment();
 
 
-  LocalPoint r3FinalReco = me0muon.localTrackPosAtSurface();
+  const LocalPoint& r3FinalReco = me0muon.localTrackPosAtSurface();
 
   AlgebraicSymMatrix55 C = me0muon.localTrackCov();
   LocalPoint thisPosition(thisSegment.localPosition());

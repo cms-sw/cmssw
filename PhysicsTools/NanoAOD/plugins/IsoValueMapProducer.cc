@@ -45,7 +45,8 @@ template <typename T>
 class IsoValueMapProducer : public edm::global::EDProducer<> {
    public:
   explicit IsoValueMapProducer(const edm::ParameterSet &iConfig):
-    src_(consumes<edm::View<T>>(iConfig.getParameter<edm::InputTag>("src")))
+    src_(consumes<edm::View<T>>(iConfig.getParameter<edm::InputTag>("src"))),
+    relative_(iConfig.getParameter<bool>("relative"))
   {
     if ((typeid(T) == typeid(pat::Muon)) || (typeid(T) == typeid(pat::Electron)) || typeid(T) == typeid(pat::IsolatedTrack)) {
       produces<edm::ValueMap<float>>("miniIsoChg");
@@ -59,7 +60,7 @@ class IsoValueMapProducer : public edm::global::EDProducer<> {
       ea_pfiso_.reset(new EffectiveAreas((iConfig.getParameter<edm::FileInPath>("EAFile_PFIso")).fullPath()));
       rho_pfiso_ = consumes<double>(iConfig.getParameter<edm::InputTag>("rho_PFIso"));
     }
-    if ((typeid(T) == typeid(pat::Photon))) {
+    else if ((typeid(T) == typeid(pat::Photon))) {
       produces<edm::ValueMap<float>>("PFIsoChg");
       produces<edm::ValueMap<float>>("PFIsoAll");
       mapIsoChg_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("mapIsoChg"));
@@ -82,6 +83,7 @@ class IsoValueMapProducer : public edm::global::EDProducer<> {
       // ----------member data ---------------------------
 
   edm::EDGetTokenT<edm::View<T>> src_;
+  bool relative_;
   edm::EDGetTokenT<double> rho_miniiso_;
   edm::EDGetTokenT<double> rho_pfiso_;
   edm::EDGetTokenT<edm::ValueMap<float>> mapIsoChg_;
@@ -138,23 +140,23 @@ IsoValueMapProducer<T>::doMiniIso(edm::Event& iEvent) const{
   edm::Handle<double> rho;
   iEvent.getByToken(rho_miniiso_,rho);
 
-  unsigned nInput = src->size();
+  unsigned int nInput = src->size();
   
   std::vector<float> miniIsoChg, miniIsoAll;
   miniIsoChg.reserve(nInput);
   miniIsoAll.reserve(nInput);
-  
-  for (uint i=0; i<nInput; i++){
-    auto obj = const_cast<T*>(src->ptrAt(i).get()); // temporarily needed
-    auto iso = obj->miniPFIsolation();
+ 
+  for (const auto & obj : *src) { 
+    auto iso = obj.miniPFIsolation();
     auto chg = iso.chargedHadronIso();
     auto neu = iso.neutralHadronIso();
     auto pho = iso.photonIso();
-    auto ea = ea_miniiso_->getEffectiveArea(fabs(getEtaForEA(obj)));
-    float R = 10.0/std::min(std::max(obj->pt(), 50.0),200.0);
+    auto ea = ea_miniiso_->getEffectiveArea(fabs(getEtaForEA(&obj)));
+    float R = 10.0/std::min(std::max(obj.pt(), 50.0),200.0);
     ea *= std::pow(R/0.3,2);
-    miniIsoChg.push_back(chg);
-    miniIsoAll.push_back(chg+std::max(0.0,neu+pho-(*rho)*ea));
+    float scale = relative_ ? 1.0/obj.pt() : 1;
+    miniIsoChg.push_back(scale*chg);
+    miniIsoAll.push_back(scale*(chg+std::max(0.0,neu+pho-(*rho)*ea)));
   }
   
   std::unique_ptr<edm::ValueMap<float>> miniIsoChgV(new edm::ValueMap<float>());
@@ -188,21 +190,21 @@ IsoValueMapProducer<pat::Electron>::doPFIsoEle(edm::Event& iEvent) const{
   edm::Handle<double> rho;
   iEvent.getByToken(rho_pfiso_,rho);
   
-  unsigned nInput = src->size();
+  unsigned int nInput = src->size();
 
   std::vector<float> PFIsoChg, PFIsoAll;
   PFIsoChg.reserve(nInput);
   PFIsoAll.reserve(nInput);
   
-  for (uint i=0; i<nInput; i++){
-    auto obj = src->ptrAt(i).get();
-    auto iso = obj->pfIsolationVariables();
+  for (const auto & obj : *src) { 
+    auto iso = obj.pfIsolationVariables();
     auto chg = iso.sumChargedHadronPt;
     auto neu = iso.sumNeutralHadronEt;
     auto pho = iso.sumPhotonEt;
-    auto ea = ea_pfiso_->getEffectiveArea(fabs(getEtaForEA(obj)));
-    PFIsoChg.push_back(chg);
-    PFIsoAll.push_back(chg+std::max(0.0,neu+pho-(*rho)*ea));
+    auto ea = ea_pfiso_->getEffectiveArea(fabs(getEtaForEA(&obj)));
+    float scale = relative_ ? 1.0/obj.pt() : 1;
+    PFIsoChg.push_back(scale*chg);
+    PFIsoAll.push_back(scale*(chg+std::max(0.0,neu+pho-(*rho)*ea)));
   }
   
   std::unique_ptr<edm::ValueMap<float>> PFIsoChgV(new edm::ValueMap<float>());
@@ -238,13 +240,13 @@ IsoValueMapProducer<pat::Photon>::doPFIsoPho(edm::Event& iEvent) const {
   edm::Handle<edm::ValueMap<float> > mapIsoPho;
   iEvent.getByToken(mapIsoPho_, mapIsoPho);
   
-  unsigned nInput = src->size();
+  unsigned int nInput = src->size();
 
   std::vector<float> PFIsoChg, PFIsoAll;
   PFIsoChg.reserve(nInput);
   PFIsoAll.reserve(nInput);
   
-  for (uint i=0; i<nInput; i++){
+  for (unsigned int i=0; i<nInput; i++){
     auto obj = src->ptrAt(i);
     auto chg = (*mapIsoChg)[obj];
     auto neu = (*mapIsoNeu)[obj];
@@ -252,8 +254,9 @@ IsoValueMapProducer<pat::Photon>::doPFIsoPho(edm::Event& iEvent) const {
     auto ea_chg = ea_pfiso_chg_->getEffectiveArea(fabs(getEtaForEA(obj.get())));
     auto ea_neu = ea_pfiso_neu_->getEffectiveArea(fabs(getEtaForEA(obj.get())));
     auto ea_pho = ea_pfiso_pho_->getEffectiveArea(fabs(getEtaForEA(obj.get())));
-    PFIsoChg.push_back(std::max(0.0,chg-(*rho)*ea_chg));
-    PFIsoAll.push_back(PFIsoChg.back()+std::max(0.0,neu-(*rho)*ea_neu)+std::max(0.0,pho-(*rho)*ea_pho));
+    float scale = relative_ ? 1.0/obj->pt() : 1;
+    PFIsoChg.push_back(scale*std::max(0.0,chg-(*rho)*ea_chg));
+    PFIsoAll.push_back(PFIsoChg.back()+scale*(std::max(0.0,neu-(*rho)*ea_neu)+std::max(0.0,pho-(*rho)*ea_pho)));
   }
   
   std::unique_ptr<edm::ValueMap<float>> PFIsoChgV(new edm::ValueMap<float>());
@@ -278,6 +281,7 @@ void
 IsoValueMapProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src")->setComment("input physics object collection");
+  desc.add<bool>("relative")->setComment("compute relative isolation instead of absolute one");
   if ((typeid(T) == typeid(pat::Muon)) || (typeid(T) == typeid(pat::Electron)) || typeid(T) == typeid(pat::IsolatedTrack)) {
     desc.add<edm::FileInPath>("EAFile_MiniIso")->setComment("txt file containing effective areas to be used for mini-isolation pileup subtraction");
     desc.add<edm::InputTag>("rho_MiniIso")->setComment("rho to be used for effective-area based mini-isolation pileup subtraction");

@@ -92,13 +92,13 @@ public:
   /// --- If queue is NULL, this sets singleThread true 
   explicit MessageLoggerScribe(std::shared_ptr<ThreadQueue> queue);
   
-  virtual ~MessageLoggerScribe();
+  ~MessageLoggerScribe() override;
 
   // --- receive and act on messages:
   virtual
   void  run();
-  virtual							// changelog 10
-  void  runCommand(MessageLoggerQ::OpCode  opcode, void * operand);
+  							// changelog 10
+  void  runCommand(MessageLoggerQ::OpCode  opcode, void * operand) override;
 		  						// changeLog 9
 
 private:

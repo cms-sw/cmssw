@@ -20,7 +20,6 @@
 <use   name="DataFormats/L1GlobalTrigger"/>
 <use   name="DataFormats/L1Trigger"/>
 <use   name="DataFormats/METReco"/>
-<use   name="DataFormats/MuonData"/>
 <use   name="DataFormats/MuonReco"/>
 <use   name="DataFormats/RPCDigi"/>
 <use   name="DataFormats/RecoCandidate"/>

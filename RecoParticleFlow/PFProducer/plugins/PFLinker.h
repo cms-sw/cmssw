@@ -36,9 +36,9 @@ class PFLinker : public edm::stream::EDProducer<> {
 
   explicit PFLinker(const edm::ParameterSet&);
 
-  ~PFLinker();
+  ~PFLinker() override;
   
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
   template<typename TYPE>
@@ -81,6 +81,8 @@ class PFLinker : public edm::stream::EDProducer<> {
   /// Set muon refs and produce the value map?
   bool fillMuonRefs_;
 
+  /// Put Electrons within HGCAL coming from SimPFProducer
+  bool forceElectronsInHGCAL_;
 };
 
 DEFINE_FWK_MODULE(PFLinker);

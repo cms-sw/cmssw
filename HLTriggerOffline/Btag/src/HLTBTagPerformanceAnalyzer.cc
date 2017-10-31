@@ -158,26 +158,26 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 				int m = closestJet(BtagJT.first, *h_mcPartons, m_mcRadius);
 				unsigned int flavour = (m != -1) ? abs((*h_mcPartons)[m].second.getFlavour()) : 0;
 				for (unsigned int i = 0; i < m_mcLabels.size(); ++i) {
-					TString flavour_str= m_mcLabels[i].c_str();
+					std::string flavour_str= m_mcLabels[i];
 					flavours_t flav_collection=  m_mcFlavours[i];
 					auto it = std::find(flav_collection.begin(), flav_collection.end(), flavour);
 					if (it== flav_collection.end())   continue;
-					TString label=JetTagCollection_Label[ind] + "__";
+					std::string label=JetTagCollection_Label[ind] + "__";
 					label+=flavour_str;
-					H1_.at(ind)[label.Data()]->Fill(std::fmax(0.0,BtagJT.second));	//fill 1D btag plot for 'b,c,uds'
+					H1_.at(ind)[label]->Fill(std::fmax(0.0,BtagJT.second));	//fill 1D btag plot for 'b,c,uds'
 					for (auto j: HCALSpecialsNames){
 						if (inmodule[j.first])
-						H1mod_.at(ind)[label.Data()][j.first]->Fill(std::fmax(0.0,BtagJT.second));	//fill 1D btag plot for 'b,c,uds' in modules (HEP17 etc.)
+						H1mod_.at(ind)[label][j.first]->Fill(std::fmax(0.0,BtagJT.second));	//fill 1D btag plot for 'b,c,uds' in modules (HEP17 etc.)
 					}
 					label=JetTagCollection_Label[ind] + "___";
 					label+=flavour_str;
-					std::string labelEta = label.Data();
-					std::string labelPhi = label.Data();
-					label+=TString("_disc_pT");
-					H2_.at(ind)[label.Data()]->Fill(std::fmax(0.0,BtagJT.second),BtagJT.first->pt());	//fill 2D btag, jetPt plot for 'b,c,uds'
+					std::string labelEta = label;
+					std::string labelPhi = label;
+					label+="_disc_pT";
+					H2_.at(ind)[label]->Fill(std::fmax(0.0,BtagJT.second),BtagJT.first->pt());	//fill 2D btag, jetPt plot for 'b,c,uds'
 					for (auto j: HCALSpecialsNames){
 						if (inmodule[j.first])
-						H2mod_.at(ind)[label.Data()][j.first]->Fill(std::fmax(0.0,BtagJT.second),BtagJT.first->pt());
+						H2mod_.at(ind)[label][j.first]->Fill(std::fmax(0.0,BtagJT.second),BtagJT.first->pt());
 					}
 					labelEta+="_disc_eta";
 					H2Eta_.at(ind)[labelEta]->Fill(std::fmax(0.0,BtagJT.second),BtagJT.first->eta());	//fill 2D btag, jetEta plot for 'b,c,uds'
@@ -214,11 +214,11 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm
 		
 		//book 1D btag plot for 'all'
 		if ( JetTagCollection_Label[ind] != "" && JetTagCollection_Label[ind] != "NULL" ) { 
-			H1_.back()[JetTagCollection_Label[ind]]       = ibooker.book1D(JetTagCollection_Label[ind] + "_all",      (JetTagCollection_Label[ind]+ "_all").c_str(),  btagBins, btagL, btagU );
+			H1_.back()[JetTagCollection_Label[ind]]       = ibooker.book1D(JetTagCollection_Label[ind] + "_all",      JetTagCollection_Label[ind]+ "_all",  btagBins, btagL, btagU );
 			H1_.back()[JetTagCollection_Label[ind]]      -> setAxisTitle(JetTagCollection_Label[ind] +"discriminant",1);
 			for (auto i: HCALSpecialsNames){
 				ibooker.setCurrentFolder(dqmFolder+"/"+i.second);
-				H1mod_.back()[JetTagCollection_Label[ind]][i.first]       = ibooker.book1D(JetTagCollection_Label[ind] + "_all",      (JetTagCollection_Label[ind]+ "_all").c_str(),  btagBins, btagL, btagU );
+				H1mod_.back()[JetTagCollection_Label[ind]][i.first]       = ibooker.book1D(JetTagCollection_Label[ind] + "_all",      JetTagCollection_Label[ind]+ "_all",  btagBins, btagL, btagU );
 				H1mod_.back()[JetTagCollection_Label[ind]][i.first]      -> setAxisTitle(JetTagCollection_Label[ind] +"discriminant",1);
 			}
 			ibooker.setCurrentFolder(dqmFolder);
@@ -235,8 +235,8 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm
 
 		for (unsigned int i = 0; i < m_mcLabels.size(); ++i)
 		{
-			TString flavour= m_mcLabels[i].c_str();
-			TString label;
+			std::string flavour= m_mcLabels[i];
+			std::string label;
 			std::string labelEta;
 			std::string labelPhi;
 			if ( JetTagCollection_Label[ind] != "" && JetTagCollection_Label[ind] != "NULL" ) {
@@ -244,30 +244,30 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm
 				label+=flavour;
 
 				//book 1D btag plot for 'b,c,light,g'
-				H1_.back()[label.Data()] = 		 ibooker.book1D(label.Data(),   Form("%s %s",JetTagCollection_Label[ind].c_str(),flavour.Data()), btagBins, btagL, btagU );
-				H1_.back()[label.Data()]->setAxisTitle("disc",1);
+				H1_.back()[label] = 		 ibooker.book1D(label,   Form("%s %s",JetTagCollection_Label[ind].c_str(),flavour.c_str()), btagBins, btagL, btagU );
+				H1_.back()[label]->setAxisTitle("disc",1);
 				for (auto j: HCALSpecialsNames){
 					ibooker.setCurrentFolder(dqmFolder+"/"+j.second);
-					H1mod_.back()[label.Data()][j.first] = 		 ibooker.book1D(label.Data(),   Form("%s %s",JetTagCollection_Label[ind].c_str(),flavour.Data()), btagBins, btagL, btagU );
-					H1mod_.back()[label.Data()][j.first]->setAxisTitle("disc",1);
+					H1mod_.back()[label][j.first] = 		 ibooker.book1D(label,   Form("%s %s",JetTagCollection_Label[ind].c_str(),flavour.c_str()), btagBins, btagL, btagU );
+					H1mod_.back()[label][j.first]->setAxisTitle("disc",1);
 				}
 				ibooker.setCurrentFolder(dqmFolder);
 				label=JetTagCollection_Label[ind]+"___";
 				labelEta=label;
 				labelPhi=label;
-				label+=flavour+TString("_disc_pT");
-				labelEta+=std::string(static_cast<const char *>(flavour))+"_disc_eta";
-				labelPhi+=std::string(static_cast<const char *>(flavour))+"_disc_phi";
+				label+=flavour+"_disc_pT";
+				labelEta+=flavour+"_disc_eta";
+				labelPhi+=flavour+"_disc_phi";
 
 				//book 2D btag plot for 'b,c,light,g'
-				H2_.back()[label.Data()] =  ibooker.book2D( label.Data(), label.Data(), btagBins, btagL, btagU, nBinsPt, pTmin, pTMax );
-				H2_.back()[label.Data()]->setAxisTitle("pT",2);
-				H2_.back()[label.Data()]->setAxisTitle("disc",1);
+				H2_.back()[label] =  ibooker.book2D( label, label, btagBins, btagL, btagU, nBinsPt, pTmin, pTMax );
+				H2_.back()[label]->setAxisTitle("pT",2);
+				H2_.back()[label]->setAxisTitle("disc",1);
 				for (auto j: HCALSpecialsNames){
 					ibooker.setCurrentFolder(dqmFolder+"/"+j.second);
-					H2mod_.back()[label.Data()][j.first] =  ibooker.book2D( label.Data(), label.Data(), btagBins, btagL, btagU, nBinsPt, pTmin, pTMax );
-					H2mod_.back()[label.Data()][j.first]->setAxisTitle("pT",2);
-					H2mod_.back()[label.Data()][j.first]->setAxisTitle("disc",1);
+					H2mod_.back()[label][j.first] =  ibooker.book2D( label, label, btagBins, btagL, btagU, nBinsPt, pTmin, pTMax );
+					H2mod_.back()[label][j.first]->setAxisTitle("pT",2);
+					H2mod_.back()[label][j.first]->setAxisTitle("disc",1);
 				}
 				ibooker.setCurrentFolder(dqmFolder);
 				H2Eta_.back()[labelEta] =  ibooker.book2D( labelEta, labelEta, btagBins, btagL, btagU, nBinsEta, etamin, etaMax );

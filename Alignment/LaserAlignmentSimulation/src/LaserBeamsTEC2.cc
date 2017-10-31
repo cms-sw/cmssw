@@ -19,8 +19,8 @@
 #include "G4ParticleGun.hh"
 
 LaserBeamsTEC2::LaserBeamsTEC2() :
-  theParticleGun(0),
-  theDRand48Engine(0)
+  theParticleGun(nullptr),
+  theDRand48Engine(nullptr)
 { 
   G4int nPhotonsGun = 1;
   G4int nPhotonsBeam = 1;
@@ -70,8 +70,8 @@ LaserBeamsTEC2::LaserBeamsTEC2(G4int nPhotonsInGun, G4int nPhotonsInBeam, G4doub
 
 LaserBeamsTEC2::~LaserBeamsTEC2()
 {
-  if ( theParticleGun != 0 )  { delete theParticleGun; }
-  if ( theDRand48Engine != 0 ) { delete theDRand48Engine; }
+  if ( theParticleGun != nullptr )  { delete theParticleGun; }
+  if ( theDRand48Engine != nullptr ) { delete theDRand48Engine; }
 }
 
 void LaserBeamsTEC2::GeneratePrimaries(G4Event* myEvent)

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 heavyFlavorValidation = cms.EDAnalyzer("HeavyFlavorValidation",
-    DQMFolder = cms.untracked.string("HLT/HeavyFlavor"),
+    DQMFolder = cms.untracked.string("HLT/BPH"),
     TriggerProcessName = cms.untracked.string("HLT"),
     TriggerPathName = cms.untracked.string("HLT_Mu5"),
     TriggerSummaryRAW = cms.untracked.string("hltTriggerSummaryRAW"),

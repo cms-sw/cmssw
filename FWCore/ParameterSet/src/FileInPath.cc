@@ -391,7 +391,7 @@ namespace edm
 
   void
   FileInPath::getEnvironment() {
-    static std::string const searchPath = removeSymLinksTokens(PathVariableName.c_str());
+    static std::string const searchPath = removeSymLinksTokens(PathVariableName);
     if (searchPath.empty()) {
       throw edm::Exception(edm::errors::FileInPathError)
 	<< PathVariableName
@@ -399,13 +399,13 @@ namespace edm
     }
     searchPath_ = searchPath;
 
-    static std::string const releaseTop = removeSymLinksSrc(RELEASETOP.c_str());
+    static std::string const releaseTop = removeSymLinksSrc(RELEASETOP);
     releaseTop_ = releaseTop;
 
-    static std::string const localTop = removeSymLinksSrc(LOCALTOP.c_str());
+    static std::string const localTop = removeSymLinksSrc(LOCALTOP);
     localTop_ = localTop;
 
-    static std::string const dataTop = removeSymLinks(DATATOP.c_str());
+    static std::string const dataTop = removeSymLinks(DATATOP);
     dataTop_ = dataTop;
 
     if (releaseTop_.empty()) {

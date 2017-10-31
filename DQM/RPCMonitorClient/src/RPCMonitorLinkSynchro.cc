@@ -51,10 +51,10 @@ void RPCMonitorLinkSynchro::bookHistograms(DQMStore::IBooker & ibooker,
   ibooker.setCurrentFolder("RPC/LinkMonitor/");
 
   me_delaySummary = ibooker.book1D("delaySummary","LinkDelaySummary",8,-3.5, 4.5);
-  me_delaySummary->getTH1F()->SetStats(111);
+  me_delaySummary->getTH1F()->SetStats(true);
 
   me_delaySpread = ibooker.book2D("delaySpread","LinkDelaySpread",71,-3.05, 4.05, 31,-0.05,3.05);
-  me_delaySpread->getTH2F()->SetStats(0);
+  me_delaySpread->getTH2F()->SetStats(false);
 
   me_notComplete[0] = ibooker.book2D("notComplete790","FED790: not All Paths hit",36,-0.5,35.5,18,-0.5,17.5);
   me_notComplete[1] = ibooker.book2D("notComplete791","FED791: not All Paths hit",36,-0.5,35.5,18,-0.5,17.5);
@@ -64,14 +64,14 @@ void RPCMonitorLinkSynchro::bookHistograms(DQMStore::IBooker & ibooker,
     me_notComplete[i]->getTH2F()->GetYaxis()->SetNdivisions(505);
     me_notComplete[i]->getTH2F()->SetXTitle("rmb");
     me_notComplete[i]->getTH2F()->SetYTitle("link");
-    me_notComplete[i]->getTH2F()->SetStats(0);
+    me_notComplete[i]->getTH2F()->SetStats(false);
   }
   me_topOccup  = ibooker.book2D("topOccup","Top10 LinkBoard occupancy",8,-0.5,7.5, 10,0.,10.);
   me_topSpread = ibooker.book2D("topSpread","Top10 LinkBoard delay spread",8,-0.5,7.5, 10,0.,10.);
   me_topOccup->getTH2F()->GetXaxis()->SetNdivisions(110);
   me_topSpread->getTH2F()->GetXaxis()->SetNdivisions(110);
-  me_topOccup->getTH2F()->SetStats(0);
-  me_topSpread->getTH2F()->SetStats(0);
+  me_topOccup->getTH2F()->SetStats(false);
+  me_topSpread->getTH2F()->SetStats(false);
 
 }
 

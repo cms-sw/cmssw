@@ -76,7 +76,7 @@ CosmicMuonTrajectoryBuilder::CosmicMuonTrajectoryBuilder(const edm::ParameterSet
 
   ParameterSet muonUpdatorPSet = par.getParameter<ParameterSet>("MuonTrajectoryUpdatorParameters");
   
-  theNavigation = 0; // new DirectMuonNavigation(theService->detLayerGeometry());
+  theNavigation = nullptr; // new DirectMuonNavigation(theService->detLayerGeometry());
   theUpdator = new MuonTrajectoryUpdator(muonUpdatorPSet, insideOut);
 
   theBestMeasurementFinder = new MuonBestMeasurementFinder();
@@ -923,10 +923,10 @@ void CosmicMuonTrajectoryBuilder::incrementChamberCounters(const DetLayer* layer
 //
 double CosmicMuonTrajectoryBuilder::t0(const DTRecSegment4D* dtseg) const {
 
-   if ( (dtseg == 0) || (!dtseg->hasPhi()) ) return 0;
+   if ( (dtseg == nullptr) || (!dtseg->hasPhi()) ) return 0;
    // timing information
    double result = 0;
-   if ( dtseg->phiSegment() == 0 ) return 0; 
+   if ( dtseg->phiSegment() == nullptr ) return 0; 
    int phiHits = dtseg->phiSegment()->specificRecHits().size();
    LogTrace(category_) << "phiHits " << phiHits;
    if ( phiHits > 5 ) {

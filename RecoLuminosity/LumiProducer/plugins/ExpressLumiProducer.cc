@@ -75,15 +75,15 @@ public:
   
   explicit ExpressLumiProducer(const edm::ParameterSet&);
   
-  ~ExpressLumiProducer();
+  ~ExpressLumiProducer() override;
   
 private:
   
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override final;
+  void produce(edm::Event&, const edm::EventSetup&) final;
 
-  virtual void beginLuminosityBlockProduce(edm::LuminosityBlock & iLBlock,
-				    edm::EventSetup const& iSetup) override final;
+  void beginLuminosityBlockProduce(edm::LuminosityBlock & iLBlock,
+				    edm::EventSetup const& iSetup) final;
 
   bool fillLumi(edm::LuminosityBlock & iLBlock);
   void fillLSCache(unsigned int runnum,unsigned int luminum);
@@ -101,8 +101,8 @@ ExpressLumiProducer::
 ExpressLumiProducer::ExpressLumiProducer(const edm::ParameterSet& iConfig):m_cachedrun(0),m_isNullRun(false),m_cachesize(0)
 {
   // register your products
-  produces<LumiSummary, edm::InLumi>();
-  produces<LumiDetails, edm::InLumi>();
+  produces<LumiSummary, edm::Transition::BeginLuminosityBlock>();
+  produces<LumiDetails, edm::Transition::BeginLuminosityBlock>();
   // set up cache
   m_connectStr=iConfig.getParameter<std::string>("connect");
   m_cachesize=iConfig.getUntrackedParameter<unsigned int>("ncacheEntries",5);

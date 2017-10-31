@@ -689,14 +689,14 @@ int TrackEfficiencyMonitor::compatibleLayers(const NavigationSchool& navigationS
 	}
 	else{
 	  trackCompatibleLayers = navigationSchool.nextLayers(*firstLay, *(startTSOS.freeState()),alongMomentum);
-          if (trackCompatibleLayers.size()!=0 ){ 
+          if (!trackCompatibleLayers.empty() ){ 
 	    std::pair<TrajectoryStateOnSurface, const  DetLayer* > nextLayer = findNextLayer(startTSOS, trackCompatibleLayers, isUpMuon );
 	    if (firstLay != nextLayer.second ){
 	      firstLay  = nextLayer.second;
 	      startTSOS = nextLayer.first;
 	      layers++;         
 	    }
-	    else firstLay=0;
+	    else firstLay=nullptr;
           }
 	}
 	nwhile++;

@@ -169,7 +169,9 @@ namespace {
 	ipad++;
       }
 
-      canvas.SaveAs("ecalpulseshapes.png");
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
+
       return true;
     }// fill method
   };
@@ -199,7 +201,7 @@ namespace {
 	  else if(ieta > 0.) eta = eta - 0.5;   //   0.5 to 84.5
 	  else eta  = eta + 0.5;          //  -84.5 to -0.5
 	  for (int iphi = 1; iphi <= MAX_IPHI; iphi++) {
-	    Double_t phi = (Double_t)iphi - 0.5;
+	    //Double_t phi = (Double_t)iphi - 0.5;
 	    EBDetId id(ieta, iphi);
 	    EcalPulseShape pulse = (*payload)[id.rawId()];
 	    for(int s = 0; s < TEMPLATESAMPLES; s++) {
@@ -248,7 +250,8 @@ namespace {
       pad[1]->cd();
       endcap->Draw("");
 
-      canvas.SaveAs("ecalpulseshapesProfile.png");
+      std::string ImageName(m_imageFileName);
+      canvas.SaveAs(ImageName.c_str());
       return true;
     }// fill method
 

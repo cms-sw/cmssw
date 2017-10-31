@@ -14,6 +14,7 @@
 class FEDRawData;
 
 class SiPixelFrameConverter;
+class SiPixelFedCabling;
 
 class ErrorChecker {
 
@@ -37,6 +38,7 @@ public:
   bool checkTrailer(bool& errorsInEvent, int fedId, int nWords, const Word64* trailer, Errors& errors);
 
   bool checkROC(bool& errorsInEvent, int fedId, const SiPixelFrameConverter* converter, 
+		const SiPixelFedCabling* theCablingTree,
 		Word32& errorWord, Errors& errors);
 
 

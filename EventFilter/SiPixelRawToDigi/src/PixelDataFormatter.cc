@@ -55,7 +55,7 @@ namespace {
 }
 
 PixelDataFormatter::PixelDataFormatter( const SiPixelFedCabling* map, bool phase)
-  : theDigiCounter(0), theWordCounter(0), theCablingTree(map), badPixelInfo(0), modulesToUnpack(0), phase1(phase)
+  : theDigiCounter(0), theWordCounter(0), theCablingTree(map), badPixelInfo(nullptr), modulesToUnpack(nullptr), phase1(phase)
 {
   int s32 = sizeof(Word32);
   int s64 = sizeof(Word64);
@@ -183,7 +183,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
 
     if ( (nlink!=link) | (nroc!=roc) ) {  // new roc
       link = nlink; roc=nroc;
-      skipROC = likely(roc<maxROCIndex) ? false : !errorcheck.checkROC(errorsInEvent, fedId, &converter, ww, errors);
+      skipROC = likely(roc<maxROCIndex) ? false : !errorcheck.checkROC(errorsInEvent, fedId, &converter, theCablingTree, ww, errors);
       if (skipROC) continue;
       rocp = converter.toRoc(link,roc);
       if unlikely(!rocp) {

@@ -17,22 +17,22 @@ class GlobalVariablesTableProducer : public edm::stream::EDProducer<> {
             for (const std::string & vname : varsPSet.getParameterNamesForType<edm::ParameterSet>()) {
                 const auto & varPSet = varsPSet.getParameter<edm::ParameterSet>(vname);
                 const std::string & type = varPSet.getParameter<std::string>("type");
-                if (type == "int") vars_.push_back(new IntVar(vname, FlatTable::IntColumn, varPSet, consumesCollector()));
-                else if (type == "float") vars_.push_back(new FloatVar(vname, FlatTable::FloatColumn, varPSet, consumesCollector()));
-                else if (type == "double") vars_.push_back(new DoubleVar(vname, FlatTable::FloatColumn, varPSet, consumesCollector()));
-                else if (type == "bool") vars_.push_back(new BoolVar(vname, FlatTable::UInt8Column, varPSet, consumesCollector()));
-                else if (type == "candidatescalarsum") vars_.push_back(new CandidateScalarSumVar(vname, FlatTable::FloatColumn, varPSet, consumesCollector()));
-                else if (type == "candidatesize") vars_.push_back(new CandidateSizeVar(vname, FlatTable::IntColumn, varPSet, consumesCollector()));
+                if (type == "int") vars_.push_back(new IntVar(vname, nanoaod::FlatTable::IntColumn, varPSet, consumesCollector()));
+                else if (type == "float") vars_.push_back(new FloatVar(vname, nanoaod::FlatTable::FloatColumn, varPSet, consumesCollector()));
+                else if (type == "double") vars_.push_back(new DoubleVar(vname, nanoaod::FlatTable::FloatColumn, varPSet, consumesCollector()));
+                else if (type == "bool") vars_.push_back(new BoolVar(vname, nanoaod::FlatTable::UInt8Column, varPSet, consumesCollector()));
+                else if (type == "candidatescalarsum") vars_.push_back(new CandidateScalarSumVar(vname, nanoaod::FlatTable::FloatColumn, varPSet, consumesCollector()));
+                else if (type == "candidatesize") vars_.push_back(new CandidateSizeVar(vname, nanoaod::FlatTable::IntColumn, varPSet, consumesCollector()));
                 else throw cms::Exception("Configuration", "unsupported type "+type+" for variable "+vname);
             }
 
-            produces<FlatTable>();
+            produces<nanoaod::FlatTable>();
         }
 
         ~GlobalVariablesTableProducer() override {}
 
         void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
-            auto out = std::make_unique<FlatTable>(1, "", true);
+            auto out = std::make_unique<nanoaod::FlatTable>(1, "", true);
 
             for (const auto & var : vars_) var.fill(iEvent, *out);
 
@@ -42,15 +42,15 @@ class GlobalVariablesTableProducer : public edm::stream::EDProducer<> {
     protected:
         class Variable {
             public:
-                Variable(const std::string & aname, FlatTable::ColumnType atype, const edm::ParameterSet & cfg) : 
+                Variable(const std::string & aname, nanoaod::FlatTable::ColumnType atype, const edm::ParameterSet & cfg) : 
                     name_(aname), doc_(cfg.getParameter<std::string>("doc")), type_(atype) {}
-                virtual void fill(const edm::Event &iEvent, FlatTable & out) const = 0;
+                virtual void fill(const edm::Event &iEvent, nanoaod::FlatTable & out) const = 0;
                 virtual ~Variable() {}
                 const std::string & name() const { return name_; }
-                const FlatTable::ColumnType & type() const { return type_; }
+                const nanoaod::FlatTable::ColumnType & type() const { return type_; }
             protected:
                 std::string name_, doc_;
-                FlatTable::ColumnType type_;
+                nanoaod::FlatTable::ColumnType type_;
         };
 	template <typename ValType>
 	class Identity {
@@ -109,10 +109,10 @@ class GlobalVariablesTableProducer : public edm::stream::EDProducer<> {
         template<typename ValType, typename ColType=ValType,  typename Converter=Identity<ValType> >
             class VariableT : public Variable {
                 public:
-                    VariableT(const std::string & aname, FlatTable::ColumnType atype, const edm::ParameterSet & cfg, edm::ConsumesCollector && cc) :
+                    VariableT(const std::string & aname, nanoaod::FlatTable::ColumnType atype, const edm::ParameterSet & cfg, edm::ConsumesCollector && cc) :
                         Variable(aname, atype, cfg), src_(cc.consumes<ValType>(cfg.getParameter<edm::InputTag>("src"))) {}
                     ~VariableT() override {}
-                    void fill(const edm::Event &iEvent, FlatTable & out) const override {
+                    void fill(const edm::Event &iEvent, nanoaod::FlatTable & out) const override {
                         edm::Handle<ValType> handle;
                         iEvent.getByToken(src_, handle);
                         out.template addColumnValue<ColType>(this->name_, Converter::convert(*handle), this->doc_, this->type_);

@@ -13,7 +13,7 @@
 #include <map>
 #include <vector>
 #include <string>
-#include <stdint.h>
+#include <cstdint>
 
 class DTWireId;
 

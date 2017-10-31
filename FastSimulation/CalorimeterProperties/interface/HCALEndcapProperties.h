@@ -21,11 +21,11 @@ class HCALEndcapProperties : public HCALProperties
 
   HCALEndcapProperties(const edm::ParameterSet& fastDet):HCALProperties(fastDet) {; } 
 
-  virtual ~HCALEndcapProperties() { }
+  ~HCALEndcapProperties() override { }
 
   double getHcalDepth(double);
 
-  double thickness(const double eta) const { 
+  double thickness(const double eta) const override { 
     return HCALProperties::getHcalDepth(eta) * interactionLength();
   }
 

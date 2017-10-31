@@ -7,7 +7,7 @@
 
 
 SiStripCorrelateNoise::SiStripCorrelateNoise(const edm::ParameterSet& iConfig):
-  refNoise(0),oldGain(0),newGain(0),cacheID_noise(0xFFFFFFFF),cacheID_gain(0xFFFFFFFF)
+  refNoise(nullptr),oldGain(nullptr),newGain(nullptr),cacheID_noise(0xFFFFFFFF),cacheID_gain(0xFFFFFFFF)
 {
   //now do what ever initialization is needed
   if(!edm::Service<SiStripDetInfoFileReader>().isAvailable()){
@@ -58,7 +58,7 @@ SiStripCorrelateNoise::beginRun(const edm::Run& run, const edm::EventSetup& es){
   }
 
   cacheID_noise=getNoiseCache(es);  
-  if(refNoise!=0)
+  if(refNoise!=nullptr)
     delete refNoise;
   refNoise=aNoise;
 }
@@ -68,7 +68,7 @@ SiStripCorrelateNoise::checkGainCache(const edm::EventSetup& es){
   equalGain=true;
   if(getGainCache(es)!=cacheID_gain ){
     es.get<SiStripApvGainRcd>().get(gainHandle_);
-    if(oldGain!=0)
+    if(oldGain!=nullptr)
       delete oldGain;
     
     oldGain = newGain;
@@ -89,7 +89,7 @@ SiStripCorrelateNoise::DoPlots(){
   char outName[128];
   sprintf(outName,"Run_%d.png",theRun);
   for(size_t i=0;i<vTH1.size();i++)
-    if(vTH1[i]!=0){
+    if(vTH1[i]!=nullptr){
       if(i%100==0){
 	C->cd(i/100);
 	vTH1[i]->SetLineColor(i/100);
@@ -212,9 +212,9 @@ SiStripCorrelateNoise::getHistos(const uint32_t& detid, const TrackerTopology* t
 TH1F*
 SiStripCorrelateNoise::getHisto(const long unsigned int& index){
   if(vTH1.size()<index+1)
-    vTH1.resize(index+1,0);
+    vTH1.resize(index+1,nullptr);
   
-  if(vTH1[index]==0){
+  if(vTH1[index]==nullptr){
     char name[128];
     std::string SubD;
     if(index<200)

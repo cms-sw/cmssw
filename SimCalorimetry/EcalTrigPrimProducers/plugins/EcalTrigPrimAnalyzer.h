@@ -38,11 +38,11 @@
 class EcalTrigPrimAnalyzer : public edm::one::EDAnalyzer<> {
    public:
       explicit EcalTrigPrimAnalyzer(const edm::ParameterSet&);
-      ~EcalTrigPrimAnalyzer();
+      ~EcalTrigPrimAnalyzer() override;
 
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
    private:
 
   // for histos of nr of hits

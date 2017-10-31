@@ -1416,7 +1416,7 @@ void IsolatedTracksCone::printTrack(const reco::Track* pTrack) {
   if( printTrkHitPattern_ ) {
     const reco::HitPattern& p = pTrack->hitPattern();
     
-    for (int i=0; i<p.numberOfHits(reco::HitPattern::TRACK_HITS); i++) {
+    for (int i=0; i<p.numberOfAllHits(reco::HitPattern::TRACK_HITS); i++) {
       p.printHitPattern(reco::HitPattern::TRACK_HITS, i, std::cout);
     }
   }

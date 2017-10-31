@@ -59,9 +59,9 @@ void CSCPairResidualsConstraint::configure(CSCOverlapsAlignmentAlgorithm *parent
     m_radial = tFileService->make<TH1F>(name3.str().c_str(), title.str().c_str(), 700, 0., 700.);
   }
   else {
-    m_slopeResiduals = NULL;
-    m_offsetResiduals = NULL;
-    m_radial = NULL;
+    m_slopeResiduals = nullptr;
+    m_offsetResiduals = nullptr;
+    m_radial = nullptr;
   }
 }
 

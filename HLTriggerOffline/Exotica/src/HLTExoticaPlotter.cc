@@ -163,7 +163,7 @@ void HLTExoticaPlotter::analyze(const bool & isPassTrigger,
 	  }
 	}
 
-        if ( dxys.size() && (objType == EVTColContainer::ELEC || objType == EVTColContainer::MUON || objType == EVTColContainer::MUTRK) ) 
+        if ( !dxys.empty() && (objType == EVTColContainer::ELEC || objType == EVTColContainer::MUON || objType == EVTColContainer::MUTRK) ) 
            this->fillHist(isPassTrigger, source, objTypeStr, "Dxy", dxys[j] );
 
         if (countobjects[objType] == 0) {
@@ -209,7 +209,7 @@ void HLTExoticaPlotter::bookHist(DQMStore::IBooker & iBooker,
     std::string sourceUpper = source;
     sourceUpper[0] = std::toupper(sourceUpper[0]);
     std::string name = source + objType + variable + "_" + _hltPath;
-    TH1F * h = 0;
+    TH1F * h = nullptr;
 
     if (variable.find("SumEt") != std::string::npos) {
         std::string title = "Sum ET of " + sourceUpper + " " + objType;

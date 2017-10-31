@@ -896,9 +896,9 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
 		debugstr5 << " Chi1 " << chi1 << " Chi2 " << chi2 <<"\n";
 #endif
 		if( chi1< chi2 ){
-		  uselist[j] = 0;
+		  uselist[j] = false;
 		}else{
-		  uselist[i] = 0;
+		  uselist[i] = false;
 		}
 
 	      } // end of Det check
@@ -930,7 +930,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
 		  << " Chi2 " << (philist[i]-(rlist[i]-scr)*phiVsRSlope)*(philist[i]-(rlist[i]-scr)*phiVsRSlope)*w2list[i]
 		  << " \n" ;
 #endif
-	uselist[i]=0 ;
+	uselist[i]=false ;
       }
     }
   }
@@ -1093,7 +1093,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
   // Now we have intercept, slope, and chi2; uselist to tell us which hits are used, and hitlist for the hits
 
   // Identify the innermost hit
-  const SiStripRecHit2D* innerhit = (SiStripRecHit2D*)(0);
+  const SiStripRecHit2D* innerhit = (SiStripRecHit2D*)nullptr;
   double innerhitRadius = -1.;  // meaningless until innerhit is defined
 
   // Copy hits into an OwnVector, which we put in the TrackCandidate
@@ -1111,7 +1111,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
       const SiStripRecHit2D* hit = hitlist[i];
 
       // Keep track of the innermost hit
-      if (innerhit == (SiStripRecHit2D*)(0)  ||  r < innerhitRadius) {
+      if (innerhit == (SiStripRecHit2D*)nullptr  ||  r < innerhitRadius) {
 	innerhit = hit;
 	innerhitRadius = r;
       }

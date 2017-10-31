@@ -48,7 +48,7 @@ class DTDigitizer : public edm::stream::EDProducer<> {
 
   explicit DTDigitizer(const edm::ParameterSet&);
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
  private:
   typedef std::pair<const PSimHit*,float> hitAndT; // hit & corresponding time

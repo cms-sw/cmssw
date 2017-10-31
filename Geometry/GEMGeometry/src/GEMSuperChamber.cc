@@ -17,7 +17,7 @@ bool GEMSuperChamber::operator==(const GEMSuperChamber& sch) const {
   return this->id()==sch.id();
 }
 
-void GEMSuperChamber::add(GEMChamber* ch) {
+void GEMSuperChamber::add(const GEMChamber* ch) {
   chambers_.emplace_back(ch);
 }
 

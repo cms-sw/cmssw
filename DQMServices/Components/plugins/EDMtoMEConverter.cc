@@ -241,7 +241,7 @@ EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet & iPSet) :
   verbosity %= 10;
 
   // get dqm info
-  dbe = 0;
+  dbe = nullptr;
   dbe = edm::Service<DQMStore>().operator->();
 
   // print out Parameter Set information being used

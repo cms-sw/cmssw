@@ -20,7 +20,7 @@ namespace reco{
   class PFTauTagInfo : public BaseTauTagInfo {
   public:
     PFTauTagInfo(){}
-    virtual ~PFTauTagInfo(){};
+    ~PFTauTagInfo() override{};
     virtual PFTauTagInfo* clone()const;
     
     //get the PFCandidates which compose the PF jet and were filtered by RecoTauTag/TauTagTools/ TauTagTools::filteredPFChargedHadrCands(.,...), filteredPFNeutrHadrCands(.), filteredPFGammaCands(.) functions through RecoTauTag/RecoTauTag/ PFRecoTauTagInfoProducer EDProducer

@@ -50,7 +50,7 @@ class TTStubAssociator : public edm::stream::EDProducer<>
     explicit TTStubAssociator( const edm::ParameterSet& iConfig );
 
     /// Destructor
-    ~TTStubAssociator();
+    ~TTStubAssociator() override;
 
   private:
     /// Data members
@@ -64,9 +64,9 @@ class TTStubAssociator : public edm::stream::EDProducer<>
     edm::ESHandle<TrackerTopology> theTrackerTopology;
 
     /// Mandatory methods
-    virtual void beginRun( const edm::Run& run, const edm::EventSetup& iSetup );
-    virtual void endRun( const edm::Run& run, const edm::EventSetup& iSetup );
-    virtual void produce( edm::Event& iEvent, const edm::EventSetup& iSetup );
+    void beginRun( const edm::Run& run, const edm::EventSetup& iSetup ) override;
+    void endRun( const edm::Run& run, const edm::EventSetup& iSetup ) override;
+    void produce( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
 
 }; /// Close class
 

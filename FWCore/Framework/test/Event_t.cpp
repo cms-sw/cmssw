@@ -19,6 +19,7 @@ Test program for edm::Event.
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
+#include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 #include "DataFormats/TestObjects/interface/Thing.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -27,6 +28,7 @@ Test program for edm::Event.
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
+#include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
@@ -55,14 +57,6 @@ Test program for edm::Event.
 using namespace edm;
 
 // This is a gross hack, to allow us to test the event
-namespace edm {
-  class ProducerBase {
-  public:
-    static void commitEvent(Event& e) { e.commit_(std::vector<ProductResolverIndex>()); }
-
-  };
-}
-
 namespace {
   struct IntConsumer : public EDConsumerBase {
     IntConsumer( std::vector<InputTag> const& iTags) {
@@ -95,6 +89,7 @@ class testEvent: public CppUnit::TestFixture {
   CPPUNIT_TEST(getByTokenFromEmpty);
   CPPUNIT_TEST(putAnIntProduct);
   CPPUNIT_TEST(putAndGetAnIntProduct);
+  CPPUNIT_TEST(putAndGetAnIntProductByToken);
   CPPUNIT_TEST(getByProductID);
   CPPUNIT_TEST(transaction);
   CPPUNIT_TEST(getByLabel);
@@ -114,6 +109,7 @@ class testEvent: public CppUnit::TestFixture {
   void getByTokenFromEmpty();
   void putAnIntProduct();
   void putAndGetAnIntProduct();
+  void putAndGetAnIntProductByToken();
   void getByProductID();
   void transaction();
   void getByLabel();
@@ -145,6 +141,15 @@ class testEvent: public CppUnit::TestFixture {
   ProductID addProduct(std::unique_ptr<T> product,
                        std::string const& tag,
                        std::string const& productLabel = std::string());
+  
+  template <class T>
+  std::unique_ptr<ProducerBase> putProduct(std::unique_ptr<T> product,
+                  std::string const& productInstanceLabel,
+                                           bool doCommit=true);
+  template <class T>
+  std::unique_ptr<ProducerBase> putProductUsingToken(std::unique_ptr<T> product,
+                                                     std::string const& productInstanceLabel,
+                                                     bool doCommit=true);
 
   std::shared_ptr<ProductRegistry>   availableProducts_;
   std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
@@ -224,11 +229,67 @@ testEvent::addProduct(std::unique_ptr<T> product,
 
   ModuleCallingContext mcc(&description->second);
   Event temporaryEvent(*principal_, description->second, &mcc);
+  ProducerBase prod;
+  prod.produces<T>(productLabel);
+  const_cast<std::vector<edm::ProductResolverIndex>&>(prod.putTokenIndexToProductResolverIndex()).push_back(
+       principal_->productLookup().index(PRODUCT_TYPE,
+                                         edm::TypeID(typeid(T)),
+                                         description->second.moduleLabel().c_str(),
+                                         productLabel.c_str(),
+                                         description->second.processName().c_str())
+  );
+
+  temporaryEvent.setProducer(&prod,nullptr);
   OrphanHandle<T> h = temporaryEvent.put(std::move(product), productLabel);
   ProductID id = h.id();
-  ProducerBase::commitEvent(temporaryEvent);
+  temporaryEvent.commit_(std::vector<ProductResolverIndex>());
   return id;
 }
+
+template <class T>
+std::unique_ptr<ProducerBase>
+testEvent::putProduct(std::unique_ptr<T> product,
+                      std::string const& productInstanceLabel,
+                      bool doCommit) {
+  auto prod = std::make_unique<ProducerBase>();
+  prod->produces<edmtest::IntProduct>(productInstanceLabel);
+  auto index =principal_->productLookup().index(PRODUCT_TYPE,
+                                                edm::TypeID(typeid(T)),
+                                                currentModuleDescription_->moduleLabel().c_str(),
+                                                productInstanceLabel.c_str(),
+                                                currentModuleDescription_->processName().c_str());
+  CPPUNIT_ASSERT(index != std::numeric_limits<unsigned int>::max());
+  const_cast<std::vector<edm::ProductResolverIndex>&>(prod->putTokenIndexToProductResolverIndex()).push_back(index);
+  currentEvent_->setProducer(prod.get(),nullptr);
+  currentEvent_->put(std::move(product), productInstanceLabel);
+  if(doCommit) {
+    currentEvent_->commit_(std::vector<ProductResolverIndex>());
+  }
+  return prod;
+}
+
+template <class T>
+std::unique_ptr<ProducerBase>
+testEvent::putProductUsingToken(std::unique_ptr<T> product,
+                                std::string const& productInstanceLabel,
+                                bool doCommit) {
+  auto prod = std::make_unique<ProducerBase>();
+  EDPutTokenT<edmtest::IntProduct> token = prod->produces<edmtest::IntProduct>(productInstanceLabel);
+  auto index =principal_->productLookup().index(PRODUCT_TYPE,
+                                                edm::TypeID(typeid(T)),
+                                                currentModuleDescription_->moduleLabel().c_str(),
+                                                productInstanceLabel.c_str(),
+                                                currentModuleDescription_->processName().c_str());
+  CPPUNIT_ASSERT(index != std::numeric_limits<unsigned int>::max());
+  const_cast<std::vector<edm::ProductResolverIndex>&>(prod->putTokenIndexToProductResolverIndex()).push_back(index);
+  currentEvent_->setProducer(prod.get(),nullptr);
+  currentEvent_->put(token,std::move(product));
+  if(doCommit) {
+    currentEvent_->commit_(std::vector<ProductResolverIndex>());
+  }
+  return prod;
+}
+
 
 testEvent::testEvent() :
   availableProducts_(new ProductRegistry()),
@@ -273,7 +334,7 @@ testEvent::testEvent() :
 
   auto processX = std::make_shared<ProcessConfiguration>(process);
   processConfigurations_.push_back(processX);
-    currentModuleDescription_.reset(new ModuleDescription(moduleParams.id(), moduleClassName, moduleLabel, processX.get(),ModuleDescription::getUniqueID()));
+  currentModuleDescription_.reset(new ModuleDescription(moduleParams.id(), moduleClassName, moduleLabel, processX.get(),ModuleDescription::getUniqueID()));
 
   std::string productInstanceName("int1");
 
@@ -416,16 +477,29 @@ void testEvent::getByTokenFromEmpty() {
 }
 
 void testEvent::putAnIntProduct() {
-  currentEvent_->put(std::make_unique<edmtest::IntProduct>(3), "int1");
+  
+  auto p = putProduct(std::make_unique<edmtest::IntProduct>(3),"int1",false);
   CPPUNIT_ASSERT(currentEvent_->size() == 1);
-  ProducerBase::commitEvent(*currentEvent_);
+  currentEvent_->commit_(std::vector<ProductResolverIndex>());
   CPPUNIT_ASSERT(currentEvent_->size() == 1);
 }
 
 void testEvent::putAndGetAnIntProduct() {
-  currentEvent_->put(std::make_unique<edmtest::IntProduct>(4), "int1");
-  ProducerBase::commitEvent(*currentEvent_);
+  auto p = putProduct(std::make_unique<edmtest::IntProduct>(4),"int1");
+  
+  InputTag should_match("modMulti", "int1", "CURRENT");
+  InputTag should_not_match("modMulti", "int1", "NONESUCH");
+  Handle<edmtest::IntProduct> h;
+  currentEvent_->getByLabel(should_match, h);
+  CPPUNIT_ASSERT(h.isValid());
+  CPPUNIT_ASSERT(!currentEvent_->getByLabel(should_not_match, h));
+  CPPUNIT_ASSERT(!h.isValid());
+  CPPUNIT_ASSERT_THROW(*h, cms::Exception);
+}
 
+void testEvent::putAndGetAnIntProductByToken() {
+  auto p = putProductUsingToken(std::make_unique<edmtest::IntProduct>(4),"int1");
+  
   InputTag should_match("modMulti", "int1", "CURRENT");
   InputTag should_not_match("modMulti", "int1", "NONESUCH");
   Handle<edmtest::IntProduct> h;
@@ -455,7 +529,7 @@ void testEvent::getByProductID() {
     CPPUNIT_ASSERT(id2 != ProductID());
     CPPUNIT_ASSERT(id2 != id1);
 
-    ProducerBase::commitEvent(*currentEvent_);
+    currentEvent_->commit_(std::vector<ProductResolverIndex>());
     CPPUNIT_ASSERT(currentEvent_->size() == 2);
   }
 
@@ -498,7 +572,8 @@ void testEvent::transaction() {
     typedef std::unique_ptr<product_t> ap_t;
 
     ap_t three(new product_t(3));
-    currentEvent_->put(std::move(three), "int1");
+    auto p = putProduct(std::move(three),"int1",false);
+
     CPPUNIT_ASSERT(principal_->size() == 0);
     CPPUNIT_ASSERT(currentEvent_->size() == 1);
     // DO NOT COMMIT!
@@ -530,8 +605,7 @@ void testEvent::getByLabel() {
   addProduct(std::move(oneHundred), "int1_tag_late", "int1");
 
   auto twoHundred = std::make_unique<edmtest::IntProduct>(200);
-  currentEvent_->put(std::move(twoHundred), "int1");
-  ProducerBase::commitEvent(*currentEvent_);
+  putProduct(std::move(twoHundred),"int1");
 
   CPPUNIT_ASSERT(currentEvent_->size() == 7);
 
@@ -615,8 +689,7 @@ void testEvent::getByToken() {
   addProduct(std::move(oneHundred), "int1_tag_late", "int1");
   
   auto twoHundred = std::make_unique<edmtest::IntProduct>(200);
-  currentEvent_->put(std::move(twoHundred), "int1");
-  ProducerBase::commitEvent(*currentEvent_);
+  putProduct(std::move(twoHundred), "int1");
   
   CPPUNIT_ASSERT(currentEvent_->size() == 7);
 
@@ -699,8 +772,7 @@ void testEvent::getManyByType() {
   addProduct(std::move(oneHundred), "int1_tag_late", "int1");
 
   auto twoHundred = std::make_unique<edmtest::IntProduct>(200);
-  currentEvent_->put(std::move(twoHundred), "int1");
-  ProducerBase::commitEvent(*currentEvent_);
+  putProduct(std::move(twoHundred), "int1");
 
   CPPUNIT_ASSERT(currentEvent_->size() == 8);
 

@@ -13,56 +13,56 @@
  *  \author M. Sani
  */
 
-# include <Geometry/CommonDetUnit/interface/TrackingGeometry.h>
+# include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 # include <vector>
-#include <atomic>
+# include <atomic>
 
 class GlobalTrackingGeometry : public TrackingGeometry
 {
-public:
-    /// Constructor
-    GlobalTrackingGeometry(std::vector<const TrackingGeometry*>& geos);
+ public:
 
-    /// Destructor
-    ~GlobalTrackingGeometry() override;  
+  GlobalTrackingGeometry(std::vector<const TrackingGeometry*>& geos);
 
-    // Return a vector of all det types.
-    const DetTypeContainer&  detTypes()         const override;
+  ~GlobalTrackingGeometry() override;  
 
-    // Returm a vector of all GeomDetUnit
-    const DetUnitContainer&  detUnits()         const override;
+  // Return a vector of all det types.
+  const DetTypeContainer&  detTypes() const override;
+  
+  // Returm a vector of all GeomDetUnit
+  const DetContainer& detUnits() const override;
+  
+  // Returm a vector of all GeomDet (including all GeomDetUnits)
+  const DetContainer& dets() const override;
+  
+  // Returm a vector of all GeomDetUnit DetIds
+  const DetIdContainer& detUnitIds() const override;
+  
+  // Returm a vector of all GeomDet DetIds (including those of GeomDetUnits)
+  const DetIdContainer& detIds() const override;
+  
+  // Return the pointer to the GeomDetUnit corresponding to a given DetId
+  const GeomDet* idToDetUnit(DetId) const override;
+  
+  // Return the pointer to the GeomDet corresponding to a given DetId
+  // (valid also for GeomDetUnits)
+  const GeomDet* idToDet(DetId) const override; 
+  
+  /// Return the pointer to the actual geometry for a given DetId
+  const TrackingGeometry* slaveGeometry(DetId id) const;
 
-    // Returm a vector of all GeomDet (including all GeomDetUnits)
-    const DetContainer&      dets()             const override;
+ private:
+  
+  std::vector<const TrackingGeometry*> theGeometries;
 
-    // Returm a vector of all GeomDetUnit DetIds
-    const DetIdContainer&    detUnitIds()       const override;
-
-    // Returm a vector of all GeomDet DetIds (including those of GeomDetUnits)
-    const DetIdContainer&    detIds()           const override;
-
-    // Return the pointer to the GeomDetUnit corresponding to a given DetId
-    const GeomDetUnit*       idToDetUnit(DetId) const override;
-
-    // Return the pointer to the GeomDet corresponding to a given DetId
-    // (valid also for GeomDetUnits)
-    const GeomDet*           idToDet(DetId)     const override; 
-        
-    /// Return the pointer to the actual geometry for a given DetId
-    const TrackingGeometry* slaveGeometry(DetId id) const;
-
-private:
-
-    std::vector<const TrackingGeometry*> theGeometries;
-
-    // The const methods claim to simply return these vectors,
-    // but actually, they'll fill them up the first time they
-    // are called, which is rare (or never).
-    mutable std::atomic<DetTypeContainer*>  theDetTypes;
-    mutable std::atomic<DetUnitContainer*>  theDetUnits;
-    mutable std::atomic<DetContainer*>      theDets;
-    mutable std::atomic<DetIdContainer*>    theDetUnitIds;
-    mutable std::atomic<DetIdContainer*>    theDetIds;
+  // The const methods claim to simply return these vectors,
+  // but actually, they'll fill them up the first time they
+  // are called, which is rare (or never).
+  mutable std::atomic<DetTypeContainer*>  theDetTypes;
+  mutable std::atomic<DetContainer*>      theDetUnits;
+  mutable std::atomic<DetContainer*>      theDets;
+  mutable std::atomic<DetIdContainer*>    theDetUnitIds;
+  mutable std::atomic<DetIdContainer*>    theDetIds;
 };
+
 #endif
 

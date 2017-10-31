@@ -102,19 +102,26 @@ edm::Ref<AppleCollection> ref(refApples, index);
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/ProductLabels.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Utilities/interface/Transition.h"
 
 
 namespace edm {
 
   class ModuleCallingContext;
   class SharedResourcesAcquirer;
+  class ProducerBase;
 
   namespace principal_get_adapter_detail {
     void
     throwOnPutOfNullProduct(char const* principalType, TypeID const& productType, std::string const& productInstanceName);
+    void
+    throwOnPutOfUninitializedToken(char const* principalType, std::type_info const& productType);
+    void
+    throwOnPutOfWrongType(std::type_info const& wrongType, TypeID const& rightType);
     void
     throwOnPrematureRead(char const* principalType, TypeID const& productType, std::string const& moduleLabel, std::string const& productInstanceName);
     void
@@ -144,12 +151,19 @@ namespace edm {
       resourcesAcquirer_ = iSra;
     }
 
+    void setProducer(ProducerBase const* iProd) {
+      prodBase_ = iProd;
+    }
 
+    size_t numberOfProductsConsumed() const ;
+    
     bool isComplete() const;
 
     template <typename PROD>
     bool 
     checkIfComplete() const;
+    
+    Transition transition() const;
 
     template <typename PROD>
     void 
@@ -163,8 +177,22 @@ namespace edm {
     BranchDescription const&
     getBranchDescription(TypeID const& type, std::string const& productInstanceName) const;
 
+    EDPutToken::value_type
+    getPutTokenIndex(TypeID const& type, std::string const& productInstanceName) const;
+
+    TypeID const& getTypeIDForPutTokenIndex(EDPutToken::value_type index) const;
+    std::string const& productInstanceLabel(EDPutToken) const;
     typedef std::vector<BasicHandle>  BasicHandleVec;
 
+    BranchDescription const&
+    getBranchDescription(unsigned int iPutTokenIndex) const;
+    ProductID const& getProductID(unsigned int iPutTokenIndex) const;
+    
+    std::vector<edm::ProductResolverIndex> const&
+    putTokenIndexToProductResolverIndex() const ;
+    
+    //uses the EDPutToken index
+    std::vector<bool> const& recordProvenanceList() const;
     //------------------------------------------------------------
     // Protected functions.
     //
@@ -220,6 +248,9 @@ namespace edm {
     void
     throwAmbiguousException(TypeID const& productType, EDGetToken token) const;
 
+    void
+    throwUnregisteredPutException(TypeID const& type,
+                                  std::string const& productInstanceLabel) const;
   private:
     //------------------------------------------------------------
     // Data members
@@ -235,6 +266,7 @@ namespace edm {
     
     EDConsumerBase const* consumer_;
     SharedResourcesAcquirer* resourcesAcquirer_; // We do not use propagate_const because the acquirer is itself mutable.
+    ProducerBase const* prodBase_ = nullptr;
   };
 
   template <typename PROD>
@@ -275,16 +307,6 @@ namespace edm {
     struct has_postinsert {
       static constexpr bool value = std::is_same<decltype(has_postinsert_helper<T>(nullptr)), yes_tag>::value &&
 	!std::is_base_of<DoNotSortUponInsertion, T>::value;
-    };
-
-
-    // has_donotrecordparents<T>::value is true if we should not
-    // record parentage for type T, and false otherwise.
-
-    template <typename T>
-    struct has_donotrecordparents {
-      static constexpr bool value =
-	std::is_base_of<DoNotRecordParents,T>::value;
     };
 
   }

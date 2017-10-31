@@ -162,13 +162,13 @@ void DQMPFCandidateAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
       typePFCandRECO_.push_back(v->getParameter<int>("type"));
       countsPFCandRECO_.push_back(0);
       multiplicityPFCandRECO_.push_back(ibooker.book1D(std::string(v->getParameter<std::string>("name")).append("_multiplicity_").c_str(),std::string(v->getParameter<std::string>("name"))+"multiplicity", nbinsPFCand, nMinPFCand, nMaxPFCand));
-      multiplicityPFCand_nameRECO_.push_back(std::string(v->getParameter<std::string>("name")).append("_multiplicity_").c_str());
+      multiplicityPFCand_nameRECO_.push_back(std::string(v->getParameter<std::string>("name")).append("_multiplicity_"));
       map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+ multiplicityPFCand_nameRECO_[multiplicityPFCand_nameRECO_.size()-1], multiplicityPFCandRECO_[multiplicityPFCandRECO_.size()-1]));
       
       //push back names first, we need to create histograms with the name and fill it for endcap plots later
-      occupancyPFCand_nameRECO_.push_back(std::string(v->getParameter<std::string>("name")).append("_occupancy_").c_str());
+      occupancyPFCand_nameRECO_.push_back(std::string(v->getParameter<std::string>("name")).append("_occupancy_"));
       
-      ptPFCand_nameRECO_.push_back(std::string(v->getParameter<std::string>("name")).append("_pt_").c_str());
+      ptPFCand_nameRECO_.push_back(std::string(v->getParameter<std::string>("name")).append("_pt_"));
       //special booking for endcap plots, merge plots for eminus and eplus into one plot, using variable binning
       //barrel plots have eta-boundaries on minus and plus side
       //parameters start on minus side
@@ -322,14 +322,14 @@ void DQMPFCandidateAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
       countsPFCand_.push_back(0);
       
       multiplicityPFCand_.push_back(ibooker.book1D(std::string(v->getParameter<std::string>("name")).append("_multiplicity_").c_str(),std::string(v->getParameter<std::string>("name"))+"multiplicity", nbinsPFCand, nMinPFCand, nMaxPFCand));
-      multiplicityPFCand_name_.push_back(std::string(v->getParameter<std::string>("name")).append("_multiplicity_").c_str());
+      multiplicityPFCand_name_.push_back(std::string(v->getParameter<std::string>("name")).append("_multiplicity_"));
       map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+ multiplicityPFCand_name_[multiplicityPFCand_name_.size()-1], multiplicityPFCand_[multiplicityPFCand_.size()-1]));
       //push back names first, we need to create histograms with the name and fill it for endcap plots later
-      occupancyPFCand_name_.push_back(std::string(v->getParameter<std::string>("name")).append("_occupancy_puppiWeight_").c_str());
-      ptPFCand_name_.push_back(std::string(v->getParameter<std::string>("name")).append("_pt_puppiWeight_").c_str());
+      occupancyPFCand_name_.push_back(std::string(v->getParameter<std::string>("name")).append("_occupancy_puppiWeight_"));
+      ptPFCand_name_.push_back(std::string(v->getParameter<std::string>("name")).append("_pt_puppiWeight_"));
       //push back names first, we need to create histograms with the name and fill it for endcap plots later
-      occupancyPFCand_name_puppiNolepWeight_.push_back(std::string(v->getParameter<std::string>("name")).append("_occupancy_puppiNolepWeight_").c_str());	  
-      ptPFCand_name_puppiNolepWeight_.push_back(std::string(v->getParameter<std::string>("name")).append("_pt_puppiNolepWeight_").c_str());
+      occupancyPFCand_name_puppiNolepWeight_.push_back(std::string(v->getParameter<std::string>("name")).append("_occupancy_puppiNolepWeight_"));	  
+      ptPFCand_name_puppiNolepWeight_.push_back(std::string(v->getParameter<std::string>("name")).append("_pt_puppiNolepWeight_"));
       //special booking for endcap plots, merge plots for eminus and eplus into one plot, using variable binning
       //barrel plots have eta-boundaries on minus and plus side
       //parameters start on minus side

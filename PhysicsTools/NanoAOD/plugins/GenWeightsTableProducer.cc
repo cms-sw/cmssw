@@ -116,11 +116,11 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
             debug_(params.getUntrackedParameter<bool>("debug",false)), debugRun_(debug_.load()),
             hasIssuedWarning_(false)
         {
-            produces<FlatTable>();
-            produces<FlatTable>("LHEScale");
-            produces<FlatTable>("LHEPdf");
-            produces<FlatTable>("LHENamed");
-            produces<MergeableCounterTable,edm::InRun>();
+            produces<nanoaod::FlatTable>();
+            produces<nanoaod::FlatTable>("LHEScale");
+            produces<nanoaod::FlatTable>("LHEPdf");
+            produces<nanoaod::FlatTable>("LHENamed");
+            produces<nanoaod::MergeableCounterTable,edm::Transition::EndRun>();
             if (namedWeightIDs_.size() != namedWeightLabels_.size()) {
                 throw cms::Exception("Configuration", "Size mismatch between namedWeightIDs & namedWeightLabels");
             }
@@ -138,13 +138,13 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
             double weight = genInfo->weight();
             
             // table for gen info, always available
-            auto out = std::make_unique<FlatTable>(1, "genWeight", true);
+            auto out = std::make_unique<nanoaod::FlatTable>(1, "genWeight", true);
             out->setDoc("generator weight");
-            out->addColumnValue<float>("", weight, "generator weight", FlatTable::FloatColumn);
+            out->addColumnValue<float>("", weight, "generator weight", nanoaod::FlatTable::FloatColumn);
             iEvent.put(std::move(out));
 
             // tables for LHE weights, may not be filled
-            std::unique_ptr<FlatTable> lheScaleTab, lhePdfTab, lheNamedTab;
+            std::unique_ptr<nanoaod::FlatTable> lheScaleTab, lhePdfTab, lheNamedTab;
 
             edm::Handle<LHEEventProduct> lheInfo;
             if (iEvent.getByToken(lheTag_, lheInfo)) {
@@ -156,9 +156,9 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                 // minimal book-keeping of weights
                 counter->incGenOnly(weight);
                 // make dummy values 
-                lheScaleTab.reset(new FlatTable(1, "LHEScaleWeights", true));
-                lhePdfTab.reset(new FlatTable(1, "LHEPdfWeights", true));
-                lheNamedTab.reset(new FlatTable(1, "LHENamedWeights", true));
+                lheScaleTab.reset(new nanoaod::FlatTable(1, "LHEScaleWeights", true));
+                lhePdfTab.reset(new nanoaod::FlatTable(1, "LHEPdfWeights", true));
+                lheNamedTab.reset(new nanoaod::FlatTable(1, "LHENamedWeights", true));
                 if (!hasIssuedWarning_.exchange(true)) {
                     edm::LogWarning("LHETablesProducer") << "No LHEEventProduct, so there will be no LHE Tables\n";
                 }
@@ -174,9 +174,9 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                 const DynamicWeightChoice * weightChoice,
                 double genWeight,
                 const LHEEventProduct & lheProd, 
-                std::unique_ptr<FlatTable> & outScale, 
-                std::unique_ptr<FlatTable> & outPdf, 
-                std::unique_ptr<FlatTable> & outNamed ) const 
+                std::unique_ptr<nanoaod::FlatTable> & outScale, 
+                std::unique_ptr<nanoaod::FlatTable> & outPdf, 
+                std::unique_ptr<nanoaod::FlatTable> & outNamed ) const 
         {
             bool lheDebug = debug_.exchange(false); // make sure only the first thread dumps out this (even if may still be mixed up with other output, but nevermind)
 
@@ -199,16 +199,16 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                 if (mNamed != namedWeightIDs_.end()) wNamed[mNamed-namedWeightIDs_.begin()] = weight.wgt/w0;
             } 
 
-            outScale.reset(new FlatTable(wScale.size(), "LHEScaleWeight", false));
-            outScale->addColumn<float>("", wScale, weightChoice->scaleWeightsDoc, FlatTable::FloatColumn, lheWeightPrecision_); 
+            outScale.reset(new nanoaod::FlatTable(wScale.size(), "LHEScaleWeight", false));
+            outScale->addColumn<float>("", wScale, weightChoice->scaleWeightsDoc, nanoaod::FlatTable::FloatColumn, lheWeightPrecision_); 
 
-            outPdf.reset(new FlatTable(wPDF.size(), "LHEPdfWeight", false));
-            outPdf->addColumn<float>("", wPDF, weightChoice->pdfWeightsDoc, FlatTable::FloatColumn, lheWeightPrecision_); 
+            outPdf.reset(new nanoaod::FlatTable(wPDF.size(), "LHEPdfWeight", false));
+            outPdf->addColumn<float>("", wPDF, weightChoice->pdfWeightsDoc, nanoaod::FlatTable::FloatColumn, lheWeightPrecision_); 
 
-            outNamed.reset(new FlatTable(1, "LHEWeight", true));
-            outNamed->addColumnValue<float>("originalXWGTUP", lheProd.originalXWGTUP(), "Nominal event weight in the LHE file", FlatTable::FloatColumn);
+            outNamed.reset(new nanoaod::FlatTable(1, "LHEWeight", true));
+            outNamed->addColumnValue<float>("originalXWGTUP", lheProd.originalXWGTUP(), "Nominal event weight in the LHE file", nanoaod::FlatTable::FloatColumn);
             for (unsigned int i = 0, n = wNamed.size(); i < n; ++i) {
-                outNamed->addColumnValue<float>(namedWeightLabels_[i], wNamed[i], "LHE weight for id "+namedWeightIDs_[i]+", relative to nominal", FlatTable::FloatColumn, lheWeightPrecision_);
+                outNamed->addColumnValue<float>(namedWeightLabels_[i], wNamed[i], "LHE weight for id "+namedWeightIDs_[i]+", relative to nominal", nanoaod::FlatTable::FloatColumn, lheWeightPrecision_);
             }
             
             counter->incLHE(genWeight, wScale, wPDF, wNamed);
@@ -227,10 +227,11 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                 std::vector<ScaleVarWeight> scaleVariationIDs;
                 std::vector<PDFSetWeights>  pdfSetWeightIDs;
                 
-                std::regex weightgroup("<weightgroup\\s+combine=\"(.*)\"\\s+name=\"(.*)\"\\s*>");
+                std::regex weightgroup("<weightgroup\\s+combine=\"(.*)\"\\s+(?:name|type)=\"(.*)\"\\s*>");
                 std::regex endweightgroup("</weightgroup>");
-                std::regex scalew("<weight\\s+id=\"(\\d+)\">\\s*(muR=(\\S+)\\s+muF=(\\S+)(\\s+.*)?)</weight>");
+                std::regex scalew("<weight\\s+id=\"(\\d+)\">\\s*(mu[rR]=(\\S+)\\s+mu[Ff]=(\\S+)(\\s+.*)?)</weight>");
                 std::regex pdfw("<weight\\s+id=\"(\\d+)\">\\s*PDF set\\s*=\\s*(\\d+)\\s*</weight>");
+                std::regex pdfwOld("<weight\\s+id=\"(\\d+)\">\\s*Member \\s*(\\d+)\\s*</weight>");
                 std::smatch groups;
                 for (auto iter=lheInfo->headers_begin(), end = lheInfo->headers_end(); iter != end; ++iter) {
                     if (iter->tag() != "initrwgt") {
@@ -243,7 +244,7 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                         if (lheDebug) std::cout << lines[iLine];
                         if (std::regex_search(lines[iLine], groups, weightgroup)) {
                             if (lheDebug) std::cout << ">>> Looks like the beginning of a weight group for " << groups.str(2) << std::endl;
-                            if (groups.str(2) == "scale_variation") {
+                            if (groups.str(2) == "scale_variation" || groups.str(2) == "Central scale variation") {
                                 for ( ++iLine; iLine < nLines; ++iLine) {
                                     if (lheDebug) std::cout << "    " << lines[iLine];
                                     if (std::regex_search(lines[iLine], groups, scalew)) {
@@ -264,6 +265,25 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                                     if (std::regex_search(lines[iLine], groups, pdfw)) {
                                         unsigned int lhaID = std::stoi(groups.str(2));
                                         if (lheDebug) std::cout << "    >>> PDF weight " << groups.str(1) << " for " << groups.str(2) << " = " << lhaID << std::endl;
+                                        if (pdfSetWeightIDs.empty() || ! pdfSetWeightIDs.back().maybe_add(groups.str(1),lhaID)) {
+                                            pdfSetWeightIDs.emplace_back(groups.str(1),lhaID);
+                                        }
+                                    } else if (std::regex_search(lines[iLine], endweightgroup)) {
+                                        if (lheDebug) std::cout << ">>> Looks like the end of a weight group" << std::endl;
+                                        break;
+                                    } else if (std::regex_search(lines[iLine], weightgroup)) {
+                                        if (lheDebug) std::cout << ">>> Looks like the beginning of a new weight group, I will assume I missed the end of the group." << std::endl;
+                                        --iLine; // rewind by one, and go back to the outer loop
+                                        break;
+                                    }
+                                }
+                            } else if (groups.str(2) == "NNPDF30_lo_as_0130.LHgrid") {
+                                for ( ++iLine; iLine < nLines; ++iLine) {
+                                    if (lheDebug) std::cout << "    " << lines[iLine];
+                                    if (std::regex_search(lines[iLine], groups, pdfwOld)) {
+                                        unsigned int lhaID = std::stoi(groups.str(2))+262000;
+                                        if (lheDebug) std::cout << "    >>> PDF weight " << groups.str(1) << " for " << groups.str(2) << " = " << lhaID << std::endl;
+                                        if (lhaID == 262000) continue;
                                         if (pdfSetWeightIDs.empty() || ! pdfSetWeightIDs.back().maybe_add(groups.str(1),lhaID)) {
                                             pdfSetWeightIDs.emplace_back(groups.str(1),lhaID);
                                         }
@@ -355,7 +375,7 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
         }
         // write the total to the run 
         void globalEndRunProduce(edm::Run& iRun, edm::EventSetup const&, Counter const* runCounter) const override {
-            auto out = std::make_unique<MergeableCounterTable>();
+            auto out = std::make_unique<nanoaod::MergeableCounterTable>();
             out->addInt("genEventCount", "event count", runCounter->num);
             out->addFloat("genEventSumw", "sum of gen weights", runCounter->sumw);
             out->addFloat("genEventSumw2", "sum of gen (weight^2)", runCounter->sumw2);

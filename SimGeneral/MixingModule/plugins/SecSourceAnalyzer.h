@@ -41,16 +41,16 @@ namespace edm {
   public:
    
     explicit SecSourceAnalyzer(const edm::ParameterSet&);
-    virtual ~SecSourceAnalyzer();
+    ~SecSourceAnalyzer() override;
 
     virtual void getBranches(EventPrincipal const& ep,
                              ModuleCallingContext const*);
     virtual void dummyFunction(EventPrincipal const& ep) {}
 
   private:
-    virtual void beginJob() override ;
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-    virtual void endJob() override ;
+    void beginJob() override ;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void endJob() override ;
 
     // ----------member data ---------------------------
     int minBunch_;

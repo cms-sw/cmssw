@@ -8,14 +8,14 @@ class GsfEleDxyCut : public CutApplicatorWithEventContentBase {
 public:
   GsfEleDxyCut(const edm::ParameterSet& c);
   
-  result_type operator()(const reco::GsfElectronPtr&) const override final;
+  result_type operator()(const reco::GsfElectronPtr&) const final;
 
-  void setConsumes(edm::ConsumesCollector&) override final;
-  void getEventContent(const edm::EventBase&) override final;
+  void setConsumes(edm::ConsumesCollector&) final;
+  void getEventContent(const edm::EventBase&) final;
 
-  double value(const reco::CandidatePtr& cand) const override final;
+  double value(const reco::CandidatePtr& cand) const final;
 
-  CandidateType candidateType() const override final { 
+  CandidateType candidateType() const final { 
     return ELECTRON; 
   }
 
@@ -61,7 +61,7 @@ operator()(const reco::GsfElectronPtr& cand) const{
       _dxyCutValueEB : _dxyCutValueEE );
 
   const reco::VertexCollection& vtxs = *_vtxs;
-  const double dxy = ( vtxs.size() ? 
+  const double dxy = ( !vtxs.empty() ? 
 		       cand->gsfTrack()->dxy(vtxs[0].position()) : 
 		       cand->gsfTrack()->dxy() );
   return std::abs(dxy) < dxyCutValue;
@@ -70,7 +70,7 @@ operator()(const reco::GsfElectronPtr& cand) const{
 double GsfEleDxyCut::value(const reco::CandidatePtr& cand) const {
   reco::GsfElectronPtr ele(cand);
   const reco::VertexCollection& vtxs = *_vtxs;
-  const double dxy = ( vtxs.size() ? 
+  const double dxy = ( !vtxs.empty() ? 
 		       ele->gsfTrack()->dxy(vtxs[0].position()) : 
 		       ele->gsfTrack()->dxy() );
   return std::abs(dxy);

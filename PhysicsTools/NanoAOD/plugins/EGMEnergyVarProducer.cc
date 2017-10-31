@@ -90,9 +90,9 @@ EGMEnergyVarProducer<T>::produce(edm::StreamID streamID, edm::Event& iEvent, con
 
   std::vector<float> eCorr(nSrcCorr,-1);
 
-  for (uint ir = 0; ir<nSrcRaw; ir++){
+  for (unsigned int ir = 0; ir<nSrcRaw; ir++){
     auto egm_raw = srcRaw->ptrAt(ir);
-    for (uint ic = 0; ic<nSrcCorr; ic++){
+    for (unsigned int ic = 0; ic<nSrcCorr; ic++){
       auto egm_corr = srcCorr->ptrAt(ic);
       if(matchByCommonParentSuperClusterRef(*egm_raw,*egm_corr)){
           eCorr[ir] = egm_corr->energy()/egm_raw->energy();

@@ -11,7 +11,7 @@
 class  TrackerInteractionGeometryESProducer: public edm::ESProducer{
  public:
   TrackerInteractionGeometryESProducer(const edm::ParameterSet & p);
-  virtual ~TrackerInteractionGeometryESProducer(); 
+  ~TrackerInteractionGeometryESProducer() override; 
   std::shared_ptr<TrackerInteractionGeometry> produce(const TrackerInteractionGeometryRecord &);
  private:
   std::shared_ptr<TrackerInteractionGeometry> _tracker;

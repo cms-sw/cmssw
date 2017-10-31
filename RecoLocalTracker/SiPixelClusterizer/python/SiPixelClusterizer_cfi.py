@@ -19,6 +19,7 @@ siPixelClusters = cms.EDProducer("SiPixelClusterProducer",
     # ****  Offline - gain:col/ped:pix  ****
     # **************************************
     payloadType = cms.string('Offline'),
+    #payloadType = cms.string('Full'),
     SeedThreshold = cms.int32(1000),
     ClusterThreshold    = cms.int32(4000),
     ClusterThreshold_L1 = cms.int32(4000),
@@ -33,8 +34,11 @@ phase1Pixel.toModify(siPixelClusters,
   VCaltoElectronGain_L1   = cms.int32(50),   # L1:   49.6 +- 2.6
   VCaltoElectronOffset    = cms.int32(-60),  # L2-4: -60 +- 130
   VCaltoElectronOffset_L1 = cms.int32(-670), # L1:   -670 +- 220
-  ChannelThreshold        = cms.int32(250),
+  ChannelThreshold        = cms.int32(10),
+  SeedThreshold           = cms.int32(1000),
+  ClusterThreshold        = cms.int32(4000),
   ClusterThreshold_L1     = cms.int32(2000)
+
 )
 
 # Need these until phase2 pixel templates are used

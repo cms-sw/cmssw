@@ -3,6 +3,8 @@
 
 #include <string>
 
+namespace nanoaod {
+
 class UniqueString {
     public:
         UniqueString() {}
@@ -14,5 +16,7 @@ class UniqueString {
     private:
         std::string str_;
 };
+
+} // namespace nanoaod
 
 #endif

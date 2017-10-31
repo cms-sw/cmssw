@@ -34,12 +34,12 @@ class FastTrackerRecHitMatcher : public edm::stream::EDProducer<>  {
     public:
 
     explicit FastTrackerRecHitMatcher(const edm::ParameterSet&);
-    ~FastTrackerRecHitMatcher(){;}
+    ~FastTrackerRecHitMatcher() override{;}
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
     private:
     
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     // ---------- typedefs -----------------------------
     typedef std::pair<LocalPoint,LocalPoint>                   StripPosition; 
@@ -159,7 +159,7 @@ void FastTrackerRecHitMatcher::produce(edm::Event& iEvent, const edm::EventSetup
 		LocalVector gluedLocalSimTrackDir = gluedDet->surface().toLocal(globalSimTrackDir);
 		
 		// check whether next hit is partner
-		const FastSingleTrackerRecHit * partnerRecHit = 0;
+		const FastSingleTrackerRecHit * partnerRecHit = nullptr;
 		//      - there must be a next hit
 		if(simHitCounter + 1 < simHits->size()){
 		    const FastTrackerRecHitRef & nextRecHitRef = (*simHit2RecHitMap)[simHitCounter + 1];

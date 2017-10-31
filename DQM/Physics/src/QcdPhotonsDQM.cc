@@ -83,28 +83,28 @@ QcdPhotonsDQM::QcdPhotonsDQM(const ParameterSet& parameters) {
       parameters.getParameter<InputTag>("endcapRecHitTag"));
 
   // coverity says...
-  h_deltaEt_photon_jet = 0;
-  h_deltaPhi_jet_jet2 = 0;
-  h_deltaPhi_photon_jet = 0;
-  h_deltaPhi_photon_jet2 = 0;
-  h_deltaR_jet_jet2 = 0;
-  h_deltaR_photon_jet2 = 0;
-  h_jet2_eta = 0;
-  h_jet2_pt = 0;
-  h_jet2_ptOverPhotonEt = 0;
-  h_jet_count = 0;
-  h_jet_eta = 0;
-  h_jet_pt = 0;
-  h_photon_count_bar = 0;
-  h_photon_count_end = 0;
-  h_photon_et = 0;
-  h_photon_et_beforeCuts = 0;
-  h_photon_et_jetco = 0;
-  h_photon_et_jetcs = 0;
-  h_photon_et_jetfo = 0;
-  h_photon_et_jetfs = 0;
-  h_photon_eta = 0;
-  h_triggers_passed = 0;
+  h_deltaEt_photon_jet = nullptr;
+  h_deltaPhi_jet_jet2 = nullptr;
+  h_deltaPhi_photon_jet = nullptr;
+  h_deltaPhi_photon_jet2 = nullptr;
+  h_deltaR_jet_jet2 = nullptr;
+  h_deltaR_photon_jet2 = nullptr;
+  h_jet2_eta = nullptr;
+  h_jet2_pt = nullptr;
+  h_jet2_ptOverPhotonEt = nullptr;
+  h_jet_count = nullptr;
+  h_jet_eta = nullptr;
+  h_jet_pt = nullptr;
+  h_photon_count_bar = nullptr;
+  h_photon_count_end = nullptr;
+  h_photon_et = nullptr;
+  h_photon_et_beforeCuts = nullptr;
+  h_photon_et_jetco = nullptr;
+  h_photon_et_jetcs = nullptr;
+  h_photon_et_jetfo = nullptr;
+  h_photon_et_jetfs = nullptr;
+  h_photon_eta = nullptr;
+  h_triggers_passed = nullptr;
 
 }
 

@@ -46,7 +46,7 @@ HLTAlphaTFilter<T>::HLTAlphaTFilter(const edm::ParameterSet& iConfig) : HLTFilte
   // sanity checks
 
   if (       (minPtJet_.size()    !=  etaJet_.size())
-	     || (  (minPtJet_.size()<1) || (etaJet_.size()<1) )
+	     || (  (minPtJet_.empty()) || (etaJet_.empty()) )
 	     || ( ((minPtJet_.size()<2) || (etaJet_.size()<2))))
     {
       edm::LogError("HLTAlphaTFilter") << "inconsistent module configuration!";

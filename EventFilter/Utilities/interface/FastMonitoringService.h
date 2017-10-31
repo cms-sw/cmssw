@@ -131,7 +131,7 @@ namespace evf{
       // moved into base class in EventFilter/Utilities for compatibility with MicroStateServiceClassic
       static const std::string nopath_;
       FastMonitoringService(const edm::ParameterSet&,edm::ActivityRegistry&);
-      ~FastMonitoringService();
+      ~FastMonitoringService() override;
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
      
       std::string makePathLegendaJson();
@@ -168,8 +168,8 @@ namespace evf{
       void setExceptionDetected(unsigned int ls);
 
       //this is still needed for use in special functions like DQM which are in turn framework services
-      void setMicroState(MicroStateService::Microstate);
-      void setMicroState(edm::StreamID, MicroStateService::Microstate);
+      void setMicroState(MicroStateService::Microstate) override;
+      void setMicroState(edm::StreamID, MicroStateService::Microstate) override;
 
       void accumulateFileSize(unsigned int lumi, unsigned long fileSize);
       void startedLookingForFile();
@@ -220,7 +220,7 @@ namespace evf{
                 }
                 fmt_.monlock_.unlock();
                 for (unsigned int i=0;i<nStreams_;i++) {
-                  if (CSVv[i].size())
+                  if (!CSVv[i].empty())
                     fmt_.jsonMonitor_->outputCSV(fastPathList_[i],CSVv[i]);
                 }
               }
@@ -228,7 +228,7 @@ namespace evf{
                 std::string CSV = fmt_.jsonMonitor_->getCSVString();
                 //release mutex before writing out fast path file
                 fmt_.monlock_.unlock();
-                if (CSV.size())
+                if (!CSV.empty())
                   fmt_.jsonMonitor_->outputCSV(fastPath_,CSV);
               }
             }

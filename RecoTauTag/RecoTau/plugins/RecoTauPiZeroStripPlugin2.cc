@@ -54,11 +54,11 @@ class RecoTauPiZeroStripPlugin2 : public RecoTauPiZeroBuilderPlugin
 {
  public:
   explicit RecoTauPiZeroStripPlugin2(const edm::ParameterSet&, edm::ConsumesCollector &&iC);
-  virtual ~RecoTauPiZeroStripPlugin2();
+  ~RecoTauPiZeroStripPlugin2() override;
   // Return type is auto_ptr<PiZeroVector>
   return_type operator()(const reco::PFJet&) const override;
   // Hook to update PV information
-  virtual void beginEvent() override;
+  void beginEvent() override;
   
  private:
   typedef std::vector<reco::PFCandidatePtr> PFCandPtrs;
@@ -93,7 +93,7 @@ class RecoTauPiZeroStripPlugin2 : public RecoTauPiZeroBuilderPlugin
 RecoTauPiZeroStripPlugin2::RecoTauPiZeroStripPlugin2(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC)
   : RecoTauPiZeroBuilderPlugin(pset, std::move(iC)),
     vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts"), std::move(iC)),
-    qcuts_(0)
+    qcuts_(nullptr)
 {
   minGammaEtStripSeed_ = pset.getParameter<double>("minGammaEtStripSeed");
   minGammaEtStripAdd_ = pset.getParameter<double>("minGammaEtStripAdd");

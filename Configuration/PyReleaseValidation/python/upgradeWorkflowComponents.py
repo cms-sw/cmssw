@@ -67,6 +67,7 @@ upgradeSteps['baseline'] = {
         'HARVESTFast',
         'HARVESTFullGlobal',
         'ALCAFull',
+        'NanoFull',
     ],
     'PU' : [
         'DigiFullTrigger',
@@ -192,7 +193,7 @@ upgradeProperties[2023] = {
         'GT' : 'auto:phase2_realistic',
         'HLTmenu': '@fake2',
         'Era' : 'Phase2',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal','HARVESTFullGlobal'],
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal','HARVESTFullGlobal'],
     },
 }
 
@@ -204,7 +205,7 @@ upgradeProperties[2023]['2023D17PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','Dig
 upgradeProperties[2023]['2023D19PU'] = deepcopy(upgradeProperties[2023]['2023D19'])
 upgradeProperties[2023]['2023D19PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 upgradeProperties[2023]['2023D20PU'] = deepcopy(upgradeProperties[2023]['2023D20'])
-upgradeProperties[2023]['2023D20PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties[2023]['2023D20PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 
 
 from  Configuration.PyReleaseValidation.relval_steps import Kby
@@ -374,7 +375,7 @@ howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
            'Wjet_Pt_80_120_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
            'Wjet_Pt_3000_3500_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
            'SMS-T1tttt_mGl-1500_mLSP-100_13TeV-pythia8_cfi':Kby(9,50),
-           'QCDForPF_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
+           'QCDForPF_13TeV_TuneCUETP8M1_cfi':Kby(50,100),
            'PYTHIA8_PhiToMuMu_TuneCUETP8M1_13TeV_cff':Kby(9,50),
            'RSKKGluon_m3000GeV_13TeV_TuneCUETP8M1_cff':Kby(9,50),
            'ZpMM_2250_13TeV_TuneCUETP8M1_cfi':Kby(9,50),

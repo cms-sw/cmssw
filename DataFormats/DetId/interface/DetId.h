@@ -5,7 +5,7 @@
 //FIXME shall be removed and implemented where the operator is defined
 #include <ostream>
 
-#include <stdint.h>
+#include <cstdint>
 /** \class DetId
 
 Parent class for all detector ids in CMS.  The DetId is a 32-bit

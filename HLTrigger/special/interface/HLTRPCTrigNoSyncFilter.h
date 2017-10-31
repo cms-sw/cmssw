@@ -54,13 +54,13 @@
 class HLTRPCTrigNoSyncFilter : public HLTFilter{
    public:
       explicit HLTRPCTrigNoSyncFilter(const edm::ParameterSet&);
-      ~HLTRPCTrigNoSyncFilter();
+      ~HLTRPCTrigNoSyncFilter() override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
-      virtual void beginJob() override ;
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      void endJob() override ;
       edm::InputTag m_GMTInputTag;
       edm::InputTag rpcRecHitsLabel;
       edm::EDGetTokenT<L1MuGMTReadoutCollection> m_GMTInputToken;

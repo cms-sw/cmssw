@@ -66,10 +66,10 @@ EcalClusterEnergyCorrectionObjectSpecificXMLTranslator::dumpXML(
     writer->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
   
   DOMDocumentType* doctype = 
-    impl->createDocumentType( cms::xerces::uStr("XML").ptr(), 0, 0 );
+    impl->createDocumentType( cms::xerces::uStr("XML").ptr(), nullptr, nullptr );
   const  std::string ECECOS_tag("EcalClusterEnergyCorrectionObjectSpecific");
   DOMDocument *    doc = 
-    impl->createDocument( 0, cms::xerces::uStr(ECECOS_tag.c_str()).ptr(), doctype );
+    impl->createDocument( nullptr, cms::xerces::uStr(ECECOS_tag.c_str()).ptr(), doctype );
   
   DOMElement* root = doc->getDocumentElement();
   xuti::writeHeader(root, header);
