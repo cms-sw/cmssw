@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Sim")
 process.load("SimG4CMS.Calo.PythiaTT_cfi")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
@@ -24,65 +25,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(50)
 )
 
-process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('SimG4CoreSensitiveDetector', 
-        'SimG4CoreGeometry', 'SimG4CoreApplication', 'MagneticField',
-        'VolumeBasedMagneticFieldESProducer', 'TrackerSimInfo',
-        'TrackerSimInfoNumbering', 'TrackerMapDDDtoID',
-        'CaloSim', 'EcalGeom', 'EcalSim',
-        'HCalGeom', 'HcalSim', 'HFShower', 'BscSim'),
-    cout = cms.untracked.PSet(
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        SimG4CoreSensitiveDetector = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        SimG4CoreApplication = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        SimG4CoreGeometry = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        MagneticField = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        VolumeBasedMagneticFieldESProducer = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        TrackerSimInfo = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        TrackerSimInfoNumbering = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        TrackerMapDDDtoID = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        CaloSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        EcalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        EcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HCalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HFShower = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        BscSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
-    )
-)
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.categories.append('G4cerr')
 
 process.Timing = cms.Service("Timing")
 
@@ -111,7 +55,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
-process.analysis_step   = cms.Path(process.caloSimHitStudy)
+process.analysis_step   = cms.Path(process.CaloSimHitStudy)
 process.out_step = cms.EndPath(process.output)
 
 process.generator.pythiaHepMCVerbosity = False
