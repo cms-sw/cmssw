@@ -540,11 +540,11 @@ PixelInactiveAreaFinder::inactiveAreas(const edm::Event& iEvent, const edm::Even
   }
 
   // assign data to instance variables
-  this->getBadPixelDets();
+  updatePixelDets(iSetup);
+  getBadPixelDets();
 
   //write files for plotting
   if(createPlottingFiles_) {
-    updatePixelDets(iSetup);
     createPlottingFiles();
   }
 
@@ -586,6 +586,52 @@ PixelInactiveAreaFinder::inactiveAreas(const edm::Event& iEvent, const edm::Even
 // Functions for fetching date from handles
 void PixelInactiveAreaFinder::updatePixelDets(const edm::EventSetup& iSetup) {
   if(!geometryWatcher_.check(iSetup))
+    return;
+
+  // deduce the number of ladders per layer and the number of modules per ladder
+  {
+    // sanity checks
+    if(trackerGeometry_->numberOfLayers(PixelSubdetector::PixelBarrel) != 4) {
+      throw cms::Exception("NotImplemented") << "This module supports only a detector with 4 pixel barrel layers, the current geometry has " << trackerGeometry_->numberOfLayers(PixelSubdetector::PixelBarrel);
+    }
+    if(trackerGeometry_->numberOfLayers(PixelSubdetector::PixelEndcap) != 3) {
+      throw cms::Exception("NotImplemented") << "This module supports only a detector with 3 pixel forward disks, the current geometry has " << trackerGeometry_->numberOfLayers(PixelSubdetector::PixelEndcap);
+    }
+
+    std::array<std::array<unsigned short, 100>, 4> counts = {}; // assume at most 100 ladders per layer
+    for(const auto& det: trackerGeometry_->detsPXB()) {
+      const auto layer = trackerTopology_->layer(det->geographicalId());
+      const auto ladder = trackerTopology_->pxbLadder(det->geographicalId());
+      if(ladder >= 100) {
+        throw cms::Exception("LogicError") << "Got a ladder with number " << ladder << " while the expected maximum was 100; either something is wrong or the maximum has to be increased.";
+      }
+      counts[layer-1][ladder-1] += 1; // numbering of layer and ladder starts at 1
+    }
+
+    // take number of modules per ladder from the first ladder of the first layer (such better exist)
+    // other ladders better have the same number
+    nModulesPerLadder = counts[0][0];
+    if(nModulesPerLadder == 0) {
+      throw cms::Exception("LogicError") << "Ladder 1 of layer 1 has 0 modules, something fishy is going on.";
+    }
+
+    LogDebug("PixelInactiveAreaFinder") << "Number of modules per ladder " << nModulesPerLadder << "; below are number of ladders per layer";
+
+    // number of ladders
+    for(unsigned layer=0; layer<4; ++layer) {
+      nBPixLadders[layer] = std::count_if(counts[layer].begin(), counts[layer].end(), [](unsigned short val) { return val > 0; });
+      LogTrace("PixelInactiveAreaFinder") << "BPix layer " << (layer+1) << " has " << nBPixLadders[layer] << " ladders";
+
+      auto fail = std::count_if(counts[layer].begin(), counts[layer].end(), [&](unsigned short val) { return val != nModulesPerLadder && val > 0; });
+      if(fail != 0) {
+        throw cms::Exception("LogicError") << "Layer " << (layer+1) << " had " << fail << " ladders whose number of modules/ladder differed from the ladder 1 of layer 1 (" << nModulesPerLadder << "). Something fishy is going on.";
+      }
+    }
+  }
+
+
+  // don't bother with the rest if not needed
+  if(!createPlottingFiles_)
     return;
 
   pixelDetsBarrel_.clear();
@@ -793,29 +839,20 @@ PixelInactiveAreaFinder::DetGroup PixelInactiveAreaFinder::badAdjecentDetsBarrel
   unsigned int layer  = tTopo->pxbLayer (detId);
   unsigned int ladder = tTopo->pxbLadder(detId);
   unsigned int module = tTopo->pxbModule(detId);
-  unsigned int nLads;
-  switch (layer){
-  case 1:  nLads = nLayer1Ladders;break;
-  case 2:  nLads = nLayer2Ladders;break;
-  case 3:  nLads = nLayer3Ladders;break;
-  case 4:  nLads = nLayer4Ladders;break;
-  default: nLads = 0 ;break;
-  }
+  unsigned int nLads = nBPixLadders[layer];
   //add detectors from next and previous ladder
   adj.push_back( tTopo->pxbDetId( layer, ((ladder-1)+1)%nLads+1, module )() );
   adj.push_back( tTopo->pxbDetId( layer, ((ladder-1)-1+nLads)%nLads+1, module )() );
   //add adjecent detectors from same ladder
-  switch (module){
-  case 1:
+  if(module == 1) {
     adj.push_back( tTopo->pxbDetId( layer, ladder, module+1 )() );
-    break;
-  case nModulesPerLadder:
+  }
+  else if(module == nModulesPerLadder) {
     adj.push_back( tTopo->pxbDetId( layer, ladder, module-1 )() );
-    break;
-  default :
+  }
+  else {
     adj.push_back( tTopo->pxbDetId( layer, ladder, module+1 )() );
     adj.push_back( tTopo->pxbDetId( layer, ladder, module-1 )() );
-    break;
   }
   //remove working detectors from list
   adj.erase(remove_if(adj.begin(),adj.end(),bind1st(
@@ -913,14 +950,7 @@ void PixelInactiveAreaFinder::getPhiSpanBarrel(const DetGroup & detGroup, DetGro
     lads.insert(trackerTopology_->pxbLadder(DetId(det)));
   }
   LadVec ladv(lads.begin(),lads.end());
-  uint nLadders = 0;
-  switch(cspan.layer){
-  case 1: nLadders = nLayer1Ladders;break;
-  case 2: nLadders = nLayer2Ladders;break;
-  case 3: nLadders = nLayer3Ladders;break;
-  case 4: nLadders = nLayer4Ladders;break;
-  default: nLadders = 0;
-  }
+  uint nLadders = nBPixLadders[cspan.layer];
   // find start ladder of detGroup
   uint i = 0;
   uint currentLadder = ladv[0];

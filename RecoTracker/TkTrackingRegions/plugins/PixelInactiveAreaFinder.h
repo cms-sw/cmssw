@@ -82,11 +82,8 @@ private:
   using OverlapSpans = std::vector<DetGroupSpan>;
   using OverlapSpansContainer = std::vector<OverlapSpans>;
   // static data members; TODO see if these could be obtained from the geometry
-  const static unsigned int nLayer1Ladders = 12;
-  const static unsigned int nLayer2Ladders = 28;
-  const static unsigned int nLayer3Ladders = 44;
-  const static unsigned int nLayer4Ladders = 64;
-  const static unsigned int nModulesPerLadder = 8;
+  std::array<unsigned short, 4> nBPixLadders;
+  unsigned short nModulesPerLadder;
   // type aliases
   using det_t = uint32_t;
   using DetContainer = std::vector<uint32_t>;
