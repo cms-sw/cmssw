@@ -24,7 +24,7 @@ particleLevel = cms.EDProducer("ParticleLevelProducer",
     excludeNeutrinosFromJetClustering = cms.bool(True),
     
     particleMinPt  = cms.double(0.),
-    particleMaxEta = cms.double(999.), # HF range. Maximum 6.0 on MiniAOD
+    particleMaxEta = cms.double(5.), # HF range. Maximum 6.0 on MiniAOD
     
     lepConeSize = cms.double(0.1), # for photon dressing
     lepMinPt    = cms.double(15.),
@@ -55,19 +55,19 @@ rivetLeptonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     )
 )
 
-rivetJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
-    src = cms.InputTag("particleLevel:jets"),
-    cut = cms.string(""),
-    name= cms.string("GenJet"),
-    doc = cms.string("AK4 jets from Rivet-based ParticleLevelProducer"),
-    singleton = cms.bool(False), # the number of entries is variable
-    extension = cms.bool(True),
-    variables = cms.PSet(
-        # Identical to GenJets, so we just extend their flavor information
-        #P4Vars,
-        hadronFlavour = Var("pdgId", int, doc="PDG id"), 
-    )
-)
+#rivetJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+#    src = cms.InputTag("particleLevel:jets"),
+#    cut = cms.string(""),
+#    name= cms.string("RivetJet"),
+#    doc = cms.string("AK4 jets from Rivet-based ParticleLevelProducer"),
+#    singleton = cms.bool(False), # the number of entries is variable
+#    extension = cms.bool(False),
+#    variables = cms.PSet(
+#        # Identical to GenJets, so we just extend their flavor information
+#        P4Vars,
+#        hadronFlavour = Var("pdgId", int, doc="PDG id"),
+#    )
+#)
 
 rivetFatJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("particleLevel:fatjets"),
@@ -97,15 +97,15 @@ rivetFatJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 
 rivetMetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("particleLevel:mets"),
-    name = cms.string("RivetGenMET"),
-    doc = cms.string("MET from Rivet-based ParticleLevelProducer"),
+    name = cms.string("MET"),
+    doc = cms.string("MET from Rivet-based ParticleLevelProducer in fiducial volume abs(eta)<5"),
     singleton = cms.bool(True),  # there's always exactly one MET per event
-    extension = cms.bool(False), # this is the main table
+    extension = cms.bool(True), # this is the main table
     variables = cms.PSet(
-       pt  = Var("pt",  float, precision=10),
-       phi = Var("phi", float, precision=10),
+       fiducialGenPt  = Var("pt",  float, precision=10),
+       fiducialGenPhi = Var("phi", float, precision=10),
     ),
 )
 
 particleLevelSequence = cms.Sequence(mergedGenParticles + genParticles2HepMC + particleLevel)
-particleLevelTables = cms.Sequence(rivetLeptonTable + rivetJetTable + rivetFatJetTable + rivetMetTable)
+particleLevelTables = cms.Sequence(rivetLeptonTable + rivetFatJetTable + rivetMetTable)
