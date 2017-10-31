@@ -4,8 +4,12 @@
 #include "DQWorkerTask.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/Scalers/interface/BSTRecord.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGStripStatus.h"
@@ -28,6 +32,8 @@ namespace ecaldqm {
     void runOnRealTPs(EcalTrigPrimDigiCollection const&);
     void runOnEmulTPs(EcalTrigPrimDigiCollection const&);
     template<typename DigiCollection> void runOnDigis(DigiCollection const&);
+
+    void setTokens(edm::ConsumesCollector&) override;
 
     enum Constants {
       nBXBins = 15
@@ -52,7 +58,9 @@ namespace ecaldqm {
 
     edm::ESHandle<EcalTPGTowerStatus> TTStatusRcd;
     edm::ESHandle<EcalTPGStripStatus> StripStatusRcd;
-
+    edm::InputTag lhcStatusInfoCollectionTag_;
+    edm::EDGetTokenT<BSTRecord> lhcStatusInfoRecordToken_;
+    bool lhcStatusSet_;
   };
 
   inline bool TrigPrimTask::analyze(void const* _p, Collections _collection){

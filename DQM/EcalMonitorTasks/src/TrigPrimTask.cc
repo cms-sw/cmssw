@@ -24,7 +24,9 @@ namespace ecaldqm
     //     HLTMuonBit_(false),
     bxBinEdges_{ {1, 271, 541, 892, 1162, 1432, 1783, 2053, 2323, 2674, 2944, 3214, 3446, 3490, 3491, 3565} },
     bxBin_(0.),
-    towerReadouts_()
+    towerReadouts_(),
+    lhcStatusInfoCollectionTag_(),
+    lhcStatusSet_(false)
   {
   }
 
@@ -39,6 +41,7 @@ namespace ecaldqm
       MEs_.erase(std::string("EtEmulError"));
       MEs_.erase(std::string("FGEmulError"));
     }
+    lhcStatusInfoCollectionTag_ = _params.getUntrackedParameter<edm::InputTag>("lhcStatusInfoCollectionTag", edm::InputTag("tcdsDigis", "bstRecord"));
   }
 
   void
@@ -62,6 +65,10 @@ namespace ecaldqm
   {
     // Reset by LS plots at beginning of every LS
     MEs_.at("EtSummaryByLumi").reset();
+    MEs_.at("LHCStatusByLumi").reset(-1);
+
+    // Reset lhcStatusSet_ to false at the beginning of each LS; when LHC status is set in some event this variable will be set to true
+    lhcStatusSet_ = false;
   }
 
   void
@@ -70,6 +77,17 @@ namespace ecaldqm
     using namespace std;
 
     towerReadouts_.clear();
+
+    if (!lhcStatusSet_) {
+      // Update LHC status once each LS
+      MESet& meLHCStatusByLumi(static_cast<MESet&>(MEs_.at("LHCStatusByLumi")));
+      edm::Handle<BSTRecord> bstData;
+      _evt.getByToken(lhcStatusInfoRecordToken_, bstData);
+      if (bstData.isValid()) {
+        meLHCStatusByLumi.fill(double(bstData->beamMode()));
+        lhcStatusSet_ = true;
+      }
+    }
 
     realTps_ = 0;
 
@@ -175,6 +193,12 @@ namespace ecaldqm
       EcalTrigTowerDetId ttid(getTrigTowerMap()->towerOf(digiItr->id()));
       towerReadouts_[ttid.rawId()]++;
     }
+  }
+
+  void
+  TrigPrimTask::setTokens(edm::ConsumesCollector& _collector)
+  {
+    lhcStatusInfoRecordToken_ = _collector.consumes<BSTRecord>(lhcStatusInfoCollectionTag_);
   }
 
   void
