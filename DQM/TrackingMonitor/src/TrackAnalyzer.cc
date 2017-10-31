@@ -234,7 +234,7 @@ void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &iboo
     int   PVBin = conf_->getParameter<int>   ("PVBin");
     float PVMin = conf_->getParameter<double>("PVMin");
     float PVMax = conf_->getParameter<double>("PVMax");
-    
+
 
     int NBINS[]        = { PVBin,   int(GetLumi::lastBunchCrossing),  LUMIBin, LUMIBin};
     float MIN[]        = { PVMin,     0.5,  LUMIMin, LUMIMin };
@@ -248,16 +248,18 @@ void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &iboo
     float min = -1.;
     float max = -1.;
     bool logQ = false;
+    bool extendable = false;
     std::string name = "";
     for (int i=0; i<monQuantity::END; i++) {
       if (monName[i] == suffix) {
-        logQ =  (i>1); 
+        logQ =  (i>1); // VsLUMI
 	mon = i;
         if (useInac) mon+=monQuantity::END;
 	nbins = NBINS[i];
 	min = MIN[i];
 	max = MAX[i];
 	name = NAME[i];
+	extendable = (i!=1); // extendable x-axis not really needed for VsBX
       }
     }
   
@@ -289,12 +291,16 @@ void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &iboo
 		  Key(det, sub_det, mon), logQ? 
                   ibooker.book1D(title, title, nbins, &logBins[0]) :
 		  ibooker.book1D(title, title, nbins, min, max)));
+	      if (extendable) 
+		hits_valid_[Key(det, sub_det, mon)]->getTH1()->SetCanExtend(TH1::kAllAxes);    
               break;
             case 4:
               hits_total_.insert(std::make_pair(
 		  Key(det, sub_det, mon), logQ?	
                   ibooker.book1D(title, title, nbins, &logBins[0]) :
                   ibooker.book1D(title, title, nbins, min, max)));
+	      if (extendable) 
+		hits_total_[Key(det, sub_det, mon)]->getTH1()->SetCanExtend(TH1::kAllAxes);    
               break;
             default:
               LogDebug("TrackAnalyzer") << "Invalid hit category used " << cat << " ignored\n";
