@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
 
 from  PhysicsTools.NanoAOD.common_cff import *
 
@@ -32,6 +33,7 @@ tightJetId = cms.EDProducer("PatJetIDValueMapProducer",
 
 slimmedJetsWithUserData = cms.EDProducer("PATJetUserDataEmbedder",
      src = cms.InputTag("slimmedJets"),
+     userFloats = cms.PSet(),
      userInts = cms.PSet(
         tightId = cms.InputTag("tightJetId"),
         looseId = cms.InputTag("looseJetId"),
@@ -105,7 +107,8 @@ jetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 jetTable.variables.pt.precision=10
 
 ### Era dependent customization
-run2_miniAOD_80XLegacy.toModify( jetTable.variables.qgl, expr="-1" )
+run2_miniAOD_80XLegacy.toModify( slimmedJetsWithUserData, userFloats=cms.PSet(qgl=cms.InputTag('qgtagger80x:qgLikelihood')))
+run2_miniAOD_80XLegacy.toModify( jetTable.variables.qgl, expr="userFloat('qgl')" )
 
 bjetMVA= cms.EDProducer("BJetEnergyRegressionMVA",
     src = cms.InputTag("linkedObjects","jets"),
@@ -171,12 +174,14 @@ fatJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     extension = cms.bool(False), # this is the main table for the jets
     variables = cms.PSet(P4Vars,
         area = Var("jetArea()", float, doc="jet catchment area, for JECs",precision=10),
-        tau1 = Var("userFloat('ak8PFJetsCHSValueMap:NjettinessAK8CHSTau1')",float, doc="Nsubjettiness (1 axis)",precision=10),
-        tau2 = Var("userFloat('ak8PFJetsCHSValueMap:NjettinessAK8CHSTau2')",float, doc="Nsubjettiness (2 axis)",precision=10),
-        tau3 = Var("userFloat('ak8PFJetsCHSValueMap:NjettinessAK8CHSTau3')",float, doc="Nsubjettiness (3 axis)",precision=10),
-        msoftdrop = Var("userFloat('ak8PFJetsCHSValueMap:ak8PFJetsCHSSoftDropMass')",float, doc="Soft drop mass",precision=10),
-        mpruned = Var("userFloat('ak8PFJetsCHSValueMap:ak8PFJetsCHSPrunedMass')", float, doc="Pruned mass",precision=10),
-
+        tau1 = Var("userFloat('NjettinessAK8Puppi:tau1')",float, doc="Nsubjettiness (1 axis)",precision=10),
+        tau2 = Var("userFloat('NjettinessAK8Puppi:tau2')",float, doc="Nsubjettiness (2 axis)",precision=10),
+        tau3 = Var("userFloat('NjettinessAK8Puppi:tau3')",float, doc="Nsubjettiness (3 axis)",precision=10),
+        tau4 = Var("userFloat('NjettinessAK8Puppi:tau4')",float, doc="Nsubjettiness (4 axis)",precision=10),
+        n2b1 = Var("userFloat('ak8PFJetsPuppiSoftDropValueMap:nb1AK8PuppiSoftDropN2')", float, doc="N2 with beta=1", precision=10),
+        n3b1 = Var("userFloat('ak8PFJetsPuppiSoftDropValueMap:nb1AK8PuppiSoftDropN3')", float, doc="N3 with beta=1", precision=10),
+        msoftdrop = Var("userFloat('ak8PFJetsPuppiSoftDropMass')",float, doc="Soft drop mass",precision=10),
+        
         btagCMVA = Var("bDiscriminator('pfCombinedMVAV2BJetTags')",float,doc="CMVA V2 btag discriminator",precision=10),
         btagDeepB = Var("bDiscriminator('pfDeepCSVJetTags:probb')",float,doc="DeepCSV B btag discriminator",precision=10),
         btagDeepBB = Var("bDiscriminator('pfDeepCSVJetTags:probbb')",float,doc="DeepCSV BB btag discriminator",precision=10),
@@ -186,8 +191,6 @@ fatJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 		     doc="index of first subjet"),
         subJetIdx2 = Var("?numberOfSourceCandidatePtrs()>1 && sourceCandidatePtr(1).numberOfSourceCandidatePtrs()>0?sourceCandidatePtr(1).key():-1", int,
 		     doc="index of second subjet"),
-        subJetIdx3 = Var("?numberOfSourceCandidatePtrs()>2 && sourceCandidatePtr(2).numberOfSourceCandidatePtrs()>0?sourceCandidatePtr(2).key():-1", int,
-		     doc="index of third subjet"),
 	
 #        btagDeepC = Var("bDiscriminator('pfDeepCSVJetTags:probc')",float,doc="CMVA V2 btag discriminator",precision=10),
 #puIdDisc = Var("userFloat('pileupJetId:fullDiscriminant')",float,doc="Pilup ID discriminant",precision=10),
@@ -196,11 +199,17 @@ fatJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     )
 )
 ### Era dependent customization
-run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.mpruned, expr = cms.string("userFloat(\'ak8PFJetsCHSPrunedMass\')"),)
 run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.msoftdrop, expr = cms.string("userFloat(\'ak8PFJetsCHSSoftDropMass\')"),)
-run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau1, expr = cms.string("userFloat(\'NjettinessAK8:tau1\')"),)
-run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau2, expr = cms.string("userFloat(\'NjettinessAK8:tau2\')"),)
-run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau3, expr = cms.string("userFloat(\'NjettinessAK8:tau3\')"),)
+run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau1, expr = cms.string("userFloat(\'ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau1\')"),)
+run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau2, expr = cms.string("userFloat(\'ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau2\')"),)
+run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau3, expr = cms.string("userFloat(\'ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau3\')"),)
+run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau4, expr = cms.string("-1"),)
+run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.n2b1, expr = cms.string("-1"),)
+run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.n3b1, expr = cms.string("-1"),)
+
+run2_nanoAOD_92X.toModify( fatJetTable.variables.tau4, expr = cms.string("-1"),)
+run2_nanoAOD_92X.toModify( fatJetTable.variables.n2b1, expr = cms.string("-1"),)
+run2_nanoAOD_92X.toModify( fatJetTable.variables.n3b1, expr = cms.string("-1"),)
 
 subJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("slimmedJetsAK8PFPuppiSoftDropPacked","SubJets"),
@@ -249,8 +258,35 @@ genJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 	#anything else?
     )
 )
+genJetFlavourTable = cms.EDProducer("GenJetFlavourTableProducer",
+    name = genJetTable.name,
+    src = genJetTable.src,
+    cut = genJetTable.cut,
+    jetFlavourInfos = cms.InputTag("slimmedGenJetsFlavourInfos"),
+)
 
-
+genJetAK8Table = cms.EDProducer("SimpleCandidateFlatTableProducer",
+    src = cms.InputTag("slimmedGenJetsAK8"),
+    cut = cms.string("pt > 100."),
+    name = cms.string("GenJetAK8"),
+    doc  = cms.string("slimmedGenJetsAK8SoftDropSubJets, i.e. subjets of ak8 Jets made with visible genparticles"),
+    singleton = cms.bool(False), # the number of entries is variable
+    extension = cms.bool(False), # this is the main table for the genjets
+    variables = cms.PSet(P4Vars,
+	#anything else?
+    )
+)
+genSubJetAK8Table = cms.EDProducer("SimpleCandidateFlatTableProducer",
+    src = cms.InputTag("slimmedGenJetsAK8SoftDropSubJets"),
+    cut = cms.string(""),  ## These don't get a pt cut, but in miniAOD only subjets from fat jets with pt > 100 are kept
+    name = cms.string("SubGenJetAK8"),
+    doc  = cms.string("slimmedGenJetsAK8SoftDropSubJets, i.e. subjets of ak8 Jets made with visible genparticles"),
+    singleton = cms.bool(False), # the number of entries is variable
+    extension = cms.bool(False), # this is the main table for the genjets
+    variables = cms.PSet(P4Vars,
+	#anything else?
+    )
+)
 
 #before cross linking
 jetSequence = cms.Sequence(looseJetId+tightJetId+slimmedJetsWithUserData+jetCorrFactors+updatedJets+chsForSATkJets+softActivityJets+softActivityJets2+softActivityJets5+softActivityJets10+finalJets)
@@ -258,5 +294,5 @@ jetSequence = cms.Sequence(looseJetId+tightJetId+slimmedJetsWithUserData+jetCorr
 jetTables = cms.Sequence(bjetMVA+ jetTable+fatJetTable+subJetTable+saJetTable+saTable)
 
 #MC only producers and tables
-jetMC = cms.Sequence(jetMCTable+genJetTable)
+jetMC = cms.Sequence(jetMCTable+genJetTable+genJetFlavourTable+genJetAK8Table+genSubJetAK8Table)
 

@@ -4,10 +4,12 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "PhysicsTools/PatUtils/interface/MiniIsolation.h"
 #include "DataFormats/Common/interface/View.h"
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 namespace pat {
   
@@ -19,8 +21,14 @@ namespace pat {
 
       explicit LeptonUpdater(const edm::ParameterSet & iConfig) :
             src_(consumes<std::vector<T>>(iConfig.getParameter<edm::InputTag>("src"))),
-            vertices_(consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("vertices")))
+            vertices_(consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("vertices"))),
+            computeMiniIso_(iConfig.getParameter<bool>("computeMiniIso"))
         {
+            //for mini-isolation calculation
+            if (computeMiniIso_) {
+                readMiniIsoParams(iConfig);
+                pcToken_ = consumes<pat::PackedCandidateCollection >(iConfig.getParameter<edm::InputTag>("pfCandsForMiniIso"));
+            }
             produces<std::vector<T>>();
         }
 
@@ -32,16 +40,33 @@ namespace pat {
           edm::ParameterSetDescription desc;
           desc.add<edm::InputTag>("src")->setComment("Lepton collection");
           desc.add<edm::InputTag>("vertices")->setComment("Vertex collection");
-          if (typeid(T) == typeid(pat::Muon)) descriptions.add("muonsUpdated", desc);
-          else if (typeid(T) == typeid(pat::Electron)) descriptions.add("electronsUpdated", desc);
+          desc.add<bool>("computeMiniIso", false)->setComment("Recompute miniIsolation");
+          desc.addOptional<edm::InputTag>("pfCandsForMiniIso", edm::InputTag("packedPFCandidates"))->setComment("PackedCandidate collection used for miniIso");
+          if (typeid(T) == typeid(pat::Muon)) {
+            desc.addOptional<std::vector<double>>("miniIsoParams")->setComment("Parameters used for miniIso (as in PATMuonProducer)");
+            descriptions.add("muonsUpdated", desc);
+          } else if (typeid(T) == typeid(pat::Electron)) {
+            desc.addOptional<std::vector<double>>("miniIsoParamsB")->setComment("Parameters used for miniIso in the barrel (as in PATElectronProducer)");
+            desc.addOptional<std::vector<double>>("miniIsoParamsE")->setComment("Parameters used for miniIso in the endcap (as in PATElectronProducer)");
+            descriptions.add("electronsUpdated", desc);
+          }
       }
 
       void setDZ(T & lep, const reco::Vertex & pv) const {}
+        
+      void readMiniIsoParams(const edm::ParameterSet & iConfig) { 
+          miniIsoParams_[0] = iConfig.getParameter<std::vector<double> >("miniIsoParams");
+          if(miniIsoParams_[0].size() != 9) throw cms::Exception("ParameterError", "miniIsoParams must have exactly 9 elements.\n");
+      }
+      const std::vector<double> & miniIsoParams(const T &lep) const { return miniIsoParams_[0]; }
 
     private:
       // configurables
       edm::EDGetTokenT<std::vector<T>> src_;
       edm::EDGetTokenT<std::vector<reco::Vertex>> vertices_;
+      bool computeMiniIso_;
+      std::vector<double> miniIsoParams_[2];
+      edm::EDGetTokenT<pat::PackedCandidateCollection> pcToken_;
   };
 
   // must do the specialization within the namespace otherwise gcc complains
@@ -58,6 +83,18 @@ namespace pat {
       aMuon.setDB( track->dz(pv.position()), std::hypot(track->dzError(), pv.zError()), pat::Muon::PVDZ );
   }
 
+  template<>
+  void LeptonUpdater<pat::Electron>::readMiniIsoParams(const edm::ParameterSet & iConfig) {
+      miniIsoParams_[0] = iConfig.getParameter<std::vector<double> >("miniIsoParamsB");
+      miniIsoParams_[1] = iConfig.getParameter<std::vector<double> >("miniIsoParamsE");
+      if(miniIsoParams_[0].size() != 9) throw cms::Exception("ParameterError", "miniIsoParamsB must have exactly 9 elements.\n");
+      if(miniIsoParams_[1].size() != 9) throw cms::Exception("ParameterError", "miniIsoParamsE must have exactly 9 elements.\n");
+  }
+  template<>
+  const std::vector<double> & LeptonUpdater<pat::Electron>::miniIsoParams(const pat::Electron &lep) const { 
+      return miniIsoParams_[lep.isEE()]; 
+  }
+
 } // namespace
 
 template<typename T>
@@ -69,11 +106,22 @@ void pat::LeptonUpdater<T>::produce(edm::StreamID, edm::Event& iEvent, edm::Even
     iEvent.getByToken(vertices_, vertices);
     const reco::Vertex & pv = vertices->front();
 
+    edm::Handle<pat::PackedCandidateCollection> pc;
+    if(computeMiniIso_) iEvent.getByToken(pcToken_, pc);
+
     std::unique_ptr<std::vector<T>> out(new std::vector<T>(*src));
 
     for (unsigned int i = 0, n = src->size(); i < n; ++i) {
         T & lep = (*out)[i];
         setDZ(lep, pv);
+        if (computeMiniIso_) {
+            const auto & params = miniIsoParams(lep);
+            pat::PFIsolation miniiso = pat::getMiniPFIsolation(pc.product(), lep.p4(),
+                                                               params[0], params[1], params[2],
+                                                               params[3], params[4], params[5],
+                                                               params[6], params[7], params[8]);
+            lep.setMiniPFIsolation(miniiso);
+        }
     }
 
     iEvent.put(std::move(out));
