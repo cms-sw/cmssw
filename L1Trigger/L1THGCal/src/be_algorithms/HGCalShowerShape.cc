@@ -413,11 +413,11 @@ float HGCalShowerShape::sigmaRRMean(const l1t::HGCalMulticluster& c3d, float rad
   // Compute srr layer by layer
   std::vector<std::pair<float,float>> layers_energy_srr2;
   for(const auto& layer_energy_r : tc_layers_energy_r){
-    const auto& energy_r = layer_energy_r.second;
-    float r_mean_layer = meanX(energy_r);
-    float srr = sigmaXX(energy_r,r_mean_layer);
+    const auto& energies_r = layer_energy_r.second;
+    float r_mean_layer = meanX(energies_r);
+    float srr = sigmaXX(energies_r,r_mean_layer);
     double energy_sum = 0.;
-    for(const auto& energy_r : energy_r){
+    for(const auto& energy_r : energies_r){
       energy_sum += energy_r.first;
     }
     layers_energy_srr2.emplace_back(std::make_pair(energy_sum, srr*srr));
