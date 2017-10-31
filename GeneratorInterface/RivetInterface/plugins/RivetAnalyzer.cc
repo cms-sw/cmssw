@@ -34,9 +34,11 @@ _xsection(-1.)
     }
  
     _genEventInfoCollection = consumes<GenEventInfoProduct>(pset.getParameter<edm::InputTag>("GenEventInfoCollection"));
+    _useGENweights          = pset.getParameter<bool>("useGENweights");
+    _GENweightNumber        = pset.getParameter<int>("GENweightNumber");
     _LHECollection          = consumes<LHEEventProduct>(pset.getParameter<edm::InputTag>("LHECollection"));
     _useLHEweights          = pset.getParameter<bool>("useLHEweights");
-    _LHEweightNumber        = pset.getParameter<int>("LHEweightNumber");    
+    _LHEweightNumber        = pset.getParameter<int>("LHEweightNumber");
     
   }
 
@@ -113,16 +115,21 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
 	edm::LogWarning("RivetAnalyzer") << "Original event weight size is " << tmpGenEvtPtr->weights().size() << ". Will change only the first one ";  
       }
     
-      if(!_useLHEweights){
+      double weightForRivet = 1.;
+      
+      if(_useGENweights){
 	edm::Handle<GenEventInfoProduct> genEventInfoProduct;
 	iEvent.getByToken(_genEventInfoCollection, genEventInfoProduct);
-	tmpGenEvtPtr->weights()[0] = genEventInfoProduct->weights().at(_LHEweightNumber);
-      }else{
+	weightForRivet *= genEventInfoProduct->weights().at(_GENweightNumber);
+      }
+      if(_useLHEweights){
 	edm::Handle<LHEEventProduct> lheEventHandle;
 	iEvent.getByToken(_LHECollection,lheEventHandle);
 	const LHEEventProduct::WGT& wgt = lheEventHandle->weights().at(_LHEweightNumber);
-	tmpGenEvtPtr->weights()[0] = wgt.wgt;
+	weightForRivet *= wgt.wgt;
       }
+      
+      tmpGenEvtPtr->weights()[0] = weightForRivet;
     }
     myGenEvent = tmpGenEvtPtr.get();
 
