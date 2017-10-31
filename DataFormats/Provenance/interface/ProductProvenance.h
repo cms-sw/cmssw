@@ -24,17 +24,15 @@ namespace edm {
   class ProductProvenance {
   public:
     ProductProvenance();
-    explicit ProductProvenance(BranchID const& bid);
-    ProductProvenance(BranchID const& bid,
-                      ParentageID const& id);
+    explicit ProductProvenance(BranchID bid);
+    ProductProvenance(BranchID bid,
+                      ParentageID id);
 
-    ProductProvenance(BranchID const& bid,
+    ProductProvenance(BranchID bid,
                       std::vector<BranchID> const& parents);
 
-    ProductProvenance(BranchID const& bid,
+    ProductProvenance(BranchID bid,
                       std::vector<BranchID>&& parents);
-
-    ~ProductProvenance() {}
 
     ProductProvenance makeProductProvenance() const;
 

@@ -31,7 +31,7 @@ namespace l1t {
                std::generate(muons_.begin(), muons_.end(), [&oFirstBx, &oLastBx]{ return std::make_unique<MuonBxCollection>(0, oFirstBx, oLastBx); });
             };
 
-            virtual ~GMTCollections();
+            ~GMTCollections() override;
 
             inline RegionalMuonCandBxCollection* getRegionalMuonCandsBMTF() { return regionalMuonCandsBMTF_.get(); };
             inline RegionalMuonCandBxCollection* getRegionalMuonCandsOMTF() { return regionalMuonCandsOMTF_.get(); };

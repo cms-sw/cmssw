@@ -14,8 +14,8 @@ class BasicToPFJet : public edm::EDProducer {
  public:
 
   explicit BasicToPFJet(const edm::ParameterSet& PSet);
-  virtual ~BasicToPFJet();
-  virtual void produce(edm::Event & event, const edm::EventSetup & EventSetup) override;
+  ~BasicToPFJet() override;
+  void produce(edm::Event & event, const edm::EventSetup & EventSetup) override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:

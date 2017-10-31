@@ -15,10 +15,10 @@ class CaloCachedShapeIntegrator: public CaloVShape
 
       CaloCachedShapeIntegrator( const CaloVShape* aShape ) ;
 
-      virtual ~CaloCachedShapeIntegrator() ;
+      ~CaloCachedShapeIntegrator() override ;
 
-      virtual double operator () ( double startTime ) const ;
-      virtual double timeToRise()                     const ;
+      double operator () ( double startTime ) const override ;
+      double timeToRise()                     const override ;
 
    private:
 

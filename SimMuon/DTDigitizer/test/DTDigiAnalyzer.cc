@@ -185,7 +185,7 @@ hDigis* DTDigiAnalyzer::WheelHistos(int wheel){
     
   case 2: return  &hDigis_W2;
      
-  default: return NULL;
+  default: return nullptr;
   }
 }
 

@@ -5,6 +5,7 @@
 #include "DataFormats/Common/interface/RefVectorHolder.h"
 #include "DataFormats/Common/interface/VectorHolder.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Common/interface/FwdPtr.h"
 #include "DataFormats/HepMCCandidate/interface/PdfInfo.h"
 #include "DataFormats/HepMCCandidate/interface/FlavorHistory.h"
 #include "DataFormats/HepMCCandidate/interface/FlavorHistoryEvent.h"
@@ -40,6 +41,10 @@ namespace DataFormats_HepMCCandidate {
     edm::RefVectorIterator<std::vector<reco::GenParticle>,reco::GenParticle,edm::refhelper::FindUsingAdvance<std::vector<reco::GenParticle>,reco::GenParticle> > rvigp;
     edm::ValueMap<edm::Ref<std::vector<reco::GenParticle>,reco::GenParticle,edm::refhelper::FindUsingAdvance<std::vector<reco::GenParticle>,reco::GenParticle> > > vmgr;
     edm::Wrapper<edm::ValueMap<edm::Ref<std::vector<reco::GenParticle>,reco::GenParticle,edm::refhelper::FindUsingAdvance<std::vector<reco::GenParticle>,reco::GenParticle> > > > wvmgr;
+    edm::Ptr<reco::GenParticle> gpptr;
+    edm::FwdPtr<reco::GenParticle> gpfp;
+    std::vector<edm::FwdPtr<reco::GenParticle>> vgpfp;
+    edm::Wrapper<std::vector<edm::FwdPtr<reco::GenParticle>>> wvgpfp;    
   };
 }
 

@@ -5,13 +5,13 @@
 
 
 HcalCoderFactory::HcalCoderFactory(CoderType coderType) 
-  : theCoderType(coderType), theDbService(0) { }
+  : theCoderType(coderType), theDbService(nullptr) { }
 
 
 std::unique_ptr<HcalCoder> HcalCoderFactory::coder(const DetId & id) const {
-  HcalCoder * result = 0;
+  HcalCoder * result = nullptr;
   if (theCoderType == DB) {
-    assert(theDbService != 0);
+    assert(theDbService != nullptr);
     HcalGenericDetId hcalGenDetId(id);
     const HcalQIECoder * qieCoder = theDbService->getHcalCoder(hcalGenDetId );
     const HcalQIEShape * qieShape = theDbService->getHcalShape(hcalGenDetId);

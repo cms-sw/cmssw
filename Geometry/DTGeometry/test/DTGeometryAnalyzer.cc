@@ -69,16 +69,15 @@ void DTGeometryAnalyzer::analyze( const edm::Event& iEvent,
   cout << "iter " << dashedLine_ << endl;
 
   // check detUnits
-  for(DTGeometry::DetUnitContainer::const_iterator det = pDD->detUnits().begin(); 
-      det != pDD->detUnits().end(); ++det){
+  for( const auto& det : pDD->detUnits()) {
 
-    DetId detId = (*det)->geographicalId();
+    DetId detId = det->geographicalId();
     int id = detId(); // or detId.rawId()
     const GeomDet* gdet_=pDD->idToDet(detId);
     const GeomDetUnit* gdet=pDD->idToDetUnit(detId);
     const DTLayer* lay=dynamic_cast<const DTLayer*>(gdet);
     cout << "GeomDetUnit is of type " << detId.det() << " and raw id = " << id << endl;
-    assert(*det==gdet);
+    assert(det==gdet);
     assert(gdet_==gdet);
     assert(gdet_==lay);
   }

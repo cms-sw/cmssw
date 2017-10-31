@@ -17,15 +17,15 @@ class TrackCountingTagPlotter : public BaseTagInfoPlotter {
                const edm::ParameterSet& pSet, 
                unsigned int mc, bool willfinalize, DQMStore::IBooker & ibook);
 
-  ~TrackCountingTagPlotter ();
+  ~TrackCountingTagPlotter () override;
 
-  void analyzeTag (const reco::BaseTagInfo * baseTagInfo, double jec, int jetFlavour, float w/*=1*/);
+  void analyzeTag (const reco::BaseTagInfo * baseTagInfo, double jec, int jetFlavour, float w/*=1*/) override;
 
-  virtual void finalize (DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_);
+  void finalize (DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_) override;
 
-  void epsPlot(const std::string & name);
+  void epsPlot(const std::string & name) override;
 
-  void psPlot(const std::string & name);
+  void psPlot(const std::string & name) override;
 
  private:
   unsigned int mcPlots_;

@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 
 SuperimoposePlotsInOnlineBlocks=False
+IsOffline.enabled=False
 
 
 

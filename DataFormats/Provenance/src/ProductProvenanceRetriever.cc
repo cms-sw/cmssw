@@ -92,12 +92,12 @@ namespace edm {
   }
 
   void
-  ProductProvenanceRetriever::insertIntoSet(ProductProvenance const& entryInfo) const {
+  ProductProvenanceRetriever::insertIntoSet(ProductProvenance entryInfo) const {
     //NOTE:do not read provenance here because we only need the full
     // provenance when someone tries to access it not when doing the insert
     // doing the delay saves 20% of time when doing an analysis job
     //readProvenance();
-    entryInfoSet_.insert(entryInfo);
+    entryInfoSet_.insert(std::move(entryInfo));
   }
  
   void

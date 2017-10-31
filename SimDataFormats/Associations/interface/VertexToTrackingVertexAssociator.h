@@ -32,9 +32,9 @@ namespace reco {
       std::swap(m_impl, iOther.m_impl);
     }
   private:
-    VertexToTrackingVertexAssociator(const VertexToTrackingVertexAssociator&); // stop default
+    VertexToTrackingVertexAssociator(const VertexToTrackingVertexAssociator&) = delete; // stop default
     
-    const VertexToTrackingVertexAssociator& operator=(const VertexToTrackingVertexAssociator&); // stop default
+    const VertexToTrackingVertexAssociator& operator=(const VertexToTrackingVertexAssociator&) = delete; // stop default
     
     // ---------- member data --------------------------------
     VertexToTrackingVertexAssociatorBaseImpl* m_impl;

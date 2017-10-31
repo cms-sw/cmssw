@@ -35,10 +35,10 @@ class testVertexAssociator : public edm::EDAnalyzer {
 
  public:
   testVertexAssociator(const edm::ParameterSet& conf);
-  virtual ~testVertexAssociator();
-  virtual void beginJob();
-  virtual void endJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  ~testVertexAssociator() override;
+  void beginJob() override;
+  void endJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
  private:
   const reco::TrackToTrackingParticleAssociator*  associatorByChi2;

@@ -12,7 +12,7 @@
 
 HtrXmlPattern::HtrXmlPattern(const edm::ParameterSet& iConfig)
 {
-  m_filled=0;
+  m_filled=false;
   m_fill_by_hand        = iConfig.getUntrackedParameter<bool>("fill_by_hand");
   m_hand_pattern_number = iConfig.getUntrackedParameter<int> ("hand_pattern_number");
   m_sets_to_show        = iConfig.getUntrackedParameter<int> ("sets_to_show");
@@ -54,7 +54,7 @@ void HtrXmlPattern::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
    if (m_fill_by_hand) {
      do_hand_fill(readoutMap);
-     m_filled=1;
+     m_filled=true;
      return;
    }
   

@@ -53,8 +53,8 @@ template< typename T>
 class L1TJetsMatching: public edm::global::EDProducer<> {
  public:
   explicit L1TJetsMatching(const edm::ParameterSet&);
-  ~L1TJetsMatching();
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  ~L1TJetsMatching() override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:

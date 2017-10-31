@@ -40,7 +40,7 @@ class SeedClusterRemoverPhase2 : public edm::stream::EDProducer<> {
 
   public:
     SeedClusterRemoverPhase2(const edm::ParameterSet& iConfig) ;
-    ~SeedClusterRemoverPhase2() ;
+    ~SeedClusterRemoverPhase2() override ;
     void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override ;
   private:
     bool doOuterTracker_, doPixel_;
@@ -163,7 +163,7 @@ SeedClusterRemoverPhase2::cleanup(const edmNew::DetSetVector<T> &oldClusters, co
         if (outds.empty()) outds.abort(); // not write in an empty DSV
     }
 
-    if (oldRefs != 0) mergeOld(refs, *oldRefs);
+    if (oldRefs != nullptr) mergeOld(refs, *oldRefs);
     return output;
 }
 
@@ -315,13 +315,13 @@ SeedClusterRemoverPhase2::produce(Event& iEvent, const EventSetup& iSetup)
     
     if (doPixel_ && clusterWasteSolution_) {
         OrphanHandle<edmNew::DetSetVector<SiPixelCluster> > newPixels =
-          iEvent.put(cleanup(*pixelClusters, pixels, cri->pixelIndices(), mergeOld_ ? &oldRemovalInfo->pixelIndices() : 0));
+          iEvent.put(cleanup(*pixelClusters, pixels, cri->pixelIndices(), mergeOld_ ? &oldRemovalInfo->pixelIndices() : nullptr));
         LogDebug("SeedClusterRemoverPhase2") << "SeedClusterRemoverPhase2: Wrote pixel " << newPixels.id() << " from " << pixelSourceProdID ;
         cri->setNewPixelClusters(newPixels);
     }
     if (doOuterTracker_ && clusterWasteSolution_) {
         OrphanHandle<edmNew::DetSetVector<Phase2TrackerCluster1D> > newOuterTrackers =
-          iEvent.put(cleanup(*phase2OTClusters, OTs, cri->stripIndices(), mergeOld_ ? &oldRemovalInfo->stripIndices() : 0));
+          iEvent.put(cleanup(*phase2OTClusters, OTs, cri->stripIndices(), mergeOld_ ? &oldRemovalInfo->stripIndices() : nullptr));
         LogDebug("SeedClusterRemoverPhase2") << "SeedClusterRemoverPhase2: Wrote strip " << newOuterTrackers.id() << " from " << outerTrackerSourceProdID;
         cri->setNewPhase2OTClusters(newOuterTrackers);
     }

@@ -45,7 +45,7 @@ FWGeometry::findFile( const char* fileName )
 
    TString fn = fileName;
    const char* fp = gSystem->FindFile(searchPath.c_str(), fn, kFileExists);
-   return fp ? TFile::Open( fp) : 0;
+   return fp ? TFile::Open( fp) : nullptr;
 }
 
 void
@@ -71,11 +71,11 @@ FWGeometry::loadMap( const char* fileName )
    Float_t shape[5];
    Float_t translation[3];
    Float_t matrix[9];
-   bool loadPoints = tree->GetBranch( "points" ) != 0;
-   bool loadParameters = tree->GetBranch( "topology" ) != 0;
-   bool loadShape = tree->GetBranch( "shape" ) != 0;
-   bool loadTranslation = tree->GetBranch( "translation" ) != 0;
-   bool loadMatrix = tree->GetBranch( "matrix" ) != 0;
+   bool loadPoints = tree->GetBranch( "points" ) != nullptr;
+   bool loadParameters = tree->GetBranch( "topology" ) != nullptr;
+   bool loadShape = tree->GetBranch( "shape" ) != nullptr;
+   bool loadTranslation = tree->GetBranch( "translation" ) != nullptr;
+   bool loadMatrix = tree->GetBranch( "matrix" ) != nullptr;
    tree->SetBranchAddress( "id", &id );
    if( loadPoints )
       tree->SetBranchAddress( "points", &points );
@@ -181,7 +181,7 @@ FWGeometry::getMatrix( unsigned int id ) const
    if( it == m_idToInfo.end())
    {
       fwLog( fwlog::kWarning ) << "no reco geometry found for id " <<  id << std::endl;
-      return 0;
+      return nullptr;
    }
    else
    {
@@ -221,7 +221,7 @@ FWGeometry::getShape( unsigned int id ) const
    if( it == m_idToInfo.end())
    {
       fwLog( fwlog::kWarning ) << "no reco geoemtry found for id " <<  id << std::endl;
-      return 0;
+      return nullptr;
    }
    else 
    {
@@ -233,7 +233,7 @@ TGeoShape*
 FWGeometry::getShape( const GeomDetInfo& info ) const 
 {
    TEveGeoManagerHolder gmgr( TEveGeoShape::GetGeoMangeur());
-   TGeoShape* geoShape = 0;
+   TGeoShape* geoShape = nullptr;
    if( info.shape[0] == 1 ) 
    {
       geoShape = new TGeoTrap(
@@ -262,7 +262,7 @@ FWGeometry::getEveShape( unsigned int id  ) const
    if( it == m_idToInfo.end())
    {
       fwLog( fwlog::kWarning ) << "no reco geoemtry found for id " <<  id << std::endl;
-      return 0;
+      return nullptr;
    }
    else
    {
@@ -290,7 +290,7 @@ FWGeometry::getCorners( unsigned int id ) const
    if( it == m_idToInfo.end())
    {
       fwLog( fwlog::kWarning ) << "no reco geometry found for id " <<  id << std::endl;
-      return 0;
+      return nullptr;
    }
    else
    {
@@ -306,7 +306,7 @@ FWGeometry::getParameters( unsigned int id ) const
    if( it == m_idToInfo.end())
    {
       fwLog( fwlog::kWarning ) << "no reco geometry found for id " <<  id << std::endl;
-      return 0;
+      return nullptr;
    }
    else
    {
@@ -322,7 +322,7 @@ FWGeometry::getShapePars( unsigned int id ) const
    if( it == m_idToInfo.end())
    {
       fwLog( fwlog::kWarning ) << "no reco geometry found for id " <<  id << std::endl;
-      return 0;
+      return nullptr;
    }
    else
    {

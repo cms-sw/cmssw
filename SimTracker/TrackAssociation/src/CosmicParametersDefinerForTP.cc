@@ -42,7 +42,7 @@ TrackingParticle::Vector
   GlobalVector finalGV(0,0,0);
   GlobalPoint finalGP(0,0,0);
   double radius(9999);
-  bool found(0);
+  bool found(false);
   TrackingParticle::Vector momentum(0,0,0);
 
   edm::LogVerbatim("CosmicParametersDefinerForTP")<<"\t in CosmicParametersDefinerForTP::momentum"; 
@@ -135,7 +135,7 @@ TrackingParticle::Point CosmicParametersDefinerForTP::vertex(const edm::Event& i
   GlobalVector finalGV(0,0,0);
   GlobalPoint finalGP(0,0,0);
   double radius(9999);
-  bool found(0);
+  bool found(false);
   TrackingParticle::Point vertex(0,0,0);
 
   edm::LogVerbatim("CosmicParametersDefinerForTP")<<"\t in CosmicParametersDefinerForTP::vertex";

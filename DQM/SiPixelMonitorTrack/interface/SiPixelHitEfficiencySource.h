@@ -46,11 +46,11 @@
 class SiPixelHitEfficiencySource : public DQMEDAnalyzer {
   public:
     explicit SiPixelHitEfficiencySource(const edm::ParameterSet&);
-            ~SiPixelHitEfficiencySource();
+            ~SiPixelHitEfficiencySource() override;
 
-    virtual void dqmBeginRun(const edm::Run& r, edm::EventSetup const& iSetup) override;
-    virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void dqmBeginRun(const edm::Run& r, edm::EventSetup const& iSetup) override;
+    void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
     virtual void fillClusterProbability(int , int, bool, double );
 
   private: 

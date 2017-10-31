@@ -11,7 +11,7 @@ using namespace reco;
 
 TransientTrackFromFTS::TransientTrackFromFTS() : 
   hasTime(false), timeExt_(0.), dtErrorExt_(0.),
-  theField(0), initialTSOSAvailable(false), initialTSCPAvailable(false),
+  theField(nullptr), initialTSOSAvailable(false), initialTSCPAvailable(false),
   trackAvailable(false), blStateAvailable(false)
 {}
 

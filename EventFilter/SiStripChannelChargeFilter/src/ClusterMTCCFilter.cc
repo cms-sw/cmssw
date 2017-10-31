@@ -112,10 +112,10 @@ bool ClusterMTCCFilter::filter(edm::Event & e, edm::EventSetup const& c) {
 //  if( clusters_in_subcomponents[31].size()>0 ) nr_of_subcomps_with_clusters++; // TIB1
 //  if( clusters_in_subcomponents[32].size()>0 ) nr_of_subcomps_with_clusters++; // TIB2
 //  if( clusters_in_subcomponents[60].size()>0 ) nr_of_subcomps_with_clusters++; // TEC
-  if( clusters_in_subcomponents[31].size()>0 ||  clusters_in_subcomponents[32].size()>0 ) nr_of_subcomps_with_clusters++; // TIB1 || TIB2
-  if( clusters_in_subcomponents[33].size()>0 ) nr_of_subcomps_with_clusters++; // TIB3
-  if( clusters_in_subcomponents[51].size()>0 ) nr_of_subcomps_with_clusters++; // TOB1
-  if( clusters_in_subcomponents[52].size()>0 ) nr_of_subcomps_with_clusters++; // TOB2
+  if( !clusters_in_subcomponents[31].empty() ||  !clusters_in_subcomponents[32].empty() ) nr_of_subcomps_with_clusters++; // TIB1 || TIB2
+  if( !clusters_in_subcomponents[33].empty() ) nr_of_subcomps_with_clusters++; // TIB3
+  if( !clusters_in_subcomponents[51].empty() ) nr_of_subcomps_with_clusters++; // TOB1
+  if( !clusters_in_subcomponents[52].empty() ) nr_of_subcomps_with_clusters++; // TOB2
   if(
      nr_of_subcomps_with_clusters >= MinClustersDiffComponents // more than 'MinClustersDiffComponents' components have at least 1 cluster
      ) {

@@ -40,7 +40,7 @@ class SUSY_HLT_DiJet_MET: public DQMEDAnalyzer{
 
   public:
   SUSY_HLT_DiJet_MET(const edm::ParameterSet& ps);
-  virtual ~SUSY_HLT_DiJet_MET();
+  ~SUSY_HLT_DiJet_MET() override;
 
   protected:
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;

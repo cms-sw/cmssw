@@ -34,31 +34,31 @@ public:
     GEMCSCSegment(const CSCSegment* csc_segment, const std::vector<const GEMRecHit*> gem_rhs, LocalPoint origin, LocalVector direction, AlgebraicSymMatrix errors, double chi2);
       
     /// Destructor
-    virtual ~GEMCSCSegment();
+    ~GEMCSCSegment() override;
 
     //--- Base class interface
-    GEMCSCSegment* clone() const { return new GEMCSCSegment(*this); }
+    GEMCSCSegment* clone() const override { return new GEMCSCSegment(*this); }
 
-    LocalPoint localPosition() const { return theOrigin; }
-    LocalError localPositionError() const ;
+    LocalPoint localPosition() const override { return theOrigin; }
+    LocalError localPositionError() const override ;
 	
-    LocalVector localDirection() const { return theLocalDirection; }
-    LocalError localDirectionError() const ;
+    LocalVector localDirection() const override { return theLocalDirection; }
+    LocalError localDirectionError() const override ;
 
     /// Parameters of the segment, for the track fit in the order (dx/dz, dy/dz, x, y )
-    AlgebraicVector parameters() const;
+    AlgebraicVector parameters() const override;
 
     /// Covariance matrix of parameters()
-    AlgebraicSymMatrix parametersError() const { return theCovMatrix; }
+    AlgebraicSymMatrix parametersError() const override { return theCovMatrix; }
 
     /// The projection matrix relates the trajectory state parameters to the segment parameters().
-    virtual AlgebraicMatrix projectionMatrix() const;
+    AlgebraicMatrix projectionMatrix() const override;
 
-    double chi2() const { return theChi2; };
+    double chi2() const override { return theChi2; };
 
-    virtual int dimension() const { return 4; }
+    int dimension() const override { return 4; }
 
-    virtual int degreesOfFreedom() const { return 2*nRecHits() - 4;}
+    int degreesOfFreedom() const override { return 2*nRecHits() - 4;}
 
     int nRecHits() const 
     { 
@@ -72,8 +72,8 @@ public:
     const CSCSegment                        cscSegment() const { return theCSCSegment; }
     const std::vector<GEMRecHit>&           gemRecHits() const { return theGEMRecHits; }
     const std::vector<CSCRecHit2D>&         cscRecHits() const { return theCSCSegment.specificRecHits(); }
-    virtual std::vector<const TrackingRecHit*> recHits() const;
-    virtual std::vector<TrackingRecHit*>       recHits();
+    std::vector<const TrackingRecHit*> recHits() const override;
+    std::vector<TrackingRecHit*>       recHits() override;
 
     CSCDetId cscDetId() const { return  geographicalId(); }
     

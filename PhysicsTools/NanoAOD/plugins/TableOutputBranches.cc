@@ -11,22 +11,22 @@ namespace {
 }
 
 void 
-TableOutputBranches::defineBranchesFromFirstEvent(const FlatTable & tab) 
+TableOutputBranches::defineBranchesFromFirstEvent(const nanoaod::FlatTable & tab) 
 {
     m_baseName=tab.name();
     for(size_t i=0;i<tab.nColumns();i++){
         const std::string & var=tab.columnName(i);
         switch(tab.columnType(i)){
-            case (FlatTable::FloatColumn):
+            case (nanoaod::FlatTable::FloatColumn):
                 m_floatBranches.emplace_back(var, tab.columnDoc(i), "F");
                 break;
-            case (FlatTable::IntColumn):
+            case (nanoaod::FlatTable::IntColumn):
                 m_intBranches.emplace_back(var, tab.columnDoc(i), "I");
                 break;
-            case (FlatTable::UInt8Column):
+            case (nanoaod::FlatTable::UInt8Column):
                 m_uint8Branches.emplace_back(var, tab.columnDoc(i), "b");
                 break;
-            case (FlatTable::BoolColumn):
+            case (nanoaod::FlatTable::BoolColumn):
                 m_uint8Branches.emplace_back(var, tab.columnDoc(i), "O");
                 break;
         }
@@ -67,9 +67,9 @@ void TableOutputBranches::fill(const edm::EventForOutput &iEvent, TTree & tree, 
         if (extensions != m_extension) return; // do nothing, wait to be called with the proper flag
     }
 
-    edm::Handle<FlatTable> handle;
+    edm::Handle<nanoaod::FlatTable> handle;
     iEvent.getByToken(m_token, handle);
-    const FlatTable & tab = *handle;
+    const nanoaod::FlatTable & tab = *handle;
     m_counter = tab.size();
     m_singleton = tab.singleton();
     if(!m_branchesBooked) {

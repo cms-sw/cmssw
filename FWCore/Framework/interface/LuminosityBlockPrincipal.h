@@ -98,6 +98,8 @@ namespace edm {
         BranchDescription const& bd,
         std::unique_ptr<WrapperBase> edp) const;
 
+    void put(ProductResolverIndex index,
+             std::unique_ptr<WrapperBase> edp) const;
 
     void setComplete() {
       complete_ = true;

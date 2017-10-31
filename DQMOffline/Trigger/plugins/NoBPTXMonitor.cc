@@ -16,7 +16,7 @@ NoBPTXMonitor::NoBPTXMonitor( const edm::ParameterSet& iConfig ) :
   , muonPt_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("muonPtPSet")    ) )
   , muonEta_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("muonEtaPSet")    ) )
   , muonPhi_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("muonPhiPSet")    ) )
-  , ls_binning_           ( getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("lsPSet")     ) )
+  , ls_binning_           ( getHistoPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("lsPSet")     ) )
   , bx_binning_           ( getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("bxPSet")     ) )
   , num_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"),consumesCollector(), *this))
   , den_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"),consumesCollector(), *this))
@@ -135,7 +135,7 @@ void NoBPTXMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   bool bookDen;
 
   std::string currentFolder = folderName_ ;
-  ibooker.setCurrentFolder(currentFolder.c_str());
+  ibooker.setCurrentFolder(currentFolder);
 
   histname = "jetE"; histtitle = "jetE";
   bookDen = true;
@@ -262,7 +262,7 @@ void NoBPTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
   double jetE = -999;
   double jetEta = -999;
   double jetPhi = -999;
-  if(jets.size()>0){
+  if(!jets.empty()){
     jetE = jets[0].energy();
     jetEta = jets[0].eta();
     jetPhi = jets[0].phi();
@@ -279,7 +279,7 @@ void NoBPTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
   double muonPt = -999;
   double muonEta = -999;
   double muonPhi = -999;
-  if(muons.size()>0){
+  if(!muons.empty()){
     muonPt = muons[0].pt();
     muonEta = muons[0].eta();
     muonPhi = muons[0].phi();
@@ -377,7 +377,7 @@ void NoBPTXMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptio
   fillHistoPSetDescription(muonPtPSet);
   fillHistoPSetDescription(muonEtaPSet);
   fillHistoPSetDescription(muonPhiPSet);
-  fillHistoLSPSetDescription(lsPSet);
+  fillHistoPSetDescription(lsPSet);
   fillHistoLSPSetDescription(bxPSet);
   histoPSet.add<edm::ParameterSetDescription>("jetEPSet", jetEPSet);
   histoPSet.add<edm::ParameterSetDescription>("jetEtaPSet", jetEtaPSet);

@@ -509,9 +509,9 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
   }
 
   //Get online ht and met
-  const float hlt_ht = ((HLTHT.isValid() && HLTHT->size())?HLTHT->front().sumEt():-1.0);
+  const float hlt_ht = ((HLTHT.isValid() && !HLTHT->empty())?HLTHT->front().sumEt():-1.0);
   if(h_HT_) h_HT_->Fill(hlt_ht);
-  const float hlt_met = ((HLTMET.isValid() && HLTMET->size())?HLTMET->front().pt():-1.0);
+  const float hlt_met = ((HLTMET.isValid() && !HLTMET->empty())?HLTMET->front().pt():-1.0);
   if(h_MET_) h_MET_->Fill(hlt_met);
 
   //Get online csv and fill plot
@@ -552,7 +552,7 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
 
   //Get offline MET
   double pfMET = -1.0;
-  if(pfMETCollection.isValid() && pfMETCollection->size()){
+  if(pfMETCollection.isValid() && !pfMETCollection->empty()){
     pfMET = pfMETCollection->front().et();
   }
 
@@ -584,7 +584,7 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
 
   //Fill lepton pt efficiency plot
   double lep_max_pt = -1.0;
-  if(VertexCollection.isValid() && VertexCollection->size()){//for quality checks
+  if(VertexCollection.isValid() && !VertexCollection->empty()){//for quality checks
     //Try to find a reco electron
     if(ElectronCollection.isValid()
        && ConversionCollection.isValid()

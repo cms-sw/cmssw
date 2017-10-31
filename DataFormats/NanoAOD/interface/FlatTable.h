@@ -5,8 +5,10 @@
 #include <vector>
 #include <string>
 #include <boost/range/sub_range.hpp>
-#include <FWCore/Utilities/interface/Exception.h>
-#include <DataFormats/PatCandidates/interface/libminifloat.h>
+#include "FWCore/Utilities/interface/Exception.h"
+#include "DataFormats/PatCandidates/interface/libminifloat.h"
+
+namespace nanoaod {
 
 namespace flatTableHelper {
     template<typename T> struct MaybeMantissaReduce { 
@@ -21,6 +23,7 @@ namespace flatTableHelper {
         inline void bulk(boost::sub_range<std::vector<float>> data) const { if (bits_ > 0) MiniFloatConverter::reduceMantissaToNbitsRounding(bits_, data.begin(), data.end(), data.begin()); }
     };
 }
+
 class FlatTable {
   public:
     enum ColumnType { FloatColumn, IntColumn, UInt8Column, BoolColumn }; // We could have other Float types with reduced mantissa, and similar
@@ -66,6 +69,22 @@ class FlatTable {
          return * beginData<T>(column);
     }
 
+    double getAnyValue(unsigned int row, unsigned int column) const ;
+
+    class RowView {
+        public:
+            RowView() {}
+            RowView(const FlatTable & table, unsigned int row) : table_(&table), row_(row) {}
+            double getAnyValue(unsigned int column) const { return table_->getAnyValue(row_, column); }
+            double getAnyValue(const std::string & column) const { return table_->getAnyValue(row_, table_->columnIndex(column)); }
+            const FlatTable & table() const { return *table_; }
+            unsigned int row() const { return row_; }
+        private:
+            const FlatTable * table_;
+            unsigned int row_;
+    };
+    RowView row(unsigned int row) const { return RowView(*this, row); }
+
     template<typename T, typename C = std::vector<T>>
     void addColumn(const std::string & name, const C & values, const std::string & docString, ColumnType type = defaultColumnType<T>(),int mantissaBits=-1) {
         if (columnIndex(name) != -1) throw cms::Exception("LogicError", "Duplicated column: "+name); 
@@ -91,7 +110,9 @@ class FlatTable {
             vec.push_back( value );
         }
     }
- 
+
+    void addExtension(const FlatTable & extension) ;
+
     template<typename T> static ColumnType defaultColumnType() { throw cms::Exception("unsupported type"); }
 
     // this below needs to be public for ROOT, but it is to be considered private otherwise
@@ -155,5 +176,6 @@ template<> inline std::vector<float>   & FlatTable::bigVector<float>()   { retur
 template<> inline std::vector<int>     & FlatTable::bigVector<int>()     { return ints_; }
 template<> inline std::vector<uint8_t> & FlatTable::bigVector<uint8_t>() { return uint8s_; }
 
+} // nanoaod
 
 #endif

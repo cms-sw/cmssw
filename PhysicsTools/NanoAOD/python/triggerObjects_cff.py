@@ -1,9 +1,16 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 
 unpackedPatTrigger = cms.EDProducer("PATTriggerObjectStandAloneUnpacker",
     patTriggerObjectsStandAlone = cms.InputTag('slimmedPatTrigger'),
     triggerResults              = cms.InputTag('TriggerResults::HLT'),
     unpackFilterLabels = cms.bool(True)
+)
+# ERA-dependent configuration
+run2_miniAOD_80XLegacy.toModify(
+  unpackedPatTrigger,
+  patTriggerObjectsStandAlone = "selectedPatTrigger",
+  unpackFilterLabels = False 
 )
 
 triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
@@ -37,7 +44,7 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
         ),
         cms.PSet(
             name = cms.string("Tau"),
-            id = cms.int32(14),
+            id = cms.int32(15),
             sel = cms.string("type(84) && pt > 5 && coll('hltPFTaus')"), 
             l1seed = cms.string("type(-100) && coll('hltGtStage2Digis:Tau')"), l1deltaR = cms.double(0.3),
             l2seed = cms.string("type(84) && coll('hltL2TauJetsL1IsoTauSeeded')"),  l2deltaR = cms.double(0.3),

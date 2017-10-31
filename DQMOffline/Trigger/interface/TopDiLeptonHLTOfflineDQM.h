@@ -79,13 +79,13 @@ namespace HLTOfflineDQMTopDiLepton {
       void fill(const edm::Event& event, const edm::TriggerResults& triggerTable, const std::string& channel, const std::vector<std::string>& labels) const;
 
       /// check if histogram was booked
-      bool booked(const std::string& histName) const { return hists_.find(histName.c_str())!=hists_.end(); };
+      bool booked(const std::string& histName) const { return hists_.find(histName)!=hists_.end(); };
       /// fill histogram if it had been booked before
-      void fill(const std::string& histName, double value) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(value); };
+      void fill(const std::string& histName, double value) const { if(booked(histName)) hists_.find(histName)->second->Fill(value); };
       /// fill histogram if it had been booked before (2-dim version)
-      void fill(const std::string& histName, double xValue, double yValue) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(xValue, yValue); };
+      void fill(const std::string& histName, double xValue, double yValue) const { if(booked(histName)) hists_.find(histName)->second->Fill(xValue, yValue); };
       /// fill histogram if it had been booked before (2-dim version)
-      void fill(const std::string& histName, double xValue, double yValue, double zValue) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(xValue, yValue, zValue); };
+      void fill(const std::string& histName, double xValue, double yValue, double zValue) const { if(booked(histName)) hists_.find(histName)->second->Fill(xValue, yValue, zValue); };
 
     private:
       std::string folder_;
@@ -165,26 +165,26 @@ namespace HLTOfflineDQMTopDiLepton {
     MonitorDiLepton::loggerBinLabels(const std::string& hist)
     {
       // set axes titles for selected events
-      hists_[hist.c_str()]->getTH1()->SetOption("TEXT");
-      hists_[hist.c_str()]->setBinLabel( 1 , "Run"             , 1);
-      hists_[hist.c_str()]->setBinLabel( 2 , "Block"           , 1);
-      hists_[hist.c_str()]->setBinLabel( 3 , "Event"           , 1);
-      hists_[hist.c_str()]->setBinLabel( 6 , "pt_{L2L3}(jet1)" , 1);
-      hists_[hist.c_str()]->setBinLabel( 7 , "pt_{L2L3}(jet2)" , 1);
-      hists_[hist.c_str()]->setBinLabel( 8 , "MET_{Calo}"      , 1);
-      hists_[hist.c_str()]->setAxisTitle("logged evts"         , 2);
+      hists_[hist]->getTH1()->SetOption("TEXT");
+      hists_[hist]->setBinLabel( 1 , "Run"             , 1);
+      hists_[hist]->setBinLabel( 2 , "Block"           , 1);
+      hists_[hist]->setBinLabel( 3 , "Event"           , 1);
+      hists_[hist]->setBinLabel( 6 , "pt_{L2L3}(jet1)" , 1);
+      hists_[hist]->setBinLabel( 7 , "pt_{L2L3}(jet2)" , 1);
+      hists_[hist]->setBinLabel( 8 , "MET_{Calo}"      , 1);
+      hists_[hist]->setAxisTitle("logged evts"         , 2);
 
       if(hist=="diMuonLogger_"){
-        hists_[hist.c_str()]->setBinLabel( 4 , "pt(muon)" , 1);
-        hists_[hist.c_str()]->setBinLabel( 5 , "pt(muon)" , 1);
+        hists_[hist]->setBinLabel( 4 , "pt(muon)" , 1);
+        hists_[hist]->setBinLabel( 5 , "pt(muon)" , 1);
       }
       if(hist=="diElecLogger_"){
-        hists_[hist.c_str()]->setBinLabel( 4 , "pt(elec)" , 1);
-        hists_[hist.c_str()]->setBinLabel( 5 , "pt(elec)" , 1);
+        hists_[hist]->setBinLabel( 4 , "pt(elec)" , 1);
+        hists_[hist]->setBinLabel( 5 , "pt(elec)" , 1);
       }
       if(hist=="elecMuLogger_"){
-        hists_[hist.c_str()]->setBinLabel( 4 , "pt(elec)" , 1);
-        hists_[hist.c_str()]->setBinLabel( 5 , "pt(muon)" , 1);
+        hists_[hist]->setBinLabel( 4 , "pt(elec)" , 1);
+        hists_[hist]->setBinLabel( 5 , "pt(muon)" , 1);
       }
     }
 
@@ -192,7 +192,7 @@ namespace HLTOfflineDQMTopDiLepton {
     MonitorDiLepton::triggerBinLabels(const std::string& channel, const std::vector<std::string>& labels)
     {
       for(unsigned int idx=0; idx<labels.size(); ++idx){
-        hists_[(channel+"Mon_").c_str()]->setBinLabel( idx+1, "["+monitorPath(labels[idx])+"]", 1);
+        hists_[channel+"Mon_"]->setBinLabel( idx+1, "["+monitorPath(labels[idx])+"]", 1);
       }
     }
 
@@ -201,7 +201,7 @@ namespace HLTOfflineDQMTopDiLepton {
     {
       for(unsigned int idx=0; idx<labels.size(); ++idx){
         if( acceptHLT(event, triggerTable, monitorPath(labels[idx])) ){
-          fill((channel+"Mon_").c_str(), idx+0.5 );
+          fill(channel+"Mon_", idx+0.5 );
         }
       }
     }

@@ -34,7 +34,7 @@ public:
     srcToken_ = consumes<OColl>(src_);
   }
 
-  ~HLTCountNumberOfObject() { }
+  ~HLTCountNumberOfObject() override { }
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions)
     {
@@ -47,7 +47,7 @@ public:
     }
 
 private:
-  virtual bool hltFilter(edm::Event& iEvent, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override
+  bool hltFilter(edm::Event& iEvent, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override
   {
     edm::Handle<OColl> oHandle;
     iEvent.getByToken(srcToken_, oHandle);

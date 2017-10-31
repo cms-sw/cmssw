@@ -25,7 +25,7 @@ const RPCGeometry::DetTypeContainer&  RPCGeometry::detTypes() const{
 }
 
 
-const RPCGeometry::DetUnitContainer& RPCGeometry::detUnits() const{
+const RPCGeometry::DetContainer& RPCGeometry::detUnits() const{
   return theRolls;
 }
 
@@ -45,8 +45,8 @@ const RPCGeometry::DetIdContainer& RPCGeometry::detIds() const{
 }
 
 
-const GeomDetUnit* RPCGeometry::idToDetUnit(DetId id) const{
-  return dynamic_cast<const GeomDetUnit*>(idToDet(id));
+const GeomDet* RPCGeometry::idToDetUnit(DetId id) const{
+  return dynamic_cast<const GeomDet*>(idToDet(id));
 }
 
 

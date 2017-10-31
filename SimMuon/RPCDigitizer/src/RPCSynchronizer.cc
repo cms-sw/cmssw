@@ -72,11 +72,11 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* 
   
   RPCDetId SimDetId(simhit->detUnitId());
   
-  const RPCRoll* SimRoll = 0;
+  const RPCRoll* SimRoll = nullptr;
   
   for(TrackingGeometry::DetContainer::const_iterator it = geometry->dets().begin(); it != geometry->dets().end(); it++){
     
-    if( dynamic_cast< const RPCChamber* >( *it ) != 0 ){
+    if( dynamic_cast< const RPCChamber* >( *it ) != nullptr ){
       
       auto ch = dynamic_cast<const RPCChamber* >( *it ); 
       
@@ -92,7 +92,7 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* 
     }
   }
   
-  if(SimRoll != 0){
+  if(SimRoll != nullptr){
     
     float distanceFromEdge = 0;
     float half_stripL = 0.;
@@ -167,11 +167,11 @@ int RPCSynchronizer::getSimHitBxAndTimingForIRPC(const PSimHit* simhit, CLHEP::H
   
   RPCDetId SimDetId(simhit->detUnitId());
   
-  const RPCRoll* SimRoll = 0;
+  const RPCRoll* SimRoll = nullptr;
   
   for(TrackingGeometry::DetContainer::const_iterator it = geometry->dets().begin(); it != geometry->dets().end(); it++){
     
-    if( dynamic_cast< const RPCChamber* >( *it ) != 0 ){
+    if( dynamic_cast< const RPCChamber* >( *it ) != nullptr ){
       
       auto ch = dynamic_cast<const RPCChamber* >( *it ); 
       
@@ -187,7 +187,7 @@ int RPCSynchronizer::getSimHitBxAndTimingForIRPC(const PSimHit* simhit, CLHEP::H
     }
   }
   
-  if(SimRoll != 0){
+  if(SimRoll != nullptr){
     
     float distanceFromEdge = 0;
     float half_stripL = 0.;

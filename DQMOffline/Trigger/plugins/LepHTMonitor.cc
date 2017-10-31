@@ -194,7 +194,7 @@ void LepHTMonitor::bookHistograms(DQMStore::IBooker &ibooker,
   edm::LogInfo("LepHTMonitor") << "LepHTMonitor::bookHistograms\n";
   //book at beginRun
   ibooker.cd();
-  ibooker.setCurrentFolder("HLT/LepHT/" + folderName_);
+  ibooker.setCurrentFolder("HLT/SUSY/LepHT/" + folderName_);
 
 
   bool is_mu = false;
@@ -358,7 +358,7 @@ void LepHTMonitor::analyze(const edm::Event &e, const edm::EventSetup &eSetup) {
 
   //Get offline MET
   double pfMET = -1.0;
-  if (pfMETCollection.isValid() && pfMETCollection->size()) {
+  if (pfMETCollection.isValid() && !pfMETCollection->empty()) {
     pfMET = pfMETCollection->front().et();
   }
 
@@ -375,7 +375,7 @@ void LepHTMonitor::analyze(const edm::Event &e, const edm::EventSetup &eSetup) {
   double min_mu_pt=-1.0;
   int nels=0;
   int nmus=0;
-  if (VertexCollection.isValid() && VertexCollection->size()) {//for quality checks
+  if (VertexCollection.isValid() && !VertexCollection->empty()) {//for quality checks
     //Try to find a reco electron
     if (ElectronCollection.isValid()
        && ConversionCollection.isValid()

@@ -2,9 +2,9 @@
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 #include "Geometry/GEMGeometry/interface/ME0EtaPartitionSpecs.h"
 
-#include <DetectorDescription/Core/interface/DDFilter.h>
-#include <DetectorDescription/Core/interface/DDFilteredView.h>
-#include <DetectorDescription/Core/interface/DDSolid.h>
+#include "DetectorDescription/Core/interface/DDFilter.h"
+#include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
 
 #include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
@@ -16,9 +16,9 @@
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-#include <iostream>
 #include <algorithm>
-#include <boost/lexical_cast.hpp>
+#include <iostream>
+#include <string>
 
 ME0GeometryBuilderFromDDD10EtaPart::ME0GeometryBuilderFromDDD10EtaPart()
 { }
@@ -26,10 +26,10 @@ ME0GeometryBuilderFromDDD10EtaPart::ME0GeometryBuilderFromDDD10EtaPart()
 ME0GeometryBuilderFromDDD10EtaPart::~ME0GeometryBuilderFromDDD10EtaPart() 
 { }
 
-
-ME0Geometry* ME0GeometryBuilderFromDDD10EtaPart::build(const DDCompactView* cview, const MuonDDDConstants& muonConstants)
+ME0Geometry*
+ME0GeometryBuilderFromDDD10EtaPart::build( const DDCompactView* cview,
+					   const MuonDDDConstants& muonConstants )
 {
-
   std::string attribute = "MuStructure";
   std::string value     = "MuonEndCapME0";
 
@@ -40,10 +40,10 @@ ME0Geometry* ME0GeometryBuilderFromDDD10EtaPart::build(const DDCompactView* cvie
   return this->buildGeometry(fview, muonConstants);
 }
 
-
-ME0Geometry* ME0GeometryBuilderFromDDD10EtaPart::buildGeometry(DDFilteredView& fv, const MuonDDDConstants& muonConstants)
+ME0Geometry*
+ME0GeometryBuilderFromDDD10EtaPart::buildGeometry( DDFilteredView& fv,
+						   const MuonDDDConstants& muonConstants )
 {
-
   ME0Geometry* geometry = new ME0Geometry();
 
   LogTrace("ME0GeometryBuilderFromDDD") <<"Building the geometry service";
@@ -71,7 +71,10 @@ ME0Geometry* ME0GeometryBuilderFromDDD10EtaPart::buildGeometry(DDFilteredView& f
     LogTrace("ME0GeometryBuilderFromDDD")<<"back to layer "<<fv.parent(); // commented out in case only looping over sensitive volumes
     LogTrace("ME0GeometryBuilderFromDDD")<<"back to chamb "<<fv.parent(); // commented out in case only looping over sensitive volumes
     // ok lets get started ...                             
-    LogTrace("ME0GeometryBuilderFromDDD") << "In DoChambers Loop :: ME0DetId "<<detId<<" = "<<detId.rawId()<<" (which belongs to ME0Chamber "<<detIdCh<<" = "<<detIdCh.rawId()<<")";
+    LogTrace("ME0GeometryBuilderFromDDD") << "In DoChambers Loop :: ME0DetId "
+					  << detId << " = " << detId.rawId()
+					  << " (which belongs to ME0Chamber "
+					  << detIdCh << " = " << detIdCh.rawId() << ")";
     LogTrace("ME0GeometryBuilderFromDDD") << "Second level logical part: " << fv.logicalPart().name().name();
     DDBooleanSolid solid2 = (DDBooleanSolid)(fv.logicalPart().solid());
     std::vector<double> dpar2  = solid2.parameters();
@@ -80,27 +83,7 @@ ME0Geometry* ME0GeometryBuilderFromDDD10EtaPart::buildGeometry(DDFilteredView& f
       parameters2 << " dpar["<<i<<"]="<< dpar2[i]/10 << "cm ";
     }
     LogTrace("ME0GeometryBuilderFromDDD") << "Second level parameters: vector with size = "<<dpar2.size()<<" and elements "<<parameters2.str();
-    // from GEM
-    // DDBooleanSolid solid = (DDBooleanSolid)(fv.logicalPart().solid());
-    // std::vector<double> dpar = solid.solidA().parameters();
-    /*
-    if(solid2.solidA()) {
-      std::vector<double> dpar2a = solid2.solidA().parameters();
-      std::stringstream parameters2a;
-      for(unsigned int i=0; i<dpar2a.size(); ++i) {
-	parameters2a << " dpara["<<i<<"]="<< dpar2a[i]/10 << "cm ";
-      }
-      LogTrace("ME0GeometryBuilderFromDDD") << "Second level parameters: vector with size = "<<dpar2a.size()<<" and elements "<<parameters2.str();
-    }
-    if(solid2.solidB()) {
-      std::vector<double> dpar2b = solid2.solidB().parameters();
-      std::stringstream parameters2b;
-      for(unsigned int i=0; i<dpar2b.size(); ++i) {
-	parameters2b << " dparb["<<i<<"]="<< dpar2b[i]/10 << "cm ";
-      }
-      LogTrace("ME0GeometryBuilderFromDDD") << "Second level parameters: vector with size = "<<dpar2b.size()<<" and elements "<<parameters2.str();
-    }
-    */
+
     bool doLayers = fv.firstChild();
     // --------------------------------------------------------------------------------------------------------------------------------------------
     LogTrace("ME0GeometryBuilderFromDDD") << "doLayer = fv.firstChild() = " << doLayers;
@@ -288,9 +271,9 @@ ME0EtaPartition* ME0GeometryBuilderFromDDD10EtaPart::buildEtaPartition(DDFiltere
     if (DDfetch( *is, numbOfPads))   nPads = numbOfPads.doubles()[0];
   }
   LogTrace("ME0GeometryBuilderFromDDD") 
-    << ((nStrips == 0. ) ? ("No nStrips found!!") : ("Number of strips: " + boost::lexical_cast<std::string>(nStrips))); 
+    << ((nStrips == 0. ) ? ("No nStrips found!!") : ("Number of strips: " + std::to_string(nStrips))); 
   LogTrace("ME0GeometryBuilderFromDDD") 
-    << ((nPads == 0. ) ? ("No nPads found!!") : ("Number of pads: " + boost::lexical_cast<std::string>(nPads)));
+    << ((nPads == 0. ) ? ("No nPads found!!") : ("Number of pads: " + std::to_string(nPads)));
   
   // EtaPartition specific parameter (size) 
   std::vector<double> dpar = fv.logicalPart().solid().parameters();

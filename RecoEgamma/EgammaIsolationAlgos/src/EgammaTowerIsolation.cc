@@ -54,21 +54,21 @@ EgammaTowerIsolation::EgammaTowerIsolation (float extRadiusI,
 
 double  EgammaTowerIsolation::getSum (bool et, reco::SuperCluster const & sc, const std::vector<CaloTowerDetId> * detIdToExclude) const{
 
-  if (0!=detIdToExclude) assert(0==intRadius);
+  if (nullptr!=detIdToExclude) assert(0==intRadius);
 
   // hack
   tls.newAlgo->setRadius(&extRadius,&intRadius);
 
   EgammaTowerIsolationNew<1>::Sum sum;
   tls.newAlgo->compute(et, sum, sc, 
-		  (detIdToExclude==0) ? nullptr : &((*detIdToExclude).front()),
-		  (detIdToExclude==0) ? nullptr : (&(*detIdToExclude).back())+1
+		  (detIdToExclude==nullptr) ? nullptr : &((*detIdToExclude).front()),
+		  (detIdToExclude==nullptr) ? nullptr : (&(*detIdToExclude).back())+1
 		  );
   
   switch(depth_){
-  case AllDepths: return detIdToExclude==0 ? sum.he[0] : sum.heBC[0]; 
-  case Depth1: return detIdToExclude==0 ? sum.he[0]-sum.h2[0] : sum.heBC[0]-sum.h2BC[0]; 
-  case Depth2:return detIdToExclude==0 ? sum.h2[0] : sum.h2BC[0]; 
+  case AllDepths: return detIdToExclude==nullptr ? sum.he[0] : sum.heBC[0]; 
+  case Depth1: return detIdToExclude==nullptr ? sum.he[0]-sum.h2[0] : sum.heBC[0]-sum.h2BC[0]; 
+  case Depth2:return detIdToExclude==nullptr ? sum.h2[0] : sum.h2BC[0]; 
   default: return 0;
   }
   return 0;

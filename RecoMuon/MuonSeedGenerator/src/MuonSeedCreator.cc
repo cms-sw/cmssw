@@ -490,7 +490,7 @@ void MuonSeedCreator::estimatePtCSC(const SegmentContainer& seg, const std::vect
   }
 
   // Compute weighted average if have more than one estimator
-  if ( ptEstimate.size() > 0 ) weightedPt( ptEstimate, sptEstimate, thePt, theSpt);
+  if ( !ptEstimate.empty() ) weightedPt( ptEstimate, sptEstimate, thePt, theSpt);
 
 }
 
@@ -626,7 +626,7 @@ void MuonSeedCreator::estimatePtDT(const SegmentContainer& seg, const std::vecto
   
   
   // Compute weighted average if have more than one estimator
-  if (ptEstimate.size() > 0 ) weightedPt( ptEstimate, sptEstimate, thePt, theSpt);
+  if (!ptEstimate.empty() ) weightedPt( ptEstimate, sptEstimate, thePt, theSpt);
 
 }
 
@@ -668,7 +668,7 @@ void MuonSeedCreator::estimatePtOverlap(const SegmentContainer& seg, const std::
   float eta = fabs(segPos[0].eta());
   //std::cout<<" estimate OL "<<std::endl;
     
-  if ( segDT.size() > 0 && segCSC.size() > 0 ) {
+  if ( !segDT.empty() && !segCSC.empty() ) {
     int layer1 = layers[size-1];
     segPos[1] = seg[size-1]->globalPosition();
   
@@ -756,7 +756,7 @@ void MuonSeedCreator::estimatePtOverlap(const SegmentContainer& seg, const std::
   */
 
   // Compute weighted average if have more than one estimator
-  if (ptEstimate.size() > 0 ) weightedPt( ptEstimate, sptEstimate, thePt, theSpt);
+  if (!ptEstimate.empty() ) weightedPt( ptEstimate, sptEstimate, thePt, theSpt);
 
 }
 /*

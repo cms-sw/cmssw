@@ -26,9 +26,9 @@ class TtSemiEvtSolutionMaker : public edm::EDProducer {
  public:
 
   explicit TtSemiEvtSolutionMaker(const edm::ParameterSet & iConfig);
-  ~TtSemiEvtSolutionMaker();
+  ~TtSemiEvtSolutionMaker() override;
 
-  virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+  void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
   // convert unsigned to Param
   TtSemiLepKinFitter::Param param(unsigned);

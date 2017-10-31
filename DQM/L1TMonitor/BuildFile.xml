@@ -40,6 +40,5 @@
 <use   name="boost"/>
 
 <export>
-  <flags   EDM_PLUGIN="1"/>
-  <lib name="DQML1TMonitor"/>
+  <lib name="1"/>
 </export>

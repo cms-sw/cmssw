@@ -171,7 +171,7 @@ class conddb_tool(object):
         logging.info('Connected to %s as user %s' %(db_service[0],username))
         self.db.current_schema = schema_name
 
-    def process_tag_boost_version( self, t, timetype, tagBoostVersion, timeCut ):
+    def process_tag_boost_version( self, t, timetype, tagBoostVersion, minIov, timeCut ):
         if self.iovs is None:
             self.iovs = []
             cursor = self.db.cursor()
@@ -198,8 +198,11 @@ class conddb_tool(object):
                     if timeCut < iov[1]:
                         continue
             niovs += 1
-            iovBoostVersion, tagBoostVersion = sm.update_tag_boost_version( tagBoostVersion, iov[2], iov[0], timetype, self.version_db.boost_run_map )
+            iovBoostVersion, tagBoostVersion = sm.update_tag_boost_version( tagBoostVersion, minIov, iov[2], iov[0], timetype, self.version_db.boost_run_map )
+            if minIov is None or iov[0]<minIov:
+                minIov = iov[0]
             logging.debug('iov: %s - boost version: %s - streamer: %s' %(iov[0],iovBoostVersion,iov[2]))
+            logging.debug('current tag boost version: %s minIov: %s' %(tagBoostVersion,minIov))
             if lastBoost is None or lastBoost!=iovBoostVersion:
                 self.versionIovs.append((iov[0],iovBoostVersion))
                 lastBoost = iovBoostVersion
@@ -207,22 +210,22 @@ class conddb_tool(object):
         if tagBoostVersion is None:
             if niovs == 0:
                 logging.warning( 'No iovs found. boost version cannot be determined.')
-                return None
+                return None, None
             else:
                 logging.error('Could not determine the tag boost version.' )
-                return None
+                return None, None
         else:
             if niovs == 0:
                 logging.info('Tag boost version has not changed.')
             else:
-                msg = 'Found tag boost version %s combining payloads from %s iovs' %(tagBoostVersion,niovs)
+                msg = 'Found tag boost version %s ( min iov: %s ) combining payloads from %s iovs' %(tagBoostVersion,minIov,niovs)
                 if timeCut is not None:
                     if update:
                         msg += ' (iov insertion time>%s)' %str(timeCut)
                     else:
                         msg += ' (iov insertion time<%s)' %str(timeCut)
                 logging.info( msg ) 
-        return tagBoostVersion
+        return tagBoostVersion, minIov
 
     def validate_boost_version( self, t, timetype, tagBoostVersion ):
         cursor = self.db.cursor()
@@ -245,7 +248,8 @@ class conddb_tool(object):
                 logging.warning( 'The boost version computed from all the iovs in the tag (%s) is incompatible with the gt [%s] %s (consuming ver: %s, snapshot: %s)' %(tagBoostVersion,ngt,gt[0],gtBoostVersion,str(gt[2])))
                 if str(gt[2]) not in boost_snapshot_map.keys():
                     tagSnapshotBoostVersion = None
-                    tagSnapshotBoostVersion = self.process_tag_boost_version(t, timetype, tagSnapshotBoostVersion, gt[2])
+                    minIov = None
+                    tagSnapshotBoostVersion, minIov = self.process_tag_boost_version(t, timetype, tagSnapshotBoostVersion, minIov, gt[2])
                     if tagSnapshotBoostVersion is not None:
                         boost_snapshot_map[str(gt[2])] = tagSnapshotBoostVersion
                     else:
@@ -264,13 +268,13 @@ class conddb_tool(object):
             logging.error( 'boost version for the tag is invalid.')
         return invalid_gts
 
-    def update_tag_boost_version_in_db( self, t, tagBoostVersion, update ):
+    def update_tag_boost_version_in_db( self, t, tagBoostVersion, minIov, update ):
         cursor = self.db.cursor()
         now = datetime.datetime.utcnow()
         if update:
-            cursor.execute('UPDATE TAG_METADATA SET MIN_SERIALIZATION_V=:BOOST_V, MODIFICATION_TIME=:NOW WHERE TAG_NAME = :NAME',( tagBoostVersion,now,t))
+            cursor.execute('UPDATE TAG_METADATA SET MIN_SERIALIZATION_V=:BOOST_V, MIN_SINCE=:MIN_IOV, MODIFICATION_TIME=:NOW WHERE TAG_NAME = :NAME',( tagBoostVersion,minIov,now,t))
         else:
-            cursor.execute('INSERT INTO TAG_METADATA ( TAG_NAME, MIN_SERIALIZATION_V, MODIFICATION_TIME ) VALUES ( :NAME, :BOOST_V, :NOW )',(t, tagBoostVersion,now))
+            cursor.execute('INSERT INTO TAG_METADATA ( TAG_NAME, MIN_SERIALIZATION_V, MIN_SINCE, MODIFICATION_TIME ) VALUES ( :NAME, :BOOST_V, :MIN_IOV, :NOW )',(t, tagBoostVersion,minIov,now))
         logging.info('Minimum boost version for the tag updated.')
         
     def update_tags( self ):
@@ -292,11 +296,11 @@ class conddb_tool(object):
             if not found:
                 raise Exception('Tag %s does not exists in the database.' %self.args.name )
             tags[self.args.name] = None
-            stmt1 = 'SELECT MIN_SERIALIZATION_V, MODIFICATION_TIME FROM  TAG_METADATA WHERE TAG_NAME = :NAME'
+            stmt1 = 'SELECT MIN_SERIALIZATION_V, MIN_SINCE, MODIFICATION_TIME FROM  TAG_METADATA WHERE TAG_NAME = :NAME'
             cursor.execute(stmt1,wpars);
             rows = cursor.fetchall()
             for r in rows:
-                tags[self.args.name] = (r[0],r[1])
+                tags[self.args.name] = (r[0],r[1],r[2])
         else:
             #stmt = 'SELECT MAX(INSERTION_TIME) FROM IOV WHERE TAG_NAME= :TAG_NAME'
             #cursor.execute(stmt)
@@ -318,10 +322,10 @@ class conddb_tool(object):
             rows = cursor.fetchall()
             for r in rows:
                 tags[r[0]] = None
-            stmt1 = 'SELECT T.NAME NAME, TM.MIN_SERIALIZATION_V MIN_SERIALIZATION_V, TM.MODIFICATION_TIME MODIFICATION_TIME FROM TAG T, TAG_METADATA TM WHERE T.NAME=TM.TAG_NAME AND TM.MODIFICATION_TIME < (SELECT MAX(INSERTION_TIME) FROM IOV WHERE IOV.TAG_NAME=TM.TAG_NAME) ORDER BY NAME' 
+            stmt1 = 'SELECT T.NAME NAME, TM.MIN_SERIALIZATION_V MIN_SERIALIZATION_V, TM.MIN_SINCE MIN_SINCE, TM.MODIFICATION_TIME MODIFICATION_TIME FROM TAG T, TAG_METADATA TM WHERE T.NAME=TM.TAG_NAME AND TM.MODIFICATION_TIME < (SELECT MAX(INSERTION_TIME) FROM IOV WHERE IOV.TAG_NAME=TM.TAG_NAME) ORDER BY NAME' 
             nmax = nmax-len(tags)
             if nmax >=0:
-                stmt1 = 'SELECT NAME, MIN_SERIALIZATION_V, MODIFICATION_TIME FROM (SELECT T.NAME NAME, TM.MIN_SERIALIZATION_V MIN_SERIALIZATION_V, TM.MODIFICATION_TIME MODIFICATION_TIME FROM TAG T, TAG_METADATA TM WHERE T.NAME=TM.TAG_NAME AND TM.MODIFICATION_TIME < (SELECT MAX(INSERTION_TIME) FROM IOV WHERE IOV.TAG_NAME=TM.TAG_NAME) ORDER BY NAME) WHERE ROWNUM<= :MAXR'
+                stmt1 = 'SELECT NAME, MIN_SERIALIZATION_V, MIN_SINCE, MODIFICATION_TIME FROM (SELECT T.NAME NAME, TM.MIN_SERIALIZATION_V MIN_SERIALIZATION_V, TM.MIN_SINCE MIN_SINCE, TM.MODIFICATION_TIME MODIFICATION_TIME FROM TAG T, TAG_METADATA TM WHERE T.NAME=TM.TAG_NAME AND TM.MODIFICATION_TIME < (SELECT MAX(INSERTION_TIME) FROM IOV WHERE IOV.TAG_NAME=TM.TAG_NAME) ORDER BY NAME) WHERE ROWNUM<= :MAXR'
                 wpars = (nmax,)
             cursor.execute(stmt1,wpars);
             rows = cursor.fetchall()
@@ -330,7 +334,7 @@ class conddb_tool(object):
                 i += 1
                 if nmax >=0 and i>nmax:
                     break
-                tags[r[0]] = (r[1],r[2])                
+                tags[r[0]] = (r[1],r[2],r[3])
         logging.info( 'Processing boost version for %s tags' %len(tags))
         count = 0
         for t in sorted(tags.keys()):
@@ -343,12 +347,14 @@ class conddb_tool(object):
                 logging.info('************************************************************************')
                 logging.info('Tag [%s] %s - timetype: %s' %(count,t,timetype))
                 tagBoostVersion = None
+                minIov = None
                 timeCut = None
                 if tags[t] is not None:
                     update = True
                     tagBoostVersion = tags[t][0]
-                    timeCut = tags[t][1]
-                tagBoostVersion = self.process_tag_boost_version( t, timetype, tagBoostVersion, timeCut )
+                    minIov = tags[t][1]
+                    timeCut = tags[t][2]
+                tagBoostVersion, minIov = self.process_tag_boost_version( t, timetype, tagBoostVersion, minIov, timeCut )
                 if tagBoostVersion is None:
                     continue
                 logging.debug('boost versions in the %s iovs: %s' %(len(self.iovs),str(self.versionIovs)))
@@ -357,7 +363,10 @@ class conddb_tool(object):
                     with open('invalid_tags_in_gts.txt','a') as error_file:
                         for gt in invalid_gts:
                             error_file.write('Tag %s (boost %s) is invalid for GT %s ( boost %s) \n' %(t,tagBoostVersion,gt[0],gt[1]))
-                self.update_tag_boost_version_in_db( t, tagBoostVersion, update )
+                if len(self.iovs):
+                    if self.iovs[0][0]<minIov:
+                        minIov = self.iovs[0]
+                self.update_tag_boost_version_in_db( t, tagBoostVersion, minIov, update )
                 self.db.commit()
             except Exception as e:
                 logging.error(str(e))
@@ -394,13 +403,15 @@ class conddb_tool(object):
         if t_modificationTime is None:
             raise Exception("Tag %s does not have any iov stored." %tag)
         logging.info('Tag %s - timetype: %s' %(tag,timeType))
-        cursor.execute('SELECT MIN_SERIALIZATION_V, MODIFICATION_TIME FROM TAG_METADATA WHERE TAG_NAME= :TAG_NAME',(tag,))
+        cursor.execute('SELECT MIN_SERIALIZATION_V, MIN_SINCE, MODIFICATION_TIME FROM TAG_METADATA WHERE TAG_NAME= :TAG_NAME',(tag,))
         rows = cursor.fetchall()
         tagBoostVersion = None
+        minIov = None
         v_modificationTime = None
         for r in rows:
             tagBoostVersion = r[0]
-            v_modificationTime = r[1]
+            minIov = r[1]
+            v_modificationTime = r[2]
         if v_modificationTime is not None:
             if t_modificationTime > v_modificationTime:
                 logging.warning('The minimum boost version stored is out of date.')
@@ -415,12 +426,12 @@ class conddb_tool(object):
             self.version_db.fetch_boost_run_map()
             timeCut = None
             logging.info('Calculating minimum boost version for the available iovs...')
-            r_tagBoostVersion = self.process_tag_boost_version( tag, timeType, tagBoostVersion, timeCut )
-        print '# Currently stored: %s' %(tagBoostVersion)
+            r_tagBoostVersion, r_minIov = self.process_tag_boost_version( tag, timeType, tagBoostVersion, minIov, timeCut )
+        print '# Currently stored: %s (min iov:%s)' %(tagBoostVersion,minIov)
         print '# Last update: %s' %mt
         print '# Last update on the iovs: %s' %str(t_modificationTime)
         if self.args.rebuild or self.args.full:
-            print '# Based on the %s available IOVs: %s' %(len(self.iovs),r_tagBoostVersion)
+            print '# Based on the %s available IOVs: %s (min iov:%s)' %(len(self.iovs),r_tagBoostVersion,r_minIov)
             if self.args.full:
                 headers = ['Run','Boost Version']
                 print_table( headers, self.versionIovs ) 

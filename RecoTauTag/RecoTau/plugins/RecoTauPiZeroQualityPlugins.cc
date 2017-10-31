@@ -21,7 +21,7 @@ namespace reco { namespace tau {
 class RecoTauPiZeroStringQuality : public RecoTauPiZeroQualityPlugin {
   public:
     explicit RecoTauPiZeroStringQuality(const edm::ParameterSet&);
-    ~RecoTauPiZeroStringQuality() {}
+    ~RecoTauPiZeroStringQuality() override {}
     double operator()(const RecoTauPiZero&) const override;
   private:
     const StringCutObjectSelector<RecoTauPiZero> selector_;

@@ -3,7 +3,7 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 
 topEfficiency_elejets = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/EleJet/*"),
+    subDirs        = cms.untracked.vstring("HLT/TOP/EleJet/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -35,7 +35,7 @@ topEfficiency_elejets = DQMEDHarvester("DQMGenericClient",
 )
 
 topEfficiency_eleHT = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/EleHT/*"),
+    subDirs        = cms.untracked.vstring("HLT/TOP/EleHT/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -74,7 +74,7 @@ topEfficiency_eleHT = DQMEDHarvester("DQMGenericClient",
 
 #ATHER
 topEfficiency_singleMu = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/SingleLepton/SingleMuon/*"),
+    subDirs        = cms.untracked.vstring("HLT/TOP/SingleLepton/SingleMuon/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages                                                                                                        
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -105,7 +105,7 @@ topEfficiency_singleMu = DQMEDHarvester("DQMGenericClient",
 
 
 topEfficiency_diElec = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/DiLepton/DiElectron/*"),
+    subDirs        = cms.untracked.vstring("HLT/TOP/DiLepton/DiElectron/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages                                      
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -146,7 +146,7 @@ topEfficiency_diElec = DQMEDHarvester("DQMGenericClient",
 
 
 topEfficiency_diMu = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/DiLepton/DiMuon/*"),
+    subDirs        = cms.untracked.vstring("HLT/TOP/DiLepton/DiMuon/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages                                      
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -186,7 +186,7 @@ topEfficiency_diMu = DQMEDHarvester("DQMGenericClient",
 
 
 topEfficiency_ElecMu = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/DiLepton/ElecMuon/*"),
+    subDirs        = cms.untracked.vstring("HLT/TOP/DiLepton/ElecMuon/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -229,7 +229,7 @@ topEfficiency_ElecMu = DQMEDHarvester("DQMGenericClient",
 
 # Marina
 fullyhadronicEfficiency_Reference = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/FullyHadronic/Reference/*"),
+    subDirs        = cms.untracked.vstring("HLT/TOP/FullyHadronic/Reference/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages 
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -240,7 +240,7 @@ fullyhadronicEfficiency_Reference = DQMEDHarvester("DQMGenericClient",
 
 
 fullyhadronicEfficiency_DoubleBTag = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/FullyHadronic/DoubleBTag/*"),
+    subDirs        = cms.untracked.vstring("HLT/TOP/FullyHadronic/DoubleBTag/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -329,7 +329,7 @@ fullyhadronicEfficiency_DoubleBTag = DQMEDHarvester("DQMGenericClient",
 
 
 fullyhadronicEfficiency_SingleBTag = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/FullyHadronic/SingleBTag/*"),
+    subDirs        = cms.untracked.vstring("HLT/TOP/FullyHadronic/SingleBTag/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -416,7 +416,7 @@ fullyhadronicEfficiency_SingleBTag = DQMEDHarvester("DQMGenericClient",
 )
 
 fullyhadronicEfficiency_TripleBTag = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/TopHLTOffline/TopMonitor/FullyHadronic/TripleBTag/*"),
+    subDirs        = cms.untracked.vstring("HLT/TOP/FullyHadronic/TripleBTag/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(

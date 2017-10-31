@@ -11,7 +11,7 @@ class UniqueStringProducer : public edm::global::EDProducer<edm::BeginRunProduce
             const edm::ParameterSet & strings = iConfig.getParameter<edm::ParameterSet>("strings");
             for (const std::string & vname : strings.getParameterNamesForType<std::string>()) {
                 strings_.emplace_back(vname, strings.getParameter<std::string>(vname));
-                produces<UniqueString,edm::InRun>(vname);
+                produces<nanoaod::UniqueString,edm::InRun>(vname);
             }
         }
 
@@ -21,7 +21,7 @@ class UniqueStringProducer : public edm::global::EDProducer<edm::BeginRunProduce
 
         void globalBeginRunProduce(edm::Run& iRun, edm::EventSetup const&) const override { 
             for (const auto & pair : strings_) {
-                iRun.put(std::make_unique<UniqueString>(pair.second), pair.first);
+                iRun.put(std::make_unique<nanoaod::UniqueString>(pair.second), pair.first);
             }
         }
 

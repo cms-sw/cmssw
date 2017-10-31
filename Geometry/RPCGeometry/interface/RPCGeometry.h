@@ -32,7 +32,7 @@ class RPCGeometry : public TrackingGeometry {
   const DetTypeContainer&  detTypes() const override;
 
   // Return a vector of all GeomDetUnit
-  const DetUnitContainer& detUnits() const override;
+  const DetContainer& detUnits() const override;
 
   // Return a vector of all GeomDet
   const DetContainer& dets() const override;
@@ -44,7 +44,7 @@ class RPCGeometry : public TrackingGeometry {
   const DetIdContainer& detIds() const override;
 
   // Return the pointer to the GeomDetUnit corresponding to a given DetId
-  const GeomDetUnit* idToDetUnit(DetId) const override;
+  const GeomDet* idToDetUnit(DetId) const override;
 
   // Return the pointer to the GeomDet corresponding to a given DetId
   const GeomDet* idToDet(DetId) const override;
@@ -71,7 +71,7 @@ class RPCGeometry : public TrackingGeometry {
   void add(RPCChamber* ch);
 
  private:
-  DetUnitContainer theRolls;
+  DetContainer theRolls;
   DetContainer theDets;
   DetTypeContainer theRollTypes;
   DetIdContainer theRollIds;

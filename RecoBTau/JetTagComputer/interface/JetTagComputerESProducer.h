@@ -24,7 +24,7 @@ public:
     m_jetTagComputer = std::make_shared<ConcreteJetTagComputer>(m_pset);
   }
   
-  virtual ~JetTagComputerESProducer() {
+  ~JetTagComputerESProducer() override {
   }
 
   std::shared_ptr<JetTagComputer> produce(const JetTagComputerRecord & record) {

@@ -63,6 +63,7 @@ private:
   std::string m_compressionAlgorithm;
   bool m_writeProvenance;
   bool m_fakeName; //crab workaround, remove after crab is fixed
+  int m_autoFlush;
   edm::ProcessHistoryRegistry m_processHistoryRegistry;
   edm::JobReport::Token m_jrToken;
   std::unique_ptr<TFile> m_file;
@@ -139,6 +140,7 @@ NanoAODOutputModule::NanoAODOutputModule(edm::ParameterSet const& pset):
   m_compressionAlgorithm(pset.getUntrackedParameter<std::string>("compressionAlgorithm")),
   m_writeProvenance(pset.getUntrackedParameter<bool>("saveProvenance", true)),
   m_fakeName(pset.getUntrackedParameter<bool>("fakeNameForCrab", false)),
+  m_autoFlush(pset.getUntrackedParameter<int>("autoFlush", -10000000)),
   m_processHistoryRegistry()
 {
 }
@@ -185,7 +187,7 @@ NanoAODOutputModule::writeRun(edm::RunForOutput const& iRun) {
 
   for (auto & t : m_runTables) t.fill(iRun,*m_runTree);
 
-  edm::Handle<UniqueString> hstring;
+  edm::Handle<nanoaod::UniqueString> hstring;
   for (const auto & p : m_nanoMetadata) {
     iRun.getByToken(p.second, hstring);
     TObjString *tos = dynamic_cast<TObjString *>(m_file->Get(p.first.c_str()));
@@ -237,7 +239,7 @@ NanoAODOutputModule::openFile(edm::FileBlock const&) {
   m_runTables.clear();
   const auto & keeps = keptProducts();
   for (const auto & keep : keeps[edm::InEvent]) {
-      if(keep.first->className() == "FlatTable" )
+      if(keep.first->className() == "nanoaod::FlatTable" )
 	      m_tables.emplace_back(keep.first, keep.second);
       else if(keep.first->className() == "edm::TriggerResults" )
 	  {
@@ -247,9 +249,9 @@ NanoAODOutputModule::openFile(edm::FileBlock const&) {
   }
 
   for (const auto & keep : keeps[edm::InRun]) {
-      if(keep.first->className() == "MergeableCounterTable" )
+      if(keep.first->className() == "nanoaod::MergeableCounterTable" )
 	      m_runTables.push_back(SummaryTableOutputBranches(keep.first, keep.second));
-      else if(keep.first->className() == "UniqueString" && keep.first->moduleLabel() == "nanoMetadata")
+      else if(keep.first->className() == "nanoaod::UniqueString" && keep.first->moduleLabel() == "nanoMetadata")
 	      m_nanoMetadata.emplace_back(keep.first->productInstanceName(), keep.second);
       else throw cms::Exception("Configuration", "NanoAODOutputModule cannot handle class " + keep.first->className() + " in Run branch");     
   }
@@ -258,6 +260,7 @@ NanoAODOutputModule::openFile(edm::FileBlock const&) {
   // create the trees
   m_tree.reset(new TTree("Events","Events"));
   m_tree->SetAutoSave(std::numeric_limits<Long64_t>::max());
+  m_tree->SetAutoFlush(m_autoFlush);
   m_commonBranches.branch(*m_tree);
 
   m_lumiTree.reset(new TTree("LuminosityBlocks","LuminosityBlocks"));
@@ -317,7 +320,7 @@ NanoAODOutputModule::fillDescriptions(edm::ConfigurationDescriptions& descriptio
         ->setComment("Change the OutputModule name in the fwk job report to fake PoolOutputModule. This is needed to run on cran (and publish) till crab is fixed");
 
   //replace with whatever you want to get from the EDM by default
-  const std::vector<std::string> keep = {"drop *", "keep FlatTable_*Table_*_*", "keep edmTriggerResults_*_*_*", "keep MergeableCounterTable_*Table_*_*", "keep UniqueString_nanoMetadata_*_*"};
+  const std::vector<std::string> keep = {"drop *", "keep nanoaodFlatTable_*Table_*_*", "keep edmTriggerResults_*_*_*", "keep nanoaodMergeableCounterTable_*Table_*_*", "keep nanoaodUniqueString_nanoMetadata_*_*"};
   edm::OutputModule::fillDescription(desc, keep);
   
   //Used by Workflow management for their own meta data

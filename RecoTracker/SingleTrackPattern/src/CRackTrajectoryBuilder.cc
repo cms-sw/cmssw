@@ -133,7 +133,7 @@ void CRackTrajectoryBuilder::run(const TrajectorySeedCollection &collseed,
     seed_plus = !seed_plus;
     vector<const TrackingRecHit*> allHitsOppsite = SortHits(collstereo,collrphi,collmatched,collpixel, *iseed, true);
     seed_plus = !seed_plus;
-    if (allHitsOppsite.size())
+    if (!allHitsOppsite.empty())
       {
 	//there are hits which are above the seed,
 	//cout << "Number of hits higher than seed " <<allHitsOppsite.size() << endl;	
@@ -549,7 +549,7 @@ CRackTrajectoryBuilder::startingTSOS(const TrajectorySeed& seed)const
 void CRackTrajectoryBuilder::AddHit(Trajectory &traj,
                                      const vector<const TrackingRecHit*>& _Hits, Propagator *currPropagator){
    vector<const TrackingRecHit*> Hits = _Hits;
-   if ( Hits.size() == 0 )
+   if ( Hits.empty() )
      return;
   
    if (debug_info) cout << "CRackTrajectoryBuilder::AddHit" << endl;
@@ -681,7 +681,7 @@ void CRackTrajectoryBuilder::AddHit(Trajectory &traj,
  	      trackHitCandidates.push_back(  make_pair(iHit, prSt) );
  	    }
  	  
- 	  if (!trackHitCandidates.size())
+ 	  if (trackHitCandidates.empty())
  	  break;
  
  	  if (debug_info) cout << Hits.size() << " (int) trackHitCandidates.begin() " << trackHitCandidates.size() << endl;
@@ -925,7 +925,7 @@ CRackTrajectoryBuilder::innerState( const Trajectory& traj) const
   }
 
   TrajectoryMeasurement firstMeas = fitres[0].lastMeasurement();
-  TSOS firstState = firstMeas.updatedState();
+  const TSOS& firstState = firstMeas.updatedState();
 
   //  cout << "FitTester: Fitted first state " << firstState << endl;
   //cout << "FitTester: chi2 = " << fitres[0].chiSquared() << endl;

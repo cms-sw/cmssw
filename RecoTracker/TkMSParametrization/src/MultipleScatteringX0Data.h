@@ -20,11 +20,11 @@ class dso_hidden MultipleScatteringX0Data : public SumX0AtEtaDataProvider {
 
 public:
   MultipleScatteringX0Data();
-  virtual ~MultipleScatteringX0Data();
+  ~MultipleScatteringX0Data() override;
   int nBinsEta() const;
   float minEta() const;
   float maxEta() const;
-  virtual float sumX0atEta(float eta, float r) const;
+  float sumX0atEta(float eta, float r) const override;
 
 private:
   std::string fileName();

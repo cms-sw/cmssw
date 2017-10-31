@@ -20,33 +20,33 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalHardcodeGeometryLoader.h"
 
 Calorimeter::Calorimeter():
-  myPreshowerLayer1Properties_(NULL),
-  myPreshowerLayer2Properties_(NULL),  
-  myECALBarrelProperties_     (NULL),  
-  myECALEndcapProperties_     (NULL),  
-  myHCALBarrelProperties_     (NULL),  
-  myHCALEndcapProperties_     (NULL),  
-  myHCALForwardProperties_    (NULL),
-  EcalBarrelGeometry_         (NULL),
-  EcalEndcapGeometry_         (NULL),
-  HcalGeometry_               (NULL),
-  PreshowerGeometry_          (NULL)
+  myPreshowerLayer1Properties_(nullptr),
+  myPreshowerLayer2Properties_(nullptr),  
+  myECALBarrelProperties_     (nullptr),  
+  myECALEndcapProperties_     (nullptr),  
+  myHCALBarrelProperties_     (nullptr),  
+  myHCALEndcapProperties_     (nullptr),  
+  myHCALForwardProperties_    (nullptr),
+  EcalBarrelGeometry_         (nullptr),
+  EcalEndcapGeometry_         (nullptr),
+  HcalGeometry_               (nullptr),
+  PreshowerGeometry_          (nullptr)
 {
 ;
 }
 
 Calorimeter::Calorimeter(const edm::ParameterSet& fastCalo):
-  myPreshowerLayer1Properties_(NULL),
-  myPreshowerLayer2Properties_(NULL),  
-  myECALBarrelProperties_     (NULL),  
-  myECALEndcapProperties_     (NULL),  
-  myHCALBarrelProperties_     (NULL),  
-  myHCALEndcapProperties_     (NULL),  
-  myHCALForwardProperties_    (NULL),
-  EcalBarrelGeometry_        (NULL),
-  EcalEndcapGeometry_          (NULL),
-  HcalGeometry_               (NULL),
-  PreshowerGeometry_          (NULL)  
+  myPreshowerLayer1Properties_(nullptr),
+  myPreshowerLayer2Properties_(nullptr),  
+  myECALBarrelProperties_     (nullptr),  
+  myECALEndcapProperties_     (nullptr),  
+  myHCALBarrelProperties_     (nullptr),  
+  myHCALEndcapProperties_     (nullptr),  
+  myHCALForwardProperties_    (nullptr),
+  EcalBarrelGeometry_        (nullptr),
+  EcalEndcapGeometry_          (nullptr),
+  HcalGeometry_               (nullptr),
+  PreshowerGeometry_          (nullptr)  
 {
   edm::ParameterSet fastDet = fastCalo.getParameter<edm::ParameterSet>("CalorimeterProperties");
   edm::ParameterSet fastDetHF = fastCalo.getParameter<edm::ParameterSet>("ForwardCalorimeterProperties");
@@ -80,7 +80,7 @@ Calorimeter::ecalProperties(int onEcal) const {
     else
       return myECALEndcapProperties_;
   } else
-    return NULL;
+    return nullptr;
 }
 
 const HCALProperties*
@@ -96,7 +96,7 @@ Calorimeter::hcalProperties(int onHcal) const {
 	edm::LogInfo("CalorimeterProperties") << " Calorimeter::hcalProperties : set myHCALForwardProperties" << std::endl;
       }
   } else
-    return NULL;
+    return nullptr;
 }
 
 const PreshowerLayer1Properties*
@@ -104,7 +104,7 @@ Calorimeter::layer1Properties(int onLayer1) const {
   if ( onLayer1 ) 
     return myPreshowerLayer1Properties_;
   else
-    return NULL;
+    return nullptr;
 }
 
 const PreshowerLayer2Properties*
@@ -112,7 +112,7 @@ Calorimeter::layer2Properties(int onLayer2) const {
   if ( onLayer2 ) 
     return myPreshowerLayer2Properties_;
   else
-    return NULL;
+    return nullptr;
 }
 
 void Calorimeter::setupGeometry(const CaloGeometry& pG)
@@ -139,7 +139,7 @@ const CaloSubdetectorGeometry * Calorimeter::getEcalGeometry(int subdetn) const
   if(subdetn==2) return EcalEndcapGeometry_;
   if(subdetn==3) return PreshowerGeometry_;
   edm::LogWarning("Calorimeter") << "Requested an invalid ECAL subdetector geometry: " << subdetn << std::endl;
-  return 0;
+  return nullptr;
 }
 
 const CaloSubdetectorTopology * Calorimeter::getEcalTopology(int subdetn) const
@@ -147,5 +147,5 @@ const CaloSubdetectorTopology * Calorimeter::getEcalTopology(int subdetn) const
   if(subdetn==1) return EcalBarrelTopology_;
   if(subdetn==2) return EcalEndcapTopology_;
   edm::LogWarning("Calorimeter") << "Requested an invalid ECAL subdetector topology: " << subdetn << std::endl;
-  return 0;
+  return nullptr;
 }

@@ -37,7 +37,7 @@ L3MuonIsolationProducer::L3MuonIsolationProducer(const ParameterSet& par) :
   theConfig(par),
   theMuonCollectionLabel(par.getParameter<InputTag>("inputMuonCollection")),
   optOutputIsoDeposits(par.getParameter<bool>("OutputMuIsoDeposits")),
-  theExtractor(0),
+  theExtractor(nullptr),
   theTrackPt_Min(-1)
   {
   LogDebug("RecoMuon|L3MuonIsolationProducer")<<" L3MuonIsolationProducer CTOR";

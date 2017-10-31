@@ -35,7 +35,7 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 //includes for ShowerShape function to work
 #include <vector>
-#include <math.h>
+#include <cmath>
 #include <TMath.h>
 #include <TMatrixT.h>
 #include <TMatrixD.h>
@@ -645,7 +645,7 @@ std::vector<typename EcalClusterToolsT<noZS>::EcalClusterEnergyDeposition> EcalC
             }
             DetId id_ = (*posCurrent).first;
             const CaloCellGeometry *this_cell = geometry->getSubdetectorGeometry(id_)->getGeometry(id_);
-            GlobalPoint cellPos = this_cell->getPosition();
+            const GlobalPoint& cellPos = this_cell->getPosition();
             CLHEP::Hep3Vector gblPos (cellPos.x(),cellPos.y(),cellPos.z()); //surface position?
             // Evaluate the distance from the cluster centroid
             CLHEP::Hep3Vector diff = gblPos - clVect;
@@ -1320,7 +1320,7 @@ Cluster2ndMoments EcalClusterToolsT<noZS>::cluster2ndMoments( const std::vector<
  
   unsigned int nCry=0;
   double denominator=0.;
-  bool isBarrel(1);
+  bool isBarrel(true);
 
   // loop over rechits and compute weights:
   for(std::vector<std::pair<const EcalRecHit*, float> >::const_iterator rhf_ptr = RH_ptrs_fracs.begin(); rhf_ptr != RH_ptrs_fracs.end(); rhf_ptr++){

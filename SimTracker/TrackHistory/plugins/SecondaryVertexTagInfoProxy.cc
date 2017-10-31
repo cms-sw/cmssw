@@ -28,7 +28,7 @@ public:
 
 private:
 
-    virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+    void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
     edm::EDGetTokenT<reco::SecondaryVertexTagInfoCollection> svTagInfoCollection_;
 };

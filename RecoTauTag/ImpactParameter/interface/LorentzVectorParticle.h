@@ -20,11 +20,11 @@ class LorentzVectorParticle : public Particle {
   enum VertexInfo{NVertex=3};
   LorentzVectorParticle();
   LorentzVectorParticle(const TVectorT<double>& par, const TMatrixTSym<double>& cov, int pdgid, double charge, double b);
-  virtual ~LorentzVectorParticle(){};
+  ~LorentzVectorParticle() override{};
 
   static TString name(int i);
-  virtual int nParameters() const { return NLorentzandVertexPar; }
-  virtual double parameter(int i) const {
+  int nParameters() const override { return NLorentzandVertexPar; }
+  double parameter(int i) const override {
     double particle_px = Particle::parameter(px);
     double particle_py = Particle::parameter(py);
     double particle_pz = Particle::parameter(pz);    
@@ -34,7 +34,7 @@ class LorentzVectorParticle : public Particle {
     if(i==pt) return sqrt(particle_px*particle_px + particle_py*particle_py);
     return Particle::parameter(i);
   }
-  virtual double mass() const { return parameter(m); }
+  double mass() const override { return parameter(m); }
   TLorentzVector p4() const { return TLorentzVector(parameter(px),parameter(py),parameter(pz),parameter(E)); }
   TVector3 vertex() const { return TVector3(parameter(vx),parameter(vy),parameter(vz)); }
   TMatrixTSym<double> vertexCov() const {

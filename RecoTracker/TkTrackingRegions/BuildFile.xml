@@ -4,6 +4,7 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/Candidate"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="RecoTracker/Record"/>
 <use   name="RecoTracker/TkSeedingLayers"/>

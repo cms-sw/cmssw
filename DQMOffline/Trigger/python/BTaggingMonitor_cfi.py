@@ -4,6 +4,11 @@ from DQMOffline.Trigger.topMonitoring_cfi import topMonitoring
 
 hltBTVmonitoring = topMonitoring.clone()
 hltBTVmonitoring.FolderName = cms.string('HLT/BTV/default/')
+hltBTVmonitoring.histoPSet.lsPSet = cms.PSet(
+  nbins = cms.uint32 ( 250 ),
+  xmin  = cms.double(    0.),
+  xmax  = cms.double( 2500.),
+)
 hltBTVmonitoring.histoPSet.metPSet = cms.PSet(
   nbins = cms.uint32(  30   ),
   xmin  = cms.double(   0   ),

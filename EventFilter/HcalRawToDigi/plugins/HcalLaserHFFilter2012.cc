@@ -52,13 +52,13 @@
 class HcalLaserHFFilter2012 : public edm::EDFilter {
 public:
   explicit HcalLaserHFFilter2012(const edm::ParameterSet&);
-  ~HcalLaserHFFilter2012();
+  ~HcalLaserHFFilter2012() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
   
   // ----------member data ---------------------------
   bool verbose_;  // if set to true, then the run:LS:event for any event failing the cut will be printed out

@@ -4,7 +4,7 @@
 
 #include <vector>
 
-template<typename TIn, typename TCol, FlatTable::ColumnType CT>
+template<typename TIn, typename TCol, nanoaod::FlatTable::ColumnType CT>
 class NativeArrayTableProducer : public edm::stream::EDProducer<> {
     public:
 
@@ -13,7 +13,7 @@ class NativeArrayTableProducer : public edm::stream::EDProducer<> {
             doc_(params.existsAs<std::string>("doc") ? params.getParameter<std::string>("doc") : ""),
             src_(consumes<TIn>( params.getParameter<edm::InputTag>("src") )) 
         {
-            produces<FlatTable>();
+            produces<nanoaod::FlatTable>();
         }
 
         ~NativeArrayTableProducer() override {}
@@ -23,7 +23,7 @@ class NativeArrayTableProducer : public edm::stream::EDProducer<> {
             iEvent.getByToken(src_, src);
 
             const auto & in = *src;
-            auto out = std::make_unique<FlatTable>(in.size(), name_, false, false);
+            auto out = std::make_unique<nanoaod::FlatTable>(in.size(), name_, false, false);
             out->setDoc(doc_);
             (*out).template addColumn<TCol>(this->name_, in, this->doc_, CT);
             iEvent.put(std::move(out));
@@ -35,10 +35,10 @@ class NativeArrayTableProducer : public edm::stream::EDProducer<> {
         const edm::EDGetTokenT<TIn> src_;
 };
 
-typedef NativeArrayTableProducer<std::vector<float>,float,FlatTable::FloatColumn> FloatArrayTableProducer;
-typedef NativeArrayTableProducer<std::vector<double>,float,FlatTable::FloatColumn> DoubleArrayTableProducer;
-typedef NativeArrayTableProducer<std::vector<int>,int,FlatTable::IntColumn> IntArrayTableProducer;
-typedef NativeArrayTableProducer<std::vector<bool>,uint8_t,FlatTable::UInt8Column> BoolArrayTableProducer;
+typedef NativeArrayTableProducer<std::vector<float>,float,nanoaod::FlatTable::FloatColumn> FloatArrayTableProducer;
+typedef NativeArrayTableProducer<std::vector<double>,float,nanoaod::FlatTable::FloatColumn> DoubleArrayTableProducer;
+typedef NativeArrayTableProducer<std::vector<int>,int,nanoaod::FlatTable::IntColumn> IntArrayTableProducer;
+typedef NativeArrayTableProducer<std::vector<bool>,uint8_t,nanoaod::FlatTable::UInt8Column> BoolArrayTableProducer;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(FloatArrayTableProducer);

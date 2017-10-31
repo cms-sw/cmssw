@@ -11,14 +11,14 @@ namespace hcaldqm
 		public:
 			TPRunSummary(std::string const&, std::string const&,
 				edm::ParameterSet const&);
-			virtual ~TPRunSummary() {}
+			~TPRunSummary() override {}
 
-			virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-			virtual void endLuminosityBlock(DQMStore::IBooker&,
+			void beginRun(edm::Run const&, edm::EventSetup const&) override;
+			void endLuminosityBlock(DQMStore::IBooker&,
 				DQMStore::IGetter&, edm::LuminosityBlock const&,
-				edm::EventSetup const&);
-			virtual std::vector<flag::Flag> endJob(
-				DQMStore::IBooker&, DQMStore::IGetter&);
+				edm::EventSetup const&) override;
+			std::vector<flag::Flag> endJob(
+				DQMStore::IBooker&, DQMStore::IGetter&) override;
 
 		protected:
 			ContainerSingle2D _cEtMsmFraction_depthlike;

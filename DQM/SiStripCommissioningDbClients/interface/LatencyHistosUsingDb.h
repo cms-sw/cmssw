@@ -17,18 +17,18 @@ class LatencyHistosUsingDb : public CommissioningHistosUsingDb, public SamplingH
                         DQMStore*,
                         SiStripConfigDb* const );
   
-  virtual ~LatencyHistosUsingDb();
+  ~LatencyHistosUsingDb() override;
   
-  virtual void uploadConfigurations();
+  void uploadConfigurations() override;
 
-  virtual void configure( const edm::ParameterSet&, const edm::EventSetup& );
+  void configure( const edm::ParameterSet&, const edm::EventSetup& ) override;
   
  private:
   
   bool update( SiStripConfigDb::DeviceDescriptionsRange, 
                SiStripConfigDb::FedDescriptionsRange );
   
-  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis );
+  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis ) override;
   
   bool perPartition_;
 

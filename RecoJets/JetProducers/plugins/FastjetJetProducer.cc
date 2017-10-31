@@ -148,7 +148,7 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig):
 				( dRMin_ == -1 )  || ( dRMax_ == -1 ) ) )
 		throw cms::Exception("useCMSBoostedTauSeedingAlgorithm") << "Parameters subjetPtMin, muMin, muMax, yMin, yMax, dRmin, dRmax, maxDepth for CMSBoostedTauSeedingAlgorithm are not defined." << std::endl;
 
-	if ( useConstituentSubtraction_ && ( fjAreaDefinition_.get() == 0 ) ) 
+	if ( useConstituentSubtraction_ && ( fjAreaDefinition_.get() == nullptr ) ) 
 		throw cms::Exception("AreaMustBeSet") << "Logic error. The area definition must be set if you use constituent subtraction." << std::endl;
 
 	if ( ( useConstituentSubtraction_ ) && ( ( csRho_EtaMax_ == -1 ) || ( csRParam_ == -1 ) ) ) 

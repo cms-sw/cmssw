@@ -1,5 +1,6 @@
 #include <memory>
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <TFile.h>
 #include <TTree.h>
@@ -15,9 +16,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-
-#include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
-#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -42,9 +40,16 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigData.h"
 
+#include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
+#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
+
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h" 
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h" 
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
+
+#include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
 #include "Calibration/IsolatedParticles/interface/CaloPropagateTrack.h"
 #include "Calibration/IsolatedParticles/interface/eECALMatrix.h" 
@@ -58,6 +63,7 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
@@ -81,19 +87,25 @@ private:
   int    matchId(const HcalDetId&, const HcalDetId&);
   double activeLength(const DetId&);
   bool   isGoodVertex(const reco::Vertex& vtx);
+  double respCorr(const DetId& id);
+  double gainFactor(const edm::ESHandle<HcalDbService>&, const HcalDetId& id);
+  int    depth16HE(int ieta, int iphi);
 
   // ----------member data ---------------------------
   HLTConfigProvider          hltConfig_;
   edm::Service<TFileService> fs;
   edm::InputTag              HLTriggerResults_;
   edm::InputTag              labelEBRecHit_, labelEERecHit_, labelHBHERecHit_;
-  std::string                labelVtx_, labelBS_, labelMuon_;
+  std::string                labelVtx_, labelBS_, labelMuon_, fileInCorr_;
   std::vector<std::string>   triggers_;
-  bool                       useRaw_, unCorrect_, collapseDepth_, saveCorrect_;
+  bool                       useRaw_, unCorrect_, collapseDepth_, isItPlan1_;
   bool                       ignoreHECorr_, isItPreRecHit_, mergedDepth_;
+  bool                       getCharge_, writeRespCorr_, useMyCorr_;
   int                        verbosity_, maxDepth_, kount_;
   static const int           depthMax_=7;
   const HcalDDDRecConstants *hdc_;
+  const HcalTopology        *theHBHETopology_;
+  HcalRespCorrs             *respCorrs_;
 
   edm::EDGetTokenT<edm::TriggerResults>                   tok_trigRes_;
   edm::EDGetTokenT<reco::BeamSpot>                        tok_bs_;
@@ -123,11 +135,14 @@ private:
   std::vector<double>       hcalDepthActiveLength_[depthMax_];
   std::vector<double>       hcalDepthEnergyHot_[depthMax_];
   std::vector<double>       hcalDepthActiveLengthHot_[depthMax_];
+  std::vector<double>       hcalDepthChargeHot_[depthMax_];
+  std::vector<double>       hcalDepthChargeHotBG_[depthMax_];
   std::vector<double>       hcalDepthEnergyCorr_[depthMax_];
   std::vector<double>       hcalDepthEnergyHotCorr_[depthMax_];
   std::vector<double>       hcalActiveLength_,    hcalActiveLengthHot_;
   std::vector<HcalDDDRecConstants::HcalActiveLength> actHB, actHE;
   std::vector<std::string>  all_triggers;
+  std::map<DetId,double>    corrValue_;
   ////////////////////////////////////////////////////////////
   
   TTree                    *tree_;
@@ -136,7 +151,7 @@ private:
   unsigned int              runNumber_, eventNumber_ , lumiNumber_, bxNumber_;
 };
 
-HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig) : hdc_(nullptr) {
+HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig) : hdc_(nullptr), theHBHETopology_(nullptr), respCorrs_(nullptr) {
   
   usesResource(TFileService::kSharedResource);
   //now do what ever initialization is needed
@@ -151,8 +166,9 @@ HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig) : h
   triggers_         = iConfig.getParameter<std::vector<std::string>>("Triggers");
   useRaw_           = iConfig.getParameter<bool>("UseRaw");
   unCorrect_        = iConfig.getParameter<bool>("UnCorrect");
+  getCharge_        = iConfig.getParameter<bool>("GetCharge");
   collapseDepth_    = iConfig.getParameter<bool>("CollapseDepth");
-  saveCorrect_      = iConfig.getParameter<bool>("SaveCorrect");
+  isItPlan1_        = iConfig.getParameter<bool>("IsItPlan1");
   ignoreHECorr_     = iConfig.getUntrackedParameter<bool>("IgnoreHECorr",false);
   isItPreRecHit_    = iConfig.getUntrackedParameter<bool>("IsItPreRecHit",false);
   verbosity_        = iConfig.getUntrackedParameter<int>("Verbosity",0);
@@ -161,6 +177,8 @@ HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig) : h
   else if (maxDepth_ < 1)         maxDepth_ = 4;
   std::string modnam = iConfig.getUntrackedParameter<std::string>("ModuleName","");
   std::string procnm = iConfig.getUntrackedParameter<std::string>("ProcessName","");
+  fileInCorr_        = iConfig.getUntrackedParameter<std::string>("FileInCorr","");
+  writeRespCorr_     = iConfig.getUntrackedParameter<bool>("WriteRespCorr",false);
 
   mergedDepth_  = (!isItPreRecHit_) || (collapseDepth_);
   tok_trigRes_  = consumes<edm::TriggerResults>(HLTriggerResults_);
@@ -185,6 +203,29 @@ HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig) : h
 				   << "\n            " << labelHBHERecHit_
 				   << "\n            " << edm::InputTag(modnam,labelMuon_,procnm);
   }
+
+  if (fileInCorr_ != "") {
+    std::ifstream infile(fileInCorr_.c_str());
+    if (infile.is_open()) {
+      while (true) {
+	unsigned int id;
+	double       cfac;
+	infile >> id >> cfac;
+	if (!infile.good()) break;
+	corrValue_[DetId(id)] = cfac;
+      }
+      infile.close();
+    }
+  }
+  useMyCorr_ = (!corrValue_.empty());
+  edm::LogVerbatim("HBHEMuon")   << "Flags used: UseRaw " << useRaw_ 
+				 << " GetCharge " << getCharge_ << " UnCorrect "
+				 << unCorrect_ << " IgnoreHECorr "
+				 << ignoreHECorr_ << " CollapseDepth "
+				 << collapseDepth_ << ":" << mergedDepth_
+				 << " IsItPlan1 " << isItPlan1_
+				 << " IsItPreRecHit " << isItPreRecHit_ 
+				 << " UseMyCorr " << useMyCorr_;
 }
 
 //
@@ -195,9 +236,6 @@ HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig) : h
 void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   ++kount_;
   clearVectors();
-  // depthHE is the first depth index for HE for |ieta| = 16
-  // It used to be 3 for all runs preceding 2017 and 4 beyond that
-  int depthHE = (maxDepth_ <= 6) ? 3 : 4;
   runNumber_   = iEvent.id().run();
   eventNumber_ = iEvent.id().event();
   lumiNumber_  = iEvent.id().luminosityBlock();
@@ -269,14 +307,8 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
   iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
   const CaloTopology *caloTopology = theCaloTopology.product();
 
-  edm::ESHandle<HcalTopology> htopo;
-  iSetup.get<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* theHBHETopology = htopo.product();
-
-  edm::ESHandle<HcalRespCorrs> resp;
-  iSetup.get<HcalRespCorrsRcd>().get(resp);
-  HcalRespCorrs* respCorrs = new HcalRespCorrs(*resp.product());
-  respCorrs->setTopo(theHBHETopology);
+  edm::ESHandle<HcalDbService> conditions;
+  iSetup.get<HcalDbRecord>().get(conditions);
 
   // Relevant blocks from iEvent
   edm::Handle<reco::VertexCollection> vtx;
@@ -428,14 +460,16 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
       double eEcal(0), eHcal(0), activeLengthTot(0), activeLengthHotTot(0);
       double eHcalDepth[depthMax_], eHcalDepthHot[depthMax_];
       double eHcalDepthC[depthMax_], eHcalDepthHotC[depthMax_];
+      double cHcalDepthHot[depthMax_], cHcalDepthHotBG[depthMax_];
       double activeL[depthMax_], activeHotL[depthMax_];
       HcalDetId eHcalDetId[depthMax_];
       unsigned int isHot(0);
       bool         tmpmatch(false);
       for (int i=0; i<depthMax_; ++i) {
-	eHcalDepth[i]  = eHcalDepthHot[i]  = 0;
-	eHcalDepthC[i] = eHcalDepthHotC[i] = 0;
-	activeL[i]     = activeHotL[i]     = 0;
+	eHcalDepth[i]    = eHcalDepthHot[i]  = 0;
+	eHcalDepthC[i]   = eHcalDepthHotC[i] = 0;
+	cHcalDepthHot[i] = cHcalDepthHotBG[i]= 0;
+	activeL[i]       = activeHotL[i]     = 0;
       }
       if (RecMuon->innerTrack().isNonnull()) {
 	const reco::Track* pTrack = (RecMuon->innerTrack()).get();
@@ -475,22 +509,21 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	  int             iphi   = HcalDetId(closestCell).iphi();
 	  bool            hborhe = (std::abs(ieta) == 16);
 
-	  eHcal = spr::eHCALmatrix(theHBHETopology, closestCell, hbhe,0,0, false, true, -100.0, -100.0, -100.0, -100.0, -500.,500.,useRaw_);
+	  eHcal = spr::eHCALmatrix(theHBHETopology_, closestCell, hbhe,0,0, false, true, -100.0, -100.0, -100.0, -100.0, -500.,500.,useRaw_);
 	  std::vector<std::pair<double,int> > ehdepth;
-	  spr::energyHCALCell((HcalDetId) closestCell, hbhe, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, useRaw_, (((verbosity_/1000)%10)>0));
+	  spr::energyHCALCell((HcalDetId)closestCell, hbhe, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, useRaw_, (((verbosity_/1000)%10)>0));
 	  for (int i=0; i<depthMax_; ++i) eHcalDetId[i] = HcalDetId();
 	  for (unsigned int i=0; i<ehdepth.size(); ++i) {
-	    HcalSubdetector subdet0 = (hborhe) ? ((ehdepth[i].second >= depthHE) ? HcalEndcap : HcalBarrel) : subdet;
+	    HcalSubdetector subdet0 = (hborhe) ? ((ehdepth[i].second >= depth16HE(ieta,iphi)) ? HcalEndcap : HcalBarrel) : subdet;
 	    HcalDetId hcid0(subdet0,ieta,iphi,ehdepth[i].second);
 	    double actL = activeLength(DetId(hcid0));
 	    double ene  = ehdepth[i].first;
 	    double enec(ene);
 	    if (unCorrect_) {
-	      double corr = (ignoreHECorr_ && (subdet0==HcalEndcap)) ? 1.0 :
-		(respCorrs->getValues(DetId(hcid0)))->getValue();
+	      double corr = (ignoreHECorr_ && (subdet0==HcalEndcap)) ? 1.0 : respCorr(DetId(hcid0));
 	      if (corr != 0) ene /= corr;
 #ifdef EDM_ML_DEBUG
-	      edm::LogVerbatim("HBHEMuon") << hcid0 << " corr " << corr;
+	      edm::LogVerbatim("HBHEMuon") << hcid0 << " Corr " << corr;
 #endif
 	    }
 	    int depth = ehdepth[i].second - 1;
@@ -510,7 +543,7 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	  }
 
 	  HcalDetId           hotCell;
-	  spr::eHCALmatrix(geo, theHBHETopology, closestCell, hbhe, 1,1, hotCell, false, useRaw_, false);
+	  spr::eHCALmatrix(geo, theHBHETopology_, closestCell, hbhe, 1,1, hotCell, false, useRaw_, false);
 	  isHot = matchId(closestCell,hotCell);
 	  if (hotCell != HcalDetId()) {
 	    subdet = HcalDetId(hotCell).subdet();
@@ -521,32 +554,82 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	    spr::energyHCALCell(hotCell, hbhe, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, useRaw_, false);//(((verbosity_/1000)%10)>0    ));
 	    for (int i=0; i<depthMax_; ++i) eHcalDetId[i] = HcalDetId();
 	    for (unsigned int i=0; i<ehdepth.size(); ++i) {
-	      HcalSubdetector subdet0 = (hborhe) ? ((ehdepth[i].second >= depthHE) ? HcalEndcap : HcalBarrel) : subdet;
+	      HcalSubdetector subdet0 = (hborhe) ? ((ehdepth[i].second >= depth16HE(ieta,iphi)) ? HcalEndcap : HcalBarrel) : subdet;
 	      HcalDetId hcid0(subdet0,ieta,iphi,ehdepth[i].second);
 	      double actL = activeLength(DetId(hcid0));
 	      double ene  = ehdepth[i].first;
-	      double enec(ene);
+	      double chg(ene), enec(ene);
 	      if (unCorrect_) {
-		double corr = (ignoreHECorr_ && (subdet0==HcalEndcap)) ? 1.0 :
-		  (respCorrs->getValues(DetId(hcid0)))->getValue();
-		if (corr != 0) ene /= corr;
+		double corr = (ignoreHECorr_ && (subdet0==HcalEndcap)) ? 1.0 : respCorr(DetId(hcid0));
+		if (corr != 0) {ene /= corr; chg /= corr;}
 #ifdef EDM_ML_DEBUG
-		edm::LogVerbatim("HBHEMuon") << hcid0 << " corr " << corr;
+		edm::LogVerbatim("HBHEMuon") << hcid0 << " Corr " << corr
+					     << " E " << ene << ":" << enec;
 #endif
 	      }
-	      int depth = ehdepth[i].second - 1;
+	      if (getCharge_) {
+		double gain(1.0);
+		if (!(ignoreHECorr_ && (subdet0==HcalEndcap))) {
+		  gain  = gainFactor(conditions,hcid0);
+		  if (gain  != 0) chg  /= gain;
+		}
+#ifdef EDM_ML_DEBUG
+		edm::LogVerbatim("HBHEMuon") << hcid0 << " Gain " << gain
+					     << " C " << chg;
+#endif
+	      }
+	      int depth  = ehdepth[i].second  - 1;
 	      if (collapseDepth_) {
 		HcalDetId id = hdc_->mergedDepthDetId(hcid0);
 		depth        = id.depth() - 1;
 	      }
-	      eHcalDepthHot[depth] += ene;
-	      eHcalDepthHotC[depth]+= enec;
-	      activeHotL[depth]    += actL;
-	      activeLengthHotTot   += actL;
+	      eHcalDepthHot[depth]   += ene;
+	      eHcalDepthHotC[depth]  += enec;
+	      cHcalDepthHot[depth]   += chg;
+	      activeHotL[depth]      += actL;
+	      activeLengthHotTot     += actL;
 #ifdef EDM_ML_DEBUG
 	      if ((verbosity_%10) > 0)
-		edm::LogVerbatim("HBHEMuon") << hcid0 << " E " << ene 
-					     << " L " << actL << std::endl;
+		edm::LogVerbatim("HBHEMuon") << hcid0 << " depth " << depth
+					     << " E " << ene << ":" << enec 
+					     << " C " << chg << " L " << actL;
+#endif
+	    }
+
+	    HcalDetId oppCell(subdet,-ieta,iphi,HcalDetId(hotCell).depth());
+	    std::vector<std::pair<double,int> > ehdeptho;
+	    spr::energyHCALCell(oppCell, hbhe, ehdeptho, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, useRaw_, false); //(((verbosity_/1000)%10)>0));
+	    for (unsigned int i=0; i<ehdeptho.size(); ++i) {
+	      HcalSubdetector subdet0 = (hborhe) ? ((ehdeptho[i].second >= depth16HE(-ieta,iphi)) ? HcalEndcap : HcalBarrel) : subdet;
+	      HcalDetId hcid0(subdet0,-ieta,iphi,ehdepth[i].second);
+	      double ene  = ehdeptho[i].first;
+	      double chg(ene);
+	      if (unCorrect_) {
+		double corr = (ignoreHECorr_ && (subdet0==HcalEndcap)) ? 1.0 : respCorr(DetId(hcid0));
+		if (corr != 0) {ene /= corr; chg /= corr;}
+		double gain(1.0);
+		if (getCharge_) {
+		  if (!(ignoreHECorr_ && (subdet0==HcalEndcap))) {
+		    gain  = gainFactor(conditions,hcid0);
+		    if (gain  != 0) chg  /= gain;
+		  }
+		}
+#ifdef EDM_ML_DEBUG
+		edm::LogVerbatim("HBHEMuon") << hcid0 << " Corr " << corr 
+					     << " Gain " << gain << " E "
+					     << ene << " C " << chg;
+#endif
+	      }
+	      int depth  = ehdeptho[i].second  - 1;
+	      if (collapseDepth_) {
+		HcalDetId id = hdc_->mergedDepthDetId(hcid0);
+		depth        = id.depth() - 1;
+	      }
+	      cHcalDepthHotBG[depth] += chg;
+#ifdef EDM_ML_DEBUG
+	      if ((verbosity_%10) > 0)
+		edm::LogVerbatim("HBHEMuon") << hcid0 << " Depth " << depth 
+					     << " E " << ene << " C " << chg;
 #endif
 	    }
 	  }
@@ -574,6 +657,8 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	hcalDepthActiveLengthHot_[i].push_back(activeHotL[i]);
 	hcalDepthEnergyCorr_[i].push_back(eHcalDepthC[i]);
 	hcalDepthEnergyHotCorr_[i].push_back(eHcalDepthHotC[i]);
+	hcalDepthChargeHot_[i].push_back(cHcalDepthHot[i]);
+	hcalDepthChargeHotBG_[i].push_back(cHcalDepthHotBG[i]);
       }
       hcalActiveLength_.push_back(activeLengthTot);
       hcalHot_.push_back(isHot);
@@ -616,12 +701,14 @@ void HcalHBHEMuonAnalyzer::beginJob() {
     tree_->Branch(name,  &hcalDepthEnergyHot_[k]);
     sprintf (name, "hcal_activeHotL%d", (k+1));
     tree_->Branch(name, &hcalDepthActiveLengthHot_[k]);
-    if (saveCorrect_) {
-      sprintf (name, "hcal_edepthCorrect%d", (k+1));
-      tree_->Branch(name, &hcalDepthEnergyCorr_[k]);
-      sprintf (name, "hcal_edepthHotCorrect%d", (k+1));
-      tree_->Branch(name,  &hcalDepthEnergyHotCorr_[k]);
-    }
+    sprintf (name, "hcal_edepthCorrect%d", (k+1));
+    tree_->Branch(name, &hcalDepthEnergyCorr_[k]);
+    sprintf (name, "hcal_edepthHotCorrect%d", (k+1));
+    tree_->Branch(name,  &hcalDepthEnergyHotCorr_[k]);
+    sprintf (name, "hcal_cdepthHot%d", (k+1));
+    tree_->Branch(name,  &hcalDepthChargeHot_[k]);
+    sprintf (name, "hcal_cdepthHotBG%d", (k+1));
+    tree_->Branch(name,  &hcalDepthChargeHotBG_[k]);
   }
   
   tree_->Branch("TrackerLayer",                     &trackerLayer_);
@@ -712,6 +799,32 @@ void HcalHBHEMuonAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const&
 			      << "HLT" << " failed";
   }
 
+  edm::ESHandle<HcalTopology> htopo;
+  iSetup.get<HcalRecNumberingRecord>().get(htopo);
+  theHBHETopology_ = htopo.product();
+
+  edm::ESHandle<HcalRespCorrs> resp;
+  iSetup.get<HcalRespCorrsRcd>().get(resp);
+  respCorrs_ = new HcalRespCorrs(*resp.product());
+  respCorrs_->setTopo(theHBHETopology_);
+
+  // Write correction factors for all HB/HE events
+  if (writeRespCorr_) {
+    edm::ESHandle<CaloGeometry> pG;
+    iSetup.get<CaloGeometryRecord>().get(pG);
+    const CaloGeometry* geo = pG.product();
+    const HcalGeometry* gHcal = (const HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
+    const std::vector<DetId>& ids = gHcal->getValidDetIds(DetId::Hcal,0);
+    edm::LogVerbatim("HBHEMuon") << "\nTable of Correction Factors for Run "
+				 << iRun.run() << "\n";
+    for (auto const& id: ids) {
+      if ((id.det() == DetId::Hcal) && 
+	  ((id.subdetId() == HcalBarrel) || (id.subdetId() == HcalEndcap))) {
+	edm::LogVerbatim("HBHEMuon") << HcalDetId(id) << " " << id.rawId() <<" "
+				     << (respCorrs_->getValues(id))->getValue();
+      }
+    }
+  }
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
@@ -731,14 +844,17 @@ void HcalHBHEMuonAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<std::vector<std::string>>("Triggers",trig);
   desc.add<bool>("UseRaw",false);
   desc.add<bool>("UnCorrect",false);
+  desc.add<bool>("GetCharge",false);
   desc.add<bool>("CollapseDepth",false);
-  desc.add<bool>("SaveCorrect",false);
+  desc.add<bool>("IsItPlan1",false);
   desc.addUntracked<bool>("IgnoreHECorr",false);
   desc.addUntracked<bool>("IsItPreRecHit",false);
   desc.addUntracked<std::string>("ModuleName","");
   desc.addUntracked<std::string>("ProcessName","");
   desc.addUntracked<int>("Verbosity",0);
   desc.addUntracked<int>("MaxDepth",4);
+  desc.addUntracked<std::string>("FileInCorr","");
+  desc.addUntracked<bool>("WriteRespCorr",false);
   descriptions.add("hcalHBHEMuon",desc);
 }
 
@@ -803,6 +919,8 @@ void HcalHBHEMuonAnalyzer::clearVectors() {
     hcalDepthActiveLengthHot_[i].clear();
     hcalDepthEnergyCorr_[i].clear();
     hcalDepthEnergyHotCorr_[i].clear();
+    hcalDepthChargeHot_[i].clear();
+    hcalDepthChargeHotBG_[i].clear();
   }
   hltresults.clear();
   muon_trkKink.clear();
@@ -862,6 +980,45 @@ bool HcalHBHEMuonAnalyzer::isGoodVertex(const reco::Vertex& vtx) {
   if (vtx.position().Rho() > 2.)      return false;
   if (fabs(vtx.position().Z()) > 24.) return false;
   return true;
+}
+
+double HcalHBHEMuonAnalyzer::respCorr(const DetId& id) {
+  double cfac(1.0);
+  if (useMyCorr_) {
+    auto itr = corrValue_.find(id);
+    if (itr != corrValue_.end()) cfac = itr->second;
+  } else if (respCorrs_ != nullptr) {
+    cfac = (respCorrs_->getValues(id))->getValue();
+  }
+  return cfac;
+}
+
+double HcalHBHEMuonAnalyzer::gainFactor(const edm::ESHandle<HcalDbService>& conditions, const HcalDetId& id) {
+  double gain(0.0);
+  const HcalCalibrations& calibs=conditions->getHcalCalibrations(id);
+  for (int capid=0; capid<4; ++capid) 
+    gain += (0.25*calibs.respcorrgain(capid));
+  return gain;
+}
+
+int HcalHBHEMuonAnalyzer::depth16HE(int ieta, int iphi) {
+  // Transition between HB/HE is special 
+  // For Run 1 or for Plan1 standard reconstruction it is 3
+  // For runs beyond 2018 or in Plan1 for HEP17 it is 4
+  int depth = (maxDepth_ <= 6) ? 3 : 4;
+  if (isItPlan1_) {
+    if (!isItPreRecHit_) {
+      depth = 3;
+    } else {
+      if ((ieta < 0) || (iphi < 62) || (iphi > 66)) depth = 3;
+    }
+  }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HBHEMuon") << "Plan1 " << isItPlan1_ << " PreRecHit " 
+			       << isItPreRecHit_ << " phi " << iphi
+			       << " depth " << depth;
+#endif
+  return depth;
 }
 
 //define this as a plug-in

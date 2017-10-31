@@ -42,14 +42,14 @@ class RctRawToDigi : public edm::stream::EDProducer<>
 public:
 
   explicit RctRawToDigi(const edm::ParameterSet&);
-  ~RctRawToDigi();
+  ~RctRawToDigi() override;
 
   //do we need this?
   //static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
  
 private: // methods
 
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
   /// Unpacks the raw data
   /*! \param invalidDataFlag - if true, then won't attempt unpack but just output empty collecions. */

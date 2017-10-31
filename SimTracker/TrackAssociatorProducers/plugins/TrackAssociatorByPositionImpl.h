@@ -55,12 +55,12 @@ class TrackAssociatorByPositionImpl : public reco::TrackToTrackingParticleAssoci
     
                                 
   /// compare reco to sim the handle of reco::Track and TrackingParticle collections
-  virtual
+  
   reco::RecoToSimCollection associateRecoToSim(const edm::RefToBaseVector<reco::Track>&,
 					       const edm::RefVector<TrackingParticleCollection>& ) const override;
 
   /// compare reco to sim the handle of reco::Track and TrackingParticle collections
-  virtual
+  
   reco::SimToRecoCollection associateSimToReco(const edm::RefToBaseVector<reco::Track>&,
 					       const edm::RefVector<TrackingParticleCollection>&) const override;
 

@@ -89,17 +89,17 @@ class SimpleAllocHashMultiMap {
                 typedef ptrdiff_t difference_type;
                 typedef item_iterator<Item> self_type;
 
-                item_iterator() : it_(0) {}
+                item_iterator() : it_(nullptr) {}
                 item_iterator(const Item *it) : it_(it) {}
                 const value_type & operator*()  const { return   (*it_)(); }
                 const value_type * operator->() const { return & (*it_)(); }
                 self_type & operator++() { 
-                    if (it_ != 0) it_ = it_->next; 
+                    if (it_ != nullptr) it_ = it_->next; 
                     return *this; 
                 }
                 bool operator==(const self_type &other) const { return it_ == other.it_; }
                 bool operator!=(const self_type &other) const { return it_ != other.it_; }
-                bool good() const { return (it_ != 0); }
+                bool good() const { return (it_ != nullptr); }
             private:
                 const Item *it_;
         };
@@ -236,7 +236,7 @@ SimpleAllocHashMultiMap<K,V,Hasher,Equals,Alloc>::push_back_(K const &key, KeyIt
         nextKeyItem_  = *currentKeyRow_;
         keyEndMarker_ = nextKeyItem_ + keyRowSize_; 
     }
-    keyAlloc_.construct(nextKeyItem_, KeyItem(next, key, 0));
+    keyAlloc_.construct(nextKeyItem_, KeyItem(next, key, nullptr));
     nextKeyItem_++;
     return (nextKeyItem_-1);
 }

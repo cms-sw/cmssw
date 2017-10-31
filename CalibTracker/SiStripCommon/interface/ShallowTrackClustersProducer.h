@@ -19,6 +19,6 @@ private:
   std::string Suffix;
   std::string Prefix;
 
-  void produce( edm::Event &, const edm::EventSetup & );
+  void produce( edm::Event &, const edm::EventSetup & ) override;
 };
 #endif

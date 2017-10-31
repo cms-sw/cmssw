@@ -53,9 +53,9 @@ struct GreaterByPtCandPtrUser {
 class HLTCAWZTagFilter : public HLTFilter {
  public:
   explicit HLTCAWZTagFilter(const edm::ParameterSet&);
-  ~HLTCAWZTagFilter();
+  ~HLTCAWZTagFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  virtual bool hltFilter( edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterobject) const override;
+  bool hltFilter( edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterobject) const override;
 
 
  private:

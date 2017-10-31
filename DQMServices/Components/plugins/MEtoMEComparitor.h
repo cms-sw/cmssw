@@ -50,16 +50,16 @@
 class MEtoMEComparitor : public edm::EDAnalyzer {
    public:
       explicit MEtoMEComparitor(const edm::ParameterSet&);
-      ~MEtoMEComparitor();
+      ~MEtoMEComparitor() override;
 
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&){}
-      virtual void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
-      virtual void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
-      virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override{}
+      void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
+      void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
+      void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+      void endJob() override ;
 
   template <class W,class T> void compare(const W& where,const std::string & instance);
   template <class T> void book(const std::string & directory,const std::string & type, const T * h);

@@ -20,8 +20,8 @@ class GBRForestGetterFromDB: public edm::one::EDAnalyzer<>
 {
     public:
         explicit GBRForestGetterFromDB( const edm::ParameterSet & ) ;
-        virtual ~GBRForestGetterFromDB() ;
-        virtual void analyze( const edm::Event &, const edm::EventSetup & ) override ;
+        ~GBRForestGetterFromDB() override ;
+        void analyze( const edm::Event &, const edm::EventSetup & ) override ;
 
     private:
         std::string theGBRForestName;

@@ -20,7 +20,7 @@ TkPixelMeasurementDet::TkPixelMeasurementDet( const GeomDet* gdet,
     MeasurementDet (gdet),
     theDetConditions(&conditions)
   {
-    if ( dynamic_cast<const PixelGeomDetUnit*>(gdet) == 0) {
+    if ( dynamic_cast<const PixelGeomDetUnit*>(gdet) == nullptr) {
       throw MeasurementDetException( "TkPixelMeasurementDet constructed with a GeomDet which is not a PixelGeomDetUnit");
     }
   }
@@ -96,8 +96,8 @@ TkPixelMeasurementDet::compHits( const TrajectoryStateOnSurface& ts, const Measu
   RecHitContainer result;
   if (isEmpty(data.pixelData())== true ) return result;
   if (isActive(data) == false) return result;
-  const SiPixelCluster* begin=0;
-  if (0 != data.pixelData().handle()->data().size()) {
+  const SiPixelCluster* begin=nullptr;
+  if (!data.pixelData().handle()->data().empty()) {
      begin = &(data.pixelData().handle()->data().front());
   }
   const detset & detSet = data.pixelData().detSet(index());
@@ -151,7 +151,9 @@ TkPixelMeasurementDet::compHits( const TrajectoryStateOnSurface& ts, const Measu
 
 bool
 TkPixelMeasurementDet::hasBadComponents( const TrajectoryStateOnSurface &tsos, const MeasurementTrackerEvent & data ) const {
-    if (badRocPositions_.empty()) return false;
+  auto badFEDChannelPositions=getBadFEDChannelPositions(data);
+  if (badRocPositions_.empty() && badFEDChannelPositions==nullptr) return false;
+
     auto lp = tsos.localPosition();
     auto le = tsos.localError().positionError();
     for (auto const & broc : badRocPositions_) {
@@ -160,5 +162,17 @@ TkPixelMeasurementDet::hasBadComponents( const TrajectoryStateOnSurface &tsos, c
       if ( (dx<=0.f) & (dy<=0.f) ) return true;
       if ( (dx*dx < 9.f*le.xx()) && (dy*dy< 9.f*le.yy()) ) return true;
     }
+
+  if (badFEDChannelPositions==nullptr) return false;
+  float dx = 3.f*std::sqrt(le.xx()) + theRocWidth, dy = 3.f*std::sqrt(le.yy()) + theRocHeight;
+  for (auto const& p : *badFEDChannelPositions) {
+    if ( lp.x() > (p.first.x()-dx) &&
+	 lp.x() < (p.second.x()+dx) &&
+	 lp.y() > (p.first.y()-dy) &&
+	 lp.y() < (p.second.y()+dy) ) {
+      return true;
+    }
+  }
+
     return false;
 }

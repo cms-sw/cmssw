@@ -123,6 +123,7 @@ bool TwoBodyDecayTrajectory::construct(const TwoBodyDecayTrajectoryState& state,
                                          trajectory2.gblInput().front().second*tbdToLocal2));
     // add virtual mass measurement
     theGblExtDerivatives.resize(1,nTbd);
+    theGblExtDerivatives.setZero();
     theGblExtDerivatives(0,TwoBodyDecayParameters::mass) = 1.0;
     theGblExtMeasurements.resize(1);
     theGblExtMeasurements(0) = state.primaryMass() - state.decayParameters()[TwoBodyDecayParameters::mass];

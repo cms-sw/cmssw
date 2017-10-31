@@ -21,7 +21,7 @@ namespace l1t {
    {
       auto unpacker = std::shared_ptr<Unpacker>(UnpackerFactoryT::get()->create("l1t::" + name));
 
-      if (unpacker.get() == 0) {
+      if (unpacker.get() == nullptr) {
          throw edm::Exception(edm::errors::Configuration, "NoSourceModule")
             << "Cannot find an unpacker named " << name;
       }

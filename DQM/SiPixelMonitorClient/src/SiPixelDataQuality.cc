@@ -51,7 +51,7 @@
 #include "TProfile.h"
 
 #include <iostream>
-#include <math.h>
+#include <cmath>
 #include <map>
 
 #include <fstream>
@@ -72,12 +72,12 @@ SiPixelDataQuality::SiPixelDataQuality(bool offlineXMLfile) : offlineXMLfile_(of
   errorMods_=0;
   qflag_=1.;
 
-  allmodsMap=0;
-  errmodsMap=0;
-  goodmodsMap=0;
-  allmodsVec=0;
-  errmodsVec=0;
-  goodmodsVec=0;
+  allmodsMap=nullptr;
+  errmodsMap=nullptr;
+  goodmodsMap=nullptr;
+  allmodsVec=nullptr;
+  errmodsVec=nullptr;
+  goodmodsVec=nullptr;
   for (int i = 0; i < 40; ++i)
     {lastallmods_[i] = 0; lasterrmods_[i] = 0;}
   timeoutCounter_=0;
@@ -107,7 +107,7 @@ SiPixelDataQuality::~SiPixelDataQuality() {
  */
 int SiPixelDataQuality::getDetId(MonitorElement * mE) 
 {
- string mEName = mE->getName() ;
+ const string& mEName = mE->getName() ;
 
  int detId = 0;
  

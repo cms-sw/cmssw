@@ -19,8 +19,8 @@ CSCDigitizer::CSCDigitizer(const edm::ParameterSet & p)
   theStripHitSim(new CSCStripHitSim()),
   theWireElectronicsSim(new CSCWireElectronicsSim(p.getParameter<edm::ParameterSet>("wires"))),
   theStripElectronicsSim(new CSCStripElectronicsSim(p.getParameter<edm::ParameterSet>("strips"))),
-  theNeutronReader(0),
-  theCSCGeometry(0),
+  theNeutronReader(nullptr),
+  theCSCGeometry(nullptr),
   theLayersNeeded(p.getParameter<unsigned int>("layersNeeded")),
   digitizeBadChambers_(p.getParameter<bool>("digitizeBadChambers"))
 {
@@ -69,7 +69,7 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> & simHits,
   }
 
   // add neutron background, if needed
-  if(theNeutronReader != 0)
+  if(theNeutronReader != nullptr)
   {
     theNeutronReader->addHits(hitMap, engine);
   }
@@ -213,9 +213,9 @@ void CSCDigitizer::setParticleDataTable(const ParticleDataTable * pdt)
 
 
 const CSCLayer * CSCDigitizer::findLayer(int detId) const {
-  assert(theCSCGeometry != 0);
+  assert(theCSCGeometry != nullptr);
   const GeomDetUnit* detUnit = theCSCGeometry->idToDetUnit(CSCDetId(detId));
-  if(detUnit == 0)
+  if(detUnit == nullptr)
   {
     throw cms::Exception("CSCDigiProducer") << "Invalid DetUnit: " << CSCDetId(detId)
       << "\nPerhaps your signal or pileup dataset are not compatible with the current release?";

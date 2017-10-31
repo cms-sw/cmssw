@@ -1,4 +1,4 @@
-<use name="histogrammar"/>
+<use name="py2-histogrammar"/>
 <use name="py2-matplotlib"/>
 <use name="py2-root_numpy"/>
 <use name="py2-pandas"/>
@@ -24,3 +24,4 @@
 <test name="testhep_ml" command="testhep_ml.py"/>
 <test name="testUncertainties" command="testUncertainties.py"/>
 <test name="testImports" command="imports.py"/>
+<test name="testTheano" command="testTheano.py"/>

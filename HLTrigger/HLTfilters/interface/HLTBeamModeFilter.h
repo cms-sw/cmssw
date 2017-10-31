@@ -45,12 +45,12 @@ public:
     explicit HLTBeamModeFilter(const edm::ParameterSet&);
 
     /// destructor
-    virtual ~HLTBeamModeFilter();
+    ~HLTBeamModeFilter() override;
 
     /// parameter description
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
     /// filter the event
-    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+    bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
 private:
 

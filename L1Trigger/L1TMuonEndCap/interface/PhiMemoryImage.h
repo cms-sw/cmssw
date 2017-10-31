@@ -1,57 +1,76 @@
-#ifndef __PHIMEMORYIMAGE_
-#define __PHIMEMORYIMAGE_ 
+#ifndef L1TMuonEndCap_PhiMemoryImage_h
+#define L1TMuonEndCap_PhiMemoryImage_h
 
-class PhiMemoryImage{
-  
- public:
-  
-  typedef unsigned long int value_type;
-  typedef PhiMemoryImage::value_type *value_ptr;
-  
-  static const int STATIONS = 4; // number of stations;
-  static const int UNITS    = 3; // number of value_types per station
-  static const int TOTAL_UNITS = UNITS * STATIONS;
-  
-  
-  ///constructors///
+#include <cstdint>
+#include <iosfwd>
+
+// Originally written by Ivan Furic and Matt Carver (Univ of Florida)
+
+
+class PhiMemoryImage {
+public:
+  typedef uint64_t value_type;
+
   PhiMemoryImage();
-  PhiMemoryImage(PhiMemoryImage::value_ptr buffer, int offset);
-  
-  PhiMemoryImage (value_type s1a,value_type s1b,value_type s1c,
-		  value_type s2a, value_type s2b, value_type s2c, 
-		  value_type s3a, value_type s3b, value_type s3c, 
-		  value_type s4a,value_type s4b, value_type s4c){
-    _buffer[0] = s1a;_buffer[1] = s1b;_buffer[2] = s1c;
-    _buffer[3] = s2a;_buffer[4] = s2b;_buffer[5] = s2c;
-    _buffer[6] = s3a;_buffer[7] = s3b;_buffer[8] = s3c;
-    _buffer[9] = s4a;_buffer[10] = s4b;_buffer[11] = s4c;
-  }
+  ~PhiMemoryImage();
 
-  ///functions///
-  void CopyFromBuffer (PhiMemoryImage::value_ptr rhs, int offset);
-  
-  void SetBit (int station, int bitNumber, bool value = true);
-  bool GetBit (int station, int bitNumber) const;
-  
-  void BitShift (int nBits); // nBits > 0 executes << nbits, nBits <0 is >> nBits 
-  void Print();
-  
-  void SetBuff(int chunk, int value){_buffer[chunk] = value;}
-  
-  void printbuff();
-  
-  // const PhiMemoryImage::value_type & operator [] (int index) const 
-  //  {return _buffer[index];}
-  
-  PhiMemoryImage::value_type & operator [] (int index) 
-  {return _buffer[index];}
-  
-  
- private:
-  
-  PhiMemoryImage::value_type _buffer[PhiMemoryImage::TOTAL_UNITS];
-  int    _keyStationOffset;
-  
+  // Copy constructor, move constructor and copy assignment
+  PhiMemoryImage(const PhiMemoryImage& other);
+  PhiMemoryImage(PhiMemoryImage&& other) noexcept;
+  PhiMemoryImage& operator=(PhiMemoryImage other);
+
+  void swap(PhiMemoryImage& other);
+
+  void reset();
+
+  void set_bit(unsigned int layer, unsigned int bit);
+
+  void clear_bit(unsigned int layer, unsigned int bit);
+
+  bool test_bit(unsigned int layer, unsigned int bit) const;
+
+  void set_word(unsigned int layer, unsigned int unit, value_type value);
+
+  value_type get_word(unsigned int layer, unsigned int unit) const;
+
+  void set_straightness(int s) { _straightness = s; }
+
+  int get_straightness() const { return _straightness; }
+
+  // Left rotation by n bits
+  void rotl(unsigned int n);
+
+  // Right rotation by n bits
+  void rotr(unsigned int n);
+
+  // Kind of like AND operator
+  // It returns a layer code which encodes
+  //   bit 0: st3 or st4 hit
+  //   bit 1: st2 hit
+  //   bit 2: st1 hit
+  unsigned int op_and(const PhiMemoryImage& other) const;
+
+  void print(std::ostream& out) const;
+
+private:
+  void check_input(unsigned int layer, unsigned int bit) const;
+
+  // Num of layers
+  //   [0,1,2,3] --> [st1,st2,st3,st4]
+  static const unsigned int _layers = 4;
+
+  // Num of value_type allocated per layer
+  //   3 * 64 bits = 192 bits
+  static const unsigned int _units = 3;
+
+  // Hits in non-key stations
+  value_type _buffer[_layers][_units];
+
+  int _straightness;
 };
+
+// _____________________________________________________________________________
+// Output streams
+std::ostream& operator<<(std::ostream& o, const PhiMemoryImage& p);
 
 #endif

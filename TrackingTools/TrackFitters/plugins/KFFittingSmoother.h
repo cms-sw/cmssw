@@ -53,7 +53,7 @@ namespace {
   class KFFittingSmoother final : public TrajectoryFitter, private KFFittingSmootherParam {
     
   public:
-    ~KFFittingSmoother() {}
+    ~KFFittingSmoother() override {}
 
   private:
     KFFittingSmoother(const TrajectoryFitter& aFitter,
@@ -100,7 +100,7 @@ namespace {
     }
     
     
-    virtual void setHitCloner(TkCloner const * hc) override {
+    void setHitCloner(TkCloner const * hc) override {
       theFitter->setHitCloner(hc);
       theSmoother->setHitCloner(hc);
     }

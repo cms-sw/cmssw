@@ -31,7 +31,7 @@ namespace reco {
       fromPhoton_(false),
       fromPFSuperCluster_(false){}
       
-    PFBlockElement* clone() const { return new PFBlockElementSuperCluster(*this); }
+    PFBlockElement* clone() const override { return new PFBlockElementSuperCluster(*this); }
     
     /// \return reference to the corresponding cluster
     const SuperClusterRef&  superClusterRef() const {return superClusterRef_;}
@@ -40,7 +40,7 @@ namespace reco {
     const PhotonRef& photonRef() const {return photonRef_;}
 
     void Dump(std::ostream& out = std::cout, 
-              const char* tab = " " ) const;
+              const char* tab = " " ) const override;
 
     /// set the track Iso
     void setTrackIso(float val) {trackIso_=val;}

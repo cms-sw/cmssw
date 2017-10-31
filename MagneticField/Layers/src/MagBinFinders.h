@@ -63,7 +63,7 @@ public:
   
   /// Returns an index in the valid range for the bin that contains
   /// AND is closest to R
-  virtual int binIndex( T R) const {
+  int binIndex( T R) const override {
     int i;
     for (i = 0; i<theNbins; ++i) {
       if (R < theBorders[i]){ // FIXME: one can be skipped?
@@ -74,12 +74,12 @@ public:
   }
 
   /// Returns an index in the valid range
-  virtual int binIndex( int i) const {
+  int binIndex( int i) const override {
     return std::min( std::max( i, 0), theNbins-1);
   }
    
   /// The middle of the bin
-  virtual T binPosition( int ind) const {
+  T binPosition( int ind) const override {
     return theBins[binIndex(ind)];
   }
 
@@ -150,7 +150,7 @@ public:
 //   }
 
   /// returns an index in the valid range for the bin closest to Z
-  virtual int binIndex(T z) const {
+  int binIndex(T z) const override {
     int bin = binIndex(int((z-theZOffset)/theZStep)+1);
     
     // check left border
@@ -182,12 +182,12 @@ public:
   }
 
   /// returns an index in the valid range
-  virtual int binIndex( int i) const {
+  int binIndex( int i) const override {
     return std::min( std::max( i, 0), theNbins-1);
   }
    
   /// the middle of the bin.
-  virtual T binPosition( int ind) const {
+  T binPosition( int ind) const override {
     return theBins[binIndex(ind)];
   }
 

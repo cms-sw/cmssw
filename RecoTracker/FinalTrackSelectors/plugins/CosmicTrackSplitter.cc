@@ -78,7 +78,7 @@ namespace reco { namespace modules {
        class CosmicTrackSplitter : public edm::stream::EDProducer<> {
     public:
 		CosmicTrackSplitter(const edm::ParameterSet &iConfig) ;
-		virtual void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
+		void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
 
     private:
 		edm::EDGetTokenT<reco::TrackCollection> tokenTracks;

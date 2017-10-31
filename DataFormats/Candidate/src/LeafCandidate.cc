@@ -38,11 +38,11 @@ bool LeafCandidate::overlap( const Candidate & o ) const {
 }
 
 const Candidate * LeafCandidate::daughter( size_type ) const {
-  return 0;
+  return nullptr;
 }
 
 const Candidate * LeafCandidate::mother( size_type ) const {
-  return 0;
+  return nullptr;
 }
 
 const Candidate * LeafCandidate::daughter(const std::string&) const {
@@ -60,7 +60,7 @@ Candidate * LeafCandidate::daughter(const std::string&) {
 
 
 Candidate * LeafCandidate::daughter( size_type ) {
-  return 0;
+  return nullptr;
 }
 
 double LeafCandidate::vertexChi2() const {
