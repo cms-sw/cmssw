@@ -33,6 +33,7 @@ tightJetId = cms.EDProducer("PatJetIDValueMapProducer",
 
 slimmedJetsWithUserData = cms.EDProducer("PATJetUserDataEmbedder",
      src = cms.InputTag("slimmedJets"),
+     userFloats = cms.PSet(),
      userInts = cms.PSet(
         tightId = cms.InputTag("tightJetId"),
         looseId = cms.InputTag("looseJetId"),
@@ -106,7 +107,8 @@ jetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 jetTable.variables.pt.precision=10
 
 ### Era dependent customization
-run2_miniAOD_80XLegacy.toModify( jetTable.variables.qgl, expr="-1" )
+run2_miniAOD_80XLegacy.toModify( slimmedJetsWithUserData, userFloats=cms.PSet(qgl=cms.InputTag('qgtagger80x:qgLikelihood')))
+run2_miniAOD_80XLegacy.toModify( jetTable.variables.qgl, expr="userFloat('qgl')" )
 
 bjetMVA= cms.EDProducer("BJetEnergyRegressionMVA",
     src = cms.InputTag("linkedObjects","jets"),
