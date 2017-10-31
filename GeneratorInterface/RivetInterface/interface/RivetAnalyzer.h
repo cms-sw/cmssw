@@ -43,6 +43,8 @@ class RivetAnalyzer : public edm::EDAnalyzer
   bool                     _useExternalWeight;
   bool                     _useLHEweights;
   int                      _LHEweightNumber;
+  bool                     _useGENweights;
+  int                      _GENweightNumber;
   edm::EDGetTokenT<LHEEventProduct> _LHECollection;
   edm::EDGetTokenT<GenEventInfoProduct> _genEventInfoCollection;
   Rivet::AnalysisHandler   _analysisHandler;   
