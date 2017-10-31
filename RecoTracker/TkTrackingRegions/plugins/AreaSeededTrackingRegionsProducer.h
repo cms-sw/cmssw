@@ -56,7 +56,8 @@ public:
   {
     edm::ParameterSet regPSet = conf.getParameter<edm::ParameterSet>("RegionPSet");
     for(const auto& area: regPSet.getParameter<std::vector<edm::ParameterSet> >("areas")) {
-      m_areas.emplace_back(area.getParameter<double>("r"),
+      m_areas.emplace_back(area.getParameter<double>("rmin"),
+                           area.getParameter<double>("rmax"),
                            area.getParameter<double>("phimin"),
                            area.getParameter<double>("phimax"),
                            area.getParameter<double>("zmin"),
@@ -72,7 +73,8 @@ public:
     edm::ParameterSetDescription desc;
 
     edm::ParameterSetDescription descAreas;
-    descAreas.add<double>("r", 0.0);
+    descAreas.add<double>("rmin", 0.0);
+    descAreas.add<double>("rmax", 0.0);
     descAreas.add<double>("zmin", 0.0);
     descAreas.add<double>("zmax", 0.0);
     descAreas.add<double>("phimin", 0.0);
@@ -80,7 +82,8 @@ public:
     std::vector<edm::ParameterSet> vDefaults;
     /*
     edm::ParameterSet vDefaults1;
-    vDefaults1.addParameter<double>("r", 0.0);
+    vDefaults1.addParameter<double>("rmin", 0.0);
+    vDefaults1.addParameter<double>("rmax", 0.0);
     vDefaults1.addParameter<double>("zmin", 0.0);
     vDefaults1.addParameter<double>("zmax", 0.0);
     vDefaults1.addParameter<double>("phimin", 0.0);

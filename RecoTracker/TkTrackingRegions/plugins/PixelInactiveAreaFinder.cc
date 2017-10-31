@@ -317,10 +317,10 @@ PixelInactiveAreaFinder::InactiveAreas::areasAndLayerSets(const GlobalPoint& poi
     auto& innerSpan = item.first[0];
     auto& outerSpan = item.first[1];
     std::vector<Area> areas;
-    areas.emplace_back(innerSpan.rSpan.first,
+    areas.emplace_back(innerSpan.rSpan.first, innerSpan.rSpan.second,
                        innerSpan.phiSpan.first, innerSpan.phiSpan.second,
                        innerSpan.zSpan.first, innerSpan.zSpan.second);
-    areas.emplace_back(outerSpan.rSpan.first,
+    areas.emplace_back(outerSpan.rSpan.first, outerSpan.rSpan.second,
                        outerSpan.phiSpan.first, outerSpan.phiSpan.second,
                        outerSpan.zSpan.first, outerSpan.zSpan.second);
     ret.emplace_back(std::move(areas), std::move(item.second));
@@ -337,7 +337,7 @@ PixelInactiveAreaFinder::InactiveAreas::spansAndLayerSets(const GlobalPoint& poi
 
   std::vector<std::pair<std::vector<DetGroupSpan>, std::vector<LayerSetIndex> > > ret;
 
-  LogTrace("PixelInactiveAreaFinder") << "Origin at " << point.x() << "," << point.y() << "," << point.z() << " z half width " << zwidth;
+  LogDebug("PixelInactiveAreaFinder") << "Origin at " << point.x() << "," << point.y() << "," << point.z() << " z half width " << zwidth;
 
   for(LayerSetIndex i=0, end=layerPairIndices_->size(); i<end; ++i) {
     const auto& layerIdxPair = (*layerPairIndices_)[i];
