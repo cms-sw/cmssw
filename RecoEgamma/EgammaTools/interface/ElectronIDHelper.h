@@ -25,7 +25,7 @@
 #include "RecoEgamma/EgammaTools/interface/EgammaPCAHelper.h"
 #include "RecoEgamma/EgammaTools/interface/LongDeps.h"
 #include <vector>
-#include "HGCalIsoProducer.h"
+#include "HGCalIsoCalculator.h"
 
 class ElectronIDHelper {
 public:
@@ -70,7 +70,7 @@ public:
     inline float getIsolationRing(size_t ring) const { return isoHelper_.getIso(ring); };
 
     /// for debugging purposes, if you have to use it, it means that an interface method is missing
-    EGammaPCAHelper * pcaHelper () {return &pcaHelper_;}
+    const EGammaPCAHelper * pcaHelper () const {return &pcaHelper_;}
 
 private:
     const reco::GsfElectron * theElectron_;
@@ -81,7 +81,7 @@ private:
 
     std::vector<double> dEdXWeights_;
     EGammaPCAHelper pcaHelper_;
-    HGCalIsoProducer isoHelper_;
+    HGCalIsoCalculator isoHelper_;
     edm::EDGetTokenT<HGCRecHitCollection> recHitsEE_;
     edm::EDGetTokenT<HGCRecHitCollection> recHitsFH_;
     edm::EDGetTokenT<HGCRecHitCollection> recHitsBH_;

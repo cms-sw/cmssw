@@ -21,10 +21,10 @@ def addHGCalEgammaCollections(process):
         ),
         process, task
     )
-    from RecoEgamma.EgammaTools.HGCalElectronIDValueMap_cfi import HGCalElectronIDValueMap
-    addToProcessAndTask('hgcElectronID', HGCalElectronIDValueMap, process, task)
+    from RecoEgamma.EgammaTools.hgcalElectronIDValueMap_cfi import hgcalElectronIDValueMap
+    addToProcessAndTask('hgcElectronID', hgcalElectronIDValueMap, process, task)
     process.patElectronsFromMultiCl.userData.userFloats.src.extend([
-        cms.InputTag("hgcElectronID", key) for key in HGCalElectronIDValueMap.variables
+        cms.InputTag("hgcElectronID", key) for key in hgcalElectronIDValueMap.variables
     ])
     addToProcessAndTask('selectedPatElectronsFromMultiCl',
         process.selectedPatElectrons.clone(
@@ -61,10 +61,10 @@ def addHGCalEgammaCollections(process):
         ),
         process, task
     )
-    from RecoEgamma.EgammaTools.HGCalPhotonIDValueMap_cfi import HGCalPhotonIDValueMap
-    addToProcessAndTask('hgcPhotonID', HGCalPhotonIDValueMap, process, task)
+    from RecoEgamma.EgammaTools.hgcalPhotonIDValueMap_cfi import hgcalPhotonIDValueMap
+    addToProcessAndTask('hgcPhotonID', hgcalPhotonIDValueMap, process, task)
     process.patPhotonsFromMultiCl.userData.userFloats.src.extend([
-        cms.InputTag("hgcPhotonID", key) for key in HGCalPhotonIDValueMap.variables
+        cms.InputTag("hgcPhotonID", key) for key in hgcalPhotonIDValueMap.variables
     ])
     addToProcessAndTask('selectedPatPhotonsFromMultiCl',
         process.selectedPatPhotons.clone(
