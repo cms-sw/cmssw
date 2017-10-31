@@ -72,8 +72,18 @@ void PixelInactiveAreaTrackingRegionsSeedingLayersProducer::produce(edm::Event& 
   const auto allAreas = inactiveAreaFinder_.inactiveAreas(iEvent, iSetup);
   for(const auto& origin: origins) {
     auto areasLayerSets = allAreas.areasAndLayerSets(origin.first, origin.second); // point, half length in z
+    LogTrace("PixelInactiveAreaTrackingRegionsSeedingLayersProducer") << "Origin " << origin.first.x() << "," << origin.first.y() << "," << origin.first.z() << " z half lengh " << origin.second;
     for(auto& areasLayerSet: areasLayerSets) {
       auto region = builder.region(origin, areasLayerSet.first);
+#ifdef EDM_ML_DEBUG
+      auto etaPhiRegion = dynamic_cast<const RectangularEtaPhiTrackingRegion *>(region.get());
+      std::stringstream ss;
+      for(const auto& ind: areasLayerSet.second) {
+        ss << ind << ",";
+      }
+      LogTrace("PixelInactiveAreaTrackingRegionsSeedingLayersProducer") << " region eta,phi " << region->direction().eta() << "," << region->direction().phi() << " eta range " << etaPhiRegion->etaRange().min() << "," << etaPhiRegion->etaRange().max() << " phi range " << (region->direction().phi()-etaPhiRegion->phiMargin().left()) << "," << (region->direction().phi()+etaPhiRegion->phiMargin().right()) << " layer sets " << ss.str();
+#endif
+
       regions->emplace_back(std::move(region), std::move(areasLayerSet.second));
     }
   }

@@ -18,28 +18,56 @@ public:
 
   class Area {
   public:
-    Area(double r, double phimin, double phimax, double zmin, double zmax):
-      m_xmin(r*std::cos(phimin)),
-      m_xmax(r*std::cos(phimax)),
-      m_ymin(r*std::sin(phimin)),
-      m_ymax(r*std::sin(phimax)),
-      m_zmin(zmin), m_zmax(zmax) {}
+    // phimin and phimax, and hence xmin+xmax and ymin+ymax are
+    // ordered by which way one goes around the unit circle, so it may
+    // happen that actually phimax < phimin
+    Area(double rmin, double rmax, double phimin, double phimax, double zmin, double zmax):
+      m_zmin(zmin), m_zmax(zmax)
+    {
+      auto cosphimin = std::cos(phimin);
+      auto sinphimin = std::sin(phimin);
+      auto cosphimax = std::cos(phimax);
+      auto sinphimax = std::sin(phimax);
 
-    float xmin() const { return m_xmin; }
-    float xmax() const { return m_xmax; }
-    float ymin() const { return m_ymin; }
-    float ymax() const { return m_ymax; }
+      m_x_rmin_phimin = rmin*cosphimin;
+      m_x_rmin_phimax = rmin*cosphimax;
+      m_x_rmax_phimin = rmax*cosphimin;
+      m_x_rmax_phimax = rmax*cosphimax;
+
+      m_y_rmin_phimin = rmin*sinphimin;
+      m_y_rmin_phimax = rmin*sinphimax;
+      m_y_rmax_phimin = rmax*sinphimin;
+      m_y_rmax_phimax = rmax*sinphimax;
+    }
+
+    float x_rmin_phimin() const { return m_x_rmin_phimin; }
+    float x_rmin_phimax() const { return m_x_rmin_phimax; }
+    float x_rmax_phimin() const { return m_x_rmax_phimin; }
+    float x_rmax_phimax() const { return m_x_rmax_phimax; }
+    float y_rmin_phimin() const { return m_y_rmin_phimin; }
+    float y_rmin_phimax() const { return m_y_rmin_phimax; }
+    float y_rmax_phimin() const { return m_y_rmax_phimin; }
+    float y_rmax_phimax() const { return m_y_rmax_phimax; }
+
     float zmin() const { return m_zmin; }
     float zmax() const { return m_zmax; }
 
   private:
-    const float m_xmin = 0;
-    const float m_xmax = 0;
-    const float m_ymin = 0;
-    const float m_ymax = 0;
-    const float m_zmin = 0;
-    const float m_zmax = 0;
+    // all of these are in global coordinates
+    float m_x_rmin_phimin = 0;
+    float m_x_rmin_phimax = 0;
+    float m_x_rmax_phimin = 0;
+    float m_x_rmax_phimax = 0;
+
+    float m_y_rmin_phimin = 0;
+    float m_y_rmin_phimax = 0;
+    float m_y_rmax_phimin = 0;
+    float m_y_rmax_phimax = 0;
+
+    float m_zmin = 0;
+    float m_zmax = 0;
   };
+
 
   class Builder {
   public:

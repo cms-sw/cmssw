@@ -3,6 +3,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/PtEtaPhiMass.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
 #include <array>
@@ -78,58 +79,140 @@ std::unique_ptr<TrackingRegion> AreaSeededTrackingRegionsBuilder::Builder::regio
 
   LogDebug("AreaSeededTrackingRegionsProducer") << "Origin x,y,z " << orig.x() << "," << orig.y() << "," << orig.z();
 
-  auto unitFromOrig = [&](std::array<float, 2>& vec2) {
-    const auto invlen = 1.f/std::sqrt(vec2[0]*vec2[0] + vec2[1]*vec2[1]);
-    vec2[0] = orig.x() - vec2[0]*invlen*m_conf->m_originRadius;
-    vec2[1] = orig.y() - vec2[1]*invlen*m_conf->m_originRadius;
+  auto vecFromOrigPlusRadius = [&](const std::array<float, 2>& vec) {
+      const auto invlen = 1.f/std::sqrt(perp2(vec));
+      const auto tmp = (1.f - m_conf->m_originRadius*invlen);
+      return std::array<float, 2>{{vec[0]*tmp, vec[1]*tmp}};
   };
+  auto tangentVec = [&](const std::array<float, 2>& vec, int sign) {
+    const auto d = std::sqrt(perp2(vec));
+    const auto r = m_conf->m_originRadius;
+    const auto tmp = r/std::sqrt(d*d - r*r);
+    // sign+ for counterclockwise, sign- for clockwise
+    const auto orthvec = sign > 0 ? std::array<float, 2>{{-vec[1]*tmp,  vec[0]*tmp}}
+                                  : std::array<float, 2>{{ vec[1]*tmp, -vec[0]*tmp}};
+    return std::array<float, 2>{{vec[0]-orthvec[0], vec[1]-orthvec[1]}};
+  };
+
   for(const auto& area: areas) {
     // straight line assumption is conservative, accounding for
     // low-pT bending would only tighten the eta-phi window
+    LogTrace("AreaSeededTrackingRegionsBuilder") << " area x,y points "
+                                                 << area.x_rmin_phimin() << "," << area.y_rmin_phimin() << " " // go around
+                                                 << area.x_rmin_phimax() << "," << area.y_rmin_phimax() << " "
+                                                 << area.x_rmax_phimax() << "," << area.y_rmax_phimax() << " "
+                                                 << area.x_rmax_phimin() << "," << area.y_rmax_phimin() << " "
+                                                 << "z " << area.zmin() << "," << area.zmax();
+
+    // some common variables
+    const float x_rmin_phimin = area.x_rmin_phimin()-orig.x();
+    const float x_rmin_phimax = area.x_rmin_phimax()-orig.x();
+    const float y_rmin_phimin = area.y_rmin_phimin()-orig.y();
+    const float y_rmin_phimax = area.y_rmin_phimax()-orig.y();
+
+    const std::array<float, 2> p_rmin_phimin = {{x_rmin_phimin, y_rmin_phimin}};
+    const std::array<float, 2> p_rmin_phimax = {{x_rmin_phimax, y_rmin_phimax}};
+    const std::array<float, 2> p_rmax_phimin = {{area.x_rmax_phimin() - orig.x(), area.y_rmax_phimin() - orig.y()}};
+    const std::array<float, 2> p_rmax_phimax = {{area.x_rmax_phimax() - orig.x(), area.y_rmax_phimax() - orig.y()}};
+
 
     // eta
     {
-      // along orig->area.xymin, farthest point away from area
-      std::array<float, 2> pmin = {{area.xmin() - orig.x(), area.ymin() - orig.y()}};
-      std::array<float, 2> pmax = {{area.xmax() - orig.x(), area.ymax() - orig.y()}};
-      unitFromOrig(pmin);
-      unitFromOrig(pmax);
-      // pick the one with largest redius to maximize the eta window
-      const std::array<float, 2> p = perp2(pmin) > perp2(pmax) ? pmin : pmax;
+      // find which of the two rmin points is closer to the origin
+      //
+      // closest point for p_rmin, farthest point for p_rmax
+      const std::array<float, 2> p_rmin = perp2(p_rmin_phimin) < perp2(p_rmin_phimax) ? p_rmin_phimin : p_rmin_phimax;
+      const std::array<float, 2> p_rmax = perp2(p_rmax_phimin) > perp2(p_rmax_phimax) ? p_rmax_phimin : p_rmax_phimax;
 
-      minEta = std::min(minEta, etaFromXYZ(area.xmin()-p[0], area.ymin()-p[1],
-                                           area.zmin() - (orig.z()+origin.second) ));
+      // then calculate the xy vector from the point closest to p_rmin on
+      // the (origin,originRadius) circle to the p_rmin
+      // this will maximize the eta window
+      const auto p_min = vecFromOrigPlusRadius(p_rmin);
+      const auto p_max = vecFromOrigPlusRadius(p_rmax);
 
-      maxEta = std::max(maxEta, etaFromXYZ(area.xmax()-p[0], area.ymax()-p[1],
-                                           area.zmax() - (orig.z()-origin.second) ));
+      // then we calculate the maximal eta window
+      const auto etamin = std::min(etaFromXYZ(p_min[0], p_min[1], area.zmin() - (orig.z()+origin.second)),
+                                   etaFromXYZ(p_max[0], p_max[1], area.zmin() - (orig.z()+origin.second)));
+      const auto etamax = std::max(etaFromXYZ(p_min[0], p_min[1], area.zmax() - (orig.z()-origin.second)),
+                                   etaFromXYZ(p_max[0], p_max[1], area.zmax() - (orig.z()-origin.second)));
+
+      LogTrace("AreaSeededTrackingRegionBuilder") << "  eta min,max " << etamin << "," << etamax;
+
+      minEta = std::min(minEta, etamin);
+      maxEta = std::max(maxEta, etamax);
     }
 
     // phi
     {
-      // ortogonal to orig->area.xymin, direction for smallest phiMin
-      std::array<float, 2> pmin = {{area.ymin() - orig.y(), orig.x() - area.xmin()}};
-      unitFromOrig(pmin);
+      // For phi we construct the tangent lines of (origin,
+      // originRadius) that go though eahc of the 4 points (in xy
+      // plane) of the area. Easiest is to make a vector orthogonal to
+      // origin->point vector which has a length of
+      //
+      // length = r*d/std::sqrt(d*d-r*r)
+      //
+      // where r is the originRadius and d is the distance from origin
+      // to the point (to derive draw the situation and start with
+      // definitions of sin/cos of one of the angles of the
+      // right-angled triangle.
 
-      // orthogonal to orig->area.xymax, direction for largest phiMax
-      std::array<float, 2> pmax = {{orig.y() - area.ymax(), area.xmax() - orig.x()}};
-      unitFromOrig(pmax);
+      // but we start with a "reference phi" so that we can easily
+      // decide which phi is the largest/smallest without having too
+      // much of headache with the wrapping
+      const auto phi_ref = std::atan2(0.5f*(y_rmin_phimin + y_rmin_phimax),
+                                      0.5f*(x_rmin_phimin + y_rmin_phimax));
 
-      auto phimin = std::atan2(area.ymin()-pmin[1], area.xmin()-pmin[0]);
-      auto phimax = std::atan2(area.ymax()-pmax[1], area.xmax()-pmax[0]);
-      if(phimax < phimin) { // wrapped around, need to decide which one to wrap
+      // for maximum phi we need the orthogonal vector to the left
+      const auto tan_rmin_phimax = tangentVec(p_rmin_phimax, +1);
+      const auto tan_rmax_phimax = tangentVec(p_rmax_phimax, +1);
+      const auto phi_rmin_phimax = std::atan2(tan_rmin_phimax[1], tan_rmin_phimax[0]);
+      const auto phi_rmax_phimax = std::atan2(tan_rmax_phimax[1], tan_rmax_phimax[0]);
+
+      auto phimax = std::abs(reco::deltaPhi(phi_rmin_phimax, phi_ref)) > std::abs(reco::deltaPhi(phi_rmax_phimax, phi_ref)) ?
+        phi_rmin_phimax : phi_rmax_phimax;
+
+      LogTrace("AreaSeededTrackingRegionBuilder") << "   rmin_phimax vec " << p_rmin_phimax[0] << "," << p_rmin_phimax[1]
+                                                  << " tangent " << tan_rmin_phimax[0] << "," << tan_rmin_phimax[1]
+                                                  << " phi " << phi_rmin_phimax << "\n"
+                                                  << "   rmax_phimax vec " << p_rmax_phimax[0] << "," << p_rmax_phimax[1]
+                                                  << " tangent " << tan_rmax_phimax[0] << "," << tan_rmax_phimax[1]
+                                                  << " phi " << phi_rmax_phimax << "\n"
+                                                  << "   phimax " << phimax;
+
+
+
+      // for minimum phi we need the orthogonal vector to the right
+      const auto tan_rmin_phimin = tangentVec(p_rmin_phimin, -1);
+      const auto tan_rmax_phimin = tangentVec(p_rmax_phimin, -1);
+      const auto phi_rmin_phimin = std::atan2(tan_rmin_phimin[1], tan_rmin_phimin[0]);
+      const auto phi_rmax_phimin = std::atan2(tan_rmax_phimin[1], tan_rmax_phimin[0]);
+
+      auto phimin = std::abs(reco::deltaPhi(phi_rmin_phimin, phi_ref)) > std::abs(reco::deltaPhi(phi_rmax_phimin, phi_ref)) ?
+        phi_rmin_phimin : phi_rmax_phimin;
+
+
+      LogTrace("AreaSeededTrackingRegionBuilder") << "   rmin_phimin vec " << p_rmin_phimin[0] << "," << p_rmin_phimin[1]
+                                                  << " tangent " << tan_rmin_phimin[0] << "," << tan_rmin_phimin[1]
+                                                  << " phi " << phi_rmin_phimin << "\n"
+                                                  << "   rmax_phimin vec " << p_rmax_phimin[0] << "," << p_rmax_phimin[1]
+                                                  << " tangent " << tan_rmax_phimin[0] << "," << tan_rmax_phimin[1]
+                                                  << " phi " << phi_rmax_phimin << "\n"
+                                                  << "   phimin " << phimin;
+
+      // wrapped around, need to decide which one to wrap
+      if(phimax < phimin) {
         if(phimax < 0) phimax += 2*M_PI;
         else           phimin -= 2*M_PI;
       }
+
+      LogTrace("AreaSeededTrackingRegionBuilder") << "  phi min,max " << phimin << "," << phimax;
 
       minPhi = std::min(minPhi, phimin);
       maxPhi = std::max(maxPhi, phimax);
     }
 
-    LogTrace("AreaSeededTrackingRegionsBuilder") << " area x " << area.xmin() << "," << area.ymin()
-                                                 << " y " << area.ymin() << "," << area.ymax()
-                                                 << " z " << area.zmin() << "," << area.zmax()
-                                                 << " eta " << minEta << "," << maxEta
-                                                 << " phi " << minPhi << "," << maxPhi;
+    LogTrace("AreaSeededTrackingRegionBuilder") << "  windows after this area  eta " << minEta << "," << maxEta
+                                                << " phi " << minPhi << "," << maxPhi;
   }
 
   const auto meanEta = (minEta+maxEta)/2.f;
