@@ -5,8 +5,8 @@
  *      Author: jkiesele
  */
 
-#ifndef EGAMMATOOL_EGAMMAANALYSIS_HGCALISOPRODUCER_H_
-#define EGAMMATOOL_EGAMMAANALYSIS_HGCALISOPRODUCER_H_
+#ifndef RecoEgamma_EgammaTools_HGCalIsoCalculator_h
+#define RecoEgamma_EgammaTools_HGCalIsoCalculator_h
 
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
@@ -22,7 +22,7 @@
  *
  * Usage:
  *
- * PhotonHGCalIsoProducer prod;
+ * PhotonHGCalIsoCalculator prod;
  * prod.setRecHitTools(rechittools)
  * prod.fillHitMap(recHitsEE,recHitsFH,recHitsBH)
  *
@@ -43,21 +43,21 @@
  *
  *
  */
-class HGCalIsoProducer{
+class HGCalIsoCalculator{
 public:
-    HGCalIsoProducer();
+    HGCalIsoCalculator();
 
-    ~HGCalIsoProducer();
+    ~HGCalIsoCalculator();
 
-    void setDeltaR(const float& dr){dr2_=dr*dr;}
+    void setDeltaR(const float dr){dr2_=dr*dr;}
 
-    void setMinDeltaR(const float& dr){mindr2_=dr*dr;}
+    void setMinDeltaR(const float dr){mindr2_=dr*dr;}
 
     void setRecHitTools(const hgcal::RecHitTools * recHitTools){rechittools_ = recHitTools;}
 
     void setNRings(const size_t nrings);
 
-    void setNLayers(size_t nLayers){nlayers_=nLayers;}
+    void setNLayers(unsigned int nLayers){nlayers_=nLayers;}
 
     /// fill - once per event
     void setRecHits(
@@ -72,7 +72,7 @@ public:
 
 private:
     std::vector<float> isoringdeposits_;
-    std::vector<size_t> ringasso_;
+    std::vector<unsigned int> ringasso_;
 
     float dr2_,mindr2_;
 
@@ -82,8 +82,8 @@ private:
     edm::Handle<HGCRecHitCollection> recHitsBH_;
     std::vector<std::pair<float,float>> hitEtaPhiCache_;
     bool debug_;
-    size_t nlayers_;
+    unsigned int nlayers_;
 };
 
 
-#endif /* EGAMMATOOL_EGAMMAANALYSIS_HGCALISOPRODUCER_H_ */
+#endif /* RecoEgamma_EgammaTools_HGCalIsoCalculator_h */

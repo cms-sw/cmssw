@@ -1115,7 +1115,6 @@ void PATElectronProducer::fillDescriptions(edm::ConfigurationDescriptions & desc
 
 
   // electron shapes
-  iDesc.add<bool>("addElectronShapes", true); // unused! dupe of below?
   iDesc.add<bool>("addMVAVariables", true)->setComment("embed extra variables in pat::Electron : sip3d, sigmaIEtaIPhi");
   iDesc.add<edm::InputTag>("reducedBarrelRecHitCollection", edm::InputTag("reducedEcalRecHitsEB"));
   iDesc.add<edm::InputTag>("reducedEndcapRecHitCollection", edm::InputTag("reducedEcalRecHitsEE"));

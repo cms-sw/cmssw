@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:   RecoEgamma/HGCalElectronIDValueMapProducer
+// Package:   RecoEgamma/EgammaTools
 // Class:    HGCalElectronIDValueMapProducer
 //
-/**\class HGCalElectronIDValueMapProducer HGCalElectronIDValueMapProducer.cc RecoEgamma/HGCalElectronIDValueMapProducer/plugins/HGCalElectronIDValueMapProducer.cc
+/**\class HGCalElectronIDValueMapProducer HGCalElectronIDValueMapProducer.cc RecoEgamma/EgammaTools/plugins/HGCalElectronIDValueMapProducer.cc
 
  Description: [one line class summary]
 
@@ -52,7 +52,7 @@ class HGCalElectronIDValueMapProducer : public edm::stream::EDProducer<> {
     void endStream() override;
 
     // ----------member data ---------------------------
-    edm::EDGetTokenT<edm::View<reco::GsfElectron>> ElectronsToken_;
+    edm::EDGetTokenT<edm::View<reco::GsfElectron>> electronsToken_;
     float radius_;
     std::map<const std::string, std::vector<float>> maps_;
 
@@ -60,7 +60,7 @@ class HGCalElectronIDValueMapProducer : public edm::stream::EDProducer<> {
 };
 
 HGCalElectronIDValueMapProducer::HGCalElectronIDValueMapProducer(const edm::ParameterSet& iConfig) :
-  ElectronsToken_(consumes<edm::View<reco::GsfElectron>>(iConfig.getParameter<edm::InputTag>("electrons"))),
+  electronsToken_(consumes<edm::View<reco::GsfElectron>>(iConfig.getParameter<edm::InputTag>("electrons"))),
   radius_(iConfig.getParameter<double>("pcaRadius"))
 {
   // All the ValueMap names to output are defined in the python config
@@ -85,20 +85,21 @@ HGCalElectronIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSet
 {
   using namespace edm;
 
-  Handle<edm::View<reco::GsfElectron>> ElectronsH;
-  iEvent.getByToken(ElectronsToken_, ElectronsH);
+  Handle<edm::View<reco::GsfElectron>> electronsH;
+  iEvent.getByToken(electronsToken_, electronsH);
 
   const size_t prevMapSize = maps_.size();
 
   // Clear previous map
-  for(auto&& kv : maps_) kv.second.clear();
+  for(auto&& kv : maps_) {
+    kv.second.clear();
+    kv.second.reserve(electronsH->size());
+  }
 
   // Set up helper tool
   eIDHelper_->eventInit(iEvent,iSetup);
 
-  for(size_t iEle=0; iEle<ElectronsH->size(); ++iEle) {
-    const auto& electron = ElectronsH->at(iEle);
-
+  for(const auto& electron : *electronsH) {
     if(electron.isEB()) {
       // Fill some dummy value
       for(auto&& kv : maps_) {
@@ -200,13 +201,13 @@ HGCalElectronIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSet
 
   for(auto&& kv : maps_) {
     // Check we didn't forget any values
-    if ( kv.second.size() != ElectronsH->size() ) {
+    if ( kv.second.size() != electronsH->size() ) {
       throw cms::Exception("HGCalElectronIDValueMapProducer") << "We have a miscoded value map producer, since the variable " << kv.first << " wasn't filled.";
     }
     // Do the filling
     auto out = std::make_unique<edm::ValueMap<float>>();
     edm::ValueMap<float>::Filler filler(*out);
-    filler.insert(ElectronsH, kv.second.begin(), kv.second.end());
+    filler.insert(electronsH, kv.second.begin(), kv.second.end());
     filler.fill();
     // and put it into the event
     iEvent.put(std::move(out), kv.first);
