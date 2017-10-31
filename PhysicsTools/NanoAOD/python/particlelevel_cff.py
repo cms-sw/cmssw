@@ -69,18 +69,18 @@ rivetLeptonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 #    )
 #)
 
-rivetFatJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
-    src = cms.InputTag("particleLevel:fatjets"),
-    cut = cms.string(""),
-    name= cms.string("GenFatJet"),
-    doc = cms.string("AK8 jets from Rivet-based ParticleLevelProducer"),
-    singleton = cms.bool(False), # the number of entries is variable
-    extension = cms.bool(False), # this is the main table
-    variables = cms.PSet(
-        P4Vars,
-        hadronFlavour = Var("pdgId", int, doc="PDG id"), 
-    )
-)
+#rivetFatJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+#    src = cms.InputTag("particleLevel:fatjets"),
+#    cut = cms.string(""),
+#    name= cms.string("GenFatJet"),
+#    doc = cms.string("AK8 jets from Rivet-based ParticleLevelProducer"),
+#    singleton = cms.bool(False), # the number of entries is variable
+#    extension = cms.bool(False), # this is the main table
+#    variables = cms.PSet(
+#        P4Vars,
+#        hadronFlavour = Var("pdgId", int, doc="PDG id"), 
+#    )
+#)
 
 #rivetTagTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 #    src = cms.InputTag("particleLevel:tags"),
@@ -108,4 +108,4 @@ rivetMetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 )
 
 particleLevelSequence = cms.Sequence(mergedGenParticles + genParticles2HepMC + particleLevel)
-particleLevelTables = cms.Sequence(rivetLeptonTable + rivetFatJetTable + rivetMetTable)
+particleLevelTables = cms.Sequence(rivetLeptonTable + rivetMetTable)
