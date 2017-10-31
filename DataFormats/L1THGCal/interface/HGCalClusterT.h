@@ -145,7 +145,9 @@ namespace l1t
       //shower shape
 
       int showerLength() const { return showerLength_; }
+      int coreShowerLength() const { return coreShowerLength_; }
       int firstLayer() const { return firstLayer_; }
+      int maxLayer() const { return maxLayer_; }
       float eMax() const { return eMax_; }
       float sigmaEtaEtaMax() const { return sigmaEtaEtaMax_; }
       float sigmaPhiPhiMax() const { return sigmaPhiPhiMax_; }
@@ -154,9 +156,12 @@ namespace l1t
       float sigmaZZ() const { return sigmaZZ_; }
       float sigmaRRTot() const { return sigmaRRTot_; }
       float sigmaRRMax() const { return sigmaRRMax_; }
+      float sigmaRRMean() const { return sigmaRRMean_; }
 
       void set_showerLength(int showerLength) { showerLength_ = showerLength;}
+      void set_coreShowerLength(int coreShowerLength) { coreShowerLength_ = coreShowerLength;}
       void set_firstLayer(int firstLayer) { firstLayer_ = firstLayer;}
+      void set_maxLayer(int maxLayer) { maxLayer_ = maxLayer;}
       void set_eMax(float eMax) { eMax_ = eMax;}
       void set_sigmaEtaEtaMax(float sigmaEtaEtaMax) { sigmaEtaEtaMax_ = sigmaEtaEtaMax;}
       void set_sigmaEtaEtaTot(float sigmaEtaEtaTot) { sigmaEtaEtaTot_ = sigmaEtaEtaTot;}
@@ -164,6 +169,7 @@ namespace l1t
       void set_sigmaPhiPhiTot(float sigmaPhiPhiTot) { sigmaPhiPhiTot_ = sigmaPhiPhiTot;}
       void set_sigmaRRMax(float sigmaRRMax) { sigmaRRMax_ = sigmaRRMax;}
       void set_sigmaRRTot(float sigmaRRTot) { sigmaRRTot_ = sigmaRRTot;}
+      void set_sigmaRRMean(float sigmaRRMean) { sigmaRRMean_ = sigmaRRMean;}
       void set_sigmaZZ(float sigmaZZ) { sigmaZZ_ = sigmaZZ;}
       
       /* operators */
@@ -186,7 +192,9 @@ namespace l1t
       //shower shape
 
       int showerLength_;
+      int coreShowerLength_;
       int firstLayer_;
+      int maxLayer_;
       float eMax_;
       float sigmaEtaEtaMax_;
       float sigmaPhiPhiMax_;
@@ -194,6 +202,7 @@ namespace l1t
       float sigmaEtaEtaTot_;
       float sigmaPhiPhiTot_;
       float sigmaRRTot_;
+      float sigmaRRMean_;
       float sigmaZZ_;
 
       ClusterShapes shapes_;
