@@ -28,6 +28,7 @@ process.maxEvents = cms.untracked.PSet(
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('HGCSim')
     process.MessageLogger.categories.append('HcalSim')
+    process.MessageLogger.categories.append('ValidHGCal')
 
 # Input source
 process.source = cms.Source("EmptySource")
@@ -93,8 +94,8 @@ process.g4SimHits.HGCSD.RejectMouseBite = True
 process.g4SimHits.HGCSD.RotatedWafer    = True
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 		HGCPassive = cms.PSet(
-			LVNames = cms.vstring('HGCalEE','HGCalHE','HGCalAH', 'CMSE'),
-			MotherName = cms.string('CMSE'),
+			LVNames = cms.vstring('HGCalEE','HGCalHE','HGCalAH', 'HGCalBeam', 'CMSE'),
+			MotherName = cms.string('OCMS'),
 			),
 		type = cms.string('HGCPassive'),
 		)
