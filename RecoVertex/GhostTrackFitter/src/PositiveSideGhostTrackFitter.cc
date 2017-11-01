@@ -35,13 +35,15 @@ GhostTrackPrediction PositiveSideGhostTrackFitter::fit(
 			GhostTrackState testState = state;
 			testState.linearize(pred, 2. * origin - lambda);
 			double ndof, chi2;
-
-			updater.contribution(prior, testState, ndof, chi2, true);
-			if (ndof > 0. && chi2 < 10.) {
-				state = testState;
-				if (state.weight() != 1.)
-					state.setWeight(3.);
-				done = false;
+			
+			if (testState.isValid()) {
+				updater.contribution(prior, testState, ndof, chi2, true);
+				if (ndof > 0. && chi2 < 10.) {
+					state = testState;
+					if (state.weight() != 1.)
+						state.setWeight(3.);
+					done = false;
+				}
 			}
 		}
 	}
