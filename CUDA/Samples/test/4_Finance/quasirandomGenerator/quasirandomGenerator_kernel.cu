@@ -17,7 +17,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 #include "quasirandomGenerator_common.h"
 
 

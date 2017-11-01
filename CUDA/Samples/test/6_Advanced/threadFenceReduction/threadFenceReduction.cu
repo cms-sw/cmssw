@@ -49,8 +49,8 @@
 #include <math.h>
 
 // includes, project
-#include <helper_functions.h>
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_functions.h"
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 #define VERSION_MAJOR (CUDART_VERSION/1000)
 #define VERSION_MINOR (CUDART_VERSION%100)/10

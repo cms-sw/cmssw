@@ -15,7 +15,7 @@
 
 namespace cg = cooperative_groups;
 
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 #include "FunctionPointers_kernels.h"
 

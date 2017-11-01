@@ -12,7 +12,7 @@
 #include <cooperative_groups.h>
 
 namespace cg = cooperative_groups;
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 #include <assert.h>
 #include "mergeSort_common.h"
 

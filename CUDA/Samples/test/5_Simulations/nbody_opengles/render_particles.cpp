@@ -14,7 +14,7 @@
 #include <cuda_runtime.h>
 #include <cuda_gl_interop.h>
 
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 #include <math.h>
 #include <assert.h>

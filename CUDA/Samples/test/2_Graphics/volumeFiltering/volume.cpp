@@ -13,8 +13,8 @@
 #include <cuda_runtime.h>
 
 // Helper functions
-#include <helper_cuda.h>
-#include <helper_math.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
+#include "CUDA/Samples/interface/helper_math.h"
 #include "volume.h"
 
 void Volume_init(Volume *vol, cudaExtent dataSize, void *h_data, int allowStore)

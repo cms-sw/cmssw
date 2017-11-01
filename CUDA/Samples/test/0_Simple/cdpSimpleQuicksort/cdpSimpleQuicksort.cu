@@ -10,8 +10,8 @@
 */
 #include <iostream>
 #include <cstdio>
-#include <helper_cuda.h>
-#include <helper_string.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
+#include "CUDA/Samples/interface/helper_string.h"
 
 #define MAX_DEPTH       16
 #define INSERTION_SORT  32

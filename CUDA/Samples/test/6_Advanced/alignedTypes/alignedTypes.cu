@@ -26,8 +26,8 @@
 #include <math.h>
 
 // includes, project
-#include <helper_functions.h> // helper utility functions 
-#include <helper_cuda.h>      // helper functions for CUDA error checking and initialization
+#include "CUDA/Samples/interface/helper_functions.h" // helper utility functions 
+#include "CUDA/Samples/interface/helper_cuda.h"      // helper functions for CUDA error checking and initialization
 
 ////////////////////////////////////////////////////////////////////////////////
 // Misaligned types

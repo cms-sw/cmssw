@@ -27,8 +27,8 @@
 #include <iomanip>
 #include <stdexcept>
 #include <cuda_runtime.h>
-#include <helper_timer.h>
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_timer.h"
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 #include "../inc/test.h"
 

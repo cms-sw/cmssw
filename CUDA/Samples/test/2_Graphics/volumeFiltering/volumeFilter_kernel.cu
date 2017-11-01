@@ -12,8 +12,8 @@
 #ifndef _VOLUMEFILTER_KERNEL_CU_
 #define _VOLUMEFILTER_KERNEL_CU_
 
-#include <helper_cuda.h>
-#include <helper_math.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
+#include "CUDA/Samples/interface/helper_math.h"
 #include "volumeFilter.h"
 
 typedef unsigned int   uint;

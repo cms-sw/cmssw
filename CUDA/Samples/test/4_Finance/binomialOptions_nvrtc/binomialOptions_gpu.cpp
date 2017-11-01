@@ -17,8 +17,8 @@
 #include <stdlib.h>
 #include <cmath>
 
-#include <helper_cuda.h>
-#include <nvrtc_helper.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
+#include "CUDA/Samples/interface/nvrtc_helper.h"
 #include <cuda_runtime.h>
 
 #include "binomialOptions_common.h"

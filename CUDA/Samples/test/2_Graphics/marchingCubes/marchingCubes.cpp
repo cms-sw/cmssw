@@ -75,16 +75,16 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include <helper_gl.h>
+#include "CUDA/Samples/interface/helper_gl.h"
 
 #include <cuda_runtime.h>
 #include <cuda_gl_interop.h>
 #include <vector_types.h>
 #include <vector_functions.h>
 
-#include <helper_cuda.h>    // includes cuda.h and cuda_runtime_api.h
-#include <helper_functions.h>
-#include <helper_cuda_gl.h>
+#include "CUDA/Samples/interface/helper_cuda.h"    // includes cuda.h and cuda_runtime_api.h
+#include "CUDA/Samples/interface/helper_functions.h"
+#include "CUDA/Samples/interface/helper_cuda_gl.h"
 
 #include "defines.h"
 

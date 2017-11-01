@@ -10,7 +10,7 @@
  */
 
 #include <stdio.h>
-#include "helper_cuda.h"
+#include "CUDA/Samples/interface/helper_cuda.h"
 #include "Mandelbrot_kernel.h"
 #include "Mandelbrot_kernel.cuh"
 

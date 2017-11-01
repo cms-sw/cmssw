@@ -10,7 +10,7 @@
  */
 
 #include "cuda_fp16.h"
-#include "helper_cuda.h"
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 #include <cstdio>
 #include <cstdlib>

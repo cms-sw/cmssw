@@ -62,9 +62,9 @@
 
 #include <math.h>
 
-#include <nvVector.h>
-#include <nvMatrix.h>
-#include <nvQuaternion.h>
+#include "nvVector.h"
+#include "nvMatrix.h"
+#include "nvQuaternion.h"
 
 #define NV_PI   float(3.1415926535897932384626433832795)
 

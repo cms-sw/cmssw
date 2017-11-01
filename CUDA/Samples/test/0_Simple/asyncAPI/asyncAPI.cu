@@ -26,8 +26,8 @@
 #include <cuda_runtime.h>
 
 // includes, project
-#include <helper_cuda.h>
-#include <helper_functions.h> // helper utility functions 
+#include "CUDA/Samples/interface/helper_cuda.h"
+#include "CUDA/Samples/interface/helper_functions.h" // helper utility functions 
 
 __global__ void increment_kernel(int *g_data, int inc_value)
 {

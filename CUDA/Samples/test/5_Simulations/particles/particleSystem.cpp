@@ -11,7 +11,7 @@
 
 // OpenGL Graphics includes
 #define HELPERGL_EXTERN_GL_FUNC_IMPLEMENTATION
-#include <helper_gl.h>
+#include "CUDA/Samples/interface/helper_gl.h"
 
 #include "particleSystem.h"
 #include "particleSystem.cuh"
@@ -19,8 +19,8 @@
 
 #include <cuda_runtime.h>
 
-#include <helper_functions.h>
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_functions.h"
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 #include <assert.h>
 #include <math.h>

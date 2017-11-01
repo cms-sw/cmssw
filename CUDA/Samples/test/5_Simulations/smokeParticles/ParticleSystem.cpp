@@ -18,13 +18,13 @@
 #include <algorithm>
 
 #define HELPERGL_EXTERN_GL_FUNC_IMPLEMENTATION
-#include <helper_gl.h>
+#include "CUDA/Samples/interface/helper_gl.h"
 #include <cuda_runtime.h>
 #include <cuda_gl_interop.h>
 
-#include <helper_functions.h>
-#include <helper_cuda.h>
-#include <helper_cuda_gl.h>
+#include "CUDA/Samples/interface/helper_functions.h"
+#include "CUDA/Samples/interface/helper_cuda.h"
+#include "CUDA/Samples/interface/helper_cuda_gl.h"
 
 #include "ParticleSystem.h"
 #include "ParticleSystem.cuh"

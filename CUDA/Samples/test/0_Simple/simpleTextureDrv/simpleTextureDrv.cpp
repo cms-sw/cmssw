@@ -31,13 +31,13 @@
 #include <cstring>
 
 // includes, project
-#include <helper_functions.h>
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_functions.h"
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 // includes, CUDA
 #include <cuda.h>
 #include <builtin_types.h>
-#include <drvapi_error_string.h>
+#include "CUDA/Samples/interface/drvapi_error_string.h"
 
 using namespace std;
 

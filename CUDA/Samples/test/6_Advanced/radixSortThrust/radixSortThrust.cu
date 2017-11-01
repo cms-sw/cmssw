@@ -18,7 +18,7 @@
 #include <thrust/generate.h>
 #include <thrust/detail/type_traits.h>
 
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 #include <algorithm>
 #include <time.h>

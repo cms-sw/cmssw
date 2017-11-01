@@ -26,7 +26,7 @@
 */
 
 // OpenGL Graphics includes
-#include <helper_gl.h>
+#include "CUDA/Samples/interface/helper_gl.h"
 #if defined(__APPLE__) || defined(__MACOSX)
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   #include <GLUT/glut.h>
@@ -42,9 +42,9 @@
 #include <cuda_gl_interop.h>
 
 // Helper functions
-#include <helper_functions.h>  // CUDA SDK Helper functions
-#include <helper_cuda.h>       // CUDA device initialization helper functions
-#include <helper_cuda_gl.h>    // CUDA device + OpenGL initialization functions
+#include "CUDA/Samples/interface/helper_functions.h"  // CUDA SDK Helper functions
+#include "CUDA/Samples/interface/helper_cuda.h"       // CUDA device initialization helper functions
+#include "CUDA/Samples/interface/helper_cuda_gl.h"    // CUDA device + OpenGL initialization functions
 
 #define MAX_EPSILON_ERROR 5.0f
 #define REFRESH_DELAY     10 //ms

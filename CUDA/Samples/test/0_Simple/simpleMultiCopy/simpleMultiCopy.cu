@@ -32,8 +32,8 @@ const char *sSDKname = "simpleMultiCopy";
 #include <cuda_runtime.h>
 
 // includes, project
-#include <helper_cuda.h>
-#include <helper_functions.h>  // helper for shared that are common to CUDA Samples
+#include "CUDA/Samples/interface/helper_cuda.h"
+#include "CUDA/Samples/interface/helper_functions.h"  // helper for shared that are common to CUDA Samples
 
 // includes, kernels
 // Declare the CUDA kernels here and main() code that is needed to launch

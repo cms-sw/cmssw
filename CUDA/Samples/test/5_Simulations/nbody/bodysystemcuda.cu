@@ -9,7 +9,7 @@
  *
  */
 
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 #include <math.h>
 
 #if defined(__APPLE__) || defined(MACOSX)

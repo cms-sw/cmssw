@@ -30,7 +30,7 @@
 #include <thrust/execution_policy.h>
 
 #include <iostream>
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 /////////////////////////////////////////////////////////////////
 // Some utility code to define grid_stride_range

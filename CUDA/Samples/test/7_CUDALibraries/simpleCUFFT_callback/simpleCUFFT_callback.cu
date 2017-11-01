@@ -27,8 +27,8 @@
 #include <cuda_runtime.h>
 #include <cufft.h>
 #include <cufftXt.h>
-#include <helper_functions.h>
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_functions.h"
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 // Complex data type
 typedef float2 Complex;

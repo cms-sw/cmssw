@@ -18,8 +18,8 @@
 #include <string.h>
 
 #include "dynlink_cuda_cuda.h"
-#include "drvapi_error_string.h"
-#include "helper_string.h"
+#include "CUDA/Samples/interface/drvapi_error_string.h"
+#include "CUDA/Samples/interface/helper_string.h"
 
 #ifndef __CUDA_API_VERSION
 #define __CUDA_API_VERSION 4000

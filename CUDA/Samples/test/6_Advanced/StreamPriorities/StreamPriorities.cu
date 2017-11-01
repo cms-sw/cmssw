@@ -16,7 +16,7 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 #define TOTAL_SIZE  256*1024*1024
 #define EACH_SIZE   128*1024*1024

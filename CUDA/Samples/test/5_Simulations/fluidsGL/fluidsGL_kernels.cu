@@ -14,11 +14,11 @@
 
 #include <cuda_runtime.h>
 #include <cufft.h>          // CUDA FFT Libraries
-#include <helper_cuda.h>    // Helper functions for CUDA Error handling
+#include "CUDA/Samples/interface/helper_cuda.h"    // Helper functions for CUDA Error handling
 
 // OpenGL Graphics includes
 #define HELPERGL_EXTERN_GL_FUNC_IMPLEMENTATION
-#include <helper_gl.h>
+#include "CUDA/Samples/interface/helper_gl.h"
 
 
 // FluidsGL CUDA kernel definitions

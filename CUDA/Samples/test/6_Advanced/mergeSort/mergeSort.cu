@@ -27,7 +27,7 @@
 
 namespace cg = cooperative_groups;
 
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 #include "mergeSort_common.h"
 
 

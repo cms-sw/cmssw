@@ -17,10 +17,10 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <helper_math.h>
+#include "CUDA/Samples/interface/helper_math.h"
 
 // includes, cuda
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 typedef unsigned int uint;
 typedef unsigned char uchar;

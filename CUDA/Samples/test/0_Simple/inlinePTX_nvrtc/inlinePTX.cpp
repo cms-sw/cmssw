@@ -20,10 +20,10 @@
 
 // CUDA runtime
 #include <cuda_runtime.h>
-#include <nvrtc_helper.h>
+#include "CUDA/Samples/interface/nvrtc_helper.h"
 
 // helper functions and utilities to work with CUDA
-#include <helper_functions.h>
+#include "CUDA/Samples/interface/helper_functions.h"
 
 
 void sequence_cpu(int *h_ptr, int length)

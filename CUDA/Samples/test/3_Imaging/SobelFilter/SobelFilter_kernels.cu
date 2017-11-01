@@ -16,7 +16,7 @@
 
 namespace cg = cooperative_groups;
 
-#include <helper_string.h>
+#include "CUDA/Samples/interface/helper_string.h"
 
 #include "SobelFilter_kernels.h"
 

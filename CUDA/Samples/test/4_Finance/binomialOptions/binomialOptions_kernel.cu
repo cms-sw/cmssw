@@ -18,7 +18,7 @@
 
 namespace cg = cooperative_groups;
 
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 #include "binomialOptions_common.h"
 #include "realtype.h"
 

@@ -9,14 +9,13 @@
  *
  */
 
-#include "FDTD3dReference.h"
-
 #include <cstdlib>
 #include <cmath>
 #include <iostream>
 #include <iomanip>
 #include <stdio.h>
 
+#include "../inc/FDTD3dReference.h"
 
 void generateRandomData(float *data, const int dimx, const int dimy, const int dimz, const float lowerBound, const float upperBound)
 {

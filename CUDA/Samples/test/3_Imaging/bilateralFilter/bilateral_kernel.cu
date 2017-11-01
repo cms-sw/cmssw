@@ -9,9 +9,9 @@
  *
  */
 
-#include <helper_math.h>
-#include <helper_functions.h>
-#include <helper_cuda.h>       // CUDA device initialization helper functions
+#include "CUDA/Samples/interface/helper_math.h"
+#include "CUDA/Samples/interface/helper_functions.h"
+#include "CUDA/Samples/interface/helper_cuda.h"       // CUDA device initialization helper functions
 
 __constant__ float cGaussian[64];   //gaussian array in device side
 texture<uchar4, 2, cudaReadModeNormalizedFloat> rgbaTex;

@@ -16,7 +16,7 @@
 #ifndef _PARTICLES_KERNEL_H_
 #define _PARTICLES_KERNEL_H_
 
-#include "helper_math.h"
+#include "CUDA/Samples/interface/helper_math.h"
 #include "math_constants.h"
 #include "particles_kernel.cuh"
 

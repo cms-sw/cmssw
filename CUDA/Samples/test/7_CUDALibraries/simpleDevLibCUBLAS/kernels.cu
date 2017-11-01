@@ -22,7 +22,7 @@
 #include <cublas_v2.h>
 
 /* Includes, cuda helper functions */
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 __global__ void invokeDeviceCublasSgemm(cublasStatus_t *returnValue,
                                         int n,

@@ -17,8 +17,8 @@
 // includes, cublas
 #include <cublas_v2.h>
 // helper functions
-#include "helper_string.h"
-#include "helper_cuda.h"
+#include "CUDA/Samples/interface/helper_string.h"
+#include "CUDA/Samples/interface/helper_cuda.h"
 // includes, project
 #include "cdp_lu.h"
 #include "cdp_lu_utils.h"

@@ -24,7 +24,7 @@
 #include <cuda_runtime_api.h>
 
 // CUDA utilities and system includes
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 int   *pArgc = NULL;
 char **pArgv = NULL;

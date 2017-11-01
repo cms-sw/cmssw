@@ -22,8 +22,8 @@
 #include <assert.h>
 
 // includes, project
-#include <helper_functions.h>
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_functions.h"
+#include "CUDA/Samples/interface/helper_cuda.h"
 #include "config.h"
 #include "structs.h"
 #include "matlab.h"

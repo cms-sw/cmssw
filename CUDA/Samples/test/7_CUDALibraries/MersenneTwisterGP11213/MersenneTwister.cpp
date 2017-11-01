@@ -23,8 +23,8 @@
 #include <curand.h>
 
 // Utilities and system includes
-#include <helper_functions.h>  // helper for shared functions common to CUDA Samples
-#include <helper_cuda.h>       // helper for CUDA Error handling
+#include "CUDA/Samples/interface/helper_functions.h"  // helper for shared functions common to CUDA Samples
+#include "CUDA/Samples/interface/helper_cuda.h"       // helper for CUDA Error handling
 
 #include <cuda_runtime.h>
 #include <curand.h>

@@ -50,7 +50,7 @@
  */
  
 #define HELPERGL_EXTERN_GL_FUNC_IMPLEMENTATION
-#include <helper_gl.h>
+#include "CUDA/Samples/interface/helper_gl.h"
 #include "framebufferObject.h"
 #include <iostream>
 using namespace std;

@@ -44,8 +44,8 @@
 #include <cuda_runtime.h>
 
 // Utilities and system includes
-#include <helper_cuda.h>
-#include <helper_functions.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
+#include "CUDA/Samples/interface/helper_functions.h"
 #include <algorithm>
 
 // includes, project

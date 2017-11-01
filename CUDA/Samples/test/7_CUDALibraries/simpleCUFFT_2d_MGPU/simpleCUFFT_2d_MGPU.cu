@@ -35,8 +35,8 @@
 #include <cufftXt.h>
 
 // helper functions and utilities to work with CUDA
-#include <helper_functions.h>
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_functions.h"
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 // Complex data type
 typedef float2 Complex;

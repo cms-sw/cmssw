@@ -17,7 +17,7 @@
 #include <curand.h>
 
 //#include "curand_kernel.h"
-#include "helper_cuda.h"
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 
 

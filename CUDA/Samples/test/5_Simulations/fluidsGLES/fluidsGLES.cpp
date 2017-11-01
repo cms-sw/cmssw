@@ -39,12 +39,12 @@ void error_exit(const char* format, ... )
 // CUDA FFT Libraries
 #include <cufft.h>
 
-#include <timer.h>               // timing functions
+#include "CUDA/Samples/interface/timer.h"               // timing functions
 
 // CUDA helper functions
-#include <helper_functions.h>
-#include <rendercheck_gles.h>
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_functions.h"
+#include "CUDA/Samples/interface/rendercheck_gles.h"
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 #include "defines.h"
 #include "fluidsGLES_kernels.h"

@@ -35,13 +35,13 @@
 #include "cusolverSp.h"
 #include "cusolverRf.h"
 
-#include "helper_string.h"
-#include "helper_cusolver.h"
+#include "CUDA/Samples/interface/helper_string.h"
+#include "CUDA/Samples/interface/helper_cusolver.h"
 
 #include "cusolverSp_LOWLEVEL_PREVIEW.h"
 
 #include <cuda_runtime.h>
-#include "helper_cuda.h"
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 
 template <typename T_ELEM>

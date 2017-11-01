@@ -38,13 +38,13 @@
 
 #include <cuda.h>
 #include <builtin_types.h>
-#include <drvapi_error_string.h>
+#include "CUDA/Samples/interface/drvapi_error_string.h"
 
 // includes, project
-#include <helper_cuda_drvapi.h>
-#include <helper_timer.h>
-#include <helper_string.h>
-#include <helper_image.h>
+#include "CUDA/Samples/interface/helper_cuda_drvapi.h"
+#include "CUDA/Samples/interface/helper_timer.h"
+#include "CUDA/Samples/interface/helper_string.h"
+#include "CUDA/Samples/interface/helper_image.h"
 
 #include "matrixMul.h"
 

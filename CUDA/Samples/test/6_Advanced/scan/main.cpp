@@ -12,8 +12,8 @@
 
 #include <cuda_runtime.h>
 
-#include <helper_cuda.h>
-#include <helper_functions.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
+#include "CUDA/Samples/interface/helper_functions.h"
 
 #include "scan_common.h"
 

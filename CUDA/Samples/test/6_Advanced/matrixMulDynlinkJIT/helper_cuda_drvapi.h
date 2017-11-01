@@ -17,8 +17,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <helper_string.h>
-#include <drvapi_error_string.h>
+#include "helper_string.h"
+#include "drvapi_error_string.h"
 
 #ifndef MAX
 #define MAX(a,b) (a > b ? a : b)

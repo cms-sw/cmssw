@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include <helper_gl.h>
+#include "CUDA/Samples/interface/helper_gl.h"
 
 #if defined (__APPLE__) || defined(MACOSX)
   #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -39,9 +39,9 @@
 #include <cuda_gl_interop.h>
 
 // CUDA utilities and system includes
-#include <helper_cuda.h>
-#include <helper_cuda_gl.h>
-#include <helper_functions.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
+#include "CUDA/Samples/interface/helper_cuda_gl.h"
+#include "CUDA/Samples/interface/helper_functions.h"
 #include <vector_types.h>
 
 typedef unsigned int  uint;

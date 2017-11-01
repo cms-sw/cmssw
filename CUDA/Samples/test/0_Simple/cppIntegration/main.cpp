@@ -22,7 +22,7 @@
 // Required to include CUDA vector types
 #include <cuda_runtime.h>
 #include <vector_types.h>
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // declaration, forward

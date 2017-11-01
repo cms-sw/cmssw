@@ -10,7 +10,7 @@
  */
 
 // OpenGL Graphics includes
-#include <helper_gl.h>
+#include "CUDA/Samples/interface/helper_gl.h"
 #if defined(__APPLE__) || defined(MACOSX)
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   #include <GLUT/glut.h>
@@ -25,13 +25,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <helper_functions.h> // helper functions for timing, string parsing
+#include "CUDA/Samples/interface/helper_functions.h" // helper functions for timing, string parsing
 
 #include <cuda_runtime.h>     // CUDA Runtime
 #include <cuda_gl_interop.h>  // CUDA OpenGL interop
 
-#include <helper_cuda.h>      // includes for CUDA initialization and error checking
-#include <helper_cuda_gl.h>
+#include "CUDA/Samples/interface/helper_cuda.h"      // includes for CUDA initialization and error checking
+#include "CUDA/Samples/interface/helper_cuda_gl.h"
 
 #include "FunctionPointers_kernels.h"
 

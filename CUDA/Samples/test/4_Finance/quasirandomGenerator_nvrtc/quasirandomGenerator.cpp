@@ -14,7 +14,7 @@
 #include <cuda.h>
 
 // Utilities and system includes
-#include <helper_functions.h>
+#include "CUDA/Samples/interface/helper_functions.h"
 
 #include "quasirandomGenerator_gpu.cuh"
 

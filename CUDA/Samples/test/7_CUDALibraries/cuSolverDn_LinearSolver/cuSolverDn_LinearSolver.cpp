@@ -44,9 +44,9 @@
 
 #include "cublas_v2.h"
 #include "cusolverDn.h"
-#include "helper_cuda.h"
+#include "CUDA/Samples/interface/helper_cuda.h"
 
-#include "helper_cusolver.h"
+#include "CUDA/Samples/interface/helper_cusolver.h"
 
 
 template <typename T_ELEM>

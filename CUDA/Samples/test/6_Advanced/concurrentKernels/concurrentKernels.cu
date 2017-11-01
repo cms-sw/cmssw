@@ -20,8 +20,8 @@
 #include <cooperative_groups.h>
 
 namespace cg = cooperative_groups;
-#include <helper_functions.h>
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_functions.h"
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 // This is a kernel that does no real work but runs at least for a specified number of clocks
 __global__ void clock_block(clock_t *d_o, clock_t clock_count)

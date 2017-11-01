@@ -9,14 +9,14 @@
  *
  */
 
-#include "FDTD3dGPU.h"
-
-#include <iostream>
 #include <algorithm>
-#include <helper_functions.h>
-#include <helper_cuda.h>
+#include <iostream>
 
-#include "FDTD3dGPUKernel.cuh"
+#include "CUDA/Samples/interface/helper_functions.h"
+#include "CUDA/Samples/interface/helper_cuda.h"
+
+#include "../inc/FDTD3dGPU.h"
+#include "../inc/FDTD3dGPUKernel.cuh"
 
 bool getTargetDeviceGlobalMemSize(memsize_t *result, const int argc, const char **argv)
 {

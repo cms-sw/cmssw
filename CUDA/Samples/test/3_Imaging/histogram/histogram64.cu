@@ -16,7 +16,7 @@
 #include <cooperative_groups.h>
 
 namespace cg = cooperative_groups;
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 #include "histogram_common.h"
 
 ////////////////////////////////////////////////////////////////////////////////

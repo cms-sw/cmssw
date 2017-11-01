@@ -17,7 +17,7 @@
 #include <iostream>
 
 #include <cuda_runtime.h>
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 
 

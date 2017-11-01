@@ -19,7 +19,7 @@
 #include <cassert>
 #include <typeinfo>
 #include <stdio.h>
-#include <helper_timer.h>
+#include "CUDA/Samples/interface/helper_timer.h"
 #include <cuda_runtime.h>
 #include <math.h>
 

@@ -16,7 +16,7 @@
 
 #include <omp.h>
 #include <stdio.h>  // stdio functions are used since C++ streams aren't necessarily thread safe
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 using namespace std;
 

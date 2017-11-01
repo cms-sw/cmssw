@@ -34,8 +34,8 @@
 #include <iostream>
 
 #include <cuda_runtime.h>      // CUDA Runtime Functions
-#include <helper_cuda.h>       // helper functions for CUDA error checking and initialization
-#include <helper_functions.h>  // helper functions 
+#include "CUDA/Samples/interface/helper_cuda.h"       // helper functions for CUDA error checking and initialization
+#include "CUDA/Samples/interface/helper_functions.h"  // helper functions 
 
 #include <stdexcept>
 #include <math.h>

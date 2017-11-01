@@ -29,10 +29,10 @@
 #include <cuda_runtime.h>
 
 // Utilities and timing functions
-#include <helper_functions.h>    // includes cuda.h and cuda_runtime_api.h
+#include "CUDA/Samples/interface/helper_functions.h"    // includes cuda.h and cuda_runtime_api.h
 
 // CUDA helper functions
-#include <helper_cuda.h>         // helper functions for CUDA error check
+#include "CUDA/Samples/interface/helper_cuda.h"         // helper functions for CUDA error check
 
 // Includes, kernels
 #include "simpleAtomicIntrinsics_kernel.cuh"

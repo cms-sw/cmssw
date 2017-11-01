@@ -31,7 +31,7 @@
 #include <cublas_v2.h>
 
 /* Includes, cuda helper functions */
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 /* Matrix size */
 #define N  (275)

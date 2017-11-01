@@ -12,7 +12,7 @@
 #ifndef QUASIRANDOMGENERATOR_GPU_CUH
 #define QUASIRANDOMGENERATOR_GPU_CUH
 
-#include <nvrtc_helper.h>
+#include "CUDA/Samples/interface/nvrtc_helper.h"
 #include "quasirandomGenerator_common.h"
 
 //Fast integer multiplication

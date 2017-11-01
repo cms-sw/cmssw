@@ -15,7 +15,7 @@
 #define DEBUG_GRID 0
 #define DO_TIMING 0
 
-#include <helper_functions.h>
+#include "CUDA/Samples/interface/helper_functions.h"
 #include "particles_kernel.cuh"
 #include "vector_functions.h"
 

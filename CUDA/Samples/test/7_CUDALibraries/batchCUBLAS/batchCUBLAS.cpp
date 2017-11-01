@@ -28,7 +28,7 @@
 #include <cublas_v2.h>
 
 // Utilities and system includes
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 #include "batchCUBLAS.h"
 
 const char *sSDKname = "batchCUBLAS";

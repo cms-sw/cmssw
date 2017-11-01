@@ -18,7 +18,7 @@
 #include <cuda_runtime.h>
 
 // CUDA utilities and system includes
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 #include <vector_types.h>
 
 typedef unsigned int  uint;

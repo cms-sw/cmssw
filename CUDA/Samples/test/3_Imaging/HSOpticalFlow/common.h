@@ -31,7 +31,7 @@
 #include <memory.h>
 #include <math.h>
 
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Common constants

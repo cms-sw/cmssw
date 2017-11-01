@@ -10,7 +10,7 @@
  */
 
 // OpenGL Graphics includes
-#include <helper_gl.h>
+#include "CUDA/Samples/interface/helper_gl.h"
 
 #if defined(__APPLE__) || defined(MACOSX)
   #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -35,10 +35,10 @@
 #include <cufft.h>
 
 // CUDA helper functions
-#include <helper_functions.h>
-#include <rendercheck_gl.h>
-#include <helper_cuda.h>
-#include <helper_cuda_gl.h>
+#include "CUDA/Samples/interface/helper_functions.h"
+#include "CUDA/Samples/interface/rendercheck_gl.h"
+#include "CUDA/Samples/interface/helper_cuda.h"
+#include "CUDA/Samples/interface/helper_cuda_gl.h"
 
 #include "defines.h"
 #include "fluidsGL_kernels.h"

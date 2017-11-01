@@ -25,7 +25,7 @@
 */
 
 // OpenGL Graphics includes
-#include <helper_gl.h>
+#include "CUDA/Samples/interface/helper_gl.h"
 #if defined (__APPLE__) || defined(MACOSX)
   #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   #include <GLUT/glut.h>
@@ -45,13 +45,13 @@
 #include <driver_functions.h>
 
 // CUDA utilities
-#include <helper_cuda.h>
-#include <helper_cuda_gl.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
+#include "CUDA/Samples/interface/helper_cuda_gl.h"
 
 // Helper functions
-#include <helper_cuda.h>
-#include <helper_functions.h>
-#include <helper_timer.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
+#include "CUDA/Samples/interface/helper_functions.h"
+#include "CUDA/Samples/interface/helper_timer.h"
 
 typedef unsigned int uint;
 typedef unsigned char uchar;

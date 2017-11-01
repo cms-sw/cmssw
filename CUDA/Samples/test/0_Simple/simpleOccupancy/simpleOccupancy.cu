@@ -10,7 +10,7 @@
  */
 
 #include <iostream>
-#include <helper_cuda.h>         // helper functions for CUDA error check
+#include "CUDA/Samples/interface/helper_cuda.h"         // helper functions for CUDA error check
 
 const int manualBlockSize = 32;
 

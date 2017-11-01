@@ -55,8 +55,8 @@
 #include <thrust/device_free.h>
 
 // Sample framework includes.
-#include <helper_functions.h>
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_functions.h"
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 // Project includes.
 #include "common.cuh"

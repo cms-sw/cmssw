@@ -10,7 +10,7 @@
  */
 
 // OpenGL Graphics includes
-#include <helper_gl.h>
+#include "CUDA/Samples/interface/helper_gl.h"
 #if defined(__APPLE__) || defined(MACOSX)
   #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   #include <GLUT/glut.h>
@@ -33,8 +33,8 @@
 #include "SobelFilter_kernels.h"
 
 // includes, project
-#include <helper_functions.h> // includes for SDK helper functions
-#include <helper_cuda.h>      // includes for cuda initialization and error checking
+#include "CUDA/Samples/interface/helper_functions.h" // includes for SDK helper functions
+#include "CUDA/Samples/interface/helper_cuda.h"      // includes for cuda initialization and error checking
 
 const char *filterMode[] =
 {
