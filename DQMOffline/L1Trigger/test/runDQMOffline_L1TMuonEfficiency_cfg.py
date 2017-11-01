@@ -48,29 +48,24 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(50)
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False))
 process.source = cms.Source('PoolSource',
     fileNames = cms.untracked.vstring(
-    '/store/data/Run2016D/SingleMuon/AOD/PromptReco-v2/000/276/315/00000/023D6C02-F844-E611-BE27-02163E014773.root',
-    '/store/data/Run2016D/SingleMuon/AOD/PromptReco-v2/000/276/315/00000/02D20100-F844-E611-8AB4-02163E0141D8.root',
-    '/store/data/Run2016D/SingleMuon/AOD/PromptReco-v2/000/276/315/00000/06C984E1-F744-E611-AB0A-02163E011D06.root',
-    '/store/data/Run2016D/SingleMuon/AOD/PromptReco-v2/000/276/315/00000/0A20BBE6-F744-E611-B965-02163E011AA6.root',
-    '/store/data/Run2016D/SingleMuon/AOD/PromptReco-v2/000/276/315/00000/0C1381D6-F744-E611-A5C6-02163E0125A4.root',
-    '/store/data/Run2016D/SingleMuon/AOD/PromptReco-v2/000/276/315/00000/0C8BE40E-F844-E611-8FB4-02163E011F24.root'
+    '/store/data/Run2017B/SingleMuon/RAW-RECO/ZMu-PromptReco-v2/000/298/996/00000/4AAA21A6-186A-E711-A5B2-02163E019BD7.root'
     )
 )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
-process.load('DQMOffline.L1Trigger.L1TEfficiencyHarvesting_cfi')
+process.load('DQMOffline.L1Trigger.L1TMuonDQMEfficiency_cff')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load("TrackingTools.Configuration.TrackingTools_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_ICHEP16_repro_v0', '')
-process.load('DQMOffline.L1Trigger.L1TEfficiencyMuonsOffline_cff')
+process.load('DQMOffline.L1Trigger.L1TMuonDQMOffline_cfi')
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 process.l1tdumpeventsetup = cms.Path(process.dumpES)
-process.l1tEfficiencyMuons_offline.verbose   = cms.untracked.bool(False)
-process.l1tEfficiencyMuons_offline.gmtInputTag  = cms.untracked.InputTag("gmtStage2Digis:Muon")
-process.L1TMuonSeq = cms.Sequence(process.l1tEfficiencyMuons_offline)
+process.l1tMuonDQMOffline.verbose   = cms.untracked.bool(False)
+process.l1tMuonDQMOffline.gmtInputTag  = cms.untracked.InputTag("gmtStage2Digis:Muon")
+process.L1TMuonSeq = cms.Sequence(process.l1tMuonDQMOffline)
 process.L1TMuonPath = cms.Path(process.L1TMuonSeq)
 process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
@@ -79,4 +74,4 @@ process.dqmSaver.workflow = '/RelVal/DQMOffline/L1Trigger'
 process.dqmSaver.saveByRun = cms.untracked.int32(-1)
 process.dqmSaver.saveAtJobEnd = cms.untracked.bool(True)
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
-process.ppost = cms.EndPath(process.l1tEfficiencyHarvesting + process.dqmSaver)
+process.ppost = cms.EndPath(process.l1tMuonDQMEfficiency + process.dqmSaver)

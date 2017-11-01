@@ -21,7 +21,7 @@
 class SiStripBackPlaneCorrectionDepESProducer : public edm::ESProducer {
  public:
   SiStripBackPlaneCorrectionDepESProducer(const edm::ParameterSet&);
-  ~SiStripBackPlaneCorrectionDepESProducer(){};
+  ~SiStripBackPlaneCorrectionDepESProducer() override{};
   
   std::shared_ptr<SiStripBackPlaneCorrection> produce(const SiStripBackPlaneCorrectionDepRcd&);
    

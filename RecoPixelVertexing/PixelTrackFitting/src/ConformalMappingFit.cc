@@ -6,7 +6,7 @@ template <class T> T sqr( T t) {return t*t;}
 
 ConformalMappingFit::ConformalMappingFit(
   const std::vector<PointXY> & hits, const std::vector<float> & errRPhi2, const Rotation * rot)
-  : theRotation(rot), myRotation(rot==0)
+  : theRotation(rot), myRotation(rot==nullptr)
 {
   typedef ConformalMappingFit::MappedPoint<double> PointUV;
   int hits_size = hits.size();

@@ -56,18 +56,18 @@ class HcalRaddamMuon : public edm::EDAnalyzer {
 
 public:
   explicit HcalRaddamMuon(const edm::ParameterSet&);
-  ~HcalRaddamMuon();
+  ~HcalRaddamMuon() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
    
 private:
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup& );
-  virtual void endJob() ;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup& ) override;
+  void endJob() override ;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   void   clearVectors();
   int    matchId(const HcalDetId&, const HcalDetId&);
   double activeLength(const DetId&);

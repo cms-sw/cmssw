@@ -56,7 +56,7 @@ B2GHadronicHLTValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   // Check to see if we want asymmetric jet pt cuts
   if ( ptJets0_ > 0.0 || ptJets1_ > 0.0 )  {
     if ( ptJets0_ > 0.0 ) {
-      if ( jets->size() > 0 && jets->at(0).pt() > ptJets0_ ) {
+      if ( !jets->empty() && jets->at(0).pt() > ptJets0_ ) {
 	nGoodJ++;
 	jet_ = jets->ptrAt(0) ;
       }

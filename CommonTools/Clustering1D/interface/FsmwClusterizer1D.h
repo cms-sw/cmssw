@@ -56,7 +56,7 @@ fsmw ( const std::vector< Cluster1D<T> > & values, double fraction )
     typename std::vector< Cluster1D >::const_iterator begin = values.begin();
     typename std::vector< Cluster1D >::const_iterator end = values.end()-1;
 
-    while (1)
+    while (true)
     {
 #ifdef FsmwClusterizer1DDebug
         cout << "Begin at " << begin->position().value() << endl;

@@ -46,10 +46,10 @@
 
 #include <iostream>
 #include <iomanip>
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 
 
 /** 
@@ -127,7 +127,7 @@ void SiStripOfflineDQM::beginRun(edm::Run const& run, edm::EventSetup const& eSe
 
   int nFEDs = 0;
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-  if( eSetup.find( recordKey ) != 0) {
+  if( eSetup.find( recordKey ) != nullptr) {
 
     edm::ESHandle<RunInfo> sumFED;
     eSetup.get<RunInfoRcd>().get(sumFED);    
@@ -253,7 +253,7 @@ void SiStripOfflineDQM::endJob() {
 *
 */
 bool SiStripOfflineDQM::openInputFile() { 
-  if (inputFileName_.size() == 0) return false;
+  if (inputFileName_.empty()) return false;
   edm::LogInfo("OpenFile") <<  "SiStripOfflineDQM::openInputFile: Accessing root File" << inputFileName_;
   dqmStore_->open(inputFileName_, false); 
   return true;

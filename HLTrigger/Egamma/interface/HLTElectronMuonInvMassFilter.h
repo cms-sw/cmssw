@@ -40,8 +40,8 @@ class HLTElectronMuonInvMassFilter : public HLTFilter {
 
    public:
       explicit HLTElectronMuonInvMassFilter(const edm::ParameterSet&);
-      ~HLTElectronMuonInvMassFilter();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      ~HLTElectronMuonInvMassFilter() override;
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:

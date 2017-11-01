@@ -43,9 +43,9 @@ class MonitorElement;
 class SiStripBadModuleFedErrESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   SiStripBadModuleFedErrESSource(const edm::ParameterSet&);
-  ~SiStripBadModuleFedErrESSource();
+  ~SiStripBadModuleFedErrESSource() override;
 
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity );
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity ) override;
 
   typedef std::shared_ptr<SiStripBadStrip> ReturnType;
   ReturnType produce( const SiStripBadModuleFedErrRcd& );

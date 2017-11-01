@@ -44,11 +44,11 @@ public:
   /// --- If queue is NULL, this sets singleThread true 
   explicit ThreadSafeLogMessageLoggerScribe();
   
-  virtual ~ThreadSafeLogMessageLoggerScribe();
+  ~ThreadSafeLogMessageLoggerScribe() override;
 
   // --- receive and act on messages:
-  virtual							// changelog 10
-  void  runCommand(MessageLoggerQ::OpCode  opcode, void * operand);
+  							// changelog 10
+  void  runCommand(MessageLoggerQ::OpCode  opcode, void * operand) override;
 		  						// changeLog 9
 
 private:

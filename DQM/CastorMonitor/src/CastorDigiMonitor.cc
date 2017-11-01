@@ -132,7 +132,7 @@ void CastorDigiMonitor::processEvent(const CastorDigiCollection& castorDigis,
 	const CastorDbService& cond) {
   if(fVerbosity>0) std::cout << "CastorDigiMonitor::processEvent (begin)"<< std::endl;
 
- if(castorDigis.size() <= 0) {
+ if(castorDigis.empty()) {
   for(int mod=0; mod<14; mod++) for(int sec=0; sec<16; sec++) 
         h2repsum->Fill(mod,sec,0.);
   if(fVerbosity>0) std::cout<<"CastorPSMonitor::processEvent NO Castor Digis"<<std::endl;

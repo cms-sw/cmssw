@@ -13,7 +13,7 @@ namespace l1t {
       class CountersBlockUnpacker : public Unpacker { // "CountersBlockUnpacker" inherits from "Unpacker"
       public:
 	virtual int checkFormat(const Block& block);
-	virtual bool unpack(const Block& block, UnpackerCollections *coll) override; // Apparently it's always good to use override in C++
+	bool unpack(const Block& block, UnpackerCollections *coll) override; // Apparently it's always good to use override in C++
 	// virtual bool packBlock(const Block& block, UnpackerCollections *coll) override;
       };
       

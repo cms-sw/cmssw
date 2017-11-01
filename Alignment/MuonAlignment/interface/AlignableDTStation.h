@@ -33,9 +33,9 @@ class AlignableDTStation : public AlignableComposite
 
   AlignableDTStation( const std::vector<AlignableDTChamber*>& dtChambers );
 
-  ~AlignableDTStation();
+  ~AlignableDTStation() override;
   
-  virtual std::vector<Alignable*> components() const 
+  std::vector<Alignable*> components() const override 
   {
 
         std::vector<Alignable*> result;
@@ -57,7 +57,7 @@ class AlignableDTStation : public AlignableComposite
   friend std::ostream& operator << ( std::ostream&, const AlignableDTStation& );
 
   /// Recursive printout of the muon DT Station structure
-  void dump( void ) const;
+  void dump( void ) const override;
 
 
 private:

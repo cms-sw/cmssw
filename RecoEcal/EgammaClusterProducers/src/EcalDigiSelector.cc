@@ -107,7 +107,7 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es)
 
   if (TotClus >= nclus_sel_ || meet_single_thresh){
 	
-    if (saveBarrelSuperClusters.size() > 0){
+    if (!saveBarrelSuperClusters.empty()){
       
 		
 	  edm::ESHandle<CaloTopology> pTopology;
@@ -116,12 +116,12 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es)
 
       //get barrel digi collection
       edm::Handle<EBDigiCollection> pdigis;
-      const EBDigiCollection* digis=0;
+      const EBDigiCollection* digis=nullptr;
       evt.getByToken(EcalEBDigiToken_,pdigis);
       digis = pdigis.product(); // get a ptr to the product
 
 	  edm::Handle<EcalRecHitCollection> prechits;
-      const EcalRecHitCollection* rechits=0;
+      const EcalRecHitCollection* rechits=nullptr;
       evt.getByToken(EcalEBRecHitToken_,prechits);
       rechits = prechits.product(); // get a ptr to the product
 
@@ -131,7 +131,7 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es)
          //pick out the detids for the 3x3 in each of the selected superclusters
          for (int loop = 0;loop < int(saveBarrelSuperClusters.size());loop++){
            SuperCluster clus1 = saveBarrelSuperClusters[loop];
-           CaloClusterPtr bcref = clus1.seed();
+           const CaloClusterPtr& bcref = clus1.seed();
            const BasicCluster *bc = bcref.get();
            //Get the maximum detid
            std::pair<DetId, float> EDetty = 
@@ -169,7 +169,7 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es)
     }//If barrel superclusters need saving.
     
     
-    if (saveEndcapSuperClusters.size() > 0){
+    if (!saveEndcapSuperClusters.empty()){
  
       edm::ESHandle<CaloTopology> pTopology;
       es.get<CaloTopologyRecord>().get(pTopology);
@@ -178,12 +178,12 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es)
       //Get endcap rec hit collection
       //get endcap digi collection
       edm::Handle<EEDigiCollection> pdigis;
-      const EEDigiCollection* digis=0;
+      const EEDigiCollection* digis=nullptr;
       evt.getByToken(EcalEEDigiToken_,pdigis);
       digis = pdigis.product(); // get a ptr to the product
   
       edm::Handle<EcalRecHitCollection> prechits;
-      const EcalRecHitCollection* rechits=0;
+      const EcalRecHitCollection* rechits=nullptr;
       evt.getByToken(EcalEERecHitToken_,prechits);
       rechits = prechits.product(); // get a ptr to the product
 
@@ -193,7 +193,7 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es)
          //pick out the digis for the 3x3 in each of the selected superclusters
          for (int loop = 0;loop < int(saveEndcapSuperClusters.size());loop++){
            SuperCluster clus1 = saveEndcapSuperClusters[loop];
-           CaloClusterPtr bcref = clus1.seed();
+           const CaloClusterPtr& bcref = clus1.seed();
            const BasicCluster *bc = bcref.get();
            //Get the maximum detid
            std::pair<DetId, float> EDetty = EcalClusterTools::getMaximum(*bc,rechits);

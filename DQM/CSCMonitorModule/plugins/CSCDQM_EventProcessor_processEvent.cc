@@ -166,7 +166,7 @@ void EventProcessor::processEvent(const edm::Event& e, const edm::InputTag& inpu
   int nDDUs_with_CSC_data_out_of_sync = 0;
   bool fGlobal_DCC_DDU_L1A_mismatch = false;
   bool fGlobal_DCC_DDU_L1A_mismatch_with_CSC_data = false;
-  MonitorObject* mo = 0;
+  MonitorObject* mo = nullptr;
 
   // For new CSC readout layout, which wont include DCCs need to loop over DDU FED IDs. DCC IDs are included for backward compatibility with old data
   std::vector<unsigned int> cscFEDids;

@@ -1111,7 +1111,7 @@ bool PrimaryVertexValidation::hasFirstLayerPixelHits(const reco::TransientTrack&
 {
   using namespace reco;
   const HitPattern& p = track.hitPattern();      
-  for (int i=0; i<p.numberOfHits(HitPattern::TRACK_HITS); i++) {
+  for (int i=0; i<p.numberOfAllHits(HitPattern::TRACK_HITS); i++) {
     uint32_t pattern = p.getHitPattern(HitPattern::TRACK_HITS, i);   
     if (p.pixelBarrelHitFilter(pattern) || p.pixelEndcapHitFilter(pattern) ) {
       if (p.getLayer(pattern) == 1) {
@@ -2778,8 +2778,8 @@ void PrimaryVertexValidation::fillTrackHistos(std::map<std::string, TH1*> & h, c
   PVValHelper::fill(h,"nbarrelLayers_"+ttype,tt->track().hitPattern().pixelBarrelLayersWithMeasurement());
   PVValHelper::fill(h,"nPxLayers_"+ttype,tt->track().hitPattern().pixelLayersWithMeasurement());
   PVValHelper::fill(h,"nSiLayers_"+ttype,tt->track().hitPattern().trackerLayersWithMeasurement());
-  PVValHelper::fill(h,"expectedInner_"+ttype,tt->track().hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS));
-  PVValHelper::fill(h,"expectedOuter_"+ttype,tt->track().hitPattern().numberOfHits(HitPattern::MISSING_OUTER_HITS));
+  PVValHelper::fill(h,"expectedInner_"+ttype,tt->track().hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS));
+  PVValHelper::fill(h,"expectedOuter_"+ttype,tt->track().hitPattern().numberOfLostHits(HitPattern::MISSING_OUTER_HITS));
   PVValHelper::fill(h,"trackAlgo_"+ttype,tt->track().algo());
   PVValHelper::fill(h,"trackQuality_"+ttype,tt->track().qualityMask());
   

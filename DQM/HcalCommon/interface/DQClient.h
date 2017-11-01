@@ -27,7 +27,7 @@ namespace hcaldqm
 		public:
 			DQClient(std::string const&,
 				std::string const&, edm::ParameterSet const&);
-			virtual ~DQClient() {}
+			~DQClient() override {}
 
 			virtual void beginRun(edm::Run const&, edm::EventSetup const&);
 			virtual void endLuminosityBlock(DQMStore::IBooker&,

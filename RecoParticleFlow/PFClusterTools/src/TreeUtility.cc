@@ -70,7 +70,7 @@ void TreeUtility::dumpCaloDataToCSV(TChain& tree, std::string csvFilename, doubl
 		//Check vetos as usual
 		if (c.cands_num_ > 1)
 			veto = true;
-		 if(c.cluster_ecal_.size() == 0  && c.cluster_hcal_.size() == 0)
+		 if(c.cluster_ecal_.empty()  && c.cluster_hcal_.empty())
 		 	veto = true;
 		 if(!veto) {
 			if(frequencies.GetBinContent(static_cast<int>(floor(c.sim_energyEvent_)) + 1) < (3000) * g.Eval(c.sim_energyEvent_) ) {
@@ -158,7 +158,7 @@ unsigned TreeUtility::getParticleDepositsDirectly(TChain& sourceChain,
 			veto = true;
 
 		if (target == CLUSTER) {
-			if (c.cluster_ecal_.size() == 0  && c.cluster_hcal_.size() ==0)
+			if (c.cluster_ecal_.empty()  && c.cluster_hcal_.empty())
 				veto = true;
 			//			if (c.cluster_numEcal_ > 1|| c.cluster_numHcal_ > 1)
 			//				veto = true;
@@ -204,7 +204,7 @@ unsigned TreeUtility::getParticleDepositsDirectly(TChain& sourceChain,
 		}
 
 		else if (target == RECHIT) {
-			if (c.rechits_ecal_.size() == 0&& c.rechits_hcal_.size() == 0)
+			if (c.rechits_ecal_.empty()&& c.rechits_hcal_.empty())
 				veto = true;
 			Deposition decal(ecal, c.rechits_meanEcal_.eta_,
 					c.rechits_meanEcal_.phi_, c.rechits_meanEcal_.energy_
@@ -274,7 +274,7 @@ unsigned TreeUtility::convertCalibratablesToParticleDeposits(
 			veto = true;
 
 		if (target == CLUSTER) {
-			if (c.cluster_ecal_.size() == 0&& c.cluster_hcal_.size() ==0)
+			if (c.cluster_ecal_.empty()&& c.cluster_hcal_.empty())
 				veto = true;
 			//			if (c.cluster_numEcal_ > 1|| c.cluster_numHcal_ > 1)
 			//				veto = true;
@@ -320,7 +320,7 @@ unsigned TreeUtility::convertCalibratablesToParticleDeposits(
 		}
 
 		else if (target == RECHIT) {
-			if (c.rechits_ecal_.size() == 0&& c.rechits_hcal_.size() == 0)
+			if (c.rechits_ecal_.empty()&& c.rechits_hcal_.empty())
 				veto = true;
 			Deposition decal(ecal, c.rechits_meanEcal_.eta_,
 					c.rechits_meanEcal_.phi_, c.rechits_meanEcal_.energy_

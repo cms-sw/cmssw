@@ -58,8 +58,8 @@
 TGeoFromDddService::TGeoFromDddService(const edm::ParameterSet& pset, edm::ActivityRegistry& ar) :
    m_level      (pset.getUntrackedParameter<int> ("level", 10)),
    m_verbose    (pset.getUntrackedParameter<bool>("verbose",false)),
-   m_eventSetup (0),
-   m_geoManager (0)
+   m_eventSetup (nullptr),
+   m_geoManager (nullptr)
 {
    ar.watchPostBeginRun(this, &TGeoFromDddService::postBeginRun);
    ar.watchPostEndRun  (this, &TGeoFromDddService::postEndRun);
@@ -97,19 +97,19 @@ void TGeoFromDddService::postEndRun(const edm::Run&, const edm::EventSetup&)
       m_geoManager = 0;
    }
    */
-   m_eventSetup = 0;
+   m_eventSetup = nullptr;
 }
 
 TGeoManager* TGeoFromDddService::getGeoManager()
 {
-   if (m_geoManager == 0)
+   if (m_geoManager == nullptr)
    {
-      if (m_eventSetup == 0)
+      if (m_eventSetup == nullptr)
          edm::LogError("TGeoFromDddService") << "getGeoManager() -- EventSetup not present.\n";
       else
       {
          m_geoManager = createManager(m_level);
-         if (m_geoManager == 0)
+         if (m_geoManager == nullptr)
             edm::LogError("TGeoFromDddService") << "getGeoManager() -- creation failed.\n";
       }
    }
@@ -157,12 +157,12 @@ TGeoFromDddService::createManager(int level)
 
    if ( ! viewH.isValid() )
    {
-      return 0;
+      return nullptr;
    }
 
    TGeoManager *geo_mgr = new TGeoManager("cmsGeo","CMS Detector");
    // NOTE: the default constructor does not create the identity matrix
-   if (gGeoIdentity == 0)
+   if (gGeoIdentity == nullptr)
    {
       gGeoIdentity = new TGeoIdentity("Identity");
    }
@@ -178,10 +178,10 @@ TGeoFromDddService::createManager(int level)
    TGeoVolume *top = createVolume(info.first.name().fullname(),
 				  info.first.solid(),
                                   info.first.material());
-   if (top == 0)
+   if (top == nullptr)
    {
       
-      return 0;
+      return nullptr;
    }
 
    geo_mgr->SetTopVolume(top);
@@ -193,7 +193,7 @@ TGeoFromDddService::createManager(int level)
    parentStack.push_back(top);
 
    if( ! walker.firstChild() ) {
-      return 0;
+      return nullptr;
    }
 
    do
@@ -209,11 +209,11 @@ TGeoFromDddService::createManager(int level)
 		   << DDSolidShapesName::name(info.first.solid().shape())<<std::endl;
       }
 
-      bool childAlreadyExists = (0 != nameToVolume_[info.first.name().fullname()]);
+      bool childAlreadyExists = (nullptr != nameToVolume_[info.first.name().fullname()]);
       TGeoVolume *child = createVolume(info.first.name().fullname(),
 				       info.first.solid(),
 				       info.first.material());
-      if (0!=child && info.second != 0)
+      if (nullptr!=child && info.second != nullptr)
       {
 	 parentStack.back()->AddNode(child,
 				     info.second->copyno(),
@@ -223,13 +223,13 @@ TGeoFromDddService::createManager(int level)
       }
       else
       {
-	if ( info.second == 0 ) {
+	if ( info.second == nullptr ) {
 	  break;
  	}
       }
-      if (0 == child || childAlreadyExists || level == int(parentStack.size()))
+      if (nullptr == child || childAlreadyExists || level == int(parentStack.size()))
       {
-	 if (0!=child)
+	 if (nullptr!=child)
          {
 	    child->SetLineColor(kRed);
 	 }
@@ -284,7 +284,7 @@ TGeoFromDddService::createShape(const std::string& iName,
 		      const DDSolid&     iSolid)
 {
    TGeoShape* rSolid= nameToShape_[iName];
-   if (rSolid == 0)
+   if (rSolid == nullptr)
    {
       const std::vector<double>& params = iSolid.parameters();
       //      std::cout <<"  shape "<<iSolid<<std::endl;
@@ -472,8 +472,8 @@ TGeoFromDddService::createShape(const std::string& iName,
 						       boolSolid.solidA()) );
 	    std::auto_ptr<TGeoShape> right( createShape(boolSolid.solidB().name().fullname(),
 							boolSolid.solidB()));
-	    if( 0 != left.get() &&
-		0 != right.get() ) {
+	    if( nullptr != left.get() &&
+		nullptr != right.get() ) {
 	       TGeoSubtraction* sub = new TGeoSubtraction(left.release(),right.release(),
 							  gGeoIdentity,
 							  createPlacement(
@@ -497,8 +497,8 @@ TGeoFromDddService::createShape(const std::string& iName,
 							boolSolid.solidB()));
 	    //DEBUGGING
 	    //break;
-	    if( 0 != left.get() &&
-		0 != right.get() ) {
+	    if( nullptr != left.get() &&
+		nullptr != right.get() ) {
 	       TGeoUnion* boolS = new TGeoUnion(left.release(),right.release(),
 						gGeoIdentity,
 						createPlacement(
@@ -520,8 +520,8 @@ TGeoFromDddService::createShape(const std::string& iName,
 						       boolSolid.solidA()) );
 	    std::auto_ptr<TGeoShape> right( createShape(boolSolid.solidB().name().fullname(),
 							boolSolid.solidB()));
-	    if( 0 != left.get() &&
-		0 != right.get() ) {
+	    if( nullptr != left.get() &&
+		nullptr != right.get() ) {
 	       TGeoIntersection* boolS = new TGeoIntersection(left.release(),
 							      right.release(),
 							      gGeoIdentity,
@@ -538,7 +538,7 @@ TGeoFromDddService::createShape(const std::string& iName,
       }
       nameToShape_[iName]=rSolid;
    }
-   if (rSolid == 0)
+   if (rSolid == nullptr)
    {
       std::cerr <<"COULD NOT MAKE "<<iName<<std::endl;
    }
@@ -551,13 +551,13 @@ TGeoFromDddService::createVolume(const std::string& iName,
 		       const DDMaterial& iMaterial)
 {
    TGeoVolume* v=nameToVolume_[iName];
-   if (v == 0)
+   if (v == nullptr)
    {
       TGeoShape* solid     = createShape(iSolid.name().fullname(),
                                          iSolid);
       std::string mat_name = iMaterial.name().fullname();
       TGeoMedium *geo_med  = nameToMedium_[mat_name];
-      if (geo_med == 0)
+      if (geo_med == nullptr)
       {
          TGeoMaterial *geo_mat = createMaterial(iMaterial);
          geo_med = new TGeoMedium(mat_name.c_str(), 0, geo_mat);
@@ -580,7 +580,7 @@ TGeoFromDddService::createMaterial(const DDMaterial& iMaterial)
    std::string   mat_name = iMaterial.name().fullname();
    TGeoMaterial *mat      = nameToMaterial_[mat_name];
 
-   if (mat == 0)
+   if (mat == nullptr)
    {
       if (iMaterial.noOfConstituents() > 0)
       {

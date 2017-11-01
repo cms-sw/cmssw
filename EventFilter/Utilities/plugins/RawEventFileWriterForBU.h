@@ -9,7 +9,7 @@
 #include "EventFilter/Utilities/interface/FastMonitor.h"
 
 #include <fstream>
-#include <stdio.h>
+#include <cstdio>
 #include <sys/types.h>
 #include <sys/stat.h>
 

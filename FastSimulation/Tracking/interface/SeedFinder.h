@@ -90,7 +90,7 @@ public:
                 if (_selectorFunctionsByHits.size()>=NHits)
                 {
                     //are there any selector functions stored for NHits?
-                    if (_selectorFunctionsByHits[NHits-1].size()>0)
+                    if (!_selectorFunctionsByHits[NHits-1].empty())
                     {
                         //fill vector of Hits from node to root to be passed to the selector function
                         std::vector<const FastTrackerRecHit*> seedCandidateHitList(node->getDepth()+1);
@@ -168,7 +168,7 @@ public:
                             hitIndicesInTree,
                             false
                         );
-                        if (seedHits.size()>0)
+                        if (!seedHits.empty())
                         {
                             return seedHits;
                         }

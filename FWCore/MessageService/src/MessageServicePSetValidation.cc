@@ -174,7 +174,7 @@ suppressionLists ( ParameterSet const & pset )
   } 
   suppressDebug = check<vString>
   	(pset, "MessageLogger", "suppressDebug");
-  if ( (suppressDebug.size() > 0)  && (!dmStar) ) {
+  if ( (!suppressDebug.empty())  && (!dmStar) ) {
     flaws << "MessageLogger" << " PSet: \n"
 	  << "suppressDebug contains modules, but debugModules is not *\n"
 	  << "Unless all the debugModules are enabled,\n"

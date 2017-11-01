@@ -37,7 +37,7 @@
 class DetIdAssociatorESProducer : public edm::ESProducer {
 public:
   DetIdAssociatorESProducer(const edm::ParameterSet&);
-  ~DetIdAssociatorESProducer();
+  ~DetIdAssociatorESProducer() override;
   
   typedef std::shared_ptr<DetIdAssociator> ReturnType;
   

@@ -87,12 +87,12 @@ class HLTMuonPlotter {
     const l1t::Muon                  * candL1;
     std::vector<const reco::RecoChargedCandidate *> candHlt;
     MatchStruct() {
-      candBase   = 0;
-      candL1     = 0;
+      candBase   = nullptr;
+      candL1     = nullptr;
     }
     MatchStruct(const reco::Candidate * cand) {
       candBase = cand;
-      candL1     = 0;
+      candL1     = nullptr;
     }
     bool operator<(MatchStruct match) {
       return candBase->pt() < match.candBase->pt();

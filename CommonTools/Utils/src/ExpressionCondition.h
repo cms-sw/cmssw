@@ -17,7 +17,7 @@
 namespace reco {
   namespace parser {
     struct ExpressionCondition : public ExpressionBase {
-      virtual double value(const edm::ObjectWithDict& o) const { 
+      double value(const edm::ObjectWithDict& o) const override { 
 	return (*cond_)(o) ? true_->value(o) : false_->value(o);
       }
       ExpressionCondition(ExpressionStack & expStack, SelectorStack & selStack) { 

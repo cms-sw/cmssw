@@ -32,7 +32,7 @@ EcalBarrelMonitorDbModule::EcalBarrelMonitorDbModule(const edm::ParameterSet& ps
   prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   xmlFile_ = ps.getUntrackedParameter<std::string>( "xmlFile", "" );
-  if ( xmlFile_.size() != 0 ) {
+  if ( !xmlFile_.empty() ) {
     std::cout << "Monitor Elements from DB xml source file is " << xmlFile_ << std::endl;
   }
 
@@ -42,7 +42,7 @@ EcalBarrelMonitorDbModule::EcalBarrelMonitorDbModule(const edm::ParameterSet& ps
   // html output directory
   htmlDir_ = ps.getUntrackedParameter<std::string>("htmlDir", ".");
 
-  if ( htmlDir_.size() != 0 ) {
+  if ( !htmlDir_.empty() ) {
     std::cout << " HTML output will go to"
 	      << " htmlDir = " << htmlDir_ << std::endl;
   } else {
@@ -54,7 +54,7 @@ EcalBarrelMonitorDbModule::EcalBarrelMonitorDbModule(const edm::ParameterSet& ps
   if ( dqmStore_ ) dqmStore_->showDirStructure();
 
   icycle_ = 0;
-  session_ = 0;
+  session_ = nullptr;
 }
 
 EcalBarrelMonitorDbModule::~EcalBarrelMonitorDbModule(){
@@ -107,7 +107,7 @@ void EcalBarrelMonitorDbModule::analyze(const edm::Event& e, const edm::EventSet
     std::cerr << "Standard C++ exception : " << e.what() << std::endl;
   }
 
-  if ( htmlDir_.size() != 0 ) {
+  if ( !htmlDir_.empty() ) {
 
     ME_Db_->htmlOutput( htmlDir_ );
 

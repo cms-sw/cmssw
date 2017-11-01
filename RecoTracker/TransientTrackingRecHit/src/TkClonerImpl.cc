@@ -169,7 +169,7 @@ std::unique_ptr<ProjectedSiStripRecHit2D> TkClonerImpl::operator()(ProjectedSiSt
 		       det.surface().toLocal( det.position()-GlobalPoint(0,0,0)));
 
   auto delta = gluedPlane.localZ( hitPlane.position());
-  LocalVector ldir = tkDir;
+  const LocalVector& ldir = tkDir;
   LocalPoint lhitPos = gluedPlane.toLocal( hitPlane.toGlobal(lv.first));
   LocalPoint projectedHitPos = lhitPos - ldir * delta/ldir.z();                  
 
@@ -208,7 +208,7 @@ std::unique_ptr<ProjectedSiStripRecHit2D> TkClonerImpl::project(SiStripMatchedRe
 
 
   auto delta = gluedPlane.localZ( hitPlane.position());
-  LocalVector ldir = tkDir;
+  const LocalVector& ldir = tkDir;
   LocalPoint lhitPos = gluedPlane.toLocal( hitPlane.toGlobal(lv.first));
   LocalPoint projectedHitPos = lhitPos - ldir * delta/ldir.z();                  
 

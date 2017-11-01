@@ -57,7 +57,7 @@ namespace l1extra {
                         JetType type = kUndefined,
 			int bx = 0 ) ;
 
-	 virtual ~L1JetParticle() {}
+	 ~L1JetParticle() override {}
 
 	 // ---------- const member functions ---------------------
          JetType type() const
@@ -69,7 +69,7 @@ namespace l1extra {
 	 const L1GctJetCand* gctJetCand() const
 	 { return ref_.get() ; }
 
-         virtual L1JetParticle* clone() const
+         L1JetParticle* clone() const override
          { return new L1JetParticle( *this ) ; }
 
 	 int bx() const

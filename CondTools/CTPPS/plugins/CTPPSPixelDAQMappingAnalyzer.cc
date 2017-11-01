@@ -28,8 +28,8 @@ class CTPPSPixelDAQMappingAnalyzer : public edm::EDAnalyzer {
     analysismaskiov_(iConfig.getParameter<unsigned long long>("analysismaskiov"))
     {}
     explicit  CTPPSPixelDAQMappingAnalyzer(int i) {}
-    virtual ~CTPPSPixelDAQMappingAnalyzer() {}
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+    ~CTPPSPixelDAQMappingAnalyzer() override {}
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   };
 
 

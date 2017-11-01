@@ -20,8 +20,8 @@ namespace reco {
   public:
     BaseTau();
     BaseTau(Charge q,const LorentzVector &,const Point & = Point(0,0,0));
-    virtual ~BaseTau(){}
-    BaseTau* clone()const;
+    ~BaseTau() override{}
+    BaseTau* clone()const override;
 
     // rec. jet Lorentz-vector combining (Tracks and neutral ECAL Island BasicClusters) or (charged hadr. PFCandidates and gamma PFCandidates)
     math::XYZTLorentzVector alternatLorentzVect()const;
@@ -40,7 +40,7 @@ namespace reco {
     void setisolationTracks(const TrackRefVector&);  
   private:
     // check overlap with another candidate
-    virtual bool overlap(const Candidate&)const;
+    bool overlap(const Candidate&)const override;
     math::XYZTLorentzVector alternatLorentzVect_;
     reco::TrackRef leadTrack_;
     reco::TrackRefVector signalTracks_, isolationTracks_;

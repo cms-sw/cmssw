@@ -197,7 +197,7 @@ namespace edm {
     /// but have a pointer to a product getter (such as the EventPrincipal).
     /// prodGetter will ususally be a pointer to the event principal.
     Ref(ProductID const& productID, key_type itemKey, EDProductGetter const* prodGetter) :
-      product_(productID, 0, mustBeNonZero(prodGetter, "Ref", productID), false), index_(itemKey) {
+      product_(productID, nullptr, mustBeNonZero(prodGetter, "Ref", productID), false), index_(itemKey) {
     }
 
     /// Constructor for use in the various X::fillView(...) functions.
@@ -212,7 +212,7 @@ namespace edm {
     { }
 
     Ref(ProductID const& iProductID, T const* item, key_type itemKey) :
-      product_(iProductID, item, 0, false), index_(itemKey)
+      product_(iProductID, item, nullptr, false), index_(itemKey)
     { }
 
     Ref(ProductID const& iProductID, T const* item, key_type itemKey, bool transient) :
@@ -224,7 +224,7 @@ namespace edm {
     /// ProductID).
 
     explicit Ref(ProductID const& iId) :
-      product_(iId, 0, 0, false), index_(key_traits<key_type>::value)
+      product_(iId, nullptr, nullptr, false), index_(key_traits<key_type>::value)
     { }
 
     /// Constructor from RefProd<C> and key
@@ -354,7 +354,7 @@ namespace edm {
     /// but have a pointer to a product getter (such as the EventPrincipal).
     /// prodGetter will ususally be a pointer to the event principal.
     Ref(ProductID const& productID, key_type itemKey, EDProductGetter const* prodGetter) :
-    product_(productID, 0, mustBeNonZero(prodGetter, "Ref", productID), false,itemKey) {
+    product_(productID, nullptr, mustBeNonZero(prodGetter, "Ref", productID), false,itemKey) {
     }
     
     /// Constructor for use in the various X::fillView(...) functions.
@@ -369,11 +369,11 @@ namespace edm {
     { }
 
     Ref(ProductID const& iProductID, T const* item, key_type itemKey) :
-    product_(iProductID, item, 0, false, itemKey)
+    product_(iProductID, item, nullptr, false, itemKey)
     { }
 
     Ref(ProductID const& iProductID, T const* item, key_type itemKey, bool transient) :
-    product_(iProductID, item, 0, transient, itemKey)
+    product_(iProductID, item, nullptr, transient, itemKey)
     { }
 
     /// Constructor that creates an invalid ("null") Ref that is
@@ -381,7 +381,7 @@ namespace edm {
     /// ProductID).
     
     explicit Ref(ProductID const& iId) :
-    product_(iId, 0, 0, false,key_traits<key_type>::value)
+    product_(iId, nullptr, nullptr, false,key_traits<key_type>::value)
     { }
     
     /// Constructor from RefProd<C> and key
@@ -400,7 +400,7 @@ namespace edm {
     
     /// Returns C++ pointer to the item
     T const* get() const {
-      return isNull() ? 0 : this->operator->();
+      return isNull() ? nullptr : this->operator->();
     }
     
     /// Checks for null
@@ -518,7 +518,7 @@ namespace edm {
   template <typename E>
   inline
   Ref<REF_FOR_VECTOR_ARGS>::Ref(std::vector<E> const* iProduct, key_type itemKey, bool) :
-    product_(ProductID(), nullptr, nullptr, true, iProduct != 0 ? itemKey : key_traits<key_type>::value) {
+    product_(ProductID(), nullptr, nullptr, true, iProduct != nullptr ? itemKey : key_traits<key_type>::value) {
     if(iProduct != nullptr) {
       refitem::findRefItem<product_type, value_type, finder_type, key_type>(product_.toRefCore(), iProduct, itemKey);
     }

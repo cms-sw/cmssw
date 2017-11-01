@@ -35,7 +35,7 @@ void SiPixelPhase1Clusters::analyze(const edm::Event& iEvent, const edm::EventSe
   iEvent.getByToken(stripSrcToken_, inputStrip);
   if (inputStrip.isValid())
   {
-    if (inputStrip.product()->data().size())
+    if (!inputStrip.product()->data().empty())
     {
       histo[PIXEL_TO_STRIP_RATIO].fill((double)inputPixel.product()->data().size() / (double) inputStrip.product()->data().size(), DetId(0), &iEvent);
     }

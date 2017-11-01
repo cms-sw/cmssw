@@ -75,7 +75,7 @@ DCacheFile::open (const char *name,
                   int perms /* = 066 */)
 {
   // Actual open
-  if ((name == 0) || (*name == 0)) {
+  if ((name == nullptr) || (*name == 0)) {
     edm::Exception ex(edm::errors::FileOpenError);
     ex << "Cannot open a file without a name";
     ex.addContext("Calling DCacheFile::open()");

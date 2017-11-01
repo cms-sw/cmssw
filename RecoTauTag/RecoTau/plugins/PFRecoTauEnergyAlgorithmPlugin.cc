@@ -38,10 +38,10 @@ class PFRecoTauEnergyAlgorithmPlugin : public RecoTauModifierPlugin
  public:
 
   explicit PFRecoTauEnergyAlgorithmPlugin(const edm::ParameterSet&, edm::ConsumesCollector &&iC);
-  virtual ~PFRecoTauEnergyAlgorithmPlugin();
-  void operator()(PFTau&) const;
-  virtual void beginEvent();
-  virtual void endEvent();
+  ~PFRecoTauEnergyAlgorithmPlugin() override;
+  void operator()(PFTau&) const override;
+  void beginEvent() override;
+  void endEvent() override;
 
  private:
   
@@ -218,7 +218,7 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
       size_t numChargedHadrons = chargedHadrons.size();
       for ( size_t iChargedHadron = 0; iChargedHadron < numChargedHadrons; ++iChargedHadron ) {
 	const PFRecoTauChargedHadron& chargedHadron = chargedHadrons[iChargedHadron];
-	if ( chargedHadron.getNeutralPFCandidates().size() >= 1 ) {
+	if ( !chargedHadron.getNeutralPFCandidates().empty() ) {
 	  PFRecoTauChargedHadron chargedHadron_modified = chargedHadron;
 	  setChargedHadronP4(chargedHadron_modified, scaleFactor);
 	  tau.signalTauChargedHadronCandidatesRestricted()[iChargedHadron] = chargedHadron_modified;
@@ -369,7 +369,7 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
 	updateTauP4(tau, scaleFactor - 1., tau.p4());
 	return;
       } else {
-	if ( numChargedHadronNeutrals == 0 && tau.signalPiZeroCandidates().size() == 0 ) {
+	if ( numChargedHadronNeutrals == 0 && tau.signalPiZeroCandidates().empty() ) {
 	  // Adjust momenta of ChargedHadrons build from reco::Tracks to match sum of energy deposits in ECAL + HCAL + HO
 	  size_t numChargedHadrons = chargedHadrons.size();
 	  for ( size_t iChargedHadron = 0; iChargedHadron < numChargedHadrons; ++iChargedHadron ) {

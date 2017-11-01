@@ -236,7 +236,7 @@ void Fourvec_Constrainer::mass_constraint (std::string s)
 //   s -           The constraint defining the mass.
 //
 {
-  assert (_mass_constraint.size() == 0);
+  assert (_mass_constraint.empty());
   _mass_constraint.push_back (Constraint (s));
 }
 
@@ -270,7 +270,7 @@ std::ostream& operator<< (std::ostream& s, const Fourvec_Constrainer& c)
   for (std::vector<Constraint>::size_type i=0; i < c._constraints.size(); i++)
     s << "  " << c._constraints[i] << "\n";
 
-  if (c._mass_constraint.size() > 0) {
+  if (!c._mass_constraint.empty()) {
     s << "Mass constraint:\n";
     s << c._mass_constraint[0] << "\n";
   }
@@ -1383,7 +1383,7 @@ public:
   Fourvec_Constraint_Calculator (Fourvec_Event& ev,
                                  const vector<Constraint>& constraints,
                                  const Fourvec_Constrainer_Args& args);
-  virtual ~Fourvec_Constraint_Calculator () {}
+  ~Fourvec_Constraint_Calculator () override {}
 
   // Evaluate constraints at the point described by X and Y (well-measured
   // and poorly-measured variables, respectively).  The results should
@@ -1393,7 +1393,7 @@ public:
   // Return true if the point X, Y is accepted.
   // Return false if it is rejected (i.e., in an unphysical region).
   // The constraints need not be evaluated in that case.
-  virtual bool eval (const Column_Vector& x,
+  bool eval (const Column_Vector& x,
                      const Column_Vector& y,
                      Row_Vector& F,
                      Matrix& Bx,
@@ -1706,7 +1706,7 @@ void calculate_mass (Fourvec_Event& ev,
 //
 {
   // Don't do anything if the mass wasn't specified.
-  if (mass_constraint.size () == 0) {
+  if (mass_constraint.empty()) {
     m = 0;
     sigm = 0;
     return;

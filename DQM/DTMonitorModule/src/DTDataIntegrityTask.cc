@@ -19,7 +19,7 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include <math.h>
+#include <cmath>
 #include <fstream>
 #include <map>
 #include <string>
@@ -179,7 +179,7 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
   string histoType;
   string histoName;
   string histoTitle;
-  MonitorElement* histo = 0;
+  MonitorElement* histo = nullptr;
 
   // DDU Histograms
   if (folder == "DDU") {
@@ -509,7 +509,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
   MonitorElement* ROSSummary = rosSHistos["ROSSummary"][code.getDDUID()];
 
   // Summary of all ROB errors
-  MonitorElement* ROSError = 0;
+  MonitorElement* ROSError = nullptr;
   if(mode <= 2) ROSError = rosHistos["ROSError"][code.getROSID()];
 
   if ( (mode<=2) && (!ROSError) ) {
@@ -815,7 +815,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
 
  if(mode == 3 || mode ==1) return; //Avoid duplication of Info in FEDIntegrity_EvF
 
-  DTDDUSecondStatusWord secondWord = data.getSecondStatusWord();
+  const DTDDUSecondStatusWord& secondWord = data.getSecondStatusWord();
 
   // Fill the status summary of the TTS
 
@@ -948,7 +948,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
   // cross checks between FED and ROS data
   // check the BX ID against the ROSs
   set<int> rosBXIds = rosBxIdsPerFED[ddu];
-  if((rosBXIds.size() > 1 || rosBXIds.find(header.bxID()) == rosBXIds.end()) && rosBXIds.size() != 0) { // in this case look for faulty ROSs
+  if((rosBXIds.size() > 1 || rosBXIds.find(header.bxID()) == rosBXIds.end()) && !rosBXIds.empty()) { // in this case look for faulty ROSs
     for(vector<DTROS25Data>::const_iterator rosControlData = rosData.begin();
 	rosControlData != rosData.end(); ++rosControlData) { // loop over the ROS data
       for (vector<DTROSDebugWord>::const_iterator debug_it = (*rosControlData).getROSDebugs().begin();
@@ -978,7 +978,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
 
   // check the L1A ID against the ROSs
   set<int> rosL1AIds = rosL1AIdsPerFED[ddu];
-  if((rosL1AIds.size() > 1 || rosL1AIds.find(header.lvl1ID()-1) == rosL1AIds.end()) && rosL1AIds.size() != 0) { // in this case look for faulty ROSs
+  if((rosL1AIds.size() > 1 || rosL1AIds.find(header.lvl1ID()-1) == rosL1AIds.end()) && !rosL1AIds.empty()) { // in this case look for faulty ROSs
     //If L1A_ID error identify which ROS has wrong L1A
     for (vector<DTROS25Data>::const_iterator rosControlData = rosData.begin();
 	 rosControlData != rosData.end(); rosControlData++) { // loop over the ROS data

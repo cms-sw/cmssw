@@ -77,7 +77,7 @@ namespace edm {
       key_type const& key = refVector_.keys()[idx];
       void const* memberPointer = refVector_.cachedMemberPointer(idx);
       if(memberPointer) {
-        RefCore newCore(core);
+        const RefCore& newCore(core);
         newCore.setProductPtr(memberPointer);
         return value_type(newCore, key);
       }
@@ -90,7 +90,7 @@ namespace edm {
       key_type const& key = refVector_.keys().at(idx);
       void const* memberPointer = refVector_.cachedMemberPointer(idx);
       if(memberPointer) {
-        RefCore newCore(core);
+        const RefCore& newCore(core);
         newCore.setProductPtr(memberPointer);
         return value_type(newCore, key);
       }

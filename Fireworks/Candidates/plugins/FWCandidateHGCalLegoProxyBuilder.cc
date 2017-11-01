@@ -16,7 +16,7 @@
 
 #include "Fireworks/Candidates/interface/FWLegoCandidate.h"
 
-#include <math.h>
+#include <cmath>
 
 //-----------------------------------------------------------------------------
 // FWCandidateHGCalLegoProxyBuilder
@@ -26,20 +26,20 @@ class FWCandidateHGCalLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<rec
    public:
    // ---------------- Constructor(s)/Destructor ----------------------
       FWCandidateHGCalLegoProxyBuilder(){}
-      virtual ~FWCandidateHGCalLegoProxyBuilder(){}
+      ~FWCandidateHGCalLegoProxyBuilder() override{}
 
    // --------------------- Member Functions --------------------------
-      virtual bool havePerViewProduct( FWViewType::EType ) const override { return true; }
-      virtual void scaleProduct( TEveElementList*, FWViewType::EType, const FWViewContext* ) override;
-      virtual void localModelChanges( const FWModelId&, TEveElement*, FWViewType::EType,
+      bool havePerViewProduct( FWViewType::EType ) const override { return true; }
+      void scaleProduct( TEveElementList*, FWViewType::EType, const FWViewContext* ) override;
+      void localModelChanges( const FWModelId&, TEveElement*, FWViewType::EType,
                                  const FWViewContext* ) override;
 
       REGISTER_PROXYBUILDER_METHODS();
 
    private:
    // ----------------------- Data Members ----------------------------
-      FWCandidateHGCalLegoProxyBuilder( const FWCandidateHGCalLegoProxyBuilder& );
-      const FWCandidateHGCalLegoProxyBuilder& operator=( const FWCandidateHGCalLegoProxyBuilder& );
+      FWCandidateHGCalLegoProxyBuilder( const FWCandidateHGCalLegoProxyBuilder& ) = delete;
+      const FWCandidateHGCalLegoProxyBuilder& operator=( const FWCandidateHGCalLegoProxyBuilder& ) = delete;
 
    // --------------------- Member Functions --------------------------
       using FWSimpleProxyBuilderTemplate<reco::HGCalMultiCluster>::build;

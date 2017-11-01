@@ -33,20 +33,20 @@ public:
   IsolatorByDeposit(const ConeSizeFunction * conesize, 
 		    const std::vector<double> & weights, const std::vector<double>& thresh);
 
-  virtual ~IsolatorByDeposit() {}
+  ~IsolatorByDeposit() override {}
 
   //! Set the weights for summing deposits of different types
   virtual void setWeights(const std::vector<double>& weights) {theWeights=weights;}
 
   //! Compute the deposit within the cone and return the isolation result
-  virtual Result result(const DepositContainer& deposits, const edm::Event* = 0) const;
+  Result result(const DepositContainer& deposits, const edm::Event* = nullptr) const override;
 
   //! Compute the count of deposit within the cone and return the isolation result
 /*   virtual int resultInt(DepositContainer deposits) const; */
 
 
 
-  void setConeSize(float conesize) { theConeSize = conesize; theConeSizeFunction = 0;} 
+  void setConeSize(float conesize) { theConeSize = conesize; theConeSizeFunction = nullptr;} 
 
   void setConeSize(ConeSizeFunction * conesize) { theConeSizeFunction = conesize; }
 
@@ -56,7 +56,7 @@ public:
     return theConeSizeFunction ? theConeSizeFunction->coneSize(eta,pT) : theConeSize;
   }
 
-  virtual ResultType resultType() const { return ISOL_FLOAT_TYPE;}
+  ResultType resultType() const override { return ISOL_FLOAT_TYPE;}
 
 
 private:

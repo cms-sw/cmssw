@@ -4,7 +4,7 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <string>
-#include <string.h>
+#include <cstring>
 
 class CSCTFConfigProducer;
 

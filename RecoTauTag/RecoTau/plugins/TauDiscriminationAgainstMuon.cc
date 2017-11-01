@@ -30,7 +30,7 @@ class TauDiscriminationAgainstMuon final : public TauDiscriminationProducerBase<
   typedef edm::Ref<TauCollection> TauRef;    
 
   explicit TauDiscriminationAgainstMuon(const edm::ParameterSet&);
-  ~TauDiscriminationAgainstMuon() {} 
+  ~TauDiscriminationAgainstMuon() override {} 
 
   // called at the beginning of every event
   void beginEvent(const edm::Event&, const edm::EventSetup&) override;

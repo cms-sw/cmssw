@@ -107,12 +107,12 @@ BSFitter::~BSFitter()
 //______________________________________________________________________
 reco::BeamSpot BSFitter::Fit() {
 
-	return this->Fit(0);
+	return this->Fit(nullptr);
 
 }
 
 //______________________________________________________________________
-reco::BeamSpot BSFitter::Fit(double *inipar = 0) {
+reco::BeamSpot BSFitter::Fit(double *inipar = nullptr) {
 	fbeamtype = reco::BeamSpot::Unknown;
 	if ( ffit_variable == "z" ) {
 

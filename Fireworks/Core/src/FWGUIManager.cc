@@ -95,7 +95,7 @@
 //
 // static data member definitions
 //
-FWGUIManager* FWGUIManager::m_guiManager = 0;
+FWGUIManager* FWGUIManager::m_guiManager = nullptr;
 
 //
 // constructors and destructor
@@ -106,20 +106,20 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
                            const FWViewManagerManager* iVMMgr,
                            FWNavigatorBase* navigator):
    m_context(ctx),
-   m_summaryManager(0),
-   m_detailViewManager(0),
+   m_summaryManager(nullptr),
+   m_detailViewManager(nullptr),
    m_viewManagerManager(iVMMgr),
-   m_contextMenuHandler(0),
+   m_contextMenuHandler(nullptr),
    m_navigator(navigator),
-   m_dataAdder(0),
-   m_ediFrame(0),
-   m_modelPopup(0),
-   m_viewPopup(0),
-   m_commonPopup(0),
-   m_invMassDialog(0),
-   m_helpPopup(0),
-   m_shortcutPopup(0),
-   m_helpGLPopup(0),
+   m_dataAdder(nullptr),
+   m_ediFrame(nullptr),
+   m_modelPopup(nullptr),
+   m_viewPopup(nullptr),
+   m_commonPopup(nullptr),
+   m_invMassDialog(nullptr),
+   m_helpPopup(nullptr),
+   m_shortcutPopup(nullptr),
+   m_helpGLPopup(nullptr),
    m_tasks(new CmsShowTaskExecutor),
    m_WMOffsetX(0), m_WMOffsetY(0), m_WMDecorH(0)
 {
@@ -182,9 +182,9 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
       getAction(cmsshow::sShowInvMassDialog)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showInvMassDialog));
 
       getAction(cmsshow::sShowAddCollection)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::addData));
-      assert(getAction(cmsshow::sHelp) != 0);
+      assert(getAction(cmsshow::sHelp) != nullptr);
       getAction(cmsshow::sHelp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createHelpPopup));
-      assert(getAction(cmsshow::sKeyboardShort) != 0);
+      assert(getAction(cmsshow::sKeyboardShort) != nullptr);
       getAction(cmsshow::sKeyboardShort)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createShortcutPopup));
       getAction(cmsshow::sHelpGL)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createHelpGLPopup));
 
@@ -427,7 +427,7 @@ FWGUIManager::newItem(const FWEventItem* iItem)
 void
 FWGUIManager::addData()
 {
-   if (0==m_dataAdder) {
+   if (nullptr==m_dataAdder) {
       m_dataAdder = new FWGUIEventDataAdder(100,100,
                                             (FWEventItemsManager*) m_context->eventItemsManager(),
                                             m_cmsShowMainFrame,
@@ -443,7 +443,7 @@ FWGUIManager::addData()
 TEveWindow*
 FWGUIManager::getSwapCandidate()
 {
-   TEveWindow* swapCandidate =0;
+   TEveWindow* swapCandidate =nullptr;
 
    if ( gEve->GetWindowManager()->GetCurrentWindow())
    {
@@ -467,7 +467,7 @@ FWGUIManager::getSwapCandidate()
                swapCandidate = pef->GetEveWindow();
          }
       }
-      if (swapCandidate == 0)
+      if (swapCandidate == nullptr)
       {
          // no eve window found in primary, check secondary
          TGPack* sp = m_viewSecPack->GetPack();
@@ -494,8 +494,8 @@ FWGUIManager::checkSubviewAreaIconState(TEveWindow* /*ew*/)
    // disable swap on the first left TEveCompositeFrame
    // check info button
    TEveWindow* current  = getSwapCandidate();
-   bool checkInfoBtn    = m_viewPopup ? m_viewPopup->mapped() : 0;
-   TEveWindow* selected = m_viewPopup ? m_viewPopup->getEveWindow() : 0;
+   bool checkInfoBtn    = m_viewPopup ? m_viewPopup->mapped() : false;
+   TEveWindow* selected = m_viewPopup ? m_viewPopup->getEveWindow() : nullptr;
 
    for (ViewMap_i it = m_viewMap.begin(); it != m_viewMap.end(); it++)
    {
@@ -510,7 +510,7 @@ void
 FWGUIManager::subviewIsBeingDestroyed(FWGUISubviewArea* sva)
 {
    if (sva->isSelected())
-      setViewPopup(0);
+      setViewPopup(nullptr);
 
    CmsShowTaskExecutor::TaskFunctor f;
    f = boost::bind(&FWGUIManager::subviewDestroy, this, sva);
@@ -540,7 +540,7 @@ FWGUIManager::subviewDestroyAll()
    for (std::vector<FWGUISubviewArea*>::iterator i= sd.begin(); i !=sd.end(); ++i)
    {
       if ((*i)->isSelected())
-         setViewPopup(0);
+         setViewPopup(nullptr);
       subviewDestroy(*i);
    }
 
@@ -556,7 +556,7 @@ FWGUIManager::subviewDestroyAll()
    }
 
    gSystem->Sleep(200);
-   m_viewSecPack = 0;
+   m_viewSecPack = nullptr;
    gSystem->ProcessEvents();
 
 }
@@ -587,7 +587,7 @@ FWGUIManager::subviewSwapped(FWGUISubviewArea* sva)
    TEveWindow* swap = sva->getEveWindow();
    if (curr) swap->SwapWindow(curr);
 
-   checkSubviewAreaIconState(0);
+   checkSubviewAreaIconState(nullptr);
 }
 
 TGVerticalFrame*
@@ -627,13 +627,13 @@ FWGUIManager::createViews(TEveWindowSlot *slot)
    m_viewPrimPack->SetHorizontal();
    m_viewPrimPack->SetElementName("Views");
    m_viewPrimPack->SetShowTitleBar(kFALSE);
-   m_viewSecPack = 0;
+   m_viewSecPack = nullptr;
 }
 
 void
 FWGUIManager::createEDIFrame()
 {
-   if (m_ediFrame == 0)
+   if (m_ediFrame == nullptr)
    {
       m_ediFrame = new CmsShowEDI(m_cmsShowMainFrame, 200, 200, m_context->selectionManager(),m_context->colorManager());
       m_ediFrame->CenterOnParent(kTRUE,TGTransientFrame::kTopRight);
@@ -724,16 +724,16 @@ void
 FWGUIManager::showViewPopup()
 {
    // CSG action.
-   setViewPopup(0);
+   setViewPopup(nullptr);
 }
 
 void
 FWGUIManager::setViewPopup(TEveWindow* ew)
 {
-   FWViewBase* vb = ew ? m_viewMap[ew] : 0;
-   if (m_viewPopup == 0)
+   FWViewBase* vb = ew ? m_viewMap[ew] : nullptr;
+   if (m_viewPopup == nullptr)
    {
-      m_viewPopup = new CmsShowViewPopup(0, 200, 200, m_context->colorManager(), vb, ew);
+      m_viewPopup = new CmsShowViewPopup(nullptr, 200, 200, m_context->colorManager(), vb, ew);
       m_viewPopup->closed_.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::popupViewClosed));
    }
    else
@@ -758,7 +758,7 @@ FWGUIManager::showInvMassDialog()
 void
 FWGUIManager::createHelpPopup ()
 {
-   if (m_helpPopup == 0)
+   if (m_helpPopup == nullptr)
    {
       m_helpPopup = new CmsShowHelpPopup("help.html", "CmsShow Help",
                                          m_cmsShowMainFrame,
@@ -772,10 +772,10 @@ FWGUIManager::createHelpPopup ()
 void
 FWGUIManager::createShortcutPopup ()
 {
-   if (m_shortcutPopup == 0)
+   if (m_shortcutPopup == nullptr)
    {
       m_shortcutPopup = new CmsShowHelpPopup("shortcuts.html",
-                                             getAction(cmsshow::sKeyboardShort)->getName().c_str(),
+                                             getAction(cmsshow::sKeyboardShort)->getName(),
                                               m_cmsShowMainFrame, 800, 600);
 
       m_shortcutPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
@@ -785,10 +785,10 @@ FWGUIManager::createShortcutPopup ()
 
 void FWGUIManager::createHelpGLPopup ()
 {
-   if (m_helpGLPopup == 0)
+   if (m_helpGLPopup == nullptr)
    {
       m_helpGLPopup = new CmsShowHelpPopup("helpGL.html",
-                                            getAction(cmsshow::sHelpGL)->getName().c_str(),
+                                            getAction(cmsshow::sHelpGL)->getName(),
                                             m_cmsShowMainFrame, 800, 600);
 
       m_helpGLPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
@@ -835,7 +835,7 @@ FWGUIManager::promptForConfigurationFile(std::string &result, enum EFileDialogMo
    
    const static char* kFileTypes[] = {"Fireworks Configuration files","*.fwc",
                                        "All Files","*",
-                                       0,0};
+                                       nullptr,nullptr};
 
    static TString dir(".");
 
@@ -844,12 +844,12 @@ FWGUIManager::promptForConfigurationFile(std::string &result, enum EFileDialogMo
    fi.fIniDir    = StrDup(dir);
    new TGFileDialog(gClient->GetDefaultRoot(), m_cmsShowMainFrame, mode, &fi);
    dir = fi.fIniDir;
-   if (fi.fFilename == 0) // to handle "cancel" button properly
+   if (fi.fFilename == nullptr) // to handle "cancel" button properly
       return false;
    std::string name = fi.fFilename;
    // if the extension isn't already specified by hand, specify it now
    std::string ext = kFileTypes[fi.fFileTypeIdx + 1] + 1;
-   if (ext.size() != 0 && name.find(ext) == name.npos)
+   if (!ext.empty() && name.find(ext) == name.npos)
       name += ext;
    result = name;
    return true;
@@ -938,7 +938,7 @@ FWGUIManager::exportImagesOfAllViews()
                                            "JPEG",                    "*.jpg",
                                            "PDF",                     "*.pdf",
                                            "Encapsulated PostScript", "*.eps",
-                                           0, 0};
+                                           nullptr, nullptr};
 
       TGFileInfo fi;
       fi.fFileTypes = kImageExportTypes;
@@ -946,7 +946,7 @@ FWGUIManager::exportImagesOfAllViews()
       new TGFileDialog(gClient->GetDefaultRoot(), m_cmsShowMainFrame,
                        kFDSave,&fi);
       dir = fi.fIniDir;
-      if (fi.fFilename != 0) {
+      if (fi.fFilename != nullptr) {
          std::string name = fi.fFilename;
          // fi.fFileTypeIdx points to the name of the file type
          // selected in the drop-down menu, so fi.fFileTypeIdx gives us
@@ -1086,9 +1086,9 @@ class areaInfo
 public:
    areaInfo (TGFrameElementPack* frameElement)
    {
-      eveWindow         = 0;
-      originalSlot      = 0;
-      undockedMainFrame = 0;
+      eveWindow         = nullptr;
+      originalSlot      = nullptr;
+      undockedMainFrame = nullptr;
       weight = frameElement->fWeight;
       undocked = !frameElement->fState;
 
@@ -1238,22 +1238,22 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
    //Remember where controllers were placed if they are open
    FWConfiguration controllers(1);
    {
-      if(0!=m_ediFrame && m_ediFrame->IsMapped()) {
+      if(nullptr!=m_ediFrame && m_ediFrame->IsMapped()) {
          FWConfiguration temp(1);
          addWindowInfoTo(m_ediFrame, temp);
          controllers.addKeyValue(kCollectionController,temp,true);
       }
-      if(0!=m_viewPopup && m_viewPopup->IsMapped()) {
+      if(nullptr!=m_viewPopup && m_viewPopup->IsMapped()) {
          FWConfiguration temp(1);
          addWindowInfoTo(m_viewPopup, temp);
          controllers.addKeyValue(kViewController,temp,true);
       }
-      if(0!=m_modelPopup && m_modelPopup->IsMapped()) {
+      if(nullptr!=m_modelPopup && m_modelPopup->IsMapped()) {
          FWConfiguration temp(1);
          addWindowInfoTo(m_modelPopup, temp);
          controllers.addKeyValue(kObjectController,temp,true);
       }
-      if(0!=m_commonPopup && m_commonPopup->IsMapped()) {
+      if(nullptr!=m_commonPopup && m_commonPopup->IsMapped()) {
          FWConfiguration temp(1);
          addWindowInfoTo(m_commonPopup, temp);
          controllers.addKeyValue(kCommonController,temp,true);
@@ -1283,7 +1283,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
    if (m_viewSecPack) subviewDestroyAll();
 
    const FWConfiguration* mw = iFrom.valueForKey(kMainWindow);
-   assert(mw != 0);
+   assert(mw != nullptr);
    // Window needs to mapped before moving, otherwise move can lead
    // to wrong results on some window managers.
 
@@ -1300,13 +1300,13 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
       m_cmsShowMainFrame->setSummaryViewWeight(summaryWeight);       
    }
 
-   TEveWindowSlot* primSlot = (leftWeight > 0) ? m_viewPrimPack->NewSlotWithWeight(leftWeight) : 0;
+   TEveWindowSlot* primSlot = (leftWeight > 0) ? m_viewPrimPack->NewSlotWithWeight(leftWeight) : nullptr;
    m_viewSecPack = m_viewPrimPack->NewSlotWithWeight(rightWeight)->MakePack();
    m_viewSecPack->SetVertical();
    m_viewSecPack->SetShowTitleBar(kFALSE);
 
    // views list
-   const FWConfiguration* views = iFrom.valueForKey(kViews); assert(0!=views);
+   const FWConfiguration* views = iFrom.valueForKey(kViews); assert(nullptr!=views);
    const FWConfiguration::KeyValues* keyVals = views->keyValues();
    const FWConfiguration* viewArea = iFrom.valueForKey(kViewArea);
 
@@ -1319,7 +1319,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
       for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it!= keyVals->end(); ++it)
       {
          float weight = atof((areaIt->second).valueForKey("weight")->value().c_str());
-         TEveWindowSlot* slot = ( m_viewMap.size() || (primSlot == 0) ) ? m_viewSecPack->NewSlotWithWeight(weight) : primSlot;
+         TEveWindowSlot* slot = ( !m_viewMap.empty() || (primSlot == nullptr) ) ? m_viewSecPack->NewSlotWithWeight(weight) : primSlot;
          std::string name = FWViewType::checkNameWithViewVersion(it->first, it->second.version());
          ViewMap_i lastViewIt = createView(name, slot);
          lastViewIt->second->setFrom(it->second);
@@ -1347,24 +1347,24 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
    {  // create views with same weight in old version
       for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it!= keyVals->end(); ++it) {
          std::string name = FWViewType::checkNameWithViewVersion(it->first, it->second.version());       
-         createView(name, m_viewMap.size() ? m_viewSecPack->NewSlot() : primSlot); 	 
+         createView(name, !m_viewMap.empty() ? m_viewSecPack->NewSlot() : primSlot); 	 
 
          ViewMap_i lastViewIt = m_viewMap.end(); lastViewIt--;
          lastViewIt->second->setFrom(it->second);
       }
       // handle undocked windows in old version
       const FWConfiguration* undocked = iFrom.valueForKey(kUndocked);
-      if(0!=undocked) {
+      if(nullptr!=undocked) {
          fwLog(fwlog::kWarning) << "Restrore of undocked windows with old window management not supported." << std::endl;
       }
    }
 
    //handle controllers
    const FWConfiguration* controllers = iFrom.valueForKey(kControllers);
-   if (0 != controllers)
+   if (nullptr != controllers)
    {
       const FWConfiguration::KeyValues* keyVals = controllers->keyValues();
-      if (0 != keyVals)
+      if (nullptr != keyVals)
       {
          //we have open controllers
          for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it != keyVals->end(); ++it)
@@ -1375,7 +1375,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
                showEDIFrame();
                setWindowInfoFrom(it->second,m_ediFrame);
             } else if (controllerName == kViewController) {
-               setViewPopup(0);
+               setViewPopup(nullptr);
                setWindowInfoFrom(it->second, m_viewPopup);
             } else if (controllerName == kObjectController) {
                showModelPopup();
@@ -1400,7 +1400,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
 
    gEve->EnableRedraw();
    // disable first docked view
-   checkSubviewAreaIconState(0);
+   checkSubviewAreaIconState(nullptr);
 
    m_cmsShowMainFrame->MapWindow();
    setWindowInfoFrom(*mw, m_cmsShowMainFrame);
@@ -1516,13 +1516,13 @@ FWGUIManager::measureWMOffsets()
 {
   const Int_t x = 100, y = 100;
 
-  TGMainFrame *mf1 = new TGMainFrame(0, 0, 0);
+  TGMainFrame *mf1 = new TGMainFrame(nullptr, 0, 0);
   mf1->MapWindow();
   mf1->Move(x, y);
 
   // This seems to be the only reliable way to make sure Move() has been processed.
   {
-    TGMainFrame *mf2 = new TGMainFrame(0, 0, 0);
+    TGMainFrame *mf2 = new TGMainFrame(nullptr, 0, 0);
     mf2->MapWindow();
     while (!mf2->IsMapped()) gClient->HandleInput();
     delete mf2;

@@ -1,5 +1,5 @@
 #define MELaserPrim_cxx
-#include <assert.h>
+#include <cassert>
 #include "CalibCalorimetry/EcalLaserAnalyzer/interface/MELaserPrim.h"
 #include "CalibCalorimetry/EcalLaserAnalyzer/interface/MEGeom.h"
 #include <cassert>
@@ -33,16 +33,16 @@ MELaserPrim::MELaserPrim(  ME::Header header, ME::Settings settings,
 			   const char* inpath, const char* outfile )
 : init_ok(false), _isBarrel(true), _inpath(inpath), _outfile(outfile)
 {
-  apdpn_file =0;
-  ab_file    =0;
-  mtq_file   =0;
-  tpapd_file =0;
-  apdpn_tree =0;
-  ab_tree    =0;
-  pn_tree    =0;
-  mtq_tree   =0;
-  tpapd_tree =0;
-  tppn_tree  =0;
+  apdpn_file =nullptr;
+  ab_file    =nullptr;
+  mtq_file   =nullptr;
+  tpapd_file =nullptr;
+  apdpn_tree =nullptr;
+  ab_tree    =nullptr;
+  pn_tree    =nullptr;
+  mtq_tree   =nullptr;
+  tpapd_tree =nullptr;
+  tppn_tree  =nullptr;
   ixmin      =0;
   ixmax      =0;
   iymin      =0;
@@ -201,7 +201,7 @@ MELaserPrim::init()
 
       if(mtq_ok)  {
 	TTree *ckeckMtq = (TTree*) mtq_file->Get(mtq_tree_name);
-	if( ckeckMtq ==0 ) mtq_ok = false;
+	if( ckeckMtq ==nullptr ) mtq_ok = false;
       }
 
       if( _color != ME::iIRed && _color != ME::iBlue ){ 
@@ -210,7 +210,7 @@ MELaserPrim::init()
       }
       
       apdpn_tree = (TTree*) apdpn_file->Get(apdpn_tree_name);
-      assert( apdpn_tree!=0 );
+      assert( apdpn_tree!=nullptr );
       apdpn_tree->SetMakeClass(1);
       apdpn_tree->SetBranchAddress("dccID", &apdpn_dccID, &b_apdpn_dccID);
       apdpn_tree->SetBranchAddress("towerID", &apdpn_towerID, &b_apdpn_towerID);
@@ -230,7 +230,7 @@ MELaserPrim::init()
   
       if(ab_ok)  {
       ab_tree = (TTree*) ab_file->Get(ab_tree_name);
-      assert( ab_tree!=0 );
+      assert( ab_tree!=nullptr );
       ab_tree->SetMakeClass(1);
       ab_tree->SetBranchAddress("dccID",     &ab_dccID,     &b_ab_dccID     );
       ab_tree->SetBranchAddress("towerID",   &ab_towerID,   &b_ab_towerID   );
@@ -245,7 +245,7 @@ MELaserPrim::init()
       }
 
       pn_tree = (TTree*) apdpn_file->Get(pn_tree_name);
-      assert( pn_tree!=0 );
+      assert( pn_tree!=nullptr );
       pn_tree->SetMakeClass(1);
       pn_tree->SetBranchAddress( "side",     &pn_side,     &b_pn_side     );
       pn_tree->SetBranchAddress( "pnID",     &pn_pnID,     &b_pn_pnID     );
@@ -258,7 +258,7 @@ MELaserPrim::init()
 
       if( mtq_ok ) {
 	mtq_tree = (TTree*) mtq_file->Get(mtq_tree_name);
-	assert( mtq_tree!=0 );
+	assert( mtq_tree!=nullptr );
 	mtq_tree->SetMakeClass(1);
 	mtq_tree->SetBranchAddress("side",        &mtq_side,       &b_mtq_side  );
     
@@ -297,7 +297,7 @@ MELaserPrim::init()
       tppn_tree_name  = "TPPN";   
     
       tpapd_tree = (TTree*) tpapd_file->Get(tpapd_tree_name);
-      assert( tpapd_tree!=0 );
+      assert( tpapd_tree!=nullptr );
       tpapd_tree->SetMakeClass(1);
       tpapd_tree->SetBranchAddress("ieta", &tpapd_ieta, &b_tpapd_ieta);
       tpapd_tree->SetBranchAddress("iphi", &tpapd_iphi, &b_tpapd_iphi);
@@ -311,7 +311,7 @@ MELaserPrim::init()
       tpapd_tree->SetBranchAddress("APD",   tpapd_APD,  &b_tpapd_APD );
 
       tppn_tree = (TTree*) tpapd_file->Get(tppn_tree_name);
-      assert( tppn_tree!=0 );
+      assert( tppn_tree!=nullptr );
       tppn_tree->SetMakeClass(1);
       tppn_tree->SetBranchAddress( "side",     &tppn_side,     &b_tppn_side     );
       tppn_tree->SetBranchAddress( "pnID",     &tppn_pnID,     &b_tppn_pnID     );
@@ -960,7 +960,7 @@ MELaserPrim::writeHistograms()
   //  std::cout << "Closing " << _outfile << std::endl;
   out_file->Close();
   delete out_file;
-  out_file=0;
+  out_file=nullptr;
 }
 
 MELaserPrim::~MELaserPrim()
@@ -971,33 +971,33 @@ MELaserPrim::~MELaserPrim()
   delete mtq_tree;
   delete tpapd_tree;
   delete tppn_tree;
-  if( apdpn_file!=0 )
+  if( apdpn_file!=nullptr )
     {
       //      std::cout << "Closing apdpn_file " << std::endl;
       apdpn_file->Close();
       delete apdpn_file;
-      apdpn_file = 0;
+      apdpn_file = nullptr;
     }
-  if( ab_file!=0 )
+  if( ab_file!=nullptr )
     {
       //      std::cout << "Closing ab_file " << std::endl;
       ab_file->Close();
       delete ab_file;
-      ab_file = 0;
+      ab_file = nullptr;
     }
-  if( mtq_file!=0 )
+  if( mtq_file!=nullptr )
     {
       //      std::cout << "Closing mtq_file " << std::endl;
       mtq_file->Close();
       delete mtq_file;
-      mtq_file = 0;
+      mtq_file = nullptr;
     }
-  if( tpapd_file!=0 )
+  if( tpapd_file!=nullptr )
     {
       //      std::cout << "Closing tpapd_file " << std::endl;
       tpapd_file->Close();
       delete tpapd_file;
-      tpapd_file = 0;
+      tpapd_file = nullptr;
     }
 }
 
@@ -1126,7 +1126,7 @@ MELaserPrim::setInt( const char* name, int ix, int iy, int ival )
   if( _ival!=0 ) return false; 
 
   TH2I* h_ = (TH2I*) i_h[name_];
-  assert( h_!=0 );
+  assert( h_!=nullptr );
   h_->Fill( ix+0.5, iy+0.5, ival );
 
   return true;
@@ -1144,7 +1144,7 @@ MELaserPrim::setVal( const char* name, int ix, int iy, float val )
   if( _val!=0 ) return false; 
 
   TH2F* h_ = (TH2F*) f_h[name_];
-  assert( h_!=0 );
+  assert( h_!=nullptr );
   
   h_->Fill( ix+0.5, iy+0.5, val );
 
@@ -1158,7 +1158,7 @@ MELaserPrim::getInt( const char* name, int ix, int iy )
   if( i_h.count(name)==1 )
     {
       TH2I* h_ = (TH2I*) i_h[name];
-      assert( h_!=0 );
+      assert( h_!=nullptr );
       int binx = h_->GetXaxis()->FindBin( ix+0.5 );
       int biny = h_->GetYaxis()->FindBin( iy+0.5 );
       ival =  (Int_t) h_->GetCellContent( binx, biny );
@@ -1173,7 +1173,7 @@ MELaserPrim::getVal( const char* name, int ix, int iy )
   if( f_h.count(name)==1 )
     {
       TH2F* h_ = (TH2F*) f_h[name];
-      assert( h_!=0 );
+      assert( h_!=nullptr );
       int binx = h_->GetXaxis()->FindBin( ix+0.5 );
       int biny = h_->GetYaxis()->FindBin( iy+0.5 );
       val =  h_->GetCellContent( binx, biny );
@@ -1217,7 +1217,7 @@ MELaserPrim::fill( const char* tname )
 void 
 MELaserPrim::setHistoStyle( TH1* h )
 {
-  if( h==0 ) return;
+  if( h==nullptr ) return;
   
   float _scale = 1;
 
@@ -1250,14 +1250,14 @@ MELaserPrim::refresh()
   for( it=i_h.begin(); it!=i_h.end(); ++it )
     {
       delete it->second;
-      it->second = 0;
+      it->second = nullptr;
     }
   i_h.clear();
 
   for( it=f_h.begin(); it!=f_h.end(); ++it )
     {
       delete it->second;
-      it->second = 0;
+      it->second = nullptr;
     }
   f_h.clear();
 
@@ -1265,7 +1265,7 @@ MELaserPrim::refresh()
   for( it_t=t_t.begin(); it_t!=t_t.end(); ++it_t )
     {
       delete it_t->second;
-      it->second = 0;
+      it->second = nullptr;
     }
   t_t.clear();
 }

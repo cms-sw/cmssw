@@ -79,9 +79,9 @@ class PiZeroAnalyzer : public DQMEDAnalyzer
 
  public:
   explicit PiZeroAnalyzer( const edm::ParameterSet& ) ;
-  virtual ~PiZeroAnalyzer();
+  ~PiZeroAnalyzer() override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  virtual void analyze( const edm::Event&, const edm::EventSetup& ) override ;
+  void analyze( const edm::Event&, const edm::EventSetup& ) override ;
  
  private:
   void makePizero(const edm::EventSetup& es, const edm::Handle<EcalRecHitCollection> eb, const edm::Handle<EcalRecHitCollection> ee ); 

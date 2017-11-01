@@ -10,7 +10,7 @@ const std::string GctFormatTranslateBase::INVALID_BLOCK_HEADER_STR = "UNKNOWN/IN
 // PUBLIC METHODS
 
 GctFormatTranslateBase::GctFormatTranslateBase(bool hltMode, bool unpackSharedRegions):
-  m_collections(0),
+  m_collections(nullptr),
   m_hltMode(hltMode),
   m_unpackSharedRegions(unpackSharedRegions),
   m_srcCardRouting(),

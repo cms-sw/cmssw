@@ -26,7 +26,7 @@ namespace edm {
 #include <string>
 
 #ifdef __linux
-#include <time.h>
+#include <ctime>
 #else
 typedef int clockid_t;
 #define CLOCK_REALTIME               0                                                                                                                                                                                        

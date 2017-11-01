@@ -16,10 +16,10 @@ namespace fftjetcms {
     {
     public:
         inline ConstDouble(const double value) : c_(value) {}
-        inline double operator()(const Arg1&) const {return c_;}
+        inline double operator()(const Arg1&) const override {return c_;}
 
     private:
-        ConstDouble();
+        ConstDouble() = delete;
         double c_;
     };
 
@@ -30,10 +30,10 @@ namespace fftjetcms {
     {
     public:
         inline ProportionalToScale(const double value) : c_(value) {}
-        inline double operator()(const T& r) const {return r.scale()*c_;}
+        inline double operator()(const T& r) const override {return r.scale()*c_;}
 
     private:
-        ProportionalToScale();
+        ProportionalToScale() = delete;
         double c_;
     };
 
@@ -48,12 +48,12 @@ namespace fftjetcms {
                                const bool takeOwnership=false)
             : c_(factor), func_(f), ownsPointer_(takeOwnership) {}
 
-        inline ~MultiplyByConst() {if (ownsPointer_) delete func_;}
+        inline ~MultiplyByConst() override {if (ownsPointer_) delete func_;}
 
-        inline double operator()(const T& r) const {return (*func_)(r)*c_;}
+        inline double operator()(const T& r) const override {return (*func_)(r)*c_;}
 
     private:
-        MultiplyByConst();
+        MultiplyByConst() = delete;
         double c_;
         const fftjet::Functor1<double,T>* func_;
         const bool ownsPointer_;
@@ -70,13 +70,13 @@ namespace fftjetcms {
                                 const bool takeOwnership=false)
             : f1_(f1), f2_(f2), ownsPointers_(takeOwnership) {}
 
-        inline ~CompositeFunctor()
+        inline ~CompositeFunctor() override
             {if (ownsPointers_) {delete f1_; delete f2_;}}
 
-        inline double operator()(const T& r) const {return (*f1_)((*f2_)(r));}
+        inline double operator()(const T& r) const override {return (*f1_)((*f2_)(r));}
 
     private:
-        CompositeFunctor();
+        CompositeFunctor() = delete;
         const fftjet::Functor1<double,double>* f1_;
         const fftjet::Functor1<double,T>* f2_;
         const bool ownsPointers_;
@@ -93,14 +93,14 @@ namespace fftjetcms {
                               const bool takeOwnership=false)
             : f1_(f1), f2_(f2), ownsPointers_(takeOwnership) {}
 
-        inline ~ProductFunctor()
+        inline ~ProductFunctor() override
             {if (ownsPointers_) {delete f1_; delete f2_;}}
 
-        inline double operator()(const T& r) const
+        inline double operator()(const T& r) const override
             {return (*f1_)(r) * (*f2_)(r);}
 
     private:
-        ProductFunctor();
+        ProductFunctor() = delete;
         const fftjet::Functor1<double,T>* f1_;
         const fftjet::Functor1<double,T>* f2_;
         const bool ownsPointers_;
@@ -116,13 +116,13 @@ namespace fftjetcms {
                                   const bool takeOwnership=false)
             : f1_(f1), ownsPointer_(takeOwnership) {}
 
-        inline ~MagnitudeDependent() {if (ownsPointer_) delete f1_;}
+        inline ~MagnitudeDependent() override {if (ownsPointer_) delete f1_;}
 
-        inline double operator()(const T& r) const
+        inline double operator()(const T& r) const override
             {return (*f1_)(r.magnitude());}
 
     private:
-        MagnitudeDependent();
+        MagnitudeDependent() = delete;
         const fftjet::Functor1<double,double>* f1_;
         const bool ownsPointer_;
     };
@@ -136,13 +136,13 @@ namespace fftjetcms {
                                 const bool takeOwnership=false)
             : f1_(f1), ownsPointer_(takeOwnership) {}
 
-        inline ~PeakEtaDependent() {if (ownsPointer_) delete f1_;}
+        inline ~PeakEtaDependent() override {if (ownsPointer_) delete f1_;}
 
-        inline double operator()(const fftjet::Peak& r) const
+        inline double operator()(const fftjet::Peak& r) const override
             {return (*f1_)(r.eta());}
 
     private:
-        PeakEtaDependent();
+        PeakEtaDependent() = delete;
         const fftjet::Functor1<double,double>* f1_;
         const bool ownsPointer_;
     };
@@ -159,13 +159,13 @@ namespace fftjetcms {
             : f1_(f1), ownsPointer_(takeOwnership), jmmp_(jmmp),
               ownsjmmpPointer_(ownjmp), factor_(fc) {}
 
-        inline ~PeakEtaMagSsqDependent()
+        inline ~PeakEtaMagSsqDependent() override
         {
             if (ownsPointer_) delete f1_;
             if (ownsjmmpPointer_) delete jmmp_;
         }
 
-        inline double operator()(const fftjet::Peak& r) const
+        inline double operator()(const fftjet::Peak& r) const override
         {
             const double scale = r.scale();
             const double magnitude = r.magnitude();
@@ -175,7 +175,7 @@ namespace fftjetcms {
         }
 
     private:
-        PeakEtaMagSsqDependent();
+        PeakEtaMagSsqDependent() = delete;
         const fftjet::LinearInterpolator2d* f1_;
         const bool ownsPointer_;
         const fftjet::JetMagnitudeMapper2d <fftjet::Peak>* jmmp_;
@@ -193,14 +193,14 @@ namespace fftjetcms {
                                const bool takeOwnership=false)
             : f1_(f1), ownsPointer_(takeOwnership) {}
 
-        inline ~JetEtaDependent() {if (ownsPointer_) delete f1_;}
+        inline ~JetEtaDependent() override {if (ownsPointer_) delete f1_;}
 
         inline double operator()(
-            const fftjet::RecombinedJet<VectorLike>& r) const
+            const fftjet::RecombinedJet<VectorLike>& r) const override
             {return (*f1_)(r.vec().eta());}
 
     private:
-        JetEtaDependent();
+        JetEtaDependent() = delete;
         const fftjet::Functor1<double,double>* f1_;
         const bool ownsPointer_;
     };
@@ -211,7 +211,7 @@ namespace fftjetcms {
     {
     public:
         inline Polynomial(const std::vector<double>& coeffs)
-            : coeffs_(0), nCoeffs(coeffs.size())
+            : coeffs_(nullptr), nCoeffs(coeffs.size())
         {
             if (nCoeffs)
             {
@@ -219,9 +219,9 @@ namespace fftjetcms {
                 std::copy(coeffs.begin(), coeffs.end(), coeffs_);
             }
         }
-        inline ~Polynomial() {delete [] coeffs_;}
+        inline ~Polynomial() override {delete [] coeffs_;}
 
-        inline double operator()(const double& x) const
+        inline double operator()(const double& x) const override
         {
             double sum = 0.0;
             const double* p = coeffs_ + nCoeffs - 1;
@@ -234,7 +234,7 @@ namespace fftjetcms {
         }
 
     private:
-        Polynomial();
+        Polynomial() = delete;
         double* coeffs_;
         const unsigned nCoeffs;
     };

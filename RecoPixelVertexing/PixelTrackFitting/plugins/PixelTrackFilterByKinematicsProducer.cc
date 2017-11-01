@@ -14,12 +14,12 @@
 class PixelTrackFilterByKinematicsProducer: public edm::global::EDProducer<> {
 public:
   explicit PixelTrackFilterByKinematicsProducer(const edm::ParameterSet& iConfig);
-  ~PixelTrackFilterByKinematicsProducer();
+  ~PixelTrackFilterByKinematicsProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
+  void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
   const float theoPtMin;
   const float theNSigmaInvPtTolerance;

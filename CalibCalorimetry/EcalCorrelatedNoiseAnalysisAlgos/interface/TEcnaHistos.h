@@ -7,7 +7,7 @@
 //#include <Riostream.h>
 #include <iostream>
 #include "TSystem.h"
-#include <time.h>
+#include <ctime>
 #include "TString.h"
 
 #include "TROOT.h"
@@ -991,7 +991,7 @@ class TEcnaHistos : public TObject {
 //	      const TEcnaNumbering*,
 //	      const TEcnaWrite*);
   
-  virtual  ~TEcnaHistos();
+   ~TEcnaHistos() override;
   
   void Init();
   void SetEcalSubDetector(const TString&);
@@ -1340,7 +1340,7 @@ class TEcnaHistos : public TObject {
   Bool_t StatusFileFound();
   Bool_t StatusDataExist();
 
-ClassDef(TEcnaHistos,1)// methods for plots from ECNA (Ecal Correlated Noises Analysis)
+ClassDefOverride(TEcnaHistos,1)// methods for plots from ECNA (Ecal Correlated Noises Analysis)
 
 };
 

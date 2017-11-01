@@ -23,15 +23,15 @@ namespace edm {
   class TimeoutPoolOutputModule : public PoolOutputModule {
   public:
     explicit TimeoutPoolOutputModule(ParameterSet const& ps);
-    virtual ~TimeoutPoolOutputModule(){};
+    ~TimeoutPoolOutputModule() override{};
     TimeoutPoolOutputModule(TimeoutPoolOutputModule const&) = delete; // Disallow copying and moving
     TimeoutPoolOutputModule& operator=(TimeoutPoolOutputModule const&) = delete; // Disallow copying and moving
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   protected:
-    virtual bool shouldWeCloseFile() const override;
-    virtual void write(EventForOutput const& e) override;
+    bool shouldWeCloseFile() const override;
+    void write(EventForOutput const& e) override;
 
   private:
     mutable time_t m_lastEvent;
