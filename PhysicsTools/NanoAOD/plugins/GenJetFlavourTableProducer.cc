@@ -14,6 +14,7 @@
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavourInfo.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavourInfoMatching.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
 
@@ -69,11 +70,18 @@ GenJetFlavourTableProducer::produce(edm::StreamID, edm::Event& iEvent, const edm
     for (const reco::GenJet & jet : *jets) {
       if (!cut_(jet)) continue;
       ++ncand;
+      bool matched = false;
       for (const reco::JetFlavourInfoMatching & jetFlavourInfoMatching : *jetFlavourInfos) {
-        if (jet.p4() == jetFlavourInfoMatching.first->p4()) {
+        if (deltaR(jet.p4(), jetFlavourInfoMatching.first->p4()) < 0.1) {
           partonFlavour.push_back(jetFlavourInfoMatching.second.getPartonFlavour());
           hadronFlavour.push_back(jetFlavourInfoMatching.second.getHadronFlavour());
+          matched = true;
+          break;
         }
+      }
+      if (!matched) {
+        partonFlavour.push_back(0);
+        hadronFlavour.push_back(0);
       }
     }
 
