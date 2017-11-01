@@ -47,7 +47,7 @@ class FFTJetPileupEstimator : public edm::EDProducer
 {
 public:
     explicit FFTJetPileupEstimator(const edm::ParameterSet&);
-    ~FFTJetPileupEstimator();
+    ~FFTJetPileupEstimator() override;
 
 protected:
     // methods
@@ -56,9 +56,9 @@ protected:
     void endJob() override;
 
 private:
-    FFTJetPileupEstimator();
-    FFTJetPileupEstimator(const FFTJetPileupEstimator&);
-    FFTJetPileupEstimator& operator=(const FFTJetPileupEstimator&);
+    FFTJetPileupEstimator() = delete;
+    FFTJetPileupEstimator(const FFTJetPileupEstimator&) = delete;
+    FFTJetPileupEstimator& operator=(const FFTJetPileupEstimator&) = delete;
 
     std::unique_ptr<reco::FFTJetPileupSummary> calibrateFromConfig(
         double uncalibrated) const;
@@ -69,7 +69,7 @@ private:
     template<class Ptr>
     inline void checkConfig(const Ptr& ptr, const char* message)
     {
-        if (ptr.get() == NULL)
+        if (ptr.get() == nullptr)
             throw cms::Exception("FFTJetBadConfig") << message << std::endl;
     }
 

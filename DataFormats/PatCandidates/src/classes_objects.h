@@ -175,6 +175,12 @@ namespace DataFormats_PatCandidates {
   std::vector< edm::FwdPtr<pat::PackedCandidate> > v_fwdptr_pc;
   edm::Wrapper< std::vector< edm::FwdPtr<pat::PackedCandidate> > > wv_fwdptr_pc;
 
+  edm::FwdPtr<pat::PackedGenParticle> fwdptr_pgp;
+  edm::Wrapper< edm::FwdPtr<pat::PackedGenParticle> > w_fwdptr_pgp;
+  std::vector< edm::FwdPtr<pat::PackedGenParticle> > v_fwdptr_pgp;
+  edm::Wrapper< std::vector< edm::FwdPtr<pat::PackedGenParticle> > > wv_fwdptr_pgp;
+
+    
   edm::Wrapper<edm::Association<pat::PackedCandidateCollection > > w_asso_pc;
   edm::Wrapper<edm::Association<reco::PFCandidateCollection > >    w_asso_pfc;
   edm::Wrapper<edm::Association<std::vector<pat::PackedGenParticle> > > asso_pgp;

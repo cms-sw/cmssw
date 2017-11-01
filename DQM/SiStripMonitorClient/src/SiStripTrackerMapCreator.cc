@@ -41,7 +41,7 @@ SiStripTrackerMapCreator::SiStripTrackerMapCreator(const edm::EventSetup& eSetup
 {
   cached_detid=0;
   cached_layer=0;
-  trackerMap_ = 0;
+  trackerMap_ = nullptr;
   stripTopLevelDir_="";
   eSetup_.get<SiStripDetCablingRcd>().get(detcabling_);
   //  psumap_.BuildMap("CalibTracker/SiStripDCS/data/StripPSUDetIDMap_FromJan132010.dat",false);
@@ -115,7 +115,7 @@ void SiStripTrackerMapCreator::create(const edm::ParameterSet & tkmapPset,
   }
   trackerMap_->printonline();
   delete trackerMap_;
-  trackerMap_ = 0;
+  trackerMap_ = nullptr;
 }
 //
 // -- Create Tracker Map for Offline process
@@ -132,7 +132,7 @@ void SiStripTrackerMapCreator::createForOffline(const edm::ParameterSet & tkmapP
     edm::LogError("SiStripTopLevelDirNotFound") << "I cannot find the SiStrip top level directory in the DQM file";
   }
   else {
-    std::string mechanicalview_dir = dqm_store->pwd();
+    const std::string& mechanicalview_dir = dqm_store->pwd();
     stripTopLevelDir_=mechanicalview_dir.substr(0,mechanicalview_dir.find_last_of("/"));    
     edm::LogInfo("SiStripTopLevelDirFound") << "SiStrip top level directory is " << stripTopLevelDir_;
   }
@@ -201,17 +201,17 @@ void SiStripTrackerMapCreator::createForOffline(const edm::ParameterSet & tkmapP
     ResidualsRMS_ = false;
     setTkMapFromHistogram(dqm_store, map_type, eSetup);
     edm::LogInfo("TkMapToBeSaved") << "Ready to save TkMap " << map_type << namesuffix << " with range set to " << tkMapMin_ << " - " << tkMapMax_;
-    trackerMap_->save(true, tkMapMin_,tkMapMax_, map_type+namesuffix+".svg");  
-    trackerMap_->save(true, tkMapMin_,tkMapMax_, map_type+namesuffix+".png",4500,2400);
+    trackerMap_->save(true, 0.0000000001,0.005, map_type+namesuffix+".svg");  
+    trackerMap_->save(true, 0.0000000001,0.005, map_type+namesuffix+".png",4500,2400);
     ResidualsRMS_ = true;
     map_type = "ResidualsRMS";
     if      (runNumber_>0)  { tmap_title = " Run: " + sRunNumber + ", Tracker Map from " + map_type; } //LG
     else                    { tmap_title = " Tracker Map from " + map_type; } //LG
     trackerMap_->setTitle(tmap_title);
     setTkMapFromHistogram(dqm_store, map_type, eSetup);
-    edm::LogInfo("TkMapToBeSaved") << "Ready to save TkMap " << map_type << namesuffix << " with range set to 0.0 - 1.0";
-    trackerMap_->save(true, 0.0, 1.0, map_type+namesuffix+".svg");  
-    trackerMap_->save(true, 0.0, 1.0, map_type+namesuffix+".png",4500,2400);
+    edm::LogInfo("TkMapToBeSaved") << "Ready to save TkMap " << map_type << namesuffix << " with range set to 0.0 - 0.5";
+    trackerMap_->save(true, 0.000000001, 0.005, map_type+namesuffix+".svg");  
+    trackerMap_->save(true, 0.000000001, 0.005, map_type+namesuffix+".png",4500,2400);
   } else {
     edm::LogInfo("TkMapToBeSaved") << "Ready to save TkMap " << map_type << namesuffix << " with range set to " << tkMapMin_ << " - " << tkMapMax_;
     trackerMap_->save(true, tkMapMin_,tkMapMax_, map_type+namesuffix+".svg");  
@@ -235,7 +235,7 @@ void SiStripTrackerMapCreator::createForOffline(const edm::ParameterSet & tkmapP
   }
 
   delete trackerMap_;
-  trackerMap_ = 0;
+  trackerMap_ = nullptr;
 }
 //
 // -- Fill Tracker Map with QTest Alarms and SiStripQuality bad modules
@@ -419,7 +419,7 @@ void SiStripTrackerMapCreator::setTkMapFromHistogram(DQMStore* dqm_store, std::s
     for (std::vector<std::string>::const_iterator iLayer = layerVec.begin(); iLayer != layerVec.end(); iLayer++) { 
       if ((*iLayer).find("BadModuleList") !=std::string::npos) continue;
       std::vector<MonitorElement*> meVec = dqm_store->getContents((*iLayer));
-      MonitorElement* tkhmap_me = 0;
+      MonitorElement* tkhmap_me = nullptr;
       std::string name;
       for (std::vector<MonitorElement*>::const_iterator itkh = meVec.begin();  itkh != meVec.end(); itkh++) {
 	name = (*itkh)->getName();
@@ -433,11 +433,11 @@ void SiStripTrackerMapCreator::setTkMapFromHistogram(DQMStore* dqm_store, std::s
 	  break; 
 	} 
       }
-      if (tkhmap_me != 0) {
+      if (tkhmap_me != nullptr) {
 	if (topModules){
         	paintTkMapFromHistogram(dqm_store,tkhmap_me, htype, topNmodVec);
 	}
-	else paintTkMapFromHistogram(dqm_store,tkhmap_me, htype, 0);
+	else paintTkMapFromHistogram(dqm_store,tkhmap_me, htype, nullptr);
       } 
     }
     dqm_store->cd(mechanicalview_dir);
@@ -481,7 +481,7 @@ void SiStripTrackerMapCreator::printTopModules(std::vector<std::pair<float,uint3
 	  if(tTopo->tecSide(ssdetid)==1) subdetector = "TEC/MINUS ";
 	  if(tTopo->tecSide(ssdetid)==2) subdetector = "TEC/PLUS  ";
        }
-       uint16_t flag = getDetectorFlagAndComment(0, det_id, tTopo, comment);
+       uint16_t flag = getDetectorFlagAndComment(nullptr, det_id, tTopo, comment);
        if (flag == 0) edm::LogVerbatim("TopModules") << subdetector << comment.str() << " value: "<< aPair.first;
    }
    edm::LogVerbatim("TopModules") << "------------------------------------------------------";
@@ -494,7 +494,7 @@ void SiStripTrackerMapCreator::paintTkMapFromHistogram(DQMStore* dqm_store, Moni
 
   //  if(useSSQuality_) { eSetup_.get<SiStripQualityRcd>().get(ssqLabel_,ssq);  }
 
-  std::string name  = me->getName();
+  const std::string& name  = me->getName();
   std::string lname = name.substr(name.find("TkHMap_")+7);  
   lname = lname.substr(lname.find("_T")+1);
   std::vector<uint32_t> layer_detids;
@@ -520,7 +520,7 @@ void SiStripTrackerMapCreator::paintTkMapFromHistogram(DQMStore* dqm_store, Moni
 	}
       } else {
 	float fval_prov = me->getBinContent(xyval.ix, xyval.iy);
-	fval =  fval_prov;
+	fval = std::abs (fval_prov);
       }
     } else fval = me->getBinContent(xyval.ix, xyval.iy);
     if (htype == "QTestAlarm") {
@@ -597,7 +597,7 @@ uint16_t SiStripTrackerMapCreator::getDetectorFlagAndComment(DQMStore* dqm_store
       comment << "       ";
     }
   }
-  if(conns.size()==0) {	comment << "                     ";      }
+  if(conns.empty()) {	comment << "                     ";      }
   if(conns.size()==1) {	comment << "              ";      }
   if(conns.size()==2) {	comment << "       ";      }
     //  }
@@ -678,7 +678,7 @@ void SiStripTrackerMapCreator::createInfoFile(std::vector<std::string> map_names
       edm::LogError("SiStripTrackerMapCreator::createInfoFile") << "I cannot find the SiStrip top level directory in the DQM file";
     }
     else {
-      std::string mechanicalview_dir = dqm_store->pwd();
+      const std::string& mechanicalview_dir = dqm_store->pwd();
       dirname=mechanicalview_dir.substr(0,mechanicalview_dir.find_last_of("/"));    
       edm::LogInfo("SiStripTrackerMapCreator::createInfoFile") << "SiStrip top level directory is " << dirname;
     }

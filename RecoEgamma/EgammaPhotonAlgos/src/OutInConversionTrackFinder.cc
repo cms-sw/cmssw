@@ -36,7 +36,7 @@ OutInConversionTrackFinder::OutInConversionTrackFinder(const edm::ParameterSet& 
   } else if (cleaner == "CachingSeedCleanerBySharedInput") {
     theSeedCleaner_ = new CachingSeedCleanerBySharedInput();
   } else if (cleaner == "none") {
-    theSeedCleaner_ = 0;
+    theSeedCleaner_ = nullptr;
   } else {
     throw cms::Exception("OutInRedundantSeedCleaner not found", cleaner);
   }
@@ -188,7 +188,7 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
     //  LogDebug("OutInConversionTrackFinder") << " Initial state parameters " << initState.first << "\n";    
     
     // temporary protection againt invalid initial states
-    if (! initState.first.isValid() || initState.second == 0) {
+    if (! initState.first.isValid() || initState.second == nullptr) {
       LogDebug("OutInConversionTrackFinder")  << "invalid innerState, will not make TrackCandidate" << "\n";;
       continue;
     }
@@ -197,7 +197,7 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
 
 
   LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder  tmpO size " << tmpO.size() << " after filling " << "\n"; 
-  if ( tmpO.size() ) {
+  if ( !tmpO.empty() ) {
     std::vector<Trajectory>::iterator it=tmpO.begin();
     
     // only send out the two best tracks 

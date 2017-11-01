@@ -14,7 +14,7 @@ namespace {
     BeamSpot_hx(): cond::payloadInspector::HistoryPlot<BeamSpotObjects,std::pair<double,double> >( "x vs run number", "x"){
     }
 
-    std::pair<double,double> getFromPayload( BeamSpotObjects& payload ){
+    std::pair<double,double> getFromPayload( BeamSpotObjects& payload ) override{
       return std::make_pair(payload.GetX(),payload.GetXError());
     }
   };
@@ -24,7 +24,7 @@ namespace {
     BeamSpot_rhx(): cond::payloadInspector::RunHistoryPlot<BeamSpotObjects,std::pair<double,double> >( "x vs run number", "x"){
     }
 
-    std::pair<double,double> getFromPayload( BeamSpotObjects& payload ){
+    std::pair<double,double> getFromPayload( BeamSpotObjects& payload ) override{
       return std::make_pair(payload.GetX(),payload.GetXError());
     }
   };
@@ -33,7 +33,7 @@ namespace {
     BeamSpot_x(): cond::payloadInspector::TimeHistoryPlot<BeamSpotObjects,std::pair<double,double> >( "x vs time", "x"){
     }
 
-    std::pair<double,double> getFromPayload( BeamSpotObjects& payload ){
+    std::pair<double,double> getFromPayload( BeamSpotObjects& payload ) override{
       return std::make_pair(payload.GetX(),payload.GetXError());
     }
   };
@@ -43,7 +43,7 @@ namespace {
     BeamSpot_y(): cond::payloadInspector::TimeHistoryPlot<BeamSpotObjects,std::pair<double,double> >( "y vs time", "y"){
     }
 
-    std::pair<double,double> getFromPayload( BeamSpotObjects& payload ){
+    std::pair<double,double> getFromPayload( BeamSpotObjects& payload ) override{
       return std::make_pair(payload.GetY(),payload.GetYError());
     }
   };
@@ -53,7 +53,7 @@ namespace {
     BeamSpot_xy(): cond::payloadInspector::ScatterPlot<BeamSpotObjects,double,double>("BeamSpot x vs y","x","y" ){
     }
 
-    std::tuple<double,double> getFromPayload( BeamSpotObjects& payload ){
+    std::tuple<double,double> getFromPayload( BeamSpotObjects& payload ) override{
       return std::make_tuple( payload.GetX(), payload.GetY() );
     }
   };

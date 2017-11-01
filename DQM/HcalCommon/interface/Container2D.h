@@ -24,7 +24,7 @@ namespace hcaldqm
 			Container2D(std::string const& folder,
 				hashfunctions::HashType, Quantity*, Quantity*,
 				Quantity *qz = new ValueQuantity(quantity::fN));
-			virtual ~Container2D();
+			~Container2D() override;
 
 			//	Initialize Container
 			//	@folder
@@ -43,140 +43,140 @@ namespace hcaldqm
  			using Container::initialize;
  			using Container1D::initialize;
 			//	redeclare what to override
-			virtual void fill(HcalDetId const&) override ;
-			virtual void fill(HcalDetId const&, int) override;
-			virtual void fill(HcalDetId const&, double) override;
-			virtual void fill(HcalDetId const&, int, double) override;
-			virtual void fill(HcalDetId const&, int, int) override;
-			virtual void fill(HcalDetId const&, double, double) override;
+			void fill(HcalDetId const&) override ;
+			void fill(HcalDetId const&, int) override;
+			void fill(HcalDetId const&, double) override;
+			void fill(HcalDetId const&, int, double) override;
+			void fill(HcalDetId const&, int, int) override;
+			void fill(HcalDetId const&, double, double) override;
 
-			virtual double getBinEntries(HcalDetId const&) override;
-			virtual double getBinEntries(HcalDetId const&, int) override;
-			virtual double getBinEntries(HcalDetId const&, double) override;
-			virtual double getBinEntries(HcalDetId const&, int, int) override;
-			virtual double getBinEntries(HcalDetId const&, int, double) override;
-			virtual double getBinEntries(HcalDetId const&, double, double) override;
+			double getBinEntries(HcalDetId const&) override;
+			double getBinEntries(HcalDetId const&, int) override;
+			double getBinEntries(HcalDetId const&, double) override;
+			double getBinEntries(HcalDetId const&, int, int) override;
+			double getBinEntries(HcalDetId const&, int, double) override;
+			double getBinEntries(HcalDetId const&, double, double) override;
 
-			virtual double getBinContent(HcalDetId const&) override;
-			virtual double getBinContent(HcalDetId const&, int) override;
-			virtual double getBinContent(HcalDetId const&, double) override;
-			virtual double getBinContent(HcalDetId const&, int, int) override;
-			virtual double getBinContent(HcalDetId const&, int, double) override;
-			virtual double getBinContent(HcalDetId const&, double, double) override;
+			double getBinContent(HcalDetId const&) override;
+			double getBinContent(HcalDetId const&, int) override;
+			double getBinContent(HcalDetId const&, double) override;
+			double getBinContent(HcalDetId const&, int, int) override;
+			double getBinContent(HcalDetId const&, int, double) override;
+			double getBinContent(HcalDetId const&, double, double) override;
 
-			virtual void setBinContent(HcalDetId const&, int) override;
-			virtual void setBinContent(HcalDetId const&, double) override;
-			virtual void setBinContent(HcalDetId const&, int, int) override;
-			virtual void setBinContent(HcalDetId const&, int, double) override;
-			virtual void setBinContent(HcalDetId const&, double, int) override;
-			virtual void setBinContent(HcalDetId const&, double, double) override;
-			virtual void setBinContent(HcalDetId const&, int, int, int) override;
-			virtual void setBinContent(HcalDetId const&, int, double, int) override;
-			virtual void setBinContent(HcalDetId const&, double, int, int) override;
-			virtual void setBinContent(HcalDetId const&, double, double, int) override;
-			virtual void setBinContent(HcalDetId const&, int, int, double) override;
-			virtual void setBinContent(HcalDetId const&, int, double, double) override;
-			virtual void setBinContent(HcalDetId const&, double, int, double) override;
-			virtual void setBinContent(HcalDetId const&, double, double, 
+			void setBinContent(HcalDetId const&, int) override;
+			void setBinContent(HcalDetId const&, double) override;
+			void setBinContent(HcalDetId const&, int, int) override;
+			void setBinContent(HcalDetId const&, int, double) override;
+			void setBinContent(HcalDetId const&, double, int) override;
+			void setBinContent(HcalDetId const&, double, double) override;
+			void setBinContent(HcalDetId const&, int, int, int) override;
+			void setBinContent(HcalDetId const&, int, double, int) override;
+			void setBinContent(HcalDetId const&, double, int, int) override;
+			void setBinContent(HcalDetId const&, double, double, int) override;
+			void setBinContent(HcalDetId const&, int, int, double) override;
+			void setBinContent(HcalDetId const&, int, double, double) override;
+			void setBinContent(HcalDetId const&, double, int, double) override;
+			void setBinContent(HcalDetId const&, double, double, 
 				double) override;
 
-			virtual void fill(HcalElectronicsId const&) override;
-			virtual void fill(HcalElectronicsId const&, int) override;
-			virtual void fill(HcalElectronicsId const&, double) override;
-			virtual void fill(HcalElectronicsId const&, int, double) override;
-			virtual void fill(HcalElectronicsId const&, int, int) override;
-			virtual void fill(HcalElectronicsId const&, double, double) override;
+			void fill(HcalElectronicsId const&) override;
+			void fill(HcalElectronicsId const&, int) override;
+			void fill(HcalElectronicsId const&, double) override;
+			void fill(HcalElectronicsId const&, int, double) override;
+			void fill(HcalElectronicsId const&, int, int) override;
+			void fill(HcalElectronicsId const&, double, double) override;
 
-			virtual double getBinEntries(HcalElectronicsId const&) override;
-			virtual double getBinEntries(HcalElectronicsId const&, int) override;
-			virtual double getBinEntries(HcalElectronicsId const&, double) override;
-			virtual double getBinEntries(HcalElectronicsId const&, int, int) override;
-			virtual double getBinEntries(HcalElectronicsId const&, int, double) override;
-			virtual double getBinEntries(HcalElectronicsId const&, double, 
+			double getBinEntries(HcalElectronicsId const&) override;
+			double getBinEntries(HcalElectronicsId const&, int) override;
+			double getBinEntries(HcalElectronicsId const&, double) override;
+			double getBinEntries(HcalElectronicsId const&, int, int) override;
+			double getBinEntries(HcalElectronicsId const&, int, double) override;
+			double getBinEntries(HcalElectronicsId const&, double, 
 				double) override;
 
-			virtual double getBinContent(HcalElectronicsId const&) override;
-			virtual double getBinContent(HcalElectronicsId const&, int) override;
-			virtual double getBinContent(HcalElectronicsId const&, double) override;
-			virtual double getBinContent(HcalElectronicsId const&, int, int) override;
-			virtual double getBinContent(HcalElectronicsId const&, int, double) override;
-			virtual double getBinContent(HcalElectronicsId const&, double, 
+			double getBinContent(HcalElectronicsId const&) override;
+			double getBinContent(HcalElectronicsId const&, int) override;
+			double getBinContent(HcalElectronicsId const&, double) override;
+			double getBinContent(HcalElectronicsId const&, int, int) override;
+			double getBinContent(HcalElectronicsId const&, int, double) override;
+			double getBinContent(HcalElectronicsId const&, double, 
 				double) override;
 
-			virtual void setBinContent(HcalElectronicsId const&, int) override;
-			virtual void setBinContent(HcalElectronicsId const&, double) override;
-			virtual void setBinContent(HcalElectronicsId const&, int, int) override;
-			virtual void setBinContent(HcalElectronicsId const&, int, double) override;
-			virtual void setBinContent(HcalElectronicsId const&, double, int) override;
-			virtual void setBinContent(HcalElectronicsId const&, double, double) override;
-			virtual void setBinContent(HcalElectronicsId const&, int, int, int) override;
-			virtual void setBinContent(HcalElectronicsId const&, int, double, int) override;
-			virtual void setBinContent(HcalElectronicsId const&, double, int, int) override;
-			virtual void setBinContent(HcalElectronicsId const&, double, double, int) override;
-			virtual void setBinContent(HcalElectronicsId const&, int, int, double) override;
-			virtual void setBinContent(HcalElectronicsId const&, int, double, double) override;
-			virtual void setBinContent(HcalElectronicsId const&, double, int, double) override;
-			virtual void setBinContent(HcalElectronicsId const&, double, double, 
+			void setBinContent(HcalElectronicsId const&, int) override;
+			void setBinContent(HcalElectronicsId const&, double) override;
+			void setBinContent(HcalElectronicsId const&, int, int) override;
+			void setBinContent(HcalElectronicsId const&, int, double) override;
+			void setBinContent(HcalElectronicsId const&, double, int) override;
+			void setBinContent(HcalElectronicsId const&, double, double) override;
+			void setBinContent(HcalElectronicsId const&, int, int, int) override;
+			void setBinContent(HcalElectronicsId const&, int, double, int) override;
+			void setBinContent(HcalElectronicsId const&, double, int, int) override;
+			void setBinContent(HcalElectronicsId const&, double, double, int) override;
+			void setBinContent(HcalElectronicsId const&, int, int, double) override;
+			void setBinContent(HcalElectronicsId const&, int, double, double) override;
+			void setBinContent(HcalElectronicsId const&, double, int, double) override;
+			void setBinContent(HcalElectronicsId const&, double, double, 
 				double) override;
 
-			virtual void fill(HcalTrigTowerDetId const&) override;
-			virtual void fill(HcalTrigTowerDetId const&, int) override;
-			virtual void fill(HcalTrigTowerDetId const&, double) override;
-			virtual void fill(HcalTrigTowerDetId const&, int, int) override;
-			virtual void fill(HcalTrigTowerDetId const&, int, double) override;
-			virtual void fill(HcalTrigTowerDetId const&, double, double) override;
+			void fill(HcalTrigTowerDetId const&) override;
+			void fill(HcalTrigTowerDetId const&, int) override;
+			void fill(HcalTrigTowerDetId const&, double) override;
+			void fill(HcalTrigTowerDetId const&, int, int) override;
+			void fill(HcalTrigTowerDetId const&, int, double) override;
+			void fill(HcalTrigTowerDetId const&, double, double) override;
 
-			virtual double getBinEntries(HcalTrigTowerDetId const&) override;
-			virtual double getBinEntries(HcalTrigTowerDetId const&, int) override;
-			virtual double getBinEntries(HcalTrigTowerDetId const&, double) override;
-			virtual double getBinEntries(HcalTrigTowerDetId const&, int, int) override;
-			virtual double getBinEntries(HcalTrigTowerDetId const&, int, 
+			double getBinEntries(HcalTrigTowerDetId const&) override;
+			double getBinEntries(HcalTrigTowerDetId const&, int) override;
+			double getBinEntries(HcalTrigTowerDetId const&, double) override;
+			double getBinEntries(HcalTrigTowerDetId const&, int, int) override;
+			double getBinEntries(HcalTrigTowerDetId const&, int, 
 				double) override;
-			virtual double getBinEntries(HcalTrigTowerDetId const&, 
+			double getBinEntries(HcalTrigTowerDetId const&, 
 				double, double) override;
 
-			virtual double getBinContent(HcalTrigTowerDetId const&) override;
-			virtual double  getBinContent(HcalTrigTowerDetId const&, int) override;
-			virtual double getBinContent(HcalTrigTowerDetId const&, double) override;
-			virtual double getBinContent(HcalTrigTowerDetId const&, int, int) override;
-			virtual double getBinContent(HcalTrigTowerDetId const&, int, double) override;
-			virtual double getBinContent(HcalTrigTowerDetId const&, 
+			double getBinContent(HcalTrigTowerDetId const&) override;
+			double  getBinContent(HcalTrigTowerDetId const&, int) override;
+			double getBinContent(HcalTrigTowerDetId const&, double) override;
+			double getBinContent(HcalTrigTowerDetId const&, int, int) override;
+			double getBinContent(HcalTrigTowerDetId const&, int, double) override;
+			double getBinContent(HcalTrigTowerDetId const&, 
 				double, double) override;
 
-			virtual void setBinContent(HcalTrigTowerDetId const&, int) override;
-			virtual void setBinContent(HcalTrigTowerDetId const&, double) override;
-			virtual void setBinContent(HcalTrigTowerDetId const&, int, int) override;
-			virtual void setBinContent(HcalTrigTowerDetId const&, int, double) override;
-			virtual void setBinContent(HcalTrigTowerDetId const&, double, int) override;
-			virtual void setBinContent(HcalTrigTowerDetId const&, double, double) override;
-			virtual void setBinContent(HcalTrigTowerDetId const&, int, int, int) override;
-			virtual void setBinContent(HcalTrigTowerDetId const&, int, double, int) override;
-			virtual void setBinContent(HcalTrigTowerDetId const&, double, int, int) override;
-			virtual void setBinContent(HcalTrigTowerDetId const&, double, double, int) override;
-			virtual void setBinContent(HcalTrigTowerDetId const&, int, int, double) override;
-			virtual void setBinContent(HcalTrigTowerDetId const&, int, double, double) override;
-			virtual void setBinContent(HcalTrigTowerDetId const&, double, int, double) override;
-			virtual void setBinContent(HcalTrigTowerDetId const&, double, double, 
+			void setBinContent(HcalTrigTowerDetId const&, int) override;
+			void setBinContent(HcalTrigTowerDetId const&, double) override;
+			void setBinContent(HcalTrigTowerDetId const&, int, int) override;
+			void setBinContent(HcalTrigTowerDetId const&, int, double) override;
+			void setBinContent(HcalTrigTowerDetId const&, double, int) override;
+			void setBinContent(HcalTrigTowerDetId const&, double, double) override;
+			void setBinContent(HcalTrigTowerDetId const&, int, int, int) override;
+			void setBinContent(HcalTrigTowerDetId const&, int, double, int) override;
+			void setBinContent(HcalTrigTowerDetId const&, double, int, int) override;
+			void setBinContent(HcalTrigTowerDetId const&, double, double, int) override;
+			void setBinContent(HcalTrigTowerDetId const&, int, int, double) override;
+			void setBinContent(HcalTrigTowerDetId const&, int, double, double) override;
+			void setBinContent(HcalTrigTowerDetId const&, double, int, double) override;
+			void setBinContent(HcalTrigTowerDetId const&, double, double, 
 				double) override;
 
 			//	booking. see Container1D.h
-			virtual void book(DQMStore::IBooker&,
+			void book(DQMStore::IBooker&,
 				HcalElectronicsMap const*,
 				std::string subsystem="Hcal", std::string aux="") override;
-			virtual void book(DQMStore::IBooker&,
+			void book(DQMStore::IBooker&,
 				HcalElectronicsMap const*, filter::HashFilter const&,
 				std::string subsystem="Hcal", std::string aux="") override;
-			virtual void book(DQMStore*,
+			void book(DQMStore*,
 				HcalElectronicsMap const*,
 				std::string subsystem="Hcal", std::string aux="") override;
-			virtual void book(DQMStore*,
+			void book(DQMStore*,
 				HcalElectronicsMap const*, filter::HashFilter const&,
 				std::string subsystem="Hcal", std::string aux="") override;
 
 		protected:
 			Quantity	*_qz;
 
-			virtual void customize(MonitorElement*) override;
+			void customize(MonitorElement*) override;
 	};
 }
 

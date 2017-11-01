@@ -56,7 +56,7 @@ void HLTMETCleanerUsingJetID::produce(edm::Event& iEvent, const edm::EventSetup&
     double mex_jets = 0.;
     double mey_jets = 0.;
     double sumet_jets = 0.;
-    if (jets->size() > 0 ) {
+    if (!jets->empty() ) {
         for(auto const & j : *jets) {
             double pt =  j.pt() ;
             double eta = j.eta();
@@ -74,7 +74,7 @@ void HLTMETCleanerUsingJetID::produce(edm::Event& iEvent, const edm::EventSetup&
     double mex_goodJets = 0.;
     double mey_goodJets = 0.;
     double sumet_goodJets = 0.;
-    if (goodJets->size() > 0) {
+    if (!goodJets->empty()) {
         for(auto const & j : *goodJets) {
             double pt =  j.pt() ;
             double eta = j.eta();
@@ -89,7 +89,7 @@ void HLTMETCleanerUsingJetID::produce(edm::Event& iEvent, const edm::EventSetup&
         }
     }
 
-    if (met->size() > 0) {
+    if (!met->empty()) {
         double mex_diff = mex_goodJets - mex_jets;
         double mey_diff = mey_goodJets - mey_jets;
         //double sumet_diff = sumet_goodJets - sumet_jets;  // cannot set sumet...

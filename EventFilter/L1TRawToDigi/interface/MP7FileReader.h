@@ -12,7 +12,7 @@
 #include <string>
 #include <fstream>
 #include <map>
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 
 // Boost Headers

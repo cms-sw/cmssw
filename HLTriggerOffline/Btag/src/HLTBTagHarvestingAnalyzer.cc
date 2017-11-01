@@ -301,7 +301,8 @@ TH1F  HLTBTagHarvestingAnalyzer::calculateEfficiency1D(DQMStore::IBooker& ibooke
 		double e;
 		if(d!=0){
 			e=n/d;
-			err =  sqrt(e*(1-e)/d); //from binomial standard deviation
+			err = std::max(e - TEfficiency::ClopperPearson(d, n, 0.683, false), TEfficiency::ClopperPearson(d, n, 0.683, true) - e);
+			//err =  sqrt(e*(1-e)/d); //from binomial standard deviation
 		}
 		else{
 			e=0;

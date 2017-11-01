@@ -41,7 +41,7 @@ class MinMETProducerT : public edm::stream::EDProducer<>
     }
     produces<METCollection>();
   }
-  ~MinMETProducerT() {}
+  ~MinMETProducerT() override {}
 
  private:
 
@@ -65,7 +65,7 @@ class MinMETProducerT : public edm::stream::EDProducer<>
     }
 
     for ( int iMEtObject = 0; iMEtObject < numMEtObjects; ++iMEtObject ) {
-      const T* minMET = 0;
+      const T* minMET = nullptr;
       //      for ( vInputTag::const_iterator src_i = src_.begin();
       //	    src_i != src_.end(); ++src_i ) {
       for ( typename vInputToken::const_iterator src_i = src_token_.begin();
@@ -74,7 +74,7 @@ class MinMETProducerT : public edm::stream::EDProducer<>
 	//	evt.getByLabel(*src_i, inputMETs);
 	evt.getByToken(*src_i, inputMETs);
 	const T& inputMET = inputMETs->at(iMEtObject);
-	if ( minMET == 0 || inputMET.pt() < minMET->pt() ) minMET = &inputMET;
+	if ( minMET == nullptr || inputMET.pt() < minMET->pt() ) minMET = &inputMET;
       }
       assert(minMET);
       outputMETs->push_back(T(*minMET));

@@ -9,7 +9,7 @@
  */
 
 #include <unistd.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <fstream>
 #include <vector>
 #include <iostream>

@@ -40,7 +40,7 @@ class SiStripTrackerMapCreator {
  private:
 
   void paintTkMapFromAlarm(uint32_t det_id, const TrackerTopology* tTopo,
-                           DQMStore* dqm_store, bool isBad=false, std::map<unsigned int,std::string>* badmodmap=0);
+                           DQMStore* dqm_store, bool isBad=false, std::map<unsigned int,std::string>* badmodmap=nullptr);
   void paintTkMapFromHistogram(DQMStore* dqm_store, MonitorElement* me, std::string& map_type, std::vector<std::pair<float,uint32_t> >* topNmodVec);
   void setTkMapFromHistogram(DQMStore* dqm_store, std::string& htype, const edm::EventSetup& eSetup);
   void setTkMapFromAlarm(DQMStore* dqm_store,  const edm::EventSetup& eSetup);

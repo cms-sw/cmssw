@@ -99,14 +99,14 @@ class HLTObjectsMonitor : public DQMEDAnalyzer {
 
    public:
       explicit HLTObjectsMonitor(const edm::ParameterSet&);
-      ~HLTObjectsMonitor() = default;
+      ~HLTObjectsMonitor() override = default;
 
   //      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
    private:
       void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
+      void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
       void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
 
       static hltPlot getPlotPSet(edm::ParameterSet pset);
@@ -503,7 +503,7 @@ HLTObjectsMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 		plot.q1q2ME.first->Fill(q1q2);
 
 		if ( abs(id) != abs(id2) )
-		  edm::LogWarning ("HLTObjectsMonitor") << "objects have different ID !?!";
+		  edm::LogWarning ("HLTObjectsMonitor") << plot.pathNAME << " " << plot.moduleNAME << " objects have different ID !?!" << abs(id) << " and " << abs(id2);
 
 		if( (id+id2 ) == 0 ) {   // check di-object system charge and flavor
 		  

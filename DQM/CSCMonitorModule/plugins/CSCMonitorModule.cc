@@ -137,7 +137,7 @@ void CSCMonitorModule::bookHistograms(DQMStore::IBooker & ib, edm::Run const &, 
     **/
   dispatcher->book();
 
-  if (maskedHW.size() != 0)
+  if (!maskedHW.empty())
      dispatcher->maskHWElements(maskedHW);
   if (prebookEffParams) {
     dispatcher->updateFractionAndEfficiencyHistos();
@@ -153,11 +153,11 @@ void CSCMonitorModule::bookHistograms(DQMStore::IBooker & ib, edm::Run const &, 
  */
 cscdqm::MonitorObject* CSCMonitorModule::bookMonitorObject(const cscdqm::HistoBookRequest& req) {
 
-  cscdqm::MonitorObject *me = NULL;
+  cscdqm::MonitorObject *me = nullptr;
   std::string name = req.hdef->getName();
 
   std::string path = req.folder;
-  if (req.hdef->getPath().size() > 0) {
+  if (!req.hdef->getPath().empty()) {
     path = path + req.hdef->getPath() + "/";
   }
   

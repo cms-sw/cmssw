@@ -1493,14 +1493,14 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires, edm
   chamberTypes["ME3/2"] = 7.5;
   chamberTypes["ME4/1"] = 8.5;
 
-  if(theSeg.size()){
+  if(!theSeg.empty()){
     std::map <int , GlobalPoint> extrapolatedPoint;
     std::map <int , GlobalPoint>::iterator it;
     const CSCGeometry::ChamberContainer& ChamberContainer = cscGeom->chambers();
     // Pick which chamber with which segment to test
     for(size_t nCh=0;nCh<ChamberContainer.size();nCh++){
       const CSCChamber *cscchamber = ChamberContainer[nCh];
-      std::pair <CSCDetId, CSCSegment> * thisSegment = 0;
+      std::pair <CSCDetId, CSCSegment> * thisSegment = nullptr;
       for(size_t iSeg =0;iSeg<theSeg.size();++iSeg ){
         if(cscchamber->id().endcap() == theSeg[iSeg]->first.endcap()){ 
           if(1==cscchamber->id().station() || 3==cscchamber->id().station() ){
@@ -2408,7 +2408,7 @@ void CSCValidation::doGasGain(const CSCWireDigiCollection& wirecltn,
                  title=ss.str(); ss.str("");
                  x=location;
                  y=adc_3_3_sum;
-                 histos->fill2DHist(x,y,name.c_str(),title.c_str(),30,1.0,31.0,50,0.0,2000.0,"GasGain");
+                 histos->fill2DHist(x,y,name,title,30,1.0,31.0,50,0.0,2000.0,"GasGain");
 
                  /*
                    std::cout<<idchamber<<"   "<<id.station()<<" "<<id.ring()<<" "
@@ -2472,7 +2472,7 @@ void CSCValidation::doAFEBTiming(const CSCWireDigiCollection& wirecltn) {
              name=ss.str(); ss.str("");
              ss<<"Time Bin vs AFEB Occupancy ME"<<endcapstr<<id.station()<<"/"<<id.ring()<<"/"<< id.chamber();
              title=ss.str(); ss.str("");
-             histos->fill2DHist(x,y,name.c_str(),title.c_str(),42,1.,43.,16,0.,16.,"AFEBTiming");
+             histos->fill2DHist(x,y,name,title,42,1.,43.,16,0.,16.,"AFEBTiming");
 
              // Number of anode wire group time bin vs afeb for each CSC
              x=afeb;
@@ -2482,7 +2482,7 @@ void CSCValidation::doAFEBTiming(const CSCWireDigiCollection& wirecltn) {
              ss<<"Number of Time Bins vs AFEB ME"<<endcapstr<<id.station()<<"/"<<id.ring()<<"/"<< id.chamber();
              title=ss.str(); 
              ss.str("");
-             histos->fill2DHist(x,y,name.c_str(),title.c_str(),42,1.,43.,16,0.,16.,"AFEBTiming");
+             histos->fill2DHist(x,y,name,title,42,1.,43.,16,0.,16.,"AFEBTiming");
              
           }     // end of digis loop in layer
        } // end of wire collection loop
@@ -2543,7 +2543,7 @@ void CSCValidation::doCompTiming(const CSCComparatorDigiCollection& compars) {
              ss<<"Comparator Time Bin vs CFEB Occupancy ME"<<endcap<<
                  id.station()<<"/"<< id.ring()<<"/"<< id.chamber();             
              title=ss.str(); ss.str("");
-             histos->fill2DHist(x,y,name.c_str(),title.c_str(),5,1.,6.,16,0.,16.,"CompTiming");
+             histos->fill2DHist(x,y,name,title,5,1.,6.,16,0.,16.,"CompTiming");
 
          }     // end of digis loop in layer
        } // end of collection loop
@@ -2628,7 +2628,7 @@ void CSCValidation::doADCTiming(const CSCRecHit2DCollection& rechitcltn) {
       
                      cfeb=(centerStrip-1)/16+1;
                      x=cfeb; y=adc_3_3_wtbin;
-                     histos->fill2DHist(x,y,name.c_str(),title.c_str(),5,1.,6.,80,-8.,8.,"ADCTiming");                                     
+                     histos->fill2DHist(x,y,name,title,5,1.,6.,80,-8.,8.,"ADCTiming");                                     
                      } // end of if flag==0
                  } // end of if (adc_3_3_sum > 100.0)
             } // end of if if(m_strip.size()==3
@@ -2879,15 +2879,15 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
     unsigned long length =  fedData.size();
     
     if (length>=32){ ///if fed has data then unpack it
-      CSCDCCExaminer* examiner = NULL;
+      CSCDCCExaminer* examiner = nullptr;
       std::stringstream examiner_out, examiner_err;
       goodEvent = true;
       ///examine event for integrity
       //CSCDCCExaminer examiner;
       examiner = new CSCDCCExaminer();
-      if( examinerMask&0x40000 ) examiner->crcCFEB(1);
-      if( examinerMask&0x8000  ) examiner->crcTMB (1);
-      if( examinerMask&0x0400  ) examiner->crcALCT(1);
+      if( examinerMask&0x40000 ) examiner->crcCFEB(true);
+      if( examinerMask&0x8000  ) examiner->crcTMB (true);
+      if( examinerMask&0x0400  ) examiner->crcALCT(true);
       examiner->setMask(examinerMask);
       const short unsigned int *data = (short unsigned int *)fedData.data();
      
@@ -3012,7 +3012,7 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
   	  } // end CSCData loop
   	} // end ddu data loop
       } // end if goodEvent
-      if (examiner!=NULL) delete examiner;
+      if (examiner!=nullptr) delete examiner;
     }// end if non-zero fed data
   } // end DCC loop for NON-REFERENCE
 

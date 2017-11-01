@@ -68,12 +68,14 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
   edm::ESHandle<MagneticField>                  magfieldH;
   edm::ESHandle<Propagator>                     propagatorAlongH;
   edm::ESHandle<Propagator>                     propagatorOppositeH;
+  edm::ESHandle<TrackerGeometry>                tmpTkGeometryH;  
   edm::ESHandle<GlobalTrackingGeometry>         geometryH;
 
   iSetup.get<IdealMagneticFieldRecord>().get(magfieldH);
   iSetup.get<TrackingComponentsRecord>().get(propagatorName_, propagatorOppositeH);
   iSetup.get<TrackingComponentsRecord>().get(propagatorName_, propagatorAlongH);
   iSetup.get<GlobalTrackingGeometryRecord>().get(geometryH);
+  iSetup.get<TrackerDigiGeometryRecord>().get(tmpTkGeometryH);
   iSetup.get<TrackingComponentsRecord>().get(estimatorName_,estimatorH);
   iEvent.getByToken(measurementTrackerTag_, measurementTrackerH);
 
@@ -86,8 +88,12 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
 
   //	Get vector of Detector layers once:
   std::vector<BarrelDetLayer const*> const& tob = measurementTrackerH->geometricSearchTracker()->tobLayers();
-  std::vector<ForwardDetLayer const*> const& tecPositive = measurementTrackerH->geometricSearchTracker()->posTecLayers();
-  std::vector<ForwardDetLayer const*> const& tecNegative = measurementTrackerH->geometricSearchTracker()->negTecLayers();
+  std::vector<ForwardDetLayer const*> const& tecPositive = tmpTkGeometryH->isThere(GeomDetEnumerators::P2OTEC) ? 
+                                                                measurementTrackerH->geometricSearchTracker()->posTidLayers() : 
+                                                                measurementTrackerH->geometricSearchTracker()->posTecLayers(); 
+  std::vector<ForwardDetLayer const*> const& tecNegative = tmpTkGeometryH->isThere(GeomDetEnumerators::P2OTEC) ? 
+                                                                measurementTrackerH->geometricSearchTracker()->negTidLayers() : 
+                                                                measurementTrackerH->geometricSearchTracker()->negTecLayers();
   edm::ESHandle<TrackerTopology> tTopo_handle;
   iSetup.get<TrackerTopologyRcd>().get(tTopo_handle);
   const TrackerTopology* tTopo = tTopo_handle.product();

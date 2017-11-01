@@ -374,7 +374,7 @@ void GenericBenchmark::fillHistos( const reco::Candidate* genParticle,
   {
     const reco::MET* met1=static_cast<const reco::MET*>(genParticle);
     const reco::MET* met2=static_cast<const reco::MET*>(recParticle);
-    if (met1!=NULL && met2!=NULL)
+    if (met1!=nullptr && met2!=nullptr)
     {
       //std::cout << "FL: met1.sumEt() = " << (*met1).sumEt() << std::endl;
       hTrueSumEt->Fill((*met1).sumEt());
@@ -400,7 +400,7 @@ void GenericBenchmark::fillHistos( const reco::Candidate* genParticle,
 
 void GenericBenchmark::write(std::string Filename) {
 
-  if (Filename.size() != 0 && file_)
+  if (!Filename.empty() && file_)
     file_->Write(Filename.c_str());
 
 }

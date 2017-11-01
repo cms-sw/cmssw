@@ -208,7 +208,7 @@ ostream& reco::operator<<(  ostream& out,
 				reco::PFBlockElement::ECAL,
 				reco::PFBlock::LINKTEST_ALL );
       iBREM++;
-      if ( ecalElems.size() ) { 
+      if ( !ecalElems.empty() ) { 
 	ss << "BR" << iBREM;
       } else {
 	toPrint[ie] = false;

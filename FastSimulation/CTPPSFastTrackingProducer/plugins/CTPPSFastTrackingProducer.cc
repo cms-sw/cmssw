@@ -224,9 +224,9 @@ bool CTPPSFastTrackingProducer::SearchTrack(int i,int j,int Direction,double& xi
     // Given 1 hit in Tracker1 and 1 hit in Tracker2 try to make a track with Hector
     double theta=0.;
     xi = 0; t=0; partP=0; pt=0; x0=0.;y0=0.;xt =0.;yt =0.;X1d=0.;Y1d=0.;X2d=0.;Y2d=0.; 
-    CTPPSTrkDetector* det1 = NULL;
-    CTPPSTrkDetector* det2 = NULL;
-    H_RecRPObject*  station = NULL;
+    CTPPSTrkDetector* det1 = nullptr;
+    CTPPSTrkDetector* det2 = nullptr;
+    H_RecRPObject*  station = nullptr;
     // Separate in forward and backward stations according to direction
     if (Direction>0) {
         det1=&(TrkStation_F->first);det2=&(TrkStation_F->second);
@@ -349,8 +349,8 @@ void CTPPSFastTrackingProducer::FastReco(int Direction,H_RecRPObject* station)
 {
     double theta = 0.;
     double xi,t,partP,pt,phi,x0,y0,thx,thy,xt,yt,X1d,Y1d,X2d,Y2d;
-    CTPPSTrkDetector* Trk1 = NULL;
-    CTPPSTrkDetector* Trk2 = NULL;
+    CTPPSTrkDetector* Trk1 = nullptr;
+    CTPPSTrkDetector* Trk2 = nullptr;
     double pos_tof = fToFInsertion*fBeamXRMS_ToF+fToFXOffset;
     int cellId = 0;
     std::vector<double> vToFCellWidth;

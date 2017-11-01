@@ -9,7 +9,7 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelDACScanRange.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelDACNames.h"
 #include <iostream>
-#include <assert.h>
+#include <cassert>
 
 using namespace pos;
 

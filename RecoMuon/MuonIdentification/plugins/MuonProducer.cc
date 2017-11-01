@@ -7,6 +7,9 @@
 #include "RecoMuon/MuonIdentification/plugins/MuonProducer.h"
 
 #include "RecoMuon/MuonIsolation/interface/MuPFIsoHelper.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
 
 #include <boost/foreach.hpp>
@@ -48,6 +51,7 @@ MuonProducer::MuonProducer(const edm::ParameterSet& pSet):debug_(pSet.getUntrack
   fillDetectorBasedIsolation_ = pSet.getParameter<bool>("FillDetectorBasedIsolation"); 
   fillShoweringInfo_          = pSet.getParameter<bool>("FillShoweringInfo");
   fillTimingInfo_             = pSet.getParameter<bool>("FillTimingInfo");
+  computeStandardSelectors_   = pSet.getParameter<bool>("ComputeStandardSelectors");
 
   produces<reco::MuonCollection>();
 
@@ -172,6 +176,11 @@ MuonProducer::MuonProducer(const edm::ParameterSet& pSet):debug_(pSet.getUntrack
     }
     
   }
+  
+  if (computeStandardSelectors_){
+    vertexes_ = consumes<reco::VertexCollection>(pSet.getParameter<edm::InputTag>("vertices"));
+  }
+
 }
 
 /// Destructor
@@ -196,6 +205,13 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
    edm::Handle<reco::PFCandidateCollection> pfCandidates; 
    event.getByToken(thePFCandToken_, pfCandidates);
 
+   edm::Handle<reco::VertexCollection> primaryVertices;
+   const reco::Vertex* vertex(nullptr);
+   if (computeStandardSelectors_){
+     event.getByToken(vertexes_, primaryVertices);
+     if (!primaryVertices->empty())
+       vertex = &(primaryVertices->front());
+   }
 
    // fetch collections for PFIso
    if(fillPFIsolation_) thePFIsoHelper->beginEvent(event);
@@ -425,6 +441,13 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
      if(fillCosmicsIdMap_){
        cosmicIdColl[i] = (*cosmicIdMap)[muRef];
        cosmicCompColl[i] = (*cosmicCompMap)[muRef];
+     }
+     
+     // Standard Selectors - keep it at the end so that all inputs are available
+     if (computeStandardSelectors_){
+       outMuon.setSelectors(0); // reset flags
+       bool isRun2016BCDEF = (272728 <= event.run() && event.run() <= 278808);
+       muon::setCutBasedSelectorFlags(outMuon, vertex, isRun2016BCDEF);
      }
 
      outputMuons->push_back(outMuon); 

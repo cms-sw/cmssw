@@ -205,7 +205,7 @@ void DTChamberEfficiency::analyze(const Event & event,
 	//determine the chambers kinematically compatible with the track on the i-th layer
 	vector<DetWithState> dss = layer_list.at(i)->compatibleDets(tsos, *propagator(), *theEstimator);
 
-	if(dss.size() == 0) continue;
+	if(dss.empty()) continue;
 
 	// get the first det (it's the most compatible)
 	const DetWithState detWithState = dss.front();
@@ -236,8 +236,8 @@ void DTChamberEfficiency::analyze(const Event & event,
 	// get the histos for this chamber
 	vector<MonitorElement *> histos =  histosPerW[DTid.wheel()+2];
 	// fill them
-	if (detMeasurements_initial.size() != 0) histos[0]->Fill(DTid.sector(),DTid.station(),1.);
-	if (detMeasurements.size() != 0) histos[1]->Fill(DTid.sector(),DTid.station(),1.);
+	if (!detMeasurements_initial.empty()) histos[0]->Fill(DTid.sector(),DTid.station(),1.);
+	if (!detMeasurements.empty()) histos[1]->Fill(DTid.sector(),DTid.station(),1.);
 	histos[2]->Fill(DTid.sector(),DTid.station(),1.);
 
 

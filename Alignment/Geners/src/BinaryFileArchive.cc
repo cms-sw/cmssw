@@ -14,8 +14,8 @@ namespace gs {
                                          const unsigned dataFileBufferSize,
                                          const unsigned catalogFileBufferSize)
         : BinaryArchiveBase(basename, mode),
-          filebuf_(0),
-          catabuf_(0),
+          filebuf_(nullptr),
+          catabuf_(nullptr),
           annotation_(ann ? std::string(ann) : std::string("")),
           dataFileName_(AbsArchive::name() + ".0.gsbd"),   // binary data
           catalogFileName_(AbsArchive::name() + ".gsbmf"), // binary metafile
@@ -88,7 +88,7 @@ namespace gs {
         }
         catch (std::exception& e)
         {
-            setCatalog(0);
+            setCatalog(nullptr);
             releaseBuffers();
             errorStream() << e.what();
         }
@@ -98,10 +98,10 @@ namespace gs {
     {
         if (dataStream_.is_open()) dataStream_.close();
         if (catStream_.is_open()) catStream_.close();
-        catStream_.rdbuf()->pubsetbuf(0, 0);
-        dataStream_.rdbuf()->pubsetbuf(0, 0);
-        delete [] catabuf_; catabuf_ = 0;
-        delete [] filebuf_; filebuf_ = 0;
+        catStream_.rdbuf()->pubsetbuf(nullptr, 0);
+        dataStream_.rdbuf()->pubsetbuf(nullptr, 0);
+        delete [] catabuf_; catabuf_ = nullptr;
+        delete [] filebuf_; filebuf_ = nullptr;
     }
 
     BinaryFileArchive::~BinaryFileArchive()
@@ -116,7 +116,7 @@ namespace gs {
         {
             if (!annotationsMerged_)
             {
-                if (annotation_.size())
+                if (!annotation_.empty())
                     catalogAnnotations_.push_back(annotation_);
                 annotationsMerged_ = true;
             }
@@ -222,7 +222,7 @@ namespace gs {
 
             if (openmode() & std::ios_base::out)
             {
-                if (dynamic_cast<WriteOnlyCatalog*>(catalog()) == 0)
+                if (dynamic_cast<WriteOnlyCatalog*>(catalog()) == nullptr)
                     writeCatalog();
                 catStream_.flush();
             }

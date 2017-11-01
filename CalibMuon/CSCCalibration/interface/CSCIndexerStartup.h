@@ -36,15 +36,15 @@ class CSCIndexerStartup : public CSCIndexerBase {
 
 public:
 
-  ~CSCIndexerStartup();
+  ~CSCIndexerStartup() override;
 
-  std::string name() const {return "CSCIndexerStartup";}
+  std::string name() const override {return "CSCIndexerStartup";}
 
   /// \name maxIndexMethods
   //@{
-  LongIndexType maxStripChannelIndex() const { return 252288; }
-  IndexType maxChipIndex() const             { return 15768; }
-  IndexType maxGasGainIndex() const          { return 55944; }
+  LongIndexType maxStripChannelIndex() const override { return 252288; }
+  IndexType maxChipIndex() const override             { return 15768; }
+  IndexType maxGasGainIndex() const override          { return 55944; }
   //@}
 
 
@@ -56,7 +56,7 @@ public:
    * \warning: ME1a + ME1b are considered as single ME1/1
    * 'online' rings for the startup
    */
-  IndexType onlineRingsInStation( IndexType is ) const
+  IndexType onlineRingsInStation( IndexType is ) const override
   {
     const IndexType nrings[5] = { 0, 3, 2, 2, 2 };
     return nrings[is];
@@ -69,7 +69,7 @@ public:
    *
    * Assume ME1a has 16 ganged readout channels.
    */
-  IndexType stripChannelsPerOfflineLayer( IndexType is, IndexType ir ) const
+  IndexType stripChannelsPerOfflineLayer( IndexType is, IndexType ir ) const override
   {
     const IndexType nSC[16] = { 64,80,64,16,  80,80,0,0,  80,80,0,0,  80,80,0,0 };
     return nSC[(is-1)*4 + ir - 1];
@@ -82,7 +82,7 @@ public:
    *
    * Assume ME1a has 16 ganged readout channels. Online chamber has 64+16=80 channels.
    */
-  IndexType stripChannelsPerOnlineLayer( IndexType is, IndexType ir ) const
+  IndexType stripChannelsPerOnlineLayer( IndexType is, IndexType ir ) const override
   {
     const IndexType nSC[16] = { 80,80,64,80,  80,80,0,0,  80,80,0,0,  80,80,0,0 };
     return nSC[(is-1)*4 + ir - 1];
@@ -95,7 +95,7 @@ public:
    *
    * 'Online' ME11 for the startup is considered as a single chamber with 5 chips
    */
-  IndexType chipsPerOnlineLayer( IndexType is, IndexType ir ) const
+  IndexType chipsPerOnlineLayer( IndexType is, IndexType ir ) const override
   {
     const IndexType nCinL[16] = { 5,5,4,5,  5,5,0,0,  5,5,0,0,  5,5,0,0 };
     return nCinL[(is - 1)*4 + ir - 1];
@@ -117,7 +117,7 @@ public:
    * and 65-80 belonging to ME1a. So the ME1/a database indices are mapped to extend the ME1/b index ranges,
    * which is how the raw hardware channels numbering is implemented.
    */
-  IndexType stripChannelsPerLayer( IndexType is, IndexType ir ) const
+  IndexType stripChannelsPerLayer( IndexType is, IndexType ir ) const override
   {
     const IndexType nSCinC[16] = { 80,80,64,80,  80,80,0,0,  80,80,0,0,  80,80,0,0 };
     return nSCinC[(is - 1)*4 + ir - 1];
@@ -131,7 +131,7 @@ public:
    * WARNING: while ME1a channels are the last 16 of the 80 total in each layer of an ME11 chamber,
    * their start index here defaults to the start index of ME1a.
    */
-  LongIndexType stripChannelStart( IndexType ie, IndexType is, IndexType ir ) const
+  LongIndexType stripChannelStart( IndexType ie, IndexType is, IndexType ir ) const override
   {
     // These are in the ranges 1-217728 (CSCs 2008) and 217729-252288 (ME42).
     // There are 1-108884 channels per endcap (CSCs 2008) and 17280 channels per endcap (ME42).
@@ -159,7 +159,7 @@ public:
    *
    * Considers ME42 as standard 5 chip per layer chambers.
    */
-  IndexType chipsPerLayer( IndexType is, IndexType ir ) const
+  IndexType chipsPerLayer( IndexType is, IndexType ir ) const override
   {
     const IndexType nCinL[16] = { 5,5,4,5,  5,5,0,0,  5,5,0,0,  5,5,0,0 };
     return nCinL[(is - 1)*4 + ir - 1];
@@ -173,7 +173,7 @@ public:
    * \warning: while ME1a chip is the last 1 of the 5 chips total in each layer of an ME11 chamber,
    * here the ME1a input ir=4 defaults to the ME1b start index (ir=4 <=> ir=1).
    */
-  IndexType chipStart( IndexType ie, IndexType is, IndexType ir ) const
+  IndexType chipStart( IndexType ie, IndexType is, IndexType ir ) const override
   {
     // These are in the ranges 1-13608 (CSCs 2008) and 13609-15768 (ME42).
     // There are 1-6804 chips per endcap (CSCs 2008) and 1080 channels per endcap (ME42).
@@ -198,7 +198,7 @@ public:
    * \warning: ME1a chip is the last 1 of the 5 chips total in each layer of an ME11 chamber,
    *            and an input ir=4 in this case would give the same result as ir=1
    */
-  IndexType sectorStart( IndexType ie, IndexType is, IndexType ir ) const
+  IndexType sectorStart( IndexType ie, IndexType is, IndexType ir ) const override
   {
     // There are 36 chambers * 6 layers * 5 CFEB's * 1 HV segment = 1080 gas-gain sectors in ME1/1
     // There are 36*6*5*3 = 3240 gas-gain sectors in ME1/2
@@ -225,9 +225,9 @@ public:
   /**
    *  Decode CSCDetId from various indexes and labels
    */
-  std::pair<CSCDetId, IndexType> detIdFromStripChannelIndex( LongIndexType ichi ) const;
-  std::pair<CSCDetId, IndexType> detIdFromChipIndex( IndexType ichi ) const;
-  GasGainIndexType detIdFromGasGainIndex( IndexType igg ) const;
+  std::pair<CSCDetId, IndexType> detIdFromStripChannelIndex( LongIndexType ichi ) const override;
+  std::pair<CSCDetId, IndexType> detIdFromChipIndex( IndexType ichi ) const override;
+  GasGainIndexType detIdFromGasGainIndex( IndexType igg ) const override;
 
   /**
    * Build index used internally in online CSC conditions databases (the 'Igor Index')
@@ -236,7 +236,7 @@ public:
    * (ie=1-2, is=1-4, ir=1-4, ic=1-36, il=1-6) <br>
    * Channels 1-16 in ME1A (is=1, ir=4) are reset to channels 65-80 of ME11.
    */
-  int dbIndex(const CSCDetId & id, int & channel) const;
+  int dbIndex(const CSCDetId & id, int & channel) const override;
 };
 
 #endif

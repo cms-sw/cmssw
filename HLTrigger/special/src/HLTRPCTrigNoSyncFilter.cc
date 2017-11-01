@@ -122,7 +122,7 @@ bool HLTRPCTrigNoSyncFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
     k++;
   }
 
-  if(GlobalRPC4DHitsNoBx0.size()==0){
+  if(GlobalRPC4DHitsNoBx0.empty()){
     //std::cout<<"all RPC Hits are syncrhonized"<<std::endl;
     //std::cout<<"event skipped"<<std::endl;
     return false;
@@ -142,7 +142,7 @@ bool HLTRPCTrigNoSyncFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
   std::vector<L1MuGMTExtendedCand>::const_iterator candidate;
   //std::cout<<"The number of GMT Candidates in this event is "<<gmt_candidates.size()<<std::endl;
 
-  if(gmt_candidates.size()==0){
+  if(gmt_candidates.empty()){
     //std::cout<<"event skipped no gmt candidates"<<std::endl;
     return false;
   }
@@ -174,7 +174,7 @@ bool HLTRPCTrigNoSyncFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
 
     //std::cout<<"\t Points matching this GMT="<<PointsForGMT.size()<<std::endl;
 
-    if(PointsForGMT.size()<1){
+    if(PointsForGMT.empty()){
       //std::cout<<"\t Not enough RPCRecHits not syncrhonized for this GMT!!!"<<std::endl;
       continue;
     }

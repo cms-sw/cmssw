@@ -10,7 +10,7 @@
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
-#include "CondFormats/DataRecord/interface/L1TCaloStage2ParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
 
 #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
@@ -37,7 +37,8 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
 			    bool useCalib,
 			    bool useECALLUT,
 			    bool useHCALLUT,
-                            bool useHFLUT) {
+                            bool useHFLUT,
+                            int fwVersion) {
 
   int hfValid = 1;
   edm::ESHandle<HcalTrigTowerGeometry> pG;
@@ -49,7 +50,7 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
 
   // CaloParams contains all persisted parameters for Layer 1
   edm::ESHandle<l1t::CaloParams> paramsHandle;
-  iSetup.get<L1TCaloStage2ParamsRcd>().get(paramsHandle);
+  iSetup.get<L1TCaloParamsRcd>().get(paramsHandle);
   if ( paramsHandle.product() == nullptr ) {
     edm::LogError("L1TCaloLayer1FetchLUTs") << "Missing CaloParams object! Check Global Tag, etc.";
     return false;
@@ -122,7 +123,7 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
   }
 
   // Sanity check scale factors exist
-  if ( useCalib && (ecalSF.size()==0 || hcalSF.size()==0 || hfSF.size()==0) ) {
+  if ( useCalib && (ecalSF.empty() || hcalSF.empty() || hfSF.empty()) ) {
     edm::LogError("L1TCaloLayer1FetchLUTs") << "Layer 1 calibrations requested (useCalib = True) but there are missing scale factors in CaloParams!  Please check conditions setup.";
     return false;
   }
@@ -171,9 +172,18 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
             if (useLSB) calibratedECalInput /= caloLSB;
 
 	    value = calibratedECalInput;
-	    if(value > 0xFF) {
-	      value = 0xFF;
-	    }
+            if ( fwVersion > 2 ) {
+              // Saturate if either decompressed value is over 127.5 GeV or input saturated
+              // (meaningless for ecal, since ecalLSB == caloLSB)
+              if(value > 0xFF || ecalInput == 0xFF) {
+                value = 0xFF;
+              }
+            }
+            else {
+              if(value > 0xFF) {
+                value = 0xFF;
+              }
+            }
 	  }
 	  if(value == 0) {
 	    value = (1 << 11);
@@ -226,8 +236,16 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
             if(useLSB) calibratedHcalInput /= caloLSB;
 
             value = calibratedHcalInput;
-            if(value > 0xFF) {
-              value = 0xFF;
+            if ( fwVersion > 2 ) {
+              // Saturate if either decompressed value is over 127.5 GeV or input saturated
+              if(value > 0xFF || hcalInput == 0xFF) {
+                value = 0xFF;
+              }
+            }
+            else {
+              if(value > 0xFF) {
+                value = 0xFF;
+              }
             }
           }
           if(value == 0) {
@@ -282,9 +300,27 @@ bool L1TCaloLayer1FetchLUTs(const edm::EventSetup& iSetup,
           if(useCalib) calibratedHFInput *= hfSF.at(phiBin*hfScalePhiBins.size()*12+etBin*12+etaBin);
           if(useLSB) calibratedHFInput /= caloLSB;
 
-          value = calibratedHFInput;
-          if(value > 0xFF) {
-            value = 0xFF;
+          if ( fwVersion > 2 ) {
+            uint32_t absCaloEta = std::abs(caloEta);
+            if(absCaloEta > 29 && absCaloEta < 40) {
+              // Divide by two (since two duplicate towers are sent)
+              calibratedHFInput *= 0.5;
+            }
+            else if(absCaloEta == 40 || absCaloEta == 41) {
+              // Divide by four
+              calibratedHFInput *= 0.25;
+            }
+            value = calibratedHFInput;
+            // Saturate if either decompressed value is over 127.5 GeV or input saturated
+            if(value >= 0xFF || etCode == 0xFF) {
+              value = 0x1FD;
+            }
+          }
+          else {
+            value = calibratedHFInput;
+            if(value > 0xFF) {
+              value = 0xFF;
+            }
           }
         }
         hfLUT[phiBin][etaBin][etCode] = value;

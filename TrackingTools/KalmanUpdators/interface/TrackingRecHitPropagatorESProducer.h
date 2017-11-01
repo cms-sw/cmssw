@@ -11,7 +11,7 @@
 class  TrackingRecHitPropagatorESProducer: public edm::ESProducer{
  public:
   TrackingRecHitPropagatorESProducer(const edm::ParameterSet & p);
-  virtual ~TrackingRecHitPropagatorESProducer(); 
+  ~TrackingRecHitPropagatorESProducer() override; 
   std::shared_ptr<TrackingRecHitPropagator> produce(const TrackingComponentsRecord&);
  private:
   std::shared_ptr<TrackingRecHitPropagator> theHitPropagator;

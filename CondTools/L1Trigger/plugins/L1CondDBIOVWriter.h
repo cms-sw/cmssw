@@ -38,13 +38,13 @@
 class L1CondDBIOVWriter : public edm::EDAnalyzer {
    public:
       explicit L1CondDBIOVWriter(const edm::ParameterSet&);
-      ~L1CondDBIOVWriter();
+      ~L1CondDBIOVWriter() override;
 
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       // ----------member data ---------------------------
       l1t::DataWriter m_writer ;

@@ -86,7 +86,7 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg, ed
   RorZofLastHitMax_( cfg.getParameter<std::vector<double> >( "RorZofLastHitMax" ) ),
   clusterValueMapTag_(cfg.getParameter<edm::InputTag>("hitPrescaleMapTag")),
   minPrescaledHits_( cfg.getParameter<int>("minPrescaledHits")),
-  applyPrescaledHitsFilter_(clusterValueMapTag_.encode().size() && minPrescaledHits_ > 0)
+  applyPrescaledHitsFilter_(!clusterValueMapTag_.encode().empty() && minPrescaledHits_ > 0)
 {
   if(applyIsolation_) {
     rphirecHitsToken_ = iC.consumes<SiStripRecHit2DCollection>(cfg.getParameter<edm::InputTag>("rphirecHits"));
@@ -100,7 +100,7 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg, ed
   //convert track quality from string to enum
   std::vector<std::string> trkQualityStrings(cfg.getParameter<std::vector<std::string> >("trackQualities"));
   std::string qualities;
-  if(trkQualityStrings.size()>0){
+  if(!trkQualityStrings.empty()){
     applyTrkQualityCheck_=true;
     for (unsigned int i = 0; i < trkQualityStrings.size(); ++i) {
       (qualities += trkQualityStrings[i]) += ", ";
@@ -110,7 +110,7 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg, ed
   else applyTrkQualityCheck_=false;
 
   std::vector<std::string> trkIterStrings(cfg.getParameter<std::vector<std::string> >("iterativeTrackingSteps"));
-  if(trkIterStrings.size()>0){
+  if(!trkIterStrings.empty()){
     applyIterStepCheck_=true;
     std::string tracksteps;
     for (unsigned int i = 0; i < trkIterStrings.size(); ++i) {
@@ -162,7 +162,7 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg, ed
 	<< "Max value of |nHitsinENDCAPplus - nHitsinENDCAPminus| = "
 	<< maxHitDiffEndcaps_;
 
-      if (trkQualityStrings.size()) {
+      if (!trkQualityStrings.empty()) {
 	edm::LogInfo("AlignmentTrackSelector")
 	  << "Select tracks with these qualities: " << qualities;
       }    
@@ -347,7 +347,7 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
       || minHitsinTECplus_ || minHitsinTECminus_
       || minHitsinFPIX_ || minHitsinBPIX_ || minHitsinPIX_ ||nHitMin2D_ || chargeCheck_
       || applyIsolation_ || (seedOnlyFromAbove_ == 1 || seedOnlyFromAbove_ == 2)
-      || RorZofFirstHitMin_.size() > 0 || RorZofFirstHitMax_.size() > 0 || RorZofLastHitMin_.size() > 0 || RorZofLastHitMax_.size() > 0 ) {
+      || !RorZofFirstHitMin_.empty() || !RorZofFirstHitMax_.empty() || !RorZofLastHitMin_.empty() || !RorZofLastHitMax_.empty() ) {
     // any detailed hit cut is active, so have to check
     
     int nhitinTIB = 0, nhitinTOB = 0, nhitinTID = 0;
@@ -436,7 +436,7 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
     if( RorZofFirstHitMin_.at(0) != 0.0 || RorZofFirstHitMin_.at(1) != 0.0 
       || RorZofFirstHitMax_.at(0) != 999.0 || RorZofFirstHitMax_.at(1) != 999.0 ) {
 
-      const reco::TrackBase::Point firstPoint(trackp->innerPosition());
+      const reco::TrackBase::Point& firstPoint(trackp->innerPosition());
 
       if( (std::fabs(firstPoint.R()) < RorZofFirstHitMin_.at(0) )) passedFirstHitPositionR = false;
       if( (std::fabs(firstPoint.R()) > RorZofFirstHitMax_.at(0) )) passedFirstHitPositionR = false;
@@ -447,7 +447,7 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
     if( RorZofLastHitMin_.at(0) != 0.0 || RorZofLastHitMin_.at(1) != 0.0 
       || RorZofLastHitMax_.at(0) != 999.0 || RorZofLastHitMax_.at(1) != 999.0 ) {
 
-      const reco::TrackBase::Point lastPoint(trackp->outerPosition());
+      const reco::TrackBase::Point& lastPoint(trackp->outerPosition());
 
       if( (std::fabs(lastPoint.R()) < RorZofLastHitMin_.at(0) )) passedLastHitPositionR = false;
       if( (std::fabs(lastPoint.R()) > RorZofLastHitMax_.at(0) )) passedLastHitPositionR = false;
@@ -712,14 +712,14 @@ AlignmentTrackSelector::checkPrescaledHits(const Tracks& tracks, const edm::Even
 
 	if (type == typeid(SiStripRecHit2D)) {	
 	  const SiStripRecHit2D* striphit=dynamic_cast<const  SiStripRecHit2D*>(hit); 
-	  if(striphit!=0){
+	  if(striphit!=nullptr){
 	    SiStripRecHit2D::ClusterRef stripclust(striphit->cluster());
 	    flag = flagMap[stripclust];
 	  }
 	}
 	else if(type == typeid(SiStripRecHit1D)){
 	  const SiStripRecHit1D* striphit = dynamic_cast<const SiStripRecHit1D*>(hit);
-	  if(striphit!=0){
+	  if(striphit!=nullptr){
 	    SiStripRecHit1D::ClusterRef stripclust(striphit->cluster());
 	    flag = flagMap[stripclust];
 	  }
@@ -735,7 +735,7 @@ AlignmentTrackSelector::checkPrescaledHits(const Tracks& tracks, const edm::Even
       }//end if hit in Strips
       else{ // test explicitely BPIX/FPIX
 	const SiPixelRecHit* pixelhit= dynamic_cast<const SiPixelRecHit*>(hit);
-	if(pixelhit!=0){
+	if(pixelhit!=nullptr){
 	  SiPixelRecHit::ClusterRef pixclust(pixelhit->cluster());
 	  flag = flagMap[pixclust];
 	}

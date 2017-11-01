@@ -9,7 +9,7 @@
 class CBin : public TObject {
  public:
    CBin(){;}
-   ~CBin(){;}
+   ~CBin() override{;}
 
    float bin_edge;
    float n_part_mean;
@@ -31,7 +31,7 @@ class CBin : public TObject {
    float s_mean;
    float s_var;
 
-   ClassDef(CBin,1)
+   ClassDefOverride(CBin,1)
 };
 
 class CentralityBins : public TNamed {
@@ -47,7 +47,7 @@ class CentralityBins : public TNamed {
 	 table_.push_back(b); 
       }
    }
-      ~CentralityBins() {;}
+      ~CentralityBins() override {;}
       int getBin(double value) const;
       int getNbins() const {return table_.size();}
       float lowEdge(double value) const { return lowEdgeOfBin(getBin(value));}
@@ -88,7 +88,7 @@ class CentralityBins : public TNamed {
 
       // private:
       std::vector<CBin> table_;
-      ClassDef(CentralityBins,1)
+      ClassDefOverride(CentralityBins,1)
 };
 
 CentralityBins::RunMap getCentralityFromFile(TDirectoryFile*, const char* dir, const char* tag, int firstRun = 0, int lastRun = 10);

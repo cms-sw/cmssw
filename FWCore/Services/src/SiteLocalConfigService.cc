@@ -478,7 +478,7 @@ namespace edm {
 		if (statsDestList->getLength() > 0) {
 		  DOMElement *statsDest = static_cast<DOMElement *>(statsDestList->item(0));
 		  m_statisticsDestination = toString(statsDest->getAttribute(uStr("endpoint").ptr()));
-		  if (!m_statisticsDestination.size()) {
+		  if (m_statisticsDestination.empty()) {
 		    m_statisticsDestination = toString(statsDest->getAttribute(uStr("name").ptr()));
 		  }
 		  std::string tmpStatisticsInfo = toString(statsDest->getAttribute(uStr("info").ptr()));

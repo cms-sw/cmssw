@@ -59,7 +59,7 @@ TrackingQualityChecker::TrackingQualityChecker(edm::ParameterSet const& ps) :
     tracking_ls_mes.HistoLSName     = meQTset.exists("LSname")     ? meQTset.getParameter<std::string>("LSname") : "";
     tracking_ls_mes.HistoLSLowerCut = meQTset.exists("LSlowerCut") ? meQTset.getParameter<double>("LSlowerCut")  : -1.;
     tracking_ls_mes.HistoLSUpperCut = meQTset.exists("LSupperCut") ? meQTset.getParameter<double>("LSupperCut")  : -1.;
-    tracking_ls_mes.TrackingFlag = 0;
+    tracking_ls_mes.TrackingFlag = nullptr;
 
     if (verbose_) std::cout << "[TrackingQualityChecker::TrackingQualityChecker] inserting " << QTname << " in TrackingMEsMap" << std::endl;
     TrackingLSMEsMap.insert(std::pair<std::string, TrackingLSMEs>(QTname, tracking_ls_mes));
@@ -211,7 +211,7 @@ void TrackingQualityChecker::resetGlobalStatus() {
     for (std::map<std::string, TrackingMEs>::iterator it = TrackingMEsMap.begin();
          it != TrackingMEsMap.end(); it++) {
       MonitorElement* me = it->second.TrackingFlag;
-      if (verbose_) std::cout << "[TrackingQualityChecker::resetGlobalStatus] " << it->second.HistoName << " exist ? " << ( it->second.TrackingFlag == NULL ? "nope" : "yes" ) << " ---> " << me << std::endl;      
+      if (verbose_) std::cout << "[TrackingQualityChecker::resetGlobalStatus] " << it->second.HistoName << " exist ? " << ( it->second.TrackingFlag == nullptr ? "nope" : "yes" ) << " ---> " << me << std::endl;      
       me->Reset();
     }
     if (verbose_) std::cout << "[TrackingQualityChecker::resetGlobalStatus] DONE w/ TrackingMEsMap" << std::endl;
@@ -227,7 +227,7 @@ void TrackingQualityChecker::resetLSStatus() {
     for (std::map<std::string, TrackingLSMEs>::iterator it = TrackingLSMEsMap.begin();
          it != TrackingLSMEsMap.end(); it++) {
       MonitorElement* me = it->second.TrackingFlag;
-      if (verbose_) std::cout << "[TrackingQualityChecker::resetLSStatus] " << it->second.HistoLSName << " exist ? " << ( it->second.TrackingFlag == NULL ? "nope" : "yes" ) << " ---> " << me << std::endl;      
+      if (verbose_) std::cout << "[TrackingQualityChecker::resetLSStatus] " << it->second.HistoLSName << " exist ? " << ( it->second.TrackingFlag == nullptr ? "nope" : "yes" ) << " ---> " << me << std::endl;      
       me->Reset();
     }
     if (verbose_) std::cout << "[TrackingQualityChecker::resetLSStatus] DONE w/ TrackingLSMEsMap" << std::endl;
@@ -284,7 +284,7 @@ void TrackingQualityChecker::fillTrackingStatus(DQMStore::IBooker & ibooker, DQM
 
     std::vector<MonitorElement*> tmpMEvec = igetter.getContents(ibooker.pwd()+"/"+localMEdirpath);
     if (verbose_) std::cout << "[TrackingQualityChecker::fillTrackingStatus] tmpMEvec: " << tmpMEvec.size() << std::endl;
-    MonitorElement* me = NULL;
+    MonitorElement* me = nullptr;
 
     size_t nMEs = 0;
     for ( auto ime : tmpMEvec ) {
@@ -425,7 +425,7 @@ void TrackingQualityChecker::fillTrackingStatusAtLumi(DQMStore::IBooker & ibooke
     std::vector<MonitorElement*> tmpMEvec = igetter.getContents(ibooker.pwd()+"/"+localMEdirpath);
     if (verbose_) std::cout << "[TrackingQualityChecker::fillTrackingStatusAtLumi] tmpMEvec: " << tmpMEvec.size() << std::endl;
 
-    MonitorElement* me = NULL;
+    MonitorElement* me = nullptr;
 
     size_t nMEs = 0;
     for ( auto ime : tmpMEvec ) {

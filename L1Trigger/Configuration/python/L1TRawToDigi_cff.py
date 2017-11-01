@@ -9,6 +9,7 @@
 import FWCore.ParameterSet.Config as cms
 import sys
 
+
 def unpack_legacy():
     global L1TRawToDigi_Legacy
     global csctfDigis, dttfDigis, gctDigis, gtDigis, gtEvmDigis
@@ -56,14 +57,17 @@ def unpack_stage1():
 
 def unpack_stage2():
     global L1TRawToDigi_Stage2
-    global twinMuxStage2Digis, bmtfDigis, emtfStage2Digis, caloStage2Digis, gmtStage2Digis, gtStage2Digis,L1TRawToDigi_Stage2    
+    global RPCTwinMuxRawToDigi, twinMuxStage2Digis, bmtfDigis, omtfStage2Digis, emtfStage2Digis, caloLayer1Digis, caloStage2Digis, gmtStage2Digis, gtStage2Digis,L1TRawToDigi_Stage2    
+    from EventFilter.RPCRawToDigi.RPCTwinMuxRawToDigi_cfi import RPCTwinMuxRawToDigi
     from EventFilter.L1TRawToDigi.bmtfDigis_cfi import bmtfDigis 
+    from EventFilter.L1TRawToDigi.omtfStage2Digis_cfi import omtfStage2Digis
     from EventFilter.L1TRawToDigi.emtfStage2Digis_cfi import emtfStage2Digis
+    from EventFilter.L1TRawToDigi.caloLayer1Digis_cfi import caloLayer1Digis
     from EventFilter.L1TRawToDigi.caloStage2Digis_cfi import caloStage2Digis
     from EventFilter.L1TRawToDigi.gmtStage2Digis_cfi import gmtStage2Digis
     from EventFilter.L1TRawToDigi.gtStage2Digis_cfi import gtStage2Digis
     from EventFilter.L1TXRawToDigi.twinMuxStage2Digis_cfi import twinMuxStage2Digis
-    L1TRawToDigi_Stage2 = cms.Sequence(twinMuxStage2Digis * bmtfDigis + emtfStage2Digis + caloStage2Digis + gmtStage2Digis + gtStage2Digis)
+    L1TRawToDigi_Stage2 = cms.Sequence(twinMuxStage2Digis * bmtfDigis + omtfStage2Digis + emtfStage2Digis + caloLayer1Digis + caloStage2Digis + gmtStage2Digis + gtStage2Digis)
     
 #
 # Legacy Trigger:

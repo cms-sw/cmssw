@@ -70,7 +70,7 @@ IsoDeposit PFIsoDepositAlgo::buildIsoDeposit( const Particle& particle,
     if( sameParticle( particle, pfc ) ) continue; 
 
 
-    XYZTLorentzVector pvi(pfc.p4());
+    const XYZTLorentzVector& pvi(pfc.p4());
     reco::isodeposit::Direction dirPfc(pfc.eta(), pfc.phi());
     double dR = pfDir.deltaR(dirPfc);
 

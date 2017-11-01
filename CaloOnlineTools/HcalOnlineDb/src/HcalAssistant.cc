@@ -33,7 +33,7 @@ using namespace oracle::occi;
 HcalAssistant::HcalAssistant()
 {
   addQuotes();
-  srand(time(0));
+  srand(time(nullptr));
   listIsRead = false;
 }
 

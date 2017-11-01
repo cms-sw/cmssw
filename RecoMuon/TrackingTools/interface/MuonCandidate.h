@@ -31,7 +31,7 @@ class MuonCandidate {
     MuonCandidate(Trajectory* traj, 
                   const reco::TrackRef& muon, 
                   const reco::TrackRef& tracker) :
-      theTrajectory(traj), theMuonTrack(muon), theTrackerTrack(tracker), theTrackerTrajectory(0) {} 
+      theTrajectory(traj), theMuonTrack(muon), theTrackerTrack(tracker), theTrackerTrajectory(nullptr) {} 
     
     /// destructor
     virtual ~MuonCandidate() { }

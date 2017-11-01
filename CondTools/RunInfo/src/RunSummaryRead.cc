@@ -25,7 +25,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <vector>
-#include <math.h>
+#include <cmath>
 
 
 

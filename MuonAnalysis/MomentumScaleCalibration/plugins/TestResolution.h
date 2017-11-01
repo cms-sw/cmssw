@@ -53,11 +53,11 @@
 class TestResolution : public edm::EDAnalyzer {
 public:
   explicit TestResolution(const edm::ParameterSet&);
-  ~TestResolution();
+  ~TestResolution() override;
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() {};
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override {};
   template<typename T>
   std::vector<reco::LeafCandidate> fillMuonCollection (const std::vector<T>& tracks) {
     std::vector<reco::LeafCandidate> muons;

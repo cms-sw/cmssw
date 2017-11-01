@@ -29,7 +29,7 @@ AlignmentParameterBuilder::AlignmentParameterBuilder(AlignableTracker* alignable
 						     AlignableExtras* alignableExtras) :
   theAlignables(),
   theAlignableTracker(alignableTracker),
-  theAlignableMuon(0),
+  theAlignableMuon(nullptr),
   theAlignableExtras(alignableExtras)
 {
 }
@@ -52,7 +52,7 @@ AlignmentParameterBuilder::AlignmentParameterBuilder(AlignableTracker* alignable
                                                      const edm::ParameterSet &pSet) :
   theAlignables(), 
   theAlignableTracker(alignableTracker),
-  theAlignableMuon(0),
+  theAlignableMuon(nullptr),
   theAlignableExtras(alignableExtras)
 {
   this->addAllSelections(pSet);
@@ -79,7 +79,7 @@ const AlignableTracker* AlignmentParameterBuilder::alignableTracker() const
 //__________________________________________________________________________________________________
 void AlignmentParameterBuilder::addAllSelections(const edm::ParameterSet &pSet)
 {
-  AlignmentParameterSelector selector(0);
+  AlignmentParameterSelector selector(nullptr);
   std::vector<std::string> selsTypes(pSet.getParameter<std::vector<std::string> >("parameterTypes"));
   
   for (unsigned int i = 0; i < selsTypes.size(); ++i) {

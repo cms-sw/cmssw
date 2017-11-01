@@ -30,7 +30,7 @@ ESRecHitProducer::~ESRecHitProducer() {
 void ESRecHitProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
   edm::Handle<ESDigiCollection> digiHandle;  
-  const ESDigiCollection* digi=0;
+  const ESDigiCollection* digi=nullptr;
   e.getByToken( digiToken_, digiHandle);
  
   digi = digiHandle.product();

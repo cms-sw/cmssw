@@ -33,7 +33,7 @@ class PFRecoTauDiscriminationByFlightPathSignificance
       vertexAssociator_ = new reco::tau::RecoTauVertexAssociator(iConfig.getParameter<ParameterSet>("qualityCuts"),consumesCollector());
     }
 
-    ~PFRecoTauDiscriminationByFlightPathSignificance(){}
+    ~PFRecoTauDiscriminationByFlightPathSignificance() override{}
 
     void beginEvent(const edm::Event&, const edm::EventSetup&) override;
     double discriminate(const reco::PFTauRef&) const override;

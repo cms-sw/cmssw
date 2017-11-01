@@ -28,7 +28,7 @@ void RPCDaqInfo::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IG
   
   if(!init_){this->myBooker(ibooker);}
 
-  if(0 != iSetup.find( recordKey ) ) {
+  if(nullptr != iSetup.find( recordKey ) ) {
     
     //get fed summary information
     edm::ESHandle<RunInfo> sumFED;

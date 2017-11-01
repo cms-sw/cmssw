@@ -38,7 +38,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 //
 #include <string>
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -218,7 +218,7 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker & iBooker, DQMStore::
 	  edm::LogWarning("SiPixelPhase1Summary") << "Summary map " << name << " is not available !!";
 	  continue; // Based on reported errors it seems possible that we're trying to access a non-existant summary map, so if the map doesn't exist but we're trying to access it here we'll skip it instead.
 	}
-	if ((me->getQReports()).size()!=0) summaryMap_[name]->setBinContent(i+1,j+1,(me->getQReports())[0]->getQTresult());
+	if (!(me->getQReports()).empty()) summaryMap_[name]->setBinContent(i+1,j+1,(me->getQReports())[0]->getQTresult());
 	else summaryMap_[name]->setBinContent(i+1,j+1,-1);
       }  
     }    

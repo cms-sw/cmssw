@@ -22,29 +22,29 @@ namespace edm {
       RefHolder();
       explicit RefHolder(REF const& ref);
       void swap(RefHolder& other);
-      virtual ~RefHolder();
-      virtual RefHolderBase* clone() const override;
+      ~RefHolder() override;
+      RefHolderBase* clone() const override;
 
-      virtual ProductID id() const override;
-      virtual size_t key() const override;
-      virtual bool isEqualTo(RefHolderBase const& rhs) const override;
-      virtual bool fillRefIfMyTypeMatches(RefHolderBase& fillme,
+      ProductID id() const override;
+      size_t key() const override;
+      bool isEqualTo(RefHolderBase const& rhs) const override;
+      bool fillRefIfMyTypeMatches(RefHolderBase& fillme,
 					  std::string& msg) const override;
       REF const& getRef() const;
       void setRef(REF const& r);
-      virtual std::unique_ptr<RefVectorHolderBase> makeVectorHolder() const override;
-      virtual EDProductGetter const* productGetter() const override;
+      std::unique_ptr<RefVectorHolderBase> makeVectorHolder() const override;
+      EDProductGetter const* productGetter() const override;
 
       /// Checks if product collection is in memory or available
       /// in the Event. No type checking is done.
-      virtual bool isAvailable() const override { return ref_.isAvailable(); }
+      bool isAvailable() const override { return ref_.isAvailable(); }
 
-      virtual bool isTransient() const override { return ref_.isTransient(); }
+      bool isTransient() const override { return ref_.isTransient(); }
 
       //Needed for ROOT storage
       CMS_CLASS_VERSION(10)
     private:
-      virtual void const* pointerToType(std::type_info const& iToType) const override;
+      void const* pointerToType(std::type_info const& iToType) const override;
       REF ref_;
     };
 
@@ -94,7 +94,7 @@ namespace edm {
 					   std::string& msg) const
     {
       RefHolder* h = dynamic_cast<RefHolder*>(&fillme);
-      bool conversion_worked = (h != 0);
+      bool conversion_worked = (h != nullptr);
       if (conversion_worked)
 	h->setRef(ref_);
       else

@@ -18,7 +18,7 @@
 using namespace edm;
 
 FlatBaseThetaGunProducer::FlatBaseThetaGunProducer(const edm::ParameterSet& pset) :
-   fEvt(0) {
+   fEvt(nullptr) {
 
   edm::ParameterSet pgun_params = pset.getParameter<edm::ParameterSet>("PGunParameters") ;
   

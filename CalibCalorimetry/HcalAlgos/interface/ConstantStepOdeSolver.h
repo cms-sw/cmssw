@@ -15,10 +15,10 @@ class ConstantStepOdeSolver
 {
 public:
     inline ConstantStepOdeSolver()
-        : rhs_(0), dt_(0.0), dim_(0), runLen_(0), lastIntegrated_(0) {}
+        : rhs_(nullptr), dt_(0.0), dim_(0), runLen_(0), lastIntegrated_(0) {}
 
     inline ConstantStepOdeSolver(const AbsODERHS& rhs) :
-        rhs_(0), dt_(0.0), dim_(0), runLen_(0), lastIntegrated_(0)
+        rhs_(nullptr), dt_(0.0), dim_(0), runLen_(0), lastIntegrated_(0)
     {
         rhs_ = rhs.clone();
     }
@@ -137,12 +137,12 @@ public:
     inline explicit EulerOdeSolver(const AbsODERHS& rhs)
         : ConstantStepOdeSolver(rhs) {}
 
-    inline const char* methodName() const {return "Euler";}
+    inline const char* methodName() const override {return "Euler";}
 
 private:
     void step(double t, double dt,
               const double* x, unsigned lenX,
-              double* coordIncrement) const;
+              double* coordIncrement) const override;
 };
 
 
@@ -153,12 +153,12 @@ public:
 
     inline explicit RK2(const AbsODERHS& rhs) : ConstantStepOdeSolver(rhs) {}
 
-    inline const char* methodName() const {return "2nd order Runge-Kutta";}
+    inline const char* methodName() const override {return "2nd order Runge-Kutta";}
 
 private:
     void step(double t, double dt,
               const double* x, unsigned lenX,
-              double* coordIncrement) const;
+              double* coordIncrement) const override;
 
     mutable std::vector<double> buf_;
 };
@@ -171,12 +171,12 @@ public:
 
     inline explicit RK4(const AbsODERHS& rhs) : ConstantStepOdeSolver(rhs) {}
 
-    inline const char* methodName() const {return "4th order Runge-Kutta";}
+    inline const char* methodName() const override {return "4th order Runge-Kutta";}
 
 private:
     void step(double t, double dt,
               const double* x, unsigned lenX,
-              double* coordIncrement) const;
+              double* coordIncrement) const override;
 
     mutable std::vector<double> buf_;
 };

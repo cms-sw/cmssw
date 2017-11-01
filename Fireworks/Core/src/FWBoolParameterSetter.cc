@@ -13,7 +13,7 @@
 // system include files
 
 #include "TGButton.h"
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 
 // user include files
@@ -31,8 +31,8 @@
 // constructors and destructor
 //
 FWBoolParameterSetter::FWBoolParameterSetter() :
-   m_param(0),
-   m_widget(0)
+   m_param(nullptr),
+   m_widget(nullptr)
 {
 }
 
@@ -65,7 +65,7 @@ void
 FWBoolParameterSetter::attach(FWParameterBase* iParam)
 {
    m_param = dynamic_cast<FWBoolParameter*>(iParam);
-   assert(0!=m_param);
+   assert(nullptr!=m_param);
 }
 
 TGFrame*
@@ -89,8 +89,8 @@ FWBoolParameterSetter::setEnabled(bool x)
 void
 FWBoolParameterSetter::doUpdate()
 {
-   assert(0!=m_param);
-   assert(0!=m_widget);
+   assert(nullptr!=m_param);
+   assert(nullptr!=m_widget);
    m_param->set(m_widget->IsOn());
    update();
 }

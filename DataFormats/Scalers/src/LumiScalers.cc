@@ -60,7 +60,7 @@ LumiScalers::LumiScalers(const unsigned char * rawData)
   bunchNumber_  = ( raw->header >> 20 ) &      0xFFFULL;
   version_      = raw->version;
 
-  struct LumiScalersRaw_v1 const * lumi = NULL;
+  struct LumiScalersRaw_v1 const * lumi = nullptr;
 
   if ( version_ >= 1 )
   {

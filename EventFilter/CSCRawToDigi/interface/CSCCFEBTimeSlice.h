@@ -32,7 +32,7 @@ struct CSCCFEBDataWord {
 };
 
 #include <iostream>
-#include <string.h> //for bzero
+#include <cstring> //for bzero
 
 struct CSCCFEBSCAControllerWord {
   /**

@@ -133,7 +133,7 @@ void CSCHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
   //  iEvent.getByLabel( IT_HLTResult , TheHLTResults);
   iEvent.getByToken(hltresult_token_, TheHLTResults);
 
-  const edm::TriggerNames * triggerNames = 0;
+  const edm::TriggerNames * triggerNames = nullptr;
   if (TheHLTResults.isValid()) {
     triggerNames = &iEvent.triggerNames(*TheHLTResults);
   }

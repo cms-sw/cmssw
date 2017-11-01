@@ -34,9 +34,9 @@ class HLTTauMCProducer : public edm::EDProducer {
   
 public:
   explicit HLTTauMCProducer(const edm::ParameterSet&);
-  ~HLTTauMCProducer();
+  ~HLTTauMCProducer() override;
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
  private:
 

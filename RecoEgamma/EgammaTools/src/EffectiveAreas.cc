@@ -79,7 +79,7 @@ void EffectiveAreas::printEffectiveAreas() const {
 void EffectiveAreas::checkConsistency() const {
 
   // There should be at least one eta range with one constant
-  if( effectiveAreaValues_.size() == 0 )
+  if( effectiveAreaValues_.empty() )
     throw cms::Exception("EffectiveAreas config failure")
       << "found no effective area constans in the file " 
       << filename_ << std::endl;

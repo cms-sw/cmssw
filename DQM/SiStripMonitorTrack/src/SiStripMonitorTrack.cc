@@ -64,7 +64,7 @@ SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf):
 SiStripMonitorTrack::~SiStripMonitorTrack() {
   if (dcsStatus_) delete dcsStatus_;
   if (genTriggerEventFlag_) delete genTriggerEventFlag_;
-  
+
 }
 
 //------------------------------------------------------------------------
@@ -164,6 +164,11 @@ void SiStripMonitorTrack::book(DQMStore::IBooker & ibooker , const TrackerTopolo
     tkhisto_NumMissingHits      = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NumberMissingHits",0.0,true);
     tkhisto_NumberInactiveHits  = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NumberInactiveHits",0.0,true);
     tkhisto_NumberValidHits     = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NumberValidHits",0.0,true);
+    tkhisto_NoiseOnTrack     = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NoiseOnTrack",0.0,true);
+    tkhisto_NoiseOffTrack     = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NoiseOffTrack",0.0,true);
+    tkhisto_ClusterWidthOnTrack     = new TkHistoMap(ibooker , topFolderName_, "TkHMap_ClusterWidthOnTrack",0.0,true);
+    tkhisto_ClusterWidthOffTrack     = new TkHistoMap(ibooker , topFolderName_, "TkHMap_ClusterWidthOffTrack",0.0,true);
+
   }
   if (clchCMoriginTkHmap_On_)
     tkhisto_ClChPerCMfromOrigin = new TkHistoMap(ibooker , topFolderName_, "TkHMap_ChargePerCMfromOrigin",0.0,true);
@@ -323,11 +328,11 @@ ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TIBTID =
     ibooker.book2D("ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP","TEC- [FECCrate=2] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
   ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP->setAxisTitle("FEC Ring",1);
   ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP->setAxisTitle("FEC Slot",2);
-  
+
   //----------------------------------------
   // for conting the number of clusters, for the mean S/N calculation
    //book control view plots
- 
+
   ClusterCount_OnTrack_FECCratevsFECSlot =
     ibooker.book2D("ClusterCount_OnTrack_FECCratevsFECSlot"," S/N (On track)",22,0.5,22.5,4,0.5,4.5);
   ClusterCount_OnTrack_FECCratevsFECSlot->setAxisTitle("FEC Slot",1);
@@ -357,10 +362,10 @@ ClusterCount_OnTrack_FECSlotVsFECRing_TIBTID =
     ibooker.book2D("ClusterCount_OnTrack_FECSlotVsFECRing_TECP","TEC- [FECCrate=2] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
   ClusterCount_OnTrack_FECSlotVsFECRing_TECP->setAxisTitle("FEC Ring",1);
   ClusterCount_OnTrack_FECSlotVsFECRing_TECP->setAxisTitle("FEC Slot",2);
-  
-  
-  
-  
+
+
+
+
 }
 
 //--------------------------------------------------------------------------------
@@ -637,6 +642,25 @@ void SiStripMonitorTrack::bookSubDetMEs(DQMStore::IBooker & ibooker , std::strin
   axisName = "Number of off-track clusters in " + name;
   theSubDetMEs.nClustersOffTrack = bookME1D(ibooker , "TH1nClustersOff", completeName.c_str());
   theSubDetMEs.nClustersOffTrack->setAxisTitle(axisName);
+
+  double xmaximum=0;
+  if(name.find("TIB") != std::string::npos){
+    xmaximum = 40000.0;
+    theSubDetMEs.nClustersOffTrack->setAxisRange(0.0,xmaximum, 1);
+  }
+  if(name.find("TOB") != std::string::npos){
+    xmaximum = 40000.0;
+    theSubDetMEs.nClustersOffTrack->setAxisRange(0.0,xmaximum, 1);
+  }
+  if(name.find("TID") != std::string::npos){
+    xmaximum = 10000.0;
+    theSubDetMEs.nClustersOffTrack->setAxisRange(0.0,xmaximum, 1);
+  }
+  if(name.find("TEC") != std::string::npos){
+    xmaximum = 40000.0;
+    theSubDetMEs.nClustersOffTrack->setAxisRange(0.0,xmaximum, 1);
+  }
+
   theSubDetMEs.nClustersOffTrack->getTH1()->StatOverflows(kTRUE);
 
   // Cluster Gain
@@ -1035,8 +1059,8 @@ void SiStripMonitorTrack::trackStudyFromTrack(
     // hit pattern of the track
    // const reco::HitPattern & hitsPattern = track->hitPattern();
     // loop over the hits of the track
-    //    for (int i=0; i<hitsPattern.numberOfHits(); i++) {
-   // for (int i=0; i<hitsPattern.numberOfHits(reco::HitPattern::TRACK_HITS); i++) {
+    //    for (int i=0; i<hitsPattern.numberOfAllHits(); i++) {
+   // for (int i=0; i<hitsPattern.numberOfAllHits(reco::HitPattern::TRACK_HITS); i++) {
    //   uint32_t hit = hitsPattern.getHitPattern(reco::HitPattern::TRACK_HITS,i);
 
       // if the hit is valid and in pixel barrel, print out the layer
@@ -1280,7 +1304,7 @@ bool SiStripMonitorTrack::fillControlViewHistos(const edm::Event& ev, const edm:
       }
 
 
-      std::vector<const FedChannelConnection *> getFedChanConnections; 
+      std::vector<const FedChannelConnection *> getFedChanConnections;
       getFedChanConnections = SiStripDetCabling_->getConnections(thedetid);
 
       //      SiStripFolderOrganizer folder_organizer;
@@ -1327,25 +1351,25 @@ bool SiStripMonitorTrack::fillControlViewHistos(const edm::Event& ev, const edm:
       } // end of looping over the fed chan connections
     } // end of looping over the rechits of the track
   } // end of looping over the tracks
-  
-  
-  
-  
+
+
+
+
   return true;
 }
 
 
 void SiStripMonitorTrack::return2DME(MonitorElement* input1, MonitorElement* input2, int binx, int biny, double value) {
 
-  if (input1->getBinContent(binx,biny)==0.) { 
-    input1->setBinContent(binx,biny,value); 
+  if (input1->getBinContent(binx,biny)==0.) {
+    input1->setBinContent(binx,biny,value);
     input2->setBinContent(binx,biny,1);
   }
-  else { 
+  else {
     double nentries = input2->getBinContent(binx,biny);
     double theMeanSoN = (input1->getBinContent(binx,biny)*nentries + value)/(nentries+1);
-    //input1->setBinContent(binx,biny,((input1->getBinContent(binx,biny)+value)/2.)); 
-    input1->setBinContent(binx,biny,  theMeanSoN ); 
+    //input1->setBinContent(binx,biny,((input1->getBinContent(binx,biny)+value)/2.));
+    input1->setBinContent(binx,biny,  theMeanSoN );
     input2->setBinContent(binx,biny, input2->getBinContent(binx,biny)+1 );
   }
 
@@ -1486,6 +1510,13 @@ bool SiStripMonitorTrack::clusterInfos(
       if(noise == 0.0)
 	LogDebug("SiStripMonitorTrack") << "Module " << detid << " in Event " << eventNb << " noise " << noise << std::endl;
     }
+    if (TkHistoMap_On_  && (flag == OnTrack)) {
+      uint32_t adet=cluster->detId();
+      tkhisto_ClusterWidthOnTrack->fill(adet,cluster->width());
+      if(noise > 0.0) tkhisto_NoiseOnTrack->fill(adet,cluster->noiseRescaledByGain()*cosRZ);
+    }
+
+
     // Module plots filled only for onTrack Clusters
     if(Mod_On_){
       SiStripHistoId hidmanager2;
@@ -1531,6 +1562,11 @@ bool SiStripMonitorTrack::clusterInfos(
 	  LogDebug("SiStripMonitorTrack") << "Module firing " << detid << " in Event " << eventNb << std::endl;
         }
       }
+      if (TkHistoMap_On_) {
+	uint32_t adet=cluster->detId();
+	tkhisto_ClusterWidthOffTrack->fill(adet,cluster->width());
+	if(noise > 0.0) tkhisto_NoiseOffTrack->fill(adet,cluster->noiseRescaledByGain());
+      }
     }
     // layerMEs
     if (MEs.iLayer != nullptr) {
@@ -1562,5 +1598,16 @@ bool SiStripMonitorTrack::clusterInfos(
     }
   }
   return true;
+  delete tkhisto_StoNCorrOnTrack;
+  delete tkhisto_NumOnTrack;
+  delete tkhisto_NumOffTrack;
+  delete tkhisto_ClChPerCMfromTrack;
+  delete tkhisto_NumMissingHits;
+  delete tkhisto_NumberInactiveHits;
+  delete tkhisto_NumberValidHits;
+  delete tkhisto_NoiseOnTrack;
+  delete tkhisto_NoiseOffTrack;
+  delete tkhisto_ClusterWidthOnTrack;
+  delete tkhisto_ClusterWidthOffTrack;
 }
 //--------------------------------------------------------------------------------

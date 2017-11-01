@@ -12,8 +12,8 @@ class GEDGsfElectronCoreProducer : public GsfElectronCoreBaseProducer
     static void fillDescriptions( edm::ConfigurationDescriptions & ) ;
 
     explicit GEDGsfElectronCoreProducer( const edm::ParameterSet & conf ) ;
-    virtual ~GEDGsfElectronCoreProducer() ;
-    virtual void produce( edm::Event&, const edm::EventSetup & ) ;
+    ~GEDGsfElectronCoreProducer() override ;
+    void produce( edm::Event&, const edm::EventSetup & ) override ;
 
   private:
 

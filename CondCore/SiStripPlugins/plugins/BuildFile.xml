@@ -25,3 +25,39 @@
   <use   name="CommonTools/TrackerMap"/>
   <use   name="boost_python"/>
 </library>
+
+<library  file="SiStripLorentzAngle_PayloadInspector.cc" name="SiStripLorentzAngle_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="CommonTools/TrackerMap"/>
+  <use   name="boost_python"/>
+</library>
+
+<library  file="SiStripBackPlaneCorrection_PayloadInspector.cc" name="SiStripBackPlaneCorrection_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="CommonTools/TrackerMap"/>
+  <use   name="boost_python"/>
+</library>
+
+<library  file="SiStripNoises_PayloadInspector.cc" name="SiStripNoises_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="CommonTools/TrackerMap"/>
+  <use   name="boost_python"/>
+</library>
+
+<library  file="SiStripPedestals_PayloadInspector.cc" name="SiStripPedestals_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="CommonTools/TrackerMap"/>
+  <use   name="boost_python"/>
+</library>

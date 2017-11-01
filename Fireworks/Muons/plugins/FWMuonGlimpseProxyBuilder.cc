@@ -14,15 +14,15 @@ class FWMuonGlimpseProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Muon
 {
 public:
    FWMuonGlimpseProxyBuilder( void ) {}
-   virtual ~FWMuonGlimpseProxyBuilder( void ) {}
+   ~FWMuonGlimpseProxyBuilder( void ) override {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
    // Disable default copy constructor
-   FWMuonGlimpseProxyBuilder( const FWMuonGlimpseProxyBuilder& );
+   FWMuonGlimpseProxyBuilder( const FWMuonGlimpseProxyBuilder& ) = delete;
    // Disable default assignment operator
-   const FWMuonGlimpseProxyBuilder& operator=( const FWMuonGlimpseProxyBuilder& );
+   const FWMuonGlimpseProxyBuilder& operator=( const FWMuonGlimpseProxyBuilder& ) = delete;
 
    using FWSimpleProxyBuilderTemplate<reco::Muon>::build;
    void build( const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;

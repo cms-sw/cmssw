@@ -20,18 +20,18 @@ class DigiComparisonTask : public hcaldqm::DQTask
 {
 	public: 
 		DigiComparisonTask(edm::ParameterSet const&);
-		virtual ~DigiComparisonTask()
+		~DigiComparisonTask() override
 		{}
 
-		virtual void bookHistograms(DQMStore::IBooker&,
-			edm::Run const&, edm::EventSetup const&);
-		virtual void endLuminosityBlock(edm::LuminosityBlock const&,
-			edm::EventSetup const&);
+		void bookHistograms(DQMStore::IBooker&,
+			edm::Run const&, edm::EventSetup const&) override;
+		void endLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&) override;
 
 	protected:
 		//	funcs
-		virtual void _process(edm::Event const&, edm::EventSetup const&);
-		virtual void _resetMonitors(hcaldqm::UpdateFreq);
+		void _process(edm::Event const&, edm::EventSetup const&) override;
+		void _resetMonitors(hcaldqm::UpdateFreq) override;
 
 		//	Tags and corresponding Tokens
 		edm::InputTag	_tagHBHE1;

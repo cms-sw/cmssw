@@ -2,7 +2,7 @@
 #include <sstream>
 #include <string>
 #include <memory>
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 
 #include "HepMC/GenEvent.h"
@@ -10,6 +10,8 @@
 
 #include "Pythia8/Pythia.h"
 #include "Pythia8Plugins/HepMC2.h"
+
+#include "Vincia/Vincia.h"
 
 using namespace Pythia8;
 
@@ -74,7 +76,7 @@ class Pythia8Hadronizer : public Py8InterfaceBase {
   public:
 
     Pythia8Hadronizer(const edm::ParameterSet &params);
-   ~Pythia8Hadronizer();
+   ~Pythia8Hadronizer() override;
  
     bool initializeForInternalPartons() override;
     bool initializeForExternalPartons();
@@ -94,7 +96,9 @@ class Pythia8Hadronizer : public Py8InterfaceBase {
     
   private:
 
-    virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override { p8SetRandomEngine(v); }
+    std::auto_ptr<Vincia::VinciaPlugin> fvincia;
+
+    void doSetRandomEngine(CLHEP::HepRandomEngine* v) override { p8SetRandomEngine(v); }
     virtual std::vector<std::string> const& doSharedResources() const override { return p8SharedResources; }
 
     /// Center-of-Mass energy
@@ -305,6 +309,11 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
                                EV1_emittedMode, EV1_pTdefMode, EV1_MPIvetoOn, 0));
   }
   
+  if( params.exists( "VinciaPlugin" ) ) {
+    fMasterGen.reset(new Pythia);
+    fvincia.reset(new Vincia::VinciaPlugin(fMasterGen.get()));
+  }
+
 }
 
 
@@ -430,7 +439,11 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
   }
 
   edm::LogInfo("Pythia8Interface") << "Initializing MasterGen";
-  status = fMasterGen->init();
+  if( fvincia.get() ) {
+    fvincia->init(); status = true;
+  } else {
+    status = fMasterGen->init();
+  }
   
   //clean up temp file
   if (!slhafile_.empty()) {

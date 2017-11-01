@@ -7,7 +7,7 @@ HGCalMultiCluster::HGCalMultiCluster(double energy,
                                      ClusterCollection &thecls) :  
   PFCluster(PFLayer::HGCAL, energy, x, y, z),
   myclusters(thecls) {
-  assert(myclusters.size() > 0 && "Invalid cluster collection, zero length.");
+  assert(!myclusters.empty() && "Invalid cluster collection, zero length.");
   }
 
   

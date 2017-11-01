@@ -29,9 +29,9 @@ class CTPPSPixelGainCalibrationDBService
       virtual void getDB(const edm::Event& e, const edm::EventSetup& c);
       const CTPPSPixelGainCalibrations* getCalibs() const {return pPixelGainCalibrations;}
    private:
-      CTPPSPixelGainCalibrationDBService(const CTPPSPixelGainCalibrationDBService&); 
+      CTPPSPixelGainCalibrationDBService(const CTPPSPixelGainCalibrationDBService&) = delete; 
       const CTPPSPixelGainCalibrations* pPixelGainCalibrations;
-      const CTPPSPixelGainCalibrationDBService& operator=(const CTPPSPixelGainCalibrationDBService&); 
+      const CTPPSPixelGainCalibrationDBService& operator=(const CTPPSPixelGainCalibrationDBService&) = delete; 
 };
 
 #endif

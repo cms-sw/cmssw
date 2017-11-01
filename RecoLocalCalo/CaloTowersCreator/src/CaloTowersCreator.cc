@@ -235,7 +235,7 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
     edm::Handle<EcalRecHitCollection> ec_tmp;
     
     if (! e.getByToken(*i,ec_tmp) ) continue;
-    if (ec_tmp->size()==0) continue;
+    if (ec_tmp->empty()) continue;
 
     // check if this is EB or EE
     if ( (ec_tmp->begin()->detid()).subdetId() == EcalBarrel ) {

@@ -26,7 +26,7 @@ GsfVertexSmoother::smooth(const CachingVertex<5> & vertex) const
   CachingVertex<5> fitVertex(priorVertexPosition,priorVertexError,initialTracks,0);
   //In case prior vertex was used.
   if (vertex.hasPrior()) {
-    VertexState priorVertexState = vertex.priorVertexState();
+    const VertexState& priorVertexState = vertex.priorVertexState();
     fitVertex = CachingVertex<5>(priorVertexState, priorVertexState,
     		initialTracks,0);
   }

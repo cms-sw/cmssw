@@ -53,7 +53,7 @@ namespace {
       bundles.push_back ( tnws );
     };
 
-    if ( bundles.size() == 0 ) return bundles;
+    if ( bundles.empty() ) return bundles;
 
     // now add not-yet assigned tracks
     for ( set < reco::TransientTrack >::const_iterator i=st.begin(); 
