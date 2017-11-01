@@ -117,12 +117,37 @@ nanoDQM = cms.EDAnalyzer("NanoAODDQM",
                 Plot1D('trkPOG_toomanystripclus53X', 'trkPOG_toomanystripclus53X', 2, -0.5, 1.5, 'Trigger/flag bit'),
             )
         ),
+        GenDressedLepton = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Count1D('_size', 25, -0.5, 24.5, 'Dressed leptons from Rivet-based ParticleLevelProducer'),
+                Plot1D('eta', 'eta', 20, -7, 7, 'eta'),
+                Plot1D('mass', 'mass', 20, 0, 200, 'mass'),
+                Plot1D('pdgId', 'pdgId', 40, -20, 20, 'pdgId'),
+                Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
+                Plot1D('pt', 'pt', 20, 0, 200, 'pt'),
+            )
+        ),
         GenJet = cms.PSet(
             sels = cms.PSet(),
             plots = cms.VPSet(
                 Count1D('_size', 25, -0.5, 24.5, 'slimmedGenJets, i.e. ak4 Jets made with visible genparticles'),
                 Plot1D('eta', 'eta', 20, -7, 7, 'eta'),
+                Plot1D('hadronFlavour', 'hadronFlavour', 6, -0.5, 5.5, 'flavour from hadron ghost clustering'),
                 Plot1D('mass', 'mass', 20, 0, 200, 'mass'),
+                Plot1D('partonFlavour', 'partonFlavour', 40, -9.5, 30.5, 'flavour from parton matching'),
+                Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
+                Plot1D('pt', 'pt', 20, 0, 200, 'pt'),
+            )
+        ),
+        GenJetAK8 = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Count1D('_size', 25, -0.5, 24.5, 'slimmedGenJetAK8, i.e. ak8 Jets made with visible genparticles'),
+                Plot1D('eta', 'eta', 20, -7, 7, 'eta'),
+                Plot1D('hadronFlavour', 'hadronFlavour', 6, -0.5, 5.5, 'flavour from hadron ghost clustering'),
+                Plot1D('mass', 'mass', 20, 0, 200, 'mass'),
+                Plot1D('partonFlavour', 'partonFlavour', 40, -9.5, 30.5, 'flavour from parton matching'),
                 Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
                 Plot1D('pt', 'pt', 20, 0, 200, 'pt'),
             )
@@ -224,6 +249,8 @@ nanoDQM = cms.EDAnalyzer("NanoAODDQM",
                 Plot1D('covXX', 'covXX', 20, 0, 40000, 'xx element of met covariance matrix'),
                 Plot1D('covXY', 'covXY', 20, -8000, 8000, 'xy element of met covariance matrix'),
                 Plot1D('covYY', 'covYY', 20, 0, 50000, 'yy element of met covariance matrix'),
+                Plot1D('fiducialGenPhi', 'fiducialGenPhi', 20, -3.14159, 3.14159, 'phi'),
+                Plot1D('fiducialGenPt', 'fiducialGenPt', 20, 0, 400, 'pt'),
                 Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
                 Plot1D('pt', 'pt', 20, 0, 400, 'pt'),
                 Plot1D('significance', 'significance', 20, 0, 200, 'MET significance'),
