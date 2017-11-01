@@ -322,9 +322,9 @@ genSubJetAK8Table = cms.EDProducer("SimpleCandidateFlatTableProducer",
     )
 )
 ### Era dependent customization
-run2_miniAOD_80XLegacy.toModify( genJetFlavourTable.jetFlavourInfos, expr = cms.InputTag("genJetFlavourAssociation"),)
+run2_miniAOD_80XLegacy.toModify( genJetFlavourTable, jetFlavourInfos = cms.InputTag("genJetFlavourAssociation"),)
 
-run2_nanoAOD_92X.toModify( genJetFlavourTable.jetFlavourInfos, expr = cms.InputTag("genJetFlavourAssociation"),)
+run2_nanoAOD_92X.toModify( genJetFlavourTable, jetFlavourInfos = cms.InputTag("genJetFlavourAssociation"),)
 
 #before cross linking
 jetSequence = cms.Sequence(looseJetId+tightJetId+slimmedJetsWithUserData+jetCorrFactors+updatedJets+chsForSATkJets+softActivityJets+softActivityJets2+softActivityJets5+softActivityJets10+finalJets)
