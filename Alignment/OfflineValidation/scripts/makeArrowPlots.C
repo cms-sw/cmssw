@@ -196,8 +196,8 @@ int makeZPhiArrowPlot( TTree* data, const char* name, double zLim, double phiLim
 void makeArrowPlots(const char* filename, const char* outputDir)
 {
 
-  fin = new TFile(filename);
-  fin->cd();
+  TFile fin(filename);
+  fin.cd();
 
   bool plotPXB = true;
   bool plotTIB = true;
@@ -208,11 +208,12 @@ void makeArrowPlots(const char* filename, const char* outputDir)
 
   TString outputfile("OUTPUT_");
   outputfile.Append(filename);
-  TFile* output = new TFile(outputfile,"recreate");
+  TFile output(outputfile, "recreate");
 
   sprintf( outputDir_, "%s", outputDir );
+  gSystem->mkdir(outputDir_, true);
 
-  TTree* data = (TTree*)fin->Get("alignTree");
+  TTree* data = static_cast<TTree*>(fin.Get("alignTree"));
   data->SetBranchAddress("sublevel",&sublevel_);
   data->SetBranchAddress("level",&level_);
   data->SetBranchAddress("x",&x_);
