@@ -1,8 +1,6 @@
 #ifndef SPOT_H
 #define SPOT_H
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 
 #include <vector>
 
@@ -10,8 +8,8 @@ class Spot{
     public:
         Spot(DetId detid, double energy, const std::vector<double>& row, unsigned int layer, float fraction, double mip):
             detId_(detid),energy_(energy),row_(row),layer_(layer),fraction_(fraction),
-            mip_(mip),multiplicity_(int(energy/mip)),subdet_(HGCalDetId(detid).subdetId()),isCore_(fraction>0.){;};
-        ~Spot(){;};
+            mip_(mip),multiplicity_(int(energy/mip)),subdet_(detid.subdetId()),isCore_(fraction>0.){}
+        ~Spot(){}
         inline DetId detId() const {return detId_;}
         inline float energy() const {return energy_;}
         inline const double * row() const {return &row_[0];}

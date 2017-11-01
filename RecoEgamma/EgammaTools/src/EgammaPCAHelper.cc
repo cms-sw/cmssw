@@ -5,15 +5,20 @@
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
-// just to retrieve a "magic" number
+// To retrieve HGCalImagingAlgo::maxlayer
+// Also available as HGCal3DClustering::lastLayerBH and HGCalDepthPreClusterer::lastLayerBH
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalImagingAlgo.h"
 
 
 #include <algorithm>
 #include <iostream>
 
-EGammaPCAHelper::EGammaPCAHelper(): invThicknessCorrection_({1. / 1.132, 1. / 1.092, 1. / 1.084}),
-                                         pca_(new TPrincipal(3, "D")){
+EGammaPCAHelper::EGammaPCAHelper():
+  // Thickness correction to dEdx weights
+  // (100um, 200um, 300um silicon)
+  // See RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi
+  invThicknessCorrection_({1. / 1.132, 1. / 1.092, 1. / 1.084}),
+  pca_(new TPrincipal(3, "D")) {
     hitMapOrigin_ = 0;
     hitMap_ = new std::map<DetId, const HGCRecHit *>();
     debug_ = false;
@@ -22,6 +27,7 @@ EGammaPCAHelper::EGammaPCAHelper(): invThicknessCorrection_({1. / 1.132, 1. / 1.
 EGammaPCAHelper::~EGammaPCAHelper() {
     if (hitMapOrigin_ == 2) delete hitMap_;
 }
+
 void EGammaPCAHelper::setHitMap( std::map<DetId,const HGCRecHit *> * hitMap) {
     hitMapOrigin_ = 1;
     hitMap_ = hitMap ;
@@ -91,7 +97,7 @@ void EGammaPCAHelper::storeRecHits(const std::vector<std::pair<DetId, float>> &h
 
     unsigned hfsize = hf.size();
     if (debug_)
-    std::cout << "The seed cluster constains " << hfsize << " hits " << std::endl;
+        std::cout << "The seed cluster constains " << hfsize << " hits " << std::endl;
 
     if (hfsize == 0) return;
 
@@ -102,18 +108,16 @@ void EGammaPCAHelper::storeRecHits(const std::vector<std::pair<DetId, float>> &h
         const DetId rh_detid = hf[j].first;
         std::map<DetId,const HGCRecHit *>::const_iterator itcheck= hitMap_->find(rh_detid);
         if (itcheck == hitMap_->end()) {
-            std::cout << " Big problem, unable to find a hit " << rh_detid.rawId() << " " ;
-            std::cout << rh_detid.det() << " " << HGCalDetId(rh_detid) << std::endl;
+            edm::LogWarning("EgammaPCAHelper") << " Big problem, unable to find a hit " << rh_detid.rawId() << " " << rh_detid.det() << " " << HGCalDetId(rh_detid) << std::endl;
             continue;
         }
         if (debug_) {
             std::cout << "DetId " << rh_detid.rawId() << " " << layer << " " <<  itcheck->second->energy() <<std::endl;
-            //        std::cout << " Hit " << itcheck->second << " " << itcheck->second->energy() << std::endl;
+            std::cout << " Hit " << itcheck->second << " " << itcheck->second->energy() << std::endl;
         }
         float fraction = hf[j].second;
 
-        double thickness =
-            (DetId::Forward == DetId(rh_detid).det()) ? recHitTools_->getSiThickness(rh_detid) : -1;
+        double thickness = (DetId::Forward == DetId(rh_detid).det()) ? recHitTools_->getSiThickness(rh_detid) : -1;
         double mip = dEdXWeights_[layer] * 0.001;  // convert in GeV
         if (thickness > 99. && thickness < 101)
             mip *= invThicknessCorrection_[0];
@@ -126,7 +130,7 @@ void EGammaPCAHelper::storeRecHits(const std::vector<std::pair<DetId, float>> &h
         pcavars[1] = recHitTools_->getPosition(rh_detid).y();
         pcavars[2] = recHitTools_->getPosition(rh_detid).z();
         if (pcavars[2] == 0.)
-            std::cout << " Problem, hit with z =0 ";
+            edm::LogWarning("EgammaPCAHelper") << " Problem, hit with z =0 ";
         else  {
             Spot mySpot(rh_detid,itcheck->second->energy(),pcavars,layer,fraction,mip);
             theSpots_.push_back(mySpot);
@@ -144,7 +148,7 @@ void EGammaPCAHelper::computePCA(float radius , bool withHalo) {
     if (debug_)
         std::cout << " Initial calculation " << initialCalculation << std::endl;
     if (initialCalculation && withHalo) {
-        std::cout << "Warning - in the first iteration, the halo hits are excluded " << std::endl;
+        edm::LogWarning("EGammaPCAHelper") << "Warning - in the first iteration, the halo hits are excluded " << std::endl;
         withHalo=false;
     }
 
@@ -159,23 +163,20 @@ void EGammaPCAHelper::computePCA(float radius , bool withHalo) {
         Point(0., 0., 1.), Point(1., 0., 0.));
     }
 
-    unsigned nSpots = theSpots_.size();
     std::set<int> layers;
-    for ( unsigned i =0; i< nSpots ; ++i) {
-        Spot spot(theSpots_[i]);
-        if (spot.layer() > 28) continue;
+    for (const auto& spot : theSpots_) {
+        if (spot.layer() > recHitTools_->lastLayerEE()) continue;
         if (!withHalo && (! spot.isCore() ))
             continue;
         if (initialCalculation) {
             // initial calculation, take only core hits
             if ( ! spot.isCore() ) continue;
-            //std::cout << " Multiplicity " << spot.multiplicity() << " " << spot.row()[0] << " " ;
-            //std::cout << spot.row()[1] << " " << spot.row()[2] << std::endl;
             layers.insert(spot.layer());
             for (int i = 0; i < spot.multiplicity(); ++i)
                 pca_->AddRow(spot.row());
         }
-        else { // use a cylinder, include all hits
+        else {
+            // use a cylinder, include all hits
             math::XYZPoint local = trans_(Point( spot.row()[0],spot.row()[1],spot.row()[2]));
             if (local.Perp2() > radius2) continue;
             layers.insert(spot.layer());
@@ -211,7 +212,7 @@ void EGammaPCAHelper::computePCA(float radius , bool withHalo) {
     double cyl_ene = 0.;
 
     float radius2 = radius * radius;
-    for ( auto spot : theSpots_) {
+    for (const auto& spot : theSpots_) {
         Point globalPoint(spot.row()[0],spot.row()[1],spot.row()[2]);
         math::XYZPoint local = trans_(globalPoint);
         if (local.Perp2() > radius2) continue;
@@ -243,10 +244,9 @@ void EGammaPCAHelper::computePCA(float radius , bool withHalo) {
 
 bool EGammaPCAHelper::checkIteration() const {
     if (pcaIteration_ == 0) {
-        if(debug_) {
+        if(debug_)
             std::cout << " The PCA has not been run yet " << std::endl;
         return false;
-        }
     }   else if (pcaIteration_ == 1) {
         if (debug_)
             std::cout << " The PCA has been run only once - careful " << std::endl;
@@ -269,11 +269,10 @@ void EGammaPCAHelper::clear() {
 }
 
 LongDeps  EGammaPCAHelper::energyPerLayer(float radius, bool withHalo) {
-    checkIteration();
+    if (debug_) checkIteration();
     std::set<int> layers;
     float radius2 = radius*radius;
-    std::vector<float> energyPerLayer;
-    energyPerLayer.resize(HGCalImagingAlgo::maxlayer+1,0.);
+    std::vector<float> energyPerLayer(HGCalImagingAlgo::maxlayer+1, 0.f);
     math::XYZVector mainAxis(axis_);
     mainAxis.unit();
     math::XYZVector phiAxis(barycenter_.x(), barycenter_.y(), 0);
@@ -285,9 +284,7 @@ LongDeps  EGammaPCAHelper::energyPerLayer(float radius, bool withHalo) {
     float energyFH = 0.;
     float energyBH = 0.;
 
-    unsigned nSpots = theSpots_.size();
-    for ( unsigned i =0; i< nSpots ; ++i) {
-        Spot spot(theSpots_[i]);
+    for (const auto& spot : theSpots_) {
         if (!withHalo && ! spot.isCore())
             continue;
         math::XYZPoint local = trans_(Point( spot.row()[0],spot.row()[1],spot.row()[2]));
@@ -295,8 +292,8 @@ LongDeps  EGammaPCAHelper::energyPerLayer(float radius, bool withHalo) {
         energyPerLayer[spot.layer()] += spot.energy();
         layers.insert(spot.layer());
         if (spot.subdet() == HGCEE) { energyEE += spot.energy();}
-            else if (spot.subdet() == HGCHEF) { energyFH += spot.energy();}
-            else if (spot.subdet() == HGCHEB) { energyBH += spot.energy();}
+        else if (spot.subdet() == HGCHEF) { energyFH += spot.energy();}
+        else if (spot.subdet() == HGCHEB) { energyBH += spot.energy();}
 
     }
     return LongDeps(radius,energyPerLayer,energyEE,energyFH,energyBH,layers);
@@ -316,16 +313,18 @@ void EGammaPCAHelper::printHits(float radius) const {
 }
 
 float EGammaPCAHelper::findZFirstLayer(const LongDeps & ld) const {
-    int firstLayer = -1;
-    for(unsigned il=1;il<=HGCalImagingAlgo::maxlayer && firstLayer<1;++il) {
-        if (ld.energyPerLayer()[il] > 0.)
+    unsigned int firstLayer = 0;
+    for(unsigned il=1;il<=HGCalImagingAlgo::maxlayer;++il) {
+        if (ld.energyPerLayer()[il] > 0.) {
             firstLayer = il;
+            break;
+        }
     }
+    // Make dummy DetId to get abs(z) for layer
     DetId id;
-    if (firstLayer <= 28) id = HGCalDetId(ForwardSubdetector::HGCEE, 1, firstLayer, 1, 50, 1);
-    if (firstLayer > 28 && firstLayer <= 40)
-      id = HGCalDetId(ForwardSubdetector::HGCHEF, 1, firstLayer - 28, 1, 50, 1);
-    if (firstLayer > 40) id = HcalDetId(HcalSubdetector::HcalEndcap, 50, 100, firstLayer - 40);
+    if (firstLayer <= recHitTools_->lastLayerEE()) id = HGCalDetId(ForwardSubdetector::HGCEE, 1, firstLayer, 1, 50, 1);
+    else if (firstLayer <= recHitTools_->lastLayerFH()) id = HGCalDetId(ForwardSubdetector::HGCHEF, 1, firstLayer - recHitTools_->lastLayerEE(), 1, 50, 1);
+    else  id = HcalDetId(HcalSubdetector::HcalEndcap, 50, 100, firstLayer - recHitTools_->lastLayerFH());
     return recHitTools_->getPosition(id).z();
 }
 

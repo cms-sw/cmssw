@@ -6,8 +6,8 @@
 //
 //
 //--------------------------------------------------------------------------------------------------
-#ifndef EGammaPCAHelper_H
-#define EGammaPCAHelper_H
+#ifndef RecoEgamma_EgammaTools_EGammaPCAHelper_h
+#define RecoEgamma_EgammaTools_EGammaPCAHelper_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
@@ -70,8 +70,8 @@ public:
     inline double sigmaEE() const { return checkIteration()? sige_ : -1. ;}
     inline double sigmaPP() const { return checkIteration()? sigp_ : -1. ;}
 
-    inline TVectorD eigenValues () const {return checkIteration()? *pca_->GetEigenValues() : TVectorD(-1.,-1.,-1.);}
-    inline TVectorD sigmas() const {return checkIteration()? *pca_->GetSigmas() : TVectorD(-1.,-1.,-1.);}
+    inline const TVectorD eigenValues () const {return checkIteration()? *pca_->GetEigenValues() : TVectorD(-1.,-1.,-1.);}
+    inline const TVectorD sigmas() const {return checkIteration()? *pca_->GetSigmas() : TVectorD(-1.,-1.,-1.);}
     // contains maxlayer+1 values, first layer is [1]
     LongDeps  energyPerLayer(float radius, bool withHalo=true) ;
 
