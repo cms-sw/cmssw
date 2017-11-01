@@ -1,11 +1,16 @@
-#ifndef LONGDEPS_H
-#define LONGDEPS_H
+#ifndef RecoEgamma_EgammaTools_LongDeps_h
+#define RecoEgamma_EgammaTools_LongDeps_h
 #include <vector>
 #include <set>
 
+/*
+ * Stores information about the HGCal EM MultiCluster computed
+ * using EGammaPCAHelper, including in particular hits restricted to
+ * a cylinder along the shower axis with some given radius
+ */
 class LongDeps{
     public:
-        LongDeps(float radius, const std::vector<float>& energyPerLayer, float energyEE,float energyFH,float energyBH,const std::set<int> layers);
+        LongDeps(float radius, const std::vector<float>& energyPerLayer, float energyEE,float energyFH,float energyBH,const std::set<int>& layers);
         ~LongDeps(){;}
         // to check the radius used
         inline float radius() const {return radius_;};

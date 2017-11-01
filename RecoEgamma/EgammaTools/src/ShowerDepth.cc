@@ -1,5 +1,5 @@
 #include "RecoEgamma/EgammaTools/interface/ShowerDepth.h"
-#include <ctgmath>
+#include <cmath>
 #include <iostream>
 
 ShowerDepth::ShowerDepth() {
@@ -34,8 +34,8 @@ float ShowerDepth::getClusterDepthCompatibility(float length, float emEnergy,flo
     // inject here parametrization results
     float meantmax = meant0_ + meant1_*lny;
     float meanalpha = meanalpha0_ + meanalpha1_*lny;
-    float sigmalntmax = 1.0 / (sigmalnt0_+sigmalnt1_*lny);
-    float sigmalnalpha = 1.0 / (sigmalnalpha0_+sigmalnalpha1_*lny);
+    float sigmalntmax = 1.0f / (sigmalnt0_+sigmalnt1_*lny);
+    float sigmalnalpha = 1.0f / (sigmalnalpha0_+sigmalnalpha1_*lny);
     float corrlnalphalntmax = corrlnalphalnt0_+corrlnalphalnt1_*lny;
 
     float invbeta = meantmax/(meanalpha-1.);
@@ -43,13 +43,13 @@ float ShowerDepth::getClusterDepthCompatibility(float length, float emEnergy,flo
     predictedLength *= radiationLength_;
 
     float sigmaalpha = meanalpha*sigmalnalpha;
-    if (sigmaalpha<0.) sigmaalpha = 1.;
+    if (sigmaalpha<0.) sigmaalpha = 1.f;
     float sigmatmax = meantmax*sigmalntmax;
-    if (sigmatmax<0.) sigmatmax = 1.;
+    if (sigmatmax<0.) sigmatmax = 1.f;
 
-    float predictedSigma = sigmalnalpha*sigmalnalpha/((meanalpha-1.)*(meanalpha-1.));
+    float predictedSigma = sigmalnalpha*sigmalnalpha/((meanalpha-1.f)*(meanalpha-1.f));
     predictedSigma += sigmalntmax*sigmalntmax;
-    predictedSigma -= 2*sigmalnalpha*sigmalntmax*corrlnalphalntmax/(meanalpha-1.);
+    predictedSigma -= 2*sigmalnalpha*sigmalntmax*corrlnalphalntmax/(meanalpha-1.f);
     predictedSigma = predictedLength*std::sqrt(predictedSigma);
     if (debug_){
             std::cout  << " Predicted length " << predictedLength << " Predicted Sigma " << predictedSigma << std::endl;
