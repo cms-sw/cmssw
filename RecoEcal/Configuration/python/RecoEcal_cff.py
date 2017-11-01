@@ -31,3 +31,11 @@ _ecalClustersHI = ecalClusters.copy()
 _ecalClustersHI += islandClusteringSequence
 for e in [pA_2016, peripheralPbPb, pp_on_XeXe_2017]:
     e.toReplaceWith(ecalClusters, _ecalClustersHI)
+
+from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
+
+from RecoEcal.EgammaClusterProducers.islandBasicClusters_cfi import islandBasicClusters
+
+_ecalClustersHI_ppRef = ecalClusters.copy()
+_ecalClustersHI_ppRef += islandBasicClusters
+ppRef_2017.toReplaceWith(ecalClusters, _ecalClustersHI_ppRef)

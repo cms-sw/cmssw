@@ -54,3 +54,10 @@ _egammaHighLevelRecoPostPF_HI += photonIsolationHIProducerppGED
 _egammaHighLevelRecoPostPF_HI += photonIsolationHIProducerppIsland
 for e in [pA_2016, peripheralPbPb, pp_on_XeXe_2017]:
     e.toReplaceWith(egammaHighLevelRecoPostPF, _egammaHighLevelRecoPostPF_HI)
+
+from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
+
+_egammaHighLevelRecoPostPF_HI_ppRef = egammaHighLevelRecoPostPF.copy()
+_egammaHighLevelRecoPostPF_HI_ppRef += photonIsolationHIProducerpp
+_egammaHighLevelRecoPostPF_HI_ppRef += photonIsolationHIProducerppGED
+ppRef_2017.toReplaceWith(egammaHighLevelRecoPostPF, _egammaHighLevelRecoPostPF_HI_ppRef)
