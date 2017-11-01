@@ -24,7 +24,7 @@ const float THRESHOLD = 0.05f;
 #include "flowGold.h"
 #include "flowCUDA.h"
 
-#include <helper_functions.h>
+#include "CUDA/Samples/interface/helper_functions.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief save optical flow in format described on vision.middlebury.edu/flow

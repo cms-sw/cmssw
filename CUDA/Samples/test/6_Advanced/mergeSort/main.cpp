@@ -15,8 +15,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cuda_runtime.h>
-#include <helper_functions.h>
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_functions.h"
+#include "CUDA/Samples/interface/helper_cuda.h"
 #include "mergeSort_common.h"
 
 

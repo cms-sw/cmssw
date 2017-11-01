@@ -34,8 +34,8 @@
 #include "rng.h"
 
 // Shared Library Test Functions
-#include <helper_timer.h>
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_timer.h"
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 const unsigned int RNG::s_maxQrngDimensions = 20000;
 

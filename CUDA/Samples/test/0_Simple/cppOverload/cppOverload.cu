@@ -14,9 +14,9 @@
 
 // Includes, system
 #include <stdio.h>
-#include <helper_cuda.h>
-#include <helper_string.h>
-#include <helper_math.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
+#include "CUDA/Samples/interface/helper_string.h"
+#include "CUDA/Samples/interface/helper_math.h"
 #include "cppOverload_kernel.cuh"
 
 const char *sampleName = "C++ Function Overloading";

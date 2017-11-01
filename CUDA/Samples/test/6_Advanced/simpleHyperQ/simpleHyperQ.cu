@@ -21,8 +21,8 @@
 #include <cooperative_groups.h>
 
 namespace cg = cooperative_groups;
-#include <helper_functions.h>
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_functions.h"
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 const char *sSDKsample = "hyperQ";
 

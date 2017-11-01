@@ -37,7 +37,7 @@
 #include <cooperative_groups.h>
 
 namespace cg = cooperative_groups;
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 #define k_2powneg32 2.3283064E-10F
 

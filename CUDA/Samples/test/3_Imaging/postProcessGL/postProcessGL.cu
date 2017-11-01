@@ -15,7 +15,7 @@
 
 namespace cg = cooperative_groups;
 
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 #ifndef USE_TEXTURE_RGBA8UI
 texture<float4, 2, cudaReadModeElementType> inTex;

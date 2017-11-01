@@ -47,7 +47,7 @@
 /* Includes, cuda */
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 /* Matrix size */
 #define N  (275)

@@ -10,7 +10,7 @@
  */
 
 // OpenGL Graphics includes
-#include <helper_gl.h>
+#include "CUDA/Samples/interface/helper_gl.h"
 #if defined (__APPLE__) || defined(MACOSX)
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #include <GLUT/glut.h>
@@ -23,9 +23,9 @@
 #include <cuda_gl_interop.h>
 
 // CUDA utilities and system includes
-#include <helper_cuda.h>
-#include <helper_cuda_gl.h>
-#include <rendercheck_gl.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
+#include "CUDA/Samples/interface/helper_cuda_gl.h"
+#include "CUDA/Samples/interface/rendercheck_gl.h"
 
 // System includes
 #include <stdexcept>
@@ -37,7 +37,7 @@
 #include "rng.h"
 
 // standard utility and system includes
-#include <helper_timer.h>
+#include "CUDA/Samples/interface/helper_timer.h"
 
 // SDK information
 static const char *printfFile = "randomFog.txt";

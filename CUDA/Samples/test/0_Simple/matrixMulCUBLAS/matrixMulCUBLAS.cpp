@@ -50,15 +50,15 @@
 
 // Utilities and system includes
 #include <assert.h>
-#include <helper_string.h>  // helper for shared functions common to CUDA Samples
+#include "CUDA/Samples/interface/helper_string.h"  // helper for shared functions common to CUDA Samples
 
 // CUDA runtime
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
 
 // CUDA and CUBLAS functions
-#include <helper_functions.h>
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_functions.h"
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 #ifndef min
 #define min(a,b) ((a < b) ? a : b)

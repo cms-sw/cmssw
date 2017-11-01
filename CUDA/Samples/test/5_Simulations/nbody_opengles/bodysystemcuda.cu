@@ -9,7 +9,7 @@
  *
  */
 
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 #include <math.h>
 
 //#include <GL/glew.h>

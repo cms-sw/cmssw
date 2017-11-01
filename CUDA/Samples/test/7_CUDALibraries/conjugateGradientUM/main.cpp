@@ -26,8 +26,8 @@
 #include <cublas_v2.h>
 
 // Utilities and system includes
-#include <helper_functions.h>  // helper for shared functions common to CUDA Samples
-#include <helper_cuda.h>       // helper function CUDA error checking and initialization
+#include "CUDA/Samples/interface/helper_functions.h"  // helper for shared functions common to CUDA Samples
+#include "CUDA/Samples/interface/helper_cuda.h"       // helper function CUDA error checking and initialization
 
 const char *sSDKname     = "conjugateGradientUM";
 

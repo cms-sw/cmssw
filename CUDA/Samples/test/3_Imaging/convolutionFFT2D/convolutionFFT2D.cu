@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 #include "convolutionFFT2D_common.h"
 #include "convolutionFFT2D.cuh"
 

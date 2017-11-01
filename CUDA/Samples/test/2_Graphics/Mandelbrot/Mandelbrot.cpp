@@ -19,7 +19,7 @@
 */
 
 // OpenGL Graphics includes
-#include <helper_gl.h>
+#include "CUDA/Samples/interface/helper_gl.h"
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
 #include <GL/wglew.h>
 #endif
@@ -38,9 +38,9 @@
 #include <cuda_runtime.h>
 #include <cuda_gl_interop.h>
 
-#include <helper_functions.h>
-#include <helper_cuda.h>
-#include <helper_cuda_gl.h>
+#include "CUDA/Samples/interface/helper_functions.h"
+#include "CUDA/Samples/interface/helper_cuda.h"
+#include "CUDA/Samples/interface/helper_cuda_gl.h"
 
 // Includes
 #include <stdio.h>

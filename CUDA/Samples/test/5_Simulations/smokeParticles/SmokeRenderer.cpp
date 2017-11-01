@@ -16,7 +16,7 @@
 #include <math.h>
 #include <stdlib.h>
 #define HELPERGL_EXTERN_GL_FUNC_IMPLEMENTATION
-#include <helper_gl.h>
+#include "CUDA/Samples/interface/helper_gl.h"
 #include "SmokeRenderer.h"
 #include "SmokeShaders.h"
 

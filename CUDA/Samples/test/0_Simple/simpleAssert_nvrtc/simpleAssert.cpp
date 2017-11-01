@@ -23,10 +23,10 @@
 
 // Includes CUDA
 #include <cuda_runtime.h>
-#include "nvrtc_helper.h"
+#include "CUDA/Samples/interface/nvrtc_helper.h"
 
 // Utilities and timing functions
-#include <helper_functions.h>    // includes cuda.h and cuda_runtime_api.h
+#include "CUDA/Samples/interface/helper_functions.h"    // includes cuda.h and cuda_runtime_api.h
 
 const char *sampleName = "simpleAssert_nvrtc";
 

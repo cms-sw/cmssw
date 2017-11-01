@@ -16,7 +16,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 #include <algorithm>
 #include "tipsy.h"
 

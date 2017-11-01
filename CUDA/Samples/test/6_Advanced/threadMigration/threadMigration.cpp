@@ -53,7 +53,7 @@ pthread_mutex_t g_mutex;
 #include <stdio.h>
 #include <cuda.h>
 #include <cuda_runtime_api.h>
-#include <helper_cuda_drvapi.h>
+#include "CUDA/Samples/interface/helper_cuda_drvapi.h"
 
 #include <iostream>
 #include <cstring>

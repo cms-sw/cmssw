@@ -12,8 +12,8 @@
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
-#include <helper_cuda.h>
-#include <helper_string.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
+#include "CUDA/Samples/interface/helper_string.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Variable on the GPU used to generate unique identifiers of blocks.

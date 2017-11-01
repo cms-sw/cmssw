@@ -29,7 +29,7 @@
 #include "dynlink_builtin_types.h"
 
 // CUDA utilities and system includes
-#include "helper_functions.h"
+#include "CUDA/Samples/interface/helper_functions.h"
 #include "helper_cuda_drvapi.h"
 
 // Includes

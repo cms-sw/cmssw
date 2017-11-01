@@ -17,8 +17,8 @@
 #include <string.h>
 
 #include <cuda.h>
-#include <helper_cuda_drvapi.h>
-#include <drvapi_error_string.h>
+#include "CUDA/Samples/interface/helper_cuda_drvapi.h"
+#include "CUDA/Samples/interface/drvapi_error_string.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Program main

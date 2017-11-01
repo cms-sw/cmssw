@@ -25,8 +25,8 @@
 #include <cuda_runtime.h>
 
 // includes, project
-#include <helper_cuda.h>
-#include <helper_functions.h> // helper functions for SDK examples
+#include "CUDA/Samples/interface/helper_cuda.h"
+#include "CUDA/Samples/interface/helper_functions.h" // helper functions for SDK examples
 
 ////////////////////////////////////////////////////////////////////////////////
 // declaration, forward

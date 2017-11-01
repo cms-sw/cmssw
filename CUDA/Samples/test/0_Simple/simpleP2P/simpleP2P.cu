@@ -22,8 +22,8 @@
 #include <cuda_runtime.h>
 
 // includes, project
-#include <helper_cuda.h>
-#include <helper_functions.h>  // helper for shared that are common to CUDA Samples
+#include "CUDA/Samples/interface/helper_cuda.h"
+#include "CUDA/Samples/interface/helper_functions.h"  // helper for shared that are common to CUDA Samples
 
 __global__ void SimpleKernel(float *src, float *dst)
 {

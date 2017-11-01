@@ -14,7 +14,7 @@
 #include <cooperative_groups.h>
 
 namespace cg = cooperative_groups;
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 #include "scan_common.h"
 
 //All three kernels run 512 threads per workgroup

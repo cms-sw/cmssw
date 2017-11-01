@@ -11,7 +11,7 @@
 
 // Utilities and system includes
 
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 // clamp x to range [a, b]
 __device__ float clamp(float x, float a, float b)

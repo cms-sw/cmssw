@@ -12,7 +12,7 @@
 #ifndef __PARTICLESYSTEM_H__
 #define __PARTICLESYSTEM_H__
 
-#include <helper_functions.h>
+#include "CUDA/Samples/interface/helper_functions.h"
 #include "particles_kernel.cuh"
 #include "vector_functions.h"
 #include "GpuArray.h"

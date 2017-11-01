@@ -22,10 +22,10 @@
 #  pragma warning(disable:4819)
 #endif
 
-#include <ImagesCPU.h>
-#include <ImagesNPP.h>
-#include <ImageIO.h>
-#include <Exceptions.h>
+#include "CUDA/Samples/test/7_CUDALibraries/common/UtilNPP/ImagesCPU.h"
+#include "CUDA/Samples/test/7_CUDALibraries/common/UtilNPP/ImagesNPP.h"
+#include "CUDA/Samples/test/7_CUDALibraries/common/UtilNPP/ImageIO.h"
+#include "CUDA/Samples/test/7_CUDALibraries/common/UtilNPP/Exceptions.h"
 
 #include <string.h>
 #include <fstream>
@@ -34,8 +34,8 @@
 #include <cuda_runtime.h>
 #include <npp.h>
 
-#include <helper_string.h>
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_string.h"
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 inline int cudaDeviceInit(int argc, const char **argv)
 {

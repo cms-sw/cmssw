@@ -13,8 +13,8 @@
 #ifndef _BOXFILTER_KERNEL_CH_
 #define _BOXFILTER_KERNEL_CH_
 
-#include <helper_math.h>
-#include <helper_functions.h>
+#include "CUDA/Samples/interface/helper_math.h"
+#include "CUDA/Samples/interface/helper_functions.h"
 
 texture<float, 2> tex;
 texture<uchar4, 2, cudaReadModeNormalizedFloat> rgbaTex;

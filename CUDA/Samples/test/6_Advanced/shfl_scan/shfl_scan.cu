@@ -21,8 +21,8 @@
 
 #include <cuda_runtime.h>
 
-#include <helper_functions.h>
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_functions.h"
+#include "CUDA/Samples/interface/helper_cuda.h"
 #include "shfl_integral_image.cuh"
 
 // Scan using shfl - takes log2(n) steps

@@ -23,7 +23,7 @@
 
 
 // OpenGL Graphics includes
-#include <helper_gl.h>
+#include "CUDA/Samples/interface/helper_gl.h"
 #if defined(__APPLE__) || defined(MACOSX)
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #include <GLUT/glut.h>
@@ -42,8 +42,8 @@
 #include "imageDenoising.h"
 
 // includes, project
-#include <helper_functions.h> // includes for helper utility functions
-#include <helper_cuda.h>      // includes for cuda error checking and initialization
+#include "CUDA/Samples/interface/helper_functions.h" // includes for helper utility functions
+#include "CUDA/Samples/interface/helper_cuda.h"      // includes for cuda error checking and initialization
 
 const char *sSDKsample = "CUDA ImageDenoising";
 

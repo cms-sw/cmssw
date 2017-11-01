@@ -21,7 +21,7 @@
 */
 
 // OpenGL Graphics includes
-#include <helper_gl.h>
+#include "CUDA/Samples/interface/helper_gl.h"
 #if defined (WIN32)
 #include <GL/wglew.h>
 #endif
@@ -39,9 +39,9 @@
 #include <cuda_runtime.h>
 
 // CUDA utilities and system includes
-#include <helper_functions.h>
-#include <helper_cuda.h>    // includes cuda.h and cuda_runtime_api.h
-#include <helper_cuda_gl.h> // includes cuda_gl_interop.h// includes cuda_gl_interop.h
+#include "CUDA/Samples/interface/helper_functions.h"
+#include "CUDA/Samples/interface/helper_cuda.h"    // includes cuda.h and cuda_runtime_api.h
+#include "CUDA/Samples/interface/helper_cuda_gl.h" // includes cuda_gl_interop.h// includes cuda_gl_interop.h
 
 // Includes
 #include <stdlib.h>
@@ -51,7 +51,7 @@
 
 #include "particleSystem.h"
 #include "render_particles.h"
-#include "paramgl.h"
+#include "CUDA/Samples/interface/paramgl.h"
 
 #define MAX_EPSILON_ERROR 5.00f
 #define THRESHOLD         0.30f

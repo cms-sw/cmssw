@@ -27,9 +27,9 @@
 
 namespace cg = cooperative_groups;
 // Utilities and system includes
-#include <helper_string.h>    // helper for string parsing
-#include <helper_image.h>     // helper for image and data comparison
-#include <helper_cuda.h>      // helper for cuda error checking functions
+#include "CUDA/Samples/interface/helper_string.h"    // helper for string parsing
+#include "CUDA/Samples/interface/helper_image.h"     // helper for image and data comparison
+#include "CUDA/Samples/interface/helper_cuda.h"      // helper for cuda error checking functions
 
 const char *sSDKsample = "Transpose";
 

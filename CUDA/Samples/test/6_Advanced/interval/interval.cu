@@ -24,8 +24,8 @@
 const static char *sSDKsample = "Interval Computing";
 
 #include <iostream>
-#include <stdio.h>
-#include "helper_cuda.h"
+#include <cstdio>
+#include "CUDA/Samples/interface/helper_cuda.h"
 #include "interval.h"
 #include "cuda_interval.h"
 #include "cpu_interval.h"

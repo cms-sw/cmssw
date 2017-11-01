@@ -7,6 +7,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
+#include <assert.h>
+
 extern "C" __global__ void testKernel(int N)
 {
     int gtid = blockIdx.x*blockDim.x + threadIdx.x ;

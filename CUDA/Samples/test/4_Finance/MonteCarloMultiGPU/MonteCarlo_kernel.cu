@@ -17,7 +17,7 @@
 #include <cooperative_groups.h>
 
 namespace cg = cooperative_groups;
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 #include <curand_kernel.h>
 #include "MonteCarlo_common.h"
 

@@ -11,7 +11,7 @@
 
 #include <stdlib.h>
 #define HELPERGL_EXTERN_GL_FUNC_IMPLEMENTATION
-#include <helper_gl.h>
+#include "CUDA/Samples/interface/helper_gl.h"
 #include "GLSLProgram.h"
 
 GLSLProgram::GLSLProgram(const char *vsource, const char *fsource)

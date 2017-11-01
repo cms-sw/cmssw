@@ -27,7 +27,7 @@
 #include <algorithm>
 #include <math.h>
 
-#include <helper_gl.h>
+#include "CUDA/Samples/interface/helper_gl.h"
 #if defined(__APPLE__) || defined(__MACOSX)
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #include <GLUT/glut.h>
@@ -41,13 +41,13 @@
 #include <cuda_runtime.h>
 #include <cuda_gl_interop.h>
 
-#include <helper_cuda.h>
-#include <helper_cuda_gl.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
+#include "CUDA/Samples/interface/helper_cuda_gl.h"
 
 #include "ParticleSystem.h"
 #include "ParticleSystem.cuh"
 #include "SmokeRenderer.h"
-#include "paramgl.h"
+#include "CUDA/Samples/interface/paramgl.h"
 #include "GLSLProgram.h"
 #include "SmokeShaders.h"
 

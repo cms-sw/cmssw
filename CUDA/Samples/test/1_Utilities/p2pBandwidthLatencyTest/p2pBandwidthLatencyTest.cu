@@ -12,7 +12,7 @@
 #include <cstdio>
 #include <vector>
 
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 using namespace std;
 

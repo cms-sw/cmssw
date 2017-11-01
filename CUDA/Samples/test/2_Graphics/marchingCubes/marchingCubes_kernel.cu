@@ -14,8 +14,8 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <helper_cuda.h>    // includes for helper CUDA functions
-#include <helper_math.h>
+#include "CUDA/Samples/interface/helper_cuda.h"    // includes for helper CUDA functions
+#include "CUDA/Samples/interface/helper_math.h"
 #include <cuda_runtime_api.h>
 #include <thrust/device_vector.h>
 #include <thrust/scan.h>

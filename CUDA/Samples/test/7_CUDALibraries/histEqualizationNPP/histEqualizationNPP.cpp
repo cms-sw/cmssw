@@ -17,10 +17,10 @@
 #  include <windows.h>
 #endif
 
-#include <ImagesCPU.h>
-#include <ImagesNPP.h>
-#include <ImageIO.h>
-#include <Exceptions.h>
+#include "CUDA/Samples/test/7_CUDALibraries/common/UtilNPP/ImagesCPU.h"
+#include "CUDA/Samples/test/7_CUDALibraries/common/UtilNPP/ImagesNPP.h"
+#include "CUDA/Samples/test/7_CUDALibraries/common/UtilNPP/ImageIO.h"
+#include "CUDA/Samples/test/7_CUDALibraries/common/UtilNPP/Exceptions.h"
 #include <string.h>
 
 #include <string>
@@ -29,7 +29,7 @@
 
 #include <npp.h>
 
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
 #define STRCASECMP  _stricmp

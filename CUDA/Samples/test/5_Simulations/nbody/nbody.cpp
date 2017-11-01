@@ -10,7 +10,7 @@
  */
 
 
-#include <helper_gl.h>
+#include "CUDA/Samples/interface/helper_gl.h"
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
 #include <GL/wglew.h>
 #endif
@@ -22,7 +22,7 @@
 #include <GL/freeglut.h>
 #endif
 
-#include <paramgl.h>
+#include "CUDA/Samples/interface/paramgl.h"
 #include <cstdlib>
 #include <cstdio>
 #include <algorithm>
@@ -31,10 +31,10 @@
 
 #include <cuda_runtime.h>
 #include <cuda_gl_interop.h>
-#include <helper_cuda.h>
-#include <helper_cuda_gl.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
+#include "CUDA/Samples/interface/helper_cuda_gl.h"
 
-#include <helper_functions.h>
+#include "CUDA/Samples/interface/helper_functions.h"
 
 #include "bodysystemcuda.h"
 #include "bodysystemcpu.h"

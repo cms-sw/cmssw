@@ -36,7 +36,7 @@
 
 #include <npp.h>
 #include <cuda_runtime.h>
-#include <Exceptions.h>
+#include "CUDA/Samples/test/7_CUDALibraries/common/UtilNPP/Exceptions.h"
 
 #include "Endianess.h"
 #include <math.h>
@@ -45,8 +45,8 @@
 #include <fstream>
 #include <iostream>
 
-#include <helper_string.h>
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_string.h"
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 using namespace std;
 

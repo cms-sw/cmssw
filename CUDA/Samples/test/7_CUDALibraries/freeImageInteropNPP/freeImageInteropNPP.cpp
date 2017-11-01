@@ -17,7 +17,7 @@
 #endif
 
 #include "FreeImage.h"
-#include "Exceptions.h"
+#include "CUDA/Samples/test/7_CUDALibraries/common/UtilNPP/Exceptions.h"
 
 #include <string.h>
 #include <fstream>
@@ -26,8 +26,8 @@
 #include <cuda_runtime.h>
 #include <npp.h>               // CUDA NPP Definitions
 
-#include <helper_cuda.h>       // helper for CUDA Error handling and initialization
-#include <helper_string.h>     // helper for string parsing
+#include "CUDA/Samples/interface/helper_cuda.h"       // helper for CUDA Error handling and initialization
+#include "CUDA/Samples/interface/helper_string.h"     // helper for string parsing
 
 inline int cudaDeviceInit(int argc, const char **argv)
 {

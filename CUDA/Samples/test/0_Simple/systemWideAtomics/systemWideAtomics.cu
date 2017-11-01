@@ -17,7 +17,7 @@
 #include <ctime>
 #include <stdint.h>
 #include <cuda_runtime.h>
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 #define min(a,b) (a) < (b) ? (a) : (b)
 #define max(a,b) (a) > (b) ? (a) : (b)

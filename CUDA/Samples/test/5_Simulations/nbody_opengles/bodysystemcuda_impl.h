@@ -9,7 +9,7 @@
  *
  */
 
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 #include <assert.h>
 #include <math.h>

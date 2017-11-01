@@ -12,7 +12,7 @@
 #ifndef PERMUTATIONS_H
 #define PERMUTATIONS_H
 
-#include <helper_cuda.h> // assert
+#include "CUDA/Samples/interface/helper_cuda.h" // assert
 
 static void computePermutations(uint permutations[1024])
 {

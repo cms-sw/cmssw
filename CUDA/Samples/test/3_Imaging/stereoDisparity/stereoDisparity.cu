@@ -25,9 +25,9 @@
 
 
 // includes, project
-#include <helper_functions.h>  // helper for shared that are common to CUDA Samples
-#include <helper_cuda.h>       // helper for checking cuda initialization and error checking
-#include <helper_string.h>     // helper functions for string parsing
+#include "CUDA/Samples/interface/helper_functions.h"  // helper for shared that are common to CUDA Samples
+#include "CUDA/Samples/interface/helper_cuda.h"       // helper for checking cuda initialization and error checking
+#include "CUDA/Samples/interface/helper_string.h"     // helper functions for string parsing
 
 
 static const char *sSDKsample = "[stereoDisparity]\0";

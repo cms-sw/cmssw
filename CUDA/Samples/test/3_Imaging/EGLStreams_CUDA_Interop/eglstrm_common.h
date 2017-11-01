@@ -29,7 +29,7 @@
 #include <stdbool.h>
 
 #include "cuda.h"
-#include "helper_cuda_drvapi.h"
+#include "CUDA/Samples/interface/helper_cuda_drvapi.h"
 #include "cudaEGL.h"
 
 #define EXTENSION_LIST(T) \

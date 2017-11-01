@@ -28,8 +28,8 @@
 #include <cufft.h>
 
 // Helper functions for CUDA
-#include <helper_functions.h>
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_functions.h"
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 #include "convolutionFFT2D_common.h"
 

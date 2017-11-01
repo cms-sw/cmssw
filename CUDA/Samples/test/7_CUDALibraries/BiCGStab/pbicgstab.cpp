@@ -18,12 +18,12 @@
 
 #include "cublas_v2.h"
 #include "cusparse_v2.h"
-#include "helper_cusolver.h"
+#include "CUDA/Samples/interface/helper_cusolver.h"
 #include "mmio.h"
 
 #include "mmio_wrapper.h"
 
-#include "helper_cuda.h"
+#include "CUDA/Samples/interface/helper_cuda.h"
   
 //profiling the code
 #define TIME_INDIVIDUAL_LIBRARY_CALLS

@@ -51,7 +51,7 @@
 #endif
 
 // OpenGL Graphics includes
-#include <helper_gl.h>
+#include "CUDA/Samples/interface/helper_gl.h"
 #if defined(__APPLE__) || defined(MACOSX)
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #include <GLUT/glut.h>
@@ -67,11 +67,11 @@
 #include <cuda_gl_interop.h>
 
 // CUDA utilities and system includes
-#include <helper_cuda.h>
-#include <helper_cuda_gl.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
+#include "CUDA/Samples/interface/helper_cuda_gl.h"
 
-#include <helper_functions.h>
-#include <rendercheck_gl.h>
+#include "CUDA/Samples/interface/helper_functions.h"
+#include "CUDA/Samples/interface/rendercheck_gl.h"
 
 // Shared Library Test Functions
 #define MAX_EPSILON 10

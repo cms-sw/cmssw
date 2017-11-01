@@ -14,8 +14,8 @@
 #ifndef _VOLUMERENDER_KERNEL_CU_
 #define _VOLUMERENDER_KERNEL_CU_
 
-#include <helper_cuda.h>
-#include <helper_math.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
+#include "CUDA/Samples/interface/helper_math.h"
 #include "volumeRender.h"
 
 // random ray offset texture, didn't pay off much in this demo

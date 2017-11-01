@@ -13,8 +13,8 @@
 This file contains simple wrapper functions that call the CUDA kernels
 */
 #define HELPERGL_EXTERN_GL_FUNC_IMPLEMENTATION
-#include <helper_gl.h>
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_gl.h"
+#include "CUDA/Samples/interface/helper_cuda.h"
 #include <cstdlib>
 #include <cstdio>
 #include <string.h>

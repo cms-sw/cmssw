@@ -16,8 +16,8 @@
  */
 
 
-#include <helper_functions.h>   // helper functions for string parsing
-#include <helper_cuda.h>        // helper functions CUDA error checking and initialization
+#include "CUDA/Samples/interface/helper_functions.h"   // helper functions for string parsing
+#include "CUDA/Samples/interface/helper_cuda.h"        // helper functions CUDA error checking and initialization
 
 ////////////////////////////////////////////////////////////////////////////////
 // Process an array of optN options on CPU

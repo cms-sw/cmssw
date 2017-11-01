@@ -33,8 +33,8 @@
 
 #include <vector>
 
-#include <helper_cuda.h>
-#include <helper_math.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
+#include "CUDA/Samples/interface/helper_math.h"
 
 #include "bindlessTexture.h"
 

@@ -30,8 +30,8 @@
 
 namespace cg = cooperative_groups;
 
-#include <helper_cuda.h>
-#include <helper_string.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
+#include "CUDA/Samples/interface/helper_string.h"
 #include "cdpQuicksort.h"
 
 ////////////////////////////////////////////////////////////////////////////////

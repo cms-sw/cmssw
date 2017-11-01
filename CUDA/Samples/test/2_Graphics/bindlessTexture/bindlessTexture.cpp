@@ -28,7 +28,7 @@
 
 #include <vector>
 
-#include <helper_gl.h>
+#include "CUDA/Samples/interface/helper_gl.h"
 #if defined (__APPLE__) || defined(MACOSX)
   #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   #include <GLUT/glut.h>
@@ -41,9 +41,9 @@
 
 #include "bindlessTexture.h"
 
-#include <helper_functions.h>
+#include "CUDA/Samples/interface/helper_functions.h"
 #include <cuda_gl_interop.h>
-#include <helper_cuda_gl.h>
+#include "CUDA/Samples/interface/helper_cuda_gl.h"
 
 
 #define MAX_EPSILON_ERROR 5.0f

@@ -23,8 +23,8 @@
 
 namespace cg = cooperative_groups;
 
-#include <helper_cuda.h>
-#include <helper_math.h>
+#include "CUDA/Samples/interface/helper_cuda.h"
+#include "CUDA/Samples/interface/helper_math.h"
 
 #define BLOCK_DIM 16
 #define CLAMP_TO_EDGE 1

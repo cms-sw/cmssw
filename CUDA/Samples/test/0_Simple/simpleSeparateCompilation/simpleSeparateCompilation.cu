@@ -20,8 +20,8 @@
 #include <cuda_runtime.h>
 
 // Helper functions and utilities to work with CUDA.
-#include <helper_functions.h>
-#include <helper_cuda.h>
+#include "CUDA/Samples/interface/helper_functions.h"
+#include "CUDA/Samples/interface/helper_cuda.h"
 
 // Device library includes.
 #include "simpleDeviceLibrary.cuh"

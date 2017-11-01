@@ -22,7 +22,7 @@
 #include <cuda_runtime.h>
 #include <math.h>
 
-#include <helper_timer.h>
+#include "CUDA/Samples/interface/helper_timer.h"
 
 #include "../inc/asianoption.h"
 #include "../inc/pricingengine.h"
