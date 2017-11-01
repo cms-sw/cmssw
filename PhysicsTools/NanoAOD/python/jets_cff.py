@@ -308,7 +308,7 @@ genJetAK8FlavourTable = cms.EDProducer("GenJetFlavourTableProducer",
     name = genJetAK8Table.name,
     src = genJetAK8Table.src,
     cut = cms.string(""),
-    jetFlavourInfos = cms.InputTag("genJetAK8FlavourAssociation"),
+    jetFlavourInfos = cms.InputTag("slimmedGenJetsFlavourInfos"),
 )
 genSubJetAK8Table = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("slimmedGenJetsAK8SoftDropSubJets"),
@@ -321,6 +321,10 @@ genSubJetAK8Table = cms.EDProducer("SimpleCandidateFlatTableProducer",
 	#anything else?
     )
 )
+### Era dependent customization
+run2_miniAOD_80XLegacy.toModify( genJetFlavourTable.jetFlavourInfos, expr = cms.InputTag("genJetFlavourAssociation"),)
+
+run2_nanoAOD_92X.toModify( genJetFlavourTable.jetFlavourInfos, expr = cms.InputTag("genJetFlavourAssociation"),)
 
 #before cross linking
 jetSequence = cms.Sequence(looseJetId+tightJetId+slimmedJetsWithUserData+jetCorrFactors+updatedJets+chsForSATkJets+softActivityJets+softActivityJets2+softActivityJets5+softActivityJets10+finalJets)
@@ -328,5 +332,5 @@ jetSequence = cms.Sequence(looseJetId+tightJetId+slimmedJetsWithUserData+jetCorr
 jetTables = cms.Sequence(bjetMVA+ jetTable+fatJetTable+subJetTable+saJetTable+saTable)
 
 #MC only producers and tables
-jetMC = cms.Sequence(jetMCTable+genJetTable+patJetPartons+genJetFlavourAssociation+genJetFlavourTable+genJetAK8Table+genJetAK8FlavourAssociation+genJetAK8FlavourTable+genSubJetAK8Table)
+jetMC = cms.Sequence(jetMCTable+genJetTable+patJetPartons+genJetFlavourTable+genJetAK8Table+genJetAK8FlavourAssociation+genJetAK8FlavourTable+genSubJetAK8Table)
 
