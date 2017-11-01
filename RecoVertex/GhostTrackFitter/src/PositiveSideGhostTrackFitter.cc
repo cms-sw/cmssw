@@ -1,6 +1,7 @@
 #include <cmath>
 #include <vector>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h" 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h" 
 
@@ -44,6 +45,8 @@ GhostTrackPrediction PositiveSideGhostTrackFitter::fit(
 						state.setWeight(3.);
 					done = false;
 				}
+			} else {
+				edm::LogError("InvalidGhostTrackState") << "Invalid GhostTrackState encountered!";
 			}
 		}
 	}
