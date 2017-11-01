@@ -931,7 +931,8 @@ namespace edm {
       << "This likely indicates a bug in an input module or corrupted input or both\n";
   }
   
-  void EventProcessor::beginRun(ProcessHistoryID const& phid, RunNumber_t run) {
+  void EventProcessor::beginRun(ProcessHistoryID const& phid, RunNumber_t run, bool& globalBeginSucceeded) {
+    globalBeginSucceeded = false;
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(phid, run);
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
@@ -972,6 +973,7 @@ namespace edm {
         std::rethrow_exception(* (globalWaitTask->exceptionPtr()) );
       }
     }
+    globalBeginSucceeded = true;
     FDEBUG(1) << "\tbeginRun " << run << "\n";
     if(looper_) {
       looper_->doBeginRun(runPrincipal, es, &processContext_);
@@ -1002,7 +1004,7 @@ namespace edm {
     }
   }
 
-  void EventProcessor::endRun(ProcessHistoryID const& phid, RunNumber_t run, bool cleaningUpAfterException) {
+  void EventProcessor::endRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalBeginSucceeded, bool cleaningUpAfterException) {
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(phid, run);
     runPrincipal.setAtEndTransition(true);
     //We need to reset failed items since they might
@@ -1026,7 +1028,7 @@ namespace edm {
       sentry.completedSuccessfully();
     }
     EventSetup const& es = esp_->eventSetup();
-    {
+    if(globalBeginSucceeded){
       //To wait, the ref count has to be 1+#streams
       auto streamLoopWaitTask = make_empty_waiting_task();
       streamLoopWaitTask->increment_ref_count();
@@ -1074,7 +1076,8 @@ namespace edm {
     }
   }
 
-  void EventProcessor::beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) {
+  void EventProcessor::beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool& globalBeginSucceeded) {
+    globalBeginSucceeded = false;
     LuminosityBlockPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(phid, run, lumi);
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
@@ -1113,6 +1116,7 @@ namespace edm {
         std::rethrow_exception(* (globalWaitTask->exceptionPtr()) );
       }
     }
+    globalBeginSucceeded=true;
     FDEBUG(1) << "\tbeginLumi " << run << "/" << lumi << "\n";
     if(looper_) {
       looper_->doBeginLuminosityBlock(lumiPrincipal, es, &processContext_);
@@ -1143,7 +1147,7 @@ namespace edm {
     }
   }
 
-  void EventProcessor::endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool cleaningUpAfterException) {
+  void EventProcessor::endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool globalBeginSucceeded, bool cleaningUpAfterException) {
     LuminosityBlockPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(phid, run, lumi);
     lumiPrincipal.setAtEndTransition(true);
     //We need to reset failed items since they might
@@ -1168,7 +1172,7 @@ namespace edm {
       sentry.completedSuccessfully();
     }
     EventSetup const& es = esp_->eventSetup();
-    {
+    if(globalBeginSucceeded){
       //To wait, the ref count has to b 1+#streams
       auto streamLoopWaitTask = make_empty_waiting_task();
       streamLoopWaitTask->increment_ref_count();

@@ -65,12 +65,18 @@ namespace edm {
     //When we are done processing the stream for this process,
     // we need to run the stream for all SubProcesses
     auto subs = make_waiting_task(tbb::task::allocate_root(), [&iSubProcesses, iWait,iStreamIndex,&iPrincipal,iTS,token](std::exception_ptr const* iPtr) mutable {
-      if(iPtr) {
-        iWait.doneWaiting(*iPtr);
-        return;
-      }
       ServiceRegistry::Operate op(token);
-      for_all(iSubProcesses, [&iWait,iStreamIndex, &iPrincipal, iTS](auto& subProcess){ subProcessDoStreamBeginTransitionAsync(iWait,subProcess,iStreamIndex,iPrincipal, iTS); });
+      if(iPtr) {
+        auto excpt = *iPtr;
+        auto delayError = make_waiting_task(tbb::task::allocate_root(), [iWait,token,excpt](std::exception_ptr const* ) mutable {
+          ServiceRegistry::Operate op(token);
+          iWait.doneWaiting(excpt);
+        });
+        WaitingTaskHolder h(delayError);
+        for_all(iSubProcesses, [&h,iStreamIndex, &iPrincipal, iTS](auto& subProcess){ subProcessDoStreamBeginTransitionAsync(h,subProcess,iStreamIndex,iPrincipal, iTS); });
+      } else {
+        for_all(iSubProcesses, [&iWait,iStreamIndex, &iPrincipal, iTS](auto& subProcess){ subProcessDoStreamBeginTransitionAsync(iWait,subProcess,iStreamIndex,iPrincipal, iTS); });
+      }
     });
     
     WaitingTaskHolder h(subs);
@@ -108,13 +114,20 @@ namespace edm {
     //When we are done processing the stream for this process,
     // we need to run the stream for all SubProcesses
     auto subs = make_waiting_task(tbb::task::allocate_root(), [&iSubProcesses, iWait,iStreamIndex,&iPrincipal,iTS,token,cleaningUpAfterException](std::exception_ptr const* iPtr) mutable {
-      if(iPtr) {
-        iWait.doneWaiting(*iPtr);
-        return;
-      }
       ServiceRegistry::Operate op(token);
-      for_all(iSubProcesses, [&iWait,iStreamIndex, &iPrincipal, iTS,cleaningUpAfterException](auto& subProcess){
-        subProcessDoStreamEndTransitionAsync(iWait,subProcess,iStreamIndex,iPrincipal, iTS,cleaningUpAfterException); });
+      if(iPtr) {
+        auto excpt = *iPtr;
+        auto delayError = make_waiting_task(tbb::task::allocate_root(), [iWait,token,excpt](std::exception_ptr const* ) mutable {
+          ServiceRegistry::Operate op(token);
+          iWait.doneWaiting(excpt);
+        });
+        WaitingTaskHolder h(delayError);
+        for_all(iSubProcesses, [&h,iStreamIndex, &iPrincipal, iTS,cleaningUpAfterException](auto& subProcess){
+          subProcessDoStreamEndTransitionAsync(h,subProcess,iStreamIndex,iPrincipal, iTS,cleaningUpAfterException); });
+      } else {
+        for_all(iSubProcesses, [&iWait,iStreamIndex, &iPrincipal, iTS,cleaningUpAfterException](auto& subProcess){
+          subProcessDoStreamEndTransitionAsync(iWait,subProcess,iStreamIndex,iPrincipal, iTS,cleaningUpAfterException); });
+      }
     });
     
     WaitingTaskHolder h(subs);
