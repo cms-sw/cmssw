@@ -29,22 +29,17 @@ TrackerTopology::TrackerTopology( const PixelBarrelValues& pxb, const PixelEndca
 
 
 unsigned int TrackerTopology::side(const DetId &id) const {
-  uint32_t subdet=id.subdetId();
-  if ( subdet == PixelSubdetector::PixelBarrel )
-    return 0;
-  if ( subdet == PixelSubdetector::PixelEndcap )
-    return pxfSide(id);
-  if ( subdet == StripSubdetector::TIB )
-    return 0;
-  if ( subdet == StripSubdetector::TID )
-    return tidSide(id);
-  if ( subdet == StripSubdetector::TOB )
-    return 0;
-  if ( subdet == StripSubdetector::TEC )
-    return tecSide(id);
-
-  throw cms::Exception("Invalid DetId") << "Unsupported DetId in TrackerTopology::side";
-  return 0;
+  switch (id.subdetId()) {
+  case PixelSubdetector::PixelBarrel: return 0;
+  case PixelSubdetector::PixelEndcap: return pxfSide(id);
+  case StripSubdetector::TIB:         return tibSide(id);
+  case StripSubdetector::TID:         return tidSide(id);
+  case StripSubdetector::TOB:         return tobSide(id);
+  case StripSubdetector::TEC:         return tecSide(id);
+  default:
+    throw cms::Exception("Invalid DetId")
+      << "Unsupported DetId in TrackerTopology::side";
+  }
 }
 
 unsigned int TrackerTopology::layer(const DetId &id) const {
