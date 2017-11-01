@@ -1,0 +1,5 @@
+The build process results in the following warning: 
+
+nvlink warning : Stack size for entry function '_Z15dgetrf_cdpentryP12Parameters_s' cannot be statically determined
+
+There is some use of recursion inside the program. As a result this warning cannot be avoided because the compiler cannot determine stack size in instances of recursion.

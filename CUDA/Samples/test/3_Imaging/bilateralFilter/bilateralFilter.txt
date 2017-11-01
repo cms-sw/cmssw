@@ -1,0 +1,4 @@
+e:\CUDA\sw\C\bin\win32\Debug\bilateralFilter.exe Starting...
+
+Loaded './data/nature_monte.bmp', 640 x 480 pixels
+
