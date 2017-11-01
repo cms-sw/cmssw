@@ -79,13 +79,7 @@ hcalSimParameters = cms.PSet(
             190.28, 189.61, 189.60, 190.12, 191.22,
             190.90, 193.06, 188.42, 188.42),
         syncPhase = cms.bool(True),
-
-        #Phase setting for HPD
-        #timePhase = cms.double(6.0),
-
-        #Phase setting for SiPM
-        timePhase = cms.double(-0.3),
-
+        timePhase = cms.double(6.0),
         timeSmearing = cms.bool(True),
         doSiPMSmearing = cms.bool(False),
         sipmTau = cms.double(0.),
