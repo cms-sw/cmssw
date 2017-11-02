@@ -50,6 +50,9 @@ namespace edm {
     bool wantsStreamRuns() const final;
     bool wantsStreamLuminosityBlocks() const final;
 
+    SerialTaskQueue* globalRunsQueue() final;
+    SerialTaskQueue* globalLuminosityBlocksQueue() final;
+
 
     void updateLookup(BranchType iBranchType,
                               ProductResolverIndexHelper const&) override;
