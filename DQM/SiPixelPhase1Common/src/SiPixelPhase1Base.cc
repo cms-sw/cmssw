@@ -51,6 +51,6 @@ SiPixelPhase1Base::checktrigger(
 {
   //true if no trigger, MC, off, or accepted
 
-  return  triggerlist.size() == 0 || !iEvent.isRealData() ||
+  return  triggerlist.empty() || !iEvent.isRealData() ||
          !triggerlist.at(trgidx)->on() || triggerlist.at(trgidx)->accept( iEvent, iSetup );
 }
