@@ -74,8 +74,8 @@ private:
   void beginJob() override;
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
   void endRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) { }
+  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) { }
 
   void clear();
   void fillTrack(int, double, double, double, double);
@@ -115,8 +115,8 @@ private:
   TH1I                      *h_goodPV, *h_goodRun;
   TH2I                      *h_nHLTvsRN;
   std::vector<TH1I*>         h_HLTAccepts;
-  TH1D                      *h_p[nGen+1], *h_pt[nGen+1];
-  TH1D                      *h_eta[nGen+1], *h_phi[nGen+1];
+  TH1D                      *h_p[nGen+2],   *h_pt[nGen+2];
+  TH1D                      *h_eta[nGen+2], *h_phi[nGen+2];
   TH1I                      *h_ntrk[2];
   TH1D                      *h_maxNearP[2], *h_ene1[2], *h_ene2[2], *h_ediff[2];
   TH1D                      *h_energy[nPVBin+8][nPBin][nEtaBin][6];
@@ -300,7 +300,7 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
 	  ok = true;
 	} else {
 	  for (unsigned int i=0; i<trigNames_.size(); ++i) {
-	    if (newtriggerName.find(trigNames_[i])!=std::string::npos) {
+	    if (newtriggerName.find(trigNames_[i]) != std::string::npos) {
 	      if (verbosity_%10 > 0)  
 		edm::LogInfo("IsoTrack") << newtriggerName;
 	      if (hlt > 0) {
@@ -310,7 +310,7 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
 	    }
 	  }
 	  for (int i=0; i<5; ++i) {
-	    if (newtriggerName.find(newNames[i])!=std::string::npos) {
+	    if (newtriggerName.find(newNames[i]) != std::string::npos) {
 	      if (verbosity_%10 > 0)
 		edm::LogInfo("IsoTrack") << "[" << i << "] " << newNames[i] 
 					 << " : " << newtriggerName;
@@ -386,6 +386,9 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
 	tr_eventWeight  = 0;
     }
 
+    edm::Handle<reco::TrackCollection> trkCollection;
+    iEvent.getByToken(tok_genTrack_, trkCollection);
+
     //=== genParticle information
     edm::Handle<reco::GenParticleCollection> genParticles;
     iEvent.getByToken(tok_parts_, genParticles);
@@ -396,11 +399,26 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
 	double eta1        = p.momentum().Eta();
 	double phi1        = p.momentum().Phi();
 	fillTrack(nGen, pt1,p1,eta1,phi1);
+	bool match(false);
+	double phi2(phi1);
+	if (phi2 < 0) phi2 += 2.0*M_PI;
+	for (const auto& trk : (reco::TrackCollection)(*trkCollection)) {
+	  bool quality = trk.quality(selectionParameters_.minQuality);
+	  if (quality) {
+	    double dEta = trk.eta() - eta1;
+	    double phi0 = trk.phi();
+	    if (phi0 < 0) phi0 += 2.0*M_PI;
+	    double dPhi = phi0-phi2;
+	    if (dPhi > M_PI)       dPhi -= 2.*M_PI;
+	    else if (dPhi < -M_PI) dPhi += 2.*M_PI;
+	    double dR   = sqrt(dEta*dEta+dPhi*dPhi);
+	    if (dR < 0.01) { match = true; break;}
+	  }
+	}
+	if (match) fillTrack(nGen+1, pt1,p1,eta1,phi1);
       }
     }
 
-    edm::Handle<reco::TrackCollection> trkCollection;
-    iEvent.getByToken(tok_genTrack_, trkCollection);
     reco::TrackCollection::const_iterator trkItr;
     for (trkItr=trkCollection->begin(); trkItr != trkCollection->end(); ++trkItr,++ntrk) {
       const reco::Track* pTrack = &(*trkItr);
@@ -541,15 +559,15 @@ void StudyHLT::beginJob() {
   }
   std::string TrkNames[8]       = {"All", "Quality", "NoIso", "okEcal", "EcalCharIso", "HcalCharIso", "EcalNeutIso", "HcalNeutIso"};
   std::string particle[4]       = {"Electron", "Pion", "Kaon", "Proton"};
-  for (unsigned int i=0; i<=nGen; i++) {
+  for (unsigned int i=0; i<=nGen+1; i++) {
     if (i < 8) {
       sprintf(hname, "h_pt_%s", TrkNames[i].c_str());
       sprintf(htit, "p_{T} of %s tracks", TrkNames[i].c_str());
     } else if (i < 8+nPVBin) {
       sprintf(hname, "h_pt_%s_%d", TrkNames[7].c_str(), i-8);
       sprintf(htit, "p_{T} of %s tracks (PV=%d:%d)", TrkNames[7].c_str(), pvBin[i-8], pvBin[i-7]-1);
-    } else if (i == nGen) {
-      sprintf(hname, "h_pt_%s_1", TrkNames[0].c_str());
+    } else if (i >= nGen) {
+      sprintf(hname, "h_pt_%s_%d", TrkNames[0].c_str(), i-nGen);
       sprintf(htit, "p_{T} of %s Generator tracks", TrkNames[0].c_str());
     } else {
       sprintf(hname, "h_pt_%s_%s", TrkNames[7].c_str(), particle[i-8-nPVBin].c_str());
@@ -564,8 +582,8 @@ void StudyHLT::beginJob() {
     } else if (i < 8+nPVBin) {
       sprintf(hname, "h_p_%s_%d", TrkNames[7].c_str(), i-8);
       sprintf(htit, "Momentum of %s tracks (PV=%d:%d)", TrkNames[7].c_str(), pvBin[i-8], pvBin[i-7]-1);
-    } else if (i == nGen) {
-      sprintf(hname, "h_p_%s_1", TrkNames[0].c_str());
+    } else if (i >= nGen) {
+      sprintf(hname, "h_p_%s_%d", TrkNames[0].c_str(), i-nGen);
       sprintf(htit, "Momentum of %s Generator tracks", TrkNames[0].c_str());
     } else {
       sprintf(hname, "h_p_%s_%s", TrkNames[7].c_str(), particle[i-8-nPVBin].c_str());
@@ -580,8 +598,8 @@ void StudyHLT::beginJob() {
     } else if (i < 8+nPVBin) {
       sprintf(hname, "h_eta_%s_%d", TrkNames[7].c_str(), i-8);
       sprintf(htit, "Eta of %s tracks (PV=%d:%d)", TrkNames[7].c_str(), pvBin[i-8], pvBin[i-7]-1);
-    } else if (i == nGen) {
-      sprintf(hname, "h_eta_%s_1", TrkNames[0].c_str());
+    } else if (i >= nGen) {
+      sprintf(hname, "h_eta_%s_%d", TrkNames[0].c_str(), i-nGen);
       sprintf(htit, "Eta of %s Generator tracks", TrkNames[0].c_str());
     } else {
       sprintf(hname, "h_eta_%s_%s", TrkNames[7].c_str(), particle[i-8-nPVBin].c_str());
@@ -596,8 +614,8 @@ void StudyHLT::beginJob() {
     } else if (i < 8+nPVBin) {
       sprintf(hname, "h_phi_%s_%d", TrkNames[7].c_str(), i-8);
       sprintf(htit, "Phi of %s tracks (PV=%d:%d)", TrkNames[7].c_str(), pvBin[i-8], pvBin[i-7]-1);
-    } else if (i == nGen) {
-      sprintf(hname, "h_phi_%s_1", TrkNames[0].c_str());
+    } else if (i >= nGen) {
+      sprintf(hname, "h_phi_%s_%d", TrkNames[0].c_str(), i-nGen);
       sprintf(htit, "Phi of %s Generator tracks", TrkNames[0].c_str());
     } else {
       sprintf(hname, "h_phi_%s_%s", TrkNames[7].c_str(), particle[i-8-nPVBin].c_str());
@@ -704,11 +722,6 @@ void StudyHLT::endRun(edm::Run const& iRun, edm::EventSetup const&) {
   nRun++;
   edm::LogInfo("IsoTrack") << "endrun[" << nRun << "] " << iRun.run();
 }
-
-// ------------ method called when starting to processes a luminosity block  ------------
-void StudyHLT::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
-// ------------ method called when ending the processing of a luminosity block  ------------
-void StudyHLT::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
 
 void StudyHLT::clear() {
   tr_TrigName.clear();
