@@ -235,18 +235,19 @@ void makeArrowPlots(const char* filename, const char* outputDir)
   int dummy = 0;
   if (plotPXB){
     double pxbScale = 30.0;
-    totalPXB_modules += makeRPhiArrowPlot( data, "PXB_BarrelXY-4", 20, 20, 1, 1, -26, -20, 0, 15, pxbScale);
-    totalPXB_modules += makeRPhiArrowPlot( data, "PXB_BarrelXY-3", 20, 20, 1, 1, -19, -14, 0, 15, pxbScale);
-    totalPXB_modules += makeRPhiArrowPlot( data, "PXB_BarrelXY-2", 20, 20, 1, 1, -14, -6.5, 0, 15, pxbScale);
-    totalPXB_modules += makeRPhiArrowPlot( data, "PXB_BarrelXY-1", 20, 20, 1, 1, -6.5, 0, 0, 15, pxbScale);
-    totalPXB_modules += makeRPhiArrowPlot( data, "PXB_BarrelXY+1", 20, 20, 1, 1, 0, 6.5, 0, 15, pxbScale);
-    totalPXB_modules += makeRPhiArrowPlot( data, "PXB_BarrelXY+2", 20, 20, 1, 1, 6.5, 14, 0, 15, pxbScale);
-    totalPXB_modules += makeRPhiArrowPlot( data, "PXB_BarrelXY+3", 20, 20, 1, 1, 14, 19, 0, 15, pxbScale);
-    totalPXB_modules += makeRPhiArrowPlot( data, "PXB_BarrelXY+4", 20, 20, 1, 1, 19, 26, 0, 15, pxbScale);
+    totalPXB_modules += makeRPhiArrowPlot( data, "PXB_BarrelXY-4", 20, 20, 1, 1, -26, -20, 0, 19, pxbScale);
+    totalPXB_modules += makeRPhiArrowPlot( data, "PXB_BarrelXY-3", 20, 20, 1, 1, -19, -14, 0, 19, pxbScale);
+    totalPXB_modules += makeRPhiArrowPlot( data, "PXB_BarrelXY-2", 20, 20, 1, 1, -14, -6.5, 0, 19, pxbScale);
+    totalPXB_modules += makeRPhiArrowPlot( data, "PXB_BarrelXY-1", 20, 20, 1, 1, -6.5, 0, 0, 19, pxbScale);
+    totalPXB_modules += makeRPhiArrowPlot( data, "PXB_BarrelXY+1", 20, 20, 1, 1, 0, 6.5, 0, 19, pxbScale);
+    totalPXB_modules += makeRPhiArrowPlot( data, "PXB_BarrelXY+2", 20, 20, 1, 1, 6.5, 14, 0, 19, pxbScale);
+    totalPXB_modules += makeRPhiArrowPlot( data, "PXB_BarrelXY+3", 20, 20, 1, 1, 14, 19, 0, 19, pxbScale);
+    totalPXB_modules += makeRPhiArrowPlot( data, "PXB_BarrelXY+4", 20, 20, 1, 1, 19, 26, 0, 19, pxbScale);
     double pxbScale_zphi = 40.0;
-    totalPXB_modules_zphi += makeZPhiArrowPlot( data, "PXB_BarrelZPhi_1", 35, 20, 1, 1, -300, 300, 0, 5, pxbScale_zphi);
-    totalPXB_modules_zphi += makeZPhiArrowPlot( data, "PXB_BarrelZPhi_2", 35, 30, 1, 1, -300, 300, 5, 8, pxbScale_zphi);
-    totalPXB_modules_zphi += makeZPhiArrowPlot( data, "PXB_BarrelZPhi_3", 35, 40, 1, 1, -300, 300, 8, 14, pxbScale_zphi);
+    totalPXB_modules_zphi += makeZPhiArrowPlot( data, "PXB_BarrelZPhi_1", 35, 15, 1, 1, -300, 300, 0, 5, pxbScale_zphi);
+    totalPXB_modules_zphi += makeZPhiArrowPlot( data, "PXB_BarrelZPhi_2", 35, 30, 1, 1, -300, 300, 5, 9, pxbScale_zphi);
+    totalPXB_modules_zphi += makeZPhiArrowPlot( data, "PXB_BarrelZPhi_3", 35, 45, 1, 1, -300, 300, 9, 14, pxbScale_zphi);
+    totalPXB_modules_zphi += makeZPhiArrowPlot( data, "PXB_BarrelZPhi_4", 35, 65, 1, 1, -300, 300, 14, 19, pxbScale_zphi);
   }
 
   // TIB slices
@@ -305,10 +306,12 @@ void makeArrowPlots(const char* filename, const char* outputDir)
   int totalPXF_modules_rz = 0;
   if (plotPXF){
     double pxfScale = 30.0;
-    totalPXF_modules += makeRPhiArrowPlot( data, "PXF_DiskXY+1", 20, 20, 1, 2, 25, 40, 0, 120, pxfScale);
-    totalPXF_modules += makeRPhiArrowPlot( data, "PXF_DiskXY+2", 20, 20, 1, 2, 40, 55, 0, 120, pxfScale);
-    totalPXF_modules += makeRPhiArrowPlot( data, "PXF_DiskXY-1", 20, 20, 1, 2, -40, -25, 0, 120, pxfScale);
-    totalPXF_modules += makeRPhiArrowPlot( data, "PXF_DiskXY-2", 20, 20, 1, 2, -55, -40, 0, 120, pxfScale);
+    totalPXF_modules += makeRPhiArrowPlot( data, "PXF_DiskXY+1", 20, 20, 1, 2, 25, 36, 0, 120, pxfScale);
+    totalPXF_modules += makeRPhiArrowPlot( data, "PXF_DiskXY+2", 20, 20, 1, 2, 36, 44, 0, 120, pxfScale);
+    totalPXF_modules += makeRPhiArrowPlot( data, "PXF_DiskXY+3", 20, 20, 1, 2, 44, 55, 0, 120, pxfScale);
+    totalPXF_modules += makeRPhiArrowPlot( data, "PXF_DiskXY-1", 20, 20, 1, 2, -36, -25, 0, 120, pxfScale);
+    totalPXF_modules += makeRPhiArrowPlot( data, "PXF_DiskXY-2", 20, 20, 1, 2, -44, -36, 0, 120, pxfScale);
+    totalPXF_modules += makeRPhiArrowPlot( data, "PXF_DiskXY-3", 20, 20, 1, 2, -55, -44, 0, 120, pxfScale);
     /*
       double pxfScale_zphi = 10.0;
       totalPXF_modules_rz += makeRZArrowPlot( data, "PXF_DiskRZ-1", -38, -30, 5, 17, 1, 2, -40, -25, 0, 120.0, pxfScale_zphi);
