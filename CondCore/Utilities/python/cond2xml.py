@@ -143,7 +143,7 @@ class CondXmlProcessor(object):
         	 codeFile.write(code)
     	 	 codeFile.close()
     
-    	cmd = "source /cvmfs/cms.cern.ch/cmsset_default.sh;"
+    	cmd = "source $CMS_PATH/cmsset_default.sh;"
     	cmd += "(cd %s ; scram b 2>&1 >build.log)" %tmpDir
         pipe = subprocess.Popen( cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
         out, err = pipe.communicate()
