@@ -110,10 +110,10 @@ HGCalPhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
       // check the PCA has worked out
       if (phoIDHelper_->sigmaUU() == -1){
-	  for(auto&& kv : maps_) {
-	      kv.second.push_back(0.);
-	  }
-	  continue;
+        for(auto&& kv : maps_) {
+          kv.second.push_back(0.);
+        }
+        continue;
       }
 
       LongDeps ld(phoIDHelper_->energyPerLayer(radius_, true));
