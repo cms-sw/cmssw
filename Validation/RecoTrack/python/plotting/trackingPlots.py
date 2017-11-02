@@ -211,7 +211,7 @@ _effandfakePosDeltaRPU = PlotGroup("effandfakePosDeltaRPU",
                                    _makeEffFakeDupPlots("pu"     , "PU"     , common=dict(xtitle="Pileup", xmin=_minPU, xmax=_maxPU)),
                                    legendDy=_legendDy_4rows
 )
-_algos_common = dict(removeEmptyBins=True, xbinlabelsize=10, xinlabeloption="d")
+_algos_common = dict(removeEmptyBins=True, xbinlabelsize=10, xbinlabeloption="d")
 _duplicateAlgo = PlotOnSideGroup("duplicateAlgo", Plot("duplicates_oriAlgo_vs_oriAlgo", drawStyle="COLZ", adjustMarginLeft=0.1, adjustMarginRight=0.1, **_algos_common))
 
 _dupandfakePtEtaPhi = PlotGroup("dupandfakePtEtaPhi", [
