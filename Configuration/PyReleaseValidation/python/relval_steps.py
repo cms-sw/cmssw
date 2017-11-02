@@ -1978,12 +1978,11 @@ steps['DBLMINIAODMCUP15NODQM'] = merge([{'--conditions':'auto:run2_mc',
                                    '--datatier' : 'MINIAODSIM',
                                    '--eventcontent':'MINIAOD',},stepMiniAODMC])
 
-
-stepNanoAODDefaults = { '-s': 'NANO', '-n': 1000 }
-stepNanoAODData = merge([{ '--data':'', '--eventcontent' : 'NANOAOD' ,'--datatier': 'NANOAOD'    }, stepNanoAODDefaults ])
-stepNanoAODMC   = merge([{ '--mc':''  , '--eventcontent' : 'NANOAODSIM','--datatier': 'NANOAODSIM' }, stepNanoAODDefaults ])
-stepNanoEDMData = merge([{ '--data':'', '--eventcontent' : 'NANOAOD'     }, stepNanoAODDefaults ])
-stepNanoEDMMC   = merge([{ '--mc':''  , '--eventcontent' : 'NANOAODSIM' }, stepNanoAODDefaults ])
+stepNanoAODDefaults = { '-s': 'NANO,DQM:@nanoAODDQM', '-n': 1000 }
+stepNanoAODData = merge([{ '--data':'', '--eventcontent' : 'NANOAOD,DQM' ,'--datatier': 'NANOAOD,DQMIO'    }, stepNanoAODDefaults ])
+stepNanoAODMC   = merge([{ '--mc':''  , '--eventcontent' : 'NANOAODSIM,DQM','--datatier': 'NANOAODSIM,DQMIO' }, stepNanoAODDefaults ])
+stepNanoEDMData = merge([{ '--data':'', '--eventcontent' : 'NANOAOD,DQM' ,'--datatier': 'NANOEDMAOD,DQMIO'     }, stepNanoAODDefaults ])
+stepNanoEDMMC   = merge([{ '--mc':''  , '--eventcontent' : 'NANOAODSIM,DQM','--datatier': 'NANOEDMAODSIM,DQMIO'    }, stepNanoAODDefaults ])
 
 steps['NANOAOD2016']   = merge([{'--conditions': 'auto:run2_data_relval', '--era': 'Run2_2016'}, stepNanoAODData ])
 steps['NANOAOD2017']   = merge([{'--conditions': 'auto:run2_data_relval', '--era': 'Run2_2017'}, stepNanoAODData ])
