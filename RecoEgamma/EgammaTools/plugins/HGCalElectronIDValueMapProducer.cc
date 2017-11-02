@@ -124,34 +124,17 @@ HGCalElectronIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSet
       // Fill here all the ValueMaps from their appropriate functions
 
       // Energies / PT
-      maps_["gsfTrackPt"].push_back(electron.gsfTrack()->pt());
-      maps_["pOutPt"].push_back(std::sqrt(electron.trackMomentumAtVtx().perp2()));
-      maps_["scEt"].push_back(electron.superCluster()->energy() / std::cosh(electron.superCluster()->eta()));
-      maps_["scEnergy"].push_back(electron.superCluster()->energy());
-      maps_["ecOrigEt"].push_back(electron.electronCluster()->energy() / std::cosh(electron.electronCluster()->eta()));
-      maps_["ecOrigEnergy"].push_back(electron.electronCluster()->energy());
+      const auto* eleCluster = electron.electronCluster().get();
+      maps_["ecOrigEt"].push_back(eleCluster->energy() / std::cosh(eleCluster->eta()));
+      maps_["ecOrigEnergy"].push_back(eleCluster->energy());
 
       // energies calculated in an cylinder around the axis of the electron cluster
       float ec_tot_energy = ld.energyEE() + ld.energyFH() + ld.energyBH();
-      maps_["ecEt"].push_back(ec_tot_energy / std::cosh(electron.electronCluster()->eta()));
+      maps_["ecEt"].push_back(ec_tot_energy / std::cosh(eleCluster->eta()));
       maps_["ecEnergy"].push_back(ec_tot_energy);
       maps_["ecEnergyEE"].push_back(ld.energyEE());
       maps_["ecEnergyFH"].push_back(ld.energyFH());
       maps_["ecEnergyBH"].push_back(ld.energyBH());
-
-      // Track-based
-      maps_["fbrem"].push_back( electron.fbrem() );
-      maps_["gsfTrackHits"].push_back( electron.gsfTrack()->hitPattern().trackerLayersWithMeasurement() );
-      maps_["gsfTrackChi2"].push_back( electron.gsfTrack()->normalizedChi2() );
-
-      reco::TrackRef myTrackRef = electron.closestCtfTrackRef();
-      bool validKF = myTrackRef.isAvailable() && myTrackRef.isNonnull();
-      maps_["kfTrackHits"].push_back( (validKF) ? myTrackRef->hitPattern().trackerLayersWithMeasurement() : -1 );
-      maps_["kfTrackChi2"].push_back( (validKF) ? myTrackRef->normalizedChi2() : -1 );
-
-      // Track-matching
-      maps_["dEtaTrackClust"].push_back( electron.deltaEtaEleClusterTrackAtCalo() );
-      maps_["dPhiTrackClust"].push_back( electron.deltaPhiEleClusterTrackAtCalo() );
 
       // Cluster shapes
       // PCA related
@@ -168,7 +151,6 @@ HGCalElectronIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSet
       maps_["sigmaEE"].push_back(eIDHelper_->sigmaEE());
       maps_["sigmaPP"].push_back(eIDHelper_->sigmaPP());
 
-
       // long profile
       maps_["nLayers"].push_back(ld.nLayers());
       maps_["firstLayer"].push_back(ld.firstLayer());
@@ -176,7 +158,6 @@ HGCalElectronIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSet
       maps_["e4oEtot"].push_back(ld.e4oEtot());
       maps_["layerEfrac10"].push_back(ld.layerEfrac10());
       maps_["layerEfrac90"].push_back(ld.layerEfrac90());
-      //maps_["firstLayerEnergy"].push_back(ld.energyPerLayer()[ld.firstLayer()]);
 
       // depth
       maps_["measuredDepth"].push_back(measuredDepth);

@@ -12,11 +12,8 @@ hgcalElectronIDValueMap = cms.EDProducer("HGCalElectronIDValueMapProducer",
     electronIsoNRings = cms.uint32(5),
     electronIsoDeltaRmin = cms.double(0.),
     variables = cms.vstring([
-        # Energies / pT
-        "gsfTrackPt",
-        "pOutPt",
-        "scEt",
-        "scEnergy",
+        # Energies for the electron BasicCluster
+        # which cannot be embedded in PAT currently
         "ecOrigEt",
         "ecOrigEnergy",
         # energies calculated in an cylinder around the axis of the electron cluster
@@ -25,15 +22,6 @@ hgcalElectronIDValueMap = cms.EDProducer("HGCalElectronIDValueMapProducer",
         "ecEnergyEE",
         "ecEnergyFH",
         "ecEnergyBH",
-        # Track-based
-        "fbrem",
-        "gsfTrackHits",
-        "gsfTrackChi2",
-        "kfTrackHits",
-        "kfTrackChi2",
-        # Track-matching
-        "dEtaTrackClust",
-        "dPhiTrackClust",
         # Cluster shapes
         # PCA related
         "pcaEig1",
