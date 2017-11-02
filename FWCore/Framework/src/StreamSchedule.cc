@@ -571,8 +571,25 @@ namespace edm {
     
     ++total_events_;
     auto serviceToken = ServiceRegistry::instance().presentToken();
+    
+    auto allPathsDone = make_waiting_task(tbb::task::allocate_root(),
+                                          [iTask,this,serviceToken](std::exception_ptr const* iPtr) mutable
+                                          {
+                                            ServiceRegistry::Operate operate(serviceToken);
+                                            
+                                            std::exception_ptr ptr;
+                                            if(iPtr) {
+                                              ptr = *iPtr;
+                                            }
+                                            iTask.doneWaiting(finishProcessOneEvent(ptr));
+                                          });
+    //The holder guarantees that if the paths finish before the loop ends
+    // that we do not start too soon. It also guarantees that the task will
+    // run under that condition.
+    WaitingTaskHolder allPathsHolder(allPathsDone);
+
     auto pathsDone = make_waiting_task(tbb::task::allocate_root(),
-                                          [iTask,&ep, &es, this,serviceToken](std::exception_ptr const* iPtr) mutable
+                                          [allPathsHolder,&ep, &es, this,serviceToken](std::exception_ptr const* iPtr) mutable
                                           {
                                             ServiceRegistry::Operate operate(serviceToken);
 
@@ -580,13 +597,19 @@ namespace edm {
                                             if(iPtr) {
                                               ptr = *iPtr;
                                             }
-                                            finishedPaths(ptr, std::move(iTask), ep, es);
+                                            finishedPaths(ptr, std::move(allPathsHolder), ep, es);
                                           });
     
     //The holder guarantees that if the paths finish before the loop ends
     // that we do not start too soon. It also guarantees that the task will
     // run under that condition.
     WaitingTaskHolder taskHolder(pathsDone);
+
+    //start end paths first so on single threaded the paths will run first
+    for(auto it = end_paths_.rbegin(), itEnd = end_paths_.rend();
+        it != itEnd; ++it) {
+      it->processOneOccurrenceAsync(allPathsDone,ep, es, streamID_, &streamContext_);
+    }
 
     for(auto it = trig_paths_.rbegin(), itEnd = trig_paths_.rend();
         it != itEnd; ++ it) {
@@ -623,51 +646,32 @@ namespace edm {
       ++total_passed_;
     }
 
-    if((not iExcept) and (nullptr != results_inserter_.get())) {
+    if(nullptr != results_inserter_.get()) {
       try {
+        //Even if there was an exception, we need to allow results inserter
+        // to run since some module may be waiting on its results.
         ParentContext parentContext(&streamContext_);
         using Traits = OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>;
 
         results_inserter_->doWork<Traits>(ep, es, streamID_, parentContext, &streamContext_);
       }
       catch (cms::Exception & ex) {
-        if(ex.context().empty()) {
-          std::ostringstream ost;
-          ost << "Processing Event " << ep.id();
-          ex.addContext(ost.str());
+        if (not iExcept) {
+          if(ex.context().empty()) {
+            std::ostringstream ost;
+            ost << "Processing Event " << ep.id();
+            ex.addContext(ost.str());
+          }
+          iExcept = std::current_exception();
         }
-        iExcept = std::current_exception();
       }
       catch(...) {
-        iExcept = std::current_exception();
+        if (not iExcept) {
+          iExcept = std::current_exception();
+        }
       }
     }
-    if(end_paths_.empty() or iExcept or (not endpathsAreActive_)) {
-      iExcept = finishProcessOneEvent(iExcept);
-      iWait.doneWaiting(iExcept);
-    } else {
-      auto serviceToken = ServiceRegistry::instance().presentToken();
-
-      auto endPathsDone = make_waiting_task(tbb::task::allocate_root(),
-                                            [iWait,this,serviceToken](std::exception_ptr const* iPtr) mutable
-                                            {
-                                              ServiceRegistry::Operate operate(serviceToken);
-
-                                              std::exception_ptr ptr;
-                                              if(iPtr) {
-                                                ptr = *iPtr;
-                                              }
-                                              iWait.doneWaiting(finishProcessOneEvent(ptr));
-                                            });
-      //The holder guarantees that if the paths finish before the loop ends
-      // that we do not start too soon. It also guarantees that the task will
-      // run under that condition.
-      WaitingTaskHolder taskHolder(endPathsDone);
-      for(auto it = end_paths_.rbegin(), itEnd = end_paths_.rend();
-          it != itEnd; ++it) {
-        it->processOneOccurrenceAsync(endPathsDone,ep, es, streamID_, &streamContext_);
-      }
-    }
+    iWait.doneWaiting(iExcept);
   }
 
   

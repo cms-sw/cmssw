@@ -45,6 +45,24 @@ updateJetCollection(
 )
 process.updatedPatJetsReappliedJEC.userData.userFloats.src = []
 
+## An example where the pileup jet id is recomputed
+from RecoJets.JetProducers.PileupJetID_cfi import pileupJetId
+process.pileupJetIdUpdated = pileupJetId.clone(
+  jets=cms.InputTag("slimmedJets"),
+  inputIsCorrected=True,
+  applyJec=True,
+  vertexes=cms.InputTag("offlineSlimmedPrimaryVertices")
+  )
+patAlgosToolsTask.add(process.pileupJetIdUpdated)
+
+updateJetCollection(
+   process,
+   labelName = 'PileupJetID',
+   jetSource = cms.InputTag('slimmedJets'),
+)
+process.updatedPatJetsPileupJetID.userData.userInts.src = ['pileupJetIdUpdated:fullId']
+process.updatedPatJetsPileupJetID.userData.userFloats.src = ['pileupJetIdUpdated:fullDiscriminant']
+
 ## An example where the jet energy corrections are updated to the current GlobalTag
 ## and specified b-tag discriminators are rerun and added to SoftDrop subjets
 updateJetCollection(
