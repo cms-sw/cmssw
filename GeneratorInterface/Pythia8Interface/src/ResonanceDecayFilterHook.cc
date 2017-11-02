@@ -13,6 +13,7 @@ bool ResonanceDecayFilterHook::initAfterBeams() {
   allNuAsEquivalent_ = settingsPtr->flag("ResonanceDecayFilter:allNuAsEquivalent");
   udscAsEquivalent_ = settingsPtr->flag("ResonanceDecayFilter:udscAsEquivalent");
   udscbAsEquivalent_ = settingsPtr->flag("ResonanceDecayFilter:udscbAsEquivalent");
+  wzAsEquivalent_ = settingsPtr->flag("ResonanceDecayFilter:wzAsEquivalent");
   mothers_ = settingsPtr->mvec("ResonanceDecayFilter:mothers");
   daughters_ = settingsPtr->mvec("ResonanceDecayFilter:daughters");
   
@@ -35,6 +36,9 @@ bool ResonanceDecayFilterHook::initAfterBeams() {
     }
     if ( (did == 2 || did==3 || did==4 || did==5 ) && udscbAsEquivalent_) {
       did = 1;
+    }
+    if( (did == 23 || did == 24) && wzAsEquivalent_) {
+      did = 23;
     }
 
     ++requestedDaughters_[std::abs(did)];
@@ -72,6 +76,9 @@ bool ResonanceDecayFilterHook::checkVetoResonanceDecays(const Event& process) {
     if ( (did == 2 || did==3 || did==4 || did==5 ) && udscbAsEquivalent_) {
       did = 1;
     } 
+    if( (did == 23 || did == 24) && wzAsEquivalent_) {
+      did = 23;
+    }
     
     int mid = p.mother1()>0 ? std::abs(process[p.mother1()].id()) : 0;
     
