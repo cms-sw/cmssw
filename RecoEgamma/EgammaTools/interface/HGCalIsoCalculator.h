@@ -2,7 +2,7 @@
  * PhotonIsoProducer.h
  *
  *  Created on: 13 Oct 2017
- *      Author: jkiesele
+ *      Author: jkiesele, ncsmith
  */
 
 #ifndef RecoEgamma_EgammaTools_HGCalIsoCalculator_h
@@ -24,7 +24,7 @@
  *
  * PhotonHGCalIsoCalculator prod;
  * prod.setRecHitTools(rechittools)
- * prod.fillHitMap(recHitsEE,recHitsFH,recHitsBH)
+ * prod.setRecHits(recHitsEEHandle,recHitsFHHandle,recHitsBHHandle)
  *
  * <optional>
  * prod.setDeltaR(0.15)

@@ -46,8 +46,8 @@ public:
     inline double sigmaVV() const {  return pcaHelper_.sigmaVV();}
     inline double sigmaEE() const {  return pcaHelper_.sigmaEE();}
     inline double sigmaPP() const {  return pcaHelper_.sigmaPP();}
-    inline TVectorD eigenValues () const {return pcaHelper_.eigenValues();}
-    inline TVectorD sigmas() const {return pcaHelper_.sigmas();}
+    inline const TVectorD& eigenValues () const {return pcaHelper_.eigenValues();}
+    inline const TVectorD& sigmas() const {return pcaHelper_.sigmas();}
 
 
     // longitudinal energy deposits and energy per subdetector as well as layers crossed
