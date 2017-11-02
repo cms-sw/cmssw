@@ -183,3 +183,10 @@ for e in [pA_2016, peripheralPbPb, pp_on_XeXe_2017]:
                                                                            'keep recoPhotons_islandPhotons_*_*'
                                                                            ])
                     )
+
+from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
+for ec in [RecoEgammaAOD.outputCommands, RecoEgammaRECO.outputCommands, RecoEgammaFEVT.outputCommands]:
+    ppRef_2017.toModify( ec, func=lambda outputCommands: outputCommands.extend(['keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducerppGED_*_*',
+                                                                                'keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducerpp_*_*'
+                                                                               ])
+                         )
