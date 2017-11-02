@@ -232,7 +232,7 @@ class GeometryComparison(GenericValidation):
                         ".Comparison_common"+name+"_Images/\" \n")
                    repMap["runComparisonScripts"] += \
                        ("rfcp .oO[Alignment/OfflineValidation]Oo."
-                        "/scripts/makeArrowPlots.C "
+                        "/macros/makeArrowPlots.C "
                         ".\n"
                         "root -b -q 'makeArrowPlots.C(\""
                         ".oO[name]Oo..Comparison_common"+name
