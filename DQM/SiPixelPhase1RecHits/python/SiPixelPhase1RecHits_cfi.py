@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
+import DQM.SiPixelPhase1Common.TriggerEventFlag_cfi as trigger
 
 SiPixelPhase1RecHitsNRecHits = DefaultHistoTrack.clone(
   name = "rechits",
@@ -122,8 +123,8 @@ SiPixelPhase1RecHitsAnalyzer = cms.EDAnalyzer("SiPixelPhase1RecHits",
         src = cms.InputTag("generalTracks"),
         histograms = SiPixelPhase1RecHitsConf,
         geometry = SiPixelPhase1Geometry,
-        onlyValidHits = cms.bool(False)
-
+        onlyValidHits = cms.bool(False),
+        triggerflags = trigger.SiPixelPhase1Triggers
 )
 
 SiPixelPhase1RecHitsHarvester = DQMEDHarvester("SiPixelPhase1Harvester",

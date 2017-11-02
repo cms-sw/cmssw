@@ -90,6 +90,7 @@ SiPixelPhase1TrackClusters::SiPixelPhase1TrackClusters(const edm::ParameterSet& 
 {}
 
 void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  if( !checktrigger(iEvent,iSetup,DCS) ) return;
 
   if (histo.size() != SiPixelPhase1TrackClustersEnumSize) {
     edm::LogError("SiPixelPhase1TrackClusters") << "incompatible configuration " << histo.size()
