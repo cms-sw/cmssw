@@ -27,6 +27,8 @@ SiPixelPhase1Clusters::SiPixelPhase1Clusters(const edm::ParameterSet& iConfig) :
 }
 
 void SiPixelPhase1Clusters::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  if( !checktrigger(iEvent,iSetup,DCS) ) return;
+
   edm::Handle<edmNew::DetSetVector<SiPixelCluster>> inputPixel;
   iEvent.getByToken(pixelSrcToken_, inputPixel);
   if (!inputPixel.isValid()) return;
@@ -56,9 +58,6 @@ void SiPixelPhase1Clusters::analyze(const edm::Event& iEvent, const edm::EventSe
 
     for(SiPixelCluster const& cluster : *it) {
       int row = cluster.x()-0.5, col = cluster.y()-0.5;
-      //// Uncomment to activate trigger filtering if statement
-      //// Any logical operation between trigger should be handled manually here
-      // if( checktrigger(iEvent,iSetup,FLAG_HLT) )
       histo[READOUT_CHARGE].fill(double(cluster.charge()), id, &iEvent, col, row);
       histo[CHARGE].fill(double(cluster.charge()), id, &iEvent, col, row);
       histo[SIZE  ].fill(double(cluster.size()  ), id, &iEvent, col, row);
