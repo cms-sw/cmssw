@@ -2,11 +2,10 @@
  * HGCalIsoCalculator.cc
  *
  *  Created on: 13 Oct 2017
- *      Author: jkiesele
+ *      Author: jkiesele, ncsmith
  */
 
 #include "DataFormats/Math/interface/deltaR.h"
-#include <stdexcept>
 #include "RecoEgamma/EgammaTools//interface/HGCalIsoCalculator.h"
 
 HGCalIsoCalculator::HGCalIsoCalculator():dr2_(0.15*0.15),mindr2_(0),rechittools_(nullptr),debug_(false),nlayers_(30){
