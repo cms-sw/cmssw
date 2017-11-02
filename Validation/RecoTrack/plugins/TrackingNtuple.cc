@@ -77,6 +77,7 @@
 #include "SimTracker/TrackAssociation/plugins/ParametersDefinerForTPESProducer.h"
 #include "SimTracker/TrackAssociation/interface/TrackingParticleIP.h"
 #include "SimTracker/TrackAssociation/interface/trackAssociationChi2.h"
+#include "SimTracker/TrackAssociation/interface/trackHitsToClusterRefs.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 
@@ -337,11 +338,6 @@ namespace {
 
   struct TrackTPMatch {
     int key = -1;
-    // Difference between "Hits" and "Clusters" is that
-    // SiStripMatchedRecHit2D etc. are counted as 1 hit but 2
-    // clusters. For reco denominator the number if hits is useful,
-    // but for sim denominator the number of clusters.
-    int countHits = 0;
     int countClusters = 0;
   };
 
@@ -349,13 +345,16 @@ namespace {
                                                 const ClusterTPAssociation& clusterToTPMap,
                                                 const TrackingParticleRefKeyToIndex& tpKeyToIndex) {
     struct Count {
-      int hits = 0;
       int clusters = 0;
-      int innermostHit = std::numeric_limits<int>::max();
+      size_t innermostHit = std::numeric_limits<size_t>::max();
     };
 
+    std::vector<OmniClusterRef> clusters = track_associator::hitsToClusterRefs(track.recHitsBegin(), track.recHitsEnd());
+
     std::unordered_map<int, Count> count;
-    auto fillCount = [&](int hitIndex, const auto& clusterRef) {
+    for(size_t iCluster=0, end=clusters.size(); iCluster<end; ++iCluster) {
+      const auto& clusterRef = clusters[iCluster];
+
       auto range = clusterToTPMap.equal_range(clusterRef);
       for(auto ip=range.first; ip != range.second; ++ip) {
         const auto tpKey = ip->second.key();
@@ -363,61 +362,26 @@ namespace {
           continue;
 
         auto& elem = count[tpKey];
-        ++elem.hits;
         ++elem.clusters;
-        elem.innermostHit = std::min(elem.innermostHit, hitIndex);
-        //edm::LogPrint("Foo") << "key " << ip->second.key() << " event:BX " << ip->second->eventId().event() << ":" << ip->second->eventId().bunchCrossing();
-      }
-    };
-    auto fillCountAnd = [&](int hitIndex, const auto& range1, const auto& range2) {
-      for(auto i1=range1.first; i1!=range1.second; ++i1) {
-        if(range2.second != std::find_if(range2.first, range2.second, [&](const auto& clusterTP) {
-              return clusterTP.second.key() == i1->second.key();
-            })) {
-          const auto tpKey = i1->second.key();
-          if(tpKeyToIndex.find(tpKey) == tpKeyToIndex.end()) // filter out TPs not given as an input
-            continue;
-
-          auto& elem = count[tpKey];
-          elem.hits += 1; //
-          elem.clusters += 2; //
-          elem.innermostHit = std::min(elem.innermostHit, hitIndex);
-        }
-      }
-    };
-
-
-    for(auto iHit = track.recHitsBegin(), iEnd=track.recHitsEnd(); iHit != iEnd; ++iHit) {
-      const TrackingRecHit& hit = **iHit;
-      if(hit.isValid()) {
-        if(const auto *mhit = dynamic_cast<const SiStripMatchedRecHit2D*>(&hit)) {
-          auto rangeMono = clusterToTPMap.equal_range(mhit->monoClusterRef());
-          auto rangeStereo = clusterToTPMap.equal_range(mhit->stereoClusterRef());
-          fillCountAnd(std::distance(track.recHitsBegin(), iHit), rangeMono, rangeStereo);
-        }
-        // else if hit is VectorHit? SiTrackerMultiRecHit perhaps?
-        else {
-          fillCount(std::distance(track.recHitsBegin(), iHit), dynamic_cast<const BaseTrackerRecHit&>(hit).firstClusterRef());
-        }
+        elem.innermostHit = std::min(elem.innermostHit, iCluster);
       }
     }
 
-    // In case there are many matches with the same number of hits,
+    // In case there are many matches with the same number of clusters,
     // select the one with innermost hit
     TrackTPMatch best;
-    int bestCount = 2; // require >= 3 hits for the best match
-    int bestInnermostHit = std::numeric_limits<int>::max();
+    int bestCount = 2; // require >= 3 cluster for the best match
+    size_t bestInnermostHit = std::numeric_limits<size_t>::max();
     for(auto& keyCount: count) {
-      if(keyCount.second.hits > bestCount ||
-         (keyCount.second.hits == bestCount && keyCount.second.innermostHit < bestInnermostHit)) {
+      if(keyCount.second.clusters > bestCount ||
+         (keyCount.second.clusters == bestCount && keyCount.second.innermostHit < bestInnermostHit)) {
         best.key = keyCount.first;
-        best.countHits = bestCount = keyCount.second.hits;
-        best.countClusters = keyCount.second.clusters;
+        best.countClusters = bestCount = keyCount.second.clusters;
         bestInnermostHit = keyCount.second.innermostHit;
       }
     }
 
-    //edm::LogPrint("Foo") << "findBestMatchingTrackingParticle key " << best.key;
+    LogTrace("TrackingNtuple") << "findBestMatchingTrackingParticle key " << best.key;
 
     return best;
   }
@@ -427,93 +391,71 @@ namespace {
                                                         const TrackingParticleRefKeyToIndex& tpKeyToIndex) {
     TrackTPMatch best;
 
-    auto operateHit = [&](const TrackingRecHit& hit, const auto& func) {
-      if(const auto *mhit = dynamic_cast<const SiStripMatchedRecHit2D*>(&hit)) {
-        auto rangeMono = clusterToTPMap.equal_range(mhit->monoClusterRef());
-        auto rangeStereo = clusterToTPMap.equal_range(mhit->stereoClusterRef());
-        for(auto i1=rangeMono.first; i1!=rangeMono.second; ++i1) {
-          if(rangeStereo.second != std::find_if(rangeStereo.first, rangeStereo.second, [&](const auto& clusterTP) {
-                return clusterTP.second.key() == i1->second.key();
-              })) {
-            const auto tpKey = i1->second.key();
-            if(tpKeyToIndex.find(tpKey) == tpKeyToIndex.end()) // filter out TPs not given as an input
-              continue;
+    std::vector<OmniClusterRef> clusters = track_associator::hitsToClusterRefs(track.recHitsBegin(), track.recHitsEnd());
+    if(clusters.empty()) {
+      return best;
+    }
 
-            func(tpKey);
-          }
-        }
-      }
-      // else if hit is VectorHit?
-      else {
-        auto range = clusterToTPMap.equal_range(dynamic_cast<const BaseTrackerRecHit&>(hit).firstClusterRef());
-        for(auto ip=range.first; ip != range.second; ++ip) {
-          const auto tpKey = ip->second.key();
-          if(tpKeyToIndex.find(tpKey) == tpKeyToIndex.end()) // filter out TPs not given as an input
-            continue;
-          func(tpKey);
-        }
+    auto operateCluster = [&](const auto& clusterRef, const auto& func) {
+      auto range = clusterToTPMap.equal_range(clusterRef);
+      for(auto ip=range.first; ip != range.second; ++ip) {
+        const auto tpKey = ip->second.key();
+        if(tpKeyToIndex.find(tpKey) == tpKeyToIndex.end()) // filter out TPs not given as an input
+          continue;
+        func(tpKey);
       }
     };
 
-
     std::vector<unsigned int> validTPs; // first cluster can be associated to multiple TPs, use vector as set as this should be small
-    auto iHit = track.recHitsBegin();
-    {
-      const TrackingRecHit& hit = **iHit;
-      if(!hit.isValid()) {
-        throw cms::Exception("LogicError") << "I expected first track hit to be valid, but encountered an invalid hit...";
-      }
-      operateHit(hit, [&](unsigned int tpKey) {
-          validTPs.push_back(tpKey);       
-        });
-    }
+    auto iCluster = clusters.begin();
+    operateCluster(*iCluster, [&](unsigned int tpKey) {
+        validTPs.push_back(tpKey);
+      });
     if(validTPs.empty()) {
       return best;
     }
-    ++iHit;
-    ++best.countHits;
+    ++iCluster;
     ++best.countClusters;
 
     std::vector<bool> foundTPs(validTPs.size(), false);
-    for(auto iEnd=track.recHitsEnd(); iHit != iEnd; ++iHit) {
-      const TrackingRecHit& hit = **iHit;
-      if(hit.isValid()) {
-        // find out to which first-hit TPs this hit is matched to
-        operateHit(hit, [&](unsigned int tpKey) {
-            auto found = std::find(cbegin(validTPs), cend(validTPs), tpKey);
-            if(found != cend(validTPs)) {
-              foundTPs[std::distance(cbegin(validTPs), found)] = true;
-            }
-          });
+    for(auto iEnd=clusters.end(); iCluster != iEnd; ++iCluster) {
+      const auto& clusterRef = *iCluster;
 
-        // remove the non-found TPs
-        auto iTP = validTPs.size();
-        do {
-          --iTP;
-
-          if(!foundTPs[iTP]) {
-            validTPs.erase(validTPs.begin()+iTP);
-            foundTPs.erase(foundTPs.begin()+iTP);
+      // find out to which first-cluster TPs this cluster is matched to
+      operateCluster(clusterRef, [&](unsigned int tpKey) {
+          auto found = std::find(cbegin(validTPs), cend(validTPs), tpKey);
+          if(found != cend(validTPs)) {
+            foundTPs[std::distance(cbegin(validTPs), found)] = true;
           }
-        } while(iTP > 0);
-        if(!validTPs.empty()) {
-          // for multiple TPs the "first one" is a bit arbitrary, but
-          // I hope it is rare that a track would have many
-          // consecutive hits matched to two TPs
-          best.key = validTPs[0];
-        }
-        else {
-          break;
-        }
+        });
+      
 
-        std::fill(begin(foundTPs), end(foundTPs), false);
-        ++best.countHits;
-        ++best.countClusters;
+      // remove the non-found TPs
+      auto iTP = validTPs.size();
+      do {
+        --iTP;
+
+        if(!foundTPs[iTP]) {
+          validTPs.erase(validTPs.begin()+iTP);
+          foundTPs.erase(foundTPs.begin()+iTP);
+        }
+      } while(iTP > 0);
+      if(!validTPs.empty()) {
+        // for multiple TPs the "first one" is a bit arbitrary, but
+        // I hope it is rare that a track would have many
+        // consecutive hits matched to two TPs
+        best.key = validTPs[0];
       }
+      else {
+        break;
+      }
+
+      std::fill(begin(foundTPs), end(foundTPs), false);
+      ++best.countClusters;
     }
 
-    // Reqquire >= 3 hits for a match
-    return best.countHits >= 3 ? best : TrackTPMatch();
+    // Reqquire >= 3 clusters for a match
+    return best.countClusters >= 3 ? best : TrackTPMatch();
   }
 }
 
@@ -1073,6 +1015,7 @@ private:
   std::vector<unsigned int> trk_nStripLay;
   std::vector<unsigned int> trk_n3DLay  ;
   std::vector<unsigned int> trk_nLostLay;
+  std::vector<unsigned int> trk_nCluster;
   std::vector<unsigned int> trk_algo    ;
   std::vector<unsigned int> trk_originalAlgo;
   std::vector<decltype(reco::TrackBase().algoMaskUL())> trk_algoMask;
@@ -1280,6 +1223,7 @@ private:
   std::vector<unsigned int> see_nGlued  ;
   std::vector<unsigned int> see_nStrip  ;
   std::vector<unsigned int> see_nPhase2OT;
+  std::vector<unsigned int> see_nCluster;
   std::vector<unsigned int> see_algo    ;
   std::vector<unsigned short> see_stopReason;
   std::vector<unsigned short> see_nCands;
@@ -1466,6 +1410,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   t->Branch("trk_nStripLay", &trk_nStripLay);
   t->Branch("trk_n3DLay"   , &trk_n3DLay  );
   t->Branch("trk_nLostLay"   , &trk_nLostLay  );
+  t->Branch("trk_nCluster"   , &trk_nCluster);
   t->Branch("trk_algo"     , &trk_algo    );
   t->Branch("trk_originalAlgo", &trk_originalAlgo);
   t->Branch("trk_algoMask" , &trk_algoMask);
@@ -1688,6 +1633,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
     t->Branch("see_nGlued"   , &see_nGlued  );
     t->Branch("see_nStrip"   , &see_nStrip  );
     t->Branch("see_nPhase2OT", &see_nPhase2OT);
+    t->Branch("see_nCluster" , &see_nCluster);
     t->Branch("see_algo"     , &see_algo    );
     t->Branch("see_stopReason", &see_stopReason);
     t->Branch("see_nCands"   , &see_nCands  );
@@ -1810,6 +1756,7 @@ void TrackingNtuple::clearVariables() {
   trk_nStripLay.clear();
   trk_n3DLay   .clear();
   trk_nLostLay   .clear();
+  trk_nCluster .clear();
   trk_algo     .clear();
   trk_originalAlgo.clear();
   trk_algoMask .clear();
@@ -1994,6 +1941,7 @@ void TrackingNtuple::clearVariables() {
   see_nGlued  .clear();
   see_nStrip  .clear();
   see_nPhase2OT.clear();
+  see_nCluster.clear();
   see_algo    .clear();
   see_stopReason.clear();
   see_nCands  .clear();
@@ -2816,11 +2764,13 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
 
       // Search for a best-matching TrackingParticle for a seed
       const int nHits = seedTrack.numberOfValidHits();
+      const auto clusters = track_associator::hitsToClusterRefs(seedTrack.recHitsBegin(), seedTrack.recHitsEnd()); // TODO: this function is called 3 times per track, try to reduce
+      const int nClusters = clusters.size();
       const auto bestKeyCount = findBestMatchingTrackingParticle(seedTrack, clusterToTPMap, tpKeyToIndex);
-      const float bestShareFrac = static_cast<float>(bestKeyCount.countHits)/static_cast<float>(nHits);
+      const float bestShareFrac = nClusters > 0 ? static_cast<float>(bestKeyCount.countClusters)/static_cast<float>(nClusters): 0;
       // Another way starting from the first hit of the seed
       const auto bestFirstHitKeyCount = findMatchingTrackingParticleFromFirstHit(seedTrack, clusterToTPMap, tpKeyToIndex);
-      const float bestFirstHitShareFrac = static_cast<float>(bestFirstHitKeyCount.countHits)/static_cast<float>(nHits);
+      const float bestFirstHitShareFrac = nClusters > 0 ? static_cast<float>(bestFirstHitKeyCount.countClusters)/static_cast<float>(nClusters) : 0;
 
       const bool seedFitOk = !trackFromSeedFitFailed(seedTrack);
       const int charge = seedTrack.charge();
@@ -2966,6 +2916,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
       see_nGlued   .push_back( std::count(hitType.begin(), hitType.end(), static_cast<int>(HitType::Glued)) );
       see_nStrip   .push_back( std::count(hitType.begin(), hitType.end(), static_cast<int>(HitType::Strip)) );
       see_nPhase2OT.push_back( std::count(hitType.begin(), hitType.end(), static_cast<int>(HitType::Phase2OT)) );
+      see_nCluster .push_back( nClusters );
       //the part below is not strictly needed
       float chi2 = -1;
       if (nHits==2) {
@@ -3091,8 +3042,11 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
     }
 
     // Search for a best-matching TrackingParticle for a track
+    const auto clusters = track_associator::hitsToClusterRefs(itTrack->recHitsBegin(), itTrack->recHitsEnd()); // TODO: this function is called 3 times per track, try to reduce
+    const int nClusters = clusters.size();
+
     const auto bestKeyCount = findBestMatchingTrackingParticle(*itTrack, clusterToTPMap, tpKeyToIndex);
-    const float bestShareFrac = static_cast<float>(bestKeyCount.countHits)/static_cast<float>(nHits);
+    const float bestShareFrac = static_cast<float>(bestKeyCount.countClusters)/static_cast<float>(nClusters);
     float bestShareFracSimDenom = 0;
     float bestShareFracSimClusterDenom = 0;
     float bestChi2 = -1;
@@ -3103,7 +3057,7 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
     }
     // Another way starting from the first hit of the track
     const auto bestFirstHitKeyCount = findMatchingTrackingParticleFromFirstHit(*itTrack, clusterToTPMap, tpKeyToIndex);
-    const float bestFirstHitShareFrac = static_cast<float>(bestFirstHitKeyCount.countHits)/static_cast<float>(nHits);
+    const float bestFirstHitShareFrac = static_cast<float>(bestFirstHitKeyCount.countClusters)/static_cast<float>(nClusters);
     float bestFirstHitShareFracSimDenom = 0;
     float bestFirstHitShareFracSimClusterDenom = 0;
     float bestFirstHitChi2 = -1;
@@ -3174,6 +3128,7 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
     trk_nStripLay.push_back(hp.stripLayersWithMeasurement());
     trk_n3DLay   .push_back(hp.numberOfValidStripLayersWithMonoAndStereo()+hp.pixelLayersWithMeasurement());
     trk_nLostLay .push_back(hp.trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS));
+    trk_nCluster .push_back(nClusters);
     trk_algo     .push_back(itTrack->algo());
     trk_originalAlgo.push_back(itTrack->originalAlgo());
     trk_algoMask .push_back(itTrack->algoMaskUL());
