@@ -28,19 +28,30 @@
   <class name="l1t::emtf::MTF7Trailer"/>
   <class name="l1t::emtf::AMC13Trailer"/>
 
-  <class name="l1t::EMTFTrack"/>
-  <class name="l1t::EMTFTrackCollection"/>
-  <class name="edm::Wrapper<l1t::EMTFTrackCollection>"/>
   <class name="l1t::EMTFHit"/>
   <class name="l1t::EMTFHitCollection"/>
   <class name="edm::Wrapper<l1t::EMTFHitCollection>"/>
+  <class name="l1t::EMTFRoad"/>
+  <class name="l1t::EMTFRoadCollection"/>
+  <class name="edm::Wrapper<l1t::EMTFRoadCollection>"/>
+  <class name="l1t::EMTFTrack"/>
+  <class name="l1t::EMTFTrackCollection"/>
+  <class name="edm::Wrapper<l1t::EMTFTrackCollection>"/>
+  <class name="l1t::EMTFPtLUT"/>
 
-  <class name="l1t::EMTFTrackExtra"/>
-  <class name="l1t::EMTFTrackExtraCollection"/>
-  <class name="edm::Wrapper<l1t::EMTFTrackExtraCollection>"/>
-  <class name="l1t::EMTFHitExtra"/>
-  <class name="l1t::EMTFHitExtraCollection"/>
-  <class name="edm::Wrapper<l1t::EMTFHitExtraCollection>"/>
+  <class name="l1t::EMTFTrack2016"/>
+  <class name="l1t::EMTFTrack2016Collection"/>
+  <class name="edm::Wrapper<l1t::EMTFTrack2016Collection>"/>
+  <class name="l1t::EMTFHit2016"/>
+  <class name="l1t::EMTFHit2016Collection"/>
+  <class name="edm::Wrapper<l1t::EMTFHit2016Collection>"/>
+
+  <class name="l1t::EMTFTrack2016Extra"/>
+  <class name="l1t::EMTFTrack2016ExtraCollection"/>
+  <class name="edm::Wrapper<l1t::EMTFTrack2016ExtraCollection>"/>
+  <class name="l1t::EMTFHit2016Extra"/>
+  <class name="l1t::EMTFHit2016ExtraCollection"/>
+  <class name="edm::Wrapper<l1t::EMTFHit2016ExtraCollection>"/>
 
  </selection>
 </lcgdict>

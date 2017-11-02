@@ -3,8 +3,8 @@
 // Takes in raw information from the TriggerPrimitive class(part of L1TMuon software package);
 // and outputs vector of 'ConvertedHits'
 
-#ifndef ADD_PrimitiveConverterRPC
-#define ADD_PrimitiveConverterRPC
+#ifndef L1Trigger_L1TMuonEndCap_PrimitiveConverterRPC_h
+#define L1Trigger_L1TMuonEndCap_PrimitiveConverterRPC_h
 
 //
 
@@ -15,17 +15,17 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
-#include "L1Trigger/L1TMuonEndCap/interface/EMTFHitTools.h"
+#include "L1Trigger/L1TMuonEndCap/interface/EMTFHit2016Tools.h"
 
 class PrimitiveConverterRPC {
  public:
   PrimitiveConverterRPC();
-  l1t::EMTFHitExtraCollection convert(std::vector<L1TMuon::TriggerPrimitive> TriggPrim, int SectIndex, edm::ESHandle<RPCGeometry> rpc_geom);
-  std::vector<ConvertedHit> fillConvHits(l1t::EMTFHitExtraCollection exHits);
-  bool sameRpcChamber(l1t::EMTFHitExtra hitA, l1t::EMTFHitExtra hitB);
+  l1t::EMTFHit2016ExtraCollection convert(std::vector<L1TMuon::TriggerPrimitive> TriggPrim, int SectIndex, edm::ESHandle<RPCGeometry> rpc_geom);
+  std::vector<ConvertedHit> fillConvHits(l1t::EMTFHit2016ExtraCollection exHits);
+  bool sameRpcChamber(l1t::EMTFHit2016Extra hitA, l1t::EMTFHit2016Extra hitB);
 
  private:
 
 };
 
-#endif
+#endif /* #define L1Trigger_L1TMuonEndCap_PrimitiveConverterRPC_h */
