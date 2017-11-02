@@ -84,7 +84,7 @@ bool ResonanceDecayFilterHook::checkVetoResonanceDecays(const Event& process) {
     
     //if no list of mothers is provided, then all particles
     //in hard process and resonance decays are counted together
-    bool validMother = mothers_.size() ? false : true;
+    bool validMother = mothers_.empty();
     for (int id : mothers_) {
       if (mid == std::abs(id)) {
         validMother = true;
