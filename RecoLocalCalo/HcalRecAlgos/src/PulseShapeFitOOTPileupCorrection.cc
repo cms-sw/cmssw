@@ -277,22 +277,22 @@ void PulseShapeFitOOTPileupCorrection::setPUParams(bool   iPedestalConstraint, b
 
 }
 
-void PulseShapeFitOOTPileupCorrection::setPulseShapeTemplate(const HcalPulseShapes::Shape& ps, bool isHPD, unsigned nSamples_) {
+void PulseShapeFitOOTPileupCorrection::setPulseShapeTemplate(const HcalPulseShapes::Shape& ps, bool isHPD, unsigned nSamples) {
   // initialize for every different channel types (HPD vs SiPM)
 
   if (!(&ps == currentPulseShape_ && isHPD == isCurrentChannelHPD_))
     {
       setChi2Term(isHPD);
-      resetPulseShapeTemplate(ps,nSamples_);
+      resetPulseShapeTemplate(ps,nSamples);
       currentPulseShape_ = &ps;
       isCurrentChannelHPD_ = isHPD;
     }
 }
 
-void PulseShapeFitOOTPileupCorrection::resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps, unsigned nSamples_) {
+void PulseShapeFitOOTPileupCorrection::resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps, unsigned nSamples) {
    ++ cntsetPulseShape;
    psfPtr_.reset(new FitterFuncs::PulseShapeFunctor(ps,pedestalConstraint_,timeConstraint_,addPulseJitter_,applyTimeSlew_,
-						    pulseJitter_,timeMean_,timeSig_,pedMean_,pedSig_,noise_,nSamples_));
+						    pulseJitter_,timeMean_,timeSig_,pedMean_,pedSig_,noise_,nSamples));
    spfunctor_    = std::unique_ptr<ROOT::Math::Functor>( new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::singlePulseShapeFunc, 3) );
    dpfunctor_    = std::unique_ptr<ROOT::Math::Functor>( new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::doublePulseShapeFunc, 5) );
    tpfunctor_    = std::unique_ptr<ROOT::Math::Functor>( new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::triplePulseShapeFunc, 7) );
@@ -420,6 +420,8 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
      fit(3,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,tmpy,BX);
      useTriple=true;
    }
+
+   timevalfit -= (int(soi)-HcalConst::shiftTS)*HcalConst::nsPerBX;
 
    /*
    if(chi2 > ts345Chi2_)   { //fails do two pulse chi2 for TS5 

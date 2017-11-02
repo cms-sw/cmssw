@@ -26,6 +26,7 @@ namespace HcalConst{
    constexpr int nsPerBX = 25;
    constexpr float iniTimeShift = 92.5f;
    constexpr double invertnsPerBx = 0.04;
+   constexpr int shiftTS = 4;
 
 }
 
@@ -121,8 +122,8 @@ public:
     const HcalPulseShapes::Shape* currentPulseShape_=nullptr;
     void setChi2Term( bool isHPD );
 
-    void setPulseShapeTemplate  (const HcalPulseShapes::Shape& ps, bool isHPD, unsigned nSamples_);
-    void resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps, unsigned nSamples_);
+    void setPulseShapeTemplate  (const HcalPulseShapes::Shape& ps, bool isHPD, unsigned nSamples);
+    void resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps, unsigned nSamples);
 
 private:
     int pulseShapeFit(const double * energyArr, const double * pedenArr, const double *chargeArr, 
