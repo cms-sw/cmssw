@@ -1061,11 +1061,14 @@ private:
   std::vector<std::vector<unsigned short>> trk_qualityMasks;
   std::vector<int> trk_q       ;
   std::vector<unsigned int> trk_nValid  ;
-  std::vector<unsigned int> trk_nInvalid;
+  std::vector<unsigned int> trk_nLost;
+  std::vector<unsigned int> trk_nInactive;
   std::vector<unsigned int> trk_nPixel  ;
   std::vector<unsigned int> trk_nStrip  ;
   std::vector<unsigned int> trk_nOuterLost;
   std::vector<unsigned int> trk_nInnerLost;
+  std::vector<unsigned int> trk_nOuterInactive;
+  std::vector<unsigned int> trk_nInnerInactive;
   std::vector<unsigned int> trk_nPixelLay;
   std::vector<unsigned int> trk_nStripLay;
   std::vector<unsigned int> trk_n3DLay  ;
@@ -1451,11 +1454,14 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   }
   t->Branch("trk_q"        , &trk_q);
   t->Branch("trk_nValid"   , &trk_nValid  );
-  t->Branch("trk_nInvalid" , &trk_nInvalid);
+  t->Branch("trk_nLost"    , &trk_nLost);
+  t->Branch("trk_nInactive", &trk_nInactive);
   t->Branch("trk_nPixel"   , &trk_nPixel  );
   t->Branch("trk_nStrip"   , &trk_nStrip  );
-  t->Branch("trk_nOuterLost", &trk_nOuterLost  );
-  t->Branch("trk_nInnerLost", &trk_nInnerLost  );
+  t->Branch("trk_nOuterLost", &trk_nOuterLost);
+  t->Branch("trk_nInnerLost", &trk_nInnerLost);
+  t->Branch("trk_nOuterInactive", &trk_nOuterInactive);
+  t->Branch("trk_nInnerInactive", &trk_nInnerInactive);
   t->Branch("trk_nPixelLay", &trk_nPixelLay);
   t->Branch("trk_nStripLay", &trk_nStripLay);
   t->Branch("trk_n3DLay"   , &trk_n3DLay  );
@@ -1792,11 +1798,14 @@ void TrackingNtuple::clearVariables() {
   }
   trk_q        .clear();
   trk_nValid   .clear();
-  trk_nInvalid .clear();
+  trk_nLost    .clear();
+  trk_nInactive.clear();
   trk_nPixel   .clear();
   trk_nStrip   .clear();
   trk_nOuterLost.clear();
   trk_nInnerLost.clear();
+  trk_nOuterInactive.clear();
+  trk_nInnerInactive.clear();
   trk_nPixelLay.clear();
   trk_nStripLay.clear();
   trk_n3DLay   .clear();
@@ -3153,11 +3162,14 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
     trk_ndof     .push_back(ndof);
     trk_q        .push_back(charge);
     trk_nValid   .push_back(hp.numberOfValidHits());
-    trk_nInvalid .push_back(hp.numberOfLostHits(reco::HitPattern::TRACK_HITS));
+    trk_nLost    .push_back(hp.numberOfLostHits(reco::HitPattern::TRACK_HITS));
+    trk_nInactive .push_back(hp.trackerLayersTotallyOffOrBad(reco::HitPattern::TRACK_HITS));
     trk_nPixel   .push_back(hp.numberOfValidPixelHits());
     trk_nStrip   .push_back(hp.numberOfValidStripHits());
     trk_nOuterLost.push_back(hp.numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS));
     trk_nInnerLost.push_back(hp.numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS));
+    trk_nOuterInactive.push_back(hp.trackerLayersTotallyOffOrBad(reco::HitPattern::MISSING_OUTER_HITS));
+    trk_nInnerInactive.push_back(hp.trackerLayersTotallyOffOrBad(reco::HitPattern::MISSING_INNER_HITS));
     trk_nPixelLay.push_back(hp.pixelLayersWithMeasurement());
     trk_nStripLay.push_back(hp.stripLayersWithMeasurement());
     trk_n3DLay   .push_back(hp.numberOfValidStripLayersWithMonoAndStereo()+hp.pixelLayersWithMeasurement());
