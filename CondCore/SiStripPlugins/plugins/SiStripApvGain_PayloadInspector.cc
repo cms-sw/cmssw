@@ -1172,16 +1172,18 @@ namespace {
   };
 
   //*******************************************//
-  // Compare Gains from 2 IOVs, module by module
+  // Compare Gains from 2 IOVs
   //******************************************//
 
-  class SiStripApvGainsByModuleComparator : public cond::payloadInspector::PlotImage<SiStripApvGain> {
+  class SiStripApvGainsValuesComparator : public cond::payloadInspector::PlotImage<SiStripApvGain> {
   public:
-    SiStripApvGainsByModuleComparator () : cond::payloadInspector::PlotImage<SiStripApvGain>( "Module by Module Comparison of SiStrip APV gains" ){
+    SiStripApvGainsValuesComparator () : cond::payloadInspector::PlotImage<SiStripApvGain>( "Comparison of SiStrip APV gains values" ){
       setSingleIov( false );
     }
     
     bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+
+      TH1F::SetDefaultSumw2(true);
 
       std::vector<std::tuple<cond::Time_t,cond::Hash> > sorted_iovs = iovs;
        
@@ -1202,18 +1204,17 @@ namespace {
       std::vector<uint32_t> detid;
       last_payload->getDetIds(detid);
 
-      std::map<uint32_t,float> lastmap,firstmap;
+      std::map<std::pair<uint32_t,int>,float> lastmap,firstmap;
 
       // loop on the last payload
       for (const auto & d : detid) {
 	SiStripApvGain::Range range=last_payload->getRange(d);
-	float Gain=0;
 	float nAPV=0;
 	for( int it=0; it < range.second - range.first; ++it ) {
 	  nAPV+=1;
-	  Gain+=last_payload->getApvGain(it,range);
+	  auto index = std::make_pair(d,nAPV);
+	  lastmap[index]=last_payload->getApvGain(it,range);
 	} // end loop on APVs
-	lastmap[d]=Gain/nAPV;
       } // end loop on detids
 
       detid.clear();
@@ -1222,29 +1223,111 @@ namespace {
       // loop on the first payload
       for (const auto & d : detid) {
 	SiStripApvGain::Range range=first_payload->getRange(d);
-	float Gain=0;
 	float nAPV=0;
 	for( int it=0; it < range.second - range.first; ++it ) {
 	  nAPV+=1;
-	  Gain+=first_payload->getApvGain(it,range);
+	  auto index = std::make_pair(d,nAPV);
+	  firstmap[index]=last_payload->getApvGain(it,range);
 	} // end loop on APVs
-	firstmap[d]=Gain/nAPV;
       }  // end loop on detids
       
-      TCanvas canvas("Payload comparison","payload comparison",1400,1000); 
+      TCanvas canvas("Payload comparison","payload comparison",1000,1000); 
       canvas.cd();
+
+      TPad *pad1 = new TPad("pad1", "pad1", 0, 0.3, 1, 1.0);
+      pad1->SetBottomMargin(0.02); // Upper and lower plot are joined
+      pad1->SetTopMargin(0.07);   
+      pad1->SetRightMargin(0.05);
+      pad1->SetLeftMargin(0.15);
+      pad1->Draw();             // Draw the upper pad: pad1
+      pad1->cd();               // pad1 becomes the current pad
+
+      auto h_firstGains = std::make_shared<TH1F>("hFirstGains","SiStrip APV gains values; APV Gains;n. APVs",200,0.2,1.8);
+      auto h_lastGains = std::make_shared<TH1F>("hLastGains","SiStrip APV gains values; APV Gains;n. APVs",200,0.2,1.8);
       
-      auto h_ratio = std::make_shared<TH1F>("hRatioByModuleId",Form("Gains ratio IOV: %s/ IOV: %s ;DetId index;New Gain (%s) / Previous Gain (%s)",lastIOVsince.c_str(),firstIOVsince.c_str(),lastIOVsince.c_str(),firstIOVsince.c_str()),firstmap.size(),0.,firstmap.size());
-      
-      int binCounter=0;
       for(const auto &item : firstmap ) {
-	binCounter++;
-	auto detid = item.first;
-	float fractional_change = (firstmap[detid]-lastmap[detid])/firstmap[detid];
-	h_ratio->SetBinContent(binCounter,fractional_change);
+	h_firstGains->Fill(item.second);
       }
 
-      h_ratio->Draw();
+      for(const auto &item : lastmap ) {
+	h_lastGains->Fill(item.second);
+      }
+
+      SiStripPI::makeNicePlotStyle(h_lastGains.get());
+      SiStripPI::makeNicePlotStyle(h_firstGains.get());
+
+      TH1F *hratio = (TH1F*)h_firstGains->Clone("hratio");
+
+      h_firstGains->SetLineColor(kRed);
+      h_lastGains->SetLineColor(kBlue);
+
+      h_firstGains->SetMarkerColor(kRed);
+      h_lastGains->SetMarkerColor(kBlue);
+
+      h_firstGains->SetMarkerSize(1.);
+      h_lastGains->SetMarkerSize(1.);
+
+      h_firstGains->SetLineWidth(1.5);
+      h_lastGains->SetLineWidth(1.5);
+
+      h_firstGains->SetMarkerStyle(20);
+      h_lastGains->SetMarkerStyle(21);
+
+      h_firstGains->GetXaxis()->SetLabelOffset(2.);
+      h_lastGains->GetXaxis()->SetLabelOffset(2.);
+
+      h_firstGains->Draw("HIST");
+      h_lastGains->Draw("HISTsame");
+
+      TLegend legend = TLegend(0.70,0.7,0.95,0.9);
+      legend.SetHeader("Gain Comparison","C"); // option "C" allows to center the header
+      legend.AddEntry(h_firstGains.get(),("IOV: "+std::to_string(std::get<0>(firstiov))).c_str(),"PL");
+      legend.AddEntry(h_lastGains.get() ,("IOV: "+std::to_string(std::get<0>(lastiov))).c_str(),"PL");
+      legend.Draw("same");
+      
+      // lower plot will be in pad
+      canvas.cd();          // Go back to the main canvas before defining pad2
+      TPad *pad2 = new TPad("pad2", "pad2", 0, 0.005, 1, 0.3);
+      pad2->SetTopMargin(0.01);
+      pad2->SetBottomMargin(0.2);
+      pad2->SetRightMargin(0.05);
+      pad2->SetLeftMargin(0.15);
+      pad2->SetGridy(); // horizontal grid
+      pad2->Draw();
+      pad2->cd();       // pad2 becomes the current pad
+	  
+      // Define the ratio plot
+      hratio->SetLineColor(kBlack);
+      hratio->SetMarkerColor(kBlack);
+      hratio->SetTitle("");
+      hratio->SetMinimum(0.55);  // Define Y ..
+      hratio->SetMaximum(1.55);  // .. range
+      hratio->SetStats(0);       // No statistics on lower plot
+      hratio->Divide(h_lastGains.get());
+      hratio->SetMarkerStyle(20);
+      hratio->Draw("ep");       // Draw the ratio plot
+      
+      // Y axis ratio plot settings
+      hratio->GetYaxis()->SetTitle(("ratio "+std::to_string(std::get<0>(firstiov))+" / "+std::to_string(std::get<0>(lastiov))).c_str());
+
+      hratio->GetYaxis()->SetNdivisions(505);
+
+      SiStripPI::makeNicePlotStyle(hratio);
+
+      hratio->GetYaxis()->SetTitleSize(25);
+      hratio->GetXaxis()->SetLabelSize(25);
+
+      hratio->GetYaxis()->SetTitleFont(43);
+      hratio->GetYaxis()->SetTitleOffset(2.5);
+      hratio->GetYaxis()->SetLabelFont(43); // Absolute font size in pixel (precision 3)
+      hratio->GetYaxis()->SetLabelSize(25);
+	  
+      // X axis ratio plot settings
+      hratio->GetXaxis()->SetTitleSize(30);
+      hratio->GetXaxis()->SetTitleFont(43);
+      hratio->GetXaxis()->SetTitle("SiStrip APV Gains");
+      hratio->GetXaxis()->SetLabelFont(43); // Absolute font size in pixel (precision 3)
+      hratio->GetXaxis()->SetTitleOffset(3.);
 
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
@@ -1345,16 +1428,16 @@ namespace {
 
       for (const auto &element : lastmap){
 	auto region = getTheRegion(element.first.first);
-      	h2last->Fill(SiStripPI::binToEnumMap[region],element.second);
-	h2last->GetXaxis()->SetBinLabel(SiStripPI::binToEnumMap[region],SiStripPI::regionType(region));
-	h2ratio->Fill(SiStripPI::binToEnumMap[region],element.second/firstmap[element.first]);
-	h2ratio->GetXaxis()->SetBinLabel(SiStripPI::binToEnumMap[region],SiStripPI::regionType(region));
+      	h2last->Fill(SiStripPI::EnumToBinMap[region],element.second);
+	h2last->GetXaxis()->SetBinLabel(SiStripPI::EnumToBinMap[region],SiStripPI::regionType(region));
+	h2ratio->Fill(SiStripPI::EnumToBinMap[region],element.second/firstmap[element.first]);
+	h2ratio->GetXaxis()->SetBinLabel(SiStripPI::EnumToBinMap[region],SiStripPI::regionType(region));
       }
 
       for (const auto &element : firstmap){
 	auto region = getTheRegion(element.first.first);
-	h2first->Fill(SiStripPI::binToEnumMap[region],element.second);
-	h2first->GetXaxis()->SetBinLabel(SiStripPI::binToEnumMap[region],SiStripPI::regionType(region));
+	h2first->Fill(SiStripPI::EnumToBinMap[region],element.second);
+	h2first->GetXaxis()->SetBinLabel(SiStripPI::EnumToBinMap[region],SiStripPI::regionType(region));
       }
       
       h2first->GetXaxis()->LabelsOption("v");
@@ -1719,7 +1802,7 @@ PAYLOAD_INSPECTOR_MODULE(SiStripApvGain){
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsTest);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsByPartition);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsComparator);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsByModuleComparator);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsValuesComparator);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsComparatorByPartition);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsByRegionComparator);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvBarrelGainsByLayer);

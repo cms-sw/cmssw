@@ -73,7 +73,7 @@ namespace SiStripPI {
   };
 
   // mapping to get the bin number
-  std::map<SiStripPI::TrackerRegion,unsigned int> binToEnumMap{
+  std::map<SiStripPI::TrackerRegion,unsigned int> EnumToBinMap{
     {TrackerRegion::TIB1r,1 }, 
     {TrackerRegion::TIB1s,2 },
     {TrackerRegion::TIB2r,3 }, 
