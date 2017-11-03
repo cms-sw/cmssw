@@ -77,6 +77,8 @@ C3d_parValues = cms.PSet( dR_multicluster = cms.double(0.01), # dR in normalized
 cluster_algo =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoThreshold'),
                           FECodec = fe_codec.clone(),
                           calib_parameters = calib_parValues.clone(),
+                          triggercell_threshold_silicon = cms.double(2.), # MipT
+                          triggercell_threshold_scintillator = cms.double(2.), # MipT
                           C2d_parameters = C2d_parValues.clone(),
                           C3d_parameters = C3d_parValues.clone()
                           )
