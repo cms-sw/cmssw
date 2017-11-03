@@ -44,7 +44,6 @@ class TPComparisonTask : public hcaldqm::DQTask
 		bool _skip1x1;
 
 		//	emap
-		HcalElectronicsMap const* _emap;
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmapuTCA;
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmapVME;
 

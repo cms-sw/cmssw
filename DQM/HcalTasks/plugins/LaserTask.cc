@@ -12,6 +12,8 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	//	tags
 	_tagHBHE = ps.getUntrackedParameter<edm::InputTag>("tagHBHE",
 		edm::InputTag("hcalDigis"));
+	_tagHEP17 = ps.getUntrackedParameter<edm::InputTag>("tagHEP17",
+		edm::InputTag("hcalDigis"));
 	_tagHO = ps.getUntrackedParameter<edm::InputTag>("tagHO",
 		edm::InputTag("hcalDigis"));
 	_tagHF = ps.getUntrackedParameter<edm::InputTag>("tagHF",
@@ -19,12 +21,15 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	_taguMN = ps.getUntrackedParameter<edm::InputTag>("taguMN",
 		edm::InputTag("hcalDigis"));
 	_tokHBHE = consumes<HBHEDigiCollection>(_tagHBHE);
+	_tokHEP17 = consumes<QIE11DigiCollection>(_tagHEP17);
 	_tokHO = consumes<HODigiCollection>(_tagHO);
 	_tokHF = consumes<QIE10DigiCollection>(_tagHF);
 	_tokuMN = consumes<HcalUMNioDigi>(_taguMN);
 
 	//	constants
 	_lowHBHE = ps.getUntrackedParameter<double>("lowHBHE",
+		20);
+	_lowHEP17 = ps.getUntrackedParameter<double>("lowHEP17",
 		20);
 	_lowHO = ps.getUntrackedParameter<double>("lowHO",
 		20);
@@ -336,12 +341,16 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	edm::EventSetup const& es)
 {
 	edm::Handle<HBHEDigiCollection>		chbhe;
+	edm::Handle<QIE11DigiCollection>		chep17;
 	edm::Handle<HODigiCollection>		cho;
 	edm::Handle<QIE10DigiCollection>		chf;
 
 	if (!e.getByToken(_tokHBHE, chbhe))
 		_logger.dqmthrow("Collection HBHEDigiCollection isn't available "
 			+ _tagHBHE.label() + " " + _tagHBHE.instance());
+	if (!e.getByToken(_tokHEP17, chep17))
+		_logger.dqmthrow("Collection QIE11DigiCollection isn't available "
+			+ _tagHEP17.label() + " " + _tagHEP17.instance());
 	if (!e.getByToken(_tokHO, cho))
 		_logger.dqmthrow("Collection HODigiCollection isn't available "
 			+ _tagHO.label() + " " + _tagHO.instance());
@@ -378,6 +387,53 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 					digi.sample(i).nominal_fC()-2.5);
 			}
 			_cADC_SubdetPM.fill(did, digi.sample(i).adc());
+		}
+
+		//	select based on local global
+		if (_ptype==fLocal)
+		{
+			int currentEvent = e.eventAuxiliary().id().event();
+			_cTimingvsEvent_SubdetPM.fill(did, currentEvent, aveTS);
+			_cSignalvsEvent_SubdetPM.fill(did, currentEvent, sumQ);
+		}
+		else
+		{
+			_cTimingvsLS_SubdetPM.fill(did, _currentLS, aveTS);
+			_cSignalvsLS_SubdetPM.fill(did, _currentLS, sumQ);
+			_cTimingvsBX_SubdetPM.fill(did, bx, aveTS);
+			_cSignalvsBX_SubdetPM.fill(did, bx, sumQ);
+		}
+	}
+	for (QIE11DigiCollection::const_iterator it=chep17->begin(); it!=chep17->end();
+		++it)
+	{
+		const QIE11DataFrame digi = static_cast<const QIE11DataFrame>(*it);
+		HcalDetId const& did = digi.detid();
+		if (did.subdet() != HcalEndcap) {
+			continue;
+		}
+		uint32_t rawid = _ehashmap.lookup(did);
+		HcalElectronicsId const& eid(rawid);
+
+		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE11DataFrame>(_dbService, did, digi);
+		//double sumQ = hcaldqm::utilities::sumQ_v10<QIE11DataFrame>(digi, 2.5, 0, digi.samples()-1);
+		double sumQ = hcaldqm::utilities::sumQDB<QIE11DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples()-1);
+		if (sumQ<_lowHEP17)
+			continue;
+
+
+		//double aveTS = hcaldqm::utilities::aveTS_v10<QIE11DataFrame>(digi, 2.5, 0,digi.samples()-1);
+		double aveTS = hcaldqm::utilities::aveTSDB<QIE11DataFrame>(_dbService, digi_fC, did, digi, 0, digi.size()-1);
+		_xSignalSum.get(did)+=sumQ;
+		_xSignalSum2.get(did)+=sumQ*sumQ;
+		_xTimingSum.get(did)+=aveTS;
+		_xTimingSum2.get(did)+=aveTS*aveTS;
+		_xEntries.get(did)++;
+
+		for (int i=0; i<digi.samples(); i++)
+		{
+			_cShapeCut_FEDSlot.fill(eid, i, hcaldqm::utilities::adc2fCDBMinusPedestal<QIE11DataFrame>(_dbService, digi_fC, did, digi, i));
+			_cADC_SubdetPM.fill(did, digi[i].adc());
 		}
 
 		//	select based on local global
@@ -442,14 +498,21 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		it!=chf->end(); ++it)
 	{
 		const QIE10DataFrame digi = (const QIE10DataFrame)(*it);
-		double sumQ = hcaldqm::utilities::sumQ_v10<QIE10DataFrame>(digi, 2.5, 0, 
-			digi.samples()-1);
-		if (sumQ<_lowHF)
-			continue;
 		HcalDetId did = digi.detid();
+		if (did.subdet() != HcalForward) {
+			continue;
+		}
 		HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(did));
 
-		double aveTS = hcaldqm::utilities::aveTS_v10<QIE10DataFrame>(digi, 2.5, 0, digi.samples()-1);
+		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE10DataFrame>(_dbService, did, digi);
+		double sumQ = hcaldqm::utilities::sumQDB<QIE10DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples()-1);
+		//double sumQ = hcaldqm::utilities::sumQ_v10<QIE10DataFrame>(digi, 2.5, 0, digi.samples()-1);
+		if (sumQ<_lowHF)
+			continue;
+
+		//double aveTS = hcaldqm::utilities::aveTS_v10<QIE10DataFrame>(digi, 2.5, 0, digi.samples()-1);
+		double aveTS = hcaldqm::utilities::aveTSDB<QIE10DataFrame>(_dbService, digi_fC, did, digi, 0, digi.size()-1);
+		
 		_xSignalSum.get(did)+=sumQ;
 		_xSignalSum2.get(did)+=sumQ*sumQ;
 		_xTimingSum.get(did)+=aveTS;
@@ -459,7 +522,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		for (int i=0; i<digi.samples(); i++)
 		{
 			if (_ptype != fOffline) { // hidefed2crate
-				_cShapeCut_FEDSlot.fill(eid, (int)i, constants::adc2fC[digi[i].adc()]-2.5);
+				_cShapeCut_FEDSlot.fill(eid, (int)i, hcaldqm::utilities::adc2fCDBMinusPedestal<QIE10DataFrame>(_dbService, digi_fC, did, digi, i));
 			}
 			_cADC_SubdetPM.fill(did, digi[i].adc());
 		}
