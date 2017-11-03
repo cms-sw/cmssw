@@ -45,14 +45,7 @@ TransientTrack TransientTrackBuilder::build (const CandidatePtr * t) const {
 }
 
 TransientTrack TransientTrackBuilder::build (const CandidatePtr & t) const {
-  reco::PFCandidatePtr tryPF(t);
-  edm::Ptr<pat::PackedCandidate> tryPacked(t);
-  if( tryPF.get() != nullptr && tryPF->isTimeValid() ) {
-    return TransientTrack(t, tryPF->time(), tryPF->timeError(), theField, theTrackingGeometry);
-  } else if ( tryPacked.get() != nullptr && tryPacked->timeError() > 0.f ) {
-    return TransientTrack(t, (double)tryPacked->time(), (double)tryPacked->timeError(), theField, theTrackingGeometry);
-  }
-  return TransientTrack(t, theField, theTrackingGeometry);
+  return this->build(&t);  
 }
 
 TransientTrack TransientTrackBuilder::build (const TrackRef * t) const {
