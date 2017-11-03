@@ -19,8 +19,8 @@
 		<Constant name="RP_220_Left_Det_Dist_1" value="+42.712*mm"/> <!-- RESOLVER: +42.712, offset:  +0.000 -->
 		<Constant name="RP_220_Left_Det_Dist_2" value="+41.915*mm"/> <!-- RESOLVER: +41.915, offset:  +0.000 -->
 		<Constant name="RP_220_Left_Det_Dist_3" value="+43.162*mm"/> <!-- RESOLVER: +43.162, offset:  +0.000 -->
-		<Constant name="RP_220_Left_Det_Dist_4" value="+42.888*mm"/> <!-- RESOLVER: +42.888, offset:  +0.000 -->
-		<Constant name="RP_220_Left_Det_Dist_5" value="+42.995*mm"/> <!-- RESOLVER: +42.995, offset:  +0.000 -->
+		<Constant name="RP_220_Left_Det_Dist_4" value=" +8.000*mm"/>
+		<Constant name="RP_220_Left_Det_Dist_5" value=" +8.000*mm"/>
 
 		<!-- sector 56, 210m station -->
 		<Constant name="RP_147_Right_Det_Dist_0" value=" +9.052*mm"/> <!-- RESOLVER:  +9.052, offset:  +0.000 -->
@@ -35,13 +35,13 @@
 		<Constant name="RP_220_Right_Det_Dist_1" value="+42.266*mm"/> <!-- RESOLVER: +42.266, offset:  +0.000 -->
 		<Constant name="RP_220_Right_Det_Dist_2" value="+44.364*mm"/> <!-- RESOLVER: +44.364, offset:  +0.000 -->
 		<Constant name="RP_220_Right_Det_Dist_3" value="+43.396*mm"/> <!-- RESOLVER: +43.396, offset:  +0.000 -->
-		<Constant name="RP_220_Right_Det_Dist_4" value="+42.571*mm"/> <!-- RESOLVER: +42.571, offset:  +0.000 -->
-		<Constant name="RP_220_Right_Det_Dist_5" value="+43.340*mm"/> <!-- RESOLVER: +43.340, offset:  +0.000 -->
-                
-                <!-- sector 45, diamond station -->
-                <Constant name="CTPPS_45_Det_Dist" value="3.0*mm"/>
-                
-                <!-- sector 56, diamond station -->
-                <Constant name="CTPPS_56_Det_Dist" value="3.0*mm"/>
+		<Constant name="RP_220_Right_Det_Dist_4" value=" +8.000*mm"/>
+		<Constant name="RP_220_Right_Det_Dist_5" value=" +8.000*mm"/>
+
+		<!-- sector 45, diamond station -->
+        <Constant name="CTPPS_45_Det_Dist" value="3.0*mm"/>
+        
+        <!-- sector 56, diamond station -->
+        <Constant name="CTPPS_56_Det_Dist" value="3.0*mm"/>
 	</ConstantsSection>
 </DDDefinition>
