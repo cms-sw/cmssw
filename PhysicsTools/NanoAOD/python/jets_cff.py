@@ -211,6 +211,8 @@ run2_nanoAOD_92X.toModify( fatJetTable.variables.tau4, expr = cms.string("-1"),)
 run2_nanoAOD_92X.toModify( fatJetTable.variables.n2b1, expr = cms.string("-1"),)
 run2_nanoAOD_92X.toModify( fatJetTable.variables.n3b1, expr = cms.string("-1"),)
 
+
+
 subJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("slimmedJetsAK8PFPuppiSoftDropPacked","SubJets"),
     cut = cms.string(""), #probably already applied in miniaod
@@ -233,8 +235,18 @@ subJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 
 #jets are not as precise as muons
 fatJetTable.variables.pt.precision=10
+subJetTable.variables.pt.precision=10
 
+run2_miniAOD_80XLegacy.toModify( subJetTable.variables.tau1, expr = cms.string("userFloat(\'NjettinessAK8Subjets:tau1\')"),)
+run2_miniAOD_80XLegacy.toModify( subJetTable.variables.tau2, expr = cms.string("userFloat(\'NjettinessAK8Subjets:tau2\')"),)
+run2_miniAOD_80XLegacy.toModify( subJetTable.variables.tau3, expr = cms.string("userFloat(\'NjettinessAK8Subjets:tau3\')"),)
+run2_miniAOD_80XLegacy.toModify( subJetTable.variables.tau4, expr = cms.string("-1"),)
+run2_miniAOD_80XLegacy.toModify( subJetTable.variables.n2b1, expr = cms.string("-1"),)
+run2_miniAOD_80XLegacy.toModify( subJetTable.variables.n3b1, expr = cms.string("-1"),)
 
+run2_nanoAOD_92X.toModify( subJetTable.variables.tau4, expr = cms.string("-1"),)
+run2_nanoAOD_92X.toModify( subJetTable.variables.n2b1, expr = cms.string("-1"),)
+run2_nanoAOD_92X.toModify( subJetTable.variables.n3b1, expr = cms.string("-1"),)
 
 
 
