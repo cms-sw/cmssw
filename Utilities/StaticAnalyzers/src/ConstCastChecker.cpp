@@ -25,12 +25,11 @@ void ConstCastChecker::checkPreStmt(const clang::CXXConstCastExpr *CE,
 	else CRD = SE->getType()->getAsCXXRecordDecl();
 	if (CRD) {
 		std::string cname = CRD->getQualifiedNameAsString();
-		if (! support::isDataClass(cname) ) return; 
 	}
 	if (clang::ento::ExplodedNode *errorNode = C.generateErrorNode()) {
-		if (!BT) BT.reset(new clang::ento::BugType(this,"const_cast used on a pointer to a data class ", "ThreadSafety"));
+		if (!BT) BT.reset(new clang::ento::BugType(this,"const_cast used on pointer to class", "ConstThreadSafety"));
 		std::unique_ptr<clang::ento::BugReport> R = llvm::make_unique<clang::ento::BugReport>(*BT,
-					"const_cast was used on a pointer to a data class ", errorNode);
+					"const_cast was used on a pointer to a class. This may result in thread-unsafe code.", errorNode);
 		R->addRange(CE->getSourceRange());
 	   	if ( ! m_exception.reportConstCast( *R, C ) )
 			return;

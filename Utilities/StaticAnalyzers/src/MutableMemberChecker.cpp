@@ -26,12 +26,11 @@ void MutableMemberChecker::checkASTDecl(const clang::FieldDecl *D,
 	    if ( ! m_exception.reportMutableMember( t, DLoc, BR ) )
 		return;
 	    if ( support::isSafeClassName( t.getCanonicalType().getAsString() ) ) return;
-	    if ( ! support::isDataClass( D->getParent()->getQualifiedNameAsString() ) ) return;
 	    std::string buf;
 	    llvm::raw_string_ostream os(buf);
-	    os << "Mutable member'" <<t.getCanonicalType().getAsString()<<" "<<*D << "' in class '"<<D->getParent()->getQualifiedNameAsString()<<"', might be thread-unsafe when accessing via a const handle.";
-	    BR.EmitBasicReport(D, this, "mutable member",
-	    					"ThreadSafety", os.str(), DLoc);
+	    os << "Mutable member'" <<t.getCanonicalType().getAsString()<<" "<<*D << "' in class '"<<D->getParent()->getQualifiedNameAsString()<<"', might be thread-unsafe when accessing via a const pointer.";
+	    BR.EmitBasicReport(D, this, "mutable member if accessed via const pointer",
+	    					"ConstThreadSafety", os.str(), DLoc);
 	    return;
 	}
 
