@@ -61,29 +61,14 @@
    <version ClassVersion="12" checksum="3253990857"/>
    <version ClassVersion="11" checksum="2070976353"/>
    <version ClassVersion="10" checksum="955269040"/>
-  </class>
-  <ioread sourceClass="reco::VertexCompositePtrCandidate" version="[-13]" targetClass="reco::VertexCompositePtrCandidate" 
-	  source="Double32_t chi2_" 
-          target="chi2_">    
-    <![CDATA[chi2_ = onfile.chi2_;]]>
-  </ioread>
-  <ioread sourceClass="reco::VertexCompositePtrCandidate" version="[-13]" targetClass="reco::VertexCompositePtrCandidate" 
-	  source="Double32_t ndof_" 
-          target="ndof_">  
-    <![CDATA[ndof_ = onfile.ndof_;]]>
-  </ioread>
+  </class>  
   <ioread sourceClass="reco::VertexCompositePtrCandidate" version="[-13]" targetClass="reco::VertexCompositePtrCandidate" 
 	  source="Double32_t covariance_[6]" 
           target="covariance_">
     <![CDATA[
 	   for( unsigned i = 0; i < 4; ++i ) { for( unsigned j = i; j< 4; ++j ) { unsigned a = (i <= j ? i : j), b = (i <= j ? j : i); unsigned idx = b * (b + 1)/2 + a; covariance_[idx] = ( i == 3 || j == 3 ) ? 0.0 : onfile.covariance_[idx]; } }
     ]]>
-  </ioread>
-  <ioread sourceClass="reco::VertexCompositePtrCandidate" version="[-13]" targetClass="reco::VertexCompositePtrCandidate" 
-	  source="" 
-          target="time_">
-    <![CDATA[time_ = 0.;]]>
-  </ioread>
+  </ioread>  
 
   <class name="reco::VertexCompositeCandidate" ClassVersion="13">
    <version ClassVersion="13" checksum="1561694123"/>
