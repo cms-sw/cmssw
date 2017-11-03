@@ -3,7 +3,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 
@@ -21,7 +21,7 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 
-class GenJetFlavourTableProducer : public edm::global::EDProducer<> {
+class GenJetFlavourTableProducer : public edm::stream::EDProducer<> {
     public:
         explicit GenJetFlavourTableProducer(const edm::ParameterSet &iConfig) :
             name_(iConfig.getParameter<std::string>("name")),
@@ -44,7 +44,7 @@ class GenJetFlavourTableProducer : public edm::global::EDProducer<> {
         }
 
     private:
-        void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override ;
+        void produce(edm::Event&, edm::EventSetup const&) override ;
 
         std::string name_;
         edm::EDGetTokenT<std::vector<reco::GenJet> > src_;
@@ -55,7 +55,7 @@ class GenJetFlavourTableProducer : public edm::global::EDProducer<> {
 
 // ------------ method called to produce the data  ------------
 void
-GenJetFlavourTableProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const 
+GenJetFlavourTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     edm::Handle<reco::GenJetCollection> jets;
     iEvent.getByToken(src_, jets);
