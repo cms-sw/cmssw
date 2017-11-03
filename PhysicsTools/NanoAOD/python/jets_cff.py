@@ -86,10 +86,11 @@ jetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         electronIdx1 = Var("?overlaps('electrons').size()>0?overlaps('electrons')[0].key():-1", int, doc="index of first matching electron"),
         electronIdx2 = Var("?overlaps('electrons').size()>1?overlaps('electrons')[1].key():-1", int, doc="index of second matching electron"),
         nElectrons = Var("?hasOverlaps('electrons')?overlaps('electrons').size():0", int, doc="number of electrons in the jet"),
-	btagCMVA = Var("bDiscriminator('pfCombinedMVAV2BJetTags')",float,doc="CMVA V2 btag discriminator",precision=10),
-	btagDeepB = Var("bDiscriminator('pfDeepCSVJetTags:probb')",float,doc="DeepCSV b tag discriminator",precision=10),
-	btagDeepBB = Var("bDiscriminator('pfDeepCSVJetTags:probbb')",float,doc="DeepCSV bb tag discriminator",precision=10),
-	btagDeepC = Var("bDiscriminator('pfDeepCSVJetTags:probc')",float,doc="DeepCSV charm btag discriminator",precision=10),
+        btagCMVA = Var("bDiscriminator('pfCombinedMVAV2BJetTags')",float,doc="CMVA V2 btag discriminator",precision=10),
+        btagDeepB = Var("bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb')",float,doc="DeepCSV b+bb tag discriminator",precision=10),
+        btagCSVV2 = Var("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",float,doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)",precision=10),
+        btagDeepC = Var("bDiscriminator('pfDeepCSVJetTags:probc')",float,doc="DeepCSV charm btag discriminator",precision=10),
+
 #puIdDisc = Var("userFloat('pileupJetId:fullDiscriminant')",float,doc="Pilup ID discriminant",precision=10),
 	puId = Var("userInt('pileupJetId:fullId')",int,doc="Pilup ID flags"),
 	jetId = Var("userInt('tightId')*2+userInt('looseId')",int,doc="Jet ID flags bit1 is loose, bit2 is tight"),
@@ -181,10 +182,9 @@ fatJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         n2b1 = Var("userFloat('ak8PFJetsPuppiSoftDropValueMap:nb1AK8PuppiSoftDropN2')", float, doc="N2 with beta=1", precision=10),
         n3b1 = Var("userFloat('ak8PFJetsPuppiSoftDropValueMap:nb1AK8PuppiSoftDropN3')", float, doc="N3 with beta=1", precision=10),
         msoftdrop = Var("userFloat('ak8PFJetsPuppiSoftDropMass')",float, doc="Soft drop mass",precision=10),
-        
         btagCMVA = Var("bDiscriminator('pfCombinedMVAV2BJetTags')",float,doc="CMVA V2 btag discriminator",precision=10),
-        btagDeepB = Var("bDiscriminator('pfDeepCSVJetTags:probb')",float,doc="DeepCSV B btag discriminator",precision=10),
-        btagDeepBB = Var("bDiscriminator('pfDeepCSVJetTags:probbb')",float,doc="DeepCSV BB btag discriminator",precision=10),
+        btagDeepB = Var("bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb')",float,doc="DeepCSV b+bb tag discriminator",precision=10),
+        btagCSVV2 = Var("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",float,doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)",precision=10),
         btagHbb = Var("bDiscriminator('pfBoostedDoubleSecondaryVertexAK8BJetTags')",float,doc="Higgs to BB tagger discriminator",precision=10),
 
         subJetIdx1 = Var("?numberOfSourceCandidatePtrs()>0 && sourceCandidatePtr(0).numberOfSourceCandidatePtrs()>0?sourceCandidatePtr(0).key():-1", int,
@@ -220,8 +220,8 @@ subJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     extension = cms.bool(False), # this is the main table for the jets
     variables = cms.PSet(P4Vars,
         btagCMVA = Var("bDiscriminator('pfCombinedMVAV2BJetTags')",float,doc="CMVA V2 btag discriminator",precision=10),
-        btagDeepB = Var("bDiscriminator('pfDeepCSVJetTags:probb')",float,doc="CMVA V2 btag discriminator",precision=10),
-        btagDeepBB = Var("bDiscriminator('pfDeepCSVJetTags:probbb')",float,doc="CMVA V2 btag discriminator",precision=10),
+        btagDeepB = Var("bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb')",float,doc="DeepCSV b+bb tag discriminator",precision=10),
+        btagCSVV2 = Var("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",float,doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)",precision=10),
     )
 )
 
@@ -258,6 +258,29 @@ genJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 	#anything else?
     )
 )
+patJetPartons = cms.EDProducer('HadronAndPartonSelector',
+    src = cms.InputTag("generator"),
+    particles = cms.InputTag("prunedGenParticles"),
+    partonMode = cms.string("Auto"),
+    fullChainPhysPartons = cms.bool(True)
+)
+genJetFlavourAssociation = cms.EDProducer("JetFlavourClustering",
+    jets = genJetTable.src,
+    bHadrons = cms.InputTag("patJetPartons","bHadrons"),
+    cHadrons = cms.InputTag("patJetPartons","cHadrons"),
+    partons = cms.InputTag("patJetPartons","physicsPartons"),
+    leptons = cms.InputTag("patJetPartons","leptons"),
+    jetAlgorithm = cms.string("AntiKt"),
+    rParam = cms.double(0.4),
+    ghostRescaling = cms.double(1e-18),
+    hadronFlavourHasPriority = cms.bool(False)
+)
+genJetFlavourTable = cms.EDProducer("GenJetFlavourTableProducer",
+    name = genJetTable.name,
+    src = genJetTable.src,
+    cut = genJetTable.cut,
+    jetFlavourInfos = cms.InputTag("slimmedGenJetsFlavourInfos"),
+)
 
 genJetAK8Table = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("slimmedGenJetsAK8"),
@@ -270,6 +293,23 @@ genJetAK8Table = cms.EDProducer("SimpleCandidateFlatTableProducer",
 	#anything else?
     )
 )
+genJetAK8FlavourAssociation = cms.EDProducer("JetFlavourClustering",
+    jets = genJetAK8Table.src,
+    bHadrons = cms.InputTag("patJetPartons","bHadrons"),
+    cHadrons = cms.InputTag("patJetPartons","cHadrons"),
+    partons = cms.InputTag("patJetPartons","physicsPartons"),
+    leptons = cms.InputTag("patJetPartons","leptons"),
+    jetAlgorithm = cms.string("AntiKt"),
+    rParam = cms.double(0.8),
+    ghostRescaling = cms.double(1e-18),
+    hadronFlavourHasPriority = cms.bool(False)
+)
+genJetAK8FlavourTable = cms.EDProducer("GenJetFlavourTableProducer",
+    name = genJetAK8Table.name,
+    src = genJetAK8Table.src,
+    cut = genJetAK8Table.cut,
+    jetFlavourInfos = cms.InputTag("genJetAK8FlavourAssociation"),
+)
 genSubJetAK8Table = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("slimmedGenJetsAK8SoftDropSubJets"),
     cut = cms.string(""),  ## These don't get a pt cut, but in miniAOD only subjets from fat jets with pt > 100 are kept
@@ -281,6 +321,10 @@ genSubJetAK8Table = cms.EDProducer("SimpleCandidateFlatTableProducer",
 	#anything else?
     )
 )
+### Era dependent customization
+run2_miniAOD_80XLegacy.toModify( genJetFlavourTable, jetFlavourInfos = cms.InputTag("genJetFlavourAssociation"),)
+
+run2_nanoAOD_92X.toModify( genJetFlavourTable, jetFlavourInfos = cms.InputTag("genJetFlavourAssociation"),)
 
 #before cross linking
 jetSequence = cms.Sequence(looseJetId+tightJetId+slimmedJetsWithUserData+jetCorrFactors+updatedJets+chsForSATkJets+softActivityJets+softActivityJets2+softActivityJets5+softActivityJets10+finalJets)
@@ -288,6 +332,5 @@ jetSequence = cms.Sequence(looseJetId+tightJetId+slimmedJetsWithUserData+jetCorr
 jetTables = cms.Sequence(bjetMVA+ jetTable+fatJetTable+subJetTable+saJetTable+saTable)
 
 #MC only producers and tables
-jetMC = cms.Sequence(jetMCTable+genJetTable+genJetAK8Table+genSubJetAK8Table)
-
+jetMC = cms.Sequence(jetMCTable+genJetTable+patJetPartons+genJetFlavourTable+genJetAK8Table+genJetAK8FlavourAssociation+genJetAK8FlavourTable+genSubJetAK8Table)
 
