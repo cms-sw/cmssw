@@ -67,6 +67,9 @@ namespace edm {
         std::vector<std::shared_ptr<SerialTaskQueue>>(1, std::make_shared<SerialTaskQueue>())};
     }
 
+    SerialTaskQueue* EDProducerBase::globalRunsQueue() {return nullptr;}
+    SerialTaskQueue* EDProducerBase::globalLuminosityBlocksQueue() {return nullptr;};
+
     void
     EDProducerBase::doBeginJob() {
       resourcesAcquirer_ = createAcquirer();

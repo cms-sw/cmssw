@@ -24,6 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 
 // forward declarations
 
@@ -32,7 +33,20 @@ namespace edm {
    
    namespace one {
       namespace impl {
+         template<bool V>
+         struct OptionalSerialTaskQueueHolder;
          
+         template<>
+         struct OptionalSerialTaskQueueHolder<true> {
+            edm::SerialTaskQueue* queue() { return &queue_;}
+            edm::SerialTaskQueue queue_;
+         };
+
+         template<>
+         struct OptionalSerialTaskQueueHolder<false> {
+            edm::SerialTaskQueue* queue() { return nullptr;}
+         };
+
          template<typename T>
          class SharedResourcesUser : public virtual T {
          public:
