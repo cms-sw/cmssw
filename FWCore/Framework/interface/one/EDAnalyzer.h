@@ -46,13 +46,17 @@ namespace edm {
       // ---------- static member functions --------------------
       
       // ---------- member functions ---------------------------
-      
+      SerialTaskQueue* globalRunsQueue() final { return globalRunsQueue_.queue();}
+      SerialTaskQueue* globalLuminosityBlocksQueue() final { return globalLuminosityBlocksQueue_.queue();}
+
     private:
       EDAnalyzer(const EDAnalyzer&) = delete;
       const EDAnalyzer& operator=(const EDAnalyzer&) = delete;
       
       // ---------- member data --------------------------------
-      
+      impl::OptionalSerialTaskQueueHolder<WantsGlobalRunTransitions<T...>::value> globalRunsQueue_;
+      impl::OptionalSerialTaskQueueHolder<WantsGlobalLuminosityBlockTransitions<T...>::value> globalLuminosityBlocksQueue_;
+
     };
     
   }

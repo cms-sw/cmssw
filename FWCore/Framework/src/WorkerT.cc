@@ -188,6 +188,39 @@ namespace edm{
   SerialTaskQueue* WorkerT<OutputModule>::globalLuminosityBlocksQueue() {
     return module_->globalLuminosityBlocksQueue();
   }
+  //one
+  template<>
+  SerialTaskQueue* WorkerT<one::EDProducerBase>::globalRunsQueue() {
+    return module_->globalRunsQueue();
+  }
+  template<>
+  SerialTaskQueue* WorkerT<one::EDProducerBase>::globalLuminosityBlocksQueue() {
+    return module_->globalLuminosityBlocksQueue();
+  }
+  template<>
+  SerialTaskQueue* WorkerT<one::EDFilterBase>::globalRunsQueue() {
+    return module_->globalRunsQueue();
+  }
+  template<>
+  SerialTaskQueue* WorkerT<one::EDFilterBase>::globalLuminosityBlocksQueue() {
+    return module_->globalLuminosityBlocksQueue();
+  }
+  template<>
+  SerialTaskQueue* WorkerT<one::EDAnalyzerBase>::globalRunsQueue() {
+    return module_->globalRunsQueue();
+  }
+  template<>
+  SerialTaskQueue* WorkerT<one::EDAnalyzerBase>::globalLuminosityBlocksQueue() {
+    return module_->globalLuminosityBlocksQueue();
+  }
+  template<>
+  SerialTaskQueue* WorkerT<one::OutputModuleBase>::globalRunsQueue() {
+    return module_->globalRunsQueue();
+  }
+  template<>
+  SerialTaskQueue* WorkerT<one::OutputModuleBase>::globalLuminosityBlocksQueue() {
+    return module_->globalLuminosityBlocksQueue();
+  }
 
   
   template<typename T>
