@@ -49,17 +49,17 @@ Implementation:
 class GeneralHLTOffline : public DQMEDAnalyzer {
  public:
   explicit GeneralHLTOffline(const edm::ParameterSet&);
-  ~GeneralHLTOffline();
+  ~GeneralHLTOffline() override;
 
  private:
   // virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const & iRun,
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const & iRun,
 			      edm::EventSetup const & iSetup) override;
-  virtual void dqmBeginRun(edm::Run const& iRun,edm::EventSetup const& iSetup) override;
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&,
+  void dqmBeginRun(edm::Run const& iRun,edm::EventSetup const& iSetup) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const&,
                                     edm::EventSetup const&) override;
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&,
+  void endLuminosityBlock(edm::LuminosityBlock const&,
                                   edm::EventSetup const&) override;
   virtual void setupHltMatrix(DQMStore::IBooker & iBooker, const std::string &, int);
   virtual void fillHltMatrix(const std::string &,
@@ -101,7 +101,7 @@ class GeneralHLTOffline : public DQMEDAnalyzer {
 //
 GeneralHLTOffline::GeneralHLTOffline(const edm::ParameterSet& ps):streamA_found_(false),
                                                                   hlt_menu_(""),
-                                                                  cppath_(0) {
+                                                                  cppath_(nullptr) {
   debugPrint  = false;
   outputPrint = false;
 
@@ -121,8 +121,7 @@ GeneralHLTOffline::GeneralHLTOffline(const edm::ParameterSet& ps):streamA_found_
 }
 
 
-GeneralHLTOffline::~GeneralHLTOffline() {
-}
+GeneralHLTOffline::~GeneralHLTOffline() = default;
 
 // ------------ method called for each event  ------------
 void
@@ -185,8 +184,8 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent,
         const std::string &label = datasetNames[iPD];
         std::string fullPathToCPP = "HLT/GeneralHLTOffline/"
             + label + "/cppath_" + label + hlt_menu_;
-        MonitorElement * ME_mini_cppath = NULL;
-        TH1F * hist_mini_cppath = NULL;
+        MonitorElement * ME_mini_cppath = nullptr;
+        TH1F * hist_mini_cppath = nullptr;
         if( cppath_mini_.find(fullPathToCPP)!=cppath_mini_.end() ){
 	  ME_mini_cppath = cppath_mini_[fullPathToCPP];
           hist_mini_cppath = ME_mini_cppath->getTH1F();
@@ -255,8 +254,8 @@ GeneralHLTOffline::dqmBeginRun(edm::Run const& iRun,
 
 
   const std::vector<std::string> &nameStreams = hlt_config_.streamNames();
-  std::vector<std::string>::const_iterator si = nameStreams.begin();
-  std::vector<std::string>::const_iterator se = nameStreams.end();
+  auto si = nameStreams.begin();
+  auto se = nameStreams.end();
   std::vector<std::string> datasetNames;
 
   for ( ; si != se; ++si) {
@@ -284,15 +283,14 @@ GeneralHLTOffline::dqmBeginRun(edm::Run const& iRun,
       std::cout << "Number of datasets to be monitored "
                 << datasetNames.size() << std::endl;
     
-    for (unsigned int i = 0; i < datasetNames.size(); i++) {
-      const std::vector<std::string> &datasetPaths = hlt_config_.datasetContent(datasetNames[i]);
+    for (auto const & datasetName : datasetNames) {
+      const std::vector<std::string> &datasetPaths = hlt_config_.datasetContent(datasetName);
       if (debugPrint) {
-        std::cout << "This is dataset " << datasetNames[i]
+        std::cout << "This is dataset " << datasetName
                   << "datasetPaths.size() = " << datasetPaths.size() << std::endl;
-        for (unsigned int iPath = 0;
-             iPath < datasetPaths.size(); iPath++) {
+        for (auto const & datasetPath : datasetPaths) {
           std::cout << "Paths in begin job "
-                    << datasetPaths[iPath] << std::endl;
+                    << datasetPath << std::endl;
         }
       }
       
@@ -301,11 +299,11 @@ GeneralHLTOffline::dqmBeginRun(edm::Run const& iRun,
       bool foundDataset = false;
       int datasetNum = -1;
       for (unsigned int d = 0; d < AddedDatasets.size(); d++) {
-        if (AddedDatasets[d].compare(datasetNames[i]) == 0) {
+        if (AddedDatasets[d] == datasetName) {
           foundDataset = true;
           datasetNum = d;
           if (debugPrint)
-            std::cout << "Dataset " << datasetNames[i]
+            std::cout << "Dataset " << datasetName
                       << " found in AddedDatasets at position " << d << std::endl;
           break;
         }
@@ -314,10 +312,10 @@ GeneralHLTOffline::dqmBeginRun(edm::Run const& iRun,
       if (!foundDataset) {
         if (debugPrint)
           std::cout << " Fill trigger paths for dataset "
-                    << datasetNames[i] << std::endl;
+                    << datasetName << std::endl;
         PDsVectorPathsVector.push_back(datasetPaths);
         // store dataset pathname
-        AddedDatasets.push_back(datasetNames[i]);
+        AddedDatasets.push_back(datasetName);
       } else {
         // This trigger path has already been added - this implies that
         // this is a new run What we want to do is check if there is a
@@ -344,8 +342,7 @@ GeneralHLTOffline::dqmBeginRun(edm::Run const& iRun,
               std::cout << "Looping over existing trigger list " << od
                         <<  "  " << PDsVectorPathsVector[datasetNum][od] << std::endl;
             // Compare, see if match is found
-            if (hlt_config_.removeVersion(datasetPaths[iTrig]).compare(
-								       hlt_config_.removeVersion(PDsVectorPathsVector[datasetNum][od])) == 0) {
+            if (hlt_config_.removeVersion(datasetPaths[iTrig]) == hlt_config_.removeVersion(PDsVectorPathsVector[datasetNum][od])) {
               found = true;
               if (debugPrint)
                 std::cout << " FOUND " << datasetPaths[iTrig] << std::endl;
@@ -358,7 +355,7 @@ GeneralHLTOffline::dqmBeginRun(edm::Run const& iRun,
           if (debugPrint)
             std::cout << datasetPaths[iTrig]
                       << "  NOT FOUND - so we added it to the correct dataset "
-                      << datasetNames[i] << std::endl;
+                      << datasetName << std::endl;
         }
       }
       // Let's check this whole big structure
@@ -374,18 +371,16 @@ GeneralHLTOffline::dqmBeginRun(edm::Run const& iRun,
       }
 
       if (debugPrint)
-        std::cout <<"Found PD: " << datasetNames[i] << std::endl;
+        std::cout <<"Found PD: " << datasetName << std::endl;
     }  // end of loop over dataset names
 
 
 
     std::vector<std::string> triggerNames = hlt_config_.triggerNames();
 
-    for( unsigned int iPath=0; iPath<triggerNames.size(); iPath++ ){
-      std::string pathName = triggerNames[iPath];
-
+    for(auto pathName : triggerNames){
       const std::vector<std::string>& moduleLabels = hlt_config_.moduleLabels(pathName);
-      int NumModules = int( moduleLabels.size() );
+      auto NumModules = int( moduleLabels.size() );
 
       if( !(pathName.find("HLT_") != std::string::npos) ) continue;
       if( (pathName.find("HLT_Physics")!=std::string::npos) ||
@@ -462,7 +457,7 @@ void GeneralHLTOffline::setupHltMatrix(DQMStore::IBooker & iBooker, const std::s
 
   std::string dnamez = "cppath_" + label + "_" + hlt_menu_;
   int sizez = PDsVectorPathsVector[iPD].size();
-  TH1F * hist_mini_cppath = NULL;
+  TH1F * hist_mini_cppath = nullptr;
   cppath_mini_[dnamez] = iBooker.book1D(dnamez.c_str(),
 					dnamez.c_str(),
 					sizez,
@@ -485,7 +480,7 @@ void GeneralHLTOffline::setupHltMatrix(DQMStore::IBooker & iBooker, const std::s
     std::string pathNameVer = PDsVectorPathsVector[iPD][iPath];
 
     std::vector<std::string> moduleLabels = PathModules[pathNameVer];
-    int NumModules = int( moduleLabels.size() );
+    auto NumModules = int( moduleLabels.size() );
 
     if( NumModules==0 ) continue;
 
@@ -534,8 +529,8 @@ void GeneralHLTOffline::fillHltMatrix(const std::string & label,
   
   std::string dnamez = "cppath_" + label + "_" + hlt_menu_;
 
-  TH1F * hist_mini_cppath = NULL;
-  MonitorElement * ME_mini_cppath = NULL;
+  TH1F * hist_mini_cppath = nullptr;
+  MonitorElement * ME_mini_cppath = nullptr;
   if( cppath_mini_.find(dnamez)!=cppath_mini_.end() ){
     ME_mini_cppath = cppath_mini_[dnamez];
     hist_mini_cppath = ME_mini_cppath->getTH1F();
@@ -553,8 +548,8 @@ void GeneralHLTOffline::fillHltMatrix(const std::string & label,
 
     std::string pathName_dataset = "cpfilt_" + label + "_" + pathNameNoVer;
 
-    TH1F * hist_cpfilt_mini = NULL;
-    MonitorElement * ME_cpfilt_mini = NULL;
+    TH1F * hist_cpfilt_mini = nullptr;
+    MonitorElement * ME_cpfilt_mini = nullptr;
     if( cpfilt_mini_.find(pathName_dataset)!=cpfilt_mini_.end() ){
       ME_cpfilt_mini = cpfilt_mini_[pathName_dataset];
       hist_cpfilt_mini = ME_cpfilt_mini->getTH1F();
@@ -562,7 +557,7 @@ void GeneralHLTOffline::fillHltMatrix(const std::string & label,
 
 
     std::vector<std::string> moduleLabels = PathModules[path];
-    int NumModules = int( moduleLabels.size() );
+    auto NumModules = int( moduleLabels.size() );
 
     for( int iMod=0; iMod<NumModules; iMod++ ){
       edm::InputTag moduleWhoseResultsWeWant(moduleLabels[iMod],

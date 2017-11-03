@@ -211,9 +211,9 @@ for type in plot_types:
 efficiency_strings = get_reco_strings(efficiency_strings)
 efficiency_strings.extend(get_reco_strings(efficiency_summary_strings))
 
-hltHiggsPostVBFHbb_2btag = hltHiggsPostProcessor.clone()
-hltHiggsPostVBFHbb_2btag.subDirs = ['HLT/Higgs/VBFHbb_2btag']
-hltHiggsPostVBFHbb_2btag.efficiencyProfile = efficiency_strings
+hltHiggsPostVBFHbb2btag = hltHiggsPostProcessor.clone()
+hltHiggsPostVBFHbb2btag.subDirs = ['HLT/Higgs/VBFHbb_2btag']
+hltHiggsPostVBFHbb2btag.efficiencyProfile = efficiency_strings
 
 #Specific plots for VBFHbb_1btag  
 #dEtaqq, mqq, dPhibb, CVS1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
@@ -235,9 +235,9 @@ for type in plot_types:
 efficiency_strings = get_reco_strings(efficiency_strings)
 efficiency_strings.extend(get_reco_strings(efficiency_summary_strings))
     
-hltHiggsPostVBFHbb_1btag = hltHiggsPostProcessor.clone()
-hltHiggsPostVBFHbb_1btag.subDirs = ['HLT/Higgs/VBFHbb_1btag']
-hltHiggsPostVBFHbb_1btag.efficiencyProfile = efficiency_strings
+hltHiggsPostVBFHbb1btag = hltHiggsPostProcessor.clone()
+hltHiggsPostVBFHbb1btag.subDirs = ['HLT/Higgs/VBFHbb_1btag']
+hltHiggsPostVBFHbb1btag.efficiencyProfile = efficiency_strings
 
 #Specific plots for VBFHbb_0btag  
 #dEtaqq, mqq, dPhibb, CVS1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
@@ -259,9 +259,9 @@ for type in plot_types:
 efficiency_strings = get_reco_strings(efficiency_strings)
 efficiency_strings.extend(get_reco_strings(efficiency_summary_strings))
 
-hltHiggsPostVBFHbb_0btag = hltHiggsPostProcessor.clone()
-hltHiggsPostVBFHbb_0btag.subDirs = ['HLT/Higgs/VBFHbb_0btag']
-hltHiggsPostVBFHbb_0btag.efficiencyProfile = efficiency_strings
+hltHiggsPostVBFHbb0btag = hltHiggsPostProcessor.clone()
+hltHiggsPostVBFHbb0btag.subDirs = ['HLT/Higgs/VBFHbb_0btag']
+hltHiggsPostVBFHbb0btag.efficiencyProfile = efficiency_strings
 
 
 #Specific plots for ZnnHbb
@@ -384,9 +384,9 @@ hltHiggsPostProcessors = cms.Sequence(
         hltHiggsPostH2tau+
         hltHiggsPostTTHbbej+
         hltHiggsPostAHttH+
-        hltHiggsPostVBFHbb_0btag+
-        hltHiggsPostVBFHbb_1btag+
-        hltHiggsPostVBFHbb_2btag+
+        hltHiggsPostVBFHbb0btag+
+        hltHiggsPostVBFHbb1btag+
+        hltHiggsPostVBFHbb2btag+
         hltHiggsPostZnnHbb+
         hltHiggsPostDoubleHinTaus+
         hltHiggsPostHiggsDalitz+

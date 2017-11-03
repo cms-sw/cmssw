@@ -7,17 +7,17 @@ def efficiency_string(objtype,plot_type,triggerpath):
     # --- IMPORTANT: Add here a elif if you are introduce a new collection
     #                (see EVTColContainer::getTypeString) 
     if objtype == "Mu" :
-	objtypeLatex="#mu"
+      objtypeLatex="#mu"
     elif objtype == "Photon": 
-	objtypeLatex="#gamma"
+      objtypeLatex="#gamma"
     elif objtype == "Ele": 
-	objtypeLatex="e"
+      objtypeLatex="e"
     elif objtype == "MET" :
-	objtypeLatex="MET"
+      objtypeLatex="MET"
     elif objtype == "PFTau": 
-	objtypeLatex="#tau"
+      objtypeLatex="#tau"
     else:
-	objtypeLatex=objtype
+      objtypeLatex=objtype
 
     numer_description = "# gen %s passed the %s" % (objtypeLatex,triggerpath)
     denom_description = "# gen %s " % (objtypeLatex)
@@ -43,7 +43,7 @@ def efficiency_string(objtype,plot_type,triggerpath):
     all_titles = "%s for trigger %s; %s; %s" % (title, triggerpath,
                                         xAxis, yAxis)
     return "Eff_%s_%s '%s' %s_%s %s" % (input_type,triggerpath,
-		    all_titles,input_type,triggerpath,input_type)
+                all_titles,input_type,triggerpath,input_type)
 
 # Adding the reco objects
 def add_reco_strings(strings):
@@ -68,17 +68,17 @@ efficiency_strings = []
 from HLTriggerOffline.SMP.hltSMPValidator_cfi import hltSMPValidator as _config
 triggers = set([])
 for an in _config.analysis:
-	s = _config.__getattribute__(an)
-	vstr = s.__getattribute__("hltPathsToCheck")
-	map(lambda x: triggers.add(x.replace("_v","")),vstr)
+  s = _config.__getattribute__(an)
+  vstr = s.__getattribute__("hltPathsToCheck")
+  map(lambda x: triggers.add(x.replace("_v","")),vstr)
 triggers = list(triggers)
 #------------------------------------------------------------
 
 # Generating the list with all the efficiencies
 for type in plot_types:
     for obj in obj_types:
-	for trig in triggers:
-	    efficiency_strings.append(efficiency_string(obj,type,trig))
+        for trig in triggers:
+            efficiency_strings.append(efficiency_string(obj,type,trig))
 
 
 #add the summary plots
@@ -91,9 +91,9 @@ add_reco_strings(efficiency_strings)
 
 
 
-# hltSMPPostSingleEle = hltSMPPostProcessor.clone()
-# hltSMPPostSingleEle.subDirs = ['HLT/SMP/SingleEle']
-# hltSMPPostSingleEle.efficiencyProfile = efficiency_strings
+hltSMPPostSingleEle = hltSMPPostProcessor.clone()
+hltSMPPostSingleEle.subDirs = ['HLT/SMP/SingleEle']
+hltSMPPostSingleEle.efficiencyProfile = efficiency_strings
 
 # hltSMPPostSingleMu = hltSMPPostProcessor.clone()
 # hltSMPPostSingleMu.subDirs = ['HLT/SMP/SingleMu']
@@ -104,9 +104,9 @@ hltSMPPostSinglePhoton.subDirs = ['HLT/SMP/SinglePhoton']
 hltSMPPostSinglePhoton.efficiencyProfile = efficiency_strings
 
 hltSMPPostProcessors = cms.Sequence(
-#		hltSMPPostSingleEle+
-#		hltSMPPostSingleMu+
-		hltSMPPostSinglePhoton
+    hltSMPPostSingleEle+
+#    hltSMPPostSingleMu+
+    hltSMPPostSinglePhoton
 )
 
 

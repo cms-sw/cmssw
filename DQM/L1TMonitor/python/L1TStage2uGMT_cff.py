@@ -71,7 +71,7 @@ l1tStage2uGMTZeroSupp = cms.EDAnalyzer(
                                       0x0007FC00,
                                       0x00000000),
     # no masks defined for caption IDs 0 and 4-11
-    maxFEDReadoutSize = cms.untracked.int32(9000),
+    maxFEDReadoutSize = cms.untracked.int32(10000),
     monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/zeroSuppression/AllEvts"),
     verbose = cms.untracked.bool(False),
 )

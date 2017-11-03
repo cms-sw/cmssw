@@ -30,15 +30,15 @@ template <typename TagType,typename TagCollType,typename ProbeType=TagType,typen
 class HLTTagAndProbeOfflineSource : public DQMEDAnalyzer {
  public:
   explicit HLTTagAndProbeOfflineSource(const edm::ParameterSet&);
-  ~HLTTagAndProbeOfflineSource()=default;
+  ~HLTTagAndProbeOfflineSource() override =default;
   HLTTagAndProbeOfflineSource(const HLTTagAndProbeOfflineSource&)=delete; 
   HLTTagAndProbeOfflineSource& operator=(const HLTTagAndProbeOfflineSource&)=delete; 
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const & run, edm::EventSetup const & c) override;
-  virtual void dqmBeginRun(edm::Run const& run, edm::EventSetup const& c) override{}
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const & run, edm::EventSetup const & c) override;
+  void dqmBeginRun(edm::Run const& run, edm::EventSetup const& c) override{}
 
 private:
   std::vector<HLTDQMTagAndProbeEff<TagType,TagCollType,ProbeType,ProbeCollType> > tagAndProbeEffs_;
@@ -65,8 +65,12 @@ fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.addVPSet("tagAndProbeCollections",
 		HLTDQMTagAndProbeEff<TagType,TagCollType,ProbeType,ProbeCollType>::makePSetDescription(),
 		std::vector<edm::ParameterSet>());
-  descriptions.add("hltTagAndProbeOfflineSource", desc);
-  
+
+  // addDefault must be used here instead of add unless this function is specialized
+  // for different sets of template parameter types. Each specialization would need
+  // a different module label. Otherwise the generated cfi filenames will conflict
+  // for the different plugins.
+  descriptions.addDefault(desc);
 }
 
 template <typename TagType,typename TagCollType,typename ProbeType,typename ProbeCollType> 
@@ -94,10 +98,12 @@ using HLTEleTagAndProbeOfflineSource = HLTTagAndProbeOfflineSource<reco::GsfElec
 using HLTPhoTagAndProbeOfflineSource = HLTTagAndProbeOfflineSource<reco::Photon,reco::PhotonCollection>;
 using HLTElePhoTagAndProbeOfflineSource = HLTTagAndProbeOfflineSource<reco::GsfElectron,reco::GsfElectronCollection,reco::Photon,reco::PhotonCollection>;
 using HLTMuEleTagAndProbeOfflineSource = HLTTagAndProbeOfflineSource<reco::Muon,reco::MuonCollection,reco::GsfElectron,reco::GsfElectronCollection>;
+using HLTMuPhoTagAndProbeOfflineSource = HLTTagAndProbeOfflineSource<reco::Muon,reco::MuonCollection,reco::Photon,reco::PhotonCollection>;
 using HLTMuTagAndProbeOfflineSource = HLTTagAndProbeOfflineSource<reco::Muon,reco::MuonCollection>;
 DEFINE_FWK_MODULE(HLTEleTagAndProbeOfflineSource);
 DEFINE_FWK_MODULE(HLTPhoTagAndProbeOfflineSource);
 DEFINE_FWK_MODULE(HLTElePhoTagAndProbeOfflineSource);
 DEFINE_FWK_MODULE(HLTMuEleTagAndProbeOfflineSource);
+DEFINE_FWK_MODULE(HLTMuPhoTagAndProbeOfflineSource);
 DEFINE_FWK_MODULE(HLTMuTagAndProbeOfflineSource);
 

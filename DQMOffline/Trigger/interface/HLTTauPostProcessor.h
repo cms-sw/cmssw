@@ -13,7 +13,7 @@
 class HLTTauPostProcessor : public DQMEDHarvester {
 public:
     HLTTauPostProcessor( const edm::ParameterSet& );
-    ~HLTTauPostProcessor();
+    ~HLTTauPostProcessor() override;
 
   void dqmEndJob(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter) override;
 

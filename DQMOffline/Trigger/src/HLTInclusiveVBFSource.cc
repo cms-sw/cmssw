@@ -281,33 +281,33 @@ HLTInclusiveVBFSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   //****************************************************
   //const unsigned int numberOfPaths(hltConfig_.size()); 
   const trigger::TriggerObjectCollection & toc(triggerObj_->getObjects()); 
-  for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v ){
+  for(auto & v : hltPathsAll_){
     checkHLT = false;
     checkHLTIndex = false;
     
     //
-    v->getMEhisto_RECO_deltaEta_DiJet()->Fill(reco_deltaetajet);
-    v->getMEhisto_RECO_deltaPhi_DiJet()->Fill(reco_deltaphijet);
-    v->getMEhisto_RECO_invMass_DiJet()->Fill(reco_invmassjet);
+    v.getMEhisto_RECO_deltaEta_DiJet()->Fill(reco_deltaetajet);
+    v.getMEhisto_RECO_deltaPhi_DiJet()->Fill(reco_deltaphijet);
+    v.getMEhisto_RECO_invMass_DiJet()->Fill(reco_invmassjet);
     
     //
     if(debug_) cout<<"DEBUG-4-0: Path loops"<<endl;
     
     //
-    if(isHLTPathAccepted(v->getPath())==false) continue;
+    if(isHLTPathAccepted(v.getPath())==false) continue;
     checkHLT = true;
     
     //
-    if(debug_) cout<<"DEBUG-4-1: Path is accepted. Now we are looking for "<<v->getLabel()<<" module."<<endl;
+    if(debug_) cout<<"DEBUG-4-1: Path is accepted. Now we are looking for "<<v.getLabel()<<" module."<<endl;
     
     //
-    edm::InputTag hltTag(v->getLabel(),"",processname_);
+    edm::InputTag hltTag(v.getLabel(),"",processname_);
     const int hltIndex = triggerObj_->filterIndex(hltTag);
     if(hltIndex >= triggerObj_->sizeFilters()) continue;
     checkHLT = true;
-    if(debug_) cout<<"DEBUG-4-2: HLT module "<<v->getLabel()<<" exists"<<endl;
+    if(debug_) cout<<"DEBUG-4-2: HLT module "<<v.getLabel()<<" exists"<<endl;
     const trigger::Keys & khlt = triggerObj_->filterKeys(hltIndex);
-    trigger::Keys::const_iterator kj = khlt.begin();
+    auto kj = khlt.begin();
     for(; kj != khlt.end(); kj+=2){
       if(debug_) cout<<"DEBUG-5"<<endl;
       checkdR_sameOrder  = false;
@@ -350,17 +350,17 @@ HLTInclusiveVBFSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 			      (hlt_pxjet1 + hlt_pxjet2) * (hlt_pxjet1 + hlt_pxjet2) - 
 			      (hlt_pyjet1 + hlt_pyjet2) * (hlt_pyjet1 + hlt_pyjet2) - 
 			      (hlt_pzjet1 + hlt_pzjet2) * (hlt_pzjet1 + hlt_pzjet2));
-      v->getMEhisto_HLT_deltaEta_DiJet()->Fill(hlt_deltaetajet);
-      v->getMEhisto_HLT_deltaPhi_DiJet()->Fill(hlt_deltaphijet);
-      v->getMEhisto_HLT_invMass_DiJet()->Fill(hlt_invmassjet);
+      v.getMEhisto_HLT_deltaEta_DiJet()->Fill(hlt_deltaetajet);
+      v.getMEhisto_HLT_deltaPhi_DiJet()->Fill(hlt_deltaphijet);
+      v.getMEhisto_HLT_invMass_DiJet()->Fill(hlt_invmassjet);
       //
-      v->getMEhisto_RECO_deltaEta_DiJet_Match()->Fill(reco_deltaetajet);
-      v->getMEhisto_RECO_deltaPhi_DiJet_Match()->Fill(reco_deltaphijet);
-      v->getMEhisto_RECO_invMass_DiJet_Match()->Fill(reco_invmassjet);
+      v.getMEhisto_RECO_deltaEta_DiJet_Match()->Fill(reco_deltaetajet);
+      v.getMEhisto_RECO_deltaPhi_DiJet_Match()->Fill(reco_deltaphijet);
+      v.getMEhisto_RECO_invMass_DiJet_Match()->Fill(reco_invmassjet);
       //
-      v->getMEhisto_RECOHLT_deltaEta()->Fill(reco_deltaetajet,hlt_deltaetajet); 
-      v->getMEhisto_RECOHLT_deltaPhi()->Fill(reco_deltaphijet,hlt_deltaphijet);
-      v->getMEhisto_RECOHLT_invMass()->Fill(reco_invmassjet,hlt_invmassjet);
+      v.getMEhisto_RECOHLT_deltaEta()->Fill(reco_deltaetajet,hlt_deltaetajet); 
+      v.getMEhisto_RECOHLT_deltaPhi()->Fill(reco_deltaphijet,hlt_deltaphijet);
+      v.getMEhisto_RECOHLT_invMass()->Fill(reco_invmassjet,hlt_invmassjet);
       //
       if(checkHLTIndex==true) break;
     }
@@ -370,11 +370,11 @@ HLTInclusiveVBFSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     //****************************************************
     if(checkHLT==true && checkHLTIndex==true){
       if(debug_) cout<<"DEBUG-7: Match"<<endl;
-      v->getMEhisto_NumberOfMatches()->Fill(1);
+      v.getMEhisto_NumberOfMatches()->Fill(1);
     }
     else{
       if(debug_) cout<<"DEBUG-8: Not match"<<endl;
-      v->getMEhisto_NumberOfMatches()->Fill(0);
+      v.getMEhisto_NumberOfMatches()->Fill(0);
     }
   }
   
@@ -382,9 +382,9 @@ HLTInclusiveVBFSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   //****************************************************
   // 
   //****************************************************
-  for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v ){
-    if(isHLTPathAccepted(v->getPath())==false) continue;
-    if(debug_) cout<<"DEBUG-9: Loop for rate approximation: "<<v->getPath()<<endl;
+  for(auto & v : hltPathsAll_){
+    if(isHLTPathAccepted(v.getPath())==false) continue;
+    if(debug_) cout<<"DEBUG-9: Loop for rate approximation: "<<v.getPath()<<endl;
     check_mjj650_Pt35_DEta3p5 = false;
     check_mjj700_Pt35_DEta3p5 = false;
     check_mjj750_Pt35_DEta3p5 = false;
@@ -393,11 +393,11 @@ HLTInclusiveVBFSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     check_mjj700_Pt40_DEta3p5 = false;
     check_mjj750_Pt40_DEta3p5 = false; 
     check_mjj800_Pt40_DEta3p5 = false;
-    edm::InputTag hltTag(v->getLabel(),"",processname_);
+    edm::InputTag hltTag(v.getLabel(),"",processname_);
     const int hltIndex = triggerObj_->filterIndex(hltTag);
     if(hltIndex >= triggerObj_->sizeFilters()) continue;
     const trigger::Keys & khlt = triggerObj_->filterKeys(hltIndex);
-    trigger::Keys::const_iterator kj = khlt.begin();
+    auto kj = khlt.begin();
     for(; kj != khlt.end(); kj+=2){
       checkdR_sameOrder  = false;
       checkdR_crossOrder = false;
@@ -452,14 +452,14 @@ HLTInclusiveVBFSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	check_mjj800_Pt40_DEta3p5=true;
       }
     }
-    if(check_mjj650_Pt35_DEta3p5==true) v->getMEhisto_NumberOfEvents()->Fill(0);
-    if(check_mjj700_Pt35_DEta3p5==true) v->getMEhisto_NumberOfEvents()->Fill(1);
-    if(check_mjj750_Pt35_DEta3p5==true) v->getMEhisto_NumberOfEvents()->Fill(2);
-    if(check_mjj800_Pt35_DEta3p5==true) v->getMEhisto_NumberOfEvents()->Fill(3);
-    if(check_mjj650_Pt40_DEta3p5==true) v->getMEhisto_NumberOfEvents()->Fill(4);
-    if(check_mjj700_Pt40_DEta3p5==true) v->getMEhisto_NumberOfEvents()->Fill(5);
-    if(check_mjj750_Pt40_DEta3p5==true) v->getMEhisto_NumberOfEvents()->Fill(6);
-    if(check_mjj800_Pt40_DEta3p5==true) v->getMEhisto_NumberOfEvents()->Fill(7);
+    if(check_mjj650_Pt35_DEta3p5==true) v.getMEhisto_NumberOfEvents()->Fill(0);
+    if(check_mjj700_Pt35_DEta3p5==true) v.getMEhisto_NumberOfEvents()->Fill(1);
+    if(check_mjj750_Pt35_DEta3p5==true) v.getMEhisto_NumberOfEvents()->Fill(2);
+    if(check_mjj800_Pt35_DEta3p5==true) v.getMEhisto_NumberOfEvents()->Fill(3);
+    if(check_mjj650_Pt40_DEta3p5==true) v.getMEhisto_NumberOfEvents()->Fill(4);
+    if(check_mjj700_Pt40_DEta3p5==true) v.getMEhisto_NumberOfEvents()->Fill(5);
+    if(check_mjj750_Pt40_DEta3p5==true) v.getMEhisto_NumberOfEvents()->Fill(6);
+    if(check_mjj800_Pt40_DEta3p5==true) v.getMEhisto_NumberOfEvents()->Fill(7);
   }
 }
 
@@ -504,7 +504,7 @@ HLTInclusiveVBFSource::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const
     
     if(numFound==false) continue;
     std::vector<std::string> numpathmodules = hltConfig_.moduleLabels(pathname);
-    std::vector<std::string>::iterator numpathmodule = numpathmodules.begin();
+    auto numpathmodule = numpathmodules.begin();
     for(; numpathmodule!= numpathmodules.end(); ++numpathmodule){
       edm::InputTag testTag(*numpathmodule,"",processname_);
       if (hltConfig_.moduleType(*numpathmodule) == "HLTCaloJetVBFFilter"
@@ -529,12 +529,12 @@ HLTInclusiveVBFSource::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const
   //if(debug_) cout<<"== end hltPathsEff_.push_back ======" << endl;
   
   std::string dirName = dirname_ + "/MonitorInclusiveVBFTrigger/";
-  for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v ){
-    if(debug_) cout<<"Storing: "<<v->getPath()<<", Prescale = "<<v->getprescaleUsed()<<endl;
+  for(auto & v : hltPathsAll_){
+    if(debug_) cout<<"Storing: "<<v.getPath()<<", Prescale = "<<v.getprescaleUsed()<<endl;
     //if(v->getprescaleUsed()!=1) continue;
     
-    std::string subdirName = dirName + v->getPath();
-    std::string trigPath = "("+v->getPath()+")";
+    std::string subdirName = dirName + v.getPath();
+    std::string trigPath = "("+v.getPath()+")";
     iBooker.setCurrentFolder(subdirName);  
     
     MonitorElement*  RECO_deltaEta_DiJet;
@@ -657,7 +657,7 @@ HLTInclusiveVBFSource::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const
     NumberOfEvents->getTH1F();
     
     //} 
-    v->setHistos(
+    v.setHistos(
       	   RECO_deltaEta_DiJet,
       	   RECO_deltaPhi_DiJet,
       	   RECO_invMass_DiJet,
