@@ -1,6 +1,9 @@
 #ifndef RecoTracker_TkTrackingRegions_PixelInactiveAreaFinder_H
 #define RecoTracker_TkTrackingRegions_PixelInactiveAreaFinder_H
 
+#include "DataFormats/DetId/interface/DetIdCollection.h"
+#include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
+
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSetsBuilder.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -61,7 +64,8 @@ public:
 
 
   PixelInactiveAreaFinder(const edm::ParameterSet& iConfig, const std::vector<SeedingLayerId>& seedingLayers,
-                          const SeedingLayerSetsLooper& seedingLayerSetsLooper);
+                          const SeedingLayerSetsLooper& seedingLayerSetsLooper,
+                          edm::ConsumesCollector&& iC);
   ~PixelInactiveAreaFinder() = default;
 
   static void fillDescriptions(edm::ParameterSetDescription& desc);
@@ -76,6 +80,10 @@ private:
   std::vector<SeedingLayerId> inactiveLayers_; // layers to check for inactive regions
   std::vector<std::pair<unsigned short, unsigned short> > inactiveLayerSetIndices_; // indices within inactiveLayers_
   std::vector<std::vector<LayerSetIndex> > layerSetIndexInactiveToActive_; // mapping from index in inactiveLayers_ to constructor seedingLayers+seedingLayerSetsLooper
+
+
+  std::vector<edm::EDGetTokenT<DetIdCollection> > inactivePixelDetectorTokens_;
+  std::vector<edm::EDGetTokenT<PixelFEDChannelCollection> > badPixelFEDChannelsTokens_;
 
   // Output type aliases
   using DetGroupSpanContainerPair = std::pair<DetGroupSpanContainer,DetGroupSpanContainer>;
@@ -104,7 +112,7 @@ private:
   DetContainer badPixelDetsEndcap_;
   // functions for fetching date from handles
   void updatePixelDets(const edm::EventSetup& iSetup);
-  void getBadPixelDets();
+  void getBadPixelDets(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   // Printing functions
   void detInfo(const det_t & det, Stream & ss);
   void printPixelDets();
