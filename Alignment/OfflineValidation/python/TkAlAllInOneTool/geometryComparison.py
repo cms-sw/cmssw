@@ -17,7 +17,7 @@ class GeometryComparison(GenericValidation):
         "modulesToPlot":"all",
         "moduleList": "/store/caf/user/cschomak/emptyModuleList.txt",
         "useDefaultRange":"false",
-        "plotOnlyGlobal":"false",
+        "plotOnlyGlobal":"true",
         "plotPng":"true",
         "makeProfilePlots":"true",
         "dx_min":"-99999",
