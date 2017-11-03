@@ -26,8 +26,7 @@ estimators=(Mean Min Max RMS)
 
 mkdir -p $W_DIR/results
 
-if [ -f *.png ]
-then    
+if [ -f *.png ]; then    
     rm *.png
 fi
 
