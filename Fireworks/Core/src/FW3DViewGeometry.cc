@@ -30,8 +30,6 @@
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
 
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 //
 // constants, enums and typedefs
 //
@@ -299,13 +297,11 @@ FW3DViewGeometry::showPixelBarrel( bool showPixelBarrel )
 	   id != ids.end(); ++id )
       {
 	 TEveGeoShape* shape = m_geom->getEveShape( *id );
-	 PXBDetId idid = PXBDetId( *id );
-	 unsigned int layer = idid.layer();
-	 unsigned int ladder = idid.ladder();
-	 unsigned int module = idid.module();
-	 
-         shape->SetTitle( TString::Format( "PixelBarrel %d: Layer=%u, Ladder=%u, Module=%u",
-					   *id, layer, ladder, module ));
+
+	 uint32_t rawId = *id;
+         DetId did = DetId(rawId);
+         std::string title = m_geom->getTrackerTopology()->print(did);
+         shape->SetTitle( title.c_str());
 
          addToCompound(shape, kFWPixelBarrelColorIndex);
          m_pixelBarrelElements->AddElement( shape );
@@ -332,16 +328,10 @@ FW3DViewGeometry::showPixelEndcap(bool  showPixelEndcap )
 	   id != ids.end(); ++id )
       {
 	 TEveGeoShape* shape = m_geom->getEveShape( *id );
-	 PXFDetId idid = PXFDetId( *id );
-	 unsigned int side = idid.side();
-	 unsigned int disk = idid.disk();
-	 unsigned int blade = idid.blade();
-	 unsigned int panel = idid.panel();
-	 unsigned int module = idid.module();
-
-         shape->SetTitle( TString::Format( "PixelEndcap %d: Side=%u, Disk=%u, Blade=%u, Panel=%u, Module=%u",
-					   *id, side, disk, blade, panel, module ));
-	 
+         uint32_t rawId = *id;
+         DetId did = DetId(rawId);
+         std::string title = m_geom->getTrackerTopology()->print(did);
+         shape->SetTitle( title.c_str());
          addToCompound(shape, kFWPixelEndcapColorIndex);
          m_pixelEndcapElements->AddElement( shape );
       }
