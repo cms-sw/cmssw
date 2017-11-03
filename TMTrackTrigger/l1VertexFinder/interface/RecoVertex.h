@@ -48,7 +48,7 @@ public:
   bool              hasHighPt() const { return highPt_;}
   /// Number of high-pT tracks (pT > 10 GeV)
   unsigned int      numHighPtTracks() const { return numHighPtTracks_;}
-  /// Vertex MET
+  /// Vertec MET
   double            met()       const {return met_;}
 
 
@@ -67,8 +67,8 @@ private:
   bool              highPt_;
   unsigned int      numHighPtTracks_;
   
-};
 
-} // end namespace vertexFinder
+}; // end namespace vertexFinder
 
+}
 #endif

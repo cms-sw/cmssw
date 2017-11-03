@@ -118,9 +118,11 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   std::vector<const vertexFinder::L1fittedTrack*> l1TrackPtrs;
   l1TrackPtrs.reserve(l1Tracks.size());
-  for(const auto& track : l1Tracks)
-    l1TrackPtrs.push_back(&track);
-
+  for(const auto& track : l1Tracks){
+      if(track.pt() > settings_->vx_TrackMinPt() ){
+        if(track.pt() < 50 or track.getNumStubs() > 5 )       l1TrackPtrs.push_back(&track);
+      }
+  }
 
 
   // FIXME: Check with Davide if the tracks should be filtered using the following cuts
@@ -131,7 +133,7 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     vf.GapClustering();
   } else if(settings_->vx_algoId() == 1){
     cout << "Finding vertices using a Simple Merge Clustering algorithm "<< endl;
-    vf.SimpleMergeClustering();
+    vf.AgglomerativeHierarchicalClustering();
   } else if(settings_->vx_algoId() == 2){
     cout << "Finding vertices using a DBSCAN algorithm "<< endl;
     vf.DBSCAN();
@@ -144,13 +146,18 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   } else if(settings_->vx_algoId() == 5){
     cout << "Finding vertices using an Highest Pt Vertex algorithm "<< endl;
     vf.HPV();
+  } else if(settings_->vx_algoId() == 6){
+    cout << "Finding vertices using a kmeans algorithm" << endl;
+    vf.Kmeans();
   }
   else{
     cout << "No valid vertex reconstruction algorithm has been selected. Running a gap clustering algorithm "<< endl;
     vf.GapClustering();
   }
 
+
   vf.TDRalgorithm();
+  vf.SortVerticesInZ0();
   vf.FindPrimaryVertex();
 
   if(settings_->debug()==7 and vf.numVertices() > 0){

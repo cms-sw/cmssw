@@ -18,6 +18,7 @@ L1fittedTrack::L1fittedTrack(const TTTrack<Ref_Phase2TrackerDigi_>& aTrack, cons
   }
   matchedTP_ = utility::matchingTP(&aSettings, stubs, nMatchedLayers_, matchedStubs_);
 
+  numStubs = stubs.size();
   for (const auto& stub : stubs)
   	delete stub;
 }

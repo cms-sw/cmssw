@@ -37,6 +37,7 @@ public:
   float z0() const;
 
   float chi2dof() const;
+  unsigned int getNumStubs()  const  {return numStubs;}
 
   // Get best matching tracking particle (=nullptr if none).
   const TP* getMatchedTP() const;
@@ -48,6 +49,7 @@ private:
   const TP*             matchedTP_;
   std::vector<const Stub*>   matchedStubs_;
   unsigned int          nMatchedLayers_;
+  unsigned int          numStubs;
 };
 
 } // end ns vertexFinder

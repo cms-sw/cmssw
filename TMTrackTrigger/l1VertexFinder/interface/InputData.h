@@ -53,6 +53,8 @@ public:
   const float                GenMET()          const { return genMET_;}
   const float                GenMET_PU()          const { return genMET_PU_;}
 
+  const float                GenPt()          const { return genPt_;}
+  const float                GenPt_PU()          const { return genPt_PU_;}
 
 private:
   // const edm::EDGetTokenT<TrackingParticleCollection> inputTag;
@@ -77,6 +79,8 @@ private:
   vector<Stub> vAllStubs_; // all stubs, even those that would fail any tightened front-end readout electronic cuts specified in section StubCuts of Analyze_Defaults_cfi.py. (Only used to measure the efficiency of these cuts).
   float genMET_;
   float genMET_PU_;
+  float genPt_;
+  float genPt_PU_;
 };
 
 } // end namespace vertexFinder

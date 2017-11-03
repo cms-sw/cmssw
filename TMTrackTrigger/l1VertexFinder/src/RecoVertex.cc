@@ -16,17 +16,12 @@ void RecoVertex::computeParameters(){
 		pT_ += track->pt();
 		z0_ += track->z0();
 		z0square += track->z0()*track->z0();
-		
-		if(track->pt() > 200.){
-			metX_ += 0.*cos(track->phi0());
-			metY_ += 0.*sin(track->phi0());
+		if(track->pt() > 999. and track->getNumStubs() < 6){
+			metX_ += 100.*cos(track->phi0());
+			metY_ += 100.*sin(track->phi0());
 		} else{
 			metX_ += track->pt()*cos(track->phi0());
 			metY_ += track->pt()*sin(track->phi0());
-		}
-		if(track->pt()>10.){
-			highPt_ = true;
-			numHighPtTracks_++;
 		}
 	}
 	z0_ /= tracks_.size();

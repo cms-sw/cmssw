@@ -53,6 +53,8 @@ public:
   /// Storage for tracks out of the L1 Track finder
   FitTrackCollection FitTracks()            const { return fitTracks_;}
   /// Storage for tracks out of the L1 Track finder
+  unsigned int numInputTracks()            const { return fitTracks_.size();}
+  /// Storage for tracks out of the L1 Track finder
   FitTrackCollection TDRPileUpTracks()      const { return tdr_pileup_tracks_;}
   /// Find the primary vertex
   void  FindPrimaryVertex();
@@ -60,8 +62,14 @@ public:
   void GapClustering();
   /// Find maximum distance in two clusters of tracks
   float MaxDistance(RecoVertex cluster0, RecoVertex cluster1);
+    /// Find minimum distance in two clusters of tracks
+  float MinDistance(RecoVertex cluster0, RecoVertex cluster1);
+    /// Find average distance in two clusters of tracks
+  float MeanDistance(RecoVertex cluster0, RecoVertex cluster1);
+  /// Find distance between centres of two clusters
+  float CentralDistance(RecoVertex cluster0, RecoVertex cluster1);
   /// Simple Merge Algorithm
-  void SimpleMergeClustering();
+  void AgglomerativeHierarchicalClustering();
   /// DBSCAN algorithm
   void DBSCAN();
   /// Principal Vertex Reconstructor algorithm
@@ -70,14 +78,16 @@ public:
   void AdaptiveVertexReconstruction();
   /// High PT Vertex Algorithm
   void HPV();
+  /// Kmeans Algorithm
+  void Kmeans();
   /// Histogramming algorithmn as in the TDR
   void TDRalgorithm();
   /// Sort Vertices in z
   void SortVerticesInZ0()                   {std::sort(vertices_.begin(), vertices_.end(), SortVertexByZ0());}
   /// Number of iterations
-  unsigned int NumIterations()				const{ return iterations_;}
+  unsigned int NumIterations()        const{ return iterations_;}
   /// Number of iterations
-  unsigned int IterationsPerTrack()			const{ return double(iterations_)/double(fitTracks_.size());}
+  unsigned int IterationsPerTrack()     const{ return double(iterations_)/double(fitTracks_.size());}
 
 private:
 

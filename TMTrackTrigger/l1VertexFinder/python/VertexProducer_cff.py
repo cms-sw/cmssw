@@ -6,7 +6,9 @@ VertexProducer = cms.EDProducer('VertexProducer',
   stubInputTag = cms.InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"),
   stubTruthInputTag = cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"),
   clusterTruthInputTag = cms.InputTag("TTClusterAssociatorFromPixelDigis", "ClusterAccepted"),
-  l1TracksInputTag = cms.InputTag("TMTrackProducer", "TML1TracksKF4ParamsComb"),
+#  l1TracksInputTag = cms.InputTag("TMTrackProducer", "TML1TracksKF4ParamsComb"), # KF
+  l1TracksInputTag = cms.InputTag("TMTrackProducer", "TML1TracksSimpleLR"), # SFLR
+
 
   #=== Cuts on MC truth particles (i.e., tracking particles) used for tracking efficiency measurements.
 
@@ -52,22 +54,36 @@ VertexProducer = cms.EDProducer('VertexProducer',
 
 # === Vertex Reconstruction configuration
   VertexReconstruction=cms.PSet(
-        # Vertex Reconstruction Id (0: GapClustering, 1: SimpleMergeClustering, 2: DBSCAN, 3: PVR, 4: AdaptiveVertexReconstruction, 5: HPV)
+        # Vertex Reconstruction Id (0: GapClustering, 1: AgglomerativeClustering, 2: DBSCAN, 3: PVR, 4: AdaptiveVertexReconstruction, 5: HPV, 6: Kmeans)
         AlgorithmId = cms.uint32(2),
-        # Minimum distance of tracks to belong to same recovertex [cm]
+        # Vertex distance
+        VertexDistance = cms.double(.15),
+        # Assumed Vertex Resolution
         VertexResolution = cms.double(.15),
+        # Distance Type for agglomerative algorithm (0: MaxDistance, 1: MinDistance, 2: MeanDistance, 3: CentralDistance)
+        DistanceType  = cms.uint32(0),
         # Minimum number of tracks to accept vertex
         MinTracks   = cms.uint32(2),
-        # Chi2 cut for the Adaptive Vertex Reconstruction Algorithm
+        # Chi2 cut for the Adaptive Vertex Recostruction Algorithm
         AVR_chi2cut = cms.double(5.),
         # TDR algorithm assumed vertex width [cm]
         TDR_VertexWidth = cms.double(.15),
-        # Maximum distance between reconstructed and generated vertex, in order to consider the vertex as correctly reconstructed
-        RecoVertexDistance = cms.double(.15),
-        # Minimum number of high pT (pT > 10 GeV) tracks that the vertex has to contain to be a good hard interaction vertex candidate
-        MinHighPtTracks = cms.uint32(1),
-    ),
-
+        # Run locally the vertex reconstruction algorithms
+        VertexLocal  = cms.bool(False),
+        # Kmeans number of iterations
+        KmeansIterations = cms.uint32(50),
+        # Kmeans number of clusters
+        KmeansNumClusters  = cms.uint32(18),
+        # DBSCAN pt threshold
+        DBSCANPtThreshold = cms.double(3.),
+        # DBSCAN min density tracks
+        DBSCANMinDensityTracks = cms.uint32(1),
+        # Maximum distance to merge two vertices (only if VertexLocal is true)
+        VxMergeDistance = cms.double(.15),
+        VxInHTsector = cms.bool(True),
+        VxMergeByTracks = cms.bool(False),
+        VxMinTrackPt   = cms.double(2.)
+    ), 
   # Debug printout
   Debug  = cms.uint32(0), #(0=none, 1=print tracks/sec, 2=show filled cells in HT array in each sector of each event, 3=print all HT cells each TP is found in, to look for duplicates, 4=print missed tracking particles by r-z filters, 5 = show debug info about duplicate track removal, 6 = show debug info about fitters)
 )

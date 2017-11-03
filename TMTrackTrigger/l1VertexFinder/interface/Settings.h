@@ -52,18 +52,32 @@ public:
   //=== Vertex Reconstruction configuration
   // Vertex Reconstruction Id (0: GapClustering, 1: SimpleMergeClustering )
   unsigned int        vx_algoId()                const {return vx_algoId_;        }
-  // Assumed Vertex Resolution
+  /// For Agglomerative cluster algorithm, select a definition of distance between clusters
+  unsigned int        vx_distanceType()          const {return vx_distanceType_;  }
+  // Assumed Vertex Distance
   float               vx_distance()              const {return vx_distance_;      }
+  // Assumed Vertex Resolution
+  float               vx_resolution()            const {return vx_resolution_;    }
   // Minimum number of tracks to accept vertex
   unsigned int        vx_minTracks()             const {return vx_minTracks_;     }
   /// Chi2 cut for the Adaptive Vertex Recostruction Algorithm
   float               vx_chi2cut()               const {return vx_chi2cut_;       }
   /// TDR assumed vertex width
   float               tdr_vx_width()             const {return tdr_vx_width_;     }
-  /// Maximum distance between reconstructed and generated vertex, in order to consider the vertex as correctly reconstructed
-  float               vx_recodistance()          const {return vx_recodistance_;  }
-  /// Minimum number of high pT (pT > 10 GeV) tracks that the vertex has to contain to be a good hard interaction vertex candidate
-  unsigned int        vx_minHighPtTracks()       const {return vx_minHighPtTracks_;}
+  /// Run the Vertex reconstruction locally or globally
+  bool                vx_local()                 const {return vx_local_;         }
+  /// Maximum distance to merge vertices
+  float               vx_merge_distance()        const {return vx_merge_distance_;}
+  float               vx_dbscan_pt()             const {return vx_dbscan_pt_;}
+  unsigned int        vx_dbscan_mintracks()      const {return vx_dbscan_mintracks_;}
+
+
+  /// If running the vertex reconstruction locally, do it individually per HT sector (if false do it by octants)
+  unsigned int        vx_kmeans_iterations()     const {return vx_kmeans_iterations_;}
+  unsigned int        vx_kmeans_nclusters()      const {return vx_kmeans_nclusters_;}
+  bool                vx_inHTsector()            const {return vx_inHTsector_;}
+  bool                vx_mergebytracks()         const {return vx_mergebytracks_;}
+  float               vx_TrackMinPt()            const {return vx_TrackMinPt_;}
 
 
    //=== Debug printout
@@ -122,12 +136,21 @@ private:
 
   // Vertex Reconstruction configuration
   unsigned int         vx_algoId_;
+  unsigned int         vx_distanceType_;
   float                vx_distance_;
+  float                vx_resolution_;
   unsigned int         vx_minTracks_;
   float                vx_chi2cut_;
   float                tdr_vx_width_;
-  float                vx_recodistance_;
-  unsigned int         vx_minHighPtTracks_; 
+  bool                 vx_local_;
+  float                vx_merge_distance_;
+  bool                 vx_inHTsector_;
+  bool                 vx_mergebytracks_;
+  float                vx_TrackMinPt_;
+  float                vx_dbscan_pt_;
+  float                vx_dbscan_mintracks_;
+  unsigned int         vx_kmeans_iterations_;
+  unsigned int         vx_kmeans_nclusters_;
 
   // Debug printout
   unsigned int         debug_;

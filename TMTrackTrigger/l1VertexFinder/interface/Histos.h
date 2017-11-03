@@ -59,7 +59,6 @@ private:
   edm::Service<TFileService> fs_;
 
 
-  // Histograms for Vertex Reconstruction
   TH1F* hisNoRecoVertices_;
   TH1F* hisNoPileUpVertices_;
   TH1F* hisRecoVertexZ0Resolution_;
@@ -91,9 +90,14 @@ private:
   TH1F* hisUnmatchedPVtracks_ ;
   TH1F* hisNumVxIterations_;
   TH1F* hisNumVxIterationsPerTrack_;
+  TH1F* hisCorrelatorInputTracks_;
+  TH1F* hisCorrelatorTPInputTracks_;
+  TH1F* hisCorrelatorInputVertices_;
+  TH1F* hisCorrelatorTPInputVertices_;
   TProfile* hisTrkMETvsGenMET_;
   TProfile* hisRecoTrkMETvsGenMET_;
   TProfile* hisTDRTrkMETvsGenMET_;
+
   TH1F* hisRecoPrimaryVertexVsTrueZ0_;
   TH1F* hisTDRPrimaryVertexVsTrueZ0_;
   TH1F* hisPrimaryVertexTrueZ0_;
@@ -101,8 +105,11 @@ private:
   TH1F* hisRecoVertexPT_;
   TH1F* hisRecoPileUpVertexPT_;
   TH1F* hisRecoVertexOffPT_;
+
+
   TProfile* hisRecoPrimaryVertexResolutionVsTrueZ0_;
   TProfile* hisTDRPrimaryVertexResolutionVsTrueZ0_;
+
   TH1F* hisTDRVertexZ0Resolution_           ;
   TH1F* hisTDRVertexPTResolution_           ;
   TProfile* hisTDRVertexPTResolutionVsTruePt_   ;
@@ -128,15 +135,48 @@ private:
   TH1F* hisTDRPileUpVertexPT_;
   TH1F* hisTDRVertexOffPT_;
   
+  TH1F* hisGenVertexPt_;
+  TH1F* hisGenTkVertexPt_;
+
+  TH1F* hisGenVertexMET_;
+  TH1F* hisGenTkVertexMET_;
+
+  TH1F* hisGenVertexTrackPt_;
+  TH1F* hisGenVertexNumTracks_;
+
+  TH1F* hisRecoVertexVsNumGenTracks_;
+  TH1F* hisRecoVertexVsGenVertexPt_;
+  TH1F* hisRecoGenuineVertexVsGenTkVertexPt_;
+
+  TH1F* hisRecoVertexVsGenTkVertexPtForEff_;
+  TH1F* hisRecoVertexVsGenTkVertexMETForEff_;
+
+  TH1F* hisRecoVertexVsGenMET_;
+  TH1F* hisRecoGenuineVertexVsGenMET_;
+  TH1F* hisRecoGenuineVertexVsGenTkMET_;
+
+  TH1F* hisPUVertexPt_;
+  TH1F* hisPUTkVertexPt_;
+  TH1F* hisPUVertexTrackPt_;
+  TH1F* hisPUVertexNumTracks_;
+
+  TProfile* hisRecoVertexMETResolution_;
+
   std::vector<TH1F*> hisMETevents_;
-  std::vector<TH1F*> hisRecoVerticesVsTrueZ0PerDistance_;
-  std::vector<TH1F*> hisTDRVerticesVsTrueZ0PerDistance_;
+  std::vector<TH1F*> hisPTevents_;
 
 
   std::vector<TGraphErrors*> grMET_;
   std::vector<TGraphErrors*> grMET_tdr_;
+  std::vector<TH1F*> hisRecoVertexVsGenTkMET_;
+  std::vector<TH1F*> hisRecoVertexVsGenTkVertexPt_;
+
+
+
   TEfficiency* PVefficiencyVsTrueZ0_;
   TEfficiency* tdrPVefficiencyVsTrueZ0_;
+
+
   std::vector<unsigned int> noSignalEvents;
   std::vector<unsigned int> noBackgroundEvents;
   std::vector<unsigned int> noSignalEventsTDR;
@@ -145,7 +185,6 @@ private:
   std::vector<std::vector<unsigned int> > noRecoBackgroundEvents;
   std::vector<std::vector<unsigned int> > noTDRSignalEvents;
   std::vector<std::vector<unsigned int> > noTDRBackgroundEvents;
-
   unsigned int noEvents;
 };
 

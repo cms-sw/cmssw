@@ -29,7 +29,55 @@ void VertexFinder::GapClustering(){
 	}
 }
 
-void VertexFinder::SimpleMergeClustering(){
+float VertexFinder::MaxDistance(RecoVertex cluster0, RecoVertex cluster1){
+	float distance = 0;
+	for(const L1fittedTrack* track0 : cluster0.tracks()){
+		for(const L1fittedTrack* track1 : cluster1.tracks()){
+			if(fabs(track0->z0()-track1->z0()) > distance){
+				distance = fabs(track0->z0()-track1->z0());
+			}
+		}
+	}
+
+	return distance;
+}
+
+float VertexFinder::MinDistance(RecoVertex cluster0, RecoVertex cluster1){
+	float distance = 9999;
+	for(const L1fittedTrack* track0 : cluster0.tracks()){
+		for(const L1fittedTrack* track1 : cluster1.tracks()){
+			if(fabs(track0->z0()-track1->z0()) < distance){
+				distance = fabs(track0->z0()-track1->z0());
+			}
+		}
+	}
+
+	return distance;
+}
+
+float VertexFinder::MeanDistance(RecoVertex cluster0, RecoVertex cluster1){
+	
+	float distanceSum = 0;
+
+	for(const L1fittedTrack* track0 : cluster0.tracks()){
+		for(const L1fittedTrack* track1 : cluster1.tracks()){
+			distanceSum += fabs(track0->z0()-track1->z0());
+		}
+	}
+
+	float distance = distanceSum/(cluster0.numTracks()*cluster1.numTracks());
+	return distance;
+}
+
+float VertexFinder::CentralDistance(RecoVertex cluster0, RecoVertex cluster1){
+	cluster0.computeParameters();
+	cluster1.computeParameters();
+
+	float distance = fabs(cluster0.z0()-cluster1.z0());
+	return distance;
+}
+
+void VertexFinder::AgglomerativeHierarchicalClustering(){
 	iterations_ = 0;
 
 	sort(fitTracks_.begin(), fitTracks_.end(), SortTracksByZ0());
@@ -50,7 +98,12 @@ void VertexFinder::SimpleMergeClustering(){
 		for(unsigned int iClust = 0 ; iClust < vClusters.size()-1 ; iClust++){
 			iterations_++;
 
-			float M = MaxDistance(vClusters[iClust], vClusters[iClust+1]);
+			float M = 0;
+			if(settings_->vx_distanceType() == 0 ) M = MaxDistance(vClusters[iClust], vClusters[iClust+1]);
+			else if(settings_->vx_distanceType() == 1) M = MinDistance(vClusters[iClust], vClusters[iClust+1]);
+			else if(settings_->vx_distanceType() == 2 ) M = MeanDistance(vClusters[iClust], vClusters[iClust+1]);
+			else M=CentralDistance(vClusters[iClust], vClusters[iClust+1]);
+
 			if(M < MinimumScore){
 				MinimumScore = M;
 				clusterId0 = iClust;
@@ -83,42 +136,58 @@ void VertexFinder::DBSCAN(){
 	for(unsigned int i = 0; i< fitTracks_.size(); ++i){
 		if( find( visited.begin(), visited.end(), i) != visited.end() ) continue;
 
-		
-		visited.push_back(i);
-		std::set<unsigned int> neighbourTrackIds;
-		for(unsigned int k = 0; k < fitTracks_.size(); ++k){
-			iterations_++;
-			if(k!= i and fabs(fitTracks_[k]->z0()-fitTracks_[i]->z0()) < settings_->vx_distance()) neighbourTrackIds.insert(k); 
-			
-		}
-
-		if(neighbourTrackIds.size() < settings_->vx_minTracks() ){
-			// mark track as noise	
-		} else{
-			RecoVertex vertex;
-			vertex.insert(fitTracks_[i]);
-			saved.push_back(i);
-			for(unsigned int id : neighbourTrackIds){
-				if(find( visited.begin(), visited.end(), id) == visited.end()){
-					visited.push_back(id);
-					std::vector<unsigned int> neighbourTrackIds2;
-
-					for(unsigned int k = 0; k < fitTracks_.size(); ++k){
-						iterations_++;
-						if(fabs(fitTracks_[k]->z0()-fitTracks_[id]->z0()) < settings_->vx_distance()) neighbourTrackIds2.push_back(k); 
-					}
-
-					if(neighbourTrackIds2.size() >= settings_->vx_minTracks()){
-						for(unsigned int id2 : neighbourTrackIds2){
-							neighbourTrackIds.insert(id2);
-						}
-					}
-				}				
-				if(find( saved.begin(), saved.end(), id) == saved.end()) vertex.insert(fitTracks_[id]);
+		// if(fitTracks_[i]->pt()>10.){
+			visited.push_back(i);
+			std::set<unsigned int> neighbourTrackIds;
+			unsigned int numDensityTracks = 0;
+			if(fitTracks_[i]->pt() > settings_->vx_dbscan_pt()){
+				numDensityTracks++;
+				// if(settings_->debug()==7) cout << "density track z0 "<< fitTracks_[i]->z0() << " pT "<< fitTracks_[i]->pt() << endl;
+			} else{
+				continue;
 			}
-			vertex.computeParameters();
-			vertices_.push_back(vertex);
-		}
+			for(unsigned int k = 0; k < fitTracks_.size(); ++k){
+				iterations_++;
+				if(k!= i and fabs(fitTracks_[k]->z0()-fitTracks_[i]->z0()) < settings_->vx_distance()){ 
+					neighbourTrackIds.insert(k);
+					if(fitTracks_[k]->pt() > settings_->vx_dbscan_pt()) numDensityTracks++;
+				}
+			}
+
+			if(numDensityTracks < settings_->vx_dbscan_mintracks() ){
+				// mark track as noise	
+			} else{
+				RecoVertex vertex;
+				vertex.insert(fitTracks_[i]);
+				saved.push_back(i);
+				for(unsigned int id : neighbourTrackIds){
+					if(find( visited.begin(), visited.end(), id) == visited.end()){
+						visited.push_back(id);
+						std::vector<unsigned int> neighbourTrackIds2;
+						// cout << "neighbouring track z0 "<< fitTracks_[id]->z0() << " pT "<< fitTracks_[id]->pt() << endl;
+
+						for(unsigned int k = 0; k < fitTracks_.size(); ++k){
+							iterations_++;
+							if(fabs(fitTracks_[k]->z0()-fitTracks_[id]->z0()) < settings_->vx_distance()) {
+								neighbourTrackIds2.push_back(k);
+
+								// cout << "neighbouring track 2 z0 "<< fitTracks_[k]->z0() << " pT "<< fitTracks_[k]->pt() << endl;
+							}
+						}
+
+						// if(neighbourTrackIds2.size() >= settings_->vx_minTracks()){
+							for(unsigned int id2 : neighbourTrackIds2){
+								neighbourTrackIds.insert(id2);
+							}
+						// }
+					}				
+					if(find( saved.begin(), saved.end(), id) == saved.end()) vertex.insert(fitTracks_[id]);
+				}
+				vertex.computeParameters();
+				// cout << "vertex z0 "<< vertex.z0() << " pt "<< vertex.pT() << " numTracks "<< vertex.numTracks() << endl;
+				if(vertex.numTracks() >= settings_->vx_minTracks())	vertices_.push_back(vertex);
+			}
+		// }
 	}
 }
 
@@ -271,25 +340,71 @@ void VertexFinder::HPV(){
 
 }
 
-float VertexFinder::MaxDistance(RecoVertex cluster0, RecoVertex cluster1){
-	float distance = 0;
-	for(const L1fittedTrack* track0 : cluster0.tracks()){
-		for(const L1fittedTrack* track1 : cluster1.tracks()){
-			if(fabs(track0->z0()-track1->z0()) > distance){
-				distance = fabs(track0->z0()-track1->z0());
+void VertexFinder::Kmeans(){
+	unsigned int NumberOfClusters = settings_->vx_kmeans_nclusters();
+	
+	vertices_.resize(NumberOfClusters);
+	float ClusterSeparation = 30./NumberOfClusters;
+
+	for (unsigned int i = 0; i < NumberOfClusters; ++i)
+	{
+		float ClusterCentre = -15. + ClusterSeparation*(i+0.5);
+		vertices_[i].setZ(ClusterCentre);
+	}
+	unsigned int iterations = 0;
+	// Initialise Clusters
+	while(iterations < settings_->vx_kmeans_iterations()){
+		for(unsigned int i = 0; i < NumberOfClusters; ++i){
+			vertices_[i].clear();
+		}
+
+		for(const L1fittedTrack* track: fitTracks_){
+			float distance = 9999;
+			if(iterations == settings_->vx_kmeans_iterations()-3) distance = settings_->vx_distance()*2;
+			if(iterations > settings_->vx_kmeans_iterations()-3)
+				distance = settings_->vx_distance();
+			unsigned int ClusterId;
+			bool NA = true;
+			// cout << "iteration "<< iterations << endl;
+			// cout << "track z0 "<< track->z0() << endl;
+			for(unsigned int id = 0 ; id < NumberOfClusters ; ++id){
+				if(fabs(track->z0() - vertices_[id].z0()) < distance ){
+					// cout << "vertex id "<< id << " z0 " << vertices_[id].z0() << endl;
+					distance = fabs(track->z0() - vertices_[id].z0());
+					ClusterId = id;
+					NA = false;
+				}
+			}
+			if(!NA)	{
+				vertices_[ClusterId].insert(track);
+				// cout << "track in cluster "<< ClusterId << endl;
 			}
 		}
+		// cout << "iteration "<< iterations << endl;
+		for(unsigned int i = 0; i < NumberOfClusters; ++i){
+			// cout << "vertex z0 " << vertices_[i].z0() << " ntracks " << vertices_[i].numTracks() <<endl;
+			for(const L1fittedTrack* track : vertices_[i].tracks()){
+				// cout << "track z0 "<< track->z0() << endl;
+			}
+			if(vertices_[i].numTracks() > 0) vertices_[i].computeParameters();
+		}
+		iterations++;
 	}
-
-	return distance;
 }
 
 void VertexFinder::FindPrimaryVertex() {
 	double vertexPt = 0;
+	unsigned int numTracks = 0;
 	for(unsigned int i = 0; i < vertices_.size(); ++i){
-		if(vertices_[i].pT() > vertexPt and vertices_[i].numHighPtTracks() >= settings_->vx_minHighPtTracks() ){
+		if(vertices_[i].numTracks() > numTracks*2 and vertices_[i].numTracks() > 10){
+			vertexPt = vertices_[i].pT();
+			numTracks = vertices_[i].numTracks();
+			pv_index_ = i;
+		}
+		if(vertices_[i].pT() > vertexPt and vertices_[i].numTracks() > numTracks/3){
 			vertexPt = vertices_[i].pT();
 			pv_index_ = i;
+			numTracks = vertices_[i].numTracks();
 		}
 	}
 }
@@ -298,19 +413,20 @@ void VertexFinder::FindPrimaryVertex() {
 
 void VertexFinder::TDRalgorithm(){
 	float vxPt = 0.;
-	
+
 	for(float z=-14.95; z<15.; z += 0.1){
 		RecoVertex vertex;
 		FitTrackCollection tracks;
 		
 		for(const L1fittedTrack* track: fitTracks_){
-			if(fabs(z-track->z0()) < settings_->tdr_vx_width() and track->pt() < 50.){
+			if(fabs(z-track->z0()) < settings_->tdr_vx_width()){
 				vertex.insert(track);
 			} else{
 				tracks.push_back(track);
 			}
 		}
 		vertex.computeParameters();
+		// cout << "TDR pt "<< vertex.pT() << endl;
         vertex.setZ(z);
 		if(vertex.pT() > vxPt){
 			tdr_vertex_ = vertex;

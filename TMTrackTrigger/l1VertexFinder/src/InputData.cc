@@ -51,6 +51,10 @@ InputData::InputData(const edm::Event& iEvent, const edm::EventSetup& iSetup, Se
 
   float metY_pu = 0;
   float metX_pu = 0;
+
+  genPt_ = 0.;
+  genPt_PU_ = 0.; 
+
   for (unsigned int i = 0; i < tpHandle->size(); i++) {
     TrackingParticlePtr tpPtr(tpHandle, i);
     // Store the TrackingParticle info, using class TP to provide easy access to the most useful info.
@@ -59,9 +63,11 @@ InputData::InputData(const edm::Event& iEvent, const edm::EventSetup& iSetup, Se
     if(tp.physicsCollision()){
       metX += tp.pt()*cos(tp.phi0());
       metY += tp.pt()*sin(tp.phi0());
+      genPt_ += tp.pt();
     } else{
       metX_pu += tp.pt()*cos(tp.phi0());
       metY_pu += tp.pt()*sin(tp.phi0());
+      genPt_PU_ += tp.pt();
     }
     
     // Only bother storing tp if it could be useful for tracking efficiency or fake rate measurements.
@@ -76,6 +82,7 @@ InputData::InputData(const edm::Event& iEvent, const edm::EventSetup& iSetup, Se
   genMET_ = sqrt(metX*metX+metY*metY);
   // Total GenMET in PU events
   genMET_PU_ = sqrt(metX*metX+metY*metY);
+  cout << "genPt in the event "<< genPt_ << endl;
   cout << "genMET in the event = "<< genMET_ << endl;
 
 

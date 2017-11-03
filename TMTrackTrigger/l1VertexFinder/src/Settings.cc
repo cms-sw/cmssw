@@ -38,12 +38,21 @@ Settings::Settings(const edm::ParameterSet& iConfig) :
 
   //=== Vertex Reconstruction configuration
   vx_algoId_              (vertex_.getParameter<unsigned int>                 ( "AlgorithmId")),
-  vx_distance_            (vertex_.getParameter<double>                 ( "VertexResolution")),
+  vx_distanceType_            (vertex_.getParameter<unsigned int>                 ( "DistanceType")),
+  vx_distance_            (vertex_.getParameter<double>                 ( "VertexDistance")),
+  vx_resolution_            (vertex_.getParameter<double>                 ( "VertexResolution")),
   vx_minTracks_           (vertex_.getParameter<unsigned int>                 ( "MinTracks")),
   vx_chi2cut_             (vertex_.getParameter<double>               ("AVR_chi2cut")),
   tdr_vx_width_           (vertex_.getParameter<double>               ("TDR_VertexWidth")),
-  vx_recodistance_        (vertex_.getParameter<double>               ("RecoVertexDistance")),
-  vx_minHighPtTracks_     (vertex_.getParameter<unsigned int>         ("MinHighPtTracks")),
+  vx_local_               (vertex_.getParameter<bool>                 ("VertexLocal")),
+  vx_merge_distance_      (vertex_.getParameter<double>               ("VxMergeDistance")),
+  vx_inHTsector_          (vertex_.getParameter<bool>                 ("VxInHTsector")),
+  vx_mergebytracks_       (vertex_.getParameter<bool>                 ("VxMergeByTracks")),
+  vx_TrackMinPt_          (vertex_.getParameter<double>               ("VxMinTrackPt")),
+  vx_dbscan_pt_            (vertex_.getParameter<double>               ("DBSCANPtThreshold")),
+  vx_dbscan_mintracks_   (vertex_.getParameter<unsigned int>               ("DBSCANMinDensityTracks")),
+  vx_kmeans_iterations_   (vertex_.getParameter<unsigned int>                 ( "KmeansIterations")),
+  vx_kmeans_nclusters_    (vertex_.getParameter<unsigned int>                 ( "KmeansNumClusters")),
   // Debug printout
   debug_                  ( iConfig.getParameter<unsigned int>                ( "Debug"                  ) ),
 
