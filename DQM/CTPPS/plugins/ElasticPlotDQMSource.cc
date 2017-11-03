@@ -5,8 +5,6 @@
 *
 ****************************************************************************/
 
-// TODO: clean
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -19,18 +17,13 @@
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
-#include "DataFormats/CTPPSDigi/interface/TotemRPDigi.h"
-#include "DataFormats/CTPPSDigi/interface/TotemVFATStatus.h"
-#include "DataFormats/CTPPSReco/interface/TotemRPCluster.h"
 #include "DataFormats/CTPPSReco/interface/TotemRPRecHit.h"
 #include "DataFormats/CTPPSReco/interface/TotemRPUVPattern.h"
 #include "DataFormats/CTPPSReco/interface/TotemRPLocalTrack.h"
 
-#include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
-#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
-#include "Geometry/VeryForwardRPTopology/interface/RPTopology.h"
-
 #include <string>
+#include <vector>
+#include <map>
 
 //----------------------------------------------------------------------------------------------------
  
@@ -67,6 +60,9 @@ class ElasticPlotDQMSource: public DQMEDAnalyzer
     /// plots related to one (anti)diagonal
     struct DiagonalPlots
     {
+      // in the order 45-220-fr, 45-210-fr, 56-210-fr, 56-220-fr
+      std::vector<unsigned int> rpIds;
+
       // track correlation in vertical RPs
       MonitorElement *h2_track_corr_vert=nullptr;
 
@@ -76,7 +72,7 @@ class ElasticPlotDQMSource: public DQMEDAnalyzer
       // XY hit maps in a give RP (vector index) under these conditions
       //   4rp: all 4 diagonal RPs have a track
       //   2rp: diagonal RPs in 220-fr have a track
-      std::vector<MonitorElement* > v_h2_y_vs_x_dgn_4rp;
+      std::vector<MonitorElement *> v_h2_y_vs_x_dgn_4rp;
       std::vector<MonitorElement *> v_h2_y_vs_x_dgn_2rp;
 
       // event rates vs. time
@@ -118,6 +114,7 @@ using namespace edm;
 
 ElasticPlotDQMSource::DiagonalPlots::DiagonalPlots(DQMStore::IBooker &ibooker, int id)
 {
+  // determine captions
   bool top45 = id & 2;
   bool top56 = id & 1;
   bool diag = (top45 != top56);
@@ -129,9 +126,50 @@ ElasticPlotDQMSource::DiagonalPlots::DiagonalPlots(DQMStore::IBooker &ibooker, i
     (top56) ? "top" : "bot"
   );
 
+  string title = name;
+
+  // dermine RP ids of this diagonal
+  rpIds.push_back(TotemRPDetId(0, 2, (top45) ? 4 : 5));
+  rpIds.push_back(TotemRPDetId(0, 0, (top45) ? 4 : 5));
+  rpIds.push_back(TotemRPDetId(1, 0, (top56) ? 4 : 5));
+  rpIds.push_back(TotemRPDetId(1, 2, (top56) ? 4 : 5));
+
+  // book histograms
   ibooker.setCurrentFolder(string("CTPPS/TrackingStrip/") + name);
 
-  // TODO
+  h2_track_corr_vert = ibooker.book2D("track correlation in verticals", title+";;", 4, -0.5, 3.5, 4, -0.5, 3.5);
+  TH2F *h2 = h2_track_corr_vert->getTH2F();
+  TAxis *xa = h2->GetXaxis(), *ya = h2->GetYaxis();
+  for (unsigned int i = 0; i < 4; i++)
+  {
+    string rpName;
+    TotemRPDetId(rpIds[i]).rpName(rpName, TotemRPDetId::nFull);
+    xa->SetBinLabel(i+1, rpName.c_str());
+    ya->SetBinLabel(i+1, rpName.c_str());
+  }
+
+  for (unsigned int i = 0; i < 4; i++)
+  {
+    string rpName;
+    TotemRPDetId(rpIds[i]).rpName(rpName, TotemRPDetId::nFull);
+
+    v_h2_y_vs_x_dgn_4rp.emplace_back(ibooker.book2D("xy hist - " + rpName + " - 4 RPs cond", title+";x   (mm);y   (mm)", 100, -18., +18., 100, -18., +18.));
+    v_h2_y_vs_x_dgn_2rp.emplace_back(ibooker.book2D("xy hist - " + rpName + " - 2 RPs cond", title+";x   (mm);y   (mm)", 100, -18., +18., 100, -18., +18.));
+
+    vector<MonitorElement *> v;
+    for (unsigned int j = 0; j < 4; j++)
+    {
+      string rpCoincName;
+      TotemRPDetId(rpIds[j]).rpName(rpCoincName, TotemRPDetId::nFull);
+
+      v.emplace_back(ibooker.book1D("y hist - " + rpName + " - coinc " + rpCoincName, title+";y   (mm)", 180, -18., +18.));
+    }
+
+    v_h_y.push_back(move(v));
+  }
+
+  h_rate_vs_time_dgn_4rp = ibooker.book1D("rate - 4 RPs", title+";lumi section", ls_max-ls_min+1, -0.5+ls_min, +0.5+ls_max);
+  h_rate_vs_time_dgn_2rp = ibooker.book1D("rate - 2 RPs (220-fr)", title+";lumi section", ls_max-ls_min+1, -0.5+ls_min, +0.5+ls_max);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -219,10 +257,6 @@ void ElasticPlotDQMSource::beginLuminosityBlock(edm::LuminosityBlock const& lumi
 
 void ElasticPlotDQMSource::analyze(edm::Event const& event, edm::EventSetup const& eventSetup)
 {
-  // get event setup data
-  ESHandle<CTPPSGeometry> geometry;
-  eventSetup.get<VeryForwardRealGeometryRecord>().get(geometry);
-
   // get event data
   Handle< DetSetVector<TotemRPRecHit> > hits;
   event.getByToken(tokenRecHit, hits);
@@ -256,7 +290,8 @@ void ElasticPlotDQMSource::analyze(edm::Event const& event, edm::EventSetup cons
   //------------------------------
   // categorise RP data
   map<unsigned int, unsigned int> rp_planes_u_too_full, rp_planes_v_too_full;
-  map<unsigned int, bool> rp_pat_suff, rp_has_track;
+  map<unsigned int, bool> rp_pat_suff;
+  map<unsigned int, const TotemRPLocalTrack*> rp_track;
 
   for (const auto &ds : *hits)
   {
@@ -297,26 +332,67 @@ void ElasticPlotDQMSource::analyze(edm::Event const& event, edm::EventSetup cons
   {
     CTPPSDetId rpId(ds.detId());
 
-    bool trackPresent = false;
+    const TotemRPLocalTrack *track = nullptr;
     for (auto &ft : ds)
     {
       if (ft.isValid())
       {
-        trackPresent = true;
+        track = &ft;
         break;
       }
     }
 
-    rp_has_track[rpId] = trackPresent;
+    rp_track[rpId] = track;
   } 
 
   //------------------------------
   // diagonal plots
 
-  // TODO: remove
-  printf("%u\n", event.luminosityBlock());
+  for (auto &dpp : diagonalPlots)
+  {
+    auto &dp = dpp.second;
 
-  // TODO
+    // determine diagonal conditions
+    bool cond_4rp = true, cond_2rp = true;
+    for (unsigned int i = 0; i < 4; i++)
+    {
+      if (rp_track[dp.rpIds[i]] == nullptr)
+        cond_4rp = false;
+
+      if ((i == 0 || i == 3) && rp_track[dp.rpIds[i]] == nullptr)
+        cond_2rp = false;
+    }
+
+    if (cond_4rp)
+      dp.h_rate_vs_time_dgn_4rp->Fill(event.luminosityBlock(), 1./ls_duration);
+
+    if (cond_2rp)
+      dp.h_rate_vs_time_dgn_2rp->Fill(event.luminosityBlock(), 1./ls_duration);
+
+    for (unsigned int i = 0; i < 4; i++)
+    {
+      const TotemRPLocalTrack *tr_i = rp_track[dp.rpIds[i]];
+
+      if (tr_i == nullptr)
+        continue;
+
+      if (cond_4rp)
+        dp.v_h2_y_vs_x_dgn_4rp[i]->Fill(tr_i->getX0(), tr_i->getY0());
+
+      if (cond_2rp)
+        dp.v_h2_y_vs_x_dgn_2rp[i]->Fill(tr_i->getX0(), tr_i->getY0());
+
+      for (unsigned int j = 0; j < 4; j++)
+      {
+        if (rp_track[dp.rpIds[j]] == nullptr)
+          continue;
+
+        dp.h2_track_corr_vert->Fill(i, j);
+
+        dp.v_h_y[i][j]->Fill(tr_i->getY0());
+      }
+    }
+  }
   
   //------------------------------
   // pot plots
@@ -330,7 +406,7 @@ void ElasticPlotDQMSource::analyze(edm::Event const& event, edm::EventSetup cons
     auto &pp = pp_it->second;
 
     const auto &pat_suff = rp_pat_suff[rpId];
-    const auto &has_track = rp_has_track[rpId];
+    const auto &has_track = (rp_track[rpId] != nullptr);
 
     if (pat_suff)
       pp.h_rate_vs_time_suff->Fill(event.luminosityBlock(), 1./ls_duration);
