@@ -2,13 +2,32 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
 from PhysicsTools.NanoAOD.common_cff import *
+import PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi
 from math import ceil,log
+
+# this below is used only in some eras
+slimmedElectronsUpdated = cms.EDProducer("PATElectronUpdater",
+    src = cms.InputTag("slimmedElectrons"),
+    vertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
+    computeMiniIso = cms.bool(False),
+    pfCandsForMiniIso = cms.InputTag("packedPFCandidates"),
+    miniIsoParamsB = PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi.patElectrons.miniIsoParamsB, # so they're in sync
+    miniIsoParamsE = PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi.patElectrons.miniIsoParamsE, # so they're in sync
+)
+run2_miniAOD_80XLegacy.toModify( slimmedElectronsUpdated, computeMiniIso = True )
 
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import setupVIDSelection
 from RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cff import *
+
 electronMVAValueMapProducer.srcMiniAOD = cms.InputTag("slimmedElectrons")
+run2_miniAOD_80XLegacy.toModify(electronMVAValueMapProducer, srcMiniAOD = "slimmedElectronsUpdated")
+run2_nanoAOD_92X.toModify(electronMVAValueMapProducer, srcMiniAOD = "slimmedElectronsUpdated")
+
 egmGsfElectronIDs.physicsObjectIDs = cms.VPSet()
 egmGsfElectronIDs.physicsObjectSrc = cms.InputTag('slimmedElectrons')
+run2_miniAOD_80XLegacy.toModify(egmGsfElectronIDs, physicsObjectSrc = "slimmedElectronsUpdated")
+run2_nanoAOD_92X.toModify(egmGsfElectronIDs, physicsObjectSrc = "slimmedElectronsUpdated")
+
 _electron_id_vid_modules=[
 'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff',
 'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronHLTPreselecition_Summer16_V1_cff',
@@ -36,6 +55,8 @@ bitmapVIDForEle = cms.EDProducer("EleVIDNestedWPBitmapProducer",
     src = cms.InputTag("slimmedElectrons"),
     WorkingPoints = _bitmapVIDForEle_WorkingPoints,
 )
+run2_miniAOD_80XLegacy.toModify(bitmapVIDForEle, src = "slimmedElectronsUpdated")
+run2_nanoAOD_92X.toModify(bitmapVIDForEle, src = "slimmedElectronsUpdated")
 
 isoForEle = cms.EDProducer("EleIsoValueMapProducer",
     src = cms.InputTag("slimmedElectrons"),
@@ -45,21 +66,29 @@ isoForEle = cms.EDProducer("EleIsoValueMapProducer",
     EAFile_MiniIso = cms.FileInPath("RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt"),
     EAFile_PFIso = cms.FileInPath("RecoEgamma/ElectronIdentification/data/Summer16/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_80X.txt"),
 )
+run2_miniAOD_80XLegacy.toModify(isoForEle, src = "slimmedElectronsUpdated")
+run2_nanoAOD_92X.toModify(isoForEle, src = "slimmedElectronsUpdated")
 
 ptRatioRelForEle = cms.EDProducer("ElectronJetVarProducer",
     srcJet = cms.InputTag("slimmedJets"),
     srcLep = cms.InputTag("slimmedElectrons"),
     srcVtx = cms.InputTag("offlineSlimmedPrimaryVertices"),
 )
+run2_miniAOD_80XLegacy.toModify(ptRatioRelForEle, srcLep = "slimmedElectronsUpdated")
+run2_nanoAOD_92X.toModify(ptRatioRelForEle, srcLep = "slimmedElectronsUpdated")
 
 from EgammaAnalysis.ElectronTools.calibratedElectronsRun2_cfi import calibratedPatElectrons
 calibratedPatElectrons.correctionFile = cms.string("PhysicsTools/NanoAOD/data/80X_ichepV1_2016_ele") # hack, should go somewhere in EgammaAnalysis
 calibratedPatElectrons.semiDeterministic = cms.bool(True)
+run2_miniAOD_80XLegacy.toModify(calibratedPatElectrons, electrons = "slimmedElectronsUpdated")
+run2_nanoAOD_92X.toModify(calibratedPatElectrons, electrons = "slimmedElectronsUpdated")
 
 energyCorrForEle =  cms.EDProducer("ElectronEnergyVarProducer",
     srcRaw = cms.InputTag("slimmedElectrons"),
     srcCorr = cms.InputTag("calibratedPatElectrons"),
 )
+run2_miniAOD_80XLegacy.toModify(energyCorrForEle, srcRaw = "slimmedElectronsUpdated")
+run2_nanoAOD_92X.toModify(energyCorrForEle, srcRaw = "slimmedElectronsUpdated")
 
 
 slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
@@ -93,19 +122,13 @@ slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
         jetForLepJetVar = cms.InputTag("ptRatioRelForEle:jetForLepJetVar") # warning: Ptr is null if no match is found
     ),
 )
-
-# this below is used only in some eras
-slimmedElectronsWithDZ = cms.EDProducer("PATElectronUpdater",
-    src = cms.InputTag("slimmedElectronsWithUserData"),
-    vertices = cms.InputTag("offlineSlimmedPrimaryVertices")
-)
+run2_miniAOD_80XLegacy.toModify(slimmedElectronsWithUserData, src = "slimmedElectronsUpdated")
+run2_nanoAOD_92X.toModify(slimmedElectronsWithUserData, src = "slimmedElectronsUpdated")
 
 finalElectrons = cms.EDFilter("PATElectronRefSelector",
     src = cms.InputTag("slimmedElectronsWithUserData"),
     cut = cms.string("pt > 5 ")
 )
-run2_miniAOD_80XLegacy.toModify(finalElectrons, src = "slimmedElectronsWithDZ")
-run2_nanoAOD_92X.toModify(finalElectrons, src = "slimmedElectronsWithDZ")
 
 electronMVATTH= cms.EDProducer("EleBaseMVAValueMapProducer",
     src = cms.InputTag("linkedObjects","electrons"),
@@ -139,7 +162,6 @@ electronTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     variables = cms.PSet(CandVars,
         jetIdx = Var("?hasUserCand('jet')?userCand('jet').key():-1", int, doc="index of the associated jet (-1 if none)"),
         photonIdx = Var("?overlaps('photons').size()>0?overlaps('photons')[0].key():-1", int, doc="index of the associated photon (-1 if none)"),
-        #ptErr = Var("gsfTrack().ptError()",float,doc="pt error of the GSF track",precision=6),
         energyErr = Var("p4Error('P4_COMBINATION')*userFloat('eCorr')",float,doc="energy error of the cluster-track combination",precision=6),
         eCorr = Var("userFloat('eCorr')",float,doc="ratio of the calibrated energy/miniaod energy"),
         dz = Var("dB('PVDZ')",float,doc="dz (with sign) wrt first PV, in cm",precision=10),
@@ -176,7 +198,7 @@ electronTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         mvaTTH = ExtVar(cms.InputTag("electronMVATTH"),float, doc="TTH MVA lepton ID score",precision=14),
     ),
 )
-electronTable.variables.pt = Var("pt*userFloat('eCorr')",  float, precision=-1)
+electronTable.variables.pt = Var("pt*userFloat('eCorr')",  float, precision=-1, doc="p_{T} after energy correction & smearing")
 
 electronsMCMatchForTable = cms.EDProducer("MCMatcher",  # cut on deltaR, deltaPt/Pt; pick best by deltaR
     src         = electronTable.src,                 # final reco collection
@@ -203,7 +225,6 @@ electronSequence = cms.Sequence(egmGsfElectronIDSequence + bitmapVIDForEle + iso
 electronTables = cms.Sequence (electronMVATTH + electronTable)
 electronMC = cms.Sequence(electronsMCMatchForTable + electronMCTable)
 
-_withDZ_sequence = electronSequence.copy()
-_withDZ_sequence.replace(finalElectrons, slimmedElectronsWithDZ+finalElectrons)
-run2_nanoAOD_92X.toReplaceWith(electronSequence, _withDZ_sequence)
-run2_miniAOD_80XLegacy.toReplaceWith(electronSequence, _withDZ_sequence)
+_withUpdate_sequence = cms.Sequence(slimmedElectronsUpdated + electronSequence.copy())
+run2_nanoAOD_92X.toReplaceWith(electronSequence, _withUpdate_sequence)
+run2_miniAOD_80XLegacy.toReplaceWith(electronSequence, _withUpdate_sequence)
