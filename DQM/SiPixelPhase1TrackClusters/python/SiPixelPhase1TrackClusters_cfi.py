@@ -199,12 +199,12 @@ SiPixelPhase1TrackClustersOnTrackImpactAngle = DefaultHistoTrack.clone(
      .groupBy("PXForward/PXDisk", "EXTEND_X")
      .save(),
      
-     Specification().groupBy("PXBarrel/PXLayer/LumiBlock")
+     Specification(IsOffline).groupBy("PXBarrel/PXLayer/LumiBlock")
      .reduce("MEAN")
      .groupBy("PXBarrel/PXLayer", "EXTEND_X")
      .save(),
      
-     Specification().groupBy("PXForward/PXDisk/LumiBlock")
+     Specification(IsOffline).groupBy("PXForward/PXDisk/LumiBlock")
      .reduce("MEAN")
      .groupBy("PXForward/PXDisk", "EXTEND_X")
      .save()
