@@ -271,7 +271,7 @@ std::vector<VTX> TrackVertexArbitration<VTX>::trackVertexArbitrator(
              	 singleFitVertex = theAdaptiveFitter.vertex(selTracks,ssv);
 		 
               	if(singleFitVertex.isValid())  { 
-		  svtime::updateVertexTime(singleFitVertex);
+		  svhelper::updateVertexTime(singleFitVertex);
 		  recoVertices.push_back(VTX(singleFitVertex));
 		  
 

@@ -6,7 +6,7 @@
 
 #include "FWCore/Utilities/interface/isFinite.h"
 
-namespace svtime{
+namespace svhelper{
 
   inline void updateVertexTime(TransientVertex& vtx) {
     const auto& trks = vtx.originalTracks();
@@ -28,7 +28,6 @@ namespace svtime{
       auto err = vtx.positionError().matrix4D();
       err(3,3) = timecov/(double)trks.size();  
       vtx = TransientVertex(vtx.position(),meantime,err,vtx.originalTracks(),vtx.totalChiSquared());
-      //std::cout << "updated svertex time: " << vtx.time() << " +/- " << std::sqrt(err(3,3)) << std::endl;
     }
   }
 }
