@@ -83,6 +83,7 @@ namespace reco {
     bool fillRecHits_;      // fill rechit information into HcalNoiseRBXs and HcalNoiseSummary
     bool fillCaloTowers_;   // fill calotower information into HcalNoiseRBXs and HcalNoiseSummary
     bool fillTracks_;       // fill track information into HcalNoiseSummary
+    bool fillLaserMonitor_; // fill laser monitor information into HcalNoiseSummary
 
     // These provide the requirements for writing an RBX to the event
     int maxProblemRBXs_;   // maximum number of problematic RBXs to be written to the event record
@@ -110,6 +111,7 @@ namespace reco {
     edm::EDGetTokenT<reco::PFJetCollection> jet_token_;
 
     double TotalCalibCharge;    // placeholder to calculate total charge in calibration channels
+    double TotalLasmonCharge;    // placeholder to calculate total charge in laser monitor channels
 
     double minRecHitE_, minLowHitE_, minHighHitE_, minR45HitE_; // parameters used to determine noise status
     HcalNoiseAlgo algo_; // algorithms to determine if an RBX is noisy
@@ -130,8 +132,16 @@ namespace reco {
 
     uint32_t HcalAcceptSeverityLevel_;
     std::vector<int> HcalRecHitFlagsToBeExcluded_;
+
+    std::vector<int> LaserMonDetTypeList_;
+    std::vector<int> LaserMonIPhiList_;
+    std::vector<int> LaserMonIEtaList_;
+
+    int LaserMonitorTSStart_;
+    int LaserMonitorTSEnd_;
     
     float adc2fC[128];
+    float adc2fCHF[128];
   };
   
 } // end of namespace

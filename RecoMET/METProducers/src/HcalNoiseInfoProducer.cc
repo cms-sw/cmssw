@@ -15,6 +15,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "CalibFormats/HcalObjects/interface/HcalText2DetIdConverter.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
 #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
@@ -35,6 +36,7 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig) :
   fillRecHits_       = iConfig.getParameter<bool>("fillRecHits");
   fillCaloTowers_    = iConfig.getParameter<bool>("fillCaloTowers");
   fillTracks_        = iConfig.getParameter<bool>("fillTracks");
+  fillLaserMonitor_  = iConfig.getParameter<bool>("fillLaserMonitor");
 
   maxProblemRBXs_    = iConfig.getParameter<int>("maxProblemRBXs");
 
@@ -112,6 +114,49 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig) :
     edm::LogWarning("HCalNoiseInfoProducer") << " forcing fillRecHits to be true if fillDigis is true.\n";
   }
 
+  // get the fiber configuration vectors
+  std::vector<int> TmpLaserMonDetTypeList = iConfig.getParameter<std::vector<int> >("LaserMonDetTypeList");
+  std::vector<int> TmpLaserMonIPhiList = iConfig.getParameter<std::vector<int> >("LaserMonIPhiList");
+  std::vector<int> TmpLaserMonIEtaList = iConfig.getParameter<std::vector<int> >("LaserMonIEtaList");
+
+  // the transfer of data from python to c seems to have issues
+  // this can be fixed by explicitly filling the vector
+  for( std::vector<int>::const_iterator itr = TmpLaserMonDetTypeList.begin();
+          itr != TmpLaserMonDetTypeList.end(); ++itr ) {
+      LaserMonDetTypeList_.push_back( *itr );
+  }
+
+  for( std::vector<int>::const_iterator itr = TmpLaserMonIPhiList.begin();
+          itr != TmpLaserMonIPhiList.end(); ++itr ) {
+      LaserMonIPhiList_.push_back( *itr );
+  }
+
+  for( std::vector<int>::const_iterator itr = TmpLaserMonIEtaList.begin();
+          itr != TmpLaserMonIEtaList.end(); ++itr ) {
+      LaserMonIEtaList_.push_back( *itr );
+  }
+
+  // check that the vectors have the same size, if not
+  // disable the laser monitor
+  if( !( (LaserMonDetTypeList_.size() == LaserMonIEtaList_.size() ) && 
+         (LaserMonDetTypeList_.size() == LaserMonIPhiList_.size() ) ) ) { 
+    edm::LogWarning("MisConfiguration")<<"Must provide equally sized lists for LaserMonDetTypeList, LaserMonIEtaList, and LaserMonIPhiList.  Will not fill LaserMon\n";
+    fillLaserMonitor_=false;
+  }
+
+  // get the integration region with defaults
+  if( iConfig.existsAs<int>("LaserMonitorTSStart" ) ) {
+    LaserMonitorTSStart_ = iConfig.getParameter<int>("LaserMonitorTSStart");
+  } else {
+    LaserMonitorTSStart_ = 0;
+  }
+
+  if( iConfig.existsAs<int>("LaserMonitorTSEnd") ) {
+    LaserMonitorTSEnd_   = iConfig.getParameter<int>("LaserMonitorTSEnd");
+  } else {
+    LaserMonitorTSEnd_ = -1;
+  }
+
   const float adc2fCTemp[128]={-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5,11.5,12.5,
      13.5,15.,17.,19.,21.,23.,25.,27.,29.5,32.5,35.5,38.5,42.,46.,50.,54.5,59.5,
      64.5,59.5,64.5,69.5,74.5,79.5,84.5,89.5,94.5,99.5,104.5,109.5,114.5,119.5,
@@ -124,6 +169,19 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig) :
      5297.,5609.5,5984.5,6359.5,6734.5,7172.,7672.,8172.,8734.5,9359.5,9984.5};
   for(int i = 0; i < 128; i++)
      adc2fC[i] = adc2fCTemp[i];
+
+  // adc -> fC for qie8 with PMT input, for laser monitor
+  const float adc2fCTempHF[128]={-3,-0.4,2.2,4.8,7.4,10,12.6,15.2,17.8,20.4,23,25.6,28.2,30.8,33.4,
+                                 36,41.2,46.4,51.6,56.8,62,67.2,73,80.8,88.6,96.4,104,114.4,124.8,135,
+                                 148,161,150,163,176,189,202,215,228,241,254,267,280,293,306,319,332,
+                                 343,369,395,421,447,473,499,525,564,603,642,681,733,785,837,902,967,
+                                 902,967,1032,1097,1162,1227,1292,1357,1422,1487,1552,1617,1682,1747,
+                                 1812,1877,2007,2137,2267,2397,2527,2657,2787,2982,3177,3372,3567,
+                                 3827,4087,4347,4672,4997,4672,4997,5322,5647,5972,6297,6622,6947,
+                                 7272,7597,7922,8247,8572,8897,9222,9547,10197,10847,11497,12147,
+                                 12797,13447,14097,15072,16047,17022,17997,19297,20597,21897,23522,25147};
+  for(int i = 0; i < 128; i++)
+     adc2fCHF[i] = adc2fCTempHF[i];
 
   hbhedigi_token_      = consumes<HBHEDigiCollection>(edm::InputTag(digiCollName_));
   hcalcalibdigi_token_ = consumes<HcalCalibDigiCollection>(edm::InputTag("hcalDigis"));
@@ -327,6 +385,7 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
 {
   // Some initialization
   TotalCalibCharge = 0;
+  TotalLasmonCharge = 0;
 
   // Starting with this version (updated by Jeff Temple on Dec. 6, 2012), the "TS45" names in the variables are mis-nomers.  The actual time slices used are determined from the digiTimeSlices_ variable, which may not be limited to only time slices 4 and 5.  For now, "TS45" name kept, because that is what is used in HcalNoiseSummary object (in GetCalibCountTS45, etc.).  Likewise, the charge value in 'gt15' is now configurable, though the name remains the same.  For HBHE, we track both the number of calibration channels (NcalibTS45) and the number of calibration channels above threshold (NcalibTS45gt15).  For HF, we track only the number of channels above the given threshold in the given time window (NcalibHFgtX).  Default for HF in 2012 is to use the full time sample with effectively no threshold (threshold=-999)
   int NcalibTS45=0;
@@ -428,6 +487,19 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
   // get total charge in calibration channels
   if(hCalib.isValid() == true)
   {
+
+     // store the data from the lasermon fibers
+     std::map<int, std::vector<int> > lasmon_adcs;
+     std::map<int, std::vector<int> > lasmon_capids;
+
+     // we may find the fibers in different orders, initialize them here
+     if( fillLaserMonitor_ ) {
+         for( unsigned i = 0; i < LaserMonDetTypeList_.size() ; ++i ) {
+             lasmon_adcs[i] = std::vector<int>();
+             lasmon_capids[i] = std::vector<int>();
+         }
+     }
+
      for(HcalCalibDigiCollection::const_iterator digi = hCalib->begin(); digi != hCalib->end(); digi++)
      {
         if(digi->id().hcalSubdet() == 0)
@@ -458,6 +530,41 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
 	// Original code computes total calib charge over all digis.  While I think it would be more useful to skip
 	// zs mark-and-pass channels, I keep this computation as is.  Individual HBHE and HF variables do skip
 	// the m-p channels.  -- Jeff Temple, 6 December 2012
+        
+        // Fill the lasermonitor channels
+        if( fillLaserMonitor_ ) {
+          int dettype = digi->id().hcalSubdet( );
+          int iphi    = digi->id().iphi();
+          int ieta    = digi->id().ieta();
+         
+          // check that we have the correct dettype
+          if (std::find( LaserMonDetTypeList_.begin(), LaserMonDetTypeList_.end(),
+                         dettype ) != LaserMonDetTypeList_.end() ) {
+              // check that we have a contained IPhi
+            if( std::find( LaserMonIPhiList_.begin(), LaserMonIPhiList_.end(),
+                           iphi ) != LaserMonIPhiList_.end() ) {
+              // check that we have a contained IEta
+              if( std::find( LaserMonIEtaList_.begin(), LaserMonIEtaList_.end(),
+                             ieta ) != LaserMonIEtaList_.end() ) {
+                // we have a lasmon channel, find the index in the list of inputs
+                for( unsigned idx = 0; idx < LaserMonDetTypeList_.size(); ++idx ) {
+                  if( dettype == LaserMonDetTypeList_[idx] &&
+                        iphi  == LaserMonIPhiList_[idx] && 
+                        ieta  == LaserMonIEtaList_[idx] ) {
+
+                    // now get the digis
+                    int ts_size = int(digi->size());
+	            for(int i = 0; i < ts_size; i++) {
+                      lasmon_adcs[idx].push_back( digi->sample(i).adc() );
+                      lasmon_capids[idx].push_back( digi->sample(i).capid() );
+                    } // end digi loop
+                  } // end matching channel if
+                } // end fiber order loop
+              } // end ieta check 
+            } // end iphi check
+          } // end dettype check
+        } // end filllasmon check
+
 
 	for(int i = 0; i < (int)digi->size(); i++)
 	  TotalCalibCharge = TotalCalibCharge + adc2fC[digi->sample(i).adc()&0xff];
@@ -500,9 +607,134 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
 	      }
           } // end of HBHE check
      } // loop on HcalCalibDigiCollection
+
+     // now match the laser monitor data by fiber (in time) 
+     if( fillLaserMonitor_ ) {
+       // check for any fibers without data and fill
+       // them so we dont run into problems later
+       for( unsigned idx = 0; idx < LaserMonDetTypeList_.size(); ++idx ) {
+           if( lasmon_adcs[idx].size() == 0 ) {
+               for( int i = 0; i < 10; ++i ) {
+                   lasmon_adcs[idx].push_back( -1 );
+               }
+           }
+           if( lasmon_capids[idx].size() == 0 ) {
+               for( int i = 0; i < 10; ++i ) {
+                   lasmon_capids[idx].push_back( -1 );
+               }
+           }
+       }
+       int nFibers = LaserMonIEtaList_.size();
+       // for each fiber we need to find the index at with the 
+       // data from the next fiber matches in order to stitch them together.
+       // When there is an overlap, the data from the end of the
+       // earlier fiber is removed.  There is no removal of the last fiber
+       std::map<int, int> matching_idx; 
+       // we assume that the list of fibers was given in time order
+       // (if this was not the case, then we just end up using 
+       // all data from all fibers )
+       for( int fidx = 0; fidx < (nFibers - 1); ++fidx ) {
+         // start with the last TS and loop backwards
+         // on each iteration check if all capId and ADCs from this
+         // TS forward match the beginning entries of 
+         // the next fiber
+         int last_ts = lasmon_capids[fidx].size()-1;  // last TS
+         int start_ts = last_ts; // start_ts will be decrimented on each loop
+         // in the case that our stringent check below doesn't work 
+         // store the latest capID that has a match
+         int latest_cap_match = -1;
+         // reverse loop over TSs
+         while( start_ts >= 0 ) {
+           int ncheck = 0; // count the number of TS that were checked
+           int nmatch_cap = 0; // count the number of TS where capID matched
+           int nmatch_adc = 0; // count the number of TS where ADC matched
+
+           for( int cidx = start_ts, nidx = 0; cidx <= last_ts; cidx++, nidx++ ) { 
+             ncheck++;
+             // if we get an invald value, move on
+             if( lasmon_capids[fidx][cidx] == -1 ) continue;
+
+             if( lasmon_capids[fidx][cidx] == lasmon_capids[fidx+1][nidx] ) {
+               nmatch_cap++;
+             }
+             // check the data values as well
+             if( lasmon_adcs[fidx][cidx] == lasmon_adcs[fidx+1][nidx] ) {
+               nmatch_adc++;
+             }
+           }
+           bool cap_match = (ncheck == nmatch_cap);
+           bool adc_match = (ncheck == nmatch_adc);
+           if( cap_match && start_ts > latest_cap_match ) {
+             latest_cap_match = start_ts;
+           }
+           if( cap_match && adc_match ) {
+             // end the loop and we'll take the current start_ts
+             // as the end of the data for this fiber
+             break;
+           }
+           else {
+             // if we don't have a match, then decrement the 
+             // starting TS and check again
+             start_ts--;
+           }
+         }
+
+         // now make some sanity checks on the determined overlap index
+
+         if( start_ts == -1 ) {
+           // if we didn't find any match, use the capID only to compare
+           if( latest_cap_match < 0 ) {
+             //this shouldn't happen, in this case use all the data from the fiber
+             start_ts = lasmon_capids[fidx].size();
+           }
+           else {
+             // its possible that the timing of the fibers
+             // is shifted such that they do not overlap
+             // and we just want to stitch the fibers
+             // together with no removal.
+             // In this case the capIDs will match at the
+             // N-4 spot (and the ADCs will not)
+             // if this is not the case, then we just take
+             // the value of latest match
+             if( latest_cap_match == (last_ts - 3) ) {
+               start_ts = lasmon_capids[fidx].size();
+             } else {
+               start_ts = latest_cap_match;
+             }
+           }
+         }
+
+         // now store as the matching index
+         matching_idx[fidx] = start_ts;
+       }
+
+       // for the last fiber we always use all of the data
+       matching_idx[nFibers - 1] = 10;
+
+       // now loop over the time slices of each fiber and make the sum
+       int icombts = -1;
+       for( int fidx = 0 ; fidx < nFibers; ++fidx ) {
+         for( int its = 0; its < matching_idx[fidx]; ++its ) {
+           icombts++;
+
+           // apply integration limits
+           if( icombts < LaserMonitorTSStart_ ) continue;
+           if( LaserMonitorTSEnd_ > 0 && icombts > LaserMonitorTSEnd_ ) continue;
+
+           int adc = lasmon_adcs[fidx][its];
+
+           if( adc >= 0 ) { // skip invalid data
+             float fc = adc2fCHF[adc];
+             TotalLasmonCharge += fc;
+           }
+
+         } 
+       }
+     } // if( fillLaserMonitor_ )
   } // if (hCalib.isValid()==true)
-  
+
   summary.calibCharge_ = TotalCalibCharge;
+  summary.lasmonCharge_ = TotalLasmonCharge;
   summary.calibCountTS45_=NcalibTS45;
   summary.calibCountgt15TS45_=NcalibTS45gt15;
   summary.calibChargeTS45_=chargecalibTS45;

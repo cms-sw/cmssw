@@ -27,7 +27,7 @@ HcalNoiseSummary::HcalNoiseSummary()
     ntrianglenoise_(0), trianglenoisee_(0), trianglenoiseet_(0),
     nts4ts5noise_(0), ts4ts5noisee_(0), ts4ts5noiseet_(0),
     nnegativenoise_(0), negativenoisee_(0), negativenoiseet_(0),
-    rechitCount_(0), rechitCount15_(0), rechitEnergy_(0), rechitEnergy15_(0), calibCharge_(0),
+    rechitCount_(0), rechitCount15_(0), rechitEnergy_(0), rechitEnergy15_(0), calibCharge_(0),lasmonCharge_(0),
     hasBadRBXTS4TS5_(false),
     hasBadRBXRechitR45Loose_(false),
     hasBadRBXRechitR45Tight_(false),
@@ -322,6 +322,11 @@ double HcalNoiseSummary::GetRecHitEnergy15(void) const
 double HcalNoiseSummary::GetTotalCalibCharge(void) const
 {
    return calibCharge_;
+}
+
+double HcalNoiseSummary::GetLaserMonitorCharge(void) const
+{
+   return lasmonCharge_;
 }
 
 bool HcalNoiseSummary::HasBadRBXTS4TS5(void) const
