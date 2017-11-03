@@ -90,6 +90,8 @@ int makeRPhiArrowPlot( TTree* data, const char* name, double xLim, double yLim, 
   char outfile[192];
   sprintf( outfile, "%s/%s.png", outputDir_, name );
   OBPCanvas->Print( outfile );
+  sprintf(outfile, "%s/%s.pdf", outputDir_, name);
+  OBPCanvas->SaveAs(outfile);
 
   return passcut;
 }
@@ -135,6 +137,8 @@ int makeZPhiArrowPlot( TTree* data, const char* name, double zLim, double phiLim
   char outfile[192];
   sprintf( outfile, "%s/%s.png", outputDir_, name );
   OBPCanvas->Print( outfile );
+  sprintf(outfile, "%s/%s.pdf", outputDir_, name);
+  OBPCanvas->SaveAs(outfile);
 
   return passcut;
 }

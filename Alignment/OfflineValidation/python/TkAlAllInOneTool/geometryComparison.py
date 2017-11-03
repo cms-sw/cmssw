@@ -247,6 +247,11 @@ class GeometryComparison(GenericValidation):
                         "-c \"rfcp {} .oO[datadir]Oo./.oO[name]Oo."
                         ".Comparison_common"+name+"_Images/ArrowPlots\"\n")
                    repMap["runComparisonScripts"] += \
+                       ("find .oO[name]Oo.."+name+"_ArrowPlots "
+                        "-maxdepth 1 -name \"*.pdf\" -print | xargs -I {} bash "
+                        "-c \"rfcp {} .oO[datadir]Oo./.oO[name]Oo."
+                        ".Comparison_common"+name+"_Images/ArrowPlots\"\n")
+                   repMap["runComparisonScripts"] += \
                        ("find . "
                         "-maxdepth 1 -name \".oO[common]Oo._.oO[name]Oo..Visualization_rotated.gif\" -print | xargs -I {} bash "
                         "-c \"rfcp {} .oO[datadir]Oo./.oO[name]Oo."
