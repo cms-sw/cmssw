@@ -82,7 +82,14 @@ HcalNoiseParameterSet = cms.PSet(
     lRBXRecHitR45Cuts = cms.vdouble(0.0, 1.0, 0.0, -0.5,   # equivalent to "fraction > 0.5"
                                     0.0, 0.0, 1.0, -0.5),  # equivalent to "energy fraction > 0.5"
     tRBXRecHitR45Cuts = cms.vdouble(0.0, 1.0, 0.0, -0.2,   # equivalent to "fraction > 0.2"
-                                    0.0, 0.0, 1.0, -0.2)   # equivalent to "energy fraction > 0.2"
+                                    0.0, 0.0, 1.0, -0.2),   # equivalent to "energy fraction > 0.2"
+
+    LaserMonDetTypeList = cms.vint32(3,3,3,3,3,3,3,3),
+    LaserMonIPhiList = cms.vint32(23,17,11,5,29,35,41,47),
+    LaserMonIEtaList = cms.vint32(0,0,0,0,0,0,0,0),
+
+    #LaserMonitorTSStart = cms.int32( 4 ),
+    #LaserMonitorTSEnd = cms.int32( 34 )
     )
 
 
@@ -97,6 +104,7 @@ hcalnoise = cms.EDProducer(
     fillRecHits = cms.bool(True),
     fillCaloTowers = cms.bool(True),
     fillTracks = cms.bool(True),
+    fillLaserMonitor = cms.bool(True),
 
     # maximum number of RBXs to fill
     # if you want to record all RBXs above some energy threshold,
