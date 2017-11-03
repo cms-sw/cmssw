@@ -179,7 +179,7 @@ if options.usehardcode:
     process.es_hardcode.toGet.append('GainWidths')
 
 if options.command:
-    cmds = options.command.split('\n')
+    cmds = options.command.split('\\n')
     for cmd in cmds:
         exec(cmd)
 
