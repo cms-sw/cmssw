@@ -1,6 +1,7 @@
 #include "PixelInactiveAreaFinder.h"
 
 #include "FWCore/Utilities/interface/VecArray.h"
+#include "FWCore/Utilities/interface/transform.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
@@ -454,9 +455,12 @@ PixelInactiveAreaFinder::InactiveAreas::spansAndLayerSets(const GlobalPoint& poi
 
 
 PixelInactiveAreaFinder::PixelInactiveAreaFinder(const edm::ParameterSet& iConfig, const std::vector<SeedingLayerSetsBuilder::SeedingLayerId>& seedingLayers,
-                                                 const SeedingLayerSetsLooper& seedingLayerSetsLooper):
+                                                 const SeedingLayerSetsLooper& seedingLayerSetsLooper,
+                                                 edm::ConsumesCollector&& iC):
   debug_(iConfig.getUntrackedParameter<bool>("debug")),
-  createPlottingFiles_(iConfig.getUntrackedParameter<bool>("createPlottingFiles"))
+  createPlottingFiles_(iConfig.getUntrackedParameter<bool>("createPlottingFiles")),
+  inactivePixelDetectorTokens_(edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >("inactivePixelDetectorLabels"), [&](const auto& tag) { return iC.consumes<DetIdCollection>(tag); })),
+  badPixelFEDChannelsTokens_(edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >("badPixelFEDChannelCollectionLabels"), [&](const auto& tag) { return iC.consumes<PixelFEDChannelCollection>(tag); }))
 {
 #ifdef EDM_ML_DEBUG
   for(const auto& layer: seedingLayers) {
@@ -517,6 +521,9 @@ PixelInactiveAreaFinder::PixelInactiveAreaFinder(const edm::ParameterSet& iConfi
 }
 
 void PixelInactiveAreaFinder::fillDescriptions(edm::ParameterSetDescription& desc) {
+  desc.add<std::vector<edm::InputTag>>("inactivePixelDetectorLabels", std::vector<edm::InputTag>{{edm::InputTag("siPixelDigis")}})->setComment("One or more DetIdCollections of modules to mask on the fly for a given event");
+  desc.add<std::vector<edm::InputTag>>("badPixelFEDChannelCollectionLabels", std::vector<edm::InputTag>())->setComment("One or more PixelFEDChannelCollections of modules+ROCs to mask on the fly for a given event");
+
   desc.addUntracked<bool>("debug", false);
   desc.addUntracked<bool>("createPlottingFiles", false);
 }
@@ -526,10 +533,6 @@ PixelInactiveAreaFinder::InactiveAreas
 PixelInactiveAreaFinder::inactiveAreas(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Set data to handles
   {
-    edm::ESHandle<SiPixelQuality> pixelQuality;
-    iSetup.get<SiPixelQualityRcd>().get(pixelQuality);
-    pixelQuality_ = pixelQuality.product();
-
     edm::ESHandle<TrackerGeometry> trackerGeometry;
     iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometry);
     trackerGeometry_ = trackerGeometry.product();
@@ -541,7 +544,7 @@ PixelInactiveAreaFinder::inactiveAreas(const edm::Event& iEvent, const edm::Even
 
   // assign data to instance variables
   updatePixelDets(iSetup);
-  getBadPixelDets();
+  getBadPixelDets(iEvent, iSetup);
 
   //write files for plotting
   if(createPlottingFiles_) {
@@ -650,20 +653,50 @@ void PixelInactiveAreaFinder::updatePixelDets(const edm::EventSetup& iSetup) {
   std::sort(pixelDetsBarrel_.begin(),pixelDetsBarrel_.end());
   std::sort(pixelDetsEndcap_.begin(),pixelDetsEndcap_.end());
 }
-void PixelInactiveAreaFinder::getBadPixelDets(){
-  for(auto const & disabledModule : pixelQuality_->getBadComponentList() ){
-    if( DetId(disabledModule.DetID).subdetId() == PixelSubdetector::PixelBarrel ){
-      badPixelDetsBarrel_.push_back( disabledModule.DetID );
-    } else if ( DetId(disabledModule.DetID).subdetId() == PixelSubdetector::PixelEndcap ){
-      badPixelDetsEndcap_.push_back( disabledModule.DetID );
+void PixelInactiveAreaFinder::getBadPixelDets(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  auto addDetId = [&](const auto id) {
+    const auto detid = DetId(id);
+    const auto subdet = detid.subdetId();
+    if(subdet == PixelSubdetector::PixelBarrel) {
+      badPixelDetsBarrel_.push_back(detid.rawId());
+    }
+    else if(subdet == PixelSubdetector::PixelEndcap) {
+      badPixelDetsEndcap_.push_back(detid.rawId());
+    }
+  };
+
+  // SiPixelQuality
+  edm::ESHandle<SiPixelQuality> pixelQuality;
+  iSetup.get<SiPixelQualityRcd>().get(pixelQuality);
+
+  for(auto const & disabledModule : pixelQuality->getBadComponentList() ){
+    addDetId(disabledModule.DetID);
+  }
+
+  // dynamic bad modules
+  for(const auto& token: inactivePixelDetectorTokens_) {
+    edm::Handle<DetIdCollection> detIds;
+    iEvent.getByToken(token, detIds);
+    for(const auto& id: *detIds) {
+      addDetId(id);
     }
   }
+
+  // dynamic bad ROCs ("Fed25")
+  // TODO: consider moving to finer-grained areas for inactive ROCs
+  for(const auto& token: badPixelFEDChannelsTokens_) {
+    edm::Handle<PixelFEDChannelCollection> pixelFEDChannelCollectionHandle;
+    iEvent.getByToken(token, pixelFEDChannelCollectionHandle);
+    for(const auto& disabledChannels: *pixelFEDChannelCollectionHandle) {
+      addDetId(disabledChannels.detId());
+    }
+  }
+
+  // remove duplicates
   std::sort(badPixelDetsBarrel_.begin(),badPixelDetsBarrel_.end());
   std::sort(badPixelDetsEndcap_.begin(),badPixelDetsEndcap_.end());
-  badPixelDetsBarrel_.erase(
-                           std::unique(badPixelDetsBarrel_.begin(),badPixelDetsBarrel_.end()),badPixelDetsBarrel_.end());
-  badPixelDetsEndcap_.erase(
-                           std::unique(badPixelDetsEndcap_.begin(),badPixelDetsEndcap_.end()),badPixelDetsEndcap_.end());
+  badPixelDetsBarrel_.erase(std::unique(badPixelDetsBarrel_.begin(),badPixelDetsBarrel_.end()),badPixelDetsBarrel_.end());
+  badPixelDetsEndcap_.erase(std::unique(badPixelDetsEndcap_.begin(),badPixelDetsEndcap_.end()),badPixelDetsEndcap_.end());
 }
 // Printing functions
 void PixelInactiveAreaFinder::detInfo(const det_t & det, Stream & ss){
