@@ -38,8 +38,8 @@ layerInfo = cms.PSet(
 combinatorialcosmicseedingtripletsTOB_layerList = cms.vstring('MTOB4+MTOB5+MTOB6',
     'MTOB3+MTOB5+MTOB6',
     'MTOB3+MTOB4+MTOB5',
-    'MTOB2+MTOB4+MTOB5',
-    'TOB3+MTOB4+MTOB6',
+    'TOB2+MTOB4+MTOB5',
+    'MTOB3+MTOB4+MTOB6',
     'TOB2+MTOB4+MTOB6')
 combinatorialcosmicseedingpairsTECpos_layerList = cms.vstring('TEC1_pos+TEC2_pos',
     'TEC2_pos+TEC3_pos',
