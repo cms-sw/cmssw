@@ -105,12 +105,12 @@ SiPixelPhase1DigisNdigisPerFEDtrend = DefaultHisto.clone(
 SiPixelPhase1DigisEvents = DefaultHistoDigiCluster.clone(
   name = "eventrate",
   title = "Rate of Pixel Events",
-  xlabel = "Lumisection",
+  xlabel = "LumiBlock",
   ylabel = "#Events",
   dimensions = 0,
   specs = VPSet(
 
-    Specification().groupBy("Lumisection")
+    Specification().groupBy("LumiBlock")
                    .reduce("MEAN")
                    .groupBy("", "EXTEND_X").save(),
     Specification().groupBy("BX")
