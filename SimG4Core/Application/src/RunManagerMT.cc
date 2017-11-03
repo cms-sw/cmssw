@@ -6,6 +6,7 @@
 #include "SimG4Core/Application/interface/G4SimEvent.h"
 #include "SimG4Core/Application/interface/ParametrisedEMPhysics.h"
 #include "SimG4Core/Application/interface/CustomUIsession.h"
+#include "SimG4Core/Application/interface/ExceptionHandler.h"
 
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
 #include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMap.h"
@@ -78,6 +79,7 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const & p):
   m_physicsList.reset(nullptr);
   m_world.reset(nullptr);
   m_kernel = new G4MTRunManagerKernel();
+  G4StateManager::GetStateManager()->SetExceptionHandler(new ExceptionHandler());
 
   m_check = p.getUntrackedParameter<bool>("CheckOverlap",false);
   m_WriteFile = p.getUntrackedParameter<std::string>("FileNameGDML","");
@@ -193,7 +195,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
 
   initializeUserActions();
 
-  if(0 < m_G4Commands.size()) {
+  if(!m_G4Commands.empty()) {
     G4cout << "RunManagerMT: Requested UI commands: " << G4endl;
     for (unsigned it=0; it<m_G4Commands.size(); ++it) {
       G4cout << "    " << m_G4Commands[it] << G4endl;
