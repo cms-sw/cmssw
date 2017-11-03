@@ -20,7 +20,7 @@ void ConstCastChecker::checkPreStmt(const clang::CXXConstCastExpr *CE,
       clang::ento::CheckerContext &C) const
 {
    const Expr * SE = CE->getSubExprAsWritten();
-   const CXXRecordDecl * CRD = null;
+   const CXXRecordDecl * CRD = nullptr;
    std::string cname;
    if (SE->getType()->isPointerType())
        CRD = SE->getType()->getPointeeCXXRecordDecl();
@@ -33,7 +33,7 @@ void ConstCastChecker::checkPreStmt(const clang::CXXConstCastExpr *CE,
           BT.reset(new clang::ento::BugType(this,"const_cast used on pointer to class", "ConstThreadSafety"));
       std::string buf;
       llvm::raw_string_ostream os(buf);
-      os << "const_cast was used on "<<*SE<<" this may result in thread-unsafe code.";
+      os << "const_cast was used, this may result in thread-unsafe code.";
       std::unique_ptr<clang::ento::BugReport> R = llvm::make_unique<clang::ento::BugReport>(*BT,
                os.str(), errorNode);
       R->addRange(CE->getSourceRange());
@@ -41,7 +41,7 @@ void ConstCastChecker::checkPreStmt(const clang::CXXConstCastExpr *CE,
           return;
       C.emitReport(std::move(R));
       std::string tname = "constcast-checker.txt.unsorted";
-      std::string tolog = "flagged class '"cname"' const_cast used ";
+      std::string tolog = "flagged class '"+cname+"' const_cast used ";
       support::writeLog(tolog,tname);
    }
 

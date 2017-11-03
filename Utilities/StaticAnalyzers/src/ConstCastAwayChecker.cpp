@@ -24,7 +24,7 @@ void ConstCastAwayChecker::checkPreStmt(const clang::ExplicitCastExpr *CE,
    if (! ( clang::CStyleCastExpr::classof(CE) || clang::CXXConstCastExpr::classof(CE) ))
       return;
    const Expr * SE = CE->getSubExpr();   
-   const CXXRecordDecl * CRD = 0;
+   const CXXRecordDecl * CRD = nullptr;
    std::string cname;
    if (SE->getType()->isPointerType()) 
       CRD = SE->getType()->getPointeeCXXRecordDecl();
@@ -35,7 +35,7 @@ void ConstCastAwayChecker::checkPreStmt(const clang::ExplicitCastExpr *CE,
       cname = CRD->getQualifiedNameAsString();
    
    clang::ASTContext &Ctx = C.getASTContext();
-   clang::QualType OrigTy = Ctx.getCanonicalType(E->getType());
+   clang::QualType OrigTy = Ctx.getCanonicalType(SE->getType());
    clang::QualType ToTy = Ctx.getCanonicalType(CE->getType());
 
    if ( support::isConst( OrigTy ) && ! support::isConst(ToTy) ) {
@@ -44,7 +44,7 @@ void ConstCastAwayChecker::checkPreStmt(const clang::ExplicitCastExpr *CE,
             BT.reset(new clang::ento::BugType(this,"const cast away","ConstThreadSafety"));
          std::string buf;
          llvm::raw_string_ostream os(buf);
-         os << "variable" <<*SE<<": const qualifier was removed via a cast, this may result in thread-unsafe code.";  
+         os << "const qualifier was removed via a cast, this may result in thread-unsafe code.";  
          std::unique_ptr<clang::ento::BugReport> R = llvm::make_unique<clang::ento::BugReport>(*BT, 
                os.str(), errorNode);
          R->addRange(CE->getSourceRange());
@@ -52,7 +52,7 @@ void ConstCastAwayChecker::checkPreStmt(const clang::ExplicitCastExpr *CE,
              return;
          C.emitReport(std::move(R));
          std::string tname ="constcastaway-checker.txt.unsorted";
-         std::string tolog ="flagged class '"+cname+"' const qualifier cast away" 
+         std::string tolog ="flagged class '"+cname+"' const qualifier cast away"; 
          support::writeLog(tolog,tname);
       }
    }
