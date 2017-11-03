@@ -34,6 +34,8 @@
 #include "RecoVertex/AdaptiveVertexFinder/interface/SVTimeHelpers.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
+#include <type_traits>
+
 //#define VTXDEBUG 1
 template <class InputContainer, class VTX>
 class TemplatedInclusiveVertexFinder : public edm::stream::EDProducer<> {
@@ -46,8 +48,17 @@ class TemplatedInclusiveVertexFinder : public edm::stream::EDProducer<> {
 	  edm::ParameterSetDescription pdesc;
 	  pdesc.add<edm::InputTag>("beamSpot",edm::InputTag("offlineBeamSpot"));
 	  pdesc.add<edm::InputTag>("primaryVertices",edm::InputTag("offlinePrimaryVertices"));
-	  pdesc.add<edm::InputTag>("tracks",edm::InputTag("generalTracks"));
-	  pdesc.add<unsigned int>("minHits",8);
+          if( std::is_same<VTX,reco::Vertex>::value ) {
+            pdesc.add<edm::InputTag>("tracks",edm::InputTag("generalTracks"));
+            pdesc.add<unsigned int>("minHits",8);
+          } else if (  std::is_same<VTX,reco::VertexCompositePtrCandidate>::value ) {
+            pdesc.add<edm::InputTag>("tracks",edm::InputTag("particleFlow"));
+            pdesc.add<unsigned int>("minHits",0);
+          } else {
+            std::cout << "TIVF defaulted!" << std::endl;
+            pdesc.add<edm::InputTag>("tracks",edm::InputTag("generalTracks"));
+          }	  
+	  
 	  pdesc.add<double>("maximumLongitudinalImpactParameter",0.3);
 	  pdesc.add<double>("maximumTimeSignificance",3.0);
 	  pdesc.add<double>("minPt",0.8);
@@ -80,7 +91,14 @@ class TemplatedInclusiveVertexFinder : public edm::stream::EDProducer<> {
 	  vertexReco.add<double>("seccut",3.0);
 	  vertexReco.add<bool>("smoothing",true);
           pdesc.add<edm::ParameterSetDescription>("vertexReco", vertexReco);
-	  cdesc.addDefault(pdesc);
+          if( std::is_same<VTX,reco::Vertex>::value ) {
+            cdesc.add("inclusiveVertexFinderDefault",pdesc);
+          } else if ( std::is_same<VTX,reco::VertexCompositePtrCandidate>::value ) {
+            cdesc.add("inclusiveCandidateVertexFinderDefault",pdesc);
+          } else {
+            std::cout << "TIVF defaulted!" << std::endl;
+            cdesc.addDefault(pdesc);
+          }
 	}
 
 	virtual void produce(edm::Event &event, const edm::EventSetup &es) override;
@@ -240,7 +258,7 @@ void TemplatedInclusiveVertexFinder<InputContainer,VTX>::produce(edm::Event &eve
 		
 		// for each transient vertex state determine if a time can be measured and fill covariance
 		for(auto& vtx : vertices) {
-		  svtime::updateVertexTime(vtx);
+		  svhelper::updateVertexTime(vtx);
 		}
 
 		for(std::vector<TransientVertex>::const_iterator v = vertices.begin();
