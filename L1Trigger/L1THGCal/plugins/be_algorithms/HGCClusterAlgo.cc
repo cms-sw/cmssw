@@ -42,10 +42,10 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
         multicluster_product_( new l1t::HGCalMulticlusterBxCollection ),
         calibration_( conf.getParameterSet("calib_parameters") ),
         clustering_( conf.getParameterSet("C2d_parameters") ),
-        multiclustering_( conf.getParameterSet("C3d_parameters" ) )
+        multiclustering_( conf.getParameterSet("C3d_parameters" ) ),
+        triggercell_threshold_silicon_( conf.getParameter<double>("triggercell_threshold_silicon") ),
+        triggercell_threshold_scintillator_( conf.getParameter<double>("triggercell_threshold_scintillator") )
         {
-            clustering_threshold_silicon_ = conf.getParameterSet("C2d_parameters").getParameter<double>("clustering_threshold_silicon");
-            clustering_threshold_scintillator_ = conf.getParameterSet("C2d_parameters").getParameter<double>("clustering_threshold_scintillator");
             std::string type(conf.getParameterSet("C2d_parameters").getParameter<std::string>("clusterType"));
             if(type=="dRC2d"){
                 clusteringAlgorithmType_ = dRC2d;
@@ -109,8 +109,8 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
 
         /* algorithm type */
         ClusterType clusteringAlgorithmType_;
-        double clustering_threshold_silicon_;
-        double clustering_threshold_scintillator_;
+        double triggercell_threshold_silicon_;
+        double triggercell_threshold_scintillator_;
         MulticlusterType multiclusteringAlgoType_;
 };
 
@@ -137,8 +137,8 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
             {
                 l1t::HGCalTriggerCell calibratedtriggercell( triggercell );
                 calibration_.calibrateInGeV( calibratedtriggercell); 
-                double clustering_threshold = (triggercell.subdetId()==HGCHEB ? clustering_threshold_scintillator_ : clustering_threshold_silicon_);
-                if(calibratedtriggercell.mipPt()<clustering_threshold) continue;
+                double triggercell_threshold = (triggercell.subdetId()==HGCHEB ? triggercell_threshold_scintillator_ : triggercell_threshold_silicon_);
+                if(calibratedtriggercell.mipPt()<triggercell_threshold) continue;
                 trgcell_product_->push_back( 0, calibratedtriggercell );
             }           
         
