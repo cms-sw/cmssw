@@ -51,6 +51,8 @@ void ConstCastAwayChecker::checkPreStmt(const clang::ExplicitCastExpr *CE,
          if ( ! m_exception.reportConstCastAway( *R, C ) )
              return;
          C.emitReport(std::move(R));
+         if (cname == "")
+             return;
          std::string tname ="constcastaway-checker.txt.unsorted";
          std::string tolog ="flagged class '"+cname+"' const qualifier cast away"; 
          support::writeLog(tolog,tname);
