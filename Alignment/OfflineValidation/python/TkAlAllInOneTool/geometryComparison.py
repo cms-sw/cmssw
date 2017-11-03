@@ -2,7 +2,7 @@ import os
 import ConfigParser # needed for exceptions in this module
 import configTemplates
 from genericValidation import GenericValidation
-from helperFunctions import replaceByMap, getCommandOutput2, cppboolstring, pythonboolstring
+from helperFunctions import replaceByMap, getCommandOutput2, cppboolstring, pythonboolstring, clean_name
 from TkAlExceptions import AllInOneError
 
 
@@ -89,12 +89,12 @@ class GeometryComparison(GenericValidation):
         common = self.__compares.keys()[0]
 
         repMap.update({
-            "common": common,
+            "common": clean_name(common),
             "comparedGeometry": (".oO[alignmentName]Oo."
                                  "ROOTGeometry.root"),
             "referenceGeometry": "IDEAL", # will be replaced later
                                           #  if not compared to IDEAL
-            "reference": referenceName,
+            "reference": clean_name(referenceName),
             "referenceTitle": referenceTitle,
             "alignmentTitle": self.alignmentToValidate.title,
             "moduleListBase": os.path.basename(repMap["moduleList"]),
