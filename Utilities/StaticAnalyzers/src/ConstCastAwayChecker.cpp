@@ -28,7 +28,6 @@ void ConstCastAwayChecker::checkPreStmt(const clang::ExplicitCastExpr *CE,
 	else CRD = SE->getType()->getAsCXXRecordDecl();
 	if (CRD) {
 		std::string cname = CRD->getQualifiedNameAsString();
-		if (! support::isDataClass(cname) ) return; 
 	}
 
 	const clang::Expr *E = CE->getSubExpr();
@@ -39,7 +38,7 @@ void ConstCastAwayChecker::checkPreStmt(const clang::ExplicitCastExpr *CE,
 	if ( support::isConst( OrigTy ) && ! support::isConst(ToTy) ) {
 		if ( clang::ento::ExplodedNode *errorNode = C.generateErrorNode()) {
 			if (!BT)
-				BT.reset(new clang::ento::BugType(this,"const cast away","ThreadSafety"));
+				BT.reset(new clang::ento::BugType(this,"const cast away","ConstThreadSafety"));
 			std::unique_ptr<clang::ento::BugReport> R = llvm::make_unique<clang::ento::BugReport>(*BT, 
 					"const qualifier was removed via a cast, this may result in thread-unsafe code.", errorNode);
 			R->addRange(CE->getSourceRange());
