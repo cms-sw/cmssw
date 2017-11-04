@@ -149,8 +149,7 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
 
     get205Frac(-tsShift5,-tsShift5+tsWidth,i5);
     get205Frac(-tsShift5+tsWidth,-tsShift5+tsWidth*2,n5);
-  }
-  if(channelData.hasTimeInfo() && channelData.recoShape()==206) {
+  }else if(channelData.hasTimeInfo() && channelData.recoShape()==206) {
     get206Frac(-tsShift3,-tsShift3+tsWidth,i3);
     get206Frac(-tsShift3+tsWidth,-tsShift3+tsWidth*2,n3);
     get206Frac(-tsShift3+tsWidth*2,-tsShift3+tsWidth*3,nn3);
@@ -160,7 +159,7 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
 
     get206Frac(-tsShift5,-tsShift5+tsWidth,i5);
     get206Frac(-tsShift5+tsWidth,-tsShift5+tsWidth*2,n5);
-  } else {
+  }else {
     getLandauFrac(-tsShift3,-tsShift3+tsWidth,i3);
     getLandauFrac(-tsShift3+tsWidth,-tsShift3+tsWidth*2,n3);
     getLandauFrac(-tsShift3+tsWidth*2,-tsShift3+tsWidth*3,nn3);
@@ -191,10 +190,9 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
 
 	if(channelData.hasTimeInfo() && channelData.recoShape()==205) {
 	  get205Frac(-invG,-invG+tsWidth,iG);
-	}
-	if(channelData.hasTimeInfo() && channelData.recoShape()==206) {
+	}else if(channelData.hasTimeInfo() && channelData.recoShape()==206) {
 	  get206Frac(-invG,-invG+tsWidth,iG);
-	} else {
+	}else {
 	  getLandauFrac(-invG,-invG+tsWidth,iG);
 	}
 	if (iG != 0 ) {
