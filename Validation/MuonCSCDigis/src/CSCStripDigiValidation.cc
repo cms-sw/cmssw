@@ -10,9 +10,9 @@ CSCStripDigiValidation::CSCStripDigiValidation(const edm::InputTag & inputTag,
   thePedestalSum(0),
   thePedestalCovarianceSum(0),
   thePedestalCount(0),
-  thePedestalTimeCorrelationPlot(0),
-  thePedestalNeighborCorrelationPlot(0),
-  theNDigisPerChamberPlot(0)
+  thePedestalTimeCorrelationPlot(nullptr),
+  thePedestalNeighborCorrelationPlot(nullptr),
+  theNDigisPerChamberPlot(nullptr)
 {
   strips_Token_ = iC.consumes<CSCStripDigiCollection>(inputTag);
 }

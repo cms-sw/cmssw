@@ -29,10 +29,10 @@
 class LHEDYdecayFilter : public edm::EDFilter {
    public:
       explicit LHEDYdecayFilter(const edm::ParameterSet&);
-      ~LHEDYdecayFilter();
+      ~LHEDYdecayFilter() override;
 
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::Event&, const edm::EventSetup&) override;
    private:
       // ----------member data ---------------------------
       

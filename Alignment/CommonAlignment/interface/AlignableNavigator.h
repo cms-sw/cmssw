@@ -28,10 +28,10 @@ class AlignableNavigator
 public:
   
   /// Constructor from one or two Alignables
-  explicit AlignableNavigator(Alignable* tracker, Alignable* muon = 0);
+  explicit AlignableNavigator(Alignable* tracker, Alignable* muon = nullptr);
   
   /// Constructor from one or two Alignables
-  explicit AlignableNavigator(AlignableExtras* extras, Alignable* tracker, Alignable* muon = 0);
+  explicit AlignableNavigator(AlignableExtras* extras, Alignable* tracker, Alignable* muon = nullptr);
 
   /// Constructor from list of Alignbable
   explicit AlignableNavigator( const std::vector<Alignable*>& alignables );

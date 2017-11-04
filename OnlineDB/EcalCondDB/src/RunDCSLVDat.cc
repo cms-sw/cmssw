@@ -1,6 +1,6 @@
 #include <stdexcept>
 #include <string>
-#include <math.h>
+#include <cmath>
 
 #include "OnlineDB/EcalCondDB/interface/RunDCSLVDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
@@ -10,10 +10,10 @@ using namespace oracle::occi;
 
 RunDCSLVDat::RunDCSLVDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_lv = 0;
   m_lvnom = 0;
@@ -53,7 +53,7 @@ void RunDCSLVDat::fetchData(map< EcalLogicID, RunDCSLVDat >* fillMap, RunIOV* io
 }
 
 ResultSet *RunDCSLVDat::getBarrelRset() {
-  ResultSet* rset = NULL;
+  ResultSet* rset = nullptr;
   string query = "SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
     " d.value_number , '5' NOMINAL_VALUE , d.VALUE_TIMESTAMP "
     "FROM "+ getEBAccount()+".FWWIENERMARATHONCHANNEL_LV d "
@@ -74,7 +74,7 @@ ResultSet *RunDCSLVDat::getBarrelRset() {
 }
 
 ResultSet *RunDCSLVDat::getEndcapRset() {
-  ResultSet* rset = NULL;
+  ResultSet* rset = nullptr;
   string query = "SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
     " d.VALUE_NUMBER, '5' NOMINAL_VALUE , d.VALUE_TIMESTAMP "
     "FROM "+ getEEAccount()+".FWWIENERMARATHONCHANNEL_LV d "

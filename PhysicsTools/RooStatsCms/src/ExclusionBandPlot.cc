@@ -54,8 +54,8 @@ ExclusionBandPlot::ExclusionBandPlot(const char* name,
     m_y_band_graph_1sigma = new TGraphAsymmErrors(n_points,
                                                   x_vals,
                                                   y_vals,
-                                                  0,
-                                                  0,
+                                                  nullptr,
+                                                  nullptr,
                                                   y_down_bars1,
                                                   y_up_bars1);
     m_y_band_graph_1sigma->SetFillColor(kGreen);
@@ -66,8 +66,8 @@ ExclusionBandPlot::ExclusionBandPlot(const char* name,
     m_y_band_graph_2sigma = new TGraphAsymmErrors(n_points,
                                                   x_vals,
                                                   y_vals,
-                                                  0,
-                                                  0,
+                                                  nullptr,
+                                                  nullptr,
                                                   y_down_bars2,
                                                   y_up_bars2);
     m_y_band_graph_2sigma->SetFillColor(kYellow);

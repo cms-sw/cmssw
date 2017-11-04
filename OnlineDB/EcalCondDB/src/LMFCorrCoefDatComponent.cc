@@ -1,5 +1,5 @@
 #include "OnlineDB/EcalCondDB/interface/LMFCorrCoefDatComponent.h"
-#include <math.h>
+#include <cmath>
 
 LMFCorrCoefDatComponent::LMFCorrCoefDatComponent() : LMFDat() {
   init();

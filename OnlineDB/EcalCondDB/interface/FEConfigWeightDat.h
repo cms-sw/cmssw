@@ -12,16 +12,16 @@ class FEConfigWeightDat : public IDataItem {
  public:
   friend class EcalCondDBInterface; // XXX temp should not need
   FEConfigWeightDat();
-  ~FEConfigWeightDat();
+  ~FEConfigWeightDat() override;
 
   // User data methods
-  inline std::string getTable() { return "FE_CONFIG_WEIGHT_DAT"; }
+  inline std::string getTable() override { return "FE_CONFIG_WEIGHT_DAT"; }
 
   inline void setWeightGroupId(int x) { m_group_id = x; }
   inline int getWeightGroupId() const { return m_group_id; }
 
  private:
-  void prepareWrite() noexcept(false);
+  void prepareWrite() noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const FEConfigWeightDat* item, FEConfigWeightInfo* iconf) noexcept(false);
 

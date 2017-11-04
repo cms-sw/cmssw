@@ -23,9 +23,9 @@ namespace pat { namespace helper {
             adaptor_(iConfig,consumesCollector()) { 
                 produces< Map >(adaptor_.label());
             }
-      ~AnythingToValueMap() { }
+      ~AnythingToValueMap() override { }
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) ;
+      void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override ;
 
     private:
       bool failSilently_;
@@ -69,9 +69,9 @@ void AnythingToValueMap<Adaptor,Collection,value_type>::produce(edm::Event & iEv
                    produces< Map >(adaptors_.back().label());
                } 
             }
-      ~ManyThingsToValueMaps() { }
+      ~ManyThingsToValueMaps() override { }
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) ;
+      void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override ;
 
     private:
       bool failSilently_;

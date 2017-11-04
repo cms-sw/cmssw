@@ -52,7 +52,7 @@ namespace edm {
     // General purpose constructor from orphan handle.
     template<typename C>
     Ptr(OrphanHandle<C> const& handle, key_type itemKey, bool /*setNow*/ = true):
-    core_(handle.id(), getItem_(handle.product(), itemKey), 0, false), key_(itemKey) {}
+    core_(handle.id(), getItem_(handle.product(), itemKey), nullptr, false), key_(itemKey) {}
 
     // General purpose "constructor" from a Ref.
     // Use the conversion function template:
@@ -136,10 +136,10 @@ namespace edm {
 
     template<typename U>
     explicit
-    Ptr(Ptr<U> const& iOther, std::enable_if_t<std::is_base_of<U, T>::value> * = 0):
+    Ptr(Ptr<U> const& iOther, std::enable_if_t<std::is_base_of<U, T>::value> * = nullptr):
     core_(iOther.id(),
           dynamic_cast<T const*>(iOther.get()),
-          0,
+          nullptr,
           iOther.isTransient()),
     key_(iOther.key()) {
     }

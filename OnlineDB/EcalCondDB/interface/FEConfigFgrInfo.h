@@ -13,10 +13,10 @@ class FEConfigFgrInfo : public  IODConfig {
   friend class EcalCondDBInterface;
 
   FEConfigFgrInfo();
-  ~FEConfigFgrInfo();
+  ~FEConfigFgrInfo() override;
 
   // Methods for user data
-  inline std::string getTable() { return "FE_CONFIG_FGR_INFO"; }
+  inline std::string getTable() override { return "FE_CONFIG_FGR_INFO"; }
 
 
   inline void setNumberOfGroups(int iov_id){ m_iov_id = iov_id;  }
@@ -53,7 +53,7 @@ class FEConfigFgrInfo : public  IODConfig {
   Tm m_db_time;
   int m_version;
 
-  void prepareWrite() noexcept(false);
+  void prepareWrite() noexcept(false) override;
   void writeDB() noexcept(false);
   void clear();
   void fetchData(FEConfigFgrInfo * result) noexcept(false);

@@ -1,7 +1,7 @@
 #ifndef __Validation_RecoParticleFlow_Comparator__
 #define __Validation_RecoParticleFlow_Comparator__
 
-#include <math.h>
+#include <cmath>
 
 #include <TLegend.h>
 #include <TFile.h>
@@ -25,14 +25,14 @@ public:
   };
 
   Comparator() : rebin_(-1), xMin_(0), xMax_(0), resetAxis_(false), 
-		 s0_(0), s1_(0), legend_(0,0,1,1) {}
+		 s0_(nullptr), s1_(nullptr), legend_(0,0,1,1) {}
 
   Comparator( const char* file0,
 	      const char* dir0,
 	      const char* file1,
 	      const char* dir1 ) : 
     rebin_(-1), xMin_(0), xMax_(0), resetAxis_(false), 
-    s0_(0), s1_(0), legend_(0,0,1,1) {
+    s0_(nullptr), s1_(nullptr), legend_(0,0,1,1) {
     
     SetDirs( file0, dir0, file1, dir1);
   }

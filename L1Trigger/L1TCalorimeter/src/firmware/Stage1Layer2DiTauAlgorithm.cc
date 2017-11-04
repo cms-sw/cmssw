@@ -36,7 +36,7 @@ void l1t::Stage1Layer2DiTauAlgorithm::processEvent(const std::vector<l1t::CaloRe
   int diIsoPtMax=0;
   int triIsoPtMax=0;
   int quadIsoPtMax=0;
-  if(isoTaus->size()>0) {
+  if(!isoTaus->empty()) {
     isoPtMax= (*isoTaus).at(0).hwPt();
     if (isoTaus->size()>1) diIsoPtMax  = (*isoTaus).at(1).hwPt();
     if (isoTaus->size()>2) triIsoPtMax = (*isoTaus).at(2).hwPt();

@@ -2,7 +2,7 @@
 
 HGCalTriggerBackendProcessor::
 HGCalTriggerBackendProcessor(const edm::ParameterSet& conf, edm::ConsumesCollector&& cc) {
-  const std::vector<edm::ParameterSet> be_confs = 
+  const std::vector<edm::ParameterSet>& be_confs = 
     conf.getParameterSetVector("algorithms");
   for( const auto& algo_cfg : be_confs ) {
     const std::string& algo_name = 

@@ -1,4 +1,4 @@
-#include <math.h>
+#include <cmath>
 #include <stdexcept>
 
 #include "OnlineDB/EcalCondDB/interface/EcalCommon.h"
