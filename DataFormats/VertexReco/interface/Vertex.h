@@ -64,6 +64,8 @@ namespace reco {
     Vertex( const Point &, const Error &, double chi2, double ndof, size_t size );
     /// constructor for a valid vertex, with all data 4D
     Vertex( const Point &, const Error4D &, double time, double chi2, double ndof, size_t size );
+    //
+    virtual ~Vertex() {;}
     /// Tells whether the vertex is valid.
     bool isValid() const {return validity_;}
     /// Tells whether a Vertex is fake, i.e. not a vertex made out of a proper
