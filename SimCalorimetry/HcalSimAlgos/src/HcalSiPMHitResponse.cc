@@ -25,6 +25,7 @@ HcalSiPMHitResponse::HcalSiPMHitResponse(const CaloVSimParameterMap * parameterM
   //fill shape map
   shapeMap.emplace(HcalShapes::ZECOTEK,HcalShapes::ZECOTEK);
   shapeMap.emplace(HcalShapes::HAMAMATSU,HcalShapes::HAMAMATSU);
+  shapeMap.emplace(HcalShapes::HE2017,HcalShapes::HE2017);
   shapeMap.emplace(HcalShapes::HE2018,HcalShapes::HE2018);
 }
 
