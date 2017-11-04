@@ -57,12 +57,12 @@
 class MuonIdVal : public DQMEDAnalyzer {
    public:
       explicit MuonIdVal(const edm::ParameterSet&);
-      ~MuonIdVal();
+      ~MuonIdVal() override;
 
    private:
       virtual void beginJob();
       void bookHistograms(DQMStore::IBooker &,  edm::Run const &, edm::EventSetup const &) override;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
       virtual void endJob();
       virtual void Fill(MonitorElement*, float);
 

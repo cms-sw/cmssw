@@ -52,9 +52,9 @@ class JetCorrectorImplMakerBase
 									std::function<void(std::string const&)> levelCheck);
   
  private:
-  JetCorrectorImplMakerBase(const JetCorrectorImplMakerBase&); // stop default
+  JetCorrectorImplMakerBase(const JetCorrectorImplMakerBase&) = delete; // stop default
   
-  const JetCorrectorImplMakerBase& operator=(const JetCorrectorImplMakerBase&); // stop default
+  const JetCorrectorImplMakerBase& operator=(const JetCorrectorImplMakerBase&) = delete; // stop default
   
   // ---------- member data --------------------------------
   std::string level_;

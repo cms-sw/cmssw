@@ -58,7 +58,7 @@ const std::vector<std::string> HydjetHadronizer::theSharedResources = { edm::Sha
 //_____________________________________________________________________
 HydjetHadronizer::HydjetHadronizer(const ParameterSet &pset) :
     BaseHadronizer(pset),
-    evt(0), 
+    evt(nullptr), 
     pset_(pset),
     abeamtarget_(pset.getParameter<double>("aBeamTarget")),
     angularspecselector_(pset.getParameter<int>("angularSpectrumSelector")),
@@ -333,7 +333,7 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent *evt )
                prod_vertex = prods[i];
                prod_vertex->add_particle_in(mother);
                evt->add_vertex(prod_vertex);
-               prods[i]=0; // mark to protect deletion
+               prods[i]=nullptr; // mark to protect deletion
             }
             prod_vertex->add_particle_out(part);
          }
@@ -476,7 +476,7 @@ bool HydjetHadronizer::declareStableParticles(const std::vector<int>& _pdg )
 void HydjetHadronizer::rotateEvtPlane()
 {
   const double pi = 3.14159265358979;
-  phi0_ = 2.*pi*gen::pyr_(0) - pi;
+  phi0_ = 2.*pi*gen::pyr_(nullptr) - pi;
   sinphi0_ = sin(phi0_);
   cosphi0_ = cos(phi0_);
 }

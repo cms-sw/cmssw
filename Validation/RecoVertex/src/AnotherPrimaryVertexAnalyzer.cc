@@ -52,15 +52,15 @@
 class AnotherPrimaryVertexAnalyzer : public edm::EDAnalyzer {
    public:
       explicit AnotherPrimaryVertexAnalyzer(const edm::ParameterSet&);
-      ~AnotherPrimaryVertexAnalyzer();
+      ~AnotherPrimaryVertexAnalyzer() override;
 
 
 private:
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
+  void endJob() override ;
 
       // ----------member data ---------------------------
 
@@ -88,7 +88,7 @@ AnotherPrimaryVertexAnalyzer::AnotherPrimaryVertexAnalyzer(const edm::ParameterS
   , _firstOnly(iConfig.getUntrackedParameter<bool>("firstOnly",false))
   , _weightprov(iConfig.getParameter<bool>("usePrescaleWeight")
 		? new PrescaleWeightProvider(iConfig.getParameter<edm::ParameterSet>("prescaleWeightProviderPSet"), consumesCollector(), *this)
-		: 0
+		: nullptr
 		)
 {
    //now do what ever initialization is needed
@@ -127,7 +127,7 @@ AnotherPrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
 
   if(_firstOnly) {
     reco::VertexCollection firstpv;
-    if(pvcoll->size()) firstpv.push_back((*pvcoll)[0]);
+    if(!pvcoll->empty()) firstpv.push_back((*pvcoll)[0]);
     _vhm.fill(iEvent,firstpv,weight);
   }
   else {

@@ -1,6 +1,6 @@
 #include <stdexcept>
 #include <string>
-#include <math.h>
+#include <cmath>
 #include <list>
 #include <string>
 #include <map>
@@ -14,10 +14,10 @@ using namespace oracle::occi;
 
 RunDCSMagnetDat::RunDCSMagnetDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_current = 0;
   m_time=Tm();
@@ -74,7 +74,7 @@ ResultSet *RunDCSMagnetDat::getMagnetRset() {
 
   DateHandler dh(m_env, m_conn);
 
-  ResultSet* rset = NULL;
+  ResultSet* rset = nullptr;
   string query="SELECT c.name, c.logic_id, c.id1, c.id2, c.id3, c.maps_to , v.value_number, v.change_date from "+ getMagnetAccount()+
     ".CMSFWMAGNET_LV v, channelview c where v.dpe_name= 'CURRENT' and  c.name=maps_to and c.name='EB' " ;
   try {

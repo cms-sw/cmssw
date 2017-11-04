@@ -11,7 +11,7 @@ using namespace oracle::occi;
 
 RunIOV::RunIOV()
 {
-  m_conn = NULL;
+  m_conn = nullptr;
   m_ID = 0;
   m_runNum = 0;
   m_runStart = Tm();

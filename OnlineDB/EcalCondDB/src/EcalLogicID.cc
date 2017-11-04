@@ -20,7 +20,7 @@ EcalLogicID::EcalLogicID( std::string name,
   this->id1 = id1;
   this->id2 = id2;
   this->id3 = id3;
-  if (mapsTo.size() == 0) {
+  if (mapsTo.empty()) {
     this->mapsTo = name;
   } else {
     this->mapsTo = mapsTo;

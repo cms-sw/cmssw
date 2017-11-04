@@ -18,7 +18,7 @@ public:
 
   explicit GeneratorSmearedProducer(edm::ParameterSet const& p);
 
-  virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+  void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:

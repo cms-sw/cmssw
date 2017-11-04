@@ -38,21 +38,21 @@ class BPHMuonPtSelect: public BPHParticlePtSelect {
 
   /** Destructor
    */
-  virtual ~BPHMuonPtSelect() {}
+  ~BPHMuonPtSelect() override {}
 
   /** Operations
    */
   /// select muon
-  virtual bool accept( const reco::Candidate& cand ) const {
-    if ( dynamic_cast<const pat::Muon*>( &cand ) == 0 ) return false;
+  bool accept( const reco::Candidate& cand ) const override {
+    if ( dynamic_cast<const pat::Muon*>( &cand ) == nullptr ) return false;
     return BPHParticlePtSelect::accept( cand );
   }
 
  private:
 
   // private copy and assigment constructors
-  BPHMuonPtSelect           ( const BPHMuonPtSelect& x );
-  BPHMuonPtSelect& operator=( const BPHMuonPtSelect& x );
+  BPHMuonPtSelect           ( const BPHMuonPtSelect& x ) = delete;
+  BPHMuonPtSelect& operator=( const BPHMuonPtSelect& x ) = delete;
 
 };
 

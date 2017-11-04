@@ -4,7 +4,7 @@
 #ifndef __COMMON_ALLOC_H
 #define __COMMON_ALLOC_H
 
-#include <stddef.h>
+#include <cstddef>
 
 #ifdef __cplusplus
 extern "C" {

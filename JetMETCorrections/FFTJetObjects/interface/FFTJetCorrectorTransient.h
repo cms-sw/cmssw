@@ -42,7 +42,7 @@ public:
     }
 
 private:
-    FFTJetCorrectorTransient();
+    FFTJetCorrectorTransient() = delete;
 
     LorentzVector vec_;
     double scale_;

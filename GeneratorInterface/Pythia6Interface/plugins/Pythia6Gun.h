@@ -44,7 +44,7 @@ namespace gen
   public:
 
     Pythia6Gun( const edm::ParameterSet& );
-    virtual ~Pythia6Gun();
+    ~Pythia6Gun() override;
     void beginJob() override;
     void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
     void beginRun( edm::Run const&, edm::EventSetup const& ) override;

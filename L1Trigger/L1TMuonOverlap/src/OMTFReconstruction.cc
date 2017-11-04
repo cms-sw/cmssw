@@ -17,11 +17,11 @@
 #include "L1Trigger/RPCTrigger/interface/RPCConst.h"
 
 OMTFReconstruction::OMTFReconstruction() :
-  m_OMTFConfig(0), m_OMTF(0), aTopElement(0), m_OMTFConfigMaker(0), m_Writer(0){}
+  m_OMTFConfig(nullptr), m_OMTF(nullptr), aTopElement(nullptr), m_OMTFConfigMaker(nullptr), m_Writer(nullptr){}
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
 OMTFReconstruction::OMTFReconstruction(const edm::ParameterSet& theConfig) :
-  m_Config(theConfig), m_OMTFConfig(0), m_OMTF(0), aTopElement(0), m_OMTFConfigMaker(0), m_Writer(0) {
+  m_Config(theConfig), m_OMTFConfig(nullptr), m_OMTF(nullptr), aTopElement(nullptr), m_OMTFConfigMaker(nullptr), m_Writer(nullptr) {
 
   dumpResultToXML = m_Config.getParameter<bool>("dumpResultToXML");
   dumpDetailedResultToXML = m_Config.getParameter<bool>("dumpDetailedResultToXML");

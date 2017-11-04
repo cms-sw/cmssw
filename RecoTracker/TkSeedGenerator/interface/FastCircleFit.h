@@ -85,7 +85,7 @@ void FastCircleFit::calculate(const P& points, const E& errors, C& x, C& y, C& z
   // transform
   for(size_t i=0; i<N; ++i) {
     const auto& point = points[i];
-    const auto p = point.basicVector();
+    const auto& p = point.basicVector();
     x[i] = p.x();
     y[i] = p.y();
     z[i] = sqr(p.x()) + sqr(p.y());

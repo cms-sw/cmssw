@@ -81,12 +81,12 @@ class GenParticleProducer : public edm::global::EDProducer<edm::RunCache<IDto3Ch
   /// constructor
   GenParticleProducer( const edm::ParameterSet & );
   /// destructor
-  ~GenParticleProducer();
+  ~GenParticleProducer() override;
 
   /// process one event
-  virtual void produce( edm::StreamID, edm::Event& e, const edm::EventSetup&) const override;
-  virtual std::shared_ptr<IDto3Charge> globalBeginRun(const edm::Run&, const edm::EventSetup&) const override;
-  virtual void globalEndRun(edm::Run const&, edm::EventSetup const&) const override {};
+  void produce( edm::StreamID, edm::Event& e, const edm::EventSetup&) const override;
+  std::shared_ptr<IDto3Charge> globalBeginRun(const edm::Run&, const edm::EventSetup&) const override;
+  void globalEndRun(edm::Run const&, edm::EventSetup const&) const override {};
 
   bool convertParticle(reco::GenParticle& cand, const HepMC::GenParticle * part, const IDto3Charge& id2Charge) const;
   bool fillDaughters(reco::GenParticleCollection& cand, const HepMC::GenParticle * part, reco::GenParticleRefProd const& ref, size_t index, std::unordered_map<int, size_t>& barcodes) const;
@@ -167,8 +167,8 @@ void GenParticleProducer::produce( StreamID, Event& evt, const EventSetup& es ) 
    std::unordered_map<int, size_t> barcodes;
 
    size_t totalSize = 0;
-   const GenEvent * mc = 0;
-   MixCollection<HepMCProduct>* cfhepmcprod = 0;
+   const GenEvent * mc = nullptr;
+   MixCollection<HepMCProduct>* cfhepmcprod = nullptr;
    size_t npiles = 1;
 
    if(useCF_){
@@ -186,7 +186,7 @@ void GenParticleProducer::produce( StreamID, Event& evt, const EventSetup& es ) 
       Handle<HepMCProduct> mcp;
       evt.getByToken( srcToken_, mcp );
       mc = mcp->GetEvent();
-      if( mc == 0 )
+      if( mc == nullptr )
 	 throw edm::Exception( edm::errors::InvalidReference )
 	    << "HepMC has null pointer to GenEvent" << endl;
       totalSize  = mc->particles_size();
@@ -237,14 +237,14 @@ void GenParticleProducer::produce( StreamID, Event& evt, const EventSetup& es ) 
 	   const HepMC::GenParticle * part = particles[ d ];
 	   const GenVertex * productionVertex = part->production_vertex();
 	   int sub_id = 0;
-	   if ( productionVertex != 0 ) {
+	   if ( productionVertex != nullptr ) {
 	      sub_id = productionVertex->id();
 	      if(!isHI) sub_id = 0;
 	      // search barcode map and attach daughters
 	      fillDaughters(cands,part,ref,d,barcodes);
 	   }else{
 	      const GenVertex * endVertex = part->end_vertex();
-	      if(endVertex != 0) sub_id = endVertex->id();
+	      if(endVertex != nullptr) sub_id = endVertex->id();
 	      else throw cms::Exception( "SubEventID" )<<"SubEvent not determined. Particle has no production and no end vertex!"<<endl;
 	   }
 	   if(sub_id < 0) sub_id = 0;
@@ -282,7 +282,7 @@ void GenParticleProducer::produce( StreamID, Event& evt, const EventSetup& es ) 
 	const HepMC::GenParticle * part = particles[ d ];
 	const GenVertex * productionVertex = part->production_vertex();
 	// search barcode map and attach daughters
-	if ( productionVertex != 0 ) fillDaughters(cands,part,ref,d,barcodes);
+	if ( productionVertex != nullptr ) fillDaughters(cands,part,ref,d,barcodes);
 	cands[d].setCollisionId(0);
      }
   }
@@ -303,7 +303,7 @@ bool GenParticleProducer::convertParticle(reco::GenParticle& cand, const HepMC::
    cand.setP4( p4 );
    cand.setCollisionId(0);
    const GenVertex * v = part->production_vertex();
-   if ( v != 0 ) {
+   if ( v != nullptr ) {
       ThreeVector vtx = v->point3d();
       Candidate::Point vertex( vtx.x() * mmToCm, vtx.y() * mmToCm, vtx.z() * mmToCm );
       cand.setVertex( vertex );

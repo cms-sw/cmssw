@@ -43,7 +43,7 @@ class HGCGeometryValidation : public DQMEDAnalyzer {
 public:
 
   explicit HGCGeometryValidation( const edm::ParameterSet& );
-  ~HGCGeometryValidation();
+  ~HGCGeometryValidation() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
@@ -77,7 +77,7 @@ private:
   MonitorElement *hebdX, *hebdY, *hebdZ;
 };
 
-HGCGeometryValidation::HGCGeometryValidation(const edm::ParameterSet &cfg) : hcons_(0) {
+HGCGeometryValidation::HGCGeometryValidation(const edm::ParameterSet &cfg) : hcons_(nullptr) {
 
   g4Token_ = consumes<PHGCalValidInfo>(cfg.getParameter<edm::InputTag>("g4Source"));
   geometrySource_ = cfg.getUntrackedParameter< std::vector<std::string> >("geometrySource");
@@ -103,7 +103,7 @@ void HGCGeometryValidation::dqmBeginRun(const edm::Run& iRun,
       iSetup.get<HcalSimNumberingRecord>().get(pHRNDC);
       if (pHRNDC.isValid()) {
 	hcons_ = &(*pHRNDC);
-	hgcGeometry_.push_back(0);
+	hgcGeometry_.push_back(nullptr);
       } else {
 	edm::LogWarning("HGCalValid") << "Cannot initiate HGCalGeometry for "
 				      << geometrySource_[i] << std::endl;

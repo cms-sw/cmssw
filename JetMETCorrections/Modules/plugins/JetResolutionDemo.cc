@@ -25,11 +25,11 @@
 class JetResolutionDemo : public edm::EDAnalyzer {
     public:
         explicit JetResolutionDemo(const edm::ParameterSet&);
-        ~JetResolutionDemo();
+        ~JetResolutionDemo() override;
 
     private:
-        virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-        virtual void endJob() override;
+        void analyze(const edm::Event&, const edm::EventSetup&) override;
+        void endJob() override;
 
         edm::EDGetTokenT<std::vector<pat::Jet>> m_jets_token;
         edm::EDGetTokenT<double> m_rho_token;

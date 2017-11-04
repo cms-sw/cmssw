@@ -83,7 +83,7 @@ MuIsoValidation::MuIsoValidation(const edm::ParameterSet& ps)
   InitStatics();
   
   //Set up DAQ
-  dbe = 0;
+  dbe = nullptr;
   dbe = edm::Service<DQMStore>().operator->();
   subsystemname_ = iConfig.getUntrackedParameter<std::string>("subSystemFolder", "YourSubsystem") ;
   
@@ -354,7 +354,7 @@ void MuIsoValidation::RecordData(MuonIterator muon){
   
 void MuIsoValidation::bookHistograms(DQMStore::IBooker & ibooker,edm::Run const & iRun,edm::EventSetup const &){
 
-  ibooker.setCurrentFolder(dirName.c_str());
+  ibooker.setCurrentFolder(dirName);
   //---initialize number of muons histogram---
   h_nMuons = ibooker.book1D("nMuons", title_sam + "Number of Muons", 20, 0., 20.);
   h_nMuons->setAxisTitle("Number of Muons",XAXIS);

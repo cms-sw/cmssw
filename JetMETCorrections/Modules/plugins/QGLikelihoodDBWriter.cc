@@ -7,7 +7,7 @@
 #include "TKey.h"
 #include "TH1.h"
 #include <sstream>
-#include <stdlib.h>  
+#include <cstdlib>  
 #include <vector>
 #include <memory>
 #include <string>
@@ -24,10 +24,10 @@
 class  QGLikelihoodDBWriter : public edm::EDAnalyzer{
  public:
   QGLikelihoodDBWriter(const edm::ParameterSet&);
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override {}
-  virtual void endJob() override {}
-  ~QGLikelihoodDBWriter(){}
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override {}
+  void endJob() override {}
+  ~QGLikelihoodDBWriter() override{}
 
  private:
   bool getVectorFromFile(TFile*, std::vector<float>&, const TString&);

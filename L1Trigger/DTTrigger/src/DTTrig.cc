@@ -48,7 +48,7 @@
 //----------------
 
 DTTrig::DTTrig(const  edm::ParameterSet &params,edm::ConsumesCollector && iC) :
- _inputexist(1) ,  _configid(0) , _geomid(0) {
+ _inputexist(true) ,  _configid(0) , _geomid(0) {
 
   // Set configuration parameters
   _debug = params.getUntrackedParameter<bool>("debug");
@@ -303,7 +303,7 @@ DTTrig::constTrigUnit(DTChamberId chid) const {
     std::cout << ", station=" << chid.station();
     std::cout << ", sector=" << chid.sector();
     std::cout << std::endl;
-    return 0;
+    return nullptr;
   }
 
   return (*it).second;
@@ -317,7 +317,7 @@ SC_const_iterator it = _cache1.find(scid);
     std::cout << " wheel=" << scid.wheel() ;
     std::cout << ", sector=" << scid.sector();
     std::cout << std::endl;
-    return 0;
+    return nullptr;
   }
 
   return (*it).second;
@@ -345,22 +345,22 @@ DTTrig::constTrigUnit(int wheel, int stat, int sect) const {
 
 DTChambPhSegm* 
 DTTrig::chPhiSegm1(DTSCTrigUnit* unit, int step) {
-  if(unit==0)return 0;
-  if(unit->nPhiSegm(step)<1)return 0;
+  if(unit==nullptr)return nullptr;
+  if(unit->nPhiSegm(step)<1)return nullptr;
   return const_cast<DTChambPhSegm*>(unit->phiSegment(step,1));
 }
 
 DTChambPhSegm* 
 DTTrig::chPhiSegm2(DTSCTrigUnit* unit, int step) {
-  if(unit==0)return 0;
-  if(unit->nPhiSegm(step)<2)return 0;
+  if(unit==nullptr)return nullptr;
+  if(unit->nPhiSegm(step)<2)return nullptr;
   return const_cast<DTChambPhSegm*>(unit->phiSegment(step,2));
 }
 
 DTChambThSegm* 
 DTTrig::chThetaSegm(DTSCTrigUnit* unit, int step) {
-  if(unit==0)return 0;
-  if(unit->nThetaSegm(step)<1)return 0;
+  if(unit==nullptr)return nullptr;
+  if(unit->nThetaSegm(step)<1)return nullptr;
   return const_cast<DTChambThSegm*>(unit->thetaSegment(step,1));
 }
 
@@ -376,7 +376,7 @@ DTTrig::chPhiSegm2(DTChamberId sid, int step) {
 
 DTChambThSegm* 
 DTTrig::chThetaSegm(DTChamberId sid, int step) {
-  if(sid.station()==4)return 0;
+  if(sid.station()==4)return nullptr;
   return chThetaSegm(trigUnit(sid),step);
 }
 
@@ -402,7 +402,7 @@ DTTrig::chPhiSegm2(int wheel, int stat, int sect, int step) {
 
 DTChambThSegm* 
 DTTrig::chThetaSegm(int wheel, int stat, int sect, int step) {
-  if(stat==4)return 0;
+  if(stat==4)return nullptr;
   return chThetaSegm(trigUnit(wheel,stat,sect),step);
 }
 
@@ -410,15 +410,15 @@ DTTrig::chThetaSegm(int wheel, int stat, int sect, int step) {
 DTSectCollPhSegm* 
 DTTrig::chSectCollPhSegm1(DTSectColl* unit, int step) {
 
-  if(unit==0)return 0;
-   if(unit->nSegmPh(step)<1)return 0;
+  if(unit==nullptr)return nullptr;
+   if(unit->nSegmPh(step)<1)return nullptr;
    return const_cast<DTSectCollPhSegm*>(unit->SectCollPhSegment(step,1));
 }
 
 DTSectCollPhSegm* 
 DTTrig::chSectCollPhSegm2(DTSectColl* unit, int step) {
-  if(unit==0)return 0;
-    if(unit->nSegmPh(step)<2)return 0;
+  if(unit==nullptr)return nullptr;
+    if(unit->nSegmPh(step)<2)return nullptr;
   return const_cast<DTSectCollPhSegm*>(unit->SectCollPhSegment(step,2));
 }
 
@@ -442,8 +442,8 @@ DTTrig::chSectCollPhSegm2(int wheel, int sect, int step) {
 DTSectCollThSegm* 
 DTTrig::chSectCollThSegm(DTSectColl* unit, int step) {
 
-  if(unit==0)return 0;
-   if(unit->nSegmTh(step)<1)return 0;
+  if(unit==nullptr)return nullptr;
+   if(unit->nSegmTh(step)<1)return nullptr;
   return const_cast<DTSectCollThSegm*>(unit->SectCollThSegment(step));
 }
 

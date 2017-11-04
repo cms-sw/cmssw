@@ -47,15 +47,15 @@ class L1MenuTreeProducer : public edm::EDAnalyzer
 {
 public:
   explicit L1MenuTreeProducer(const edm::ParameterSet&);
-  ~L1MenuTreeProducer();
+  ~L1MenuTreeProducer() override;
   
   
 private:
-  virtual void beginJob(void);
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&) {}
-  virtual void endJob();
+  void beginJob(void) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override {}
+  void endJob() override;
 
 public:
   

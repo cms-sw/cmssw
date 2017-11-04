@@ -49,7 +49,7 @@ void HGCalMulticlusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalCluste
             }
             ++imclu;
         }
-        if( tcPertinentMulticlusters.size() == 0 ){
+        if( tcPertinentMulticlusters.empty() ){
             multiclustersTmp.emplace_back( *clu );
         }
         else{

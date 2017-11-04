@@ -23,9 +23,9 @@ class LMFColoredTable : public LMFDat {
   LMFColoredTable(EcalDBConnection *c);
   LMFColoredTable(oracle::occi::Environment* env,
 	          oracle::occi::Connection* conn);
-  ~LMFColoredTable() {}
+  ~LMFColoredTable() override {}
 
-  virtual std::string getTableName() const = 0;
+  std::string getTableName() const override = 0;
 
   std::string getColor() const;
   virtual std::string getSystem() const;
@@ -69,7 +69,7 @@ class LMFColoredTable : public LMFDat {
     return getData(id, "VMAX");
   }
 
-  int writeDB() noexcept(false);
+  int writeDB() noexcept(false) override;
 
 
  protected:

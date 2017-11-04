@@ -53,7 +53,7 @@ public:
   };
 
   explicit HGCalDigiValidation(const edm::ParameterSet&);
-  ~HGCalDigiValidation();
+  ~HGCalDigiValidation() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;

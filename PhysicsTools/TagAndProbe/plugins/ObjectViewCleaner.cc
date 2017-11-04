@@ -56,7 +56,7 @@ class ObjectViewCleaner : public edm::EDProducer
 public:
   // construction/destruction
   ObjectViewCleaner(const edm::ParameterSet& iConfig);
-  virtual ~ObjectViewCleaner();
+  ~ObjectViewCleaner() override;
 
   // member functions
   void produce(edm::Event& iEvent,const edm::EventSetup& iSetup) override;

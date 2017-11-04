@@ -6,7 +6,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 HepMCFilterDriver::HepMCFilterDriver(const edm::ParameterSet& pset) :
-  filter_(0),
+  filter_(nullptr),
   numEventsPassPos_(0),
   numEventsPassNeg_(0),
   numEventsTotalPos_(0),
