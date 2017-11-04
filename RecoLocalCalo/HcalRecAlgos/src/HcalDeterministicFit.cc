@@ -45,7 +45,6 @@ void HcalDeterministicFit::getLandauFrac(float tStart, float tEnd, float &sum) c
   return;
 }
 
-
 constexpr float HcalDeterministicFit::siPM205Frac[];
 void HcalDeterministicFit::get205Frac(float tStart, float tEnd, float &sum) const{
 
@@ -54,6 +53,17 @@ void HcalDeterministicFit::get205Frac(float tStart, float tEnd, float &sum) cons
     return;
   }
   sum= siPM205Frac[int(ceil(tStart+tsWidth))];
+  return;
+}
+
+constexpr float HcalDeterministicFit::siPM206Frac[];
+void HcalDeterministicFit::get206Frac(float tStart, float tEnd, float &sum) const{
+
+  if (std::abs(tStart-tEnd-tsWidth)<0.1) {
+    sum=0;
+    return;
+  }
+  sum= siPM206Frac[int(ceil(tStart+tsWidth))];
   return;
 }
 
@@ -139,6 +149,17 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
 
     get205Frac(-tsShift5,-tsShift5+tsWidth,i5);
     get205Frac(-tsShift5+tsWidth,-tsShift5+tsWidth*2,n5);
+  }
+  if(channelData.hasTimeInfo() && channelData.recoShape()==206) {
+    get206Frac(-tsShift3,-tsShift3+tsWidth,i3);
+    get206Frac(-tsShift3+tsWidth,-tsShift3+tsWidth*2,n3);
+    get206Frac(-tsShift3+tsWidth*2,-tsShift3+tsWidth*3,nn3);
+
+    get206Frac(-tsShift4,-tsShift4+tsWidth,i4);
+    get206Frac(-tsShift4+tsWidth,-tsShift4+tsWidth*2,n4);
+
+    get206Frac(-tsShift5,-tsShift5+tsWidth,i5);
+    get206Frac(-tsShift5+tsWidth,-tsShift5+tsWidth*2,n5);
   } else {
     getLandauFrac(-tsShift3,-tsShift3+tsWidth,i3);
     getLandauFrac(-tsShift3+tsWidth,-tsShift3+tsWidth*2,n3);
@@ -170,6 +191,9 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
 
 	if(channelData.hasTimeInfo() && channelData.recoShape()==205) {
 	  get205Frac(-invG,-invG+tsWidth,iG);
+	}
+	if(channelData.hasTimeInfo() && channelData.recoShape()==206) {
+	  get206Frac(-invG,-invG+tsWidth,iG);
 	} else {
 	  getLandauFrac(-invG,-invG+tsWidth,iG);
 	}
