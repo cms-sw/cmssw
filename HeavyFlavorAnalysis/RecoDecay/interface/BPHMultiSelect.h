@@ -82,9 +82,9 @@ class BPHMultiSelect: public T {
   bool accept( const reco::Candidate & cand,
                        const BPHRecoBuilder*  build ) const override { return false; }
   bool accept( const reco::Candidate & cand ) const override { return false; }
-  bool accept( const BPHDecayMomentum& cand ) const { return false; }
-  bool accept( const BPHDecayVertex  & cand ) const { return false; }
-  bool accept( const BPHKinematicFit & cand ) const { return false; }
+  bool accept( const BPHDecayMomentum& cand ) const { return false; } //NOLINT
+  bool accept( const BPHDecayVertex  & cand ) const { return false; } //NOLINT
+  bool accept( const BPHKinematicFit & cand ) const { return false; } //NOLINT
 
  private:
 
