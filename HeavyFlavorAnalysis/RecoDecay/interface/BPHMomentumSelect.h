@@ -43,7 +43,7 @@ class BPHMomentumSelect {
   /** Operations
    */
   /// accept function
-  virtual bool accept( const BPHDecayMomentum& cand ) const {return false;};
+  virtual bool accept( const BPHDecayMomentum& cand ) const = 0;
 
  private:
 

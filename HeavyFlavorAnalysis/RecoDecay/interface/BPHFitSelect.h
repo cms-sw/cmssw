@@ -43,7 +43,7 @@ class BPHFitSelect {
   /** Operations
    */
   /// accept function
-  virtual bool accept( const BPHKinematicFit& cand ) const {return false;}
+  virtual bool accept( const BPHKinematicFit& cand ) const =0;
 
  private:
 
