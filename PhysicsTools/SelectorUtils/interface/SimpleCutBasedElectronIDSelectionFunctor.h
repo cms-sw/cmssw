@@ -455,7 +455,7 @@ class SimpleCutBasedElectronIDSelectionFunctor : public Selector<pat::Electron> 
     
   }
 
-  bool operator()( const pat::Electron & electron, pat::strbitset & ret ) 
+  bool operator()( const pat::Electron & electron, pat::strbitset & ret ) override 
   {
     // for the time being only Spring10 variable definition
     return spring10Variables(electron, ret);

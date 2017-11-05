@@ -82,7 +82,7 @@ public:
 EcalMixingModuleValidation(const edm::ParameterSet& ps);
 
 /// Destructor
-~EcalMixingModuleValidation();
+~EcalMixingModuleValidation() override;
 
 void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
 

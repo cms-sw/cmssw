@@ -18,10 +18,10 @@ class L1MuScale;
 class L1MuScalesTester : public edm::EDAnalyzer {
    public:
       explicit L1MuScalesTester(const edm::ParameterSet&);
-      ~L1MuScalesTester();
+      ~L1MuScalesTester() override;
 
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
 
       void printScale(const L1MuScale*);
 

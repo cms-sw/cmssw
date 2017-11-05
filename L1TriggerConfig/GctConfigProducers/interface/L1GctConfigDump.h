@@ -35,9 +35,9 @@ public:
     explicit L1GctConfigDump(const edm::ParameterSet&);
 
     // destructor
-    virtual ~L1GctConfigDump();
+    ~L1GctConfigDump() override;
 
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
     
 };
 

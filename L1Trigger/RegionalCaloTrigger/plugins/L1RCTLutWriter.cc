@@ -50,7 +50,7 @@ L1RCTLutWriter::~L1RCTLutWriter()
    // do anything here that needs to be done at destruction time
    // (e.g. close files, deallocate resources etc.)
   
-  if (lookupTable_ != 0) delete lookupTable_;
+  if (lookupTable_ != nullptr) delete lookupTable_;
 }
 
 
@@ -119,8 +119,8 @@ L1RCTLutWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    
   // use these dummies to get the delete right when using old-style
   // scales to create set of L1CaloXcalScales
-  L1CaloEcalScale* dummyE(0);
-  L1CaloHcalScale* dummyH(0);
+  L1CaloEcalScale* dummyE(nullptr);
+  L1CaloHcalScale* dummyH(nullptr);
 
   if (useDebugTpgScales_) // generate new-style scales from tpg scales
     {
@@ -234,8 +234,8 @@ L1RCTLutWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    unsigned int jscThresholdEndcap = rctParameters_->jscQuietThresholdEndcap();
    writeThresholdsFile(eicThreshold, jscThresholdBarrel, jscThresholdEndcap);
 
-  if (dummyE != 0) delete dummyE;
-  if (dummyH != 0) delete dummyH;
+  if (dummyE != nullptr) delete dummyE;
+  if (dummyH != nullptr) delete dummyH;
 
 }
 

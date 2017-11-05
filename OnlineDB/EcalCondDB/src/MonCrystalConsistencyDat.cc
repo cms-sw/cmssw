@@ -9,17 +9,17 @@ using namespace oracle::occi;
 
 MonCrystalConsistencyDat::MonCrystalConsistencyDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_processedEvents = 0;
   m_problematicEvents = 0;
   m_problemsID = 0;
   m_problemsGainZero = 0;
   m_problemsGainSwitch = 0;
-  m_taskStatus = 0;
+  m_taskStatus = false;
 }
 
 

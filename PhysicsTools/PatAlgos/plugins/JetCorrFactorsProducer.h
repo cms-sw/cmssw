@@ -67,9 +67,9 @@ namespace pat {
     /// default constructor
     explicit JetCorrFactorsProducer(const edm::ParameterSet& cfg);
     /// default destructor
-    ~JetCorrFactorsProducer() {};
+    ~JetCorrFactorsProducer() override {};
     /// everything that needs to be done per event
-    virtual void produce(edm::Event& event, const edm::EventSetup& setup) override;
+    void produce(edm::Event& event, const edm::EventSetup& setup) override;
     /// description of configuration file parameters
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

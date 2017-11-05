@@ -31,10 +31,10 @@
 class L1ScalesTester : public edm::EDAnalyzer {
    public:
       explicit L1ScalesTester(const edm::ParameterSet&);
-      ~L1ScalesTester();
+      ~L1ScalesTester() override;
 
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
    private:
       // ----------member data ---------------------------
 };

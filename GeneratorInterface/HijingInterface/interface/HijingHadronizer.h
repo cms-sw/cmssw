@@ -7,7 +7,7 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <math.h>
+#include <cmath>
 
 namespace HepMC {
   class GenEvent;
@@ -28,7 +28,7 @@ namespace gen
   class HijingHadronizer : public BaseHadronizer {
   public:
     HijingHadronizer(const edm::ParameterSet &);
-    virtual ~HijingHadronizer();
+    ~HijingHadronizer() override;
 
     bool generatePartonsAndHadronize();
     bool hadronize();
@@ -46,8 +46,8 @@ namespace gen
 
   private:
 
-    virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
-    virtual std::vector<std::string> const& doSharedResources() const override { return theSharedResources; }
+    void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
+    std::vector<std::string> const& doSharedResources() const override { return theSharedResources; }
 
     void					add_heavy_ion_rec(HepMC::GenEvent *evt);
     HepMC::GenParticle*	                        build_hijing( int index, int barcode );	

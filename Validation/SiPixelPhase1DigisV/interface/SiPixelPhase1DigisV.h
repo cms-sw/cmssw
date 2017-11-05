@@ -29,7 +29,7 @@ class SiPixelPhase1DigisV : public SiPixelPhase1Base {
   public:
   explicit SiPixelPhase1DigisV(const edm::ParameterSet& conf);
 
-  void analyze(const edm::Event&, const edm::EventSetup&) ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override ;
 
   private:
   edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> srcToken_;

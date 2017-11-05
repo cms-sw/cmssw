@@ -15,7 +15,7 @@ public:
     produces<std::vector<PileupSummaryInfo> >();
   }
 
-  void produce(edm::StreamID, edm::Event &, edm::EventSetup const &) const override final;
+  void produce(edm::StreamID, edm::Event &, edm::EventSetup const &) const final;
 
 private:
   const edm::EDGetTokenT<std::vector<PileupSummaryInfo> > src_;

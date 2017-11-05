@@ -64,7 +64,7 @@ class HGCalHitValidation : public DQMEDAnalyzer {
 public:
 
   explicit HGCalHitValidation( const edm::ParameterSet& );
-  ~HGCalHitValidation();
+  ~HGCalHitValidation() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
@@ -203,7 +203,7 @@ void HGCalHitValidation::dqmBeginRun(edm::Run const& iRun,
       iSetup.get<HcalSimNumberingRecord>().get(pHSNDC);
       if (pHSNDC.isValid()) {
         hcCons_ = pHSNDC.product();
-        hgcCons_.push_back(0);
+        hgcCons_.push_back(nullptr);
       } else {
         edm::LogWarning("HGCalValid") << "Cannot initiate HcalDDDSimConstants: "
                                       << geometrySource_[i] << std::endl;
@@ -221,7 +221,7 @@ void HGCalHitValidation::dqmBeginRun(edm::Run const& iRun,
       if (caloG.isValid()) {
 	const CaloGeometry* geo = caloG.product();
 	hcGeometry_ = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
-	hgcGeometry_.push_back(0);
+	hgcGeometry_.push_back(nullptr);
       } else {
         edm::LogWarning("HGCalValid") << "Cannot initiate HcalGeometry for "
                                       << geometrySource_[i] << std::endl;

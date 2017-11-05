@@ -55,10 +55,10 @@ class BDHadronTrackMonitoringAnalyzer : public DQMEDAnalyzer {
    public:
     explicit BDHadronTrackMonitoringAnalyzer(const edm::ParameterSet& pSet);
 
-    ~BDHadronTrackMonitoringAnalyzer();
+    ~BDHadronTrackMonitoringAnalyzer() override;
 
-    virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
-    virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;     
+    void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+    void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;     
 
    
     enum HistoryClasses{ BCWeakDecay=0, BWeakDecay=1, CWeakDecay=2, PU=3, Other=4, Fake=5};

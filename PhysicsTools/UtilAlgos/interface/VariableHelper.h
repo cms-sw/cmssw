@@ -41,7 +41,7 @@ class VariableHelperService {
   bool printValuesForEachEvent_;
   std::string printValuesForEachEventCategory_;
  public:
-  VariableHelperService(const edm::ParameterSet & iConfig,edm::ActivityRegistry & r ) : SetVariableHelperUniqueInstance_(0){
+  VariableHelperService(const edm::ParameterSet & iConfig,edm::ActivityRegistry & r ) : SetVariableHelperUniqueInstance_(nullptr){
     //r.watchPreModule(this, &VariableHelperService::preModule );
     r.watchPreModuleEvent(this, &VariableHelperService::preModule );
     //r.watchPostProcessEvent(this, &VariableHelperService::postProcess );
@@ -85,7 +85,7 @@ class VariableHelperService {
       SetVariableHelperUniqueInstance_ = (f->second);
       return ;
     }
-    SetVariableHelperUniqueInstance_ =0;
+    SetVariableHelperUniqueInstance_ =nullptr;
   }
 
   void postProcess(edm::StreamContext const & sc){

@@ -39,13 +39,13 @@
 class FourLepFilter : public edm::EDFilter {
    public:
       explicit FourLepFilter(const edm::ParameterSet&);
-      ~FourLepFilter();
+      ~FourLepFilter() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
     

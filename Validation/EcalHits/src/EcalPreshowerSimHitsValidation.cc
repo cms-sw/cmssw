@@ -29,7 +29,7 @@ EcalPreshowerSimHitsValidation::EcalPreshowerSimHitsValidation(const edm::Parame
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
  
   // get hold of back-end interface
-  dbe_ = 0;
+  dbe_ = nullptr;
   dbe_ = edm::Service<DQMStore>().operator->();
   if ( dbe_ ) {
     if ( verbose_ ) { dbe_->setVerbose(1); } 
@@ -41,26 +41,26 @@ EcalPreshowerSimHitsValidation::EcalPreshowerSimHitsValidation(const edm::Parame
   }
 
 
-  menESHits1zp_ = 0;     
-  menESHits2zp_ = 0;     
-  menESHits1zm_ = 0;     
-  menESHits2zm_ = 0;     
+  menESHits1zp_ = nullptr;     
+  menESHits2zp_ = nullptr;     
+  menESHits1zm_ = nullptr;     
+  menESHits2zm_ = nullptr;     
                                     
-  meESEnergyHits1zp_ = 0;
-  meESEnergyHits2zp_ = 0;
-  meESEnergyHits1zm_ = 0;
-  meESEnergyHits2zm_ = 0;
+  meESEnergyHits1zp_ = nullptr;
+  meESEnergyHits2zp_ = nullptr;
+  meESEnergyHits1zm_ = nullptr;
+  meESEnergyHits2zm_ = nullptr;
 
-  meEShitLog10Energy_       = 0;
-  meEShitLog10EnergyNorm_   = 0;
+  meEShitLog10Energy_       = nullptr;
+  meEShitLog10EnergyNorm_   = nullptr;
 
-  meE1alphaE2zp_ = 0;
-  meE1alphaE2zm_ = 0;
-  meEEoverESzp_  = 0;
-  meEEoverESzm_  = 0;
+  meE1alphaE2zp_ = nullptr;
+  meE1alphaE2zm_ = nullptr;
+  meEEoverESzp_  = nullptr;
+  meEEoverESzm_  = nullptr;
 
-  me2eszpOver1eszp_ = 0;
-  me2eszmOver1eszm_ = 0;
+  me2eszpOver1eszp_ = nullptr;
+  me2eszmOver1eszm_ = nullptr;
 
 
   Char_t histo[200];

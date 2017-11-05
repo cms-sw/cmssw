@@ -12,17 +12,17 @@ class MODDCCOperationDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   MODDCCOperationDat();
-  ~MODDCCOperationDat();
+  ~MODDCCOperationDat() override;
 
   // User data methods
-  inline std::string getTable() { return "OD_DCC_OPERATION_DAT"; }
+  inline std::string getTable() override { return "OD_DCC_OPERATION_DAT"; }
 
   inline void setOperation(std::string x) { m_word = x; }
   inline std::string getOperation() const { return m_word; }
 
  private:
   void prepareWrite() 
-    noexcept(false);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const MODDCCOperationDat* item, MODRunIOV* iov )
     noexcept(false);

@@ -31,11 +31,11 @@ namespace npstat {
             : a_(dummy_vec()), u_(u), uniform_(true) {}
 
         inline DualHistoAxis(const std::vector<double>& binEdges,
-                             const char* label = 0)
+                             const char* label = nullptr)
             : a_(binEdges, label), u_(1U, 0.0, 1.0), uniform_(false) {}
 
         inline DualHistoAxis(unsigned nBins, double min, double max,
-                             const char* label = 0)
+                             const char* label = nullptr)
             : a_(dummy_vec()), u_(nBins, min, max, label), uniform_(true) {}
 
         // Inspectors
@@ -81,10 +81,10 @@ namespace npstat {
         // constructed type.
         */
         inline const NUHistoAxis* getNUHistoAxis() const
-            {return uniform_ ? static_cast<const NUHistoAxis*>(0) : &a_;}
+            {return uniform_ ? static_cast<const NUHistoAxis*>(nullptr) : &a_;}
 
         inline const HistoAxis* getHistoAxis() const
-            {return uniform_ ? &u_ : static_cast<const HistoAxis*>(0);}
+            {return uniform_ ? &u_ : static_cast<const HistoAxis*>(nullptr);}
         //@}
 
         /** Modify the axis label */
