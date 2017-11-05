@@ -51,7 +51,9 @@ public:
   static constexpr float Y11MAX206_ = 0.09;
   static double Y11203(double t);
   static double Y11206(double t);
-  static double generatePhotonTime(CLHEP::HepRandomEngine* engine);
+  static double generatePhotonTime(CLHEP::HepRandomEngine* engine, unsigned int signalShape);
+  static double generatePhotonTime203(CLHEP::HepRandomEngine* engine);
+  static double generatePhotonTime206(CLHEP::HepRandomEngine* engine);
   //this function can take function pointers *or* functors!
   template <class F1, class F2>
   static std::vector<double> convolve(unsigned nbin, F1 f1, F2 f2){
