@@ -79,7 +79,7 @@ class BPHMultiSelect: public T {
   }
 
   /// accept function
-  bool accept( const reco::Candidate & cand,
+  bool accept( const reco::Candidate & cand, //NOLINT
 	       const BPHRecoBuilder*  build ) const  { return false; } //NOLINT
   bool accept( const reco::Candidate & cand ) const  { return false; } //NOLINT
   bool accept( const BPHDecayMomentum& cand ) const { return false; } //NOLINT
