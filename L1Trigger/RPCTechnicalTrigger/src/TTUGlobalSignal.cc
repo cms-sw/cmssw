@@ -24,7 +24,7 @@ TTUGlobalSignal::TTUGlobalSignal( std::map< int, TTUInput* >  * in ) {
 //=============================================================================
 TTUGlobalSignal::~TTUGlobalSignal() {
   
-  m_wheelmap = NULL;
+  m_wheelmap = nullptr;
   
 } 
 

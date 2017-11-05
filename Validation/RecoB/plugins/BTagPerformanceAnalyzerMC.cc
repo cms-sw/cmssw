@@ -280,7 +280,7 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
   }
 
   //Get JEC
-  const JetCorrector* corrector = 0;
+  const JetCorrector* corrector = nullptr;
   if(doJEC) {
     edm::Handle<GenEventInfoProduct> genInfoHandle; //check if data or MC
     iEvent.getByToken(genToken, genInfoHandle);

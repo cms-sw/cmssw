@@ -11,10 +11,10 @@ class ODDelaysDat : public IODConfig {
  public:
   friend class EcalCondDBInterface;
   ODDelaysDat();
-  ~ODDelaysDat();
+  ~ODDelaysDat() override;
 
   // User data methods
-  inline std::string getTable() { return "DELAYS_DAT"; }
+  inline std::string getTable() override { return "DELAYS_DAT"; }
 
   inline void setId(int dac) { m_ID = dac; }
   inline int getId() const { return m_ID; }
@@ -33,7 +33,7 @@ class ODDelaysDat : public IODConfig {
   inline int getTimeOffset() const { return m_t1; }
 
  private:
-  void prepareWrite() noexcept(false);
+  void prepareWrite() noexcept(false) override;
 
   void writeDB(const ODDelaysDat* item, ODFEDelaysInfo* iov ) noexcept(false);
 

@@ -41,7 +41,7 @@ public:
 
 
 
-  std::string AssLUTPath() const  { return pnodes_[CONFIG].sparams_.size() > 0 ? pnodes_[CONFIG].sparams_[0] : ""; }
+  std::string AssLUTPath() const  { return !pnodes_[CONFIG].sparams_.empty() ? pnodes_[CONFIG].sparams_[0] : ""; }
   void setAssLUTPath        (std::string path) { pnodes_[CONFIG].sparams_.push_back(path); }
   
   void setpta_lut(std::vector<LUT> ptalut) { lutparams_.pta_lut_ = ptalut; };

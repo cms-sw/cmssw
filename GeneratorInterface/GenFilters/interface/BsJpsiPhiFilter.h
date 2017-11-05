@@ -30,9 +30,9 @@ class BsJpsiPhiFilter : public edm::EDFilter
 public:
 
   explicit BsJpsiPhiFilter(const edm::ParameterSet&);
-  ~BsJpsiPhiFilter();
+  ~BsJpsiPhiFilter() override;
   
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
 private:
 

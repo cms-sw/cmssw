@@ -46,16 +46,16 @@ public:
   /// default contructor
   explicit PatJetAnalyzer(const edm::ParameterSet& cfg);
   /// default destructor
-  ~PatJetAnalyzer(){};
+  ~PatJetAnalyzer() override{};
 
 private:
   /// everything that needs to be done during the even loop
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
 
   /// check if histogram was booked
-  bool booked(const std::string histName) const { return hists_.find(histName.c_str())!=hists_.end(); };
+  bool booked(const std::string histName) const { return hists_.find(histName)!=hists_.end(); };
   /// fill histogram if it had been booked before
-  void fill(const std::string histName, double value) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(value); };
+  void fill(const std::string histName, double value) const { if(booked(histName)) hists_.find(histName)->second->Fill(value); };
   // print jet pt for each level of energy corrections
   void print(edm::View<pat::Jet>::const_iterator& jet, unsigned int idx);
 

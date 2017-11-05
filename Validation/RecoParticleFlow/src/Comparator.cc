@@ -302,8 +302,8 @@ void Comparator::Draw( const char* key, Mode mode) {
 
   
 void Comparator::Draw( const char* key0, const char* key1, Mode mode) {
-  TH1* h0=0;
-  TH1* h1=0;
+  TH1* h0=nullptr;
+  TH1* h1=nullptr;
   if(mode!=EFF)
     {
       h0 = Histo( key0, 0);
@@ -341,9 +341,9 @@ void Comparator::Draw( const char* key0, const char* key1, Mode mode) {
 TH1* Comparator::Histo( const char* key, unsigned dirIndex) {
   if(dirIndex>1U) { // dirIndex >= 0, since dirIndex is unsigned
     cerr<<"bad dir index: "<<dirIndex<<endl;
-    return 0;
+    return nullptr;
   }
-  TDirectory* dir = 0;
+  TDirectory* dir = nullptr;
   if(dirIndex == 0) dir = dir0_;
   if(dirIndex == 1) dir = dir1_;
   assert( dir );

@@ -52,7 +52,7 @@ template< class TRcd, class TData >
 class L1ConfigOnlineProdBase : public edm::ESProducer {
    public:
       L1ConfigOnlineProdBase(const edm::ParameterSet&);
-      ~L1ConfigOnlineProdBase();
+      ~L1ConfigOnlineProdBase() override;
 
       virtual std::shared_ptr< TData > produce(const TRcd& iRecord);
 

@@ -40,8 +40,8 @@ class OniaPhotonConversionProducer : public edm::stream::EDProducer<> {
  
  private:
 
-  virtual void produce(edm::Event& event, const edm::EventSetup& esetup);
-  virtual void endStream();
+  void produce(edm::Event& event, const edm::EventSetup& esetup) override;
+  void endStream() override;
   void removeDuplicates(reco::ConversionCollection&);
   bool checkTkVtxCompatibility(const reco::Conversion&, const reco::VertexCollection&);
   bool foundCompatibleInnerHits(const reco::HitPattern& hitPatA, const reco::HitPattern& hitPatB); 

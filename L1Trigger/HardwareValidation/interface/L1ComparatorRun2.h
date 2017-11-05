@@ -42,11 +42,11 @@ namespace l1t {
   public:
 
     explicit L1ComparatorRun2(const edm::ParameterSet& ps);
-    ~L1ComparatorRun2();
+    ~L1ComparatorRun2() override;
 
   private:
 
-    virtual void produce(edm::Event&, edm::EventSetup const&);
+    void produce(edm::Event&, edm::EventSetup const&) override;
 
     edm::EDGetToken JetDataToken_;
     edm::EDGetToken JetEmulToken_;

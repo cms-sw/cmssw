@@ -112,7 +112,7 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
 }
 
 L1GctEmulator::~L1GctEmulator() {
-  if (m_gct != 0) delete m_gct;
+  if (m_gct != nullptr) delete m_gct;
 }
 
 
@@ -142,7 +142,7 @@ int L1GctEmulator::configureGct(const edm::EventSetup& c)
     c.get< L1HfRingEtScaleRcd >().get( m_conditionsLabel, hfRingEtScale ) ; // which record?
 
 
-    if (jfPars.product() == 0) {
+    if (jfPars.product() == nullptr) {
       success = -1;
       if (m_verbose) {
 	edm::LogWarning("L1GctConfigFailure")
@@ -150,7 +150,7 @@ int L1GctEmulator::configureGct(const edm::EventSetup& c)
       }
     }
 
-    if (chanMask.product() == 0) {
+    if (chanMask.product() == nullptr) {
       success = -1;
       if (m_verbose) {
 	edm::LogWarning("L1GctConfigFailure")
@@ -158,7 +158,7 @@ int L1GctEmulator::configureGct(const edm::EventSetup& c)
       }
     }
 
-    if (hfRingEtScale.product() == 0) {
+    if (hfRingEtScale.product() == nullptr) {
       success = -1;
       if (m_verbose) {
 	edm::LogWarning("L1GctConfigFailure")

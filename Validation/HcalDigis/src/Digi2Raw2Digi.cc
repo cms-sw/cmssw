@@ -234,7 +234,7 @@ Digi2Raw2Digi::Digi2Raw2Digi(const edm::ParameterSet& iConfig)
   
 
   // DQM ROOT output
-  if ( outputFile_.size() != 0 ) {
+  if ( !outputFile_.empty() ) {
     edm::LogInfo("OutputInfo")
       << " Hcal RecHit Task histograms will be saved to '" 
       << outputFile_.c_str() << "'";

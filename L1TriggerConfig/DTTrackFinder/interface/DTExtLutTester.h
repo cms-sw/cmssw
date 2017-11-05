@@ -26,9 +26,9 @@ class DTExtLutTester : public edm::EDAnalyzer {
 
   DTExtLutTester(const edm::ParameterSet& ps);
 
-  ~DTExtLutTester();
+  ~DTExtLutTester() override;
   
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
  private:
 

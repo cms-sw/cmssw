@@ -53,13 +53,13 @@ class PhotonValidatorMiniAOD : public DQMEDAnalyzer
 
   //
   explicit PhotonValidatorMiniAOD( const edm::ParameterSet& ) ;
-  virtual ~PhotonValidatorMiniAOD();
+  ~PhotonValidatorMiniAOD() override;
 
 
-  virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
   //  virtual void beginJob();
-  virtual void dqmBeginRun( edm::Run const & r, edm::EventSetup const & theEventSetup) override;
-  virtual void endRun (edm::Run const& r, edm::EventSetup const & es) override;
+  void dqmBeginRun( edm::Run const & r, edm::EventSetup const & theEventSetup) override;
+  void endRun (edm::Run const& r, edm::EventSetup const & es) override;
   void  bookHistograms( DQMStore::IBooker&, edm::Run const &, edm::EventSetup const &) override; 
 
  private:

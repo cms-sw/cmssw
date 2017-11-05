@@ -52,7 +52,7 @@ public:
 	 L1GctGlobalEnergyAlgos(const std::vector<L1GctWheelEnergyFpga*>& WheelFpga,
 			       const std::vector<L1GctWheelJetFpga*>& WheelJetFpga);
 	 /// Destructor
-	~L1GctGlobalEnergyAlgos();
+	~L1GctGlobalEnergyAlgos() override;
 
         /// Overload << operator
         friend std::ostream& operator << (std::ostream& os, const L1GctGlobalEnergyAlgos& fpga);
@@ -61,10 +61,10 @@ public:
 	void reset();
 
 	/// get input data from sources
-	virtual void fetchInput();
+	void fetchInput() override;
 
 	/// process the data, fill output buffers
-	virtual void process();
+	void process() override;
 
 	/// define the bunch crossing range to process
 	void setBxRange(const int firstBx, const int numberOfBx);
@@ -146,11 +146,11 @@ public:
   
  protected:
 	/// Separate reset methods for the processor itself and any data stored in pipelines
-	virtual void resetProcessor();
-	virtual void resetPipelines();
+	void resetProcessor() override;
+	void resetPipelines() override;
 
 	/// Initialise inputs with null objects for the correct bunch crossing if required
-	virtual void setupObjects() {}
+	void setupObjects() override {}
 	
  private:
 	// Here are the algorithm types we get our inputs from

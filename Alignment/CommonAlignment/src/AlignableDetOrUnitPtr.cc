@@ -38,6 +38,6 @@ const AlignmentPositionError* AlignableDetOrUnitPtr::alignmentPositionError() co
   if (theAliBeamSpot)     return theAliBeamSpot->alignmentPositionError();
   else if (theAliDet)     return theAliDet->alignmentPositionError();
   else if (theAliDetUnit) return theAliDetUnit->alignmentPositionError();
-  else                    return 0;
+  else                    return nullptr;
 }
 

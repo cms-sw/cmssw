@@ -39,9 +39,9 @@ class L1CaloEcalScaleConfigOnlineProd :
   public L1ConfigOnlineProdBase< L1CaloEcalScaleRcd, L1CaloEcalScale > {
    public:
       L1CaloEcalScaleConfigOnlineProd(const edm::ParameterSet&);
-      ~L1CaloEcalScaleConfigOnlineProd();
+      ~L1CaloEcalScaleConfigOnlineProd() override;
 
-  virtual std::shared_ptr< L1CaloEcalScale > newObject(
+  std::shared_ptr< L1CaloEcalScale > newObject(
     const std::string& objectKey ) override ;
 
 
@@ -99,7 +99,7 @@ L1CaloEcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
      if(objectKey == "NULL" || objectKey == "")  // return default blank ecal scale	 
         return std::shared_ptr< L1CaloEcalScale >( ecalScale );
      if(objectKey == "IDENTITY"){  // return identity ecal scale  
-       ecalScale = 0;
+       ecalScale = nullptr;
        ecalScale = new L1CaloEcalScale(1);
        return std::shared_ptr< L1CaloEcalScale >( ecalScale);
      }

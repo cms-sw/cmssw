@@ -11,7 +11,7 @@
 // Created:     Sat Apr 24 15:18 CEST 2007
 //
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <algorithm>
 #include <iterator>
 #include <vector>
@@ -33,11 +33,11 @@ class ProcMultiply : public VarProcessor {
 	ProcMultiply(const char *name,
 	           const Calibration::ProcMultiply *calib,
 	           const MVAComputer *computer);
-	virtual ~ProcMultiply() {}
+	~ProcMultiply() override {}
 
-	virtual void configure(ConfIterator iter, unsigned int n) override;
-	virtual void eval(ValueIterator iter, unsigned int n) const override;
-	virtual std::vector<double> deriv(
+	void configure(ConfIterator iter, unsigned int n) override;
+	void eval(ValueIterator iter, unsigned int n) const override;
+	std::vector<double> deriv(
 				ValueIterator iter, unsigned int n) const override;
 
     private:

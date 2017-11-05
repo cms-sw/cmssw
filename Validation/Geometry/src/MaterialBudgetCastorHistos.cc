@@ -81,7 +81,7 @@ void MaterialBudgetCastorHistos::fillPerStep(const G4Step* aStep) {
   int    id2Old   = id2;
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   std::string         name  = touch->GetVolume(0)->GetName();
-  std::string         matName = material->GetName();
+  const std::string&         matName = material->GetName();
   if (printSum) {
     bool found = false;
     for (unsigned int ii=0; ii<matList.size(); ii++) {

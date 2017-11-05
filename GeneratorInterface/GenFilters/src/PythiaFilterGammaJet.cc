@@ -117,10 +117,10 @@ bool PythiaFilterGammaJet::filter(edm::Event& iEvent, const edm::EventSetup& iSe
     if (eta2<-etaPhotonCut2) eta2=-etaPhotonCut2;
     if (etaPhoton<eta1 ||etaPhoton>eta2) continue;
 
-    bool inEB(0);
+    bool inEB(false);
     double tgx(0);
     double tgy(0);
-    if( std::abs(etaPhoton)<ebEtaMax) inEB=1;
+    if( std::abs(etaPhoton)<ebEtaMax) inEB=true;
     else{
       tgx=(*is)->momentum().px()/(*is)->momentum().pz();
       tgy=(*is)->momentum().py()/(*is)->momentum().pz();

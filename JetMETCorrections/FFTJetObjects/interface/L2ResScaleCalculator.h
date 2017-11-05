@@ -13,12 +13,12 @@ public:
     inline explicit L2ResScaleCalculator(const edm::ParameterSet& ps) 
         : m_radiusFactor(ps.getParameter<double>("radiusFactor")) {}
 
-    inline virtual ~L2ResScaleCalculator() {}
+    inline ~L2ResScaleCalculator() override {}
 
-    inline virtual void mapFFTJet(const reco::Jet& /* jet */,
+    inline void mapFFTJet(const reco::Jet& /* jet */,
                                   const reco::FFTJet<float>& fftJet,
                                   const math::XYZTLorentzVector& current,
-                                  double* buf, const unsigned dim) const
+                                  double* buf, const unsigned dim) const override
     {
         if (dim != 2)
             throw cms::Exception("FFTJetBadConfig")
