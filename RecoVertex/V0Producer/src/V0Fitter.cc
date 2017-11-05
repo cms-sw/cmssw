@@ -155,8 +155,10 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
 
       // measure distance between tracks at their closest approach
       if (!posTransTkPtr->impactPointTSCP().isValid() || !negTransTkPtr->impactPointTSCP().isValid()) continue;
-      FreeTrajectoryState const & posState = posTransTkPtr->impactPointTSCP().theState();
-      FreeTrajectoryState const & negState = negTransTkPtr->impactPointTSCP().theState();
+      TrajectoryStateClosestToPoint const posImpTSCP = posTransTkPtr->impactPointTSCP();
+      TrajectoryStateClosestToPoint const negImpTSCP = negTransTkPtr->impactPointTSCP();
+      FreeTrajectoryState const & posState = posImpTSCP.theState();
+      FreeTrajectoryState const & negState = negImpTSCP.theState();
       ClosestApproachInRPhi cApp;
       cApp.calculate(posState, negState);
       if (!cApp.status()) continue;
@@ -168,8 +170,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
       if (sqrt(cxPt.x()*cxPt.x() + cxPt.y()*cxPt.y()) > 120. || std::abs(cxPt.z()) > 300.) continue;
 
       // the tracks should at least point in the same quadrant
-      TrajectoryStateClosestToPoint const & posTSCP = posTransTkPtr->trajectoryStateClosestToPoint(cxPt);
-      TrajectoryStateClosestToPoint const & negTSCP = negTransTkPtr->trajectoryStateClosestToPoint(cxPt);
+      TrajectoryStateClosestToPoint const posTSCP = posTransTkPtr->trajectoryStateClosestToPoint(cxPt);
+      TrajectoryStateClosestToPoint const negTSCP = negTransTkPtr->trajectoryStateClosestToPoint(cxPt);
       if (!posTSCP.isValid() || !negTSCP.isValid()) continue;
       if (posTSCP.momentum().dot(negTSCP.momentum())  < 0) continue;
      
