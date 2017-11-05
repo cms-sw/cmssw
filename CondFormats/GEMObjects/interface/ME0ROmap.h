@@ -1,9 +1,9 @@
-#ifndef GEMRawToDigi_GEMROMAO_H
-#define GEMRawToDigi_GEMROMAO_H
+#ifndef ME0RawToDigi_ME0ROMAO_H
+#define ME0RawToDigi_ME0ROMAO_H
 #include <map>
-#include <DataFormats/MuonDetId/interface/GEMDetId.h>
+#include <DataFormats/MuonDetId/interface/ME0DetId.h>
 
-class GEMROmap{
+class ME0ROmap{
  public:
   
   struct eCoord{
@@ -19,7 +19,7 @@ class GEMROmap{
   
   struct dCoord{
     int stripId;
-    GEMDetId gemDetId;
+    ME0DetId gemDetId;
     bool operator < (const dCoord& r) const{
       if ( gemDetId == r.gemDetId)
 	return stripId < r.stripId;
@@ -28,7 +28,7 @@ class GEMROmap{
     }    
   };
 
-  GEMROmap(){};
+  ME0ROmap(){};
 
   bool isValidChipID(const eCoord& r){
     return roMapED_.find(r) != roMapED_.end();

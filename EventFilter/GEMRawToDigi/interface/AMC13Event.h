@@ -14,60 +14,37 @@ namespace gem {
     int nAMC(){return unsigned(m_nAMC);}
     int LV1_id(){return unsigned(m_LV1_id);}
     std::vector<AMCdata> amcs(){return m_amcs;}
-    //*** Set the CDF header. Not full header implemented yet. Doc:http://ohm.bu.edu/~hazen/CMS/AMC13/AMC13DataFormatDrawingv3.pdf
-    void setCDFHeader(uint64_t word)
-    {
-      m_cb5 = 0x0f & (word >> 60);
-      m_Evt_ty = 0x0f & (word >> 56);
-      m_LV1_id = 0x00ffffff & (word >> 32);
-      m_BX_id = 0x0fff & (word >> 20);
-      m_Source_id = 0x0fff & (word >> 8);
-    }
-    //!Sets the AMC13 header
-    /**
-       Fills m_CalTyp, m_nAMC, m_OrN, and m_cb0
-    */
-    void setAMC13header(uint64_t word)
-    {
-      m_CalTyp = 0x0f & (word >> 56);
-      m_nAMC = 0x0f & (word >> 52);
-      m_OrN = word >> 4;
-      m_cb0 = 0x0f & word;
-    }
-    //!Adds to various vectors
-    /**
-       Adds to m_AMC_size, m_Blk_No, m_AMC_No, and m_BoardID.
-    */
-    void addAMCheader(uint64_t word)
-    {
-      m_AMC_size.push_back(0x00ffffff&(word>>32));
-      m_Blk_No.push_back(0xff&(word>>20));
-      m_AMC_No.push_back(0x0f&(word>>16));
-      m_BoardID.push_back(0xffff&word);
-    }
-    //!Adds to m_amcs vector
+
+    uint64_t getCDFHeader();    
+    void setCDFHeader(uint8_t cb5,
+			  uint8_t Evt_ty,
+			  uint32_t LV1_id,
+			  uint16_t BX_id,
+			  uint16_t Source_id);
+    void setCDFHeader(uint64_t word);
+
+    uint64_t getAMC13header();    
+    void setAMC13header(uint8_t CalTyp,
+			uint8_t nAMC,
+			uint32_t OrN,
+			uint8_t cb0);    
+    void setAMC13header(uint64_t word);
+
+    void addAMCheader(uint64_t word);
     void addAMCpayload(AMCdata a){m_amcs.push_back(a);}
-    //!Sets the AMC13 trailer
-    /**
-       Fills m_CRC_amc13, m_Blk_NoT, m_LV1_idT, and m_BX_idT
-    */
-    void setAMC13trailer(uint64_t word)
-    {
-      m_CRC_amc13 = word >> 32;
-      m_Blk_NoT = 0xff & (word >> 20);
-      m_LV1_idT = 0xff & (word >> 12);
-      m_BX_idT = 0x0fff & word;
-    }
-    //!Sets CDF Trailer
-    /**
-       Fills m_cbA, m_EvtLength, and m_CRC_cdf.
-    */
-    void setCDFTrailer(uint64_t word)
-    {
-      m_cbA = 0x0f & (word >> 60);
-      m_EvtLength = 0x00ffffff & (word >> 32);
-      m_CRC_cdf = 0xffff & (word >> 16);
-    }
+    
+    uint64_t getAMC13trailer();
+    void setAMC13trailer(uint32_t CRC_amc13,
+			 uint8_t Blk_NoT,
+			 uint8_t LV1_idT,
+			 uint16_t BX_idT);
+    void setAMC13trailer(uint64_t word);
+
+    uint64_t getCDFTrailer();
+    void setCDFTrailer(uint8_t cbA,
+		       uint32_t EvtLength,
+		       uint16_t CRC_cdf);      
+    void setCDFTrailer(uint64_t word);
     
   private:
     // CDF Header
