@@ -10,19 +10,19 @@ autoCond = {
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run1
     'run1_mc_pa'        :   '94X_mcRun1_pA_v1',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
-    'run2_design'       :   '94X_mcRun2_design_v0',
+    'run2_design'       :   '94X_mcRun2_design_v1',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
-    'run2_mc_50ns'      :   '94X_mcRun2_startup_v0',
+    'run2_mc_50ns'      :   '94X_mcRun2_startup_v1',
     #GlobalTag for MC production with optimistic alignment and calibrations for Run2
-    'run2_mc'           :   '94X_mcRun2_asymptotic_v0',
+    'run2_mc'           :   '94X_mcRun2_asymptotic_v1',
     # GlobalTag for MC production (L1 Trigger Stage1) with starup-like alignment and calibrations for Run2, L1 trigger in Stage1 mode
     'run2_mc_l1stage1'  :   '93X_mcRun2_asymptotic_v1',
     # GlobalTag for MC production (cosmics) with starup-like alignment and calibrations for Run2, Strip tracker in peak mode
-    'run2_mc_cosmics'   :   '94X_mcRun2cosmics_startup_deco_v0',
+    'run2_mc_cosmics'   :   '94X_mcRun2cosmics_startup_deco_v1',
     # GlobalTag for MC production (Heavy Ions collisions) with optimistic alignment and calibrations for Run2
     'run2_mc_hi'        :   '93X_mcRun2_HeavyIon_v0',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
-    'run2_mc_pa'        :   '94X_mcRun2_pA_v0',
+    'run2_mc_pa'        :   '94X_mcRun2_pA_v1',
     # GlobalTag for Run1 data reprocessing
     'run1_data'         :   '94X_dataRun2_v3',
     # GlobalTag for Run2 data reprocessing
