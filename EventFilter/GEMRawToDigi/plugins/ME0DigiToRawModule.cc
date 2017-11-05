@@ -16,59 +16,59 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
-#include "EventFilter/GEMRawToDigi/plugins/GEMDigiToRawModule.h"
+#include "EventFilter/GEMRawToDigi/plugins/ME0DigiToRawModule.h"
 
 using namespace gem;
 
-GEMDigiToRawModule::GEMDigiToRawModule(const edm::ParameterSet & pset) 
+ME0DigiToRawModule::ME0DigiToRawModule(const edm::ParameterSet & pset) 
 {
   event_type_ = pset.getParameter<int>("eventType");
-  digi_token = consumes<GEMDigiCollection>( pset.getParameter<edm::InputTag>("gemDigi") );
-  produces<FEDRawDataCollection>("GEMRawData");
+  digi_token = consumes<ME0DigiCollection>( pset.getParameter<edm::InputTag>("gemDigi") );
+  produces<FEDRawDataCollection>("ME0RawData");
 }
 
-void GEMDigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+void ME0DigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("gemDigi", edm::InputTag("simMuonGEMDigis"));
+  desc.add<edm::InputTag>("gemDigi", edm::InputTag("simMuonME0Digis"));
 }
 
-void GEMDigiToRawModule::beginRun(const edm::Run &run, const edm::EventSetup& iSetup)
+void ME0DigiToRawModule::beginRun(const edm::Run &run, const edm::EventSetup& iSetup)
 {
-  edm::ESHandle<GEMEMap> gemEMap;
-  iSetup.get<GEMEMapRcd>().get(gemEMap); 
+  edm::ESHandle<ME0EMap> gemEMap;
+  iSetup.get<ME0EMapRcd>().get(gemEMap); 
   m_gemEMap = gemEMap.product();
   m_gemROMap = m_gemEMap->convert();
 }
 
-void GEMDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
+void ME0DigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
 {
   auto fedRawDataCol = std::make_unique<FEDRawDataCollection>();
 
   // Take digis from the event
-  edm::Handle<GEMDigiCollection> gemDigis;
+  edm::Handle<ME0DigiCollection> gemDigis;
   e.getByToken( digi_token, gemDigis );
 
   std::vector<AMC13Event*> amc13Events;
     
-  for (GEMDigiCollection::DigiRangeIterator gemdgIt = gemDigis->begin(); gemdgIt != gemDigis->end(); ++gemdgIt) {
+  for (ME0DigiCollection::DigiRangeIterator gemdgIt = gemDigis->begin(); gemdgIt != gemDigis->end(); ++gemdgIt) {
       
-    const GEMDetId& gemId = (*gemdgIt).first;
+    const ME0DetId& gemId = (*gemdgIt).first;
     
     std::map<int, std::vector<int> > vFatToStripMap;
     
-    const GEMDigiCollection::Range& range = (*gemdgIt).second;
-    for (GEMDigiCollection::const_iterator digiIt = range.first; digiIt!=range.second; ++digiIt){
-      const GEMDigi & digi = (*digiIt);
+    const ME0DigiCollection::Range& range = (*gemdgIt).second;
+    for (ME0DigiCollection::const_iterator digiIt = range.first; digiIt!=range.second; ++digiIt){
+      const ME0Digi & digi = (*digiIt);
       //int bx    = digi.bx(); // setting all bx to 0 for now
       // use strip to get vFat ID
       // pair<int, int > vFatChan = vFatChannel(gemId, strip);
       // int vFatID = vFatChan.first
       // int chan   = vFatChan.second
-      GEMROmap::dCoord dc;
+      ME0ROmap::dCoord dc;
       dc.gemDetId = gemId;
       dc.stripId = digi.strip();
 
-      GEMROmap::eCoord ec = m_gemROMap->hitPosition(dc);
+      ME0ROmap::eCoord ec = m_gemROMap->hitPosition(dc);
       
       int vFatID = ec.vfatId - 0xf000;      
       vFatToStripMap[vFatID].push_back(ec.channelId);	
@@ -134,7 +134,7 @@ void GEMDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c )
     
     //FEDRawData * rawData = new FEDRawData(amc13Event.dataSize());
 
-    int fedId = FEDNumbering::MINGEMFEDID;    
+    int fedId = FEDNumbering::MINME0FEDID;    
     int dataSize = sizeof(uint64_t)*100;
 
     FEDRawData & fedRawData = fedRawDataCol->FEDData(fedId);
