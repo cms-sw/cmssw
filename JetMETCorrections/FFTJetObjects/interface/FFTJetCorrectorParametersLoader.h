@@ -13,7 +13,7 @@ class FFTJetCorrectorParametersLoader :
 {
     typedef DefaultFFTJetRcdMapper<FFTJetCorrectorParameters> Base;
     friend class StaticFFTJetRcdMapper<FFTJetCorrectorParametersLoader>;
-    FFTJetCorrectorParametersLoader() = delete;
+    FFTJetCorrectorParametersLoader();
 };
         
 typedef StaticFFTJetRcdMapper<FFTJetCorrectorParametersLoader>
